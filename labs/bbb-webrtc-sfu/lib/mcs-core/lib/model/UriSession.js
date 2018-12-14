@@ -8,7 +8,7 @@
 const C = require('../constants/Constants');
 const rid = require('readable-id');
 const EventEmitter = require('events').EventEmitter;
-const MediaServer = require('../media/media-server');
+const MediaServer = require('../adapters/kurento');
 const Logger = require('../../../utils/Logger');
 
 module.exports = class UriSession extends EventEmitter {

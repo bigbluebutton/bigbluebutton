@@ -27,27 +27,28 @@ import org.bigbluebutton.api.MeetingService;
 
 public class RegisteredUserCleanupTimerTask {
 
-	private MeetingService service;
-	private ScheduledExecutorService scheduledThreadPool = Executors.newScheduledThreadPool(1);
-	private long runEvery = 60000;
+    private MeetingService service;
+    private ScheduledExecutorService scheduledThreadPool = Executors.newScheduledThreadPool(1);
+    private long runEvery = 60000;
 
-	public void setMeetingService(MeetingService svc) {
-		this.service = svc;
-	}
+    public void setMeetingService(MeetingService svc) {
+        this.service = svc;
+    }
 
-	public void start() {
-		scheduledThreadPool.scheduleWithFixedDelay(new CleanupTask(), 60000, runEvery, TimeUnit.MILLISECONDS);
-	}
+    public void start() {
+        scheduledThreadPool.scheduleWithFixedDelay(new CleanupTask(), 60000, runEvery, TimeUnit.MILLISECONDS);
+    }
 
-	public void stop() {
-		scheduledThreadPool.shutdownNow();
-	}
+    public void stop() {
+        scheduledThreadPool.shutdownNow();
+    }
 
-	public void setRunEvery(long v) {
-		runEvery = v;
-	}
+    public void setRunEvery(long v) {
+        runEvery = v;
+    }
 
-	private class CleanupTask implements Runnable {
+    private class CleanupTask implements Runnable {
+        @Override
         public void run() {
             service.purgeRegisteredUsers();
         }

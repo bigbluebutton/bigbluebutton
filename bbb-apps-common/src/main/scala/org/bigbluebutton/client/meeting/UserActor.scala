@@ -11,14 +11,14 @@ import scala.util.{Failure, Success}
 
 object UserActor {
   def props(userId: String,
-            msgToAkkaAppsEventBus: MsgToAkkaAppsEventBus,
+            msgToRedisEventBus: MsgToRedisEventBus,
             meetingId: String,
             msgToClientEventBus: MsgToClientEventBus): Props =
-    Props(classOf[UserActor], userId, msgToAkkaAppsEventBus, meetingId, msgToClientEventBus)
+    Props(classOf[UserActor], userId, msgToRedisEventBus, meetingId, msgToClientEventBus)
 }
 
 class UserActor(val userId: String,
-                msgToAkkaAppsEventBus: MsgToAkkaAppsEventBus,
+                msgToRedisEventBus: MsgToRedisEventBus,
                 meetingId: String,
                 msgToClientEventBus: MsgToClientEventBus)
   extends Actor with ActorLogging with SystemConfiguration {
@@ -133,8 +133,8 @@ class UserActor(val userId: String,
           for {
             jsonNode <- convertToJsonNode(json)
           } yield {
-            val akkaMsg = BbbCommonEnvJsNodeMsg(envelope, jsonNode)
-            msgToAkkaAppsEventBus.publish(MsgToAkkaApps(toAkkaAppsChannel, akkaMsg))
+            val jsNodeMsg = BbbCommonEnvJsNodeMsg(envelope, jsonNode)
+            msgToRedisEventBus.publish(MsgToRedis(toRedisChannel, jsNodeMsg))
           }
         }
       case None =>

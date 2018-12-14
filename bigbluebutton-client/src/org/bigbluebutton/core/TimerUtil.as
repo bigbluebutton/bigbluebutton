@@ -29,9 +29,11 @@ package org.bigbluebutton.core {
 	import org.bigbluebutton.util.i18n.ResourceUtil;
 
 	public final class TimerUtil {
-		public static var timers:Dictionary = new Dictionary(true);
+		private static var timers:Dictionary = new Dictionary(true);
 
-		public static function setCountDownTimer(label:Label, seconds:int, showMinuteWarning:Boolean=false):void {
+		private static var times:Dictionary = new Dictionary(true);
+
+		public static function setCountDownTimer(label:Label, seconds:int, showMinuteWarning:Boolean = false):void {
 			var timer:Timer = getTimer(label.id, seconds);
 			var minuteWarningShown:Boolean = false;
 			var minuteAlert:Alert = null;
@@ -41,7 +43,14 @@ package org.bigbluebutton.core {
 					var formattedTime:String = (Math.floor(remainingSeconds / 60)) + ":" + (remainingSeconds % 60 >= 10 ? "" : "0") + (remainingSeconds % 60);
 					label.text = formattedTime;
 					if (remainingSeconds < 60 && showMinuteWarning && !minuteWarningShown) {
-						minuteAlert = Alert.show(ResourceUtil.getInstance().getString('bbb.users.breakout.closewarning.text'));
+						// Check the label which timer is firing and display message accordingly.
+						var warnText: String = 'bbb.users.breakout.closewarning.text';
+						if (label.id == "breakoutTimeLabel") {
+							warnText = 'bbb.users.breakout.closewarning.text';
+						} else if (label.id == 'timeRemaining') {
+							warnText = 'bbb.users.meeting.closewarning.text';
+						}
+						minuteAlert = Alert.show(ResourceUtil.getInstance().getString(warnText));
 						minuteWarningShown = true;
 					}
 				});
@@ -58,6 +67,28 @@ package org.bigbluebutton.core {
 			timer.start();
 		}
 
+		public static function setTimer(label:Label, seconds:int, running:Boolean):void {
+			var timer:Timer = getTimer(label.id, seconds);
+			if (!timer.hasEventListener(TimerEvent.TIMER)) {
+				timer.addEventListener(TimerEvent.TIMER, function():void {
+					updateLabel(timer, label);
+				});
+			}
+			times[timer] = seconds - timer.currentCount;
+			updateLabel(timer, label);
+			if (running) {
+				timer.start();
+			} else {
+				timer.stop();
+			}
+		}
+
+		private static function updateLabel(timer:Timer, label:Label):void {
+			var elapsedSeconds:int = times[timer] + timer.currentCount;
+			var formattedTime:String = (Math.floor(elapsedSeconds / 60)) + ":" + (elapsedSeconds % 60 >= 10 ? "" : "0") + (elapsedSeconds % 60);
+			label.text = formattedTime;
+		}
+
 		public static function getTimer(name:String, defaultRepeatCount:Number):Timer {
 			if (timers[name] == undefined) {
 				timers[name] = new Timer(1000, defaultRepeatCount);
@@ -71,5 +102,16 @@ package org.bigbluebutton.core {
 				timers[name].stop();
 			}
 		}
+
+		private static var _recordingTimeReceived:Boolean
+
+		public static function get recordingTimeReceived():Boolean {
+			return _recordingTimeReceived;
+		}
+
+		public static function set recordingTimeReceived(value:Boolean):void {
+			_recordingTimeReceived = value;
+		}
+
 	}
 }

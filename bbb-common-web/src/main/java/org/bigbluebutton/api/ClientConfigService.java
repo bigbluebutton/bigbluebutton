@@ -26,27 +26,28 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class ClientConfigService {
-	private static Logger log = LoggerFactory.getLogger(ClientConfigService.class);
-	
-	private String configDir = "/var/bigbluebutton/configs";
-  private IClientConfigServiceHelper helper;
+    private static Logger log = LoggerFactory.getLogger(ClientConfigService.class);
 
-  private Map<String, String> configs = new HashMap<String, String>();
-  
-  public void init() {
-  	configs = helper.getPreBuiltConfigs(configDir);
-  }
-  
-  public String getConfig(String id) {
-  	return configs.get(id);
-  }
+    private String configDir = "/var/bigbluebutton/configs";
+    private IClientConfigServiceHelper helper;
 
-	public void setConfigDir(String dir) {
-		configDir = dir;
-	}
-	
-	public void setClientConfigServiceHelper(IClientConfigServiceHelper r) {
-		helper = r;
-	} 
-	
+    private Map<String, String> configs = new HashMap<>();
+
+    public void init() {
+        configs = helper.getPreBuiltConfigs(configDir);
+        log.info("ClientConfigService initialised");
+    }
+
+    public String getConfig(String id) {
+        return configs.get(id);
+    }
+
+    public void setConfigDir(String dir) {
+        configDir = dir;
+    }
+
+    public void setClientConfigServiceHelper(IClientConfigServiceHelper r) {
+        helper = r;
+    }
+
 }

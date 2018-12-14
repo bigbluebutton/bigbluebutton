@@ -43,6 +43,7 @@ import com.google.gson.Gson;
 import org.springframework.util.StringUtils;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.regex.PatternSyntaxException;
 
 
 public class VideoApplication extends MultiThreadedApplicationAdapter {
@@ -112,7 +113,6 @@ public class VideoApplication extends MultiThreadedApplicationAdapter {
                 uconn.connection.close();
             }
         }
-
     }
 
     @Override
@@ -120,19 +120,21 @@ public class VideoApplication extends MultiThreadedApplicationAdapter {
         return super.appConnect(conn, params);
     }
 
-
 		@Override
 		public boolean roomConnect(IConnection connection, Object[] params) {
 			log.info("BBB Video roomConnect");
 
-			if(params.length != 3) {
-				log.error("Invalid number of parameters. param length=" + params.length);
+			final int REQUIRED_PARAMS = 4;
+
+			if(params.length != REQUIRED_PARAMS) {
+				log.error("Invalid number of parameters. Provided parameters={}. Required parameters={}", params.length, REQUIRED_PARAMS);
 				return false;
 			}
 
 			String meetingId = ((String) params[0]).toString();
 			String userId = ((String) params[1]).toString();
 			String authToken = ((String) params[2]).toString();
+			String clientConnId = ((String) params[3]).toString();
 
 			if (StringUtils.isEmpty(meetingId)) {
 				log.error("Invalid meetingId parameter.");
@@ -152,12 +154,13 @@ public class VideoApplication extends MultiThreadedApplicationAdapter {
 			Red5.getConnectionLocal().setAttribute("MEETING_ID", meetingId);
 			Red5.getConnectionLocal().setAttribute("USERID", userId);
 			Red5.getConnectionLocal().setAttribute("AUTH_TOKEN", authToken);
+			Red5.getConnectionLocal().setAttribute("CLIENT_CONN_ID", clientConnId);
 
 			String connType = getConnectionType(Red5.getConnectionLocal().getType());
-			String sessionId = Red5.getConnectionLocal().getSessionId();
+			String curConnId = Red5.getConnectionLocal().getSessionId();
 
 			if (userId.startsWith("portTestDummyUserId")) {
-				userConnections.addUserConnection(sessionId, connection);
+				userConnections.addUserConnection(curConnId, connection);
 
 				String remoteHost = Red5.getConnectionLocal().getRemoteAddress();
 				int remotePort = Red5.getConnectionLocal().getRemotePort();
@@ -167,7 +170,7 @@ public class VideoApplication extends MultiThreadedApplicationAdapter {
 				logData.put("meetingId", meetingId);
 				logData.put("userId", userId);
 				logData.put("connType", connType);
-				logData.put("connId", sessionId);
+				logData.put("connId", curConnId);
 				logData.put("clientId", clientId);
 				logData.put("remoteAddress", remoteHost + ":" + remotePort);
 				logData.put("event", "port_test_connection_bbb_video");
@@ -179,7 +182,7 @@ public class VideoApplication extends MultiThreadedApplicationAdapter {
 				log.info(logStr);
 			} else {
 				log.info("BBB Video validateConnAuthToken");
-				publisher.validateConnAuthToken(meetingId, userId, authToken, sessionId);
+				publisher.validateConnAuthToken(meetingId, userId, authToken, curConnId);
 
 				/**
 				 * Find if there are any other connections owned by this user. If we find one,
@@ -189,18 +192,21 @@ public class VideoApplication extends MultiThreadedApplicationAdapter {
 				Set<IConnection> conns = Red5.getConnectionLocal().getScope().getClientConnections();
 				for (IConnection conn : conns) {
 					String connUserId = (String) conn.getAttribute("USERID");
-					String connSessionId = conn.getSessionId();
+					String oldClientConnId = (String) conn.getAttribute("CLIENT_CONN_ID");
+					String oldConnId = conn.getSessionId();
 					String clientId = conn.getClient().getId();
 					String remoteHost = conn.getRemoteAddress();
 					int remotePort = conn.getRemotePort();
-					if (connUserId != null && connUserId.equals(userId) && !connSessionId.equals(sessionId)) {
+					if (oldClientConnId != null && connUserId != null && connUserId.equals(userId) && !oldConnId.equals(curConnId)) {
 						conn.removeAttribute("USERID");
+						conn.removeAttribute("CLIENT_CONN_ID");
 						Map<String, Object> logData = new HashMap<String, Object>();
 						logData.put("meetingId", meetingId);
 						logData.put("userId", userId);
-						logData.put("oldConnId", connSessionId);
-						logData.put("newConnId", sessionId);
+						logData.put("oldConnId", oldConnId);
+						logData.put("newConnId", curConnId);
 						logData.put("clientId", clientId);
+						logData.put("oldClientConnId", oldClientConnId);
 						logData.put("remoteAddress", remoteHost + ":" + remotePort);
 						logData.put("event", "removing_defunct_connection");
 						logData.put("description", "Removing defunct connection BBB Video.");
@@ -220,7 +226,7 @@ public class VideoApplication extends MultiThreadedApplicationAdapter {
 				logData.put("meetingId", meetingId);
 				logData.put("userId", userId);
 				logData.put("connType", connType);
-				logData.put("connId", sessionId);
+				logData.put("connId", curConnId);
 				logData.put("clientId", clientId);
 				logData.put("remoteAddress", remoteHost + ":" + remotePort);
 				logData.put("event", "user_joining_bbb_video");
@@ -235,111 +241,119 @@ public class VideoApplication extends MultiThreadedApplicationAdapter {
 			return super.roomConnect(connection, params);
 		}
 
-    private String getConnectionType(String connType) {
-        if ("persistent".equals(connType.toLowerCase())) {
-            return "RTMP";
-        } else if ("polling".equals(connType.toLowerCase())) {
-            return "RTMPT";
-        } else {
-            return connType.toUpperCase();
-        }
-    }
+  private String getConnectionType(String connType) {
+  	if ("persistent".equals(connType.toLowerCase())) {
+  		return "RTMP";
+  	} else if("polling".equals(connType.toLowerCase())) {
+  		return "RTMPT";
+  	} else {
+  		return connType.toUpperCase();
+  	}
+  }
 
-    private String getUserId() {
-        String userid = (String) Red5.getConnectionLocal().getAttribute("USERID");
-        if ((userid == null) || ("".equals(userid))) userid = "unknown-userid";
-        return userid;
-    }
+	private String getUserId() {
+		String userid = (String) Red5.getConnectionLocal().getAttribute("USERID");
+		if ((userid == null) || ("".equals(userid))) userid = "unknown-userid";
+		return userid;
+	}
+	
+	private String getMeetingId() {
+		String meetingId = (String) Red5.getConnectionLocal().getAttribute("MEETING_ID");
+		if ((meetingId == null) || ("".equals(meetingId))) meetingId = "unknown-meetingid";
+		return meetingId;
+	}
 
-    private String getMeetingId() {
-        String meetingId = (String) Red5.getConnectionLocal().getAttribute("MEETING_ID");
-        if ((meetingId == null) || ("".equals(meetingId))) meetingId = "unknown-meetingid";
-        return meetingId;
-    }
+	private String getClientConnId() {
+		String clientConnId = (String) Red5.getConnectionLocal().getAttribute("CLIENT_CONN_ID");
+		if ((clientConnId == null) || ("".equals(clientConnId))) clientConnId = "unknown-clientConnId";
+		return clientConnId;
+	}
+	
+  @Override
+	public void appDisconnect(IConnection conn) {
+		clearH263UserVideo(getUserId());
+		super.appDisconnect(conn);
+	}
 
+  @Override
+	public void roomDisconnect(IConnection conn) {
+		log.info("BBB Video roomDisconnect");
+		
+		String connType = getConnectionType(Red5.getConnectionLocal().getType());
+		String connId = Red5.getConnectionLocal().getSessionId();
+		String clientConnId = getClientConnId();
 
-    @Override
-    public void appDisconnect(IConnection conn) {
-        clearH263UserVideo(getUserId());
-        super.appDisconnect(conn);
-    }
+		UserConnectionMapper.UserConnection uconn = userConnections.userDisconnected(connId);
+		if (uconn != null) {
+			Map<String, Object> logData = new HashMap<String, Object>();
+			logData.put("meetingId", getMeetingId());
+			logData.put("userId", getUserId());
+			logData.put("connType", connType);
+			logData.put("connId", connId);
+			logData.put("clientConnId", clientConnId);
+			logData.put("event", "removing_port_test_conn_bbb_video");
+			logData.put("description", "Removing port test connection BBB Video.");
 
+			Gson gson = new Gson();
+			String logStr =  gson.toJson(logData);
 
-		@Override
-		public void roomDisconnect(IConnection conn) {
-			log.info("BBB Video roomDisconnect");
+			log.info(logStr);
+		} else {
+			Map<String, Object> logData = new HashMap<String, Object>();
+			logData.put("meetingId", getMeetingId());
+			logData.put("userId", getUserId());
+			logData.put("connType", connType);
+			logData.put("connId", connId);
+			logData.put("clientConnId", clientConnId);
+			logData.put("event", "user_leaving_bbb_video");
+			logData.put("description", "User leaving BBB Video.");
 
-			String connType = getConnectionType(Red5.getConnectionLocal().getType());
-			String connId = Red5.getConnectionLocal().getSessionId();
+			Gson gson = new Gson();
+			String logStr =  gson.toJson(logData);
 
-			UserConnectionMapper.UserConnection uconn = userConnections.userDisconnected(connId);
-			if (uconn != null) {
-				Map<String, Object> logData = new HashMap<String, Object>();
-				logData.put("meetingId", getMeetingId());
-				logData.put("userId", getUserId());
-				logData.put("connType", connType);
-				logData.put("connId", connId);
-				logData.put("event", "removing_port_test_conn_bbb_video");
-				logData.put("description", "Removing port test connection BBB Video.");
-
-				Gson gson = new Gson();
-				String logStr =  gson.toJson(logData);
-
-				log.info(logStr);
-			} else {
-				Map<String, Object> logData = new HashMap<String, Object>();
-				logData.put("meetingId", getMeetingId());
-				logData.put("userId", getUserId());
-				logData.put("connType", connType);
-				logData.put("connId", connId);
-				logData.put("event", "user_leaving_bbb_video");
-				logData.put("description", "User leaving BBB Video.");
-
-				Gson gson = new Gson();
-				String logStr =  gson.toJson(logData);
-
-				log.info("User leaving bbb-video: data={}", logStr);
-			}
-
-			super.roomDisconnect(conn);
+			log.info("User leaving bbb-video: data={}", logStr);
 		}
 
-    @Override
-    public void streamPublishStart(IBroadcastStream stream) {
-        super.streamPublishStart(stream);
-        IConnection conn = Red5.getConnectionLocal();
-        log.info("streamPublishStart " + stream.getPublishedName() + " " + System.currentTimeMillis() + " " + conn.getScope().getName());
-    }
+		
+		super.roomDisconnect(conn);
+	}
 
-    private String getStreamName(String streamName) {
-        String parts[] = streamName.split("/");
-        if (parts.length > 1)
-            return parts[parts.length - 1];
-        return "";
-    }
+	@Override
+	public void streamPublishStart(IBroadcastStream stream) {
+		super.streamPublishStart(stream);
+		IConnection conn = Red5.getConnectionLocal();
+		log.info("streamPublishStart " + stream.getPublishedName() + " " + System.currentTimeMillis() + " " + conn.getScope().getName());
+	}
 
-    private void requestRotateVideoTranscoder(IBroadcastStream stream) {
-        IConnection conn = Red5.getConnectionLocal();
-        String userId = getUserId();
-        String meetingId = conn.getScope().getName();
-        String streamId = stream.getPublishedName();
-        String streamName = getStreamName(streamId);
-        String ipAddress = conn.getHost();
+	private String getStreamName(String streamName) {
+		String parts[] = streamName.split("/");
+		if (parts.length > 1)
+			return parts[parts.length - 1];
+		return "";
+	}
 
-        switch (VideoRotator.getDirection(streamId)) {
-            case VideoRotator.ROTATE_RIGHT:
-                publisher.startRotateRightTranscoderRequest(meetingId, userId, streamName, ipAddress);
-                break;
-            case VideoRotator.ROTATE_LEFT:
-                publisher.startRotateLeftTranscoderRequest(meetingId, userId, streamName, ipAddress);
-                break;
-            case VideoRotator.ROTATE_UPSIDE_DOWN:
-                publisher.startRotateUpsideDownTranscoderRequest(meetingId, userId, streamName, ipAddress);
-                break;
-            default:
-                break;
-        }
-    }
+	private void requestRotateVideoTranscoder(IBroadcastStream stream) {
+		IConnection conn = Red5.getConnectionLocal();
+		String userId = getUserId();
+		String meetingId = conn.getScope().getName();
+		String streamId = stream.getPublishedName();
+		String streamName = getStreamName(streamId);
+		String ipAddress = conn.getHost();
+
+		switch (VideoRotator.getDirection(streamId)) {
+			case VideoRotator.ROTATE_RIGHT:
+				publisher.startRotateRightTranscoderRequest(meetingId, userId, streamName, ipAddress);
+				break;
+			case VideoRotator.ROTATE_LEFT:
+				publisher.startRotateLeftTranscoderRequest(meetingId, userId, streamName, ipAddress);
+				break;
+			case VideoRotator.ROTATE_UPSIDE_DOWN:
+				publisher.startRotateUpsideDownTranscoderRequest(meetingId, userId, streamName, ipAddress);
+				break;
+			default:
+				break;
+		}
+	}
 
 		@Override
 		public void streamBroadcastStart(IBroadcastStream stream) {
@@ -376,6 +390,8 @@ public class VideoApplication extends MultiThreadedApplicationAdapter {
 			String userId = getUserId();
 			String meetingId = conn.getScope().getName();
 			String streamId = stream.getPublishedName();
+
+			publisher.sendVideoStreamStartedMsg(meetingId, userId, streamId);
 
 			Map<String, Object> logData = new HashMap<String, Object>();
 			logData.put("meetingId", getMeetingId());
@@ -425,33 +441,44 @@ public class VideoApplication extends MultiThreadedApplicationAdapter {
 			}
 		}
 
-    private Long genTimestamp() {
-        return TimeUnit.NANOSECONDS.toMillis(System.nanoTime());
-    }
+	private Long genTimestamp() {
+		return TimeUnit.NANOSECONDS.toMillis(System.nanoTime());
+	}
 
-    private boolean isH263Stream(ISubscriberStream stream) {
-        String streamName = stream.getBroadcastStreamPublishName();
-        return streamName.startsWith(H263Converter.H263PREFIX);
-    }
+	private boolean isH263Stream(ISubscriberStream stream) {
+		String streamName = stream.getBroadcastStreamPublishName();
+		return streamName.startsWith(H263Converter.H263PREFIX);
+	}
 
-    @Override
-    public void streamBroadcastClose(IBroadcastStream stream) {
-        super.streamBroadcastClose(stream);
-        IConnection conn = Red5.getConnectionLocal();
-			String connType = getConnectionType(Red5.getConnectionLocal().getType());
-			String connId = Red5.getConnectionLocal().getSessionId();
+	@Override
+	public void streamBroadcastClose(IBroadcastStream stream) {
+		super.streamBroadcastClose(stream);
+		IConnection conn = Red5.getConnectionLocal();
+		String connType = getConnectionType(Red5.getConnectionLocal().getType());
+		String connId = Red5.getConnectionLocal().getSessionId();
 
-        String scopeName;
-        if (conn != null) {
-            scopeName = conn.getScope().getName();
-        } else {
-            log.info("Connection local was null, using scope name from the stream: {}", stream);
-            scopeName = stream.getScope().getName();
-        }
+		String scopeName;
+		if (conn != null) {
+			scopeName = conn.getScope().getName();
+		} else {
+			log.info("Connection local was null, using scope name from the stream: {}", stream);
+			scopeName = stream.getScope().getName();
+		}
 
-        String userId = getUserId();
-        String meetingId = conn.getScope().getName();
-        String streamId = stream.getPublishedName();
+		String userId = getUserId();
+		String meetingId = conn.getScope().getName();
+		String streamId = stream.getPublishedName();
+
+		try {
+				// Need to extract usrId from streamId (medium-w_npxfdr8lssbq-1526051556133) as
+				// when connection is closed, userId info is gone. We are interested in the
+				// second portion of the streamId (ralam may 11, 2018)
+				String[] splitArray = streamId.split("-");
+				userId = splitArray[1];
+				publisher.sendVideoStreamStoppedMsg(meetingId, userId, streamId);
+			} catch (PatternSyntaxException ex) {
+				log.warn("Cannot split streamId " + streamId);
+			}
 
 			Map<String, Object> logData2 = new HashMap<String, Object>();
 			logData2.put("meetingId", getMeetingId());
@@ -467,161 +494,177 @@ public class VideoApplication extends MultiThreadedApplicationAdapter {
 			String logStr2 =  gson2.toJson(logData2);
 			log.info(logStr2);
 
-        Matcher matcher = RECORD_STREAM_ID_PATTERN.matcher(stream.getPublishedName());
-        removeH263ConverterIfNeeded(streamId);
-        if (videoRotators.containsKey(streamId)) {
-            // Stop rotator
-            videoRotators.remove(streamId);
-            publisher.stopTranscoderRequest(meetingId, userId);
-        }
-        removeH263PublishedStream(streamId);
-        if (matcher.matches()) {
-            meetingManager.streamBroadcastClose(meetingId, streamId);
-            meetingManager.removeStream(meetingId, streamId);
-        }
-    }
+		removeH263ConverterIfNeeded(streamId);
 
-    public void setPacketTimeout(int timeout) {
-        this.packetTimeout = timeout;
-    }
+		if (videoRotators.containsKey(streamId)) {
+			// Stop rotator
+			videoRotators.remove(streamId);
+			publisher.stopTranscoderRequest(meetingId, userId);
+		}
 
-    public void setEventRecordingService(EventRecordingService s) {
-        recordingService = s;
-    }
+		removeH263PublishedStream(streamId);
 
-    public void setMessagePublisher(MessagePublisher publisher) {
-        this.publisher = publisher;
-    }
+		Matcher matcher = RECORD_STREAM_ID_PATTERN.matcher(stream.getPublishedName());
+		if (matcher.matches()) {
+			meetingManager.streamBroadcastClose(meetingId, streamId);
+			meetingManager.removeStream(meetingId, streamId);
 
-    public void setMeetingManager(MeetingManager meetingManager) {
-        this.meetingManager = meetingManager;
-    }
+			long publishDuration = (System.currentTimeMillis() - stream.getCreationTime()) / 1000;
+			log.info("Stop recording event for stream=[{}] meeting=[{}]", stream.getPublishedName(), scopeName);
+			Map<String, String> event = new HashMap<String, String>();
+			event.put("module", "WEBCAM");
+			event.put("timestamp", genTimestamp().toString());
+			event.put("meetingId", scopeName);
+			event.put("stream", stream.getPublishedName());
+			event.put("duration", new Long(publishDuration).toString());
+			event.put("eventName", "StopWebcamShareEvent");
+			recordingService.record(scopeName, event);
+		}
+	}
 
-    @Override
-    public void streamPlayItemPlay(ISubscriberStream stream, IPlayItem item, boolean isLive) {
-        // log w3c connect event
-        String streamName = item.getName();
-        streamName = streamName.replaceAll(H263Converter.H263PREFIX, "");
+	public void setPacketTimeout(int timeout) {
+		this.packetTimeout = timeout;
+	}
 
-        if (isH263Stream(stream)) {
-            log.debug("Detected H263 stream request [{}]", streamName);
+	public void setEventRecordingService(EventRecordingService s) {
+		recordingService = s;
+	}
 
-            synchronized (h263Converters) {
-                // Check if a new stream converter is necessary
-                H263Converter converter;
-                if (!h263Converters.containsKey(streamName) && !isStreamPublished(streamName)) {
-                    converter = new H263Converter(streamName, publisher);
-                    h263Converters.put(streamName, converter);
-                } else {
-                    converter = h263Converters.get(streamName);
-                }
+	public void setMessagePublisher(MessagePublisher publisher) {
+		this.publisher = publisher;
+	}
 
-                if (!isH263UserListening(getUserId())) {
-                    converter.addListener();
-                    addH263User(getUserId(), streamName);
-                }
-            }
-        }
-    }
+	public void setMeetingManager(MeetingManager meetingManager) {
+		this.meetingManager = meetingManager;
+	}
 
-    @Override
-    public void streamSubscriberClose(ISubscriberStream stream) {
-        String streamName = stream.getBroadcastStreamPublishName();
-        streamName = streamName.replaceAll(H263Converter.H263PREFIX, "");
-        String userId = getUserId();
+	@Override
+	public void streamPlayItemPlay(ISubscriberStream stream, IPlayItem item, boolean isLive) {
+		// log w3c connect event
+		String streamName = item.getName();
+		streamName = streamName.replaceAll(H263Converter.H263PREFIX, "");
 
-        if (isH263Stream(stream)) {
-            log.debug("Detected H263 stream close [{}]", streamName);
+		if (isH263Stream(stream)) {
+			log.debug("Detected H263 stream request [{}]", streamName);
 
-            synchronized (h263Converters) {
-                // Remove prefix
-                if (h263Converters.containsKey(streamName)) {
-                    H263Converter converter = h263Converters.get(streamName);
-                    if (isH263UserListening(userId)) {
-                        converter.removeListener();
-                        removeH263User(userId);
-                    }
-                } else {
-                    log.warn("Converter not found for H263 stream [{}]. This may has been closed already", streamName);
-                }
-            }
-        }
-    }
+			synchronized (h263Converters) {
+				// Check if a new stream converter is necessary
+				H263Converter converter;
+				if (!h263Converters.containsKey(streamName) && !isStreamPublished(streamName)) {
+					converter = new H263Converter(streamName, publisher);
+					h263Converters.put(streamName, converter);
+				} else {
+					converter = h263Converters.get(streamName);
+				}
 
-    private void removeH263User(String userId) {
-        if (h263Users.containsKey(userId)) {
-            log.debug("REMOVE |Removing h263 user from h263User's list [uid={}]", userId);
-            h263Users.remove(userId);
-        }
-    }
+				if (!isH263UserListening(getUserId())) {
+					converter.addListener();
+					addH263User(getUserId(), streamName);
+				}
+			}
+		}
+	}
 
-    private void addH263User(String userId, String streamName) {
-        log.debug("ADD |Add h263 user to h263User's list [uid={} streamName={}]", userId, streamName);
-        h263Users.put(userId, streamName);
-    }
+	@Override
+	public void streamSubscriberClose(ISubscriberStream stream) {
+		String streamName = stream.getBroadcastStreamPublishName();
+		streamName = streamName.replaceAll(H263Converter.H263PREFIX, "");
+		String userId = getUserId();
 
-    private void clearH263UserVideo(String userId) {
-        /*
-         * If this is an h263User, clear it's video.
-         * */
-        synchronized (h263Converters) {
-            if (isH263UserListening(userId)) {
-                String streamName = h263Users.get(userId);
-                H263Converter converter = h263Converters.get(streamName);
-                if (converter == null)
-                    log.debug("er... something went wrong. User was listening to the stream, but there's no more converter for this stream [stream={}] [uid={}]", userId, streamName);
-                converter.removeListener();
-                removeH263User(userId);
-                log.debug("h263's user data cleared.");
-            }
-        }
-    }
+		if (isH263Stream(stream)) {
+			log.debug("Detected H263 stream close [{}]", streamName);
 
-    private void clearH263Users(String streamName) {
-        /*
-         * Remove all the users associated with the streamName
-         * */
-        log.debug("Clearing h263Users's list for the stream {}", streamName);
-        if (h263Users != null)
-            while (h263Users.values().remove(streamName)) ;
-        log.debug("h263Users cleared.");
-    }
+			synchronized (h263Converters) {
+				// Remove prefix
+				if (h263Converters.containsKey(streamName)) {
+					H263Converter converter = h263Converters.get(streamName);
+					if (isH263UserListening(userId)) {
+						converter.removeListener();
+						removeH263User(userId);
+					}
+				} else {
+					log.warn("Converter not found for H263 stream [{}]. This may has been closed already", streamName);
+				}
+			}
+		}
+	}
 
-    private boolean isH263UserListening(String userId) {
-        return (h263Users.containsKey(userId));
-    }
+	private void removeH263User(String userId) {
+		if (h263Users.containsKey(userId)) {
+			log.debug("REMOVE |Removing h263 user from h263User's list [uid={}]", userId);
+			h263Users.remove(userId);
+		}
+	}
 
-    private void addH263PublishedStream(String streamName) {
-        if (streamName.contains(H263Converter.H263PREFIX)) {
-            log.debug("Publishing an h263 stream. StreamName={}.", streamName);
-            h263PublishedStreams.put(streamName, getUserId());
-        }
-    }
+	private void addH263User(String userId, String streamName) {
+		log.debug("ADD |Add h263 user to h263User's list [uid={} streamName={}]", userId, streamName);
+		h263Users.put(userId, streamName);
+	}
 
-    private void removeH263PublishedStream(String streamName) {
-        if (isH263Stream(streamName) && h263PublishedStreams.containsKey(streamName))
-            h263PublishedStreams.remove(streamName);
-    }
+	private void clearH263UserVideo(String userId) {
+		/**
+		* If this is an h263User, clear it's video.
+		**/
+		synchronized (h263Converters) {
+			if (isH263UserListening(userId)) {
+				String streamName = h263Users.get(userId);
+				H263Converter converter = h263Converters.get(streamName);
+				if (converter == null) {
+					log.debug("er... something went wrong. User was listening to the stream, but there's no more converter for this stream [stream={}] [uid={}]", userId, streamName);
+				}
 
-    private boolean isStreamPublished(String streamName) {
-        return h263PublishedStreams.containsKey(streamName);
-    }
+				converter.removeListener();
+				removeH263User(userId);
+				log.debug("h263's user data cleared.");
+			}
+		}
+	}
 
-    private boolean isH263Stream(String streamName) {
-        return streamName.startsWith(H263Converter.H263PREFIX);
-    }
+	private void clearH263Users(String streamName) {
+		/*
+			* Remove all the users associated with the streamName
+		**/
+		log.debug("Clearing h263Users's list for the stream {}", streamName);
+		if (h263Users != null)
+			while (h263Users.values().remove(streamName)) ;
+		log.debug("h263Users cleared.");
+	}
 
-    private void removeH263ConverterIfNeeded(String streamName) {
-        String h263StreamName = streamName.replaceAll(H263Converter.H263PREFIX, "");
-        synchronized (h263Converters) {
-            if (isH263Stream(streamName) && h263Converters.containsKey(h263StreamName)) {
-                // Stop converter
-                log.debug("h263 stream is being closed {}", streamName);
-                h263Converters.remove(h263StreamName).stopConverter();
-                clearH263Users(h263StreamName);
-            }
-        }
-    }
+	private boolean isH263UserListening(String userId) {
+		return (h263Users.containsKey(userId));
+	}
+
+	private void addH263PublishedStream(String streamName) {
+		if (streamName.contains(H263Converter.H263PREFIX)) {
+			log.debug("Publishing an h263 stream. StreamName={}.", streamName);
+			h263PublishedStreams.put(streamName, getUserId());
+		}
+	}
+
+	private void removeH263PublishedStream(String streamName) {
+		if (isH263Stream(streamName) && h263PublishedStreams.containsKey(streamName))
+			h263PublishedStreams.remove(streamName);
+	}
+
+	private boolean isStreamPublished(String streamName) {
+		return h263PublishedStreams.containsKey(streamName);
+	}
+
+	private boolean isH263Stream(String streamName) {
+		return streamName.startsWith(H263Converter.H263PREFIX);
+	}
+
+	private void removeH263ConverterIfNeeded(String streamName) {
+		String h263StreamName = streamName.replaceAll(H263Converter.H263PREFIX, "");
+		synchronized (h263Converters) {
+			if (isH263Stream(streamName) && h263Converters.containsKey(h263StreamName)) {
+				// Stop converter
+				log.debug("h263 stream is being closed {}", streamName);
+				h263Converters.remove(h263StreamName).stopConverter();
+				clearH263Users(h263StreamName);
+			}
+		}
+	}
 
 	public void setConnInvokerService(ConnectionInvokerService connInvokerService) {
 		this.connInvokerService = connInvokerService;

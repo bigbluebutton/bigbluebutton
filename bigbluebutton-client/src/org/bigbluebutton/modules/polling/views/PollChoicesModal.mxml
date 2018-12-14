@@ -75,6 +75,11 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 							  text="{ResourceUtil.getInstance().getString('bbb.polling.customChoices.title')}"
 							  styleName="titleWindowStyle" />
 	</mx:Canvas>
+	
+	<mx:Canvas width="100%" styleName="pollingTipBox" verticalScrollPolicy="off" horizontalScrollPolicy="off">
+		<mx:Text horizontalCenter="0" text="{ResourceUtil.getInstance().getString('bbb.polling.customChoices.hint')}"/>
+	</mx:Canvas>
+	
 	<mx:HRule width="100%"/>
 	
 	<mx:VBox width="100%" paddingTop="20" paddingBottom="20" paddingLeft="16" paddingRight="16">

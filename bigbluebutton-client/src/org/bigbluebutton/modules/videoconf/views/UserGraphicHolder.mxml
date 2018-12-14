@@ -44,6 +44,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			
 			import mx.core.UIComponent;
 			
+			import org.as3commons.lang.StringUtils;
 			import org.as3commons.logging.api.ILogger;
 			import org.as3commons.logging.api.getClassLogger;
 			import org.bigbluebutton.common.Role;
@@ -142,7 +143,10 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
             public function loadAvatar(options:VideoConfOptions):void {
                 avatar.user = _user;
                 avatar.options = options;
-                avatar.load(UsersUtil.getUserAvatarURL(_user.intId));
+				var userAvatar : String = UsersUtil.getUserAvatarURL(_user.intId);
+				if (!StringUtils.isEmpty(userAvatar)) {
+	                avatar.load(userAvatar);
+				}
 
                 avatarVisibility = true;
                 setUserProperties();

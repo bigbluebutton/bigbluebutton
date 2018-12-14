@@ -66,6 +66,8 @@ def archive_directory(source, dest)
 end
 
 def archive_has_recording_marks?(meeting_id, raw_archive_dir, break_timestamp)
+  BigBlueButton.logger.info("Fetching the recording marks for #{meeting_id}.")
+
   doc = Nokogiri::XML(File.open("#{raw_archive_dir}/#{meeting_id}/events.xml"))
 
   # Find the start and stop timestamps for the current recording segment
@@ -121,6 +123,8 @@ redis_host = props['redis_host']
 redis_port = props['redis_port']
 presentation_dir = props['raw_presentation_src']
 video_dir = props['raw_video_src']
+kurento_video_dir = props['kurento_video_src']
+kurento_screenshare_dir = props['kurento_screenshare_src']
 log_dir = props['log_dir']
 
 # Determine the filenames for the done and fail files
@@ -143,6 +147,10 @@ archive_directory("#{presentation_dir}/#{meeting_id}/#{meeting_id}",
 archive_directory("#{screenshare_dir}/#{meeting_id}",
                   "#{target_dir}/deskshare")
 archive_directory("#{video_dir}/#{meeting_id}",
+                  "#{target_dir}/video/#{meeting_id}")
+archive_directory("#{kurento_screenshare_dir}/#{meeting_id}",
+                  "#{target_dir}/deskshare")
+archive_directory("#{kurento_video_dir}/#{meeting_id}",
                   "#{target_dir}/video/#{meeting_id}")
 
 if not archive_has_recording_marks?(meeting_id, raw_archive_dir, break_timestamp)

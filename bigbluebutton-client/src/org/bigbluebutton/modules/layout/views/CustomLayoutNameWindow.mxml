@@ -30,7 +30,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		  layout="absolute"
 		  showCloseButton="false"
           creationComplete="onCreationComplete()"
-          width="280">
+          minWidth="320">
 
 	<fx:Declarations>
 	  <mate:Listener type="{LayoutNameInUseEvent.LAYOUT_NAME_IN_USE_EVENT}" method="handleLayoutNameInUse"/>
@@ -91,11 +91,21 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	  <common:AdvancedLabel text="{ResourceUtil.getInstance().getString('bbb.layout.window.name')}"
 							styleName="titleWindowStyle"
 							width="180" />
-	  <mx:TextInput id="textInput" height="26" maxChars="140" width="100%"
-					text="{ResourceUtil.getInstance().getString('bbb.layout.combo.customName')}"
-					enter="addButton_clickHandler()" />
-	  <mx:Button id="addButton" height="30" width="100%" click="addButton_clickHandler()" enabled="{textInput.text.length > 0}" styleName="mainActionButton"
-				 label="{ResourceUtil.getInstance().getString('bbb.layout.addButton.label')}" toolTip="{ResourceUtil.getInstance().getString('bbb.layout.addButton.toolTip')}" />
+	  <mx:Form width="100%">
+		  <mx:FormItem label="{ResourceUtil.getInstance().getString('bbb.layout.combo.name')}" width="100%">
+			  <mx:TextInput id="textInput" height="26" maxChars="140" width="100%"
+							text="{ResourceUtil.getInstance().getString('bbb.layout.combo.customName')}"
+							enter="addButton_clickHandler()" />
+		  </mx:FormItem>
+	  </mx:Form>
+	  
+	  <mx:HBox width="100%" horizontalAlign="right" horizontalGap="15">
+	  	  <mx:Button id="addButton" click="addButton_clickHandler()" enabled="{textInput.text.length > 0}" styleName="mainActionButton"
+				 	 label="{ResourceUtil.getInstance().getString('bbb.layout.addButton.label')}" toolTip="{ResourceUtil.getInstance().getString('bbb.layout.addButton.toolTip')}" />
+		  <mx:Button label="{ResourceUtil.getInstance().getString('bbb.layout.cancelButton.label')}"
+					 click="onCancelClicked()"/>
+	  </mx:HBox>
+
   </mx:VBox>
 
   <mx:Button id="closeButton" click="onCancelClicked()" styleName="titleWindowCloseButton"

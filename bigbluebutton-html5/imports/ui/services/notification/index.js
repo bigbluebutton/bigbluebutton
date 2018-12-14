@@ -12,14 +12,20 @@ let lastToast = {
   icon: null,
 };
 
-export function notify(message, type = 'default', icon, options) {
+export function notify(message, type = 'default', icon, options, content, small) {
   const settings = {
     type,
     ...options,
   };
 
   const { id: lastToastId, ...lastToastProps } = lastToast;
-  const toastProps = { message, type, icon };
+  const toastProps = {
+    message,
+    type,
+    icon,
+    content,
+    small,
+  };
 
   if (!toast.isActive(lastToast.id) || !_.isEqual(lastToastProps, toastProps)) {
     const id = toast(<Toast {...toastProps} />, settings);

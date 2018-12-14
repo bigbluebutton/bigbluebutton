@@ -1,6 +1,5 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { withRouter } from 'react-router';
 import { defineMessages, injectIntl } from 'react-intl';
 import Button from '/imports/ui/components/button/component';
 import Modal from '/imports/ui/components/modal/fullscreen/component';
@@ -11,7 +10,6 @@ const propTypes = {
   intl: PropTypes.shape({
     formatMessage: PropTypes.func.isRequired,
   }).isRequired,
-  router: PropTypes.object.isRequired,
   showEndMeeting: PropTypes.bool.isRequired,
 };
 
@@ -44,22 +42,28 @@ const intlMessages = defineMessages({
     id: 'app.leaveConfirmation.endMeetingLabel',
     description: 'End meeting button label',
   },
+  endMeetingAriaLabel: {
+    id: 'app.leaveConfirmation.endMeetingAriaLabel',
+    description: 'End meeting button aria label',
+  },
   endMeetingDesc: {
     id: 'app.leaveConfirmation.endMeetingDesc',
     description: 'adds context to end meeting option',
   },
 });
 
+
 const LeaveConfirmation = ({
   intl,
   router,
   handleEndMeeting,
   showEndMeeting,
+  showFeedback,
 }) => (
   <Modal
     title={intl.formatMessage(intlMessages.title)}
     confirm={{
-      callback: () => router.push('/logout'),
+      callback: showFeedback,
       label: intl.formatMessage(intlMessages.confirmLabel),
       description: intl.formatMessage(intlMessages.confirmDesc),
     }}
@@ -84,4 +88,4 @@ const LeaveConfirmation = ({
 
 LeaveConfirmation.propTypes = propTypes;
 
-export default withRouter(injectIntl(LeaveConfirmation));
+export default injectIntl(LeaveConfirmation);

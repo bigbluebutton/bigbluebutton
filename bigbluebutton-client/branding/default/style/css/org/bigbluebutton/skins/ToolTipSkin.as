@@ -114,7 +114,8 @@ package org.bigbluebutton.skins {
 				switch (borderStyle) {
 					case "errorTipRight":
 					case "errorTipAbove":
-					case "errorTipBelow":  {
+					case "errorTipBelow":
+					case "callOutTipBelow": {
 						visible = true;
 						break;
 					}
@@ -183,13 +184,29 @@ package org.bigbluebutton.skins {
 
 					// top pointer
 					g.beginFill(borderColor, backgroundAlpha);
-					g.moveTo(9, 11);
-					g.lineTo(15, 0);
-					g.lineTo(21, 11);
-					g.moveTo(10, 11);
+					
+					g.moveTo(w / 2 - 6, 13);
+					g.lineTo(w / 2, 2);
+					g.lineTo(w / 2 + 6, 13);
+					g.moveTo(w / 2 - 6, 13);
+
 					g.endFill();
 
 					filters = [new DropShadowFilter(2, 90, 0, 0.4)];
+					break;
+				}
+
+				case "callOutTipBelow":  {
+					// face
+					drawRoundRect(3, 1, w - 6, h - 4, cornerRadius, backgroundColor, backgroundAlpha)
+
+					g.beginFill(backgroundColor, backgroundAlpha);
+					g.moveTo((w / 2) - 6, 1);
+					g.lineTo((w / 2), -10);
+					g.lineTo((w / 2) + 6, 1);
+					g.moveTo((w / 2) - 5, -10);
+					g.endFill();
+
 					break;
 				}
 

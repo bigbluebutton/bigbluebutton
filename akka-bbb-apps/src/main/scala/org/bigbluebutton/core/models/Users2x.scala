@@ -110,6 +110,10 @@ object Users2x {
     users.toVector.find(u => u.role == Roles.MODERATOR_ROLE)
   }
 
+  def findAllAuthedUsers(users: Users2x): Vector[UserState] = {
+    users.toVector.find(u => u.authed).toVector
+  }
+
   def addUserToPresenterGroup(users: Users2x, userIdToAdd: String): Boolean = {
     users.updatePresenterGroup(users.presenterGroup.filterNot(_ == userIdToAdd).:+(userIdToAdd)) // ensure no repetition
     users.presenterGroup.contains(userIdToAdd)
@@ -209,11 +213,22 @@ class Users2x {
 
 case class OldPresenter(userId: String, changedPresenterOn: Long)
 
-case class UserState(intId: String, extId: String, name: String, role: String,
-                     guest: Boolean, authed: Boolean, guestStatus: String, emoji: String, locked: Boolean,
-                     presenter: Boolean, avatar: String,
-                     roleChangedOn:        Long = System.currentTimeMillis(),
-                     inactivityResponseOn: Long = TimeUtil.timeNowInMs())
+case class UserState(
+  intId:                String,
+  extId:                String,
+  name:                 String,
+  role:                 String,
+  guest:                Boolean,
+  authed:               Boolean,
+  guestStatus:          String,
+  emoji:                String,
+  locked:               Boolean,
+  presenter:            Boolean,
+  avatar:               String,
+  roleChangedOn:        Long    = System.currentTimeMillis(),
+  inactivityResponseOn: Long    = TimeUtil.timeNowInMs(),
+  clientType:           String
+)
 
 case class UserIdAndName(id: String, name: String)
 

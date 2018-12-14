@@ -58,7 +58,7 @@ public class AudioBroadcastStream implements IBroadcastStream, IProvider, IPipeC
 	/**
 	 * Timestamp the stream was started.
 	 */
-	private long startTime;
+	private Long startTime;
 
 	public AudioBroadcastStream(String name) {
 		publishedStreamName = name;
@@ -142,8 +142,8 @@ public class AudioBroadcastStream implements IBroadcastStream, IProvider, IPipeC
 
 	public void start() {
 		log.debug("Starting AudioBroadcastStream()");
-		// technically this would be a 'start' time
-		startTime = System.currentTimeMillis();
+		creationTime = System.currentTimeMillis();
+		startTime = creationTime;
 	}
 
 	public void stop() {
@@ -154,10 +154,6 @@ public class AudioBroadcastStream implements IBroadcastStream, IProvider, IPipeC
 		log.trace("onOOBControlMessage");
 	}
 
-	@Override
-	public long getStartTime() {
-		return startTime;
-	}
 
 	public void onPipeConnectionEvent(PipeConnectionEvent event) {
 		log.trace("onPipeConnectionEvent(event:{})", event);
@@ -216,5 +212,9 @@ public class AudioBroadcastStream implements IBroadcastStream, IProvider, IPipeC
 
 	public long getCreationTime() {
 		return creationTime != null ? creationTime : 0L;
+	}
+
+	public long getStartTime() {
+		return startTime != null ? startTime : 0L;
 	}
 }

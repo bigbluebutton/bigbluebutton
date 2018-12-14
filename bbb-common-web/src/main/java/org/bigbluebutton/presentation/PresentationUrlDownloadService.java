@@ -7,22 +7,22 @@ import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.Future;
+
 import org.apache.commons.codec.digest.DigestUtils;
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.FilenameUtils;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.entity.ContentType;
 import org.apache.http.impl.nio.client.CloseableHttpAsyncClient;
 import org.apache.http.impl.nio.client.HttpAsyncClients;
-import org.apache.http.nio.client.methods.ZeroCopyConsumer;
-import org.apache.http.nio.client.methods.ZeroCopyPost;
 import org.apache.http.nio.client.methods.HttpAsyncMethods;
-import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.FilenameUtils;
+import org.apache.http.nio.client.methods.ZeroCopyConsumer;
 import org.bigbluebutton.api.Util;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -85,9 +85,9 @@ public class PresentationUrlDownloadService {
                              final Integer presentationSlide, final String destinationMeetingId) {
 
         // Build the source meeting path
-        File sourceMeetingPath = new File(presentationDir + File.separator
-                + sourceMeetingId + File.separator + sourceMeetingId
-                + File.separator + presentationId);
+        File sourceMeetingPath = new File(presentationDir + File.separatorChar
+                + sourceMeetingId + File.separatorChar + sourceMeetingId
+                + File.separatorChar + presentationId);
 
         // Find the source meeting presentation file
         final String presentationFilter = presentationId;
@@ -152,7 +152,7 @@ public class PresentationUrlDownloadService {
 
     public String generatePresentationId(String name) {
         long timestamp = System.currentTimeMillis();
-        return DigestUtils.shaHex(name) + "-" + timestamp;
+        return DigestUtils.sha1Hex(name) + "-" + timestamp;
     }
 
     public File createPresentationDirectory(String meetingId,
@@ -247,11 +247,7 @@ public class PresentationUrlDownloadService {
             Future<File> future = httpclient.execute(HttpAsyncMethods.createGet(finalUrl), consumer, null);
             File result = future.get();
             success = result.exists();
-        } catch (java.lang.InterruptedException ex) {
-
-        } catch (java.util.concurrent.ExecutionException ex) {
-
-        } catch (java.io.FileNotFoundException ex) {
+        } catch (java.io.FileNotFoundException | java.util.concurrent.ExecutionException | java.lang.InterruptedException ex) {
 
         } finally {
             try {

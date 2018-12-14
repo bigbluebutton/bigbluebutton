@@ -54,7 +54,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			import org.bigbluebutton.modules.layout.events.LayoutsReadyEvent;
 			import org.bigbluebutton.modules.layout.model.LayoutModel;
 			import org.bigbluebutton.util.i18n.ResourceUtil;
-
+			
 			private static const LOGGER:ILogger = getClassLogger(LayoutsCombo);
 
 			private var _dispatcher:Dispatcher = new Dispatcher();
@@ -75,7 +75,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			private function populateLayoutsList(e:LayoutsReadyEvent):void {
 				populateComboBox();
 			}
-
 			
 			private function populateComboBox():void {
 				layoutNames = new ArrayCollection();

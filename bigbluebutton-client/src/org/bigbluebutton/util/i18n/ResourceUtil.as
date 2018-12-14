@@ -36,7 +36,7 @@ package org.bigbluebutton.util.i18n
 	import org.as3commons.lang.StringUtils;
 	import org.as3commons.logging.api.ILogger;
 	import org.as3commons.logging.api.getClassLogger;
-	import org.bigbluebutton.common.LogUtil;
+	import org.bigbluebutton.common.logging.LogUtil;
 	import org.bigbluebutton.common.events.LocaleChangeEvent;
 	import org.bigbluebutton.core.Options;
 	import org.bigbluebutton.core.UsersUtil;

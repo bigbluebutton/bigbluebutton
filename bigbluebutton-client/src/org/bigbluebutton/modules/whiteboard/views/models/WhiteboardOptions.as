@@ -9,6 +9,9 @@ package org.bigbluebutton.modules.whiteboard.views.models {
 		[Bindable]
 		public var keepToolbarVisible:Boolean = false;
 
+		[Bindable]
+		public var onlyPenMUW:Boolean = false;
+
 		public function WhiteboardOptions() {
 			name = "WhiteboardModule";
 		}

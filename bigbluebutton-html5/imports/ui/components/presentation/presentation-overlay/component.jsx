@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 
-const CURSOR_INTERVAL = 50;
+const CURSOR_INTERVAL = 16;
 
 export default class PresentationOverlay extends Component {
   constructor(props) {
@@ -36,7 +36,6 @@ export default class PresentationOverlay extends Component {
     this.getTransformedSvgPoint = this.getTransformedSvgPoint.bind(this);
     this.svgCoordinateToPercentages = this.svgCoordinateToPercentages.bind(this);
   }
-
   // transforms the coordinate from window coordinate system
   // to the main svg coordinate system
   getTransformedSvgPoint(clientX, clientY) {
@@ -98,6 +97,8 @@ export default class PresentationOverlay extends Component {
   }
 
   handleTouchMove(event) {
+    event.preventDefault();
+
     const { clientX, clientY } = event.changedTouches[0];
 
     this.currentClientX = clientX;
@@ -188,6 +189,8 @@ export default class PresentationOverlay extends Component {
         y="0"
         width={this.props.slideWidth}
         height={this.props.slideHeight}
+        // maximun value of z-index to prevent other things from overlapping
+        style={{ zIndex: 2 ** 31 - 1 }}
       >
         <div
           onTouchStart={this.handleTouchStart}

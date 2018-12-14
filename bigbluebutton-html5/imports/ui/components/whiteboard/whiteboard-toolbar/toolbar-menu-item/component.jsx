@@ -70,7 +70,7 @@ export default class ToolbarMenuItem extends Component {
 
   render() {
     return (
-      <div className={styles.buttonWrapper}>
+      <div className={styles.buttonWrapper} hidden={this.props.disabled}>
         <Button
           hideLabel
           role="button"

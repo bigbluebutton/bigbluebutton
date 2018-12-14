@@ -22,11 +22,11 @@ package org.bigbluebutton.modules.screenshare.managers {
     
     import org.as3commons.logging.api.ILogger;
     import org.as3commons.logging.api.getClassLogger;
-    import org.bigbluebutton.core.BBB;
     import org.bigbluebutton.core.Options;
     import org.bigbluebutton.core.UsersUtil;
     import org.bigbluebutton.main.events.MadePresenterEvent;
     import org.bigbluebutton.modules.screenshare.events.IsSharingScreenEvent;
+    import org.bigbluebutton.modules.screenshare.events.RequestToStartSharing;
     import org.bigbluebutton.modules.screenshare.events.ScreenShareClientPingMessage;
     import org.bigbluebutton.modules.screenshare.events.ShareStartRequestResponseEvent;
     import org.bigbluebutton.modules.screenshare.events.ShareStartedEvent;
@@ -147,19 +147,22 @@ package org.bigbluebutton.modules.screenshare.managers {
             sharing = false;
         }
 
-        public function handleRequestStartSharingEvent(force:Boolean = false):void {
-            toolbarButtonManager.startedSharing();
-
-            if (force || (options.tryWebRTCFirst && !BrowserCheck.isWebRTCSupported()) || !options.tryWebRTCFirst) {
-              usingJava = true;
-              publishWindowManager.startSharing();
-              sharing = true;
-              service.requestShareToken();
+        public function handleRequestStartSharingEvent(event:RequestToStartSharing):void {
+            if (!event.useWebRTC) {
+               startSharing();
             } else {
-              sharing = false;
-              usingJava = false;
+               sharing = false;
+               usingJava = false;
             }
         }
+        
+        private function startSharing():void {
+            toolbarButtonManager.startedSharing();
+            usingJava = true;
+            publishWindowManager.startSharing();
+            sharing = true;
+            service.requestShareToken();
+		}
 
         public function handleShareStartEvent():void {
             service.sharingStartMessage(ScreenshareModel.getInstance().session);
@@ -213,13 +216,6 @@ package org.bigbluebutton.modules.screenshare.managers {
 
         public function handleViewWindowCloseEvent():void {
             viewWindowManager.handleViewWindowCloseEvent();
-        }
-
-
-
-        public function handleUseJavaModeCommand():void {
-          // true to force Java desksharing to be used regardless of WebRTC settings
-          handleRequestStartSharingEvent(true);
         }
 
         public function handleDeskshareToolbarStopEvent():void {
