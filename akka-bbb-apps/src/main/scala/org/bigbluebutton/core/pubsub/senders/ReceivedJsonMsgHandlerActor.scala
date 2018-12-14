@@ -7,6 +7,8 @@ import org.bigbluebutton.common2.msgs._
 import org.bigbluebutton.core.bus._
 import org.bigbluebutton.core2.ReceivedMessageRouter
 import scala.reflect.runtime.universe._
+import org.bigbluebutton.common2.bus.ReceivedJsonMessage
+import org.bigbluebutton.common2.bus.IncomingJsonMessageBus
 
 object ReceivedJsonMsgHandlerActor {
   def props(eventBus: BbbMsgRouterEventBus, incomingJsonMessageBus: IncomingJsonMessageBus): Props =

@@ -18,12 +18,12 @@ const defaultProps = {
 };
 
 class Tooltip extends Component {
-  static wait(show, event) {
+  static wait(tip, event) {
     const tooltipTarget = event.target;
     const expandedEl = tooltipTarget.parentElement.querySelector('[aria-expanded="true"]');
     const isTarget = expandedEl === tooltipTarget;
     if (expandedEl && !isTarget) return;
-    show();
+    tip.show();
   }
 
   constructor(props) {
@@ -34,17 +34,18 @@ class Tooltip extends Component {
     this.onHide = this.onHide.bind(this);
     this.handleEscapeHide = this.handleEscapeHide.bind(this);
     this.delay = [150, 50];
-    this.dynamicTitle = true;
   }
 
   componentDidMount() {
     const {
       position,
+      title,
     } = this.props;
 
     const options = {
-      position,
-      dynamicTitle: this.dynamicTitle,
+      placement: position,
+      performance: true,
+      content: title,
       delay: this.delay,
       onShow: this.onShow,
       onHide: this.onHide,
@@ -53,6 +54,7 @@ class Tooltip extends Component {
     };
     this.tooltip = Tippy(`#${this.tippySelectorId}`, options);
   }
+
   onShow() {
     document.addEventListener('keyup', this.handleEscapeHide);
   }

@@ -14,5 +14,3 @@ ant sign-jar
 cp build/libs/ffmpeg-linux-x86-0.0.1.jar ../../../../app/jws/lib/ffmpeg-linux-x86-h264.jar
 rm -rf workdir
 rm -rf src
-
-

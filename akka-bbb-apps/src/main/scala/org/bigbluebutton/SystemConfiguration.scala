@@ -1,15 +1,10 @@
 package org.bigbluebutton
 
-import com.typesafe.config.ConfigFactory
 import scala.util.Try
 
-trait SystemConfiguration {
+import org.bigbluebutton.common2.redis.RedisConfiguration
 
-  val config = ConfigFactory.load()
-
-  lazy val redisHost = Try(config.getString("redis.host")).getOrElse("127.0.0.1")
-  lazy val redisPort = Try(config.getInt("redis.port")).getOrElse(6379)
-  lazy val redisPassword = Try(config.getString("redis.password")).getOrElse("")
+trait SystemConfiguration extends RedisConfiguration {
 
   lazy val bbbWebHost = Try(config.getString("services.bbbWebHost")).getOrElse("localhost")
   lazy val bbbWebPort = Try(config.getInt("services.bbbWebPort")).getOrElse(8888)
@@ -31,8 +26,6 @@ trait SystemConfiguration {
   lazy val outBbbMsgMsgChannel = Try(config.getString("eventBus.outBbbMsgMsgChannel")).getOrElse("OutBbbMsgChannel")
   lazy val recordServiceMessageChannel = Try(config.getString("eventBus.recordServiceMessageChannel")).getOrElse("RecordServiceMessageChannel")
 
-  lazy val toAkkaAppsRedisChannel = Try(config.getString("redis.toAkkaAppsRedisChannel")).getOrElse("to-akka-apps-redis-channel")
-  lazy val fromAkkaAppsRedisChannel = Try(config.getString("redis.fromAkkaAppsRedisChannel")).getOrElse("from-akka-apps-redis-channel")
   lazy val toHTML5RedisChannel = Try(config.getString("redis.toHTML5RedisChannel")).getOrElse("to-html5-redis-channel")
   lazy val fromAkkaAppsChannel = Try(config.getString("eventBus.fromAkkaAppsChannel")).getOrElse("from-akka-apps-channel")
   lazy val toAkkaAppsChannel = Try(config.getString("eventBus.toAkkaAppsChannel")).getOrElse("to-akka-apps-channel")
@@ -41,20 +34,8 @@ trait SystemConfiguration {
   lazy val toAkkaAppsJsonChannel = Try(config.getString("eventBus.toAkkaAppsChannel")).getOrElse("to-akka-apps-json-channel")
   lazy val fromAkkaAppsJsonChannel = Try(config.getString("eventBus.fromAkkaAppsChannel")).getOrElse("from-akka-apps-json-channel")
 
-  lazy val toVoiceConfRedisChannel = Try(config.getString("redis.toVoiceConfRedisChannel")).getOrElse("to-voice-conf-redis-channel")
-  lazy val fromVoiceConfRedisChannel = Try(config.getString("redis.fromVoiceConfRedisChannel")).getOrElse("from-voice-conf-redis-channel")
-
-  lazy val fromAkkaAppsWbRedisChannel = Try(config.getString("redis.fromAkkaAppsWbRedisChannel")).getOrElse("from-akka-apps-wb-redis-channel")
-  lazy val fromAkkaAppsChatRedisChannel = Try(config.getString("redis.fromAkkaAppsChatRedisChannel")).getOrElse("from-akka-apps-chat-redis-channel")
-  lazy val fromAkkaAppsPresRedisChannel = Try(config.getString("redis.fromAkkaAppsPresRedisChannel")).getOrElse("from-akka-apps-pres-redis-channel")
-
   lazy val maxNumberOfNotes = Try(config.getInt("sharedNotes.maxNumberOfNotes")).getOrElse(3)
   lazy val maxNumberOfUndos = Try(config.getInt("sharedNotes.maxNumberOfUndos")).getOrElse(30)
-
-  lazy val httpInterface = Try(config.getString("http.interface")).getOrElse("")
-  lazy val httpPort = Try(config.getInt("http.port")).getOrElse(9090)
-  lazy val telizeHost = Try(config.getString("services.telizeHost")).getOrElse("")
-  lazy val telizePort = Try(config.getInt("services.telizePort")).getOrElse(80)
 
   lazy val applyPermissionCheck = Try(config.getBoolean("apps.checkPermissions")).getOrElse(false)
 

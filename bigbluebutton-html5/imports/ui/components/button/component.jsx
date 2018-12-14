@@ -91,11 +91,9 @@ export default class Button extends BaseButton {
     const {
       size,
       color,
-      disabled,
       ghost,
       circle,
       block,
-      iconRight,
     } = this.props;
 
     const propClassNames = {};
@@ -106,8 +104,6 @@ export default class Button extends BaseButton {
     propClassNames[styles.ghost] = ghost;
     propClassNames[styles.circle] = circle;
     propClassNames[styles.block] = block;
-    propClassNames[styles.iconRight] = iconRight;
-    propClassNames[styles.disabled] = disabled;
 
     return propClassNames;
   }
@@ -118,11 +114,12 @@ export default class Button extends BaseButton {
       hideLabel,
       label,
       'aria-label': ariaLabel,
+      'aria-expanded': ariaExpanded,
     } = this.props;
 
     const renderFuncName = circle ? 'renderCircle' : 'renderDefault';
 
-    if (hideLabel) {
+    if (hideLabel && !ariaExpanded) {
       const tooltipLabel = label || ariaLabel;
 
       return (
@@ -206,7 +203,7 @@ export default class Button extends BaseButton {
 
     if (iconName) {
       return (<Icon className={styles.icon} iconName={iconName} />);
-    } else if (customIcon) {
+    } if (customIcon) {
       return customIcon;
     }
 

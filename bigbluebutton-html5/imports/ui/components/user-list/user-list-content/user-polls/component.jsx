@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React, { PureComponent } from 'react';
 import _ from 'lodash';
 import { defineMessages, injectIntl } from 'react-intl';
 import Icon from '/imports/ui/components/icon/component';
@@ -12,11 +12,7 @@ const intlMessages = defineMessages({
   },
 });
 
-class UserPolls extends Component {
-  constructor(props) {
-    super(props);
-  }
-
+class UserPolls extends PureComponent {
   render() {
     const {
       intl,

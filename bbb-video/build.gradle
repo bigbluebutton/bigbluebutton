@@ -17,24 +17,32 @@ repositories {
   mavenLocal()
 }
 
+configurations {
+    runtime.exclude group: "org.slf4j", module: "slf4j-api"
+    runtime.exclude group: "org.red5", module: "red5-server"
+    runtime.exclude group: "org.red5", module: "red5-server-common"
+    runtime.exclude group: "org.red5", module: "red5-io"
+}
+
 dependencies {
   // Servlet
   providedCompile 'javax.servlet:servlet-api:2.5@jar'
 
   // Mina
-  providedCompile 'org.apache.mina:mina-core:2.0.17@jar'
-  providedCompile 'org.apache.mina:mina-integration-beans:2.0.17@jar'
-  providedCompile 'org.apache.mina:mina-integration-jmx:2.0.17@jar'
+  providedCompile 'org.apache.mina:mina-core:2.0.19@jar'
+  providedCompile 'org.apache.mina:mina-integration-beans:2.0.19@jar'
+  providedCompile 'org.apache.mina:mina-integration-jmx:2.0.19@jar'
 
   // Spring
   providedCompile 'org.springframework:spring-web:4.3.12.RELEASE@jar'
-  providedCompile  'org.springframework:spring-beans:4.3.12.RELEASE@jar'
+  providedCompile 'org.springframework:spring-beans:4.3.12.RELEASE@jar'
   providedCompile 'org.springframework:spring-context:4.3.12.RELEASE@jar'
   providedCompile 'org.springframework:spring-core:4.3.12.RELEASE@jar'
 
-  providedCompile 'org.red5:red5-server:1.0.10-M5@jar'
-  providedCompile 'org.red5:red5-server-common:1.0.10-M5@jar'
-  providedCompile 'org.red5:red5-io:1.0.10-M5@jar'
+  // Red5
+  providedCompile 'org.red5:red5-server:1.0.10-M9@jar'
+  providedCompile 'org.red5:red5-server-common:1.0.10-M9@jar'
+  providedCompile 'org.red5:red5-io:1.0.10-M9@jar'
 
   // Logging
   providedCompile 'ch.qos.logback:logback-core:1.2.3@jar'
@@ -49,23 +57,12 @@ dependencies {
   providedCompile 'org.springframework:spring-aop:4.3.12.RELEASE@jar'
   compile 'aopalliance:aopalliance:1.0@jar'
 
-  // Testing
-  compile 'org.easymock:easymock:2.4@jar'
-
-  // Testing
-  testRuntime 'org.easymock:easymock:2.4@jar'
-
   //redis
-  compile 'redis.clients:jedis:2.9.0'
-  compile 'org.apache.commons:commons-pool2:2.3'
-  compile 'com.google.code.gson:gson:2.5'
+  compile 'org.apache.commons:commons-pool2:2.6.0'
+  compile 'com.google.code.gson:gson:2.8.5'
 
-  compile 'org.apache.commons:commons-lang3:3.7'
-  compile 'org.bigbluebutton:bbb-common-message_2.12:0.0.19-SNAPSHOT'
-}
-
-test {
-    useTestNG()
+  providedCompile 'org.apache.commons:commons-lang3:3.7'
+  compile 'org.bigbluebutton:bbb-common-message_2.12:0.0.20-SNAPSHOT'
 }
 
 war.doLast {
@@ -76,6 +73,7 @@ war.doLast {
 task deploy() << {
 	def red5AppsDir = '/usr/share/red5/webapps'
 	def videoDir = new File("${red5AppsDir}/video")
+    println "Deleting $videoDir"
 	if (videoDir.exists()) ant.delete(dir: videoDir)
 	ant.mkdir(dir: videoDir)
 	ant.copy(todir: videoDir) {

@@ -1,20 +1,18 @@
-import React from 'react';
+import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import { styles } from './styles';
-import UserParticipants from './user-participants/component';
+import UserParticipantsContainer from './user-participants/container';
 import UserMessages from './user-messages/component';
 import UserPolls from './user-polls/component';
 import BreakoutRoomItem from './breakout-room/component';
 
 const propTypes = {
   openChats: PropTypes.arrayOf(String).isRequired,
-  users: PropTypes.arrayOf(Object).isRequired,
   compact: PropTypes.bool,
   intl: PropTypes.shape({
     formatMessage: PropTypes.func.isRequired,
   }).isRequired,
   currentUser: PropTypes.shape({}).isRequired,
-  meeting: PropTypes.shape({}),
   isBreakoutRoom: PropTypes.bool,
   getAvailableActions: PropTypes.func.isRequired,
   normalizeEmojiName: PropTypes.func.isRequired,
@@ -24,32 +22,35 @@ const propTypes = {
   assignPresenter: PropTypes.func.isRequired,
   removeUser: PropTypes.func.isRequired,
   toggleVoice: PropTypes.func.isRequired,
+  muteAllUsers: PropTypes.func.isRequired,
+  muteAllExceptPresenter: PropTypes.func.isRequired,
   changeRole: PropTypes.func.isRequired,
   roving: PropTypes.func.isRequired,
   getGroupChatPrivate: PropTypes.func.isRequired,
+  handleEmojiChange: PropTypes.func.isRequired,
+  getUsersId: PropTypes.func.isRequired,
+  pollIsOpen: PropTypes.bool.isRequired,
+  forcePollOpen: PropTypes.bool.isRequired,
 };
 
 const defaultProps = {
   compact: false,
   isBreakoutRoom: false,
-  // This one is kinda tricky, meteor takes sometime to fetch the data and passing down
-  // So the first time its create, the meeting comes as null, sending an error to the client.
-  meeting: {},
 };
 
-class UserContent extends React.Component {
+class UserContent extends PureComponent {
   render() {
     const {
-      users,
       compact,
       intl,
       currentUser,
-      meeting,
       isBreakoutRoom,
       setEmojiStatus,
       assignPresenter,
       removeUser,
       toggleVoice,
+      muteAllUsers,
+      muteAllExceptPresenter,
       changeRole,
       getAvailableActions,
       normalizeEmojiName,
@@ -64,6 +65,7 @@ class UserContent extends React.Component {
       pollIsOpen,
       forcePollOpen,
       hasBreakoutRoom,
+      getUsersId,
     } = this.props;
 
     return (
@@ -89,18 +91,18 @@ class UserContent extends React.Component {
           }}
         />
         <BreakoutRoomItem isPresenter={currentUser.isPresenter} hasBreakoutRoom={hasBreakoutRoom} />
-        <UserParticipants
+        <UserParticipantsContainer
           {...{
-            users,
             compact,
             intl,
             currentUser,
-            meeting,
             isBreakoutRoom,
             setEmojiStatus,
             assignPresenter,
             removeUser,
             toggleVoice,
+            muteAllUsers,
+            muteAllExceptPresenter,
             changeRole,
             getAvailableActions,
             normalizeEmojiName,
@@ -110,6 +112,7 @@ class UserContent extends React.Component {
             getEmojiList,
             getEmoji,
             getGroupChatPrivate,
+            getUsersId,
           }}
         />
       </div>

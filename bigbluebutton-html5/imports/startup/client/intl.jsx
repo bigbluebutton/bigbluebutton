@@ -27,6 +27,7 @@ class IntlStartup extends Component {
 
     this.fetchLocalizedMessages = this.fetchLocalizedMessages.bind(this);
   }
+
   componentWillMount() {
     this.fetchLocalizedMessages(this.props.locale);
   }
@@ -69,7 +70,7 @@ class IntlStartup extends Component {
 
   render() {
     return this.state.fetching ? <LoadingScreen /> : (
-      <IntlProvider locale={this.state.normalizedLocale} messages={this.state.messages}>
+      <IntlProvider locale={DEFAULT_LANGUAGE} messages={this.state.messages}>
         {this.props.children}
       </IntlProvider>
     );

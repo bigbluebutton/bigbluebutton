@@ -48,9 +48,11 @@ import org.bigbluebutton.api.domain.RegisteredUser;
 import org.bigbluebutton.api.domain.User;
 import org.bigbluebutton.api.domain.UserSession;
 import org.bigbluebutton.api.messaging.MessageListener;
-import org.bigbluebutton.api.messaging.RedisStorageService;
 import org.bigbluebutton.api.messaging.converters.messages.DestroyMeetingMessage;
 import org.bigbluebutton.api.messaging.converters.messages.EndMeetingMessage;
+import org.bigbluebutton.api.messaging.converters.messages.PublishedRecordingMessage;
+import org.bigbluebutton.api.messaging.converters.messages.UnpublishedRecordingMessage;
+import org.bigbluebutton.api.messaging.converters.messages.DeletedRecordingMessage;
 import org.bigbluebutton.api.messaging.messages.CreateBreakoutRoom;
 import org.bigbluebutton.api.messaging.messages.CreateMeeting;
 import org.bigbluebutton.api.messaging.messages.EndMeeting;
@@ -77,6 +79,7 @@ import org.bigbluebutton.api.messaging.messages.UserStatusChanged;
 import org.bigbluebutton.api.messaging.messages.UserUnsharedWebcam;
 import org.bigbluebutton.api2.IBbbWebApiGWApp;
 import org.bigbluebutton.api2.domain.UploadedTrack;
+import org.bigbluebutton.common2.redis.RedisStorageService;
 import org.bigbluebutton.presentation.PresentationUrlDownloadService;
 import org.bigbluebutton.web.services.RegisteredUserCleanupTimerTask;
 import org.bigbluebutton.web.services.callback.CallbackUrlService;
@@ -197,19 +200,7 @@ public class MeetingService implements MessageListener {
 
   private void kickOffProcessingOfRecording(Meeting m) {
     if (m.isRecord() && m.getNumUsers() == 0) {
-      Map<String, Object> logData = new HashMap<>();
-      logData.put("meetingId", m.getInternalId());
-      logData.put("externalMeetingId", m.getExternalId());
-      logData.put("name", m.getName());
-      logData.put("event", "kick_off_ingest_and_processing");
-      logData.put("description", "Start processing of recording.");
-
-      Gson gson = new Gson();
-      String logStr = gson.toJson(logData);
-
-      log.info("Initiate recording processing: data={}", logStr);
-
-      processRecording(m.getInternalId());
+      processRecording(m);
     }
   }
 
@@ -429,16 +420,22 @@ public class MeetingService implements MessageListener {
   public void setPublishRecording(List<String> idList, boolean publish) {
     for (String id : idList) {
       if (publish) {
-        recordingService.changeState(id, Recording.STATE_PUBLISHED);
+        if (recordingService.changeState(id, Recording.STATE_PUBLISHED)) {
+          gw.publishedRecording(new PublishedRecordingMessage(id));
+        }
       } else {
-        recordingService.changeState(id, Recording.STATE_UNPUBLISHED);
+        if (recordingService.changeState(id, Recording.STATE_UNPUBLISHED)) {
+          gw.unpublishedRecording(new UnpublishedRecordingMessage(id));
+        }
       }
     }
   }
 
   public void deleteRecordings(List<String> idList) {
     for (String id : idList) {
-      recordingService.changeState(id, Recording.STATE_DELETED);
+      if (recordingService.changeState(id, Recording.STATE_DELETED)) {
+        gw.deletedRecording(new DeletedRecordingMessage(id));
+      }
     }
   }
 
@@ -446,10 +443,21 @@ public class MeetingService implements MessageListener {
     recordingService.updateMetaParams(idList, metaParams);
   }
 
+  public void processRecording(Meeting m) {
+    if (m.isRecord()) {
+      Map<String, Object> logData = new HashMap<String, Object>();
+      logData.put("meetingId", m.getInternalId());
+      logData.put("externalMeetingId", m.getExternalId());
+      logData.put("name", m.getName());
+      logData.put("event", "kick_off_ingest_and_processing");
+      logData.put("description", "Start processing of recording.");
 
+      Gson gson = new Gson();
+      String logStr = gson.toJson(logData);
 
-  public void processRecording(String meetingId) {
-    recordingService.startIngestAndProcessing(meetingId);
+      log.info("Initiate recording processing: data={}", logStr);
+      recordingService.startIngestAndProcessing(m.getInternalId());
+    }
   }
 
   public void endMeeting(String meetingId) {
@@ -513,7 +521,7 @@ public class MeetingService implements MessageListener {
     Meeting m = getMeeting(message.meetingId);
     if (m != null) {
       m.setForciblyEnded(true);
-      processRecording(m.getInternalId());
+      processRecording(m);
       destroyMeeting(m.getInternalId());
       meetings.remove(m.getInternalId());
       removeUserSessions(m.getInternalId());

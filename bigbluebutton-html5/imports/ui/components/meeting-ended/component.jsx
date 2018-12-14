@@ -5,7 +5,7 @@ import { Meteor } from 'meteor/meteor';
 import Auth from '/imports/ui/services/auth';
 import Button from '/imports/ui/components/button/component';
 import getFromUserSettings from '/imports/ui/services/users-settings';
-import { logoutRouteHandler } from '/imports/startup/client/auth';
+import logoutRouteHandler from '/imports/utils/logoutRouteHandler';
 import Rating from './rating/component';
 import { styles } from './styles';
 
@@ -78,7 +78,6 @@ class MeetingEnded extends React.PureComponent {
     const comment = textarea.value;
     return comment;
   }
-
   constructor(props) {
     super(props);
     this.state = {
@@ -126,7 +125,10 @@ class MeetingEnded extends React.PureComponent {
     };
 
     fetch(url, options)
-      .finally(() => {
+      .then(() => {
+        logoutRouteHandler();
+      })
+      .catch(() => {
         logoutRouteHandler();
       });
   }

@@ -105,7 +105,7 @@ class VideoService {
   }
 
   isLocked() {
-    const m = Meetings.findOne({ meetingId: Auth.meetingID });
+    const m = Meetings.findOne({ meetingId: Auth.meetingID }) || {};
     return m.lockSettingsProp ? m.lockSettingsProp.disableCam : false;
   }
 
@@ -124,6 +124,11 @@ class VideoService {
 
   sessionToken() {
     return Auth.sessionToken;
+  }
+
+  voiceBridge() {
+    const voiceBridge = Meetings.findOne({ meetingId: Auth.meetingID }).voiceProp.voiceConf;
+    return voiceBridge;
   }
 
   isConnected() {
@@ -157,4 +162,5 @@ export default {
   meetingId: () => videoService.meetingId(),
   getAllUsersVideo: () => videoService.getAllUsersVideo(),
   sessionToken: () => videoService.sessionToken(),
+  voiceBridge: () => videoService.voiceBridge(),
 };

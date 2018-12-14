@@ -1,10 +1,15 @@
 import React, { Component } from 'react';
-import Modal from '/imports/ui/components/modal/fullscreen/component';
 import { defineMessages, injectIntl } from 'react-intl';
 import _ from 'lodash';
 import cx from 'classnames';
+<<<<<<< HEAD
 import browser from 'browser-detect';
 import Button from '/imports/ui/components/button/component';
+=======
+import { Session } from 'meteor/session';
+import Modal from '/imports/ui/components/modal/fullscreen/component';
+import { withModalMounter } from '/imports/ui/components/modal/service';
+>>>>>>> upstream/master
 import HoldButton from '/imports/ui/components/presentation/presentation-toolbar/zoom-tool/holdButton/component';
 import SortList from './sort-user-list/component';
 import { styles } from './styles';
@@ -22,6 +27,10 @@ const intlMessages = defineMessages({
   confirmButton: {
     id: 'app.createBreakoutRoom.confirm',
     description: 'confirm button label',
+  },
+  dismissLabel: {
+    id: 'app.presentationUploder.dismissLabel',
+    description: 'used in the button that close modal',
   },
   numberOfRooms: {
     id: 'app.createBreakoutRoom.numberOfRooms',
@@ -46,6 +55,10 @@ const intlMessages = defineMessages({
   roomLabel: {
     id: 'app.createBreakoutRoom.room',
     description: 'Room label',
+  },
+  leastOneWarnBreakout: {
+    id: 'app.createBreakoutRoom.leastOneWarnBreakout',
+    description: 'warn message label',
   },
   notAssigned: {
     id: 'app.createBreakoutRoom.notAssigned',
@@ -87,11 +100,15 @@ class BreakoutRoom extends Component {
     this.renderRoomsGrid = this.renderRoomsGrid.bind(this);
     this.renderBreakoutForm = this.renderBreakoutForm.bind(this);
     this.renderFreeJoinCheck = this.renderFreeJoinCheck.bind(this);
+<<<<<<< HEAD
     this.renderRoomSortList = this.renderRoomSortList.bind(this);
     this.renderDesktop = this.renderDesktop.bind(this);
     this.renderMobile = this.renderMobile.bind(this);
     this.renderButtonSetLevel = this.renderButtonSetLevel.bind(this);
     this.renderSelectUserScreen = this.renderSelectUserScreen.bind(this);
+=======
+    this.handleDismiss = this.handleDismiss.bind(this);
+>>>>>>> upstream/master
 
     this.state = {
       numberOfRooms: MIN_BREAKOUT_ROOMS,
@@ -99,8 +116,13 @@ class BreakoutRoom extends Component {
       users: [],
       durationTime: 1,
       freeJoin: false,
+<<<<<<< HEAD
       formFillLevel: 1,
       roomSelected: 0,
+=======
+      preventClosing: true,
+      valid: true,
+>>>>>>> upstream/master
     };
   }
 
@@ -122,6 +144,11 @@ class BreakoutRoom extends Component {
       intl,
     } = this.props;
 
+    if (this.state.users.length === this.getUserByRoom(0).length) {
+      this.setState({ valid: false });
+      return;
+    }
+    this.setState({ preventClosing: false });
     const { numberOfRooms, durationTime } = this.state;
     const rooms = _.range(1, numberOfRooms + 1).map(value => ({
       users: this.getUserByRoom(value).map(u => u.userId),
@@ -134,6 +161,7 @@ class BreakoutRoom extends Component {
     }));
 
     createBreakoutRoom(rooms, durationTime, this.state.freeJoin);
+    Session.set('isUserListOpen', true);
   }
 
   setRoomUsers() {
@@ -155,6 +183,18 @@ class BreakoutRoom extends Component {
 
   getUserByRoom(room) {
     return this.state.users.filter(user => user.room === room);
+  }
+
+  handleDismiss() {
+    const { mountModal } = this.props;
+
+    return new Promise((resolve) => {
+      mountModal(null);
+
+      this.setState({
+        preventClosing: false,
+      }, resolve);
+    });
   }
 
   resetUserWhenRoomsChange(rooms) {
@@ -203,7 +243,7 @@ class BreakoutRoom extends Component {
 
     return (
       <div className={styles.boxContainer}>
-        <label htmlFor="BreakoutRoom">
+        <label htmlFor="BreakoutRoom" className={!this.state.valid ? styles.changeToWarn : null}>
           <p
             className={styles.freeJoinLabel}
           >
@@ -212,11 +252,14 @@ class BreakoutRoom extends Component {
           <div className={styles.breakoutBox} onDrop={drop(0)} onDragOver={allowDrop} >
             {this.renderUserItemByRoom(0)}
           </div>
+          <span className={this.state.valid ? styles.dontShow : styles.leastOneWarn} >
+            {intl.formatMessage(intlMessages.leastOneWarnBreakout)}
+          </span>
         </label>
         {
           _.range(1, this.state.numberOfRooms + 1).map(value =>
             (
-              <label htmlFor="BreakoutRoom">
+              <label htmlFor="BreakoutRoom" key={`room-${value}`}>
                 <p
                   className={styles.freeJoinLabel}
                 >
@@ -320,6 +363,10 @@ class BreakoutRoom extends Component {
     const dragStart = (ev) => {
       ev.dataTransfer.setData('text', ev.target.id);
       this.setState({ seletedId: ev.target.id });
+
+      if (!this.state.valid) {
+        this.setState({ valid: true });
+      }
     };
 
 
@@ -331,6 +378,7 @@ class BreakoutRoom extends Component {
       .map(user => (
         <p
           id={user.userId}
+          key={user.userId}
           className={cx(
             styles.roomUserItem,
             this.state.seletedId === user.userId ? styles.selectedItem : null,
@@ -425,6 +473,11 @@ class BreakoutRoom extends Component {
             callback: this.onCreateBreakouts,
           }
         }
+        dismiss={{
+          callback: this.handleDismiss,
+          label: intl.formatMessage(intlMessages.dismissLabel),
+        }}
+        preventClosing={this.state.preventClosing}
       >
         <div className={styles.content}>
           <p className={styles.subTitle}>
@@ -438,4 +491,4 @@ class BreakoutRoom extends Component {
   }
 }
 
-export default injectIntl(BreakoutRoom);
+export default withModalMounter(injectIntl(BreakoutRoom));

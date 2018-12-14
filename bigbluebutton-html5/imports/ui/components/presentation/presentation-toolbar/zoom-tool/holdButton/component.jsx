@@ -80,15 +80,15 @@ class HoldDownButton extends Component {
 
   render() {
     const {
-      key,
+      uniqueKey,
       className,
       children,
     } = this.props;
-    
+
     return (
       <span
         role="button"
-        key={key}
+        key={uniqueKey}
         onClick={this.onClick}
         onMouseDown={this.mouseDownHandler}
         onMouseUp={this.mouseUpHandler}
@@ -107,12 +107,12 @@ const defaultProps = {
   exec: () => {},
   minBound: null,
   maxBound: Infinity,
-  key: _.uniqueId('holdButton-'),
+  uniqueKey: _.uniqueId('holdButton-'),
   value: 0,
 };
 
 const propTypes = {
-  key: PropTypes.string,
+  uniqueKey: PropTypes.string,
   exec: PropTypes.func.isRequired,
   minBound: PropTypes.number,
   maxBound: PropTypes.number,

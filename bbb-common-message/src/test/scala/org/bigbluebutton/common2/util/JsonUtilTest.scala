@@ -1,14 +1,12 @@
 package org.bigbluebutton.common2.util
 
-import org.bigbluebutton.common2.{TestFixtures, UnitSpec2}
-import org.bigbluebutton.common2.messages._
+import org.bigbluebutton.common2.{ TestFixtures, UnitSpec2 }
+import org.bigbluebutton.common2.msgs._
 
 import scala.collection.immutable.List
 import com.fasterxml.jackson.databind.JsonNode
-import org.bigbluebutton.common2.messages.MessageBody.ValidateAuthTokenReqMsgBody
 
-import scala.util.{Failure, Success}
-
+import scala.util.{ Failure, Success }
 
 case class Person(name: String, age: Int)
 case class Group(name: String, persons: Seq[Person], leader: Person)
@@ -26,7 +24,7 @@ class JsonUtilTest extends UnitSpec2 with TestFixtures {
     // map: Map[String,Seq[Int]] = Map(a -> List(1, 2), b -> List(3, 4, 5), c -> List())
     println(map)
     map match {
-      case Success(a) => assert(a.values.size == 3)
+      case Success(a)  => assert(a.values.size == 3)
       case Failure(ex) => fail("Failed to decode json message")
     }
   }
@@ -38,7 +36,7 @@ class JsonUtilTest extends UnitSpec2 with TestFixtures {
     val jeroen = Person("Jeroen", 26)
     val martin = Person("Martin", 54)
 
-    val originalGroup = Group("Scala ppl", Seq(jeroen,martin), martin)
+    val originalGroup = Group("Scala ppl", Seq(jeroen, martin), martin)
     // originalGroup: Group = Group(Scala ppl,List(Person(Jeroen,26), Person(Martin,54)),Person(Martin,54))
     println(originalGroup)
 
@@ -52,7 +50,7 @@ class JsonUtilTest extends UnitSpec2 with TestFixtures {
   }
 
   "JsonUtil" should "unmarshall a ValidateAuthTokenReq" in {
-    val header: BbbCoreHeaderWithMeetingId = new BbbCoreHeaderWithMeetingId("foo", "mId")
+    val header: BbbClientMsgHeader = new BbbClientMsgHeader("foo", "mId", "uId")
     val body: ValidateAuthTokenReqMsgBody = new ValidateAuthTokenReqMsgBody(userId = "uId", authToken = "myToken")
     val msg: ValidateAuthTokenReqMsg = new ValidateAuthTokenReqMsg(header, body)
     val json = JsonUtil.toJson(msg)
