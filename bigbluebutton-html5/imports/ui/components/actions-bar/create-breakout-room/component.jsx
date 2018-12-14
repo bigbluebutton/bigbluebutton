@@ -2,10 +2,13 @@ import React, { Component } from 'react';
 import Modal from '/imports/ui/components/modal/fullscreen/component';
 import { defineMessages, injectIntl } from 'react-intl';
 import _ from 'lodash';
+import cx from 'classnames';
+import browser from 'browser-detect';
+import Button from '/imports/ui/components/button/component';
 import HoldButton from '/imports/ui/components/presentation/presentation-toolbar/zoom-tool/holdButton/component';
+import SortList from './sort-user-list/component';
 import { styles } from './styles';
 import Icon from '../../icon/component';
-import cx from 'classnames';
 
 const intlMessages = defineMessages({
   breakoutRoomTitle: {
@@ -48,6 +51,22 @@ const intlMessages = defineMessages({
     id: 'app.createBreakoutRoom.notAssigned',
     description: 'Not assigned label',
   },
+  breakoutRoomLabel: {
+    id: 'app.createBreakoutRoom.breakoutRoomLabel',
+    description: 'breakout room label',
+  },
+  addParticipantLabel: {
+    id: 'app.createBreakoutRoom.addParticipantLabel',
+    description: 'add Participant label',
+  },
+  nextLabel: {
+    id: 'app.createBreakoutRoom.nextLabel',
+    description: 'Next label',
+  },
+  backLabel: {
+    id: 'app.audio.backLabel',
+    description: 'Back label',
+  },
 });
 const MIN_BREAKOUT_ROOMS = 2;
 const MAX_BREAKOUT_ROOMS = 8;
@@ -68,6 +87,11 @@ class BreakoutRoom extends Component {
     this.renderRoomsGrid = this.renderRoomsGrid.bind(this);
     this.renderBreakoutForm = this.renderBreakoutForm.bind(this);
     this.renderFreeJoinCheck = this.renderFreeJoinCheck.bind(this);
+    this.renderRoomSortList = this.renderRoomSortList.bind(this);
+    this.renderDesktop = this.renderDesktop.bind(this);
+    this.renderMobile = this.renderMobile.bind(this);
+    this.renderButtonSetLevel = this.renderButtonSetLevel.bind(this);
+    this.renderSelectUserScreen = this.renderSelectUserScreen.bind(this);
 
     this.state = {
       numberOfRooms: MIN_BREAKOUT_ROOMS,
@@ -75,6 +99,8 @@ class BreakoutRoom extends Component {
       users: [],
       durationTime: 1,
       freeJoin: false,
+      formFillLevel: 1,
+      roomSelected: 0,
     };
   }
 
@@ -263,6 +289,18 @@ class BreakoutRoom extends Component {
     );
   }
 
+  renderSelectUserScreen() {
+    return (
+      <SortList
+        confirm={() => this.setState({ formFillLevel: 2 })}
+        users={this.state.users}
+        room={this.state.roomSelected}
+        onCheck={this.changeUserRoom}
+        onUncheck={userId => this.changeUserRoom(userId, 0)}
+      />
+    );
+  }
+
   renderFreeJoinCheck() {
     const { intl } = this.props;
     return (
@@ -284,7 +322,8 @@ class BreakoutRoom extends Component {
       this.setState({ seletedId: ev.target.id });
     };
 
-    const dragEnd = (ev) => {
+
+    const dragEnd = () => {
       this.setState({ seletedId: '' });
     };
 
@@ -305,8 +344,77 @@ class BreakoutRoom extends Component {
         </p>));
   }
 
+  renderRoomSortList() {
+    const { intl } = this.props;
+    const { numberOfRooms } = this.state;
+    const onClick = roomNumber => this.setState({ formFillLevel: 3, roomSelected: roomNumber });
+    return (
+      <div className={styles.listContainer}>
+        <span>
+          {
+            new Array(numberOfRooms).fill(1).map((room, idx) => (
+              <div className={styles.roomItem}>
+                <h2 className={styles.itemTitle}>
+                  {intl.formatMessage(intlMessages.breakoutRoomLabel, { 0: idx + 1 })}
+                </h2>
+                <Button
+                  className={styles.itemButton}
+                  label={intl.formatMessage(intlMessages.addParticipantLabel)}
+                  size="lg"
+                  ghost
+                  color="primary"
+                  onClick={() => onClick(idx + 1)}
+                />
+              </div>
+            ))
+          }
+        </span>
+        {this.renderButtonSetLevel(1, intl.formatMessage(intlMessages.backLabel))}
+      </div>
+    );
+  }
+
+  renderDesktop() {
+    return [
+      this.renderBreakoutForm(),
+      this.renderRoomsGrid(),
+    ];
+  }
+
+  renderMobile() {
+    const { intl } = this.props;
+    const { formFillLevel } = this.state;
+    if (formFillLevel === 2) {
+      return this.renderRoomSortList();
+    }
+
+    if (formFillLevel === 3) {
+      return this.renderSelectUserScreen();
+    }
+
+    return [
+      this.renderBreakoutForm(),
+      this.renderButtonSetLevel(2, intl.formatMessage(intlMessages.nextLabel)),
+    ];
+  }
+
+  renderButtonSetLevel(level, label) {
+    return (
+      <Button
+        color="primary"
+        size="lg"
+        label={label}
+        onClick={() => this.setState({ formFillLevel: level })}
+      />
+    );
+  }
+
   render() {
     const { intl } = this.props;
+
+    const BROWSER_RESULTS = browser();
+    const isMobileBrowser = BROWSER_RESULTS.mobile ||
+      BROWSER_RESULTS.os.includes('Android');
 
     return (
       <Modal
@@ -322,9 +430,8 @@ class BreakoutRoom extends Component {
           <p className={styles.subTitle}>
             {intl.formatMessage(intlMessages.breakoutRoomDesc)}
           </p>
-          {this.renderBreakoutForm()}
-          {this.renderFreeJoinCheck()}
-          {this.renderRoomsGrid()}
+          {isMobileBrowser ?
+            this.renderMobile() : this.renderDesktop()}
         </div>
       </Modal >
     );
