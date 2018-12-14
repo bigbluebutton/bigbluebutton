@@ -2,14 +2,11 @@ import React, { Component } from 'react';
 import { defineMessages, injectIntl } from 'react-intl';
 import _ from 'lodash';
 import cx from 'classnames';
-<<<<<<< HEAD
 import browser from 'browser-detect';
 import Button from '/imports/ui/components/button/component';
-=======
 import { Session } from 'meteor/session';
 import Modal from '/imports/ui/components/modal/fullscreen/component';
 import { withModalMounter } from '/imports/ui/components/modal/service';
->>>>>>> upstream/master
 import HoldButton from '/imports/ui/components/presentation/presentation-toolbar/zoom-tool/holdButton/component';
 import SortList from './sort-user-list/component';
 import { styles } from './styles';
@@ -100,15 +97,12 @@ class BreakoutRoom extends Component {
     this.renderRoomsGrid = this.renderRoomsGrid.bind(this);
     this.renderBreakoutForm = this.renderBreakoutForm.bind(this);
     this.renderFreeJoinCheck = this.renderFreeJoinCheck.bind(this);
-<<<<<<< HEAD
     this.renderRoomSortList = this.renderRoomSortList.bind(this);
     this.renderDesktop = this.renderDesktop.bind(this);
     this.renderMobile = this.renderMobile.bind(this);
     this.renderButtonSetLevel = this.renderButtonSetLevel.bind(this);
     this.renderSelectUserScreen = this.renderSelectUserScreen.bind(this);
-=======
     this.handleDismiss = this.handleDismiss.bind(this);
->>>>>>> upstream/master
 
     this.state = {
       numberOfRooms: MIN_BREAKOUT_ROOMS,
@@ -116,13 +110,10 @@ class BreakoutRoom extends Component {
       users: [],
       durationTime: 1,
       freeJoin: false,
-<<<<<<< HEAD
       formFillLevel: 1,
       roomSelected: 0,
-=======
       preventClosing: true,
       valid: true,
->>>>>>> upstream/master
     };
   }
 
