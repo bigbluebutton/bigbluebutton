@@ -19,14 +19,11 @@ class ClientGWApplication(
 
   val log = Logging(system, getClass)
 
-
   println("************************* REDIS PASSWORD " + redisPassword)
 
   // Need to wrap redisPassword into Option as it may be
   // null (ralam nov 29, 2018)
   val redisPass = Option(redisPassword)
-
-  log.debug("*********** meetingManagerChannel = " + meetingManagerChannel)
 
   private val msgFromClientEventBus = new MsgFromClientEventBus
   private val msgFromAkkaAppsEventBus = new MsgFromAkkaAppsEventBus

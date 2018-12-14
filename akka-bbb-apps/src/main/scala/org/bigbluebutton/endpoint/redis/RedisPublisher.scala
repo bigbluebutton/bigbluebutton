@@ -6,10 +6,10 @@ import org.bigbluebutton.SystemConfiguration
 import akka.util.ByteString
 
 class RedisPublisher(
-  val system:    ActorSystem,
-  redisHost:     String,
-  redisPort:     Int,
-  redisPassword: Option[String]
+    val system:    ActorSystem,
+    redisHost:     String,
+    redisPort:     Int,
+    redisPassword: Option[String]
 ) {
 
   val redis = RedisClient(redisHost, redisPort, redisPassword)(system)
