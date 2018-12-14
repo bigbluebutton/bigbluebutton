@@ -26,10 +26,10 @@ require 'trollop'
 require 'yaml'
 
 
-def archive_events(meeting_id, redis_host, redis_port, raw_archive_dir, break_timestamp)
+def archive_events(meeting_id, redis_host, redis_port, redis_password, raw_archive_dir, break_timestamp)
   BigBlueButton.logger.info("Archiving events for #{meeting_id}")
   #begin
-    redis = BigBlueButton::RedisWrapper.new(redis_host, redis_port)
+    redis = BigBlueButton::RedisWrapper.new(redis_host, redis_port, redis_password)
     events_archiver = BigBlueButton::RedisEventsArchiver.new redis    
     events = events_archiver.store_events(meeting_id,
                           "#{raw_archive_dir}/#{meeting_id}/events.xml",
@@ -141,7 +141,7 @@ BigBlueButton.logger = Logger.new("#{log_dir}/archive-#{meeting_id}.log", 'daily
 
 target_dir = "#{raw_archive_dir}/#{meeting_id}"
 FileUtils.mkdir_p target_dir
-archive_events(meeting_id, redis_host, redis_port, raw_archive_dir, break_timestamp)
+archive_events(meeting_id, redis_host, redis_port, redis_password, raw_archive_dir, break_timestamp)
 archive_audio(meeting_id, audio_dir, raw_archive_dir)
 archive_directory("#{presentation_dir}/#{meeting_id}/#{meeting_id}",
                   "#{target_dir}/presentation")

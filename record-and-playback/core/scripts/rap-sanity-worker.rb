@@ -108,7 +108,8 @@ begin
   props = YAML::load(File.open('bigbluebutton.yml'))
   redis_host = props['redis_host']
   redis_port = props['redis_port']
-  BigBlueButton.redis_publisher = BigBlueButton::RedisWrapper.new(redis_host, redis_port)
+  redis_password = props['redis_password']
+  BigBlueButton.redis_publisher = BigBlueButton::RedisWrapper.new(redis_host, redis_port, redis_password)
 
   log_dir = props['log_dir']
   recording_dir = props['recording_dir']
