@@ -131,8 +131,7 @@ const BaseContainer = withTracker(() => {
     },
   };
 
-  const subscriptionsHandlers = SUBSCRIPTIONS_NAME.map(name =>
-    Meteor.subscribe(name, credentials, subscriptionErrorHandler));
+  const subscriptionsHandlers = SUBSCRIPTIONS_NAME.map(name => Meteor.subscribe(name, credentials, subscriptionErrorHandler));
 
   const chats = GroupChat.find({
     $or: [

@@ -24,9 +24,8 @@ class Send extends Page {
     // [{ "name": "User1\nXX:XX XM", "message": "Hello world!" }]
     const chat1 = await util.getTestElements(this);
 
-    const response =
-      chat0.length == 0 &&
-      chat1[0].message == e.message;
+    const response = chat0.length == 0
+      && chat1[0].message == e.message;
 
     return response;
   }

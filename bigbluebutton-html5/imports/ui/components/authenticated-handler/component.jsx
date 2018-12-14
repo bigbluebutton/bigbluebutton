@@ -11,6 +11,7 @@ class AuthenticatedHandler extends Component {
     Session.set('hasError', true);
     if (codeError) Session.set('codeError', codeError);
   }
+
   static shouldAuthenticate(status, lastStatus) {
     return lastStatus != null && lastStatus === STATUS_CONNECTING && status.connected;
   }
@@ -31,6 +32,7 @@ class AuthenticatedHandler extends Component {
       }
     });
   }
+
   static async authenticatedRouteHandler(callback) {
     if (Auth.loggedIn) {
       callback();
@@ -51,6 +53,7 @@ class AuthenticatedHandler extends Component {
       setReason(error);
     }
   }
+
   constructor(props) {
     super(props);
     this.changeState = this.changeState.bind(this);

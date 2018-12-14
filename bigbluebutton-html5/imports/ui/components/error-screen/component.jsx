@@ -55,16 +55,16 @@ class ErrorScreen extends React.PureComponent {
 
     return (
       <div className={styles.background}>
-        <h1 className={styles.code}>
+        <h1>
           {code}
         </h1>
         <h1 className={styles.message}>
           {formatedMessage}
         </h1>
-        <div className={styles.content}>
+        <div>
           {children}
         </div>
-        <div className={styles.content}>
+        <div>
           <Button
             size="sm"
             onClick={logoutRouteHandler}

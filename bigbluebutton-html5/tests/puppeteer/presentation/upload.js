@@ -23,7 +23,7 @@ class Upload extends Page {
 
     await this.click(e.start);
     console.log('\nWaiting for the new presentation to upload...');
-    //await this.elementRemoved(e.start);
+    // await this.elementRemoved(e.start);
     await this.page.waitFor(10000);
     console.log('\nPresentation uploaded!');
 
@@ -38,7 +38,7 @@ class Upload extends Page {
     console.log(slides1.svg);
 
     // TODO: Check test
-    return true
+    return true;
   }
 
   async getTestElements() {
