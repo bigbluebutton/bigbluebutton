@@ -129,7 +129,7 @@ export default withModalMounter(withTracker(({ mountModal }) => {
 
   if (data.swapLayout) {
     data.floatingOverlay = true;
-    data.hideOverlay = hidePresentation;
+    data.hideOverlay = true; //hidePresentation;
   }
 
   MediaContainer.propTypes = propTypes;
