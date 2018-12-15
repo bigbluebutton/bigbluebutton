@@ -1,13 +1,15 @@
 package org.bigbluebutton.transcode
 
-import akka.actor.{ Actor, ActorLogging, Props }
+import org.bigbluebutton.SystemConfiguration
+import org.bigbluebutton.common2.bus.ReceivedJsonMessage
+import org.bigbluebutton.common2.msgs._
+import org.bigbluebutton.transcode.core.TranscodingInGW
 
 import com.fasterxml.jackson.databind.JsonNode
 
-import org.bigbluebutton.SystemConfiguration
-import org.bigbluebutton.common2.msgs._
-import org.bigbluebutton.transcode.bus.ReceivedJsonMsg
-import org.bigbluebutton.transcode.core.TranscodingInGW
+import akka.actor.Actor
+import akka.actor.ActorLogging
+import akka.actor.Props
 
 object JsonMsgHdlrActor {
   def props(inGW: TranscodingInGW): Props = Props(classOf[JsonMsgHdlrActor], inGW)
@@ -16,13 +18,13 @@ object JsonMsgHdlrActor {
 class JsonMsgHdlrActor(val inGW: TranscodingInGW) extends Actor with ActorLogging
     with SystemConfiguration with JsonMsgDeserializer {
   def receive = {
-    case msg: ReceivedJsonMsg =>
+    case msg: ReceivedJsonMessage =>
       log.debug("handling {} - {}", msg.channel, msg.data)
       handleReceivedJsonMessage(msg)
     case _ => // do nothing
   }
 
-  def handleReceivedJsonMessage(msg: ReceivedJsonMsg): Unit = {
+  def handleReceivedJsonMessage(msg: ReceivedJsonMessage): Unit = {
     for {
       envJsonNode <- JsonDeserializer.toBbbCommonEnvJsNodeMsg(msg.data)
     } yield handle(envJsonNode.envelope, envJsonNode.core)
