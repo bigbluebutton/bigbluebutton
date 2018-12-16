@@ -7,10 +7,10 @@ object Dependencies {
 
   object Versions {
     // Scala
-    val scala = "2.12.7"
+    val scala = "2.12.8"
 
     // Libraries
-    val akkaVersion = "2.5.17"
+    val akkaVersion = "2.5.19"
     val gson = "2.8.5"
     val sl4j = "1.7.25"
     val quicklens = "1.4.11"
