@@ -154,7 +154,6 @@ input[type="number"]::-webkit-outer-spin-button, input[type="number"]::-webkit-i
   color: var(--color-white)
 }
 
-<<<<<<< HEAD
 /* mobile */
 
 .listContainer {
@@ -274,8 +273,8 @@ input[type="number"]::-webkit-outer-spin-button, input[type="number"]::-webkit-i
   & input[type="checkbox"]:checked + label:after {
     opacity: 1;
   }
-=======
+}
+
 .dontShow {
   display: none;
->>>>>>> upstream/master
 }
