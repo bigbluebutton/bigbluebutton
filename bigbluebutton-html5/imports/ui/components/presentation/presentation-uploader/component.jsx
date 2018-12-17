@@ -67,6 +67,10 @@ const intlMessages = defineMessages({
     id: 'app.presentationUploder.dropzoneLabel',
     description: 'message warning where drop files for upload',
   },
+  dropzoneImagesLabel: {
+    id: 'app.presentationUploder.dropzoneImagesLabel',
+    description: 'message warning where drop images for upload',
+  },
   browseFilesLabel: {
     id: 'app.presentationUploder.browseFilesLabel',
     description: 'message use on the file browser',
@@ -506,7 +510,7 @@ class PresentationUploader extends Component {
       >
         <Icon className={styles.dropzoneIcon} iconName="upload" />
         <p className={styles.dropzoneMessage}>
-          {intl.formatMessage(intlMessages.dropzoneLabel)}&nbsp;
+          {intl.formatMessage(intlMessages.dropzoneImagesLabel)}&nbsp;
           <span className={styles.dropzoneLink}>
             {intl.formatMessage(intlMessages.browseImagesLabel)}
           </span>
