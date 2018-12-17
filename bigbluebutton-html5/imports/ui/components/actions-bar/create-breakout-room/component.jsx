@@ -416,6 +416,7 @@ class BreakoutRoom extends Component {
   renderDesktop() {
     return [
       this.renderBreakoutForm(),
+      this.renderFreeJoinCheck(),
       this.renderRoomsGrid(),
     ];
   }
@@ -433,6 +434,7 @@ class BreakoutRoom extends Component {
 
     return [
       this.renderBreakoutForm(),
+      this.renderFreeJoinCheck(),
       this.renderButtonSetLevel(2, intl.formatMessage(intlMessages.nextLabel)),
     ];
   }
