@@ -35,22 +35,21 @@ const processToggleMuteFromOutside = (e) => {
   }
 };
 
-export default withModalMounter(withTracker(({ mountModal }) =>
-  ({
-    processToggleMuteFromOutside: arg => processToggleMuteFromOutside(arg),
-    mute: Service.isConnected() && !Service.isListenOnly() && !Service.isEchoTest(),
-    unmute: Service.isConnected() && !Service.isListenOnly() && Service.isMuted(),
-    join: Service.isConnected() && !Service.isEchoTest(),
-    disable: Service.isConnecting() || Service.isHangingUp(),
-    glow: Service.isTalking() && !Service.isMuted(),
-    handleToggleMuteMicrophone: () => Service.toggleMuteMicrophone(),
-    handleJoinAudio: () => {
-      const meeting = Meetings.findOne({ meetingId: Auth.meetingID });
-      const currentUser = Users.findOne({ userId: Auth.userID });
-      const currentUserIsLocked = mapUser(currentUser).isLocked;
-      const micsLocked = (currentUserIsLocked && meeting.lockSettingsProp.disableMic);
+export default withModalMounter(withTracker(({ mountModal }) => ({
+  processToggleMuteFromOutside: arg => processToggleMuteFromOutside(arg),
+  mute: Service.isConnected() && !Service.isListenOnly() && !Service.isEchoTest(),
+  unmute: Service.isConnected() && !Service.isListenOnly() && Service.isMuted(),
+  join: Service.isConnected() && !Service.isEchoTest(),
+  disable: Service.isConnecting() || Service.isHangingUp(),
+  glow: Service.isTalking() && !Service.isMuted(),
+  handleToggleMuteMicrophone: () => Service.toggleMuteMicrophone(),
+  handleJoinAudio: () => {
+    const meeting = Meetings.findOne({ meetingId: Auth.meetingID });
+    const currentUser = Users.findOne({ userId: Auth.userID });
+    const currentUserIsLocked = mapUser(currentUser).isLocked;
+    const micsLocked = (currentUserIsLocked && meeting.lockSettingsProp.disableMic);
 
-      return micsLocked ? Service.joinListenOnly() : mountModal(<AudioModalContainer />);
-    },
-    handleLeaveAudio: () => Service.exitAudio(),
-  }))(AudioControlsContainer));
+    return micsLocked ? Service.joinListenOnly() : mountModal(<AudioModalContainer />);
+  },
+  handleLeaveAudio: () => Service.exitAudio(),
+}))(AudioControlsContainer));

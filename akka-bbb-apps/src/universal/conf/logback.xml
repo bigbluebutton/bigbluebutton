@@ -20,6 +20,7 @@
       
     <logger name="akka" level="INFO" />
     <logger name="org.bigbluebutton" level="DEBUG" />
+    <logger name="io.lettuce" level="INFO" />
 
     <root level="DEBUG">
         <appender-ref ref="STDOUT"/>

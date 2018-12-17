@@ -342,11 +342,11 @@ module BigBlueButton
 
       # Once the events file has been written, we can delete this segment's
       # events from redis.
-      @redis.trim_events_for(meeting_id, last_index)
       msgs.each_with_index do |msg, i|
         @redis.delete_event_info_for(meeting_id, msg)
-        break if i >= 0 and i >= last_index
+        break if last_index >= 0 and i >= last_index
       end
+      @redis.trim_events_for(meeting_id, last_index)
 
     end
 

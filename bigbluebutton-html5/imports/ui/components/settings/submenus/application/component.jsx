@@ -122,8 +122,8 @@ class ApplicationMenu extends BaseMenu {
     const { isLargestFontSize, isSmallestFontSize } = this.state;
 
     return (
-      <div className={styles.tabContent}>
-        <div className={styles.header}>
+      <div>
+        <div>
           <h3 className={styles.title}>
             {intl.formatMessage(intlMessages.applicationSectionTitle)}
           </h3>
@@ -223,17 +223,6 @@ class ApplicationMenu extends BaseMenu {
                 <div className={styles.pullContentRight}>
                   <div className={styles.col}>
                     <Button
-                      onClick={() => this.handleIncreaseFontSize()}
-                      color="primary"
-                      icon="add"
-                      circle
-                      hideLabel
-                      label={intl.formatMessage(intlMessages.increaseFontBtnLabel)}
-                      disabled={isLargestFontSize}
-                    />
-                  </div>
-                  <div className={styles.col}>
-                    <Button
                       onClick={() => this.handleDecreaseFontSize()}
                       color="primary"
                       icon="substract"
@@ -241,6 +230,17 @@ class ApplicationMenu extends BaseMenu {
                       hideLabel
                       label={intl.formatMessage(intlMessages.decreaseFontBtnLabel)}
                       disabled={isSmallestFontSize}
+                    />
+                  </div>
+                  <div className={styles.col}>
+                    <Button
+                      onClick={() => this.handleIncreaseFontSize()}
+                      color="primary"
+                      icon="add"
+                      circle
+                      hideLabel
+                      label={intl.formatMessage(intlMessages.increaseFontBtnLabel)}
+                      disabled={isLargestFontSize}
                     />
                   </div>
                 </div>

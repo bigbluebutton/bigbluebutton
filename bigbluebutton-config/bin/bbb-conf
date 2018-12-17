@@ -57,6 +57,7 @@
 #   2016-10-17 GTR  Added redis to checked server components & added ownership check for video and freeswitch recording directories
 #   2017-04-08 FFD  Cleanup for 1.1-beta
 #   2018-11-22 MNE  Dynamically detect if sudo is needed
+#   2018-12-09 GTR  More logs cleanup
 
 #set -x
 #set -e
@@ -74,7 +75,7 @@ fi
 source /etc/bigbluebutton/bigbluebutton-release
 
 #
-# Figure out our environment
+# Figure out our environment (Debian vs. CentOS)
 #
 
 RED5_DIR=/usr/share/red5
@@ -496,19 +497,25 @@ start_bigbluebutton () {
 
 display_bigbluebutton_status () {
     if command -v systemctl >/dev/null; then
-	units="red5 $TOMCAT_SERVICE nginx freeswitch $REDIS_SERVICE bbb-apps-akka bbb-transcode-akka bbb-fsesl-akka"
+        units="red5 $TOMCAT_SERVICE nginx freeswitch $REDIS_SERVICE bbb-apps-akka bbb-transcode-akka bbb-fsesl-akka"
 
-       if [ -f /usr/lib/systemd/system/bbb-html5.service ]; then
-          units="$units mongod bbb-html5 bbb-webrtc-sfu kurento-media-server"
-       fi
+        if [ -f /usr/lib/systemd/system/bbb-html5.service ]; then
+            units="$units mongod bbb-html5 bbb-webrtc-sfu kurento-media-server"
+        fi
 
-	for unit in $units; do
-		echo "$unit: $(systemctl is-active $unit)"
-	done 
+        line='——————————————————————►'
+        for unit in $units; do
+            status=$(systemctl is-active "$unit")
+            if [ "$status" = "active" ]; then
+                printf "%s %s [✔ - $status]\n" $unit "${line:${#unit}}"
+            else
+                printf "%s %s [✘ - $status]\n" $unit "${line:${#unit}}"
+			fi
+        done 
     else
-	/etc/init.d/nginx status
-	/etc/init.d/$RED5 status
-	/etc/init.d/${SERVLET_CONTAINER} status
+        /etc/init.d/nginx status
+        /etc/init.d/$RED5 status
+        /etc/init.d/${SERVLET_CONTAINER} status
     fi
 }
 
@@ -1982,8 +1989,20 @@ if [ $CLEAN ]; then
 	#
 	rm -f /var/log/bigbluebutton/bbb-rap-worker.log*
 	rm -f /var/log/bigbluebutton/archive.log*
-	if [ -d /var/log/bigbluebutton/slides ]; then
-		rm -f /var/log/bigbluebutton/slides/*
+	if [ -d /var/log/bigbluebutton/html5 ]; then
+		rm -f /var/log/bigbluebutton/html5/*
+	fi
+	
+	if [ -d /var/log/bigbluebutton/podcast ]; then
+		rm -f /var/log/bigbluebutton/podcast/*
+	fi
+	
+	if [ -d /var/log/bigbluebutton/presentation ]; then
+		rm -f /var/log/bigbluebutton/presentation/*
+	fi
+	
+	if [ -d /var/log/bigbluebutton/screenshare ]; then
+		rm -f /var/log/bigbluebutton/screenshare/*
 	fi
 		
 	
@@ -2017,6 +2036,18 @@ if [ $CLEAN ]; then
 
 	if [ -d /var/log/bbb-webrtc-sfu ]; then
 		rm -f /var/log/bbb-webrtc-sfu/*
+	fi
+	
+	if [ -d /var/log/redis ]; then
+		rm -f /var/log/redis/*
+	fi
+
+	if [ -d /var/log/mongodb ]; then
+		rm -f /var/log/mongodb/*
+	fi
+
+	if [ -d /var/log/kurento-media-server ]; then
+		rm -f /var/log/kurento-media-server/*
 	fi
 
 	start_bigbluebutton

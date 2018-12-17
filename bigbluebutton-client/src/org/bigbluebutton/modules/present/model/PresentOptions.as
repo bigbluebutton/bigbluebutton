@@ -37,7 +37,10 @@ package org.bigbluebutton.modules.present.model {
 		public var openExternalFileUploadDialog:Boolean = false;
 
 		[Bindable]
-		public var enableDownload:Boolean = true;
+		public var multiPods:Boolean = false;
+
+		[Bindable]
+		public var enableDownload:Boolean = false;
 		
 		[Bindable]
 		public var disableFirefoxF60Upload:Boolean = true;

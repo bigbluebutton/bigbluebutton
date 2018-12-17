@@ -1,3 +1,4 @@
+import _ from 'lodash';
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { defineMessages, injectIntl, intlShape } from 'react-intl';
@@ -91,8 +92,8 @@ class ActionsDropdown extends Component {
   }
 
   componentDidMount() {
-    if (Meteor.settings.public.allowOutsideCommands.toggleRecording ||
-      getFromUserSettings('outsideToggleRecording', false)) {
+    if (Meteor.settings.public.allowOutsideCommands.toggleRecording
+      || getFromUserSettings('outsideToggleRecording', false)) {
       ActionBarService.connectRecordingObserver();
       window.addEventListener('message', ActionBarService.processOutsideToggleRecording);
     }
@@ -121,44 +122,52 @@ class ActionsDropdown extends Component {
     } = this.props;
 
     return _.compact([
-      (isUserPresenter ?
-        <DropdownListItem
-          icon="user"
-          label={intl.formatMessage(intlMessages.pollBtnLabel)}
-          description={intl.formatMessage(intlMessages.pollBtnDesc)}
-          key={this.pollId}
-          onClick={() => togglePollMenu()}
-        />
+      (isUserPresenter
+        ? (
+          <DropdownListItem
+            icon="user"
+            label={intl.formatMessage(intlMessages.pollBtnLabel)}
+            description={intl.formatMessage(intlMessages.pollBtnDesc)}
+            key={this.pollId}
+            onClick={() => togglePollMenu()}
+          />
+        )
         : null),
-      (isUserPresenter ?
-        <DropdownListItem
-          data-test="uploadPresentation"
-          icon="presentation"
-          label={intl.formatMessage(intlMessages.presentationLabel)}
-          description={intl.formatMessage(intlMessages.presentationDesc)}
-          key={this.presentationItemId}
-          onClick={this.handlePresentationClick}
-        />
+      (isUserPresenter
+        ? (
+          <DropdownListItem
+            data-test="uploadPresentation"
+            icon="presentation"
+            label={intl.formatMessage(intlMessages.presentationLabel)}
+            description={intl.formatMessage(intlMessages.presentationDesc)}
+            key={this.presentationItemId}
+            onClick={this.handlePresentationClick}
+          />
+        )
         : null),
-      (record && isUserModerator && allowStartStopRecording ?
-        <DropdownListItem
-          icon="record"
-          label={intl.formatMessage(isRecording ?
-            intlMessages.stopRecording : intlMessages.startRecording)}
-          description={intl.formatMessage(isRecording ?
-            intlMessages.stopRecording : intlMessages.startRecording)}
-          key={this.recordId}
-          onClick={toggleRecording}
-        />
+      (record && isUserModerator && allowStartStopRecording
+        ? (
+          <DropdownListItem
+            icon="record"
+            label={intl.formatMessage(isRecording
+              ? intlMessages.stopRecording : intlMessages.startRecording)}
+            description={intl.formatMessage(isRecording
+              ? intlMessages.stopRecording : intlMessages.startRecording)}
+            key={this.recordId}
+            onClick={toggleRecording}
+          />
+        )
         : null),
-      (isUserModerator && !meetingIsBreakout && !hasBreakoutRoom ?
-        <DropdownListItem
-          icon="rooms"
-          label={intl.formatMessage(intlMessages.createBreakoutRoom)}
-          description={intl.formatMessage(intlMessages.createBreakoutRoomDesc)}
-          key={this.createBreakoutRoomId}
-          onClick={this.handleCreateBreakoutRoomClick}
-        />
+      (isUserModerator && !meetingIsBreakout && !hasBreakoutRoom
+        ? (
+          <DropdownListItem
+            icon="rooms"
+            label={intl.formatMessage(intlMessages.createBreakoutRoom)}
+            description={intl.formatMessage(intlMessages.createBreakoutRoomDesc)}
+            key={this.createBreakoutRoomId}
+            onClick={this.handleCreateBreakoutRoomClick}
+          />
+        )
         : null),
     ]);
   }
@@ -166,13 +175,21 @@ class ActionsDropdown extends Component {
   handlePresentationClick() {
     this.props.mountModal(<PresentationUploaderContainer />);
   }
+
   handleCreateBreakoutRoomClick() {
     const {
       createBreakoutRoom,
       mountModal,
       meetingName,
+      users,
     } = this.props;
-    mountModal(<BreakoutRoom createBreakoutRoom={createBreakoutRoom} meetingName={meetingName} />);
+
+    mountModal(
+      <BreakoutRoom
+        createBreakoutRoom={createBreakoutRoom}
+        meetingName={meetingName}
+        users={users}
+      />);
   }
 
   render() {
@@ -188,7 +205,7 @@ class ActionsDropdown extends Component {
     if ((!isUserPresenter && !isUserModerator) || availableActions.length === 0) return null;
 
     return (
-      <Dropdown ref={(ref) => { this._dropdown = ref; }} >
+      <Dropdown ref={(ref) => { this._dropdown = ref; }}>
         <DropdownTrigger tabIndex={0} accessKey={OPEN_ACTIONS_AK}>
           <Button
             hideLabel
