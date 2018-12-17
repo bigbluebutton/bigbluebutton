@@ -1,8 +1,6 @@
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import Auth from '/imports/ui/services/auth';
-import mapUser from '/imports/ui/services/user/mapUser';
-import Users from '/imports/api/users/';
 import UserOptions from './component';
 
 
@@ -31,43 +29,37 @@ export default class UserOptionsContainer extends PureComponent {
 
   muteMeeting() {
     const { muteAllUsers } = this.props;
-    const currentUser = Users.findOne({ userId: Auth.userID });
-
-    muteAllUsers(currentUser.userId);
+    muteAllUsers(Auth.userID);
   }
 
   muteAllUsersExceptPresenter() {
     const { muteAllExceptPresenter } = this.props;
-    const currentUser = Users.findOne({ userId: Auth.userID });
-
-    muteAllExceptPresenter(currentUser.userId);
+    muteAllExceptPresenter(Auth.userID);
   }
 
   handleClearStatus() {
     const { users, setEmojiStatus } = this.props;
 
-    users.forEach((user) => {
-      if (user.emoji.status !== 'none') {
-        setEmojiStatus(user.id, 'none');
-      }
+    users.forEach((id) => {
+      setEmojiStatus(id, 'none');
     });
   }
 
   render() {
-    const currentUser = Users.findOne({ userId: Auth.userID });
-    const currentUserIsModerator = mapUser(currentUser).isModerator;
-    const { meeting } = this.props;
+    const { currentUser } = this.props;
+    const currentUserIsModerator = currentUser.isModerator;
 
-    this.state.meetingMuted = meeting.voiceProp.muteOnStart;
+    const { meetingMuted } = this.state;
 
     return (
-      currentUserIsModerator ?
-        <UserOptions
-          toggleMuteAllUsers={this.muteMeeting}
-          toggleMuteAllUsersExceptPresenter={this.muteAllUsersExceptPresenter}
-          toggleStatus={this.handleClearStatus}
-          isMeetingMuted={this.state.meetingMuted}
-        /> : null
+      currentUserIsModerator
+        ? (
+          <UserOptions
+            toggleMuteAllUsers={this.muteMeeting}
+            toggleMuteAllUsersExceptPresenter={this.muteAllUsersExceptPresenter}
+            toggleStatus={this.handleClearStatus}
+            isMeetingMuted={meetingMuted}
+          />) : null
     );
   }
 }

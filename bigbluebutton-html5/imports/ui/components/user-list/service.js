@@ -41,11 +41,11 @@ const getCustomLogoUrl = () => Storage.getItem(CUSTOM_LOGO_URL_KEY);
 const sortUsersByName = (a, b) => {
   if (a.name.toLowerCase() < b.name.toLowerCase()) {
     return -1;
-  } else if (a.name.toLowerCase() > b.name.toLowerCase()) {
+  } if (a.name.toLowerCase() > b.name.toLowerCase()) {
     return 1;
-  } else if (a.id.toLowerCase() > b.id.toLowerCase()) {
+  } if (a.id.toLowerCase() > b.id.toLowerCase()) {
     return -1;
-  } else if (a.id.toLowerCase() < b.id.toLowerCase()) {
+  } if (a.id.toLowerCase() < b.id.toLowerCase()) {
     return 1;
   }
 
@@ -62,12 +62,12 @@ const sortUsersByEmoji = (a, b) => {
   if (emojiA && emojiB && (emojiA !== 'none' && emojiB !== 'none')) {
     if (a.emoji.changedAt < b.emoji.changedAt) {
       return -1;
-    } else if (a.emoji.changedAt > b.emoji.changedAt) {
+    } if (a.emoji.changedAt > b.emoji.changedAt) {
       return 1;
     }
-  } else if (emojiA && emojiA !== 'none') {
+  } if (emojiA && emojiA !== 'none') {
     return -1;
-  } else if (emojiB && emojiB !== 'none') {
+  } if (emojiB && emojiB !== 'none') {
     return 1;
   }
   return 0;
@@ -76,9 +76,9 @@ const sortUsersByEmoji = (a, b) => {
 const sortUsersByModerator = (a, b) => {
   if (a.isModerator && b.isModerator) {
     return sortUsersByEmoji(a, b);
-  } else if (a.isModerator) {
+  } if (a.isModerator) {
     return -1;
-  } else if (b.isModerator) {
+  } if (b.isModerator) {
     return 1;
   }
 
@@ -88,9 +88,9 @@ const sortUsersByModerator = (a, b) => {
 const sortUsersByPhoneUser = (a, b) => {
   if (!a.isPhoneUser && !b.isPhoneUser) {
     return 0;
-  } else if (!a.isPhoneUser) {
+  } if (!a.isPhoneUser) {
     return -1;
-  } else if (!b.isPhoneUser) {
+  } if (!b.isPhoneUser) {
     return 1;
   }
 
@@ -101,7 +101,7 @@ const sortUsersByPhoneUser = (a, b) => {
 const sortUsersByCurrent = (a, b) => {
   if (a.isCurrent) {
     return -1;
-  } else if (b.isCurrent) {
+  } if (b.isCurrent) {
     return 1;
   }
 
@@ -133,11 +133,11 @@ const sortUsers = (a, b) => {
 const sortChatsByName = (a, b) => {
   if (a.name.toLowerCase() < b.name.toLowerCase()) {
     return -1;
-  } else if (a.name.toLowerCase() > b.name.toLowerCase()) {
+  } if (a.name.toLowerCase() > b.name.toLowerCase()) {
     return 1;
-  } else if (a.id.toLowerCase() > b.id.toLowerCase()) {
+  } if (a.id.toLowerCase() > b.id.toLowerCase()) {
     return -1;
-  } else if (a.id.toLowerCase() < b.id.toLowerCase()) {
+  } if (a.id.toLowerCase() < b.id.toLowerCase()) {
     return 1;
   }
 
@@ -147,9 +147,9 @@ const sortChatsByName = (a, b) => {
 const sortChatsByIcon = (a, b) => {
   if (a.icon && b.icon) {
     return sortChatsByName(a, b);
-  } else if (a.icon) {
+  } if (a.icon) {
     return -1;
-  } else if (b.icon) {
+  } if (b.icon) {
     return 1;
   }
 
@@ -436,6 +436,11 @@ const getGroupChatPrivate = (sender, receiver) => {
   }
 };
 
+const isUserModerator = (userId) => {
+  const u = Users.findOne({ userId });
+  return u ? u.moderator : false;
+};
+
 export default {
   setEmojiStatus,
   assignPresenter,
@@ -457,7 +462,7 @@ export default {
   getCustomLogoUrl,
   getGroupChatPrivate,
   hasBreakoutRoom,
+  isUserModerator,
   getEmojiList: () => EMOJI_STATUSES,
   getEmoji: () => Users.findOne({ userId: Auth.userID }).emoji,
 };
-
