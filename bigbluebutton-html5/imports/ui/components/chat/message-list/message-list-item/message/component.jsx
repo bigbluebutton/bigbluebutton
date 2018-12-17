@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import _ from 'lodash';
 
@@ -28,7 +28,7 @@ const isElementInViewport = (el) => {
   );
 };
 
-export default class MessageListItem extends Component {
+export default class MessageListItem extends PureComponent {
   constructor(props) {
     super(props);
 

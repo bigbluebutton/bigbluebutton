@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React, { PureComponent } from 'react';
 import { defineMessages, injectIntl } from 'react-intl';
 import { withModalMounter } from '/imports/ui/components/modal/service';
 import Clipboard from 'clipboard';
@@ -33,7 +33,7 @@ const intlMessages = defineMessages({
   },
 });
 
-class ChatDropdown extends Component {
+class ChatDropdown extends PureComponent {
   constructor(props) {
     super(props);
 

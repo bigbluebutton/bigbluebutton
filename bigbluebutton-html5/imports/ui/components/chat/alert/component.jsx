@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import { defineMessages, injectIntl } from 'react-intl';
 import { Session } from 'meteor/session';
@@ -37,7 +37,7 @@ const intlMessages = defineMessages({
 const PUBLIC_KEY = 'public';
 const PRIVATE_KEY = 'private';
 
-class ChatAlert extends Component {
+class ChatAlert extends PureComponent {
   constructor(props) {
     super(props);
     this.state = {
