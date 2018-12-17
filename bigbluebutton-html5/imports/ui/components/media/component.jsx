@@ -24,7 +24,7 @@ export default class Media extends Component {
 
   render() {
     const {
-      swapLayout, floatingOverlay, hideOverlay, disableVideo,
+      swapLayout, floatingOverlay, hideOverlay, disableVideo, children,
     } = this.props;
 
     const contentClassName = cx({
@@ -40,7 +40,7 @@ export default class Media extends Component {
     return (
       <div className={styles.container}>
         <div className={!swapLayout ? contentClassName : overlayClassName}>
-          {this.props.children}
+          {children}
         </div>
         <div className={!swapLayout ? overlayClassName : contentClassName}>
           { !disableVideo ? <VideoProviderContainer /> : null }
