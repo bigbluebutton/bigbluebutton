@@ -17,10 +17,6 @@ const intlClientErrors = defineMessages({
     id: 'app.video.iceCandidateError',
     description: 'Error message for ice candidate fail',
   },
-  sharingError: {
-    id: 'app.video.sharingError',
-    description: 'Error on sharing webcam',
-  },
   chromeExtensionError: {
     id: 'app.video.chromeExtensionError',
     description: 'Error message for Chrome Extension not installed',
@@ -53,6 +49,10 @@ const intlClientErrors = defineMessages({
     id: 'app.video.iceConnectionStateError',
     description: 'Error message for ice connection state being failed',
   },
+  mediaFlowTimeout: {
+    id: 'app.video.mediaFlowTimeout1020',
+    description: 'Error message when media could not go through the server within the specified period',
+  },
 });
 
 const intlSFUErrors = defineMessages({
@@ -62,7 +62,7 @@ const intlSFUErrors = defineMessages({
   },
   2001: {
     id: 'app.sfu.mediaServerOffline2001',
-    description: 'error message when kurento is offline',
+    description: 'error message when SFU is offline',
   },
   2002: {
     id: 'app.sfu.mediaServerNoResources2002',
@@ -79,6 +79,10 @@ const intlSFUErrors = defineMessages({
   2022: {
     id: 'app.sfu.serverIceStateFailed2022',
     description: 'Error message fired when the server endpoint transitioned to a FAILED ICE state',
+  },
+  2200: {
+    id: 'app.sfu.mediaGenericError2200',
+    description: 'Error message fired when the SFU component generated a generic error',
   },
   2202: {
     id: 'app.sfu.invalidSdp2202',
@@ -167,8 +171,8 @@ class VideoProvider extends Component {
   }
 
   componentWillMount() {
-    this.ws.addEventListener('open', this.onWsOpen);
-    this.ws.addEventListener('close', this.onWsClose);
+    this.ws.onopen =  this.onWsOpen;
+    this.ws.onclose = this.onWsClose;
 
     window.addEventListener('online', this.openWs);
     window.addEventListener('offline', this.onWsClose);
@@ -177,7 +181,7 @@ class VideoProvider extends Component {
   componentDidMount() {
     document.addEventListener('joinVideo', this.shareWebcam); // TODO find a better way to do this
     document.addEventListener('exitVideo', this.unshareWebcam);
-    this.ws.addEventListener('message', this.onWsMessage);
+    this.ws.onmessage = this.onWsMessage;
     window.addEventListener('beforeunload', this.unshareWebcam);
 
     this.visibility.onVisible(this.unpauseViewers);
@@ -199,9 +203,9 @@ class VideoProvider extends Component {
     document.removeEventListener('joinVideo', this.shareWebcam);
     document.removeEventListener('exitVideo', this.unshareWebcam);
 
-    this.ws.removeEventListener('message', this.onWsMessage);
-    this.ws.removeEventListener('open', this.onWsOpen);
-    this.ws.removeEventListener('close', this.onWsClose);
+    this.ws.onmessage = null;
+    this.ws.onopen = null;
+    this.ws.onclose = null;
 
     window.removeEventListener('online', this.openWs);
     window.removeEventListener('offline', this.onWsClose);
@@ -236,10 +240,19 @@ class VideoProvider extends Component {
   }
 
   onWsClose(error) {
+    const {
+      intl,
+    } = this.props;
+
     this.logger('debug', '------ Websocket connection closed.', { topic: 'ws' });
 
-    this.stopWebRTCPeer(this.props.userId);
     clearInterval(this.pingInterval);
+
+    if (this.sharedWebcam) {
+      this.unshareWebcam();
+    }
+    // Notify user that the SFU component has gone offline
+    this.notifyError(intl.formatMessage(intlSFUErrors[2001]));
 
     this.setState({ socketOpen: false });
   }
@@ -274,7 +287,6 @@ class VideoProvider extends Component {
         break;
 
       case 'pong':
-        this.logger('debug', 'Received pong from server', { topic: 'ws' });
         break;
 
       case 'error':
@@ -369,9 +381,14 @@ class VideoProvider extends Component {
       cameraId: id,
     });
 
-    // Clear the shared camera fail timeout when destroying
-    clearTimeout(this.restartTimeout[id]);
-    delete this.restartTimeout[id];
+    // Clear the shared camera media flow timeout when destroying it
+    if (this.restartTimeout[id]) {
+      clearTimeout(this.restartTimeout[id]);
+    }
+
+    if (this.restartTimer[id]) {
+      delete this.restartTimer[id];
+    }
 
     this.destroyWebRTCPeer(id);
   }
@@ -392,6 +409,11 @@ class VideoProvider extends Component {
   async createWebRTCPeer(id, shareWebcam) {
     const { meetingId, sessionToken, voiceBridge } = this.props;
     let iceServers = [];
+
+    // Check if there's connectivity to the SFU component
+    if (!this.connectedToMediaServer()) {
+      return this._webRTCOnError(2001, id, shareWebcam);
+    }
 
     // Check if the peer is already being processed
     if (this.webRtcPeers[id]) {
@@ -480,7 +502,7 @@ class VideoProvider extends Component {
       this.logger('error', `Camera share has not suceeded in ${CAMERA_SHARE_FAILED_WAIT_TIME}`, { cameraId: id });
 
       if (this.props.userId === id) {
-        this.notifyError(intl.formatMessage(intlClientErrors.sharingError));
+        this.notifyError(intl.formatMessage(intlClientErrors.mediaFlowTimeout));
         this.stopWebRTCPeer(id);
       } else {
         this.stopWebRTCPeer(id);
@@ -512,15 +534,9 @@ class VideoProvider extends Component {
     const { intl } = this.props;
 
     this.logger('error', ' WebRTC peerObj create error', id);
-    this.logger('error', error, id);
     const errorMessage = intlClientErrors[error.name]
-      || intlClientErrors.permissionError;
+      || intlSFUErrors[error] || intlClientErrors.permissionError;
     this.notifyError(intl.formatMessage(errorMessage));
-    /* This notification error is displayed considering kurento-utils
-     * returned the error 'The request is not allowed by the user agent
-     * or the platform in the current context.', but there are other
-     * errors that could be returned. */
-
     this.stopWebRTCPeer(id);
 
     return this.logger('error', errorMessage, { cameraId: id });
@@ -844,7 +860,7 @@ class VideoProvider extends Component {
     if (message.streamId === userId) {
       this.unshareWebcam();
       this.notifyError(intl.formatMessage(intlSFUErrors[code]
-        || intlClientErrors.sharingError));
+        || intlSFUErrors[2200]));
     } else {
       this.stopWebRTCPeer(message.cameraId);
     }
@@ -857,15 +873,10 @@ class VideoProvider extends Component {
   }
 
   shareWebcam() {
-    const { intl } = this.props;
-
     if (this.connectedToMediaServer()) {
       this.logger('info', 'Sharing webcam');
       this.sharedWebcam = true;
       VideoService.joiningVideo();
-    } else {
-      this.logger('debug', 'Error on sharing webcam');
-      this.notifyError(intl.formatMessage(intlClientErrors.sharingError));
     }
   }
 
