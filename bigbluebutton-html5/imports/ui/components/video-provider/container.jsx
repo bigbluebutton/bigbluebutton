@@ -4,8 +4,10 @@ import getFromUserSettings from '/imports/ui/services/users-settings';
 import VideoProvider from './component';
 import VideoService from './service';
 
-const VideoProviderContainer = ({ children, ...props }) =>
-  (!props.users.length ? null : <VideoProvider {...props}>{children}</VideoProvider>);
+const VideoProviderContainer = ({ children, ...props }) => {
+  const { users } = props;
+  return (!users.length ? null : <VideoProvider {...props}>{children}</VideoProvider>);
+};
 
 export default withTracker(() => ({
   meetingId: VideoService.meetingId(),
