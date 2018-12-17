@@ -159,7 +159,7 @@ class BreakoutRoom extends Component {
   onAssignRandomly() {
     const { numberOfRooms } = this.state;
     return this.getUserByRoom(0)
-      .forEach(user => this.changeUserRoom(user.userId, Math.floor(Math.random() * (numberOfRooms - 1 + 1) + 1)));
+      .forEach(user => this.changeUserRoom(user.userId, Math.floor(Math.random() * (numberOfRooms) + 1)));
   }
 
   setRoomUsers() {
