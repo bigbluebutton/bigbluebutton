@@ -56,7 +56,7 @@ const Chat = (props) => {
         >
           <Button
             onClick={() => {
-              Session.set('isChatOpen', false);
+              Session.set('openPanel', 'userlist');
             }}
             aria-label={intl.formatMessage(intlMessages.hideChatLabel, { 0: title })}
             accessKey={HIDE_CHAT_AK}
@@ -66,23 +66,23 @@ const Chat = (props) => {
           />
         </div>
         {
-          chatID !== 'public' ?
-            <Button
-              className={styles.closeBtn}
-              icon="close"
-              size="md"
-              hideLabel
-              onClick={() => {
-                actions.handleClosePrivateChat(chatID);
-                Session.set('isChatOpen', false);
-                Session.set('idChatOpen', '');
-              }}
-              aria-label={intl.formatMessage(intlMessages.closeChatLabel, { 0: title })}
-              label={intl.formatMessage(intlMessages.closeChatLabel, { 0: title })}
-              accessKey={CLOSE_CHAT_AK}
-            />
-            :
-            <ChatDropdown />
+          chatID !== 'public'
+            ? (
+              <Button
+                className={styles.closeBtn}
+                icon="close"
+                size="md"
+                hideLabel
+                onClick={() => {
+                  actions.handleClosePrivateChat(chatID);
+                  Session.set('openPanel', 'userlist');
+                }}
+                aria-label={intl.formatMessage(intlMessages.closeChatLabel, { 0: title })}
+                label={intl.formatMessage(intlMessages.closeChatLabel, { 0: title })}
+                accessKey={CLOSE_CHAT_AK}
+              />
+            )
+            : <ChatDropdown />
         }
       </header>
       <MessageList
@@ -122,6 +122,7 @@ const propTypes = {
     PropTypes.object,
   ])).isRequired).isRequired,
   scrollPosition: PropTypes.number,
+  shortcuts: PropTypes.string.isRequired,
   hasUnreadMessages: PropTypes.bool.isRequired,
   lastReadMessageTime: PropTypes.number.isRequired,
   partnerIsLoggedOut: PropTypes.bool.isRequired,

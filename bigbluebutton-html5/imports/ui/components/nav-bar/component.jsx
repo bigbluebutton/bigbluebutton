@@ -1,5 +1,6 @@
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
+import { Session } from 'meteor/session';
 import _ from 'lodash';
 import cx from 'classnames';
 import Auth from '/imports/ui/services/auth';
@@ -48,7 +49,7 @@ const intlMessages = defineMessages({
 const propTypes = {
   presentationTitle: PropTypes.string,
   hasUnreadMessages: PropTypes.bool,
-  beingRecorded: PropTypes.object,
+  beingRecorded: PropTypes.bool,
   shortcuts: PropTypes.string,
 };
 
@@ -59,10 +60,12 @@ const defaultProps = {
   shortcuts: '',
 };
 
-const openBreakoutJoinConfirmation = (breakout, breakoutName, mountModal) => mountModal(<BreakoutJoinConfirmation
-  breakout={breakout}
-  breakoutName={breakoutName}
-/>);
+const openBreakoutJoinConfirmation = (breakout, breakoutName, mountModal) => mountModal(
+  <BreakoutJoinConfirmation
+    breakout={breakout}
+    breakoutName={breakoutName}
+  />,
+);
 
 const closeBreakoutJoinConfirmation = mountModal => mountModal(null);
 
@@ -85,6 +88,10 @@ class NavBar extends PureComponent {
       mountModal,
     } = this.props;
 
+    const {
+      didSendBreakoutInvite,
+    } = this.state;
+
     const hadBreakouts = oldProps.breakouts.length;
     const hasBreakouts = breakouts.length;
 
@@ -101,18 +108,23 @@ class NavBar extends PureComponent {
 
       if (!userOnMeeting) return;
 
-      if (!this.state.didSendBreakoutInvite && !isBreakoutRoom) {
+      if (!didSendBreakoutInvite && !isBreakoutRoom) {
         this.inviteUserToBreakout(breakout);
       }
     });
 
-    if (!breakouts.length && this.state.didSendBreakoutInvite) {
+    if (!breakouts.length && didSendBreakoutInvite) {
       this.setState({ didSendBreakoutInvite: false });
     }
   }
 
   handleToggleUserList() {
-    this.props.toggleUserList();
+    Session.set(
+      'openPanel',
+      Session.get('openPanel') !== ''
+        ? ''
+        : 'userlist',
+    );
   }
 
   inviteUserToBreakout(breakout) {
@@ -132,6 +144,10 @@ class NavBar extends PureComponent {
       presentationTitle,
     } = this.props;
 
+    const {
+      isActionsOpen,
+    } = this.state;
+
     if (isBreakoutRoom || !breakouts.length) {
       return (
         <h1 className={styles.presentationTitle}>{presentationTitle}</h1>
@@ -140,7 +156,7 @@ class NavBar extends PureComponent {
     const breakoutItems = breakouts.map(breakout => this.renderBreakoutItem(breakout));
 
     return (
-      <Dropdown isOpen={this.state.isActionsOpen}>
+      <Dropdown isOpen={isActionsOpen}>
         <DropdownTrigger>
           <h1 className={cx(styles.presentationTitle, styles.dropdownBreakout)}>
             {presentationTitle}
@@ -170,7 +186,9 @@ class NavBar extends PureComponent {
       <DropdownListItem
         key={_.uniqueId('action-header')}
         label={breakoutName}
-        onClick={openBreakoutJoinConfirmation.bind(this, breakout, breakoutName, mountModal)}
+        onClick={
+          openBreakoutJoinConfirmation.bind(this, breakout, breakoutName, mountModal)
+        }
       />
     );
   }

@@ -20,6 +20,17 @@ const propTypes = {
   isUserPresenter: PropTypes.bool.isRequired,
   intl: intlShape.isRequired,
   mountModal: PropTypes.func.isRequired,
+  isUserModerator: PropTypes.bool.isRequired,
+  allowStartStopRecording: PropTypes.bool.isRequired,
+  isRecording: PropTypes.bool.isRequired,
+  record: PropTypes.func.isRequired,
+  toggleRecording: PropTypes.func.isRequired,
+  meetingIsBreakout: PropTypes.bool.isRequired,
+  hasBreakoutRoom: PropTypes.bool.isRequired,
+  createBreakoutRoom: PropTypes.func.isRequired,
+  meetingName: PropTypes.string.isRequired,
+  shortcuts: PropTypes.string.isRequired,
+  users: PropTypes.arrayOf(PropTypes.object).isRequired,
 };
 
 const intlMessages = defineMessages({
@@ -116,20 +127,37 @@ class ActionsDropdown extends Component {
       isRecording,
       record,
       toggleRecording,
-      togglePollMenu,
       meetingIsBreakout,
       hasBreakoutRoom,
     } = this.props;
+
+    const {
+      pollBtnLabel,
+      pollBtnDesc,
+      presentationLabel,
+      presentationDesc,
+      startRecording,
+      stopRecording,
+      createBreakoutRoom,
+      createBreakoutRoomDesc,
+    } = intlMessages;
+
+    const {
+      formatMessage,
+    } = intl;
 
     return _.compact([
       (isUserPresenter
         ? (
           <DropdownListItem
             icon="user"
-            label={intl.formatMessage(intlMessages.pollBtnLabel)}
-            description={intl.formatMessage(intlMessages.pollBtnDesc)}
+            label={formatMessage(pollBtnLabel)}
+            description={formatMessage(pollBtnDesc)}
             key={this.pollId}
-            onClick={() => togglePollMenu()}
+            onClick={() => {
+              Session.set('openPanel', 'poll');
+              Session.set('forcePollOpen', true);
+            }}
           />
         )
         : null),
@@ -138,8 +166,8 @@ class ActionsDropdown extends Component {
           <DropdownListItem
             data-test="uploadPresentation"
             icon="presentation"
-            label={intl.formatMessage(intlMessages.presentationLabel)}
-            description={intl.formatMessage(intlMessages.presentationDesc)}
+            label={formatMessage(presentationLabel)}
+            description={formatMessage(presentationDesc)}
             key={this.presentationItemId}
             onClick={this.handlePresentationClick}
           />
@@ -149,10 +177,10 @@ class ActionsDropdown extends Component {
         ? (
           <DropdownListItem
             icon="record"
-            label={intl.formatMessage(isRecording
-              ? intlMessages.stopRecording : intlMessages.startRecording)}
-            description={intl.formatMessage(isRecording
-              ? intlMessages.stopRecording : intlMessages.startRecording)}
+            label={formatMessage(isRecording
+              ? stopRecording : startRecording)}
+            description={formatMessage(isRecording
+              ? stopRecording : startRecording)}
             key={this.recordId}
             onClick={toggleRecording}
           />
@@ -162,8 +190,8 @@ class ActionsDropdown extends Component {
         ? (
           <DropdownListItem
             icon="rooms"
-            label={intl.formatMessage(intlMessages.createBreakoutRoom)}
-            description={intl.formatMessage(intlMessages.createBreakoutRoomDesc)}
+            label={formatMessage(createBreakoutRoom)}
+            description={formatMessage(createBreakoutRoomDesc)}
             key={this.createBreakoutRoomId}
             onClick={this.handleCreateBreakoutRoomClick}
           />
@@ -173,7 +201,8 @@ class ActionsDropdown extends Component {
   }
 
   handlePresentationClick() {
-    this.props.mountModal(<PresentationUploaderContainer />);
+    const { mountModal } = this.props;
+    mountModal(<PresentationUploaderContainer />);
   }
 
   handleCreateBreakoutRoomClick() {
@@ -189,7 +218,8 @@ class ActionsDropdown extends Component {
         createBreakoutRoom={createBreakoutRoom}
         meetingName={meetingName}
         users={users}
-      />);
+      />,
+    );
   }
 
   render() {

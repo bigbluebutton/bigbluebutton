@@ -23,10 +23,9 @@ class ChatPushAlert extends PureComponent {
         aria-label={message}
         tabIndex={0}
         onClick={() => {
-        Session.set('isUserListOpen', true);
-        Session.set('isChatOpen', true);
-        Session.set('idChatOpen', chatId);
-      }}
+          Session.set('openPanel', 'chat');
+          Session.set('idChatOpen', chatId);
+        }}
       >
         { message }
       </div>
