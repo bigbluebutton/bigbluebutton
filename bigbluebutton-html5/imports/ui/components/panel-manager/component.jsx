@@ -164,18 +164,27 @@ class PanelManager extends Component {
     ];
 
     if (openPanel === 'chat') {
-      if (enableResize) resizablePanels.push(this.renderChatResizable());
-      if (!enableResize) panels.push(this.renderChat());
+      if (enableResize) {
+        resizablePanels.push(this.renderChatResizable());
+      } else {
+        panels.push(this.renderChat());
+      }
     }
 
     if (openPanel === 'poll') {
-      if (enableResize) resizablePanels.push(this.renderPoll());
-      if (!enableResize) panels.push(this.renderPoll());
+      if (enableResize) {
+        resizablePanels.push(this.renderPoll());
+      } else {
+        panels.push(this.renderPoll());
+      }
     }
 
     if (openPanel === 'breakoutroom') {
-      if (enableResize) resizablePanels.push(this.renderBreakoutRoom());
-      if (!enableResize) panels.push(this.renderBreakoutRoom());
+      if (enableResize) {
+        resizablePanels.push(this.renderBreakoutRoom());
+      } else {
+        panels.push(this.renderBreakoutRoom());
+      }
     }
 
     return enableResize
