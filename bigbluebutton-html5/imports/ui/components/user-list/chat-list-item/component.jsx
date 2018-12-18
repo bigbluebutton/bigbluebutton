@@ -45,9 +45,13 @@ const defaultProps = {
   shortcuts: '',
 };
 
-const toggleChatOpen = () => {
-  Session.set('isChatOpen', !Session.get('isChatOpen'));
-  Session.set('breakoutRoomIsOpen', false);
+const handleClickToggleChat = (id) => {
+  Session.set(
+    'openPanel',
+    Session.get('openPanel') === 'chat' && Session.get('idChatOpen') === id
+      ? 'userlist' : 'chat',
+  );
+  Session.set('idChatOpen', id);
 };
 
 const ChatListItem = (props) => {
@@ -73,15 +77,7 @@ const ChatListItem = (props) => {
       aria-expanded={isCurrentChat}
       tabIndex={tabIndex}
       accessKey={isPublicChat(chat) ? TOGGLE_CHAT_PUB_AK : null}
-      onClick={() => {
-        toggleChatOpen();
-        Session.set('idChatOpen', chat.id);
-
-        if (Session.equals('isPollOpen', true)) {
-          Session.set('isPollOpen', false);
-          Session.set('forcePollOpen', true);
-        }
-      }}
+      onClick={() => handleClickToggleChat(chat.id)}
       id="chat-toggle-button"
       aria-label={isPublicChat(chat) ? intl.formatMessage(intlMessages.titlePublic) : chat.name}
     >
