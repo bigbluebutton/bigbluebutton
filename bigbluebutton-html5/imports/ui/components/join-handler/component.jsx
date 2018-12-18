@@ -113,7 +113,7 @@ class JoinHandler extends Component {
       setLogoURL(response);
       logUserInfo();
 
-      Session.set('openPanel', 'userlist');
+      Session.set('openPanel', 'chat');
       Session.set('idChatOpen', '');
       if (deviceInfo.type().isPhone) Session.set('openPanel', '');
 

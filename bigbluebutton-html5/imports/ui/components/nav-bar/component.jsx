@@ -119,12 +119,11 @@ class NavBar extends PureComponent {
   }
 
   handleToggleUserList() {
-    this.pannel = 'userlist';
     Session.set(
       'openPanel',
       Session.get('openPanel') !== ''
         ? ''
-        : this.panel,
+        : 'userlist',
     );
   }
 
