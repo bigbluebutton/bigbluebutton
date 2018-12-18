@@ -382,7 +382,7 @@ class VideoProvider extends Component {
     }
   }
 
-  stopWebRTCPeer(id) {
+  stopWebRTCPeer(id, restarting = false) {
     this.logger('info', 'Stopping webcam', { cameraId: id });
     const { userId } = this.props;
     const shareWebcam = id === userId;
@@ -405,12 +405,14 @@ class VideoProvider extends Component {
     });
 
     // Clear the shared camera media flow timeout when destroying it
-    if (this.restartTimeout[id]) {
-      clearTimeout(this.restartTimeout[id]);
-    }
+    if (!restarting) {
+      if (this.restartTimeout[id]) {
+        clearTimeout(this.restartTimeout[id]);
+      }
 
-    if (this.restartTimer[id]) {
-      delete this.restartTimer[id];
+      if (this.restartTimer[id]) {
+        delete this.restartTimer[id];
+      }
     }
 
     this.destroyWebRTCPeer(id);
@@ -525,9 +527,12 @@ class VideoProvider extends Component {
 
       if (userId === id) {
         this.notifyError(intl.formatMessage(intlClientErrors.mediaFlowTimeout));
-        this.stopWebRTCPeer(id);
+        this.stopWebRTCPeer(id, false);
       } else {
-        this.stopWebRTCPeer(id);
+        // Subscribers try to reconnect according to their timers if media could
+        // not reach the server. That's why we pass the restarting flag as true
+        // to the stop procedure as to not destroy the timers
+        this.stopWebRTCPeer(id, true);
         this.createWebRTCPeer(id, shareWebcam);
 
         // Increment reconnect interval
