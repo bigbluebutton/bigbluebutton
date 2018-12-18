@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import { Session } from 'meteor/session';
+import PropTypes from 'prop-types';
 import Auth from '/imports/ui/services/auth';
 import { setCustomLogoUrl } from '/imports/ui/components/user-list/service';
 import { makeCall } from '/imports/ui/services/api';
@@ -7,6 +8,9 @@ import deviceInfo from '/imports/utils/deviceInfo';
 import logger from '/imports/startup/client/logger';
 import LoadingScreen from '/imports/ui/components/loading-screen/component';
 
+const propTypes = {
+  children: PropTypes.element.isRequired,
+};
 
 class JoinHandler extends Component {
   static setError(codeError) {
@@ -131,3 +135,5 @@ class JoinHandler extends Component {
 }
 
 export default JoinHandler;
+
+JoinHandler.propTypes = propTypes;

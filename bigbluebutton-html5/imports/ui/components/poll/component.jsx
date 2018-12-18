@@ -110,21 +110,15 @@ class Poll extends Component {
     this.setState({ customPollValues: this.inputEditor });
   }
 
-  renderInputFields() {
-    const { intl } = this.props;
-    const items = [];
+  handleBackClick() {
+    const { stopPoll } = this.props;
 
-    items = _.range(1, MAX_CUSTOM_FIELDS + 1).map((ele, index) => (
-      <input
-        key={`custom-poll-${index}`}
-        placeholder={intl.formatMessage(intlMessages.customPlaceholder)}
-        className={styles.input}
-        onChange={event => this.handleInputChange(index, event)}
-        defaultValue={this.state.customPollValues[index]}
-      />
-    ));
-
-    return items;
+    stopPoll();
+    this.inputEditor = [];
+    this.setState({
+      isPolling: false,
+      customPollValues: this.inputEditor,
+    }, document.activeElement.blur());
   }
 
   toggleCustomFields() {
@@ -143,7 +137,8 @@ class Poll extends Component {
 
       const label = intl.formatMessage(
         // regex removes the - to match the message id
-        intlMessages[type.replace(/-/g, '').toLowerCase()]);
+        intlMessages[type.replace(/-/g, '').toLowerCase()],
+      );
 
       return (
         <Button
@@ -152,8 +147,8 @@ class Poll extends Component {
           className={styles.pollBtn}
           key={_.uniqueId('quick-poll-')}
           onClick={() => {
-          this.setState({ isPolling: true }, () => startPoll(type));
-        }}
+            this.setState({ isPolling: true }, () => startPoll(type));
+          }}
         />);
     });
 
@@ -182,15 +177,25 @@ class Poll extends Component {
     );
   }
 
-  handleBackClick() {
-    const { stopPoll } = this.props;
+  renderInputFields() {
+    const { intl } = this.props;
+    const { customPollValues } = this.state;
+    let items = [];
 
-    stopPoll();
-    this.inputEditor = [];
-    this.setState({
-      isPolling: false,
-      customPollValues: this.inputEditor,
-    }, document.activeElement.blur());
+    items = _.range(1, MAX_CUSTOM_FIELDS + 1).map((ele, index) => {
+      const id = index;
+      return (
+        <input
+          key={`custom-poll-${id}`}
+          placeholder={intl.formatMessage(intlMessages.customPlaceholder)}
+          className={styles.input}
+          onChange={event => this.handleInputChange(id, event)}
+          defaultValue={customPollValues[id]}
+        />
+      );
+    });
+
+    return items;
   }
 
   renderActivePollOptions() {
@@ -248,6 +253,8 @@ class Poll extends Component {
       intl, stopPoll, currentPoll, currentUser,
     } = this.props;
 
+    const { isPolling } = this.state;
+
     if (!currentUser.presenter) return null;
 
     return (
@@ -267,12 +274,12 @@ class Poll extends Component {
           <Button
             label={intl.formatMessage(intlMessages.closeLabel)}
             onClick={() => {
-            if (currentPoll) {
-              stopPoll();
-            }
-            Session.set('openPanel', 'userlist');
-            Session.set('forcePollOpen', false);
-          }}
+              if (currentPoll) {
+                stopPoll();
+              }
+              Session.set('openPanel', 'userlist');
+              Session.set('forcePollOpen', false);
+            }}
             className={styles.closeBtn}
             icon="close"
             size="sm"
@@ -281,8 +288,8 @@ class Poll extends Component {
 
         </header>
         {
-          this.state.isPolling || !this.state.isPolling && currentPoll
-          ? this.renderActivePollOptions() : this.renderPollOptions()
+          (isPolling || (!isPolling && currentPoll))
+            ? this.renderActivePollOptions() : this.renderPollOptions()
         }
       </div>
     );

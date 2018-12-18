@@ -131,38 +131,52 @@ class UserDropdown extends PureComponent {
     this.seperator = _.uniqueId('action-separator-');
   }
 
-  componentDidUpdate(prevProps, prevState) {
-    if (!this.state.isActionsOpen && this.state.showNestedOptions) {
+  componentDidUpdate() {
+    const { isActionsOpen, showNestedOptions } = this.state;
+
+    if (!isActionsOpen && showNestedOptions) {
       return this.resetMenuState();
     }
 
-    this.checkDropdownDirection();
+    return this.checkDropdownDirection();
   }
 
-  makeDropdownItem(key, label, onClick, icon = null, iconRight = null) {
-    return (
-      <DropdownListItem
-        {...{
-          key,
-          label,
-          onClick,
-          icon,
-          iconRight,
-        }}
-        className={key === this.props.getEmoji ? styles.emojiSelected : null}
-        data-test={key}
-      />
-    );
+  onActionsShow() {
+    const { getScrollContainerRef } = this.props;
+    const dropdown = this.getDropdownMenuParent();
+    const scrollContainer = getScrollContainerRef();
+
+    if (dropdown && scrollContainer) {
+      const dropdownTrigger = dropdown.children[0];
+      const list = findDOMNode(this.list);
+      const children = [].slice.call(list.children);
+      children.find(child => child.getAttribute('role') === 'menuitem').focus();
+
+      this.setState({
+        isActionsOpen: true,
+        dropdownVisible: false,
+        dropdownOffset: dropdownTrigger.offsetTop - scrollContainer.scrollTop,
+        dropdownDirection: 'top',
+      });
+
+      scrollContainer.addEventListener('scroll', this.handleScroll, false);
+    }
   }
 
-  resetMenuState() {
-    return this.setState({
+  onActionsHide(callback) {
+    const { getScrollContainerRef } = this.props;
+
+    this.setState({
       isActionsOpen: false,
-      dropdownOffset: 0,
-      dropdownDirection: 'top',
       dropdownVisible: false,
-      showNestedOptions: false,
     });
+
+    const scrollContainer = getScrollContainerRef();
+    scrollContainer.removeEventListener('scroll', this.handleScroll, false);
+
+    if (callback) {
+      return callback;
+    }
   }
 
   getUsersActions() {
@@ -182,6 +196,8 @@ class UserDropdown extends PureComponent {
       changeRole,
     } = this.props;
 
+    const { showNestedOptions } = this.state;
+
     const actionPermissions = getAvailableActions(currentUser, user, isBreakoutRoom);
     const actions = [];
 
@@ -197,7 +213,7 @@ class UserDropdown extends PureComponent {
       allowedToChangeStatus,
     } = actionPermissions;
 
-    if (this.state.showNestedOptions) {
+    if (showNestedOptions) {
       if (allowedToChangeStatus) {
         actions.push(this.makeDropdownItem(
           'back',
@@ -309,44 +325,37 @@ class UserDropdown extends PureComponent {
     return actions;
   }
 
-  onActionsShow() {
-    const dropdown = this.getDropdownMenuParent();
-    const scrollContainer = this.props.getScrollContainerRef();
-
-    if (dropdown && scrollContainer) {
-      const dropdownTrigger = dropdown.children[0];
-      const list = findDOMNode(this.list);
-      const children = [].slice.call(list.children);
-      children.find(child => child.getAttribute('role') === 'menuitem').focus();
-
-      this.setState({
-        isActionsOpen: true,
-        dropdownVisible: false,
-        dropdownOffset: dropdownTrigger.offsetTop - scrollContainer.scrollTop,
-        dropdownDirection: 'top',
-      });
-
-      scrollContainer.addEventListener('scroll', this.handleScroll, false);
-    }
-  }
-
-  onActionsHide(callback) {
-    this.setState({
-      isActionsOpen: false,
-      dropdownVisible: false,
-    });
-
-    const scrollContainer = this.props.getScrollContainerRef();
-    scrollContainer.removeEventListener('scroll', this.handleScroll, false);
-
-    if (callback) {
-      return callback;
-    }
-  }
-
   getDropdownMenuParent() {
     return findDOMNode(this.dropdown);
   }
+
+  makeDropdownItem(key, label, onClick, icon = null, iconRight = null) {
+    const { getEmoji } = this.props;
+    return (
+      <DropdownListItem
+        {...{
+          key,
+          label,
+          onClick,
+          icon,
+          iconRight,
+        }}
+        className={key === getEmoji ? styles.emojiSelected : null}
+        data-test={key}
+      />
+    );
+  }
+
+  resetMenuState() {
+    return this.setState({
+      isActionsOpen: false,
+      dropdownOffset: 0,
+      dropdownDirection: 'top',
+      dropdownVisible: false,
+      showNestedOptions: false,
+    });
+  }
+
 
   handleScroll() {
     this.setState({ isActionsOpen: false });
@@ -356,12 +365,13 @@ class UserDropdown extends PureComponent {
    * Check if the dropdown is visible, if so, check if should be draw on top or bottom direction.
    */
   checkDropdownDirection() {
+    const { getScrollContainerRef } = this.props;
     if (this.isDropdownActivedByUser()) {
       const dropdown = this.getDropdownMenuParent();
       const dropdownTrigger = dropdown.children[0];
       const dropdownContent = dropdown.children[1];
 
-      const scrollContainer = this.props.getScrollContainerRef();
+      const scrollContainer = getScrollContainerRef();
 
       const nextState = {
         dropdownVisible: true,
@@ -373,7 +383,7 @@ class UserDropdown extends PureComponent {
       );
 
       if (!isDropdownVisible) {
-        const offsetPageTop = ((dropdownTrigger.offsetTop + dropdownTrigger.offsetHeight) - scrollContainer.scrollTop);
+        const offsetPageTop = (dropdownTrigger.offsetTop + dropdownTrigger.offsetHeight) - scrollContainer.scrollTop;
 
         nextState.dropdownOffset = window.innerHeight - offsetPageTop;
         nextState.dropdownDirection = 'bottom';
@@ -445,8 +455,8 @@ class UserDropdown extends PureComponent {
     const userItemContentsStyle = {};
 
     userItemContentsStyle[styles.dropdown] = true;
-    userItemContentsStyle[styles.userListItem] = !this.state.isActionsOpen;
-    userItemContentsStyle[styles.usertListItemWithMenu] = this.state.isActionsOpen;
+    userItemContentsStyle[styles.userListItem] = !isActionsOpen;
+    userItemContentsStyle[styles.usertListItemWithMenu] = isActionsOpen;
 
     const you = (user.isCurrent) ? intl.formatMessage(messages.you) : '';
 
@@ -499,7 +509,7 @@ class UserDropdown extends PureComponent {
     return (
       <Dropdown
         ref={(ref) => { this.dropdown = ref; }}
-        isOpen={this.state.isActionsOpen}
+        isOpen={isActionsOpen}
         onShow={this.onActionsShow}
         onHide={this.onActionsHide}
         className={userItemContentsStyle}

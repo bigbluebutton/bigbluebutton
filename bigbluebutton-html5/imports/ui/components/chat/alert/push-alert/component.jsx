@@ -23,9 +23,9 @@ class ChatPushAlert extends React.Component {
         aria-label={message}
         tabIndex={0}
         onClick={() => {
-        Session.set('openPanel', 'chat');
-        Session.set('idChatOpen', chatId);
-      }}
+          Session.set('openPanel', 'chat');
+          Session.set('idChatOpen', chatId);
+        }}
       >
         { message }
       </div>

@@ -87,17 +87,19 @@ class LiveResult extends Component {
     answers.map((obj) => {
       const pct = Math.round(obj.numVotes / numRespondents * 100);
 
-      return pollStats.push(<div className={styles.main} key={_.uniqueId('stats-')}>
-        <div className={styles.left}>
-          {obj.key}
-        </div>
-        <div className={styles.center}>
-          {obj.numVotes}
-        </div>
-        <div className={styles.right}>
-          {`${isNaN(pct) ? 0 : pct}%`}
-        </div>
-      </div>);
+      return pollStats.push(
+        <div className={styles.main} key={_.uniqueId('stats-')}>
+          <div className={styles.left}>
+            {obj.key}
+          </div>
+          <div className={styles.center}>
+            {obj.numVotes}
+          </div>
+          <div className={styles.right}>
+            {`${Number.isNaN(pct) ? 0 : pct}%`}
+          </div>
+        </div>,
+      );
     });
 
     return pollStats;
@@ -133,8 +135,12 @@ class LiveResult extends Component {
           className={styles.btn}
         />
         <div className={styles.container}>
-          <div className={styles.usersHeading}>{intl.formatMessage(intlMessages.usersTitle)}</div>
-          <div className={styles.responseHeading}>{intl.formatMessage(intlMessages.responsesTitle)}</div>
+          <div className={styles.usersHeading}>
+            {intl.formatMessage(intlMessages.usersTitle)}
+          </div>
+          <div className={styles.responseHeading}>
+            {intl.formatMessage(intlMessages.responsesTitle)}
+          </div>
           {this.renderAnswers()}
         </div>
       </div>
@@ -148,4 +154,9 @@ LiveResult.propTypes = {
   intl: PropTypes.shape({
     formatMessage: PropTypes.func.isRequired,
   }).isRequired,
+  getUser: PropTypes.func.isRequired,
+  currentPoll: PropTypes.arrayOf(Object).isRequired,
+  publishPoll: PropTypes.func.isRequired,
+  stopPoll: PropTypes.func.isRequired,
+  handleBackClick: PropTypes.func.isRequired,
 };

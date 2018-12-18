@@ -1,4 +1,5 @@
 import React from 'react';
+import PropTypes from 'prop-types';
 import { defineMessages, injectIntl } from 'react-intl';
 import { Session } from 'meteor/session';
 import Icon from '/imports/ui/components/icon/component';
@@ -26,13 +27,17 @@ const BreakoutRoomItem = ({
   if (hasBreakoutRoom) {
     return (
       <div role="button" onClick={toggleBreakoutPanel}>
-        <h2 className={styles.smallTitle}> {intl.formatMessage(intlMessages.breakoutTitle).toUpperCase()}</h2>
+        <h2 className={styles.smallTitle}>
+          {intl.formatMessage(intlMessages.breakoutTitle).toUpperCase()}
+        </h2>
         <div className={styles.BreakoutRoomsItem}>
           <div className={styles.BreakoutRoomsContents}>
-            <div className={styles.BreakoutRoomsIcon} >
+            <div className={styles.BreakoutRoomsIcon}>
               <Icon iconName="rooms" />
             </div>
-            <span className={styles.BreakoutRoomsText}>{intl.formatMessage(intlMessages.breakoutTitle)}</span>
+            <span className={styles.BreakoutRoomsText}>
+              {intl.formatMessage(intlMessages.breakoutTitle)}
+            </span>
           </div>
         </div>
       </div>
@@ -42,3 +47,10 @@ const BreakoutRoomItem = ({
 };
 
 export default injectIntl(BreakoutRoomItem);
+
+BreakoutRoomItem.propTypes = {
+  intl: PropTypes.shape({
+    formatMessage: PropTypes.func.isRequired,
+  }).isRequired,
+  hasBreakoutRoom: PropTypes.bool.isRequired,
+};

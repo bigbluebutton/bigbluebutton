@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import PropTypes from 'prop-types';
 import BreakoutRoomContainer from '/imports/ui/components/breakout-room/container';
 import UserListContainer from '/imports/ui/components/user-list/container';
 import ChatContainer from '/imports/ui/components/chat/container';
@@ -18,6 +19,14 @@ const intlMessages = defineMessages({
     description: 'Aria-label for Userlist Nav',
   },
 });
+
+const propTypes = {
+  intl: PropTypes.shape({
+    formatMessage: PropTypes.func.isRequired,
+  }).isRequired,
+  enableResize: PropTypes.bool.isRequired,
+  openPanel: PropTypes.string.isRequired,
+};
 
 class PanelManager extends Component {
   constructor() {
@@ -155,21 +164,18 @@ class PanelManager extends Component {
     ];
 
     if (openPanel === 'chat') {
-      enableResize
-        ? resizablePanels.push(this.renderChatResizable())
-        : panels.push(this.renderChat());
+      if (enableResize) resizablePanels.push(this.renderChatResizable());
+      if (!enableResize) panels.push(this.renderChat());
     }
 
     if (openPanel === 'poll') {
-      enableResize
-        ? resizablePanels.push(this.renderPoll())
-        : panels.push(this.renderPoll());
+      if (enableResize) resizablePanels.push(this.renderPoll());
+      if (!enableResize) panels.push(this.renderPoll());
     }
 
     if (openPanel === 'breakoutroom') {
-      enableResize
-        ? resizablePanels.push(this.renderBreakoutRoom())
-        : panels.push(this.renderBreakoutRoom());
+      if (enableResize) resizablePanels.push(this.renderBreakoutRoom());
+      if (!enableResize) panels.push(this.renderBreakoutRoom());
     }
 
     return enableResize
@@ -179,3 +185,5 @@ class PanelManager extends Component {
 }
 
 export default injectIntl(PanelManager);
+
+PanelManager.propTypes = propTypes;

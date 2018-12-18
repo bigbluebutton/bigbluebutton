@@ -63,7 +63,6 @@ class App extends Component {
     super();
 
     this.state = {
-      compactUserList: false,
       enableResize: !window.matchMedia(MOBILE_MEDIA).matches,
     };
 
@@ -71,11 +70,11 @@ class App extends Component {
   }
 
   componentDidMount() {
-    const { locale } = this.props;
+    const { locale, fontSize } = this.props;
 
     Modal.setAppElement('#app');
     document.getElementsByTagName('html')[0].lang = locale;
-    document.getElementsByTagName('html')[0].style.fontSize = this.props.fontSize;
+    document.getElementsByTagName('html')[0].style.fontSize = fontSize;
 
     const BROWSER_RESULTS = browser();
     const body = document.getElementsByTagName('body')[0];
@@ -110,9 +109,9 @@ class App extends Component {
 
     return (
       <PanelManager
-        enableResize={enableResize}
         {...{
           openPanel,
+          enableResize,
         }}
       />
     );

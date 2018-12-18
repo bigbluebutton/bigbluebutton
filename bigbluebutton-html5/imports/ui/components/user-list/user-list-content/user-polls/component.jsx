@@ -1,5 +1,5 @@
 import React, { PureComponent } from 'react';
-import _ from 'lodash';
+import PropTypes from 'prop-types';
 import { defineMessages, injectIntl } from 'react-intl';
 import Icon from '/imports/ui/components/icon/component';
 import { Session } from 'meteor/session';
@@ -21,7 +21,7 @@ class UserPolls extends PureComponent {
           ? 'userlist'
           : 'poll',
       );
-    }
+    };
 
     const {
       intl,
@@ -48,7 +48,7 @@ class UserPolls extends PureComponent {
             onClick={handleClickTogglePoll}
           >
             <Icon iconName="polling" className={styles.icon} />
-            <span className={styles.label} >{intl.formatMessage(intlMessages.pollLabel)}</span>
+            <span className={styles.label}>{intl.formatMessage(intlMessages.pollLabel)}</span>
           </div>
         </div>
       </div>
@@ -57,3 +57,12 @@ class UserPolls extends PureComponent {
 }
 
 export default injectIntl(UserPolls);
+
+UserPolls.propTypes = {
+  intl: PropTypes.shape({
+    formatMessage: PropTypes.func.isRequired,
+  }).isRequired,
+  isPresenter: PropTypes.bool.isRequired,
+  pollIsOpen: PropTypes.bool.isRequired,
+  forcePollOpen: PropTypes.bool.isRequired,
+};
