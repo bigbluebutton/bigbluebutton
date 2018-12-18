@@ -108,8 +108,11 @@ class JoinHandler extends Component {
       await setCustomData(response);
       setLogoURL(response);
       logUserInfo();
-      Session.set('openPanel', deviceInfo.type().isPhone ? '' : 'userlist');
+
+      Session.set('openPanel', 'userlist');
       Session.set('idChatOpen', '');
+      if (deviceInfo.type().isPhone) Session.set('openPanel', '');
+
       logger.info(`User successfully went through main.joinRouteHandler with [${JSON.stringify(response)}].`);
     } else {
       const e = new Error('Session not found');
