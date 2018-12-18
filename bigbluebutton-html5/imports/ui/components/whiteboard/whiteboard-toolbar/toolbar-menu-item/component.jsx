@@ -2,14 +2,18 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import Button from '/imports/ui/components/button/component';
 import _ from 'lodash';
-import styles from '../styles';
+import { styles } from '../styles';
 
 export default class ToolbarMenuItem extends Component {
   constructor() {
     super();
 
+    // a flag to keep track of whether the menu item was actually clicked
+    this.clicked = false;
+
     this.handleTouchStart = this.handleTouchStart.bind(this);
     this.handleOnMouseUp = this.handleOnMouseUp.bind(this);
+    this.handleOnMouseDown = this.handleOnMouseDown.bind(this);
     this.setRef = this.setRef.bind(this);
   }
 
@@ -45,7 +49,18 @@ export default class ToolbarMenuItem extends Component {
     onItemClick(objectToReturn);
   }
 
+  handleOnMouseDown() {
+    this.clicked = true;
+  }
+
   handleOnMouseUp() {
+    // checks whether the button was actually clicked
+    // or if a person was drawing and just release their mouse above the menu item
+    if (!this.clicked) {
+      return;
+    }
+    this.clicked = false;
+
     const { objectToReturn, onItemClick } = this.props;
     // if there is a submenu name, then pass it to onClick
     // if not - it's probably "Undo", "Clear All", "Multi-user", etc.
@@ -55,7 +70,7 @@ export default class ToolbarMenuItem extends Component {
 
   render() {
     return (
-      <div className={styles.buttonWrapper}>
+      <div className={styles.buttonWrapper} hidden={this.props.disabled}>
         <Button
           hideLabel
           role="button"
@@ -64,10 +79,12 @@ export default class ToolbarMenuItem extends Component {
           label={this.props.label}
           icon={this.props.icon ? this.props.icon : null}
           customIcon={this.props.customIcon ? this.props.customIcon : null}
+          onMouseDown={this.handleOnMouseDown}
           onMouseUp={this.handleOnMouseUp}
           onBlur={this.props.onBlur}
           className={this.props.className}
           setRef={this.setRef}
+          disabled={this.props.disabled}
         />
         {this.props.children}
       </div>

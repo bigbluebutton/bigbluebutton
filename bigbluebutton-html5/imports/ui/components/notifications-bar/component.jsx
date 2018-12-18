@@ -2,7 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import cx from 'classnames';
 import injectWbResizeEvent from '/imports/ui/components/presentation/resize-wrapper/component';
-import styles from './styles.scss';
+import { styles } from './styles.scss';
 
 const COLORS = [
   'default', 'primary', 'danger', 'success',

@@ -1,12 +1,13 @@
-addSbtPlugin("io.spray" % "sbt-revolver" % "0.7.2")
+addSbtPlugin("io.spray" % "sbt-revolver" % "0.9.1")
 
-addSbtPlugin("com.typesafe.sbt" % "sbt-scalariform" % "1.3.0")
+addSbtPlugin("com.typesafe.sbteclipse" % "sbteclipse-plugin" % "5.2.4")
 
-addSbtPlugin("com.typesafe.sbteclipse" % "sbteclipse-plugin" % "2.2.0")
+addSbtPlugin("org.scalariform" % "sbt-scalariform" % "1.8.2")
 
-addSbtPlugin("com.typesafe.sbt" % "sbt-native-packager" % "1.0.0")
+addSbtPlugin("com.typesafe.sbt" % "sbt-native-packager" % "1.3.12")
 
-addSbtPlugin("com.earldouglas" % "xsbt-web-plugin" % "2.1.0")
+addSbtPlugin("net.vonbuchholtz" % "sbt-dependency-check" % "0.2.8")
 
-//addSbtPlugin("org.xerial.sbt" % "sbt-pack" % "0.7.9")
+addSbtPlugin("org.scalastyle" %% "scalastyle-sbt-plugin" % "1.0.0")
 
+addSbtPlugin("com.earldouglas" % "xsbt-web-plugin" % "4.0.2")

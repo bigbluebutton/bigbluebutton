@@ -15,6 +15,6 @@ public class ValidateConnTokenRespMsg implements ClientMessage {
     }
 
     public String getMessageName() {
-        return "ValidateConnTokenRespMsg";
+        return "ValidateConnAuthTokenSysRespMsg";
     }
 }

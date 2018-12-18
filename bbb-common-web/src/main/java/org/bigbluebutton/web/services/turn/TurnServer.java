@@ -1,14 +1,16 @@
 package org.bigbluebutton.web.services.turn;
 
 import java.security.SignatureException;
+
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
+
 import org.apache.commons.codec.binary.Base64;
 
 public class TurnServer {
 
-  private final String HMAC_SHA1_ALGORITHM = "HmacSHA1";
-  private final String COLON = ":";
+  private static final String HMAC_SHA1_ALGORITHM = "HmacSHA1";
+  private static final String COLON = ":";
   
   private final String secretKey;
   private final String url;

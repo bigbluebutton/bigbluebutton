@@ -92,6 +92,10 @@ case class EndAndKickAllSysMsg(header: BbbCoreHeaderWithMeetingId,
                                       body: EndAndKickAllSysMsgBody) extends BbbCoreMsg
 case class EndAndKickAllSysMsgBody(meetingId: String)
 
+object RecordStatusResetSysMsg {val NAME = "RecordStatusResetSysMsg"}
+case class RecordStatusResetSysMsg(header: BbbCoreHeaderWithMeetingId,
+                                      body: RecordStatusResetSysMsgBody) extends BbbCoreMsg
+case class RecordStatusResetSysMsgBody(recording: Boolean, setBy: String)
 
 object SyncGetMeetingInfoRespMsg { val NAME = "SyncGetMeetingInfoRespMsg"}
   case class SyncGetMeetingInfoRespMsg(header: BbbCoreBaseHeader,
@@ -137,12 +141,25 @@ case class RecordingChapterBreakSysMsg(header: BbbCoreHeaderWithMeetingId,
 case class RecordingChapterBreakSysMsgBody(meetingId: String, timestamp: Long)
 
 object ValidateConnAuthTokenSysMsg { val NAME = "ValidateConnAuthTokenSysMsg" }
-case class ValidateConnAuthTokenSysMsg(header: BbbClientMsgHeader,
-                                       body: ValidateConnAuthTokenSysMsgBody) extends StandardMsg
-case class ValidateConnAuthTokenSysMsgBody(meetingId: String, userId: String, authToken: String, conn: String)
+case class ValidateConnAuthTokenSysMsg(header: BbbCoreBaseHeader,
+                                       body: ValidateConnAuthTokenSysMsgBody) extends BbbCoreMsg
+case class ValidateConnAuthTokenSysMsgBody(meetingId: String, userId: String, authToken: String,
+                                           connId: String, app: String)
 
 object ValidateConnAuthTokenSysRespMsg { val NAME = "ValidateConnAuthTokenSysRespMsg" }
 case class ValidateConnAuthTokenSysRespMsg(header: BbbCoreHeaderWithMeetingId,
-                                       body: ValidateConnAuthTokenSysRespMsgBody) extends BbbCoreMsg
+                                           body: ValidateConnAuthTokenSysRespMsgBody) extends BbbCoreMsg
 case class ValidateConnAuthTokenSysRespMsgBody(meetingId: String, userId: String,
-                                               authToken: String, conn: String, authzed: Boolean)
+                                               connId: String, authzed: Boolean, app: String)
+
+object PublishedRecordingSysMsg { val NAME = "PublishedRecordingSysMsg" }
+case class PublishedRecordingSysMsg(header: BbbCoreBaseHeader, body: PublishedRecordingSysMsgBody) extends BbbCoreMsg
+case class PublishedRecordingSysMsgBody(recordId: String)
+
+object UnpublishedRecordingSysMsg { val NAME = "UnpublishedRecordingSysMsg" }
+case class UnpublishedRecordingSysMsg(header: BbbCoreBaseHeader, body: UnpublishedRecordingSysMsgBody) extends BbbCoreMsg
+case class UnpublishedRecordingSysMsgBody(recordId: String)
+
+object DeletedRecordingSysMsg { val NAME = "DeletedRecordingSysMsg" }
+case class DeletedRecordingSysMsg(header: BbbCoreBaseHeader, body: DeletedRecordingSysMsgBody) extends BbbCoreMsg
+case class DeletedRecordingSysMsgBody(recordId: String)

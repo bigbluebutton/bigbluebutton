@@ -11,8 +11,7 @@ trait MeetingExpiryTrackerHelper extends HandlerHelpers {
     outGW:       OutMsgRouter,
     eventBus:    InternalEventBus,
     liveMeeting: LiveMeeting,
-    state:       MeetingState2x
-  ): (MeetingState2x, Option[String]) = {
+    state:       MeetingState2x): (MeetingState2x, Option[String]) = {
     val nowInMs = TimeUtil.timeNowInMs()
 
     val (expired, reason) = state.expiryTracker.hasMeetingExpired(nowInMs)
@@ -32,8 +31,7 @@ trait MeetingExpiryTrackerHelper extends HandlerHelpers {
     outGW:       OutMsgRouter,
     eventBus:    InternalEventBus,
     liveMeeting: LiveMeeting,
-    state:       MeetingState2x
-  ): (MeetingState2x, Option[String]) = {
+    state:       MeetingState2x): (MeetingState2x, Option[String]) = {
 
     val nowInMs = TimeUtil.timeNowInMs()
     if (!state.inactivityTracker.hasRecentActivity(nowInMs)) {

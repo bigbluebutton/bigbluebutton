@@ -10,6 +10,7 @@ export default function addMeeting(meeting) {
   check(meeting, {
     breakoutProps: {
       sequence: Number,
+      freeJoin: Boolean,
       breakoutRooms: Array,
       parentId: String,
     },
@@ -32,6 +33,9 @@ export default function addMeeting(meeting) {
       warnMinutesBeforeMax: Number,
       meetingExpireIfNoUserJoinedInMinutes: Number,
       meetingExpireWhenLastUserLeftInMinutes: Number,
+      userInactivityInspectTimerInMinutes: Number,
+      userInactivityThresholdInMinutes: Number,
+      userActivitySignResponseDelayInMinutes: Number,
     },
     welcomeProp: {
       welcomeMsg: String,
@@ -65,10 +69,22 @@ export default function addMeeting(meeting) {
     meetingId,
   };
 
+  const lockSettingsProp = {
+    disableCam: false,
+    disableMic: false,
+    disablePrivChat: false,
+    disablePubChat: false,
+    lockOnJoin: true,
+    lockOnJoinConfigurable: false,
+    lockedLayout: false,
+    setBy: 'temp',
+  };
+
   const modifier = {
     $set: Object.assign(
       { meetingId },
       flat(meeting, { safe: true }),
+      { lockSettingsProp },
     ),
   };
 

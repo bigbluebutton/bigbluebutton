@@ -1,5 +1,5 @@
 import React from 'react';
-import { createContainer } from 'meteor/react-meteor-data';
+import { withTracker } from 'meteor/react-meteor-data';
 
 import Service from './service';
 import PresentationUploader from './component';
@@ -8,7 +8,7 @@ const PresentationUploaderContainer = props => (
   <PresentationUploader {...props} />
 );
 
-export default createContainer(() => {
+export default withTracker(() => {
   const PRESENTATION_CONFIG = Meteor.settings.public.presentation;
   const currentPresentations = Service.getPresentations();
 
@@ -22,6 +22,7 @@ export default createContainer(() => {
       currentPresentations,
       presentations,
       PRESENTATION_CONFIG.uploadEndpoint,
+      'DEFAULT_PRESENTATION_POD',
     ),
   };
-}, PresentationUploaderContainer);
+})(PresentationUploaderContainer);

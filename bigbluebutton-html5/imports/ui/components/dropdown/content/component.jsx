@@ -1,7 +1,7 @@
 import React, { Component, Children, cloneElement } from 'react';
 import PropTypes from 'prop-types';
 import cx from 'classnames';
-import styles from '../styles';
+import { styles } from '../styles';
 
 const PLACEMENTS = [
   'top left', 'top', 'top right',
@@ -25,12 +25,16 @@ const defaultProps = {
 
 export default class DropdownContent extends Component {
   render() {
-    const { placement, className, children, style } = this.props;
-    const { dropdownToggle, dropdownShow, dropdownHide } = this.props;
+    const {
+      placement, children, className,
+      dropdownToggle, dropdownShow, dropdownHide, dropdownIsOpen,
+      ...restProps
+    } = this.props;
 
     const placementName = placement.split(' ').join('-');
 
     const boundChildren = Children.map(children, child => cloneElement(child, {
+      dropdownIsOpen,
       dropdownToggle,
       dropdownShow,
       dropdownHide,
@@ -38,9 +42,9 @@ export default class DropdownContent extends Component {
 
     return (
       <div
-        style={style}
-        aria-expanded={this.props['aria-expanded']}
+        data-test="dropdownContent"
         className={cx(styles.content, styles[placementName], className)}
+        {...restProps}
       >
         <div className={styles.scrollable}>
           {boundChildren}

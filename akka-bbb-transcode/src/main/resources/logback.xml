@@ -1,20 +1,20 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <configuration>
 <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
-  <encoder>
-    <pattern>%date{ISO8601} %-5level %logger{36} %X{akkaSource} - %msg%n</pattern>
-  </encoder>
+    <layout class="ch.qos.logback.classic.PatternLayout">
+      <Pattern>%d{"yyyy-MM-dd'T'HH:mm:ss.SSSXXX"} %-5level %logger{35} - %msg%n</Pattern>
+    </layout>
 </appender>
 
   <appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
     <File>logs/bbb-transcode.log</File>
     <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
       <FileNamePattern>logs/bbb-transcode.%d{yyyy-MM-dd}.log</FileNamePattern>
-      <!-- keep 30 days worth of history -->
-      <MaxHistory>5</MaxHistory>
+      <!-- keep 14 days worth of history -->
+      <MaxHistory>14</MaxHistory>
     </rollingPolicy>
     <layout class="ch.qos.logback.classic.PatternLayout">
-      <Pattern>%d{"yyyy-MM-dd HH:mm:ss,SSSXXX"} [%thread] %-5level %logger{35} - %msg%n</Pattern>
+      <Pattern>%d{"yyyy-MM-dd'T'HH:mm:ss.SSSXXX"} %-5level %logger{35} - %msg%n</Pattern>
     </layout>
   </appender>
 

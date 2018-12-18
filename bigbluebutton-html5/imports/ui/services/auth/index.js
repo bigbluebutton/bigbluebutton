@@ -4,21 +4,32 @@ import { Tracker } from 'meteor/tracker';
 import Storage from '/imports/ui/services/storage/session';
 
 import Users from '/imports/api/users';
-import { makeCall, log } from '/imports/ui/services/api';
+import logger from '/imports/startup/client/logger';
+import { makeCall } from '/imports/ui/services/api';
 
 const CONNECTION_TIMEOUT = Meteor.settings.public.app.connectionTimeout;
 
 class Auth {
   constructor() {
+    this._loggedIn = {
+      value: false,
+      tracker: new Tracker.Dependency(),
+    };
+
+    const queryParams = new URLSearchParams(document.location.search);
+    if (queryParams.has('sessionToken')
+      && queryParams.get('sessionToken') !== Session.get('sessionToken')) {
+      return;
+    }
+
     this._meetingID = Storage.getItem('meetingID');
     this._userID = Storage.getItem('userID');
     this._authToken = Storage.getItem('authToken');
     this._sessionToken = Storage.getItem('sessionToken');
     this._logoutURL = Storage.getItem('logoutURL');
-    this._loggedIn = {
-      value: false,
-      tracker: new Tracker.Dependency(),
-    };
+    this._confname = Storage.getItem('confname');
+    this._externUserID = Storage.getItem('externUserID');
+    this._fullname = Storage.getItem('fullname');
   }
 
   get meetingID() {
@@ -66,6 +77,33 @@ class Auth {
     return this._logoutURL;
   }
 
+  set confname(confname) {
+    this._confname = confname;
+    Storage.setItem('confname', this._confname);
+  }
+
+  get confname() {
+    return this._confname;
+  }
+
+  set externUserID(externUserID) {
+    this._externUserID = externUserID;
+    Storage.setItem('externUserID', this._externUserID);
+  }
+
+  get externUserID() {
+    return this._externUserID;
+  }
+
+  set fullname(fullname) {
+    this._fullname = fullname;
+    Storage.setItem('fullname', this._fullname);
+  }
+
+  get fullname() {
+    return this._fullname;
+  }
+
   get loggedIn() {
     this._loggedIn.tracker.depend();
     return this._loggedIn.value;
@@ -83,15 +121,41 @@ class Auth {
       requesterToken: this.token,
       logoutURL: this.logoutURL,
       sessionToken: this.sessionToken,
+      fullname: this.fullname,
+      externUserID: this.externUserID,
+      confname: this.confname,
     };
   }
 
-  set(meetingId, requesterUserId, requesterToken, logoutURL, sessionToken) {
+  get fullInfo() {
+    return {
+      sessionToken: this.sessionToken,
+      meetingId: this.meetingID,
+      requesterUserId: this.userID,
+      fullname: this.fullname,
+      confname: this.confname,
+      externUserID: this.externUserID,
+    };
+  }
+
+  set(
+    meetingId,
+    requesterUserId,
+    requesterToken,
+    logoutURL,
+    sessionToken,
+    fullname,
+    externUserID,
+    confname,
+  ) {
     this.meetingID = meetingId;
     this.userID = requesterUserId;
     this.token = requesterToken;
     this.logoutURL = logoutURL;
     this.sessionToken = sessionToken;
+    this.fullname = fullname;
+    this.externUserID = externUserID;
+    this.confname = confname;
   }
 
   clearCredentials(...args) {
@@ -101,7 +165,9 @@ class Auth {
     this.loggedIn = false;
     this.logoutURL = null;
     this.sessionToken = null;
-
+    this.fullname = null;
+    this.externUserID = null;
+    this.confname = null;
     return Promise.resolve(...args);
   }
 
@@ -111,23 +177,7 @@ class Auth {
     }
 
     return new Promise((resolve) => {
-      const credentialsSnapshot = {
-        meetingId: this.meetingID,
-        requesterUserId: this.userID,
-        requesterToken: this.token,
-      };
-
-      // make sure users who did not connect are not added to the meeting
-      // do **not** use the custom call - it relies on expired data
-      Meteor.call('userLogout', credentialsSnapshot, (error) => {
-        if (error) {
-          log('error', error, { credentials: credentialsSnapshot });
-        } else {
-          this.fetchLogoutUrl()
-            .then(this.clearCredentials)
-            .then(resolve);
-        }
-      });
+      resolve(this._logoutURL);
     });
   }
 
@@ -141,11 +191,14 @@ class Auth {
       });
     }
 
-    return this.validateAuthToken();
+    this.loggedIn = false;
+    return this.validateAuthToken()
+      .then(() => { this.loggedIn = true; });
   }
 
   validateAuthToken() {
     return new Promise((resolve, reject) => {
+      Meteor.connection.setUserId(`${this.meetingID}-${this.userID}`);
       let computation = null;
 
       const validationTimeout = setTimeout(() => {
@@ -158,30 +211,36 @@ class Auth {
 
       Tracker.autorun((c) => {
         computation = c;
-        const subscription = Meteor.subscribe('current-user', this.credentials);
-
-        if (!subscription.ready()) return;
+        Meteor.subscribe('current-user', this.credentials);
 
         const selector = { meetingId: this.meetingID, userId: this.userID };
         const User = Users.findOne(selector);
 
         // Skip in case the user is not in the collection yet or is a dummy user
-        if (!User || !('intId' in User)) return;
+        if (!User || !('intId' in User)) {
+          logger.info('re-send validateAuthToken for delayed authentication');
+          makeCall('validateAuthToken');
+          return;
+        }
 
-        if (User.validated === true) {
+        if (User.ejected) {
+          reject({
+            error: 401,
+            description: 'User has been ejected.',
+          });
+          return;
+        }
+
+        if (User.validated === true && User.connectionStatus === 'online') {
           computation.stop();
           clearTimeout(validationTimeout);
-          this.loggedIn = true;
-          resolve();
+          // setTimeout to prevent race-conditions with subscription
+          setTimeout(() => resolve(true), 100);
         }
       });
 
       makeCall('validateAuthToken');
     });
-  }
-
-  fetchLogoutUrl() {
-    return Promise.resolve(this._logoutURL);
   }
 }
 

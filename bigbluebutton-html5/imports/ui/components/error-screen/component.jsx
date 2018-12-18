@@ -1,9 +1,10 @@
-import React, { Component } from 'react';
+import React from 'react';
 import PropTypes from 'prop-types';
 import { defineMessages, injectIntl } from 'react-intl';
+import { Meteor } from 'meteor/meteor';
 import Button from '/imports/ui/components/button/component';
-
-import styles from './styles.scss';
+import logoutRouteHandler from '/imports/utils/logoutRouteHandler';
+import { styles } from './styles';
 
 const intlMessages = defineMessages({
   500: {
@@ -16,9 +17,6 @@ const intlMessages = defineMessages({
   },
   401: {
     id: 'app.error.401',
-  },
-  403: {
-    id: 'app.error.403',
   },
   leave: {
     id: 'app.error.leaveLabel',
@@ -37,16 +35,19 @@ const defaultProps = {
   code: 500,
 };
 
-class ErrorScreen extends Component {
-
-  onClick() {
-    window.location = window.location.origin;
+class ErrorScreen extends React.PureComponent {
+  componentDidMount() {
+    Meteor.disconnect();
   }
 
   render() {
-    const { intl, code, children } = this.props;
+    const {
+      intl,
+      code,
+      children,
+    } = this.props;
 
-    let formatedMessage = intl.formatMessage(intlMessages[500]);
+    let formatedMessage = intl.formatMessage(intlMessages[defaultProps.code]);
 
     if (code in intlMessages) {
       formatedMessage = intl.formatMessage(intlMessages[code]);
@@ -54,19 +55,19 @@ class ErrorScreen extends Component {
 
     return (
       <div className={styles.background}>
-        <h1 className={styles.code}>
+        <h1>
           {code}
         </h1>
         <h1 className={styles.message}>
           {formatedMessage}
         </h1>
-        <div className={styles.content}>
+        <div>
           {children}
         </div>
-        <div className={styles.content}>
+        <div>
           <Button
-            size={'sm'}
-            onClick={this.onClick}
+            size="sm"
+            onClick={logoutRouteHandler}
             label={intl.formatMessage(intlMessages.leave)}
           />
         </div>

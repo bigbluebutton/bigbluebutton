@@ -6,5 +6,6 @@ import handleBreakoutClosed from './handlers/breakoutClosed';
 
 RedisPubSub.on('BreakoutRoomStartedEvtMsg', handleBreakoutStarted);
 RedisPubSub.on('BreakoutRoomJoinURLEvtMsg', handleBreakoutJoinURL);
+RedisPubSub.on('RequestBreakoutJoinURLRespMsg', handleBreakoutJoinURL);
 RedisPubSub.on('BreakoutRoomsTimeRemainingUpdateEvtMsg', handleUpdateTimeRemaining);
 RedisPubSub.on('BreakoutRoomEndedEvtMsg', handleBreakoutClosed);

@@ -103,10 +103,10 @@ log4j = {
                    file: "/var/log/bigbluebutton/bbb-web.log",
                    encoding:"utf-8",
                    threshold:org.apache.log4j.Level.toLevel( config.appLogLevel ),
-                   layout:pattern(conversionPattern: '%d{yyyy-MM-dd HH:mm:ss,SSSXXX} %-5p %c %x - %m%n'))
+                   layout:pattern(conversionPattern: "%d{yyyy-MM-dd'T'HH:mm:ss.SSSXXX} %-5p %c %x - %m%n"))
         console     name:'consoleAppender',
                   threshold:org.apache.log4j.Level.toLevel( config.appLogLevel ), 
-                  layout:pattern(conversionPattern: '%d{yyyy-MM-dd HH:mm:ss,SSSXXX} %-5p %c %x - %m%n')
+                  layout:pattern(conversionPattern: "%d{yyyy-MM-dd'T'HH:mm:ss.SSSXXX} %-5p %c %x - %m%n")
     }
 
     root {
@@ -130,5 +130,7 @@ log4j = {
            'org.hibernate',
            'net.sf.ehcache.hibernate'
 
-    debug  'org.bigbluebutton'
+    debug  'org.bigbluebutton',
+           'grails.app.controllers',
+           'grails.app.services'
 }

@@ -1,6 +1,7 @@
 package org.bigbluebutton.api2.bus
 
 import org.bigbluebutton.api2.SystemConfiguration
+import org.bigbluebutton.common2.bus._
 import org.bigbluebutton.common2.msgs._
 import com.fasterxml.jackson.databind.JsonNode
 import akka.actor.Actor
@@ -83,6 +84,8 @@ class ReceivedJsonMsgHdlrActor(val msgFromAkkaAppsEventBus: MsgFromAkkaAppsEvent
         route[UserBroadcastCamStartedEvtMsg](envelope, jsonNode)
       case UserBroadcastCamStoppedEvtMsg.NAME =>
         route[UserBroadcastCamStoppedEvtMsg](envelope, jsonNode)
+      case UserRoleChangedEvtMsg.NAME =>
+        route[UserRoleChangedEvtMsg](envelope, jsonNode)
       case CreateBreakoutRoomSysCmdMsg.NAME =>
         route[CreateBreakoutRoomSysCmdMsg](envelope, jsonNode)
       case PresentationUploadTokenSysPubMsg.NAME =>
@@ -93,6 +96,11 @@ class ReceivedJsonMsgHdlrActor(val msgFromAkkaAppsEventBus: MsgFromAkkaAppsEvent
         route[GuestPolicyChangedEvtMsg](envelope, jsonNode)
       case RecordingChapterBreakSysMsg.NAME =>
         route[RecordingChapterBreakSysMsg](envelope, jsonNode)
+      case SetPresentationDownloadableEvtMsg.NAME =>
+        route[SetPresentationDownloadableEvtMsg](envelope, jsonNode)
+      case RecordingStatusChangedEvtMsg.NAME =>
+        route[RecordingStatusChangedEvtMsg](envelope, jsonNode)
+
       case _ =>
         //log.debug("************ Cannot route envelope name " + envelope.name)
       // do nothing

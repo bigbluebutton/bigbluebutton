@@ -24,8 +24,7 @@ trait SetGuestPolicyMsgHdlr extends RightsManagementTrait {
         val policy = GuestPolicy(newPolicy, msg.body.setBy)
         GuestsWaiting.setGuestPolicy(liveMeeting.guestsWaiting, policy)
         val event = MsgBuilder.buildGuestPolicyChangedEvtMsg(
-          liveMeeting.props.meetingProp.intId, msg.header.userId, newPolicy, msg.body.setBy
-        )
+          liveMeeting.props.meetingProp.intId, msg.header.userId, newPolicy, msg.body.setBy)
         outGW.send(event)
       }
     }

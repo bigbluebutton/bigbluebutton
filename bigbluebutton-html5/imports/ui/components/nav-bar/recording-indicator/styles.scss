@@ -1,33 +1,40 @@
 @import "../../../stylesheets/variables/_all";
 
-.indicator {
+%baseIndicator {
   position: relative;
   display: inline-block;
-  width: $font-size-base;
-  height: $font-size-base;
+  width: var(--font-size-base);
+  height: var(--font-size-base);
   border-radius: 50%;
-  border: 1px solid $color-white;
-  margin-left: $line-height-computed;
-
-  &:before {
-    content: '';
-    position: absolute;
-    left: calc( -1px - #{($line-height-computed / 2)});
-    width: 1px;
-    height: 100%;
-    background-color: $color-white;
-  }
+  border: 1px solid var(--color-white);
 
   &:after {
     content: '';
-    width: $font-size-base / 2;
-    height: $font-size-base / 2;
+    width: calc(var(--font-size-base) / 2);
+    height: calc(var(--font-size-base) / 2);
     position: absolute;
     top: 50%;
     left: 50%;
-    margin-top: -($font-size-base / 4);
-    margin-left: -($font-size-base / 4);
+    margin-top: calc((var(--font-size-base) / -4));
+    margin-left: calc((var(--font-size-base) / -4));
     border-radius: 50%;
-    background-color: $color-danger;
+    background-color: var(--color-danger);
   }
+}
+
+.recordIndicator {
+  @extend %baseIndicator;
+}
+
+.notRecording {
+  @extend %baseIndicator;
+  border: 1px solid var(--color-gray);
+
+  &:after {
+    background-color: var(--color-gray);
+  }
+}
+
+.recordState {
+  display: flex;
 }

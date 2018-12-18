@@ -20,3 +20,5 @@
 
 <a href="demoHTML5.jsp">HTML5 Client Demo</a> &nbsp;&nbsp;
 
+<a href="demoHTML5Video.jsp">HTML5 Client Video Chat</a> &nbsp;&nbsp;
+

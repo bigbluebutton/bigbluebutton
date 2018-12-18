@@ -53,7 +53,7 @@
 .icon-bbb-fit_to_screen:before {
   content: "\e929";
 }
-.icon-bbb-linte_tool:before {
+.icon-bbb-line_tool:before {
   content: "\e91c";
 }
 .icon-bbb-circle_tool:before {
@@ -88,6 +88,9 @@
 }
 .icon-bbb-desktop:before {
   content: "\e928";
+}
+.icon-bbb-desktop_off:before {
+  content: "\e953";
 }
 .icon-bbb-logout:before {
   content: "\e900";
@@ -268,3 +271,12 @@
 .icon-bbb-warning:before {
   content: "\e94c";
 }
+.icon-bbb-pointer:before {
+  content: "\e950";
+}
+.icon-bbb-star_filled:before {
+  content: "\e952";
+} 
+.icon-bbb-minus:before {
+  content: "\e954";
+} 

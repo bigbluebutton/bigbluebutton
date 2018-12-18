@@ -5,7 +5,7 @@ import Logger from '/imports/startup/server/logger';
 import Users from '/imports/api/users';
 
 export default function changeRole(credentials, userId, role) {
-  const REDIS_CONFIG = Meteor.settings.redis;
+  const REDIS_CONFIG = Meteor.settings.private.redis;
   const CHANNEL = REDIS_CONFIG.channels.toAkkaApps;
   const EVENT_NAME = 'ChangeUserRoleCmdMsg';
 
@@ -22,8 +22,7 @@ export default function changeRole(credentials, userId, role) {
   });
 
   if (!User) {
-    throw new Meteor.Error(
-      'user-not-found', `You need a valid user to be able to set '${role}'`);
+    throw new Meteor.Error('user-not-found', `You need a valid user to be able to set '${role}'`);
   }
 
   const payload = {

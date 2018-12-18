@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+	<appender name="VIDEO-BROADCAST" class="ch.qos.logback.core.rolling.RollingFileAppender">
+		<File>log/video-broadcast.log</File>
+
+		<rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+			<FileNamePattern>log/video-broadcast.%d{yyyy-MM-dd}.log</FileNamePattern>
+			<!-- keep 14 days worth of history -->
+			<MaxHistory>14</MaxHistory>
+		</rollingPolicy>
+
+		<encoder>
+			<charset>UTF-8</charset>
+			<pattern>%d{"yyyy-MM-dd'T'HH:mm:ss.SSSXXX"} %-5level %logger{35} - %msg%n</pattern>
+		</encoder>
+	</appender>
+	<root>
+		<level value="DEBUG" />
+		<appender-ref ref="VIDEO-BROADCAST" />
+	</root>
+
+</configuration>

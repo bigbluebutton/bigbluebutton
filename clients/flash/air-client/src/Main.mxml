@@ -4,9 +4,9 @@
 			   applicationComplete="applicationCompleteHandler(event)"
 			   preinitialize="preinitializeHandler(event)"
 			   styleName="mainshell"
-			   xmlns:main="org.bigbluebutton.air.main.views.*">
-	<fx:Style source="../../shared/assets/css/common.css" />
-	<fx:Style source="../../shared/assets/css/bbb-icons.css" />
+			   xmlns:main="org.bigbluebutton.air.main.views.*"
+			   xmlns:setup="org.as3commons.logging.setup.*">
+	<fx:Style source="css/bbb-icons.css" />
 	<fx:Style source="Default.css" />
 	<fx:Style source="css/ldpi.css" />
 	<fx:Style source="css/mdpi.css" />
@@ -28,12 +28,14 @@
 			import org.bigbluebutton.air.main.MainConfig;
 			import org.bigbluebutton.air.main.utils.OrientationCalculator;
 			import org.bigbluebutton.air.participants.ParticipantsConfig;
+			import org.bigbluebutton.air.poll.PollConfig;
 			import org.bigbluebutton.air.presentation.PresentationConfig;
+			import org.bigbluebutton.air.screenshare.ScreenshareConfig;
 			import org.bigbluebutton.air.settings.SettingsConfig;
-			import org.bigbluebutton.air.users.UsersConfig;
+			import org.bigbluebutton.air.user.UsersConfig;
 			import org.bigbluebutton.air.video.VideoConfig;
 			import org.bigbluebutton.air.voice.VoiceConfig;
-			import org.bigbluebutton.lib.whiteboard.views.WhiteboardConfig;
+			import org.bigbluebutton.air.whiteboard.WhiteboardConfig;
 			
 			import robotlegs.bender.bundles.mvcs.MVCSBundle;
 			import robotlegs.bender.extensions.contextView.ContextView;
@@ -41,8 +43,10 @@
 			import robotlegs.bender.framework.api.IContext;
 			import robotlegs.bender.framework.api.LogLevel;
 			import robotlegs.bender.framework.impl.Context;
+			
+			
 
-			include "../../shared/ColorPalette.as"
+			include "css/ColorPalette.as"
 			
 			protected var context:IContext;
 			
@@ -69,9 +73,11 @@
 					.configure(VideoConfig)
 					.configure(VoiceConfig)
 					.configure(ParticipantsConfig)
+					.configure(PollConfig)
 					.configure(UsersConfig)
 					.configure(ChatConfig)
-					.configure(new ContextView(this));
+					.configure(ScreenshareConfig)
+					.configure(new ContextView(this.systemManager as DisplayObjectContainer));
 				// If you wish to change the log level then uncomment the line below and set 
 				// the logLevel to the value you desire. The default logLevel is DEBUG, which 
 				// is set in the MVCSBundle. The default log level traces out the framework 
@@ -90,6 +96,8 @@
 			
 			protected function applicationCompleteHandler(event:FlexEvent):void {
 				NativeApplication.nativeApplication.systemIdleMode = SystemIdleMode.KEEP_AWAKE;
+				// Set background to support display of screenshare using StageVideo.
+				this.styleName = "no-background";
 			}
 		]]>
 	</fx:Script>
@@ -107,6 +115,7 @@
 			  visible="false"
 			  gap="0"
 			  horizontalAlign="center">
+		<main:BannerView id="bannerView" width="100%" height="30" visible="false" includeInLayout="false"/>
 		<main:PagesNavigatorView id="pagesNavigatorView"
 								 width="100%"
 								 height="100%" />

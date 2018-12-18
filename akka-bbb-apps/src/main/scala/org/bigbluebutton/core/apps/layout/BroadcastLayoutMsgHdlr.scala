@@ -31,8 +31,7 @@ trait BroadcastLayoutMsgHdlr extends RightsManagementTrait {
     val body = BroadcastLayoutEvtMsgBody(
       Layouts.getCurrentLayout(liveMeeting.layouts),
       MeetingStatus2x.getPermissions(liveMeeting.status).lockedLayout,
-      Layouts.getLayoutSetter(liveMeeting.layouts), affectedUsers
-    )
+      Layouts.getLayoutSetter(liveMeeting.layouts), affectedUsers)
     val event = BroadcastLayoutEvtMsg(header, body)
     val msgEvent = BbbCommonEnvCoreMsg(envelope, event)
 

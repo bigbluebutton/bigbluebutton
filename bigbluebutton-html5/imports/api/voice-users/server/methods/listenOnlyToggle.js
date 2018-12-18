@@ -6,7 +6,7 @@ import Meetings from '/imports/api/meetings';
 import VoiceUsers from '/imports/api/voice-users';
 
 export default function listenOnlyToggle(credentials, isJoining = true) {
-  const REDIS_CONFIG = Meteor.settings.redis;
+  const REDIS_CONFIG = Meteor.settings.private.redis;
   const CHANNEL = REDIS_CONFIG.channels.toAkkaApps;
 
   const { meetingId, requesterUserId } = credentials;
@@ -30,8 +30,7 @@ export default function listenOnlyToggle(credentials, isJoining = true) {
   const Meeting = Meetings.findOne({ meetingId });
 
   if (!VoiceUser) {
-    throw new Meteor.Error(
-      'user-not-found', 'You need a valid user to be able to toggle audio');
+    throw new Meteor.Error('user-not-found', 'You need a valid user to be able to toggle audio');
   }
 
   // check(User.user.name, String);
@@ -41,7 +40,7 @@ export default function listenOnlyToggle(credentials, isJoining = true) {
     name: VoiceUser.callerName,
   };
 
-  Logger.verbose(`VoiceUser '${requesterUserId}' ${isJoining
+  Logger.info(`VoiceUser '${requesterUserId}' ${isJoining
     ? 'joined' : 'left'} global audio from meeting '${meetingId}'`);
 
   return RedisPubSub.publishVoiceMessage(CHANNEL, EVENT_NAME, Meeting.voiceProp.voiceConf, payload);

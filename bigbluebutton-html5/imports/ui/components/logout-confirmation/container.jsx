@@ -1,6 +1,8 @@
 import React from 'react';
 import { meetingIsBreakout } from '/imports/ui/components/app/service';
-import { createContainer } from 'meteor/react-meteor-data';
+import { withTracker } from 'meteor/react-meteor-data';
+import { Session } from 'meteor/session';
+
 import LogoutConfirmation from './component';
 import {
   isModerator,
@@ -11,10 +13,15 @@ const LogoutConfirmationContainer = props => (
   <LogoutConfirmation {...props} />
 );
 
-export default createContainer(() => {
+export default withTracker(() => {
+  const confirmLeaving = () => {
+    Session.set('isMeetingEnded', true);
+    Session.set('codeError', '430');
+  };
+
   return {
-    showEndMeeting: !meetingIsBreakout() &&
-                    isModerator(),
+    showEndMeeting: !meetingIsBreakout() && isModerator(),
     handleEndMeeting: endMeeting,
-  }
-}, LogoutConfirmationContainer);
+    confirmLeaving,
+  };
+})(LogoutConfirmationContainer);

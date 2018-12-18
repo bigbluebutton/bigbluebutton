@@ -7,6 +7,8 @@ import org.bigbluebutton.common2.msgs._
 import org.bigbluebutton.core.bus._
 import org.bigbluebutton.core2.ReceivedMessageRouter
 import scala.reflect.runtime.universe._
+import org.bigbluebutton.common2.bus.ReceivedJsonMessage
+import org.bigbluebutton.common2.bus.IncomingJsonMessageBus
 
 object ReceivedJsonMsgHandlerActor {
   def props(eventBus: BbbMsgRouterEventBus, incomingJsonMessageBus: IncomingJsonMessageBus): Props =
@@ -15,8 +17,7 @@ object ReceivedJsonMsgHandlerActor {
 
 class ReceivedJsonMsgHandlerActor(
   val eventBus:               BbbMsgRouterEventBus,
-  val incomingJsonMessageBus: IncomingJsonMessageBus
-)
+  val incomingJsonMessageBus: IncomingJsonMessageBus)
     extends Actor with ActorLogging
     with SystemConfiguration
     with ReceivedJsonMsgDeserializer
@@ -72,6 +73,8 @@ class ReceivedJsonMsgHandlerActor(
         route[DestroyMeetingSysCmdMsg](meetingManagerChannel, envelope, jsonNode)
       case EjectUserFromMeetingSysMsg.NAME =>
         routeGenericMsg[EjectUserFromMeetingSysMsg](envelope, jsonNode)
+      case ValidateConnAuthTokenSysMsg.NAME =>
+        route[ValidateConnAuthTokenSysMsg](meetingManagerChannel, envelope, jsonNode)
 
       // Guests
       case GetGuestsWaitingApprovalReqMsg.NAME =>
@@ -92,6 +95,8 @@ class ReceivedJsonMsgHandlerActor(
         routeGenericMsg[RemoveUserFromPresenterGroupCmdMsg](envelope, jsonNode)
       case GetPresenterGroupReqMsg.NAME =>
         routeGenericMsg[GetPresenterGroupReqMsg](envelope, jsonNode)
+      case UserActivitySignCmdMsg.NAME =>
+        routeGenericMsg[UserActivitySignCmdMsg](envelope, jsonNode)
 
       // Poll
       case StartCustomPollReqMsg.NAME =>
@@ -182,7 +187,6 @@ class ReceivedJsonMsgHandlerActor(
       case GetWhiteboardAnnotationsReqMsg.NAME =>
         routeGenericMsg[GetWhiteboardAnnotationsReqMsg](envelope, jsonNode)
       case ClientToServerLatencyTracerMsg.NAME =>
-        log.info("-- trace --" + jsonNode.toString)
         routeGenericMsg[ClientToServerLatencyTracerMsg](envelope, jsonNode)
 
       // Presentation
@@ -252,6 +256,8 @@ class ReceivedJsonMsgHandlerActor(
         routeGenericMsg[SendPrivateMessagePubMsg](envelope, jsonNode)
       case ClearPublicChatHistoryPubMsg.NAME =>
         routeGenericMsg[ClearPublicChatHistoryPubMsg](envelope, jsonNode)
+      case UserTypingPubMsg.NAME =>
+        routeGenericMsg[UserTypingPubMsg](envelope, jsonNode)
 
       // Meeting
       case EndMeetingSysCmdMsg.NAME =>
@@ -262,10 +268,16 @@ class ReceivedJsonMsgHandlerActor(
         routeGenericMsg[LogoutAndEndMeetingCmdMsg](envelope, jsonNode)
       case SetRecordingStatusCmdMsg.NAME =>
         routeGenericMsg[SetRecordingStatusCmdMsg](envelope, jsonNode)
+      case RecordAndClearPreviousMarkersCmdMsg.NAME =>
+        routeGenericMsg[RecordAndClearPreviousMarkersCmdMsg](envelope, jsonNode)
       case GetRecordingStatusReqMsg.NAME =>
         routeGenericMsg[GetRecordingStatusReqMsg](envelope, jsonNode)
       case GetScreenshareStatusReqMsg.NAME =>
         routeGenericMsg[GetScreenshareStatusReqMsg](envelope, jsonNode)
+      case GetWebcamsOnlyForModeratorReqMsg.NAME =>
+        routeGenericMsg[GetWebcamsOnlyForModeratorReqMsg](envelope, jsonNode)
+      case UpdateWebcamsOnlyForModeratorCmdMsg.NAME =>
+        routeGenericMsg[UpdateWebcamsOnlyForModeratorCmdMsg](envelope, jsonNode)
 
       // Lock settings
       case LockUserInMeetingCmdMsg.NAME =>
@@ -296,9 +308,6 @@ class ReceivedJsonMsgHandlerActor(
         routeGenericMsg[GetGroupChatMsgsReqMsg](envelope, jsonNode)
       case CreateGroupChatReqMsg.NAME =>
         routeGenericMsg[CreateGroupChatReqMsg](envelope, jsonNode)
-
-      case ValidateConnAuthTokenSysMsg.NAME =>
-        routeGenericMsg[ValidateConnAuthTokenSysMsg](envelope, jsonNode)
 
       case _ =>
         log.error("Cannot route envelope name " + envelope.name)

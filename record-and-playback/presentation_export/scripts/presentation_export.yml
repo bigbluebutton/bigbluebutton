@@ -1,5 +1,0 @@
-publish_dir: /var/bigbluebutton/published/presentation_export
-playback_dir: /var/bigbluebutton/playback/presentation_export
-
-presentation_published_dir: /var/bigbluebutton/published/presentation
-presentation_unpublished_dir: /var/bigbluebutton/unpublished/presentation

@@ -20,12 +20,12 @@ class MessageSenderActor(val msgSender: RedisPublisher)
   val routing = collection.immutable.HashMap("sender" -> "bbb-transcode")
 
   def receive = {
-    case msg: StartTranscoderReply => handleStartTranscoderReply(msg)
-    case msg: StopTranscoderReply => handleStopTranscoderReply(msg)
-    case msg: UpdateTranscoderReply => handleUpdateTranscoderReply(msg)
+    case msg: StartTranscoderReply   => handleStartTranscoderReply(msg)
+    case msg: StopTranscoderReply    => handleStopTranscoderReply(msg)
+    case msg: UpdateTranscoderReply  => handleUpdateTranscoderReply(msg)
     case msg: TranscoderStatusUpdate => handleTranscoderStatusUpdate(msg)
-    case msg: StartProbingReply => handleStartProbingReply(msg)
-    case _ => // do nothing
+    case msg: StartProbingReply      => handleStartProbingReply(msg)
+    case _                           => // do nothing
   }
 
   private def handleStartTranscoderReply(msg: StartTranscoderReply) {

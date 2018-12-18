@@ -2,7 +2,6 @@ import { Meteor } from 'meteor/meteor';
 import { check } from 'meteor/check';
 import Meetings from '/imports/api/meetings';
 import Logger from '/imports/startup/server/logger';
-import mapToAcl from '/imports/startup/mapToAcl';
 
 function meetings(credentials) {
   const { meetingId, requesterUserId, requesterToken } = credentials;
@@ -13,14 +12,26 @@ function meetings(credentials) {
 
   Logger.info(`Publishing meeting =${meetingId} ${requesterUserId} ${requesterToken}`);
 
-  return Meetings.find({
-    meetingId,
-  });
+  const selector = {
+    $or: [
+      { meetingId },
+      { 'meetingProp.isBreakout': true },
+      { 'breakoutProps.parentId': meetingId },
+    ],
+  };
+
+  const options = {
+    fields: {
+      password: false,
+    },
+  };
+
+  return Meetings.find(selector, options);
 }
 
 function publish(...args) {
   const boundMeetings = meetings.bind(this);
-  return mapToAcl('subscriptions.meetings', boundMeetings)(args);
+  return boundMeetings(...args);
 }
 
 Meteor.publish('meetings', publish);

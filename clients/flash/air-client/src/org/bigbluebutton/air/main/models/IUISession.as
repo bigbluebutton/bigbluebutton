@@ -7,13 +7,13 @@ package org.bigbluebutton.air.main.models {
 		function get loading():Boolean;
 		function get loadingMessage():String;
 		function get loadingChangeSignal():ISignal;
-		function setLoading(val:Boolean, message:String):void;
+		function setLoading(val:Boolean, message:String = ""):void;
 		function get pageChangedSignal():ISignal;
 		function get pageTransitionStartSignal():ISignal;
 		function get currentPage():String;
 		function get lastPage():String;
-		function popPage(animation:int = TransitionAnimationEnum.APPEAR):void;
-		function pushPage(value:String, details:Object = null, animation:int = TransitionAnimationEnum.APPEAR):void;
+		function popPage(animation:int = 0):void;
+		function pushPage(value:String, details:Object = null, animation:int = 0):void;
 		function get currentPageDetails():Object;
 	}
 }

@@ -1,13 +1,10 @@
-import React, { Component } from 'react';
+import React, { PureComponent } from 'react';
 import { defineMessages, injectIntl } from 'react-intl';
-import cx from 'classnames';
-
+import _ from 'lodash';
 import { withModalMounter } from '/imports/ui/components/modal/service';
-
 import LogoutConfirmationContainer from '/imports/ui/components/logout-confirmation/container';
 import AboutContainer from '/imports/ui/components/about/container';
 import SettingsMenuContainer from '/imports/ui/components/settings/container';
-
 import Button from '/imports/ui/components/button/component';
 import Dropdown from '/imports/ui/components/dropdown/component';
 import DropdownTrigger from '/imports/ui/components/dropdown/trigger/component';
@@ -15,8 +12,10 @@ import DropdownContent from '/imports/ui/components/dropdown/content/component';
 import DropdownList from '/imports/ui/components/dropdown/list/component';
 import DropdownListItem from '/imports/ui/components/dropdown/list/item/component';
 import DropdownListSeparator from '/imports/ui/components/dropdown/list/separator/component';
+import ShortcutHelpComponent from '/imports/ui/components/shortcut-help/component';
+import withShortcutHelper from '/imports/ui/components/shortcut-help/service';
 
-import styles from '../styles';
+import { styles } from '../styles';
 
 const intlMessages = defineMessages({
   optionsLabel: {
@@ -63,9 +62,25 @@ const intlMessages = defineMessages({
     id: 'app.navBar.settingsDropdown.exitFullscreenLabel',
     description: 'Exit fullscreen option label',
   },
+  hotkeysLabel: {
+    id: 'app.navBar.settingsDropdown.hotkeysLabel',
+    description: 'Hotkeys options label',
+  },
+  hotkeysDesc: {
+    id: 'app.navBar.settingsDropdown.hotkeysDesc',
+    description: 'Describes hotkeys option',
+  },
+  helpLabel: {
+    id: 'app.navBar.settingsDropdown.helpLabel',
+    description: 'Help options label',
+  },
+  helpDesc: {
+    id: 'app.navBar.settingsDropdown.helpDesc',
+    description: 'Describes help option',
+  },
 });
 
-class SettingsDropdown extends Component {
+class SettingsDropdown extends PureComponent {
   constructor(props) {
     super(props);
 
@@ -75,6 +90,70 @@ class SettingsDropdown extends Component {
 
     this.onActionsShow = this.onActionsShow.bind(this);
     this.onActionsHide = this.onActionsHide.bind(this);
+  }
+
+  componentWillMount() {
+    const { intl, mountModal, isAndroid } = this.props;
+    const { fullscreenLabel, fullscreenDesc, fullscreenIcon } = this.checkFullscreen(this.props);
+    const { showHelpButton: helpButton } = Meteor.settings.public.app;
+
+    this.menuItems = _.compact([(<DropdownListItem
+      key={_.uniqueId('list-item-')}
+      icon={fullscreenIcon}
+      label={fullscreenLabel}
+      description={fullscreenDesc}
+      onClick={this.props.handleToggleFullscreen}
+    />),
+      (<DropdownListItem
+        key={_.uniqueId('list-item-')}
+        icon="settings"
+        label={intl.formatMessage(intlMessages.settingsLabel)}
+        description={intl.formatMessage(intlMessages.settingsDesc)}
+        onClick={() => mountModal(<SettingsMenuContainer />)}
+      />),
+      (<DropdownListItem
+        key={_.uniqueId('list-item-')}
+        icon="about"
+        label={intl.formatMessage(intlMessages.aboutLabel)}
+        description={intl.formatMessage(intlMessages.aboutDesc)}
+        onClick={() => mountModal(<AboutContainer />)}
+      />),
+      !helpButton ? null :
+      (<DropdownListItem
+        key={_.uniqueId('list-item-')}
+        icon="help"
+        label={intl.formatMessage(intlMessages.helpLabel)}
+        description={intl.formatMessage(intlMessages.helpDesc)}
+        onClick={() => window.open('https://bigbluebutton.org/videos/')}
+      />),
+      (<DropdownListItem
+        key={_.uniqueId('list-item-')}
+        icon="shortcuts"
+        label={intl.formatMessage(intlMessages.hotkeysLabel)}
+        description={intl.formatMessage(intlMessages.hotkeysDesc)}
+        onClick={() => mountModal(<ShortcutHelpComponent />)}
+      />),
+      (<DropdownListSeparator key={_.uniqueId('list-separator-')} />),
+      (<DropdownListItem
+        key={_.uniqueId('list-item-')}
+        icon="logout"
+        label={intl.formatMessage(intlMessages.leaveSessionLabel)}
+        description={intl.formatMessage(intlMessages.leaveSessionDesc)}
+        onClick={() => mountModal(<LogoutConfirmationContainer />)}
+      />),
+    ]);
+
+    // Removes fullscreen button if not on Android
+    if (!isAndroid) {
+      this.menuItems.shift();
+    }
+  }
+
+  componentWillReceiveProps(nextProps) {
+    // Alters fullscreen button's label
+    if (this.props.isAndroid) {
+      this.alterMenu(nextProps);
+    }
   }
 
   onActionsShow() {
@@ -89,8 +168,8 @@ class SettingsDropdown extends Component {
     });
   }
 
-  render() {
-    const { intl, mountModal, isFullScreen } = this.props;
+  checkFullscreen(nextProps) {
+    const { intl, isFullScreen } = nextProps;
 
     let fullscreenLabel = intl.formatMessage(intlMessages.fullscreenLabel);
     let fullscreenDesc = intl.formatMessage(intlMessages.fullscreenDesc);
@@ -101,6 +180,34 @@ class SettingsDropdown extends Component {
       fullscreenDesc = intl.formatMessage(intlMessages.exitFullscreenDesc);
       fullscreenIcon = 'exit_fullscreen';
     }
+    return {
+      fullscreenLabel,
+      fullscreenDesc,
+      fullscreenIcon,
+    };
+  }
+
+  alterMenu(props) {
+    const { fullscreenLabel, fullscreenDesc, fullscreenIcon } = this.checkFullscreen(props);
+
+    const newFullScreenButton = (
+      <DropdownListItem
+        key={_.uniqueId('list-item-')}
+        icon={fullscreenIcon}
+        label={fullscreenLabel}
+        description={fullscreenDesc}
+        onClick={this.props.handleToggleFullscreen}
+      />
+    );
+    this.menuItems = this.menuItems.slice(1);
+    this.menuItems.unshift(newFullScreenButton);
+  }
+
+  render() {
+    const {
+      intl,
+      shortcuts: OPEN_OPTIONS_AK,
+    } = this.props;
 
     return (
       <Dropdown
@@ -109,14 +216,14 @@ class SettingsDropdown extends Component {
         onShow={this.onActionsShow}
         onHide={this.onActionsHide}
       >
-        <DropdownTrigger tabIndex={0}>
+        <DropdownTrigger tabIndex={0} accessKey={OPEN_OPTIONS_AK}>
           <Button
             label={intl.formatMessage(intlMessages.optionsLabel)}
             icon="more"
             ghost
             circle
             hideLabel
-            className={cx(styles.btn, styles.btnSettings)}
+            className={styles.btn}
 
             // FIXME: Without onClick react proptypes keep warning
             // even after the DropdownTrigger inject an onClick handler
@@ -125,31 +232,9 @@ class SettingsDropdown extends Component {
         </DropdownTrigger>
         <DropdownContent placement="bottom right">
           <DropdownList>
-            <DropdownListItem
-              icon={fullscreenIcon}
-              label={fullscreenLabel}
-              description={fullscreenDesc}
-              onClick={this.props.handleToggleFullscreen}
-            />
-            <DropdownListItem
-              icon="settings"
-              label={intl.formatMessage(intlMessages.settingsLabel)}
-              description={intl.formatMessage(intlMessages.settingsDesc)}
-              onClick={() => mountModal(<SettingsMenuContainer />)}
-            />
-            <DropdownListItem
-              icon="about"
-              label={intl.formatMessage(intlMessages.aboutLabel)}
-              description={intl.formatMessage(intlMessages.aboutDesc)}
-              onClick={() => mountModal(<AboutContainer />)}
-            />
-            <DropdownListSeparator />
-            <DropdownListItem
-              icon="logout"
-              label={intl.formatMessage(intlMessages.leaveSessionLabel)}
-              description={intl.formatMessage(intlMessages.leaveSessionDesc)}
-              onClick={() => mountModal(<LogoutConfirmationContainer />)}
-            />
+            {
+              this.menuItems
+            }
           </DropdownList>
         </DropdownContent>
       </Dropdown>
@@ -157,4 +242,4 @@ class SettingsDropdown extends Component {
   }
 }
 
-export default withModalMounter(injectIntl(SettingsDropdown));
+export default withShortcutHelper(withModalMounter(injectIntl(SettingsDropdown)), 'openOptions');

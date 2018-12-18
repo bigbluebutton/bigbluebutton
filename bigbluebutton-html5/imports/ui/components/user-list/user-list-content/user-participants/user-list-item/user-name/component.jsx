@@ -2,8 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { defineMessages } from 'react-intl';
 import Icon from '/imports/ui/components/icon/component';
-import styles from './styles';
-
+import { styles } from './styles';
 
 const messages = defineMessages({
   presenter: {
@@ -31,6 +30,7 @@ const messages = defineMessages({
     description: 'aria label for each user in the userlist',
   },
 });
+
 const propTypes = {
   user: PropTypes.shape({
     name: PropTypes.string.isRequired,
@@ -43,8 +43,10 @@ const propTypes = {
   intl: PropTypes.shape({
     formatMessage: PropTypes.func.isRequired,
   }).isRequired,
-  meeting: PropTypes.shape({}).isRequired,
   isMeetingLocked: PropTypes.func.isRequired,
+  userAriaLabel: PropTypes.string.isRequired,
+  meetingId: PropTypes.string.isRequired,
+  isActionsOpen: PropTypes.bool.isRequired,
 };
 
 const UserName = (props) => {
@@ -53,7 +55,9 @@ const UserName = (props) => {
     intl,
     compact,
     isMeetingLocked,
-    meeting,
+    meetingId,
+    userAriaLabel,
+    isActionsOpen,
   } = props;
 
   if (compact) {
@@ -66,7 +70,7 @@ const UserName = (props) => {
     return null;
   }
 
-  if (isMeetingLocked(meeting.meetingId) && user.isLocked) {
+  if (isMeetingLocked(meetingId) && user.isLocked) {
     userNameSub.push(<span>
       <Icon iconName="lock" />
       {intl.formatMessage(messages.locked)}
@@ -77,9 +81,13 @@ const UserName = (props) => {
     userNameSub.push(intl.formatMessage(messages.guest));
   }
 
-
   return (
-    <div className={styles.userName}>
+    <div
+      className={styles.userName}
+      role="button"
+      aria-label={userAriaLabel}
+      aria-expanded={isActionsOpen}
+    >
       <span className={styles.userNameMain}>
         {user.name} <i>{(user.isCurrent) ? `(${intl.formatMessage(messages.you)})` : ''}</i>
       </span>
@@ -88,7 +96,7 @@ const UserName = (props) => {
           <span className={styles.userNameSub}>
             {userNameSub.reduce((prev, curr) => [prev, ' | ', curr])}
           </span>
-        : null
+          : null
       }
     </div>
   );

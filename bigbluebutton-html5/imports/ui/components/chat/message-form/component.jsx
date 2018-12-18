@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import { defineMessages, injectIntl } from 'react-intl';
 import cx from 'classnames';
 import TextareaAutosize from 'react-autosize-textarea';
-import styles from './styles';
+import { styles } from './styles';
 import Button from '../../button/component';
 
 const propTypes = {
@@ -80,13 +80,17 @@ class MessageForm extends Component {
     const { minMessageLength, maxMessageLength } = this.props;
 
     if (message.length < minMessageLength) {
-      error = intl.formatMessage(messages.errorMinMessageLength,
-        { 0: minMessageLength - message.length });
+      error = intl.formatMessage(
+        messages.errorMinMessageLength,
+        { 0: minMessageLength - message.length },
+      );
     }
 
     if (message.length > maxMessageLength) {
-      error = intl.formatMessage(messages.errorMaxMessageLength,
-        { 0: message.length - maxMessageLength });
+      error = intl.formatMessage(
+        messages.errorMaxMessageLength,
+        { 0: message.length - maxMessageLength },
+      );
     }
 
     this.setState({
@@ -123,8 +127,9 @@ class MessageForm extends Component {
   }
 
   render() {
-    const { intl, chatTitle, chatName, disabled,
-      minMessageLength, maxMessageLength } = this.props;
+    const {
+      intl, chatTitle, chatName, disabled,
+    } = this.props;
 
     const { hasErrors, error } = this.state;
 

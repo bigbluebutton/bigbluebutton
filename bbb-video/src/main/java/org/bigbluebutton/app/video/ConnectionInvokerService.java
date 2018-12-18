@@ -24,14 +24,9 @@ import org.bigbluebutton.red5.pubsub.message.ValidateConnTokenRespMsg;
 import org.red5.logging.Red5LoggerFactory;
 import org.red5.server.api.IConnection;
 import org.red5.server.api.scope.IScope;
-import org.red5.server.api.so.ISharedObject;
-import org.red5.server.api.so.ISharedObjectService;
-import org.red5.server.so.SharedObjectService;
-import org.red5.server.util.ScopeUtils;
 import org.slf4j.Logger;
 import org.slf4j.Marker;
 import org.slf4j.MarkerFactory;
-
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.*;

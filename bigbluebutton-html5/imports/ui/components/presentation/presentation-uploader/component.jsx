@@ -5,13 +5,15 @@ import Dropzone from 'react-dropzone';
 import update from 'immutability-helper';
 import cx from 'classnames';
 import _ from 'lodash';
+import logger from '/imports/startup/client/logger';
 
 import { notify } from '/imports/ui/services/notification';
 import ModalFullscreen from '/imports/ui/components/modal/fullscreen/component';
+import { withModalMounter } from '/imports/ui/components/modal/service';
 import Icon from '/imports/ui/components/icon/component';
 import ButtonBase from '/imports/ui/components/button/base/component';
 import Checkbox from '/imports/ui/components/checkbox/component';
-import styles from './styles.scss';
+import { styles } from './styles.scss';
 
 const propTypes = {
   intl: intlShape.isRequired,
@@ -143,12 +145,11 @@ class PresentationUploader extends Component {
       return fileIndex === -1 ? false : {
         presentations: update(presentations, {
           [fileIndex]: {
-            $apply: file =>
-              update(file, {
-                [key]: {
-                  [operation]: value,
-                },
-              }),
+            $apply: file => update(file, {
+              [key]: {
+                [operation]: value,
+              },
+            }),
           },
         }),
       };
@@ -167,6 +168,7 @@ class PresentationUploader extends Component {
   }
 
   handleConfirm() {
+    const { mountModal } = this.props;
     const presentationsToSave = this.state.presentations
       .filter(p => !p.upload.error && !p.conversion.error);
 
@@ -185,7 +187,7 @@ class PresentationUploader extends Component {
             preventClosing: false,
           });
 
-          return;
+          return mountModal(null);
         }
 
         // if theres error we dont want to close the modal
@@ -203,7 +205,7 @@ class PresentationUploader extends Component {
       .catch((error) => {
         notify(this.props.intl.formatMessage(intlMessages.genericError), 'error');
 
-        console.error(error);
+        logger.error(error);
 
         this.setState({
           disableActions: false,
@@ -213,7 +215,11 @@ class PresentationUploader extends Component {
   }
 
   handleDismiss() {
+    const { mountModal } = this.props;
+
     return new Promise((resolve) => {
+      mountModal(null);
+
       this.setState({
         preventClosing: false,
         disableActions: false,
@@ -261,7 +267,13 @@ class PresentationUploader extends Component {
 
     this.setState(({ presentations }) => ({
       presentations: presentations.concat(presentationsToUpload),
-    }));
+    }), () => {
+      // after the state is set (files have been dropped),
+      // make the first of the new presentations current
+      if (presentationsToUpload && presentationsToUpload.length) {
+        this.handleCurrentChange(presentationsToUpload[0].id);
+      }
+    });
   }
 
   handleCurrentChange(id) {
@@ -348,7 +360,7 @@ class PresentationUploader extends Component {
 
     if (!item.upload.done && !item.upload.error) {
       return intl.formatMessage(intlMessages.uploadProcess, {
-        progress: Math.floor(item.upload.progress).toString(),
+        0: Math.floor(item.upload.progress).toString(),
       });
     }
 
@@ -365,13 +377,12 @@ class PresentationUploader extends Component {
     if (!item.conversion.done && !item.conversion.error) {
       if (item.conversion.pagesCompleted < item.conversion.numPages) {
         return intl.formatMessage(intlMessages.conversionProcessingSlides, {
-          current: item.conversion.pagesCompleted,
-          total: item.conversion.numPages,
+          0: item.conversion.pagesCompleted,
+          1: item.conversion.numPages,
         });
       }
 
-      const conversionStatusMessage =
-        intlMessages[item.conversion.status] || intlMessages.genericConversionStatus;
+      const conversionStatusMessage = intlMessages[item.conversion.status] || intlMessages.genericConversionStatus;
       return intl.formatMessage(conversionStatusMessage);
     }
 
@@ -406,13 +417,15 @@ class PresentationUploader extends Component {
           <Icon iconName="file" />
         </td>
         {
-          isActualCurrent ?
-            <th className={styles.tableItemCurrent}>
-              <span className={styles.currentLabel}>
-                {this.props.intl.formatMessage(intlMessages.current)}
-              </span>
-            </th>
-          : null
+          isActualCurrent
+            ? (
+              <th className={styles.tableItemCurrent}>
+                <span className={styles.currentLabel}>
+                  {this.props.intl.formatMessage(intlMessages.current)}
+                </span>
+              </th>
+            )
+            : null
         }
         <th className={styles.tableItemName} colSpan={!isActualCurrent ? 2 : 0}>
           <span>{item.filename}</span>
@@ -466,12 +479,13 @@ class PresentationUploader extends Component {
         accept={fileValidMimeTypes.join()}
         minSize={fileSizeMin}
         maxSize={fileSizeMax}
-        disablePreview
+        disablepreview="true"
         onDrop={this.handleFiledrop}
       >
         <Icon className={styles.dropzoneIcon} iconName="upload" />
         <p className={styles.dropzoneMessage}>
-          {intl.formatMessage(intlMessages.dropzoneLabel)}&nbsp;
+          {intl.formatMessage(intlMessages.dropzoneLabel)}
+&nbsp;
           <span className={styles.dropzoneLink}>
             {intl.formatMessage(intlMessages.browseFilesLabel)}
           </span>
@@ -512,4 +526,4 @@ class PresentationUploader extends Component {
 PresentationUploader.propTypes = propTypes;
 PresentationUploader.defaultProps = defaultProps;
 
-export default injectIntl(PresentationUploader);
+export default withModalMounter(injectIntl(PresentationUploader));

@@ -1,6 +1,7 @@
 import React from 'react';
+import Breakouts from '/imports/api/breakouts';
 import { ToastContainer as Toastify } from 'react-toastify';
-import { createContainer } from 'meteor/react-meteor-data';
+import { withTracker } from 'meteor/react-meteor-data';
 import { defineMessages, injectIntl } from 'react-intl';
 import injectNotify from '/imports/ui/components/toast/inject-notify/component';
 
@@ -8,9 +9,16 @@ import Auth from '/imports/ui/services/auth';
 import Meetings from '/imports/api/meetings';
 
 import Icon from '../icon/component';
-import styles from './styles';
+import { styles } from './styles';
+import AudioService from '../audio/service';
 
+let breakoutNotified = false;
 const intlMessages = defineMessages({
+
+  toastBreakoutRoomEnded: {
+    id: 'app.toast.breakoutRoomEnded',
+    description: 'message when the breakout room is ended',
+  },
   notificationRecordingStart: {
     id: 'app.notification.recordingStart',
     description: 'Notification for when the recording start',
@@ -32,7 +40,19 @@ class ToastContainer extends React.Component {
   }
 }
 
-export default injectIntl(injectNotify(createContainer(({ notify, intl }) => {
+export default injectIntl(injectNotify(withTracker(({ notify, intl }) => {
+  Breakouts.find().observeChanges({
+    added() {
+      breakoutNotified = false;
+    },
+    removed() {
+      if (!AudioService.isUsingAudio() && !breakoutNotified) {
+        notify(intl.formatMessage(intlMessages.toastBreakoutRoomEnded), 'info', 'rooms');
+        breakoutNotified = true;
+      }
+    },
+  });
+
   const meetingId = Auth.meetingID;
 
   Meetings.find({ meetingId }).observeChanges({
@@ -59,4 +79,4 @@ export default injectIntl(injectNotify(createContainer(({ notify, intl }) => {
     closeOnClick: true,
     pauseOnHover: true,
   };
-}, ToastContainer)));
+})(ToastContainer)));

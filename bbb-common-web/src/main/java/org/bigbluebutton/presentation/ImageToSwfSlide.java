@@ -46,12 +46,12 @@ public class ImageToSwfSlide {
   public ImageToSwfSlide createSlide() {		
     File presentationFile = pres.getUploadedFile();
     slide = new File(presentationFile.getParent() + File.separatorChar + "slide-" + page + ".swf");
-    log.debug("Creating slide " + slide.getAbsolutePath());
+    log.debug("Creating slide {}", slide.getAbsolutePath());
     imageToSwfConverter.convert(presentationFile, slide, page, pres);
 
     // If all fails, generate a blank slide.
     if (!slide.exists()) {
-      log.warn("Creating blank slide for " + slide.getAbsolutePath());
+      log.warn("Creating blank slide for {}", slide.getAbsolutePath());
       generateBlankSlide();
     }
 
@@ -72,7 +72,7 @@ public class ImageToSwfSlide {
     try {
       FileUtils.copyFile(new File(BLANK_SLIDE), slide);
     } catch (IOException e) {
-      log.error("IOException while copying blank slide.");
+      log.error("IOException while copying blank slide.", e);
     }
   }
 

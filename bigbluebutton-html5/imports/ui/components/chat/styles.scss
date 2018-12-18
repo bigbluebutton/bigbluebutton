@@ -1,16 +1,50 @@
 @import "/imports/ui/stylesheets/mixins/focus";
 @import "/imports/ui/stylesheets/variables/_all";
 
-$icon-offset: -.4em;
+
+
+@mixin lineClamp($lineHeight: 1em, $lineCount: 1, $bgColor: inherit) {
+  display: block;
+  box-orient: vertical;
+  position: relative;
+  word-break: break-word;
+
+  overflow: hidden;
+  line-height: $lineHeight;
+  max-height: calc(#{"$lineHeight * $lineCount"});
+
+  &:before {
+    content: '...';
+    width: 10%;
+    height: lineHeight;
+    text-align: right;
+    position: absolute;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(to right, rgba(255, 255, 255, 0), $bgColor 75%);
+  }
+
+  &:after {
+    content: '';
+    position: absolute;
+    right: 0;
+    width: 1em;
+    height: $lineHeight;
+    margin-top: 0.2em;
+    background-color: $bgColor;
+  }
+}
 
 .chat {
   background-color: #fff;
-  padding: $md-padding-x;
+  padding: var(--md-padding-x);
   display: flex;
   flex-grow: 1;
   flex-direction: column;
   justify-content: space-around;
   overflow: hidden;
+  height: 100vh;
+  transform: translateZ(0);
 }
 
 .header {
@@ -20,9 +54,9 @@ $icon-offset: -.4em;
   flex-shrink: 0;
 
   a {
-    @include elementFocus($color-primary);
-    padding-bottom: $sm-padding-y;
-    padding-left: $sm-padding-y;
+    @include elementFocus(var(--color-primary));
+    padding-bottom: var(--sm-padding-y);
+    padding-left: var(--sm-padding-y);
     text-decoration: none;
     display: block;
   }
@@ -36,24 +70,76 @@ $icon-offset: -.4em;
 .title {
   @extend %text-elipsis;
   flex: 1;
+
+  & > button, button:hover {
+    margin-top: 0;
+    padding-top: 0;
+    border-top: 0;
+  }
 }
 
 .closeBtn {
-  background-color: $color-white;
+  background-color: var(--color-white);
   flex: 0 0;
   padding: 0 0.25rem !important;
 
   i {
     font-size: 0.85em;
-    color: $color-gray-dark !important;
-    top: $icon-offset;
+    color: var(--color-gray-dark) !important;
+    top: -.4em;
   }
 
   &:focus,
-  &:hover{
-    background-color: $color-white !important;
-    i{
-      color: $color-gray;
+  &:hover {
+    background-color: var(--color-white) !important;
+    i {
+      color: var(--color-gray);
     }
   }
+}
+
+.hideBtn {
+  position: relative;
+  background-color: white;
+  display: block;
+  margin: 4px;
+  margin-bottom: 2px;
+  padding-left: 0px;
+
+  > i {
+    color: black;
+  }
+
+  &:hover {
+    background-color: #fff;
+  }
+}
+
+.link {
+  text-decoration: none;
+  background-color: inherit;
+}
+
+.pushMessageContent {
+  margin-left: 2rem;
+  margin-right: 2rem;
+  margin-top: 1.4rem;
+  margin-bottom: .4rem;
+  background-color: inherit;
+}
+
+.userNameMessage {
+  margin: 0;
+  font-size: 80%;
+  color: var(--color-gray-dark);
+  font-weight: bold;
+  background-color: inherit;
+  @include lineClamp(1em, 1);
+}
+
+.contentMessage {
+  margin-top: .2rem;
+  font-size: 80%;
+  background-color: inherit;
+  @include lineClamp(var(--font-size-small), 10);
 }

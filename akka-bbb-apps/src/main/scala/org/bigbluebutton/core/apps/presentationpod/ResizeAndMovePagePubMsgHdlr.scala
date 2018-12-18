@@ -16,13 +16,11 @@ trait ResizeAndMovePagePubMsgHdlr extends RightsManagementTrait {
     def broadcastEvent(msg: ResizeAndMovePagePubMsg, podId: String, page: PageVO): Unit = {
       val routing = Routing.addMsgToClientRouting(
         MessageTypes.BROADCAST_TO_MEETING,
-        liveMeeting.props.meetingProp.intId, msg.header.userId
-      )
+        liveMeeting.props.meetingProp.intId, msg.header.userId)
       val envelope = BbbCoreEnvelope(ResizeAndMovePageEvtMsg.NAME, routing)
       val header = BbbClientMsgHeader(
         ResizeAndMovePageEvtMsg.NAME,
-        liveMeeting.props.meetingProp.intId, msg.header.userId
-      )
+        liveMeeting.props.meetingProp.intId, msg.header.userId)
 
       val body = ResizeAndMovePageEvtMsgBody(podId, msg.body.presentationId, page.id,
         page.xOffset, page.yOffset, page.widthRatio, page.heightRatio)

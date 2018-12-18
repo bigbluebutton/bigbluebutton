@@ -1,7 +1,7 @@
 import { check } from 'meteor/check';
 import clearScreenshare from '../modifiers/clearScreenshare';
 
-export default function handleBroadcastStartedVoice({ body }, meetingId) {
+export default function handleScreenshareStopped({ body }, meetingId) {
   const { screenshareConf } = body;
 
   check(meetingId, String);

@@ -1,32 +1,42 @@
 import { Meteor } from 'meteor/meteor';
-import mapToAcl from '/imports/startup/mapToAcl';
 import Breakouts from '/imports/api/breakouts';
 import Logger from '/imports/startup/server/logger';
 
-function breakouts(credentials) {
+function breakouts(credentials, moderator) {
   const {
     meetingId,
     requesterUserId,
   } = credentials;
-
   Logger.info(`Publishing Breakouts for ${meetingId} ${requesterUserId}`);
+  if (moderator) {
+    const presenterSelector = {
+      parentMeetingId: meetingId,
+    };
+    return Breakouts.find(presenterSelector);
+  }
 
-  return Breakouts.find({
+  const selector = {
     $or: [
-      { breakoutId: meetingId },
-      { meetingId },
       {
-        users: {
-          $elemMatch: { userId: requesterUserId },
-        },
+        parentMeetingId: meetingId,
+        freeJoin: true,
+      },
+      {
+        parentMeetingId: meetingId,
+        'users.userId': requesterUserId,
+      },
+      {
+        breakoutId: meetingId,
       },
     ],
-  });
+  };
+
+  return Breakouts.find(selector);
 }
 
 function publish(...args) {
   const boundBreakouts = breakouts.bind(this);
-  return mapToAcl('subscriptions.breakouts', boundBreakouts)(args);
+  return boundBreakouts(...args);
 }
 
 Meteor.publish('breakouts', publish);

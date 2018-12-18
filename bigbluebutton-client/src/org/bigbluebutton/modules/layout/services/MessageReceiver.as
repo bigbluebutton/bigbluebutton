@@ -4,6 +4,7 @@ package org.bigbluebutton.modules.layout.services {
 	import flash.events.TimerEvent;
 	import flash.utils.Timer;
 	
+	import org.as3commons.lang.StringUtils;
 	import org.as3commons.logging.api.ILogger;
 	import org.as3commons.logging.api.getClassLogger;
 	import org.bigbluebutton.core.BBB;
@@ -92,7 +93,7 @@ package org.bigbluebutton.modules.layout.services {
 		private function onReceivedFirstLayout(message:Object):void {
 			LOGGER.debug("LayoutService: handling the first layout. locked = [{0}] layout = [{1}]", [message.locked, message.layout]);
 			trace("LayoutService: handling the first layout. locked = [" + message.locked + "] layout = [" + message.layout + "], moderator = [" + UsersUtil.amIModerator() + "]");
-			if (message.layout == "" || UsersUtil.amIModerator())
+			if (StringUtils.isEmpty(message.layout) || UsersUtil.amIModerator())
 				_dispatcher.dispatchEvent(new LayoutEvent(LayoutEvent.APPLY_DEFAULT_LAYOUT_EVENT));
 			else {
 				handleSyncLayout(message);
@@ -104,8 +105,8 @@ package org.bigbluebutton.modules.layout.services {
 		private function handleSyncLayout(message:Object):void {
 			// is this event needed? Doesn't seem to do anything becasue it only applies to the original layout and then it's changed right afterwards once the new one is loaded
 			_dispatcher.dispatchEvent(new RemoteSyncLayoutEvent(message.layout));
-			
-			if (message.layout == "")
+
+			if (StringUtils.isEmpty(message.layout))
 				return;
 
 			var layoutDefinition:LayoutDefinition = new LayoutDefinition();

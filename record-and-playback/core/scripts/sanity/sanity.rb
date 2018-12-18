@@ -66,13 +66,12 @@ def repair_red5_ser(directory)
         ret = BigBlueButton.exec_ret('java', '-cp', cp, 'org.red5.io.flv.impl.FLVWriter', ser, '0', '7')
         if ret != 0
           BigBlueButton.logger.warn("Failed to repair #{ser}")
+          next
         end
-      end
 
-      BigBlueButton.logger.info("Cleaning up red5 .flv.ser and .flv.info files")
-      Dir.glob("*.flv.{ser,info}").each do |f|
-        BigBlueButton.logger.info("Removing #{f}")
-        FileUtils.rm(f)
+        BigBlueButton.logger.info("Cleaning up .flv.ser and .flv.info files")
+        FileUtils.rm_f(ser)
+        FileUtils.rm_f("#{ser[0..-5]}.info")
       end
     end
   end

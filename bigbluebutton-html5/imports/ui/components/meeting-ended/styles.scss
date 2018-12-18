@@ -1,0 +1,53 @@
+@import "/imports/ui/stylesheets/variables/_all";
+
+.parent {
+  height: 100%;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.modal {
+  display: flex;
+  padding: var(--lg-padding-x);
+  background-color: var(--color-white);
+  flex-direction: column;
+  border-radius: var(--border-radius);
+  max-width: 95vw;
+  width: 600px;
+}
+
+.text {
+  color: var(--color-text);
+  font-weight: normal;
+  padding: var(--line-height-computed) 0;
+  @include mq($small-only) {
+    font-size: var(--font-size-small);
+  }
+}
+
+.content {
+  text-align: center;
+}
+
+.title {
+  margin: 0;
+  font-size: var(--font-size-large);
+  font-weight: var(--headings-font-weight);
+}
+
+.button {
+  @include mq($small-only) {
+    font-size: var(--font-size-base);
+  }
+}
+
+.textarea {
+  resize: none;
+  margin: 1rem auto;
+  width: 100%;
+  &::placeholder {
+    text-align: center;
+  }
+}

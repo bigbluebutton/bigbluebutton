@@ -19,14 +19,18 @@
 package org.bigbluebutton.modules.chat.services
 {
   import flash.events.IEventDispatcher;
+  
   import mx.collections.ArrayCollection;
+  
   import org.as3commons.logging.api.ILogger;
   import org.as3commons.logging.api.getClassLogger;
   import org.bigbluebutton.core.BBB;
   import org.bigbluebutton.core.EventConstants;
+  import org.bigbluebutton.core.UsersUtil;
   import org.bigbluebutton.core.events.CoreEvent;
   import org.bigbluebutton.core.model.LiveMeeting;
   import org.bigbluebutton.main.model.users.IMessageListener;
+  import org.bigbluebutton.modules.chat.events.UserTypingEvent;
   import org.bigbluebutton.modules.chat.model.GroupChat;
   import org.bigbluebutton.modules.chat.vo.ChatMessageVO;
   import org.bigbluebutton.modules.chat.vo.GroupChatUser;
@@ -60,6 +64,9 @@ package org.bigbluebutton.modules.chat.services
           break;
         case "GroupChatCreatedEvtMsg":
           handleGroupChatCreatedEvtMsg(message);
+          break;
+        case "UserTypingEvtMsg":
+          handleUserTypginEvtMsg(message);
           break;
         default:
           //   LogUtil.warn("Cannot handle message [" + messageName + "]");
@@ -105,6 +112,16 @@ package org.bigbluebutton.modules.chat.services
       
       LiveMeeting.inst().chats.addGroupChatsList(chats);
     }
+	
+	private function handleUserTypginEvtMsg(msg:Object):void {
+		var body: Object = msg.body as Object;
+		var chatId: String = body.chatId as String;
+		var userId: String = body.userId as String;
+		// Ignore user message if it concerns myself
+		if (userId != UsersUtil.getMyUserID()) {
+			dispatcher.dispatchEvent(new UserTypingEvent(UserTypingEvent.USER_TYPING_MESSAGE, chatId, userId));
+		}
+	}
     
     private function handleGroupChatCreatedEvtMsg(msg:Object):void {
       var body: Object = msg.body as Object;

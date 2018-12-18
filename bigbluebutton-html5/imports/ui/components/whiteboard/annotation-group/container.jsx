@@ -1,6 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { createContainer } from 'meteor/react-meteor-data';
+import { withTracker } from 'meteor/react-meteor-data';
 import AnnotationGroupService from './service';
 import AnnotationGroup from './component';
 
@@ -9,19 +9,20 @@ const AnnotationGroupContainer = props => (
     annotationsInfo={props.annotationsInfo}
     slideWidth={props.width}
     slideHeight={props.height}
+    whiteboardId={props.whiteboardId}
   />
 );
 
-export default createContainer((params) => {
+export default withTracker((params) => {
   const { whiteboardId } = params;
   const annotationsInfo = AnnotationGroupService.getCurrentAnnotationsInfo(whiteboardId);
-
   return {
     annotationsInfo,
   };
-}, AnnotationGroupContainer);
+})(AnnotationGroupContainer);
 
 AnnotationGroupContainer.propTypes = {
+  whiteboardId: PropTypes.string.isRequired,
   // initial width and height of the slide; required to calculate the annotations' coordinates
   width: PropTypes.number.isRequired,
   height: PropTypes.number.isRequired,

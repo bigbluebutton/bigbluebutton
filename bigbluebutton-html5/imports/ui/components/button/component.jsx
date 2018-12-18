@@ -2,7 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import cx from 'classnames';
 import Tooltip from '/imports/ui/components/tooltip/component';
-import styles from './styles';
+import { styles } from './styles';
 import Icon from '../icon/component';
 import BaseButton from './base/component';
 
@@ -91,11 +91,9 @@ export default class Button extends BaseButton {
     const {
       size,
       color,
-      disabled,
       ghost,
       circle,
       block,
-      iconRight,
     } = this.props;
 
     const propClassNames = {};
@@ -106,8 +104,6 @@ export default class Button extends BaseButton {
     propClassNames[styles.ghost] = ghost;
     propClassNames[styles.circle] = circle;
     propClassNames[styles.block] = block;
-    propClassNames[styles.iconRight] = iconRight;
-    propClassNames[styles.disabled] = disabled;
 
     return propClassNames;
   }
@@ -117,13 +113,14 @@ export default class Button extends BaseButton {
       circle,
       hideLabel,
       label,
-      'aria-label' : ariaLabel
+      'aria-label': ariaLabel,
+      'aria-expanded': ariaExpanded,
     } = this.props;
 
     const renderFuncName = circle ? 'renderCircle' : 'renderDefault';
 
-    if (hideLabel) {
-      const tooltipLabel = label ? label : ariaLabel;
+    if (hideLabel && !ariaExpanded) {
+      const tooltipLabel = label || ariaLabel;
 
       return (
         <Tooltip
@@ -206,7 +203,7 @@ export default class Button extends BaseButton {
 
     if (iconName) {
       return (<Icon className={styles.icon} iconName={iconName} />);
-    } else if (customIcon) {
+    } if (customIcon) {
       return customIcon;
     }
 

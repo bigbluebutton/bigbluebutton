@@ -53,7 +53,7 @@ package org.bigbluebutton.modules.chat.services
         function(status:String):void { // status - On error occurred
           LOGGER.error(status);
         },
-        JSON.stringify(message)
+        message
       );
     }
     
@@ -73,7 +73,7 @@ package org.bigbluebutton.modules.chat.services
         function(status:String):void { // status - On error occurred
           LOGGER.error(status);
         },
-        JSON.stringify(message)
+        message
       );
     }
     
@@ -99,9 +99,29 @@ package org.bigbluebutton.modules.chat.services
         function(status:String):void { // status - On error occurred
           LOGGER.error(status);
         },
-        JSON.stringify(message)
+        message
       );
     }
+	
+	public function userTyping(chatId:String):void {
+		LOGGER.debug("Sending [chat.UserTypingMsg] to server.");
+		var message:Object = {
+			header: {name: "UserTypingPubMsg", 
+				meetingId: UsersUtil.getInternalMeetingID(),
+				   userId: UsersUtil.getMyUserID()},
+			body: {chatId: chatId}
+		};
+		
+		var _nc:ConnectionManager = BBB.initConnectionManager();
+		_nc.sendMessage2x(
+			function(result:String):void { // On successful result
+			},
+			function(status:String):void { // status - On error occurred
+				LOGGER.error(status);
+			},
+			message
+		);
+	}
 
     public function clearPublicChatMessages():void {
       LOGGER.debug("Sending [chat.clearPublicChatMessages] to server.");
@@ -123,7 +143,7 @@ package org.bigbluebutton.modules.chat.services
         function(status:String):void { // status - On error occurred
           LOGGER.error(status);
         },
-        JSON.stringify(message)
+        message
       );
     }
     
@@ -152,7 +172,7 @@ package org.bigbluebutton.modules.chat.services
         function(status:String):void { // status - On error occurred
           LOGGER.error(status);
         },
-        JSON.stringify(message)
+        message
       );
     }
   }

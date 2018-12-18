@@ -19,21 +19,21 @@ class TranscodingActor(val system: ActorSystem, messageSender: RedisPublisher)
   val messageSenderActor = context.actorOf(MessageSenderActor.props(messageSender), "bbb-sender-actor")
 
   def receive = {
-    case msg: StartTranscoderRequest => handleStartTranscoderRequest(msg)
-    case msg: UpdateTranscoderRequest => handleUpdateTranscoderRequest(msg)
-    case msg: StopTranscoderRequest => handleStopTranscoderRequest(msg)
-    case msg: StopMeetingTranscoders => handleStopMeetingTranscoders(msg)
-    case msg: StartProbingRequest => handleStartProbingRequest(msg)
+    case msg: StartTranscoderRequest            => handleStartTranscoderRequest(msg)
+    case msg: UpdateTranscoderRequest           => handleUpdateTranscoderRequest(msg)
+    case msg: StopTranscoderRequest             => handleStopTranscoderRequest(msg)
+    case msg: StopMeetingTranscoders            => handleStopMeetingTranscoders(msg)
+    case msg: StartProbingRequest               => handleStartProbingRequest(msg)
 
     //internal messages
-    case msg: StartVideoTranscoderReply => handleStartVideoTranscoderReply(msg)
-    case msg: UpdateVideoTranscoderReply => handleUpdateVideoTranscoderReply(msg)
-    case msg: DestroyVideoTranscoderReply => handleDestroyVideoTranscoderReply(msg)
+    case msg: StartVideoTranscoderReply         => handleStartVideoTranscoderReply(msg)
+    case msg: UpdateVideoTranscoderReply        => handleUpdateVideoTranscoderReply(msg)
+    case msg: DestroyVideoTranscoderReply       => handleDestroyVideoTranscoderReply(msg)
     case msg: TranscodingFinishedUnsuccessfully => handleTranscodingFinishedUnsuccessfully(msg)
-    case msg: TranscodingFinishedSuccessfully => handleTranscodingFinishedSuccessfully(msg)
-    case msg: RestartVideoTranscoderReply => handleRestartVideoTranscoderReply(msg)
-    case msg: StartVideoProbingReply => handleStartVideoProbingReply(msg)
-    case _ => // do nothing
+    case msg: TranscodingFinishedSuccessfully   => handleTranscodingFinishedSuccessfully(msg)
+    case msg: RestartVideoTranscoderReply       => handleRestartVideoTranscoderReply(msg)
+    case msg: StartVideoProbingReply            => handleStartVideoProbingReply(msg)
+    case _                                      => // do nothing
   }
 
   private def handleStartTranscoderRequest(msg: StartTranscoderRequest) {

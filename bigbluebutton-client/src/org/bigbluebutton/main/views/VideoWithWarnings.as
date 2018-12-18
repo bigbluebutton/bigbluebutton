@@ -1,6 +1,5 @@
 package org.bigbluebutton.main.views
 {
-
     import flash.events.ActivityEvent;
     import flash.events.StatusEvent;
     import flash.events.TimerEvent;
@@ -15,6 +14,7 @@ package org.bigbluebutton.main.views
     
     import org.as3commons.logging.api.ILogger;
     import org.as3commons.logging.api.getClassLogger;
+    import org.bigbluebutton.core.PopUpUtil;
     import org.bigbluebutton.core.model.VideoProfile;
     import org.bigbluebutton.util.i18n.ResourceUtil;
 
@@ -39,8 +39,7 @@ package org.bigbluebutton.main.views
 
         public function VideoWithWarnings() {
             super();
-
-            this.addEventListener(FlexEvent.CREATION_COMPLETE , creationCompleteHandler);
+            addEventListener(FlexEvent.CREATION_COMPLETE, creationCompleteHandler);
         }
 
         private function creationCompleteHandler(e:FlexEvent):void {
@@ -117,6 +116,7 @@ package org.bigbluebutton.main.views
             } else {
                 _text.visible = false;
                 _text.text = " ";
+				PopUpUtil.removePopUp(BrowserPermissionHelper);
             }
 
             if (_successCallback != null) {
@@ -129,7 +129,6 @@ package org.bigbluebutton.main.views
             if (_failCallback != null) {
                 _failCallback(resourceName);
             }
-            imgChromeHelp.visible = false;
         }
 
         public function updateCamera(camIndex:int, vp:VideoProfile, containerWidth:int, containerHeight:int, showPreviewMsg:Boolean=false):void {
@@ -168,7 +167,6 @@ package org.bigbluebutton.main.views
         }
 
         private function displayVideoPreview():void {
-            LOGGER.debug("Using this video profile:: {0}", [_videoProfile.toString()]);
             _camera.setMotionLevel(5, 1000);
             _camera.setKeyFrameInterval(_videoProfile.keyFrameInterval);
             _camera.setMode(_videoProfile.width, _videoProfile.height, _videoProfile.modeFps);
@@ -222,7 +220,6 @@ package org.bigbluebutton.main.views
                 _waitingForActivation = false;
 
                 onSuccessCallback();
-                imgChromeHelp.visible = false;
             }
         }
 

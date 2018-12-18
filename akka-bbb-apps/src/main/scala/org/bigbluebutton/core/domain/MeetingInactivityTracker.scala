@@ -1,12 +1,11 @@
 package org.bigbluebutton.core.domain
 
 case class MeetingInactivityTracker(
-    val maxInactivityTimeoutInMs: Long,
-    val warningBeforeMaxInMs:     Long,
-    lastActivityTimestampInMs:    Long,
-    warningSent:                  Boolean,
-    warningSentOnTimestampInMs:   Long
-) {
+  val maxInactivityTimeoutInMs: Long,
+  val warningBeforeMaxInMs:     Long,
+  lastActivityTimestampInMs:    Long,
+  warningSent:                  Boolean,
+  warningSentOnTimestampInMs:   Long) {
   def setWarningSentAndTimestamp(nowInMs: Long): MeetingInactivityTracker = {
     copy(warningSent = true, warningSentOnTimestampInMs = nowInMs)
   }
@@ -20,7 +19,9 @@ case class MeetingInactivityTracker(
   }
 
   def hasRecentActivity(nowInMs: Long): Boolean = {
-    nowInMs - lastActivityTimestampInMs < maxInactivityTimeoutInMs - warningBeforeMaxInMs
+    val left = nowInMs - lastActivityTimestampInMs
+    val right = maxInactivityTimeoutInMs - warningBeforeMaxInMs
+    left < right
   }
 
   def isMeetingInactive(nowInMs: Long): Boolean = {
@@ -33,13 +34,16 @@ case class MeetingInactivityTracker(
 }
 
 case class MeetingExpiryTracker(
-    startedOnInMs:                     Long,
-    userHasJoined:                     Boolean,
-    lastUserLeftOnInMs:                Option[Long],
-    durationInMs:                      Long,
-    meetingExpireIfNoUserJoinedInMs:   Long,
-    meetingExpireWhenLastUserLeftInMs: Long
-) {
+  startedOnInMs:                     Long,
+  userHasJoined:                     Boolean,
+  isBreakout:                        Boolean,
+  lastUserLeftOnInMs:                Option[Long],
+  durationInMs:                      Long,
+  meetingExpireIfNoUserJoinedInMs:   Long,
+  meetingExpireWhenLastUserLeftInMs: Long,
+  userInactivityInspectTimerInMs:    Long,
+  userInactivityThresholdInMs:       Long,
+  userActivitySignResponseDelayInMs: Long) {
   def setUserHasJoined(): MeetingExpiryTracker = {
     if (!userHasJoined) {
       copy(userHasJoined = true, lastUserLeftOnInMs = None)
@@ -56,18 +60,21 @@ case class MeetingExpiryTracker(
     val expire = for {
       lastUserLeftOn <- lastUserLeftOnInMs
     } yield {
-      timestampInMs - lastUserLeftOn > meetingExpireWhenLastUserLeftInMs
+      // Check if we need to end meeting right away when the last user left
+      // ralam Nov 16, 2018
+      if (meetingExpireWhenLastUserLeftInMs == 0) true
+      else timestampInMs - lastUserLeftOn > meetingExpireWhenLastUserLeftInMs
     }
 
     expire.getOrElse(false)
   }
 
   def hasMeetingExpired(timestampInMs: Long): (Boolean, Option[String]) = {
-    if (hasMeetingExpiredNeverBeenJoined(timestampInMs)) {
+    if (hasMeetingExpiredNeverBeenJoined(timestampInMs) && !isBreakout) {
       (true, Some(MeetingEndReason.ENDED_WHEN_NOT_JOINED))
     } else if (meetingOverDuration(timestampInMs)) {
       (true, Some(MeetingEndReason.ENDED_AFTER_EXCEEDING_DURATION))
-    } else if (hasMeetingExpiredAfterLastUserLeft(timestampInMs)) {
+    } else if (hasMeetingExpiredAfterLastUserLeft(timestampInMs) && !isBreakout) {
       (true, Some(MeetingEndReason.ENDED_WHEN_LAST_USER_LEFT))
     } else {
       (false, None)
@@ -89,5 +96,32 @@ case class MeetingExpiryTracker(
   def endMeetingTime(): Long = {
     startedOnInMs + durationInMs
   }
+}
+
+case class MeetingRecordingTracker(
+  startedOnInMs:        Long,
+  previousDurationInMs: Long,
+  currentDurationInMs:  Long) {
+
+  def startTimer(nowInMs: Long): MeetingRecordingTracker = {
+    copy(startedOnInMs = nowInMs)
+  }
+
+  def pauseTimer(nowInMs: Long): MeetingRecordingTracker = {
+    copy(currentDurationInMs = 0L, previousDurationInMs = previousDurationInMs + nowInMs - startedOnInMs, startedOnInMs = 0L)
+  }
+
+  def resetTimer(nowInMs: Long): MeetingRecordingTracker = {
+    copy(startedOnInMs = nowInMs, previousDurationInMs = 0L, currentDurationInMs = 0L)
+  }
+
+  def udpateCurrentDuration(nowInMs: Long): MeetingRecordingTracker = {
+    copy(currentDurationInMs = nowInMs - startedOnInMs)
+  }
+
+  def recordingDuration(): Long = {
+    currentDurationInMs + previousDurationInMs
+  }
+
 }
 

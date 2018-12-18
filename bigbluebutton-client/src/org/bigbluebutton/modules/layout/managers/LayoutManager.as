@@ -27,6 +27,7 @@ package org.bigbluebutton.modules.layout.managers
   import flash.events.TimerEvent;
   import flash.net.FileReference;
   import flash.utils.Timer;
+  import flash.utils.setTimeout;
   
   import mx.controls.Alert;
   import mx.core.FlexGlobals;
@@ -41,11 +42,14 @@ package org.bigbluebutton.modules.layout.managers
   import org.as3commons.logging.api.ILogger;
   import org.as3commons.logging.api.getClassLogger;
   import org.bigbluebutton.common.CustomMdiWindow;
+  import org.bigbluebutton.common.toaster.Toaster;
+  import org.bigbluebutton.common.toaster.message.ToastType;
   import org.bigbluebutton.core.Options;
   import org.bigbluebutton.core.PopUpUtil;
   import org.bigbluebutton.core.UsersUtil;
   import org.bigbluebutton.core.events.SwitchedLayoutEvent;
   import org.bigbluebutton.core.model.LiveMeeting;
+  import org.bigbluebutton.main.events.BBBEvent;
   import org.bigbluebutton.main.model.options.LayoutOptions;
   import org.bigbluebutton.modules.layout.events.LayoutEvent;
   import org.bigbluebutton.modules.layout.events.LayoutFromRemoteEvent;
@@ -87,7 +91,7 @@ package org.bigbluebutton.modules.layout.managers
         applyLayout(currentLayout);
       });
     }
-    
+	
     /**
      *  There's a race condition when the layouts combo doesn't get populated 
      *  with the server's layouts definition. The problem is that sometimes 
@@ -142,9 +146,11 @@ package org.bigbluebutton.modules.layout.managers
 			var _fileRef:FileReference = new FileReference();
 			_fileRef.addEventListener(Event.COMPLETE, function(e:Event):void {
 				Alert.show(ResourceUtil.getInstance().getString('bbb.layout.save.complete'), "", Alert.OK, _canvas);
+				//Toaster.toast(ResourceUtil.getInstance().getString('bbb.layout.save.complete'), ToastType.SUCCESS);
 			});
 			_fileRef.addEventListener(IOErrorEvent.IO_ERROR, function(e:Event):void {
 				Alert.show(ResourceUtil.getInstance().getString('bbb.layout.save.ioerror'), "", Alert.OK, _canvas);
+				//Toaster.toast(ResourceUtil.getInstance().getString('bbb.layout.save.ioerror'), ToastType.ERROR);
 			});
 			_fileRef.save(_layoutModel.toString(), "layouts.xml");
 		}
@@ -157,8 +163,10 @@ package org.bigbluebutton.modules.layout.managers
 					applyLayout(_layoutModel.getDefaultLayout());
 					broadcastLayouts();
 					Alert.show(ResourceUtil.getInstance().getString('bbb.layout.load.complete'), "", Alert.OK, _canvas);
+					//Toaster.toast(ResourceUtil.getInstance().getString('bbb.layout.load.complete'), ToastType.SUCCESS);
 				} else
 					Alert.show(ResourceUtil.getInstance().getString('bbb.layout.load.failed'), "", Alert.OK, _canvas);
+					//Toaster.toast(ResourceUtil.getInstance().getString('bbb.layout.load.failed'), ToastType.ERROR);
 			});
 			loader.loadFromLocalFile();
 		}
@@ -263,7 +271,7 @@ package org.bigbluebutton.modules.layout.managers
       var logData:Object = UsersUtil.initLogData();
       logData.reason = "Layout changed.";
       logData.tags = ["layout"];
-      logData.message = "The layout was changed.";
+      logData.logCode = "layout_changed";
       logData.oldLayout = _currentLayout.name;
       logData.newLayout = newLayout.name;
       LOGGER.info(JSON.stringify(logData));
@@ -320,6 +328,7 @@ package org.bigbluebutton.modules.layout.managers
 			_globalDispatcher.dispatchEvent(e);
 
 			Alert.show(ResourceUtil.getInstance().getString('bbb.layout.sync'), "", Alert.OK, _canvas);
+			//Toaster.toast(ResourceUtil.getInstance().getString('bbb.layout.sync'), ToastType.SUCCESS);
 		}
 		
 		private function sendLayoutUpdate(layout:LayoutDefinition):void {
@@ -391,17 +400,16 @@ package org.bigbluebutton.modules.layout.managers
 		}
 		
 		private function checkPermissionsOverWindow(window:MDIWindow):void {
-			if (UsersUtil.amIModerator()) return;
-			if (window != null && !LayoutDefinition.ignoreWindow(window)) {
+			if (!UsersUtil.amIModerator() && window != null && !LayoutDefinition.ignoreWindow(window)) {
 				(window as CustomMdiWindow).unlocked = !_locked;
 			}
 		}
 
 		private function checkPermissionsOverAllWindows():void {
-			if (UsersUtil.amIModerator()) return;
-			if (_canvas == null || _canvas.windowManager == null) return;
-			for each (var window:MDIWindow in _canvas.windowManager.windowList) {
-				checkPermissionsOverWindow(window);
+			if (!UsersUtil.amIModerator() && _canvas && _canvas.windowManager) {
+				for each (var window:MDIWindow in _canvas.windowManager.windowList) {
+					checkPermissionsOverWindow(window);
+				}
 			}
 		}
 

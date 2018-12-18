@@ -13,16 +13,26 @@
   justify-content: center;
 
   > * {
-    margin: 0 $line-height-computed;
+    margin: 0 var(--sm-padding-x);
+
+    @include mq($small-only) {
+      margin: 0 var(--sm-padding-y);
+    }
   }
 }
 
-.left{
+.left {
   position: absolute;
+  @include mq($small-only) {
+    bottom: var(--sm-padding-x);
+    left: var(--sm-padding-x);
+  }
 }
 
-.center {
-  align-items: center;
+.centerWithActions {
+  @include mq($xsmall-only) {
+    justify-content: flex-end;
+  }
 }
 
 .button {
@@ -35,8 +45,16 @@
   }
 }
 
-.emojiSelected {
-  span, i::before{
-    color: $color-primary;
+.btn {
+  span {
+    border: none;
+    box-shadow: none;
+    background-color: transparent !important;
+    color: var(--color-white) !important;
+    border: 1.5px solid var(--color-white) !important;
+  }
+
+  span:hover {
+    border: 1.5px solid rgba(255,255,255, .5) !important;
   }
 }

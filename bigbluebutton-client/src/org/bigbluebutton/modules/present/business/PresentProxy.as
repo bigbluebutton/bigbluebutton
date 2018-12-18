@@ -21,6 +21,7 @@ package org.bigbluebutton.modules.present.business
 	import com.asfusion.mate.events.Dispatcher;
 	
 	import flash.net.URLRequest;
+	import flash.net.URLVariables;
 	import flash.net.navigateToURL;
 	
 	import mx.collections.ArrayCollection;
@@ -198,10 +199,14 @@ package org.bigbluebutton.modules.present.business
 		 *
 		 */
 		public function startDownload(e:DownloadEvent):void {
-			var presentationName:String = e.fileNameToDownload;
-			var downloadUri:String = host + "/bigbluebutton/presentation/" + conference + "/" + room + "/" + presentationName + "/download";
+			var presFilename:String = e.presFilename;
+			var presId:String = e.presId
+			var downloadUri:String = host + "/bigbluebutton/presentation/download/" + room + "/" + presId;
 			LOGGER.debug("PresentationApplication::downloadPresentation()... " + downloadUri);
 			var req:URLRequest = new URLRequest(downloadUri);
+			var sendVars:URLVariables = new URLVariables();
+			sendVars.presFilename = presFilename;
+			req.data = sendVars;
 			navigateToURL(req,"_blank");
 		}
 

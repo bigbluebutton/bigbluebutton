@@ -24,24 +24,22 @@ import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.bigbluebutton.app.screenshare.IScreenShareApplication;
+import org.bigbluebutton.app.screenshare.MeetingManager;
+import org.bigbluebutton.app.screenshare.VideoStream;
+import org.bigbluebutton.app.screenshare.VideoStreamListener;
+import org.bigbluebutton.common2.redis.RedisStorageService;
 import org.red5.logging.Red5LoggerFactory;
 import org.red5.server.adapter.MultiThreadedApplicationAdapter;
 import org.red5.server.api.IConnection;
 import org.red5.server.api.Red5;
 import org.red5.server.api.scope.IScope;
 import org.red5.server.api.stream.IBroadcastStream;
-import org.red5.server.api.stream.IServerStream;
-import org.red5.server.api.stream.IStreamListener;
+import org.red5.server.scheduling.QuartzSchedulingService;
 import org.red5.server.stream.ClientBroadcastStream;
 import org.slf4j.Logger;
-import org.red5.server.scheduling.QuartzSchedulingService;
+
 import com.google.gson.Gson;
-import org.bigbluebutton.app.screenshare.MeetingManager;
-import org.bigbluebutton.app.screenshare.VideoStreamListener;
-import org.bigbluebutton.app.screenshare.VideoStream;
-import org.bigbluebutton.app.screenshare.EventRecordingService;
-import org.bigbluebutton.app.screenshare.IScreenShareApplication;
-import org.bigbluebutton.app.screenshare.ScreenshareStreamListener;
 
 public class Red5AppAdapter extends MultiThreadedApplicationAdapter {
   private static Logger log = Red5LoggerFactory.getLogger(Red5AppAdapter.class, "screenshare");
@@ -49,7 +47,7 @@ public class Red5AppAdapter extends MultiThreadedApplicationAdapter {
   // Scheduler
   private QuartzSchedulingService scheduler;
 
-  private EventRecordingService recordingService;
+  private RedisStorageService redisStorageService;
   private IScreenShareApplication app;
   private String streamBaseUrl;
   private ConnectionInvokerService sender;
@@ -115,7 +113,7 @@ public class Red5AppAdapter extends MultiThreadedApplicationAdapter {
 
     String connType = getConnectionType(Red5.getConnectionLocal().getType());
     String connId = Red5.getConnectionLocal().getSessionId();
-
+    String clientConnId = (String) conn.getAttribute("CLIENT_CONN_ID");
     String meetingId = conn.getScope().getName();
     String userId = getUserId();
 
@@ -126,6 +124,7 @@ public class Red5AppAdapter extends MultiThreadedApplicationAdapter {
     logData.put("userId", userId);
     logData.put("connType", connType);
     logData.put("connId", connId);
+    logData.put("clientConnId", clientConnId);
     logData.put("event", "user_leaving_bbb_screenshare");
     logData.put("description", "User leaving BBB Screenshare.");
 
@@ -148,35 +147,66 @@ public class Red5AppAdapter extends MultiThreadedApplicationAdapter {
     super.streamBroadcastStart(stream);
 
     log.info("streamBroadcastStart " + stream.getPublishedName() + "]");
+
+    String connId = conn.getSessionId();
+    String scopeName = stream.getScope().getName();
+    String connType = getConnectionType(Red5.getConnectionLocal().getType());
+
     String streamId = stream.getPublishedName();
+
+		Map<String, Object> logData = new HashMap<String, Object>();
+		logData.put("meetingId", getMeetingId());
+		logData.put("userId", getUserId());
+		logData.put("connType", connType);
+		logData.put("connId", connId);
+		logData.put("stream", stream.getPublishedName());
+		logData.put("context", scopeName);
+		logData.put("event", "stream_broadcast_start");
+		logData.put("description", "Stream broadcast start.");
+
+		Gson gson = new Gson();
+		String logStr =  gson.toJson(logData);
+		log.info(logStr);
+
     Matcher matcher = STREAM_ID_PATTERN.matcher(stream.getPublishedName());
     if (matcher.matches()) {
         String meetingId = matcher.group(1).trim();
         String url = streamBaseUrl + "/" + meetingId + "/" + streamId;
         app.streamStarted(meetingId, streamId, url);
 
+      app.authorizeBroadcastStream(meetingId, streamId, connId, scopeName);
+
 	    boolean recordVideoStream = app.recordStream(meetingId, streamId);
-          VideoStreamListener listener = new VideoStreamListener(meetingId, streamId,
-                  recordVideoStream, recordingDirectory, packetTimeout, scheduler, recordingService);
-          ClientBroadcastStream cstream = (ClientBroadcastStream) this.getBroadcastStream(conn.getScope(), stream.getPublishedName());
-          stream.addStreamListener(listener);
-          VideoStream vstream = new VideoStream(stream, listener, cstream);
-          vstream.startRecording();
+	    if (recordVideoStream) {
+				Map<String, Object> logData2 = new HashMap<String, Object>();
+				logData2.put("meetingId", meetingId);
+				logData2.put("connType", connType);
+				logData2.put("connId", connId);
+				logData.put("streamId", streamId);
+				logData.put("url", url);
+				logData.put("recorded", recordVideoStream);
+				logData2.put("context", scopeName);
+				logData2.put("event", "stream_broadcast_record_start");
+				logData2.put("description", "Stream broadcast record start.");
 
-          meetingManager.addStream(meetingId, vstream);
+				Gson gson2 = new Gson();
+				String logStr2 =  gson2.toJson(logData2);
+				log.info(logStr2);
 
-      Map<String, Object> logData = new HashMap<String, Object>();
-      logData.put("meetingId", meetingId);
-      logData.put("streamId", streamId);
-      logData.put("url", url);
-      logData.put("recorded", recordVideoStream);
+				VideoStreamListener listener = new VideoStreamListener(meetingId, streamId,
+								recordVideoStream, recordingDirectory, packetTimeout, scheduler, redisStorageService);
+				ClientBroadcastStream cstream = (ClientBroadcastStream) this.getBroadcastStream(conn.getScope(), stream.getPublishedName());
+				stream.addStreamListener(listener);
+				VideoStream vstream = new VideoStream(stream, listener, cstream);
+				vstream.startRecording();
 
-      Gson gson = new Gson();
-      String logStr =  gson.toJson(logData);
+				meetingManager.addStream(meetingId, vstream);
 
-      log.info("ScreenShare broadcast started: data={}", logStr);
+			}
+
     } else {
     	log.error("Invalid streamid format [{}]", streamId);
+    	conn.close();
     }
   }
 
@@ -188,8 +218,11 @@ public class Red5AppAdapter extends MultiThreadedApplicationAdapter {
   public void streamBroadcastClose(IBroadcastStream stream) {
     super.streamBroadcastClose(stream);
 
-    log.info("streamBroadcastStop " + stream.getPublishedName() + "]");
-    String streamId = stream.getPublishedName();
+		String connType = getConnectionType(Red5.getConnectionLocal().getType());
+		String connId = Red5.getConnectionLocal().getSessionId();
+		String scopeName = stream.getScope().getName();
+
+		String streamId = stream.getPublishedName();
     Matcher matcher = STREAM_ID_PATTERN.matcher(stream.getPublishedName());
     if (matcher.matches()) {
       String meetingId = matcher.group(1).trim();
@@ -199,15 +232,18 @@ public class Red5AppAdapter extends MultiThreadedApplicationAdapter {
       meetingManager.streamBroadcastClose(meetingId, streamId);
 
 
-      Map<String, Object> logData = new HashMap<String, Object>();
-      logData.put("meetingId", meetingId);
-      logData.put("streamId", streamId);
-      logData.put("recorded", recordVideoStream);
+			Map<String, Object> logData2 = new HashMap<String, Object>();
+			logData2.put("meetingId", meetingId);
+			logData2.put("connType", connType);
+			logData2.put("connId", connId);
+			logData2.put("stream", stream.getPublishedName());
+			logData2.put("context", scopeName);
+			logData2.put("event", "stream_broadcast_close");
+			logData2.put("description", "Stream broadcast close.");
 
-      Gson gson = new Gson();
-      String logStr =  gson.toJson(logData);
-
-      log.info("ScreenShare broadcast stopped: data={}", logStr);
+			Gson gson2 = new Gson();
+			String logStr2 =  gson2.toJson(logData2);
+			log.info(logStr2);
     } else {
     	log.error("Invalid streamid format [{}]", streamId);
     }
@@ -217,8 +253,8 @@ public class Red5AppAdapter extends MultiThreadedApplicationAdapter {
     this.meetingManager = meetingManager;
   }
 
-  public void setEventRecordingService(EventRecordingService s) {
-    recordingService = s;
+  public void setRedisStorageService(RedisStorageService s) {
+    redisStorageService = s;
   }
 
   public void setStreamBaseUrl(String baseUrl) {

@@ -12,7 +12,7 @@ trait RecordingStartedVoiceConfEvtMsgHdlr {
 
   def handleRecordingStartedVoiceConfEvtMsg(msg: RecordingStartedVoiceConfEvtMsg) {
     if (msg.body.recording) {
-      MeetingStatus2x.setVoiceRecordingFilename(liveMeeting.status, msg.body.stream)
+      MeetingStatus2x.voiceRecordingStarted(liveMeeting.status, msg.body.stream)
 
       def buildVoiceRecordingStartedEvtMsg(meetingId: String, stream: String, timestamp: String,
                                            voiceConf: String): BbbCommonEnvCoreMsg = {
@@ -30,7 +30,7 @@ trait RecordingStartedVoiceConfEvtMsgHdlr {
         msg.body.timestamp, liveMeeting.props.voiceProp.voiceConf)
       outGW.send(event)
     } else {
-      MeetingStatus2x.setVoiceRecordingFilename(liveMeeting.status, "")
+      MeetingStatus2x.voiceRecordingStopped(liveMeeting.status, msg.body.stream)
 
       def buildVoiceRecordingStoppedEvtMsg(meetingId: String, stream: String, timestamp: String,
                                            voiceConf: String): BbbCommonEnvCoreMsg = {

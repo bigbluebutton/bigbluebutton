@@ -24,6 +24,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
+
 import org.bigbluebutton.api.messaging.MessageListener;
 import org.bigbluebutton.api.messaging.messages.IMessage;
 import org.bigbluebutton.api.messaging.messages.KeepAliveReply;
@@ -33,10 +34,10 @@ import org.slf4j.LoggerFactory;
 
 public class KeepAliveService implements MessageListener {
   private static Logger log = LoggerFactory.getLogger(KeepAliveService.class);
-  private final String KEEP_ALIVE_REQUEST = "KEEP_ALIVE_REQUEST";
+  private static final String KEEP_ALIVE_REQUEST = "KEEP_ALIVE_REQUEST";
   private IBbbWebApiGWApp gw;
   private long runEvery = 10000;
-  private int maxLives = 5;
+  private static int maxLives = 5;
   private KeepAliveTask task = new KeepAliveTask();
   private volatile boolean processMessages = false;
 
@@ -51,7 +52,7 @@ public class KeepAliveService implements MessageListener {
 
   private Long lastKeepAliveMessage = 0L;
 
-  private final String SYSTEM = "BbbWeb";
+  private static final String SYSTEM = "BbbWeb";
 
   public void start() {
     scheduledThreadPool.scheduleWithFixedDelay(task, 5000, runEvery, TimeUnit.MILLISECONDS);
@@ -144,7 +145,7 @@ public class KeepAliveService implements MessageListener {
   }
 
   private void handleKeepAliveReply(String system, Long timestamp) {
-    if (system.equals("BbbWeb")) {
+    if (SYSTEM.equals(system)) {
       KeepAlivePong pong = new KeepAlivePong(system, timestamp);
       queueMessage(pong);
     }

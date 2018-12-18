@@ -52,6 +52,7 @@ package org.bigbluebutton.modules.whiteboard
     private var width:Number;
     private var height:Number;
 	private var presenterId:String;
+	private var multiUser:Boolean = false;
 	
 	public function setDependencies(whiteboardCanvas:WhiteboardCanvas, whiteboardModel:WhiteboardModel):void {
 		wbCanvas = whiteboardCanvas;
@@ -129,11 +130,6 @@ package org.bigbluebutton.modules.whiteboard
       }
     }
     
-    public function clearCursors():void {
-      _cursors = new Object();
-      wbCanvas.removeAllCursors();
-    }
-    
     public function undoAnnotation(annotation:Annotation):void {
       removeGraphic(annotation.id);
     }
@@ -149,7 +145,11 @@ package org.bigbluebutton.modules.whiteboard
       textUpdateListener.canvasMouseDown();
       
       //LogUtil.debug("**** CanvasDisplay changePage. Clearing page *****");
-      clearBoard();
+
+      // forcefully clear all annotations and cursors on whiteboard change
+      _annotationsMap = new Object();
+      wbCanvas.removeAllGraphics();
+
       clearCursors();
       
       var annotations:Array = whiteboardModel.getAnnotations(wbId);
@@ -158,31 +158,41 @@ package org.bigbluebutton.modules.whiteboard
         createGraphic(annotations[i], true);
       }
     }
+	
+	public function multiUserChange(multiUser:Boolean):void {
+		this.multiUser = multiUser;
+		
+		for each(var cursor:WhiteboardCursor in _cursors) {
+			cursor.updateMultiUser(multiUser);
+		}
+	}
+    
+    public function clearCursors():void {
+      _cursors = new Object();
+      wbCanvas.removeAllCursorChildren();
+    }
     
 		public function drawCursor(userId:String, xPercent:Number, yPercent:Number):void {
-			var showName: Boolean = wbCanvas.getMultiUserState();
-			
 			if (!_cursors.hasOwnProperty(userId)) {
 				var userName:String = UsersUtil.getUserName(userId);
 				if (userName) {
 					var newCursor:WhiteboardCursor = new WhiteboardCursor(userId, userName, 
-            xPercent, yPercent, shapeFactory.parentWidth, 
-            shapeFactory.parentHeight, presenterId == userId, showName);
+							xPercent, yPercent, shapeFactory.parentWidth, 
+							shapeFactory.parentHeight, presenterId == userId, multiUser);
 					wbCanvas.addCursor(newCursor);
 					
 					_cursors[userId] = newCursor;
 				}
 			} else {
-				(_cursors[userId] as WhiteboardCursor).updatePosition(xPercent, yPercent, showName);
+				(_cursors[userId] as WhiteboardCursor).updatePosition(xPercent, yPercent);
 			}
 		}
 		
 		public function presenterChange(amIPresenter:Boolean, presenterId:String):void {
 			this.presenterId = presenterId;
-			
-			var showName: Boolean = wbCanvas.getMultiUserState()
-			for(var j:String in _cursors) {
-				(_cursors[j] as WhiteboardCursor).updatePresenter(j == presenterId, showName);
+
+			for each(var cursor:WhiteboardCursor in _cursors) {
+				cursor.updatePresenter(presenterId);
 			}
 		}
 		

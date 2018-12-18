@@ -6,7 +6,7 @@ import { withModalMounter } from '/imports/ui/components/modal/service';
 import DeviceSelector from '/imports/ui/components/audio/device-selector/component';
 import AudioTestContainer from '/imports/ui/components/audio/audio-test/container';
 import cx from 'classnames';
-import styles from './styles';
+import { styles } from './styles';
 
 const propTypes = {
   intl: intlShape.isRequired,

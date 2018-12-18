@@ -11,7 +11,7 @@ import org.red5.server.stream.IProviderService;
 import org.slf4j.Logger;
 
 public class ListenStream implements TranscodedAudioDataListener {
-	final private Logger log = Red5LoggerFactory.getLogger(ListenStream.class, "sip");
+    private final Logger log = Red5LoggerFactory.getLogger(ListenStream.class, "sip");
 		
 	private AudioStream broadcastStream;
 	private IScope scope;

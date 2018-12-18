@@ -1,4 +1,5 @@
 enablePlugins(JavaServerAppPackaging)
+enablePlugins(SystemdPlugin)
 
 name := "bbb-transcode-akka"
 
@@ -6,7 +7,7 @@ organization := "org.bigbluebutton"
 
 version := "0.0.2"
 
-scalaVersion  := "2.12.2"
+scalaVersion  := "2.12.6"
 
 scalacOptions ++= Seq(
   "-unchecked",
@@ -37,24 +38,24 @@ testOptions in Test += Tests.Argument(TestFrameworks.Specs2, "html", "console", 
 
 testOptions in Test += Tests.Argument(TestFrameworks.ScalaTest, "-h", "target/scalatest-reports")
 
-val akkaVersion  = "2.5.1"
-val scalaTestV  = "2.2.6"
+val akkaVersion  = "2.5.14"
+val scalaTestV  = "3.0.5"
 
 libraryDependencies ++= {
   Seq(
-    "ch.qos.logback"            %  "logback-classic"   % "1.0.3",
+    "ch.qos.logback"            %  "logback-classic"   % "1.2.3"	% "runtime",
     "junit"                     %  "junit"             % "4.11",
-    "commons-codec"             %  "commons-codec"     % "1.10",
+    "commons-codec"             %  "commons-codec"     % "1.11",
     "joda-time"                 %  "joda-time"         % "2.3",
-    "org.apache.commons"        %  "commons-lang3"     % "3.2"
+    "org.apache.commons"        %  "commons-lang3"     % "3.7"
   )}
 
 libraryDependencies += "org.bigbluebutton" % "bbb-common-message_2.12" % "0.0.19-SNAPSHOT"
 
 // https://mvnrepository.com/artifact/org.scala-lang/scala-library
-libraryDependencies += "org.scala-lang" % "scala-library" % "2.12.2"
+libraryDependencies += "org.scala-lang" % "scala-library" % scalaVersion.value
 // https://mvnrepository.com/artifact/org.scala-lang/scala-compiler
-libraryDependencies += "org.scala-lang" % "scala-compiler" % "2.12.2"
+libraryDependencies += "org.scala-lang" % "scala-compiler" % scalaVersion.value
 
 // https://mvnrepository.com/artifact/com.typesafe.akka/akka-actor_2.12
 libraryDependencies += "com.typesafe.akka" % "akka-actor_2.12" % akkaVersion
@@ -80,7 +81,18 @@ libraryDependencies += "org.mockito" % "mockito-core" % "2.7.22" % "test"
 
 seq(Revolver.settings: _*)
 
-scalariformSettings
+import com.typesafe.sbt.SbtScalariform
+
+import scalariform.formatter.preferences._
+import com.typesafe.sbt.SbtScalariform.ScalariformKeys
+
+SbtScalariform.defaultScalariformSettings
+
+ScalariformKeys.preferences := ScalariformKeys.preferences.value
+  .setPreference(AlignSingleLineCaseStatements, true)
+  .setPreference(DoubleIndentClassDeclaration, true)
+  .setPreference(AlignParameters, true)
+
 
 //-----------
 // Packaging

@@ -1,9 +1,9 @@
-import React, { Component } from 'react';
+import React, { PureComponent } from 'react';
 import { TransitionGroup, CSSTransition } from 'react-transition-group';
 import PropTypes from 'prop-types';
 import { defineMessages } from 'react-intl';
 import cx from 'classnames';
-import styles from '/imports/ui/components/user-list/user-list-content/styles';
+import { styles } from '/imports/ui/components/user-list/user-list-content/styles';
 import ChatListItem from './../../chat-list-item/component';
 
 const propTypes = {
@@ -38,7 +38,7 @@ const intlMessages = defineMessages({
   },
 });
 
-class UserMessages extends Component {
+class UserMessages extends PureComponent {
   constructor() {
     super();
 
@@ -132,9 +132,9 @@ class UserMessages extends Component {
       <div className={styles.messages}>
         {
           !compact ?
-            <div className={styles.smallTitle} role="banner">
+            <h2 className={styles.smallTitle}>
               {intl.formatMessage(intlMessages.messagesTitle)}
-            </div> : <hr className={styles.separator} />
+            </h2> : <hr className={styles.separator} />
         }
         <div
           role="tabpanel"

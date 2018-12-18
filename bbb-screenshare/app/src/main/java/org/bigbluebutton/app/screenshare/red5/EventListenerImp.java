@@ -32,9 +32,20 @@ public class EventListenerImp implements IEventListener {
     } else if (event instanceof RecordChapterBreakMessage) {
       RecordChapterBreakMessage rcbm = (RecordChapterBreakMessage) event;
       meetingManager.stopStartAllRecordings(rcbm.meetingId);
+    } else if (event instanceof UnauthorizedBroadcastStreamEvent) {
+      sendUnauthorizedBroadcastStreamEvent((UnauthorizedBroadcastStreamEvent) event);
     }
 
   }
+
+  private void sendUnauthorizedBroadcastStreamEvent(UnauthorizedBroadcastStreamEvent event) {
+		if (log.isDebugEnabled()) {
+			log.debug("Sending CloseConnectionMessage to client, meetingId=" + event.meetingId + " streamId=" + event.streamId);
+		}
+
+		CloseConnectionMessage msg = new CloseConnectionMessage(event.meetingId, event.streamId, event.connId, event.scope);
+		sender.sendMessage(msg);
+	}
 
   private void sendScreenShareClientPing(ScreenShareClientPing event) {
     Map<String, Object> data = new HashMap<String, Object>();

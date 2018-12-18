@@ -1,10 +1,8 @@
 @import "../../../stylesheets/variables/_all";
 @import "../../../stylesheets/mixins/_scrollable";
 
-$item-height: 1rem;
-
 @keyframes bar-stripes {
-  from { background-position: $item-height 0; }
+  from { background-position: 1rem 0; }
   to { background-position: 0 0; }
 }
 
@@ -19,14 +17,13 @@ $item-height: 1rem;
   border-collapse: collapse;
 
   > thead {
-
   }
 
   > tbody {
     text-align: left;
 
     > tr {
-      border-bottom: 1px solid transparentize($color-gray-light, .85);
+      border-bottom: 1px solid var(--color-gray-light);
 
       &:last-child {
         border-bottom: 0;
@@ -34,22 +31,21 @@ $item-height: 1rem;
 
       &:hover,
       &:focus {
-        background-color: transparentize($color-gray-light, .85);
+        background-color: var(--color-gray-light);
       }
 
       th,
       td {
-        padding: ($sm-padding-y * 2) ($sm-padding-x / 2);
+        padding: calc(var(--sm-padding-y) * 2) calc(var(--sm-padding-x) / 2);
         white-space: nowrap;
       }
 
       th {
         font-weight: bold;
-        color: $color-gray-dark;
+        color: var(--color-gray-dark);
       }
 
       td {
-
       }
     }
   }
@@ -72,7 +68,7 @@ $item-height: 1rem;
 }
 
 .tableItemName {
-  height: $item-height;
+  height: 1rem;
   width: auto;
   position: relative;
 
@@ -98,32 +94,32 @@ $item-height: 1rem;
 }
 
 .tableItemNew {
-  background-color: transparentize($color-primary, .95);
+  background-color: rgba(0, 128, 129, 0.05);
 }
 
 .tableItemUploading {
-  background-color: transparentize($color-primary, .75);
+  background-color: rgba(0, 128, 129, 0.25);
 }
 
 .tableItemConverting {
-  background-color: transparentize($color-success, .75);
+  background-color: rgba(0, 128, 129, 0.25);
 }
 
 .tableItemError {
-  background-color: transparentize($color-danger, .75);
+  background-color: rgba(223, 39, 33, 0.25);
 }
 
 .tableItemAnimated {
   background-image: linear-gradient(45deg,
-    rgba(255, 255, 255, .15) 25%,
-    transparent 25%,
-    transparent 50%,
-    rgba(255, 255, 255, .15) 50%,
-    rgba(255, 255, 255, .15) 75%,
-    transparent 75%,
-    transparent
+	rgba(255, 255, 255, .15) 25%,
+	transparent 25%,
+	transparent 50%,
+	rgba(255, 255, 255, .15) 50%,
+	rgba(255, 255, 255, .15) 75%,
+	transparent 75%,
+	transparent
   );
-  background-size: $item-height $item-height;
+  background-size: 1rem 1rem;
   animation: bar-stripes 1s linear infinite;
 }
 
@@ -133,14 +129,15 @@ $item-height: 1rem;
   background: transparent;
   cursor: pointer;
   font-size: 1.35rem;
-  color: $color-gray-light;
+  color: var(--color-gray-light);
   padding: 0;
   transition: all .25s;
 }
 
 .itemActionRemove {
-  &:focus, &:hover {
-    color: $color-danger;
+  &:focus,
+  &:hover {
+    color: var(--color-danger);
   }
 
   &[aria-disabled="true"] {
@@ -156,34 +153,34 @@ $item-height: 1rem;
   width: 100%;
   display: block;
   border: 2px dashed;
-  border-radius: $border-radius;
-  padding: ($lg-padding-y * 2.5) ($lg-padding-x * 2.5);
-  margin-top: $lg-padding-y * 5;
+  border-radius: var(--border-radius);
+  padding: calc(var(--lg-padding-y) * 2.5) calc(var(--lg-padding-x) * 2.5);
+  margin-top: calc(var(--lg-padding-y) * 5);
   text-align: center;
-  font-size: $font-size-large;
+  font-size: var(--font-size-large);
   cursor: pointer;
 }
 
 .dropzoneActive {
-  background-color: transparentize($color-gray-light, .85);
+  background-color: var(--color-gray-light);
 }
 
 .dropzoneReject {
-  color: $color-danger;
-  background-color: transparentize($color-danger, .80);
+  color: var(--color-danger);
+  background-color: var(--color-danger);
   cursor: no-drop;
 }
 
 .dropzoneIcon {
-  font-size: $font-size-large * 3;
+  font-size: calc(var(--font-size-large) * 3);
 }
 
 .dropzoneMessage {
-  margin: $md-padding-y 0;
+  margin: var(--md-padding-y) 0;
 }
 
 .dropzoneLink {
-  color: $color-link;
+  color: var(--color-link);
   text-decoration: underline;
   font-size: 80%;
   display: block;
@@ -195,8 +192,8 @@ $item-height: 1rem;
   font-size: 75%;
   font-weight: 700;
   line-height: 1;
-  color: $color-white;
-  background: $color-primary;
+  color: var(--color-white);
+  background: var(--color-primary);
   text-align: center;
   white-space: nowrap;
   vertical-align: baseline;

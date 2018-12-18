@@ -24,11 +24,15 @@
       margin-right: 1rem;
     }
   }
+  .audioBtn:only-child {
+    margin-right: 0;
+  }
 }
 
 .audioOptions {
   margin-top: auto;
   margin-bottom: auto;
+  display: flex;
 }
 
 .overlay {
@@ -43,27 +47,42 @@
 
 .closeBtn {
   position: relative;
-  background-color: $color-white;
+  background-color: var(--color-white);
 
   i {
-    color: $color-gray-light;
+    color: var(--color-gray-light);
   }
 
   &:focus,
-  &:hover{
-    background-color: $color-gray-lighter;
-    i{
-      color: $color-gray;
+  &:hover {
+    background-color: var(--color-gray-lighter);
+    i {
+      color: var(--color-gray);
     }
   }
 }
+.warning {
+  text-align: center;
+  font-weight: var(--headings-font-weight);
+  font-size: 5rem;
+  white-space: normal;
+}
+.text {
+  margin: var(--line-height-computed);
+  text-align: center;
+}
 
+.main {
+  margin: var(--line-height-computed);
+  text-align: center;
+  font-size: var(--font-size-large);
+}
 .audioBtn {
   &:focus {
     outline: none !important;
   }
 
-  i{
+  i {
     color: #3c5764;
   }
 }
@@ -84,7 +103,7 @@
 // When hovering over a button of class audioBtn, change the border colour of first span-child
 .audioBtn:hover span:first-child,
 .audioBtn:focus span:first-child {
-  border: 5px solid $color-primary;
+  border: 5px solid var(--color-primary);
   background-color: #f1f8ff;
 }
 
@@ -113,15 +132,16 @@
   font-size: 2rem;
 }
 
-.connecting:after {
-  overflow: hidden;
-  display: inline-block;
-  vertical-align: bottom;
-  -webkit-animation: ellipsis steps(4,end) 900ms infinite;
-  animation: ellipsis steps(4,end) 900ms infinite;
-  content: "\2026"; /* ascii code for the ellipsis character */
-  width: 0;
-  margin-right: 1.25em;
+.connectingAnimation {
+  &:after {
+    overflow: hidden;
+    display: inline-block;
+    vertical-align: bottom;
+    animation: ellipsis steps(4,end) 900ms infinite;
+    content: "\2026"; /* ascii code for the ellipsis character */
+    width: 0;
+    margin-right: 1.25em;
+  }
 }
 
 @keyframes ellipsis {
@@ -131,15 +151,8 @@
   }
 }
 
-@-webkit-keyframes ellipsis {
-  to {
-    width: 1.25em;
-    margin-right: 0;
-  }
-}
-
 .audioNote {
-  color: $color-text;
+  color: var(--color-text);
   display: inline-block;
   font-size: 0.9rem;
 }

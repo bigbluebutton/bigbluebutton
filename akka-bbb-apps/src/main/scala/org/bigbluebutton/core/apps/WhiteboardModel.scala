@@ -7,8 +7,9 @@ import scala.collection.immutable.HashMap
 import scala.collection.JavaConverters._
 import org.bigbluebutton.common2.msgs.AnnotationVO
 import org.bigbluebutton.core.apps.whiteboard.Whiteboard
+import org.bigbluebutton.SystemConfiguration
 
-class WhiteboardModel {
+class WhiteboardModel extends SystemConfiguration {
   private var _whiteboards = new HashMap[String, Whiteboard]()
 
   private def saveWhiteboard(wb: Whiteboard) {
@@ -24,7 +25,7 @@ class WhiteboardModel {
   }
 
   private def createWhiteboard(wbId: String): Whiteboard = {
-    new Whiteboard(wbId, false, System.currentTimeMillis(), 0, new HashMap[String, List[AnnotationVO]]())
+    new Whiteboard(wbId, multiUserWhiteboardDefault, System.currentTimeMillis(), 0, new HashMap[String, List[AnnotationVO]]())
   }
 
   private def getAnnotationsByUserId(wb: Whiteboard, id: String): List[AnnotationVO] = {

@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import ReactModal from 'react-modal';
-import styles from './styles.scss';
+import { styles } from './styles.scss';
 
 const propTypes = {
   overlayClassName: PropTypes.string.isRequired,
@@ -20,6 +20,8 @@ const defaultProps = {
 
 export default class ModalBase extends Component {
   render() {
+    if (!this.props.isOpen) return null;
+
     return (
       <ReactModal {...this.props}>
         {this.props.children}

@@ -31,7 +31,7 @@ export default function removeVoiceUser(meetingId, voiceUser) {
       return Logger.error(`Remove voiceUser=${intId}: ${err}`);
     }
 
-    return Logger.verbose(`Remove voiceUser=${intId} meeting=${meetingId}`);
+    return Logger.info(`Remove voiceUser=${intId} meeting=${meetingId}`);
   };
 
   return VoiceUsers.update(selector, modifier, cb);

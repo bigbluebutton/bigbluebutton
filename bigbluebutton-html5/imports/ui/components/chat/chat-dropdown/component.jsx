@@ -9,11 +9,10 @@ import DropdownContent from '/imports/ui/components/dropdown/content/component';
 import DropdownList from '/imports/ui/components/dropdown/list/component';
 import DropdownListItem from '/imports/ui/components/dropdown/list/item/component';
 import Auth from '/imports/ui/services/auth';
-import Acl from '/imports/startup/acl';
 import Button from '/imports/ui/components/button/component';
 
-import ChatService from './../service';
-import styles from './styles';
+import ChatService from '../service';
+import { styles } from './styles';
 
 const intlMessages = defineMessages({
   clear: {
@@ -44,11 +43,16 @@ class ChatDropdown extends Component {
 
     this.onActionsShow = this.onActionsShow.bind(this);
     this.onActionsHide = this.onActionsHide.bind(this);
+    this.actionsKey = [
+      _.uniqueId('action-item-'),
+      _.uniqueId('action-item-'),
+      _.uniqueId('action-item-'),
+    ];
   }
 
   componentDidMount() {
     this.clipboard = new Clipboard('#clipboardButton', {
-      text: () => ChatService.exportChat(ChatService.getPublicMessages()),
+      text: () => ChatService.exportChat(ChatService.getPublicGroupMessages()),
     });
   }
 
@@ -75,35 +79,43 @@ class ChatDropdown extends Component {
     const saveIcon = 'save_notes';
     const copyIcon = 'copy';
 
+    const user = ChatService.getUser(Auth.userID);
+
     return _.compact([
-      (<DropdownListItem
+      <DropdownListItem
+        data-test="chatSave"
         icon={saveIcon}
         label={intl.formatMessage(intlMessages.save)}
-        key={_.uniqueId('action-item-')}
+        key={this.actionsKey[0]}
         onClick={() => {
           const link = document.createElement('a');
           const mimeType = 'text/plain';
 
           link.setAttribute('download', `public-chat-${Date.now()}.txt`);
-          link.setAttribute('href', `data: ${mimeType} ;charset=utf-8,
-            ${encodeURIComponent(ChatService.exportChat(ChatService.getPublicMessages()))}`);
+          link.setAttribute(
+            'href',
+            `data: ${mimeType} ;charset=utf-8,
+            ${encodeURIComponent(ChatService.exportChat(ChatService.getPublicGroupMessages()))}`,
+          );
           link.click();
         }}
-      />),
-      (<DropdownListItem
+      />,
+      <DropdownListItem
+        data-test="chatCopy"
         icon={copyIcon}
         id="clipboardButton"
         label={intl.formatMessage(intlMessages.copy)}
-        key={_.uniqueId('action-item-')}
-      />),
-      (Acl.can('methods.clearPublicChatHistory', Auth.credentials) ?
+        key={this.actionsKey[1]}
+      />,
+      user.isModerator ? (
         <DropdownListItem
+          data-test="chatClear"
           icon={clearIcon}
           label={intl.formatMessage(intlMessages.clear)}
-          key={_.uniqueId('action-item-')}
+          key={this.actionsKey[2]}
           onClick={ChatService.clearPublicChatHistory}
         />
-        : null),
+      ) : null,
     ]);
   }
 
@@ -113,7 +125,6 @@ class ChatDropdown extends Component {
     const availableActions = this.getAvailableActions();
 
     return (
-
       <Dropdown
         isOpen={this.state.isSettingOpen}
         onShow={this.onActionsShow}
@@ -121,19 +132,20 @@ class ChatDropdown extends Component {
       >
         <DropdownTrigger tabIndex={0}>
           <Button
+            data-test="chatDropdownTrigger"
             className={styles.btn}
             icon="more"
             ghost
             circle
             hideLabel
             color="primary"
+            label={intl.formatMessage(intlMessages.options)}
             aria-label={intl.formatMessage(intlMessages.options)}
+            onClick={() => null}
           />
         </DropdownTrigger>
         <DropdownContent placement="bottom right">
-          <DropdownList>
-            {availableActions}
-          </DropdownList>
+          <DropdownList>{availableActions}</DropdownList>
         </DropdownContent>
       </Dropdown>
     );

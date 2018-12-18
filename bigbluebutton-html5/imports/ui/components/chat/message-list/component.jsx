@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import { defineMessages, injectIntl } from 'react-intl';
 import _ from 'lodash';
 import Button from '/imports/ui/components/button/component';
-import styles from './styles';
+import { styles } from './styles';
 import MessageListItem from './message-list-item/component';
 
 const propTypes = {
@@ -30,11 +30,17 @@ class MessageList extends Component {
     this.ticking = false;
     this.handleScrollChange = _.debounce(this.handleScrollChange.bind(this), 150);
     this.handleScrollUpdate = _.debounce(this.handleScrollUpdate.bind(this), 150);
+
+    this.state = {};
   }
 
 
   componentDidMount() {
     const { scrollArea } = this;
+
+    this.setState({
+      scrollArea: this.scrollArea,
+    });
 
     this.scrollTo(this.props.scrollPosition);
     scrollArea.addEventListener('scroll', this.handleScrollChange, false);
@@ -47,12 +53,14 @@ class MessageList extends Component {
     }
   }
 
-  shouldComponentUpdate(nextProps) {
+  shouldComponentUpdate(nextProps, nextState) {
     const {
       chatId,
       hasUnreadMessages,
       partnerIsLoggedOut,
     } = this.props;
+
+    if (!this.state.scrollArea && nextState.scrollArea) return true;
 
     const switchingCorrespondent = chatId !== nextProps.chatId;
     const hasNewUnreadMessages = hasUnreadMessages !== nextProps.hasUnreadMessages;
@@ -81,9 +89,9 @@ class MessageList extends Component {
 
     // Compare with <1 to account for the chance scrollArea.scrollTop is a float
     // value in some browsers.
-    this.shouldScrollBottom = position === scrollArea.scrollHeight ||
-      (scrollArea.scrollHeight - position < 1) ||
-      nextProps.scrollPosition === null;
+    this.shouldScrollBottom = position === scrollArea.scrollHeight
+      || (scrollArea.scrollHeight - position < 1)
+      || nextProps.scrollPosition === null;
   }
 
   componentDidUpdate(prevProps) {
@@ -143,6 +151,7 @@ class MessageList extends Component {
     if (hasUnreadMessages && scrollPosition !== null) {
       return (
         <Button
+          aria-hidden="true"
           className={styles.unreadButton}
           size="sm"
           label={intl.formatMessage(intlMessages.moreMessages)}
@@ -155,14 +164,16 @@ class MessageList extends Component {
   }
 
   render() {
-    const { messages, intl } = this.props;
+    const {
+      messages, intl, id, lastReadMessageTime, handleReadMessage,
+    } = this.props;
     const isEmpty = messages.length === 0;
     return (
       <div className={styles.messageListWrapper}>
         <div
           role="log"
-          ref={(ref) => { this.scrollArea = ref; }}
-          id={this.props.id}
+          ref={(ref) => { if (ref != null) { this.scrollArea = ref; } }}
+          id={id}
           className={styles.messageList}
           aria-live="polite"
           aria-atomic="false"
@@ -171,15 +182,14 @@ class MessageList extends Component {
         >
           {messages.map(message => (
             <MessageListItem
-              handleReadMessage={this.props.handleReadMessage}
-              className={styles.messageListItem}
+              handleReadMessage={handleReadMessage}
               key={message.id}
               messages={message.content}
               user={message.sender}
               time={message.time}
-              chatAreaId={this.props.id}
-              lastReadMessageTime={this.props.lastReadMessageTime}
-              scrollArea={this.scrollArea}
+              chatAreaId={id}
+              lastReadMessageTime={lastReadMessageTime}
+              scrollArea={this.state.scrollArea}
             />
           ))}
         </div>

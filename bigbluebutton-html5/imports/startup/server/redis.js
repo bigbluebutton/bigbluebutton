@@ -47,8 +47,8 @@ class MettingMessageQueue {
     const { envelope } = data.parsedMessage;
     const { header } = data.parsedMessage.core;
     const { body } = data.parsedMessage.core;
+    const { meetingId } = header;
     const eventName = header.name;
-    const meetingId = header.meetingId;
     const isAsync = this.asyncMessages.includes(channel)
       || this.asyncMessages.includes(eventName);
 
@@ -61,16 +61,20 @@ class MettingMessageQueue {
       if (called) return;
       this.debug(`${eventName} completed ${isAsync ? 'async' : 'sync'}`);
       called = true;
+      const queueLength = this.queue.length();
+      if (queueLength > 100) {
+        Logger.error(`prev queue size=${queueLength} `);
+      }
       next();
     };
 
     const onError = (reason) => {
-      this.debug(`${eventName}: ${reason}`);
+      this.debug(`${eventName}: ${reason.stack ? reason.stack : reason}`);
       callNext();
     };
 
     try {
-      this.debug(`${eventName} emitted`);
+      this.debug(`${JSON.stringify(data.parsedMessage.core)} emitted`);
 
       if (isAsync) {
         callNext();
@@ -91,7 +95,6 @@ class MettingMessageQueue {
 }
 
 class RedisPubSub {
-
   static handlePublishError(err) {
     if (err) {
       Logger.error(err);
@@ -102,8 +105,9 @@ class RedisPubSub {
     this.config = config;
 
     this.didSendRequestEvent = false;
-    this.pub = Redis.createClient();
-    this.sub = Redis.createClient();
+    const redisHost = process.env.REDIS_HOST || Meteor.settings.private.redis.host;
+    this.pub = Redis.createClient(Meteor.settings.private.redis.port, redisHost);
+    this.sub = Redis.createClient(Meteor.settings.private.redis.port, redisHost);
     this.emitter = new EventEmitter2();
     this.mettingsQueues = {};
 
@@ -136,7 +140,7 @@ class RedisPubSub {
     if (this.didSendRequestEvent) return;
 
     // populate collections with pre-existing data
-    const REDIS_CONFIG = Meteor.settings.redis;
+    const REDIS_CONFIG = Meteor.settings.private.redis;
     const CHANNEL = REDIS_CONFIG.channels.toAkkaApps;
     const EVENT_NAME = 'GetAllMeetingsReqMsg';
 
@@ -155,6 +159,9 @@ class RedisPubSub {
 
     if (ignoredMessages.includes(channel)
       || ignoredMessages.includes(eventName)) {
+      if (eventName === 'CheckAlivePongSysMsg') {
+        return;
+      }
       this.debug(`${eventName} skipped`);
       return;
     }
@@ -235,7 +242,7 @@ class RedisPubSub {
 const RedisPubSubSingleton = new RedisPubSub();
 
 Meteor.startup(() => {
-  const REDIS_CONFIG = Meteor.settings.redis;
+  const REDIS_CONFIG = Meteor.settings.private.redis;
 
   RedisPubSubSingleton.updateConfig(REDIS_CONFIG);
   RedisPubSubSingleton.init();

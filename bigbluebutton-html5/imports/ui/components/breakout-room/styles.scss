@@ -1,0 +1,103 @@
+@import "/imports/ui/stylesheets/variables/_all";
+
+.panel {
+  background-color: #fff;
+  padding: var(--md-padding-x);
+  display: flex;
+  flex-grow: 1;
+  flex-direction: column;
+  overflow: hidden;
+  height: 100vh;
+}
+
+.link {
+  text-decoration: none;
+}
+
+.breakoutActions
+.content,
+.header {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+}
+
+.header {
+  margin-bottom: 2rem;
+  cursor: pointer;
+}
+
+.content {
+  font-size: var(--font-size-small);
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  margin-bottom: 1rem;
+  font-weight: bold;
+}
+
+.breakoutActions {
+  font-weight: var(--headings-font-weight);
+  color: var(--color-primary);
+  & > button {
+    padding: 0 0 0 .5rem;
+  }
+}
+.joinButton,
+.button {
+  flex: 0 1 48%;
+  color: var(--color-primary);
+  margin: 0;
+  font-weight: inherit;
+}
+
+.joinButton {
+  padding: 0 .5rem 0 .5rem !important;
+}
+
+.endButton {
+  padding: .5rem;
+  font-weight: var(--headings-font-weight) !important;
+  border-radius: .2rem;
+  font-size: var(--font-size-small);  
+}
+
+.overlayContainer {
+  position: fixed;
+  top: 0; 
+  left: 0;
+  z-index: 100;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100%;
+  width: 100%;
+  color: var(--color-gray);
+}
+
+
+.connectingAnimation{
+  &:after {
+    overflow: hidden;
+    display: inline-block;
+    vertical-align: bottom;
+    animation: ellipsis steps(4,end) 900ms infinite;
+    content: "\2026"; /* ascii code for the ellipsis character */
+    width: 0;
+    margin-right: 1.25em;
+  }
+}
+
+@keyframes ellipsis {
+  to {
+    width: 1.25em;
+    margin-right: 0;
+  }
+}
+
+
+.duration {
+  display: flex;
+  align-self: center;
+  margin: .5rem 0 .5rem 0;
+}
