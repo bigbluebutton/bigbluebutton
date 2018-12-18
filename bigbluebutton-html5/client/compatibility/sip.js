@@ -6665,6 +6665,9 @@ InviteClientContext.prototype = {
                 }*/
               },
               function onFailure (e) {
+                if (e && e.message) {
+                  session.logger.warn(e.message);
+                }
                 session.logger.warn(e);
                 session.acceptAndTerminate(response, 488, 'Not Acceptable Here');
                 session.failed(response, SIP.C.causes.BAD_MEDIA_DESCRIPTION);
@@ -11445,7 +11448,8 @@ MediaHandler.prototype = Object.create(SIP.MediaHandler.prototype, {
     }
 
     var connConfig = {
-      iceServers: servers
+      iceServers: servers,
+      sdpSemantics:'plan-b'
     };
 
     if (config.rtcpMuxPolicy) {
