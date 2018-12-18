@@ -47,9 +47,9 @@ class Base extends Component {
 
   componentWillUpdate() {
     const { approved } = this.props;
-    const isLoading = this.state.loading;
+    const { loading } = this.state;
 
-    if (approved && isLoading) this.updateLoadingState(false);
+    if (approved && loading) this.updateLoadingState(false);
   }
 
   updateLoadingState(loading = false) {
@@ -131,7 +131,8 @@ const BaseContainer = withTracker(() => {
     },
   };
 
-  const subscriptionsHandlers = SUBSCRIPTIONS_NAME.map(name => Meteor.subscribe(name, credentials, subscriptionErrorHandler));
+  const subscriptionsHandlers = SUBSCRIPTIONS_NAME
+    .map(name => Meteor.subscribe(name, credentials, subscriptionErrorHandler));
 
   const chats = GroupChat.find({
     $or: [
@@ -147,7 +148,8 @@ const BaseContainer = withTracker(() => {
   const chatIds = chats.map(chat => chat.chatId);
 
   const groupChatMessageHandler = Meteor.subscribe('group-chat-msg', credentials, chatIds, subscriptionErrorHandler);
-  const User = Users.findOne({ intId: credentials.externUserID });
+  const User = Users.findOne({ intId: credentials.requesterUserId });
+
   if (User) {
     const mappedUser = mapUser(User);
     breakoutRoomSubscriptionHandler = Meteor.subscribe('breakouts', credentials, mappedUser.isModerator, subscriptionErrorHandler);

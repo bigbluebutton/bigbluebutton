@@ -8,10 +8,15 @@ function breakouts(credentials, moderator) {
     requesterUserId,
   } = credentials;
   Logger.info(`Publishing Breakouts for ${meetingId} ${requesterUserId}`);
+
   if (moderator) {
     const presenterSelector = {
-      parentMeetingId: meetingId,
+      $or: [
+        { parentMeetingId: meetingId },
+        { breakoutId: meetingId },
+      ],
     };
+
     return Breakouts.find(presenterSelector);
   }
 
