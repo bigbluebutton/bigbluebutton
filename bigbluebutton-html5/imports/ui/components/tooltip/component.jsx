@@ -51,8 +51,10 @@ class Tooltip extends Component {
       onHide: this.onHide,
       wait: Tooltip.wait,
       touchHold: true,
-      size: 'small',
-      distance: 1,
+      size: 'regular',
+      distance: 10,
+      arrow: true,
+      arrowType: 'sharp',
     };
     this.tooltip = Tippy(`#${this.tippySelectorId}`, options);
   }
