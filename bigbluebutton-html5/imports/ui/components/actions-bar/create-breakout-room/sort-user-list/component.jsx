@@ -42,17 +42,21 @@ class SortUsers extends Component {
   }
 
   componentDidMount() {
-    this.setUsers(this.props.users);
+    const { users } = this.props;
+    this.setUsers(users);
   }
 
   onChage(userId, room) {
+    const {
+      onCheck,
+      onUncheck,
+    } = this.props;
     return (ev) => {
       const check = ev.target.checked;
-
       if (check) {
-        return this.props.onCheck(userId, room);
+        return onCheck(userId, room);
       }
-      return this.props.onUncheck(userId, room);
+      return onUncheck(userId, room);
     };
   }
 
@@ -62,7 +66,8 @@ class SortUsers extends Component {
 
   renderUserItem() {
     const { room } = this.props;
-    return this.state.users
+    const { users } = this.state;
+    return users
       .map((user, idx) => (
         <div id={user.userId} className={styles.selectUserContainer} key={`breakout-user-${user.userId}`}>
           <span className={styles.round}>
@@ -72,24 +77,40 @@ class SortUsers extends Component {
               defaultChecked={user.room === room}
               onChange={this.onChage(user.userId, room)}
             />
-            <label htmlFor={`itemId${idx}`} />
+            <label htmlFor={`itemId${idx}`}>
+              <input
+                type="checkbox"
+                id={`itemId${idx}`}
+                defaultChecked={user.room === room}
+                onChange={this.onChage(user.userId, room)}
+              />
+            </label>
           </span>
-          <span className={styles.textName} >{user.userName}{user.room && !(user.room === room) ? `\t[${user.room}]` : ''}</span>
+          <span className={styles.textName}>
+            {user.userName}
+            {user.room && !(user.room === room) ? `\t[${user.room}]` : ''}
+          </span>
         </div>));
   }
 
   render() {
-    const { intl } = this.props;
+    const {
+      intl,
+      room,
+      confirm,
+    } = this.props;
     return (
       <div className={styles.selectUserScreen}>
         <header className={styles.header}>
-          <h2 className={styles.title}> {intl.formatMessage(intlMessages.breakoutRoomLabel, { 0: this.props.room })}</h2>
+          <h2 className={styles.title}>
+            {intl.formatMessage(intlMessages.breakoutRoomLabel, { 0: room })}
+          </h2>
           <Button
             className={styles.buttonAdd}
             size="md"
             label={intl.formatMessage(intlMessages.doneLabel)}
             color="primary"
-            onClick={this.props.confirm}
+            onClick={confirm}
           />
         </header>
         {this.renderUserItem()}

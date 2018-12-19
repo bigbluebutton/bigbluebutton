@@ -134,8 +134,12 @@ class BreakoutRoom extends Component {
       meetingName,
       intl,
     } = this.props;
+    const {
+      users,
+      freeJoin,
+    } = this.state;
 
-    if (this.state.users.length === this.getUserByRoom(0).length) {
+    if (users.length === this.getUserByRoom(0).length) {
       this.setState({ valid: false });
       return;
     }
@@ -147,11 +151,11 @@ class BreakoutRoom extends Component {
         0: meetingName,
         1: value,
       }),
-      freeJoin: this.state.freeJoin,
+      freeJoin,
       sequence: value,
     }));
 
-    createBreakoutRoom(rooms, durationTime, this.state.freeJoin);
+    createBreakoutRoom(rooms, durationTime, freeJoin);
     Session.set('isUserListOpen', true);
   }
 
@@ -173,7 +177,8 @@ class BreakoutRoom extends Component {
   }
 
   getUserByRoom(room) {
-    return this.state.users.filter(user => user.room === room);
+    const { users } = this.state;
+    return users.filter(user => user.room === room);
   }
 
   handleDismiss() {
@@ -202,11 +207,13 @@ class BreakoutRoom extends Component {
   }
 
   increaseDurationTime() {
-    this.setState({ durationTime: (1 * this.state.durationTime) + 1 });
+    const { durationTime } = this.state;
+    this.setState({ durationTime: (1 * durationTime) + 1 });
   }
 
   decreaseDurationTime() {
-    const number = ((1 * this.state.durationTime) - 1);
+    const { durationTime } = this.state;
+    const number = ((1 * durationTime) - 1);
     this.setState({ durationTime: number < 1 ? 1 : number });
   }
 
@@ -220,7 +227,10 @@ class BreakoutRoom extends Component {
 
   renderRoomsGrid() {
     const { intl } = this.props;
-
+    const {
+      valid,
+      numberOfRooms,
+    } = this.state;
     const allowDrop = (ev) => {
       ev.preventDefault();
     };
@@ -234,32 +244,33 @@ class BreakoutRoom extends Component {
 
     return (
       <div className={styles.boxContainer}>
-        <label htmlFor="BreakoutRoom" className={!this.state.valid ? styles.changeToWarn : null}>
+        <label htmlFor="BreakoutRoom" className={!valid ? styles.changeToWarn : null}>
           <p
             className={styles.freeJoinLabel}
           >
             {intl.formatMessage(intlMessages.notAssigned, { 0: this.getUserByRoom(0).length })}
           </p>
-          <div className={styles.breakoutBox} onDrop={drop(0)} onDragOver={allowDrop} >
+          <div className={styles.breakoutBox} onDrop={drop(0)} onDragOver={allowDrop}>
             {this.renderUserItemByRoom(0)}
           </div>
-          <span className={this.state.valid ? styles.dontShow : styles.leastOneWarn} >
+          <span className={valid ? styles.dontShow : styles.leastOneWarn}>
             {intl.formatMessage(intlMessages.leastOneWarnBreakout)}
           </span>
         </label>
         {
-          _.range(1, this.state.numberOfRooms + 1).map(value =>
-            (
-              <label htmlFor="BreakoutRoom" key={`room-${value}`}>
-                <p
-                  className={styles.freeJoinLabel}
-                >
-                  {intl.formatMessage(intlMessages.roomLabel, { 0: (value) })}
-                </p>
-                <div className={styles.breakoutBox} onDrop={drop(value)} onDragOver={allowDrop}>
-                  {this.renderUserItemByRoom(value)}
-                </div>
-              </label>))
+          _.range(1, numberOfRooms + 1).map(value => (
+            <label htmlFor="BreakoutRoom" key={`room-${value}`}>
+              <p
+                id="BreakoutRoom"
+                className={styles.freeJoinLabel}
+              >
+                {intl.formatMessage(intlMessages.roomLabel, { 0: (value) })}
+              </p>
+              <div className={styles.breakoutBox} onDrop={drop(value)} onDragOver={allowDrop}>
+                {this.renderUserItemByRoom(value)}
+              </div>
+             </label>
+          ))
         }
       </div>
     );
@@ -267,15 +278,19 @@ class BreakoutRoom extends Component {
 
   renderBreakoutForm() {
     const { intl } = this.props;
-
+    const {
+      numberOfRooms,
+      durationTime,
+    } = this.state;
     return (
       <div className={styles.breakoutSettings}>
         <label htmlFor="numberOfRooms">
           <p className={styles.labelText}>{intl.formatMessage(intlMessages.numberOfRooms)}</p>
           <select
+            id="numberOfRooms"
             name="numberOfRooms"
             className={styles.inputRooms}
-            value={this.state.numberOfRooms}
+            value={numberOfRooms}
             onChange={this.changeNumberOfRooms}
           >
             {
@@ -283,14 +298,14 @@ class BreakoutRoom extends Component {
             }
           </select>
         </label>
-        <label htmlFor="breakoutRoomTime" >
+        <label htmlFor="breakoutRoomTime">
           <p className={styles.labelText}>{intl.formatMessage(intlMessages.duration)}</p>
           <div className={styles.durationArea}>
             <input
               type="number"
               className={styles.duration}
               min={MIN_BREAKOUT_ROOMS}
-              value={this.state.durationTime}
+              value={durationTime}
               onChange={this.changeDurationTime}
             />
             <span>
@@ -298,7 +313,7 @@ class BreakoutRoom extends Component {
                 key="decrease-breakout-time"
                 exec={this.decreaseDurationTime}
                 minBound={MIN_BREAKOUT_ROOMS}
-                value={this.state.durationTime}
+                value={durationTime}
               >
                 <Icon
                   className={styles.iconsColor}
@@ -324,11 +339,15 @@ class BreakoutRoom extends Component {
   }
 
   renderSelectUserScreen() {
+    const {
+      users,
+      roomSelected,
+    } = this.state;
     return (
       <SortList
         confirm={() => this.setState({ formFillLevel: 2 })}
-        users={this.state.users}
-        room={this.state.roomSelected}
+        users={users}
+        room={roomSelected}
         onCheck={this.changeUserRoom}
         onUncheck={userId => this.changeUserRoom(userId, 0)}
       />
@@ -337,13 +356,14 @@ class BreakoutRoom extends Component {
 
   renderFreeJoinCheck() {
     const { intl } = this.props;
+    const { freeJoin } = this.state;
     return (
       <label htmlFor="freeJoinCheckbox" className={styles.freeJoinLabel}>
         <input
           type="checkbox"
           className={styles.freeJoinCheckbox}
           onChange={this.setFreeJoin}
-          checked={this.state.freeJoin}
+          checked={freeJoin}
         />
         {intl.formatMessage(intlMessages.freeJoinLabel)}
       </label>
@@ -351,11 +371,15 @@ class BreakoutRoom extends Component {
   }
 
   renderUserItemByRoom(room) {
+    const {
+      valid,
+      seletedId,
+    } = this.state;
     const dragStart = (ev) => {
       ev.dataTransfer.setData('text', ev.target.id);
       this.setState({ seletedId: ev.target.id });
 
-      if (!this.state.valid) {
+      if (!valid) {
         this.setState({ valid: true });
       }
     };
@@ -372,8 +396,8 @@ class BreakoutRoom extends Component {
           key={user.userId}
           className={cx(
             styles.roomUserItem,
-            this.state.seletedId === user.userId ? styles.selectedItem : null,
-            )
+            seletedId === user.userId ? styles.selectedItem : null,
+          )
           }
           draggable
           onDragStart={dragStart}
@@ -452,10 +476,10 @@ class BreakoutRoom extends Component {
 
   render() {
     const { intl } = this.props;
+    const { preventClosing } = this.state;
 
     const BROWSER_RESULTS = browser();
-    const isMobileBrowser = BROWSER_RESULTS.mobile ||
-      BROWSER_RESULTS.os.includes('Android');
+    const isMobileBrowser = BROWSER_RESULTS.mobile || BROWSER_RESULTS.os.includes('Android');
 
     return (
       <Modal
@@ -470,16 +494,15 @@ class BreakoutRoom extends Component {
           callback: this.handleDismiss,
           label: intl.formatMessage(intlMessages.dismissLabel),
         }}
-        preventClosing={this.state.preventClosing}
+        preventClosing={preventClosing}
       >
         <div className={styles.content}>
           <p className={styles.subTitle}>
             {intl.formatMessage(intlMessages.breakoutRoomDesc)}
           </p>
-          {isMobileBrowser ?
-            this.renderMobile() : this.renderDesktop()}
+          {isMobileBrowser ? this.renderMobile() : this.renderDesktop()}
         </div>
-      </Modal >
+      </Modal>
     );
   }
 }
