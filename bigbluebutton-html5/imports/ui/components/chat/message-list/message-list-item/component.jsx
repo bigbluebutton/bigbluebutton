@@ -25,13 +25,9 @@ const eventsToBeBound = [
 
 const isElementInViewport = (el) => {
   const rect = el.getBoundingClientRect();
-  const clientHeight = window.innerHeight || document.documentElement.clientHeight;
   const prefetchHeight = 125;
 
-  return (
-    rect.top >= -(prefetchHeight) &&
-    rect.bottom <= clientHeight + prefetchHeight
-  );
+  return (rect.top >= -(prefetchHeight) || rect.bottom >= -(prefetchHeight));
 };
 
 export default class MessageListItem extends Component {
