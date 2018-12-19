@@ -5,6 +5,8 @@ import Auth from '/imports/ui/services/auth';
 import LoadingScreen from '/imports/ui/components/loading-screen/component';
 
 const STATUS_CONNECTING = 'connecting';
+const CHAT_CONFIG = Meteor.settings.public.chat;
+const PUBLIC_CHAT_ID = CHAT_CONFIG.public_id;
 
 class AuthenticatedHandler extends Component {
   static setError(codeError) {
@@ -82,7 +84,7 @@ class AuthenticatedHandler extends Component {
     } = this.state;
 
     Session.set('isChatOpen', false);
-    Session.set('idChatOpen', 'public');
+    Session.set('idChatOpen', PUBLIC_CHAT_ID);
     Session.set('isMeetingEnded', false);
     Session.set('isPollOpen', false);
     Session.set('breakoutRoomIsOpen', false);
