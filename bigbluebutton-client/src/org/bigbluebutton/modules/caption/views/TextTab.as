@@ -394,6 +394,14 @@ package org.bigbluebutton.modules.caption.views {
 		}
 		
 		private function sendTextToServer():void {
+			/* Queue up the sending for the next refresh so that all key presses can be handled.
+			 * Avoids an issue where two updates can be triggered at once and get received in the
+			 * wrong order.
+			 */
+			callLater(actuallySendTextToServer);
+		}
+		
+		private function actuallySendTextToServer():void {
 			if (_startIndex >= 0) {
 				var editHistoryEvent:SendEditCaptionHistoryEvent = new SendEditCaptionHistoryEvent(SendEditCaptionHistoryEvent.SEND_EDIT_CAPTION_HISTORY);
 				editHistoryEvent.locale = currentTranscript.locale;
