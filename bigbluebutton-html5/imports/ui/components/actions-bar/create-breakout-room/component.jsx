@@ -93,6 +93,7 @@ class BreakoutRoom extends Component {
     this.setRoomUsers = this.setRoomUsers.bind(this);
     this.setFreeJoin = this.setFreeJoin.bind(this);
     this.getUserByRoom = this.getUserByRoom.bind(this);
+    this.onAssignRandomly = this.onAssignRandomly.bind(this);
     this.renderUserItemByRoom = this.renderUserItemByRoom.bind(this);
     this.renderRoomsGrid = this.renderRoomsGrid.bind(this);
     this.renderBreakoutForm = this.renderBreakoutForm.bind(this);
@@ -159,6 +160,12 @@ class BreakoutRoom extends Component {
     Session.set('isUserListOpen', true);
   }
 
+  onAssignRandomly() {
+    const { numberOfRooms } = this.state;
+    return this.getUserByRoom(0)
+      .forEach(user => this.changeUserRoom(user.userId, Math.floor(Math.random() * (numberOfRooms) + 1)));
+  }
+
   setRoomUsers() {
     const { users } = this.props;
     const roomUsers = users.map(user => ({
@@ -201,6 +208,7 @@ class BreakoutRoom extends Component {
 
   changeUserRoom(userId, room) {
     const { users } = this.state;
+    
     const idxUser = users.findIndex(user => user.userId === userId);
     users[idxUser].room = room;
     this.setState({ users });
@@ -333,7 +341,7 @@ class BreakoutRoom extends Component {
             </span>
           </div>
         </label>
-        <p className={styles.randomText}>{intl.formatMessage(intlMessages.randomlyAssign)}</p>
+        <span className={styles.randomText} role="button" onClick={this.onAssignRandomly}>{intl.formatMessage(intlMessages.randomlyAssign)}</span>
       </div>
     );
   }
