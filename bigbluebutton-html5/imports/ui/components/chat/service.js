@@ -196,7 +196,7 @@ const updateScrollPosition =
   );
 
 const updateUnreadMessage = (timestamp) => {
-  const chatID = Session.get('idChatOpen');
+  const chatID = Session.get('idChatOpen') || PUBLIC_CHAT_ID;
   const isPublic = chatID === PUBLIC_CHAT_ID;
   const chatType = isPublic ? PUBLIC_GROUP_CHAT_ID : chatID;
   return UnreadMessages.update(chatType, timestamp);
