@@ -156,7 +156,7 @@ export default injectIntl(withTracker(({ intl }) => {
   const lastReadMessageTime = ChatService.lastReadMessageTime(chatID);
 
   return {
-    chatID: Session.get('idChatOpen'),
+    chatID,
     chatName,
     title,
     messages,
