@@ -51,6 +51,8 @@ class Tooltip extends Component {
       onHide: this.onHide,
       wait: Tooltip.wait,
       touchHold: true,
+      size: 'small',
+      distance: 1,
     };
     this.tooltip = Tippy(`#${this.tippySelectorId}`, options);
   }
@@ -80,7 +82,6 @@ class Tooltip extends Component {
 
     const WrappedComponentBound = React.cloneElement(WrappedComponent, {
       ...restProps,
-      title,
       id: this.tippySelectorId,
       className: cx(children.props.className, className),
     });
