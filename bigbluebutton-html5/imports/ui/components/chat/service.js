@@ -45,7 +45,23 @@ const mapGroupMessage = (message) => {
   };
 
   if (message.sender !== SYSTEM_CHAT_TYPE) {
-    mappedMessage.sender = getUser(message.sender);
+    const sender = getUser(message.sender);
+
+    const {
+      color,
+      isModerator,
+      name,
+      isOnline,
+    } = sender;
+
+    const mappedSender = {
+      color,
+      isModerator,
+      name,
+      isOnline,
+    };
+
+    mappedMessage.sender = mappedSender;
   }
 
   return mappedMessage;
