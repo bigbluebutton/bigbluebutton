@@ -31,7 +31,7 @@
 
       &:hover,
       &:focus {
-        background-color: var(--color-gray-light);
+        background-color: transparentize(#8B9AA8, .85);
       }
 
       th,
