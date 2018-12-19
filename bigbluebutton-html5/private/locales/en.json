@@ -458,6 +458,7 @@
     "app.videoDock.webcamUnfocusLabel": "Unfocus",
     "app.videoDock.webcamUnfocusDesc": "Unfocus the selected webcam",
     "app.createBreakoutRoom.title": "Breakout Rooms",
+    "app.createBreakoutRoom.breakoutRoomLabel": "Breakout Rooms {0}",
     "app.createBreakoutRoom.generatingURL": "Generating URL",
     "app.createBreakoutRoom.generatedURL": "Generated",
     "app.createBreakoutRoom.duration": "Duration {0}",
@@ -472,6 +473,9 @@
     "app.createBreakoutRoom.randomlyAssign": "Randomly Assign",
     "app.createBreakoutRoom.endAllBreakouts": "End All Breakout Rooms",
     "app.createBreakoutRoom.roomName": "{0} (Room - {1})",
+    "app.createBreakoutRoom.doneLabel": "Done",
+    "app.createBreakoutRoom.nextLabel": "Next",
+    "app.createBreakoutRoom.addParticipantLabel": "+ Add participant",
     "app.createBreakoutRoom.freeJoin": "Allow users to choose a breakout room to join",
     "app.createBreakoutRoom.leastOneWarnBreakout": "You must place at least one user in a breakout room.",
     "app.createBreakoutRoom.modalDesc": "Complete the steps below to create rooms in your session, To add participants to a room."
