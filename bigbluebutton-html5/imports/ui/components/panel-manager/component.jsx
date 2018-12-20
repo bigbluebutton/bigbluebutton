@@ -28,6 +28,14 @@ const propTypes = {
   openPanel: PropTypes.string.isRequired,
 };
 
+// Variables for resizing user-list.
+const USERLIST_MIN_WIDTH_PX = 150;
+const USERLIST_MAX_WIDTH_PX = 240;
+
+// Variables for resizing chat.
+const CHAT_MIN_WIDTH = 150;
+const CHAT_MAX_WIDTH = 350;
+
 class PanelManager extends Component {
   constructor() {
     super();
@@ -37,6 +45,11 @@ class PanelManager extends Component {
     this.breakoutroomKey = _.uniqueId('breakoutroom-');
     this.chatKey = _.uniqueId('chat-');
     this.pollKey = _.uniqueId('poll-');
+
+    this.state = {
+      chatWidth: 340,
+      userlistWidth: 180,
+    };
   }
 
   renderUserList() {
@@ -57,13 +70,7 @@ class PanelManager extends Component {
   }
 
   renderUserListResizable() {
-    // Variables for resizing user-list.
-    const USERLIST_MIN_WIDTH_PX = 150;
-    const USERLIST_MAX_WIDTH_PX = 240;
-    const USERLIST_DEFAULT_WIDTH_RELATIVE = 18;
-
-    // decide whether using pixel or percentage unit as a default width for userList
-    const USERLIST_DEFAULT_WIDTH = (window.innerWidth * (USERLIST_DEFAULT_WIDTH_RELATIVE / 100.0)) < USERLIST_MAX_WIDTH_PX ? `${USERLIST_DEFAULT_WIDTH_RELATIVE}%` : USERLIST_MAX_WIDTH_PX;
+    const { userlistWidth } = this.state;
 
     const resizableEnableOptions = {
       top: false,
@@ -78,13 +85,17 @@ class PanelManager extends Component {
 
     return (
       <Resizable
-        defaultSize={{ width: USERLIST_DEFAULT_WIDTH }}
         minWidth={USERLIST_MIN_WIDTH_PX}
         maxWidth={USERLIST_MAX_WIDTH_PX}
         ref={(node) => { this.resizableUserList = node; }}
-        className={styles.resizableUserList}
         enable={resizableEnableOptions}
         key={this.userlistKey}
+        size={{ width: userlistWidth }}
+        onResizeStop={(e, direction, ref, d) => {
+          this.setState({
+            userlistWidth: userlistWidth + d.width,
+          });
+        }}
       >
         {this.renderUserList()}
       </Resizable>
@@ -106,10 +117,7 @@ class PanelManager extends Component {
   }
 
   renderChatResizable() {
-    // Variables for resizing chat.
-    const CHAT_MIN_WIDTH = '10%';
-    const CHAT_MAX_WIDTH = '25%';
-    const CHAT_DEFAULT_WIDTH = '15%';
+    const { chatWidth } = this.state;
 
     const resizableEnableOptions = {
       top: false,
@@ -124,13 +132,17 @@ class PanelManager extends Component {
 
     return (
       <Resizable
-        defaultSize={{ width: CHAT_DEFAULT_WIDTH }}
         minWidth={CHAT_MIN_WIDTH}
         maxWidth={CHAT_MAX_WIDTH}
         ref={(node) => { this.resizableChat = node; }}
-        className={styles.resizableChat}
         enable={resizableEnableOptions}
         key={this.chatKey}
+        size={{ width: chatWidth }}
+        onResizeStop={(e, direction, ref, d) => {
+          this.setState({
+            chatWidth: chatWidth + d.width,
+          });
+        }}
       >
         {this.renderChat()}
       </Resizable>
