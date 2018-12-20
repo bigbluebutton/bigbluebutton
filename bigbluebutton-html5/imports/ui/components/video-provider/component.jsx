@@ -176,6 +176,7 @@ class VideoProvider extends Component {
 
     window.removeEventListener('online', this.openWs);
     window.removeEventListener('offline', this.onWsClose);
+    window.removeEventListener('beforeunload', this.unshareWebcam);
 
     this.visibility.removeEventListeners();
 
