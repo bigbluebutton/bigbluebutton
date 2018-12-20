@@ -11,7 +11,7 @@ import DropdownListItem from '/imports/ui/components/dropdown/list/item/componen
 import Auth from '/imports/ui/services/auth';
 import Button from '/imports/ui/components/button/component';
 
-import ChatService from './../service';
+import ChatService from '../service';
 import { styles } from './styles';
 
 const intlMessages = defineMessages({

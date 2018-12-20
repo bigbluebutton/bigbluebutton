@@ -1,6 +1,6 @@
 package org.bigbluebutton.api2
 
-import org.bigbluebutton.api.messaging.converters.messages.{DestroyMeetingMessage, EndMeetingMessage}
+import org.bigbluebutton.api.messaging.converters.messages._
 import org.bigbluebutton.api2.meeting.RegisterUser
 import org.bigbluebutton.common2.domain.{DefaultProps, PageVO, PresentationVO}
 import org.bigbluebutton.common2.msgs._
@@ -141,6 +141,33 @@ object MsgBuilder {
     val body = PresentationPageCountErrorSysPubMsgBody(podId = msg.podId, messageKey = msg.key,
       code = msg.key, msg.presId, msg.numPages.intValue(), msg.maxNumPages.intValue(), msg.filename)
     val req = PresentationPageCountErrorSysPubMsg(header, body)
+    BbbCommonEnvCoreMsg(envelope, req)
+  }
+
+  def buildPublishedRecordingSysMsg(msg: PublishedRecordingMessage): BbbCommonEnvCoreMsg = {
+    val routing = collection.immutable.HashMap("sender" -> "bbb-web")
+    val envelope = BbbCoreEnvelope(PublishedRecordingSysMsg.NAME, routing)
+    val header = BbbCoreBaseHeader(PublishedRecordingSysMsg.NAME)
+    val body = PublishedRecordingSysMsgBody(msg.recordId)
+    val req = PublishedRecordingSysMsg(header, body)
+    BbbCommonEnvCoreMsg(envelope, req)
+  }
+
+  def buildUnpublishedRecordingSysMsg(msg: UnpublishedRecordingMessage): BbbCommonEnvCoreMsg = {
+    val routing = collection.immutable.HashMap("sender" -> "bbb-web")
+    val envelope = BbbCoreEnvelope(UnpublishedRecordingSysMsg.NAME, routing)
+    val header = BbbCoreBaseHeader(UnpublishedRecordingSysMsg.NAME)
+    val body = UnpublishedRecordingSysMsgBody(msg.recordId)
+    val req = UnpublishedRecordingSysMsg(header, body)
+    BbbCommonEnvCoreMsg(envelope, req)
+  }
+
+  def buildDeletedRecordingSysMsg(msg: DeletedRecordingMessage): BbbCommonEnvCoreMsg = {
+    val routing = collection.immutable.HashMap("sender" -> "bbb-web")
+    val envelope = BbbCoreEnvelope(DeletedRecordingSysMsg.NAME, routing)
+    val header = BbbCoreBaseHeader(DeletedRecordingSysMsg.NAME)
+    val body = DeletedRecordingSysMsgBody(msg.recordId)
+    val req = DeletedRecordingSysMsg(header, body)
     BbbCommonEnvCoreMsg(envelope, req)
   }
 }

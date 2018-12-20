@@ -145,12 +145,11 @@ class PresentationUploader extends Component {
       return fileIndex === -1 ? false : {
         presentations: update(presentations, {
           [fileIndex]: {
-            $apply: file =>
-              update(file, {
-                [key]: {
-                  [operation]: value,
-                },
-              }),
+            $apply: file => update(file, {
+              [key]: {
+                [operation]: value,
+              },
+            }),
           },
         }),
       };
@@ -383,8 +382,7 @@ class PresentationUploader extends Component {
         });
       }
 
-      const conversionStatusMessage =
-        intlMessages[item.conversion.status] || intlMessages.genericConversionStatus;
+      const conversionStatusMessage = intlMessages[item.conversion.status] || intlMessages.genericConversionStatus;
       return intl.formatMessage(conversionStatusMessage);
     }
 
@@ -419,13 +417,15 @@ class PresentationUploader extends Component {
           <Icon iconName="file" />
         </td>
         {
-          isActualCurrent ?
-            <th className={styles.tableItemCurrent}>
-              <span className={styles.currentLabel}>
-                {this.props.intl.formatMessage(intlMessages.current)}
-              </span>
-            </th>
-          : null
+          isActualCurrent
+            ? (
+              <th className={styles.tableItemCurrent}>
+                <span className={styles.currentLabel}>
+                  {this.props.intl.formatMessage(intlMessages.current)}
+                </span>
+              </th>
+            )
+            : null
         }
         <th className={styles.tableItemName} colSpan={!isActualCurrent ? 2 : 0}>
           <span>{item.filename}</span>
@@ -479,12 +479,13 @@ class PresentationUploader extends Component {
         accept={fileValidMimeTypes.join()}
         minSize={fileSizeMin}
         maxSize={fileSizeMax}
-        disablePreview
+        disablepreview="true"
         onDrop={this.handleFiledrop}
       >
         <Icon className={styles.dropzoneIcon} iconName="upload" />
         <p className={styles.dropzoneMessage}>
-          {intl.formatMessage(intlMessages.dropzoneLabel)}&nbsp;
+          {intl.formatMessage(intlMessages.dropzoneLabel)}
+&nbsp;
           <span className={styles.dropzoneLink}>
             {intl.formatMessage(intlMessages.browseFilesLabel)}
           </span>

@@ -28,9 +28,8 @@ class Clear extends Page {
     // []
     const after = await util.getTestElements(this);
 
-    const response =
-      before[0].message == e.message &&
-      after.length == 0;
+    const response = before[0].message == e.message
+      && after.length == 0;
 
     return response;
   }

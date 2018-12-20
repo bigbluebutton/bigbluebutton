@@ -50,6 +50,9 @@ import org.bigbluebutton.api.domain.UserSession;
 import org.bigbluebutton.api.messaging.MessageListener;
 import org.bigbluebutton.api.messaging.converters.messages.DestroyMeetingMessage;
 import org.bigbluebutton.api.messaging.converters.messages.EndMeetingMessage;
+import org.bigbluebutton.api.messaging.converters.messages.PublishedRecordingMessage;
+import org.bigbluebutton.api.messaging.converters.messages.UnpublishedRecordingMessage;
+import org.bigbluebutton.api.messaging.converters.messages.DeletedRecordingMessage;
 import org.bigbluebutton.api.messaging.messages.CreateBreakoutRoom;
 import org.bigbluebutton.api.messaging.messages.CreateMeeting;
 import org.bigbluebutton.api.messaging.messages.EndMeeting;
@@ -417,16 +420,22 @@ public class MeetingService implements MessageListener {
   public void setPublishRecording(List<String> idList, boolean publish) {
     for (String id : idList) {
       if (publish) {
-        recordingService.changeState(id, Recording.STATE_PUBLISHED);
+        if (recordingService.changeState(id, Recording.STATE_PUBLISHED)) {
+          gw.publishedRecording(new PublishedRecordingMessage(id));
+        }
       } else {
-        recordingService.changeState(id, Recording.STATE_UNPUBLISHED);
+        if (recordingService.changeState(id, Recording.STATE_UNPUBLISHED)) {
+          gw.unpublishedRecording(new UnpublishedRecordingMessage(id));
+        }
       }
     }
   }
 
   public void deleteRecordings(List<String> idList) {
     for (String id : idList) {
-      recordingService.changeState(id, Recording.STATE_DELETED);
+      if (recordingService.changeState(id, Recording.STATE_DELETED)) {
+        gw.deletedRecording(new DeletedRecordingMessage(id));
+      }
     }
   }
 

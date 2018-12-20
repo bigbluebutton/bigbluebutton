@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import { Session } from 'meteor/session';
+import PropTypes from 'prop-types';
 import Auth from '/imports/ui/services/auth';
 import { setCustomLogoUrl } from '/imports/ui/components/user-list/service';
 import { makeCall } from '/imports/ui/services/api';
@@ -7,12 +8,16 @@ import deviceInfo from '/imports/utils/deviceInfo';
 import logger from '/imports/startup/client/logger';
 import LoadingScreen from '/imports/ui/components/loading-screen/component';
 
+const propTypes = {
+  children: PropTypes.element.isRequired,
+};
 
 class JoinHandler extends Component {
   static setError(codeError) {
     Session.set('hasError', true);
     if (codeError) Session.set('codeError', codeError);
   }
+
   constructor(props) {
     super(props);
     this.fetchToken = this.fetchToken.bind(this);
@@ -98,7 +103,6 @@ class JoinHandler extends Component {
     };
     // use enter api to get params for the client
     const url = `/bigbluebutton/api/enter?sessionToken=${sessionToken}`;
-
     const fetchContent = await fetch(url, { credentials: 'same-origin' });
     const parseToJson = await fetchContent.json();
     const { response } = parseToJson;
@@ -108,7 +112,11 @@ class JoinHandler extends Component {
       await setCustomData(response);
       setLogoURL(response);
       logUserInfo();
-      Session.set('isUserListOpen', deviceInfo.type().isPhone);
+
+      Session.set('openPanel', 'chat');
+      Session.set('idChatOpen', '');
+      if (deviceInfo.type().isPhone) Session.set('openPanel', '');
+
       logger.info(`User successfully went through main.joinRouteHandler with [${JSON.stringify(response)}].`);
     } else {
       const e = new Error('Session not found');
@@ -120,10 +128,12 @@ class JoinHandler extends Component {
   render() {
     const { children } = this.props;
     const { joined } = this.state;
-    return joined ?
-      children :
-      (<LoadingScreen />);
+    return joined
+      ? children
+      : (<LoadingScreen />);
   }
 }
 
 export default JoinHandler;
+
+JoinHandler.propTypes = propTypes;

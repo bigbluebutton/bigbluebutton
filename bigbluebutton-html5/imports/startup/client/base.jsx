@@ -13,6 +13,7 @@ import Users from '/imports/api/users';
 import Annotations from '/imports/api/annotations';
 import AnnotationsLocal from '/imports/ui/components/whiteboard/service';
 import GroupChat from '/imports/api/group-chat';
+import mapUser from '/imports/ui/services/user/mapUser';
 import { Session } from 'meteor/session';
 import IntlStartup from './intl';
 
@@ -46,9 +47,9 @@ class Base extends Component {
 
   componentWillUpdate() {
     const { approved } = this.props;
-    const isLoading = this.state.loading;
+    const { loading } = this.state;
 
-    if (approved && isLoading) this.updateLoadingState(false);
+    if (approved && loading) this.updateLoadingState(false);
   }
 
   updateLoadingState(loading = false) {
@@ -106,7 +107,7 @@ Base.defaultProps = defaultProps;
 
 const SUBSCRIPTIONS_NAME = [
   'users', 'meetings', 'polls', 'presentations',
-  'slides', 'captions', 'breakouts', 'voiceUsers', 'whiteboard-multi-user', 'screenshare',
+  'slides', 'captions', 'voiceUsers', 'whiteboard-multi-user', 'screenshare',
   'group-chat', 'presentation-pods', 'users-settings',
 ];
 
@@ -114,7 +115,7 @@ const BaseContainer = withTracker(() => {
   const { locale } = Settings.application;
   const { credentials, loggedIn } = Auth;
   const { meetingId, requesterUserId } = credentials;
-
+  let breakoutRoomSubscriptionHandler;
   if (!loggedIn) {
     return {
       locale,
@@ -130,8 +131,8 @@ const BaseContainer = withTracker(() => {
     },
   };
 
-  const subscriptionsHandlers = SUBSCRIPTIONS_NAME.map(name =>
-    Meteor.subscribe(name, credentials, subscriptionErrorHandler));
+  const subscriptionsHandlers = SUBSCRIPTIONS_NAME
+    .map(name => Meteor.subscribe(name, credentials, subscriptionErrorHandler));
 
   const chats = GroupChat.find({
     $or: [
@@ -147,6 +148,12 @@ const BaseContainer = withTracker(() => {
   const chatIds = chats.map(chat => chat.chatId);
 
   const groupChatMessageHandler = Meteor.subscribe('group-chat-msg', credentials, chatIds, subscriptionErrorHandler);
+  const User = Users.findOne({ intId: credentials.requesterUserId });
+
+  if (User) {
+    const mappedUser = mapUser(User);
+    breakoutRoomSubscriptionHandler = Meteor.subscribe('breakouts', credentials, mappedUser.isModerator, subscriptionErrorHandler);
+  }
 
   const annotationsHandler = Meteor.subscribe('annotations', credentials, {
     onReady: () => {
@@ -171,6 +178,7 @@ const BaseContainer = withTracker(() => {
     subscriptionsReady,
     annotationsHandler,
     groupChatMessageHandler,
+    breakoutRoomSubscriptionHandler,
   };
 })(Base);
 

@@ -89,9 +89,9 @@ class MessageList extends Component {
 
     // Compare with <1 to account for the chance scrollArea.scrollTop is a float
     // value in some browsers.
-    this.shouldScrollBottom = position === scrollArea.scrollHeight ||
-      (scrollArea.scrollHeight - position < 1) ||
-      nextProps.scrollPosition === null;
+    this.shouldScrollBottom = position === scrollArea.scrollHeight
+      || (scrollArea.scrollHeight - position < 1)
+      || nextProps.scrollPosition === null;
   }
 
   componentDidUpdate(prevProps) {
@@ -183,7 +183,6 @@ class MessageList extends Component {
           {messages.map(message => (
             <MessageListItem
               handleReadMessage={handleReadMessage}
-              className={styles.messageListItem}
               key={message.id}
               messages={message.content}
               user={message.sender}

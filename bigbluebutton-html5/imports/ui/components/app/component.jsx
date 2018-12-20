@@ -3,12 +3,9 @@ import PropTypes from 'prop-types';
 import { throttle } from 'lodash';
 import { defineMessages, injectIntl, intlShape } from 'react-intl';
 import Modal from 'react-modal';
-import cx from 'classnames';
-import Resizable from 're-resizable';
 import browser from 'browser-detect';
-import BreakoutRoomContainer from '/imports/ui/components/breakout-room/container';
+import PanelManager from '/imports/ui/components/panel-manager/component';
 import PollingContainer from '/imports/ui/components/polling/container';
-import PollContainer from '/imports/ui/components/poll/container';
 import logger from '/imports/startup/client/logger';
 import ToastContainer from '../toast/container';
 import ModalContainer from '../modal/container';
@@ -16,12 +13,8 @@ import NotificationsBarContainer from '../notifications-bar/container';
 import AudioContainer from '../audio/container';
 import ChatAlertContainer from '../chat/alert/container';
 import { styles } from './styles';
-import UserListContainer from '../user-list/container';
-import ChatContainer from '../chat/container';
-
 
 const MOBILE_MEDIA = 'only screen and (max-width: 40em)';
-const USERLIST_COMPACT_WIDTH = 50;
 
 const intlMessages = defineMessages({
   userListLabel: {
@@ -51,7 +44,6 @@ const propTypes = {
   closedCaption: PropTypes.element,
   userListIsOpen: PropTypes.bool.isRequired,
   chatIsOpen: PropTypes.bool.isRequired,
-  pollIsOpen: PropTypes.bool.isRequired,
   locale: PropTypes.string,
   intl: intlShape.isRequired,
 };
@@ -71,7 +63,6 @@ class App extends Component {
     super();
 
     this.state = {
-      compactUserList: false,
       enableResize: !window.matchMedia(MOBILE_MEDIA).matches,
     };
 
@@ -79,11 +70,11 @@ class App extends Component {
   }
 
   componentDidMount() {
-    const { locale } = this.props;
+    const { locale, fontSize } = this.props;
 
     Modal.setAppElement('#app');
     document.getElementsByTagName('html')[0].lang = locale;
-    document.getElementsByTagName('html')[0].style.fontSize = this.props.fontSize;
+    document.getElementsByTagName('html')[0].style.fontSize = fontSize;
 
     const BROWSER_RESULTS = browser();
     const body = document.getElementsByTagName('body')[0];
@@ -112,15 +103,17 @@ class App extends Component {
     this.setState({ enableResize: shouldEnableResize });
   }
 
-  renderPoll() {
-    const { pollIsOpen } = this.props;
-
-    if (!pollIsOpen) return null;
+  renderPanel() {
+    const { enableResize } = this.state;
+    const { openPanel } = this.props;
 
     return (
-      <div className={styles.poll}>
-        <PollContainer />
-      </div>
+      <PanelManager
+        {...{
+          openPanel,
+          enableResize,
+        }}
+      />
     );
   }
 
@@ -157,138 +150,6 @@ class App extends Component {
       <div className={styles.closedCaptionBox}>
         {closedCaption}
       </div>
-    );
-  }
-
-  renderUserList() {
-    const {
-      intl, chatIsOpen, userListIsOpen,
-    } = this.props;
-
-    const { compactUserList } = this.state;
-
-    if (!userListIsOpen) return null;
-
-    const userListStyle = {};
-    userListStyle[styles.compact] = compactUserList;
-    // userList = React.cloneElement(userList, {
-    //   compact: compactUserList, // TODO 4767
-    // });
-
-    return (
-      <div
-        className={cx(styles.userList, userListStyle)}
-        aria-label={intl.formatMessage(intlMessages.userListLabel)}
-        aria-hidden={chatIsOpen}
-      >
-        <UserListContainer />
-      </div>
-    );
-  }
-
-  renderBreakoutRoom() {
-    const { hasBreakoutRooms, breakoutRoomIsOpen } = this.props;
-
-    if (!breakoutRoomIsOpen) return null;
-    if (!hasBreakoutRooms) return null;
-    return (
-      <div className={styles.breakoutRoom}>
-        <BreakoutRoomContainer />
-      </div>
-    );
-  }
-
-  renderUserListResizable() {
-    const { userListIsOpen } = this.props;
-
-    // Variables for resizing user-list.
-    const USERLIST_MIN_WIDTH_PX = 150;
-    const USERLIST_MAX_WIDTH_PX = 240;
-    const USERLIST_DEFAULT_WIDTH_RELATIVE = 18;
-
-    // decide whether using pixel or percentage unit as a default width for userList
-    const USERLIST_DEFAULT_WIDTH = (window.innerWidth * (USERLIST_DEFAULT_WIDTH_RELATIVE / 100.0)) < USERLIST_MAX_WIDTH_PX ? `${USERLIST_DEFAULT_WIDTH_RELATIVE}%` : USERLIST_MAX_WIDTH_PX;
-
-    if (!userListIsOpen) return null;
-
-    const resizableEnableOptions = {
-      top: false,
-      right: true,
-      bottom: false,
-      left: false,
-      topRight: false,
-      bottomRight: false,
-      bottomLeft: false,
-      topLeft: false,
-    };
-
-    return (
-      <Resizable
-        defaultSize={{ width: USERLIST_DEFAULT_WIDTH }}
-        minWidth={USERLIST_MIN_WIDTH_PX}
-        maxWidth={USERLIST_MAX_WIDTH_PX}
-        ref={(node) => { this.resizableUserList = node; }}
-        className={styles.resizableUserList}
-        enable={resizableEnableOptions}
-        onResize={(e, direction, ref) => {
-          const { compactUserList } = this.state;
-          const shouldBeCompact = ref.clientWidth <= USERLIST_COMPACT_WIDTH;
-          if (compactUserList === shouldBeCompact) return;
-          this.setState({ compactUserList: shouldBeCompact });
-        }}
-      >
-        {this.renderUserList()}
-      </Resizable>
-    );
-  }
-
-  renderChat() {
-    const { intl, chatIsOpen } = this.props;
-
-    if (!chatIsOpen) return null;
-
-    return (
-      <section
-        className={styles.chat}
-        aria-label={intl.formatMessage(intlMessages.chatLabel)}
-      >
-        <ChatContainer />
-      </section>
-    );
-  }
-
-  renderChatResizable() {
-    const { chatIsOpen } = this.props;
-
-    // Variables for resizing chat.
-    const CHAT_MIN_WIDTH = '10%';
-    const CHAT_MAX_WIDTH = '25%';
-    const CHAT_DEFAULT_WIDTH = '15%';
-
-    if (!chatIsOpen) return null;
-
-    const resizableEnableOptions = {
-      top: false,
-      right: true,
-      bottom: false,
-      left: false,
-      topRight: false,
-      bottomRight: false,
-      bottomLeft: false,
-      topLeft: false,
-    };
-
-    return (
-      <Resizable
-        defaultSize={{ width: CHAT_DEFAULT_WIDTH }}
-        minWidth={CHAT_MIN_WIDTH}
-        maxWidth={CHAT_MAX_WIDTH}
-        ref={(node) => { this.resizableChat = node; }}
-        className={styles.resizableChat}
-        enable={resizableEnableOptions}
-      >
-        {this.renderChat()}
-      </Resizable>
     );
   }
 
@@ -331,9 +192,8 @@ class App extends Component {
 
   render() {
     const {
-      userListIsOpen, customStyle, customStyleUrl, micsLocked,
+      customStyle, customStyleUrl, micsLocked,
     } = this.props;
-    const { enableResize } = this.state;
 
     return (
       <main className={styles.main}>
@@ -344,11 +204,7 @@ class App extends Component {
             {this.renderMedia()}
             {this.renderActionsBar()}
           </div>
-          {enableResize ? this.renderUserListResizable() : this.renderUserList()}
-          {userListIsOpen && enableResize ? <div className={styles.userlistPad} /> : null}
-          {enableResize ? this.renderChatResizable() : this.renderChat()}
-          {this.renderPoll()}
-          {this.renderBreakoutRoom()}
+          {this.renderPanel()}
           {this.renderSidebar()}
         </section>
         <PollingContainer />
