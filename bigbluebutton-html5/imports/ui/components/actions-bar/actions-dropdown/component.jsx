@@ -23,7 +23,7 @@ const propTypes = {
   isUserModerator: PropTypes.bool.isRequired,
   allowStartStopRecording: PropTypes.bool.isRequired,
   isRecording: PropTypes.bool.isRequired,
-  record: PropTypes.func.isRequired,
+  record: PropTypes.bool.isRequired,
   toggleRecording: PropTypes.func.isRequired,
   meetingIsBreakout: PropTypes.bool.isRequired,
   hasBreakoutRoom: PropTypes.bool.isRequired,

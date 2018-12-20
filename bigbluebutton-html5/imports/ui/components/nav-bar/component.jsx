@@ -49,14 +49,19 @@ const intlMessages = defineMessages({
 const propTypes = {
   presentationTitle: PropTypes.string,
   hasUnreadMessages: PropTypes.bool,
-  beingRecorded: PropTypes.bool,
+  recordProps: PropTypes.objectOf(PropTypes.bool),
   shortcuts: PropTypes.string,
 };
 
 const defaultProps = {
   presentationTitle: 'Default Room Title',
   hasUnreadMessages: false,
-  beingRecorded: false,
+  recordProps: {
+    allowStartStopRecording: false,
+    autoStartRecording: false,
+    record: false,
+    recording: false,
+  },
   shortcuts: '',
 };
 
@@ -196,13 +201,13 @@ class NavBar extends PureComponent {
   render() {
     const {
       hasUnreadMessages,
-      beingRecorded,
+      recordProps,
       isExpanded,
       intl,
       shortcuts: TOGGLE_USERLIST_AK,
     } = this.props;
 
-    const recordingMessage = beingRecorded.recording ? 'recordingIndicatorOn' : 'recordingIndicatorOff';
+    const recordingMessage = recordProps.recording ? 'recordingIndicatorOn' : 'recordingIndicatorOff';
 
     const toggleBtnClasses = {};
     toggleBtnClasses[styles.btn] = true;
@@ -230,11 +235,11 @@ class NavBar extends PureComponent {
         </div>
         <div className={styles.center}>
           {this.renderPresentationTitle()}
-          {beingRecorded.record
+          {recordProps.record
             ? <span className={styles.presentationTitleSeparator}>|</span>
             : null}
           <RecordingIndicator
-            {...beingRecorded}
+            {...recordProps}
             title={intl.formatMessage(intlMessages[recordingMessage])}
           />
         </div>
