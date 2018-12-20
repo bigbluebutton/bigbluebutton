@@ -88,7 +88,6 @@ class PanelManager extends Component {
         minWidth={USERLIST_MIN_WIDTH_PX}
         maxWidth={USERLIST_MAX_WIDTH_PX}
         ref={(node) => { this.resizableUserList = node; }}
-        className={styles.resizableUserList}
         enable={resizableEnableOptions}
         key={this.userlistKey}
         size={{ width: userlistWidth }}
@@ -136,7 +135,6 @@ class PanelManager extends Component {
         minWidth={CHAT_MIN_WIDTH}
         maxWidth={CHAT_MAX_WIDTH}
         ref={(node) => { this.resizableChat = node; }}
-        className={styles.resizableChat}
         enable={resizableEnableOptions}
         key={this.chatKey}
         size={{ width: chatWidth }}
