@@ -47,11 +47,8 @@ class PanelManager extends Component {
     this.pollKey = _.uniqueId('poll-');
 
     this.state = {
-      chatWidth: 320,
-      // decide whether using pixel or percentage unit as a default width for userList:
-      // userlist default relative width = 18;
-      userlistWidth:
-        (window.innerWidth * (18 / 100.0)) < USERLIST_MAX_WIDTH_PX ? 18 : USERLIST_MAX_WIDTH_PX,
+      chatWidth: 340,
+      userlistWidth: 180,
     };
   }
 
