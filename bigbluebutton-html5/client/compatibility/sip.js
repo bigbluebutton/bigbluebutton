@@ -11564,6 +11564,13 @@ MediaHandler.prototype = Object.create(SIP.MediaHandler.prototype, {
     self.ready = false;
     methodName = self.hasOffer('remote') ? 'createAnswer' : 'createOffer';
 
+    if(constraints.offerToReceiveAudio) {
+      //Needed for Safari on webview
+      try {
+        pc.addTransceiver('audio');
+      } catch (e) {}
+    }
+
     return SIP.Utils.promisify(pc, methodName, true)(constraints)
       .catch(function methodError(e) {
         self.emit('peerConnection-' + methodName + 'Failed', e);
@@ -11611,7 +11618,9 @@ MediaHandler.prototype = Object.create(SIP.MediaHandler.prototype, {
     try {
       streams = [].concat(streams);
       streams.forEach(function (stream) {
-        this.peerConnection.addStream(stream);
+        try {
+          this.peerConnection.addStream(stream);
+        } catch (e) {}
       }, this);
     } catch(e) {
       this.logger.error('error adding stream');
