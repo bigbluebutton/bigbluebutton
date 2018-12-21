@@ -237,8 +237,6 @@ class VideoProvider extends Component {
     if (this.sharedWebcam) {
       this.unshareWebcam();
     }
-    // Notify user that the SFU component has gone offline
-    this.notifyError(intl.formatMessage(intlSFUErrors[2001]));
 
     this.setState({ socketOpen: false });
   }
@@ -438,11 +436,6 @@ class VideoProvider extends Component {
     const { meetingId, sessionToken, voiceBridge } = this.props;
     let iceServers = [];
 
-    // Check if there's connectivity to the SFU component
-    if (!this.connectedToMediaServer()) {
-      return this._webRTCOnError(2001, id, shareWebcam);
-    }
-
     // Check if the peer is already being processed
     if (this.webRtcPeers[id]) {
       return;
@@ -559,7 +552,15 @@ class VideoProvider extends Component {
   }
 
   _webRTCOnError(error, id) {
-    const { intl } = this.props;
+    const { intl, userId } = this.props;
+
+    // We only display SFU connection errors to sharers, because it's guaranteed
+    // they should be connected. Viewers aren't connected synchronously related
+    // to the createWebRTCPeer procedure, so the error is ignored. If the connection
+    // closes unexpectedly, this error is deplayed globally in the onWsClose catch
+    if (error === 2001 && userId !== id) {
+      return;
+    }
 
     this.logger('error', ' WebRTC peerObj create error', id);
     const errorMessage = intlClientErrors[error.name]
