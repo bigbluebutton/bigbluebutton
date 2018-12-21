@@ -51,7 +51,7 @@ class ModalSimple extends Component {
         contentLabel={title}
         {...otherProps}
       >
-        {hideBorder ? <header className={styles.headerNoBorder}>
+        <header className={hideBorder ? styles.headerNoBorder : styles.header}>
           <h1 className={styles.title}>{title}</h1>
           <Button
             className={styles.dismiss}
@@ -62,18 +62,7 @@ class ModalSimple extends Component {
             onClick={this.handleDismiss}
             aria-describedby="modalDismissDescription"
           />
-        </header> : <header className={styles.header}>
-            <h1 className={styles.title}>{title}</h1>
-            <Button
-              className={styles.dismiss}
-              label={dismiss.label}
-              icon="close"
-              circle
-              hideLabel
-              onClick={this.handleDismiss}
-              aria-describedby="modalDismissDescription"
-            />
-          </header>}
+        </header>
         <div className={styles.content}>
           {this.props.children}
         </div>
