@@ -353,6 +353,9 @@ class VideoProvider extends Component {
         if (error) {
           return this.logger('debug', JSON.stringify(error), { cameraId: id });
         }
+
+        peer.didSDPAnswered = true;
+        this._processIceQueue(peer, id);
       });
     } else {
       this.logger('warn', '[startResponse] Message arrived after the peer was already thrown out, discarding it...');
@@ -508,9 +511,7 @@ class VideoProvider extends Component {
           };
           this.sendMessage(message);
 
-          this._processIceQueue(peer, id);
 
-          peer.didSDPAnswered = true;
         });
       });
       if (this.webRtcPeers[id].peerConnection) {
