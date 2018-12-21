@@ -4,6 +4,7 @@ public:
     desktopFont: 14
     audioChatNotification: false
     autoJoin: true
+    showParticipantsOnLogin: false
     listenOnlyMode: true
     forceListenOnly: false
     skipCheck: false
