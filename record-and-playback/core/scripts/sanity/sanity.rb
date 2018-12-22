@@ -49,10 +49,18 @@ break_timestamp = opts[:break_timestamp]
 BigBlueButton.logger = Logger.new("#{log_dir}/sanity.log", 'daily' )
 logger = BigBlueButton.logger
 
+
 def check_events_xml(raw_dir,meeting_id)
   filepath = "#{raw_dir}/#{meeting_id}/events.xml"
   raise Exception,  "Events file doesn't exists." if not File.exists?(filepath)
   bad_doc = Nokogiri::XML(File.open(filepath)) { |config| config.options = Nokogiri::XML::ParseOptions::STRICT }
+end
+
+def sort_events_xml(raw_dir,meeting_id)
+  filepath = "#{raw_dir}/#{meeting_id}/events.xml"
+  doc = Nokogiri::XML(File.read(filepath)) { |doc| doc.noblanks }
+  doc.xpath('//event').sort_by { |n|  n.attribute("timestamp").text.to_i }.each { |n| doc.root << n }
+  File.write(filepath, doc.to_xml(:indent => 5, :encoding => 'UTF-8'))
 end
 
 def repair_red5_ser(directory)
@@ -97,6 +105,9 @@ begin
   logger.info("Checking events.xml")
   check_events_xml(raw_archive_dir,meeting_id)
 
+  logger.info("Sorting events.xml")
+  sort_events_xml(raw_archive_dir,meeting_id)
+
   logger.info("Repairing webcam videos")
   repair_red5_ser("#{raw_archive_dir}/#{meeting_id}/video/#{meeting_id}")
 
@@ -123,5 +134,3 @@ rescue Exception => e
     sanity_fail.write("error: " + e.message)
   end
 end
-
-
