@@ -444,6 +444,7 @@ class UserDropdown extends Component {
       dropdownVisible,
       dropdownDirection,
       dropdownOffset,
+      showNestedOptions,
     } = this.state;
 
     const actions = this.getUsersActions();
@@ -452,8 +453,8 @@ class UserDropdown extends Component {
 
     userItemContentsStyle[styles.userItemContentsCompact] = compact;
     userItemContentsStyle[styles.dropdown] = true;
-    userItemContentsStyle[styles.userListItem] = !this.state.isActionsOpen;
-    userItemContentsStyle[styles.usertListItemWithMenu] = this.state.isActionsOpen;
+    userItemContentsStyle[styles.userListItem] = !isActionsOpen;
+    userItemContentsStyle[styles.usertListItemWithMenu] = isActionsOpen;
 
     const you = (user.isCurrent) ? intl.formatMessage(messages.you) : '';
 
@@ -505,7 +506,7 @@ class UserDropdown extends Component {
     return (
       <Dropdown
         ref={(ref) => { this.dropdown = ref; }}
-        isOpen={this.state.isActionsOpen}
+        keepOpen={isActionsOpen || showNestedOptions}
         onShow={this.onActionsShow}
         onHide={this.onActionsHide}
         className={userItemContentsStyle}
