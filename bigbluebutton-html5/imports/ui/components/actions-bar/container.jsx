@@ -40,5 +40,8 @@ export default withTracker(() => {
     hasBreakoutRoom: Service.hasBreakoutRoom(),
     meetingName: Service.meetingName(),
     users: Service.users(),
+    makeInvitation: Service.makeInvitation,
+    getBreakouts: Service.getBreakouts,
+    getUsersNotAssigned: Service.getUsersNotAssigned,
   };
 })(ActionsBarContainer);

@@ -457,6 +457,8 @@
     "app.videoDock.webcamFocusDesc": "Focus the selected webcam",
     "app.videoDock.webcamUnfocusLabel": "Unfocus",
     "app.videoDock.webcamUnfocusDesc": "Unfocus the selected webcam",
+    "app.invitation.title": "Breakout room invitation",
+    "app.invitation.confirm": "Invite",
     "app.createBreakoutRoom.title": "Breakout Rooms",
     "app.createBreakoutRoom.breakoutRoomLabel": "Breakout Rooms {0}",
     "app.createBreakoutRoom.generatingURL": "Generating URL",

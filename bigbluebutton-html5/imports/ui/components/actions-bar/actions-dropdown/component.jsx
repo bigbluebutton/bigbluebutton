@@ -86,6 +86,10 @@ const intlMessages = defineMessages({
     id: 'app.actionsBar.actionsDropdown.createBreakoutRoomDesc',
     description: 'Description of create breakout room option',
   },
+  invitationItem: {
+    id: 'app.invitation.title',
+    description: 'invitation to breakout title',
+  },
 });
 
 class ActionsDropdown extends Component {
@@ -93,6 +97,8 @@ class ActionsDropdown extends Component {
     super(props);
     this.handlePresentationClick = this.handlePresentationClick.bind(this);
     this.handleCreateBreakoutRoomClick = this.handleCreateBreakoutRoomClick.bind(this);
+    this.onCreateBreakouts = this.onCreateBreakouts.bind(this);
+    this.onInvitationUsers = this.onInvitationUsers.bind(this);
   }
 
   componentWillMount() {
@@ -118,6 +124,14 @@ class ActionsDropdown extends Component {
     }
   }
 
+  onCreateBreakouts() {
+    return this.handleCreateBreakoutRoomClick(false);
+  }
+
+  onInvitationUsers() {
+    return this.handleCreateBreakoutRoomClick(true);
+  }
+
   getAvailableActions() {
     const {
       intl,
@@ -129,6 +143,8 @@ class ActionsDropdown extends Component {
       toggleRecording,
       meetingIsBreakout,
       hasBreakoutRoom,
+      getUsersNotAssigned,
+      users,
     } = this.props;
 
     const {
@@ -140,6 +156,7 @@ class ActionsDropdown extends Component {
       stopRecording,
       createBreakoutRoom,
       createBreakoutRoomDesc,
+      invitationItem
     } = intlMessages;
 
     const {
@@ -193,7 +210,17 @@ class ActionsDropdown extends Component {
             label={formatMessage(createBreakoutRoom)}
             description={formatMessage(createBreakoutRoomDesc)}
             key={this.createBreakoutRoomId}
-            onClick={this.handleCreateBreakoutRoomClick}
+            onClick={this.onCreateBreakouts}
+          />
+        )
+        : null),
+      (isUserModerator && !meetingIsBreakout && hasBreakoutRoom && getUsersNotAssigned(users).length
+        ? (
+          <DropdownListItem
+            icon="rooms"
+            label={formatMessage(invitationItem)}
+            key={this.createBreakoutRoomId}
+            onClick={this.onInvitationUsers}
           />
         )
         : null),
@@ -205,19 +232,28 @@ class ActionsDropdown extends Component {
     mountModal(<PresentationUploaderContainer />);
   }
 
-  handleCreateBreakoutRoomClick() {
+  handleCreateBreakoutRoomClick(invitation) {
     const {
       createBreakoutRoom,
       mountModal,
       meetingName,
       users,
+      getUsersNotAssigned,
+      getBreakouts,
+      makeInvitation,
     } = this.props;
 
     mountModal(
       <BreakoutRoom
-        createBreakoutRoom={createBreakoutRoom}
-        meetingName={meetingName}
-        users={users}
+        {...{
+          createBreakoutRoom,
+          meetingName,
+          users,
+          getUsersNotAssigned,
+          invitation,
+          getBreakouts,
+          makeInvitation,
+        }}
       />,
     );
   }

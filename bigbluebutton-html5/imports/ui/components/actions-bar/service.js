@@ -26,6 +26,17 @@ const connectRecordingObserver = () => {
   // notify on load complete
   this.window.parent.postMessage({ response: 'readyToConnect' }, '*');
 };
+const getBreakouts = () => Breakouts.find({ parentMeetingId: Auth.meetingID })
+  .fetch()
+  .sort((a, b) => a.sequence - b.sequence);
+
+const getUsersNotAssigned = (users) => {
+  const breakouts = getBreakouts();
+  const breakoutUsers = breakouts
+    .reduce((acc, value) => [...acc, ...value.users], [])
+    .map(u => u.userId);
+  return users.filter(u => !breakoutUsers.includes(u.intId));
+};
 
 
 export default {
@@ -40,4 +51,7 @@ export default {
   toggleRecording: () => makeCall('toggleRecording'),
   processOutsideToggleRecording: arg => processOutsideToggleRecording(arg),
   createBreakoutRoom: (numberOfRooms, durationInMinutes, freeJoin = true, record = false) => makeCall('createBreakoutRoom', numberOfRooms, durationInMinutes, freeJoin, record),
+  makeInvitation: (breakoutId, userId) => makeCall('requestJoinURL', { breakoutId, userId }),
+  getBreakouts,
+  getUsersNotAssigned,
 };
