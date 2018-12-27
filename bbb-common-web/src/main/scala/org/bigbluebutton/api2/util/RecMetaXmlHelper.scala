@@ -42,7 +42,8 @@ class RecMetaXmlHelper extends RecordingServiceGW with LogHelper {
     }
   }
 
-  def saveRecordingMetadata(xml: File, metadata: RecordingMetadata): Unit = {
+  def saveRecordingMetadata(xml: File, metadata: RecordingMetadata): Boolean = {
+    var result = false
     try {
       val Encoding = StandardCharsets.UTF_8.name()
       val pp = new PrettyPrinter(80, 2)
@@ -52,6 +53,7 @@ class RecMetaXmlHelper extends RecordingServiceGW with LogHelper {
       try {
         writer.write("<?xml version='1.0' encoding='" + Encoding + "'?>\n")
         writer.write(pp.format(metadata.getRecMeta.toMetadataXml()))
+        result = true
       } catch {
         case ex: Exception =>
           logger.info("Exception while saving {}", xml.getAbsolutePath)
@@ -66,6 +68,7 @@ class RecMetaXmlHelper extends RecordingServiceGW with LogHelper {
         logger.info("Exception while saving {}", xml.getAbsolutePath)
         logger.info("Exception details: {}", ex.fillInStackTrace())
     }
+    result
   }
 
   def getRecordingMetadata(xml: File): Option[RecordingMetadata] = {

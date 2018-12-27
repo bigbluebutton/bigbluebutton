@@ -30,7 +30,7 @@
 			uri="rtmp://HOST/bigbluebutton"
 			dependsOn="UsersModule"
 			privateEnabled="true"
-			groupEnabled="true"
+			groupEnabled="false"
 			fontSize="14"
 			baseTabIndex="801"
 			colorPickerIsVisible="false"
@@ -116,9 +116,10 @@
 			showPresentWindow="true"
 			showWindowControls="true"
 			openExternalFileUploadDialog="false"
+			multiPods="false"
 			baseTabIndex="501"
 			maxFileSize="30"
-			enableDownload="true"
+			enableDownload="false"
 			disableFirefoxF60Upload="true"
 		/>
 

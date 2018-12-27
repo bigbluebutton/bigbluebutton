@@ -4,9 +4,9 @@ import { defineMessages, injectIntl } from 'react-intl';
 import PropTypes from 'prop-types';
 import Auth from '/imports/ui/services/auth';
 import Users from '/imports/api/users';
+import mapUser from '/imports/ui/services/user/mapUser';
 import Breakouts from '/imports/api/breakouts';
 import Meetings from '/imports/api/meetings';
-import logger from '/imports/startup/client/logger';
 
 import ClosedCaptionsContainer from '/imports/ui/components/closed-captions/container';
 import getFromUserSettings from '/imports/ui/services/users-settings';
@@ -67,16 +67,15 @@ const AppContainer = (props) => {
   );
 };
 
-
 export default injectIntl(withModalMounter(withTracker(({ intl, baseControls }) => {
   const currentUser = Users.findOne({ userId: Auth.userID });
+  const currentUserIsLocked = mapUser(currentUser).isLocked;
+  const meeting = Meetings.findOne({ meetingId: Auth.meetingID });
   const isMeetingBreakout = meetingIsBreakout();
 
   if (!currentUser.approved) {
     baseControls.updateLoadingState(intl.formatMessage(intlMessages.waitingApprovalMessage));
   }
-
-  logger.info('User joined meeting and subscribed to data successfully');
 
   // Check if user is removed out of the session
   Users.find({ userId: Auth.userID }).observeChanges({
@@ -111,12 +110,13 @@ export default injectIntl(withModalMounter(withTracker(({ intl, baseControls }) 
     closedCaption: getCaptionsStatus() ? <ClosedCaptionsContainer /> : null,
     fontSize: getFontSize(),
     hasBreakoutRooms: getBreakoutRooms().length > 0,
-    userListIsOpen: Session.get('isUserListOpen'),
-    breakoutRoomIsOpen: Session.get('breakoutRoomIsOpen') && Session.get('isUserListOpen'),
-    chatIsOpen: Session.get('isChatOpen') && Session.get('isUserListOpen'),
-    pollIsOpen: Session.get('isPollOpen') && Session.get('isUserListOpen'),
     customStyle: getFromUserSettings('customStyle', false),
     customStyleUrl: getFromUserSettings('customStyleUrl', false),
+    breakoutRoomIsOpen: Session.equals('openPanel', 'breakoutroom'),
+    chatIsOpen: Session.equals('openPanel', 'chat'),
+    openPanel: Session.get('openPanel'),
+    userListIsOpen: !Session.equals('openPanel', ''),
+    micsLocked: (currentUserIsLocked && meeting.lockSettingsProp.disableMic),
   };
 })(AppContainer)));
 

@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React, { PureComponent } from 'react';
 import { defineMessages, injectIntl } from 'react-intl';
 import cx from 'classnames';
 import TextareaAutosize from 'react-autosize-textarea';
@@ -32,7 +32,7 @@ const messages = defineMessages({
   },
 });
 
-class MessageForm extends Component {
+class MessageForm extends PureComponent {
   constructor(props) {
     super(props);
 

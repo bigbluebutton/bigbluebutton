@@ -1,5 +1,5 @@
-import React, { Component } from 'react';
-import _ from 'lodash';
+import React, { PureComponent } from 'react';
+import PropTypes from 'prop-types';
 import { defineMessages, injectIntl } from 'react-intl';
 import Icon from '/imports/ui/components/icon/component';
 import { Session } from 'meteor/session';
@@ -12,12 +12,17 @@ const intlMessages = defineMessages({
   },
 });
 
-class UserPolls extends Component {
-  constructor(props) {
-    super(props);
-  }
-
+class UserPolls extends PureComponent {
   render() {
+    const handleClickTogglePoll = () => {
+      Session.set(
+        'openPanel',
+        Session.get('openPanel') === 'poll'
+          ? 'userlist'
+          : 'poll',
+      );
+    };
+
     const {
       intl,
       isPresenter,
@@ -40,17 +45,10 @@ class UserPolls extends Component {
             role="button"
             tabIndex={0}
             className={styles.pollLink}
-            onClick={() => {
-              Session.set('isChatOpen', false);
-              Session.set('breakoutRoomIsOpen', false);
-
-              return Session.equals('isPollOpen', true)
-                ? Session.set('isPollOpen', false)
-                : Session.set('isPollOpen', true);
-            }}
+            onClick={handleClickTogglePoll}
           >
             <Icon iconName="polling" className={styles.icon} />
-            <span className={styles.label} >{intl.formatMessage(intlMessages.pollLabel)}</span>
+            <span className={styles.label}>{intl.formatMessage(intlMessages.pollLabel)}</span>
           </div>
         </div>
       </div>
@@ -59,3 +57,12 @@ class UserPolls extends Component {
 }
 
 export default injectIntl(UserPolls);
+
+UserPolls.propTypes = {
+  intl: PropTypes.shape({
+    formatMessage: PropTypes.func.isRequired,
+  }).isRequired,
+  isPresenter: PropTypes.bool.isRequired,
+  pollIsOpen: PropTypes.bool.isRequired,
+  forcePollOpen: PropTypes.bool.isRequired,
+};

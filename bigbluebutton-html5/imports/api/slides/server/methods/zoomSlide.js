@@ -4,7 +4,7 @@ import { Meteor } from 'meteor/meteor';
 import { check } from 'meteor/check';
 import RedisPubSub from '/imports/startup/server/redis';
 
-export default function switchSlide(credentials, slideNumber, podId, widthRatio, heightRatio, x, y) {
+export default function zoomSlide(credentials, slideNumber, podId, widthRatio, heightRatio, x, y) {
   const REDIS_CONFIG = Meteor.settings.private.redis;
 
   const CHANNEL = REDIS_CONFIG.channels.toAkkaApps;

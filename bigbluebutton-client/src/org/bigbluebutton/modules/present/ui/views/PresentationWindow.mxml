@@ -1191,8 +1191,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 								  includeInLayout="{quickPollBtn.visible}" />
 
 			<views:UnselectableItemsComboBox id="presentationPodControls"
-											 visible="{podDropdownVisible}"
-											 includeInLayout="{podDropdownVisible}"
+											 visible="{presentOptions.multiPods &amp;&amp; podDropdownVisible}"
+											 includeInLayout="{presentationPodControls.visible}"
 						 					 selectableFunction="podsSelectableFunction"
 						 					 dataProvider = "{listOfPodControls}" height="30"
 											 selectedIndex="-1"

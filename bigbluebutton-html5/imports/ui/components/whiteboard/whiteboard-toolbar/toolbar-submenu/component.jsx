@@ -93,13 +93,13 @@ class ToolbarSubmenu extends Component {
           <rect x="20%" y="20%" width="60%" height="60%" fill={obj.value} />
         </svg>
       );
-    } else if (type === 'thickness') {
+    } if (type === 'thickness') {
       return (
         <svg className={styles.customSvgIcon}>
           <circle cx="50%" cy="50%" r={obj.value} />
         </svg>
       );
-    } else if (type === 'font-size') {
+    } if (type === 'font-size') {
       return (
         <p className={styles.textThickness} style={{ fontSize: obj.value }}>
           Aa
@@ -111,18 +111,19 @@ class ToolbarSubmenu extends Component {
   }
 
   static getWrapperClassNames(type) {
-    if (type === 'color') {
-      return cx(styles.colorList, styles.toolbarList);
-    } else if (type === 'thickness') {
-      return cx(styles.thicknessList, styles.toolbarList);
-    } else if (type === 'font-size') {
+    if (type === 'font-size') {
       return cx(styles.fontSizeList, styles.toolbarList);
-    } else if (type === 'annotations') {
-      return cx(styles.annotationList, styles.toolbarList);
+    } if (
+      type === 'annotations'
+        || type === 'thickness'
+        || type === 'color'
+    ) {
+      return styles.toolbarList;
     }
 
     return null;
   }
+
   constructor() {
     super();
 
@@ -183,21 +184,20 @@ class ToolbarSubmenu extends Component {
         onMouseLeave={this.handleMouseLeave}
         className={ToolbarSubmenu.getWrapperClassNames(type)}
       >
-        {objectsToRender ? objectsToRender.map(obj =>
-          (
-            <ToolbarSubmenuItem
-              label={this.formatSubmenuLabel(type, obj)}
-              icon={!customIcon ? obj.icon : null}
-              customIcon={customIcon ? ToolbarSubmenu.getCustomIcon(type, obj) : null}
-              onItemClick={this.onItemClick}
-              objectToReturn={obj}
-              className={cx(
-                styles.toolbarListButton,
-                objectSelected.value === obj.value ? styles.selectedListButton : '',
-              )}
-              key={obj.value}
-            />
-          )) : null}
+        {objectsToRender ? objectsToRender.map(obj => (
+          <ToolbarSubmenuItem
+            label={this.formatSubmenuLabel(type, obj)}
+            icon={!customIcon ? obj.icon : null}
+            customIcon={customIcon ? ToolbarSubmenu.getCustomIcon(type, obj) : null}
+            onItemClick={this.onItemClick}
+            objectToReturn={obj}
+            className={cx(
+              styles.toolbarListButton,
+              objectSelected.value === obj.value ? styles.selectedListButton : '',
+            )}
+            key={obj.value}
+          />
+        )) : null}
       </div>
     );
   }

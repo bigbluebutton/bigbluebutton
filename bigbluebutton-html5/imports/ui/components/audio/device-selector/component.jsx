@@ -2,13 +2,13 @@ import React, { Component } from 'react';
 import _ from 'lodash';
 import PropTypes from 'prop-types';
 import cx from 'classnames';
+import logger from '/imports/startup/client/logger';
 import { styles } from '../audio-modal/styles';
 
 const propTypes = {
   kind: PropTypes.oneOf(['audioinput', 'audiooutput', 'videoinput']),
   onChange: PropTypes.func.isRequired,
   value: PropTypes.string,
-  handleDeviceChange: PropTypes.func,
   className: PropTypes.string,
 };
 
@@ -16,7 +16,6 @@ const defaultProps = {
   kind: 'audioinput',
   value: undefined,
   className: null,
-  handleDeviceChange: null,
 };
 
 class DeviceSelector extends Component {
@@ -35,7 +34,7 @@ class DeviceSelector extends Component {
   componentDidMount() {
     const handleEnumerateDevicesSuccess = (deviceInfos) => {
       const devices = deviceInfos.filter(d => d.kind === this.props.kind);
-
+      logger.info(`Success on enumerateDevices() for ${this.props.kind}: ${JSON.stringify(devices)}`);
       this.setState({
         devices,
         options: devices.map((d, i) => ({
@@ -48,11 +47,14 @@ class DeviceSelector extends Component {
 
     navigator.mediaDevices
       .enumerateDevices()
-      .then(handleEnumerateDevicesSuccess);
+      .then(handleEnumerateDevicesSuccess)
+      .catch((err) => {
+        logger.error(`Error on enumerateDevices(): ${JSON.stringify(err)}`);
+      });
   }
 
   handleSelectChange(event) {
-    const value = event.target.value;
+    const { value } = event.target;
     const { onChange } = this.props;
     this.setState({ value }, () => {
       const selectedDevice = this.state.devices.find(d => d.deviceId === value);
@@ -61,7 +63,9 @@ class DeviceSelector extends Component {
   }
 
   render() {
-    const { kind, handleDeviceChange, className, ...props } = this.props;
+    const {
+      kind, className, ...props
+    } = this.props;
     const { options, value } = this.state;
 
     return (

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import _ from 'lodash';
 import injectNotify from '/imports/ui/components/toast/inject-notify/component';
@@ -15,7 +15,7 @@ const propTypes = {
   content: PropTypes.node.isRequired,
 };
 
-class ChatPushAlert extends React.Component {
+class ChatPushAlert extends PureComponent {
   static link(message, chatId) {
     return (
       <div
@@ -23,10 +23,9 @@ class ChatPushAlert extends React.Component {
         aria-label={message}
         tabIndex={0}
         onClick={() => {
-        Session.set('isUserListOpen', true);
-        Session.set('isChatOpen', true);
-        Session.set('idChatOpen', chatId);
-      }}
+          Session.set('openPanel', 'chat');
+          Session.set('idChatOpen', chatId);
+        }}
       >
         { message }
       </div>

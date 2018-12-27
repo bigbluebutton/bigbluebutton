@@ -3,6 +3,10 @@ import { withTracker } from 'meteor/react-meteor-data';
 import { withModalMounter } from '/imports/ui/components/modal/service';
 import AudioManager from '/imports/ui/services/audio-manager';
 import { makeCall } from '/imports/ui/services/api';
+import Users from '/imports/api/users/';
+import Meetings from '/imports/api/meetings';
+import mapUser from '/imports/ui/services/user/mapUser';
+import Auth from '/imports/ui/services/auth';
 import AudioControls from './component';
 import AudioModalContainer from '../audio-modal/container';
 import Service from '../service';
@@ -15,11 +19,12 @@ const processToggleMuteFromOutside = (e) => {
       makeCall('toggleSelfVoice');
       break;
     }
+    case 'get_audio_joined_status': {
+      const audioJoinedState = AudioManager.isConnected ? 'joinedAudio' : 'notInAudio';
+      this.window.parent.postMessage({ response: audioJoinedState }, '*');
+      break;
+    }
     case 'c_mute_status': {
-      if (!AudioManager.isUsingAudio()) {
-        this.window.parent.postMessage({ response: 'notInAudio' }, '*');
-        return;
-      }
       const muteState = AudioManager.isMuted ? 'selfMuted' : 'selfUnmuted';
       this.window.parent.postMessage({ response: muteState }, '*');
       break;
@@ -30,15 +35,21 @@ const processToggleMuteFromOutside = (e) => {
   }
 };
 
-export default withModalMounter(withTracker(({ mountModal }) =>
-  ({
-    processToggleMuteFromOutside: arg => processToggleMuteFromOutside(arg),
-    mute: Service.isConnected() && !Service.isListenOnly() && !Service.isEchoTest(),
-    unmute: Service.isConnected() && !Service.isListenOnly() && Service.isMuted(),
-    join: Service.isConnected() && !Service.isEchoTest(),
-    disable: Service.isConnecting() || Service.isHangingUp(),
-    glow: Service.isTalking() && !Service.isMuted(),
-    handleToggleMuteMicrophone: () => Service.toggleMuteMicrophone(),
-    handleJoinAudio: () => mountModal(<AudioModalContainer />),
-    handleLeaveAudio: () => Service.exitAudio(),
-  }))(AudioControlsContainer));
+export default withModalMounter(withTracker(({ mountModal }) => ({
+  processToggleMuteFromOutside: arg => processToggleMuteFromOutside(arg),
+  mute: Service.isConnected() && !Service.isListenOnly() && !Service.isEchoTest(),
+  unmute: Service.isConnected() && !Service.isListenOnly() && Service.isMuted(),
+  join: Service.isConnected() && !Service.isEchoTest(),
+  disable: Service.isConnecting() || Service.isHangingUp(),
+  glow: Service.isTalking() && !Service.isMuted(),
+  handleToggleMuteMicrophone: () => Service.toggleMuteMicrophone(),
+  handleJoinAudio: () => {
+    const meeting = Meetings.findOne({ meetingId: Auth.meetingID });
+    const currentUser = Users.findOne({ userId: Auth.userID });
+    const currentUserIsLocked = mapUser(currentUser).isLocked;
+    const micsLocked = (currentUserIsLocked && meeting.lockSettingsProp.disableMic);
+
+    return micsLocked ? Service.joinListenOnly() : mountModal(<AudioModalContainer />);
+  },
+  handleLeaveAudio: () => Service.exitAudio(),
+}))(AudioControlsContainer));

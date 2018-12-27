@@ -133,7 +133,7 @@ muteButton.id = 'muteButton';
 
 function getInitialState() {
   document.getElementById('client-content').contentWindow.postMessage('c_recording_status', '*');
-  document.getElementById('client-content').contentWindow.postMessage('c_mute_status', '*');
+  document.getElementById('client-content').contentWindow.postMessage('get_audio_joined_status', '*');
 }
 
 function handleMessage(e) {
@@ -164,7 +164,8 @@ function handleMessage(e) {
     }
     case 'joinedAudio': {
       muteButton.innerHTML = '';
-      document.getElementById('muteButton').disabled = false; getInitialState();
+      document.getElementById('muteButton').disabled = false;
+      document.getElementById('client-content').contentWindow.postMessage('c_mute_status', '*');
       break;
     }
     default: console.log('neither', { e });

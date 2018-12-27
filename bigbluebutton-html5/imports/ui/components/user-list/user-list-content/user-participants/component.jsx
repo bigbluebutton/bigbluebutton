@@ -4,17 +4,21 @@ import { defineMessages } from 'react-intl';
 import PropTypes from 'prop-types';
 import cx from 'classnames';
 import { styles } from '/imports/ui/components/user-list/user-list-content/styles';
-import UserListItem from './user-list-item/component';
+import _ from 'lodash';
+import UserListItemContainer from './user-list-item/container';
 import UserOptionsContainer from './user-options/container';
 
 const propTypes = {
-  users: PropTypes.arrayOf(Object).isRequired,
   compact: PropTypes.bool,
   intl: PropTypes.shape({
     formatMessage: PropTypes.func.isRequired,
   }).isRequired,
   currentUser: PropTypes.shape({}).isRequired,
-  meeting: PropTypes.shape({}),
+  meeting: PropTypes.shape({}).isRequired,
+  users: PropTypes.arrayOf(PropTypes.string).isRequired,
+  getGroupChatPrivate: PropTypes.func.isRequired,
+  handleEmojiChange: PropTypes.func.isRequired,
+  getUsersId: PropTypes.func.isRequired,
   isBreakoutRoom: PropTypes.bool,
   setEmojiStatus: PropTypes.func.isRequired,
   assignPresenter: PropTypes.func.isRequired,
@@ -32,9 +36,6 @@ const propTypes = {
 const defaultProps = {
   compact: false,
   isBreakoutRoom: false,
-  // This one is kinda tricky, meteor takes sometime to fetch the data and passing down
-  // So the first time its create, the meeting comes as null, sending an error to the client.
-  meeting: {},
 };
 
 const listTransition = {
@@ -71,25 +72,33 @@ class UserParticipants extends Component {
   }
 
   componentDidMount() {
-    if (!this.props.compact) {
+    const { compact, roving, users } = this.props;
+    if (!compact) {
       this.refScrollContainer.addEventListener(
         'keydown',
-        event => this.props.roving(
+        event => roving(
           event,
-          this.props.users.length,
+          users.length,
           this.changeState,
         ),
       );
     }
   }
 
+  shouldComponentUpdate(nextProps, nextState) {
+    const isPropsEqual = _.isEqual(this.props, nextProps);
+    const isStateEqual = _.isEqual(this.state, nextState);
+    return !isPropsEqual || !isStateEqual;
+  }
+
   componentDidUpdate(prevProps, prevState) {
-    if (this.state.index === -1) {
+    const { index } = this.state;
+    if (index === -1) {
       return;
     }
 
-    if (this.state.index !== prevState.index) {
-      this.focusUserItem(this.state.index);
+    if (index !== prevState.index) {
+      this.focusUserItem(index);
     }
   }
 
@@ -106,21 +115,23 @@ class UserParticipants extends Component {
       getAvailableActions,
       normalizeEmojiName,
       isMeetingLocked,
-      users,
       changeRole,
       assignPresenter,
       setEmojiStatus,
       removeUser,
       toggleVoice,
-      getGroupChatPrivate, // // TODO check if this is used
-      handleEmojiChange, // // TODO add to props validation
+      getGroupChatPrivate,
+      handleEmojiChange,
       getEmojiList,
       getEmoji,
+      users,
     } = this.props;
 
     let index = -1;
 
-    return users.map(user => (
+    const { meetingId } = meeting;
+
+    return users.map(u => (
       <CSSTransition
         classNames={listTransition}
         appear
@@ -129,16 +140,15 @@ class UserParticipants extends Component {
         timeout={0}
         component="div"
         className={cx(styles.participantsList)}
-        key={user.id}
+        key={u}
       >
         <div ref={(node) => { this.userRefs[index += 1] = node; }}>
-          <UserListItem
+          <UserListItemContainer
             {...{
-              user,
               currentUser,
               compact,
               isBreakoutRoom,
-              meeting,
+              meetingId,
               getAvailableActions,
               normalizeEmojiName,
               isMeetingLocked,
@@ -152,6 +162,7 @@ class UserParticipants extends Component {
               changeRole,
               getGroupChatPrivate,
             }}
+            userId={u}
             getScrollContainerRef={this.getScrollContainerRef}
           />
         </div>
@@ -171,28 +182,40 @@ class UserParticipants extends Component {
 
   render() {
     const {
-      intl, users, compact, setEmojiStatus, muteAllUsers, meeting, muteAllExceptPresenter,
+      intl,
+      users,
+      compact,
+      setEmojiStatus,
+      muteAllUsers,
+      meeting,
+      muteAllExceptPresenter,
+      currentUser,
     } = this.props;
 
     return (
-      <div>
+      <div className={styles.userListColumn}>
         {
-          !compact ?
-            <div className={styles.container}>
-              <h2 className={styles.smallTitle}>
-                {intl.formatMessage(intlMessages.usersTitle)}
-                &nbsp;({users.length})
+          !compact
+            ? (
+              <div className={styles.container}>
+                <h2 className={styles.smallTitle}>
+                  {intl.formatMessage(intlMessages.usersTitle)}
+                &nbsp;(
+                  {users.length}
+)
 
-              </h2>
-              <UserOptionsContainer {...{
-                users,
-                muteAllUsers,
-                muteAllExceptPresenter,
-                setEmojiStatus,
-                meeting,
-              }}
-              />
-            </div>
+                </h2>
+                <UserOptionsContainer {...{
+                  users,
+                  muteAllUsers,
+                  muteAllExceptPresenter,
+                  setEmojiStatus,
+                  meeting,
+                  currentUser,
+                }}
+                />
+              </div>
+            )
             : <hr className={styles.separator} />
         }
         <div

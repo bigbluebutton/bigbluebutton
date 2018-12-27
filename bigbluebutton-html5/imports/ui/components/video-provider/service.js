@@ -5,7 +5,6 @@ import Meetings from '/imports/api/meetings/';
 import Users from '/imports/api/users/';
 import mapUser from '/imports/ui/services/user/mapUser';
 import UserListService from '/imports/ui/components/user-list/service';
-import SessionStorage from '/imports/ui/services/storage/session';
 
 class VideoService {
   constructor() {
@@ -100,12 +99,12 @@ class VideoService {
   }
 
   webcamOnlyModerator() {
-    const m = Meetings.findOne({ meetingId: Auth.meetingID });
-    return m.usersProp.webcamsOnlyForModerator;
+    const m = Meetings.findOne({ meetingId: Auth.meetingID }) || {};
+    return m.usersProp ? m.usersProp.webcamsOnlyForModerator : false;
   }
 
   isLocked() {
-    const m = Meetings.findOne({ meetingId: Auth.meetingID });
+    const m = Meetings.findOne({ meetingId: Auth.meetingID }) || {};
     return m.lockSettingsProp ? m.lockSettingsProp.disableCam : false;
   }
 
@@ -124,6 +123,11 @@ class VideoService {
 
   sessionToken() {
     return Auth.sessionToken;
+  }
+
+  voiceBridge() {
+    const m = Meetings.findOne({ meetingId: Auth.meetingID }) || {};
+    return m.voiceProp ? m.voiceProp.voiceConf : null;
   }
 
   isConnected() {
@@ -157,4 +161,5 @@ export default {
   meetingId: () => videoService.meetingId(),
   getAllUsersVideo: () => videoService.getAllUsersVideo(),
   sessionToken: () => videoService.sessionToken(),
+  voiceBridge: () => videoService.voiceBridge(),
 };

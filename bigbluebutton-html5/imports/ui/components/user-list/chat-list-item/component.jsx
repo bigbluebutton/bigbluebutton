@@ -45,9 +45,13 @@ const defaultProps = {
   shortcuts: '',
 };
 
-const toggleChatOpen = () => {
-  Session.set('isChatOpen', !Session.get('isChatOpen'));
-  Session.set('breakoutRoomIsOpen', false);
+const handleClickToggleChat = (id) => {
+  Session.set(
+    'openPanel',
+    Session.get('openPanel') === 'chat' && Session.get('idChatOpen') === id
+      ? 'userlist' : 'chat',
+  );
+  Session.set('idChatOpen', id);
 };
 
 const ChatListItem = (props) => {
@@ -67,46 +71,44 @@ const ChatListItem = (props) => {
 
   return (
     <div
+      data-test="chatButton"
       role="button"
       className={cx(styles.chatListItem, linkClasses)}
       aria-expanded={isCurrentChat}
       tabIndex={tabIndex}
       accessKey={isPublicChat(chat) ? TOGGLE_CHAT_PUB_AK : null}
-      onClick={() => {
-        toggleChatOpen();
-        Session.set('idChatOpen', chat.id);
-
-        if (Session.equals('isPollOpen', true)) {
-          Session.set('isPollOpen', false);
-          Session.set('forcePollOpen', true);
-        }
-      }}
+      onClick={() => handleClickToggleChat(chat.id)}
       id="chat-toggle-button"
       aria-label={isPublicChat(chat) ? intl.formatMessage(intlMessages.titlePublic) : chat.name}
     >
 
       <div className={styles.chatListItemLink}>
         <div className={styles.chatIcon}>
-          {chat.icon ?
-            <ChatIcon icon={chat.icon} />
-            :
-            <ChatAvatar
-              isModerator={chat.isModerator}
-              color={chat.color}
-              name={chat.name.toLowerCase().slice(0, 2)}
-            />}
+          {chat.icon
+            ? <ChatIcon icon={chat.icon} />
+            : (
+              <ChatAvatar
+                isModerator={chat.isModerator}
+                color={chat.color}
+                name={chat.name.toLowerCase().slice(0, 2)}
+              />
+            )}
         </div>
         <div className={styles.chatName}>
-          {!compact ?
-            <span className={styles.chatNameMain}>
-              {isPublicChat(chat) ?
-              intl.formatMessage(intlMessages.titlePublic) : chat.name}
-            </span> : null}
+          {!compact
+            ? (
+              <span className={styles.chatNameMain}>
+                {isPublicChat(chat)
+                  ? intl.formatMessage(intlMessages.titlePublic) : chat.name}
+              </span>
+            ) : null}
         </div>
-        {(chat.unreadCounter > 0) ?
-          <ChatUnreadCounter
-            counter={chat.unreadCounter}
-          />
+        {(chat.unreadCounter > 0)
+          ? (
+            <ChatUnreadCounter
+              counter={chat.unreadCounter}
+            />
+          )
           : null}
       </div>
     </div>

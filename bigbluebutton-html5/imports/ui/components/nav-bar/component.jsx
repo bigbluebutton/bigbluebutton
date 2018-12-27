@@ -1,7 +1,9 @@
-import React, { Component } from 'react';
+import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
+import { Session } from 'meteor/session';
 import _ from 'lodash';
 import cx from 'classnames';
+import Auth from '/imports/ui/services/auth';
 import Icon from '/imports/ui/components/icon/component';
 import BreakoutJoinConfirmation from '/imports/ui/components/breakout-join-confirmation/container';
 import Dropdown from '/imports/ui/components/dropdown/component';
@@ -47,7 +49,7 @@ const intlMessages = defineMessages({
 const propTypes = {
   presentationTitle: PropTypes.string,
   hasUnreadMessages: PropTypes.bool,
-  beingRecorded: PropTypes.object,
+  beingRecorded: PropTypes.bool,
   shortcuts: PropTypes.string,
 };
 
@@ -58,16 +60,16 @@ const defaultProps = {
   shortcuts: '',
 };
 
-const openBreakoutJoinConfirmation = (breakout, breakoutName, mountModal) =>
-  mountModal(<BreakoutJoinConfirmation
+const openBreakoutJoinConfirmation = (breakout, breakoutName, mountModal) => mountModal(
+  <BreakoutJoinConfirmation
     breakout={breakout}
     breakoutName={breakoutName}
-  />);
+  />,
+);
 
-const closeBreakoutJoinConfirmation = mountModal =>
-  mountModal(null);
+const closeBreakoutJoinConfirmation = mountModal => mountModal(null);
 
-class NavBar extends Component {
+class NavBar extends PureComponent {
   constructor(props) {
     super(props);
 
@@ -86,6 +88,10 @@ class NavBar extends Component {
       mountModal,
     } = this.props;
 
+    const {
+      didSendBreakoutInvite,
+    } = this.state;
+
     const hadBreakouts = oldProps.breakouts.length;
     const hasBreakouts = breakouts.length;
 
@@ -98,18 +104,27 @@ class NavBar extends Component {
         return;
       }
 
-      if (!this.state.didSendBreakoutInvite && !isBreakoutRoom) {
+      const userOnMeeting = breakout.users.filter(u => u.userId === Auth.userID).length;
+
+      if (!userOnMeeting) return;
+
+      if (!didSendBreakoutInvite && !isBreakoutRoom) {
         this.inviteUserToBreakout(breakout);
       }
     });
 
-    if (!breakouts.length && this.state.didSendBreakoutInvite) {
+    if (!breakouts.length && didSendBreakoutInvite) {
       this.setState({ didSendBreakoutInvite: false });
     }
   }
 
   handleToggleUserList() {
-    this.props.toggleUserList();
+    Session.set(
+      'openPanel',
+      Session.get('openPanel') !== ''
+        ? ''
+        : 'userlist',
+    );
   }
 
   inviteUserToBreakout(breakout) {
@@ -129,6 +144,10 @@ class NavBar extends Component {
       presentationTitle,
     } = this.props;
 
+    const {
+      isActionsOpen,
+    } = this.state;
+
     if (isBreakoutRoom || !breakouts.length) {
       return (
         <h1 className={styles.presentationTitle}>{presentationTitle}</h1>
@@ -137,10 +156,12 @@ class NavBar extends Component {
     const breakoutItems = breakouts.map(breakout => this.renderBreakoutItem(breakout));
 
     return (
-      <Dropdown isOpen={this.state.isActionsOpen}>
+      <Dropdown isOpen={isActionsOpen}>
         <DropdownTrigger>
           <h1 className={cx(styles.presentationTitle, styles.dropdownBreakout)}>
-            {presentationTitle} <Icon iconName="down-arrow" />
+            {presentationTitle}
+            {' '}
+            <Icon iconName="down-arrow" />
           </h1>
         </DropdownTrigger>
         <DropdownContent
@@ -163,10 +184,11 @@ class NavBar extends Component {
 
     return (
       <DropdownListItem
-        className={styles.actionsHeader}
         key={_.uniqueId('action-header')}
         label={breakoutName}
-        onClick={openBreakoutJoinConfirmation.bind(this, breakout, breakoutName, mountModal)}
+        onClick={
+          openBreakoutJoinConfirmation.bind(this, breakout, breakoutName, mountModal)
+        }
       />
     );
   }
@@ -208,9 +230,9 @@ class NavBar extends Component {
         </div>
         <div className={styles.center}>
           {this.renderPresentationTitle()}
-          {beingRecorded.record ?
-            <span className={styles.presentationTitleSeparator}>|</span>
-          : null}
+          {beingRecorded.record
+            ? <span className={styles.presentationTitleSeparator}>|</span>
+            : null}
           <RecordingIndicator
             {...beingRecorded}
             title={intl.formatMessage(intlMessages[recordingMessage])}

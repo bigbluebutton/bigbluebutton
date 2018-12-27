@@ -69,4 +69,5 @@ export default {
   isVideoBroadcasting,
   toggleSwapLayout,
   shouldEnableSwapLayout,
+  getSwapLayout,
 };

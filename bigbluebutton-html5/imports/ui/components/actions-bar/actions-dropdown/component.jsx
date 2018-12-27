@@ -1,3 +1,4 @@
+import _ from 'lodash';
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { defineMessages, injectIntl, intlShape } from 'react-intl';
@@ -19,6 +20,17 @@ const propTypes = {
   isUserPresenter: PropTypes.bool.isRequired,
   intl: intlShape.isRequired,
   mountModal: PropTypes.func.isRequired,
+  isUserModerator: PropTypes.bool.isRequired,
+  allowStartStopRecording: PropTypes.bool.isRequired,
+  isRecording: PropTypes.bool.isRequired,
+  record: PropTypes.func.isRequired,
+  toggleRecording: PropTypes.func.isRequired,
+  meetingIsBreakout: PropTypes.bool.isRequired,
+  hasBreakoutRoom: PropTypes.bool.isRequired,
+  createBreakoutRoom: PropTypes.func.isRequired,
+  meetingName: PropTypes.string.isRequired,
+  shortcuts: PropTypes.string.isRequired,
+  users: PropTypes.arrayOf(PropTypes.object).isRequired,
 };
 
 const intlMessages = defineMessages({
@@ -91,8 +103,8 @@ class ActionsDropdown extends Component {
   }
 
   componentDidMount() {
-    if (Meteor.settings.public.allowOutsideCommands.toggleRecording ||
-      getFromUserSettings('outsideToggleRecording', false)) {
+    if (Meteor.settings.public.allowOutsideCommands.toggleRecording
+      || getFromUserSettings('outsideToggleRecording', false)) {
       ActionBarService.connectRecordingObserver();
       window.addEventListener('message', ActionBarService.processOutsideToggleRecording);
     }
@@ -115,63 +127,99 @@ class ActionsDropdown extends Component {
       isRecording,
       record,
       toggleRecording,
-      togglePollMenu,
       meetingIsBreakout,
       hasBreakoutRoom,
     } = this.props;
 
+    const {
+      pollBtnLabel,
+      pollBtnDesc,
+      presentationLabel,
+      presentationDesc,
+      startRecording,
+      stopRecording,
+      createBreakoutRoom,
+      createBreakoutRoomDesc,
+    } = intlMessages;
+
+    const {
+      formatMessage,
+    } = intl;
+
     return _.compact([
-      (isUserPresenter ?
-        <DropdownListItem
-          icon="user"
-          label={intl.formatMessage(intlMessages.pollBtnLabel)}
-          description={intl.formatMessage(intlMessages.pollBtnDesc)}
-          key={this.pollId}
-          onClick={() => togglePollMenu()}
-        />
+      (isUserPresenter
+        ? (
+          <DropdownListItem
+            icon="user"
+            label={formatMessage(pollBtnLabel)}
+            description={formatMessage(pollBtnDesc)}
+            key={this.pollId}
+            onClick={() => {
+              Session.set('openPanel', 'poll');
+              Session.set('forcePollOpen', true);
+            }}
+          />
+        )
         : null),
-      (isUserPresenter ?
-        <DropdownListItem
-          icon="presentation"
-          label={intl.formatMessage(intlMessages.presentationLabel)}
-          description={intl.formatMessage(intlMessages.presentationDesc)}
-          key={this.presentationItemId}
-          onClick={this.handlePresentationClick}
-        />
+      (isUserPresenter
+        ? (
+          <DropdownListItem
+            data-test="uploadPresentation"
+            icon="presentation"
+            label={formatMessage(presentationLabel)}
+            description={formatMessage(presentationDesc)}
+            key={this.presentationItemId}
+            onClick={this.handlePresentationClick}
+          />
+        )
         : null),
-      (record && isUserModerator && allowStartStopRecording ?
-        <DropdownListItem
-          icon="record"
-          label={intl.formatMessage(isRecording ?
-            intlMessages.stopRecording : intlMessages.startRecording)}
-          description={intl.formatMessage(isRecording ?
-            intlMessages.stopRecording : intlMessages.startRecording)}
-          key={this.recordId}
-          onClick={toggleRecording}
-        />
+      (record && isUserModerator && allowStartStopRecording
+        ? (
+          <DropdownListItem
+            icon="record"
+            label={formatMessage(isRecording
+              ? stopRecording : startRecording)}
+            description={formatMessage(isRecording
+              ? stopRecording : startRecording)}
+            key={this.recordId}
+            onClick={toggleRecording}
+          />
+        )
         : null),
-      (isUserModerator && !meetingIsBreakout && !hasBreakoutRoom ?
-        <DropdownListItem
-          icon="rooms"
-          label={intl.formatMessage(intlMessages.createBreakoutRoom)}
-          description={intl.formatMessage(intlMessages.createBreakoutRoomDesc)}
-          key={this.createBreakoutRoomId}
-          onClick={this.handleCreateBreakoutRoomClick}
-        />
+      (isUserModerator && !meetingIsBreakout && !hasBreakoutRoom
+        ? (
+          <DropdownListItem
+            icon="rooms"
+            label={formatMessage(createBreakoutRoom)}
+            description={formatMessage(createBreakoutRoomDesc)}
+            key={this.createBreakoutRoomId}
+            onClick={this.handleCreateBreakoutRoomClick}
+          />
+        )
         : null),
     ]);
   }
 
   handlePresentationClick() {
-    this.props.mountModal(<PresentationUploaderContainer />);
+    const { mountModal } = this.props;
+    mountModal(<PresentationUploaderContainer />);
   }
+
   handleCreateBreakoutRoomClick() {
     const {
       createBreakoutRoom,
       mountModal,
       meetingName,
+      users,
     } = this.props;
-    mountModal(<BreakoutRoom createBreakoutRoom={createBreakoutRoom} meetingName={meetingName} />);
+
+    mountModal(
+      <BreakoutRoom
+        createBreakoutRoom={createBreakoutRoom}
+        meetingName={meetingName}
+        users={users}
+      />,
+    );
   }
 
   render() {
@@ -187,7 +235,7 @@ class ActionsDropdown extends Component {
     if ((!isUserPresenter && !isUserModerator) || availableActions.length === 0) return null;
 
     return (
-      <Dropdown ref={(ref) => { this._dropdown = ref; }} >
+      <Dropdown ref={(ref) => { this._dropdown = ref; }}>
         <DropdownTrigger tabIndex={0} accessKey={OPEN_ACTIONS_AK}>
           <Button
             hideLabel
