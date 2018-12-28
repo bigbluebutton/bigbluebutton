@@ -156,12 +156,17 @@ class ActionsDropdown extends Component {
       stopRecording,
       createBreakoutRoom,
       createBreakoutRoomDesc,
-      invitationItem
+      invitationItem,
     } = intlMessages;
 
     const {
       formatMessage,
     } = intl;
+
+    const CanInviteUsers = isUserModerator
+    && !meetingIsBreakout
+    && hasBreakoutRoom
+    && getUsersNotAssigned(users).length;
 
     return _.compact([
       (isUserPresenter
@@ -214,7 +219,7 @@ class ActionsDropdown extends Component {
           />
         )
         : null),
-      (isUserModerator && !meetingIsBreakout && hasBreakoutRoom && getUsersNotAssigned(users).length
+      (CanInviteUsers
         ? (
           <DropdownListItem
             icon="rooms"
@@ -232,7 +237,7 @@ class ActionsDropdown extends Component {
     mountModal(<PresentationUploaderContainer />);
   }
 
-  handleCreateBreakoutRoomClick(invitation) {
+  handleCreateBreakoutRoomClick(isInvitation) {
     const {
       createBreakoutRoom,
       mountModal,
@@ -240,8 +245,9 @@ class ActionsDropdown extends Component {
       users,
       getUsersNotAssigned,
       getBreakouts,
-      makeInvitation,
+      sendInvitation,
     } = this.props;
+    console.error(this.props);
 
     mountModal(
       <BreakoutRoom
@@ -250,9 +256,9 @@ class ActionsDropdown extends Component {
           meetingName,
           users,
           getUsersNotAssigned,
-          invitation,
+          isInvitation,
           getBreakouts,
-          makeInvitation,
+          sendInvitation,
         }}
       />,
     );

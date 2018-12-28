@@ -51,7 +51,7 @@ export default {
   toggleRecording: () => makeCall('toggleRecording'),
   processOutsideToggleRecording: arg => processOutsideToggleRecording(arg),
   createBreakoutRoom: (numberOfRooms, durationInMinutes, freeJoin = true, record = false) => makeCall('createBreakoutRoom', numberOfRooms, durationInMinutes, freeJoin, record),
-  makeInvitation: (breakoutId, userId) => makeCall('requestJoinURL', { breakoutId, userId }),
+  sendInvitation: (breakoutId, userId) => makeCall('requestJoinURL', { breakoutId, userId }),
   getBreakouts,
   getUsersNotAssigned,
 };

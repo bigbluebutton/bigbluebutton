@@ -16,7 +16,7 @@ export default function requestJoinURL(credentials, { breakoutId, userId: id }) 
   const Breakout = Breakouts.findOne({ breakoutId });
   const BreakoutUser = Breakout.users.filter(user => user.userId === userId).shift();
 
-  if (BreakoutUser) return BreakoutUser.redirectToHtml5JoinURL;
+  if (BreakoutUser) return null;
   const eventName = 'RequestBreakoutJoinURLReqMsg';
 
   return RedisPubSub.publishUserMessage(

@@ -26,7 +26,7 @@ class ActionsBar extends React.PureComponent {
       meetingName,
       users,
       getUsersNotAssigned,
-      makeInvitation,
+      sendInvitation,
       getBreakouts,
     } = this.props;
 
@@ -56,7 +56,7 @@ class ActionsBar extends React.PureComponent {
             meetingName,
             users,
             getUsersNotAssigned,
-            makeInvitation,
+            sendInvitation,
             getBreakouts,
           }}
           />

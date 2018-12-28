@@ -79,11 +79,11 @@ const intlMessages = defineMessages({
   },
   invitationTitle: {
     id: 'app.invitation.title',
-    description: 'invitation to breakout title',
+    description: 'isInvitationto breakout title',
   },
   invitationConfirm: {
     id: 'app.invitation.confirm',
-    description: 'invitation to breakout cpnfirm button label',
+    description: 'isInvitationto breakout cpnfirm button label',
   },
 });
 const MIN_BREAKOUT_ROOMS = 2;
@@ -115,7 +115,7 @@ class BreakoutRoom extends Component {
     this.renderTitle = this.renderTitle.bind(this);
     this.handleDismiss = this.handleDismiss.bind(this);
     this.setInvitationConfig = this.setInvitationConfig.bind(this);
-    
+
     this.state = {
       numberOfRooms: MIN_BREAKOUT_ROOMS,
       seletedId: '',
@@ -130,9 +130,9 @@ class BreakoutRoom extends Component {
   }
 
   componentDidMount() {
-    const { invitation } = this.props;
+    const { isInvitation } = this.props;
     this.setRoomUsers();
-    if (invitation) {
+    if (isInvitation) {
       this.setInvitationConfig();
     }
   }
@@ -176,7 +176,7 @@ class BreakoutRoom extends Component {
   }
 
   onInviteBreakout() {
-    const { getBreakouts, makeInvitation } = this.props;
+    const { getBreakouts, sendInvitation } = this.props;
     const { users } = this.state;
     const breakouts = getBreakouts();
     if (users.length === this.getUserByRoom(0).length) {
@@ -188,7 +188,7 @@ class BreakoutRoom extends Component {
       .filter(u => u.room > 0)
       .forEach((user) => {
         const breakout = breakouts[user.room - 1];
-        makeInvitation(breakout.breakoutId, user.userId);
+        sendInvitation(breakout.breakoutId, user.userId);
       });
 
     this.setState({ preventClosing: false });
@@ -329,13 +329,13 @@ class BreakoutRoom extends Component {
   renderBreakoutForm() {
     const {
       intl,
-      invitation,
+      isInvitation,
     } = this.props;
     const {
       numberOfRooms,
       durationTime,
     } = this.state;
-    if (invitation) return null;
+    if (isInvitation) return null;
 
     return (
       <div className={styles.breakoutSettings}>
@@ -416,8 +416,8 @@ class BreakoutRoom extends Component {
   }
 
   renderFreeJoinCheck() {
-    const { intl, invitation } = this.props;
-    if (invitation) return null;
+    const { intl, isInvitation } = this.props;
+    if (isInvitation) return null;
     const { freeJoin } = this.state;
     return (
       <label htmlFor="freeJoinCheckbox" className={styles.freeJoinLabel}>
@@ -470,7 +470,7 @@ class BreakoutRoom extends Component {
   }
 
   renderRoomSortList() {
-    const { intl, invitation } = this.props;
+    const { intl, isInvitation } = this.props;
     const { numberOfRooms } = this.state;
     const onClick = roomNumber => this.setState({ formFillLevel: 3, roomSelected: roomNumber });
     return (
@@ -494,7 +494,7 @@ class BreakoutRoom extends Component {
             ))
           }
         </span>
-        {invitation || this.renderButtonSetLevel(1, intl.formatMessage(intlMessages.backLabel))}
+        { isInvitation || this.renderButtonSetLevel(1, intl.formatMessage(intlMessages.backLabel))}
       </div>
     );
   }
@@ -546,7 +546,7 @@ class BreakoutRoom extends Component {
   }
 
   render() {
-    const { intl, invitation } = this.props;
+    const { intl, isInvitation } = this.props;
     const { preventClosing } = this.state;
 
     const BROWSER_RESULTS = browser();
@@ -555,16 +555,16 @@ class BreakoutRoom extends Component {
     return (
       <Modal
         title={
-          invitation
+          isInvitation
             ? intl.formatMessage(intlMessages.invitationTitle)
             : intl.formatMessage(intlMessages.breakoutRoomTitle)
         }
         confirm={
           {
-            label: invitation
+            label: isInvitation
               ? intl.formatMessage(intlMessages.invitationConfirm)
               : intl.formatMessage(intlMessages.confirmButton),
-            callback: invitation ? this.onInviteBreakout : this.onCreateBreakouts,
+            callback: isInvitation ? this.onInviteBreakout : this.onCreateBreakouts,
           }
         }
         dismiss={{
@@ -574,7 +574,7 @@ class BreakoutRoom extends Component {
         preventClosing={preventClosing}
       >
         <div className={styles.content}>
-          {invitation || this.renderTitle()}
+          {isInvitation || this.renderTitle()}
           {isMobileBrowser ? this.renderMobile() : this.renderDesktop()}
         </div>
       </Modal>
