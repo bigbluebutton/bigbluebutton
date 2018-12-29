@@ -26,12 +26,18 @@ const BreakoutRoomItem = ({
 }) => {
   if (hasBreakoutRoom) {
     return (
-      <div role="button" onClick={toggleBreakoutPanel}>
+      <div>
         <h2 className={styles.smallTitle}>
           {intl.formatMessage(intlMessages.breakoutTitle).toUpperCase()}
         </h2>
-        <div className={styles.BreakoutRoomsItem}>
-          <div className={styles.BreakoutRoomsContents}>
+        <div
+          role="button"
+          tabIndex={0}
+          onClick={toggleBreakoutPanel}
+          className={styles.BreakoutRoomsItem}
+          aria-label={intl.formatMessage(intlMessages.breakoutTitle)}
+        >
+          <div className={styles.BreakoutRoomsContents} aria-hidden>
             <div className={styles.BreakoutRoomsIcon}>
               <Icon iconName="rooms" />
             </div>
