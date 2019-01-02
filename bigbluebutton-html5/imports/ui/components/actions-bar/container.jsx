@@ -42,7 +42,6 @@ export default withTracker(() => {
     hasBreakoutRoom: Service.hasBreakoutRoom(),
     meetingName: Service.meetingName(),
     users: Service.users(),
-    togglePollMenu,
     isLayoutSwapped: getSwapLayout(),
     toggleSwapLayout: MediaService.toggleSwapLayout,
   };

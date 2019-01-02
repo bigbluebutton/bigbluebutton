@@ -38,26 +38,10 @@ const JoinVideoOptionsContainer = (props) => {
     mountModal,
     ...restProps
   } = props;
-  const videoItems = [
-    {
-      iconPath: `${baseName}/resources/images/video-menu/icon-swap.svg`,
-      description: intl.formatMessage(intlMessages.swapCamDesc),
-      label: intl.formatMessage(intlMessages.swapCam),
-      disabled: !swapLayoutAllowed,
-      click: toggleSwapLayout,
-      id: 'swap-button',
-    },
-    {
-      iconPath: `${baseName}/resources/images/video-menu/icon-webcam-off.svg`,
-      description: intl.formatMessage(intlMessages[isSharingVideo ? 'leaveVideo' : 'joinVideo']),
-      label: intl.formatMessage(intlMessages[isSharingVideo ? 'leaveVideo' : 'joinVideo']),
-      disabled: isDisabled && !isSharingVideo,
-      click: isSharingVideo ? handleCloseVideo : () => { mountModal(<VideoPreviewContainer />); },
-      id: isSharingVideo ? 'leave-video-button' : 'join-video-button',
-    },
-  ];
 
-  return <JoinVideoOptions {...{ videoItems, isSharingVideo, ...restProps }} />;
+  const mountPreview = () => { mountModal(<VideoPreviewContainer />); };
+
+  return <JoinVideoOptions {...{ handleJoinVideo: mountPreview, handleCloseVideo, isSharingVideo, ...restProps }} />;
 };
 
 export default withModalMounter(injectIntl(withTracker(() => ({
