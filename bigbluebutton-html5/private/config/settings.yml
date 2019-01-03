@@ -1,7 +1,7 @@
 public:
   app:
-    mobileFont: 16
-    desktopFont: 14
+    mobileFont: 16px
+    desktopFont: 14px
     audioChatNotification: false
     autoJoin: true
     showParticipantsOnLogin: true
@@ -20,7 +20,6 @@ public:
       application:
         chatAudioAlerts: false
         chatPushAlerts: false
-        fontSize: 16px
         fallbackLocale: en
       audio:
         inputDeviceId: undefined
