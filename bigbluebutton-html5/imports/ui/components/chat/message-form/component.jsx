@@ -2,6 +2,7 @@ import React, { PureComponent } from 'react';
 import { defineMessages, injectIntl } from 'react-intl';
 import cx from 'classnames';
 import TextareaAutosize from 'react-autosize-textarea';
+import browser from 'browser-detect';
 import { styles } from './styles';
 import Button from '../../button/component';
 
@@ -42,9 +43,28 @@ class MessageForm extends PureComponent {
       hasErrors: false,
     };
 
+    this.BROWSER_RESULTS = browser();
+
     this.handleMessageChange = this.handleMessageChange.bind(this);
     this.handleMessageKeyDown = this.handleMessageKeyDown.bind(this);
     this.handleSubmit = this.handleSubmit.bind(this);
+  }
+
+  componentDidMount() {
+    const { mobile } = this.BROWSER_RESULTS;
+
+    if (!mobile) {
+      this.textarea.focus();
+    }
+  }
+
+  componentDidUpdate(prevProps) {
+    const { chatName } = this.props;
+    const { mobile } = this.BROWSER_RESULTS;
+
+    if (prevProps.chatName !== chatName && !mobile) {
+      this.textarea.focus();
+    }
   }
 
   handleMessageKeyDown(e) {
@@ -136,6 +156,7 @@ class MessageForm extends PureComponent {
           <TextareaAutosize
             className={styles.input}
             id="message-input"
+            innerRef={(ref) => { this.textarea = ref; return this.textarea; }}
             placeholder={intl.formatMessage(messages.inputPlaceholder, { 0: chatName })}
             aria-controls={chatAreaId}
             aria-label={intl.formatMessage(messages.inputLabel, { 0: chatTitle })}
