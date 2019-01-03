@@ -16,8 +16,8 @@ import { styles } from './styles';
 
 const MOBILE_MEDIA = 'only screen and (max-width: 40em)';
 const APP_CONFIG = Meteor.settings.public.app;
-const DESKTOP_FONT_SIZE = APP_CONFIG.desktopFont;
-const MOBILE_FONT_SIZE = APP_CONFIG.mobileFont;
+const DESKTOP_FONT_SIZE = APP_CONFIG.desktopFontSize;
+const MOBILE_FONT_SIZE = APP_CONFIG.mobileFontSize;
 
 const intlMessages = defineMessages({
   userListLabel: {

@@ -1,7 +1,7 @@
 public:
   app:
-    mobileFont: 16px
-    desktopFont: 14px
+    mobileFontSize: 16px
+    desktopFontSize: 14px
     audioChatNotification: false
     autoJoin: true
     showParticipantsOnLogin: true
