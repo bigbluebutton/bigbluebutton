@@ -9,6 +9,7 @@
   --bars-padding: calc(var(--lg-padding-x) - .45rem); // -.45 so user-list and chat title is aligned with the presentation title
   --userlist-handle-width: 5px; // 5px so user-list and chat resize handle render as the same size
   --poll-pane-min-width: 20em;
+  --chat-margin-right: 0.1em;
 }
 
 .main {
@@ -126,6 +127,7 @@
 .chat {
   @extend %full-page;
 
+  margin-right: var(--chat-margin-right);
   order: 2;
   height: 100%;
   @include mq($small-only) {
