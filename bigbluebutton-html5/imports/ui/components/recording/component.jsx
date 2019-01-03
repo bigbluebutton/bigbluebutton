@@ -1,5 +1,6 @@
-import React, { Component } from 'react';
-import { defineMessages, injectIntl } from 'react-intl';
+import React from 'react';
+import PropTypes from 'prop-types';
+import { defineMessages, injectIntl, intlShape } from 'react-intl';
 import Button from '/imports/ui/components/button/component';
 import Modal from '/imports/ui/components/modal/simple/component';
 import { styles } from './styles';
@@ -31,7 +32,18 @@ const intlMessages = defineMessages({
   },
 });
 
-class RecordingComponent extends Component {
+const propTypes = {
+  intl: intlShape.isRequired,
+  closeModal: PropTypes.func.isRequired,
+  toggleRecording: PropTypes.func.isRequired,
+  recordingStatus: PropTypes.bool,
+};
+
+const defaultProps = {
+  recordingStatus: false,
+};
+
+class RecordingComponent extends React.PureComponent {
   constructor(props) {
     super(props);
     const {
@@ -44,7 +56,7 @@ class RecordingComponent extends Component {
   }
 
   render() {
-    const { intl, meeting } = this.props;
+    const { intl, recordingStatus } = this.props;
 
     return (
       <Modal
@@ -55,12 +67,12 @@ class RecordingComponent extends Component {
       >
         <div className={styles.container}>
           <div className={styles.header}>
-            <div className={styles.title}>{intl.formatMessage(!meeting.recordProp.recording ?
+            <div className={styles.title}>{intl.formatMessage(!recordingStatus ?
             intlMessages.startTitle : intlMessages.stopTitle)}
             </div>
           </div>
           <div className={styles.description}>
-            {`${intl.formatMessage(!meeting.recordProp.recording ? intlMessages.startDescription :
+            {`${intl.formatMessage(!recordingStatus ? intlMessages.startDescription :
             intlMessages.stopDescription)}`}
           </div>
           <div className={styles.footer}>
@@ -81,5 +93,8 @@ class RecordingComponent extends Component {
     );
   }
 }
+
+RecordingComponent.propTypes = propTypes;
+RecordingComponent.defaultProps = defaultProps;
 
 export default injectIntl(RecordingComponent);

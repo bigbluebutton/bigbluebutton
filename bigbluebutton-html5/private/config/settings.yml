@@ -99,7 +99,7 @@ public:
     enableListenOnly: false
     autoShareWebcam: false
   allowOutsideCommands:
-    toggleRecording: false
+    toggleRecording: true
     toggleSelfVoice: false
   poll:
     max_custom: 5

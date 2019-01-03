@@ -18,5 +18,6 @@ export default withModalMounter(withTracker(({ mountModal }) => ({
     mountModal(null);
   },
 
-  meeting: (Meetings.findOne({ meetingId: Auth.meetingID })),
+  recordingStatus: (Meetings.findOne({ meetingId: Auth.meetingID }).recordProp.recording),
+
 }))(RecordingContainer));

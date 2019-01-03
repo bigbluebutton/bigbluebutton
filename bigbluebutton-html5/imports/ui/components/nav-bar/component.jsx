@@ -11,11 +11,13 @@ import DropdownList from '/imports/ui/components/dropdown/list/component';
 import DropdownListItem from '/imports/ui/components/dropdown/list/item/component';
 import { withModalMounter } from '/imports/ui/components/modal/service';
 import withShortcutHelper from '/imports/ui/components/shortcut-help/service';
+import getFromUserSettings from '/imports/ui/services/users-settings';
 import { defineMessages, injectIntl } from 'react-intl';
 import { styles } from './styles.scss';
 import Button from '../button/component';
 import RecordingIndicator from './recording-indicator/component';
 import SettingsDropdownContainer from './settings-dropdown/container';
+import ActionBarService from './service';
 
 const intlMessages = defineMessages({
   toggleUserListLabel: {
@@ -42,22 +44,30 @@ const intlMessages = defineMessages({
     id: 'app.navBar.recording.off',
     description: 'label for indicator when the session is not being recorded',
   },
+  startTitle: {
+    id: 'app.recording.startTitle',
+    description: 'start recording title',
+  },
+  stopTitle: {
+    id: 'app.recording.stopTitle',
+    description: 'stop recording title',
+  },
 });
 
 const propTypes = {
   presentationTitle: PropTypes.string,
   hasUnreadMessages: PropTypes.bool,
-  beingRecorded: PropTypes.object,
+  beingRecorded: PropTypes.objectOf(PropTypes.any),
   shortcuts: PropTypes.string,
 };
 
 const defaultProps = {
   presentationTitle: 'Default Room Title',
   hasUnreadMessages: false,
-  beingRecorded: false,
+  beingRecorded: null,
   shortcuts: '',
 };
-
+const interval = null;
 const openBreakoutJoinConfirmation = (breakout, breakoutName, mountModal) =>
   mountModal(<BreakoutJoinConfirmation
     breakout={breakout}
@@ -74,9 +84,19 @@ class NavBar extends PureComponent {
     this.state = {
       isActionsOpen: false,
       didSendBreakoutInvite: false,
+      time: (props.beingRecorded.time ? props.beingRecorded.time : 0),
     };
 
+    this.incrementTime = this.incrementTime.bind(this);
     this.handleToggleUserList = this.handleToggleUserList.bind(this);
+  }
+
+  componentDidMount() {
+    if (Meteor.settings.public.allowOutsideCommands.toggleRecording ||
+      getFromUserSettings('outsideToggleRecording', false)) {
+      ActionBarService.connectRecordingObserver();
+      window.addEventListener('message', ActionBarService.processOutsideToggleRecording);
+    }
   }
 
   componentDidUpdate(oldProps) {
@@ -84,7 +104,15 @@ class NavBar extends PureComponent {
       breakouts,
       isBreakoutRoom,
       mountModal,
+      beingRecorded,
     } = this.props;
+
+    if (!beingRecorded.recording) {
+      clearInterval(this.interval);
+      this.interval = null;
+    } else if (this.interval === null) {
+      this.interval = setInterval(this.incrementTime, 1000);
+    }
 
     const hadBreakouts = oldProps.breakouts.length;
     const hasBreakouts = breakouts.length;
@@ -108,6 +136,10 @@ class NavBar extends PureComponent {
     }
   }
 
+  componentWillUnmount() {
+    clearInterval(interval);
+  }
+
   handleToggleUserList() {
     this.props.toggleUserList();
   }
@@ -120,6 +152,16 @@ class NavBar extends PureComponent {
     this.setState({ didSendBreakoutInvite: true }, () => {
       openBreakoutJoinConfirmation.call(this, breakout, breakout.name, mountModal);
     });
+  }
+
+  incrementTime() {
+    const { beingRecorded } = this.props;
+
+    if (beingRecorded.time > this.state.time) {
+      this.setState({ time: beingRecorded.time + 1 });
+    } else {
+      this.setState({ time: this.state.time + 1 });
+    }
   }
 
   renderPresentationTitle() {
@@ -178,9 +220,14 @@ class NavBar extends PureComponent {
       isExpanded,
       intl,
       shortcuts: TOGGLE_USERLIST_AK,
+      mountModal,
     } = this.props;
 
     const recordingMessage = beingRecorded.recording ? 'recordingIndicatorOn' : 'recordingIndicatorOff';
+
+    if (!this.interval) {
+      this.interval = setInterval(this.incrementTime, 1000);
+    }
 
     const toggleBtnClasses = {};
     toggleBtnClasses[styles.btn] = true;
@@ -214,6 +261,10 @@ class NavBar extends PureComponent {
           <RecordingIndicator
             {...beingRecorded}
             title={intl.formatMessage(intlMessages[recordingMessage])}
+            buttonTitle={(!beingRecorded.recording ? intl.formatMessage(intlMessages.startTitle) :
+               intl.formatMessage(intlMessages.stopTitle))}
+            mountModal={mountModal}
+            time={this.state.time}
           />
         </div>
         <div className={styles.right}>

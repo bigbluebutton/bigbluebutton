@@ -9,12 +9,9 @@ import DropdownList from '/imports/ui/components/dropdown/list/component';
 import DropdownListItem from '/imports/ui/components/dropdown/list/item/component';
 import PresentationUploaderContainer from '/imports/ui/components/presentation/presentation-uploader/container';
 import { withModalMounter } from '/imports/ui/components/modal/service';
-import getFromUserSettings from '/imports/ui/services/users-settings';
 import withShortcutHelper from '/imports/ui/components/shortcut-help/service';
-import RecordingContainer from '/imports/ui/components/recording/container';
 import BreakoutRoom from '../create-breakout-room/component';
 import { styles } from '../styles';
-import ActionBarService from '../service';
 
 const propTypes = {
   isUserPresenter: PropTypes.bool.isRequired,
@@ -91,14 +88,6 @@ class ActionsDropdown extends Component {
     this.createBreakoutRoomId = _.uniqueId('action-item-');
   }
 
-  componentDidMount() {
-    if (Meteor.settings.public.allowOutsideCommands.toggleRecording ||
-      getFromUserSettings('outsideToggleRecording', false)) {
-      ActionBarService.connectRecordingObserver();
-      window.addEventListener('message', ActionBarService.processOutsideToggleRecording);
-    }
-  }
-
   componentWillUpdate(nextProps) {
     const { isUserPresenter: isPresenter } = nextProps;
     const { isUserPresenter: wasPresenter, mountModal } = this.props;
@@ -112,12 +101,8 @@ class ActionsDropdown extends Component {
       intl,
       isUserPresenter,
       isUserModerator,
-      allowStartStopRecording,
-      isRecording,
-      record,
       togglePollMenu,
       meetingIsBreakout,
-      mountModal,
       hasBreakoutRoom,
     } = this.props;
 
@@ -139,17 +124,6 @@ class ActionsDropdown extends Component {
           description={intl.formatMessage(intlMessages.presentationDesc)}
           key={this.presentationItemId}
           onClick={this.handlePresentationClick}
-        />
-        : null),
-      (record && isUserModerator && allowStartStopRecording ?
-        <DropdownListItem
-          icon="record"
-          label={intl.formatMessage(isRecording ?
-            intlMessages.stopRecording : intlMessages.startRecording)}
-          description={intl.formatMessage(isRecording ?
-            intlMessages.stopRecording : intlMessages.startRecording)}
-          key={this.recordId}
-          onClick={() => mountModal(<RecordingContainer />)}
         />
         : null),
       (isUserModerator && !meetingIsBreakout && !hasBreakoutRoom ?
