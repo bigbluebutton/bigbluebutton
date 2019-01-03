@@ -19,10 +19,6 @@ const propTypes = {
   intl: intlShape.isRequired,
   mountModal: PropTypes.func.isRequired,
   isUserModerator: PropTypes.bool.isRequired,
-  allowStartStopRecording: PropTypes.bool.isRequired,
-  isRecording: PropTypes.bool.isRequired,
-  record: PropTypes.bool.isRequired,
-  toggleRecording: PropTypes.func.isRequired,
   meetingIsBreakout: PropTypes.bool.isRequired,
   hasBreakoutRoom: PropTypes.bool.isRequired,
   createBreakoutRoom: PropTypes.func.isRequired,
@@ -59,14 +55,6 @@ const intlMessages = defineMessages({
   stopDesktopShareDesc: {
     id: 'app.actionsBar.actionsDropdown.stopDesktopShareDesc',
     description: 'adds context to stop desktop share option',
-  },
-  startRecording: {
-    id: 'app.actionsBar.actionsDropdown.startRecording',
-    description: 'start recording option',
-  },
-  stopRecording: {
-    id: 'app.actionsBar.actionsDropdown.stopRecording',
-    description: 'stop recording option',
   },
   pollBtnLabel: {
     id: 'app.actionsBar.actionsDropdown.pollBtnLabel',
@@ -113,7 +101,6 @@ class ActionsDropdown extends Component {
       intl,
       isUserPresenter,
       isUserModerator,
-      togglePollMenu,
       meetingIsBreakout,
       hasBreakoutRoom,
     } = this.props;
@@ -123,10 +110,6 @@ class ActionsDropdown extends Component {
       pollBtnDesc,
       presentationLabel,
       presentationDesc,
-      startRecording,
-      stopRecording,
-      createBreakoutRoom,
-      createBreakoutRoomDesc,
     } = intlMessages;
 
     const {
@@ -160,14 +143,16 @@ class ActionsDropdown extends Component {
           />
         )
         : null),
-      (isUserModerator && !meetingIsBreakout && !hasBreakoutRoom ?
-        <DropdownListItem
-          icon="rooms"
-          label={intl.formatMessage(intlMessages.createBreakoutRoom)}
-          description={intl.formatMessage(intlMessages.createBreakoutRoomDesc)}
-          key={this.createBreakoutRoomId}
-          onClick={this.handleCreateBreakoutRoomClick}
-        />
+      (isUserModerator && !meetingIsBreakout && !hasBreakoutRoom
+        ? (
+          <DropdownListItem
+            icon="rooms"
+            label={intl.formatMessage(intlMessages.createBreakoutRoom)}
+            description={intl.formatMessage(intlMessages.createBreakoutRoomDesc)}
+            key={this.createBreakoutRoomId}
+            onClick={this.handleCreateBreakoutRoomClick}
+          />
+        )
         : null),
     ]);
   }

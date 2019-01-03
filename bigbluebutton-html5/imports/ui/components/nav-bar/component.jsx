@@ -59,7 +59,7 @@ const intlMessages = defineMessages({
 const propTypes = {
   presentationTitle: PropTypes.string,
   hasUnreadMessages: PropTypes.bool,
-  recordProps: PropTypes.objectOf(PropTypes.bool),
+  recordProps: PropTypes.objectOf(PropTypes.any),
   shortcuts: PropTypes.string,
 };
 
@@ -122,6 +122,7 @@ class NavBar extends PureComponent {
     } else if (this.interval === null) {
       this.interval = setInterval(this.incrementTime, 1000);
     }
+
     const {
       didSendBreakoutInvite,
     } = this.state;
@@ -177,11 +178,12 @@ class NavBar extends PureComponent {
 
   incrementTime() {
     const { recordProps } = this.props;
+    const { time } = this.state;
 
-    if (recordProps.time > this.state.time) {
+    if (recordProps.time > time) {
       this.setState({ time: recordProps.time + 1 });
     } else {
-      this.setState({ time: this.state.time + 1 });
+      this.setState({ time: time + 1 });
     }
   }
 
@@ -253,6 +255,8 @@ class NavBar extends PureComponent {
 
     const recordingMessage = recordProps.recording ? 'recordingIndicatorOn' : 'recordingIndicatorOff';
 
+    const { time } = this.state;
+
     if (!this.interval) {
       this.interval = setInterval(this.incrementTime, 1000);
     }
@@ -292,7 +296,7 @@ class NavBar extends PureComponent {
             buttonTitle={(!recordProps.recording ? intl.formatMessage(intlMessages.startTitle) :
                intl.formatMessage(intlMessages.stopTitle))}
             mountModal={mountModal}
-            time={this.state.time}
+            time= {time}
           />
         </div>
         <div className={styles.right}>
