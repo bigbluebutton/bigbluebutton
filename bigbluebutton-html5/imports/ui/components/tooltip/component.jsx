@@ -23,6 +23,7 @@ class Tooltip extends Component {
     const expandedEl = tooltipTarget.parentElement.querySelector('[aria-expanded="true"]');
     const isTarget = expandedEl === tooltipTarget;
     if (expandedEl && !isTarget) return;
+    tip.set({ content: tooltipTarget.lastChild.innerText });
     tip.show();
   }
 
