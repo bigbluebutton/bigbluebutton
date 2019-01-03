@@ -75,8 +75,6 @@ const defaultProps = {
   shortcuts: '',
 };
 
-const interval = null;
-
 const openBreakoutJoinConfirmation = (breakout, breakoutName, mountModal) => mountModal(
   <BreakoutJoinConfirmation
     breakout={breakout}
@@ -101,8 +99,8 @@ class NavBar extends PureComponent {
   }
 
   componentDidMount() {
-    if (Meteor.settings.public.allowOutsideCommands.toggleRecording ||
-      getFromUserSettings('outsideToggleRecording', false)) {
+    if (Meteor.settings.public.allowOutsideCommands.toggleRecording
+      || getFromUserSettings('outsideToggleRecording', false)) {
       ActionBarService.connectRecordingObserver();
       window.addEventListener('message', ActionBarService.processOutsideToggleRecording);
     }
@@ -154,7 +152,7 @@ class NavBar extends PureComponent {
   }
 
   componentWillUnmount() {
-    clearInterval(interval);
+    clearInterval(this.interval);
   }
 
   handleToggleUserList() {
@@ -293,10 +291,10 @@ class NavBar extends PureComponent {
           <RecordingIndicator
             {...recordProps}
             title={intl.formatMessage(intlMessages[recordingMessage])}
-            buttonTitle={(!recordProps.recording ? intl.formatMessage(intlMessages.startTitle) :
-               intl.formatMessage(intlMessages.stopTitle))}
+            buttonTitle={(!recordProps.recording ? intl.formatMessage(intlMessages.startTitle)
+              : intl.formatMessage(intlMessages.stopTitle))}
             mountModal={mountModal}
-            time= {time}
+            time={time}
           />
         </div>
         <div className={styles.right}>
