@@ -618,6 +618,23 @@ window.getScreenConstraints = function (sendSource, callback) {
   screenConstraints.video.height = { max: kurentoManager.kurentoScreenshare.vid_max_height };
   screenConstraints.video.width = { max: kurentoManager.kurentoScreenshare.vid_max_width };
 
+  const getDisplayMediaConstraints = function () {
+    // The fine-grained constraints (e.g.: frameRate) are supposed to go into
+    // the MediaStream because getDisplayMedia does not support them,
+    // so they're passed differently
+    kurentoManager.kurentoScreenshare.extensionInstalled = true;
+    optionalConstraints.width = { max: kurentoManager.kurentoScreenshare.vid_max_width };
+    optionalConstraints.height = { max: kurentoManager.kurentoScreenshare.vid_max_height };
+    optionalConstraints.frameRate = { ideal: 5, max: 10 };
+
+    let gDPConstraints = {
+      video: true,
+      optional: optionalConstraints
+    }
+
+    return gDPConstraints;
+  };
+
   const optionalConstraints = [
     { googCpuOveruseDetection: true },
     { googCpuOveruseEncodeUsage: true },
@@ -652,21 +669,7 @@ window.getScreenConstraints = function (sendSource, callback) {
         callback(null, screenConstraints);
       }, chromeExtension);
     } else {
-      // Falls back to getDisplayMedia if the browser supports it
-      // The fine-grained constraints (e.g.: frameRate) are supposed to go into
-      // the MediaStream because getDisplayMedia does not support them,
-      // so they're passed differently
-      kurentoManager.kurentoScreenshare.extensionInstalled = true;
-      optionalConstraints.width = { max: kurentoManager.kurentoScreenshare.vid_max_width };
-      optionalConstraints.height = { max: kurentoManager.kurentoScreenshare.vid_max_height };
-      optionalConstraints.frameRate = { ideal: 5, max: 10 };
-
-      screenConstraints = {
-        video: true,
-        optional: optionalConstraints
-      }
-
-      callback(null, screenConstraints);
+      return callback(null, getDisplayMediaConstraints());
     }
   } else if (isFirefox) {
     screenConstraints.video.mediaSource = 'window';
@@ -674,12 +677,15 @@ window.getScreenConstraints = function (sendSource, callback) {
     console.log('getScreenConstraints for Firefox returns => ', screenConstraints);
     // now invoking native getUserMedia API
     callback(null, screenConstraints);
-  } else if (isSafari) {
+  } else if (isSafari && !hasDisplayMedia) {
     screenConstraints.video.mediaSource = 'screen';
 
     console.log('getScreenConstraints for Safari returns => ', screenConstraints);
     // now invoking native getUserMedia API
     callback(null, screenConstraints);
+  } else if (hasDisplayMedia) {
+    // Falls back to getDisplayMedia if the browser supports it
+    return callback(null, getDisplayMediaConstraints());
   }
 };
 

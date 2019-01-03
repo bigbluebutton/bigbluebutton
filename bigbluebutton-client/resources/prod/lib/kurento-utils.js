@@ -415,7 +415,10 @@ function WebRtcPeer(mode, options, callback) {
                         stream.getTracks()[0].applyConstraints(constraints[0].optional).then(() => {
                             videoStream = stream;
                             start();
-                        }).catch(callback);
+                        }).catch(() => {
+                          videoStream = stream;
+                          start();
+                        });
                     }).catch(callback);
                 } else {
                     getMedia(recursive.apply(undefined, constraints));

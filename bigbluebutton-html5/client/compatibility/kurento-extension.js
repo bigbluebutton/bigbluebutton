@@ -644,6 +644,23 @@ window.getScreenConstraints = function (sendSource, callback) {
     });
   };
 
+  const getDisplayMediaConstraints = function () {
+    // The fine-grained constraints (e.g.: frameRate) are supposed to go into
+    // the MediaStream because getDisplayMedia does not support them,
+    // so they're passed differently
+    kurentoManager.kurentoScreenshare.extensionInstalled = true;
+    optionalConstraints.width = { max: kurentoManager.kurentoScreenshare.vid_max_width };
+    optionalConstraints.height = { max: kurentoManager.kurentoScreenshare.vid_max_height };
+    optionalConstraints.frameRate = { ideal: 5, max: 10 };
+
+    let gDPConstraints = {
+      video: true,
+      optional: optionalConstraints
+    }
+
+    return gDPConstraints;
+  };
+
   const optionalConstraints = [
     { googCpuOveruseDetection: true },
     { googCpuOveruseEncodeUsage: true },
@@ -691,21 +708,7 @@ window.getScreenConstraints = function (sendSource, callback) {
         return callback(null, screenConstraints);
       });
     } else {
-      // Falls back to getDisplayMedia if the browser supports it
-      // The fine-grained constraints (e.g.: frameRate) are supposed to go into
-      // the MediaStream because getDisplayMedia does not support them,
-      // so they're passed differently
-      kurentoManager.kurentoScreenshare.extensionInstalled = true;
-      optionalConstraints.width = { max: kurentoManager.kurentoScreenshare.vid_max_width };
-      optionalConstraints.height = { max: kurentoManager.kurentoScreenshare.vid_max_height };
-      optionalConstraints.frameRate = { ideal: 5, max: 10 };
-
-      screenConstraints = {
-        video: true,
-        optional: optionalConstraints
-      }
-
-      return callback(null, screenConstraints);
+      return callback(null, getDisplayMediaConstraints());
     }
   }
 
@@ -717,9 +720,14 @@ window.getScreenConstraints = function (sendSource, callback) {
     return callback(null, screenConstraints);
   }
 
+  // Falls back to getDisplayMedia if the browser supports it
+  if (hasDisplayMedia) {
+    return callback(null, getDisplayMediaConstraints());
+  }
+
   if (isSafari) {
     // At this time (version 11.1), Safari doesn't support screenshare.
-    document.dispatchEvent(new Event('safariScreenshareNotSupported'));
+    return document.dispatchEvent(new Event('safariScreenshareNotSupported'));
   }
 };
 
