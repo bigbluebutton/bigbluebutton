@@ -75,7 +75,7 @@ export default withTracker(() => {
     presentationTitle: meetingTitle,
     hasUnreadMessages: checkUnreadMessages(),
     isBreakoutRoom: meetingIsBreakout(),
-    beingRecorded: meetingRecorded,
+    recordProps: meetingRecorded,
     toggleUserList: () => {
       Session.set('isUserListOpen', !isExpanded);
     },

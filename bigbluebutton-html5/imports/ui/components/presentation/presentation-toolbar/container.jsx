@@ -2,9 +2,9 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { withTracker } from 'meteor/react-meteor-data';
 import PresentationService from '/imports/ui/components/presentation/service';
+import MediaService from '/imports/ui/components/media/service';
 import PresentationToolbarService from './service';
 import PresentationToolbar from './component';
-
 
 const PresentationToolbarContainer = (props) => {
   const {
@@ -15,10 +15,12 @@ const PresentationToolbarContainer = (props) => {
     zoom,
     zoomChanger,
     fitToWidthHandler,
+    getSwapLayout,
   } = props;
 
-  if (userIsPresenter) {
-    // Only show controls if user is presenter
+  if (userIsPresenter && !getSwapLayout) {
+    // Only show controls if user is presenter and layout isn't swapped
+
     return (
       <PresentationToolbar
         {...{
@@ -44,20 +46,31 @@ export default withTracker((params) => {
   } = data;
 
   return {
+    getSwapLayout: MediaService.getSwapLayout(),
     fitToWidthHandler: params.fitToWidthHandler,
     userIsPresenter: PresentationService.isPresenter(podId),
     numberOfSlides,
     zoom: params.zoom,
     zoomChanger: params.zoomChanger,
     actions: {
-      nextSlideHandler: () =>
-        PresentationToolbarService.nextSlide(params.currentSlideNum, numberOfSlides, podId),
-      previousSlideHandler: () =>
-        PresentationToolbarService.previousSlide(params.currentSlideNum, podId),
-      skipToSlideHandler: requestedSlideNum =>
-        PresentationToolbarService.skipToSlide(requestedSlideNum, podId),
-      zoomSlideHandler: value =>
-        PresentationToolbarService.zoomSlide(params.currentSlideNum, podId, value),
+      nextSlideHandler: () => PresentationToolbarService.nextSlide(
+        params.currentSlideNum,
+        numberOfSlides,
+        podId,
+      ),
+      previousSlideHandler: () => PresentationToolbarService.previousSlide(
+        params.currentSlideNum,
+        podId,
+      ),
+      skipToSlideHandler: requestedSlideNum => PresentationToolbarService.skipToSlide(
+        requestedSlideNum,
+        podId,
+      ),
+      zoomSlideHandler: value => PresentationToolbarService.zoomSlide(
+        params.currentSlideNum,
+        podId,
+        value,
+      ),
     },
   };
 })(PresentationToolbarContainer);

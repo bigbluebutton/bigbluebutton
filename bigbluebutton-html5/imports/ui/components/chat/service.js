@@ -45,7 +45,23 @@ const mapGroupMessage = (message) => {
   };
 
   if (message.sender !== SYSTEM_CHAT_TYPE) {
-    mappedMessage.sender = getUser(message.sender);
+    const sender = getUser(message.sender);
+
+    const {
+      color,
+      isModerator,
+      name,
+      isOnline,
+    } = sender;
+
+    const mappedSender = {
+      color,
+      isModerator,
+      name,
+      isOnline,
+    };
+
+    mappedMessage.sender = mappedSender;
   }
 
   return mappedMessage;
@@ -145,7 +161,7 @@ const lastReadMessageTime = (receiverID) => {
 };
 
 const sendGroupMessage = (message) => {
-  const chatID = Session.get('idChatOpen');
+  const chatID = Session.get('idChatOpen') || PUBLIC_CHAT_ID;
   const isPublicChat = chatID === PUBLIC_CHAT_ID;
 
   let chatId = PUBLIC_GROUP_CHAT_ID;
@@ -196,7 +212,7 @@ const updateScrollPosition =
   );
 
 const updateUnreadMessage = (timestamp) => {
-  const chatID = Session.get('idChatOpen');
+  const chatID = Session.get('idChatOpen') || PUBLIC_CHAT_ID;
   const isPublic = chatID === PUBLIC_CHAT_ID;
   const chatType = isPublic ? PUBLIC_GROUP_CHAT_ID : chatID;
   return UnreadMessages.update(chatType, timestamp);

@@ -72,12 +72,13 @@ class UserParticipants extends Component {
   }
 
   componentDidMount() {
-    if (!this.props.compact) {
+    const { compact, roving, users } = this.props;
+    if (!compact) {
       this.refScrollContainer.addEventListener(
         'keydown',
-        event => this.props.roving(
+        event => roving(
           event,
-          this.props.users.length,
+          users.length,
           this.changeState,
         ),
       );
@@ -91,12 +92,13 @@ class UserParticipants extends Component {
   }
 
   componentDidUpdate(prevProps, prevState) {
-    if (this.state.index === -1) {
+    const { index } = this.state;
+    if (index === -1) {
       return;
     }
 
-    if (this.state.index !== prevState.index) {
-      this.focusUserItem(this.state.index);
+    if (index !== prevState.index) {
+      this.focusUserItem(index);
     }
   }
 
@@ -129,44 +131,43 @@ class UserParticipants extends Component {
 
     const { meetingId } = meeting;
 
-    return users.map(u =>
-      (
-        <CSSTransition
-          classNames={listTransition}
-          appear
-          enter
-          exit
-          timeout={0}
-          component="div"
-          className={cx(styles.participantsList)}
-          key={u}
-        >
-          <div ref={(node) => { this.userRefs[index += 1] = node; }}>
-            <UserListItemContainer
-              {...{
-                currentUser,
-                compact,
-                isBreakoutRoom,
-                meetingId,
-                getAvailableActions,
-                normalizeEmojiName,
-                isMeetingLocked,
-                handleEmojiChange,
-                getEmojiList,
-                getEmoji,
-                setEmojiStatus,
-                assignPresenter,
-                removeUser,
-                toggleVoice,
-                changeRole,
-                getGroupChatPrivate,
-              }}
-              userId={u}
-              getScrollContainerRef={this.getScrollContainerRef}
-            />
-          </div>
-        </CSSTransition>
-      ));
+    return users.map(u => (
+      <CSSTransition
+        classNames={listTransition}
+        appear
+        enter
+        exit
+        timeout={0}
+        component="div"
+        className={cx(styles.participantsList)}
+        key={u}
+      >
+        <div ref={(node) => { this.userRefs[index += 1] = node; }}>
+          <UserListItemContainer
+            {...{
+              currentUser,
+              compact,
+              isBreakoutRoom,
+              meetingId,
+              getAvailableActions,
+              normalizeEmojiName,
+              isMeetingLocked,
+              handleEmojiChange,
+              getEmojiList,
+              getEmoji,
+              setEmojiStatus,
+              assignPresenter,
+              removeUser,
+              toggleVoice,
+              changeRole,
+              getGroupChatPrivate,
+            }}
+            userId={u}
+            getScrollContainerRef={this.getScrollContainerRef}
+          />
+        </div>
+      </CSSTransition>
+    ));
   }
 
   focusUserItem(index) {
@@ -181,28 +182,40 @@ class UserParticipants extends Component {
 
   render() {
     const {
-      intl, users, compact, setEmojiStatus, muteAllUsers, meeting, muteAllExceptPresenter,
+      intl,
+      users,
+      compact,
+      setEmojiStatus,
+      muteAllUsers,
+      meeting,
+      muteAllExceptPresenter,
+      currentUser,
     } = this.props;
 
     return (
       <div className={styles.userListColumn}>
         {
-          !compact ?
-            <div className={styles.container}>
-              <h2 className={styles.smallTitle}>
-                {intl.formatMessage(intlMessages.usersTitle)}
-                &nbsp;({users.length})
+          !compact
+            ? (
+              <div className={styles.container}>
+                <h2 className={styles.smallTitle}>
+                  {intl.formatMessage(intlMessages.usersTitle)}
+                &nbsp;(
+                  {users.length}
+)
 
-              </h2>
-              <UserOptionsContainer {...{
-                users,
-                muteAllUsers,
-                muteAllExceptPresenter,
-                setEmojiStatus,
-                meeting,
-              }}
-              />
-            </div>
+                </h2>
+                <UserOptionsContainer {...{
+                  users,
+                  muteAllUsers,
+                  muteAllExceptPresenter,
+                  setEmojiStatus,
+                  meeting,
+                  currentUser,
+                }}
+                />
+              </div>
+            )
             : <hr className={styles.separator} />
         }
         <div

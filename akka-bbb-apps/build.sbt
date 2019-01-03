@@ -3,12 +3,14 @@ import org.bigbluebutton.build._
 import scalariform.formatter.preferences._
 import com.typesafe.sbt.SbtScalariform
 import com.typesafe.sbt.SbtScalariform.ScalariformKeys
-
+import NativePackagerHelper._
 import com.typesafe.sbt.SbtNativePackager.autoImport._
 
 enablePlugins(JavaServerAppPackaging)
+enablePlugins(UniversalPlugin)
+enablePlugins(DebianPlugin)
 
-version := "0.0.3"
+version := "0.0.4"
 
 val compileSettings = Seq(
   organization := "org.bigbluebutton",
@@ -39,6 +41,7 @@ testOptions in Test += Tests.Argument(TestFrameworks.Specs2, "html", "console", 
 
 testOptions in Test += Tests.Argument(TestFrameworks.ScalaTest, "-h", "target/scalatest-reports")
 
+Seq(Revolver.settings: _*)
 lazy val bbbAppsAkka = (project in file(".")).settings(name := "bbb-apps-akka", libraryDependencies ++= Dependencies.runtime).settings(compileSettings)
 
 scalariformAutoformat := false
@@ -73,7 +76,6 @@ daemonUser in Linux := user
 // group which will execute the application
 daemonGroup in Linux := group
 
-mappings in(Universal, packageBin) += file("src/main/resources/application.conf") -> "conf/application.conf"
-mappings in(Universal, packageBin) += file("src/main/resources/logback.xml") -> "conf/logback.xml"
+javaOptions in Universal ++= Seq("-J-Xms130m", "-J-Xmx256m", "-Dconfig.file=conf/application.conf", "-Dlogback.configurationFile=conf/logback.xml")
 
 debianPackageDependencies in Debian ++= Seq("java8-runtime-headless", "bash")

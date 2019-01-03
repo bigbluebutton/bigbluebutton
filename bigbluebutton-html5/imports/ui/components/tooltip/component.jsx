@@ -18,12 +18,13 @@ const defaultProps = {
 };
 
 class Tooltip extends Component {
-  static wait(show, event) {
+  static wait(tip, event) {
     const tooltipTarget = event.target;
     const expandedEl = tooltipTarget.parentElement.querySelector('[aria-expanded="true"]');
     const isTarget = expandedEl === tooltipTarget;
     if (expandedEl && !isTarget) return;
-    show();
+    tip.set({ content: tooltipTarget.lastChild.innerText });
+    tip.show();
   }
 
   constructor(props) {
@@ -34,25 +35,31 @@ class Tooltip extends Component {
     this.onHide = this.onHide.bind(this);
     this.handleEscapeHide = this.handleEscapeHide.bind(this);
     this.delay = [150, 50];
-    this.dynamicTitle = true;
   }
 
   componentDidMount() {
     const {
       position,
+      title,
     } = this.props;
 
     const options = {
-      position,
-      dynamicTitle: this.dynamicTitle,
+      placement: position,
+      performance: true,
+      content: title,
       delay: this.delay,
       onShow: this.onShow,
       onHide: this.onHide,
       wait: Tooltip.wait,
       touchHold: true,
+      size: 'regular',
+      distance: 10,
+      arrow: true,
+      arrowType: 'sharp',
     };
     this.tooltip = Tippy(`#${this.tippySelectorId}`, options);
   }
+
   onShow() {
     document.addEventListener('keyup', this.handleEscapeHide);
   }
@@ -78,7 +85,6 @@ class Tooltip extends Component {
 
     const WrappedComponentBound = React.cloneElement(WrappedComponent, {
       ...restProps,
-      title,
       id: this.tippySelectorId,
       className: cx(children.props.className, className),
     });

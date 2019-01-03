@@ -1,7 +1,9 @@
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
+import { Session } from 'meteor/session';
 import _ from 'lodash';
 import cx from 'classnames';
+import Auth from '/imports/ui/services/auth';
 import Icon from '/imports/ui/components/icon/component';
 import BreakoutJoinConfirmation from '/imports/ui/components/breakout-join-confirmation/container';
 import Dropdown from '/imports/ui/components/dropdown/component';
@@ -57,25 +59,32 @@ const intlMessages = defineMessages({
 const propTypes = {
   presentationTitle: PropTypes.string,
   hasUnreadMessages: PropTypes.bool,
-  beingRecorded: PropTypes.objectOf(PropTypes.any),
+  recordProps: PropTypes.objectOf(PropTypes.bool),
   shortcuts: PropTypes.string,
 };
 
 const defaultProps = {
   presentationTitle: 'Default Room Title',
   hasUnreadMessages: false,
-  beingRecorded: null,
+  recordProps: {
+    allowStartStopRecording: false,
+    autoStartRecording: false,
+    record: false,
+    recording: false,
+  },
   shortcuts: '',
 };
+
 const interval = null;
-const openBreakoutJoinConfirmation = (breakout, breakoutName, mountModal) =>
-  mountModal(<BreakoutJoinConfirmation
+
+const openBreakoutJoinConfirmation = (breakout, breakoutName, mountModal) => mountModal(
+  <BreakoutJoinConfirmation
     breakout={breakout}
     breakoutName={breakoutName}
-  />);
+  />,
+);
 
-const closeBreakoutJoinConfirmation = mountModal =>
-  mountModal(null);
+const closeBreakoutJoinConfirmation = mountModal => mountModal(null);
 
 class NavBar extends PureComponent {
   constructor(props) {
@@ -84,7 +93,7 @@ class NavBar extends PureComponent {
     this.state = {
       isActionsOpen: false,
       didSendBreakoutInvite: false,
-      time: (props.beingRecorded.time ? props.beingRecorded.time : 0),
+      time: (props.recordProps.time ? props.recordProps.time : 0),
     };
 
     this.incrementTime = this.incrementTime.bind(this);
@@ -104,15 +113,18 @@ class NavBar extends PureComponent {
       breakouts,
       isBreakoutRoom,
       mountModal,
-      beingRecorded,
+      recordProps,
     } = this.props;
 
-    if (!beingRecorded.recording) {
+    if (!recordProps.recording) {
       clearInterval(this.interval);
       this.interval = null;
     } else if (this.interval === null) {
       this.interval = setInterval(this.incrementTime, 1000);
     }
+    const {
+      didSendBreakoutInvite,
+    } = this.state;
 
     const hadBreakouts = oldProps.breakouts.length;
     const hasBreakouts = breakouts.length;
@@ -126,12 +138,16 @@ class NavBar extends PureComponent {
         return;
       }
 
-      if (!this.state.didSendBreakoutInvite && !isBreakoutRoom) {
+      const userOnMeeting = breakout.users.filter(u => u.userId === Auth.userID).length;
+
+      if (!userOnMeeting) return;
+
+      if (!didSendBreakoutInvite && !isBreakoutRoom) {
         this.inviteUserToBreakout(breakout);
       }
     });
 
-    if (!breakouts.length && this.state.didSendBreakoutInvite) {
+    if (!breakouts.length && didSendBreakoutInvite) {
       this.setState({ didSendBreakoutInvite: false });
     }
   }
@@ -141,7 +157,12 @@ class NavBar extends PureComponent {
   }
 
   handleToggleUserList() {
-    this.props.toggleUserList();
+    Session.set(
+      'openPanel',
+      Session.get('openPanel') !== ''
+        ? ''
+        : 'userlist',
+    );
   }
 
   inviteUserToBreakout(breakout) {
@@ -155,10 +176,10 @@ class NavBar extends PureComponent {
   }
 
   incrementTime() {
-    const { beingRecorded } = this.props;
+    const { recordProps } = this.props;
 
-    if (beingRecorded.time > this.state.time) {
-      this.setState({ time: beingRecorded.time + 1 });
+    if (recordProps.time > this.state.time) {
+      this.setState({ time: recordProps.time + 1 });
     } else {
       this.setState({ time: this.state.time + 1 });
     }
@@ -171,6 +192,10 @@ class NavBar extends PureComponent {
       presentationTitle,
     } = this.props;
 
+    const {
+      isActionsOpen,
+    } = this.state;
+
     if (isBreakoutRoom || !breakouts.length) {
       return (
         <h1 className={styles.presentationTitle}>{presentationTitle}</h1>
@@ -179,10 +204,12 @@ class NavBar extends PureComponent {
     const breakoutItems = breakouts.map(breakout => this.renderBreakoutItem(breakout));
 
     return (
-      <Dropdown isOpen={this.state.isActionsOpen}>
+      <Dropdown isOpen={isActionsOpen}>
         <DropdownTrigger>
           <h1 className={cx(styles.presentationTitle, styles.dropdownBreakout)}>
-            {presentationTitle} <Icon iconName="down-arrow" />
+            {presentationTitle}
+            {' '}
+            <Icon iconName="down-arrow" />
           </h1>
         </DropdownTrigger>
         <DropdownContent
@@ -205,10 +232,11 @@ class NavBar extends PureComponent {
 
     return (
       <DropdownListItem
-        className={styles.actionsHeader}
         key={_.uniqueId('action-header')}
         label={breakoutName}
-        onClick={openBreakoutJoinConfirmation.bind(this, breakout, breakoutName, mountModal)}
+        onClick={
+          openBreakoutJoinConfirmation.bind(this, breakout, breakoutName, mountModal)
+        }
       />
     );
   }
@@ -216,14 +244,14 @@ class NavBar extends PureComponent {
   render() {
     const {
       hasUnreadMessages,
-      beingRecorded,
+      recordProps,
       isExpanded,
       intl,
       shortcuts: TOGGLE_USERLIST_AK,
       mountModal,
     } = this.props;
 
-    const recordingMessage = beingRecorded.recording ? 'recordingIndicatorOn' : 'recordingIndicatorOff';
+    const recordingMessage = recordProps.recording ? 'recordingIndicatorOn' : 'recordingIndicatorOff';
 
     if (!this.interval) {
       this.interval = setInterval(this.incrementTime, 1000);
@@ -255,13 +283,13 @@ class NavBar extends PureComponent {
         </div>
         <div className={styles.center}>
           {this.renderPresentationTitle()}
-          {beingRecorded.record ?
-            <span className={styles.presentationTitleSeparator}>|</span>
-          : null}
+          {recordProps.record
+            ? <span className={styles.presentationTitleSeparator}>|</span>
+            : null}
           <RecordingIndicator
-            {...beingRecorded}
+            {...recordProps}
             title={intl.formatMessage(intlMessages[recordingMessage])}
-            buttonTitle={(!beingRecorded.recording ? intl.formatMessage(intlMessages.startTitle) :
+            buttonTitle={(!recordProps.recording ? intl.formatMessage(intlMessages.startTitle) :
                intl.formatMessage(intlMessages.stopTitle))}
             mountModal={mountModal}
             time={this.state.time}

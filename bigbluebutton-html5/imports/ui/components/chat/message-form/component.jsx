@@ -1,7 +1,8 @@
-import React, { Component } from 'react';
+import React, { PureComponent } from 'react';
 import { defineMessages, injectIntl } from 'react-intl';
 import cx from 'classnames';
 import TextareaAutosize from 'react-autosize-textarea';
+import browser from 'browser-detect';
 import { styles } from './styles';
 import Button from '../../button/component';
 
@@ -32,7 +33,7 @@ const messages = defineMessages({
   },
 });
 
-class MessageForm extends Component {
+class MessageForm extends PureComponent {
   constructor(props) {
     super(props);
 
@@ -42,17 +43,26 @@ class MessageForm extends Component {
       hasErrors: false,
     };
 
+    this.BROWSER_RESULTS = browser();
+
     this.handleMessageChange = this.handleMessageChange.bind(this);
     this.handleMessageKeyDown = this.handleMessageKeyDown.bind(this);
     this.handleSubmit = this.handleSubmit.bind(this);
   }
 
   componentDidMount() {
-    this.textarea.focus();
+    const { mobile } = this.BROWSER_RESULTS;
+
+    if (!mobile) {
+      this.textarea.focus();
+    }
   }
 
   componentDidUpdate(prevProps) {
-    if (prevProps.chatName !== this.props.chatName) {
+    const { chatName } = this.props;
+    const { mobile } = this.BROWSER_RESULTS;
+
+    if (prevProps.chatName !== chatName && !mobile) {
       this.textarea.focus();
     }
   }
@@ -102,13 +112,16 @@ class MessageForm extends Component {
   handleSubmit(e) {
     e.preventDefault();
 
-    const { disabled, minMessageLength, maxMessageLength } = this.props;
-    let message = this.state.message.trim();
+    const {
+      disabled, minMessageLength, maxMessageLength, handleSendMessage,
+    } = this.props;
+    const { message } = this.state;
+    let msg = message.trim();
 
     if (disabled
-      || message.length === 0
-      || message.length < minMessageLength
-      || message.length > maxMessageLength) {
+      || msg.length === 0
+      || msg.length < minMessageLength
+      || msg.length > maxMessageLength) {
       this.setState({ hasErrors: true });
       return false;
     }
@@ -116,10 +129,10 @@ class MessageForm extends Component {
     // Sanitize. See: http://shebang.brandonmintern.com/foolproof-html-escaping-in-javascript/
 
     const div = document.createElement('div');
-    div.appendChild(document.createTextNode(message));
-    message = div.innerHTML;
+    div.appendChild(document.createTextNode(msg));
+    msg = div.innerHTML;
 
-    return this.props.handleSendMessage(message)
+    return handleSendMessage(msg)
       .then(() => this.setState({
         message: '',
         hasErrors: false,
@@ -128,24 +141,24 @@ class MessageForm extends Component {
 
   render() {
     const {
-      intl, chatTitle, chatName, disabled,
+      intl, chatTitle, chatName, disabled, className, chatAreaId,
     } = this.props;
 
-    const { hasErrors, error } = this.state;
+    const { hasErrors, error, message } = this.state;
 
     return (
       <form
         ref={(ref) => { this.form = ref; }}
-        className={cx(this.props.className, styles.form)}
+        className={cx(className, styles.form)}
         onSubmit={this.handleSubmit}
       >
         <div className={styles.wrapper}>
           <TextareaAutosize
             className={styles.input}
             id="message-input"
-            innerRef={ref => (this.textarea = ref)}
+            innerRef={(ref) => { this.textarea = ref; return this.textarea; }}
             placeholder={intl.formatMessage(messages.inputPlaceholder, { 0: chatName })}
-            aria-controls={this.props.chatAreaId}
+            aria-controls={chatAreaId}
             aria-label={intl.formatMessage(messages.inputLabel, { 0: chatTitle })}
             aria-invalid={hasErrors ? 'true' : 'false'}
             aria-describedby={hasErrors ? 'message-input-error' : null}
@@ -153,7 +166,7 @@ class MessageForm extends Component {
             autoComplete="off"
             spellCheck="true"
             disabled={disabled}
-            value={this.state.message}
+            value={message}
             onChange={this.handleMessageChange}
             onKeyDown={this.handleMessageKeyDown}
           />

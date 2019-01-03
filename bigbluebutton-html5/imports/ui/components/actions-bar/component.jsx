@@ -18,13 +18,13 @@ class ActionsBar extends React.PureComponent {
       isUserModerator,
       recordSettingsList,
       toggleRecording,
-      togglePollMenu,
       screenSharingCheck,
       enableVideo,
       createBreakoutRoom,
       meetingIsBreakout,
       hasBreakoutRoom,
       meetingName,
+      users,
     } = this.props;
 
     const {
@@ -47,29 +47,35 @@ class ActionsBar extends React.PureComponent {
             isRecording,
             record,
             toggleRecording,
-            togglePollMenu,
             createBreakoutRoom,
             meetingIsBreakout,
             hasBreakoutRoom,
             meetingName,
+            users,
           }}
           />
         </div>
-        <div className={isUserPresenter ? cx(styles.centerWithActions, actionBarClasses) : styles.center}>
+        <div
+          className={
+            isUserPresenter ? cx(styles.centerWithActions, actionBarClasses) : styles.center
+          }
+        >
           <AudioControlsContainer />
-          {enableVideo ?
-            <JoinVideoOptionsContainer
-              handleJoinVideo={handleJoinVideo}
-              handleCloseVideo={handleExitVideo}
-            />
+          {enableVideo
+            ? (
+              <JoinVideoOptionsContainer
+                handleJoinVideo={handleJoinVideo}
+                handleCloseVideo={handleExitVideo}
+              />
+            )
             : null}
           <DesktopShare {...{
-              handleShareScreen,
-              handleUnshareScreen,
-              isVideoBroadcasting,
-              isUserPresenter,
-              screenSharingCheck,
-            }}
+            handleShareScreen,
+            handleUnshareScreen,
+            isVideoBroadcasting,
+            isUserPresenter,
+            screenSharingCheck,
+          }}
           />
         </div>
       </div>

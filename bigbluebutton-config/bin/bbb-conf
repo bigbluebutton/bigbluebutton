@@ -75,7 +75,7 @@ fi
 source /etc/bigbluebutton/bigbluebutton-release
 
 #
-# Figure out our environment
+# Figure out our environment (Debian vs. CentOS)
 #
 
 RED5_DIR=/usr/share/red5
@@ -497,19 +497,25 @@ start_bigbluebutton () {
 
 display_bigbluebutton_status () {
     if command -v systemctl >/dev/null; then
-	units="red5 $TOMCAT_SERVICE nginx freeswitch $REDIS_SERVICE bbb-apps-akka bbb-transcode-akka bbb-fsesl-akka"
+        units="red5 $TOMCAT_SERVICE nginx freeswitch $REDIS_SERVICE bbb-apps-akka bbb-transcode-akka bbb-fsesl-akka"
 
-       if [ -f /usr/lib/systemd/system/bbb-html5.service ]; then
-          units="$units mongod bbb-html5 bbb-webrtc-sfu kurento-media-server"
-       fi
+        if [ -f /usr/lib/systemd/system/bbb-html5.service ]; then
+            units="$units mongod bbb-html5 bbb-webrtc-sfu kurento-media-server"
+        fi
 
-	for unit in $units; do
-		echo "$unit: $(systemctl is-active $unit)"
-	done 
+        line='——————————————————————►'
+        for unit in $units; do
+            status=$(systemctl is-active "$unit")
+            if [ "$status" = "active" ]; then
+                printf "%s %s [✔ - $status]\n" $unit "${line:${#unit}}"
+            else
+                printf "%s %s [✘ - $status]\n" $unit "${line:${#unit}}"
+			fi
+        done 
     else
-	/etc/init.d/nginx status
-	/etc/init.d/$RED5 status
-	/etc/init.d/${SERVLET_CONTAINER} status
+        /etc/init.d/nginx status
+        /etc/init.d/$RED5 status
+        /etc/init.d/${SERVLET_CONTAINER} status
     fi
 }
 
@@ -1218,7 +1224,7 @@ check_state() {
 	#
 	FFMPEG_VERSION=$(ffmpeg -version 2>/dev/null | grep ffmpeg | cut -d ' ' -f3 | sed 's/--.*//g' | tr -d '\n')
 	case "$FFMPEG_VERSION" in
-        4.0.*)
+        4.*.*)
                 # This is the current supported version; OK.
                 ;;
         '')
@@ -1631,11 +1637,12 @@ if [ $CHECK ]; then
 	fi
 
         if [ -f /usr/local/bigbluebutton/bbb-webrtc-sfu/config/default.yml ]; then
-                KURENTO_URL=$(cat /usr/local/bigbluebutton/bbb-webrtc-sfu/config/default.yml | grep -v '#' | sed -n '/kurentoUrl/{s/[^:]*:[ ]*//;s/;//;p}' | tail -n 1)
-                KURENTO_IP=$(cat /usr/local/bigbluebutton/bbb-webrtc-sfu/config/default.yml | grep -v '#' | sed -n '/kurentoIp/{s/[^:]*:[ ]*//;s/;//;p}' | tail -n 1)
-                KURENTO_LOCAL_IP=$(cat /usr/local/bigbluebutton/bbb-webrtc-sfu/config/default.yml | grep -v '#' | sed -n '/localIpAddress/{s/[^:]*:[ ]*//;s/;//;p}' | tail -n 1)
-                KURENTO_RECORD_SCREEN_SHARING=$(cat /usr/local/bigbluebutton/bbb-webrtc-sfu/config/default.yml | grep -v '#' | sed -n '/recordScreenSharing/{s/[^:]*:[ ]*//;s/;//;p}' | tail -n 1)
-                KURENTO_RECORD_WEBCAMS=$(cat /usr/local/bigbluebutton/bbb-webrtc-sfu/config/default.yml | grep -v '#' | sed -n '/recordWebcams/{s/[^:]*:[ ]*//;s/;//;p}' | tail -n 1)
+	        KURENTO_URL=$(yq r /usr/local/bigbluebutton/bbb-webrtc-sfu/config/default.yml kurento[0].url)
+                KURENTO_IP=$(yq r /usr/local/bigbluebutton/bbb-webrtc-sfu/config/default.yml kurento[0].ip)
+                KURENTO_LOCAL_IP=$(yq r /usr/local/bigbluebutton/bbb-webrtc-sfu/config/default.yml localIpAddress)
+                KURENTO_RECORD_SCREEN_SHARING=$(yq r /usr/local/bigbluebutton/bbb-webrtc-sfu/config/default.yml recordScreenSharing)
+                KURENTO_RECORD_WEBCAMS=$(yq r /usr/local/bigbluebutton/bbb-webrtc-sfu/config/default.yml recordWebcams)
+
                 echo
                 echo "/usr/local/bigbluebutton/bbb-webrtc-sfu/config/default.yml (Kurento)"
                 echo "                        kurentoUrl: $KURENTO_URL"

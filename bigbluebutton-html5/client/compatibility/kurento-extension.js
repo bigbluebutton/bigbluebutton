@@ -97,6 +97,10 @@ KurentoManager.prototype.exitScreenShare = function () {
       this.kurentoScreenshare.logger.info('  [exitScreenShare] Exiting screensharing');
     }
 
+    if(this.kurentoScreenshare.webRtcPeer) {
+      this.kurentoScreenshare.webRtcPeer.peerConnection.oniceconnectionstatechange = null;
+    }
+
     if (this.kurentoScreenshare.ws !== null) {
       this.kurentoScreenshare.ws.onclose = function () {};
       this.kurentoScreenshare.ws.close();

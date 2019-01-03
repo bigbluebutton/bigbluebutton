@@ -20,6 +20,7 @@ const propTypes = {
   toggleMuteAllUsers: PropTypes.func.isRequired,
   toggleMuteAllUsersExceptPresenter: PropTypes.func.isRequired,
   toggleStatus: PropTypes.func.isRequired,
+  mountModal: PropTypes.func.isRequired,
 };
 
 const intlMessages = defineMessages({
@@ -83,7 +84,14 @@ class UserOptions extends PureComponent {
   }
 
   componentWillMount() {
-    const { intl, isMeetingMuted, mountModal } = this.props;
+    const {
+      intl,
+      isMeetingMuted,
+      mountModal,
+      toggleStatus,
+      toggleMuteAllUsers,
+      toggleMuteAllUsersExceptPresenter,
+    } = this.props;
 
     this.menuItems = _.compact([
       (<DropdownListItem
@@ -91,21 +99,21 @@ class UserOptions extends PureComponent {
         icon="clear_status"
         label={intl.formatMessage(intlMessages.clearAllLabel)}
         description={intl.formatMessage(intlMessages.clearAllDesc)}
-        onClick={this.props.toggleStatus}
+        onClick={toggleStatus}
       />),
       (<DropdownListItem
         key={_.uniqueId('list-item-')}
         icon="mute"
         label={intl.formatMessage(intlMessages.muteAllLabel)}
         description={intl.formatMessage(intlMessages.muteAllDesc)}
-        onClick={this.props.toggleMuteAllUsers}
+        onClick={toggleMuteAllUsers}
       />),
       (<DropdownListItem
         key={_.uniqueId('list-item-')}
         icon="mute"
         label={intl.formatMessage(intlMessages.muteAllExceptPresenterLabel)}
         description={intl.formatMessage(intlMessages.muteAllExceptPresenterDesc)}
-        onClick={this.props.toggleMuteAllUsersExceptPresenter}
+        onClick={toggleMuteAllUsersExceptPresenter}
       />),
       (<DropdownListItem
         key={_.uniqueId('list-item-')}
@@ -122,7 +130,8 @@ class UserOptions extends PureComponent {
   }
 
   componentDidUpdate(prevProps) {
-    if (prevProps.isMeetingMuted !== this.props.isMeetingMuted) {
+    const { isMeetingMuted } = this.props;
+    if (prevProps.isMeetingMuted !== isMeetingMuted) {
       this.alterMenu();
     }
   }
@@ -140,16 +149,23 @@ class UserOptions extends PureComponent {
   }
 
   alterMenu() {
-    const { intl, isMeetingMuted } = this.props;
+    const {
+      intl,
+      isMeetingMuted,
+      toggleMuteAllUsers,
+      toggleMuteAllUsersExceptPresenter,
+    } = this.props;
 
     if (isMeetingMuted) {
-      const menuButton = (<DropdownListItem
-        key={_.uniqueId('list-item-')}
-        icon="unmute"
-        label={intl.formatMessage(intlMessages.unmuteAllLabel)}
-        description={intl.formatMessage(intlMessages.unmuteAllDesc)}
-        onClick={this.props.toggleMuteAllUsers}
-      />);
+      const menuButton = (
+        <DropdownListItem
+          key={_.uniqueId('list-item-')}
+          icon="unmute"
+          label={intl.formatMessage(intlMessages.unmuteAllLabel)}
+          description={intl.formatMessage(intlMessages.unmuteAllDesc)}
+          onClick={toggleMuteAllUsers}
+        />
+      );
       this.menuItems.splice(1, 2, menuButton);
     } else {
       const muteMeetingButtons = [(<DropdownListItem
@@ -157,13 +173,13 @@ class UserOptions extends PureComponent {
         icon="mute"
         label={intl.formatMessage(intlMessages.muteAllLabel)}
         description={intl.formatMessage(intlMessages.muteAllDesc)}
-        onClick={this.props.toggleMuteAllUsers}
+        onClick={toggleMuteAllUsers}
       />), (<DropdownListItem
         key={_.uniqueId('list-item-')}
         icon="mute"
         label={intl.formatMessage(intlMessages.muteAllExceptPresenterLabel)}
         description={intl.formatMessage(intlMessages.muteAllExceptPresenterDesc)}
-        onClick={this.props.toggleMuteAllUsersExceptPresenter}
+        onClick={toggleMuteAllUsersExceptPresenter}
       />)];
 
       this.menuItems.splice(1, 1, muteMeetingButtons[0], muteMeetingButtons[1]);
@@ -172,12 +188,13 @@ class UserOptions extends PureComponent {
 
   render() {
     const { intl } = this.props;
+    const { isUserOptionsOpen } = this.state;
 
     return (
       <Dropdown
         ref={(ref) => { this.dropdown = ref; }}
         autoFocus={false}
-        isOpen={this.state.isUserOptionsOpen}
+        isOpen={isUserOptionsOpen}
         onShow={this.onActionsShow}
         onHide={this.onActionsHide}
         className={styles.dropdown}

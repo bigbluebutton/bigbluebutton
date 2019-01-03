@@ -22,9 +22,9 @@ dependencies {
 	providedCompile 'javax.servlet:servlet-api:2.5@jar'
 
 	// Mina
-	providedCompile 'org.apache.mina:mina-core:2.0.17@jar'
-	providedCompile 'org.apache.mina:mina-integration-beans:2.0.17@jar'
-	providedCompile 'org.apache.mina:mina-integration-jmx:2.0.17@jar'
+	providedCompile 'org.apache.mina:mina-core:2.0.19@jar'
+	providedCompile 'org.apache.mina:mina-integration-beans:2.0.19@jar'
+	providedCompile 'org.apache.mina:mina-integration-jmx:2.0.19@jar'
 
 	// Spring
 	providedCompile 'org.springframework:spring-web:4.3.12.RELEASE@jar'
@@ -33,9 +33,9 @@ dependencies {
 	providedCompile 'org.springframework:spring-core:4.3.12.RELEASE@jar'
 
 	// Red5
-	providedCompile 'org.red5:red5-server:1.0.10-M5@jar'
-	providedCompile 'org.red5:red5-server-common:1.0.10-M5@jar'
-	providedCompile 'org.red5:red5-io:1.0.10-M5@jar'
+	providedCompile 'org.red5:red5-server:1.0.10-M9@jar'
+	providedCompile 'org.red5:red5-server-common:1.0.10-M9@jar'
+	providedCompile 'org.red5:red5-io:1.0.10-M9@jar'
 
 	// Logging
 	providedCompile 'ch.qos.logback:logback-core:1.2.3@jar'
@@ -62,7 +62,7 @@ dependencies {
 	compile 'commons-pool:commons-pool:1.5.6'
 	compile 'com.google.code.gson:gson:1.7.1'
 
-  compile 'org.bigbluebutton:bbb-common-message_2.12:0.0.19-SNAPSHOT'
+  compile 'org.bigbluebutton:bbb-common-message_2.12:0.0.20-SNAPSHOT'
 
 }
 

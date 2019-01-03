@@ -31,7 +31,7 @@
 
       &:hover,
       &:focus {
-        background-color: var(--color-gray-light);
+        background-color: transparentize(#8B9AA8, .85);
       }
 
       th,
@@ -149,13 +149,17 @@
   }
 }
 
-.dropzone {
+.dropzoneWrapper {
   width: 100%;
-  display: block;
+  display: flex;
+  margin-top: calc(var(--lg-padding-y) * 5);
+}
+
+.dropzone {
+  flex: auto;
   border: 2px dashed;
   border-radius: var(--border-radius);
-  padding: calc(var(--lg-padding-y) * 2.5) calc(var(--lg-padding-x) * 2.5);
-  margin-top: calc(var(--lg-padding-y) * 5);
+  padding: calc(var(--lg-padding-y) * 2.5) var(--lg-padding-x);
   text-align: center;
   font-size: var(--font-size-large);
   cursor: pointer;

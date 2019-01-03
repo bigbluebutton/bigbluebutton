@@ -62,7 +62,7 @@
   min-height: 2.5rem;
   max-height: 10rem;
   border: 1px solid var(--color-gray-lighter);
-  box-shadow: 0 0 0 2px var(--color-gray-lighter);
+  box-shadow: 0 0 0 1px var(--color-gray-lighter);
 
   &:disabled,
   &[disabled] {
@@ -78,6 +78,7 @@
   font-size: 0.9rem;
   i {
     font-size: 115% !important;
+    line-height: 115%;
   }
 }
 

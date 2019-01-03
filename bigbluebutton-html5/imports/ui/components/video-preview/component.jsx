@@ -49,9 +49,25 @@ const intlMessages = defineMessages({
     id: 'app.videoPreview.webcamNotFoundLabel',
     description: 'Webcam not found label',
   },
-  sharingError: {
-    id: 'app.video.sharingError',
-    description: 'Error on sharing webcam',
+  permissionError: {
+    id: 'app.video.permissionError',
+    description: 'Error message for webcam permission',
+  },
+  NotFoundError: {
+    id: 'app.video.notFoundError',
+    description: 'error message when can not get webcam video',
+  },
+  NotAllowedError: {
+    id: 'app.video.notAllowed',
+    description: 'error message when webcam had permission denied',
+  },
+  NotSupportedError: {
+    id: 'app.video.notSupportedError',
+    description: 'error message when origin do not have ssl valid',
+  },
+  NotReadableError: {
+    id: 'app.video.notReadableError',
+    description: 'error message When the webcam is being used by other software',
   },
 });
 
@@ -91,6 +107,16 @@ class VideoPreview extends Component {
     }
   }
 
+  handlegUMError(error) {
+    const {
+      intl,
+    } = this.props;
+    const errorMessage = intlMessages[error.name]
+      || intlMessages.permissionError;
+    notify(intl.formatMessage(errorMessage), 'error', 'video');
+    logger.error(error);
+  }
+
   handleSelectWebcam(event) {
     const {
       intl,
@@ -108,8 +134,7 @@ class VideoPreview extends Component {
       this.video.srcObject = stream;
       this.deviceStream = stream;
     }).catch((error) => {
-      notify(intl.formatMessage(intlMessages.sharingError), 'error', 'video');
-      logger.error(error);
+      this.handlegUMError(error);
     });
   }
 
@@ -156,8 +181,9 @@ class VideoPreview extends Component {
           this.setState({ availableWebcams: webcams });
         }
       });
-    }).catch(() => {
+    }).catch((error) => {
       this.setState({ isStartSharingDisabled: true });
+      this.handlegUMError(error);
     });
   }
 
