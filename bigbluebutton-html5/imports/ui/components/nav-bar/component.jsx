@@ -59,7 +59,10 @@ const intlMessages = defineMessages({
 const propTypes = {
   presentationTitle: PropTypes.string,
   hasUnreadMessages: PropTypes.bool,
-  recordProps: PropTypes.objectOf(PropTypes.any),
+  recordProps: PropTypes.shape({
+    time: PropTypes.number,
+    recording: PropTypes.bool,
+  }),
   shortcuts: PropTypes.string,
 };
 
