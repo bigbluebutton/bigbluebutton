@@ -37,8 +37,6 @@
   flex-shrink: 0;
   width: 100%;
   text-transform: uppercase;
-  // margin-top: .25rem;
   margin-bottom: .25rem;
-  background-color: #808080;
   @extend %text-elipsis;
 }
