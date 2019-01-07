@@ -16,3 +16,27 @@
 //	 bottom: 0;
 //   }
 // }
+
+.fullscreenButton {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  // z-index: 2;
+
+  padding: 0;
+
+  background-color: #ff000000;
+}
+
+.button {
+
+  span, span:active, span:hover {
+    background-color: #ff000000;
+
+    border: 0;
+
+    i {
+      font-weight: bold;
+    }
+  }
+}

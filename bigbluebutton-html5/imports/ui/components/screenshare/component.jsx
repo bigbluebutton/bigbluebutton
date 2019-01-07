@@ -1,5 +1,7 @@
 import React from 'react';
 
+import FullscreenButton from '../video-provider/fullscreen-button/component';
+
 import { styles } from './styles';
 
 export default class ScreenshareComponent extends React.Component {
@@ -27,10 +29,28 @@ export default class ScreenshareComponent extends React.Component {
     this.setState({ loaded: true });
   }
 
+  renderFullscreenButton() {
+    const full = () => {
+      if (!this.videoTag) {
+        return;
+      }
+
+      this.videoTag.requestFullscreen();
+    };
+    return <FullscreenButton handleFullscreen={full} />;
+  }
+
   render() {
+
+    const style = {
+      right: 0,
+      bottom: 0,
+    };
+
     return (
       [!this.state.loaded ? (<div key="screenshareArea" className={styles.connecting} />) : null,
-        (<video key="screenshareVideo" id="screenshareVideo" style={{ maxHeight: '100%', width: '100%' }} autoPlay playsInline onLoadedData={this.onVideoLoad} />)]
+        this.renderFullscreenButton(),
+        (<video key="screenshareVideo" id="screenshareVideo" style={{ maxHeight: '100%', width: '100%' }} autoPlay playsInline onLoadedData={this.onVideoLoad} ref={(ref) => { this.videoTag = ref; }} />)]
     );
   }
 }

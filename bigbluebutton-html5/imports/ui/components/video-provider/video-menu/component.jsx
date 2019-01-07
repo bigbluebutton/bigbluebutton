@@ -25,7 +25,6 @@ const intlMessages = defineMessages({
 const propTypes = {
   intl: intlShape.isRequired,
   isSharingVideo: PropTypes.bool.isRequired,
-  videoItems: PropTypes.arrayOf(PropTypes.object).isRequired,
 };
 
 const JoinVideoOptions = ({

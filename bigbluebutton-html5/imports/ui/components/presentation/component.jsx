@@ -12,6 +12,7 @@ import Slide from './slide/component';
 import { styles } from './styles.scss';
 import MediaService from '../media/service';
 import PresentationCloseButton from './presentation-close-button/component';
+import FullscreenButton from '../video-provider/fullscreen-button/component';
 
 export default class PresentationArea extends Component {
   constructor() {
@@ -326,8 +327,8 @@ export default class PresentationArea extends Component {
     const marginTop = (this.state.presentationHeight - adjustedSizes.height) / 2.0;
 
     const style = {
-      right: `${marginRight}px`,
-      top: `${marginTop}px`,
+      right: `${marginRight - 102}px`,
+      top: `${marginTop - 102}px`,
     };
 
     return (
@@ -336,6 +337,27 @@ export default class PresentationArea extends Component {
         toggleSwapLayout={MediaService.toggleSwapLayout}
       />
     );
+  }
+
+  renderPresentationFullscreen() {
+    const full = () => {
+      if (!this.refPresentationArea) {
+        return;
+      }
+
+      this.refPresentationArea.requestFullscreen();
+    };
+
+    const adjustedSizes = this.calculateSize();
+    const marginRight = (this.state.presentationWidth - adjustedSizes.width) / 2.0;
+    const marginTop = (this.state.presentationHeight - adjustedSizes.height) / 2.0;
+
+    const style = {
+      right: `${marginRight}px`,
+      bottom: `${marginTop}px`,
+    };
+
+    return <FullscreenButton innerStyle={style} handleFullscreen={full} />;
   }
 
   renderPresentationToolbar() {
@@ -382,6 +404,7 @@ export default class PresentationArea extends Component {
             className={styles.whiteboardSizeAvailable}
           />
           { this.renderPresentationClose() }
+          { this.renderPresentationFullscreen() }
           {this.state.showSlide ?
               this.renderPresentationArea()
             : null }
