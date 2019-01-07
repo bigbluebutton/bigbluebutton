@@ -327,8 +327,8 @@ export default class PresentationArea extends Component {
     const marginTop = (this.state.presentationHeight - adjustedSizes.height) / 2.0;
 
     const style = {
-      right: `${marginRight - 102}px`,
-      top: `${marginTop - 102}px`,
+      right: `${marginRight - 82}px`,
+      top: `${marginTop - 82}px`,
     };
 
     return (

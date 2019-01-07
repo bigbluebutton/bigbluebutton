@@ -67,17 +67,29 @@
 
 .topRight {
   position: absolute;
+  padding: 80px;
+}
+
+.topRight .close {
+  display: none;
+  transition: 1s;
+}
+
+.topRight:hover .close {
+  display: initial;
 }
 
 .close {
+  background-color: var(--btn-primary-bg);
+  padding: 0;
   i {
-    color: var(--toolbar-button-color);
+    color: white;
     font-weight: bold;
   }
   cursor: pointer;
 
   button.span.button {
-    background-color: rgba(0,0,0,0.1);
+    background-color: var(--btn-primary-bg);
   }
 }
 

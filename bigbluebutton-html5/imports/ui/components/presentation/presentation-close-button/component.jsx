@@ -24,11 +24,10 @@ const ClosePresentationComponent = ({
        aria-describedby="closeDesc"
        color="default"
        icon="close"
-       size="md"
+       size="sm"
        onClick={toggleSwapLayout}
        label={intl.formatMessage(intlMessages.closePresentationLabel)}
        hideLabel
-       circle
        className={styles.close}
      />
     </div>
