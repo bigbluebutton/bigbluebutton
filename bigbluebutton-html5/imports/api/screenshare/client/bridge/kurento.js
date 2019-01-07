@@ -59,7 +59,7 @@ export default class KurentoScreenshareBridge {
       logger.error({ logCode: 'kurentowatchvideo_fetchstunturninfo_error' }, 'Screenshare bridge failed to fetch STUN/TURN info, using default');
     } finally {
       const options = {
-        wsUrl: SFU_URL,
+        wsUrl: Auth.authenticateURL(SFU_URL),
         iceServers,
         logger: modLogger,
       };
@@ -88,7 +88,7 @@ export default class KurentoScreenshareBridge {
       logger.error({ logCode: 'kurentosharescreen_fetchstunturninfo_error' }, 'Screenshare bridge failed to fetch STUN/TURN info, using default');
     } finally {
       const options = {
-        wsUrl: SFU_URL,
+        wsUrl: Auth.authenticateURL(SFU_URL),
         chromeExtension: CHROME_EXTENSION_KEY,
         chromeScreenshareSources: CHROME_SCREENSHARE_SOURCES,
         firefoxScreenshareSource: FIREFOX_SCREENSHARE_SOURCE,
