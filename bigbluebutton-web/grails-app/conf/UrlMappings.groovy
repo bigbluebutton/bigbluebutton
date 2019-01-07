@@ -89,6 +89,10 @@ class UrlMappings {
 			action = [POST:'putRecordingTextTrack']
 		}
 
+		"/connection/checkAuthorization"(controller:"connection") {
+			action = [GET:'checkAuthorization']
+		}
+
 		"/$controller/$action?/$id?(.${format})?"{
 			constraints {
 				// apply constraints here

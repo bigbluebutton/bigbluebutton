@@ -74,7 +74,7 @@ export default class KurentoAudioBridge extends BaseAudioBridge {
       } finally {
         logFunc('info', "iceServers", iceServers);
         const options = {
-          wsUrl: SFU_URL,
+          wsUrl: Auth.authenticateURL(SFU_URL),
           userName: this.user.name,
           caleeName: `${GLOBAL_AUDIO_PREFIX}${this.voiceBridge}`,
           iceServers,

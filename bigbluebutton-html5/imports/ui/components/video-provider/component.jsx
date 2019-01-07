@@ -6,6 +6,7 @@ import { fetchWebRTCMappedStunTurnServers } from '/imports/utils/fetchStunTurnSe
 import ReconnectingWebSocket from 'reconnecting-websocket';
 import logger from '/imports/startup/client/logger';
 import { Session } from 'meteor/session';
+import Auth from '/imports/ui/services/auth';
 
 import VideoService from './service';
 import VideoList from './video-list/component';
@@ -108,7 +109,7 @@ class VideoProvider extends Component {
     };
 
     // Set a valid bbb-webrtc-sfu application server socket in the settings
-    this.ws = new ReconnectingWebSocket(Meteor.settings.public.kurento.wsUrl);
+    this.ws = new ReconnectingWebSocket(Auth.authenticateURL(Meteor.settings.public.kurento.wsUrl));
     this.wsQueue = [];
 
     this.visibility = new VisibilityEvent();
