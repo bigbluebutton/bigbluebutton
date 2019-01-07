@@ -13,6 +13,7 @@ const propTypes = {
 };
 
 const APP_CONFIG = Meteor.settings.public.app;
+const { showParticipantsOnLogin } = APP_CONFIG;
 
 class JoinHandler extends Component {
   static setError(codeError) {
@@ -108,27 +109,26 @@ class JoinHandler extends Component {
     const fetchContent = await fetch(url, { credentials: 'same-origin' });
     const parseToJson = await fetchContent.json();
     const { response } = parseToJson;
+
     setLogoutURL(response);
+
     if (response.returncode !== 'FAILED') {
       await setAuth(response);
       await setCustomData(response);
       setLogoURL(response);
       logUserInfo();
 
-      const { showParticipantsOnLogin } = APP_CONFIG;
-
-      if (showParticipantsOnLogin) {
+      if (showParticipantsOnLogin && !deviceInfo.type().isPhone) {
         Session.set('openPanel', 'chat');
         Session.set('idChatOpen', '');
-        if (deviceInfo.type().isPhone) Session.set('openPanel', '');
       } else {
         Session.set('openPanel', '');
       }
 
-
       logger.info(`User successfully went through main.joinRouteHandler with [${JSON.stringify(response)}].`);
     } else {
-      const e = new Error('Session not found');
+      const e = new Error(response.message);
+      Session.set('JoinErrorMessage', response.message);
       logger.error(`User faced [${e}] on main.joinRouteHandler. Error was:`, JSON.stringify(response));
     }
     this.changeToJoin(true);
