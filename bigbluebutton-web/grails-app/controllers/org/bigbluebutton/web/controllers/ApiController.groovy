@@ -1573,9 +1573,9 @@ class ApiController {
       allowStunsWithoutSession = paramsProcessorUtil.getAllowRequestsWithoutSession();
     }
 
-    if (meetingService.getUserSessionWithAuthToken(sessionToken) == null || (!allowStunsWithoutSession && !session[sessionToken]))
+    if (meetingService.getUserSessionWithAuthToken(sessionToken) == null || (!allowStunsWithoutSession && !session[sessionToken])) {
       reject = true;
-    else {
+    } else {
       us = meetingService.getUserSessionWithAuthToken(sessionToken);
       meeting = meetingService.getMeeting(us.meetingID);
       if (meeting == null || meeting.isForciblyEnded()) {
