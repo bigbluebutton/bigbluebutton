@@ -19,6 +19,9 @@ const intlMessages = defineMessages({
   401: {
     id: 'app.error.401',
   },
+  400: {
+    id: 'app.error.400',
+  },
   leave: {
     id: 'app.error.leaveLabel',
     description: 'aria-label for leaving',
@@ -67,10 +70,9 @@ class ErrorScreen extends React.PureComponent {
           {children}
         </div>
         {
-          !Session.get('JoinErrorMessage') || (
+          !Session.get('errorMessageDescription') || (
           <div className={styles.sessionMessage}>
-            {console.error(Session.get('JoinErrorMessage'))}
-            {Session.get('JoinErrorMessage')}
+            {Session.get('errorMessageDescription')}
           </div>)
         }
         <div>

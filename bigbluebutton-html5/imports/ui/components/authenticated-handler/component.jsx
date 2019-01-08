@@ -65,6 +65,7 @@ class AuthenticatedHandler extends Component {
   }
 
   componentDidMount() {
+    if (Session.get('codeError')) return this.changeState(true);
     AuthenticatedHandler.authenticatedRouteHandler((value, error) => {
       if (error) AuthenticatedHandler.setError(error);
       this.changeState(true);

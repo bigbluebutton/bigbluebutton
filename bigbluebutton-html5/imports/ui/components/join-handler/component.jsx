@@ -42,8 +42,10 @@ class JoinHandler extends Component {
   async fetchToken() {
     const urlParams = new URLSearchParams(window.location.search);
     const sessionToken = urlParams.get('sessionToken');
+
     if (!sessionToken) {
-      JoinHandler.setError('404');
+      JoinHandler.setError('400');
+      Session.set('errorMessageDescription', 'Session token was not provided');
     }
 
     // Old credentials stored in memory were being used when joining a new meeting
@@ -128,7 +130,9 @@ class JoinHandler extends Component {
       logger.info(`User successfully went through main.joinRouteHandler with [${JSON.stringify(response)}].`);
     } else {
       const e = new Error(response.message);
-      Session.set('JoinErrorMessage', response.message);
+      console.error(Session.get('codeError'));
+      console.error(!Session.get('codeError'));
+      if (!Session.get('codeError')) Session.set('errorMessageDescription', response.message);
       logger.error(`User faced [${e}] on main.joinRouteHandler. Error was:`, JSON.stringify(response));
     }
     this.changeToJoin(true);
