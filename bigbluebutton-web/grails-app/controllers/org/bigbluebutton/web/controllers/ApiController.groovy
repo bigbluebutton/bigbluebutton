@@ -1419,10 +1419,15 @@ class ApiController {
     Meeting meeting = null;
     UserSession userSession = null;
 
+    Boolean allowEnterWithoutSession = false;
+    // Depending on configuration, allow ENTER requests to proceed without session
+    if (paramsProcessorUtil.getAllowRequestsWithoutSession()) {
+      allowEnterWithoutSession = paramsProcessorUtil.getAllowRequestsWithoutSession();
+    }
+
     String respMessage = "Session " + sessionToken + " not found."
-    if (!session[sessionToken]) {
-      reject = true;
-    } else if (meetingService.getUserSessionWithAuthToken(sessionToken) == null) {
+
+    if (meetingService.getUserSessionWithAuthToken(sessionToken) == null || (!allowEnterWithoutSession && !session[sessionToken])) {
       reject = true;
       respMessage = "Session " + sessionToken + " not found."
     } else {
@@ -1562,9 +1567,13 @@ class ApiController {
       println("Session token = [" + sessionToken + "]")
     }
 
-    if (!session[sessionToken]) {
-      reject = true;
-    } else if (meetingService.getUserSessionWithAuthToken(sessionToken) == null)
+    Boolean allowStunsWithoutSession = false;
+    // Depending on configuration, allow STUNS requests to proceed without session
+    if (paramsProcessorUtil.getAllowRequestsWithoutSession()) {
+      allowStunsWithoutSession = paramsProcessorUtil.getAllowRequestsWithoutSession();
+    }
+
+    if (meetingService.getUserSessionWithAuthToken(sessionToken) == null || (!allowStunsWithoutSession && !session[sessionToken]))
       reject = true;
     else {
       us = meetingService.getUserSessionWithAuthToken(sessionToken);
