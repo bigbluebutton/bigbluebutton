@@ -130,8 +130,6 @@ class JoinHandler extends Component {
       logger.info(`User successfully went through main.joinRouteHandler with [${JSON.stringify(response)}].`);
     } else {
       const e = new Error(response.message);
-      console.error(Session.get('codeError'));
-      console.error(!Session.get('codeError'));
       if (!Session.get('codeError')) Session.set('errorMessageDescription', response.message);
       logger.error(`User faced [${e}] on main.joinRouteHandler. Error was:`, JSON.stringify(response));
     }
