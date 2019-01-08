@@ -102,7 +102,7 @@ export default class SIPBridge extends BaseAudioBridge {
       isListenOnly ? `LISTENONLY-${name}` : name,
     ].join('-');
 
-    this.user.callerIdName = callerIdName;
+    this.user.callerIdName = callerIdName.replace(/"/g, "'");
     this.callOptions = options;
 
     return fetchStunTurnServers(sessionToken)
