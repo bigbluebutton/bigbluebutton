@@ -64,6 +64,7 @@ export default withTracker(() => {
 
   const breakouts = Service.getBreakouts();
   const currentUserId = Auth.userID;
+  const { connectRecordingObserver, processOutsideToggleRecording } = Service;
 
   const isExpanded = Session.get('isUserListOpen');
 
@@ -71,6 +72,8 @@ export default withTracker(() => {
     isExpanded,
     breakouts,
     currentUserId,
+    processOutsideToggleRecording,
+    connectRecordingObserver,
     meetingId,
     presentationTitle: meetingTitle,
     hasUnreadMessages: checkUnreadMessages(),

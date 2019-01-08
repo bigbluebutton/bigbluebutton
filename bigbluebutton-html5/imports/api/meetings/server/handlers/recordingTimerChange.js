@@ -5,6 +5,8 @@ import Logger from '/imports/startup/server/logger';
 export default function handleRecordingStatusChange({ body }, meetingId) {
   const { time } = body;
 
+  check(meetingId, String);
+
   check(body, {
     time: Number,
   });

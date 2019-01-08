@@ -19,7 +19,6 @@ import { styles } from './styles.scss';
 import Button from '../button/component';
 import RecordingIndicator from './recording-indicator/component';
 import SettingsDropdownContainer from './settings-dropdown/container';
-import ActionBarService from './service';
 
 const intlMessages = defineMessages({
   toggleUserListLabel: {
@@ -102,10 +101,15 @@ class NavBar extends PureComponent {
   }
 
   componentDidMount() {
+    const {
+      processOutsideToggleRecording,
+      connectRecordingObserver,
+    } = this.props;
+
     if (Meteor.settings.public.allowOutsideCommands.toggleRecording
       || getFromUserSettings('outsideToggleRecording', false)) {
-      ActionBarService.connectRecordingObserver();
-      window.addEventListener('message', ActionBarService.processOutsideToggleRecording);
+      connectRecordingObserver();
+      window.addEventListener('message', processOutsideToggleRecording);
     }
   }
 
