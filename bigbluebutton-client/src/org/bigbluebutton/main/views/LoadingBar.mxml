@@ -22,7 +22,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
 <mx:VBox xmlns:mate="http://mate.asfusion.com/"
 		 xmlns:fx="http://ns.adobe.com/mxml/2009"
-		 xmlns:mx="library://ns.adobe.com/flex/mx">
+		 xmlns:mx="library://ns.adobe.com/flex/mx"
+		 creationComplete="onCreationComplete()">
 
 	<fx:Declarations>
 		<mate:Listener type="{ModuleLoadEvent.MODULE_LOADING_STARTED}"
@@ -44,8 +45,11 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			import org.as3commons.logging.api.ILogger;
 			import org.as3commons.logging.api.getClassLogger;
 			import org.bigbluebutton.core.BBB;
+			import org.bigbluebutton.core.UsersUtil;
 			import org.bigbluebutton.main.events.ModuleLoadEvent;
 			import org.bigbluebutton.main.events.PortTestEvent;
+			import org.bigbluebutton.util.ConnUtil;
+			import org.bigbluebutton.util.browser.BrowserCheck;
 			import org.bigbluebutton.util.i18n.ResourceUtil;
 
 			private static const LOGGER:ILogger = getClassLogger(LoadingBar);
@@ -55,11 +59,19 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			private var numModules:int = 0;
 
 			private var portUpdateStr:String = 'Connecting to the server';
+			
+			private var portTestTimeout:Timer = new Timer(10000, 1);
 
+			private function onCreationComplete():void {
+				portTestTimeout.addEventListener(TimerEvent.TIMER, loadingUpdateTimeout);
+			}
+			
 			private function moduleLoadingStarted(e:ModuleLoadEvent):void {
 				numModules = BBB.getConfigManager().config.numberOfModules();
 				loadingbarLabel.text = ResourceUtil.getInstance().getString('bbb.mainshell.statusProgress.loading');
 				this.visible = true;
+				
+				portTestTimeout.stop();
 			}
 
 			private function moduleLoadProgress(e:ModuleLoadEvent):void {
@@ -88,6 +100,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			private function testRTMP(e:PortTestEvent):void {
 				//- Cannot get locale string this early in loading process
 				loadingbarLabel.text = portUpdateStr; //ResourceUtil.getInstance().getString('bbb.mainshell.statusProgress.connecting');
+				
+				portTestTimeout.start();
 			}
 
 			private function testRTMPupdate(e:PortTestEvent):void {
@@ -98,10 +112,31 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
 			private function tunnelingFailed(e:PortTestEvent):void {
 				loadingbarLabel.text = ResourceUtil.getInstance().getString('bbb.mainshell.statusProgress.cannotConnectServer');
+				
+				portTestTimeout.stop();
 			}
 			
 			public function loadingFailed(message:String):void {
 				loadingbarLabel.text = message;
+				
+				portTestTimeout.stop();
+			}
+			
+			private function loadingUpdateTimeout(e:TimerEvent):void {
+				// Have to figure out the protocol first
+				var hostname:String = BBB.initConnectionManager().portTestHost;
+				var pattern:RegExp = /(?P<protocol>.+):\/\/(?P<server>.+)/;
+				var result:Array = pattern.exec(hostname);
+				
+				if (Capabilities.os == "Windows 10" && BrowserCheck.isFirefox() && BrowserCheck.browserMajorVersion >= "62" && result.protocol == ConnUtil.RTMPS) {
+					loadingbarLabel.text = ResourceUtil.getInstance().getString("bbb.mainshell.statusProgress.connectingTimeout");
+					
+					var logData:Object = UsersUtil.initLogData();
+					logData.tags = ["initialization", "loading-bar", "connection"];
+					logData.message = "Timeout expired while waiting for the port test";
+					logData.logCode = "loading_bar_timeout_hit";
+					LOGGER.info(JSON.stringify(logData));
+				}
 			}
 		]]>
 	</fx:Script>
