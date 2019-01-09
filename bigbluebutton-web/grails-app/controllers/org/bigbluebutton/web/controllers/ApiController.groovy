@@ -68,7 +68,7 @@ class ApiController {
   private static final String RESP_CODE_FAILED = 'FAILED'
   private static final String ROLE_MODERATOR = "MODERATOR";
   private static final String ROLE_ATTENDEE = "VIEWER";
-  private static final String REDIRECT_RESPONSE = true
+  private static final Boolean REDIRECT_RESPONSE = true
 
   MeetingService meetingService;
   PresentationService presentationService
@@ -99,7 +99,7 @@ class ApiController {
   def create = {
     String API_CALL = 'create'
     log.debug CONTROLLER_NAME + "#${API_CALL}"
-    log.debug params
+    log.debug request.getParameterMap().toMapString()
 
     // BEGIN - backward compatibility
     if (StringUtils.isEmpty(params.checksum)) {
