@@ -16,10 +16,9 @@ const NOTE_CONFIG = Meteor.settings.public.note;
  * @returns {integer | string}
  */
 const hashFNV32a = (str, asString, seed) => {
-  var i, l,
-    hval = (seed === undefined) ? 0x811c9dc5 : seed;
+  let hval = (seed === undefined) ? 0x811c9dc5 : seed;
 
-  for (i = 0, l = str.length; i < l; i++) {
+  for (let i = 0, l = str.length; i < l; i++) {
     hval ^= str.charCodeAt(i);
     hval += (hval << 1) + (hval << 4) + (hval << 7) + (hval << 8) + (hval << 24);
   }
@@ -35,30 +34,23 @@ const generateNoteId = () => {
   return noteId;
 };
 
-const getUserName = () => {
-  const userId = Auth.userID;
-  const User = Users.findOne({ userId });
-  const userName = User.name;
-  return userName;
-};
-
-const getUserColor = () => {
-  const userId = Auth.userID;
-  const User = Users.findOne({ userId });
-  const userColor = User.color;
-  return userColor;
-};
-
 const getLang = () => {
   const locale = Settings.application.locale;
   const lang = locale.toLowerCase();
   return lang;
 };
 
+const getCurrentUser = () => {
+  const userId = Auth.userID;
+  const User = Users.findOne({ userId });
+  return User;
+};
+
 const getNoteParams = () => {
   let config = NOTE_CONFIG.config;
-  config.userName = getUserName();
-  config.userColor = getUserColor();
+  const User = getCurrentUser();
+  config.userName = User.name;
+  config.userColor = User.color;
   config.lang = getLang();
 
   let params = [];
