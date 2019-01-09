@@ -194,14 +194,14 @@ class App extends Component {
 
   render() {
     const {
-      customStyle, customStyleUrl, micsLocked,
+      customStyle, customStyleUrl, micsLocked, openPanel,
     } = this.props;
 
     return (
       <main className={styles.main}>
         <NotificationsBarContainer />
         <section className={styles.wrapper}>
-          <div className={styles.content}>
+          <div className={openPanel ? styles.content : styles.noPanelContent}>
             {this.renderNavBar()}
             {this.renderMedia()}
             {this.renderActionsBar()}
