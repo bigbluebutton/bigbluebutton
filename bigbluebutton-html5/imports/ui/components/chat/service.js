@@ -18,6 +18,7 @@ const PUBLIC_CHAT_ID = CHAT_CONFIG.public_id;
 const PUBLIC_GROUP_CHAT_ID = CHAT_CONFIG.public_group_id;
 const PRIVATE_CHAT_TYPE = CHAT_CONFIG.type_private;
 const PUBLIC_CHAT_USER_ID = CHAT_CONFIG.system_userid;
+const PUBLIC_CHAT_CLEAR = CHAT_CONFIG.system_messages_keys.chat_clear;
 
 const ScrollCollection = new Mongo.Collection(null);
 
@@ -248,8 +249,35 @@ const htmlDecode = (input) => {
 };
 
 // Export the chat as [Hour:Min] user: message
-const exportChat = messageList => (
-  messageList.map((message) => {
+const exportChat = (messageList) => {
+  const { welcomeProp } = getMeeting();
+  const { isModerator, logTime } = getUser(Auth.userID);
+  const { welcomeMsg, modOnlyMessage } = welcomeProp;
+
+  const clearMessage = messageList.filter(message => message.message === PUBLIC_CHAT_CLEAR);
+
+  const hasClearMessage = clearMessage.length;
+
+  if (!hasClearMessage || (hasClearMessage && clearMessage[0].timestamp < logTime)) {
+    messageList.push({
+      timestamp: logTime,
+      message: welcomeMsg,
+      type: SYSTEM_CHAT_TYPE,
+      sender: PUBLIC_CHAT_USER_ID,
+    });
+    if (isModerator) {
+      messageList.push({
+        timestamp: logTime + 1,
+        message: modOnlyMessage,
+        type: SYSTEM_CHAT_TYPE,
+        sender: PUBLIC_CHAT_USER_ID,
+      });
+    }
+  }
+
+  messageList.sort((a, b) => a.timestamp - b.timestamp);
+
+  return messageList.map((message) => {
     const date = new Date(message.timestamp);
     const hour = date.getHours().toString().padStart(2, 0);
     const min = date.getMinutes().toString().padStart(2, 0);
@@ -259,8 +287,8 @@ const exportChat = messageList => (
     }
     const userName = message.sender === PUBLIC_CHAT_USER_ID ? '' : `${getUser(message.sender).name} :`;
     return `${hourMin} ${userName} ${htmlDecode(message.message)}`;
-  }).join('\n')
-);
+  }).join('\n');
+};
 
 const setNotified = (chatType, item) => {
   const notified = Storage.getItem('notified');
