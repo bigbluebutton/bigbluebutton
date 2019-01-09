@@ -2,7 +2,7 @@
 @import "/imports/ui/stylesheets/variables/_all";
 
 .note {
-  background-color: #fff;
+  background-color: var(--color-white);
   padding: var(--md-padding-x);
   display: flex;
   flex-grow: 1;
@@ -46,7 +46,7 @@
 
 .hideBtn {
   position: relative;
-  background-color: white;
+  background-color: var(--color-white);
   display: block;
   margin: 4px;
   margin-bottom: 2px;
@@ -57,7 +57,7 @@
   }
 
   &:hover {
-    background-color: #fff;
+    background-color: var(--color-white);
   }
 }
 
