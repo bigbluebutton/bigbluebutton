@@ -20,6 +20,8 @@ import es from 'react-intl/locale-data/es';
 import id from 'react-intl/locale-data/id';
 import el from 'react-intl/locale-data/el';
 import it from 'react-intl/locale-data/it';
+import bg from 'react-intl/locale-data/bg';
+
 
 addLocaleData([
   ...en,
@@ -37,6 +39,7 @@ addLocaleData([
   ...id,
   ...el,
   ...it,
+  ...bg,
 ]);
 
 const propTypes = {
