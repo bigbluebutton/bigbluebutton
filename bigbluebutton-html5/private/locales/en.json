@@ -431,7 +431,7 @@
     "app.sfu.noAvailableCodec2203": "Error 2203: Server could not find an appropriate codec",
     "app.meeting.endNotification.ok.label": "OK",
     "app.whiteboard.toolbar.tools": "Tools",
-    "app.whiteboard.toolbar.tools.hand": "Hand",
+    "app.whiteboard.toolbar.tools.hand": "Pan",
     "app.whiteboard.toolbar.tools.pencil": "Pencil",
     "app.whiteboard.toolbar.tools.rectangle": "Rectangle",
     "app.whiteboard.toolbar.tools.triangle": "Triangle",
