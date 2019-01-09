@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 import { styles } from './styles';
 import UserParticipantsContainer from './user-participants/container';
 import UserMessages from './user-messages/component';
+import UserNotes from './user-notes/component';
 import UserPolls from './user-polls/component';
 import BreakoutRoomItem from './breakout-room/component';
 
@@ -81,6 +82,11 @@ class UserContent extends PureComponent {
             compact,
             intl,
             roving,
+          }}
+        />
+        <UserNotes
+          {...{
+            intl,
           }}
         />
         <UserPolls

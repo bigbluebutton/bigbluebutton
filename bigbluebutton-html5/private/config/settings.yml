@@ -120,6 +120,13 @@ public:
     storage_key: UNREAD_CHATS
     system_messages_keys:
       chat_clear: PUBLIC_CHAT_CLEAR
+  note:
+    enabled: false
+    url: ETHERPAD_HOST
+    config:
+      noColors: true
+      showControls: true
+      rtl: false
   layout:
     autoSwapLayout: false
     hidePresentation: false
