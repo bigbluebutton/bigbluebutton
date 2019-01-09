@@ -58,11 +58,9 @@
   }
 }
 
-.content {
+.content, .noPanelContent {
   @extend %full-page;
   order: 3;
-
-  margin-left: var(--panel-margin-left);
 
   &:before,
   &:after {
@@ -92,6 +90,9 @@
   }
 }
 
+.content{
+  margin-left: var(--panel-margin-left);
+}
 
 .userList {
   @extend %full-page;
