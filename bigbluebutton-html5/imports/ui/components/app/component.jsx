@@ -195,8 +195,6 @@ class App extends Component {
       customStyle, customStyleUrl, micsLocked, openPanel,
     } = this.props;
 
-    console.log(openPanel);
-
     return (
       <main className={styles.main}>
         <NotificationsBarContainer />
