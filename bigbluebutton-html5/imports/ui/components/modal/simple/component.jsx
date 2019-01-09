@@ -6,7 +6,7 @@ import ModalBase, { withModalState } from '../base/component';
 import { styles } from './styles';
 
 const propTypes = {
-  title: PropTypes.string.isRequired,
+  title: PropTypes.string,
   dismiss: PropTypes.shape({
     callback: PropTypes.func,
     label: PropTypes.string.isRequired,
@@ -36,6 +36,7 @@ class ModalSimple extends Component {
   render() {
     const {
       title,
+      hideBorder,
       dismiss,
       className,
       modalisOpen,
@@ -50,16 +51,16 @@ class ModalSimple extends Component {
         contentLabel={title}
         {...otherProps}
       >
-        <header className={styles.header}>
+        <header className={hideBorder ? styles.headerNoBorder : styles.header}>
           <h1 className={styles.title}>{title}</h1>
           <Button
             className={styles.dismiss}
             label={dismiss.label}
-            icon={'close'}
+            icon="close"
             circle
             hideLabel
             onClick={this.handleDismiss}
-            aria-describedby={'modalDismissDescription'}
+            aria-describedby="modalDismissDescription"
           />
         </header>
         <div className={styles.content}>
