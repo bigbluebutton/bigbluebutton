@@ -251,8 +251,8 @@ const htmlDecode = (input) => {
 // Export the chat as [Hour:Min] user: message
 const exportChat = (messageList) => {
   const { welcomeProp } = getMeeting();
-  const { isModerator, logTime } = getUser(Auth.userID);
-  const { welcomeMsg, modOnlyMessage } = welcomeProp;
+  const { logTime } = getUser(Auth.userID);
+  const { welcomeMsg } = welcomeProp;
 
   const clearMessage = messageList.filter(message => message.message === PUBLIC_CHAT_CLEAR);
 
@@ -265,14 +265,6 @@ const exportChat = (messageList) => {
       type: SYSTEM_CHAT_TYPE,
       sender: PUBLIC_CHAT_USER_ID,
     });
-    if (isModerator) {
-      messageList.push({
-        timestamp: logTime + 1,
-        message: modOnlyMessage,
-        type: SYSTEM_CHAT_TYPE,
-        sender: PUBLIC_CHAT_USER_ID,
-      });
-    }
   }
 
   messageList.sort((a, b) => a.timestamp - b.timestamp);
