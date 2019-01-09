@@ -57,12 +57,13 @@ export default injectIntl(injectNotify(withTracker(({ notify, intl }) => {
 
   Meetings.find({ meetingId }).observe({
     changed: (newDocument, oldDocument) => {
-      if (newDocument.recordProp && newDocument.recordProp.recording && 
-        newDocument.recordProp.recording!== oldDocument.recordProp.recording) {
+      if (newDocument.recordProp && newDocument.recordProp.recording
+        && newDocument.recordProp.recording !== oldDocument.recordProp.recording) {
         notify(intl.formatMessage(intlMessages.notificationRecordingStart), 'success', 'record');
       }
 
-      if (newDocument.recordProp && !newDocument.recordProp.recording) {
+      if (newDocument.recordProp && !newDocument.recordProp.recording
+        && newDocument.recordProp.recording !== oldDocument.recordProp.recording) {
         notify(intl.formatMessage(intlMessages.notificationRecordingStop), 'error', 'record');
       }
     },
