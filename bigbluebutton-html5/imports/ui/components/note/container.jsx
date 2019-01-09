@@ -1,18 +1,9 @@
-import React, { Component } from 'react';
-import { defineMessages, injectIntl } from 'react-intl';
+import React, { PureComponent } from 'react';
 import { withTracker } from 'meteor/react-meteor-data';
 import Note from './component';
 import NoteService from './service';
 
-const intlMessages = defineMessages({
-  title: {
-    id: 'app.note.title',
-    description: 'Shared notes title',
-  },
-});
-
-class NoteContainer extends Component {
-  componentDidMount() {}
+class NoteContainer extends PureComponent {
   render() {
     return (
       <Note {...this.props}>
@@ -22,12 +13,10 @@ class NoteContainer extends Component {
   }
 }
 
-export default injectIntl(withTracker(({ params, intl }) => {
-  const title = intl.formatMessage(intlMessages.title);
+export default withTracker(() => {
   const url = NoteService.getNoteURL();
 
   return {
-    title,
     url,
   };
-})(NoteContainer));
+})(NoteContainer);

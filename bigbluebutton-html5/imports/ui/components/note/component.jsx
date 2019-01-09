@@ -11,11 +11,14 @@ const intlMessages = defineMessages({
     id: 'app.note.hideNoteLabel',
     description: 'Label for hiding note button',
   },
+  title: {
+    id: 'app.note.title',
+    description: 'Title for the shared notes',
+  },
 });
 
 const propTypes = {
   url: PropTypes.string.isRequired,
-  title: PropTypes.string.isRequired,
   intl: PropTypes.shape({
     formatMessage: PropTypes.func.isRequired,
   }).isRequired,
@@ -27,7 +30,6 @@ const defaultProps = {
 const Note = (props) => {
   const {
     url,
-    title,
     intl,
   } = props;
 
@@ -46,7 +48,7 @@ const Note = (props) => {
               Session.set('openPanel', 'userlist');
             }}
             aria-label={intl.formatMessage(intlMessages.hideNoteLabel)}
-            label={title}
+            label={intl.formatMessage(intlMessages.title)}
             icon="left_arrow"
             className={styles.hideBtn}
           />

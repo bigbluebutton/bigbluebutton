@@ -1,6 +1,6 @@
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
-import { defineMessages, injectIntl } from 'react-intl';
+import { defineMessages } from 'react-intl';
 import Icon from '/imports/ui/components/icon/component';
 import { Session } from 'meteor/session';
 import { styles } from './styles';
@@ -64,4 +64,4 @@ class UserNotes extends PureComponent {
 
 UserNotes.propTypes = propTypes;
 
-export default injectIntl(UserNotes);
+export default UserNotes;
