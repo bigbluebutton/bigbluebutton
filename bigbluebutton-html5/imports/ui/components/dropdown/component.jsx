@@ -45,7 +45,7 @@ const propTypes = {
 
     return null;
   },
-  isOpen: PropTypes.bool,
+  keepOpen: PropTypes.bool,
   onHide: PropTypes.func,
   onShow: PropTypes.func,
   autoFocus: PropTypes.bool,
@@ -53,7 +53,7 @@ const propTypes = {
 
 const defaultProps = {
   children: null,
-  isOpen: false,
+  keepOpen: null,
   onShow: noop,
   onHide: noop,
   autoFocus: false,
@@ -101,14 +101,19 @@ class Dropdown extends Component {
   handleWindowClick(event) {
     const triggerElement = findDOMNode(this.trigger);
     const contentElement = findDOMNode(this.content);
-    const closeDropdown = this.props.isOpen && this.state.isOpen && triggerElement.contains(event.target);
-    const preventHide = this.props.isOpen && contentElement.contains(event.target) || !triggerElement;
+    if (!triggerElement || !contentElement) return;
+
+    const { isOpen } = this.state;
+    const { keepOpen, onHide } = this.props;
+
+    const closeDropdown = keepOpen && isOpen && triggerElement.contains(event.target);
+    const preventHide = keepOpen && contentElement.contains(event.target);
 
     if (closeDropdown) {
-      return this.props.onHide();
+      return onHide();
     }
 
-    if (contentElement && preventHide) {
+    if (preventHide) {
       return;
     }
 
@@ -125,8 +130,13 @@ class Dropdown extends Component {
       className,
       style,
       intl,
+      keepOpen,
       ...otherProps
     } = this.props;
+
+    const {
+      isOpen,
+    } = this.state;
 
     let trigger = children.find(x => x.type === DropdownTrigger);
     let content = children.find(x => x.type === DropdownContent);
@@ -148,6 +158,8 @@ class Dropdown extends Component {
       dropdownHide: this.handleHide,
     });
 
+    const showCancelBtn = (isOpen && keepOpen) || (isOpen && keepOpen === null);
+
     return (
       <div
         style={style}
@@ -162,7 +174,7 @@ class Dropdown extends Component {
       >
         {trigger}
         {content}
-        {this.state.isOpen ?
+        {showCancelBtn ?
           <Button
             className={styles.close}
             label={intl.formatMessage(intlMessages.close)}
