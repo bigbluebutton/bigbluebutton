@@ -10,21 +10,15 @@ import DropdownList from '/imports/ui/components/dropdown/list/component';
 import DropdownListItem from '/imports/ui/components/dropdown/list/item/component';
 import PresentationUploaderContainer from '/imports/ui/components/presentation/presentation-uploader/container';
 import { withModalMounter } from '/imports/ui/components/modal/service';
-import getFromUserSettings from '/imports/ui/services/users-settings';
 import withShortcutHelper from '/imports/ui/components/shortcut-help/service';
 import BreakoutRoom from '../create-breakout-room/component';
 import { styles } from '../styles';
-import ActionBarService from '../service';
 
 const propTypes = {
   isUserPresenter: PropTypes.bool.isRequired,
   intl: intlShape.isRequired,
   mountModal: PropTypes.func.isRequired,
   isUserModerator: PropTypes.bool.isRequired,
-  allowStartStopRecording: PropTypes.bool.isRequired,
-  isRecording: PropTypes.bool.isRequired,
-  record: PropTypes.bool.isRequired,
-  toggleRecording: PropTypes.func.isRequired,
   meetingIsBreakout: PropTypes.bool.isRequired,
   hasBreakoutRoom: PropTypes.bool.isRequired,
   createBreakoutRoom: PropTypes.func.isRequired,
@@ -62,14 +56,6 @@ const intlMessages = defineMessages({
     id: 'app.actionsBar.actionsDropdown.stopDesktopShareDesc',
     description: 'adds context to stop desktop share option',
   },
-  startRecording: {
-    id: 'app.actionsBar.actionsDropdown.startRecording',
-    description: 'start recording option',
-  },
-  stopRecording: {
-    id: 'app.actionsBar.actionsDropdown.stopRecording',
-    description: 'stop recording option',
-  },
   pollBtnLabel: {
     id: 'app.actionsBar.actionsDropdown.pollBtnLabel',
     description: 'poll menu toggle button label',
@@ -102,14 +88,6 @@ class ActionsDropdown extends Component {
     this.createBreakoutRoomId = _.uniqueId('action-item-');
   }
 
-  componentDidMount() {
-    if (Meteor.settings.public.allowOutsideCommands.toggleRecording
-      || getFromUserSettings('outsideToggleRecording', false)) {
-      ActionBarService.connectRecordingObserver();
-      window.addEventListener('message', ActionBarService.processOutsideToggleRecording);
-    }
-  }
-
   componentWillUpdate(nextProps) {
     const { isUserPresenter: isPresenter } = nextProps;
     const { isUserPresenter: wasPresenter, mountModal } = this.props;
@@ -123,10 +101,6 @@ class ActionsDropdown extends Component {
       intl,
       isUserPresenter,
       isUserModerator,
-      allowStartStopRecording,
-      isRecording,
-      record,
-      toggleRecording,
       meetingIsBreakout,
       hasBreakoutRoom,
     } = this.props;
@@ -136,10 +110,6 @@ class ActionsDropdown extends Component {
       pollBtnDesc,
       presentationLabel,
       presentationDesc,
-      startRecording,
-      stopRecording,
-      createBreakoutRoom,
-      createBreakoutRoomDesc,
     } = intlMessages;
 
     const {
@@ -173,25 +143,12 @@ class ActionsDropdown extends Component {
           />
         )
         : null),
-      (record && isUserModerator && allowStartStopRecording
-        ? (
-          <DropdownListItem
-            icon="record"
-            label={formatMessage(isRecording
-              ? stopRecording : startRecording)}
-            description={formatMessage(isRecording
-              ? stopRecording : startRecording)}
-            key={this.recordId}
-            onClick={toggleRecording}
-          />
-        )
-        : null),
       (isUserModerator && !meetingIsBreakout && !hasBreakoutRoom
         ? (
           <DropdownListItem
             icon="rooms"
-            label={formatMessage(createBreakoutRoom)}
-            description={formatMessage(createBreakoutRoomDesc)}
+            label={intl.formatMessage(intlMessages.createBreakoutRoom)}
+            description={intl.formatMessage(intlMessages.createBreakoutRoomDesc)}
             key={this.createBreakoutRoomId}
             onClick={this.handleCreateBreakoutRoomClick}
           />

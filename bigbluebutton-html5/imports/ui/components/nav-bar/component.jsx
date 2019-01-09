@@ -13,6 +13,7 @@ import DropdownList from '/imports/ui/components/dropdown/list/component';
 import DropdownListItem from '/imports/ui/components/dropdown/list/item/component';
 import { withModalMounter } from '/imports/ui/components/modal/service';
 import withShortcutHelper from '/imports/ui/components/shortcut-help/service';
+import getFromUserSettings from '/imports/ui/services/users-settings';
 import { defineMessages, injectIntl } from 'react-intl';
 import { styles } from './styles.scss';
 import Button from '../button/component';
@@ -44,12 +45,23 @@ const intlMessages = defineMessages({
     id: 'app.navBar.recording.off',
     description: 'label for indicator when the session is not being recorded',
   },
+  startTitle: {
+    id: 'app.recording.startTitle',
+    description: 'start recording title',
+  },
+  stopTitle: {
+    id: 'app.recording.stopTitle',
+    description: 'stop recording title',
+  },
 });
 
 const propTypes = {
   presentationTitle: PropTypes.string,
   hasUnreadMessages: PropTypes.bool,
-  recordProps: PropTypes.objectOf(PropTypes.bool),
+  recordProps: PropTypes.shape({
+    time: PropTypes.number,
+    recording: PropTypes.bool,
+  }),
   shortcuts: PropTypes.string,
 };
 
@@ -81,9 +93,24 @@ class NavBar extends PureComponent {
     this.state = {
       isActionsOpen: false,
       didSendBreakoutInvite: false,
+      time: (props.recordProps.time ? props.recordProps.time : 0),
     };
 
+    this.incrementTime = this.incrementTime.bind(this);
     this.handleToggleUserList = this.handleToggleUserList.bind(this);
+  }
+
+  componentDidMount() {
+    const {
+      processOutsideToggleRecording,
+      connectRecordingObserver,
+    } = this.props;
+
+    if (Meteor.settings.public.allowOutsideCommands.toggleRecording
+      || getFromUserSettings('outsideToggleRecording', false)) {
+      connectRecordingObserver();
+      window.addEventListener('message', processOutsideToggleRecording);
+    }
   }
 
   componentDidUpdate(oldProps) {
@@ -91,7 +118,15 @@ class NavBar extends PureComponent {
       breakouts,
       isBreakoutRoom,
       mountModal,
+      recordProps,
     } = this.props;
+
+    if (!recordProps.recording) {
+      clearInterval(this.interval);
+      this.interval = null;
+    } else if (this.interval === null) {
+      this.interval = setInterval(this.incrementTime, 1000);
+    }
 
     const {
       didSendBreakoutInvite,
@@ -123,6 +158,10 @@ class NavBar extends PureComponent {
     }
   }
 
+  componentWillUnmount() {
+    clearInterval(this.interval);
+  }
+
   handleToggleUserList() {
     Session.set(
       'openPanel',
@@ -140,6 +179,17 @@ class NavBar extends PureComponent {
     this.setState({ didSendBreakoutInvite: true }, () => {
       openBreakoutJoinConfirmation.call(this, breakout, breakout.name, mountModal);
     });
+  }
+
+  incrementTime() {
+    const { recordProps } = this.props;
+    const { time } = this.state;
+
+    if (recordProps.time > time) {
+      this.setState({ time: recordProps.time + 1 });
+    } else {
+      this.setState({ time: time + 1 });
+    }
   }
 
   renderPresentationTitle() {
@@ -205,9 +255,16 @@ class NavBar extends PureComponent {
       isExpanded,
       intl,
       shortcuts: TOGGLE_USERLIST_AK,
+      mountModal,
     } = this.props;
 
     const recordingMessage = recordProps.recording ? 'recordingIndicatorOn' : 'recordingIndicatorOff';
+
+    const { time } = this.state;
+
+    if (!this.interval) {
+      this.interval = setInterval(this.incrementTime, 1000);
+    }
 
     const toggleBtnClasses = {};
     toggleBtnClasses[styles.btn] = true;
@@ -241,6 +298,10 @@ class NavBar extends PureComponent {
           <RecordingIndicator
             {...recordProps}
             title={intl.formatMessage(intlMessages[recordingMessage])}
+            buttonTitle={(!recordProps.recording ? intl.formatMessage(intlMessages.startTitle)
+              : intl.formatMessage(intlMessages.stopTitle))}
+            mountModal={mountModal}
+            time={time}
           />
         </div>
         <div className={styles.right}>
