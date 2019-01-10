@@ -9,7 +9,7 @@ import logger from '/imports/startup/client/logger';
 import { notify } from '/imports/ui/services/notification';
 import browser from 'browser-detect';
 import iosWebviewAudioPolyfills from '../../../utils/ios-webview-audio-polyfills';
-import { canGenerateIceCandidates } from '../../../utils/safari-webrtc';
+import { tryGenerateIceCandidates } from '../../../utils/safari-webrtc';
 
 const MEDIA = Meteor.settings.public.media;
 const MEDIA_TAG = MEDIA.mediaTag;
@@ -139,7 +139,6 @@ class AudioManager {
   }
 
   async joinListenOnly(retries = 0) {
-    console.warn('joinListenOnly');
     this.isListenOnly = true;
     this.isEchoTest = false;
     const { name } = browser();
@@ -156,31 +155,8 @@ class AudioManager {
     // Webkit ICE restrictions demand a capture device permission to release
     // host candidates
     if (name === 'safari') {
-      console.warn('safari');
-      let hasIceCandidates = false;
-
-      console.warn('-----------------TESTANDO');
-
-      await canGenerateIceCandidates().then(a => {
-        //All right
-        console.warn('-----------------entrou');
-        hasIceCandidates = true;
-      }).catch(e => {
-        console.warn('-----------------catch');
-        hasIceCandidates = false;
-      });
-
-      if(!hasIceCandidates) {
-        console.warn('-----------------askDevicesPermissions');
-        await this.askDevicesPermissions();
-      } else {
-        console.warn('-----------------NOT askDevicesPermissions');
-      }
-
+      await tryGenerateIceCandidates();
     }
-
-    console.warn('----------------continuou');
-    
 
     // Call polyfills for webrtc client if navigator is "iOS Webview"
     const userAgent = window.navigator.userAgent.toLocaleLowerCase();

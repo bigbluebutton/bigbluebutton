@@ -6,6 +6,8 @@ import { fetchWebRTCMappedStunTurnServers } from '/imports/utils/fetchStunTurnSe
 import ReconnectingWebSocket from 'reconnecting-websocket';
 import logger from '/imports/startup/client/logger';
 import { Session } from 'meteor/session';
+import browser from 'browser-detect';
+import { tryGenerateIceCandidates } from '../../../utils/safari-webrtc';
 
 import VideoService from './service';
 import VideoList from './video-list/component';
@@ -193,7 +195,7 @@ class VideoProvider extends Component {
     this.ws.close();
   }
 
-  onWsMessage(msg) {
+  async onWsMessage(msg) {
     const parsedMessage = JSON.parse(msg.data);
 
     this.logger('debug', `Received new message '${parsedMessage.id}'`, { topic: 'ws', message: parsedMessage });
@@ -204,8 +206,19 @@ class VideoProvider extends Component {
         break;
 
       case 'playStart':
-        this.handlePlayStart(parsedMessage);
-        break;
+      // Webkit ICE restrictions demand a capture device permission to release
+      // host candidates
+      if (browser().name === 'safari') {
+        try {
+          await tryGenerateIceCandidates();
+        } catch(e) {
+          //TODO Warn user about connection problemns
+          console.error('Not possible to generate ICE Candidates');
+        };
+      }
+      
+      this.handlePlayStart(parsedMessage);
+      break;
 
       case 'playStop':
         this.handlePlayStop(parsedMessage);
