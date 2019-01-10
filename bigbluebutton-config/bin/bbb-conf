@@ -1947,6 +1947,15 @@ if [ -n "$HOST" ]; then
                sed -i "s/<image width=\"\([0-9]*\)\" height=\"\([0-9]*\)\" alt=\"\([^\"]*\)\">\(http[s]*\):\/\/[^\/]*\/\(.*\)/<image width=\"\1\" height=\"\2\" alt=\"\3\">\4:\/\/$HOST\/\5/g" \
                 '{}' \;
 
+        #
+        # Apply any local configuration options (if exists)
+	#
+        if [ -x /etc/bigbluebutton/bbb-conf/apply-config.sh ]; then
+                echo "Applying local configuration options: "
+                /etc/bigbluebutton/bbb-conf/apply-config.sh
+		echo
+        fi
+
 	echo "Restarting the BigBlueButton $BIGBLUEBUTTON_RELEASE ..."
 	stop_bigbluebutton
 	echo
