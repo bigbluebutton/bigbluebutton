@@ -116,6 +116,10 @@ class BreakoutRoom extends Component {
       preventClosing: true,
       valid: true,
     };
+
+    this.breakoutFormId = _.uniqueId('breakout-form-');
+    this.freeJoinId = _.uniqueId('free-join-check-');
+    this.btnLevelId = _.uniqueId('btn-set-level-');
   }
 
   componentDidMount() {
@@ -208,7 +212,7 @@ class BreakoutRoom extends Component {
 
   changeUserRoom(userId, room) {
     const { users } = this.state;
-    
+
     const idxUser = users.findIndex(user => user.userId === userId);
     users[idxUser].room = room;
     this.setState({ users });
@@ -251,7 +255,7 @@ class BreakoutRoom extends Component {
     };
 
     return (
-      <div className={styles.boxContainer}>
+      <div className={styles.boxContainer} key="rooms-grid-">
         <label htmlFor="BreakoutRoom" className={!valid ? styles.changeToWarn : null}>
           <p
             className={styles.freeJoinLabel}
@@ -277,7 +281,7 @@ class BreakoutRoom extends Component {
               <div className={styles.breakoutBox} onDrop={drop(value)} onDragOver={allowDrop}>
                 {this.renderUserItemByRoom(value)}
               </div>
-             </label>
+            </label>
           ))
         }
       </div>
@@ -291,7 +295,7 @@ class BreakoutRoom extends Component {
       durationTime,
     } = this.state;
     return (
-      <div className={styles.breakoutSettings}>
+      <div className={styles.breakoutSettings} key={this.breakoutFormId}>
         <label htmlFor="numberOfRooms">
           <p className={styles.labelText}>{intl.formatMessage(intlMessages.numberOfRooms)}</p>
           <select
@@ -366,7 +370,7 @@ class BreakoutRoom extends Component {
     const { intl } = this.props;
     const { freeJoin } = this.state;
     return (
-      <label htmlFor="freeJoinCheckbox" className={styles.freeJoinLabel}>
+      <label htmlFor="freeJoinCheckbox" className={styles.freeJoinLabel} key={this.freeJoinId}>
         <input
           type="checkbox"
           className={styles.freeJoinCheckbox}
@@ -478,6 +482,7 @@ class BreakoutRoom extends Component {
         size="lg"
         label={label}
         onClick={() => this.setState({ formFillLevel: level })}
+        key={this.btnLevelId}
       />
     );
   }
