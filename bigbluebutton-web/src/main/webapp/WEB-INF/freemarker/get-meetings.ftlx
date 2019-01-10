@@ -78,6 +78,10 @@
       </meeting>
     </#items>
   </meetings>
+  <#else>
+  <meetings/>
+  <messageKey>${msgKey}</messageKey>
+  <message>${msg}</message>
   </#list>
 </response>
 </#compress>

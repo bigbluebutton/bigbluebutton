@@ -14,6 +14,7 @@ import java.util.Map;
 
 import org.bigbluebutton.api.domain.Meeting;
 import org.bigbluebutton.api.domain.RecordingMetadata;
+import org.bigbluebutton.api.domain.UserSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -23,111 +24,192 @@ import freemarker.template.TemplateException;
 import freemarker.template.TemplateExceptionHandler;
 
 public class ResponseBuilder {
-  private static Logger log = LoggerFactory.getLogger(ResponseBuilder.class);
+    private static Logger log = LoggerFactory.getLogger(ResponseBuilder.class);
 
-  Configuration cfg = new Configuration(Configuration.VERSION_2_3_23);
+    Configuration cfg = new Configuration(Configuration.VERSION_2_3_23);
 
-  public ResponseBuilder(File templatesLoc) {
+    public ResponseBuilder(File templatesLoc) {
 
-    try {
-      cfg.setDirectoryForTemplateLoading(templatesLoc);
-    } catch (IOException e) {
-      e.printStackTrace();
-    }
-    cfg.setDefaultEncoding(StandardCharsets.UTF_8.name());
-    cfg.setTemplateExceptionHandler(TemplateExceptionHandler.RETHROW_HANDLER);
-    cfg.setLogTemplateExceptions(false);
-  }
-
-  public String formatPrettyDate(Long timestamp) {
-    return new Date(timestamp).toString();
-  }
-
-  public String buildGetMeetingInfoResponse(Meeting meeting, String returnCode) {
-    String createdOn = formatPrettyDate(meeting.getCreateTime());
-
-    Template ftl = null;
-    try {
-      ftl = cfg.getTemplate("get-meeting-info.ftlx");
-    } catch (IOException e) {
-      log.error("Cannot find get-meeting-info.ftl template for meeting : " + meeting.getInternalId(), e);
+        try {
+            cfg.setDirectoryForTemplateLoading(templatesLoc);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        cfg.setDefaultEncoding(StandardCharsets.UTF_8.name());
+        cfg.setTemplateExceptionHandler(TemplateExceptionHandler.RETHROW_HANDLER);
+        cfg.setLogTemplateExceptions(false);
     }
 
-    StringWriter xmlText = new StringWriter();
-
-    Map<String, Object> root = new HashMap<String, Object>();
-    root.put("returnCode", returnCode);
-    root.put("createdOn", createdOn);
-    root.put("meeting", meeting);
-
-    try {
-      ftl.process(root, xmlText);
-    } catch (TemplateException e) {
-      log.error("Template exception for meeting : " + meeting.getInternalId(), e);
-    } catch (IOException e) {
-      log.error("IO exception for meeting : " + meeting.getInternalId(), e);
+    public String formatPrettyDate(Long timestamp) {
+        return new Date(timestamp).toString();
     }
 
-    return xmlText.toString();
-  }
+    public String buildMeetingVersion(String version, String returnCode) {
+        StringWriter xmlText = new StringWriter();
 
-  public String buildGetMeetingsResponse(Collection<Meeting> meetings, String returnCode) {
+        Map<String, Object> data = new HashMap<String, Object>();
+        data.put("returnCode", returnCode);
+        data.put("version", version);
 
-    ArrayList<MeetingResponseDetail> meetingResponseDetails = new ArrayList<MeetingResponseDetail>();
+        processData(getTemplate("api-version.ftlx"), data, xmlText);
 
-    for (Meeting meeting : meetings) {
-      String createdOn = formatPrettyDate(meeting.getCreateTime());
-      MeetingResponseDetail details = new MeetingResponseDetail(createdOn, meeting);
-      meetingResponseDetails.add(details);
+        return xmlText.toString();
     }
 
-    Template ftl = null;
-    try {
-      ftl = cfg.getTemplate("get-meetings.ftlx");
-    } catch (IOException e) {
-      log.error("IO exception for get-meetings.ftlx : ", e);
+    public String buildMeeting(Meeting meeting, String msgKey, String msg, String returnCode) {
+        StringWriter xmlText = new StringWriter();
+
+        String createdOn = formatPrettyDate(meeting.getCreateTime());
+
+        Map<String, Object> data = new HashMap<String, Object>();
+        data.put("returnCode", returnCode);
+        data.put("meeting", meeting);
+        data.put("createdOn", createdOn);
+        data.put("msgKey", msgKey);
+        data.put("msg", msg);
+
+        processData(getTemplate("create-meeting.ftlx"), data, xmlText);
+
+        return xmlText.toString();
     }
 
-    StringWriter xmlText = new StringWriter();
+    public String buildError(String key, String msg, String returnCode) {
+        StringWriter xmlText = new StringWriter();
 
-    Map<String, Serializable> root = new HashMap<String, Serializable>();
-    root.put("returnCode", returnCode);
-    root.put("meetingDetailsList", meetingResponseDetails);
+        Map<String, Object> data = new HashMap<String, Object>();
+        data.put("returnCode", returnCode);
+        data.put("key", key);
+        data.put("msg", msg);
 
-    try {
-      ftl.process(root, xmlText);
-    } catch (TemplateException e) {
-      log.error("Template exception : ", e);
-    } catch (IOException e) {
-      log.error("IO exception for get-meetings.ftlx : ", e);
+        processData(getTemplate("api-error.ftlx"), data, xmlText);
+
+        return xmlText.toString();
     }
 
-    return xmlText.toString();
-  }
+    public String buildGetMeetingInfoResponse(Meeting meeting, String returnCode) {
+        String createdOn = formatPrettyDate(meeting.getCreateTime());
 
-  public String buildGetRecordingsResponse(List<RecordingMetadata> recordings, String returnCode) {
+        StringWriter xmlText = new StringWriter();
 
-    Template ftl = null;
-    try {
-      ftl = cfg.getTemplate("get-recordings.ftlx");
-    } catch (IOException e) {
-      log.error("IO exception for get-recordings.ftl : ", e);
+        Map<String, Object> data = new HashMap<String, Object>();
+        data.put("returnCode", returnCode);
+        data.put("createdOn", createdOn);
+        data.put("meeting", meeting);
+
+        processData(getTemplate("get-meeting-info.ftlx"), data, xmlText);
+
+        return xmlText.toString();
     }
 
-    StringWriter xmlText = new StringWriter();
+    public String buildJoinMeeting(UserSession userSession, String sessionToken, String guestStatusVal, String destUrl,
+            String msgKey, String msg, String returnCode) {
+        StringWriter xmlText = new StringWriter();
 
-    Map<String, Object> root = new HashMap<String, Object>();
-    root.put("returnCode", returnCode);
-    root.put("recordings", recordings);
+        Map<String, Object> data = new HashMap<String, Object>();
+        data.put("returnCode", returnCode);
+        data.put("userSession", userSession);
+        data.put("sessionToken", sessionToken);
+        data.put("guestStatusVal", guestStatusVal);
+        data.put("destUrl", destUrl);
+        data.put("msgKey", msgKey);
+        data.put("msg", msg);
 
-    try {
-      ftl.process(root, xmlText);
-    } catch (TemplateException e) {
-      log.error("Template exception : ", e);
-    } catch (IOException e) {
-      log.error("IO exception for get-recordings.ftlx : ", e);
+        processData(getTemplate("join-meeting.ftlx"), data, xmlText);
+
+        return xmlText.toString();
     }
 
-    return xmlText.toString();
-  }
+    public String buildGetMeetingsResponse(Collection<Meeting> meetings, String msgKey, String msg, String returnCode) {
+
+        ArrayList<MeetingResponseDetail> meetingResponseDetails = new ArrayList<MeetingResponseDetail>();
+
+        for (Meeting meeting : meetings) {
+            String createdOn = formatPrettyDate(meeting.getCreateTime());
+            MeetingResponseDetail details = new MeetingResponseDetail(createdOn, meeting);
+            meetingResponseDetails.add(details);
+        }
+
+        StringWriter xmlText = new StringWriter();
+
+        Map<String, Serializable> data = new HashMap<String, Serializable>();
+        data.put("returnCode", returnCode);
+        data.put("meetingDetailsList", meetingResponseDetails);
+        data.put("msgKey", msgKey);
+        data.put("msg", msg);
+
+        processData(getTemplate("get-meetings.ftlx"), data, xmlText);
+
+        return xmlText.toString();
+    }
+
+    public String buildIsMeetingRunning(Boolean isRunning, String returnCode) {
+        StringWriter xmlText = new StringWriter();
+
+        Map<String, Object> data = new HashMap<String, Object>();
+        data.put("returnCode", returnCode);
+        data.put("isRunning", isRunning);
+
+        processData(getTemplate("is-meeting-running.ftlx"), data, xmlText);
+
+        return xmlText.toString();
+    }
+
+    public String buildEndRunning(String msgKey, String msg, String returnCode) {
+        StringWriter xmlText = new StringWriter();
+
+        Map<String, Object> data = new HashMap<String, Object>();
+        data.put("returnCode", returnCode);
+        data.put("msgKey", msgKey);
+        data.put("msg", msg);
+
+        processData(getTemplate("end-meeting.ftlx"), data, xmlText);
+
+        return xmlText.toString();
+    }
+
+    public String buildGetSessionsResponse(Collection<UserSession> sessions, String msgKey, String msg, String returnCode) {
+        StringWriter xmlText = new StringWriter();
+
+        Map<String, Serializable> data = new HashMap<String, Serializable>();
+        data.put("returnCode", returnCode);
+        data.put("sessionsList", new ArrayList<UserSession>(sessions));
+        data.put("msgKey", msgKey);
+        data.put("msg", msg);
+
+        processData(getTemplate("get-sessions.ftlx"), data, xmlText);
+
+        return xmlText.toString();
+    }
+
+    public String buildGetRecordingsResponse(List<RecordingMetadata> recordings, String returnCode) {
+
+        StringWriter xmlText = new StringWriter();
+
+        Map<String, Object> data = new HashMap<String, Object>();
+        data.put("returnCode", returnCode);
+        data.put("recordings", recordings);
+
+        processData(getTemplate("get-recordings.ftlx"), data, xmlText);
+        return xmlText.toString();
+    }
+
+    private Template getTemplate(String templateName) {
+        Template ftl = null;
+        try {
+            ftl = cfg.getTemplate(templateName);
+        } catch (IOException e) {
+            log.error("IO exception for {} : ", templateName, e);
+        }
+        return ftl;
+    }
+
+    private void processData(Template template, Map data, StringWriter out) {
+        try {
+            template.process(data, out);
+        } catch (TemplateException e) {
+            log.error("Template exception : ", e);
+        } catch (IOException e) {
+            log.error("IO exception for get-recordings.ftlx : ", e);
+        }
+    }
 }

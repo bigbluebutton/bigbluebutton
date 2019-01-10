@@ -1,5 +1,5 @@
 /**
- * BigBlueButton open source conferencing system - http://www.bigbluebutton.org/
+ ** BigBlueButton open source conferencing system - http://www.bigbluebutton.org/
  *
  * Copyright (c) 2012 BigBlueButton Inc. and by respective authors (see below).
  *
@@ -56,7 +56,6 @@ import org.bigbluebutton.web.services.turn.StunTurnService;
 import org.bigbluebutton.web.services.turn.TurnEntry;
 import org.json.JSONArray;
 import org.json.JSONObject;
-import org.bigbluebutton.api.util.ResponseBuilder
 import freemarker.template.Configuration;
 import freemarker.cache.WebappTemplateLoader;
 import java.io.File;
@@ -76,19 +75,21 @@ class ApiController {
   ClientConfigService configService
   PresentationUrlDownloadService presDownloadService
   StunTurnService stunTurnService
+  ResponseBuilder responseBuilder = initResponseBuilder()
+  
+  def initResponseBuilder =  {
+    def templateLoc = getServletContext().getRealPath("/WEB-INF/freemarker")
+    responseBuilder = new ResponseBuilder(new File(templateLoc))
+  }
 
   /* general methods */
   def index = {
     log.debug CONTROLLER_NAME + "#index"
     response.addHeader("Cache-Control", "no-cache")
+    
     withFormat {
       xml {
-        render(contentType:"text/xml") {
-          response() {
-            returncode(RESP_CODE_SUCCESS)
-            version(paramsProcessorUtil.getApiVersion())
-          }
-        }
+        render(text: responseBuilder.buildMeetingVersion(paramsProcessorUtil.getApiVersion(), RESP_CODE_SUCCESS), contentType: "text/xml")
       }
     }
   }
@@ -498,7 +499,6 @@ class ApiController {
       }
     }
 
-
     String msgKey = "successfullyJoined"
     String msgValue = "You have joined successfully."
     String destUrl = clientURL + "?sessionToken=" + sessionToken
@@ -521,19 +521,7 @@ class ApiController {
       response.addHeader("Cache-Control", "no-cache")
       withFormat {
         xml {
-          render(contentType:"text/xml") {
-            response() {
-              returncode(RESP_CODE_SUCCESS)
-              messageKey(msgKey)
-              message(msgValue)
-              meeting_id() { mkp.yield(us.meetingID) }
-              user_id(us.internalUserId)
-              auth_token(us.authToken)
-              session_token(session[sessionToken])
-              guestStatus(guestStatusVal)
-              url(destUrl)
-            }
-          }
+          render(text: responseBuilder.buildJoinMeeting(us, session[sessionToken], guestStatusVal, destUrl, msgKey, msgValue, RESP_CODE_SUCCESS), contentType: "text/xml")
         }
       }
     }
@@ -611,10 +599,7 @@ class ApiController {
     withFormat {
       xml {
         render(contentType:"text/xml") {
-          response() {
-            returncode(RESP_CODE_SUCCESS)
-            running(isRunning ? "true" : "false")
-          }
+          render(text: responseBuilder.buildIsMeetingRunning(isRunning, RESP_CODE_SUCCESS), contentType: "text/xml")
         }
       }
     }
@@ -725,11 +710,7 @@ class ApiController {
     withFormat {
       xml {
         render(contentType:"text/xml") {
-          response() {
-            returncode(RESP_CODE_SUCCESS)
-            messageKey("sentEndMeetingRequest")
-            message("A request to end the meeting was sent.  Please wait a few seconds, and then use the getMeetingInfo or isMeetingRunning API calls to verify that it was ended.")
-          }
+          render(text: responseBuilder.buildEndRunning("sentEndMeetingRequest", "A request to end the meeting was sent.  Please wait a few seconds, and then use the getMeetingInfo or isMeetingRunning API calls to verify that it was ended.", RESP_CODE_SUCCESS), contentType: "text/xml")
         }
       }
     }
@@ -811,13 +792,9 @@ class ApiController {
       return;
     }
 
-    def templateLoc = getServletContext().getRealPath("/WEB-INF/freemarker")
-    ResponseBuilder responseBuilder = new ResponseBuilder(new File(templateLoc))
-
-    def xmlText = responseBuilder.buildGetMeetingInfoResponse(meeting, RESP_CODE_SUCCESS)
     withFormat {
       xml {
-        render(text: xmlText, contentType: "text/xml")
+        render(text: responseBuilder.buildGetMeetingInfoResponse(meeting, RESP_CODE_SUCCESS), contentType: "text/xml")
       }
     }
   }
@@ -866,26 +843,15 @@ class ApiController {
       response.addHeader("Cache-Control", "no-cache")
       withFormat {
         xml {
-          render(contentType:"text/xml") {
-            response() {
-              returncode(RESP_CODE_SUCCESS)
-              meetings()
-              messageKey("noMeetings")
-              message("no meetings were found on this server")
-            }
-          }
+          render(text: responseBuilder.buildGetMeetingsResponse(mtgs, "noMeetings", "no meetings were found on this server",  RESP_CODE_SUCCESS), contentType: "text/xml")
         }
       }
     } else {
       response.addHeader("Cache-Control", "no-cache")
 
-      def templateLoc = getServletContext().getRealPath("/WEB-INF/freemarker")
-      ResponseBuilder responseBuilder = new ResponseBuilder(new File(templateLoc))
-
-      def xmlText = responseBuilder.buildGetMeetingsResponse(mtgs, RESP_CODE_SUCCESS)
       withFormat {
         xml {
-          render(text: xmlText, contentType: "text/xml")
+          render(text: responseBuilder.buildGetMeetingsResponse(mtgs, null, null, RESP_CODE_SUCCESS), contentType: "text/xml")
         }
       }
     }
@@ -929,20 +895,13 @@ class ApiController {
       return
     }
 
-    Collection<Meeting> sssns = meetingService.getSessions();
+    Collection<UserSession> sssns = meetingService.getSessions();
 
     if (sssns == null || sssns.isEmpty()) {
       response.addHeader("Cache-Control", "no-cache")
       withFormat {
         xml {
-          render(contentType:"text/xml") {
-            response() {
-              returncode(RESP_CODE_SUCCESS)
-              sessions()
-              messageKey("noSessions")
-              message("no sessions were found on this server")
-            }
-          }
+          render(text: responseBuilder.buildGetSessionsResponse(sssns, "noSessions", "no sessions were found on this serverr",  RESP_CODE_SUCCESS), contentType: "text/xml")
         }
       }
     } else {
@@ -950,19 +909,8 @@ class ApiController {
       withFormat {
         xml {
           render(contentType:"text/xml") {
-            response() {
-              returncode(RESP_CODE_SUCCESS)
-              sessions {
-                for (m in sssns) {
-                  meeting {
-                    meetingID() { mkp.yield(m.meetingID) }
-                    meetingName() { mkp.yield(m.conferencename) }
-                    userName() { mkp.yield(m.fullname) }
-                  }
-                }
-              }
-            }
-          }
+            render(text: responseBuilder.buildGetSessionsResponse(sssns, null, null, RESP_CODE_SUCCESS), contentType: "text/xml")
+           }
         }
       }
     }
@@ -1040,17 +988,10 @@ class ApiController {
       response.addHeader("Cache-Control", "no-cache")
       withFormat {
         xml {
-          render(contentType:"text/xml") {
-            response() {
-              returncode("FAILED")
-              messageKey("pollXMLChecksumError")
-              message("pollXMLChecksumError: request did not pass the checksum security check.")
-            }
-          }
+          invalid("pollXMLChecksumError", "pollXMLChecksumError: request did not pass the checksum security check.")
         }
       }
     } else {
-
       def pollxml = new XmlSlurper().parseText(decodedPollXML);
 
       pollxml.children().each { poll ->
@@ -1070,9 +1011,8 @@ class ApiController {
       response.addHeader("Cache-Control", "no-cache")
       withFormat {
         xml {
-          render(contentType:"text/xml") {
-            response() { returncode("SUCCESS") }
-          }
+          // No need to use the response builder here until we have a more complex response
+          render(text: "<response><returncode>$RESP_CODE_SUCCESS</returncode></response>", contentType: "text/xml")
         }
       }
     }
@@ -1134,13 +1074,7 @@ class ApiController {
       response.addHeader("Cache-Control", "no-cache")
       withFormat {
         xml {
-          render(contentType:"text/xml") {
-            response() {
-              returncode("FAILED")
-              messageKey("configXMLChecksumError")
-              message("configXMLChecksumError: request did not pass the checksum security check.")
-            }
-          }
+          invalid("configXMLChecksumError", "configXMLChecksumError: request did not pass the checksum security check.")
         }
       }
     } else {
@@ -1158,12 +1092,8 @@ class ApiController {
       response.addHeader("Cache-Control", "no-cache")
       withFormat {
         xml {
-          render(contentType:"text/xml") {
-            response() {
-              returncode("SUCCESS")
-              configToken(token)
-            }
-          }
+          // No need to use the response builder here until we have a more complex response
+          render(text: "<response><returncode>$RESP_CODE_SUCCESS</returncode><configToken>$token</configToken></response>", contentType: "text/xml")
         }
       }
     }
@@ -2091,104 +2021,12 @@ class ApiController {
     return new Date(timestamp).toString()
   }
 
-  def respondWithConferenceDetails(meeting, room, msgKey, msg) {
-    response.addHeader("Cache-Control", "no-cache")
-    withFormat {
-      xml {
-        render(contentType:"text/xml") {
-          response() {
-            returncode(RESP_CODE_SUCCESS)
-            meetingName() { mkp.yield(meeting.getName()) }
-            isBreakout() { mkp.yield(meeting.isBreakout()) }
-            meetingID() { mkp.yield(meeting.getExternalId()) }
-            internalMeetingID(meeting.getInternalId())
-            if (meeting.isBreakout()) {
-              parentMeetingID() { mkp.yield(meeting.getParentMeetingId()) }
-              sequence() { mkp.yield(meeting.getSequence()) }
-              freeJoin() { mkp.yield(meeting.isFreeJoin()) }
-            }
-            createTime(meeting.getCreateTime())
-            createDate(formatPrettyDate(meeting.getCreateTime()))
-            voiceBridge() { mkp.yield(meeting.getTelVoice()) }
-            dialNumber() { mkp.yield(meeting.getDialNumber()) }
-            attendeePW() { mkp.yield(meeting.getViewerPassword()) }
-            moderatorPW() { mkp.yield(meeting.getModeratorPassword()) }
-            running(meeting.isRunning() ? "true" : "false")
-            duration(meeting.duration)
-            hasUserJoined(meeting.hasUserJoined())
-            recording(meeting.isRecord() ? "true" : "false")
-            hasBeenForciblyEnded(meeting.isForciblyEnded() ? "true" : "false")
-            startTime(meeting.getStartTime())
-            endTime(meeting.getEndTime())
-            participantCount(meeting.getNumUsers())
-            listenerCount(meeting.getNumListenOnly())
-            voiceParticipantCount(meeting.getNumVoiceJoined())
-            videoCount(meeting.getNumVideos())
-            maxUsers(meeting.getMaxUsers())
-            moderatorCount(meeting.getNumModerators())
-            attendees() {
-              meeting.getUsers().each { att ->
-                attendee() {
-                  userID() { mkp.yield("${att.externalUserId}") }
-                  fullName() { mkp.yield("${att.fullname}") }
-                  role("${att.role}")
-                  guest("${att.guest}")
-                  waitingForAcceptance("${att.waitingForAcceptance}")
-                  isPresenter("${att.isPresenter()}")
-                  isListeningOnly("${att.isListeningOnly()}")
-                  hasJoinedVoice("${att.isVoiceJoined()}")
-                  hasVideo("${att.hasVideo()}")
-                  clientType() { mkp.yield("${att.clientType}") }
-                  videoStreams() {
-                    att.getStreams().each { s ->
-                      streamName("${s}")
-                    }
-                  }
-                  customdata(){
-                    meeting.getUserCustomData(att.externalUserId).each{ k,v ->
-                      "$k"("$v")
-                    }
-                  }
-                }
-              }
-            }
-            metadata(){
-              meeting.getMetadata().each{ k,v ->
-                "$k"("$v")
-              }
-            }
-            messageKey(msgKey == null ? "" : msgKey)
-            message(msg == null ? "" : msg)
-          }
-        }
-      }
-    }
-  }
-
   def respondWithConference(meeting, msgKey, msg) {
     response.addHeader("Cache-Control", "no-cache")
     withFormat {
       xml {
         log.debug "Rendering as xml"
-        render(contentType:"text/xml") {
-          response() {
-            returncode(RESP_CODE_SUCCESS)
-            meetingID() { mkp.yield(meeting.getExternalId()) }
-            internalMeetingID() { mkp.yield(meeting.getInternalId()) }
-            parentMeetingID() { mkp.yield(meeting.getParentMeetingId()) }
-            attendeePW() { mkp.yield(meeting.getViewerPassword()) }
-            moderatorPW() { mkp.yield(meeting.getModeratorPassword()) }
-            createTime(meeting.getCreateTime())
-            voiceBridge() { mkp.yield(meeting.getTelVoice()) }
-            dialNumber() { mkp.yield(meeting.getDialNumber()) }
-            createDate(formatPrettyDate(meeting.getCreateTime()))
-            hasUserJoined(meeting.hasUserJoined())
-            duration(meeting.duration)
-            hasBeenForciblyEnded(meeting.isForciblyEnded() ? "true" : "false")
-            messageKey(msgKey == null ? "" : msgKey)
-            message(msg == null ? "" : msg)
-          }
-        }
+        render(text: responseBuilder.buildMeeting(meeting, msgKey, msg, RESP_CODE_SUCCESS), contentType: "text/xml")
       }
     }
   }
@@ -2238,6 +2076,7 @@ class ApiController {
       }
     }
   }
+
   //TODO: method added for backward compatibility, it will be removed in next versions after 0.8
   private void invalid(key, msg, redirectResponse = false) {
     // Note: This xml scheme will be DEPRECATED.
@@ -2257,13 +2096,7 @@ class ApiController {
       response.addHeader("Cache-Control", "no-cache")
       withFormat {
         xml {
-          render(contentType: "text/xml") {
-            response() {
-              returncode(RESP_CODE_FAILED)
-              messageKey(key)
-              message(msg)
-            }
-          }
+          render(text: responseBuilder.buildError(key, msg, RESP_CODE_FAILED), contentType: "text/xml")
         }
         json {
           log.debug "Rendering as json"
