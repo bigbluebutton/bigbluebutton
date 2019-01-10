@@ -10,6 +10,7 @@ import DropdownContent from '/imports/ui/components/dropdown/content/component';
 import DropdownList from '/imports/ui/components/dropdown/list/component';
 import DropdownListItem from '/imports/ui/components/dropdown/list/item/component';
 import LockViewersContainer from '/imports/ui/components/lock-viewers/container';
+import BreakoutRoom from '/imports/ui/components/actions-bar/create-breakout-room/component';
 import { styles } from './styles';
 
 const propTypes = {
@@ -21,6 +22,9 @@ const propTypes = {
   toggleMuteAllUsersExceptPresenter: PropTypes.func.isRequired,
   toggleStatus: PropTypes.func.isRequired,
   mountModal: PropTypes.func.isRequired,
+  users: PropTypes.arrayOf(Object).isRequired,
+  meetingName: PropTypes.string.isRequired,
+  createBreakoutRoom: PropTypes.func.isRequired,
 };
 
 const intlMessages = defineMessages({
@@ -68,6 +72,14 @@ const intlMessages = defineMessages({
     id: 'app.userList.userOptions.muteAllExceptPresenterDesc',
     description: 'Mute all except presenter description',
   },
+  createBreakoutRoom: {
+    id: 'app.actionsBar.actionsDropdown.createBreakoutRoom',
+    description: 'Create breakout room option',
+  },
+  createBreakoutRoomDesc: {
+    id: 'app.actionsBar.actionsDropdown.createBreakoutRoomDesc',
+    description: 'Description of create breakout room option',
+  },
 });
 
 class UserOptions extends PureComponent {
@@ -78,9 +90,16 @@ class UserOptions extends PureComponent {
       isUserOptionsOpen: false,
     };
 
+    this.clearStatusId = _.uniqueId('list-item-');
+    this.muteId = _.uniqueId('list-item-');
+    this.muteAllId = _.uniqueId('list-item-');
+    this.lockId = _.uniqueId('list-item-');
+    this.createBreakoutId = _.uniqueId('list-item-');
+
     this.onActionsShow = this.onActionsShow.bind(this);
     this.onActionsHide = this.onActionsHide.bind(this);
     this.alterMenu = this.alterMenu.bind(this);
+    this.handleCreateBreakoutRoomClick = this.handleCreateBreakoutRoomClick.bind(this);
   }
 
   componentWillMount() {
@@ -95,32 +114,39 @@ class UserOptions extends PureComponent {
 
     this.menuItems = _.compact([
       (<DropdownListItem
-        key={_.uniqueId('list-item-')}
+        key={this.clearStatusId}
         icon="clear_status"
         label={intl.formatMessage(intlMessages.clearAllLabel)}
         description={intl.formatMessage(intlMessages.clearAllDesc)}
         onClick={toggleStatus}
       />),
       (<DropdownListItem
-        key={_.uniqueId('list-item-')}
+        key={this.muteAllId}
         icon="mute"
         label={intl.formatMessage(intlMessages.muteAllLabel)}
         description={intl.formatMessage(intlMessages.muteAllDesc)}
         onClick={toggleMuteAllUsers}
       />),
       (<DropdownListItem
-        key={_.uniqueId('list-item-')}
+        key={this.muteId}
         icon="mute"
         label={intl.formatMessage(intlMessages.muteAllExceptPresenterLabel)}
         description={intl.formatMessage(intlMessages.muteAllExceptPresenterDesc)}
         onClick={toggleMuteAllUsersExceptPresenter}
       />),
       (<DropdownListItem
-        key={_.uniqueId('list-item-')}
+        key={this.lockId}
         icon="lock"
         label={intl.formatMessage(intlMessages.lockViewersLabel)}
         description={intl.formatMessage(intlMessages.lockViewersDesc)}
         onClick={() => mountModal(<LockViewersContainer />)}
+      />),
+      (<DropdownListItem
+        key={this.createBreakoutId}
+        icon="rooms"
+        label={intl.formatMessage(intlMessages.createBreakoutRoom)}
+        description={intl.formatMessage(intlMessages.createBreakoutRoomDesc)}
+        onClick={() => this.handleCreateBreakoutRoomClick()}
       />),
     ]);
 
@@ -146,6 +172,23 @@ class UserOptions extends PureComponent {
     this.setState({
       isUserOptionsOpen: false,
     });
+  }
+
+  handleCreateBreakoutRoomClick() {
+    const {
+      createBreakoutRoom,
+      mountModal,
+      meetingName,
+      users,
+    } = this.props;
+
+    mountModal(
+      <BreakoutRoom
+        createBreakoutRoom={createBreakoutRoom}
+        meetingName={meetingName}
+        users={users}
+      />,
+    );
   }
 
   alterMenu() {

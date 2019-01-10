@@ -1,6 +1,7 @@
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import Auth from '/imports/ui/services/auth';
+import Service from '/imports/ui/components/actions-bar/service';
 import UserOptions from './component';
 
 
@@ -10,6 +11,9 @@ const propTypes = {
   muteAllExceptPresenter: PropTypes.func.isRequired,
   setEmojiStatus: PropTypes.func.isRequired,
   meeting: PropTypes.shape({}).isRequired,
+  currentUser: PropTypes.shape({
+    isModerator: PropTypes.bool.isRequired,
+  }).isRequired,
 };
 
 export default class UserOptionsContainer extends PureComponent {
@@ -59,6 +63,9 @@ export default class UserOptionsContainer extends PureComponent {
             toggleMuteAllUsersExceptPresenter={this.muteAllUsersExceptPresenter}
             toggleStatus={this.handleClearStatus}
             isMeetingMuted={meetingMuted}
+            createBreakoutRoom={Service.createBreakoutRoom}
+            meetingName={Service.meetingName()}
+            users={Service.users()}
           />) : null
     );
   }
