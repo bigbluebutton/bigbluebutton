@@ -1951,7 +1951,7 @@ if [ -n "$HOST" ]; then
         # Apply any local configuration options (if exists)
 	#
         if [ -x /etc/bigbluebutton/bbb-conf/apply-config.sh ]; then
-                echo "Applying local configuration options: "
+                echo -n "Applying local configuration options: "
                 /etc/bigbluebutton/bbb-conf/apply-config.sh
 		echo
         fi
