@@ -357,6 +357,15 @@ stop_bigbluebutton () {
 }
 
 start_bigbluebutton () {
+        #
+        # Apply any local configuration options (if exists)
+        #
+        if [ -x /etc/bigbluebutton/bbb-conf/apply-config.sh ]; then
+                echo -n "Applying /etc/bigbluebutton/bbb-conf/apply-config.sh : "
+                /etc/bigbluebutton/bbb-conf/apply-config.sh
+                echo
+        fi
+
     echo "Starting BigBlueButton"
     if command -v systemctl >/dev/null; then
        if [ -f /usr/lib/systemd/system/bbb-html5.service ]; then
@@ -1946,15 +1955,6 @@ if [ -n "$HOST" ]; then
         find /var/bigbluebutton/published -name metadata.xml -exec \
                sed -i "s/<image width=\"\([0-9]*\)\" height=\"\([0-9]*\)\" alt=\"\([^\"]*\)\">\(http[s]*\):\/\/[^\/]*\/\(.*\)/<image width=\"\1\" height=\"\2\" alt=\"\3\">\4:\/\/$HOST\/\5/g" \
                 '{}' \;
-
-        #
-        # Apply any local configuration options (if exists)
-	#
-        if [ -x /etc/bigbluebutton/bbb-conf/apply-config.sh ]; then
-                echo -n "Applying local configuration options: "
-                /etc/bigbluebutton/bbb-conf/apply-config.sh
-		echo
-        fi
 
 	echo "Restarting the BigBlueButton $BIGBLUEBUTTON_RELEASE ..."
 	stop_bigbluebutton
