@@ -4,7 +4,7 @@ const iosWebviewAudioPolyfills = function () {
       window.RTCPeerConnection.prototype.getRemoteStreams = function () {
         return this._remoteStreams ? this._remoteStreams : [];
       };
-    }
+    } 
     if (!('onaddstream' in window.RTCPeerConnection.prototype)) {
       Object.defineProperty(window.RTCPeerConnection.prototype, 'onaddstream', {
         get: function get() {
