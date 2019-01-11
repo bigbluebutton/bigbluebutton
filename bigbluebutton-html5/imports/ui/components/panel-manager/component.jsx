@@ -59,7 +59,7 @@ class PanelManager extends Component {
     this.state = {
       chatWidth: 340,
       userlistWidth: 180,
-      noteWidth: 340,
+      noteWidth: NOTE_MIN_WIDTH,
     };
   }
 
