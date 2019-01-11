@@ -25,6 +25,8 @@ const propTypes = {
   users: PropTypes.arrayOf(Object).isRequired,
   meetingName: PropTypes.string.isRequired,
   createBreakoutRoom: PropTypes.func.isRequired,
+  meetingIsBreakout: PropTypes.bool.isRequired,
+  hasBreakoutRoom: PropTypes.bool.isRequired,
 };
 
 const intlMessages = defineMessages({
@@ -102,59 +104,6 @@ class UserOptions extends PureComponent {
     this.handleCreateBreakoutRoomClick = this.handleCreateBreakoutRoomClick.bind(this);
   }
 
-  componentWillMount() {
-    const {
-      intl,
-      isMeetingMuted,
-      mountModal,
-      toggleStatus,
-      toggleMuteAllUsers,
-      toggleMuteAllUsersExceptPresenter,
-    } = this.props;
-
-    this.menuItems = _.compact([
-      (<DropdownListItem
-        key={this.clearStatusId}
-        icon="clear_status"
-        label={intl.formatMessage(intlMessages.clearAllLabel)}
-        description={intl.formatMessage(intlMessages.clearAllDesc)}
-        onClick={toggleStatus}
-      />),
-      (<DropdownListItem
-        key={this.muteAllId}
-        icon="mute"
-        label={intl.formatMessage(intlMessages.muteAllLabel)}
-        description={intl.formatMessage(intlMessages.muteAllDesc)}
-        onClick={toggleMuteAllUsers}
-      />),
-      (<DropdownListItem
-        key={this.muteId}
-        icon="mute"
-        label={intl.formatMessage(intlMessages.muteAllExceptPresenterLabel)}
-        description={intl.formatMessage(intlMessages.muteAllExceptPresenterDesc)}
-        onClick={toggleMuteAllUsersExceptPresenter}
-      />),
-      (<DropdownListItem
-        key={this.lockId}
-        icon="lock"
-        label={intl.formatMessage(intlMessages.lockViewersLabel)}
-        description={intl.formatMessage(intlMessages.lockViewersDesc)}
-        onClick={() => mountModal(<LockViewersContainer />)}
-      />),
-      (<DropdownListItem
-        key={this.createBreakoutId}
-        icon="rooms"
-        label={intl.formatMessage(intlMessages.createBreakoutRoom)}
-        description={intl.formatMessage(intlMessages.createBreakoutRoomDesc)}
-        onClick={() => this.handleCreateBreakoutRoomClick()}
-      />),
-    ]);
-
-    if (isMeetingMuted) {
-      this.alterMenu();
-    }
-  }
-
   componentDidUpdate(prevProps) {
     const { isMeetingMuted } = this.props;
     if (prevProps.isMeetingMuted !== isMeetingMuted) {
@@ -230,8 +179,63 @@ class UserOptions extends PureComponent {
   }
 
   render() {
-    const { intl } = this.props;
     const { isUserOptionsOpen } = this.state;
+    const {
+      intl,
+      isMeetingMuted,
+      mountModal,
+      toggleStatus,
+      toggleMuteAllUsers,
+      toggleMuteAllUsersExceptPresenter,
+      meetingIsBreakout,
+      hasBreakoutRoom,
+    } = this.props;
+
+    this.menuItems = _.compact([
+      (<DropdownListItem
+        key={this.clearStatusId}
+        icon="clear_status"
+        label={intl.formatMessage(intlMessages.clearAllLabel)}
+        description={intl.formatMessage(intlMessages.clearAllDesc)}
+        onClick={toggleStatus}
+      />),
+      (<DropdownListItem
+        key={this.muteAllId}
+        icon="mute"
+        label={intl.formatMessage(intlMessages.muteAllLabel)}
+        description={intl.formatMessage(intlMessages.muteAllDesc)}
+        onClick={toggleMuteAllUsers}
+      />),
+      (<DropdownListItem
+        key={this.muteId}
+        icon="mute"
+        label={intl.formatMessage(intlMessages.muteAllExceptPresenterLabel)}
+        description={intl.formatMessage(intlMessages.muteAllExceptPresenterDesc)}
+        onClick={toggleMuteAllUsersExceptPresenter}
+      />),
+      (<DropdownListItem
+        key={this.lockId}
+        icon="lock"
+        label={intl.formatMessage(intlMessages.lockViewersLabel)}
+        description={intl.formatMessage(intlMessages.lockViewersDesc)}
+        onClick={() => mountModal(<LockViewersContainer />)}
+      />),
+      (!meetingIsBreakout && !hasBreakoutRoom
+        ? (
+          <DropdownListItem
+            key={this.createBreakoutId}
+            icon="rooms"
+            label={intl.formatMessage(intlMessages.createBreakoutRoom)}
+            description={intl.formatMessage(intlMessages.createBreakoutRoomDesc)}
+            onClick={() => this.handleCreateBreakoutRoomClick()}
+          />
+        ) : null
+      ),
+    ]);
+
+    if (isMeetingMuted) {
+      this.alterMenu();
+    }
 
     return (
       <Dropdown
