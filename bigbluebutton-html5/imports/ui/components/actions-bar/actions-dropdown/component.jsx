@@ -129,17 +129,6 @@ class ActionsDropdown extends Component {
     } = intl;
 
     return _.compact([
-      (!isUserPresenter
-        ? (
-          <DropdownListItem
-            icon="presentation"
-            label={formatMessage(takePresenter)}
-            description={formatMessage(takePresenterDesc)}
-            key={this.takePresenterId}
-            onClick={() => handleTakePresenter()}
-          />
-        )
-        : null),
       (isUserPresenter
         ? (
           <DropdownListItem
@@ -153,7 +142,15 @@ class ActionsDropdown extends Component {
             }}
           />
         )
-        : null),
+        : (
+          <DropdownListItem
+            icon="presentation"
+            label={formatMessage(takePresenter)}
+            description={formatMessage(takePresenterDesc)}
+            key={this.takePresenterId}
+            onClick={() => handleTakePresenter()}
+          />
+        )),
       (isUserPresenter
         ? (
           <DropdownListItem
