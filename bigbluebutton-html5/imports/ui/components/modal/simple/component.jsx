@@ -24,15 +24,6 @@ const defaultProps = {
 };
 
 class ModalSimple extends Component {
-  constructor(props) {
-    super(props);
-    this.handleDismiss = this.handleDismiss.bind(this);
-  }
-
-  handleDismiss() {
-    this.props.modalHide(this.props.dismiss.callback);
-  }
-
   render() {
     const {
       title,
@@ -40,6 +31,7 @@ class ModalSimple extends Component {
       dismiss,
       className,
       modalisOpen,
+      onRequestClose,
       ...otherProps
     } = this.props;
 
@@ -47,7 +39,7 @@ class ModalSimple extends Component {
       <ModalBase
         isOpen={modalisOpen}
         className={cx(className, styles.modal)}
-        onRequestClose={this.handleDismiss}
+        onRequestClose={onRequestClose}
         contentLabel={title}
         {...otherProps}
       >
@@ -59,7 +51,7 @@ class ModalSimple extends Component {
             icon="close"
             circle
             hideLabel
-            onClick={this.handleDismiss}
+            onClick={onRequestClose}
             aria-describedby="modalDismissDescription"
           />
         </header>
