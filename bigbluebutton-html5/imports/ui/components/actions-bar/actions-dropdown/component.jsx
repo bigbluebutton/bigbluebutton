@@ -25,6 +25,7 @@ const propTypes = {
   meetingName: PropTypes.string.isRequired,
   shortcuts: PropTypes.string.isRequired,
   users: PropTypes.arrayOf(PropTypes.object).isRequired,
+  handleTakePresenter: PropTypes.func.isRequired,
 };
 
 const intlMessages = defineMessages({
@@ -72,20 +73,28 @@ const intlMessages = defineMessages({
     id: 'app.actionsBar.actionsDropdown.createBreakoutRoomDesc',
     description: 'Description of create breakout room option',
   },
+  takePresenter: {
+    id: 'app.actionsBar.actionsDropdown.takePresenter',
+    description: 'Label for take presenter role option',
+  },
+  takePresenterDesc: {
+    id: 'app.actionsBar.actionsDropdown.takePresenterDesc',
+    description: 'Description of take presenter role option',
+  },
 });
 
 class ActionsDropdown extends Component {
   constructor(props) {
     super(props);
-    this.handlePresentationClick = this.handlePresentationClick.bind(this);
-    this.handleCreateBreakoutRoomClick = this.handleCreateBreakoutRoomClick.bind(this);
-  }
 
-  componentWillMount() {
     this.presentationItemId = _.uniqueId('action-item-');
     this.recordId = _.uniqueId('action-item-');
     this.pollId = _.uniqueId('action-item-');
     this.createBreakoutRoomId = _.uniqueId('action-item-');
+    this.takePresenterId = _.uniqueId('action-item-');
+
+    this.handlePresentationClick = this.handlePresentationClick.bind(this);
+    this.handleCreateBreakoutRoomClick = this.handleCreateBreakoutRoomClick.bind(this);
   }
 
   componentWillUpdate(nextProps) {
@@ -103,6 +112,7 @@ class ActionsDropdown extends Component {
       isUserModerator,
       meetingIsBreakout,
       hasBreakoutRoom,
+      handleTakePresenter,
     } = this.props;
 
     const {
@@ -110,6 +120,8 @@ class ActionsDropdown extends Component {
       pollBtnDesc,
       presentationLabel,
       presentationDesc,
+      takePresenter,
+      takePresenterDesc,
     } = intlMessages;
 
     const {
@@ -130,7 +142,15 @@ class ActionsDropdown extends Component {
             }}
           />
         )
-        : null),
+        : (
+          <DropdownListItem
+            icon="presentation"
+            label={formatMessage(takePresenter)}
+            description={formatMessage(takePresenterDesc)}
+            key={this.takePresenterId}
+            onClick={() => handleTakePresenter()}
+          />
+        )),
       (isUserPresenter
         ? (
           <DropdownListItem

@@ -249,6 +249,8 @@
     "app.actionsBar.actionsDropdown.pollBtnDesc": "Toggles poll pane",
     "app.actionsBar.actionsDropdown.createBreakoutRoom": "Create breakout rooms",
     "app.actionsBar.actionsDropdown.createBreakoutRoomDesc": "create breakouts for split the current meeting ",
+    "app.actionsBar.actionsDropdown.takePresenter": "Take presenter role",
+    "app.actionsBar.actionsDropdown.takePresenterDesc": "Assign yourself as the new presenter",
     "app.actionsBar.emojiMenu.statusTriggerLabel": "Set Status",
     "app.actionsBar.emojiMenu.awayLabel": "Away",
     "app.actionsBar.emojiMenu.awayDesc": "Change your status to away",
