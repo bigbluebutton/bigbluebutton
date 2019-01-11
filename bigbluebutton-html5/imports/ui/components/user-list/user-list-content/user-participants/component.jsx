@@ -129,8 +129,6 @@ class UserParticipants extends Component {
 
     let index = -1;
 
-    const { meetingId } = meeting;
-
     return users.map(u => (
       <CSSTransition
         classNames={listTransition}
@@ -148,7 +146,7 @@ class UserParticipants extends Component {
               currentUser,
               compact,
               isBreakoutRoom,
-              meetingId,
+              meeting,
               getAvailableActions,
               normalizeEmojiName,
               isMeetingLocked,
