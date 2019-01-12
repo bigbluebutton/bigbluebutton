@@ -2,7 +2,7 @@ import React, { PureComponent } from 'react';
 import { defineMessages, injectIntl } from 'react-intl';
 import _ from 'lodash';
 import { withModalMounter } from '/imports/ui/components/modal/service';
-import LogoutConfirmationContainer from '/imports/ui/components/logout-confirmation/container';
+import EndMeetingConfirmationContainer from '/imports/ui/components/end-meeting-confirmation/container';
 import AboutContainer from '/imports/ui/components/about/container';
 import SettingsMenuContainer from '/imports/ui/components/settings/container';
 import Button from '/imports/ui/components/button/component';
@@ -14,6 +14,7 @@ import DropdownListItem from '/imports/ui/components/dropdown/list/item/componen
 import DropdownListSeparator from '/imports/ui/components/dropdown/list/separator/component';
 import ShortcutHelpComponent from '/imports/ui/components/shortcut-help/component';
 import withShortcutHelper from '/imports/ui/components/shortcut-help/service';
+import logoutRouteHandler from '/imports/utils/logoutRouteHandler';
 
 import { styles } from '../styles';
 
@@ -78,6 +79,14 @@ const intlMessages = defineMessages({
     id: 'app.navBar.settingsDropdown.helpDesc',
     description: 'Describes help option',
   },
+  endMeetingLabel: {
+    id: 'app.navBar.settingsDropdown.endMeetingLabel',
+    description: 'End meeting options label',
+  },
+  endMeetingDesc: {
+    id: 'app.navBar.settingsDropdown.endMeetingDesc',
+    description: 'Describes settings option closing the current meeting',
+  },
 });
 
 class SettingsDropdown extends PureComponent {
@@ -93,7 +102,9 @@ class SettingsDropdown extends PureComponent {
   }
 
   componentWillMount() {
-    const { intl, mountModal, isAndroid } = this.props;
+    const {
+      intl, mountModal, isAndroid, handleToggleFullscreen, isModerator,
+    } = this.props;
     const { fullscreenLabel, fullscreenDesc, fullscreenIcon } = this.checkFullscreen(this.props);
     const { showHelpButton: helpButton } = Meteor.settings.public.app;
 
@@ -102,45 +113,55 @@ class SettingsDropdown extends PureComponent {
       icon={fullscreenIcon}
       label={fullscreenLabel}
       description={fullscreenDesc}
-      onClick={this.props.handleToggleFullscreen}
+      onClick={handleToggleFullscreen}
     />),
-      (<DropdownListItem
+    (<DropdownListItem
+      key={_.uniqueId('list-item-')}
+      icon="settings"
+      label={intl.formatMessage(intlMessages.settingsLabel)}
+      description={intl.formatMessage(intlMessages.settingsDesc)}
+      onClick={() => mountModal(<SettingsMenuContainer />)}
+    />),
+    (<DropdownListItem
+      key={_.uniqueId('list-item-')}
+      icon="about"
+      label={intl.formatMessage(intlMessages.aboutLabel)}
+      description={intl.formatMessage(intlMessages.aboutDesc)}
+      onClick={() => mountModal(<AboutContainer />)}
+    />),
+    !helpButton ? null
+      : (
+        <DropdownListItem
+          key={_.uniqueId('list-item-')}
+          icon="help"
+          label={intl.formatMessage(intlMessages.helpLabel)}
+          description={intl.formatMessage(intlMessages.helpDesc)}
+          onClick={() => window.open('https://bigbluebutton.org/videos/')}
+        />
+      ),
+    (<DropdownListItem
+      key={_.uniqueId('list-item-')}
+      icon="shortcuts"
+      label={intl.formatMessage(intlMessages.hotkeysLabel)}
+      description={intl.formatMessage(intlMessages.hotkeysDesc)}
+      onClick={() => mountModal(<ShortcutHelpComponent />)}
+    />),
+    (<DropdownListSeparator key={_.uniqueId('list-separator-')} />),
+    !isModerator ? null
+      : (<DropdownListItem
         key={_.uniqueId('list-item-')}
-        icon="settings"
-        label={intl.formatMessage(intlMessages.settingsLabel)}
-        description={intl.formatMessage(intlMessages.settingsDesc)}
-        onClick={() => mountModal(<SettingsMenuContainer />)}
+        icon="application"
+        label={intl.formatMessage(intlMessages.endMeetingLabel)}
+        description={intl.formatMessage(intlMessages.endMeetingDesc)}
+        onClick={() => mountModal(<EndMeetingConfirmationContainer />)}
       />),
-      (<DropdownListItem
-        key={_.uniqueId('list-item-')}
-        icon="about"
-        label={intl.formatMessage(intlMessages.aboutLabel)}
-        description={intl.formatMessage(intlMessages.aboutDesc)}
-        onClick={() => mountModal(<AboutContainer />)}
-      />),
-      !helpButton ? null :
-      (<DropdownListItem
-        key={_.uniqueId('list-item-')}
-        icon="help"
-        label={intl.formatMessage(intlMessages.helpLabel)}
-        description={intl.formatMessage(intlMessages.helpDesc)}
-        onClick={() => window.open('https://bigbluebutton.org/videos/')}
-      />),
-      (<DropdownListItem
-        key={_.uniqueId('list-item-')}
-        icon="shortcuts"
-        label={intl.formatMessage(intlMessages.hotkeysLabel)}
-        description={intl.formatMessage(intlMessages.hotkeysDesc)}
-        onClick={() => mountModal(<ShortcutHelpComponent />)}
-      />),
-      (<DropdownListSeparator key={_.uniqueId('list-separator-')} />),
-      (<DropdownListItem
-        key={_.uniqueId('list-item-')}
-        icon="logout"
-        label={intl.formatMessage(intlMessages.leaveSessionLabel)}
-        description={intl.formatMessage(intlMessages.leaveSessionDesc)}
-        onClick={() => mountModal(<LogoutConfirmationContainer />)}
-      />),
+    (<DropdownListItem
+      key={_.uniqueId('list-item-')}
+      icon="logout"
+      label={intl.formatMessage(intlMessages.leaveSessionLabel)}
+      description={intl.formatMessage(intlMessages.leaveSessionDesc)}
+      onClick={logoutRouteHandler}
+    />),
     ]);
 
     // Removes fullscreen button if not on Android
@@ -150,8 +171,9 @@ class SettingsDropdown extends PureComponent {
   }
 
   componentWillReceiveProps(nextProps) {
+    const { isAndroid } = this.props;
     // Alters fullscreen button's label
-    if (this.props.isAndroid) {
+    if (isAndroid) {
       this.alterMenu(nextProps);
     }
   }
@@ -189,6 +211,7 @@ class SettingsDropdown extends PureComponent {
 
   alterMenu(props) {
     const { fullscreenLabel, fullscreenDesc, fullscreenIcon } = this.checkFullscreen(props);
+    const { handleToggleFullscreen } = this.props;
 
     const newFullScreenButton = (
       <DropdownListItem
@@ -196,7 +219,7 @@ class SettingsDropdown extends PureComponent {
         icon={fullscreenIcon}
         label={fullscreenLabel}
         description={fullscreenDesc}
-        onClick={this.props.handleToggleFullscreen}
+        onClick={handleToggleFullscreen}
       />
     );
     this.menuItems = this.menuItems.slice(1);
@@ -209,10 +232,12 @@ class SettingsDropdown extends PureComponent {
       shortcuts: OPEN_OPTIONS_AK,
     } = this.props;
 
+    const { isSettingOpen } = this.state;
+
     return (
       <Dropdown
         autoFocus
-        isOpen={this.state.isSettingOpen}
+        isOpen={isSettingOpen}
         onShow={this.onActionsShow}
         onHide={this.onActionsHide}
       >

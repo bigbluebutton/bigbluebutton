@@ -47,10 +47,6 @@ const intlMessage = defineMessages({
     id: 'app.feedback.textarea',
     description: 'placeholder for textarea',
   },
-  confirmLabel: {
-    id: 'app.leaveConfirmation.confirmLabel',
-    description: 'Confirmation button label',
-  },
   confirmDesc: {
     id: 'app.leaveConfirmation.confirmDesc',
     description: 'adds context to confim option',

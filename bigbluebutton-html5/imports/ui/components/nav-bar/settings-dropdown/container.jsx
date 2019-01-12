@@ -1,7 +1,7 @@
 import React, { PureComponent } from 'react';
 import browser from 'browser-detect';
 import SettingsDropdown from './component';
-import { toggleFullScreen } from './service';
+import { toggleFullScreen, isModerator } from './service';
 
 export default class SettingsDropdownContainer extends PureComponent {
   constructor(props) {
@@ -60,6 +60,7 @@ export default class SettingsDropdownContainer extends PureComponent {
         handleToggleFullscreen={handleToggleFullscreen}
         isFullScreen={isFullScreen}
         isAndroid={isAndroid}
+        isModerator={isModerator()}
       />
     );
   }

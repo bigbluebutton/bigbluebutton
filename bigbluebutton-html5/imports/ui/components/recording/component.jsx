@@ -67,13 +67,18 @@ class RecordingComponent extends React.PureComponent {
       >
         <div className={styles.container}>
           <div className={styles.header}>
-            <div className={styles.title}>{intl.formatMessage(!recordingStatus ?
-            intlMessages.startTitle : intlMessages.stopTitle)}
+            <div className={styles.title}>
+              {
+                intl.formatMessage(!recordingStatus
+                  ? intlMessages.startTitle
+                  : intlMessages.stopTitle)
+              }
             </div>
           </div>
           <div className={styles.description}>
-            {`${intl.formatMessage(!recordingStatus ? intlMessages.startDescription :
-            intlMessages.stopDescription)}`}
+            {`${intl.formatMessage(!recordingStatus
+              ? intlMessages.startDescription
+              : intlMessages.stopDescription)}`}
           </div>
           <div className={styles.footer}>
             <Button
