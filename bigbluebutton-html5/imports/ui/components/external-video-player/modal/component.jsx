@@ -37,15 +37,17 @@ const intlMessages = defineMessages({
 
 const YOUTUBE_PREFIX = "https://youtube.com/watch?v=";
 
-const getUrlFromVideoId = (url) => {
-  return url ? `${YOUTUBE_PREFIX}${url}` : '';
+const getUrlFromVideoId = (id) => {
+  return id ? `${YOUTUBE_PREFIX}${id}` : '';
 }
 
 class ExternalVideoModal extends Component {
 
+  const { videoId } = this.props;
+
   state = {
-    url: getUrlFromVideoId(this.props.url),
-    sharing: this.props.hasVideo,
+    url: getUrlFromVideoId(videoId),
+    sharing: videoId,
   };
 
   isUrlEmpty = () => {
@@ -75,18 +77,23 @@ class ExternalVideoModal extends Component {
   }
 
   renderUrlError = () => {
-    const intl = this.props.intl;
+    const { intl } = this.props;
+    const { url } = this.state;
 
-    const style = !this.isUrlEmpty() && this.state.url.length > 3 && !this.isUrlValid() ? {} : {display:' none'};
+    const valid = !this.isUrlEmpty() && url.length > 3 && !this.isUrlValid();
+
     return (
-      <div className={styles.urlError} style={style}>
-        {intl.formatMessage(intlMessages.urlError)}
-      </div>
+      valid ?
+        (<div className={styles.urlError}>
+          {intl.formatMessage(intlMessages.urlError)}
+        </div>)
+      :
+        null
     );
   }
 
   render() {
-    const intl = this.props.intl;
+    const { intl } = this.props.intl;
 
     return (
       <ModalBase

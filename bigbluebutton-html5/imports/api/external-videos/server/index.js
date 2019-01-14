@@ -9,7 +9,8 @@ import './methods';
 
 ExternalVideoStreamer.allowRead('all');
 ExternalVideoStreamer.allowWrite('all');
-ExternalVideoStreamer.allowEmit(function(eventName, {userId, meetingId}) {
+
+const allowFromPresenter = (eventName, {userId, meetingId}) => {
   let user = Users.findOne({userId});
 
   let ret = user && user.presenter;
@@ -17,4 +18,7 @@ ExternalVideoStreamer.allowEmit(function(eventName, {userId, meetingId}) {
   Logger.debug('Auth userid:', userId, ' event: ', eventName, ' suc: ', ret);
 
   return ret || eventName == 'viewerJoined';
-});
+
+}
+
+ExternalVideoStreamer.allowEmit(allowFromPresenter);
