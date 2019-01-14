@@ -7,7 +7,7 @@ import CustomLogo from './custom-logo/component';
 import UserContentContainer from './user-list-content/container';
 
 const propTypes = {
-  openChats: PropTypes.arrayOf(String).isRequired,
+  activeChats: PropTypes.arrayOf(String).isRequired,
   compact: PropTypes.bool,
   intl: PropTypes.shape({
     formatMessage: PropTypes.func.isRequired,
@@ -42,7 +42,7 @@ class UserList extends PureComponent {
   render() {
     const {
       intl,
-      openChats,
+      activeChats,
       compact,
       currentUser,
       isBreakoutRoom,
@@ -72,37 +72,37 @@ class UserList extends PureComponent {
       <div className={styles.userList}>
         {
           showBranding
-          && !this.props.compact
-          && CustomLogoUrl
-          ? <CustomLogo CustomLogoUrl={CustomLogoUrl} /> : null
+            && !compact
+            && CustomLogoUrl
+            ? <CustomLogo CustomLogoUrl={CustomLogoUrl} /> : null
         }
         {<UserContentContainer
           {...{
-          intl,
-          openChats,
-          compact,
-          currentUser,
-          isBreakoutRoom,
-          setEmojiStatus,
-          assignPresenter,
-          removeUser,
-          toggleVoice,
-          muteAllUsers,
-          muteAllExceptPresenter,
-          changeRole,
-          getAvailableActions,
-          normalizeEmojiName,
-          isMeetingLocked,
-          isPublicChat,
-          roving,
-          getGroupChatPrivate,
-          handleEmojiChange,
-          getEmojiList,
-          getEmoji,
-          hasBreakoutRoom,
-          getUsersId,
-        }
-      }
+            intl,
+            activeChats,
+            compact,
+            currentUser,
+            isBreakoutRoom,
+            setEmojiStatus,
+            assignPresenter,
+            removeUser,
+            toggleVoice,
+            muteAllUsers,
+            muteAllExceptPresenter,
+            changeRole,
+            getAvailableActions,
+            normalizeEmojiName,
+            isMeetingLocked,
+            isPublicChat,
+            roving,
+            getGroupChatPrivate,
+            handleEmojiChange,
+            getEmojiList,
+            getEmoji,
+            hasBreakoutRoom,
+            getUsersId,
+          }
+          }
         />}
       </div>
     );

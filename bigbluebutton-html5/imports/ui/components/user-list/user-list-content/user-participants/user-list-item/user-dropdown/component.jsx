@@ -248,7 +248,7 @@ class UserDropdown extends PureComponent {
 
     if (allowedToChatPrivately) {
       actions.push(this.makeDropdownItem(
-        'openChat',
+        'activeChat',
         intl.formatMessage(messages.ChatLabel),
         () => {
           getGroupChatPrivate(currentUser, user);

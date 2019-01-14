@@ -1,28 +1,20 @@
 import React from 'react';
-import _ from 'lodash';
 import PropTypes from 'prop-types';
 
 const propTypes = {
   play: PropTypes.bool.isRequired,
-  count: PropTypes.number.isRequired,
 };
 
 class ChatAudioAlert extends React.Component {
   constructor(props) {
     super(props);
     this.audio = new Audio(`${Meteor.settings.public.app.basename}/resources/sounds/notify.mp3`);
-
     this.handleAudioLoaded = this.handleAudioLoaded.bind(this);
     this.playAudio = this.playAudio.bind(this);
-    this.componentDidUpdate = _.debounce(this.playAudio, 2000);
   }
 
   componentDidMount() {
     this.audio.addEventListener('loadedmetadata', this.handleAudioLoaded);
-  }
-
-  shouldComponentUpdate(nextProps) {
-    return nextProps.count > this.props.count;
   }
 
   componentWillUnmount() {
@@ -30,12 +22,12 @@ class ChatAudioAlert extends React.Component {
   }
 
   handleAudioLoaded() {
-    this.componentDidUpdate = _.debounce(this.playAudio, this.audio.duration * 1000);
+    this.componentDidUpdate = this.playAudio;
   }
 
   playAudio() {
-    if (!this.props.play) return;
-
+    const { play } = this.props;
+    if (!play) return;
     this.audio.play();
   }
 

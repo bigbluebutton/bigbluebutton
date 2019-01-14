@@ -40,6 +40,7 @@ export default function handleValidateAuthToken({ body }, meetingId) {
     $set: {
       validated: valid,
       approved: !waitForApproval,
+      loginTime: Date.now(),
     },
   };
 

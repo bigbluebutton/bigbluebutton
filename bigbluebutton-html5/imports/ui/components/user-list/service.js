@@ -18,7 +18,7 @@ const PUBLIC_GROUP_CHAT_ID = CHAT_CONFIG.public_group_id;
 // session for closed chat list
 const CLOSED_CHAT_LIST_KEY = 'closedChatList';
 
-const mapOpenChats = (chat) => {
+const mapActiveChats = (chat) => {
   const currentUserId = Auth.userID;
 
   if (chat.sender !== currentUserId) {
@@ -192,7 +192,7 @@ const getUsersId = () => getUsers().map(u => u.id);
 
 const hasBreakoutRoom = () => Breakouts.find({ parentMeetingId: Auth.meetingID }).count() > 0;
 
-const getOpenChats = (chatID) => {
+const getActiveChats = (chatID) => {
   const privateChat = GroupChat
     .find({ users: { $all: [Auth.userID] } })
     .fetch()
@@ -206,30 +206,30 @@ const getOpenChats = (chatID) => {
     filter.chatId = { $in: privateChat };
   }
 
-  let openChats = GroupChatMsg
+  let activeChats = GroupChatMsg
     .find(filter)
     .fetch()
-    .map(mapOpenChats);
+    .map(mapActiveChats);
 
   if (chatID) {
-    openChats.push(chatID);
+    activeChats.push(chatID);
   }
 
-  openChats = _.uniq(_.compact(openChats));
+  activeChats = _.uniq(_.compact(activeChats));
 
-  openChats = Users
-    .find({ userId: { $in: openChats } })
+  activeChats = Users
+    .find({ userId: { $in: activeChats } })
     .map(mapUser)
     .map((op) => {
-      const openChat = op;
-      openChat.unreadCounter = UnreadMessages.count(op.id);
-      return openChat;
+      const activeChat = op;
+      activeChat.unreadCounter = UnreadMessages.count(op.id);
+      return activeChat;
     });
 
   const currentClosedChats = Storage.getItem(CLOSED_CHAT_LIST_KEY) || [];
   const filteredChatList = [];
 
-  openChats.forEach((op) => {
+  activeChats.forEach((op) => {
     // When a new private chat message is received, ensure the conversation view is restored.
     if (op.unreadCounter > 0) {
       if (_.indexOf(currentClosedChats, op.id) > -1) {
@@ -237,24 +237,24 @@ const getOpenChats = (chatID) => {
       }
     }
 
-    // Compare openChats with session and push it into filteredChatList
-    // if one of the openChat is not in session.
-    // It will pass to openChats.
+    // Compare activeChats with session and push it into filteredChatList
+    // if one of the activeChat is not in session.
+    // It will pass to activeChats.
     if (_.indexOf(currentClosedChats, op.id) < 0) {
       filteredChatList.push(op);
     }
   });
 
-  openChats = filteredChatList;
+  activeChats = filteredChatList;
 
-  openChats.push({
+  activeChats.push({
     id: 'public',
     name: 'Public Chat',
     icon: 'group_chat',
     unreadCounter: UnreadMessages.count(PUBLIC_GROUP_CHAT_ID),
   });
 
-  return openChats
+  return activeChats
     .sort(sortChats);
 };
 
@@ -268,36 +268,36 @@ const getAvailableActions = (currentUser, user, isBreakoutRoom) => {
   const allowedToChatPrivately = !user.isCurrent && !isDialInUser;
 
   const allowedToMuteAudio = hasAuthority
-                            && user.isVoiceUser
-                            && !user.isMuted
-                            && !user.isListenOnly;
+    && user.isVoiceUser
+    && !user.isMuted
+    && !user.isListenOnly;
 
   const allowedToUnmuteAudio = hasAuthority
-                              && user.isVoiceUser
-                              && !user.isListenOnly
-                              && user.isMuted
-                              && user.isCurrent;
+    && user.isVoiceUser
+    && !user.isListenOnly
+    && user.isMuted
+    && user.isCurrent;
 
   const allowedToResetStatus = hasAuthority
-      && user.emoji.status !== EMOJI_STATUSES.none
-      && !isDialInUser;
+    && user.emoji.status !== EMOJI_STATUSES.none
+    && !isDialInUser;
 
   // if currentUser is a moderator, allow removing other users
   const allowedToRemove = currentUser.isModerator && !user.isCurrent && !isBreakoutRoom;
 
   const allowedToSetPresenter = currentUser.isModerator
-      && !user.isPresenter
-      && !isDialInUser;
+    && !user.isPresenter
+    && !isDialInUser;
 
   const allowedToPromote = currentUser.isModerator
-      && !user.isCurrent
-      && !user.isModerator
-      && !isDialInUser;
+    && !user.isCurrent
+    && !user.isModerator
+    && !isDialInUser;
 
   const allowedToDemote = currentUser.isModerator
-      && !user.isCurrent
-      && user.isModerator
-      && !isDialInUser;
+    && !user.isCurrent
+    && user.isModerator
+    && !isDialInUser;
 
   const allowedToChangeStatus = user.isCurrent;
 
@@ -361,7 +361,13 @@ const removeUser = (userId) => {
   }
 };
 
-const toggleVoice = (userId) => { userId === Auth.userID ? makeCall('toggleSelfVoice') : makeCall('toggleVoice', userId); };
+const toggleVoice = (userId) => {
+  if (userId === Auth.userID) {
+    makeCall('toggleSelfVoice');
+  } else {
+    makeCall('toggleVoice', userId);
+  }
+};
 
 const muteAllUsers = (userId) => { makeCall('muteAllUsers', userId); };
 
@@ -451,7 +457,7 @@ export default {
   changeRole,
   getUsers,
   getUsersId,
-  getOpenChats,
+  getActiveChats,
   getCurrentUser,
   getAvailableActions,
   normalizeEmojiName,

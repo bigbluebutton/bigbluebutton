@@ -4,11 +4,11 @@ import PropTypes from 'prop-types';
 import { defineMessages } from 'react-intl';
 import cx from 'classnames';
 import { styles } from '/imports/ui/components/user-list/user-list-content/styles';
-import ChatListItem from './../../chat-list-item/component';
+import ChatListItem from '../../chat-list-item/component';
 
 const propTypes = {
-  openChats: PropTypes.arrayOf(String).isRequired,
-  openChat: PropTypes.string,
+  activeChats: PropTypes.arrayOf(String).isRequired,
+  activeChat: PropTypes.string,
   compact: PropTypes.bool,
   intl: PropTypes.shape({
     formatMessage: PropTypes.func.isRequired,
@@ -19,7 +19,7 @@ const propTypes = {
 
 const defaultProps = {
   compact: false,
-  openChat: '',
+  activeChat: '',
 };
 
 const listTransition = {
@@ -46,20 +46,21 @@ class UserMessages extends PureComponent {
       index: -1,
     };
 
-    this.openChatRefs = [];
+    this.activeChatRefs = [];
     this.selectedIndex = -1;
 
-    this.focusOpenChatItem = this.focusOpenChatItem.bind(this);
+    this.focusActiveChatItem = this.focusActiveChatItem.bind(this);
     this.changeState = this.changeState.bind(this);
   }
 
   componentDidMount() {
-    if (!this.props.compact) {
+    const { compact, roving, activeChats } = this.props;
+    if (!compact) {
       this._msgsList.addEventListener(
         'keydown',
-        event => this.props.roving(
+        event => roving(
           event,
-          this.props.openChats.length,
+          activeChats.length,
           this.changeState,
         ),
       );
@@ -67,26 +68,27 @@ class UserMessages extends PureComponent {
   }
 
   componentDidUpdate(prevProps, prevState) {
-    if (this.state.index === -1) {
+    const { index } = this.state;
+    if (index === -1) {
       return;
     }
 
-    if (this.state.index !== prevState.index) {
-      this.focusOpenChatItem(this.state.index);
+    if (index !== prevState.index) {
+      this.focusActiveChatItem(index);
     }
   }
 
-  getOpenChats() {
+  getActiveChats() {
     const {
-      openChats,
-      openChat,
+      activeChats,
+      activeChat,
       compact,
       isPublicChat,
     } = this.props;
 
     let index = -1;
 
-    return openChats.map(chat => (
+    return activeChats.map(chat => (
       <CSSTransition
         classNames={listTransition}
         appear
@@ -97,11 +99,11 @@ class UserMessages extends PureComponent {
         className={cx(styles.chatsList)}
         key={chat.id}
       >
-        <div ref={(node) => { this.openChatRefs[index += 1] = node; }}>
+        <div ref={(node) => { this.activeChatRefs[index += 1] = node; }}>
           <ChatListItem
             isPublicChat={isPublicChat}
             compact={compact}
-            openChat={openChat}
+            activeChat={activeChat}
             chat={chat}
             tabIndex={-1}
           />
@@ -114,12 +116,12 @@ class UserMessages extends PureComponent {
     this.setState({ index: newIndex });
   }
 
-  focusOpenChatItem(index) {
-    if (!this.openChatRefs[index]) {
+  focusActiveChatItem(index) {
+    if (!this.activeChatRefs[index]) {
       return;
     }
 
-    this.openChatRefs[index].firstChild.focus();
+    this.activeChatRefs[index].firstChild.focus();
   }
 
   render() {
@@ -131,10 +133,13 @@ class UserMessages extends PureComponent {
     return (
       <div className={styles.messages}>
         {
-          !compact ?
+          !compact ? (
             <h2 className={styles.smallTitle}>
               {intl.formatMessage(intlMessages.messagesTitle)}
-            </h2> : <hr className={styles.separator} />
+            </h2>
+          ) : (
+            <hr className={styles.separator} />
+          )
         }
         <div
           role="tabpanel"
@@ -143,8 +148,8 @@ class UserMessages extends PureComponent {
           ref={(ref) => { this._msgsList = ref; }}
         >
           <div className={styles.list}>
-            <TransitionGroup ref={(ref) => { this._msgItems = ref; }} >
-              { this.getOpenChats() }
+            <TransitionGroup ref={(ref) => { this._msgItems = ref; }}>
+              {this.getActiveChats()}
             </TransitionGroup>
           </div>
         </div>
