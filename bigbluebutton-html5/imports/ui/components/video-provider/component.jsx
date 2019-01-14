@@ -101,6 +101,14 @@ const MAX_CAMERA_SHARE_FAILED_WAIT_TIME = 60000;
 const PING_INTERVAL = 15000;
 
 class VideoProvider extends Component {
+  static checkIceConnectivity() {
+    // Webkit ICE restrictions demand a capture device permission to release
+    // host candidates
+    if (browser().name === 'safari') {
+      tryGenerateIceCandidates();
+    }
+  }
+
   constructor(props) {
     super(props);
 
@@ -148,6 +156,7 @@ class VideoProvider extends Component {
   }
 
   componentDidMount() {
+    VideoProvider.checkIceConnectivity();
     document.addEventListener('joinVideo', this.shareWebcam); // TODO find a better way to do this
     document.addEventListener('exitVideo', this.unshareWebcam);
     this.ws.onmessage = this.onWsMessage;
@@ -195,7 +204,7 @@ class VideoProvider extends Component {
     this.ws.close();
   }
 
-  async onWsMessage(msg) {
+  onWsMessage(msg) {
     const parsedMessage = JSON.parse(msg.data);
 
     this.logger('debug', `Received new message '${parsedMessage.id}'`, { topic: 'ws', message: parsedMessage });
@@ -206,19 +215,8 @@ class VideoProvider extends Component {
         break;
 
       case 'playStart':
-      // Webkit ICE restrictions demand a capture device permission to release
-      // host candidates
-      if (browser().name === 'safari') {
-        try {
-          await tryGenerateIceCandidates();
-        } catch(e) {
-          //TODO Warn user about connection problemns
-          console.error('Not possible to generate ICE Candidates');
-        };
-      }
-      
-      this.handlePlayStart(parsedMessage);
-      break;
+        this.handlePlayStart(parsedMessage);
+        break;
 
       case 'playStop':
         this.handlePlayStop(parsedMessage);
