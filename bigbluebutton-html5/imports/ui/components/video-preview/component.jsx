@@ -156,34 +156,48 @@ class VideoPreview extends Component {
     const constraints = {
       video: VIDEO_CONSTRAINTS,
     };
-    navigator.mediaDevices.getUserMedia(constraints).then((stream) => {
-      this.video.srcObject = stream;
-      this.deviceStream = stream;
-      navigator.mediaDevices.enumerateDevices().then((devices) => {
-        let isInitialDeviceSet = false;
-        const webcams = [];
-        if (webcamDeviceId) {
-          this.changeWebcam(webcamDeviceId);
-          this.setState({ webcamDeviceId });
-          isInitialDeviceSet = true;
-        }
-        devices.forEach((device) => {
-          if (device.kind === 'videoinput') {
-            webcams.push(device);
-            if (!isInitialDeviceSet) {
-              this.changeWebcam(device.deviceId);
-              this.setState({ webcamDeviceId: device.deviceId });
-              isInitialDeviceSet = true;
-            }
+
+    navigator.mediaDevices.enumerateDevices().then((devices) => {
+      let isInitialDeviceSet = false;
+      const webcams = [];
+
+      // set webcam
+      if (webcamDeviceId) {
+        this.changeWebcam(webcamDeviceId);
+        this.setState({ webcamDeviceId });
+        isInitialDeviceSet = true;
+      }
+      devices.forEach((device) => {
+        if (device.kind === 'videoinput') {
+          if (!isInitialDeviceSet) {
+            this.changeWebcam(device.deviceId);
+            this.setState({ webcamDeviceId: device.deviceId });
+            isInitialDeviceSet = true;
           }
-        });
-        if (webcams.length > 0) {
-          this.setState({ availableWebcams: webcams });
         }
       });
-    }).catch((error) => {
-      this.setState({ isStartSharingDisabled: true });
-      this.handlegUMError(error);
+      if (webcams.length > 0) {
+        this.setState({ availableWebcams: webcams });
+      }
+
+      constraints.video.deviceId = { exact: this.state.webcamDeviceId };
+      navigator.mediaDevices.getUserMedia(constraints).then((stream) => {
+        // display the preview
+        this.video.srcObject = stream;
+        this.deviceStream = stream;
+
+        navigator.mediaDevices.enumerateDevices().then((devices) => {
+          // get the list of webcams (labels are available at this point)
+          devices.forEach((device) => {
+            if (device.kind === 'videoinput') {
+              webcams.push(device);
+            }
+          });
+          if (webcams.length > 0) {
+            this.setState({ availableWebcams: webcams });
+          }
+        });
+      });
     });
   }
 
@@ -237,16 +251,18 @@ class VideoPreview extends Component {
                   <option key={index} value={webcam.deviceId}>
                     {webcam.label}
                   </option>
-                  ))}
+                ))}
               </select>
-              ) :
-              <select
-                className={styles.select}
-              >
-                <option disabled>
-                  {intl.formatMessage(intlMessages.webcamNotFoundLabel)}
-                </option>
-              </select>}
+            )
+              : (
+                <select
+                  className={styles.select}
+                >
+                  <option disabled>
+                    {intl.formatMessage(intlMessages.webcamNotFoundLabel)}
+                  </option>
+                </select>
+              )}
           </div>
         </div>
         <div className={styles.footer}>
@@ -271,4 +287,3 @@ class VideoPreview extends Component {
 VideoPreview.propTypes = propTypes;
 
 export default injectIntl(VideoPreview);
-
