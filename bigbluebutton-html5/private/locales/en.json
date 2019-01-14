@@ -397,5 +397,8 @@
     "app.videoDock.webcamFocusLabel": "Focus",
     "app.videoDock.webcamFocusDesc": "Focus the selected webcam",
     "app.videoDock.webcamUnfocusLabel": "Unfocus",
-    "app.videoDock.webcamUnfocusDesc": "Unfocus the selected webcam"
+    "app.videoDock.webcamUnfocusDesc": "Unfocus the selected webcam",
+    "app.timer.startButton": "Start",
+    "app.timer.pauseButton": "Pause",
+    "app.timer.stopButton": "Stop"
 }

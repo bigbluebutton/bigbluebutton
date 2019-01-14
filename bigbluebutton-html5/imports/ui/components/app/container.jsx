@@ -23,18 +23,21 @@ import App from './component';
 import NavBarContainer from '../nav-bar/container';
 import ActionsBarContainer from '../actions-bar/container';
 import MediaContainer from '../media/container';
+import TimerContainer from "../timer/container";
 
 const propTypes = {
   navbar: PropTypes.node,
   actionsbar: PropTypes.node,
   media: PropTypes.node,
   location: PropTypes.shape({}).isRequired,
+  timer: PropTypes.node
 };
 
 const defaultProps = {
   navbar: <NavBarContainer />,
   actionsbar: <ActionsBarContainer />,
   media: <MediaContainer />,
+  timer: <TimerContainer/>
 };
 
 const intlMessages = defineMessages({
@@ -50,6 +53,7 @@ const AppContainer = (props) => {
     navbar,
     actionsbar,
     media,
+    timer,
     ...otherProps
   } = props;
 
@@ -60,6 +64,7 @@ const AppContainer = (props) => {
       navbar={navbarWithLocation}
       actionsbar={actionsbar}
       media={media}
+      timer={timer}
       {...otherProps}
     />
   );

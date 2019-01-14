@@ -35,7 +35,6 @@ const defaultProps = {
 class Base extends Component {
   constructor(props) {
     super(props);
-
     this.state = {
       loading: false,
       error: props.error || null,

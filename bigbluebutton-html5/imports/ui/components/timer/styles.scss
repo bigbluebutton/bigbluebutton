@@ -1,0 +1,36 @@
+@import "/imports/ui/stylesheets/variables/_all";
+@import "/imports/ui/components/modal/simple/styles";
+
+.block {
+  position: absolute;
+  left: 0;
+  bottom: 0;
+
+  background: #1970d7;
+  width: 100%;
+  text-align: center;
+  color: #fff;
+}
+.blockModerator {
+  height: 120px;
+}
+.blockViewer {
+  height: 70px;
+}
+.time {
+  font-size: 30px;
+  line-height: 70px;
+  font-weight: 900;
+}
+
+.startBtn {
+  background-color: $color-white;
+  i {
+    color: $color-gray-light;
+  }
+}
+
+.startBtn:focus {
+  background: $color-white;
+  border: 3px solid transparent;
+}

@@ -144,7 +144,6 @@ class App extends Component {
     const { intl, chatIsOpen } = this.props;
     let { userList } = this.props;
     const { compactUserList } = this.state;
-
     if (!userList) return null;
 
     const userListStyle = {};
@@ -160,8 +159,20 @@ class App extends Component {
         aria-hidden={chatIsOpen}
       >
         {userList}
+        {this.renderTimer()}
       </div>
     );
+  }
+
+  renderTimer() {
+    let { timer } = this.props;
+    if (!timer) return null;
+    timer = React.cloneElement(timer);
+    return (
+        <div >
+          {timer}
+        </div>
+    )
   }
 
   renderUserListResizable() {
@@ -301,7 +312,7 @@ class App extends Component {
   render() {
     const { params, userlistIsOpen } = this.props;
     const { enableResize } = this.state;
-
+    console.log(enableResize);
     return (
       <main className={styles.main}>
         <NotificationsBarContainer />

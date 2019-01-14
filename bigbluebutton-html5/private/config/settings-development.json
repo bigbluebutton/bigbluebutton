@@ -66,13 +66,13 @@
       },
       "allowHTML5Moderator": true,
       "allowModeratorToUnmuteAudio": true,
-      "httpsConnection": false,
+      "httpsConnection": true,
       "connectionTimeout": 60000,
       "showHelpButton": true
     },
 
     "kurento": {
-      "wsUrl": "HOST",
+      "wsUrl": "wss://devb319.topicanative.edu.vn/bbb-webrtc-sfu",
       "chromeDefaultExtensionKey": "akgoaoikmbmhcopjgakkcepdgdgkjfbc",
       "chromeDefaultExtensionLink": "https://chrome.google.com/webstore/detail/bigbluebutton-screenshare/akgoaoikmbmhcopjgakkcepdgdgkjfbc",
       "chromeExtensionKey": "KEY",
@@ -87,10 +87,10 @@
           "max": 480
         }
       },
-      "enableScreensharing": false,
-      "enableVideo": false,
+      "enableScreensharing": true,
+      "enableVideo": true,
       "enableVideoStats": false,
-      "enableListenOnly": false
+      "enableListenOnly": true
     },
 
     "acl": {
