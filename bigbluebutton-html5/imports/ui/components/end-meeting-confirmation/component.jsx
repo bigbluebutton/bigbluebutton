@@ -5,62 +5,47 @@ import Button from '/imports/ui/components/button/component';
 import Modal from '/imports/ui/components/modal/simple/component';
 import { styles } from './styles';
 
+
 const intlMessages = defineMessages({
-  startTitle: {
-    id: 'app.recording.startTitle',
-    description: 'start recording title',
+  endMeetingTitle: {
+    id: 'app.endMeeting.title',
+    description: 'end meeting title',
   },
-  stopTitle: {
-    id: 'app.recording.stopTitle',
-    description: 'stop recording title',
-  },
-  startDescription: {
-    id: 'app.recording.startDescription',
-    description: 'start recording description',
-  },
-  stopDescription: {
-    id: 'app.recording.stopDescription',
-    description: 'stop recording description',
+  endMeetingDescription: {
+    id: 'app.endMeeting.description',
+    description: 'end meeting description',
   },
   yesLabel: {
-    id: 'app.audioModal.yes',
-    description: 'label for yes button',
+    id: 'app.endMeeting.yesLabel',
+    description: 'label for yes button for end meeting',
   },
   noLabel: {
-    id: 'app.audioModal.no',
-    description: 'label for no button',
+    id: 'app.endMeeting.noLabel',
+    description: 'label for no button for end meeting',
   },
 });
 
 const propTypes = {
   intl: intlShape.isRequired,
   closeModal: PropTypes.func.isRequired,
-  toggleRecording: PropTypes.func.isRequired,
-  recordingStatus: PropTypes.bool,
-  amIModerator: PropTypes.bool,
+  endMeeting: PropTypes.func.isRequired,
 };
 
-const defaultProps = {
-  recordingStatus: false,
-  amIModerator: false,
-};
-
-class RecordingComponent extends React.PureComponent {
+class EndMeetingComponent extends React.PureComponent {
   constructor(props) {
     super(props);
     const {
       closeModal,
-      toggleRecording,
+      endMeeting,
     } = props;
 
     this.closeModal = closeModal;
-    this.toggleRecording = toggleRecording;
+    this.endMeeting = endMeeting;
   }
 
   render() {
-    const { intl, recordingStatus, amIModerator } = this.props;
+    const { intl } = this.props;
 
-    if (!amIModerator) return null;
     return (
       <Modal
         overlayClassName={styles.overlay}
@@ -71,24 +56,18 @@ class RecordingComponent extends React.PureComponent {
         <div className={styles.container}>
           <div className={styles.header}>
             <div className={styles.title}>
-              {
-                intl.formatMessage(!recordingStatus
-                  ? intlMessages.startTitle
-                  : intlMessages.stopTitle)
-              }
+              {intl.formatMessage(intlMessages.endMeetingTitle)}
             </div>
           </div>
           <div className={styles.description}>
-            {`${intl.formatMessage(!recordingStatus
-              ? intlMessages.startDescription
-              : intlMessages.stopDescription)}`}
+            {intl.formatMessage(intlMessages.endMeetingDescription)}
           </div>
           <div className={styles.footer}>
             <Button
               color="primary"
               className={styles.button}
               label={intl.formatMessage(intlMessages.yesLabel)}
-              onClick={() => this.toggleRecording()}
+              onClick={() => this.endMeeting()}
             />
             <Button
               label={intl.formatMessage(intlMessages.noLabel)}
@@ -102,7 +81,6 @@ class RecordingComponent extends React.PureComponent {
   }
 }
 
-RecordingComponent.propTypes = propTypes;
-RecordingComponent.defaultProps = defaultProps;
+EndMeetingComponent.propTypes = propTypes;
 
-export default injectIntl(RecordingComponent);
+export default injectIntl(EndMeetingComponent);

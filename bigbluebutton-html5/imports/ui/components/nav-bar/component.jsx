@@ -250,6 +250,7 @@ class NavBar extends PureComponent {
 
   render() {
     const {
+      amIModerator,
       hasUnreadMessages,
       recordProps,
       isExpanded,
@@ -302,10 +303,11 @@ class NavBar extends PureComponent {
               : intl.formatMessage(intlMessages.stopTitle))}
             mountModal={mountModal}
             time={time}
+            amIModerator={amIModerator()}
           />
         </div>
         <div className={styles.right}>
-          <SettingsDropdownContainer />
+          <SettingsDropdownContainer amIModerator={amIModerator()} />
         </div>
       </div>
     );

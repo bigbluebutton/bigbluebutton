@@ -242,8 +242,6 @@
     "app.actionsBar.actionsDropdown.initPollDesc": "Initiate a poll",
     "app.actionsBar.actionsDropdown.desktopShareDesc": "Share your screen with others",
     "app.actionsBar.actionsDropdown.stopDesktopShareDesc": "Stop sharing your screen with",
-    "app.actionsBar.actionsDropdown.startRecording": "Start recording",
-    "app.actionsBar.actionsDropdown.stopRecording": "Stop recording",
     "app.actionsBar.actionsDropdown.pollBtnLabel": "Start a poll",
     "app.actionsBar.actionsDropdown.pollBtnDesc": "Toggles poll pane",
     "app.actionsBar.actionsDropdown.createBreakoutRoom": "Create breakout rooms",

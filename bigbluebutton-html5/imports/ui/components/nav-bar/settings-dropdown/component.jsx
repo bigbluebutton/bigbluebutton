@@ -103,7 +103,7 @@ class SettingsDropdown extends PureComponent {
 
   componentWillMount() {
     const {
-      intl, mountModal, isAndroid, handleToggleFullscreen, isModerator,
+      intl, mountModal, isAndroid, handleToggleFullscreen, amIModerator,
     } = this.props;
     const { fullscreenLabel, fullscreenDesc, fullscreenIcon } = this.checkFullscreen(this.props);
     const { showHelpButton: helpButton } = Meteor.settings.public.app;
@@ -147,14 +147,16 @@ class SettingsDropdown extends PureComponent {
       onClick={() => mountModal(<ShortcutHelpComponent />)}
     />),
     (<DropdownListSeparator key={_.uniqueId('list-separator-')} />),
-    !isModerator ? null
-      : (<DropdownListItem
-        key={_.uniqueId('list-item-')}
-        icon="application"
-        label={intl.formatMessage(intlMessages.endMeetingLabel)}
-        description={intl.formatMessage(intlMessages.endMeetingDesc)}
-        onClick={() => mountModal(<EndMeetingConfirmationContainer />)}
-      />),
+    !amIModerator ? null
+      : (
+        <DropdownListItem
+          key={_.uniqueId('list-item-')}
+          icon="application"
+          label={intl.formatMessage(intlMessages.endMeetingLabel)}
+          description={intl.formatMessage(intlMessages.endMeetingDesc)}
+          onClick={() => mountModal(<EndMeetingConfirmationContainer />)}
+        />
+      ),
     (<DropdownListItem
       key={_.uniqueId('list-item-')}
       icon="logout"

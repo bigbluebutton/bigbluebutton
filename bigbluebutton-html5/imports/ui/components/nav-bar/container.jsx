@@ -3,6 +3,7 @@ import { Meteor } from 'meteor/meteor';
 import { withTracker } from 'meteor/react-meteor-data';
 import { Session } from 'meteor/session';
 import Meetings from '/imports/api/meetings';
+import Users from '/imports/api/users';
 import Auth from '/imports/ui/services/auth';
 import { meetingIsBreakout } from '/imports/ui/components/app/service';
 import getFromUserSettings from '/imports/ui/services/users-settings';
@@ -10,6 +11,7 @@ import userListService from '../user-list/service';
 import ChatService from '../chat/service';
 import Service from './service';
 import NavBar from './component';
+import mapUser from '../../services/user/mapUser';
 
 const PUBLIC_CONFIG = Meteor.settings.public;
 const PUBLIC_GROUP_CHAT_ID = PUBLIC_CONFIG.chat.public_group_id;
@@ -68,7 +70,13 @@ export default withTracker(() => {
 
   const isExpanded = Session.get('isUserListOpen');
 
+  const amIModerator = () => {
+    const currentUser = Users.findOne({ userId: Auth.userID });
+    return mapUser(currentUser).isModerator;
+  };
+
   return {
+    amIModerator,
     isExpanded,
     breakouts,
     currentUserId,

@@ -1,7 +1,3 @@
-import Users from '/imports/api/users';
-import mapUser from '/imports/ui/services/user/mapUser';
-import Auth from '/imports/ui/services/auth';
-
 const toggleFullScreen = () => {
   const element = document.documentElement;
 
@@ -30,16 +26,6 @@ const toggleFullScreen = () => {
   }
 };
 
-const isModerator = () => {
-  const currentUserId = Auth.userID;
-  const currentUser = Users.findOne({ userId: currentUserId });
-
-  console.error(currentUser)
-  return (currentUser) ? mapUser(currentUser).isModerator : null;
-};
-
-
 export {
-  isModerator,
   toggleFullScreen,
 };

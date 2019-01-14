@@ -21,11 +21,11 @@ const intlMessages = defineMessages({
   },
   notificationRecordingStart: {
     id: 'app.notification.recordingStart',
-    description: 'Notification for when the recording start',
+    description: 'Notification for when the recording starts',
   },
   notificationRecordingStop: {
     id: 'app.notification.recordingStop',
-    description: 'Notification for when the recording stpop',
+    description: 'Notification for when the recording stops',
   },
 });
 
