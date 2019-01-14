@@ -25,13 +25,10 @@ class ActionsBar extends React.PureComponent {
       hasBreakoutRoom,
       meetingName,
       users,
-<<<<<<< HEAD
       getUsersNotAssigned,
       sendInvitation,
       getBreakouts,
-=======
       handleTakePresenter,
->>>>>>> upstream/master
     } = this.props;
 
     const {
@@ -59,13 +56,10 @@ class ActionsBar extends React.PureComponent {
             hasBreakoutRoom,
             meetingName,
             users,
-<<<<<<< HEAD
             getUsersNotAssigned,
             sendInvitation,
             getBreakouts,
-=======
             handleTakePresenter,
->>>>>>> upstream/master
           }}
           />
         </div>
