@@ -89,15 +89,11 @@ class AudioManager {
 
     this.isWaitingPermissions = false;
     this.devicesInitialized = false;
-
-    // Avoid ask microphone permission for "Listen Only"
-    const devicesInitializePromises = [];
-    if (this.isListenOnly == false) devicesInitializePromises.push(this.setDefaultInputDevice());
-    devicesInitializePromises.push(this.setDefaultOutputDevice());
-
-    return Promise.all(
-      devicesInitializePromises,
-    ).then(() => {
+    
+    return Promise.all([
+      this.setDefaultInputDevice(),
+      this.setDefaultOutputDevice(),
+    ]).then(() => {
       this.devicesInitialized = true;
       this.isWaitingPermissions = false;
     }).catch((err) => {
@@ -151,7 +147,6 @@ class AudioManager {
       inputStream: this.createListenOnlyStream(),
     };
 
-    
     // Webkit ICE restrictions demand a capture device permission to release
     // host candidates
     if (name === 'safari') {
