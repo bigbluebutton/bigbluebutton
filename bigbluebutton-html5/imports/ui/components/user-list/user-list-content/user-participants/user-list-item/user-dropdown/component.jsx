@@ -448,6 +448,7 @@ class UserDropdown extends PureComponent {
       dropdownVisible,
       dropdownDirection,
       dropdownOffset,
+      showNestedOptions,
     } = this.state;
 
     const actions = this.getUsersActions();
@@ -509,7 +510,7 @@ class UserDropdown extends PureComponent {
     return (
       <Dropdown
         ref={(ref) => { this.dropdown = ref; }}
-        isOpen={isActionsOpen}
+        keepOpen={isActionsOpen || showNestedOptions}
         onShow={this.onActionsShow}
         onHide={this.onActionsHide}
         className={userItemContentsStyle}

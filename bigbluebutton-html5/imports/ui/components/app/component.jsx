@@ -15,6 +15,9 @@ import ChatAlertContainer from '../chat/alert/container';
 import { styles } from './styles';
 
 const MOBILE_MEDIA = 'only screen and (max-width: 40em)';
+const APP_CONFIG = Meteor.settings.public.app;
+const DESKTOP_FONT_SIZE = APP_CONFIG.desktopFontSize;
+const MOBILE_FONT_SIZE = APP_CONFIG.mobileFontSize;
 
 const intlMessages = defineMessages({
   userListLabel: {
@@ -36,7 +39,6 @@ const intlMessages = defineMessages({
 });
 
 const propTypes = {
-  fontSize: PropTypes.string,
   navbar: PropTypes.element,
   sidebar: PropTypes.element,
   media: PropTypes.element,
@@ -49,7 +51,6 @@ const propTypes = {
 };
 
 const defaultProps = {
-  fontSize: '16px',
   navbar: null,
   sidebar: null,
   media: null,
@@ -70,13 +71,14 @@ class App extends Component {
   }
 
   componentDidMount() {
-    const { locale, fontSize } = this.props;
+    const { locale } = this.props;
+    const BROWSER_RESULTS = browser();
+    const isMobileBrowser = BROWSER_RESULTS.mobile || BROWSER_RESULTS.os.includes('Android');
 
     Modal.setAppElement('#app');
     document.getElementsByTagName('html')[0].lang = locale;
-    document.getElementsByTagName('html')[0].style.fontSize = fontSize;
+    document.getElementsByTagName('html')[0].style.fontSize = isMobileBrowser ? MOBILE_FONT_SIZE : DESKTOP_FONT_SIZE;
 
-    const BROWSER_RESULTS = browser();
     const body = document.getElementsByTagName('body')[0];
     if (BROWSER_RESULTS && BROWSER_RESULTS.name) {
       body.classList.add(`browser-${BROWSER_RESULTS.name}`);
@@ -192,14 +194,14 @@ class App extends Component {
 
   render() {
     const {
-      customStyle, customStyleUrl, micsLocked,
+      customStyle, customStyleUrl, micsLocked, openPanel,
     } = this.props;
 
     return (
       <main className={styles.main}>
         <NotificationsBarContainer />
         <section className={styles.wrapper}>
-          <div className={styles.content}>
+          <div className={openPanel ? styles.content : styles.noPanelContent}>
             {this.renderNavBar()}
             {this.renderMedia()}
             {this.renderActionsBar()}

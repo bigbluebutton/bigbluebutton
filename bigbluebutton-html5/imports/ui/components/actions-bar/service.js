@@ -37,10 +37,9 @@ const getUsersNotAssigned = (users) => {
     .map(u => u.userId);
   return users.filter(u => !breakoutUsers.includes(u.intId));
 };
-
+const takePresenterRole = () => makeCall('assignPresenter', Auth.userID);
 
 export default {
-  connectRecordingObserver: () => connectRecordingObserver(),
   isUserPresenter: () => Users.findOne({ userId: Auth.userID }).presenter,
   isUserModerator: () => Users.findOne({ userId: Auth.userID }).moderator,
   recordSettingsList: () => Meetings.findOne({ meetingId: Auth.meetingID }).recordProp,
@@ -49,9 +48,9 @@ export default {
   users: () => Users.find({ connectionStatus: 'online' }).fetch(),
   hasBreakoutRoom: () => Breakouts.find({ parentMeetingId: Auth.meetingID }).fetch().length > 0,
   toggleRecording: () => makeCall('toggleRecording'),
-  processOutsideToggleRecording: arg => processOutsideToggleRecording(arg),
   createBreakoutRoom: (numberOfRooms, durationInMinutes, freeJoin = true, record = false) => makeCall('createBreakoutRoom', numberOfRooms, durationInMinutes, freeJoin, record),
   sendInvitation: (breakoutId, userId) => makeCall('requestJoinURL', { breakoutId, userId }),
   getBreakouts,
   getUsersNotAssigned,
+  takePresenterRole,
 };

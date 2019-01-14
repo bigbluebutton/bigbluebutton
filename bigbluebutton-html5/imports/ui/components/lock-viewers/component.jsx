@@ -1,9 +1,8 @@
 import React, { Component } from 'react';
 import { defineMessages, injectIntl } from 'react-intl';
-import Button from '/imports/ui/components/button/component';
 import Toggle from '/imports/ui/components/switch/component';
 import cx from 'classnames';
-import ModalBase from '/imports/ui/components/modal/base/component';
+import Modal from '/imports/ui/components/modal/simple/component';
 import { styles } from './styles';
 
 const intlMessages = defineMessages({
@@ -75,24 +74,16 @@ class LockViewersComponent extends Component {
     const { intl, meeting } = this.props;
 
     return (
-      <ModalBase
+      <Modal
         overlayClassName={styles.overlay}
         className={styles.modal}
         onRequestClose={this.closeModal}
+        hideBorder
       >
 
         <div className={styles.container}>
           <div className={styles.header}>
             <div className={styles.title}>{intl.formatMessage(intlMessages.lockViewersTitle)}</div>
-            <Button
-              data-test="modalBaseCloseButton"
-              className={styles.closeBtn}
-              label={intl.formatMessage(intlMessages.closeLabel)}
-              icon="close"
-              size="md"
-              hideLabel
-              onClick={this.closeModal}
-            />
           </div>
           <div className={styles.description}>
             {`${intl.formatMessage(intlMessages.lockViewersDescription)}`}
@@ -243,7 +234,7 @@ class LockViewersComponent extends Component {
             </div>
           </div>
         </div>
-      </ModalBase>
+      </Modal>
     );
   }
 }

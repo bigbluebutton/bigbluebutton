@@ -7,7 +7,6 @@ import { notify } from '/imports/ui/services/notification';
 import VideoService from '/imports/ui/components/video-provider/service';
 import getFromUserSettings from '/imports/ui/services/users-settings';
 import { withModalMounter } from '/imports/ui/components/modal/service';
-import VideoPreviewContainer from '/imports/ui/components/video-preview/container';
 import Media from './component';
 import MediaService, { getSwapLayout } from './service';
 import PresentationPodsContainer from '../presentation-pod/container';
@@ -80,8 +79,9 @@ class MediaContainer extends Component {
 
     const chromeErrorElement = (
       <div>
-        {intl.formatMessage(intlMessages.chromeExtensionError)}{' '}
-        <a href={CHROME_EXTENSION_LINK} target="_blank">
+        {intl.formatMessage(intlMessages.chromeExtensionError)}
+        {' '}
+        <a href={CHROME_EXTENSION_LINK} target="_blank" rel="noopener noreferrer">
           {intl.formatMessage(intlMessages.chromeExtensionErrorLink)}
         </a>
       </div>
@@ -99,7 +99,7 @@ class MediaContainer extends Component {
   }
 }
 
-export default withModalMounter(withTracker(({ mountModal }) => {
+export default withModalMounter(withTracker(() => {
   const { dataSaving } = Settings;
   const { viewParticipantsWebcams, viewScreenshare } = dataSaving;
 
@@ -118,7 +118,7 @@ export default withModalMounter(withTracker(({ mountModal }) => {
   }
 
   const usersVideo = VideoService.getAllUsersVideo();
-  if (MediaService.shouldShowOverlay() && usersVideo.length) {
+  if (MediaService.shouldShowOverlay() && usersVideo.length && viewParticipantsWebcams) {
     data.floatingOverlay = usersVideo.length < 2;
     data.hideOverlay = usersVideo.length === 0;
   }

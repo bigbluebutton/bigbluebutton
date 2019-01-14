@@ -12,6 +12,8 @@ const propTypes = {
   children: PropTypes.element.isRequired,
 };
 
+const APP_CONFIG = Meteor.settings.public.app;
+
 class JoinHandler extends Component {
   static setError(codeError) {
     Session.set('hasError', true);
@@ -113,9 +115,16 @@ class JoinHandler extends Component {
       setLogoURL(response);
       logUserInfo();
 
-      Session.set('openPanel', 'chat');
-      Session.set('idChatOpen', '');
-      if (deviceInfo.type().isPhone) Session.set('openPanel', '');
+      const { showParticipantsOnLogin } = APP_CONFIG;
+
+      if (showParticipantsOnLogin) {
+        Session.set('openPanel', 'chat');
+        Session.set('idChatOpen', '');
+        if (deviceInfo.type().isPhone) Session.set('openPanel', '');
+      } else {
+        Session.set('openPanel', '');
+      }
+
 
       logger.info(`User successfully went through main.joinRouteHandler with [${JSON.stringify(response)}].`);
     } else {

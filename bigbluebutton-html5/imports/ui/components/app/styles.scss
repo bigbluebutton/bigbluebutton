@@ -9,6 +9,7 @@
   --bars-padding: calc(var(--lg-padding-x) - .45rem); // -.45 so user-list and chat title is aligned with the presentation title
   --userlist-handle-width: 5px; // 5px so user-list and chat resize handle render as the same size
   --poll-pane-min-width: 20em;
+  --panel-margin-left: 0.1em;
 }
 
 .main {
@@ -57,7 +58,7 @@
   }
 }
 
-.content {
+.content, .noPanelContent {
   @extend %full-page;
   order: 3;
 
@@ -89,13 +90,16 @@
   }
 }
 
+.content{
+  margin-left: var(--panel-margin-left);
+}
 
 .userList {
   @extend %full-page;
   @extend %text-elipsis;
 
   z-index: 2;
-  overflow: visible;  
+  overflow: visible;
   order: 1;
 
   @include mq($small-only) {
@@ -123,6 +127,7 @@
 
 .poll,
 .breakoutRoom,
+.note,
 .chat {
   @extend %full-page;
 
@@ -176,7 +181,7 @@
   order: 2;
   flex-direction: row;
   position: relative;
-
+  margin-left: var(--panel-margin-right);
   @include mq($portrait) {
     flex-direction: column;
   }

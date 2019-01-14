@@ -1,9 +1,10 @@
 public:
   app:
-    mobileFont: 16
-    desktopFont: 14
+    mobileFontSize: 16px
+    desktopFontSize: 14px
     audioChatNotification: false
     autoJoin: true
+    showParticipantsOnLogin: true
     listenOnlyMode: true
     forceListenOnly: false
     skipCheck: false
@@ -19,7 +20,6 @@ public:
       application:
         chatAudioAlerts: false
         chatPushAlerts: false
-        fontSize: 16px
         fallbackLocale: en
       audio:
         inputDeviceId: undefined
@@ -119,6 +119,15 @@ public:
     storage_key: UNREAD_CHATS
     system_messages_keys:
       chat_clear: PUBLIC_CHAT_CLEAR
+  note:
+    enabled: false
+    url: ETHERPAD_HOST
+    config:
+      showLineNumbers: false
+      showChat: false
+      noColors: true
+      showControls: true
+      rtl: false
   layout:
     autoSwapLayout: false
     hidePresentation: false
