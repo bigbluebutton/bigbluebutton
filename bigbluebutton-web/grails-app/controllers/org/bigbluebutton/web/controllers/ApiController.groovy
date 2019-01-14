@@ -19,46 +19,31 @@
 package org.bigbluebutton.web.controllers
 
 import com.google.gson.Gson
-import org.bigbluebutton.api.domain.RecordingMetadata
 import org.bigbluebutton.api.util.ResponseBuilder
 
-import javax.servlet.ServletRequest;
+import javax.servlet.ServletRequest
 
-import java.net.URI;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
-import java.text.DateFormat;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.LinkedHashMap;
-import java.util.Map;
-
-import org.apache.commons.codec.binary.Base64;
-import org.apache.commons.io.FilenameUtils;
-import org.apache.commons.lang.RandomStringUtils;
-import org.apache.commons.lang.StringUtils;
-import org.bigbluebutton.api.domain.Config;
-import org.bigbluebutton.api.domain.Meeting;
-import org.bigbluebutton.api.domain.Recording;
-import org.bigbluebutton.api.domain.User;
-import org.bigbluebutton.api.domain.GuestPolicy;
-import org.bigbluebutton.api.domain.UserSession;
-import org.bigbluebutton.api.ApiErrors;
-import org.bigbluebutton.api.ClientConfigService;
-import org.bigbluebutton.api.MeetingService;
-import org.bigbluebutton.api.ParamsProcessorUtil;
-import org.bigbluebutton.api.Util;
-import org.bigbluebutton.presentation.PresentationUrlDownloadService;
+import org.apache.commons.codec.binary.Base64
+import org.apache.commons.io.FilenameUtils
+import org.apache.commons.lang.RandomStringUtils
+import org.apache.commons.lang.StringUtils
+import org.bigbluebutton.api.domain.Config
+import org.bigbluebutton.api.domain.Meeting
+import org.bigbluebutton.api.domain.GuestPolicy
+import org.bigbluebutton.api.domain.UserSession
+import org.bigbluebutton.api.ApiErrors
+import org.bigbluebutton.api.ClientConfigService
+import org.bigbluebutton.api.MeetingService
+import org.bigbluebutton.api.ParamsProcessorUtil
+import org.bigbluebutton.api.Util
+import org.bigbluebutton.presentation.PresentationUrlDownloadService
 import org.bigbluebutton.presentation.UploadedPresentation
 import org.bigbluebutton.web.services.PresentationService
-import org.bigbluebutton.web.services.turn.StunTurnService;
-import org.bigbluebutton.web.services.turn.TurnEntry;
-import org.json.JSONArray;
-import org.json.JSONObject;
-import freemarker.template.Configuration;
-import freemarker.cache.WebappTemplateLoader;
-import java.io.File;
+import org.bigbluebutton.web.services.turn.StunTurnService
+import org.bigbluebutton.web.services.turn.TurnEntry
+import org.json.JSONArray
+import groovy.json.*
+import grails.converters.*
 
 class ApiController {
   private static final Integer SESSION_TIMEOUT = 14400  // 4 hours
@@ -162,7 +147,7 @@ class ApiController {
         } else {
           // BEGIN - backward compatibility
           invalid("idNotUnique", "A meeting already exists with that meeting ID.  Please use a different meeting ID.");
-          return;
+          return
           // END - backward compatibility
 
           // enforce meetingID unique-ness
@@ -170,7 +155,7 @@ class ApiController {
           respondWithErrors(errors)
         }
 
-        return;
+        return
       }
     }
   }
@@ -1166,13 +1151,7 @@ class ApiController {
       response.addHeader("Cache-Control", "no-cache")
       withFormat {
         xml {
-          render(contentType:"text/xml") {
-            response() {
-              returncode("FAILED")
-              message("Could not find conference.")
-              logoutURL() { mkp.yield(logoutUrl) }
-            }
-          }
+          render(text: responseBuilder.buildConfgXmlReject("Could not find conference.", logoutUrl, RESP_CODE_FAILED), contentType: "text/xml")
         }
       }
     } else {
@@ -1254,13 +1233,13 @@ class ApiController {
       response.addHeader("Cache-Control", "no-cache")
       withFormat {
         json {
-          render(contentType: "application/json") {
-            response = {
-              returncode = "FAILED"
-              message = "Could not process waiting guest."
-              logoutURL = logoutUrl
-            }
+          def builder = new JsonBuilder()
+          builder.response {
+            returncode RESP_CODE_FAILED
+            message "Could not process waiting guest."
+            logoutURL logoutUrl
           }
+          render(contentType: "application/json", text: builder.toPrettyString())
         }
       }
     } else {
@@ -1314,19 +1293,19 @@ class ApiController {
         response.addHeader("Cache-Control", "no-cache")
         withFormat {
           json {
-            render(contentType:"application/json") {
-              response = {
-                returncode = RESP_CODE_SUCCESS
-                messageKey = msgKey
-                message = msgValue
-                meeting_id = us.meetingID
-                user_id = us.internalUserId
-                auth_token = us.authToken
-                session_token = session[sessionToken]
-                guestStatus = guestWaitStatus
-                url = destUrl
-              }
+            def builder = new JsonBuilder()
+            builder.response {
+              returncode RESP_CODE_SUCCESS
+              messageKey msgKey
+              message msgValue
+              meeting_id us.meetingID
+              user_id us.internalUserId
+              auth_token us.authToken
+              session_token session[sessionToken]
+              guestStatus guestWaitStatus
+              url destUrl
             }
+            render(contentType: "application/json", text: builder.toPrettyString())
           }
         }
       }
@@ -1362,17 +1341,16 @@ class ApiController {
       respMessage = "Session " + sessionToken + " not found."
     } else {
       us = meetingService.getUserSessionWithAuthToken(sessionToken);
-      meeting = meetingService.getMeeting(us.meetingID);
-      if (meeting == null || meeting.isForciblyEnded()) {
-        reject = true
-        respMessage = "Meeting not found or ended for session " + sessionToken + "."
-      }
-      userSession = meetingService.getUserSessionWithAuthToken(sessionToken)
-      if (userSession == null) {
+      if (us == null) {
         respMessage = "Session " + sessionToken + " not found."
         reject = true
       } else  {
-        if (userSession.guestStatus.equals(GuestPolicy.DENY)) {
+        meeting = meetingService.getMeeting(us.meetingID);
+        if (meeting == null || meeting.isForciblyEnded()) {
+          reject = true
+          respMessage = "Meeting not found or ended for session " + sessionToken + "."
+        }
+        if (us.guestStatus.equals(GuestPolicy.DENY)) {
           respMessage = "User denied for user with session " + sessionToken + "."
           reject = true
         }
@@ -1392,13 +1370,13 @@ class ApiController {
       response.addHeader("Cache-Control", "no-cache")
       withFormat {
         json {
-          render(contentType: "application/json") {
-            response = {
-              returncode = "FAILED"
-              message = respMessage
-              logoutURL = logoutUrl
-            }
+          def builder = new JsonBuilder()
+          builder.response {
+            returncode RESP_CODE_FAILED
+            message respMessage
+            logoutURL logoutUrl
           }
+          render(contentType: "application/json", text: builder.toPrettyString())
         }
       }
     } else {
@@ -1428,55 +1406,55 @@ class ApiController {
       response.addHeader("Cache-Control", "no-cache")
       withFormat {
         json {
-          render(contentType: "application/json") {
-            response = {
-              returncode = "SUCCESS"
-              fullname = us.fullname
-              confname = us.conferencename
-              meetingID = us.meetingID
-              externMeetingID = us.externMeetingID
-              externUserID = us.externUserID
-              internalUserID = newInternalUserID
-              authToken = us.authToken
-              role = us.role
-              guest = us.guest
-              guestStatus = userSession.guestStatus
-              conference = us.conference
-              room = us.room
-              voicebridge = us.voicebridge
-              dialnumber = meeting.getDialNumber()
-              webvoiceconf = us.webvoiceconf
-              mode = us.mode
-              record = us.record
-              isBreakout = meeting.isBreakout()
-              logoutTimer = meeting.getLogoutTimer()
-              allowStartStopRecording = meeting.getAllowStartStopRecording()
-              welcome = us.welcome
-              if (! StringUtils.isEmpty(meeting.moderatorOnlyMessage)) {
-                modOnlyMessage = meeting.moderatorOnlyMessage
+          def builder = new JsonBuilder()
+          builder.response {
+            returncode RESP_CODE_SUCCESS
+            fullname us.fullname
+            confname us.conferencename
+            meetingID us.meetingID
+            externMeetingID us.externMeetingID
+            externUserID us.externUserID
+            internalUserID newInternalUserID
+            authToken us.authToken
+            role us.role
+            guest us.guest
+            guestStatus us.guestStatus
+            conference us.conference
+            room us.room
+            voicebridge us.voicebridge
+            dialnumber meeting.getDialNumber()
+            webvoiceconf us.webvoiceconf
+            mode us.mode
+            record us.record
+            isBreakout meeting.isBreakout()
+            logoutTimer meeting.getLogoutTimer()
+            allowStartStopRecording meeting.getAllowStartStopRecording()
+            welcome us.welcome
+            if (! StringUtils.isEmpty(meeting.moderatorOnlyMessage)) {
+              modOnlyMessage meeting.moderatorOnlyMessage
+            }
+            if (! StringUtils.isEmpty(meeting.bannerText)) {
+              bannerText meeting.getBannerText()
+              bannerColor meeting.getBannerColor()
+            }
+            customLogoURL meeting.getCustomLogoURL()
+            customCopyright meeting.getCustomCopyright()
+            muteOnStart meeting.getMuteOnStart()
+            logoutUrl us.logoutUrl
+            defaultLayout us.defaultLayout
+            avatarURL us.avatarURL
+            customdata {
+              meeting.getUserCustomData(us.externUserID).each { k, v ->
+                "$k" v
               }
-              if (! StringUtils.isEmpty(meeting.bannerText)) {
-              	bannerText = meeting.getBannerText()
-              	bannerColor = meeting.getBannerColor()
-              }
-              customLogoURL = meeting.getCustomLogoURL()
-              customCopyright = meeting.getCustomCopyright()
-              muteOnStart = meeting.getMuteOnStart()
-              logoutUrl = us.logoutUrl
-              defaultLayout = us.defaultLayout
-              avatarURL = us.avatarURL
-              customdata = array {
-                meeting.getUserCustomData(us.externUserID).each { k, v ->
-                  custdata "$k" : v
-                }
-              }
-              metadata = array {
-                meeting.getMetadata().each{ k, v ->
-                  metadata "$k" : v
-                }
+            }
+            metadata {
+              meeting.getMetadata().each{ k, v ->
+                "$k" v
               }
             }
           }
+          render(contentType: "application/json", text: builder.toPrettyString())
         }
       }
     }
@@ -1521,13 +1499,13 @@ class ApiController {
       response.addHeader("Cache-Control", "no-cache")
       withFormat {
         json {
-          render(contentType: "application/json") {
-            response = {
-              returncode = "FAILED"
-              message = "Could not find conference."
-              logoutURL = logoutUrl
-            }
+          def builder = new JsonBuilder()
+          builder.response {
+            returncode RESP_CODE_FAILED
+            message "Could not find conference."
+            logoutURL logoutUrl
           }
+          render(contentType: "application/json", text: builder.toPrettyString())
         }
       }
     } else {
@@ -1538,28 +1516,30 @@ class ApiController {
       response.addHeader("Cache-Control", "no-cache")
       withFormat {
         json {
-          render(contentType: "application/json") {
-            stunServers = array {
+          def builder = new JsonBuilder()
+          builder.response {
+            stunServers {
               stuns.each { stun ->
-                stunData = { url = stun.url }
+                stunData { url stun.url }
               }
             }
-            turnServers = array {
+            turnServers {
               turns.each { turn ->
-                turnData = {
-                  username = turn.username
-                  password = turn.password
-                  url = turn.url
-                  ttl = turn.ttl
+                turnData {
+                  username turn.username
+                  password turn.password
+                  url turn.url
+                  ttl turn.ttl
                 }
               }
             }
-            remoteIceCandidates = array {
+            remoteIceCandidates  {
               candidates.each { candidate ->
-                candidateData = { ip = candidate.ip }
+                candidateData { ip candidate.ip }
               }
             }
           }
+          render(contentType: "application/json", text: builder.toPrettyString())
         }
       }
     }
@@ -1588,9 +1568,8 @@ class ApiController {
     response.addHeader("Cache-Control", "no-cache")
     withFormat {
       xml {
-        render(contentType:"text/xml") {
-          response() { returncode(RESP_CODE_SUCCESS) }
-        }
+        // No need to use the response builder here until we have a more complex response
+        render(text: "<response><returncode>$RESP_CODE_SUCCESS</returncode></response>", contentType: "text/xml")
       }
     }
   }
@@ -1744,12 +1723,8 @@ class ApiController {
     meetingService.setPublishRecording(recordIdList,publish.toBoolean());
     withFormat {
       xml {
-        render(contentType:"text/xml") {
-          response() {
-            returncode(RESP_CODE_SUCCESS)
-            published(publish)
-          }
-        }
+        // No need to use the response builder here until we have a more complex response
+        render(text: "<response><returncode>$RESP_CODE_SUCCESS</returncode><published>$publish</published></response>", contentType: "text/xml")
       }
     }
   }
@@ -1818,12 +1793,8 @@ class ApiController {
     meetingService.deleteRecordings(recordIdList);
     withFormat {
       xml {
-        render(contentType:"text/xml") {
-          response() {
-            returncode(RESP_CODE_SUCCESS)
-            deleted(true)
-          }
-        }
+        // No need to use the response builder here until we have a more complex response
+        render(text: "<response><returncode>$RESP_CODE_SUCCESS</returncode><deleted>true</deleted></response>", contentType: "text/xml")
       }
     }
   }
@@ -1897,12 +1868,8 @@ class ApiController {
     }
     withFormat {
       xml {
-        render(contentType: "text/xml") {
-          response() {
-            returncode(RESP_CODE_SUCCESS)
-            updated(true)
-          }
-        }
+        // No need to use the response builder here until we have a more complex response
+        render(text: "<response><returncode>$RESP_CODE_SUCCESS</returncode><updated>true</updated></response>", contentType: "text/xml")
       }
     }
   }
@@ -2050,28 +2017,17 @@ class ApiController {
       response.addHeader("Cache-Control", "no-cache")
       withFormat {
         xml {
-          render(contentType: "text/xml") {
-            response() {
-              returncode(RESP_CODE_FAILED)
-              errors() {
-                ArrayList errs = errorList.getErrors();
-                Iterator itr = errs.iterator();
-                while (itr.hasNext()) {
-                  String[] er = (String[]) itr.next();
-                  log.debug CONTROLLER_NAME + "#invalid" + er[0]
-                  error(key: er[0], message: er[1])
-                }
-              }
-            }
-          }
+          render(text: responseBuilder.buildErrors(errorList.getErrors(), msg, RESP_CODE_FAILED), contentType: "text/xml")
         }
         json {
           log.debug "Rendering as json"
-          render(contentType: "text/json") {
-            returncode(RESP_CODE_FAILED)
-            messageKey(key)
-            message(msg)
+          def builder = new JsonBuilder()
+          builder.response {
+            returncode RESP_CODE_FAILED
+            messageKey key
+            message msg
           }
+          render(contentType: "application/json", text: builder.toPrettyString())
         }
       }
     }
@@ -2100,11 +2056,13 @@ class ApiController {
         }
         json {
           log.debug "Rendering as json"
-          render(contentType: "text/json") {
-            returncode(RESP_CODE_FAILED)
-            messageKey(key)
-            message(msg)
+          def builder = new JsonBuilder()
+          builder.response {
+            returncode RESP_CODE_FAILED
+            messageKey key
+            message msg
           }
+          render(contentType: "application/json", text: builder.toPrettyString())
         }
       }
     }

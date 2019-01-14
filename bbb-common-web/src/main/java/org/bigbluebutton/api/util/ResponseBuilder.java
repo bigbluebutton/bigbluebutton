@@ -29,11 +29,10 @@ public class ResponseBuilder {
     Configuration cfg = new Configuration(Configuration.VERSION_2_3_23);
 
     public ResponseBuilder(File templatesLoc) {
-
         try {
             cfg.setDirectoryForTemplateLoading(templatesLoc);
         } catch (IOException e) {
-            e.printStackTrace();
+            log.error("Exception occured creating ResponseBuilder",e);
         }
         cfg.setDefaultEncoding(StandardCharsets.UTF_8.name());
         cfg.setTemplateExceptionHandler(TemplateExceptionHandler.RETHROW_HANDLER);
@@ -85,6 +84,18 @@ public class ResponseBuilder {
 
         return xmlText.toString();
     }
+    
+    public String buildErrors(ArrayList erros, String returnCode) {
+        StringWriter xmlText = new StringWriter();
+
+        Map<String, Object> data = new HashMap<String, Object>();
+        data.put("returnCode", returnCode);
+        data.put("errorsList", erros);
+
+        processData(getTemplate("api-errors.ftlx"), data, xmlText);
+
+        return xmlText.toString();
+    }
 
     public String buildGetMeetingInfoResponse(Meeting meeting, String returnCode) {
         String createdOn = formatPrettyDate(meeting.getCreateTime());
@@ -107,7 +118,9 @@ public class ResponseBuilder {
 
         Map<String, Object> data = new HashMap<String, Object>();
         data.put("returnCode", returnCode);
-        data.put("userSession", userSession);
+        data.put("meetingID", userSession.meetingID);
+        data.put("authToken", userSession.authToken);
+        data.put("internalUserId", userSession.internalUserId);
         data.put("sessionToken", sessionToken);
         data.put("guestStatusVal", guestStatusVal);
         data.put("destUrl", destUrl);
@@ -167,7 +180,8 @@ public class ResponseBuilder {
         return xmlText.toString();
     }
 
-    public String buildGetSessionsResponse(Collection<UserSession> sessions, String msgKey, String msg, String returnCode) {
+    public String buildGetSessionsResponse(Collection<UserSession> sessions, String msgKey, String msg,
+            String returnCode) {
         StringWriter xmlText = new StringWriter();
 
         Map<String, Serializable> data = new HashMap<String, Serializable>();
@@ -190,6 +204,19 @@ public class ResponseBuilder {
         data.put("recordings", recordings);
 
         processData(getTemplate("get-recordings.ftlx"), data, xmlText);
+        return xmlText.toString();
+    }
+
+    public String buildConfgXmlReject(String message, String logoutUrl, String returnCode) {
+
+        StringWriter xmlText = new StringWriter();
+
+        Map<String, Object> data = new HashMap<String, Object>();
+        data.put("returnCode", returnCode);
+        data.put("message", message);
+        data.put("logoutUrl", logoutUrl);
+
+        processData(getTemplate("config-xml-rejected.ftlx"), data, xmlText);
         return xmlText.toString();
     }
 

@@ -128,9 +128,9 @@ public class RecordingServiceHelperImp implements RecordingServiceHelper {
                     return getInfo(recording);
                 }
             } catch ( FileNotFoundException e) {
-                // Do nothing, just return null
+                log.error(e);
             } catch ( Exception e) {
-                log.debug(e.getMessage())
+                log.error(e)
             }
         }
         return null;

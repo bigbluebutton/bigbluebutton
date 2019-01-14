@@ -5,11 +5,10 @@
     <returncode>${returnCode}</returncode>
     <messageKey>${msgKey!}</messageKey>
     <message>${msg!}</message>
-    <meeting_id>${userSession.meetingID}</meeting_id> <#-- Yielded -->
-    <user_id>${userSession.internalUserId}</user_id>
-    <auth_token>${us.authToken}</auth_token>
+    <meeting_id>${meetingID}</meeting_id> <#-- Yielded -->
+    <user_id>${internalUserId}</user_id>
+    <auth_token>${authToken}</auth_token>
     <session_token>${sessionToken}</session_token>
-    <session_token>${sessionToken}</auth_token>
     <guestStatus>${guestStatusVal}</guestStatus>
     <url>${destUrl}</url>
 </response>
