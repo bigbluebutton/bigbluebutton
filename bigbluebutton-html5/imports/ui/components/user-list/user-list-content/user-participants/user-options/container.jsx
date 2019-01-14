@@ -1,5 +1,4 @@
 import { withTracker } from 'meteor/react-meteor-data';
-import React from 'react';
 import PropTypes from 'prop-types';
 import Auth from '/imports/ui/services/auth';
 import Service from '/imports/ui/components/actions-bar/service';
@@ -16,9 +15,7 @@ const propTypes = {
   }).isRequired,
 };
 
-const UserOptionsContainer = props => <UserOptions {...props} />;
-
-export default withTracker((props) => {
+const UserOptionsContainer = withTracker((props) => {
   const {
     meeting,
     users,
@@ -40,6 +37,8 @@ export default withTracker((props) => {
     meetingName: Service.meetingName(),
     users: Service.users(),
   };
-})(UserOptionsContainer);
+})(UserOptions);
 
 UserOptionsContainer.propTypes = propTypes;
+
+export default UserOptionsContainer;
