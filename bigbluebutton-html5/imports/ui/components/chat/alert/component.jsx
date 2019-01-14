@@ -42,7 +42,7 @@ class ChatAlert extends PureComponent {
   constructor(props) {
     super(props);
     this.state = {
-      lastAlertTimestamp: props.joinTimestamp,
+      alertEnabledTimestamp: props.joinTimestamp,
       lastAlertTimestampByChat: {},
       pendingNotificationsByChat: {},
     };
@@ -56,7 +56,7 @@ class ChatAlert extends PureComponent {
     } = this.props;
 
     const {
-      lastAlertTimestamp,
+      alertEnabledTimestamp,
       lastAlertTimestampByChat,
       pendingNotificationsByChat,
     } = this.state;
@@ -81,7 +81,7 @@ class ChatAlert extends PureComponent {
         unalertedMessagesByChatId[chatId] = thisChatUnreadMessages.filter((msg) => {
           const messageChatId = (msg.chatId === 'MAIN-PUBLIC-GROUP-CHAT') ? msg.chatId : msg.sender;
           const retorno = (msg
-            && msg.timestamp > lastAlertTimestamp
+            && msg.timestamp > alertEnabledTimestamp
             && msg.timestamp > joinTimestamp
             && msg.timestamp > (lastAlertTimestampByChat[messageChatId] || 0)
           );
@@ -121,9 +121,9 @@ class ChatAlert extends PureComponent {
   }
 
   setLastAlertTimestamp(newLastAlertTimestamp) {
-    const { lastAlertTimestamp } = this.state;
-    if (newLastAlertTimestamp > 0 && lastAlertTimestamp !== newLastAlertTimestamp) {
-      this.setState({ lastAlertTimestamp: newLastAlertTimestamp });
+    const { alertEnabledTimestamp } = this.state;
+    if (newLastAlertTimestamp > 0 && alertEnabledTimestamp !== newLastAlertTimestamp) {
+      this.setState({ alertEnabledTimestamp: newLastAlertTimestamp });
     }
   }
 
