@@ -19,7 +19,7 @@ class UrlMappings {
       action = [GET: 'numberOfSlides']
     }
 
-    "/bigbluebutton/bigbluebutton/presentation/$conference/$room/$presentation_name/slide/$id"(controller: "presentation") {
+    "/bigbluebutton/presentation/$conference/$room/$presentation_name/slide/$id"(controller: "presentation") {
       action = [GET: 'showSlide']
     }
 
