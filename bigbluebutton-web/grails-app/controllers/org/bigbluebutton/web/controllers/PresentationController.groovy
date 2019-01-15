@@ -1,21 +1,21 @@
 /**
-* BigBlueButton open source conferencing system - http://www.bigbluebutton.org/
-*
-* Copyright (c) 2012 BigBlueButton Inc. and by respective authors (see below).
-*
-* This program is free software; you can redistribute it and/or modify it under the
-* terms of the GNU Lesser General Public License as published by the Free Software
-* Foundation; either version 3.0 of the License, or (at your option) any later
-* version.
-*
-* BigBlueButton is distributed in the hope that it will be useful, but WITHOUT ANY
-* WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
-* PARTICULAR PURPOSE. See the GNU Lesser General Public License for more details.
-*
-* You should have received a copy of the GNU Lesser General Public License along
-* with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
-*
-*/
+ * BigBlueButton open source conferencing system - http://www.bigbluebutton.org/
+ *
+ * Copyright (c) 2012 BigBlueButton Inc. and by respective authors (see below).
+ *
+ * This program is free software; you can redistribute it and/or modify it under the
+ * terms of the GNU Lesser General Public License as published by the Free Software
+ * Foundation; either version 3.0 of the License, or (at your option) any later
+ * version.
+ *
+ * BigBlueButton is distributed in the hope that it will be useful, but WITHOUT ANY
+ * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
+ * PARTICULAR PURPOSE. See the GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License along
+ * with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
+ *
+ */
 package org.bigbluebutton.web.controllers
 
 import grails.converters.*
@@ -32,15 +32,13 @@ class PresentationController {
   ParamsProcessorUtil paramsProcessorUtil
 
   def index = {
-    render(view:'upload-file') 
+    render(view: 'upload-file')
   }
 
   def checkPresentationBeforeUploading = {
     try {
-
       def maxUploadFileSize = paramsProcessorUtil.getMaxPresentationFileUpload()
       def presentationToken = request.getHeader("x-presentation-token")
-      def originalUri = request.getHeader("x-original-uri")
       def originalContentLengthString = request.getHeader("x-original-content-length")
 
       def originalContentLength = 0
@@ -49,9 +47,9 @@ class PresentationController {
       }
 
       if (null != presentationToken
-               && meetingService.authzTokenIsValid(presentationToken) // this we do in the upload handling
-              && originalContentLength < maxUploadFileSize
-              && 0 != originalContentLength) {
+          && meetingService.authzTokenIsValid(presentationToken) // this we do in the upload handling
+          && originalContentLength < maxUploadFileSize
+          && 0 != originalContentLength) {
         log.debug "SUCCESS\n"
         response.setStatus(200);
         response.addHeader("Cache-Control", "no-cache")
@@ -84,7 +82,6 @@ class PresentationController {
       response.addHeader("Cache-Control", "no-cache")
       response.contentType = 'plain/text'
       response.outputStream << 'no-meeting';
-      return null;
     }
 
     def file = request.getFile('fileUpload')
@@ -95,96 +92,98 @@ class PresentationController {
       String presentationDir = presentationService.getPresentationDir()
       def presId = Util.generatePresentationId(presFilename)
       File uploadDir = Util.createPresentationDir(meetingId, presentationDir, presId)
-      
-      if (uploadDir != null) {
-         def newFilename = Util.createNewFilename(presId, filenameExt)
-         def pres = new File(uploadDir.absolutePath + File.separatorChar + newFilename )
-         file.transferTo(pres)
-         
-         def isDownloadable = params.boolean('is_downloadable') //instead of params.is_downloadable
-         def podId = params.pod_id
-         log.debug "@Default presentation pod" + podId
 
-         if(isDownloadable) {
-           log.debug "@Creating download directory..."
-           File downloadDir = Util.downloadPresentationDirectory(uploadDir.absolutePath)
-           if (downloadDir != null) {
-             def notValidCharsRegExp = /[^0-9a-zA-Z_\.]/
-             def downloadableFileName = presFilename.replaceAll(notValidCharsRegExp, '-')
-             def downloadableFile = new File( downloadDir.absolutePath + File.separatorChar + downloadableFileName )
-             downloadableFile << pres.newInputStream()
-           }
-         }
+      if (uploadDir != null) {
+        def newFilename = Util.createNewFilename(presId, filenameExt)
+        def pres = new File(uploadDir.absolutePath + File.separatorChar + newFilename)
+        file.transferTo(pres)
+
+        def isDownloadable = params.boolean('is_downloadable') //instead of params.is_downloadable
+        def podId = params.pod_id
+        log.debug "@Default presentation pod" + podId
+
+        if (isDownloadable) {
+          log.debug "@Creating download directory..."
+          File downloadDir = Util.downloadPresentationDirectory(uploadDir.absolutePath)
+          if (downloadDir != null) {
+            def notValidCharsRegExp = /[^0-9a-zA-Z_\.]/
+            def downloadableFileName = presFilename.replaceAll(notValidCharsRegExp, '-')
+            def downloadableFile = new File(downloadDir.absolutePath + File.separatorChar + downloadableFileName)
+            downloadableFile << pres.newInputStream()
+          }
+        }
 
         log.debug("processing file upload " + presFilename)
-         def presentationBaseUrl = presentationService.presentationBaseUrl
-         UploadedPresentation uploadedPres = new UploadedPresentation(podId, meetingId, presId,
-                 presFilename, presentationBaseUrl, false /* default presentation */);
+        def presentationBaseUrl = presentationService.presentationBaseUrl
+        UploadedPresentation uploadedPres = new UploadedPresentation(podId, meetingId, presId,
+            presFilename, presentationBaseUrl, false /* default presentation */);
 
-         if(isDownloadable) {
-           log.debug "@Setting file to be downloadable..."
-           uploadedPres.setDownloadable();
-         }
+        if (isDownloadable) {
+          log.debug "@Setting file to be downloadable..."
+          uploadedPres.setDownloadable();
+        }
 
-         uploadedPres.setUploadedFile(pres);
-         presentationService.processUploadedPresentation(uploadedPres)
-         log.debug("file upload success " + presFilename)
-         response.addHeader("Cache-Control", "no-cache")
-         response.contentType = 'plain/text'
-         response.outputStream << 'upload-success';
+        uploadedPres.setUploadedFile(pres);
+        presentationService.processUploadedPresentation(uploadedPres)
+        log.debug("file upload success " + presFilename)
+        response.addHeader("Cache-Control", "no-cache")
+        response.contentType = 'plain/text'
+        response.outputStream << 'upload-success'
       }
     } else {
       log.warn "Upload failed. File Empty."
       flash.message = 'file cannot be empty'
       response.addHeader("Cache-Control", "no-cache")
       response.contentType = 'plain/text'
-      response.outputStream << 'file-empty';
+      response.outputStream << 'file-empty'
     }
   }
 
   def testConversion = {
-    presentationService.testConversionProcess();
+    presentationService.testConversionProcess()
   }
 
   //handle external presentation server 
-  def delegate = {		
-    
+  def delegate = {
+
     def presentation_name = request.getParameter('presentation_name')
     def conference = request.getParameter('conference')
     def room = request.getParameter('room')
     def returnCode = request.getParameter('returnCode')
     def totalSlides = request.getParameter('totalSlides')
     def slidesCompleted = request.getParameter('slidesCompleted')
-    
-     presentationService.processDelegatedPresentation(conference, room, presentation_name, returnCode, totalSlides, slidesCompleted)
-    redirect( action:list)
+
+    presentationService.processDelegatedPresentation(conference, room, presentation_name, returnCode, totalSlides, slidesCompleted)
+    redirect(action: list)
   }
-  
+
   def showSlide = {
+    log.debug "############### HERE"
     def presentationName = params.presentation_name
     def conf = params.conference
     def rm = params.room
     def slide = params.id
 
-    log.error("Nginx should be serving this SWF file! meetingId=" + conf + ",presId=" + presentationName + ",page=" + slide);
+    log.error "Nginx should be serving this SWF file! meetingId={} ,presId={} ,page={}", conf, presentationName, slide
 
     InputStream is = null;
     try {
       def pres = presentationService.showSlide(conf, rm, presentationName, slide)
       if (pres.exists()) {
+        log.debug "###### SLIDE FOUND ######"
         def bytes = pres.readBytes()
         response.addHeader("Cache-Control", "no-cache")
         response.contentType = 'application/x-shockwave-flash'
         response.outputStream << bytes;
-      }	
+      } else {
+        log.debug "###### SLIDE NNOOOOOOT FOUND ######"
+      }
     } catch (IOException e) {
       log.error("Failed to read SWF file. meetingId=" + conf + ",presId=" + presentationName + ",page=" + slide);
       log.error("Error reading SWF file.\n" + e.getMessage());
     }
-    
-    return null;
   }
-  
+
   def showSvgImage = {
     def presentationName = params.presentation_name
     def conf = params.conference
@@ -206,10 +205,8 @@ class PresentationController {
       log.error("Failed to read SVG file. meetingId=" + conf + ",presId=" + presentationName + ",page=" + slide);
       log.error("Error reading SVG file.\n" + e.getMessage());
     }
-  
-    return null;
   }
-  
+
   def showThumbnail = {
     def presentationName = params.presentation_name
     def conf = params.conference
@@ -222,7 +219,7 @@ class PresentationController {
     try {
       def pres = presentationService.showThumbnail(conf, rm, presentationName, thumb)
       if (pres.exists()) {
-        
+
         def bytes = pres.readBytes()
         response.addHeader("Cache-Control", "no-cache")
         response.contentType = 'image'
@@ -232,8 +229,6 @@ class PresentationController {
       log.error("Failed to read thumb file. meetingId=" + conf + ",presId=" + presentationName + ",page=" + thumb);
       log.error("Error reading thunb file.\n" + e.getMessage());
     }
-    
-    return null;
   }
 
   def showPng = {
@@ -255,10 +250,8 @@ class PresentationController {
     } catch (IOException e) {
       log.error("Error reading file.\n" + e.getMessage());
     }
-
-    return null;
   }
-  
+
   def showTextfile = {
     def presentationName = params.presentation_name
     def conf = params.conference
@@ -273,7 +266,7 @@ class PresentationController {
       def pres = presentationService.showTextfile(conf, rm, presentationName, textfile)
       if (pres.exists()) {
         log.debug "Controller: Sending textfiles reply for $presentationName $textfile"
-  
+
         def bytes = pres.readBytes()
         response.addHeader("Cache-Control", "no-cache")
         response.contentType = 'plain/text'
@@ -285,10 +278,8 @@ class PresentationController {
       log.error("Failed to read text file. meetingId=" + conf + ",presId=" + presentationName + ",page=" + textfile);
       log.error("Error reading text file.\n" + e.getMessage());
     }
-  
-    return null;
   }
-  
+
   def downloadFile = {
     def presId = params.presId
     def presFilename = params.presFilename
@@ -314,8 +305,6 @@ class PresentationController {
     } catch (IOException e) {
       log.error("Error reading file.\n" + e.getMessage());
     }
-
-    return null;
   }
 
   def thumbnail = {
@@ -328,58 +317,56 @@ class PresentationController {
 
         response.contentType = 'image'
         response.outputStream << bytes;
-      }	
+      }
     } catch (IOException e) {
       log.error("Error reading file.\n" + e.getMessage());
     }
-    
-    return null;
   }
 
   def numberOfSlides = {
     def presentationName = params.presentation_name
     def conf = params.conference
     def rm = params.room
-    
+
     def numThumbs = presentationService.numberOfThumbnails(conf, rm, presentationName)
-      response.addHeader("Cache-Control", "no-cache")
-      withFormat {						
-        xml {
-          render(contentType:"text/xml") {
-            conference(id:conf, room:rm) {
-              presentation(name:presentationName) {
-                slides(count:numThumbs) {
-                  for (def i = 1; i <= numThumbs; i++) {
-                    slide(number:"${i}", name:"slide/${i}", thumb:"thumbnail/${i}", textfile:"textfile/${i}")
-                  }
-                }
-              }
-            }
-          }
-        }
-      }		
-  }
-    
-  def numberOfThumbnails = {
-    def filename = params.presentation_name
-    def conf = params.conference
-    def rm = params.room
-    def numThumbs = presentationService.numberOfThumbnails(conf, rm, filename)
-      withFormat {				
-        xml {
-          render(contentType:"text/xml") {
-            conference(id:f.conference, room:f.room) {
-              presentation(name:filename) {
-                thumbnails(count:numThumbs) {
-                  for (def i=0;i<numThumbs;i++) {
-                      thumb(name:"thumbnails/${i}")
-                    }
+    response.addHeader("Cache-Control", "no-cache")
+    withFormat {
+      xml {
+        render(contentType: "text/xml") {
+          conference(id: conf, room: rm) {
+            presentation(name: presentationName) {
+              slides(count: numThumbs) {
+                for(def i = 1; i <= numThumbs; i++) {
+                  slide(number: "${i}", name: "slide/${i}", thumb: "thumbnail/${i}", textfile: "textfile/${i}")
                 }
               }
             }
           }
         }
       }
+    }
+  }
+
+  def numberOfThumbnails = {
+    def filename = params.presentation_name
+    def conf = params.conference
+    def rm = params.room
+    def numThumbs = presentationService.numberOfThumbnails(conf, rm, filename)
+    withFormat {
+      xml {
+        render(contentType: "text/xml") {
+          conference(id: f.conference, room: f.room) {
+            presentation(name: filename) {
+              thumbnails(count: numThumbs) {
+                for(def i = 0; i < numThumbs; i++) {
+                  thumb(name: "thumbnails/${i}")
+                }
+              }
+            }
+          }
+        }
+      }
+    }
   }
 
   def numberOfSvgs = {
@@ -387,21 +374,21 @@ class PresentationController {
     def conf = params.conference
     def rm = params.room
     def numSvgs = presentationService.numberOfSvgs(conf, rm, filename)
-      withFormat {
-        xml {
-          render(contentType:"text/xml") {
-            conference(id:f.conference, room:f.room) {
-              presentation(name:filename) {
-                svgs(count:numSvgs) {
-                  for (def i=0;i<numSvgs;i++) {
-                      svg(name:"svgs/${i}")
-                    }
+    withFormat {
+      xml {
+        render(contentType: "text/xml") {
+          conference(id: f.conference, room: f.room) {
+            presentation(name: filename) {
+              svgs(count: numSvgs) {
+                for(def i = 0; i < numSvgs; i++) {
+                  svg(name: "svgs/${i}")
                 }
               }
             }
           }
         }
       }
+    }
   }
 
   def numberOfTextfiles = {
@@ -409,15 +396,15 @@ class PresentationController {
     def conf = params.conference
     def rm = params.room
     def numFiles = presentationService.numberOfTextfiles(conf, rm, filename)
-    
+
     withFormat {
       xml {
-        render(contentType:"text/xml") {
-          conference(id:f.conference, room:f.room) {
-            presentation(name:filename) {
-              textfiles(count:numFiles) {
-                for (def i=0;i<numFiles;i++) {
-                  textfile(name:"textfiles/${i}")
+        render(contentType: "text/xml") {
+          conference(id: f.conference, room: f.room) {
+            presentation(name: filename) {
+              textfiles(count: numFiles) {
+                for(def i = 0; i < numFiles; i++) {
+                  textfile(name: "textfiles/${i}")
                 }
               }
             }
