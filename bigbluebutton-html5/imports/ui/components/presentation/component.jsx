@@ -327,8 +327,8 @@ export default class PresentationArea extends Component {
     const marginTop = (this.state.presentationHeight - adjustedSizes.height) / 2.0;
 
     const style = {
-      right: `${marginRight - 82}px`,
-      top: `${marginTop - 82}px`,
+      right: `${marginRight}px`,
+      top: `${marginTop}px`,
     };
 
     return (
@@ -357,7 +357,7 @@ export default class PresentationArea extends Component {
       bottom: `${marginTop}px`,
     };
 
-    return <FullscreenButton innerStyle={style} handleFullscreen={full} />;
+    return <FullscreenButton innerStyle={style} handleFullscreen={full} dark />;
   }
 
   renderPresentationToolbar() {
@@ -405,8 +405,8 @@ export default class PresentationArea extends Component {
           />
           { this.renderPresentationClose() }
           { this.renderPresentationFullscreen() }
-          {this.state.showSlide ?
-              this.renderPresentationArea()
+          {this.state.showSlide
+            ? this.renderPresentationArea()
             : null }
           {this.props.userIsPresenter || this.props.multiUser
             ? this.renderWhiteboardToolbar()
