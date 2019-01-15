@@ -13,7 +13,7 @@ import PresentationPodsContainer from '../presentation-pod/container';
 import ScreenshareContainer from '../screenshare/container';
 import DefaultContent from '../presentation/default-content/component';
 import ExternalVideoContainer from '../external-video-player/container';
-import { getVideoUrl } from '../external-video-player/service';
+import { getVideoId } from '../external-video-player/service';
 
 const LAYOUT_CONFIG = Meteor.settings.public.layout;
 const KURENTO_CONFIG = Meteor.settings.public.kurento;
@@ -135,9 +135,12 @@ export default withModalMounter(withTracker(() => {
   }
 
   if (MediaService.shouldShowExternalVideo()) {
-    const presenter = MediaService.isUserPresenter();
-    const url = getVideoUrl();
-    data.children = <ExternalVideoContainer isPresenter={presenter} videoId={url} />;
+    data.children = (
+      <ExternalVideoContainer
+        isPresenter={MediaService.isUserPresenter()}
+        videoId={getVideoId()}
+      />
+    );
   }
 
   MediaContainer.propTypes = propTypes;

@@ -1,17 +1,7 @@
-import React, {Component} from "react";
-import PropTypes from 'prop-types';
-import { defineMessages, injectIntl } from 'react-intl';
+import React, { Component } from 'react';
 import injectWbResizeEvent from '/imports/ui/components/presentation/resize-wrapper/component';
-import Button from '/imports/ui/components/button/component';
-import { styles } from './styles';
-import Icon from '../icon/component';
-
 import YouTube from 'react-youtube';
-
-import Service from './service';
-
-const intlMessages = defineMessages({
-});
+import { sendMessage, onMessage } from './service';
 
 const PlayerState = {
   UNSTARTED: -1,
@@ -20,71 +10,84 @@ const PlayerState = {
   PAUSED: 2,
   BUFFERING: 3,
   CUED: 5,
-}
+};
 
 class VideoPlayer extends Component {
+  constructor(props) {
+    super(props);
 
-  player = null;
-  syncInterval = null;
-  playerState = PlayerState.UNSTARTED;
-  presenterCommand = false;
-  preventStateChange = false;
+    this.player = null;
+    this.syncInterval = null;
+    this.playerState = PlayerState.UNSTARTED;
+    this.presenterCommand = false;
+    this.preventStateChange = false;
+    this.opts = {
+      playerVars: {
+        width: '100%',
+        height: '100%',
+        autoplay: 1,
+        modestbranding: true,
+        rel: 0,
+        ecver: 2,
+      },
+    };
 
-  opts = {
-    playerVars: {
-      width: '100%',
-      height: '100%',
-      autoplay: 1,
-      modestbranding: true,
-      rel: 0,
-      ecver: 2,
+    this.keepSync = this.keepSync.bind(this);
+    this.handleResize = this.handleResize.bind(this);
+    this.handleOnReady = this.handleOnReady.bind(this);
+    this.handleStateChange = this.handleStateChange.bind(this);
+    this.resizeListener = () => {
+      setTimeout(this.handleResize, 0);
+    };
+  }
+
+  componentWillUpdate(nextProps) {
+    if (!nextProps.videoId) {
+      clearInterval(this.syncInterval);
     }
-  };
+  }
 
   componentDidMount() {
-    window.addEventListener('resize', () => {
-      setTimeout(this.handleResize, 0);
-    });
+    window.addEventListener('resize', this.resizeListener);
   }
 
   componentWillUnmount() {
-    window.removeEventListener('resize', () => {
-      setTimeout(this.handleResize, 0);
-    });
+    window.removeEventListener('resize', this.resizeListener);
+
+    clearInterval(this.syncInterval);
+    this.player = null;
+    this.refPlayer = null;
   }
 
-  handleResize = () => {
-    let el = this.refPlayer;
-
-    if (!this.player || !el)
+  handleResize() {
+    if (!this.player || !this.refPlayer) {
       return;
+    }
 
-    let parent = el.parentElement;
-    let w = parent.clientWidth;
-    let h = parent.clientHeight;
-    let idealW = h * 16/9;
+    const el = this.refPlayer;
+    const parent = el.parentElement;
+    const w = parent.clientWidth;
+    const h = parent.clientHeight;
+    const idealW = h * 16 / 9;
 
     if (idealW > w) {
-      this.player.setSize(w, w * 9/16);
+      this.player.setSize(w, w * 9 / 16);
     } else {
       this.player.setSize(idealW, h);
     }
   }
 
-  keepSync = () => {
-    let { isPresenter } = this.props;
+  keepSync() {
+    const { isPresenter } = this.props;
 
     if (isPresenter) {
-
       this.syncInterval = setInterval(() => {
-        let curTime = this.player.getCurrentTime();
-        let rate = this.player.getPlaybackRate();
-        Service.sendMessage('playerUpdate', {rate, time: curTime, state: this.playerState});
+        const curTime = this.player.getCurrentTime();
+        const rate = this.player.getPlaybackRate();
+        sendMessage('playerUpdate', { rate, time: curTime, state: this.playerState });
       }, 2000);
-
     } else {
-
-      Service.onMessage('play', ({time, state}) => {
+      onMessage('play', ({ time }) => {
         this.presenterCommand = true;
         if (this.player) {
           this.player.seekTo(time, true);
@@ -93,7 +96,7 @@ class VideoPlayer extends Component {
         }
       });
 
-      Service.onMessage('stop', ({time}) => {
+      onMessage('stop', ({ time }) => {
         this.presenterCommand = true;
 
         if (this.player) {
@@ -103,12 +106,12 @@ class VideoPlayer extends Component {
         }
       });
 
-      Service.onMessage('playerUpdate', (data) => {
+      onMessage('playerUpdate', (data) => {
         if (!this.player) {
           return;
         }
 
-        if (data.rate != this.player.getPlaybackRate()) {
+        if (data.rate !== this.player.getPlaybackRate()) {
           this.player.setPlaybackRate(data.rate);
         }
 
@@ -127,15 +130,14 @@ class VideoPlayer extends Component {
         }
       });
 
-      Service.onMessage('changePlaybackRate', (rate) => {
+      onMessage('changePlaybackRate', (rate) => {
         this.player.setPlaybackRate(rate);
       });
-
     }
   }
 
-  handleOnReady = (event) => {
-    let { isPresenter } = this.props;
+  handleOnReady(event) {
+    const { isPresenter } = this.props;
 
     this.player = event.target;
     this.player.pauseVideo();
@@ -143,17 +145,17 @@ class VideoPlayer extends Component {
     this.keepSync();
 
     if (!isPresenter) {
-      Service.sendMessage('viewerJoined');
+      sendMessage('viewerJoined');
     } else {
       this.player.playVideo();
     }
 
     this.handleResize();
-  };
+  }
 
-  handleStateChange = (event) => {
-    let { isPresenter } = this.props;
-    let curTime = this.player.getCurrentTime();
+  handleStateChange(event) {
+    const { isPresenter } = this.props;
+    const curTime = this.player.getCurrentTime();
 
     if (this.preventStateChange && [PlayerState.PLAYING, PlayerState.PAUSED].includes(event.data)) {
       this.preventStateChange = false;
@@ -165,9 +167,8 @@ class VideoPlayer extends Component {
     }
 
     if (event.data === PlayerState.PLAYING) {
-
       if (isPresenter) {
-        Service.sendMessage('play', {time: curTime});
+        sendMessage('play', { time: curTime });
         this.playerState = event.data;
       } else if (!this.presenterCommand) {
         this.player.seekTo(curTime, true);
@@ -179,7 +180,7 @@ class VideoPlayer extends Component {
       }
     } else if (event.data === PlayerState.PAUSED) {
       if (isPresenter) {
-        Service.sendMessage('stop', {time: curTime});
+        sendMessage('stop', { time: curTime });
         this.playerState = event.data;
       } else if (!this.presenterCommand) {
         this.player.seekTo(curTime);
@@ -190,28 +191,27 @@ class VideoPlayer extends Component {
         this.presenterCommand = false;
       }
     }
-  };
-
-  componentWillUnmount() {
-    clearInterval(this.syncInterval);
   }
 
   render () {
+    const { videoId } = this.props;
+    const { opts, handleOnReady, handleStateChange } = this;
+
     return (
       <div
         id="youtube-video-player"
         data-test="videoPlayer"
-        ref={(ref) => { this.refPlayer = ref; } }
+        ref={(ref) => { this.refPlayer = ref; }}
       >
         <YouTube
-          videoId={this.props.videoId}
-          opts={this.opts}
-          onReady={this.handleOnReady}
-          onStateChange={this.handleStateChange}
-          />
+          videoId={videoId}
+          opts={opts}
+          onReady={handleOnReady}
+          onStateChange={handleStateChange}
+        />
       </div>
     );
   }
 }
 
-export default injectWbResizeEvent(injectIntl(VideoPlayer));
+export default injectWbResizeEvent(VideoPlayer);

@@ -1,12 +1,13 @@
-import React, {Component} from "react";
+import React, { Component } from 'react';
 import { withModalMounter } from '/imports/ui/components/modal/service';
 
 import ModalBase from '/imports/ui/components/modal/base/component';
 import Button from '/imports/ui/components/button/component';
 
-import {styles} from './styles';
-
 import { defineMessages, injectIntl } from 'react-intl';
+import { isUrlValid, getUrlFromVideoId } from '../service';
+
+import { styles } from './styles';
 
 const intlMessages = defineMessages({
   start: {
@@ -35,74 +36,73 @@ const intlMessages = defineMessages({
   },
 });
 
-const YOUTUBE_PREFIX = "https://youtube.com/watch?v=";
-
-const getUrlFromVideoId = (id) => {
-  return id ? `${YOUTUBE_PREFIX}${id}` : '';
-}
-
 class ExternalVideoModal extends Component {
+  constructor(props) {
+    super(props);
 
-  const { videoId } = this.props;
+    const { videoId } = props;
 
-  state = {
-    url: getUrlFromVideoId(videoId),
-    sharing: videoId,
-  };
+    this.state = {
+      url: getUrlFromVideoId(videoId),
+      sharing: videoId,
+    };
 
-  isUrlEmpty = () => {
-    const url = this.state.url;
-    return !url || url.length == 0;
+    this.startWatchingHandler = this.startWatchingHandler.bind(this);
+    this.stopWatchingHandler = this.stopWatchingHandler.bind(this);
+    this.updateVideoUrlHandler = this.updateVideoUrlHandler.bind(this);
+    this.renderUrlError = this.renderUrlError.bind(this);
+    this.updateVideoUrlHandler = this.updateVideoUrlHandler.bind(this);
   }
 
-  isUrlValid = () => {
-    const url = this.state.url;
-    const regexp = RegExp('^(https?\:\/\/)?(www\.)?(youtube\.com|youtu\.?be)\/.+$');
-    return !this.isUrlEmpty() && url.match(regexp);
+  startWatchingHandler() {
+    const { startWatching, closeModal } = this.props;
+
+    startWatching(this.state.url);
+    closeModal();
   }
 
-  startWatchingHandler = () => {
-    this.props.startWatching(this.state.url);
-    this.props.closeModal();
+  stopWatchingHandler() {
+    const { stopWatching, closeModal } = this.props;
+
+    stopWatching();
+    closeModal();
   }
 
-  stopWatchingHandler = () => {
-    this.props.stopWatching();
-    this.props.closeModal();
+  updateVideoUrlHandler(ev) {
+    this.setState({...this.state, url: ev.target.value });
   }
 
-  updateVideoUrlHandler = (ev) => {
-    console.log(this.props);
-    this.setState({...this.state, url: ev.target.value});
-  }
-
-  renderUrlError = () => {
+  renderUrlError() {
     const { intl } = this.props;
     const { url } = this.state;
 
-    const valid = !this.isUrlEmpty() && url.length > 3 && !this.isUrlValid();
+    const valid = (!url || url.length <= 3) || isUrlValid(url);
 
     return (
-      valid ?
-        (<div className={styles.urlError}>
-          {intl.formatMessage(intlMessages.urlError)}
-        </div>)
-      :
-        null
+      !valid
+        ? (
+          <div className={styles.urlError}>
+            {intl.formatMessage(intlMessages.urlError)}
+          </div>
+        )
+        : null
     );
   }
 
   render() {
-    const { intl } = this.props.intl;
+    const { intl, videoId, closeModal } = this.props;
+    const { url, sharing } = this.state;
+
+    const startDisabled = !isUrlValid(url) || (getUrlFromVideoId(videoId) === url);
 
     return (
       <ModalBase
         overlayClassName={styles.overlay}
         className={styles.modal}
-        onRequestClose={this.props.closeModal}
+        onRequestClose={closeModal}
       >
         <header data-test="videoModealHeader" className={styles.header}>
-          <h3 className={styles.title} >{intl.formatMessage(intlMessages.title)}</h3>
+          <h3 className={styles.title}>{intl.formatMessage(intlMessages.title)}</h3>
           <Button
             data-test="modalBaseCloseButton"
             className={styles.closeBtn}
@@ -110,41 +110,40 @@ class ExternalVideoModal extends Component {
             icon="close"
             size="md"
             hideLabel
-            onClick={this.props.closeModal}
+            onClick={closeModal}
           />
         </header>
 
         <div className={styles.content}>
           <div className={styles.videoUrl}>
-            <label htmlFor="video-modal-input">
+            <label htmlFor="video-modal-input" id="video-modal-input">
               {intl.formatMessage(intlMessages.input)}
+              <input
+                id="video-modal-input"
+                onChange={this.updateVideoUrlHandler}
+                name="video-modal-input"
+                value={url}
+              />
             </label>
-            <input
-              id="video-modal-input"
-              onChange={this.updateVideoUrlHandler}
-              name="video-modal-input"
-              value={this.state.url || ""}
-            />
           </div>
 
           <div className={styles.content}>
-	        {this.renderUrlError()}
-	      </div>
-
+            {this.renderUrlError()}
+          </div>
 
           <Button
             className={styles.startBtn}
             label={intl.formatMessage(intlMessages.start)}
             onClick={this.startWatchingHandler}
-            disabled={!this.isUrlValid() || (getUrlFromVideoId(this.props.url) === this.state.url)}>
-          </Button>
+            disabled={startDisabled}
+          />
 
           <Button
             className={styles.stopBtn}
             label={intl.formatMessage(intlMessages.stop)}
             onClick={this.stopWatchingHandler}
-            disabled={!this.state.sharing}>
-          </Button>
+            disabled={!sharing}
+          />
         </div>
       </ModalBase>
     );
