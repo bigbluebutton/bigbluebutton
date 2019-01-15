@@ -1,4 +1,3 @@
-import PresentationPods from '/imports/api/presentation-pods';
 import Auth from '/imports/ui/services/auth';
 import Slides from '/imports/api/slides';
 import { makeCall } from '/imports/ui/services/api';

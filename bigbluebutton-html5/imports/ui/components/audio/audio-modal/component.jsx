@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import ModalBase from '/imports/ui/components/modal/base/component';
+import Modal from '/imports/ui/components/modal/simple/component';
 import Button from '/imports/ui/components/button/component';
 import { defineMessages, injectIntl, intlShape } from 'react-intl';
 import { styles } from './styles';
@@ -8,6 +8,7 @@ import PermissionsOverlay from '../permissions-overlay/component';
 import AudioSettings from '../audio-settings/component';
 import EchoTest from '../echo-test/component';
 import Help from '../help/component';
+
 
 const propTypes = {
   intl: intlShape.isRequired,
@@ -392,10 +393,11 @@ class AudioModal extends Component {
     return (
       <span>
         {showPermissionsOvelay ? <PermissionsOverlay /> : null}
-        <ModalBase
+        <Modal
           overlayClassName={styles.overlay}
           className={styles.modal}
           onRequestClose={this.closeModal}
+          hideBorder
         >
           {!this.skipAudioOptions() ?
 
@@ -410,22 +412,13 @@ class AudioModal extends Component {
                   intl.formatMessage(intlMessages.audioChoiceLabel)}
                 </h3>
             }
-              <Button
-                data-test="modalBaseCloseButton"
-                className={styles.closeBtn}
-                label={intl.formatMessage(intlMessages.closeLabel)}
-                icon="close"
-                size="md"
-                hideLabel
-                onClick={this.closeModal}
-              />
             </header>
             : null
           }
           <div className={styles.content}>
             {this.renderContent()}
           </div>
-        </ModalBase>
+        </Modal>
       </span>
     );
   }

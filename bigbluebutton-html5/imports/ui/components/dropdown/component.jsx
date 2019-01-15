@@ -53,7 +53,7 @@ const propTypes = {
 
 const defaultProps = {
   children: null,
-  isOpen: false,
+  keepOpen: null,
   onShow: noop,
   onHide: noop,
   autoFocus: false,
@@ -78,10 +78,12 @@ class Dropdown extends Component {
       onShow,
       onHide,
     } = this.props;
+    
+    const { isOpen } = this.state;
 
-    if (this.state.isOpen && !prevState.isOpen) { onShow(); }
+    if (isOpen && !prevState.isOpen) { onShow(); }
 
-    if (!this.state.isOpen && prevState.isOpen) { onHide(); }
+    if (!isOpen && prevState.isOpen) { onHide(); }
   }
 
   handleShow() {
@@ -99,16 +101,29 @@ class Dropdown extends Component {
   }
 
   handleWindowClick(event) {
+    const { keepOpen, onHide } = this.props;
+    const { isOpen } = this.state;
     const triggerElement = findDOMNode(this.trigger);
     const contentElement = findDOMNode(this.content);
-    const closeDropdown = this.props.isOpen && this.state.isOpen && triggerElement.contains(event.target);
-    const preventHide = this.props.isOpen && contentElement.contains(event.target) || !triggerElement;
-
-    if (closeDropdown) {
-      return this.props.onHide();
+    
+    if (keepOpen === null) {
+      if (triggerElement.contains(event.target)) {
+        return;
+      }
     }
 
-    if (contentElement && preventHide) {
+    if (triggerElement && triggerElement.contains(event.target)) {
+      if (keepOpen) return onHide();    
+      if (isOpen) return this.handleHide();
+    }
+    
+    if (keepOpen && isOpen && !contentElement.contains(event.target)) {
+      onHide();
+      this.handleHide();
+      return;
+    }
+    
+    if (keepOpen !== null) {
       return;
     }
 
@@ -116,7 +131,8 @@ class Dropdown extends Component {
   }
 
   handleToggle() {
-    return this.state.isOpen ? this.handleHide() : this.handleShow();
+    const { isOpen } = this.state;
+    return isOpen ? this.handleHide() : this.handleShow();
   }
 
   render() {
@@ -125,15 +141,18 @@ class Dropdown extends Component {
       className,
       style,
       intl,
+      keepOpen,
       ...otherProps
     } = this.props;
+    
+    const { isOpen } = this.state;
 
     let trigger = children.find(x => x.type === DropdownTrigger);
     let content = children.find(x => x.type === DropdownContent);
 
     trigger = React.cloneElement(trigger, {
       ref: (ref) => { this.trigger = ref; },
-      dropdownIsOpen: this.state.isOpen,
+      dropdownIsOpen: isOpen,
       dropdownToggle: this.handleToggle,
       dropdownShow: this.handleShow,
       dropdownHide: this.handleHide,
@@ -141,12 +160,14 @@ class Dropdown extends Component {
 
     content = React.cloneElement(content, {
       ref: (ref) => { this.content = ref; },
-      'aria-expanded': this.state.isOpen,
-      dropdownIsOpen: this.state.isOpen,
+      'aria-expanded': isOpen,
+      dropdownIsOpen: isOpen,
       dropdownToggle: this.handleToggle,
       dropdownShow: this.handleShow,
       dropdownHide: this.handleHide,
     });
+    
+    const showCloseBtn = (isOpen && keepOpen) || (isOpen && keepOpen === null);
 
     return (
       <div
@@ -162,7 +183,7 @@ class Dropdown extends Component {
       >
         {trigger}
         {content}
-        {this.state.isOpen ?
+        {showCloseBtn ?
           <Button
             className={styles.close}
             label={intl.formatMessage(intlMessages.close)}

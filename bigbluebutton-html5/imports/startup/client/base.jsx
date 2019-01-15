@@ -45,11 +45,16 @@ class Base extends Component {
     this.updateLoadingState = this.updateLoadingState.bind(this);
   }
 
-  componentWillUpdate() {
-    const { approved } = this.props;
+  componentDidUpdate(prevProps) {
+    const { ejected, approved } = this.props;
     const { loading } = this.state;
 
     if (approved && loading) this.updateLoadingState(false);
+
+    if (prevProps.ejected || ejected) {
+      Session.set('codeError', '403');
+      Session.set('isMeetingEnded', true);
+    }
   }
 
   updateLoadingState(loading = false) {
@@ -173,6 +178,7 @@ const BaseContainer = withTracker(() => {
   const subscriptionsReady = subscriptionsHandlers.every(handler => handler.ready());
   return {
     approved: Users.findOne({ userId: Auth.userID, approved: true, guest: true }),
+    ejected: Users.findOne({ userId: Auth.userID, ejected: true }),
     meetingEnded: Session.get('isMeetingEnded'),
     locale,
     subscriptionsReady,

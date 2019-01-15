@@ -153,6 +153,7 @@ class MessageList extends Component {
         <Button
           aria-hidden="true"
           className={styles.unreadButton}
+          color="primary"
           size="sm"
           label={intl.formatMessage(intlMessages.moreMessages)}
           onClick={() => this.scrollTo()}

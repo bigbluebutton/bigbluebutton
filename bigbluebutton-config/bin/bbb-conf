@@ -357,6 +357,15 @@ stop_bigbluebutton () {
 }
 
 start_bigbluebutton () {
+        #
+        # Apply any local configuration options (if exists)
+        #
+        if [ -x /etc/bigbluebutton/bbb-conf/apply-config.sh ]; then
+                echo -n "Applying /etc/bigbluebutton/bbb-conf/apply-config.sh : "
+                /etc/bigbluebutton/bbb-conf/apply-config.sh
+                echo
+        fi
+
     echo "Starting BigBlueButton"
     if command -v systemctl >/dev/null; then
        if [ -f /usr/lib/systemd/system/bbb-html5.service ]; then
@@ -1224,7 +1233,7 @@ check_state() {
 	#
 	FFMPEG_VERSION=$(ffmpeg -version 2>/dev/null | grep ffmpeg | cut -d ' ' -f3 | sed 's/--.*//g' | tr -d '\n')
 	case "$FFMPEG_VERSION" in
-        4.0.*)
+        4.*.*)
                 # This is the current supported version; OK.
                 ;;
         '')

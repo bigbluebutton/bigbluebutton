@@ -29,6 +29,7 @@ class ActionsBar extends React.PureComponent {
       users,
       isLayoutSwapped,
       toggleSwapLayout,
+      handleTakePresenter,
     } = this.props;
 
     const {
@@ -56,6 +57,7 @@ class ActionsBar extends React.PureComponent {
             hasBreakoutRoom,
             meetingName,
             users,
+            handleTakePresenter,
           }}
           />
         </div>
