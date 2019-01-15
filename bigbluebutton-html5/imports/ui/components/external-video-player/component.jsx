@@ -3,14 +3,7 @@ import injectWbResizeEvent from '/imports/ui/components/presentation/resize-wrap
 import YouTube from 'react-youtube';
 import { sendMessage, onMessage } from './service';
 
-const PlayerState = {
-  UNSTARTED: -1,
-  ENDED: 0,
-  PLAYING: 1,
-  PAUSED: 2,
-  BUFFERING: 3,
-  CUED: 5,
-};
+const { PlayerState } = YouTube;
 
 class VideoPlayer extends Component {
   constructor(props) {
@@ -41,14 +34,14 @@ class VideoPlayer extends Component {
     };
   }
 
+  componentDidMount() {
+    window.addEventListener('resize', this.resizeListener);
+  }
+
   componentWillUpdate(nextProps) {
     if (!nextProps.videoId) {
       clearInterval(this.syncInterval);
     }
-  }
-
-  componentDidMount() {
-    window.addEventListener('resize', this.resizeListener);
   }
 
   componentWillUnmount() {
