@@ -19,7 +19,8 @@ const defaultProps = {
 
 class Tooltip extends Component {
   static wait(tip, event) {
-    const tooltipTarget = event.target;
+    const tooltipTarget = event.target.lastChild
+      ? event.target : event.target.parentElement.parentElement;
     const expandedEl = tooltipTarget.parentElement.querySelector('[aria-expanded="true"]');
     const isTarget = expandedEl === tooltipTarget;
     if (expandedEl && !isTarget) return;
