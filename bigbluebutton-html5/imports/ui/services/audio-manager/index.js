@@ -89,7 +89,7 @@ class AudioManager {
 
     this.isWaitingPermissions = false;
     this.devicesInitialized = false;
-    
+
     return Promise.all([
       this.setDefaultInputDevice(),
       this.setDefaultOutputDevice(),
@@ -150,7 +150,11 @@ class AudioManager {
     // Webkit ICE restrictions demand a capture device permission to release
     // host candidates
     if (name === 'safari') {
-      await tryGenerateIceCandidates();
+      try {
+        await tryGenerateIceCandidates();
+      } catch (e) {
+        this.notify(this.messages.error.ICE_NEGOTIATION_FAILED);
+      }
     }
 
     // Call polyfills for webrtc client if navigator is "iOS Webview"

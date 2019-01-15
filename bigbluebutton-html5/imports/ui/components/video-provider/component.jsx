@@ -101,14 +101,7 @@ const MAX_CAMERA_SHARE_FAILED_WAIT_TIME = 60000;
 const PING_INTERVAL = 15000;
 
 class VideoProvider extends Component {
-  static checkIceConnectivity() {
-    // Webkit ICE restrictions demand a capture device permission to release
-    // host candidates
-    if (browser().name === 'safari') {
-      tryGenerateIceCandidates();
-    }
-  }
-
+  
   constructor(props) {
     super(props);
 
@@ -146,6 +139,7 @@ class VideoProvider extends Component {
     this.customGetStats = this.customGetStats.bind(this);
   }
 
+  
 
   componentWillMount() {
     this.ws.onopen = this.onWsOpen;
@@ -156,7 +150,7 @@ class VideoProvider extends Component {
   }
 
   componentDidMount() {
-    VideoProvider.checkIceConnectivity();
+    this.checkIceConnectivity();
     document.addEventListener('joinVideo', this.shareWebcam); // TODO find a better way to do this
     document.addEventListener('exitVideo', this.unshareWebcam);
     this.ws.onmessage = this.onWsMessage;
@@ -284,6 +278,17 @@ class VideoProvider extends Component {
     }
   }
 
+  checkIceConnectivity() {
+    // Webkit ICE restrictions demand a capture device permission to release
+    // host candidates
+    if (browser().name === 'safari') {
+      const { intl } = this.props;
+      tryGenerateIceCandidates().catch((e) => {
+        this.notifyError(intl.formatMessage(intlSFUErrors[2021]));
+      });
+    }
+  }
+  
   logger(type, message, options = {}) {
     const { userId, userName } = this.props;
     const topic = options.topic || 'video';
