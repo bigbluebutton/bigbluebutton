@@ -24,6 +24,7 @@ const eventsToBeBound = [
 ];
 
 const isElementInViewport = (el) => {
+  if (!el) return false;
   const rect = el.getBoundingClientRect();
   const prefetchHeight = 125;
 
