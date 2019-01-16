@@ -67,6 +67,7 @@ class UserContent extends PureComponent {
       forcePollOpen,
       hasBreakoutRoom,
       getUsersId,
+      hasPrivateChatBetweenUsers,
     } = this.props;
 
     return (
@@ -119,6 +120,7 @@ class UserContent extends PureComponent {
             getEmoji,
             getGroupChatPrivate,
             getUsersId,
+            hasPrivateChatBetweenUsers,
           }}
         />
       </div>

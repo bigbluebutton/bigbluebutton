@@ -46,9 +46,10 @@ class UserListItem extends PureComponent {
       removeUser,
       setEmojiStatus,
       toggleVoice,
+      hasPrivateChatBetweenUsers,
     } = this.props;
 
-    const { meetingId } = meeting;
+    const { meetingId, lockSettingsProp } = meeting;
 
     const contents = (<UserDropdown
       {...{
@@ -66,11 +67,13 @@ class UserListItem extends PureComponent {
         isBreakoutRoom,
         isMeetingLocked,
         meetingId,
+        lockSettingsProp,
         normalizeEmojiName,
         removeUser,
         setEmojiStatus,
         toggleVoice,
         user,
+        hasPrivateChatBetweenUsers,
       }}
     />);
 

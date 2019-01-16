@@ -26,7 +26,7 @@ export default withTracker(() => {
     },
   });
 
-  const takePresenterRole = () => { makeCall('assignPresenter', Auth.userID); };
+ 
 
   return {
     isUserPresenter: Service.isUserPresenter(),
@@ -47,6 +47,9 @@ export default withTracker(() => {
     users: Service.users(),
     isLayoutSwapped: getSwapLayout(),
     toggleSwapLayout: MediaService.toggleSwapLayout,
-    handleTakePresenter: () => takePresenterRole(),
+    sendInvitation: Service.sendInvitation,
+    getBreakouts: Service.getBreakouts,
+    getUsersNotAssigned: Service.getUsersNotAssigned,
+    handleTakePresenter: Service.takePresenterRole,
   };
 })(ActionsBarContainer);

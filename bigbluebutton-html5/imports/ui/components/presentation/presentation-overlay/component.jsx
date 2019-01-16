@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import SlideCalcUtil, { HUNDRED_PERCENT, MAX_PERCENT, MYSTERY_NUM, STEP } from '/imports/utils/slideCalcUtils';
+import WhiteboardToolbarService from '../../whiteboard/whiteboard-toolbar/service';
 // After lots of trial and error on why synching doesn't work properly, I found I had to
 // multiply the coordinates by 2. There's something I don't understand probably on the
 // canvas coordinate system. (ralam feb 22, 2012)
@@ -359,7 +360,11 @@ export default class PresentationOverlay extends Component {
       whiteboardId,
     });
   }
+
   tapHandler(event) {
+    const AnnotationTool = WhiteboardToolbarService
+      .getCurrentDrawSettings().whiteboardAnnotationTool;
+
     if (event.touches.length === 2) return;
     if (!this.tapedTwice) {
       this.tapedTwice = true;
@@ -369,7 +374,7 @@ export default class PresentationOverlay extends Component {
     event.preventDefault();
     const sizeDefault = this.state.zoom === HUNDRED_PERCENT;
 
-    if (sizeDefault) {
+    if (sizeDefault && AnnotationTool === 'hand') {
       this.doZoomCall(200, this.currentClientX, this.currentClientY);
       return;
     }

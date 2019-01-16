@@ -4,6 +4,7 @@ import { defineMessages, injectIntl } from 'react-intl';
 import { Meteor } from 'meteor/meteor';
 import Button from '/imports/ui/components/button/component';
 import logoutRouteHandler from '/imports/utils/logoutRouteHandler';
+import { Session } from 'meteor/session';
 import { styles } from './styles';
 
 const intlMessages = defineMessages({
@@ -17,6 +18,9 @@ const intlMessages = defineMessages({
   },
   401: {
     id: 'app.error.401',
+  },
+  400: {
+    id: 'app.error.400',
   },
   leave: {
     id: 'app.error.leaveLabel',
@@ -55,18 +59,27 @@ class ErrorScreen extends React.PureComponent {
 
     return (
       <div className={styles.background}>
-        <h1>
+        <h1 className={styles.codeError}>
           {code}
         </h1>
         <h1 className={styles.message}>
           {formatedMessage}
         </h1>
+        <div className={styles.separator} />
         <div>
           {children}
         </div>
+        {
+          !Session.get('errorMessageDescription') || (
+          <div className={styles.sessionMessage}>
+            {Session.get('errorMessageDescription')}
+          </div>)
+        }
         <div>
           <Button
             size="sm"
+            color="primary"
+            className={styles.button}
             onClick={logoutRouteHandler}
             label={intl.formatMessage(intlMessages.leave)}
           />
