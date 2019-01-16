@@ -82,6 +82,10 @@ const intlMessages = defineMessages({
     id: 'app.actionsBar.actionsDropdown.createBreakoutRoomDesc',
     description: 'Description of create breakout room option',
   },
+  invitationItem: {
+    id: 'app.invitation.title',
+    description: 'invitation to breakout title',
+  },
 });
 
 class UserOptions extends PureComponent {
@@ -102,6 +106,8 @@ class UserOptions extends PureComponent {
     this.onActionsHide = this.onActionsHide.bind(this);
     this.alterMenu = this.alterMenu.bind(this);
     this.handleCreateBreakoutRoomClick = this.handleCreateBreakoutRoomClick.bind(this);
+    this.onCreateBreakouts = this.onCreateBreakouts.bind(this);
+    this.onInvitationUsers = this.onInvitationUsers.bind(this);
   }
 
   componentDidUpdate(prevProps) {
@@ -123,19 +129,36 @@ class UserOptions extends PureComponent {
     });
   }
 
-  handleCreateBreakoutRoomClick() {
+  onCreateBreakouts() {
+    return this.handleCreateBreakoutRoomClick(false);
+  }
+
+  onInvitationUsers() {
+    return this.handleCreateBreakoutRoomClick(true);
+  }
+
+  handleCreateBreakoutRoomClick(isInvitation) {
     const {
       createBreakoutRoom,
       mountModal,
       meetingName,
       users,
+      getUsersNotAssigned,
+      getBreakouts,
+      sendInvitation,
     } = this.props;
 
     mountModal(
       <BreakoutRoom
-        createBreakoutRoom={createBreakoutRoom}
-        meetingName={meetingName}
-        users={users}
+        {...{
+          createBreakoutRoom,
+          meetingName,
+          users,
+          getUsersNotAssigned,
+          isInvitation,
+          getBreakouts,
+          sendInvitation,
+        }}
       />,
     );
   }
@@ -189,7 +212,15 @@ class UserOptions extends PureComponent {
       toggleMuteAllUsersExceptPresenter,
       meetingIsBreakout,
       hasBreakoutRoom,
+      getUsersNotAssigned,
+      isUserModerator,
+      users,
     } = this.props;
+
+    const canInviteUsers = isUserModerator
+    && !meetingIsBreakout
+    && hasBreakoutRoom
+    && getUsersNotAssigned(users).length;
 
     this.menuItems = _.compact([
       (<DropdownListItem
@@ -220,7 +251,7 @@ class UserOptions extends PureComponent {
         description={intl.formatMessage(intlMessages.lockViewersDesc)}
         onClick={() => mountModal(<LockViewersContainer />)}
       />),
-      (!meetingIsBreakout && !hasBreakoutRoom
+      (!meetingIsBreakout && !hasBreakoutRoom && isUserModerator
         ? (
           <DropdownListItem
             key={this.createBreakoutId}
@@ -231,6 +262,16 @@ class UserOptions extends PureComponent {
           />
         ) : null
       ),
+      (canInviteUsers
+        ? (
+          <DropdownListItem
+            icon="rooms"
+            label={intl.formatMessage(intlMessages.invitationItem)}
+            key={this.createBreakoutRoomId}
+            onClick={this.onInvitationUsers}
+          />
+        )
+        : null),
     ]);
 
     if (isMeetingMuted) {
