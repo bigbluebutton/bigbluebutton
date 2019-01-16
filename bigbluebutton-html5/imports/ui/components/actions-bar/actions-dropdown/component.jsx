@@ -230,7 +230,6 @@ class ActionsDropdown extends Component {
       getBreakouts,
       sendInvitation,
     } = this.props;
-    console.error(this.props);
 
     mountModal(
       <BreakoutRoom
