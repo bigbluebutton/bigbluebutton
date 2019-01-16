@@ -424,6 +424,7 @@
     "app.video.stats.rtt": "RTT",
     "app.video.stats.encodeUsagePercent": "Encode usage",
     "app.video.stats.currentDelay": "Current delay",
+    "app.fullscreenButton.label": "Make element fullscreen",
     "app.deskshare.iceConnectionStateError": "Error 1108: ICE connection failed when sharing screen",
     "app.sfu.mediaServerConnectionError2000": "Error 2000: Unable to connect to media server",
     "app.sfu.mediaServerOffline2001": "Error 2001: Media server is offline. Please try again later.",

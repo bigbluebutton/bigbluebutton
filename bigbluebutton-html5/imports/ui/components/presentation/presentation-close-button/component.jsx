@@ -14,23 +14,21 @@ const ClosePresentationComponent = ({
   intl,
   innerStyle,
   toggleSwapLayout,
-}) => {
-  return (
-    <div style={innerStyle} className={styles.topRight}>
-      <Button
-        role="button"
-        aria-labelledby="closeLabel"
-        aria-describedby="closeDesc"
-        color="default"
-        icon="close"
-        size="sm"
-        onClick={toggleSwapLayout}
-        label={intl.formatMessage(intlMessages.closePresentationLabel)}
-        hideLabel
-        className={styles.close}
-      />
-    </div>
-  );
-};
+}) => (
+  <div style={innerStyle} className={styles.topRight}>
+    <Button
+      role="button"
+      aria-labelledby="closeLabel"
+      aria-describedby="closeDesc"
+      color="default"
+      icon="close"
+      size="sm"
+      onClick={toggleSwapLayout}
+      label={intl.formatMessage(intlMessages.closePresentationLabel)}
+      hideLabel
+      className={styles.close}
+    />
+  </div>
+);
 
 export default injectIntl(ClosePresentationComponent);

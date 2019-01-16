@@ -45,7 +45,6 @@
     "app.media.screenshare.safariNotSupported": "Atualmente, o compartilhamento de tela não é suportado pelo Safari. Por favor, use o Firefox ou o Google Chrome.",
     "app.meeting.ended": "Esta reunião terminou",
     "app.meeting.endedMessage": "Você será redirecionado para a tela inicial",
-    "app.presentation.close": "Fechar apresentação",
     "app.presentation.presentationToolbar.prevSlideLabel": "Slide anterior",
     "app.presentation.presentationToolbar.prevSlideDesc": "Mudar a apresentação para o slide anterior",
     "app.presentation.presentationToolbar.nextSlideLabel": "Próximo slide",
