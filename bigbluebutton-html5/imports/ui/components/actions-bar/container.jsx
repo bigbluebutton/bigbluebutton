@@ -24,7 +24,7 @@ export default withTracker(() => {
     },
   });
 
-  const takePresenterRole = () => { makeCall('assignPresenter', Auth.userID); };
+ 
 
   return {
     isUserPresenter: Service.isUserPresenter(),
@@ -43,6 +43,9 @@ export default withTracker(() => {
     hasBreakoutRoom: Service.hasBreakoutRoom(),
     meetingName: Service.meetingName(),
     users: Service.users(),
-    handleTakePresenter: () => takePresenterRole(),
+    sendInvitation: Service.sendInvitation,
+    getBreakouts: Service.getBreakouts,
+    getUsersNotAssigned: Service.getUsersNotAssigned,
+    handleTakePresenter: Service.takePresenterRole,
   };
 })(ActionsBarContainer);
