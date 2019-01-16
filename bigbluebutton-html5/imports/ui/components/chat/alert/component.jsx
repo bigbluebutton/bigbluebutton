@@ -62,8 +62,8 @@ class ChatAlert extends PureComponent {
     } = this.state;
     // Avoid alerting messages received before enabling alerts
     if (prevProps.pushAlertDisabled && !pushAlertDisabled) {
-      const lastMessageTimestamp = Service.getLastMessageTimestampFromChatList(activeChats);
-      this.setLastAlertTimestamp(lastMessageTimestamp);
+      const newAlertEnabledTimestamp = Service.getLastMessageTimestampFromChatList(activeChats);
+      this.setAlertEnabledTimestamp(newAlertEnabledTimestamp);
       return;
     }
 
@@ -117,13 +117,15 @@ class ChatAlert extends PureComponent {
       },
     );
 
-    this.setChatMessagesState(newPendingNotificationsByChat, newLastAlertTimestampByChat);
+    if (!pushAlertDisabled) {
+      this.setChatMessagesState(newPendingNotificationsByChat, newLastAlertTimestampByChat);
+    }
   }
 
-  setLastAlertTimestamp(newLastAlertTimestamp) {
+  setAlertEnabledTimestamp(newAlertEnabledTimestamp) {
     const { alertEnabledTimestamp } = this.state;
-    if (newLastAlertTimestamp > 0 && alertEnabledTimestamp !== newLastAlertTimestamp) {
-      this.setState({ alertEnabledTimestamp: newLastAlertTimestamp });
+    if (newAlertEnabledTimestamp > 0 && alertEnabledTimestamp !== newAlertEnabledTimestamp) {
+      this.setState({ alertEnabledTimestamp: newAlertEnabledTimestamp });
     }
   }
 
