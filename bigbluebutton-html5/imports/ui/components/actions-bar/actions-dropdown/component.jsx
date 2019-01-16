@@ -151,7 +151,7 @@ class ActionsDropdown extends Component {
       formatMessage,
     } = intl;
 
-    const CanInviteUsers = isUserModerator
+    const canInviteUsers = isUserModerator
     && !meetingIsBreakout
     && hasBreakoutRoom
     && getUsersNotAssigned(users).length;
@@ -202,7 +202,7 @@ class ActionsDropdown extends Component {
           />
         )
         : null),
-      (CanInviteUsers
+      (canInviteUsers
         ? (
           <DropdownListItem
             icon="rooms"

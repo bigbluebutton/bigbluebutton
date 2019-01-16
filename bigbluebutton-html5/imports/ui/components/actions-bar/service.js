@@ -4,28 +4,6 @@ import { makeCall } from '/imports/ui/services/api';
 import Meetings from '/imports/api/meetings';
 import Breakouts from '/imports/api/breakouts';
 
-const processOutsideToggleRecording = (e) => {
-  switch (e.data) {
-    case 'c_record': {
-      makeCall('toggleRecording');
-      break;
-    }
-    case 'c_recording_status': {
-      const recordingState = Meetings.findOne({ meetingId: Auth.meetingID }).recordProp.recording;
-      const recordingMessage = recordingState ? 'recordingStarted' : 'recordingStopped';
-      this.window.parent.postMessage({ response: recordingMessage }, '*');
-      break;
-    }
-    default: {
-      // console.log(e.data);
-    }
-  }
-};
-
-const connectRecordingObserver = () => {
-  // notify on load complete
-  this.window.parent.postMessage({ response: 'readyToConnect' }, '*');
-};
 const getBreakouts = () => Breakouts.find({ parentMeetingId: Auth.meetingID })
   .fetch()
   .sort((a, b) => a.sequence - b.sequence);
@@ -37,6 +15,7 @@ const getUsersNotAssigned = (users) => {
     .map(u => u.userId);
   return users.filter(u => !breakoutUsers.includes(u.intId));
 };
+
 const takePresenterRole = () => makeCall('assignPresenter', Auth.userID);
 
 export default {

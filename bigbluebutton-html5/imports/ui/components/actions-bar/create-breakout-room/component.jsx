@@ -83,7 +83,7 @@ const intlMessages = defineMessages({
   },
   invitationConfirm: {
     id: 'app.invitation.confirm',
-    description: 'isInvitationto breakout cpnfirm button label',
+    description: 'Invitation to breakout confirm button label',
   },
 });
 const MIN_BREAKOUT_ROOMS = 2;
@@ -184,12 +184,11 @@ class BreakoutRoom extends Component {
       return;
     }
 
-    users
-      .filter(u => u.room > 0)
-      .forEach((user) => {
-        const breakout = breakouts[user.room - 1];
-        sendInvitation(breakout.breakoutId, user.userId);
-      });
+    breakouts.forEach((breakout) => {
+      const { breakoutId } = breakout;
+      const breakoutUsers = this.getUserByRoom(breakout.sequence);
+      breakoutUsers.forEach(user => sendInvitation(breakoutId, user.userId));
+    });
 
     this.setState({ preventClosing: false });
   }
