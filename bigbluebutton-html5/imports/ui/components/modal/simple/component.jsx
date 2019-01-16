@@ -40,14 +40,17 @@ class ModalSimple extends Component {
       dismiss,
       className,
       modalisOpen,
+      onRequestClose,
       ...otherProps
     } = this.props;
+
+    const closeModel = (onRequestClose || this.handleDismiss);
 
     return (
       <ModalBase
         isOpen={modalisOpen}
         className={cx(className, styles.modal)}
-        onRequestClose={this.handleDismiss}
+        onRequestClose={closeModel}
         contentLabel={title}
         {...otherProps}
       >
@@ -59,7 +62,7 @@ class ModalSimple extends Component {
             icon="close"
             circle
             hideLabel
-            onClick={this.handleDismiss}
+            onClick={closeModel}
             aria-describedby="modalDismissDescription"
           />
         </header>

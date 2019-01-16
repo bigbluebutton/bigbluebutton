@@ -125,11 +125,10 @@ class UserParticipants extends Component {
       getEmojiList,
       getEmoji,
       users,
+      hasPrivateChatBetweenUsers,
     } = this.props;
 
     let index = -1;
-
-    const { meetingId } = meeting;
 
     return users.map(u => (
       <CSSTransition
@@ -148,7 +147,7 @@ class UserParticipants extends Component {
               currentUser,
               compact,
               isBreakoutRoom,
-              meetingId,
+              meeting,
               getAvailableActions,
               normalizeEmojiName,
               isMeetingLocked,
@@ -161,6 +160,7 @@ class UserParticipants extends Component {
               toggleVoice,
               changeRole,
               getGroupChatPrivate,
+              hasPrivateChatBetweenUsers,
             }}
             userId={u}
             getScrollContainerRef={this.getScrollContainerRef}

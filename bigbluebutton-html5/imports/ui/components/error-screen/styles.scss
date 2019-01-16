@@ -19,7 +19,35 @@
 }
 
 .message {
-  text-transform: uppercase;
+  margin: 0;
+  text-transform: capitalize;
+  color: var(--color-gray-light);
   font-size: 1.25rem;
-  font-weight: 600;
+  font-weight: 400;
+}
+
+.sessionMessage {
+  @extend .message;
+  font-size: var(--font-size-small);
+  margin-bottom: 1.5rem;
+}
+
+.codeError {
+  margin: 0;
+  font-size: 5rem;
+  color: var(--color-white);
+}
+
+.separator {
+  height: 0;
+  width: 5rem;
+  border: 1px solid var(--color-gray-lighter);
+  margin: 1.5rem 0 1.5rem 0;
+  align-self: center;
+  opacity: .75;
+}
+
+.button {
+  width: 9rem;
+  height: 2rem;
 }
