@@ -32,6 +32,8 @@ spec:
           value: "12345"
         - name: TURN_SECRET
           value: "54321"
+        - name: TURN_DOMAIN
+          value: bigbluebutton.rocket.chat
         image: fcecagno/bigbluebutton:bbb-web
         imagePullPolicy: Always
         name: bbb-web
