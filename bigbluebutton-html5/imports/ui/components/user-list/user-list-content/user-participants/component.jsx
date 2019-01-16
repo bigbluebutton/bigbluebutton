@@ -125,6 +125,7 @@ class UserParticipants extends Component {
       getEmojiList,
       getEmoji,
       users,
+      hasPrivateChatBetweenUsers,
     } = this.props;
 
     let index = -1;
@@ -159,6 +160,7 @@ class UserParticipants extends Component {
               toggleVoice,
               changeRole,
               getGroupChatPrivate,
+              hasPrivateChatBetweenUsers,
             }}
             userId={u}
             getScrollContainerRef={this.getScrollContainerRef}
