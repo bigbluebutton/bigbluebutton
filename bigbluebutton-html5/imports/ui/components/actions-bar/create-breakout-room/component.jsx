@@ -196,6 +196,7 @@ class BreakoutRoom extends Component {
   onAssignRandomly() {
     const { numberOfRooms } = this.state;
     return this.getUserByRoom(0)
+      .filter(user => !user.isModerator)
       .forEach(user => this.changeUserRoom(user.userId, Math.floor(Math.random() * (numberOfRooms) + 1)));
   }
 
@@ -209,9 +210,11 @@ class BreakoutRoom extends Component {
 
   setRoomUsers() {
     const { users, getUsersNotAssigned } = this.props;
+
     const roomUsers = getUsersNotAssigned(users).map(user => ({
       userId: user.userId,
       userName: user.name,
+      isModerator: user.moderator,
       room: 0,
     }));
 
