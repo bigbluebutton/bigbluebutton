@@ -1,5 +1,5 @@
 import React from 'react';
-import { defineMessages, injectIntl, intlShape } from 'react-intl';
+import { defineMessages, injectIntl } from 'react-intl';
 import Button from '/imports/ui/components/button/component';
 import { styles } from '../styles';
 
@@ -15,21 +15,20 @@ const ClosePresentationComponent = ({
   innerStyle,
   toggleSwapLayout,
 }) => {
-
   return (
     <div style={innerStyle} className={styles.topRight}>
       <Button
-       role="button"
-       aria-labelledby="closeLabel"
-       aria-describedby="closeDesc"
-       color="default"
-       icon="close"
-       size="sm"
-       onClick={toggleSwapLayout}
-       label={intl.formatMessage(intlMessages.closePresentationLabel)}
-       hideLabel
-       className={styles.close}
-     />
+        role="button"
+        aria-labelledby="closeLabel"
+        aria-describedby="closeDesc"
+        color="default"
+        icon="close"
+        size="sm"
+        onClick={toggleSwapLayout}
+        label={intl.formatMessage(intlMessages.closePresentationLabel)}
+        hideLabel
+        className={styles.close}
+      />
     </div>
   );
 };

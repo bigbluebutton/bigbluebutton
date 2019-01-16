@@ -85,10 +85,12 @@ class ActionsBar extends React.PureComponent {
           />
         </div>
         <div className={styles.right}>
-          { isLayoutSwapped ?
-            <PresentationOptionsContainer
-              toggleSwapLayout={toggleSwapLayout}
-            />
+          { isLayoutSwapped
+            ? (
+              <PresentationOptionsContainer
+                toggleSwapLayout={toggleSwapLayout}
+              />
+            )
             : null
           }
         </div>
