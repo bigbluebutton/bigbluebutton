@@ -346,6 +346,7 @@
     "app.error.404": "Not found",
     "app.error.401": "Unauthorized",
     "app.error.403": "Forbidden",
+    "app.error.400": "Bad Request",
     "app.error.leaveLabel": "Log in again",
     "app.guest.waiting": "Waiting for approval to join",
     "app.toast.breakoutRoomEnded": "The breakout room ended. Please rejoin in the audio.",
