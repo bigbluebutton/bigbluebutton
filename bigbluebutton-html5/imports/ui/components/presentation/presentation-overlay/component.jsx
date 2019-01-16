@@ -359,7 +359,11 @@ export default class PresentationOverlay extends Component {
       whiteboardId,
     });
   }
+
   tapHandler(event) {
+    const AnnotationTool = WhiteboardToolbarService
+      .getCurrentDrawSettings().whiteboardAnnotationTool;
+
     if (event.touches.length === 2) return;
     if (!this.tapedTwice) {
       this.tapedTwice = true;
@@ -369,7 +373,7 @@ export default class PresentationOverlay extends Component {
     event.preventDefault();
     const sizeDefault = this.state.zoom === HUNDRED_PERCENT;
 
-    if (sizeDefault) {
+    if (sizeDefault && AnnotationTool === 'hand') {
       this.doZoomCall(200, this.currentClientX, this.currentClientY);
       return;
     }
