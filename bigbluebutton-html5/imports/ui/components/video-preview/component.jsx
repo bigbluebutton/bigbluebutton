@@ -146,37 +146,52 @@ class VideoPreview extends Component {
 
   componentDidMount() {
     const { webcamDeviceId, changeWebcam } = this.props;
+    const { webcamDeviceId: savedWebcamDeviceId } = this.state;
     const constraints = {
       video: VIDEO_CONSTRAINTS,
     };
-    navigator.mediaDevices.getUserMedia(constraints).then((stream) => {
-      this.video.srcObject = stream;
-      this.deviceStream = stream;
-      navigator.mediaDevices.enumerateDevices().then((devices) => {
-        let isInitialDeviceSet = false;
-        const webcams = [];
-        if (webcamDeviceId) {
-          changeWebcam(webcamDeviceId);
-          this.setState({ webcamDeviceId });
-          isInitialDeviceSet = true;
-        }
-        devices.forEach((device) => {
-          if (device.kind === 'videoinput') {
-            webcams.push(device);
-            if (!isInitialDeviceSet) {
-              changeWebcam(device.deviceId);
-              this.setState({ webcamDeviceId: device.deviceId });
-              isInitialDeviceSet = true;
-            }
+
+    navigator.mediaDevices.enumerateDevices().then((devices) => {
+      let isInitialDeviceSet = false;
+      const webcams = [];
+
+      // set webcam
+      if (webcamDeviceId) {
+        changeWebcam(webcamDeviceId);
+        this.setState({ webcamDeviceId });
+        isInitialDeviceSet = true;
+      }
+      devices.forEach((device) => {
+        if (device.kind === 'videoinput') {
+          if (!isInitialDeviceSet) {
+            changeWebcam(device.deviceId);
+            this.setState({ webcamDeviceId: device.deviceId });
+            isInitialDeviceSet = true;
           }
-        });
-        if (webcams.length > 0) {
-          this.setState({ availableWebcams: webcams });
         }
       });
-    }).catch((error) => {
-      this.setState({ isStartSharingDisabled: true });
-      this.handlegUMError(error);
+      if (webcams.length > 0) {
+        this.setState({ availableWebcams: webcams });
+      }
+
+      constraints.video.deviceId = { exact: savedWebcamDeviceId };
+      navigator.mediaDevices.getUserMedia(constraints).then((stream) => {
+        // display the preview
+        this.video.srcObject = stream;
+        this.deviceStream = stream;
+
+        navigator.mediaDevices.enumerateDevices().then((devices) => {
+          // get the list of webcams (labels are available at this point)
+          devices.forEach((device) => {
+            if (device.kind === 'videoinput') {
+              webcams.push(device);
+            }
+          });
+          if (webcams.length > 0) {
+            this.setState({ availableWebcams: webcams });
+          }
+        });
+      });
     });
   }
 

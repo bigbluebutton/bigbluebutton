@@ -2,7 +2,6 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import _ from 'lodash';
 import { defineMessages, injectIntl } from 'react-intl';
-import { Session } from 'meteor/session';
 import Button from '/imports/ui/components/button/component';
 import { styles } from './styles';
 import Service from './service';
@@ -27,19 +26,14 @@ const intlMessages = defineMessages({
 });
 
 class LiveResult extends Component {
-  constructor(props) {
-    super(props);
-
-    this.renderPollStats = this.renderPollStats.bind(this);
-    this.renderAnswers = this.renderAnswers.bind(this);
-  }
-
-  renderAnswers() {
-    const { currentPoll, getUser } = this.props;
+  static getDerivedStateFromProps(nextProps) {
+    const { currentPoll, getUser } = nextProps;
 
     if (!currentPoll) return null;
 
-    const { answers, responses, users } = currentPoll;
+    const {
+      answers, responses, users, numRespondents,
+    } = currentPoll;
 
     let userAnswers = responses
       ? [...users, ...responses.map(u => u.userId)]
@@ -67,22 +61,7 @@ class LiveResult extends Component {
         <div className={styles.itemR} key={_.uniqueId('stats-')}>{user.answer}</div>,
       ], []);
 
-    return userAnswers;
-  }
-
-  renderPollStats() {
-    const { currentPoll } = this.props;
-
     const pollStats = [];
-
-    if (!currentPoll) return;
-
-    const {
-      answers,
-      numRespondents,
-    } = currentPoll;
-
-    if (!answers) return;
 
     answers.map((obj) => {
       const pct = Math.round(obj.numVotes / numRespondents * 100);
@@ -102,38 +81,55 @@ class LiveResult extends Component {
       );
     });
 
-    return pollStats;
+    return {
+      userAnswers,
+      pollStats,
+    };
+  }
+
+  constructor(props) {
+    super(props);
+
+    this.state = {
+      userAnswers: null,
+      pollStats: null,
+    };
   }
 
   render() {
     const {
-      intl, publishPoll, stopPoll, handleBackClick,
+      intl, publishPoll, stopPoll, handleBackClick, currentPoll,
     } = this.props;
+
+    const { userAnswers, pollStats } = this.state;
 
     return (
       <div>
         <div className={styles.stats}>
-          {this.renderPollStats()}
+          {pollStats}
         </div>
-        <Button
-          onClick={() => {
-            publishPoll();
-            stopPoll();
-            Session.set('openPanel', 'userlist');
-            Session.set('forcePollOpen', false);
-          }}
-          label={intl.formatMessage(intlMessages.publishLabel)}
-          color="primary"
-          className={styles.btn}
-        />
-        <Button
-          onClick={() => {
-            handleBackClick();
-          }}
-          label={intl.formatMessage(intlMessages.backLabel)}
-          color="default"
-          className={styles.btn}
-        />
+        {currentPoll
+          ? (
+            <Button
+              onClick={() => {
+                publishPoll();
+                stopPoll();
+              }}
+              label={intl.formatMessage(intlMessages.publishLabel)}
+              color="primary"
+              className={styles.btn}
+            />
+          ) : (
+            <Button
+              onClick={() => {
+                handleBackClick();
+              }}
+              label={intl.formatMessage(intlMessages.backLabel)}
+              color="default"
+              className={styles.btn}
+            />
+          )
+        }
         <div className={styles.container}>
           <div className={styles.usersHeading}>
             {intl.formatMessage(intlMessages.usersTitle)}
@@ -141,7 +137,7 @@ class LiveResult extends Component {
           <div className={styles.responseHeading}>
             {intl.formatMessage(intlMessages.responsesTitle)}
           </div>
-          {this.renderAnswers()}
+          {userAnswers}
         </div>
       </div>
     );
@@ -150,12 +146,19 @@ class LiveResult extends Component {
 
 export default injectIntl(LiveResult);
 
+LiveResult.defaultProps = { currentPoll: null };
+
 LiveResult.propTypes = {
   intl: PropTypes.shape({
     formatMessage: PropTypes.func.isRequired,
   }).isRequired,
-  getUser: PropTypes.func.isRequired,
-  currentPoll: PropTypes.arrayOf(Object).isRequired,
+  currentPoll: PropTypes.oneOfType([
+    PropTypes.arrayOf(Object),
+    PropTypes.shape({
+      answers: PropTypes.arrayOf(PropTypes.object),
+      users: PropTypes.arrayOf(PropTypes.string),
+    }),
+  ]),
   publishPoll: PropTypes.func.isRequired,
   stopPoll: PropTypes.func.isRequired,
   handleBackClick: PropTypes.func.isRequired,
