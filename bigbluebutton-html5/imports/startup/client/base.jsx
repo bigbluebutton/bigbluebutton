@@ -107,7 +107,7 @@ class Base extends Component {
             {this.renderByState()}
           </IntlStartup>
         )
-        : null
+        : <LoadingScreen />
     );
   }
 }
