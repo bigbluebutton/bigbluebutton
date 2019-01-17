@@ -19,31 +19,26 @@
 package org.bigbluebutton.web.controllers
 
 import com.google.gson.Gson
-import org.bigbluebutton.api.util.ResponseBuilder
-
-import javax.servlet.ServletRequest
-
+import grails.web.context.ServletContextHolder
+import groovy.json.JsonBuilder
 import org.apache.commons.codec.binary.Base64
 import org.apache.commons.io.FilenameUtils
 import org.apache.commons.lang.RandomStringUtils
 import org.apache.commons.lang.StringUtils
+import org.bigbluebutton.api.*
 import org.bigbluebutton.api.domain.Config
-import org.bigbluebutton.api.domain.Meeting
 import org.bigbluebutton.api.domain.GuestPolicy
+import org.bigbluebutton.api.domain.Meeting
 import org.bigbluebutton.api.domain.UserSession
-import org.bigbluebutton.api.ApiErrors
-import org.bigbluebutton.api.ClientConfigService
-import org.bigbluebutton.api.MeetingService
-import org.bigbluebutton.api.ParamsProcessorUtil
-import org.bigbluebutton.api.Util
+import org.bigbluebutton.api.util.ResponseBuilder
 import org.bigbluebutton.presentation.PresentationUrlDownloadService
 import org.bigbluebutton.presentation.UploadedPresentation
 import org.bigbluebutton.web.services.PresentationService
 import org.bigbluebutton.web.services.turn.StunTurnService
 import org.bigbluebutton.web.services.turn.TurnEntry
 import org.json.JSONArray
-import groovy.json.*
-import grails.converters.*
+
+import javax.servlet.ServletRequest
 
 class ApiController {
   private static final Integer SESSION_TIMEOUT = 14400  // 4 hours
@@ -63,8 +58,15 @@ class ApiController {
   ResponseBuilder responseBuilder = initResponseBuilder()
 
   def initResponseBuilder = {
-    def templateLoc = getServletContext().getRealPath("/WEB-INF/freemarker")
-    responseBuilder = new ResponseBuilder(new File(templateLoc))
+    String protocol = this.getClass().getResource("").getProtocol();
+    if (Objects.equals(protocol, "jar")) {
+      // Application running inside a JAR file
+      responseBuilder = new ResponseBuilder(getClass().getClassLoader(), "/WEB-INF/freemarker")
+    } else if (Objects.equals(protocol, "file")) {
+      // Application unzipped and running outside a JAR file
+      def templateLoc = ServletContextHolder.servletContext.getRealPath("/WEB-INF/freemarker")
+      responseBuilder = new ResponseBuilder(new File(templateLoc))
+    }
   }
 
   /* general methods */

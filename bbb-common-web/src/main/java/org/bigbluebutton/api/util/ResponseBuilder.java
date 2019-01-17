@@ -28,12 +28,21 @@ public class ResponseBuilder {
 
     Configuration cfg = new Configuration(Configuration.VERSION_2_3_23);
 
+    public ResponseBuilder(ClassLoader classLoader, String basePackagePath) {
+        cfg.setClassLoaderForTemplateLoading(classLoader, basePackagePath);
+        setUpConfiguration();
+    }
+
     public ResponseBuilder(File templatesLoc) {
         try {
             cfg.setDirectoryForTemplateLoading(templatesLoc);
         } catch (IOException e) {
-            log.error("Exception occured creating ResponseBuilder",e);
+            log.error("Exception occured creating ResponseBuilder", e);
         }
+        setUpConfiguration();
+    }
+
+    private void setUpConfiguration() {
         cfg.setDefaultEncoding(StandardCharsets.UTF_8.name());
         cfg.setTemplateExceptionHandler(TemplateExceptionHandler.RETHROW_HANDLER);
         cfg.setLogTemplateExceptions(false);
@@ -84,7 +93,7 @@ public class ResponseBuilder {
 
         return xmlText.toString();
     }
-    
+
     public String buildErrors(ArrayList erros, String returnCode) {
         StringWriter xmlText = new StringWriter();
 
