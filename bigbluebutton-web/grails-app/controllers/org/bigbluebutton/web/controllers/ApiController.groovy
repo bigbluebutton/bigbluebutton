@@ -1205,7 +1205,7 @@ class ApiController {
     Meeting meeting = null;
     UserSession userSession = null;
 
-    if (meetingService.getUserSessionWithAuthToken(sessionToken) == null) {
+    if (sessionToken == null || meetingService.getUserSessionWithAuthToken(sessionToken) == null) {
       log.debug("No user with session token.")
       reject = true;
     } else {
