@@ -64,7 +64,8 @@ class ApiController {
       responseBuilder = new ResponseBuilder(getClass().getClassLoader(), "/WEB-INF/freemarker")
     } else if (Objects.equals(protocol, "file")) {
       // Application unzipped and running outside a JAR file
-      def templateLoc = ServletContextHolder.servletContext.getRealPath("/WEB-INF/freemarker")
+      String templateLoc = ServletContextHolder.servletContext.getRealPath("/WEB-INF/freemarker")
+      // We should never have a null `templateLoc`
       responseBuilder = new ResponseBuilder(new File(templateLoc))
     }
   }
