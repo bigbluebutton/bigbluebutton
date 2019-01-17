@@ -47,8 +47,14 @@ class Base extends Component {
   }
 
   componentDidUpdate(prevProps) {
-    const { ejected, approved } = this.props;
+    const { ejected, approved, meetingExist } = this.props;
     const { loading } = this.state;
+
+    if (!prevProps.meetingExist && meetingExist) {
+      Session.set('isMeetingEnded', false);
+    }
+
+    if (!meetingExist) return;
 
     if (approved && loading) this.updateLoadingState(false);
 
