@@ -75,35 +75,35 @@ class UserList extends PureComponent {
           showBranding
           && !this.props.compact
           && CustomLogoUrl
-          ? <CustomLogo CustomLogoUrl={CustomLogoUrl} /> : null
+            ? <CustomLogo CustomLogoUrl={CustomLogoUrl} /> : null
         }
         {<UserContentContainer
           {...{
-          intl,
-          openChats,
-          compact,
-          currentUser,
-          isBreakoutRoom,
-          setEmojiStatus,
-          assignPresenter,
-          removeUser,
-          toggleVoice,
-          muteAllUsers,
-          muteAllExceptPresenter,
-          changeRole,
-          getAvailableActions,
-          normalizeEmojiName,
-          isMeetingLocked,
-          isPublicChat,
-          roving,
-          getGroupChatPrivate,
-          handleEmojiChange,
-          getEmojiList,
-          getEmoji,
-          hasBreakoutRoom,
-          getUsersId,
-          hasPrivateChatBetweenUsers,
-        }
+            intl,
+            openChats,
+            compact,
+            currentUser,
+            isBreakoutRoom,
+            setEmojiStatus,
+            assignPresenter,
+            removeUser,
+            toggleVoice,
+            muteAllUsers,
+            muteAllExceptPresenter,
+            changeRole,
+            getAvailableActions,
+            normalizeEmojiName,
+            isMeetingLocked,
+            isPublicChat,
+            roving,
+            getGroupChatPrivate,
+            handleEmojiChange,
+            getEmojiList,
+            getEmoji,
+            hasBreakoutRoom,
+            getUsersId,
+            hasPrivateChatBetweenUsers,
+          }
       }
         />}
       </div>

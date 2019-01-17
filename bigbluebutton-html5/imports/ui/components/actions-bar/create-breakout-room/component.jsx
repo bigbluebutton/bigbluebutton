@@ -321,7 +321,7 @@ class BreakoutRoom extends Component {
               <div className={styles.breakoutBox} onDrop={drop(value)} onDragOver={allowDrop}>
                 {this.renderUserItemByRoom(value)}
               </div>
-             </label>
+            </label>
           ))
         }
       </div>
@@ -390,7 +390,7 @@ class BreakoutRoom extends Component {
             </span>
           </div>
         </label>
-        <span 
+        <span
           className={styles.randomText}
           role="button"
           onClick={this.onAssignRandomly}

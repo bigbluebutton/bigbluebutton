@@ -1,6 +1,8 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import SlideCalcUtil, { HUNDRED_PERCENT, MAX_PERCENT, MYSTERY_NUM, STEP } from '/imports/utils/slideCalcUtils';
+import SlideCalcUtil, {
+  HUNDRED_PERCENT, MAX_PERCENT, MYSTERY_NUM, STEP,
+} from '/imports/utils/slideCalcUtils';
 import WhiteboardToolbarService from '../../whiteboard/whiteboard-toolbar/service';
 // After lots of trial and error on why synching doesn't work properly, I found I had to
 // multiply the coordinates by 2. There's something I don't understand probably on the

@@ -76,24 +76,17 @@ class VideoPreview extends Component {
     super(props);
 
     const {
-      closeModal,
-      startSharing,
-      changeWebcam,
       webcamDeviceId,
     } = props;
 
     this.handleJoinVideo = this.handleJoinVideo.bind(this);
     this.handleProceed = this.handleProceed.bind(this);
     this.handleStartSharing = this.handleStartSharing.bind(this);
-    this.closeModal = closeModal;
-    this.startSharing = startSharing;
-    this.changeWebcam = changeWebcam;
-    this.webcamDeviceId = webcamDeviceId;
 
     this.deviceStream = null;
 
     this.state = {
-      webcamDeviceId: this.webcamDeviceId,
+      webcamDeviceId,
       availableWebcams: null,
       isStartSharingDisabled: false,
     };
@@ -119,12 +112,12 @@ class VideoPreview extends Component {
 
   handleSelectWebcam(event) {
     const {
-      intl,
+      changeWebcam,
     } = this.props;
 
     const webcamValue = event.target.value;
     this.setState({ webcamDeviceId: webcamValue });
-    this.changeWebcam(webcamValue);
+    changeWebcam(webcamValue);
     VIDEO_CONSTRAINTS.deviceId = webcamValue ? { exact: webcamValue } : undefined;
     const constraints = {
       video: VIDEO_CONSTRAINTS,
@@ -139,20 +132,21 @@ class VideoPreview extends Component {
   }
 
   handleStartSharing() {
-    const { resolve } = this.props;
+    const { resolve, startSharing } = this.props;
     this.stopTracks();
-    this.startSharing();
+    startSharing();
     if (resolve) resolve();
   }
 
   handleProceed() {
-    const { resolve } = this.props;
-    this.closeModal();
+    const { resolve, closeModal } = this.props;
+    closeModal();
     if (resolve) resolve();
   }
 
   componentDidMount() {
-    const { webcamDeviceId } = this.props;
+    const { webcamDeviceId, changeWebcam } = this.props;
+    const { webcamDeviceId: savedWebcamDeviceId } = this.state;
     const constraints = {
       video: VIDEO_CONSTRAINTS,
     };
@@ -163,14 +157,14 @@ class VideoPreview extends Component {
 
       // set webcam
       if (webcamDeviceId) {
-        this.changeWebcam(webcamDeviceId);
+        changeWebcam(webcamDeviceId);
         this.setState({ webcamDeviceId });
         isInitialDeviceSet = true;
       }
       devices.forEach((device) => {
         if (device.kind === 'videoinput') {
           if (!isInitialDeviceSet) {
-            this.changeWebcam(device.deviceId);
+            changeWebcam(device.deviceId);
             this.setState({ webcamDeviceId: device.deviceId });
             isInitialDeviceSet = true;
           }
@@ -180,7 +174,7 @@ class VideoPreview extends Component {
         this.setState({ availableWebcams: webcams });
       }
 
-      constraints.video.deviceId = { exact: this.state.webcamDeviceId };
+      constraints.video.deviceId = { exact: savedWebcamDeviceId };
       navigator.mediaDevices.getUserMedia(constraints).then((stream) => {
         // display the preview
         this.video.srcObject = stream;
@@ -214,6 +208,11 @@ class VideoPreview extends Component {
       intl,
     } = this.props;
 
+    const {
+      webcamDeviceId,
+      availableWebcams,
+      isStartSharingDisabled,
+    } = this.state;
     return (
       <Modal
         overlayClassName={styles.overlay}
@@ -238,16 +237,16 @@ class VideoPreview extends Component {
             <label className={styles.label}>
               {intl.formatMessage(intlMessages.cameraLabel)}
             </label>
-            {this.state.availableWebcams && this.state.availableWebcams.length > 0 ? (
+            {availableWebcams && availableWebcams.length > 0 ? (
               <select
-                value={this.state.webcamDeviceId}
+                value={webcamDeviceId}
                 className={styles.select}
                 onChange={this.handleSelectWebcam.bind(this)}
               >
                 <option disabled>
                   {intl.formatMessage(intlMessages.webcamOptionLabel)}
                 </option>
-                {this.state.availableWebcams.map((webcam, index) => (
+                {availableWebcams.map((webcam, index) => (
                   <option key={index} value={webcam.deviceId}>
                     {webcam.label}
                   </option>
@@ -275,7 +274,7 @@ class VideoPreview extends Component {
               color="primary"
               label={intl.formatMessage(intlMessages.startSharingLabel)}
               onClick={() => this.handleStartSharing()}
-              disabled={this.state.isStartSharingDisabled}
+              disabled={isStartSharingDisabled}
             />
           </div>
         </div>
