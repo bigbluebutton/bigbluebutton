@@ -16,6 +16,7 @@ import GroupChat from '/imports/api/group-chat';
 import mapUser from '/imports/ui/services/user/mapUser';
 import { Session } from 'meteor/session';
 import IntlStartup from './intl';
+import Meetings from '../../api/meetings';
 
 const CHAT_CONFIG = Meteor.settings.public.chat;
 const PUBLIC_GROUP_CHAT_ID = CHAT_CONFIG.public_group_id;
@@ -96,13 +97,17 @@ class Base extends Component {
 
   render() {
     const { updateLoadingState } = this;
-    const { locale } = this.props;
+    const { locale, meetingExist } = this.props;
     const stateControls = { updateLoadingState };
 
     return (
-      <IntlStartup locale={locale} baseControls={stateControls}>
-        {this.renderByState()}
-      </IntlStartup>
+      (meetingExist)
+        ? (
+          <IntlStartup locale={locale} baseControls={stateControls}>
+            {this.renderByState()}
+          </IntlStartup>
+        )
+        : null
     );
   }
 }
@@ -121,12 +126,6 @@ const BaseContainer = withTracker(() => {
   const { credentials, loggedIn } = Auth;
   const { meetingId, requesterUserId } = credentials;
   let breakoutRoomSubscriptionHandler;
-  if (!loggedIn) {
-    return {
-      locale,
-      subscriptionsReady: false,
-    };
-  }
 
   const subscriptionErrorHandler = {
     onError: (error) => {
@@ -138,6 +137,24 @@ const BaseContainer = withTracker(() => {
 
   const subscriptionsHandlers = SUBSCRIPTIONS_NAME
     .map(name => Meteor.subscribe(name, credentials, subscriptionErrorHandler));
+
+  const subscriptionsReady = subscriptionsHandlers.every(handler => handler.ready());
+
+  const meeting = Meetings.findOne({ meetingId });
+
+  if (!meeting) {
+    return {
+      meetingExist: false,
+      subscriptionsReady,
+    };
+  }
+
+  if (!loggedIn) {
+    return {
+      locale,
+      subscriptionsReady: false,
+    };
+  }
 
   const chats = GroupChat.find({
     $or: [
@@ -175,7 +192,6 @@ const BaseContainer = withTracker(() => {
     ...subscriptionErrorHandler,
   });
 
-  const subscriptionsReady = subscriptionsHandlers.every(handler => handler.ready());
   return {
     approved: Users.findOne({ userId: Auth.userID, approved: true, guest: true }),
     ejected: Users.findOne({ userId: Auth.userID, ejected: true }),
@@ -185,6 +201,7 @@ const BaseContainer = withTracker(() => {
     annotationsHandler,
     groupChatMessageHandler,
     breakoutRoomSubscriptionHandler,
+    meetingExist: true,
   };
 })(Base);
 
