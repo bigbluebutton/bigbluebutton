@@ -56,8 +56,9 @@ class ExternalVideoModal extends Component {
 
   startWatchingHandler() {
     const { startWatching, closeModal } = this.props;
+    const { url } = this.state;
 
-    startWatching(this.state.url);
+    startWatching(url);
     closeModal();
   }
 
@@ -69,7 +70,7 @@ class ExternalVideoModal extends Component {
   }
 
   updateVideoUrlHandler(ev) {
-    this.setState({...this.state, url: ev.target.value });
+    this.setState({ url: ev.target.value });
   }
 
   renderUrlError() {

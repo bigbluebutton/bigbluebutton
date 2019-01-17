@@ -38,7 +38,7 @@ class VideoPlayer extends Component {
     window.addEventListener('resize', this.resizeListener);
   }
 
-  componentWillUpdate(nextProps) {
+  componentDidUpdate(nextProps) {
     if (!nextProps.videoId) {
       clearInterval(this.syncInterval);
     }
@@ -186,7 +186,7 @@ class VideoPlayer extends Component {
     }
   }
 
-  render () {
+  render() {
     const { videoId } = this.props;
     const { opts, handleOnReady, handleStateChange } = this;
 
