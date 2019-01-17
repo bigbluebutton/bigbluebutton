@@ -46,26 +46,21 @@ const defaultProps = {
 };
 
 class RecordingComponent extends React.PureComponent {
-  constructor(props) {
-    super(props);
+  render() {
     const {
+      intl,
+      recordingStatus,
+      amIModerator,
       closeModal,
       toggleRecording,
-    } = props;
-
-    this.closeModal = closeModal;
-    this.toggleRecording = toggleRecording;
-  }
-
-  render() {
-    const { intl, recordingStatus, amIModerator } = this.props;
+    } = this.props;
 
     if (!amIModerator) return null;
     return (
       <Modal
         overlayClassName={styles.overlay}
         className={styles.modal}
-        onRequestClose={this.closeModal}
+        onRequestClose={closeModal}
         hideBorder
       >
         <div className={styles.container}>
@@ -88,12 +83,12 @@ class RecordingComponent extends React.PureComponent {
               color="primary"
               className={styles.button}
               label={intl.formatMessage(intlMessages.yesLabel)}
-              onClick={() => this.toggleRecording()}
+              onClick={toggleRecording}
             />
             <Button
               label={intl.formatMessage(intlMessages.noLabel)}
               className={styles.button}
-              onClick={() => this.closeModal()}
+              onClick={closeModal}
             />
           </div>
         </div>
