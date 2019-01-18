@@ -1,7 +1,7 @@
 {
-    "app.home.greeting": "Добре дошли, {name}! Вашата презентация ще започне всеки момент",
-    "app.chat.submitLabel": "Изпрати",
-    "app.chat.titlePublic": "Общ чат"
+    "app.chat.closeChatLabel": "Затвори {0}",
+    "app.chat.hideChatLabel": "Скрий {0}",
+    "app.chat.dropdown.save": "Запази"
 
 }
 
