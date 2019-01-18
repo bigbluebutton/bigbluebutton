@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import injectWbResizeEvent from '/imports/ui/components/presentation/resize-wrapper/component';
 import YouTube from 'react-youtube';
+import Vimeo from 'react-vimeo';
 import { sendMessage, onMessage } from './service';
 
 const { PlayerState } = YouTube;
