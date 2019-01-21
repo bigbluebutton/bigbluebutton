@@ -259,10 +259,8 @@ export default class SIPBridge extends BaseAudioBridge {
         },
       },
       RTCConstraints: {
-        mandatory: {
-          OfferToReceiveAudio: true,
-          OfferToReceiveVideo: false,
-        },
+        offerToReceiveAudio: true,
+        offerToReceiveVideo: false,
       },
     };
 
@@ -295,9 +293,9 @@ export default class SIPBridge extends BaseAudioBridge {
           });
         }
 
-        const mappedCause = cause in this.errorCodes ?
-          this.errorCodes[cause] :
-          this.baseErrorCodes.GENERIC_ERROR;
+        const mappedCause = cause in this.errorCodes
+          ? this.errorCodes[cause]
+          : this.baseErrorCodes.GENERIC_ERROR;
 
         return this.callback({
           status: this.baseCallStates.failed,

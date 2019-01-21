@@ -428,10 +428,11 @@ const roving = (event, itemCount, changeState) => {
   }
 };
 
-const getGroupChatPrivate = (sender, receiver) => {
-  const privateChat = GroupChat.findOne({ users: { $all: [receiver.id, sender.id] } });
+const hasPrivateChatBetweenUsers = (sender, receiver) => GroupChat
+  .findOne({ users: { $all: [receiver.id, sender.id] } });
 
-  if (!privateChat) {
+const getGroupChatPrivate = (sender, receiver) => {
+  if (!hasPrivateChatBetweenUsers(sender, receiver)) {
     makeCall('createGroupChat', receiver);
   }
 };
@@ -465,4 +466,5 @@ export default {
   isUserModerator,
   getEmojiList: () => EMOJI_STATUSES,
   getEmoji: () => Users.findOne({ userId: Auth.userID }).emoji,
+  hasPrivateChatBetweenUsers,
 };

@@ -77,6 +77,14 @@ const intlMessages = defineMessages({
     id: 'app.audio.backLabel',
     description: 'Back label',
   },
+  invitationTitle: {
+    id: 'app.invitation.title',
+    description: 'isInvitationto breakout title',
+  },
+  invitationConfirm: {
+    id: 'app.invitation.confirm',
+    description: 'Invitation to breakout confirm button label',
+  },
 });
 const MIN_BREAKOUT_ROOMS = 2;
 const MAX_BREAKOUT_ROOMS = 8;
@@ -94,6 +102,7 @@ class BreakoutRoom extends Component {
     this.setFreeJoin = this.setFreeJoin.bind(this);
     this.getUserByRoom = this.getUserByRoom.bind(this);
     this.onAssignRandomly = this.onAssignRandomly.bind(this);
+    this.onInviteBreakout = this.onInviteBreakout.bind(this);
     this.renderUserItemByRoom = this.renderUserItemByRoom.bind(this);
     this.renderRoomsGrid = this.renderRoomsGrid.bind(this);
     this.renderBreakoutForm = this.renderBreakoutForm.bind(this);
@@ -103,7 +112,9 @@ class BreakoutRoom extends Component {
     this.renderMobile = this.renderMobile.bind(this);
     this.renderButtonSetLevel = this.renderButtonSetLevel.bind(this);
     this.renderSelectUserScreen = this.renderSelectUserScreen.bind(this);
+    this.renderTitle = this.renderTitle.bind(this);
     this.handleDismiss = this.handleDismiss.bind(this);
+    this.setInvitationConfig = this.setInvitationConfig.bind(this);
 
     this.state = {
       numberOfRooms: MIN_BREAKOUT_ROOMS,
@@ -119,7 +130,11 @@ class BreakoutRoom extends Component {
   }
 
   componentDidMount() {
+    const { isInvitation } = this.props;
     this.setRoomUsers();
+    if (isInvitation) {
+      this.setInvitationConfig();
+    }
   }
 
   componentDidUpdate(prevProps, prevstate) {
@@ -160,17 +175,46 @@ class BreakoutRoom extends Component {
     Session.set('isUserListOpen', true);
   }
 
+  onInviteBreakout() {
+    const { getBreakouts, sendInvitation } = this.props;
+    const { users } = this.state;
+    const breakouts = getBreakouts();
+    if (users.length === this.getUserByRoom(0).length) {
+      this.setState({ valid: false });
+      return;
+    }
+
+    breakouts.forEach((breakout) => {
+      const { breakoutId } = breakout;
+      const breakoutUsers = this.getUserByRoom(breakout.sequence);
+      breakoutUsers.forEach(user => sendInvitation(breakoutId, user.userId));
+    });
+
+    this.setState({ preventClosing: false });
+  }
+
   onAssignRandomly() {
     const { numberOfRooms } = this.state;
     return this.getUserByRoom(0)
+      .filter(user => !user.isModerator)
       .forEach(user => this.changeUserRoom(user.userId, Math.floor(Math.random() * (numberOfRooms) + 1)));
   }
 
+  setInvitationConfig() {
+    const { getBreakouts } = this.props;
+    this.setState({
+      numberOfRooms: getBreakouts().length,
+      formFillLevel: 2,
+    });
+  }
+
   setRoomUsers() {
-    const { users } = this.props;
-    const roomUsers = users.map(user => ({
+    const { users, getUsersNotAssigned } = this.props;
+
+    const roomUsers = getUsersNotAssigned(users).map(user => ({
       userId: user.userId,
       userName: user.name,
+      isModerator: user.moderator,
       room: 0,
     }));
 
@@ -208,7 +252,7 @@ class BreakoutRoom extends Component {
 
   changeUserRoom(userId, room) {
     const { users } = this.state;
-    
+
     const idxUser = users.findIndex(user => user.userId === userId);
     users[idxUser].room = room;
     this.setState({ users });
@@ -277,7 +321,7 @@ class BreakoutRoom extends Component {
               <div className={styles.breakoutBox} onDrop={drop(value)} onDragOver={allowDrop}>
                 {this.renderUserItemByRoom(value)}
               </div>
-             </label>
+            </label>
           ))
         }
       </div>
@@ -285,11 +329,16 @@ class BreakoutRoom extends Component {
   }
 
   renderBreakoutForm() {
-    const { intl } = this.props;
+    const {
+      intl,
+      isInvitation,
+    } = this.props;
     const {
       numberOfRooms,
       durationTime,
     } = this.state;
+    if (isInvitation) return null;
+
     return (
       <div className={styles.breakoutSettings}>
         <label htmlFor="numberOfRooms">
@@ -341,7 +390,13 @@ class BreakoutRoom extends Component {
             </span>
           </div>
         </label>
-        <span className={styles.randomText} role="button" onClick={this.onAssignRandomly}>{intl.formatMessage(intlMessages.randomlyAssign)}</span>
+        <span
+          className={styles.randomText}
+          role="button"
+          onClick={this.onAssignRandomly}
+        >
+          {intl.formatMessage(intlMessages.randomlyAssign)}
+        </span>
       </div>
     );
   }
@@ -363,7 +418,8 @@ class BreakoutRoom extends Component {
   }
 
   renderFreeJoinCheck() {
-    const { intl } = this.props;
+    const { intl, isInvitation } = this.props;
+    if (isInvitation) return null;
     const { freeJoin } = this.state;
     return (
       <label htmlFor="freeJoinCheckbox" className={styles.freeJoinLabel}>
@@ -416,7 +472,7 @@ class BreakoutRoom extends Component {
   }
 
   renderRoomSortList() {
-    const { intl } = this.props;
+    const { intl, isInvitation } = this.props;
     const { numberOfRooms } = this.state;
     const onClick = roomNumber => this.setState({ formFillLevel: 3, roomSelected: roomNumber });
     return (
@@ -440,7 +496,7 @@ class BreakoutRoom extends Component {
             ))
           }
         </span>
-        {this.renderButtonSetLevel(1, intl.formatMessage(intlMessages.backLabel))}
+        { isInvitation || this.renderButtonSetLevel(1, intl.formatMessage(intlMessages.backLabel))}
       </div>
     );
   }
@@ -482,8 +538,17 @@ class BreakoutRoom extends Component {
     );
   }
 
-  render() {
+  renderTitle() {
     const { intl } = this.props;
+    return (
+      <p className={styles.subTitle}>
+        {intl.formatMessage(intlMessages.breakoutRoomDesc)}
+      </p>
+    );
+  }
+
+  render() {
+    const { intl, isInvitation } = this.props;
     const { preventClosing } = this.state;
 
     const BROWSER_RESULTS = browser();
@@ -491,11 +556,17 @@ class BreakoutRoom extends Component {
 
     return (
       <Modal
-        title={intl.formatMessage(intlMessages.breakoutRoomTitle)}
+        title={
+          isInvitation
+            ? intl.formatMessage(intlMessages.invitationTitle)
+            : intl.formatMessage(intlMessages.breakoutRoomTitle)
+        }
         confirm={
           {
-            label: intl.formatMessage(intlMessages.confirmButton),
-            callback: this.onCreateBreakouts,
+            label: isInvitation
+              ? intl.formatMessage(intlMessages.invitationConfirm)
+              : intl.formatMessage(intlMessages.confirmButton),
+            callback: isInvitation ? this.onInviteBreakout : this.onCreateBreakouts,
           }
         }
         dismiss={{
@@ -505,9 +576,7 @@ class BreakoutRoom extends Component {
         preventClosing={preventClosing}
       >
         <div className={styles.content}>
-          <p className={styles.subTitle}>
-            {intl.formatMessage(intlMessages.breakoutRoomDesc)}
-          </p>
+          {isInvitation || this.renderTitle()}
           {isMobileBrowser ? this.renderMobile() : this.renderDesktop()}
         </div>
       </Modal>

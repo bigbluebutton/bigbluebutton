@@ -84,13 +84,13 @@ class WhiteboardToolbar extends Component {
 
       // variables to keep current selected draw settings
       annotationSelected,
-      thicknessSelected: { value: 4 },
-      colorSelected: { value: '#000000' },
+      thicknessSelected: { value: 2 },
+      colorSelected: { value: '#ff0000' },
       fontSizeSelected: { value: 20 },
 
       // keeping the previous color and the thickness icon's radius selected for svg animation
-      prevColorSelected: { value: '#000000' },
-      prevThicknessSelected: { value: 4 },
+      prevColorSelected: { value: '#ff0000' },
+      prevThicknessSelected: { value: 2 },
 
       // lists of tools/thickness/colors are not direct children of main toolbar buttons
       // and we want the list to close when onBlur fires at the main toolbar button

@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React from 'react';
 import { defineMessages, injectIntl } from 'react-intl';
 import Toggle from '/imports/ui/components/switch/component';
 import cx from 'classnames';
@@ -56,28 +56,21 @@ const intlMessages = defineMessages({
   },
 });
 
-class LockViewersComponent extends Component {
-  constructor(props) {
-    super(props);
+class LockViewersComponent extends React.PureComponent {
+  render() {
     const {
+      intl,
+      meeting,
       closeModal,
       toggleLockSettings,
       toggleWebcamsOnlyForModerator,
-    } = props;
-
-    this.closeModal = closeModal;
-    this.toggleLockSettings = toggleLockSettings;
-    this.toggleWebcamsOnlyForModerator = toggleWebcamsOnlyForModerator;
-  }
-
-  render() {
-    const { intl, meeting } = this.props;
+    } = this.props;
 
     return (
       <Modal
         overlayClassName={styles.overlay}
         className={styles.modal}
-        onRequestClose={this.closeModal}
+        onRequestClose={closeModal}
         hideBorder
       >
 
@@ -108,9 +101,8 @@ class LockViewersComponent extends Component {
                     icons={false}
                     defaultChecked={meeting.lockSettingsProp.disableCam}
                     onChange={() => {
-                      meeting.lockSettingsProp.disableCam =
-                        !meeting.lockSettingsProp.disableCam;
-                      this.toggleLockSettings(meeting);
+                      meeting.lockSettingsProp.disableCam = !meeting.lockSettingsProp.disableCam;
+                      toggleLockSettings(meeting);
                     }}
                     ariaLabel={intl.formatMessage(intlMessages.webcamLabel)}
                   />
@@ -131,9 +123,8 @@ class LockViewersComponent extends Component {
                     icons={false}
                     defaultChecked={meeting.usersProp.webcamsOnlyForModerator}
                     onChange={() => {
-                      meeting.usersProp.webcamsOnlyForModerator =
-                        !meeting.usersProp.webcamsOnlyForModerator;
-                      this.toggleWebcamsOnlyForModerator(meeting);
+                      meeting.usersProp.webcamsOnlyForModerator = !meeting.usersProp.webcamsOnlyForModerator;
+                      toggleWebcamsOnlyForModerator(meeting);
                     }}
                     ariaLabel={intl.formatMessage(intlMessages.otherViewersWebcamLabel)}
                   />
@@ -154,9 +145,8 @@ class LockViewersComponent extends Component {
                     icons={false}
                     defaultChecked={meeting.lockSettingsProp.disableMic}
                     onChange={() => {
-                      meeting.lockSettingsProp.disableMic =
-                        !meeting.lockSettingsProp.disableMic;
-                      this.toggleLockSettings(meeting);
+                      meeting.lockSettingsProp.disableMic = !meeting.lockSettingsProp.disableMic;
+                      toggleLockSettings(meeting);
                     }}
                     ariaLabel={intl.formatMessage(intlMessages.microphoneLable)}
                   />
@@ -177,9 +167,8 @@ class LockViewersComponent extends Component {
                     icons={false}
                     defaultChecked={meeting.lockSettingsProp.disablePubChat}
                     onChange={() => {
-                      meeting.lockSettingsProp.disablePubChat =
-                        !meeting.lockSettingsProp.disablePubChat;
-                      this.toggleLockSettings(meeting);
+                      meeting.lockSettingsProp.disablePubChat = !meeting.lockSettingsProp.disablePubChat;
+                      toggleLockSettings(meeting);
                     }}
                     ariaLabel={intl.formatMessage(intlMessages.publicChatLabel)}
                   />
@@ -200,9 +189,8 @@ class LockViewersComponent extends Component {
                     icons={false}
                     defaultChecked={meeting.lockSettingsProp.disablePrivChat}
                     onChange={() => {
-                      meeting.lockSettingsProp.disablePrivChat =
-                        !meeting.lockSettingsProp.disablePrivChat;
-                      this.toggleLockSettings(meeting);
+                      meeting.lockSettingsProp.disablePrivChat = !meeting.lockSettingsProp.disablePrivChat;
+                      toggleLockSettings(meeting);
                     }}
                     ariaLabel={intl.formatMessage(intlMessages.privateChatLable)}
                   />
@@ -223,9 +211,8 @@ class LockViewersComponent extends Component {
                     icons={false}
                     defaultChecked={meeting.lockSettingsProp.lockedLayout}
                     onChange={() => {
-                      meeting.lockSettingsProp.lockedLayout =
-                        !meeting.lockSettingsProp.lockedLayout;
-                      this.toggleLockSettings(meeting);
+                      meeting.lockSettingsProp.lockedLayout = !meeting.lockSettingsProp.lockedLayout;
+                      toggleLockSettings(meeting);
                     }}
                     ariaLabel={intl.formatMessage(intlMessages.layoutLable)}
                   />
