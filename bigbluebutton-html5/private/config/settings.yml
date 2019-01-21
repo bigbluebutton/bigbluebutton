@@ -95,7 +95,7 @@ public:
       height:
         max: 480
     enableScreensharing: false
-    enableVideo: false
+    enableVideo: true
     enableVideoStats: false
     enableListenOnly: false
     autoShareWebcam: false
