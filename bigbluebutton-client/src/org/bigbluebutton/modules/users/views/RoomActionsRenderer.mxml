@@ -7,7 +7,8 @@
          verticalAlign="middle"
          creationComplete="onCreationCompleteHandler(event)">
   <fx:Declarations>
-    <mate:Listener type="{BreakoutRoomsReadyEvent.BREAKOUT_ROOMS_READY_EVENT}" method="handleBreakoutRoomsReadyEvent" />	
+    <mate:Listener type="{BreakoutRoomsReadyEvent.BREAKOUT_ROOMS_READY_EVENT}" method="handleBreakoutRoomsReadyEvent" />
+    <mate:Listener type="{ChangeMyRole.CHANGE_MY_ROLE_EVENT}" method="roleChanged" />
   </fx:Declarations>
   <fx:Script>
     <![CDATA[
@@ -20,6 +21,7 @@
       import org.bigbluebutton.core.model.LiveMeeting;
       import org.bigbluebutton.main.events.BreakoutRoomEvent;
       import org.bigbluebutton.main.model.users.BreakoutRoom;
+      import org.bigbluebutton.main.model.users.events.ChangeMyRole;
       import org.bigbluebutton.util.i18n.ResourceUtil;
       
       private var globalDispatch:Dispatcher = new Dispatcher();
@@ -39,6 +41,10 @@
       
       private function handleBreakoutRoomsReadyEvent(event: BreakoutRoomsReadyEvent): void {
         breakoutRoomsReady = LiveMeeting.inst().breakoutRooms.breakoutRoomsReady;
+      }
+      
+      private function roleChanged(event: ChangeMyRole):void {
+        moderator = UsersUtil.amIModerator();
       }
       
       private function dataChangeHandler(event:FlexEvent):void {

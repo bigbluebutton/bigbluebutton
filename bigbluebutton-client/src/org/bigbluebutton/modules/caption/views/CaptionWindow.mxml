@@ -32,6 +32,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	<fx:Declarations>
 		<mate:Listener type="{LocaleChangeEvent.LOCALE_CHANGED}" method="localeChanged" />
 		<mate:Listener type="{ShortcutEvent.FOCUS_CAPTION_WINDOW}" method="focusWindow" />
+		<mate:Listener type="{ChangeMyRole.CHANGE_MY_ROLE_EVENT}" method="roleChanged" />
 	</fx:Declarations>
 
 	<fx:Script>
@@ -45,11 +46,14 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			import flexlib.controls.tabBarClasses.SuperTab;
 			
 			import org.as3commons.lang.StringUtils;
+			import org.as3commons.logging.api.ILogger;
+			import org.as3commons.logging.api.getClassLogger;
 			import org.bigbluebutton.common.events.LocaleChangeEvent;
 			import org.bigbluebutton.core.Options;
 			import org.bigbluebutton.core.UsersUtil;
 			import org.bigbluebutton.core.model.users.User2x;
 			import org.bigbluebutton.main.events.ShortcutEvent;
+			import org.bigbluebutton.main.model.users.events.ChangeMyRole;
 			import org.bigbluebutton.main.views.MainCanvas;
 			import org.bigbluebutton.modules.caption.events.RequestTranscriptsEvent;
 			import org.bigbluebutton.modules.caption.model.CaptionOptions;
@@ -57,13 +61,16 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			import org.bigbluebutton.modules.caption.model.Transcripts;
 			import org.bigbluebutton.util.i18n.ResourceUtil;
 			
+			private static const LOGGER:ILogger = getClassLogger(CaptionWindow);
+			
 			[Bindable]
 			private var transcriptsCollection:ArrayCollection;
 			
 			[Bindable]
 			private var currentTranscript:Transcript;
 			
-			private var transcriptsObject:Transcripts;
+			private var activeTranscriptObject:Transcripts;
+			private var originalTranscriptsObject:Transcripts;
 			
 			private var transcriptOwnerChangeWatcher:ChangeWatcher;
 			
@@ -106,7 +113,11 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}
 			
 			private function setTranscripts(t:Transcripts):void {
-				transcriptsObject = t;
+				if (originalTranscriptsObject == null) {
+					originalTranscriptsObject = t;
+				}
+				
+				activeTranscriptObject = t;
 				
 				if (UsersUtil.amIModerator()) {
 					transcriptsCollection = new ArrayCollection();
@@ -148,7 +159,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}
 			
 			private function onLocaleChange(item:Object):void {
-				currentTranscript = transcriptsObject.findLocale(item.locale, item.localeCode);
+				currentTranscript = activeTranscriptObject.findLocale(item.locale, item.localeCode);
 				
 				optionsTab.setCurrentTranscript(currentTranscript);
 				textTab.setCurrentTranscript(currentTranscript);
@@ -210,6 +221,18 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				textTab.setFontSize(int(optionsTab.fontSizeCombo.selectedItem));
 				
 				captionTabs.addChildAt(textTab, 0);
+			}
+			
+			private function roleChanged(e:ChangeMyRole):void {
+				if (originalTranscriptsObject) {
+					// call setTranscripts again to reset the available list
+					setTranscripts(originalTranscriptsObject);
+				}
+				
+				if (currentTranscript) {
+					// call for a fake owner change to revalidate the moderator checking in the text tab
+					textTab.transcriptOwnerIDChange(currentTranscript.ownerID);
+				}
 			}
 			
 			private function localeChanged(e:Event):void{
