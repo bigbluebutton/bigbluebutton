@@ -264,7 +264,7 @@ private:
     host: 127.0.0.1
     post: '6379'
     timeout: 5000
-    debug: true
+    debug: false
     channels:
       toAkkaApps: to-akka-apps-redis-channel
     subscribeTo:
