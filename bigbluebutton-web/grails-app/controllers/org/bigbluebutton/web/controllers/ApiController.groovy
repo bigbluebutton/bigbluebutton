@@ -43,8 +43,8 @@ import javax.servlet.ServletRequest
 class ApiController {
   private static final Integer SESSION_TIMEOUT = 14400  // 4 hours
   private static final String CONTROLLER_NAME = 'ApiController'
-  private static final String RESP_CODE_SUCCESS = 'SUCCESS'
-  private static final String RESP_CODE_FAILED = 'FAILED'
+  protected static final String RESP_CODE_SUCCESS = 'SUCCESS'
+  protected static final String RESP_CODE_FAILED = 'FAILED'
   private static final String ROLE_MODERATOR = "MODERATOR";
   private static final String ROLE_ATTENDEE = "VIEWER";
   private static final Boolean REDIRECT_RESPONSE = true
@@ -128,7 +128,7 @@ class ApiController {
       return
     }
 
-    Meeting newMeeting = paramsProcessorUtil.processCreateParams(params);
+    Meeting newMeeting = paramsProcessorUtil.processCreateParams(params)
 
     if (meetingService.createMeeting(newMeeting)) {
       // See if the request came with pre-uploading of presentation.
