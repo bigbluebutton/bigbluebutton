@@ -53,6 +53,7 @@ public class OAuth {
     public static final String OAUTH_BODY_HASH = "oauth_body_hash"; 
 
     public static final String HMAC_SHA1 = "HMAC-SHA1";
+    public static final String HMAC_SHA256 = "HMAC-SHA256";
     public static final String RSA_SHA1 = "RSA-SHA1";
 
     /**
