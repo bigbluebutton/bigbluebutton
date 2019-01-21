@@ -394,7 +394,7 @@ class BreakoutRoom extends Component {
             </span>
           </div>
         </label>
-        <span 
+        <span
           className={styles.randomText}
           role="button"
           onClick={this.onAssignRandomly}

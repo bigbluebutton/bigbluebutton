@@ -62,6 +62,8 @@
     "react-toastify": "^4.4.3",
     "react-toggle": "~4.0.2",
     "react-transition-group": "~2.5.0",
+    "react-vimeo": "^2.0.0",
+    "react-youtube": "^7.8.0",
     "reconnecting-websocket": "~v4.1.10",
     "redis": "~2.8.0",
     "string-hash": "~1.1.3",

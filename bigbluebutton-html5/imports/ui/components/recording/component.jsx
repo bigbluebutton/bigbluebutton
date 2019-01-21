@@ -37,55 +37,58 @@ const propTypes = {
   closeModal: PropTypes.func.isRequired,
   toggleRecording: PropTypes.func.isRequired,
   recordingStatus: PropTypes.bool,
+  amIModerator: PropTypes.bool,
 };
 
 const defaultProps = {
   recordingStatus: false,
+  amIModerator: false,
 };
 
 class RecordingComponent extends React.PureComponent {
-  constructor(props) {
-    super(props);
+  render() {
     const {
+      intl,
+      recordingStatus,
+      amIModerator,
       closeModal,
       toggleRecording,
-    } = props;
+    } = this.props;
 
-    this.closeModal = closeModal;
-    this.toggleRecording = toggleRecording;
-  }
-
-  render() {
-    const { intl, recordingStatus } = this.props;
-
+    if (!amIModerator) return null;
     return (
       <Modal
         overlayClassName={styles.overlay}
         className={styles.modal}
-        onRequestClose={this.closeModal}
+        onRequestClose={closeModal}
         hideBorder
       >
         <div className={styles.container}>
           <div className={styles.header}>
-            <div className={styles.title}>{intl.formatMessage(!recordingStatus ?
-            intlMessages.startTitle : intlMessages.stopTitle)}
+            <div className={styles.title}>
+              {
+                intl.formatMessage(!recordingStatus
+                  ? intlMessages.startTitle
+                  : intlMessages.stopTitle)
+              }
             </div>
           </div>
           <div className={styles.description}>
-            {`${intl.formatMessage(!recordingStatus ? intlMessages.startDescription :
-            intlMessages.stopDescription)}`}
+            {`${intl.formatMessage(!recordingStatus
+              ? intlMessages.startDescription
+              : intlMessages.stopDescription)}`}
           </div>
           <div className={styles.footer}>
             <Button
               color="primary"
               className={styles.button}
               label={intl.formatMessage(intlMessages.yesLabel)}
-              onClick={() => this.toggleRecording()}
+              onClick={toggleRecording}
             />
             <Button
               label={intl.formatMessage(intlMessages.noLabel)}
               className={styles.button}
-              onClick={() => this.closeModal()}
+              onClick={closeModal}
             />
           </div>
         </div>

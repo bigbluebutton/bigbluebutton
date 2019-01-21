@@ -8,6 +8,8 @@ import SIPBridge from '/imports/api/audio/client/bridge/sip';
 import logger from '/imports/startup/client/logger';
 import { notify } from '/imports/ui/services/notification';
 import browser from 'browser-detect';
+import iosWebviewAudioPolyfills from '../../../utils/ios-webview-audio-polyfills';
+import { tryGenerateIceCandidates } from '../../../utils/safari-webrtc';
 
 const MEDIA = Meteor.settings.public.media;
 const MEDIA_TAG = MEDIA.mediaTag;
@@ -53,6 +55,7 @@ class AudioManager {
     this.userData = userData;
     this.initialized = true;
   }
+
   setAudioMessages(messages) {
     this.messages = messages;
   }
@@ -147,7 +150,18 @@ class AudioManager {
     // Webkit ICE restrictions demand a capture device permission to release
     // host candidates
     if (name === 'safari') {
-      await this.askDevicesPermissions();
+      try {
+        await tryGenerateIceCandidates();
+      } catch (e) {
+        this.notify(this.messages.error.ICE_NEGOTIATION_FAILED);
+      }
+    }
+
+    // Call polyfills for webrtc client if navigator is "iOS Webview"
+    const userAgent = window.navigator.userAgent.toLocaleLowerCase();
+    if ((userAgent.indexOf('iphone') > -1 || userAgent.indexOf('ipad') > -1)
+       && userAgent.indexOf('safari') == -1) {
+      iosWebviewAudioPolyfills();
     }
 
     // We need this until we upgrade to SIP 9x. See #4690
@@ -312,9 +326,9 @@ class AudioManager {
       this.listenOnlyAudioContext.close();
     }
 
-    this.listenOnlyAudioContext = window.AudioContext ?
-      new window.AudioContext() :
-      new window.webkitAudioContext();
+    this.listenOnlyAudioContext = window.AudioContext
+      ? new window.AudioContext()
+      : new window.webkitAudioContext();
 
     const dest = this.listenOnlyAudioContext.createMediaStreamDestination();
 
@@ -331,8 +345,8 @@ class AudioManager {
   }
 
   isUsingAudio() {
-    return this.isConnected || this.isConnecting ||
-      this.isHangingUp || this.isEchoTest;
+    return this.isConnected || this.isConnecting
+      || this.isHangingUp || this.isEchoTest;
   }
 
   setDefaultInputDevice() {
@@ -349,11 +363,10 @@ class AudioManager {
       return Promise.resolve(inputDevice);
     };
 
-    const handleChangeInputDeviceError = () =>
-      Promise.reject({
-        type: 'MEDIA_ERROR',
-        message: this.messages.error.MEDIA_ERROR,
-      });
+    const handleChangeInputDeviceError = () => Promise.reject({
+      type: 'MEDIA_ERROR',
+      message: this.messages.error.MEDIA_ERROR,
+    });
 
     if (!deviceId) {
       return this.bridge.setDefaultInputDevice()

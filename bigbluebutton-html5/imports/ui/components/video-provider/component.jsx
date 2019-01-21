@@ -6,6 +6,8 @@ import { fetchWebRTCMappedStunTurnServers } from '/imports/utils/fetchStunTurnSe
 import ReconnectingWebSocket from 'reconnecting-websocket';
 import logger from '/imports/startup/client/logger';
 import { Session } from 'meteor/session';
+import browser from 'browser-detect';
+import { tryGenerateIceCandidates } from '../../../utils/safari-webrtc';
 
 import VideoService from './service';
 import VideoList from './video-list/component';
@@ -146,6 +148,7 @@ class VideoProvider extends Component {
   }
 
   componentDidMount() {
+    this.checkIceConnectivity();
     document.addEventListener('joinVideo', this.shareWebcam); // TODO find a better way to do this
     document.addEventListener('exitVideo', this.unshareWebcam);
     this.ws.onmessage = this.onWsMessage;
@@ -269,6 +272,17 @@ class VideoProvider extends Component {
     } else if (hasRemoteStream) {
       this.monitorTrackStart(peer.peerConnection,
         peer.peerConnection.getRemoteStreams()[0].getVideoTracks()[0], false, callback);
+    }
+  }
+
+  checkIceConnectivity() {
+    // Webkit ICE restrictions demand a capture device permission to release
+    // host candidates
+    if (browser().name === 'safari') {
+      const { intl } = this.props;
+      tryGenerateIceCandidates().catch((e) => {
+        this.notifyError(intl.formatMessage(intlSFUErrors[2021]));
+      });
     }
   }
 
@@ -504,8 +518,6 @@ class VideoProvider extends Component {
             voiceBridge,
           };
           this.sendMessage(message);
-
-
         });
       });
       if (this.webRtcPeers[id].peerConnection) {

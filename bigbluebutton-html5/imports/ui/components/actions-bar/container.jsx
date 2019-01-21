@@ -24,7 +24,6 @@ export default withTracker(() => {
     },
   });
 
- 
 
   return {
     isUserPresenter: Service.isUserPresenter(),

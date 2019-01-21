@@ -51,31 +51,33 @@ class UserListItem extends PureComponent {
 
     const { meetingId, lockSettingsProp } = meeting;
 
-    const contents = (<UserDropdown
-      {...{
-        assignPresenter,
-        compact,
-        currentUser,
-        changeRole,
-        getAvailableActions,
-        getEmoji,
-        getEmojiList,
-        getGroupChatPrivate,
-        getScrollContainerRef,
-        handleEmojiChange,
-        intl,
-        isBreakoutRoom,
-        isMeetingLocked,
-        meetingId,
-        lockSettingsProp,
-        normalizeEmojiName,
-        removeUser,
-        setEmojiStatus,
-        toggleVoice,
-        user,
-        hasPrivateChatBetweenUsers,
-      }}
-    />);
+    const contents = (
+      <UserDropdown
+        {...{
+          assignPresenter,
+          compact,
+          currentUser,
+          changeRole,
+          getAvailableActions,
+          getEmoji,
+          getEmojiList,
+          getGroupChatPrivate,
+          getScrollContainerRef,
+          handleEmojiChange,
+          intl,
+          isBreakoutRoom,
+          isMeetingLocked,
+          meetingId,
+          lockSettingsProp,
+          normalizeEmojiName,
+          removeUser,
+          setEmojiStatus,
+          toggleVoice,
+          user,
+          hasPrivateChatBetweenUsers,
+        }}
+      />
+    );
 
     return contents;
   }
