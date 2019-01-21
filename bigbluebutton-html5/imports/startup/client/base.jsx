@@ -18,6 +18,7 @@ import { Session } from 'meteor/session';
 import IntlStartup from './intl';
 import Meetings from '../../api/meetings';
 
+
 const CHAT_CONFIG = Meteor.settings.public.chat;
 const PUBLIC_GROUP_CHAT_ID = CHAT_CONFIG.public_group_id;
 const PUBLIC_CHAT_TYPE = CHAT_CONFIG.type_public;
@@ -41,19 +42,30 @@ class Base extends Component {
 
     this.state = {
       loading: false,
+      meetingExisted: false,
     };
 
     this.updateLoadingState = this.updateLoadingState.bind(this);
   }
 
   componentDidUpdate(prevProps) {
-    const { ejected, approved, meetingExist } = this.props;
+    const {
+      ejected,
+      approved,
+      meetingExist,
+    } = this.props;
     const { loading } = this.state;
 
     if (!prevProps.meetingExist && meetingExist) {
       Session.set('isMeetingEnded', false);
     }
 
+    if (prevProps.meetingExist && !meetingExist) {
+      Session.set('isMeetingEnded', true);
+      this.setMeetingExisted(true);
+    }
+
+    // In case the meeting delayed to load
     if (!meetingExist) return;
 
     if (approved && loading) this.updateLoadingState(false);
@@ -62,6 +74,10 @@ class Base extends Component {
       Session.set('codeError', '403');
       Session.set('isMeetingEnded', true);
     }
+  }
+
+  setMeetingExisted(meetingExisted) {
+    this.setState({ meetingExisted });
   }
 
   updateLoadingState(loading = false) {
@@ -74,12 +90,16 @@ class Base extends Component {
     const { updateLoadingState } = this;
     const stateControls = { updateLoadingState };
 
-    const { loading } = this.state;
+    const { loading, meetingExisted } = this.state;
 
     const codeError = Session.get('codeError');
-    const { subscriptionsReady, meetingEnded } = this.props;
+    const {
+      subscriptionsReady,
+      meetingExist,
+    } = this.props;
 
-    if (meetingEnded) {
+
+    if (meetingExisted && !meetingExist) {
       AudioManager.exitAudio();
       return (<MeetingEnded code={Session.get('codeError')} />);
     }
@@ -105,15 +125,16 @@ class Base extends Component {
     const { updateLoadingState } = this;
     const { locale, meetingExist } = this.props;
     const stateControls = { updateLoadingState };
+    const { meetingExisted } = this.state;
 
     return (
-      (meetingExist)
-        ? (
+      (!meetingExisted && !meetingExist)
+        ? <LoadingScreen />
+        : (
           <IntlStartup locale={locale} baseControls={stateControls}>
             {this.renderByState()}
           </IntlStartup>
         )
-        : <LoadingScreen />
     );
   }
 }
@@ -208,6 +229,7 @@ const BaseContainer = withTracker(() => {
     groupChatMessageHandler,
     breakoutRoomSubscriptionHandler,
     meetingExist: true,
+    User,
   };
 })(Base);
 
