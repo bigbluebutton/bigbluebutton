@@ -201,7 +201,7 @@ function WebRtcPeer(mode, options, callback) {
                 pc.addTransceiver('video');
             } catch(e) {}
         }
-        
+
         if (useDataChannels && !dataChannel) {
             var dcId = 'WebRtcPeer-' + self.id;
             var dcOptions = undefined;
@@ -267,19 +267,6 @@ function WebRtcPeer(mode, options, callback) {
     };
     this.generateOffer = function (callback) {
         callback = callback.bind(this);
-
-        pc.onicegatheringstatechange = function (event) {
-            if(event.target.iceGatheringState == "complete") {
-                var localDescription = pc.localDescription;
-                // logger.debug('Local description set', localDescription.sdp);
-                if (multistream && usePlanB) {
-                    localDescription = interop.toUnifiedPlan(localDescription);
-                    logger.debug('offer::origPlanB->UnifiedPlan', dumpSDP(localDescription));
-                }
-                callback(null, localDescription.sdp, self.processAnswer.bind(self));
-            }
-        }
-
         var offerAudio = true;
         var offerVideo = true;
         if (mediaConstraints) {
@@ -296,7 +283,15 @@ function WebRtcPeer(mode, options, callback) {
             // logger.debug('Created SDP offer');
             offer = mangleSdpToAddSimulcast(offer);
             return pc.setLocalDescription(offer);
-        });
+        }).then(function () {
+            var localDescription = pc.localDescription;
+            // logger.debug('Local description set', localDescription.sdp);
+            if (multistream && usePlanB) {
+              localDescription = interop.toUnifiedPlan(localDescription);
+              logger.debug('offer::origPlanB->UnifiedPlan', dumpSDP(localDescription));
+            }
+            callback(null, localDescription.sdp, self.processAnswer.bind(self));
+        }).catch(callback);
     };
     this.getLocalSessionDescriptor = function () {
         return pc.localDescription;
@@ -1232,7 +1227,7 @@ if (typeof Object.create === 'function') {
 ;(function(isNode) {
 
 	/**
-	 * Merge one or more objects 
+	 * Merge one or more objects
 	 * @param bool? clone
 	 * @param mixed,... arguments
 	 * @return object
@@ -1245,7 +1240,7 @@ if (typeof Object.create === 'function') {
 	}, publicName = 'merge';
 
 	/**
-	 * Merge two or more objects recursively 
+	 * Merge two or more objects recursively
 	 * @param bool? clone
 	 * @param mixed,... arguments
 	 * @return object
