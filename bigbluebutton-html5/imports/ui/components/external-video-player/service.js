@@ -34,8 +34,8 @@ const stopWatching = () => {
 const sendMessage = (event, data) => {
   ExternalVideoStreamer.emit(event, {
     ...data,
-    meetingId: Auth._meetingID,
-    userId: Auth._userID,
+    meetingId: Auth.meetingID,
+    userId: Auth.userID,
   });
 };
 
@@ -44,7 +44,7 @@ const onMessage = (message, func) => {
 };
 
 const getVideoId = () => {
-  const meetingId = Auth._meetingID;
+  const meetingId = Auth.meetingID;
   const meeting = Meetings.findOne({ meetingId });
 
   return meeting && meeting.externalVideoUrl;
