@@ -108,6 +108,7 @@ class UserOptions extends PureComponent {
     this.handleCreateBreakoutRoomClick = this.handleCreateBreakoutRoomClick.bind(this);
     this.onCreateBreakouts = this.onCreateBreakouts.bind(this);
     this.onInvitationUsers = this.onInvitationUsers.bind(this);
+    this.renderMenuItems = this.renderMenuItems.bind(this);
   }
 
   componentDidUpdate(prevProps) {
@@ -148,7 +149,7 @@ class UserOptions extends PureComponent {
       sendInvitation,
     } = this.props;
 
-    mountModal(
+    return mountModal(
       <BreakoutRoom
         {...{
           createBreakoutRoom,
@@ -201,8 +202,7 @@ class UserOptions extends PureComponent {
     }
   }
 
-  render() {
-    const { isUserOptionsOpen } = this.state;
+  renderMenuItems() {
     const {
       intl,
       isMeetingMuted,
@@ -216,6 +216,10 @@ class UserOptions extends PureComponent {
       isUserModerator,
       users,
     } = this.props;
+
+    const canCreateBreakout = isUserModerator
+    && !meetingIsBreakout
+    && !hasBreakoutRoom;
 
     const canInviteUsers = isUserModerator
     && !meetingIsBreakout
@@ -251,14 +255,14 @@ class UserOptions extends PureComponent {
         description={intl.formatMessage(intlMessages.lockViewersDesc)}
         onClick={() => mountModal(<LockViewersContainer />)}
       />),
-      (!meetingIsBreakout && !hasBreakoutRoom && isUserModerator
+      (canCreateBreakout
         ? (
           <DropdownListItem
             key={this.createBreakoutId}
             icon="rooms"
             label={intl.formatMessage(intlMessages.createBreakoutRoom)}
             description={intl.formatMessage(intlMessages.createBreakoutRoomDesc)}
-            onClick={() => this.handleCreateBreakoutRoomClick()}
+            onClick={this.onCreateBreakouts}
           />
         ) : null
       ),
@@ -267,7 +271,7 @@ class UserOptions extends PureComponent {
           <DropdownListItem
             icon="rooms"
             label={intl.formatMessage(intlMessages.invitationItem)}
-            key={this.createBreakoutRoomId}
+            key={this.createBreakoutId}
             onClick={this.onInvitationUsers}
           />
         )
@@ -277,6 +281,13 @@ class UserOptions extends PureComponent {
     if (isMeetingMuted) {
       this.alterMenu();
     }
+
+    return this.menuItems;
+  }
+
+  render() {
+    const { isUserOptionsOpen } = this.state;
+    const { intl } = this.props;
 
     return (
       <Dropdown
@@ -305,7 +316,7 @@ class UserOptions extends PureComponent {
         >
           <DropdownList>
             {
-              this.menuItems
+              this.renderMenuItems()
             }
           </DropdownList>
         </DropdownContent>
