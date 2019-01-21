@@ -246,6 +246,7 @@ public abstract class OAuthSignatureMethod {
         registerMethodClass("HMAC-SHA256", HMAC_SHA256.class);
         registerMethodClass("PLAINTEXT", PLAINTEXT.class);
         registerMethodClass("RSA-SHA1", RSA_SHA1.class);
+        registerMethodClass("HMAC-SHA1" + _ACCESSOR, HMAC_SHA1.class);
         registerMethodClass("HMAC-SHA256" + _ACCESSOR, HMAC_SHA256.class);
         registerMethodClass("PLAINTEXT" + _ACCESSOR, PLAINTEXT.class);
     }
