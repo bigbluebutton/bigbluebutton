@@ -432,7 +432,27 @@ function WebRtcPeer(mode, options, callback) {
                     return callback(error);
                 constraints = [mediaConstraints];
                 constraints.unshift(constraints_);
-                getMedia(recursive.apply(undefined, constraints));
+                let gDMCallback = function(stream) {
+                    stream.getTracks()[0].applyConstraints(constraints[0].optional)
+                        .then(() => {
+                            videoStream = stream;
+                            start();
+                        }).catch(() => {
+                            videoStream = stream;
+                            start();
+                        });
+                }
+                if (typeof navigator.getDisplayMedia === 'function') {
+                    navigator.getDisplayMedia(recursive.apply(undefined, constraints))
+                        .then(gDMCallback)
+                        .catch(callback);
+                } else if (typeof navigator.mediaDevices.getDisplayMedia === 'function') {
+                    navigator.mediaDevices.getDisplayMedia(recursive.apply(undefined, constraints))
+                        .then(gDMCallback)
+                        .catch(callback);
+                } else {
+                    getMedia(recursive.apply(undefined, constraints));
+                }
             }, guid);
         }
     } else {

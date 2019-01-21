@@ -410,7 +410,27 @@ function WebRtcPeer(mode, options, callback) {
                     return callback(error);
                 constraints = [mediaConstraints];
                 constraints.unshift(constraints_);
-                getMedia(recursive.apply(undefined, constraints));
+                let gDMCallback = function(stream) {
+                    stream.getTracks()[0].applyConstraints(constraints[0].optional)
+                        .then(() => {
+                            videoStream = stream;
+                            start();
+                        }).catch(() => {
+                            videoStream = stream;
+                            start();
+                        });
+                }
+                if (typeof navigator.getDisplayMedia === 'function') {
+                    navigator.getDisplayMedia(recursive.apply(undefined, constraints))
+                        .then(gDMCallback)
+                        .catch(callback);
+                } else if (typeof navigator.mediaDevices.getDisplayMedia === 'function') {
+                    navigator.mediaDevices.getDisplayMedia(recursive.apply(undefined, constraints))
+                        .then(gDMCallback)
+                        .catch(callback);
+                } else {
+                    getMedia(recursive.apply(undefined, constraints));
+                }
             }, guid);
         }
     } else {
@@ -1045,7 +1065,7 @@ module.exports = function(stream, options) {
   harker.setInterval = function(i) {
     interval = i;
   };
-  
+
   harker.stop = function() {
     running = false;
     harker.emit('volume_change', -100, threshold);
@@ -1063,12 +1083,12 @@ module.exports = function(stream, options) {
   // and emit events if changed
   var looper = function() {
     setTimeout(function() {
-    
+
       //check if stop has been called
       if(!running) {
         return;
       }
-      
+
       var currentVolume = getMaxVolume(analyser, fftBins);
 
       harker.emit('volume_change', currentVolume, threshold);

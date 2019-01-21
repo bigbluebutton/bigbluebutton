@@ -2,6 +2,8 @@ const isFirefox = typeof window.InstallTrigger !== 'undefined';
 const isOpera = !!window.opera || navigator.userAgent.indexOf(' OPR/') >= 0;
 const isChrome = !!window.chrome && !isOpera;
 const isSafari = navigator.userAgent.indexOf('Safari') >= 0 && !isChrome;
+const hasDisplayMedia = (typeof navigator.getDisplayMedia === 'function'
+  || typeof navigator.mediaDevices.getDisplayMedia === 'function');
 const kurentoHandler = null;
 const SEND_ROLE = "send";
 const RECV_ROLE = "recv";
@@ -624,56 +626,86 @@ Kurento.normalizeCallback = function (callback) {
 
 // this function explains how to use above methods/objects
 window.getScreenConstraints = function (sendSource, callback) {
-  const screenConstraints = { video: {}, audio: false };
+  let screenConstraints = { video: {}, audio: false };
 
   // Limiting FPS to a range of 5-10 (5 ideal)
   screenConstraints.video.frameRate = { ideal: 5, max: 10 };
-
   screenConstraints.video.height = { max: kurentoManager.kurentoScreenshare.vid_max_height };
   screenConstraints.video.width = { max: kurentoManager.kurentoScreenshare.vid_max_width };
 
+  const getDisplayMediaConstraints = function () {
+    // The fine-grained constraints (e.g.: frameRate) are supposed to go into
+    // the MediaStream because getDisplayMedia does not support them,
+    // so they're passed differently
+    kurentoManager.kurentoScreenshare.extensionInstalled = true;
+    optionalConstraints.width = { max: kurentoManager.kurentoScreenshare.vid_max_width };
+    optionalConstraints.height = { max: kurentoManager.kurentoScreenshare.vid_max_height };
+    optionalConstraints.frameRate = { ideal: 5, max: 10 };
+
+    let gDPConstraints = {
+      video: true,
+      optional: optionalConstraints
+    }
+
+    return gDPConstraints;
+  };
+
+  const optionalConstraints = [
+    { googCpuOveruseDetection: true },
+    { googCpuOveruseEncodeUsage: true },
+    { googCpuUnderuseThreshold: 55 },
+    { googCpuOveruseThreshold: 100 },
+    { googPayloadPadding: true },
+    { googScreencastMinBitrate: 600 },
+    { googHighStartBitrate: true },
+    { googHighBitrate: true },
+    { googVeryHighBitrate: true },
+  ];
+
   if (isChrome) {
-    getChromeScreenConstraints((constraints) => {
-      if (!constraints) {
-        document.dispatchEvent(new Event('installChromeExtension'));
-        return;
-      }
+    if (!hasDisplayMedia) {
+      getChromeScreenConstraints((constraints) => {
+        if (!constraints) {
+          document.dispatchEvent(new Event('installChromeExtension'));
+          return;
+        }
 
-      const sourceId = constraints.streamId;
+        const sourceId = constraints.streamId;
 
-      kurentoManager.kurentoScreenshare.extensionInstalled = true;
+        kurentoManager.kurentoScreenshare.extensionInstalled = true;
 
-      // this statement sets gets 'sourceId" and sets "chromeMediaSourceId"
-      screenConstraints.video.chromeMediaSource = { exact: [sendSource] };
-      screenConstraints.video.chromeMediaSourceId = sourceId;
-      screenConstraints.optional = [
-        { googCpuOveruseDetection: true },
-        { googCpuOveruseEncodeUsage: true },
-        { googCpuUnderuseThreshold: 55 },
-        { googCpuOveruseThreshold: 100},
-        { googPayloadPadding: true },
-        { googScreencastMinBitrate: 600 },
-        { googHighStartBitrate: true },
-        { googHighBitrate: true },
-        { googVeryHighBitrate: true }
-      ];
+        // Re-wrap the video constraints into the mandatory object (latest adapter)
+        screenConstraints.video = {}
+        screenConstraints.video.mandatory = {};
+        screenConstraints.video.mandatory.maxFrameRate = 10;
+        screenConstraints.video.mandatory.maxHeight = kurentoManager.kurentoScreenshare.vid_max_height;
+        screenConstraints.video.mandatory.maxWidth = kurentoManager.kurentoScreenshare.vid_max_width;
+        screenConstraints.video.mandatory.chromeMediaSource = sendSource;
+        screenConstraints.video.mandatory.chromeMediaSourceId = sourceId;
+        screenConstraints.optional = optionalConstraints;
 
-      console.log('getScreenConstraints for Chrome returns => ', screenConstraints);
-      // now invoking native getUserMedia API
-      callback(null, screenConstraints);
-    }, chromeExtension);
+        console.log('getScreenConstraints for Chrome returns => ', screenConstraints);
+        // now invoking native getUserMedia API
+        callback(null, screenConstraints);
+      }, chromeExtension);
+    } else {
+      return callback(null, getDisplayMediaConstraints());
+    }
   } else if (isFirefox) {
     screenConstraints.video.mediaSource = 'window';
 
     console.log('getScreenConstraints for Firefox returns => ', screenConstraints);
     // now invoking native getUserMedia API
     callback(null, screenConstraints);
-  } else if (isSafari) {
+  } else if (isSafari && !hasDisplayMedia) {
     screenConstraints.video.mediaSource = 'screen';
 
     console.log('getScreenConstraints for Safari returns => ', screenConstraints);
     // now invoking native getUserMedia API
     callback(null, screenConstraints);
+  } else if (hasDisplayMedia) {
+    // Falls back to getDisplayMedia if the browser supports it
+    return callback(null, getDisplayMediaConstraints());
   }
 };
 
@@ -748,6 +780,10 @@ window.checkIfIncognito = function(isIncognito, isNotIncognito = function () {})
 
 window.checkChromeExtInstalled = function (callback, chromeExtensionId) {
   callback = Kurento.normalizeCallback(callback);
+
+  if (hasDisplayMedia) {
+    return callback(true);
+  }
 
   if (typeof chrome === "undefined" || !chrome || !chrome.runtime) {
     // No API, so no extension for sure
