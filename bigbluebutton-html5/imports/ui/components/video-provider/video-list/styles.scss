@@ -152,6 +152,10 @@
   }
 }
 
+.dropdownContent {
+  min-width: 8.5rem;
+}
+
 .dropdownList {
   @include mq($medium-up) {
     font-size: .86rem;
