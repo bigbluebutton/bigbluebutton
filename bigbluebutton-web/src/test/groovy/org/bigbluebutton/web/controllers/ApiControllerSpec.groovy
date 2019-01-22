@@ -3,6 +3,7 @@ package org.bigbluebutton.web.controllers
 import com.github.javafaker.Faker
 import grails.testing.web.controllers.ControllerUnitTest
 import groovy.json.JsonSlurper
+import org.apache.commons.codec.digest.DigestUtils
 import org.bigbluebutton.api.ApiParams
 import org.bigbluebutton.api.MeetingService
 import org.bigbluebutton.api.ParamsProcessorUtil
@@ -18,6 +19,7 @@ class ApiControllerSpec extends Specification implements ControllerUnitTest<ApiC
   def securitySalt = "b4578c133b8a49acaecacbb3abec91a1"
   def defaultServerUrl = "http://127.0.0.1"
   def welcomeMessage = "<br>Welcome to <b>%%CONFNAME%%</b>!"
+  def logoutUrl = defaultServerUrl + "/api/logout"
 
   def setupSpec() {}
 
@@ -29,6 +31,7 @@ class ApiControllerSpec extends Specification implements ControllerUnitTest<ApiC
     paramsProcessorUtil.setDefaultServerUrl(defaultServerUrl)
     paramsProcessorUtil.setDefaultConfigURL(defaultServerUrl + "/client/conf/config.xml")
     paramsProcessorUtil.setDefaultWelcomeMessage(welcomeMessage)
+    paramsProcessorUtil.setDefaultLogoutUrl(logoutUrl)
     controller.paramsProcessorUtil = paramsProcessorUtil
 
     def meetingService = new MeetingService()
@@ -43,19 +46,13 @@ class ApiControllerSpec extends Specification implements ControllerUnitTest<ApiC
     presDownloadService.setBlankPresentation("/var/bigbluebutton/blank/blank-presentation.pdf")
     presDownloadService.setPresentationDir("tests")
     controller.presDownloadService = presDownloadService
+
+    controller.REDIRECT_RESPONSE = false
   }
 
   def cleanup() {}
 
   def cleanupSpec() {}
-
-  def xmlResponseToString() {
-    new XmlSlurper().parseText(response.text).toString()
-  }
-
-  def jsonResponseToString() {
-    new JsonSlurper().parseText(response.text).toString()
-  }
 
   /***********************************
    * VERSION (API)
@@ -80,7 +77,7 @@ class ApiControllerSpec extends Specification implements ControllerUnitTest<ApiC
     controller.create()
 
     then: "Respond and say no checksum has been provided"
-    xmlResponseToString() == buildErrorResponse("checksumError", "You did not pass the checksum security check")
+    xmlResponseToString() == buildXmlErrorResponse("checksumError", "You did not pass the checksum security check")
   }
 
   def "Test create a meeting without a meetingID"() {
@@ -90,17 +87,17 @@ class ApiControllerSpec extends Specification implements ControllerUnitTest<ApiC
     controller.create()
 
     then: "Respond and say that a meeting iD must be provided"
-    xmlResponseToString() == buildErrorResponse("missingParamMeetingID", "You must specify a meeting ID for the meeting.")
+    xmlResponseToString() == buildXmlErrorResponse("missingParamMeetingID", "You must specify a meeting ID for the meeting.")
   }
 
   def "Test create a meeting without an empty meetingID"() {
     when: "meetingId is provided but empty"
-    params[ApiParams.CHECKSUM] = faker.hashCode().toString()
+    params[ApiParams.CHECKSUM] = faker.crypto().sha1()
     params[ApiParams.MEETING_ID] = "     "
     controller.create()
 
     then: "Respond and say that a meeting iD must be provided"
-    xmlResponseToString() == buildErrorResponse("missingParamMeetingID", "You must specify a meeting ID for the meeting.")
+    xmlResponseToString() == buildXmlErrorResponse("missingParamMeetingID", "You must specify a meeting ID for the meeting.")
   }
 
   def "Test create a meeting with a wrong checksum"() {
@@ -110,28 +107,39 @@ class ApiControllerSpec extends Specification implements ControllerUnitTest<ApiC
     controller.create()
 
     then: "Respond and say that a meeting iD must be provided"
-    xmlResponseToString() == buildErrorResponse("checksumError", "You did not pass the checksum security check")
+    xmlResponseToString() == buildXmlErrorResponse("checksumError", "You did not pass the checksum security check")
   }
 
   def "Test create a meeting with full parameters"() {
     when: "necessary meeting parameters are provided"
-    params[ApiParams.ATTENDEE_PW] = "pw"
-    params[ApiParams.DIAL_NUMBER] = "1-1111-1111"
-    params[ApiParams.DURATION] = "60"
-    params[ApiParams.MEETING_ID] = "UnitTesting"
-    params["meta_config"] = "unitTesting"
-    params["meta_server"] = "notHosted"
-    params[ApiParams.MODERATOR_PW] = "mp"
-    params[ApiParams.VOICE_BRIDGE] = "76120"
-    params[ApiParams.CHECKSUM] = "1a5ae6e030ebeb7ad223308a1758789a61afca69"
+    params[ApiParams.ATTENDEE_PW] = faker.crypto().md5()
+    params[ApiParams.DIAL_NUMBER] = faker.phoneNumber().phoneNumber()
+    params[ApiParams.DURATION] = Objects.toString(faker.number().numberBetween(5, 120))
+    params[ApiParams.MEETING_ID] = faker.company().name()
+    params[ApiParams.MODERATOR_PW] = faker.crypto().md5()
+    params[ApiParams.VOICE_BRIDGE] = Objects.toString(faker.number().numberBetween(25000, 80000))
+    setChecksumAndQueryString('create')
     controller.create()
 
     then: "Respond and say that a meeting iD must be provided"
     xmlResponseToString() == buildCreateMeetingResponse(controller.meetingService.meetings.getAt(0))
   }
 
+  def "Test join a non existing meeting"() {
+    when: "a user tried to join a non-existing meeting"
+    params[ApiParams.MEETING_ID] = faker.educator().course()
+    params[ApiParams.FULL_NAME] = faker.superhero().name()
+    params[ApiParams.PASSWORD] = faker.crypto().sha1()
+    params[Apiparams.REDIRECT] = "false"
+    setChecksumAndQueryString('join')
+    controller.join()
+
+    then: "Respond with a non-existing meeting"
+    xmlResponseToString() == buildXmlErrorResponse("invalidMeetingIdentifier", "The meeting ID that you supplied did not match any existing meetings")
+  }
+
   /***********************************
-   * HELPER METHODS
+   * RESPONSE BUILDERS METHODS
    ***********************************/
 
   def buildCreateMeetingResponse(meeting) {
@@ -155,7 +163,7 @@ class ApiControllerSpec extends Specification implements ControllerUnitTest<ApiC
     result.toString()
   }
 
-  def buildErrorResponse(key, msg) {
+  def buildXmlErrorResponse(key, msg) {
     def result = new XmlSlurper().parseText("<response>" +
         "<returncode>${controller.RESP_CODE_FAILED}</returncode>" +
         "<messageKey>${key}</messageKey>" +
@@ -164,7 +172,47 @@ class ApiControllerSpec extends Specification implements ControllerUnitTest<ApiC
     result.toString()
   }
 
+
+  def buildJsonErrorResponse(key, msg) {
+    def result = new JsonSlurper().parseText("[" +
+        "  [" +
+        "    {" +
+        "      message: ${msg}," +
+        "      key: $key {}" +
+        "    }" +
+        "  ]" +
+        "]")
+    result.toString()
+  }
+
+/***********************************
+ * HELPER METHODS
+ ***********************************/
+
+  def setChecksumAndQueryString(method) {
+    def query = mapToQueryString()
+    params[ApiParams.CHECKSUM] = getChecksum(method, query)
+    request.setQueryString(query + "&" + ApiParams.CHECKSUM + "=" + params[ApiParams.CHECKSUM])
+  }
+
+  def mapToQueryString() {
+    params.collect { k, v -> "${URLEncoder.encode(k, "UTF-8")}=${URLEncoder.encode(v, "UTF-8")} " }.join('&')
+  }
+
+  def getChecksum(method, query) {
+    DigestUtils.sha1Hex(method + query + securitySalt)
+  }
+
   def formatPrettyDate(timestamp) {
     return new Date(timestamp).toString()
   }
+
+  def xmlResponseToString() {
+    new XmlSlurper().parseText(response.text).toString()
+  }
+
+  def jsonResponseToString() {
+    new JsonSlurper().parseText(response.text).toString()
+  }
+
 }

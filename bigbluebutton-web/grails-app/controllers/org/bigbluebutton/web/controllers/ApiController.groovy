@@ -45,9 +45,9 @@ class ApiController {
   private static final String CONTROLLER_NAME = 'ApiController'
   protected static final String RESP_CODE_SUCCESS = 'SUCCESS'
   protected static final String RESP_CODE_FAILED = 'FAILED'
-  private static final String ROLE_MODERATOR = "MODERATOR";
-  private static final String ROLE_ATTENDEE = "VIEWER";
-  private static final Boolean REDIRECT_RESPONSE = true
+  private static final String ROLE_MODERATOR = "MODERATOR"
+  private static final String ROLE_ATTENDEE = "VIEWER"
+  protected static Boolean REDIRECT_RESPONSE = true
 
   MeetingService meetingService;
   PresentationService presentationService
@@ -193,11 +193,11 @@ class ApiController {
     if (!StringUtils.isEmpty(params.meetingID)) {
       params.meetingID = StringUtils.strip(params.meetingID);
       if (StringUtils.isEmpty(params.meetingID)) {
-        invalid("missingParamMeetingID", "You must specify a meeting ID for the meeting.", REDIRECT_RESPONSE);
+        invalid("missingParamMeetingID", "You must specify a meeting ID for the meeting.", REDIRECT_RESPONSE)
         return
       }
     } else {
-      invalid("missingParamMeetingID", "You must specify a meeting ID for the meeting.", REDIRECT_RESPONSE);
+      invalid("missingParamMeetingID", "You must specify a meeting ID for the meeting.", REDIRECT_RESPONSE)
       return
     }
 
@@ -331,9 +331,9 @@ class ApiController {
     // Now determine if this user is a moderator or a viewer.
     String role = null;
     if (meeting.getModeratorPassword().equals(attPW)) {
-      role = Meeting.ROLE_MODERATOR;
+      role = Meeting.ROLE_MODERATOR
     } else if (meeting.getViewerPassword().equals(attPW)) {
-      role = Meeting.ROLE_ATTENDEE;
+      role = Meeting.ROLE_ATTENDEE
     }
 
     if (role == null) {
@@ -2040,8 +2040,8 @@ class ApiController {
       errorMap.put("message", msg)
       errors.add(errorMap)
 
-      JSONArray errorsJSONArray = new JSONArray(errors);
-      log.debug errorsJSONArray
+      JSONArray errorsJSONArray = new JSONArray(errors)
+      log.debug "JSON Errors {}", errorsJSONArray.toString()
 
       respondWithRedirect(errorsJSONArray)
     } else {
@@ -2085,10 +2085,10 @@ class ApiController {
     }
     newQuery += errorsJSONArray
 
-    URI newUri = new URI(oldUri.getScheme(), oldUri.getAuthority(), oldUri.getPath(), newQuery, oldUri.getFragment());
+    URI newUri = new URI(oldUri.getScheme(), oldUri.getAuthority(), oldUri.getPath(), newQuery, oldUri.getFragment())
 
-    log.debug newUri
-    redirect(url: newUri);
+    log.debug "Constructed logout URL {}", newUri.toString()
+    redirect(url: newUri)
   }
 
 }
