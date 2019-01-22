@@ -3,6 +3,7 @@ import { withTracker } from 'meteor/react-meteor-data';
 import getFromUserSettings from '/imports/ui/services/users-settings';
 import Meetings from '/imports/api/meetings';
 import Auth from '/imports/ui/services/auth';
+import { makeCall } from '/imports/ui/services/api';
 import ActionsBar from './component';
 import Service from './service';
 import VideoService from '../video-provider/service';
@@ -23,6 +24,7 @@ export default withTracker(() => {
     },
   });
 
+
   return {
     isUserPresenter: Service.isUserPresenter(),
     isUserModerator: Service.isUserModerator(),
@@ -40,5 +42,9 @@ export default withTracker(() => {
     hasBreakoutRoom: Service.hasBreakoutRoom(),
     meetingName: Service.meetingName(),
     users: Service.users(),
+    sendInvitation: Service.sendInvitation,
+    getBreakouts: Service.getBreakouts,
+    getUsersNotAssigned: Service.getUsersNotAssigned,
+    handleTakePresenter: Service.takePresenterRole,
   };
 })(ActionsBarContainer);

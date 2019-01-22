@@ -47,10 +47,6 @@ const intlMessage = defineMessages({
     id: 'app.feedback.textarea',
     description: 'placeholder for textarea',
   },
-  confirmLabel: {
-    id: 'app.leaveConfirmation.confirmLabel',
-    description: 'Confirmation button label',
-  },
   confirmDesc: {
     id: 'app.leaveConfirmation.confirmDesc',
     description: 'adds context to confim option',
@@ -78,6 +74,7 @@ class MeetingEnded extends React.PureComponent {
     const comment = textarea.value;
     return comment;
   }
+
   constructor(props) {
     super(props);
     this.state = {
@@ -135,7 +132,11 @@ class MeetingEnded extends React.PureComponent {
 
   render() {
     const { intl, code } = this.props;
-    const noRating = this.state.selected <= 0;
+    const {
+      selected,
+    } = this.state;
+
+    const noRating = selected <= 0;
     return (
       <div className={styles.parent}>
         <div className={styles.modal}>
@@ -152,13 +153,15 @@ class MeetingEnded extends React.PureComponent {
                   total="5"
                   onRate={this.setSelectedStar}
                 />
-                {!noRating ? (<textarea
-                  rows="5"
-                  id="feedbackComment"
-                  className={styles.textarea}
-                  placeholder={intl.formatMessage(intlMessage.textarea)}
-                  aria-describedby="textareaDesc"
-                />) : null}
+                {!noRating ? (
+                  <textarea
+                    rows="5"
+                    id="feedbackComment"
+                    className={styles.textarea}
+                    placeholder={intl.formatMessage(intlMessage.textarea)}
+                    aria-describedby="textareaDesc"
+                  />
+                ) : null}
               </div>
             ) : null }
             <Button
@@ -166,10 +169,10 @@ class MeetingEnded extends React.PureComponent {
               onClick={this.sendFeedback}
               className={styles.button}
               label={noRating
-                 ? intl.formatMessage(intlMessage.buttonOkay)
-                 : intl.formatMessage(intlMessage.sendLabel)}
-              description={noRating ?
-                intl.formatMessage(intlMessage.confirmDesc)
+                ? intl.formatMessage(intlMessage.buttonOkay)
+                : intl.formatMessage(intlMessage.sendLabel)}
+              description={noRating
+                ? intl.formatMessage(intlMessage.confirmDesc)
                 : intl.formatMessage(intlMessage.sendDesc)}
             />
           </div>

@@ -16,6 +16,12 @@ const propTypes = {
 
 class ChatPushAlert extends PureComponent {
   static link(title, chatId) {
+    let chat = chatId;
+
+    if (chat === 'MAIN-PUBLIC-GROUP-CHAT') {
+      chat = 'public';
+    }
+
     return (
       <div
         key={chatId}
@@ -24,8 +30,9 @@ class ChatPushAlert extends PureComponent {
         tabIndex={0}
         onClick={() => {
           Session.set('openPanel', 'chat');
-          Session.set('idChatOpen', chatId);
+          Session.set('idChatOpen', chat);
         }}
+        onKeyPress={() => null}
       >
         {title}
       </div>

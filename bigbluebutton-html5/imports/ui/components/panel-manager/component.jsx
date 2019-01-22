@@ -41,8 +41,8 @@ const USERLIST_MAX_WIDTH_PX = 240;
 const CHAT_MIN_WIDTH = 150;
 const CHAT_MAX_WIDTH = 350;
 
-// I like big notes and I can not lie
-const NOTE_MIN_WIDTH = 400;
+// Variables for resizing shared notes.
+const NOTE_MIN_WIDTH = 340;
 const NOTE_MAX_WIDTH = 800;
 
 class PanelManager extends Component {
@@ -59,7 +59,7 @@ class PanelManager extends Component {
     this.state = {
       chatWidth: 340,
       userlistWidth: 180,
-      noteWidth: 400,
+      noteWidth: NOTE_MIN_WIDTH,
     };
   }
 

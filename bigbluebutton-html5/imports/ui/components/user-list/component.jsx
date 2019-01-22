@@ -66,6 +66,7 @@ class UserList extends PureComponent {
       showBranding,
       hasBreakoutRoom,
       getUsersId,
+      hasPrivateChatBetweenUsers,
     } = this.props;
 
     return (
@@ -101,6 +102,7 @@ class UserList extends PureComponent {
             getEmoji,
             hasBreakoutRoom,
             getUsersId,
+            hasPrivateChatBetweenUsers,
           }
           }
         />}
