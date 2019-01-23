@@ -133,7 +133,7 @@
   }
 }
 
-.dropdownTrigger {
+.dropdownTrigger, .dropdownTriggerFireFox {
   @extend %text-elipsis;
   cursor: pointer;
   position: relative;
@@ -152,6 +152,10 @@
     line-height: 0;
     right: .45rem;
   }
+}
+
+.dropdownTriggerFireFox {
+  max-width: 5vw;
 }
 
 .dropdownList {

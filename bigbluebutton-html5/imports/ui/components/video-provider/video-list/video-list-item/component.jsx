@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import browser from 'browser-detect';
 import cx from 'classnames';
 import { defineMessages, injectIntl } from 'react-intl';
 import Dropdown from '/imports/ui/components/dropdown/component';
@@ -26,8 +27,8 @@ class VideoListItem extends Component {
 
     this.state = {
       showStats: false,
-      stats: {'video':{}},
-    }
+      stats: { video: {} },
+    };
 
     this.toggleStats = this.toggleStats.bind(this);
     this.setStats = this.setStats.bind(this);
@@ -40,10 +41,10 @@ class VideoListItem extends Component {
   componentDidUpdate() {
     const playElement = (elem) => {
       if (elem.paused) {
-        var p = elem.play();
+        const p = elem.play();
         if (p && (typeof Promise !== 'undefined') && (p instanceof Promise)) {
           // Catch exception when playing video
-          p.catch(function(e) {});
+          p.catch((e) => {});
         }
       }
     };
@@ -64,12 +65,12 @@ class VideoListItem extends Component {
       getStats(this.videoTag, this.setStats);
     }
 
-    this.setState({showStats: !this.state.showStats});
+    this.setState({ showStats: !this.state.showStats });
   }
 
   setStats(updatedStats) {
     const { audio, video } = updatedStats;
-    this.setState({ stats: { ...this.state.stats, video, audio }})
+    this.setState({ stats: { ...this.state.stats, video, audio } });
   }
 
   getAvailableActions() {
@@ -84,13 +85,15 @@ class VideoListItem extends Component {
       <DropdownListTitle className={styles.hiddenDesktop} key="name">{user.name}</DropdownListTitle>,
       <DropdownListSeparator className={styles.hiddenDesktop} key="sep" />,
       ...actions.map(action => (<DropdownListItem key={user.id} {...action} />)),
-      (enableVideoStats ?
-        <DropdownListItem
-          key={'list-item-stats-' + user.id}
-          onClick={() => {this.toggleStats();}}
-          label={intl.formatMessage(intlMessages.connectionStatsLabel)}
-        />
-      : null),
+      (enableVideoStats
+        ? (
+          <DropdownListItem
+            key={`list-item-stats-${user.id}`}
+            onClick={() => { this.toggleStats(); }}
+            label={intl.formatMessage(intlMessages.connectionStatsLabel)}
+          />
+        )
+        : null),
     ]);
   }
 
@@ -99,6 +102,9 @@ class VideoListItem extends Component {
     const { user } = this.props;
 
     const availableActions = this.getAvailableActions();
+
+    const result = browser();
+    const isFirefox = (result && result.name) ? result.name.includes('firefox') : false;
 
     return (
       <div className={cx({
@@ -116,10 +122,12 @@ class VideoListItem extends Component {
         />
         <div className={styles.info}>
           <Dropdown className={styles.dropdown}>
-            <DropdownTrigger className={styles.dropdownTrigger}>
+            <DropdownTrigger className={isFirefox ? styles.dropdownTriggerFireFox
+              : styles.dropdownTrigger}
+            >
               <span>{user.name}</span>
             </DropdownTrigger>
-            <DropdownContent placement="top left">
+            <DropdownContent placement="top left" className={styles.dropdownContent}>
               <DropdownList className={styles.dropdownList}>
                 {availableActions}
               </DropdownList>
