@@ -4,8 +4,10 @@ import React from 'react';
 import { defineMessages, injectIntl } from 'react-intl';
 import _ from 'lodash';
 import Auth from '/imports/ui/services/auth';
+import Meetings from '/imports/api/meetings';
 import humanizeSeconds from '/imports/utils/humanizeSeconds';
 import NavBarService from '../nav-bar/service';
+import BreakoutRemainingTime from '/imports/ui/components/breakout-room/breakout-remaining-time/container';
 
 import NotificationsBar from './component';
 
@@ -43,6 +45,14 @@ const intlMessages = defineMessages({
     id: 'app.calculatingBreakoutTimeRemaining',
     description: 'Message that tells that the remaining time is being calculated',
   },
+  meetingTimeRemaining: {
+    id: 'app.meeting.meetingTimeRemaining',
+    description: 'Message that tells how much time is remaining for the meeting',
+  },
+  meetingWillClose: {
+    id: 'app.meeting.meetingTimeHasEnded',
+    description: 'Message that tells time has ended and meeting will close',
+  },
 });
 
 const NotificationsBarContainer = (props) => {
@@ -60,33 +70,18 @@ const NotificationsBarContainer = (props) => {
 };
 
 let retrySeconds = 0;
-let timeRemaining = 0;
 const retrySecondsDep = new Tracker.Dependency();
-const timeRemainingDep = new Tracker.Dependency();
 let retryInterval = null;
-let timeRemainingInterval = null;
 
 const getRetrySeconds = () => {
   retrySecondsDep.depend();
   return retrySeconds;
 };
 
-const getTimeRemaining = () => {
-  timeRemainingDep.depend();
-  return timeRemaining;
-};
-
 const setRetrySeconds = (sec = 0) => {
   if (sec !== retrySeconds) {
     retrySeconds = sec;
     retrySecondsDep.changed();
-  }
-};
-
-const setTimeRemaining = (sec = 0) => {
-  if (sec !== timeRemaining) {
-    timeRemaining = sec;
-    timeRemainingDep.changed();
   }
 };
 
@@ -137,36 +132,35 @@ export default injectIntl(withTracker(({ intl }) => {
     const currentBreakout = breakouts.find(b => b.breakoutId === meetingId);
 
     if (currentBreakout) {
-      const roomRemainingTime = currentBreakout.timeRemaining;
-
-      if (!timeRemainingInterval && roomRemainingTime) {
-        timeRemainingInterval = startCounter(
-          roomRemainingTime,
-          setTimeRemaining,
-          getTimeRemaining,
-          timeRemainingInterval,
-        );
-      }
-    } else if (timeRemainingInterval) {
-      clearInterval(timeRemainingInterval);
-    }
-
-    timeRemaining = getTimeRemaining();
-
-    if (timeRemaining) {
-      if (timeRemaining > 0) {
-        data.message = intl.formatMessage(
-          intlMessages.breakoutTimeRemaining,
-          { 0: humanizeSeconds(timeRemaining) },
-        );
-      } else {
-        clearInterval(timeRemainingInterval);
-        data.message = intl.formatMessage(intlMessages.breakoutWillClose);
-      }
-    } else if (currentBreakout) {
-      data.message = intl.formatMessage(intlMessages.calculatingBreakoutTimeRemaining);
+      data.message = (
+        <BreakoutRemainingTime
+          breakoutRoom={currentBreakout}
+          messageDuration={intlMessages.breakoutTimeRemaining}
+          timeEndedMessage={intlMessages.breakoutWillClose}
+        />
+      );
     }
   }
+
+
+  const Meeting = Meetings.findOne({ meetingId: Auth.meetingID });
+
+  if (Meeting) {
+    const { timeRemaining } = Meeting.durationProps;
+    const { isBreakout } = Meeting.meetingProp;
+    const underThirtyMin = timeRemaining && timeRemaining <= (30 * 60);
+
+    if (underThirtyMin && !isBreakout) {
+      data.message = (
+        <BreakoutRemainingTime
+          breakoutRoom={Meeting.durationProps}
+          messageDuration={intlMessages.meetingTimeRemaining}
+          timeEndedMessage={intlMessages.meetingWillClose}
+        />
+      );
+    }
+  }
+
 
   data.color = 'primary';
   return data;

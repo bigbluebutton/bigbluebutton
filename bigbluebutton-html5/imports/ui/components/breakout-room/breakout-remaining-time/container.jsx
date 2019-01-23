@@ -77,7 +77,9 @@ const startCounter = (sec, set, get, interval) => {
 };
 
 
-export default injectIntl(withTracker(({ breakoutRoom, intl, messageDuration }) => {
+export default injectIntl(withTracker(({
+  breakoutRoom, intl, messageDuration, timeEndedMessage,
+}) => {
   const data = {};
   if (breakoutRoom) {
     const roomRemainingTime = breakoutRoom.timeRemaining;
@@ -94,13 +96,13 @@ export default injectIntl(withTracker(({ breakoutRoom, intl, messageDuration }) 
     clearInterval(timeRemainingInterval);
   }
 
-  if (timeRemaining) {
+  if (timeRemaining >= 0) {
     if (timeRemaining > 0) {
       const time = getTimeRemaining();
       data.message = intl.formatMessage(messageDuration, { 0: humanizeSeconds(time) });
     } else {
       clearInterval(timeRemainingInterval);
-      data.message = intl.formatMessage(intlMessages.breakoutWillClose);
+      data.message = intl.formatMessage(timeEndedMessage || intlMessages.breakoutWillClose);
     }
   } else if (breakoutRoom) {
     data.message = intl.formatMessage(intlMessages.calculatingBreakoutTimeRemaining);
