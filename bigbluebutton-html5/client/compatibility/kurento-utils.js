@@ -201,7 +201,7 @@ function WebRtcPeer(mode, options, callback) {
                 pc.addTransceiver('video');
             } catch(e) {}
         }
-        
+
         if (useDataChannels && !dataChannel) {
             var dcId = 'WebRtcPeer-' + self.id;
             var dcOptions = undefined;
@@ -267,16 +267,25 @@ function WebRtcPeer(mode, options, callback) {
     };
     this.generateOffer = function (callback) {
         callback = callback.bind(this);
+        const descriptionCallback = () => {
+            var localDescription = pc.localDescription;
+            // logger.debug('Local description set', localDescription.sdp);
+            if (multistream && usePlanB) {
+              localDescription = interop.toUnifiedPlan(localDescription);
+              logger.debug('offer::origPlanB->UnifiedPlan', dumpSDP(localDescription));
+            }
+            callback(null, localDescription.sdp, self.processAnswer.bind(self));
+        }
 
-        pc.onicegatheringstatechange = function (event) {
-            if(event.target.iceGatheringState == "complete") {
-                var localDescription = pc.localDescription;
-                // logger.debug('Local description set', localDescription.sdp);
-                if (multistream && usePlanB) {
-                    localDescription = interop.toUnifiedPlan(localDescription);
-                    logger.debug('offer::origPlanB->UnifiedPlan', dumpSDP(localDescription));
+        const userAgent = window.navigator.userAgent.toLocaleLowerCase();
+
+        // Bind the SDP release to the gathering state on Safari-based envs
+        if ((userAgent.indexOf('iphone') > -1 || userAgent.indexOf('ipad') > -1) || userAgent.indexOf('safari') > -1) {
+
+            pc.onicegatheringstatechange = function (event) {
+                if(event.target.iceGatheringState == "complete") {
+                  descriptionCallback();
                 }
-                callback(null, localDescription.sdp, self.processAnswer.bind(self));
             }
         }
 
@@ -296,7 +305,13 @@ function WebRtcPeer(mode, options, callback) {
             // logger.debug('Created SDP offer');
             offer = mangleSdpToAddSimulcast(offer);
             return pc.setLocalDescription(offer);
-        });
+        }).then(() => {
+            // The Safari offer release was already binded to the gathering state
+            if ((userAgent.indexOf('iphone') > -1 || userAgent.indexOf('ipad') > -1) || userAgent.indexOf('safari') > -1) {
+                return;
+            }
+            descriptionCallback();
+        }).catch(callback);
     };
     this.getLocalSessionDescriptor = function () {
         return pc.localDescription;
@@ -1240,7 +1255,7 @@ if (typeof Object.create === 'function') {
 ;(function(isNode) {
 
 	/**
-	 * Merge one or more objects 
+	 * Merge one or more objects
 	 * @param bool? clone
 	 * @param mixed,... arguments
 	 * @return object
@@ -1253,7 +1268,7 @@ if (typeof Object.create === 'function') {
 	}, publicName = 'merge';
 
 	/**
-	 * Merge two or more objects recursively 
+	 * Merge two or more objects recursively
 	 * @param bool? clone
 	 * @param mixed,... arguments
 	 * @return object
