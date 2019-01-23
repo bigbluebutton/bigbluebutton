@@ -50,10 +50,6 @@ const intlMessages = defineMessages({
     id: 'app.lock-viewers.PrivateChatLable',
     description: 'description for close button',
   },
-  layoutLable: {
-    id: 'app.lock-viewers.Layout',
-    description: 'description for close button',
-  },
 });
 
 class LockViewersComponent extends React.PureComponent {
@@ -193,28 +189,6 @@ class LockViewersComponent extends React.PureComponent {
                       toggleLockSettings(meeting);
                     }}
                     ariaLabel={intl.formatMessage(intlMessages.privateChatLable)}
-                  />
-                </div>
-              </div>
-            </div>
-            <div className={styles.row}>
-              <div className={styles.col} aria-hidden="true">
-                <div className={styles.formElement}>
-                  <div className={styles.label}>
-                    {intl.formatMessage(intlMessages.layoutLable)}
-                  </div>
-                </div>
-              </div>
-              <div className={styles.col}>
-                <div className={cx(styles.formElement, styles.pullContentRight)}>
-                  <Toggle
-                    icons={false}
-                    defaultChecked={meeting.lockSettingsProp.lockedLayout}
-                    onChange={() => {
-                      meeting.lockSettingsProp.lockedLayout = !meeting.lockSettingsProp.lockedLayout;
-                      toggleLockSettings(meeting);
-                    }}
-                    ariaLabel={intl.formatMessage(intlMessages.layoutLable)}
                   />
                 </div>
               </div>
