@@ -267,6 +267,28 @@ function WebRtcPeer(mode, options, callback) {
     };
     this.generateOffer = function (callback) {
         callback = callback.bind(this);
+        const descriptionCallback = () => {
+            var localDescription = pc.localDescription;
+            // logger.debug('Local description set', localDescription.sdp);
+            if (multistream && usePlanB) {
+              localDescription = interop.toUnifiedPlan(localDescription);
+              logger.debug('offer::origPlanB->UnifiedPlan', dumpSDP(localDescription));
+            }
+            callback(null, localDescription.sdp, self.processAnswer.bind(self));
+        }
+
+        const userAgent = window.navigator.userAgent.toLocaleLowerCase();
+
+        // Bind the SDP release to the gathering state on Safari-based envs
+        if ((userAgent.indexOf('iphone') > -1 || userAgent.indexOf('ipad') > -1) || userAgent.indexOf('safari') > -1) {
+
+            pc.onicegatheringstatechange = function (event) {
+                if(event.target.iceGatheringState == "complete") {
+                  descriptionCallback();
+                }
+            }
+        }
+
         var offerAudio = true;
         var offerVideo = true;
         if (mediaConstraints) {
@@ -283,14 +305,12 @@ function WebRtcPeer(mode, options, callback) {
             // logger.debug('Created SDP offer');
             offer = mangleSdpToAddSimulcast(offer);
             return pc.setLocalDescription(offer);
-        }).then(function () {
-            var localDescription = pc.localDescription;
-            // logger.debug('Local description set', localDescription.sdp);
-            if (multistream && usePlanB) {
-              localDescription = interop.toUnifiedPlan(localDescription);
-              logger.debug('offer::origPlanB->UnifiedPlan', dumpSDP(localDescription));
+        }).then(() => {
+            // The Safari offer release was already binded to the gathering state
+            if ((userAgent.indexOf('iphone') > -1 || userAgent.indexOf('ipad') > -1) || userAgent.indexOf('safari') > -1) {
+                return;
             }
-            callback(null, localDescription.sdp, self.processAnswer.bind(self));
+            descriptionCallback();
         }).catch(callback);
     };
     this.getLocalSessionDescriptor = function () {
