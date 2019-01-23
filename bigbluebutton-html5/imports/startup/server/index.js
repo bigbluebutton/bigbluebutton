@@ -52,6 +52,7 @@ WebApp.connectHandlers.use('/locale', (req, res) => {
       messages = Object.assign(messages, JSON.parse(data));
       normalizedLocale = locale;
     } catch (e) {
+      Logger.error(`'Could not process locale ${locale}:${e}`);
       // Getting here means the locale is not available on the files.
     }
   });
@@ -71,6 +72,7 @@ WebApp.connectHandlers.use('/locales', (req, res) => {
         name: Langmap[locale].nativeName,
       }));
   } catch (e) {
+    Logger.error(`'Could not process locales error: ${e}`);
     // Getting here means the locale is not available on the files.
   }
 
