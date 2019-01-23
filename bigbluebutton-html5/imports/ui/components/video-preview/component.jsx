@@ -146,7 +146,6 @@ class VideoPreview extends Component {
 
   componentDidMount() {
     const { webcamDeviceId, changeWebcam } = this.props;
-    const { webcamDeviceId: savedWebcamDeviceId } = this.state;
     const constraints = {
       video: VIDEO_CONSTRAINTS,
     };
@@ -174,7 +173,7 @@ class VideoPreview extends Component {
         this.setState({ availableWebcams: webcams });
       }
 
-      constraints.video.deviceId = { exact: savedWebcamDeviceId };
+      constraints.video.deviceId = { exact: this.state.webcamDeviceId };
       navigator.mediaDevices.getUserMedia(constraints).then((stream) => {
         // display the preview
         this.video.srcObject = stream;
