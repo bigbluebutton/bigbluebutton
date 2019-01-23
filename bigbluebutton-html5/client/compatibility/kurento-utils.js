@@ -278,10 +278,10 @@ function WebRtcPeer(mode, options, callback) {
         }
 
         const userAgent = window.navigator.userAgent.toLocaleLowerCase();
+        const isSafari = ((userAgent.indexOf('iphone') > -1 || userAgent.indexOf('ipad') > -1) || browser.name.toLowerCase() == 'safari');
 
         // Bind the SDP release to the gathering state on Safari-based envs
-        if ((userAgent.indexOf('iphone') > -1 || userAgent.indexOf('ipad') > -1) || userAgent.indexOf('safari') > -1) {
-
+        if (isSafari) {
             pc.onicegatheringstatechange = function (event) {
                 if(event.target.iceGatheringState == "complete") {
                   descriptionCallback();
@@ -307,7 +307,7 @@ function WebRtcPeer(mode, options, callback) {
             return pc.setLocalDescription(offer);
         }).then(() => {
             // The Safari offer release was already binded to the gathering state
-            if ((userAgent.indexOf('iphone') > -1 || userAgent.indexOf('ipad') > -1) || userAgent.indexOf('safari') > -1) {
+            if (isSafari) {
                 return;
             }
             descriptionCallback();
