@@ -27,8 +27,7 @@
     "app.userList.menu.makePresenter.label": "Κάνε τον/την Παρουσιαστή",
     "app.media.screenshare.start": "Ο διαμοιρασμός οθόνης έχει αρχίσει",
     "app.media.screenshare.end": "Ο διαμοιρασμός οθόνης έχει τελειώσει",
-    "app.media.screenshare.safariNotSupported": "Ο διαμοιρασμός οθόνης δεν υποστηρίζεται ακόμα από τον Safari.
-Παρακαλούμε, χρησιμοποιείστε τον Firefox ή το Google Chrome.",
+    "app.media.screenshare.safariNotSupported": "Ο διαμοιρασμός οθόνης δεν υποστηρίζεται ακόμα από τον Safari. Παρακαλούμε, χρησιμοποιείστε τον Firefox ή το Google Chrome.",
     "app.presentation.presentationToolbar.nextSlideLabel": "Επόμενη διαφάνεια",
     "app.presentation.presentationToolbar.skipSlideLabel": "Παρέλειψε διαφάνεια",
     "app.presentation.presentationToolbar.goToSlide": "Διαφάνεια {0}",
