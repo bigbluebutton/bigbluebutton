@@ -2013,7 +2013,7 @@ class ApiController {
       response.addHeader("Cache-Control", "no-cache")
       withFormat {
         xml {
-          render(text: responseBuilder.buildErrors(errorList.getErrors(), msg, RESP_CODE_FAILED), contentType: "text/xml")
+          render(text: responseBuilder.buildErrors(errorList.getErrors(), RESP_CODE_FAILED), contentType: "text/xml")
         }
         json {
           log.debug "Rendering as json"
