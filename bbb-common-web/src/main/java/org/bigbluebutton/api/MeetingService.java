@@ -518,7 +518,11 @@ public class MeetingService implements MessageListener {
     if (m != null) {
       m.setForciblyEnded(true);
       processRecording(m);
-      if (keepEvents) recordingService.markAsEnded(m.getInternalId());
+      if (keepEvents) {
+        // The creation of the ended tag must occur after the creation of the
+        // recorded tag to avoid concurrency issues at the recording scripts
+        recordingService.markAsEnded(m.getInternalId());
+      }
       destroyMeeting(m.getInternalId());
       meetings.remove(m.getInternalId());
       removeUserSessions(m.getInternalId());
