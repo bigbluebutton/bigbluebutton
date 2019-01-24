@@ -102,7 +102,7 @@ class VideoListItem extends Component {
     const { user } = this.props;
 
     const availableActions = this.getAvailableActions();
-    const isVideoMenuDisabled = Meteor.settings.public.kurento.disableVideoMenu || false;
+    const isVideoMenuDisabled = Meteor.settings.public.kurento.enableHideVideoMenu || false;
 
     return (
       <div className={cx({
