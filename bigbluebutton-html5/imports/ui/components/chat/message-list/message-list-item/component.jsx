@@ -24,14 +24,11 @@ const eventsToBeBound = [
 ];
 
 const isElementInViewport = (el) => {
+  if (!el) return false;
   const rect = el.getBoundingClientRect();
-  const clientHeight = window.innerHeight || document.documentElement.clientHeight;
   const prefetchHeight = 125;
 
-  return (
-    rect.top >= -(prefetchHeight) &&
-    rect.bottom <= clientHeight + prefetchHeight
-  );
+  return (rect.top >= -(prefetchHeight) || rect.bottom >= -(prefetchHeight));
 };
 
 export default class MessageListItem extends Component {
@@ -91,8 +88,8 @@ export default class MessageListItem extends Component {
   }
 
   shouldComponentUpdate(nextProps, nextState) {
-    if(!this.props.scrollArea && nextProps.scrollArea) return true;
-    else return !nextState.preventRender && nextState.pendingChanges;
+    if (!this.props.scrollArea && nextProps.scrollArea) return true;
+    return !nextState.preventRender && nextState.pendingChanges;
   }
 
   renderSystemMessage() {
@@ -124,7 +121,7 @@ export default class MessageListItem extends Component {
     const {
       user,
       messages,
-      time
+      time,
     } = this.props;
 
     const dateTime = new Date(time);

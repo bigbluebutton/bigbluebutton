@@ -1,9 +1,9 @@
 import React from 'react';
 import { withTracker } from 'meteor/react-meteor-data';
-import { Session } from 'meteor/session';
 import getFromUserSettings from '/imports/ui/services/users-settings';
 import Meetings from '/imports/api/meetings';
 import Auth from '/imports/ui/services/auth';
+import { makeCall } from '/imports/ui/services/api';
 import ActionsBar from './component';
 import Service from './service';
 import VideoService from '../video-provider/service';
@@ -12,23 +12,6 @@ import { shareScreen, unshareScreen, isVideoBroadcasting } from '../screenshare/
 const ActionsBarContainer = props => <ActionsBar {...props} />;
 
 export default withTracker(() => {
-  const togglePollMenu = () => {
-    const showPoll = Session.equals('isPollOpen', false) || !Session.get('isPollOpen');
-
-    const show = () => {
-      Session.set('isUserListOpen', true);
-      Session.set('isPollOpen', true);
-      Session.set('forcePollOpen', true);
-    };
-
-    const hide = () => Session.set('isPollOpen', false);
-
-    Session.set('isChatOpen', false);
-    Session.set('breakoutRoomIsOpen', false);
-
-    return showPoll ? show() : hide();
-  };
-
   Meetings.find({ meetingId: Auth.meetingID }).observeChanges({
     changed: (id, fields) => {
       if (fields.recordProp && fields.recordProp.recording) {
@@ -40,6 +23,7 @@ export default withTracker(() => {
       }
     },
   });
+
 
   return {
     isUserPresenter: Service.isUserPresenter(),
@@ -57,7 +41,10 @@ export default withTracker(() => {
     meetingIsBreakout: Service.meetingIsBreakout(),
     hasBreakoutRoom: Service.hasBreakoutRoom(),
     meetingName: Service.meetingName(),
-    togglePollMenu,
     users: Service.users(),
+    sendInvitation: Service.sendInvitation,
+    getBreakouts: Service.getBreakouts,
+    getUsersNotAssigned: Service.getUsersNotAssigned,
+    handleTakePresenter: Service.takePresenterRole,
   };
 })(ActionsBarContainer);

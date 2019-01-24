@@ -18,7 +18,6 @@ class ActionsBar extends React.PureComponent {
       isUserModerator,
       recordSettingsList,
       toggleRecording,
-      togglePollMenu,
       screenSharingCheck,
       enableVideo,
       createBreakoutRoom,
@@ -26,6 +25,10 @@ class ActionsBar extends React.PureComponent {
       hasBreakoutRoom,
       meetingName,
       users,
+      getUsersNotAssigned,
+      sendInvitation,
+      getBreakouts,
+      handleTakePresenter,
     } = this.props;
 
     const {
@@ -35,6 +38,8 @@ class ActionsBar extends React.PureComponent {
     } = recordSettingsList;
 
     const actionBarClasses = {};
+    const { enableExternalVideo } = Meteor.settings.public.app;
+
     actionBarClasses[styles.centerWithActions] = isUserPresenter;
     actionBarClasses[styles.center] = true;
 
@@ -45,33 +50,43 @@ class ActionsBar extends React.PureComponent {
             isUserPresenter,
             isUserModerator,
             allowStartStopRecording,
+            allowExternalVideo: enableExternalVideo,
             isRecording,
             record,
             toggleRecording,
-            togglePollMenu,
             createBreakoutRoom,
             meetingIsBreakout,
             hasBreakoutRoom,
             meetingName,
             users,
+            getUsersNotAssigned,
+            sendInvitation,
+            getBreakouts,
+            handleTakePresenter,
           }}
           />
         </div>
-        <div className={isUserPresenter ? cx(styles.centerWithActions, actionBarClasses) : styles.center}>
+        <div
+          className={
+            isUserPresenter ? cx(styles.centerWithActions, actionBarClasses) : styles.center
+          }
+        >
           <AudioControlsContainer />
-          {enableVideo ?
-            <JoinVideoOptionsContainer
-              handleJoinVideo={handleJoinVideo}
-              handleCloseVideo={handleExitVideo}
-            />
+          {enableVideo
+            ? (
+              <JoinVideoOptionsContainer
+                handleJoinVideo={handleJoinVideo}
+                handleCloseVideo={handleExitVideo}
+              />
+            )
             : null}
           <DesktopShare {...{
-              handleShareScreen,
-              handleUnshareScreen,
-              isVideoBroadcasting,
-              isUserPresenter,
-              screenSharingCheck,
-            }}
+            handleShareScreen,
+            handleUnshareScreen,
+            isVideoBroadcasting,
+            isUserPresenter,
+            screenSharingCheck,
+          }}
           />
         </div>
       </div>

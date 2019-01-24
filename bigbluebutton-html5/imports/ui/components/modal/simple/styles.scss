@@ -15,11 +15,14 @@
   padding: var(--line-height-computed) 0;
 }
 
-.header {
+.headerNoBorder, .header {
   display: flex;
-  padding: calc(var(--line-height-computed) / 2) 0;
-  border-bottom: var(--border-size) solid var(--color-gray-lighter);
   flex-shrink: 0;
+}
+
+.header {
+   padding: calc(var(--line-height-computed) / 2) 0;
+   border-bottom: var(--border-size) solid var(--color-gray-lighter);
 }
 
 .title {
@@ -27,6 +30,9 @@
   flex: 1;
   margin: 0;
   font-weight: 400;
+  font-size: var(--font-size-large);
+  text-align: center;
+  align-self: flex-end;
 }
 
 .dismiss {

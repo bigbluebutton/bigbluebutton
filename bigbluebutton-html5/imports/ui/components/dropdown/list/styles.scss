@@ -81,10 +81,10 @@
     color: var(--color-white);
 
     .verticalList & {
-      margin-left: calc((var(--line-height-computed) / 2) * -1);
-      margin-right: calc((var(--line-height-computed) / 2) * -1);
-      padding-left: calc(var(--line-height-computed) / 2);
-      padding-right: calc(var(--line-height-computed) / 2);
+      margin-left: -.25rem;
+      margin-right: -.25rem;
+      padding-left: .25rem;
+      padding-right: .25rem;
     }
 
     .horizontalList & {

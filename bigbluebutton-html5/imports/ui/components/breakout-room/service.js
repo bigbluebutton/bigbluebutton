@@ -25,9 +25,11 @@ const breakoutRoomUser = (breakoutId) => {
   return breakoutUser;
 };
 
+const closeBreakoutPanel = () => Session.set('openPanel', 'userlist');
 
 const endAllBreakouts = () => {
   makeCall('endAllBreakouts');
+  closeBreakoutPanel();
 };
 
 const requestJoinURL = (breakoutId) => {
@@ -62,9 +64,6 @@ const isModerator = () => {
   const mappedUser = mapUser(User);
   return mappedUser.isModerator;
 };
-
-
-const closeBreakoutPanel = () => Session.set('breakoutRoomIsOpen', false);
 
 export default {
   findBreakouts,

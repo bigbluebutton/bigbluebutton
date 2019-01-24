@@ -2,9 +2,9 @@ import PropTypes from 'prop-types';
 import React, { Component } from 'react';
 import { defineMessages, injectIntl, intlShape } from 'react-intl';
 import Button from '/imports/ui/components/button/component';
-import ModalBase from '/imports/ui/components/modal/base/component';
 import { notify } from '/imports/ui/services/notification';
 import logger from '/imports/startup/client/logger';
+import Modal from '/imports/ui/components/modal/simple/component';
 import { styles } from './styles';
 
 const VIDEO_CONSTRAINTS = Meteor.settings.public.kurento.cameraConstraints;
@@ -76,24 +76,17 @@ class VideoPreview extends Component {
     super(props);
 
     const {
-      closeModal,
-      startSharing,
-      changeWebcam,
       webcamDeviceId,
     } = props;
 
     this.handleJoinVideo = this.handleJoinVideo.bind(this);
     this.handleProceed = this.handleProceed.bind(this);
     this.handleStartSharing = this.handleStartSharing.bind(this);
-    this.closeModal = closeModal;
-    this.startSharing = startSharing;
-    this.changeWebcam = changeWebcam;
-    this.webcamDeviceId = webcamDeviceId;
 
     this.deviceStream = null;
 
     this.state = {
-      webcamDeviceId: this.webcamDeviceId,
+      webcamDeviceId,
       availableWebcams: null,
       isStartSharingDisabled: false,
     };
@@ -119,12 +112,12 @@ class VideoPreview extends Component {
 
   handleSelectWebcam(event) {
     const {
-      intl,
+      changeWebcam,
     } = this.props;
 
     const webcamValue = event.target.value;
     this.setState({ webcamDeviceId: webcamValue });
-    this.changeWebcam(webcamValue);
+    changeWebcam(webcamValue);
     VIDEO_CONSTRAINTS.deviceId = webcamValue ? { exact: webcamValue } : undefined;
     const constraints = {
       video: VIDEO_CONSTRAINTS,
@@ -139,51 +132,65 @@ class VideoPreview extends Component {
   }
 
   handleStartSharing() {
-    const { resolve } = this.props;
+    const { resolve, startSharing } = this.props;
     this.stopTracks();
-    this.startSharing();
+    startSharing();
     if (resolve) resolve();
   }
 
   handleProceed() {
-    const { resolve } = this.props;
-    this.closeModal();
+    const { resolve, closeModal } = this.props;
+    closeModal();
     if (resolve) resolve();
   }
 
   componentDidMount() {
-    const { webcamDeviceId } = this.props;
+    const { webcamDeviceId, changeWebcam } = this.props;
     const constraints = {
       video: VIDEO_CONSTRAINTS,
     };
-    navigator.mediaDevices.getUserMedia(constraints).then((stream) => {
-      this.video.srcObject = stream;
-      this.deviceStream = stream;
-      navigator.mediaDevices.enumerateDevices().then((devices) => {
-        let isInitialDeviceSet = false;
-        const webcams = [];
-        if (webcamDeviceId) {
-          this.changeWebcam(webcamDeviceId);
-          this.setState({ webcamDeviceId });
-          isInitialDeviceSet = true;
-        }
-        devices.forEach((device) => {
-          if (device.kind === 'videoinput') {
-            webcams.push(device);
-            if (!isInitialDeviceSet) {
-              this.changeWebcam(device.deviceId);
-              this.setState({ webcamDeviceId: device.deviceId });
-              isInitialDeviceSet = true;
-            }
+
+    navigator.mediaDevices.enumerateDevices().then((devices) => {
+      let isInitialDeviceSet = false;
+      const webcams = [];
+
+      // set webcam
+      if (webcamDeviceId) {
+        changeWebcam(webcamDeviceId);
+        this.setState({ webcamDeviceId });
+        isInitialDeviceSet = true;
+      }
+      devices.forEach((device) => {
+        if (device.kind === 'videoinput') {
+          if (!isInitialDeviceSet) {
+            changeWebcam(device.deviceId);
+            this.setState({ webcamDeviceId: device.deviceId });
+            isInitialDeviceSet = true;
           }
-        });
-        if (webcams.length > 0) {
-          this.setState({ availableWebcams: webcams });
         }
       });
-    }).catch((error) => {
-      this.setState({ isStartSharingDisabled: true });
-      this.handlegUMError(error);
+      if (webcams.length > 0) {
+        this.setState({ availableWebcams: webcams });
+      }
+
+      constraints.video.deviceId = { exact: this.state.webcamDeviceId };
+      navigator.mediaDevices.getUserMedia(constraints).then((stream) => {
+        // display the preview
+        this.video.srcObject = stream;
+        this.deviceStream = stream;
+
+        navigator.mediaDevices.enumerateDevices().then((devices) => {
+          // get the list of webcams (labels are available at this point)
+          devices.forEach((device) => {
+            if (device.kind === 'videoinput') {
+              webcams.push(device);
+            }
+          });
+          if (webcams.length > 0) {
+            this.setState({ availableWebcams: webcams });
+          }
+        });
+      });
     });
   }
 
@@ -200,83 +207,77 @@ class VideoPreview extends Component {
       intl,
     } = this.props;
 
+    const {
+      webcamDeviceId,
+      availableWebcams,
+      isStartSharingDisabled,
+    } = this.state;
     return (
-      <span>
-        <ModalBase
-          overlayClassName={styles.overlay}
-          className={styles.modal}
-          onRequestClose={this.handleProceed}
-        >
-          <header
-            className={styles.header}
-          >
-            <Button
-              className={styles.closeBtn}
-              label={intl.formatMessage(intlMessages.closeLabel)}
-              icon="close"
-              size="md"
-              hideLabel
-              onClick={this.handleProceed}
+      <Modal
+        overlayClassName={styles.overlay}
+        className={styles.modal}
+        onRequestClose={this.handleProceed}
+        hideBorder
+      >
+        <div className={styles.title}>
+          {intl.formatMessage(intlMessages.webcamSettingsTitle)}
+        </div>
+        <div className={styles.content}>
+          <div className={styles.col}>
+            <video
+              id="preview"
+              className={styles.preview}
+              ref={(ref) => { this.video = ref; }}
+              autoPlay
+              playsInline
             />
-          </header>
-          <h3 className={styles.title}>
-            {intl.formatMessage(intlMessages.webcamSettingsTitle)}
-          </h3>
-          <div className={styles.content}>
-            <div className={styles.col}>
-              <video
-                id="preview"
-                className={styles.preview}
-                ref={(ref) => { this.video = ref; }}
-                autoPlay
-                playsInline
-              />
-            </div>
-            <div className={styles.options}>
-              <label className={styles.label}>
-                {intl.formatMessage(intlMessages.cameraLabel)}
-              </label>
-              {this.state.availableWebcams && this.state.availableWebcams.length > 0 ? (
-                <select
-                  value={this.state.webcamDeviceId}
-                  className={styles.select}
-                  onChange={this.handleSelectWebcam.bind(this)}
-                >
-                  <option disabled>
-                    {intl.formatMessage(intlMessages.webcamOptionLabel)}
+          </div>
+          <div className={styles.options}>
+            <label className={styles.label}>
+              {intl.formatMessage(intlMessages.cameraLabel)}
+            </label>
+            {availableWebcams && availableWebcams.length > 0 ? (
+              <select
+                value={webcamDeviceId}
+                className={styles.select}
+                onChange={this.handleSelectWebcam.bind(this)}
+              >
+                <option disabled>
+                  {intl.formatMessage(intlMessages.webcamOptionLabel)}
+                </option>
+                {availableWebcams.map((webcam, index) => (
+                  <option key={index} value={webcam.deviceId}>
+                    {webcam.label}
                   </option>
-                  {this.state.availableWebcams.map((webcam, index) => (
-                    <option key={index} value={webcam.deviceId}>
-                      {webcam.label}
-                    </option>
-                  ))}
-                </select>
-              ) :
+                ))}
+              </select>
+            )
+              : (
                 <select
                   className={styles.select}
                 >
                   <option disabled>
                     {intl.formatMessage(intlMessages.webcamNotFoundLabel)}
                   </option>
-                </select>}
-            </div>
+                </select>
+              )}
           </div>
-          <div className={styles.footer}>
-            <div className={styles.actions}>
-              <Button
-                label={intl.formatMessage(intlMessages.cancelLabel)}
-                onClick={this.handleProceed}
-              />
-              <Button
-                color="primary"
-                label={intl.formatMessage(intlMessages.startSharingLabel)}
-                onClick={() => this.handleStartSharing()}
-                disabled={this.state.isStartSharingDisabled}
-              />
-            </div>
+        </div>
+        <div className={styles.footer}>
+          <div className={styles.actions}>
+            <Button
+              label={intl.formatMessage(intlMessages.cancelLabel)}
+              onClick={this.handleProceed}
+            />
+            <Button
+              color="primary"
+              label={intl.formatMessage(intlMessages.startSharingLabel)}
+              onClick={() => this.handleStartSharing()}
+              disabled={isStartSharingDisabled}
+            />
           </div>
-        </ModalBase>
-      </span>
+        </div>
+      </Modal>
     );
   }
 }
@@ -284,4 +285,3 @@ class VideoPreview extends Component {
 VideoPreview.propTypes = propTypes;
 
 export default injectIntl(VideoPreview);
-

@@ -21,11 +21,11 @@ const intlMessages = defineMessages({
   },
   notificationRecordingStart: {
     id: 'app.notification.recordingStart',
-    description: 'Notification for when the recording start',
+    description: 'Notification for when the recording starts',
   },
   notificationRecordingStop: {
     id: 'app.notification.recordingStop',
-    description: 'Notification for when the recording stpop',
+    description: 'Notification for when the recording stops',
   },
 });
 
@@ -55,13 +55,15 @@ export default injectIntl(injectNotify(withTracker(({ notify, intl }) => {
 
   const meetingId = Auth.meetingID;
 
-  Meetings.find({ meetingId }).observeChanges({
-    changed: (id, fields) => {
-      if (fields.recordProp && fields.recordProp.recording) {
+  Meetings.find({ meetingId }).observe({
+    changed: (newDocument, oldDocument) => {
+      if (newDocument.recordProp && newDocument.recordProp.recording
+        && newDocument.recordProp.recording !== oldDocument.recordProp.recording) {
         notify(intl.formatMessage(intlMessages.notificationRecordingStart), 'success', 'record');
       }
 
-      if (fields.recordProp && !fields.recordProp.recording) {
+      if (newDocument.recordProp && !newDocument.recordProp.recording
+        && newDocument.recordProp.recording !== oldDocument.recordProp.recording) {
         notify(intl.formatMessage(intlMessages.notificationRecordingStop), 'error', 'record');
       }
     },

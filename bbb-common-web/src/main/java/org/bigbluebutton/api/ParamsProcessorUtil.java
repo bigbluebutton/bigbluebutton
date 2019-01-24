@@ -80,6 +80,7 @@ public class ParamsProcessorUtil {
     private String html5ClientUrl;
     private Boolean moderatorsJoinViaHTML5Client;
     private Boolean attendeesJoinViaHTML5Client;
+    private Boolean allowRequestsWithoutSession;
     private String defaultAvatarURL;
     private String defaultConfigURL;
     private String defaultGuestPolicy;
@@ -419,6 +420,10 @@ public class ParamsProcessorUtil {
 
 	public Boolean getModeratorsJoinViaHTML5Client() {
 		return moderatorsJoinViaHTML5Client;
+	}
+
+	public Boolean getAllowRequestsWithoutSession() {
+		return allowRequestsWithoutSession;
 	}
 
 	public String getDefaultConfigXML() {
@@ -773,6 +778,10 @@ public class ParamsProcessorUtil {
 
 	public void setModeratorsJoinViaHTML5Client(Boolean moderatorsJoinViaHTML5Client) {
 		this.moderatorsJoinViaHTML5Client = moderatorsJoinViaHTML5Client;
+	}
+
+	public void setAllowRequestsWithoutSession(Boolean allowRequestsWithoutSession) {
+		this.allowRequestsWithoutSession = allowRequestsWithoutSession;
 	}
 
 	public void setAttendeesJoinViaHTML5Client(Boolean attendeesJoinViaHTML5Client) {

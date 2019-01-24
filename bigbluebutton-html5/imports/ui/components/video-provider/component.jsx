@@ -6,6 +6,8 @@ import { fetchWebRTCMappedStunTurnServers } from '/imports/utils/fetchStunTurnSe
 import ReconnectingWebSocket from 'reconnecting-websocket';
 import logger from '/imports/startup/client/logger';
 import { Session } from 'meteor/session';
+import browser from 'browser-detect';
+import { tryGenerateIceCandidates } from '../../../utils/safari-webrtc';
 
 import VideoService from './service';
 import VideoList from './video-list/component';
@@ -146,6 +148,7 @@ class VideoProvider extends Component {
   }
 
   componentDidMount() {
+    this.checkIceConnectivity();
     document.addEventListener('joinVideo', this.shareWebcam); // TODO find a better way to do this
     document.addEventListener('exitVideo', this.unshareWebcam);
     this.ws.onmessage = this.onWsMessage;
@@ -176,6 +179,7 @@ class VideoProvider extends Component {
 
     window.removeEventListener('online', this.openWs);
     window.removeEventListener('offline', this.onWsClose);
+    window.removeEventListener('beforeunload', this.unshareWebcam);
 
     this.visibility.removeEventListeners();
 
@@ -196,6 +200,7 @@ class VideoProvider extends Component {
   onWsMessage(msg) {
     const parsedMessage = JSON.parse(msg.data);
 
+    if (parsedMessage.id === 'pong') return;
     this.logger('debug', `Received new message '${parsedMessage.id}'`, { topic: 'ws', message: parsedMessage });
 
     switch (parsedMessage.id) {
@@ -237,8 +242,6 @@ class VideoProvider extends Component {
     if (this.sharedWebcam) {
       this.unshareWebcam();
     }
-    // Notify user that the SFU component has gone offline
-    this.notifyError(intl.formatMessage(intlSFUErrors[2001]));
 
     this.setState({ socketOpen: false });
   }
@@ -270,6 +273,17 @@ class VideoProvider extends Component {
     } else if (hasRemoteStream) {
       this.monitorTrackStart(peer.peerConnection,
         peer.peerConnection.getRemoteStreams()[0].getVideoTracks()[0], false, callback);
+    }
+  }
+
+  checkIceConnectivity() {
+    // Webkit ICE restrictions demand a capture device permission to release
+    // host candidates
+    if (browser().name === 'safari') {
+      const { intl } = this.props;
+      tryGenerateIceCandidates().catch((e) => {
+        this.notifyError(intl.formatMessage(intlSFUErrors[2021]));
+      });
     }
   }
 
@@ -324,7 +338,9 @@ class VideoProvider extends Component {
 
     if (this.connectedToMediaServer()) {
       const jsonMessage = JSON.stringify(message);
-      this.logger('debug', `Sending message '${message.id}'`, { topic: 'ws', message });
+      if (message.id !== 'ping') {
+        this.logger('debug', `Sending message '${message.id}'`, { topic: 'ws', message });
+      }
       ws.send(jsonMessage, (error) => {
         if (error) {
           this.logger(`client: Websocket error '${error}' on message '${message.id}'`, { topic: 'ws' });
@@ -353,6 +369,9 @@ class VideoProvider extends Component {
         if (error) {
           return this.logger('debug', JSON.stringify(error), { cameraId: id });
         }
+
+        peer.didSDPAnswered = true;
+        this._processIceQueue(peer, id);
       });
     } else {
       this.logger('warn', '[startResponse] Message arrived after the peer was already thrown out, discarding it...');
@@ -382,7 +401,7 @@ class VideoProvider extends Component {
     }
   }
 
-  stopWebRTCPeer(id) {
+  stopWebRTCPeer(id, restarting = false) {
     this.logger('info', 'Stopping webcam', { cameraId: id });
     const { userId } = this.props;
     const shareWebcam = id === userId;
@@ -405,12 +424,14 @@ class VideoProvider extends Component {
     });
 
     // Clear the shared camera media flow timeout when destroying it
-    if (this.restartTimeout[id]) {
-      clearTimeout(this.restartTimeout[id]);
-    }
+    if (!restarting) {
+      if (this.restartTimeout[id]) {
+        clearTimeout(this.restartTimeout[id]);
+      }
 
-    if (this.restartTimer[id]) {
-      delete this.restartTimer[id];
+      if (this.restartTimer[id]) {
+        delete this.restartTimer[id];
+      }
     }
 
     this.destroyWebRTCPeer(id);
@@ -432,11 +453,6 @@ class VideoProvider extends Component {
   async createWebRTCPeer(id, shareWebcam) {
     const { meetingId, sessionToken, voiceBridge } = this.props;
     let iceServers = [];
-
-    // Check if there's connectivity to the SFU component
-    if (!this.connectedToMediaServer()) {
-      return this._webRTCOnError(2001, id, shareWebcam);
-    }
 
     // Check if the peer is already being processed
     if (this.webRtcPeers[id]) {
@@ -505,10 +521,6 @@ class VideoProvider extends Component {
             voiceBridge,
           };
           this.sendMessage(message);
-
-          this._processIceQueue(peer, id);
-
-          peer.didSDPAnswered = true;
         });
       });
       if (this.webRtcPeers[id].peerConnection) {
@@ -525,9 +537,12 @@ class VideoProvider extends Component {
 
       if (userId === id) {
         this.notifyError(intl.formatMessage(intlClientErrors.mediaFlowTimeout));
-        this.stopWebRTCPeer(id);
+        this.stopWebRTCPeer(id, false);
       } else {
-        this.stopWebRTCPeer(id);
+        // Subscribers try to reconnect according to their timers if media could
+        // not reach the server. That's why we pass the restarting flag as true
+        // to the stop procedure as to not destroy the timers
+        this.stopWebRTCPeer(id, true);
         this.createWebRTCPeer(id, shareWebcam);
 
         // Increment reconnect interval
@@ -553,7 +568,15 @@ class VideoProvider extends Component {
   }
 
   _webRTCOnError(error, id) {
-    const { intl } = this.props;
+    const { intl, userId } = this.props;
+
+    // We only display SFU connection errors to sharers, because it's guaranteed
+    // they should be connected. Viewers aren't connected synchronously related
+    // to the createWebRTCPeer procedure, so the error is ignored. If the connection
+    // closes unexpectedly, this error is deplayed globally in the onWsClose catch
+    if (error === 2001 && userId !== id) {
+      return;
+    }
 
     this.logger('error', ' WebRTC peerObj create error', id);
     const errorMessage = intlClientErrors[error.name]

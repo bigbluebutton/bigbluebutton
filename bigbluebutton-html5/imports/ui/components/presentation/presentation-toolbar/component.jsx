@@ -31,7 +31,7 @@ const intlMessages = defineMessages({
 class PresentationToolbar extends Component {
   static renderAriaLabelsDescs() {
     return (
-      <div hidden >
+      <div hidden>
         {/* Previous Slide button aria */}
         <div id="prevSlideLabel">
           <FormattedMessage
@@ -140,25 +140,22 @@ class PresentationToolbar extends Component {
   }
 
   handleSkipToSlideChange(event) {
-    const requestedSlideNum = parseInt(event.target.value, 10);
-    this.props.actions.skipToSlideHandler(requestedSlideNum);
+    const { actions } = this.props;
+    const requestedSlideNum = Number.parseInt(event.target.value, 10);
+    actions.skipToSlideHandler(requestedSlideNum);
   }
 
   handleValuesChange(event) {
+    const { sliderValue } = this.state;
     this.setState(
       { sliderValue: event.target.value },
-      () => this.handleZoom(this.state.sliderValue),
+      () => this.handleZoom(sliderValue),
     );
   }
 
-  fitToScreenClickHandler() {
-    this.setState({
-      fitToScreenValue: 'not_implemented_yet',
-    });
-  }
-
   change(value) {
-    this.props.zoomChanger(value);
+    const { zoomChanger } = this.props;
+    zoomChanger(value);
   }
 
   renderSkipSlideOpts(numberOfSlides) {
@@ -184,14 +181,15 @@ class PresentationToolbar extends Component {
     const {
       currentSlideNum,
       numberOfSlides,
+      fitToWidthHandler,
       actions,
       intl,
       zoom,
     } = this.props;
 
     const BROWSER_RESULTS = browser();
-    const isMobileBrowser = BROWSER_RESULTS.mobile ||
-      BROWSER_RESULTS.os.includes('Android');
+    const isMobileBrowser = BROWSER_RESULTS.mobile
+      || BROWSER_RESULTS.os.includes('Android');
     return (
       <div id="presentationToolbarWrapper" className={styles.presentationToolbarWrapper}>
         {PresentationToolbar.renderAriaLabelsDescs()}
@@ -211,14 +209,17 @@ class PresentationToolbar extends Component {
               className={styles.prevSlide}
             />
             <select
-              // <select> has an implicit role of listbox, no need to define role="listbox" explicitly
+              /*
+              <select> has an implicit role of listbox, no need to define
+              role="listbox" explicitly
+              */
               id="skipSlide"
               aria-labelledby="skipSlideLabel"
               aria-describedby="skipSlideDesc"
               aria-live="polite"
               aria-relevant="all"
               value={currentSlideNum}
-              onChange={actions.skipToSlideHandler}
+              onChange={this.handleSkipToSlideChange}
               className={styles.skipSlideSelect}
             >
               {this.renderSkipSlideOpts(numberOfSlides)}
@@ -239,16 +240,18 @@ class PresentationToolbar extends Component {
           </span>
         }
         {
-          !isMobileBrowser ?
-            <span className={styles.zoomWrapper}>
-              <ZoomTool
-                value={zoom}
-                change={this.change}
-                minBound={HUNDRED_PERCENT}
-                maxBound={MAX_PERCENT}
-                step={STEP}
-              />
-            </span>
+          !isMobileBrowser
+            ? (
+              <span className={styles.zoomWrapper}>
+                <ZoomTool
+                  value={zoom}
+                  change={this.change}
+                  minBound={HUNDRED_PERCENT}
+                  maxBound={MAX_PERCENT}
+                  step={STEP}
+                />
+              </span>
+            )
             : null
         }
         <span className={styles.presentationControls}>
@@ -260,7 +263,7 @@ class PresentationToolbar extends Component {
             icon="fit_to_width"
             size="md"
             circle={false}
-            onClick={this.props.fitToWidthHandler}
+            onClick={fitToWidthHandler}
             label={intl.formatMessage(intlMessages.fitToWidth)}
             hideLabel
             className={styles.skipSlide}

@@ -72,6 +72,15 @@ if [ "$(id -u)" != "0" ]; then
   fi
 fi
 
+if [ ! -f /etc/bigbluebutton/bigbluebutton-release ]; then
+	echo "#"
+	echo "# BigBlueButton does not appear to be installed.  Could not"
+	echo "# locate:"
+	echo "#"
+	echo "# /usr/share/red5/webapps/bigbluebutton/WEB-INF/red5-web.xml"
+	exit 1
+fi
+
 source /etc/bigbluebutton/bigbluebutton-release
 
 #
@@ -313,7 +322,7 @@ stop_bigbluebutton () {
           BBB_TRANSCODE_AKKA=bbb-transcode-akka
        fi
 
-       systemctl stop red5 $TOMCAT_SERVICE nginx freeswitch $REDIS_SERVICE bbb-apps-akka $BBB_TRANSCODE_AKKA bbb-fsesl-akka bbb-rap-archive-worker.service bbb-rap-process-worker.service bbb-rap-publish-worker.service bbb-rap-sanity-worker.service bbb-record-core.timer $HTML5 $WEBHOOKS
+       systemctl stop red5 $TOMCAT_SERVICE nginx freeswitch $REDIS_SERVICE bbb-apps-akka $BBB_TRANSCODE_AKKA bbb-fsesl-akka bbb-rap-archive-worker.service bbb-rap-process-worker.service bbb-rap-publish-worker.service bbb-rap-sanity-worker.service bbb-record-core.timer $HTML5 $WEBHOOKS etherpad
     else
 	/etc/init.d/monit stop
 
@@ -357,6 +366,21 @@ stop_bigbluebutton () {
 }
 
 start_bigbluebutton () {
+        #
+        # Apply any local configuration options (if exists)
+        #
+        if [ -x /etc/bigbluebutton/bbb-conf/apply-config.sh ]; then
+                echo -n "Applying updates in /etc/bigbluebutton/bbb-conf/apply-config.sh: "
+                /etc/bigbluebutton/bbb-conf/apply-config.sh
+                echo
+        fi
+
+        if grep -q "Failure to connect to CORE_DB sofia_reg_external" /opt/freeswitch/var/log/freeswitch/freeswitch.log; then
+		# See: http://docs.bigbluebutton.org/install/install.html#freeswitch-fails-to-bind-to-ipv4
+                echo "Clearing the FreeSWITCH database."
+		rm -rf /opt/freeswitch/var/lib/freeswitch/db/*
+	fi
+
     echo "Starting BigBlueButton"
     if command -v systemctl >/dev/null; then
        if [ -f /usr/lib/systemd/system/bbb-html5.service ]; then
@@ -369,7 +393,7 @@ start_bigbluebutton () {
           BBB_TRANSCODE_AKKA=bbb-transcode-akka
        fi
 
-       systemctl start red5 $TOMCAT_SERVICE nginx freeswitch $REDIS_SERVICE bbb-apps-akka $BBB_TRANSCODE_AKKA bbb-fsesl-akka bbb-record-core.timer $HTML5 $WEBHOOKS
+       systemctl start red5 $TOMCAT_SERVICE nginx freeswitch $REDIS_SERVICE bbb-apps-akka $BBB_TRANSCODE_AKKA bbb-fsesl-akka bbb-record-core.timer $HTML5 $WEBHOOKS etherpad
        if [ -f /usr/lib/systemd/system/bbb-html5.service ]; then
           systemctl start mongod
 	  sleep 3
@@ -1224,7 +1248,7 @@ check_state() {
 	#
 	FFMPEG_VERSION=$(ffmpeg -version 2>/dev/null | grep ffmpeg | cut -d ' ' -f3 | sed 's/--.*//g' | tr -d '\n')
 	case "$FFMPEG_VERSION" in
-        4.0.*)
+        4.*.*)
                 # This is the current supported version; OK.
                 ;;
         '')
@@ -1526,6 +1550,13 @@ check_state() {
                 echo "#"
         fi
 
+        if systemctl status freeswitch | grep -q SETSCHEDULER; then
+                echo "# Error: FreeSWITCH failed to start with SETSCHEDULER error, see"
+                echo "#"
+                echo "#   http://docs.bigbluebutton.org/install/install.html#freeswitch-fails-to-start-with-a-setscheduler-error"
+                echo "#"
+        fi
+
 	exit 0
 }
 
@@ -1637,11 +1668,12 @@ if [ $CHECK ]; then
 	fi
 
         if [ -f /usr/local/bigbluebutton/bbb-webrtc-sfu/config/default.yml ]; then
-                KURENTO_URL=$(cat /usr/local/bigbluebutton/bbb-webrtc-sfu/config/default.yml | grep -v '#' | sed -n '/kurentoUrl/{s/[^:]*:[ ]*//;s/;//;p}' | tail -n 1)
-                KURENTO_IP=$(cat /usr/local/bigbluebutton/bbb-webrtc-sfu/config/default.yml | grep -v '#' | sed -n '/kurentoIp/{s/[^:]*:[ ]*//;s/;//;p}' | tail -n 1)
-                KURENTO_LOCAL_IP=$(cat /usr/local/bigbluebutton/bbb-webrtc-sfu/config/default.yml | grep -v '#' | sed -n '/localIpAddress/{s/[^:]*:[ ]*//;s/;//;p}' | tail -n 1)
-                KURENTO_RECORD_SCREEN_SHARING=$(cat /usr/local/bigbluebutton/bbb-webrtc-sfu/config/default.yml | grep -v '#' | sed -n '/recordScreenSharing/{s/[^:]*:[ ]*//;s/;//;p}' | tail -n 1)
-                KURENTO_RECORD_WEBCAMS=$(cat /usr/local/bigbluebutton/bbb-webrtc-sfu/config/default.yml | grep -v '#' | sed -n '/recordWebcams/{s/[^:]*:[ ]*//;s/;//;p}' | tail -n 1)
+	        KURENTO_URL=$(yq r /usr/local/bigbluebutton/bbb-webrtc-sfu/config/default.yml kurento[0].url)
+                KURENTO_IP=$(yq r /usr/local/bigbluebutton/bbb-webrtc-sfu/config/default.yml kurento[0].ip)
+                KURENTO_LOCAL_IP=$(yq r /usr/local/bigbluebutton/bbb-webrtc-sfu/config/default.yml localIpAddress)
+                KURENTO_RECORD_SCREEN_SHARING=$(yq r /usr/local/bigbluebutton/bbb-webrtc-sfu/config/default.yml recordScreenSharing)
+                KURENTO_RECORD_WEBCAMS=$(yq r /usr/local/bigbluebutton/bbb-webrtc-sfu/config/default.yml recordWebcams)
+
                 echo
                 echo "/usr/local/bigbluebutton/bbb-webrtc-sfu/config/default.yml (Kurento)"
                 echo "                        kurentoUrl: $KURENTO_URL"

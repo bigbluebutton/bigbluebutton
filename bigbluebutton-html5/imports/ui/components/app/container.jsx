@@ -67,7 +67,6 @@ const AppContainer = (props) => {
   );
 };
 
-
 export default injectIntl(withModalMounter(withTracker(({ intl, baseControls }) => {
   const currentUser = Users.findOne({ userId: Auth.userID });
   const currentUserIsLocked = mapUser(currentUser).isLocked;
@@ -111,12 +110,12 @@ export default injectIntl(withModalMounter(withTracker(({ intl, baseControls }) 
     closedCaption: getCaptionsStatus() ? <ClosedCaptionsContainer /> : null,
     fontSize: getFontSize(),
     hasBreakoutRooms: getBreakoutRooms().length > 0,
-    userListIsOpen: Session.get('isUserListOpen'),
-    breakoutRoomIsOpen: Session.get('breakoutRoomIsOpen') && Session.get('isUserListOpen'),
-    chatIsOpen: Session.get('isChatOpen') && Session.get('isUserListOpen'),
-    pollIsOpen: Session.get('isPollOpen') && Session.get('isUserListOpen'),
     customStyle: getFromUserSettings('customStyle', false),
     customStyleUrl: getFromUserSettings('customStyleUrl', false),
+    breakoutRoomIsOpen: Session.equals('openPanel', 'breakoutroom'),
+    chatIsOpen: Session.equals('openPanel', 'chat'),
+    openPanel: Session.get('openPanel'),
+    userListIsOpen: !Session.equals('openPanel', ''),
     micsLocked: (currentUserIsLocked && meeting.lockSettingsProp.disableMic),
   };
 })(AppContainer)));

@@ -23,6 +23,7 @@ class Tooltip extends Component {
     const expandedEl = tooltipTarget.parentElement.querySelector('[aria-expanded="true"]');
     const isTarget = expandedEl === tooltipTarget;
     if (expandedEl && !isTarget) return;
+    tip.set({ content: tooltipTarget.lastChild.innerText });
     tip.show();
   }
 
@@ -51,6 +52,10 @@ class Tooltip extends Component {
       onHide: this.onHide,
       wait: Tooltip.wait,
       touchHold: true,
+      size: 'regular',
+      distance: 10,
+      arrow: true,
+      arrowType: 'sharp',
     };
     this.tooltip = Tippy(`#${this.tippySelectorId}`, options);
   }
@@ -80,7 +85,6 @@ class Tooltip extends Component {
 
     const WrappedComponentBound = React.cloneElement(WrappedComponent, {
       ...restProps,
-      title,
       id: this.tippySelectorId,
       className: cx(children.props.className, className),
     });

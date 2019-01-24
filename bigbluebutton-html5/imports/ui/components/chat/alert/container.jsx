@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { memo } from 'react';
 import { withTracker } from 'meteor/react-meteor-data';
 import UserListService from '/imports/ui/components/user-list/service';
 import Settings from '/imports/ui/services/settings';
@@ -18,4 +18,4 @@ export default withTracker(() => {
     openChats,
     publicUserId: Meteor.settings.public.chat.public_group_id,
   };
-})(ChatAlertContainer);
+})(memo(ChatAlertContainer));

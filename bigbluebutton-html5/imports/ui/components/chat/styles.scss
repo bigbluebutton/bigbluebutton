@@ -52,6 +52,7 @@
   flex-direction: row;
   align-items: left;
   flex-shrink: 0;
+  margin-bottom: 1rem;
 
   a {
     @include elementFocus(var(--color-primary));
@@ -75,6 +76,7 @@
     margin-top: 0;
     padding-top: 0;
     border-top: 0;
+    padding-bottom: 0;
   }
 }
 

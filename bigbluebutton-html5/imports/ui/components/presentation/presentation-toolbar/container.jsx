@@ -15,7 +15,7 @@ const PresentationToolbarContainer = (props) => {
     zoom,
     zoomChanger,
     fitToWidthHandler,
-    getSwapLayout
+    getSwapLayout,
   } = props;
 
   if (userIsPresenter && !getSwapLayout) {
@@ -53,14 +53,24 @@ export default withTracker((params) => {
     zoom: params.zoom,
     zoomChanger: params.zoomChanger,
     actions: {
-      nextSlideHandler: () =>
-        PresentationToolbarService.nextSlide(params.currentSlideNum, numberOfSlides, podId),
-      previousSlideHandler: () =>
-        PresentationToolbarService.previousSlide(params.currentSlideNum, podId),
-      skipToSlideHandler: requestedSlideNum =>
-        PresentationToolbarService.skipToSlide(requestedSlideNum, podId),
-      zoomSlideHandler: value =>
-        PresentationToolbarService.zoomSlide(params.currentSlideNum, podId, value),
+      nextSlideHandler: () => PresentationToolbarService.nextSlide(
+        params.currentSlideNum,
+        numberOfSlides,
+        podId,
+      ),
+      previousSlideHandler: () => PresentationToolbarService.previousSlide(
+        params.currentSlideNum,
+        podId,
+      ),
+      skipToSlideHandler: requestedSlideNum => PresentationToolbarService.skipToSlide(
+        requestedSlideNum,
+        podId,
+      ),
+      zoomSlideHandler: value => PresentationToolbarService.zoomSlide(
+        params.currentSlideNum,
+        podId,
+        value,
+      ),
     },
   };
 })(PresentationToolbarContainer);
