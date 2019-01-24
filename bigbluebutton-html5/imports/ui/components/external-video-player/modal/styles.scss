@@ -1,0 +1,150 @@
+@import "/imports/ui/stylesheets/variables/_all";
+@import "/imports/ui/components/modal/simple/styles";
+
+.header {
+  margin: 0;
+  padding: 0;
+  border: none;
+  line-height: 2rem;
+}
+
+.content {
+  justify-content: center;
+  padding-bottom: 0;
+  margin-right: auto;
+  margin-left: auto;
+  width: 100%;
+}
+
+.videoOptions {
+  margin-top: auto;
+  margin-bottom: auto;
+  display: flex;
+}
+
+.overlay {
+  @extend .overlay;
+}
+
+.modal {
+  @extend .modal;
+  padding: 1.5rem;
+  min-height: 20rem;
+}
+
+.closeBtn {
+  position: relative;
+  background-color: var(--color-white);
+
+  i {
+    color: var(--color-gray-light);
+  }
+
+  &:focus,
+  &:hover{
+    background-color: var(--color-gray-lighter);
+    i{
+      color: var(--color-gray);
+    }
+  }
+}
+.warning{
+  text-align: center;
+  font-weight: var(--headings-font-weight);
+  font-size: 5rem;
+  white-space: normal;
+}
+.text{
+  margin: var(--line-height-computed);
+  text-align: center;
+}
+
+.main {
+  margin: var(--line-height-computed);
+  text-align: center;
+  font-size: var(--font-size-large);
+}
+
+.startBtn {
+  &:focus {
+    outline: none !important;
+  }
+
+  i{
+    color: #3c5764;
+  }
+
+  margin: 0;
+  width: 40%;
+  display: block;
+  position: absolute;
+  bottom:   20px;
+  color: var(--color-white) !important;
+  background-color: var(--color-link) !important;
+}
+
+.stopBtn {
+  &:focus {
+    outline: none !important;
+  }
+
+  i{
+    color: red;
+  }
+
+  margin-left: 50%;
+  width: 40%;
+  display: block;
+  position: absolute;
+  bottom:   20px;
+  color: var(--color-white) !important;
+  background-color: red !important;
+}
+
+.title {
+  text-align: center;
+  font-weight: 400;
+  font-size: 1.3rem;
+  white-space: normal;
+
+  @include mq(var(--small-only)) {
+    font-size: 1rem;
+    padding: 0 1rem;
+  }
+}
+
+.videoUrl {
+  label {
+    display: block;
+  }
+
+  input {
+    display: block;
+    margin: 10px 0 10px 0;
+    padding: 0.4em;
+    background-color: #F1F8FF;
+    line-height: 2rem;
+    width: 100%;
+    font-family: inherit;
+    font-weight: inherit;
+    border: none;
+    border-radius: 0.4rem;
+    transition: box-shadow calc(var(--enableAnimation) * .2s);
+  }
+
+  input:focus {
+    outline: none;
+    box-shadow: 0.2rem 0.8rem 1.6rem 600;
+  }
+
+  span {
+    font-weight: 600;
+  }
+}
+
+.urlError {
+  color: red;
+  padding: 1em;
+  transition: calc(var(--enableAnimation) * 1s);
+}
+

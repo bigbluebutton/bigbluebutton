@@ -171,6 +171,7 @@
     "app.actionsBar.raiseLabel": "Raise",
     "app.actionsBar.label": "Actions Bar",
     "app.submenu.application.applicationSectionTitle": "Application",
+    "app.submenu.application.animationsLabel": "Animations",
     "app.submenu.application.audioAlertLabel": "Audio Alerts for Chat",
     "app.submenu.application.pushAlertLabel": "Popup Alerts for Chat",
     "app.submenu.application.fontSizeControlLabel": "Font size",

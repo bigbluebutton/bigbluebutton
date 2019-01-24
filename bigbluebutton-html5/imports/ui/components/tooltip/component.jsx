@@ -4,6 +4,7 @@ import Tippy from 'tippy.js';
 import _ from 'lodash';
 import cx from 'classnames';
 import { ESCAPE } from '/imports/utils/keyCodes';
+import Settings from '/imports/ui/services/settings';
 
 const propTypes = {
   title: PropTypes.string.isRequired,
@@ -35,6 +36,10 @@ class Tooltip extends Component {
     this.onHide = this.onHide.bind(this);
     this.handleEscapeHide = this.handleEscapeHide.bind(this);
     this.delay = [150, 50];
+
+    this.state = {
+      enableAnimation: Settings.application.animations,
+    };
   }
 
   componentDidMount() {
@@ -42,7 +47,7 @@ class Tooltip extends Component {
       position,
       title,
     } = this.props;
-
+    const { enableAnimation } = this.state;
     const options = {
       placement: position,
       performance: true,
@@ -56,8 +61,27 @@ class Tooltip extends Component {
       distance: 10,
       arrow: true,
       arrowType: 'sharp',
+      animation: (enableAnimation) ? 'shift-away' : 'none',
     };
     this.tooltip = Tippy(`#${this.tippySelectorId}`, options);
+  }
+
+  componentDidUpdate() {
+    const { enableAnimation } = this.state;
+    const { animations } = Settings.application;
+    if (animations !== enableAnimation) {
+      const elements = document.querySelectorAll('[id^="tippy-"]');
+      elements.forEach((e) => {
+        const instance = e._tippy;
+        if (animations) instance.set({ animation: 'shift-away' });
+        if (!animations) instance.set({ animation: 'none' });
+      });
+      if (animations) {
+        this.setEnableAnimation(true);
+      } else {
+        this.setEnableAnimation(false);
+      }
+    }
   }
 
   onShow() {
@@ -66,6 +90,10 @@ class Tooltip extends Component {
 
   onHide() {
     document.removeEventListener('keyup', this.handleEscapeHide);
+  }
+
+  setEnableAnimation(enableAnimation) {
+    this.setState({ enableAnimation });
   }
 
   handleEscapeHide(e) {

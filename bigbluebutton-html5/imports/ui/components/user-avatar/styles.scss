@@ -22,7 +22,7 @@
   border-radius: 50%;
   text-align: center;
   text-transform: capitalize;
-  transition: .3s ease-in-out;
+  transition: calc(var(--enableAnimation) * .3s) ease-in-out;
   font-size: .85rem;
 
   &:after,
@@ -42,7 +42,7 @@
     background-color: var(--user-indicator-voice-bg);
     color: var(--user-avatar-text);
     opacity: 0;
-    transition: .3s ease-in-out;
+    transition: calc(var(--enableAnimation) * .3s) ease-in-out;
     font-family: 'bbb-icons';
     font-size: .65rem;
     line-height: 0;
@@ -61,7 +61,21 @@
   left: 0;
   background-color: var(--user-color);
   border-radius: inherit;
-  animation: pulse 1s infinite ease-in;
+  animation: pulse calc(var(--enableAnimation) * 1s) infinite ease-in;
+}
+
+
+[style~="--enableAnimation:0;"] .talking::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  background-color: var(--user-color);
+  border-radius: inherit;
+  box-shadow: 0px 0px 0px 4px var(--user-color);
+  opacity: .5;
 }
 
 

@@ -32,10 +32,16 @@
   }
 
   &.glow {
-    animation: pulse 1s infinite ease-in;
+    animation: pulse calc(var(--enableAnimation) * 1s) infinite ease-in;
     border-radius: 50%;
   }
 }
+
+    [style~="--enableAnimation:0;"] .button.glow {
+    background-clip: padding-box;
+    border: 3px solid transparent;
+    box-shadow: 0 0 0 2px rgba(255,255,255,.5);
+    }
 
 @keyframes pulse {
   0% {

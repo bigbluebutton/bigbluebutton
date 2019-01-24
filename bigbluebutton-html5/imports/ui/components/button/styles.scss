@@ -52,7 +52,7 @@
   vertical-align: middle;
   cursor: pointer;
   user-select: none;
-  transition: all .2s ease-in-out;
+  transition: all calc(var(--enableAnimation) * .2s) ease-in-out;
 
   &:hover,
   &:focus {

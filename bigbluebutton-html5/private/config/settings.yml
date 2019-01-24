@@ -18,6 +18,7 @@ public:
     askForFeedbackOnLogout: false
     defaultSettings:
       application:
+        animations: false
         chatAudioAlerts: false
         chatPushAlerts: false
         fallbackLocale: en

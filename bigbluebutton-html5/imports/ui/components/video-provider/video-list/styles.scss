@@ -57,7 +57,7 @@
     border: 5px solid var(--color-white-with-transparency);
     border-radius: 5px;
     opacity: 0;
-    transition: opacity .1s;
+    transition: opacity calc(var(--enableAnimation) * .1s);
     pointer-events: none;
   }
 
@@ -100,7 +100,7 @@
     content: "\e949"; /* ascii code for the ellipsis character */
     font-family: 'bbb-icons' !important;
     display: inline-block;
-    animation: spin 4s infinite linear;
+    animation: spin calc(var(--enableAnimation) * 4s) infinite linear;
   }
 }
 

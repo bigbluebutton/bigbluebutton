@@ -45,8 +45,14 @@ class Base extends Component {
     this.updateLoadingState = this.updateLoadingState.bind(this);
   }
 
+  componentDidMount() {
+    const { animations } = this.props;
+    const enableAnimation = (animations) ? 1 : 0;
+    document.documentElement.style.setProperty('--enableAnimation', enableAnimation);
+  }
+
   componentDidUpdate(prevProps) {
-    const { ejected, approved } = this.props;
+    const { ejected, approved, animations } = this.props;
     const { loading } = this.state;
 
     if (approved && loading) this.updateLoadingState(false);
@@ -54,6 +60,12 @@ class Base extends Component {
     if (prevProps.ejected || ejected) {
       Session.set('codeError', '403');
       Session.set('isMeetingEnded', true);
+    }
+
+    if (animations && animations !== prevProps.animations) {
+      document.documentElement.style.setProperty('--enableAnimation', 1);
+    } else if (!animations && animations !== prevProps.animations) {
+      document.documentElement.style.setProperty('--enableAnimation', 0);
     }
   }
 
@@ -117,7 +129,7 @@ const SUBSCRIPTIONS_NAME = [
 ];
 
 const BaseContainer = withTracker(() => {
-  const { locale } = Settings.application;
+  const { locale, animations } = Settings.application;
   const { credentials, loggedIn } = Auth;
   const { meetingId, requesterUserId } = credentials;
   let breakoutRoomSubscriptionHandler;
@@ -185,6 +197,7 @@ const BaseContainer = withTracker(() => {
     annotationsHandler,
     groupChatMessageHandler,
     breakoutRoomSubscriptionHandler,
+    animations,
   };
 })(Base);
 
