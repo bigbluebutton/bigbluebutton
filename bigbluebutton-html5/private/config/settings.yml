@@ -97,6 +97,7 @@ public:
     enableScreensharing: false
     enableVideo: true
     enableVideoStats: false
+    disableVideoMenu: false
     enableListenOnly: false
     autoShareWebcam: false
   allowOutsideCommands:

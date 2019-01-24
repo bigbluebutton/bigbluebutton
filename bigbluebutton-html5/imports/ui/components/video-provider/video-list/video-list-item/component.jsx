@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import { Meteor } from 'meteor/meteor';
 import cx from 'classnames';
 import { defineMessages, injectIntl } from 'react-intl';
 import Dropdown from '/imports/ui/components/dropdown/component';
@@ -26,8 +27,8 @@ class VideoListItem extends Component {
 
     this.state = {
       showStats: false,
-      stats: {'video':{}},
-    }
+      stats: { video: {} },
+    };
 
     this.toggleStats = this.toggleStats.bind(this);
     this.setStats = this.setStats.bind(this);
@@ -40,10 +41,10 @@ class VideoListItem extends Component {
   componentDidUpdate() {
     const playElement = (elem) => {
       if (elem.paused) {
-        var p = elem.play();
+        const p = elem.play();
         if (p && (typeof Promise !== 'undefined') && (p instanceof Promise)) {
           // Catch exception when playing video
-          p.catch(function(e) {});
+          p.catch((e) => { });
         }
       }
     };
@@ -64,12 +65,12 @@ class VideoListItem extends Component {
       getStats(this.videoTag, this.setStats);
     }
 
-    this.setState({showStats: !this.state.showStats});
+    this.setState({ showStats: !this.state.showStats });
   }
 
   setStats(updatedStats) {
     const { audio, video } = updatedStats;
-    this.setState({ stats: { ...this.state.stats, video, audio }})
+    this.setState({ stats: { ...this.state.stats, video, audio } });
   }
 
   getAvailableActions() {
@@ -84,13 +85,15 @@ class VideoListItem extends Component {
       <DropdownListTitle className={styles.hiddenDesktop} key="name">{user.name}</DropdownListTitle>,
       <DropdownListSeparator className={styles.hiddenDesktop} key="sep" />,
       ...actions.map(action => (<DropdownListItem key={user.id} {...action} />)),
-      (enableVideoStats ?
-        <DropdownListItem
-          key={'list-item-stats-' + user.id}
-          onClick={() => {this.toggleStats();}}
-          label={intl.formatMessage(intlMessages.connectionStatsLabel)}
-        />
-      : null),
+      (enableVideoStats
+        ? (
+          <DropdownListItem
+            key={`list-item-stats-${user.id}`}
+            onClick={() => { this.toggleStats(); }}
+            label={intl.formatMessage(intlMessages.connectionStatsLabel)}
+          />
+        )
+        : null),
     ]);
   }
 
@@ -99,6 +102,7 @@ class VideoListItem extends Component {
     const { user } = this.props;
 
     const availableActions = this.getAvailableActions();
+    const isVideoMenuDisabled = Meteor.settings.public.kurento.disableVideoMenu || false;
 
     return (
       <div className={cx({
@@ -115,20 +119,29 @@ class VideoListItem extends Component {
           playsInline
         />
         <div className={styles.info}>
-          <Dropdown className={styles.dropdown}>
-            <DropdownTrigger className={styles.dropdownTrigger}>
-              <span>{user.name}</span>
-            </DropdownTrigger>
-            <DropdownContent placement="top left">
-              <DropdownList className={styles.dropdownList}>
-                {availableActions}
-              </DropdownList>
-            </DropdownContent>
-          </Dropdown>
-          { user.isMuted ? <Icon className={styles.muted} iconName="unmute_filled" /> : null }
-          { user.isListenOnly ? <Icon className={styles.voice} iconName="listen" /> : null }
+          {isVideoMenuDisabled
+            ? (
+              <div className={styles.dropdown}>
+                <span className={cx(styles.userName)}>{user.name}</span>
+              </div>
+            )
+            : (
+              <Dropdown className={styles.dropdown}>
+                <DropdownTrigger className={styles.dropdownTrigger}>
+                  <span>{user.name}</span>
+                </DropdownTrigger>
+                <DropdownContent placement="top left">
+                  <DropdownList className={styles.dropdownList}>
+                    {availableActions}
+                  </DropdownList>
+                </DropdownContent>
+              </Dropdown>
+            )
+          }
+          {user.isMuted ? <Icon className={styles.muted} iconName="unmute_filled" /> : null}
+          {user.isListenOnly ? <Icon className={styles.voice} iconName="listen" /> : null}
         </div>
-        { showStats ? <VideoListItemStats toggleStats={this.toggleStats} stats={stats} /> : null }
+        {showStats ? <VideoListItemStats toggleStats={this.toggleStats} stats={stats} /> : null}
       </div>
     );
   }
