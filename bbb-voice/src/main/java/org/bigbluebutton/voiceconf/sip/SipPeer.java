@@ -36,7 +36,7 @@ import org.red5.server.api.stream.IBroadcastStream;
  * @author Richard Alam
  *
  */
-public class SipPeer implements SipRegisterAgentListener {
+public class SipPeer implements SipRegisterAgentListener, ForceHangupGlobalAudioUsersListener {
     private static Logger log = Red5LoggerFactory.getLogger(SipPeer.class, "sip");
 
     private ClientConnectionManager clientConnManager;
@@ -130,6 +130,7 @@ public class SipPeer implements SipRegisterAgentListener {
     	SipPeerProfile callerProfile = SipPeerProfile.copy(registeredProfile);
     	CallAgent ca = new CallAgent(this.clientRtpIp, sipProvider, callerProfile, audioconfProvider, clientId, messagingService);
     	ca.setClientConnectionManager(clientConnManager);
+    	ca.setForceHangupGlobalAudioUsersListener(this);
     	ca.setCallStreamFactory(callStreamFactory);
     	callManager.add(ca);
 
@@ -229,6 +230,15 @@ public class SipPeer implements SipRegisterAgentListener {
 		log.info("Successfully unregistered with Sip Server");
 		registered = false;
 	}
+
+  public void forceHangupGlobalAudioUsers(String voiceConf) {
+      Collection<ListenOnlyUser> listenOnlyUsers = GlobalCall.getAllListenOnlyUsers(voiceConf);
+    Iterator iter = listenOnlyUsers.iterator();
+    while (iter.hasNext()) {
+      ListenOnlyUser listenOnlyUser = (ListenOnlyUser) iter.next();
+      hangup(listenOnlyUser.clientId, true);
+    }
+  }
 	
 	public void setCallStreamFactory(CallStreamFactory csf) {
 		callStreamFactory = csf;

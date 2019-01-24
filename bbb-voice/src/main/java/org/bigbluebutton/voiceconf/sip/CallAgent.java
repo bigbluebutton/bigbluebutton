@@ -63,7 +63,8 @@ public class CallAgent extends CallListenerAdapter implements CallStreamObserver
     private String _destination;
     private Boolean listeningToGlobal = false;
     private IMessagingService messagingService;
-    
+    private ForceHangupGlobalAudioUsersListener forceHangupGlobalAudioUsersListener;
+
     private enum CallState {
     	UA_IDLE(0), UA_INCOMING_CALL(1), UA_OUTGOING_CALL(2), UA_ONCALL(3);    	
     	private final int state;
@@ -404,15 +405,23 @@ public class CallAgent extends CallListenerAdapter implements CallStreamObserver
     
     /** Callback function called when arriving a BYE request */
     public void onCallClosing(Call call, Message bye) {
-    	log.info("Received a BYE from the other end telling us to hangup.");
-        
-    	if (!isCurrentCall(call)) return;               
-        closeVoiceStreams();
-        notifyListenersOfOnCallClosed();
-        callState = CallState.UA_IDLE;
+      log.info("Received a BYE from the other end telling us to hangup.");
 
-        // Reset local sdp for next call.
-        initSessionDescriptor();
+      if (!isCurrentCall(call)) return;
+      closeVoiceStreams();
+      notifyListenersOfOnCallClosed();
+
+      // FreeSWITCH initiated hangup of call. Hangup all listen only users.
+      // ralam jan 24, 2019
+      if (forceHangupGlobalAudioUsersListener != null) {
+        log.info("Forcing hangup for listen only users of of voice conf {}.", getDestination());
+        forceHangupGlobalAudioUsersListener.forceHangupGlobalAudioUsers(getDestination());
+      }
+
+      callState = CallState.UA_IDLE;
+
+      // Reset local sdp for next call.
+      initSessionDescriptor();
     }
 
 
@@ -451,7 +460,11 @@ public class CallAgent extends CallListenerAdapter implements CallStreamObserver
     private boolean isCurrentCall(Call call) {
     	return this.call == call;
     }
-    
+
+    public void setForceHangupGlobalAudioUsersListener(ForceHangupGlobalAudioUsersListener listener) {
+      forceHangupGlobalAudioUsersListener = listener;
+    }
+
     public void setCallStreamFactory(CallStreamFactory csf) {
     	this.callStreamFactory = csf;
     }
