@@ -19,12 +19,17 @@ const defaultProps = {
 
 class Tooltip extends Component {
   static wait(tip, event) {
-    const tooltipTarget = event.target.lastChild
-      ? event.target : event.target.parentElement.parentElement;
+    const tooltipTarget = event.target;
     const expandedEl = tooltipTarget.parentElement.querySelector('[aria-expanded="true"]');
     const isTarget = expandedEl === tooltipTarget;
     if (expandedEl && !isTarget) return;
-    tip.set({ content: tooltipTarget.lastChild.innerText });
+    if (tooltipTarget.lastChild && tooltipTarget.lastChild.innerText) {
+      tip.set({ content: tooltipTarget.lastChild.innerText });
+    } else if (tooltipTarget.parentElement.nodeName.toLowerCase() === 'button') {
+      tip.set({ content: tooltipTarget.parentElement.lastChild.innerText });
+    } else if (tooltipTarget.parentElement.parentElement.nodeName.toLowerCase() === 'button') {
+      tip.set({ content: tooltipTarget.parentElement.parentElement.lastChild.innerText });
+    }
     tip.show();
   }
 
