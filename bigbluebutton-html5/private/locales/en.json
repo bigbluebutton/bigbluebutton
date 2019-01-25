@@ -199,6 +199,7 @@
     "app.submenu.closedCaptions.fontSizeOptionLabel": "Choose Font size",
     "app.submenu.closedCaptions.backgroundColorLabel": "Background color",
     "app.submenu.closedCaptions.fontColorLabel": "Font color",
+    "app.submenu.closedCaptions.noLocaleSelected": "Locale is not selected",
     "app.submenu.participants.muteAllLabel": "Mute all except the presenter",
     "app.submenu.participants.lockAllLabel": "Lock all participants",
     "app.submenu.participants.lockItemLabel": "Participants {0}",
