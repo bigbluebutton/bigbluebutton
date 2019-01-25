@@ -92,6 +92,29 @@ def archive_recorded_meetings(recording_dir)
   end
 end
 
+def keep_events_from_ended_meeting(recording_dir)
+  ended_done_files = Dir.glob("#{recording_dir}/status/ended/*.done")
+  ended_done_files.each do |ended_done|
+    ended_done_base = File.basename(ended_done, '.done')
+    meeting_id = nil
+    break_timestamp = nil
+    if match = /^([0-9a-f]+-[0-9]+)$/.match(ended_done_base)
+      meeting_id = match[1]
+    elsif match = /^([0-9a-f]+-[0-9]+)-([0-9]+)$/.match(ended_done_base)
+      meeting_id = match[1]
+      break_timestamp = match[2]
+    else
+      BigBlueButton.logger.warn("Ended done file for #{ended_done_base} has invalid format")
+      next
+    end
+    if !break_timestamp.nil?
+      ret = BigBlueButton.exec_ret("ruby", "events/events.rb", "-m", meeting_id, '-b', break_timestamp)
+    else
+      ret = BigBlueButton.exec_ret("ruby", "events/events.rb", "-m", meeting_id)
+    end
+  end
+end
+
 begin
   props = YAML::load(File.open('bigbluebutton.yml'))
   redis_host = props['redis_host']
@@ -108,6 +131,7 @@ begin
   BigBlueButton.logger.debug("Running rap-archive-worker...")
   
   archive_recorded_meetings(recording_dir)
+  keep_events_from_ended_meeting(recording_dir)
 
   BigBlueButton.logger.debug("rap-archive-worker done")
 
