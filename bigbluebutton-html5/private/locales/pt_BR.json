@@ -224,8 +224,6 @@
     "app.actionsBar.emojiMenu.thumbsDownLabel": "Negativo",
     "app.actionsBar.emojiMenu.thumbsDownDesc": "Mudar seu status para negativo",
     "app.actionsBar.currentStatusDesc": "status atual {0}",
-    "app.actionsBar.actionsDropdown.restorePresentationLabel": "Re-abrir apresentação",
-    "app.actionsBar.actionsDropdown.restorePresentationDesc": "Botão que re-abre a apresentação depois dela ser fechada",
     "app.audioNotification.audioFailedError1001": "Erro 1001: WebSocket desconectou",
     "app.audioNotification.audioFailedError1002": "Erro 1002: Não foi possível estabelecer a conexão WebSocket",
     "app.audioNotification.audioFailedError1003": "Erro 1003: Versão do navegador não suportada",
