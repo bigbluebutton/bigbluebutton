@@ -5,8 +5,10 @@
   }
 }
 
-.fullscreenButton {
+.wrapper {
   position: absolute;
+  bottom: 0;
+  right: 0;
   background-color: var(--color-transparent);
   cursor: pointer;
   border: none !important;

@@ -11,13 +11,8 @@ const intlMessages = defineMessages({
   },
 });
 
-const FullscreenButtonComponent = ({
-  intl,
-  handleFullscreen,
-  innerStyle,
-  dark,
-}) => (
-  <div style={innerStyle} className={cx(styles.fullscreenButton, dark ? styles.dark : null)}>
+const FullscreenButtonComponent = ({ intl, handleFullscreen, dark }) => (
+  <div className={cx(styles.wrapper, dark ? styles.dark : null)}>
     <Button
       role="button"
       aria-labelledby="fullscreenButtonLabel"

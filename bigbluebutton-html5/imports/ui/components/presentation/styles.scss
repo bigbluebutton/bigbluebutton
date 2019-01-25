@@ -64,30 +64,3 @@
   right: 0;
   bottom: 0;
 }
-
-.topRight {
-  position: absolute;
-}
-
-.topRight .close {
-  transition: 1s;
-}
-
-.topRight:hover .close {
-  display: initial;
-}
-
-.close {
-  background-color: var(--btn-primary-bg);
-  padding: 0;
-  i {
-    color: white;
-    font-weight: bold;
-  }
-  cursor: pointer;
-
-  button.span.button {
-    background-color: var(--btn-primary-bg);
-  }
-}
-

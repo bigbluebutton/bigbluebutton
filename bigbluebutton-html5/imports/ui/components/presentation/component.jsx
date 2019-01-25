@@ -174,9 +174,7 @@ export default class PresentationArea extends Component {
 
   // renders the whole presentation area
   renderPresentationArea() {
-    // sometimes tomcat publishes the slide url, but the actual file is not accessible (why?)
-    if (!this.props.currentSlide
-        || !this.props.currentSlide.calculatedData) {
+    if (!this.isPresentationAccessible()) {
       return null;
     }
     // to control the size of the svg wrapper manually
@@ -184,6 +182,9 @@ export default class PresentationArea extends Component {
     const adjustedSizes = this.calculateSize();
     // a reference to the slide object
     const slideObj = this.props.currentSlide;
+
+    const presentationCloseButton = this.renderPresentationClose();
+    const presentationFullscreenButton = this.renderPresentationFullscreen();
 
     // retrieving the pre-calculated data from the slide object
     const {
@@ -196,8 +197,10 @@ export default class PresentationArea extends Component {
       imageUri,
     } = slideObj.calculatedData;
     const svgDimensions = this.state.fitToWidth ? {
+      position: 'absolute',
       width: 'inherit',
     } : {
+      position: 'absolute',
       width: adjustedSizes.width,
       height: adjustedSizes.height,
     };
@@ -205,6 +208,8 @@ export default class PresentationArea extends Component {
       <div
         style={svgDimensions}
       >
+        {presentationCloseButton}
+        {presentationFullscreenButton}
         <TransitionGroup>
           <CSSTransition
             key={slideObj.id}
@@ -317,47 +322,29 @@ export default class PresentationArea extends Component {
     );
   }
 
-  renderPresentationClose() {
-    if (!this.props.currentSlide || !MediaService.shouldEnableSwapLayout()) {
-      return null;
-    }
+  isPresentationAccessible() {
+    // sometimes tomcat publishes the slide url, but the actual file is not accessible (why?)
+    return this.props.currentSlide && this.props.currentSlide.calculatedData;
+  };
 
-    const adjustedSizes = this.calculateSize();
-    const marginRight = (this.state.presentationWidth - adjustedSizes.width) / 2.0;
-    const marginTop = (this.state.presentationHeight - adjustedSizes.height) / 2.0;
-
-    const style = {
-      right: `${marginRight}px`,
-      top: `${marginTop}px`,
-    };
-
-    return (
-      <PresentationCloseButton
-        innerStyle={style}
-        toggleSwapLayout={MediaService.toggleSwapLayout}
-      />
-    );
+  isFullscreen() {
+    return document.fullscreenElement !== null;
   }
 
+  renderPresentationClose() {
+    if (!MediaService.shouldEnableSwapLayout() || this.isFullscreen()) {
+      return null;
+    }
+    return <PresentationCloseButton toggleSwapLayout={MediaService.toggleSwapLayout} />;
+  };
+
   renderPresentationFullscreen() {
-    const full = () => {
-      if (!this.refPresentationArea) {
-        return;
-      }
+    if (this.isFullscreen()) {
+      return null;
+    }
+    const full = () => this.refPresentationContainer.requestFullscreen();
 
-      this.refPresentationArea.requestFullscreen();
-    };
-
-    const adjustedSizes = this.calculateSize();
-    const marginRight = (this.state.presentationWidth - adjustedSizes.width) / 2.0;
-    const marginTop = (this.state.presentationHeight - adjustedSizes.height) / 2.0;
-
-    const style = {
-      right: `${marginRight}px`,
-      bottom: `${marginTop}px`,
-    };
-
-    return <FullscreenButton innerStyle={style} handleFullscreen={full} dark />;
+    return <FullscreenButton handleFullscreen={full} dark />;
   }
 
   renderPresentationToolbar() {
@@ -378,8 +365,7 @@ export default class PresentationArea extends Component {
   }
 
   renderWhiteboardToolbar() {
-    if (!this.props.currentSlide
-        || !this.props.currentSlide.calculatedData) {
+    if (!this.isPresentationAccessible()) {
       return null;
     }
 
@@ -394,7 +380,9 @@ export default class PresentationArea extends Component {
 
   render() {
     return (
-      <div className={styles.presentationContainer}>
+      <div
+        ref={(ref) => { this.refPresentationContainer = ref; }}
+        className={styles.presentationContainer}>
         <div
           ref={(ref) => { this.refPresentationArea = ref; }}
           className={styles.presentationArea}
@@ -403,8 +391,6 @@ export default class PresentationArea extends Component {
             ref={(ref) => { this.refWhiteboardArea = ref; }}
             className={styles.whiteboardSizeAvailable}
           />
-          { this.renderPresentationClose() }
-          { this.renderPresentationFullscreen() }
           {this.state.showSlide
             ? this.renderPresentationArea()
             : null }
