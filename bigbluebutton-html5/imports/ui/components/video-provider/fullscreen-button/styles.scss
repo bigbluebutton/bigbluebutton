@@ -1,0 +1,29 @@
+:root {
+  --color-transparent: #ff000000;
+  ::-webkit-media-controls {
+    display:none !important;
+  }
+}
+
+.fullscreenButton {
+  position: absolute;
+  background-color: var(--color-transparent);
+  cursor: pointer;
+  border: none !important;
+}
+
+.button {
+  span, span:active, span:hover {
+    background-color: var(--color-transparent) !important;
+    border: none !important;
+    i {
+      border: none !important;
+      background-color: var(--color-transparent) !important;
+      font-weight: bold !important;
+    }
+  }
+}
+
+.dark .button span i {
+  color: var(--color-black);
+}
