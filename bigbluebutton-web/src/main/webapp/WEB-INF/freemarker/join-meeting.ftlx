@@ -1,0 +1,15 @@
+<#ftl output_format="XML" auto_esc=true>
+<#compress>
+<response>
+    <#-- Where code is a 'SUCCESS' String -->
+    <returncode>${returnCode}</returncode>
+    <messageKey>${msgKey!}</messageKey>
+    <message>${msg!}</message>
+    <meeting_id>${meetingID}</meeting_id> <#-- Yielded -->
+    <user_id>${internalUserId}</user_id>
+    <auth_token>${authToken}</auth_token>
+    <session_token>${sessionToken}</session_token>
+    <guestStatus>${guestStatusVal}</guestStatus>
+    <url>${destUrl}</url>
+</response>
+</#compress>
