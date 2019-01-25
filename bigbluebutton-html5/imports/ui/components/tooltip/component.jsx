@@ -23,6 +23,7 @@ class Tooltip extends Component {
     const expandedEl = tooltipTarget.parentElement.querySelector('[aria-expanded="true"]');
     const isTarget = expandedEl === tooltipTarget;
     if (expandedEl && !isTarget) return;
+
     if (tooltipTarget.lastChild && tooltipTarget.lastChild.innerText) {
       tip.set({ content: tooltipTarget.lastChild.innerText });
     } else if (tooltipTarget.parentElement.nodeName.toLowerCase() === 'button') {
@@ -30,6 +31,8 @@ class Tooltip extends Component {
     } else if (tooltipTarget.parentElement.parentElement.nodeName.toLowerCase() === 'button') {
       tip.set({ content: tooltipTarget.parentElement.parentElement.lastChild.innerText });
     }
+    // if we are not able to get the text, the default content is used
+
     tip.show();
   }
 
