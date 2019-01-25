@@ -55,7 +55,9 @@ Kurento = function (
 
   this.kurentoPort = 'bbb-webrtc-sfu';
   this.hostName = window.location.hostname;
-  this.socketUrl = `wss://${this.hostName}/${this.kurentoPort}`;
+  BBB.getSessionToken(sessionToken => {
+    this.socketUrl = `wss://${this.hostName}/${this.kurentoPort}?sessionToken=${sessionToken}`;
+  });
   this.pingInterval = null;
 
   if (chromeExtension != null) {

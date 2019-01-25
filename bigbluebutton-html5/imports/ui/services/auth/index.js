@@ -242,6 +242,18 @@ class Auth {
       makeCall('validateAuthToken');
     });
   }
+
+  authenticateURL(url) {
+    let authURL = url;
+    if (authURL.indexOf('sessionToken=') === -1) {
+      if (authURL.indexOf('?') !== -1) {
+        authURL = authURL + '&sessionToken=' + this.sessionToken;
+      } else {
+        authURL= authURL + '?sessionToken=' + this.sessionToken;
+      }
+    }
+    return authURL;
+  }
 }
 
 const AuthSingleton = new Auth();
