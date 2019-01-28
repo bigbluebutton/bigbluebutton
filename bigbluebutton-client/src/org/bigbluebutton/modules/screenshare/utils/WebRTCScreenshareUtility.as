@@ -110,6 +110,8 @@ package org.bigbluebutton.modules.screenshare.utils
         ExternalInterface.addCallback("onSuccess", onSuccess);
         // check if the extension exists
         ExternalInterface.call("checkChromeExtInstalled", "onSuccess", WebRTCScreenshareUtility.chromeExtensionKey);
+      } else if (BrowserCheck.isEdge()) {
+        webRTCWorksAndConfigured("Edge, lets try");
       } else {
         cannotUseWebRTC("Web browser doesn't support WebRTC");
         return;

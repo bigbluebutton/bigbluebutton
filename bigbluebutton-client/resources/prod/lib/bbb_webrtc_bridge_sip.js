@@ -588,11 +588,7 @@ function releaseUserMedia() {
 }
 
 function isWebRTCAvailable() {
-	if (bowser.msedge) {
-		return false;
-	} else {
-		return SIP.WebRTC.isSupported();
-	}
+	return SIP.WebRTC.isSupported();
 }
 
 function getCallStatus() {

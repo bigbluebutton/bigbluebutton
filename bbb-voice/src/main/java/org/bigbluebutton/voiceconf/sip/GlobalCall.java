@@ -1,6 +1,7 @@
 package org.bigbluebutton.voiceconf.sip;
 
 
+import java.util.Collection;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import org.red5.app.sip.codecs.Codec;
@@ -78,6 +79,13 @@ public class GlobalCall {
     		return voiceConfToListenOnlyUsersMap.get(voiceConf).removeUser(clientId);
     	}
     	return null;
+    }
+
+    public static synchronized Collection<ListenOnlyUser> getAllListenOnlyUsers(String voiceConf) {
+        if (voiceConfToListenOnlyUsersMap.containsKey(voiceConf)) {
+            return voiceConfToListenOnlyUsersMap.get(voiceConf).getAllListenOnlyUsers();
+        }
+        return null;
     }
 
     public static Codec getRoomCodec(String roomName) {

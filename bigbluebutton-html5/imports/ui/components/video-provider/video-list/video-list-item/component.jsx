@@ -12,6 +12,7 @@ import DropdownListItem from '/imports/ui/components/dropdown/list/item/componen
 import Icon from '/imports/ui/components/icon/component';
 import Button from '/imports/ui/components/button/component';
 import VideoListItemStats from './video-list-item-stats/component';
+import FullscreenButton from '../../fullscreen-button/component';
 import { styles } from '../styles';
 
 const intlMessages = defineMessages({
@@ -44,7 +45,7 @@ class VideoListItem extends Component {
         const p = elem.play();
         if (p && (typeof Promise !== 'undefined') && (p instanceof Promise)) {
           // Catch exception when playing video
-          p.catch((e) => { });
+          p.catch((e) => {});
         }
       }
     };
@@ -97,6 +98,13 @@ class VideoListItem extends Component {
     ]);
   }
 
+  renderFullscreenButton() {
+    const full = () => {
+      this.videoTag.requestFullscreen();
+    };
+    return <FullscreenButton handleFullscreen={full} />;
+  }
+
   render() {
     const { showStats, stats } = this.state;
     const { user } = this.props;
@@ -130,7 +138,7 @@ class VideoListItem extends Component {
                 <DropdownTrigger className={styles.dropdownTrigger}>
                   <span>{user.name}</span>
                 </DropdownTrigger>
-                <DropdownContent placement="top left">
+                <DropdownContent placement="top left" className={styles.dropdownContent}>
                   <DropdownList className={styles.dropdownList}>
                     {availableActions}
                   </DropdownList>
@@ -142,6 +150,7 @@ class VideoListItem extends Component {
           {user.isListenOnly ? <Icon className={styles.voice} iconName="listen" /> : null}
         </div>
         {showStats ? <VideoListItemStats toggleStats={this.toggleStats} stats={stats} /> : null}
+        { this.renderFullscreenButton() }
       </div>
     );
   }

@@ -10,6 +10,9 @@ import PresentationToolbarContainer from './presentation-toolbar/container';
 import PresentationOverlayContainer from './presentation-overlay/container';
 import Slide from './slide/component';
 import { styles } from './styles.scss';
+import MediaService from '../media/service';
+import PresentationCloseButton from './presentation-close-button/component';
+import FullscreenButton from '../video-provider/fullscreen-button/component';
 
 export default class PresentationArea extends Component {
   constructor() {
@@ -171,9 +174,7 @@ export default class PresentationArea extends Component {
 
   // renders the whole presentation area
   renderPresentationArea() {
-    // sometimes tomcat publishes the slide url, but the actual file is not accessible (why?)
-    if (!this.props.currentSlide
-        || !this.props.currentSlide.calculatedData) {
+    if (!this.isPresentationAccessible()) {
       return null;
     }
     // to control the size of the svg wrapper manually
@@ -181,6 +182,9 @@ export default class PresentationArea extends Component {
     const adjustedSizes = this.calculateSize();
     // a reference to the slide object
     const slideObj = this.props.currentSlide;
+
+    const presentationCloseButton = this.renderPresentationClose();
+    const presentationFullscreenButton = this.renderPresentationFullscreen();
 
     // retrieving the pre-calculated data from the slide object
     const {
@@ -193,8 +197,10 @@ export default class PresentationArea extends Component {
       imageUri,
     } = slideObj.calculatedData;
     const svgDimensions = this.state.fitToWidth ? {
+      position: 'absolute',
       width: 'inherit',
     } : {
+      position: 'absolute',
       width: adjustedSizes.width,
       height: adjustedSizes.height,
     };
@@ -202,6 +208,8 @@ export default class PresentationArea extends Component {
       <div
         style={svgDimensions}
       >
+        {presentationCloseButton}
+        {presentationFullscreenButton}
         <TransitionGroup>
           <CSSTransition
             key={slideObj.id}
@@ -314,6 +322,31 @@ export default class PresentationArea extends Component {
     );
   }
 
+  isPresentationAccessible() {
+    // sometimes tomcat publishes the slide url, but the actual file is not accessible (why?)
+    return this.props.currentSlide && this.props.currentSlide.calculatedData;
+  };
+
+  isFullscreen() {
+    return document.fullscreenElement !== null;
+  }
+
+  renderPresentationClose() {
+    if (!MediaService.shouldEnableSwapLayout() || this.isFullscreen()) {
+      return null;
+    }
+    return <PresentationCloseButton toggleSwapLayout={MediaService.toggleSwapLayout} />;
+  };
+
+  renderPresentationFullscreen() {
+    if (this.isFullscreen()) {
+      return null;
+    }
+    const full = () => this.refPresentationContainer.requestFullscreen();
+
+    return <FullscreenButton handleFullscreen={full} dark />;
+  }
+
   renderPresentationToolbar() {
     if (!this.props.currentSlide) {
       return null;
@@ -332,8 +365,7 @@ export default class PresentationArea extends Component {
   }
 
   renderWhiteboardToolbar() {
-    if (!this.props.currentSlide
-        || !this.props.currentSlide.calculatedData) {
+    if (!this.isPresentationAccessible()) {
       return null;
     }
 
@@ -348,7 +380,9 @@ export default class PresentationArea extends Component {
 
   render() {
     return (
-      <div className={styles.presentationContainer}>
+      <div
+        ref={(ref) => { this.refPresentationContainer = ref; }}
+        className={styles.presentationContainer}>
         <div
           ref={(ref) => { this.refPresentationArea = ref; }}
           className={styles.presentationArea}

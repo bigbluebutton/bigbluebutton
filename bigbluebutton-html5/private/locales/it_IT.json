@@ -1,0 +1,9 @@
+{
+    "app.home.greeting": "Benvenuto {0}! La tua presentazione comincerà a breve...",
+    "app.chat.submitLabel": "Invia Messaggio",
+    "app.chat.errorMinMessageLength": "Il messaggio di {0} carattere(i) è troppo breve",
+    "app.chat.errorMaxMessageLength": "Il messaggio di {0} carattere(i) è troppo lungo",
+    "app.chat.inputLabel": "Messaggio di input per la chat  {0}"
+
+}
+

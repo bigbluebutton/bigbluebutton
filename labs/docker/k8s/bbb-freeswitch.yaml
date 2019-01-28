@@ -31,6 +31,8 @@ spec:
         ports:
         - containerPort: 7443
           protocol: TCP
+        - containerPort: 8021
+          protocol: TCP
       restartPolicy: Always
       terminationGracePeriodSeconds: 30
       nodeSelector:
@@ -54,5 +56,8 @@ spec:
   - name: http
     targetPort: 7443
     port: 7443
+  - name: freeswitch-8021
+    targetPort: 8021
+    port: 8021
   selector:
     app: bbb-freeswitch

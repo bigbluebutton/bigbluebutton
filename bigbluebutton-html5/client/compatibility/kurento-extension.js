@@ -700,9 +700,14 @@ window.getScreenConstraints = function (sendSource, callback) {
 
         kurentoManager.kurentoScreenshare.extensionInstalled = true;
 
-        // this statement sets gets 'sourceId" and sets "chromeMediaSourceId"
-        screenConstraints.video.chromeMediaSource = { exact: [sendSource] };
-        screenConstraints.video.chromeMediaSourceId = sourceId;
+        // Re-wrap the video constraints into the mandatory object (latest adapter)
+        screenConstraints.video = {}
+        screenConstraints.video.mandatory = {};
+        screenConstraints.video.mandatory.maxFrameRate = 10;
+        screenConstraints.video.mandatory.maxHeight = kurentoManager.kurentoScreenshare.vid_max_height;
+        screenConstraints.video.mandatory.maxWidth = kurentoManager.kurentoScreenshare.vid_max_width;
+        screenConstraints.video.mandatory.chromeMediaSource = sendSource;
+        screenConstraints.video.mandatory.chromeMediaSourceId = sourceId;
         screenConstraints.optional = optionalConstraints;
 
         console.log('getScreenConstraints for Chrome returns => ', screenConstraints);
