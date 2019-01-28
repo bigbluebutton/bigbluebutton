@@ -4,7 +4,7 @@ import Settings from '/imports/ui/services/settings';
 import _ from 'lodash';
 
 const getCCData = () => {
-  const meetingID = Auth.meetingID;
+  const { meetingID } = Auth;
 
   const ccSettings = Settings.cc;
 
