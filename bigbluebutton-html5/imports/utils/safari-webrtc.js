@@ -37,7 +37,7 @@ export function canGenerateIceCandidates() {
       resolve();
       return;
     }
-    
+
     getIceServersList().catch((e) => {
       reject();
     }).then((iceServersReceived) => {
@@ -53,16 +53,16 @@ export function canGenerateIceCandidates() {
           Session.set('canGenerateIceCandidates', true);
           resolve();
         }
-      }
+      };
 
       pc.onicegatheringstatechange = function (e) {
         if (e.currentTarget.iceGatheringState == 'complete' && countIceCandidates == 0) reject();
-      }
+      };
 
-      setTimeout(function () {
+      setTimeout(() => {
         pc.close();
         if (!countIceCandidates) reject();
-    }, 5000);
+      }, 5000);
 
       const p = pc.createOffer({ offerToReceiveVideo: true });
       p.then((answer) => { pc.setLocalDescription(answer); });
@@ -75,7 +75,7 @@ export function tryGenerateIceCandidates() {
     canGenerateIceCandidates().then((ok) => {
       resolve();
     }).catch((e) => {
-      navigator.mediaDevices.getUserMedia({ audio: true, video: false }).then(function (stream) {
+      navigator.mediaDevices.getUserMedia({ audio: true, video: false }).then((stream) => {
         canGenerateIceCandidates().then((ok) => {
           resolve();
         }).catch((e) => {

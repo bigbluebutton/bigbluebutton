@@ -145,8 +145,6 @@ class ActionsDropdown extends Component {
       pollBtnDesc,
       presentationLabel,
       presentationDesc,
-      startRecording,
-      stopRecording,
       createBreakoutRoom,
       createBreakoutRoomDesc,
       invitationItem,
@@ -157,6 +155,10 @@ class ActionsDropdown extends Component {
     const {
       formatMessage,
     } = intl;
+
+    const canCreateBreakout = isUserModerator
+    && !meetingIsBreakout
+    && !hasBreakoutRoom;
 
     const canInviteUsers = isUserModerator
     && !meetingIsBreakout
@@ -209,12 +211,12 @@ class ActionsDropdown extends Component {
           />
         )
         : null),
-      (isUserModerator && !meetingIsBreakout && !hasBreakoutRoom
+      (canCreateBreakout
         ? (
           <DropdownListItem
             icon="rooms"
-            label={intl.formatMessage(intlMessages.createBreakoutRoom)}
-            description={intl.formatMessage(intlMessages.createBreakoutRoomDesc)}
+            label={formatMessage(createBreakoutRoom)}
+            description={formatMessage(createBreakoutRoomDesc)}
             key={this.createBreakoutRoomId}
             onClick={this.onCreateBreakouts}
           />
