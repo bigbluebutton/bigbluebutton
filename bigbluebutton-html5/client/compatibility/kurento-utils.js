@@ -475,7 +475,7 @@ function WebRtcPeer(mode, options, callback) {
                     navigator.getDisplayMedia(recursive.apply(undefined, constraints))
                         .then(gDMCallback)
                         .catch(callback);
-                } else if (typeof navigator.mediaDevices.getDisplayMedia === 'function') {
+                } else if (navigator.mediaDevices && typeof navigator.mediaDevices.getDisplayMedia === 'function') {
                     navigator.mediaDevices.getDisplayMedia(recursive.apply(undefined, constraints))
                         .then(gDMCallback)
                         .catch(callback);
