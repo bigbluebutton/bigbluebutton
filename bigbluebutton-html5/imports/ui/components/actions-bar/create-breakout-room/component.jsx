@@ -155,7 +155,7 @@ class BreakoutRoom extends Component {
       freeJoin,
     } = this.state;
 
-    if (users.length === this.getUserByRoom(0).length) {
+    if (users.length === this.getUserByRoom(0).length && !freeJoin) {
       this.setState({ valid: false });
       return;
     }
