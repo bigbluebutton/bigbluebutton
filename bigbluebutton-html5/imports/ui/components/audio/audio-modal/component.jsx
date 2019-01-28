@@ -129,6 +129,7 @@ class AudioModal extends Component {
       joinFullAudioImmediately,
       joinFullAudioEchoTest,
       forceListenOnlyAttendee,
+      audioLocked,
     } = this.props;
 
     if (joinFullAudioImmediately) {
@@ -139,7 +140,7 @@ class AudioModal extends Component {
       this.handleGoToEchoTest();
     }
 
-    if (forceListenOnlyAttendee) {
+    if (forceListenOnlyAttendee || audioLocked) {
       this.handleJoinListenOnly();
     }
   }
@@ -266,9 +267,11 @@ class AudioModal extends Component {
       audioLocked,
     } = this.props;
 
+    const showMicrophone = forceListenOnlyAttendee || audioLocked;
+
     return (
       <span className={styles.audioOptions}>
-        {!forceListenOnlyAttendee
+        {!showMicrophone
           ? (
             <Button
               className={styles.audioBtn}
