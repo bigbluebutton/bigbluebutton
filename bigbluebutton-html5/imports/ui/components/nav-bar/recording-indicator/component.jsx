@@ -73,7 +73,7 @@ class RecordingIndicator extends React.PureComponent {
               />
             </div>
 
-            <div className={styles.presentationTitle}>
+            <div className={styles.presentationTitle} aria-hidden={!recording}>
               {recording ? humanizeSeconds(time) : <div>{buttonTitle}</div>}
             </div>
 

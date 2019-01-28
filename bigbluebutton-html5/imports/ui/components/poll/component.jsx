@@ -242,6 +242,7 @@ class Poll extends Component {
           color="default"
           onClick={this.toggleCustomFields}
           label={intl.formatMessage(intlMessages.customPollLabel)}
+          aria-expanded={customPollReq}
         />
         {!customPollReq ? null : this.renderCustomView()}
       </div>

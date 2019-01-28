@@ -12,6 +12,10 @@ const intlMessages = defineMessages({
     id: 'app.createBreakoutRoom.title',
     description: 'breakout title',
   },
+  breakoutAriaTitle: {
+    id: 'app.createBreakoutRoom.ariaTitle',
+    description: 'breakout aria title',
+  },
   breakoutDuration: {
     id: 'app.createBreakoutRoom.duration',
     description: 'breakout duration time',
@@ -119,7 +123,7 @@ class BreakoutRoom extends Component {
     this.setState({ joinedAudioOnly: false, breakoutId });
   }
 
-  renderUserActions(breakoutId) {
+  renderUserActions(breakoutId, number) {
     const {
       isMicrophoneUser,
       isModerator,
@@ -145,6 +149,9 @@ class BreakoutRoom extends Component {
           label={generated && requestedBreakoutId === breakoutId
             ? intl.formatMessage(intlMessages.generatedURL)
             : intl.formatMessage(intlMessages.breakoutJoin)}
+          aria-label={generated && requestedBreakoutId === breakoutId
+            ? intl.formatMessage(intlMessages.generatedURL)
+            : `${intl.formatMessage(intlMessages.breakoutJoin)} ${number}`}
           onClick={() => this.getBreakoutURL(breakoutId)}
           disabled={disable}
           className={styles.joinButton}
@@ -186,13 +193,13 @@ class BreakoutRoom extends Component {
 
     const roomItems = breakoutRooms.map(item => (
       <div className={styles.content} key={`breakoutRoomList-${item.breakoutId}`}>
-        <span>{intl.formatMessage(intlMessages.breakoutRoom, item.sequence.toString())}</span>
+        <span aria-hidden>{intl.formatMessage(intlMessages.breakoutRoom, item.sequence.toString())}</span>
         {waiting && requestedBreakoutId === item.breakoutId ? (
           <span>
             {intl.formatMessage(intlMessages.generatingURL)}
             <span className={styles.connectingAnimation} />
           </span>
-        ) : this.renderUserActions(item.breakoutId)}
+        ) : this.renderUserActions(item.breakoutId, item.sequence.toString())}
       </div>
     ));
 
@@ -217,12 +224,13 @@ class BreakoutRoom extends Component {
     } = this.props;
     return (
       <div className={styles.panel}>
-        <div className={styles.header} role="button" onClick={closeBreakoutPanel} >
-          <span>
-            <Icon iconName="left_arrow" />
-            {intl.formatMessage(intlMessages.breakoutTitle)}
-          </span>
-        </div>
+        <Button
+          icon="left_arrow"
+          label={intl.formatMessage(intlMessages.breakoutTitle)}
+          aria-label={intl.formatMessage(intlMessages.breakoutAriaTitle)}
+          className={styles.header}
+          onClick={closeBreakoutPanel}
+        />
         {this.renderBreakoutRooms()}
         {this.renderDuration()}
         {

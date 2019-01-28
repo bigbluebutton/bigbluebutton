@@ -41,28 +41,27 @@ const JoinVideoOptions = ({
 }) => {
   const menuItems = videoItems
     .filter(item => !item.disabled)
-    .map(item =>
-      (
-        <DropdownListItem
-          key={_.uniqueId('video-menu-')}
-          className={styles.item}
-          description={item.description}
-          onClick={item.click}
-          tabIndex={-1}
-          id={item.id}
-        >
-          <img src={item.iconPath} className={styles.imageSize} alt="video menu icon" />
-          <span className={styles.label}>{item.label}</span>
-        </DropdownListItem>
-      ));
+    .map(item => (
+      <DropdownListItem
+        key={_.uniqueId('video-menu-')}
+        className={styles.item}
+        description={item.description}
+        onClick={item.click}
+        tabIndex={-1}
+        id={item.id}
+      >
+        <img src={item.iconPath} className={styles.imageSize} alt="video menu icon" aria-hidden />
+        <span className={styles.label}>{item.label}</span>
+      </DropdownListItem>
+    ));
   return (
     <Dropdown
       autoFocus
     >
       <DropdownTrigger tabIndex={0}>
         <Button
-          label={!videoShareAllowed ?
-            intl.formatMessage(intlMessages.videoMenuDisabled)
+          label={!videoShareAllowed
+            ? intl.formatMessage(intlMessages.videoMenuDisabled)
             : intl.formatMessage(intlMessages.videoMenu)
           }
           className={cx(styles.button, isSharingVideo || styles.ghostButton)}
@@ -77,7 +76,7 @@ const JoinVideoOptions = ({
           disabled={!videoShareAllowed}
         />
       </DropdownTrigger>
-      <DropdownContent placement="top" >
+      <DropdownContent placement="top">
         <DropdownList horizontal>
           {menuItems}
         </DropdownList>

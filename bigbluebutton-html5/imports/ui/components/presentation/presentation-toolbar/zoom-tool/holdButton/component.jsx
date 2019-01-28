@@ -87,7 +87,6 @@ class HoldDownButton extends Component {
 
     return (
       <span
-        role="button"
         key={uniqueKey}
         onClick={this.onClick}
         onMouseDown={this.mouseDownHandler}
