@@ -65,19 +65,35 @@ class BreakoutRoom extends Component {
   }
 
   componentDidUpdate() {
-    const { breakoutRoomUser } = this.props;
-    if (this.state.waiting && !this.state.generated) {
-      const breakoutUser = breakoutRoomUser(this.state.requestedBreakoutId);
+    const {
+      breakoutRoomUser,
+      breakoutRooms,
+      closeBreakoutPanel,
+    } = this.props;
+
+    const {
+      waiting,
+      generated,
+      requestedBreakoutId,
+    } = this.state;
+
+    if (breakoutRooms.length <= 0) closeBreakoutPanel();
+
+    if (waiting && !generated) {
+      const breakoutUser = breakoutRoomUser(requestedBreakoutId);
+
       if (!breakoutUser) return;
       if (breakoutUser.redirectToHtml5JoinURL !== '') {
         _.delay(() => this.setState({ generated: true, waiting: false }), 1000);
       }
     }
   }
+
   getBreakoutURL(breakoutId) {
     const { requestJoinURL, breakoutRoomUser } = this.props;
+    const { waiting } = this.state;
     const hasUser = breakoutRoomUser(breakoutId);
-    if (!hasUser && !this.state.waiting) {
+    if (!hasUser && !waiting) {
       this.setState(
         { waiting: true, requestedBreakoutId: breakoutId },
         () => requestJoinURL(breakoutId),
@@ -96,6 +112,7 @@ class BreakoutRoom extends Component {
     transferToBreakout(breakoutId);
     this.setState({ joinedAudioOnly: true, breakoutId });
   }
+
   returnBackToMeeeting(breakoutId) {
     const { transferUserToMeeting, meetingId } = this.props;
     transferUserToMeeting(breakoutId, meetingId);
@@ -119,9 +136,9 @@ class BreakoutRoom extends Component {
 
     const moderatorJoinedAudio = isMicrophoneUser && isModerator;
     const disable = waiting && requestedBreakoutId !== breakoutId;
-    const audioAction = joinedAudioOnly ?
-      () => this.returnBackToMeeeting(breakoutId) :
-      () => this.transferUserToBreakoutRoom(breakoutId);
+    const audioAction = joinedAudioOnly
+      ? () => this.returnBackToMeeeting(breakoutId)
+      : () => this.transferUserToBreakoutRoom(breakoutId);
     return (
       <div className={styles.breakoutActions}>
         <Button
@@ -133,18 +150,17 @@ class BreakoutRoom extends Component {
           className={styles.joinButton}
         />
         {
-          moderatorJoinedAudio ?
-            [
+          moderatorJoinedAudio
+            ? [
               ('|'),
               (
                 <Button
                   label={
-                    moderatorJoinedAudio &&
-                    stateBreakoutId === breakoutId &&
-                    joinedAudioOnly
-                      ?
-                      intl.formatMessage(intlMessages.breakoutReturnAudio) :
-                      intl.formatMessage(intlMessages.breakoutJoinAudio)
+                    moderatorJoinedAudio
+                    && stateBreakoutId === breakoutId
+                    && joinedAudioOnly
+                      ? intl.formatMessage(intlMessages.breakoutReturnAudio)
+                      : intl.formatMessage(intlMessages.breakoutJoinAudio)
                   }
                   className={styles.button}
                   onClick={audioAction}
@@ -163,10 +179,15 @@ class BreakoutRoom extends Component {
       intl,
     } = this.props;
 
+    const {
+      waiting,
+      requestedBreakoutId,
+    } = this.state;
+
     const roomItems = breakoutRooms.map(item => (
       <div className={styles.content} key={`breakoutRoomList-${item.breakoutId}`}>
         <span>{intl.formatMessage(intlMessages.breakoutRoom, item.sequence.toString())}</span>
-        {this.state.waiting && this.state.requestedBreakoutId === item.breakoutId ? (
+        {waiting && requestedBreakoutId === item.breakoutId ? (
           <span>
             {intl.formatMessage(intlMessages.generatingURL)}
             <span className={styles.connectingAnimation} />
@@ -192,13 +213,12 @@ class BreakoutRoom extends Component {
 
   render() {
     const {
-      intl, endAllBreakouts, breakoutRooms, isModerator, closeBreakoutPanel,
+      intl, endAllBreakouts, isModerator, closeBreakoutPanel,
     } = this.props;
-    if (breakoutRooms.length <= 0) return null;
     return (
       <div className={styles.panel}>
         <div className={styles.header} role="button" onClick={closeBreakoutPanel} >
-          <span >
+          <span>
             <Icon iconName="left_arrow" />
             {intl.formatMessage(intlMessages.breakoutTitle)}
           </span>
@@ -206,8 +226,8 @@ class BreakoutRoom extends Component {
         {this.renderBreakoutRooms()}
         {this.renderDuration()}
         {
-          isModerator ?
-            (
+          isModerator
+            ? (
               <Button
                 color="primary"
                 size="lg"

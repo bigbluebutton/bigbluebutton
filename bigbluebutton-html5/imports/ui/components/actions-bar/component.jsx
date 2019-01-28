@@ -25,6 +25,10 @@ class ActionsBar extends React.PureComponent {
       hasBreakoutRoom,
       meetingName,
       users,
+      getUsersNotAssigned,
+      sendInvitation,
+      getBreakouts,
+      handleTakePresenter,
     } = this.props;
 
     const {
@@ -34,6 +38,8 @@ class ActionsBar extends React.PureComponent {
     } = recordSettingsList;
 
     const actionBarClasses = {};
+    const { enableExternalVideo } = Meteor.settings.public.app;
+
     actionBarClasses[styles.centerWithActions] = isUserPresenter;
     actionBarClasses[styles.center] = true;
 
@@ -44,6 +50,7 @@ class ActionsBar extends React.PureComponent {
             isUserPresenter,
             isUserModerator,
             allowStartStopRecording,
+            allowExternalVideo: enableExternalVideo,
             isRecording,
             record,
             toggleRecording,
@@ -52,6 +59,10 @@ class ActionsBar extends React.PureComponent {
             hasBreakoutRoom,
             meetingName,
             users,
+            getUsersNotAssigned,
+            sendInvitation,
+            getBreakouts,
+            handleTakePresenter,
           }}
           />
         </div>

@@ -13,7 +13,7 @@ else
   read -p "Enter Transifex Username: " USER
   read -p "password: " -s PW
   echo -e "\n----------------------------------\nchecking project info\n----------------------------------"
-  PROJECT_INFO=$( curl -L --user "$USER":"$PW" -X GET https://www.transifex.com/api/2/project/bigbluebutton-html5/languages/ )
+  PROJECT_INFO=$( curl -L --user "$USER":"$PW" -X GET https://www.transifex.com/api/2/project/bigbluebutton-v22-html5-client/languages/ )
 
   if [ "$PROJECT_INFO" == "Authorization Required" ]
   then
@@ -36,7 +36,7 @@ else
               if [ "$LOCALE" == "$SOURCE_LANGUAGE" ]; then
                 continue # do not pull the source file
               fi
-              TRANSLATION=$(curl -L --user "$USER":"$PW" -X GET "https://www.transifex.com/api/2/project/bigbluebutton-html5/resource/enjson/translation/$LOCALE/?mode=onlytranslated&file")
+              TRANSLATION=$(curl -L --user "$USER":"$PW" -X GET "https://www.transifex.com/api/2/project/bigbluebutton-v22-html5-client/resource/enjson/translation/$LOCALE/?mode=onlytranslated&file")
               NO_EMPTY_STRINGS=$(echo "$TRANSLATION" | sed '/: *\"\"/D' | sed '/}$/D')
               if [ $(echo "$NO_EMPTY_STRINGS" | wc -l) == 1 ]
               then
@@ -50,7 +50,7 @@ else
               fi
             done
         else
-          TRANSLATION=$(curl -L --user "$USER":"$PW" -X GET "https://www.transifex.com/api/2/project/bigbluebutton-html5/resource/enjson/translation/$ARG/?mode=onlytranslated&file")
+          TRANSLATION=$(curl -L --user "$USER":"$PW" -X GET "https://www.transifex.com/api/2/project/bigbluebutton-v22-html5-client/resource/enjson/translation/$ARG/?mode=onlytranslated&file")
           if [ "$TRANSLATION" == "Not Found" ]
           then
             echo -e "${RED}Err${NC}: Translations not found for locale ->${RED}$ARG${NC}<-"

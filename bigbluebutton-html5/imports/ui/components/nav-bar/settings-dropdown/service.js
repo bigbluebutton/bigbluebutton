@@ -1,4 +1,4 @@
-toggleFullScreen = () => {
+const toggleFullScreen = () => {
   const element = document.documentElement;
 
   if (document.fullscreenElement

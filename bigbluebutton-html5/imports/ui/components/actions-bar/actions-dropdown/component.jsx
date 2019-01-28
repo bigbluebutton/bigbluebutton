@@ -14,6 +14,8 @@ import withShortcutHelper from '/imports/ui/components/shortcut-help/service';
 import BreakoutRoom from '../create-breakout-room/component';
 import { styles } from '../styles';
 
+import ExternalVideoModal from '/imports/ui/components/external-video-player/modal/container';
+
 const propTypes = {
   isUserPresenter: PropTypes.bool.isRequired,
   intl: intlShape.isRequired,
@@ -25,6 +27,7 @@ const propTypes = {
   meetingName: PropTypes.string.isRequired,
   shortcuts: PropTypes.string.isRequired,
   users: PropTypes.arrayOf(PropTypes.object).isRequired,
+  handleTakePresenter: PropTypes.func.isRequired,
 };
 
 const intlMessages = defineMessages({
@@ -72,6 +75,22 @@ const intlMessages = defineMessages({
     id: 'app.actionsBar.actionsDropdown.createBreakoutRoomDesc',
     description: 'Description of create breakout room option',
   },
+  invitationItem: {
+    id: 'app.invitation.title',
+    description: 'invitation to breakout title',
+  },
+  takePresenter: {
+    id: 'app.actionsBar.actionsDropdown.takePresenter',
+    description: 'Label for take presenter role option',
+  },
+  takePresenterDesc: {
+    id: 'app.actionsBar.actionsDropdown.takePresenterDesc',
+    description: 'Description of take presenter role option',
+  },
+  externalVideoLabel: {
+    id: 'app.actionsBar.actionsDropdown.shareExternalVideo',
+    description: 'Share external video button',
+  },
 });
 
 class ActionsDropdown extends Component {
@@ -79,13 +98,17 @@ class ActionsDropdown extends Component {
     super(props);
     this.handlePresentationClick = this.handlePresentationClick.bind(this);
     this.handleCreateBreakoutRoomClick = this.handleCreateBreakoutRoomClick.bind(this);
-  }
+    this.onCreateBreakouts = this.onCreateBreakouts.bind(this);
+    this.onInvitationUsers = this.onInvitationUsers.bind(this);
 
-  componentWillMount() {
     this.presentationItemId = _.uniqueId('action-item-');
     this.recordId = _.uniqueId('action-item-');
     this.pollId = _.uniqueId('action-item-');
     this.createBreakoutRoomId = _.uniqueId('action-item-');
+    this.takePresenterId = _.uniqueId('action-item-');
+
+    this.handlePresentationClick = this.handlePresentationClick.bind(this);
+    this.handleCreateBreakoutRoomClick = this.handleCreateBreakoutRoomClick.bind(this);
   }
 
   componentWillUpdate(nextProps) {
@@ -96,13 +119,25 @@ class ActionsDropdown extends Component {
     }
   }
 
+  onCreateBreakouts() {
+    return this.handleCreateBreakoutRoomClick(false);
+  }
+
+  onInvitationUsers() {
+    return this.handleCreateBreakoutRoomClick(true);
+  }
+
   getAvailableActions() {
     const {
       intl,
       isUserPresenter,
       isUserModerator,
+      allowExternalVideo,
       meetingIsBreakout,
       hasBreakoutRoom,
+      getUsersNotAssigned,
+      users,
+      handleTakePresenter,
     } = this.props;
 
     const {
@@ -110,11 +145,23 @@ class ActionsDropdown extends Component {
       pollBtnDesc,
       presentationLabel,
       presentationDesc,
+      startRecording,
+      stopRecording,
+      createBreakoutRoom,
+      createBreakoutRoomDesc,
+      invitationItem,
+      takePresenter,
+      takePresenterDesc,
     } = intlMessages;
 
     const {
       formatMessage,
     } = intl;
+
+    const canInviteUsers = isUserModerator
+    && !meetingIsBreakout
+    && hasBreakoutRoom
+    && getUsersNotAssigned(users).length;
 
     return _.compact([
       (isUserPresenter
@@ -130,7 +177,15 @@ class ActionsDropdown extends Component {
             }}
           />
         )
-        : null),
+        : (
+          <DropdownListItem
+            icon="presentation"
+            label={formatMessage(takePresenter)}
+            description={formatMessage(takePresenterDesc)}
+            key={this.takePresenterId}
+            onClick={() => handleTakePresenter()}
+          />
+        )),
       (isUserPresenter
         ? (
           <DropdownListItem
@@ -143,6 +198,17 @@ class ActionsDropdown extends Component {
           />
         )
         : null),
+      (isUserPresenter && allowExternalVideo
+        ? (
+          <DropdownListItem
+            icon="video"
+            label={intl.formatMessage(intlMessages.externalVideoLabel)}
+            description="External Video"
+            key="external-video"
+            onClick={this.handleExternalVideoClick}
+          />
+        )
+        : null),
       (isUserModerator && !meetingIsBreakout && !hasBreakoutRoom
         ? (
           <DropdownListItem
@@ -150,11 +216,25 @@ class ActionsDropdown extends Component {
             label={intl.formatMessage(intlMessages.createBreakoutRoom)}
             description={intl.formatMessage(intlMessages.createBreakoutRoomDesc)}
             key={this.createBreakoutRoomId}
-            onClick={this.handleCreateBreakoutRoomClick}
+            onClick={this.onCreateBreakouts}
+          />
+        )
+        : null),
+      (canInviteUsers
+        ? (
+          <DropdownListItem
+            icon="rooms"
+            label={formatMessage(invitationItem)}
+            key={this.createBreakoutRoomId}
+            onClick={this.onInvitationUsers}
           />
         )
         : null),
     ]);
+  }
+
+  handleExternalVideoClick = () => {
+    this.props.mountModal(<ExternalVideoModal />);
   }
 
   handlePresentationClick() {
@@ -162,19 +242,28 @@ class ActionsDropdown extends Component {
     mountModal(<PresentationUploaderContainer />);
   }
 
-  handleCreateBreakoutRoomClick() {
+  handleCreateBreakoutRoomClick(isInvitation) {
     const {
       createBreakoutRoom,
       mountModal,
       meetingName,
       users,
+      getUsersNotAssigned,
+      getBreakouts,
+      sendInvitation,
     } = this.props;
 
     mountModal(
       <BreakoutRoom
-        createBreakoutRoom={createBreakoutRoom}
-        meetingName={meetingName}
-        users={users}
+        {...{
+          createBreakoutRoom,
+          meetingName,
+          users,
+          getUsersNotAssigned,
+          isInvitation,
+          getBreakouts,
+          sendInvitation,
+        }}
       />,
     );
   }

@@ -18,13 +18,14 @@ const eventsToBeBound = [
 ];
 
 const isElementInViewport = (el) => {
+  if (!el) return false;
   const rect = el.getBoundingClientRect();
 
   return (
-    rect.top >= 0 &&
-    rect.left >= 0 &&
-    rect.bottom <= (window.innerHeight || document.documentElement.clientHeight) &&
-    rect.right <= (window.innerWidth || document.documentElement.clientWidth)
+    rect.top >= 0
+    && rect.left >= 0
+    && rect.bottom <= (window.innerHeight || document.documentElement.clientHeight)
+    && rect.right <= (window.innerWidth || document.documentElement.clientWidth)
   );
 };
 
@@ -45,7 +46,7 @@ export default class MessageListItem extends PureComponent {
 
         if (isElementInViewport(node)) {
           this.props.handleReadMessage(this.props.time);
-          if(scrollArea) {
+          if (scrollArea) {
             eventsToBeBound.forEach(
               e => scrollArea.removeEventListener(e, this.handleMessageInViewport),
             );
@@ -76,7 +77,7 @@ export default class MessageListItem extends PureComponent {
         (e) => { scrollArea.addEventListener(e, this.handleMessageInViewport, false); },
       );
     }
-  }  
+  }
 
   componentDidMount() {
     this.listenToUnreadMessages();
@@ -114,7 +115,6 @@ export default class MessageListItem extends PureComponent {
       />
     );
   }
-
 }
 
 MessageListItem.propTypes = propTypes;

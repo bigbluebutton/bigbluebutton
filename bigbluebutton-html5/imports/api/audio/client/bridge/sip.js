@@ -14,6 +14,13 @@ const CALL_HANGUP_MAX_RETRIES = MEDIA.callHangupMaximumRetries;
 const CONNECTION_TERMINATED_EVENTS = ['iceConnectionFailed', 'iceConnectionClosed'];
 const CALL_CONNECT_NOTIFICATION_TIMEOUT = 500;
 
+const logConnector = (level, category, label, content) => {
+  if (level === 'log')
+    level = "info";
+
+  logger[level]({logCode: 'sipjs_log'}, '[' + category + '] ' + content);
+};
+
 export default class SIPBridge extends BaseAudioBridge {
   constructor(userData) {
     super(userData);
@@ -199,6 +206,7 @@ export default class SIPBridge extends BaseAudioBridge {
         wsServers: `${(protocol === 'https:' ? 'wss://' : 'ws://')}${hostname}/ws`,
         log: {
           builtinEnabled: false,
+          connector: logConnector
         },
         displayName: callerIdName,
         register: false,
@@ -259,10 +267,8 @@ export default class SIPBridge extends BaseAudioBridge {
         },
       },
       RTCConstraints: {
-        mandatory: {
-          OfferToReceiveAudio: true,
-          OfferToReceiveVideo: false,
-        },
+        offerToReceiveAudio: true,
+        offerToReceiveVideo: false,
       },
     };
 
@@ -295,9 +301,9 @@ export default class SIPBridge extends BaseAudioBridge {
           });
         }
 
-        const mappedCause = cause in this.errorCodes ?
-          this.errorCodes[cause] :
-          this.baseErrorCodes.GENERIC_ERROR;
+        const mappedCause = cause in this.errorCodes
+          ? this.errorCodes[cause]
+          : this.baseErrorCodes.GENERIC_ERROR;
 
         return this.callback({
           status: this.baseCallStates.failed,
