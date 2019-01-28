@@ -7,17 +7,21 @@ import { defineMessages, injectIntl, intlShape } from 'react-intl';
 import { styles } from './styles';
 
 const intlMessages = defineMessages({
-  videoMenu: {
-    id: 'app.video.videoMenu',
-    description: 'video menu label',
+  joinVideo: {
+    id: 'app.video.joinVideo',
+    description: 'Join video button label',
   },
-  videoMenuDesc: {
-    id: 'app.video.videoMenuDesc',
-    description: 'video menu description',
+  leaveVideo: {
+    id: 'app.video.leaveVideo',
+    description: 'Leave video button label',
   },
-  videoMenuDisabled: {
-    id: 'app.video.videoMenuDisabled',
-    description: 'video menu label',
+  videoButtonDesc: {
+    id: 'app.video.videoButtonDesc',
+    description: 'video button description',
+  },
+  videoDisabled: {
+    id: 'app.video.videoDisabled',
+    description: 'video disabled label',
   },
 });
 
@@ -27,33 +31,37 @@ const propTypes = {
   isSharingVideo: PropTypes.bool.isRequired,
 };
 
-const JoinVideoOptions = ({
+const JoinVideoButton = ({
   intl,
   isSharingVideo,
-  videoShareAllowed,
+  isDisabled,
   handleJoinVideo,
   handleCloseVideo,
 }) => {
 
   return (
     <Button
-      label={!videoShareAllowed ?
-        intl.formatMessage(intlMessages.videoMenuDisabled)
+      label={isDisabled ?
+        intl.formatMessage(intlMessages.videoDisabled)
         :
-        intl.formatMessage(intlMessages.videoMenu)
+        (isSharingVideo ?
+          intl.formatMessage(intlMessages.leaveVideo)
+          :
+          intl.formatMessage(intlMessages.joinVideo)
+        )
       }
       className={cx(styles.button, isSharingVideo || styles.ghostButton)}
       onClick={isSharingVideo ? handleCloseVideo : handleJoinVideo}
       hideLabel
-      aria-label={intl.formatMessage(intlMessages.videoMenuDesc)}
+      aria-label={intl.formatMessage(intlMessages.videoButtonDesc)}
       color={isSharingVideo ? 'primary' : 'default'}
       icon={isSharingVideo ? 'video' : 'video_off'}
       ghost={!isSharingVideo}
       size="lg"
       circle
-      disabled={!videoShareAllowed}
+      disabled={isDisabled}
     />
   );
 };
-JoinVideoOptions.propTypes = propTypes;
-export default injectIntl(JoinVideoOptions);
+JoinVideoButton.propTypes = propTypes;
+export default injectIntl(JoinVideoButton);

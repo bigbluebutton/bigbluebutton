@@ -2,7 +2,6 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { defineMessages, injectIntl, intlShape } from 'react-intl';
 import Button from '/imports/ui/components/button/component';
-import cx from 'classnames';
 import { styles } from '../styles';
 
 const propTypes = {
@@ -21,12 +20,9 @@ const intlMessages = defineMessages({
   },
 });
 
-const PresentationOptionsContainer = ({
-  intl,
-  toggleSwapLayout,
-}) => (
+const PresentationOptionsContainer = ({ intl, toggleSwapLayout }) => (
   <Button
-    className={cx(styles.button, styles.presentationButton)}
+    className={styles.button}
     icon="presentation"
     label={intl.formatMessage(intlMessages.restorePresentationLabel)}
     description={intl.formatMessage(intlMessages.restorePresentationDesc)}
