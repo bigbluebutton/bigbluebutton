@@ -3,7 +3,7 @@ const isOpera = !!window.opera || navigator.userAgent.indexOf(' OPR/') >= 0;
 const isChrome = !!window.chrome && !isOpera;
 const isSafari = navigator.userAgent.indexOf('Safari') >= 0 && !isChrome;
 const hasDisplayMedia = (typeof navigator.getDisplayMedia === 'function'
-  || typeof navigator.mediaDevices.getDisplayMedia === 'function');
+  || (navigator.mediaDevices && typeof navigator.mediaDevices.getDisplayMedia === 'function'));
 const kurentoHandler = null;
 const SEND_ROLE = "send";
 const RECV_ROLE = "recv";
