@@ -1,0 +1,32 @@
+:root {
+  --color-transparent: #ff000000;
+  ::-webkit-media-controls {
+    display:none !important;
+  }
+}
+
+.wrapper {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  background-color: var(--color-transparent);
+  cursor: pointer;
+  border: none !important;
+  z-index: 2;
+}
+
+.button {
+  span, span:active, span:hover {
+    background-color: var(--color-transparent) !important;
+    border: none !important;
+    i {
+      border: none !important;
+      background-color: var(--color-transparent) !important;
+      font-weight: bold !important;
+    }
+  }
+}
+
+.dark .button span i {
+  color: var(--color-black);
+}
