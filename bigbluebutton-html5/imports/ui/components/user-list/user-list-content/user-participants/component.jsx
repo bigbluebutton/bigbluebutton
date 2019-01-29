@@ -203,20 +203,24 @@ class UserParticipants extends Component {
               <div className={styles.container}>
                 <h2 className={styles.smallTitle}>
                   {intl.formatMessage(intlMessages.usersTitle)}
-                &nbsp;(
+                  &nbsp;(
                   {users.length}
-)
-
+                  )
                 </h2>
-                <UserOptionsContainer {...{
-                  users,
-                  muteAllUsers,
-                  muteAllExceptPresenter,
-                  setEmojiStatus,
-                  meeting,
-                  currentUser,
-                }}
-                />
+                {currentUser.isModerator
+                  ? (
+                    <UserOptionsContainer {...{
+                      users,
+                      muteAllUsers,
+                      muteAllExceptPresenter,
+                      setEmojiStatus,
+                      meeting,
+                      currentUser,
+                    }}
+                    />
+                  ) : null
+                }
+
               </div>
             )
             : <hr className={styles.separator} />
