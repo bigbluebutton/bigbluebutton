@@ -56,16 +56,35 @@
 #   2016-08-15 GTR  Archive more logs with zip option and show more applications with status
 #   2016-10-17 GTR  Added redis to checked server components & added ownership check for video and freeswitch recording directories
 #   2017-04-08 FFD  Cleanup for 1.1-beta
+#   2018-11-22 MNE  Dynamically detect if sudo is needed
+#   2018-12-09 GTR  More logs cleanup
 
 #set -x
 #set -e
 
 PATH=$PATH:/sbin
 
+if [ "$(id -u)" != "0" ]; then 
+  if [ -x "$(which sudo)" ]; then 
+    SUDO="$(which sudo)"
+  else 
+    echo "bbb-conf must be ran as root!" && exit 1
+  fi
+fi
+
+if [ ! -f /etc/bigbluebutton/bigbluebutton-release ]; then
+	echo "#"
+	echo "# BigBlueButton does not appear to be installed.  Could not"
+	echo "# locate:"
+	echo "#"
+	echo "# /usr/share/red5/webapps/bigbluebutton/WEB-INF/red5-web.xml"
+	exit 1
+fi
+
 source /etc/bigbluebutton/bigbluebutton-release
 
 #
-# Figure out our environment
+# Figure out our environment (Debian vs. CentOS)
 #
 
 RED5_DIR=/usr/share/red5
@@ -80,6 +99,7 @@ FREESWITCH_PID=/opt/freeswitch/run/freeswitch.pid
 FREESWITCH_EVENT_SOCKET=/opt/freeswitch/conf/autoload_configs/event_socket.conf.xml
 
 HTML5_CONFIG=/usr/share/meteor/bundle/programs/server/assets/app/config/settings-production.json
+HTML5_CONFIG_NEW=/usr/share/meteor/bundle/programs/server/assets/app/config/settings.yml
 
 if [ -f /etc/redhat-release ]; then
   DISTRIB_ID=centos
@@ -135,7 +155,7 @@ fi
 #
 if [ -f $SERVLET_DIR/bigbluebutton/WEB-INF/classes/bigbluebutton.properties ]; then
 	if cat $SERVLET_DIR/bigbluebutton/WEB-INF/classes/bigbluebutton.properties | grep -q ^bigbluebutton.web.logoutURL=$; then
-		sudo sed -i s/^bigbluebutton.web.logoutURL=$/bigbluebutton.web.logoutURL=default/g $SERVLET_DIR/webapps/bigbluebutton/WEB-INF/classes/bigbluebutton.properties
+		$SUDO sed -i s/^bigbluebutton.web.logoutURL=$/bigbluebutton.web.logoutURL=default/g $SERVLET_DIR/webapps/bigbluebutton/WEB-INF/classes/bigbluebutton.properties
 	fi
 fi
 
@@ -279,8 +299,9 @@ comment () {
 }
 
 change_yml_value () {
-        sed -i "s<^[[:blank:]#]*\(${2}\):[ ].*<\1: ${3}<" $1
+	sed -i "s<^\([[:blank:]#]*\)\(${2}\): .*<\1\2: ${3}<" $1
 }
+
 
 # comment lines matching $2 ($1 is the file)
 uncomment () {
@@ -300,8 +321,11 @@ stop_bigbluebutton () {
        if [ -f /usr/lib/systemd/system/bbb-transcode-akka.service ]; then
           BBB_TRANSCODE_AKKA=bbb-transcode-akka
        fi
+       if [ -f /usr/share/etherpad-lite/settings.json ]; then
+          ETHERPAD=etherpad
+       fi
 
-       systemctl stop red5 $TOMCAT_SERVICE nginx freeswitch $REDIS_SERVICE bbb-apps-akka $BBB_TRANSCODE_AKKA bbb-fsesl-akka bbb-rap-archive-worker.service bbb-rap-process-worker.service bbb-rap-publish-worker.service bbb-rap-sanity-worker.service bbb-record-core.timer $HTML5 $WEBHOOKS
+       systemctl stop red5 $TOMCAT_SERVICE nginx freeswitch $REDIS_SERVICE bbb-apps-akka $BBB_TRANSCODE_AKKA bbb-fsesl-akka bbb-rap-archive-worker.service bbb-rap-process-worker.service bbb-rap-publish-worker.service bbb-rap-sanity-worker.service bbb-record-core.timer $HTML5 $WEBHOOKS $ETHERPAD
     else
 	/etc/init.d/monit stop
 
@@ -345,6 +369,21 @@ stop_bigbluebutton () {
 }
 
 start_bigbluebutton () {
+        #
+        # Apply any local configuration options (if exists)
+        #
+        if [ -x /etc/bigbluebutton/bbb-conf/apply-config.sh ]; then
+                echo -n "Applying updates in /etc/bigbluebutton/bbb-conf/apply-config.sh: "
+                /etc/bigbluebutton/bbb-conf/apply-config.sh
+                echo
+        fi
+
+        if grep -q "Failure to connect to CORE_DB sofia_reg_external" /opt/freeswitch/var/log/freeswitch/freeswitch.log; then
+		# See: http://docs.bigbluebutton.org/install/install.html#freeswitch-fails-to-bind-to-ipv4
+                echo "Clearing the FreeSWITCH database."
+		rm -rf /opt/freeswitch/var/lib/freeswitch/db/*
+	fi
+
     echo "Starting BigBlueButton"
     if command -v systemctl >/dev/null; then
        if [ -f /usr/lib/systemd/system/bbb-html5.service ]; then
@@ -356,8 +395,11 @@ start_bigbluebutton () {
        if [ -f /usr/lib/systemd/system/bbb-transcode-akka.service ]; then
           BBB_TRANSCODE_AKKA=bbb-transcode-akka
        fi
+       if [ -f /usr/share/etherpad-lite/settings.json ]; then
+          ETHERPAD=etherpad
+       fi
 
-       systemctl start red5 $TOMCAT_SERVICE nginx freeswitch $REDIS_SERVICE bbb-apps-akka $BBB_TRANSCODE_AKKA bbb-fsesl-akka bbb-record-core.timer $HTML5 $WEBHOOKS
+       systemctl start red5 $TOMCAT_SERVICE nginx freeswitch $REDIS_SERVICE bbb-apps-akka $BBB_TRANSCODE_AKKA bbb-fsesl-akka bbb-record-core.timer $HTML5 $WEBHOOKS $ETHERPAD
        if [ -f /usr/lib/systemd/system/bbb-html5.service ]; then
           systemctl start mongod
 	  sleep 3
@@ -485,19 +527,25 @@ start_bigbluebutton () {
 
 display_bigbluebutton_status () {
     if command -v systemctl >/dev/null; then
-	units="red5 $TOMCAT_SERVICE nginx freeswitch $REDIS_SERVICE bbb-apps-akka bbb-transcode-akka bbb-fsesl-akka"
+        units="red5 $TOMCAT_SERVICE nginx freeswitch $REDIS_SERVICE bbb-apps-akka bbb-transcode-akka bbb-fsesl-akka"
 
-       if [ -f /usr/lib/systemd/system/bbb-html5.service ]; then
-          units="$units mongod bbb-html5 bbb-webrtc-sfu kurento-media-server"
-       fi
+        if [ -f /usr/lib/systemd/system/bbb-html5.service ]; then
+            units="$units mongod bbb-html5 bbb-webrtc-sfu kurento-media-server"
+        fi
 
-	for unit in $units; do
-		echo "$unit: $(systemctl is-active $unit)"
-	done 
+        line='——————————————————————►'
+        for unit in $units; do
+            status=$(systemctl is-active "$unit")
+            if [ "$status" = "active" ]; then
+                printf "%s %s [✔ - $status]\n" $unit "${line:${#unit}}"
+            else
+                printf "%s %s [✘ - $status]\n" $unit "${line:${#unit}}"
+			fi
+        done 
     else
-	/etc/init.d/nginx status
-	/etc/init.d/$RED5 status
-	/etc/init.d/${SERVLET_CONTAINER} status
+        /etc/init.d/nginx status
+        /etc/init.d/$RED5 status
+        /etc/init.d/${SERVLET_CONTAINER} status
     fi
 }
 
@@ -528,7 +576,7 @@ enable_webrtc(){
 	echo 
 	echo "WebRTC audio enabled.  To apply settings to your server, do"
 	echo 
-	echo "   sudo bbb-conf --clean"
+	echo "  $SUDO bbb-conf --clean"
 	echo 
 }
 
@@ -552,7 +600,7 @@ disable_webrtc(){
 	echo 
 	echo "WebRTC audio disabled.  To apply settings to your server, do"
 	echo 
-	echo "   sudo bbb-conf --clean"
+	echo "  $SUDO bbb-conf --clean"
 	echo 
 }
 
@@ -728,7 +776,7 @@ if [ $SECRET ]; then
 	echo "Changed BigBlueButton's shared secret to $SECRET"
 	echo 
 	echo "You must restart BigBlueButton for the changes to take effect"
-	echo "   sudo bbb-conf --restart"
+	echo "  $SUDO bbb-conf --restart"
 	echo
 fi
 
@@ -743,7 +791,7 @@ if [ $SAMBA ]; then
         # Instal Samba
         #
         if ! dpkg-query -s samba > /dev/null 2>&1; then
-                sudo apt-get install -y --force-yes samba ant
+          $SUDO apt-get install -y --force-yes samba ant
         fi
 
         #
@@ -762,9 +810,9 @@ if [ $SAMBA ]; then
    directory mask = 0775
    guest ok = yes
    force user = $USER
-" | sudo tee -a /etc/samba/smb.conf > /dev/null 2>&1
+" | $SUDO tee -a /etc/samba/smb.conf > /dev/null 2>&1
 
-                sudo /etc/init.d/smbd restart
+                $SUDO /etc/init.d/smbd restart
 
         echo "
 You can now access your development folder through:
@@ -1006,16 +1054,6 @@ check_configuration() {
                 echo "#"
             fi
         fi
-
-        if [[ $PROTOCOL == "https" ]]; then
-                if ! grep -q 7443 /etc/bigbluebutton/nginx/sip.nginx; then
-                        echo "# Warning: Server is using HTTPS, but sip.nginx is not listening"
-                        echo "# on port 7443"
-                        echo "#"
-                        echo "#    /etc/bigbluebutton/nginx/sip.nginx"
-                        echo 
-                fi
-        fi
 }
 
 
@@ -1228,10 +1266,10 @@ check_state() {
                 echo "# Warning: The installed ffmpeg version '${FFMPEG_VERSION}' is not recommended."
                 echo "# Recommend you update to the 4.0.x version of ffmpeg.  To upgrade, do the following"
                 echo "#"
-                echo "#        sudo apt-get install software-properties-common"
-                echo "#        sudo add-apt-repository ppa:jonathonf/ffmpeg-4"
-                echo "#        sudo apt-get update"
-                echo "#        sudo apt-get dist-upgrade"
+                echo "#       $SUDO apt-get install software-properties-common"
+                echo "#       $SUDO add-apt-repository ppa:jonathonf/ffmpeg-4"
+                echo "#       $SUDO apt-get update"
+                echo "#       $SUDO apt-get dist-upgrade"
                 echo "#"
                 echo
                 ;;
@@ -1246,7 +1284,7 @@ check_state() {
                 	echo "# Warning: The voice application may not have registered with the sip server."
                 	echo "#   Try running: "
                 	echo "#"
-                	echo "#      sudo bbb-conf --clean"
+                	echo "#     $SUDO bbb-conf --clean"
                 	echo "#"
         		echo 
 		fi
@@ -1391,7 +1429,7 @@ check_state() {
 		if test ${SERVLET_DIR}/lti.war -nt ${SERVLET_DIR}/lti; then 
 			echo "# Error: The updated lti.war did not deploy.  To manually deploy:"
 			echo "#"
-                        echo "#    sudo touch ${SERVLET_DIR}/lti.war"
+                        echo "#   $SUDO touch ${SERVLET_DIR}/lti.war"
 			echo "#"
                         echo
 		fi
@@ -1401,7 +1439,7 @@ check_state() {
 		if test ${SERVLET_DIR}/demo.war -nt ${SERVLET_DIR}/demo; then 
 			echo "# Error: The updated demo.war did not deploy.  To manually deploy:"
 			echo "#"
-                        echo "#    sudo touch ${SERVLET_DIR}/demo.war"
+                        echo "#   $SUDO touch ${SERVLET_DIR}/demo.war"
 			echo "#"
                         echo
 		fi
@@ -1423,7 +1461,7 @@ check_state() {
 		echo "# to create/manage meetings and recordings. They are for testing purposes only."
 		echo "# If you are running a production system, remove them by running:"
 		echo "#"
-		echo "#    sudo apt-get purge bbb-demo"
+		echo "#   $SUDO apt-get purge bbb-demo"
 		echo 
 	fi
 
@@ -1500,7 +1538,7 @@ check_state() {
                 echo "# Error: Detected that /usr/share/bbb-apps-akka/conf/application.conf has the default"
                 echo "# configuration values.  To update, run"
                 echo "#"
-                echo "#    sudo bbb-conf --setip $BBB_WEB_IP"
+                echo "#   $SUDO bbb-conf --setip $BBB_WEB_IP"
                 echo "#"
 	fi
 
@@ -1515,6 +1553,22 @@ check_state() {
                 echo "# Error: Detected some processes have not started correctly"
                 echo "#"
                 echo "#   $(bbb-conf --status | grep inactive)"
+                echo "#"
+        fi
+
+        if systemctl status freeswitch | grep -q SETSCHEDULER; then
+                echo "# Error: FreeSWITCH failed to start with SETSCHEDULER error, see"
+                echo "#"
+                echo "#   http://docs.bigbluebutton.org/install/install.html#freeswitch-fails-to-start-with-a-setscheduler-error"
+                echo "#"
+        fi
+
+        NCPU=`nproc --all`
+        if [ "$NCPU" -lt "4" ]; then
+                echo "# Warning: found only $NCPU cores, whereas this sherver should have (at least) 4 CPU cores"
+                echo "# to run BigBlueButton in production."
+                echo "#"
+                echo "#   http://docs.bigbluebutton.org/install/install.html#minimum-server-requirements"
                 echo "#"
         fi
 
@@ -1563,10 +1617,10 @@ if [ $CHECK ]; then
 	echo "              useWebrtcIfAvailable: $WEBRTC_ENABLED_CLIENT"
 
         if grep -q ws-binding $FREESWITCH_EXTERNAL; then
-          WEBRTC_SOCKET=$(sudo cat $FREESWITCH_EXTERNAL | sed -n '/ws-binding/{s/.*value="//;s/".*//;p}')
+          WEBRTC_SOCKET=$($SUDO cat $FREESWITCH_EXTERNAL | sed -n '/ws-binding/{s/.*value="//;s/".*//;p}')
         fi
         if grep -q wss-binding $FREESWITCH_EXTERNAL; then
-          WEBRTC_SOCKET=$(sudo cat $FREESWITCH_EXTERNAL | sed -n '/wss-binding/{s/.*value="//;s/".*//;p}')
+          WEBRTC_SOCKET=$($SUDO cat $FREESWITCH_EXTERNAL | sed -n '/wss-binding/{s/.*value="//;s/".*//;p}')
         fi
 	echo
 	echo "$FREESWITCH_EXTERNAL (FreeSWITCH)"
@@ -1629,11 +1683,12 @@ if [ $CHECK ]; then
 	fi
 
         if [ -f /usr/local/bigbluebutton/bbb-webrtc-sfu/config/default.yml ]; then
-                KURENTO_URL=$(cat /usr/local/bigbluebutton/bbb-webrtc-sfu/config/default.yml | grep -v '#' | sed -n '/kurentoUrl/{s/[^:]*:[ ]*//;s/;//;p}' | tail -n 1)
-                KURENTO_IP=$(cat /usr/local/bigbluebutton/bbb-webrtc-sfu/config/default.yml | grep -v '#' | sed -n '/kurentoIp/{s/[^:]*:[ ]*//;s/;//;p}' | tail -n 1)
-                KURENTO_LOCAL_IP=$(cat /usr/local/bigbluebutton/bbb-webrtc-sfu/config/default.yml | grep -v '#' | sed -n '/localIpAddress/{s/[^:]*:[ ]*//;s/;//;p}' | tail -n 1)
-                KURENTO_RECORD_SCREEN_SHARING=$(cat /usr/local/bigbluebutton/bbb-webrtc-sfu/config/default.yml | grep -v '#' | sed -n '/recordScreenSharing/{s/[^:]*:[ ]*//;s/;//;p}' | tail -n 1)
-                KURENTO_RECORD_WEBCAMS=$(cat /usr/local/bigbluebutton/bbb-webrtc-sfu/config/default.yml | grep -v '#' | sed -n '/recordWebcams/{s/[^:]*:[ ]*//;s/;//;p}' | tail -n 1)
+	        KURENTO_URL=$(yq r /usr/local/bigbluebutton/bbb-webrtc-sfu/config/default.yml kurento[0].url)
+                KURENTO_IP=$(yq r /usr/local/bigbluebutton/bbb-webrtc-sfu/config/default.yml kurento[0].ip)
+                KURENTO_LOCAL_IP=$(yq r /usr/local/bigbluebutton/bbb-webrtc-sfu/config/default.yml localIpAddress)
+                KURENTO_RECORD_SCREEN_SHARING=$(yq r /usr/local/bigbluebutton/bbb-webrtc-sfu/config/default.yml recordScreenSharing)
+                KURENTO_RECORD_WEBCAMS=$(yq r /usr/local/bigbluebutton/bbb-webrtc-sfu/config/default.yml recordWebcams)
+
                 echo
                 echo "/usr/local/bigbluebutton/bbb-webrtc-sfu/config/default.yml (Kurento)"
                 echo "                        kurentoUrl: $KURENTO_URL"
@@ -1731,7 +1786,7 @@ if [ $DEBUG ]; then
 
 
 	rm -rf /tmp/t
-	sudo grep --directories=skip Exception $SERVLET_LOGS/* | grep -v CacheExceptionHandlerFactory > /tmp/t 
+	$SUDO grep --directories=skip Exception $SERVLET_LOGS/* | grep -v CacheExceptionHandlerFactory > /tmp/t 
 	if [ -s /tmp/t ]; then
 		echo "   -- Exceptions found in $SERVLET_LOGS/ -- "
 		cat /tmp/t
@@ -1750,7 +1805,7 @@ if [ $DEBUG ]; then
 
 	if [ $DISTRIB_ID == "Ubuntu" ]; then
 		rm -rf /tmp/t
-		sudo grep --directories=skip -i exception /var/log/syslog > /tmp/t 
+		$SUDO grep --directories=skip -i exception /var/log/syslog > /tmp/t 
 		if [ -s /tmp/t ]; then
 			echo "   -- Errors found in /var/log/syslog -- "
 			cat /tmp/t
@@ -1760,7 +1815,7 @@ if [ $DEBUG ]; then
 
 	rm -rf /tmp/t
 	if [ -d /var/log/bigbluebutton ]; then
-		  sudo grep --directories=skip ERROR /var/log/bigbluebutton/* > /tmp/t 
+		  $SUDO grep --directories=skip ERROR /var/log/bigbluebutton/* > /tmp/t 
 		  if [ -s /tmp/t ]; then
 			echo "   -- Errors found in /var/log/bigbluebutton -- "
 			cat /tmp/t
@@ -1770,7 +1825,7 @@ if [ $DEBUG ]; then
 
 	rm -rf /tmp/t
 	if [ -d /var/log/bigbluebutton ]; then
-		  sudo grep --directories=skip -i exception /var/log/bigbluebutton/* > /tmp/t 
+		  $SUDO grep --directories=skip -i exception /var/log/bigbluebutton/* > /tmp/t 
 		  if [ -s /tmp/t ]; then
 			echo "   -- Exceptions found in /var/log/bigbluebutton -- "
 			cat /tmp/t
@@ -1797,13 +1852,13 @@ if [ -n "$HOST" ]; then
 	# Just use the IP for port test in /var/www/bigbluebutton/client/conf/config.xml
 	#
 	echo "Assigning $HOST for testing for firewall in /var/www/bigbluebutton/client/conf/config.xml"
-	sudo sed -i "s/porttest host=\(\"[^\"]*\"\)/porttest host=\"$PROTOCOL_RTMP:\/\/$HOST\"/g" /var/www/bigbluebutton/client/conf/config.xml
+	$SUDO sed -i "s/porttest host=\(\"[^\"]*\"\)/porttest host=\"$PROTOCOL_RTMP:\/\/$HOST\"/g" /var/www/bigbluebutton/client/conf/config.xml
 
 	echo "Assigning $HOST for rtmp:// in /var/www/bigbluebutton/client/conf/config.xml"
-	sudo sed -i "s/rtmp[s]*:\/\/\([^\"\/]*\)\([\"\/]\)/$PROTOCOL_RTMP:\/\/$HOST\2/g" /var/www/bigbluebutton/client/conf/config.xml
+	$SUDO sed -i "s/rtmp[s]*:\/\/\([^\"\/]*\)\([\"\/]\)/$PROTOCOL_RTMP:\/\/$HOST\2/g" /var/www/bigbluebutton/client/conf/config.xml
 
 	echo "Assigning $HOST for servername in /etc/nginx/sites-available/bigbluebutton"
-	sudo sed -i "s/server_name  .*/server_name  $HOST;/g" /etc/nginx/sites-available/bigbluebutton
+	$SUDO sed -i "s/server_name  .*/server_name  $HOST;/g" /etc/nginx/sites-available/bigbluebutton
 
 	#
 	# Update configuration for BigBlueButton client (and preserve hostname for chromeExtensionLink if exists)
@@ -1813,26 +1868,26 @@ if [ -n "$HOST" ]; then
 	chromeExtensionLinkURL=$(cat /var/www/bigbluebutton/client/conf/config.xml | sed -n '/chromeExtensionLink/{s/.*https*:\/\///;s/\/.*//;p}')
 	
 	echo "Assigning $HOST for http[s]:// in /var/www/bigbluebutton/client/conf/config.xml"
-	sudo sed -i "s/http[s]*:\/\/\([^\"\/]*\)\([\"\/]\)/$PROTOCOL_HTTP:\/\/$HOST\2/g" \
+	$SUDO sed -i "s/http[s]*:\/\/\([^\"\/]*\)\([\"\/]\)/$PROTOCOL_HTTP:\/\/$HOST\2/g" \
 		/var/www/bigbluebutton/client/conf/config.xml
 
 	if ! echo "$chromeExtensionLinkURL" | grep -q '""'; then
-		sudo sed -i "s/chromeExtensionLink=\"https:\/\/[^\/]*/chromeExtensionLink=\"https:\/\/$chromeExtensionLinkURL/g" \
+		$SUDO sed -i "s/chromeExtensionLink=\"https:\/\/[^\/]*/chromeExtensionLink=\"https:\/\/$chromeExtensionLinkURL/g" \
 			/var/www/bigbluebutton/client/conf/config.xml
 	fi
 
 	echo "Assigning $HOST for publishURI in /var/www/bigbluebutton/client/conf/config.xml"
-	sudo sed -i "s/publishURI=\"[^\"]*\"/publishURI=\"$HOST\"/" /var/www/bigbluebutton/client/conf/config.xml
+	$SUDO sed -i "s/publishURI=\"[^\"]*\"/publishURI=\"$HOST\"/" /var/www/bigbluebutton/client/conf/config.xml
 
 	#
 	# Update configuration for BigBlueButton web app
 	#
 	echo "Assigning $HOST for web application URL in ${SERVLET_DIR}/bigbluebutton/WEB-INF/classes/bigbluebutton.properties"
 
-	sudo sed -i "s/bigbluebutton.web.serverURL=http[s]*:\/\/.*/bigbluebutton.web.serverURL=$PROTOCOL_HTTP:\/\/$HOST/g" \
+	$SUDO sed -i "s/bigbluebutton.web.serverURL=http[s]*:\/\/.*/bigbluebutton.web.serverURL=$PROTOCOL_HTTP:\/\/$HOST/g" \
 				${SERVLET_DIR}/bigbluebutton/WEB-INF/classes/bigbluebutton.properties
 
-	sudo sed -i "s/screenshareRtmpServer=.*/screenshareRtmpServer=$HOST/g" \
+	$SUDO sed -i "s/screenshareRtmpServer=.*/screenshareRtmpServer=$HOST/g" \
 				${SERVLET_DIR}/bigbluebutton/WEB-INF/classes/bigbluebutton.properties
 
 	change_var_value /usr/share/red5/webapps/screenshare/WEB-INF/screenshare.properties streamBaseUrl rtmp://$HOST/screenshare
@@ -1840,7 +1895,7 @@ if [ -n "$HOST" ]; then
 	change_var_value /usr/share/red5/webapps/screenshare/WEB-INF/screenshare.properties jnlpFile $PROTOCOL_HTTP://$HOST/screenshare/screenshare.jnlp
 
 	if ! grep -q server_names_hash_bucket_size /etc/nginx/nginx.conf; then
-		sudo sed -i "s/gzip  on;/gzip  on;\n    server_names_hash_bucket_size  64;/g" /etc/nginx/nginx.conf
+		$SUDO sed -i "s/gzip  on;/gzip  on;\n    server_names_hash_bucket_size  64;/g" /etc/nginx/nginx.conf
 	fi
 
         #
@@ -1865,7 +1920,7 @@ if [ -n "$HOST" ]; then
 
 	if [ -f ${SERVLET_DIR}/demo/bbb_api_conf.jsp ]; then
 		echo "Assigning $HOST for api demos in ${SERVLET_DIR}/demo/bbb_api_conf.jsp"
-		sudo sed -i "s/BigBlueButtonURL = \"http[s]*:\/\/\([^\"\/]*\)\([\"\/]\)/BigBlueButtonURL = \"$PROTOCOL_HTTP:\/\/$HOST\2/g" \
+		$SUDO sed -i "s/BigBlueButtonURL = \"http[s]*:\/\/\([^\"\/]*\)\([\"\/]\)/BigBlueButtonURL = \"$PROTOCOL_HTTP:\/\/$HOST\2/g" \
 			${SERVLET_DIR}/demo/bbb_api_conf.jsp
 	fi
 	
@@ -1915,6 +1970,16 @@ if [ -n "$HOST" ]; then
 	if [ -f $HTML5_CONFIG ]; then
         	WS=$(cat $SERVLET_DIR/bigbluebutton/WEB-INF/classes/bigbluebutton.properties | grep -v '#' | sed -n '/^bigbluebutton.web.serverURL/{s/.*=//;p}' | sed 's/https/wss/g' | sed s'/http/ws/g')
         	sed -i "s|\"wsUrl.*|\"wsUrl\": \"$WS/bbb-webrtc-sfu\",|g" $HTML5_CONFIG
+
+		if [ -f /usr/local/bigbluebutton/bbb-webrtc-sfu/config/default.yml ]; then
+		  change_yml_value /usr/local/bigbluebutton/bbb-webrtc-sfu/config/default.yml kurentoUrl "ws://$HOST:8888/kurento"
+		fi
+	fi
+
+	if [ -f $HTML5_CONFIG_NEW ]; then
+        	WS=$(cat $SERVLET_DIR/bigbluebutton/WEB-INF/classes/bigbluebutton.properties | grep -v '#' | sed -n '/^bigbluebutton.web.serverURL/{s/.*=//;p}' | sed 's/https/wss/g' | sed s'/http/ws/g')
+
+		change_yml_value $HTML5_CONFIG_NEW wsUrl "$WS/bbb-webrtc-sfu"
 
 		if [ -f /usr/local/bigbluebutton/bbb-webrtc-sfu/config/default.yml ]; then
 		  change_yml_value /usr/local/bigbluebutton/bbb-webrtc-sfu/config/default.yml kurentoUrl "ws://$HOST:8888/kurento"
@@ -1971,8 +2036,20 @@ if [ $CLEAN ]; then
 	#
 	rm -f /var/log/bigbluebutton/bbb-rap-worker.log*
 	rm -f /var/log/bigbluebutton/archive.log*
-	if [ -d /var/log/bigbluebutton/slides ]; then
-		rm -f /var/log/bigbluebutton/slides/*
+	if [ -d /var/log/bigbluebutton/html5 ]; then
+		rm -f /var/log/bigbluebutton/html5/*
+	fi
+	
+	if [ -d /var/log/bigbluebutton/podcast ]; then
+		rm -f /var/log/bigbluebutton/podcast/*
+	fi
+	
+	if [ -d /var/log/bigbluebutton/presentation ]; then
+		rm -f /var/log/bigbluebutton/presentation/*
+	fi
+	
+	if [ -d /var/log/bigbluebutton/screenshare ]; then
+		rm -f /var/log/bigbluebutton/screenshare/*
 	fi
 		
 	
@@ -2006,6 +2083,18 @@ if [ $CLEAN ]; then
 
 	if [ -d /var/log/bbb-webrtc-sfu ]; then
 		rm -f /var/log/bbb-webrtc-sfu/*
+	fi
+	
+	if [ -d /var/log/redis ]; then
+		rm -f /var/log/redis/*
+	fi
+
+	if [ -d /var/log/mongodb ]; then
+		rm -f /var/log/mongodb/*
+	fi
+
+	if [ -d /var/log/kurento-media-server ]; then
+		rm -f /var/log/kurento-media-server/*
 	fi
 
 	start_bigbluebutton
