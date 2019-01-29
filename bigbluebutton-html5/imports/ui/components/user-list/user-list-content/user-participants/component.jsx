@@ -31,6 +31,7 @@ const propTypes = {
   normalizeEmojiName: PropTypes.func.isRequired,
   isMeetingLocked: PropTypes.func.isRequired,
   roving: PropTypes.func.isRequired,
+  toggleUserLock: PropTypes.func.isRequired,
 };
 
 const defaultProps = {
@@ -126,6 +127,7 @@ class UserParticipants extends Component {
       getEmoji,
       users,
       hasPrivateChatBetweenUsers,
+      toggleUserLock,
     } = this.props;
 
     let index = -1;
@@ -161,6 +163,7 @@ class UserParticipants extends Component {
               changeRole,
               getGroupChatPrivate,
               hasPrivateChatBetweenUsers,
+              toggleUserLock,
             }}
             userId={u}
             getScrollContainerRef={this.getScrollContainerRef}
