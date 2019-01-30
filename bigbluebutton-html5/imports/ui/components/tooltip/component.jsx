@@ -56,6 +56,7 @@ class Tooltip extends Component {
       distance: 10,
       arrow: true,
       arrowType: 'sharp',
+      aria: null,
     };
     this.tooltip = Tippy(`#${this.tippySelectorId}`, options);
   }
