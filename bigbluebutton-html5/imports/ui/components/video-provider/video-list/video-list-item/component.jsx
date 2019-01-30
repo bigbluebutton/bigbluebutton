@@ -80,7 +80,12 @@ class VideoListItem extends Component {
       actions,
       user,
       enableVideoStats,
+      usersLength,
     } = this.props;
+
+    if (usersLength < 3) {
+      actions.pop();
+    }
 
     return _.compact([
       <DropdownListTitle className={styles.hiddenDesktop} key="name">{user.name}</DropdownListTitle>,
@@ -108,9 +113,8 @@ class VideoListItem extends Component {
   render() {
     const { showStats, stats } = this.state;
     const { user } = this.props;
-
     const availableActions = this.getAvailableActions();
-    const isVideoMenuDisabled = Meteor.settings.public.kurento.enableHideVideoMenu || false;
+    const enableHideVideoMenu = Meteor.settings.public.kurento.enableHideVideoMenu || false;
 
     return (
       <div className={cx({
@@ -127,10 +131,10 @@ class VideoListItem extends Component {
           playsInline
         />
         <div className={styles.info}>
-          {isVideoMenuDisabled
+          {enableHideVideoMenu || availableActions.length < 3
             ? (
               <div className={styles.dropdown}>
-                <span className={cx(styles.userName)}>{user.name}</span>
+                <span className={styles.userName}>{user.name}</span>
               </div>
             )
             : (

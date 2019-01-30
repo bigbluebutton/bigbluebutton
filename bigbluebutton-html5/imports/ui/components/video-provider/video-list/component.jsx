@@ -167,6 +167,7 @@ class VideoList extends Component {
         >
           <VideoListItem
             user={user}
+            usersLength={users.length}
             actions={actions}
             onMount={(videoRef) => {
               this.handleCanvasResize();

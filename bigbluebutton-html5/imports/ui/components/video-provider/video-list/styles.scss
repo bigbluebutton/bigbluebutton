@@ -143,15 +143,7 @@
 }
 
 .dropdownTrigger {
-  @extend %text-elipsis;
   cursor: pointer;
-  position: relative;
-  background-color: rgba(var(--color-gray), .5);
-  color: var(--color-white);
-  font-size: 80%;
-  border-radius: 15px;
-  padding: 0 1rem 0 .5rem !important;
-  max-width: 50%;
 
   &::after {
     content: "\203a";
