@@ -116,7 +116,6 @@ export default injectIntl(withModalMounter(withTracker(({ intl, baseControls }) 
     chatIsOpen: Session.equals('openPanel', 'chat'),
     openPanel: Session.get('openPanel'),
     userListIsOpen: !Session.equals('openPanel', ''),
-    micsLocked: (currentUserIsLocked && meeting.lockSettingsProp.disableMic),
   };
 })(AppContainer)));
 

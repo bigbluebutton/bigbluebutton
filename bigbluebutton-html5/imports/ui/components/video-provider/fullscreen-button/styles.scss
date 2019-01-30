@@ -7,12 +7,10 @@
 
 .wrapper {
   position: absolute;
-  bottom: 0;
   right: 0;
   background-color: var(--color-transparent);
   cursor: pointer;
   border: none !important;
-  z-index: 2;
 }
 
 .button {
@@ -25,6 +23,10 @@
       font-weight: bold !important;
     }
   }
+}
+
+.dark {
+  bottom: 0;
 }
 
 .dark .button span i {
