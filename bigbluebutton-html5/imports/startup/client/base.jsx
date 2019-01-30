@@ -128,7 +128,7 @@ class Base extends Component {
     const { meetingExisted } = this.state;
 
     return (
-      (!meetingExisted && !meetingExist)
+      (!meetingExisted && !meetingExist && Auth.loggedIn)
         ? <LoadingScreen />
         : (
           <IntlStartup locale={locale} baseControls={stateControls}>
