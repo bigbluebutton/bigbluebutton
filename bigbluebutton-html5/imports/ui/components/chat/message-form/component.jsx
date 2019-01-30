@@ -118,6 +118,7 @@ class MessageForm extends PureComponent {
     const { message } = this.state;
     let msg = message.trim();
 
+
     if (disabled
       || msg.length === 0
       || msg.length < minMessageLength
@@ -132,11 +133,13 @@ class MessageForm extends PureComponent {
     div.appendChild(document.createTextNode(msg));
     msg = div.innerHTML;
 
-    return handleSendMessage(msg)
-      .then(() => this.setState({
+    return (
+      handleSendMessage(msg),
+      this.setState({
         message: '',
         hasErrors: false,
-      }));
+      })
+    );
   }
 
   render() {
@@ -184,7 +187,7 @@ class MessageForm extends PureComponent {
           />
         </div>
         <div className={styles.info}>
-          { hasErrors ? <span id="message-input-error">{error}</span> : null }
+          {hasErrors ? <span id="message-input-error">{error}</span> : null}
         </div>
       </form>
     );

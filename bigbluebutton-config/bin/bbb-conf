@@ -72,6 +72,15 @@ if [ "$(id -u)" != "0" ]; then
   fi
 fi
 
+if [ ! -f /etc/bigbluebutton/bigbluebutton-release ]; then
+	echo "#"
+	echo "# BigBlueButton does not appear to be installed.  Could not"
+	echo "# locate:"
+	echo "#"
+	echo "# /usr/share/red5/webapps/bigbluebutton/WEB-INF/red5-web.xml"
+	exit 1
+fi
+
 source /etc/bigbluebutton/bigbluebutton-release
 
 #
@@ -312,8 +321,11 @@ stop_bigbluebutton () {
        if [ -f /usr/lib/systemd/system/bbb-transcode-akka.service ]; then
           BBB_TRANSCODE_AKKA=bbb-transcode-akka
        fi
+       if [ -f /usr/share/etherpad-lite/settings.json ]; then
+          ETHERPAD=etherpad
+       fi
 
-       systemctl stop red5 $TOMCAT_SERVICE nginx freeswitch $REDIS_SERVICE bbb-apps-akka $BBB_TRANSCODE_AKKA bbb-fsesl-akka bbb-rap-archive-worker.service bbb-rap-process-worker.service bbb-rap-publish-worker.service bbb-rap-sanity-worker.service bbb-record-core.timer $HTML5 $WEBHOOKS
+       systemctl stop red5 $TOMCAT_SERVICE nginx freeswitch $REDIS_SERVICE bbb-apps-akka $BBB_TRANSCODE_AKKA bbb-fsesl-akka bbb-rap-archive-worker.service bbb-rap-process-worker.service bbb-rap-publish-worker.service bbb-rap-sanity-worker.service bbb-record-core.timer $HTML5 $WEBHOOKS $ETHERPAD
     else
 	/etc/init.d/monit stop
 
@@ -357,6 +369,21 @@ stop_bigbluebutton () {
 }
 
 start_bigbluebutton () {
+        #
+        # Apply any local configuration options (if exists)
+        #
+        if [ -x /etc/bigbluebutton/bbb-conf/apply-config.sh ]; then
+                echo -n "Applying updates in /etc/bigbluebutton/bbb-conf/apply-config.sh: "
+                /etc/bigbluebutton/bbb-conf/apply-config.sh
+                echo
+        fi
+
+        if grep -q "Failure to connect to CORE_DB sofia_reg_external" /opt/freeswitch/var/log/freeswitch/freeswitch.log; then
+		# See: http://docs.bigbluebutton.org/install/install.html#freeswitch-fails-to-bind-to-ipv4
+                echo "Clearing the FreeSWITCH database."
+		rm -rf /opt/freeswitch/var/lib/freeswitch/db/*
+	fi
+
     echo "Starting BigBlueButton"
     if command -v systemctl >/dev/null; then
        if [ -f /usr/lib/systemd/system/bbb-html5.service ]; then
@@ -368,8 +395,11 @@ start_bigbluebutton () {
        if [ -f /usr/lib/systemd/system/bbb-transcode-akka.service ]; then
           BBB_TRANSCODE_AKKA=bbb-transcode-akka
        fi
+       if [ -f /usr/share/etherpad-lite/settings.json ]; then
+          ETHERPAD=etherpad
+       fi
 
-       systemctl start red5 $TOMCAT_SERVICE nginx freeswitch $REDIS_SERVICE bbb-apps-akka $BBB_TRANSCODE_AKKA bbb-fsesl-akka bbb-record-core.timer $HTML5 $WEBHOOKS
+       systemctl start red5 $TOMCAT_SERVICE nginx freeswitch $REDIS_SERVICE bbb-apps-akka $BBB_TRANSCODE_AKKA bbb-fsesl-akka bbb-record-core.timer $HTML5 $WEBHOOKS $ETHERPAD
        if [ -f /usr/lib/systemd/system/bbb-html5.service ]; then
           systemctl start mongod
 	  sleep 3
@@ -1523,6 +1553,22 @@ check_state() {
                 echo "# Error: Detected some processes have not started correctly"
                 echo "#"
                 echo "#   $(bbb-conf --status | grep inactive)"
+                echo "#"
+        fi
+
+        if systemctl status freeswitch | grep -q SETSCHEDULER; then
+                echo "# Error: FreeSWITCH failed to start with SETSCHEDULER error, see"
+                echo "#"
+                echo "#   http://docs.bigbluebutton.org/install/install.html#freeswitch-fails-to-start-with-a-setscheduler-error"
+                echo "#"
+        fi
+
+        NCPU=`nproc --all`
+        if [ "$NCPU" -lt "4" ]; then
+                echo "# Warning: found only $NCPU cores, whereas this sherver should have (at least) 4 CPU cores"
+                echo "# to run BigBlueButton in production."
+                echo "#"
+                echo "#   http://docs.bigbluebutton.org/install/install.html#minimum-server-requirements"
                 echo "#"
         fi
 

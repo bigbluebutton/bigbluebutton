@@ -40,10 +40,12 @@ function deploy_format() {
 
 deploy_format "presentation"
 
+sudo mkdir -p /var/bigbluebutton/events/
 sudo mkdir -p /var/bigbluebutton/playback/
 sudo mkdir -p /var/bigbluebutton/recording/raw/
 sudo mkdir -p /var/bigbluebutton/recording/process/
 sudo mkdir -p /var/bigbluebutton/recording/publish/
+sudo mkdir -p /var/bigbluebutton/recording/status/ended/
 sudo mkdir -p /var/bigbluebutton/recording/status/recorded/
 sudo mkdir -p /var/bigbluebutton/recording/status/archived/
 sudo mkdir -p /var/bigbluebutton/recording/status/processed/

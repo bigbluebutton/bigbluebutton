@@ -81,6 +81,14 @@ const messages = defineMessages({
     id: 'app.userList.menu.demoteUser.label',
     description: 'Forcefully demote this moderator to a viewer',
   },
+  UnlockUserLabel: {
+    id: 'app.userList.menu.unlockUser.label',
+    description: 'Unlock individual user',
+  },
+  LockUserLabel: {
+    id: 'app.userList.menu.lockUser.label',
+    description: 'Lock a unlocked user',
+  },
 });
 
 const propTypes = {
@@ -92,6 +100,7 @@ const propTypes = {
   normalizeEmojiName: PropTypes.func.isRequired,
   isMeetingLocked: PropTypes.func.isRequired,
   getScrollContainerRef: PropTypes.func.isRequired,
+  toggleUserLock: PropTypes.func.isRequired,
 };
 
 class UserDropdown extends PureComponent {
@@ -194,6 +203,9 @@ class UserDropdown extends PureComponent {
       removeUser,
       toggleVoice,
       changeRole,
+      lockSettingsProp,
+      hasPrivateChatBetweenUsers,
+      toggleUserLock,
     } = this.props;
 
     const { showNestedOptions } = this.state;
@@ -211,7 +223,15 @@ class UserDropdown extends PureComponent {
       allowedToPromote,
       allowedToDemote,
       allowedToChangeStatus,
+      allowedToChangeUserLockStatus,
     } = actionPermissions;
+
+    const { disablePrivChat } = lockSettingsProp;
+
+    const enablePrivateChat = currentUser.isModerator
+      ? allowedToChatPrivately
+      : allowedToChatPrivately
+      && (!disablePrivChat || (disablePrivChat && hasPrivateChatBetweenUsers(currentUser, user)));
 
     if (showNestedOptions) {
       if (allowedToChangeStatus) {
@@ -246,9 +266,9 @@ class UserDropdown extends PureComponent {
       ));
     }
 
-    if (allowedToChatPrivately) {
+    if (enablePrivateChat) {
       actions.push(this.makeDropdownItem(
-        'openChat',
+        'activeChat',
         intl.formatMessage(messages.ChatLabel),
         () => {
           getGroupChatPrivate(currentUser, user);
@@ -319,6 +339,16 @@ class UserDropdown extends PureComponent {
         intl.formatMessage(messages.DemoteUserLabel),
         () => this.onActionsHide(changeRole(user.id, 'VIEWER')),
         'user',
+      ));
+    }
+
+    if (allowedToChangeUserLockStatus) {
+      actions.push(this.makeDropdownItem(
+        'unlockUser',
+        user.isLocked ? intl.formatMessage(messages.UnlockUserLabel, { 0: user.name })
+          : intl.formatMessage(messages.LockUserLabel, { 0: user.name }),
+        () => this.onActionsHide(toggleUserLock(user.id, !user.isLocked)),
+        user.isLocked ? 'unlock' : 'lock',
       ));
     }
 
@@ -429,7 +459,7 @@ class UserDropdown extends PureComponent {
         voice={user.isVoiceUser}
         color={user.color}
       >
-        {isVoiceOnly ? iconVoiceOnlyUser : iconUser }
+        {isVoiceOnly ? iconVoiceOnlyUser : iconUser}
       </UserAvatar>
     );
   }
@@ -448,6 +478,7 @@ class UserDropdown extends PureComponent {
       dropdownVisible,
       dropdownDirection,
       dropdownOffset,
+      showNestedOptions,
     } = this.state;
 
     const actions = this.getUsersActions();
@@ -481,7 +512,7 @@ class UserDropdown extends PureComponent {
       >
         <div className={styles.userItemContents}>
           <div className={styles.userAvatar}>
-            { this.renderUserAvatar() }
+            {this.renderUserAvatar()}
           </div>
           {<UserName
             {...{
@@ -509,7 +540,7 @@ class UserDropdown extends PureComponent {
     return (
       <Dropdown
         ref={(ref) => { this.dropdown = ref; }}
-        isOpen={isActionsOpen}
+        keepOpen={isActionsOpen || showNestedOptions}
         onShow={this.onActionsShow}
         onHide={this.onActionsHide}
         className={userItemContentsStyle}

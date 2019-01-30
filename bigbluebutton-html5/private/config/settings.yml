@@ -1,7 +1,7 @@
 public:
   app:
-    mobileFont: 16
-    desktopFont: 14
+    mobileFontSize: 16px
+    desktopFontSize: 14px
     audioChatNotification: false
     autoJoin: true
     showParticipantsOnLogin: true
@@ -11,7 +11,7 @@ public:
     clientTitle: BigBlueButton
     appName: BigBlueButton HTML5 Client
     bbbServerVersion: 2.2-dev
-    copyright: "©2018 BigBlueButton Inc."
+    copyright: "©2019 BigBlueButton Inc."
     html5ClientBuild: HTML5_CLIENT_VERSION
     lockOnJoin: true
     basename: "/html5client"
@@ -20,7 +20,6 @@ public:
       application:
         chatAudioAlerts: false
         chatPushAlerts: false
-        fontSize: 16px
         fallbackLocale: en
       audio:
         inputDeviceId: undefined
@@ -79,6 +78,7 @@ public:
     httpsConnection: false
     connectionTimeout: 60000
     showHelpButton: true
+    enableExternalVideo: false
   kurento:
     wsUrl: HOST
     chromeDefaultExtensionKey: akgoaoikmbmhcopjgakkcepdgdgkjfbc
@@ -95,7 +95,7 @@ public:
       height:
         max: 480
     enableScreensharing: false
-    enableVideo: false
+    enableVideo: true
     enableVideoStats: false
     enableListenOnly: false
     autoShareWebcam: false
@@ -120,6 +120,15 @@ public:
     storage_key: UNREAD_CHATS
     system_messages_keys:
       chat_clear: PUBLIC_CHAT_CLEAR
+  note:
+    enabled: false
+    url: ETHERPAD_HOST
+    config:
+      showLineNumbers: false
+      showChat: false
+      noColors: true
+      showControls: true
+      rtl: false
   layout:
     autoSwapLayout: false
     hidePresentation: false
@@ -255,7 +264,7 @@ private:
     host: 127.0.0.1
     post: '6379'
     timeout: 5000
-    debug: true
+    debug: false
     channels:
       toAkkaApps: to-akka-apps-redis-channel
     subscribeTo:

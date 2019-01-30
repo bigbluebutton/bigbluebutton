@@ -3,11 +3,12 @@ import PropTypes from 'prop-types';
 import { styles } from './styles';
 import UserParticipantsContainer from './user-participants/container';
 import UserMessages from './user-messages/component';
+import UserNotes from './user-notes/component';
 import UserPolls from './user-polls/component';
 import BreakoutRoomItem from './breakout-room/component';
 
 const propTypes = {
-  openChats: PropTypes.arrayOf(String).isRequired,
+  activeChats: PropTypes.arrayOf(String).isRequired,
   compact: PropTypes.bool,
   intl: PropTypes.shape({
     formatMessage: PropTypes.func.isRequired,
@@ -31,6 +32,7 @@ const propTypes = {
   getUsersId: PropTypes.func.isRequired,
   pollIsOpen: PropTypes.bool.isRequired,
   forcePollOpen: PropTypes.bool.isRequired,
+  toggleUserLock: PropTypes.func.isRequired,
 };
 
 const defaultProps = {
@@ -60,12 +62,14 @@ class UserContent extends PureComponent {
       getEmojiList,
       getEmoji,
       isPublicChat,
-      openChats,
+      activeChats,
       getGroupChatPrivate,
       pollIsOpen,
       forcePollOpen,
       hasBreakoutRoom,
       getUsersId,
+      hasPrivateChatBetweenUsers,
+      toggleUserLock,
     } = this.props;
 
     return (
@@ -77,10 +81,15 @@ class UserContent extends PureComponent {
         <UserMessages
           {...{
             isPublicChat,
-            openChats,
+            activeChats,
             compact,
             intl,
             roving,
+          }}
+        />
+        <UserNotes
+          {...{
+            intl,
           }}
         />
         <UserPolls
@@ -113,6 +122,8 @@ class UserContent extends PureComponent {
             getEmoji,
             getGroupChatPrivate,
             getUsersId,
+            hasPrivateChatBetweenUsers,
+            toggleUserLock,
           }}
         />
       </div>

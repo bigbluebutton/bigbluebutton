@@ -22,8 +22,9 @@ export default class SettingsDropdownContainer extends PureComponent {
       'MSFullscreenChange',
     ];
 
-    fullscreenChangedEvents.forEach(event =>
-      document.addEventListener(event, this.handleFullscreenChange));
+    fullscreenChangedEvents.forEach((event) => {
+      document.addEventListener(event, this.handleFullscreenChange);
+    });
   }
 
   componentWillUnmount() {
@@ -34,8 +35,9 @@ export default class SettingsDropdownContainer extends PureComponent {
       'MSFullscreenChange',
     ];
 
-    fullscreenChangedEvents.forEach(event =>
-      document.removeEventListener(event, this.fullScreenToggleCallback));
+    fullscreenChangedEvents.forEach((event) => {
+      document.removeEventListener(event, this.fullScreenToggleCallback);
+    });
   }
 
   handleFullscreenChange() {
@@ -50,6 +52,8 @@ export default class SettingsDropdownContainer extends PureComponent {
   }
 
   render() {
+    const { amIModerator } = this.props;
+
     const handleToggleFullscreen = toggleFullScreen;
     const { isFullScreen } = this.state;
     const result = browser();
@@ -60,6 +64,7 @@ export default class SettingsDropdownContainer extends PureComponent {
         handleToggleFullscreen={handleToggleFullscreen}
         isFullScreen={isFullScreen}
         isAndroid={isAndroid}
+        amIModerator={amIModerator}
       />
     );
   }

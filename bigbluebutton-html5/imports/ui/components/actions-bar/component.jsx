@@ -4,7 +4,9 @@ import { styles } from './styles.scss';
 import DesktopShare from './desktop-share/component';
 import ActionsDropdown from './actions-dropdown/component';
 import AudioControlsContainer from '../audio/audio-controls/container';
-import JoinVideoOptionsContainer from '../video-provider/video-menu/container';
+import JoinVideoOptionsContainer from '../video-provider/video-button/container';
+
+import PresentationOptionsContainer from './presentation-options/component';
 
 class ActionsBar extends React.PureComponent {
   render() {
@@ -25,6 +27,12 @@ class ActionsBar extends React.PureComponent {
       hasBreakoutRoom,
       meetingName,
       users,
+      isLayoutSwapped,
+      toggleSwapLayout,
+      getUsersNotAssigned,
+      sendInvitation,
+      getBreakouts,
+      handleTakePresenter,
     } = this.props;
 
     const {
@@ -34,6 +42,8 @@ class ActionsBar extends React.PureComponent {
     } = recordSettingsList;
 
     const actionBarClasses = {};
+    const { enableExternalVideo } = Meteor.settings.public.app;
+
     actionBarClasses[styles.centerWithActions] = isUserPresenter;
     actionBarClasses[styles.center] = true;
 
@@ -44,6 +54,7 @@ class ActionsBar extends React.PureComponent {
             isUserPresenter,
             isUserModerator,
             allowStartStopRecording,
+            allowExternalVideo: enableExternalVideo,
             isRecording,
             record,
             toggleRecording,
@@ -52,6 +63,10 @@ class ActionsBar extends React.PureComponent {
             hasBreakoutRoom,
             meetingName,
             users,
+            getUsersNotAssigned,
+            sendInvitation,
+            getBreakouts,
+            handleTakePresenter,
           }}
           />
         </div>
@@ -77,6 +92,16 @@ class ActionsBar extends React.PureComponent {
             screenSharingCheck,
           }}
           />
+        </div>
+        <div className={styles.right}>
+          { isLayoutSwapped
+            ? (
+              <PresentationOptionsContainer
+                toggleSwapLayout={toggleSwapLayout}
+              />
+            )
+            : null
+          }
         </div>
       </div>
     );

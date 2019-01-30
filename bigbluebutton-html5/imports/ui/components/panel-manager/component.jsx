@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 import BreakoutRoomContainer from '/imports/ui/components/breakout-room/container';
 import UserListContainer from '/imports/ui/components/user-list/container';
 import ChatContainer from '/imports/ui/components/chat/container';
+import NoteContainer from '/imports/ui/components/note/container';
 import PollContainer from '/imports/ui/components/poll/container';
 import { defineMessages, injectIntl } from 'react-intl';
 import Resizable from 're-resizable';
@@ -13,6 +14,10 @@ const intlMessages = defineMessages({
   chatLabel: {
     id: 'app.chat.label',
     description: 'Aria-label for Chat Section',
+  },
+  noteLabel: {
+    id: 'app.note.label',
+    description: 'Aria-label for Note Section',
   },
   userListLabel: {
     id: 'app.userList.label',
@@ -36,6 +41,10 @@ const USERLIST_MAX_WIDTH_PX = 240;
 const CHAT_MIN_WIDTH = 150;
 const CHAT_MAX_WIDTH = 350;
 
+// Variables for resizing shared notes.
+const NOTE_MIN_WIDTH = 340;
+const NOTE_MAX_WIDTH = 800;
+
 class PanelManager extends Component {
   constructor() {
     super();
@@ -45,10 +54,12 @@ class PanelManager extends Component {
     this.breakoutroomKey = _.uniqueId('breakoutroom-');
     this.chatKey = _.uniqueId('chat-');
     this.pollKey = _.uniqueId('poll-');
+    this.noteKey = _.uniqueId('note-');
 
     this.state = {
       chatWidth: 340,
       userlistWidth: 180,
+      noteWidth: NOTE_MIN_WIDTH,
     };
   }
 
@@ -149,6 +160,53 @@ class PanelManager extends Component {
     );
   }
 
+  renderNote() {
+    const { intl, enableResize } = this.props;
+
+    return (
+      <section
+        className={styles.note}
+        aria-label={intl.formatMessage(intlMessages.noteLabel)}
+        key={enableResize ? null : this.noteKey}
+      >
+        <NoteContainer />
+      </section>
+    );
+  }
+
+  renderNoteResizable() {
+    const { noteWidth } = this.state;
+
+    const resizableEnableOptions = {
+      top: false,
+      right: true,
+      bottom: false,
+      left: false,
+      topRight: false,
+      bottomRight: false,
+      bottomLeft: false,
+      topLeft: false,
+    };
+
+    return (
+      <Resizable
+        minWidth={NOTE_MIN_WIDTH}
+        maxWidth={NOTE_MAX_WIDTH}
+        ref={(node) => { this.resizableNote = node; }}
+        enable={resizableEnableOptions}
+        key={this.noteKey}
+        size={{ width: noteWidth }}
+        onResizeStop={(e, direction, ref, d) => {
+          this.setState({
+            noteWidth: noteWidth + d.width,
+          });
+        }}
+      >
+        {this.renderNote()}
+      </Resizable>
+    );
+  }
+
   renderPoll() {
     return (
       <div className={styles.poll} key={this.pollKey}>
@@ -180,6 +238,14 @@ class PanelManager extends Component {
         resizablePanels.push(this.renderChatResizable());
       } else {
         panels.push(this.renderChat());
+      }
+    }
+
+    if (openPanel === 'note') {
+      if (enableResize) {
+        resizablePanels.push(this.renderNoteResizable());
+      } else {
+        panels.push(this.renderNote());
       }
     }
 

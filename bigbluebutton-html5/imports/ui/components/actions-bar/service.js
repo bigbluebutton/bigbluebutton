@@ -4,32 +4,21 @@ import { makeCall } from '/imports/ui/services/api';
 import Meetings from '/imports/api/meetings';
 import Breakouts from '/imports/api/breakouts';
 
-const processOutsideToggleRecording = (e) => {
-  switch (e.data) {
-    case 'c_record': {
-      makeCall('toggleRecording');
-      break;
-    }
-    case 'c_recording_status': {
-      const recordingState = Meetings.findOne({ meetingId: Auth.meetingID }).recordProp.recording;
-      const recordingMessage = recordingState ? 'recordingStarted' : 'recordingStopped';
-      this.window.parent.postMessage({ response: recordingMessage }, '*');
-      break;
-    }
-    default: {
-      // console.log(e.data);
-    }
-  }
+const getBreakouts = () => Breakouts.find({ parentMeetingId: Auth.meetingID })
+  .fetch()
+  .sort((a, b) => a.sequence - b.sequence);
+
+const getUsersNotAssigned = (users) => {
+  const breakouts = getBreakouts();
+  const breakoutUsers = breakouts
+    .reduce((acc, value) => [...acc, ...value.users], [])
+    .map(u => u.userId);
+  return users.filter(u => !breakoutUsers.includes(u.intId));
 };
 
-const connectRecordingObserver = () => {
-  // notify on load complete
-  this.window.parent.postMessage({ response: 'readyToConnect' }, '*');
-};
-
+const takePresenterRole = () => makeCall('assignPresenter', Auth.userID);
 
 export default {
-  connectRecordingObserver: () => connectRecordingObserver(),
   isUserPresenter: () => Users.findOne({ userId: Auth.userID }).presenter,
   isUserModerator: () => Users.findOne({ userId: Auth.userID }).moderator,
   recordSettingsList: () => Meetings.findOne({ meetingId: Auth.meetingID }).recordProp,
@@ -38,6 +27,9 @@ export default {
   users: () => Users.find({ connectionStatus: 'online' }).fetch(),
   hasBreakoutRoom: () => Breakouts.find({ parentMeetingId: Auth.meetingID }).fetch().length > 0,
   toggleRecording: () => makeCall('toggleRecording'),
-  processOutsideToggleRecording: arg => processOutsideToggleRecording(arg),
   createBreakoutRoom: (numberOfRooms, durationInMinutes, freeJoin = true, record = false) => makeCall('createBreakoutRoom', numberOfRooms, durationInMinutes, freeJoin, record),
+  sendInvitation: (breakoutId, userId) => makeCall('requestJoinURL', { breakoutId, userId }),
+  getBreakouts,
+  getUsersNotAssigned,
+  takePresenterRole,
 };

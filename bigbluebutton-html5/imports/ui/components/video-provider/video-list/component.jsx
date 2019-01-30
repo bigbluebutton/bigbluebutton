@@ -93,7 +93,7 @@ class VideoList extends Component {
     }
 
     const { focusedId } = this.state;
-    const aspectRatio = 16 / 9;
+    const aspectRatio = 4 / 3;
     const { width: canvasWidth, height: canvasHeight } = this.canvas.getBoundingClientRect();
     const gridGutter = parseInt(window.getComputedStyle(this.grid).getPropertyValue('grid-row-gap'), 10);
 
@@ -143,7 +143,7 @@ class VideoList extends Component {
 
   renderVideoList() {
     const {
-      intl, users, onMount, getStats, stopGettingStats, enableVideoStats
+      intl, users, onMount, getStats, stopGettingStats, enableVideoStats,
     } = this.props;
     const { focusedId } = this.state;
 
@@ -172,12 +172,8 @@ class VideoList extends Component {
               this.handleCanvasResize();
               return onMount(user.id, videoRef);
             }}
-            getStats={(videoRef, callback) => {
-              return getStats(user.id, videoRef, callback);
-            }}
-            stopGettingStats={() => {
-              return stopGettingStats(user.id);
-            }}
+            getStats={(videoRef, callback) => getStats(user.id, videoRef, callback)}
+            stopGettingStats={() => stopGettingStats(user.id)}
             enableVideoStats={enableVideoStats}
           />
         </div>

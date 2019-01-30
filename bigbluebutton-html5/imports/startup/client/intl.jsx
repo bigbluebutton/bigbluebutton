@@ -1,8 +1,48 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { IntlProvider } from 'react-intl';
+import { IntlProvider, addLocaleData } from 'react-intl';
 import Settings from '/imports/ui/services/settings';
 import LoadingScreen from '/imports/ui/components/loading-screen/component';
+
+// currently supported locales.
+import bg from 'react-intl/locale-data/bg';
+import de from 'react-intl/locale-data/de';
+import el from 'react-intl/locale-data/el';
+import en from 'react-intl/locale-data/en';
+import es from 'react-intl/locale-data/es';
+import fa from 'react-intl/locale-data/fa';
+import fr from 'react-intl/locale-data/fr';
+import id from 'react-intl/locale-data/id';
+import it from 'react-intl/locale-data/it';
+import ja from 'react-intl/locale-data/ja';
+import km from 'react-intl/locale-data/km';
+import pl from 'react-intl/locale-data/pl';
+import pt from 'react-intl/locale-data/pt';
+import ru from 'react-intl/locale-data/ru';
+import tr from 'react-intl/locale-data/tr';
+import uk from 'react-intl/locale-data/uk';
+import zh from 'react-intl/locale-data/zh';
+
+
+addLocaleData([
+  ...bg,
+  ...de,
+  ...el,
+  ...en,
+  ...es,
+  ...fa,
+  ...fr,
+  ...id,
+  ...it,
+  ...ja,
+  ...km,
+  ...pl,
+  ...pt,
+  ...ru,
+  ...tr,
+  ...uk,
+  ...zh,
+]);
 
 const propTypes = {
   locale: PropTypes.string,
@@ -29,14 +69,18 @@ class IntlStartup extends Component {
   }
 
   componentWillMount() {
-    this.fetchLocalizedMessages(this.props.locale);
+    const { locale } = this.props;
+    this.fetchLocalizedMessages(locale);
   }
 
   componentWillUpdate(nextProps) {
-    if (!this.state.fetching
-      && this.state.normalizedLocale
-      && nextProps.locale.toLowerCase() !== this.state.normalizedLocale.toLowerCase()) {
-      this.fetchLocalizedMessages(nextProps.locale);
+    const { fetching, normalizedLocale } = this.state;
+    const { locale } = nextProps;
+
+    if (!fetching
+      && normalizedLocale
+      && locale.toLowerCase() !== normalizedLocale.toLowerCase()) {
+      this.fetchLocalizedMessages(locale);
     }
   }
 
@@ -69,9 +113,12 @@ class IntlStartup extends Component {
   }
 
   render() {
-    return this.state.fetching ? <LoadingScreen /> : (
-      <IntlProvider locale={DEFAULT_LANGUAGE} messages={this.state.messages}>
-        {this.props.children}
+    const { fetching, normalizedLocale, messages } = this.state;
+    const { children } = this.props;
+
+    return fetching ? <LoadingScreen /> : (
+      <IntlProvider locale={normalizedLocale} messages={messages}>
+        {children}
       </IntlProvider>
     );
   }

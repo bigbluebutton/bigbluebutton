@@ -18,6 +18,7 @@ const propTypes = {
   isMeetingLocked: PropTypes.func.isRequired,
   normalizeEmojiName: PropTypes.func.isRequired,
   getScrollContainerRef: PropTypes.func.isRequired,
+  toggleUserLock: PropTypes.func.isRequired,
 };
 
 const defaultProps = {
@@ -41,36 +42,45 @@ class UserListItem extends PureComponent {
       intl,
       isBreakoutRoom,
       isMeetingLocked,
-      meetingId,
+      meeting,
       normalizeEmojiName,
       removeUser,
       setEmojiStatus,
       toggleVoice,
+      hasPrivateChatBetweenUsers,
+      toggleUserLock,
     } = this.props;
 
-    const contents = (<UserDropdown
-      {...{
-        assignPresenter,
-        compact,
-        currentUser,
-        changeRole,
-        getAvailableActions,
-        getEmoji,
-        getEmojiList,
-        getGroupChatPrivate,
-        getScrollContainerRef,
-        handleEmojiChange,
-        intl,
-        isBreakoutRoom,
-        isMeetingLocked,
-        meetingId,
-        normalizeEmojiName,
-        removeUser,
-        setEmojiStatus,
-        toggleVoice,
-        user,
-      }}
-    />);
+    const { meetingId, lockSettingsProp } = meeting;
+
+    const contents = (
+      <UserDropdown
+        {...{
+          assignPresenter,
+          compact,
+          currentUser,
+          changeRole,
+          getAvailableActions,
+          getEmoji,
+          getEmojiList,
+          getGroupChatPrivate,
+          getScrollContainerRef,
+          handleEmojiChange,
+          intl,
+          isBreakoutRoom,
+          isMeetingLocked,
+          meetingId,
+          lockSettingsProp,
+          normalizeEmojiName,
+          removeUser,
+          setEmojiStatus,
+          toggleVoice,
+          user,
+          hasPrivateChatBetweenUsers,
+          toggleUserLock,
+        }}
+      />
+    );
 
     return contents;
   }

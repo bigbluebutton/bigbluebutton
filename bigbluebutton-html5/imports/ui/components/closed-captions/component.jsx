@@ -1,9 +1,17 @@
-import React, { Component } from 'react';
+import React from 'react';
 import PropTypes from 'prop-types';
+import { defineMessages, injectIntl } from 'react-intl';
 import injectWbResizeEvent from '/imports/ui/components/presentation/resize-wrapper/component';
 import { styles } from './styles.scss';
 
-class ClosedCaptions extends Component {
+const intlMessages = defineMessages({
+  noLocaleSelected: {
+    id: 'app.submenu.closedCaptions.noLocaleSelected',
+    description: 'label for selected language for closed captions',
+  },
+});
+
+class ClosedCaptions extends React.PureComponent {
   constructor(props) {
     super(props);
 
@@ -25,13 +33,14 @@ class ClosedCaptions extends Component {
   }
 
   renderCaptions(caption) {
+    const { fontFamily, fontSize, fontColor } = this.props;
     const text = caption.captions;
     const captionStyles = {
       whiteSpace: 'pre-wrap',
       wordWrap: 'break-word',
-      fontFamily: this.props.fontFamily,
-      fontSize: this.props.fontSize,
-      color: this.props.fontColor,
+      fontFamily,
+      fontSize,
+      color: fontColor,
     };
 
     return (
@@ -48,12 +57,15 @@ class ClosedCaptions extends Component {
       locale,
       captions,
       backgroundColor,
+      intl,
     } = this.props;
 
     return (
       <div disabled className={styles.ccbox}>
         <div className={styles.title}>
-          <p> {locale} </p>
+          <p>
+            { locale || intl.formatMessage(intlMessages.noLocaleSelected) }
+          </p>
         </div>
         <div
           ref={(ref) => { this.refCCScrollArea = ref; }}
@@ -69,7 +81,7 @@ class ClosedCaptions extends Component {
   }
 }
 
-export default injectWbResizeEvent(ClosedCaptions);
+export default injectIntl(injectWbResizeEvent(ClosedCaptions));
 
 ClosedCaptions.propTypes = {
   backgroundColor: PropTypes.string.isRequired,
@@ -83,12 +95,15 @@ ClosedCaptions.propTypes = {
       ).isRequired,
     }).isRequired,
   ).isRequired,
-  locale: PropTypes.string.isRequired,
+  locale: PropTypes.string,
   fontColor: PropTypes.string.isRequired,
   fontSize: PropTypes.string.isRequired,
   fontFamily: PropTypes.string.isRequired,
+  intl: PropTypes.shape({
+    formatMessage: PropTypes.func.isRequired,
+  }).isRequired,
 };
 
 ClosedCaptions.defaultProps = {
-  locale: 'Locale is not selected',
+  locale: undefined,
 };
