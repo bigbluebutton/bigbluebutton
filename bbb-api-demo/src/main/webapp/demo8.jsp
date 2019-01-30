@@ -1,5 +1,6 @@
+<!DOCTYPE html>
 <html lang="en"> 
- <head><title>Join & Upload Presentation (URL)</title></head></p> <p>
+ <head><title>Join & Upload Presentation (URL)</title></head>
  <body>
  <%@ include file="bbb_api.jsp"%>  
 
