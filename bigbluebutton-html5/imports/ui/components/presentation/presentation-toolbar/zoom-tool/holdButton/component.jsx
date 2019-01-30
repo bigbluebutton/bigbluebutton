@@ -39,44 +39,26 @@ class HoldDownButton extends Component {
     };
 
     setTimeout(() => {
-      if (this.state.mouseHolding) {
-        interval();
-      }
+      const { mouseHolding } = this.state;
+      if (mouseHolding) interval();
     }, DELAY_MILLISECONDS);
   }
 
   mouseDownHandler() {
-    this.setState({
-      ...this.state,
-      mouseHolding: true,
-    }, () => {
-      this.execInterval();
-    });
+    this.setState({ mouseHolding: true }, this.execInterval());
   }
 
   mouseUpHandler() {
-    this.setState({
-      ...this.state,
-      mouseHolding: false,
-    }, () => clearInterval(this.setInt));
+    this.setState({ mouseHolding: false }, clearInterval(this.setInt));
   }
 
   touchStart() {
-    this.setState({
-      ...this.state,
-      mouseHolding: true,
-    }, () => {
-      this.execInterval();
-    });
+    this.setState({ mouseHolding: true }, this.execInterval());
   }
 
   touchEnd() {
-    this.setState({
-      ...this.state,
-      mouseHolding: false,
-    }, () => clearInterval(this.setInt));
+    this.setState({ mouseHolding: false }, clearInterval(this.setInt));
   }
-
 
   render() {
     const {
@@ -88,6 +70,7 @@ class HoldDownButton extends Component {
     return (
       <span
         role="button"
+        aria-roledescription="interactive"
         key={uniqueKey}
         onClick={this.onClick}
         onMouseDown={this.mouseDownHandler}
@@ -95,7 +78,9 @@ class HoldDownButton extends Component {
         onTouchStart={this.touchStart}
         onTouchEnd={this.touchEnd}
         onMouseLeave={this.mouseUpHandler}
+        onKeyUp={() => {}}
         className={className}
+        tabIndex={-1}
       >
         {children}
       </span>
@@ -104,6 +89,7 @@ class HoldDownButton extends Component {
 }
 
 const defaultProps = {
+  className: null,
   exec: () => {},
   minBound: null,
   maxBound: Infinity,
@@ -113,13 +99,15 @@ const defaultProps = {
 
 const propTypes = {
   uniqueKey: PropTypes.string,
-  exec: PropTypes.func.isRequired,
+  exec: PropTypes.func,
   minBound: PropTypes.number,
   maxBound: PropTypes.number,
+  value: PropTypes.number,
+  className: PropTypes.string,
   children: PropTypes.node.isRequired,
 };
 
-HoldDownButton.defaultProps = propTypes;
+HoldDownButton.propTypes = propTypes;
 HoldDownButton.defaultProps = defaultProps;
 
 export default HoldDownButton;
