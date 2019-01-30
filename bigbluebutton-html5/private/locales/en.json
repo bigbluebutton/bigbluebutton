@@ -396,7 +396,7 @@
     "app.videoPreview.webcamNotFoundLabel": "Webcam not found",
     "app.video.joinVideo": "Share webcam",
     "app.video.leaveVideo": "Stop sharing webcam",
-    "app.video.iceCandidateError": "Error on adding ice candidate",
+    "app.video.iceCandidateError": "Error on adding ICE candidate",
     "app.video.iceConnectionStateError": "Error 1107: ICE negotiation failed",
     "app.video.permissionError": "Error on sharing webcam.  Please check permissions",
     "app.video.sharingError": "Error on sharing webcam",
