@@ -4,7 +4,7 @@ import { Tracker } from 'meteor/tracker';
 import BaseAudioBridge from './base';
 import logger from '/imports/startup/client/logger';
 import { fetchStunTurnServers } from '/imports/utils/fetchStunTurnServers';
-
+import browser from 'browser-detect';
 
 const MEDIA = Meteor.settings.public.media;
 const MEDIA_TAG = MEDIA.mediaTag;
@@ -279,7 +279,14 @@ export default class SIPBridge extends BaseAudioBridge {
     return new Promise((resolve) => {
       const { mediaHandler } = currentSession;
 
-      const connectionCompletedEvents = ['iceConnectionCompleted', 'iceConnectionConnected'];
+      let connectionCompletedEvents = ['iceConnectionCompleted', 'iceConnectionConnected'];
+      // Edge sends a connected first and then a completed, but the call isn't ready until
+      // the completed comes in. Due to the way that we have the listeners set up, the only
+      // way to ignore one status is to not listen for it.
+      if (browser().name === 'edge') {
+        connectionCompletedEvents  = ['iceConnectionCompleted'];
+      }
+
       const handleConnectionCompleted = () => {
         connectionCompletedEvents.forEach(e => mediaHandler.off(e, handleConnectionCompleted));
         // We have to delay notifying that the call is connected because it is sometimes not

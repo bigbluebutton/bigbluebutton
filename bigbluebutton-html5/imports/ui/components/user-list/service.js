@@ -260,6 +260,24 @@ const getActiveChats = (chatID) => {
 
 const isVoiceOnlyUser = userId => userId.toString().startsWith('v_');
 
+const isMeetingLocked = (id) => {
+  const meeting = Meetings.findOne({ meetingId: id });
+  let isLocked = false;
+
+  if (meeting.lockSettingsProp !== undefined) {
+    const lockSettings = meeting.lockSettingsProp;
+
+    if (lockSettings.disableCam
+      || lockSettings.disableMic
+      || lockSettings.disablePrivChat
+      || lockSettings.disablePubChat) {
+      isLocked = true;
+    }
+  }
+
+  return isLocked;
+};
+
 const getAvailableActions = (currentUser, user, isBreakoutRoom) => {
   const isDialInUser = isVoiceOnlyUser(user.id) || user.isPhoneUser;
 
@@ -301,6 +319,9 @@ const getAvailableActions = (currentUser, user, isBreakoutRoom) => {
 
   const allowedToChangeStatus = user.isCurrent;
 
+  const allowedToChangeUserLockStatus = currentUser.isModerator
+    && !user.isModerator && isMeetingLocked(Auth.meetingID);
+
   return {
     allowedToChatPrivately,
     allowedToMuteAudio,
@@ -311,6 +332,7 @@ const getAvailableActions = (currentUser, user, isBreakoutRoom) => {
     allowedToPromote,
     allowedToDemote,
     allowedToChangeStatus,
+    allowedToChangeUserLockStatus,
   };
 };
 
@@ -324,24 +346,6 @@ const getCurrentUser = () => {
 const normalizeEmojiName = emoji => (
   emoji in EMOJI_STATUSES ? EMOJI_STATUSES[emoji] : emoji
 );
-
-const isMeetingLocked = (id) => {
-  const meeting = Meetings.findOne({ meetingId: id });
-  let isLocked = false;
-
-  if (meeting.lockSettingsProp !== undefined) {
-    const lockSettings = meeting.lockSettingsProp;
-
-    if (lockSettings.disableCam
-      || lockSettings.disableMic
-      || lockSettings.disablePrivChat
-      || lockSettings.disablePubChat) {
-      isLocked = true;
-    }
-  }
-
-  return isLocked;
-};
 
 const setEmojiStatus = (data) => {
   const statusAvailable = (Object.keys(EMOJI_STATUSES).includes(data));
@@ -448,6 +452,10 @@ const isUserModerator = (userId) => {
   return u ? u.moderator : false;
 };
 
+const toggleUserLock = (userId, lockStatus) => {
+  makeCall('toggleUserLock', userId, lockStatus);
+};
+
 export default {
   setEmojiStatus,
   assignPresenter,
@@ -473,4 +481,5 @@ export default {
   getEmojiList: () => EMOJI_STATUSES,
   getEmoji: () => Users.findOne({ userId: Auth.userID }).emoji,
   hasPrivateChatBetweenUsers,
+  toggleUserLock,
 };

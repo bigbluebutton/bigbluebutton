@@ -194,7 +194,7 @@ class App extends Component {
 
   render() {
     const {
-      customStyle, customStyleUrl, micsLocked, openPanel,
+      customStyle, customStyleUrl, openPanel,
     } = this.props;
 
     return (
@@ -211,7 +211,7 @@ class App extends Component {
         </section>
         <PollingContainer />
         <ModalContainer />
-        {micsLocked ? null : <AudioContainer />}
+        <AudioContainer />
         <ToastContainer />
         <ChatAlertContainer />
         {customStyleUrl ? <link rel="stylesheet" type="text/css" href={customStyleUrl} /> : null}

@@ -127,6 +127,10 @@ class BreakoutRoom extends Component {
       preventClosing: true,
       valid: true,
     };
+
+    this.breakoutFormId = _.uniqueId('breakout-form-');
+    this.freeJoinId = _.uniqueId('free-join-check-');
+    this.btnLevelId = _.uniqueId('btn-set-level-');
   }
 
   componentDidMount() {
@@ -155,7 +159,7 @@ class BreakoutRoom extends Component {
       freeJoin,
     } = this.state;
 
-    if (users.length === this.getUserByRoom(0).length) {
+    if (users.length === this.getUserByRoom(0).length && !freeJoin) {
       this.setState({ valid: false });
       return;
     }
@@ -295,7 +299,7 @@ class BreakoutRoom extends Component {
     };
 
     return (
-      <div className={styles.boxContainer}>
+      <div className={styles.boxContainer} key="rooms-grid-">
         <label htmlFor="BreakoutRoom" className={!valid ? styles.changeToWarn : null}>
           <p
             className={styles.freeJoinLabel}
@@ -340,7 +344,7 @@ class BreakoutRoom extends Component {
     if (isInvitation) return null;
 
     return (
-      <div className={styles.breakoutSettings}>
+      <div className={styles.breakoutSettings} key={this.breakoutFormId}>
         <label htmlFor="numberOfRooms">
           <p className={styles.labelText}>{intl.formatMessage(intlMessages.numberOfRooms)}</p>
           <select
@@ -422,7 +426,7 @@ class BreakoutRoom extends Component {
     if (isInvitation) return null;
     const { freeJoin } = this.state;
     return (
-      <label htmlFor="freeJoinCheckbox" className={styles.freeJoinLabel}>
+      <label htmlFor="freeJoinCheckbox" className={styles.freeJoinLabel} key={this.freeJoinId}>
         <input
           type="checkbox"
           className={styles.freeJoinCheckbox}
@@ -534,6 +538,7 @@ class BreakoutRoom extends Component {
         size="lg"
         label={label}
         onClick={() => this.setState({ formFillLevel: level })}
+        key={this.btnLevelId}
       />
     );
   }

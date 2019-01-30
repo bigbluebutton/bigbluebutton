@@ -31,6 +31,7 @@ const propTypes = {
   normalizeEmojiName: PropTypes.func.isRequired,
   isMeetingLocked: PropTypes.func.isRequired,
   roving: PropTypes.func.isRequired,
+  toggleUserLock: PropTypes.func.isRequired,
 };
 
 const defaultProps = {
@@ -126,6 +127,7 @@ class UserParticipants extends Component {
       getEmoji,
       users,
       hasPrivateChatBetweenUsers,
+      toggleUserLock,
     } = this.props;
 
     let index = -1;
@@ -161,6 +163,7 @@ class UserParticipants extends Component {
               changeRole,
               getGroupChatPrivate,
               hasPrivateChatBetweenUsers,
+              toggleUserLock,
             }}
             userId={u}
             getScrollContainerRef={this.getScrollContainerRef}
@@ -200,20 +203,24 @@ class UserParticipants extends Component {
               <div className={styles.container}>
                 <h2 className={styles.smallTitle}>
                   {intl.formatMessage(intlMessages.usersTitle)}
-                &nbsp;(
+                  &nbsp;(
                   {users.length}
-)
-
+                  )
                 </h2>
-                <UserOptionsContainer {...{
-                  users,
-                  muteAllUsers,
-                  muteAllExceptPresenter,
-                  setEmojiStatus,
-                  meeting,
-                  currentUser,
-                }}
-                />
+                {currentUser.isModerator
+                  ? (
+                    <UserOptionsContainer {...{
+                      users,
+                      muteAllUsers,
+                      muteAllExceptPresenter,
+                      setEmojiStatus,
+                      meeting,
+                      currentUser,
+                    }}
+                    />
+                  ) : null
+                }
+
               </div>
             )
             : <hr className={styles.separator} />

@@ -18,6 +18,7 @@ const propTypes = {
   isMeetingLocked: PropTypes.func.isRequired,
   normalizeEmojiName: PropTypes.func.isRequired,
   getScrollContainerRef: PropTypes.func.isRequired,
+  toggleUserLock: PropTypes.func.isRequired,
 };
 
 const defaultProps = {
@@ -47,6 +48,7 @@ class UserListItem extends PureComponent {
       setEmojiStatus,
       toggleVoice,
       hasPrivateChatBetweenUsers,
+      toggleUserLock,
     } = this.props;
 
     const { meetingId, lockSettingsProp } = meeting;
@@ -75,6 +77,7 @@ class UserListItem extends PureComponent {
           toggleVoice,
           user,
           hasPrivateChatBetweenUsers,
+          toggleUserLock,
         }}
       />
     );
