@@ -142,7 +142,7 @@ public class DownloadRequest {
         ArrayList list = new ArrayList();
         int i = 0;
         int length = str.length();
-        StringBuffer sb = null;
+        StringBuilder sb = null;
         while(i < length) {
             char ch = str.charAt(i);
             if (ch == ' ') {
@@ -155,11 +155,11 @@ public class DownloadRequest {
                 // It is a delimiter. Add next character
                 if (i + 1 < length) {
                     ch = str.charAt(++i);
-                    if (sb == null) sb = new StringBuffer();
+                    if (sb == null) { sb = new StringBuilder(); }
                     sb.append(ch);
                 }
             } else {
-                if (sb == null) sb = new StringBuffer();
+                if (sb == null) { sb = new StringBuilder(); }
                 sb.append(ch);
             }
             i++; // Next character

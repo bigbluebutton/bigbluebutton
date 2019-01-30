@@ -95,7 +95,7 @@ public class VersionString {
 
     /** Pretty-print object */
     public String toString() {
-        StringBuffer sb = new StringBuffer();
+    	StringBuilder sb = new StringBuilder();
         for(int i = 0; i < _versionIds.size(); i++) {
             sb.append(_versionIds.get(i).toString());
             sb.append(' ');

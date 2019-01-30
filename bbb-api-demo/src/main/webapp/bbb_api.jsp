@@ -382,7 +382,7 @@ public String getJoinURLwithDynamicConfigXML(String username, String meetingID, 
 // From the list of parameters we want to pass. Creates a base string with parameters
 // sorted in alphabetical order for us to sign.
 public String createBaseString(Map<String, String[]> params) {
-	StringBuffer csbuf = new StringBuffer();
+	StringBuilder csbuf = new StringBuilder();
 	SortedSet<String> keys = new TreeSet<String>(params.keySet());
  
 	boolean first = true;
@@ -778,7 +778,7 @@ public static String checksum(String s) {
 // getURL() -- fetch a URL and return its contents as a String
 //
 public static String getURL(String url) {
-	StringBuffer response = null;
+	StringBuilder response = null;
 
 	try {
 		URL u = new URL(url);
@@ -794,7 +794,7 @@ public static String getURL(String url) {
 			InputStream input = httpConnection.getInputStream();
 
 			// Read server's response.
-			response = new StringBuffer();
+			response = new StringBuilder();
 			Reader reader = new InputStreamReader(input, "UTF-8");
 			reader = new BufferedReader(reader);
 			char[] buffer = new char[1024];
@@ -854,7 +854,7 @@ public static String postURL(String targetURL, String urlParameters, String cont
 		InputStream is = connection.getInputStream();
 		BufferedReader rd = new BufferedReader(new InputStreamReader(is));
 		String line;
-		StringBuffer response = new StringBuffer(); 
+		StringBuilder response = new StringBuilder(); 
 		while((line = rd.readLine()) != null) {
 			response.append(line);
 			response.append('\r');

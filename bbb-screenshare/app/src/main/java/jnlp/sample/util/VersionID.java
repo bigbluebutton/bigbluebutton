@@ -248,7 +248,7 @@ public class VersionID implements Comparable {
     }
     /** Show it as a string */
     public String toString() {
-        StringBuffer sb = new StringBuffer();
+    	StringBuilder sb = new StringBuilder();
         for(int i = 0; i < _tuple.length -1; i++) {
             sb.append(_tuple[i]);
             sb.append('.');

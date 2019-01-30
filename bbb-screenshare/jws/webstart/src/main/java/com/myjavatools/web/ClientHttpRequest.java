@@ -98,7 +98,7 @@ public class ClientHttpRequest {
 
 
   private void postCookies() {
-    StringBuffer cookieList = new StringBuffer();
+	  StringBuilder cookieList = new StringBuilder();
 
     for (Iterator i = cookies.entrySet().iterator(); i.hasNext();) {
       Map.Entry entry = (Map.Entry)(i.next());
@@ -114,7 +114,7 @@ public class ClientHttpRequest {
   }
 
   /**
-   * adds a cookie to the requst
+   * adds a cookie to the request
    * @param name cookie name
    * @param value cookie value
    * @throws IOException

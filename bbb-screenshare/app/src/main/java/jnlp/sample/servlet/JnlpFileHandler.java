@@ -117,7 +117,7 @@ public class JnlpFileHandler {
     String mimeType = _servletContext.getMimeType(path);
     if (mimeType == null) mimeType = JNLP_MIME_TYPE;
 
-    StringBuffer jnlpFileTemplate = new StringBuffer();
+    StringBuilder jnlpFileTemplate = new StringBuilder();
     URLConnection conn = resource.openConnection();
     BufferedReader br = new BufferedReader(new InputStreamReader(conn.getInputStream(), "UTF-8"));
     String line = br.readLine();
@@ -190,7 +190,7 @@ public class JnlpFileHandler {
     String mimeType = _servletContext.getMimeType(path);
     if (mimeType == null) mimeType = JNLP_MIME_TYPE;
 
-    StringBuffer jnlpFileTemplate = new StringBuffer();
+    StringBuilder jnlpFileTemplate = new StringBuilder();
     URLConnection conn = resource.openConnection();
     BufferedReader br = new BufferedReader(new InputStreamReader(conn.getInputStream(), "UTF-8"));
     String line = br.readLine();
@@ -367,7 +367,7 @@ public class JnlpFileHandler {
 
   // This code is heavily inspired by the stuff in HttpUtils.getRequestURL
   private String getUrlPrefix(HttpServletRequest req) {
-    StringBuffer url = new StringBuffer();
+	  StringBuilder url = new StringBuilder();
     String scheme = req.getScheme();
     int port = req.getServerPort();
     url.append(scheme);             // http, https
@@ -402,7 +402,7 @@ public class JnlpFileHandler {
    *    - Appending a 'Z', e.g., 2001-12-19 12:00Z
    *    - Appending +hh:mm, +hhmm, +hh, -hh:mm -hhmm, -hh to
    *      indicate that the locale timezone used is either the specified
-   *      amound before or after GMT. For example,
+   *      amount before or after GMT. For example,
    *
    *           12:00Z = 13:00+1:00 = 0700-0500
    *
