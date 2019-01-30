@@ -37,11 +37,13 @@
   }
 }
 
-    [style~="--enableAnimation:0;"] .button.glow {
-    background-clip: padding-box;
-    border: 3px solid transparent;
-    box-shadow: 0 0 0 2px rgba(255,255,255,.5);
-    }
+[style~="--enableAnimation:0;"] .button.glow span {
+  content: '';
+  outline: none !important;
+  background-clip: padding-box;
+  border: var(--border-size-large) solid transparent;
+  box-shadow: 0 0 0 var(--border-size) rgba(255,255,255,.5);
+}
 
 @keyframes pulse {
   0% {

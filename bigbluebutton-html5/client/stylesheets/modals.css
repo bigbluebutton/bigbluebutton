@@ -1,7 +1,3 @@
-:root{
-  --enableAnimation: 1;
-}
-
 .ReactModal__Overlay {
   -webkit-perspective: 600;
   perspective: 600;

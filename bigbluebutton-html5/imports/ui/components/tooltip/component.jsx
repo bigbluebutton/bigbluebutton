@@ -69,18 +69,15 @@ class Tooltip extends Component {
   componentDidUpdate() {
     const { enableAnimation } = this.state;
     const { animations } = Settings.application;
+
     if (animations !== enableAnimation) {
       const elements = document.querySelectorAll('[id^="tippy-"]');
       elements.forEach((e) => {
         const instance = e._tippy;
-        if (animations) instance.set({ animation: 'shift-away' });
-        if (!animations) instance.set({ animation: 'none' });
+        instance.set({ animation: animations ? 'shift-away' : 'none' });
       });
-      if (animations) {
-        this.setEnableAnimation(true);
-      } else {
-        this.setEnableAnimation(false);
-      }
+
+      this.setEnableAnimation(animations);
     }
   }
 
