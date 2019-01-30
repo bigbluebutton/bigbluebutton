@@ -31,7 +31,7 @@ static final String ATTR_ALIAS = "openid_alias";
 private OpenIdManager manager = new OpenIdManager();
 
 void showAuthentication(PrintWriter pw, Authentication auth) {
-    pw.print("<html><head><meta http-equiv=\"Content-Type\" content=\"text/html; charset=utf-8\" /><title>Test JOpenID</title></head><body><h1>You have successfully signed on!</h1>");
+    pw.print("<html lang=\"en\"><head><meta http-equiv=\"Content-Type\" content=\"text/html; charset=utf-8\" /><title>Test JOpenID</title></head><body><h1>You have successfully signed on!</h1>");
     pw.print("<p>Identity: " + auth.getIdentity() + "</p>");
     pw.print("<p>Email: " + auth.getEmail() + "</p>");
     pw.print("<p>Full name: " + auth.getFullname() + "</p>");

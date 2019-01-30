@@ -70,7 +70,7 @@
 	} else {
 	  	String [] answers = connection.getAnswers();
 	  	session.setAttribute("webkey", poll); %>
-		<html>
+		<html lang="en">
 		<head>
 			<title><%= connection.getTitle()%></title>
 		</head>
@@ -102,7 +102,7 @@
 	// check if an error was recorded
 	if (error != null) {
 	%>
-		<html>
+		<htm lang="en"l>
 		<head>
 			<title>Error</title>
 		</head>
@@ -111,7 +111,7 @@
 	<% 
 	} else if (validVote) {
 		%>
-		<html>
+		<html lang="en">
 		<head>
 			<title><%= connection.getTitle()%></title>
 		</head>

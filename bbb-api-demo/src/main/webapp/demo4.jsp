@@ -29,7 +29,7 @@ Author: Islam El-Ashi <ielashi@gmail.com>
 
 <%@page import="org.w3c.dom.*"%>
 
-<html>
+<html lang="en">
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <title>Activity Monitor</title>

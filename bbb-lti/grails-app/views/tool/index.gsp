@@ -1,4 +1,5 @@
-<html>
+<!DOCTYPE html>
+<html lang="${params.launch_presentation_locale}">
     <head>
         <title><g:message code="tool.view.title" /></title>
         <link rel="shortcut icon" href="${assetPath(src: 'favicon.ico')}" type="image/x-icon">
