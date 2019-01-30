@@ -32,6 +32,7 @@ const propTypes = {
   getUsersId: PropTypes.func.isRequired,
   pollIsOpen: PropTypes.bool.isRequired,
   forcePollOpen: PropTypes.bool.isRequired,
+  toggleUserLock: PropTypes.func.isRequired,
 };
 
 const defaultProps = {
@@ -68,6 +69,7 @@ class UserContent extends PureComponent {
       hasBreakoutRoom,
       getUsersId,
       hasPrivateChatBetweenUsers,
+      toggleUserLock,
     } = this.props;
 
     return (
@@ -121,6 +123,7 @@ class UserContent extends PureComponent {
             getGroupChatPrivate,
             getUsersId,
             hasPrivateChatBetweenUsers,
+            toggleUserLock,
           }}
         />
       </div>

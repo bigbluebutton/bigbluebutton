@@ -198,15 +198,15 @@ class ClosedCaptionsMenu extends BaseMenu {
                       <select
                         defaultValue={locales ? locales.indexOf(this.state.settings.locale) : -1}
                         className={styles.select}
-                        onChange={this.handleSelectChange.bind(this, 'locale', this.props.locales)}
+                        onChange={this.handleSelectChange.bind(this, 'locale', locales)}
                       >
                         <option>
-                          { this.props.locales
-                          && this.props.locales.length
+                          { locales
+                          && locales.length
                             ? intl.formatMessage(intlMessages.localeOptionLabel)
                             : intl.formatMessage(intlMessages.noLocaleOptionLabel) }
                         </option>
-                        {this.props.locales ? this.props.locales.map((locale, index) => (
+                        {locales ? locales.map((locale, index) => (
                           <option key={index} value={index}>
                             {locale}
                           </option>
