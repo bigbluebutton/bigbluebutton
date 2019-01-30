@@ -102,7 +102,7 @@
 	// check if an error was recorded
 	if (error != null) {
 	%>
-		<htm lang="en"l>
+		<html lang="en">
 		<head>
 			<title>Error</title>
 		</head>
