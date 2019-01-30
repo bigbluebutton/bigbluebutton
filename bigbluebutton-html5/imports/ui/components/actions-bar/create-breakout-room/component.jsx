@@ -364,7 +364,7 @@ class BreakoutRoom extends Component {
 
     return (
       <div className={styles.breakoutSettings} key={this.breakoutFormId}>
-        <div htmlFor="numberOfRooms">
+        <div>
           <p className={styles.labelText} aria-hidden>
             {intl.formatMessage(intlMessages.numberOfRooms)}
           </p>
