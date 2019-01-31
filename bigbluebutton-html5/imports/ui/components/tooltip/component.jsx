@@ -58,7 +58,7 @@ class Tooltip extends Component {
       wait: Tooltip.wait,
       touchHold: true,
       size: 'regular',
-      distance: 10,
+      distance: (enableAnimation) ? 10 : 20,
       arrow: true,
       arrowType: 'sharp',
       animation: (enableAnimation) ? 'shift-away' : 'none',
@@ -74,7 +74,9 @@ class Tooltip extends Component {
       const elements = document.querySelectorAll('[id^="tippy-"]');
       elements.forEach((e) => {
         const instance = e._tippy;
-        instance.set({ animation: animations ? 'shift-away' : 'none' });
+        if (instance) {
+          instance.set({ animation: animations ? 'shift-away' : 'none', distance: animations ? 10 : 20 });
+        }
       });
 
       this.setEnableAnimation(animations);
