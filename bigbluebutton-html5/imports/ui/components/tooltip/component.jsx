@@ -77,22 +77,21 @@ class Tooltip extends Component {
       const elements = document.querySelectorAll('[id^="tippy-"]');
       Array.from(elements).filter((e) => {
         const instance = e._tippy;
-        let anim;
-        if (instance && instance.props.animation === DEFAULT_ANIMATION) {
-          anim = true;
-        } else {
-          anim = false;
-        }
-        const validate = (instance
-          && anim !== animations
-        );
-        return validate;
+
+        if (!instance) return false;
+
+        const animation = animations ? DEFAULT_ANIMATION : ANIMATION_NONE;
+
+        if (animation === instance.props.animation) return false;
+
+        return true;
       }).forEach((e) => {
         const instance = e._tippy;
         instance.set({
           animation: animations
             ? DEFAULT_ANIMATION : ANIMATION_NONE,
           distance: animations ? 10 : 20,
+          delay: animations ? this.delay : [this.delay[0], 0],
         });
       });
 
