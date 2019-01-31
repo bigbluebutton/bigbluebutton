@@ -6,6 +6,9 @@ import cx from 'classnames';
 import { ESCAPE } from '/imports/utils/keyCodes';
 import Settings from '/imports/ui/services/settings';
 
+const DEFAULT_ANIMATION = 'shift-away';
+const ANIMATION_NONE = 'none';
+
 const propTypes = {
   title: PropTypes.string.isRequired,
   position: PropTypes.oneOf(['bottom']),
@@ -61,7 +64,7 @@ class Tooltip extends Component {
       distance: (enableAnimation) ? 10 : 20,
       arrow: true,
       arrowType: 'sharp',
-      animation: (enableAnimation) ? 'shift-away' : 'none',
+      animation: (enableAnimation) ? DEFAULT_ANIMATION : ANIMATION_NONE,
     };
     this.tooltip = Tippy(`#${this.tippySelectorId}`, options);
   }
@@ -72,11 +75,25 @@ class Tooltip extends Component {
 
     if (animations !== enableAnimation) {
       const elements = document.querySelectorAll('[id^="tippy-"]');
-      elements.forEach((e) => {
+      Array.from(elements).filter((e) => {
         const instance = e._tippy;
-        if (instance) {
-          instance.set({ animation: animations ? 'shift-away' : 'none', distance: animations ? 10 : 20 });
+        let anim;
+        if (instance && instance.props.animation === DEFAULT_ANIMATION) {
+          anim = true;
+        } else {
+          anim = false;
         }
+        const validate = (instance
+          && anim !== animations
+        );
+        return validate;
+      }).forEach((e) => {
+        const instance = e._tippy;
+        instance.set({
+          animation: animations
+            ? DEFAULT_ANIMATION : ANIMATION_NONE,
+          distance: animations ? 10 : 20,
+        });
       });
 
       this.setEnableAnimation(animations);
