@@ -15,12 +15,13 @@ const JoinVideoOptionsContainer = (props) => {
     baseName,
     intl,
     mountModal,
+    isMobileNative,
     ...restProps
   } = props;
 
   const mountPreview = () => { mountModal(<VideoPreviewContainer />); };
 
-  return <JoinVideoButton {...{ handleJoinVideo: mountPreview, handleCloseVideo, isSharingVideo, isDisabled, ...restProps }} />;
+  return !isMobileNative && <JoinVideoButton {...{ handleJoinVideo: mountPreview, handleCloseVideo, isSharingVideo, isDisabled, ...restProps }} />;
 };
 
 export default withModalMounter(injectIntl(withTracker(() => ({
@@ -28,4 +29,5 @@ export default withModalMounter(injectIntl(withTracker(() => ({
   isSharingVideo: VideoButtonService.isSharingVideo(),
   isDisabled: VideoButtonService.isDisabled(),
   videoShareAllowed: VideoButtonService.videoShareAllowed(),
+  isMobileNative: navigator.userAgent.toLowerCase().includes('bbbnative'),
 }))(JoinVideoOptionsContainer)));
