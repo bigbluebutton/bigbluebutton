@@ -45,12 +45,6 @@ class Base extends Component {
     this.updateLoadingState = this.updateLoadingState.bind(this);
   }
 
-  componentDidMount() {
-    const { animations } = this.props;
-    const enableAnimation = (animations) ? 1 : 0;
-    document.documentElement.style.setProperty('--enableAnimation', enableAnimation);
-  }
-
   componentDidUpdate(prevProps) {
     const { ejected, approved, animations } = this.props;
     const { loading } = this.state;
