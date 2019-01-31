@@ -1572,6 +1572,13 @@ check_state() {
                 echo "#"
         fi
 
+        if ! which yq > /dev/null; then
+                echo "# Warning: Did not find yq, some packages my not have been installed. To resolve, see"
+                echo "#"
+                echo "#   http://docs.bigbluebutton.org/install/install.html#upgrading-to-latest-build-of-bigbluebutton-20"
+                echo "#"
+        fi
+
 	exit 0
 }
 
