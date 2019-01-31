@@ -132,13 +132,7 @@ class UserDropdown extends PureComponent {
   }
 
   componentDidUpdate() {
-    const { isActionsOpen, showNestedOptions } = this.state;
-
-    if (!isActionsOpen && showNestedOptions) {
-      return this.resetMenuState();
-    }
-
-    return this.checkDropdownDirection();
+    this.checkDropdownDirection();
   }
 
   onActionsShow() {
@@ -367,7 +361,10 @@ class UserDropdown extends PureComponent {
 
 
   handleScroll() {
-    this.setState({ isActionsOpen: false });
+    this.setState({
+      isActionsOpen: false,
+      showNestedOptions: false,
+    });
   }
 
   /**
