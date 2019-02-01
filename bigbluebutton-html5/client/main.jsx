@@ -19,7 +19,7 @@ Meteor.startup(() => {
     } else {
       message += `\n${stack}`;
     }
-    logger.error(message);
+    logger.error({ logCode: 'startup_error' }, message);
   });
 
   // TODO make this a Promise
