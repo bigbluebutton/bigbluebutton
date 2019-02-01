@@ -56,7 +56,7 @@ export default class KurentoScreenshareBridge {
     try {
       iceServers = await fetchWebRTCMappedStunTurnServers(getSessionToken());
     } catch (error) {
-      logger.error('Screenshare bridge failed to fetch STUN/TURN info, using default');
+      logger.error({ logCode: 'kurentowatchvideo_fetchstunturninfo_error' }, 'Screenshare bridge failed to fetch STUN/TURN info, using default');
     } finally {
       const options = {
         wsUrl: SFU_URL,
@@ -85,7 +85,7 @@ export default class KurentoScreenshareBridge {
     try {
       iceServers = await fetchWebRTCMappedStunTurnServers(getSessionToken());
     } catch (error) {
-      logger.error('Screenshare bridge failed to fetch STUN/TURN info, using default');
+      logger.error({ logCode: 'kurentosharescreen_fetchstunturninfo_error' }, 'Screenshare bridge failed to fetch STUN/TURN info, using default');
     } finally {
       const options = {
         wsUrl: SFU_URL,

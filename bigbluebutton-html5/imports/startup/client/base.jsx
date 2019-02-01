@@ -78,7 +78,7 @@ class Base extends Component {
     }
 
     if (codeError) {
-      logger.error(`User could not log in HTML5, hit ${codeError}`);
+      logger.error({ logCode: 'startup_client_usercouldnotlogin_error' }, `User could not log in HTML5, hit ${codeError}`);
       return (<ErrorScreen code={codeError} />);
     }
 
@@ -88,7 +88,7 @@ class Base extends Component {
     // this.props.annotationsHandler.stop();
 
     if (subscriptionsReady) {
-      logger.info('Subscriptions are ready');
+      logger.info({ logCode: 'startup_client_subscriptions_ready' }, 'Subscriptions are ready');
     }
 
     return (<AppContainer {...this.props} baseControls={stateControls} />);
@@ -130,7 +130,7 @@ const BaseContainer = withTracker(() => {
 
   const subscriptionErrorHandler = {
     onError: (error) => {
-      logger.error(error);
+      logger.error({ logCode: 'startup_client_subscription_error' }, error);
       Session.set('isMeetingEnded', true);
       Session.set('codeError', error.error);
     },

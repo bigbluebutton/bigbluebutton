@@ -395,7 +395,7 @@ export default class SIPBridge extends BaseAudioBridge {
         await audioContext.setSinkId(value);
         this.media.outputDeviceId = value;
       } catch (err) {
-        logger.error(err);
+        logger.error({ logCode: 'audio_sip_changeoutputdevice_error' }, err);
         throw new Error(this.baseErrorCodes.MEDIA_ERROR);
       }
     }
