@@ -33,9 +33,9 @@ public class ParamsUtil {
     String token = "undefined";
     try {
       String decodedURL = URLDecoder.decode(url, "UTF-8");
-      String[] splitedURL = decodedURL.split("\\?");
-      if (splitedURL.length == 2) {
-        String params = splitedURL[1];
+      String[] splitURL = decodedURL.split("\\?");
+      if (splitURL.length == 2) {
+        String params = splitURL[1];
         for (String param : params.split("\\&")) {
           if (param.startsWith("sessionToken=")) {
             token = param.split("\\=")[1];
