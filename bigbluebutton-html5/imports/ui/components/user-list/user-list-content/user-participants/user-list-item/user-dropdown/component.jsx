@@ -163,6 +163,7 @@ class UserDropdown extends PureComponent {
     this.setState({
       isActionsOpen: false,
       dropdownVisible: false,
+      showNestedOptions: false,
     });
 
     const scrollContainer = getScrollContainerRef();
