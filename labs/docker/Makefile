@@ -10,7 +10,7 @@ BUILD_VERSION?=
 BUILD_IMAGE=0
 IMAGE_ACCOUNT?=
 IMAGE_REPO?=
-IMAGE_TAG=latest
+IMAGE_TAG?=latest
 TAG_REVISION?=0
 
 all: release
@@ -21,6 +21,7 @@ image:
 		if [ "$(IMAGE_ACCOUNT)" != "" ]; then \
 			if [ "$(IMAGE_REPO)" != "" ]; then \
 				docker tag $(IMAGE_NAME):$(IMAGE_TAG) $(IMAGE_ACCOUNT)/$(IMAGE_REPO):$(IMAGE_NAME); \
+				docker tag $(IMAGE_NAME):$(IMAGE_TAG) $(IMAGE_ACCOUNT)/$(IMAGE_REPO):$(IMAGE_NAME)-$(IMAGE_TAG); \
 				if [ "$(TAG_REVISION)" == "1" ]; then \
 					docker tag $(IMAGE_NAME):$(IMAGE_TAG) $(IMAGE_ACCOUNT)/$(IMAGE_REPO):$(IMAGE_NAME)-$(BUILD_REVISION); \
 				fi \
@@ -28,6 +29,7 @@ image:
 		else \
 			if [ "$(IMAGE_REPO)" != "" ]; then \
 				docker tag $(IMAGE_NAME):$(IMAGE_TAG) $(IMAGE_REPO):$(IMAGE_NAME); \
+				docker tag $(IMAGE_NAME):$(IMAGE_TAG) $(IMAGE_REPO):$(IMAGE_NAME)-$(IMAGE_TAG); \
 				if [ "$(TAG_REVISION)" == "1" ]; then \
 					docker tag $(IMAGE_NAME):$(IMAGE_TAG) $(IMAGE_REPO):$(IMAGE_NAME)-$(BUILD_REVISION); \
 				fi \
