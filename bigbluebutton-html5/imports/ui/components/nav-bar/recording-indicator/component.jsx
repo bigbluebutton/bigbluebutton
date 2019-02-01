@@ -80,7 +80,7 @@ class RecordingIndicator extends React.PureComponent {
             <div className={styles.presentationTitle}>
               {recording
                 ? (
-                  <span className={styles.visuallyhidden}>
+                  <span className={styles.visuallyHidden}>
                     {`${intl.formatMessage(intlMessages.recordingAriaLabel)} ${humanizeSeconds(time)}`}
                   </span>
                 ) : null
