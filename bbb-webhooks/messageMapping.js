@@ -295,6 +295,7 @@ module.exports = class MessageMapping {
     if (this.mappedObject.data.id === "published" ||
         this.mappedObject.data.id === "unpublished" ||
         this.mappedObject.data.id === "deleted") {
+      this.mappedObject.data.attributes["record-id"] = data.meeting_id;
       this.mappedObject.data.attributes["format"] = data.format;
     } else {
       this.mappedObject.data.attributes["record-id"] = data.record_id;
