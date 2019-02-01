@@ -16,6 +16,8 @@ import GroupChat from '/imports/api/group-chat';
 import mapUser from '/imports/ui/services/user/mapUser';
 import { Session } from 'meteor/session';
 import IntlStartup from './intl';
+import Meetings from '../../api/meetings';
+
 
 const CHAT_CONFIG = Meteor.settings.public.chat;
 const PUBLIC_GROUP_CHAT_ID = CHAT_CONFIG.public_group_id;
@@ -40,14 +42,32 @@ class Base extends Component {
 
     this.state = {
       loading: false,
+      meetingExisted: false,
     };
 
     this.updateLoadingState = this.updateLoadingState.bind(this);
   }
 
   componentDidUpdate(prevProps) {
-    const { ejected, approved, animations } = this.props;
+    const {
+      ejected,
+      approved,
+      meetingExist,
+      animations,
+    } = this.props;
     const { loading } = this.state;
+
+    if (!prevProps.meetingExist && meetingExist) {
+      Session.set('isMeetingEnded', false);
+    }
+
+    if (prevProps.meetingExist && !meetingExist) {
+      Session.set('isMeetingEnded', true);
+      this.setMeetingExisted(true);
+    }
+
+    // In case the meeting delayed to load
+    if (!meetingExist) return;
 
     if (approved && loading) this.updateLoadingState(false);
 
@@ -63,6 +83,10 @@ class Base extends Component {
     }
   }
 
+  setMeetingExisted(meetingExisted) {
+    this.setState({ meetingExisted });
+  }
+
   updateLoadingState(loading = false) {
     this.setState({
       loading,
@@ -73,12 +97,16 @@ class Base extends Component {
     const { updateLoadingState } = this;
     const stateControls = { updateLoadingState };
 
-    const { loading } = this.state;
+    const { loading, meetingExisted } = this.state;
 
     const codeError = Session.get('codeError');
-    const { subscriptionsReady, meetingEnded } = this.props;
+    const {
+      subscriptionsReady,
+      meetingExist,
+    } = this.props;
 
-    if (meetingEnded) {
+
+    if (meetingExisted && !meetingExist) {
       AudioManager.exitAudio();
       return (<MeetingEnded code={Session.get('codeError')} />);
     }
@@ -102,13 +130,18 @@ class Base extends Component {
 
   render() {
     const { updateLoadingState } = this;
-    const { locale } = this.props;
+    const { locale, meetingExist } = this.props;
     const stateControls = { updateLoadingState };
+    const { meetingExisted } = this.state;
 
     return (
-      <IntlStartup locale={locale} baseControls={stateControls}>
-        {this.renderByState()}
-      </IntlStartup>
+      (!meetingExisted && !meetingExist && Auth.loggedIn)
+        ? <LoadingScreen />
+        : (
+          <IntlStartup locale={locale} baseControls={stateControls}>
+            {this.renderByState()}
+          </IntlStartup>
+        )
     );
   }
 }
@@ -127,12 +160,6 @@ const BaseContainer = withTracker(() => {
   const { credentials, loggedIn } = Auth;
   const { meetingId, requesterUserId } = credentials;
   let breakoutRoomSubscriptionHandler;
-  if (!loggedIn) {
-    return {
-      locale,
-      subscriptionsReady: false,
-    };
-  }
 
   const subscriptionErrorHandler = {
     onError: (error) => {
@@ -144,6 +171,24 @@ const BaseContainer = withTracker(() => {
 
   const subscriptionsHandlers = SUBSCRIPTIONS_NAME
     .map(name => Meteor.subscribe(name, credentials, subscriptionErrorHandler));
+
+  const subscriptionsReady = subscriptionsHandlers.every(handler => handler.ready());
+
+  const meeting = Meetings.findOne({ meetingId });
+
+  if (!meeting) {
+    return {
+      meetingExist: false,
+      subscriptionsReady,
+    };
+  }
+
+  if (!loggedIn) {
+    return {
+      locale,
+      subscriptionsReady: false,
+    };
+  }
 
   const chats = GroupChat.find({
     $or: [
@@ -181,7 +226,6 @@ const BaseContainer = withTracker(() => {
     ...subscriptionErrorHandler,
   });
 
-  const subscriptionsReady = subscriptionsHandlers.every(handler => handler.ready());
   return {
     approved: Users.findOne({ userId: Auth.userID, approved: true, guest: true }),
     ejected: Users.findOne({ userId: Auth.userID, ejected: true }),
@@ -192,6 +236,8 @@ const BaseContainer = withTracker(() => {
     groupChatMessageHandler,
     breakoutRoomSubscriptionHandler,
     animations,
+    meetingExist: true,
+    User,
   };
 })(Base);
 
