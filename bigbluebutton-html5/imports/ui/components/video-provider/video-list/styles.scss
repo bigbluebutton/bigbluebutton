@@ -117,7 +117,7 @@
   z-index: 2;
 }
 
-.dropdown {
+.dropdown, .dropdownFireFox {
   flex: 1;
   display: flex;
   outline: none !important;
@@ -130,7 +130,11 @@
   }
 }
 
-.dropdownTrigger, .dropdownTriggerFireFox {
+.dropdownFireFox {
+  max-width: 100%;
+}
+
+.dropdownTrigger {
   @extend %text-elipsis;
   cursor: pointer;
   position: relative;
@@ -149,10 +153,6 @@
     line-height: 0;
     right: .45rem;
   }
-}
-
-.dropdownTriggerFireFox {
-  max-width: 5vw;
 }
 
 .dropdownContent {

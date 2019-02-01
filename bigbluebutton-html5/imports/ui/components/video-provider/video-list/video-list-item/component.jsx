@@ -129,10 +129,10 @@ class VideoListItem extends Component {
           playsInline
         />
         <div className={styles.info}>
-          <Dropdown className={styles.dropdown}>
-            <DropdownTrigger className={isFirefox ? styles.dropdownTriggerFireFox
-              : styles.dropdownTrigger}
-            >
+          <Dropdown className={isFirefox ? styles.dropdownFireFox
+            : styles.dropdown}
+          >
+            <DropdownTrigger className={styles.dropdownTrigger}>
               <span>{user.name}</span>
             </DropdownTrigger>
             <DropdownContent placement="top left" className={styles.dropdownContent}>
