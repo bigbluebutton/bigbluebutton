@@ -62,5 +62,6 @@ export default withModalMounter(withTracker(({ mountModal }) => {
     joinFullAudioEchoTest: !listenOnlyMode && !skipCheck,
     forceListenOnlyAttendee: listenOnlyMode && forceListenOnly && !Service.isUserModerator(),
     isIOSChrome: browser().name === 'crios',
+    isMobileNative: navigator.userAgent.toLowerCase().includes('bbbnative'),
   });
 })(AudioModalContainer));
