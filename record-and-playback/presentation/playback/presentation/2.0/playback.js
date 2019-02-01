@@ -790,6 +790,7 @@ document.addEventListener('playback-ready', function(event) {
       logger.warn("==Unhandled playback-ready event", event.detail);
   }
   if (dataReady && mediaReady && contentReady) {
+    runPopcorn();
     if (firstLoad) {
       // load up the acorn controls
       logger.info("==Loading acorn media player");
@@ -801,7 +802,6 @@ document.addEventListener('playback-ready', function(event) {
         swapVideoPresentation();
       });
 
-      runPopcorn();
       initPopcorn();
     }
   }
