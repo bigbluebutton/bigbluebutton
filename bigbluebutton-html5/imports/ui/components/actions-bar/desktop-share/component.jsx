@@ -60,7 +60,7 @@ const DesktopShare = ({
     switch (error) {
       case ICE_CONNECTION_FAILED:
         kurentoExitScreenShare();
-        logger.error({ logCode: 'desktopshare_iceconnectionstate_error' }, 'Ice connection state error');
+        logger.error({ logCode: 'desktopshare_iceconnectionstate_error' }, 'ICE connection state error');
         notify(intl.formatMessage(intlMessages.iceConnectionStateError), 'error', 'desktop');
         break;
       default:
