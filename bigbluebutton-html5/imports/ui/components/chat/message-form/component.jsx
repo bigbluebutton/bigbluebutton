@@ -33,6 +33,8 @@ const messages = defineMessages({
   },
 });
 
+const UnsentMessagesCollection = new Mongo.Collection(null);
+
 class MessageForm extends PureComponent {
   constructor(props) {
     super(props);
@@ -51,7 +53,11 @@ class MessageForm extends PureComponent {
   }
 
   componentDidMount() {
+    const { chatId } = this.props;
     const { mobile } = this.BROWSER_RESULTS;
+
+    const unsentMessageByChat = UnsentMessagesCollection.findOne({ chatId });
+    this.setMessageState(unsentMessageByChat ? unsentMessageByChat.message : '');
 
     if (!mobile) {
       this.textarea.focus();
@@ -59,12 +65,27 @@ class MessageForm extends PureComponent {
   }
 
   componentDidUpdate(prevProps) {
-    const { chatName } = this.props;
+    const { chatId } = this.props;
+    const { message } = this.state;
     const { mobile } = this.BROWSER_RESULTS;
 
-    if (prevProps.chatName !== chatName && !mobile) {
+    if (prevProps.chatId !== chatId && !mobile) {
       this.textarea.focus();
     }
+
+    if (prevProps.chatId !== chatId) {
+      UnsentMessagesCollection.upsert(
+        { chatId: prevProps.chatId },
+        { $set: { message } },
+      );
+
+      const unsentMessageByChat = UnsentMessagesCollection.findOne({ chatId });
+      this.setMessageState(unsentMessageByChat ? unsentMessageByChat.message : '');
+    }
+  }
+
+  setMessageState(message) {
+    this.setState({ message });
   }
 
   handleMessageKeyDown(e) {
@@ -102,6 +123,7 @@ class MessageForm extends PureComponent {
         { 0: message.length - maxMessageLength },
       );
     }
+
 
     this.setState({
       message,

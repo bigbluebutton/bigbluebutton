@@ -99,6 +99,7 @@ const Chat = (props) => {
         partnerIsLoggedOut={partnerIsLoggedOut}
       />
       <MessageForm
+        chatId={chatID}
         disabled={isChatLocked}
         chatAreaId={ELEMENT_ID}
         chatTitle={title}
