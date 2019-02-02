@@ -115,6 +115,7 @@
     "app.poll.publishLabel": "Publish poll",
     "app.poll.backLabel": "Back to polling options",
     "app.poll.closeLabel": "Close",
+    "app.poll.ariaInputCount": "Input {0} of {1}",
     "app.poll.customPlaceholder": "Add poll option",
     "app.poll.tf": "True / False",
     "app.poll.yn": "Yes / No",

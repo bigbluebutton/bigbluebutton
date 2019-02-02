@@ -42,23 +42,22 @@
 }
 
 .customInputWrapper {
+  width: 100%;
+  margin-top: var(--md-padding-y);
+  
+  > Button {
     width: 100%;
+    margin-top: var(--sm-padding-y);
+    margin-bottom: var(--sm-padding-y);
+  }
+}
 
-    > input {
-        width: 100%;
-        margin-top: var(--sm-padding-y);
-        margin-bottom: var(--sm-padding-y);
-    }
-
-    > input:first-child {
-        margin-top: var(--md-padding-y);
-    }
-
-    > Button {
-        width: 100%;
-        margin-top: var(--sm-padding-y);
-        margin-bottom: var(--sm-padding-y);
-    }
+.pollInput {
+  > input {
+    width: 100%;
+    margin-top: var(--sm-padding-y);
+    margin-bottom: var(--sm-padding-y);
+  }
 }
 
 .header {
