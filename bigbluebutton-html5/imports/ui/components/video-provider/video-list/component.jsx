@@ -150,12 +150,16 @@ class VideoList extends Component {
     return users.map((user) => {
       const isFocused = focusedId === user.id;
       const isFocusedIntlKey = !isFocused ? 'focus' : 'unfocus';
-      const actions = [{
-        label: intl.formatMessage(intlMessages[`${isFocusedIntlKey}Label`]),
-        description: intl.formatMessage(intlMessages[`${isFocusedIntlKey}Desc`]),
-        onClick: () => this.handleVideoFocus(user.id),
-        disabled: users.length < 2,
-      }];
+      let actions = [];
+
+      if (users.length > 2) {
+        actions = [{
+          label: intl.formatMessage(intlMessages[`${isFocusedIntlKey}Label`]),
+          description: intl.formatMessage(intlMessages[`${isFocusedIntlKey}Desc`]),
+          onClick: () => this.handleVideoFocus(user.id),
+          disabled: users.length < 3,
+        }];
+      }
 
       return (
         <div
@@ -167,7 +171,6 @@ class VideoList extends Component {
         >
           <VideoListItem
             user={user}
-            usersLength={users.length}
             actions={actions}
             onMount={(videoRef) => {
               this.handleCanvasResize();

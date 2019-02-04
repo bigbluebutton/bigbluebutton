@@ -80,12 +80,7 @@ class VideoListItem extends Component {
       actions,
       user,
       enableVideoStats,
-      usersLength,
     } = this.props;
-
-    if (usersLength < 3) {
-      actions.pop();
-    }
 
     return _.compact([
       <DropdownListTitle className={styles.hiddenDesktop} key="name">{user.name}</DropdownListTitle>,
@@ -114,7 +109,7 @@ class VideoListItem extends Component {
     const { showStats, stats } = this.state;
     const { user } = this.props;
     const availableActions = this.getAvailableActions();
-    const enableHideVideoMenu = Meteor.settings.public.kurento.enableHideVideoMenu || false;
+    const enableVideoMenu = Meteor.settings.public.kurento.enableVideoMenu || false;
 
     return (
       <div className={cx({
@@ -131,13 +126,8 @@ class VideoListItem extends Component {
           playsInline
         />
         <div className={styles.info}>
-          {enableHideVideoMenu || availableActions.length < 3
+          {enableVideoMenu && availableActions.length >= 3
             ? (
-              <div className={styles.dropdown}>
-                <span className={styles.userName}>{user.name}</span>
-              </div>
-            )
-            : (
               <Dropdown className={styles.dropdown}>
                 <DropdownTrigger className={styles.dropdownTrigger}>
                   <span>{user.name}</span>
@@ -148,6 +138,11 @@ class VideoListItem extends Component {
                   </DropdownList>
                 </DropdownContent>
               </Dropdown>
+            )
+            : (
+              <div className={styles.dropdown}>
+                <span className={styles.userName}>{user.name}</span>
+              </div>
             )
           }
           {user.isMuted ? <Icon className={styles.muted} iconName="unmute_filled" /> : null}
