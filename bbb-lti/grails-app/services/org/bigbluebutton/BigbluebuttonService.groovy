@@ -206,8 +206,7 @@ class BigbluebuttonService {
         return (meetingName == null || meetingName == "")? "Meeting": meetingName
     }
 
-    private String getValidatedMeetingId(String params){
-		
+    private String getValidatedMeetingId(String params){	
         return DigestUtils.shaHex(params)
     }
 
@@ -374,21 +373,21 @@ class BigbluebuttonService {
         return list;
     }
 	
-	/**
-	 * Get the value of all params from idParams (specified in lti-config)
-	 * If none are specified, fallback to using resource_link_id and oauth_consumer_key
-	 */
-	private String paramsFromConfig(params) {
-		String[] paramArray = idParams.split(",");
-		String result = "";
-		for(String s : paramArray) {
-			result += params.get(s);
-		}
-		// If we can't get anything from config, fallback to old way
-		if(result.equals("")) {
-			result = params.get(Parameter.RESOURCE_LINK_ID) + params.get(Parameter.CONSUMER_ID);
-		}
-		log.debug("FALLBACK! USING THE OLD WAY");
-		return result;
+    /**
+     * Get the value of all params from idParams (specified in lti-config)
+     * If none are specified, fallback to using resource_link_id and oauth_consumer_key
+     */
+    private String paramsFromConfig(params) {
+	String[] paramArray = idParams.split(",");
+	String result = "";
+	for(String s : paramArray) {
+	    result += params.get(s);
 	}
+	// If we can't get anything from config, fallback to old way
+	if(result.equals("")) {
+	    result = params.get(Parameter.RESOURCE_LINK_ID) + params.get(Parameter.CONSUMER_ID);
+	}
+	    log.debug("FALLBACK! USING THE OLD WAY");
+	    return result;
+    }
 }
