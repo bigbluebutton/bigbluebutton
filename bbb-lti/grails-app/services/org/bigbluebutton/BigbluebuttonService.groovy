@@ -56,7 +56,7 @@ class BigbluebuttonService {
 
     def url = "http://test-install.blindsidenetworks.com/bigbluebutton"
     def salt = "8cd8ef52e8e101574e400365b55e11a6"
-	def idParams = "resource_link_id,oauth_consumer_key"
+    def idParams = "resource_link_id,oauth_consumer_key"
 	
     Proxy bbbProxy
     DocumentBuilderFactory docBuilderFactory
