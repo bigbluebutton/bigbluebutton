@@ -20,4 +20,3 @@ RedisPubSub.on('GuestsWaitingForApprovalEvtMsg', handleGuestsWaitingForApproval)
 RedisPubSub.on('GuestsWaitingApprovedEvtMsg', handleGuestApproved);
 RedisPubSub.on('UserEjectedFromMeetingEvtMsg', handleUserEjected);
 RedisPubSub.on('UserRoleChangedEvtMsg', handleChangeRole);
-

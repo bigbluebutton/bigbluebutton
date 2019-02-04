@@ -30,6 +30,10 @@ spec:
           value: redis
         - name: SHARED_SECRET
           value: "12345"
+        - name: SERVER_DOMAIN
+          value: bigbluebutton.rocket.chat
+        - name: BEARER_AUTH
+          value: "1"
         image: fcecagno/bigbluebutton:bbb-webhooks
         imagePullPolicy: Always
         name: bbb-webhooks

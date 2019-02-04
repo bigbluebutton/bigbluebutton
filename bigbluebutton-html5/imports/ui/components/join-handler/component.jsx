@@ -66,7 +66,7 @@ class JoinHandler extends Component {
         location: window.location.href,
       };
 
-      logger.info(clientInfo);
+      logger.info({ logCode: 'joinhandler_component_clientinfo' }, clientInfo);
     };
 
     const setAuth = (resp) => {
@@ -127,11 +127,11 @@ class JoinHandler extends Component {
         Session.set('openPanel', '');
       }
 
-      logger.info(`User successfully went through main.joinRouteHandler with [${JSON.stringify(response)}].`);
+      logger.info({ logCode: 'joinhandler_component_joinroutehandler_success' }, `User successfully went through main.joinRouteHandler with [${JSON.stringify(response)}].`);
     } else {
       const e = new Error(response.message);
       if (!Session.get('codeError')) Session.set('errorMessageDescription', response.message);
-      logger.error(`User faced [${e}] on main.joinRouteHandler. Error was:`, JSON.stringify(response));
+      logger.error({ logCode: 'joinhandler_component_joinroutehandler_error' }, `User faced [${e}] on main.joinRouteHandler. Error was:`, JSON.stringify(response));
     }
     this.changeToJoin(true);
   }

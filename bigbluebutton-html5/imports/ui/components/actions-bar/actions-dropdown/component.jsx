@@ -14,6 +14,8 @@ import withShortcutHelper from '/imports/ui/components/shortcut-help/service';
 import BreakoutRoom from '../create-breakout-room/component';
 import { styles } from '../styles';
 
+import ExternalVideoModal from '/imports/ui/components/external-video-player/modal/container';
+
 const propTypes = {
   isUserPresenter: PropTypes.bool.isRequired,
   intl: intlShape.isRequired,
@@ -85,6 +87,10 @@ const intlMessages = defineMessages({
     id: 'app.actionsBar.actionsDropdown.takePresenterDesc',
     description: 'Description of take presenter role option',
   },
+  externalVideoLabel: {
+    id: 'app.actionsBar.actionsDropdown.shareExternalVideo',
+    description: 'Share external video button',
+  },
 });
 
 class ActionsDropdown extends Component {
@@ -126,6 +132,7 @@ class ActionsDropdown extends Component {
       intl,
       isUserPresenter,
       isUserModerator,
+      allowExternalVideo,
       meetingIsBreakout,
       hasBreakoutRoom,
       getUsersNotAssigned,
@@ -138,8 +145,6 @@ class ActionsDropdown extends Component {
       pollBtnDesc,
       presentationLabel,
       presentationDesc,
-      startRecording,
-      stopRecording,
       createBreakoutRoom,
       createBreakoutRoomDesc,
       invitationItem,
@@ -150,6 +155,10 @@ class ActionsDropdown extends Component {
     const {
       formatMessage,
     } = intl;
+
+    const canCreateBreakout = isUserModerator
+    && !meetingIsBreakout
+    && !hasBreakoutRoom;
 
     const canInviteUsers = isUserModerator
     && !meetingIsBreakout
@@ -191,12 +200,23 @@ class ActionsDropdown extends Component {
           />
         )
         : null),
-      (isUserModerator && !meetingIsBreakout && !hasBreakoutRoom
+      (isUserPresenter && allowExternalVideo
+        ? (
+          <DropdownListItem
+            icon="video"
+            label={intl.formatMessage(intlMessages.externalVideoLabel)}
+            description="External Video"
+            key="external-video"
+            onClick={this.handleExternalVideoClick}
+          />
+        )
+        : null),
+      (canCreateBreakout
         ? (
           <DropdownListItem
             icon="rooms"
-            label={intl.formatMessage(intlMessages.createBreakoutRoom)}
-            description={intl.formatMessage(intlMessages.createBreakoutRoomDesc)}
+            label={formatMessage(createBreakoutRoom)}
+            description={formatMessage(createBreakoutRoomDesc)}
             key={this.createBreakoutRoomId}
             onClick={this.onCreateBreakouts}
           />
@@ -213,6 +233,10 @@ class ActionsDropdown extends Component {
         )
         : null),
     ]);
+  }
+
+  handleExternalVideoClick = () => {
+    this.props.mountModal(<ExternalVideoModal />);
   }
 
   handlePresentationClick() {

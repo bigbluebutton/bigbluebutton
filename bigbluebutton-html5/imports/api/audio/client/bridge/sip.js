@@ -4,7 +4,7 @@ import { Tracker } from 'meteor/tracker';
 import BaseAudioBridge from './base';
 import logger from '/imports/startup/client/logger';
 import { fetchStunTurnServers } from '/imports/utils/fetchStunTurnServers';
-
+import browser from 'browser-detect';
 
 const MEDIA = Meteor.settings.public.media;
 const MEDIA_TAG = MEDIA.mediaTag;
@@ -117,9 +117,10 @@ export default class SIPBridge extends BaseAudioBridge {
       const timeout = setTimeout(() => {
         clearTimeout(timeout);
         trackerControl.stop();
+        logger.error({logCode: "sip_js_transfer_timed_out"}, "Timeout on transfering from echo test to conference")
         this.callback({
           status: this.baseCallStates.failed,
-          error: this.baseErrorCodes.REQUEST_TIMEOUT,
+          error: 1008,
           bridgeError: 'Timeout on call transfer',
         });
         reject(this.baseErrorCodes.REQUEST_TIMEOUT);
@@ -197,9 +198,6 @@ export default class SIPBridge extends BaseAudioBridge {
       let userAgent = new window.SIP.UA({
         uri: `sip:${encodeURIComponent(callerIdName)}@${hostname}`,
         wsServers: `${(protocol === 'https:' ? 'wss://' : 'ws://')}${hostname}/ws`,
-        log: {
-          builtinEnabled: false,
-        },
         displayName: callerIdName,
         register: false,
         traceSip: true,
@@ -259,10 +257,8 @@ export default class SIPBridge extends BaseAudioBridge {
         },
       },
       RTCConstraints: {
-        mandatory: {
-          OfferToReceiveAudio: true,
-          OfferToReceiveVideo: false,
-        },
+        offerToReceiveAudio: true,
+        offerToReceiveVideo: false,
       },
     };
 
@@ -273,8 +269,21 @@ export default class SIPBridge extends BaseAudioBridge {
     return new Promise((resolve) => {
       const { mediaHandler } = currentSession;
 
-      const connectionCompletedEvents = ['iceConnectionCompleted', 'iceConnectionConnected'];
-      const handleConnectionCompleted = () => {
+      let connectionCompletedEvents = ['iceConnectionCompleted', 'iceConnectionConnected'];
+      // Edge sends a connected first and then a completed, but the call isn't ready until
+      // the completed comes in. Due to the way that we have the listeners set up, the only
+      // way to ignore one status is to not listen for it.
+      if (browser().name === 'edge') {
+        connectionCompletedEvents  = ['iceConnectionCompleted'];
+      }
+
+      const handleSessionAccepted = () => {
+        logger.info({logCode: "sip_js_session_accepted"}, "Audio call session accepted");
+      };
+      currentSession.on('accepted', handleSessionAccepted);
+
+      const handleConnectionCompleted = (peer) => {
+        logger.info({logCode: "sip_js_ice_connection_success"}, "ICE connection success. Current state - " + peer.iceConnectionState);
         connectionCompletedEvents.forEach(e => mediaHandler.off(e, handleConnectionCompleted));
         // We have to delay notifying that the call is connected because it is sometimes not
         // actually ready and if the user says "Yes they can hear themselves" too quickly the
@@ -295,9 +304,11 @@ export default class SIPBridge extends BaseAudioBridge {
           });
         }
 
-        const mappedCause = cause in this.errorCodes ?
-          this.errorCodes[cause] :
-          this.baseErrorCodes.GENERIC_ERROR;
+        logger.error({logCode: "sip_js_call_terminated"}, "Audio call terminated. message=" + message + ", cause=" + cause);
+
+        const mappedCause = cause in this.errorCodes
+          ? this.errorCodes[cause]
+          : this.baseErrorCodes.GENERIC_ERROR;
 
         return this.callback({
           status: this.baseCallStates.failed,
@@ -308,6 +319,7 @@ export default class SIPBridge extends BaseAudioBridge {
       currentSession.on('terminated', handleSessionTerminated);
 
       const handleConnectionTerminated = (peer) => {
+        logger.error({logCode: "sip_js_ice_connection_error"}, "ICE connection error. Current state - " + peer.iceConnectionState);
         CONNECTION_TERMINATED_EVENTS.forEach(e => mediaHandler.off(e, handleConnectionTerminated));
         this.callback({
           status: this.baseCallStates.failed,
@@ -389,7 +401,7 @@ export default class SIPBridge extends BaseAudioBridge {
         await audioContext.setSinkId(value);
         this.media.outputDeviceId = value;
       } catch (err) {
-        logger.error(err);
+        logger.error({ logCode: 'audio_sip_changeoutputdevice_error' }, err);
         throw new Error(this.baseErrorCodes.MEDIA_ERROR);
       }
     }

@@ -11,7 +11,7 @@ public:
     clientTitle: BigBlueButton
     appName: BigBlueButton HTML5 Client
     bbbServerVersion: 2.2-dev
-    copyright: "©2018 BigBlueButton Inc."
+    copyright: "©2019 BigBlueButton Inc."
     html5ClientBuild: HTML5_CLIENT_VERSION
     lockOnJoin: true
     basename: "/html5client"
@@ -78,6 +78,7 @@ public:
     httpsConnection: false
     connectionTimeout: 60000
     showHelpButton: true
+    enableExternalVideo: false
   kurento:
     wsUrl: HOST
     chromeDefaultExtensionKey: akgoaoikmbmhcopjgakkcepdgdgkjfbc
@@ -94,7 +95,7 @@ public:
       height:
         max: 480
     enableScreensharing: false
-    enableVideo: false
+    enableVideo: true
     enableVideoStats: false
     enableListenOnly: false
     autoShareWebcam: false
@@ -263,7 +264,7 @@ private:
     host: 127.0.0.1
     post: '6379'
     timeout: 5000
-    debug: true
+    debug: false
     channels:
       toAkkaApps: to-akka-apps-redis-channel
     subscribeTo:

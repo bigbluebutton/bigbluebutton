@@ -90,7 +90,7 @@ class App extends Component {
     this.handleWindowResize();
     window.addEventListener('resize', this.handleWindowResize, false);
 
-    logger.info('Client loaded successfully');
+    logger.info({ logCode: 'app_component_componentdidmount' }, 'Client loaded successfully');
   }
 
   componentWillUnmount() {
@@ -194,7 +194,7 @@ class App extends Component {
 
   render() {
     const {
-      customStyle, customStyleUrl, micsLocked, openPanel,
+      customStyle, customStyleUrl, openPanel,
     } = this.props;
 
     return (
@@ -211,7 +211,7 @@ class App extends Component {
         </section>
         <PollingContainer />
         <ModalContainer />
-        {micsLocked ? null : <AudioContainer />}
+        <AudioContainer />
         <ToastContainer />
         <ChatAlertContainer />
         {customStyleUrl ? <link rel="stylesheet" type="text/css" href={customStyleUrl} /> : null}

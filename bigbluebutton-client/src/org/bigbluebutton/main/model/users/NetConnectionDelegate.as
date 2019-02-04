@@ -752,9 +752,9 @@ package org.bigbluebutton.main.model.users
 									logData.logCode = "reconnect_attempt_failed";
 									LOGGER.info(JSON.stringify(logData));
 									
-                    var attemptFailedEvent:BBBEvent = new BBBEvent(BBBEvent.RECONNECT_CONNECTION_ATTEMPT_FAILED_EVENT);
-                    attemptFailedEvent.payload.type = ReconnectionManager.BIGBLUEBUTTON_CONNECTION;
-                    dispatcher.dispatchEvent(attemptFailedEvent);
+                    var attemptFailedEvent1:BBBEvent = new BBBEvent(BBBEvent.RECONNECT_CONNECTION_ATTEMPT_FAILED_EVENT);
+                    attemptFailedEvent1.payload.type = ReconnectionManager.BIGBLUEBUTTON_CONNECTION;
+                    dispatcher.dispatchEvent(attemptFailedEvent1);
                 } else {
                     reconnecting = true;
                     LiveMeeting.inst().me.authTokenValid = false;
@@ -787,9 +787,9 @@ package org.bigbluebutton.main.model.users
                 logData.logCode = "reconnect_attempt_failed";
                 LOGGER.info(JSON.stringify(logData));
                 
-                var attemptFailedEvent:BBBEvent = new BBBEvent(BBBEvent.RECONNECT_CONNECTION_ATTEMPT_FAILED_EVENT);
-                attemptFailedEvent.payload.type = ReconnectionManager.BIGBLUEBUTTON_CONNECTION;
-                dispatcher.dispatchEvent(attemptFailedEvent);
+                var attemptFailedEvent2:BBBEvent = new BBBEvent(BBBEvent.RECONNECT_CONNECTION_ATTEMPT_FAILED_EVENT);
+                attemptFailedEvent2.payload.type = ReconnectionManager.BIGBLUEBUTTON_CONNECTION;
+                dispatcher.dispatchEvent(attemptFailedEvent2);
             } else {
                 logData.reason = reason;
                 logData.app = "apps";

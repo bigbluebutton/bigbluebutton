@@ -11,6 +11,7 @@ import DropdownListItem from '/imports/ui/components/dropdown/list/item/componen
 import Icon from '/imports/ui/components/icon/component';
 import Button from '/imports/ui/components/button/component';
 import VideoListItemStats from './video-list-item-stats/component';
+import FullscreenButton from '../../fullscreen-button/component';
 import { styles } from '../styles';
 
 const intlMessages = defineMessages({
@@ -26,8 +27,8 @@ class VideoListItem extends Component {
 
     this.state = {
       showStats: false,
-      stats: {'video':{}},
-    }
+      stats: { video: {} },
+    };
 
     this.toggleStats = this.toggleStats.bind(this);
     this.setStats = this.setStats.bind(this);
@@ -40,10 +41,10 @@ class VideoListItem extends Component {
   componentDidUpdate() {
     const playElement = (elem) => {
       if (elem.paused) {
-        var p = elem.play();
+        const p = elem.play();
         if (p && (typeof Promise !== 'undefined') && (p instanceof Promise)) {
           // Catch exception when playing video
-          p.catch(function(e) {});
+          p.catch((e) => {});
         }
       }
     };
@@ -64,12 +65,12 @@ class VideoListItem extends Component {
       getStats(this.videoTag, this.setStats);
     }
 
-    this.setState({showStats: !this.state.showStats});
+    this.setState({ showStats: !this.state.showStats });
   }
 
   setStats(updatedStats) {
     const { audio, video } = updatedStats;
-    this.setState({ stats: { ...this.state.stats, video, audio }})
+    this.setState({ stats: { ...this.state.stats, video, audio } });
   }
 
   getAvailableActions() {
@@ -84,14 +85,23 @@ class VideoListItem extends Component {
       <DropdownListTitle className={styles.hiddenDesktop} key="name">{user.name}</DropdownListTitle>,
       <DropdownListSeparator className={styles.hiddenDesktop} key="sep" />,
       ...actions.map(action => (<DropdownListItem key={user.id} {...action} />)),
-      (enableVideoStats ?
-        <DropdownListItem
-          key={'list-item-stats-' + user.id}
-          onClick={() => {this.toggleStats();}}
-          label={intl.formatMessage(intlMessages.connectionStatsLabel)}
-        />
-      : null),
+      (enableVideoStats
+        ? (
+          <DropdownListItem
+            key={`list-item-stats-${user.id}`}
+            onClick={() => { this.toggleStats(); }}
+            label={intl.formatMessage(intlMessages.connectionStatsLabel)}
+          />
+        )
+        : null),
     ]);
+  }
+
+  renderFullscreenButton() {
+    const full = () => {
+      this.videoTag.requestFullscreen();
+    };
+    return <FullscreenButton handleFullscreen={full} />;
   }
 
   render() {
@@ -119,7 +129,7 @@ class VideoListItem extends Component {
             <DropdownTrigger className={styles.dropdownTrigger}>
               <span>{user.name}</span>
             </DropdownTrigger>
-            <DropdownContent placement="top left">
+            <DropdownContent placement="top left" className={styles.dropdownContent}>
               <DropdownList className={styles.dropdownList}>
                 {availableActions}
               </DropdownList>
@@ -129,6 +139,7 @@ class VideoListItem extends Component {
           { user.isListenOnly ? <Icon className={styles.voice} iconName="listen" /> : null }
         </div>
         { showStats ? <VideoListItemStats toggleStats={this.toggleStats} stats={stats} /> : null }
+        { this.renderFullscreenButton() }
       </div>
     );
   }

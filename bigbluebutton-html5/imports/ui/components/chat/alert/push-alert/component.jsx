@@ -4,37 +4,44 @@ import _ from 'lodash';
 import injectNotify from '/imports/ui/components/toast/inject-notify/component';
 import { Session } from 'meteor/session';
 
-const ALERT_INTERVAL = 2000; // 2 seconds
-const ALERT_LIFETIME = 4000; // 4 seconds
 
 const propTypes = {
   notify: PropTypes.func.isRequired,
   onOpen: PropTypes.func.isRequired,
   chatId: PropTypes.string.isRequired,
-  message: PropTypes.node.isRequired,
+  title: PropTypes.node.isRequired,
   content: PropTypes.node.isRequired,
+  alertDuration: PropTypes.number.isRequired,
 };
 
 class ChatPushAlert extends PureComponent {
-  static link(message, chatId) {
+  static link(title, chatId) {
+    let chat = chatId;
+
+    if (chat === 'MAIN-PUBLIC-GROUP-CHAT') {
+      chat = 'public';
+    }
+
     return (
       <div
+        key={chatId}
         role="button"
-        aria-label={message}
+        aria-label={title}
         tabIndex={0}
         onClick={() => {
           Session.set('openPanel', 'chat');
-          Session.set('idChatOpen', chatId);
+          Session.set('idChatOpen', chat);
         }}
+        onKeyPress={() => null}
       >
-        { message }
+        {title}
       </div>
     );
   }
 
   constructor(props) {
     super(props);
-    this.showNotify = _.debounce(this.showNotify.bind(this), ALERT_INTERVAL);
+    this.showNotify = this.showNotify.bind(this);
 
     this.componentDidMount = this.showNotify;
     this.componentDidUpdate = this.showNotify;
@@ -45,15 +52,16 @@ class ChatPushAlert extends PureComponent {
       notify,
       onOpen,
       chatId,
-      message,
+      title,
       content,
+      alertDuration,
     } = this.props;
 
     return notify(
-      ChatPushAlert.link(message, chatId),
+      ChatPushAlert.link(title, chatId),
       'info',
       'chat',
-      { onOpen, autoClose: ALERT_LIFETIME },
+      { onOpen, autoClose: alertDuration },
       ChatPushAlert.link(content, chatId),
       true,
     );

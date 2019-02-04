@@ -148,13 +148,17 @@ class Settings extends Component {
   }
 
   renderModalContent() {
-    const { intl } = this.props;
+    const {
+      intl,
+      locales,
+    } = this.props;
+
     const {
       selectedTab,
       availableLocales,
       current,
-      locales,
     } = this.state;
+
     return (
       <Tabs
         className={styles.tabs}

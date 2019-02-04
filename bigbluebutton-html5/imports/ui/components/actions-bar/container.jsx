@@ -9,6 +9,8 @@ import Service from './service';
 import VideoService from '../video-provider/service';
 import { shareScreen, unshareScreen, isVideoBroadcasting } from '../screenshare/service';
 
+import MediaService, { getSwapLayout } from '../media/service';
+
 const ActionsBarContainer = props => <ActionsBar {...props} />;
 
 export default withTracker(() => {
@@ -24,7 +26,6 @@ export default withTracker(() => {
     },
   });
 
- 
 
   return {
     isUserPresenter: Service.isUserPresenter(),
@@ -43,6 +44,8 @@ export default withTracker(() => {
     hasBreakoutRoom: Service.hasBreakoutRoom(),
     meetingName: Service.meetingName(),
     users: Service.users(),
+    isLayoutSwapped: getSwapLayout(),
+    toggleSwapLayout: MediaService.toggleSwapLayout,
     sendInvitation: Service.sendInvitation,
     getBreakouts: Service.getBreakouts,
     getUsersNotAssigned: Service.getUsersNotAssigned,
