@@ -19,7 +19,7 @@ export default function toggleLockSettings(credentials, meeting) {
     lockedLayout: Boolean,
     lockOnJoin: Boolean,
     lockOnJoinConfigurable: Boolean,
-    setBy: String,
+    setBy: Match.Maybe(String),
   });
 
   const payload = {

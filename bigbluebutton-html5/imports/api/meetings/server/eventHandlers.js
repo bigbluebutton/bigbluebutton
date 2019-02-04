@@ -18,3 +18,4 @@ RedisPubSub.on('UserLockedInMeetingEvtMsg', handleUserLockChange);
 RedisPubSub.on('RecordingStatusChangedEvtMsg', handleRecordingStatusChange);
 RedisPubSub.on('UpdateRecordingTimerEvtMsg', handleRecordingTimerChange);
 RedisPubSub.on('WebcamsOnlyForModeratorChangedEvtMsg', handleChangeWebcamOnlyModerator);
+RedisPubSub.on('GetLockSettingsRespMsg', handleMeetingLocksChange);
