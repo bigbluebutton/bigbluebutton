@@ -157,7 +157,6 @@ class VideoList extends Component {
           label: intl.formatMessage(intlMessages[`${isFocusedIntlKey}Label`]),
           description: intl.formatMessage(intlMessages[`${isFocusedIntlKey}Desc`]),
           onClick: () => this.handleVideoFocus(user.id),
-          disabled: users.length < 3,
         }];
       }
 
