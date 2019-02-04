@@ -8,6 +8,8 @@ import Settings from '/imports/ui/services/settings';
 
 const DEFAULT_ANIMATION = 'shift-away';
 const ANIMATION_NONE = 'none';
+const ANIMATION_DURATION = 350;
+const ANIMATION_DELAY = [150, 50];
 
 const propTypes = {
   title: PropTypes.string.isRequired,
@@ -38,7 +40,6 @@ class Tooltip extends Component {
     this.onShow = this.onShow.bind(this);
     this.onHide = this.onHide.bind(this);
     this.handleEscapeHide = this.handleEscapeHide.bind(this);
-    this.delay = [150, 50];
 
     this.state = {
       enableAnimation: Settings.application.animations,
@@ -55,16 +56,17 @@ class Tooltip extends Component {
       placement: position,
       performance: true,
       content: title,
-      delay: this.delay,
+      delay: enableAnimation ? ANIMATION_DELAY : [ANIMATION_DELAY[0], 0],
+      duration: enableAnimation ? ANIMATION_DURATION : 0,
       onShow: this.onShow,
       onHide: this.onHide,
       wait: Tooltip.wait,
       touchHold: true,
       size: 'regular',
-      distance: (enableAnimation) ? 10 : 20,
+      distance: enableAnimation ? 10 : 20,
       arrow: true,
       arrowType: 'sharp',
-      animation: (enableAnimation) ? DEFAULT_ANIMATION : ANIMATION_NONE,
+      animation: enableAnimation ? DEFAULT_ANIMATION : ANIMATION_NONE,
     };
     this.tooltip = Tippy(`#${this.tippySelectorId}`, options);
   }
@@ -91,7 +93,8 @@ class Tooltip extends Component {
           animation: animations
             ? DEFAULT_ANIMATION : ANIMATION_NONE,
           distance: animations ? 10 : 20,
-          delay: animations ? this.delay : [this.delay[0], 0],
+          delay: animations ? ANIMATION_DELAY : [ANIMATION_DELAY[0], 0],
+          duration: animations ? ANIMATION_DURATION : 0,
         });
       });
 
