@@ -289,9 +289,9 @@ class ToolController {
             String calculatedSignature = hmac.getSignature(hmac.getBaseString(oam))
             log.debug "Calculated: " + calculatedSignature + " Received: " + signature
 			
-			log.debug "SHA256 Base Message String = [ " + hmac256.getBaseString(oam) + " ]\n"
-			String calculatedSignature256 = hmac256.getSignature(hmac256.getBaseString(oam))
-			log.debug "Calculated: " + calculatedSignature256 + " Received: " + signature
+	    log.debug "SHA256 Base Message String = [ " + hmac256.getBaseString(oam) + " ]\n"
+	    String calculatedSignature256 = hmac256.getSignature(hmac256.getBaseString(oam))
+	    log.debug "Calculated: " + calculatedSignature256 + " Received: " + signature
 		
             return calculatedSignature.equals(signature) || calculatedSignature256.equals(signature)
         } catch( Exception e ) {
