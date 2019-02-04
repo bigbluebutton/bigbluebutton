@@ -30,6 +30,7 @@ import org.apache.commons.codec.digest.DigestUtils
 import net.oauth.OAuthMessage
 import net.oauth.signature.OAuthSignatureMethod
 import net.oauth.signature.HMAC_SHA1
+import net.oauth.signature.HMAC_SHA256
 import org.bigbluebutton.lti.Parameter
 
 class ToolController {
@@ -265,12 +266,13 @@ class ToolController {
 
     /**
      * Check if the passed signature is valid.
+     * Checks both SHA1 and SHA256 signatures.
      * @param method - POST or GET method used to make the request
      * @param URL - The target URL for the Basic LTI tool
      * @param conSecret - The consumer secret key
      * @param postProp - the parameters passed in from the tool
      * @param signature - the passed in signature calculated from the client
-     * @return - TRUE if the signatures matches the calculated signature
+     * @return - TRUE if the SHA1 or the SHA256 signatures match the calculated signature
      */
     private boolean checkValidSignature(String method, String url, String conSecret, Properties postProp, String signature) {
         if (!ltiService.hasRestrictedAccess()) {
@@ -278,14 +280,22 @@ class ToolController {
         }
         try {
             OAuthMessage oam = new OAuthMessage(method, url, postProp.entrySet())
-            //log.debug "OAuthMessage oam = " + oam.toString()
+
             HMAC_SHA1 hmac = new HMAC_SHA1()
-            //log.debug "HMAC_SHA1 hmac = " + hmac.toString()
+			HMAC_SHA256 hmac256 = new HMAC_SHA256()
+
             hmac.setConsumerSecret(conSecret)
-            log.debug "Base Message String = [ " + hmac.getBaseString(oam) + " ]\n"
+			hmac256.setConsumerSecret(conSecret) 
+			
+            log.debug "SHA1 Base Message String = [ " + hmac.getBaseString(oam) + " ]\n"
             String calculatedSignature = hmac.getSignature(hmac.getBaseString(oam))
             log.debug "Calculated: " + calculatedSignature + " Received: " + signature
-            return calculatedSignature.equals(signature)
+			
+	    log.debug "SHA256 Base Message String = [ " + hmac256.getBaseString(oam) + " ]\n"
+	    String calculatedSignature256 = hmac256.getSignature(hmac256.getBaseString(oam))
+	    log.debug "Calculated: " + calculatedSignature256 + " Received: " + signature
+		
+            return calculatedSignature.equals(signature) || calculatedSignature256.equals(signature)
         } catch( Exception e ) {
             log.debug "Exception error: " + e.message
             return false
