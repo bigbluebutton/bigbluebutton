@@ -1,5 +1,19 @@
 # BigBlueButton Web Grails 3 Deployment Procedure
 
+Upgrade Gradle and Grails
+
+```
+# Install SDKMan if you don't have it yet.
+
+curl -s "https://get.sdkman.io" | bash
+
+# Install Gradle
+sdk install gradle 5.1.1
+
+# Install Grails
+sdk install grails 3.3.9
+```
+
 To run the application from its source code : `grails prod run-app`
 
 To run the application on a different port use : `grails -port=8989 prod run-app`
