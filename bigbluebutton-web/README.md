@@ -27,6 +27,7 @@ To package the application for production:
 3. Create a new directory `mkdir exploded`
 4. Navigate to that directory `cd exploded`
 5. Extract the war content `jar -xvf ../build/libs/bigbluebutton-0.10.0.war`
-6. Package the content of the new directory in a debian package then add service configuration.
-7. The application is after that runnable using the following command `java -cp WEB-INF/lib/*:/:WEB-INF/classes/:. org.springframe work.boot.loader.WarLauncher`
+6. Copy run script into exploded dir `cp ../run-prod.sh .`
+7. Package the content of the new directory in a debian package then add service configuration. Install into `/usr/share/bbb-web`.
+8. Create a systemd service file that runs `run-prod.sh`
 Don't forget to use full directories path and replace the dot before the org with the full path to the exploded war.
