@@ -5,7 +5,6 @@ import { defineMessages, injectIntl } from 'react-intl';
 import _ from 'lodash';
 import Auth from '/imports/ui/services/auth';
 import Meetings from '/imports/api/meetings';
-import humanizeSeconds from '/imports/utils/humanizeSeconds';
 import NavBarService from '../nav-bar/service';
 import BreakoutRemainingTime from '/imports/ui/components/breakout-room/breakout-remaining-time/container';
 
@@ -52,6 +51,14 @@ const intlMessages = defineMessages({
   meetingWillClose: {
     id: 'app.meeting.meetingTimeHasEnded',
     description: 'Message that tells time has ended and meeting will close',
+  },
+  alertMeetingEndsUnderOneMinute: {
+    id: 'app.meeting.alertMeetingEndsUnderOneMinute',
+    description: 'Alert that tells that the meeting end under a minute',
+  },
+  alertBreakoutEndsUnderOneMinute: {
+    id: 'app.meeting.alertBreakoutEndsUnderOneMinute',
+    description: 'Alert that tells that the breakout end under a minute',
   },
 });
 
@@ -137,6 +144,7 @@ export default injectIntl(withTracker(({ intl }) => {
           breakoutRoom={currentBreakout}
           messageDuration={intlMessages.breakoutTimeRemaining}
           timeEndedMessage={intlMessages.breakoutWillClose}
+          alertMessageUnderOneMinute={intl.formatMessage(intlMessages.alertBreakoutEndsUnderOneMinute)}
         />
       );
     }
@@ -156,6 +164,7 @@ export default injectIntl(withTracker(({ intl }) => {
           breakoutRoom={Meeting.durationProps}
           messageDuration={intlMessages.meetingTimeRemaining}
           timeEndedMessage={intlMessages.meetingWillClose}
+          alertMessageUnderOneMinute={intl.formatMessage(intlMessages.alertMeetingEndsUnderOneMinute)}
         />
       );
     }

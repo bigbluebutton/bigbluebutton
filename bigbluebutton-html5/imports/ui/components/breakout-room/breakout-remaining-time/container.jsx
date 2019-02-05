@@ -1,6 +1,7 @@
 import React from 'react';
 import { withTracker } from 'meteor/react-meteor-data';
 import { defineMessages, injectIntl } from 'react-intl';
+import injectNotify from '/imports/ui/components/toast/inject-notify/component';
 import humanizeSeconds from '/imports/utils/humanizeSeconds';
 import _ from 'lodash';
 import BreakoutRemainingTimeComponent from './component';
@@ -77,8 +78,13 @@ const startCounter = (sec, set, get, interval) => {
 };
 
 
-export default injectIntl(withTracker(({
-  breakoutRoom, intl, messageDuration, timeEndedMessage,
+export default injectNotify(injectIntl(withTracker(({
+  breakoutRoom,
+  intl,
+  notify,
+  messageDuration,
+  timeEndedMessage,
+  alertMessageUnderOneMinute,
 }) => {
   const data = {};
   if (breakoutRoom) {
@@ -99,6 +105,7 @@ export default injectIntl(withTracker(({
   if (timeRemaining >= 0) {
     if (timeRemaining > 0) {
       const time = getTimeRemaining();
+      if (time === (1 * 60) && alertMessageUnderOneMinute) notify(alertMessageUnderOneMinute, 'info', 'rooms');
       data.message = intl.formatMessage(messageDuration, { 0: humanizeSeconds(time) });
     } else {
       clearInterval(timeRemainingInterval);
@@ -108,4 +115,4 @@ export default injectIntl(withTracker(({
     data.message = intl.formatMessage(intlMessages.calculatingBreakoutTimeRemaining);
   }
   return data;
-})(breakoutRemainingTimeContainer));
+})(breakoutRemainingTimeContainer)));
