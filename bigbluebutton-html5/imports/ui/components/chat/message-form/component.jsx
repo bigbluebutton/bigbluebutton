@@ -5,6 +5,7 @@ import TextareaAutosize from 'react-autosize-textarea';
 import browser from 'browser-detect';
 import { styles } from './styles';
 import Button from '../../button/component';
+import ChatService from '../service';
 
 const propTypes = {
 };
@@ -33,7 +34,7 @@ const messages = defineMessages({
   },
 });
 
-const UnsentMessagesCollection = new Mongo.Collection(null);
+// const UnsentMessagesCollection = new Mongo.Collection(null);
 
 class MessageForm extends PureComponent {
   constructor(props) {
@@ -55,6 +56,7 @@ class MessageForm extends PureComponent {
   componentDidMount() {
     const { chatId } = this.props;
     const { mobile } = this.BROWSER_RESULTS;
+    const { UnsentMessagesCollection } = ChatService;
 
     const unsentMessageByChat = UnsentMessagesCollection.findOne({ chatId });
     this.setMessageState(unsentMessageByChat ? unsentMessageByChat.message : '');
@@ -68,6 +70,7 @@ class MessageForm extends PureComponent {
     const { chatId } = this.props;
     const { message } = this.state;
     const { mobile } = this.BROWSER_RESULTS;
+    const { UnsentMessagesCollection } = ChatService;
 
     if (prevProps.chatId !== chatId && !mobile) {
       this.textarea.focus();

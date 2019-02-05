@@ -22,6 +22,8 @@ const PUBLIC_CHAT_CLEAR = CHAT_CONFIG.system_messages_keys.chat_clear;
 
 const ScrollCollection = new Mongo.Collection(null);
 
+const UnsentMessagesCollection = new Mongo.Collection(null);
+
 // session for closed chat list
 const CLOSED_CHAT_LIST_KEY = 'closedChatList';
 
@@ -332,4 +334,5 @@ export default {
   maxTimestampReducer,
   maxNumberReducer,
   getLastMessageTimestampFromChatList,
+  UnsentMessagesCollection,
 };
