@@ -7,6 +7,7 @@ import { makeCall } from '/imports/ui/services/api';
 import deviceInfo from '/imports/utils/deviceInfo';
 import logger from '/imports/startup/client/logger';
 import LoadingScreen from '/imports/ui/components/loading-screen/component';
+import Settings from '/imports/ui/services/settings';
 
 const propTypes = {
   children: PropTypes.element.isRequired,
@@ -33,6 +34,10 @@ class JoinHandler extends Component {
 
   componentDidMount() {
     this.fetchToken();
+
+    const { animations } = Settings.application;
+    const enableAnimation = (animations) ? 1 : 0;
+    document.documentElement.style.setProperty('--enableAnimation', enableAnimation);
   }
 
   changeToJoin(bool) {

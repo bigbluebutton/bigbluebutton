@@ -13,6 +13,10 @@ const intlMessages = defineMessages({
     id: 'app.submenu.application.applicationSectionTitle',
     description: 'Application section title',
   },
+  animationsLabel: {
+    id: 'app.submenu.application.animationsLabel',
+    description: 'animations label',
+  },
   audioAlertLabel: {
     id: 'app.submenu.application.audioAlertLabel',
     description: 'audio notification label',
@@ -157,6 +161,27 @@ class ApplicationMenu extends BaseMenu {
           </h3>
         </div>
         <div className={styles.form}>
+
+          <div className={styles.row}>
+            <div className={styles.col} aria-hidden="true">
+              <div className={styles.formElement}>
+                <label className={styles.label}>
+                  {intl.formatMessage(intlMessages.animationsLabel)}
+                </label>
+              </div>
+            </div>
+            <div className={styles.col}>
+              <div className={cx(styles.formElement, styles.pullContentRight)}>
+                <Toggle
+                  icons={false}
+                  defaultChecked={this.state.settings.animations}
+                  onChange={() => this.handleToggle('animations')}
+                  ariaLabel={intl.formatMessage(intlMessages.animationsLabel)}
+                />
+              </div>
+            </div>
+          </div>
+
           <div className={styles.row}>
             <div className={styles.col} aria-hidden="true">
               <div className={styles.formElement}>
@@ -196,6 +221,7 @@ class ApplicationMenu extends BaseMenu {
               </div>
             </div>
           </div>
+
           <div className={styles.row}>
             <div className={styles.col} aria-hidden="true">
               <div className={styles.formElement}>

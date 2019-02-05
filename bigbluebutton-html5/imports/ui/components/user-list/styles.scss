@@ -44,7 +44,7 @@
 %list-item {
   display: flex;
   flex-flow: row;
-  transition: all 0.3s;
+  transition: all calc(var(--enableAnimation) * .3s);
   border-top-left-radius: 5px;
   border-bottom-left-radius: 5px;
   cursor: pointer;
@@ -134,7 +134,7 @@
 .enterActive,
 .appearActive {
   opacity: 1;
-  transition: all 600ms;
+  transition: all calc(var(--enableAnimation) * 600ms);
 }
 
 .leave {
@@ -143,5 +143,5 @@
 
 .leaveActive {
   opacity: 0;
-  transition: all 600ms;
+  transition: all calc(var(--enableAnimation) * 600ms);
 }

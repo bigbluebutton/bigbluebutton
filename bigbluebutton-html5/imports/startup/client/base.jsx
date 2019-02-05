@@ -53,6 +53,7 @@ class Base extends Component {
       ejected,
       approved,
       meetingExist,
+      animations,
     } = this.props;
     const { loading } = this.state;
 
@@ -73,6 +74,12 @@ class Base extends Component {
     if (prevProps.ejected || ejected) {
       Session.set('codeError', '403');
       Session.set('isMeetingEnded', true);
+    }
+
+    if (animations && animations !== prevProps.animations) {
+      document.documentElement.style.setProperty('--enableAnimation', 1);
+    } else if (!animations && animations !== prevProps.animations) {
+      document.documentElement.style.setProperty('--enableAnimation', 0);
     }
   }
 
@@ -149,7 +156,7 @@ const SUBSCRIPTIONS_NAME = [
 ];
 
 const BaseContainer = withTracker(() => {
-  const { locale } = Settings.application;
+  const { locale, animations } = Settings.application;
   const { credentials, loggedIn } = Auth;
   const { meetingId, requesterUserId } = credentials;
   let breakoutRoomSubscriptionHandler;
@@ -228,6 +235,7 @@ const BaseContainer = withTracker(() => {
     annotationsHandler,
     groupChatMessageHandler,
     breakoutRoomSubscriptionHandler,
+    animations,
     meetingExist: true,
     User,
   };
