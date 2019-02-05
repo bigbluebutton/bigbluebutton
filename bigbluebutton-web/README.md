@@ -29,5 +29,6 @@ To package the application for production:
 5. Extract the war content `jar -xvf ../build/libs/bigbluebutton-0.10.0.war`
 6. Copy run script into exploded dir `cp ../run-prod.sh .`
 7. Package the content of the new directory in a debian package then add service configuration. Install into `/usr/share/bbb-web`.
-8. Create a systemd service file that runs `run-prod.sh`
+8. Create a systemd service file that runs `run-prod.sh`. App will be listening on port 8080
+9. To do custom config, edit `/usr/share/bbb-web/WEB-INF/classes/bigbluebutton.properties`
 Don't forget to use full directories path and replace the dot before the org with the full path to the exploded war.
