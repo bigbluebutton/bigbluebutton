@@ -87,6 +87,16 @@ const openBreakoutJoinConfirmation = (breakout, breakoutName, mountModal) => mou
 const closeBreakoutJoinConfirmation = mountModal => mountModal(null);
 
 class NavBar extends PureComponent {
+  static handleToggleUserList() {
+    Session.set(
+      'openPanel',
+      Session.get('openPanel') !== ''
+        ? ''
+        : 'userlist',
+    );
+    Session.set('idChatOpen', '');
+  }
+
   constructor(props) {
     super(props);
 
@@ -97,7 +107,6 @@ class NavBar extends PureComponent {
     };
 
     this.incrementTime = this.incrementTime.bind(this);
-    this.handleToggleUserList = this.handleToggleUserList.bind(this);
   }
 
   componentDidMount() {
@@ -160,15 +169,6 @@ class NavBar extends PureComponent {
 
   componentWillUnmount() {
     clearInterval(this.interval);
-  }
-
-  handleToggleUserList() {
-    Session.set(
-      'openPanel',
-      Session.get('openPanel') !== ''
-        ? ''
-        : 'userlist',
-    );
   }
 
   inviteUserToBreakout(breakout) {
@@ -250,6 +250,7 @@ class NavBar extends PureComponent {
 
   render() {
     const {
+      amIModerator,
       hasUnreadMessages,
       recordProps,
       isExpanded,
@@ -278,7 +279,7 @@ class NavBar extends PureComponent {
         <div className={styles.left}>
           <Button
             data-test="userListToggleButton"
-            onClick={this.handleToggleUserList}
+            onClick={NavBar.handleToggleUserList}
             ghost
             circle
             hideLabel
@@ -302,10 +303,11 @@ class NavBar extends PureComponent {
               : intl.formatMessage(intlMessages.stopTitle))}
             mountModal={mountModal}
             time={time}
+            amIModerator={amIModerator()}
           />
         </div>
         <div className={styles.right}>
-          <SettingsDropdownContainer />
+          <SettingsDropdownContainer amIModerator={amIModerator()} />
         </div>
       </div>
     );

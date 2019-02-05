@@ -531,16 +531,6 @@ function loadPlayback() {
     loadAudio();
   }
 
-  // load up the acorn controls
-  logger.info("==Loading acorn media player");
-  $('#video').acornMediaPlayer({
-    theme: 'bigbluebutton',
-    volumeSlider: 'vertical'
-  });
-  $('#video').on("swap", function() {
-    swapVideoPresentation();
-  });
-
   if (hasDeskshare) {
     loadDeskshare();
   } else {
@@ -800,8 +790,18 @@ document.addEventListener('playback-ready', function(event) {
       logger.warn("==Unhandled playback-ready event", event.detail);
   }
   if (dataReady && mediaReady && contentReady) {
-    runPopcorn();
     if (firstLoad) {
+      // load up the acorn controls
+      logger.info("==Loading acorn media player");
+      $('#video').acornMediaPlayer({
+        theme: 'bigbluebutton',
+        volumeSlider: 'vertical'
+      });
+      $('#video').on("swap", function() {
+        swapVideoPresentation();
+      });
+
+      runPopcorn();
       initPopcorn();
     }
   }

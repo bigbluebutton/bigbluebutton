@@ -5,7 +5,7 @@
   text-align: center;
   flex-basis: 1rem;
   justify-content: center;
-  transition: 0.3s all;
+  transition: calc(var(--enableAnimation) * .3s) all;
   margin-left: var(--sm-padding-x) / 2;
 }
 

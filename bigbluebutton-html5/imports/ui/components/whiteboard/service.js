@@ -53,7 +53,7 @@ function handleAddedAnnotation({
 
   Annotations.upsert(query.selector, query.modifier, (err) => {
     if (err) {
-      logger.error(err);
+      logger.error({ logCode: 'whiteboard_annotation_upsert_error' }, err);
       return;
     }
 

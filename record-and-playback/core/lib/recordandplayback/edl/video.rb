@@ -287,6 +287,9 @@ module BigBlueButton
 
           info[:width] = info[:video][:width].to_i
           info[:height] = info[:video][:height].to_i
+
+          # Check for corrupt/undecodable video streams
+          return {} if info[:video][:pix_fmt].nil?
           return {} if info[:width] == 0 or info[:height] == 0
 
           info[:sample_aspect_ratio] = Rational(1, 1)

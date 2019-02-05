@@ -52,7 +52,7 @@
   vertical-align: middle;
   cursor: pointer;
   user-select: none;
-  transition: all .2s ease-in-out;
+  transition: all calc(var(--enableAnimation) * .2s) ease-in-out;
 
   &:hover,
   &:focus {
@@ -260,7 +260,7 @@
 }
 
 .circle {
-  --btn-sm-padding-x: calc(var(--lg-padding-x) / 2.75);
+  --btn-sm-padding-x: calc(var(--sm-padding-x) / 2.75);
   --btn-md-padding-x: calc(var(--md-padding-x) / 2.75);
   --btn-lg-padding-x: calc(var(--lg-padding-x) / 2.75);
   --btn-jumbo-padding-x: calc(var(--jumbo-padding-x) / 2.75);

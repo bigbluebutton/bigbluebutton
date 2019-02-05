@@ -126,6 +126,23 @@ public class RecordingService {
         }
     }
 
+    public void markAsEnded(String meetingId) {
+        String done = recordStatusDir + "/../ended/" + meetingId + ".done";
+
+        File doneFile = new File(done);
+        if (!doneFile.exists()) {
+            try {
+                doneFile.createNewFile();
+                if (!doneFile.exists())
+                    log.error("Failed to create " + done + " file.");
+            } catch (IOException e) {
+                log.error("Exception occured when trying to create {} file.", done);
+            }
+        } else {
+            log.error(done + " file already exists.");
+        }
+    }
+
     public List<RecordingMetadata> getRecordingsMetadata(List<String> recordIDs, List<String> states) {
         List<RecordingMetadata> recs = new ArrayList<>();
 

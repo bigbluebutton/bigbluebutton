@@ -26,10 +26,10 @@ spec:
     spec:
       containers:
       - env:
-        - name: KMS_STUN_IP
+        - name: STUN_IP
         # TODO: how to get this IP?
           value: "35.185.19.180"
-        - name: KMS_STUN_PORT
+        - name: STUN_PORT
           value: "3478"
         image: fcecagno/bigbluebutton:bbb-kurento
         imagePullPolicy: Always

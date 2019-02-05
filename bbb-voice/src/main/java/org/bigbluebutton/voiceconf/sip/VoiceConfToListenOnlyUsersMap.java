@@ -1,5 +1,7 @@
 package org.bigbluebutton.voiceconf.sip;
 
+import java.util.Collection;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -22,5 +24,9 @@ public class VoiceConfToListenOnlyUsersMap {
 	
 	public int numUsers() {
 		return listenOnlyUsers.size();
+	}
+
+	public Collection<ListenOnlyUser> getAllListenOnlyUsers() {
+		return listenOnlyUsers.values();
 	}
 }

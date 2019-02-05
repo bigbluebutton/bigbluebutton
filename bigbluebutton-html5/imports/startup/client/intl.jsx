@@ -5,41 +5,43 @@ import Settings from '/imports/ui/services/settings';
 import LoadingScreen from '/imports/ui/components/loading-screen/component';
 
 // currently supported locales.
-import en from 'react-intl/locale-data/en';
-import uk from 'react-intl/locale-data/uk';
-import zh from 'react-intl/locale-data/zh';
-import ru from 'react-intl/locale-data/ru';
+import bg from 'react-intl/locale-data/bg';
 import de from 'react-intl/locale-data/de';
-import fr from 'react-intl/locale-data/fr';
-import pt from 'react-intl/locale-data/pt';
+import el from 'react-intl/locale-data/el';
+import en from 'react-intl/locale-data/en';
+import es from 'react-intl/locale-data/es';
 import fa from 'react-intl/locale-data/fa';
-import tr from 'react-intl/locale-data/tr';
+import fr from 'react-intl/locale-data/fr';
+import id from 'react-intl/locale-data/id';
+import it from 'react-intl/locale-data/it';
 import ja from 'react-intl/locale-data/ja';
 import km from 'react-intl/locale-data/km';
-import es from 'react-intl/locale-data/es';
-import id from 'react-intl/locale-data/id';
-import el from 'react-intl/locale-data/el';
-import it from 'react-intl/locale-data/it';
-import bg from 'react-intl/locale-data/bg';
+import pl from 'react-intl/locale-data/pl';
+import pt from 'react-intl/locale-data/pt';
+import ru from 'react-intl/locale-data/ru';
+import tr from 'react-intl/locale-data/tr';
+import uk from 'react-intl/locale-data/uk';
+import zh from 'react-intl/locale-data/zh';
 
 
 addLocaleData([
-  ...en,
-  ...uk,
-  ...zh,
-  ...ru,
+  ...bg,
   ...de,
-  ...fr,
-  ...pt,
+  ...el,
+  ...en,
+  ...es,
   ...fa,
-  ...tr,
+  ...fr,
+  ...id,
+  ...it,
   ...ja,
   ...km,
-  ...es,
-  ...id,
-  ...el,
-  ...it,
-  ...bg,
+  ...pl,
+  ...pt,
+  ...ru,
+  ...tr,
+  ...uk,
+  ...zh,
 ]);
 
 const propTypes = {

@@ -7,7 +7,7 @@ import Service from './service';
 import UserList from './component';
 
 const propTypes = {
-  openChats: PropTypes.arrayOf(String).isRequired,
+  activeChats: PropTypes.arrayOf(String).isRequired,
   currentUser: PropTypes.shape({}).isRequired,
   getUsersId: PropTypes.func.isRequired,
   isBreakoutRoom: PropTypes.bool.isRequired,
@@ -24,6 +24,7 @@ const propTypes = {
   changeRole: PropTypes.func.isRequired,
   roving: PropTypes.func.isRequired,
   getGroupChatPrivate: PropTypes.func.isRequired,
+  toggleUserLock: PropTypes.func.isRequired,
 };
 
 const UserListContainer = props => <UserList {...props} />;
@@ -34,7 +35,7 @@ export default withTracker(({ chatID, compact }) => ({
   hasBreakoutRoom: Service.hasBreakoutRoom(),
   getUsersId: Service.getUsersId,
   currentUser: Service.getCurrentUser(),
-  openChats: Service.getOpenChats(chatID),
+  activeChats: Service.getActiveChats(chatID),
   isBreakoutRoom: meetingIsBreakout(),
   getAvailableActions: Service.getAvailableActions,
   normalizeEmojiName: Service.normalizeEmojiName,
@@ -55,4 +56,6 @@ export default withTracker(({ chatID, compact }) => ({
   getEmojiList: Service.getEmojiList(),
   getEmoji: Service.getEmoji(),
   showBranding: getFromUserSettings('displayBrandingArea', Meteor.settings.public.app.branding.displayBrandingArea),
+  hasPrivateChatBetweenUsers: Service.hasPrivateChatBetweenUsers,
+  toggleUserLock: Service.toggleUserLock,
 }))(UserListContainer);

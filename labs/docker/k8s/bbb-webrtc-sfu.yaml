@@ -29,7 +29,7 @@ spec:
         - name: KURENTO_NAME
           value: kurento
         - name: KURENTO_URL
-          value: ws://kurento:8888/kurento
+          value: ws://bbb-kurento:8888/kurento
         - name: REDIS_HOST
           value: redis
         - name: FREESWITCH_IP

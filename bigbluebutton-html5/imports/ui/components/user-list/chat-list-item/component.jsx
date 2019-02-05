@@ -30,7 +30,7 @@ const propTypes = {
     name: PropTypes.string.isRequired,
     unreadCounter: PropTypes.number.isRequired,
   }).isRequired,
-  openChat: PropTypes.string,
+  activeChat: PropTypes.string,
   compact: PropTypes.bool.isRequired,
   intl: PropTypes.shape({
     formatMessage: PropTypes.func.isRequired,
@@ -41,7 +41,7 @@ const propTypes = {
 };
 
 const defaultProps = {
-  openChat: '',
+  activeChat: '',
   shortcuts: '',
 };
 
@@ -51,13 +51,17 @@ const handleClickToggleChat = (id) => {
     Session.get('openPanel') === 'chat' && Session.get('idChatOpen') === id
       ? 'userlist' : 'chat',
   );
-  Session.set('idChatOpen', id);
+  if (Session.equals('openPanel', 'chat')) {
+    Session.set('idChatOpen', id);
+  } else {
+    Session.set('idChatOpen', '');
+  }
 };
 
 const ChatListItem = (props) => {
   const {
     chat,
-    openChat,
+    activeChat,
     compact,
     intl,
     tabIndex,
@@ -65,7 +69,7 @@ const ChatListItem = (props) => {
     shortcuts: TOGGLE_CHAT_PUB_AK,
   } = props;
 
-  const isCurrentChat = chat.id === openChat;
+  const isCurrentChat = chat.id === activeChat;
   const linkClasses = {};
   linkClasses[styles.active] = isCurrentChat;
 
