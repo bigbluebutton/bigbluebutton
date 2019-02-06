@@ -61,29 +61,29 @@ export default class ZoomTool extends Component {
     this.onChanger = this.onChanger.bind(this);
     this.setInt = 0;
     this.state = {
-      stateValue: props.value,
-      initialStateValue: props.value,
+      stateZoomValue: props.zoomValue,
+      initialstateZoomValue: props.zoomValue,
       mouseHolding: false,
     };
   }
 
   componentDidUpdate() {
-    const { value } = this.props;
-    const { stateValue } = this.state;
-    const isDifferent = value !== stateValue;
-    if (isDifferent) this.onChanger(value);
+    const { zoomValue } = this.props;
+    const { stateZoomValue } = this.state;
+    const isDifferent = zoomValue !== stateZoomValue;
+    if (isDifferent) this.onChanger(zoomValue);
   }
 
-  onChanger(val) {
+  onChanger(value) {
     const {
       maxBound,
       minBound,
       change,
-      value,
+      zoomValue,
     } = this.props;
-    const { stateValue } = this.state;
-    let newValue = val;
-    const isDifferent = newValue !== stateValue;
+    const { stateZoomValue } = this.state;
+    let newValue = value;
+    const isDifferent = newValue !== stateZoomValue;
 
     if (newValue <= minBound) {
       newValue = minBound;
@@ -91,21 +91,21 @@ export default class ZoomTool extends Component {
       newValue = maxBound;
     }
 
-    const propsIsDifferente = value !== newValue;
+    const propsIsDifferente = zoomValue !== newValue;
     if (isDifferent && propsIsDifferente) {
-      this.setState({ stateValue: newValue }, () => {
+      this.setState({ stateZoomValue: newValue }, () => {
         change(newValue);
       });
     }
-    if (isDifferent && !propsIsDifferente) this.setState({ stateValue: newValue });
+    if (isDifferent && !propsIsDifferente) this.setState({ stateZoomValue: newValue });
   }
 
   increment() {
     const {
       step,
     } = this.props;
-    const { stateValue } = this.state;
-    const increaseZoom = stateValue + step;
+    const { stateZoomValue } = this.state;
+    const increaseZoom = stateZoomValue + step;
     this.onChanger(increaseZoom);
   }
 
@@ -113,8 +113,8 @@ export default class ZoomTool extends Component {
     const {
       step,
     } = this.props;
-    const { stateValue } = this.state;
-    const decreaseZoom = stateValue - step;
+    const { stateZoomValue } = this.state;
+    const decreaseZoom = stateZoomValue - step;
     this.onChanger(decreaseZoom);
   }
 
@@ -149,17 +149,17 @@ export default class ZoomTool extends Component {
   }
 
   resetZoom() {
-    const { stateValue, initialStateValue } = this.state;
-    if (stateValue !== initialStateValue) this.onChanger(initialStateValue);
+    const { stateZoomValue, initialstateZoomValue } = this.state;
+    if (stateZoomValue !== initialstateZoomValue) this.onChanger(initialstateZoomValue);
   }
 
   render() {
     const {
-      value,
+      zoomValue,
       minBound,
       maxBound,
     } = this.props;
-    const { stateValue } = this.state;
+    const { stateZoomValue } = this.state;
     return (
       [
         ZoomTool.renderAriaLabelsDescs(),
@@ -167,7 +167,7 @@ export default class ZoomTool extends Component {
           <HoldButton
             key="zoom-tool-1"
             exec={this.decrement}
-            value={value}
+            value={zoomValue}
             minBound={minBound}
           >
             <Button
@@ -178,7 +178,7 @@ export default class ZoomTool extends Component {
               label="-"
               icon="minus"
               onClick={() => { }}
-              disabled={(value <= minBound)}
+              disabled={(zoomValue <= minBound)}
               className={styles.prevSlide}
               hideLabel
             />
@@ -189,21 +189,21 @@ export default class ZoomTool extends Component {
             key="zoom-tool-2"
             role="button"
             aria-labelledby="zoomIndicator"
-            aria-describedby={stateValue}
+            aria-describedby={stateZoomValue}
             color="default"
-            customIcon={`${stateValue}%`}
+            customIcon={`${stateZoomValue}%`}
             size="md"
             onClick={() => this.resetZoom()}
             label="Reset Zoom"
             hideLabel
-            className={styles.prevSlide}
+            className={styles.zoomPercentageDisplay}
           />
         ),
         (
           <HoldButton
             key="zoom-tool-3"
             exec={this.increment}
-            value={value}
+            value={zoomValue}
             maxBound={maxBound}
           >
             <Button
@@ -214,7 +214,7 @@ export default class ZoomTool extends Component {
               label="+"
               icon="plus"
               onClick={() => { }}
-              disabled={(value >= maxBound)}
+              disabled={(zoomValue >= maxBound)}
               className={styles.skipSlide}
               hideLabel
             />
@@ -226,7 +226,7 @@ export default class ZoomTool extends Component {
 }
 
 const propTypes = {
-  value: PropTypes.number.isRequired,
+  zoomValue: PropTypes.number.isRequired,
   change: PropTypes.func.isRequired,
   minBound: PropTypes.number.isRequired,
   maxBound: PropTypes.number.isRequired,
