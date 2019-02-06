@@ -13,6 +13,14 @@ const intlMessages = defineMessages({
     id: 'app.presentation.presentationToolbar.zoomReset',
     description: 'Reset zoom button label',
   },
+  zoomInLabel: {
+    id: 'app.presentation.presentationToolbar.zoomInLabel',
+    description: 'Label for increment zoom level',
+  },
+  zoomOutLabel: {
+    id: 'app.presentation.presentationToolbar.zoomOutLabel',
+    description: 'Aria label for decrement zoom level',
+  },
 });
 
 class ZoomTool extends Component {
@@ -189,7 +197,7 @@ class ZoomTool extends Component {
               key="zoom-tool-1"
               aria-labelledby="zoomOutLabel"
               aria-describedby="zoomOutDesc"
-              label="-"
+              label={intl.formatMessage(intlMessages.zoomOutLabel)}
               icon="minus"
               onClick={() => { }}
               disabled={(zoomValue <= minBound)}
@@ -223,7 +231,7 @@ class ZoomTool extends Component {
               key="zoom-tool-3"
               aria-labelledby="zoomInLabel"
               aria-describedby="zoomInDesc"
-              label="+"
+              label={intl.formatMessage(intlMessages.zoomInLabel)}
               icon="plus"
               onClick={() => { }}
               disabled={(zoomValue >= maxBound)}
