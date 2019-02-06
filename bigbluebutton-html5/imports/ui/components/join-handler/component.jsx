@@ -7,6 +7,7 @@ import { makeCall } from '/imports/ui/services/api';
 import deviceInfo from '/imports/utils/deviceInfo';
 import logger from '/imports/startup/client/logger';
 import LoadingScreen from '/imports/ui/components/loading-screen/component';
+import Settings from '/imports/ui/services/settings';
 
 const propTypes = {
   children: PropTypes.element.isRequired,
@@ -33,6 +34,10 @@ class JoinHandler extends Component {
 
   componentDidMount() {
     this.fetchToken();
+
+    const { animations } = Settings.application;
+    const enableAnimation = (animations) ? 1 : 0;
+    document.documentElement.style.setProperty('--enableAnimation', enableAnimation);
   }
 
   changeToJoin(bool) {
@@ -66,7 +71,7 @@ class JoinHandler extends Component {
         location: window.location.href,
       };
 
-      logger.info(clientInfo);
+      logger.info({ logCode: 'joinhandler_component_clientinfo' }, clientInfo);
     };
 
     const setAuth = (resp) => {
@@ -127,11 +132,11 @@ class JoinHandler extends Component {
         Session.set('openPanel', '');
       }
 
-      logger.info(`User successfully went through main.joinRouteHandler with [${JSON.stringify(response)}].`);
+      logger.info({ logCode: 'joinhandler_component_joinroutehandler_success' }, `User successfully went through main.joinRouteHandler with [${JSON.stringify(response)}].`);
     } else {
       const e = new Error(response.message);
       if (!Session.get('codeError')) Session.set('errorMessageDescription', response.message);
-      logger.error(`User faced [${e}] on main.joinRouteHandler. Error was:`, JSON.stringify(response));
+      logger.error({ logCode: 'joinhandler_component_joinroutehandler_error' }, `User faced [${e}] on main.joinRouteHandler. Error was:`, JSON.stringify(response));
     }
     this.changeToJoin(true);
   }

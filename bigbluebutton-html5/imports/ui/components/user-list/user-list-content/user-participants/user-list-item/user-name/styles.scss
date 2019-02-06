@@ -15,7 +15,7 @@
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-  transition: all 0.3s;
+  transition: all calc(var(--enableAnimation) * .3s);
   font-weight: 400;
   color: var(--color-gray-dark);
 }

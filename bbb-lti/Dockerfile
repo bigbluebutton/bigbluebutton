@@ -33,6 +33,7 @@ RUN cd /source \
  && sed -i "s|\(<lticp:name>\)[^<]*|\1$vendor_name|g" grails-app/controllers/org/bigbluebutton/ToolController.groovy \
  && sed -i "s|\(<lticp:description>\)[^<]*|\1$vendor_description|g" grails-app/controllers/org/bigbluebutton/ToolController.groovy \
  && sed -i "s|\(<lticp:url>\)[^<]*|\1$vendor_url|g" grails-app/controllers/org/bigbluebutton/ToolController.groovy \
+ && sed -i "s|BigBlueButton|$title|g" grails-app/i18n/*.properties \
  && grails war
 
 FROM tomcat:7-jre8
@@ -44,9 +45,8 @@ RUN rm -r webapps/*
 
 COPY --from=builder /source/target/lti-*.war webapps/lti.war
 
-RUN unzip -q webapps/lti.war -d webapps/lti \
- && rm webapps/lti.war
-
 COPY docker-entrypoint.sh /usr/local/bin/
+
+ENV LTI_CONTEXT_PATH lti
 
 CMD ["docker-entrypoint.sh"]

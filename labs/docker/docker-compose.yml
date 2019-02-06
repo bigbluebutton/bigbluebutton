@@ -83,8 +83,8 @@ services:
       - media-video:/var/kurento/recordings
       - media-screenshare:/var/kurento/screenshare
     environment:
-      KMS_STUN_IP: ${EXTERNAL_IP}
-      KMS_STUN_PORT: 3478
+      STUN_IP: ${EXTERNAL_IP}
+      STUN_PORT: 3478
 
   bbb-apps-akka:
     image: ${TAG_PREFIX}bbb-apps-akka${TAG_SUFFIX}

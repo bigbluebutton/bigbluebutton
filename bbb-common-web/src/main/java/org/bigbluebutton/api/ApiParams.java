@@ -31,6 +31,7 @@ public class ApiParams {
     public static final String DIAL_NUMBER = "dialNumber";
     public static final String DURATION = "duration";
     public static final String FREE_JOIN = "freeJoin";
+    public static final String FULL_NAME = "fullName";
     public static final String GUEST_POLICY = "guestPolicy";
     public static final String IS_BREAKOUT = "isBreakout";
     public static final String LOGO = "logo";
@@ -44,7 +45,9 @@ public class ApiParams {
     public static final String MUTE_ON_START = "muteOnStart";
     public static final String NAME = "name";
     public static final String PARENT_MEETING_ID = "parentMeetingID";
+    public static final String PASSWORD = "password";
     public static final String RECORD = "record";
+    public static final String REDIRECT = "redirect";
     public static final String SEQUENCE = "sequence";
     public static final String VOICE_BRIDGE = "voiceBridge";
     public static final String WEB_VOICE = "webVoice";
