@@ -11,11 +11,10 @@
 %baseIndicator {
   position: relative;
   display: inline-block;
+  padding: 0 !important;
   width: var(--font-size-large);
   height: var(--font-size-large);
   border-radius: 50%;
-  border: 1px solid var(--color-white);
-
   &:after {
     content: '';
     width: calc(var(--font-size-large) / 2);
@@ -30,26 +29,8 @@
   }
 }
 
-.border {
-  border: 1px solid var(--color-white);
-  border-radius: 50%;
-}
-
 .recordIndicator {
   @extend %baseIndicator;
-}
-
-.btn {
-  border-radius: 50%;
-  display: block;
-  padding: 0;
-
-  &:hover,
-  &:focus {
-    background-color: transparent !important;
-    color: var(--color-white) !important;
-    opacity: .75;
-  }
 }
 
 .presentationTitle {
@@ -74,7 +55,6 @@
 
 .notRecording {
   @extend %baseIndicator;
-  border: 1px solid var(--color-white);
 
   &:after {
     background-color: var(--color-white);
@@ -83,4 +63,23 @@
 
 .recordState {
   display: flex;
+}
+
+.btn {
+  border: 1px solid var(--color-white) !important;
+  border-radius: 50%;
+  span {
+    border: none;
+    box-shadow: none;
+    background-color: transparent !important;
+    color: var(--color-white) !important;
+  }
+  
+  &:hover,
+  &:focus {
+    border: 1px solid rgba(255,255,255, .5) !important;
+    background-color: transparent !important;
+    color: var(--color-white) !important;
+    opacity: .75;
+  }
 }

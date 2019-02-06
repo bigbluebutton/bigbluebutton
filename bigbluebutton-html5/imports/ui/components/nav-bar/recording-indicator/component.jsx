@@ -64,7 +64,7 @@ class RecordingIndicator extends React.PureComponent {
             className={styles.recordState}
           >
 
-            <div className={styles.border}>
+            {/* <div className={styles.border}>
               <Button
                 label={buttonTitle}
                 hideLabel
@@ -75,7 +75,19 @@ class RecordingIndicator extends React.PureComponent {
                   document.activeElement.blur();
                 }}
               />
-            </div>
+            </div> */}
+
+            <Button
+              label={buttonTitle}
+              hideLabel
+              className={cx(styles.notRecording, !recording && styles.btn)}
+              color={recording ? 'primary' : 'default'}
+              ghost={!recording}
+              onClick={() => {
+                mountModal(<RecordingContainer amIModerator={amIModerator} />);
+                document.activeElement.blur();
+              }}
+            />
 
             <div className={styles.presentationTitle}>
               {recording
