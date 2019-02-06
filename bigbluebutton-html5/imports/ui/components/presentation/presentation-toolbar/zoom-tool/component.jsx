@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { FormattedMessage } from 'react-intl';
+import { FormattedMessage, defineMessages, injectIntl } from 'react-intl';
 import Button from '/imports/ui/components/button/component';
 import { styles } from '../styles.scss';
 import HoldButton from './holdButton/component';
@@ -8,7 +8,14 @@ import HoldButton from './holdButton/component';
 const DELAY_MILLISECONDS = 200;
 const STEP_TIME = 100;
 
-export default class ZoomTool extends Component {
+const intlMessages = defineMessages({
+  resetZoomLabel: {
+    id: 'app.presentation.presentationToolbar.zoomReset',
+    description: 'Reset zoom button label',
+  },
+});
+
+class ZoomTool extends Component {
   static renderAriaLabelsDescs() {
     return (
       <div hidden key="hidden-div">
@@ -45,6 +52,13 @@ export default class ZoomTool extends Component {
             id="app.presentation.presentationToolbar.zoomIndicator"
             description="Aria label for current zoom level"
             defaultMessage="Current zoom level"
+          />
+        </div>
+        <div id="zoomReset">
+          <FormattedMessage
+            id="app.presentation.presentationToolbar.zoomReset"
+            description="Aria label for reset zoom level"
+            defaultMessage="Reset zoom level"
           />
         </div>
       </div>
@@ -158,6 +172,7 @@ export default class ZoomTool extends Component {
       zoomValue,
       minBound,
       maxBound,
+      intl,
     } = this.props;
     const { stateZoomValue } = this.state;
     return (
@@ -174,7 +189,6 @@ export default class ZoomTool extends Component {
               key="zoom-tool-1"
               aria-labelledby="zoomOutLabel"
               aria-describedby="zoomOutDesc"
-              role="button"
               label="-"
               icon="minus"
               onClick={() => { }}
@@ -187,14 +201,13 @@ export default class ZoomTool extends Component {
         (
           <Button
             key="zoom-tool-2"
-            role="button"
-            aria-labelledby="zoomIndicator"
+            aria-labelledby="zoomReset"
             aria-describedby={stateZoomValue}
             color="default"
             customIcon={`${stateZoomValue}%`}
             size="md"
             onClick={() => this.resetZoom()}
-            label="Reset Zoom"
+            label={intl.formatMessage(intlMessages.resetZoomLabel)}
             hideLabel
             className={styles.zoomPercentageDisplay}
           />
@@ -210,7 +223,6 @@ export default class ZoomTool extends Component {
               key="zoom-tool-3"
               aria-labelledby="zoomInLabel"
               aria-describedby="zoomInDesc"
-              role="button"
               label="+"
               icon="plus"
               onClick={() => { }}
@@ -234,3 +246,5 @@ const propTypes = {
 };
 
 ZoomTool.propTypes = propTypes;
+
+export default injectIntl(ZoomTool);

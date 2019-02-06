@@ -128,8 +128,6 @@
   border-bottom-right-radius: 0 !important;
 
   &:hover{
-    opacity: .5;
-    border-left: var(--toolbar-button-border) solid var(--toolbar-button-border-color) !important;
-    border-right: var(--toolbar-button-border) solid var(--toolbar-button-border-color) !important;
+    opacity: .8;
   }
 }
