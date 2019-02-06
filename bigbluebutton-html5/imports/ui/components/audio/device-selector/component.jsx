@@ -4,6 +4,7 @@ import PropTypes from 'prop-types';
 import cx from 'classnames';
 import logger from '/imports/startup/client/logger';
 import { styles } from '../audio-modal/styles';
+import browser from 'browser-detect';
 
 const propTypes = {
   kind: PropTypes.oneOf(['audioinput', 'audiooutput', 'videoinput']),
@@ -66,6 +67,7 @@ class DeviceSelector extends Component {
     const {
       kind, className, ...props
     } = this.props;
+
     const { options, value } = this.state;
 
     return (
@@ -86,7 +88,12 @@ class DeviceSelector extends Component {
                 {option.label}
               </option>
             )) :
-            <option value="not-found">{`no ${kind} found`}</option>
+            (
+              (kind == 'audiooutput' && browser().name == 'safari') ?
+                <option value="not-found">Default</option>
+              :
+                <option value="not-found">{`no ${kind} found`}</option>
+            )
         }
       </select>
     );
