@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import { Meteor } from 'meteor/meteor';
 import cx from 'classnames';
 import { defineMessages, injectIntl } from 'react-intl';
 import Dropdown from '/imports/ui/components/dropdown/component';
@@ -107,8 +108,8 @@ class VideoListItem extends Component {
   render() {
     const { showStats, stats } = this.state;
     const { user } = this.props;
-
     const availableActions = this.getAvailableActions();
+    const enableVideoMenu = Meteor.settings.public.kurento.enableVideoMenu || false;
 
     return (
       <div className={cx({
@@ -125,20 +126,29 @@ class VideoListItem extends Component {
           playsInline
         />
         <div className={styles.info}>
-          <Dropdown className={styles.dropdown}>
-            <DropdownTrigger className={styles.dropdownTrigger}>
-              <span>{user.name}</span>
-            </DropdownTrigger>
-            <DropdownContent placement="top left" className={styles.dropdownContent}>
-              <DropdownList className={styles.dropdownList}>
-                {availableActions}
-              </DropdownList>
-            </DropdownContent>
-          </Dropdown>
-          { user.isMuted ? <Icon className={styles.muted} iconName="unmute_filled" /> : null }
-          { user.isListenOnly ? <Icon className={styles.voice} iconName="listen" /> : null }
+          {enableVideoMenu && availableActions.length >= 3
+            ? (
+              <Dropdown className={styles.dropdown}>
+                <DropdownTrigger className={styles.dropdownTrigger}>
+                  <span>{user.name}</span>
+                </DropdownTrigger>
+                <DropdownContent placement="top left" className={styles.dropdownContent}>
+                  <DropdownList className={styles.dropdownList}>
+                    {availableActions}
+                  </DropdownList>
+                </DropdownContent>
+              </Dropdown>
+            )
+            : (
+              <div className={styles.dropdown}>
+                <span className={styles.userName}>{user.name}</span>
+              </div>
+            )
+          }
+          {user.isMuted ? <Icon className={styles.muted} iconName="unmute_filled" /> : null}
+          {user.isListenOnly ? <Icon className={styles.voice} iconName="listen" /> : null}
         </div>
-        { showStats ? <VideoListItemStats toggleStats={this.toggleStats} stats={stats} /> : null }
+        {showStats ? <VideoListItemStats toggleStats={this.toggleStats} stats={stats} /> : null}
         { this.renderFullscreenButton() }
       </div>
     );

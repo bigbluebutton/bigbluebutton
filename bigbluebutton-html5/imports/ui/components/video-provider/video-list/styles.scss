@@ -130,9 +130,8 @@
   }
 }
 
-.dropdownTrigger {
+.dropdownTrigger, .userName {
   @extend %text-elipsis;
-  cursor: pointer;
   position: relative;
   background-color: rgba(var(--color-gray), .5);
   color: var(--color-white);
@@ -140,6 +139,11 @@
   border-radius: 15px;
   padding: 0 1rem 0 .5rem !important;
   max-width: 50%;
+
+}
+
+.dropdownTrigger {
+  cursor: pointer;
 
   &::after {
     content: "\203a";
