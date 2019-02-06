@@ -3,8 +3,7 @@
     top: -50px;
     left: -20px;
     font-size: 20px;
-    -webkit-animation: bounce 2s infinite;
-    animation: bounce 2s infinite;
+    animation: bounce calc(var(--enableAnimation) * 2s) infinite;
     display: block;
     font-family: 'bbb-icons';
     content: "\E906";
@@ -15,8 +14,7 @@
     top: -50px;
     left: -15.5em;
     font-size: 20px;
-    -webkit-animation: bounceRotate 2s infinite;
-    animation: bounceRotate 2s infinite;
+    animation: bounceRotate calc(var(--enableAnimation) * 2s) infinite;
   }
 }
 
@@ -47,7 +45,7 @@
   left: 0;
   right: 0;
   background-color: rgba(0, 0, 0, .85);
-  animation: fade-in .5s ease-in;
+  animation: fade-in calc(var(--enableAnimation) * .5s) ease-in;
 }
 
 .hint {

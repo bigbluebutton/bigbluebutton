@@ -41,8 +41,8 @@
                 <tr class="r0 lastrow">
                     <td class="cell c0" style="text-align:center;">
                     <g:if test="${r.published}">
-                        <g:each in="${r.playback}" var="format">
-                            <a title="<g:message code="tool.view.recording.format.${format.getValue().type}" />" target="_new" href="${format.getValue().url}"><g:message code="tool.view.recording.format.${format.getValue().type}" /></a>&#32;
+                        <g:each in="${r.playbacks}" var="format">
+                            <a title="<g:message code="tool.view.recording.format.${format.type}" />" target="_new" href="${format.url}"><g:message code="tool.view.recording.format.${format.type}" /></a><br>
                         </g:each>
                     </g:if>
                     </td>

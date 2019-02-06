@@ -34,7 +34,7 @@ class DeviceSelector extends Component {
   componentDidMount() {
     const handleEnumerateDevicesSuccess = (deviceInfos) => {
       const devices = deviceInfos.filter(d => d.kind === this.props.kind);
-      logger.info(`Success on enumerateDevices() for ${this.props.kind}: ${JSON.stringify(devices)}`);
+      logger.info({ logCode: 'audiodeviceselector_component_enumeratedevices_success' }, `Success on enumerateDevices() for ${this.props.kind}: ${JSON.stringify(devices)}`);
       this.setState({
         devices,
         options: devices.map((d, i) => ({
@@ -49,7 +49,7 @@ class DeviceSelector extends Component {
       .enumerateDevices()
       .then(handleEnumerateDevicesSuccess)
       .catch((err) => {
-        logger.error(`Error on enumerateDevices(): ${JSON.stringify(err)}`);
+        logger.error({ logCode: 'audiodeviceselector_component_enumeratedevices_error' }, `Error on enumerateDevices(): ${JSON.stringify(err)}`);
       });
   }
 

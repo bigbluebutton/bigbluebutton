@@ -31,6 +31,14 @@
     border-top-right-radius: 5px;
     border-bottom-right-radius: 5px;
   }
+
+  span:last-of-type button[aria-labelledby~=fitWidthLabel],
+  button:last-of-type[aria-labelledby~=fitWidthLabel] {
+    border-top-left-radius: 5px;
+    border-bottom-left-radius: 5px;
+    border-top-right-radius: 5px;
+    border-bottom-right-radius: 5px;
+  }
 }
 
 .presentationToolbarWrapper {

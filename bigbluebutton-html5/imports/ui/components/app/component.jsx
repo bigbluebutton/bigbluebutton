@@ -90,7 +90,7 @@ class App extends Component {
     this.handleWindowResize();
     window.addEventListener('resize', this.handleWindowResize, false);
 
-    logger.info('Client loaded successfully');
+    logger.info({ logCode: 'app_component_componentdidmount' }, 'Client loaded successfully');
   }
 
   componentWillUnmount() {
