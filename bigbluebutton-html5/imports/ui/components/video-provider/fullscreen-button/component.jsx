@@ -11,22 +11,28 @@ const intlMessages = defineMessages({
   },
 });
 
-const FullscreenButtonComponent = ({ intl, handleFullscreen, dark }) => (
-  <div className={cx(styles.wrapper, dark ? styles.dark : null)}>
-    <Button
-      role="button"
-      aria-labelledby="fullscreenButtonLabel"
-      aria-describedby="fullscreenButtonDesc"
-      color="default"
-      icon="fullscreen"
-      size="sm"
-      onClick={handleFullscreen}
-      label={intl.formatMessage(intlMessages.fullscreenButton)}
-      hideLabel
-      circle
-      className={styles.button}
-    />
-  </div>
-);
+const FullscreenButtonComponent = ({
+  intl, handleFullscreen, dark, elementName = false,
+}) => {
+  const formattedLabel = intl.formatMessage(
+    intlMessages.fullscreenButton,
+    ({ 0: elementName ? elementName.toLowerCase() : '' }),
+  );
+
+  return (
+    <div className={cx(styles.wrapper, dark ? styles.dark : null)}>
+      <Button
+        color="default"
+        icon="fullscreen"
+        size="sm"
+        onClick={handleFullscreen}
+        label={formattedLabel}
+        hideLabel
+        circle
+        className={styles.button}
+      />
+    </div>
+  );
+};
 
 export default injectIntl(FullscreenButtonComponent);

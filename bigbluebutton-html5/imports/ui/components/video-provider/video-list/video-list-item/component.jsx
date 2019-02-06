@@ -99,10 +99,11 @@ class VideoListItem extends Component {
   }
 
   renderFullscreenButton() {
+    const { user } = this.props;
     const full = () => {
       this.videoTag.requestFullscreen();
     };
-    return <FullscreenButton handleFullscreen={full} />;
+    return <FullscreenButton handleFullscreen={full} elementName={user.name} />;
   }
 
   render() {

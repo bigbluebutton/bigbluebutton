@@ -1,8 +1,16 @@
 import React from 'react';
+import { defineMessages, injectIntl, intlShape } from 'react-intl';
 import FullscreenButton from '../video-provider/fullscreen-button/component';
 import { styles } from './styles';
 
-export default class ScreenshareComponent extends React.Component {
+const intlMessages = defineMessages({
+  screenShareLabel: {
+    id: 'app.screenshare.screenShareLabel',
+    description: 'screen share area element label',
+  },
+});
+
+class ScreenshareComponent extends React.Component {
   constructor() {
     super();
     this.state = {
@@ -32,14 +40,18 @@ export default class ScreenshareComponent extends React.Component {
   }
 
   renderFullscreenButton() {
+    const { intl } = this.props;
     const full = () => {
-      if (!this.videoTag) {
-        return;
-      }
-
+      if (!this.videoTag) return;
       this.videoTag.requestFullscreen();
     };
-    return <FullscreenButton handleFullscreen={full} />;
+
+    return (
+      <FullscreenButton
+        handleFullscreen={full}
+        elementName={intl.formatMessage(intlMessages.screenShareLabel)}
+      />
+    );
   }
 
   render() {
@@ -65,3 +77,9 @@ export default class ScreenshareComponent extends React.Component {
     );
   }
 }
+
+export default injectIntl(ScreenshareComponent);
+
+ScreenshareComponent.propTypes = {
+  intl: intlShape.isRequired,
+};

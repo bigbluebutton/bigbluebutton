@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
+import { defineMessages, injectIntl, intlShape } from 'react-intl';
 import { TransitionGroup, CSSTransition } from 'react-transition-group';
 import WhiteboardOverlayContainer from '/imports/ui/components/whiteboard/whiteboard-overlay/container';
 import WhiteboardToolbarContainer from '/imports/ui/components/whiteboard/whiteboard-toolbar/container';
@@ -14,7 +15,14 @@ import MediaService from '../media/service';
 import PresentationCloseButton from './presentation-close-button/component';
 import FullscreenButton from '../video-provider/fullscreen-button/component';
 
-export default class PresentationArea extends Component {
+const intlMessages = defineMessages({
+  presentationLabel: {
+    id: 'app.presentationUploder.title',
+    description: 'presentation area element label',
+  },
+});
+
+class PresentationArea extends Component {
   constructor() {
     super();
 
@@ -325,7 +333,7 @@ export default class PresentationArea extends Component {
   isPresentationAccessible() {
     // sometimes tomcat publishes the slide url, but the actual file is not accessible (why?)
     return this.props.currentSlide && this.props.currentSlide.calculatedData;
-  };
+  }
 
   isFullscreen() {
     return document.fullscreenElement !== null;
@@ -336,15 +344,21 @@ export default class PresentationArea extends Component {
       return null;
     }
     return <PresentationCloseButton toggleSwapLayout={MediaService.toggleSwapLayout} />;
-  };
+  }
 
   renderPresentationFullscreen() {
-    if (this.isFullscreen()) {
-      return null;
-    }
+    const { intl } = this.props;
+    if (this.isFullscreen()) return null;
+
     const full = () => this.refPresentationContainer.requestFullscreen();
 
-    return <FullscreenButton handleFullscreen={full} dark />;
+    return (
+      <FullscreenButton
+        handleFullscreen={full}
+        elementName={intl.formatMessage(intlMessages.presentationLabel)}
+        dark
+      />
+    );
   }
 
   renderPresentationToolbar() {
@@ -382,7 +396,8 @@ export default class PresentationArea extends Component {
     return (
       <div
         ref={(ref) => { this.refPresentationContainer = ref; }}
-        className={styles.presentationContainer}>
+        className={styles.presentationContainer}
+      >
         <div
           ref={(ref) => { this.refPresentationArea = ref; }}
           className={styles.presentationArea}
@@ -404,7 +419,10 @@ export default class PresentationArea extends Component {
   }
 }
 
+export default injectIntl(PresentationArea);
+
 PresentationArea.propTypes = {
+  intl: intlShape.isRequired,
   podId: PropTypes.string.isRequired,
   // Defines a boolean value to detect whether a current user is a presenter
   userIsPresenter: PropTypes.bool.isRequired,
