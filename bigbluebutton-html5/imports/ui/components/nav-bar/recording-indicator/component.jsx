@@ -16,6 +16,10 @@ const intlMessages = defineMessages({
     id: 'app.notification.recordingStop',
     description: 'Notification for when the recording stops',
   },
+  recordingAriaLabel: {
+    id: 'app.notification.recordingAriaLabel',
+    description: 'Notification for when the recording stops',
+  },
 });
 
 const propTypes = {
@@ -72,11 +76,17 @@ class RecordingIndicator extends React.PureComponent {
                 }}
               />
             </div>
-
-            <div className={styles.presentationTitle} aria-hidden={!recording}>
-              {recording ? humanizeSeconds(time) : <div>{buttonTitle}</div>}
+            <div className={styles.presentationTitle}>
+              {recording
+                ? (
+                  <span className={styles.visuallyHidden}>
+                    {`${intl.formatMessage(intlMessages.recordingAriaLabel)} ${humanizeSeconds(time)}`}
+                  </span>
+                ) : null
+              }
+              {recording
+                ? <span aria-hidden>{humanizeSeconds(time)}</span> : <span>{buttonTitle}</span>}
             </div>
-
           </div>
         ) : null }
 

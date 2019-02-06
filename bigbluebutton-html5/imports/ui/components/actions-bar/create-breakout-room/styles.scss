@@ -4,6 +4,18 @@
 input[type="number"]::-webkit-outer-spin-button, input[type="number"]::-webkit-inner-spin-button {
   -webkit-appearance: none;
 }
+
+.btnStyle > button > span {
+  padding-bottom: var(--border-size);
+}
+
+.btnStyle > button > span > i {
+  color: var(--color-gray);
+  width: var(--lg-padding-x);
+  height: var(--lg-padding-x);
+  font-size: 170% !important;
+}
+
 .subTitle {
   font-size: var(--font-size-base);
   text-align: justify;
@@ -12,7 +24,7 @@ input[type="number"]::-webkit-outer-spin-button, input[type="number"]::-webkit-i
 
 .breakoutSettings {
   display: grid;
-  grid-template-columns: 2fr 1fr 1fr 1fr; 
+  grid-template-columns: 2fr 2fr 1fr; 
   grid-template-rows: 1fr;
   grid-gap: 1rem;
   margin-bottom: 1rem;
@@ -71,20 +83,12 @@ input[type="number"]::-webkit-outer-spin-button, input[type="number"]::-webkit-i
   justify-content: space-between;
 }
 
-.randomText {
-  cursor: pointer;
+.randomlyAssignBtn {
   color: var(--color-primary);
   font-size: var(--font-size-small);
   white-space: nowrap;
-  margin-bottom: .5rem;
+  margin-right: auto;
   align-self: flex-end;
-  &:focus,
-  &:hover {
-    opacity: 0.5;
-  }
-  &:active{
-    text-shadow: var(--color-primary) 1px 0 10px;
-  }
 }
 
 .freeJoinCheckbox {
