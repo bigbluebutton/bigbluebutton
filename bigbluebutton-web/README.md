@@ -14,11 +14,46 @@ sdk install gradle 5.1.1
 sdk install grails 3.3.9
 ```
 
-To run the application from its source code : `grails prod run-app`
+### Development
 
-To run the application on a different port use : `grails -port=8989 prod run-app`
+Build `bbb-common-message`
+
+```
+cd /bigbluebutton/bbb-common-message
+
+./deploy.sh
+```
+
+Build `bbb-common-web`
+
+```
+cd bigbluebutton/bbb-common-web
+
+./deploy.sh
+```
+
+Build and run `bbb-web`
+
+```
+cd bigbluebutton/bigbluebutton-web
+
+# Make sure you don't have old libs lying around. Might cause issues.
+# You need to to this only once to cleanup lib dir.
+
+rm lib/*
+
+./build.sh
+
+# This will listen on port 8989 so you need to adjust your nginx config.
+# If you've setup your nginx config to bbb-web dev, you don't need to do anything.
+
+./run.sh
+
+```
 
 To run unit tests: `grails test-app --stacktrace`
+
+### Production
 
 To package the application for production:
 
