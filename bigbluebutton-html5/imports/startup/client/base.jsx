@@ -28,12 +28,14 @@ const propTypes = {
   locale: PropTypes.string,
   approved: PropTypes.bool,
   meetingEnded: PropTypes.bool,
+  meetingExist: PropTypes.bool,
 };
 
 const defaultProps = {
   locale: undefined,
   approved: undefined,
   meetingEnded: false,
+  meetingExist: false,
 };
 
 class Base extends Component {
@@ -48,14 +50,14 @@ class Base extends Component {
     this.updateLoadingState = this.updateLoadingState.bind(this);
   }
 
-  componentDidUpdate(prevProps) {
+  componentDidUpdate(prevProps, prevState) {
     const {
       ejected,
       approved,
       meetingExist,
       animations,
     } = this.props;
-    const { loading } = this.state;
+    const { loading, meetingExisted } = this.state;
 
     if (!prevProps.meetingExist && meetingExist) {
       Session.set('isMeetingEnded', false);
@@ -74,6 +76,11 @@ class Base extends Component {
     if (prevProps.ejected || ejected) {
       Session.set('codeError', '403');
       Session.set('isMeetingEnded', true);
+    }
+
+    // In case the meteor restart avoid error log
+    if (Meteor.status().connected && (prevState.meetingExisted !== meetingExisted)) {
+      this.setMeetingExisted(false);
     }
 
     if (animations && animations !== prevProps.animations) {
@@ -104,7 +111,6 @@ class Base extends Component {
       subscriptionsReady,
       meetingExist,
     } = this.props;
-
 
     if (meetingExisted && !meetingExist) {
       AudioManager.exitAudio();
@@ -172,22 +178,10 @@ const BaseContainer = withTracker(() => {
   const subscriptionsHandlers = SUBSCRIPTIONS_NAME
     .map(name => Meteor.subscribe(name, credentials, subscriptionErrorHandler));
 
-  const subscriptionsReady = subscriptionsHandlers.every(handler => handler.ready());
-
-  const meeting = Meetings.findOne({ meetingId });
-
-  if (!meeting) {
-    return {
-      meetingExist: false,
-      subscriptionsReady,
-    };
-  }
+  let subscriptionsReady = subscriptionsHandlers.every(handler => handler.ready());
 
   if (!loggedIn) {
-    return {
-      locale,
-      subscriptionsReady: false,
-    };
+    subscriptionsReady = false;
   }
 
   const chats = GroupChat.find({
@@ -236,7 +230,7 @@ const BaseContainer = withTracker(() => {
     groupChatMessageHandler,
     breakoutRoomSubscriptionHandler,
     animations,
-    meetingExist: true,
+    meetingExist: !!Meetings.findOne({ meetingId }),
     User,
   };
 })(Base);
