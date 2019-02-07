@@ -56,6 +56,7 @@ class Base extends Component {
       approved,
       meetingExist,
       animations,
+      meteorIsConnected,
     } = this.props;
     const { loading, meetingExisted } = this.state;
 
@@ -79,7 +80,7 @@ class Base extends Component {
     }
 
     // In case the meteor restart avoid error log
-    if (Meteor.status().connected && (prevState.meetingExisted !== meetingExisted)) {
+    if (meteorIsConnected && (prevState.meetingExisted !== meetingExisted)) {
       this.setMeetingExisted(false);
     }
 
@@ -229,6 +230,7 @@ const BaseContainer = withTracker(() => {
     animations,
     meetingExist: !!Meetings.findOne({ meetingId }),
     User,
+    meteorIsConnected: Meteor.status().connected,
   };
 })(Base);
 
