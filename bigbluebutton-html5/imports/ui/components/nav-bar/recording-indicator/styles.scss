@@ -1,14 +1,77 @@
 @import "../../../stylesheets/variables/_all";
+@import "../../../stylesheets/variables/typography";
 
 .visuallyHidden {
-  position: absolute; 
-  overflow: hidden; 
-  clip: rect(0 0 0 0); 
-  height: 1px; width: 1px; 
-  margin: -1px; padding: 0; border: 0; 
+  position: absolute;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  height: 1px; width: 1px;
+  margin: -1px; padding: 0; border: 0;
 }
 
-%baseIndicator {
+%recordingControl {
+  display: flex;
+  border-radius: 5%;
+  padding: 2px !important;
+
+  span {
+    border: none;
+    box-shadow: none;
+    background-color: transparent !important;
+    color: var(--color-white) !important;
+  }
+
+  &:hover,
+  &:focus {
+    color: var(--color-white) !important;
+    cursor: pointer;
+  }
+}
+
+.recordingControlON {
+  @extend %recordingControl;
+
+  background-color: var(--color-primary);
+  border: 1px solid var(--color-primary);
+}
+
+.recordingControlOFF {
+  @extend %recordingControl;
+
+  border: 1px solid var(--color-white);
+}
+
+.presentationTitle {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  font-weight: 200;
+  color: var(--color-white);
+  font-size: var(--font-size-base);
+  padding: 0;
+  margin: 0 0 0 var(--sm-padding-x);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 30vw;
+
+  > [class^="icon-bbb-"] {
+    font-size: 75%;
+  }
+}
+
+.recordingStatusViewOnly {
+  display: flex;
+}
+
+%recordingIndicator {
+  border: 1px solid var(--color-white) !important;
+  border-radius: 50%;
+  span {
+    border: none;
+    box-shadow: none;
+    background-color: transparent !important;
+  }
   position: relative;
   display: inline-block;
   padding: 0 !important;
@@ -25,61 +88,30 @@
     margin-top: calc((var(--font-size-large) / -4));
     margin-left: calc((var(--font-size-large) / -4));
     border-radius: 50%;
+  }
+}
+
+.recordingIndicatorON {
+  @extend %recordingIndicator;
+  &:after {
     background-color: var(--color-danger);
   }
 }
 
-.recordIndicator {
-  @extend %baseIndicator;
-}
-
-.presentationTitle {
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  font-weight: 200;
-  color: var(--color-white);
-  font-size: var(--font-size-base);
-  margin: 0;
-  padding: 0;
-  margin-left: var(--sm-padding-x);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  max-width: 30vw;
-
-  > [class^="icon-bbb-"] {
-    font-size: 75%;
-  }
-}
-
-.notRecording {
-  @extend %baseIndicator;
-
+.recordingIndicatorOFF {
+  @extend %recordingIndicator;
   &:after {
     background-color: var(--color-white);
   }
 }
 
-.recordState {
-  display: flex;
-}
-
-.btn {
+.isRecordingCircle {
   border: 1px solid var(--color-white) !important;
   border-radius: 50%;
   span {
     border: none;
     box-shadow: none;
     background-color: transparent !important;
-    color: var(--color-white) !important;
-  }
-  
-  &:hover,
-  &:focus {
-    border: 1px solid rgba(255,255,255, .5) !important;
-    background-color: transparent !important;
-    color: var(--color-white) !important;
-    opacity: .75;
   }
 }
+
