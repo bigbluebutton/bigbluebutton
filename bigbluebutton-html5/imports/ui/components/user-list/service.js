@@ -180,7 +180,10 @@ const userFindSorting = {
 
 const getUsers = () => {
   const users = Users
-    .find({ connectionStatus: 'online' }, userFindSorting)
+    .find({
+      meetingId: Auth.meetingID,
+      connectionStatus: 'online',
+    }, userFindSorting)
     .fetch();
 
   return users

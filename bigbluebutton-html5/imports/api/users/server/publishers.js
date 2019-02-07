@@ -51,7 +51,12 @@ function users(credentials) {
   check(requesterToken, String);
 
   const selector = {
-    meetingId,
+    $or: [
+      { meetingId },
+      {
+        isBreakoutUser: true,
+      },
+    ],
   };
 
   const options = {
