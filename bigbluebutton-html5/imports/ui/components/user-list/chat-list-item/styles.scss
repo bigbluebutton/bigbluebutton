@@ -1,29 +1,26 @@
 @import "../styles.scss";
 @import "/imports/ui/stylesheets/variables/_all";
+@import "/imports/ui/stylesheets/variables/typography";
 
 .chatListItem {
   @extend %list-item;
   cursor: pointer;
-  padding: 0;
   text-decoration: none;
+  flex-grow: 1;
+  line-height: 2;
   color: var(--color-gray-dark);
   background-color: var(--color-off-white);
+  padding-top: var(--lg-padding-y);
+  padding-bottom: var(--lg-padding-y);
+  padding-left: var(--lg-padding-y);
 }
 
 .chatListItemLink {
   display: flex;
   flex-grow: 1;
+  align-items: center;
   text-decoration: none;
-  padding-left: calc(var(--sm-padding-x) / 2);
-  padding-right: var(--sm-padding-x);
-  padding-top: var(--sm-padding-y);
-  padding-bottom: var(--sm-padding-y);
   width: 100%;
-
-  .chatListItem:first-child > & {
-    padding-top: calc(var(--sm-padding-y) * 1.85);
-    padding-bottom: calc(var(--sm-padding-y) * 1.85);
-  }
 }
 
 .chatIcon {
@@ -31,8 +28,8 @@
 }
 
 .chatName {
-  @extend %flex-column;
-  @extend %text-elipsis;
+  display: flex;
+  align-items: center;
   flex-grow: 1;
   justify-content: center;
 }
@@ -40,14 +37,14 @@
 .chatNameMain {
   @extend %no-margin;
   @extend %text-elipsis;
-  font-size: 0.9rem;
   font-weight: 400;
-  margin-left: var(--sm-padding-x);
-  margin-right: var(--sm-padding-x);
-  position: relative;
-  top: var(--md-padding-y);
-  padding: .5rem 0;
-  margin-top: -.5rem;
+  font-size: var(--font-size-small);
+  color: var(--color-gray-dark);
+  flex-grow: 1;
+  line-height: 2;
+  text-align: left;
+  padding-left: var(--lg-padding-y);
+  text-overflow: ellipsis;
 }
 
 .active {
