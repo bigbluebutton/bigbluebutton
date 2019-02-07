@@ -88,7 +88,6 @@ class RecordingIndicator extends React.PureComponent {
               {recording
                 ? <span aria-hidden>{humanizeSeconds(time)}</span> : <span>{buttonTitle}</span>}
             </div>
-
           </div>
         ) : null }
 

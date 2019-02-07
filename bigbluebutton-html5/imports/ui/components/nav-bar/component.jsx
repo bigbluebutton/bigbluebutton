@@ -294,7 +294,7 @@ class NavBar extends PureComponent {
         <div className={styles.center}>
           {this.renderPresentationTitle()}
           {recordProps.record
-            ? <span className={styles.presentationTitleSeparator}>|</span>
+            ? <span className={styles.presentationTitleSeparator} aria-hidden>|</span>
             : null}
           <RecordingIndicator
             {...recordProps}

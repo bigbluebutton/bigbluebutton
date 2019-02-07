@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { FormattedMessage } from 'react-intl';
+import { defineMessages, injectIntl } from 'react-intl';
 import Button from '/imports/ui/components/button/component';
 import { styles } from '../styles.scss';
 import HoldButton from './holdButton/component';
@@ -8,48 +8,30 @@ import HoldButton from './holdButton/component';
 const DELAY_MILLISECONDS = 200;
 const STEP_TIME = 100;
 
-export default class ZoomTool extends Component {
-  static renderAriaLabelsDescs() {
-    return (
-      <div hidden key="hidden-div">
-        <div id="zoomInLabel">
-          <FormattedMessage
-            id="app.presentation.presentationToolbar.zoomInLabel"
-            description="Aria label for increment zoom level"
-            defaultMessage="Increment zoom"
-          />
-        </div>
-        <div id="zoomInDesc">
-          <FormattedMessage
-            id="app.presentation.presentationToolbar.zoomInDesc"
-            description="Aria description for increment zoom level"
-            defaultMessage="Increment zoom"
-          />
-        </div>
-        <div id="zoomOutLabel">
-          <FormattedMessage
-            id="app.presentation.presentationToolbar.zoomOutLabel"
-            description="Aria label for decrement zoom level"
-            defaultMessage="Decrement zoom"
-          />
-        </div>
-        <div id="zoomOutDesc">
-          <FormattedMessage
-            id="app.presentation.presentationToolbar.zoomOutDesc"
-            description="Aria description for decrement zoom level"
-            defaultMessage="Decrement zoom"
-          />
-        </div>
-        <div id="zoomIndicator">
-          <FormattedMessage
-            id="app.presentation.presentationToolbar.zoomIndicator"
-            description="Aria label for current zoom level"
-            defaultMessage="Current zoom level"
-          />
-        </div>
-      </div>
-    );
-  }
+const intlMessages = defineMessages({
+  zoomInLabel: {
+    id: 'app.presentation.presentationToolbar.zoomInLabel',
+    description: 'Aria label for increment zoom level',
+  },
+  zoomInDesc: {
+    id: 'app.presentation.presentationToolbar.zoomInDesc',
+    description: 'Aria description for increment zoom level',
+  },
+  zoomOutLabel: {
+    id: 'app.presentation.presentationToolbar.zoomOutLabel',
+    description: 'Aria label for decrement zoom level',
+  },
+  zoomOutDesc: {
+    id: 'app.presentation.presentationToolbar.zoomOutDesc',
+    description: 'Aria description for decrement zoom level',
+  },
+  zoomIndicator: {
+    id: 'app.presentation.presentationToolbar.zoomIndicator',
+    description: 'Aria label for current zoom level',
+  },
+});
+
+class ZoomTool extends Component {
   constructor(props) {
     super(props);
     this.increment = this.increment.bind(this);
@@ -64,6 +46,7 @@ export default class ZoomTool extends Component {
       mouseHolding: false,
     };
   }
+
   componentDidUpdate() {
     const isDifferent = this.props.value !== this.state.value;
     if (isDifferent) this.onChanger(this.props.value);
@@ -100,6 +83,7 @@ export default class ZoomTool extends Component {
     const increaseZoom = this.state.value + step;
     this.onChanger(increaseZoom);
   }
+
   decrement() {
     const {
       step,
@@ -144,10 +128,10 @@ export default class ZoomTool extends Component {
       value,
       minBound,
       maxBound,
+      intl,
     } = this.props;
     return (
       [
-        ZoomTool.renderAriaLabelsDescs(),
         (
           <HoldButton
             key="zoom-tool-1"
@@ -157,10 +141,8 @@ export default class ZoomTool extends Component {
           >
             <Button
               key="zoom-tool-1"
-              aria-labelledby="zoomOutLabel"
-              aria-describedby="zoomOutDesc"
-              role="button"
-              label="-"
+              aria-label={intl.formatMessage(intlMessages.zoomOutLabel)}
+              label={intl.formatMessage(intlMessages.zoomOutLabel)}
               icon="minus"
               onClick={() => {}}
               disabled={(value <= minBound)}
@@ -172,11 +154,12 @@ export default class ZoomTool extends Component {
         (
           <span
             key="zoom-tool-2"
-            aria-labelledby="zoomIndicator"
-            aria-describedby={this.state.value}
             className={styles.zoomPercentageDisplay}
           >
-            {`${this.state.value}%`}
+            <span className={styles.visuallyhidden}>
+              {`${intl.formatMessage(intlMessages.zoomIndicator)} ${this.state.value}%`}
+            </span>
+            <span aria-hidden>{`${this.state.value}%`}</span>
           </span>
         ),
         (
@@ -188,10 +171,8 @@ export default class ZoomTool extends Component {
           >
             <Button
               key="zoom-tool-3"
-              aria-labelledby="zoomInLabel"
-              aria-describedby="zoomInDesc"
-              role="button"
-              label="+"
+              aria-label={intl.formatMessage(intlMessages.zoomInLabel)}
+              label={intl.formatMessage(intlMessages.zoomInLabel)}
               icon="plus"
               onClick={() => {}}
               disabled={(value >= maxBound)}
@@ -204,6 +185,8 @@ export default class ZoomTool extends Component {
     );
   }
 }
+
+export default injectIntl(ZoomTool);
 
 const propTypes = {
   value: PropTypes.number.isRequired,

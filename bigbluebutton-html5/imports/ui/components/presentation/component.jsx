@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
+import { defineMessages, injectIntl, intlShape } from 'react-intl';
 import { TransitionGroup, CSSTransition } from 'react-transition-group';
 import WhiteboardOverlayContainer from '/imports/ui/components/whiteboard/whiteboard-overlay/container';
 import WhiteboardToolbarContainer from '/imports/ui/components/whiteboard/whiteboard-toolbar/container';
@@ -10,11 +11,25 @@ import PresentationToolbarContainer from './presentation-toolbar/container';
 import PresentationOverlayContainer from './presentation-overlay/container';
 import Slide from './slide/component';
 import { styles } from './styles.scss';
-import MediaService from '../media/service';
+import MediaService, { shouldEnableSwapLayout } from '../media/service';
 import PresentationCloseButton from './presentation-close-button/component';
 import FullscreenButton from '../video-provider/fullscreen-button/component';
 
-export default class PresentationArea extends Component {
+const intlMessages = defineMessages({
+  presentationLabel: {
+    id: 'app.presentationUploder.title',
+    description: 'presentation area element label',
+  },
+});
+
+const isFullscreen = () => document.fullscreenElement !== null;
+
+const renderPresentationClose = () => {
+  if (!shouldEnableSwapLayout() || isFullscreen()) return null;
+  return <PresentationCloseButton toggleSwapLayout={MediaService.toggleSwapLayout} />;
+};
+
+class PresentationArea extends Component {
   constructor() {
     super();
 
@@ -64,6 +79,7 @@ export default class PresentationArea extends Component {
     const presentationSizes = {};
 
     if (refPresentationArea && refWhiteboardArea) {
+      const { userIsPresenter, multiUser } = this.props;
       // By default presentation sizes are equal to the sizes of the refPresentationArea
       // direct parent of the svg wrapper
       let { clientWidth, clientHeight } = refPresentationArea;
@@ -71,7 +87,7 @@ export default class PresentationArea extends Component {
       // if a user is a presenter - this means there is a whiteboard toolbar on the right
       // and we have to get the width/height of the refWhiteboardArea
       // (inner hidden div with absolute position)
-      if (this.props.userIsPresenter || this.props.multiUser) {
+      if (userIsPresenter || multiUser) {
         ({ clientWidth, clientHeight } = refWhiteboardArea);
       }
 
@@ -106,9 +122,10 @@ export default class PresentationArea extends Component {
   }
 
   calculateSize() {
-    const originalWidth = this.props.currentSlide.calculatedData.width;
-    const originalHeight = this.props.currentSlide.calculatedData.height;
     const { presentationHeight, presentationWidth } = this.state;
+    const { currentSlide } = this.props;
+    const originalWidth = currentSlide.calculatedData.width;
+    const originalHeight = currentSlide.calculatedData.height;
 
     let adjustedWidth;
     let adjustedHeight;
@@ -139,13 +156,14 @@ export default class PresentationArea extends Component {
     };
   }
 
-  zoomChanger(zoom) {
-    let newZoom = zoom;
-    const isDifferent = newZoom !== this.state.zoom;
+  zoomChanger(incomingZoom) {
+    const { zoom } = this.state;
+    let newZoom = incomingZoom;
+    const isDifferent = newZoom !== zoom;
 
     if (newZoom <= HUNDRED_PERCENT) {
       newZoom = HUNDRED_PERCENT;
-    } else if (zoom >= MAX_PERCENT) {
+    } else if (incomingZoom >= MAX_PERCENT) {
       newZoom = MAX_PERCENT;
     }
     if (isDifferent) this.setState({ zoom: newZoom });
@@ -167,23 +185,29 @@ export default class PresentationArea extends Component {
   }
 
   fitToWidthHandler() {
-    this.setState({
-      fitToWidth: !this.state.fitToWidth,
-    });
+    const { fitToWidth } = this.state;
+    this.setState({ fitToWidth: !fitToWidth });
+  }
+
+  isPresentationAccessible() {
+    const { currentSlide } = this.props;
+    // sometimes tomcat publishes the slide url, but the actual file is not accessible (why?)
+    return currentSlide && currentSlide.calculatedData;
   }
 
   // renders the whole presentation area
   renderPresentationArea() {
-    if (!this.isPresentationAccessible()) {
-      return null;
-    }
+    const { fitToWidth } = this.state;
+    const { podId, currentSlide } = this.props;
+    if (!this.isPresentationAccessible()) return null;
+
     // to control the size of the svg wrapper manually
     // and adjust cursor's thickness, so that svg didn't scale it automatically
     const adjustedSizes = this.calculateSize();
     // a reference to the slide object
-    const slideObj = this.props.currentSlide;
+    const slideObj = currentSlide;
 
-    const presentationCloseButton = this.renderPresentationClose();
+    const presentationCloseButton = renderPresentationClose();
     const presentationFullscreenButton = this.renderPresentationFullscreen();
 
     // retrieving the pre-calculated data from the slide object
@@ -196,7 +220,7 @@ export default class PresentationArea extends Component {
       viewBoxHeight,
       imageUri,
     } = slideObj.calculatedData;
-    const svgDimensions = this.state.fitToWidth ? {
+    const svgDimensions = fitToWidth ? {
       position: 'absolute',
       width: 'inherit',
     } : {
@@ -226,8 +250,10 @@ export default class PresentationArea extends Component {
           >
             <svg
               data-test="whiteboard"
-              width={width}
-              height={height}
+              {...{
+                width,
+                height,
+              }}
               ref={(ref) => { if (ref != null) { this.svggroup = ref; } }}
               viewBox={`${x} ${y} ${viewBoxWidth} ${viewBoxHeight}`}
               version="1.1"
@@ -246,18 +272,20 @@ export default class PresentationArea extends Component {
                   svgHeight={height}
                 />
                 <AnnotationGroupContainer
-                  width={width}
-                  height={height}
+                  {...{
+                    width,
+                    height,
+                  }}
                   whiteboardId={slideObj.id}
                 />
                 <CursorWrapperContainer
-                  podId={this.props.podId}
+                  podId={podId}
                   whiteboardId={slideObj.id}
                   widthRatio={slideObj.widthRatio}
                   physicalWidthRatio={adjustedSizes.width / width}
                   slideWidth={width}
                   slideHeight={height}
-                  radius={this.state.fitToWidth ? 2 : 5}
+                  radius={fitToWidth ? 2 : 5}
                 />
               </g>
               {this.renderOverlays(slideObj, adjustedSizes)}
@@ -269,9 +297,14 @@ export default class PresentationArea extends Component {
   }
 
   renderOverlays(slideObj, adjustedSizes) {
-    if (!this.props.userIsPresenter && !this.props.multiUser) {
-      return null;
-    }
+    const {
+      userIsPresenter, multiUser, podId, currentSlide,
+    } = this.props;
+    const {
+      delta, zoom, touchZoom, fitToWidth,
+    } = this.state;
+
+    if (!userIsPresenter && !multiUser) return null;
 
     // retrieving the pre-calculated data from the slide object
     const {
@@ -285,24 +318,31 @@ export default class PresentationArea extends Component {
 
     return (
       <PresentationOverlayContainer
-        podId={this.props.podId}
-        currentSlideNum={this.props.currentSlide.num}
-        slide={slideObj}
+        {...{
+          podId,
+          touchZoom,
+          fitToWidth,
+          zoom,
+          delta,
+          viewBoxWidth,
+          viewBoxHeight,
+          adjustedSizes,
+        }}
+        currentSlideNum={currentSlide.num}
         whiteboardId={slideObj.id}
+        slide={slideObj}
         slideWidth={width}
         slideHeight={height}
-        delta={this.state.delta}
-        viewBoxWidth={viewBoxWidth}
-        viewBoxHeight={viewBoxHeight}
-        zoom={this.state.zoom}
         zoomChanger={this.zoomChanger}
-        adjustedSizes={adjustedSizes}
         getSvgRef={this.getSvgRef}
         presentationSize={this.getPresentationSizesAvailable()}
-        touchZoom={this.state.touchZoom}
-        fitToWidth={this.state.fitToWidth}
       >
         <WhiteboardOverlayContainer
+          {...{
+            zoom,
+            viewBoxWidth,
+            viewBoxHeight,
+          }}
           getSvgRef={this.getSvgRef}
           whiteboardId={slideObj.id}
           slideWidth={width}
@@ -310,11 +350,8 @@ export default class PresentationArea extends Component {
           viewBoxX={x}
           viewBoxY={y}
           pointChanger={this.pointUpdate}
-          viewBoxWidth={viewBoxWidth}
-          viewBoxHeight={viewBoxHeight}
           physicalSlideWidth={(adjustedSizes.width / slideObj.widthRatio) * 100}
           physicalSlideHeight={(adjustedSizes.height / slideObj.heightRatio) * 100}
-          zoom={this.state.zoom}
           zoomChanger={this.zoomChanger}
           touchUpdate={this.touchUpdate}
         />
@@ -322,42 +359,34 @@ export default class PresentationArea extends Component {
     );
   }
 
-  isPresentationAccessible() {
-    // sometimes tomcat publishes the slide url, but the actual file is not accessible (why?)
-    return this.props.currentSlide && this.props.currentSlide.calculatedData;
-  };
-
-  isFullscreen() {
-    return document.fullscreenElement !== null;
-  }
-
-  renderPresentationClose() {
-    if (!MediaService.shouldEnableSwapLayout() || this.isFullscreen()) {
-      return null;
-    }
-    return <PresentationCloseButton toggleSwapLayout={MediaService.toggleSwapLayout} />;
-  };
-
   renderPresentationFullscreen() {
-    if (this.isFullscreen()) {
-      return null;
-    }
+    const { intl } = this.props;
+    if (isFullscreen()) return null;
+
     const full = () => this.refPresentationContainer.requestFullscreen();
 
-    return <FullscreenButton handleFullscreen={full} dark />;
+    return (
+      <FullscreenButton
+        handleFullscreen={full}
+        elementName={intl.formatMessage(intlMessages.presentationLabel)}
+        dark
+      />
+    );
   }
 
   renderPresentationToolbar() {
-    if (!this.props.currentSlide) {
-      return null;
-    }
+    const { zoom } = this.state;
+    const { currentSlide, podId } = this.props;
+    if (!currentSlide) return null;
 
     return (
       <PresentationToolbarContainer
-        podId={this.props.podId}
-        currentSlideNum={this.props.currentSlide.num}
-        presentationId={this.props.currentSlide.presentationId}
-        zoom={this.state.zoom}
+        {...{
+          podId,
+          zoom,
+        }}
+        currentSlideNum={currentSlide.num}
+        presentationId={currentSlide.presentationId}
         zoomChanger={this.zoomChanger}
         fitToWidthHandler={this.fitToWidthHandler}
       />
@@ -365,24 +394,27 @@ export default class PresentationArea extends Component {
   }
 
   renderWhiteboardToolbar() {
-    if (!this.isPresentationAccessible()) {
-      return null;
-    }
+    const { currentSlide } = this.props;
+    if (!this.isPresentationAccessible()) return null;
 
     const adjustedSizes = this.calculateSize();
     return (
       <WhiteboardToolbarContainer
-        whiteboardId={this.props.currentSlide.id}
+        whiteboardId={currentSlide.id}
         height={adjustedSizes.height}
       />
     );
   }
 
   render() {
+    const { showSlide } = this.state;
+    const { userIsPresenter, multiUser } = this.props;
+
     return (
       <div
         ref={(ref) => { this.refPresentationContainer = ref; }}
-        className={styles.presentationContainer}>
+        className={styles.presentationContainer}
+      >
         <div
           ref={(ref) => { this.refPresentationArea = ref; }}
           className={styles.presentationArea}
@@ -391,12 +423,8 @@ export default class PresentationArea extends Component {
             ref={(ref) => { this.refWhiteboardArea = ref; }}
             className={styles.whiteboardSizeAvailable}
           />
-          {this.state.showSlide
-            ? this.renderPresentationArea()
-            : null }
-          {this.props.userIsPresenter || this.props.multiUser
-            ? this.renderWhiteboardToolbar()
-            : null }
+          {showSlide ? this.renderPresentationArea() : null }
+          {userIsPresenter || multiUser ? this.renderWhiteboardToolbar() : null }
         </div>
         {this.renderPresentationToolbar()}
       </div>
@@ -404,7 +432,10 @@ export default class PresentationArea extends Component {
   }
 }
 
+export default injectIntl(PresentationArea);
+
 PresentationArea.propTypes = {
+  intl: intlShape.isRequired,
   podId: PropTypes.string.isRequired,
   // Defines a boolean value to detect whether a current user is a presenter
   userIsPresenter: PropTypes.bool.isRequired,

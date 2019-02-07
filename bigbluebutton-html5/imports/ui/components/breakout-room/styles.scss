@@ -23,8 +23,14 @@
 }
 
 .header {
+  position: relative;
   margin-bottom: 2rem;
-  cursor: pointer;
+  margin-right: auto;
+  padding-left: 0;
+  
+  > i  {
+    color: var(--color-gray-dark);
+  }
 }
 
 .content {
