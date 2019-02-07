@@ -1,7 +1,8 @@
 import React from 'react';
-import { defineMessages, injectIntl } from 'react-intl';
+import { defineMessages, injectIntl, intlShape } from 'react-intl';
 import Button from '/imports/ui/components/button/component';
 import cx from 'classnames';
+import PropTypes from 'prop-types';
 import { styles } from './styles';
 
 const intlMessages = defineMessages({
@@ -11,8 +12,20 @@ const intlMessages = defineMessages({
   },
 });
 
+const propTypes = {
+  intl: intlShape.isRequired,
+  handleFullscreen: PropTypes.func.isRequired,
+  dark: PropTypes.bool,
+  elementName: PropTypes.string,
+};
+
+const defaultProps = {
+  dark: false,
+  elementName: '',
+};
+
 const FullscreenButtonComponent = ({
-  intl, handleFullscreen, dark, elementName = false,
+  intl, handleFullscreen, dark, elementName,
 }) => {
   const formattedLabel = intl.formatMessage(
     intlMessages.fullscreenButton,
@@ -34,5 +47,8 @@ const FullscreenButtonComponent = ({
     </div>
   );
 };
+
+FullscreenButtonComponent.propTypes = propTypes;
+FullscreenButtonComponent.defaultProps = defaultProps;
 
 export default injectIntl(FullscreenButtonComponent);

@@ -10,7 +10,7 @@ import DropdownListTitle from '/imports/ui/components/dropdown/list/title/compon
 import DropdownListSeparator from '/imports/ui/components/dropdown/list/separator/component';
 import DropdownListItem from '/imports/ui/components/dropdown/list/item/component';
 import Icon from '/imports/ui/components/icon/component';
-import Button from '/imports/ui/components/button/component';
+import logger from '/imports/startup/client/logger';
 import VideoListItemStats from './video-list-item-stats/component';
 import FullscreenButton from '../../fullscreen-button/component';
 import { styles } from '../styles';
@@ -36,7 +36,8 @@ class VideoListItem extends Component {
   }
 
   componentDidMount() {
-    this.props.onMount(this.videoTag);
+    const { onMount } = this.props;
+    onMount(this.videoTag);
   }
 
   componentDidUpdate() {
@@ -45,7 +46,12 @@ class VideoListItem extends Component {
         const p = elem.play();
         if (p && (typeof Promise !== 'undefined') && (p instanceof Promise)) {
           // Catch exception when playing video
-          p.catch((e) => {});
+          p.catch((e) => {
+            logger.error(
+              { logCode: 'videolistitem_component_play_error' },
+              `Error playing video: ${JSON.stringify(e)}`,
+            );
+          });
         }
       }
     };
@@ -58,20 +64,10 @@ class VideoListItem extends Component {
     }
   }
 
-  toggleStats() {
-    const { getStats, stopGettingStats } = this.props;
-    if (this.state.showStats) {
-      stopGettingStats();
-    } else {
-      getStats(this.videoTag, this.setStats);
-    }
-
-    this.setState({ showStats: !this.state.showStats });
-  }
-
   setStats(updatedStats) {
+    const { stats } = this.state;
     const { audio, video } = updatedStats;
-    this.setState({ stats: { ...this.state.stats, video, audio } });
+    this.setState({ stats: { ...stats, video, audio } });
   }
 
   getAvailableActions() {
@@ -96,6 +92,17 @@ class VideoListItem extends Component {
         )
         : null),
     ]);
+  }
+
+  toggleStats() {
+    const { getStats, stopGettingStats } = this.props;
+    const { showStats } = this.state;
+    if (showStats) {
+      stopGettingStats();
+    } else {
+      getStats(this.videoTag, this.setStats);
+    }
+    this.setState({ showStats: !showStats });
   }
 
   renderFullscreenButton() {
