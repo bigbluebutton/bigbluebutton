@@ -1,6 +1,6 @@
 import Auth from '/imports/ui/services/auth';
 import Users from '/imports/api/users';
-import _ from 'lodash/fp';
+import fp from 'lodash/fp';
 import { makeCall } from '/imports/ui/services/api';
 import Meetings from '/imports/api/meetings';
 import Breakouts from '/imports/api/breakouts';
@@ -14,17 +14,24 @@ const getBreakoutUser = user => Users.find({
   connectionStatus: 'online',
 }).fetch();
 
-const verifyUserThatJoinedOnBreakout = userArray => userArray.length === 1;
+const currentBreakoutUsers = userArray => userArray.length === 1;
 
-const filterUsersNotAssigned = filter => users => users.filter(filter);
+const filterBreakoutUsers = filter => users => users.filter(filter);
+
+const filterUsersNotAssigned = filterBreakoutUsers(currentBreakoutUsers);
 
 const mapUsersToNotAssined = mapFunction => users => users.map(mapFunction);
 
 const flatUsersArray = usersArray => usersArray.flat();
 
-const getUsersNotAssigned = _.pipe(
+/*
+  The concept of pipe is simple
+  it combines n functions. It’s a pipe flowing left-to-right,
+  calling each function with the output of the last one.
+*/
+const getUsersNotAssigned = fp.pipe(
   mapUsersToNotAssined(getBreakoutUser),
-  filterUsersNotAssigned(verifyUserThatJoinedOnBreakout),
+  filterUsersNotAssigned,
   flatUsersArray,
 );
 

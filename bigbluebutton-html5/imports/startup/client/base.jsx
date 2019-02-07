@@ -160,6 +160,7 @@ const BaseContainer = withTracker(() => {
   const { credentials, loggedIn } = Auth;
   const { meetingId, requesterUserId } = credentials;
   let breakoutRoomSubscriptionHandler;
+  let userSubscriptionHandler;
 
   const subscriptionErrorHandler = {
     onError: (error) => {
@@ -208,6 +209,8 @@ const BaseContainer = withTracker(() => {
 
   if (User) {
     const mappedUser = mapUser(User);
+    // override meteor subscription to verify if is moderator
+    userSubscriptionHandler = Meteor.subscribe('users', credentials, mappedUser.isModerator, subscriptionErrorHandler);
     breakoutRoomSubscriptionHandler = Meteor.subscribe('breakouts', credentials, mappedUser.isModerator, subscriptionErrorHandler);
   }
 
@@ -234,6 +237,7 @@ const BaseContainer = withTracker(() => {
     subscriptionsReady,
     annotationsHandler,
     groupChatMessageHandler,
+    userSubscriptionHandler,
     breakoutRoomSubscriptionHandler,
     animations,
     meetingExist: true,
