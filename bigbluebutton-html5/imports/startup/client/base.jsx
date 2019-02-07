@@ -178,11 +178,8 @@ const BaseContainer = withTracker(() => {
   const subscriptionsHandlers = SUBSCRIPTIONS_NAME
     .map(name => Meteor.subscribe(name, credentials, subscriptionErrorHandler));
 
-  let subscriptionsReady = subscriptionsHandlers.every(handler => handler.ready());
-
-  if (!loggedIn) {
-    subscriptionsReady = false;
-  }
+  const subscriptionsReady = subscriptionsHandlers.every(handler => handler.ready())
+    && loggedIn;
 
   const chats = GroupChat.find({
     $or: [
