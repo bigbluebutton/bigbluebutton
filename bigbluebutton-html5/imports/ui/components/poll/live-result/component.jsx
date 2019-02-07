@@ -131,12 +131,12 @@ class LiveResult extends Component {
           )
         }
         <div className={styles.container}>
-          <div className={styles.usersHeading}>
+          <h3 className={styles.usersHeading}>
             {intl.formatMessage(intlMessages.usersTitle)}
-          </div>
-          <div className={styles.responseHeading}>
+          </h3>
+          <h3 className={styles.responseHeading}>
             {intl.formatMessage(intlMessages.responsesTitle)}
-          </div>
+          </h3>
           {userAnswers}
         </div>
       </div>
