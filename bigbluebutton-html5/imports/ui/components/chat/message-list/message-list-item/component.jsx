@@ -51,6 +51,7 @@ export default class MessageListItem extends Component {
         (e) => { scrollArea.addEventListener(e, this.handleMessageInViewport, false); },
       );
     }
+    this.handleMessageInViewport();
   }
 
   componentWillReceiveProps(nextProps) {
@@ -78,7 +79,6 @@ export default class MessageListItem extends Component {
     if (prevState.preventRender && !preventRender && pendingChanges) {
       this.setPendingChanges(false);
     }
-    this.handleMessageInViewport();
   }
 
   componentWillUnmount() {
@@ -98,7 +98,7 @@ export default class MessageListItem extends Component {
   handleMessageInViewport() {
     window.requestAnimationFrame(() => {
       const node = this.item;
-      this.setState({ preventRender: !isElementInViewport(node) });
+      if (node) this.setState({ preventRender: !isElementInViewport(node) });
     });
   }
 
