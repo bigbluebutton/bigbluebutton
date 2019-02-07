@@ -54,7 +54,9 @@ function users(credentials) {
     $or: [
       { meetingId },
       {
-        isBreakoutUser: true,
+        'breakoutProps.isBreakoutUser': true,
+        'breakoutProps.parentId': meetingId,
+        connectionStatus: 'online',
       },
     ],
   };
