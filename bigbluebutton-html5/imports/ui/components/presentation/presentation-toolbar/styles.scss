@@ -130,4 +130,12 @@
   display: flex;
   align-items: center;
   justify-content: center;
+  border-top: 0 !important;
+  border-bottom: 0 !important;
+  border-top-right-radius: 0 !important;
+  border-bottom-right-radius: 0 !important;
+
+  &:hover{
+    opacity: .8;
+  }
 }
