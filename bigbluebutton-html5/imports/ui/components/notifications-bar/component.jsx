@@ -9,7 +9,6 @@ const COLORS = [
 ];
 
 const propTypes = {
-  children: PropTypes.string.isRequired,
   color: PropTypes.oneOf(COLORS),
 };
 
@@ -18,14 +17,14 @@ const defaultProps = {
 };
 
 const NotificationsBar = (props) => {
-  const { color } = props;
+  const { color, children } = props;
 
   return (
     <div
       role="alert"
       className={cx(styles.notificationsBar, styles[color])}
     >
-      {props.children}
+      {children}
     </div>
   );
 };

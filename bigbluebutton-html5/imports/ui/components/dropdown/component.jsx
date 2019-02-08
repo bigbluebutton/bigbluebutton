@@ -77,25 +77,34 @@ class Dropdown extends Component {
     const {
       onShow,
       onHide,
+      keepOpen,
     } = this.props;
-    
+
     const { isOpen } = this.state;
 
     if (isOpen && !prevState.isOpen) { onShow(); }
 
     if (!isOpen && prevState.isOpen) { onHide(); }
+
+    if (prevProps.keepOpen && !keepOpen) onHide();
   }
 
   handleShow() {
+    const {
+      onShow,
+    } = this.props;
     this.setState({ isOpen: true }, () => {
       const { addEventListener } = window;
+      onShow();
       addEventListener('click', this.handleWindowClick, true);
     });
   }
 
   handleHide() {
+    const { onHide } = this.props;
     this.setState({ isOpen: false }, () => {
       const { removeEventListener } = window;
+      onHide();
       removeEventListener('click', this.handleWindowClick, true);
     });
   }

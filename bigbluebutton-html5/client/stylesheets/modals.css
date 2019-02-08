@@ -9,7 +9,7 @@
 
 .ReactModal__Overlay--after-open {
   opacity: 1;
-  transition: opacity 150ms ease-out;
+  transition: opacity calc(var(--enableAnimation) * 150ms) ease-out;
 }
 
 .ReactModal__Content {
@@ -21,7 +21,7 @@
 .ReactModal__Content--after-open {
   -webkit-transform: scale(1) rotateX(0deg);
   transform: scale(1) rotateX(0deg);
-  transition: all 150ms ease-in;
+  transition: all calc(var(--enableAnimation) * 150ms) ease-in;
 }
 
 .ReactModal__Overlay--before-close {
@@ -31,7 +31,7 @@
 .ReactModal__Content--before-close {
   -webkit-transform: scale(0.5) rotateX(30deg);
   transform: scale(0.5) rotateX(30deg);
-  transition: all 150ms ease-in;
+  transition: all calc(var(--enableAnimation) * 150ms) ease-in;
 }
 
 .ReactModal__Content.modal-dialog {

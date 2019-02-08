@@ -15,11 +15,23 @@ const intlMessages = defineMessages({
   },
   zoomInLabel: {
     id: 'app.presentation.presentationToolbar.zoomInLabel',
-    description: 'Label for increment zoom level',
+    description: 'Aria label for increment zoom level',
+  },
+  zoomInDesc: {
+    id: 'app.presentation.presentationToolbar.zoomInDesc',
+    description: 'Aria description for increment zoom level',
   },
   zoomOutLabel: {
     id: 'app.presentation.presentationToolbar.zoomOutLabel',
     description: 'Aria label for decrement zoom level',
+  },
+  zoomOutDesc: {
+    id: 'app.presentation.presentationToolbar.zoomOutDesc',
+    description: 'Aria description for decrement zoom level',
+  },
+  zoomIndicator: {
+    id: 'app.presentation.presentationToolbar.zoomIndicator',
+    description: 'Aria label for current zoom level',
   },
 });
 
@@ -185,7 +197,6 @@ class ZoomTool extends Component {
     const { stateZoomValue } = this.state;
     return (
       [
-        ZoomTool.renderAriaLabelsDescs(),
         (
           <HoldButton
             key="zoom-tool-1"
@@ -197,6 +208,7 @@ class ZoomTool extends Component {
               key="zoom-tool-1"
               aria-labelledby="zoomOutLabel"
               aria-describedby="zoomOutDesc"
+              aria-label={intl.formatMessage(intlMessages.zoomOutLabel)}
               label={intl.formatMessage(intlMessages.zoomOutLabel)}
               icon="minus"
               onClick={() => { }}
@@ -231,6 +243,7 @@ class ZoomTool extends Component {
               key="zoom-tool-3"
               aria-labelledby="zoomInLabel"
               aria-describedby="zoomInDesc"
+              aria-label={intl.formatMessage(intlMessages.zoomInLabel)}
               label={intl.formatMessage(intlMessages.zoomInLabel)}
               icon="plus"
               onClick={() => { }}
