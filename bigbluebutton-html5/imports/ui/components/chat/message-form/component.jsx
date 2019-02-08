@@ -5,7 +5,6 @@ import TextareaAutosize from 'react-autosize-textarea';
 import browser from 'browser-detect';
 import { styles } from './styles';
 import Button from '../../button/component';
-import ChatService from '../service';
 
 const propTypes = {
 };
@@ -52,12 +51,9 @@ class MessageForm extends PureComponent {
   }
 
   componentDidMount() {
-    const { chatId } = this.props;
     const { mobile } = this.BROWSER_RESULTS;
-    const { UnsentMessagesCollection } = ChatService;
 
-    const unsentMessageByChat = UnsentMessagesCollection.findOne({ chatId });
-    this.setMessageState(unsentMessageByChat ? unsentMessageByChat.message : '');
+    this.setMessageState();
 
     if (!mobile) {
       this.textarea.focus();
@@ -68,25 +64,36 @@ class MessageForm extends PureComponent {
     const { chatId } = this.props;
     const { message } = this.state;
     const { mobile } = this.BROWSER_RESULTS;
-    const { UnsentMessagesCollection } = ChatService;
 
     if (prevProps.chatId !== chatId && !mobile) {
       this.textarea.focus();
     }
 
     if (prevProps.chatId !== chatId) {
-      UnsentMessagesCollection.upsert(
-        { chatId: prevProps.chatId },
-        { $set: { message } },
-      );
-
-      const unsentMessageByChat = UnsentMessagesCollection.findOne({ chatId });
-      this.setMessageState(unsentMessageByChat ? unsentMessageByChat.message : '');
+      this.updateUnsentMessagesCollection(prevProps.chatId, message);
+      this.setMessageState();
     }
   }
 
-  setMessageState(message) {
-    this.setState({ message });
+  componentWillUnmount() {
+    const { chatId } = this.props;
+    const { message } = this.state;
+    this.updateUnsentMessagesCollection(chatId, message);
+    this.setMessageState();
+  }
+
+  setMessageState() {
+    const { chatId, UnsentMessagesCollection } = this.props;
+    const unsentMessageByChat = UnsentMessagesCollection.findOne({ chatId });
+    this.setState({ message: unsentMessageByChat ? unsentMessageByChat.message : '' });
+  }
+
+  updateUnsentMessagesCollection(chatId, message) {
+    const { UnsentMessagesCollection } = this.props;
+    UnsentMessagesCollection.upsert(
+      { chatId },
+      { $set: { message } },
+    );
   }
 
   handleMessageKeyDown(e) {

@@ -39,6 +39,7 @@ const Chat = (props) => {
     actions,
     intl,
     shortcuts,
+    UnsentMessagesCollection,
   } = props;
 
   const HIDE_CHAT_AK = shortcuts.hidePrivateChat;
@@ -99,6 +100,7 @@ const Chat = (props) => {
         partnerIsLoggedOut={partnerIsLoggedOut}
       />
       <MessageForm
+        UnsentMessagesCollection={UnsentMessagesCollection}
         chatId={chatID}
         disabled={isChatLocked}
         chatAreaId={ELEMENT_ID}
