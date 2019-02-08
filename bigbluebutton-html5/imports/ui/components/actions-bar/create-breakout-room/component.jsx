@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
-import { defineMessages, injectIntl } from 'react-intl';
+import PropTypes from 'prop-types';
+import { defineMessages, injectIntl, intlShape } from 'react-intl';
 import _ from 'lodash';
 import cx from 'classnames';
 import browser from 'browser-detect';
@@ -9,8 +10,7 @@ import Modal from '/imports/ui/components/modal/fullscreen/component';
 import { withModalMounter } from '/imports/ui/components/modal/service';
 import HoldButton from '/imports/ui/components/presentation/presentation-toolbar/zoom-tool/holdButton/component';
 import SortList from './sort-user-list/component';
-import { styles } from './styles';
-import Icon from '../../icon/component';
+import styles from './styles';
 
 const intlMessages = defineMessages({
   breakoutRoomTitle: {
@@ -85,9 +85,30 @@ const intlMessages = defineMessages({
     id: 'app.invitation.confirm',
     description: 'Invitation to breakout confirm button label',
   },
+  minusRoomTime: {
+    id: 'app.createBreakoutRoom.minusRoomTime',
+    description: 'aria label for btn to decrease room time',
+  },
+  addRoomTime: {
+    id: 'app.createBreakoutRoom.addRoomTime',
+    description: 'aria label for btn to increase room time',
+  },
 });
+
 const MIN_BREAKOUT_ROOMS = 2;
 const MAX_BREAKOUT_ROOMS = 8;
+
+const propTypes = {
+  intl: intlShape.isRequired,
+  isInvitation: PropTypes.bool.isRequired,
+  meetingName: PropTypes.string.isRequired,
+  users: PropTypes.arrayOf(PropTypes.object).isRequired,
+  createBreakoutRoom: PropTypes.func.isRequired,
+  getUsersNotAssigned: PropTypes.func.isRequired,
+  getBreakouts: PropTypes.func.isRequired,
+  sendInvitation: PropTypes.func.isRequired,
+  mountModal: PropTypes.func.isRequired,
+};
 
 class BreakoutRoom extends Component {
   constructor(props) {
@@ -201,7 +222,10 @@ class BreakoutRoom extends Component {
     const { numberOfRooms } = this.state;
     return this.getUserByRoom(0)
       .filter(user => !user.isModerator)
-      .forEach(user => this.changeUserRoom(user.userId, Math.floor(Math.random() * (numberOfRooms) + 1)));
+      .forEach(user => this.changeUserRoom(
+        user.userId,
+        Math.floor(Math.random() * (numberOfRooms) + 1),
+      ));
   }
 
   setInvitationConfig() {
@@ -300,10 +324,8 @@ class BreakoutRoom extends Component {
 
     return (
       <div className={styles.boxContainer} key="rooms-grid-">
-        <label htmlFor="BreakoutRoom" className={!valid ? styles.changeToWarn : null}>
-          <p
-            className={styles.freeJoinLabel}
-          >
+        <div className={!valid ? styles.changeToWarn : null}>
+          <p className={styles.freeJoinLabel}>
             {intl.formatMessage(intlMessages.notAssigned, { 0: this.getUserByRoom(0).length })}
           </p>
           <div className={styles.breakoutBox} onDrop={drop(0)} onDragOver={allowDrop}>
@@ -312,20 +334,17 @@ class BreakoutRoom extends Component {
           <span className={valid ? styles.dontShow : styles.leastOneWarn}>
             {intl.formatMessage(intlMessages.leastOneWarnBreakout)}
           </span>
-        </label>
+        </div>
         {
           _.range(1, numberOfRooms + 1).map(value => (
-            <label htmlFor="BreakoutRoom" key={`room-${value}`}>
-              <p
-                id="BreakoutRoom"
-                className={styles.freeJoinLabel}
-              >
+            <div key={`room-${value}`}>
+              <p className={styles.freeJoinLabel}>
                 {intl.formatMessage(intlMessages.roomLabel, { 0: (value) })}
               </p>
               <div className={styles.breakoutBox} onDrop={drop(value)} onDragOver={allowDrop}>
                 {this.renderUserItemByRoom(value)}
               </div>
-            </label>
+            </div>
           ))
         }
       </div>
@@ -345,22 +364,27 @@ class BreakoutRoom extends Component {
 
     return (
       <div className={styles.breakoutSettings} key={this.breakoutFormId}>
-        <label htmlFor="numberOfRooms">
-          <p className={styles.labelText}>{intl.formatMessage(intlMessages.numberOfRooms)}</p>
+        <div>
+          <p className={styles.labelText} aria-hidden>
+            {intl.formatMessage(intlMessages.numberOfRooms)}
+          </p>
           <select
             id="numberOfRooms"
             name="numberOfRooms"
             className={styles.inputRooms}
             value={numberOfRooms}
             onChange={this.changeNumberOfRooms}
+            aria-label={intl.formatMessage(intlMessages.numberOfRooms)}
           >
             {
               _.range(MIN_BREAKOUT_ROOMS, MAX_BREAKOUT_ROOMS + 1).map(item => (<option key={_.uniqueId('value-')}>{item}</option>))
             }
           </select>
-        </label>
+        </div>
         <label htmlFor="breakoutRoomTime">
-          <p className={styles.labelText}>{intl.formatMessage(intlMessages.duration)}</p>
+          <p className={styles.labelText} aria-hidden>
+            {intl.formatMessage(intlMessages.duration)}
+          </p>
           <div className={styles.durationArea}>
             <input
               type="number"
@@ -368,39 +392,47 @@ class BreakoutRoom extends Component {
               min={MIN_BREAKOUT_ROOMS}
               value={durationTime}
               onChange={this.changeDurationTime}
+              aria-label={intl.formatMessage(intlMessages.duration)}
             />
-            <span>
-              <HoldButton
-                key="decrease-breakout-time"
-                exec={this.decreaseDurationTime}
-                minBound={MIN_BREAKOUT_ROOMS}
-                value={durationTime}
-              >
-                <Icon
-                  className={styles.iconsColor}
-                  iconName="substract"
-                />
-              </HoldButton>
-              <HoldButton
-                key="increase-breakout-time"
-                exec={this.increaseDurationTime}
-              >
-                <Icon
-                  className={styles.iconsColor}
-                  iconName="add"
-                />
-              </HoldButton>
-
-            </span>
+            <HoldButton
+              key="decrease-breakout-time"
+              exec={this.decreaseDurationTime}
+              minBound={MIN_BREAKOUT_ROOMS}
+              value={durationTime}
+              className={styles.btnStyle}
+            >
+              <Button
+                label={intl.formatMessage(intlMessages.minusRoomTime)}
+                icon="substract"
+                onClick={() => {}}
+                hideLabel
+                circle
+                size="sm"
+              />
+            </HoldButton>
+            <HoldButton
+              key="increase-breakout-time"
+              exec={this.increaseDurationTime}
+              className={styles.btnStyle}
+            >
+              <Button
+                label={intl.formatMessage(intlMessages.addRoomTime)}
+                icon="add"
+                onClick={() => {}}
+                hideLabel
+                circle
+                size="sm"
+              />
+            </HoldButton>
           </div>
         </label>
-        <span
-          className={styles.randomText}
-          role="button"
+        <Button
+          label={intl.formatMessage(intlMessages.randomlyAssign)}
+          className={styles.randomlyAssignBtn}
           onClick={this.onAssignRandomly}
-        >
-          {intl.formatMessage(intlMessages.randomlyAssign)}
-        </span>
+          size="sm"
+          color="default"
+        />
       </div>
     );
   }
@@ -432,8 +464,9 @@ class BreakoutRoom extends Component {
           className={styles.freeJoinCheckbox}
           onChange={this.setFreeJoin}
           checked={freeJoin}
+          aria-label={intl.formatMessage(intlMessages.freeJoinLabel)}
         />
-        {intl.formatMessage(intlMessages.freeJoinLabel)}
+        <span aria-hidden>{intl.formatMessage(intlMessages.freeJoinLabel)}</span>
       </label>
     );
   }
@@ -588,5 +621,7 @@ class BreakoutRoom extends Component {
     );
   }
 }
+
+BreakoutRoom.propTypes = propTypes;
 
 export default withModalMounter(injectIntl(BreakoutRoom));

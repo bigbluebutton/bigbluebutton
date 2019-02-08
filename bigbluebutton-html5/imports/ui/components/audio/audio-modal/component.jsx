@@ -265,13 +265,14 @@ class AudioModal extends Component {
       forceListenOnlyAttendee,
       skipCheck,
       audioLocked,
+      isMobileNative,
     } = this.props;
 
     const showMicrophone = forceListenOnlyAttendee || audioLocked;
 
     return (
       <span className={styles.audioOptions}>
-        {!showMicrophone
+        {!showMicrophone && !isMobileNative
           ? (
             <Button
               className={styles.audioBtn}

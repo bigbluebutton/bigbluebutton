@@ -244,7 +244,7 @@ class PresentationToolbar extends Component {
             ? (
               <span className={styles.zoomWrapper}>
                 <ZoomTool
-                  value={zoom}
+                  zoomValue={zoom}
                   change={this.change}
                   minBound={HUNDRED_PERCENT}
                   maxBound={MAX_PERCENT}

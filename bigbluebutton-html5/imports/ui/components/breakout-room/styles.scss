@@ -23,8 +23,14 @@
 }
 
 .header {
+  position: relative;
   margin-bottom: 2rem;
-  cursor: pointer;
+  margin-right: auto;
+  padding-left: 0;
+  
+  > i  {
+    color: var(--color-gray-dark);
+  }
 }
 
 .content {
@@ -81,7 +87,7 @@
     overflow: hidden;
     display: inline-block;
     vertical-align: bottom;
-    animation: ellipsis steps(4,end) 900ms infinite;
+    animation: ellipsis steps(4,end) calc(var(--enableAnimation) * 900ms) infinite;
     content: "\2026"; /* ascii code for the ellipsis character */
     width: 0;
     margin-right: 1.25em;

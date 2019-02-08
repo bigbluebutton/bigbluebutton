@@ -43,13 +43,6 @@ export default class MessageListItem extends Component {
     this.handleMessageInViewport = _.debounce(this.handleMessageInViewport.bind(this), 50);
   }
 
-  handleMessageInViewport() {
-    window.requestAnimationFrame(() => {
-      const node = this.item;
-      this.setState({ preventRender: !isElementInViewport(node) });
-    });
-  }
-
   componentDidMount() {
     const { scrollArea } = this.props;
 
@@ -58,8 +51,34 @@ export default class MessageListItem extends Component {
         (e) => { scrollArea.addEventListener(e, this.handleMessageInViewport, false); },
       );
     }
-
     this.handleMessageInViewport();
+  }
+
+  componentWillReceiveProps(nextProps) {
+    const { messages, user } = this.props;
+    const { pendingChanges } = this.state;
+    if (pendingChanges) return;
+
+    const hasNewMessage = messages.length !== nextProps.messages.length;
+    const hasUserChanged = !_.isEqual(user, nextProps.user);
+
+    this.setState({ pendingChanges: hasNewMessage || hasUserChanged });
+  }
+
+  shouldComponentUpdate(nextProps, nextState) {
+    const { scrollArea } = this.props;
+    if (!scrollArea && nextProps.scrollArea) return true;
+    return !nextState.preventRender && nextState.pendingChanges;
+  }
+
+  componentDidUpdate(prevProps, prevState) {
+    const {
+      preventRender,
+      pendingChanges,
+    } = this.state;
+    if (prevState.preventRender && !preventRender && pendingChanges) {
+      this.setPendingChanges(false);
+    }
   }
 
   componentWillUnmount() {
@@ -72,43 +91,36 @@ export default class MessageListItem extends Component {
     }
   }
 
-  componentDidUpdate(prevProps, prevState) {
-    if (prevState.preventRender && !this.state.preventRender && this.state.pendingChanges) {
-      this.setState({ pendingChanges: false });
-    }
+  setPendingChanges(pendingChanges) {
+    this.setState({ pendingChanges });
   }
 
-  componentWillReceiveProps(nextProps) {
-    if (this.state.pendingChanges) return;
-
-    const hasNewMessage = this.props.messages.length !== nextProps.messages.length;
-    const hasUserChanged = !_.isEqual(this.props.user, nextProps.user);
-
-    this.setState({ pendingChanges: hasNewMessage || hasUserChanged });
-  }
-
-  shouldComponentUpdate(nextProps, nextState) {
-    if (!this.props.scrollArea && nextProps.scrollArea) return true;
-    return !nextState.preventRender && nextState.pendingChanges;
+  handleMessageInViewport() {
+    window.requestAnimationFrame(() => {
+      const node = this.item;
+      if (node) this.setState({ preventRender: !isElementInViewport(node) });
+    });
   }
 
   renderSystemMessage() {
     const {
       messages,
+      chatAreaId,
+      handleReadMessage,
     } = this.props;
 
     return (
       <div className={cx(styles.item, styles.systemMessage)}>
         <div className={styles.content} ref={(ref) => { this.item = ref; }}>
           <div className={styles.messages}>
-            {messages.map((message, i) => (
+            {messages.map(message => (
               <Message
                 className={styles.message}
-                key={i}
+                key={_.uniqueId('id-')}
                 text={message.text}
                 time={message.time}
-                chatAreaId={this.props.chatAreaId}
-                handleReadMessage={this.props.handleReadMessage}
+                chatAreaId={chatAreaId}
+                handleReadMessage={handleReadMessage}
               />
             ))}
           </div>
@@ -122,6 +134,10 @@ export default class MessageListItem extends Component {
       user,
       messages,
       time,
+      chatAreaId,
+      lastReadMessageTime,
+      handleReadMessage,
+      scrollArea,
     } = this.props;
 
     const dateTime = new Date(time);
@@ -159,10 +175,10 @@ export default class MessageListItem extends Component {
                   key={message.id}
                   text={message.text}
                   time={message.time}
-                  chatAreaId={this.props.chatAreaId}
-                  lastReadMessageTime={this.props.lastReadMessageTime}
-                  handleReadMessage={this.props.handleReadMessage}
-                  scrollArea={this.props.scrollArea}
+                  chatAreaId={chatAreaId}
+                  lastReadMessageTime={lastReadMessageTime}
+                  handleReadMessage={handleReadMessage}
+                  scrollArea={scrollArea}
                 />
               ))}
             </div>

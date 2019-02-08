@@ -22,11 +22,11 @@
   flex-grow: 0;
   flex-shrink: 0;
   border: var(--border-size) solid var(--color-gray-lighter);
-  background: #fff;
+  background-color: #fff;
   border-radius: var(--border-radius) 0 0 var(--border-radius);
   color: var(--color-gray-light);
   padding: var(--sm-padding-y) var(--sm-padding-x);
-  transition: background .3s;
+  transition: all calc(var(--enableAnimation) * .3s);
   cursor: pointer;
 
   --bg-faded: rgba(167,179,189,0.25);

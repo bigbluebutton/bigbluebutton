@@ -28,12 +28,14 @@ const propTypes = {
   locale: PropTypes.string,
   approved: PropTypes.bool,
   meetingEnded: PropTypes.bool,
+  meetingExist: PropTypes.bool,
 };
 
 const defaultProps = {
   locale: undefined,
   approved: undefined,
   meetingEnded: false,
+  meetingExist: false,
 };
 
 class Base extends Component {
@@ -48,13 +50,15 @@ class Base extends Component {
     this.updateLoadingState = this.updateLoadingState.bind(this);
   }
 
-  componentDidUpdate(prevProps) {
+  componentDidUpdate(prevProps, prevState) {
     const {
       ejected,
       approved,
       meetingExist,
+      animations,
+      meteorIsConnected,
     } = this.props;
-    const { loading } = this.state;
+    const { loading, meetingExisted } = this.state;
 
     if (!prevProps.meetingExist && meetingExist) {
       Session.set('isMeetingEnded', false);
@@ -73,6 +77,17 @@ class Base extends Component {
     if (prevProps.ejected || ejected) {
       Session.set('codeError', '403');
       Session.set('isMeetingEnded', true);
+    }
+
+    // In case the meteor restart avoid error log
+    if (meteorIsConnected && (prevState.meetingExisted !== meetingExisted)) {
+      this.setMeetingExisted(false);
+    }
+
+    if (animations && animations !== prevProps.animations) {
+      document.documentElement.style.setProperty('--enableAnimation', 1);
+    } else if (!animations && animations !== prevProps.animations) {
+      document.documentElement.style.setProperty('--enableAnimation', 0);
     }
   }
 
@@ -98,14 +113,13 @@ class Base extends Component {
       meetingExist,
     } = this.props;
 
-
     if (meetingExisted && !meetingExist) {
       AudioManager.exitAudio();
       return (<MeetingEnded code={Session.get('codeError')} />);
     }
 
     if (codeError) {
-      logger.error(`User could not log in HTML5, hit ${codeError}`);
+      logger.error({ logCode: 'startup_client_usercouldnotlogin_error' }, `User could not log in HTML5, hit ${codeError}`);
       return (<ErrorScreen code={codeError} />);
     }
 
@@ -115,7 +129,7 @@ class Base extends Component {
     // this.props.annotationsHandler.stop();
 
     if (subscriptionsReady) {
-      logger.info('Subscriptions are ready');
+      logger.info({ logCode: 'startup_client_subscriptions_ready' }, 'Subscriptions are ready');
     }
 
     return (<AppContainer {...this.props} baseControls={stateControls} />);
@@ -149,14 +163,14 @@ const SUBSCRIPTIONS_NAME = [
 ];
 
 const BaseContainer = withTracker(() => {
-  const { locale } = Settings.application;
+  const { locale, animations } = Settings.application;
   const { credentials, loggedIn } = Auth;
   const { meetingId, requesterUserId } = credentials;
   let breakoutRoomSubscriptionHandler;
 
   const subscriptionErrorHandler = {
     onError: (error) => {
-      logger.error(error);
+      logger.error({ logCode: 'startup_client_subscription_error' }, error);
       Session.set('isMeetingEnded', true);
       Session.set('codeError', error.error);
     },
@@ -165,23 +179,8 @@ const BaseContainer = withTracker(() => {
   const subscriptionsHandlers = SUBSCRIPTIONS_NAME
     .map(name => Meteor.subscribe(name, credentials, subscriptionErrorHandler));
 
-  const subscriptionsReady = subscriptionsHandlers.every(handler => handler.ready());
-
-  const meeting = Meetings.findOne({ meetingId });
-
-  if (!meeting) {
-    return {
-      meetingExist: false,
-      subscriptionsReady,
-    };
-  }
-
-  if (!loggedIn) {
-    return {
-      locale,
-      subscriptionsReady: false,
-    };
-  }
+  const subscriptionsReady = subscriptionsHandlers.every(handler => handler.ready())
+    && loggedIn;
 
   const chats = GroupChat.find({
     $or: [
@@ -228,8 +227,10 @@ const BaseContainer = withTracker(() => {
     annotationsHandler,
     groupChatMessageHandler,
     breakoutRoomSubscriptionHandler,
-    meetingExist: true,
+    animations,
+    meetingExist: !!Meetings.findOne({ meetingId }),
     User,
+    meteorIsConnected: Meteor.status().connected,
   };
 })(Base);
 

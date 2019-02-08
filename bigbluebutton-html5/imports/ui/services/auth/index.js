@@ -218,7 +218,7 @@ class Auth {
 
         // Skip in case the user is not in the collection yet or is a dummy user
         if (!User || !('intId' in User)) {
-          logger.info('re-send validateAuthToken for delayed authentication');
+          logger.info({ logCode: 'auth_service_resend_validateauthtoken' }, 're-send validateAuthToken for delayed authentication');
           makeCall('validateAuthToken');
           return;
         }
