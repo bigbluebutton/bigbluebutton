@@ -1930,15 +1930,15 @@ if [ -n "$HOST" ]; then
                         /usr/share/bbb-apps-akka/conf/application.conf
         fi
 
-	#
-	# Update api demos
-	#
+        #
+        # Update api demos
+        #
+        if [ -f /var/lib/tomcat7/webapps/demo/bbb_api_conf.jsp ]; then
+                echo "Assigning $HOST for api demos in /var/lib/tomcat7/webapps/demo/bbb_api_conf.jsp"
+                $SUDO sed -i "s/BigBlueButtonURL = \"http[s]*:\/\/\([^\"\/]*\)\([\"\/]\)/BigBlueButtonURL = \"$PROTOCOL_HTTP:\/\/$HOST\2/g" \
+                        /var/lib/tomcat7/webapps/demo/bbb_api_conf.jsp
+        fi
 
-	if [ -f ${SERVLET_DIR}/demo/bbb_api_conf.jsp ]; then
-		echo "Assigning $HOST for api demos in ${SERVLET_DIR}/demo/bbb_api_conf.jsp"
-		$SUDO sed -i "s/BigBlueButtonURL = \"http[s]*:\/\/\([^\"\/]*\)\([\"\/]\)/BigBlueButtonURL = \"$PROTOCOL_HTTP:\/\/$HOST\2/g" \
-			${SERVLET_DIR}/demo/bbb_api_conf.jsp
-	fi
 	
 
 	if [ -f ${SERVLET_DIR}/lti/WEB-INF/classes/lti-config.properties ]; then
