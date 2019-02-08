@@ -6,5 +6,5 @@ ConditionPathExistsGlob=/var/bigbluebutton/recording/status/processed/*.done
 Type=simple
 ExecStart=/usr/local/bigbluebutton/core/scripts/rap-publish-worker.rb
 WorkingDirectory=/usr/local/bigbluebutton/core/scripts
-User=tomcat7
+User=bigbluebutton
 Slice=bbb_record_core.slice
