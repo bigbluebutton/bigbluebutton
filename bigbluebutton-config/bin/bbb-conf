@@ -58,7 +58,7 @@
 #   2017-04-08 FFD  Cleanup for 1.1-beta
 #   2018-11-22 MNE  Dynamically detect if sudo is needed
 #   2018-12-09 GTR  More logs cleanup
-#   2019-12-09 GTR  Updated for 2.2
+#   2019-02-08 GTR  Updates for 2.2 after extracting bbb-web to a standalone server application
 
 #set -x
 #set -e
@@ -93,6 +93,9 @@ RED5=red5
 
 SERVLET_CONTAINER=tomcat7
 
+TOMCAT_DIR=/var/lib/$SERVLET_CONTAINER
+LTI_DIR=$TOMCAT_DIR/webapps/lti
+
 if dpkg -l | grep bbb-web | grep -q 2.2; then
   SERVLET_DIR=/usr/share/bbb-web
 else
@@ -107,20 +110,20 @@ FREESWITCH_EVENT_SOCKET=/opt/freeswitch/conf/autoload_configs/event_socket.conf.
 HTML5_CONFIG=/usr/share/meteor/bundle/programs/server/assets/app/config/settings-production.json
 HTML5_CONFIG_NEW=/usr/share/meteor/bundle/programs/server/assets/app/config/settings.yml
 
+BBB_USER=bigbluebutton
+
 if [ -f /etc/redhat-release ]; then
   DISTRIB_ID=centos
   SERVLET_LOGS=/usr/share/tomcat/logs
   FREESWITCH=freeswitch
   FREESWITCH_INIT_D="/etc/init.d/freeswitch"
-  TOMCAT_USER=tomcat
   TOMCAT_SERVICE=tomcat
   REDIS_SERVICE=redis.service
 else
   . /etc/lsb-release    # Get value for DISTRIB_ID
-  SERVLET_LOGS=/var/lib/tomcat7/logs
+  SERVLET_LOGS=$TOMCAT_DIR/logs
   FREESWITCH=freeswitch
   FREESWITCH_INIT_D="/etc/init.d/freeswitch"
-  TOMCAT_USER=tomcat7
   TOMCAT_SERVICE=tomcat7
   REDIS_SERVICE=redis-server
 
@@ -539,7 +542,7 @@ start_bigbluebutton () {
 
 display_bigbluebutton_status () {
     if command -v systemctl >/dev/null; then
-        units="red5 $TOMCAT_SERVICE nginx freeswitch $REDIS_SERVICE bbb-apps-akka bbb-transcode-akka bbb-fsesl-akka"
+        units="red5 $TOMCAT_SERVICE bbb-web nginx freeswitch $REDIS_SERVICE bbb-apps-akka bbb-transcode-akka bbb-fsesl-akka"
 
         if [ -f /usr/lib/systemd/system/bbb-html5.service ]; then
             units="$units mongod bbb-html5 bbb-webrtc-sfu kurento-media-server"
@@ -730,10 +733,10 @@ while [ $# -gt 0 ]; do
 
 	if [ "$1" = "--lti" -o "$1" = "-lti" ]; then
 		if [ -z "$SECRET" ]; then
-			if [ -f ${SERVLET_DIR}/lti/WEB-INF/classes/lti-config.properties ]; then
-				LTI_URL='http://'$(cat ${SERVLET_DIR}/lti/WEB-INF/classes/lti-config.properties | grep -v '#' | sed -n '/^ltiEndPoint/{s/^.*=//;p}')'/lti/tool'
-				CUSTOMER=$(cat ${SERVLET_DIR}/lti/WEB-INF/classes/lti-config.properties | grep -v '#' | sed -n '/^ltiConsumer/{s/^.*=//;s/:.*//p}')
-				SECRET=$(cat ${SERVLET_DIR}/lti/WEB-INF/classes/lti-config.properties | grep -v '#' | sed -n '/^ltiConsumer/{s/^[^:]*://;p}')
+			if [ -f ${LTI_DIR}/WEB-INF/classes/lti-config.properties ]; then
+				LTI_URL='http://'$(cat ${LTI_DIR}/WEB-INF/classes/lti-config.properties | grep -v '#' | sed -n '/^ltiEndPoint/{s/^.*=//;p}')'/lti/tool'
+				CUSTOMER=$(cat ${LTI_DIR}/WEB-INF/classes/lti-config.properties | grep -v '#' | sed -n '/^ltiConsumer/{s/^.*=//;s/:.*//p}')
+				SECRET=$(cat ${LTI_DIR}/WEB-INF/classes/lti-config.properties | grep -v '#' | sed -n '/^ltiConsumer/{s/^[^:]*://;p}')
 				echo
 				echo "       URL: $LTI_URL"
 				echo "  Customer: $CUSTOMER"
@@ -947,12 +950,12 @@ check_configuration() {
 			echo 
 		fi
 
-		API_IP=$(cat ${SERVLET_DIR}/demo/bbb_api_conf.jsp | grep -v '^//' | sed -n '/String BigBlueButtonURL/{s/.*http[s]*:\/\///;s/\/.*//;p}' | tr -d '\015')
+		API_IP=$(cat ${TOMCAT_DIR}/demo/bbb_api_conf.jsp | grep -v '^//' | sed -n '/String BigBlueButtonURL/{s/.*http[s]*:\/\///;s/\/.*//;p}' | tr -d '\015')
 		if [ "$IP" != "$API_IP" ]; then
 			echo "# Warning: API URL IPs do not match host:"
 			echo "#"
 			echo "#                                IP from ifconfig: $IP"
-			echo "#  ${SERVLET_DIR}/demo/bbb_api_conf.jsp: $API_IP"
+			echo "#  ${TOMCAT_DIR}/demo/bbb_api_conf.jsp: $API_IP"
 			echo
 		fi
 	fi
@@ -989,13 +992,13 @@ check_configuration() {
         fi
 
 
-	if [ -f ${SERVLET_DIR}/lti/WEB-INF/classes/lti-config.properties ]; then
-                LTI_SECRET=$(cat ${SERVLET_DIR}/lti/WEB-INF/classes/lti-config.properties | grep -v '#' | tr -d '\r' | sed -n '/^bigbluebuttonSalt/{s/.*=//;p}')
+	if [ -f ${LTI_DIR}/WEB-INF/classes/lti-config.properties ]; then
+                LTI_SECRET=$(cat ${LTI_DIR}/WEB-INF/classes/lti-config.properties | grep -v '#' | tr -d '\r' | sed -n '/^bigbluebuttonSalt/{s/.*=//;p}')
                 BBB_SECRET=$(cat ${SERVLET_DIR}/WEB-INF/classes/bigbluebutton.properties | grep -v '#' | tr -d '\r' | sed -n '/securitySalt/{s/.*=//;p}')
 
 		if [ "$LTI_SECRET" != "$BBB_SECRET" ]; then
 			echo "# Warning: LTI shared secret mismatch:"
-			echo "#  ${SERVLET_DIR}/lti/WEB-INF/classes/lti-config.properties                      = $LTI_SECRET"
+			echo "#  ${LTI_DIR}/WEB-INF/classes/lti-config.properties                      = $LTI_SECRET"
 			echo "#  ${SERVLET_DIR}/WEB-INF/classes/bigbluebutton.properties  = $BBB_SECRET"
 			echo 
 		fi
@@ -1057,10 +1060,10 @@ check_configuration() {
                 echo "# is not owned by freeswitch"
         fi
 
-        if [ "$(ls -ld /var/bigbluebutton | cut -d' ' -f3)" != $TOMCAT_USER ]; then
+        if [ "$(ls -ld /var/bigbluebutton | cut -d' ' -f3)" != $BBB_USER ]; then
                 echo "# Warning: Detected the directory"
                 echo "#    /var/bigbluebutton"
-                echo "# is not owned by $TOMCAT_USER"
+                echo "# is not owned by $BBB_USER"
         fi
 
         if [ $PROTOCOL_HTTP == "https" ]; then
@@ -1441,8 +1444,8 @@ check_state() {
                 fi
         fi
 
-	if [ -d ${SERVLET_DIR}/lti ]; then
-		if test ${SERVLET_DIR}/lti.war -nt ${SERVLET_DIR}/lti; then 
+	if [ -d ${LTI_DIR} ]; then
+		if test ${TOMCAT_DIR}/webapps/lti.war -nt ${LTI_DIR}; then 
 			echo "# Error: The updated lti.war did not deploy.  To manually deploy:"
 			echo "#"
                         echo "#   $SUDO touch ${SERVLET_DIR}/lti.war"
@@ -1451,8 +1454,8 @@ check_state() {
 		fi
 	fi
 
-	if [ -d ${SERVLET_DIR}/demo ]; then
-		if test ${SERVLET_DIR}/demo.war -nt ${SERVLET_DIR}/demo; then 
+	if [ -d ${TOMCAT_DIR}/webapps/demo ]; then
+		if test ${TOMCAT_DIR}/webapps/demo.war -nt ${TOMCAT_DIR}/webapps/demo; then 
 			echo "# Error: The updated demo.war did not deploy.  To manually deploy:"
 			echo "#"
                         echo "#   $SUDO touch ${SERVLET_DIR}/demo.war"
@@ -1467,7 +1470,7 @@ check_state() {
                 echo
 	fi
 
-	if [ -f /var/lib/tomcat7/webapps/demo/demo1.jsp ]; then
+	if [ -f ${TOMCAT_DIR}/webapps/demo/demo1.jsp ]; then
                 BBB_WEB_URL=$(cat $SERVLET_DIR/WEB-INF/classes/bigbluebutton.properties | grep -v '#' | sed -n '/^bigbluebutton.web.serverURL/{s/.*=//;p}')
 		echo "# Warning: The API demos are installed and accessible from:"
 		echo "#"
@@ -1492,8 +1495,8 @@ check_state() {
 
 	fi
 
-	if [ -f ${SERVLET_DIR}/lti/WEB-INF/classes/lti-config.properties ]; then
-		LTI_URL='http://'$(cat ${SERVLET_DIR}/lti/WEB-INF/classes/lti-config.properties | grep -v '#' | sed -n '/^ltiEndPoint/{s/^.*=//;p}')'/lti/tool'
+	if [ -f ${LTI_DIR}/WEB-INF/classes/lti-config.properties ]; then
+		LTI_URL='http://'$(cat ${LTI_DIR}/WEB-INF/classes/lti-config.properties | grep -v '#' | sed -n '/^ltiEndPoint/{s/^.*=//;p}')'/lti/tool'
 		echo "# Warning: The IMS Learning Tools Integration (LTI) is accessible from:"
 		echo "#"
 		echo "#    $LTI_URL"
@@ -1670,10 +1673,10 @@ if [ $CHECK ]; then
 		echo "                               url: $BBB_WEB_URL"
 	fi
 
-#	if [ -f ${SERVLET_DIR}/lti/WEB-INF/classes/lti-config.properties ]; then
-#		LTI_URL=$(cat ${SERVLET_DIR}/lti/WEB-INF/classes/lti-config.properties | grep -v '#' | sed -n '/^bigbluebuttonURL/{s/.*http[s]:\/\///;s/\/.*//;p}' | tr -d '\015')
+#	if [ -f ${LTI_DIR}/WEB-INF/classes/lti-config.properties ]; then
+#		LTI_URL=$(cat ${LTI_DIR}/WEB-INF/classes/lti-config.properties | grep -v '#' | sed -n '/^bigbluebuttonURL/{s/.*http[s]:\/\///;s/\/.*//;p}' | tr -d '\015')
 #		echo
-#		echo "${SERVLET_DIR}/lti/WEB-INF/classes/lti-config.properties (LTI integration)"
+#		echo "${LTI_DIR}/WEB-INF/classes/lti-config.properties (LTI integration)"
 #		echo "                           api url: $LTI_URL"
 #	fi
 
@@ -1933,23 +1936,23 @@ if [ -n "$HOST" ]; then
         #
         # Update api demos
         #
-        if [ -f /var/lib/tomcat7/webapps/demo/bbb_api_conf.jsp ]; then
-                echo "Assigning $HOST for api demos in /var/lib/tomcat7/webapps/demo/bbb_api_conf.jsp"
+        if [ -f ${TOMCAT_DIR}/webapps/demo/bbb_api_conf.jsp ]; then
+                echo "Assigning $HOST for api demos in ${TOMCAT_DIR}/webapps/demo/bbb_api_conf.jsp"
                 $SUDO sed -i "s/BigBlueButtonURL = \"http[s]*:\/\/\([^\"\/]*\)\([\"\/]\)/BigBlueButtonURL = \"$PROTOCOL_HTTP:\/\/$HOST\2/g" \
-                        /var/lib/tomcat7/webapps/demo/bbb_api_conf.jsp
+                        ${TOMCAT_DIR}/webapps/demo/bbb_api_conf.jsp
         fi
 
 	
 
-	if [ -f ${SERVLET_DIR}/lti/WEB-INF/classes/lti-config.properties ]; then
-		echo "Assigning $HOST for LTI integration in ${SERVLET_DIR}/lti/WEB-INF/classes/lti-config.properties"
+	if [ -f ${LTI_DIR}/WEB-INF/classes/lti-config.properties ]; then
+		echo "Assigning $HOST for LTI integration in ${LTI_DIR}/WEB-INF/classes/lti-config.properties"
 		# We don't wat to guess on http/https as the lti endpoint may be a different BigBlueButton server
         	sed -i "s/bigbluebuttonURL=http:\/\/.*/bigbluebuttonURL=http:\/\/$HOST\/bigbluebutton/g" \
-                	${SERVLET_DIR}/lti/WEB-INF/classes/lti-config.properties
+                	${LTI_DIR}/WEB-INF/classes/lti-config.properties
         	sed -i "s/bigbluebuttonURL=https:\/\/.*/bigbluebuttonURL=https:\/\/$HOST\/bigbluebutton/g" \
-                	${SERVLET_DIR}/lti/WEB-INF/classes/lti-config.properties
+                	${LTI_DIR}/WEB-INF/classes/lti-config.properties
         	sed -i "s/ltiEndPoint=.*/ltiEndPoint=$HOST/g" \
-                	${SERVLET_DIR}/lti/WEB-INF/classes/lti-config.properties
+                	${LTI_DIR}/WEB-INF/classes/lti-config.properties
 	fi
 
 
