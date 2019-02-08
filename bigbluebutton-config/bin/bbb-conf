@@ -122,7 +122,7 @@ else
   FREESWITCH_INIT_D="/etc/init.d/freeswitch"
   TOMCAT_USER=tomcat7
   TOMCAT_SERVICE=tomcat7
-  REDIS_SERVICE=redis-server.service
+  REDIS_SERVICE=redis-server
 
   FREESWITCH_VARS=/opt/freeswitch/etc/freeswitch/vars.xml
   FREESWITCH_EXTERNAL=/opt/freeswitch/etc/freeswitch/sip_profiles/external.xml
@@ -330,8 +330,11 @@ stop_bigbluebutton () {
        if [ -f /usr/share/etherpad-lite/settings.json ]; then
           ETHERPAD=etherpad
        fi
+       if [ -f /lib/systemd/system/bbb-web.service ]; then
+          BBB_WEB=bbb-web
+       fi
 
-       systemctl stop red5 $TOMCAT_SERVICE nginx freeswitch $REDIS_SERVICE bbb-apps-akka $BBB_TRANSCODE_AKKA bbb-fsesl-akka bbb-rap-archive-worker.service bbb-rap-process-worker.service bbb-rap-publish-worker.service bbb-rap-sanity-worker.service bbb-record-core.timer $HTML5 $WEBHOOKS $ETHERPAD
+       systemctl stop red5 $TOMCAT_SERVICE nginx freeswitch $REDIS_SERVICE bbb-apps-akka $BBB_TRANSCODE_AKKA bbb-fsesl-akka bbb-rap-archive-worker.service bbb-rap-process-worker.service bbb-rap-publish-worker.service bbb-rap-sanity-worker.service bbb-record-core.timer $HTML5 $WEBHOOKS $ETHERPAD $BBB_WEB
     else
 	/etc/init.d/monit stop
 
@@ -404,8 +407,11 @@ start_bigbluebutton () {
        if [ -f /usr/share/etherpad-lite/settings.json ]; then
           ETHERPAD=etherpad
        fi
+       if [ -f /lib/systemd/system/bbb-web.service ]; then
+          BBB_WEB=bbb-web
+       fi
 
-       systemctl start red5 $TOMCAT_SERVICE nginx freeswitch $REDIS_SERVICE bbb-apps-akka $BBB_TRANSCODE_AKKA bbb-fsesl-akka bbb-record-core.timer $HTML5 $WEBHOOKS $ETHERPAD
+       systemctl start red5 $TOMCAT_SERVICE nginx freeswitch $REDIS_SERVICE bbb-apps-akka $BBB_TRANSCODE_AKKA bbb-fsesl-akka bbb-record-core.timer $HTML5 $WEBHOOKS $ETHERPAD $BBB_WEB
        if [ -f /usr/lib/systemd/system/bbb-html5.service ]; then
           systemctl start mongod
 	  sleep 3
@@ -537,6 +543,10 @@ display_bigbluebutton_status () {
 
         if [ -f /usr/lib/systemd/system/bbb-html5.service ]; then
             units="$units mongod bbb-html5 bbb-webrtc-sfu kurento-media-server"
+        fi
+
+        if [ -f /lib/systemd/system/bbb-web.service ]; then
+            units="$units bbb-web"
         fi
 
         line='——————————————————————►'
@@ -1457,8 +1467,8 @@ check_state() {
                 echo
 	fi
 
-	if [ -f ${SERVLET_DIR}/demo/demo1.jsp ]; then
-                BBB_WEB_URL=$(cat ${SERVLET_DIR}/WEB-INF/classes/bigbluebutton.properties | grep -v '#' | sed -n '/^bigbluebutton.web.serverURL/{s/.*=//;p}')
+	if [ -f /var/lib/tomcat7/webapps/demo/demo1.jsp ]; then
+                BBB_WEB_URL=$(cat $SERVLET_DIR/WEB-INF/classes/bigbluebutton.properties | grep -v '#' | sed -n '/^bigbluebutton.web.serverURL/{s/.*=//;p}')
 		echo "# Warning: The API demos are installed and accessible from:"
 		echo "#"
 		echo "#    $BBB_WEB_URL/demo/demo1.jsp"
