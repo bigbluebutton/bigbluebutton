@@ -10,7 +10,7 @@ const getBreakouts = () => Breakouts.find({ parentMeetingId: Auth.meetingID })
   .sort((a, b) => a.sequence - b.sequence);
 
 const getBreakoutUser = user => Users.find({
-  extId: new RegExp(user.userId),
+  extId: new RegExp(`^${user.userId}`),
   connectionStatus: 'online',
 }).fetch();
 
