@@ -66,6 +66,7 @@ class Tooltip extends Component {
       distance: enableAnimation ? 10 : 20,
       arrow: true,
       arrowType: 'sharp',
+      aria: null,
       animation: enableAnimation ? DEFAULT_ANIMATION : ANIMATION_NONE,
     };
     this.tooltip = Tippy(`#${this.tippySelectorId}`, options);
