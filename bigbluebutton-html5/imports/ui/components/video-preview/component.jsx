@@ -107,7 +107,7 @@ class VideoPreview extends Component {
     const errorMessage = intlMessages[error.name]
       || intlMessages.permissionError;
     notify(intl.formatMessage(errorMessage), 'error', 'video');
-    logger.error(error);
+    logger.error({ logCode: 'videopreview_component_gum_error' }, error);
   }
 
   handleSelectWebcam(event) {

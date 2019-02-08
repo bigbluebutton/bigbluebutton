@@ -53,7 +53,7 @@ begin
   unless callback_url.nil?
     BigBlueButton.logger.info("Making callback for recording ready notification")
 
-    props = JavaProperties::Properties.new("/var/lib/tomcat7/webapps/bigbluebutton/WEB-INF/classes/bigbluebutton.properties")
+    props = JavaProperties::Properties.new("/usr/share/bbb-web/WEB-INF/classes/bigbluebutton.properties")
     secret = props[:securitySalt]
     external_meeting_id = meeting_metadata["meetingId"].value
 

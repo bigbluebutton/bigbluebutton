@@ -76,12 +76,9 @@
 
   margin: 0;
   width: 40%;
-
   display: block;
-
   position: absolute;
   bottom:   20px;
-
   color: var(--color-white) !important;
   background-color: var(--color-link) !important;
 }
@@ -97,12 +94,9 @@
 
   margin-left: 50%;
   width: 40%;
-
   display: block;
-
   position: absolute;
   bottom:   20px;
-
   color: var(--color-white) !important;
   background-color: red !important;
 }
@@ -127,21 +121,15 @@
   input {
     display: block;
     margin: 10px 0 10px 0;
-
     padding: 0.4em;
-
     background-color: #F1F8FF;
-
     line-height: 2rem;
-
     width: 100%;
-
     font-family: inherit;
     font-weight: inherit;
     border: none;
-
     border-radius: 0.4rem;
-    transition: box-shadow var(--transitionDuration);
+    transition: box-shadow calc(var(--enableAnimation) * .2s);
   }
 
   input:focus {
@@ -157,6 +145,6 @@
 .urlError {
   color: red;
   padding: 1em;
-  transition: 1s;
+  transition: calc(var(--enableAnimation) * 1s);
 }
 

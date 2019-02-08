@@ -1,8 +1,17 @@
 import React from 'react';
+import { defineMessages, injectIntl, intlShape } from 'react-intl';
+import PropTypes from 'prop-types';
 import FullscreenButton from '../video-provider/fullscreen-button/component';
 import { styles } from './styles';
 
-export default class ScreenshareComponent extends React.Component {
+const intlMessages = defineMessages({
+  screenShareLabel: {
+    id: 'app.screenshare.screenShareLabel',
+    description: 'screen share area element label',
+  },
+});
+
+class ScreenshareComponent extends React.Component {
   constructor() {
     super();
     this.state = {
@@ -13,18 +22,21 @@ export default class ScreenshareComponent extends React.Component {
   }
 
   componentDidMount() {
-    this.props.presenterScreenshareHasStarted();
+    const { presenterScreenshareHasStarted } = this.props;
+    presenterScreenshareHasStarted();
   }
 
   componentWillReceiveProps(nextProps) {
-    if (this.props.isPresenter && !nextProps.isPresenter) {
-      this.props.unshareScreen();
+    const { isPresenter, unshareScreen } = this.props;
+    if (isPresenter && !nextProps.isPresenter) {
+      unshareScreen();
     }
   }
 
   componentWillUnmount() {
-    this.props.presenterScreenshareHasEnded();
-    this.props.unshareScreen();
+    const { presenterScreenshareHasEnded, unshareScreen } = this.props;
+    presenterScreenshareHasEnded();
+    unshareScreen();
   }
 
   onVideoLoad() {
@@ -32,24 +44,29 @@ export default class ScreenshareComponent extends React.Component {
   }
 
   renderFullscreenButton() {
+    const { intl } = this.props;
     const full = () => {
-      if (!this.videoTag) {
-        return;
-      }
-
+      if (!this.videoTag) return;
       this.videoTag.requestFullscreen();
     };
-    return <FullscreenButton handleFullscreen={full} />;
+
+    return (
+      <FullscreenButton
+        handleFullscreen={full}
+        elementName={intl.formatMessage(intlMessages.screenShareLabel)}
+      />
+    );
   }
 
   render() {
+    const { loaded } = this.state;
     const style = {
       right: 0,
       bottom: 0,
     };
 
     return (
-      [!this.state.loaded ? (<div key="screenshareArea" innerStyle={style} className={styles.connecting} />) : null,
+      [!loaded ? (<div key="screenshareArea" innerStyle={style} className={styles.connecting} />) : null,
         this.renderFullscreenButton(),
         (
           <video
@@ -65,3 +82,13 @@ export default class ScreenshareComponent extends React.Component {
     );
   }
 }
+
+export default injectIntl(ScreenshareComponent);
+
+ScreenshareComponent.propTypes = {
+  intl: intlShape.isRequired,
+  isPresenter: PropTypes.bool.isRequired,
+  unshareScreen: PropTypes.func.isRequired,
+  presenterScreenshareHasEnded: PropTypes.func.isRequired,
+  presenterScreenshareHasStarted: PropTypes.func.isRequired,
+};

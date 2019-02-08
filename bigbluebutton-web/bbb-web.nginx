@@ -1,4 +1,4 @@
-	# Handle request to bbb-web running within Tomcat.  This is for BBB-API and Presentation.
+	# Handle request to bbb-web running within a SpringBoot Tomcat embedded servlet container.  This is for BBB-API and Presentation.
 	location /bigbluebutton {
 		proxy_http_version 1.1;
 

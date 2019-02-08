@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import { Meteor } from 'meteor/meteor';
 import cx from 'classnames';
 import { defineMessages, injectIntl } from 'react-intl';
 import Dropdown from '/imports/ui/components/dropdown/component';
@@ -9,7 +10,7 @@ import DropdownListTitle from '/imports/ui/components/dropdown/list/title/compon
 import DropdownListSeparator from '/imports/ui/components/dropdown/list/separator/component';
 import DropdownListItem from '/imports/ui/components/dropdown/list/item/component';
 import Icon from '/imports/ui/components/icon/component';
-import Button from '/imports/ui/components/button/component';
+import logger from '/imports/startup/client/logger';
 import VideoListItemStats from './video-list-item-stats/component';
 import FullscreenButton from '../../fullscreen-button/component';
 import { styles } from '../styles';
@@ -35,7 +36,8 @@ class VideoListItem extends Component {
   }
 
   componentDidMount() {
-    this.props.onMount(this.videoTag);
+    const { onMount } = this.props;
+    onMount(this.videoTag);
   }
 
   componentDidUpdate() {
@@ -44,7 +46,12 @@ class VideoListItem extends Component {
         const p = elem.play();
         if (p && (typeof Promise !== 'undefined') && (p instanceof Promise)) {
           // Catch exception when playing video
-          p.catch((e) => {});
+          p.catch((e) => {
+            logger.error(
+              { logCode: 'videolistitem_component_play_error' },
+              `Error playing video: ${JSON.stringify(e)}`,
+            );
+          });
         }
       }
     };
@@ -57,20 +64,10 @@ class VideoListItem extends Component {
     }
   }
 
-  toggleStats() {
-    const { getStats, stopGettingStats } = this.props;
-    if (this.state.showStats) {
-      stopGettingStats();
-    } else {
-      getStats(this.videoTag, this.setStats);
-    }
-
-    this.setState({ showStats: !this.state.showStats });
-  }
-
   setStats(updatedStats) {
+    const { stats } = this.state;
     const { audio, video } = updatedStats;
-    this.setState({ stats: { ...this.state.stats, video, audio } });
+    this.setState({ stats: { ...stats, video, audio } });
   }
 
   getAvailableActions() {
@@ -97,18 +94,30 @@ class VideoListItem extends Component {
     ]);
   }
 
+  toggleStats() {
+    const { getStats, stopGettingStats } = this.props;
+    const { showStats } = this.state;
+    if (showStats) {
+      stopGettingStats();
+    } else {
+      getStats(this.videoTag, this.setStats);
+    }
+    this.setState({ showStats: !showStats });
+  }
+
   renderFullscreenButton() {
+    const { user } = this.props;
     const full = () => {
       this.videoTag.requestFullscreen();
     };
-    return <FullscreenButton handleFullscreen={full} />;
+    return <FullscreenButton handleFullscreen={full} elementName={user.name} />;
   }
 
   render() {
     const { showStats, stats } = this.state;
     const { user } = this.props;
-
     const availableActions = this.getAvailableActions();
+    const enableVideoMenu = Meteor.settings.public.kurento.enableVideoMenu || false;
 
     return (
       <div className={cx({
@@ -125,20 +134,29 @@ class VideoListItem extends Component {
           playsInline
         />
         <div className={styles.info}>
-          <Dropdown className={styles.dropdown}>
-            <DropdownTrigger className={styles.dropdownTrigger}>
-              <span>{user.name}</span>
-            </DropdownTrigger>
-            <DropdownContent placement="top left" className={styles.dropdownContent}>
-              <DropdownList className={styles.dropdownList}>
-                {availableActions}
-              </DropdownList>
-            </DropdownContent>
-          </Dropdown>
-          { user.isMuted ? <Icon className={styles.muted} iconName="unmute_filled" /> : null }
-          { user.isListenOnly ? <Icon className={styles.voice} iconName="listen" /> : null }
+          {enableVideoMenu && availableActions.length >= 3
+            ? (
+              <Dropdown className={styles.dropdown}>
+                <DropdownTrigger className={styles.dropdownTrigger}>
+                  <span>{user.name}</span>
+                </DropdownTrigger>
+                <DropdownContent placement="top left" className={styles.dropdownContent}>
+                  <DropdownList className={styles.dropdownList}>
+                    {availableActions}
+                  </DropdownList>
+                </DropdownContent>
+              </Dropdown>
+            )
+            : (
+              <div className={styles.dropdown}>
+                <span className={styles.userName}>{user.name}</span>
+              </div>
+            )
+          }
+          {user.isMuted ? <Icon className={styles.muted} iconName="unmute_filled" /> : null}
+          {user.isListenOnly ? <Icon className={styles.voice} iconName="listen" /> : null}
         </div>
-        { showStats ? <VideoListItemStats toggleStats={this.toggleStats} stats={stats} /> : null }
+        {showStats ? <VideoListItemStats toggleStats={this.toggleStats} stats={stats} /> : null}
         { this.renderFullscreenButton() }
       </div>
     );

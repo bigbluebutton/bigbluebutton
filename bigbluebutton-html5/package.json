@@ -67,7 +67,7 @@
     "reconnecting-websocket": "~v4.1.10",
     "redis": "~2.8.0",
     "string-hash": "~1.1.3",
-    "tippy.js": "^3.1.3",
+    "tippy.js": "^3.4.1",
     "winston": "^3.1.0",
     "yaml": "^1.0.3"
   },

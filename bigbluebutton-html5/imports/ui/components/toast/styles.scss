@@ -162,7 +162,7 @@
   border: none;
   cursor: pointer;
   opacity: .5;
-  transition: .3s ease;
+  transition: calc(var(--enableAnimation) * .3s) ease;
   font-size: .35rem;
   color: var(--color-gray-dark);
   padding: .4rem;

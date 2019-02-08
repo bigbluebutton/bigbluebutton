@@ -7,6 +7,7 @@ import handleMeetingLocksChange from './handlers/meetingLockChange';
 import handleUserLockChange from './handlers/userLockChange';
 import handleRecordingStatusChange from './handlers/recordingStatusChange';
 import handleRecordingTimerChange from './handlers/recordingTimerChange';
+import handleTimeRemainingUpdate from './handlers/timeRemainingUpdate';
 import handleChangeWebcamOnlyModerator from './handlers/webcamOnlyModerator';
 
 RedisPubSub.on('MeetingCreatedEvtMsg', handleMeetingCreation);
@@ -19,3 +20,4 @@ RedisPubSub.on('RecordingStatusChangedEvtMsg', handleRecordingStatusChange);
 RedisPubSub.on('UpdateRecordingTimerEvtMsg', handleRecordingTimerChange);
 RedisPubSub.on('WebcamsOnlyForModeratorChangedEvtMsg', handleChangeWebcamOnlyModerator);
 RedisPubSub.on('GetLockSettingsRespMsg', handleMeetingLocksChange);
+RedisPubSub.on('MeetingTimeRemainingUpdateEvtMsg', handleTimeRemainingUpdate);

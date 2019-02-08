@@ -224,7 +224,7 @@ class PresentationUploader extends Component {
       .catch((error) => {
         notify(this.props.intl.formatMessage(intlMessages.genericError), 'error');
 
-        logger.error(error);
+        logger.error({ logCode: 'presentationuploader_component_save_error' }, error);
 
         this.setState({
           disableActions: false,

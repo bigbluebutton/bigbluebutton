@@ -1,0 +1,17 @@
+<#ftl output_format="XML" auto_esc=true>
+<#compress>
+<response>
+  <#-- Where code is 'FAILED' String -->
+    <returncode>${returnCode}</returncode>
+    <#list errorsList>
+    <errors>
+      <#items as error>
+        <error>
+          <key>${error[0]}</key>
+          <message>${error[1]}</message>
+        </error>
+      </#items>
+    </errors>
+    </#list>
+</response>
+</#compress>

@@ -10,10 +10,10 @@ module.exports = class MessageMapping {
     this.meetingEvents = ["MeetingCreatedEvtMsg","MeetingDestroyedEvtMsg", "ScreenshareRtmpBroadcastStartedEvtMsg", "ScreenshareRtmpBroadcastStoppedEvtMsg", "SetCurrentPresentationEvtMsg", "RecordingStatusChangedEvtMsg"];
     this.userEvents = ["UserJoinedMeetingEvtMsg","UserLeftMeetingEvtMsg","UserJoinedVoiceConfToClientEvtMsg","UserLeftVoiceConfToClientEvtMsg","PresenterAssignedEvtMsg", "PresenterUnassignedEvtMsg", "UserBroadcastCamStartedEvtMsg", "UserBroadcastCamStoppedEvtMsg", "UserEmojiChangedEvtMsg"];
     this.chatEvents = ["SendPublicMessageEvtMsg","SendPrivateMessageEvtMsg"];
-    this.rapEvents = ["archive_started","archive_ended","sanity_started","sanity_ended","post_archive_started","post_archive_ended","process_started","process_ended","post_process_started","post_process_ended","publish_started","publish_ended","post_publish_started","post_publish_ended"];
-
+    this.rapEvents = ["PublishedRecordingSysMsg","UnpublishedRecordingSysMsg","DeletedRecordingSysMsg"];
     this.compMeetingEvents = ["meeting_created_message","meeting_destroyed_event"];
     this.compUserEvents = ["user_joined_message","user_left_message","user_listening_only","user_joined_voice_message","user_left_voice_message","user_shared_webcam_message","user_unshared_webcam_message","user_status_changed_message"];
+    this.compRapEvents = ["archive_started","archive_ended","sanity_started","sanity_ended","post_archive_started","post_archive_ended","process_started","process_ended","post_process_started","post_process_ended","publish_started","publish_ended","post_publish_started","post_publish_ended","published","unpublished","deleted"];
   }
 
   // Map internal message based on it's type
@@ -30,6 +30,8 @@ module.exports = class MessageMapping {
       this.compMeetingTemplate(messageObj);
     } else if (this.mappedEvent(messageObj,this.compUserEvents)) {
       this.compUserTemplate(messageObj);
+    } else if (this.mappedEvent(messageObj,this.compRapEvents)) {
+      this.compRapTemplate(messageObj);
     }
   }
 
@@ -256,6 +258,25 @@ module.exports = class MessageMapping {
   }
 
   rapTemplate(messageObj) {
+    const data = messageObj.core.body;
+    this.mappedObject.data = {
+      "type": "event",
+      "id": this.mapInternalMessage(messageObj),
+      "attributes": {
+        "meeting": {
+          "internal-meeting-id": data.recordId,
+          "external-meeting-id": IDMapping.getExternalMeetingID(data.recordId)
+        }
+      },
+      "event": {
+        "ts": Date.now()
+      }
+    };
+    this.mappedMessage = JSON.stringify(this.mappedObject);
+    Logger.info("[MessageMapping] Mapped message:", this.mappedMessage);
+  }
+
+  compRapTemplate(messageObj) {
     const data = messageObj.payload;
     this.mappedObject.data = {
       "type": "event",
@@ -264,15 +285,23 @@ module.exports = class MessageMapping {
         "meeting": {
           "internal-meeting-id": data.meeting_id,
           "external-meeting-id": data.external_meeting_id || IDMapping.getExternalMeetingID(data.meeting_id)
-        },
-        "record-id": data.record_id,
-        "success": data.success,
-        "step-time": data.step_time
+        }
       },
       "event": {
         "ts": messageObj.header.current_time
       }
     };
+
+    if (this.mappedObject.data.id === "published" ||
+        this.mappedObject.data.id === "unpublished" ||
+        this.mappedObject.data.id === "deleted") {
+      this.mappedObject.data.attributes["record-id"] = data.meeting_id;
+      this.mappedObject.data.attributes["format"] = data.format;
+    } else {
+      this.mappedObject.data.attributes["record-id"] = data.record_id;
+      this.mappedObject.data.attributes["success"] = data.success;
+      this.mappedObject.data.attributes["step-time"] = data.step_time;
+    }
 
     if (data.workflow) {
       this.mappedObject.data.attributes.workflow = data.workflow;
@@ -334,6 +363,12 @@ module.exports = class MessageMapping {
       case "post_process_ended": return "rap-post-process-ended";
       case "publish_started": return "rap-publish-started";
       case "publish_ended": return "rap-publish-ended";
+      case "published": return "rap-published";
+      case "unpublished": return "rap-unpublished";
+      case "deleted": return "rap-deleted";
+      case "PublishedRecordingSysMsg": return "rap-published";
+      case "UnpublishedRecordingSysMsg": return "rap-unpublished";
+      case "DeletedRecordingSysMsg": return "rap-deleted";
       case "post_publish_started": return "rap-post-publish-started";
       case "post_publish_ended": return "rap-post-publish-ended";
       case "meeting_created_message": return "meeting-created";

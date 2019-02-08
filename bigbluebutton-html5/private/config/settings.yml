@@ -18,6 +18,7 @@ public:
     askForFeedbackOnLogout: false
     defaultSettings:
       application:
+        animations: true
         chatAudioAlerts: false
         chatPushAlerts: false
         fallbackLocale: en
@@ -78,7 +79,7 @@ public:
     httpsConnection: false
     connectionTimeout: 60000
     showHelpButton: true
-    enableExternalVideo: false
+    enableExternalVideo: true
   kurento:
     wsUrl: HOST
     chromeDefaultExtensionKey: akgoaoikmbmhcopjgakkcepdgdgkjfbc
@@ -97,6 +98,7 @@ public:
     enableScreensharing: false
     enableVideo: true
     enableVideoStats: false
+    enableVideoMenu: true
     enableListenOnly: false
     autoShareWebcam: false
   allowOutsideCommands:

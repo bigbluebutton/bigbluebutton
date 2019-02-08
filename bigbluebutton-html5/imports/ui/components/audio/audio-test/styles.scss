@@ -10,7 +10,7 @@
 
   i {
     color: var(--color-primary);
-    transition: all .2s ease-in-out;
+    transition: all calc(var(--enableAnimation) * .2s) ease-in-out;
   }
 
   &:hover,
