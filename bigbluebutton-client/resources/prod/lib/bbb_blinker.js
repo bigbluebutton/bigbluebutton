@@ -90,6 +90,7 @@ function determineBrowser()
 {
 	var browserName = bowser.name;
 	var fullVersion = bowser.version;
+	var userAgent = navigator.userAgent;
 	
 	// trim the fullVersion string at semicolon/space if present
 	if ((ix=fullVersion.indexOf(";"))!=-1)
@@ -103,7 +104,7 @@ function determineBrowser()
 		majorVersion = parseInt(navigator.appVersion,10);
 	}
 	
-	return [browserName, majorVersion, fullVersion];
+	return [browserName, majorVersion, fullVersion, userAgent];
 }
 
 function toggleFullscreen() {
