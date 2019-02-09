@@ -30,7 +30,7 @@ function determineModifier()
 	else if (browser == "Chrome"){
 		modifier = "control+";
 	}
-	else if (browser == "Microsoft Internet Explorer"){
+	else if (browser == "Internet Explorer"){
 		modifier = "control+shift+";
 	}
 	//else if (browser == "Safari"){
@@ -52,7 +52,7 @@ function determineGlobalModifier()
 	else if (browser == "Chrome"){
 		modifier = "control+shift+";
 	}
-	else if (browser == "Microsoft Internet Explorer"){
+	else if (browser == "Internet Explorer"){
 		modifier = "control+alt+";
 	}
 	//else if (browser == "Safari"){
@@ -74,7 +74,7 @@ function determineGlobalAlternateModifier()
 	else if (browser == "Chrome"){
 		modifier = "control+";
 	}
-	else if (browser == "Microsoft Internet Explorer"){
+	else if (browser == "Internet Explorer"){
 		modifier = "control+shift+";
 	}
 	//else if (browser == "Safari"){
@@ -88,64 +88,10 @@ function determineGlobalAlternateModifier()
 
 function determineBrowser()
 {
-	// Browser name extraction code provided by http://www.javascripter.net/faq/browsern.htm
-	var nVer = navigator.appVersion;
-	var nAgt = navigator.userAgent;
-	var browserName  = navigator.appName;
-	var fullVersion  = ''+parseFloat(navigator.appVersion); 
-	var majorVersion = parseInt(navigator.appVersion,10);
-	var nameOffset,verOffset,ix;
-
-	// In Opera, the true version is after "Opera" or after "Version"
-	if ((verOffset=nAgt.indexOf("OPR/"))!=-1) {
-		browserName = "Opera";
-		fullVersion = nAgt.substring(verOffset+4);
-	}
-	// In MSIE, the true version is after "MSIE" in userAgent
-	else if ((verOffset=nAgt.indexOf("MSIE"))!=-1) {
-		browserName = "Microsoft Internet Explorer";
-		fullVersion = nAgt.substring(verOffset+5);
-	}
-	// In Puffin, the true version is after "Puffin" in userAgent
-	else if ((verOffset=nAgt.indexOf("Puffin"))!=-1) {
-		browserName = "Puffin";
-		fullVersion = nAgt.substring(verOffset+7);
-	}
-	// search for Edge before Chrome or Safari because Microsoft
-	// includes Chrome and Safari user agents in Edge's UA
-	// In Microsoft Edge, the true version is the last chunk of the UA
-	// it follows "Edge"
-	else if ((verOffset=nAgt.indexOf("Edge"))!=-1) {
-		browserName = "Edge";
-		// "Edge".length = 4, plus 1 character for the trailing slash
-		fullVersion = nAgt.substring(verOffset+5);
-	}
-	// In Chrome, the true version is after "Chrome" 
-	else if ((verOffset=nAgt.indexOf("Chrome"))!=-1) {
-		browserName = "Chrome";
-		fullVersion = nAgt.substring(verOffset+7);
-	}
-	// In Safari, the true version is after "Safari" or after "Version" 
-	else if ((verOffset=nAgt.indexOf("Safari"))!=-1) {
-		browserName = "Safari";
-		fullVersion = nAgt.substring(verOffset+7);
-		if ((verOffset=nAgt.indexOf("Version"))!=-1) 
-			fullVersion = nAgt.substring(verOffset+8);
-	}
-	// In Firefox, the true version is after "Firefox" 
-	else if ((verOffset=nAgt.indexOf("Firefox"))!=-1) {
-		browserName = "Firefox";
-		fullVersion = nAgt.substring(verOffset+8);
-	}
-	// In most other browsers, "name/version" is at the end of userAgent 
-	else if ( (nameOffset=nAgt.lastIndexOf(' ')+1) < (verOffset=nAgt.lastIndexOf('/')) ) 
-	{
-		 browserName = nAgt.substring(nameOffset,verOffset);
-		 fullVersion = nAgt.substring(verOffset+1);
-		 if (browserName.toLowerCase()==browserName.toUpperCase()) {
-			 browserName = navigator.appName;
-		 }
-	}
+	var browserName = bowser.name;
+	var fullVersion = bowser.version;
+	var userAgent = navigator.userAgent;
+	
 	// trim the fullVersion string at semicolon/space if present
 	if ((ix=fullVersion.indexOf(";"))!=-1)
 		fullVersion=fullVersion.substring(0,ix);
@@ -158,7 +104,7 @@ function determineBrowser()
 		majorVersion = parseInt(navigator.appVersion,10);
 	}
 	
-	return [browserName, majorVersion, fullVersion];
+	return [browserName, majorVersion, fullVersion, userAgent];
 }
 
 function toggleFullscreen() {
