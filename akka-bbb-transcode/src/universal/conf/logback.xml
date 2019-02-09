@@ -21,6 +21,7 @@
     <logger name="akka" level="INFO" />
     <logger name="org.bigbluebutton" level="DEBUG" />
     <logger name="org.freeswitch.transcode" level="WARN" />
+    <logger name="io.lettuce" level="INFO" />
 
     <root level="INFO">
         <appender-ref ref="STDOUT"/>
