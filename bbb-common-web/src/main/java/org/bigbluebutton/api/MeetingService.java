@@ -671,7 +671,7 @@ public class MeetingService implements MessageListener {
         } catch (URISyntaxException e) {
             log.error("URI Syntax error in callback url=[{}]", callbackUrl, e);
         }
-        callbackUrlService.handleMessage(new MeetingEndedEvent(callbackUrl));
+        callbackUrlService.handleMessage(new MeetingEndedEvent(m.getInternalId(), m.getExternalId(), m.getName(), callbackUrl));
       }
 
       processRemoveEndedMeeting(message);
