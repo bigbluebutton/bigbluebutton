@@ -33,10 +33,11 @@ public class OfficeDocumentValidator2 {
         logData.put("meetingId", pres.getMeetingId());
         logData.put("presId", pres.getId());
         logData.put("filename", pres.getName());
+        logData.put("logCode", "pptx_validation_failed");
         logData.put("message", "PPTX failed validation.");
         Gson gson = new Gson();
         String logStr = gson.toJson(logData);
-        log.error("-- analytics -- {}", logStr);
+        log.error(" --analytics-- data={}", logStr);
 
         return false;
       }

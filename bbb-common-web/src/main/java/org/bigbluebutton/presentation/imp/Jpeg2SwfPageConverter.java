@@ -48,10 +48,11 @@ public class Jpeg2SwfPageConverter implements PageConverter {
 			logData.put("meetingId", pres.getMeetingId());
 			logData.put("presId", pres.getId());
 			logData.put("filename", pres.getName());
+			logData.put("logCode", "jpg_to_swf_conversion_failed");
 			logData.put("message", "Failed to convert: " + output.getAbsolutePath() + " does not exist.");
 			Gson gson = new Gson();
 			String logStr = gson.toJson(logData);
-			log.warn("-- analytics -- {}", logStr);
+			log.warn(" --analytics-- data={}", logStr);
 
 			return false;
 		}

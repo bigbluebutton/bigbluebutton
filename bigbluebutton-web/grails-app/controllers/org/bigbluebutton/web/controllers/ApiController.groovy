@@ -501,6 +501,20 @@ class ApiController {
       msgValue = "Guest denied to join meeting."
     }
 
+    Map<String, Object> logData = new HashMap<String, Object>();
+    logData.put("meetingid", us.meetingID);
+    logData.put("extMeetingid", us.externMeetingID);
+    logData.put("name", us.fullname);
+    logData.put("userid", us.internalUserId);
+    logData.put("sessionToken", sessionToken);
+    logData.put("logCode", "join_api");
+    logData.put("description", "Handle JOIN API.");
+
+    Gson gson = new Gson();
+    String logStr = gson.toJson(logData);
+
+    log.info(" --analytics-- data=" + logStr);
+
     if (redirectClient) {
       log.info("Redirecting to ${destUrl}");
       redirect(url: destUrl);
@@ -691,6 +705,18 @@ class ApiController {
       respondWithErrors(errors)
       return;
     }
+
+    Map<String, Object> logData = new HashMap<String, Object>();
+    logData.put("meetingid", meeting.getInternalId());
+    logData.put("extMeetingid", meeting.getExternalId());
+    logData.put("name", meeting.getName());
+    logData.put("logCode", "end_api");
+    logData.put("description", "Handle END API.");
+
+    Gson gson = new Gson();
+    String logStr = gson.toJson(logData);
+
+    log.info(" --analytics-- data=" + logStr);
 
     meetingService.endMeeting(meeting.getInternalId());
 
@@ -1174,13 +1200,13 @@ class ApiController {
       logData.put("name", us.fullname);
       logData.put("userId", us.internalUserId);
       logData.put("sessionToken", sessionToken);
-      logData.put("message", "handle_configxml_api");
+      logData.put("logCode", "handle_configxml_api");
       logData.put("description", "Handling ConfigXml API.");
 
       Gson gson = new Gson();
       String logStr = gson.toJson(logData);
 
-      log.info(logStr);
+      log.info(" --analytics-- data=" + logStr);
 
       response.addHeader("Cache-Control", "no-cache")
       render text: us.configXML, contentType: 'text/xml'
@@ -1281,11 +1307,39 @@ class ApiController {
         // We force the response to not do a redirect. Otherwise,
         // the client would just be redirecting into this endpoint.
         redirectClient = false
+
+        Map<String, Object> logData = new HashMap<String, Object>();
+        logData.put("meetingid", us.meetingID);
+        logData.put("extMeetingid", us.externMeetingID);
+        logData.put("name", us.fullname);
+        logData.put("userid", us.internalUserId);
+        logData.put("sessionToken", sessionToken);
+        logData.put("logCode", "guest_wait");
+        logData.put("description", "Guest waiting for approval.");
+
+        Gson gson = new Gson();
+        String logStr = gson.toJson(logData);
+
+        log.info(" --analytics-- data=" + logStr);
+
       } else if (guestWaitStatus.equals(GuestPolicy.DENY)) {
         destUrl = meeting.getLogoutUrl()
         msgKey = "guestDenied"
         msgValue = "Guest denied to join meeting."
-        log.debug("GuestPolicy.DENY - destUrl = " + destUrl)
+
+        Map<String, Object> logData = new HashMap<String, Object>();
+        logData.put("meetingid", us.meetingID);
+        logData.put("extMeetingid", us.externMeetingID);
+        logData.put("name", us.fullname);
+        logData.put("userid", us.internalUserId);
+        logData.put("sessionToken", sessionToken);
+        logData.put("logCode", "guest_denied");
+        logData.put("description", "Guest denied.");
+
+        Gson gson = new Gson();
+        String logStr = gson.toJson(logData);
+
+        log.info(" --analytics-- data=" + logStr);
       }
 
       if (redirectClient) {
@@ -1393,18 +1447,18 @@ class ApiController {
       String newInternalUserID = us.internalUserId //+ "_" + us.incrementConnectionNum()
 
       Map<String, Object> logData = new HashMap<String, Object>();
-      logData.put("meetingId", us.meetingID);
-      logData.put("externalMeetingId", us.externMeetingID);
+      logData.put("meetingid", us.meetingID);
+      logData.put("extMeetingid", us.externMeetingID);
       logData.put("name", us.fullname);
-      logData.put("userId", newInternalUserID);
+      logData.put("userid", newInternalUserID);
       logData.put("sessionToken", sessionToken);
-      logData.put("message", "handle_enter_api");
+      logData.put("logCode", "handle_enter_api");
       logData.put("description", "Handling ENTER API.");
 
       Gson gson = new Gson();
       String logStr = gson.toJson(logData);
 
-      log.info(logStr);
+      log.info(" --analytics-- data=" + logStr);
 
       response.addHeader("Cache-Control", "no-cache")
       withFormat {
@@ -1565,6 +1619,21 @@ class ApiController {
     if (sessionToken != null) {
       log.info("Found session for user in conference.")
       UserSession us = meetingService.removeUserSessionWithAuthToken(sessionToken);
+
+      Map<String, Object> logData = new HashMap<String, Object>();
+      logData.put("meetingid", us.meetingID);
+      logData.put("extMeetingid", us.externMeetingID);
+      logData.put("name", us.fullname);
+      logData.put("userid", us.internalUserId);
+      logData.put("sessionToken", sessionToken);
+      logData.put("message", "handle_enter_api");
+      logData.put("logCode", "signout_api");
+      logData.put("description", "Handling SIGNOUT API.");
+
+      Gson gson = new Gson();
+      String logStr = gson.toJson(logData);
+      log.info(" --analytics-- data=" + logStr);
+
       session.removeAttribute(sessionToken)
     }
 

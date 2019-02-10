@@ -49,11 +49,12 @@ public class DocumentConversionServiceImp implements DocumentConversionService {
     logData.put("presId", pres.getId());
     logData.put("filename", pres.getName());
     logData.put("current", pres.isCurrent());
+    logData.put("logCode", "presentation_conversion_start");
     logData.put("message", "Start presentation conversion.");
 
     Gson gson = new Gson();
     String logStr = gson.toJson(logData);
-    log.info("-- analytics -- {}", logStr);
+    log.info(" --analytics-- data={}", logStr);
 
     if (sdf.isSupported(pres)) {
       String fileType = pres.getFileType();
@@ -78,10 +79,11 @@ public class DocumentConversionServiceImp implements DocumentConversionService {
           logData.put("presId", pres.getId());
           logData.put("filename", pres.getName());
           logData.put("current", pres.isCurrent());
+          logData.put("logCode", "supported_file_not_handled");
           logData.put("message", "Supported file not handled.");
           gson = new Gson();
           logStr = gson.toJson(logData);
-          log.warn("-- analytics -- {}", logStr);
+          log.warn(" --analytics-- data={}", logStr);
       }
 
     } else {
@@ -91,10 +93,11 @@ public class DocumentConversionServiceImp implements DocumentConversionService {
         logData.put("presId", pres.getId());
         logData.put("filename", pres.getName());
         logData.put("current", pres.isCurrent());
+        logData.put("logCode", "unsupported_file_format");
         logData.put("message", "Unsupported file format");
         gson = new Gson();
         logStr = gson.toJson(logData);
-        log.error("-- analytics -- {}", logStr);
+        log.error(" --analytics-- data={}", logStr);
     }
 
     logData = new HashMap<String, Object>();
@@ -103,10 +106,11 @@ public class DocumentConversionServiceImp implements DocumentConversionService {
     logData.put("presId", pres.getId());
     logData.put("filename", pres.getName());
     logData.put("current", pres.isCurrent());
+    logData.put("logCode", "presentation_conversion_end");
     logData.put("message", "End presentation conversion.");
     gson = new Gson();
     logStr = gson.toJson(logData);
-    log.info("-- analytics -- {}", logStr);
+    log.info(" --analytics-- data={}", logStr);
   }
 
   public void setBbbWebApiGWApp(IBbbWebApiGWApp m) {
