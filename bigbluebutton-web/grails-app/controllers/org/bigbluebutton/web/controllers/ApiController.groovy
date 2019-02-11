@@ -1503,7 +1503,7 @@ class ApiController {
       withFormat {
         json {
           def builder = new JsonBuilder()
-          builder.response {
+          builder {
             returncode RESP_CODE_FAILED
             message "Could not find conference."
             logoutURL logoutUrl
@@ -1520,7 +1520,7 @@ class ApiController {
       withFormat {
         json {
           def builder = new JsonBuilder()
-          builder.response {
+          builder {
             stunServers {
               stuns.each { stun ->
                 stunData { url stun.url }
