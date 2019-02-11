@@ -58,10 +58,10 @@ export default function addUser(meetingId, user) {
   let userRole = user.role;
 
   if (
-    dummyUser
-    && dummyUser.clientType === 'HTML5'
-    && userRole === ROLE_MODERATOR
-    && !ALLOW_HTML5_MODERATOR
+    dummyUser &&
+    dummyUser.clientType === 'HTML5' &&
+    userRole === ROLE_MODERATOR &&
+    !ALLOW_HTML5_MODERATOR
   ) {
     userRole = ROLE_VIEWER;
   }
@@ -110,8 +110,6 @@ export default function addUser(meetingId, user) {
 
     if (userRole === ROLE_MODERATOR) {
       changeRole(ROLE_MODERATOR, true, userId, meetingId);
-    } else {
-      changeRole(ROLE_MODERATOR, false, userId, meetingId);
     }
 
     if (Meeting.usersProp.guestPolicy === GUEST_ALWAYS_ACCEPT) {
