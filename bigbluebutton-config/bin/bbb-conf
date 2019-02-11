@@ -108,7 +108,7 @@ if [ -f $SERVLET_DIR/WEB-INF/classes/bigbluebutton.properties ]; then
     PROTOCOL=https
   fi
 fi
-
+PROTOCOL_RTMP=rtmp
 
 FREESWITCH_VARS=/opt/freeswitch/conf/vars.xml
 FREESWITCH_EXTERNAL=/opt/freeswitch/conf/sip_profiles/external.xml
@@ -1576,7 +1576,7 @@ if [ $CHECK ]; then
 
 	echo
 	echo "$BBB_WEB_CONFIG (bbb-web)"
-	echo "                              URL: $(cat $BBB_WEB_CONFIG | grep -v '#' | sed -n '/^bigbluebutton.web.serverURL/{s/.*=//;p}')"
+	echo "       bigbluebutton.web.serverURL: $(cat $BBB_WEB_CONFIG | grep -v '#' | sed -n '/^bigbluebutton.web.serverURL/{s/.*=//;p}')"
 	echo "                defaultGuestPolicy: $(cat $BBB_WEB_CONFIG | grep -v '#' | sed -n '/^defaultGuestPolicy/{s/.*=//;p}')"
 
 	echo
