@@ -101,11 +101,11 @@ else
   SERVLET_DIR=/var/lib/tomcat7/webapps/bigbluebutton
 fi
 
-PROTOCOL=HTTP
+PROTOCOL=http
 if [ -f $SERVLET_DIR/WEB-INF/classes/bigbluebutton.properties ]; then
   SERVER_URL=$(cat $SERVLET_DIR/WEB-INF/classes/bigbluebutton.properties | sed -n '/^bigbluebutton.web.serverURL/{s/.*\///;p}')
   if cat $SERVLET_DIR/WEB-INF/classes/bigbluebutton.properties | grep bigbluebutton.web.serverURL | grep -q https; then
-    PROTOCOL=HTTPS
+    PROTOCOL=https
   fi
 fi
 
