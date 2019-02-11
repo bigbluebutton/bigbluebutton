@@ -531,16 +531,6 @@ function loadPlayback() {
     loadAudio();
   }
 
-  // load up the acorn controls
-  logger.info("==Loading acorn media player");
-  $('#video').acornMediaPlayer({
-    theme: 'bigbluebutton',
-    volumeSlider: 'vertical'
-  });
-  $('#video').on("swap", function() {
-    swapVideoPresentation();
-  });
-
   if (hasDeskshare) {
     loadDeskshare();
   } else {
@@ -557,10 +547,22 @@ function isMediaReady(media) {
   return false;
 };
 
+function loadAcornControls() {
+  logger.info("==Loading acorn media player");
+  $('#video').acornMediaPlayer({
+    theme: 'bigbluebutton',
+    volumeSlider: 'vertical'
+  });
+  $('#video').on("swap", function() {
+    swapVideoPresentation();
+  });
+};
+
 function checkLoadedMedia() {
   // We use the video tag both for audio or video
   let media = $('#video')[0];
   if (isMediaReady(media)) {
+    loadAcornControls();
     if (hasVideo) {
       document.dispatchEvent(new CustomEvent('media-ready', {'detail': 'video'}));
     } else {
