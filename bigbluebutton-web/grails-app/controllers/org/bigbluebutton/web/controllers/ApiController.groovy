@@ -36,6 +36,8 @@ import org.bigbluebutton.presentation.UploadedPresentation
 import org.bigbluebutton.web.services.PresentationService
 import org.bigbluebutton.web.services.turn.StunTurnService
 import org.bigbluebutton.web.services.turn.TurnEntry
+import org.bigbluebutton.web.services.turn.StunServer
+import org.bigbluebutton.web.services.turn.RemoteIceCandidate
 import org.json.JSONArray
 
 import javax.servlet.ServletRequest
@@ -1500,16 +1502,16 @@ class ApiController {
             logoutUrl us.logoutUrl
             defaultLayout us.defaultLayout
             avatarURL us.avatarURL
-            customdata {
-              meeting.getUserCustomData(us.externUserID).each { k, v ->
-                "$k" v
+            customdata (
+              meeting.getUserCustomData(us.externUserID).collect { k, v ->
+                ["$k": v]
               }
-            }
-            metadata {
-              meeting.getMetadata().each { k, v ->
-                "$k" v
+            )
+            metadata (
+              meeting.getMetadata().collect { k, v ->
+                ["$k": v]
               }
-            }
+            )
           }
           render(contentType: "application/json", text: builder.toPrettyString())
         }
@@ -1538,7 +1540,7 @@ class ApiController {
       allowStunsWithoutSession = paramsProcessorUtil.getAllowRequestsWithoutSession();
     }
 
-    if (meetingService.getUserSessionWithAuthToken(sessionToken) == null || (!allowStunsWithoutSession && !session[sessionToken])) {
+    if (sessionToken == null || meetingService.getUserSessionWithAuthToken(sessionToken) == null || (!allowStunsWithoutSession && !session[sessionToken])) {
       reject = true;
     } else {
       us = meetingService.getUserSessionWithAuthToken(sessionToken);
@@ -1566,35 +1568,35 @@ class ApiController {
         }
       }
     } else {
-      Set<String> stuns = stunTurnService.getStunServers()
+      Set<StunServer> stuns = stunTurnService.getStunServers()
       Set<TurnEntry> turns = stunTurnService.getStunAndTurnServersFor(us.internalUserId)
-      Set<String> candidates = stunTurnService.getRemoteIceCandidates()
+      Set<RemoteIceCandidate> candidates = stunTurnService.getRemoteIceCandidates()
 
       response.addHeader("Cache-Control", "no-cache")
       withFormat {
         json {
           def builder = new JsonBuilder()
           builder {
-            stunServers {
-              stuns.each { stun ->
-                stunData { url stun.url }
+            stunServers (
+              stuns.collect { stun ->
+                [url: stun.url]
               }
-            }
-            turnServers {
-              turns.each { turn ->
-                turnData {
-                  username turn.username
-                  password turn.password
-                  url turn.url
-                  ttl turn.ttl
-                }
+            )
+            turnServers (
+              turns.collect { turn ->
+                [
+                  username: turn.username,
+                  password: turn.password,
+                  url: turn.url,
+                  ttl: turn.ttl
+                ]
               }
-            }
-            remoteIceCandidates {
-              candidates.each { candidate ->
-                candidateData { ip candidate.ip }
+            )
+            remoteIceCandidates (
+              candidates.collect { candidate ->
+                [ip: candidate.ip ]
               }
-            }
+            )
           }
           render(contentType: "application/json", text: builder.toPrettyString())
         }
