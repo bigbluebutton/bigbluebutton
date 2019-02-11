@@ -167,6 +167,7 @@ export default injectIntl(withTracker(({ intl }) => {
     scrollPosition,
     minMessageLength: CHAT_CONFIG.min_message_length,
     maxMessageLength: CHAT_CONFIG.max_message_length,
+    UnsentMessagesCollection: ChatService.UnsentMessagesCollection,
     actions: {
       handleClosePrivateChat: chatId => ChatService.closePrivateChat(chatId),
 
