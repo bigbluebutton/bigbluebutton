@@ -83,11 +83,12 @@ public class PngCreatorImp implements PngCreator {
 			logData.put("meetingId", pres.getMeetingId());
 			logData.put("presId", pres.getId());
 			logData.put("filename", pres.getName());
+			logData.put("logCode", "png_create_failed");
 			logData.put("message", "Failed to create png.");
 
 			Gson gson = new Gson();
 			String logStr = gson.toJson(logData);
-			log.warn("-- analytics -- {}",  logStr);
+			log.warn(" --analytics-- data={}",  logStr);
 		}
 
 		return false;

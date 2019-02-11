@@ -114,11 +114,11 @@ public class Pdf2SwfPageConverter implements PageConverter {
       logData.put("numObjectTags", pHandler.numberOfPlacements());
       logData.put("numTextTags", pHandler.numberOfTextTags());
       logData.put("numImageTags", pHandler.numberOfImageTags());
-      logData.put("message", "Potential problem with generated SWF");
+      logData.put("logCode", "problem_with_generated_swf");
       Gson gson = new Gson();
       String logStr = gson.toJson(logData);
 
-      log.warn("-- analytics -- {}", logStr);
+      log.warn(" --analytics-- data={}", logStr);
 
       File tempPng = null;
       String basePresentationame = FilenameUtils.getBaseName(presentation.getName());
@@ -130,10 +130,11 @@ public class Pdf2SwfPageConverter implements PageConverter {
         logData.put("meetingId", pres.getMeetingId());
         logData.put("presId", pres.getId());
         logData.put("filename", pres.getName());
-        logData.put("message", "Unable to create temporary files");
+        logData.put("logCode", "failed_to_create_temp_file");
+        logData.put("message", "Unable to create temporary files for pdf to swf.");
         gson = new Gson();
         logStr = gson.toJson(logData);
-        log.error("-- analytics -- {}", logStr, ioException);
+        log.error(" --analytics-- data={}", logStr, ioException);
       }
 
       // long pdfStart = System.currentTimeMillis();
@@ -192,9 +193,10 @@ public class Pdf2SwfPageConverter implements PageConverter {
       logData.put("filename", pres.getName());
       logData.put("page", page);
       logData.put("conversionTime(sec)", (convertEnd - convertStart) / 1000);
-      logData.put("message", "Problem page conversion overall duration.");
+      logData.put("logCode", "conversion_took_too_long");
+      logData.put("message", "PDF to SWF conversion took a long time.");
       logStr = gson.toJson(logData);
-      log.info("-- analytics -- {}", logStr);
+      log.info(" --analytics-- data={}", logStr);
 
       if (doneSwf && destFile.exists()) {
         return true;
@@ -205,9 +207,10 @@ public class Pdf2SwfPageConverter implements PageConverter {
         logData.put("filename", pres.getName());
         logData.put("page", page);
         logData.put("conversionTime(sec)", (convertEnd - convertStart) / 1000);
+        logData.put("logCode", "pdf2swf_conversion_failed");
         logData.put("message", "Failed to convert: " + destFile + " does not exist.");
         logStr = gson.toJson(logData);
-        log.warn("-- analytics -- {}", logStr);
+        log.warn(" --analytics-- data={}", logStr);
 
         return false;
       }

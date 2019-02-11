@@ -39,10 +39,11 @@ public class OfficeDocumentValidator {
         logData.put("meetingId", pres.getMeetingId());
         logData.put("presId", pres.getId());
         logData.put("filename", pres.getName());
+        logData.put("logCode", "open_pptx_failed");
         logData.put("message", "Cannot open PPTX file " + pres.getName());
         Gson gson = new Gson();
         String logStr = gson.toJson(logData);
-        log.error("-- analytics -- {}", logStr, e);
+        log.error(" --analytics-- data={}", logStr, e);
 
         valid = false;
       }
@@ -66,10 +67,11 @@ public class OfficeDocumentValidator {
       logData.put("meetingId", pres.getMeetingId());
       logData.put("presId", pres.getId());
       logData.put("filename", pres.getName());
+      logData.put("logCode", "presentation_contains_embedded_emfs");
       logData.put("message", "Found " + embeddedEmfFiles.size() + " EMF files in presentation.");
       Gson gson = new Gson();
       String logStr = gson.toJson(logData);
-      log.warn("-- analytics -- {}", logStr);
+      log.warn(" --analytics-- data={}", logStr);
 
       return true;
     }
@@ -92,10 +94,11 @@ public class OfficeDocumentValidator {
       logData.put("meetingId", pres.getMeetingId());
       logData.put("presId", pres.getId());
       logData.put("filename", pres.getName());
+      logData.put("logCode", "presentation_contains_background_tiles");
       logData.put("message", "Found small background tile image.");
       Gson gson = new Gson();
       String logStr = gson.toJson(logData);
-      log.warn("-- analytics -- {}", logStr);
+      log.warn(" --analytics-- data={}", logStr);
 
       return true;
     }

@@ -40,10 +40,11 @@ public class Office2PdfPageConverter {
       logData.put("meetingId", pres.getMeetingId());
       logData.put("presId", pres.getId());
       logData.put("filename", pres.getName());
+      logData.put("logCode", "office_doc_to_pdf");
       logData.put("message", "Converting Office doc to PDF.");
       Gson gson = new Gson();
       String logStr = gson.toJson(logData);
-      log.info("-- analytics -- {}", logStr);
+      log.info(" --analytics-- data={}", logStr);
 
       converter.convert(presentationFile, output);
       if (output.exists()) {
@@ -53,10 +54,11 @@ public class Office2PdfPageConverter {
         logData.put("meetingId", pres.getMeetingId());
         logData.put("presId", pres.getId());
         logData.put("filename", pres.getName());
+        logData.put("logCode", "office_doc_to_pdf_failed");
         logData.put("message", "Failed to convert Office doc to PDF.");
         gson = new Gson();
         logStr = gson.toJson(logData);
-        log.warn("-- analytics -- {}", logStr);
+        log.warn(" --analytics-- data={}", logStr);
 
         return false;
       }
@@ -65,11 +67,12 @@ public class Office2PdfPageConverter {
       logData.put("meetingId", pres.getMeetingId());
       logData.put("presId", pres.getId());
       logData.put("filename", pres.getName());
+      logData.put("logCode", "office_doc_to_pdf_failed_with_exception");
       logData.put("message", "Failed to convert Office doc to PDF.");
       logData.put("exception", e);
       Gson gson = new Gson();
       String logStr = gson.toJson(logData);
-      log.error("-- analytics -- {}", logStr, e);
+      log.error(" --analytics-- data={}", logStr, e);
       return false;
     }
   }
