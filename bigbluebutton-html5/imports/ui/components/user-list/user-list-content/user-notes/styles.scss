@@ -1,5 +1,6 @@
 @import "../../styles.scss";
 @import "/imports/ui/stylesheets/variables/_all";
+@import "/imports/ui/stylesheets/variables/typography";
 
 .smallTitle {
   font-size: var(--font-size-small);
@@ -7,18 +8,18 @@
   text-transform: uppercase;
   padding: 0 var(--sm-padding-x);
   color: var(--color-gray-light);
-  margin-bottom: var(--sm-padding-x);
+  margin-bottom: var(--lg-padding-y);
   margin-top: var(--sm-padding-x);
 }
 
 .scrollableList {
-  margin-left: 0.45rem;
-  margin-bottom: 1px;
+  margin-left: var(--md-padding-y);
   outline: none;
 }
 
 .noteLink {
   @extend %list-item;
+  align-items: center;
 
   cursor: pointer;
   display: flex;
@@ -41,9 +42,9 @@
   }
 
   > span {
-      font-size: 0.9rem;
       font-weight: 400;
-      color: black;
+      font-size: var(--font-size-small);
+      color: var(--color-gray-dark);
       position: relative;
       flex-grow: 1;
       line-height: 2;
