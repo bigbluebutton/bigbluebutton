@@ -84,7 +84,7 @@ class BigbluebuttonService {
         }
 		
         String meetingName = getValidatedMeetingName(params.get(Parameter.RESOURCE_LINK_TITLE))
-        String meetingID = getValidatedMeetingId(paramsFromConfig(params))
+        String meetingID = getValidatedMeetingId(getParamsForMeetingId(params))
         String attendeePW = DigestUtils.shaHex("ap" + params.get(Parameter.RESOURCE_LINK_ID) + params.get(Parameter.CONSUMER_ID))
         String moderatorPW = DigestUtils.shaHex("mp" + params.get(Parameter.RESOURCE_LINK_ID) + params.get(Parameter.CONSUMER_ID))
         String logoutURL = getValidatedLogoutURL(params.get(Parameter.LAUNCH_RETURN_URL))
@@ -135,7 +135,7 @@ class BigbluebuttonService {
         if (!salt.equals(bbbProxy.salt) && !salt.equals("")) {
             bbbProxy.setSalt(salt)
         }
-        String meetingID = getValidatedMeetingId(paramsFromConfig(params))
+        String meetingID = getValidatedMeetingId(getParamsForMeetingId(params))
         String recordingsURL = bbbProxy.getGetRecordingsURL(meetingID)
         Map<String, Object> responseAPICall = doAPICall(recordingsURL)
         if (responseAPICall == null) {
@@ -377,7 +377,7 @@ class BigbluebuttonService {
      * Get the value of all params from idParams (specified in lti-config)
      * If none are specified, fallback to using resource_link_id and oauth_consumer_key
      */
-    private String paramsFromConfig(params) {
+    private String getParamsForMeetingId(params) {
 	String[] paramArray = idParams.split(",");
 	String result = "";
 	for(String s : paramArray) {
