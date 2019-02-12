@@ -1619,22 +1619,26 @@ class ApiController {
     Meeting meeting = null;
 
     if (sessionToken != null) {
-      log.info("Found session for user in conference.")
+
       UserSession us = meetingService.removeUserSessionWithAuthToken(sessionToken);
+      if (us != null) {
+        Map<String, Object> logData = new HashMap<String, Object>();
+        logData.put("meetingid", us.meetingID);
+        logData.put("extMeetingid", us.externMeetingID);
+        logData.put("name", us.fullname);
+        logData.put("userid", us.internalUserId);
+        logData.put("sessionToken", sessionToken);
+        logData.put("message", "handle_signout_api");
+        logData.put("logCode", "signout_api");
+        logData.put("description", "Handling SIGNOUT API.");
 
-      Map<String, Object> logData = new HashMap<String, Object>();
-      logData.put("meetingid", us.meetingID);
-      logData.put("extMeetingid", us.externMeetingID);
-      logData.put("name", us.fullname);
-      logData.put("userid", us.internalUserId);
-      logData.put("sessionToken", sessionToken);
-      logData.put("message", "handle_enter_api");
-      logData.put("logCode", "signout_api");
-      logData.put("description", "Handling SIGNOUT API.");
+        Gson gson = new Gson();
+        String logStr = gson.toJson(logData);
+        log.info(" --analytics-- data=" + logStr);
+      } else {
+        log.info("Could not find user session for session token {}", sessionToken)
+      }
 
-      Gson gson = new Gson();
-      String logStr = gson.toJson(logData);
-      log.info(" --analytics-- data=" + logStr);
 
       session.removeAttribute(sessionToken)
     }
