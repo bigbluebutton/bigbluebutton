@@ -7,6 +7,8 @@ import Button from '/imports/ui/components/button/component';
 import { HUNDRED_PERCENT, MAX_PERCENT, STEP } from '/imports/utils/slideCalcUtils';
 import { styles } from './styles.scss';
 import ZoomTool from './zoom-tool/component';
+import FullscreenButton from '../../video-provider/fullscreen-button/component';
+import PresentationArea from '../component';
 
 
 const intlMessages = defineMessages({
@@ -185,6 +187,8 @@ class PresentationToolbar extends Component {
       actions,
       intl,
       zoom,
+      isFullscreen,
+      fullscreenRef,
     } = this.props;
 
     const BROWSER_RESULTS = browser();
@@ -194,7 +198,7 @@ class PresentationToolbar extends Component {
       <div id="presentationToolbarWrapper" className={styles.presentationToolbarWrapper}>
         {PresentationToolbar.renderAriaLabelsDescs()}
         {
-          <span className={styles.presentationControls}>
+          <span className={styles.presentationSlideControls}>
             <Button
               role="button"
               aria-labelledby="prevSlideLabel"
@@ -240,35 +244,44 @@ class PresentationToolbar extends Component {
           </span>
         }
         {
-          !isMobileBrowser
-            ? (
-              <span className={styles.zoomWrapper}>
-                <ZoomTool
-                  zoomValue={zoom}
-                  change={this.change}
-                  minBound={HUNDRED_PERCENT}
-                  maxBound={MAX_PERCENT}
-                  step={STEP}
+          <span className={styles.presentationZoomControls}>
+            {
+              !isMobileBrowser
+                ? (
+                  <ZoomTool
+                    zoomValue={zoom}
+                    change={this.change}
+                    minBound={HUNDRED_PERCENT}
+                    maxBound={MAX_PERCENT}
+                    step={STEP}
+                  />
+                )
+                : null
+            }
+            <Button
+              role="button"
+              aria-labelledby="fitWidthLabel"
+              aria-describedby="fitWidthDesc"
+              color="default"
+              icon="fit_to_width"
+              size="md"
+              circle={false}
+              onClick={fitToWidthHandler}
+              label={intl.formatMessage(intlMessages.fitToWidth)}
+              hideLabel
+              className={styles.skipSlide}
+            />
+            {
+              !isFullscreen
+              && (
+                <FullscreenButton
+                  handleFullscreen={fullscreenRef}
+                  dark
                 />
-              </span>
-            )
-            : null
+              )
+            }
+          </span>
         }
-        <span className={styles.presentationControls}>
-          <Button
-            role="button"
-            aria-labelledby="fitWidthLabel"
-            aria-describedby="fitWidthDesc"
-            color="default"
-            icon="fit_to_width"
-            size="md"
-            circle={false}
-            onClick={fitToWidthHandler}
-            label={intl.formatMessage(intlMessages.fitToWidth)}
-            hideLabel
-            className={styles.skipSlide}
-          />
-        </span>
         {/* Fit to screen button
         <Button
           role="button"

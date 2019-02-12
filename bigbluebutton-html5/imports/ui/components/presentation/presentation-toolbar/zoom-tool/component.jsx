@@ -210,7 +210,7 @@ class ZoomTool extends Component {
               aria-describedby="zoomOutDesc"
               aria-label={intl.formatMessage(intlMessages.zoomOutLabel)}
               label={intl.formatMessage(intlMessages.zoomOutLabel)}
-              icon="minus"
+              icon="substract"
               onClick={() => { }}
               disabled={(zoomValue <= minBound)}
               className={styles.prevSlide}
@@ -245,7 +245,7 @@ class ZoomTool extends Component {
               aria-describedby="zoomInDesc"
               aria-label={intl.formatMessage(intlMessages.zoomInLabel)}
               label={intl.formatMessage(intlMessages.zoomInLabel)}
-              icon="plus"
+              icon="add"
               onClick={() => { }}
               disabled={(zoomValue >= maxBound)}
               className={styles.skipSlide}

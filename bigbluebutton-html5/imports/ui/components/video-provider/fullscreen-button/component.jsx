@@ -41,8 +41,7 @@ const FullscreenButtonComponent = ({
         onClick={handleFullscreen}
         label={formattedLabel}
         hideLabel
-        circle
-        className={styles.button}
+        className={cx(styles.button, styles.fullScreenButton)}
       />
     </div>
   );

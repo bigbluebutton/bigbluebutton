@@ -6,7 +6,6 @@
 }
 
 .wrapper {
-  position: absolute;
   right: 0;
   background-color: var(--color-transparent);
   cursor: pointer;
@@ -31,4 +30,16 @@
 
 .dark .button span i {
   color: var(--color-black);
+}
+
+.fullScreenButton{
+  padding: 5px;
+
+  &:hover{
+    border: 0;
+  }
+
+  i{
+    font-size: 1rem;
+  }
 }
