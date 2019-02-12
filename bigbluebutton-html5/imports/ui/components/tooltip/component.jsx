@@ -24,13 +24,13 @@ class Tooltip extends Component {
     const isTarget = expandedEl === tooltipTarget;
     if (expandedEl && !isTarget) return;
 
-    if (tooltipTarget.lastChild && tooltipTarget.lastChild.innerText) {
-      tip.set({ content: tooltipTarget.lastChild.innerText });
-    } else if (tooltipTarget.parentElement.nodeName.toLowerCase() === 'button') {
-      tip.set({ content: tooltipTarget.parentElement.lastChild.innerText });
-    } else if (tooltipTarget.parentElement.parentElement.nodeName.toLowerCase() === 'button') {
-      tip.set({ content: tooltipTarget.parentElement.parentElement.lastChild.innerText });
-    }
+    const findLabel = (node) => {
+      const { nodeName, lastChild, parentElement } = node;
+      if (nodeName.toLowerCase() === 'button') return lastChild.innerText;
+      return findLabel(parentElement);
+    };
+    const label = findLabel(tooltipTarget);
+    if (label) tip.set({ content: label });
     // if we are not able to get the text, the default content is used
 
     tip.show();
