@@ -7,8 +7,8 @@ const logClient = function (type, log, fullInfo = {}) {
   const logContents = { fullInfo };
 
   if (User) {
-    if ((fullInfo.credentials && User.meetingId === fullInfo.credentials.meetingId) ||
-      ((fullInfo.meetingId && User.meetingId === fullInfo.meetingId))) {
+    if ((fullInfo.credentials && User.meetingId === fullInfo.credentials.meetingId)
+      || ((fullInfo.meetingId && User.meetingId === fullInfo.meetingId))) {
       logContents.validUser = 'valid';
     } else {
       logContents.validUser = 'invalid';
@@ -20,9 +20,17 @@ const logClient = function (type, log, fullInfo = {}) {
   const topic = typeof logContents === 'Object' ? logContents.topic : null;
 
   if (typeof log === 'string' || log instanceof String) {
-    Logger.log(type, `${topic || 'CLIENT'} LOG: ${log}\n`, logContents);
+    Logger.log({
+      level: type,
+      message: `${topic || 'CLIENT'} LOG: ${log}\n`,
+      meta: logContents,
+    });
   } else {
-    Logger.log(type, `${topic || 'CLIENT'} LOG: ${JSON.stringify(log)}\n`, logContents);
+    Logger.log({
+      level: type,
+      message: `${topic || 'CLIENT'} LOG: ${JSON.stringify(log)}\n`,
+      meta: logContents,
+    });
   }
 };
 
