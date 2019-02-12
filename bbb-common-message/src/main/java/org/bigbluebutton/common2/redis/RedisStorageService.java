@@ -57,43 +57,42 @@ public class RedisStorageService extends RedisAwareCommunicator {
     }
 
     public void recordMeetingInfo(String meetingId, Map<String, String> info) {
-        log.debug("Storing meeting {} metadata {}", meetingId, info);
         recordMeeting(Keys.MEETING_INFO + meetingId, info);
     }
 
     public void recordBreakoutInfo(String meetingId, Map<String, String> breakoutInfo) {
-        log.debug("Saving breakout metadata in {}", meetingId);
         recordMeeting(Keys.BREAKOUT_MEETING + meetingId, breakoutInfo);
     }
 
     public void addBreakoutRoom(String parentId, String breakoutId) {
-        log.debug("Saving breakout room for meeting {}", parentId);
         RedisCommands<String, String> commands = connection.sync();
         commands.sadd(Keys.BREAKOUT_ROOMS + parentId, breakoutId);
     }
 
     public void record(String meetingId, Map<String, String> event) {
-        log.debug("Recording meeting event {} inside a transaction", meetingId);
         RedisCommands<String, String> commands = connection.sync();
         Long msgid = commands.incr("global:nextRecordedMsgId");
+        commands.multi();
         commands.hmset("recording:" + meetingId + ":" + msgid, event);
         commands.rpush("meeting:" + meetingId + ":" + "recordings", Long.toString(msgid));
+        commands.exec();
     }
 
     // @fixme: not used anywhere
     public void removeMeeting(String meetingId) {
-        log.debug("Removing meeting meeting {} inside a transaction", meetingId);
         RedisCommands<String, String> commands = connection.sync();
+        commands.multi();
         commands.del(Keys.MEETING + meetingId);
         commands.srem(Keys.MEETINGS + meetingId);
+        commands.exec();
     }
 
     public void recordAndExpire(String meetingId, Map<String, String> event) {
-        log.debug("Recording meeting event {} inside a transaction", meetingId);
         RedisCommands<String, String> commands = connection.sync();
 
         Long msgid = commands.incr("global:nextRecordedMsgId");
         String key = "recording:" + meetingId + ":" + msgid;
+        commands.multi();
         commands.hmset(key, event);
         /**
          * We set the key to expire after 14 days as we are still recording the
@@ -104,10 +103,10 @@ public class RedisStorageService extends RedisAwareCommunicator {
         key = "meeting:" + meetingId + ":recordings";
         commands.rpush(key, Long.toString(msgid));
         commands.expire(key, expireKey);
+        commands.exec();
     }
 
     private String recordMeeting(String key, Map<String, String> info) {
-        log.debug("Storing metadata {}", info);
         String result = "";
         RedisCommands<String, String> commands = connection.sync();
         result = commands.hmset(key, info);
