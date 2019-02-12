@@ -877,7 +877,7 @@ check_configuration() {
 	if which host > /dev/null 2>&1; then	
 		HOSTS=$(which host)
 		if [ $HOSTS ]; then
-			HOSTS=`$HOSTS $NGINX_IP | awk '{ print $4 }'`
+			HOSTS=`$HOSTS $NGINX_IP | awk '{ print $4 }' | head -n 1`
 		fi
 	fi
 
@@ -1376,6 +1376,7 @@ check_state() {
 
         SIP_NGINX_IP=$(cat /etc/bigbluebutton/nginx/sip.nginx |  grep -v '#' | sed -n '/proxy_pass/{s/.*proxy_pass http[s]*:\/\///;s/:.*//;p}')
         if [ "$SIP_NGINX_IP" != $IP ]; then
+           if [ "$SIP_NGINX_IP" != "\$freeswitch_addr" ]; then
                 echo "# Warning: The setting of $SIP_NGINX_IP for proxy_pass in"
                 echo "#"
                 echo "#    /etc/bigbluebutton/nginx/sip.nginx"
@@ -1383,6 +1384,7 @@ check_state() {
                 echo "# does not match the local IP address ($IP)."
                 echo "# (This is OK if you've manually changed the values)"
                 echo 
+	    fi
         fi
 
         VARS_IP=$(cat $FREESWITCH_VARS | sed -n '/"local_ip_v4/{s/.*local_ip_v4=//;s/".*//;p}')
@@ -1946,10 +1948,6 @@ if [ -n "$HOST" ]; then
 	if [ -f $HTML5_CONFIG_OLD ]; then
         	WS=$(cat $SERVLET_DIR/WEB-INF/classes/bigbluebutton.properties | grep -v '#' | sed -n '/^bigbluebutton.web.serverURL/{s/.*=//;p}' | sed 's/https/wss/g' | sed s'/http/ws/g')
         	sed -i "s|\"wsUrl.*|\"wsUrl\": \"$WS/bbb-webrtc-sfu\",|g" $HTML5_CONFIG_OLD
-
-		if [ -f /usr/local/bigbluebutton/bbb-webrtc-sfu/config/default.yml ]; then
-		  change_yml_value /usr/local/bigbluebutton/bbb-webrtc-sfu/config/default.yml kurentoUrl "ws://$HOST:8888/kurento"
-		fi
 	fi
 
 	if [ -f $HTML5_CONFIG ]; then
@@ -1958,7 +1956,7 @@ if [ -n "$HOST" ]; then
 		change_yml_value $HTML5_CONFIG wsUrl "$WS/bbb-webrtc-sfu"
 
 		if [ -f /usr/local/bigbluebutton/bbb-webrtc-sfu/config/default.yml ]; then
-		  change_yml_value /usr/local/bigbluebutton/bbb-webrtc-sfu/config/default.yml kurentoUrl "ws://$HOST:8888/kurento"
+		  yq w -i /usr/local/bigbluebutton/bbb-webrtc-sfu/config/default.yml kurento[0].url "ws://$HOST:8888/kurento"
 		fi
 	fi
 
