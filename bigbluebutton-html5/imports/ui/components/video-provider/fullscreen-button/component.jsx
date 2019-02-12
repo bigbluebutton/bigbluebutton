@@ -33,7 +33,7 @@ const FullscreenButtonComponent = ({
   );
 
   return (
-    <div className={cx(styles.wrapper, dark ? styles.dark : null)}>
+    <div className={cx(styles.wrapper, dark ? styles.dark : styles.light)}>
       <Button
         color="default"
         icon="fullscreen"
