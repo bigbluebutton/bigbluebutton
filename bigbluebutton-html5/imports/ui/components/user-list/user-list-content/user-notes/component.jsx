@@ -48,12 +48,12 @@ class UserNotes extends PureComponent {
         }
         <div className={styles.scrollableList}>
           <div
-            role='button'
+            role="button"
             tabIndex={0}
             className={styles.noteLink}
             onClick={toggleNotePanel}
           >
-            <Icon iconName='copy'/>
+            <Icon iconName="copy" />
             <span>{intl.formatMessage(intlMessages.title)}</span>
           </div>
         </div>
