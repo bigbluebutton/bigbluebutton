@@ -1955,9 +1955,10 @@ if [ -n "$HOST" ]; then
 
 		change_yml_value $HTML5_CONFIG wsUrl "$WS/bbb-webrtc-sfu"
 
-		if [ -f /usr/local/bigbluebutton/bbb-webrtc-sfu/config/default.yml ]; then
-		  yq w -i /usr/local/bigbluebutton/bbb-webrtc-sfu/config/default.yml kurento[0].url "ws://$HOST:8888/kurento"
-		fi
+                if [ -f $KURENTO_CONFIG ]; then
+                  yq w -i $KURENTO_CONFIG kurento[0].url "ws://$HOST:8888/kurento"
+                  chown bigbluebutton:bigbluebutton $KURENTO_CONFIG
+                fi
 	fi
 
         #
