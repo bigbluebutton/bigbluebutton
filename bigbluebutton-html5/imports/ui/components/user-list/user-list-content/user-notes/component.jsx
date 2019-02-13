@@ -53,8 +53,8 @@ class UserNotes extends PureComponent {
             className={styles.noteLink}
             onClick={toggleNotePanel}
           >
-            <Icon iconName='copy' className={styles.icon} />
-            <span className={styles.label} >{intl.formatMessage(intlMessages.title)}</span>
+            <Icon iconName='copy'/>
+            <span>{intl.formatMessage(intlMessages.title)}</span>
           </div>
         </div>
       </div>
