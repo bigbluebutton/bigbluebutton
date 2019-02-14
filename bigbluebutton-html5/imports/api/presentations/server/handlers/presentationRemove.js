@@ -6,7 +6,7 @@ export default function handlePresentationRemove({ body }, meetingId) {
   const { podId, presentationId } = body;
 
   check(meetingId, String);
-  check(podId);
+  check(podId, String);
   check(presentationId, String);
 
   return removePresentation(meetingId, podId, presentationId);

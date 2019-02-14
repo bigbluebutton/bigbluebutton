@@ -63,10 +63,11 @@ public class OfficeToPdfConversionService {
         logData.put("meetingId", pres.getMeetingId());
         logData.put("presId", pres.getId());
         logData.put("filename", pres.getName());
+        logData.put("logCode", "problems_office_to_pdf_validation");
         logData.put("message", "Problems detected prior to converting the file to PDF.");
         Gson gson = new Gson();
         String logStr = gson.toJson(logData);
-        log.warn("-- analytics -- {}", logStr);
+        log.warn(" --analytics-- data={}", logStr);
 
         pres.setConversionStatus(ConversionMessageConstants.OFFICE_DOC_CONVERSION_INVALID_KEY);
         return pres;
@@ -77,10 +78,11 @@ public class OfficeToPdfConversionService {
         logData.put("meetingId", pres.getMeetingId());
         logData.put("presId", pres.getId());
         logData.put("filename", pres.getName());
+        logData.put("logCode", "office_to_pdf_success");
         logData.put("message", "Successfully converted office file to pdf.");
         Gson gson = new Gson();
         String logStr = gson.toJson(logData);
-        log.info("-- analytics -- {}", logStr);
+        log.info(" --analytics-- data={}", logStr);
 
         makePdfTheUploadedFileAndSetStepAsSuccess(pres, pdfOutput);
       } else {
@@ -88,10 +90,11 @@ public class OfficeToPdfConversionService {
         logData.put("meetingId", pres.getMeetingId());
         logData.put("presId", pres.getId());
         logData.put("filename", pres.getName());
+        logData.put("logCode", "office_to_pdf_failed");
         logData.put("message", "Failed to convert " + pres.getUploadedFile().getAbsolutePath() + " to Pdf.");
         Gson gson = new Gson();
         String logStr = gson.toJson(logData);
-        log.warn("-- analytics -- {}", logStr);
+        log.warn(" --analytics-- data={}", logStr);
       }
     }
     return pres;

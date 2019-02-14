@@ -1,6 +1,9 @@
-apply plugin: 'java'
-apply plugin: 'war'
-apply plugin: 'eclipse'
+plugins {
+    id 'java'
+    id 'war'
+    id 'eclipse'
+    id 'idea'
+}
 
 version = '1.0' //TODO
 jar.enabled = true
@@ -10,52 +13,54 @@ task resolveDeps(type: Copy) {
 	into('lib')
 	from configurations.default
 	from configurations.default.allArtifacts.file
+    doLast { println '[bbb:task] Resolved dependencies for video-broadcast application' }
+
 }
 
 repositories {
-	mavenCentral()
-	mavenLocal()
+    jcenter()
+    mavenLocal()
 }
 
 dependencies {
 	// Servlet
-	providedCompile 'javax.servlet:servlet-api:2.5@jar'
+	providedCompile 'javax.servlet:servlet-api:2.5'
 
 	// Mina
-	providedCompile 'org.apache.mina:mina-core:2.0.19@jar'
-	providedCompile 'org.apache.mina:mina-integration-beans:2.0.19@jar'
-	providedCompile 'org.apache.mina:mina-integration-jmx:2.0.19@jar'
+	providedCompile 'org.apache.mina:mina-core:2.0.19'
+	providedCompile 'org.apache.mina:mina-integration-beans:2.0.19'
+	providedCompile 'org.apache.mina:mina-integration-jmx:2.0.19'
 
 	// Spring
-	providedCompile 'org.springframework:spring-web:4.3.12.RELEASE@jar'
-	providedCompile  'org.springframework:spring-beans:4.3.12.RELEASE@jar'
-	providedCompile 'org.springframework:spring-context:4.3.12.RELEASE@jar'
-	providedCompile 'org.springframework:spring-core:4.3.12.RELEASE@jar'
+	providedCompile 'org.springframework:spring-web:4.3.12.RELEASE'
+	providedCompile  'org.springframework:spring-beans:4.3.12.RELEASE'
+	providedCompile 'org.springframework:spring-context:4.3.12.RELEASE'
+	providedCompile 'org.springframework:spring-core:4.3.12.RELEASE'
 
 	// Red5
-	providedCompile 'org.red5:red5-server:1.0.10-M9@jar'
-	providedCompile 'org.red5:red5-server-common:1.0.10-M9@jar'
-	providedCompile 'org.red5:red5-io:1.0.10-M9@jar'
+	providedCompile 'org.red5:red5-server:1.0.10-M9'
+	providedCompile 'org.red5:red5-server-common:1.0.10-M9'
+	providedCompile 'org.red5:red5-io:1.0.10-M9'
 
 	// Logging
-	providedCompile 'ch.qos.logback:logback-core:1.2.3@jar'
-	providedCompile 'ch.qos.logback:logback-classic:1.2.3@jar'
-	providedCompile 'org.slf4j:log4j-over-slf4j:1.7.25@jar'
-	providedCompile 'org.slf4j:jcl-over-slf4j:1.7.25@jar'
-	providedCompile 'org.slf4j:jul-to-slf4j:1.7.25@jar'
-	providedCompile 'org.slf4j:slf4j-api:1.7.25@jar'
+	providedCompile 'ch.qos.logback:logback-core:1.2.3'
+	providedCompile 'ch.qos.logback:logback-classic:1.2.3'
+	providedCompile 'org.slf4j:log4j-over-slf4j:1.7.25'
+	providedCompile 'org.slf4j:jcl-over-slf4j:1.7.25'
+	providedCompile 'org.slf4j:jul-to-slf4j:1.7.25'
+	providedCompile 'org.slf4j:slf4j-api:1.7.25'
 
 	// Needed for the JVM shutdown hook but needs to be put into red5/lib dir.
 	// Otherwise we get exception on aop utils class not found.
-	providedCompile 'org.springframework:spring-aop:4.3.12.RELEASE@jar'
-	compile 'aopalliance:aopalliance:1.0@jar'
+	providedCompile 'org.springframework:spring-aop:4.3.12.RELEASE'
+	compile 'aopalliance:aopalliance:1.0'
 
 	// Java Concurrency In Practice
-	providedCompile 'net.jcip:jcip-annotations:1.0@jar'
+	providedCompile 'net.jcip:jcip-annotations:1.0'
 
 	// Testing
-	// compile 'org.testng:testng:5.8@jar'
-	compile 'org.easymock:easymock:2.4@jar'
+	// compile 'org.testng:testng:5.8'
+	compile 'org.easymock:easymock:2.4'
 
 	//redis
 	compile 'redis.clients:jedis:2.0.0'
@@ -66,21 +71,21 @@ dependencies {
 
 }
 
-test {
-	useTestNG()
-}
-
 war.doLast {
-	ant.unzip(src: war.archivePath, dest: "$buildDir/video-broadcast")
+    ant.unzip(src: war.archivePath, dest: "$buildDir/video-broadcast")
+    println '[bbb:task] WAR file ready for video-broadcast application'
 }
 
-
-task deploy() << {
-	def red5AppsDir = '/usr/share/red5/webapps'
-	def videoDir = new File("${red5AppsDir}/video-broadcast")
-	if (videoDir.exists()) ant.delete(dir: videoDir)
-	ant.mkdir(dir: videoDir)
-	ant.copy(todir: videoDir) {
-		fileset(dir: "$buildDir/video-broadcast")
-	}
+task deploy {
+    doLast {
+        def red5AppsDir = '/usr/share/red5/webapps'
+        def broadcastDir = new File("${red5AppsDir}/video-broadcast")
+        println "Deleting $broadcastDir"
+        if (broadcastDir.exists()) ant.delete(dir: broadcastDir)
+        ant.mkdir(dir: broadcastDir)
+        ant.copy(todir: broadcastDir) {
+            fileset(dir: "$buildDir/video-broadcast")
+        }
+        println '[bbb:task] WAR file deployed for video-broadcast application'
+    }
 }

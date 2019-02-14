@@ -453,7 +453,9 @@ class MeetingActor(
     // sync all voice users
     handleSyncGetVoiceUsersMsg(state, liveMeeting, msgBus)
 
-    // TODO send all lock settings
+    // sync all lock settings
+    handleSyncGetLockSettingsMsg(state, liveMeeting, msgBus)
+
     // TODO send all screen sharing info
 
   }

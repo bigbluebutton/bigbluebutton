@@ -1,11 +1,11 @@
 package org.bigbluebutton.transcode.core
 
-import akka.actor.ActorSystem
-
-import org.bigbluebutton.endpoint.redis.RedisPublisher
+import org.bigbluebutton.common2.redis.MessageSender
 import org.bigbluebutton.transcode.api._
 
-class TranscodingInGW(val system: ActorSystem, messageSender: RedisPublisher) {
+import akka.actor.ActorSystem
+
+class TranscodingInGW(val system: ActorSystem, messageSender: MessageSender) {
   val log = system.log
   val transcodingActor = system.actorOf(TranscodingActor.props(system, messageSender), "bbb-transcoding-manager")
 

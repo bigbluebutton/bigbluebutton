@@ -53,18 +53,47 @@ class MessageForm extends PureComponent {
   componentDidMount() {
     const { mobile } = this.BROWSER_RESULTS;
 
+    this.setMessageState();
+
     if (!mobile) {
       this.textarea.focus();
     }
   }
 
   componentDidUpdate(prevProps) {
-    const { chatName } = this.props;
+    const { chatId } = this.props;
+    const { message } = this.state;
     const { mobile } = this.BROWSER_RESULTS;
 
-    if (prevProps.chatName !== chatName && !mobile) {
+    if (prevProps.chatId !== chatId && !mobile) {
       this.textarea.focus();
     }
+
+    if (prevProps.chatId !== chatId) {
+      this.updateUnsentMessagesCollection(prevProps.chatId, message);
+      this.setMessageState();
+    }
+  }
+
+  componentWillUnmount() {
+    const { chatId } = this.props;
+    const { message } = this.state;
+    this.updateUnsentMessagesCollection(chatId, message);
+    this.setMessageState();
+  }
+
+  setMessageState() {
+    const { chatId, UnsentMessagesCollection } = this.props;
+    const unsentMessageByChat = UnsentMessagesCollection.findOne({ chatId });
+    this.setState({ message: unsentMessageByChat ? unsentMessageByChat.message : '' });
+  }
+
+  updateUnsentMessagesCollection(chatId, message) {
+    const { UnsentMessagesCollection } = this.props;
+    UnsentMessagesCollection.upsert(
+      { chatId },
+      { $set: { message } },
+    );
   }
 
   handleMessageKeyDown(e) {
@@ -102,6 +131,7 @@ class MessageForm extends PureComponent {
         { 0: message.length - maxMessageLength },
       );
     }
+
 
     this.setState({
       message,

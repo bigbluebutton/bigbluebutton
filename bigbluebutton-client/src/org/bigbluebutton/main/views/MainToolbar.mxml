@@ -246,6 +246,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				browser.name = BrowserCheck.browserName;
 				browser.majorVersion = BrowserCheck.browserMajorVersion;
 				browser.fullVersion = BrowserCheck.browserFullVersion;
+				browser.userAgent = BrowserCheck.userAgent;
 				
 				var logData:Object = UsersUtil.initLogData();
 				logData.tags = ["initialization"];

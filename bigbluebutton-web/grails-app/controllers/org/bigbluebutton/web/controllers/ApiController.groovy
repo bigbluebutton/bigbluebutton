@@ -36,6 +36,8 @@ import org.bigbluebutton.presentation.UploadedPresentation
 import org.bigbluebutton.web.services.PresentationService
 import org.bigbluebutton.web.services.turn.StunTurnService
 import org.bigbluebutton.web.services.turn.TurnEntry
+import org.bigbluebutton.web.services.turn.StunServer
+import org.bigbluebutton.web.services.turn.RemoteIceCandidate
 import org.json.JSONArray
 
 import javax.servlet.ServletRequest
@@ -501,6 +503,20 @@ class ApiController {
       msgValue = "Guest denied to join meeting."
     }
 
+    Map<String, Object> logData = new HashMap<String, Object>();
+    logData.put("meetingid", us.meetingID);
+    logData.put("extMeetingid", us.externMeetingID);
+    logData.put("name", us.fullname);
+    logData.put("userid", us.internalUserId);
+    logData.put("sessionToken", sessionToken);
+    logData.put("logCode", "join_api");
+    logData.put("description", "Handle JOIN API.");
+
+    Gson gson = new Gson();
+    String logStr = gson.toJson(logData);
+
+    log.info(" --analytics-- data=" + logStr);
+
     if (redirectClient) {
       log.info("Redirecting to ${destUrl}");
       redirect(url: destUrl);
@@ -691,6 +707,18 @@ class ApiController {
       respondWithErrors(errors)
       return;
     }
+
+    Map<String, Object> logData = new HashMap<String, Object>();
+    logData.put("meetingid", meeting.getInternalId());
+    logData.put("extMeetingid", meeting.getExternalId());
+    logData.put("name", meeting.getName());
+    logData.put("logCode", "end_api");
+    logData.put("description", "Handle END API.");
+
+    Gson gson = new Gson();
+    String logStr = gson.toJson(logData);
+
+    log.info(" --analytics-- data=" + logStr);
 
     meetingService.endMeeting(meeting.getInternalId());
 
@@ -1174,13 +1202,13 @@ class ApiController {
       logData.put("name", us.fullname);
       logData.put("userId", us.internalUserId);
       logData.put("sessionToken", sessionToken);
-      logData.put("message", "handle_configxml_api");
+      logData.put("logCode", "handle_configxml_api");
       logData.put("description", "Handling ConfigXml API.");
 
       Gson gson = new Gson();
       String logStr = gson.toJson(logData);
 
-      log.info(logStr);
+      log.info(" --analytics-- data=" + logStr);
 
       response.addHeader("Cache-Control", "no-cache")
       render text: us.configXML, contentType: 'text/xml'
@@ -1281,11 +1309,39 @@ class ApiController {
         // We force the response to not do a redirect. Otherwise,
         // the client would just be redirecting into this endpoint.
         redirectClient = false
+
+        Map<String, Object> logData = new HashMap<String, Object>();
+        logData.put("meetingid", us.meetingID);
+        logData.put("extMeetingid", us.externMeetingID);
+        logData.put("name", us.fullname);
+        logData.put("userid", us.internalUserId);
+        logData.put("sessionToken", sessionToken);
+        logData.put("logCode", "guest_wait");
+        logData.put("description", "Guest waiting for approval.");
+
+        Gson gson = new Gson();
+        String logStr = gson.toJson(logData);
+
+        log.info(" --analytics-- data=" + logStr);
+
       } else if (guestWaitStatus.equals(GuestPolicy.DENY)) {
         destUrl = meeting.getLogoutUrl()
         msgKey = "guestDenied"
         msgValue = "Guest denied to join meeting."
-        log.debug("GuestPolicy.DENY - destUrl = " + destUrl)
+
+        Map<String, Object> logData = new HashMap<String, Object>();
+        logData.put("meetingid", us.meetingID);
+        logData.put("extMeetingid", us.externMeetingID);
+        logData.put("name", us.fullname);
+        logData.put("userid", us.internalUserId);
+        logData.put("sessionToken", sessionToken);
+        logData.put("logCode", "guest_denied");
+        logData.put("description", "Guest denied.");
+
+        Gson gson = new Gson();
+        String logStr = gson.toJson(logData);
+
+        log.info(" --analytics-- data=" + logStr);
       }
 
       if (redirectClient) {
@@ -1393,18 +1449,18 @@ class ApiController {
       String newInternalUserID = us.internalUserId //+ "_" + us.incrementConnectionNum()
 
       Map<String, Object> logData = new HashMap<String, Object>();
-      logData.put("meetingId", us.meetingID);
-      logData.put("externalMeetingId", us.externMeetingID);
+      logData.put("meetingid", us.meetingID);
+      logData.put("extMeetingid", us.externMeetingID);
       logData.put("name", us.fullname);
-      logData.put("userId", newInternalUserID);
+      logData.put("userid", newInternalUserID);
       logData.put("sessionToken", sessionToken);
-      logData.put("message", "handle_enter_api");
+      logData.put("logCode", "handle_enter_api");
       logData.put("description", "Handling ENTER API.");
 
       Gson gson = new Gson();
       String logStr = gson.toJson(logData);
 
-      log.info(logStr);
+      log.info(" --analytics-- data=" + logStr);
 
       response.addHeader("Cache-Control", "no-cache")
       withFormat {
@@ -1446,16 +1502,16 @@ class ApiController {
             logoutUrl us.logoutUrl
             defaultLayout us.defaultLayout
             avatarURL us.avatarURL
-            customdata {
-              meeting.getUserCustomData(us.externUserID).each { k, v ->
-                "$k" v
+            customdata (
+              meeting.getUserCustomData(us.externUserID).collect { k, v ->
+                ["$k": v]
               }
-            }
-            metadata {
-              meeting.getMetadata().each { k, v ->
-                "$k" v
+            )
+            metadata (
+              meeting.getMetadata().collect { k, v ->
+                ["$k": v]
               }
-            }
+            )
           }
           render(contentType: "application/json", text: builder.toPrettyString())
         }
@@ -1484,7 +1540,7 @@ class ApiController {
       allowStunsWithoutSession = paramsProcessorUtil.getAllowRequestsWithoutSession();
     }
 
-    if (meetingService.getUserSessionWithAuthToken(sessionToken) == null || (!allowStunsWithoutSession && !session[sessionToken])) {
+    if (sessionToken == null || meetingService.getUserSessionWithAuthToken(sessionToken) == null || (!allowStunsWithoutSession && !session[sessionToken])) {
       reject = true;
     } else {
       us = meetingService.getUserSessionWithAuthToken(sessionToken);
@@ -1503,7 +1559,7 @@ class ApiController {
       withFormat {
         json {
           def builder = new JsonBuilder()
-          builder.response {
+          builder {
             returncode RESP_CODE_FAILED
             message "Could not find conference."
             logoutURL logoutUrl
@@ -1512,35 +1568,35 @@ class ApiController {
         }
       }
     } else {
-      Set<String> stuns = stunTurnService.getStunServers()
+      Set<StunServer> stuns = stunTurnService.getStunServers()
       Set<TurnEntry> turns = stunTurnService.getStunAndTurnServersFor(us.internalUserId)
-      Set<String> candidates = stunTurnService.getRemoteIceCandidates()
+      Set<RemoteIceCandidate> candidates = stunTurnService.getRemoteIceCandidates()
 
       response.addHeader("Cache-Control", "no-cache")
       withFormat {
         json {
           def builder = new JsonBuilder()
-          builder.response {
-            stunServers {
-              stuns.each { stun ->
-                stunData { url stun.url }
+          builder {
+            stunServers (
+              stuns.collect { stun ->
+                [url: stun.url]
               }
-            }
-            turnServers {
-              turns.each { turn ->
-                turnData {
-                  username turn.username
-                  password turn.password
-                  url turn.url
-                  ttl turn.ttl
-                }
+            )
+            turnServers (
+              turns.collect { turn ->
+                [
+                  username: turn.username,
+                  password: turn.password,
+                  url: turn.url,
+                  ttl: turn.ttl
+                ]
               }
-            }
-            remoteIceCandidates {
-              candidates.each { candidate ->
-                candidateData { ip candidate.ip }
+            )
+            remoteIceCandidates (
+              candidates.collect { candidate ->
+                [ip: candidate.ip ]
               }
-            }
+            )
           }
           render(contentType: "application/json", text: builder.toPrettyString())
         }
@@ -1563,8 +1619,27 @@ class ApiController {
     Meeting meeting = null;
 
     if (sessionToken != null) {
-      log.info("Found session for user in conference.")
+
       UserSession us = meetingService.removeUserSessionWithAuthToken(sessionToken);
+      if (us != null) {
+        Map<String, Object> logData = new HashMap<String, Object>();
+        logData.put("meetingid", us.meetingID);
+        logData.put("extMeetingid", us.externMeetingID);
+        logData.put("name", us.fullname);
+        logData.put("userid", us.internalUserId);
+        logData.put("sessionToken", sessionToken);
+        logData.put("message", "handle_signout_api");
+        logData.put("logCode", "signout_api");
+        logData.put("description", "Handling SIGNOUT API.");
+
+        Gson gson = new Gson();
+        String logStr = gson.toJson(logData);
+        log.info(" --analytics-- data=" + logStr);
+      } else {
+        log.info("Could not find user session for session token {}", sessionToken)
+      }
+
+
       session.removeAttribute(sessionToken)
     }
 

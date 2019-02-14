@@ -1,8 +1,6 @@
 import React from 'react';
-import Button from '/imports/ui/components/button/component';
 import RecordingContainer from '/imports/ui/components/recording/container';
 import humanizeSeconds from '/imports/utils/humanizeSeconds';
-import cx from 'classnames';
 import PropTypes from 'prop-types';
 import { defineMessages, injectIntl, intlShape } from 'react-intl';
 import { styles } from './styles';
@@ -56,26 +54,29 @@ class RecordingIndicator extends React.PureComponent {
 
     if (!record) return null;
 
+    const recordingToggle = () => {
+      mountModal(<RecordingContainer amIModerator={amIModerator} />);
+      document.activeElement.blur();
+    };
+
     return (
       <div>
         {amIModerator ? (
           <div
             aria-label={title}
-            className={styles.recordState}
+            title={buttonTitle}
+            className={recording ? styles.recordingControlON : styles.recordingControlOFF}
+            role="button"
+            tabIndex={0}
+            key="recording-toggle"
+            onClick={recordingToggle}
+            onKeyPress={recordingToggle}
           >
 
-            <div className={styles.border}>
-              <Button
-                label={buttonTitle}
-                hideLabel
-                ghost
-                className={cx(styles.btn, recording ? styles.recordIndicator : styles.notRecording)}
-                onClick={() => {
-                  mountModal(<RecordingContainer amIModerator={amIModerator} />);
-                  document.activeElement.blur();
-                }}
-              />
-            </div>
+            <span
+              className={recording ? styles.recordingIndicatorON : styles.recordingIndicatorOFF}
+            />
+
             <div className={styles.presentationTitle}>
               {recording
                 ? (
@@ -92,23 +93,19 @@ class RecordingIndicator extends React.PureComponent {
 
         {amIModerator ? null : (
           <div
-            aria-label={title}
-            className={styles.recordState}
+            title={`${intl.formatMessage(recording
+              ? intlMessages.notificationRecordingStart
+              : intlMessages.notificationRecordingStop)}`}
+            aria-label={`${intl.formatMessage(recording
+              ? intlMessages.notificationRecordingStart
+              : intlMessages.notificationRecordingStop)}`}
+            className={styles.recordingStatusViewOnly}
           >
-            <div className={styles.border}>
-              <Button
-                label={`${intl.formatMessage(recording
-                  ? intlMessages.notificationRecordingStart
-                  : intlMessages.notificationRecordingStop)}`}
-                aria-label={`${intl.formatMessage(recording
-                  ? intlMessages.notificationRecordingStart
-                  : intlMessages.notificationRecordingStop)}`}
-                hideLabel
-                ghost
-                className={cx(styles.btn, recording ? styles.recordIndicator : styles.notRecording)}
-                onClick={() => {}}
-              />
-            </div>
+
+            <span
+              className={recording ? styles.recordingIndicatorON : styles.recordingIndicatorOFF}
+            />
+
             <div className={styles.presentationTitle}>
               {recording ? humanizeSeconds(time) : null}
             </div>

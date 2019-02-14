@@ -49,33 +49,34 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
   <fx:Script>
     <![CDATA[
-			import com.asfusion.mate.events.Dispatcher;
-			
-			import org.as3commons.logging.api.ILogger;
-			import org.as3commons.logging.api.getClassLogger;
-			import org.bigbluebutton.common.events.LocaleChangeEvent;
-			import org.bigbluebutton.core.BBB;
-			import org.bigbluebutton.core.Options;
-			import org.bigbluebutton.core.UsersUtil;
-			import org.bigbluebutton.core.managers.ReconnectionManager;
-			import org.bigbluebutton.main.events.BBBEvent;
-			import org.bigbluebutton.main.events.MadePresenterEvent;
-			import org.bigbluebutton.main.events.ShortcutEvent;
-			import org.bigbluebutton.main.views.MainCanvas;
-			import org.bigbluebutton.modules.screenshare.events.RequestToPauseSharing;
-			import org.bigbluebutton.modules.screenshare.events.RequestToRestartSharing;
-			import org.bigbluebutton.modules.screenshare.events.RequestToStopSharing;
-			import org.bigbluebutton.modules.screenshare.events.ScreenSharePausedEvent;
-			import org.bigbluebutton.modules.screenshare.events.ShareStartEvent;
-			import org.bigbluebutton.modules.screenshare.events.ShareStoppedEvent;
-			import org.bigbluebutton.modules.screenshare.events.ShareWindowEvent;
-			import org.bigbluebutton.modules.screenshare.events.StartShareRequestSuccessEvent;
-			import org.bigbluebutton.modules.screenshare.events.StopSharingButtonEvent;
-			import org.bigbluebutton.modules.screenshare.events.ViewStreamEvent;
-			import org.bigbluebutton.modules.screenshare.model.ScreenshareModel;
-			import org.bigbluebutton.modules.screenshare.model.ScreenshareOptions;
-			import org.bigbluebutton.modules.screenshare.services.red5.Connection;
-			import org.bigbluebutton.util.i18n.ResourceUtil;
+		import com.asfusion.mate.events.Dispatcher;
+		
+		import org.as3commons.logging.api.ILogger;
+		import org.as3commons.logging.api.getClassLogger;
+		import org.bigbluebutton.common.events.LocaleChangeEvent;
+		import org.bigbluebutton.core.BBB;
+		import org.bigbluebutton.core.Options;
+		import org.bigbluebutton.core.UsersUtil;
+		import org.bigbluebutton.core.managers.ReconnectionManager;
+		import org.bigbluebutton.main.events.BBBEvent;
+		import org.bigbluebutton.main.events.MadePresenterEvent;
+		import org.bigbluebutton.main.events.ShortcutEvent;
+		import org.bigbluebutton.main.views.MainCanvas;
+		import org.bigbluebutton.modules.screenshare.events.RequestToPauseSharing;
+		import org.bigbluebutton.modules.screenshare.events.RequestToRestartSharing;
+		import org.bigbluebutton.modules.screenshare.events.RequestToStopSharing;
+		import org.bigbluebutton.modules.screenshare.events.ScreenSharePausedEvent;
+		import org.bigbluebutton.modules.screenshare.events.ShareStartEvent;
+		import org.bigbluebutton.modules.screenshare.events.ShareStoppedEvent;
+		import org.bigbluebutton.modules.screenshare.events.ShareWindowEvent;
+		import org.bigbluebutton.modules.screenshare.events.StartShareRequestSuccessEvent;
+		import org.bigbluebutton.modules.screenshare.events.StopSharingButtonEvent;
+		import org.bigbluebutton.modules.screenshare.events.ViewStreamEvent;
+		import org.bigbluebutton.modules.screenshare.model.ScreenshareModel;
+		import org.bigbluebutton.modules.screenshare.model.ScreenshareOptions;
+		import org.bigbluebutton.modules.screenshare.services.red5.Connection;
+		import org.bigbluebutton.util.browser.BrowserCheck;
+		import org.bigbluebutton.util.i18n.ResourceUtil;
 		
       
       private static const LOGGER:ILogger = getClassLogger(ScreensharePublishWindow);
@@ -127,9 +128,11 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         } else if (fullOS.indexOf("Linux") != -1) {
           os = "Linux";
         } else {
-          LOGGER.error("Browser not recognized, full value: {0}", [fullOS]);
+          LOGGER.error("OS not recognized, full value: {0}", [fullOS]);
           os = "";
         }
+
+        browser = BrowserCheck.browserName;
 
         windowControls.maximizeRestoreBtn.enabled = false;
 
@@ -549,7 +552,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
           if (os == "Windows") {
             shareTypeBox.visible = true;
             info = "PC";
-            if (browser == "Microsoft Internet Explorer" || browser == "Edge") {
+            if (browser == "Internet Explorer" || browser == "Edge") {
               info += "IE";
             } else if (browser == "Firefox") {
               info += "Firefox";
