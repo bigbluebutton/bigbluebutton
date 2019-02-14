@@ -1,32 +1,17 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { defineMessages, injectIntl, intlShape } from 'react-intl';
 import { TransitionGroup, CSSTransition } from 'react-transition-group';
 import WhiteboardOverlayContainer from '/imports/ui/components/whiteboard/whiteboard-overlay/container';
 import WhiteboardToolbarContainer from '/imports/ui/components/whiteboard/whiteboard-toolbar/container';
 import { HUNDRED_PERCENT, MAX_PERCENT } from '/imports/utils/slideCalcUtils';
+import PresentationToolbarContainer from './presentation-toolbar/container';
 import CursorWrapperContainer from './cursor/cursor-wrapper-container/container';
 import AnnotationGroupContainer from '../whiteboard/annotation-group/container';
-import PresentationToolbarContainer from './presentation-toolbar/container';
 import PresentationOverlayContainer from './presentation-overlay/container';
 import Slide from './slide/component';
 import { styles } from './styles.scss';
 import MediaService, { shouldEnableSwapLayout } from '../media/service';
 import PresentationCloseButton from './presentation-close-button/component';
-
-const intlMessages = defineMessages({
-  presentationLabel: {
-    id: 'app.presentationUploder.title',
-    description: 'presentation area element label',
-  },
-});
-
-// const isFullscreen = () => document.fullscreenElement !== null;
-
-// const renderPresentationClose = () => {
-//   if (!shouldEnableSwapLayout() || isFullscreen()) return null;
-//   return <PresentationCloseButton toggleSwapLayout={MediaService.toggleSwapLayout} />;
-// };
 
 class PresentationArea extends Component {
   constructor() {
@@ -61,10 +46,6 @@ class PresentationArea extends Component {
     this.getInitialPresentationSizes();
   }
 
-  componentDidUpdate() {
-    console.log('children', this.props.children);
-  }
-
   componentWillUnmount() {
     window.removeEventListener('resize', () => {
       setTimeout(this.handleResize.bind(this), 0);
@@ -75,6 +56,16 @@ class PresentationArea extends Component {
   // to transform screen coordinates to svg coordinate system
   getSvgRef() {
     return this.svggroup;
+  }
+
+  getToolbarHeight() {
+    const { refPresentationToolbar } = this;
+    let height = 0;
+    if (refPresentationToolbar) {
+      const { clientHeight } = refPresentationToolbar;
+      height = clientHeight;
+    }
+    return height;
   }
 
   getPresentationSizesAvailable() {
@@ -94,7 +85,7 @@ class PresentationArea extends Component {
         ({ clientWidth, clientHeight } = refWhiteboardArea);
       }
 
-      presentationSizes.presentationHeight = clientHeight;
+      presentationSizes.presentationHeight = clientHeight - this.getToolbarHeight();
       presentationSizes.presentationWidth = clientWidth;
     }
     return presentationSizes;
@@ -155,7 +146,7 @@ class PresentationArea extends Component {
     }
     return {
       width: adjustedWidth,
-      height: adjustedHeight,
+      height: adjustedHeight + this.getToolbarHeight(),
     };
   }
 
@@ -283,6 +274,7 @@ class PresentationArea extends Component {
     const { podId, currentSlide } = this.props;
     if (!this.isPresentationAccessible()) return null;
 
+
     // to control the size of the svg wrapper manually
     // and adjust cursor's thickness, so that svg didn't scale it automatically
     const adjustedSizes = this.calculateSize();
@@ -290,7 +282,6 @@ class PresentationArea extends Component {
     const slideObj = currentSlide;
 
     const presentationCloseButton = this.renderPresentationClose();
-    // const presentationFullscreenButton = this.renderPresentationFullscreen();
 
     // retrieving the pre-calculated data from the slide object
     const {
@@ -319,7 +310,6 @@ class PresentationArea extends Component {
         style={svgDimensions}
       >
         {presentationCloseButton}
-        {/* {presentationFullscreenButton} */}
         <TransitionGroup>
           <CSSTransition
             key={slideObj.id}
@@ -378,85 +368,14 @@ class PresentationArea extends Component {
             </svg>
           </CSSTransition>
         </TransitionGroup>
+        <div
+          ref={(ref) => { this.refPresentationToolbar = ref; }}
+        >
+          {this.renderPresentationToolbar()}
+        </div>
       </div>
     );
   }
-
-  // renderOverlays(slideObj, adjustedSizes) {
-  //   const {
-  //     userIsPresenter, multiUser, podId, currentSlide,
-  //   } = this.props;
-  //   const {
-  //     delta, zoom, touchZoom, fitToWidth,
-  //   } = this.state;
-
-  //   if (!userIsPresenter && !multiUser) return null;
-  // // renderPresentationFullscreen() {
-  // //   if (PresentationArea.isFullscreen()) {
-  // //     return null;
-  // //   }
-  // //   const full = () => this.refPresentationContainer.requestFullscreen();
-
-  // //   return <FullscreenButton handleFullscreen={full} dark />;
-  // // }
-
-  //   return (
-  //     <PresentationOverlayContainer
-  //       {...{
-  //         podId,
-  //         touchZoom,
-  //         fitToWidth,
-  //         zoom,
-  //         delta,
-  //         viewBoxWidth,
-  //         viewBoxHeight,
-  //         adjustedSizes,
-  //       }}
-  //       currentSlideNum={currentSlide.num}
-  //       whiteboardId={slideObj.id}
-  //       slide={slideObj}
-  //       slideWidth={width}
-  //       slideHeight={height}
-  //       zoomChanger={this.zoomChanger}
-  //       getSvgRef={this.getSvgRef}
-  //       presentationSize={this.getPresentationSizesAvailable()}
-  //     >
-  //       <WhiteboardOverlayContainer
-  //         {...{
-  //           zoom,
-  //           viewBoxWidth,
-  //           viewBoxHeight,
-  //         }}
-  //         getSvgRef={this.getSvgRef}
-  //         whiteboardId={slideObj.id}
-  //         slideWidth={width}
-  //         slideHeight={height}
-  //         viewBoxX={x}
-  //         viewBoxY={y}
-  //         pointChanger={this.pointUpdate}
-  //         physicalSlideWidth={(adjustedSizes.width / slideObj.widthRatio) * 100}
-  //         physicalSlideHeight={(adjustedSizes.height / slideObj.heightRatio) * 100}
-  //         zoomChanger={this.zoomChanger}
-  //         touchUpdate={this.touchUpdate}
-  //       />
-  //     </PresentationOverlayContainer>
-  //   );
-  // }
-
-  // renderPresentationFullscreen() {
-  //   const { intl } = this.props;
-  //   if (isFullscreen()) return null;
-
-  //   const full = () => this.refPresentationContainer.requestFullscreen();
-
-  //   return (
-  //     <FullscreenButton
-  //       handleFullscreen={full}
-  //       elementName={intl.formatMessage(intlMessages.presentationLabel)}
-  //       dark
-  //     />
-  //   );
-  // }
 
   renderPresentationToolbar() {
     const {
@@ -525,16 +444,14 @@ class PresentationArea extends Component {
             ? this.renderWhiteboardToolbar()
             : null}
         </div>
-        {this.renderPresentationToolbar()}
       </div>
     );
   }
 }
 
-export default injectIntl(PresentationArea);
+export default PresentationArea;
 
 PresentationArea.propTypes = {
-  intl: intlShape.isRequired,
   podId: PropTypes.string.isRequired,
   // Defines a boolean value to detect whether a current user is a presenter
   userIsPresenter: PropTypes.bool.isRequired,

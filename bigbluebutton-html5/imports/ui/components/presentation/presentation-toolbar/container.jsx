@@ -3,8 +3,8 @@ import PropTypes from 'prop-types';
 import { withTracker } from 'meteor/react-meteor-data';
 import PresentationService from '/imports/ui/components/presentation/service';
 import MediaService from '/imports/ui/components/media/service';
-import PresentationToolbarService from './service';
 import PresentationToolbar from './component';
+import PresentationToolbarService from './service';
 
 const PresentationToolbarContainer = (props) => {
   const {

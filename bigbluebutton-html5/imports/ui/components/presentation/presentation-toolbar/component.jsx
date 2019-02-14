@@ -8,7 +8,6 @@ import { HUNDRED_PERCENT, MAX_PERCENT, STEP } from '/imports/utils/slideCalcUtil
 import { styles } from './styles.scss';
 import ZoomTool from './zoom-tool/component';
 import FullscreenButton from '../../video-provider/fullscreen-button/component';
-import PresentationArea from '../component';
 
 
 const intlMessages = defineMessages({
@@ -27,6 +26,10 @@ const intlMessages = defineMessages({
   fitToWidth: {
     id: 'app.presentation.presentationToolbar.fitToWidth',
     description: 'button for fit to width',
+  },
+  presentationLabel: {
+    id: 'app.presentationUploder.title',
+    description: 'presentation area element label',
   },
 });
 
@@ -276,6 +279,7 @@ class PresentationToolbar extends Component {
               && (
                 <FullscreenButton
                   handleFullscreen={fullscreenRef}
+                  elementName={intl.formatMessage(intlMessages.presentationLabel)}
                   dark
                 />
               )
