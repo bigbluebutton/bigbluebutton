@@ -141,7 +141,8 @@ class VideoListItem extends Component {
           {enableVideoMenu && availableActions.length >= 3
             ? (
               <Dropdown className={isFirefox ? styles.dropdownFireFox
-                : styles.dropdown}>
+                : styles.dropdown}
+              >
                 <DropdownTrigger className={styles.dropdownTrigger}>
                   <span>{user.name}</span>
                 </DropdownTrigger>
@@ -153,7 +154,9 @@ class VideoListItem extends Component {
               </Dropdown>
             )
             : (
-              <div className={styles.dropdown}>
+              <div className={isFirefox ? styles.dropdownFireFox
+                : styles.dropdown}
+              >
                 <span className={styles.userName}>{user.name}</span>
               </div>
             )
