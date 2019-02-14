@@ -232,7 +232,7 @@ class VideoPreview extends Component {
               playsInline
             />
           </div>
-          <div className={styles.options}>
+          <div className={styles}>
             <label className={styles.label}>
               {intl.formatMessage(intlMessages.cameraLabel)}
             </label>
