@@ -56,6 +56,7 @@ export default function addSlide(meetingId, podId, presentationId, slide) {
     yOffset: Number,
     widthRatio: Number,
     heightRatio: Number,
+    content: String,
   });
 
   const selector = {

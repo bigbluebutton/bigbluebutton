@@ -20,6 +20,14 @@ const intlMessages = defineMessages({
     id: 'app.presentationUploder.title',
     description: 'presentation area element label',
   },
+  slideContentStart: {
+    id: 'app.presentation.startSlideContent',
+    description: 'Indicate the slide content start',
+  },
+  slideContentEnd: {
+    id: 'app.presentation.endSlideContent',
+    description: 'Indicate the slide content end',
+  },
 });
 
 const isFullscreen = () => document.fullscreenElement !== null;
@@ -198,7 +206,7 @@ class PresentationArea extends Component {
   // renders the whole presentation area
   renderPresentationArea() {
     const { fitToWidth } = this.state;
-    const { podId, currentSlide } = this.props;
+    const { podId, currentSlide, intl } = this.props;
     if (!this.isPresentationAccessible()) return null;
 
     // to control the size of the svg wrapper manually
@@ -209,6 +217,10 @@ class PresentationArea extends Component {
 
     const presentationCloseButton = renderPresentationClose();
     const presentationFullscreenButton = this.renderPresentationFullscreen();
+
+    const slideContent = `${intl.formatMessage(intlMessages.slideContentStart)}
+     ${currentSlide.content}
+     ${intl.formatMessage(intlMessages.slideContentEnd)}`;
 
     // retrieving the pre-calculated data from the slide object
     const {
@@ -231,7 +243,10 @@ class PresentationArea extends Component {
     return (
       <div
         style={svgDimensions}
+        aria-label="Slide Content"
+        aria-describedby="currentSlideText"
       >
+        <p id="currentSlideText" hidden>{slideContent}</p>
         {presentationCloseButton}
         {presentationFullscreenButton}
         <TransitionGroup>
@@ -423,8 +438,8 @@ class PresentationArea extends Component {
             ref={(ref) => { this.refWhiteboardArea = ref; }}
             className={styles.whiteboardSizeAvailable}
           />
-          {showSlide ? this.renderPresentationArea() : null }
-          {userIsPresenter || multiUser ? this.renderWhiteboardToolbar() : null }
+          {showSlide ? this.renderPresentationArea() : null}
+          {userIsPresenter || multiUser ? this.renderWhiteboardToolbar() : null}
         </div>
         {this.renderPresentationToolbar()}
       </div>

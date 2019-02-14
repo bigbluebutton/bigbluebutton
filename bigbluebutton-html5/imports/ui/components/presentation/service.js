@@ -23,15 +23,6 @@ const getCurrentSlide = (podId) => {
       presentationId: currentPresentation.id,
       current: true,
     },
-    {
-      fields: {
-        meetingId: 0,
-        thumbUri: 0,
-        swfUri: 0,
-        txtUri: 0,
-        svgUri: 0,
-      },
-    },
   );
 };
 
