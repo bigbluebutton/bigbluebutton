@@ -3,10 +3,12 @@ import org.bigbluebutton.build._
 import scalariform.formatter.preferences._
 import com.typesafe.sbt.SbtScalariform
 import com.typesafe.sbt.SbtScalariform.ScalariformKeys
-
+import NativePackagerHelper._
 import com.typesafe.sbt.SbtNativePackager.autoImport._
 
 enablePlugins(JavaServerAppPackaging)
+enablePlugins(UniversalPlugin)
+enablePlugins(DebianPlugin)
 
 version := "0.0.2"
 
@@ -80,5 +82,7 @@ daemonUser in Linux := user
 
 // group which will execute the application
 daemonGroup in Linux := group
+
+javaOptions in Universal ++= Seq("-J-Xms130m", "-J-Xmx256m", "-Dconfig.file=conf/application.conf", "-Dlogback.configurationFile=conf/logback.xml")
 
 debianPackageDependencies in Debian ++= Seq("java8-runtime-headless", "bash")

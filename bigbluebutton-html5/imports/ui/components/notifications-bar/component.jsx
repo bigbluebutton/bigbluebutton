@@ -16,12 +16,19 @@ const defaultProps = {
   color: 'default',
 };
 
+const isTimedAlert = (alertString) => {
+  // checks if the notification string contains a timer
+  const endsWithTime = alertString.match(/[0-9]*:[0-9]{2}$/i);
+  const hasCounter = alertString.match(/[ ][0-9]*[ ]/i);
+  return !!(hasCounter || endsWithTime);
+};
+
 const NotificationsBar = (props) => {
   const { color, children } = props;
 
   return (
     <div
-      role="alert"
+      role={isTimedAlert(children) ? '' : 'alert'}
       className={cx(styles.notificationsBar, styles[color])}
     >
       {children}

@@ -47,10 +47,11 @@ public class Png2SwfPageConverter implements PageConverter {
       logData.put("meetingId", pres.getMeetingId());
       logData.put("presId", pres.getId());
       logData.put("filename", pres.getName());
+      logData.put("logCode", "png_to_swf_failed");
       logData.put("message", "Failed to convert PNG doc to SWF.");
       Gson gson = new Gson();
       String logStr = gson.toJson(logData);
-      log.warn("-- analytics -- {}", logStr);
+      log.warn(" --analytics-- data={}", logStr);
 
       return false;
     }

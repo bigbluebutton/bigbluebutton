@@ -24,6 +24,14 @@
   }
 }
 
+.light {
+  top: 0;
+}
+
+.light .button span i {
+  color: var(--color-white);
+}
+
 .dark {
   bottom: 0;
 }
