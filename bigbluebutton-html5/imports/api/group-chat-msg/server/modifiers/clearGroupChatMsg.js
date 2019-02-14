@@ -9,21 +9,19 @@ export default function clearGroupChatMsg(meetingId, chatId) {
   const CHAT_CLEAR_MESSAGE = CHAT_CONFIG.system_messages_keys.chat_clear;
 
   if (chatId) {
-    GroupChatMsg.remove({ meetingId, chatId }, () => {
-      Logger.info(`Cleared GroupChatMsg (${meetingId}, ${chatId})`);
-      const clearMsg = {
-        color: '0',
-        timestamp: Date.now(),
-        correlationId: `${PUBLIC_CHAT_SYSTEM_ID}-${Date.now()}`,
-        sender: {
-          id: PUBLIC_CHAT_SYSTEM_ID,
-          name: '',
-        },
-        message: CHAT_CLEAR_MESSAGE,
-      };
-
-      return addGroupChatMsg(meetingId, PUBLIC_GROUP_CHAT_ID, clearMsg);
-    });
+    GroupChatMsg.remove({ meetingId, chatId });
+    Logger.info(`Cleared GroupChatMsg (${meetingId}, ${chatId})`);
+    const clearMsg = {
+      color: '0',
+      timestamp: Date.now(),
+      correlationId: `${PUBLIC_CHAT_SYSTEM_ID}-${Date.now()}`,
+      sender: {
+        id: PUBLIC_CHAT_SYSTEM_ID,
+        name: '',
+      },
+      message: CHAT_CLEAR_MESSAGE,
+    };
+    return addGroupChatMsg(meetingId, PUBLIC_GROUP_CHAT_ID, clearMsg);
   }
 
   if (meetingId) {
