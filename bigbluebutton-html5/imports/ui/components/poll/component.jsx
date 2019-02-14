@@ -40,6 +40,10 @@ const intlMessages = defineMessages({
     id: 'app.poll.activePollInstruction',
     description: 'instructions displayed when a poll is active',
   },
+  ariaInputCount: {
+    id: 'app.poll.ariaInputCount',
+    description: 'aria label for custom poll input field',
+  },
   customPlaceholder: {
     id: 'app.poll.customPlaceholder',
     description: 'custom poll input field placeholder text',
@@ -185,13 +189,17 @@ class Poll extends Component {
     items = _.range(1, MAX_CUSTOM_FIELDS + 1).map((ele, index) => {
       const id = index;
       return (
-        <input
-          key={`custom-poll-${id}`}
-          placeholder={intl.formatMessage(intlMessages.customPlaceholder)}
-          className={styles.input}
-          onChange={event => this.handleInputChange(id, event)}
-          defaultValue={customPollValues[id]}
-        />
+        <div key={`custom-poll-${id}`} className={styles.pollInput}>
+          <input
+            aria-label={intl.formatMessage(
+              intlMessages.ariaInputCount, { 0: id + 1, 1: MAX_CUSTOM_FIELDS },
+            )}
+            placeholder={intl.formatMessage(intlMessages.customPlaceholder)}
+            className={styles.input}
+            onChange={event => this.handleInputChange(id, event)}
+            defaultValue={customPollValues[id]}
+          />
+        </div>
       );
     });
 
@@ -242,6 +250,7 @@ class Poll extends Component {
           color="default"
           onClick={this.toggleCustomFields}
           label={intl.formatMessage(intlMessages.customPollLabel)}
+          aria-expanded={customPollReq}
         />
         {!customPollReq ? null : this.renderCustomView()}
       </div>

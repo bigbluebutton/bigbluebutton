@@ -1,47 +1,44 @@
 @import "../../../stylesheets/variables/_all";
+@import "../../../stylesheets/variables/typography";
 
-%baseIndicator {
-  position: relative;
-  display: inline-block;
-  width: var(--font-size-large);
-  height: var(--font-size-large);
-  border-radius: 50%;
-  border: 1px solid var(--color-white);
+.visuallyHidden {
+  position: absolute;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  height: 1px; width: 1px;
+  margin: -1px; padding: 0; border: 0;
+}
 
-  &:after {
-    content: '';
-    width: calc(var(--font-size-large) / 2);
-    height: calc(var(--font-size-large) / 2);
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    margin-top: calc((var(--font-size-large) / -4));
-    margin-left: calc((var(--font-size-large) / -4));
-    border-radius: 50%;
-    background-color: var(--color-danger);
+%recordingControl {
+  display: flex;
+  border-radius: 5%;
+  padding: 2px !important;
+
+  span {
+    border: none;
+    box-shadow: none;
+    background-color: transparent !important;
+    color: var(--color-white) !important;
   }
-}
-
-.border {
-  border: 1px solid var(--color-white);
-  border-radius: 50%;
-}
-
-.recordIndicator {
-  @extend %baseIndicator;
-}
-
-.btn {
-  border-radius: 50%;
-  display: block;
-  padding: 0;
 
   &:hover,
   &:focus {
-    background-color: transparent !important;
     color: var(--color-white) !important;
-    opacity: .75;
+    cursor: pointer;
   }
+}
+
+.recordingControlON {
+  @extend %recordingControl;
+
+  background-color: var(--color-primary);
+  border: 1px solid var(--color-primary);
+}
+
+.recordingControlOFF {
+  @extend %recordingControl;
+
+  border: 1px solid var(--color-white);
 }
 
 .presentationTitle {
@@ -51,9 +48,8 @@
   font-weight: 200;
   color: var(--color-white);
   font-size: var(--font-size-base);
-  margin: 0;
   padding: 0;
-  margin-left: var(--sm-padding-x);
+  margin: 0 0 0 var(--sm-padding-x);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -64,15 +60,58 @@
   }
 }
 
-.notRecording {
-  @extend %baseIndicator;
-  border: 1px solid var(--color-white);
+.recordingStatusViewOnly {
+  display: flex;
+}
 
+%recordingIndicator {
+  border: 1px solid var(--color-white) !important;
+  border-radius: 50%;
+  span {
+    border: none;
+    box-shadow: none;
+    background-color: transparent !important;
+  }
+  position: relative;
+  display: inline-block;
+  padding: 0 !important;
+  width: var(--font-size-large);
+  height: var(--font-size-large);
+  border-radius: 50%;
+  &:after {
+    content: '';
+    width: calc(var(--font-size-large) / 2);
+    height: calc(var(--font-size-large) / 2);
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    margin-top: calc((var(--font-size-large) / -4));
+    margin-left: calc((var(--font-size-large) / -4));
+    border-radius: 50%;
+  }
+}
+
+.recordingIndicatorON {
+  @extend %recordingIndicator;
+  &:after {
+    background-color: var(--color-danger);
+  }
+}
+
+.recordingIndicatorOFF {
+  @extend %recordingIndicator;
   &:after {
     background-color: var(--color-white);
   }
 }
 
-.recordState {
-  display: flex;
+.isRecordingCircle {
+  border: 1px solid var(--color-white) !important;
+  border-radius: 50%;
+  span {
+    border: none;
+    box-shadow: none;
+    background-color: transparent !important;
+  }
 }
+

@@ -28,11 +28,14 @@ function shouldShowWhiteboard() {
 }
 
 function shouldShowScreenshare() {
-  return isVideoBroadcasting() && getFromUserSettings('enableScreensharing', KURENTO_CONFIG.enableScreensharing);
+  const { viewScreenshare } = Settings.dataSaving;
+  const enableScreensharing = getFromUserSettings('enableScreensharing', KURENTO_CONFIG.enableScreensharing);
+  return enableScreensharing && viewScreenshare && isVideoBroadcasting();
 }
 
 function shouldShowExternalVideo() {
-  return getVideoId() && Meteor.settings.public.app.enableExternalVideo;
+  const enableExternalVideo = Meteor.settings.public.app.enableExternalVideo;
+  return enableExternalVideo && getVideoId();
 }
 
 function shouldShowOverlay() {

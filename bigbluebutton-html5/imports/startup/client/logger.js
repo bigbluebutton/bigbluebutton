@@ -27,6 +27,7 @@ class ServerLoggerStream extends ServerStream {
     if (fullInfo.meetingId != null) {
       this.rec.clientInfo = fullInfo;
     }
+    this.rec.clientBuild = Meteor.settings.public.app.html5ClientBuild;
     return super.write(this.rec);
   }
 }

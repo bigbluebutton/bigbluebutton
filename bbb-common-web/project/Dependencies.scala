@@ -7,13 +7,13 @@ object Dependencies {
 
   object Versions {
     // Scala
-    val scala = "2.12.7"
+    val scala = "2.12.8"
     val junit = "4.12"
     val junitInterface = "0.11"
     val scalactic = "3.0.3"
 
     // Libraries
-    val akkaVersion = "2.5.17"
+    val akkaVersion = "2.5.19"
     val gson = "2.8.5"
     val jackson = "2.9.7"
     val freemaker = "2.3.28"
@@ -21,12 +21,14 @@ object Dependencies {
     val apacheHttpAsync = "4.1.4"
 
     // Office and document conversion
-    val apacheOffice = "4.0.0"
     val jodConverter = "4.2.1"
     val apachePoi = "3.17"
     val nuProcess = "1.2.4"
     val libreOffice = "5.4.2"
 
+    // Server
+    val servlet = "3.1.0"
+    
     // Apache Commons
     val lang = "3.8.1"
     val io = "2.6"
@@ -62,6 +64,8 @@ object Dependencies {
     val officeJuh = "org.libreoffice" % "juh" % Versions.libreOffice
     val officejurt = "org.libreoffice" % "jurt" % Versions.libreOffice
 
+    val servletApi = "javax.servlet" % "javax.servlet-api" % Versions.servlet
+    
     val apacheLang = "org.apache.commons" % "commons-lang3" % Versions.lang
     val apacheIo = "commons-io" % "commons-io" % Versions.io
     val apachePool2 = "org.apache.commons" % "commons-pool2" % Versions.pool
@@ -97,6 +101,7 @@ object Dependencies {
     Compile.poiXml,
     Compile.jodConverter,
     Compile.nuProcess,
+    Compile.servletApi,
     Compile.apacheLang,
     Compile.apacheIo,
     Compile.apachePool2,

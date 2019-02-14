@@ -7,12 +7,12 @@ object Dependencies {
 
   object Versions {
     // Scala
-    val scala = "2.12.7"
+    val scala = "2.12.8"
     val junitInterface = "0.11"
     val scalactic = "3.0.3"
 
     // Libraries
-    val akkaVersion = "2.5.17"
+    val akkaVersion = "2.5.19"
     val logback = "1.2.3"
 
     // Apache Commons

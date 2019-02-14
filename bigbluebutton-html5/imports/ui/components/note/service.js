@@ -65,7 +65,7 @@ const getNoteParams = () => {
 const getNoteURL = () => {
   const noteId = generateNoteId();
   const params = getNoteParams();
-  let url = NOTE_CONFIG.url + '/p/' + noteId + '?' + params;
+  const url = Auth.authenticateURL(NOTE_CONFIG.url + '/p/' + noteId + '?' + params);
   return url;
 };
 

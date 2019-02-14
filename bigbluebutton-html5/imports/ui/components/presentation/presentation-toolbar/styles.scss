@@ -1,5 +1,13 @@
 @import "/imports/ui/stylesheets/variables/_all";
 
+.visuallyhidden {
+  position: absolute; 
+  overflow: hidden; 
+  clip: rect(0 0 0 0); 
+  height: 1px; width: 1px; 
+  margin: -1px; padding: 0; border: 0; 
+}
+
 .presentationToolbarWrapper,
 .presentationControls,
 .zoomWrapper {
@@ -28,6 +36,14 @@
   button:last-of-type {
     border-top-left-radius: 0;
     border-bottom-left-radius: 0;
+    border-top-right-radius: 5px;
+    border-bottom-right-radius: 5px;
+  }
+
+  span:last-of-type button[aria-labelledby~=fitWidthLabel],
+  button:last-of-type[aria-labelledby~=fitWidthLabel] {
+    border-top-left-radius: 5px;
+    border-bottom-left-radius: 5px;
     border-top-right-radius: 5px;
     border-bottom-right-radius: 5px;
   }
@@ -114,4 +130,12 @@
   display: flex;
   align-items: center;
   justify-content: center;
+  border-top: 0 !important;
+  border-bottom: 0 !important;
+  border-top-right-radius: 0 !important;
+  border-bottom-right-radius: 0 !important;
+
+  &:hover{
+    opacity: .8;
+  }
 }

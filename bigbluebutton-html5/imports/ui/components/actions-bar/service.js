@@ -4,6 +4,9 @@ import { makeCall } from '/imports/ui/services/api';
 import Meetings from '/imports/api/meetings';
 import Breakouts from '/imports/api/breakouts';
 
+const USER_CONFIG = Meteor.settings.public.user;
+const ROLE_MODERATOR = USER_CONFIG.role_moderator;
+
 const getBreakouts = () => Breakouts.find({ parentMeetingId: Auth.meetingID })
   .fetch()
   .sort((a, b) => a.sequence - b.sequence);
@@ -20,7 +23,7 @@ const takePresenterRole = () => makeCall('assignPresenter', Auth.userID);
 
 export default {
   isUserPresenter: () => Users.findOne({ userId: Auth.userID }).presenter,
-  isUserModerator: () => Users.findOne({ userId: Auth.userID }).moderator,
+  isUserModerator: () => Users.findOne({ userId: Auth.userID }).role === ROLE_MODERATOR,
   recordSettingsList: () => Meetings.findOne({ meetingId: Auth.meetingID }).recordProp,
   meetingIsBreakout: () => Meetings.findOne({ meetingId: Auth.meetingID }).meetingProp.isBreakout,
   meetingName: () => Meetings.findOne({ meetingId: Auth.meetingID }).meetingProp.name,

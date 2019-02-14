@@ -120,7 +120,7 @@
 	transparent
   );
   background-size: 1rem 1rem;
-  animation: bar-stripes 1s linear infinite;
+  animation: bar-stripes calc(var(--enableAnimation) * 1s) linear infinite;
 }
 
 .itemAction {
@@ -131,7 +131,7 @@
   font-size: 1.35rem;
   color: var(--color-gray-light);
   padding: 0;
-  transition: all .25s;
+  transition: all calc(var(--enableAnimation) * .25s);
 }
 
 .itemActionRemove {

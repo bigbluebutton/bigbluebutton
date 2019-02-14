@@ -30,6 +30,7 @@ import org.apache.commons.codec.digest.DigestUtils
 import net.oauth.OAuthMessage
 import net.oauth.signature.OAuthSignatureMethod
 import net.oauth.signature.HMAC_SHA1
+import net.oauth.signature.HMAC_SHA256
 import org.bigbluebutton.lti.Parameter
 
 class ToolController {
@@ -60,7 +61,9 @@ class ToolController {
             return
         }
         // On post request proceed with the launch.
-        def endPoint = ltiService.getScheme(request) + "://" + ltiService.endPoint + "/" + grailsApplication.metadata['app.name'] + "/" + params.get("controller") + (params.get("format") != null ? "." + params.get("format") : "")
+        def schemeHeader = request.getHeader("X-Forwarded-Proto")
+        def scheme = schemeHeader == null ? ltiService.getScheme(request) : schemeHeader
+        def endPoint = scheme + "://" + ltiService.endPoint + "/" + grailsApplication.metadata['app.name'] + "/" + params.get("controller") + (params.get("format") != null ? "." + params.get("format") : "")
         log.info "endPoint: " + endPoint
         ArrayList<String> missingParams = new ArrayList<String>()
 
@@ -177,7 +180,7 @@ class ToolController {
     private void setLocalization(Map<String, String> params){
         String locale = params.get(Parameter.LAUNCH_LOCALE)
         locale = (locale == null || locale.equals("")?"en":locale)
-        String[] localeCodes = locale.split("_")
+        String[] localeCodes = locale.split("[_-]")
         // Localize the default welcome message
         session['org.springframework.web.servlet.i18n.SessionLocaleResolver.LOCALE'] = new Locale(localeCodes[0])
         if (localeCodes.length > 1) {
@@ -263,12 +266,13 @@ class ToolController {
 
     /**
      * Check if the passed signature is valid.
+     * Checks both SHA1 and SHA256 signatures.
      * @param method - POST or GET method used to make the request
      * @param URL - The target URL for the Basic LTI tool
      * @param conSecret - The consumer secret key
      * @param postProp - the parameters passed in from the tool
      * @param signature - the passed in signature calculated from the client
-     * @return - TRUE if the signatures matches the calculated signature
+     * @return - TRUE if the SHA1 or the SHA256 signatures match the calculated signature
      */
     private boolean checkValidSignature(String method, String url, String conSecret, Properties postProp, String signature) {
         if (!ltiService.hasRestrictedAccess()) {
@@ -276,14 +280,22 @@ class ToolController {
         }
         try {
             OAuthMessage oam = new OAuthMessage(method, url, postProp.entrySet())
-            //log.debug "OAuthMessage oam = " + oam.toString()
+
             HMAC_SHA1 hmac = new HMAC_SHA1()
-            //log.debug "HMAC_SHA1 hmac = " + hmac.toString()
+			HMAC_SHA256 hmac256 = new HMAC_SHA256()
+
             hmac.setConsumerSecret(conSecret)
-            log.debug "Base Message String = [ " + hmac.getBaseString(oam) + " ]\n"
+			hmac256.setConsumerSecret(conSecret) 
+			
+            log.debug "SHA1 Base Message String = [ " + hmac.getBaseString(oam) + " ]\n"
             String calculatedSignature = hmac.getSignature(hmac.getBaseString(oam))
             log.debug "Calculated: " + calculatedSignature + " Received: " + signature
-            return calculatedSignature.equals(signature)
+			
+	    log.debug "SHA256 Base Message String = [ " + hmac256.getBaseString(oam) + " ]\n"
+	    String calculatedSignature256 = hmac256.getSignature(hmac256.getBaseString(oam))
+	    log.debug "Calculated: " + calculatedSignature256 + " Received: " + signature
+		
+            return calculatedSignature.equals(signature) || calculatedSignature256.equals(signature)
         } catch( Exception e ) {
             log.debug "Exception error: " + e.message
             return false
@@ -326,8 +338,21 @@ class ToolController {
             recording.put("unixDate", startTime / 1000)
             // Add sanitized thumbnails
             recording.put("thumbnails", sanitizeThumbnails(recording.playback.format))
+            recording.put("playbacks", sanitizePlayback(recording.playback.format))
         }
         return recordings
+    }
+
+    private List<Object> sanitizePlayback(Object format) {
+        def response = new ArrayList<Object>()
+        if (format instanceof Map<?,?>) {
+            response.add(format)
+        } else if (format instanceof Collection<?>) {
+            response = new ArrayList(format)
+        } else {
+            response = format
+        }
+        return response
     }
 
     private List<Object> sanitizeThumbnails(Object format) {
@@ -347,6 +372,26 @@ class ToolController {
         def icon = 'http://' + lti_endpoint + '/assets/icon.ico'
         def secure_icon = 'https://' + lti_endpoint + '/assets/icon.ico'
         def isSSLEnabled = ltiService.isSSLEnabled('https://' + lti_endpoint + '/tool/test')
+        def extension_url = isSSLEnabled ? secure_launch_url : launch_url
+        def extension_icon = isSSLEnabled ? secure_icon : icon
+        def canvasPlacements = ''
+        def canvasPlacementsList = ltiService.canvasPlacements
+        if (canvasPlacementsList.length > 0) {
+            canvasPlacements += '' +
+                '    <blti:extensions platform="canvas.instructure.com">'
+            canvasPlacementsList.each { placement ->
+                canvasPlacements += '' +
+                    '        <lticm:options name="' + placement + '">' +
+                    '          <lticm:property name="canvas_icon_class">icon-lti</lticm:property>' +
+                    '          <lticm:property name="icon_url">' + extension_icon + '</lticm:property>' +
+                    '          <lticm:property name="text">' + ltiService.canvasPlacementName + '</lticm:property>' +
+                    '          <lticm:property name="url">' + extension_url + '</lticm:property>' +
+                    '        </lticm:options>'
+            }
+            canvasPlacements += '' +
+                '    </blti:extensions>'
+        }
+
         def cartridge = '' +
                 '<?xml version="1.0" encoding="UTF-8"?>' +
                 '<cartridge_basiclti_link xmlns="http://www.imsglobal.org/xsd/imslticc_v1p0"' +
@@ -370,6 +415,7 @@ class ToolController {
                 '        <lticp:description>Open source web conferencing system for distance learning.</lticp:description>' +
                 '        <lticp:url>http://www.bigbluebutton.org/</lticp:url>' +
                 '    </blti:vendor>' +
+                canvasPlacements +
                 '    <cartridge_bundle identifierref="BLTI001_Bundle"/>' +
                 '    <cartridge_icon identifierref="BLTI001_Icon"/>' +
                 '</cartridge_basiclti_link>'

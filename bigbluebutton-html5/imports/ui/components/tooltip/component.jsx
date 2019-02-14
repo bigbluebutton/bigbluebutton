@@ -4,6 +4,12 @@ import Tippy from 'tippy.js';
 import _ from 'lodash';
 import cx from 'classnames';
 import { ESCAPE } from '/imports/utils/keyCodes';
+import Settings from '/imports/ui/services/settings';
+
+const DEFAULT_ANIMATION = 'shift-away';
+const ANIMATION_NONE = 'none';
+const ANIMATION_DURATION = 350;
+const ANIMATION_DELAY = [150, 50];
 
 const propTypes = {
   title: PropTypes.string.isRequired,
@@ -23,7 +29,16 @@ class Tooltip extends Component {
     const expandedEl = tooltipTarget.parentElement.querySelector('[aria-expanded="true"]');
     const isTarget = expandedEl === tooltipTarget;
     if (expandedEl && !isTarget) return;
-    tip.set({ content: tooltipTarget.lastChild.innerText });
+
+    const findLabel = (node) => {
+      const { nodeName, lastChild, parentElement } = node;
+      if (nodeName.toLowerCase() === 'button') return lastChild.innerText;
+      return findLabel(parentElement);
+    };
+    const label = findLabel(tooltipTarget);
+    if (label) tip.set({ content: label });
+    // if we are not able to get the text, the default content is used
+
     tip.show();
   }
 
@@ -34,7 +49,10 @@ class Tooltip extends Component {
     this.onShow = this.onShow.bind(this);
     this.onHide = this.onHide.bind(this);
     this.handleEscapeHide = this.handleEscapeHide.bind(this);
-    this.delay = [150, 50];
+
+    this.state = {
+      enableAnimation: Settings.application.animations,
+    };
   }
 
   componentDidMount() {
@@ -42,22 +60,56 @@ class Tooltip extends Component {
       position,
       title,
     } = this.props;
-
+    const { enableAnimation } = this.state;
     const options = {
       placement: position,
       performance: true,
       content: title,
-      delay: this.delay,
+      delay: enableAnimation ? ANIMATION_DELAY : [ANIMATION_DELAY[0], 0],
+      duration: enableAnimation ? ANIMATION_DURATION : 0,
       onShow: this.onShow,
       onHide: this.onHide,
       wait: Tooltip.wait,
       touchHold: true,
       size: 'regular',
-      distance: 10,
+      distance: enableAnimation ? 10 : 20,
       arrow: true,
       arrowType: 'sharp',
+      aria: null,
+      animation: enableAnimation ? DEFAULT_ANIMATION : ANIMATION_NONE,
     };
     this.tooltip = Tippy(`#${this.tippySelectorId}`, options);
+  }
+
+  componentDidUpdate() {
+    const { enableAnimation } = this.state;
+    const { animations } = Settings.application;
+
+    if (animations !== enableAnimation) {
+      const elements = document.querySelectorAll('[id^="tippy-"]');
+      Array.from(elements).filter((e) => {
+        const instance = e._tippy;
+
+        if (!instance) return false;
+
+        const animation = animations ? DEFAULT_ANIMATION : ANIMATION_NONE;
+
+        if (animation === instance.props.animation) return false;
+
+        return true;
+      }).forEach((e) => {
+        const instance = e._tippy;
+        instance.set({
+          animation: animations
+            ? DEFAULT_ANIMATION : ANIMATION_NONE,
+          distance: animations ? 10 : 20,
+          delay: animations ? ANIMATION_DELAY : [ANIMATION_DELAY[0], 0],
+          duration: animations ? ANIMATION_DURATION : 0,
+        });
+      });
+
+      this.setEnableAnimation(animations);
+    }
   }
 
   onShow() {
@@ -66,6 +118,10 @@ class Tooltip extends Component {
 
   onHide() {
     document.removeEventListener('keyup', this.handleEscapeHide);
+  }
+
+  setEnableAnimation(enableAnimation) {
+    this.setState({ enableAnimation });
   }
 
   handleEscapeHide(e) {

@@ -74,7 +74,7 @@ export default class KurentoAudioBridge extends BaseAudioBridge {
       } finally {
         logFunc('info', "iceServers", iceServers);
         const options = {
-          wsUrl: SFU_URL,
+          wsUrl: Auth.authenticateURL(SFU_URL),
           userName: this.user.name,
           caleeName: `${GLOBAL_AUDIO_PREFIX}${this.voiceBridge}`,
           iceServers,
@@ -130,7 +130,7 @@ export default class KurentoAudioBridge extends BaseAudioBridge {
         await audioContext.setSinkId(value);
         this.media.outputDeviceId = value;
       } catch (err) {
-        logger.error(err);
+        logger.error({ logCode: 'audio_kurento_changeoutputdevice_error' }, err);
         throw new Error(this.baseErrorCodes.MEDIA_ERROR);
       }
     }

@@ -42,4 +42,5 @@ sudo chown -R red5:red5 /usr/share/red5/webapps/screenshare
 # // Dev only
 #sudo service red5 restart
 #sudo service tomcat7 restart
+#sudo service bbb-web restart
 #sudo service bbb-apps-akka restart
