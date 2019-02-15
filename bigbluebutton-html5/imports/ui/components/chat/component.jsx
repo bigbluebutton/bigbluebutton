@@ -127,7 +127,7 @@ const propTypes = {
     PropTypes.object,
   ])).isRequired).isRequired,
   scrollPosition: PropTypes.number,
-  shortcuts: PropTypes.string.isRequired,
+  shortcuts: PropTypes.objectOf(PropTypes.string),
   hasUnreadMessages: PropTypes.bool.isRequired,
   lastReadMessageTime: PropTypes.number.isRequired,
   partnerIsLoggedOut: PropTypes.bool.isRequired,
