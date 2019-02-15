@@ -33,6 +33,7 @@ class ActionsBar extends React.PureComponent {
       sendInvitation,
       getBreakouts,
       handleTakePresenter,
+      isSharingVideo,
     } = this.props;
 
     const {
@@ -67,6 +68,7 @@ class ActionsBar extends React.PureComponent {
             sendInvitation,
             getBreakouts,
             handleTakePresenter,
+            isSharingVideo,
           }}
           />
         </div>

@@ -49,5 +49,6 @@ export default withTracker(() => {
     getBreakouts: Service.getBreakouts,
     getUsersNotAssigned: Service.getUsersNotAssigned,
     handleTakePresenter: Service.takePresenterRole,
+    isSharingVideo: Service.isSharingVideo(),
   };
 })(ActionsBarContainer);
