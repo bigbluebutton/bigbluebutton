@@ -129,10 +129,10 @@ const intlMessages = defineMessages({
 });
 
 const BROWSER_RESULTS = browser();
-const isMobileBrowser = (BROWSER_RESULTS ? BROWSER_RESULTS.mobile : false) ||
-  (BROWSER_RESULTS && BROWSER_RESULTS.os ?
-    BROWSER_RESULTS.os.includes('Android') : // mobile flag doesn't always work
-    false);
+const isMobileBrowser = (BROWSER_RESULTS ? BROWSER_RESULTS.mobile : false)
+  || (BROWSER_RESULTS && BROWSER_RESULTS.os
+    ? BROWSER_RESULTS.os.includes('Android') // mobile flag doesn't always work
+    : false);
 
 class PresentationUploader extends Component {
   constructor(props) {
@@ -187,8 +187,9 @@ class PresentationUploader extends Component {
   }
 
   handleConfirm() {
-    const { mountModal } = this.props;
-    const presentationsToSave = this.state.presentations
+    const { mountModal, intl, handleSave } = this.props;
+    const { presentations, oldCurrentId } = this.state;
+    const presentationsToSave = presentations
       .filter(p => !p.upload.error && !p.conversion.error);
 
     this.setState({
@@ -197,32 +198,33 @@ class PresentationUploader extends Component {
       presentations: presentationsToSave,
     });
 
-    return this.props.handleSave(presentationsToSave)
+    return handleSave(presentationsToSave)
       .then(() => {
-        const hasError = this.state.presentations.some(p => p.upload.error || p.conversion.error);
+        const hasError = presentations.some(p => p.upload.error || p.conversion.error);
         if (!hasError) {
           this.setState({
             disableActions: false,
             preventClosing: false,
           });
 
-          return mountModal(null);
+          mountModal(null);
+          return;
         }
 
-        // if theres error we dont want to close the modal
+        // if there's error we don't want to close the modal
         this.setState({
           disableActions: false,
           preventClosing: true,
         }, () => {
           // if the selected current has error we revert back to the old one
-          const newCurrent = this.state.presentations.find(p => p.isCurrent);
+          const newCurrent = presentations.find(p => p.isCurrent);
           if (newCurrent.upload.error || newCurrent.conversion.error) {
-            this.handleCurrentChange(this.state.oldCurrentId);
+            this.handleCurrentChange(oldCurrentId);
           }
         });
       })
       .catch((error) => {
-        notify(this.props.intl.formatMessage(intlMessages.genericError), 'error');
+        notify(intl.formatMessage(intlMessages.genericError), 'error');
 
         logger.error({ logCode: 'presentationuploader_component_save_error' }, error);
 
@@ -247,7 +249,9 @@ class PresentationUploader extends Component {
   }
 
   handleFiledrop(files, files2) {
-    const [ accepted, rejected ] = _.partition(files.concat(files2), (f) => this.props.fileValidMimeTypes.includes(f.type));
+    const { fileValidMimeTypes, intl } = this.props;
+    const [accepted, rejected] = _.partition(files
+      .concat(files2), f => fileValidMimeTypes.includes(f.type));
 
     const presentationsToUpload = accepted.map((file) => {
       const id = _.uniqueId(file.name);
@@ -298,7 +302,7 @@ class PresentationUploader extends Component {
 
 
     if (rejected.length > 0) {
-        notify(this.props.intl.formatMessage(intlMessages.rejectedError), 'error');
+      notify(intl.formatMessage(intlMessages.rejectedError), 'error');
     }
   }
 
@@ -408,7 +412,8 @@ class PresentationUploader extends Component {
         });
       }
 
-      const conversionStatusMessage = intlMessages[item.conversion.status] || intlMessages.genericConversionStatus;
+      const conversionStatusMessage = intlMessages[item.conversion.status]
+        || intlMessages.genericConversionStatus;
       return intl.formatMessage(conversionStatusMessage);
     }
 
@@ -417,6 +422,7 @@ class PresentationUploader extends Component {
 
   renderPresentationItem(item) {
     const { disableActions, oldCurrentId } = this.state;
+    const { intl } = this.props;
 
     const isActualCurrent = item.id === oldCurrentId;
     const isUploading = !item.upload.done && item.upload.progress > 0;
@@ -447,7 +453,7 @@ class PresentationUploader extends Component {
             ? (
               <th className={styles.tableItemCurrent}>
                 <span className={styles.currentLabel}>
-                  {this.props.intl.formatMessage(intlMessages.current)}
+                  {intl.formatMessage(intlMessages.current)}
                 </span>
               </th>
             )
@@ -475,6 +481,7 @@ class PresentationUploader extends Component {
                 label="Remove presentation"
                 onClick={() => this.handleRemove(item)}
               >
+
                 <Icon iconName="delete" />
               </ButtonBase>
             )}
@@ -489,7 +496,6 @@ class PresentationUploader extends Component {
       intl,
       fileSizeMin,
       fileSizeMax,
-      fileValidMimeTypes,
     } = this.props;
 
     const { disableActions } = this.state;
@@ -510,7 +516,8 @@ class PresentationUploader extends Component {
       >
         <Icon className={styles.dropzoneIcon} iconName="upload" />
         <p className={styles.dropzoneMessage}>
-          {intl.formatMessage(intlMessages.dropzoneImagesLabel)}&nbsp;
+          {intl.formatMessage(intlMessages.dropzoneImagesLabel)}
+&nbsp;
           <span className={styles.dropzoneLink}>
             {intl.formatMessage(intlMessages.browseImagesLabel)}
           </span>
