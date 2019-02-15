@@ -117,7 +117,7 @@
   z-index: 2;
 }
 
-.dropdown {
+.dropdown, .dropdownFireFox {
   flex: 1;
   display: flex;
   outline: none !important;
@@ -130,6 +130,10 @@
   }
 }
 
+.dropdownFireFox {
+  max-width: 100%;
+}
+
 .dropdownTrigger, .userName {
   @extend %text-elipsis;
   position: relative;
@@ -138,7 +142,6 @@
   font-size: 80%;
   border-radius: 15px;
   padding: 0 1rem 0 .5rem !important;
-  max-width: 50%;
 
 }
 
