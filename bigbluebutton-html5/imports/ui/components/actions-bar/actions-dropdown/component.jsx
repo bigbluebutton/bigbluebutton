@@ -88,7 +88,7 @@ const intlMessages = defineMessages({
     description: 'Description of take presenter role option',
   },
   startExternalVideoLabel: {
-    id: 'app.actionsBar.actionsDropdown.startShareExternalVideo',
+    id: 'app.actionsBar.actionsDropdown.shareExternalVideo',
     description: 'Start sharing external video button',
   },
   stopExternalVideoLabel: {
