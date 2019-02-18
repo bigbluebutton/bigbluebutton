@@ -47,8 +47,8 @@ class UserPolls extends PureComponent {
             className={styles.pollLink}
             onClick={handleClickTogglePoll}
           >
-            <Icon iconName="polling" className={styles.icon} />
-            <span className={styles.label}>{intl.formatMessage(intlMessages.pollLabel)}</span>
+            <Icon iconName="polling" />
+            <span>{intl.formatMessage(intlMessages.pollLabel)}</span>
           </div>
         </div>
       </div>

@@ -97,7 +97,7 @@ class ChatDropdown extends PureComponent {
             `data: ${mimeType} ;charset=utf-8,
             ${encodeURIComponent(ChatService.exportChat(ChatService.getPublicGroupMessages()))}`,
           );
-          link.click();
+          link.dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true, view: window }));
         }}
       />,
       <DropdownListItem

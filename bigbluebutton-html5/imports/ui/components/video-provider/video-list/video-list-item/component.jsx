@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import browser from 'browser-detect';
 import { Meteor } from 'meteor/meteor';
 import cx from 'classnames';
 import { defineMessages, injectIntl } from 'react-intl';
@@ -119,6 +120,9 @@ class VideoListItem extends Component {
     const availableActions = this.getAvailableActions();
     const enableVideoMenu = Meteor.settings.public.kurento.enableVideoMenu || false;
 
+    const result = browser();
+    const isFirefox = (result && result.name) ? result.name.includes('firefox') : false;
+
     return (
       <div className={cx({
         [styles.content]: true,
@@ -136,7 +140,9 @@ class VideoListItem extends Component {
         <div className={styles.info}>
           {enableVideoMenu && availableActions.length >= 3
             ? (
-              <Dropdown className={styles.dropdown}>
+              <Dropdown className={isFirefox ? styles.dropdownFireFox
+                : styles.dropdown}
+              >
                 <DropdownTrigger className={styles.dropdownTrigger}>
                   <span>{user.name}</span>
                 </DropdownTrigger>
@@ -148,7 +154,9 @@ class VideoListItem extends Component {
               </Dropdown>
             )
             : (
-              <div className={styles.dropdown}>
+              <div className={isFirefox ? styles.dropdownFireFox
+                : styles.dropdown}
+              >
                 <span className={styles.userName}>{user.name}</span>
               </div>
             )
@@ -157,7 +165,7 @@ class VideoListItem extends Component {
           {user.isListenOnly ? <Icon className={styles.voice} iconName="listen" /> : null}
         </div>
         {showStats ? <VideoListItemStats toggleStats={this.toggleStats} stats={stats} /> : null}
-        { this.renderFullscreenButton() }
+        {this.renderFullscreenButton()}
       </div>
     );
   }
