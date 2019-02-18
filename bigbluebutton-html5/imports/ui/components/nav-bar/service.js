@@ -2,6 +2,28 @@ import Auth from '/imports/ui/services/auth';
 import Breakouts from '/imports/api/breakouts';
 import { makeCall } from '/imports/ui/services/api';
 import Meetings from '/imports/api/meetings';
+import fp from 'lodash/fp';
+
+const getBreakoutByUserId = userId => Breakouts.find({ 'users.userId': userId }).fetch();
+
+const getBreakoutByUser = user => Breakouts.findOne({ users: user });
+
+const getUsersFromBreakouts = breakoutsArray => breakoutsArray
+  .map(breakout => breakout.users)
+  .flat();
+
+const filterUserURLs = userId => breakoutUsersArray => breakoutUsersArray
+  .filter(user => user.userId === userId);
+
+const getLastURLInserted = breakoutURLArray => breakoutURLArray
+  .sort((a, b) => a.insertedTime - b.insertedTime).pop();
+
+const getBreakoutUserByUserId = userId => fp.pipe(
+  getBreakoutByUserId,
+  getUsersFromBreakouts,
+  filterUserURLs(userId),
+  getLastURLInserted,
+)(userId);
 
 const getBreakouts = () => Breakouts.find({}, { sort: { sequence: 1 } }).fetch();
 
@@ -32,6 +54,7 @@ const connectRecordingObserver = () => {
 export default {
   connectRecordingObserver: () => connectRecordingObserver(),
   processOutsideToggleRecording: arg => processOutsideToggleRecording(arg),
+  getBreakoutUserByUserId,
+  getBreakoutByUser,
   getBreakouts,
 };
-
