@@ -146,7 +146,7 @@ class PresentationArea extends Component {
     }
     return {
       width: adjustedWidth,
-      height: adjustedHeight + this.getToolbarHeight(),
+      height: adjustedHeight,
     };
   }
 
@@ -294,7 +294,7 @@ class PresentationArea extends Component {
       imageUri,
     } = slideObj.calculatedData;
 
-    const svgDimensions = fitToWidth
+    const svgAreaDimensions = fitToWidth
       ? {
         position: 'absolute',
         width: 'inherit',
@@ -303,11 +303,12 @@ class PresentationArea extends Component {
         position: 'absolute',
         width: adjustedSizes.width,
         height: adjustedSizes.height,
+        textAlign: 'center',
       };
 
     return (
       <div
-        style={svgDimensions}
+        style={svgAreaDimensions}
       >
         {presentationCloseButton}
         <TransitionGroup>
@@ -368,11 +369,6 @@ class PresentationArea extends Component {
             </svg>
           </CSSTransition>
         </TransitionGroup>
-        <div
-          ref={(ref) => { this.refPresentationToolbar = ref; }}
-        >
-          {this.renderPresentationToolbar()}
-        </div>
       </div>
     );
   }
@@ -394,7 +390,6 @@ class PresentationArea extends Component {
 
     return (
       <PresentationToolbarContainer
-
         isFullscreen={propIsFullscreen}
         fullscreenRef={fullRef}
         podId={podId}
@@ -424,6 +419,12 @@ class PresentationArea extends Component {
     const { userIsPresenter, multiUser } = this.props;
     const { showSlide } = this.state;
 
+    const adjustedSizes = this.calculateSize();
+    const adjustedHeight = adjustedSizes.height;
+
+    const toolbarHeight = this.getToolbarHeight();
+
+
     return (
       <div
         ref={(ref) => { this.refPresentationContainer = ref; }}
@@ -437,12 +438,29 @@ class PresentationArea extends Component {
             ref={(ref) => { this.refWhiteboardArea = ref; }}
             className={styles.whiteboardSizeAvailable}
           />
-          {showSlide
-            ? this.renderPresentationArea()
-            : null}
-          {userIsPresenter || multiUser
-            ? this.renderWhiteboardToolbar()
-            : null}
+          <div
+            className={styles.svgContainer}
+            style={{
+              height: adjustedHeight + toolbarHeight,
+            }}
+          >
+            {showSlide
+              ? this.renderPresentationArea()
+              : null}
+            {userIsPresenter || multiUser
+              ? this.renderWhiteboardToolbar()
+              : null}
+            {userIsPresenter || multiUser
+              ? (
+                <div
+                  className={styles.presentationToolbar}
+                  ref={(ref) => { this.refPresentationToolbar = ref; }}
+                >
+                  {this.renderPresentationToolbar()}
+                </div>
+              )
+              : null}
+          </div>
         </div>
       </div>
     );

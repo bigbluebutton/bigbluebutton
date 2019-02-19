@@ -38,6 +38,23 @@
   z-index: -1;
 }
 
+.svgContainer{
+  width: 100%;
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.presentationToolbar{
+  display: flex;
+  overflow-x: auto;
+  width: 100%;
+  order: 2;
+  position: absolute;
+  bottom: 0;
+}
+
 .svgStyles {
   object-fit: contain;
   width: 100%;
