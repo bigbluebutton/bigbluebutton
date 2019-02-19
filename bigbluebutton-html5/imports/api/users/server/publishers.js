@@ -39,7 +39,7 @@ Meteor.publish('current-user', function currentUserPub(credentials) {
   return Users.find(selector, options);
 });
 
-function users(credentials) {
+function users(credentials, isModerator = false) {
   const {
     meetingId,
     requesterUserId,
@@ -51,8 +51,18 @@ function users(credentials) {
   check(requesterToken, String);
 
   const selector = {
-    meetingId,
+    $or: [
+      { meetingId },
+    ],
   };
+
+  if (isModerator) {
+    selector.$or.push({
+      'breakoutProps.isBreakoutUser': true,
+      'breakoutProps.parentId': meetingId,
+      connectionStatus: 'online',
+    });
+  }
 
   const options = {
     fields: {
