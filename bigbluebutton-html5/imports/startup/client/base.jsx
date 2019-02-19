@@ -232,7 +232,7 @@ const BaseContainer = withTracker(() => {
     userSubscriptionHandler,
     breakoutRoomSubscriptionHandler,
     animations,
-    meetingExist: !!Meetings.findOne({ meetingId }),
+    meetingExist: !!Meetings.find({ meetingId }).count(),
     User,
     meteorIsConnected: Meteor.status().connected,
   };
