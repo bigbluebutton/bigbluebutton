@@ -27,12 +27,12 @@ export default function clearGroupChatMsg(meetingId, chatId) {
   }
 
   if (meetingId) {
-    return GroupChatMsg.remove({ meetingId, chatId: { $eq: 'MAIN-PUBLIC-GROUP-CHAT' } }, () => {
+    return GroupChatMsg.remove({ meetingId, chatId: { $eq: PUBLIC_GROUP_CHAT_ID } }, () => {
       Logger.info(`Cleared GroupChatMsg (${meetingId})`);
     });
   }
 
-  return GroupChatMsg.remove({ chatId: { $eq: 'MAIN-PUBLIC-GROUP-CHAT' } }, () => {
+  return GroupChatMsg.remove({ chatId: { $eq: PUBLIC_GROUP_CHAT_ID } }, () => {
     Logger.info('Cleared GroupChatMsg (all)');
   });
 }
