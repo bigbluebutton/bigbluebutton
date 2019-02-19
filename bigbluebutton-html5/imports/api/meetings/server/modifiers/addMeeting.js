@@ -46,7 +46,7 @@ export default function addMeeting(meeting) {
     recordProp: Match.ObjectIncluding({
       allowStartStopRecording: Boolean,
       autoStartRecording: Boolean,
-      record: Boolean
+      record: Boolean,
     }),
     password: {
       viewerPass: String,
@@ -66,6 +66,8 @@ export default function addMeeting(meeting) {
     metadataProp: Object,
   });
 
+  const newMeeting = meeting;
+
   const selector = {
     meetingId,
   };
@@ -81,10 +83,12 @@ export default function addMeeting(meeting) {
     setBy: 'temp',
   };
 
+  newMeeting.welcomeProp.welcomeMsg = newMeeting.welcomeProp.welcomeMsg.replace('event:', '');
+
   const modifier = {
     $set: Object.assign(
       { meetingId },
-      flat(meeting, { safe: true }),
+      flat(newMeeting, { safe: true }),
       { lockSettingsProp },
     ),
   };
