@@ -4,20 +4,20 @@ import Logger from '/imports/startup/server/logger';
 import Meetings from '/imports/api/meetings';
 import RedisPubSub from '/imports/startup/server/redis';
 
-export default function startStream(credentials) {
+export default function stopStream(credentials) {
   const REDIS_CONFIG = Meteor.settings.private.redis;
   const CHANNEL = REDIS_CONFIG.channels.toAkkaApps;
   const EVENT_NAME = 'StopExternalVideoMsg';
 
   const { meetingId, requesterUserId } = credentials;
 
-  Logger.info(' user sharing a new youtube video: ', credentials);
-
   check(meetingId, String);
   check(requesterUserId, String);
 
   Meetings.update({ meetingId }, { $set: { externalVideoUrl: null } });
   const payload = {};
+
+  Logger.info(`User id=${requesterUserId} stoped sharing a youtube video for meeting=${meetingId}`);
 
   RedisPubSub.publishUserMessage(CHANNEL, EVENT_NAME, meetingId, requesterUserId, payload);
 }
