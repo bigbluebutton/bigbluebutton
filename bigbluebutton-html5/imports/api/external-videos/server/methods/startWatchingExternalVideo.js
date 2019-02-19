@@ -4,15 +4,13 @@ import Logger from '/imports/startup/server/logger';
 import Meetings from '/imports/api/meetings';
 import RedisPubSub from '/imports/startup/server/redis';
 
-export default function startStream(credentials, options) {
+export default function startWatchingExternalVideo(credentials, options) {
   const REDIS_CONFIG = Meteor.settings.private.redis;
   const CHANNEL = REDIS_CONFIG.channels.toAkkaApps;
   const EVENT_NAME = 'StartExternalVideoMsg';
 
   const { meetingId, requesterUserId } = credentials;
   const { externalVideoUrl } = options;
-
-  Logger.info(' user sharing a new youtube video: ', credentials);
 
   check(meetingId, String);
   check(requesterUserId, String);
@@ -21,6 +19,8 @@ export default function startStream(credentials, options) {
   Meetings.update({ meetingId }, { $set: { externalVideoUrl } });
 
   const payload = { externalVideoUrl };
+
+  Logger.info(`User id=${requesterUserId} sharing a youtube video: ${externalVideoUrl} for meeting ${meetingId}`);
 
   return RedisPubSub.publishUserMessage(CHANNEL, EVENT_NAME, meetingId, requesterUserId, payload);
 }

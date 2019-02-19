@@ -4,7 +4,7 @@ import Logger from '/imports/startup/server/logger';
 import Meetings from '/imports/api/meetings';
 import RedisPubSub from '/imports/startup/server/redis';
 
-export default function stopStream(credentials) {
+export default function stopWatchingExternalVideo(credentials) {
   const REDIS_CONFIG = Meteor.settings.private.redis;
   const CHANNEL = REDIS_CONFIG.channels.toAkkaApps;
   const EVENT_NAME = 'StopExternalVideoMsg';
