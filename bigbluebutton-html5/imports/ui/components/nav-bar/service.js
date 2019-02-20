@@ -10,7 +10,7 @@ const getBreakoutByUser = user => Breakouts.findOne({ users: user });
 
 const getUsersFromBreakouts = breakoutsArray => breakoutsArray
   .map(breakout => breakout.users)
-  .flat();
+  .reduce((acc, usersArray) => [...acc, usersArray], []);
 
 const filterUserURLs = userId => breakoutUsersArray => breakoutUsersArray
   .filter(user => user.userId === userId);
