@@ -22,6 +22,7 @@ const propTypes = {
   fileSizeMin: PropTypes.number.isRequired,
   fileSizeMax: PropTypes.number.isRequired,
   handleSave: PropTypes.func.isRequired,
+  dispatchTogglePresentationDownloadable: PropTypes.func.isRequired,
   fileValidMimeTypes: PropTypes.arrayOf(PropTypes.string).isRequired,
   presentations: PropTypes.arrayOf(PropTypes.shape({
     id: PropTypes.string.isRequired,
@@ -152,6 +153,7 @@ class PresentationUploader extends Component {
     this.handleFiledrop = this.handleFiledrop.bind(this);
     this.handleCurrentChange = this.handleCurrentChange.bind(this);
     this.handleRemove = this.handleRemove.bind(this);
+    this.toggleDownloadable = this.toggleDownloadable.bind(this);
 
     this.updateFileKey = this.updateFileKey.bind(this);
     this.deepMergeUpdateFileKey = this.deepMergeUpdateFileKey.bind(this);
@@ -354,6 +356,29 @@ class PresentationUploader extends Component {
     });
   }
 
+  toggleDownloadable(item) {
+    const { dispatchTogglePresentationDownloadable } = this.props;
+    const { presentations } = this.state;
+
+    const oldDownloadableState = item.isDownloadable;
+
+    const outOfDatePresentationIndex = presentations.findIndex(p => p.id === item.id);
+    const commands = {};
+    commands[outOfDatePresentationIndex] = {
+      $apply: (presentation) => {
+        const p = presentation;
+        p.isDownloadable = !oldDownloadableState;
+        return p;
+      },
+    };
+    const presentationsUpdated = update(presentations, commands);
+
+    this.setState({
+      presentations: presentationsUpdated,
+    });
+    dispatchTogglePresentationDownloadable(item, !oldDownloadableState);
+  }
+
   renderPresentationList() {
     const { presentations } = this.state;
 
@@ -467,6 +492,15 @@ class PresentationUploader extends Component {
         </td>
         { hasError ? null : (
           <td className={styles.tableItemActions}>
+            <ButtonBase
+              className={cx(styles.itemAction, styles.itemActionRemove)}
+              label="Remove presentationAAAAAAAAA"
+              onClick={() => this.toggleDownloadable(item)}
+            >
+              {item.isDownloadable
+                ? <Icon iconName="download-off" />
+                : <Icon iconName="template_download" />}
+            </ButtonBase>
             <Checkbox
               disabled={disableActions}
               ariaLabel="Set as current presentation"
