@@ -166,7 +166,7 @@ class SettingsDropdown extends PureComponent {
       intl, mountModal, amIModerator,
     } = this.props;
 
-    const { showHelpButton: helpButton } = Meteor.settings.public.app;
+    const { showHelpButton: helpButton, helpLink } = Meteor.settings.public.app;
 
     return _.compact([
       this.getFullscreenItem(),
@@ -191,7 +191,7 @@ class SettingsDropdown extends PureComponent {
             icon="help"
             label={intl.formatMessage(intlMessages.helpLabel)}
             description={intl.formatMessage(intlMessages.helpDesc)}
-            onClick={() => window.open('https://bigbluebutton.org/videos/')}
+            onClick={() => window.open(`${helpLink}`)}
           />
         ),
       (<DropdownListItem
