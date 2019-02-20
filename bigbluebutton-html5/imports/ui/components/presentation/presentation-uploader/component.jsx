@@ -127,6 +127,18 @@ const intlMessages = defineMessages({
     id: 'app.presentationUploder.conversion.pageCountExceeded',
     description: 'warns the user that the conversion failed because of the page count',
   },
+  isDownloadable: {
+    id: 'app.presentationUploder.isDownloadableLabel',
+    description: 'informs the presenter that the presentation is available for downloading by all viewers',
+  },
+  isNotDownloadable: {
+    id: 'app.presentationUploder.isNotDownloadableLabel',
+    description: 'informs the presenter that the presentation is not available for downloading the viewers',
+  },
+  removePresentation: {
+    id: 'app.presentationUploder.removePresentationLabel',
+    description: 'select to delete this presentation',
+  },
 });
 
 const BROWSER_RESULTS = browser();
@@ -464,6 +476,9 @@ class PresentationUploader extends Component {
     };
 
     const hideRemove = this.isDefault(item);
+    const formattedDownloadableLabel = item.isDownloadable
+      ? intl.formatMessage(intlMessages.isDownloadable)
+      : intl.formatMessage(intlMessages.isNotDownloadable);
 
     return (
       <tr
@@ -494,7 +509,7 @@ class PresentationUploader extends Component {
           <td className={styles.tableItemActions}>
             <ButtonBase
               className={cx(styles.itemAction, styles.itemActionRemove)}
-              label="Remove presentationAAAAAAAAA"
+              label={formattedDownloadableLabel}
               onClick={() => this.toggleDownloadable(item)}
             >
               {item.isDownloadable
@@ -512,7 +527,7 @@ class PresentationUploader extends Component {
               <ButtonBase
                 disabled={disableActions}
                 className={cx(styles.itemAction, styles.itemActionRemove)}
-                label="Remove presentation"
+                label={intl.formatMessage(intlMessages.removePresentation)}
                 onClick={() => this.handleRemove(item)}
               >
 
