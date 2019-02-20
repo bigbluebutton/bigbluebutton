@@ -22,6 +22,7 @@
 
 require 'rubygems'
 require 'nokogiri'
+require 'loofah'
 
 module BigBlueButton
   module Events
@@ -456,15 +457,15 @@ module BigBlueButton
       return new_edl
     end
 
-    def self.linkify( text )
-      generic_URL_regexp = Regexp.new( '(^|[\n ])([\w]+?://[\w]+[^ \"\n\r\t<]*)', Regexp::MULTILINE | Regexp::IGNORECASE )
-      starts_with_www_regexp = Regexp.new( '(^|[\n ])((www)\.[^ \"\t\n\r<]*)', Regexp::MULTILINE | Regexp::IGNORECASE )
 
-      s = text.to_s
-      s.gsub!( generic_URL_regexp, '\1<a href="\2">\2</a>' )
-      s.gsub!( starts_with_www_regexp, '\1<a href="http://\2">\2</a>' )
-      s.gsub!('href="event:', 'href="')
-      s
+    @remove_link_event_prefix = Loofah::Scrubber.new do |node|
+      node['href'] = node['href'][6..-1] if node.name == 'a' && node['href'] && node['href'].start_with?('event:')
+    end
+
+    def self.linkify( text )
+      html = Loofah.fragment(text)
+      html.scrub!(@remove_link_event_prefix).scrub!(:strip).scrub!(:nofollow).scrub!(:unprintable)
+      html.to_html
     end
 
     def self.get_record_status_events(events_xml)
