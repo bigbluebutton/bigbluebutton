@@ -4,8 +4,8 @@ import AudioManager from '/imports/ui/services/audio-manager';
 import Meetings from '/imports/api/meetings';
 import mapUser from '/imports/ui/services/user/mapUser';
 
-const init = (messages) => {
-  AudioManager.setAudioMessages(messages);
+const init = (messages, intl) => {
+  AudioManager.setAudioMessages(messages, intl);
   if (AudioManager.initialized) return;
   const meetingId = Auth.meetingID;
   const userId = Auth.userID;
