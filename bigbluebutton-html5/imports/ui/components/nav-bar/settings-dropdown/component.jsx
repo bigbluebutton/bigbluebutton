@@ -4,6 +4,7 @@ import _ from 'lodash';
 import PropTypes from 'prop-types';
 import { withModalMounter } from '/imports/ui/components/modal/service';
 import EndMeetingConfirmationContainer from '/imports/ui/components/end-meeting-confirmation/container';
+import MeetingEndedComponent from '/imports/ui/components/meeting-ended/component';
 import AboutContainer from '/imports/ui/components/about/container';
 import SettingsMenuContainer from '/imports/ui/components/settings/container';
 import Button from '/imports/ui/components/button/component';
@@ -161,6 +162,15 @@ class SettingsDropdown extends PureComponent {
     );
   }
 
+  leaveSession() {
+    const { mountModal } = this.props;
+
+    const LOGOUT_CODE = '430';
+    // we don't check askForFeedbackOnLogout here,
+    // it is checked in meeting-ended component
+    mountModal(<MeetingEndedComponent code={LOGOUT_CODE} />);
+  }
+
   renderMenuItems() {
     const {
       intl, mountModal, amIModerator,
@@ -217,7 +227,7 @@ class SettingsDropdown extends PureComponent {
         icon="logout"
         label={intl.formatMessage(intlMessages.leaveSessionLabel)}
         description={intl.formatMessage(intlMessages.leaveSessionDesc)}
-        onClick={logoutRouteHandler}
+        onClick={() => this.leaveSession()}
       />),
     ]);
   }
