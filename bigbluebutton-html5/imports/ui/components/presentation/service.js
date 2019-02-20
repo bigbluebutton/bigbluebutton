@@ -10,6 +10,28 @@ const getCurrentPresentation = podId => Presentations.findOne({
   current: true,
 });
 
+const downloadPresentationUri = (podId) => {
+  const currentPresentation = getCurrentPresentation(podId);
+  if (!currentPresentation) {
+    return null;
+  }
+
+  const uri = `https://${window.document.location.hostname}/bigbluebutton/presentation/download/`
+    + `${currentPresentation.meetingId}/${currentPresentation.id}`
+    + `?presFilename=${currentPresentation.name}`;
+
+  return uri;
+};
+
+const isPresentationDownloadable = (podId) => {
+  const currentPresentation = getCurrentPresentation(podId);
+  if (!currentPresentation) {
+    return null;
+  }
+
+  return currentPresentation.downloadable;
+};
+
 const getCurrentSlide = (podId) => {
   const currentPresentation = getCurrentPresentation(podId);
 
@@ -57,8 +79,9 @@ const getMultiUserStatus = (whiteboardId) => {
 };
 
 export default {
-  getCurrentPresentation,
   getCurrentSlide,
   isPresenter,
+  isPresentationDownloadable,
+  downloadPresentationUri,
   getMultiUserStatus,
 };
