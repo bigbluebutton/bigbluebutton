@@ -20,6 +20,10 @@ const intlMessages = defineMessages({
     id: 'app.presentationUploder.title',
     description: 'presentation area element label',
   },
+  slideContent: {
+    id: 'app.presentation.slideContent',
+    description: 'Slide content',
+  },
   slideContentStart: {
     id: 'app.presentation.startSlideContent',
     description: 'Indicate the slide content start',
@@ -27,6 +31,10 @@ const intlMessages = defineMessages({
   slideContentEnd: {
     id: 'app.presentation.endSlideContent',
     description: 'Indicate the slide content end',
+  },
+  noSlideContent: {
+    id: 'app.presentation.emptySlideContent',
+    description: 'No content available for slide',
   },
 });
 
@@ -218,9 +226,9 @@ class PresentationArea extends Component {
     const presentationCloseButton = renderPresentationClose();
     const presentationFullscreenButton = this.renderPresentationFullscreen();
 
-    const slideContent = `${intl.formatMessage(intlMessages.slideContentStart)}
+    const slideContent = currentSlide.content ? `${intl.formatMessage(intlMessages.slideContentStart)}
      ${currentSlide.content}
-     ${intl.formatMessage(intlMessages.slideContentEnd)}`;
+     ${intl.formatMessage(intlMessages.slideContentEnd)}` : intl.formatMessage(intlMessages.noSlideContent);
 
     // retrieving the pre-calculated data from the slide object
     const {
@@ -243,10 +251,10 @@ class PresentationArea extends Component {
     return (
       <div
         style={svgDimensions}
-        aria-label="Slide Content"
+        aria-label={intl.formatMessage(intlMessages.slideContent)}
         aria-describedby="currentSlideText"
       >
-        <p id="currentSlideText" hidden>{slideContent}</p>
+        <span id="currentSlideText" className={styles.visuallyHidden}>{slideContent}</span>
         {presentationCloseButton}
         {presentationFullscreenButton}
         <TransitionGroup>
