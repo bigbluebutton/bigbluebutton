@@ -89,9 +89,6 @@
 .icon-bbb-desktop:before {
   content: "\e928";
 }
-.icon-bbb-desktop_off:before {
-  content: "\e953";
-}
 .icon-bbb-logout:before {
   content: "\e900";
 }
@@ -276,7 +273,13 @@
 }
 .icon-bbb-star_filled:before {
   content: "\e952";
-} 
+}
+.icon-bbb-desktop_off:before {
+  content: "\e953";
+}
 .icon-bbb-minus:before {
   content: "\e954";
-} 
+}
+.icon-bbb-download-off:before {
+  content: "\e955";
+}
