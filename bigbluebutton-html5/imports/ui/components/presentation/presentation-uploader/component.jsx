@@ -12,7 +12,7 @@ import { notify } from '/imports/ui/services/notification';
 import ModalFullscreen from '/imports/ui/components/modal/fullscreen/component';
 import { withModalMounter } from '/imports/ui/components/modal/service';
 import Icon from '/imports/ui/components/icon/component';
-import ButtonBase from '/imports/ui/components/button/base/component';
+import Button from '/imports/ui/components/button/component';
 import Checkbox from '/imports/ui/components/checkbox/component';
 import { styles } from './styles.scss';
 
@@ -129,11 +129,11 @@ const intlMessages = defineMessages({
   },
   isDownloadable: {
     id: 'app.presentationUploder.isDownloadableLabel',
-    description: 'informs the presenter that the presentation is available for downloading by all viewers',
+    description: 'presentation is available for downloading by all viewers',
   },
   isNotDownloadable: {
     id: 'app.presentationUploder.isNotDownloadableLabel',
-    description: 'informs the presenter that the presentation is not available for downloading the viewers',
+    description: 'presentation is not available for downloading the viewers',
   },
   removePresentation: {
     id: 'app.presentationUploder.removePresentationLabel',
@@ -480,6 +480,9 @@ class PresentationUploader extends Component {
       ? intl.formatMessage(intlMessages.isDownloadable)
       : intl.formatMessage(intlMessages.isNotDownloadable);
 
+    const isDownloadableStyle = item.isDownloadable
+      ? cx(styles.itemAction, styles.itemActionRemove, styles.checked)
+      : cx(styles.itemAction, styles.itemActionRemove);
     return (
       <tr
         key={item.id}
@@ -507,15 +510,14 @@ class PresentationUploader extends Component {
         </td>
         { hasError ? null : (
           <td className={styles.tableItemActions}>
-            <ButtonBase
-              className={cx(styles.itemAction, styles.itemActionRemove)}
+            <Button
+              className={isDownloadableStyle}
               label={formattedDownloadableLabel}
+              hideLabel
+              size="sm"
+              icon={item.isDownloadable ? 'save_notes' : 'download-off'}
               onClick={() => this.toggleDownloadable(item)}
-            >
-              {item.isDownloadable
-                ? <Icon iconName="download-off" />
-                : <Icon iconName="template_download" />}
-            </ButtonBase>
+            />
             <Checkbox
               disabled={disableActions}
               ariaLabel="Set as current presentation"
@@ -524,15 +526,15 @@ class PresentationUploader extends Component {
               onChange={() => this.handleCurrentChange(item.id)}
             />
             { hideRemove ? null : (
-              <ButtonBase
+              <Button
                 disabled={disableActions}
                 className={cx(styles.itemAction, styles.itemActionRemove)}
                 label={intl.formatMessage(intlMessages.removePresentation)}
+                size="sm"
+                icon="delete"
+                hideLabel
                 onClick={() => this.handleRemove(item)}
-              >
-
-                <Icon iconName="delete" />
-              </ButtonBase>
+              />
             )}
           </td>
         )}
