@@ -9,6 +9,7 @@ import handleGuestsWaitingForApproval from './handlers/guestsWaitingForApproval'
 import handleGuestApproved from './handlers/guestApproved';
 import handleUserEjected from './handlers/userEjected';
 import handleChangeRole from './handlers/changeRole';
+import handleUserInactivityInspect from './handlers/userInactivityInspect';
 
 RedisPubSub.on('PresenterAssignedEvtMsg', handlePresenterAssigned);
 RedisPubSub.on('UserJoinedMeetingEvtMsg', handleUserJoined);
@@ -20,3 +21,4 @@ RedisPubSub.on('GuestsWaitingForApprovalEvtMsg', handleGuestsWaitingForApproval)
 RedisPubSub.on('GuestsWaitingApprovedEvtMsg', handleGuestApproved);
 RedisPubSub.on('UserEjectedFromMeetingEvtMsg', handleUserEjected);
 RedisPubSub.on('UserRoleChangedEvtMsg', handleChangeRole);
+RedisPubSub.on('UserInactivityInspectMsg', handleUserInactivityInspect);
