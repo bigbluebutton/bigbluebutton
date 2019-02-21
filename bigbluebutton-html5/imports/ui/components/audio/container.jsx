@@ -47,10 +47,6 @@ const intlMessages = defineMessages({
     id: 'app.audioNotification.audioFailedError1003',
     description: 'browser not supported error messsage',
   },
-  iceNegotiationError: {
-    id: 'app.audioNotification.audioFailedError1007',
-    description: 'ice negociation error messsage',
-  },
   reconectingAsListener: {
     id: 'app.audioNotificaion.reconnectingAsListenOnly',
     description: 'ice negociation error messsage',
@@ -106,33 +102,32 @@ export default withModalMounter(injectIntl(withTracker(({ mountModal, intl }) =>
     },
   });
 
-  const webRtcError = _.range(1001, 1012)
+  const webRtcError = _.range(1001, 1011)
     .reduce((acc, value) => ({
       ...acc,
-      [value]: intl.formatMessage({ id: `app.audioNotification.audioFailedError${value}` }),
+      [value]: { id: `app.audioNotification.audioFailedError${value}` },
     }), {});
 
   const messages = {
     info: {
-      JOINED_AUDIO: intl.formatMessage(intlMessages.joinedAudio),
-      JOINED_ECHO: intl.formatMessage(intlMessages.joinedEcho),
-      LEFT_AUDIO: intl.formatMessage(intlMessages.leftAudio),
+      JOINED_AUDIO: intlMessages.joinedAudio,
+      JOINED_ECHO: intlMessages.joinedEcho,
+      LEFT_AUDIO: intlMessages.leftAudio,
     },
     error: {
-      GENERIC_ERROR: intl.formatMessage(intlMessages.genericError),
-      CONNECTION_ERROR: intl.formatMessage(intlMessages.connectionError),
-      REQUEST_TIMEOUT: intl.formatMessage(intlMessages.requestTimeout),
-      INVALID_TARGET: intl.formatMessage(intlMessages.invalidTarget),
-      MEDIA_ERROR: intl.formatMessage(intlMessages.mediaError),
-      WEBRTC_NOT_SUPPORTED: intl.formatMessage(intlMessages.BrowserNotSupported),
-      ICE_NEGOTIATION_FAILED: intl.formatMessage(intlMessages.iceNegotiationError),
+      GENERIC_ERROR: intlMessages.genericError,
+      CONNECTION_ERROR: intlMessages.connectionError,
+      REQUEST_TIMEOUT: intlMessages.requestTimeout,
+      INVALID_TARGET: intlMessages.invalidTarget,
+      MEDIA_ERROR: intlMessages.mediaError,
+      WEBRTC_NOT_SUPPORTED: intlMessages.BrowserNotSupported,
       ...webRtcError,
     },
   };
 
   return {
     init: () => {
-      Service.init(messages);
+      Service.init(messages, intl);
       Service.changeOutputDevice(document.querySelector('#remote-media').sinkId);
       if (!autoJoin || didMountAutoJoin) return;
 
