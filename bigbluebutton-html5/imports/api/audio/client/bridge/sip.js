@@ -73,7 +73,7 @@ export default class SIPBridge extends BaseAudioBridge {
       isListenOnly ? `LISTENONLY-${name}` : name,
     ].join('-');
 
-    this.user.callerIdName = callerIdName;
+    this.user.callerIdName = callerIdName.replace(/"/g, "'");
     this.callOptions = options;
 
     return fetchStunTurnServers(sessionToken)
@@ -130,7 +130,7 @@ export default class SIPBridge extends BaseAudioBridge {
       // Removing termination events to avoid triggering an error
       ICE_NEGOTIATION_FAILED.forEach(e => mediaHandler.off(e));
       const tryHangup = () => {
-        if (!!this.currentSession.endTime) {
+        if (this.currentSession.endTime) {
           hangup = true;
           return resolve();
         }
@@ -203,7 +203,7 @@ export default class SIPBridge extends BaseAudioBridge {
 
         let error;
         let bridgeError;
-        
+
         if (userAgentConnected) {
           error = 1001;
           bridgeError = 'Websocket disconnected';
@@ -271,13 +271,13 @@ export default class SIPBridge extends BaseAudioBridge {
         connectionCompletedEvents = ['iceConnectionCompleted'];
       }
 
-      // Sometimes FreeSWITCH just won't respond with anything and hangs. This timeout is to 
+      // Sometimes FreeSWITCH just won't respond with anything and hangs. This timeout is to
       // avoid that issue
       const callTimeout = setTimeout(() => {
         this.callback({
           status: this.baseCallStates.failed,
           error: 1006,
-          bridgeError: 'Call timed out on start after ' + CALL_CONNECT_TIMEOUT/1000 + 's',
+          bridgeError: `Call timed out on start after ${CALL_CONNECT_TIMEOUT / 1000}s`,
         });
       }, CALL_CONNECT_TIMEOUT);
 
@@ -293,7 +293,7 @@ export default class SIPBridge extends BaseAudioBridge {
             this.callback({
               status: this.baseCallStates.failed,
               error: 1010,
-              bridgeError: 'ICE negotiation timeout after ' + ICE_NEGOTIATION_TIMEOUT/1000 + 's',
+              bridgeError: `ICE negotiation timeout after ${ICE_NEGOTIATION_TIMEOUT / 1000}s`,
             });
           }, ICE_NEGOTIATION_TIMEOUT);
         }
