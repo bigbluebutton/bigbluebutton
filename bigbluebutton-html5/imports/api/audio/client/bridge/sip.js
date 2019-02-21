@@ -71,9 +71,9 @@ export default class SIPBridge extends BaseAudioBridge {
       userId,
       'bbbID',
       isListenOnly ? `LISTENONLY-${name}` : name,
-    ].join('-');
+    ].join('-').replace(/"/g, "'");
 
-    this.user.callerIdName = callerIdName.replace(/"/g, "'");
+    this.user.callerIdName = callerIdName;
     this.callOptions = options;
 
     return fetchStunTurnServers(sessionToken)
@@ -357,7 +357,9 @@ export default class SIPBridge extends BaseAudioBridge {
 
       const handleIceConnectionTerminated = (peer) => {
         ['iceConnectionClosed'].forEach(e => mediaHandler.off(e, handleIceConnectionTerminated));
-        logger.error({ logCode: 'sipjs_ice_closed' }, 'ICE connection closed');
+        if (!this.userRequestedHangup) {
+          logger.error({ logCode: 'sipjs_ice_closed' }, 'ICE connection closed');
+        }
         /*
         this.callback({
           status: this.baseCallStates.failed,
