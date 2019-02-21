@@ -12,7 +12,7 @@ const CALL_HANGUP_TIMEOUT = MEDIA.callHangupTimeout;
 const CALL_HANGUP_MAX_RETRIES = MEDIA.callHangupMaximumRetries;
 const ICE_NEGOTIATION_FAILED = ['iceConnectionFailed'];
 const CALL_CONNECT_TIMEOUT = 10000;
-const CALL_CONNECT_NOTIFICATION_TIMEOUT = 500;
+const CALL_CONNECT_NOTIFICATION_TIMEOUT = 1000;
 const ICE_NEGOTIATION_TIMEOUT = 10000;
 
 export default class SIPBridge extends BaseAudioBridge {
@@ -310,10 +310,11 @@ export default class SIPBridge extends BaseAudioBridge {
         // actually ready and if the user says "Yes they can hear themselves" too quickly the
         // B-leg transfer will fail
         const that = this;
+        const notificationTimeout = (browser().name === 'firefox'? CALL_CONNECT_NOTIFICATION_TIMEOUT : 0);
         setTimeout(() => {
           that.callback({ status: that.baseCallStates.started });
           resolve();
-        }, CALL_CONNECT_NOTIFICATION_TIMEOUT);
+        }, notificationTimeout);
       };
       connectionCompletedEvents.forEach(e => mediaHandler.on(e, handleConnectionCompleted));
 
