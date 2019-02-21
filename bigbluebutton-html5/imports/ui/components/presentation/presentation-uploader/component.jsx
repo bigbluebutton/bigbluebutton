@@ -515,7 +515,7 @@ class PresentationUploader extends Component {
               label={formattedDownloadableLabel}
               hideLabel
               size="sm"
-              icon={item.isDownloadable ? 'save_notes' : 'download-off'}
+              icon={item.isDownloadable ? 'download' : 'download-off'}
               onClick={() => this.toggleDownloadable(item)}
             />
             <Checkbox

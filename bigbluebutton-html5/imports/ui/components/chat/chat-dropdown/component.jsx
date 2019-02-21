@@ -76,7 +76,7 @@ class ChatDropdown extends PureComponent {
     const { intl } = this.props;
 
     const clearIcon = 'delete';
-    const saveIcon = 'save_notes';
+    const saveIcon = 'download';
     const copyIcon = 'copy';
 
     const user = ChatService.getUser(Auth.userID);
