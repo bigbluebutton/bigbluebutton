@@ -1,8 +1,10 @@
 import React from 'react';
 import { withTracker } from 'meteor/react-meteor-data';
+import { injectIntl } from 'react-intl';
 import getFromUserSettings from '/imports/ui/services/users-settings';
 import Meetings from '/imports/api/meetings';
 import Auth from '/imports/ui/services/auth';
+import PresentationService from '/imports/ui/components/presentation/service';
 import ActionsBar from './component';
 import Service from './service';
 import VideoService from '../video-provider/service';
@@ -49,5 +51,7 @@ export default withTracker(() => {
     getBreakouts: Service.getBreakouts,
     getUsersNotAssigned: Service.getUsersNotAssigned,
     handleTakePresenter: Service.takePresenterRole,
+    currentSlidHasContent: PresentationService.currentSlidHasContent(),
+    parseCurrentSlideContent: PresentationService.parseCurrentSlideContent,
   };
-})(ActionsBarContainer);
+})(injectIntl(ActionsBarContainer));
