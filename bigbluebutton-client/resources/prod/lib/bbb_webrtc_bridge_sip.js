@@ -80,6 +80,8 @@ function callIntoConference(voiceBridge, callback, isListenOnly, stunTurn = null
 			} else {
 				voiceBridge = conferenceVoiceBridge;
 			}
+			callerIdName = callerIdName.replace(/"/g, "'");
+			
 			console.log(callerIdName);
 			webrtc_call(callerIdName, voiceBridge, callback, isListenOnly);
 		});

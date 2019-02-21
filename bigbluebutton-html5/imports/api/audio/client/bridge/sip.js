@@ -12,7 +12,7 @@ const CALL_HANGUP_TIMEOUT = MEDIA.callHangupTimeout;
 const CALL_HANGUP_MAX_RETRIES = MEDIA.callHangupMaximumRetries;
 const ICE_NEGOTIATION_FAILED = ['iceConnectionFailed'];
 const CALL_CONNECT_TIMEOUT = 10000;
-const CALL_CONNECT_NOTIFICATION_TIMEOUT = 500;
+const CALL_CONNECT_NOTIFICATION_TIMEOUT = 1000;
 const ICE_NEGOTIATION_TIMEOUT = 10000;
 
 export default class SIPBridge extends BaseAudioBridge {
@@ -71,7 +71,7 @@ export default class SIPBridge extends BaseAudioBridge {
       userId,
       'bbbID',
       isListenOnly ? `LISTENONLY-${name}` : name,
-    ].join('-');
+    ].join('-').replace(/"/g, "'");
 
     this.user.callerIdName = callerIdName;
     this.callOptions = options;
@@ -130,7 +130,7 @@ export default class SIPBridge extends BaseAudioBridge {
       // Removing termination events to avoid triggering an error
       ICE_NEGOTIATION_FAILED.forEach(e => mediaHandler.off(e));
       const tryHangup = () => {
-        if (!!this.currentSession.endTime) {
+        if (this.currentSession.endTime) {
           hangup = true;
           return resolve();
         }
@@ -203,7 +203,7 @@ export default class SIPBridge extends BaseAudioBridge {
 
         let error;
         let bridgeError;
-        
+
         if (userAgentConnected) {
           error = 1001;
           bridgeError = 'Websocket disconnected';
@@ -271,13 +271,13 @@ export default class SIPBridge extends BaseAudioBridge {
         connectionCompletedEvents = ['iceConnectionCompleted'];
       }
 
-      // Sometimes FreeSWITCH just won't respond with anything and hangs. This timeout is to 
+      // Sometimes FreeSWITCH just won't respond with anything and hangs. This timeout is to
       // avoid that issue
       const callTimeout = setTimeout(() => {
         this.callback({
           status: this.baseCallStates.failed,
           error: 1006,
-          bridgeError: 'Call timed out on start after ' + CALL_CONNECT_TIMEOUT/1000 + 's',
+          bridgeError: `Call timed out on start after ${CALL_CONNECT_TIMEOUT / 1000}s`,
         });
       }, CALL_CONNECT_TIMEOUT);
 
@@ -293,7 +293,7 @@ export default class SIPBridge extends BaseAudioBridge {
             this.callback({
               status: this.baseCallStates.failed,
               error: 1010,
-              bridgeError: 'ICE negotiation timeout after ' + ICE_NEGOTIATION_TIMEOUT/1000 + 's',
+              bridgeError: `ICE negotiation timeout after ${ICE_NEGOTIATION_TIMEOUT / 1000}s`,
             });
           }, ICE_NEGOTIATION_TIMEOUT);
         }
@@ -310,10 +310,11 @@ export default class SIPBridge extends BaseAudioBridge {
         // actually ready and if the user says "Yes they can hear themselves" too quickly the
         // B-leg transfer will fail
         const that = this;
+        const notificationTimeout = (browser().name === 'firefox'? CALL_CONNECT_NOTIFICATION_TIMEOUT : 0);
         setTimeout(() => {
           that.callback({ status: that.baseCallStates.started });
           resolve();
-        }, CALL_CONNECT_NOTIFICATION_TIMEOUT);
+        }, notificationTimeout);
       };
       connectionCompletedEvents.forEach(e => mediaHandler.on(e, handleConnectionCompleted));
 
@@ -357,7 +358,9 @@ export default class SIPBridge extends BaseAudioBridge {
 
       const handleIceConnectionTerminated = (peer) => {
         ['iceConnectionClosed'].forEach(e => mediaHandler.off(e, handleIceConnectionTerminated));
-        logger.error({ logCode: 'sipjs_ice_closed' }, 'ICE connection closed');
+        if (!this.userRequestedHangup) {
+          logger.error({ logCode: 'sipjs_ice_closed' }, 'ICE connection closed');
+        }
         /*
         this.callback({
           status: this.baseCallStates.failed,
