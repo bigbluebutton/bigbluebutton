@@ -383,7 +383,6 @@ class PresentationArea extends Component {
 
     if (!presentationIsDownloadable) return null;
 
-    // const full = () => this.refPresentationContainer.requestFullscreen();
     const handleDownloadPresentation = () => {
       window.open(downloadPresentationUri);
     }; // TODO move this to a service?

@@ -18,7 +18,7 @@ const downloadPresentationUri = (podId) => {
 
   const uri = `https://${window.document.location.hostname}/bigbluebutton/presentation/download/`
     + `${currentPresentation.meetingId}/${currentPresentation.id}`
-    + `?presFilename=${currentPresentation.name}`;
+    + `?presFilename=${encodeURIComponent(currentPresentation.name)}`;
 
   return uri;
 };

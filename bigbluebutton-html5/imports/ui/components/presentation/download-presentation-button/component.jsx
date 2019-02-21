@@ -16,37 +16,28 @@ const propTypes = {
   intl: intlShape.isRequired,
   handleDownloadPresentation: PropTypes.func.isRequired,
   dark: PropTypes.bool,
-  elementName: PropTypes.string,
 };
 
 const defaultProps = {
   dark: false,
-  elementName: '',
 };
 
 const DownloadPresentationButton = ({
-  intl, handleDownloadPresentation, dark, elementName,
-}) => {
-  const formattedLabel = intl.formatMessage(
-    intlMessages.downloadPresentationButton,
-    ({ 0: elementName ? elementName.toLowerCase() : '' }),
-  );
-
-  return (
-    <div className={cx(styles.wrapper, dark ? styles.dark : styles.light)}>
-      <Button
-        color="default"
-        icon="template_download"
-        size="sm"
-        onClick={handleDownloadPresentation}
-        label={formattedLabel}
-        hideLabel
-        circle
-        className={styles.button}
-      />
-    </div>
-  );
-};
+  intl, handleDownloadPresentation, dark,
+}) => (
+  <div className={cx(styles.wrapper, dark ? styles.dark : styles.light)}>
+    <Button
+      color="default"
+      icon="template_download"
+      size="sm"
+      onClick={handleDownloadPresentation}
+      label={intl.formatMessage(intlMessages.downloadPresentationButton)}
+      hideLabel
+      circle
+      className={styles.button}
+    />
+  </div>
+);
 
 DownloadPresentationButton.propTypes = propTypes;
 DownloadPresentationButton.defaultProps = defaultProps;

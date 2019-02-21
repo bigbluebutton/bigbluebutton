@@ -139,6 +139,10 @@ const intlMessages = defineMessages({
     id: 'app.presentationUploder.removePresentationLabel',
     description: 'select to delete this presentation',
   },
+  setAsCurrentPresentation: {
+    id: 'app.presentationUploder.setAsCurrentPresentation',
+    description: 'set this presentation to be the current one',
+  },
 });
 
 const BROWSER_RESULTS = browser();
@@ -520,7 +524,7 @@ class PresentationUploader extends Component {
             />
             <Checkbox
               disabled={disableActions}
-              ariaLabel="Set as current presentation"
+              ariaLabel={intl.formatMessage(intlMessages.setAsCurrentPresentation)}
               className={styles.itemAction}
               checked={item.isCurrent}
               onChange={() => this.handleCurrentChange(item.id)}
