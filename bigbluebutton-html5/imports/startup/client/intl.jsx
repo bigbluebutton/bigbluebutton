@@ -6,6 +6,7 @@ import LoadingScreen from '/imports/ui/components/loading-screen/component';
 
 // currently supported locales.
 import bg from 'react-intl/locale-data/bg';
+import cs from 'react-intl/locale-data/cs';
 import de from 'react-intl/locale-data/de';
 import el from 'react-intl/locale-data/el';
 import en from 'react-intl/locale-data/en';
@@ -26,6 +27,7 @@ import zh from 'react-intl/locale-data/zh';
 
 addLocaleData([
   ...bg,
+  ...cs,
   ...de,
   ...el,
   ...en,

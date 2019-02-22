@@ -176,7 +176,6 @@
     "app.audioNotification.audioFailedError1001": "エラー1001：WebSocketの接続が切れました",
     "app.audioNotification.audioFailedError1002": "エラー1002：WebSocketに接続できませんでした",
     "app.audioNotification.audioFailedError1003": "エラー1003：ブラウザのバージョンはサポートされていません",
-    "app.audioNotification.audioFailedError1004": "エラー1004：通話失敗",
     "app.audioNotification.audioFailedError1005": "エラー1005：問題が発生し通話が終了しました",
     "app.audioNotification.audioFailedError1006": "エラー1006：通話がタイムアウトしました",
     "app.audioNotification.audioFailedError1007": "エラー1007：ICE接続失敗",
