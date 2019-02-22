@@ -51,7 +51,6 @@ const getCurrentSlide = (podId) => {
         thumbUri: 0,
         swfUri: 0,
         txtUri: 0,
-        svgUri: 0,
       },
     },
   );
