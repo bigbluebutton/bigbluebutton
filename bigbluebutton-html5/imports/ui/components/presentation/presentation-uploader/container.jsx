@@ -11,6 +11,7 @@ const PresentationUploaderContainer = props => (
 export default withTracker(() => {
   const PRESENTATION_CONFIG = Meteor.settings.public.presentation;
   const currentPresentations = Service.getPresentations();
+  const { dispatchDisableDownloadable, dispatchEnableDownloadable, dispatchTogglePresentationDownloadable } = Service;
 
   return {
     presentations: currentPresentations,
@@ -24,5 +25,8 @@ export default withTracker(() => {
       PRESENTATION_CONFIG.uploadEndpoint,
       'DEFAULT_PRESENTATION_POD',
     ),
+    dispatchDisableDownloadable,
+    dispatchEnableDownloadable,
+    dispatchTogglePresentationDownloadable,
   };
 })(PresentationUploaderContainer);

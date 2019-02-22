@@ -1,10 +1,6 @@
 @font-face {
   font-family: 'bbb-icons';
-  src: url('/fonts/BbbIcons/bbb-icons.eot?j1ntjp');
-  src: url('/fonts/BbbIcons/bbb-icons.eot?j1ntjp#iefix') format('embedded-opentype'),
-       url('/fonts/BbbIcons/bbb-icons.ttf?j1ntjp') format('truetype'),
-       url('/fonts/BbbIcons/bbb-icons.woff?j1ntjp') format('woff'),
-       url('/fonts/BbbIcons/bbb-icons.svg?j1ntjp#bbb-icons') format('svg');
+  src: url('/fonts/BbbIcons/bbb-icons.woff?j1ntjp') format('woff');
   font-weight: normal;
   font-style: normal;
 }
@@ -88,9 +84,6 @@
 }
 .icon-bbb-desktop:before {
   content: "\e928";
-}
-.icon-bbb-desktop_off:before {
-  content: "\e953";
 }
 .icon-bbb-logout:before {
   content: "\e900";
@@ -220,7 +213,7 @@
 .icon-bbb-template_download:before {
   content: "\e93b";
 }
-.icon-bbb-save_notes:before {
+.icon-bbb-download:before {
   content: "\e93c";
 }
 .icon-bbb-multi_whiteboard:before {
@@ -276,7 +269,13 @@
 }
 .icon-bbb-star_filled:before {
   content: "\e952";
-} 
+}
+.icon-bbb-desktop_off:before {
+  content: "\e953";
+}
 .icon-bbb-minus:before {
   content: "\e954";
-} 
+}
+.icon-bbb-download-off:before {
+  content: "\e955";
+}

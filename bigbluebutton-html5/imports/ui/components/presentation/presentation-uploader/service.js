@@ -7,7 +7,7 @@ import _ from 'lodash';
 const CONVERSION_TIMEOUT = 300000;
 const TOKEN_TIMEOUT = 5000;
 
-// fetch doens't support progress. So we use xhr which support progress.
+// fetch doesn't support progress. So we use xhr which support progress.
 const futch = (url, opts = {}, onProgress) => new Promise((res, rej) => {
   const xhr = new XMLHttpRequest();
 
@@ -41,8 +41,13 @@ const getPresentations = () =>
       filename: presentation.name,
       isCurrent: presentation.current || false,
       upload: { done: true, error: false },
+      isDownloadable: presentation.downloadable,
       conversion: presentation.conversion || { done: true, error: false },
     }));
+
+const dispatchTogglePresentationDownloadable = (presentation, newState) => {
+  makeCall('setPresentationDownloadable', presentation.id, newState);
+};
 
 const observePresentationConversion = (meetingId, filename, onConversion) =>
   new Promise((resolve) => {
@@ -122,7 +127,8 @@ const uploadAndConvertPresentation = (file, podId, meetingId, endpoint, onUpload
   // TODO: Currently the uploader is not related to a POD so the id is fixed to the default
   data.append('pod_id', podId);
 
-  // TODO: Theres no way to set a presentation as downloadable.
+  // TODO: There's no way to set a presentation as downloadable.
+
   data.append('is_downloadable', false);
 
   const opts = {
@@ -198,4 +204,5 @@ const persistPresentationChanges = (oldState, newState, uploadEndpoint, podId) =
 export default {
   getPresentations,
   persistPresentationChanges,
+  dispatchTogglePresentationDownloadable,
 };

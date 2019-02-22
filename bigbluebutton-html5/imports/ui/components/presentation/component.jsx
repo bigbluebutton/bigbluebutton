@@ -13,6 +13,7 @@ import Slide from './slide/component';
 import { styles } from './styles.scss';
 import MediaService, { shouldEnableSwapLayout } from '../media/service';
 import PresentationCloseButton from './presentation-close-button/component';
+import DownloadPresentationButton from './download-presentation-button/component';
 import FullscreenButton from '../video-provider/fullscreen-button/component';
 
 const intlMessages = defineMessages({
@@ -124,6 +125,7 @@ class PresentationArea extends Component {
   calculateSize() {
     const { presentationHeight, presentationWidth } = this.state;
     const { currentSlide } = this.props;
+
     const originalWidth = currentSlide.calculatedData.width;
     const originalHeight = currentSlide.calculatedData.height;
 
@@ -209,6 +211,7 @@ class PresentationArea extends Component {
 
     const presentationCloseButton = renderPresentationClose();
     const presentationFullscreenButton = this.renderPresentationFullscreen();
+    const presentationDownloadButton = this.renderPresentationDownload();
 
     // retrieving the pre-calculated data from the slide object
     const {
@@ -234,6 +237,7 @@ class PresentationArea extends Component {
       >
         {presentationCloseButton}
         {presentationFullscreenButton}
+        {presentationDownloadButton}
         <TransitionGroup>
           <CSSTransition
             key={slideObj.id}
@@ -369,6 +373,23 @@ class PresentationArea extends Component {
       <FullscreenButton
         handleFullscreen={full}
         elementName={intl.formatMessage(intlMessages.presentationLabel)}
+        dark
+      />
+    );
+  }
+
+  renderPresentationDownload() {
+    const { presentationIsDownloadable, downloadPresentationUri } = this.props;
+
+    if (!presentationIsDownloadable) return null;
+
+    const handleDownloadPresentation = () => {
+      window.open(downloadPresentationUri);
+    };
+
+    return (
+      <DownloadPresentationButton
+        handleDownloadPresentation={handleDownloadPresentation}
         dark
       />
     );
