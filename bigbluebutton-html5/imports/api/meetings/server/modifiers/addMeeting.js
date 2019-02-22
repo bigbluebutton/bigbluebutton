@@ -83,7 +83,12 @@ export default function addMeeting(meeting) {
     setBy: 'temp',
   };
 
-  newMeeting.welcomeProp.welcomeMsg = newMeeting.welcomeProp.welcomeMsg.replace('event:', '');
+  newMeeting.welcomeProp.welcomeMsg = newMeeting.welcomeProp.welcomeMsg.replace(
+    'href="event:',
+    'href="',
+  );
+
+  newMeeting.welcomeProp.welcomeMsg = newMeeting.welcomeProp.welcomeMsg.replace(/href/g, 'target="_blank" href');
 
   const modifier = {
     $set: Object.assign(
