@@ -13,6 +13,7 @@ public:
     bbbServerVersion: 2.2-dev
     copyright: "©2019 BigBlueButton Inc."
     html5ClientBuild: HTML5_CLIENT_VERSION
+    helpLink: https://bigbluebutton.org/videos/
     lockOnJoin: true
     basename: "/html5client"
     askForFeedbackOnLogout: false
