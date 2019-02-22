@@ -116,7 +116,7 @@ const requestPresentationUploadToken = (podId, meetingId, filename) =>
     });
   });
 
-const uploadAndConvertPresentation = (file, podId, meetingId, endpoint, onUpload, onProgress, onConversion) => {
+const uploadAndConvertPresentation = (file, downloadable, podId, meetingId, endpoint, onUpload, onProgress, onConversion) => {
   const data = new FormData();
   data.append('presentation_name', file.name);
   data.append('Filename', file.name);
@@ -127,9 +127,7 @@ const uploadAndConvertPresentation = (file, podId, meetingId, endpoint, onUpload
   // TODO: Currently the uploader is not related to a POD so the id is fixed to the default
   data.append('pod_id', podId);
 
-  // TODO: There's no way to set a presentation as downloadable.
-
-  data.append('is_downloadable', false);
+  data.append('is_downloadable', downloadable);
 
   const opts = {
     method: 'POST',
@@ -150,7 +148,7 @@ const uploadAndConvertPresentation = (file, podId, meetingId, endpoint, onUpload
 const uploadAndConvertPresentations = (presentationsToUpload, meetingId, podId, uploadEndpoint) =>
   Promise.all(presentationsToUpload.map(p =>
     uploadAndConvertPresentation(
-      p.file, podId, meetingId, uploadEndpoint,
+      p.file, p.isDownloadable, podId, meetingId, uploadEndpoint,
       p.onUpload, p.onProgress, p.onConversion,
     )));
 
@@ -166,7 +164,6 @@ const persistPresentationChanges = (oldState, newState, uploadEndpoint, podId) =
   const presentationsToRemove = oldState.filter(p => !_.find(newState, ['id', p.id]));
 
   let currentPresentation = newState.find(p => p.isCurrent);
-  console.log(currentPresentation);
 
   return uploadAndConvertPresentations(presentationsToUpload, Auth.meetingID, podId, uploadEndpoint)
     .then((presentations) => {

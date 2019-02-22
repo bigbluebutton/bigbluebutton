@@ -276,6 +276,7 @@ class PresentationUploader extends Component {
 
       return {
         file,
+        isDownloadable: false, // by default new presentations are set not to be downloadable
         id,
         filename: file.name,
         isCurrent: false,
@@ -392,7 +393,12 @@ class PresentationUploader extends Component {
     this.setState({
       presentations: presentationsUpdated,
     });
-    dispatchTogglePresentationDownloadable(item, !oldDownloadableState);
+
+    // If the presentation has not be uploaded yet, adjusting the state suffices
+    // otherwise set previously uploaded presentation to [not] be downloadable
+    if (item.done) {
+      dispatchTogglePresentationDownloadable(item, !oldDownloadableState);
+    }
   }
 
   renderPresentationList() {
