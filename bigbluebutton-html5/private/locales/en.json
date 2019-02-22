@@ -113,6 +113,7 @@
     "app.presentationUploder.isDownloadableLabel": "Do not allow presentation to be downloaded",
     "app.presentationUploder.isNotDownloadableLabel": "Allow presentation to be downloaded",
     "app.presentationUploder.removePresentationLabel": "Remove presentation",
+    "app.presentationUploder.setAsCurrentPresentation": "Set presentation as current",
     "app.poll.pollPaneTitle": "Polling",
     "app.poll.hidePollDesc": "Hides the poll menu pane",
     "app.poll.customPollInstruction": "To create a custom poll, select the button below and input your options.",
