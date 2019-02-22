@@ -125,7 +125,7 @@ class PresentationArea extends Component {
   calculateSize() {
     const { presentationHeight, presentationWidth } = this.state;
     const { currentSlide } = this.props;
-    // console.error(currentSlide);
+
     const originalWidth = currentSlide.calculatedData.width;
     const originalHeight = currentSlide.calculatedData.height;
 
@@ -385,7 +385,7 @@ class PresentationArea extends Component {
 
     const handleDownloadPresentation = () => {
       window.open(downloadPresentationUri);
-    }; // TODO move this to a service?
+    };
 
     return (
       <DownloadPresentationButton
