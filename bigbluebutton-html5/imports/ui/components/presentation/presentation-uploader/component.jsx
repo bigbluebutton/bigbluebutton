@@ -396,7 +396,7 @@ class PresentationUploader extends Component {
 
     // If the presentation has not be uploaded yet, adjusting the state suffices
     // otherwise set previously uploaded presentation to [not] be downloadable
-    if (item.done) {
+    if (item.upload.done) {
       dispatchTogglePresentationDownloadable(item, !oldDownloadableState);
     }
   }
