@@ -53,5 +53,6 @@ export default withTracker(() => {
     handleTakePresenter: Service.takePresenterRole,
     currentSlidHasContent: PresentationService.currentSlidHasContent(),
     parseCurrentSlideContent: PresentationService.parseCurrentSlideContent,
+    isSharingVideo: Service.isSharingVideo(),
   };
 })(injectIntl(ActionsBarContainer));

@@ -114,6 +114,10 @@
     "app.presentationUploder.conversion.generatingSvg": "Generating SVG images ...",
     "app.presentationUploder.conversion.pageCountExceeded": "Ops, the page count exceeded the limit",
     "app.presentationUploder.conversion.timeout": "Ops, the conversion took too long",
+    "app.presentationUploder.isDownloadableLabel": "Do not allow presentation to be downloaded",
+    "app.presentationUploder.isNotDownloadableLabel": "Allow presentation to be downloaded",
+    "app.presentationUploder.removePresentationLabel": "Remove presentation",
+    "app.presentationUploder.setAsCurrentPresentation": "Set presentation as current",
     "app.poll.pollPaneTitle": "Polling",
     "app.poll.quickPollTitle": "Quick Poll",
     "app.poll.hidePollDesc": "Hides the poll menu pane",
@@ -143,6 +147,7 @@
     "app.polling.pollAnswerLabel": "Poll answer {0}",
     "app.polling.pollAnswerDesc": "Select this option to vote for {0}",
     "app.failedMessage": "Apologies, trouble connecting to the server.",
+    "app.downloadPresentationButton.label": "Download the original presentation",
     "app.connectingMessage": "Connecting ...",
     "app.waitingMessage": "Disconnected. Trying to reconnect in {0} seconds ...",
     "app.navBar.settingsDropdown.optionsLabel": "Options",
@@ -296,7 +301,7 @@
     "app.audioNotification.audioFailedError1001": "Error 1001: WebSocket disconnected",
     "app.audioNotification.audioFailedError1002": "Error 1002: Could not make a WebSocket connection",
     "app.audioNotification.audioFailedError1003": "Error 1003: Browser version not supported",
-    "app.audioNotification.audioFailedError1004": "Error 1004: Failure on call",
+    "app.audioNotification.audioFailedError1004": "Error 1004: Failure on call (reason={0})",
     "app.audioNotification.audioFailedError1005": "Error 1005: Call ended unexpectedly",
     "app.audioNotification.audioFailedError1006": "Error 1006: Call timed out",
     "app.audioNotification.audioFailedError1007": "Error 1007: ICE negotiation failed",
@@ -304,6 +309,7 @@
     "app.audioNotification.audioFailedError1009": "Error 1009: Could not fetch STUN/TURN server information",
     "app.audioNotification.audioFailedError1010": "Error 1010: ICE negotiation timeout",
     "app.audioNotification.audioFailedError1011": "Error 1011: ICE gathering timeout",
+    "app.audioNotification.audioFailedError1012": "Error 1012: ICE connection closed",
     "app.audioNotification.audioFailedMessage": "Your audio connection failed to connect",
     "app.audioNotification.mediaFailedMessage": "getUserMicMedia failed as only secure origins are allowed",
     "app.audioNotification.closeLabel": "Close",
@@ -528,5 +534,6 @@
     "app.externalVideo.input": "YouTube video URL",
     "app.externalVideo.urlError": "This URL isn't a valid YouTube video",
     "app.externalVideo.close": "Close",
-    "app.actionsBar.actionsDropdown.shareExternalVideo": "Share Youtube video"
+    "app.actionsBar.actionsDropdown.shareExternalVideo": "Share Youtube video",
+    "app.actionsBar.actionsDropdown.stopShareExternalVideo": "Stop sharing video"
 }

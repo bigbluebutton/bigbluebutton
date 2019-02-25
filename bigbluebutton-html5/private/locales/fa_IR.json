@@ -180,7 +180,6 @@
     "app.audioNotification.audioFailedError1001": "خطای 1001: سوکت شما قطع شد",
     "app.audioNotification.audioFailedError1002": "خطای 1002: امکان ارتباط با سوکت برای شما فراهم نیست، وضعیت نت خود را بررسی کنید یا آن را تغییر دهید.",
     "app.audioNotification.audioFailedError1003": "خطای 1003: نسخه مرورگر شما برای کلاس مناسب نیست.",
-    "app.audioNotification.audioFailedError1004": "خطای 1004: خطا در تماس",
     "app.audioNotification.audioFailedError1005": "خطای 1005: تماس به صورت نامشخصی قطع شد",
     "app.audioNotification.audioFailedError1006": "خطای 1006: تماس بسیار طولانی شد",
     "app.audioNotification.audioFailedError1007": "خطای 1007: خطای ارتباط ice",

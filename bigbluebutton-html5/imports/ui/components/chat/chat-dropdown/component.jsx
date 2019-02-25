@@ -76,7 +76,7 @@ class ChatDropdown extends PureComponent {
     const { intl } = this.props;
 
     const clearIcon = 'delete';
-    const saveIcon = 'save_notes';
+    const saveIcon = 'download';
     const copyIcon = 'copy';
 
     const user = ChatService.getUser(Auth.userID);
@@ -97,7 +97,7 @@ class ChatDropdown extends PureComponent {
             `data: ${mimeType} ;charset=utf-8,
             ${encodeURIComponent(ChatService.exportChat(ChatService.getPublicGroupMessages()))}`,
           );
-          link.click();
+          link.dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true, view: window }));
         }}
       />,
       <DropdownListItem

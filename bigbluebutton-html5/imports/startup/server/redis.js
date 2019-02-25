@@ -31,7 +31,7 @@ const makeDebugger = enabled => (message) => {
   Logger.debug(`REDIS: ${message}`);
 };
 
-class MettingMessageQueue {
+class MeetingMessageQueue {
   constructor(eventEmitter, asyncMessages = [], debug = () => {}) {
     this.asyncMessages = asyncMessages;
     this.emitter = eventEmitter;
@@ -169,7 +169,7 @@ class RedisPubSub {
     const queueId = meetingId || NO_MEETING_ID;
 
     if (!(queueId in this.mettingsQueues)) {
-      this.mettingsQueues[meetingId] = new MettingMessageQueue(this.emitter, async, this.debug);
+      this.mettingsQueues[meetingId] = new MeetingMessageQueue(this.emitter, async, this.debug);
     }
 
     this.mettingsQueues[meetingId].add({
