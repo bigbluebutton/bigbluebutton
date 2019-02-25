@@ -16,7 +16,6 @@ import DropdownListItem from '/imports/ui/components/dropdown/list/item/componen
 import DropdownListSeparator from '/imports/ui/components/dropdown/list/separator/component';
 import ShortcutHelpComponent from '/imports/ui/components/shortcut-help/component';
 import withShortcutHelper from '/imports/ui/components/shortcut-help/service';
-import logoutRouteHandler from '/imports/utils/logoutRouteHandler';
 
 import { styles } from '../styles';
 

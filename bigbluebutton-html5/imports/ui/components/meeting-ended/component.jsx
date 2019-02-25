@@ -148,7 +148,7 @@ class MeetingEnded extends React.PureComponent {
                 : intl.formatMessage(intlMessage.messageEnded)}
             </div>
             {this.shouldShowFeedback ? (
-              <div className={styles.rating}>
+              <div>
                 <Rating
                   total="5"
                   onRate={this.setSelectedStar}
