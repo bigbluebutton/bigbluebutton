@@ -328,7 +328,7 @@ module BigBlueButton
         # in the file, find the correct spot (it's usually no more than 1 or 2 off).
         # Make sure not to change the relative order of two events with the same timestamp.
         previous_event = recording.last_element_child
-        while prev_event.name == 'event' && prev_event['timestamp'].to_i > event['timestamp'].to_i
+        while previous_event.name == 'event' && previous_event['timestamp'].to_i > event['timestamp'].to_i
           previous_event = previous_event.previous_element
         end
         previous_event.add_next_sibling(event)
