@@ -210,60 +210,86 @@ module BigBlueButton
       @redis = redis
     end
     
-    def store_events(meeting_id)
-	Encoding.default_external="UTF-8"
-      xml = Builder::XmlMarkup.new( :indent => 2 )
-      result = xml.instruct! :xml, :version => "1.0", :encoding=>"UTF-8"
-      
-      meeting_metadata = @redis.metadata_for(meeting_id)
+    def store_events(meeting_id, events_file)
       version = YAML::load(File.open('../../core/scripts/bigbluebutton.yml'))["bbb_version"]
 
-      if (meeting_metadata != nil)
-          xml.recording(:meeting_id => meeting_id, :bbb_version => version) {
-            xml.meeting(:id => meeting_id, :externalId => meeting_metadata[MEETINGID], :name => meeting_metadata[MEETINGNAME], :breakout => meeting_metadata[ISBREAKOUT])
-            xml.metadata(meeting_metadata)
+      events_doc = Nokogiri::XML::Document.new()
+      recording = events_doc.create_element(
+        'recording',
+        'meeting_id' => meeting_id,
+        'bbb_version' => version
+      )
+      events_doc.root = recording
 
-            if (@redis.has_breakout_metadata_for(meeting_id))
-              breakout_metadata = @redis.breakout_metadata_for(meeting_id)
-              xml.breakout(breakout_metadata)
-            end
+      meeting_metadata = @redis.metadata_for(meeting_id)
+      return if meeting_metadata.nil?
 
-            if (@redis.has_breakout_rooms_for(meeting_id))
-              breakout_rooms = @redis.breakout_rooms_for(meeting_id)
-              if (breakout_rooms != nil)
-                xml.breakoutRooms() {
-                  breakout_rooms.each do |breakout_room|
-                    xml.breakoutRoom(breakout_room)
-                  end
-                }
-              end
-            end
+      # Fill in the top-level meeting element
+      meeting = events_doc.create_element(
+        'meeting',
+        'id' => meeting_id,
+        'externalId' => meeting_metadata[MEETINGID],
+        'name' => meeting_metadata[MEETINGNAME],
+        'breakout' => meeting_metadata[ISBREAKOUT]
+      )
+      recording << meeting
 
-            msgs = @redis.events_for(meeting_id)                      
-            msgs.each do |msg|
-              res = @redis.event_info_for(meeting_id, msg)
-              xml.event(:timestamp => res[TIMESTAMP], :module => res[MODULE], :eventname => res[EVENTNAME]) {
-                res.each do |key, val|
-                  if not [TIMESTAMP, MODULE, EVENTNAME, MEETINGID].include?(key)
-					# a temporary solution for enable a good display of the xml in the presentation module and for add CDATA to chat
-					if res[MODULE] == "PRESENTATION" && key == "slidesInfo"
-						xml.method_missing(key){
-							xml << val
-						}
-					elsif res[MODULE] == "CHAT" && res[EVENTNAME] == "PublicChatEvent" && key == "message"
-						xml.method_missing(key){
-							xml.cdata!(val.tr("\u0000-\u001f\u007f\u2028",''))
-						}
-					else
-						xml.method_missing(key,  val)
-					end
-                  end
-                end
-              }
-            end
-          }
-      end  
-      xml.target!
+      # Fill in the top-level metadata element
+      recording << events_doc.create_element('metadata', meeting_metadata)
+
+      # Fill in the top-level breakout element
+      if @redis.has_breakout_metadata_for(meeting_id)
+        breakout_metadata = @redis.breakout_metadata_for(meeting_id)
+        recording << events_doc.create_element('breakout', breakout_metadata)
+      end
+
+      # Fill in the top-level breakoutRooms list
+      if @redis.has_breakout_rooms_for(meeting_id)
+        breakoutRooms = events_doc.create_element('breakoutRooms')
+        recording << breakoutRooms
+        breakout_rooms = @redis.breakout_rooms_for(meeting_id)
+        breakout_rooms.each do |breakout_room|
+          breakoutRooms << events_doc.create_element('breakoutRoom', breakout_room)
+        end
+      end
+
+      msgs = @redis.events_for(meeting_id)
+      msgs.each do |msg|
+        res = @redis.event_info_for(meeting_id, msg)
+        event = events_doc.create_element(
+          'event',
+          'timestamp' => res[TIMESTAMP],
+          'module' => res[MODULE],
+          'eventname' => res[EVENTNAME]
+        )
+        res.each do |k, v|
+          next if [TIMESTAMP, MODULE, EVENTNAME, MEETINGID].include?(k)
+
+          if res[MODULE] == 'PRESENTATION' && k == 'slidesInfo'
+            # The slidesInfo value is XML serialized info, just insert it directly into the event
+            event << v
+          elsif res[MODULE] == 'CHAT' && res[EVENTNAME] == 'PublicChatEvent' && k == 'message'
+            # Apply a cleanup that removes certain ranges of special characters from chat messages
+            event << events_doc.create_element(k, v.tr("\u0000-\u001f\u007f\u2028", ''))
+          else
+            event << events_doc.create_element(k, v)
+          end
+        end
+
+        # Handle out of order events - if this event has an earlier timestamp than the last event
+        # in the file, find the correct spot (it's usually no more than 1 or 2 off).
+        # Make sure not to change the relative order of two events with the same timestamp.
+        previous_event = recording.last_element_child
+        while previous_event.name == 'event' && previous_event['timestamp'].to_i > event['timestamp'].to_i
+          previous_event = previous_event.previous_element
+        end
+        previous_event.add_next_sibling(event)
+      end
+
+      # Write to the events file
+      File.open(events_file, 'wb') do |io|
+        io.write(events_doc.to_xml(indent: 2, encoding: 'UTF-8'))
+      end
     end
 
     def delete_events(meeting_id)
@@ -278,12 +304,6 @@ module BigBlueButton
       @redis.delete_metadata_for(meeting_id) 
       @redis.delete_breakout_metadata_for(meeting_id) 
       @redis.delete_breakout_rooms_for(meeting_id)
-    end
-    
-    def save_events_to_file(directory, result)
-      File.open("#{directory}/events.xml", 'w') do |f2|  
-        f2.puts result
-      end 
     end
   end
 end

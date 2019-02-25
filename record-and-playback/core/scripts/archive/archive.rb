@@ -41,8 +41,7 @@ def archive_events(meeting_id, redis_host, redis_port, raw_archive_dir)
   begin
     redis = BigBlueButton::RedisWrapper.new(redis_host, redis_port)
     events_archiver = BigBlueButton::RedisEventsArchiver.new redis    
-    events = events_archiver.store_events(meeting_id)
-    events_archiver.save_events_to_file("#{raw_archive_dir}/#{meeting_id}", events )
+    events_archiver.store_events(meeting_id, "#{raw_archive_dir}/#{meeting_id}/events.xml")
   rescue => e
     BigBlueButton.logger.warn("Failed to archive events for #{meeting_id}. " + e.to_s)
   end
