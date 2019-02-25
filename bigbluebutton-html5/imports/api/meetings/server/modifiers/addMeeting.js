@@ -88,7 +88,16 @@ export default function addMeeting(meeting) {
     'href="',
   );
 
-  newMeeting.welcomeProp.welcomeMsg = newMeeting.welcomeProp.welcomeMsg.replace(/href/g, 'target="_blank" href');
+  const insertBlankTarget = (s, i) => `${s.substr(0, i)} target="_blank"${s.substr(i)}`;
+  const linkWithoutTarget = new RegExp('<a href="(.*?)">', 'g');
+  linkWithoutTarget.test(newMeeting.welcomeProp.welcomeMsg);
+
+  if (linkWithoutTarget.lastIndex > 0) {
+    newMeeting.welcomeProp.welcomeMsg = insertBlankTarget(
+      newMeeting.welcomeProp.welcomeMsg,
+      linkWithoutTarget.lastIndex - 1,
+    );
+  }
 
   const modifier = {
     $set: Object.assign(
