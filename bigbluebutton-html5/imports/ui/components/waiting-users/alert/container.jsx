@@ -18,7 +18,7 @@ class WaitingContainer extends PureComponent {
 }
 
 export default withTracker(() => {
-  const pendingtUsers = GuestUsers.find({
+  const pendingUsers = GuestUsers.find({
     meetingId: Auth.meetingID,
     approved: false,
     denied: false,
@@ -27,7 +27,7 @@ export default withTracker(() => {
 
   return {
     managementPanelIsOpen,
-    pendingtUsers,
+    pendingUsers,
     currentUserIsModerator: Users.findOne({ userId: Auth.userID }).role === ROLE_MODERATOR,
     joinTime: Users.findOne({ userId: Auth.userID }).loginTime,
   };

@@ -31,11 +31,11 @@ class PendingUsersAlert extends Component {
 
   componentDidMount() {
     const {
-      pendingtUsers,
+      pendingUsers,
       joinTime,
     } = this.props;
     const { notifiedIds } = this.state;
-    const notifiedPendingUsers = pendingtUsers
+    const notifiedPendingUsers = pendingUsers
       .filter(user => user.loginTime < joinTime)
       .map(user => user.intId);
     this.setState({ notifiedIds: [...notifiedIds, ...notifiedPendingUsers] });
@@ -43,13 +43,13 @@ class PendingUsersAlert extends Component {
 
   componentDidUpdate() {
     const {
-      pendingtUsers,
+      pendingUsers,
       managementPanelIsOpen,
       currentUserIsModerator,
     } = this.props;
     const { notifiedIds } = this.state;
 
-    pendingtUsers
+    pendingUsers
       .filter(user => !notifiedIds.includes(user.intId))
       .forEach((user) => {
         if (managementPanelIsOpen || !currentUserIsModerator) {
