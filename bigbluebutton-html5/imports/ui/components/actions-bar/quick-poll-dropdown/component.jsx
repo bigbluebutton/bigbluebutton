@@ -80,7 +80,7 @@ const QuickPollDropdown = (props) => {
 
   const { slideId, quickPollOptions } = parsedSlide;
 
-  return isUserPresenter && quickPollOptions.length ? (
+  return isUserPresenter && quickPollOptions && quickPollOptions.length ? (
     <Dropdown>
       <DropdownTrigger tabIndex={0}>
         <Button
