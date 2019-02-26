@@ -8,6 +8,7 @@ export default function userInactivityInspect(userId, responseDelay) {
 
   const selector = {
     userId,
+    inactivityCheck: false,
   };
 
   const modifier = {
@@ -17,13 +18,17 @@ export default function userInactivityInspect(userId, responseDelay) {
     },
   };
 
-  const cb = (err) => {
+  const cb = (err, numChanged) => {
     if (err) {
       return Logger.error(`Inactivity check for user ${userId}: ${err}`);
     }
 
-    return Logger.info(`Upserted user ${userId} with inactivity inspect`);
+    if (numChanged) {
+      return Logger.info(`Updated user ${userId} with inactivity inspect`);
+    }
+
+    return null;
   };
 
-  return Users.upsert(selector, modifier, cb);
+  return Users.update(selector, modifier, cb);
 }

@@ -30,7 +30,7 @@ export default function userActivitySign(credentials) {
 
   Users.update(selector, modifier);
 
-  Logger.verbose(`User ${userId} sent a activity sign for meeting ${meetingId}`);
+  Logger.info(`User ${userId} sent a activity sign for meeting ${meetingId}`);
 
   return RedisPubSub.publishUserMessage(CHANNEL, EVENT_NAME, meetingId, userId, payload);
 }

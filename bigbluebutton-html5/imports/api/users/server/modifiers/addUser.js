@@ -82,6 +82,8 @@ export default function addUser(meetingId, user) {
           isBreakoutUser: Meeting.meetingProp.isBreakout,
           parentId: Meeting.breakoutProps.parentId,
         },
+        inactivityCheck: false,
+        responseDelay: 0,
       },
       flat(user),
     ),
