@@ -26,7 +26,7 @@ const filterUsersNotAssigned = filterBreakoutUsers(currentBreakoutUsers);
 
 const mapUsersToNotAssined = mapFunction => users => users.map(mapFunction);
 
-const flatUsersArray = usersArray => usersArray.reduce((acc, users) => [...acc, users], []);
+const flatUsersArray = usersArray => usersArray.reduce((acc, users) => [...acc, ...users], []);
 
 /*
   The concept of pipe is simple
