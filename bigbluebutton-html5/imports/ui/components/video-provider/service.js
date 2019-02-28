@@ -1,4 +1,5 @@
 import { Tracker } from 'meteor/tracker';
+import browser from 'browser-detect';
 import { makeCall } from '/imports/ui/services/api';
 import Auth from '/imports/ui/services/auth';
 import Meetings from '/imports/api/meetings/';
@@ -82,6 +83,8 @@ class VideoService {
     const currentUserIsModerator = mapUser(currentUser).isModerator;
     const sharedWebcam = this.isSharing;
 
+    const { mobile } = browser();
+
     const isSharingWebcam = user => user.isSharingWebcam || (sharedWebcam && user.isCurrent);
     const isNotLocked = user => !(isLocked && user.isLocked);
 
@@ -92,10 +95,17 @@ class VideoService {
       return user.isModerator || user.isCurrent;
     };
 
+    const mobilePresenterOrSelf = (user) => {
+      if (!mobile) return true;
+
+      return (user.isPresenter || user.isCurrent);
+    };
+
     return this.getAllUsers()
       .filter(isSharingWebcam)
       .filter(isNotLocked)
-      .filter(webcamOnlyModerator);
+      .filter(webcamOnlyModerator)
+      .filter(mobilePresenterOrSelf);
   }
 
   webcamOnlyModerator() {
