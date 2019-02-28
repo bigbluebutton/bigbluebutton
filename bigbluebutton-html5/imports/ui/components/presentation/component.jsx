@@ -39,7 +39,8 @@ const intlMessages = defineMessages({
   },
 });
 
-const isFullscreen = () => document.fullscreenElement !== null;
+const isFullscreen = () => !(document.fullscreenElement === null
+    || document.webkitFullscreenElement === null); // Edge
 
 const renderPresentationClose = () => {
   if (!shouldEnableSwapLayout() || isFullscreen()) return null;
@@ -390,7 +391,14 @@ class PresentationArea extends Component {
     const { intl } = this.props;
     if (isFullscreen()) return null;
 
-    const full = () => this.refPresentationContainer.requestFullscreen();
+    const full = () => {
+      const presentation = this.refPresentationContainer;
+      if (presentation.requestFullscreen) {
+        presentation.requestFullscreen();
+      } else if (presentation.webkitRequestFullscreen) { // Edge
+        presentation.webkitRequestFullscreen();
+      }
+    };
 
     return (
       <FullscreenButton
