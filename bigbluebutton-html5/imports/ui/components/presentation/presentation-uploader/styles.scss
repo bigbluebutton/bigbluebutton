@@ -120,7 +120,10 @@
 	transparent
   );
   background-size: 1rem 1rem;
-  animation: bar-stripes calc(var(--enableAnimation) * 1s) linear infinite;
+
+  [style~="--enableAnimation:1;"] & {
+    animation: bar-stripes 1s linear infinite;
+  }
 }
 
 .itemAction,
@@ -132,7 +135,11 @@
   font-size: 1.35rem;
   color: var(--color-gray-light);
   padding: 0;
-  transition: all calc(var(--enableAnimation) * .25s);
+
+  [style~="--enableAnimation:1;"] & {
+    transition: all .25s;
+  }
+
   :hover, :focus {
     padding: unset !important;
   }
