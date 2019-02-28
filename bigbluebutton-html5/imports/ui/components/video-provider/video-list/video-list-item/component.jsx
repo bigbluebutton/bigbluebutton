@@ -109,6 +109,7 @@ class VideoListItem extends Component {
   renderFullscreenButton() {
     const { user } = this.props;
     const full = () => {
+      document.dispatchEvent(new Event('webcamFullscreenButtonChange'));
       this.videoTag.requestFullscreen();
     };
     return <FullscreenButton handleFullscreen={full} elementName={user.name} />;

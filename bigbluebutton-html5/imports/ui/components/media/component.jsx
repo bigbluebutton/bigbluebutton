@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import cx from 'classnames';
-import VideoProviderContainer from '/imports/ui/components/video-provider/container';
+import WebcamDraggableOverlay from './webcam-draggable-overlay/component';
 
 import { styles } from './styles';
 
@@ -38,13 +38,20 @@ export default class Media extends Component {
     });
 
     return (
-      <div className={styles.container}>
+      <div
+        className={cx(styles.container, 'container')}
+        ref={(ref) => { this.refContainer = ref; }}
+      >
         <div className={!swapLayout ? contentClassName : overlayClassName}>
           {children}
         </div>
-        <div className={!swapLayout ? overlayClassName : contentClassName}>
-          { !disableVideo ? <VideoProviderContainer /> : null }
-        </div>
+        <WebcamDraggableOverlay
+          refMediaContainer={this.refContainer}
+          swapLayout={swapLayout}
+          floatingOverlay={floatingOverlay}
+          hideOverlay={hideOverlay}
+          disableVideo={disableVideo}
+        />
       </div>
     );
   }

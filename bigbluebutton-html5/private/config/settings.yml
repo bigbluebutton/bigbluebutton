@@ -81,11 +81,11 @@ public:
     showHelpButton: true
     enableExternalVideo: true
   kurento:
-    wsUrl: HOST
+    wsUrl: wss://9566485591e1.bbbvm.imdt.com.br/bbb-webrtc-sfu
     chromeDefaultExtensionKey: akgoaoikmbmhcopjgakkcepdgdgkjfbc
     chromeDefaultExtensionLink: https://chrome.google.com/webstore/detail/bigbluebutton-screenshare/akgoaoikmbmhcopjgakkcepdgdgkjfbc
-    chromeExtensionKey: KEY
-    chromeExtensionLink: LINK
+    chromeExtensionKey: mbfngdphjegmlbfobcblikeefpidfncb
+    chromeExtensionLink: https://chrome.google.com/webstore/detail/kurento-screenshare-test/mbfngdphjegmlbfobcblikeefpidfncb
     chromeScreenshareSources:
     - window
     - screen
@@ -95,7 +95,7 @@ public:
         max: 640
       height:
         max: 480
-    enableScreensharing: false
+    enableScreensharing: true
     enableVideo: true
     enableVideoStats: false
     enableVideoMenu: true
