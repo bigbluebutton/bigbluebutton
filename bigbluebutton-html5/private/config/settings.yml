@@ -153,24 +153,23 @@ public:
     uploadSizeMin: 0
     uploadSizeMax: 50000000
     uploadValidMimeTypes:
-    - application/vnd.ms-excel
-    - application/vnd.openxmlformats-officedocument.spreadsheetml.sheet
-    - application/msword
-    - application/vnd.openxmlformats-officedocument.wordprocessingml.document
-    - application/vnd.ms-powerpoint
-    - application/vnd.openxmlformats-officedocument.presentationml.presentation
-    - application/vnd.oasis.opendocument.text
-    - application/rtf
-    - text/plain
-    - application/vnd.oasis.opendocument.spreadsheet
-    - application/vnd.oasis.opendocument.presentation
-    - application/vnd.oasis.opendocument.text
-    - application/vnd.oasis.opendocument.graphics
-    - application/vnd.oasis.opendocument.chart
-    - application/vnd.oasis.opendocument.image
-    - application/pdf
-    - image/jpeg
-    - image/png
+    - .pdf
+    - .doc
+    - .docx
+    - .xls
+    - .xlsx
+    - .ppt
+    - .pptx
+    - .txt
+    - .rtf
+    - .odt
+    - .ods
+    - .odp
+    - .odg
+    - .odc
+    - .odi
+    - .jpg
+    - .png
   user:
     role_moderator: MODERATOR
     role_viewer: VIEWER
