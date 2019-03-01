@@ -20,6 +20,7 @@ export default function addPoll(meetingId, requesterId, poll) {
   const userSelector = {
     meetingId,
     userId: { $ne: requesterId },
+    clientType: { $ne: 'dial-in-user' },
   };
 
   const userIds = Users.find(userSelector)
