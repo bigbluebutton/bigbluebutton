@@ -16,24 +16,11 @@
 }
 
 .systemMessage {
-  padding: var(--line-height-computed) 0;
-  border-bottom: 1px solid var(--color-gray-lighter);
-
-  .item:not(&) + & {
-    border-top: 1px solid var(--color-gray-lighter);
-  }
-
-  & + & {
-    margin-top: calc(var(--line-height-computed) * -1);
-  }
-
-  &:last-child {
-    border-bottom: none;
-  }
-
-  .message {
-    color: var(--color-gray);
-  }
+  background: #F9FBFC;
+  border: 1px solid #C5CDD4;
+  border-radius: 4px;
+  font-weight: 600;
+  padding:16px;
 }
 
 .avatarWrapper {
