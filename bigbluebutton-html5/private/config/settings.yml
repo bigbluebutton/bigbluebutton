@@ -13,6 +13,7 @@ public:
     bbbServerVersion: 2.2-dev
     copyright: "©2019 BigBlueButton Inc."
     html5ClientBuild: HTML5_CLIENT_VERSION
+    helpLink: https://bigbluebutton.org/html5/
     lockOnJoin: true
     basename: "/html5client"
     askForFeedbackOnLogout: false
@@ -81,25 +82,25 @@ public:
     showHelpButton: true
     enableExternalVideo: true
   kurento:
-    wsUrl: wss://9566485591e1.bbbvm.imdt.com.br/bbb-webrtc-sfu
+    wsUrl: HOST
     chromeDefaultExtensionKey: akgoaoikmbmhcopjgakkcepdgdgkjfbc
     chromeDefaultExtensionLink: https://chrome.google.com/webstore/detail/bigbluebutton-screenshare/akgoaoikmbmhcopjgakkcepdgdgkjfbc
-    chromeExtensionKey: mbfngdphjegmlbfobcblikeefpidfncb
-    chromeExtensionLink: https://chrome.google.com/webstore/detail/kurento-screenshare-test/mbfngdphjegmlbfobcblikeefpidfncb
+    chromeExtensionKey: KEY
+    chromeExtensionLink: LINK
     chromeScreenshareSources:
     - window
     - screen
     firefoxScreenshareSource: window
     cameraConstraints:
       width:
-        max: 640
+        max: 320
       height:
-        max: 480
-    enableScreensharing: true
+        max: 240
+    enableScreensharing: false
     enableVideo: true
     enableVideoStats: false
     enableVideoMenu: true
-    enableListenOnly: false
+    enableListenOnly: true
     autoShareWebcam: false
   allowOutsideCommands:
     toggleRecording: false
