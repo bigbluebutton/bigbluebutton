@@ -19,6 +19,13 @@ const defaultProps = {
   hideOverlay: true,
 };
 
+const fullscreenChangedEvents = [
+  'fullscreenchange',
+  'webkitfullscreenchange',
+  'mozfullscreenchange',
+  'MSFullscreenChange',
+];
+
 export default class WebcamDraggableOverlay extends Component {
   static getWebcamBySelector() {
     return document.querySelector('div[class^="videoList"]');
@@ -103,13 +110,6 @@ export default class WebcamDraggableOverlay extends Component {
 
     window.addEventListener('resize', this.eventResizeListener);
 
-    const fullscreenChangedEvents = [
-      'fullscreenchange',
-      'webkitfullscreenchange',
-      'mozfullscreenchange',
-      'MSFullscreenChange',
-    ];
-
     fullscreenChangedEvents.forEach((event) => {
       document.addEventListener(event, this.handleFullscreenChange);
     });
@@ -144,13 +144,6 @@ export default class WebcamDraggableOverlay extends Component {
   }
 
   componentWillUnmount() {
-    const fullscreenChangedEvents = [
-      'fullscreenchange',
-      'webkitfullscreenchange',
-      'mozfullscreenchange',
-      'MSFullscreenChange',
-    ];
-
     fullscreenChangedEvents.forEach((event) => {
       document.removeEventListener(event, this.fullScreenToggleCallback);
     });

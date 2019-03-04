@@ -103,6 +103,7 @@ class PanelManager extends Component {
         key={this.userlistKey}
         size={{ width: userlistWidth }}
         onResizeStop={(e, direction, ref, d) => {
+          window.dispatchEvent(new Event('resize'));
           this.setState({
             userlistWidth: userlistWidth + d.width,
           });
@@ -150,6 +151,7 @@ class PanelManager extends Component {
         key={this.chatKey}
         size={{ width: chatWidth }}
         onResizeStop={(e, direction, ref, d) => {
+          window.dispatchEvent(new Event('resize'));
           this.setState({
             chatWidth: chatWidth + d.width,
           });
@@ -197,6 +199,7 @@ class PanelManager extends Component {
         key={this.noteKey}
         size={{ width: noteWidth }}
         onResizeStop={(e, direction, ref, d) => {
+          window.dispatchEvent(new Event('resize'));
           this.setState({
             noteWidth: noteWidth + d.width,
           });
