@@ -226,7 +226,7 @@ class UserDropdown extends PureComponent {
     const enablePrivateChat = currentUser.isModerator
       ? allowedToChatPrivately
       : allowedToChatPrivately
-      && (!(user.locked && disablePrivChat)
+      && (!(currentUser.isLocked && disablePrivChat)
         || hasPrivateChatBetweenUsers(currentUser, user)
         || user.isModerator);
 
