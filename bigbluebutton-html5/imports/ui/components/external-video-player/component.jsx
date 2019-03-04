@@ -15,6 +15,10 @@ class VideoPlayer extends Component {
     this.playerState = PlayerState.UNSTARTED;
     this.presenterCommand = false;
     this.preventStateChange = false;
+    this.state = {
+      mutedByEchoTest: false,
+    };
+
     this.opts = {
       playerVars: {
         width: '100%',
@@ -30,6 +34,7 @@ class VideoPlayer extends Component {
     this.handleResize = this.handleResize.bind(this);
     this.handleOnReady = this.handleOnReady.bind(this);
     this.handleStateChange = this.handleStateChange.bind(this);
+    this.changeState = this.changeState.bind(this);
     this.resizeListener = () => {
       setTimeout(this.handleResize, 0);
     };
@@ -39,8 +44,23 @@ class VideoPlayer extends Component {
     window.addEventListener('resize', this.resizeListener);
   }
 
-  componentDidUpdate(nextProps) {
-    if (!nextProps.videoId) {
+  componentDidUpdate(prevProps) {
+    const { inEchoTest } = this.props;
+    const {
+      mutedByEchoTest,
+    } = this.state;
+
+    if (inEchoTest && !this.player.isMuted() && !mutedByEchoTest) {
+      this.player.mute();
+      this.changeState(true);
+    }
+
+    if (!inEchoTest && prevProps.inEchoTest && mutedByEchoTest) {
+      this.player.unMute();
+      this.changeState(false);
+    }
+
+    if (!prevProps.videoId) {
       clearInterval(this.syncInterval);
     }
   }
@@ -51,6 +71,10 @@ class VideoPlayer extends Component {
     clearInterval(this.syncInterval);
     this.player = null;
     this.refPlayer = null;
+  }
+
+  changeState(booleanValue) {
+    this.setState({ mutedByEchoTest: booleanValue });
   }
 
   handleResize() {

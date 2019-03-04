@@ -1,6 +1,7 @@
 import React from 'react';
 import { defineMessages, injectIntl } from 'react-intl';
 import { withTracker } from 'meteor/react-meteor-data';
+import { Session } from 'meteor/session';
 import ExternalVideo from './component';
 
 const intlMessages = defineMessages({
@@ -18,8 +19,9 @@ const ExternalVideoContainer = props => (
 
 export default injectIntl(withTracker(({ params, intl, isPresenter }) => {
   const title = intl.formatMessage(intlMessages.title);
-
+  const inEchoTest = Session.get('inEchoTest');
   return {
+    inEchoTest,
     title,
     isPresenter,
   };
