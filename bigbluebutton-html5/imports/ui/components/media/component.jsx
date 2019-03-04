@@ -39,7 +39,8 @@ export default class Media extends Component {
 
     return (
       <div
-        className={cx(styles.container, 'container')}
+        id="container"
+        className={cx(styles.container)}
         ref={(ref) => { this.refContainer = ref; }}
       >
         <div className={!swapLayout ? contentClassName : overlayClassName}>

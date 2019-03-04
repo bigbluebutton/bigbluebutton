@@ -26,6 +26,10 @@
   @include mq($medium-up) {
     grid-gap: 10px;
   }
+
+  &:hover {
+    cursor: grabbing;
+  }
 }
 
 .videoListItem {

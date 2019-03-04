@@ -170,6 +170,11 @@ class VideoProvider extends Component {
     usersToDisconnect.forEach(id => this.stopWebRTCPeer(id));
   }
 
+  componentDidUpdate() {
+    const { onUpdate } = this.props;
+    onUpdate();
+  }
+
   componentWillUnmount() {
     document.removeEventListener('joinVideo', this.shareWebcam);
     document.removeEventListener('exitVideo', this.unshareWebcam);

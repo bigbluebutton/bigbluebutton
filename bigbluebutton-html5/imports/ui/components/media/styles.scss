@@ -1,4 +1,4 @@
-:root{
+:root {
   --overlay-width: 10vw;
   --overlay-min-width: 175px;
   --overlay-max-width: 10vw;
@@ -31,34 +31,35 @@
 .overlay {
   flex: 1;
   display: flex;
-  width: var(--overlay-width);
-  min-width: var(--overlay-min-width);
-  max-width: var(--overlay-max-width);
-  height: calc(var(--overlay-width) / var(--overlay-ratio));
-  min-height: calc(var(--overlay-min-width) / var(--overlay-ratio));
-  max-height: calc(var(--overlay-max-width) / var(--overlay-ratio));
-  position: relative;
+  width: 100%;
   border: 0;
   margin-top: 10px;
   margin-bottom: 10px;
   // max-height: 10vh;
-    
-    &:hover{
-      cursor: grabbing;
-    }
-  }
+}
 
-  .overlayToTop{
-    order: 3;
-  }
+.overlayRelative{
+  position: relative;
+}
 
-  .overlayToBottom{
-    order: 1;
-  }
-  
-  .hideOverlay {
-    display: none;
-  }
+.overlayAbsolute{
+  position: absolute;
+  height: calc(var(--overlay-width) / var(--overlay-ratio));
+  min-height: calc(var(--overlay-min-width) / var(--overlay-ratio));
+  max-height: calc(var(--overlay-max-width) / var(--overlay-ratio));
+}
+
+.overlayToTop {
+  order: 3;
+}
+
+.overlayToBottom {
+  order: 1;
+}
+
+.hideOverlay {
+  display: none;
+}
 
 .floatingOverlay {
   margin: 10px;
@@ -77,28 +78,28 @@
   }
 }
 
-.hide{
+.hide {
   display: none;
 }
 
-.show{
+.show {
   display: block;
 }
 
-.top{
+.top {
   top: 0;
 }
 
-.bottom{
+.bottom {
   bottom: 0;
 }
 
-.dragging{
+.dragging {
   opacity: .5;
 }
 
 .dropZoneTop,
-.dropZoneBottom{
+.dropZoneBottom {
   border: 1px dashed var(--color-gray-light);
   position: absolute;
   width: 100%;
@@ -106,17 +107,17 @@
   cursor: grabbing;
 }
 
-.dropZoneTop{
+.dropZoneTop {
   top: 0;
 }
 
-.dropZoneBottom{
+.dropZoneBottom {
   bottom: 0;
 }
 
-.dropZoneBg{
+.dropZoneBg {
   position: absolute;
   z-index: 99;
   width: 100%;
-  background-color: rgba(255,255,255,.3);
+  background-color: rgba(255, 255, 255, .3);
 }
