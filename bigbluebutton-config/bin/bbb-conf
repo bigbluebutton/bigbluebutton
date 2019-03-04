@@ -1319,7 +1319,7 @@ check_state() {
           let COUNT=COUNT+1
 	  timeout 1s wget $PROTOCOL://$BBB_WEB/bigbluebutton/api -O - --quiet | grep -q SUCCESS
 	  if [ $? -eq 0 ]; then
-            let COUNT=40
+            let COUNT=45
           else
             echo -n "."
             sleep 1
