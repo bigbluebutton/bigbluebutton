@@ -13,6 +13,7 @@ import Slide from './slide/component';
 import { styles } from './styles.scss';
 import MediaService, { shouldEnableSwapLayout } from '../media/service';
 import PresentationCloseButton from './presentation-close-button/component';
+import DownloadPresentationButton from './download-presentation-button/component';
 import FullscreenButton from '../video-provider/fullscreen-button/component';
 
 const intlMessages = defineMessages({
@@ -20,9 +21,26 @@ const intlMessages = defineMessages({
     id: 'app.presentationUploder.title',
     description: 'presentation area element label',
   },
+  slideContent: {
+    id: 'app.presentation.slideContent',
+    description: 'Slide content',
+  },
+  slideContentStart: {
+    id: 'app.presentation.startSlideContent',
+    description: 'Indicate the slide content start',
+  },
+  slideContentEnd: {
+    id: 'app.presentation.endSlideContent',
+    description: 'Indicate the slide content end',
+  },
+  noSlideContent: {
+    id: 'app.presentation.emptySlideContent',
+    description: 'No content available for slide',
+  },
 });
 
-const isFullscreen = () => document.fullscreenElement !== null;
+const isFullscreen = () => !(document.fullscreenElement === null
+    || document.webkitFullscreenElement === null); // Edge
 
 const renderPresentationClose = () => {
   if (!shouldEnableSwapLayout() || isFullscreen()) return null;
@@ -124,6 +142,7 @@ class PresentationArea extends Component {
   calculateSize() {
     const { presentationHeight, presentationWidth } = this.state;
     const { currentSlide } = this.props;
+
     const originalWidth = currentSlide.calculatedData.width;
     const originalHeight = currentSlide.calculatedData.height;
 
@@ -198,7 +217,7 @@ class PresentationArea extends Component {
   // renders the whole presentation area
   renderPresentationArea() {
     const { fitToWidth } = this.state;
-    const { podId, currentSlide } = this.props;
+    const { podId, currentSlide, intl } = this.props;
     if (!this.isPresentationAccessible()) return null;
 
     // to control the size of the svg wrapper manually
@@ -209,6 +228,11 @@ class PresentationArea extends Component {
 
     const presentationCloseButton = renderPresentationClose();
     const presentationFullscreenButton = this.renderPresentationFullscreen();
+    const presentationDownloadButton = this.renderPresentationDownload();
+
+    const slideContent = currentSlide.content ? `${intl.formatMessage(intlMessages.slideContentStart)}
+     ${currentSlide.content}
+     ${intl.formatMessage(intlMessages.slideContentEnd)}` : intl.formatMessage(intlMessages.noSlideContent);
 
     // retrieving the pre-calculated data from the slide object
     const {
@@ -231,9 +255,13 @@ class PresentationArea extends Component {
     return (
       <div
         style={svgDimensions}
+        aria-label={intl.formatMessage(intlMessages.slideContent)}
+        aria-describedby="currentSlideText"
       >
+        <span id="currentSlideText" className={styles.visuallyHidden}>{slideContent}</span>
         {presentationCloseButton}
         {presentationFullscreenButton}
+        {presentationDownloadButton}
         <TransitionGroup>
           <CSSTransition
             key={slideObj.id}
@@ -363,12 +391,36 @@ class PresentationArea extends Component {
     const { intl } = this.props;
     if (isFullscreen()) return null;
 
-    const full = () => this.refPresentationContainer.requestFullscreen();
+    const full = () => {
+      const presentation = this.refPresentationContainer;
+      if (presentation.requestFullscreen) {
+        presentation.requestFullscreen();
+      } else if (presentation.webkitRequestFullscreen) { // Edge
+        presentation.webkitRequestFullscreen();
+      }
+    };
 
     return (
       <FullscreenButton
         handleFullscreen={full}
         elementName={intl.formatMessage(intlMessages.presentationLabel)}
+        dark
+      />
+    );
+  }
+
+  renderPresentationDownload() {
+    const { presentationIsDownloadable, downloadPresentationUri } = this.props;
+
+    if (!presentationIsDownloadable) return null;
+
+    const handleDownloadPresentation = () => {
+      window.open(downloadPresentationUri);
+    };
+
+    return (
+      <DownloadPresentationButton
+        handleDownloadPresentation={handleDownloadPresentation}
         dark
       />
     );
@@ -423,8 +475,8 @@ class PresentationArea extends Component {
             ref={(ref) => { this.refWhiteboardArea = ref; }}
             className={styles.whiteboardSizeAvailable}
           />
-          {showSlide ? this.renderPresentationArea() : null }
-          {userIsPresenter || multiUser ? this.renderWhiteboardToolbar() : null }
+          {showSlide ? this.renderPresentationArea() : null}
+          {userIsPresenter || multiUser ? this.renderWhiteboardToolbar() : null}
         </div>
         {this.renderPresentationToolbar()}
       </div>

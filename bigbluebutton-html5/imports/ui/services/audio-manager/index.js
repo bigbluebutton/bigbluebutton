@@ -56,8 +56,9 @@ class AudioManager {
     this.initialized = true;
   }
 
-  setAudioMessages(messages) {
+  setAudioMessages(messages, intl) {
     this.messages = messages;
+    this.intl = intl;
   }
 
   defineProperties(obj) {
@@ -153,14 +154,14 @@ class AudioManager {
       try {
         await tryGenerateIceCandidates();
       } catch (e) {
-        this.notify(this.messages.error.ICE_NEGOTIATION_FAILED);
+        this.notify(this.intl.formatMessage(this.messages.error.ICE_NEGOTIATION_FAILED));
       }
     }
 
     // Call polyfills for webrtc client if navigator is "iOS Webview"
     const userAgent = window.navigator.userAgent.toLocaleLowerCase();
     if ((userAgent.indexOf('iphone') > -1 || userAgent.indexOf('ipad') > -1)
-       && userAgent.indexOf('safari') == -1) {
+       && userAgent.indexOf('safari') === -1) {
       iosWebviewAudioPolyfills();
     }
 
@@ -265,7 +266,8 @@ class AudioManager {
 
     if (!this.isEchoTest) {
       window.parent.postMessage({ response: 'joinedAudio' }, '*');
-      this.notify(this.messages.info.JOINED_AUDIO);
+      this.notify(this.intl.formatMessage(this.messages.info.JOINED_AUDIO));
+      logger.info({ logCode: 'audio_joined' }, 'Audio Joined');
     }
   }
 
@@ -287,7 +289,7 @@ class AudioManager {
     }
 
     if (!this.error && !this.isEchoTest) {
-      this.notify(this.messages.info.LEFT_AUDIO);
+      this.notify(this.intl.formatMessage(this.messages.info.LEFT_AUDIO));
     }
     window.parent.postMessage({ response: 'notInAudio' }, '*');
   }
@@ -310,11 +312,14 @@ class AudioManager {
         this.onAudioJoin();
         resolve(STARTED);
       } else if (status === ENDED) {
+        logger.debug({ logCode: 'audio_ended' }, 'Audio ended without issue');
         this.onAudioExit();
       } else if (status === FAILED) {
-        this.error = error;
-        this.notify(this.messages.error[error] || this.messages.error.GENERIC_ERROR, true);
-        logger.error({ logCode: 'audiomanager_audio_error' }, 'Audio Error:', error, bridgeError);
+        const errorKey = this.messages.error[error] || this.messages.error.GENERIC_ERROR;
+        const errorMsg = this.intl.formatMessage(errorKey, { 0: bridgeError });
+        this.error = !!error;
+        this.notify(errorMsg, true);
+        logger.error({ logCode: 'audio_failure', error, cause: bridgeError }, 'Audio Error:', error, bridgeError);
         this.exitAudio();
         this.onAudioExit();
       }

@@ -29,7 +29,7 @@ const FullscreenButtonComponent = ({
 }) => {
   const formattedLabel = intl.formatMessage(
     intlMessages.fullscreenButton,
-    ({ 0: elementName ? elementName.toLowerCase() : '' }),
+    ({ 0: elementName || '' }),
   );
 
   return (

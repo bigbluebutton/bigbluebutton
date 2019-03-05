@@ -81,7 +81,7 @@ package org.bigbluebutton.modules.screenshare.utils
           WebRTCScreenshareUtility.extensionLink = options.chromeExtensionLink;
         
           // if theres no extension link-- users cant download-- fail
-          if (StringUtils.isEmpty(options.chromeExtensionLink)) {
+          if (StringUtils.isEmpty(options.chromeExtensionLink) || StringUtils.equalsIgnoreCase(options.chromeExtensionLink, "LINK")) {
             cannotUseWebRTC("No extensionLink in config.xml");
             return;
           }
@@ -89,7 +89,7 @@ package org.bigbluebutton.modules.screenshare.utils
           WebRTCScreenshareUtility.chromeExtensionKey = options.chromeExtensionKey;
 
           // if theres no key we cannot connect to the extension-- fail
-          if (StringUtils.isEmpty(WebRTCScreenshareUtility.chromeExtensionKey)) {
+          if (StringUtils.isEmpty(WebRTCScreenshareUtility.chromeExtensionKey) || StringUtils.equalsIgnoreCase(options.chromeExtensionKey, "KEY")) {
             cannotUseWebRTC("No chromeExtensionKey in config.xml");
             return;
           }

@@ -1,18 +1,19 @@
-import _ from 'lodash';
 import VoiceUsers from '/imports/api/voice-users';
 import { Tracker } from 'meteor/tracker';
+import browser from 'browser-detect';
 import BaseAudioBridge from './base';
 import logger from '/imports/startup/client/logger';
 import { fetchStunTurnServers } from '/imports/utils/fetchStunTurnServers';
-import browser from 'browser-detect';
 
 const MEDIA = Meteor.settings.public.media;
 const MEDIA_TAG = MEDIA.mediaTag;
 const CALL_TRANSFER_TIMEOUT = MEDIA.callTransferTimeout;
 const CALL_HANGUP_TIMEOUT = MEDIA.callHangupTimeout;
 const CALL_HANGUP_MAX_RETRIES = MEDIA.callHangupMaximumRetries;
-const CONNECTION_TERMINATED_EVENTS = ['iceConnectionFailed', 'iceConnectionClosed'];
-const CALL_CONNECT_NOTIFICATION_TIMEOUT = 500;
+const ICE_NEGOTIATION_FAILED = ['iceConnectionFailed'];
+const CALL_CONNECT_TIMEOUT = 10000;
+const CALL_CONNECT_NOTIFICATION_TIMEOUT = 1000;
+const ICE_NEGOTIATION_TIMEOUT = 10000;
 
 export default class SIPBridge extends BaseAudioBridge {
   constructor(userData) {
@@ -36,30 +37,6 @@ export default class SIPBridge extends BaseAudioBridge {
 
     this.protocol = window.document.location.protocol;
     this.hostname = window.document.location.hostname;
-
-    const {
-      causes,
-    } = window.SIP.C;
-
-    this.errorCodes = {
-      [causes.REQUEST_TIMEOUT]: this.baseErrorCodes.REQUEST_TIMEOUT,
-      [causes.INVALID_TARGET]: this.baseErrorCodes.INVALID_TARGET,
-      [causes.CONNECTION_ERROR]: this.baseErrorCodes.CONNECTION_ERROR,
-      [causes.WEBRTC_NOT_SUPPORTED]: this.baseErrorCodes.WEBRTC_NOT_SUPPORTED,
-    };
-    this.webRtcError = {
-      1001: '1001',
-      1002: '1002',
-      1003: '1003',
-      1004: '1004',
-      1005: '1005',
-      1006: '1006',
-      1007: '1007',
-      1008: '1008',
-      1009: '1009',
-      1010: '1010',
-      1011: '1011',
-    };
   }
 
   joinAudio({ isListenOnly, extension, inputStream }, managerCallback) {
@@ -74,11 +51,6 @@ export default class SIPBridge extends BaseAudioBridge {
 
       return this.doCall({ callExtension, isListenOnly, inputStream })
         .catch((reason) => {
-          callback({
-            status: this.baseCallStates.failed,
-            error: this.baseErrorCodes.GENERIC_ERROR,
-            bridgeError: reason,
-          });
           reject(reason);
         });
     });
@@ -99,7 +71,7 @@ export default class SIPBridge extends BaseAudioBridge {
       userId,
       'bbbID',
       isListenOnly ? `LISTENONLY-${name}` : name,
-    ].join('-');
+    ].join('-').replace(/"/g, "'");
 
     this.user.callerIdName = callerIdName;
     this.callOptions = options;
@@ -117,7 +89,7 @@ export default class SIPBridge extends BaseAudioBridge {
       const timeout = setTimeout(() => {
         clearTimeout(timeout);
         trackerControl.stop();
-        logger.error({logCode: "sip_js_transfer_timed_out"}, "Timeout on transfering from echo test to conference")
+        logger.error({ logCode: 'sip_js_transfer_timed_out' }, 'Timeout on transfering from echo test to conference');
         this.callback({
           status: this.baseCallStates.failed,
           error: 1008,
@@ -154,9 +126,15 @@ export default class SIPBridge extends BaseAudioBridge {
       let hangup = false;
       const { mediaHandler } = this.currentSession;
 
+      this.userRequestedHangup = true;
       // Removing termination events to avoid triggering an error
-      CONNECTION_TERMINATED_EVENTS.forEach(e => mediaHandler.off(e));
+      ICE_NEGOTIATION_FAILED.forEach(e => mediaHandler.off(e));
       const tryHangup = () => {
+        if (this.currentSession.endTime) {
+          hangup = true;
+          return resolve();
+        }
+
         this.currentSession.bye();
         hangupRetries += 1;
 
@@ -164,7 +142,7 @@ export default class SIPBridge extends BaseAudioBridge {
           if (hangupRetries > CALL_HANGUP_MAX_RETRIES) {
             this.callback({
               status: this.baseCallStates.failed,
-              error: this.baseErrorCodes.REQUEST_TIMEOUT,
+              error: 1006,
               bridgeError: 'Timeout on call hangup',
             });
             return reject(this.baseErrorCodes.REQUEST_TIMEOUT);
@@ -195,6 +173,10 @@ export default class SIPBridge extends BaseAudioBridge {
         callerIdName,
       } = this.user;
 
+      let userAgentConnected = false;
+
+      logger.debug('Creating the user agent');
+
       let userAgent = new window.SIP.UA({
         uri: `sip:${encodeURIComponent(callerIdName)}@${hostname}`,
         wsServers: `${(protocol === 'https:' ? 'wss://' : 'ws://')}${hostname}/ws`,
@@ -211,19 +193,29 @@ export default class SIPBridge extends BaseAudioBridge {
       userAgent.removeAllListeners('disconnected');
 
       const handleUserAgentConnection = () => {
+        userAgentConnected = true;
         resolve(userAgent);
       };
 
-      const handleUserAgentDisconnection = (event) => {
+      const handleUserAgentDisconnection = () => {
         userAgent.stop();
         userAgent = null;
-        const { lastTransportError } = event.transport;
-        const errorCode = lastTransportError.code;
-        const error = this.webRtcError[errorCode] || this.baseErrorCodes.CONNECTION_ERROR;
+
+        let error;
+        let bridgeError;
+
+        if (userAgentConnected) {
+          error = 1001;
+          bridgeError = 'Websocket disconnected';
+        } else {
+          error = 1002;
+          bridgeError = 'Websocket failed to connect';
+        }
+
         this.callback({
           status: this.baseCallStates.failed,
           error,
-          bridgeError: 'User Agent Disconnected',
+          bridgeError,
         });
         reject(this.baseErrorCodes.CONNECTION_ERROR);
       };
@@ -269,46 +261,80 @@ export default class SIPBridge extends BaseAudioBridge {
     return new Promise((resolve) => {
       const { mediaHandler } = currentSession;
 
+      this.connectionCompleted = false;
+
       let connectionCompletedEvents = ['iceConnectionCompleted', 'iceConnectionConnected'];
       // Edge sends a connected first and then a completed, but the call isn't ready until
       // the completed comes in. Due to the way that we have the listeners set up, the only
       // way to ignore one status is to not listen for it.
       if (browser().name === 'edge') {
-        connectionCompletedEvents  = ['iceConnectionCompleted'];
+        connectionCompletedEvents = ['iceConnectionCompleted'];
       }
 
+      // Sometimes FreeSWITCH just won't respond with anything and hangs. This timeout is to
+      // avoid that issue
+      const callTimeout = setTimeout(() => {
+        this.callback({
+          status: this.baseCallStates.failed,
+          error: 1006,
+          bridgeError: `Call timed out on start after ${CALL_CONNECT_TIMEOUT / 1000}s`,
+        });
+      }, CALL_CONNECT_TIMEOUT);
+
+      let iceNegotiationTimeout;
+
       const handleSessionAccepted = () => {
-        logger.info({logCode: "sip_js_session_accepted"}, "Audio call session accepted");
+        logger.info({ logCode: 'sip_js_session_accepted' }, 'Audio call session accepted');
+        clearTimeout(callTimeout);
+
+        // If ICE isn't connected yet then start timeout waiting for ICE to finish
+        if (!this.connectionCompleted) {
+          iceNegotiationTimeout = setTimeout(() => {
+            this.callback({
+              status: this.baseCallStates.failed,
+              error: 1010,
+              bridgeError: `ICE negotiation timeout after ${ICE_NEGOTIATION_TIMEOUT / 1000}s`,
+            });
+          }, ICE_NEGOTIATION_TIMEOUT);
+        }
       };
       currentSession.on('accepted', handleSessionAccepted);
 
       const handleConnectionCompleted = (peer) => {
-        logger.info({logCode: "sip_js_ice_connection_success"}, "ICE connection success. Current state - " + peer.iceConnectionState);
+        logger.info({ logCode: 'sip_js_ice_connection_success' }, `ICE connection success. Current state - ${peer.iceConnectionState}`);
+        clearTimeout(callTimeout);
+        clearTimeout(iceNegotiationTimeout);
         connectionCompletedEvents.forEach(e => mediaHandler.off(e, handleConnectionCompleted));
+        this.connectionCompleted = true;
         // We have to delay notifying that the call is connected because it is sometimes not
         // actually ready and if the user says "Yes they can hear themselves" too quickly the
         // B-leg transfer will fail
         const that = this;
+        const notificationTimeout = (browser().name === 'firefox'? CALL_CONNECT_NOTIFICATION_TIMEOUT : 0);
         setTimeout(() => {
           that.callback({ status: that.baseCallStates.started });
-          that.connectionCompleted = true;
           resolve();
-        }, CALL_CONNECT_NOTIFICATION_TIMEOUT);
+        }, notificationTimeout);
       };
       connectionCompletedEvents.forEach(e => mediaHandler.on(e, handleConnectionCompleted));
 
       const handleSessionTerminated = (message, cause) => {
-        if (!message && !cause) {
+        clearTimeout(callTimeout);
+        clearTimeout(iceNegotiationTimeout);
+        if (!message && !cause && !!this.userRequestedHangup) {
           return this.callback({
             status: this.baseCallStates.ended,
           });
         }
 
-        logger.error({logCode: "sip_js_call_terminated"}, "Audio call terminated. message=" + message + ", cause=" + cause);
+        logger.error({ logCode: 'sip_js_call_terminated' }, `Audio call terminated. cause=${cause}`);
 
-        const mappedCause = cause in this.errorCodes
-          ? this.errorCodes[cause]
-          : this.baseErrorCodes.GENERIC_ERROR;
+        let mappedCause;
+        if (!this.connectionCompleted) {
+          mappedCause = '1004';
+        } else {
+          mappedCause = '1005';
+        }
 
         return this.callback({
           status: this.baseCallStates.failed,
@@ -318,16 +344,32 @@ export default class SIPBridge extends BaseAudioBridge {
       };
       currentSession.on('terminated', handleSessionTerminated);
 
-      const handleConnectionTerminated = (peer) => {
-        logger.error({logCode: "sip_js_ice_connection_error"}, "ICE connection error. Current state - " + peer.iceConnectionState);
-        CONNECTION_TERMINATED_EVENTS.forEach(e => mediaHandler.off(e, handleConnectionTerminated));
+      const handleIceNegotiationFailed = (peer) => {
+        clearTimeout(callTimeout);
+        clearTimeout(iceNegotiationTimeout);
+        ICE_NEGOTIATION_FAILED.forEach(e => mediaHandler.off(e, handleIceNegotiationFailed));
         this.callback({
           status: this.baseCallStates.failed,
-          error: this.baseErrorCodes.ICE_NEGOTIATION_FAILED,
-          bridgeError: peer,
+          error: 1007,
+          bridgeError: `ICE negotiation failed. Current state - ${peer.iceConnectionState}`,
         });
       };
-      CONNECTION_TERMINATED_EVENTS.forEach(e => mediaHandler.on(e, handleConnectionTerminated));
+      ICE_NEGOTIATION_FAILED.forEach(e => mediaHandler.on(e, handleIceNegotiationFailed));
+
+      const handleIceConnectionTerminated = (peer) => {
+        ['iceConnectionClosed'].forEach(e => mediaHandler.off(e, handleIceConnectionTerminated));
+        if (!this.userRequestedHangup) {
+          logger.error({ logCode: 'sipjs_ice_closed' }, 'ICE connection closed');
+        }
+        /*
+        this.callback({
+          status: this.baseCallStates.failed,
+          error: 1012,
+          bridgeError: "ICE connection closed. Current state - " + peer.iceConnectionState,
+        });
+        */
+      };
+      ['iceConnectionClosed'].forEach(e => mediaHandler.on(e, handleIceConnectionTerminated));
 
       this.currentSession = currentSession;
     });

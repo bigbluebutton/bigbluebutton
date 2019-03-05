@@ -9,19 +9,27 @@ package org.bigbluebutton.modules.polling.views {
 	import org.bigbluebutton.modules.present.events.PageLoadedEvent;
 	import org.bigbluebutton.modules.present.model.Page;
 	import org.bigbluebutton.modules.present.model.PresentationModel;
+	import org.bigbluebutton.modules.present.model.PresentationPodManager;
 	import org.bigbluebutton.util.i18n.ResourceUtil;
 	
 	public class QuickPollButton extends Button {
-		private static const LOGGER:ILogger = getClassLogger(QuickPollButton);      
+		private static const LOGGER:ILogger = getClassLogger(QuickPollButton);
+		
+		private var currentPageId:String;
+		private var currentPodId:String;
 
 		override public function set visible(vsb:Boolean):void {
 			if (vsb) {
 				// This button should only be visible when there is a polling at the current slide's text
-//				var page:Page = PresentationModel.getInstance().getCurrentPage();
-//				super.visible = page != null ? parseSlideText(page.txtData) : false;
-			} else {
-				super.visible = false;
+				var presentationModel:PresentationModel = PresentationPodManager.getInstance().getPod(PresentationPodManager.DEFAULT_POD_ID);
+				if (presentationModel != null) {
+					var page:Page = presentationModel.getCurrentPage();
+					super.visible = page != null ? parseSlideText(page.txtData) : false;
+					return;
+				}
 			}
+			
+			super.visible = false;
 		}
 
 		public function QuickPollButton() {
@@ -34,7 +42,10 @@ package org.bigbluebutton.modules.polling.views {
 		}
 		
 		private function handlePageLoadedEvent(e:PageLoadedEvent):void {
-			visible = UsersUtil.amIPresenter();
+			// Only revalidate when it's the default pod that loaded a page
+			if (e.podId == PresentationPodManager.DEFAULT_POD_ID) {
+				visible = UsersUtil.amIPresenter();
+			}
 		}
 		
 		private function parseSlideText(text:String):Boolean {
