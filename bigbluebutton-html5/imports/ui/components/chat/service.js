@@ -241,7 +241,7 @@ const removeFromClosedChatsSession = () => {
 const htmlDecode = (input) => {
   const e = document.createElement('div');
   e.innerHTML = input;
-  const messages = [].slice.call(e.childNodes);
+  const messages = Array.from(e.childNodes);
   const message = messages.map(chatMessage => chatMessage.textContent);
   return message.join('');
 };
