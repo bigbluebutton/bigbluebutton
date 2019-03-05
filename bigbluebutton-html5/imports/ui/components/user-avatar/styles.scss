@@ -54,7 +54,7 @@
     z-index: 1;
 
     [style~="--enableAnimation:1;"] & {
-      transition: .3s ease-in-out;
+        transition: .3s ease-in-out;
     }
   }
 }
@@ -71,19 +71,21 @@
   [style~="--enableAnimation:1;"] & {
     animation: pulse 1s infinite ease-in;
   }
-}
 
-[style~="--enableAnimation:0;"] .talking::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  right: 0;
-  bottom: 0;
-  left: 0;
-  background-color: var(--user-color);
-  border-radius: inherit;
-  box-shadow: 0px 0px 0px 4px var(--user-color);
-  opacity: .5;
+  &::before {
+    [style~="--enableAnimation:0;"] & {
+      content: '';
+      position: absolute;
+      top: 0;
+      right: 0;
+      bottom: 0;
+      left: 0;
+      background-color: var(--user-color);
+      border-radius: inherit;
+      box-shadow: 0 0 0 4px var(--user-color);
+      opacity: .5;
+    }
+  }
 }
 
 @keyframes pulse {

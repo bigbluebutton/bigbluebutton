@@ -104,18 +104,10 @@ class UserOptions extends PureComponent {
 
     this.onActionsShow = this.onActionsShow.bind(this);
     this.onActionsHide = this.onActionsHide.bind(this);
-    this.alterMenu = this.alterMenu.bind(this);
     this.handleCreateBreakoutRoomClick = this.handleCreateBreakoutRoomClick.bind(this);
     this.onCreateBreakouts = this.onCreateBreakouts.bind(this);
     this.onInvitationUsers = this.onInvitationUsers.bind(this);
     this.renderMenuItems = this.renderMenuItems.bind(this);
-  }
-
-  componentDidUpdate(prevProps) {
-    const { isMeetingMuted } = this.props;
-    if (prevProps.isMeetingMuted !== isMeetingMuted) {
-      this.alterMenu();
-    }
   }
 
   onActionsShow() {
@@ -164,44 +156,6 @@ class UserOptions extends PureComponent {
     );
   }
 
-  alterMenu() {
-    const {
-      intl,
-      isMeetingMuted,
-      toggleMuteAllUsers,
-      toggleMuteAllUsersExceptPresenter,
-    } = this.props;
-
-    if (isMeetingMuted) {
-      const menuButton = (
-        <DropdownListItem
-          key={_.uniqueId('list-item-')}
-          icon="unmute"
-          label={intl.formatMessage(intlMessages.unmuteAllLabel)}
-          description={intl.formatMessage(intlMessages.unmuteAllDesc)}
-          onClick={toggleMuteAllUsers}
-        />
-      );
-      this.menuItems.splice(1, 2, menuButton);
-    } else {
-      const muteMeetingButtons = [(<DropdownListItem
-        key={_.uniqueId('list-item-')}
-        icon="mute"
-        label={intl.formatMessage(intlMessages.muteAllLabel)}
-        description={intl.formatMessage(intlMessages.muteAllDesc)}
-        onClick={toggleMuteAllUsers}
-      />), (<DropdownListItem
-        key={_.uniqueId('list-item-')}
-        icon="mute"
-        label={intl.formatMessage(intlMessages.muteAllExceptPresenterLabel)}
-        description={intl.formatMessage(intlMessages.muteAllExceptPresenterDesc)}
-        onClick={toggleMuteAllUsersExceptPresenter}
-      />)];
-
-      this.menuItems.splice(1, 1, muteMeetingButtons[0], muteMeetingButtons[1]);
-    }
-  }
-
   renderMenuItems() {
     const {
       intl,
@@ -236,18 +190,20 @@ class UserOptions extends PureComponent {
       />),
       (<DropdownListItem
         key={this.muteAllId}
-        icon="mute"
-        label={intl.formatMessage(intlMessages.muteAllLabel)}
-        description={intl.formatMessage(intlMessages.muteAllDesc)}
+        icon={isMeetingMuted ? 'unmute' : 'mute'}
+        label={intl.formatMessage(intlMessages[isMeetingMuted ? 'unmuteAllLabel' : 'muteAllLabel'])}
+        description={intl.formatMessage(intlMessages[isMeetingMuted ? 'unmuteAllDesc' : 'muteAllDesc'])}
         onClick={toggleMuteAllUsers}
       />),
-      (<DropdownListItem
-        key={this.muteId}
-        icon="mute"
-        label={intl.formatMessage(intlMessages.muteAllExceptPresenterLabel)}
-        description={intl.formatMessage(intlMessages.muteAllExceptPresenterDesc)}
-        onClick={toggleMuteAllUsersExceptPresenter}
-      />),
+      (!isMeetingMuted ? (
+        <DropdownListItem
+          key={this.muteId}
+          icon="mute"
+          label={intl.formatMessage(intlMessages.muteAllExceptPresenterLabel)}
+          description={intl.formatMessage(intlMessages.muteAllExceptPresenterDesc)}
+          onClick={toggleMuteAllUsersExceptPresenter}
+        />) : null
+      ),
       (<DropdownListItem
         key={this.lockId}
         icon="lock"
@@ -277,10 +233,6 @@ class UserOptions extends PureComponent {
         )
         : null),
     ]);
-
-    if (isMeetingMuted) {
-      this.alterMenu();
-    }
 
     return this.menuItems;
   }

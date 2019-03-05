@@ -1,7 +1,7 @@
 import _ from 'lodash';
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { defineMessages, injectIntl, intlShape } from 'react-intl';
+import { defineMessages, intlShape } from 'react-intl';
 import Button from '/imports/ui/components/button/component';
 import Dropdown from '/imports/ui/components/dropdown/component';
 import DropdownTrigger from '/imports/ui/components/dropdown/trigger/component';
@@ -315,4 +315,4 @@ class ActionsDropdown extends Component {
 
 ActionsDropdown.propTypes = propTypes;
 
-export default withShortcutHelper(withModalMounter(injectIntl(ActionsDropdown)), 'openActions');
+export default withShortcutHelper(withModalMounter(ActionsDropdown), 'openActions');

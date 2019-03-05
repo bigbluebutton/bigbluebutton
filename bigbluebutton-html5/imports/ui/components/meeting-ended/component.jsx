@@ -8,7 +8,7 @@ import getFromUserSettings from '/imports/ui/services/users-settings';
 import logoutRouteHandler from '/imports/utils/logoutRouteHandler';
 import Rating from './rating/component';
 import { styles } from './styles';
-
+import logger from '/imports/startup/client/logger';
 
 const intlMessage = defineMessages({
   410: {
@@ -120,6 +120,9 @@ class MeetingEnded extends React.PureComponent {
         'Content-Type': 'application/json',
       },
     };
+
+    // client logger
+    logger.info({ feedback: message, logCode: 'feedback' }, 'Feedback');
 
     fetch(url, options)
       .then(() => {
