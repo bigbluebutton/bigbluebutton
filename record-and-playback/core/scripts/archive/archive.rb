@@ -39,7 +39,7 @@ def archive_events(meeting_id, redis_host, redis_port, raw_archive_dir, break_ti
   #end
 end
 
-def archive_notes(meeting_id, note_endpoint, note_formats, raw_archive_dir)
+def archive_note(meeting_id, note_endpoint, note_formats, raw_archive_dir)
   BigBlueButton.logger.info("Archiving notes for #{meeting_id}")
   note_dir = "#{raw_archive_dir}/#{meeting_id}/note"
   FileUtils.mkdir_p(note_dir)
@@ -154,7 +154,7 @@ target_dir = "#{raw_archive_dir}/#{meeting_id}"
 FileUtils.mkdir_p target_dir
 archive_events(meeting_id, redis_host, redis_port, raw_archive_dir, break_timestamp)
 archive_audio(meeting_id, audio_dir, raw_archive_dir)
-archive_notes(meeting_id, note_endpoint, note_formats, raw_archive_dir)
+archive_note(meeting_id, note_endpoint, note_formats, raw_archive_dir)
 archive_directory("#{presentation_dir}/#{meeting_id}/#{meeting_id}",
                   "#{target_dir}/presentation")
 archive_directory("#{screenshare_dir}/#{meeting_id}",
