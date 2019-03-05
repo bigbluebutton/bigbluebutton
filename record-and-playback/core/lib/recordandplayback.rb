@@ -150,6 +150,32 @@ module BigBlueButton
     return (AbsoluteTime.now * 1000).to_i
   end
 
+  def self.download(url, output)
+    BigBlueButton.logger.info "Downloading #{url} to #{output}"
+
+    uri = URI.parse(url)
+    if ["http", "https", "ftp"].include? uri.scheme
+      command = "wget -q --spider #{url}"
+      BigBlueButton.execute(command)
+    end
+
+    if uri.scheme.nil?
+      url = "file://" + url
+    end
+
+    command = "curl --location --output #{output} #{url}"
+    BigBlueButton.execute(command)
+  end
+
+  def self.try_download(url, output)
+    begin
+      self.download(url, output)
+    rescue Exception => e
+      BigBlueButton.logger.error "Failed to download file: #{e.to_s}"
+      FileUtils.rm_f output
+    end
+  end
+
   def self.get_dir_size(dir_name)
     size = 0
     if FileTest.directory?(dir_name)
