@@ -1,5 +1,10 @@
 @import "/imports/ui/stylesheets/variables/_all";
 
+:root {
+  --systemMessage-background-color: #F9FBFC;
+  --systemMessage-border-color: #C5CDD4;
+}
+
 .item {
   font-size: var(--font-size-base);
   margin-bottom: var(--line-height-computed);
@@ -16,11 +21,11 @@
 }
 
 .systemMessage {
-  background: #F9FBFC;
-  border: 1px solid #C5CDD4;
-  border-radius: 4px;
-  font-weight: 600;
-  padding:16px;
+  background: var(--systemMessage-background-color);
+  border: 1px solid var(--systemMessage-border-color);
+  border-radius: var(--border-radius);
+  font-weight: var(--btn-font-weight);
+  padding: var(--font-size-base);
 }
 
 .avatarWrapper {
