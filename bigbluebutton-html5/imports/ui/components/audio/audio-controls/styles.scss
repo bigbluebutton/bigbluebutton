@@ -32,8 +32,11 @@
   }
 
   &.glow {
-    animation: pulse calc(var(--enableAnimation) * 1s) infinite ease-in;
     border-radius: 50%;
+
+    [style~="--enableAnimation:1;"] & {
+      animation: pulse 1s infinite ease-in;
+    }
   }
 }
 

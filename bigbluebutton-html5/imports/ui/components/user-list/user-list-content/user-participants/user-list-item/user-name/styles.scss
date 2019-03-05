@@ -15,9 +15,12 @@
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-  transition: all calc(var(--enableAnimation) * .3s);
   font-weight: 400;
   color: var(--color-gray-dark);
+
+  [style~="--enableAnimation:1;"] & {
+    transition: all .3s;
+  }
 }
 
 .userNameSub {
