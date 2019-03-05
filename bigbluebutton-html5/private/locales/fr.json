@@ -68,6 +68,8 @@
     "app.presentationUploder.conversion.conversionProcessingSlides": "Traitement de la page {0} sur {1}",
     "app.presentationUploder.conversion.pageCountExceeded": "Oups, le nombre de pages a dépassé la limite",
     "app.poll.closeLabel": "Fermer",
+    "app.poll.y": "Oui",
+    "app.poll.n": "Non",
     "app.poll.liveResult.usersTitle": "Utilisateurs",
     "app.polling.pollAnswerLabel": "Réponse de sondage {0}",
     "app.polling.pollAnswerDesc": "Choisir cette option pour voter pour {0}",

@@ -121,6 +121,8 @@
     "app.poll.closeLabel": "Fechar",
     "app.poll.customPlaceholder": "Adicionar opção na enquete",
     "app.poll.tf": "Verdadeiro / Falso",
+    "app.poll.y": "Sim",
+    "app.poll.n": "Não",
     "app.poll.yn": "Sim / Não",
     "app.poll.a2": "A / B",
     "app.poll.a3": "A / B / C",

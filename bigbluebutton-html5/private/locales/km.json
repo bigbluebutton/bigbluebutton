@@ -46,6 +46,8 @@
     "app.presentationUploder.dismissLabel": "បោះបង់",
     "app.presentationUploder.genericError": "អុញ! មាន​បញ្ហា​អ្វី​មួយ​ហើយ",
     "app.poll.closeLabel": "បិទ",
+    "app.poll.y": "បាទ/ចាស",
+    "app.poll.n": "ទេ",
     "app.poll.liveResult.usersTitle": "អ្នកប្រើប្រាស់",
     "app.failedMessage": "សូមទោស! មាន​បញ្ហា​ក្នុង​ការ​ភ្ជាប់​ទៅ​កាន់​ម៉ាស៊ីន​បម្រើ",
     "app.navBar.settingsDropdown.optionsLabel": "ជម្រើស",
