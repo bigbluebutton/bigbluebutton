@@ -82,9 +82,11 @@
   flex-direction: row;
   align-items: center; 
   justify-content: space-between;
-  transition: all calc(var(--enableAnimation) * .3s);
   border-radius: 5px;
   cursor: pointer;
+  [style~="--enableAnimation:1;"] & {
+    transition: all calc(var(--enableAnimation) * .3s);
+  }
 
   &:first-child {
     margin-top: 0;
