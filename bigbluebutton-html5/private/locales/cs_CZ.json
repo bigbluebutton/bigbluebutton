@@ -123,6 +123,8 @@
     "app.poll.ariaInputCount": "Vstup {0} z {1}",
     "app.poll.customPlaceholder": "Přidat volbu",
     "app.poll.tf": "Pravda / Nepravda",
+    "app.poll.y": "Ano, ukončit",
+    "app.poll.n": "Ne",
     "app.poll.yn": "Ano / Ne",
     "app.poll.a2": "A / B",
     "app.poll.a3": "A / B / C",
