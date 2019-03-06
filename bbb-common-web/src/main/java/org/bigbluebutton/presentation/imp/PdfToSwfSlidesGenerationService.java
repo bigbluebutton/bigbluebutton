@@ -57,6 +57,7 @@ public class PdfToSwfSlidesGenerationService {
   private long MAX_CONVERSION_TIME = 5 * 60 * 1000L * 1000L * 1000L;
   private String BLANK_SLIDE;
   private int MAX_SWF_FILE_SIZE;
+  private boolean swfSlidesRequired;
   private boolean svgImagesRequired;
   private boolean generatePngs;
 
@@ -64,26 +65,29 @@ public class PdfToSwfSlidesGenerationService {
     executor = Executors.newFixedThreadPool(numConversionThreads);
   }
 
-  public void generateSlides(UploadedPresentation pres) {
-    determineNumberOfPages(pres);
-    if (pres.getNumberOfPages() > 0) {
-      convertPdfToSwf(pres);
-      createTextFiles(pres);
-      createThumbnails(pres);
+    public void generateSlides(UploadedPresentation pres) {
+        determineNumberOfPages(pres);
+        if (pres.getNumberOfPages() > 0) {
+            // Only create SWF files if the configuration requires it
+            if (swfSlidesRequired) {
+                convertPdfToSwf(pres);
+                createTextFiles(pres);
+                createThumbnails(pres);    
+            }
 
-      // only create SVG images if the configuration requires it
-      if (svgImagesRequired) {
-        createSvgImages(pres);
-      }
+            // only create SVG images if the configuration requires it
+            if (svgImagesRequired) {
+                createSvgImages(pres);
+            }
 
-			// only create PNG images if the configuration requires it
-			if (generatePngs) {
-				createPngImages(pres);
-			}
+            // only create PNG images if the configuration requires it
+            if (generatePngs) {
+                createPngImages(pres);
+            }
 
-      notifier.sendConversionCompletedMessage(pres);
+            notifier.sendConversionCompletedMessage(pres);
+        }
     }
-  }
 
   private boolean determineNumberOfPages(UploadedPresentation pres) {
     try {
@@ -331,9 +335,13 @@ public class PdfToSwfSlidesGenerationService {
     this.generatePngs = generatePngs;
   }
 
-	public void setSvgImagesRequired(boolean svg) {
-		this.svgImagesRequired = svg;
-	}
+  public void setSwfSlidesRequired(boolean swf) {
+    this.swfSlidesRequired = swf;
+  }
+
+  public void setSvgImagesRequired(boolean svg) {
+    this.svgImagesRequired = svg;
+  }
 
   public void setThumbnailCreator(ThumbnailCreator thumbnailCreator) {
     this.thumbnailCreator = thumbnailCreator;
