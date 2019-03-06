@@ -71,9 +71,10 @@ public class PdfToSwfSlidesGenerationService {
             // Only create SWF files if the configuration requires it
             if (swfSlidesRequired) {
                 convertPdfToSwf(pres);
-                createTextFiles(pres);
-                createThumbnails(pres);    
+                createThumbnails(pres);
             }
+
+            createTextFiles(pres);
 
             // only create SVG images if the configuration requires it
             if (svgImagesRequired) {
