@@ -15,8 +15,10 @@ function meetings(credentials) {
   const selector = {
     $or: [
       { meetingId },
-      { 'meetingProp.isBreakout': true },
-      { 'breakoutProps.parentId': meetingId },
+      {
+        'meetingProp.isBreakout': true,
+        'breakoutProps.parentId': meetingId,
+      },
     ],
   };
 
