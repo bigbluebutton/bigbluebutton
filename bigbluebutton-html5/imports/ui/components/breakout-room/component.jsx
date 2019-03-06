@@ -4,7 +4,6 @@ import { defineMessages, injectIntl } from 'react-intl';
 import _ from 'lodash';
 import Button from '/imports/ui/components/button/component';
 import { styles } from './styles';
-import Icon from '../icon/component';
 import BreakoutRoomContainer from './breakout-remaining-time/container';
 
 const intlMessages = defineMessages({
@@ -191,15 +190,22 @@ class BreakoutRoom extends Component {
       requestedBreakoutId,
     } = this.state;
 
-    const roomItems = breakoutRooms.map(item => (
-      <div className={styles.content} key={`breakoutRoomList-${item.breakoutId}`}>
-        <span aria-hidden>{intl.formatMessage(intlMessages.breakoutRoom, item.sequence.toString())}</span>
-        {waiting && requestedBreakoutId === item.breakoutId ? (
+    const roomItems = breakoutRooms.map(breakout => (
+      <div className={styles.content} key={`breakoutRoomList-${breakout.breakoutId}`}>
+        <span aria-hidden>
+          {intl.formatMessage(intlMessages.breakoutRoom, breakout.sequence.toString())}
+          <span className={styles.usersAssignedNumberLabel}>
+            (
+            {breakout.users.length}
+            )
+          </span>
+        </span>
+        {waiting && requestedBreakoutId === breakout.breakoutId ? (
           <span>
             {intl.formatMessage(intlMessages.generatingURL)}
             <span className={styles.connectingAnimation} />
           </span>
-        ) : this.renderUserActions(item.breakoutId, item.sequence.toString())}
+        ) : this.renderUserActions(breakout.breakoutId, breakout.sequence.toString())}
       </div>
     ));
 
