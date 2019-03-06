@@ -136,6 +136,7 @@ class BreakoutRoom extends Component {
     this.renderTitle = this.renderTitle.bind(this);
     this.handleDismiss = this.handleDismiss.bind(this);
     this.setInvitationConfig = this.setInvitationConfig.bind(this);
+    this.blurDurationTime = this.blurDurationTime.bind(this);
 
     this.state = {
       numberOfRooms: MIN_BREAKOUT_ROOMS,
@@ -301,6 +302,10 @@ class BreakoutRoom extends Component {
     this.setState({ durationTime: Number.parseInt(event.target.value, 10) || '' });
   }
 
+  blurDurationTime(event) {
+    this.setState({ durationTime: Number.parseInt(event.target.value, 10) || 1 });
+  }
+
   changeNumberOfRooms(event) {
     this.setState({ numberOfRooms: Number.parseInt(event.target.value, 10) });
   }
@@ -389,9 +394,10 @@ class BreakoutRoom extends Component {
             <input
               type="number"
               className={styles.duration}
-              min={MIN_BREAKOUT_ROOMS}
+              min="1"
               value={durationTime}
               onChange={this.changeDurationTime}
+              onBlur={this.blurDurationTime}
               aria-label={intl.formatMessage(intlMessages.duration)}
             />
             <HoldButton
