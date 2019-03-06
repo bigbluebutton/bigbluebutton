@@ -35,4 +35,3 @@ function publish(...args) {
 }
 
 Meteor.publish('meetings', publish);
-
