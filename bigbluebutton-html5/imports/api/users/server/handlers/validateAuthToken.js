@@ -41,6 +41,7 @@ export default function handleValidateAuthToken({ body }, meetingId) {
       validated: valid,
       approved: !waitForApproval,
       loginTime: Date.now(),
+      inactivityCheck: false,
     },
   };
 

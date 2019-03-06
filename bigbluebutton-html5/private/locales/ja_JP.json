@@ -64,6 +64,8 @@
     "app.presentationUploder.upload.413": "ファイルが大きすぎます",
     "app.presentationUploder.conversion.pageCountExceeded": "エラー：ページ数が多すぎました",
     "app.poll.closeLabel": "閉じる",
+    "app.poll.y": "はい",
+    "app.poll.n": "いいえ",
     "app.poll.liveResult.usersTitle": "ユーザー",
     "app.polling.pollAnswerLabel": "投票結果{0}",
     "app.polling.pollAnswerDesc": "この選択肢で「{0}」に投票する",

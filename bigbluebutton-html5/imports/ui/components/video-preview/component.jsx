@@ -140,6 +140,7 @@ class VideoPreview extends Component {
 
   handleProceed() {
     const { resolve, closeModal } = this.props;
+    this.stopTracks();
     closeModal();
     if (resolve) resolve();
   }

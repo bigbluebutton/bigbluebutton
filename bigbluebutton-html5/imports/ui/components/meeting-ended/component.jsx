@@ -124,13 +124,16 @@ class MeetingEnded extends React.PureComponent {
     // client logger
     logger.info({ feedback: message, logCode: 'feedback' }, 'Feedback');
 
-    fetch(url, options)
-      .then(() => {
-        logoutRouteHandler();
-      })
-      .catch(() => {
-        logoutRouteHandler();
-      });
+    const FEEDBACK_WAIT_TIME = 500;
+    setTimeout(() => {
+      fetch(url, options)
+        .then(() => {
+          logoutRouteHandler();
+        })
+        .catch(() => {
+          logoutRouteHandler();
+        });
+    }, FEEDBACK_WAIT_TIME);
   }
 
   render() {

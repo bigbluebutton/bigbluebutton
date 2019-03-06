@@ -7,6 +7,7 @@ import browser from 'browser-detect';
 import PanelManager from '/imports/ui/components/panel-manager/component';
 import PollingContainer from '/imports/ui/components/polling/container';
 import logger from '/imports/startup/client/logger';
+import ActivityCheckContainer from '/imports/ui/components/activity-check/container';
 import ToastContainer from '../toast/container';
 import ModalContainer from '../modal/container';
 import NotificationsBarContainer from '../notifications-bar/container';
@@ -192,6 +193,18 @@ class App extends Component {
     );
   }
 
+  renderActivityCheck() {
+    const { User } = this.props;
+
+    const { inactivityCheck, responseDelay } = User;
+
+    return (inactivityCheck ? (
+      <ActivityCheckContainer
+        inactivityCheck={inactivityCheck}
+        responseDelay={responseDelay}
+      />) : null);
+  }
+
   render() {
     const {
       customStyle, customStyleUrl, openPanel,
@@ -199,6 +212,7 @@ class App extends Component {
 
     return (
       <main className={styles.main}>
+        {this.renderActivityCheck()}
         <NotificationsBarContainer />
         <section className={styles.wrapper}>
           <div className={openPanel ? styles.content : styles.noPanelContent}>

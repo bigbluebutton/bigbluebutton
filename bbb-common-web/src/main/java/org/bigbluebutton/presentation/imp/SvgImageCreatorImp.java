@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.io.FileUtils;
@@ -129,7 +130,7 @@ public class SvgImageCreatorImp implements SvgImageCreator {
                 log.warn(" --analytics-- data={}", logStr);
 
                 File tempPng = null;
-                String basePresentationame = FilenameUtils.getBaseName(pres.getName());
+                String basePresentationame = UUID.randomUUID().toString();
                 try {
                     tempPng = File.createTempFile(basePresentationame + "-" + i, ".png");
                 } catch (IOException ioException) {
