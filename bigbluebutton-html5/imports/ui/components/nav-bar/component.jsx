@@ -128,6 +128,8 @@ class NavBar extends PureComponent {
       isBreakoutRoom,
       mountModal,
       recordProps,
+      currentBreakoutUser,
+      getBreakoutByUser,
     } = this.props;
 
     if (!recordProps.recording) {
@@ -143,9 +145,19 @@ class NavBar extends PureComponent {
 
     const hadBreakouts = oldProps.breakouts.length;
     const hasBreakouts = breakouts.length;
-
     if (!hasBreakouts && hadBreakouts) {
       closeBreakoutJoinConfirmation(mountModal);
+    }
+
+    if (hasBreakouts && currentBreakoutUser) {
+      const currentIsertedTime = currentBreakoutUser.insertedTime;
+      const oldCurrentUser = oldProps.currentBreakoutUser || {};
+      const oldInsertedTime = oldCurrentUser.insertedTime;
+
+      if (currentIsertedTime !== oldInsertedTime) {
+        const breakoutRoom = getBreakoutByUser(currentBreakoutUser);
+        this.inviteUserToBreakout(breakoutRoom);
+      }
     }
 
     breakouts.forEach((breakout) => {
@@ -157,7 +169,7 @@ class NavBar extends PureComponent {
 
       if (!userOnMeeting) return;
 
-      if (!didSendBreakoutInvite && !isBreakoutRoom) {
+      if ((!didSendBreakoutInvite && !isBreakoutRoom) ) {
         this.inviteUserToBreakout(breakout);
       }
     });

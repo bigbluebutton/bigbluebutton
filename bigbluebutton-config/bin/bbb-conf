@@ -1315,11 +1315,11 @@ check_state() {
  	check_no_value server_name /etc/nginx/sites-available/bigbluebutton $BBB_WEB
 
         COUNT=0
-        while [ $COUNT -lt 30 ]; do
+        while [ $COUNT -lt 45 ]; do
           let COUNT=COUNT+1
 	  timeout 1s wget $PROTOCOL://$BBB_WEB/bigbluebutton/api -O - --quiet | grep -q SUCCESS
 	  if [ $? -eq 0 ]; then
-            let COUNT=40
+            let COUNT=45
           else
             echo -n "."
             sleep 1

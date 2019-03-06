@@ -146,7 +146,6 @@
     "app.audioNotification.audioFailedError1001": "កំហុស 1001: WebSocket មិនបានភ្ជាប់",
     "app.audioNotification.audioFailedError1002": "កំហុស 1002: មិនអាចធ្វើការតភ្ជាប់ WebSocket បាន",
     "app.audioNotification.audioFailedError1003": "កំហុស 1003: កំណែកម្មវិធីរុករកមិនត្រូវបានគាំទ្រទេ",
-    "app.audioNotification.audioFailedError1004": "កំហុស 1004: បរាជ័យក្នុងការហៅ",
     "app.audioNotification.audioFailedError1005": "កំហុស 1005: ការហៅបានបញ្ចប់ដោយមិនបានរំពឹងទុក",
     "app.audioNotification.audioFailedError1006": "កំហុស 1006: ការហៅបានអស់ពេល",
     "app.audioNotification.audioFailedError1007": "កំហុស 1007: ការចរចា ICE បរាជ័យ",

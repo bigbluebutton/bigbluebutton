@@ -79,7 +79,6 @@
     "app.presentation.presentationToolbar.zoomInDesc": "Acercarse en presentación",
     "app.presentation.presentationToolbar.zoomOutLabel": "Alejarse",
     "app.presentation.presentationToolbar.zoomOutDesc": "Alejarse en presentación",
-    "app.presentation.presentationToolbar.zoomIndicator": "Mostrar el porcentaje de acercamiento",
     "app.presentation.presentationToolbar.fitToWidth": "Ajustar a lo ancho",
     "app.presentation.presentationToolbar.goToSlide": "Diapositiva {0}",
     "app.presentationUploder.title": "Presentación",
@@ -111,8 +110,6 @@
     "app.poll.quickPollInstruction": "Selecciona una de las siguientes opciones para iniciar tu encuesta. ",
     "app.poll.customPollLabel": "Encuesta personalizada",
     "app.poll.startCustomLabel": "Iniciar encuesta personalizada",
-    "app.poll.activePollInstruction": "Manten esta ventana abierta para permitir a otros usuarios responder la encuesta. Al seleccionar 'Publicar encusta' o navegar hacia atrás la encusta se da por terminada.",
-    "app.poll.publishLabel": "Publicar encuesta",
     "app.poll.backLabel": "Regresar a las opciones de la encuesta",
     "app.poll.closeLabel": "Cerrar",
     "app.poll.customPlaceholder": "Agregar respuesta de encuesta",
@@ -175,8 +172,6 @@
     "app.actionsBar.actionsDropdown.restorePresentationLabel": "Reestablecer presentación",
     "app.actionsBar.actionsDropdown.restorePresentationDesc": "Restaurar presentación despues de que ha sido cerrada",
     "app.submenu.application.applicationSectionTitle": "Aplicación",
-    "app.submenu.application.audioAlertLabel": "Notificaciones audibles para chat",
-    "app.submenu.application.pushAlertLabel": "Notificaciones visuales para chat",
     "app.submenu.application.fontSizeControlLabel": "Tamaño de fuente",
     "app.submenu.application.increaseFontBtnLabel": "Incrementar tamaño de fuente",
     "app.submenu.application.decreaseFontBtnLabel": "Reducir tamaño de fuente",
@@ -278,7 +273,6 @@
     "app.audioNotification.audioFailedError1001": "Error 1001: WebSocket desconectado",
     "app.audioNotification.audioFailedError1002": "Error 1002: No puede establecerse conexión de WebSocket",
     "app.audioNotification.audioFailedError1003": "Error 1003: Versión de navegador no soportado ",
-    "app.audioNotification.audioFailedError1004": "Error 1004: Falla en llamada",
     "app.audioNotification.audioFailedError1005": "Error 1005: La llamada terminó inesperadamente",
     "app.audioNotification.audioFailedError1006": "Error 1006: Tiempo de espera de llamada agotado",
     "app.audioNotification.audioFailedError1007": "Error 1007: Fallo de negociación ICE",
@@ -426,7 +420,6 @@
     "app.video.stats.rtt": "RTT",
     "app.video.stats.encodeUsagePercent": "Uso de codificador",
     "app.video.stats.currentDelay": "Demora actual",
-    "app.fullscreenButton.label": "Cambiar a pantalla completa",
     "app.deskshare.iceConnectionStateError": "Error 1108: Conexión ICE fallida al compartir la pantalla",
     "app.sfu.mediaServerConnectionError2000": "Error 2000: No es posible conectarse al servidor de medios",
     "app.sfu.mediaServerOffline2001": "Error 2001: Servidor de medios fuera de línea. Por favor intentelo nuevamente.",
@@ -478,8 +471,6 @@
     "app.videoDock.webcamUnfocusDesc": "Desenfocar la camara seleccionada",
     "app.invitation.title": "Invitación a grupo de trabajo",
     "app.invitation.confirm": "Invitar",
-    "app.createBreakoutRoom.title": "Grupos de trabajo",
-    "app.createBreakoutRoom.breakoutRoomLabel": "Grupos de trabajo {0}",
     "app.createBreakoutRoom.generatingURL": "Generando enlace",
     "app.createBreakoutRoom.generatedURL": "Generada",
     "app.createBreakoutRoom.duration": "Duración {0}",
@@ -506,7 +497,8 @@
     "app.externalVideo.input": "Enlace a video de YouTube",
     "app.externalVideo.urlError": "Este enlace no es un video de YouTube valido",
     "app.externalVideo.close": "Cerrar",
-    "app.actionsBar.actionsDropdown.shareExternalVideo": "Compartir video de YouTube"
+    "app.actionsBar.actionsDropdown.shareExternalVideo": "Compartir video de YouTube",
+    "app.actionsBar.actionsDropdown.stopShareExternalVideo": "Dejar de compartir video"
 
 }
 

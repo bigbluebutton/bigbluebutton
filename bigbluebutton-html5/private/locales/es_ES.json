@@ -142,7 +142,6 @@
     "app.audioNotification.audioFailedError1001": "Error 1001: WebSocket desconectado",
     "app.audioNotification.audioFailedError1002": "Error 1002: No puede establecerse conexión de WebSocket",
     "app.audioNotification.audioFailedError1003": "Error 1003: Versión de navegador no soportado ",
-    "app.audioNotification.audioFailedError1004": "Error 1004: Falla en llamada",
     "app.audioNotification.audioFailedError1005": "Error 1005: La llamada terminó inesperadamente",
     "app.audioNotification.audioFailedError1006": "Error 1006: Tiempo de espera de llamada agotado",
     "app.audioNotification.audioFailedError1007": "Error 1007: Fallo de negociación ICE",

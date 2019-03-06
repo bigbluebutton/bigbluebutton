@@ -30,6 +30,7 @@
 
 .videoListItem {
   display: flex;
+  overflow: hidden;
 
   &.focused {
     grid-column: 1 / span 2;

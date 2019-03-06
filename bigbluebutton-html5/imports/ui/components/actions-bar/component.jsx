@@ -3,6 +3,7 @@ import cx from 'classnames';
 import { styles } from './styles.scss';
 import DesktopShare from './desktop-share/component';
 import ActionsDropdown from './actions-dropdown/component';
+import QuickPollDropdown from './quick-poll-dropdown/component';
 import AudioControlsContainer from '../audio/audio-controls/container';
 import JoinVideoOptionsContainer from '../video-provider/video-button/container';
 
@@ -33,6 +34,10 @@ class ActionsBar extends React.PureComponent {
       sendInvitation,
       getBreakouts,
       handleTakePresenter,
+      intl,
+      currentSlidHasContent,
+      parseCurrentSlideContent,
+      isSharingVideo,
     } = this.props;
 
     const {
@@ -67,7 +72,17 @@ class ActionsBar extends React.PureComponent {
             sendInvitation,
             getBreakouts,
             handleTakePresenter,
+            intl,
+            isSharingVideo,
           }}
+          />
+          <QuickPollDropdown
+            {...{
+              currentSlidHasContent,
+              intl,
+              isUserPresenter,
+              parseCurrentSlideContent,
+            }}
           />
         </div>
         <div
@@ -94,7 +109,7 @@ class ActionsBar extends React.PureComponent {
           />
         </div>
         <div className={styles.right}>
-          { isLayoutSwapped
+          {isLayoutSwapped
             ? (
               <PresentationOptionsContainer
                 toggleSwapLayout={toggleSwapLayout}

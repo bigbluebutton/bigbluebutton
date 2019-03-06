@@ -13,6 +13,7 @@ public:
     bbbServerVersion: 2.2-dev
     copyright: "©2019 BigBlueButton Inc."
     html5ClientBuild: HTML5_CLIENT_VERSION
+    helpLink: https://bigbluebutton.org/html5/
     lockOnJoin: true
     basename: "/html5client"
     askForFeedbackOnLogout: false
@@ -92,14 +93,14 @@ public:
     firefoxScreenshareSource: window
     cameraConstraints:
       width:
-        max: 640
+        max: 320
       height:
-        max: 480
+        max: 240
     enableScreensharing: false
     enableVideo: true
     enableVideoStats: false
     enableVideoMenu: true
-    enableListenOnly: false
+    enableListenOnly: true
     autoShareWebcam: false
   allowOutsideCommands:
     toggleRecording: false

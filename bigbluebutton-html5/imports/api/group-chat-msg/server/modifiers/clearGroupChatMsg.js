@@ -21,18 +21,18 @@ export default function clearGroupChatMsg(meetingId, chatId) {
         },
         message: CHAT_CLEAR_MESSAGE,
       };
-
-      return addGroupChatMsg(meetingId, PUBLIC_GROUP_CHAT_ID, clearMsg);
+      addGroupChatMsg(meetingId, PUBLIC_GROUP_CHAT_ID, clearMsg);
     });
+    return true;
   }
 
   if (meetingId) {
-    return GroupChatMsg.remove({ meetingId }, () => {
+    return GroupChatMsg.remove({ meetingId, chatId: { $eq: PUBLIC_GROUP_CHAT_ID } }, () => {
       Logger.info(`Cleared GroupChatMsg (${meetingId})`);
     });
   }
 
-  return GroupChatMsg.remove({}, () => {
+  return GroupChatMsg.remove({ chatId: { $eq: PUBLIC_GROUP_CHAT_ID } }, () => {
     Logger.info('Cleared GroupChatMsg (all)');
   });
 }

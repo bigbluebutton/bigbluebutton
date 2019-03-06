@@ -12,7 +12,7 @@ import { notify } from '/imports/ui/services/notification';
 import ModalFullscreen from '/imports/ui/components/modal/fullscreen/component';
 import { withModalMounter } from '/imports/ui/components/modal/service';
 import Icon from '/imports/ui/components/icon/component';
-import ButtonBase from '/imports/ui/components/button/base/component';
+import Button from '/imports/ui/components/button/component';
 import Checkbox from '/imports/ui/components/checkbox/component';
 import { styles } from './styles.scss';
 
@@ -22,6 +22,7 @@ const propTypes = {
   fileSizeMin: PropTypes.number.isRequired,
   fileSizeMax: PropTypes.number.isRequired,
   handleSave: PropTypes.func.isRequired,
+  dispatchTogglePresentationDownloadable: PropTypes.func.isRequired,
   fileValidMimeTypes: PropTypes.arrayOf(PropTypes.string).isRequired,
   presentations: PropTypes.arrayOf(PropTypes.shape({
     id: PropTypes.string.isRequired,
@@ -126,13 +127,29 @@ const intlMessages = defineMessages({
     id: 'app.presentationUploder.conversion.pageCountExceeded',
     description: 'warns the user that the conversion failed because of the page count',
   },
+  isDownloadable: {
+    id: 'app.presentationUploder.isDownloadableLabel',
+    description: 'presentation is available for downloading by all viewers',
+  },
+  isNotDownloadable: {
+    id: 'app.presentationUploder.isNotDownloadableLabel',
+    description: 'presentation is not available for downloading the viewers',
+  },
+  removePresentation: {
+    id: 'app.presentationUploder.removePresentationLabel',
+    description: 'select to delete this presentation',
+  },
+  setAsCurrentPresentation: {
+    id: 'app.presentationUploder.setAsCurrentPresentation',
+    description: 'set this presentation to be the current one',
+  },
 });
 
 const BROWSER_RESULTS = browser();
-const isMobileBrowser = (BROWSER_RESULTS ? BROWSER_RESULTS.mobile : false) ||
-  (BROWSER_RESULTS && BROWSER_RESULTS.os ?
-    BROWSER_RESULTS.os.includes('Android') : // mobile flag doesn't always work
-    false);
+const isMobileBrowser = (BROWSER_RESULTS ? BROWSER_RESULTS.mobile : false)
+  || (BROWSER_RESULTS && BROWSER_RESULTS.os
+    ? BROWSER_RESULTS.os.includes('Android') // mobile flag doesn't always work
+    : false);
 
 class PresentationUploader extends Component {
   constructor(props) {
@@ -152,6 +169,7 @@ class PresentationUploader extends Component {
     this.handleFiledrop = this.handleFiledrop.bind(this);
     this.handleCurrentChange = this.handleCurrentChange.bind(this);
     this.handleRemove = this.handleRemove.bind(this);
+    this.toggleDownloadable = this.toggleDownloadable.bind(this);
 
     this.updateFileKey = this.updateFileKey.bind(this);
     this.deepMergeUpdateFileKey = this.deepMergeUpdateFileKey.bind(this);
@@ -187,8 +205,9 @@ class PresentationUploader extends Component {
   }
 
   handleConfirm() {
-    const { mountModal } = this.props;
-    const presentationsToSave = this.state.presentations
+    const { mountModal, intl, handleSave } = this.props;
+    const { presentations, oldCurrentId } = this.state;
+    const presentationsToSave = presentations
       .filter(p => !p.upload.error && !p.conversion.error);
 
     this.setState({
@@ -197,32 +216,33 @@ class PresentationUploader extends Component {
       presentations: presentationsToSave,
     });
 
-    return this.props.handleSave(presentationsToSave)
+    return handleSave(presentationsToSave)
       .then(() => {
-        const hasError = this.state.presentations.some(p => p.upload.error || p.conversion.error);
+        const hasError = presentations.some(p => p.upload.error || p.conversion.error);
         if (!hasError) {
           this.setState({
             disableActions: false,
             preventClosing: false,
           });
 
-          return mountModal(null);
+          mountModal(null);
+          return;
         }
 
-        // if theres error we dont want to close the modal
+        // if there's error we don't want to close the modal
         this.setState({
           disableActions: false,
           preventClosing: true,
         }, () => {
           // if the selected current has error we revert back to the old one
-          const newCurrent = this.state.presentations.find(p => p.isCurrent);
+          const newCurrent = presentations.find(p => p.isCurrent);
           if (newCurrent.upload.error || newCurrent.conversion.error) {
-            this.handleCurrentChange(this.state.oldCurrentId);
+            this.handleCurrentChange(oldCurrentId);
           }
         });
       })
       .catch((error) => {
-        notify(this.props.intl.formatMessage(intlMessages.genericError), 'error');
+        notify(intl.formatMessage(intlMessages.genericError), 'error');
 
         logger.error({ logCode: 'presentationuploader_component_save_error' }, error);
 
@@ -247,13 +267,16 @@ class PresentationUploader extends Component {
   }
 
   handleFiledrop(files, files2) {
-    const [ accepted, rejected ] = _.partition(files.concat(files2), (f) => this.props.fileValidMimeTypes.includes(f.type));
+    const { fileValidMimeTypes, intl } = this.props;
+    const [accepted, rejected] = _.partition(files
+      .concat(files2), f => fileValidMimeTypes.includes(f.type));
 
     const presentationsToUpload = accepted.map((file) => {
       const id = _.uniqueId(file.name);
 
       return {
         file,
+        isDownloadable: false, // by default new presentations are set not to be downloadable
         id,
         filename: file.name,
         isCurrent: false,
@@ -298,7 +321,7 @@ class PresentationUploader extends Component {
 
 
     if (rejected.length > 0) {
-        notify(this.props.intl.formatMessage(intlMessages.rejectedError), 'error');
+      notify(intl.formatMessage(intlMessages.rejectedError), 'error');
     }
   }
 
@@ -348,6 +371,34 @@ class PresentationUploader extends Component {
         $splice: [[toRemoveIndex, 1]],
       }),
     });
+  }
+
+  toggleDownloadable(item) {
+    const { dispatchTogglePresentationDownloadable } = this.props;
+    const { presentations } = this.state;
+
+    const oldDownloadableState = item.isDownloadable;
+
+    const outOfDatePresentationIndex = presentations.findIndex(p => p.id === item.id);
+    const commands = {};
+    commands[outOfDatePresentationIndex] = {
+      $apply: (presentation) => {
+        const p = presentation;
+        p.isDownloadable = !oldDownloadableState;
+        return p;
+      },
+    };
+    const presentationsUpdated = update(presentations, commands);
+
+    this.setState({
+      presentations: presentationsUpdated,
+    });
+
+    // If the presentation has not be uploaded yet, adjusting the state suffices
+    // otherwise set previously uploaded presentation to [not] be downloadable
+    if (item.upload.done) {
+      dispatchTogglePresentationDownloadable(item, !oldDownloadableState);
+    }
   }
 
   renderPresentationList() {
@@ -408,7 +459,8 @@ class PresentationUploader extends Component {
         });
       }
 
-      const conversionStatusMessage = intlMessages[item.conversion.status] || intlMessages.genericConversionStatus;
+      const conversionStatusMessage = intlMessages[item.conversion.status]
+        || intlMessages.genericConversionStatus;
       return intl.formatMessage(conversionStatusMessage);
     }
 
@@ -417,6 +469,7 @@ class PresentationUploader extends Component {
 
   renderPresentationItem(item) {
     const { disableActions, oldCurrentId } = this.state;
+    const { intl } = this.props;
 
     const isActualCurrent = item.id === oldCurrentId;
     const isUploading = !item.upload.done && item.upload.progress > 0;
@@ -433,7 +486,13 @@ class PresentationUploader extends Component {
     };
 
     const hideRemove = this.isDefault(item);
+    const formattedDownloadableLabel = item.isDownloadable
+      ? intl.formatMessage(intlMessages.isDownloadable)
+      : intl.formatMessage(intlMessages.isNotDownloadable);
 
+    const isDownloadableStyle = item.isDownloadable
+      ? cx(styles.itemAction, styles.itemActionRemove, styles.checked)
+      : cx(styles.itemAction, styles.itemActionRemove);
     return (
       <tr
         key={item.id}
@@ -447,7 +506,7 @@ class PresentationUploader extends Component {
             ? (
               <th className={styles.tableItemCurrent}>
                 <span className={styles.currentLabel}>
-                  {this.props.intl.formatMessage(intlMessages.current)}
+                  {intl.formatMessage(intlMessages.current)}
                 </span>
               </th>
             )
@@ -461,22 +520,31 @@ class PresentationUploader extends Component {
         </td>
         { hasError ? null : (
           <td className={styles.tableItemActions}>
+            <Button
+              className={isDownloadableStyle}
+              label={formattedDownloadableLabel}
+              hideLabel
+              size="sm"
+              icon={item.isDownloadable ? 'download' : 'download-off'}
+              onClick={() => this.toggleDownloadable(item)}
+            />
             <Checkbox
               disabled={disableActions}
-              ariaLabel="Set as current presentation"
+              ariaLabel={intl.formatMessage(intlMessages.setAsCurrentPresentation)}
               className={styles.itemAction}
               checked={item.isCurrent}
               onChange={() => this.handleCurrentChange(item.id)}
             />
             { hideRemove ? null : (
-              <ButtonBase
+              <Button
                 disabled={disableActions}
                 className={cx(styles.itemAction, styles.itemActionRemove)}
-                label="Remove presentation"
+                label={intl.formatMessage(intlMessages.removePresentation)}
+                size="sm"
+                icon="delete"
+                hideLabel
                 onClick={() => this.handleRemove(item)}
-              >
-                <Icon iconName="delete" />
-              </ButtonBase>
+              />
             )}
           </td>
         )}
@@ -489,7 +557,6 @@ class PresentationUploader extends Component {
       intl,
       fileSizeMin,
       fileSizeMax,
-      fileValidMimeTypes,
     } = this.props;
 
     const { disableActions } = this.state;
@@ -510,7 +577,8 @@ class PresentationUploader extends Component {
       >
         <Icon className={styles.dropzoneIcon} iconName="upload" />
         <p className={styles.dropzoneMessage}>
-          {intl.formatMessage(intlMessages.dropzoneImagesLabel)}&nbsp;
+          {intl.formatMessage(intlMessages.dropzoneImagesLabel)}
+&nbsp;
           <span className={styles.dropzoneLink}>
             {intl.formatMessage(intlMessages.browseImagesLabel)}
           </span>

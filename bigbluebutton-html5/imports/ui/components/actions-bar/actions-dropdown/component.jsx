@@ -1,7 +1,7 @@
 import _ from 'lodash';
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { defineMessages, injectIntl, intlShape } from 'react-intl';
+import { defineMessages, intlShape } from 'react-intl';
 import Button from '/imports/ui/components/button/component';
 import Dropdown from '/imports/ui/components/dropdown/component';
 import DropdownTrigger from '/imports/ui/components/dropdown/trigger/component';
@@ -87,9 +87,13 @@ const intlMessages = defineMessages({
     id: 'app.actionsBar.actionsDropdown.takePresenterDesc',
     description: 'Description of take presenter role option',
   },
-  externalVideoLabel: {
+  startExternalVideoLabel: {
     id: 'app.actionsBar.actionsDropdown.shareExternalVideo',
-    description: 'Share external video button',
+    description: 'Start sharing external video button',
+  },
+  stopExternalVideoLabel: {
+    id: 'app.actionsBar.actionsDropdown.stopShareExternalVideo',
+    description: 'Stop sharing external video button',
   },
 });
 
@@ -138,6 +142,7 @@ class ActionsDropdown extends Component {
       getUsersNotAssigned,
       users,
       handleTakePresenter,
+      isSharingVideo,
     } = this.props;
 
     const {
@@ -204,7 +209,8 @@ class ActionsDropdown extends Component {
         ? (
           <DropdownListItem
             icon="video"
-            label={intl.formatMessage(intlMessages.externalVideoLabel)}
+            label={!isSharingVideo ? intl.formatMessage(intlMessages.startExternalVideoLabel)
+              : intl.formatMessage(intlMessages.stopExternalVideoLabel) }
             description="External Video"
             key="external-video"
             onClick={this.handleExternalVideoClick}
@@ -309,4 +315,4 @@ class ActionsDropdown extends Component {
 
 ActionsDropdown.propTypes = propTypes;
 
-export default withShortcutHelper(withModalMounter(injectIntl(ActionsDropdown)), 'openActions');
+export default withShortcutHelper(withModalMounter(ActionsDropdown), 'openActions');

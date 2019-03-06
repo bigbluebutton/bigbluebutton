@@ -78,6 +78,10 @@ export default function addUser(meetingId, user) {
         roles: [ROLE_VIEWER.toLowerCase()],
         sortName: user.name.trim().toLowerCase(),
         color,
+        breakoutProps: {
+          isBreakoutUser: Meeting.meetingProp.isBreakout,
+          parentId: Meeting.breakoutProps.parentId,
+        },
       },
       flat(user),
     ),

@@ -16,10 +16,11 @@ const ExternalVideoContainer = props => (
   </ExternalVideo>
 );
 
-export default injectIntl(withTracker(({ params, intl }) => {
+export default injectIntl(withTracker(({ params, intl, isPresenter }) => {
   const title = intl.formatMessage(intlMessages.title);
 
   return {
     title,
+    isPresenter,
   };
 })(ExternalVideoContainer));
