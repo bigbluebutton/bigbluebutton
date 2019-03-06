@@ -7,7 +7,7 @@
 }
 
 .wrapper {
-  position: absolute;
+  position: relative;
   left: 0;
   background-color: var(--color-transparent);
   cursor: pointer;
@@ -36,8 +36,4 @@
 
 .dark {
   bottom: 0;
-}
-
-.dark .button span i {
-  color: var(--color-black);
 }

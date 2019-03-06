@@ -8,6 +8,7 @@ import { HUNDRED_PERCENT, MAX_PERCENT, STEP } from '/imports/utils/slideCalcUtil
 import { styles } from './styles.scss';
 import ZoomTool from './zoom-tool/component';
 import FullscreenButton from '../../video-provider/fullscreen-button/component';
+import DownloadPresentationButton from '/imports/ui/components/presentation/download-presentation-button/component';
 
 
 const intlMessages = defineMessages({
@@ -182,6 +183,24 @@ class PresentationToolbar extends Component {
     return optionList;
   }
 
+  renderPresentationDownload() {
+    const { presentationIsDownloadable, downloadPresentationUri } = this.props;
+    console.log('presentationIsDownloadable', presentationIsDownloadable);
+
+    if (!presentationIsDownloadable) return null;
+
+    const handleDownloadPresentation = () => {
+      window.open(downloadPresentationUri);
+    };
+
+    return (
+      <DownloadPresentationButton
+        handleDownloadPresentation={handleDownloadPresentation}
+        dark
+      />
+    );
+  }
+
   render() {
     const {
       currentSlideNum,
@@ -284,6 +303,7 @@ class PresentationToolbar extends Component {
                 />
               )
             }
+            {this.renderPresentationDownload()}
           </span>
         }
         {/* Fit to screen button

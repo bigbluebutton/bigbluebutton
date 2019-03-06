@@ -379,7 +379,12 @@ class PresentationArea extends Component {
       currentSlide,
       podId,
       isFullscreen: propIsFullscreen,
+      presentationIsDownloadable,
+      downloadPresentationUri,
     } = this.props;
+
+    console.log('presentarion: presentationIsDownloadable', presentationIsDownloadable);
+
 
     const { zoom } = this.state;
 
@@ -399,6 +404,8 @@ class PresentationArea extends Component {
         zoom={zoom}
         zoomChanger={this.zoomChanger}
         fitToWidthHandler={this.fitToWidthHandler}
+        presentationIsDownloadable={presentationIsDownloadable}
+        downloadPresentationUri={downloadPresentationUri}
       />
     );
   }
@@ -422,6 +429,7 @@ class PresentationArea extends Component {
 
     const adjustedSizes = this.calculateSize();
     const adjustedHeight = adjustedSizes.height;
+    const adjustedWidth = adjustedSizes.width;
 
     const toolbarHeight = this.getToolbarHeight();
 
@@ -456,6 +464,11 @@ class PresentationArea extends Component {
                 <div
                   className={styles.presentationToolbar}
                   ref={(ref) => { this.refPresentationToolbar = ref; }}
+                  style={
+                    {
+                      width: adjustedWidth,
+                    }
+                  }
                 >
                   {this.renderPresentationToolbar()}
                 </div>

@@ -43,13 +43,12 @@
   position: relative;
   display: flex;
   justify-content: center;
-  align-items: center;
+  align-items: flex-start;
 }
 
 .presentationToolbar{
   display: flex;
   overflow-x: auto;
-  width: 100%;
   order: 2;
   position: absolute;
   bottom: 0;
