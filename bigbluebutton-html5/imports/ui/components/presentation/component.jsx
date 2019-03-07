@@ -433,6 +433,23 @@ class PresentationArea extends Component {
 
     const toolbarHeight = this.getToolbarHeight();
 
+    let toolbarWidth = 0;
+    if (this.refWhiteboardArea) {
+      const { clientWidth: AreaWidth } = this.refWhiteboardArea;
+      if (adjustedWidth < 400
+        && adjustedWidth !== AreaWidth
+        && AreaWidth > 400) {
+        toolbarWidth = '400px';
+      } else if (adjustedWidth === AreaWidth
+        || AreaWidth <= 400) {
+        toolbarWidth = '100%';
+      } else {
+        toolbarWidth = adjustedWidth;
+      }
+    }
+
+    console.log('toolbarWidth', toolbarWidth);
+
 
     return (
       <div
@@ -466,7 +483,7 @@ class PresentationArea extends Component {
                   ref={(ref) => { this.refPresentationToolbar = ref; }}
                   style={
                     {
-                      width: adjustedWidth,
+                      width: toolbarWidth,
                     }
                   }
                 >
