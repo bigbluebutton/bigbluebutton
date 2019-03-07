@@ -98,7 +98,11 @@ class BreakoutRoom extends Component {
     const hasUser = breakoutRoomUser(breakoutId);
     if (!hasUser && !waiting) {
       this.setState(
-        { waiting: true, requestedBreakoutId: breakoutId },
+        {
+          waiting: true,
+          requestedBreakoutId: breakoutId,
+          generated: false,
+        },
         () => requestJoinURL(breakoutId),
       );
     }
