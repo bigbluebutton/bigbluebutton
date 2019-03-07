@@ -4,7 +4,7 @@ import Meetings from '/imports/api/meetings';
 import Users from '/imports/api/users';
 import Logger from '/imports/startup/server/logger';
 
-function meetings(credentials, isModerator) {
+function meetings(credentials, isModerator = false) {
   const { meetingId, requesterUserId, requesterToken } = credentials;
 
   check(meetingId, String);
