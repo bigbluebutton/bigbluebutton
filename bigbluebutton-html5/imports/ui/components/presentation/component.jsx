@@ -12,6 +12,7 @@ import Slide from './slide/component';
 import { styles } from './styles.scss';
 import MediaService, { shouldEnableSwapLayout } from '../media/service';
 import PresentationCloseButton from './presentation-close-button/component';
+import DownloadPresentationButton from './download-presentation-button/component';
 
 class PresentationArea extends Component {
   constructor() {
@@ -282,8 +283,6 @@ class PresentationArea extends Component {
     // a reference to the slide object
     const slideObj = currentSlide;
 
-    const presentationCloseButton = this.renderPresentationClose();
-
     // retrieving the pre-calculated data from the slide object
     const {
       x,
@@ -311,7 +310,8 @@ class PresentationArea extends Component {
       <div
         style={svgAreaDimensions}
       >
-        {presentationCloseButton}
+        {this.renderPresentationClose()}
+        {this.renderPresentationDownload()}
         <TransitionGroup>
           <CSSTransition
             key={slideObj.id}
@@ -379,12 +379,7 @@ class PresentationArea extends Component {
       currentSlide,
       podId,
       isFullscreen: propIsFullscreen,
-      presentationIsDownloadable,
-      downloadPresentationUri,
     } = this.props;
-
-    console.log('presentarion: presentationIsDownloadable', presentationIsDownloadable);
-
 
     const { zoom } = this.state;
 
@@ -404,8 +399,6 @@ class PresentationArea extends Component {
         zoom={zoom}
         zoomChanger={this.zoomChanger}
         fitToWidthHandler={this.fitToWidthHandler}
-        presentationIsDownloadable={presentationIsDownloadable}
-        downloadPresentationUri={downloadPresentationUri}
       />
     );
   }
@@ -419,6 +412,23 @@ class PresentationArea extends Component {
       <WhiteboardToolbarContainer
         whiteboardId={currentSlide.id}
         height={adjustedSizes.height}
+      />
+    );
+  }
+
+  renderPresentationDownload() {
+    const { presentationIsDownloadable, downloadPresentationUri } = this.props;
+
+    if (!presentationIsDownloadable) return null;
+
+    const handleDownloadPresentation = () => {
+      window.open(downloadPresentationUri);
+    };
+
+    return (
+      <DownloadPresentationButton
+        handleDownloadPresentation={handleDownloadPresentation}
+        dark
       />
     );
   }
@@ -447,9 +457,6 @@ class PresentationArea extends Component {
         toolbarWidth = adjustedWidth;
       }
     }
-
-    console.log('toolbarWidth', toolbarWidth);
-
 
     return (
       <div

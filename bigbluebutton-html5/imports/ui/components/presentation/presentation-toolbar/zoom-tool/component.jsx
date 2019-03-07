@@ -193,6 +193,7 @@ class ZoomTool extends Component {
       minBound,
       maxBound,
       intl,
+      tooltipDistance,
     } = this.props;
     const { stateZoomValue } = this.state;
     return (
@@ -214,6 +215,7 @@ class ZoomTool extends Component {
               onClick={() => { }}
               disabled={(zoomValue <= minBound)}
               className={styles.prevSlide}
+              tooltipDistance={tooltipDistance}
               hideLabel
             />
           </HoldButton>
@@ -228,8 +230,9 @@ class ZoomTool extends Component {
             size="md"
             onClick={() => this.resetZoom()}
             label={intl.formatMessage(intlMessages.resetZoomLabel)}
-            hideLabel
             className={styles.zoomPercentageDisplay}
+            tooltipDistance={tooltipDistance}
+            hideLabel
           />
         ),
         (
@@ -249,6 +252,7 @@ class ZoomTool extends Component {
               onClick={() => { }}
               disabled={(zoomValue >= maxBound)}
               className={styles.skipSlide}
+              tooltipDistance={tooltipDistance}
               hideLabel
             />
           </HoldButton>

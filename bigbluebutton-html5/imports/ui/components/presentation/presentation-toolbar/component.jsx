@@ -183,24 +183,6 @@ class PresentationToolbar extends Component {
     return optionList;
   }
 
-  renderPresentationDownload() {
-    const { presentationIsDownloadable, downloadPresentationUri } = this.props;
-    console.log('presentationIsDownloadable', presentationIsDownloadable);
-
-    if (!presentationIsDownloadable) return null;
-
-    const handleDownloadPresentation = () => {
-      window.open(downloadPresentationUri);
-    };
-
-    return (
-      <DownloadPresentationButton
-        handleDownloadPresentation={handleDownloadPresentation}
-        dark
-      />
-    );
-  }
-
   render() {
     const {
       currentSlideNum,
@@ -216,6 +198,9 @@ class PresentationToolbar extends Component {
     const BROWSER_RESULTS = browser();
     const isMobileBrowser = BROWSER_RESULTS.mobile
       || BROWSER_RESULTS.os.includes('Android');
+    
+    const tooltipDistance = 35;
+    
     return (
       <div id="presentationToolbarWrapper" className={styles.presentationToolbarWrapper}>
         {PresentationToolbar.renderAriaLabelsDescs()}
@@ -233,6 +218,7 @@ class PresentationToolbar extends Component {
               label={intl.formatMessage(intlMessages.previousSlideLabel)}
               hideLabel
               className={styles.prevSlide}
+              tooltipDistance={tooltipDistance}
             />
             <select
               /*
@@ -262,6 +248,7 @@ class PresentationToolbar extends Component {
               label={intl.formatMessage(intlMessages.nextSlideLabel)}
               hideLabel
               className={styles.skipSlide}
+              tooltipDistance={tooltipDistance}
             />
           </span>
         }
@@ -276,6 +263,7 @@ class PresentationToolbar extends Component {
                     minBound={HUNDRED_PERCENT}
                     maxBound={MAX_PERCENT}
                     step={STEP}
+                    tooltipDistance={tooltipDistance}
                   />
                 )
                 : null
@@ -292,6 +280,7 @@ class PresentationToolbar extends Component {
               label={intl.formatMessage(intlMessages.fitToWidth)}
               hideLabel
               className={styles.skipSlide}
+              tooltipDistance={tooltipDistance}
             />
             {
               !isFullscreen
@@ -299,11 +288,11 @@ class PresentationToolbar extends Component {
                 <FullscreenButton
                   handleFullscreen={fullscreenRef}
                   elementName={intl.formatMessage(intlMessages.presentationLabel)}
+                  tooltipDistance={tooltipDistance}
                   dark
                 />
               )
             }
-            {this.renderPresentationDownload()}
           </span>
         }
         {/* Fit to screen button

@@ -18,8 +18,6 @@ const PresentationToolbarContainer = (props) => {
     getSwapLayout,
     isFullscreen,
     fullscreenRef,
-    presentationIsDownloadable,
-    downloadPresentationUri,
   } = props;
 
   if (userIsPresenter && !getSwapLayout) {
@@ -36,8 +34,6 @@ const PresentationToolbarContainer = (props) => {
           zoom,
           zoomChanger,
           fitToWidthHandler,
-          presentationIsDownloadable,
-          downloadPresentationUri,
         }}
       />
     );
