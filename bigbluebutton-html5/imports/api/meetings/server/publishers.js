@@ -3,7 +3,7 @@ import { check } from 'meteor/check';
 import Meetings from '/imports/api/meetings';
 import Logger from '/imports/startup/server/logger';
 
-function meetings(credentials) {
+function meetings(credentials, isModerator = false) {
   const { meetingId, requesterUserId, requesterToken } = credentials;
 
   check(meetingId, String);
@@ -15,12 +15,15 @@ function meetings(credentials) {
   const selector = {
     $or: [
       { meetingId },
-      {
-        'meetingProp.isBreakout': true,
-        'breakoutProps.parentId': meetingId,
-      },
     ],
   };
+
+  if (isModerator) {
+    selector.$or.push({
+      'meetingProp.isBreakout': true,
+      'breakoutProps.parentId': meetingId,
+    });
+  }
 
   const options = {
     fields: {
