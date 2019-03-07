@@ -1027,6 +1027,20 @@ check_configuration() {
                 echo "#"
             fi
         fi
+
+	GUEST_POLICY=$(cat $BBB_WEB_CONFIG | grep -v '#' | sed -n '/^defaultGuestPolicy/{s/.*=//;p}')
+	if [ "$GUEST_POLICY" == "ASK_MODERATOR" ]; then
+		echo
+		echo "# Warning: defaultGuestPolicy is set to ASK_MODERATOR in"
+		echo "#    $BBB_WEB_CONFIG"
+		echo "# This is not yet supported yet the HTML5 client."
+		echo "#"
+		echo "# To revert it to ALWAYS_ALLOW, see"
+		echo "#"
+		echo "#   http://docs.bigbluebutton.org/2.2/customize.html#configure-guest-policy"
+		echo "#"
+		echo
+	fi
 }
 
 
