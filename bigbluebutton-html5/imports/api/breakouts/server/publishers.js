@@ -1,5 +1,6 @@
 import { Meteor } from 'meteor/meteor';
 import Breakouts from '/imports/api/breakouts';
+import Users from '/imports/api/users';
 import Logger from '/imports/startup/server/logger';
 
 function breakouts(credentials, moderator) {
@@ -10,6 +11,8 @@ function breakouts(credentials, moderator) {
   Logger.info(`Publishing Breakouts for ${meetingId} ${requesterUserId}`);
 
   if (moderator) {
+    const User = Users.findOne({ userId: requesterUserId });
+    if (!User.moderator) return null;
     const presenterSelector = {
       $or: [
         { parentMeetingId: meetingId },
