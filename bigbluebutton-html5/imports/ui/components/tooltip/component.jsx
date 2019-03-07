@@ -59,8 +59,19 @@ class Tooltip extends Component {
     const {
       position,
       title,
+      tooltipDistance,
     } = this.props;
     const { enableAnimation } = this.state;
+
+    let distance = 0;
+    if (enableAnimation && !tooltipDistance) {
+      distance = 10;
+    } else if (!tooltipDistance) {
+      distance = 20;
+    } else {
+      distance = tooltipDistance;
+    }
+
     const options = {
       placement: position,
       performance: true,
@@ -72,7 +83,7 @@ class Tooltip extends Component {
       wait: Tooltip.wait,
       touchHold: true,
       size: 'regular',
-      distance: enableAnimation ? 10 : 20,
+      distance,
       arrow: true,
       arrowType: 'sharp',
       aria: null,

@@ -44,6 +44,22 @@
   z-index: -1;
 }
 
+.svgContainer{
+  width: 100%;
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+}
+
+.presentationToolbar{
+  display: flex;
+  overflow-x: auto;
+  order: 2;
+  position: absolute;
+  bottom: 0;
+}
+
 .svgStyles {
   object-fit: contain;
   width: 100%;

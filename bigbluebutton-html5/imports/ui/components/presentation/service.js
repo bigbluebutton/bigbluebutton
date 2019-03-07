@@ -142,6 +142,8 @@ const isPresenter = (podId) => {
   return pod.currentPresenterId === Auth.userID;
 };
 
+const isFullscreen = () => document.fullscreenElement !== null;
+
 const getMultiUserStatus = (whiteboardId) => {
   const data = WhiteboardMultiUser.findOne({ meetingId: Auth.meetingID, whiteboardId });
   return data ? data.multiUser : false;
@@ -153,6 +155,7 @@ export default {
   isPresentationDownloadable,
   downloadPresentationUri,
   getMultiUserStatus,
+  isFullscreen,
   currentSlidHasContent,
   parseCurrentSlideContent,
 };

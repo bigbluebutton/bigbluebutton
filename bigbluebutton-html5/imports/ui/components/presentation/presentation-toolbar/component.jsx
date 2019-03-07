@@ -7,6 +7,8 @@ import Button from '/imports/ui/components/button/component';
 import { HUNDRED_PERCENT, MAX_PERCENT, STEP } from '/imports/utils/slideCalcUtils';
 import { styles } from './styles.scss';
 import ZoomTool from './zoom-tool/component';
+import FullscreenButton from '../../video-provider/fullscreen-button/component';
+import DownloadPresentationButton from '/imports/ui/components/presentation/download-presentation-button/component';
 
 
 const intlMessages = defineMessages({
@@ -25,6 +27,10 @@ const intlMessages = defineMessages({
   fitToWidth: {
     id: 'app.presentation.presentationToolbar.fitToWidth',
     description: 'button for fit to width',
+  },
+  presentationLabel: {
+    id: 'app.presentationUploder.title',
+    description: 'presentation area element label',
   },
 });
 
@@ -185,16 +191,21 @@ class PresentationToolbar extends Component {
       actions,
       intl,
       zoom,
+      isFullscreen,
+      fullscreenRef,
     } = this.props;
 
     const BROWSER_RESULTS = browser();
     const isMobileBrowser = BROWSER_RESULTS.mobile
       || BROWSER_RESULTS.os.includes('Android');
+    
+    const tooltipDistance = 35;
+    
     return (
       <div id="presentationToolbarWrapper" className={styles.presentationToolbarWrapper}>
         {PresentationToolbar.renderAriaLabelsDescs()}
         {
-          <span className={styles.presentationControls}>
+          <span className={styles.presentationSlideControls}>
             <Button
               role="button"
               aria-labelledby="prevSlideLabel"
@@ -207,6 +218,7 @@ class PresentationToolbar extends Component {
               label={intl.formatMessage(intlMessages.previousSlideLabel)}
               hideLabel
               className={styles.prevSlide}
+              tooltipDistance={tooltipDistance}
             />
             <select
               /*
@@ -236,39 +248,53 @@ class PresentationToolbar extends Component {
               label={intl.formatMessage(intlMessages.nextSlideLabel)}
               hideLabel
               className={styles.skipSlide}
+              tooltipDistance={tooltipDistance}
             />
           </span>
         }
         {
-          !isMobileBrowser
-            ? (
-              <span className={styles.zoomWrapper}>
-                <ZoomTool
-                  zoomValue={zoom}
-                  change={this.change}
-                  minBound={HUNDRED_PERCENT}
-                  maxBound={MAX_PERCENT}
-                  step={STEP}
+          <span className={styles.presentationZoomControls}>
+            {
+              !isMobileBrowser
+                ? (
+                  <ZoomTool
+                    zoomValue={zoom}
+                    change={this.change}
+                    minBound={HUNDRED_PERCENT}
+                    maxBound={MAX_PERCENT}
+                    step={STEP}
+                    tooltipDistance={tooltipDistance}
+                  />
+                )
+                : null
+            }
+            <Button
+              role="button"
+              aria-labelledby="fitWidthLabel"
+              aria-describedby="fitWidthDesc"
+              color="default"
+              icon="fit_to_width"
+              size="md"
+              circle={false}
+              onClick={fitToWidthHandler}
+              label={intl.formatMessage(intlMessages.fitToWidth)}
+              hideLabel
+              className={styles.skipSlide}
+              tooltipDistance={tooltipDistance}
+            />
+            {
+              !isFullscreen
+              && (
+                <FullscreenButton
+                  handleFullscreen={fullscreenRef}
+                  elementName={intl.formatMessage(intlMessages.presentationLabel)}
+                  tooltipDistance={tooltipDistance}
+                  dark
                 />
-              </span>
-            )
-            : null
+              )
+            }
+          </span>
         }
-        <span className={styles.presentationControls}>
-          <Button
-            role="button"
-            aria-labelledby="fitWidthLabel"
-            aria-describedby="fitWidthDesc"
-            color="default"
-            icon="fit_to_width"
-            size="md"
-            circle={false}
-            onClick={fitToWidthHandler}
-            label={intl.formatMessage(intlMessages.fitToWidth)}
-            hideLabel
-            className={styles.skipSlide}
-          />
-        </span>
         {/* Fit to screen button
         <Button
           role="button"
