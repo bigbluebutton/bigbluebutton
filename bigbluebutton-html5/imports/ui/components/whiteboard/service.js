@@ -143,8 +143,25 @@ const proccessAnnotationsQueue = async () => {
 
   const annotations = annotationsQueue.splice(0, queueSize);
 
-  // console.log('annotationQueue.length', annotationsQueue, annotationsQueue.length);
-  await makeCall('sendBulkAnnotations', annotations.filter(({ id }) => !discardedList.includes(id)))
+  const reducedAnnotations = annotations.reduce((acc, value) => {
+    const { status } = value;
+
+    const annotation = acc[0];
+
+    if (!annotation || status === DRAW_START || status === DRAW_END) {
+      acc.push(value);
+
+      return acc;
+    }
+
+    const { annotationInfo: { points } } = value;
+
+    annotation.annotationInfo.points = annotation.annotationInfo.points.concat(points);
+
+    return acc;
+  }, []);
+
+  await makeCall('sendBulkAnnotations', reducedAnnotations.filter(({ id }) => !discardedList.includes(id)));
 
   // ask tiago
   const delayPerc =
