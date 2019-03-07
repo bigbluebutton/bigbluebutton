@@ -57,11 +57,14 @@ function users(credentials, isModerator = false) {
   };
 
   if (isModerator) {
-    selector.$or.push({
-      'breakoutProps.isBreakoutUser': true,
-      'breakoutProps.parentId': meetingId,
-      connectionStatus: 'online',
-    });
+    const User = Users.findOne({ userId: requesterUserId });
+    if (User.moderator) {
+      selector.$or.push({
+        'breakoutProps.isBreakoutUser': true,
+        'breakoutProps.parentId': meetingId,
+        connectionStatus: 'online',
+      });
+    }
   }
 
   const options = {

@@ -1,6 +1,7 @@
 import { Meteor } from 'meteor/meteor';
 import { check } from 'meteor/check';
 import Meetings from '/imports/api/meetings';
+import Users from '/imports/api/users';
 import Logger from '/imports/startup/server/logger';
 
 function meetings(credentials, isModerator = false) {
@@ -19,10 +20,13 @@ function meetings(credentials, isModerator = false) {
   };
 
   if (isModerator) {
-    selector.$or.push({
-      'meetingProp.isBreakout': true,
-      'breakoutProps.parentId': meetingId,
-    });
+    const User = Users.findOne({ userId: requesterUserId });
+    if (User.moderator) {
+      selector.$or.push({
+        'meetingProp.isBreakout': true,
+        'breakoutProps.parentId': meetingId,
+      });
+    }
   }
 
   const options = {
