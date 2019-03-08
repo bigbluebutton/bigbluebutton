@@ -1,6 +1,7 @@
 import Presentations from '/imports/api/presentations';
 import PresentationUploadToken from '/imports/api/presentation-upload-token';
 import Auth from '/imports/ui/services/auth';
+import Poll from '/imports/api/polls/';
 import { makeCall } from '/imports/ui/services/api';
 import _ from 'lodash';
 
@@ -154,7 +155,11 @@ const uploadAndConvertPresentations = (presentationsToUpload, meetingId, podId, 
 
 const setPresentation = (presentationId, podId) => makeCall('setPresentation', presentationId, podId);
 
-const removePresentation = (presentationId, podId) => makeCall('removePresentation', presentationId, podId);
+const removePresentation = (presentationId, podId) => {
+  const hasPoll = Poll.find({}).fetch().length;
+  if (hasPoll) makeCall('stopPoll');
+  makeCall('removePresentation', presentationId, podId);
+};
 
 const removePresentations = (presentationsToRemove, podId) =>
   Promise.all(presentationsToRemove.map(p => removePresentation(p.id, podId)));
