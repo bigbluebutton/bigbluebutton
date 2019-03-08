@@ -1,6 +1,8 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { defineMessages, injectIntl } from 'react-intl';
+import PresentationUploaderContainer from '/imports/ui/components/presentation/presentation-uploader/container';
+import { withModalMounter } from '/imports/ui/components/modal/service';
 import _ from 'lodash';
 import { Session } from 'meteor/session';
 import Button from '/imports/ui/components/button/component';
@@ -47,6 +49,14 @@ const intlMessages = defineMessages({
   customPlaceholder: {
     id: 'app.poll.customPlaceholder',
     description: 'custom poll input field placeholder text',
+  },
+  noPresentationSelected: {
+    id: 'app.poll.noPresentationSelected',
+    description: 'no presentation label',
+  },
+  clickHereToSelect: {
+    id: 'app.poll.clickHereToSelect',
+    description: 'open uploader modal button label',
   },
   tf: {
     id: 'app.poll.tf',
@@ -257,12 +267,44 @@ class Poll extends Component {
     );
   }
 
-  render() {
+  renderNoSlidePanel = () => {
+    const { mountModal, intl } = this.props;
+    return (
+      <div className={styles.noSlidePanelContainer}>
+        <h4>{intl.formatMessage(intlMessages.noPresentationSelected)}</h4>
+        <Button
+          label={intl.formatMessage(intlMessages.clickHereToSelect)}
+          color="primary"
+          onClick={() => mountModal(<PresentationUploaderContainer />)}
+          className={styles.pollBtn}
+        />
+      </div>
+    );
+  }
+
+  renderPollPanel = () => {
+    const { isPolling } = this.state;
     const {
-      intl, stopPoll, currentPoll, currentUser,
+      currentPoll,
+      currentSlide,
     } = this.props;
 
-    const { isPolling } = this.state;
+    if (!currentSlide) return this.renderNoSlidePanel();
+
+    if (isPolling || (!isPolling && currentPoll)) {
+      return this.renderActivePollOptions();
+    }
+
+    return this.renderPollOptions();
+  }
+
+  render() {
+    const {
+      intl,
+      stopPoll,
+      currentPoll,
+      currentUser,
+    } = this.props;
 
     if (!currentUser.presenter) return null;
 
@@ -297,15 +339,14 @@ class Poll extends Component {
 
         </header>
         {
-          (isPolling || (!isPolling && currentPoll))
-            ? this.renderActivePollOptions() : this.renderPollOptions()
+          this.renderPollPanel()
         }
       </div>
     );
   }
 }
 
-export default injectIntl(Poll);
+export default withModalMounter(injectIntl(Poll));
 
 Poll.propTypes = {
   intl: PropTypes.shape({
