@@ -27,9 +27,8 @@ export default function userResponded({ body }) {
       return Logger.error(`Updating Poll responses: ${err}`);
     }
 
-    return Logger.info(`Updating Poll response (userId: ${userId},
-                                                response: ${answerId},
-                                                pollId: ${pollId})`);
+    return Logger.info(`Updating Poll response (userId: ${userId},`
+      + `response: ${answerId}, pollId: ${pollId})`);
   };
 
   return Polls.update(selector, modifier, cb);
