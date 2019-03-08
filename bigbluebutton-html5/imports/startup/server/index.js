@@ -30,8 +30,9 @@ WebApp.connectHandlers.use('/locale', (req, res) => {
 
   const usableLocales = AVAILABLE_LOCALES
     .map(file => file.replace('.json', ''))
-    .reduce((locales, locale) =>
-      (locale.match(browserLocale[0]) ? [...locales, locale] : locales), []);
+    .reduce((locales, locale) => (locale.match(browserLocale[0])
+      ? [...locales, locale]
+      : locales), []);
 
   const regionDefault = usableLocales.find(locale => browserLocale[0] === locale);
 
@@ -52,8 +53,8 @@ WebApp.connectHandlers.use('/locale', (req, res) => {
       messages = Object.assign(messages, JSON.parse(data));
       normalizedLocale = locale;
     } catch (e) {
-      Logger.error(`'Could not process locale ${locale}:${e}`);
-      // Getting here means the locale is not available on the files.
+      Logger.warn(`'Could not process locale ${locale}:${e}`);
+      // Getting here means the locale is not available in the current locale files.
     }
   });
 
@@ -72,8 +73,7 @@ WebApp.connectHandlers.use('/locales', (req, res) => {
         name: Langmap[locale].nativeName,
       }));
   } catch (e) {
-    Logger.error(`'Could not process locales error: ${e}`);
-    // Getting here means the locale is not available on the files.
+    Logger.warn(`'Could not process locales error: ${e}`);
   }
 
   res.setHeader('Content-Type', 'application/json');
