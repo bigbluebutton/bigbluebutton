@@ -3,8 +3,8 @@ public:
     mobileFontSize: 16px
     desktopFontSize: 14px
     audioChatNotification: false
-    autoJoin: true
     showParticipantsOnLogin: true
+    autoJoin: true
     listenOnlyMode: true
     forceListenOnly: false
     skipCheck: false
@@ -96,7 +96,7 @@ public:
         max: 320
       height:
         max: 240
-    enableScreensharing: false
+    enableScreensharing: true
     enableVideo: true
     enableVideoStats: false
     enableVideoMenu: true
