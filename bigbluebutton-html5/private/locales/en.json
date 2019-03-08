@@ -135,6 +135,8 @@
     "app.poll.closeLabel": "Close",
     "app.poll.ariaInputCount": "Input {0} of {1}",
     "app.poll.customPlaceholder": "Add poll option",
+    "app.poll.noPresentationSelected": "No presentation selected! Please select one.",
+    "app.poll.clickHereToSelect": "Click here to select",
     "app.poll.t": "True",
     "app.poll.f": "False",
     "app.poll.tf": "True / False",
