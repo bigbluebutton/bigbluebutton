@@ -136,11 +136,6 @@ public:
     autoSwapLayout: false
     hidePresentation: false
   media:
-    WebRTCHangupRetryInterval: 2000
-    vertoServerAddress: HOST
-    freeswitchProfilePassword: '1234'
-    vertoPort: '8082'
-    useSIPAudio: true
     stunTurnServersFetchAddress: "/bigbluebutton/api/stuns"
     mediaTag: "#remote-media"
     callTransferTimeout: 5000
