@@ -8,7 +8,7 @@ function whiteboardMultiUser(credentials) {
 
   check(meetingId, String);
 
-  Logger.info(`Publishing whiteboard-multi-user for ${meetingId} ${requesterUserId} ${requesterToken}`);
+  Logger.debug(`Publishing whiteboard-multi-user for ${meetingId} ${requesterUserId} ${requesterToken}`);
 
   return WhiteboardMultiUser.find({ meetingId });
 }

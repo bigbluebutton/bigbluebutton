@@ -7,7 +7,7 @@ function breakouts(credentials, moderator) {
     meetingId,
     requesterUserId,
   } = credentials;
-  Logger.info(`Publishing Breakouts for ${meetingId} ${requesterUserId}`);
+  Logger.debug(`Publishing Breakouts for ${meetingId} ${requesterUserId}`);
 
   if (moderator) {
     const presenterSelector = {
