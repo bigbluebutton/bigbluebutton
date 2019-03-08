@@ -9,7 +9,7 @@ import flat from 'flat';
 
 import addVoiceUser from '/imports/api/voice-users/server/modifiers/addVoiceUser';
 import changeRole from '/imports/api/users/server/modifiers/changeRole';
-import setApprovedStatus from '/imports/api/users/server/modifiers/setApprovedStatus';
+import setApprovedStatus from '/imports/api/guest-users/server/modifiers/setGuestStatus';
 
 const COLOR_LIST = [
   '#7b1fa2', '#6a1b9a', '#4a148c', '#5e35b1', '#512da8', '#4527a0',
