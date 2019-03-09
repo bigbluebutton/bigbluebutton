@@ -15,6 +15,10 @@ const intlMessages = defineMessages({
     id: 'app.userList.guest.waitingUsers',
     description: 'Label for the waiting users',
   },
+  optionTitle: {
+    id: 'app.userList.guest.optionTitle',
+    description: 'Label above the options',
+  },
   allowAllAuthenticated: {
     id: 'app.userList.guest.allowAllAuthenticated',
     description: 'Title for the waiting users',
@@ -46,7 +50,7 @@ const DENY_STATUS = 'DENY';
 
 const renderButton = (message, action, key) => (
   <Button
-    key={`button-${key}`}
+    key={key}
     color="primary"
     label={message}
     size="lg"
@@ -55,22 +59,29 @@ const renderButton = (message, action, key) => (
   />
 );
 
-const renderGuestUserItem = (name, color, handleAccept, handleDeny, role, sequence) => (
-  <div className={styles.listItem}>
-    <div className={styles.userContentContainer}>
-      <div className={styles.userAvatar}>
+const renderGuestUserItem = (name, color, handleAccept, handleDeny, role, sequence, userId) => (
+  <div key={`userlist-item-${userId}`} className={styles.listItem}>
+    <div key={`user-content-container-${userId}`} className={styles.userContentContainer}>
+      <div key={`user-avatar-container-${userId}`} className={styles.userAvatar}>
         <UserAvatar
+          key={`user-avatar-${userId}`}
           moderator={role === 'MODERATOR'}
           color={color}
         >
           {name.slice(0, 2).toUpperCase()}
         </UserAvatar>
       </div>
-      <p className={styles.userName}>[{sequence}] {name}</p>
+      <p key={`user-name-${userId}`} className={styles.userName}>
+[
+        {sequence}
+]
+        {name}
+      </p>
     </div>
 
-    <div className={styles.buttonContainer}>
+    <div key={`userlist-btns-${userId}`} className={styles.buttonContainer}>
       <Button
+        key={`userbtn-accept-${userId}`}
         className={styles.button}
         color="primary"
         size="lg"
@@ -80,6 +91,7 @@ const renderGuestUserItem = (name, color, handleAccept, handleDeny, role, sequen
       />
       |
       <Button
+        key={`userbtn-deny-${userId}`}
         className={styles.button}
         color="primary"
         size="lg"
@@ -103,6 +115,7 @@ const renderPendingUsers = (message, usersArray, action) => {
         () => action([user], DENY_STATUS),
         user.role,
         idx + 1,
+        user.intId,
       ))}
     </div>
   );
@@ -128,18 +141,22 @@ const WaitingUsers = (props) => {
     {
       messageId: intlMessages.allowAllAuthenticated,
       action: () => guestUsersCall(authenticatedUsers, ALLOW_STATUS),
+      key: 'allow-all-auth',
     },
     {
       messageId: intlMessages.allowAllGuests,
       action: () => guestUsersCall(guestUsers, ALLOW_STATUS),
+      key: 'allow-all-guest',
     },
     {
       messageId: intlMessages.allowEveryone,
       action: () => guestUsersCall([...guestUsers, ...authenticatedUsers], ALLOW_STATUS),
+      key: 'allow-everyone',
     },
     {
       messageId: intlMessages.denyEveryone,
       action: () => guestUsersCall([...guestUsers, ...authenticatedUsers], DENY_STATUS),
+      key: 'deny-everyone',
     },
   ];
 
@@ -165,12 +182,12 @@ const WaitingUsers = (props) => {
       </header>
       <main>
         <div>
-          <p className={styles.mainTitle}>Review Peding Users</p>
+          <p className={styles.mainTitle}>{intl.formatMessage(intlMessages.optionTitle)}</p>
           {
-            buttonsData.map((buttonData, idx) => renderButton(
+            buttonsData.map(buttonData => renderButton(
               intl.formatMessage(buttonData.messageId),
               buttonData.action,
-              idx,
+              buttonData.key,
             ))
           }
         </div>
