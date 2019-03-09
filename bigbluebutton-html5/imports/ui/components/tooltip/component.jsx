@@ -5,6 +5,7 @@ import _ from 'lodash';
 import cx from 'classnames';
 import { ESCAPE } from '/imports/utils/keyCodes';
 import Settings from '/imports/ui/services/settings';
+import logger from '/imports/startup/client/logger';
 
 const DEFAULT_ANIMATION = 'shift-away';
 const ANIMATION_NONE = 'none';
@@ -31,9 +32,14 @@ class Tooltip extends Component {
     if (expandedEl && !isTarget) return;
 
     const findLabel = (node) => {
-      const { nodeName, lastChild, parentElement } = node;
-      if (nodeName.toLowerCase() === 'button') return lastChild.innerText;
-      return findLabel(parentElement);
+      let rtn;
+      if (node) {
+        const { nodeName, lastChild, parentElement } = node;
+        if (nodeName.toLowerCase() === 'button') rtn = lastChild.innerText;
+        else rtn = findLabel(parentElement);
+      }
+      logger.debug('No text found for tooltip. Falling back to Tooltip title');
+      return rtn;
     };
     const label = findLabel(tooltipTarget);
     if (label) tip.set({ content: label });
@@ -95,6 +101,7 @@ class Tooltip extends Component {
   componentDidUpdate() {
     const { enableAnimation } = this.state;
     const { animations } = Settings.application;
+    const { title } = this.props;
 
     if (animations !== enableAnimation) {
       const elements = document.querySelectorAll('[id^="tippy-"]');
@@ -121,6 +128,9 @@ class Tooltip extends Component {
 
       this.setEnableAnimation(animations);
     }
+
+    const elem = document.getElementById(this.tippySelectorId);
+    if (elem._tippy) elem._tippy.set({ content: title });
   }
 
   onShow() {
@@ -145,6 +155,7 @@ class Tooltip extends Component {
       children,
       className,
       title,
+      tooltipDistance,
       ...restProps
     } = this.props;
 
