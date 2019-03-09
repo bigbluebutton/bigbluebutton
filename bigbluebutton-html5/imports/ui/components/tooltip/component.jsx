@@ -5,7 +5,6 @@ import _ from 'lodash';
 import cx from 'classnames';
 import { ESCAPE } from '/imports/utils/keyCodes';
 import Settings from '/imports/ui/services/settings';
-import logger from '/imports/startup/client/logger';
 
 const DEFAULT_ANIMATION = 'shift-away';
 const ANIMATION_NONE = 'none';
@@ -38,7 +37,6 @@ class Tooltip extends Component {
         if (nodeName.toLowerCase() === 'button') rtn = lastChild.innerText;
         else rtn = findLabel(parentElement);
       }
-      logger.debug('No text found for tooltip. Falling back to Tooltip title');
       return rtn;
     };
     const label = findLabel(tooltipTarget);
