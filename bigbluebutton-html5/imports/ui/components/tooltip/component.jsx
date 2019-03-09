@@ -16,11 +16,13 @@ const propTypes = {
   position: PropTypes.oneOf(['bottom']),
   children: PropTypes.element.isRequired,
   className: PropTypes.string,
+  tooltipDistance: PropTypes.number,
 };
 
 const defaultProps = {
   position: 'bottom',
   className: null,
+  tooltipDistance: -1,
 };
 
 class Tooltip extends Component {
@@ -68,10 +70,9 @@ class Tooltip extends Component {
     const { enableAnimation } = this.state;
 
     let distance = 0;
-    if (enableAnimation && !tooltipDistance) {
-      distance = 10;
-    } else if (!tooltipDistance) {
-      distance = 20;
+    if (tooltipDistance < 0) {
+      if (enableAnimation) distance = 10;
+      else distance = 20;
     } else {
       distance = tooltipDistance;
     }
