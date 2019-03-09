@@ -1456,7 +1456,11 @@ check_state() {
                 BBB_WEB_URL=$(cat $SERVLET_DIR/WEB-INF/classes/bigbluebutton.properties | grep -v '#' | sed -n '/^bigbluebutton.web.serverURL/{s/.*=//;p}')
 		echo "# Warning: The API demos are installed and accessible from:"
 		echo "#"
-		echo "#    $BBB_WEB_URL/demo/demo1.jsp"
+                echo "#    $BBB_WEB_URL"
+                echo "#"
+                echo "# and"
+                echo "#"
+                echo "#    $BBB_WEB_URL/demo/demo1.jsp"
 		echo "#"
 		echo "# These API demos allow anyone to access your server without authentication"
 		echo "# to create/manage meetings and recordings. They are for testing purposes only."
@@ -1606,6 +1610,7 @@ if [ $CHECK ]; then
 	fi
 
 	echo "                            Memory: $MEM MB"
+        echo "                         CPU cores: $NCPU"
 
 	echo
 	echo "$BBB_WEB_CONFIG (bbb-web)"
