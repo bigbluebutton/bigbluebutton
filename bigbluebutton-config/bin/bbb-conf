@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/bash 
 #
 # BlueButton open source conferencing system - http://www.bigbluebutton.org/   
 #
@@ -124,6 +124,7 @@ KURENTO_CONFIG=/usr/local/bigbluebutton/bbb-webrtc-sfu/config/default.yml
 
 BBB_WEB_CONFIG=$SERVLET_DIR/WEB-INF/classes/bigbluebutton.properties
 NGINX_IP=$(cat /etc/nginx/sites-available/bigbluebutton | grep -v '#' | sed -n '/server_name/{s/.*server_name[ ]*//;s/;//;p}' | cut -d' ' -f1 | head -n 1)
+SIP_NGINX_IP=$(cat /etc/bigbluebutton/nginx/sip.nginx |  grep -v '#' | sed -n '/proxy_pass/{s/.*proxy_pass http[s]*:\/\///;s/:.*//;p}' | head -n 1)
 
 SIP_CONFIG=/etc/bigbluebutton/nginx/sip.nginx
 
@@ -956,7 +957,7 @@ check_configuration() {
 		fi
 	fi
 
-        PROTOCOL=$(cat /etc/bigbluebutton/nginx/sip.nginx |  sed -n '/proxy_pass/{s/.*proxy_pass [ ]*//;s/:.*//;p}')
+        PROTOCOL=$(cat /etc/bigbluebutton/nginx/sip.nginx | grep -v \# | sed -n '/proxy_pass/{s/.*proxy_pass [ ]*//;s/:.*//;p}' | head -n 1)
         if [[ $PROTOCOL == "https" ]]; then
                 if ! grep wss-binding $FREESWITCH_EXTERNAL > /dev/null; then
 			echo "# Warning: Websockets is using HTTPS in /etc/bigbluebutton/nginx/sip.nginx"
@@ -1038,6 +1039,20 @@ check_configuration() {
 		echo "#   http://docs.bigbluebutton.org/2.2/customize.html#configure-guest-policy"
 		echo "#"
 		echo
+	fi
+	if [ -f $HTML5_CONFIG ]; then
+		SVG_IMAGES_REQUIRED=$(cat $BBB_WEB_CONFIG | grep -v '#' | sed -n '/^svgImagesRequired/{s/.*=//;p}')
+	    if [ "$SVG_IMAGES_REQUIRED" != "true" ]; then 
+		echo
+		echo "# Warning: You have the HTML5 client installed but in"
+		echo "#"
+		echo "#    $BBB_WEB_CONFIG"
+		echo "#"
+		echo "# the setting for svgImagesRequired is false. To fix, run the commnad"
+		echo "#"
+		echo "# sed -i 's/^svgImagesRequired=.*/svgImagesRequired=true/' $BBB_WEB_CONFIG "
+		echo "#"
+	    fi
 	fi
 }
 
@@ -1327,11 +1342,11 @@ check_state() {
  	check_no_value server_name /etc/nginx/sites-available/bigbluebutton $BBB_WEB
 
         COUNT=0
-        while [ $COUNT -lt 45 ]; do
+        while [ $COUNT -lt 80 ]; do
           let COUNT=COUNT+1
 	  timeout 1s wget $PROTOCOL://$BBB_WEB/bigbluebutton/api -O - --quiet | grep -q SUCCESS
 	  if [ $? -eq 0 ]; then
-            let COUNT=45
+            let COUNT=80
           else
             echo -n "."
             sleep 1
@@ -1386,7 +1401,6 @@ check_state() {
 		fi
 	fi
 
-        SIP_NGINX_IP=$(cat /etc/bigbluebutton/nginx/sip.nginx |  grep -v '#' | sed -n '/proxy_pass/{s/.*proxy_pass http[s]*:\/\///;s/:.*//;p}')
         if [ "$SIP_NGINX_IP" != $IP ]; then
            if [ "$SIP_NGINX_IP" != "\$freeswitch_addr" ]; then
                 echo "# Warning: The setting of $SIP_NGINX_IP for proxy_pass in"
@@ -1597,6 +1611,7 @@ if [ $CHECK ]; then
 	echo "$BBB_WEB_CONFIG (bbb-web)"
 	echo "       bigbluebutton.web.serverURL: $(cat $BBB_WEB_CONFIG | grep -v '#' | sed -n '/^bigbluebutton.web.serverURL/{s/.*=//;p}')"
 	echo "                defaultGuestPolicy: $(cat $BBB_WEB_CONFIG | grep -v '#' | sed -n '/^defaultGuestPolicy/{s/.*=//;p}')"
+	echo "                 svgImagesRequired: $(cat $BBB_WEB_CONFIG | grep -v '#' | sed -n '/^svgImagesRequired/{s/.*=//;p}')"
 
 	echo
 	echo "/etc/nginx/sites-available/bigbluebutton (nginx)"
@@ -1665,7 +1680,7 @@ if [ $CHECK ]; then
         if [ -f $SIP_CONFIG ]; then
                 echo
                 echo "$SIP_CONFIG (sip.nginx)"
-                echo "                        proxy_pass: $(cat $SIP_CONFIG | grep proxy_pass | sed 's/.*proxy_pass //g' | sed 's/;//'g )"
+                echo "                        proxy_pass: $SIP_NGINX_IP"
         fi
 
         if [ -f $KURENTO_CONFIG ]; then
