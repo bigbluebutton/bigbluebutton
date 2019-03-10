@@ -381,7 +381,7 @@ class PresentationArea extends Component {
       isFullscreen: propIsFullscreen,
     } = this.props;
 
-    const { zoom } = this.state;
+    const { zoom, fitToWidth } = this.state;
 
     const fullRef = () => this.refPresentationContainer.requestFullscreen();
 
@@ -391,12 +391,15 @@ class PresentationArea extends Component {
 
     return (
       <PresentationToolbarContainer
+        {...{
+          fitToWidth,
+          zoom,
+          podId,
+        }}
         isFullscreen={propIsFullscreen}
         fullscreenRef={fullRef}
-        podId={podId}
         currentSlideNum={currentSlide.num}
         presentationId={currentSlide.presentationId}
-        zoom={zoom}
         zoomChanger={this.zoomChanger}
         fitToWidthHandler={this.fitToWidthHandler}
       />
