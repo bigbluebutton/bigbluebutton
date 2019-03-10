@@ -1,8 +1,9 @@
 import React, { Component } from 'react';
 import browser from 'browser-detect';
 import { Meteor } from 'meteor/meteor';
+import PropTypes from 'prop-types';
 import cx from 'classnames';
-import { defineMessages, injectIntl } from 'react-intl';
+import { defineMessages, injectIntl, intlShape } from 'react-intl';
 import Dropdown from '/imports/ui/components/dropdown/component';
 import DropdownTrigger from '/imports/ui/components/dropdown/trigger/component';
 import DropdownContent from '/imports/ui/components/dropdown/content/component';
@@ -183,3 +184,20 @@ class VideoListItem extends Component {
 }
 
 export default injectIntl(VideoListItem);
+
+VideoListItem.defaultProps = {
+  numOfUsers: 0,
+};
+
+VideoListItem.propTypes = {
+  intl: intlShape.isRequired,
+  enableVideoStats: PropTypes.bool.isRequired,
+  actions: PropTypes.arrayOf(PropTypes.func).isRequired,
+  user: PropTypes.objectOf(PropTypes.oneOfType([
+    PropTypes.bool,
+    PropTypes.number,
+    PropTypes.object,
+    PropTypes.string,
+  ])).isRequired,
+  numOfUsers: PropTypes.number,
+};
