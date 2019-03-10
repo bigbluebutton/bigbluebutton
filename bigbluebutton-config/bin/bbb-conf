@@ -397,12 +397,14 @@ start_bigbluebutton () {
                 /etc/bigbluebutton/bbb-conf/apply-config.sh
                 echo
         fi
-
-        if grep -q "Failure to connect to CORE_DB sofia_reg_external" /opt/freeswitch/var/log/freeswitch/freeswitch.log; then
+	
+	if [ -f /opt/freeswitch/var/log/freeswitch/freeswitch.log ]; then
+            if grep -q "Failure to connect to CORE_DB sofia_reg_external" /opt/freeswitch/var/log/freeswitch/freeswitch.log; then
 		# See: http://docs.bigbluebutton.org/install/install.html#freeswitch-fails-to-bind-to-ipv4
                 echo "Clearing the FreeSWITCH database."
 		rm -rf /opt/freeswitch/var/lib/freeswitch/db/*
-	fi
+	    fi
+        fi
 
 	# Clear any previous registration errors
 	if [ -f /usr/share/red5/log/sip.log ]; then
@@ -1037,7 +1039,7 @@ check_configuration() {
 		echo "#"
 		echo "# To revert it to ALWAYS_ALLOW, see"
 		echo "#"
-		echo "#   http://docs.bigbluebutton.org/2.2/customize.html#configure-guest-policy"
+		echo "#   $SUDO sed -i s/^defaultGuestPolicy=.*$/defaultGuestPolicy=ALWAYS_ALLOW/g $SERVLET_DIR/WEB-INF/classes/bigbluebutton.properties"
 		echo "#"
 		echo
 	fi
