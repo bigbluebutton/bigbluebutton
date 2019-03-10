@@ -121,7 +121,7 @@ class VideoListItem extends Component {
 
   render() {
     const { showStats, stats } = this.state;
-    const { user } = this.props;
+    const { user, numOfUsers } = this.props;
     const availableActions = this.getAvailableActions();
     const enableVideoMenu = Meteor.settings.public.kurento.enableVideoMenu || false;
 
@@ -162,7 +162,13 @@ class VideoListItem extends Component {
               <div className={isFirefox ? styles.dropdownFireFox
                 : styles.dropdown}
               >
-                <span className={styles.userName}>{user.name}</span>
+                <span className={cx({
+                  [styles.userName]: true,
+                  [styles.noMenu]: numOfUsers < 3,
+                })}
+                >
+                  {user.name}
+                </span>
               </div>
             )
           }

@@ -169,6 +169,7 @@ class VideoList extends Component {
           })}
         >
           <VideoListItem
+            numOfUsers={users.length}
             user={user}
             actions={actions}
             onMount={(videoRef) => {
