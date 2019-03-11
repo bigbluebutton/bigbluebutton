@@ -251,10 +251,7 @@ class PresentationArea extends Component {
       viewBoxHeight,
       imageUri,
     } = slideObj.calculatedData;
-    const svgDimensions = {
-      width: adjustedSizes.width,
-      height: adjustedSizes.height,
-    };
+
     return (
       <div
         className={styles.wrapper}
