@@ -27,7 +27,10 @@ export default function addVoiceUser(meetingId, voiceUser) {
 
   const modifier = {
     $set: Object.assign(
-      { meetingId },
+      {
+        meetingId,
+        updateTime: new Date().getTime(),
+      },
       flat(voiceUser),
     ),
   };

@@ -65,11 +65,12 @@ class AudioControls extends Component {
       join,
       intl,
       shortcuts,
+      joinedInBreakoutViAudio,
     } = this.props;
 
     return (
       <span className={styles.container}>
-        {mute ?
+        {mute && !joinedInBreakoutViAudio ?
           <Button
             className={glow ? cx(styles.button, styles.glow) : cx(styles.button, !unmute || styles.ghostButton)}
             onClick={handleToggleMuteMicrophone}
