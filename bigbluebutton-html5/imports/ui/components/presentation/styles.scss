@@ -44,6 +44,12 @@
   z-index: -1;
 }
 
+.wrapper,
+.transition {
+  height: 100%;
+  width: 100%;
+}
+
 .svgStyles {
   object-fit: contain;
   width: 100%;

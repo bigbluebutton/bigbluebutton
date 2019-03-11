@@ -140,7 +140,7 @@ class PresentationArea extends Component {
   }
 
   calculateSize() {
-    const { presentationHeight, presentationWidth } = this.state;
+    const { presentationHeight, presentationWidth, fitToWidth } = this.state;
     const { currentSlide } = this.props;
 
     const originalWidth = currentSlide.calculatedData.width;
@@ -149,26 +149,33 @@ class PresentationArea extends Component {
     let adjustedWidth;
     let adjustedHeight;
 
-    // Slide has a portrait orientation
-    if (originalWidth <= originalHeight) {
-      adjustedWidth = (presentationHeight * originalWidth) / originalHeight;
-      if (presentationWidth < adjustedWidth) {
-        adjustedHeight = (presentationHeight * presentationWidth) / adjustedWidth;
-        adjustedWidth = presentationWidth;
-      } else {
-        adjustedHeight = presentationHeight;
-      }
+    if (!fitToWidth) {
+      // Slide has a portrait orientation
+      if (originalWidth <= originalHeight) {
+        adjustedWidth = (presentationHeight * originalWidth) / originalHeight;
+        if (presentationWidth < adjustedWidth) {
+          adjustedHeight = (presentationHeight * presentationWidth) / adjustedWidth;
+          adjustedWidth = presentationWidth;
+        } else {
+          adjustedHeight = presentationHeight;
+        }
 
-      // Slide has a landscape orientation
-    } else {
-      adjustedHeight = (presentationWidth * originalHeight) / originalWidth;
-      if (presentationHeight < adjustedHeight) {
-        adjustedWidth = (presentationWidth * presentationHeight) / adjustedHeight;
-        adjustedHeight = presentationHeight;
+        // Slide has a landscape orientation
       } else {
-        adjustedWidth = presentationWidth;
+        adjustedHeight = (presentationWidth * originalHeight) / originalWidth;
+        if (presentationHeight < adjustedHeight) {
+          adjustedWidth = (presentationWidth * presentationHeight) / adjustedHeight;
+          adjustedHeight = presentationHeight;
+        } else {
+          adjustedWidth = presentationWidth;
+        }
       }
+    } else {
+      adjustedWidth = presentationWidth;
+      adjustedHeight = (adjustedWidth * originalHeight) / originalWidth;
+      if (adjustedHeight > presentationHeight) adjustedHeight = presentationHeight;
     }
+
     return {
       width: adjustedWidth,
       height: adjustedHeight,
@@ -244,17 +251,13 @@ class PresentationArea extends Component {
       viewBoxHeight,
       imageUri,
     } = slideObj.calculatedData;
-    const svgDimensions = fitToWidth ? {
-      position: 'absolute',
-      width: 'inherit',
-    } : {
-      position: 'absolute',
+    const svgDimensions = {
       width: adjustedSizes.width,
       height: adjustedSizes.height,
     };
     return (
       <div
-        style={svgDimensions}
+        className={styles.wrapper}
         aria-label={intl.formatMessage(intlMessages.slideContent)}
         aria-describedby="currentSlideText"
       >
@@ -262,7 +265,7 @@ class PresentationArea extends Component {
         {presentationCloseButton}
         {presentationFullscreenButton}
         {presentationDownloadButton}
-        <TransitionGroup>
+        <TransitionGroup className={styles.transition}>
           <CSSTransition
             key={slideObj.id}
             classNames={{
