@@ -51,8 +51,8 @@ export default function publishVote(credentials, id, pollAnswerId) { // TODO dis
       return Logger.error(`Updating Polls collection: ${err}`);
     }
 
-    return Logger.info(`Updating Polls collection (meetingId: ${meetingId},
-                                            pollId: ${currentPoll.id}!)`);
+    return Logger.info(`Updating Polls collection (meetingId: ${meetingId}, `
+      + `pollId: ${currentPoll.id}!)`);
   };
 
   Polls.update(selector, modifier, cb);

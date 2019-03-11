@@ -22,13 +22,13 @@ const logClient = function (type, log, fullInfo = {}) {
   if (typeof log === 'string' || log instanceof String) {
     Logger.log({
       level: type,
-      message: `${topic || 'CLIENT'} LOG: ${log}\n`,
+      message: `${topic || 'CLIENT'} LOG: ${log} `,
       meta: logContents,
     });
   } else {
     Logger.log({
       level: type,
-      message: `${topic || 'CLIENT'} LOG: ${JSON.stringify(log)}\n`,
+      message: `${topic || 'CLIENT'} LOG: ${JSON.stringify(log)} `,
       meta: logContents,
     });
   }
