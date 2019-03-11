@@ -87,12 +87,26 @@ source /etc/bigbluebutton/bigbluebutton-release
 # Figure out our environment (Debian vs. CentOS)
 #
 
-RED5_DIR=/usr/share/red5
+if [ -f /etc/redhat-release ]; then
+  DISTRIB_ID=centos
+  SERVLET_LOGS=/usr/share/tomcat/logs
+  FREESWITCH=freeswitch
+  TOMCAT_SERVICE=tomcat
+  REDIS_SERVICE=redis.service
+else
+  . /etc/lsb-release    # Get value for DISTRIB_ID
+  SERVLET_LOGS=$TOMCAT_DIR/logs
+  FREESWITCH=freeswitch
+  TOMCAT_SERVICE=tomcat7
+  REDIS_SERVICE=redis-server
+fi
+
+
 RED5=red5
+RED5_DIR=/usr/share/$RED5
 
-SERVLET_CONTAINER=tomcat7
 
-TOMCAT_DIR=/var/lib/$SERVLET_CONTAINER
+TOMCAT_DIR=/var/lib/$TOMCAT_SERVICE
 LTI_DIR=$TOMCAT_DIR/webapps/lti
 
 if [ -f /usr/share/bbb-web/WEB-INF/classes/bigbluebutton.properties ]; then
@@ -114,6 +128,7 @@ FREESWITCH_VARS=/opt/freeswitch/conf/vars.xml
 FREESWITCH_EXTERNAL=/opt/freeswitch/conf/sip_profiles/external.xml
 FREESWITCH_PID=/opt/freeswitch/run/freeswitch.pid
 FREESWITCH_EVENT_SOCKET=/opt/freeswitch/conf/autoload_configs/event_socket.conf.xml
+FREESWITCH_INIT_D="/etc/init.d/freeswitch"
 
 RECORD_CONFIG=/usr/local/bigbluebutton/core/scripts/bigbluebutton.yml
 
@@ -349,7 +364,7 @@ stop_bigbluebutton () {
 	/etc/init.d/monit stop
 
 	/etc/init.d/$RED5 stop
-	/etc/init.d/${SERVLET_CONTAINER} stop
+	/etc/init.d/${TOMCAT_SERVICE} stop
 	/etc/init.d/nginx stop
         
 	if [ -a $FREESWITCH_PID ]; then
@@ -453,7 +468,7 @@ start_bigbluebutton () {
 
 	/etc/init.d/nginx start
 	/etc/init.d/$RED5 start
-	/etc/init.d/${SERVLET_CONTAINER} start
+	/etc/init.d/${TOMCAT_SERVICE} start
 
 	# monit will start libreoffice and bbb-rap-worker
 	/etc/init.d/monit start
@@ -578,7 +593,7 @@ display_bigbluebutton_status () {
     else
         /etc/init.d/nginx status
         /etc/init.d/$RED5 status
-        /etc/init.d/${SERVLET_CONTAINER} status
+        /etc/init.d/${TOMCAT_SERVICE} status
     fi
 }
 
@@ -1097,14 +1112,14 @@ check_state() {
 
 	if ! netstat -ant | grep '8090' > /dev/null; then
 		print_header
-		NOT_RUNNING_APPS="${NOT_RUNNING_APPS} ${SERVLET_CONTAINER} or grails"
+		NOT_RUNNING_APPS="${NOT_RUNNING_APPS} ${TOMCAT_SERVICE} or grails"
 	else 
 		if ps aux |  ps -aef | grep -v grep | grep grails | grep run-app > /dev/null; then
 			print_header
 			RUNNING_APPS="${RUNNING_APPS} Grails"
-        		echo "#   ${SERVLET_CONTAINER}: 	noticed you are running grails run-app instead of ${SERVLET_CONTAINER}"
+        		echo "#   ${TOMCAT_SERVICE}: 	noticed you are running grails run-app instead of ${TOMCAT_SERVICE}"
 		else
-			RUNNING_APPS="${RUNNING_APPS} ${SERVLET_CONTAINER}"
+			RUNNING_APPS="${RUNNING_APPS} ${TOMCAT_SERVICE}"
 		fi
 	fi
 
