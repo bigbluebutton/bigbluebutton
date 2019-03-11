@@ -4,6 +4,7 @@ import { TransitionGroup, CSSTransition } from 'react-transition-group';
 import WhiteboardOverlayContainer from '/imports/ui/components/whiteboard/whiteboard-overlay/container';
 import WhiteboardToolbarContainer from '/imports/ui/components/whiteboard/whiteboard-toolbar/container';
 import { HUNDRED_PERCENT, MAX_PERCENT } from '/imports/utils/slideCalcUtils';
+import { defineMessages, injectIntl, intlShape } from 'react-intl';
 import PresentationToolbarContainer from './presentation-toolbar/container';
 import CursorWrapperContainer from './cursor/cursor-wrapper-container/container';
 import AnnotationGroupContainer from '../whiteboard/annotation-group/container';
@@ -13,6 +14,14 @@ import { styles } from './styles.scss';
 import MediaService, { shouldEnableSwapLayout } from '../media/service';
 import PresentationCloseButton from './presentation-close-button/component';
 import DownloadPresentationButton from './download-presentation-button/component';
+import FullscreenButton from '/imports/ui/components/video-provider/fullscreen-button/component';
+
+const intlMessages = defineMessages({
+  presentationLabel: {
+    id: 'app.presentationUploder.title',
+    description: 'presentation area element label',
+  },
+});
 
 class PresentationArea extends Component {
   constructor() {
@@ -195,8 +204,8 @@ class PresentationArea extends Component {
   }
 
   renderPresentationClose() {
-    const { isFullscreen } = this.props;
-    if (!shouldEnableSwapLayout() || isFullscreen) {
+    const { isFullScreen } = this.props;
+    if (!shouldEnableSwapLayout() || isFullScreen) {
       return null;
     }
     return <PresentationCloseButton toggleSwapLayout={MediaService.toggleSwapLayout} />;
@@ -312,6 +321,7 @@ class PresentationArea extends Component {
       >
         {this.renderPresentationClose()}
         {this.renderPresentationDownload()}
+        {this.renderPresentationFullscreen()}
         <TransitionGroup>
           <CSSTransition
             key={slideObj.id}
@@ -378,12 +388,14 @@ class PresentationArea extends Component {
     const {
       currentSlide,
       podId,
-      isFullscreen: propIsFullscreen,
+      isFullScreen: propisFullScreen,
     } = this.props;
 
     const { zoom } = this.state;
 
-    const fullRef = () => this.refPresentationContainer.requestFullscreen();
+    const fullRef = () => {
+      this.refPresentationContainer.requestFullscreen();
+    };
 
     if (!currentSlide) {
       return null;
@@ -391,7 +403,7 @@ class PresentationArea extends Component {
 
     return (
       <PresentationToolbarContainer
-        isFullscreen={propIsFullscreen}
+        isFullScreen={propisFullScreen}
         fullscreenRef={fullRef}
         podId={podId}
         currentSlideNum={currentSlide.num}
@@ -433,8 +445,33 @@ class PresentationArea extends Component {
     );
   }
 
+  renderPresentationFullscreen() {
+    const {
+      intl,
+      userIsPresenter,
+    } = this.props;
+    if (userIsPresenter) return null;
+
+    console.log('userIsPresenter', userIsPresenter);
+    
+
+    const full = () => this.refPresentationContainer.requestFullscreen();
+
+    return (
+      <FullscreenButton
+        handleFullscreen={full}
+        elementName={intl.formatMessage(intlMessages.presentationLabel)}
+        dark
+        fullscreenButton
+      />
+    );
+  }
+
   render() {
-    const { userIsPresenter, multiUser } = this.props;
+    const {
+      userIsPresenter,
+      multiUser,
+    } = this.props;
     const { showSlide } = this.state;
 
     const adjustedSizes = this.calculateSize();
@@ -445,13 +482,13 @@ class PresentationArea extends Component {
 
     let toolbarWidth = 0;
     if (this.refWhiteboardArea) {
-      const { clientWidth: AreaWidth } = this.refWhiteboardArea;
-      if (adjustedWidth < 400
-        && adjustedWidth !== AreaWidth
-        && AreaWidth > 400) {
+      const { clientWidth: areaWidth } = this.refWhiteboardArea;
+      if (adjustedWidth <= 400
+        && adjustedWidth !== areaWidth
+        && areaWidth > 400) {
         toolbarWidth = '400px';
-      } else if (adjustedWidth === AreaWidth
-        || AreaWidth <= 400) {
+      } else if (adjustedWidth === areaWidth
+        || areaWidth <= 400) {
         toolbarWidth = '100%';
       } else {
         toolbarWidth = adjustedWidth;
@@ -505,9 +542,10 @@ class PresentationArea extends Component {
   }
 }
 
-export default PresentationArea;
+export default injectIntl(PresentationArea);
 
 PresentationArea.propTypes = {
+  intl: intlShape.isRequired,
   podId: PropTypes.string.isRequired,
   // Defines a boolean value to detect whether a current user is a presenter
   userIsPresenter: PropTypes.bool.isRequired,

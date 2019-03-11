@@ -39,6 +39,17 @@ const defaultProps = {
 };
 
 class Base extends Component {
+  static handleFullscreenChange() {
+    if (document.fullscreenElement
+      || document.webkitFullscreenElement
+      || document.mozFullScreenElement
+      || document.msFullscreenElement) {
+      Session.set('isFullScreen', true);
+    } else {
+      Session.set('isFullScreen', false);
+    }
+  }
+
   constructor(props) {
     super(props);
 
@@ -50,6 +61,19 @@ class Base extends Component {
     this.updateLoadingState = this.updateLoadingState.bind(this);
   }
 
+  componentDidMount() {
+    const fullscreenChangedEvents = [
+      'fullscreenchange',
+      'webkitfullscreenchange',
+      'mozfullscreenchange',
+      'MSFullscreenChange',
+    ];
+
+    fullscreenChangedEvents.forEach((event) => {
+      document.addEventListener(event, Base.handleFullscreenChange);
+    });
+  }
+
   componentDidUpdate(prevProps, prevState) {
     const {
       ejected,
@@ -58,7 +82,10 @@ class Base extends Component {
       animations,
       meteorIsConnected,
     } = this.props;
-    const { loading, meetingExisted } = this.state;
+    const {
+      loading,
+      meetingExisted,
+    } = this.state;
 
     if (!prevProps.meetingExist && meetingExist) {
       Session.set('isMeetingEnded', false);
@@ -89,6 +116,19 @@ class Base extends Component {
     } else if (!animations && animations !== prevProps.animations) {
       document.documentElement.style.setProperty('--enableAnimation', 0);
     }
+  }
+
+  componentWillUnmount() {
+    const fullscreenChangedEvents = [
+      'fullscreenchange',
+      'webkitfullscreenchange',
+      'mozfullscreenchange',
+      'MSFullscreenChange',
+    ];
+
+    fullscreenChangedEvents.forEach((event) => {
+      document.removeEventListener(event, Base.handleFullscreenChange);
+    });
   }
 
   setMeetingExisted(meetingExisted) {

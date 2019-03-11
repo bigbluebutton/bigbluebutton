@@ -16,7 +16,7 @@ const PresentationToolbarContainer = (props) => {
     zoomChanger,
     fitToWidthHandler,
     getSwapLayout,
-    isFullscreen,
+    isFullScreen,
     fullscreenRef,
   } = props;
 
@@ -26,7 +26,7 @@ const PresentationToolbarContainer = (props) => {
     return (
       <PresentationToolbar
         {...{
-          isFullscreen,
+          isFullScreen,
           fullscreenRef,
           currentSlideNum,
           numberOfSlides,

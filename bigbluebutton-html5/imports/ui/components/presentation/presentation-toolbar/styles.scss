@@ -1,20 +1,23 @@
 @import "/imports/ui/stylesheets/variables/_all";
 
 .visuallyhidden {
-  position: absolute; 
-  overflow: hidden; 
-  clip: rect(0 0 0 0); 
-  height: 1px; width: 1px; 
-  margin: -1px; padding: 0; border: 0; 
+  position: absolute;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  height: 1px;
+  width: 1px;
+  margin: -1px;
+  padding: 0;
+  border: 0;
 }
 
-.presentationSlideControls{
+.presentationSlideControls {
   justify-content: center;
   padding-left: .5rem;
   padding-right: .5rem;
 }
 
-.presentationZoomControls{
+.presentationZoomControls {
   justify-content: flex-end;
   padding-right: .5rem;
 }
@@ -31,34 +34,31 @@
 .presentationSlideControls,
 .presentationZoomControls,
 .zoomWrapper {
-  button{
+  button {
     padding: .5rem;
   }
 }
 
-.presentationToolbarWrapper{
+.presentationToolbarWrapper {
   position: relative;
   align-self: center;
   z-index: 1;
   background-color: var(--color-off-white);
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  justify-content: space-between;
   border-top: 1px solid var(--color-blue-lightest);
   min-width: fit-content;
   width: 100%;
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
 
-  select{
+  select {
     margin-right: .5rem;
-    margin-left: .5rem;
-    padding: .5rem;
+    padding: .5rem .5rem .5rem .3rem;
 
     outline-color: transparent;
     outline-style: none;
     outline: none;
 
-    option{
+    option {
       color: var(--toolbar-button-color);
       background-color: var(--color-off-white);
     }
@@ -66,7 +66,7 @@
 
   button,
   select,
-  > div {
+  >div {
     color: var(--toolbar-button-color);
     background-color: var(--color-off-white);
     border-top: 0;
@@ -76,7 +76,7 @@
     box-shadow: none !important;
     border: 0;
 
-    &:focus{
+    &:focus {
       background-color: var(--color-off-white);
       border: 0;
     }
@@ -103,15 +103,16 @@
 .prevSlide {
   border: none !important;
 
-  i{
+  i {
     font-size: 1rem;
   }
 }
 
-.presentationZoomControls{
+.presentationZoomControls {
+
   .skipSlide,
   .prevSlide {
-    i{
+    i {
       font-size: 1.2rem;
     }
   }
@@ -138,7 +139,7 @@
   border: 0 !important;
   font-weight: 200;
 
-  &:hover{
+  &:hover {
     opacity: .8;
   }
 }

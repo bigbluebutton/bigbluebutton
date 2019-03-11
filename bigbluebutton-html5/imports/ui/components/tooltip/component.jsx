@@ -29,16 +29,6 @@ class Tooltip extends Component {
     const expandedEl = tooltipTarget.parentElement.querySelector('[aria-expanded="true"]');
     const isTarget = expandedEl === tooltipTarget;
     if (expandedEl && !isTarget) return;
-
-    const findLabel = (node) => {
-      const { nodeName, lastChild, parentElement } = node;
-      if (nodeName.toLowerCase() === 'button') return lastChild.innerText;
-      return findLabel(parentElement);
-    };
-    const label = findLabel(tooltipTarget);
-    if (label) tip.set({ content: label });
-    // if we are not able to get the text, the default content is used
-
     tip.show();
   }
 
@@ -59,17 +49,17 @@ class Tooltip extends Component {
     const {
       position,
       title,
-      tooltipDistance,
+      tooltipdistance,
     } = this.props;
     const { enableAnimation } = this.state;
 
     let distance = 0;
-    if (enableAnimation && !tooltipDistance) {
+    if (enableAnimation && !tooltipdistance) {
       distance = 10;
-    } else if (!tooltipDistance) {
+    } else if (!tooltipdistance) {
       distance = 20;
     } else {
-      distance = tooltipDistance;
+      distance = tooltipdistance;
     }
 
     const options = {
