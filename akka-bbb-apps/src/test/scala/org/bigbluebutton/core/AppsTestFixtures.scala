@@ -26,6 +26,7 @@ trait AppsTestFixtures {
   val userInactivityThresholdInMinutes = 10
   val userActivitySignResponseDelayInMinutes = 5
   val autoStartRecording = false
+  val keepEvents = false
   val allowStartStopRecording = false
   val webcamsOnlyForModerator = false;
   val moderatorPassword = "modpass"
@@ -53,7 +54,7 @@ trait AppsTestFixtures {
     userInactivityInspectTimerInMinutes = userInactivityInspectTimerInMinutes, userInactivityThresholdInMinutes = userInactivityInspectTimerInMinutes, userActivitySignResponseDelayInMinutes = userActivitySignResponseDelayInMinutes)
   val password = PasswordProp(moderatorPass = moderatorPassword, viewerPass = viewerPassword)
   val recordProp = RecordProp(record = record, autoStartRecording = autoStartRecording,
-    allowStartStopRecording = allowStartStopRecording)
+    allowStartStopRecording = allowStartStopRecording, keepEvents = keepEvents )
   val welcomeProp = WelcomeProp(welcomeMsgTemplate = welcomeMsgTemplate, welcomeMsg = welcomeMsg,
     modOnlyMessage = modOnlyMessage)
   val voiceProp = VoiceProp(telVoice = voiceConfId, voiceConf = voiceConfId, dialNumber = dialNumber, muteOnStart = muteOnStart)
