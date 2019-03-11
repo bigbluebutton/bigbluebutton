@@ -1,6 +1,7 @@
 import React from 'react';
 import RecordingContainer from '/imports/ui/components/recording/container';
 import humanizeSeconds from '/imports/utils/humanizeSeconds';
+import Tooltip from '/imports/ui/components/tooltip/component';
 import PropTypes from 'prop-types';
 import { defineMessages, injectIntl, intlShape } from 'react-intl';
 import { styles } from './styles';
@@ -62,54 +63,61 @@ class RecordingIndicator extends React.PureComponent {
     return (
       <div>
         {amIModerator ? (
-          <div
-            aria-label={title}
+          <Tooltip
             title={buttonTitle}
-            className={recording ? styles.recordingControlON : styles.recordingControlOFF}
-            role="button"
-            tabIndex={0}
-            key="recording-toggle"
-            onClick={recordingToggle}
-            onKeyPress={recordingToggle}
           >
+            <div
+              aria-label={title}
+              title={buttonTitle}
+              className={recording ? styles.recordingControlON : styles.recordingControlOFF}
+              role="button"
+              tabIndex={0}
+              key="recording-toggle"
+              onClick={recordingToggle}
+              onKeyPress={recordingToggle}
+            >
 
-            <span
-              className={recording ? styles.recordingIndicatorON : styles.recordingIndicatorOFF}
-            />
+              <span
+                className={recording ? styles.recordingIndicatorON : styles.recordingIndicatorOFF}
+              />
 
-            <div className={styles.presentationTitle}>
-              {recording
-                ? (
-                  <span className={styles.visuallyHidden}>
-                    {`${intl.formatMessage(intlMessages.recordingAriaLabel)} ${humanizeSeconds(time)}`}
-                  </span>
-                ) : null
-              }
-              {recording
-                ? <span aria-hidden>{humanizeSeconds(time)}</span> : <span>{buttonTitle}</span>}
+              <div className={styles.presentationTitle}>
+                {recording
+                  ? (
+                    <span className={styles.visuallyHidden}>
+                      {`${intl.formatMessage(intlMessages.recordingAriaLabel)} ${humanizeSeconds(time)}`}
+                    </span>
+                  ) : null
+                }
+                {recording
+                  ? <span aria-hidden>{humanizeSeconds(time)}</span> : <span>{buttonTitle}</span>}
+              </div>
             </div>
-          </div>
+          </Tooltip>
         ) : null }
 
         {amIModerator ? null : (
-          <div
+          <Tooltip
             title={`${intl.formatMessage(recording
               ? intlMessages.notificationRecordingStart
               : intlMessages.notificationRecordingStop)}`}
-            aria-label={`${intl.formatMessage(recording
-              ? intlMessages.notificationRecordingStart
-              : intlMessages.notificationRecordingStop)}`}
-            className={styles.recordingStatusViewOnly}
           >
+            <div
+              aria-label={`${intl.formatMessage(recording
+                ? intlMessages.notificationRecordingStart
+                : intlMessages.notificationRecordingStop)}`}
+              className={styles.recordingStatusViewOnly}
+            >
 
-            <span
-              className={recording ? styles.recordingIndicatorON : styles.recordingIndicatorOFF}
-            />
+              <span
+                className={recording ? styles.recordingIndicatorON : styles.recordingIndicatorOFF}
+              />
 
-            <div className={styles.presentationTitle}>
-              {recording ? humanizeSeconds(time) : null}
+              <div className={styles.presentationTitle}>
+                {recording ? humanizeSeconds(time) : null}
+              </div>
             </div>
-          </div>
+          </Tooltip>
         )}
       </div>
     );
