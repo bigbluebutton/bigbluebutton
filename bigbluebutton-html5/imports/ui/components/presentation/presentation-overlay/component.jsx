@@ -134,7 +134,7 @@ export default class PresentationOverlay extends Component {
       this.toolbarZoom();
     }
 
-    if (!prevProps.fitToWidth && this.props.fitToWidth) {
+    if ((!prevProps.fitToWidth || this.checkResize(prevProps.presentationSize)) && this.props.fitToWidth) {
       this.parentH = presentationSize.presentationHeight;
       this.parentW = presentationSize.presentationWidth;
       this.viewportH = this.parentH;
@@ -147,6 +147,13 @@ export default class PresentationOverlay extends Component {
       this.viewportW = slideWidth;
       this.doZoomCall(HUNDRED_PERCENT, 0, 0);
     }
+  }
+
+  checkResize(prevPresentationSize) {
+    const { presentationSize } = this.props;
+    const heightChanged = prevPresentationSize.presentationHeight !== presentationSize.presentationHeight;
+    const widthChanged = prevPresentationSize.presentationWidth !== presentationSize.presentationWidth;
+    return heightChanged || widthChanged;
   }
 
   onZoom(zoomValue, mouseX, mouseY) {
