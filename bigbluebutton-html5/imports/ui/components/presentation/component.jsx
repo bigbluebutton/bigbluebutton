@@ -207,8 +207,8 @@ class PresentationArea extends Component {
   }
 
   renderPresentationClose() {
-    const { isFullScreen } = this.props;
-    if (!shouldEnableSwapLayout() || isFullScreen) {
+    const { isFullscreen } = this.props;
+    if (!shouldEnableSwapLayout() || isFullscreen) {
       return null;
     }
     return <PresentationCloseButton toggleSwapLayout={MediaService.toggleSwapLayout} />;
@@ -398,10 +398,10 @@ class PresentationArea extends Component {
     const {
       currentSlide,
       podId,
-      isFullScreen: propisFullScreen,
+      isFullscreen,
     } = this.props;
 
-    const { zoom } = this.state;
+    const { zoom, fitToWidth } = this.state;
 
     const fullRef = () => {
       this.refPresentationContainer.requestFullscreen();
@@ -413,12 +413,15 @@ class PresentationArea extends Component {
 
     return (
       <PresentationToolbarContainer
-        isFullScreen={propisFullScreen}
+        {...{
+          fitToWidth,
+          zoom,
+          podId,
+        }}
+        isFullscreen={isFullscreen}
         fullscreenRef={fullRef}
-        podId={podId}
         currentSlideNum={currentSlide.num}
         presentationId={currentSlide.presentationId}
-        zoom={zoom}
         zoomChanger={this.zoomChanger}
         fitToWidthHandler={this.fitToWidthHandler}
       />

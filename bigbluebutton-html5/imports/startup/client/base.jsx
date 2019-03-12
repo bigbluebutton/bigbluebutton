@@ -51,9 +51,9 @@ class Base extends Component {
       || document.webkitFullscreenElement
       || document.mozFullScreenElement
       || document.msFullscreenElement) {
-      Session.set('isFullScreen', true);
+      Session.set('isFullscreen', true);
     } else {
-      Session.set('isFullScreen', false);
+      Session.set('isFullscreen', false);
     }
   }
 
@@ -72,6 +72,7 @@ class Base extends Component {
     fullscreenChangedEvents.forEach((event) => {
       document.addEventListener(event, Base.handleFullscreenChange);
     });
+    Session.set('isFullscreen', false);
   }
 
   componentDidUpdate(prevProps, prevState) {
@@ -81,11 +82,16 @@ class Base extends Component {
       meetingExist,
       animations,
       meteorIsConnected,
+      subscriptionsReady,
     } = this.props;
     const {
       loading,
       meetingExisted,
     } = this.state;
+
+    if (!prevProps.subscriptionsReady && subscriptionsReady) {
+      logger.info({ logCode: 'startup_client_subscriptions_ready' }, 'Subscriptions are ready');
+    }
 
     if (!prevProps.meetingExist && meetingExist) {
       Session.set('isMeetingEnded', false);
@@ -160,11 +166,6 @@ class Base extends Component {
       return (<LoadingScreen>{loading}</LoadingScreen>);
     }
     // this.props.annotationsHandler.stop();
-
-    if (subscriptionsReady) {
-      logger.info({ logCode: 'startup_client_subscriptions_ready' }, 'Subscriptions are ready');
-    }
-
     return (<AppContainer {...this.props} baseControls={stateControls} />);
   }
 
@@ -192,7 +193,7 @@ Base.defaultProps = defaultProps;
 const SUBSCRIPTIONS_NAME = [
   'users', 'meetings', 'polls', 'presentations',
   'slides', 'captions', 'voiceUsers', 'whiteboard-multi-user', 'screenshare',
-  'group-chat', 'presentation-pods', 'users-settings',
+  'group-chat', 'presentation-pods', 'users-settings', 'guestUser',
 ];
 
 const BaseContainer = withTracker(() => {

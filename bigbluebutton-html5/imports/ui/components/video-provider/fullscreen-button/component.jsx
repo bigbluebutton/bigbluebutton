@@ -29,7 +29,7 @@ const FullscreenButtonComponent = ({
   handleFullscreen,
   dark,
   elementName,
-  tooltipdistance,
+  tooltipDistance,
 }) => {
   const formattedLabel = intl.formatMessage(
     intlMessages.fullscreenButton,
@@ -52,7 +52,7 @@ const FullscreenButtonComponent = ({
         label={formattedLabel}
         hideLabel
         className={cx(styles.button, styles.fullScreenButton)}
-        tooltipdistance={tooltipdistance}
+        tooltipDistance={tooltipDistance}
       />
     </div>
   );

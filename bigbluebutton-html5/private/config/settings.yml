@@ -3,8 +3,8 @@ public:
     mobileFontSize: 16px
     desktopFontSize: 14px
     audioChatNotification: false
-    autoJoin: true
     showParticipantsOnLogin: true
+    autoJoin: true
     listenOnlyMode: true
     forceListenOnly: false
     skipCheck: false
@@ -96,7 +96,7 @@ public:
         max: 320
       height:
         max: 240
-    enableScreensharing: false
+    enableScreensharing: true
     enableVideo: true
     enableVideoStats: false
     enableVideoMenu: true
@@ -136,11 +136,6 @@ public:
     autoSwapLayout: false
     hidePresentation: false
   media:
-    WebRTCHangupRetryInterval: 2000
-    vertoServerAddress: HOST
-    freeswitchProfilePassword: '1234'
-    vertoPort: '8082'
-    useSIPAudio: true
     stunTurnServersFetchAddress: "/bigbluebutton/api/stuns"
     mediaTag: "#remote-media"
     callTransferTimeout: 5000

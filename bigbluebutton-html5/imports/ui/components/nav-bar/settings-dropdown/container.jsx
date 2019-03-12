@@ -9,14 +9,15 @@ const SettingsDropdownContainer = props => (
 );
 
 export default withTracker((props) => {
-  const isFullScreen = Session.get('isFullScreen');
+  const isFullscreen = Session.get('isFullscreen');
   const handleToggleFullscreen = toggleFullScreen;
-  const result = browser();
-  const isAndroid = (result && result.os) ? result.os.includes('Android') : false;
+  const BROWSER_RESULTS = browser();
+  const isSafari = BROWSER_RESULTS.name === 'safari';
+  const noIOSFullscreen = isSafari && BROWSER_RESULTS.versionNumber < 12;
   return {
     amIModerator: props.amIModerator,
     handleToggleFullscreen,
-    isAndroid,
-    isFullScreen,
+    isFullscreen,
+    noIOSFullscreen,
   };
 })(SettingsDropdownContainer);

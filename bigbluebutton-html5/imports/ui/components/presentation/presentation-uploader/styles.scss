@@ -126,6 +126,12 @@
   }
 }
 
+.itemAction {
+  div > i {
+    margin-top: .25rem;
+  }
+}
+
 .itemAction,
 .itemAction > i {
   display: inline-block;

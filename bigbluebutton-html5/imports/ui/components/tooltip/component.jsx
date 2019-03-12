@@ -16,11 +16,13 @@ const propTypes = {
   position: PropTypes.oneOf(['bottom']),
   children: PropTypes.element.isRequired,
   className: PropTypes.string,
+  tooltipDistance: PropTypes.number,
 };
 
 const defaultProps = {
   position: 'bottom',
   className: null,
+  tooltipDistance: -1,
 };
 
 class Tooltip extends Component {
@@ -29,6 +31,20 @@ class Tooltip extends Component {
     const expandedEl = tooltipTarget.parentElement.querySelector('[aria-expanded="true"]');
     const isTarget = expandedEl === tooltipTarget;
     if (expandedEl && !isTarget) return;
+
+    const findLabel = (node) => {
+      let rtn;
+      if (node) {
+        const { nodeName, lastChild, parentElement } = node;
+        if (nodeName.toLowerCase() === 'button') rtn = lastChild.innerText;
+        else rtn = findLabel(parentElement);
+      }
+      return rtn;
+    };
+    const label = findLabel(tooltipTarget);
+    if (label) tip.set({ content: label });
+    // if we are not able to get the text, the default content is used
+
     tip.show();
   }
 
@@ -49,17 +65,16 @@ class Tooltip extends Component {
     const {
       position,
       title,
-      tooltipdistance,
+      tooltipDistance,
     } = this.props;
     const { enableAnimation } = this.state;
 
     let distance = 0;
-    if (enableAnimation && !tooltipdistance) {
-      distance = 10;
-    } else if (!tooltipdistance) {
-      distance = 20;
+    if (tooltipDistance < 0) {
+      if (enableAnimation) distance = 10;
+      else distance = 20;
     } else {
-      distance = tooltipdistance;
+      distance = tooltipDistance;
     }
 
     const options = {
@@ -85,6 +100,7 @@ class Tooltip extends Component {
   componentDidUpdate() {
     const { enableAnimation } = this.state;
     const { animations } = Settings.application;
+    const { title } = this.props;
 
     if (animations !== enableAnimation) {
       const elements = document.querySelectorAll('[id^="tippy-"]');
@@ -111,6 +127,9 @@ class Tooltip extends Component {
 
       this.setEnableAnimation(animations);
     }
+
+    const elem = document.getElementById(this.tippySelectorId);
+    if (elem._tippy) elem._tippy.set({ content: title });
   }
 
   onShow() {
@@ -135,6 +154,7 @@ class Tooltip extends Component {
       children,
       className,
       title,
+      tooltipDistance,
       ...restProps
     } = this.props;
 

@@ -32,6 +32,10 @@ const intlMessages = defineMessages({
     id: 'app.presentation.presentationToolbar.fitToWidth',
     description: 'button for fit to width',
   },
+  fitToPage: {
+    id: 'app.presentation.presentationToolbar.fitToPage',
+    description: 'button label for fit to width',
+  },
   presentationLabel: {
     id: 'app.presentationUploder.title',
     description: 'presentation area element label',
@@ -192,10 +196,11 @@ class PresentationToolbar extends Component {
       currentSlideNum,
       numberOfSlides,
       fitToWidthHandler,
+      fitToWidth,
       actions,
       intl,
       zoom,
-      isFullScreen,
+      isFullscreen,
       fullscreenRef,
     } = this.props;
 
@@ -203,7 +208,7 @@ class PresentationToolbar extends Component {
     const isMobileBrowser = BROWSER_RESULTS.mobile
       || BROWSER_RESULTS.os.includes('Android');
 
-    const tooltipdistance = 35;
+    const tooltipDistance = 35;
 
     return (
       <div id="presentationToolbarWrapper" className={styles.presentationToolbarWrapper}>
@@ -223,11 +228,11 @@ class PresentationToolbar extends Component {
               label={intl.formatMessage(intlMessages.previousSlideLabel)}
               hideLabel
               className={styles.prevSlide}
-              tooltipdistance={tooltipdistance}
+              tooltipDistance={tooltipDistance}
             />
 
             <Tooltip
-              tooltipdistance={tooltipdistance}
+              tooltipDistance={tooltipDistance}
               title={intl.formatMessage(intlMessages.selectLabel)}
             >
               <select
@@ -260,7 +265,7 @@ class PresentationToolbar extends Component {
               label={intl.formatMessage(intlMessages.nextSlideLabel)}
               hideLabel
               className={styles.skipSlide}
-              tooltipdistance={tooltipdistance}
+              tooltipDistance={tooltipDistance}
             />
           </div>
         }
@@ -275,7 +280,7 @@ class PresentationToolbar extends Component {
                     minBound={HUNDRED_PERCENT}
                     maxBound={MAX_PERCENT}
                     step={STEP}
-                    tooltipdistance={tooltipdistance}
+                    tooltipDistance={tooltipDistance}
                   />
                 )
                 : null
@@ -289,18 +294,21 @@ class PresentationToolbar extends Component {
               size="md"
               circle={false}
               onClick={fitToWidthHandler}
-              label={intl.formatMessage(intlMessages.fitToWidth)}
+              label={fitToWidth
+                ? intl.formatMessage(intlMessages.fitToPage)
+                : intl.formatMessage(intlMessages.fitToWidth)
+              }
               hideLabel
               className={styles.skipSlide}
-              tooltipdistance={tooltipdistance}
+              tooltipDistance={tooltipDistance}
             />
             {
-              !isFullScreen
+              !isFullscreen
               && (
                 <FullscreenButton
                   handleFullscreen={fullscreenRef}
                   elementName={intl.formatMessage(intlMessages.presentationLabel)}
-                  tooltipdistance={tooltipdistance}
+                  tooltipDistance={tooltipDistance}
                   dark
                 />
               )
@@ -326,6 +334,12 @@ PresentationToolbar.propTypes = {
   intl: PropTypes.shape({
     formatMessage: PropTypes.func.isRequired,
   }).isRequired,
+  zoomChanger: PropTypes.func.isRequired,
+  fitToWidthHandler: PropTypes.func.isRequired,
+  fitToWidth: PropTypes.bool.isRequired,
+  fullscreenRef: PropTypes.func.isRequired,
+  isFullscreen: PropTypes.bool.isRequired,
+  zoom: PropTypes.number.isRequired,
 };
 
 export default injectWbResizeEvent(injectIntl(PresentationToolbar));

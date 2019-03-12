@@ -16,8 +16,9 @@ const PresentationToolbarContainer = (props) => {
     zoomChanger,
     fitToWidthHandler,
     getSwapLayout,
-    isFullScreen,
+    isFullscreen,
     fullscreenRef,
+    fitToWidth,
   } = props;
 
   if (userIsPresenter && !getSwapLayout) {
@@ -26,7 +27,7 @@ const PresentationToolbarContainer = (props) => {
     return (
       <PresentationToolbar
         {...{
-          isFullScreen,
+          isFullscreen,
           fullscreenRef,
           currentSlideNum,
           numberOfSlides,
@@ -34,6 +35,7 @@ const PresentationToolbarContainer = (props) => {
           zoom,
           zoomChanger,
           fitToWidthHandler,
+          fitToWidth,
         }}
       />
     );
@@ -42,7 +44,7 @@ const PresentationToolbarContainer = (props) => {
 };
 
 export default withTracker((params) => {
-  const { podId, presentationId } = params;
+  const { podId, presentationId, fitToWidth } = params;
   const data = PresentationToolbarService.getSlideData(podId, presentationId);
 
   const {
@@ -52,6 +54,7 @@ export default withTracker((params) => {
   return {
     getSwapLayout: MediaService.getSwapLayout(),
     fitToWidthHandler: params.fitToWidthHandler,
+    fitToWidth,
     userIsPresenter: PresentationService.isPresenter(podId),
     numberOfSlides,
     zoom: params.zoom,
