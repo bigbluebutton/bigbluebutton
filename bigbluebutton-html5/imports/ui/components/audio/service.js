@@ -1,5 +1,4 @@
 import Users from '/imports/api/users';
-import voiceUsers from '/imports/api/voice-users';
 import Auth from '/imports/ui/services/auth';
 import AudioManager from '/imports/ui/services/audio-manager';
 import Meetings from '/imports/api/meetings';
@@ -31,18 +30,6 @@ const init = (messages, intl) => {
   AudioManager.init(userData);
 };
 
-const getVoiceUserConf = userId => ({
-  ...voiceUsers.find({ intId: userId },
-    { sort: { updateTime: -1 }, limit: 1 })
-    .fetch().shift(),
-}).voiceConf;
-
-const getMeetingVoiceConf = meetingId => Meetings.findOne({ meetingId }).voiceProp.voiceConf;
-
-const compareVoiceConf = (userId, meetingId) => getVoiceUserConf(userId)
-  === getMeetingVoiceConf(meetingId);
-
-
 const audioLocked = () => {
   const userId = Auth.userID;
   const User = mapUser(Users.findOne({ userId }));
@@ -53,6 +40,8 @@ const audioLocked = () => {
 
   return audioLock && User.isLocked;
 };
+
+const currentUser = () => mapUser(Users.findOne({ intId: Auth.userID }));
 
 export default {
   init,
@@ -78,7 +67,5 @@ export default {
   error: () => AudioManager.error,
   isUserModerator: () => Users.findOne({ userId: Auth.userID }).moderator,
   audioLocked,
-  compareVoiceConf,
-  getVoiceUserConf,
-  getMeetingVoiceConf,
+  currentUser,
 };

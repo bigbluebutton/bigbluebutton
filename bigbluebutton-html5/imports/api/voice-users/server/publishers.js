@@ -11,12 +11,7 @@ function voiceUser(credentials) {
 
   Logger.debug(`Publishing Voice User for ${meetingId} ${requesterUserId}`);
 
-  return VoiceUsers.find({
-    $or: [
-      { intId: requesterUserId },
-      { meetingId },
-    ],
-  });
+  return VoiceUsers.find({ meetingId });
 }
 
 function publish(...args) {

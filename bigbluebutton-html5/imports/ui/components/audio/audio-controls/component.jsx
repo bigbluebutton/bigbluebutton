@@ -6,6 +6,7 @@ import Button from '/imports/ui/components/button/component';
 import getFromUserSettings from '/imports/ui/services/users-settings';
 import withShortcutHelper from '/imports/ui/components/shortcut-help/service';
 import { styles } from './styles';
+import { userInfo } from 'os';
 
 const intlMessages = defineMessages({
   joinAudio: {
@@ -47,8 +48,8 @@ const defaultProps = {
 class AudioControls extends Component {
   componentDidMount() {
     const { processToggleMuteFromOutside } = this.props;
-    if (Meteor.settings.public.allowOutsideCommands.toggleSelfVoice ||
-      getFromUserSettings('outsideToggleSelfVoice', false)) {
+    if (Meteor.settings.public.allowOutsideCommands.toggleSelfVoice
+      || getFromUserSettings('outsideToggleSelfVoice', false)) {
       window.addEventListener('message', processToggleMuteFromOutside);
     }
   }
@@ -65,12 +66,12 @@ class AudioControls extends Component {
       join,
       intl,
       shortcuts,
-      joinedInBreakoutViAudio,
+      currentUser,
     } = this.props;
 
     return (
       <span className={styles.container}>
-        {mute && !joinedInBreakoutViAudio ?
+        {mute && currentUser.isVoiceUser?
           <Button
             className={glow ? cx(styles.button, styles.glow) : cx(styles.button, !unmute || styles.ghostButton)}
             onClick={handleToggleMuteMicrophone}
