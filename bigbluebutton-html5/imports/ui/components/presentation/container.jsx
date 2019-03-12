@@ -4,8 +4,8 @@ import { getSwapLayout } from '/imports/ui/components/media/service';
 import PresentationAreaService from './service';
 import PresentationArea from './component';
 
-const PresentationAreaContainer = ({ presentationPodIds, ...props }) => (
-  <PresentationArea {...props} />
+const PresentationAreaContainer = ({ presentationPodIds, mountPresentationArea, ...props }) => (
+  mountPresentationArea && <PresentationArea {...props} />
 );
 
 export default withTracker(({ podId }) => {
@@ -18,5 +18,7 @@ export default withTracker(({ podId }) => {
     multiUser: PresentationAreaService.getMultiUserStatus(currentSlide && currentSlide.id)
       && !getSwapLayout(),
     presentationIsDownloadable,
+    isFullscreen: PresentationAreaService.isFullscreen(),
+    mountPresentationArea: !!currentSlide,
   };
 })(PresentationAreaContainer);

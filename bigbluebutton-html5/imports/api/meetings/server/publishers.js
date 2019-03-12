@@ -10,13 +10,15 @@ function meetings(credentials) {
   check(requesterUserId, String);
   check(requesterToken, String);
 
-  Logger.info(`Publishing meeting =${meetingId} ${requesterUserId} ${requesterToken}`);
+  Logger.debug(`Publishing meeting =${meetingId} ${requesterUserId} ${requesterToken}`);
 
   const selector = {
     $or: [
       { meetingId },
-      { 'meetingProp.isBreakout': true },
-      { 'breakoutProps.parentId': meetingId },
+      {
+        'meetingProp.isBreakout': true,
+        'breakoutProps.parentId': meetingId,
+      },
     ],
   };
 
@@ -35,4 +37,3 @@ function publish(...args) {
 }
 
 Meteor.publish('meetings', publish);
-

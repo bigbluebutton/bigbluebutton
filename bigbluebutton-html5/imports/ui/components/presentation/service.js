@@ -56,6 +56,76 @@ const getCurrentSlide = (podId) => {
   );
 };
 
+const currentSlidHasContent = () => {
+  const currentSlide = getCurrentSlide('DEFAULT_PRESENTATION_POD');
+  if (!currentSlide) return false;
+
+  const { content } = currentSlide;
+
+  return !!content.length;
+};
+
+const parseCurrentSlideContent = (yesValue, noValue, trueValue, falseValue) => {
+  const currentSlide = getCurrentSlide('DEFAULT_PRESENTATION_POD');
+  const quickPollOptions = [];
+  if (!currentSlide) return quickPollOptions;
+
+  const { content } = currentSlide;
+
+  const pollRegex = /\n[^\s][.)]/g;
+  const optionsPoll = content.match(pollRegex) || [];
+
+  const ynPollString = `(${yesValue}\\s*\\/\\s*${noValue})|(${noValue}\\s*\\/\\s*${yesValue})`;
+  const ynOptionsRegex = new RegExp(ynPollString, 'gi');
+  const ynPoll = content.match(ynOptionsRegex) || [];
+
+  const tfPollString = `(${trueValue}\\s*\\/\\s*${falseValue})|(${falseValue}\\s*\\/\\s*${trueValue})`;
+  const tgOptionsRegex = new RegExp(tfPollString, 'gi');
+  const tfPoll = content.match(tgOptionsRegex) || [];
+
+  optionsPoll.reduce((acc, currentValue) => {
+    const lastElement = acc[acc.length - 1];
+
+    if (!lastElement) {
+      acc.push({
+        options: [currentValue],
+      });
+      return acc;
+    }
+
+    const { options } = lastElement;
+
+    const lastOption = options[options.length - 1];
+
+    const isLastOptionInteger = !!parseInt(lastOption.charAt(1), 10);
+    const isCurrentValueInteger = !!parseInt(currentValue.charAt(1), 10);
+
+    if (isLastOptionInteger === isCurrentValueInteger) {
+      if (currentValue.toLowerCase().charCodeAt(1) > lastOption.toLowerCase().charCodeAt(1)) {
+        options.push(currentValue);
+      } else {
+        acc.push({
+          options: [currentValue],
+        });
+      }
+    } else {
+      acc.push({
+        options: [currentValue],
+      });
+    }
+
+    return acc;
+  }, [])
+    .filter(({ options }) => options.length > 1 && options.length < 7)
+    .forEach(poll => quickPollOptions.push({ type: `A-${poll.options.length}`, poll }));
+
+  ynPoll.forEach(poll => quickPollOptions.push({ type: 'YN', poll }));
+
+  tfPoll.forEach(poll => quickPollOptions.push({ type: 'TF', poll }));
+
+  return { slideId: currentSlide.id, quickPollOptions };
+};
+
 const isPresenter = (podId) => {
   // a main presenter in the meeting always owns a default pod
   if (podId === 'DEFAULT_PRESENTATION_POD') {
@@ -72,6 +142,8 @@ const isPresenter = (podId) => {
   return pod.currentPresenterId === Auth.userID;
 };
 
+const isFullscreen = () => document.fullscreenElement !== null;
+
 const getMultiUserStatus = (whiteboardId) => {
   const data = WhiteboardMultiUser.findOne({ meetingId: Auth.meetingID, whiteboardId });
   return data ? data.multiUser : false;
@@ -83,4 +155,7 @@ export default {
   isPresentationDownloadable,
   downloadPresentationUri,
   getMultiUserStatus,
+  isFullscreen,
+  currentSlidHasContent,
+  parseCurrentSlideContent,
 };

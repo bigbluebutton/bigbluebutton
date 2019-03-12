@@ -8,7 +8,7 @@ export default function addAnnotation(meetingId, whiteboardId, userId, annotatio
   check(whiteboardId, String);
   check(annotation, Object);
 
-  let query = addAnnotationQuery(meetingId, whiteboardId, userId, annotation);
+  const query = addAnnotationQuery(meetingId, whiteboardId, userId, annotation);
 
   const cb = (err, numChanged) => {
     if (err) {
@@ -19,8 +19,7 @@ export default function addAnnotation(meetingId, whiteboardId, userId, annotatio
     if (insertedId) {
       return Logger.info(`Added annotation id=${annotation.id} whiteboard=${whiteboardId}`);
     }
-
-    return Logger.info(`Upserted annotation id=${annotation.id} whiteboard=${whiteboardId}`);
+    return true;
   };
 
   return Annotations.upsert(query.selector, query.modifier, cb);

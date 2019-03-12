@@ -48,9 +48,9 @@ class VideoListItem extends Component {
         if (p && (typeof Promise !== 'undefined') && (p instanceof Promise)) {
           // Catch exception when playing video
           p.catch((e) => {
-            logger.error(
+            logger.warn(
               { logCode: 'videolistitem_component_play_error' },
-              `Error playing video: ${JSON.stringify(e)}`,
+              `Could not play video: ${JSON.stringify(e)}`,
             );
           });
         }
@@ -109,7 +109,12 @@ class VideoListItem extends Component {
   renderFullscreenButton() {
     const { user } = this.props;
     const full = () => {
-      this.videoTag.requestFullscreen();
+      const tag = this.videoTag;
+      if (tag.requestFullscreen) {
+        tag.requestFullscreen();
+      } else if (tag.webkitRequestFullscreen) { // Edge
+        tag.webkitRequestFullscreen();
+      }
     };
     return <FullscreenButton handleFullscreen={full} elementName={user.name} />;
   }

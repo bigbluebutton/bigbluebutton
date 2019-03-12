@@ -70,7 +70,7 @@ function users(credentials, isModerator = false) {
     },
   };
 
-  Logger.info(`Publishing Users for ${meetingId} ${requesterUserId} ${requesterToken}`);
+  Logger.debug(`Publishing Users for ${meetingId} ${requesterUserId} ${requesterToken}`);
 
   return Users.find(selector, options);
 }

@@ -19,7 +19,7 @@ Meteor.publish('presentation-upload-token', (credentials, podId, filename) => {
     filename,
   };
 
-  Logger.info(`Publishing PresentationUploadToken for ${meetingId} ${requesterUserId} ${requesterToken}`);
+  Logger.debug(`Publishing PresentationUploadToken for ${meetingId} ${requesterUserId} ${requesterToken}`);
 
   return PresentationUploadToken.find(selector);
 });

@@ -9,7 +9,7 @@ function screenshare(credentials) {
   check(meetingId, String);
   check(requesterUserId, String);
 
-  Logger.info(`Publishing Screenshare for ${meetingId} ${requesterUserId}`);
+  Logger.debug(`Publishing Screenshare for ${meetingId} ${requesterUserId}`);
 
   return Screenshare.find({ meetingId });
 }

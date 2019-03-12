@@ -4,6 +4,7 @@ import _ from 'lodash';
 import PropTypes from 'prop-types';
 import { withModalMounter } from '/imports/ui/components/modal/service';
 import EndMeetingConfirmationContainer from '/imports/ui/components/end-meeting-confirmation/container';
+import MeetingEndedComponent from '/imports/ui/components/meeting-ended/component';
 import AboutContainer from '/imports/ui/components/about/container';
 import SettingsMenuContainer from '/imports/ui/components/settings/container';
 import Button from '/imports/ui/components/button/component';
@@ -15,7 +16,6 @@ import DropdownListItem from '/imports/ui/components/dropdown/list/item/componen
 import DropdownListSeparator from '/imports/ui/components/dropdown/list/separator/component';
 import ShortcutHelpComponent from '/imports/ui/components/shortcut-help/component';
 import withShortcutHelper from '/imports/ui/components/shortcut-help/service';
-import logoutRouteHandler from '/imports/utils/logoutRouteHandler';
 
 import { styles } from '../styles';
 
@@ -95,14 +95,14 @@ const propTypes = {
   handleToggleFullscreen: PropTypes.func.isRequired,
   mountModal: PropTypes.func.isRequired,
   isFullScreen: PropTypes.bool,
-  isAndroid: PropTypes.bool,
+  noIOSFullscreen: PropTypes.bool,
   amIModerator: PropTypes.bool,
   shortcuts: PropTypes.string,
 };
 
 const defaultProps = {
   isFullScreen: false,
-  isAndroid: false,
+  noIOSFullscreen: true,
   amIModerator: false,
   shortcuts: '',
 };
@@ -135,7 +135,7 @@ class SettingsDropdown extends PureComponent {
     const {
       intl,
       isFullScreen,
-      isAndroid,
+      noIOSFullscreen,
       handleToggleFullscreen,
     } = this.props;
 
@@ -149,7 +149,8 @@ class SettingsDropdown extends PureComponent {
       fullscreenIcon = 'exit_fullscreen';
     }
 
-    if (!isAndroid) return null;
+    if (noIOSFullscreen) return null;
+
     return (
       <DropdownListItem
         key="list-item-fullscreen"
@@ -159,6 +160,15 @@ class SettingsDropdown extends PureComponent {
         onClick={handleToggleFullscreen}
       />
     );
+  }
+
+  leaveSession() {
+    const { mountModal } = this.props;
+
+    const LOGOUT_CODE = '430';
+    // we don't check askForFeedbackOnLogout here,
+    // it is checked in meeting-ended component
+    mountModal(<MeetingEndedComponent code={LOGOUT_CODE} />);
   }
 
   renderMenuItems() {
@@ -217,7 +227,7 @@ class SettingsDropdown extends PureComponent {
         icon="logout"
         label={intl.formatMessage(intlMessages.leaveSessionLabel)}
         description={intl.formatMessage(intlMessages.leaveSessionDesc)}
-        onClick={logoutRouteHandler}
+        onClick={() => this.leaveSession()}
       />),
     ]);
   }

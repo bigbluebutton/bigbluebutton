@@ -8,7 +8,7 @@ import getFromUserSettings from '/imports/ui/services/users-settings';
 import logoutRouteHandler from '/imports/utils/logoutRouteHandler';
 import Rating from './rating/component';
 import { styles } from './styles';
-
+import logger from '/imports/startup/client/logger';
 
 const intlMessage = defineMessages({
   410: {
@@ -121,13 +121,19 @@ class MeetingEnded extends React.PureComponent {
       },
     };
 
-    fetch(url, options)
-      .then(() => {
-        logoutRouteHandler();
-      })
-      .catch(() => {
-        logoutRouteHandler();
-      });
+    // client logger
+    logger.info({ feedback: message, logCode: 'feedback' }, 'Feedback');
+
+    const FEEDBACK_WAIT_TIME = 500;
+    setTimeout(() => {
+      fetch(url, options)
+        .then(() => {
+          logoutRouteHandler();
+        })
+        .catch(() => {
+          logoutRouteHandler();
+        });
+    }, FEEDBACK_WAIT_TIME);
   }
 
   render() {
@@ -148,7 +154,7 @@ class MeetingEnded extends React.PureComponent {
                 : intl.formatMessage(intlMessage.messageEnded)}
             </div>
             {this.shouldShowFeedback ? (
-              <div className={styles.rating}>
+              <div>
                 <Rating
                   total="5"
                   onRate={this.setSelectedStar}

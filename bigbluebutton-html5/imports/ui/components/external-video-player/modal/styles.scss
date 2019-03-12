@@ -129,7 +129,10 @@
     font-weight: inherit;
     border: none;
     border-radius: 0.4rem;
-    transition: box-shadow calc(var(--enableAnimation) * .2s);
+
+    [style~="--enableAnimation:1;"] & {
+      transition: box-shadow .2s;
+    }
   }
 
   input:focus {
@@ -145,6 +148,9 @@
 .urlError {
   color: red;
   padding: 1em;
-  transition: calc(var(--enableAnimation) * 1s);
+  
+  [style~="--enableAnimation:1;"] & {
+    transition: 1s;
+  }
 }
 

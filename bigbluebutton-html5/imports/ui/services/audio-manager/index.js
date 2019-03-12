@@ -1,6 +1,5 @@
 import { Tracker } from 'meteor/tracker';
 import { makeCall } from '/imports/ui/services/api';
-import VertoBridge from '/imports/api/audio/client/bridge/verto';
 import KurentoBridge from '/imports/api/audio/client/bridge/kurento';
 import Auth from '/imports/ui/services/auth';
 import VoiceUsers from '/imports/api/voice-users';
@@ -13,7 +12,6 @@ import { tryGenerateIceCandidates } from '../../../utils/safari-webrtc';
 
 const MEDIA = Meteor.settings.public.media;
 const MEDIA_TAG = MEDIA.mediaTag;
-const USE_SIP = MEDIA.useSIPAudio;
 const ECHO_TEST_NUMBER = MEDIA.echoTestNumber;
 const MAX_LISTEN_ONLY_RETRIES = 1;
 
@@ -48,7 +46,7 @@ class AudioManager {
   }
 
   init(userData) {
-    this.bridge = USE_SIP ? new SIPBridge(userData) : new VertoBridge(userData);
+    this.bridge = new SIPBridge(userData); // no alternative as of 2019-03-08
     if (this.useKurento) {
       this.listenOnlyBridge = new KurentoBridge(userData);
     }

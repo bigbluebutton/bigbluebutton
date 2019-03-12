@@ -1,17 +1,13 @@
 #!/bin/bash -e
 
-# This is a template for apply-config.sh, which if created will be automatically called by
-# bbb-conf when you do
+# This is a library of functions for apply-config.sh, which, if created, will be automatically called by
+# bbb-conf when you run
 #
 #   bbb-conf --restart
-#   bbb-conf --seitp ... 
+#   bbb-conf --seitp ...
 #
-# To use this template, copy it to apply-config.sh and make it executable
-#
-#  cp apply-config.template apply-config.sh
-#  chmod +x apply-config.sh
-#
-# You can then uncomment some of the built-in configuration options or add your own.
+# The purpose of apply-config.sh is to make it easy to apply for your BigBlueButton server that get applied
+# before BigBlueButton starts
 #
 
 
@@ -37,6 +33,7 @@ if [ -f $SERVLET_DIR/WEB-INF/classes/bigbluebutton.properties ]; then
 fi
 
 HOST=$(cat $SERVLET_DIR/WEB-INF/classes/bigbluebutton.properties | grep -v '#' | sed -n '/^bigbluebutton.web.serverURL/{s/.*\///;p}')
+HTML5_CONFIG=/usr/share/meteor/bundle/programs/server/assets/app/config/settings.yml
 
 
 #
@@ -45,22 +42,23 @@ HOST=$(cat $SERVLET_DIR/WEB-INF/classes/bigbluebutton.properties | grep -v '#' |
 enableHTML5ClientLog() {
   echo "  - Enable HTML5 client log to /var/log/nginx/html5-client.log"
 
-  HTML5_CONFIG=/usr/share/meteor/bundle/programs/server/assets/app/config/settings.yml
   yq w -i $HTML5_CONFIG public.clientLog.external.enabled true
   yq w -i $HTML5_CONFIG public.clientLog.external.url     "$PROTOCOL://$HOST/html5log"
+  yq w -i $HTML5_CONFIG public.app.askForFeedbackOnLogout true
+  chown meteor:meteor $HTML5_CONFIG
 
   cat > /etc/bigbluebutton/nginx/html5-client-log.nginx << HERE
 location /html5log {
-	access_log /var/log/nginx/html5-client.log postdata;
-	echo_read_request_body;
+        access_log /var/log/nginx/html5-client.log postdata;
+        echo_read_request_body;
 }
 HERE
 
   cat > /etc/nginx/conf.d/html5-client-log.conf << HERE
 log_format postdata '\$remote_addr [\$time_iso8601] \$request_body';
 HERE
- 
-  # We need nginx-full to enable postdata log_format 
+
+  # We need nginx-full to enable postdata log_format
   if ! dpkg -l | grep -q nginx-full; then
     apt-get install -y nginx-full
   fi
@@ -71,9 +69,33 @@ HERE
   #
   # You can monitor the live HTML5 client logs with the command
   #
-  #   tail -f /var/log/nginx/html5-client.log | sed -u 's/\\x22/"/g' | sed -u 's/\\x5C//g' 
+  #   tail -f /var/log/nginx/html5-client.log | sed -u 's/\\x22/"/g' | sed -u 's/\\x5C//g'
 }
 
+# Sample commands
 
-#enableHTML5ClientLog
+notCalled() {
+#
+# This function is not called.
+
+# Instead, it gives you the ability to copy the following text and paste it into the shell to create a starting point for
+# apply-config.sh.
+#
+# By creating apply-config.sh manually, it will not be overwritten by any package updates.  You can call functions in this
+# library for commong BigBlueButton configuration tasks.
+
+## Start Copying HEre
+  cat > /etc/bigbluebutton/bbb-conf/apply-config.sh << HERE
+#!/bin/bash
+
+# Pull in the helper functions for configuring BigBlueButton
+source apply-lib.sh
+
+# Put your custom configuration here
+enableHTML5ClientLog
+
+HERE
+chmod +x /etc/bigbluebutton/bbb-conf/apply-config.sh
+## Stop Copying HERE
+}
 

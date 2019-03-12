@@ -44,10 +44,13 @@
 %list-item {
   display: flex;
   flex-flow: row;
-  transition: all calc(var(--enableAnimation) * .3s);
   border-top-left-radius: 5px;
   border-bottom-left-radius: 5px;
   cursor: pointer;
+
+  [style~="--enableAnimation:1;"] & {
+    transition: all .3s;
+  }
 
   &:first-child {
     margin-top: 0;
@@ -134,7 +137,10 @@
 .enterActive,
 .appearActive {
   opacity: 1;
-  transition: all calc(var(--enableAnimation) * 600ms);
+  
+  [style~="--enableAnimation:1;"] & {
+    transition: all 600ms;
+  }
 }
 
 .leave {
@@ -143,5 +149,8 @@
 
 .leaveActive {
   opacity: 0;
-  transition: all calc(var(--enableAnimation) * 600ms);
+
+  [style~="--enableAnimation:1;"] & {
+    transition: all 600ms;
+  }
 }

@@ -3,8 +3,8 @@ public:
     mobileFontSize: 16px
     desktopFontSize: 14px
     audioChatNotification: false
-    autoJoin: true
     showParticipantsOnLogin: true
+    autoJoin: true
     listenOnlyMode: true
     forceListenOnly: false
     skipCheck: false
@@ -13,7 +13,7 @@ public:
     bbbServerVersion: 2.2-dev
     copyright: "©2019 BigBlueButton Inc."
     html5ClientBuild: HTML5_CLIENT_VERSION
-    helpLink: https://bigbluebutton.org/videos/
+    helpLink: https://bigbluebutton.org/html5/
     lockOnJoin: true
     basename: "/html5client"
     askForFeedbackOnLogout: false
@@ -93,14 +93,14 @@ public:
     firefoxScreenshareSource: window
     cameraConstraints:
       width:
-        max: 640
+        max: 320
       height:
-        max: 480
-    enableScreensharing: false
+        max: 240
+    enableScreensharing: true
     enableVideo: true
     enableVideoStats: false
     enableVideoMenu: true
-    enableListenOnly: false
+    enableListenOnly: true
     autoShareWebcam: false
   allowOutsideCommands:
     toggleRecording: false
@@ -136,11 +136,6 @@ public:
     autoSwapLayout: false
     hidePresentation: false
   media:
-    WebRTCHangupRetryInterval: 2000
-    vertoServerAddress: HOST
-    freeswitchProfilePassword: '1234'
-    vertoPort: '8082'
-    useSIPAudio: true
     stunTurnServersFetchAddress: "/bigbluebutton/api/stuns"
     mediaTag: "#remote-media"
     callTransferTimeout: 5000
@@ -258,7 +253,7 @@ public:
   clientLog:
     server: { enabled: true, level: info }
     console: { enabled: true, level: debug }
-    external: { enabled: false, level: info, url: https://LOG_HOST/html5Log, method: POST }
+    external: { enabled: false, level: info, url: https://LOG_HOST/html5Log, method: POST, throttleInterval: 400 }
 private:
   app:
     captionsChunkLength: 1000

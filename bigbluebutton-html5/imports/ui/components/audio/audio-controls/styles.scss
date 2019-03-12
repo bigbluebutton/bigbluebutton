@@ -32,17 +32,18 @@
   }
 
   &.glow {
-    animation: pulse calc(var(--enableAnimation) * 1s) infinite ease-in;
     border-radius: 50%;
+    
+    [style~="--enableAnimation:1;"] & {
+      animation: pulse 1s infinite ease-in;
+    }
+    [style~="--enableAnimation:0;"] & span {
+      content: '';
+      outline: none !important;
+      background-clip: padding-box;
+      box-shadow: 0 0 0 4px rgba(255,255,255,.5);
+    }
   }
-}
-
-[style~="--enableAnimation:0;"] .button.glow span {
-  content: '';
-  outline: none !important;
-  background-clip: padding-box;
-  border: var(--border-size-large) solid transparent;
-  box-shadow: 0 0 0 var(--border-size) rgba(255,255,255,.5);
 }
 
 @keyframes pulse {

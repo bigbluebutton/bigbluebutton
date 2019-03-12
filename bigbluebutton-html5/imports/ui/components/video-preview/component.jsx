@@ -143,6 +143,7 @@ class VideoPreview extends Component {
 
   handleProceed() {
     const { resolve, closeModal } = this.props;
+    this.stopTracks();
     closeModal();
     if (resolve) resolve();
   }
@@ -158,14 +159,9 @@ class VideoPreview extends Component {
       const webcams = [];
 
       // set webcam
-      if (webcamDeviceId) {
-        changeWebcam(webcamDeviceId);
-        this.setState({ webcamDeviceId });
-        this.setState({ isInitialDeviceSet: true });
-      }
       devices.forEach((device) => {
         if (device.kind === 'videoinput') {
-          if (!isInitialDeviceSet) {
+          if (!isInitialDeviceSet || (webcamDeviceId && webcamDeviceId === device.deviceId)) {
             changeWebcam(device.deviceId);
             this.setState({ webcamDeviceId: device.deviceId });
             this.setState({ isInitialDeviceSet: true });
@@ -178,6 +174,14 @@ class VideoPreview extends Component {
       }
 
       constraints.video.deviceId = { exact: this.state.webcamDeviceId };
+
+      const iOS = ['iPad', 'iPhone', 'iPod'].indexOf(navigator.platform) >= 0;
+      
+      if (iOS) {
+        constraints.video.width = { max: 640 };
+        constraints.video.height = { max: 480 };
+      }
+
       navigator.mediaDevices.getUserMedia(constraints).then((stream) => {
         // display the preview
         this.setState({ cameraAllowed: true });
