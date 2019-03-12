@@ -29,6 +29,5 @@ export default withTracker(() => {
     managementPanelIsOpen,
     pendingUsers,
     currentUserIsModerator: Users.findOne({ userId: Auth.userID }).role === ROLE_MODERATOR,
-    joinTime: Users.findOne({ userId: Auth.userID }).loginTime,
   };
 })(WaitingContainer);

@@ -24,7 +24,6 @@ export default function allowPendingUsers(credentials, guests, status) {
     approvedBy: requesterUserId,
     guests: mappedGuests,
   };
-  
 
   Logger.info(`User=${requesterUserId} ${status} guests ${JSON.stringify(mappedGuests)}`);
 

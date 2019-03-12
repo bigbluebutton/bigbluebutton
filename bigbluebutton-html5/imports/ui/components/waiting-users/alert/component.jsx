@@ -32,11 +32,9 @@ class PendingUsersAlert extends Component {
   componentDidMount() {
     const {
       pendingUsers,
-      joinTime,
     } = this.props;
     const { notifiedIds } = this.state;
     const notifiedPendingUsers = pendingUsers
-      .filter(user => user.loginTime < joinTime)
       .map(user => user.intId);
     this.setState({ notifiedIds: [...notifiedIds, ...notifiedPendingUsers] });
   }
