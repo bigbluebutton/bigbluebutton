@@ -87,6 +87,7 @@ class ActivityCheck extends Component {
     return (
       <Modal
         hideBorder
+        onRequestClose={handleInactivityDismiss}
         shouldCloseOnOverlayClick={false}
         shouldShowCloseButton={false}
       >

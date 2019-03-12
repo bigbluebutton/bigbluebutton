@@ -59,6 +59,14 @@ const intlMessage = defineMessages({
     id: 'app.feedback.sendFeedbackDesc',
     description: 'adds context to send feedback option',
   },
+  user_inactivity_eject_reason: {
+    id: 'app.meeting.ended.inactivity',
+    description: 'message for whom was kicked by inactivity',
+  },
+  user_requested_eject_reason: {
+    id: 'app.meeting.ended.removed',
+    description: 'message when the user is removed by someone',
+  },
 });
 
 const propTypes = {
