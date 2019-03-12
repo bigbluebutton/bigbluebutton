@@ -2,7 +2,6 @@ import React from 'react';
 import { withTracker } from 'meteor/react-meteor-data';
 import { withModalMounter } from '/imports/ui/components/modal/service';
 import AudioManager from '/imports/ui/services/audio-manager';
-import Auth from '/imports/ui/services/auth';
 import { makeCall } from '/imports/ui/services/api';
 import AudioControls from './component';
 import AudioModalContainer from '../audio-modal/container';
