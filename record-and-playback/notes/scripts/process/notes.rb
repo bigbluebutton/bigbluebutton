@@ -39,19 +39,19 @@ meeting_id = opts[:meeting_id]
 
 # This script lives in scripts/archive/steps while properties.yaml lives in scripts/
 props = YAML::load(File.open('../../core/scripts/bigbluebutton.yml'))
-note_props = YAML::load(File.open('note.yml'))
-format = note_props['format']
+notes_props = YAML::load(File.open('notes.yml'))
+format = notes_props['format']
 
 recording_dir = props['recording_dir']
 raw_archive_dir = "#{recording_dir}/raw/#{meeting_id}"
 log_dir = props['log_dir']
 
-target_dir = "#{recording_dir}/process/note/#{meeting_id}"
+target_dir = "#{recording_dir}/process/notes/#{meeting_id}"
 if not FileTest.directory?(target_dir)
-  FileUtils.mkdir_p "#{log_dir}/note"
-  logger = Logger.new("#{log_dir}/note/process-#{meeting_id}.log", 'daily' )
+  FileUtils.mkdir_p "#{log_dir}/notes"
+  logger = Logger.new("#{log_dir}/notes/process-#{meeting_id}.log", 'daily' )
   BigBlueButton.logger = logger
-  BigBlueButton.logger.info("Processing script note.rb")
+  BigBlueButton.logger.info("Processing script notes.rb")
   FileUtils.mkdir_p target_dir
 
   begin
@@ -72,7 +72,7 @@ if not FileTest.directory?(target_dir)
     metadata_xml.close
     BigBlueButton.logger.info("Created inital metadata.xml")
 
-    FileUtils.cp("#{raw_archive_dir}/note/note.#{format}", "#{target_dir}/note.#{format}")
+    FileUtils.cp("#{raw_archive_dir}/notes/notes.#{format}", "#{target_dir}/notes.#{format}")
 
     # Get the real-time start and end timestamp
     @doc = Nokogiri::XML(File.open("#{raw_archive_dir}/events.xml"))
@@ -83,7 +83,6 @@ if not FileTest.directory?(target_dir)
     match = /.*-(\d+)$/.match(meeting_id)
     real_start_time = match[1]
     real_end_time = (real_start_time.to_i + (meeting_end.to_i - meeting_start.to_i)).to_s
-
 
     # Add start_time, end_time and meta to metadata.xml
     ## Load metadata.xml
@@ -134,7 +133,7 @@ if not FileTest.directory?(target_dir)
     metadata_file.close
     BigBlueButton.logger.info("Created an updated metadata.xml with start_time and end_time")
 
-    process_done = File.new("#{recording_dir}/status/processed/#{meeting_id}-note.done", "w")
+    process_done = File.new("#{recording_dir}/status/processed/#{meeting_id}-notes.done", "w")
     process_done.write("Processed #{meeting_id}")
     process_done.close
 

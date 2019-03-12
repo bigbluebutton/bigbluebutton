@@ -31,7 +31,7 @@ require 'fastimage' # require fastimage to get the image size of the slides (gem
 
 # This script lives in scripts/archive/steps while properties.yaml lives in scripts/
 bbb_props = YAML::load(File.open('../../core/scripts/bigbluebutton.yml'))
-note_props = YAML::load(File.open('note.yml'))
+notes_props = YAML::load(File.open('notes.yml'))
 
 opts = Trollop::options do
   opt :meeting_id, "Meeting id to archive", :default => '58f4a6b3-cd07-444d-8564-59116cb53974', :type => String
@@ -48,28 +48,28 @@ puts playback
 
 begin
 
-  if (playback == "note")
+  if (playback == "notes")
 
     log_dir = bbb_props['log_dir']
 
-    logger = Logger.new("#{log_dir}/note/publish-#{meeting_id}.log", 'daily' )
+    logger = Logger.new("#{log_dir}/notes/publish-#{meeting_id}.log", 'daily' )
     BigBlueButton.logger = logger
 
     recording_dir = bbb_props['recording_dir']
     raw_archive_dir = "#{recording_dir}/raw/#{meeting_id}"
-    process_dir = "#{recording_dir}/process/note/#{meeting_id}"
-    publish_dir = note_props['publish_dir']
-    format = note_props['format']
+    process_dir = "#{recording_dir}/process/notes/#{meeting_id}"
+    publish_dir = notes_props['publish_dir']
+    format = notes_props['format']
     playback_protocol = bbb_props['playback_protocol']
     playback_host = bbb_props['playback_host']
-    target_dir = "#{recording_dir}/publish/note/#{meeting_id}"
+    target_dir = "#{recording_dir}/publish/notes/#{meeting_id}"
 
     if not FileTest.directory?(target_dir)
       BigBlueButton.logger.info("Making dir target_dir")
       FileUtils.mkdir_p target_dir
 
-      BigBlueButton.logger.info("copying: #{process_dir}/note.#{format} to -> #{target_dir}")
-      FileUtils.cp("#{process_dir}/note.#{format}", target_dir)
+      BigBlueButton.logger.info("copying: #{process_dir}/notes.#{format} to -> #{target_dir}")
+      FileUtils.cp("#{process_dir}/notes.#{format}", target_dir)
 
       @doc = Nokogiri::XML(File.open("#{raw_archive_dir}/events.xml"))
       recording_time = BigBlueButton::Events.get_recording_length(@doc)
@@ -97,8 +97,8 @@ begin
       ## Add the actual playback
       metadata_with_playback = Nokogiri::XML::Builder.with(metadata.at('recording')) do |xml|
         xml.playback {
-          xml.format("note")
-          xml.link("#{playback_protocol}://#{playback_host}/note/#{meeting_id}/note.#{format}")
+          xml.format("notes")
+          xml.link("#{playback_protocol}://#{playback_host}/notes/#{meeting_id}/notes.#{format}")
           xml.duration("#{recording_time}")
         }
       end
@@ -122,7 +122,7 @@ begin
       BigBlueButton.add_playback_size_to_metadata(target_dir)
 
       FileUtils.cp_r(target_dir, publish_dir) # Copy all the files.
-      BigBlueButton.logger.info("Finished publishing script note.rb successfully.")
+      BigBlueButton.logger.info("Finished publishing script notes.rb successfully.")
 
       BigBlueButton.logger.info("Removing processed files.")
       FileUtils.rm_r(process_dir)
@@ -130,7 +130,7 @@ begin
       BigBlueButton.logger.info("Removing published files.")
       FileUtils.rm_r(target_dir)
 
-      publish_done = File.new("#{recording_dir}/status/published/#{meeting_id}-note.done", "w")
+      publish_done = File.new("#{recording_dir}/status/published/#{meeting_id}-notes.done", "w")
       publish_done.write("Published #{meeting_id}")
       publish_done.close
 
@@ -145,7 +145,7 @@ rescue Exception => e
   e.backtrace.each do |traceline|
     BigBlueButton.logger.error(traceline)
   end
-  publish_done = File.new("#{recording_dir}/status/published/#{meeting_id}-note.fail", "w")
+  publish_done = File.new("#{recording_dir}/status/published/#{meeting_id}-notes.fail", "w")
   publish_done.write("Failed Publishing #{meeting_id}")
   publish_done.close
 
