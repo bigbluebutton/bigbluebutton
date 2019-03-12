@@ -47,11 +47,15 @@
 }
 
 .spinner .bounce1 {
-  animation-delay: -0.32s;
+  [style~="--enableAnimation:1;"] & {
+    animation-delay: -0.32s;
+  }
 }
 
 .spinner .bounce2 {
-  animation-delay: -0.16s;
+  [style~="--enableAnimation:1;"] & {
+    animation-delay: -0.16s;
+  }
 }
 
 @keyframes sk-bouncedelay {
