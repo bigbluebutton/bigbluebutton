@@ -121,7 +121,10 @@ class PresentationArea extends Component {
     const presentationSizes = this.getPresentationSizesAvailable();
     if (Object.keys(presentationSizes).length > 0) {
       // updating the size of the space available for the slide
-      this.setState(presentationSizes);
+      this.setState({
+        presentationHeight: presentationSizes.presentationHeight,
+        presentationWidth: presentationSizes.presentationWidth,
+      });
     }
   }
 
@@ -307,6 +310,7 @@ class PresentationArea extends Component {
       ? {
         position: 'absolute',
         width: 'inherit',
+        height: adjustedSizes.height,
       }
       : {
         position: 'absolute',
@@ -347,6 +351,12 @@ class PresentationArea extends Component {
               version="1.1"
               xmlns="http://www.w3.org/2000/svg"
               className={styles.svgStyles}
+              style={fitToWidth
+                ? {
+                  position: 'absolute',
+                }
+                : null
+              }
             >
               <defs>
                 <clipPath id="viewBox">
@@ -452,9 +462,6 @@ class PresentationArea extends Component {
     } = this.props;
     if (userIsPresenter) return null;
 
-    console.log('userIsPresenter', userIsPresenter);
-    
-
     const full = () => this.refPresentationContainer.requestFullscreen();
 
     return (
@@ -472,7 +479,10 @@ class PresentationArea extends Component {
       userIsPresenter,
       multiUser,
     } = this.props;
-    const { showSlide } = this.state;
+    const {
+      showSlide,
+      fitToWidth,
+    } = this.state;
 
     const adjustedSizes = this.calculateSize();
     const adjustedHeight = adjustedSizes.height;
@@ -485,10 +495,12 @@ class PresentationArea extends Component {
       const { clientWidth: areaWidth } = this.refWhiteboardArea;
       if (adjustedWidth <= 400
         && adjustedWidth !== areaWidth
-        && areaWidth > 400) {
+        && areaWidth > 400
+        && fitToWidth === false) {
         toolbarWidth = '400px';
       } else if (adjustedWidth === areaWidth
-        || areaWidth <= 400) {
+        || areaWidth <= 400
+        || fitToWidth === true) {
         toolbarWidth = '100%';
       } else {
         toolbarWidth = adjustedWidth;

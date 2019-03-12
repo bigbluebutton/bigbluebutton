@@ -38,6 +38,13 @@ const defaultProps = {
   meetingExist: false,
 };
 
+const fullscreenChangedEvents = [
+  'fullscreenchange',
+  'webkitfullscreenchange',
+  'mozfullscreenchange',
+  'MSFullscreenChange',
+];
+
 class Base extends Component {
   static handleFullscreenChange() {
     if (document.fullscreenElement
@@ -62,13 +69,6 @@ class Base extends Component {
   }
 
   componentDidMount() {
-    const fullscreenChangedEvents = [
-      'fullscreenchange',
-      'webkitfullscreenchange',
-      'mozfullscreenchange',
-      'MSFullscreenChange',
-    ];
-
     fullscreenChangedEvents.forEach((event) => {
       document.addEventListener(event, Base.handleFullscreenChange);
     });
@@ -119,13 +119,6 @@ class Base extends Component {
   }
 
   componentWillUnmount() {
-    const fullscreenChangedEvents = [
-      'fullscreenchange',
-      'webkitfullscreenchange',
-      'mozfullscreenchange',
-      'MSFullscreenChange',
-    ];
-
     fullscreenChangedEvents.forEach((event) => {
       document.removeEventListener(event, Base.handleFullscreenChange);
     });

@@ -20,6 +20,7 @@
 
 .button {
 
+  &,
   &:active,
   &:hover {
     background-color: var(--color-transparent) !important;
