@@ -8,8 +8,6 @@ import { HUNDRED_PERCENT, MAX_PERCENT, STEP } from '/imports/utils/slideCalcUtil
 import { styles } from './styles.scss';
 import ZoomTool from './zoom-tool/component';
 import FullscreenButton from '../../video-provider/fullscreen-button/component';
-import DownloadPresentationButton from '/imports/ui/components/presentation/download-presentation-button/component';
-
 
 const intlMessages = defineMessages({
   previousSlideLabel: {
@@ -27,6 +25,10 @@ const intlMessages = defineMessages({
   fitToWidth: {
     id: 'app.presentation.presentationToolbar.fitToWidth',
     description: 'button for fit to width',
+  },
+  fitToPage: {
+    id: 'app.presentation.presentationToolbar.fitToPage',
+    description: 'button label for fit to width',
   },
   presentationLabel: {
     id: 'app.presentationUploder.title',
@@ -188,6 +190,7 @@ class PresentationToolbar extends Component {
       currentSlideNum,
       numberOfSlides,
       fitToWidthHandler,
+      fitToWidth,
       actions,
       intl,
       zoom,
@@ -198,9 +201,9 @@ class PresentationToolbar extends Component {
     const BROWSER_RESULTS = browser();
     const isMobileBrowser = BROWSER_RESULTS.mobile
       || BROWSER_RESULTS.os.includes('Android');
-    
+
     const tooltipDistance = 35;
-    
+
     return (
       <div id="presentationToolbarWrapper" className={styles.presentationToolbarWrapper}>
         {PresentationToolbar.renderAriaLabelsDescs()}
@@ -277,7 +280,10 @@ class PresentationToolbar extends Component {
               size="md"
               circle={false}
               onClick={fitToWidthHandler}
-              label={intl.formatMessage(intlMessages.fitToWidth)}
+              label={fitToWidth
+                ? intl.formatMessage(intlMessages.fitToPage)
+                : intl.formatMessage(intlMessages.fitToWidth)
+              }
               hideLabel
               className={styles.skipSlide}
               tooltipDistance={tooltipDistance}
@@ -327,6 +333,12 @@ PresentationToolbar.propTypes = {
   intl: PropTypes.shape({
     formatMessage: PropTypes.func.isRequired,
   }).isRequired,
+  zoomChanger: PropTypes.func.isRequired,
+  fitToWidthHandler: PropTypes.func.isRequired,
+  fitToWidth: PropTypes.bool.isRequired,
+  fullscreenRef: PropTypes.func.isRequired,
+  isFullscreen: PropTypes.bool.isRequired,
+  zoom: PropTypes.number.isRequired,
 };
 
 export default injectWbResizeEvent(injectIntl(PresentationToolbar));

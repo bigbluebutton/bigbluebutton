@@ -56,15 +56,19 @@ export default class SettingsDropdownContainer extends PureComponent {
 
     const handleToggleFullscreen = toggleFullScreen;
     const { isFullScreen } = this.state;
-    const result = browser();
-    const isAndroid = (result && result.os) ? result.os.includes('Android') : false;
+
+    const BROWSER_RESULTS = browser();
+    const isSafari = BROWSER_RESULTS.name === 'safari';
+    const noIOSFullscreen = isSafari && BROWSER_RESULTS.versionNumber < 12;
 
     return (
       <SettingsDropdown
-        handleToggleFullscreen={handleToggleFullscreen}
-        isFullScreen={isFullScreen}
-        isAndroid={isAndroid}
-        amIModerator={amIModerator}
+        {...{
+          handleToggleFullscreen,
+          isFullScreen,
+          noIOSFullscreen,
+          amIModerator,
+        }}
       />
     );
   }

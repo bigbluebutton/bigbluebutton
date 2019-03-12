@@ -94,6 +94,7 @@
     "app.presentation.presentationToolbar.zoomReset": "Reset Zoom",
     "app.presentation.presentationToolbar.zoomIndicator": "Current zoom percentage",
     "app.presentation.presentationToolbar.fitToWidth": "Fit to width",
+    "app.presentation.presentationToolbar.fitToPage": "Fit to page",
     "app.presentation.presentationToolbar.goToSlide": "Slide {0}",
     "app.presentationUploder.title": "Presentation",
     "app.presentationUploder.message": "As a presenter in BigBlueButton, you have the ability of uploading any office document or PDF file.  We recommend PDF file for best results.",
