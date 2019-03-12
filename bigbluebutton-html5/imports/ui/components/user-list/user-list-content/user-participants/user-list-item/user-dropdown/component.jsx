@@ -528,7 +528,6 @@ class UserDropdown extends PureComponent {
           {<UserIcons
             {...{
               user,
-              compact,
             }}
           />}
         </div>

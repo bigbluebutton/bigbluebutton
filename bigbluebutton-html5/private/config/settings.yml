@@ -81,6 +81,10 @@ public:
     connectionTimeout: 60000
     showHelpButton: true
     enableExternalVideo: true
+    effectiveConnection:
+      - slow-2g
+      - 2g
+      - 3g
   kurento:
     wsUrl: HOST
     chromeDefaultExtensionKey: akgoaoikmbmhcopjgakkcepdgdgkjfbc

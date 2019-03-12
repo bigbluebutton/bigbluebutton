@@ -5,6 +5,7 @@ import assignPresenter from './methods/assignPresenter';
 import changeRole from './methods/changeRole';
 import removeUser from './methods/removeUser';
 import toggleUserLock from './methods/toggleUserLock';
+import setUserEffectiveConnectionType from './methods/setUserEffectiveConnectionType';
 import userActivitySign from './methods/userActivitySign';
 
 Meteor.methods({
@@ -14,5 +15,6 @@ Meteor.methods({
   removeUser,
   validateAuthToken,
   toggleUserLock,
+  setUserEffectiveConnectionType,
   userActivitySign,
 });

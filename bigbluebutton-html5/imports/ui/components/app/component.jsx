@@ -7,6 +7,7 @@ import browser from 'browser-detect';
 import PanelManager from '/imports/ui/components/panel-manager/component';
 import PollingContainer from '/imports/ui/components/polling/container';
 import logger from '/imports/startup/client/logger';
+import { makeCall } from '/imports/ui/services/api';
 import ActivityCheckContainer from '/imports/ui/components/activity-check/container';
 import ToastContainer from '../toast/container';
 import ModalContainer from '../modal/container';
@@ -92,11 +93,17 @@ class App extends Component {
     this.handleWindowResize();
     window.addEventListener('resize', this.handleWindowResize, false);
 
+    if (navigator.connection) {
+      this.handleNetworkConnection();
+      navigator.connection.addEventListener('change', this.handleNetworkConnection);
+    }
+
     logger.info({ logCode: 'app_component_componentdidmount' }, 'Client loaded successfully');
   }
 
   componentWillUnmount() {
     window.removeEventListener('resize', this.handleWindowResize, false);
+    navigator.connection.addEventListener('change', this.handleNetworkConnection, false);
   }
 
   handleWindowResize() {
@@ -105,6 +112,11 @@ class App extends Component {
     if (enableResize === shouldEnableResize) return;
 
     this.setState({ enableResize: shouldEnableResize });
+  }
+
+  handleNetworkConnection() {
+    const { effectiveType } = navigator.connection;
+    makeCall('setUserEffectiveConnectionType', effectiveType);
   }
 
   renderPanel() {
