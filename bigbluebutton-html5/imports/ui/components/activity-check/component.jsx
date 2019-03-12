@@ -42,9 +42,11 @@ class ActivityCheck extends Component {
 
     this.stopRemainingTime = this.stopRemainingTime.bind(this);
     this.updateRemainingTime = this.updateRemainingTime.bind(this);
+    this.playAudioAlert = this.playAudioAlert.bind(this);
   }
 
   componentDidMount() {
+    this.playAudioAlert();
     this.interval = this.updateRemainingTime();
   }
 
@@ -70,6 +72,11 @@ class ActivityCheck extends Component {
 
   stopRemainingTime() {
     clearInterval(this.interval);
+  }
+
+  playAudioAlert() {
+    this.alert = new Audio(`${Meteor.settings.public.app.basename}/resources/sounds/notify.mp3`);
+    this.alert.play();
   }
 
   render() {
