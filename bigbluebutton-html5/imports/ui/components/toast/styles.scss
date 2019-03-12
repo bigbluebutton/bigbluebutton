@@ -18,6 +18,9 @@
 
   --background: var(--color-white);
   --background-active: #eee;
+
+  --toast-offset: 4.5rem;
+  --toast-mobile-width: 75%;
 }
 
 @mixin notification-variant($icon-color, $icon-bg) {
@@ -113,20 +116,19 @@
 }
 
 .container {
-  z-index: 9999;
+  z-index: 9998;
   position: fixed;
   padding: var(--sm-padding-y);
   width: 15vw;
   min-width: 320px;
   box-sizing: border-box;
-  top: var(--md-padding-y);
-  right: var(--md-padding-y);
+  right: var(--jumbo-padding-y);
+  top: var(--toast-offset);
   max-height: 75vh;
   overflow: hidden;
 
   @include mq($small-only) {
-    left: var(--sm-padding-y);
-    width: auto;
+    width: var(--toast-mobile-width);
   }
 }
 
