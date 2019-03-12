@@ -82,6 +82,7 @@ class VideoPreview extends Component {
     this.handleJoinVideo = this.handleJoinVideo.bind(this);
     this.handleProceed = this.handleProceed.bind(this);
     this.handleStartSharing = this.handleStartSharing.bind(this);
+    this.webcamListener = this.webcamListener.bind(this);
 
     this.deviceStream = null;
 
@@ -89,6 +90,8 @@ class VideoPreview extends Component {
       webcamDeviceId,
       availableWebcams: null,
       isStartSharingDisabled: false,
+      isInitialDeviceSet: false,
+      cameraAllowed: false,
     };
   }
 
@@ -152,7 +155,7 @@ class VideoPreview extends Component {
     };
 
     navigator.mediaDevices.enumerateDevices().then((devices) => {
-      let isInitialDeviceSet = false;
+      const { isInitialDeviceSet } = this.state;
       const webcams = [];
 
       // set webcam
@@ -161,10 +164,11 @@ class VideoPreview extends Component {
           if (!isInitialDeviceSet || (webcamDeviceId && webcamDeviceId === device.deviceId)) {
             changeWebcam(device.deviceId);
             this.setState({ webcamDeviceId: device.deviceId });
-            isInitialDeviceSet = true;
+            this.setState({ isInitialDeviceSet: true });
           }
         }
       });
+
       if (webcams.length > 0) {
         this.setState({ availableWebcams: webcams });
       }
@@ -180,6 +184,7 @@ class VideoPreview extends Component {
 
       navigator.mediaDevices.getUserMedia(constraints).then((stream) => {
         // display the preview
+        this.setState({ cameraAllowed: true });
         this.video.srcObject = stream;
         this.deviceStream = stream;
 
@@ -195,6 +200,20 @@ class VideoPreview extends Component {
           }
         });
       });
+    });
+  }
+
+  componentDidUpdate() {
+    this.webcamListener();
+  }
+
+  async webcamListener() {
+    const { cameraAllowed, isInitialDeviceSet } = this.state;
+    const getDevices = await navigator.mediaDevices.enumerateDevices();
+    const hasVideoInput = getDevices.filter(device => device.kind === 'videoinput').length > 0;
+
+    this.setState({
+      isStartSharingDisabled: !(hasVideoInput && cameraAllowed && isInitialDeviceSet),
     });
   }
 
