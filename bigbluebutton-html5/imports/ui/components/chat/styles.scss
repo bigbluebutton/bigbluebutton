@@ -13,17 +13,6 @@
   line-height: $lineHeight;
   max-height: calc(#{"$lineHeight * $lineCount"});
 
-  &:before {
-    content: '...';
-    width: 10%;
-    height: lineHeight;
-    text-align: right;
-    position: absolute;
-    right: 0;
-    bottom: 0;
-    background: linear-gradient(to right, rgba(255, 255, 255, 0), $bgColor 75%);
-  }
-
   &:after {
     content: '';
     position: absolute;
