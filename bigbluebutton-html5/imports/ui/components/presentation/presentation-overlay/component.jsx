@@ -70,8 +70,6 @@ export default class PresentationOverlay extends Component {
       presentationSize,
     } = props;
 
-    this.fitToPage = false;
-
     this.viewportW = slideWidth;
     this.viewportH = slideHeight;
 
@@ -134,6 +132,7 @@ export default class PresentationOverlay extends Component {
       this.toolbarZoom();
     }
 
+    // TODO: Check for panel resize
     if ((!prevProps.fitToWidth || this.checkResize(prevProps.presentationSize)) && this.props.fitToWidth) {
       this.parentH = presentationSize.presentationHeight;
       this.parentW = presentationSize.presentationWidth;
@@ -163,15 +162,22 @@ export default class PresentationOverlay extends Component {
     const relXcoordInPage = absXcoordInPage / this.calcPageW;
     const relYcoordInPage = absYcoordInPage / this.calcPageH;
 
-    if (this.isPortraitDoc() && this.fitToPage) {
-      this.calcPageH = (this.viewportH * zoomValue) / HUNDRED_PERCENT;
-      this.calcPageW = (this.pageOrigW / this.pageOrigH) * this.calcPageH;
-    } else if (!this.isPortraitDoc() && this.fitToPage) {
-      this.calcPageW = (this.viewportW * zoomValue) / HUNDRED_PERCENT;
-      this.calcPageH = (this.viewportH * zoomValue) / HUNDRED_PERCENT;
+    if (this.isPortraitDoc()) {
+      if (this.props.fitToWidth) {
+        this.calcPageW = (this.viewportW * zoomValue) / HUNDRED_PERCENT;
+        this.calcPageH = (this.calcPageW / this.pageOrigW) * this.pageOrigH;
+      } else {
+        this.calcPageH = (this.viewportH * zoomValue) / HUNDRED_PERCENT;
+        this.calcPageW = (this.pageOrigW / this.pageOrigH) * this.calcPageH;
+      }
     } else {
-      this.calcPageW = (this.viewportW * zoomValue) / HUNDRED_PERCENT;
-      this.calcPageH = (this.calcPageW / this.pageOrigW) * this.pageOrigH;
+      if (this.props.fitToWidth) {
+        this.calcPageW = (this.viewportW * zoomValue) / HUNDRED_PERCENT;
+        this.calcPageH = (this.calcPageW / this.pageOrigW) * this.pageOrigH;
+      } else {
+        this.calcPageW = (this.viewportW * zoomValue) / HUNDRED_PERCENT;
+        this.calcPageH = (this.viewportH * zoomValue) / HUNDRED_PERCENT;
+      }
     }
 
     absXcoordInPage = relXcoordInPage * this.calcPageW;

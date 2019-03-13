@@ -182,6 +182,24 @@ class PresentationArea extends Component {
     };
   }
 
+  // TODO: This could be replaced if we synchronize the fit-to-width state between users
+  checkFitToWidth() {
+    const { userIsPresenter, currentSlide } = this.props;
+    const { fitToWidth } = this.state;
+    if (userIsPresenter) {
+      return fitToWidth;
+    } else {
+      const { width, height, viewBoxWidth, viewBoxHeight } = currentSlide.calculatedData;
+      const slideSizeRatio = width / height;
+      const viewBoxSizeRatio = viewBoxWidth / viewBoxHeight;
+      if (slideSizeRatio !== viewBoxSizeRatio) {
+        return true;
+      } else {
+        return false;
+      }
+    }
+  }
+
   zoomChanger(incomingZoom) {
     const { zoom } = this.state;
     let newZoom = incomingZoom;
@@ -223,7 +241,7 @@ class PresentationArea extends Component {
 
   // renders the whole presentation area
   renderPresentationArea() {
-    const { fitToWidth } = this.state;
+    const { presentationWidth } = this.state;
     const { podId, currentSlide, intl } = this.props;
     if (!this.isPresentationAccessible()) return null;
 
@@ -310,10 +328,9 @@ class PresentationArea extends Component {
                   podId={podId}
                   whiteboardId={slideObj.id}
                   widthRatio={slideObj.widthRatio}
-                  physicalWidthRatio={adjustedSizes.width / width}
+                  physicalWidthRatio={this.checkFitToWidth() ? (presentationWidth / width) : (adjustedSizes.width / width)}
                   slideWidth={width}
                   slideHeight={height}
-                  radius={fitToWidth ? 2 : 5}
                 />
               </g>
               {this.renderOverlays(slideObj, adjustedSizes)}
