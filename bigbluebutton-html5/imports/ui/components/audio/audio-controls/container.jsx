@@ -37,7 +37,7 @@ const processToggleMuteFromOutside = (e) => {
 
 export default withModalMounter(withTracker(({ mountModal }) => ({
   processToggleMuteFromOutside: arg => processToggleMuteFromOutside(arg),
-  mute: Service.isConnected() && !Service.isListenOnly() && !Service.isEchoTest(),
+  mute: Service.isConnected() && !Service.isListenOnly() && !Service.isEchoTest() && !Service.audioLocked(),
   unmute: Service.isConnected() && !Service.isListenOnly() && Service.isMuted(),
   join: Service.isConnected() && !Service.isEchoTest(),
   disable: Service.isConnecting() || Service.isHangingUp(),
