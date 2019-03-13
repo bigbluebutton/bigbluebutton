@@ -1,3 +1,4 @@
+.dbshell
 app/packages
 app/build/
 npm-debug.log
