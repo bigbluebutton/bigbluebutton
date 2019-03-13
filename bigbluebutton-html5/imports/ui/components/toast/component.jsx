@@ -47,13 +47,14 @@ const getContentStrings = (msgContent) => {
 const formatMessageStrings = (messages) => {
   const _messages = messages;
   const MAX_MESSAGE_CHARS = 40;
-  _messages.forEach((item, index) => {
-    if (_messages[index].length > MAX_MESSAGE_CHARS) {
-      _messages[index] = `${item.substring(0, MAX_MESSAGE_CHARS)}...`;
+
+  return _messages.map((msg) => {
+    let formattedMsg = msg;
+    if (msg.length > MAX_MESSAGE_CHARS) {
+      formattedMsg = `${msg.substring(0, MAX_MESSAGE_CHARS)}...`;
     }
-    return null;
+    return formattedMsg;
   });
-  return _messages;
 };
 
 const setContentStrings = (msgContent, msgStrings) => {
