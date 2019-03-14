@@ -558,6 +558,6 @@
     "app.externalVideo.urlInput": "Add YouTube URL",
     "app.externalVideo.urlError": "This URL isn't a valid YouTube video",
     "app.externalVideo.close": "Close",
-    "app.actionsBar.actionsDropdown.shareExternalVideo": "Share Youtube video",
-    "app.actionsBar.actionsDropdown.stopShareExternalVideo": "Stop sharing video"
+    "app.actionsBar.actionsDropdown.shareExternalVideo": "Share YouTube video",
+    "app.actionsBar.actionsDropdown.stopShareExternalVideo": "Stop sharing YouTube video"
 }
