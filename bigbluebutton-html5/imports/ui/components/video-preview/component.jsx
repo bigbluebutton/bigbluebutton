@@ -154,7 +154,7 @@ class VideoPreview extends Component {
       video: VIDEO_CONSTRAINTS,
     };
 
-    navigator.mediaDevices.enumerateDevices().then((devices) => {
+    navigator.mediaDevices.enumerateDevices().then(async (devices) => {
       const { isInitialDeviceSet } = this.state;
       const webcams = [];
 
@@ -175,9 +175,10 @@ class VideoPreview extends Component {
 
       constraints.video.deviceId = { exact: this.state.webcamDeviceId };
 
-      const iOS = ['iPad', 'iPhone', 'iPod'].indexOf(navigator.platform) >= 0;
-      
-      if (iOS) {
+      try {
+        await navigator.mediaDevices.getUserMedia(constraints);
+      } catch (exception) {
+        logger.info({ logCode: 'insufficient_constraints' }, 'No webcam found for constraint values, increasing constraints.', exception);
         constraints.video.width = { max: 640 };
         constraints.video.height = { max: 480 };
       }
