@@ -144,6 +144,8 @@ class Base extends Component {
     const { updateLoadingState } = this;
     const stateControls = { updateLoadingState };
 
+    const { ejected } = this.props;
+
     const { loading, meetingExisted } = this.state;
 
     const codeError = Session.get('codeError');
@@ -152,7 +154,13 @@ class Base extends Component {
       meetingExist,
     } = this.props;
 
-    if (meetingExisted && !meetingExist) {
+    if (ejected && ejected.ejectedReason) {
+      const { ejectedReason } = ejected;
+      AudioManager.exitAudio();
+      return (<MeetingEnded code={ejectedReason} />);
+    }
+
+    if ((meetingExisted && !meetingExist)) {
       AudioManager.exitAudio();
       return (<MeetingEnded code={Session.get('codeError')} />);
     }
