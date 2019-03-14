@@ -1,5 +1,5 @@
 import { check } from 'meteor/check';
-import { Meteor } from 'meteor/meteor';
+import requestGuestUsers from '/imports/api/guest-users/server/methods/requestGuestUsers';
 import Users from '/imports/api/users';
 import addUser from '../modifiers/addUser';
 
@@ -11,10 +11,10 @@ export default function handleUserJoined({ body }, meetingId) {
     connectionStatus: 'online',
     guest: false,
     meetingId,
-  }).fetch().length > 0;
+  }).count() > 0;
 
   if (!hasUsers) {
-    Meteor.call('requestGuestUsers', meetingId, user.intId);
+    requestGuestUsers(meetingId, user.intId);
   }
   return addUser(meetingId, user);
 }
