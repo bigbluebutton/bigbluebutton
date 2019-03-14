@@ -59,6 +59,10 @@ const intlMessage = defineMessages({
     id: 'app.feedback.sendFeedbackDesc',
     description: 'adds context to send feedback option',
   },
+  not_enough_permission_eject_reason: {
+    id: 'app.meeting.ended.permission',
+    description: 'message for whom was kicked by doing something without permission',
+  },
   user_inactivity_eject_reason: {
     id: 'app.meeting.ended.inactivity',
     description: 'message for whom was kicked by inactivity',
