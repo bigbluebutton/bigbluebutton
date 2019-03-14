@@ -154,8 +154,9 @@ class Base extends Component {
       meetingExist,
     } = this.props;
 
-    if (ejected) {
+    if (ejected && ejected.ejectedReason) {
       const { ejectedReason } = ejected;
+      AudioManager.exitAudio();
       return (<MeetingEnded code={ejectedReason} />);
     }
 
