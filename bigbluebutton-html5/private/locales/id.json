@@ -29,6 +29,8 @@
     "app.userList.menu.removeUser.label": "Hapus pengguna",
     "app.userList.menu.muteUserAudio.label": "Diamkan pengguna",
     "app.userList.menu.unmuteUserAudio.label": "Aktifkan pengguna",
+    "app.userList.menu.lockUser.label": "Kunci {0}",
+    "app.userList.userOptions.muteAllLabel": "Diamkan semua Pengguna",
     "app.media.label": "Media",
     "app.media.screenshare.start": "Berbagi layar sudah mulai",
     "app.media.screenshare.end": "Berbagi layar sudah berakhir",
