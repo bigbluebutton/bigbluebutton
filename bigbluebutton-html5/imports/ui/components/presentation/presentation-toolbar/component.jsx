@@ -8,7 +8,7 @@ import { HUNDRED_PERCENT, MAX_PERCENT, STEP } from '/imports/utils/slideCalcUtil
 import { styles } from './styles.scss';
 import ZoomTool from './zoom-tool/component';
 import FullscreenButton from '../../video-provider/fullscreen-button/component';
-import DownloadPresentationButton from '/imports/ui/components/presentation/download-presentation-button/component';
+import Tooltip from '/imports/ui/components/tooltip/component';
 
 
 const intlMessages = defineMessages({
@@ -24,9 +24,17 @@ const intlMessages = defineMessages({
     id: 'app.presentation.presentationToolbar.goToSlide',
     description: 'button for slide select',
   },
+  selectLabel: {
+    id: 'app.presentation.presentationToolbar.selectLabel',
+    description: 'slide select label',
+  },
   fitToWidth: {
     id: 'app.presentation.presentationToolbar.fitToWidth',
     description: 'button for fit to width',
+  },
+  fitToPage: {
+    id: 'app.presentation.presentationToolbar.fitToPage',
+    description: 'button label for fit to width',
   },
   presentationLabel: {
     id: 'app.presentationUploder.title',
@@ -188,6 +196,7 @@ class PresentationToolbar extends Component {
       currentSlideNum,
       numberOfSlides,
       fitToWidthHandler,
+      fitToWidth,
       actions,
       intl,
       zoom,
@@ -198,14 +207,15 @@ class PresentationToolbar extends Component {
     const BROWSER_RESULTS = browser();
     const isMobileBrowser = BROWSER_RESULTS.mobile
       || BROWSER_RESULTS.os.includes('Android');
-    
+
     const tooltipDistance = 35;
-    
+
     return (
       <div id="presentationToolbarWrapper" className={styles.presentationToolbarWrapper}>
         {PresentationToolbar.renderAriaLabelsDescs()}
+        {<div />}
         {
-          <span className={styles.presentationSlideControls}>
+          <div className={styles.presentationSlideControls}>
             <Button
               role="button"
               aria-labelledby="prevSlideLabel"
@@ -220,22 +230,29 @@ class PresentationToolbar extends Component {
               className={styles.prevSlide}
               tooltipDistance={tooltipDistance}
             />
-            <select
-              /*
-              <select> has an implicit role of listbox, no need to define
-              role="listbox" explicitly
-              */
-              id="skipSlide"
-              aria-labelledby="skipSlideLabel"
-              aria-describedby="skipSlideDesc"
-              aria-live="polite"
-              aria-relevant="all"
-              value={currentSlideNum}
-              onChange={this.handleSkipToSlideChange}
-              className={styles.skipSlideSelect}
+
+            <Tooltip
+              tooltipDistance={tooltipDistance}
+              title={intl.formatMessage(intlMessages.selectLabel)}
             >
-              {this.renderSkipSlideOpts(numberOfSlides)}
-            </select>
+              <select
+                role="button"
+                /*
+                <select> has an implicit role of listbox, no need to define
+                role="listbox" explicitly
+                */
+                id="skipSlide"
+                aria-labelledby="skipSlideLabel"
+                aria-describedby="skipSlideDesc"
+                aria-live="polite"
+                aria-relevant="all"
+                value={currentSlideNum}
+                onChange={this.handleSkipToSlideChange}
+                className={styles.skipSlideSelect}
+              >
+                {this.renderSkipSlideOpts(numberOfSlides)}
+              </select>
+            </Tooltip>
             <Button
               role="button"
               aria-labelledby="nextSlideLabel"
@@ -250,10 +267,10 @@ class PresentationToolbar extends Component {
               className={styles.skipSlide}
               tooltipDistance={tooltipDistance}
             />
-          </span>
+          </div>
         }
         {
-          <span className={styles.presentationZoomControls}>
+          <div className={styles.presentationZoomControls}>
             {
               !isMobileBrowser
                 ? (
@@ -277,7 +294,10 @@ class PresentationToolbar extends Component {
               size="md"
               circle={false}
               onClick={fitToWidthHandler}
-              label={intl.formatMessage(intlMessages.fitToWidth)}
+              label={fitToWidth
+                ? intl.formatMessage(intlMessages.fitToPage)
+                : intl.formatMessage(intlMessages.fitToWidth)
+              }
               hideLabel
               className={styles.skipSlide}
               tooltipDistance={tooltipDistance}
@@ -293,21 +313,8 @@ class PresentationToolbar extends Component {
                 />
               )
             }
-          </span>
+          </div>
         }
-        {/* Fit to screen button
-        <Button
-          role="button"
-          aria-labelledby="fitScreenLabel"
-          aria-describedby="fitScreenDesc"
-          color={'default'}
-          icon={'fit_to_screen'}
-          size={'md'}
-          circle={false}
-          onClick={this.fitToScreenClickHandler}
-          label={'Fit to Screen'}
-          hideLabel={true}
-        /> */}
       </div>
     );
   }
@@ -327,6 +334,12 @@ PresentationToolbar.propTypes = {
   intl: PropTypes.shape({
     formatMessage: PropTypes.func.isRequired,
   }).isRequired,
+  zoomChanger: PropTypes.func.isRequired,
+  fitToWidthHandler: PropTypes.func.isRequired,
+  fitToWidth: PropTypes.bool.isRequired,
+  fullscreenRef: PropTypes.func.isRequired,
+  isFullscreen: PropTypes.bool.isRequired,
+  zoom: PropTypes.number.isRequired,
 };
 
 export default injectWbResizeEvent(injectIntl(PresentationToolbar));

@@ -94,15 +94,15 @@ const propTypes = {
   intl: intlShape.isRequired,
   handleToggleFullscreen: PropTypes.func.isRequired,
   mountModal: PropTypes.func.isRequired,
-  isFullScreen: PropTypes.bool,
-  isAndroid: PropTypes.bool,
+  isFullscreen: PropTypes.bool,
+  noIOSFullscreen: PropTypes.bool,
   amIModerator: PropTypes.bool,
   shortcuts: PropTypes.string,
 };
 
 const defaultProps = {
-  isFullScreen: false,
-  isAndroid: false,
+  isFullscreen: false,
+  noIOSFullscreen: true,
   amIModerator: false,
   shortcuts: '',
 };
@@ -134,8 +134,8 @@ class SettingsDropdown extends PureComponent {
   getFullscreenItem() {
     const {
       intl,
-      isFullScreen,
-      isAndroid,
+      isFullscreen,
+      noIOSFullscreen,
       handleToggleFullscreen,
     } = this.props;
 
@@ -143,13 +143,14 @@ class SettingsDropdown extends PureComponent {
     let fullscreenDesc = intl.formatMessage(intlMessages.fullscreenDesc);
     let fullscreenIcon = 'fullscreen';
 
-    if (isFullScreen) {
+    if (isFullscreen) {
       fullscreenLabel = intl.formatMessage(intlMessages.exitFullscreenLabel);
       fullscreenDesc = intl.formatMessage(intlMessages.exitFullscreenDesc);
       fullscreenIcon = 'exit_fullscreen';
     }
 
-    if (!isAndroid) return null;
+    if (noIOSFullscreen) return null;
+
     return (
       <DropdownListItem
         key="list-item-fullscreen"

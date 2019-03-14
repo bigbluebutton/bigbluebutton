@@ -11,8 +11,7 @@
 
 %recordingControl {
   display: flex;
-  border-radius: 5%;
-  padding: 2px !important;
+  border-radius: 2em 2em;
 
   span {
     border: none;
@@ -21,24 +20,41 @@
     color: var(--color-white) !important;
   }
 
-  &:hover,
-  &:focus {
+  &:hover {
     color: var(--color-white) !important;
     cursor: pointer;
+  }
+
+  &:focus {
+    outline: none;
+    box-shadow: 0 0 0 var(--border-size) var(--color-primary);
   }
 }
 
 .recordingControlON {
   @extend %recordingControl;
 
+  padding: 5px;
   background-color: var(--color-primary);
-  border: 1px solid var(--color-primary);
+  border: var(--border-size-large) solid var(--color-primary);
+
+  &:focus {
+    background-clip: padding-box;
+    border: var(--border-size-large) solid transparent;
+  }
 }
 
 .recordingControlOFF {
   @extend %recordingControl;
 
+  padding: 7px;
   border: 1px solid var(--color-white);
+  
+  &:focus {
+    padding: 5px;
+    border: var(--border-size-large) solid var(--color-white);
+    box-shadow: none;
+  }
 }
 
 .presentationTitle {
@@ -57,6 +73,10 @@
 
   > [class^="icon-bbb-"] {
     font-size: 75%;
+  }
+
+  span {
+    vertical-align: middle;
   }
 }
 

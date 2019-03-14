@@ -38,7 +38,25 @@ const defaultProps = {
   meetingExist: false,
 };
 
+const fullscreenChangedEvents = [
+  'fullscreenchange',
+  'webkitfullscreenchange',
+  'mozfullscreenchange',
+  'MSFullscreenChange',
+];
+
 class Base extends Component {
+  static handleFullscreenChange() {
+    if (document.fullscreenElement
+      || document.webkitFullscreenElement
+      || document.mozFullScreenElement
+      || document.msFullscreenElement) {
+      Session.set('isFullscreen', true);
+    } else {
+      Session.set('isFullscreen', false);
+    }
+  }
+
   constructor(props) {
     super(props);
 
@@ -50,6 +68,13 @@ class Base extends Component {
     this.updateLoadingState = this.updateLoadingState.bind(this);
   }
 
+  componentDidMount() {
+    fullscreenChangedEvents.forEach((event) => {
+      document.addEventListener(event, Base.handleFullscreenChange);
+    });
+    Session.set('isFullscreen', false);
+  }
+
   componentDidUpdate(prevProps, prevState) {
     const {
       ejected,
@@ -59,7 +84,10 @@ class Base extends Component {
       meteorIsConnected,
       subscriptionsReady,
     } = this.props;
-    const { loading, meetingExisted } = this.state;
+    const {
+      loading,
+      meetingExisted,
+    } = this.state;
 
     if (!prevProps.subscriptionsReady && subscriptionsReady) {
       logger.info({ logCode: 'startup_client_subscriptions_ready' }, 'Subscriptions are ready');
@@ -94,6 +122,12 @@ class Base extends Component {
     } else if (!animations && animations !== prevProps.animations) {
       document.documentElement.style.setProperty('--enableAnimation', 0);
     }
+  }
+
+  componentWillUnmount() {
+    fullscreenChangedEvents.forEach((event) => {
+      document.removeEventListener(event, Base.handleFullscreenChange);
+    });
   }
 
   setMeetingExisted(meetingExisted) {
