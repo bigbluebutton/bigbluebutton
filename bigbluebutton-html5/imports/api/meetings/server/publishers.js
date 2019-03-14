@@ -21,7 +21,7 @@ function meetings(credentials, isModerator = false) {
 
   if (isModerator) {
     const User = Users.findOne({ userId: requesterUserId });
-    if (User.moderator) {
+    if (!!User && User.moderator) {
       selector.$or.push({
         'meetingProp.isBreakout': true,
         'breakoutProps.parentId': meetingId,

@@ -162,7 +162,10 @@ class NavBar extends PureComponent {
 
     breakouts.forEach((breakout) => {
       const userOnMeeting = breakout.users.filter(u => u.userId === Auth.userID).length;
-      if (breakout.freeJoin && !didSendBreakoutInvite && !userOnMeeting) {
+      if (breakout.freeJoin
+        && !didSendBreakoutInvite
+        && !userOnMeeting
+        && !isBreakoutRoom) {
         this.inviteUserToBreakout(breakout);
         this.setState({ didSendBreakoutInvite: true });
       }
