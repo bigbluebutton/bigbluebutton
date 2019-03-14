@@ -109,12 +109,15 @@ class Poll extends Component {
   componentDidUpdate() {
     const { currentUser } = this.props;
 
+    if (Session.get('hidePollResults')) {
+      this.handleBackClick();
+    }
+
     if (!currentUser.presenter) {
       Session.set('openPanel', 'userlist');
       Session.set('forcePollOpen', false);
     }
   }
-
 
   handleInputChange(index, event) {
     // This regex will replace any instance of 2 or more consecutive white spaces
@@ -126,6 +129,7 @@ class Poll extends Component {
 
   handleBackClick() {
     const { stopPoll } = this.props;
+    Session.set('hidePollResults', false);
 
     stopPoll();
     this.inputEditor = [];
@@ -267,7 +271,7 @@ class Poll extends Component {
     );
   }
 
-  renderNoSlidePanel = () => {
+  renderNoSlidePanel() {
     const { mountModal, intl } = this.props;
     return (
       <div className={styles.noSlidePanelContainer}>
@@ -282,7 +286,7 @@ class Poll extends Component {
     );
   }
 
-  renderPollPanel = () => {
+  renderPollPanel() {
     const { isPolling } = this.state;
     const {
       currentPoll,

@@ -112,6 +112,7 @@ class LiveResult extends Component {
           ? (
             <Button
               onClick={() => {
+                Session.set('hasPollPublished', true);
                 publishPoll();
                 stopPoll();
               }}
