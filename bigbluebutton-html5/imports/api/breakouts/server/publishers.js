@@ -12,7 +12,7 @@ function breakouts(credentials, moderator = false) {
 
   if (moderator) {
     const User = Users.findOne({ userId: requesterUserId });
-    if (User.moderator) {
+    if (!!User && User.moderator) {
       const presenterSelector = {
         $or: [
           { parentMeetingId: meetingId },
