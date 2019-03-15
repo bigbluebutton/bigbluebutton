@@ -775,8 +775,8 @@ check_configuration() {
         fi
     fi
 
-    PROTOCOL=$(cat /etc/bigbluebutton/nginx/sip.nginx | grep -v \# | sed -n '/proxy_pass/{s/.*proxy_pass [ ]*//;s/:.*//;p}' | head -n 1)
-    if [[ $PROTOCOL == "https" ]]; then
+    SIP_PROTOCOL=$(cat /etc/bigbluebutton/nginx/sip.nginx | grep -v \# | sed -n '/proxy_pass/{s/.*proxy_pass [ ]*//;s/:.*//;p}' | head -n 1)
+    if [[ $SIP_PROTOCOL == "https" ]]; then
         if ! grep wss-binding $FREESWITCH_EXTERNAL > /dev/null; then
             echo "# Warning: Websockets is using HTTPS in /etc/bigbluebutton/nginx/sip.nginx"
             echo "# but no definition for wss-binding found in "
@@ -1391,6 +1391,32 @@ check_state() {
         echo "#"
     fi
 
+    if [ "$PROTOCOL" == "https" ]; then
+      if ! cat $SIP_CONFIG |  grep -v '#' | grep proxy_pass | head -n 1 | grep https; then
+        echo "# Warning: You have this server defined for https, but in"
+        echo "#"
+        echo "#   $SIP_CONFIG"
+        echo "#"
+        echo "#  did not find the use of https in definition for proxy_pass"
+        echo "#"
+        echo "#    $(cat $SIP_CONFIG |  grep -v '#' | grep proxy_pass | head -n 1)"
+        echo "#"
+      fi
+
+      if ! cat $SIP_CONFIG |  grep -v '#' | grep proxy_pass | head -n 1 | grep 7443; then
+        echo
+        echo "# Warning: You have this server defined for https, but in"
+        echo "#"
+        echo "#   $SIP_CONFIG"
+        echo "#"
+        echo "#  did not find the use of port 7443 in definition for proxy_pass"
+        echo "#"
+        echo "#    $(cat $SIP_CONFIG |  grep -v '#' | grep proxy_pass | head -n 1)"
+        echo "#"
+      fi
+    fi
+
+
     exit 0
 }
 
@@ -1423,7 +1449,7 @@ if [ $CHECK ]; then
         echo "(32-bit)"
     fi
 
-    echo "                          Memory    : $MEM MB"
+    echo "                             Memory : $MEM MB"
     echo "                          CPU cores : $NCPU"
 
     echo
@@ -1447,7 +1473,7 @@ if [ $CHECK ]; then
     echo
     echo "/var/www/bigbluebutton/client/conf/config.xml (bbb-client)"
     PORT_IP=$(cat /var/www/bigbluebutton/client/conf/config.xml | sed -n '/porttest /{s/.*host="//;s/".*//;p}')
-    echo "            Port test (tunnel): $PORT_IP"
+    echo "                Port test (tunnel): $PORT_IP"
 
     RED5_IP=$(cat /var/www/bigbluebutton/client/conf/config.xml | sed -n '/uri.*video/{s/.*rtmp[s]*:\/\///;s/\/.*//;p}')
     WEBRTC_ENABLED_CLIENT=$(xmlstarlet sel -t -m "config/modules/module[@name='PhoneModule']" -v @useWebRTCIfAvailable /var/www/bigbluebutton/client/conf/config.xml)
@@ -1800,7 +1826,9 @@ if [ -n "$HOST" ]; then
     if [ -f $HTML5_CONFIG ]; then
         WS=$(cat $SERVLET_DIR/WEB-INF/classes/bigbluebutton.properties | grep -v '#' | sed -n '/^bigbluebutton.web.serverURL/{s/.*=//;p}' | sed 's/https/wss/g' | sed s'/http/ws/g')
 
-        change_yml_value $HTML5_CONFIG wsUrl "$WS/bbb-webrtc-sfu"
+        yq w -i $HTML5_CONFIG public.kurento.wsUrll "$WS/bbb-webrtc-sfu"
+        yq w -i $HTML5_CONFIG public.note.url       "$PROTOCOL://$HOST/pad"
+        chown meteor:meteor $HTML5_CONFIG
 
         if [ -f $KURENTO_CONFIG ]; then
             yq w -i $KURENTO_CONFIG kurento[0].url "ws://$HOST:8888/kurento"
