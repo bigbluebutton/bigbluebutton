@@ -1826,7 +1826,9 @@ if [ -n "$HOST" ]; then
     if [ -f $HTML5_CONFIG ]; then
         WS=$(cat $SERVLET_DIR/WEB-INF/classes/bigbluebutton.properties | grep -v '#' | sed -n '/^bigbluebutton.web.serverURL/{s/.*=//;p}' | sed 's/https/wss/g' | sed s'/http/ws/g')
 
-        change_yml_value $HTML5_CONFIG wsUrl "$WS/bbb-webrtc-sfu"
+        yq w -i $HTML5_CONFIG public.kurento.wsUrll "$WS/bbb-webrtc-sfu"
+        yq w -i $HTML5_CONFIG public.note.url       "$PROTOCOL://$HOST/pad"
+        chown meteor:meteor $HTML5_CONFIG
 
         if [ -f $KURENTO_CONFIG ]; then
             yq w -i $KURENTO_CONFIG kurento[0].url "ws://$HOST:8888/kurento"
