@@ -1,7 +1,6 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { FormattedTime } from 'react-intl';
-import cx from 'classnames';
 import _ from 'lodash';
 
 import UserAvatar from '/imports/ui/components/user-avatar/component';
@@ -110,21 +109,20 @@ export default class MessageListItem extends Component {
     } = this.props;
 
     return (
-      <div className={cx(styles.item, styles.systemMessage)}>
-        <div className={styles.content} ref={(ref) => { this.item = ref; }}>
-          <div className={styles.messages}>
-            {messages.map(message => (
+      <div className={styles.messages}>
+        {messages.map(message => (
+          message.text !== ''
+            ? (
               <Message
-                className={styles.message}
+                className={(message.id ? styles.systemMessage : null)}
                 key={_.uniqueId('id-')}
                 text={message.text}
                 time={message.time}
                 chatAreaId={chatAreaId}
                 handleReadMessage={handleReadMessage}
               />
-            ))}
-          </div>
-        </div>
+            ) : null
+        ))}
       </div>
     );
   }

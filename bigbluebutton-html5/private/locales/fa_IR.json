@@ -68,6 +68,8 @@
     "app.presentationUploder.conversion.conversionProcessingSlides": "در حال پردازش صفحه {0} از {1}",
     "app.presentationUploder.conversion.pageCountExceeded": "تعداد صفحات از حد اکثر صفحات مورد پشتیبانی بیشتر است.",
     "app.poll.closeLabel": "بستن",
+    "app.poll.y": "بله",
+    "app.poll.n": "خیر",
     "app.poll.liveResult.usersTitle": "دانش آموزان",
     "app.polling.pollAnswerLabel": "پاسخ نظرسنجی {0}",
     "app.polling.pollAnswerDesc": "این گزینه را برای رای دادن به {0} انتخاب کنید.",

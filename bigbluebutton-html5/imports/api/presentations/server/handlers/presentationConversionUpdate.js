@@ -82,7 +82,7 @@ export default function handlePresentationConversionUpdate({ body }, meetingId) 
       return Logger.info(`Updated presentation conversion status=${status} id=${presentationId} meeting=${meetingId}`);
     }
 
-    return Logger.info(`Upserted presentation conversion status=${status} id=${presentationId} meeting=${meetingId}`);
+    return Logger.debug(`Upserted presentation conversion status=${status} id=${presentationId} meeting=${meetingId}`);
   };
 
   return Presentations.upsert(selector, modifier, cb);

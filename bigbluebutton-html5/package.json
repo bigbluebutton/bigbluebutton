@@ -46,7 +46,7 @@
     "re-resizable": "^4.11.0",
     "react": "^16.8.1",
     "react-autosize-textarea": "^5.0.1",
-    "react-color": "~2.14.1",
+    "react-color": "^2.17.0",
     "react-dom": "^16.8.1",
     "react-dropzone": "^7.0.1",
     "react-intl": "~2.7.2",

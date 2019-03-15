@@ -127,8 +127,8 @@
 }
 
 .iconRight {
-  margin-right: calc(var(--indicator-padding-left) * -1);
-  margin-left: var(--sm-padding-x);
+  margin-right: 0;
+  margin-left: 1rem;
   font-size: 12px;
   line-height: 16px;
 }

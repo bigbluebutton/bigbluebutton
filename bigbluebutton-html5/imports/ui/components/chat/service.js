@@ -20,6 +20,8 @@ const PRIVATE_CHAT_TYPE = CHAT_CONFIG.type_private;
 const PUBLIC_CHAT_USER_ID = CHAT_CONFIG.system_userid;
 const PUBLIC_CHAT_CLEAR = CHAT_CONFIG.system_messages_keys.chat_clear;
 
+const ROLE_MODERATOR = Meteor.settings.public.user.role_moderator;
+
 const ScrollCollection = new Mongo.Collection(null);
 
 const UnsentMessagesCollection = new Mongo.Collection(null);
@@ -135,11 +137,14 @@ const isChatLocked = (receiverID) => {
   const user = Users.findOne({ userId: Auth.userID });
 
   if (meeting.lockSettingsProp !== undefined) {
-    const isPubChatLocked = meeting.lockSettingsProp.disablePubChat;
-    const isPrivChatLocked = meeting.lockSettingsProp.disablePrivChat;
-
-    return mapUser(user).isLocked
-      && ((isPublic && isPubChatLocked) || (!isPublic && isPrivChatLocked));
+    if (mapUser(user).isLocked) {
+      if (isPublic) {
+        return meeting.lockSettingsProp.disablePubChat;
+      }
+      const receivingUser = Users.findOne({ userId: receiverID });
+      const receiverIsMod = receivingUser && receivingUser.role === ROLE_MODERATOR;
+      return !receiverIsMod && meeting.lockSettingsProp.disablePrivChat;
+    }
   }
 
   return false;
@@ -241,7 +246,9 @@ const removeFromClosedChatsSession = () => {
 const htmlDecode = (input) => {
   const e = document.createElement('div');
   e.innerHTML = input;
-  return e.childNodes[0].nodeValue;
+  const messages = Array.from(e.childNodes);
+  const message = messages.map(chatMessage => chatMessage.textContent);
+  return message.join('');
 };
 
 // Export the chat as [Hour:Min] user: message

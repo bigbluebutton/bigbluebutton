@@ -15,6 +15,10 @@ const intlMessages = defineMessages({
     id: 'app.note.title',
     description: 'Title for the shared notes',
   },
+  tipLabel: {
+    id: 'app.note.tipLabel',
+    description: 'Label for tip on how to escape iframe',
+  },
 });
 
 const propTypes = {
@@ -57,7 +61,11 @@ const Note = (props) => {
       <iframe
         title="etherpad"
         src={url}
+        aria-describedby="sharedNotesEscapeHint"
       />
+      <span id="sharedNotesEscapeHint" className={styles.hint} aria-hidden>
+        {intl.formatMessage(intlMessages.tipLabel)}
+      </span>
     </div>
   );
 };

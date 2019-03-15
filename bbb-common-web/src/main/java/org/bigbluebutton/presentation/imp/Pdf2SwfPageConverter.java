@@ -24,6 +24,7 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.io.FilenameUtils;
@@ -121,7 +122,7 @@ public class Pdf2SwfPageConverter implements PageConverter {
       log.warn(" --analytics-- data={}", logStr);
 
       File tempPng = null;
-      String basePresentationame = FilenameUtils.getBaseName(presentation.getName());
+      String basePresentationame = UUID.randomUUID().toString();
       try {
         tempPng = File.createTempFile(basePresentationame + "-" + page, ".png");
       } catch (IOException ioException) {

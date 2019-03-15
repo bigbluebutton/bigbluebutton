@@ -26,6 +26,10 @@ const intlMessages = defineMessages({
     id: 'app.externalVideo.input',
     description: 'Video URL',
   },
+  urlInput: {
+    id: 'app.externalVideo.urlInput',
+    description: 'URL input field placeholder',
+  },
   title: {
     id: 'app.externalVideo.title',
     description: 'Modal title',
@@ -124,6 +128,7 @@ class ExternalVideoModal extends Component {
                 onChange={this.updateVideoUrlHandler}
                 name="video-modal-input"
                 value={url}
+                placeholder={intl.formatMessage(intlMessages.urlInput)}
               />
             </label>
           </div>

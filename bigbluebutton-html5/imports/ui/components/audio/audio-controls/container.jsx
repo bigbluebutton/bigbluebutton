@@ -3,10 +3,6 @@ import { withTracker } from 'meteor/react-meteor-data';
 import { withModalMounter } from '/imports/ui/components/modal/service';
 import AudioManager from '/imports/ui/services/audio-manager';
 import { makeCall } from '/imports/ui/services/api';
-import Users from '/imports/api/users/';
-import Meetings from '/imports/api/meetings';
-import mapUser from '/imports/ui/services/user/mapUser';
-import Auth from '/imports/ui/services/auth';
 import AudioControls from './component';
 import AudioModalContainer from '../audio-modal/container';
 import Service from '../service';
@@ -37,11 +33,12 @@ const processToggleMuteFromOutside = (e) => {
 
 export default withModalMounter(withTracker(({ mountModal }) => ({
   processToggleMuteFromOutside: arg => processToggleMuteFromOutside(arg),
-  mute: Service.isConnected() && !Service.isListenOnly() && !Service.isEchoTest(),
+  mute: Service.isConnected() && !Service.isListenOnly() && !Service.isEchoTest() && !Service.audioLocked(),
   unmute: Service.isConnected() && !Service.isListenOnly() && Service.isMuted(),
   join: Service.isConnected() && !Service.isEchoTest(),
   disable: Service.isConnecting() || Service.isHangingUp(),
   glow: Service.isTalking() && !Service.isMuted(),
+  currentUser: Service.currentUser(),
   handleToggleMuteMicrophone: () => Service.toggleMuteMicrophone(),
   handleJoinAudio: () => {
     return Service.isConnected() ? Service.joinListenOnly() : mountModal(<AudioModalContainer />);

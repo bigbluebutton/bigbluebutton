@@ -61,6 +61,22 @@
   }
 }
 
+.hint {
+  visibility: hidden;
+  position: absolute;
+
+  @media (pointer: none) {
+    visibility: visible;
+    position: relative;
+    color: var(--color-gray);
+    font-size: var(--font-size-small);
+    font-style: italic;
+    padding-top: var(--sm-padding-x);
+    padding-left: var(--lg-padding-y);
+    text-align: left;
+  }
+}
+
 iframe {
   display: flex;
   flex-flow: column;
@@ -70,4 +86,5 @@ iframe {
   overflow-x: hidden;
   overflow-y: auto;
   border-style: none;
+  border-bottom: 1px solid var(--color-gray-lightest);
 }

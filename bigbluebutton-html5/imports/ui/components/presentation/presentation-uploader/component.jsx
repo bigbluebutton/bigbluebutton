@@ -23,7 +23,7 @@ const propTypes = {
   fileSizeMax: PropTypes.number.isRequired,
   handleSave: PropTypes.func.isRequired,
   dispatchTogglePresentationDownloadable: PropTypes.func.isRequired,
-  fileValidMimeTypes: PropTypes.arrayOf(PropTypes.string).isRequired,
+  fileValidMimeTypes: PropTypes.arrayOf(PropTypes.object).isRequired,
   presentations: PropTypes.arrayOf(PropTypes.shape({
     id: PropTypes.string.isRequired,
     filename: PropTypes.string.isRequired,
@@ -268,8 +268,9 @@ class PresentationUploader extends Component {
 
   handleFiledrop(files, files2) {
     const { fileValidMimeTypes, intl } = this.props;
+    const mimeTypes = fileValidMimeTypes.map(fileValid => fileValid.mime);
     const [accepted, rejected] = _.partition(files
-      .concat(files2), f => fileValidMimeTypes.includes(f.type));
+      .concat(files2), f => mimeTypes.includes(f.type));
 
     const presentationsToUpload = accepted.map((file) => {
       const id = _.uniqueId(file.name);
@@ -605,7 +606,7 @@ class PresentationUploader extends Component {
         className={styles.dropzone}
         activeClassName={styles.dropzoneActive}
         rejectClassName={styles.dropzoneReject}
-        accept={isMobileBrowser ? '' : fileValidMimeTypes.join()}
+        accept={isMobileBrowser ? '' : fileValidMimeTypes.map(fileValid => fileValid.extension)}
         minSize={fileSizeMin}
         maxSize={fileSizeMax}
         disablepreview="true"

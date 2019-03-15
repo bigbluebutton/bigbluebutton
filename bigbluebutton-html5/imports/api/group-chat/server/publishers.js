@@ -14,7 +14,7 @@ function groupChat(credentials) {
   const CHAT_CONFIG = Meteor.settings.public.chat;
   const PUBLIC_CHAT_TYPE = CHAT_CONFIG.type_public;
 
-  Logger.info(`Publishing group-chat for ${meetingId} ${requesterUserId} ${requesterToken}`);
+  Logger.debug(`Publishing group-chat for ${meetingId} ${requesterUserId} ${requesterToken}`);
 
   return GroupChat.find({
     $or: [
