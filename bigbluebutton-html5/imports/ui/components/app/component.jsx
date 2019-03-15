@@ -12,6 +12,7 @@ import ModalContainer from '../modal/container';
 import NotificationsBarContainer from '../notifications-bar/container';
 import AudioContainer from '../audio/container';
 import ChatAlertContainer from '../chat/alert/container';
+import BannerBarContainer from '/imports/ui/components/banner-bar/container';
 import { styles } from './styles';
 
 const MOBILE_MEDIA = 'only screen and (max-width: 40em)';
@@ -199,6 +200,7 @@ class App extends Component {
 
     return (
       <main className={styles.main}>
+        <BannerBarContainer />
         <NotificationsBarContainer />
         <section className={styles.wrapper}>
           <div className={openPanel ? styles.content : styles.noPanelContent}>
