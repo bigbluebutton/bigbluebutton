@@ -152,6 +152,7 @@ class Base extends Component {
     const {
       subscriptionsReady,
       meetingExist,
+      meetingEnded,
     } = this.props;
 
     if (ejected && ejected.ejectedReason) {
@@ -160,7 +161,7 @@ class Base extends Component {
       return (<MeetingEnded code={ejectedReason} />);
     }
 
-    if ((meetingExisted && !meetingExist)) {
+    if ((meetingExisted && !meetingExist) || meetingEnded) {
       AudioManager.exitAudio();
       return (<MeetingEnded code={Session.get('codeError')} />);
     }

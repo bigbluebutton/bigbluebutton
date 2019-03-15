@@ -13,6 +13,10 @@ export default withModalMounter(withTracker(({ mountModal }) => ({
 
   endMeeting: () => {
     makeCall('endMeeting');
+
+    Session.set('codeError', '410');
+    Session.set('isMeetingEnded', true);
+
     mountModal(null);
   },
 

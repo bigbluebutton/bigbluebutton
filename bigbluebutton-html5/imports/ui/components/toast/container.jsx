@@ -29,14 +29,41 @@ const intlMessages = defineMessages({
   },
 });
 
+let mounted = false;
+
 class ToastContainer extends React.Component {
+
+  componentDidMount() {
+    mounted = true;
+  }
+
   // we never want this component to update since will break Toastify
   shouldComponentUpdate() {
     return false;
   }
 
+  componentWillUnmount() {
+    mounted = false;
+    console.warn('mounted', mounted);
+    console.warn('codeError', Session.get('codeError'));
+    console.warn('isMeetingEnded', Session.get('isMeetingEnded'));
+  }
+
   render() {
-    return <Toastify {...this.props} />;
+    console.warn('mounted', mounted);
+    
+    const { meeting } = this.props;
+    console.warn('codeError', Session.get('codeError'));
+    console.warn('isMeetingEnded', Session.get('isMeetingEnded'));
+
+    const meetingId = Auth.meetingID;
+    const user = Auth.userID;
+
+    console.warn('meetingId', meetingId);
+    console.warn('user', user);
+
+    return mounted === false && <Toastify {...this.props} />;
+    // return null;
   }
 }
 
@@ -80,5 +107,6 @@ export default injectIntl(injectNotify(withTracker(({ notify, intl }) => {
     hideProgressBar: false,
     closeOnClick: true,
     pauseOnHover: true,
+    meeting: Meetings.find({ meetingId }),
   };
 })(ToastContainer)));
