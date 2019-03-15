@@ -89,10 +89,10 @@ notCalled() {
 #!/bin/bash
 
 # Pull in the helper functions for configuring BigBlueButton
-source apply-lib.sh
+source /etc/bigbluebutton/bbb-conf/apply-lib.sh
 
 # Put your custom configuration here
-enableHTML5ClientLog
+# enableHTML5ClientLog
 
 HERE
 chmod +x /etc/bigbluebutton/bbb-conf/apply-config.sh
