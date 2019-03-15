@@ -45,6 +45,7 @@ format = notes_props['format']
 recording_dir = props['recording_dir']
 raw_archive_dir = "#{recording_dir}/raw/#{meeting_id}"
 log_dir = props['log_dir']
+note_file = "#{raw_archive_dir}/notes/notes.#{format}"
 
 target_dir = "#{recording_dir}/process/notes/#{meeting_id}"
 if not FileTest.directory?(target_dir)
@@ -53,6 +54,15 @@ if not FileTest.directory?(target_dir)
   BigBlueButton.logger = logger
   BigBlueButton.logger.info("Processing script notes.rb")
   FileUtils.mkdir_p target_dir
+
+  # Early exit if there isn't notes for this meeting
+  if not File.exists? note_file
+    BigBlueButton.logger.info("There wasn't any note for #{meeting_id}")
+    process_done = File.new("#{recording_dir}/status/processed/#{meeting_id}-notes.done", "w")
+    process_done.write("Processed #{meeting_id}")
+    process_done.close
+    exit 0
+  end
 
   begin
     # Create initial metadata.xml
@@ -72,7 +82,7 @@ if not FileTest.directory?(target_dir)
     metadata_xml.close
     BigBlueButton.logger.info("Created inital metadata.xml")
 
-    FileUtils.cp("#{raw_archive_dir}/notes/notes.#{format}", "#{target_dir}/notes.#{format}")
+    FileUtils.cp(note_file, "#{target_dir}/notes.#{format}")
 
     # Get the real-time start and end timestamp
     @doc = Nokogiri::XML(File.open("#{raw_archive_dir}/events.xml"))

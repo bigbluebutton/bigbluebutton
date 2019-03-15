@@ -63,66 +63,70 @@ begin
     playback_protocol = bbb_props['playback_protocol']
     playback_host = bbb_props['playback_host']
     target_dir = "#{recording_dir}/publish/notes/#{meeting_id}"
+    note_file = "#{process_dir}/notes.#{format}"
 
     if not FileTest.directory?(target_dir)
       BigBlueButton.logger.info("Making dir target_dir")
       FileUtils.mkdir_p target_dir
 
-      BigBlueButton.logger.info("copying: #{process_dir}/notes.#{format} to -> #{target_dir}")
-      FileUtils.cp("#{process_dir}/notes.#{format}", target_dir)
+      if File.exist? note_file
+        BigBlueButton.logger.info("Copying: #{note_file} to -> #{target_dir}")
+        FileUtils.cp(note_file, target_dir)
 
-      @doc = Nokogiri::XML(File.open("#{raw_archive_dir}/events.xml"))
-      recording_time = BigBlueButton::Events.get_recording_length(@doc)
+        @doc = Nokogiri::XML(File.open("#{raw_archive_dir}/events.xml"))
+        recording_time = BigBlueButton::Events.get_recording_length(@doc)
 
-      BigBlueButton.logger.info("Creating metadata.xml")
+        BigBlueButton.logger.info("Creating metadata.xml")
 
-      #### INSTEAD OF CREATING THE WHOLE metadata.xml FILE AGAIN, ONLY ADD <playback>
-      # Copy metadata.xml from process_dir
-      FileUtils.cp("#{process_dir}/metadata.xml", target_dir)
-      BigBlueButton.logger.info("Copied metadata.xml file")
+        #### INSTEAD OF CREATING THE WHOLE metadata.xml FILE AGAIN, ONLY ADD <playback>
+        # Copy metadata.xml from process_dir
+        FileUtils.cp("#{process_dir}/metadata.xml", target_dir)
+        BigBlueButton.logger.info("Copied metadata.xml file")
 
-      # Update state and add playback to metadata.xml
-      ## Load metadata.xml
-      metadata = Nokogiri::XML(File.open("#{target_dir}/metadata.xml"))
-      ## Update state
-      recording = metadata.root
-      state = recording.at_xpath("state")
-      state.content = "published"
-      published = recording.at_xpath("published")
-      published.content = "true"
-      ## Remove empty playback
-      metadata.search('//recording/playback').each do |playback|
-        playback.remove
+        # Update state and add playback to metadata.xml
+        ## Load metadata.xml
+        metadata = Nokogiri::XML(File.open("#{target_dir}/metadata.xml"))
+        ## Update state
+        recording = metadata.root
+        state = recording.at_xpath("state")
+        state.content = "published"
+        published = recording.at_xpath("published")
+        published.content = "true"
+        ## Remove empty playback
+        metadata.search('//recording/playback').each do |playback|
+          playback.remove
+        end
+        ## Add the actual playback
+        metadata_with_playback = Nokogiri::XML::Builder.with(metadata.at('recording')) do |xml|
+          xml.playback {
+            xml.format("notes")
+            xml.link("#{playback_protocol}://#{playback_host}/notes/#{meeting_id}/notes.#{format}")
+            xml.duration("#{recording_time}")
+          }
+        end
+        ## Write the new metadata.xml
+        metadata_file = File.new("#{target_dir}/metadata.xml","w")
+        metadata = Nokogiri::XML(metadata.to_xml) { |x| x.noblanks }
+        metadata_file.write(metadata.root)
+        metadata_file.close
+        BigBlueButton.logger.info("Added playback to metadata.xml")
+
+        # Now publish this recording files by copying them into the publish folder.
+        if not FileTest.directory?(publish_dir)
+          FileUtils.mkdir_p publish_dir
+        end
+
+        # Get raw size of recording files
+        raw_dir = "#{recording_dir}/raw/#{meeting_id}"
+        # After all the processing we'll add the published format and raw sizes to the metadata file
+        BigBlueButton.add_raw_size_to_metadata(target_dir, raw_dir)
+        BigBlueButton.add_playback_size_to_metadata(target_dir)
+
+        FileUtils.cp_r(target_dir, publish_dir) # Copy all the files.
+        BigBlueButton.logger.info("Finished publishing script notes.rb successfully.")
+      else
+        BigBlueButton.logger.info("There wasn't any note for #{meeting_id}")
       end
-      ## Add the actual playback
-      metadata_with_playback = Nokogiri::XML::Builder.with(metadata.at('recording')) do |xml|
-        xml.playback {
-          xml.format("notes")
-          xml.link("#{playback_protocol}://#{playback_host}/notes/#{meeting_id}/notes.#{format}")
-          xml.duration("#{recording_time}")
-        }
-      end
-      ## Write the new metadata.xml
-      metadata_file = File.new("#{target_dir}/metadata.xml","w")
-      metadata = Nokogiri::XML(metadata.to_xml) { |x| x.noblanks }
-      metadata_file.write(metadata.root)
-      metadata_file.close
-      BigBlueButton.logger.info("Added playback to metadata.xml")
-
-
-      # Now publish this recording files by copying them into the publish folder.
-      if not FileTest.directory?(publish_dir)
-        FileUtils.mkdir_p publish_dir
-      end
-
-      # Get raw size of recording files
-      raw_dir = "#{recording_dir}/raw/#{meeting_id}"
-      # After all the processing we'll add the published format and raw sizes to the metadata file
-      BigBlueButton.add_raw_size_to_metadata(target_dir, raw_dir)
-      BigBlueButton.add_playback_size_to_metadata(target_dir)
-
-      FileUtils.cp_r(target_dir, publish_dir) # Copy all the files.
-      BigBlueButton.logger.info("Finished publishing script notes.rb successfully.")
 
       BigBlueButton.logger.info("Removing processed files.")
       FileUtils.rm_r(process_dir)
