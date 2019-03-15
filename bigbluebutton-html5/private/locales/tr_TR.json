@@ -67,6 +67,8 @@
     "app.presentationUploder.conversion.conversionProcessingSlides": "Sayfalar işleniyor: {0} / {1}",
     "app.presentationUploder.conversion.pageCountExceeded": "Hops, sayfa sayısı limiti aştı",
     "app.poll.closeLabel": "Kapat",
+    "app.poll.y": "Evet",
+    "app.poll.n": "Hayır",
     "app.poll.liveResult.usersTitle": "Kullanıcılar",
     "app.polling.pollAnswerLabel": "{0} Oylamasını cevapla",
     "app.polling.pollAnswerDesc": "{0} Oylaması için bu seçeneği seç",

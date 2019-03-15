@@ -169,6 +169,9 @@
    			}	
 			
 			private function kickUser():void{
+				if (!data.me && !UsersUtil.amIModerator())
+					return;
+				
 				if (data.role == Role.VOICE_ONLY ) {
 					var e:VoiceConfEvent = new VoiceConfEvent(VoiceConfEvent.EJECT_USER);
 					e.userid = data.userId;
@@ -185,13 +188,19 @@
 			}
 
 			private function toggleMuteState():void {
+				if (!data.me && !UsersUtil.amIModerator())
+					return;
+				
 				var e:VoiceConfEvent = new VoiceConfEvent(VoiceConfEvent.MUTE_USER);
 				e.userid = data.userId;
-				e.mute = !data.muted;
+				e.mute = data.me ? !data.muted : true;
 				dispatchEvent(e);
 			}
 			
 			public function toggleLockState():void {
+				if (!data.me && !UsersUtil.amIModerator())
+					return;
+				
 				var e:LockControlEvent;
 				
 				if(data.locked) {

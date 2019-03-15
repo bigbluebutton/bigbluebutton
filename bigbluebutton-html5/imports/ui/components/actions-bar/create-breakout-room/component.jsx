@@ -142,7 +142,7 @@ class BreakoutRoom extends Component {
       numberOfRooms: MIN_BREAKOUT_ROOMS,
       seletedId: '',
       users: [],
-      durationTime: 1,
+      durationTime: 15,
       freeJoin: false,
       formFillLevel: 1,
       roomSelected: 0,

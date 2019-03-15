@@ -4,6 +4,7 @@ import { styles } from './styles';
 import UserParticipantsContainer from './user-participants/container';
 import UserMessages from './user-messages/component';
 import UserNotes from './user-notes/component';
+import WaitingUsers from './waiting-users/component';
 import UserPolls from './user-polls/component';
 import BreakoutRoomItem from './breakout-room/component';
 
@@ -70,6 +71,7 @@ class UserContent extends PureComponent {
       getUsersId,
       hasPrivateChatBetweenUsers,
       toggleUserLock,
+      pendingUsers,
     } = this.props;
 
     return (
@@ -92,6 +94,16 @@ class UserContent extends PureComponent {
             intl,
           }}
         />
+        {pendingUsers.length > 0 && currentUser.isModerator
+          ? (
+            <WaitingUsers
+              {...{
+                intl,
+                pendingUsers,
+              }}
+            />
+          ) : null
+        }
         <UserPolls
           isPresenter={currentUser.isPresenter}
           {...{

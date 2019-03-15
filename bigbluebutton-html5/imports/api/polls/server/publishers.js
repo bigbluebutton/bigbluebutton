@@ -10,7 +10,7 @@ Meteor.publish('current-poll', (meetingId) => {
     meetingId,
   };
 
-  Logger.info(`Publishing poll for meeting=${meetingId}`);
+  Logger.debug(`Publishing poll for meeting=${meetingId}`);
 
   return Polls.find(selector);
 });
@@ -23,7 +23,7 @@ function polls(credentials) {
   check(requesterUserId, String);
   check(requesterToken, String);
 
-  Logger.info(`Publishing polls =${meetingId} ${requesterUserId} ${requesterToken}`);
+  Logger.debug(`Publishing polls =${meetingId} ${requesterUserId} ${requesterToken}`);
 
   const selector = {
     meetingId,
@@ -39,4 +39,3 @@ function publish(...args) {
 }
 
 Meteor.publish('polls', publish);
-

@@ -162,7 +162,6 @@
   border: none;
   cursor: pointer;
   opacity: .5;
-  transition: calc(var(--enableAnimation) * .3s) ease;
   font-size: .35rem;
   color: var(--color-gray-dark);
   padding: .4rem;
@@ -172,6 +171,11 @@
   right: var(--md-padding-y);
   font-size: 70%;
   top: var(--lg-padding-y);
+
+  [style~="--enableAnimation:1;"] & {
+    transition: .3s ease;
+  }
+
   &:before {
     margin-left: -.2rem;
   }
