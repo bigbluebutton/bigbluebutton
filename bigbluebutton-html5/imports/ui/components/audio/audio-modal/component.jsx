@@ -233,7 +233,13 @@ class AudioModal extends Component {
       hasError: false,
     });
 
-    joinMicrophone().catch(this.handleGoToAudioOptions);
+    joinMicrophone().catch((err) => {
+      if (err.type === 'MEDIA_ERROR') {
+        this.setState({
+          content: 'help',
+        });
+      }
+    });
   }
 
   skipAudioOptions() {
