@@ -8,12 +8,13 @@ import PanelManager from '/imports/ui/components/panel-manager/component';
 import PollingContainer from '/imports/ui/components/polling/container';
 import logger from '/imports/startup/client/logger';
 import ActivityCheckContainer from '/imports/ui/components/activity-check/container';
+import { notify } from '/imports/ui/services/notification';
+import WaitingNotifierContainer from '/imports/ui/components/waiting-users/alert/container';
 import ToastContainer from '../toast/container';
 import ModalContainer from '../modal/container';
 import NotificationsBarContainer from '../notifications-bar/container';
 import AudioContainer from '../audio/container';
 import ChatAlertContainer from '../chat/alert/container';
-import WaitingNotifierContainer from '/imports/ui/components/waiting-users/alert/container';
 import { styles } from './styles';
 
 const MOBILE_MEDIA = 'only screen and (max-width: 40em)';
@@ -37,6 +38,10 @@ const intlMessages = defineMessages({
   actionsBarLabel: {
     id: 'app.actionsBar.label',
     description: 'Aria-label for ActionsBar Section',
+  },
+  webcamMobileOnly: {
+    id: 'app.webcams.mobileOnly',
+    description: 'message showed only to mobile viewers',
   },
 });
 
@@ -208,8 +213,18 @@ class App extends Component {
 
   render() {
     const {
-      customStyle, customStyleUrl, openPanel,
+      customStyle,
+      customStyleUrl,
+      openPanel,
+      isMobile,
+      showedWebcamMobileWarning,
+      intl,
     } = this.props;
+
+    if (isMobile && !showedWebcamMobileWarning) {
+      Session.set('showedWebcamMobileWarning', true);
+      notify(intl.formatMessage(intlMessages.webcamMobileOnly), 'info', 'video');
+    }
 
     return (
       <main className={styles.main}>

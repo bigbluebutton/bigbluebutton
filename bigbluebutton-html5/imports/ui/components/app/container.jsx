@@ -2,6 +2,7 @@ import React from 'react';
 import { withTracker } from 'meteor/react-meteor-data';
 import { defineMessages, injectIntl } from 'react-intl';
 import PropTypes from 'prop-types';
+import browser from 'browser-detect';
 import Auth from '/imports/ui/services/auth';
 import Users from '/imports/api/users';
 import mapUser from '/imports/ui/services/user/mapUser';
@@ -69,8 +70,6 @@ const AppContainer = (props) => {
 
 export default injectIntl(withModalMounter(withTracker(({ intl, baseControls }) => {
   const currentUser = Users.findOne({ userId: Auth.userID });
-  const currentUserIsLocked = mapUser(currentUser).isLocked;
-  const meeting = Meetings.findOne({ meetingId: Auth.meetingID });
   const isMeetingBreakout = meetingIsBreakout();
 
   if (!currentUser.approved) {
@@ -116,6 +115,8 @@ export default injectIntl(withModalMounter(withTracker(({ intl, baseControls }) 
     chatIsOpen: Session.equals('openPanel', 'chat'),
     openPanel: Session.get('openPanel'),
     userListIsOpen: !Session.equals('openPanel', ''),
+    isMobile: browser().mobile,
+    showedWebcamMobileWarning: Session.get('showedWebcamMobileWarning') || false,
   };
 })(AppContainer)));
 

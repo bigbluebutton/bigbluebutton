@@ -559,5 +559,6 @@
     "app.externalVideo.urlError": "This URL isn't a valid YouTube video",
     "app.externalVideo.close": "Close",
     "app.actionsBar.actionsDropdown.shareExternalVideo": "Share YouTube video",
-    "app.actionsBar.actionsDropdown.stopShareExternalVideo": "Stop sharing YouTube video"
+    "app.actionsBar.actionsDropdown.stopShareExternalVideo": "Stop sharing YouTube video",
+    "app.webcams.mobileOnly": "To optimize performance we only show your webcam (if any) and the presenter's"
 }
