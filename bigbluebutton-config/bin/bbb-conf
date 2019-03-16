@@ -1392,7 +1392,7 @@ check_state() {
     fi
 
     if [ "$PROTOCOL" == "https" ]; then
-      if ! cat $SIP_CONFIG |  grep -v '#' | grep proxy_pass | head -n 1 | grep https; then
+      if ! cat $SIP_CONFIG |  grep -v '#' | grep proxy_pass | head -n 1 | grep -q https; then
         echo "# Warning: You have this server defined for https, but in"
         echo "#"
         echo "#   $SIP_CONFIG"
@@ -1403,7 +1403,7 @@ check_state() {
         echo "#"
       fi
 
-      if ! cat $SIP_CONFIG |  grep -v '#' | grep proxy_pass | head -n 1 | grep 7443; then
+      if ! cat $SIP_CONFIG |  grep -v '#' | grep proxy_pass | head -n 1 | grep -q 7443; then
         echo
         echo "# Warning: You have this server defined for https, but in"
         echo "#"
@@ -1449,8 +1449,8 @@ if [ $CHECK ]; then
         echo "(32-bit)"
     fi
 
-    echo "                             Memory : $MEM MB"
-    echo "                          CPU cores : $NCPU"
+    echo "                            Memory: $MEM MB"
+    echo "                         CPU cores: $NCPU"
 
     echo
     echo "$BBB_WEB_CONFIG (bbb-web)"
@@ -1826,8 +1826,8 @@ if [ -n "$HOST" ]; then
     if [ -f $HTML5_CONFIG ]; then
         WS=$(cat $SERVLET_DIR/WEB-INF/classes/bigbluebutton.properties | grep -v '#' | sed -n '/^bigbluebutton.web.serverURL/{s/.*=//;p}' | sed 's/https/wss/g' | sed s'/http/ws/g')
 
-        yq w -i $HTML5_CONFIG public.kurento.wsUrll "$WS/bbb-webrtc-sfu"
-        yq w -i $HTML5_CONFIG public.note.url       "$PROTOCOL://$HOST/pad"
+        yq w -i $HTML5_CONFIG public.kurento.wsUrl "$WS/bbb-webrtc-sfu"
+        yq w -i $HTML5_CONFIG public.note.url      "$PROTOCOL://$HOST/pad"
         chown meteor:meteor $HTML5_CONFIG
 
         if [ -f $KURENTO_CONFIG ]; then
