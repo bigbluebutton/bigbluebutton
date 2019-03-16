@@ -26,12 +26,22 @@ trait HandlerHelpers extends SystemConfiguration {
     outGW.send(event)
   }
 
+  def trackUserJoin(outGW: OutMsgRouter,
+                    liveMeeting: LiveMeeting,
+                    regUser: RegisteredUser): Unit = {
+    if (!regUser.joined) {
+      RegisteredUsers.updateUserJoin(liveMeeting.registeredUsers, regUser)
+    }
+  }
+
   def userJoinMeeting(outGW: OutMsgRouter, authToken: String, clientType: String,
                       liveMeeting: LiveMeeting, state: MeetingState2x): MeetingState2x = {
 
     val nu = for {
       regUser <- RegisteredUsers.findWithToken(authToken, liveMeeting.registeredUsers)
     } yield {
+      trackUserJoin(outGW, liveMeeting, regUser)
+
       UserState(
         intId = regUser.id,
         extId = regUser.externId,
