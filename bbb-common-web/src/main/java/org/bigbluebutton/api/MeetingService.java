@@ -482,7 +482,7 @@ public class MeetingService implements MessageListener {
       params.put(ApiParams.FREE_JOIN, message.freeJoin.toString());
       params.put(ApiParams.ATTENDEE_PW, message.viewerPassword);
       params.put(ApiParams.MODERATOR_PW, message.moderatorPassword);
-      params.put(ApiParams.DIAL_NUMBER, message.dilaNumber);
+      params.put(ApiParams.DIAL_NUMBER, message.dialNumber);
       params.put(ApiParams.VOICE_BRIDGE, message.voiceConfId);
       params.put(ApiParams.DURATION, message.durationInMinutes.toString());
       params.put(ApiParams.RECORD, message.record.toString());

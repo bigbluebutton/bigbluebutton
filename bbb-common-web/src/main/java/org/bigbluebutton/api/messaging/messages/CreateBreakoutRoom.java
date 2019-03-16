@@ -8,7 +8,7 @@ public class CreateBreakoutRoom implements IMessage {
     public final Integer sequence; // The sequence number of the breakout room
     public final Boolean freeJoin; // Allow users to freely join the conference
                                    // in the client
-    public final String dilaNumber;
+    public final String dialNumber;
     public final String voiceConfId; // The voice conference id
     public final String viewerPassword;
     public final String moderatorPassword;
@@ -18,14 +18,14 @@ public class CreateBreakoutRoom implements IMessage {
     public final Boolean record;
 
     public CreateBreakoutRoom(String meetingId, String parentMeetingId, String name, Integer sequence, Boolean freeJoin,
-            String dilaNumber, String voiceConfId, String viewerPassword, String moderatorPassword, Integer duration,
+            String dialNumber, String voiceConfId, String viewerPassword, String moderatorPassword, Integer duration,
             String sourcePresentationId, Integer sourcePresentationSlide, Boolean record) {
         this.meetingId = meetingId;
         this.parentMeetingId = parentMeetingId;
         this.name = name;
         this.sequence = sequence;
         this.freeJoin = freeJoin;
-        this.dilaNumber = dilaNumber;
+        this.dialNumber = dialNumber;
         this.voiceConfId = voiceConfId;
         this.viewerPassword = viewerPassword;
         this.moderatorPassword = moderatorPassword;
