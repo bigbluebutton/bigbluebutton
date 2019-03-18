@@ -18,11 +18,6 @@ Meteor.startup(() => {
   // Add CDN
   WebAppInternals.setBundledJsCssPrefix(CDN_URL);
 
-  // Trust the URL in our browser policy (if it's available).
-  try {
-    return BrowserPolicy.content.allowOriginForAll(CDN_URL);
-  } catch (undefined) {}
-
   Logger.warn(`SERVER STARTED.\nENV=${env},\nnodejs version=${process.version}\nCDN=${CDN_URL}\n`, APP_CONFIG);
 });
 
