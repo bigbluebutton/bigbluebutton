@@ -1,92 +1,97 @@
 @import "/imports/ui/stylesheets/variables/_all";
 
 .visuallyhidden {
-  position: absolute; 
-  overflow: hidden; 
-  clip: rect(0 0 0 0); 
-  height: 1px; width: 1px; 
-  margin: -1px; padding: 0; border: 0; 
+  position: absolute;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  height: 1px;
+  width: 1px;
+  margin: -1px;
+  padding: 0;
+  border: 0;
 }
 
-.presentationToolbarWrapper,
-.presentationControls,
+.presentationSlideControls {
+  justify-content: center;
+  padding-left: .5rem;
+  padding-right: .5rem;
+}
+
+.presentationZoomControls {
+  justify-content: flex-end;
+  padding-right: .5rem;
+}
+
+.presentationSlideControls,
+.presentationZoomControls,
 .zoomWrapper {
-  order: 2;
   display: flex;
   flex-direction: row;
   align-items: center;
-  margin-left: .5rem;
-  margin-right: .5rem;
-  border-radius: var(--toolbar-button-border-radius);
+  border-radius: 0;
 }
 
-.presentationControls,
+.presentationSlideControls,
+.presentationZoomControls,
 .zoomWrapper {
-  box-shadow: 0 0 10px -2px rgba(0, 0, 0, .25);
-
-  span:first-of-type button,
-  button:first-of-type {
-    border-top-left-radius: 5px;
-    border-bottom-left-radius: 5px;
-    border-top-right-radius: 0;
-    border-bottom-right-radius: 0;
-  }
-
-  span:last-of-type button,
-  button:last-of-type {
-    border-top-left-radius: 0;
-    border-bottom-left-radius: 0;
-    border-top-right-radius: 5px;
-    border-bottom-right-radius: 5px;
-  }
-
-  span:last-of-type button[aria-labelledby~=fitWidthLabel],
-  button:last-of-type[aria-labelledby~=fitWidthLabel] {
-    border-top-left-radius: 5px;
-    border-bottom-left-radius: 5px;
-    border-top-right-radius: 5px;
-    border-bottom-right-radius: 5px;
+  button {
+    padding: .5rem;
   }
 }
 
 .presentationToolbarWrapper {
-  position: absolute;
-  bottom: .8rem;
+  position: relative;
   align-self: center;
-  justify-content: center;
   z-index: 1;
+  background-color: var(--color-off-white);
+  border-top: 1px solid var(--color-blue-lightest);
+  min-width: fit-content;
+  width: 100%;
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
 
-  @include mq("#{$landscape} and (max-height:#{upper-bound($small-range)}), #{$small-only}") {
-    transform: scale(.75);
-    transform-origin: bottom;
+  select {
+    margin-right: .5rem;
+    padding: .5rem .5rem .5rem .3rem;
+
+    outline-color: transparent;
+    outline-style: none;
+    outline: none;
+
+    option {
+      color: var(--toolbar-button-color);
+      background-color: var(--color-off-white);
+    }
   }
-
 
   button,
   select,
-  > div {
+  >div {
     color: var(--toolbar-button-color);
-    background-color: var(--toolbar-button-bg);
+    background-color: var(--color-off-white);
     border-top: 0;
     border-bottom: 0;
     border-left: 0;
     border-radius: 0;
-    height: 2.25rem;
     box-shadow: none !important;
-    border: 0;    
+    border: 0;
+
+    &:focus {
+      background-color: var(--color-off-white);
+      border: 0;
+    }
   }
 
   i {
     color: var(--toolbar-button-color);
+    display: flex;
+    justify-content: center;
+    align-items: center;
   }
 }
 
 .zoomWrapper {
-  // border-radius: 0 5px 5px 0;
   justify-content: space-between;
-  // flex-direction: column;
-  width: 11.5%;
-  min-width: 175px;
   background-color: var(--toolbar-button-bg);
 }
 
@@ -98,20 +103,23 @@
 .prevSlide {
   border: none !important;
 
-  &[aria-disabled="true"] {
-    opacity: 1;
-    background-color: var(--toolbar-list-bg);
+  i {
+    font-size: 1rem;
+  }
+}
+
+.presentationZoomControls {
+
+  .skipSlide,
+  .prevSlide {
+    i {
+      font-size: 1.2rem;
+    }
   }
 }
 
 .skipSlideSelect {
   padding: 0 var(--sm-padding-y);
-}
-
-.skipSlideSelect,
-.zoomPercentageDisplay {
-  border-left: var(--toolbar-button-border) solid var(--toolbar-button-border-color) !important;
-  border-right: var(--toolbar-button-border) solid var(--toolbar-button-border-color) !important;
 }
 
 .zoomSlider {
@@ -123,19 +131,15 @@
 }
 
 .zoomPercentageDisplay {
-  width: 100%;
-  height: 2.25rem;
   text-align: center;
   color: black;
   display: flex;
   align-items: center;
   justify-content: center;
-  border-top: 0 !important;
-  border-bottom: 0 !important;
-  border-top-right-radius: 0 !important;
-  border-bottom-right-radius: 0 !important;
+  border: 0 !important;
+  font-weight: 200;
 
-  &:hover{
+  &:hover {
     opacity: .8;
   }
 }

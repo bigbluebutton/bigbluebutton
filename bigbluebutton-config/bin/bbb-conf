@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/bash 
 #
 # BlueButton open source conferencing system - http://www.bigbluebutton.org/   
 #
@@ -87,12 +87,26 @@ source /etc/bigbluebutton/bigbluebutton-release
 # Figure out our environment (Debian vs. CentOS)
 #
 
-RED5_DIR=/usr/share/red5
+if [ -f /etc/redhat-release ]; then
+  DISTRIB_ID=centos
+  SERVLET_LOGS=/usr/share/tomcat/logs
+  FREESWITCH=freeswitch
+  TOMCAT_SERVICE=tomcat
+  REDIS_SERVICE=redis.service
+else
+  . /etc/lsb-release    # Get value for DISTRIB_ID
+  SERVLET_LOGS=$TOMCAT_DIR/logs
+  FREESWITCH=freeswitch
+  TOMCAT_SERVICE=tomcat7
+  REDIS_SERVICE=redis-server
+fi
+
+
 RED5=red5
+RED5_DIR=/usr/share/$RED5
 
-SERVLET_CONTAINER=tomcat7
 
-TOMCAT_DIR=/var/lib/$SERVLET_CONTAINER
+TOMCAT_DIR=/var/lib/$TOMCAT_SERVICE
 LTI_DIR=$TOMCAT_DIR/webapps/lti
 
 if [ -f /usr/share/bbb-web/WEB-INF/classes/bigbluebutton.properties ]; then
@@ -114,6 +128,7 @@ FREESWITCH_VARS=/opt/freeswitch/conf/vars.xml
 FREESWITCH_EXTERNAL=/opt/freeswitch/conf/sip_profiles/external.xml
 FREESWITCH_PID=/opt/freeswitch/run/freeswitch.pid
 FREESWITCH_EVENT_SOCKET=/opt/freeswitch/conf/autoload_configs/event_socket.conf.xml
+FREESWITCH_INIT_D="/etc/init.d/freeswitch"
 
 RECORD_CONFIG=/usr/local/bigbluebutton/core/scripts/bigbluebutton.yml
 
@@ -123,8 +138,11 @@ HTML5_CONFIG=/usr/share/meteor/bundle/programs/server/assets/app/config/settings
 KURENTO_CONFIG=/usr/local/bigbluebutton/bbb-webrtc-sfu/config/default.yml
 
 BBB_WEB_CONFIG=$SERVLET_DIR/WEB-INF/classes/bigbluebutton.properties
-
+NGINX_IP=$(cat /etc/nginx/sites-available/bigbluebutton | grep -v '#' | sed -n '/server_name/{s/.*server_name[ ]*//;s/;//;p}' | cut -d' ' -f1 | head -n 1)
 SIP_CONFIG=/etc/bigbluebutton/nginx/sip.nginx
+SIP_NGINX_IP=$(cat $SIP_CONFIG |  grep -v '#' | sed -n '/proxy_pass/{s/.*proxy_pass http[s]*:\/\///;s/:.*//;p}' | head -n 1)
+
+NCPU=`nproc --all`
 
 BBB_USER=bigbluebutton
 
@@ -346,7 +364,7 @@ stop_bigbluebutton () {
 	/etc/init.d/monit stop
 
 	/etc/init.d/$RED5 stop
-	/etc/init.d/${SERVLET_CONTAINER} stop
+	/etc/init.d/${TOMCAT_SERVICE} stop
 	/etc/init.d/nginx stop
         
 	if [ -a $FREESWITCH_PID ]; then
@@ -394,12 +412,14 @@ start_bigbluebutton () {
                 /etc/bigbluebutton/bbb-conf/apply-config.sh
                 echo
         fi
-
-        if grep -q "Failure to connect to CORE_DB sofia_reg_external" /opt/freeswitch/var/log/freeswitch/freeswitch.log; then
+	
+	if [ -f /opt/freeswitch/var/log/freeswitch/freeswitch.log ]; then
+            if grep -q "Failure to connect to CORE_DB sofia_reg_external" /opt/freeswitch/var/log/freeswitch/freeswitch.log; then
 		# See: http://docs.bigbluebutton.org/install/install.html#freeswitch-fails-to-bind-to-ipv4
                 echo "Clearing the FreeSWITCH database."
 		rm -rf /opt/freeswitch/var/lib/freeswitch/db/*
-	fi
+	    fi
+        fi
 
 	# Clear any previous registration errors
 	if [ -f /usr/share/red5/log/sip.log ]; then
@@ -448,7 +468,7 @@ start_bigbluebutton () {
 
 	/etc/init.d/nginx start
 	/etc/init.d/$RED5 start
-	/etc/init.d/${SERVLET_CONTAINER} start
+	/etc/init.d/${TOMCAT_SERVICE} start
 
 	# monit will start libreoffice and bbb-rap-worker
 	/etc/init.d/monit start
@@ -496,7 +516,6 @@ start_bigbluebutton () {
 	#
 	echo -n "Waiting for BigBlueButton to finish starting up (this may take a minute): "
 
-	NGINX_IP=$(cat /etc/nginx/sites-available/bigbluebutton | grep -v '#' | sed -n '/server_name/{s/.*server_name[ ]*//;s/;//;p}' | cut -d' ' -f1)
 	check_no_value server_name /etc/nginx/sites-available/bigbluebutton $NGINX_IP
 
         #if ! wget http://$BBB_WEB/bigbluebutton/api -O - --quiet | grep -q SUCCESS; then
@@ -574,7 +593,7 @@ display_bigbluebutton_status () {
     else
         /etc/init.d/nginx status
         /etc/init.d/$RED5 status
-        /etc/init.d/${SERVLET_CONTAINER} status
+        /etc/init.d/${TOMCAT_SERVICE} status
     fi
 }
 
@@ -871,7 +890,6 @@ check_configuration() {
 	#
 	# Check if the IP resolves to a different host
 	#
- 	NGINX_IP=$(cat /etc/nginx/sites-available/bigbluebutton | grep -v '#' | sed -n '/server_name/{s/.*server_name[ ]*//;s/;//;p}' | cut -d' ' -f1)
  	check_no_value server_name /etc/nginx/sites-available/bigbluebutton $NGINX_IP
  
 	if which host > /dev/null 2>&1; then	
@@ -915,7 +933,6 @@ check_configuration() {
 	fi
 
 	BBB_SECRET=$(cat ${SERVLET_DIR}/WEB-INF/classes/bigbluebutton.properties | grep -v '#' | tr -d '\r' | sed -n '/securitySalt/{s/.*=//;p}')
-	NGINX_IP=$(cat /etc/nginx/sites-available/bigbluebutton | grep -v '#' | sed -n '/server_name/{s/.*server_name[ ]*//;s/;//;p}' | cut -d' ' -f1)
 
         if [ -f /usr/lib/systemd/system/bbb-webhooks.service ]; then
                 if [ -f /usr/local/bigbluebutton/bbb-webhooks/config_local.js ]; then
@@ -958,7 +975,7 @@ check_configuration() {
 		fi
 	fi
 
-        PROTOCOL=$(cat /etc/bigbluebutton/nginx/sip.nginx |  sed -n '/proxy_pass/{s/.*proxy_pass [ ]*//;s/:.*//;p}')
+        PROTOCOL=$(cat /etc/bigbluebutton/nginx/sip.nginx | grep -v \# | sed -n '/proxy_pass/{s/.*proxy_pass [ ]*//;s/:.*//;p}' | head -n 1)
         if [[ $PROTOCOL == "https" ]]; then
                 if ! grep wss-binding $FREESWITCH_EXTERNAL > /dev/null; then
 			echo "# Warning: Websockets is using HTTPS in /etc/bigbluebutton/nginx/sip.nginx"
@@ -1027,6 +1044,34 @@ check_configuration() {
                 echo "#"
             fi
         fi
+
+	GUEST_POLICY=$(cat $BBB_WEB_CONFIG | grep -v '#' | sed -n '/^defaultGuestPolicy/{s/.*=//;p}')
+	if [ "$GUEST_POLICY" == "ASK_MODERATOR" ]; then
+		echo
+		echo "# Warning: defaultGuestPolicy is set to ASK_MODERATOR in"
+		echo "#    $BBB_WEB_CONFIG"
+		echo "# This is not yet supported yet the HTML5 client."
+		echo "#"
+		echo "# To revert it to ALWAYS_ALLOW, see"
+		echo "#"
+		echo "#   $SUDO sed -i s/^defaultGuestPolicy=.*$/defaultGuestPolicy=ALWAYS_ALLOW/g $SERVLET_DIR/WEB-INF/classes/bigbluebutton.properties"
+		echo "#"
+		echo
+	fi
+	if [ -f $HTML5_CONFIG ]; then
+		SVG_IMAGES_REQUIRED=$(cat $BBB_WEB_CONFIG | grep -v '#' | sed -n '/^svgImagesRequired/{s/.*=//;p}')
+	    if [ "$SVG_IMAGES_REQUIRED" != "true" ]; then 
+		echo
+		echo "# Warning: You have the HTML5 client installed but in"
+		echo "#"
+		echo "#    $BBB_WEB_CONFIG"
+		echo "#"
+		echo "# the setting for svgImagesRequired is false. To fix, run the commnad"
+		echo "#"
+		echo "# sed -i 's/^svgImagesRequired=.*/svgImagesRequired=true/' $BBB_WEB_CONFIG "
+		echo "#"
+	    fi
+	fi
 }
 
 
@@ -1067,14 +1112,14 @@ check_state() {
 
 	if ! netstat -ant | grep '8090' > /dev/null; then
 		print_header
-		NOT_RUNNING_APPS="${NOT_RUNNING_APPS} ${SERVLET_CONTAINER} or grails"
+		NOT_RUNNING_APPS="${NOT_RUNNING_APPS} ${TOMCAT_SERVICE} or grails"
 	else 
 		if ps aux |  ps -aef | grep -v grep | grep grails | grep run-app > /dev/null; then
 			print_header
 			RUNNING_APPS="${RUNNING_APPS} Grails"
-        		echo "#   ${SERVLET_CONTAINER}: 	noticed you are running grails run-app instead of ${SERVLET_CONTAINER}"
+        		echo "#   ${TOMCAT_SERVICE}: 	noticed you are running grails run-app instead of ${TOMCAT_SERVICE}"
 		else
-			RUNNING_APPS="${RUNNING_APPS} ${SERVLET_CONTAINER}"
+			RUNNING_APPS="${RUNNING_APPS} ${TOMCAT_SERVICE}"
 		fi
 	fi
 
@@ -1315,11 +1360,11 @@ check_state() {
  	check_no_value server_name /etc/nginx/sites-available/bigbluebutton $BBB_WEB
 
         COUNT=0
-        while [ $COUNT -lt 45 ]; do
+        while [ $COUNT -lt 80 ]; do
           let COUNT=COUNT+1
 	  timeout 1s wget $PROTOCOL://$BBB_WEB/bigbluebutton/api -O - --quiet | grep -q SUCCESS
 	  if [ $? -eq 0 ]; then
-            let COUNT=45
+            let COUNT=80
           else
             echo -n "."
             sleep 1
@@ -1374,7 +1419,6 @@ check_state() {
 		fi
 	fi
 
-        SIP_NGINX_IP=$(cat /etc/bigbluebutton/nginx/sip.nginx |  grep -v '#' | sed -n '/proxy_pass/{s/.*proxy_pass http[s]*:\/\///;s/:.*//;p}')
         if [ "$SIP_NGINX_IP" != $IP ]; then
            if [ "$SIP_NGINX_IP" != "\$freeswitch_addr" ]; then
                 echo "# Warning: The setting of $SIP_NGINX_IP for proxy_pass in"
@@ -1430,7 +1474,11 @@ check_state() {
                 BBB_WEB_URL=$(cat $SERVLET_DIR/WEB-INF/classes/bigbluebutton.properties | grep -v '#' | sed -n '/^bigbluebutton.web.serverURL/{s/.*=//;p}')
 		echo "# Warning: The API demos are installed and accessible from:"
 		echo "#"
-		echo "#    $BBB_WEB_URL/demo/demo1.jsp"
+                echo "#    $BBB_WEB_URL"
+                echo "#"
+                echo "# and"
+                echo "#"
+                echo "#    $BBB_WEB_URL/demo/demo1.jsp"
 		echo "#"
 		echo "# These API demos allow anyone to access your server without authentication"
 		echo "# to create/manage meetings and recordings. They are for testing purposes only."
@@ -1580,15 +1628,16 @@ if [ $CHECK ]; then
 	fi
 
 	echo "                            Memory: $MEM MB"
+        echo "                         CPU cores: $NCPU"
 
 	echo
 	echo "$BBB_WEB_CONFIG (bbb-web)"
 	echo "       bigbluebutton.web.serverURL: $(cat $BBB_WEB_CONFIG | grep -v '#' | sed -n '/^bigbluebutton.web.serverURL/{s/.*=//;p}')"
 	echo "                defaultGuestPolicy: $(cat $BBB_WEB_CONFIG | grep -v '#' | sed -n '/^defaultGuestPolicy/{s/.*=//;p}')"
+	echo "                 svgImagesRequired: $(cat $BBB_WEB_CONFIG | grep -v '#' | sed -n '/^svgImagesRequired/{s/.*=//;p}')"
 
 	echo
 	echo "/etc/nginx/sites-available/bigbluebutton (nginx)"
-	NGINX_IP=$(cat /etc/nginx/sites-available/bigbluebutton | grep -v '#' | sed -n '/server_name/{s/.*server_name[ ]*//;s/;//;p}' | cut -d' ' -f1)
 	echo "                       server name: $NGINX_IP"
 
         PORT=$(cat /etc/nginx/sites-available/bigbluebutton | grep -v '#' | sed -n '/listen/{s/.*listen[ ]*//;s/;//;p}' | grep -v ssl | tr --delete '\n' | sed 's/\[/, \[/g' | sed 's/0$/0\n/g')
@@ -1654,7 +1703,7 @@ if [ $CHECK ]; then
         if [ -f $SIP_CONFIG ]; then
                 echo
                 echo "$SIP_CONFIG (sip.nginx)"
-                echo "                        proxy_pass: $(cat $SIP_CONFIG | grep proxy_pass | sed 's/.*proxy_pass //g' | sed 's/;//'g )"
+                echo "                        proxy_pass: $SIP_NGINX_IP"
         fi
 
         if [ -f $KURENTO_CONFIG ]; then

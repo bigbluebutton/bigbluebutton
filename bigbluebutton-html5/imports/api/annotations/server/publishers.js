@@ -10,7 +10,7 @@ function annotations(credentials) {
   check(requesterUserId, String);
   check(requesterToken, String);
 
-  Logger.info(`Publishing Annotations for ${meetingId} ${requesterUserId} ${requesterToken}`);
+  Logger.debug(`Publishing Annotations for ${meetingId} ${requesterUserId} ${requesterToken}`);
 
   return Annotations.find({ meetingId });
 }

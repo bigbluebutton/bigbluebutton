@@ -11,7 +11,7 @@ function meetings(credentials, isModerator = false) {
   check(requesterUserId, String);
   check(requesterToken, String);
 
-  Logger.info(`Publishing meeting =${meetingId} ${requesterUserId} ${requesterToken}`);
+  Logger.debug(`Publishing meeting =${meetingId} ${requesterUserId} ${requesterToken}`);
 
   const selector = {
     $or: [

@@ -256,7 +256,6 @@ class Settings extends Component {
         confirm={{
           callback: () => {
             this.updateSettings(current);
-            // router.push(location.pathname); // TODO 4767
             /* We need to use mountModal(null) here to prevent submenu state updates,
             *  from re-opening the modal.
             */

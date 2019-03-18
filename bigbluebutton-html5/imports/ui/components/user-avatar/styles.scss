@@ -23,6 +23,7 @@
   text-align: center;
   text-transform: capitalize;
   font-size: .85rem;
+
   [style~="--enableAnimation:1;"] & {
     transition: .3s ease-in-out;
   }
@@ -51,6 +52,7 @@
     vertical-align: middle;
     letter-spacing: -.65rem;
     z-index: 1;
+
     [style~="--enableAnimation:1;"] & {
         transition: .3s ease-in-out;
     }
