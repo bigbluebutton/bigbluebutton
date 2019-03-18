@@ -11,7 +11,7 @@ export default function handleUserJoined({ body }, meetingId) {
     connectionStatus: 'online',
     guest: false,
     meetingId,
-  }).count() > 0;
+  }).count();
 
   if (!hasUsers) {
     requestGuestUsers(meetingId, user.intId);
