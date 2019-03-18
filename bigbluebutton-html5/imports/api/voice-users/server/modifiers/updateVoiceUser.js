@@ -33,7 +33,7 @@ export default function updateVoiceUser(meetingId, voiceUser) {
       return Logger.error(`Update voiceUser=${intId}: ${err}`);
     }
 
-    return true;
+    return Logger.debug(`Update voiceUser=${intId} meeting=${meetingId}`);
   };
 
   return VoiceUsers.update(selector, modifier, cb);
