@@ -31,20 +31,32 @@ const futch = (url, opts = {}, onProgress) => new Promise((res, rej) => {
   xhr.send(opts.body);
 });
 
-const getPresentations = () =>
-  Presentations
-    .find({
-      'conversion.error': false,
-    })
-    .fetch()
-    .map(presentation => ({
-      id: presentation.id,
-      filename: presentation.name,
-      isCurrent: presentation.current || false,
+const getPresentations = () => Presentations
+  .find({
+    'conversion.error': false,
+  })
+  .fetch()
+  .map((presentation) => {
+    const {
+      conversion,
+      current,
+      downloadable,
+      id,
+      name,
+    } = presentation;
+
+    const uploadTimestamp = id.split('-').pop();
+
+    return {
+      id,
+      filename: name,
+      isCurrent: current || false,
       upload: { done: true, error: false },
-      isDownloadable: presentation.downloadable,
-      conversion: presentation.conversion || { done: true, error: false },
-    }));
+      isDownloadable: downloadable,
+      conversion: conversion || { done: true, error: false },
+      uploadTimestamp,
+    };
+  });
 
 const dispatchTogglePresentationDownloadable = (presentation, newState) => {
   makeCall('setPresentationDownloadable', presentation.id, newState);

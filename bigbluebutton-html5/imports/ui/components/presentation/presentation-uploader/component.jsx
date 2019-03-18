@@ -406,17 +406,7 @@ class PresentationUploader extends Component {
     const { presentations } = this.state;
 
     const presentationsSorted = presentations
-      .sort((a, b) => {
-        // Sort by ID first so files with the same name have the same order
-        if (a.id > b.id) {
-          return 1;
-        }
-        if (a.id < b.id) {
-          return -1;
-        }
-        return 0;
-      })
-      .sort((a, b) => this.isDefault(b));
+      .sort((a, b) => a.uploadTimestamp - b.uploadTimestamp);
 
     return (
       <div className={styles.fileList}>
