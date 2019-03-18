@@ -30,7 +30,7 @@ class Polling extends Component {
   }
 
   play() {
-    this.alert = new Audio(`${Meteor.settings.public.app.basename}/resources/sounds/Poll.mp3`);
+    this.alert = new Audio(`${Meteor.settings.public.app.cdn || Meteor.settings.public.app.basename}/resources/sounds/Poll.mp3`);
     this.alert.play();
   }
 

@@ -6,12 +6,24 @@ import './settings';
 import Logger from './logger';
 import Redis from './redis';
 
+var parse = Npm.require('url').parse;
+
 const AVAILABLE_LOCALES = fs.readdirSync('assets/app/locales');
+const CDN_URL = process.env.CDN_URL || '';
 
 Meteor.startup(() => {
   const APP_CONFIG = Meteor.settings.public.app;
   const env = Meteor.isDevelopment ? 'development' : 'production';
-  Logger.warn(`SERVER STARTED. ENV=${env}, nodejs version=${process.version}`, APP_CONFIG);
+
+  // Add CDN
+  WebAppInternals.setBundledJsCssPrefix(CDN_URL);
+
+  // Trust the URL in our browser policy (if it's available).
+  try {
+    return BrowserPolicy.content.allowOriginForAll(CDN_URL);
+  } catch (undefined) {}
+
+  Logger.warn(`SERVER STARTED.\nENV=${env},\nnodejs version=${process.version}\nCDN=${CDN_URL}\n`, APP_CONFIG);
 });
 
 WebApp.connectHandlers.use('/check', (req, res) => {
