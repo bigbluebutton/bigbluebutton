@@ -200,7 +200,7 @@ class BreakoutRoom extends Component {
           {intl.formatMessage(intlMessages.breakoutRoom, breakout.sequence.toString())}
           <span className={styles.usersAssignedNumberLabel}>
             (
-            {breakout.users.length}
+            {new Set(breakout.users.map(user => user.intId)).size}
             )
           </span>
         </span>
