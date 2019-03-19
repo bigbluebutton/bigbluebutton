@@ -167,7 +167,11 @@ class MeetingEnded extends React.PureComponent {
       <div className={styles.parent}>
         <div className={styles.modal}>
           <div className={styles.content}>
-            <h1 className={styles.title}>{intl.formatMessage(intlMessage[code])}</h1>
+            <h1 className={styles.title}>
+              {
+                intl.formatMessage(intlMessage[code] || intlMessage[430])
+              }
+            </h1>
             <div className={styles.text}>
               {this.shouldShowFeedback
                 ? intl.formatMessage(intlMessage.subtitle)
