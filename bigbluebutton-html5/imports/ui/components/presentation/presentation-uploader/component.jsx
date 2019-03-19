@@ -520,11 +520,12 @@ class PresentationUploader extends Component {
               onClick={() => this.toggleDownloadable(item)}
             />
             <Checkbox
-              disabled={disableActions}
               ariaLabel={intl.formatMessage(intlMessages.setAsCurrentPresentation)}
-              className={styles.itemAction}
               checked={item.isCurrent}
-              onChange={() => this.handleCurrentChange(item.id)}
+              className={styles.itemAction}
+              disabled={disableActions}
+              keyValue={item.id}
+              onChange={this.handleCurrentChange}
             />
             { hideRemove ? null : (
               <Button
