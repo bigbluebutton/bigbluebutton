@@ -41,19 +41,20 @@ class ToastContainer extends React.Component {
 }
 
 export default injectIntl(injectNotify(withTracker(({ notify, intl }) => {
+  const meetingId = Auth.meetingID;
+
   Breakouts.find().observeChanges({
     added() {
       breakoutNotified = false;
     },
     removed() {
       if (!AudioService.isUsingAudio() && !breakoutNotified) {
-        notify(intl.formatMessage(intlMessages.toastBreakoutRoomEnded), 'info', 'rooms');
+        const meeting = Meetings.findOne({ meetingId });
+        if (!meeting.meetingEnded) notify(intl.formatMessage(intlMessages.toastBreakoutRoomEnded), 'info', 'rooms');
         breakoutNotified = true;
       }
     },
   });
-
-  const meetingId = Auth.meetingID;
 
   Meetings.find({ meetingId }).observe({
     changed: (newDocument, oldDocument) => {
@@ -80,6 +81,6 @@ export default injectIntl(injectNotify(withTracker(({ notify, intl }) => {
     hideProgressBar: false,
     closeOnClick: true,
     pauseOnHover: true,
-    meeting: Meetings.find({ meetingId }),
+    meeting: Meetings.find({ meetingId }).fetch(),
   };
 })(ToastContainer)));

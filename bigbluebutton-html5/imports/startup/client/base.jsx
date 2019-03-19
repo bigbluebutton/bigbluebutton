@@ -17,6 +17,7 @@ import mapUser from '/imports/ui/services/user/mapUser';
 import { Session } from 'meteor/session';
 import IntlStartup from './intl';
 import Meetings from '../../api/meetings';
+import AppService from '/imports/ui/components/app/service';
 
 
 const CHAT_CONFIG = Meteor.settings.public.chat;
@@ -27,14 +28,14 @@ const propTypes = {
   subscriptionsReady: PropTypes.bool.isRequired,
   locale: PropTypes.string,
   approved: PropTypes.bool,
-  meetingEnded: PropTypes.bool,
+  meetingIsEnded: PropTypes.bool,
   meetingExist: PropTypes.bool,
 };
 
 const defaultProps = {
   locale: undefined,
   approved: undefined,
-  meetingEnded: false,
+  meetingIsEnded: false,
   meetingExist: false,
 };
 
@@ -63,6 +64,7 @@ class Base extends Component {
     this.state = {
       loading: false,
       meetingExisted: false,
+      isBreakout: false,
     };
 
     this.updateLoadingState = this.updateLoadingState.bind(this);
@@ -77,7 +79,6 @@ class Base extends Component {
 
   componentDidUpdate(prevProps, prevState) {
     const {
-      ejected,
       approved,
       meetingExist,
       animations,
@@ -93,29 +94,19 @@ class Base extends Component {
       logger.info({ logCode: 'startup_client_subscriptions_ready' }, 'Subscriptions are ready');
     }
 
-    if (!prevProps.meetingExist && meetingExist) {
-      Session.set('isMeetingEnded', false);
+    if (prevProps.meetingExist && !meetingExist && !meetingExisted) {
+      this.setMeetingExisted(true);
     }
 
-    if (prevProps.meetingExist && !meetingExist) {
-      Session.set('isMeetingEnded', true);
-      this.setMeetingExisted(true);
+    // In case the meteor restart avoid error log
+    if (meteorIsConnected && (prevState.meetingExisted !== meetingExisted) && meetingExisted) {
+      this.setMeetingExisted(false);
     }
 
     // In case the meeting delayed to load
     if (!meetingExist) return;
 
     if (approved && loading) this.updateLoadingState(false);
-
-    if (prevProps.ejected || ejected) {
-      Session.set('codeError', '403');
-      Session.set('isMeetingEnded', true);
-    }
-
-    // In case the meteor restart avoid error log
-    if (meteorIsConnected && (prevState.meetingExisted !== meetingExisted)) {
-      this.setMeetingExisted(false);
-    }
 
     if (animations && animations !== prevProps.animations) {
       document.documentElement.style.setProperty('--enableAnimation', 1);
@@ -143,17 +134,14 @@ class Base extends Component {
   renderByState() {
     const { updateLoadingState } = this;
     const stateControls = { updateLoadingState };
-
-    const { ejected } = this.props;
-
-    const { loading, meetingExisted } = this.state;
-
+    const { loading, isBreakout } = this.state;
     const codeError = Session.get('codeError');
     const {
+      ejected,
       subscriptionsReady,
-      meetingExist,
-      meetingEnded,
+      meetingIsEnded,
     } = this.props;
+    const isMeetingBreakout = AppService.meetingIsBreakout();
 
     if (ejected && ejected.ejectedReason) {
       const { ejectedReason } = ejected;
@@ -161,17 +149,19 @@ class Base extends Component {
       return (<MeetingEnded code={ejectedReason} />);
     }
 
-    if ((meetingExisted && !meetingExist) || meetingEnded) {
+    if (isMeetingBreakout && !isBreakout) this.setState({ isBreakout: true });
+
+    if (meetingIsEnded && !isBreakout) {
       AudioManager.exitAudio();
-      return (<MeetingEnded code={Session.get('codeError')} />);
+      return (<MeetingEnded code={codeError} />);
     }
 
-    if (codeError) {
+    if (codeError && !meetingIsEnded) {
       logger.error({ logCode: 'startup_client_usercouldnotlogin_error' }, `User could not log in HTML5, hit ${codeError}`);
       return (<ErrorScreen code={codeError} />);
     }
 
-    if (loading || !subscriptionsReady) {
+    if ((loading || !subscriptionsReady) && !meetingIsEnded) {
       return (<LoadingScreen>{loading}</LoadingScreen>);
     }
     // this.props.annotationsHandler.stop();
@@ -211,12 +201,18 @@ const BaseContainer = withTracker(() => {
   const { meetingId, requesterUserId } = credentials;
   let breakoutRoomSubscriptionHandler;
   let meetingModeratorSubscriptionHandler;
+
+  const meeting = Meetings.findOne({ meetingId });
+  if (meeting) {
+    const { meetingEnded } = meeting;
+    if (meetingEnded) Session.set('codeError', '410');
+  }
+
   let userSubscriptionHandler;
 
   const subscriptionErrorHandler = {
     onError: (error) => {
       logger.error({ logCode: 'startup_client_subscription_error' }, error);
-      Session.set('isMeetingEnded', true);
       Session.set('codeError', error.error);
     },
   };
@@ -269,7 +265,6 @@ const BaseContainer = withTracker(() => {
   return {
     approved: Users.findOne({ userId: Auth.userID, approved: true, guest: true }),
     ejected: Users.findOne({ userId: Auth.userID, ejected: true }),
-    meetingEnded: Session.get('isMeetingEnded'),
     locale,
     subscriptionsReady,
     annotationsHandler,
@@ -278,9 +273,10 @@ const BaseContainer = withTracker(() => {
     breakoutRoomSubscriptionHandler,
     meetingModeratorSubscriptionHandler,
     animations,
-    meetingExist: !!Meetings.find({ meetingId }).count(),
     User,
     meteorIsConnected: Meteor.status().connected,
+    meetingExist: !!Meetings.find({ meetingId }).count(),
+    meetingIsEnded: !!meeting && meeting.meetingEnded,
   };
 })(Base);
 

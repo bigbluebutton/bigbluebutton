@@ -4,11 +4,11 @@ import VoiceUsers from '/imports/api/voice-users';
 export default function clearVoiceUser(meetingId) {
   if (meetingId) {
     return VoiceUsers.remove({ meetingId }, () => {
-      Logger.info(`Cleared Users (${meetingId})`);
+      Logger.info(`Cleared clearVoiceUser (${meetingId})`);
     });
   }
 
   return VoiceUsers.remove({}, () => {
-    Logger.info('Cleared Users (all)');
+    Logger.info('Cleared clearVoiceUser (all)');
   });
 }
