@@ -47,6 +47,18 @@ class PresentationArea extends Component {
     this.fitToWidthHandler = this.fitToWidthHandler.bind(this);
   }
 
+  componentDidUpdate(prevProps, prevState) {
+    if (prevState.fitToWidth) {
+      // When presenter is changed or slide changed we reset fitToWidth
+      if ((prevProps.userIsPresenter && !this.props.userIsPresenter) ||
+          (prevProps.currentSlide.id !== this.props.currentSlide.id)) {
+        this.setState({
+          fitToWidth: false,
+        });
+      }
+    }
+  }
+
   componentDidMount() {
     // adding an event listener to scale the whiteboard on 'resize' events sent by chat/userlist etc
     window.addEventListener('resize', () => {
@@ -129,7 +141,7 @@ class PresentationArea extends Component {
   }
 
   calculateSize() {
-    const { presentationHeight, presentationWidth } = this.state;
+    const { presentationHeight, presentationWidth, fitToWidth } = this.state;
     const { currentSlide } = this.props;
 
     const originalWidth = currentSlide.calculatedData.width;
@@ -138,30 +150,53 @@ class PresentationArea extends Component {
     let adjustedWidth;
     let adjustedHeight;
 
-    // Slide has a portrait orientation
-    if (originalWidth <= originalHeight) {
-      adjustedWidth = (presentationHeight * originalWidth) / originalHeight;
-      if (presentationWidth < adjustedWidth) {
-        adjustedHeight = (presentationHeight * presentationWidth) / adjustedWidth;
-        adjustedWidth = presentationWidth;
-      } else {
-        adjustedHeight = presentationHeight;
-      }
-
+    if (!fitToWidth) {
+      // Slide has a portrait orientation
+      if (originalWidth <= originalHeight) {
+        adjustedWidth = (presentationHeight * originalWidth) / originalHeight;
+        if (presentationWidth < adjustedWidth) {
+          adjustedHeight = (presentationHeight * presentationWidth) / adjustedWidth;
+          adjustedWidth = presentationWidth;
+        } else {
+          adjustedHeight = presentationHeight;
+        }
       // Slide has a landscape orientation
-    } else {
-      adjustedHeight = (presentationWidth * originalHeight) / originalWidth;
-      if (presentationHeight < adjustedHeight) {
-        adjustedWidth = (presentationWidth * presentationHeight) / adjustedHeight;
-        adjustedHeight = presentationHeight;
       } else {
-        adjustedWidth = presentationWidth;
+        adjustedHeight = (presentationWidth * originalHeight) / originalWidth;
+        if (presentationHeight < adjustedHeight) {
+          adjustedWidth = (presentationWidth * presentationHeight) / adjustedHeight;
+          adjustedHeight = presentationHeight;
+        } else {
+          adjustedWidth = presentationWidth;
+        }
       }
+    } else {
+      adjustedWidth = presentationWidth;
+      adjustedHeight = (adjustedWidth * originalHeight) / originalWidth;
+      if (adjustedHeight > presentationHeight) adjustedHeight = presentationHeight;
     }
     return {
       width: adjustedWidth,
       height: adjustedHeight,
     };
+  }
+
+  // TODO: This could be replaced if we synchronize the fit-to-width state between users
+  checkFitToWidth() {
+    const { userIsPresenter, currentSlide } = this.props;
+    const { fitToWidth } = this.state;
+    if (userIsPresenter) {
+      return fitToWidth;
+    } else {
+      const { width, height, viewBoxWidth, viewBoxHeight } = currentSlide.calculatedData;
+      const slideSizeRatio = width / height;
+      const viewBoxSizeRatio = viewBoxWidth / viewBoxHeight;
+      if (slideSizeRatio !== viewBoxSizeRatio) {
+        return true;
+      } else {
+        return false;
+      }
+    }
   }
 
   zoomChanger(incomingZoom) {
@@ -284,7 +319,7 @@ class PresentationArea extends Component {
 
   // renders the whole presentation area
   renderPresentationArea() {
-    const { fitToWidth } = this.state;
+    const { presentationWidth } = this.state;
     const { podId, currentSlide } = this.props;
     if (!this.isPresentationAccessible()) return null;
 
@@ -306,7 +341,7 @@ class PresentationArea extends Component {
       imageUri,
     } = slideObj.calculatedData;
 
-    const svgAreaDimensions = fitToWidth
+    const svgAreaDimensions = this.checkFitToWidth()
       ? {
         position: 'absolute',
         width: 'inherit',
@@ -351,7 +386,7 @@ class PresentationArea extends Component {
               version="1.1"
               xmlns="http://www.w3.org/2000/svg"
               className={styles.svgStyles}
-              style={fitToWidth
+              style={this.checkFitToWidth()
                 ? {
                   position: 'absolute',
                 }
@@ -380,10 +415,9 @@ class PresentationArea extends Component {
                   podId={podId}
                   whiteboardId={slideObj.id}
                   widthRatio={slideObj.widthRatio}
-                  physicalWidthRatio={adjustedSizes.width / width}
+                  physicalWidthRatio={this.checkFitToWidth() ? (presentationWidth / width) : (adjustedSizes.width / width)}
                   slideWidth={width}
                   slideHeight={height}
-                  radius={fitToWidth ? 2 : 5}
                 />
               </g>
               {this.renderOverlays(slideObj, adjustedSizes)}
