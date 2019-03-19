@@ -163,6 +163,9 @@ class MeetingEnded extends React.PureComponent {
     } = this.state;
 
     const noRating = selected <= 0;
+
+    logger.info({ feedback: code, logCode: 'meeting_ended_code' }, code);
+
     return (
       <div className={styles.parent}>
         <div className={styles.modal}>
