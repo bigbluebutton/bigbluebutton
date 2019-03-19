@@ -71,9 +71,10 @@ const Chat = (props) => {
           chatID !== 'public'
             ? (
               <Button
-                className={styles.closeBtn}
                 icon="close"
-                size="md"
+                size="sm"
+                ghost
+                color="dark"
                 hideLabel
                 onClick={() => {
                   actions.handleClosePrivateChat(chatID);

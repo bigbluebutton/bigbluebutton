@@ -44,8 +44,14 @@
 }
 
 .button {
+  span {
+    border: 2px solid var(--color-primary) !important;
+  }
+
   &:focus {
-    outline: none !important;
+    span {
+      border: 2px solid transparent !important;
+    }
   }
 
   span:first-child {
@@ -55,14 +61,12 @@
 
 .btn {
   span {
-    border: none;
     box-shadow: none;
     background-color: transparent !important;
-    color: var(--color-white) !important;
-    border: 1.5px solid var(--color-white) !important;
-  }
+    border: 2px solid var(--color-white) !important;
 
-  span:hover {
-    border: 1.5px solid rgba(255,255,255, .5) !important;
+    &:hover {
+      border: 2px solid rgba(255,255,255, .5);
+    }
   }
 }
