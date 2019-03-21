@@ -46,7 +46,7 @@ const propTypes = {
 };
 
 const defaultProps = {
-  recordingTime: undefined,
+  recordingTime: -1,
   recordingStatus: false,
   amIModerator: false,
 };
