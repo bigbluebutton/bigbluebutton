@@ -39,6 +39,7 @@ export default withModalMounter(withTracker(({ mountModal }) => ({
   listenOnly: Service.isConnected() && Service.isListenOnly(),
   disable: Service.isConnecting() || Service.isHangingUp(),
   talking: Service.isTalking() && !Service.isMuted(),
+  currentUser: Service.currentUser(),
   handleToggleMuteMicrophone: () => Service.toggleMuteMicrophone(),
   handleJoinAudio: () => (Service.isConnected() ? Service.joinListenOnly() : mountModal(<AudioModalContainer />)),
   handleLeaveAudio: () => Service.exitAudio(),

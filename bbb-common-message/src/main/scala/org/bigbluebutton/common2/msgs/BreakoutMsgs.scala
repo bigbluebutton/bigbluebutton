@@ -39,9 +39,9 @@ package org.bigbluebutton.common2.msgs
   case class CreateBreakoutRoomSysCmdMsg(header: BbbCoreBaseHeader,
                                       body: CreateBreakoutRoomSysCmdMsgBody) extends BbbCoreMsg
   case class CreateBreakoutRoomSysCmdMsgBody(meetingId: String, room: BreakoutRoomDetail)
-  case class BreakoutRoomDetail(breakoutMeetingId: String, name: String, parentId: String, sequence: Integer, freeJoin:Boolean,
-                                voiceConfId: String, durationInMinutes: Int, moderatorPassword: String, viewerPassword: String,
-                                sourcePresentationId: String, sourcePresentationSlide: Int, record: Boolean)
+  case class BreakoutRoomDetail(breakoutMeetingId: String, name: String, parentId: String, sequence: Integer, freeJoin: Boolean,
+                                dialNumber: String, voiceConfId: String, durationInMinutes: Int, moderatorPassword: String,
+                                viewerPassword: String, sourcePresentationId: String, sourcePresentationSlide: Int, record: Boolean)
 
 /**
   * Sent by client to request to create breakout rooms.

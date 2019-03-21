@@ -41,6 +41,8 @@ const audioLocked = () => {
   return audioLock && User.isLocked;
 };
 
+const currentUser = () => mapUser(Users.findOne({ intId: Auth.userID }));
+
 export default {
   init,
   exitAudio: () => AudioManager.exitAudio(),
@@ -65,4 +67,5 @@ export default {
   error: () => AudioManager.error,
   isUserModerator: () => Users.findOne({ userId: Auth.userID }).moderator,
   audioLocked,
+  currentUser,
 };
