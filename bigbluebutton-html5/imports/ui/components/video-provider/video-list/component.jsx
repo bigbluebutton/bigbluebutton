@@ -143,7 +143,7 @@ class VideoList extends Component {
 
   renderVideoList() {
     const {
-      intl, users, onMount, getStats, stopGettingStats, enableVideoStats,
+      intl, users, onMount, getStats, stopGettingStats, enableVideoStats, isFullscreen,
     } = this.props;
     const { focusedId } = this.state;
 
@@ -179,6 +179,7 @@ class VideoList extends Component {
             getStats={(videoRef, callback) => getStats(user.id, videoRef, callback)}
             stopGettingStats={() => stopGettingStats(user.id)}
             enableVideoStats={enableVideoStats}
+            isFullscreen={isFullscreen}
           />
         </div>
       );

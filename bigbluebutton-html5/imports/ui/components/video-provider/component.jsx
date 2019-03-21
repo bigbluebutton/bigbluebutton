@@ -933,7 +933,7 @@ class VideoProvider extends Component {
     const { socketOpen } = this.state;
     if (!socketOpen) return null;
 
-    const { users, enableVideoStats } = this.props;
+    const { users, enableVideoStats, isFullscreen } = this.props;
     return (
       <VideoList
         users={users}
@@ -941,6 +941,7 @@ class VideoProvider extends Component {
         getStats={this.getStats}
         stopGettingStats={this.stopGettingStats}
         enableVideoStats={enableVideoStats}
+        isFullscreen={isFullscreen}
       />
     );
   }

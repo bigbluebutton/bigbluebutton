@@ -7,7 +7,7 @@ import Button from '/imports/ui/components/button/component';
 import { HUNDRED_PERCENT, MAX_PERCENT, STEP } from '/imports/utils/slideCalcUtils';
 import { styles } from './styles.scss';
 import ZoomTool from './zoom-tool/component';
-import FullscreenButton from '../../video-provider/fullscreen-button/component';
+import FullscreenButton from '/imports/ui/components/fullscreen-button/component';
 import Tooltip from '/imports/ui/components/tooltip/component';
 
 
@@ -200,8 +200,8 @@ class PresentationToolbar extends Component {
       actions,
       intl,
       zoom,
+      elementRef,
       isFullscreen,
-      fullscreenRef,
     } = this.props;
 
     const BROWSER_RESULTS = browser();
@@ -302,17 +302,13 @@ class PresentationToolbar extends Component {
               className={styles.skipSlide}
               tooltipDistance={tooltipDistance}
             />
-            {
-              !isFullscreen
-              && (
-                <FullscreenButton
-                  handleFullscreen={fullscreenRef}
-                  elementName={intl.formatMessage(intlMessages.presentationLabel)}
-                  tooltipDistance={tooltipDistance}
-                  dark
-                />
-              )
-            }
+            <FullscreenButton
+              elementRef={elementRef}
+              isFullscreen={isFullscreen}
+              elementName={intl.formatMessage(intlMessages.presentationLabel)}
+              tooltipDistance={tooltipDistance}
+              dark
+            />
           </div>
         }
       </div>
@@ -337,7 +333,6 @@ PresentationToolbar.propTypes = {
   zoomChanger: PropTypes.func.isRequired,
   fitToWidthHandler: PropTypes.func.isRequired,
   fitToWidth: PropTypes.bool.isRequired,
-  fullscreenRef: PropTypes.func.isRequired,
   isFullscreen: PropTypes.bool.isRequired,
   zoom: PropTypes.number.isRequired,
 };

@@ -14,7 +14,7 @@ import { styles } from './styles.scss';
 import MediaService, { shouldEnableSwapLayout } from '../media/service';
 import PresentationCloseButton from './presentation-close-button/component';
 import DownloadPresentationButton from './download-presentation-button/component';
-import FullscreenButton from '/imports/ui/components/video-provider/fullscreen-button/component';
+import FullscreenButton from '/imports/ui/components/fullscreen-button/component';
 
 const intlMessages = defineMessages({
   presentationLabel: {
@@ -403,10 +403,6 @@ class PresentationArea extends Component {
 
     const { zoom, fitToWidth } = this.state;
 
-    const fullRef = () => {
-      this.refPresentationContainer.requestFullscreen();
-    };
-
     if (!currentSlide) {
       return null;
     }
@@ -419,7 +415,7 @@ class PresentationArea extends Component {
           podId,
         }}
         isFullscreen={isFullscreen}
-        fullscreenRef={fullRef}
+        elementRef={this.refPresentationContainer}
         currentSlideNum={currentSlide.num}
         presentationId={currentSlide.presentationId}
         zoomChanger={this.zoomChanger}
@@ -462,17 +458,17 @@ class PresentationArea extends Component {
     const {
       intl,
       userIsPresenter,
+      isFullscreen,
     } = this.props;
     if (userIsPresenter) return null;
 
-    const full = () => this.refPresentationContainer.requestFullscreen();
-
     return (
       <FullscreenButton
-        handleFullscreen={full}
         elementName={intl.formatMessage(intlMessages.presentationLabel)}
         dark
         fullscreenButton
+        isFullscreen={isFullscreen}
+        elementRef={this.refPresentationContainer}
       />
     );
   }

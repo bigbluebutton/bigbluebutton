@@ -14,7 +14,7 @@ import DropdownListItem from '/imports/ui/components/dropdown/list/item/componen
 import Icon from '/imports/ui/components/icon/component';
 import logger from '/imports/startup/client/logger';
 import VideoListItemStats from './video-list-item-stats/component';
-import FullscreenButton from '../../fullscreen-button/component';
+import FullscreenButton from '/imports/ui/components/fullscreen-button/component';
 import { styles } from '../styles';
 
 const intlMessages = defineMessages({
@@ -108,16 +108,16 @@ class VideoListItem extends Component {
   }
 
   renderFullscreenButton() {
-    const { user } = this.props;
-    const full = () => {
-      const tag = this.videoTag;
-      if (tag.requestFullscreen) {
-        tag.requestFullscreen();
-      } else if (tag.webkitRequestFullscreen) { // Edge
-        tag.webkitRequestFullscreen();
-      }
-    };
-    return <FullscreenButton handleFullscreen={full} elementName={user.name} />;
+    const { user, isFullscreen } = this.props;
+
+    return (
+      <FullscreenButton
+        elementRef={this.videoContainer}
+        isFullscreen={isFullscreen}
+        elementName={user.name}
+        isWebcam
+      />
+    );
   }
 
   render() {
@@ -135,14 +135,21 @@ class VideoListItem extends Component {
         [styles.talking]: user.isTalking,
       })}
       >
-        <div className={styles.connecting} />
-        <video
-          className={styles.media}
-          ref={(ref) => { this.videoTag = ref; }}
-          muted={user.isCurrent}
-          autoPlay
-          playsInline
+        <div
+          className={styles.connecting}
         />
+        <div
+          ref={(ref) => { this.videoContainer = ref; }}
+        >
+          <video
+            className={styles.media}
+            ref={(ref) => { this.videoTag = ref; }}
+            muted={user.isCurrent}
+            autoPlay
+            playsInline
+          />
+          {this.renderFullscreenButton()}
+        </div>
         <div className={styles.info}>
           {enableVideoMenu && availableActions.length >= 3
             ? (
@@ -177,7 +184,6 @@ class VideoListItem extends Component {
           {user.isListenOnly ? <Icon className={styles.voice} iconName="listen" /> : null}
         </div>
         {showStats ? <VideoListItemStats toggleStats={this.toggleStats} stats={stats} /> : null}
-        {this.renderFullscreenButton()}
       </div>
     );
   }

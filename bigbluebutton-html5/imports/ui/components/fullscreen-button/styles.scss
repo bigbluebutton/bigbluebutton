@@ -23,8 +23,8 @@
   &,
   &:active,
   &:hover {
-    background-color: var(--color-transparent) !important;
-    border: none !important;
+    background-color: var(--color-transparent);
+    border: none;
 
     i {
       border: none !important;
@@ -33,16 +33,16 @@
   }
 }
 
-.light {
+.top {
   top: 0;
+}
+
+.bottom{
+  bottom: 0;
 }
 
 .light .button i {
   color: var(--color-white);
-}
-
-.dark {
-  bottom: 0;
 }
 
 .dark .button i {
@@ -59,4 +59,24 @@
   i {
     font-size: 1rem;
   }
+
+  &:focus{
+    background-color: unset;
+    border: none;
+    box-shadow: none;
+  }
+}
+
+.bg_dark,
+.bg_light {
+  opacity: 0.6;
+  border-radius: 4px;
+}
+
+.bg_dark{
+  background-color: #000;
+}
+
+.bg_light{
+  background-color: #fff;
 }
