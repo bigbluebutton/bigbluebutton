@@ -76,23 +76,25 @@ class AudioControls extends Component {
 
     return (
       <span className={styles.container}>
-        {showMute && currentUser.isVoiceUser ?
-          <Button
-            className={cx(styles.button, !talking || styles.glow, !muted || styles.btn)}
-            onClick={handleToggleMuteMicrophone}
-            disabled={disable}
-            hideLabel
-            label={muted ? intl.formatMessage(intlMessages.unmuteAudio)
-              : intl.formatMessage(intlMessages.muteAudio)}
-            aria-label={muted ? intl.formatMessage(intlMessages.unmuteAudio)
-              : intl.formatMessage(intlMessages.muteAudio)}
-            color={!muted ? 'primary' : 'default'}
-            ghost={muted}
-            icon={muted ? 'mute' : 'unmute'}
-            size="lg"
-            circle
-            accessKey={shortcuts.toggleMute}
-          /> : null}
+        {showMute && currentUser.isVoiceUser
+          ? (
+            <Button
+              className={cx(styles.button, !talking || styles.glow, !muted || styles.btn)}
+              onClick={handleToggleMuteMicrophone}
+              disabled={disable}
+              hideLabel
+              label={muted ? intl.formatMessage(intlMessages.unmuteAudio)
+                : intl.formatMessage(intlMessages.muteAudio)}
+              aria-label={muted ? intl.formatMessage(intlMessages.unmuteAudio)
+                : intl.formatMessage(intlMessages.muteAudio)}
+              color={!muted ? 'primary' : 'default'}
+              ghost={muted}
+              icon={muted ? 'mute' : 'unmute'}
+              size="lg"
+              circle
+              accessKey={shortcuts.toggleMute}
+            />
+          ) : null}
         <Button
           className={cx(styles.button, inAudio || styles.btn)}
           onClick={inAudio ? handleLeaveAudio : handleJoinAudio}
