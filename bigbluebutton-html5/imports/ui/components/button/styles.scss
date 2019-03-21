@@ -45,9 +45,6 @@
 
 .button {
   border: none;
-  outline-color: transparent;
-  outline-width: 2px;
-  outline-style: dotted;
   overflow: visible;
   display: inline-block;
   border-radius: var(--border-size);
@@ -59,9 +56,16 @@
   cursor: pointer;
   user-select: none;
 
+  &:-moz-focusring {
+    outline: none;
+  }
+
   &:hover,
   &:focus {
     text-decoration: none;
+    outline-color: transparent;
+    outline-width: 2px;
+    outline-style: dotted;
   }
 
   &:active {
@@ -91,9 +95,11 @@
   border: none;
   overflow: visible !important;
   display: inline-block;
-  outline-color: transparent;
-  outline-width: 2px;
-  outline-style: dotted;
+  cursor: pointer;
+
+  &:-moz-focusring {
+    outline: none;
+  }
 
   &,
   &:active {
@@ -189,7 +195,6 @@
     color: $color;
     background-color: $background;
     background-clip: padding-box;
-    border: var(--border-size-large) solid transparent;
     box-shadow: 0 0 0 var(--border-size) $border;
   }
 
@@ -198,7 +203,6 @@
     color: $color;
     // background-color: $active-background; TODO;
     // border-color: $active-border; TODO;
-    border: var(--border-size-large) solid transparent;
   }
 }
 
@@ -216,7 +220,6 @@
     outline-style: dotted;
     background-color: $variant;
     background-clip: padding-box;
-    border: var(--border-size-large) solid transparent;
     box-shadow: 0 0 0 var(--border-size-large) $color;
   }
 
@@ -224,8 +227,6 @@
   .buttonWrapper:hover & {
     color: $color;
     background-color: $variant;
-    border-color: $variant;
-    border: var(--border-size-large) solid transparent;
   }
 }
 

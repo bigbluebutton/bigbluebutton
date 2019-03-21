@@ -68,18 +68,19 @@
 
 .hideBtn {
   position: relative;
-  background-color: white;
+  background-color: var(--color-white);
   display: block;
-  margin: 4px;
-  margin-bottom: 2px;
+  margin: var(--border-size-large);
+  margin-bottom: var(--border-size);
   padding-left: 0px;
 
   > i {
-    color: black;
+      color: var(--color-gray-dark);
+      font-size: smaller;
   }
 
   &:hover {
-    background-color: #fff;
+      background-color: var(--color-white);
   }
 }
 
