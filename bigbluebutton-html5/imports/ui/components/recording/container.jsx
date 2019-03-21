@@ -9,20 +9,18 @@ import RecordingComponent from './component';
 const RecordingContainer = props => <RecordingComponent {...props} />;
 
 export default withModalMounter(withTracker(({ mountModal }) => {
-  const meeting = Meetings.findOne({ meetingId: Auth.meetingID });
+  const { recording, time } = Meetings.findOne({ meetingId: Auth.meetingID }).recordProp;
 
   return ({
-    closeModal() {
-      mountModal(null);
-    },
+    closeModal: () => mountModal(null),
 
     toggleRecording: () => {
       makeCall('toggleRecording');
       mountModal(null);
     },
 
-    recordingStatus: (meeting.recordProp.recording),
-    recordingTime: (meeting.recordProp.time),
+    recordingStatus: recording,
+    recordingTime: time,
 
   });
 })(RecordingContainer));
