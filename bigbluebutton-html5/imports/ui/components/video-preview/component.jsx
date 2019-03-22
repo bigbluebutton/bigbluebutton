@@ -256,7 +256,7 @@ class VideoPreview extends Component {
               playsInline
             />
           </div>
-          <div className={styles}>
+          <div>
             <label className={styles.label}>
               {intl.formatMessage(intlMessages.cameraLabel)}
             </label>

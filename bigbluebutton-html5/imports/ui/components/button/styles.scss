@@ -101,6 +101,12 @@
     outline: none;
   }
 
+  &:focus:not([aria-disabled="true"]) {
+    outline-color: transparent;
+    outline-width: 2px;
+    outline-style: dotted;
+  }
+
   &,
   &:active {
     &:focus {
@@ -188,10 +194,6 @@
 
   &:focus,
   .buttonWrapper:focus:not([aria-disabled="true"]) & {
-    outline-color: transparent;
-    outline-width: 2px;
-    outline-style: dotted;
-
     color: $color;
     background-color: $background;
     background-clip: padding-box;
@@ -215,9 +217,6 @@
   &:focus,
   .buttonWrapper:focus & {
     color: $color;
-    outline-color: transparent;
-    outline-width: 2px;
-    outline-style: dotted;
     background-color: $variant;
     background-clip: padding-box;
     box-shadow: 0 0 0 var(--border-size-large) $color;

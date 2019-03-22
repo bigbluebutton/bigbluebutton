@@ -44,16 +44,6 @@
 }
 
 .button {
-  span {
-    border: 2px solid var(--color-primary) !important;
-  }
-
-  &:focus {
-    span {
-      border: 2px solid transparent !important;
-    }
-  }
-
   span:first-child {
     box-shadow: 0 2px 5px 0 rgb(0, 0, 0);
   }
@@ -63,10 +53,6 @@
   span {
     box-shadow: none;
     background-color: transparent !important;
-    border: 2px solid var(--color-white) !important;
-
-    &:hover {
-      border: 2px solid rgba(255,255,255, .5);
-    }
+    border-color: var(--color-white) !important;
   }
 }
