@@ -42,6 +42,8 @@ const intlMessages = defineMessages({
   },
 });
 
+const ALLOW_FULLSCREEN = Meteor.settings.public.app.allowFullscreen;
+
 class PresentationToolbar extends Component {
   static renderAriaLabelsDescs() {
     return (
@@ -302,13 +304,19 @@ class PresentationToolbar extends Component {
               className={styles.skipSlide}
               tooltipDistance={tooltipDistance}
             />
-            <FullscreenButton
-              elementRef={elementRef}
-              isFullscreen={isFullscreen}
-              elementName={intl.formatMessage(intlMessages.presentationLabel)}
-              tooltipDistance={tooltipDistance}
-              dark
-            />
+            {
+              ALLOW_FULLSCREEN
+                ? (
+                  <FullscreenButton
+                    elementRef={elementRef}
+                    isFullscreen={isFullscreen}
+                    elementName={intl.formatMessage(intlMessages.presentationLabel)}
+                    tooltipDistance={tooltipDistance}
+                    dark
+                  />
+                )
+                : null
+            }
           </div>
         }
       </div>

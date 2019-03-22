@@ -23,6 +23,8 @@ const intlMessages = defineMessages({
   },
 });
 
+const ALLOW_FULLSCREEN = Meteor.settings.public.app.allowFullscreen;
+
 class PresentationArea extends Component {
   constructor() {
     super();
@@ -460,7 +462,8 @@ class PresentationArea extends Component {
       userIsPresenter,
       isFullscreen,
     } = this.props;
-    if (userIsPresenter) return null;
+
+    if (userIsPresenter || !ALLOW_FULLSCREEN) return null;
 
     return (
       <FullscreenButton

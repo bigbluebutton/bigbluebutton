@@ -23,6 +23,8 @@ const intlMessages = defineMessages({
   },
 });
 
+const ALLOW_FULLSCREEN = Meteor.settings.public.app.allowFullscreen;
+
 class VideoListItem extends Component {
   constructor(props) {
     super(props);
@@ -109,6 +111,8 @@ class VideoListItem extends Component {
 
   renderFullscreenButton() {
     const { user, isFullscreen } = this.props;
+
+    if (!ALLOW_FULLSCREEN) return null;
 
     return (
       <FullscreenButton

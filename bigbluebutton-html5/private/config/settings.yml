@@ -17,6 +17,7 @@ public:
     lockOnJoin: true
     basename: "/html5client"
     askForFeedbackOnLogout: false
+    allowFullscreen: true
     defaultSettings:
       application:
         animations: true

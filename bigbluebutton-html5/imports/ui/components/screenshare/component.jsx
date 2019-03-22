@@ -11,6 +11,8 @@ const intlMessages = defineMessages({
   },
 });
 
+const ALLOW_FULLSCREEN = Meteor.settings.public.app.allowFullscreen;
+
 class ScreenshareComponent extends React.Component {
   constructor() {
     super();
@@ -45,6 +47,8 @@ class ScreenshareComponent extends React.Component {
 
   renderFullscreenButton() {
     const { intl, isFullscreen } = this.props;
+
+    if (!ALLOW_FULLSCREEN) return null;
 
     return (
       <FullscreenButton
