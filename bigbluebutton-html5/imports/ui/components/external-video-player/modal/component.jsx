@@ -26,6 +26,10 @@ const intlMessages = defineMessages({
     id: 'app.externalVideo.input',
     description: 'Video URL',
   },
+  urlInput: {
+    id: 'app.externalVideo.urlInput',
+    description: 'URL input field placeholder',
+  },
   title: {
     id: 'app.externalVideo.title',
     description: 'Modal title',
@@ -33,6 +37,10 @@ const intlMessages = defineMessages({
   close: {
     id: 'app.externalVideo.close',
     description: 'Close',
+  },
+  note: {
+    id: 'app.externalVideo.noteLabel',
+    description: 'provides hint about Shared YouTube videos',
   },
 });
 
@@ -124,8 +132,12 @@ class ExternalVideoModal extends Component {
                 onChange={this.updateVideoUrlHandler}
                 name="video-modal-input"
                 value={url}
+                placeholder={intl.formatMessage(intlMessages.urlInput)}
               />
             </label>
+            <div className={styles.youtubeNote}>
+              {intl.formatMessage(intlMessages.note)}
+            </div>
           </div>
 
           <div className={styles.content}>

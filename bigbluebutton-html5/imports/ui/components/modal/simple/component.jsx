@@ -16,6 +16,7 @@ const propTypes = {
 
 const defaultProps = {
   shouldCloseOnOverlayClick: true,
+  shouldShowCloseButton: true,
   overlayClassName: styles.overlay,
   dismiss: {
     label: 'Cancel',
@@ -41,6 +42,7 @@ class ModalSimple extends Component {
       className,
       modalisOpen,
       onRequestClose,
+      shouldShowCloseButton,
       ...otherProps
     } = this.props;
 
@@ -56,15 +58,17 @@ class ModalSimple extends Component {
       >
         <header className={hideBorder ? styles.headerNoBorder : styles.header}>
           <h1 className={styles.title}>{title}</h1>
-          <Button
-            className={styles.dismiss}
-            label={dismiss.label}
-            icon="close"
-            circle
-            hideLabel
-            onClick={closeModel}
-            aria-describedby="modalDismissDescription"
-          />
+          {shouldShowCloseButton ? (
+            <Button
+              className={styles.dismiss}
+              label={dismiss.label}
+              icon="close"
+              circle
+              hideLabel
+              onClick={closeModel}
+              aria-describedby="modalDismissDescription"
+            />
+          ) : null}
         </header>
         <div className={styles.content}>
           {this.props.children}

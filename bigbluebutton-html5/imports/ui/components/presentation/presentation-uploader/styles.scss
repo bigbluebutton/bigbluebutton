@@ -60,7 +60,7 @@
 
 .tableItemActions {
   min-width: 68px; // size of the 2 icons (check/trash)
-  text-align: right;
+  text-align: left;
 }
 
 .tableItemIcon > i {
@@ -120,10 +120,20 @@
 	transparent
   );
   background-size: 1rem 1rem;
-  animation: bar-stripes calc(var(--enableAnimation) * 1s) linear infinite;
+
+  [style~="--enableAnimation:1;"] & {
+    animation: bar-stripes 1s linear infinite;
+  }
 }
 
 .itemAction {
+  div > i {
+    margin-top: .25rem;
+  }
+}
+
+.itemAction,
+.itemAction > i {
   display: inline-block;
   border: none;
   background: transparent;
@@ -131,13 +141,24 @@
   font-size: 1.35rem;
   color: var(--color-gray-light);
   padding: 0;
-  transition: all calc(var(--enableAnimation) * .25s);
+
+  [style~="--enableAnimation:1;"] & {
+    transition: all .25s;
+  }
+
+  :hover, :focus {
+    padding: unset !important;
+  }
 }
 
 .itemActionRemove {
-  &:focus,
-  &:hover {
-    color: var(--color-danger);
+  background-color: transparent;
+  border: 0 !important;
+
+  & > i:focus,
+  & > i:hover {
+    color: var(--color-danger) !important;
+    background-color: transparent;
   }
 
   &[aria-disabled="true"] {
@@ -145,8 +166,11 @@
     opacity: .5;
     box-shadow: none;
     pointer-events: none;
-    cursor: not-allowed;
   }
+}
+
+.checked > i {
+  color: var(--color-success);
 }
 
 .dropzoneWrapper {

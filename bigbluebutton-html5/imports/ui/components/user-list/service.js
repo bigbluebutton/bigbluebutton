@@ -180,7 +180,10 @@ const userFindSorting = {
 
 const getUsers = () => {
   const users = Users
-    .find({ connectionStatus: 'online' }, userFindSorting)
+    .find({
+      meetingId: Auth.meetingID,
+      connectionStatus: 'online',
+    }, userFindSorting)
     .fetch();
 
   return users
@@ -310,12 +313,14 @@ const getAvailableActions = (currentUser, user, isBreakoutRoom) => {
   const allowedToPromote = currentUser.isModerator
     && !user.isCurrent
     && !user.isModerator
-    && !isDialInUser;
+    && !isDialInUser
+    && !isBreakoutRoom;
 
   const allowedToDemote = currentUser.isModerator
     && !user.isCurrent
     && user.isModerator
-    && !isDialInUser;
+    && !isDialInUser
+    && !isBreakoutRoom;
 
   const allowedToChangeStatus = user.isCurrent;
 

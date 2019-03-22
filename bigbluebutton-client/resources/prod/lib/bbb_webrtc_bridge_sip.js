@@ -80,6 +80,8 @@ function callIntoConference(voiceBridge, callback, isListenOnly, stunTurn = null
 			} else {
 				voiceBridge = conferenceVoiceBridge;
 			}
+			callerIdName = callerIdName.replace(/"/g, "'");
+			
 			console.log(callerIdName);
 			webrtc_call(callerIdName, voiceBridge, callback, isListenOnly);
 		});
@@ -126,15 +128,25 @@ function stopWebRTCAudioTestJoinConference(){
 	
 	webRTCCallback({'status': 'transferring'});
 	
-	transferTimeout = setTimeout( function() {
-		console.log("Call transfer failed. No response after 5 seconds");
-		webRTCCallback({'status': 'failed', 'errorcode': 1008});
-		releaseUserMedia();
-		currentSession = null;
-		if (userAgent != null) {
-			var userAgentTemp = userAgent;
-			userAgent = null;
-			userAgentTemp.stop();
+	var transferAttemptCount = 0;
+	
+	transferTimeout = setInterval( function() {
+		// There's a bug with FS and FF where the connection can take awhile to negotiate. I'm adding retries if they're
+		// on that to mitigate the issue. Refer to the following bug for more info, https://freeswitch.org/jira/browse/FS-11661.
+		if (bowser.firefox && transferAttemptCount < 3) {
+			transferAttemptCount++;
+			this.currentSession.dtmf(1);
+		} else {
+			clearInterval(transferTimeout);
+			console.log("Call transfer failed. No response after 5 seconds");
+			webRTCCallback({'status': 'failed', 'errorcode': 1008});
+			releaseUserMedia();
+			currentSession = null;
+			if (userAgent != null) {
+				var userAgentTemp = userAgent;
+				userAgent = null;
+				userAgentTemp.stop();
+			}
 		}
 	}, 5000);
 	
@@ -148,7 +160,7 @@ function userJoinedVoiceHandler(event) {
 	console.log("UserJoinedVoiceHandler - " + event);
 	if (inEchoTest === false && userID === event.userID) {
 		BBB.unlisten("UserJoinedVoiceEvent", userJoinedVoiceHandler);
-		clearTimeout(transferTimeout);
+		clearInterval(transferTimeout);
 		webRTCCallback({'status': 'started'});
 	}
 }

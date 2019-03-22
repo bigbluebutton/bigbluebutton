@@ -1,3 +1,4 @@
+import { HTTP } from 'meteor/http';
 import { check } from 'meteor/check';
 import Presentations from '/imports/api/presentations';
 import Logger from '/imports/startup/server/logger';
@@ -6,10 +7,24 @@ import flat from 'flat';
 import addSlide from '/imports/api/slides/server/modifiers/addSlide';
 import setCurrentPresentation from './setCurrentPresentation';
 
+const getSlideText = async (url) => {
+  let content = '';
+  try {
+    content = await HTTP.get(url).content;
+  } catch (error) {
+    Logger.error(`No file found. ${error}`);
+  }
+  return content;
+};
+
 const addSlides = (meetingId, podId, presentationId, slides) => {
   const slidesAdded = [];
 
-  slides.forEach((slide) => {
+  slides.forEach(async (slide) => {
+    const content = await getSlideText(slide.txtUri);
+
+    Object.assign(slide, { content });
+
     slidesAdded.push(addSlide(meetingId, podId, presentationId, slide));
   });
 

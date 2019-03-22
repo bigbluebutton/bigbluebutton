@@ -8,13 +8,11 @@ import Auth from '/imports/ui/services/auth';
 import { meetingIsBreakout } from '/imports/ui/components/app/service';
 import getFromUserSettings from '/imports/ui/services/users-settings';
 import userListService from '../user-list/service';
-import ChatService from '../chat/service';
 import Service from './service';
 import NavBar from './component';
 import mapUser from '../../services/user/mapUser';
 
 const PUBLIC_CONFIG = Meteor.settings.public;
-const PUBLIC_GROUP_CHAT_ID = PUBLIC_CONFIG.chat.public_group_id;
 
 const NavBarContainer = ({ children, ...props }) => (
   <NavBar {...props}>
@@ -39,17 +37,11 @@ export default withTracker(() => {
   }
 
   const checkUnreadMessages = () => {
-    const users = userListService.getUsers();
-
-    // 1.map every user id
-    // 2.filter the user except the current user from the user array
-    // 3.add the public chat to the array
-    // 4.check current user has unread messages or not.
-    return users
-      .map(user => user.id)
-      .filter(userID => userID !== Auth.userID)
-      .concat(PUBLIC_GROUP_CHAT_ID)
-      .some(receiverID => ChatService.hasUnreadMessages(receiverID));
+    const activeChats = userListService.getActiveChats();
+    const hasUnreadMessages = activeChats
+      .filter(chat => chat.id !== Session.get('idChatOpen'))
+      .some(chat => chat.unreadCounter > 0);
+    return hasUnreadMessages;
   };
 
   Meetings.find({ meetingId: Auth.meetingID }).observeChanges({
@@ -86,6 +78,8 @@ export default withTracker(() => {
     presentationTitle: meetingTitle,
     hasUnreadMessages: checkUnreadMessages(),
     isBreakoutRoom: meetingIsBreakout(),
+    getBreakoutByUser: Service.getBreakoutByUser,
+    currentBreakoutUser: Service.getBreakoutUserByUserId(Auth.userID),
     recordProps: meetingRecorded,
     toggleUserList: () => {
       Session.set('isUserListOpen', !isExpanded);

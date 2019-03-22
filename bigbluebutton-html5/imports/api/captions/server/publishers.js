@@ -10,7 +10,7 @@ function captions(credentials) {
   check(requesterUserId, String);
   check(requesterToken, String);
 
-  Logger.verbose(`Publishing Captions for ${meetingId} ${requesterUserId} ${requesterToken}`);
+  Logger.debug(`Publishing Captions for ${meetingId} ${requesterUserId} ${requesterToken}`);
 
   return Captions.find({ meetingId });
 }

@@ -96,15 +96,12 @@ export default injectIntl(withTracker(({ intl }) => {
 
     const hasClearMessage = clearMessage.length;
 
-    const showWelcomeMsg =
-      (hasClearMessage && clearMessage[0].timestamp < time) || !hasClearMessage;
-
     const showModeratorMsg =
       (user.isModerator)
       && ((hasClearMessage && clearMessage[0].timestamp < moderatorTime) || !hasClearMessage);
 
     const messagesFormated = messagesBeforeWelcomeMsg
-      .concat(showWelcomeMsg ? welcomeMsg : [])
+      .concat(welcomeMsg)
       .concat(showModeratorMsg ? moderatorMsg : [])
       .concat(messagesAfterWelcomeMsg);
 

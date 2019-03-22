@@ -55,6 +55,7 @@ trait CreateBreakoutRoomsCmdMsgHdlr extends RightsManagementTrait {
         liveMeeting.props.meetingProp.intId,
         breakout.sequence,
         breakout.freeJoin,
+        liveMeeting.props.voiceProp.dialNumber,
         breakout.voiceConf,
         msg.body.durationInMinutes,
         liveMeeting.props.password.moderatorPass,

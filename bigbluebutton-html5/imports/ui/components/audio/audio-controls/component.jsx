@@ -47,8 +47,8 @@ const defaultProps = {
 class AudioControls extends Component {
   componentDidMount() {
     const { processToggleMuteFromOutside } = this.props;
-    if (Meteor.settings.public.allowOutsideCommands.toggleSelfVoice ||
-      getFromUserSettings('outsideToggleSelfVoice', false)) {
+    if (Meteor.settings.public.allowOutsideCommands.toggleSelfVoice
+      || getFromUserSettings('outsideToggleSelfVoice', false)) {
       window.addEventListener('message', processToggleMuteFromOutside);
     }
   }
@@ -65,11 +65,12 @@ class AudioControls extends Component {
       join,
       intl,
       shortcuts,
+      currentUser,
     } = this.props;
 
     return (
       <span className={styles.container}>
-        {mute ?
+        {mute && currentUser.isVoiceUser?
           <Button
             className={glow ? cx(styles.button, styles.glow) : cx(styles.button, !unmute || styles.ghostButton)}
             onClick={handleToggleMuteMicrophone}

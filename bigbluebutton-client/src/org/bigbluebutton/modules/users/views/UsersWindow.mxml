@@ -697,10 +697,10 @@ $Id: $
       }
       
       public function remoteMuteUser():void {
-        if (amIModerator && usersGrid.selectedIndex != -1) {
+        if (usersGrid.selectedIndex != -1) {
           var selData:BBBUser2x = (usersGrid.selectedItem) as BBBUser2x;
           
-          if (selData.inVoiceConf) {
+          if (selData.inVoiceConf && (selData.me || (UsersUtil.amIModerator() && !selData.muted))) {
             var e:VoiceConfEvent = new VoiceConfEvent(VoiceConfEvent.MUTE_USER);
             e.userid = selData.userId;
             e.mute = !selData.muted;

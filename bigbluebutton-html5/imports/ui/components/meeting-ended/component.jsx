@@ -8,7 +8,7 @@ import getFromUserSettings from '/imports/ui/services/users-settings';
 import logoutRouteHandler from '/imports/utils/logoutRouteHandler';
 import Rating from './rating/component';
 import { styles } from './styles';
-
+import logger from '/imports/startup/client/logger';
 
 const intlMessage = defineMessages({
   410: {
@@ -58,6 +58,26 @@ const intlMessage = defineMessages({
   sendDesc: {
     id: 'app.feedback.sendFeedbackDesc',
     description: 'adds context to send feedback option',
+  },
+  duplicate_user_in_meeting_eject_reason: {
+    id: 'app.meeting.logout.duplicateUserEjectReason',
+    description: 'message for duplicate users',
+  },
+  not_enough_permission_eject_reason: {
+    id: 'app.meeting.logout.permissionEjectReason',
+    description: 'message for whom was kicked by doing something without permission',
+  },
+  user_requested_eject_reason: {
+    id: 'app.meeting.logout.ejectedFromMeeting',
+    description: 'message when the user is removed by someone',
+  },
+  validate_token_failed_eject_reason: {
+    id: 'app.meeting.logout.validateTokenFailedEjectReason',
+    description: 'invalid auth token',
+  },
+  user_inactivity_eject_reason: {
+    id: 'app.meeting.logout.userInactivityEjectReason',
+    description: 'message for whom was kicked by inactivity',
   },
 });
 
@@ -121,13 +141,19 @@ class MeetingEnded extends React.PureComponent {
       },
     };
 
-    fetch(url, options)
-      .then(() => {
-        logoutRouteHandler();
-      })
-      .catch(() => {
-        logoutRouteHandler();
-      });
+    // client logger
+    logger.info({ feedback: message, logCode: 'feedback' }, 'Feedback');
+
+    const FEEDBACK_WAIT_TIME = 500;
+    setTimeout(() => {
+      fetch(url, options)
+        .then(() => {
+          logoutRouteHandler();
+        })
+        .catch(() => {
+          logoutRouteHandler();
+        });
+    }, FEEDBACK_WAIT_TIME);
   }
 
   render() {
@@ -148,7 +174,7 @@ class MeetingEnded extends React.PureComponent {
                 : intl.formatMessage(intlMessage.messageEnded)}
             </div>
             {this.shouldShowFeedback ? (
-              <div className={styles.rating}>
+              <div>
                 <Rating
                   total="5"
                   onRate={this.setSelectedStar}

@@ -131,7 +131,7 @@ class MeetingActor(
     meetingExpireIfNoUserJoinedInMs = TimeUtil.minutesToMillis(props.durationProps.meetingExpireIfNoUserJoinedInMinutes),
     meetingExpireWhenLastUserLeftInMs = TimeUtil.minutesToMillis(props.durationProps.meetingExpireWhenLastUserLeftInMinutes),
     userInactivityInspectTimerInMs = TimeUtil.minutesToMillis(props.durationProps.userInactivityInspectTimerInMinutes),
-    userInactivityThresholdInMs = TimeUtil.minutesToMillis(props.durationProps.userInactivityInspectTimerInMinutes),
+    userInactivityThresholdInMs = TimeUtil.minutesToMillis(props.durationProps.userInactivityThresholdInMinutes),
     userActivitySignResponseDelayInMs = TimeUtil.minutesToMillis(props.durationProps.userActivitySignResponseDelayInMinutes))
 
   val recordingTracker = new MeetingRecordingTracker(startedOnInMs = 0L, previousDurationInMs = 0L, currentDurationInMs = 0L)
@@ -506,7 +506,7 @@ class MeetingActor(
     setRecordingChapterBreak()
 
     processUserInactivityAudit()
-
+    flagRegisteredUsersWhoHasNotJoined()
     checkIfNeetToEndMeetingWhenNoAuthedUsers(liveMeeting)
   }
 
@@ -517,7 +517,8 @@ class MeetingActor(
     val elapsedInMs = now - lastRecBreakSentOn
     val elapsedInMin = TimeUtil.millisToMinutes(elapsedInMs)
 
-    if (elapsedInMin > recordingChapterBreakLenghtInMinutes) {
+    if (recordingChapterBreakLengthInMinutes > 0 &&
+        elapsedInMin > recordingChapterBreakLengthInMinutes) {
       lastRecBreakSentOn = now
       val event = MsgBuilder.buildRecordingChapterBreakSysMsg(props.meetingProp.intId, TimeUtil.timeNowInMs())
       outGW.send(event)
@@ -650,10 +651,25 @@ class MeetingActor(
     log.info("Check for users who haven't responded to user inactivity warning.")
     val users = Users2x.findAll(liveMeeting.users2x)
     users foreach { u =>
-      val respondedOntIme = (lastUserInactivityInspectSentOn - expiryTracker.userInactivityThresholdInMs) < u.lastActivityTime && (lastUserInactivityInspectSentOn + expiryTracker.userActivitySignResponseDelayInMs) > u.lastActivityTime
-      if (!respondedOntIme) {
+      val respondedOnTime = (lastUserInactivityInspectSentOn - expiryTracker.userInactivityThresholdInMs) < u.lastActivityTime && (lastUserInactivityInspectSentOn + expiryTracker.userActivitySignResponseDelayInMs) > u.lastActivityTime
+      if (!respondedOnTime) {
         UsersApp.ejectUserFromMeeting(outGW, liveMeeting, u.intId, SystemUser.ID, "User inactive for too long.", EjectReasonCode.USER_INACTIVITY)
         Sender.sendDisconnectClientSysMsg(liveMeeting.props.meetingProp.intId, u.intId, SystemUser.ID, EjectReasonCode.USER_INACTIVITY, outGW)
+      }
+    }
+  }
+
+  def flagRegisteredUsersWhoHasNotJoined(): Unit = {
+    val users = RegisteredUsers.findUsersNotJoined(liveMeeting.registeredUsers)
+    users foreach{ u =>
+      val now = System.currentTimeMillis()
+      if (now - u.registeredOn > TimeUtil.secondsToMillis(maxRegUserToJoinTime)) {
+        RegisteredUsers.markAsUserFailedToJoin(liveMeeting.registeredUsers, u)
+        val event = MsgBuilder.buildRegisteredUserJoinTimeoutMsg(
+          liveMeeting.props.meetingProp.intId,
+          u.id,
+          u.name)
+        outGW.send(event)
       }
     }
   }

@@ -14,7 +14,7 @@ function groupChatMsg(credentials, chatsIds) {
   const CHAT_CONFIG = Meteor.settings.public.chat;
   const PUBLIC_GROUP_CHAT_ID = CHAT_CONFIG.public_group_id;
 
-  Logger.info(`Publishing group-chat-msg for ${meetingId} ${requesterUserId} ${requesterToken}`);
+  Logger.debug(`Publishing group-chat-msg for ${meetingId} ${requesterUserId} ${requesterToken}`);
 
   return GroupChatMsg.find({
     $or: [

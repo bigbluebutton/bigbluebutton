@@ -22,8 +22,11 @@
   border-radius: 50%;
   text-align: center;
   text-transform: capitalize;
-  transition: calc(var(--enableAnimation) * .3s) ease-in-out;
   font-size: .85rem;
+
+  [style~="--enableAnimation:1;"] & {
+    transition: .3s ease-in-out;
+  }
 
   &:after,
   &:before {
@@ -42,7 +45,6 @@
     background-color: var(--user-indicator-voice-bg);
     color: var(--user-avatar-text);
     opacity: 0;
-    transition: calc(var(--enableAnimation) * .3s) ease-in-out;
     font-family: 'bbb-icons';
     font-size: .65rem;
     line-height: 0;
@@ -50,6 +52,10 @@
     vertical-align: middle;
     letter-spacing: -.65rem;
     z-index: 1;
+
+    [style~="--enableAnimation:1;"] & {
+        transition: .3s ease-in-out;
+    }
   }
 }
 
@@ -61,23 +67,26 @@
   left: 0;
   background-color: var(--user-color);
   border-radius: inherit;
-  animation: pulse calc(var(--enableAnimation) * 1s) infinite ease-in;
+
+  [style~="--enableAnimation:1;"] & {
+    animation: pulse 1s infinite ease-in;
+  }
+
+  &::before {
+    [style~="--enableAnimation:0;"] & {
+      content: '';
+      position: absolute;
+      top: 0;
+      right: 0;
+      bottom: 0;
+      left: 0;
+      background-color: var(--user-color);
+      border-radius: inherit;
+      box-shadow: 0 0 0 4px var(--user-color);
+      opacity: .5;
+    }
+  }
 }
-
-
-[style~="--enableAnimation:0;"] .talking::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  right: 0;
-  bottom: 0;
-  left: 0;
-  background-color: var(--user-color);
-  border-radius: inherit;
-  box-shadow: 0px 0px 0px 4px var(--user-color);
-  opacity: .5;
-}
-
 
 @keyframes pulse {
   0% {
@@ -110,13 +119,19 @@
   }
 }
 
+.noVoice {
+  &:after {
+    content: "";
+    background-color: var(--color-off-white);
+  }
+}
+
 .muted {
   &:after {
     content: "\00a0\e932\00a0";
     background-color: var(--user-indicator-muted-bg);
   }
 }
-
 
 .listenOnly {
   &:after {
@@ -126,7 +141,8 @@
 
 .listenOnly,
 .muted,
-.voice {
+.voice,
+.noVoice {
   @include indicatorStyles();
 }
 

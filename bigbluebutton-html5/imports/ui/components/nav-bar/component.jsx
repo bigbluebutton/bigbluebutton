@@ -128,6 +128,8 @@ class NavBar extends PureComponent {
       isBreakoutRoom,
       mountModal,
       recordProps,
+      currentBreakoutUser,
+      getBreakoutByUser,
     } = this.props;
 
     if (!recordProps.recording) {
@@ -143,21 +145,38 @@ class NavBar extends PureComponent {
 
     const hadBreakouts = oldProps.breakouts.length;
     const hasBreakouts = breakouts.length;
-
     if (!hasBreakouts && hadBreakouts) {
       closeBreakoutJoinConfirmation(mountModal);
     }
 
+    if (hasBreakouts && currentBreakoutUser) {
+      const currentIsertedTime = currentBreakoutUser.insertedTime;
+      const oldCurrentUser = oldProps.currentBreakoutUser || {};
+      const oldInsertedTime = oldCurrentUser.insertedTime;
+
+      if (currentIsertedTime !== oldInsertedTime) {
+        const breakoutRoom = getBreakoutByUser(currentBreakoutUser);
+        this.inviteUserToBreakout(breakoutRoom);
+      }
+    }
+
     breakouts.forEach((breakout) => {
+      const userOnMeeting = breakout.users.filter(u => u.userId === Auth.userID).length;
+      if (breakout.freeJoin
+        && !didSendBreakoutInvite
+        && !userOnMeeting
+        && !isBreakoutRoom) {
+        this.inviteUserToBreakout(breakout);
+        this.setState({ didSendBreakoutInvite: true });
+      }
+
       if (!breakout.users) {
         return;
       }
 
-      const userOnMeeting = breakout.users.filter(u => u.userId === Auth.userID).length;
-
       if (!userOnMeeting) return;
 
-      if (!didSendBreakoutInvite && !isBreakoutRoom) {
+      if ((!didSendBreakoutInvite && !isBreakoutRoom) ) {
         this.inviteUserToBreakout(breakout);
       }
     });

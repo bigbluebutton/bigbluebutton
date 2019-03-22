@@ -715,8 +715,10 @@ chat|ChatMessageRenderer {
 	paddingRight  : 12;
 }
 
-.userTypingCanvas {
-	backgroundColor : #FFFFFF;
+.chatControlBarStyle {
+	paddingLeft   : 5;
+	paddingRight  : 5;
+	paddingBottom : 0;
 }
 
 .msgTooLongLabel {
@@ -726,8 +728,8 @@ chat|ChatMessageRenderer {
 .userTypingLabel {
 	fontSize      : 13;
 	color         : #4E5A66;
-	paddingBottom : 2;
-	paddingTop    : 2;
+	paddingBottom : 0;
+	paddingTop    : 0;
 	paddingLeft   : 4;
 	paddingRight  : 4;
 }

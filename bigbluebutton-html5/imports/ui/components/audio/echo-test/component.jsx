@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
+import { Session } from 'meteor/session';
 import Button from '/imports/ui/components/button/component';
 import { defineMessages, intlShape, injectIntl } from 'react-intl';
 import { styles } from './styles';
@@ -37,6 +38,14 @@ class EchoTest extends Component {
     };
     this.handleYes = props.handleYes.bind(this);
     this.handleNo = props.handleNo.bind(this);
+  }
+
+  componentDidMount() {
+    Session.set('inEchoTest', true);
+  }
+
+  componentWillUnmount() {
+    Session.set('inEchoTest', false);
   }
 
   render() {

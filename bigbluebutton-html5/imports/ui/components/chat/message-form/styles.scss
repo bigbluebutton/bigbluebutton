@@ -26,8 +26,11 @@
   border-radius: var(--border-radius) 0 0 var(--border-radius);
   color: var(--color-gray-light);
   padding: var(--sm-padding-y) var(--sm-padding-x);
-  transition: all calc(var(--enableAnimation) * .3s);
   cursor: pointer;
+
+  [style~="--enableAnimation:1;"] & {
+    transition: all .3s;
+  }
 
   --bg-faded: rgba(167,179,189,0.25);
 
