@@ -77,11 +77,8 @@
   text-align: center;
   font-size: var(--font-size-large);
 }
-.audioBtn {
-  &:focus {
-    outline: none !important;
-  }
 
+.audioBtn {
   i {
     color: #3c5764;
   }
