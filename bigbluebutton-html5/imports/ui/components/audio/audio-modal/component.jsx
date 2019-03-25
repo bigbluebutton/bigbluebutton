@@ -98,8 +98,6 @@ class AudioModal extends Component {
       hasError: false,
     };
 
-    const { intl } = props;
-
     this.handleGoToAudioOptions = this.handleGoToAudioOptions.bind(this);
     this.handleGoToAudioSettings = this.handleGoToAudioSettings.bind(this);
     this.handleRetryGoToEchoTest = this.handleRetryGoToEchoTest.bind(this);
@@ -110,15 +108,15 @@ class AudioModal extends Component {
 
     this.contents = {
       echoTest: {
-        title: intl.formatMessage(intlMessages.echoTestTitle),
+        title: intlMessages.echoTestTitle,
         component: () => this.renderEchoTest(),
       },
       settings: {
-        title: intl.formatMessage(intlMessages.settingsTitle),
+        title: intlMessages.settingsTitle,
         component: () => this.renderAudioSettings(),
       },
       help: {
-        title: intl.formatMessage(intlMessages.helpTitle),
+        title: intlMessages.helpTitle,
         component: () => this.renderHelp(),
       },
     };
@@ -413,7 +411,7 @@ class AudioModal extends Component {
                   : (
                     <h3 className={styles.title}>
                       {content
-                        ? this.contents[content].title
+                        ? intl.formatMessage(this.contents[content].title)
                         : intl.formatMessage(intlMessages.audioChoiceLabel)}
                     </h3>
                   )
