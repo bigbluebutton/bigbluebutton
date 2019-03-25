@@ -623,8 +623,11 @@ class MeetingActor(
 
   def processUserInactivityAudit(): Unit = {
     val now = TimeUtil.timeNowInMs()
-    // Time to do a new check?
-    if (now > lastUserInactivityInspectSentOn + expiryTracker.userInactivityInspectTimerInMs) {
+
+    // Check if user is inactive. We only do the check is user inactivity
+    // is not disabled (0).
+    if ((expiryTracker.userInactivityInspectTimerInMs > 0) &&
+            (now > lastUserInactivityInspectSentOn + expiryTracker.userInactivityInspectTimerInMs)) {
       lastUserInactivityInspectSentOn = now
       checkInactiveUsers = true
       warnPotentiallyInactiveUsers()

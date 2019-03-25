@@ -25,7 +25,11 @@ case class MeetingInactivityTracker(
   }
 
   def isMeetingInactive(nowInMs: Long): Boolean = {
-    warningSent && (nowInMs - lastActivityTimestampInMs) > maxInactivityTimeoutInMs
+    if (maxInactivityTimeoutInMs > 0) {
+      warningSent && (nowInMs - lastActivityTimestampInMs) > maxInactivityTimeoutInMs
+    } else {
+      false
+    }
   }
 
   def timeLeftInMs(nowInMs: Long): Long = {
