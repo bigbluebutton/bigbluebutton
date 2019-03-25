@@ -50,24 +50,22 @@ const handleClickQuickPoll = (slideId, poll) => {
 };
 
 
-const getAvailableQuickPolls = (slideId, parsedSlides) => {
-  return parsedSlides.map((poll) => {
-    const { poll: label, type } = poll;
-    let itemLabel = label;
+const getAvailableQuickPolls = (slideId, parsedSlides) => parsedSlides.map((poll) => {
+  const { poll: label, type } = poll;
+  let itemLabel = label;
 
-    if (type !== 'YN' && type !== 'TF') {
-      const { options } = itemLabel;
-      itemLabel = options.join('/').replace(/[\n.)]/g, '');
-    }
+  if (type !== 'YN' && type !== 'TF') {
+    const { options } = itemLabel;
+    itemLabel = options.join('/').replace(/[\n.)]/g, '');
+  }
 
-    return (
-      <DropdownListItem
-        label={itemLabel}
-        key={_.uniqueId('quick-poll-item')}
-        onClick={() => handleClickQuickPoll(slideId, poll)}
-      />);
-  });
-};
+  return (
+    <DropdownListItem
+      label={itemLabel}
+      key={_.uniqueId('quick-poll-item')}
+      onClick={() => handleClickQuickPoll(slideId, poll)}
+    />);
+});
 
 const QuickPollDropdown = (props) => {
   const { isUserPresenter, intl, parseCurrentSlideContent } = props;

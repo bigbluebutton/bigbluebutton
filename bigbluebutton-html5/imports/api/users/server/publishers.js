@@ -57,11 +57,14 @@ function users(credentials, isModerator = false) {
   };
 
   if (isModerator) {
-    selector.$or.push({
-      'breakoutProps.isBreakoutUser': true,
-      'breakoutProps.parentId': meetingId,
-      connectionStatus: 'online',
-    });
+    const User = Users.findOne({ userId: requesterUserId });
+    if (!!User && User.moderator) {
+      selector.$or.push({
+        'breakoutProps.isBreakoutUser': true,
+        'breakoutProps.parentId': meetingId,
+        connectionStatus: 'online',
+      });
+    }
   }
 
   const options = {
@@ -70,7 +73,7 @@ function users(credentials, isModerator = false) {
     },
   };
 
-  Logger.info(`Publishing Users for ${meetingId} ${requesterUserId} ${requesterToken}`);
+  Logger.debug(`Publishing Users for ${meetingId} ${requesterUserId} ${requesterToken}`);
 
   return Users.find(selector, options);
 }

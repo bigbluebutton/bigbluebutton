@@ -313,12 +313,14 @@ const getAvailableActions = (currentUser, user, isBreakoutRoom) => {
   const allowedToPromote = currentUser.isModerator
     && !user.isCurrent
     && !user.isModerator
-    && !isDialInUser;
+    && !isDialInUser
+    && !isBreakoutRoom;
 
   const allowedToDemote = currentUser.isModerator
     && !user.isCurrent
     && user.isModerator
-    && !isDialInUser;
+    && !isDialInUser
+    && !isBreakoutRoom;
 
   const allowedToChangeStatus = user.isCurrent;
 

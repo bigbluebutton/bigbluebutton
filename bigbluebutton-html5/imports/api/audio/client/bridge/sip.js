@@ -85,17 +85,26 @@ export default class SIPBridge extends BaseAudioBridge {
   transferCall(onTransferSuccess) {
     return new Promise((resolve, reject) => {
       let trackerControl = null;
+      let transferAttemptCount = 0;
 
-      const timeout = setTimeout(() => {
-        clearTimeout(timeout);
-        trackerControl.stop();
-        logger.error({ logCode: 'sip_js_transfer_timed_out' }, 'Timeout on transfering from echo test to conference');
-        this.callback({
-          status: this.baseCallStates.failed,
-          error: 1008,
-          bridgeError: 'Timeout on call transfer',
-        });
-        reject(this.baseErrorCodes.REQUEST_TIMEOUT);
+      const timeout = setInterval(() => {
+        // There's a bug with FS and FF where the connection can take awhile to negotiate. I'm
+        // adding retries if they're on that to mitigate the issue. Refer to the following bug 
+        // for more info, https://freeswitch.org/jira/browse/FS-11661.
+        if (browser().name === 'firefox' && transferAttemptCount < 3) {
+          transferAttemptCount++;
+          this.currentSession.dtmf(1);
+        } else {
+          clearInterval(timeout);
+          trackerControl.stop();
+          logger.error({ logCode: 'sip_js_transfer_timed_out' }, 'Timeout on transfering from echo test to conference');
+          this.callback({
+            status: this.baseCallStates.failed,
+            error: 1008,
+            bridgeError: 'Timeout on call transfer',
+          });
+          reject(this.baseErrorCodes.REQUEST_TIMEOUT);
+        }
       }, CALL_TRANSFER_TIMEOUT);
 
       // This is is the call transfer code ask @chadpilkey
@@ -109,7 +118,7 @@ export default class SIPBridge extends BaseAudioBridge {
         query.observeChanges({
           changed: (id, fields) => {
             if (fields.joined) {
-              clearTimeout(timeout);
+              clearInterval(timeout);
               onTransferSuccess();
               c.stop();
               resolve();
@@ -300,6 +309,13 @@ export default class SIPBridge extends BaseAudioBridge {
       };
       currentSession.on('accepted', handleSessionAccepted);
 
+      const handleSessionProgress = (update) => {
+        logger.info({ logCode: 'sip_js_session_progress' }, 'Audio call session progress update');
+        clearTimeout(callTimeout);
+        currentSession.off('progress', handleSessionProgress);
+      };
+      currentSession.on('progress', handleSessionProgress);
+
       const handleConnectionCompleted = (peer) => {
         logger.info({ logCode: 'sip_js_ice_connection_success' }, `ICE connection success. Current state - ${peer.iceConnectionState}`);
         clearTimeout(callTimeout);
@@ -310,7 +326,7 @@ export default class SIPBridge extends BaseAudioBridge {
         // actually ready and if the user says "Yes they can hear themselves" too quickly the
         // B-leg transfer will fail
         const that = this;
-        const notificationTimeout = (browser().name === 'firefox'? CALL_CONNECT_NOTIFICATION_TIMEOUT : 0);
+        const notificationTimeout = (browser().name === 'firefox' ? CALL_CONNECT_NOTIFICATION_TIMEOUT : 0);
         setTimeout(() => {
           that.callback({ status: that.baseCallStates.started });
           resolve();

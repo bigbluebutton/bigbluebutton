@@ -1,5 +1,10 @@
 @import "/imports/ui/stylesheets/variables/_all";
 
+:root {
+  --systemMessage-background-color: #F9FBFC;
+  --systemMessage-border-color: #C5CDD4;
+}
+
 .item {
   font-size: var(--font-size-base);
   margin-bottom: var(--line-height-computed);
@@ -16,24 +21,11 @@
 }
 
 .systemMessage {
-  padding: var(--line-height-computed) 0;
-  border-bottom: 1px solid var(--color-gray-lighter);
-
-  .item:not(&) + & {
-    border-top: 1px solid var(--color-gray-lighter);
-  }
-
-  & + & {
-    margin-top: calc(var(--line-height-computed) * -1);
-  }
-
-  &:last-child {
-    border-bottom: none;
-  }
-
-  .message {
-    color: var(--color-gray);
-  }
+  background: var(--systemMessage-background-color);
+  border: 1px solid var(--systemMessage-border-color);
+  border-radius: var(--border-radius);
+  font-weight: var(--btn-font-weight);
+  padding: var(--font-size-base);
 }
 
 .avatarWrapper {

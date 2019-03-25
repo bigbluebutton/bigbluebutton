@@ -9,7 +9,7 @@ function voiceUser(credentials) {
   check(meetingId, String);
   check(requesterUserId, String);
 
-  Logger.info(`Publishing Voice User for ${meetingId} ${requesterUserId}`);
+  Logger.debug(`Publishing Voice User for ${meetingId} ${requesterUserId}`);
 
   return VoiceUsers.find({ meetingId });
 }

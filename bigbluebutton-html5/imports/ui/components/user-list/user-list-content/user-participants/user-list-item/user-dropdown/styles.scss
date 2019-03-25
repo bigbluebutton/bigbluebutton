@@ -15,8 +15,11 @@
 .enterActive,
 .appearActive {
   opacity: 1;
-  transition: all calc(var(--enableAnimation) * 300ms);
   max-height: 10rem;
+
+  [style~="--enableAnimation:1;"] & {
+    transition: all 300ms;
+  }
 }
 
 .leave {
@@ -26,8 +29,11 @@
 
 .leaveActive {
   opacity: 0;
-  transition: all calc(var(--enableAnimation) * 500ms);
   max-height: 0rem;
+  
+  [style~="--enableAnimation:1;"] & {
+    transition: all 500ms;
+  }
 }
 
 // Text under username
@@ -41,8 +47,11 @@
 .subUserNameAppearActive {
   transform: translateY(0%);
   opacity: 1;
-  transition: all calc(var(--enableAnimation) * 500ms);
   max-height: 10rem;
+
+  [style~="--enableAnimation:1;"] & {
+    transition: all 500ms;
+  }
 }
 
 .subUserNameLeave {
@@ -52,8 +61,11 @@
 
 .subUserNameLeaveActive {
   opacity: 0;
-  transition: all calc(var(--enableAnimation) * 300ms);
   transform: translateY(-100%);
+
+  [style~="--enableAnimation:1;"] & {
+    transition: all 300ms;
+  }
 }
 
 .actionsHeader {

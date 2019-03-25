@@ -9,12 +9,12 @@ import Service from './service';
 
 const PollContainer = ({ ...props }) => <Poll {...props} />;
 
-export default withTracker(({ }) => {
+export default withTracker(() => {
   Meteor.subscribe('current-poll', Auth.meetingID);
 
   const currentPresentation = Presentations.findOne({
     current: true,
-  });
+  }) || {};
 
   const currentSlide = PresentationAreaService.getCurrentSlide(currentPresentation.podId);
 

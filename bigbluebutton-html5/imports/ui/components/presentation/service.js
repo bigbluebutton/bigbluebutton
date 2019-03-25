@@ -39,28 +39,27 @@ const getCurrentSlide = (podId) => {
     return null;
   }
 
-  return Slides.findOne(
-    {
-      podId,
-      presentationId: currentPresentation.id,
-      current: true,
+  return Slides.findOne({
+    podId,
+    presentationId: currentPresentation.id,
+    current: true,
+  }, {
+    fields: {
+      meetingId: 0,
+      thumbUri: 0,
+      swfUri: 0,
+      txtUri: 0,
     },
-    {
-      fields: {
-        meetingId: 0,
-        thumbUri: 0,
-        swfUri: 0,
-        txtUri: 0,
-      },
-    },
-  );
+  });
 };
 
 const currentSlidHasContent = () => {
   const currentSlide = getCurrentSlide('DEFAULT_PRESENTATION_POD');
   if (!currentSlide) return false;
 
-  const { content } = currentSlide;
+  const {
+    content,
+  } = currentSlide;
 
   return !!content.length;
 };
@@ -70,7 +69,9 @@ const parseCurrentSlideContent = (yesValue, noValue, trueValue, falseValue) => {
   const quickPollOptions = [];
   if (!currentSlide) return quickPollOptions;
 
-  const { content } = currentSlide;
+  const {
+    content,
+  } = currentSlide;
 
   const pollRegex = /\n[^\s][.)]/g;
   const optionsPoll = content.match(pollRegex) || [];
@@ -93,7 +94,9 @@ const parseCurrentSlideContent = (yesValue, noValue, trueValue, falseValue) => {
       return acc;
     }
 
-    const { options } = lastElement;
+    const {
+      options,
+    } = lastElement;
 
     const lastOption = options[options.length - 1];
 
@@ -113,23 +116,36 @@ const parseCurrentSlideContent = (yesValue, noValue, trueValue, falseValue) => {
         options: [currentValue],
       });
     }
-
     return acc;
-  }, [])
-    .filter(({ options }) => options.length > 1 && options.length < 7)
-    .forEach(poll => quickPollOptions.push({ type: `A-${poll.options.length}`, poll }));
+  }, []).filter(({
+    options,
+  }) => options.length > 1 && options.length < 7).forEach(poll => quickPollOptions.push({
+    type: `A-${poll.options.length}`,
+    poll,
+  }));
 
-  ynPoll.forEach(poll => quickPollOptions.push({ type: 'YN', poll }));
+  ynPoll.forEach(poll => quickPollOptions.push({
+    type: 'YN',
+    poll,
+  }));
 
-  tfPoll.forEach(poll => quickPollOptions.push({ type: 'TF', poll }));
+  tfPoll.forEach(poll => quickPollOptions.push({
+    type: 'TF',
+    poll,
+  }));
 
-  return { slideId: currentSlide.id, quickPollOptions };
+  return {
+    slideId: currentSlide.id,
+    quickPollOptions,
+  };
 };
 
 const isPresenter = (podId) => {
   // a main presenter in the meeting always owns a default pod
   if (podId === 'DEFAULT_PRESENTATION_POD') {
-    const currentUser = Users.findOne({ userId: Auth.userID });
+    const currentUser = Users.findOne({
+      userId: Auth.userID,
+    });
     return currentUser ? currentUser.presenter : false;
   }
 
@@ -143,7 +159,10 @@ const isPresenter = (podId) => {
 };
 
 const getMultiUserStatus = (whiteboardId) => {
-  const data = WhiteboardMultiUser.findOne({ meetingId: Auth.meetingID, whiteboardId });
+  const data = WhiteboardMultiUser.findOne({
+    meetingId: Auth.meetingID,
+    whiteboardId,
+  });
   return data ? data.multiUser : false;
 };
 

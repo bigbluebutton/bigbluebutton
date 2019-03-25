@@ -28,6 +28,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
          implements="org.bigbluebutton.modules.chat.views.IChatTab"
          width="100%" height="100%"
          click="setMessageRead()" verticalScrollPolicy="off"
+         verticalGap="0"
          creationComplete="onCreationComplete()">
   
   <fx:Declarations>
@@ -245,7 +246,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       
       private function handleChangeHeight(newHeight:Number):void {
         // The height for this chat box has changed. Calculate the height of the components accordingly.
-        chatListHeight = newHeight - (chatCtrlBar.height + 10);
+        chatListHeight = newHeight - chatCtrlBar.height;
       }
       
       private function queryForChatHistory():void {
@@ -698,13 +699,11 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	  private function showTypingIndicator(message:String) : void {
 		  userTypingLabel.text = message;
 		  userTypingLabel.visible = true;
-		  chatMessagesList.setStyle("paddingBottom", userTypingLabel.height);
 	  }
 		
 	  private function hideTypingIndicator():void {
 		  userTypingLabel.text = "";
 		  userTypingLabel.visible = false;
-		  chatMessagesList.setStyle("paddingBottom", 0);
 	  }
       
       override protected function updateDisplayList(unscaledWidth:Number, unscaledHeight:Number):void {
@@ -712,9 +711,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         
         // Force validation before evaluation of toolbar width
         validateNow();
-        
-        const paddingHeight:int = 5;
-        const paddingWidth:int = 5;
       }
 		
 	]]>
@@ -728,7 +724,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
   </fx:Declarations>
   
   <mx:VBox width="100%" height="{chatListHeight}" verticalScrollPolicy="off">
-    <mx:Canvas id="chatMessagesCanvas" width="100%" height="{chatListHeight}" horizontalScrollPolicy="off" verticalScrollPolicy="off" >
+    <mx:Canvas id="chatMessagesCanvas" width="100%" height="{chatListHeight}" horizontalScrollPolicy="off" verticalScrollPolicy="off">
       <chat:AdvancedList width="100%" height="{chatListHeight}" id="chatMessagesList" selectable="true" variableRowHeight="true" 
                          itemRenderer="org.bigbluebutton.modules.chat.views.ChatMessageRenderer" 
                          verticalScrollPolicy="on" horizontalScrollPolicy="off" wordWrap="true"
@@ -744,9 +740,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
     </mx:Canvas>
   </mx:VBox>
   <mx:HBox id="chatCtrlBar" width="100%" height="80" styleName="chatControlBarStyle"
-		   verticalScrollPolicy="off" horizontalScrollPolicy="off"
-           paddingLeft="5" paddingRight="5">	
-    <mx:VBox width="100%" height="100%" verticalScrollPolicy="off" horizontalScrollPolicy="off">
+		   verticalScrollPolicy="off" horizontalScrollPolicy="off">
+    <mx:VBox width="100%" height="100%" verticalScrollPolicy="off" horizontalScrollPolicy="off" verticalGap="0" paddingBottom="0">
 	  <mx:Canvas width="100%" height="100%" verticalScrollPolicy="off" horizontalScrollPolicy="off">
 	      <!-- There is a restrict in this textArea to avoid a known issue where a \u007F, which is the delete character, would be seen written in some browsers as an invalid character -->
 	      <mx:TextArea id="txtMsgArea" width="100%" height="100%" restrict="^\u007F"
@@ -759,15 +754,13 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	  <mx:Label id="userTypingLabel" styleName="userTypingLabel" truncateToFit="true"
 			    visible="false" width="100%" />	
     </mx:VBox>
-    <mx:VBox verticalScrollPolicy="off" verticalAlign="middle" height="100%" >
-      <mx:HBox horizontalGap="0">
-        <mx:Button id="sendBtn"
-                   styleName="chatControlBarSendButtonStyle"
-                   width="40" height="40"
-                   toolTip="{ResourceUtil.getInstance().getString('bbb.chat.sendBtn.toolTip')}" 
-                   click="sendMessages()"
-                   accessibilityName="{ResourceUtil.getInstance().getString('bbb.chat.sendBtn.accessibilityName')}"/>
-      </mx:HBox>
+    <mx:VBox verticalScrollPolicy="off" verticalAlign="top" height="100%" paddingTop="6">
+      <mx:Button id="sendBtn"
+                 styleName="chatControlBarSendButtonStyle"
+                 width="40" height="40"
+                 toolTip="{ResourceUtil.getInstance().getString('bbb.chat.sendBtn.toolTip')}"
+                 click="sendMessages()"
+                 accessibilityName="{ResourceUtil.getInstance().getString('bbb.chat.sendBtn.accessibilityName')}"/>
       <mx:ColorPicker id="cmpColorPicker" showTextField="false" width="100%" visible="{chatOptions.colorPickerIsVisible}"
                       includeInLayout="{chatOptions.colorPickerIsVisible}" 
                       toolTip="{ResourceUtil.getInstance().getString('bbb.chat.cmpColorPicker.toolTip')}" 
