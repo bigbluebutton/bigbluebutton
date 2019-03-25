@@ -243,7 +243,6 @@ class PresentationUploader extends Component {
       })
       .catch((error) => {
         notify(intl.formatMessage(intlMessages.genericError), 'error');
-
         logger.error({ logCode: 'presentationuploader_component_save_error' }, error);
 
         this.setState({
@@ -431,7 +430,7 @@ class PresentationUploader extends Component {
 
   renderPresentationItemStatus(item) {
     const { intl } = this.props;
-
+    const { disableActions } = this.state;
     if (!item.upload.done && item.upload.progress === 0) {
       return intl.formatMessage(intlMessages.fileToUpload);
     }
@@ -447,7 +446,12 @@ class PresentationUploader extends Component {
       return intl.formatMessage(errorMessage);
     }
 
-    if (item.conversion.done && item.conversion.error) {
+    if (!item.conversion.done && item.conversion.error) {
+      if (disableActions) {
+        this.setState({
+          disableActions: false,
+        });
+      }
       const errorMessage = intlMessages[item.conversion.status] || intlMessages.genericError;
       return intl.formatMessage(errorMessage);
     }
