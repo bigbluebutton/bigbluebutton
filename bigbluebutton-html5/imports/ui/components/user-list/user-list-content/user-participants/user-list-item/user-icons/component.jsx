@@ -37,7 +37,7 @@ const UserIcons = (props) => {
       {
         SLOW_CONNECTIONS_TYPES.includes(effectiveConnectionType) ? (
           <span className={styles.userIconsContainer}>
-            <SlowConnection iconOnly />
+            <SlowConnection effectiveConnectionType={effectiveConnectionType} iconOnly />
           </span>
         ) : null
       }

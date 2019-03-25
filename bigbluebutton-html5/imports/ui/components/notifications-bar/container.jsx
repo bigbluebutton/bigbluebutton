@@ -127,7 +127,7 @@ export default injectIntl(withTracker(({ intl }) => {
     const { effectiveConnectionType } = user;
     if (SLOW_CONNECTIONS_TYPES.includes(effectiveConnectionType)) {
       data.message = (
-        <SlowConnection>
+        <SlowConnection effectiveConnectionType={effectiveConnectionType}>
           {intl.formatMessage(intlMessages.slowEffectiveConnectionDetected)}
           <a href={HELP_LINK} target="_blank" rel="noopener noreferrer">
             {intl.formatMessage(intlMessages.slowEffectiveConnectionHelpLink)}
