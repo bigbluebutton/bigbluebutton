@@ -11,6 +11,7 @@
   --position-left-safari-1280: 53em;
   --position-left-safari-1440: 58em;
   --position-left-safari-1680: 65em;
+  --position-left-safari-1920: 68em;
   --arrow-top: -65px;
   --arrow-left: -20px;
   --arrow-top-edge: -2.5rem;
@@ -65,6 +66,9 @@
     }
     @include mq($safari1680) {
       left: var(--position-left-safari-1680);
+    }
+    @include mq($safari1920) {
+      left: var(--position-left-safari-1920);
     }
   }
 }
