@@ -4,6 +4,7 @@ import cx from 'classnames';
 import VideoProviderContainer from '/imports/ui/components/video-provider/container';
 import VideoService from '/imports/ui/components/video-provider/service';
 import _ from 'lodash';
+import browser from 'browser-detect';
 
 import Draggable from 'react-draggable';
 
@@ -25,6 +26,8 @@ const fullscreenChangedEvents = [
   'mozfullscreenchange',
   'MSFullscreenChange',
 ];
+
+const BROWSER_ISMOBILE = browser().mobile;
 
 export default class WebcamDraggableOverlay extends Component {
   static getWebcamBySelector() {
@@ -50,8 +53,8 @@ export default class WebcamDraggableOverlay extends Component {
       showDropZones: false,
       showBgDropZoneTop: false,
       showBgDropZoneBottom: false,
-      dropOnTop: false,
-      dropOnBottom: true,
+      dropOnTop: BROWSER_ISMOBILE,
+      dropOnBottom: !BROWSER_ISMOBILE,
       initialPosition: { x: 0, y: 0 },
       initialRectPosition: { x: 0, y: 0 },
       lastPosition: { x: 0, y: 0 },
@@ -252,6 +255,7 @@ export default class WebcamDraggableOverlay extends Component {
         clearInterval(elementRendered);
       }
     }, 500);
+    window.dispatchEvent(new Event('resize'));
   }
 
   videoUpdated() {
@@ -261,8 +265,11 @@ export default class WebcamDraggableOverlay extends Component {
     if (numUsers !== numUsersState) {
       this.setState({ numUsers });
       this.setPositionAfterDropInEdge();
-      window.dispatchEvent(new Event('resize'));
     }
+
+    console.log('videoUpdated');
+
+    window.dispatchEvent(new Event('resize'));
   }
 
   fullscreenButtonChange() {
@@ -510,7 +517,7 @@ export default class WebcamDraggableOverlay extends Component {
           bounds="#container"
           onStart={this.handleWebcamDragStart}
           onStop={this.handleWebcamDragStop}
-          disabled={swapLayout || isFullScreen}
+          disabled={swapLayout || isFullScreen || BROWSER_ISMOBILE}
           position={resetPosition || swapLayout ? initialPosition : lastPosition}
         >
           <div
