@@ -70,8 +70,6 @@ export default class PresentationOverlay extends Component {
       presentationSize,
     } = props;
 
-    this.fitToPage = false;
-
     this.viewportW = slideWidth;
     this.viewportH = slideHeight;
 
@@ -107,6 +105,7 @@ export default class PresentationOverlay extends Component {
     const zoomPercentage = (Math.round((100 / realZoom) * 100));
     const roundedUpToFive = Math.round(zoomPercentage / 5) * 5;
     zoomChanger(roundedUpToFive);
+    this.doZoomCall(HUNDRED_PERCENT, 0, 0);
   }
 
   componentDidUpdate(prevProps) {
@@ -117,6 +116,7 @@ export default class PresentationOverlay extends Component {
       presentationSize,
       slideHeight,
       slideWidth,
+      fitToWidth,
     } = this.props;
     const isDifferent = zoom !== this.state.zoom && !touchZoom;
     const moveSLide = ((delta.x !== prevProps.delta.x)
@@ -134,19 +134,26 @@ export default class PresentationOverlay extends Component {
       this.toolbarZoom();
     }
 
-    if (!prevProps.fitToWidth && this.props.fitToWidth) {
-      this.parentH = presentationSize.presentationHeight;
-      this.parentW = presentationSize.presentationWidth;
-      this.viewportH = this.parentH;
-      this.viewportW = this.parentW;
-      this.doZoomCall(HUNDRED_PERCENT, 0, 0);
-    }
-
-    if (!this.props.fitToWidth && prevProps.fitToWidth) {
+    if (fitToWidth) {
+      if (!prevProps.fitToWidth || this.checkResize(prevProps.presentationSize)) {
+        this.parentH = presentationSize.presentationHeight;
+        this.parentW = presentationSize.presentationWidth;
+        this.viewportH = this.parentH;
+        this.viewportW = this.parentW;
+        this.doZoomCall(HUNDRED_PERCENT, 0, 0);
+      }
+    } else if (prevProps.fitToWidth) {
       this.viewportH = slideHeight;
       this.viewportW = slideWidth;
       this.doZoomCall(HUNDRED_PERCENT, 0, 0);
     }
+  }
+
+  checkResize(prevPresentationSize) {
+    const { presentationSize } = this.props;
+    const heightChanged = prevPresentationSize.presentationHeight !== presentationSize.presentationHeight;
+    const widthChanged = prevPresentationSize.presentationWidth !== presentationSize.presentationWidth;
+    return heightChanged || widthChanged;
   }
 
   onZoom(zoomValue, mouseX, mouseY) {
@@ -156,15 +163,22 @@ export default class PresentationOverlay extends Component {
     const relXcoordInPage = absXcoordInPage / this.calcPageW;
     const relYcoordInPage = absYcoordInPage / this.calcPageH;
 
-    if (this.isPortraitDoc() && this.fitToPage) {
-      this.calcPageH = (this.viewportH * zoomValue) / HUNDRED_PERCENT;
-      this.calcPageW = (this.pageOrigW / this.pageOrigH) * this.calcPageH;
-    } else if (!this.isPortraitDoc() && this.fitToPage) {
-      this.calcPageW = (this.viewportW * zoomValue) / HUNDRED_PERCENT;
-      this.calcPageH = (this.viewportH * zoomValue) / HUNDRED_PERCENT;
+    if (this.isPortraitDoc()) {
+      if (this.props.fitToWidth) {
+        this.calcPageW = (this.viewportW * zoomValue) / HUNDRED_PERCENT;
+        this.calcPageH = (this.calcPageW / this.pageOrigW) * this.pageOrigH;
+      } else {
+        this.calcPageH = (this.viewportH * zoomValue) / HUNDRED_PERCENT;
+        this.calcPageW = (this.pageOrigW / this.pageOrigH) * this.calcPageH;
+      }
     } else {
-      this.calcPageW = (this.viewportW * zoomValue) / HUNDRED_PERCENT;
-      this.calcPageH = (this.calcPageW / this.pageOrigW) * this.pageOrigH;
+      if (this.props.fitToWidth) {
+        this.calcPageW = (this.viewportW * zoomValue) / HUNDRED_PERCENT;
+        this.calcPageH = (this.calcPageW / this.pageOrigW) * this.pageOrigH;
+      } else {
+        this.calcPageW = (this.viewportW * zoomValue) / HUNDRED_PERCENT;
+        this.calcPageH = (this.viewportH * zoomValue) / HUNDRED_PERCENT;
+      }
     }
 
     absXcoordInPage = relXcoordInPage * this.calcPageW;
@@ -181,6 +195,8 @@ export default class PresentationOverlay extends Component {
 
   getTransformedSvgPoint(clientX, clientY) {
     const svgObject = this.props.getSvgRef();
+    // If svgObject is not ready, return origin
+    if (!svgObject) return { x: 0, y: 0 };
     const screenPoint = svgObject.createSVGPoint();
     screenPoint.x = clientX;
     screenPoint.y = clientY;

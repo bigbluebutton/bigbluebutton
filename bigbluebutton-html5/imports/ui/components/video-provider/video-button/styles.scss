@@ -1,20 +1,6 @@
 @import "/imports/ui/stylesheets/variables/_all";
 @import "/imports/ui/components/actions-bar/styles.scss";
 
-.button {
-  &:focus {
-    outline: none !important;
-  }
-
-  span:first-child {
-    box-shadow: 0 2px 5px 0 rgb(0, 0, 0);
-  }
-}
-
-.ghostButton {
-  @extend .btn;
-}
-
 .imageSize {
   height: 4rem;
   @include mq($small-only) {

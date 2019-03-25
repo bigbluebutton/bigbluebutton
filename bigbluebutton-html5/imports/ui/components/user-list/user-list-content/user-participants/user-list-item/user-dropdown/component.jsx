@@ -457,6 +457,7 @@ class UserDropdown extends PureComponent {
         muted={user.isMuted}
         listenOnly={user.isListenOnly}
         voice={user.isVoiceUser}
+        noVoice={!user.isVoiceUser}
         color={user.color}
       >
         {isVoiceOnly ? iconVoiceOnlyUser : iconUser}

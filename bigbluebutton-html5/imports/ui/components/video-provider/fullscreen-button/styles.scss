@@ -2,25 +2,33 @@
 
 :root {
   ::-webkit-media-controls {
-    display:none !important;
+    display: none !important;
   }
 }
 
 .wrapper {
+  position: absolute;
   right: 0;
   background-color: var(--color-transparent);
   cursor: pointer;
   border: none !important;
+
+  [class*="presentationZoomControls"] & {
+    position: relative !important;
+  }
 }
 
 .button {
-  span, span:active, span:hover {
+
+  &,
+  &:active,
+  &:hover {
     background-color: var(--color-transparent) !important;
     border: none !important;
+
     i {
       border: none !important;
       background-color: var(--color-transparent) !important;
-      font-weight: bold !important;
     }
   }
 }
@@ -29,7 +37,7 @@
   top: 0;
 }
 
-.light .button span i {
+.light .button i {
   color: var(--color-white);
 }
 
@@ -37,18 +45,18 @@
   bottom: 0;
 }
 
-.dark .button span i {
+.dark .button i {
   color: var(--color-black);
 }
 
-.fullScreenButton{
+.fullScreenButton {
   padding: 5px;
 
-  &:hover{
+  &:hover {
     border: 0;
   }
 
-  i{
+  i {
     font-size: 1rem;
   }
 }
