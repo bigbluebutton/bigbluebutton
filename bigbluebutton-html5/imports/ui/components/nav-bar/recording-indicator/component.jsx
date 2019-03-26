@@ -51,6 +51,7 @@ class RecordingIndicator extends React.PureComponent {
       time,
       amIModerator,
       intl,
+      allowStartStopRecording,
     } = this.props;
 
     if (!record) return null;
@@ -62,7 +63,7 @@ class RecordingIndicator extends React.PureComponent {
 
     return (
       <div>
-        {amIModerator ? (
+        {amIModerator && allowStartStopRecording ? (
           <Tooltip
             title={buttonTitle}
           >
@@ -96,7 +97,7 @@ class RecordingIndicator extends React.PureComponent {
           </Tooltip>
         ) : null }
 
-        {amIModerator ? null : (
+        {amIModerator && allowStartStopRecording ? null : (
           <Tooltip
             title={`${intl.formatMessage(recording
               ? intlMessages.notificationRecordingStart
