@@ -2,7 +2,7 @@ const _ = require("lodash");
 const async = require("async");
 const redis = require("redis");
 
-const config = require("./config.js");
+const config = require('config');
 const Logger = require("./logger.js");
 const UserMapping = require("./userMapping.js");
 
@@ -33,13 +33,13 @@ module.exports = class IDMapping {
     this.externalMeetingID = null;
     this.internalMeetingID = null;
     this.lastActivity = null;
-    this.redisClient = config.redis.client;
+    this.redisClient = Application.redisClient;
   }
 
   save(callback) {
-    this.redisClient.hmset(config.redis.keys.mapping(this.id), this.toRedis(), (error, reply) => {
+    this.redisClient.hmset(config.get("redis.keys.mappingPrefix") + ":" + this.id, this.toRedis(), (error, reply) => {
       if (error != null) { Logger.error("[IDMapping] error saving mapping to redis:", error, reply); }
-      this.redisClient.sadd(config.redis.keys.mappings, this.id, (error, reply) => {
+      this.redisClient.sadd(config.get("redis.keys.mappings"), this.id, (error, reply) => {
         if (error != null) { Logger.error("[IDMapping] error saving mapping ID to the list of mappings:", error, reply); }
 
         db[this.internalMeetingID] = this;
@@ -49,9 +49,9 @@ module.exports = class IDMapping {
   }
 
   destroy(callback) {
-    this.redisClient.srem(config.redis.keys.mappings, this.id, (error, reply) => {
+    this.redisClient.srem(config.get("redis.keys.mappings"), this.id, (error, reply) => {
       if (error != null) { Logger.error("[IDMapping] error removing mapping ID from the list of mappings:", error, reply); }
-      this.redisClient.del(config.redis.keys.mapping(this.id), error => {
+      this.redisClient.del(config.get("redis.keys.mappingPrefix") + ":" + this.id, error => {
         if (error != null) { Logger.error("[IDMapping] error removing mapping from redis:", error); }
 
         if (db[this.internalMeetingID]) {
@@ -161,7 +161,7 @@ module.exports = class IDMapping {
   static cleanup() {
     const now = new Date().getTime();
     const all = IDMapping.allSync();
-    const toRemove = _.filter(all, mapping => mapping.lastActivity < (now - config.mappings.timeout));
+    const toRemove = _.filter(all, mapping => mapping.lastActivity < (now - config.get("mappings.timeout")));
     if (!_.isEmpty(toRemove)) {
       Logger.info("[IDMapping] expiring the mappings:", _.map(toRemove, map => map.print()));
       toRemove.forEach(mapping => {
@@ -174,21 +174,21 @@ module.exports = class IDMapping {
   // Initializes global methods for this model.
   static initialize(callback) {
     IDMapping.resync(callback);
-    IDMapping.cleanupInterval = setInterval(IDMapping.cleanup, config.mappings.cleanupInterval);
+    IDMapping.cleanupInterval = setInterval(IDMapping.cleanup, config.get("mappings.cleanupInterval"));
   }
 
   // Gets all mappings from redis to populate the local database.
   // Calls `callback()` when done.
   static resync(callback) {
-    let client = config.redis.client;
+    let client = Application.redisClient;
     let tasks = [];
 
-    return client.smembers(config.redis.keys.mappings, (error, mappings) => {
+    return client.smembers(config.get("redis.keys.mappings"), (error, mappings) => {
       if (error != null) { Logger.error("[IDMapping] error getting list of mappings from redis:", error); }
 
       mappings.forEach(id => {
         tasks.push(done => {
-          client.hgetall(config.redis.keys.mapping(id), function(error, mappingData) {
+          client.hgetall(config.get("redis.keys.mappingPrefix") + ":" + id, function(error, mappingData) {
             if (error != null) { Logger.error("[IDMapping] error getting information for a mapping from redis:", error); }
 
             if (mappingData != null) {

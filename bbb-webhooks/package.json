@@ -1,6 +1,6 @@
 {
   "name": "bbb-callbacks",
-  "version": "0.9.0",
+  "version": "2.2.0",
   "description": "A module for BigBlueButton for API callbacks",
   "keywords": [
     "bigbluebutton",
@@ -17,7 +17,9 @@
     "request": "2.88.0",
     "sha1": "1.1.1",
     "sinon": "^7.2.2",
-    "winston": "3.1.0"
+    "winston": "3.1.0",
+    "config": "1.30.0",
+    "js-yaml": "3.13.0"
   },
   "engines": {
     "node": "8.4.0"

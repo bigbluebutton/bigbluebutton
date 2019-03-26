@@ -2,7 +2,7 @@ const _ = require("lodash");
 const async = require("async");
 const redis = require("redis");
 
-const config = require("./config.js");
+const config = require('config');
 const CallbackEmitter = require("./callback_emitter.js");
 const IDMapping = require("./id_mapping.js");
 const Logger = require("./logger.js");
@@ -36,15 +36,15 @@ module.exports = class Hook {
     this.externalMeetingID = null;
     this.queue = [];
     this.emitter = null;
-    this.redisClient = config.redis.client;
+    this.redisClient = Application.redisClient;
     this.permanent = false;
     this.getRaw = false;
   }
 
   save(callback) {
-    this.redisClient.hmset(config.redis.keys.hook(this.id), this.toRedis(), (error, reply) => {
+    this.redisClient.hmset(config.get("redis.keys.hookPrefix") + ":" + this.id, this.toRedis(), (error, reply) => {
       if (error != null) { Logger.error("[Hook] error saving hook to redis:", error, reply); }
-        this.redisClient.sadd(config.redis.keys.hooks, this.id, (error, reply) => {
+        this.redisClient.sadd(config.get("redis.keys.hooks"), this.id, (error, reply) => {
         if (error != null) { Logger.error("[Hook] error saving hookID to the list of hooks:", error, reply); }
 
         db[this.id] = this;
@@ -54,9 +54,9 @@ module.exports = class Hook {
   }
 
   destroy(callback) {
-    this.redisClient.srem(config.redis.keys.hooks, this.id, (error, reply) => {
+    this.redisClient.srem(config.get("redis.keys.hooks"), this.id, (error, reply) => {
       if (error != null) { Logger.error("[Hook] error removing hookID from the list of hooks:", error, reply); }
-        this.redisClient.del(config.redis.keys.hook(this.id), error => {
+        this.redisClient.del(config.get("redis.keys.hookPrefix") + ":" + this.id, error => {
         if (error != null) { Logger.error("[Hook] error removing hook from redis:", error); }
 
         if (db[this.id]) {
@@ -82,12 +82,12 @@ module.exports = class Hook {
   // Puts a new message in the queue. Will also trigger a processing in the queue so this
   // message might be processed instantly.
   enqueue(message) {
-    this.redisClient.llen(config.redis.keys.events(this.id), (error, reply) => {
+    this.redisClient.llen(config.get("redis.keys.eventsPrefix") + ":" + this.id, (error, reply) => {
       const length = reply;
-      if (length < config.hooks.queueSize && this.queue.length < config.hooks.queueSize) {
+      if (length < config.get("hooks.queueSize") && this.queue.length < config.get("hooks.queueSize")) {
         Logger.info(`[Hook] ${this.callbackURL} enqueueing message:`, JSON.stringify(message));
         // Add message to redis queue
-        this.redisClient.rpush(config.redis.keys.events(this.id), JSON.stringify(message), (error,reply) => {
+        this.redisClient.rpush(config.get("redis.keys.eventsPrefix") + ":" + this.id, JSON.stringify(message), (error,reply) => {
           if (error != null) { Logger.error("[Hook] error pushing event to redis queue:", JSON.stringify(message), error); }
         });
         this.queue.push(JSON.stringify(message));
@@ -124,8 +124,8 @@ module.exports = class Hook {
   // Gets the first message in the queue and start an emitter to send it. Will only do it
   // if there is no emitter running already and if there is a message in the queue.
   _processQueue() {
-    // Will try to send up to a defined number of messages together if they're enqueued (defined on config.hooks.multiEvent)
-    const lengthIn = this.queue.length > config.hooks.multiEvent ? config.hooks.multiEvent : this.queue.length;
+    // Will try to send up to a defined number of messages together if they're enqueued (defined on config.get("hooks.multiEvent"))
+    const lengthIn = this.queue.length > config.get("hooks.multiEvent") ? config.get("hooks.multiEvent") : this.queue.length;
     let num = lengthIn + 1;
     // Concat messages
     let message = this.queue.slice(0,lengthIn);
@@ -140,7 +140,7 @@ module.exports = class Hook {
       delete this.emitter;
       while ((num -= 1)) {
         // Remove the sent message from redis
-        this.redisClient.lpop(config.redis.keys.events(this.id), (error, reply) => {
+        this.redisClient.lpop(config.get("redis.keys.eventsPrefix") + ":" + this.id, (error, reply) => {
           if (error != null) { return Logger.error("[Hook] error removing event from redis queue:", error); }
         });
         this.queue.shift();
@@ -168,21 +168,21 @@ module.exports = class Hook {
       hook.callbackURL = callbackURL;
       hook.externalMeetingID = meetingID;
       hook.getRaw = getRaw;
-      hook.permanent = config.hooks.permanentURLs.some( obj => {
+      hook.permanent = config.get("hooks.permanentURLs").some( obj => {
         return obj.url === callbackURL
       });
       if (hook.permanent) {
-        hook.id = config.hooks.permanentURLs.map(obj => obj.url).indexOf(callbackURL) + 1;
-        nextID = config.hooks.permanentURLs.length + 1;
+        hook.id = config.get("hooks.permanentURLs").map(obj => obj.url).indexOf(callbackURL) + 1;
+        nextID = config.get("hooks.permanentURLs").length + 1;
       } else {
         hook.id = nextID++;
       }
       // Sync permanent queue
       if (hook.permanent) {
-        hook.redisClient.llen(config.redis.keys.events(hook.id), (error, len) => {
+        hook.redisClient.llen(config.get("redis.keys.eventsPrefix") + ":" + hook.id, (error, len) => {
           if (len > 0) {
             const length = len;
-            hook.redisClient.lrange(config.redis.keys.events(hook.id), 0, len, (error, elements) => {
+            hook.redisClient.lrange(config.get("redis.keys.eventsPrefix") + ":" + hook.id, 0, len, (error, elements) => {
               elements.forEach(element => {
                 hook.queue.push(element);
               });
@@ -266,12 +266,12 @@ module.exports = class Hook {
   // Gets all hooks from redis to populate the local database.
   // Calls `callback()` when done.
   static resync(callback) {
-    let client = config.redis.client;
+    let client = Application.redisClient;
     // Remove previous permanent hooks
-    for (let hk = 1; hk <= config.hooks.permanentURLs.length; hk++) {
-      client.srem(config.redis.keys.hooks, hk, (error, reply) => {
+    for (let hk = 1; hk <= config.get("hooks.permanentURLs").length; hk++) {
+      client.srem(config.get("redis.keys.hooks"), hk, (error, reply) => {
         if (error != null) { Logger.error("[Hook] error removing previous permanent hook from list:", error); }
-        client.del(config.redis.keys.hook(hk), error => {
+        client.del(config.get("redis.keys.hookPrefix") + ":" + hk, error => {
           if (error != null) { Logger.error("[Hook] error removing previous permanent hook from redis:", error); }
         });
       });
@@ -279,11 +279,11 @@ module.exports = class Hook {
 
     let tasks = [];
 
-    client.smembers(config.redis.keys.hooks, (error, hooks) => {
+    client.smembers(config.get("redis.keys.hooks"), (error, hooks) => {
       if (error != null) { Logger.error("[Hook] error getting list of hooks from redis:", error); }
       hooks.forEach(id => {
         tasks.push(done => {
-          client.hgetall(config.redis.keys.hook(id), function(error, hookData) {
+          client.hgetall(config.get("redis.keys.hookPrefix") + ":" + id, function(error, hookData) {
             if (error != null) { Logger.error("[Hook] error getting information for a hook from redis:", error); }
 
             if (hookData != null) {
@@ -291,9 +291,9 @@ module.exports = class Hook {
               let hook = new Hook();
               hook.fromRedis(hookData);
               // sync events queue
-              client.llen(config.redis.keys.events(hook.id), (error, len) => {
+              client.llen(config.get("redis.keys.eventsPrefix") + ":" + hook.id, (error, len) => {
                 length = len;
-                client.lrange(config.redis.keys.events(hook.id), 0, len, (error, elements) => {
+                client.lrange(config.get("redis.keys.eventsPrefix") + ":" + hook.id, 0, len, (error, elements) => {
                   elements.forEach(element => {
                     hook.queue.push(element);
                   });
