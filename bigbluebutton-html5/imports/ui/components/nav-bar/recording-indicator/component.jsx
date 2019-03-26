@@ -61,9 +61,11 @@ class RecordingIndicator extends React.PureComponent {
       document.activeElement.blur();
     };
 
+    const showButton = amIModerator && allowStartStopRecording;
+
     return (
       <div>
-        {amIModerator && allowStartStopRecording ? (
+        {showButton ? (
           <Tooltip
             title={buttonTitle}
           >
@@ -97,7 +99,7 @@ class RecordingIndicator extends React.PureComponent {
           </Tooltip>
         ) : null }
 
-        {amIModerator && allowStartStopRecording ? null : (
+        {showButton ? null : (
           <Tooltip
             title={`${intl.formatMessage(recording
               ? intlMessages.notificationRecordingStart
