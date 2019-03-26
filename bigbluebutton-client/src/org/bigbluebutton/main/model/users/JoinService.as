@@ -31,9 +31,11 @@ package org.bigbluebutton.main.model.users
 	import org.as3commons.logging.api.ILogger;
 	import org.as3commons.logging.api.getClassLogger;
 	import org.bigbluebutton.core.BBB;
+	import org.bigbluebutton.core.Options;
 	import org.bigbluebutton.core.UsersUtil;
 	import org.bigbluebutton.main.events.MeetingNotFoundEvent;
 	import org.bigbluebutton.main.model.users.events.ConnectionFailedEvent;
+	import org.bigbluebutton.modules.users.model.BreakoutRoomsOptions;
 	import org.bigbluebutton.util.i18n.ResourceUtil;
 
 	public class JoinService
@@ -182,7 +184,22 @@ package org.bigbluebutton.main.model.users
 				apiResponse.muteOnStart = result.response.muteOnStart as Boolean;
 				apiResponse.customLogo = result.response.customLogoURL;
 				apiResponse.customCopyright = result.response.customCopyright;
-				
+        
+        // Overrive breakout options from config.xml with those passed on create API call
+        // ralam (mar 26, 2019)
+        var breakoutOptions: BreakoutRoomsOptions = Options.getOptions(BreakoutRoomsOptions) as BreakoutRoomsOptions;
+        if (result.response.breakoutRooms.hasOwnProperty("enabled")) {
+          breakoutOptions.enabled = result.response.breakoutRooms.enabled as Boolean;
+        }
+        
+        if (result.response.breakoutRooms.hasOwnProperty("record")) {
+          breakoutOptions.record = result.response.breakoutRooms.record as Boolean;
+        }
+        
+        if (result.response.breakoutRooms.hasOwnProperty("privateChatEnabled")) {
+          breakoutOptions.privateChateEnabled = result.response.breakoutRooms.privateChatEnabled as Boolean;
+        }
+        
 				if (_resultListener != null) _resultListener(true, apiResponse);
 			}
 			
