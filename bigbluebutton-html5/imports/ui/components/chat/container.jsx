@@ -87,22 +87,14 @@ export default injectIntl(withTracker(({ intl }) => {
       sender: null,
     };
 
-    const messagesBeforeWelcomeMsg =
-      ChatService.reduceAndMapGroupMessages(messages.filter(message => message.timestamp < time));
-    const messagesAfterWelcomeMsg =
-      ChatService.reduceAndMapGroupMessages(messages.filter(message => message.timestamp >= time));
-
-    const clearMessage = messages.filter(message => message.message === 'PUBLIC_CHAT_CLEAR');
-
-    const hasClearMessage = clearMessage.length;
-
-    const showModeratorMsg =
-      (user.isModerator)
-      && ((hasClearMessage && clearMessage[0].timestamp < moderatorTime) || !hasClearMessage);
+    const messagesBeforeWelcomeMsg = ChatService.reduceAndMapGroupMessages(
+      messages.filter(message => message.timestamp < time));
+    const messagesAfterWelcomeMsg = ChatService.reduceAndMapGroupMessages(
+      messages.filter(message => message.timestamp >= time));
 
     const messagesFormated = messagesBeforeWelcomeMsg
       .concat(welcomeMsg)
-      .concat(showModeratorMsg ? moderatorMsg : [])
+      .concat(user.isModerator ? moderatorMsg : [])
       .concat(messagesAfterWelcomeMsg);
 
     messages = messagesFormated.sort((a, b) => (a.time - b.time));
@@ -141,8 +133,8 @@ export default injectIntl(withTracker(({ intl }) => {
       ...message,
       content: message.content.map(content => ({
         ...content,
-        text: content.text in intlMessages ?
-          `<b><i>${intl.formatMessage(intlMessages[content.text], systemMessageIntl)}</i></b>` : content.text,
+        text: content.text in intlMessages
+          ? `<b><i>${intl.formatMessage(intlMessages[content.text], systemMessageIntl)}</i></b>` : content.text,
       })),
     };
   });
