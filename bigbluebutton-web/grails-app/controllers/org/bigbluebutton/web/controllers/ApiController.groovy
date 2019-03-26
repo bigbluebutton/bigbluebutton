@@ -1502,6 +1502,11 @@ class ApiController {
             logoutUrl us.logoutUrl
             defaultLayout us.defaultLayout
             avatarURL us.avatarURL
+            breakoutRooms {
+              enabled meeting.breakoutRoomsParams.enabled
+              record meeting.breakoutRoomsParams.record
+              privateChatEnabled meeting.breakoutRoomsParams.privateChatEnabled
+            }
             customdata (
               meeting.getUserCustomData(us.externUserID).collect { k, v ->
                 ["$k": v]
