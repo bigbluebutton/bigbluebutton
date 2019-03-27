@@ -28,7 +28,8 @@ trait CreateDefaultPublicGroupChat {
     val respMsg = buildGroupChatCreatedEvtMsg(
       liveMeeting.props.meetingProp.intId,
       SystemUser.ID,
-      groupChat)
+      groupChat
+    )
 
     bus.outGW.send(respMsg)
     val groupChats = state.groupChats.add(groupChat)

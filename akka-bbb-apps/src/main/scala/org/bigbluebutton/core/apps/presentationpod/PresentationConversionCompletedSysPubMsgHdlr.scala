@@ -12,8 +12,9 @@ trait PresentationConversionCompletedSysPubMsgHdlr {
   this: PresentationPodHdlrs =>
 
   def handle(
-    msg: PresentationConversionCompletedSysPubMsg, state: MeetingState2x,
-    liveMeeting: LiveMeeting, bus: MessageBus): MeetingState2x = {
+      msg: PresentationConversionCompletedSysPubMsg, state: MeetingState2x,
+      liveMeeting: LiveMeeting, bus: MessageBus
+  ): MeetingState2x = {
 
     val meetingId = liveMeeting.props.meetingProp.intId
 

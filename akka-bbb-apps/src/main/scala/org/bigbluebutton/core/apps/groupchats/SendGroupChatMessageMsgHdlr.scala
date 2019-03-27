@@ -95,7 +95,8 @@ trait SendGroupChatMessageMsgHdlr {
 
         val event = buildGroupChatMessageBroadcastEvtMsg(
           liveMeeting.props.meetingProp.intId,
-          msg.header.userId, msg.body.chatId, gcm)
+          msg.header.userId, msg.body.chatId, gcm
+        )
 
         bus.outGW.send(event)
 
