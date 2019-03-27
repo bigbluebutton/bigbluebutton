@@ -118,10 +118,7 @@ class BbbWebApiGWApp(
     val breakoutProps = BreakoutProps(parentId = parentMeetingId,
       sequence = sequence.intValue(),
       freeJoin = freeJoin.booleanValue(),
-      breakoutRooms = Vector(),
-      enabled = breakoutParams.enabled.booleanValue(),
-      record = breakoutParams.record.booleanValue(),
-      privateChatEnabled = breakoutParams.privateChatEnabled.booleanValue())
+      breakoutRooms = Vector())
 
     val welcomeProp = WelcomeProp(welcomeMsgTemplate = welcomeMsgTemplate, welcomeMsg = welcomeMsg,
       modOnlyMessage = modOnlyMessage)
@@ -134,15 +131,20 @@ class BbbWebApiGWApp(
       red5ScreenshareIp = screenshareRtmpServer,
       red5ScreenshareApp = screenshareRtmpBroadcastApp)
 
-    val lockSettingsProps = LockSettingsProps(
-      disableCam = lockSettingsParams.disableCam.booleanValue(),
-      disableMic = lockSettingsParams.disableMic.booleanValue(),
-      disablePrivateChat = lockSettingsParams.disablePrivateChat.booleanValue(),
-      disablePublicChat = lockSettingsParams.disablePublicChat.booleanValue(),
-      lockedLayout = lockSettingsParams.lockedLayout.booleanValue(),
-      lockOnJoin = lockSettingsParams.lockOnJoin.booleanValue(),
-      lockOnJoinConfigurable = lockSettingsParams.lockOnJoinConfigurable.booleanValue()
-    )
+    val lockParams = Option(lockSettingsParams)
+    val lockSettingsProps = for {
+      locks <- lockParams
+    } yield {
+      LockSettingsProps(
+        disableCam = locks.disableCam.booleanValue(),
+        disableMic = locks.disableMic.booleanValue(),
+        disablePrivateChat = locks.disablePrivateChat.booleanValue(),
+        disablePublicChat = locks.disablePublicChat.booleanValue(),
+        lockedLayout = locks.lockedLayout.booleanValue(),
+        lockOnJoin = locks.lockOnJoin.booleanValue(),
+        lockOnJoinConfigurable = locks.lockOnJoinConfigurable.booleanValue()
+      )
+    }
 
     val defaultProps = DefaultProps(
       meetingProp,

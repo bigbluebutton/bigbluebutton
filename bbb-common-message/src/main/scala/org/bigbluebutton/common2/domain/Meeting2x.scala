@@ -12,10 +12,7 @@ case class MeetingProp(name: String, extId: String, intId: String, isBreakout: B
 case class BreakoutProps(parentId: String,
 												 sequence: Int,
 												 freeJoin: Boolean,
-												 breakoutRooms: Vector[String],
-												 enabled: Boolean,
-												 record: Boolean,
-												 privateChatEnabled: Boolean)
+												 breakoutRooms: Vector[String])
 
 case class PasswordProp(moderatorPass: String, viewerPass: String)
 
@@ -49,7 +46,7 @@ case class DefaultProps(meetingProp: MeetingProp,
 												usersProp: UsersProp,
 												metadataProp: MetadataProp,
 												screenshareProps: ScreenshareProps,
-												lockSettingsProps: LockSettingsProps)
+												lockSettingsProps: Option[LockSettingsProps])
 
 case class StartEndTimeStatus(startTime: Long, endTime: Long)
 case class RecordingStatus(isRecording: Boolean)

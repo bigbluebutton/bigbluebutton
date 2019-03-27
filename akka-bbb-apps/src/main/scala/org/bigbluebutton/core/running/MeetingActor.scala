@@ -172,7 +172,12 @@ class MeetingActor(
   MeetingStatus2x.setWebcamsOnlyForModerator(liveMeeting.status, liveMeeting.props.usersProp.webcamsOnlyForModerator)
 
   // Initialize lock settings.
-  initLockSettings(liveMeeting, liveMeeting.props.lockSettingsProps)
+  for {
+    lockSettingsProps <- liveMeeting.props.lockSettingsProps
+  } yield {
+    initLockSettings(liveMeeting, lockSettingsProps)
+  }
+
 
   /** *****************************************************************/
   // Helper to create fake users for testing (ralam jan 5, 2018)

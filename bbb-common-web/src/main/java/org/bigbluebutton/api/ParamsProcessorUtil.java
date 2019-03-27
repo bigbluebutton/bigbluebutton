@@ -222,79 +222,103 @@ public class ParamsProcessorUtil {
     }
 
     private BreakoutRoomsParams processBreakoutRoomsParams(Map<String, String> params) {
+			Boolean hasBreakoutRoomsParam = false;
+
 			Boolean breakoutRoomsEnabled = defaultBreakoutRoomsEnabled;
 			String breakoutRoomsEnabledParam = params.get(ApiParams.BREAKOUT_ROOMS_ENABLED);
 			if (!StringUtils.isEmpty(breakoutRoomsEnabledParam)) {
 				breakoutRoomsEnabled = Boolean.parseBoolean(breakoutRoomsEnabledParam);
+				hasBreakoutRoomsParam = true;
 			}
 
 			Boolean breakoutRoomsRecord = defaultBreakoutRoomsRecord;
 			String breakoutRoomsRecordParam = params.get(ApiParams.BREAKOUT_ROOMS_RECORD);
 			if (!StringUtils.isEmpty(breakoutRoomsRecordParam)) {
 				breakoutRoomsRecord = Boolean.parseBoolean(breakoutRoomsRecordParam);
+				hasBreakoutRoomsParam = true;
 			}
 
 			Boolean breakoutRoomsPrivateChatEnabled =  defaultbreakoutRoomsPrivateChatEnabled;
 			String breakoutRoomsPrivateChatEnabledParam = params.get(ApiParams.BREAKOUT_ROOMS_PRIVATE_CHAT_ENABLED);
 			if (!StringUtils.isEmpty(breakoutRoomsPrivateChatEnabledParam)) {
 				breakoutRoomsPrivateChatEnabled = Boolean.parseBoolean(breakoutRoomsPrivateChatEnabledParam);
+				hasBreakoutRoomsParam = true;
 			}
 
-			return new BreakoutRoomsParams(breakoutRoomsEnabled,
-							breakoutRoomsRecord,
-							breakoutRoomsPrivateChatEnabled);
+			if (hasBreakoutRoomsParam) {
+				return new BreakoutRoomsParams(breakoutRoomsEnabled,
+								breakoutRoomsRecord,
+								breakoutRoomsPrivateChatEnabled);
+			} else {
+				return null;
+			}
+
 		}
 
 		private LockSettingsParams processLockSettingsParams(Map<String, String> params) {
+			Boolean hasLockSettingsParam = false;
+
 			Boolean lockSettingsDisableCam = defaultLockSettingsDisableCam;
 			String lockSettingsDisableCamParam = params.get(ApiParams.LOCK_SETTINGS_DISABLE_CAM);
 			if (!StringUtils.isEmpty(lockSettingsDisableCamParam)) {
 				lockSettingsDisableCam = Boolean.parseBoolean(lockSettingsDisableCamParam);
+				hasLockSettingsParam = true;
 			}
 
 			Boolean lockSettingsDisableMic = defaultLockSettingsDisableMic;
 			String lockSettingsDisableMicParam = params.get(ApiParams.LOCK_SETTINGS_DISABLE_MIC);
 			if (!StringUtils.isEmpty(lockSettingsDisableMicParam)) {
 				lockSettingsDisableMic = Boolean.parseBoolean(lockSettingsDisableMicParam);
+				hasLockSettingsParam = true;
 			}
 
 			Boolean lockSettingsDisablePrivateChat = defaultLockSettingsDisablePrivateChat;
 			String lockSettingsDisablePrivateChatParam = params.get(ApiParams.LOCK_SETTINGS_DISABLE_PRIVATE_CHAT);
 			if (!StringUtils.isEmpty(lockSettingsDisablePrivateChatParam)) {
 				lockSettingsDisablePrivateChat = Boolean.parseBoolean(lockSettingsDisablePrivateChatParam);
+				hasLockSettingsParam = true;
 			}
 
 			Boolean lockSettingsDisablePublicChat = defaultLockSettingsDisablePublicChat;
 			String lockSettingsDisablePublicChatParam = params.get(ApiParams.LOCK_SETTINGS_DISABLE_PUBLIC_CHAT);
 			if (!StringUtils.isEmpty(lockSettingsDisablePublicChatParam)) {
 				lockSettingsDisablePublicChat = Boolean.parseBoolean(lockSettingsDisablePublicChatParam);
+				hasLockSettingsParam = true;
 			}
 
 			Boolean lockSettingsLockedLayout = defaultLockSettingsLockedLayout;
 			String lockSettingsLockedLayoutParam = params.get(ApiParams.LOCK_SETTINGS_LOCKED_LAYOUT);
 			if (!StringUtils.isEmpty(lockSettingsLockedLayoutParam)) {
 				lockSettingsLockedLayout = Boolean.parseBoolean(lockSettingsLockedLayoutParam);
+				hasLockSettingsParam = true;
 			}
 
 			Boolean lockSettingsLockOnJoin = defaultLockSettingsLockOnJoin;
 			String lockSettingsLockOnJoinParam = params.get(ApiParams.LOCK_SETTINGS_LOCK_ON_JOIN);
 			if (!StringUtils.isEmpty(lockSettingsLockOnJoinParam)) {
 				lockSettingsLockOnJoin = Boolean.parseBoolean(lockSettingsLockOnJoinParam);
+				hasLockSettingsParam = true;
 			}
 
 			Boolean lockSettingsLockOnJoinConfigurable = defaultLockSettingsLockOnJoinConfigurable;
 			String lockSettingsLockOnJoinConfigurableParam = params.get(ApiParams.LOCK_SETTINGS_LOCK_ON_JOIN_CONFIGURABLE);
 			if (!StringUtils.isEmpty(lockSettingsLockOnJoinConfigurableParam)) {
 				lockSettingsLockOnJoinConfigurable = Boolean.parseBoolean(lockSettingsLockOnJoinConfigurableParam);
+				hasLockSettingsParam = true;
 			}
 
-			return new LockSettingsParams(lockSettingsDisableCam,
-							lockSettingsDisableMic,
-							lockSettingsDisablePrivateChat,
-							lockSettingsDisablePublicChat,
-							lockSettingsLockedLayout,
-							lockSettingsLockOnJoin,
-							lockSettingsLockOnJoinConfigurable);
+			if (hasLockSettingsParam) {
+				return new LockSettingsParams(lockSettingsDisableCam,
+								lockSettingsDisableMic,
+								lockSettingsDisablePrivateChat,
+								lockSettingsDisablePublicChat,
+								lockSettingsLockedLayout,
+								lockSettingsLockOnJoin,
+								lockSettingsLockOnJoinConfigurable);
+			} else {
+				return null;
+			}
+
 		}
 
     public Meeting processCreateParams(Map<String, String> params) {
