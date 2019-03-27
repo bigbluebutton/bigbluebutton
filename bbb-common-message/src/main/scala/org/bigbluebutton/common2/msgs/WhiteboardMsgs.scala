@@ -6,7 +6,7 @@ case class AnnotationVO(id: String, status: String, annotationType: String,
 // ------------ client to akka-apps ------------
 object ClientToServerLatencyTracerMsg { val NAME = "ClientToServerLatencyTracerMsg" }
 case class ClientToServerLatencyTracerMsg(header: BbbClientMsgHeader, body: ClientToServerLatencyTracerMsgBody) extends StandardMsg
-case class ClientToServerLatencyTracerMsgBody(timestampUTC: Long, rtt: Long,  senderId: String)
+case class ClientToServerLatencyTracerMsgBody(timestampUTC: Long, rtt: Long, senderId: String)
 
 object ClearWhiteboardPubMsg { val NAME = "ClearWhiteboardPubMsg" }
 case class ClearWhiteboardPubMsg(header: BbbClientMsgHeader, body: ClearWhiteboardPubMsgBody) extends StandardMsg
@@ -32,7 +32,6 @@ object UndoWhiteboardPubMsg { val NAME = "UndoWhiteboardPubMsg" }
 case class UndoWhiteboardPubMsg(header: BbbClientMsgHeader, body: UndoWhiteboardPubMsgBody) extends StandardMsg
 case class UndoWhiteboardPubMsgBody(whiteboardId: String)
 // ------------ client to akka-apps ------------
-
 
 // ------------ akka-apps to client ------------
 object ServerToClientLatencyTracerMsg { val NAME = "ServerToClientLatencyTracerMsg" }
