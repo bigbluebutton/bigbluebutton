@@ -221,7 +221,7 @@ public class ParamsProcessorUtil {
         return metas;
     }
 
-    private BreakoutRoomsParams processBreakoutRoomsParams(Map<String, String> params) {
+		private BreakoutRoomsParams processBreakoutRoomsParams(Map<String, String> params) {
 			Boolean hasBreakoutRoomsParam = false;
 
 			Boolean breakoutRoomsEnabled = defaultBreakoutRoomsEnabled;

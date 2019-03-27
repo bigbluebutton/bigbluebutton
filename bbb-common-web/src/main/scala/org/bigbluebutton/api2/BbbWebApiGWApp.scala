@@ -131,6 +131,7 @@ class BbbWebApiGWApp(
       red5ScreenshareIp = screenshareRtmpServer,
       red5ScreenshareApp = screenshareRtmpBroadcastApp)
 
+    // Handle if lockSettingsParams is null.
     val lockParams = Option(lockSettingsParams)
     val lockSettingsProps = for {
       locks <- lockParams
