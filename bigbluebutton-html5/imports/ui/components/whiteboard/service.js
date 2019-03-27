@@ -156,6 +156,8 @@ const proccessAnnotationsQueue = async () => {
 
     const { annotationInfo: { points } } = value;
 
+    if (!points) return acc;
+
     annotation.annotationInfo.points = annotation.annotationInfo.points.concat(points);
 
     return acc;
