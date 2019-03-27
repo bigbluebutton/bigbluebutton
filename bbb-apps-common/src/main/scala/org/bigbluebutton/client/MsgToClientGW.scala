@@ -1,6 +1,6 @@
 package org.bigbluebutton.client
 
-import org.bigbluebutton.red5.client.messaging.{BroadcastToMeetingMsg, DirectToClientMsg, ClientMessage, IConnectionInvokerService}
+import org.bigbluebutton.red5.client.messaging.{ BroadcastToMeetingMsg, DirectToClientMsg, ClientMessage, IConnectionInvokerService }
 
 sealed trait SystemMessage
 case class DisconnectConnection(connId: String) extends SystemMessage

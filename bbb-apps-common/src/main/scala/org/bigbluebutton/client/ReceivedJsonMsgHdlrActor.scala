@@ -1,14 +1,13 @@
 package org.bigbluebutton.client
 
-import akka.actor.{Actor, ActorLogging, Props}
+import akka.actor.{ Actor, ActorLogging, Props }
 import org.bigbluebutton.common2.msgs.BbbCommonEnvJsNodeMsg
 import org.bigbluebutton.common2.util.JsonUtil
 
-import scala.util.{Failure, Success}
+import scala.util.{ Failure, Success }
 import org.bigbluebutton.common2.bus.JsonMsgFromAkkaApps
 import org.bigbluebutton.api2.bus.MsgFromAkkaAppsEventBus
 import org.bigbluebutton.api2.bus.MsgFromAkkaApps
-
 
 object ReceivedJsonMsgHdlrActor {
   def props(msgFromAkkaAppsEventBus: MsgFromAkkaAppsEventBus): Props =
@@ -21,14 +20,13 @@ class ReceivedJsonMsgHdlrActor(val msgFromAkkaAppsEventBus: MsgFromAkkaAppsEvent
   def receive = {
     case msg: JsonMsgFromAkkaApps => handleReceivedJsonMessage(msg)
 
-
-    case _ => // do nothing
+    case _                        => // do nothing
   }
 
   def handleReceivedJsonMessage(msg: JsonMsgFromAkkaApps): Unit = {
     //log.debug("****** Received JSON msg " + msg.data)
     JsonUtil.fromJson[BbbCommonEnvJsNodeMsg](msg.data) match {
-      case Success(m) => msgFromAkkaAppsEventBus.publish(MsgFromAkkaApps(fromAkkaAppsChannel, m))
+      case Success(m)  => msgFromAkkaAppsEventBus.publish(MsgFromAkkaApps(fromAkkaAppsChannel, m))
       case Failure(ex) => log.error("Failed to deserialize message " + ex)
     }
 
