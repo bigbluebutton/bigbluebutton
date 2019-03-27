@@ -30,6 +30,7 @@ const propTypes = {
   buttonTitle: PropTypes.string.isRequired,
   mountModal: PropTypes.func.isRequired,
   time: PropTypes.number,
+  allowStartStopRecording: PropTypes.bool.isRequired,
 };
 
 const defaultProps = {
