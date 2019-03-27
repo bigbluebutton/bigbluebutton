@@ -143,12 +143,19 @@ class PresentationArea extends Component {
   calculateSize() {
     const { presentationHeight, presentationWidth, fitToWidth } = this.state;
     const { currentSlide } = this.props;
-
-    const originalWidth = currentSlide.calculatedData.width;
-    const originalHeight = currentSlide.calculatedData.height;
+    const { calculatedData } = currentSlide || {};
+    const originalWidth = calculatedData.width;
+    const originalHeight = calculatedData.height;
 
     let adjustedWidth;
     let adjustedHeight;
+
+    if (!originalHeight || !originalHeight) {
+      return {
+        width: 0,
+        height: 0,
+      };
+    }
 
     if (!fitToWidth) {
       // Slide has a portrait orientation
