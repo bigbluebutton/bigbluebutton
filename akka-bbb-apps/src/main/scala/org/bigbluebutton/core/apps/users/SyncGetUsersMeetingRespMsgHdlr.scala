@@ -31,7 +31,8 @@ trait SyncGetUsersMeetingRespMsgHdlr {
         locked = u.locked,
         presenter = u.presenter,
         avatar = u.avatar,
-        clientType = u.clientType)
+        clientType = u.clientType
+      )
     }
 
     val body = SyncGetUsersMeetingRespMsgBody(webUsers)

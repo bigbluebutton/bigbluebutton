@@ -10,8 +10,9 @@ trait RemovePresentationPubMsgHdlr extends RightsManagementTrait {
   this: PresentationPodHdlrs =>
 
   def handle(
-    msg: RemovePresentationPubMsg, state: MeetingState2x,
-    liveMeeting: LiveMeeting, bus: MessageBus): MeetingState2x = {
+      msg: RemovePresentationPubMsg, state: MeetingState2x,
+      liveMeeting: LiveMeeting, bus: MessageBus
+  ): MeetingState2x = {
 
     if (filterPresentationMessage(liveMeeting.users2x, msg.header.userId) &&
       permissionFailed(PermissionCheck.GUEST_LEVEL, PermissionCheck.PRESENTER_LEVEL, liveMeeting.users2x, msg.header.userId)) {
@@ -23,7 +24,8 @@ trait RemovePresentationPubMsgHdlr extends RightsManagementTrait {
       def broadcastRemovePresentationEvtMsg(podId: String, userId: String, presentationId: String): Unit = {
         val routing = Routing.addMsgToClientRouting(
           MessageTypes.BROADCAST_TO_MEETING,
-          liveMeeting.props.meetingProp.intId, userId)
+          liveMeeting.props.meetingProp.intId, userId
+        )
         val envelope = BbbCoreEnvelope(RemovePresentationEvtMsg.NAME, routing)
         val header = BbbClientMsgHeader(RemovePresentationEvtMsg.NAME, liveMeeting.props.meetingProp.intId, userId)
 

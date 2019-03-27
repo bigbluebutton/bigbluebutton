@@ -5,8 +5,7 @@ import org.bigbluebutton.common2.util.JsonUtil
 
 import scala.reflect.ClassTag
 import scala.reflect.runtime.universe._
-import scala.util.{Failure, Success, Try}
-
+import scala.util.{ Failure, Success, Try }
 
 trait Deserializer {
 
@@ -19,7 +18,7 @@ trait Deserializer {
 
     convertFromJson(json) match {
       case Success(msg) => (Some(msg), "No Error.")
-      case Failure(ex) => (None, ex.getMessage)
+      case Failure(ex)  => (None, ex.getMessage)
     }
 
   }
@@ -27,7 +26,7 @@ trait Deserializer {
   def fromJson[T](json: String)(implicit tag: TypeTag[T]): Try[T] = {
     // https://stackoverflow.com/questions/23383814/is-it-possible-to-convert-a-typetag-to-a-manifest
     // typeTag to classTag
-    implicit val cl = ClassTag[T]( tag.mirror.runtimeClass( tag.tpe ) )
+    implicit val cl = ClassTag[T](tag.mirror.runtimeClass(tag.tpe))
 
     // with an implicit classTag in scope, you can get a manifest
     manifest[T]
@@ -45,14 +44,14 @@ trait Deserializer {
 
     result match {
       case Success(msg) => (Some(msg), "No Error.")
-      case Failure(ex) => (None, ex.getMessage)
+      case Failure(ex)  => (None, ex.getMessage)
     }
   }
 
   def toBbbCommonEnvJsNodeMsg(json: String): Try[BbbCommonEnvJsNodeMsg] = {
-      for {
-        msg <- JsonUtil.fromJsonToBbbCommonEnvJsNodeMsg(json)
-      } yield msg
+    for {
+      msg <- JsonUtil.fromJsonToBbbCommonEnvJsNodeMsg(json)
+    } yield msg
   }
 
 }

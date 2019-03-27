@@ -1,7 +1,5 @@
 package org.bigbluebutton.client
 
-
-
 class ClientInGW(val clientGWApp: ClientGWApplication) extends IClientInGW {
 
   def connect(connInfo: ConnInfo): Unit = {

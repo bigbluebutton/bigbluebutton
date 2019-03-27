@@ -28,7 +28,8 @@ class ClientGWApplication(val msgToClientGW: MsgToClientGW) extends SystemConfig
   private val msgSender: MessageSender = new MessageSender(redisPublisher)
 
   private val meetingManagerActorRef = system.actorOf(
-    MeetingManagerActor.props(msgToRedisEventBus, msgToClientEventBus), "meetingManagerActor")
+    MeetingManagerActor.props(msgToRedisEventBus, msgToClientEventBus), "meetingManagerActor"
+  )
 
   msgFromAkkaAppsEventBus.subscribe(meetingManagerActorRef, fromAkkaAppsChannel)
   msgFromClientEventBus.subscribe(meetingManagerActorRef, fromClientChannel)
@@ -36,19 +37,22 @@ class ClientGWApplication(val msgToClientGW: MsgToClientGW) extends SystemConfig
   private val receivedJsonMsgBus = new JsonMsgFromAkkaAppsBus
 
   private val msgToRedisActor = system.actorOf(
-    MsgToRedisActor.props(msgSender), "msgToRedisActor")
+    MsgToRedisActor.props(msgSender), "msgToRedisActor"
+  )
 
   msgToRedisEventBus.subscribe(msgToRedisActor, toRedisChannel)
 
   private val msgToClientJsonActor = system.actorOf(
-    MsgToClientJsonActor.props(msgToClientGW), "msgToClientJsonActor")
+    MsgToClientJsonActor.props(msgToClientGW), "msgToClientJsonActor"
+  )
 
   msgToClientEventBus.subscribe(msgToClientJsonActor, toClientChannel)
 
   private val appsRedisSubscriberActor = system.actorOf(Red5AppsRedisSubscriberActor.props(system, receivedJsonMsgBus), "appsRedisSubscriberActor")
 
   private val receivedJsonMsgHdlrActor = system.actorOf(
-    ReceivedJsonMsgHdlrActor.props(msgFromAkkaAppsEventBus), "receivedJsonMsgHdlrActor")
+    ReceivedJsonMsgHdlrActor.props(msgFromAkkaAppsEventBus), "receivedJsonMsgHdlrActor"
+  )
 
   receivedJsonMsgBus.subscribe(receivedJsonMsgHdlrActor, fromAkkaAppsJsonChannel)
 
