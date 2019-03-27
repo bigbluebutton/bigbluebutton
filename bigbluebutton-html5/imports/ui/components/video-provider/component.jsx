@@ -575,7 +575,7 @@ class VideoProvider extends Component {
   }
 
   async createWebRTCPeer(id, shareWebcam) {
-    const { meetingId, sessionToken, voiceBridge } = this.props;
+    const { meetingId, sessionToken, voiceBridge, userId, userName } = this.props;
     let iceServers = [];
     const role = shareWebcam ? 'share' : 'viewer';
 
@@ -662,6 +662,8 @@ class VideoProvider extends Component {
             meetingId,
             voiceBridge,
             bitrate,
+            userId,
+            userName,
           };
 
           logger.info({
