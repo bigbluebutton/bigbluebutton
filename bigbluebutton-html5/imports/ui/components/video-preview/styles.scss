@@ -4,6 +4,11 @@
 
 .actions {
   margin-left: auto;
+  margin-right: 3px;
+
+  :first-child {
+    margin-right: 3px;
+  }
 }
 
 .closeBtn {

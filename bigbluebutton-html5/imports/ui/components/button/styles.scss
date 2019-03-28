@@ -101,7 +101,7 @@
     outline: none;
   }
 
-  &:focus:not([aria-disabled="true"]) {
+  &:focus {
     outline-color: transparent;
     outline-width: 2px;
     outline-style: dotted;
