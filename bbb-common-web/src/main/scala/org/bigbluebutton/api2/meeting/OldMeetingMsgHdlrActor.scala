@@ -2,7 +2,7 @@ package org.bigbluebutton.api2.meeting
 
 import java.util
 
-import akka.actor.{Actor, ActorLogging, Props}
+import akka.actor.{ Actor, ActorLogging, Props }
 import org.bigbluebutton.api.messaging.messages._
 import org.bigbluebutton.api2.bus.OldMessageReceivedGW
 import org.bigbluebutton.common2.msgs._
@@ -82,7 +82,8 @@ class OldMeetingMsgHdlrActor(val olgMsgGW: OldMessageReceivedGW)
       msg.body.room.durationInMinutes,
       msg.body.room.sourcePresentationId,
       msg.body.room.sourcePresentationSlide,
-      msg.body.room.record))
+      msg.body.room.record
+    ))
 
   }
 

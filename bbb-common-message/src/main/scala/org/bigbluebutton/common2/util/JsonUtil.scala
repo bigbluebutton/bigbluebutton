@@ -1,14 +1,13 @@
 package org.bigbluebutton.common2.util
 
-import com.fasterxml.jackson.databind.{DeserializationFeature, JsonNode, ObjectMapper}
+import com.fasterxml.jackson.databind.{ DeserializationFeature, JsonNode, ObjectMapper }
 import com.fasterxml.jackson.module.scala.DefaultScalaModule
 import com.fasterxml.jackson.module.scala.experimental.ScalaObjectMapper
 import com.fasterxml.jackson.annotation.JsonInclude
-import org.bigbluebutton.common2.msgs.{BbbCommonEnvJsNodeMsg, BbbCoreMessageFromClient}
+import org.bigbluebutton.common2.msgs.{ BbbCommonEnvJsNodeMsg, BbbCoreMessageFromClient }
 
 import scala.reflect.runtime.universe._
 import scala.util.Try
-
 
 object JsonUtil {
   val mapper = new ObjectMapper() with ScalaObjectMapper
@@ -46,7 +45,6 @@ object JsonUtil {
       result <- Try(mapper.readValue[BbbCoreMessageFromClient](json))
     } yield result
   }
-
 
   def toJsonNode(json: String): Try[JsonNode] = {
     fromJson[JsonNode](json)

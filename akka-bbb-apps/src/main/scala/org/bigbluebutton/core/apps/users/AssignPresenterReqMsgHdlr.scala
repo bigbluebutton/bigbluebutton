@@ -31,7 +31,8 @@ object AssignPresenterActionHandler extends RightsManagementTrait {
       // unassign old presenter
       val routingUnassign = Routing.addMsgToClientRouting(
         MessageTypes.BROADCAST_TO_MEETING,
-        liveMeeting.props.meetingProp.intId, oldPres.intId)
+        liveMeeting.props.meetingProp.intId, oldPres.intId
+      )
       val envelopeUnassign = BbbCoreEnvelope(PresenterUnassignedEvtMsg.NAME, routingUnassign)
       val headerUnassign = BbbClientMsgHeader(PresenterUnassignedEvtMsg.NAME, liveMeeting.props.meetingProp.intId,
         oldPres.intId)
@@ -46,7 +47,8 @@ object AssignPresenterActionHandler extends RightsManagementTrait {
       // set new presenter
       val routingAssign = Routing.addMsgToClientRouting(
         MessageTypes.BROADCAST_TO_MEETING,
-        liveMeeting.props.meetingProp.intId, newPres.intId)
+        liveMeeting.props.meetingProp.intId, newPres.intId
+      )
       val envelopeAssign = BbbCoreEnvelope(PresenterAssignedEvtMsg.NAME, routingAssign)
       val headerAssign = BbbClientMsgHeader(PresenterAssignedEvtMsg.NAME, liveMeeting.props.meetingProp.intId,
         newPres.intId)

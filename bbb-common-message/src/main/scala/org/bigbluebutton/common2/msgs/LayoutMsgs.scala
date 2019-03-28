@@ -1,6 +1,5 @@
 package org.bigbluebutton.common2.msgs
 
-
 // In messages
 object GetCurrentLayoutReqMsg { val NAME = "GetCurrentLayoutReqMsg" }
 case class GetCurrentLayoutReqMsg(header: BbbClientMsgHeader, body: GetCurrentLayoutReqMsgBody) extends StandardMsg

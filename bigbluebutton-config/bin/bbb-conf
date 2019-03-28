@@ -1879,6 +1879,7 @@ if [ $CLEAN ]; then
     rm -f /var/log/bigbluebutton/*.log
 
     rm -f /opt/freeswitch/var/log/freeswitch/*.log
+    rm -f /opt/freeswitch/var/log/freeswitch/*.log.*
 
     #
     # Clean out the log files for record and playback
@@ -1901,7 +1902,6 @@ if [ $CLEAN ]; then
         rm -f /var/log/bigbluebutton/screenshare/*
     fi
 
-
     if [[ $RED5_DIR ]]; then
         rm -rf $RED5_DIR/log/*
     fi
@@ -1918,13 +1918,33 @@ if [ $CLEAN ]; then
     #  chown syslog:adm /var/log/syslog
     #fi
 
-    log_dirs="bbb-fsesl-akka bbb-apps-akka bbb-transcode-akka bbb-webrtc-sfu redis mongodb kurento-media-server"
+    if [ -d /var/log/bbb-fsesl-akka ]; then
+        rm -f /var/log/bbb-fsesl-akka/*
+    fi
 
-    for log_dir in $log_dirs; do
-        if [ -d "/var/log/$log_dir" ]; then
-            rm -f "/var/log/$log_dir/*"
-        fi
-    done
+	if [ -d /var/log/bbb-apps-akka ]; then
+        rm -f /var/log/bbb-apps-akka/*
+    fi
+
+    if [ -d /var/log/bbb-transcode-akka ]; then
+        rm -f /var/log/bbb-transcode-akka/*
+    fi
+
+    if [ -d /var/log/bbb-webrtc-sfu ]; then
+        rm -f /var/log/bbb-webrtc-sfu/*
+    fi
+
+    if [ -d /var/log/redis ]; then
+        rm -f /var/log/redis/*
+    fi
+
+    if [ -d /var/log/mongodb ]; then
+        rm -f /var/log/mongodb/*
+    fi
+
+    if [ -d /var/log/kurento-media-server ]; then
+        rm -f /var/log/kurento-media-server/*
+    fi
 
     start_bigbluebutton
     check_state

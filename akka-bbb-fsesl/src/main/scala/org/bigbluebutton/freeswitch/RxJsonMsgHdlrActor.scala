@@ -17,7 +17,7 @@ object RxJsonMsgHdlrActor {
 }
 
 class RxJsonMsgHdlrActor(val fsApp: FreeswitchApplication) extends Actor with ActorLogging
-    with SystemConfiguration with RxJsonMsgDeserializer {
+  with SystemConfiguration with RxJsonMsgDeserializer {
   def receive = {
     case msg: ReceivedJsonMessage =>
       log.debug("handling {} - {}", msg.channel, msg.data)

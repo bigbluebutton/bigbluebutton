@@ -16,12 +16,13 @@ object ReceivedJsonMsgHandlerActor {
 }
 
 class ReceivedJsonMsgHandlerActor(
-  val eventBus:               BbbMsgRouterEventBus,
-  val incomingJsonMessageBus: IncomingJsonMessageBus)
-    extends Actor with ActorLogging
-    with SystemConfiguration
-    with ReceivedJsonMsgDeserializer
-    with ReceivedMessageRouter {
+    val eventBus:               BbbMsgRouterEventBus,
+    val incomingJsonMessageBus: IncomingJsonMessageBus
+)
+  extends Actor with ActorLogging
+  with SystemConfiguration
+  with ReceivedJsonMsgDeserializer
+  with ReceivedMessageRouter {
 
   def receive = {
     case msg: ReceivedJsonMessage =>
