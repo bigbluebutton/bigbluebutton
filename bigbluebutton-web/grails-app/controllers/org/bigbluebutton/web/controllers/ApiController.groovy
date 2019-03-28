@@ -419,7 +419,6 @@ class ApiController {
     us.guestStatus = guestStatusVal
     us.logoutUrl = meeting.getLogoutUrl()
     us.configXML = configxml;
-    us.joinViaHtml5 = joinViaHtml5
 
     if (!StringUtils.isEmpty(params.defaultLayout)) {
       us.defaultLayout = params.defaultLayout;
@@ -430,24 +429,6 @@ class ApiController {
     } else {
       us.avatarURL = meeting.defaultAvatarURL
     }
-
-    //check if exists the param redirect
-    boolean redirectClient = true;
-    String clientURL = paramsProcessorUtil.getDefaultClientUrl();
-
-    // server-wide configuration:
-    // Depending on configuration, prefer the HTML5 client over Flash for moderators
-    if (paramsProcessorUtil.getModeratorsJoinViaHTML5Client() && role == ROLE_MODERATOR) {
-      joinViaHtml5 = true
-    }
-
-    // Depending on configuration, prefer the HTML5 client over Flash for attendees
-    if (paramsProcessorUtil.getAttendeesJoinViaHTML5Client() && role == ROLE_ATTENDEE) {
-      joinViaHtml5 = true
-    }
-
-    session[sessionToken] = sessionToken
-    meetingService.addUserSession(sessionToken, us);
 
     // Register user into the meeting.
     meetingService.registerUser(us.meetingID, us.internalUserId, us.fullname, us.role, us.externUserID,
@@ -472,7 +453,20 @@ class ApiController {
     log.info("Session user-token for " + us.fullname + " [" + session['user-token'] + "]")
     session.setMaxInactiveInterval(SESSION_TIMEOUT);
 
+    //check if exists the param redirect
+    boolean redirectClient = true;
+    String clientURL = paramsProcessorUtil.getDefaultClientUrl();
 
+    // server-wide configuration:
+    // Depending on configuration, prefer the HTML5 client over Flash for moderators
+    if (paramsProcessorUtil.getModeratorsJoinViaHTML5Client() && role == ROLE_MODERATOR) {
+      joinViaHtml5 = true
+    }
+
+    // Depending on configuration, prefer the HTML5 client over Flash for attendees
+    if (paramsProcessorUtil.getAttendeesJoinViaHTML5Client() && role == ROLE_ATTENDEE) {
+      joinViaHtml5 = true
+    }
 
     // single client join configuration:
     // Depending on configuration, prefer the HTML5 client over Flash client
@@ -494,10 +488,21 @@ class ApiController {
 
     String msgKey = "successfullyJoined"
     String msgValue = "You have joined successfully."
+
+    // Keep track of the client url in case this needs to wait for
+    // approval as guest. We need to be able to send the user to the
+    // client after being approved by moderator.
+    us.clientUrl = clientURL + "?sessionToken=" + sessionToken
+
+    session[sessionToken] = sessionToken
+    meetingService.addUserSession(sessionToken, us);
+
+    // Process if we send the user directly to the client or
+    // have it wait for approval.
     String destUrl = clientURL + "?sessionToken=" + sessionToken
     if (guestStatusVal.equals(GuestPolicy.WAIT)) {
-      clientURL = paramsProcessorUtil.getDefaultGuestWaitURL();
-      destUrl = clientURL + "?sessionToken=" + sessionToken
+      String guestWaitUrl = paramsProcessorUtil.getDefaultGuestWaitURL();
+      destUrl = guestWaitUrl + "?sessionToken=" + sessionToken
       msgKey = "guestWait"
       msgValue = "Guest waiting for approval to join meeting."
     } else if (guestStatusVal.equals(GuestPolicy.DENY)) {
@@ -1279,7 +1284,11 @@ class ApiController {
     } else {
       //check if exists the param redirect
       boolean redirectClient = true;
-      String clientURL = paramsProcessorUtil.getDefaultClientUrl();
+
+      // Get the client url we stored in the join api call before
+      // being told to wait.
+      String clientURL = us.clientUrl;
+      log.info("clientURL = " + clientURL)
       log.info("redirect = ." + redirectClient)
       if (!StringUtils.isEmpty(params.redirect)) {
         try {
@@ -1290,6 +1299,7 @@ class ApiController {
         }
       }
 
+      // The client url is ovewriten. Let's allow it.
       if (!StringUtils.isEmpty(params.clientURL)) {
         clientURL = params.clientURL;
       }
@@ -1301,12 +1311,7 @@ class ApiController {
       String msgKey = "guestAllowed"
       String msgValue = "Guest allowed to join meeting."
 
-      // Check if the user should join using html5
-      if (us.joinViaHtml5) {
-        clientURL = paramsProcessorUtil.getHTML5ClientUrl();
-      }
-
-      String destUrl = clientURL + "?sessionToken=" + sessionToken
+      String destUrl = clientURL
       log.debug("destUrl = " + destUrl)
 
 

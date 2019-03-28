@@ -44,7 +44,7 @@ public class UserSession {
   public String avatarURL;
   public String configXML;
   public String guestStatus = GuestPolicy.ALLOW;
-  public Boolean joinViaHtml5 = false;
+  public String clientUrl = null;
 
   private AtomicInteger connections = new AtomicInteger(0);
   
