@@ -5,6 +5,8 @@ import Icon from '/imports/ui/components/icon/component';
 import { Session } from 'meteor/session';
 import { styles } from './styles';
 
+const NOTE_ENABLED = Meteor.settings.public.note.enabled;
+
 const propTypes = {
   intl: PropTypes.shape({
     formatMessage: PropTypes.func.isRequired,
@@ -28,7 +30,7 @@ class UserNotes extends PureComponent {
       intl,
     } = this.props;
 
-    if (!Meteor.settings.public.note.enabled) return null;
+    if (!NOTE_ENABLED) return null;
 
     const toggleNotePanel = () => {
       Session.set(

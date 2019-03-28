@@ -450,6 +450,7 @@
     "app.lock-viewers.microphoneLable": "Microphone",
     "app.lock-viewers.PublicChatLabel": "Public chat",
     "app.lock-viewers.PrivateChatLable": "Private chat",
+    "app.lock-viewers.notesLabel": "Shared notes",
     "app.lock-viewers.Layout": "Layout",
     "app.lock-viewers.ariaTitle": "Lock viewers modal",
     "app.recording.startTitle": "Start recording",

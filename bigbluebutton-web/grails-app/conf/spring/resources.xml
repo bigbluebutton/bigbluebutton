@@ -139,6 +139,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         <property name="lockSettingsDisableMic" value="${lockSettingsDisableMic}"/>
         <property name="lockSettingsDisablePrivateChat" value="${lockSettingsDisablePrivateChat}"/>
         <property name="lockSettingsDisablePublicChat" value="${lockSettingsDisablePublicChat}"/>
+        <property name="lockSettingsDisableNote" value="${lockSettingsDisableNote}"/>
         <property name="lockSettingsLockedLayout" value="${lockSettingsLockedLayout}"/>
         <property name="lockSettingsLockOnJoin" value="${lockSettingsLockOnJoin}"/>
         <property name="lockSettingsLockOnJoinConfigurable" value="${lockSettingsLockOnJoinConfigurable}"/>

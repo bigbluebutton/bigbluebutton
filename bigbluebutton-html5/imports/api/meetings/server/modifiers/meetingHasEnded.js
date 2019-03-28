@@ -12,7 +12,7 @@ import clearCaptions from '/imports/api/captions/server/modifiers/clearCaptions'
 import clearPresentationPods from '/imports/api/presentation-pods/server/modifiers/clearPresentationPods';
 import clearVoiceUsers from '/imports/api/voice-users/server/modifiers/clearVoiceUsers';
 import clearUserInfo from '/imports/api/users-infos/server/modifiers/clearUserInfo';
-
+import clearNote from '/imports/api/note/server/modifiers/clearNote';
 
 export default function meetingHasEnded(meetingId) {
   return Meetings.remove({ meetingId }, () => {
@@ -27,6 +27,7 @@ export default function meetingHasEnded(meetingId) {
     clearUsersSettings(meetingId);
     clearVoiceUsers(meetingId);
     clearUserInfo(meetingId);
+    clearNote(meetingId);
 
     return Logger.info(`Cleared Meetings with id ${meetingId}`);
   });

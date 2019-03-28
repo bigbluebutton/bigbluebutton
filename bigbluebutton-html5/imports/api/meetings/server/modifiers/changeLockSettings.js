@@ -9,6 +9,7 @@ export default function changeLockSettings(meetingId, payload) {
     disableMic: Boolean,
     disablePrivChat: Boolean,
     disablePubChat: Boolean,
+    disableNote: Boolean,
     lockedLayout: Boolean,
     lockOnJoin: Boolean,
     lockOnJoinConfigurable: Boolean,

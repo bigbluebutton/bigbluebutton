@@ -5,6 +5,8 @@ import cx from 'classnames';
 import Modal from '/imports/ui/components/modal/simple/component';
 import { styles } from './styles';
 
+const NOTE_ENABLED = Meteor.settings.public.note.enabled;
+
 const intlMessages = defineMessages({
   lockViewersTitle: {
     id: 'app.lock-viewers.title',
@@ -48,6 +50,10 @@ const intlMessages = defineMessages({
   },
   privateChatLable: {
     id: 'app.lock-viewers.PrivateChatLable',
+    description: 'description for close button',
+  },
+  notesLabel: {
+    id: 'app.lock-viewers.notesLabel',
     description: 'description for close button',
   },
   ariaModalTitle: {
@@ -198,6 +204,31 @@ class LockViewersComponent extends React.PureComponent {
                 </div>
               </div>
             </div>
+            { NOTE_ENABLED ?
+              (<div className={styles.row}>
+                <div className={styles.col} aria-hidden="true">
+                  <div className={styles.formElement}>
+                    <div className={styles.label}>
+                      {intl.formatMessage(intlMessages.notesLabel)}
+                    </div>
+                  </div>
+                </div>
+                <div className={styles.col}>
+                  <div className={cx(styles.formElement, styles.pullContentRight)}>
+                    <Toggle
+                      icons={false}
+                      defaultChecked={meeting.lockSettingsProp.disableNote}
+                      onChange={() => {
+                        meeting.lockSettingsProp.disableNote = !meeting.lockSettingsProp.disableNote;
+                        toggleLockSettings(meeting);
+                      }}
+                      ariaLabel={intl.formatMessage(intlMessages.notesLabel)}
+                    />
+                  </div>
+                </div>
+              </div>)
+              : null
+            }
           </div>
         </div>
       </Modal>

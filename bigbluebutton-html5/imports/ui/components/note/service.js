@@ -1,37 +1,20 @@
 import Users from '/imports/api/users';
+import Note from '/imports/api/note';
 import Auth from '/imports/ui/services/auth';
 import Settings from '/imports/ui/services/settings';
 
 const NOTE_CONFIG = Meteor.settings.public.note;
 
-/**
- * Calculate a 32 bit FNV-1a hash
- * Found here: https://gist.github.com/vaiorabbit/5657561
- * Ref.: http://isthe.com/chongo/tech/comp/fnv/
- *
- * @param {string} str the input value
- * @param {boolean} [asString=false] set to true to return the hash value as
- *     8-digit hex string instead of an integer
- * @param {integer} [seed] optionally pass the hash of the previous chunk
- * @returns {integer | string}
- */
-const hashFNV32a = (str, asString, seed) => {
-  let hval = (seed === undefined) ? 0x811c9dc5 : seed;
-
-  for (let i = 0, l = str.length; i < l; i++) {
-    hval ^= str.charCodeAt(i);
-    hval += (hval << 1) + (hval << 4) + (hval << 7) + (hval << 8) + (hval << 24);
-  }
-  if (asString) {
-    return ("0000000" + (hval >>> 0).toString(16)).substr(-8);
-  }
-  return hval >>> 0;
-}
-
-const generateNoteId = () => {
+const getNoteId = () => {
   const meetingId = Auth.meetingID;
-  const noteId = hashFNV32a(meetingId, true);
+  const noteId = Note.findOne({ meetingId }).noteId;
   return noteId;
+};
+
+const getReadOnlyNoteId = () => {
+  const meetingId = Auth.meetingID;
+  const readOnlyNoteId = Note.findOne({ meetingId }).readOnlyNoteId;
+  return readOnlyNoteId;
 };
 
 const getLang = () => {
@@ -60,10 +43,20 @@ const getNoteParams = () => {
     }
   }
   return params.join('&');
-}
+};
+
+const isLocked = () => {
+  return false;
+};
+
+const getReadOnlyURL = () => {
+  const readOnlyNoteId = getReadOnlyNoteId();
+  const url = Auth.authenticateURL(NOTE_CONFIG.url + '/p/' + readOnlyNoteId);
+  return url;
+};
 
 const getNoteURL = () => {
-  const noteId = generateNoteId();
+  const noteId = getNoteId();
   const params = getNoteParams();
   const url = Auth.authenticateURL(NOTE_CONFIG.url + '/p/' + noteId + '?' + params);
   return url;
@@ -71,4 +64,6 @@ const getNoteURL = () => {
 
 export default {
   getNoteURL,
+  getReadOnlyURL,
+  isLocked,
 };
