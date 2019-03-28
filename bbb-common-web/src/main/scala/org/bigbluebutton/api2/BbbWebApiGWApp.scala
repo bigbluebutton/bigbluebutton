@@ -3,12 +3,12 @@ package org.bigbluebutton.api2
 import scala.collection.JavaConverters._
 import akka.actor.ActorSystem
 import akka.event.Logging
-import org.bigbluebutton.api.domain.{BreakoutRoomsParams, LockSettingsParams}
+import org.bigbluebutton.api.domain.{ BreakoutRoomsParams, LockSettingsParams }
 import org.bigbluebutton.api.messaging.converters.messages._
 import org.bigbluebutton.api2.bus._
 import org.bigbluebutton.api2.endpoint.redis.WebRedisSubscriberActor
 import org.bigbluebutton.common2.redis.MessageSender
-import org.bigbluebutton.api2.meeting.{OldMeetingMsgHdlrActor, RegisterUser}
+import org.bigbluebutton.api2.meeting.{ OldMeetingMsgHdlrActor, RegisterUser }
 import org.bigbluebutton.common2.domain._
 import org.bigbluebutton.common2.util.JsonUtil
 import org.bigbluebutton.presentation.messages._
@@ -100,8 +100,8 @@ class BbbWebApiGWApp(
                     userActivitySignResponseDelayInMinutes: java.lang.Integer,
                     muteOnStart:                            java.lang.Boolean,
                     keepEvents:                             java.lang.Boolean,
-                    breakoutParams    : BreakoutRoomsParams,
-                    lockSettingsParams: LockSettingsParams): Unit = {
+                    breakoutParams:                         BreakoutRoomsParams,
+                    lockSettingsParams:                     LockSettingsParams): Unit = {
 
     val meetingProp = MeetingProp(name = meetingName, extId = extMeetingId, intId = meetingId,
       isBreakout = isBreakout.booleanValue())
@@ -121,10 +121,12 @@ class BbbWebApiGWApp(
     val recordProp = RecordProp(record = recorded.booleanValue(), autoStartRecording = autoStartRecording.booleanValue(),
       allowStartStopRecording = allowStartStopRecording.booleanValue(), keepEvents = keepEvents.booleanValue())
 
-    val breakoutProps = BreakoutProps(parentId = parentMeetingId,
+    val breakoutProps = BreakoutProps(
+      parentId = parentMeetingId,
       sequence = sequence.intValue(),
       freeJoin = freeJoin.booleanValue(),
-      breakoutRooms = Vector())
+      breakoutRooms = Vector()
+    )
 
     val welcomeProp = WelcomeProp(welcomeMsgTemplate = welcomeMsgTemplate, welcomeMsg = welcomeMsg,
       modOnlyMessage = modOnlyMessage)
@@ -165,7 +167,8 @@ class BbbWebApiGWApp(
       usersProp,
       metadataProp,
       screenshareProps,
-      lockSettingsProps)
+      lockSettingsProps
+    )
 
     //meetingManagerActorRef ! new CreateMeetingMsg(defaultProps)
 

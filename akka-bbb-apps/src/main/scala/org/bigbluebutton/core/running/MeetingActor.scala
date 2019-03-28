@@ -1,6 +1,6 @@
 package org.bigbluebutton.core.running
 
-import java.io.{PrintWriter, StringWriter}
+import java.io.{ PrintWriter, StringWriter }
 
 import akka.actor._
 import akka.actor.SupervisorStrategy.Resume
@@ -11,7 +11,7 @@ import org.bigbluebutton.core.apps.users._
 import org.bigbluebutton.core.apps.whiteboard.ClientToServerLatencyTracerMsgHdlr
 import org.bigbluebutton.core.domain._
 import org.bigbluebutton.core.util.TimeUtil
-import org.bigbluebutton.common2.domain.{DefaultProps, LockSettingsProps}
+import org.bigbluebutton.common2.domain.{ DefaultProps, LockSettingsProps }
 import org.bigbluebutton.core.api._
 import org.bigbluebutton.core.apps._
 import org.bigbluebutton.core.apps.caption.CaptionApp2x
@@ -23,7 +23,7 @@ import org.bigbluebutton.core.apps.sharednotes.SharedNotesApp2x
 import org.bigbluebutton.core.apps.whiteboard.WhiteboardApp2x
 import org.bigbluebutton.core.bus._
 import org.bigbluebutton.core.models._
-import org.bigbluebutton.core2.{MeetingStatus2x, Permissions}
+import org.bigbluebutton.core2.{ MeetingStatus2x, Permissions }
 import org.bigbluebutton.core2.message.handlers._
 import org.bigbluebutton.core2.message.handlers.meeting._
 import org.bigbluebutton.common2.msgs._
@@ -35,9 +35,9 @@ import akka.actor.SupervisorStrategy.Resume
 
 import scala.concurrent.duration._
 import org.bigbluebutton.core.apps.layout.LayoutApp2x
-import org.bigbluebutton.core.apps.meeting.{SyncGetMeetingInfoRespMsgHdlr, ValidateConnAuthTokenSysMsgHdlr}
+import org.bigbluebutton.core.apps.meeting.{ SyncGetMeetingInfoRespMsgHdlr, ValidateConnAuthTokenSysMsgHdlr }
 import org.bigbluebutton.core.apps.users.ChangeLockSettingsInMeetingCmdMsgHdlr
-import org.bigbluebutton.core2.message.senders.{MsgBuilder, Sender}
+import org.bigbluebutton.core2.message.senders.{ MsgBuilder, Sender }
 
 object MeetingActor {
   def props(
@@ -184,7 +184,6 @@ class MeetingActor(
     initLockSettings(liveMeeting, lockSettingsProps)
   }
 
-
   /** *****************************************************************/
   // Helper to create fake users for testing (ralam jan 5, 2018)
   //object FakeTestData extends FakeTestData
@@ -241,7 +240,8 @@ class MeetingActor(
       disablePubChat = lockSettingsProp.disablePublicChat,
       lockedLayout = lockSettingsProp.lockedLayout,
       lockOnJoin = lockSettingsProp.lockOnJoin,
-      lockOnJoinConfigurable = lockSettingsProp.lockOnJoinConfigurable)
+      lockOnJoinConfigurable = lockSettingsProp.lockOnJoinConfigurable
+    )
 
     MeetingStatus2x.initializePermissions(liveMeeting.status)
 

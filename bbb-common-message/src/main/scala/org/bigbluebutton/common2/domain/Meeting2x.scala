@@ -9,10 +9,12 @@ case class DurationProps(duration: Int, createdTime: Long, createdDate: String,
 
 case class MeetingProp(name: String, extId: String, intId: String, isBreakout: Boolean)
 
-case class BreakoutProps(parentId: String,
-												 sequence: Int,
-												 freeJoin: Boolean,
-												 breakoutRooms: Vector[String])
+case class BreakoutProps(
+    parentId:      String,
+    sequence:      Int,
+    freeJoin:      Boolean,
+    breakoutRooms: Vector[String]
+)
 
 case class PasswordProp(moderatorPass: String, viewerPass: String)
 
@@ -28,25 +30,29 @@ case class MetadataProp(metadata: collection.immutable.Map[String, String])
 
 case class ScreenshareProps(screenshareConf: String, red5ScreenshareIp: String, red5ScreenshareApp: String)
 
-case class LockSettingsProps(disableCam: Boolean,
-														 disableMic: Boolean,
-														 disablePrivateChat: Boolean,
-														 disablePublicChat: Boolean,
-														 lockedLayout: Boolean,
-														 lockOnJoin: Boolean,
-														 lockOnJoinConfigurable: Boolean)
+case class LockSettingsProps(
+    disableCam:             Boolean,
+    disableMic:             Boolean,
+    disablePrivateChat:     Boolean,
+    disablePublicChat:      Boolean,
+    lockedLayout:           Boolean,
+    lockOnJoin:             Boolean,
+    lockOnJoinConfigurable: Boolean
+)
 
-case class DefaultProps(meetingProp: MeetingProp,
-												breakoutProps: BreakoutProps,
-												durationProps: DurationProps,
-												password: PasswordProp,
-												recordProp: RecordProp,
-												welcomeProp: WelcomeProp,
-												voiceProp: VoiceProp,
-												usersProp: UsersProp,
-												metadataProp: MetadataProp,
-												screenshareProps: ScreenshareProps,
-												lockSettingsProps: Option[LockSettingsProps])
+case class DefaultProps(
+    meetingProp:       MeetingProp,
+    breakoutProps:     BreakoutProps,
+    durationProps:     DurationProps,
+    password:          PasswordProp,
+    recordProp:        RecordProp,
+    welcomeProp:       WelcomeProp,
+    voiceProp:         VoiceProp,
+    usersProp:         UsersProp,
+    metadataProp:      MetadataProp,
+    screenshareProps:  ScreenshareProps,
+    lockSettingsProps: Option[LockSettingsProps]
+)
 
 case class StartEndTimeStatus(startTime: Long, endTime: Long)
 case class RecordingStatus(isRecording: Boolean)
