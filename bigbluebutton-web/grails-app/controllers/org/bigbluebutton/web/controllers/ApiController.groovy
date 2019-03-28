@@ -419,6 +419,7 @@ class ApiController {
     us.guestStatus = guestStatusVal
     us.logoutUrl = meeting.getLogoutUrl()
     us.configXML = configxml;
+    us.joinViaHtml5 = joinViaHtml5
 
     if (!StringUtils.isEmpty(params.defaultLayout)) {
       us.defaultLayout = params.defaultLayout;
@@ -1297,8 +1298,15 @@ class ApiController {
 
       String msgKey = "guestAllowed"
       String msgValue = "Guest allowed to join meeting."
+
+      // Check if the user should join using html5
+      if (us.joinViaHtml5) {
+        clientURL = paramsProcessorUtil.getHTML5ClientUrl();
+      }
+
       String destUrl = clientURL + "?sessionToken=" + sessionToken
       log.debug("destUrl = " + destUrl)
+
 
       if (guestWaitStatus.equals(GuestPolicy.WAIT)) {
         clientURL = paramsProcessorUtil.getDefaultGuestWaitURL();
