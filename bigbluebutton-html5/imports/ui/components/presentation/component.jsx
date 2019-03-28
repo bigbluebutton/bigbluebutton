@@ -150,7 +150,7 @@ class PresentationArea extends Component {
     let adjustedWidth;
     let adjustedHeight;
 
-    if (!originalHeight || !originalHeight) {
+    if (!originalHeight || !originalWidth) {
       return {
         width: 0,
         height: 0,
