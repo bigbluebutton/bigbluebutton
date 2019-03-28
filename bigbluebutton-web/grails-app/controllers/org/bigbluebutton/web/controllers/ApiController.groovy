@@ -431,6 +431,21 @@ class ApiController {
       us.avatarURL = meeting.defaultAvatarURL
     }
 
+    //check if exists the param redirect
+    boolean redirectClient = true;
+    String clientURL = paramsProcessorUtil.getDefaultClientUrl();
+
+    // server-wide configuration:
+    // Depending on configuration, prefer the HTML5 client over Flash for moderators
+    if (paramsProcessorUtil.getModeratorsJoinViaHTML5Client() && role == ROLE_MODERATOR) {
+      joinViaHtml5 = true
+    }
+
+    // Depending on configuration, prefer the HTML5 client over Flash for attendees
+    if (paramsProcessorUtil.getAttendeesJoinViaHTML5Client() && role == ROLE_ATTENDEE) {
+      joinViaHtml5 = true
+    }
+
     session[sessionToken] = sessionToken
     meetingService.addUserSession(sessionToken, us);
 
@@ -457,20 +472,7 @@ class ApiController {
     log.info("Session user-token for " + us.fullname + " [" + session['user-token'] + "]")
     session.setMaxInactiveInterval(SESSION_TIMEOUT);
 
-    //check if exists the param redirect
-    boolean redirectClient = true;
-    String clientURL = paramsProcessorUtil.getDefaultClientUrl();
 
-    // server-wide configuration:
-    // Depending on configuration, prefer the HTML5 client over Flash for moderators
-    if (paramsProcessorUtil.getModeratorsJoinViaHTML5Client() && role == ROLE_MODERATOR) {
-      joinViaHtml5 = true
-    }
-
-    // Depending on configuration, prefer the HTML5 client over Flash for attendees
-    if (paramsProcessorUtil.getAttendeesJoinViaHTML5Client() && role == ROLE_ATTENDEE) {
-      joinViaHtml5 = true
-    }
 
     // single client join configuration:
     // Depending on configuration, prefer the HTML5 client over Flash client
