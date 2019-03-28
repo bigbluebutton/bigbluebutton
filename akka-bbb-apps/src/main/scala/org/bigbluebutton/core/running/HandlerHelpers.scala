@@ -44,6 +44,12 @@ trait HandlerHelpers extends SystemConfiguration {
     } yield {
       trackUserJoin(outGW, liveMeeting, regUser)
 
+      // Flag that an authed user had joined the meeting in case
+      // we need to end meeting when all authed users have left.
+      if (regUser.authed) {
+        MeetingStatus2x.authUserHadJoined(liveMeeting.status)
+      }
+
       UserState(
         intId = regUser.id,
         extId = regUser.externId,
