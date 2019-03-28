@@ -179,8 +179,8 @@ class ActionsDropdown extends Component {
             description={formatMessage(pollBtnDesc)}
             key={this.pollId}
             onClick={() => {
-              if (Session.equals('hasPollPublished', true)) {
-                Session.set('hidePollResults', true);
+              if (Session.equals('pollInitiated', true)) {
+                Session.set('resetPollPanel', true);
               }
               Session.set('openPanel', 'poll');
               Session.set('forcePollOpen', true);

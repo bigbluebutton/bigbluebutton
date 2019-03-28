@@ -109,7 +109,7 @@ class Poll extends Component {
   componentDidUpdate() {
     const { currentUser } = this.props;
 
-    if (Session.get('hidePollResults')) {
+    if (Session.equals('resetPollPanel', true)) {
       this.handleBackClick();
     }
 
@@ -123,13 +123,14 @@ class Poll extends Component {
     // This regex will replace any instance of 2 or more consecutive white spaces
     // with a single white space character.
     const option = event.target.value.replace(/\s{2,}/g, ' ').trim();
+
     this.inputEditor[index] = option === '' ? '' : option;
     this.setState({ customPollValues: this.inputEditor });
   }
 
   handleBackClick() {
     const { stopPoll } = this.props;
-    Session.set('hidePollResults', false);
+    Session.set('resetPollPanel', false);
 
     stopPoll();
     this.inputEditor = [];
@@ -165,6 +166,7 @@ class Poll extends Component {
           className={styles.pollBtn}
           key={_.uniqueId('quick-poll-')}
           onClick={() => {
+            Session.set('pollInitiated', true);
             this.setState({ isPolling: true }, () => startPoll(type));
           }}
         />);
@@ -175,14 +177,15 @@ class Poll extends Component {
 
   renderCustomView() {
     const { intl, startCustomPoll } = this.props;
-    const isDisabled = _.compact(this.inputEditor).length < 2;
+    const isDisabled = _.compact(this.inputEditor).length < 1;
 
     return (
       <div className={styles.customInputWrapper}>
         {this.renderInputFields()}
         <Button
           onClick={() => {
-            if (this.inputEditor.length > 1) {
+            if (this.inputEditor.length > 0) {
+              Session.set('pollInitiated', true);
               this.setState({ isPolling: true }, () => startCustomPoll('custom', _.compact(this.inputEditor)));
             }
           }}
@@ -196,6 +199,7 @@ class Poll extends Component {
   }
 
   renderInputFields() {
+    const MAX_INPUT_CHARS = 75;
     const { intl } = this.props;
     const { customPollValues } = this.state;
     let items = [];
@@ -212,6 +216,7 @@ class Poll extends Component {
             className={styles.input}
             onChange={event => this.handleInputChange(id, event)}
             defaultValue={customPollValues[id]}
+            maxLength={MAX_INPUT_CHARS}
           />
         </div>
       );

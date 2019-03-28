@@ -32,6 +32,6 @@ export default withTracker(() => {
     publishPoll: Service.publishPoll,
     currentPoll: Service.currentPoll(),
     getUser: Service.getUser,
-    hideResults: Session.get('hidePollResults'),
+    resetPollPanel: Session.get('resetPollPanel') || false,
   };
 })(PollContainer);
