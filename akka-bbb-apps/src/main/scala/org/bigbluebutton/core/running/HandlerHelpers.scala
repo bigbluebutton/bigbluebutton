@@ -26,12 +26,30 @@ trait HandlerHelpers extends SystemConfiguration {
     outGW.send(event)
   }
 
+  def trackUserJoin(
+      outGW:       OutMsgRouter,
+      liveMeeting: LiveMeeting,
+      regUser:     RegisteredUser
+  ): Unit = {
+    if (!regUser.joined) {
+      RegisteredUsers.updateUserJoin(liveMeeting.registeredUsers, regUser)
+    }
+  }
+
   def userJoinMeeting(outGW: OutMsgRouter, authToken: String, clientType: String,
                       liveMeeting: LiveMeeting, state: MeetingState2x): MeetingState2x = {
 
     val nu = for {
       regUser <- RegisteredUsers.findWithToken(authToken, liveMeeting.registeredUsers)
     } yield {
+      trackUserJoin(outGW, liveMeeting, regUser)
+
+      // Flag that an authed user had joined the meeting in case
+      // we need to end meeting when all authed users have left.
+      if (regUser.authed) {
+        MeetingStatus2x.authUserHadJoined(liveMeeting.status)
+      }
+
       UserState(
         intId = regUser.id,
         extId = regUser.externId,
@@ -45,7 +63,8 @@ trait HandlerHelpers extends SystemConfiguration {
         locked = MeetingStatus2x.getPermissions(liveMeeting.status).lockOnJoin,
         avatar = regUser.avatarURL,
         clientType = clientType,
-        userLeftFlag = UserLeftFlag(false, 0))
+        userLeftFlag = UserLeftFlag(false, 0)
+      )
     }
 
     nu match {
@@ -95,7 +114,8 @@ trait HandlerHelpers extends SystemConfiguration {
 
       val event = buildRecordingStatusChangedEvtMsg(
         liveMeeting.props.meetingProp.intId,
-        "system", MeetingStatus2x.isRecording(liveMeeting.status))
+        "system", MeetingStatus2x.isRecording(liveMeeting.status)
+      )
       outGW.send(event)
       newState = state.update(tracker)
     }
@@ -123,7 +143,8 @@ trait HandlerHelpers extends SystemConfiguration {
 
       val event = buildRecordingStatusChangedEvtMsg(
         liveMeeting.props.meetingProp.intId,
-        "system", MeetingStatus2x.isRecording(liveMeeting.status))
+        "system", MeetingStatus2x.isRecording(liveMeeting.status)
+      )
       outGW.send(event)
       newState = state.update(tracker)
     }
@@ -170,7 +191,8 @@ trait HandlerHelpers extends SystemConfiguration {
     if (liveMeeting.props.meetingProp.isBreakout) {
       eventBus.publish(BigBlueButtonEvent(
         liveMeeting.props.breakoutProps.parentId,
-        new BreakoutRoomEndedInternalMsg(liveMeeting.props.meetingProp.intId)))
+        new BreakoutRoomEndedInternalMsg(liveMeeting.props.meetingProp.intId)
+      ))
     }
   }
 
@@ -210,7 +232,8 @@ trait HandlerHelpers extends SystemConfiguration {
     if (liveMeeting.props.meetingProp.isBreakout) {
       eventBus.publish(BigBlueButtonEvent(
         liveMeeting.props.breakoutProps.parentId,
-        new BreakoutRoomEndedInternalMsg(meetingId)))
+        new BreakoutRoomEndedInternalMsg(meetingId)
+      ))
     }
 
     val event = MsgBuilder.buildEjectAllFromVoiceConfMsg(meetingId, liveMeeting.props.voiceProp.voiceConf)

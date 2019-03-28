@@ -20,13 +20,14 @@ repositories {
 }
 
 dependencies {
-    compile 'org.apache.poi:poi:4.0.0@jar'
-    compile 'org.apache.poi:poi-ooxml:4.0.0@jar'
-    compile 'org.apache.poi:poi-ooxml-schemas:4.0.0@jar'
-    compile 'commons-io:commons-io:2.6@jar'
-    compile 'org.apache.commons:commons-lang3:3.8.1@jar'
-    compile 'org.apache.commons:commons-collections4:4.2@jar'
-    compile 'org.apache.xmlbeans:xmlbeans:3.0.2@jar'
+    compile 'org.apache.poi:poi:4.0.0'
+    compile 'org.apache.poi:poi-ooxml:4.0.0'
+    compile 'org.apache.poi:poi-ooxml-schemas:4.0.0'
+    compile 'commons-io:commons-io:2.6'
+    compile 'org.apache.commons:commons-lang3:3.8.1'
+    compile 'org.apache.commons:commons-collections4:4.2'
+    compile 'org.apache.xmlbeans:xmlbeans:3.0.2'
+    compile 'org.apache.commons:commons-compress:1.18'
 }
 
 jar {

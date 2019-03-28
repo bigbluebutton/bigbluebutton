@@ -1,6 +1,5 @@
 package org.bigbluebutton.client.meeting
 
-
 object MeetingManager {
   def findWithMeetingId(manager: MeetingManager, meetingId: String): Option[Meeting] = {
     manager.toVector.find(m => m.meetingId == meetingId)

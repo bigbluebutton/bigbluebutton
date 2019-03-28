@@ -2,10 +2,9 @@ package org.bigbluebutton.api2
 
 import org.bigbluebutton.api.messaging.converters.messages._
 import org.bigbluebutton.api2.meeting.RegisterUser
-import org.bigbluebutton.common2.domain.{DefaultProps, PageVO, PresentationVO}
+import org.bigbluebutton.common2.domain.{ DefaultProps, PageVO, PresentationVO }
 import org.bigbluebutton.common2.msgs._
 import org.bigbluebutton.presentation.messages._
-
 
 object MsgBuilder {
   def buildDestroyMeetingSysCmdMsg(msg: DestroyMeetingMessage): BbbCommonEnvCoreMsg = {
@@ -93,7 +92,7 @@ object MsgBuilder {
 
     val pages = generatePresentationPages(msg.presId, msg.numPages.intValue(), msg.presBaseUrl)
     val presentation = PresentationVO(msg.presId, msg.filename,
-      current=msg.current.booleanValue(), pages.values.toVector, msg.downloadable.booleanValue())
+      current = msg.current.booleanValue(), pages.values.toVector, msg.downloadable.booleanValue())
 
     val body = PresentationConversionCompletedSysPubMsgBody(podId = msg.podId, messageKey = msg.key,
       code = msg.key, presentation)

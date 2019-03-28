@@ -1,11 +1,15 @@
 import PropTypes from 'prop-types';
 import React, { Component } from 'react';
-import { defineMessages, injectIntl, intlShape } from 'react-intl';
+import {
+  defineMessages, injectIntl, intlShape, FormattedMessage,
+} from 'react-intl';
 import Button from '/imports/ui/components/button/component';
 import { notify } from '/imports/ui/services/notification';
 import logger from '/imports/startup/client/logger';
 import Modal from '/imports/ui/components/modal/simple/component';
+import browser from 'browser-detect';
 import { styles } from './styles';
+
 
 const VIDEO_CONSTRAINTS = Meteor.settings.public.kurento.cameraConstraints;
 
@@ -82,6 +86,7 @@ class VideoPreview extends Component {
     this.handleJoinVideo = this.handleJoinVideo.bind(this);
     this.handleProceed = this.handleProceed.bind(this);
     this.handleStartSharing = this.handleStartSharing.bind(this);
+    this.webcamListener = this.webcamListener.bind(this);
 
     this.deviceStream = null;
 
@@ -89,6 +94,8 @@ class VideoPreview extends Component {
       webcamDeviceId,
       availableWebcams: null,
       isStartSharingDisabled: false,
+      isInitialDeviceSet: false,
+      cameraAllowed: false,
     };
   }
 
@@ -151,32 +158,37 @@ class VideoPreview extends Component {
       video: VIDEO_CONSTRAINTS,
     };
 
-    navigator.mediaDevices.enumerateDevices().then((devices) => {
-      let isInitialDeviceSet = false;
+    navigator.mediaDevices.enumerateDevices().then(async (devices) => {
+      const { isInitialDeviceSet } = this.state;
       const webcams = [];
 
       // set webcam
-      if (webcamDeviceId) {
-        changeWebcam(webcamDeviceId);
-        this.setState({ webcamDeviceId });
-        isInitialDeviceSet = true;
-      }
       devices.forEach((device) => {
         if (device.kind === 'videoinput') {
-          if (!isInitialDeviceSet) {
+          if (!isInitialDeviceSet || (webcamDeviceId && webcamDeviceId === device.deviceId)) {
             changeWebcam(device.deviceId);
             this.setState({ webcamDeviceId: device.deviceId });
-            isInitialDeviceSet = true;
+            this.setState({ isInitialDeviceSet: true });
           }
         }
       });
+
       if (webcams.length > 0) {
         this.setState({ availableWebcams: webcams });
       }
 
       constraints.video.deviceId = { exact: this.state.webcamDeviceId };
+      try {
+        await navigator.mediaDevices.getUserMedia(constraints);
+      } catch (exception) {
+        logger.info({ logCode: 'insufficient_constraints' }, 'No webcam found for constraint values, increasing constraints.', exception);
+        constraints.video.width = { max: 640 };
+        constraints.video.height = { max: 480 };
+      }
+
       navigator.mediaDevices.getUserMedia(constraints).then((stream) => {
         // display the preview
+        this.setState({ cameraAllowed: true });
         this.video.srcObject = stream;
         this.deviceStream = stream;
 
@@ -193,6 +205,23 @@ class VideoPreview extends Component {
         });
       });
     });
+  }
+
+  componentDidUpdate() {
+    this.webcamListener();
+  }
+
+  async webcamListener() {
+    const { cameraAllowed, isInitialDeviceSet, isStartSharingDisabled } = this.state;
+    const getDevices = await navigator.mediaDevices.enumerateDevices();
+    const hasVideoInput = getDevices.filter(device => device.kind === 'videoinput').length > 0;
+
+    const newSharingDisabled = !(hasVideoInput && cameraAllowed && isInitialDeviceSet);
+    if (newSharingDisabled !== isStartSharingDisabled) {
+      this.setState({
+        isStartSharingDisabled: newSharingDisabled,
+      });
+    }
   }
 
   handleJoinVideo() {
@@ -233,7 +262,7 @@ class VideoPreview extends Component {
               playsInline
             />
           </div>
-          <div className={styles}>
+          <div>
             <label className={styles.label}>
               {intl.formatMessage(intlMessages.cameraLabel)}
             </label>
@@ -264,6 +293,18 @@ class VideoPreview extends Component {
               )}
           </div>
         </div>
+        {browser().name === 'edge' || browser().name === 'ie' ? (
+          <p className={styles.browserWarning}>
+            <FormattedMessage
+              id="app.audioModal.unsupportedBrowserLabel"
+              description="Warning when someone joins with a browser that isnt supported"
+              values={{
+                0: <a href="https://www.google.com/chrome/">Chrome</a>,
+                1: <a href="https://getfirefox.com">Firefox</a>,
+              }}
+            />
+          </p>
+        ) : null }
         <div className={styles.footer}>
           <div className={styles.actions}>
             <Button

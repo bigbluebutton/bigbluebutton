@@ -1,7 +1,7 @@
 package org.bigbluebutton.client.bus
 
 import akka.actor.ActorRef
-import akka.event.{EventBus, LookupClassification}
+import akka.event.{ EventBus, LookupClassification }
 import org.bigbluebutton.common2.msgs.BbbCommonEnvJsNodeMsg
 
 sealed trait ToConnectionMsg
@@ -29,7 +29,7 @@ class MsgToClientEventBus extends EventBus with LookupClassification {
   // must define a full order over the subscribers, expressed as expected from
   // `java.lang.Comparable.compare`
   override protected def compareSubscribers(a: Subscriber, b: Subscriber): Int =
-  a.compareTo(b)
+    a.compareTo(b)
 
   // determines the initial size of the index data structure
   // used internally (i.e. the expected number of different classifiers)

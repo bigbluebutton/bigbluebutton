@@ -92,7 +92,6 @@
     "app.presentation.presentationToolbar.fitToWidth": "Підігнати по ширині",
     "app.presentation.presentationToolbar.goToSlide": "Слайд {0}",
     "app.presentationUploder.title": "Презентація",
-    "app.presentationUploder.message": "Як ведучий у BigBlueButton, ви маєте можливість завантажувати будь-який офісний документ або файл PDF. Ми рекомендуємо завантажувати файл PDF для отримання найкращих результатів.",
     "app.presentationUploder.confirmLabel": "Почати",
     "app.presentationUploder.confirmDesc": "Зберегти зміни та розпочати презентацію",
     "app.presentationUploder.dismissLabel": "Відмінити",
@@ -404,7 +403,6 @@
     "app.lock-viewers.PrivateChatLable": "Приватний чат",
     "app.lock-viewers.Layout": "Розміщення вікон",
     "app.recording.startTitle": "Почати запис",
-    "app.recording.stopTitle": "Зупинити запис",
     "app.recording.startDescription": "(Ви зможете натиснути цю кнопку пізніше, щоб зробити паузу запису.)",
     "app.recording.stopDescription": "Ви впевнені що хочете зробити паузу запису?  (Ви зможете відновити запис, натиснувши кнопку запису знову.)",
     "app.videoPreview.cameraLabel": "Камера",
@@ -520,7 +518,6 @@
     "app.createBreakoutRoom.doneLabel": "Готово",
     "app.createBreakoutRoom.nextLabel": "Далі",
     "app.createBreakoutRoom.minusRoomTime": "Збільшити час кімнати",
-    "app.createBreakoutRoom.addRoomTime": "Зменшити час кімнати",
     "app.createBreakoutRoom.addParticipantLabel": "+ Додати учасника",
     "app.createBreakoutRoom.freeJoin": "Дозволити користувачам обирати кімнату самостійно",
     "app.createBreakoutRoom.leastOneWarnBreakout": "Щонайменш один користувач повинен бути в кімнаті.",
@@ -530,9 +527,7 @@
     "app.externalVideo.title": "Поділитись YouTube відео",
     "app.externalVideo.input": "YouTube відео URL (посилання)",
     "app.externalVideo.urlError": "Цей URL (посилання) не є коректним YouTube відео",
-    "app.externalVideo.close": "Закрити",
-    "app.actionsBar.actionsDropdown.shareExternalVideo": "Поділитись Youtube відео",
-    "app.actionsBar.actionsDropdown.stopShareExternalVideo": "Припинити ділитись відео"
+    "app.externalVideo.close": "Закрити"
 
 }
 

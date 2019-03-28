@@ -20,14 +20,16 @@ object FSESLRedisSubscriberActor extends RedisSubscriber {
       classOf[FSESLRedisSubscriberActor],
       system, inJsonMgBus,
       redisHost, redisPort,
-      channels, patterns).withDispatcher("akka.redis-subscriber-worker-dispatcher")
+      channels, patterns
+    ).withDispatcher("akka.redis-subscriber-worker-dispatcher")
 }
 
 class FSESLRedisSubscriberActor(
-  system:      ActorSystem,
-  inJsonMgBus: IncomingJsonMessageBus,
-  redisHost:   String, redisPort: Int,
-  channels: Seq[String] = Nil, patterns: Seq[String] = Nil)
+    system:      ActorSystem,
+    inJsonMgBus: IncomingJsonMessageBus,
+    redisHost:   String, redisPort: Int,
+    channels: Seq[String] = Nil, patterns: Seq[String] = Nil
+)
   extends RedisSubscriberProvider(system, "BbbFsEslAkkaSub", channels, patterns, inJsonMgBus) with SystemConfiguration {
 
   var lastPongReceivedOn = 0L

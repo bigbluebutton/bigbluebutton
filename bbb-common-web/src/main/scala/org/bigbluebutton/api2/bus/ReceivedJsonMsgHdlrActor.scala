@@ -17,9 +17,9 @@ object ReceivedJsonMsgHdlrActor {
 
 class ReceivedJsonMsgHdlrActor(val msgFromAkkaAppsEventBus: MsgFromAkkaAppsEventBus)
   extends Actor
-    with ActorLogging
-    with SystemConfiguration
-    with ReceivedMessageRouter {
+  with ActorLogging
+  with SystemConfiguration
+  with ReceivedMessageRouter {
 
   object JsonDeserializer extends Deserializer
 
@@ -46,7 +46,7 @@ class ReceivedJsonMsgHdlrActor(val msgFromAkkaAppsEventBus: MsgFromAkkaAppsEvent
   def receive = {
     case msg: JsonMsgFromAkkaApps => handleReceivedJsonMessage(msg)
 
-    case _ => // do nothing
+    case _                        => // do nothing
   }
 
   def handleReceivedJsonMessage(msg: JsonMsgFromAkkaApps): Unit = {
@@ -102,7 +102,7 @@ class ReceivedJsonMsgHdlrActor(val msgFromAkkaAppsEventBus: MsgFromAkkaAppsEvent
         route[RecordingStatusChangedEvtMsg](envelope, jsonNode)
 
       case _ =>
-        //log.debug("************ Cannot route envelope name " + envelope.name)
+      //log.debug("************ Cannot route envelope name " + envelope.name)
       // do nothing
     }
   }
