@@ -339,6 +339,7 @@
     "app.audioModal.iOSErrorDescription": "At this time audio and video are not supported on Chrome for iOS.",
     "app.audioModal.iOSErrorRecommendation": "We recommend using Safari iOS.",
     "app.audioModal.audioChoiceDesc": "Select how to join the audio in this meeting",
+    "app.audioModal.unsupportedBrowserLabel": "It looks like you're using a browser that is not fully supported. Please use either {0} or {1} for full support.",
     "app.audioModal.closeLabel": "Close",
     "app.audioModal.yes": "Yes",
     "app.audioModal.no": "No",

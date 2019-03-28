@@ -33,6 +33,14 @@
   margin-top: auto;
   margin-bottom: auto;
   display: flex;
+  justify-content: center;
+}
+
+.browserWarning {
+  padding: 0.5rem;
+  border-width: 3px;
+  border-style: solid;
+  border-radius: 0.25rem;
 }
 
 .overlay {
