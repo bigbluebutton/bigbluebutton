@@ -11,7 +11,7 @@ const async = require("async");
 // process to perform the callback calls.
 // TODO: add port (-p) and log level (-l) to the command line args
 module.exports = class Application {
-  
+
   constructor() {
     this.webHooks = new WebHooks();
     this.webServer = new WebServer();

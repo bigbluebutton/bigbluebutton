@@ -14,7 +14,7 @@ const UserMapping = require("./userMapping.js");
 module.exports = class WebHooks {
 
   constructor() {
-    this.subscriberEvents = Application.redisClient;
+    this.subscriberEvents = Application.redisClient();
   }
 
   start(callback) {
@@ -73,7 +73,7 @@ module.exports = class WebHooks {
       }
     });
 
-    for (i = 0; i < config.get("hooks.channels"); ++i) {
+    for (var i = 0; i < config.get("hooks.channels"); ++i) {
       const channel = config.get("hooks.channels")[i];
       this.subscriberEvents.psubscribe(channel);
     }
