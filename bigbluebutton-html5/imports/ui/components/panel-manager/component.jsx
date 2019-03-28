@@ -46,6 +46,8 @@ const CHAT_MAX_WIDTH = 350;
 const NOTE_MIN_WIDTH = 340;
 const NOTE_MAX_WIDTH = 800;
 
+const dispatchResizeEvent = () => window.dispatchEvent(new Event('resize'));
+
 class PanelManager extends Component {
   constructor() {
     super();
@@ -104,7 +106,7 @@ class PanelManager extends Component {
         enable={resizableEnableOptions}
         key={this.userlistKey}
         size={{ width: userlistWidth }}
-        onResize={() => window.dispatchEvent(new Event('resize'))}
+        onResize={dispatchResizeEvent}
         onResizeStop={(e, direction, ref, d) => {
           this.setState({
             userlistWidth: userlistWidth + d.width,
@@ -152,7 +154,7 @@ class PanelManager extends Component {
         enable={resizableEnableOptions}
         key={this.chatKey}
         size={{ width: chatWidth }}
-        onResize={() => window.dispatchEvent(new Event('resize'))}
+        onResize={dispatchResizeEvent}
         onResizeStop={(e, direction, ref, d) => {
           this.setState({
             chatWidth: chatWidth + d.width,
@@ -200,7 +202,7 @@ class PanelManager extends Component {
         enable={resizableEnableOptions}
         key={this.noteKey}
         size={{ width: noteWidth }}
-        onResize={() => window.dispatchEvent(new Event('resize'))}
+        onResize={dispatchResizeEvent}
         onResizeStop={(e, direction, ref, d) => {
           this.setState({
             noteWidth: noteWidth + d.width,
@@ -248,7 +250,7 @@ class PanelManager extends Component {
         enable={resizableEnableOptions}
         key={this.noteKey}
         size={{ width: noteWidth }}
-        onResize={() => window.dispatchEvent(new Event('resize'))}
+        onResize={dispatchResizeEvent}
         onResizeStop={(e, direction, ref, d) => {
           this.setState({
             noteWidth: noteWidth + d.width,
