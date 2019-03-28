@@ -11,8 +11,9 @@ trait SetCurrentPagePubMsgHdlr extends RightsManagementTrait {
   this: PresentationPodHdlrs =>
 
   def handle(
-    msg: SetCurrentPagePubMsg, state: MeetingState2x,
-    liveMeeting: LiveMeeting, bus: MessageBus): MeetingState2x = {
+      msg: SetCurrentPagePubMsg, state: MeetingState2x,
+      liveMeeting: LiveMeeting, bus: MessageBus
+  ): MeetingState2x = {
 
     if (filterPresentationMessage(liveMeeting.users2x, msg.header.userId) &&
       permissionFailed(PermissionCheck.GUEST_LEVEL, PermissionCheck.PRESENTER_LEVEL, liveMeeting.users2x, msg.header.userId)) {
@@ -24,7 +25,8 @@ trait SetCurrentPagePubMsgHdlr extends RightsManagementTrait {
       def broadcastSetCurrentPageEvtMsg(podId: String, presentationId: String, pageId: String, userId: String): Unit = {
         val routing = Routing.addMsgToClientRouting(
           MessageTypes.BROADCAST_TO_MEETING,
-          liveMeeting.props.meetingProp.intId, userId)
+          liveMeeting.props.meetingProp.intId, userId
+        )
         val envelope = BbbCoreEnvelope(SetCurrentPageEvtMsg.NAME, routing)
         val header = BbbClientMsgHeader(SetCurrentPageEvtMsg.NAME, liveMeeting.props.meetingProp.intId, userId)
 

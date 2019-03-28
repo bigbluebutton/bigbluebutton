@@ -375,6 +375,11 @@
     "app.audio.permissionsOverlay.hint": "Sie müssen Zugriff auf Ihre Mediengeräte erlauben, um an einer Audiokonferenz teilnehmen zu können.",
     "app.error.removed": "Sie wurden aus der Konferenz entfernt",
     "app.error.meeting.ended": "Sie haben die Konferenz verlassen",
+    "app.meeting.logout.duplicateUserEjectReason": "Bereits anwesender Teilnehmer versucht erneut der Konferenz beizutreten",
+    "app.meeting.logout.permissionEjectReason": "Aufgrund einer Rechteverletzung aus der Konferenz entfernt worden",
+    "app.meeting.logout.ejectedFromMeeting": "Sie wurden aus der Konferenz entfernt",
+    "app.meeting.logout.validateTokenFailedEjectReason": "Verifikation des Autorisierungsmerkmals fehlgeschlagen",
+    "app.meeting.logout.userInactivityEjectReason": "Teilnehmer war zu lange inaktiv",
     "app.dropdown.close": "Schließen",
     "app.error.500": "Ups, irgendwas ist schiefgelaufen",
     "app.error.404": "Nicht gefunden",
@@ -426,6 +431,7 @@
     "app.lock-viewers.Layout": "Layout",
     "app.recording.startTitle": "Aufzeichnung starten",
     "app.recording.stopTitle": "Aufzeichnung pausieren",
+    "app.recording.resumeTitle": "Aufzeichnung fortsetzen",
     "app.recording.startDescription": "(Sie können den Aufnahmeknopf erneut drücken, um die Aufzeichnung zu pausieren)",
     "app.recording.stopDescription": "Sind Sie sicher, dass die die Aufnahme pausieren wollen? (Sie können die Aufnahme fortsetzen, in dem Sie auf den Aufnahmeknopf drücken)",
     "app.videoPreview.cameraLabel": "Kamera",
@@ -550,10 +556,12 @@
     "app.externalVideo.stop": "Teilen des Videos beenden",
     "app.externalVideo.title": "Youtubevideo teilen",
     "app.externalVideo.input": "URL des YouTube-Videos",
+    "app.externalVideo.urlInput": "Youtube URL hinzufügen",
     "app.externalVideo.urlError": "Diese URL ist kein gültiges Youtube-Video",
     "app.externalVideo.close": "Schließen",
+    "app.externalVideo.noteLabel": "Hinweis: Geteile Youtube-Videos werden nicht in der Aufzeichnung sichtbar sein",
     "app.actionsBar.actionsDropdown.shareExternalVideo": "Youtube-Video teilen",
-    "app.actionsBar.actionsDropdown.stopShareExternalVideo": "Teilen des Videos beenden"
+    "app.actionsBar.actionsDropdown.stopShareExternalVideo": "Teilen des Youtube-Videos stoppen"
 
 }
 
