@@ -23,10 +23,11 @@ trait GetScreenshareStatusReqMsgHdlr {
       val stream = ScreenshareModel.getRTMPBroadcastingUrl(liveMeeting.screenshareModel)
       val vidWidth = ScreenshareModel.getScreenshareVideoWidth(liveMeeting.screenshareModel)
       val vidHeight = ScreenshareModel.getScreenshareVideoHeight(liveMeeting.screenshareModel)
+      val sharerId = ScreenshareModel.getUserId(liveMeeting.screenshareModel)
       val timestamp = ScreenshareModel.getTimestamp(liveMeeting.screenshareModel)
 
       val body = ScreenshareRtmpBroadcastStartedEvtMsgBody(voiceConf, screenshareConf,
-        stream, vidWidth, vidHeight, timestamp)
+        stream, vidWidth, vidHeight, sharerId, timestamp)
       val event = ScreenshareRtmpBroadcastStartedEvtMsg(header, body)
       BbbCommonEnvCoreMsg(envelope, event)
     }

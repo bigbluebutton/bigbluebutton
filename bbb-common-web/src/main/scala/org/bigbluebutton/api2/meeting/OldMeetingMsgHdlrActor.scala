@@ -7,7 +7,6 @@ import org.bigbluebutton.api.messaging.messages._
 import org.bigbluebutton.api2.bus.OldMessageReceivedGW
 import org.bigbluebutton.common2.msgs._
 
-
 object OldMeetingMsgHdlrActor {
   def props(olgMsgGW: OldMessageReceivedGW): Props =
     Props(classOf[OldMeetingMsgHdlrActor], olgMsgGW)
@@ -16,35 +15,36 @@ object OldMeetingMsgHdlrActor {
 class OldMeetingMsgHdlrActor(val olgMsgGW: OldMessageReceivedGW)
   extends Actor with ActorLogging {
 
-
   def receive = {
     case msg: BbbCommonEnvCoreMsg => handleBbbCommonEnvCoreMsg(msg)
   }
 
   private def handleBbbCommonEnvCoreMsg(msg: BbbCommonEnvCoreMsg): Unit = {
     msg.core match {
-      case m: MeetingCreatedEvtMsg => handleMeetingCreatedEvtMsg(m)
-      case m: MeetingEndedEvtMsg => handleMeetingEndedEvtMsg(m)
-      case m: MeetingDestroyedEvtMsg => handleMeetingDestroyedEvtMsg(m)
-      case m: CheckAlivePongSysMsg => handleCheckAlivePongSysMsg(m)
-      case m: UserEmojiChangedEvtMsg => handleUserEmojiChangedEvtMsg(m)
-      case m: PresenterUnassignedEvtMsg => handlePresenterUnassignedEvtMsg(m)
-      case m: PresenterAssignedEvtMsg => handlePresenterAssignedEvtMsg(m)
-      case m: UserJoinedMeetingEvtMsg => handleUserJoinedMeetingEvtMsg(m)
-      case m: UserLeftMeetingEvtMsg => handleUserLeftMeetingEvtMsg(m)
-      case m: UserJoinedVoiceConfToClientEvtMsg => handleUserJoinedVoiceConfToClientEvtMsg(m)
-      case m: UserLeftVoiceConfToClientEvtMsg => handleUserLeftVoiceConfToClientEvtMsg(m)
-      case m: UserRoleChangedEvtMsg => handleUserRoleChangedEvtMsg(m)
-      case m: UserBroadcastCamStartedEvtMsg => handleUserBroadcastCamStartedEvtMsg(m)
-      case m: UserBroadcastCamStoppedEvtMsg => handleUserBroadcastCamStoppedEvtMsg(m)
-      case m: CreateBreakoutRoomSysCmdMsg => handleCreateBreakoutRoomSysCmdMsg(m)
-      case m: PresentationUploadTokenSysPubMsg => handlePresentationUploadTokenSysPubMsg(m)
-      case m: GuestsWaitingApprovedEvtMsg => handleGuestsWaitingApprovedEvtMsg(m)
-      case m: GuestPolicyChangedEvtMsg => handleGuestPolicyChangedEvtMsg(m)
-      case m: RecordingChapterBreakSysMsg => handleRecordingChapterBreakSysMsg(m)
-      case m: SetPresentationDownloadableEvtMsg => handleSetPresentationDownloadableEvtMsg(m)
-      case m: RecordingStatusChangedEvtMsg => handleRecordingStatusChangedEvtMsg(m)
-      case _ => log.error("***** Cannot handle " + msg.envelope.name)
+      case m: MeetingCreatedEvtMsg                  => handleMeetingCreatedEvtMsg(m)
+      case m: MeetingEndedEvtMsg                    => handleMeetingEndedEvtMsg(m)
+      case m: MeetingDestroyedEvtMsg                => handleMeetingDestroyedEvtMsg(m)
+      case m: CheckAlivePongSysMsg                  => handleCheckAlivePongSysMsg(m)
+      case m: UserEmojiChangedEvtMsg                => handleUserEmojiChangedEvtMsg(m)
+      case m: PresenterUnassignedEvtMsg             => handlePresenterUnassignedEvtMsg(m)
+      case m: PresenterAssignedEvtMsg               => handlePresenterAssignedEvtMsg(m)
+      case m: UserJoinedMeetingEvtMsg               => handleUserJoinedMeetingEvtMsg(m)
+      case m: UserLeftMeetingEvtMsg                 => handleUserLeftMeetingEvtMsg(m)
+      case m: UserJoinedVoiceConfToClientEvtMsg     => handleUserJoinedVoiceConfToClientEvtMsg(m)
+      case m: UserLeftVoiceConfToClientEvtMsg       => handleUserLeftVoiceConfToClientEvtMsg(m)
+      case m: UserRoleChangedEvtMsg                 => handleUserRoleChangedEvtMsg(m)
+      case m: UserBroadcastCamStartedEvtMsg         => handleUserBroadcastCamStartedEvtMsg(m)
+      case m: UserBroadcastCamStoppedEvtMsg         => handleUserBroadcastCamStoppedEvtMsg(m)
+      case m: ScreenshareRtmpBroadcastStartedEvtMsg => handleScreenshareRtmpBroadcastStartedEvtMsg(m)
+      case m: ScreenshareRtmpBroadcastStoppedEvtMsg => handleScreenshareRtmpBroadcastStoppedEvtMsg(m)
+      case m: CreateBreakoutRoomSysCmdMsg           => handleCreateBreakoutRoomSysCmdMsg(m)
+      case m: PresentationUploadTokenSysPubMsg      => handlePresentationUploadTokenSysPubMsg(m)
+      case m: GuestsWaitingApprovedEvtMsg           => handleGuestsWaitingApprovedEvtMsg(m)
+      case m: GuestPolicyChangedEvtMsg              => handleGuestPolicyChangedEvtMsg(m)
+      case m: RecordingChapterBreakSysMsg           => handleRecordingChapterBreakSysMsg(m)
+      case m: SetPresentationDownloadableEvtMsg     => handleSetPresentationDownloadableEvtMsg(m)
+      case m: RecordingStatusChangedEvtMsg          => handleRecordingStatusChangedEvtMsg(m)
+      case _                                        => log.error("***** Cannot handle " + msg.envelope.name)
     }
   }
 
@@ -70,23 +70,22 @@ class OldMeetingMsgHdlrActor(val olgMsgGW: OldMessageReceivedGW)
 
   def handleCreateBreakoutRoomSysCmdMsg(msg: CreateBreakoutRoomSysCmdMsg): Unit = {
     olgMsgGW.handle(new CreateBreakoutRoom(
-       msg.body.room.breakoutMeetingId,
-       msg.body.room.parentId,
-       msg.body.room.name,
-       msg.body.room.sequence,
-       msg.body.room.freeJoin,
-       msg.body.room.dialNumber,
-       msg.body.room.voiceConfId,
-       msg.body.room.viewerPassword,
-       msg.body.room.moderatorPassword,
-       msg.body.room.durationInMinutes,
-       msg.body.room.sourcePresentationId,
-       msg.body.room.sourcePresentationSlide,
-       msg.body.room.record
-     ))
+      msg.body.room.breakoutMeetingId,
+      msg.body.room.parentId,
+      msg.body.room.name,
+      msg.body.room.sequence,
+      msg.body.room.freeJoin,
+      msg.body.room.dialNumber,
+      msg.body.room.voiceConfId,
+      msg.body.room.viewerPassword,
+      msg.body.room.moderatorPassword,
+      msg.body.room.durationInMinutes,
+      msg.body.room.sourcePresentationId,
+      msg.body.room.sourcePresentationSlide,
+      msg.body.room.record))
 
   }
-  
+
   def handleRecordingStatusChangedEvtMsg(msg: RecordingStatusChangedEvtMsg): Unit = {
     olgMsgGW.handle(new UpdateRecordingStatus(msg.header.meetingId, msg.body.recording));
   }
@@ -112,7 +111,7 @@ class OldMeetingMsgHdlrActor(val olgMsgGW: OldMessageReceivedGW)
   }
 
   def handleUserEmojiChangedEvtMsg(msg: UserEmojiChangedEvtMsg): Unit = {
-  //listener.handle(new UserStatusChanged(meetingId, userid, status, value))
+    //listener.handle(new UserStatusChanged(meetingId, userid, status, value))
   }
 
   def handleUserLeftMeetingEvtMsg(msg: UserLeftMeetingEvtMsg): Unit = {
@@ -138,13 +137,21 @@ class OldMeetingMsgHdlrActor(val olgMsgGW: OldMessageReceivedGW)
   def handleUserBroadcastCamStoppedEvtMsg(msg: UserBroadcastCamStoppedEvtMsg): Unit = {
     olgMsgGW.handle(new UserUnsharedWebcam(msg.header.meetingId, msg.body.userId, msg.body.stream))
   }
-  
+
+  def handleScreenshareRtmpBroadcastStartedEvtMsg(msg: ScreenshareRtmpBroadcastStartedEvtMsg): Unit = {
+    olgMsgGW.handle(new UserSharedScreen(msg.header.meetingId, msg.body.userId))
+  }
+
+  def handleScreenshareRtmpBroadcastStoppedEvtMsg(msg: ScreenshareRtmpBroadcastStoppedEvtMsg): Unit = {
+    olgMsgGW.handle(new UserUnsharedScreen(msg.header.meetingId, msg.body.userId))
+  }
+
   def handleUserRoleChangedEvtMsg(msg: UserRoleChangedEvtMsg): Unit = {
     olgMsgGW.handle(new UserRoleChanged(msg.header.meetingId, msg.body.userId, msg.body.role))
   }
 
   def handlePresentationUploadTokenSysPubMsg(msg: PresentationUploadTokenSysPubMsg): Unit = {
-   olgMsgGW.handle(new PresentationUploadToken(msg.body.podId, msg.body.authzToken, msg.body.filename))
+    olgMsgGW.handle(new PresentationUploadToken(msg.body.podId, msg.body.authzToken, msg.body.filename))
   }
 
   def handleGuestsWaitingApprovedEvtMsg(msg: GuestsWaitingApprovedEvtMsg): Unit = {

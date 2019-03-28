@@ -21,7 +21,7 @@ trait VoiceStandardMsg extends BbbCoreMsg {
     extends VoiceStandardMsg
   case class ScreenshareRtmpBroadcastStartedVoiceConfEvtMsgBody(voiceConf: String, screenshareConf: String,
                                                               stream: String, vidWidth: Int, vidHeight: Int,
-                                                              timestamp: String)
+                                                              userId: String, timestamp: String)
 
 /**
   * Sent to clients to notify them of an RTMP stream starting.
@@ -32,7 +32,7 @@ case class ScreenshareRtmpBroadcastStartedEvtMsg(header: BbbClientMsgHeader,
   extends BbbCoreMsg
 case class ScreenshareRtmpBroadcastStartedEvtMsgBody(voiceConf: String, screenshareConf: String,
                                                             stream: String, vidWidth: Int, vidHeight: Int,
-                                                            timestamp: String)
+                                                            userId: String, timestamp: String)
 
 /**
   * Send by FS that RTMP stream has stopped.
@@ -42,7 +42,7 @@ case class ScreenshareRtmpBroadcastStartedEvtMsgBody(voiceConf: String, screensh
                                                           body: ScreenshareRtmpBroadcastStoppedVoiceConfEvtMsgBody) extends VoiceStandardMsg
   case class ScreenshareRtmpBroadcastStoppedVoiceConfEvtMsgBody(voiceConf: String, screenshareConf: String,
                                                               stream: String, vidWidth: Int, vidHeight: Int,
-                                                              timestamp: String)
+                                                              userId: String, timestamp: String)
 
 /**
   * Sent to clients to notify them of an RTMP stream stopping.
@@ -53,7 +53,7 @@ case class ScreenshareRtmpBroadcastStoppedEvtMsg(header: BbbClientMsgHeader,
   extends BbbCoreMsg
 case class ScreenshareRtmpBroadcastStoppedEvtMsgBody(voiceConf: String, screenshareConf: String,
                                                      stream: String, vidWidth: Int, vidHeight: Int,
-                                                     timestamp: String)
+                                                     userId: String, timestamp: String)
 
 /**
   * Sent by FS that screenshare has started.

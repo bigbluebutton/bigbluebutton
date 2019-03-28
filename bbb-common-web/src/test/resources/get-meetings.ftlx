@@ -40,6 +40,7 @@
                 <isListeningOnly>${att.isListeningOnly()?c}</isListeningOnly>
                 <hasJoinedVoice>${att.isVoiceJoined()?c}</hasJoinedVoice>
                 <hasVideo>${att.hasVideo()?c}</hasVideo>
+                <isSharingScreen>${att.isSharingScreen()?c}</isSharingScreen>
                 <clientType>${att.getClientType()}</clientType>
                 <#if meeting.getUserCustomData(att.getExternalUserId())??>
                 <#assign ucd = meetingDetail.meeting.getUserCustomData(att.getExternalUserId())>

@@ -74,8 +74,10 @@ import org.bigbluebutton.api.messaging.messages.UserLeft;
 import org.bigbluebutton.api.messaging.messages.UserLeftVoice;
 import org.bigbluebutton.api.messaging.messages.UserListeningOnly;
 import org.bigbluebutton.api.messaging.messages.UserRoleChanged;
+import org.bigbluebutton.api.messaging.messages.UserSharedScreen;
 import org.bigbluebutton.api.messaging.messages.UserSharedWebcam;
 import org.bigbluebutton.api.messaging.messages.UserStatusChanged;
+import org.bigbluebutton.api.messaging.messages.UserUnsharedScreen;
 import org.bigbluebutton.api.messaging.messages.UserUnsharedWebcam;
 import org.bigbluebutton.api2.IBbbWebApiGWApp;
 import org.bigbluebutton.api2.domain.UploadedTrack;
@@ -853,6 +855,26 @@ public class MeetingService implements MessageListener {
       }
     }
   }
+  
+  public void userSharedScreen(UserSharedScreen message) {
+      Meeting m = getMeeting(message.meetingId);
+      if (m != null) {
+        User user = m.getUserById(message.userId);
+        if (user != null) {
+          user.setSharingScreen(true);
+        }
+      }
+    }
+
+    public void userUnsharedScreen(UserUnsharedScreen message) {
+      Meeting m = getMeeting(message.meetingId);
+      if (m != null) {
+        User user = m.getUserById(message.userId);
+        if (user != null) {
+          user.setSharingScreen(false);
+        }
+      }
+    }
 
   private void userRoleChanged(UserRoleChanged message) {
     Meeting m = getMeeting(message.meetingId);
@@ -922,6 +944,10 @@ public class MeetingService implements MessageListener {
           processMakePresentationDownloadableMsg((MakePresentationDownloadableMsg) message);
         } else if (message instanceof UpdateRecordingStatus) {
           processUpdateRecordingStatus((UpdateRecordingStatus) message);
+        } else if (message instanceof UserSharedScreen) {
+          userSharedScreen((UserSharedScreen) message);
+        } else if (message instanceof UserUnsharedScreen) {
+          userUnsharedScreen((UserUnsharedScreen) message);
         }
       }
     };
