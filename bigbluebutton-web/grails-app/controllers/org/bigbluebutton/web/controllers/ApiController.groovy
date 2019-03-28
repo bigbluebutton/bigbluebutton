@@ -464,12 +464,12 @@ class ApiController {
     // server-wide configuration:
     // Depending on configuration, prefer the HTML5 client over Flash for moderators
     if (paramsProcessorUtil.getModeratorsJoinViaHTML5Client() && role == ROLE_MODERATOR) {
-      clientURL = paramsProcessorUtil.getHTML5ClientUrl();
+      joinViaHtml5 = true
     }
 
     // Depending on configuration, prefer the HTML5 client over Flash for attendees
     if (paramsProcessorUtil.getAttendeesJoinViaHTML5Client() && role == ROLE_ATTENDEE) {
-      clientURL = paramsProcessorUtil.getHTML5ClientUrl();
+      joinViaHtml5 = true
     }
 
     // single client join configuration:
