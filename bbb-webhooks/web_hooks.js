@@ -14,7 +14,7 @@ const UserMapping = require("./userMapping.js");
 module.exports = class WebHooks {
 
   constructor() {
-    this.subscriberEvents = Application.redisClient;
+    this.subscriberEvents = Application.redisPubSubClient();
   }
 
   start(callback) {
@@ -73,10 +73,10 @@ module.exports = class WebHooks {
       }
     });
 
-    for (i = 0; i < config.get("hooks.channels"); ++i) {
-      const channel = config.get("hooks.channels")[i];
+    config.get("hooks.channels").forEach((channel) => {
       this.subscriberEvents.psubscribe(channel);
-    }
+    });
+
   }
 
   // Send raw data to hooks that are not expecting mapped messages

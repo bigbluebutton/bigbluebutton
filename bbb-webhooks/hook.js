@@ -36,7 +36,7 @@ module.exports = class Hook {
     this.externalMeetingID = null;
     this.queue = [];
     this.emitter = null;
-    this.redisClient = Application.redisClient;
+    this.redisClient = Application.redisClient();
     this.permanent = false;
     this.getRaw = false;
   }
@@ -266,7 +266,7 @@ module.exports = class Hook {
   // Gets all hooks from redis to populate the local database.
   // Calls `callback()` when done.
   static resync(callback) {
-    let client = Application.redisClient;
+    let client = Application.redisClient();
     // Remove previous permanent hooks
     for (let hk = 1; hk <= config.get("hooks.permanentURLs").length; hk++) {
       client.srem(config.get("redis.keys.hooks"), hk, (error, reply) => {

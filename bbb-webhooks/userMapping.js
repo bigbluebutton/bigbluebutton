@@ -33,7 +33,7 @@ module.exports = class UserMapping {
     this.internalUserID = null;
     this.meetingId = null;
     this.user = null;
-    this.redisClient = Application.redisClient;
+    this.redisClient = Application.redisClient();
   }
 
   save(callback) {
@@ -165,7 +165,7 @@ module.exports = class UserMapping {
   // Gets all mappings from redis to populate the local database.
   // Calls `callback()` when done.
   static resync(callback) {
-    let client = Application.redisClient;
+    let client = Application.redisClient();
     let tasks = [];
 
     return client.smembers(config.get("redis.keys.userMaps"), (error, mappings) => {

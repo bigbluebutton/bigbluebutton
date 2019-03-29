@@ -11,7 +11,7 @@ const async = require("async");
 // process to perform the callback calls.
 // TODO: add port (-p) and log level (-l) to the command line args
 module.exports = class Application {
-  
+
   constructor() {
     this.webHooks = new WebHooks();
     this.webServer = new WebServer();
@@ -33,7 +33,14 @@ module.exports = class Application {
       });
     });
   }
-  
+
+  static redisPubSubClient() {
+    if (!Application._redisPubSubClient) {
+      Application._redisPubSubClient = redis.createClient( { host: config.get("redis.host"), port: config.get("redis.port") } );
+    }
+    return Application._redisPubSubClient;
+  }
+
   static redisClient() {
     if (!Application._redisClient) {
       Application._redisClient = redis.createClient( { host: config.get("redis.host"), port: config.get("redis.port") } );

@@ -1,6 +1,5 @@
 const request = require('supertest');
 const nock = require("nock");
-const Application = require('../application.js');
 const Logger = require('../logger.js');
 const utils = require('../utils.js');
 const config = require('config');
@@ -9,30 +8,34 @@ const Helpers = require('./helpers.js')
 const sinon = require('sinon');
 const winston = require('winston');
 
-const sharedSecret = sharedSecret;
+Application = require('../application.js');
+
+const sharedSecret = process.env.SHARED_SECRET || sharedSecret;
+
+let globalHooks = config.get('hooks');
 
 // Block winston from logging
 Logger.remove(winston.transports.Console);
 describe('bbb-webhooks tests', () => {
   before( (done) => {
-    config.get(hooks.queueSize) = 10;
-    config.get(hooks.permanentURLs) = [ { url: "http://wh.requestcatcher.com", getRaw: true } ];
+    globalHooks.queueSize = 10;
+    globalHooks.permanentURLs = [ { url: "http://wh.requestcatcher.com", getRaw: true } ];
     application = new Application();
     application.start( () => {
       done();
     });
   });
   beforeEach( (done) => {
-    hooks = Hook.allGlobalSync();
-    Helpers.flushall(Application.redisClient);
+    const hooks = Hook.allGlobalSync();
+    Helpers.flushall(Application.redisClient());
     hooks.forEach( hook => {
       Helpers.flushredis(hook);
     })
     done();
   })
   after( () => {
-    hooks = Hook.allGlobalSync();
-    Helpers.flushall(Application.redisClient);
+    const hooks = Hook.allGlobalSync();
+    Helpers.flushall(Application.redisClient());
     hooks.forEach( hook => {
       Helpers.flushredis(hook);
     })
@@ -112,7 +115,7 @@ describe('bbb-webhooks tests', () => {
       .expect('Content-Type', /text\/xml/)
       .expect(200, (res) => {
         const hooks = Hook.allGlobalSync();
-        if (hooks && hooks[0].callbackURL == config.get(hooks.permanentURLs)[0].url) {
+        if (hooks && hooks[0].callbackURL == globalHooks.permanentURLs[0].url) {
           done();
         }
         else {
@@ -148,7 +151,7 @@ describe('bbb-webhooks tests', () => {
 
   describe('Hook queues', () => {
     before( () => {
-      config.get(Application.redisClient.psubscribe)("test-channel");
+      Application.redisPubSubClient().psubscribe("test-channel");
       Hook.addSubscription(Helpers.callback,null,false, (err,reply) => {
         const hooks = Hook.allGlobalSync();
         const hook = hooks[0];
@@ -161,13 +164,14 @@ describe('bbb-webhooks tests', () => {
       const hooks = Hook.allGlobalSync();
       const hook = hooks[0];
       const hook2 = hooks[hooks.length -1];
+
       hook._processQueue.restore();
       hook2._processQueue.restore();
       Hook.removeSubscription(hooks[hooks.length-1].id);
-      config.get(Application.redisClient.unsubscribe)("test-channel");
+      Application.redisPubSubClient().unsubscribe("test-channel");
     });
     it('should have different queues for each hook', (done) => {
-      config.get(Application.redisClient.publish)("test-channel", JSON.stringify(Helpers.rawMessage));
+      Application.redisClient().publish("test-channel", JSON.stringify(Helpers.rawMessage));
       const hooks = Hook.allGlobalSync();
 
       if (hooks && hooks[0].queue != hooks[hooks.length-1].queue) {
@@ -196,7 +200,7 @@ describe('bbb-webhooks tests', () => {
       hook = hook[0];
       for(i=0;i<=9;i++) { hook.enqueue("message" + i); }
 
-      if (hook && hook.queue.length <= config.get(hooks.queueSize)) {
+      if (hook && hook.queue.length <= globalHooks.queueSize) {
         done();
       }
       else {
@@ -207,7 +211,7 @@ describe('bbb-webhooks tests', () => {
 
   describe('/POST mapped message', () => {
     before( () => {
-      config.get(Application.redisClient.psubscribe)("test-channel");
+      Application.redisPubSubClient().psubscribe("test-channel");
       const hooks = Hook.allGlobalSync();
       const hook = hooks[0];
       hook.queue = [];
@@ -217,13 +221,13 @@ describe('bbb-webhooks tests', () => {
       const hooks = Hook.allGlobalSync();
       const hook = hooks[0];
       Helpers.flushredis(hook);
-      config.get(Application.redisClient.unsubscribe)("test-channel");
+      Application.redisPubSubClient().unsubscribe("test-channel");
     })
     it('should post mapped message ', (done) => {
       const hooks = Hook.allGlobalSync();
       const hook = hooks[0];
 
-      const getpost = nock(config.get(hooks.permanentURLs)[0].url)
+      const getpost = nock(globalHooks.permanentURLs[0].url)
                       .filteringRequestBody( (body) => {
                         let parsed = JSON.parse(body)
                         return parsed[0].data.id ? "mapped" : "not mapped";
@@ -232,13 +236,13 @@ describe('bbb-webhooks tests', () => {
                       .reply(200, (res) => {
                         done();
                       });
-    config.get(Application.redisClient.publish)("test-channel", JSON.stringify(Helpers.rawMessage));
+      Application.redisClient().publish("test-channel", JSON.stringify(Helpers.rawMessage));
     })
   });
 
   describe('/POST raw message', () => {
     before( () => {
-      config.get(Application.redisClient.psubscribe)("test-channel");
+      Application.redisPubSubClient().psubscribe("test-channel");
       Hook.addSubscription(Helpers.callback,null,true, (err,hook) => {
         Helpers.flushredis(hook);
       })
@@ -247,7 +251,7 @@ describe('bbb-webhooks tests', () => {
       const hooks = Hook.allGlobalSync();
       Hook.removeSubscription(hooks[hooks.length-1].id);
       Helpers.flushredis(hooks[hooks.length-1]);
-      config.get(Application.redisClient.unsubscribe)("test-channel");
+      Application.redisPubSubClient().unsubscribe("test-channel");
     });
     it('should post raw message ', (done) => {
       const hooks = Hook.allGlobalSync();
@@ -264,10 +268,10 @@ describe('bbb-webhooks tests', () => {
                       .reply(200, () => {
                         done();
                       });
-      const permanent = nock(config.get(hooks.permanentURLs)[0].url)
+      const permanent = nock(globalHooks.permanentURLs[0].url)
                         .post("/")
                         .reply(200)
-      config.get(Application.redisClient.publish)("test-channel", JSON.stringify(Helpers.rawMessage));
+      Application.redisClient().publish("test-channel", JSON.stringify(Helpers.rawMessage));
     })
   });
 
@@ -282,7 +286,7 @@ describe('bbb-webhooks tests', () => {
       const hooks = Hook.allGlobalSync();
       const hook = hooks[0];
       hook.enqueue("multiMessage2")
-      const getpost = nock(config.get(hooks.permanentURLs)[0].url)
+      const getpost = nock(globalHooks.permanentURLs[0].url)
                       .filteringPath( (path) => {
                         return path.split('?')[0];
                       })
