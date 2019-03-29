@@ -50,8 +50,7 @@ class LockViewersNotifyComponent extends Component {
         notify(intl.formatMessage(intlMessages[key]), 'info', 'lock');
       });
     }
-    if (webcamsOnlyForModerator !== prevWebcamsOnlyForModerator
-      && webcamsOnlyForModerator) {
+    if (webcamsOnlyForModerator && !prevWebcamsOnlyForModerator) {
       notify(intl.formatMessage(intlMessages.onlyModeratorWebcam), 'info', 'lock');
     }
   }
