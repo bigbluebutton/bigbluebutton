@@ -18,14 +18,16 @@ object WebRedisSubscriberActor extends RedisSubscriber with RedisConfiguration {
       classOf[WebRedisSubscriberActor],
       system, jsonMsgBus, oldMessageEventBus,
       redisHost, redisPort,
-      channels, patterns).withDispatcher("akka.redis-subscriber-worker-dispatcher")
+      channels, patterns
+    ).withDispatcher("akka.redis-subscriber-worker-dispatcher")
 }
 
 class WebRedisSubscriberActor(
-  system:     ActorSystem,
-  jsonMsgBus: JsonMsgFromAkkaAppsBus, oldMessageEventBus: OldMessageEventBus, redisHost: String,
-  redisPort: Int,
-  channels:  Seq[String] = Nil, patterns: Seq[String] = Nil)
+    system:     ActorSystem,
+    jsonMsgBus: JsonMsgFromAkkaAppsBus, oldMessageEventBus: OldMessageEventBus, redisHost: String,
+    redisPort: Int,
+    channels:  Seq[String] = Nil, patterns: Seq[String] = Nil
+)
   extends RedisSubscriberProvider(system, "BbbWebSub", channels, patterns, null) with SystemConfiguration {
 
   override def addListener(appChannel: String) {

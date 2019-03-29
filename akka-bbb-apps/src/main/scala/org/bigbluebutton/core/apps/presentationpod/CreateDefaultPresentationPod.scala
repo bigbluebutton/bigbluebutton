@@ -17,7 +17,8 @@ trait CreateDefaultPresentationPod {
       liveMeeting.props.meetingProp.intId,
       resultPod.currentPresenter,
       resultPod.id,
-      SYSTEM_ID)
+      SYSTEM_ID
+    )
 
     bus.outGW.send(respMsg)
     val pods = state.presentationPodManager.addPod(resultPod)

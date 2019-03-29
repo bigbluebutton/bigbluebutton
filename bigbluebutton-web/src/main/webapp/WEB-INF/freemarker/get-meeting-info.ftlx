@@ -13,7 +13,7 @@
   <attendeePW>${meeting.getViewerPassword()}</attendeePW>
   <moderatorPW>${meeting.getModeratorPassword()}</moderatorPW>
   <running>${meeting.isRunning()?c}</running>
-  <duration>${meeting.getDuration()}</duration>
+  <duration>${meeting.getDuration()?c}</duration>
   <hasUserJoined>${meeting.hasUserJoined()?c}</hasUserJoined>
   <recording>${meeting.isRecord()?c}</recording>
   <hasBeenForciblyEnded>${meeting.isForciblyEnded()?c}</hasBeenForciblyEnded>

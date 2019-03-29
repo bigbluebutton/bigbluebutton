@@ -19,7 +19,8 @@ object VoiceApp {
     val event = MsgBuilder.buildStartRecordingVoiceConfSysMsg(
       liveMeeting.props.meetingProp.intId,
       liveMeeting.props.voiceProp.voiceConf,
-      stream)
+      stream
+    )
     outGW.send(event)
   }
 
@@ -30,7 +31,8 @@ object VoiceApp {
     recStreams foreach { rs =>
       val event = MsgBuilder.buildStopRecordingVoiceConfSysMsg(
         liveMeeting.props.meetingProp.intId,
-        liveMeeting.props.voiceProp.voiceConf, rs.stream)
+        liveMeeting.props.voiceProp.voiceConf, rs.stream
+      )
       outGW.send(event)
     }
 

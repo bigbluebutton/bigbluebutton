@@ -37,7 +37,8 @@ trait GuestsWaitingApprovedMsgHdlr extends HandlerHelpers with RightsManagementT
     mods foreach { m =>
       val event = MsgBuilder.buildGuestsWaitingApprovedEvtMsg(
         liveMeeting.props.meetingProp.intId,
-        m.intId, guests, approvedBy)
+        m.intId, guests, approvedBy
+      )
       outGW.send(event)
     }
   }

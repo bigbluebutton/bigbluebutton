@@ -42,7 +42,8 @@ class RunningMeeting(val props: DefaultProps, outGW: OutMessageGateway,
 
   GuestsWaiting.setGuestPolicy(
     liveMeeting.guestsWaiting,
-    GuestPolicy(props.usersProp.guestPolicy, SystemUser.ID))
+    GuestPolicy(props.usersProp.guestPolicy, SystemUser.ID)
+  )
 
   private val recordEvents = props.recordProp.record || props.recordProp.keepEvents
   val outMsgRouter = new OutMsgRouter(recordEvents, outGW)

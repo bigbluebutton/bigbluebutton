@@ -47,7 +47,7 @@ class Connections {
 
   private def remove(id: String): Option[Connection] = {
     val conn = conns.get(id)
-    conn foreach { c =>  conns -= id }
+    conn foreach { c => conns -= id }
     conn
   }
 }

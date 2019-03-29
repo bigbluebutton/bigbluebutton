@@ -1,6 +1,5 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import _ from 'lodash';
 import cx from 'classnames';
 import Button from '/imports/ui/components/button/component';
 import { defineMessages, injectIntl, intlShape } from 'react-intl';
@@ -29,6 +28,9 @@ const intlMessages = defineMessages({
 const propTypes = {
   intl: intlShape.isRequired,
   isSharingVideo: PropTypes.bool.isRequired,
+  isDisabled: PropTypes.bool.isRequired,
+  handleJoinVideo: PropTypes.func.isRequired,
+  handleCloseVideo: PropTypes.func.isRequired,
 };
 
 const JoinVideoButton = ({
@@ -46,7 +48,7 @@ const JoinVideoButton = ({
         : intl.formatMessage(intlMessages.joinVideo)
       )
       }
-    className={cx(styles.button, isSharingVideo || styles.ghostButton)}
+    className={cx(styles.button, isSharingVideo || styles.btn)}
     onClick={isSharingVideo ? handleCloseVideo : handleJoinVideo}
     hideLabel
     aria-label={intl.formatMessage(intlMessages.videoButtonDesc)}
@@ -58,5 +60,6 @@ const JoinVideoButton = ({
     disabled={isDisabled}
   />
 );
+
 JoinVideoButton.propTypes = propTypes;
 export default injectIntl(JoinVideoButton);

@@ -4,6 +4,11 @@
 
 .actions {
   margin-left: auto;
+  margin-right: 3px;
+
+  :first-child {
+    margin-right: 3px;
+  }
 }
 
 .closeBtn {
@@ -90,3 +95,11 @@
   text-align: center;
 }
 
+.browserWarning {
+  padding: 0.5rem;
+  border-width: 3px;
+  border-style: solid;
+  border-radius: 0.25rem;
+  margin: var(--line-height-computed);
+  text-align: center;
+}
