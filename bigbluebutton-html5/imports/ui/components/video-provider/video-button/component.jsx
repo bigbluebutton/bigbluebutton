@@ -19,8 +19,8 @@ const intlMessages = defineMessages({
     id: 'app.video.videoButtonDesc',
     description: 'video button description',
   },
-  videoDisabled: {
-    id: 'app.video.videoDisabled',
+  videoLocked: {
+    id: 'app.video.videoLocked',
     description: 'video disabled label',
   },
 });
@@ -37,31 +37,26 @@ const JoinVideoButton = ({
   isDisabled,
   handleJoinVideo,
   handleCloseVideo,
-}) => {
-
-  return (
-    <Button
-      label={isDisabled ?
-        intl.formatMessage(intlMessages.videoDisabled)
-        :
-        (isSharingVideo ?
-          intl.formatMessage(intlMessages.leaveVideo)
-          :
-          intl.formatMessage(intlMessages.joinVideo)
-        )
+}) => (
+  <Button
+    label={isDisabled
+      ? intl.formatMessage(intlMessages.videoLocked)
+      : (isSharingVideo
+        ? intl.formatMessage(intlMessages.leaveVideo)
+        : intl.formatMessage(intlMessages.joinVideo)
+      )
       }
-      className={cx(styles.button, isSharingVideo || styles.ghostButton)}
-      onClick={isSharingVideo ? handleCloseVideo : handleJoinVideo}
-      hideLabel
-      aria-label={intl.formatMessage(intlMessages.videoButtonDesc)}
-      color={isSharingVideo ? 'primary' : 'default'}
-      icon={isSharingVideo ? 'video' : 'video_off'}
-      ghost={!isSharingVideo}
-      size="lg"
-      circle
-      disabled={isDisabled}
-    />
-  );
-};
+    className={cx(styles.button, isSharingVideo || styles.ghostButton)}
+    onClick={isSharingVideo ? handleCloseVideo : handleJoinVideo}
+    hideLabel
+    aria-label={intl.formatMessage(intlMessages.videoButtonDesc)}
+    color={isSharingVideo ? 'primary' : 'default'}
+    icon={isSharingVideo ? 'video' : 'video_off'}
+    ghost={!isSharingVideo}
+    size="lg"
+    circle
+    disabled={isDisabled}
+  />
+);
 JoinVideoButton.propTypes = propTypes;
 export default injectIntl(JoinVideoButton);
