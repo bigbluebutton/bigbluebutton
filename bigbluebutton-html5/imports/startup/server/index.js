@@ -16,16 +16,13 @@ Meteor.startup(() => {
   const env = Meteor.isDevelopment ? 'development' : 'production';
   const CDN_URL = APP_CONFIG.cdn;
 
-  if (CDN_URL) {
+  if (CDN_URL.trim()) {
     // Add CDN
-    BrowserPolicy.framing.disallow();
     BrowserPolicy.content.disallowEval();
     BrowserPolicy.content.allowInlineScripts();
     BrowserPolicy.content.allowInlineStyles();
     BrowserPolicy.content.allowImageDataUrl(CDN_URL);
-    BrowserPolicy.content.allowImageOrigin(CDN_URL);
     BrowserPolicy.content.allowFontDataUrl(CDN_URL);
-    BrowserPolicy.content.allowFontOrigin(CDN_URL);
     BrowserPolicy.content.allowOriginForAll(CDN_URL);
     WebAppInternals.setBundledJsCssPrefix(CDN_URL + APP_CONFIG.basename);
 
