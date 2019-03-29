@@ -1,7 +1,7 @@
 import { check } from 'meteor/check';
 import Note from '/imports/api/note';
 import Logger from '/imports/startup/server/logger';
-import { generateNoteId, createPadURL, getReadOnlyIdURL } from '/imports/api/note/server/helpers';
+import { generateNoteId, createPadURL, getReadOnlyIdURL, isEnabled } from '/imports/api/note/server/helpers';
 import addNote from '/imports/api/note/server/modifiers/addNote';
 
 const getDataFromResponse = (data, key) => {
@@ -11,10 +11,15 @@ const getDataFromResponse = (data, key) => {
       return innerData[key];
     }
   }
-  return undefined;
 };
 
 export default function createNote(meetingId) {
+  // Avoid note creation if this feature is disabled
+  if (!isEnabled()) {
+    Logger.warn(`Notes are disabled for ${meetingId}`);
+    return;
+  }
+
   check(meetingId, String);
 
   const noteId = generateNoteId(meetingId);

@@ -131,6 +131,8 @@ export default function addMeeting(meeting) {
 
     if (insertedId) {
       Logger.info(`Added meeting id=${meetingId}`);
+      // TODO: Here we call Etherpad API to create this meeting notes. Is there a
+      // better place we can run this post-creation routine?
       createNote(meetingId);
     }
 

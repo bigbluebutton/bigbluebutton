@@ -65,6 +65,7 @@
     "app.userList.userOptions.disableMic": "Viewers' microphones are disabled",
     "app.userList.userOptions.disablePrivChat": "Private chat is disabled",
     "app.userList.userOptions.disablePubChat": "Public chat is disabled",
+    "app.userList.userOptions.disableNote": "Shared note is disabled",
     "app.userList.userOptions.webcamsOnlyForModerator": "Only moderators are able to see viewers' webcams (due to lock settings)",
     "app.media.label": "Media",
     "app.media.screenshare.start": "Screenshare has started",

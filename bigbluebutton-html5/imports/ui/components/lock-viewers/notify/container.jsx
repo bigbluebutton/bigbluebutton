@@ -8,7 +8,7 @@ export default withTracker(() => {
     meetingId: Auth.meetingID,
   });
   return {
-    lockSettings: Meeting.lockSettingsProp,
+    lockSettings: Meeting.lockSettingsProps,
     webcamsOnlyForModerator: Meeting.usersProp.webcamsOnlyForModerator,
   };
 })(LockViewersNotifyComponent);

@@ -3,9 +3,8 @@ import { defineMessages, injectIntl } from 'react-intl';
 import Toggle from '/imports/ui/components/switch/component';
 import cx from 'classnames';
 import Modal from '/imports/ui/components/modal/simple/component';
+import NoteService from '/imports/ui/components/note/service';
 import { styles } from './styles';
-
-const NOTE_ENABLED = Meteor.settings.public.note.enabled;
 
 const intlMessages = defineMessages({
   lockViewersTitle: {
@@ -204,7 +203,7 @@ class LockViewersComponent extends React.PureComponent {
                 </div>
               </div>
             </div>
-            { NOTE_ENABLED ?
+            { NoteService.isEnabled() ?
               (<div className={styles.row}>
                 <div className={styles.col} aria-hidden="true">
                   <div className={styles.formElement}>
@@ -217,9 +216,9 @@ class LockViewersComponent extends React.PureComponent {
                   <div className={cx(styles.formElement, styles.pullContentRight)}>
                     <Toggle
                       icons={false}
-                      defaultChecked={meeting.lockSettingsProp.disableNote}
+                      defaultChecked={meeting.lockSettingsProps.disableNote}
                       onChange={() => {
-                        meeting.lockSettingsProp.disableNote = !meeting.lockSettingsProp.disableNote;
+                        meeting.lockSettingsProps.disableNote = !meeting.lockSettingsProps.disableNote;
                         toggleLockSettings(meeting);
                       }}
                       ariaLabel={intl.formatMessage(intlMessages.notesLabel)}

@@ -3,9 +3,8 @@ import PropTypes from 'prop-types';
 import { defineMessages } from 'react-intl';
 import Icon from '/imports/ui/components/icon/component';
 import { Session } from 'meteor/session';
+import NoteService from '/imports/ui/components/note/service';
 import { styles } from './styles';
-
-const NOTE_ENABLED = Meteor.settings.public.note.enabled;
 
 const propTypes = {
   intl: PropTypes.shape({
@@ -30,7 +29,7 @@ class UserNotes extends PureComponent {
       intl,
     } = this.props;
 
-    if (!NOTE_ENABLED) return null;
+    if (!NoteService.isEnabled()) return null;
 
     const toggleNotePanel = () => {
       Session.set(

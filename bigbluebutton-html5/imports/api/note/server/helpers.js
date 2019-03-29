@@ -2,6 +2,7 @@ import { Meteor } from 'meteor/meteor';
 import Logger from '/imports/startup/server/logger';
 
 const ETHERPAD = Meteor.settings.private.etherpad;
+const NOTE_CONFIG = Meteor.settings.public.note;
 const BASE_URL = `http://${ETHERPAD.host}:${ETHERPAD.port}/api/${ETHERPAD.version}`;
 
 /**
@@ -41,8 +42,13 @@ const generateNoteId = meetingId => {
   return noteId;
 };
 
+const isEnabled = () => {
+  return NOTE_CONFIG.enabled;
+};
+
 export {
   generateNoteId,
   createPadURL,
   getReadOnlyIdURL,
+  isEnabled,
 };

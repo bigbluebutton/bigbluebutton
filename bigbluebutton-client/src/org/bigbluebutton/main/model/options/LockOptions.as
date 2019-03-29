@@ -34,6 +34,9 @@ package org.bigbluebutton.main.model.options {
 		public var disablePublicChat:Boolean = false;
 
 		[Bindable]
+		public var disableNote:Boolean = false;
+
+		[Bindable]
 		public var lockedLayout:Boolean = false;
 
 		[Bindable]
