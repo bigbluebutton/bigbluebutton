@@ -73,10 +73,10 @@ module.exports = class WebHooks {
       }
     });
 
-    for (var i = 0; i < config.get("hooks.channels"); ++i) {
-      const channel = config.get("hooks.channels")[i];
+    config.get("hooks.channels").forEach((channel) => {
       this.subscriberEvents.psubscribe(channel);
-    }
+    });
+
   }
 
   // Send raw data to hooks that are not expecting mapped messages
