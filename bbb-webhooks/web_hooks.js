@@ -14,7 +14,7 @@ const UserMapping = require("./userMapping.js");
 module.exports = class WebHooks {
 
   constructor() {
-    this.subscriberEvents = Application.redisClient();
+    this.subscriberEvents = Application.redisPubSubClient();
   }
 
   start(callback) {

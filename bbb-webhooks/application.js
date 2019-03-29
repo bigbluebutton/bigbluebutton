@@ -33,7 +33,14 @@ module.exports = class Application {
       });
     });
   }
-  
+
+  static redisPubSubClient() {
+    if (!Application._redisPubSubClient) {
+      Application._redisPubSubClient = redis.createClient( { host: config.get("redis.host"), port: config.get("redis.port") } );
+    }
+    return Application._redisPubSubClient;
+  }
+
   static redisClient() {
     if (!Application._redisClient) {
       Application._redisClient = redis.createClient( { host: config.get("redis.host"), port: config.get("redis.port") } );
