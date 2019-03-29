@@ -163,8 +163,8 @@ class SettingsDropdown extends PureComponent {
   }
 
   leaveSession() {
+    document.dispatchEvent(new Event('exitVideo'));
     const { mountModal } = this.props;
-
     const LOGOUT_CODE = '430';
     // we don't check askForFeedbackOnLogout here,
     // it is checked in meeting-ended component

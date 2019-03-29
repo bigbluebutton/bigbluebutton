@@ -2,7 +2,6 @@ package org.bigbluebutton.api2.meeting
 
 import org.bigbluebutton.common2.domain.DefaultProps
 
-
 object MeetingsManager {
 
   def create(mgr: MeetingsManager, defaultProps: DefaultProps): RunningMeeting = {

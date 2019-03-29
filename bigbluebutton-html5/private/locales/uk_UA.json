@@ -92,7 +92,6 @@
     "app.presentation.presentationToolbar.fitToWidth": "Підігнати по ширині",
     "app.presentation.presentationToolbar.goToSlide": "Слайд {0}",
     "app.presentationUploder.title": "Презентація",
-    "app.presentationUploder.message": "Як ведучий у BigBlueButton, ви маєте можливість завантажувати будь-який офісний документ або файл PDF. Ми рекомендуємо завантажувати файл PDF для отримання найкращих результатів.",
     "app.presentationUploder.confirmLabel": "Почати",
     "app.presentationUploder.confirmDesc": "Зберегти зміни та розпочати презентацію",
     "app.presentationUploder.dismissLabel": "Відмінити",
@@ -528,9 +527,7 @@
     "app.externalVideo.title": "Поділитись YouTube відео",
     "app.externalVideo.input": "YouTube відео URL (посилання)",
     "app.externalVideo.urlError": "Цей URL (посилання) не є коректним YouTube відео",
-    "app.externalVideo.close": "Закрити",
-    "app.actionsBar.actionsDropdown.shareExternalVideo": "Поділитись Youtube відео",
-    "app.actionsBar.actionsDropdown.stopShareExternalVideo": "Припинити ділитись відео"
+    "app.externalVideo.close": "Закрити"
 
 }
 

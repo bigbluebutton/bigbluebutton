@@ -38,6 +38,10 @@ const intlMessages = defineMessages({
     id: 'app.externalVideo.close',
     description: 'Close',
   },
+  note: {
+    id: 'app.externalVideo.noteLabel',
+    description: 'provides hint about Shared YouTube videos',
+  },
 });
 
 class ExternalVideoModal extends Component {
@@ -131,6 +135,9 @@ class ExternalVideoModal extends Component {
                 placeholder={intl.formatMessage(intlMessages.urlInput)}
               />
             </label>
+            <div className={styles.youtubeNote}>
+              {intl.formatMessage(intlMessages.note)}
+            </div>
           </div>
 
           <div className={styles.content}>

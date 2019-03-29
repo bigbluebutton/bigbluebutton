@@ -16,7 +16,8 @@ trait GetScreenshareStatusReqMsgHdlr {
       val envelope = BbbCoreEnvelope(ScreenshareRtmpBroadcastStartedEvtMsg.NAME, routing)
       val header = BbbClientMsgHeader(
         ScreenshareRtmpBroadcastStartedEvtMsg.NAME,
-        liveMeeting.props.meetingProp.intId, "not-used")
+        liveMeeting.props.meetingProp.intId, "not-used"
+      )
 
       val voiceConf = ScreenshareModel.getVoiceConf(liveMeeting.screenshareModel)
       val screenshareConf = ScreenshareModel.getScreenshareConf(liveMeeting.screenshareModel)
