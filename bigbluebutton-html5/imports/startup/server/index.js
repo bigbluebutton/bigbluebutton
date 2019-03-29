@@ -1,4 +1,5 @@
 import { Meteor } from 'meteor/meteor';
+import { WebAppInternals } from 'meteor/webapp';
 import Langmap from 'langmap';
 import Users from '/imports/api/users';
 import fs from 'fs';
@@ -9,14 +10,37 @@ import Redis from './redis';
 var parse = Npm.require('url').parse;
 
 const AVAILABLE_LOCALES = fs.readdirSync('assets/app/locales');
-const CDN_URL = process.env.CDN_URL || '';
 
 Meteor.startup(() => {
   const APP_CONFIG = Meteor.settings.public.app;
   const env = Meteor.isDevelopment ? 'development' : 'production';
+  const CDN_URL = APP_CONFIG.cdn;
 
-  // Add CDN
-  WebAppInternals.setBundledJsCssPrefix(CDN_URL);
+  if (CDN_URL) {
+    // Add CDN
+    BrowserPolicy.framing.disallow();
+    BrowserPolicy.content.disallowEval();
+    BrowserPolicy.content.allowInlineScripts();
+    BrowserPolicy.content.allowInlineStyles();
+    BrowserPolicy.content.allowImageDataUrl(CDN_URL);
+    BrowserPolicy.content.allowImageOrigin(CDN_URL);
+    BrowserPolicy.content.allowFontDataUrl(CDN_URL);
+    BrowserPolicy.content.allowFontOrigin(CDN_URL);
+    BrowserPolicy.content.allowOriginForAll(CDN_URL);
+    WebAppInternals.setBundledJsCssPrefix(CDN_URL + APP_CONFIG.basename);
+
+    var fontRegExp = /\.(eot|ttf|otf|woff|woff2)$/;
+
+    WebApp.rawConnectHandlers.use('/', function(req, res, next) {
+      if (fontRegExp.test(req._parsedUrl.pathname)) {
+        res.setHeader('Access-Control-Allow-Origin', '*');
+        res.setHeader('Vary', 'Origin');
+        res.setHeader('Pragma', 'public');
+        res.setHeader('Cache-Control', '"public"');
+      }
+      return next();
+    });
+  }
 
   Logger.warn(`SERVER STARTED.\nENV=${env},\nnodejs version=${process.version}\nCDN=${CDN_URL}\n`, APP_CONFIG);
 });

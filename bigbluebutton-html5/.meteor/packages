@@ -28,4 +28,3 @@ cfs:power-queue
 cfs:micro-queue
 cfs:reactive-list
 stevezhu:lodash
-nitrolabs:cdn
