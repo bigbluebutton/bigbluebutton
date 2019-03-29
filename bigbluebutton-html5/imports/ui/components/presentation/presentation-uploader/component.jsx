@@ -173,6 +173,29 @@ class PresentationUploader extends Component {
 
     this.updateFileKey = this.updateFileKey.bind(this);
     this.deepMergeUpdateFileKey = this.deepMergeUpdateFileKey.bind(this);
+
+    this.releaseActionsOnPresentationError = this.releaseActionsOnPresentationError.bind(this);
+  }
+
+  componentDidUpdate() {
+    this.releaseActionsOnPresentationError();
+  }
+
+  releaseActionsOnPresentationError() {
+    const {
+      presentations,
+      disableActions,
+    } = this.state;
+
+    presentations.forEach((presentation) => {
+      if (!presentation.conversion.done && presentation.conversion.error) {
+        if (disableActions) {
+          this.setState({
+            disableActions: false,
+          });
+        }
+      }
+    });
   }
 
   updateFileKey(id, key, value, operation = '$set') {
@@ -430,7 +453,6 @@ class PresentationUploader extends Component {
 
   renderPresentationItemStatus(item) {
     const { intl } = this.props;
-    const { disableActions } = this.state;
     if (!item.upload.done && item.upload.progress === 0) {
       return intl.formatMessage(intlMessages.fileToUpload);
     }
@@ -447,11 +469,6 @@ class PresentationUploader extends Component {
     }
 
     if (!item.conversion.done && item.conversion.error) {
-      if (disableActions) {
-        this.setState({
-          disableActions: false,
-        });
-      }
       const errorMessage = intlMessages[item.conversion.status] || intlMessages.genericError;
       return intl.formatMessage(errorMessage);
     }
