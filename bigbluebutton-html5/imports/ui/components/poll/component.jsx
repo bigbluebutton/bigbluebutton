@@ -85,6 +85,7 @@ const intlMessages = defineMessages({
 });
 
 const MAX_CUSTOM_FIELDS = Meteor.settings.public.poll.max_custom;
+const MAX_INPUT_CHARS = 45;
 
 class Poll extends Component {
   constructor(props) {
@@ -109,23 +110,28 @@ class Poll extends Component {
   componentDidUpdate() {
     const { currentUser } = this.props;
 
+    if (Session.equals('resetPollPanel', true)) {
+      this.handleBackClick();
+    }
+
     if (!currentUser.presenter) {
       Session.set('openPanel', 'userlist');
       Session.set('forcePollOpen', false);
     }
   }
 
-
   handleInputChange(index, event) {
     // This regex will replace any instance of 2 or more consecutive white spaces
     // with a single white space character.
     const option = event.target.value.replace(/\s{2,}/g, ' ').trim();
+
     this.inputEditor[index] = option === '' ? '' : option;
     this.setState({ customPollValues: this.inputEditor });
   }
 
   handleBackClick() {
     const { stopPoll } = this.props;
+    Session.set('resetPollPanel', false);
 
     stopPoll();
     this.inputEditor = [];
@@ -161,6 +167,7 @@ class Poll extends Component {
           className={styles.pollBtn}
           key={_.uniqueId('quick-poll-')}
           onClick={() => {
+            Session.set('pollInitiated', true);
             this.setState({ isPolling: true }, () => startPoll(type));
           }}
         />);
@@ -171,14 +178,15 @@ class Poll extends Component {
 
   renderCustomView() {
     const { intl, startCustomPoll } = this.props;
-    const isDisabled = _.compact(this.inputEditor).length < 2;
+    const isDisabled = _.compact(this.inputEditor).length < 1;
 
     return (
       <div className={styles.customInputWrapper}>
         {this.renderInputFields()}
         <Button
           onClick={() => {
-            if (this.inputEditor.length > 1) {
+            if (this.inputEditor.length > 0) {
+              Session.set('pollInitiated', true);
               this.setState({ isPolling: true }, () => startCustomPoll('custom', _.compact(this.inputEditor)));
             }
           }}
@@ -208,6 +216,7 @@ class Poll extends Component {
             className={styles.input}
             onChange={event => this.handleInputChange(id, event)}
             defaultValue={customPollValues[id]}
+            maxLength={MAX_INPUT_CHARS}
           />
         </div>
       );
@@ -267,7 +276,7 @@ class Poll extends Component {
     );
   }
 
-  renderNoSlidePanel = () => {
+  renderNoSlidePanel() {
     const { mountModal, intl } = this.props;
     return (
       <div className={styles.noSlidePanelContainer}>
@@ -282,7 +291,7 @@ class Poll extends Component {
     );
   }
 
-  renderPollPanel = () => {
+  renderPollPanel() {
     const { isPolling } = this.state;
     const {
       currentPoll,

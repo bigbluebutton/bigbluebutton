@@ -17,6 +17,7 @@ import mapUser from '/imports/ui/services/user/mapUser';
 import { Session } from 'meteor/session';
 import IntlStartup from './intl';
 import Meetings from '../../api/meetings';
+import AnnotationsTextService from '/imports/ui/components/whiteboard/annotations/text/service';
 
 
 const CHAT_CONFIG = Meteor.settings.public.chat;
@@ -252,8 +253,9 @@ const BaseContainer = withTracker(() => {
 
   const annotationsHandler = Meteor.subscribe('annotations', credentials, {
     onReady: () => {
-      AnnotationsLocal.remove({});
-      Annotations.find({}, { reactive: false }).forEach((a) => {
+      const activeTextShapeId = AnnotationsTextService.activeTextShapeId();
+      AnnotationsLocal.remove({ id: { $ne: `${activeTextShapeId}-fake` } });
+      Annotations.find({ id: { $ne: activeTextShapeId } }, { reactive: false }).forEach((a) => {
         try {
           AnnotationsLocal.insert(a);
         } catch (e) {
