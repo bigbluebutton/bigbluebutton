@@ -85,6 +85,7 @@ const intlMessages = defineMessages({
 });
 
 const MAX_CUSTOM_FIELDS = Meteor.settings.public.poll.max_custom;
+const MAX_INPUT_CHARS = 45;
 
 class Poll extends Component {
   constructor(props) {
@@ -199,7 +200,6 @@ class Poll extends Component {
   }
 
   renderInputFields() {
-    const MAX_INPUT_CHARS = 75;
     const { intl } = this.props;
     const { customPollValues } = this.state;
     let items = [];
