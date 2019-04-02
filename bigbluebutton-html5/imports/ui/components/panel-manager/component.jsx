@@ -46,6 +46,10 @@ const CHAT_MAX_WIDTH = 350;
 const NOTE_MIN_WIDTH = 340;
 const NOTE_MAX_WIDTH = 800;
 
+// Variables for resizing waiting users.
+const WAITING_MIN_WIDTH = 340;
+const WAITING_MAX_WIDTH = 800;
+
 const dispatchResizeEvent = () => window.dispatchEvent(new Event('resize'));
 
 class PanelManager extends Component {
@@ -64,6 +68,7 @@ class PanelManager extends Component {
       chatWidth: 340,
       userlistWidth: 180,
       noteWidth: NOTE_MIN_WIDTH,
+      waitingWidth: WAITING_MIN_WIDTH,
     };
   }
 
@@ -229,7 +234,7 @@ class PanelManager extends Component {
   }
 
   renderWaitingUsersPanelResizable() {
-    const { noteWidth } = this.state;
+    const { waitingWidth } = this.state;
 
     const resizableEnableOptions = {
       top: false,
@@ -244,16 +249,16 @@ class PanelManager extends Component {
 
     return (
       <Resizable
-        minWidth={NOTE_MIN_WIDTH}
-        maxWidth={NOTE_MAX_WIDTH}
+        minWidth={WAITING_MIN_WIDTH}
+        maxWidth={WAITING_MAX_WIDTH}
         ref={(node) => { this.resizableWaitingUsersPanel = node; }}
         enable={resizableEnableOptions}
-        key={this.noteKey}
-        size={{ width: noteWidth }}
+        key={this.waitingUsers}
+        size={{ width: waitingWidth }}
         onResize={dispatchResizeEvent}
         onResizeStop={(e, direction, ref, d) => {
           this.setState({
-            noteWidth: noteWidth + d.width,
+            waitingWidth: waitingWidth + d.width,
           });
         }}
       >
