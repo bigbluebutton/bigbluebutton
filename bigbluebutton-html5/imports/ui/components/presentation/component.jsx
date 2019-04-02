@@ -143,9 +143,11 @@ class PresentationArea extends Component {
   calculateSize() {
     const { presentationHeight, presentationWidth, fitToWidth } = this.state;
     const { currentSlide } = this.props;
-    const { calculatedData } = currentSlide || {};
-    const originalWidth = calculatedData.width;
-    const originalHeight = calculatedData.height;
+    const slideSizes = currentSlide
+    && currentSlide.calculatedData
+      ? currentSlide.calculatedData : {};
+    const originalWidth = slideSizes.width;
+    const originalHeight = slideSizes.height;
 
     let adjustedWidth;
     let adjustedHeight;
