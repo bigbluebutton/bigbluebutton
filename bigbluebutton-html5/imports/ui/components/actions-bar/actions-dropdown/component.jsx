@@ -131,6 +131,9 @@ class ActionsDropdown extends Component {
             description={formatMessage(pollBtnDesc)}
             key={this.pollId}
             onClick={() => {
+              if (Session.equals('pollInitiated', true)) {
+                Session.set('resetPollPanel', true);
+              }
               Session.set('openPanel', 'poll');
               Session.set('forcePollOpen', true);
             }}
@@ -162,7 +165,7 @@ class ActionsDropdown extends Component {
           <DropdownListItem
             icon="video"
             label={!isSharingVideo ? intl.formatMessage(intlMessages.startExternalVideoLabel)
-              : intl.formatMessage(intlMessages.stopExternalVideoLabel) }
+              : intl.formatMessage(intlMessages.stopExternalVideoLabel)}
             description="External Video"
             key="external-video"
             onClick={this.handleExternalVideoClick}
@@ -172,8 +175,9 @@ class ActionsDropdown extends Component {
     ]);
   }
 
-  handleExternalVideoClick = () => {
-    this.props.mountModal(<ExternalVideoModal />);
+  handleExternalVideoClick() {
+    const { mountModal } = this.props;
+    mountModal(<ExternalVideoModal />);
   }
 
   handlePresentationClick() {
