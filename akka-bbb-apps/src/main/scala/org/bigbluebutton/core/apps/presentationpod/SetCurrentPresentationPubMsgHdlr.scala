@@ -10,8 +10,8 @@ trait SetCurrentPresentationPubMsgHdlr extends RightsManagementTrait {
   this: PresentationPodHdlrs =>
 
   def handle(
-    msg: SetCurrentPresentationPubMsg, state: MeetingState2x,
-    liveMeeting: LiveMeeting, bus: MessageBus
+      msg: SetCurrentPresentationPubMsg, state: MeetingState2x,
+      liveMeeting: LiveMeeting, bus: MessageBus
   ): MeetingState2x = {
 
     if (filterPresentationMessage(liveMeeting.users2x, msg.header.userId) &&

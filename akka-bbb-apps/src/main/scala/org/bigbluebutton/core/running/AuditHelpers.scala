@@ -7,8 +7,8 @@ import org.bigbluebutton.core.bus.{ InternalEventBus }
 trait AuditHelpers {
 
   def getUsersInVoiceConf(
-    props: DefaultProps,
-    outGW: OutMsgRouter
+      props: DefaultProps,
+      outGW: OutMsgRouter
   ): Unit = {
     def buildGetUsersInVoiceConfSysMsg(meetingId: String): BbbCommonEnvCoreMsg = {
       val routing = collection.immutable.HashMap("sender" -> "bbb-apps-akka")
@@ -25,8 +25,8 @@ trait AuditHelpers {
   }
 
   def sendBreakoutRoomCreatedToParent(
-    props:    DefaultProps,
-    eventBus: InternalEventBus
+      props:    DefaultProps,
+      eventBus: InternalEventBus
   ): Unit = {
     //    eventBus.publish(BigBlueButtonEvent(
     //      props.breakoutProps.parentId,

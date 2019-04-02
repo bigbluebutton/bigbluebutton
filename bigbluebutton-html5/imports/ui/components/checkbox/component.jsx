@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import cx from 'classnames';
 import Icon from '../icon/component';
@@ -25,7 +25,7 @@ const defaultProps = {
   ariaDesc: null,
 };
 
-export default class Checkbox extends Component {
+export default class Checkbox extends PureComponent {
   constructor(props) {
     super(props);
 
@@ -34,8 +34,9 @@ export default class Checkbox extends Component {
   }
 
   handleChange() {
-    if (this.props.disabled) return;
-    this.onChange();
+    const { disabled, keyValue } = this.props;
+    if (disabled) return;
+    this.onChange(keyValue);
   }
 
   render() {
@@ -47,7 +48,7 @@ export default class Checkbox extends Component {
     return (
       <div className={cx({
         [styles.disabled]: !!disabled,
-      }, styles.container, className)}
+      }, className)}
       >
         <input
           type="checkbox"
@@ -59,9 +60,9 @@ export default class Checkbox extends Component {
           disabled={disabled}
         />
         <div role="presentation" onClick={this.handleChange}>
-          { checked ?
-            <Icon iconName="check" className={cx(styles.icon, styles.checked)} /> :
-            <Icon iconName="circle" className={styles.icon} />
+          { checked
+            ? <Icon iconName="check" className={cx(styles.icon, styles.checked)} />
+            : <Icon iconName="circle" className={styles.icon} />
           }
         </div>
         <div id={ariaLabelledBy} hidden>{ariaLabel}</div>

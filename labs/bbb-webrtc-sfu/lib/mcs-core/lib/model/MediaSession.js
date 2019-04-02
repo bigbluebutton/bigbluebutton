@@ -7,12 +7,13 @@
 
 const C = require('../constants/Constants');
 const rid = require('readable-id');
-const Kurento = require('../adapters/kurento');
+const Kurento = require('../adapters/kurento/kurento');
 const Freeswitch = require('../adapters/freeswitch/freeswitch');
 const config = require('config');
 const kurentoUrl = config.get('kurentoUrl');
 const Logger = require('../../../utils/Logger');
-const isError = require('../utils/util').isError;
+const { handleError } = require('../utils/util');
+const LOG_PREFIX = "[mcs-media-session]";
 
 module.exports = class MediaSession {
   constructor (
@@ -31,7 +32,7 @@ module.exports = class MediaSession {
     this._options = options;
     this._adapter = options.adapter? options.adapter : C.STRING.KURENTO;
     this._name = options.name? options.name : C.STRING.DEFAULT_NAME;
-    this._MediaServer = MediaSession.getAdapter(this._adapter);
+    this._MediaServer = MediaSession.getAdapter(this._adapter, emitter);
     this.eventQueue = [];
   }
 
@@ -98,7 +99,6 @@ module.exports = class MediaSession {
     }
   }
 
-  // TODO handle connection type
   async connect (sinkId, type = 'ALL') {
     try {
       Logger.info("[mcs-media-session] Connecting " + this._mediaElement + " => " + sinkId);
@@ -147,30 +147,25 @@ module.exports = class MediaSession {
     }
   }
 
-  static getAdapter (adapter) {
+  static getAdapter (adapter, emitter) {
     let obj = null;
 
-    Logger.info("[SdpSession] Session is using the", adapter, "adapter");
+    Logger.info("[mcs-media-session] Session is using the", adapter, "adapter");
 
     switch (adapter) {
       case C.STRING.KURENTO:
-        obj = new Kurento(kurentoUrl);
+        obj = new Kurento(kurentoUrl, emitter);
         break;
       case C.STRING.FREESWITCH:
         obj = new Freeswitch();
         break;
-      default: Logger.warn("[SdpSession] Invalid adapter", this.adapter); }
+      default: Logger.warn("[mcs-media-session] Invalid adapter", this.adapter); }
 
     return obj;
   }
 
   _handleError (error) {
-    Logger.trace("[mcs-media-session] SFU MediaSession received an error", error, error.stack);
-    // Checking if the error needs to be wrapped into a JS Error instance
-    if (!isError(error)) {
-      error = new Error(error);
-    }
     this._status = C.STATUS.STOPPED;
-    return error;
+    return handleError(LOG_PREFIX, error);
   }
 }

@@ -33,6 +33,8 @@ package org.bigbluebutton.util.browser {
 		private static var _majorVersion:String;
 
 		private static var _fullVersion:String;
+		
+		private static var _userAgent:String;
 
 		// The function below is called in $cinit, while the class is used for the first time.
 		getBrowserInfo();
@@ -53,6 +55,10 @@ package org.bigbluebutton.util.browser {
 		public static function get browserFullVersion():String {
 			return _fullVersion;
 		}
+		
+		public static function get userAgent():String {
+			return _userAgent;
+		}
 
 		public static function isChrome():Boolean {
 			return _browserName.toLowerCase() == "chrome";
@@ -64,6 +70,10 @@ package org.bigbluebutton.util.browser {
 
 		public static function isFirefox():Boolean {
 			return _browserName.toLowerCase() == "firefox";
+		}
+		
+		public static function isEdge():Boolean {
+			return _browserName.toLowerCase() == "edge";
 		}
 
 		public static function isPuffinBelow46():Boolean {
@@ -85,6 +95,7 @@ package org.bigbluebutton.util.browser {
 				_browserName = browserInfo[0];
 				_majorVersion = String(browserInfo[1]);
 				_fullVersion = String(browserInfo[2]);
+				_userAgent = String(browserInfo[3]);
 			} else {
 				_browserName = "unknown";
 				_majorVersion = "0";

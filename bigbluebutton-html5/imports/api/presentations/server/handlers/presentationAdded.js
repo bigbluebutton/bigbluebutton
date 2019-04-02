@@ -4,10 +4,11 @@ import addPresentation from '../modifiers/addPresentation';
 export default function handlePresentationAdded({ body }, meetingId) {
   check(body, Object);
 
-  const { presentation } = body;
+  const { presentation, podId } = body;
 
   check(meetingId, String);
+  check(podId, String);
   check(presentation, Object);
 
-  return addPresentation(meetingId, presentation);
+  return addPresentation(meetingId, podId, presentation);
 }

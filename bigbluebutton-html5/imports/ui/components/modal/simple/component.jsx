@@ -6,7 +6,7 @@ import ModalBase, { withModalState } from '../base/component';
 import { styles } from './styles';
 
 const propTypes = {
-  title: PropTypes.string.isRequired,
+  title: PropTypes.string,
   dismiss: PropTypes.shape({
     callback: PropTypes.func,
     label: PropTypes.string.isRequired,
@@ -16,6 +16,7 @@ const propTypes = {
 
 const defaultProps = {
   shouldCloseOnOverlayClick: true,
+  shouldShowCloseButton: true,
   overlayClassName: styles.overlay,
   dismiss: {
     label: 'Cancel',
@@ -36,31 +37,38 @@ class ModalSimple extends Component {
   render() {
     const {
       title,
+      hideBorder,
       dismiss,
       className,
       modalisOpen,
+      onRequestClose,
+      shouldShowCloseButton,
       ...otherProps
     } = this.props;
+
+    const closeModel = (onRequestClose || this.handleDismiss);
 
     return (
       <ModalBase
         isOpen={modalisOpen}
         className={cx(className, styles.modal)}
-        onRequestClose={this.handleDismiss}
+        onRequestClose={closeModel}
         contentLabel={title}
         {...otherProps}
       >
-        <header className={styles.header}>
+        <header className={hideBorder ? styles.headerNoBorder : styles.header}>
           <h1 className={styles.title}>{title}</h1>
-          <Button
-            className={styles.dismiss}
-            label={dismiss.label}
-            icon={'close'}
-            circle
-            hideLabel
-            onClick={this.handleDismiss}
-            aria-describedby={'modalDismissDescription'}
-          />
+          {shouldShowCloseButton ? (
+            <Button
+              className={styles.dismiss}
+              label={dismiss.label}
+              icon="close"
+              circle
+              hideLabel
+              onClick={closeModel}
+              aria-describedby="modalDismissDescription"
+            />
+          ) : null}
         </header>
         <div className={styles.content}>
           {this.props.children}

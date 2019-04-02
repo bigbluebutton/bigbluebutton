@@ -12,13 +12,16 @@ const Audio = require('./audio');
 const BaseManager = require('../base/BaseManager');
 const C = require('../bbb/messages/Constants');
 const Logger = require('../utils/Logger');
+const errors = require('../base/errors');
 
 module.exports = class AudioManager extends BaseManager {
   constructor (connectionChannel, additionalChannels, logPrefix) {
     super(connectionChannel, additionalChannels, logPrefix);
+    this.sfuApp = C.AUDIO_APP;
     this._meetings = {};
     this._trackMeetingTermination();
     this.messageFactory(this._onMessage);
+    this._iceQueues = {};
   }
 
   _trackMeetingTermination () {
@@ -46,42 +49,41 @@ module.exports = class AudioManager extends BaseManager {
     }
   }
 
-  _onMessage(message) {
+  async _onMessage(message) {
     Logger.debug(this._logPrefix, 'Received message [' + message.id + '] from connection', message.connectionId);
-    let session;
-
     let sessionId = message.voiceBridge;
     let voiceBridge = sessionId;
     let connectionId = message.connectionId;
 
-    if(this._sessions[sessionId]) {
-      session = this._sessions[sessionId];
-    }
+    let session = this._fetchSession(sessionId);
+    let iceQueue = this._fetchIceQueue(sessionId+connectionId);
 
     switch (message.id) {
       case 'start':
-
-        if (!session) {
-          session = new Audio(this._bbbGW, connectionId, voiceBridge);
-        }
-
-        this._meetings[message.internalMeetingId] = sessionId;
-        this._sessions[sessionId] = session;
-
-        // starts audio session by sending sessionID, websocket and sdpoffer
-        session.start(sessionId, connectionId, message.sdpOffer, message.caleeName, message.userId, message.userName, (error, sdpAnswer) => {
-          Logger.info(this._logPrefix, "Started presenter ", sessionId, " for connection", connectionId);
-          Logger.debug(this._logPrefix, "SDP answer was", sdpAnswer);
-          if (error) {
-            this._bbbGW.publish(JSON.stringify({
-              connectionId: connectionId,
-              type: 'audio',
-              id : 'startResponse',
-              response : 'rejected',
-              message : error
-            }), C.FROM_AUDIO);
-            return error;
+        try {
+          if (!session) {
+            session = new Audio(this._bbbGW, connectionId, voiceBridge);
           }
+
+          this._meetings[message.internalMeetingId] = sessionId;
+          this._sessions[sessionId] = session;
+
+          const { sdpOffer, caleeName, userId, userName } = message;
+
+          // starts audio session by sending sessionID, websocket and sdpoffer
+          const sdpAnswer = await session.start(sessionId, connectionId, sdpOffer, caleeName, userId, userName);
+          Logger.info(this._logPrefix, "Started presenter ", sessionId, " for connection", connectionId);
+
+          // Empty the ICE queue
+          this._flushIceQueue(session, iceQueue);
+
+          session.once(C.MEDIA_SERVER_OFFLINE, async (event) => {
+            const errorMessage = this._handleError(this._logPrefix, connectionId, caleeName, C.RECV_ROLE, errors.MEDIA_SERVER_OFFLINE);
+            errorMessage.id = 'webRTCAudioError';
+            this._bbbGW.publish(JSON.stringify({
+              ...errorMessage,
+            }), C.FROM_AUDIO);
+          });
 
           this._bbbGW.publish(JSON.stringify({
             connectionId: connectionId,
@@ -92,7 +94,13 @@ module.exports = class AudioManager extends BaseManager {
           }), C.FROM_AUDIO);
 
           Logger.info(this._logPrefix, "Sending startResponse to user", sessionId, "for connection", session._id);
-        });
+        } catch (err) {
+          const errorMessage = this._handleError(this._logPrefix, connectionId, message.caleeName, C.RECV_ROLE, err);
+          errorMessage.id = 'webRTCAudioError';
+          return this._bbbGW.publish(JSON.stringify({
+            ...errorMessage
+          }), C.FROM_AUDIO);
+        }
         break;
 
       case 'stop':
@@ -110,12 +118,13 @@ module.exports = class AudioManager extends BaseManager {
           session.onIceCandidate(message.candidate, connectionId);
         } else {
           Logger.warn(this._logPrefix, "There was no audio session for onIceCandidate for", sessionId, ". There should be a queue here");
+          iceQueue.push(message.candidate);
         }
         break;
 
       case 'close':
         Logger.info(this._logPrefix, 'Connection ' + connectionId + ' closed');
-
+        this._deleteIceQueue(sessionId+connectionId);
         if (typeof session !== 'undefined') {
           Logger.info(this._logPrefix, "Stopping viewer " + sessionId);
           session.stopListener(message.connectionId);
@@ -123,11 +132,9 @@ module.exports = class AudioManager extends BaseManager {
         break;
 
       default:
+        const errorMessage = this._handleError(this._logPrefix, connectionId, null, null, errors.SFU_INVALID_REQUEST);
         this._bbbGW.publish(JSON.stringify({
-          connectionId: connectionId,
-          id : 'error',
-          type: 'audio',
-          message: 'Invalid message ' + message
+          ...errorMessage,
         }), C.FROM_AUDIO);
         break;
     }

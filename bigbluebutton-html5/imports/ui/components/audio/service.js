@@ -4,8 +4,8 @@ import AudioManager from '/imports/ui/services/audio-manager';
 import Meetings from '/imports/api/meetings';
 import mapUser from '/imports/ui/services/user/mapUser';
 
-const init = (messages) => {
-  AudioManager.setAudioMessages(messages);
+const init = (messages, intl) => {
+  AudioManager.setAudioMessages(messages, intl);
   if (AudioManager.initialized) return;
   const meetingId = Auth.meetingID;
   const userId = Auth.userID;
@@ -35,11 +35,13 @@ const audioLocked = () => {
   const User = mapUser(Users.findOne({ userId }));
 
   const Meeting = Meetings.findOne({ meetingId: Auth.meetingID });
-  const lockSetting = Meeting.lockSettingProps;
+  const lockSetting = Meeting.lockSettingsProp;
   const audioLock = lockSetting ? lockSetting.disableMic : false;
 
   return audioLock && User.isLocked;
 };
+
+const currentUser = () => mapUser(Users.findOne({ intId: Auth.userID }));
 
 export default {
   init,
@@ -65,4 +67,5 @@ export default {
   error: () => AudioManager.error,
   isUserModerator: () => Users.findOne({ userId: Auth.userID }).moderator,
   audioLocked,
+  currentUser,
 };

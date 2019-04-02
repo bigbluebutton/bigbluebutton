@@ -61,7 +61,7 @@ public class ThumbnailCreatorImp implements ThumbnailCreator {
     try {
       success = generateThumbnails(thumbsDir, pres);
     } catch (InterruptedException e) {
-      log.warn("Interrupted Exception while generating thumbnails.");
+      log.error("Interrupted Exception while generating thumbnails {}", pres.getName(), e);
       success = false;
     }
 
@@ -95,11 +95,12 @@ public class ThumbnailCreatorImp implements ThumbnailCreator {
       logData.put("meetingId", pres.getMeetingId());
       logData.put("presId", pres.getId());
       logData.put("filename", pres.getName());
+      logData.put("logCode", "create_thumbnails_failed");
       logData.put("message", "Failed to create thumbnails.");
 
       Gson gson = new Gson();
       String logStr = gson.toJson(logData);
-      log.warn("-- analytics -- {}", logStr);
+      log.warn(" --analytics-- data={}", logStr);
     }
 
     return false;
@@ -165,7 +166,7 @@ public class ThumbnailCreatorImp implements ThumbnailCreator {
     try {
       FileUtils.copyFile(new File(BLANK_THUMBNAIL), thumb);
     } catch (IOException e) {
-      log.error("IOException while copying blank thumbnail.");
+      log.error("IOException while copying blank thumbnail.", e);
     }
   }
 

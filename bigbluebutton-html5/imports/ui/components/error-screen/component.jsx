@@ -1,8 +1,10 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { defineMessages, injectIntl } from 'react-intl';
+import { Meteor } from 'meteor/meteor';
 import Button from '/imports/ui/components/button/component';
-import { withRouter } from 'react-router';
+import logoutRouteHandler from '/imports/utils/logoutRouteHandler';
+import { Session } from 'meteor/session';
 import { styles } from './styles';
 
 const intlMessages = defineMessages({
@@ -16,6 +18,9 @@ const intlMessages = defineMessages({
   },
   401: {
     id: 'app.error.401',
+  },
+  400: {
+    id: 'app.error.400',
   },
   leave: {
     id: 'app.error.leaveLabel',
@@ -35,9 +40,15 @@ const defaultProps = {
 };
 
 class ErrorScreen extends React.PureComponent {
+  componentDidMount() {
+    Meteor.disconnect();
+  }
+
   render() {
     const {
-      intl, code, children, router,
+      intl,
+      code,
+      children,
     } = this.props;
 
     let formatedMessage = intl.formatMessage(intlMessages[defaultProps.code]);
@@ -48,19 +59,28 @@ class ErrorScreen extends React.PureComponent {
 
     return (
       <div className={styles.background}>
-        <h1 className={styles.code}>
+        <h1 className={styles.codeError}>
           {code}
         </h1>
         <h1 className={styles.message}>
           {formatedMessage}
         </h1>
-        <div className={styles.content}>
+        <div className={styles.separator} />
+        <div>
           {children}
         </div>
-        <div className={styles.content}>
+        {
+          !Session.get('errorMessageDescription') || (
+          <div className={styles.sessionMessage}>
+            {Session.get('errorMessageDescription')}
+          </div>)
+        }
+        <div>
           <Button
             size="sm"
-            onClick={() => router.push('/logout/')}
+            color="primary"
+            className={styles.button}
+            onClick={logoutRouteHandler}
             label={intl.formatMessage(intlMessages.leave)}
           />
         </div>
@@ -69,7 +89,7 @@ class ErrorScreen extends React.PureComponent {
   }
 }
 
-export default withRouter(injectIntl(ErrorScreen));
+export default injectIntl(ErrorScreen);
 
 ErrorScreen.propTypes = propTypes;
 ErrorScreen.defaultProps = defaultProps;

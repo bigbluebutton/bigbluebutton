@@ -1,0 +1,183 @@
+version: '2'
+
+services:
+  mongo:
+    image: mongo:3.4
+    restart: unless-stopped
+
+  redis:
+    image: redis
+    restart: unless-stopped
+
+  bbb-html5:
+    image: ${TAG_PREFIX}bbb-html5${TAG_SUFFIX}
+    restart: unless-stopped
+    depends_on:
+      - mongo
+      - redis
+    environment:
+      MONGO_URL: mongodb://mongo/bbbhtml5
+      METEOR_SETTINGS_MODIFIER: ".public.kurento.wsUrl = \"wss://${SERVER_DOMAIN}/bbb-webrtc-sfu\" | .public.kurento.enableVideo = true | .public.kurento.enableScreensharing = true | .public.kurento.chromeDefaultExtensionKey = \"${SCREENSHARE_EXTENSION_KEY}\" | .public.kurento.chromeDefaultExtensionLink = \"${SCREENSHARE_EXTENSION_LINK}\" | .public.kurento.enableVideoStats = true | .public.kurento.enableListenOnly = true"
+      REDIS_HOST: redis
+      ROOT_URL: http://127.0.0.1/html5client
+    labels:
+      - "traefik.backend=bbb-html5"
+      - "traefik.frontend.rule=PathPrefix: /html5client,/_timesync"
+
+  bbb-webhooks:
+    image: ${TAG_PREFIX}bbb-webhooks${TAG_SUFFIX}
+    restart: unless-stopped
+    depends_on:
+      - redis
+    environment:
+      REDIS_HOST: redis
+      SHARED_SECRET: ${SHARED_SECRET}
+      BEARER_AUTH: 1
+      SERVER_DOMAIN: ${SERVER_DOMAIN}
+    labels:
+      - "traefik.backend=bbb-webhooks"
+      - "traefik.frontend.rule=PathPrefix: /bigbluebutton/api/hooks"
+
+  bbb-freeswitch:
+    image: ${TAG_PREFIX}bbb-freeswitch${TAG_SUFFIX}
+    restart: unless-stopped
+    depends_on:
+      - coturn
+    volumes:
+      - media-audio:/var/freeswitch/meetings
+
+  bbb-webrtc-sfu:
+    image: ${TAG_PREFIX}bbb-webrtc-sfu${TAG_SUFFIX}
+    restart: unless-stopped
+    depends_on:
+      - redis
+      - kurento
+      - bbb-freeswitch
+    environment:
+      KURENTO_NAME: kurento
+      KURENTO_URL: ws://kurento:8888/kurento
+      REDIS_HOST: redis
+      FREESWITCH_IP: bbb-freeswitch
+      LOG_LEVEL: debug
+    labels:
+      - "traefik.backend=bbb-webrtc-sfu"
+      - "traefik.frontend.rule=PathPrefix: /bbb-webrtc-sfu"
+
+  coturn:
+    image: ${TAG_PREFIX}bbb-coturn${TAG_SUFFIX}
+    restart: unless-stopped
+    environment:
+      TURN_DOMAIN: ${SERVER_DOMAIN}
+      SECRET: ${COTURN_REST_SECRET}
+      EXTERNAL_IP: ${EXTERNAL_IP}
+      ENABLE_REST_API: 1
+      PORT: 3478
+    ports:
+      - 3478:3478/udp
+      - 3478:3478/tcp
+
+  kurento:
+    image: ${TAG_PREFIX}bbb-kurento${TAG_SUFFIX}
+    restart: unless-stopped
+    volumes:
+      - media-video:/var/kurento/recordings
+      - media-screenshare:/var/kurento/screenshare
+    environment:
+      STUN_IP: ${EXTERNAL_IP}
+      STUN_PORT: 3478
+
+  bbb-apps-akka:
+    image: ${TAG_PREFIX}bbb-apps-akka${TAG_SUFFIX}
+    restart: unless-stopped
+    depends_on:
+      - redis
+    environment:
+      JAVA_OPTS: -Dredis.host=redis
+
+  bbb-fsesl-akka:
+    image: ${TAG_PREFIX}bbb-fsesl-akka${TAG_SUFFIX}
+    restart: unless-stopped
+    depends_on:
+      - bbb-freeswitch
+      - redis
+    command: ["wait-for-it.sh", "bbb-freeswitch:8021", "--timeout=60", "--strict", "--", "/usr/share/bbb-fsesl-akka/bin/bbb-fsesl-akka"]
+    environment:
+      JAVA_OPTS: -Dredis.host=redis -Dfreeswitch.esl.host=bbb-freeswitch
+
+  bbb-web:
+    image: ${TAG_PREFIX}bbb-web${TAG_SUFFIX}
+    restart: unless-stopped
+    depends_on:
+      - redis
+    volumes:
+      - bigbluebutton:/var/bigbluebutton
+    environment:
+      SERVER_DOMAIN: ${SERVER_DOMAIN}
+      SHARED_SECRET: ${SHARED_SECRET}
+      TURN_DOMAIN: ${SERVER_DOMAIN}
+      TURN_SECRET: ${COTURN_REST_SECRET}
+    labels:
+      - "traefik.backend=bbb-web"
+      - "traefik.frontend.rule=PathPrefix: /bigbluebutton"
+
+  bbb-greenlight:
+    image: bigbluebutton/greenlight:v2
+    restart: unless-stopped
+    volumes:
+      - greenlight_db:/usr/src/app/db/production
+      - greenlight_logs:/usr/src/app/log
+    environment:
+      BIGBLUEBUTTON_ENDPOINT: https://${SERVER_DOMAIN}/bigbluebutton/
+      BIGBLUEBUTTON_SECRET: ${SHARED_SECRET}
+      SECRET_KEY_BASE: ${SECRET_KEY_BASE}
+      ALLOW_GREENLIGHT_ACCOUNTS: "true"
+    labels:
+      - "traefik.backend=bbb-greenlight"
+      - "traefik.frontend.rule=PathPrefix: /b"
+
+  # when we're able to setup traefik properly for wss, nginx is no longer needed
+  nginx:
+    image: ${TAG_PREFIX}bbb-nginx${TAG_SUFFIX}
+    restart: unless-stopped
+    depends_on:
+      - bbb-freeswitch
+    environment:
+      SERVER_DOMAIN: ${SERVER_DOMAIN}
+    labels:
+      - "traefik.backend=bbb-freeswitch"
+      - "traefik.frontend.rule=PathPrefix: /ws"
+
+  traefik:
+    image: traefik
+    restart: unless-stopped
+    ports:
+      - 80:80
+      - 8080:8080
+      - 443:443
+    command: traefik
+      - --docker
+      - --logLevel=INFO
+      - --acme
+      - --acme.httpchallenge
+      - --acme.httpchallenge.entrypoint=http
+      - --acme.acmelogging
+      - --acme.storage=/etc/traefik/acme/acme.json
+      - --acme.email=felipe@mconf.com
+      - --acme.entrypoint=https
+      - --acme.domains=${SERVER_DOMAIN}
+      - --defaultentrypoints=http,https
+      - --entryPoints='Name:http Address::80 Redirect.EntryPoint:https'
+      - --entryPoints='Name:https Address::443 TLS'
+    volumes:
+      - traefik-acme:/etc/traefik/acme/
+      - /var/run/docker.sock:/var/run/docker.sock
+
+volumes:
+  traefik-acme:
+  static:
+  bigbluebutton:
+  media-audio:
+  media-video:
+  media-screenshare:
+  greenlight_db:
+  greenlight_logs:

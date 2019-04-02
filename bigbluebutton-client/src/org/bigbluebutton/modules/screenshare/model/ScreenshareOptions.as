@@ -40,10 +40,10 @@ package org.bigbluebutton.modules.screenshare.model {
 		public var shareRegionDefault:Boolean = false;
 		
 		[Bindable]
-		public var chromeExtensionLink:String = "";
+		public var chromeExtensionLink:String = "LINK";
 
 		[Bindable]
-		public var chromeExtensionKey:String = "";
+		public var chromeExtensionKey:String = "KEY";
 		
 		[Bindable]
 		public var chromeWin10Help:String = "";

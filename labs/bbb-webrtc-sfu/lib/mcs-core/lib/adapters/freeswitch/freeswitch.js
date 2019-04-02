@@ -9,7 +9,7 @@ const SIPJS = require('sip.js');
 const LOCAL_IP_ADDRESS = config.get('localIpAddress');
 const FREESWITCH_IP = config.get('freeswitch').ip;
 const FREESWITCH_PORT = config.get('freeswitch').port;
-const Kurento = require('../kurento');
+const Kurento = require('../kurento/kurento');
 const isError = require('../../utils/util').isError;
 
 let instance = null;
@@ -24,6 +24,10 @@ module.exports = class Freeswitch extends EventEmitter {
       this._sessions = {};
       this._rtpConverters = {};
       this._Kurento = new Kurento(config.get('kurentoUrl'));
+      this._Kurento.on(C.ERROR.MEDIA_SERVER_OFFLINE, () => {
+        this.emit(C.ERROR.MEDIA_SERVER_OFFLINE);
+      });
+
       instance = this;
     }
 

@@ -1,18 +1,15 @@
 @import "/imports/ui/stylesheets/variables/_all";
+@import "/imports/ui/components/actions-bar/styles.scss";
 
 .container {
   display: flex;
   flex-flow: row;
 
   > * {
-    margin: 0 $sm-padding-x;
+    margin: 0 var(--sm-padding-x);
 
     @include mq($small-only) {
-      margin: 0 $sm-padding-y;
-    }
-
-    span:first-child {
-      box-shadow: 0 2px 5px 0 rgb(0, 0, 0);
+      margin: 0 var(--sm-padding-y);
     }
   }
 
@@ -25,14 +22,17 @@
   }
 }
 
-.button {
-  &:focus {
-    outline: none !important;
-  }
-
-  &.glow {
+.glow {
+  border-radius: 50%;
+  
+  [style~="--enableAnimation:1;"] & {
     animation: pulse 1s infinite ease-in;
-    border-radius: 50%;
+  }
+  [style~="--enableAnimation:0;"] & span {
+    content: '';
+    outline: none !important;
+    background-clip: padding-box;
+    box-shadow: 0 0 0 4px rgba(255,255,255,.5);
   }
 }
 

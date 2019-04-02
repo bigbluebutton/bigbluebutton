@@ -7,7 +7,10 @@
 
 .enterActive {
   opacity: 1;
-  transition: opacity 400ms ease-in;
+
+  [style~="--enableAnimation:1;"] & {
+    transition: opacity 400ms ease-in;
+  }
 }
 
 .appear {
@@ -16,7 +19,10 @@
 
 .appearActive {
   opacity: 1;
-  transition: opacity 400ms ease-in;
+
+  [style~="--enableAnimation:1;"] & {
+    transition: opacity 400ms ease-in;
+  }
 }
 
 .presentationArea {
@@ -26,7 +32,7 @@
   align-items: center;
   justify-content: center;
   height: 100%;
-  width:100%;
+  width: 100%;
   overflow: hidden;
   position: relative;
 }
@@ -36,6 +42,22 @@
   height: 100%;
   width: 100%;
   z-index: -1;
+}
+
+.svgContainer{
+  width: 100%;
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+}
+
+.presentationToolbar{
+  display: flex;
+  overflow-x: auto;
+  order: 2;
+  position: absolute;
+  bottom: 0;
 }
 
 .svgStyles {
@@ -63,4 +85,12 @@
   left: 0;
   right: 0;
   bottom: 0;
+}
+
+.visuallyHidden {
+  position: absolute;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  height: 1px; width: 1px;
+  margin: -1px; padding: 0; border: 0;
 }

@@ -12,8 +12,8 @@ trait SetPresenterInPodReqMsgHdlr {
   this: PresentationPodHdlrs =>
 
   def handle(
-    msg: SetPresenterInPodReqMsg, state: MeetingState2x,
-    liveMeeting: LiveMeeting, bus: MessageBus
+      msg: SetPresenterInPodReqMsg, state: MeetingState2x,
+      liveMeeting: LiveMeeting, bus: MessageBus
   ): MeetingState2x = {
     if (msg.body.podId == PresentationPod.DEFAULT_PRESENTATION_POD) {
       // Swith presenter as default presenter pod has changed.
@@ -25,12 +25,12 @@ trait SetPresenterInPodReqMsgHdlr {
 
 object SetPresenterInPodActionHandler extends RightsManagementTrait {
   def handleAction(
-    state:          MeetingState2x,
-    liveMeeting:    LiveMeeting,
-    outGW:          OutMsgRouter,
-    assignedBy:     String,
-    podId:          String,
-    newPresenterId: String
+      state:          MeetingState2x,
+      liveMeeting:    LiveMeeting,
+      outGW:          OutMsgRouter,
+      assignedBy:     String,
+      podId:          String,
+      newPresenterId: String
   ): MeetingState2x = {
 
     if (permissionFailed(PermissionCheck.MOD_LEVEL, PermissionCheck.VIEWER_LEVEL, liveMeeting.users2x, assignedBy)) {

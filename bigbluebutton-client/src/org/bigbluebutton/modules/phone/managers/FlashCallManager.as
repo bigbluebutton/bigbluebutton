@@ -446,7 +446,12 @@
     }
 
     public function handleReconnectSIPSucceededEvent():void {
-      if (state != ON_LISTEN_ONLY_STREAM) {
+      // Check if using Flash to join voice conference. There is a bug that
+      // I can't find why the ReconnectionManager is dispatching a RECONNECT_SIP_SUCCEEDED_EVENT
+      // even if the client is not connected to the Red5 SIP app. What happens is we end up
+      // ejecting the user from the voice conference even if joined using webrtc when the flash
+      // client auto reconnects on bbb, screenshare, and video connections. (ralam Oct 23, 2018)
+      if (usingFlash && state != ON_LISTEN_ONLY_STREAM) {
         var e:VoiceConfEvent = new VoiceConfEvent(VoiceConfEvent.EJECT_USER);
         e.userid = UsersUtil.getMyUserID();
         dispatcher.dispatchEvent(e);

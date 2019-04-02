@@ -1,6 +1,7 @@
 package org.bigbluebutton.api2.bus
 
 import org.bigbluebutton.api2.SystemConfiguration
+import org.bigbluebutton.common2.bus._
 import org.bigbluebutton.common2.msgs._
 import com.fasterxml.jackson.databind.JsonNode
 import akka.actor.Actor
@@ -16,9 +17,9 @@ object ReceivedJsonMsgHdlrActor {
 
 class ReceivedJsonMsgHdlrActor(val msgFromAkkaAppsEventBus: MsgFromAkkaAppsEventBus)
   extends Actor
-    with ActorLogging
-    with SystemConfiguration
-    with ReceivedMessageRouter {
+  with ActorLogging
+  with SystemConfiguration
+  with ReceivedMessageRouter {
 
   object JsonDeserializer extends Deserializer
 
@@ -45,7 +46,7 @@ class ReceivedJsonMsgHdlrActor(val msgFromAkkaAppsEventBus: MsgFromAkkaAppsEvent
   def receive = {
     case msg: JsonMsgFromAkkaApps => handleReceivedJsonMessage(msg)
 
-    case _ => // do nothing
+    case _                        => // do nothing
   }
 
   def handleReceivedJsonMessage(msg: JsonMsgFromAkkaApps): Unit = {
@@ -97,8 +98,11 @@ class ReceivedJsonMsgHdlrActor(val msgFromAkkaAppsEventBus: MsgFromAkkaAppsEvent
         route[RecordingChapterBreakSysMsg](envelope, jsonNode)
       case SetPresentationDownloadableEvtMsg.NAME =>
         route[SetPresentationDownloadableEvtMsg](envelope, jsonNode)
+      case RecordingStatusChangedEvtMsg.NAME =>
+        route[RecordingStatusChangedEvtMsg](envelope, jsonNode)
+
       case _ =>
-        //log.debug("************ Cannot route envelope name " + envelope.name)
+      //log.debug("************ Cannot route envelope name " + envelope.name)
       // do nothing
     }
   }

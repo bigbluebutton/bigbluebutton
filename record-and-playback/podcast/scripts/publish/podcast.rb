@@ -70,7 +70,8 @@ begin
       BigBlueButton.logger.info("copying: #{process_dir}/audio.ogg to -> #{target_dir}")
       FileUtils.cp("#{process_dir}/audio.ogg", target_dir)
 
-      recording_time = BigBlueButton::Events.get_recording_length("#{raw_archive_dir}/events.xml")
+      @doc = Nokogiri::XML(File.open("#{raw_archive_dir}/events.xml"))
+      recording_time = BigBlueButton::Events.get_recording_length(@doc)
 
       BigBlueButton.logger.info("Creating metadata.xml")
 

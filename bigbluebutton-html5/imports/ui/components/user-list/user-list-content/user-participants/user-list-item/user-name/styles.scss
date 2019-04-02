@@ -4,7 +4,7 @@
   @extend %flex-column;
   min-width: 0;
   flex-grow: 1;
-  margin-left: $sm-padding-x;
+  margin-left: var(--sm-padding-x);
   justify-content: center;
   font-size: 0.95rem;
 }
@@ -15,17 +15,19 @@
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-  transition: all 0.3s;
   font-weight: 400;
-  color: $color-gray-dark;
-  padding: .5rem 0;
+  color: var(--color-gray-dark);
+
+  [style~="--enableAnimation:1;"] & {
+    transition: all .3s;
+  }
 }
 
 .userNameSub {
   @extend %no-margin;
   font-size: 0.75rem;
   font-weight: 200;
-  color: $color-gray;
+  color: var(--color-gray);
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;

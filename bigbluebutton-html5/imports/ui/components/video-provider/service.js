@@ -5,7 +5,6 @@ import Meetings from '/imports/api/meetings/';
 import Users from '/imports/api/users/';
 import mapUser from '/imports/ui/services/user/mapUser';
 import UserListService from '/imports/ui/components/user-list/service';
-import SessionStorage from '/imports/ui/services/storage/session';
 
 class VideoService {
   constructor() {
@@ -58,7 +57,6 @@ class VideoService {
   }
 
   exitedVideo() {
-    console.warn('exitedVideo');
     this.isSharing = false;
     this.isWaitingResponse = false;
     this.isConnected = false;
@@ -101,17 +99,22 @@ class VideoService {
   }
 
   webcamOnlyModerator() {
-    const m = Meetings.findOne({ meetingId: Auth.meetingID });
-    return m.usersProp.webcamsOnlyForModerator;
+    const m = Meetings.findOne({ meetingId: Auth.meetingID }) || {};
+    return m.usersProp ? m.usersProp.webcamsOnlyForModerator : false;
   }
 
   isLocked() {
-    const m = Meetings.findOne({ meetingId: Auth.meetingID });
+    const m = Meetings.findOne({ meetingId: Auth.meetingID }) || {};
     return m.lockSettingsProp ? m.lockSettingsProp.disableCam : false;
   }
 
   userId() {
     return Auth.userID;
+  }
+
+  userName() {
+    const currentUser = Users.findOne({ userId: Auth.userID });
+    return currentUser.name;
   }
 
   meetingId() {
@@ -120,6 +123,11 @@ class VideoService {
 
   sessionToken() {
     return Auth.sessionToken;
+  }
+
+  voiceBridge() {
+    const m = Meetings.findOne({ meetingId: Auth.meetingID }) || {};
+    return m.voiceProp ? m.voiceProp.voiceConf : null;
   }
 
   isConnected() {
@@ -149,7 +157,9 @@ export default {
   sendUserShareWebcam: stream => videoService.sendUserShareWebcam(stream),
   sendUserUnshareWebcam: stream => videoService.sendUserUnshareWebcam(stream),
   userId: () => videoService.userId(),
+  userName: () => videoService.userName(),
   meetingId: () => videoService.meetingId(),
   getAllUsersVideo: () => videoService.getAllUsersVideo(),
   sessionToken: () => videoService.sessionToken(),
+  voiceBridge: () => videoService.voiceBridge(),
 };

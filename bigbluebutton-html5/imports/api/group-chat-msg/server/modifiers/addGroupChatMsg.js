@@ -21,7 +21,7 @@ export default function addGroupChatMsg(meetingId, chatId, msg) {
   check(meetingId, String);
   check(chatId, String);
   check(msg, {
-    id: String,
+    id: Match.Maybe(String),
     timestamp: Number,
     sender: Object,
     color: String,

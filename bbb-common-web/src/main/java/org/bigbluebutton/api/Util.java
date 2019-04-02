@@ -5,6 +5,10 @@ import java.io.File;
 import org.apache.commons.codec.digest.DigestUtils;
 
 public final class Util {
+    
+    private Util() {
+      throw new IllegalStateException("Utility class");
+    }
 	
 	public static String generatePresentationId(String name) {
 		long timestamp = System.currentTimeMillis();		

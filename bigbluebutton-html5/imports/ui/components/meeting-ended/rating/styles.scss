@@ -27,7 +27,7 @@
 
         @include mq($small-only) {
           font-size: 2rem;
-        };
+        }
 
         &:before {
           content: '\e951';
@@ -35,8 +35,8 @@
 
         &:hover,
         &:hover ~ label {
-          color: $color-primary;
-          text-shadow: 0 0 3px $color-primary;
+          color: var(--color-primary);
+          text-shadow: 0 0 3px var(--color-primary);
           &:before {
             content: '\e951';
           }
@@ -48,7 +48,7 @@
       & ~ label {
         &:before {
           content: '\e952';
-          color: $color-primary;
+          color: var(--color-primary);
         }
       }
     }

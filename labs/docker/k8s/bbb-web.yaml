@@ -1,0 +1,85 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  labels:
+    app: bbb-web
+    version: latest
+  name: bbb-web
+  namespace: bigbluebutton
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: bbb-web
+      version: latest
+  strategy:
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 1
+    type: RollingUpdate
+  template:
+    metadata:
+      labels:
+        app: bbb-web
+        version: latest
+      name: bbb-web
+    spec:
+      containers:
+      - env:
+        - name: SERVER_DOMAIN
+          value: bigbluebutton.rocket.chat
+        - name: SHARED_SECRET
+          value: "12345"
+        - name: TURN_SECRET
+          value: "54321"
+        - name: TURN_DOMAIN
+          value: bigbluebutton.rocket.chat
+        image: fcecagno/bigbluebutton:bbb-web
+        imagePullPolicy: Always
+        name: bbb-web
+        ports:
+        - containerPort: 8080
+          protocol: TCP
+      restartPolicy: Always
+      terminationGracePeriodSeconds: 30
+      nodeSelector:
+        role: 'bigbluebutton'
+      tolerations:
+      - key: role
+        operator: Equal
+        value: 'bigbluebutton'
+        effect: NoSchedule
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: bbb-web
+  namespace: bigbluebutton
+  annotations:
+    traefik.backend.circuitbreaker: "NetworkErrorRatio() > 0.5"
+spec:
+  ports:
+  - name: http
+    targetPort: 8080
+    port: 8080
+  selector:
+    app: bbb-web
+
+---
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: bbb-web
+  namespace: bigbluebutton
+  annotations:
+    kubernetes.io/ingress.class: "traefik"
+spec:
+  rules:
+  - host: bigbluebutton.rocket.chat
+    http:
+      paths:
+      - path: /bigbluebutton
+        backend:
+          serviceName: bbb-web
+          servicePort: 8080

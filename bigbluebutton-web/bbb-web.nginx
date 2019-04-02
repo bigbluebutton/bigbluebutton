@@ -1,9 +1,9 @@
-	# Handle request to bbb-web running within Tomcat.  This is for BBB-API and Presentation.
+	# Handle request to bbb-web running within a SpringBoot Tomcat embedded servlet container.  This is for BBB-API and Presentation.
 	location /bigbluebutton {
 		proxy_http_version 1.1;
 
 		location /bigbluebutton {
-			proxy_pass         http://127.0.0.1:8080;
+			proxy_pass         http://127.0.0.1:8090;
 	       		proxy_redirect     default;
         	        proxy_set_header   X-Forwarded-For   $proxy_add_x_forwarded_for;
 
@@ -13,7 +13,7 @@
 
 
 		location ~ "^\/bigbluebutton\/presentation\/(?<prestoken>[a-zA-Z0-9_-]+)/upload$" {
-	        	proxy_pass         http://127.0.0.1:8080;
+	        	proxy_pass         http://127.0.0.1:8090;
 			proxy_redirect     default;
 			proxy_set_header   X-Forwarded-For   $proxy_add_x_forwarded_for;
 
@@ -43,7 +43,7 @@
 		}
 
 		location = /bigbluebutton/presentation/checkPresentation {
-			proxy_pass         http://127.0.0.1:8080;
+			proxy_pass         http://127.0.0.1:8090;
 	       		proxy_redirect     default;
         	        proxy_set_header   X-Forwarded-For   $proxy_add_x_forwarded_for;
 
@@ -60,5 +60,17 @@
 			proxy_request_buffering off;
 
 		}
-       }
 
+		# To check connection authentication, include:
+		#   auth_request /bigbluebutton/connection/checkAuthorization;
+		#   auth_request_set $auth_status $upstream_status;
+		#
+		# and make sure to add sessionToken param in the request URI
+		location = /bigbluebutton/connection/checkAuthorization {
+			internal;
+			proxy_pass               http://127.0.0.1:8090;
+			proxy_pass_request_body  off;
+			proxy_set_header         Content-Length "";
+			proxy_set_header         X-Original-URI $request_uri;
+		}
+	}

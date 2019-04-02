@@ -78,6 +78,7 @@ package org.bigbluebutton.main.events {
 		
 		public static const USER_INACTIVITY_INSPECT_EVENT:String = "user_inactivity_inspect_event";
 		public static const USER_ACTIVITY_SIGN_RESPONSE_EVENT:String = "user_activity_sign_response_event";
+		public static const GET_LOCK_SETTINGS_EVENT:String = "GET_LOCK_SETTINGS_EVENT";
 
 		public var message:String;
 		public var payload:Object = new Object();

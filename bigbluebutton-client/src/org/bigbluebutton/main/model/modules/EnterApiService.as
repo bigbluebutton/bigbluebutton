@@ -9,10 +9,12 @@ package org.bigbluebutton.main.model.modules
   import flash.net.URLRequest;
   import flash.net.URLRequestMethod;
   import flash.net.URLVariables;
+  
   import org.as3commons.logging.api.ILogger;
   import org.as3commons.logging.api.getClassLogger;
   import org.bigbluebutton.core.UsersUtil;
   import org.bigbluebutton.main.events.MeetingNotFoundEvent;
+  import org.bigbluebutton.util.i18n.ResourceUtil;
   
   public class EnterApiService
   {
@@ -70,7 +72,7 @@ package org.bigbluebutton.main.model.modules
         LOGGER.info(JSON.stringify(logData));
 
         var dispatcher:Dispatcher = new Dispatcher();
-        dispatcher.dispatchEvent(new MeetingNotFoundEvent(result.response.logoutURL));			
+        dispatcher.dispatchEvent(new MeetingNotFoundEvent(ResourceUtil.getInstance().getString('bbb.mainshell.enterAPIFailed')));
       } else if (returncode == 'SUCCESS') {
 
           

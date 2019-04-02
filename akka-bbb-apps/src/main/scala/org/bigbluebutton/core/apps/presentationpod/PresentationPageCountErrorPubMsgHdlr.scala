@@ -9,8 +9,8 @@ trait PresentationPageCountErrorPubMsgHdlr {
   this: PresentationPodHdlrs =>
 
   def handle(
-    msg: PresentationPageCountErrorSysPubMsg, state: MeetingState2x,
-    liveMeeting: LiveMeeting, bus: MessageBus
+      msg: PresentationPageCountErrorSysPubMsg, state: MeetingState2x,
+      liveMeeting: LiveMeeting, bus: MessageBus
   ): MeetingState2x = {
 
     def broadcastEvent(msg: PresentationPageCountErrorSysPubMsg): Unit = {

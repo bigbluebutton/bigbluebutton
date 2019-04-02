@@ -6,11 +6,19 @@ import calculateSlideData from '/imports/api/slides/server/helpers';
 export default function resizeSlide(meetingId, slide) {
   check(meetingId, String);
 
-  const { presentationId } = slide;
-  const { pageId, widthRatio, heightRatio, xOffset, yOffset } = slide;
+  const {
+    podId,
+    presentationId,
+    pageId,
+    widthRatio,
+    heightRatio,
+    xOffset,
+    yOffset,
+  } = slide;
 
   const selector = {
     meetingId,
+    podId,
     presentationId,
     id: pageId,
   };
@@ -48,7 +56,7 @@ export default function resizeSlide(meetingId, slide) {
     }
 
     if (numChanged) {
-      return Logger.info(`Resized slide id=${pageId}`);
+      return Logger.debug(`Resized slide id=${pageId}`);
     }
 
     return Logger.info(`No slide found with id=${pageId}`);

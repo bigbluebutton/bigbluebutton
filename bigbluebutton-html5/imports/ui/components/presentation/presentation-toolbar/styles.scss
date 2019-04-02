@@ -1,68 +1,98 @@
-@import "/imports/ui/components/button/styles.scss";
 @import "/imports/ui/stylesheets/variables/_all";
 
-$controls-color: $color-gray !default;
-$controls-background: $color-white !default;
+.visuallyhidden {
+  position: absolute;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  height: 1px;
+  width: 1px;
+  margin: -1px;
+  padding: 0;
+  border: 0;
+}
 
-.presentationToolbarWrapper,
+.presentationSlideControls {
+  justify-content: center;
+  padding-left: .5rem;
+  padding-right: .5rem;
+}
+
+.presentationZoomControls {
+  justify-content: flex-end;
+  padding-right: .5rem;
+}
+
+.presentationSlideControls,
+.presentationZoomControls,
 .zoomWrapper {
-  order: 2;
   display: flex;
   flex-direction: row;
   align-items: center;
+  border-radius: 0;
+}
+
+.presentationSlideControls,
+.presentationZoomControls,
+.zoomWrapper {
+  button {
+    padding: .5rem;
+  }
 }
 
 .presentationToolbarWrapper {
-  position: absolute;
-  bottom: .8rem;
-  box-shadow: 0 0 10px -2px rgba(0, 0, 0, .25);
+  position: relative;
   align-self: center;
-  justify-content: center;
   z-index: 1;
+  background-color: var(--color-off-white);
+  border-top: 1px solid var(--color-blue-lightest);
+  min-width: fit-content;
+  width: 100%;
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
 
-  @include mq("#{$landscape} and (max-height:#{upper-bound($small-range)}), #{$small-only}") {
-    transform: scale(.75);
-    transform-origin: bottom;
+  select {
+    margin-right: .5rem;
+    padding: .5rem .5rem .5rem .3rem;
+
+    outline-color: transparent;
+    outline-style: none;
+    outline: none;
+
+    option {
+      color: var(--toolbar-button-color);
+      background-color: var(--color-off-white);
+    }
   }
 
   button,
   select,
-  > div {
-    background-color: $controls-background;
-    color: $controls-color;
+  >div {
+    color: var(--toolbar-button-color);
+    background-color: var(--color-off-white);
     border-top: 0;
     border-bottom: 0;
     border-left: 0;
     border-radius: 0;
-    box-shadow: none;
-    height: 2.25rem;
     box-shadow: none !important;
     border: 0;
+
+    &:focus {
+      background-color: var(--color-off-white);
+      border: 0;
+    }
   }
 
   i {
-    font-weight: bolder;
-    color: $color-gray;
-  }
-
-
-
-  button:first-of-type {
-    border-top-left-radius: 5px;
-    border-bottom-left-radius: 5px;
-  }
-
-  button:last-of-type {
-    border-top-right-radius: 5px;
-    border-bottom-right-radius: 5px;
+    color: var(--toolbar-button-color);
+    display: flex;
+    justify-content: center;
+    align-items: center;
   }
 }
 
 .zoomWrapper {
-  border-radius: 0 5px 5px 0;
   justify-content: space-between;
-  width: 11.5%;
-  min-width: 175px;
+  background-color: var(--toolbar-button-bg);
 }
 
 .zoomWrapperNoBorder {
@@ -72,18 +102,24 @@ $controls-background: $color-white !default;
 .skipSlide,
 .prevSlide {
   border: none !important;
-  width: 2.8rem;
 
-  &[aria-disabled="true"] {
-    opacity: 1;
-    background-color: $color-gray-lighter;
+  i {
+    font-size: 1rem;
+  }
+}
+
+.presentationZoomControls {
+
+  .skipSlide,
+  .prevSlide {
+    i {
+      font-size: 1.2rem;
+    }
   }
 }
 
 .skipSlideSelect {
-  padding: 0 0.8%;
-  border-left: $border-size solid $color-gray-lighter !important;
-  border-right: $border-size solid $color-gray-lighter !important;
+  padding: 0 var(--sm-padding-y);
 }
 
 .zoomSlider {
@@ -92,4 +128,18 @@ $controls-background: $color-white !default;
 
 .zoomMinMax {
   font-weight: normal;
+}
+
+.zoomPercentageDisplay {
+  text-align: center;
+  color: black;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 0 !important;
+  font-weight: 200;
+
+  &:hover {
+    opacity: .8;
+  }
 }

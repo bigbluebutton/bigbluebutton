@@ -1,10 +1,11 @@
-const winston = require("winston");
+const { createLogger, format, transports } = require('winston');
 
-const logger = new (winston.Logger)({
+const logger = createLogger({
   transports: [
-    new (winston.transports.Console)({ timestamp: true, colorize: true }),
-    new (winston.transports.File)({ filename: "log/application.log", timestamp: true })
+    new transports.Console({ format: format.combine(format.timestamp(), format.splat(), format.json()) }),
+    new transports.File({ filename: "log/application.log", format: format.combine(format.timestamp(), format.splat(), format.json()) })
   ]
 });
 
 module.exports = logger;
+

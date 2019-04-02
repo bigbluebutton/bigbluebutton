@@ -12,7 +12,7 @@ const defaultProps = {
 
 const ChatIcon = props => (
   <div className={styles.chatThumbnail}>
-    <Icon iconName={props.icon} className={styles.actionIcon} />
+    <Icon iconName={props.icon} />
   </div>
 );
 

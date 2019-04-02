@@ -127,6 +127,9 @@ export default class WhiteboardOverlay extends Component {
       sendAnnotation,
       resetTextShapeSession,
       setTextShapeActiveId,
+      contextMenuHandler,
+      addAnnotationToDiscardedList,
+      undoAnnotation,
     } = this.props;
     const { tool } = drawSettings;
     const actions = {
@@ -140,6 +143,9 @@ export default class WhiteboardOverlay extends Component {
       sendAnnotation,
       resetTextShapeSession,
       setTextShapeActiveId,
+      contextMenuHandler,
+      addAnnotationToDiscardedList,
+      undoAnnotation,
     };
 
     if (tool === 'triangle' || tool === 'rectangle' || tool === 'ellipse' || tool === 'line') {
@@ -216,7 +222,7 @@ WhiteboardOverlay.propTypes = {
     // Annotation thickness (not normalized)
     thickness: PropTypes.number.isRequired,
     // The name of the tool currently selected
-    tool: PropTypes.string.isRequired,
+    tool: PropTypes.string,
     // Font size for the text shape
     textFontSize: PropTypes.number.isRequired,
     // Text shape value

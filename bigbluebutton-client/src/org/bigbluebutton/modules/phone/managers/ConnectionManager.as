@@ -92,6 +92,8 @@ package org.bigbluebutton.modules.phone.managers {
 					
 				netConnection = new NetConnection();
 				
+				var hostName:String = BBB.initConnectionManager().hostToUse;
+				
 				if (BBB.initConnectionManager().isTunnelling) {
 					var tunnelProtocol: String = ConnUtil.RTMPT;
 					
@@ -100,7 +102,7 @@ package org.bigbluebutton.modules.phone.managers {
 						tunnelProtocol = ConnUtil.RTMPS;
 					}
 						
-					uri = tunnelProtocol + "://" + result.server + "/" + result.app;
+					uri = tunnelProtocol + "://" + hostName + "/" + result.app;
 				} else {
 					var nativeProtocol: String = ConnUtil.RTMP;
 					if (useRTMPS) {
@@ -108,7 +110,7 @@ package org.bigbluebutton.modules.phone.managers {
 						nativeProtocol = ConnUtil.RTMPS;
 					}
 					
-					uri = nativeProtocol + "://" + result.server + "/" + result.app;
+					uri = nativeProtocol + "://" + hostName + "/" + result.app;
 				}
 								
 				netConnection.objectEncoding = ObjectEncoding.AMF3;

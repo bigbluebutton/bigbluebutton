@@ -20,20 +20,20 @@ import org.bigbluebutton.core2.message.senders.MsgBuilder
 
 object BigBlueButtonActor extends SystemConfiguration {
   def props(
-    system:    ActorSystem,
-    eventBus:  InternalEventBus,
-    bbbMsgBus: BbbMsgRouterEventBus,
-    outGW:     OutMessageGateway
+      system:    ActorSystem,
+      eventBus:  InternalEventBus,
+      bbbMsgBus: BbbMsgRouterEventBus,
+      outGW:     OutMessageGateway
   ): Props =
     Props(classOf[BigBlueButtonActor], system, eventBus, bbbMsgBus, outGW)
 }
 
 class BigBlueButtonActor(
-  val system:   ActorSystem,
-  val eventBus: InternalEventBus, val bbbMsgBus: BbbMsgRouterEventBus,
-  val outGW: OutMessageGateway
+    val system:   ActorSystem,
+    val eventBus: InternalEventBus, val bbbMsgBus: BbbMsgRouterEventBus,
+    val outGW: OutMessageGateway
 ) extends Actor
-    with ActorLogging with SystemConfiguration {
+  with ActorLogging with SystemConfiguration {
 
   implicit def executionContext = system.dispatcher
   implicit val timeout = Timeout(5 seconds)

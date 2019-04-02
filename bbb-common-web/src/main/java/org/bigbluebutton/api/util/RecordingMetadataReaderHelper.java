@@ -44,8 +44,8 @@ public class RecordingMetadataReaderHelper {
     return new File(destDir + File.separatorChar + "metadata.xml");
   }
 
-  public void saveRecordingMetadata(File metadataXml, RecordingMetadata recordingMetadata) {
-    recordingServiceGW.saveRecordingMetadata(metadataXml, recordingMetadata);
+  public boolean saveRecordingMetadata(File metadataXml, RecordingMetadata recordingMetadata) {
+    return recordingServiceGW.saveRecordingMetadata(metadataXml, recordingMetadata);
   }
 
   public void setRecordingServiceGW(RecordingServiceGW recordingServiceGW) {

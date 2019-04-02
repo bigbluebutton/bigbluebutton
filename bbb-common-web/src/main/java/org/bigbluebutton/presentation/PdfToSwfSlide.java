@@ -97,7 +97,7 @@ public class PdfToSwfSlide {
     try {
       FileUtils.copyFile(new File(BLANK_SLIDE), slide);
     } catch (IOException e) {
-      log.error("IOException while copying blank slide.");
+      log.error("IOException while copying blank slide.", e);
     }
   }
 

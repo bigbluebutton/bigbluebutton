@@ -1,6 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import _ from 'lodash';
+import cx from 'classnames';
 import Button from '/imports/ui/components/button/component';
 import { defineMessages, injectIntl, intlShape } from 'react-intl';
 import Dropdown from '/imports/ui/components/dropdown/component';
@@ -40,41 +41,42 @@ const JoinVideoOptions = ({
 }) => {
   const menuItems = videoItems
     .filter(item => !item.disabled)
-    .map(item =>
-      (
-        <DropdownListItem
-          key={_.uniqueId('video-menu-')}
-          className={styles.item}
-          description={item.description}
-          onClick={item.click}
-          tabIndex={-1}
-        >
-          <img src={item.iconPath} className={styles.imageSize} alt="video menu icon" />
-          <span className={styles.label}>{item.label}</span>
-        </DropdownListItem>
-      ));
+    .map(item => (
+      <DropdownListItem
+        key={_.uniqueId('video-menu-')}
+        className={styles.item}
+        description={item.description}
+        onClick={item.click}
+        tabIndex={-1}
+        id={item.id}
+      >
+        <img src={item.iconPath} className={styles.imageSize} alt="video menu icon" aria-hidden />
+        <span className={styles.label}>{item.label}</span>
+      </DropdownListItem>
+    ));
   return (
     <Dropdown
       autoFocus
     >
       <DropdownTrigger tabIndex={0}>
         <Button
-          label={!videoShareAllowed ?
-            intl.formatMessage(intlMessages.videoMenuDisabled)
+          label={!videoShareAllowed
+            ? intl.formatMessage(intlMessages.videoMenuDisabled)
             : intl.formatMessage(intlMessages.videoMenu)
           }
-          className={styles.button}
+          className={cx(styles.button, isSharingVideo || styles.ghostButton)}
           onClick={() => null}
           hideLabel
           aria-label={intl.formatMessage(intlMessages.videoMenuDesc)}
-          color={isSharingVideo ? 'danger' : 'primary'}
-          icon={isSharingVideo ? 'video_off' : 'video'}
+          color={isSharingVideo ? 'primary' : 'default'}
+          icon={isSharingVideo ? 'video' : 'video_off'}
+          ghost={!isSharingVideo}
           size="lg"
           circle
           disabled={!videoShareAllowed}
         />
       </DropdownTrigger>
-      <DropdownContent placement="top" >
+      <DropdownContent placement="top">
         <DropdownList horizontal>
           {menuItems}
         </DropdownList>

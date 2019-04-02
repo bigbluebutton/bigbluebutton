@@ -1,21 +1,21 @@
-import React, { Component } from 'react';
+import React, { PureComponent } from 'react';
 import { injectIntl } from 'react-intl';
 import PropTypes from 'prop-types';
-import { withRouter } from 'react-router';
 import injectWbResizeEvent from '/imports/ui/components/presentation/resize-wrapper/component';
 import { styles } from './styles';
 import CustomLogo from './custom-logo/component';
-import UserContent from './user-list-content/component';
+import UserContentContainer from './user-list-content/container';
 
 const propTypes = {
-  openChats: PropTypes.arrayOf(String).isRequired,
-  users: PropTypes.arrayOf(Object).isRequired,
+  activeChats: PropTypes.arrayOf(String).isRequired,
   compact: PropTypes.bool,
   intl: PropTypes.shape({
     formatMessage: PropTypes.func.isRequired,
   }).isRequired,
   currentUser: PropTypes.shape({}).isRequired,
-  meeting: PropTypes.shape({}),
+  CustomLogoUrl: PropTypes.string.isRequired,
+  handleEmojiChange: PropTypes.func.isRequired,
+  getUsersId: PropTypes.func.isRequired,
   isBreakoutRoom: PropTypes.bool,
   getAvailableActions: PropTypes.func.isRequired,
   normalizeEmojiName: PropTypes.func.isRequired,
@@ -25,28 +25,25 @@ const propTypes = {
   assignPresenter: PropTypes.func.isRequired,
   removeUser: PropTypes.func.isRequired,
   toggleVoice: PropTypes.func.isRequired,
+  muteAllUsers: PropTypes.func.isRequired,
+  muteAllExceptPresenter: PropTypes.func.isRequired,
   changeRole: PropTypes.func.isRequired,
   roving: PropTypes.func.isRequired,
+  getGroupChatPrivate: PropTypes.func.isRequired,
+  showBranding: PropTypes.bool.isRequired,
+  toggleUserLock: PropTypes.func.isRequired,
 };
-const SHOW_BRANDING = Meteor.settings.public.app.branding.displayBrandingArea;
+
 const defaultProps = {
   compact: false,
   isBreakoutRoom: false,
-  // This one is kinda tricky, meteor takes sometime to fetch the data and passing down
-  // So the first time its create, the meeting comes as null, sending an error to the client.
-  meeting: {},
 };
 
-class UserList extends Component {
-  constructor(props) {
-    super(props);
-  }
-
+class UserList extends PureComponent {
   render() {
     const {
       intl,
-      openChats,
-      users,
+      activeChats,
       compact,
       currentUser,
       isBreakoutRoom,
@@ -54,45 +51,63 @@ class UserList extends Component {
       assignPresenter,
       removeUser,
       toggleVoice,
+      muteAllUsers,
+      muteAllExceptPresenter,
       changeRole,
-      meeting,
       getAvailableActions,
       normalizeEmojiName,
       isMeetingLocked,
       isPublicChat,
       roving,
       CustomLogoUrl,
+      getGroupChatPrivate,
+      handleEmojiChange,
+      getEmojiList,
+      getEmoji,
+      showBranding,
+      hasBreakoutRoom,
+      getUsersId,
+      hasPrivateChatBetweenUsers,
+      toggleUserLock,
     } = this.props;
 
     return (
       <div className={styles.userList}>
         {
-          SHOW_BRANDING
-          && !this.props.compact
-          && CustomLogoUrl
-          ? <CustomLogo CustomLogoUrl={CustomLogoUrl} /> : null
+          showBranding
+            && !compact
+            && CustomLogoUrl
+            ? <CustomLogo CustomLogoUrl={CustomLogoUrl} /> : null
         }
-        {<UserContent
+        {<UserContentContainer
           {...{
-          intl,
-          openChats,
-          users,
-          compact,
-          currentUser,
-          isBreakoutRoom,
-          setEmojiStatus,
-          assignPresenter,
-          removeUser,
-          toggleVoice,
-          changeRole,
-          meeting,
-          getAvailableActions,
-          normalizeEmojiName,
-          isMeetingLocked,
-          isPublicChat,
-          roving,
-        }
-      }
+            intl,
+            activeChats,
+            compact,
+            currentUser,
+            isBreakoutRoom,
+            setEmojiStatus,
+            assignPresenter,
+            removeUser,
+            toggleVoice,
+            muteAllUsers,
+            muteAllExceptPresenter,
+            changeRole,
+            getAvailableActions,
+            normalizeEmojiName,
+            isMeetingLocked,
+            isPublicChat,
+            roving,
+            getGroupChatPrivate,
+            handleEmojiChange,
+            getEmojiList,
+            getEmoji,
+            hasBreakoutRoom,
+            getUsersId,
+            hasPrivateChatBetweenUsers,
+            toggleUserLock,
+          }
+          }
         />}
       </div>
     );
@@ -102,4 +117,4 @@ class UserList extends Component {
 UserList.propTypes = propTypes;
 UserList.defaultProps = defaultProps;
 
-export default withRouter(injectWbResizeEvent(injectIntl(UserList)));
+export default injectWbResizeEvent(injectIntl(UserList));

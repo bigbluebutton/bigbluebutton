@@ -29,7 +29,15 @@ public class ClientConnectionManager {
 	private static Logger log = Red5LoggerFactory.getLogger(ClientConnectionManager.class, "sip");
 	
 	private Map<String, ClientConnection> clients = new ConcurrentHashMap<String, ClientConnection>();
-	
+
+	public boolean hasActiveConnections(String userId) {
+		for (ClientConnection conn : clients.values()) {
+			if (conn.userid.equals(userId)) return true;
+		}
+
+		return false;
+	}
+
 	public void createClient(String id, String userid, String username, IServiceCapableConnection connection) {
 		ClientConnection cc = new ClientConnection(id, userid, username, connection);
 		clients.put(id, cc);

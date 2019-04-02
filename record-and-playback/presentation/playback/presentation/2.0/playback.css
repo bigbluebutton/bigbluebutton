@@ -54,6 +54,10 @@ html, .acorn-controls {
   min-width: 310px;
 }
 
+p {
+  font-size: inherit;
+}
+
 
 /* Swappable components have different settings depending on where they are */
 #main-section #presentation-area {

@@ -1,5 +1,4 @@
 import { check } from 'meteor/check';
-import Annotations from '/imports/api/annotations';
 
 const ANNOTATION_TYPE_TEXT = 'text';
 const ANNOTATION_TYPE_PENCIL = 'pencil';
@@ -83,6 +82,7 @@ function handlePencilUpdate(meetingId, whiteboardId, userId, annotation) {
     whiteboardId,
   };
 
+  let baseModifier;
   switch (status) {
     case DRAW_START:
       // on start we split the points
@@ -130,6 +130,8 @@ function handlePencilUpdate(meetingId, whiteboardId, userId, annotation) {
         },
         $inc: { version: 1 },
       };
+      break;
+    default:
       break;
   }
 

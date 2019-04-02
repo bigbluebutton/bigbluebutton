@@ -6,6 +6,6 @@ import org.bigbluebutton.app.screenshare.events.IEvent
 class EventListenerImp extends IEventListener {
 
   def handleMessage(event: IEvent) {
-    
+
   }
 }

@@ -1,36 +1,32 @@
+import GroupChatMsg from '/imports/api/group-chat-msg';
 import { Meteor } from 'meteor/meteor';
 import { check } from 'meteor/check';
 
 import Logger from '/imports/startup/server/logger';
-import mapToAcl from '/imports/startup/mapToAcl';
 
-import { GroupChat, CHAT_ACCESS_PUBLIC } from '/imports/api/group-chat-msg';
-
-function groupChatMsg(credentials) {
+function groupChatMsg(credentials, chatsIds) {
   const { meetingId, requesterUserId, requesterToken } = credentials;
 
   check(meetingId, String);
   check(requesterUserId, String);
   check(requesterToken, String);
 
-  Logger.info(`Publishing group-chat-msg for ${meetingId} ${requesterUserId} ${requesterToken}`);
+  const CHAT_CONFIG = Meteor.settings.public.chat;
+  const PUBLIC_GROUP_CHAT_ID = CHAT_CONFIG.public_group_id;
 
-  return GroupChat.find({
+  Logger.debug(`Publishing group-chat-msg for ${meetingId} ${requesterUserId} ${requesterToken}`);
+
+  return GroupChatMsg.find({
     $or: [
-      {
-        access: CHAT_ACCESS_PUBLIC,
-        meetingId,
-      }, {
-        users: { $in: [requesterUserId] },
-        meetingId,
-      },
+      { meetingId, chatId: { $eq: PUBLIC_GROUP_CHAT_ID } },
+      { chatId: { $in: chatsIds } },
     ],
   });
 }
 
 function publish(...args) {
   const boundGroupChat = groupChatMsg.bind(this);
-  return mapToAcl('subscriptions.group-chat-msg', boundGroupChat)(args);
+  return boundGroupChat(...args);
 }
 
 Meteor.publish('group-chat-msg', publish);

@@ -49,33 +49,34 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
   <fx:Script>
     <![CDATA[
-			import com.asfusion.mate.events.Dispatcher;
-			
-			import org.as3commons.logging.api.ILogger;
-			import org.as3commons.logging.api.getClassLogger;
-			import org.bigbluebutton.common.events.LocaleChangeEvent;
-			import org.bigbluebutton.core.BBB;
-			import org.bigbluebutton.core.Options;
-			import org.bigbluebutton.core.UsersUtil;
-			import org.bigbluebutton.core.managers.ReconnectionManager;
-			import org.bigbluebutton.main.events.BBBEvent;
-			import org.bigbluebutton.main.events.MadePresenterEvent;
-			import org.bigbluebutton.main.events.ShortcutEvent;
-			import org.bigbluebutton.main.views.MainCanvas;
-			import org.bigbluebutton.modules.screenshare.events.RequestToPauseSharing;
-			import org.bigbluebutton.modules.screenshare.events.RequestToRestartSharing;
-			import org.bigbluebutton.modules.screenshare.events.RequestToStopSharing;
-			import org.bigbluebutton.modules.screenshare.events.ScreenSharePausedEvent;
-			import org.bigbluebutton.modules.screenshare.events.ShareStartEvent;
-			import org.bigbluebutton.modules.screenshare.events.ShareStoppedEvent;
-			import org.bigbluebutton.modules.screenshare.events.ShareWindowEvent;
-			import org.bigbluebutton.modules.screenshare.events.StartShareRequestSuccessEvent;
-			import org.bigbluebutton.modules.screenshare.events.StopSharingButtonEvent;
-			import org.bigbluebutton.modules.screenshare.events.ViewStreamEvent;
-			import org.bigbluebutton.modules.screenshare.model.ScreenshareModel;
-			import org.bigbluebutton.modules.screenshare.model.ScreenshareOptions;
-			import org.bigbluebutton.modules.screenshare.services.red5.Connection;
-			import org.bigbluebutton.util.i18n.ResourceUtil;
+		import com.asfusion.mate.events.Dispatcher;
+		
+		import org.as3commons.logging.api.ILogger;
+		import org.as3commons.logging.api.getClassLogger;
+		import org.bigbluebutton.common.events.LocaleChangeEvent;
+		import org.bigbluebutton.core.BBB;
+		import org.bigbluebutton.core.Options;
+		import org.bigbluebutton.core.UsersUtil;
+		import org.bigbluebutton.core.managers.ReconnectionManager;
+		import org.bigbluebutton.main.events.BBBEvent;
+		import org.bigbluebutton.main.events.MadePresenterEvent;
+		import org.bigbluebutton.main.events.ShortcutEvent;
+		import org.bigbluebutton.main.views.MainCanvas;
+		import org.bigbluebutton.modules.screenshare.events.RequestToPauseSharing;
+		import org.bigbluebutton.modules.screenshare.events.RequestToRestartSharing;
+		import org.bigbluebutton.modules.screenshare.events.RequestToStopSharing;
+		import org.bigbluebutton.modules.screenshare.events.ScreenSharePausedEvent;
+		import org.bigbluebutton.modules.screenshare.events.ShareStartEvent;
+		import org.bigbluebutton.modules.screenshare.events.ShareStoppedEvent;
+		import org.bigbluebutton.modules.screenshare.events.ShareWindowEvent;
+		import org.bigbluebutton.modules.screenshare.events.StartShareRequestSuccessEvent;
+		import org.bigbluebutton.modules.screenshare.events.StopSharingButtonEvent;
+		import org.bigbluebutton.modules.screenshare.events.ViewStreamEvent;
+		import org.bigbluebutton.modules.screenshare.model.ScreenshareModel;
+		import org.bigbluebutton.modules.screenshare.model.ScreenshareOptions;
+		import org.bigbluebutton.modules.screenshare.services.red5.Connection;
+		import org.bigbluebutton.util.browser.BrowserCheck;
+		import org.bigbluebutton.util.i18n.ResourceUtil;
 		
       
       private static const LOGGER:ILogger = getClassLogger(ScreensharePublishWindow);
@@ -127,9 +128,11 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         } else if (fullOS.indexOf("Linux") != -1) {
           os = "Linux";
         } else {
-          LOGGER.error("Browser not recognized, full value: {0}", [fullOS]);
+          LOGGER.error("OS not recognized, full value: {0}", [fullOS]);
           os = "";
         }
+
+        browser = BrowserCheck.browserName;
 
         windowControls.maximizeRestoreBtn.enabled = false;
 
@@ -196,22 +199,22 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       }
 
       private function handleStartShareRequestSuccessEvent(event:StartShareRequestSuccessEvent):void {
-				var logData:Object = UsersUtil.initLogData();
-				logData.session = ScreenshareModel.getInstance().session;
-				logData.streamId = ScreenshareModel.getInstance().streamId;
-				logData.tags = ["screenshare"];
-				logData.logCode = "screenshare_request_success";
-				LOGGER.warn(JSON.stringify(logData));
+		var logData:Object = UsersUtil.initLogData();
+		logData.session = ScreenshareModel.getInstance().session;
+		logData.streamId = ScreenshareModel.getInstance().streamId;
+		logData.tags = ["screenshare"];
+		logData.logCode = "screenshare_request_success";
+		LOGGER.warn(JSON.stringify(logData));
       }
 
       private function handleScreenShareShareStoppedEvent(event:ShareStoppedEvent):void {
-				var logData:Object = UsersUtil.initLogData();
-				logData.reason = event.reason;
-				logData.session = ScreenshareModel.getInstance().session;
-				logData.streamId = ScreenshareModel.getInstance().streamId;
-				logData.tags = ["screenshare"];
-				logData.logCode = "screenshare_end_reason";
-				LOGGER.warn(JSON.stringify(logData));
+		var logData:Object = UsersUtil.initLogData();
+		logData.reason = event.reason;
+		logData.session = ScreenshareModel.getInstance().session;
+		logData.streamId = ScreenshareModel.getInstance().streamId;
+		logData.tags = ["screenshare"];
+		logData.logCode = "screenshare_end_reason";
+		LOGGER.warn(JSON.stringify(logData));
 				
         var showReason:Boolean = false;
 
@@ -236,38 +239,41 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
           cancelBtn.visible = cancelBtn.includeInLayout = true;
           startBtn.visible = startBtn.includeInLayout = false;
           stopBtn.visible = stopBtn.includeInLayout = false;
-
-
         } else {
           closeWindow();
         }
       }
 
-      private function handleScreenSharePausedEvent(event:ScreenSharePausedEvent):void {
-        if (videoWrapper != null && video != null && video.parent == videoWrapper) {
-            videoWrapper.removeChild(video);
+		private function handleScreenSharePausedEvent(event:ScreenSharePausedEvent):void {
+			if (videoWrapper != null && video != null && video.parent == videoWrapper) {
+				videoWrapper.removeChild(video);
 
-            if (paused) {
-							var logData:Object = UsersUtil.initLogData();
-							logData.tags = ["screenshare"];
-							logData.session = ScreenshareModel.getInstance().session;
-							logData.streamId = ScreenshareModel.getInstance().streamId;
-							logData.logCode = "screenshare_paused";
-							LOGGER.warn(JSON.stringify(logData));
-							
-                pauseBtn.enabled = true;
-                pauseBtn.visible = pauseBtn.includeInLayout = false;
-                restartBtn.visible = restartBtn.includeInLayout = true;
-                pauseBox.visible = pauseBox.includeInLayout = true;
-                videoWrapper.visible = videoWrapper.includeInLayout = false;
-            } else {
-                switchView(true);
+				if (paused) {
+					var logData:Object = UsersUtil.initLogData();
+					logData.tags = ["screenshare"];
+					logData.session = ScreenshareModel.getInstance().session;
+					logData.streamId = ScreenshareModel.getInstance().streamId;
+					logData.logCode = "screenshare_paused";
+					LOGGER.warn(JSON.stringify(logData));
+
+					pauseBtn.enabled = true;
+					pauseBtn.visible = pauseBtn.includeInLayout = false;
+					restartBtn.visible = restartBtn.includeInLayout = true;
+					pauseBox.visible = pauseBox.includeInLayout = true;
+					videoWrapper.visible = videoWrapper.includeInLayout = false;
+				} else {
+					switchView(true);
+				}
 			}
-        }
-      }
+		}
 
       public function shareScreen(fullScreen:Boolean):void {
-
+		var logData:Object = UsersUtil.initLogData();
+		logData.type = "java";
+		logData.tags = ["screenshare"];
+		logData.logCode = "screenshare_start_request";
+		LOGGER.info(JSON.stringify(logData));
+		  
         startBtn.enabled = false;
         var shareStartEvent:ShareStartEvent = new ShareStartEvent();
         dispatchEvent(shareStartEvent);
@@ -281,18 +287,24 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         var authToken:String = ScreenshareModel.getInstance().authToken;
         var jnlp: String = ScreenshareModel.getInstance().jnlp;
 				
-				var logData:Object = UsersUtil.initLogData();
-				logData.tags = ["screenshare"];
-				logData.session = ScreenshareModel.getInstance().session;
-				logData.streamId = ScreenshareModel.getInstance().streamId;
-				logData.logCode = "screenshare_start_sharing";
-				logData.token = authToken;
-				LOGGER.warn(JSON.stringify(logData));
+		var logData:Object = UsersUtil.initLogData();
+		logData.tags = ["screenshare"];
+		logData.session = ScreenshareModel.getInstance().session;
+		logData.streamId = ScreenshareModel.getInstance().streamId;
+		logData.logCode = "screenshare_start_sharing";
+		logData.token = authToken;
+		LOGGER.warn(JSON.stringify(logData));
 				
         ExternalInterface.call("startScreensharing", jnlp, UsersUtil.getInternalMeetingID(), authToken, fullScreen);
       }
 
-      public function stopSharing():void {;
+      public function stopSharing():void {
+		var logData:Object = UsersUtil.initLogData();
+		logData.type = "java";
+		logData.tags = ["screenshare"];
+		logData.logCode = "screenshare_stop_request";
+		LOGGER.info(JSON.stringify(logData));
+
         if (streaming) {
           stopStream();
         }
@@ -302,11 +314,15 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
         sharingFullScreen = false;
         streaming = false;
-
-        //closeWindow();
       }
 
       public function pauseSharing():void {
+		var logData:Object = UsersUtil.initLogData();
+		logData.type = "java";
+		logData.tags = ["screenshare"];
+		logData.logCode = "screenshare_pause_request";
+		LOGGER.info(JSON.stringify(logData));
+
         if (!paused) {
           paused = true;
           if (streaming) {
@@ -339,7 +355,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       }
 
       private function handleStartViewStreamEvent(event:ViewStreamEvent):void{
-
         var width: int = ScreenshareModel.getInstance().width;
         var height: int = ScreenshareModel.getInstance().height;
         var streamId: String = ScreenshareModel.getInstance().streamId;
@@ -347,6 +362,11 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       }
 
       private function startPreviewStream(nc:NetConnection, streamId:String, capWidth:Number, capHeight:Number):void{
+		var logData:Object = UsersUtil.initLogData();
+		logData.type = "java";
+		logData.tags = ["screenshare"];
+		logData.logCode = "screenshare_start_preview";
+		LOGGER.info(JSON.stringify(logData));
 
         switchView(false);
 
@@ -397,10 +417,21 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       }
 
       public function onMetaData(info:Object):void{
-        LOGGER.debug("metadata: width=" + info.width + " height=" + info.height);
+		  var logData:Object = UsersUtil.initLogData();
+		  logData.type = "java";
+		  logData.tags = ["screenshare"];
+		  logData.logCode = "screenshare_metadata";
+		  logData.metadata = info;
+		  LOGGER.debug(JSON.stringify(logData));
       }
 
       private function stopStream():void{
+		var logData:Object = UsersUtil.initLogData();
+		logData.type = "java";
+		logData.tags = ["screenshare"];
+		logData.logCode = "screenshare_stop_stream";
+		LOGGER.info(JSON.stringify(logData));
+
         streaming = false;
         captureHeight = Capabilities.screenResolutionY;
         captureWidth = Capabilities.screenResolutionX;
@@ -408,7 +439,12 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       }
 
       private function onAsyncError(e:AsyncErrorEvent):void{
-        LOGGER.debug("VIdeoWindow::asyncerror " + e.toString());
+		var logData:Object = UsersUtil.initLogData();
+		logData.type = "java";
+		logData.tags = ["screenshare"];
+		logData.logCode = "screenshare_async_error";
+		logData.error = e.toString();
+		LOGGER.warn(JSON.stringify(logData));
       }
 
       private function onNetStatus(e:NetStatusEvent):void{
@@ -438,7 +474,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         dispatchEvent(new ShareWindowEvent(ShareWindowEvent.CLOSE));
         
         if (!soundPlayed) {
-          trace("playing from java publish window");
+          LOGGER.debug("playing from java publish window");
           var tSC:SoundChannel = noticeSound.play(0, 0, new SoundTransform(0.25));
           soundPlayed = true;
         }
@@ -447,7 +483,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       private function restartJava():void {
         shareScreen(sharingFullScreen);
       }
-
 
       /*
       * Override the close handler. We want the Event Map to send a message to
@@ -480,12 +515,12 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         shareTypeProvider = [ResourceUtil.getInstance().getString('bbb.screensharePublish.shareType.fullScreen'),
                              ResourceUtil.getInstance().getString('bbb.screensharePublish.shareType.region')];
 				
-				var options:ScreenshareOptions = Options.getOptions(ScreenshareOptions) as ScreenshareOptions;
-				
-				if (options.shareRegionDefault) {
-					shareTypeProvider = [ResourceUtil.getInstance().getString('bbb.screensharePublish.shareType.region'),
-						ResourceUtil.getInstance().getString('bbb.screensharePublish.shareType.fullScreen')];
-				}
+		var options:ScreenshareOptions = Options.getOptions(ScreenshareOptions) as ScreenshareOptions;
+		
+		if (options.shareRegionDefault) {
+			shareTypeProvider = [ResourceUtil.getInstance().getString('bbb.screensharePublish.shareType.region'),
+				ResourceUtil.getInstance().getString('bbb.screensharePublish.shareType.fullScreen')];
+		}
 
         setHelpText();
       }
@@ -517,7 +552,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
           if (os == "Windows") {
             shareTypeBox.visible = true;
             info = "PC";
-            if (browser == "Microsoft Internet Explorer" || browser == "Edge") {
+            if (browser == "Internet Explorer" || browser == "Edge") {
               info += "IE";
             } else if (browser == "Firefox") {
               info += "Firefox";
@@ -563,14 +598,14 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       }
 
       private function onStartButtonClick():void {
-				var options:ScreenshareOptions = Options.getOptions(ScreenshareOptions) as ScreenshareOptions;
-				if (options.shareRegionDefault) {
-					// Region is first option in dropdown.
-					shareScreen(shareTypeCombo.selectedIndex != 0);
-				} else {
-					// Fullscreen is first option in dropdown.
-					shareScreen(shareTypeCombo.selectedIndex == 0);
-				}
+		var options:ScreenshareOptions = Options.getOptions(ScreenshareOptions) as ScreenshareOptions;
+		if (options.shareRegionDefault) {
+			// Region is first option in dropdown.
+			shareScreen(shareTypeCombo.selectedIndex != 0);
+		} else {
+			// Fullscreen is first option in dropdown.
+			shareScreen(shareTypeCombo.selectedIndex == 0);
+		}
       }
 
       private function switchView(showHelp:Boolean):void {

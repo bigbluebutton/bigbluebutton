@@ -10,7 +10,7 @@ if (Meteor.isServer) {
 
 export default GroupChat;
 
-export const CHAT_ACCESS = {
+const CHAT_ACCESS = {
   PUBLIC: 'PUBLIC_ACCESS',
   PRIVATE: 'PRIVATE_ACCESS',
 };

@@ -1,20 +1,24 @@
 import React, { Component } from 'react';
 import { defineMessages, injectIntl } from 'react-intl';
-import { log } from '/imports/ui/services/api';
 import { notify } from '/imports/ui/services/notification';
 import VisibilityEvent from '/imports/utils/visibilityEvent';
+import { fetchWebRTCMappedStunTurnServers } from '/imports/utils/fetchStunTurnServers';
+import ReconnectingWebSocket from 'reconnecting-websocket';
+import logger from '/imports/startup/client/logger';
+import { Session } from 'meteor/session';
+import browser from 'browser-detect';
+import { tryGenerateIceCandidates } from '../../../utils/safari-webrtc';
+import Auth from '/imports/ui/services/auth';
+
 import VideoService from './service';
 import VideoList from './video-list/component';
-import { fetchWebRTCMappedStunTurnServers } from '/imports/utils/fetchStunTurnServers';
 
-const intlMessages = defineMessages({
+const VIDEO_CONSTRAINTS = Meteor.settings.public.kurento.cameraConstraints;
+
+const intlClientErrors = defineMessages({
   iceCandidateError: {
     id: 'app.video.iceCandidateError',
     description: 'Error message for ice candidate fail',
-  },
-  sharingError: {
-    id: 'app.video.sharingError',
-    description: 'Error on sharing webcam',
   },
   chromeExtensionError: {
     id: 'app.video.chromeExtensionError',
@@ -24,9 +28,6 @@ const intlMessages = defineMessages({
     id: 'app.video.chromeExtensionErrorLink',
     description: 'Error message for Chrome Extension not installed',
   },
-});
-
-const intlMediaErrorsMessages = defineMessages({
   permissionError: {
     id: 'app.video.permissionError',
     description: 'Error message for webcam permission',
@@ -47,9 +48,52 @@ const intlMediaErrorsMessages = defineMessages({
     id: 'app.video.notReadableError',
     description: 'error message When the webcam is being used by other software',
   },
-  1000: {
-    id: 'app.video.mediaServerOffline',
-    description: 'error message when kurento is offline',
+  iceConnectionStateError: {
+    id: 'app.video.iceConnectionStateError',
+    description: 'Error message for ice connection state being failed',
+  },
+  mediaFlowTimeout: {
+    id: 'app.video.mediaFlowTimeout1020',
+    description: 'Error message when media could not go through the server within the specified period',
+  },
+});
+
+const intlSFUErrors = defineMessages({
+  2000: {
+    id: 'app.sfu.mediaServerConnectionError2000',
+    description: 'Error message fired when the SFU cannot connect to the media server',
+  },
+  2001: {
+    id: 'app.sfu.mediaServerOffline2001',
+    description: 'error message when SFU is offline',
+  },
+  2002: {
+    id: 'app.sfu.mediaServerNoResources2002',
+    description: 'Error message fired when the media server lacks disk, CPU or FDs',
+  },
+  2003: {
+    id: 'app.sfu.mediaServerRequestTimeout2003',
+    description: 'Error message fired when requests are timing out due to lack of resources',
+  },
+  2021: {
+    id: 'app.sfu.serverIceGatheringFailed2021',
+    description: 'Error message fired when the server cannot enact ICE gathering',
+  },
+  2022: {
+    id: 'app.sfu.serverIceStateFailed2022',
+    description: 'Error message fired when the server endpoint transitioned to a FAILED ICE state',
+  },
+  2200: {
+    id: 'app.sfu.mediaGenericError2200',
+    description: 'Error message fired when the SFU component generated a generic error',
+  },
+  2202: {
+    id: 'app.sfu.invalidSdp2202',
+    description: 'Error message fired when the clients provides an invalid SDP',
+  },
+  2203: {
+    id: 'app.sfu.noAvailableCodec2203',
+    description: 'Error message fired when the server has no available codec for the client',
   },
 });
 
@@ -67,7 +111,7 @@ class VideoProvider extends Component {
     };
 
     // Set a valid bbb-webrtc-sfu application server socket in the settings
-    this.ws = new ReconnectingWebSocket(Meteor.settings.public.kurento.wsUrl);
+    this.ws = new ReconnectingWebSocket(Auth.authenticateURL(Meteor.settings.public.kurento.wsUrl));
     this.wsQueue = [];
 
     this.visibility = new VisibilityEvent();
@@ -79,7 +123,9 @@ class VideoProvider extends Component {
     this.videoTags = {};
     this.sharedWebcam = false;
 
-    this.openWs = this.ws.open.bind(this.ws);
+    this.createVideoTag = this.createVideoTag.bind(this);
+    this.getStats = this.getStats.bind(this);
+    this.stopGettingStats = this.stopGettingStats.bind(this);
     this.onWsOpen = this.onWsOpen.bind(this);
     this.onWsClose = this.onWsClose.bind(this);
     this.onWsMessage = this.onWsMessage.bind(this);
@@ -93,48 +139,21 @@ class VideoProvider extends Component {
     this.customGetStats = this.customGetStats.bind(this);
   }
 
-  _sendPauseStream(id, role, state) {
-    this.sendMessage({
-      cameraId: id,
-      id: 'pause',
-      type: 'video',
-      role,
-      state,
-    });
-  }
-
-  pauseViewers() {
-    log('debug', 'Calling pause in viewer streams');
-
-    Object.keys(this.webRtcPeers).forEach((id) => {
-      if (this.props.userId !== id && this.webRtcPeers[id].started) {
-        this._sendPauseStream(id, 'viewer', true);
-      }
-    });
-  }
-
-  unpauseViewers() {
-    log('debug', 'Calling un-pause in viewer streams');
-
-    Object.keys(this.webRtcPeers).forEach((id) => {
-      if (id !== this.props.userId && this.webRtcPeers[id].started) {
-        this._sendPauseStream(id, 'viewer', false);
-      }
-    });
-  }
 
   componentWillMount() {
-    this.ws.addEventListener('open', this.onWsOpen);
-    this.ws.addEventListener('close', this.onWsClose);
+    this.ws.onopen = this.onWsOpen;
+    this.ws.onclose = this.onWsClose;
 
     window.addEventListener('online', this.openWs);
     window.addEventListener('offline', this.onWsClose);
   }
 
   componentDidMount() {
+    this.checkIceConnectivity();
     document.addEventListener('joinVideo', this.shareWebcam); // TODO find a better way to do this
     document.addEventListener('exitVideo', this.unshareWebcam);
-    this.ws.addEventListener('message', this.onWsMessage);
+    this.ws.onmessage = this.onWsMessage;
+    window.addEventListener('beforeunload', this.unshareWebcam);
 
     this.visibility.onVisible(this.unpauseViewers);
     this.visibility.onHidden(this.pauseViewers);
@@ -155,12 +174,13 @@ class VideoProvider extends Component {
     document.removeEventListener('joinVideo', this.shareWebcam);
     document.removeEventListener('exitVideo', this.unshareWebcam);
 
-    this.ws.removeEventListener('message', this.onWsMessage);
-    this.ws.removeEventListener('open', this.onWsOpen);
-    this.ws.removeEventListener('close', this.onWsClose);
+    this.ws.onmessage = null;
+    this.ws.onopen = null;
+    this.ws.onclose = null;
 
     window.removeEventListener('online', this.openWs);
     window.removeEventListener('offline', this.onWsClose);
+    window.removeEventListener('beforeunload', this.unshareWebcam);
 
     this.visibility.removeEventListeners();
 
@@ -175,43 +195,14 @@ class VideoProvider extends Component {
     });
 
     // Close websocket connection to prevent multiple reconnects from happening
-    // Don't disconnect socket on unmount to prevent multiple reconnects
     this.ws.close();
-  }
-
-  onWsOpen() {
-    log('debug', '------ Websocket connection opened.');
-
-    // -- Resend queued messages that happened when socket was not connected
-    while (this.wsQueue.length > 0) {
-      this.sendMessage(this.wsQueue.pop());
-    }
-
-    this.pingInterval = setInterval(this.ping.bind(this), PING_INTERVAL);
-
-    this.setState({ socketOpen: true });
-  }
-
-  onWsClose(error) {
-    log('debug', '------ Websocket connection closed.');
-
-    this.stopWebRTCPeer(this.props.userId);
-    clearInterval(this.pingInterval);
-
-    this.setState({ socketOpen: false });
-  }
-
-  ping() {
-    const message = {
-      id: 'ping',
-    };
-    this.sendMessage(message);
   }
 
   onWsMessage(msg) {
     const parsedMessage = JSON.parse(msg.data);
 
-    console.log(parsedMessage);
+    if (parsedMessage.id === 'pong') return;
+    this.logger('debug', `Received new message '${parsedMessage.id}'`, { topic: 'ws', message: parsedMessage });
 
     switch (parsedMessage.id) {
       case 'startResponse':
@@ -235,9 +226,112 @@ class VideoProvider extends Component {
 
       case 'error':
       default:
-        this.handleError(parsedMessage);
+        this.handleSFUError(parsedMessage);
         break;
     }
+  }
+
+  onWsClose() {
+    const {
+      intl,
+    } = this.props;
+
+    this.logger('debug', '------ Websocket connection closed.', { topic: 'ws' });
+
+    clearInterval(this.pingInterval);
+
+    if (this.sharedWebcam) {
+      this.unshareWebcam();
+    }
+
+    this.setState({ socketOpen: false });
+  }
+
+  onWsOpen() {
+    this.logger('debug', '------ Websocket connection opened.', { topic: 'ws' });
+
+    // -- Resend queued messages that happened when socket was not connected
+    while (this.wsQueue.length > 0) {
+      this.sendMessage(this.wsQueue.pop());
+    }
+
+    this.pingInterval = setInterval(this.ping.bind(this), PING_INTERVAL);
+
+    this.setState({ socketOpen: true });
+  }
+
+  getStats(id, video, callback) {
+    const peer = this.webRtcPeers[id];
+
+    const hasLocalStream = peer && peer.started === true
+      && peer.peerConnection.getLocalStreams().length > 0;
+    const hasRemoteStream = peer && peer.started === true
+      && peer.peerConnection.getRemoteStreams().length > 0;
+
+    if (hasLocalStream) {
+      this.monitorTrackStart(peer.peerConnection,
+        peer.peerConnection.getLocalStreams()[0].getVideoTracks()[0], true, callback);
+    } else if (hasRemoteStream) {
+      this.monitorTrackStart(peer.peerConnection,
+        peer.peerConnection.getRemoteStreams()[0].getVideoTracks()[0], false, callback);
+    }
+  }
+
+  checkIceConnectivity() {
+    // Webkit ICE restrictions demand a capture device permission to release
+    // host candidates
+    if (browser().name === 'safari') {
+      const { intl } = this.props;
+      tryGenerateIceCandidates().catch((e) => {
+        this.notifyError(intl.formatMessage(intlSFUErrors[2021]));
+      });
+    }
+  }
+
+  logger(type, message, options = {}) {
+    const { userId, userName } = this.props;
+    const topic = options.topic || 'video';
+
+    logger[type]({ obj: Object.assign(options, { userId, userName, topic }) }, `[${topic}] ${message}`);
+  }
+
+  _sendPauseStream(id, role, state) {
+    this.sendMessage({
+      cameraId: id,
+      id: 'pause',
+      type: 'video',
+      role,
+      state,
+    });
+  }
+
+  pauseViewers() {
+    const { userId } = this.props;
+    this.logger('debug', 'Calling pause in viewer streams');
+
+    Object.keys(this.webRtcPeers).forEach((id) => {
+      if (userId !== id && this.webRtcPeers[id].started) {
+        this._sendPauseStream(id, 'viewer', true);
+      }
+    });
+  }
+
+  unpauseViewers() {
+    const { userId } = this.props;
+    this.logger('debug', 'Calling un-pause in viewer streams');
+
+    Object.keys(this.webRtcPeers).forEach((id) => {
+      if (id !== userId && this.webRtcPeers[id].started) {
+        this._sendPauseStream(id, 'viewer', false);
+      }
+    });
+  }
+
+  ping() {
+    const message = {
+      id: 'ping',
+    };
+    this.sendMessage(message);
   }
 
   sendMessage(message) {
@@ -245,10 +339,12 @@ class VideoProvider extends Component {
 
     if (this.connectedToMediaServer()) {
       const jsonMessage = JSON.stringify(message);
-      log('info', `Sending message: ${jsonMessage}`);
+      if (message.id !== 'ping') {
+        this.logger('debug', `Sending message '${message.id}'`, { topic: 'ws', message });
+      }
       ws.send(jsonMessage, (error) => {
         if (error) {
-          console.error(`client: Websocket error "${error}" on message "${jsonMessage.id}"`);
+          this.logger(`client: Websocket error '${error}' on message '${message.id}'`, { topic: 'ws' });
         }
       });
     } else {
@@ -267,41 +363,55 @@ class VideoProvider extends Component {
     const id = message.cameraId;
     const peer = this.webRtcPeers[id];
 
-    log('info', 'SDP answer received from server. Processing ...');
+    this.logger('debug', 'SDP answer received from server. Processing ...', { cameraId: id, sdpAnswer: message.sdpAnswer });
 
     if (peer) {
       peer.processAnswer(message.sdpAnswer, (error) => {
         if (error) {
-          return log('error', JSON.stringify(error));
+          return this.logger('debug', JSON.stringify(error), { cameraId: id });
         }
+
+        peer.didSDPAnswered = true;
+        this._processIceQueue(peer, id);
       });
     } else {
-      log('warn', '[startResponse] Message arrived after the peer was already thrown out, discarding it...');
+      this.logger('warn', '[startResponse] Message arrived after the peer was already thrown out, discarding it...');
     }
   }
 
   handleIceCandidate(message) {
     const webRtcPeer = this.webRtcPeers[message.cameraId];
 
+    this.logger('debug', 'Received remote ice candidate', { topic: 'ice', candidate: message.candidate });
+
     if (webRtcPeer) {
       if (webRtcPeer.didSDPAnswered) {
         webRtcPeer.addIceCandidate(message.candidate, (err) => {
           if (err) {
-            return log('error', `Error adding candidate: ${err}`);
+            return this.logger('error', `Error adding candidate: ${err}`, { cameraId: message.cameraId });
           }
         });
       } else {
+        if (webRtcPeer.iceQueue == null) {
+          webRtcPeer.iceQueue = [];
+        }
         webRtcPeer.iceQueue.push(message.candidate);
       }
     } else {
-      log('warn', '[iceCandidate] Message arrived after the peer was already thrown out, discarding it...');
+      this.logger('warn', ' [iceCandidate] Message arrived after the peer was already thrown out, discarding it...', { cameraId: message.cameraId });
     }
   }
 
-  stopWebRTCPeer(id) {
-    log('info', 'Stopping webcam', id);
+  stopWebRTCPeer(id, restarting = false) {
+    this.logger('info', 'Stopping webcam', { cameraId: id });
     const { userId } = this.props;
     const shareWebcam = id === userId;
+
+    // in this case, 'closed' state is not caused by an error;
+    // we stop listening to prevent this from being treated as an error
+    if (this.webRtcPeers[id] && this.webRtcPeers[id].peerConnection) {
+      this.webRtcPeers[id].peerConnection.oniceconnectionstatechange = null;
+    }
 
     if (shareWebcam) {
       this.unshareWebcam();
@@ -314,9 +424,16 @@ class VideoProvider extends Component {
       cameraId: id,
     });
 
-    // Clear the shared camera fail timeout when destroying
-    clearTimeout(this.restartTimeout[id]);
-    delete this.restartTimeout[id];
+    // Clear the shared camera media flow timeout when destroying it
+    if (!restarting) {
+      if (this.restartTimeout[id]) {
+        clearTimeout(this.restartTimeout[id]);
+      }
+
+      if (this.restartTimer[id]) {
+        delete this.restartTimer[id];
+      }
+    }
 
     this.destroyWebRTCPeer(id);
   }
@@ -324,42 +441,39 @@ class VideoProvider extends Component {
   destroyWebRTCPeer(id) {
     const webRtcPeer = this.webRtcPeers[id];
     if (webRtcPeer) {
-      log('info', 'Stopping WebRTC peer');
-      webRtcPeer.dispose();
+      this.logger('info', 'Stopping WebRTC peer', { cameraId: id });
+      if (typeof webRtcPeer.dispose === 'function') {
+        webRtcPeer.dispose();
+      }
       delete this.webRtcPeers[id];
     } else {
-      log('warn', 'No WebRTC peer to stop (not an error)');
+      this.logger('warn', 'No WebRTC peer to stop (not an error)', { cameraId: id });
     }
   }
 
   async createWebRTCPeer(id, shareWebcam) {
-    const { meetingId, sessionToken } = this.props;
+    const { meetingId, sessionToken, voiceBridge } = this.props;
     let iceServers = [];
+
+    // Check if the peer is already being processed
+    if (this.webRtcPeers[id]) {
+      return;
+    }
+
+    this.webRtcPeers[id] = {};
 
     try {
       iceServers = await fetchWebRTCMappedStunTurnServers(sessionToken);
     } catch (error) {
-      log('error', 'Video provider failed to fetch ice servers, using default');
+      this.logger('error', 'Video provider failed to fetch ice servers, using default');
     } finally {
-      const videoConstraints = {
-        width: {
-          min: 320,
-          max: 640,
-        },
-        height: {
-          min: 180,
-          max: 480,
-        },
-      };
-
-      if (!navigator.userAgent.match(/Version\/[\d\.]+.*Safari/)) {
-        videoConstraints.frameRate = { min: 5, ideal: 10 };
+      if (Session.get('WebcamDeviceId')) {
+        VIDEO_CONSTRAINTS.deviceId = { exact: Session.get('WebcamDeviceId') };
       }
-
       const options = {
         mediaConstraints: {
           audio: false,
-          video: videoConstraints,
+          video: VIDEO_CONSTRAINTS,
         },
         onicecandidate: this._getOnIceCandidateCallback(id, shareWebcam),
       };
@@ -369,11 +483,12 @@ class VideoProvider extends Component {
         options.configuration.iceServers = iceServers;
       }
 
-      let WebRtcPeerObj = window.kurentoUtils.WebRtcPeer.WebRtcPeerRecvonly;
-
+      let WebRtcPeerObj;
       if (shareWebcam) {
         WebRtcPeerObj = window.kurentoUtils.WebRtcPeer.WebRtcPeerSendonly;
         this.shareWebcam();
+      } else {
+        WebRtcPeerObj = window.kurentoUtils.WebRtcPeer.WebRtcPeerRecvonly;
       }
 
       this.webRtcPeers[id] = new WebRtcPeerObj(options, (error) => {
@@ -382,7 +497,9 @@ class VideoProvider extends Component {
         peer.started = false;
         peer.attached = false;
         peer.didSDPAnswered = false;
-        peer.iceQueue = [];
+        if (peer.iceQueue == null) {
+          peer.iceQueue = [];
+        }
 
         if (error) {
           return this._webRTCOnError(error, id, shareWebcam);
@@ -393,7 +510,7 @@ class VideoProvider extends Component {
             return this._webRTCOnError(errorGenOffer, id, shareWebcam);
           }
 
-          log('error', `Invoking SDP offer callback function ${location.host}`);
+          this.logger('debug', `Invoking SDP offer callback function ${location.host}`, { cameraId: id, offerSdp });
 
           const message = {
             type: 'video',
@@ -402,72 +519,73 @@ class VideoProvider extends Component {
             sdpOffer: offerSdp,
             cameraId: id,
             meetingId,
+            voiceBridge,
           };
           this.sendMessage(message);
-
-          this._processIceQueue(peer);
-
-          peer.didSDPAnswered = true;
         });
       });
+      if (this.webRtcPeers[id].peerConnection) {
+        this.webRtcPeers[id].peerConnection.oniceconnectionstatechange = this._getOnIceConnectionStateChangeCallback(id);
+      }
     }
   }
 
-  _getWebRTCStartTimeout(id, shareWebcam, peer) {
-    const { intl } = this.props;
+  _getWebRTCStartTimeout(id, shareWebcam) {
+    const { intl, userId } = this.props;
 
     return () => {
-      log('error', `Camera share has not suceeded in ${CAMERA_SHARE_FAILED_WAIT_TIME} for ${id}`);
+      this.logger('error', `Camera share has not suceeded in ${CAMERA_SHARE_FAILED_WAIT_TIME}`, { cameraId: id });
 
-      if (this.props.userId === id) {
-        this.notifyError(intl.formatMessage(intlMessages.sharingError));
-        this.unshareWebcam();
-        this.destroyWebRTCPeer(id);
+      if (userId === id) {
+        this.notifyError(intl.formatMessage(intlClientErrors.mediaFlowTimeout));
+        this.stopWebRTCPeer(id, false);
       } else {
-        const tag = this.webRtcPeers[id].videoTag;
-
-        this.stopWebRTCPeer(id);
+        // Subscribers try to reconnect according to their timers if media could
+        // not reach the server. That's why we pass the restarting flag as true
+        // to the stop procedure as to not destroy the timers
+        this.stopWebRTCPeer(id, true);
         this.createWebRTCPeer(id, shareWebcam);
-
-        // We reattach the peer for a real video restart
-        this.attachVideoStream(id);
 
         // Increment reconnect interval
         this.restartTimer[id] = Math.min(2 * this.restartTimer[id], MAX_CAMERA_SHARE_FAILED_WAIT_TIME);
+
+        this.logger('info', `Reconnecting peer ${id} with timer`, this.restartTimer);
       }
     };
   }
 
-  _processIceQueue(peer) {
+  _processIceQueue(peer, cameraId) {
     const { intl } = this.props;
 
     while (peer.iceQueue.length) {
       const candidate = peer.iceQueue.shift();
       peer.addIceCandidate(candidate, (err) => {
         if (err) {
-          this.notifyError(intl.formatMessage(intlMessages.iceCandidateError));
-          return console.log(`Error adding candidate: ${err}`);
+          this.notifyError(intl.formatMessage(intlClientErrors.iceCandidateError));
+          return this.logger('error', `Error adding candidate: ${err}`, { cameraId });
         }
       });
     }
   }
 
-  _webRTCOnError(error, id, shareWebcam) {
-    const { intl } = this.props;
+  _webRTCOnError(error, id) {
+    const { intl, userId } = this.props;
 
-    log('error', ' WebRTC peerObj create error');
-    log('error', JSON.stringify(error));
-    const errorMessage = intlMediaErrorsMessages[error.name]
-      || intlMediaErrorsMessages.permissionError;
+    // We only display SFU connection errors to sharers, because it's guaranteed
+    // they should be connected. Viewers aren't connected synchronously related
+    // to the createWebRTCPeer procedure, so the error is ignored. If the connection
+    // closes unexpectedly, this error is deplayed globally in the onWsClose catch
+    if (error === 2001 && userId !== id) {
+      return;
+    }
+
+    this.logger('error', ' WebRTC peerObj create error', id);
+    const errorMessage = intlClientErrors[error.name]
+      || intlSFUErrors[error] || intlClientErrors.permissionError;
     this.notifyError(intl.formatMessage(errorMessage));
-    /* This notification error is displayed considering kurento-utils
-     * returned the error 'The request is not allowed by the user agent
-     * or the platform in the current context.', but there are other
-     * errors that could be returned. */
-
     this.stopWebRTCPeer(id);
 
-    return log('error', JSON.stringify(errorMessage));
+    return this.logger('error', errorMessage, { cameraId: id });
   }
 
   _getOnIceCandidateCallback(id, shareWebcam) {
@@ -478,9 +596,11 @@ class VideoProvider extends Component {
       if (!this.restartTimeout[id]) {
         this.restartTimer[id] = this.restartTimer[id] || CAMERA_SHARE_FAILED_WAIT_TIME;
 
-        log('info', `Setting a camera connection restart in ${this.restartTimer[id]}`);
+        this.logger('debug', `Setting a camera connection restart in ${this.restartTimer[id]}`, { cameraId: id });
         this.restartTimeout[id] = setTimeout(this._getWebRTCStartTimeout(id, shareWebcam, peer), this.restartTimer[id]);
       }
+
+      this.logger('debug', 'Generated local ice candidate', { topic: 'ice', candidate });
 
       const message = {
         type: 'video',
@@ -493,10 +613,28 @@ class VideoProvider extends Component {
     };
   }
 
+  _getOnIceConnectionStateChangeCallback(id) {
+    const { intl } = this.props;
+    const peer = this.webRtcPeers[id];
+
+    return () => {
+      const connectionState = peer.peerConnection.iceConnectionState;
+      if (connectionState === 'failed' || connectionState === 'closed') {
+        // prevent the same error from being detected multiple times
+        peer.peerConnection.oniceconnectionstatechange = null;
+
+        this.logger('error', 'ICE connection state', id);
+        this.stopWebRTCPeer(id);
+        this.notifyError(intl.formatMessage(intlClientErrors.iceConnectionStateError));
+      }
+    };
+  }
+
   attachVideoStream(id) {
+    const { userId } = this.props;
     const video = this.videoTags[id];
     if (video == null) {
-      log('warn', 'Peer', id, 'has not been started yet');
+      this.logger('warn', 'Peer', id, 'has not been started yet');
       return;
     }
 
@@ -505,7 +643,7 @@ class VideoProvider extends Component {
       return; // Skip if the stream is already attached
     }
 
-    const isCurrent = id === this.props.userId;
+    const isCurrent = id === userId;
     const peer = this.webRtcPeers[id];
 
     const attachVideoStreamHelper = () => {
@@ -540,8 +678,9 @@ class VideoProvider extends Component {
     }
   }
 
-  customGetStats(peer, mediaStreamTrack, callback, interval) {
-    const statsState = this.state.stats;
+  customGetStats(peer, mediaStreamTrack, callback) {
+    const { stats } = this.state;
+    const statsState = stats;
     let promise;
     try {
       promise = peer.getStats(mediaStreamTrack);
@@ -552,9 +691,9 @@ class VideoProvider extends Component {
       let videoInOrOutbound = {};
       results.forEach((res) => {
         if (res.type === 'ssrc' || res.type === 'inbound-rtp' || res.type === 'outbound-rtp') {
-          res.packetsSent = parseInt(res.packetsSent);
-          res.packetsLost = parseInt(res.packetsLost) || 0;
-          res.packetsReceived = parseInt(res.packetsReceived);
+          res.packetsSent = parseInt(res.packetsSent, 10);
+          res.packetsLost = parseInt(res.packetsLost, 10) || 0;
+          res.packetsReceived = parseInt(res.packetsReceived, 10);
 
           if ((isNaN(res.packetsSent) && res.packetsReceived === 0)
             || (res.type === 'outbound-rtp' && res.isRemote)) {
@@ -562,11 +701,11 @@ class VideoProvider extends Component {
           }
 
           if (res.googFrameWidthReceived) {
-            res.width = parseInt(res.googFrameWidthReceived);
-            res.height = parseInt(res.googFrameHeightReceived);
+            res.width = parseInt(res.googFrameWidthReceived, 10);
+            res.height = parseInt(res.googFrameHeightReceived, 10);
           } else if (res.googFrameWidthSent) {
-            res.width = parseInt(res.googFrameWidthSent);
-            res.height = parseInt(res.googFrameHeightSent);
+            res.width = parseInt(res.googFrameWidthSent, 10);
+            res.height = parseInt(res.googFrameHeightSent, 10);
           }
 
           // Extra fields available on Chrome
@@ -617,11 +756,14 @@ class VideoProvider extends Component {
 
       const videoKbitsReceivedPerSecond = (videoIntervalBytesReceived * 8) / videoReceivedInterval;
       const videoKbitsSentPerSecond = (videoIntervalBytesSent * 8) / videoSentInterval;
-      const videoPacketDuration = (videoIntervalPacketsSent / videoSentInterval) * 1000;
 
-      let videoLostPercentage,
-        videoLostRecentPercentage,
-        videoBitrate;
+      let videoLostPercentage;
+
+
+      let videoLostRecentPercentage;
+
+
+      let videoBitrate;
       if (videoStats.packetsReceived > 0) { // Remote video
         videoLostPercentage = ((videoStats.packetsLost / ((videoStats.packetsLost + videoStats.packetsReceived) * 100)) || 0).toFixed(1);
         videoBitrate = Math.floor(videoKbitsReceivedPerSecond || 0);
@@ -654,14 +796,14 @@ class VideoProvider extends Component {
 
       callback(result);
     }, (exception) => {
-      log('error', `customGetStats() Promise rejected: ${exception.message}`);
+      this.logger('error', `customGetStats() Promise rejected: ${exception.message}`);
       callback(null);
     });
   }
 
   monitorTrackStart(peer, track, local, callback) {
     const that = this;
-    console.log('Starting stats monitoring on', track.id);
+    this.logger('info', 'Starting stats monitoring on', { cameraId: track.id });
     const getStatsInterval = 2000;
 
     const callGetStats = () => {
@@ -686,7 +828,7 @@ class VideoProvider extends Component {
         getStatsInterval,
       );
     } else {
-      console.log('Already monitoring this track');
+      this.logger('info', 'Already monitoring this track');
     }
   }
 
@@ -694,30 +836,19 @@ class VideoProvider extends Component {
     if (this.monitoredTracks[trackId]) {
       clearInterval(this.monitoredTracks[trackId]);
       delete this.monitoredTracks[trackId];
-      console.log(`Track ${trackId} removed`);
+      this.logger('info', `Track ${trackId} removed`);
     } else {
-      console.log(`Track ${trackId} is not monitored`);
-    }
-  }
-
-  getStats(id, video, callback) {
-    const peer = this.webRtcPeers[id];
-
-    const hasLocalStream = peer && peer.started === true && peer.peerConnection.getLocalStreams().length > 0;
-    const hasRemoteStream = peer && peer.started === true && peer.peerConnection.getRemoteStreams().length > 0;
-
-    if (hasLocalStream) {
-      this.monitorTrackStart(peer.peerConnection, peer.peerConnection.getLocalStreams()[0].getVideoTracks()[0], true, callback);
-    } else if (hasRemoteStream) {
-      this.monitorTrackStart(peer.peerConnection, peer.peerConnection.getRemoteStreams()[0].getVideoTracks()[0], false, callback);
+      this.logger('info', `Track ${trackId} is not monitored`);
     }
   }
 
   stopGettingStats(id) {
     const peer = this.webRtcPeers[id];
 
-    const hasLocalStream = peer && peer.started === true && peer.peerConnection.getLocalStreams().length > 0;
-    const hasRemoteStream = peer && peer.started === true && peer.peerConnection.getRemoteStreams().length > 0;
+    const hasLocalStream = peer && peer.started === true
+      && peer.peerConnection.getLocalStreams().length > 0;
+    const hasRemoteStream = peer && peer.started === true
+      && peer.peerConnection.getRemoteStreams().length > 0;
 
     if (hasLocalStream) {
       this.monitorTrackStop(peer.peerConnection.getLocalStreams()[0].getVideoTracks()[0].id);
@@ -727,19 +858,19 @@ class VideoProvider extends Component {
   }
 
   handlePlayStop(message) {
-    const id = message.cameraId;
+    const { cameraId } = message;
 
-    log('info', 'Handle play stop for camera', id);
-    this.stopWebRTCPeer(id);
+    this.logger('info', 'Handle play stop for camera', { cameraId });
+    this.stopWebRTCPeer(cameraId);
   }
 
   handlePlayStart(message) {
     const id = message.cameraId;
     const peer = this.webRtcPeers[id];
-    const videoTag = this.videoTags[id];
 
     if (peer) {
-      log('info', 'Handle play start for camera', id);
+      const { userId } = this.props;
+      this.logger('info', 'Handle play start for camera', { cameraId: id });
 
       // Clear camera shared timeout when camera succesfully starts
       clearTimeout(this.restartTimeout[id]);
@@ -752,28 +883,29 @@ class VideoProvider extends Component {
         this.attachVideoStream(id);
       }
 
-      if (id === this.props.userId) {
+      if (id === userId) {
         VideoService.sendUserShareWebcam(id);
         VideoService.joinedVideo();
       }
     } else {
-      log('warn', '[playStart] Message arrived after the peer was already thrown out, discarding it...');
+      this.logger('warn', '[playStart] Message arrived after the peer was already thrown out, discarding it...');
     }
   }
 
-  handleError(message) {
+  handleSFUError(message) {
     const { intl } = this.props;
     const { userId } = this.props;
-    if (message.cameraId === userId) {
+    const { code, reason } = message;
+    this.logger('debug', 'Received error from SFU:', code, reason, message.streamId, userId);
+    if (message.streamId === userId) {
       this.unshareWebcam();
-      this.notifyError(intl.formatMessage(intlMediaErrorsMessages[message.message]
-        || intlMessages.sharingError));
+      this.notifyError(intl.formatMessage(intlSFUErrors[code]
+        || intlSFUErrors[2200]));
     } else {
       this.stopWebRTCPeer(message.cameraId);
     }
 
-    log('debug', 'Handle error --------------------->');
-    log('debug', message.message);
+    this.logger('error', `Handle error ---------------------> ${message.message}`);
   }
 
   notifyError(message) {
@@ -781,36 +913,34 @@ class VideoProvider extends Component {
   }
 
   shareWebcam() {
-    const { intl } = this.props;
-
     if (this.connectedToMediaServer()) {
-      log('info', 'Sharing webcam');
+      this.logger('info', 'Sharing webcam');
       this.sharedWebcam = true;
       VideoService.joiningVideo();
-    } else {
-      log('debug', 'Error on sharing webcam');
-      this.notifyError(intl.formatMessage(intlMessages.sharingError));
     }
   }
 
   unshareWebcam() {
-    log('info', 'Unsharing webcam');
+    const { userId } = this.props;
+    this.logger('info', 'Unsharing webcam');
 
-    VideoService.sendUserUnshareWebcam(this.props.userId);
+    VideoService.sendUserUnshareWebcam(userId);
     VideoService.exitedVideo();
     this.sharedWebcam = false;
   }
 
   render() {
-    if (!this.state.socketOpen) return null;
+    const { socketOpen } = this.state;
+    if (!socketOpen) return null;
 
+    const { users, enableVideoStats } = this.props;
     return (
       <VideoList
-        users={this.props.users}
-        onMount={this.createVideoTag.bind(this)}
-        getStats={this.getStats.bind(this)}
-        stopGettingStats={this.stopGettingStats.bind(this)}
-        enableVideoStats={this.props.enableVideoStats}
+        users={users}
+        onMount={this.createVideoTag}
+        getStats={this.getStats}
+        stopGettingStats={this.stopGettingStats}
+        enableVideoStats={enableVideoStats}
       />
     );
   }

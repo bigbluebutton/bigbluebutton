@@ -39,7 +39,7 @@ module.exports = class WebHooks {
         let messageMapped = new MessageMapping();
         messageMapped.mapMessage(JSON.parse(message));
         message = messageMapped.mappedObject;
-        if (!_.isEmpty(message) && !config.hooks.getRaw) {
+        if (!_.isEmpty(message)) {
           const intId = message.data.attributes.meeting["internal-meeting-id"];
           IDMapping.reportActivity(intId);
 
@@ -54,7 +54,7 @@ module.exports = class WebHooks {
               });
               break;
             case "user-joined":
-              UserMapping.addMapping(message.data.attributes.user["internal-user-id"],message.data.attributes.user["external-user-id"], intId, () => {
+              UserMapping.addOrUpdateMapping(message.data.attributes.user["internal-user-id"],message.data.attributes.user["external-user-id"], intId, message.data.attributes.user, () => {
                 processMessage();
               });
               break;
@@ -67,11 +67,9 @@ module.exports = class WebHooks {
             default:
               processMessage();
           }
-        } else {
-          this._processRaw(raw);
         }
       } catch (e) {
-        Logger.error("[WebHooks] error processing the message:", JSON.stringify(raw), ":", e);
+        Logger.error("[WebHooks] error processing the message:", JSON.stringify(raw), ":", e.message);
       }
     });
 
@@ -144,7 +142,7 @@ module.exports = class WebHooks {
     });
 
     const sendRaw = hooks.some(hook => { return hook.getRaw });
-    if (sendRaw) {
+    if (sendRaw && config.hooks.getRaw) {
       this._processRaw(raw);
     }
   }

@@ -23,6 +23,9 @@ package org.bigbluebutton.main.model.options {
 
 		[Bindable]
 		public var host:String = "";
+		
+		[Bindable]
+		public var ipv4FallbackHost:String = "";
 
 		[Bindable]
 		public var application:String = "";

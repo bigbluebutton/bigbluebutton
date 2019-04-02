@@ -15,7 +15,7 @@
 	<locale code="nl_NL" name="Dutch" native="Nederlands"/>
 	<locale code="en_US" name="English" native="English"/>
 	<locale code="et_EE" name="Estonian" native="Eesti"/>
-	<locale code="fa_IR" name="Farsi" native="فارسى"/>
+	<locale code="fa_IR" name="Farsi" native="فارسى" direction="rtl"/>
 	<locale code="fi_FI" name="Finnish" native="Suomi"/>
 	<locale code="fr_FR" name="French" native="Français"/>
 	<locale code="fr_CA" name="French (Canadian)" native="Français (Canadien)"/>

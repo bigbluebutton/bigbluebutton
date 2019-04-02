@@ -1,25 +1,28 @@
 import React from 'react';
-import Button from '/imports/ui/components/button/component';
 import cx from 'classnames';
+import Button from '/imports/ui/components/button/component';
 import Toggle from '/imports/ui/components/switch/component';
 import { defineMessages, injectIntl } from 'react-intl';
 import BaseMenu from '../base/component';
 import { styles } from '../styles';
 
 const MIN_FONTSIZE = 0;
-const MAX_FONTSIZE = 4;
 
 const intlMessages = defineMessages({
   applicationSectionTitle: {
     id: 'app.submenu.application.applicationSectionTitle',
     description: 'Application section title',
   },
-  audioNotifyLabel: {
-    id: 'app.submenu.application.audioNotifyLabel',
+  animationsLabel: {
+    id: 'app.submenu.application.animationsLabel',
+    description: 'animations label',
+  },
+  audioAlertLabel: {
+    id: 'app.submenu.application.audioAlertLabel',
     description: 'audio notification label',
   },
-  pushNotifyLabel: {
-    id: 'app.submenu.application.pushNotifyLabel',
+  pushAlertLabel: {
+    id: 'app.submenu.application.pushAlertLabel',
     description: 'push notifiation label',
   },
   fontSizeControlLabel: {
@@ -61,6 +64,10 @@ const intlMessages = defineMessages({
 });
 
 class ApplicationMenu extends BaseMenu {
+  static setHtmlFontSize(size) {
+    document.getElementsByTagName('html')[0].style.fontSize = size;
+  }
+
   constructor(props) {
     super(props);
 
@@ -69,7 +76,35 @@ class ApplicationMenu extends BaseMenu {
       settings: props.settings,
       isLargestFontSize: false,
       isSmallestFontSize: false,
+      fontSizes: [
+        '12px',
+        '14px',
+        '16px',
+        '18px',
+        '20px',
+      ],
     };
+  }
+
+  componentDidMount() {
+    this.setInitialFontSize();
+  }
+
+  setInitialFontSize() {
+    const { fontSizes } = this.state;
+    const clientFont = document.getElementsByTagName('html')[0].style.fontSize;
+    const hasFont = fontSizes.includes(clientFont);
+    if (!hasFont) {
+      fontSizes.push(clientFont);
+      fontSizes.sort();
+    }
+    const fontIndex = fontSizes.indexOf(clientFont);
+    this.changeFontSize(clientFont);
+    this.setState({
+      isSmallestFontSize: fontIndex <= MIN_FONTSIZE,
+      isLargestFontSize: fontIndex >= (fontSizes.length - 1),
+      fontSizes,
+    });
   }
 
   handleUpdateFontSize(size) {
@@ -78,32 +113,29 @@ class ApplicationMenu extends BaseMenu {
     this.handleUpdateSettings(this.state.settingsName, obj.settings);
   }
 
-  setHtmlFontSize(size) {
-    document.getElementsByTagName('html')[0].style.fontSize = size;
-  }
-
   changeFontSize(size) {
     const obj = this.state;
     obj.settings.fontSize = size;
     this.setState(obj, () => {
-      this.setHtmlFontSize(this.state.settings.fontSize);
+      ApplicationMenu.setHtmlFontSize(this.state.settings.fontSize);
       this.handleUpdateFontSize(this.state.settings.fontSize);
     });
   }
 
   handleIncreaseFontSize() {
     const currentFontSize = this.state.settings.fontSize;
-    const availableFontSizes = this.props.fontSizes;
-    const canIncreaseFontSize = availableFontSizes.indexOf(currentFontSize) < MAX_FONTSIZE;
-    const fs = canIncreaseFontSize ? availableFontSizes.indexOf(currentFontSize) + 1 : MAX_FONTSIZE;
+    const availableFontSizes = this.state.fontSizes;
+    const maxFontSize = availableFontSizes.length - 1;
+    const canIncreaseFontSize = availableFontSizes.indexOf(currentFontSize) < maxFontSize;
+    const fs = canIncreaseFontSize ? availableFontSizes.indexOf(currentFontSize) + 1 : maxFontSize;
     this.changeFontSize(availableFontSizes[fs]);
-    if (fs === MAX_FONTSIZE) this.setState({ isLargestFontSize: true });
+    if (fs === maxFontSize) this.setState({ isLargestFontSize: true });
     this.setState({ isSmallestFontSize: false });
   }
 
   handleDecreaseFontSize() {
     const currentFontSize = this.state.settings.fontSize;
-    const availableFontSizes = this.props.fontSizes;
+    const availableFontSizes = this.state.fontSizes;
     const canDecreaseFontSize = availableFontSizes.indexOf(currentFontSize) > MIN_FONTSIZE;
     const fs = canDecreaseFontSize ? availableFontSizes.indexOf(currentFontSize) - 1 : MIN_FONTSIZE;
     this.changeFontSize(availableFontSizes[fs]);
@@ -117,31 +149,24 @@ class ApplicationMenu extends BaseMenu {
     this.handleUpdateSettings('application', obj.settings);
   }
 
-  // Adjust the locale format to be able to display the locale names properly in the client
-  formatLocale(locale) {
-    return locale
-      .split('-')
-      .map((val, idx) => (idx == 1 ? val.toUpperCase() : val))
-      .join('_');
-  }
-
   render() {
     const { availableLocales, intl } = this.props;
     const { isLargestFontSize, isSmallestFontSize } = this.state;
 
     return (
-      <div className={styles.tabContent}>
-        <div className={styles.header}>
+      <div>
+        <div>
           <h3 className={styles.title}>
             {intl.formatMessage(intlMessages.applicationSectionTitle)}
           </h3>
         </div>
         <div className={styles.form}>
+
           <div className={styles.row}>
             <div className={styles.col} aria-hidden="true">
               <div className={styles.formElement}>
                 <label className={styles.label}>
-                  {intl.formatMessage(intlMessages.audioNotifyLabel)}
+                  {intl.formatMessage(intlMessages.animationsLabel)}
                 </label>
               </div>
             </div>
@@ -149,9 +174,9 @@ class ApplicationMenu extends BaseMenu {
               <div className={cx(styles.formElement, styles.pullContentRight)}>
                 <Toggle
                   icons={false}
-                  defaultChecked={this.state.settings.chatAudioNotifications}
-                  onChange={() => this.handleToggle('chatAudioNotifications')}
-                  ariaLabel={intl.formatMessage(intlMessages.audioNotifyLabel)}
+                  defaultChecked={this.state.settings.animations}
+                  onChange={() => this.handleToggle('animations')}
+                  ariaLabel={intl.formatMessage(intlMessages.animationsLabel)}
                 />
               </div>
             </div>
@@ -161,7 +186,7 @@ class ApplicationMenu extends BaseMenu {
             <div className={styles.col} aria-hidden="true">
               <div className={styles.formElement}>
                 <label className={styles.label}>
-                  {intl.formatMessage(intlMessages.pushNotifyLabel)}
+                  {intl.formatMessage(intlMessages.audioAlertLabel)}
                 </label>
               </div>
             </div>
@@ -169,13 +194,34 @@ class ApplicationMenu extends BaseMenu {
               <div className={cx(styles.formElement, styles.pullContentRight)}>
                 <Toggle
                   icons={false}
-                  defaultChecked={this.state.settings.chatPushNotifications}
-                  onChange={() => this.handleToggle('chatPushNotifications')}
-                  ariaLabel={intl.formatMessage(intlMessages.pushNotifyLabel)}
+                  defaultChecked={this.state.settings.chatAudioAlerts}
+                  onChange={() => this.handleToggle('chatAudioAlerts')}
+                  ariaLabel={intl.formatMessage(intlMessages.audioAlertLabel)}
                 />
               </div>
             </div>
           </div>
+
+          <div className={styles.row}>
+            <div className={styles.col} aria-hidden="true">
+              <div className={styles.formElement}>
+                <label className={styles.label}>
+                  {intl.formatMessage(intlMessages.pushAlertLabel)}
+                </label>
+              </div>
+            </div>
+            <div className={styles.col}>
+              <div className={cx(styles.formElement, styles.pullContentRight)}>
+                <Toggle
+                  icons={false}
+                  defaultChecked={this.state.settings.chatPushAlerts}
+                  onChange={() => this.handleToggle('chatPushAlerts')}
+                  ariaLabel={intl.formatMessage(intlMessages.pushAlertLabel)}
+                />
+              </div>
+            </div>
+          </div>
+
           <div className={styles.row}>
             <div className={styles.col} aria-hidden="true">
               <div className={styles.formElement}>
@@ -231,17 +277,6 @@ class ApplicationMenu extends BaseMenu {
                 <div className={styles.pullContentRight}>
                   <div className={styles.col}>
                     <Button
-                      onClick={() => this.handleIncreaseFontSize()}
-                      color="primary"
-                      icon="add"
-                      circle
-                      hideLabel
-                      label={intl.formatMessage(intlMessages.increaseFontBtnLabel)}
-                      disabled={isLargestFontSize}
-                    />
-                  </div>
-                  <div className={styles.col}>
-                    <Button
                       onClick={() => this.handleDecreaseFontSize()}
                       color="primary"
                       icon="substract"
@@ -249,6 +284,17 @@ class ApplicationMenu extends BaseMenu {
                       hideLabel
                       label={intl.formatMessage(intlMessages.decreaseFontBtnLabel)}
                       disabled={isSmallestFontSize}
+                    />
+                  </div>
+                  <div className={styles.col}>
+                    <Button
+                      onClick={() => this.handleIncreaseFontSize()}
+                      color="primary"
+                      icon="add"
+                      circle
+                      hideLabel
+                      label={intl.formatMessage(intlMessages.increaseFontBtnLabel)}
+                      disabled={isLargestFontSize}
                     />
                   </div>
                 </div>

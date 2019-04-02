@@ -25,28 +25,29 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
           xmlns:fx="http://ns.adobe.com/mxml/2009">
   <fx:Script>
     <![CDATA[
-      import mx.events.FlexEvent;
-      
-      import org.bigbluebutton.core.EventConstants;
-      import org.bigbluebutton.main.events.BBBEvent;
-      import org.bigbluebutton.modules.chat.events.ChatCopyEvent;
-      import org.bigbluebutton.modules.chat.events.ChatHistoryEvent;
-      import org.bigbluebutton.modules.chat.events.ChatSaveEvent;
-      import org.bigbluebutton.modules.chat.events.ChatToolbarButtonEvent;
-      import org.bigbluebutton.modules.chat.events.CreateGroupChatReqEvent;
-      import org.bigbluebutton.modules.chat.events.GroupChatBoxClosedEvent;
-      import org.bigbluebutton.modules.chat.events.GroupChatCreatedEvent;
-      import org.bigbluebutton.modules.chat.events.NewGroupChatMessageEvent;
-      import org.bigbluebutton.modules.chat.events.OpenChatBoxEvent;
-      import org.bigbluebutton.modules.chat.events.ReceivedGroupChatsEvent;
-      import org.bigbluebutton.modules.chat.events.SendGroupChatMessageEvent;
-      import org.bigbluebutton.modules.chat.events.StartChatModuleEvent;
-      import org.bigbluebutton.modules.chat.events.StopChatModuleEvent;
-      import org.bigbluebutton.modules.chat.services.ChatCopy;
-      import org.bigbluebutton.modules.chat.services.ChatMessageService;
-      import org.bigbluebutton.modules.chat.services.ChatSaver;
-      import org.bigbluebutton.modules.chat.services.MessageReceiver;
-      import org.bigbluebutton.modules.chat.services.MessageSender;
+		import mx.events.FlexEvent;
+		
+		import org.bigbluebutton.core.EventConstants;
+		import org.bigbluebutton.main.events.BBBEvent;
+		import org.bigbluebutton.modules.chat.events.ChatCopyEvent;
+		import org.bigbluebutton.modules.chat.events.ChatHistoryEvent;
+		import org.bigbluebutton.modules.chat.events.ChatSaveEvent;
+		import org.bigbluebutton.modules.chat.events.ChatToolbarButtonEvent;
+		import org.bigbluebutton.modules.chat.events.CreateGroupChatReqEvent;
+		import org.bigbluebutton.modules.chat.events.GroupChatBoxClosedEvent;
+		import org.bigbluebutton.modules.chat.events.GroupChatCreatedEvent;
+		import org.bigbluebutton.modules.chat.events.NewGroupChatMessageEvent;
+		import org.bigbluebutton.modules.chat.events.OpenChatBoxEvent;
+		import org.bigbluebutton.modules.chat.events.ReceivedGroupChatsEvent;
+		import org.bigbluebutton.modules.chat.events.SendGroupChatMessageEvent;
+		import org.bigbluebutton.modules.chat.events.StartChatModuleEvent;
+		import org.bigbluebutton.modules.chat.events.StopChatModuleEvent;
+		import org.bigbluebutton.modules.chat.events.UserTypingEvent;
+		import org.bigbluebutton.modules.chat.services.ChatCopy;
+		import org.bigbluebutton.modules.chat.services.ChatMessageService;
+		import org.bigbluebutton.modules.chat.services.ChatSaver;
+		import org.bigbluebutton.modules.chat.services.MessageReceiver;
+		import org.bigbluebutton.modules.chat.services.MessageSender;
     ]]>
   </fx:Script>
   <fx:Declarations>
@@ -91,6 +92,10 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
     
     <EventHandlers type="{SendGroupChatMessageEvent.SEND_GROUP_CHAT_MESSAGE_EVENT}">        
       <MethodInvoker generator="{ChatMessageService}" method="sendPublicMessage" arguments="{event}"/>		
+    </EventHandlers>
+    
+    <EventHandlers type="{UserTypingEvent.USER_TYPING_EVENT}">        
+      <MethodInvoker generator="{ChatMessageService}" method="handleUserTypingMessage" arguments="{event}"/>		
     </EventHandlers>
     
     <EventHandlers type="{ChatHistoryEvent.REQUEST_HISTORY}" >

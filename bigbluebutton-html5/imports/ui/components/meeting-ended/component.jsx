@@ -1,11 +1,14 @@
 import React from 'react';
-import { withRouter } from 'react-router';
 import PropTypes from 'prop-types';
 import { defineMessages, injectIntl } from 'react-intl';
+import { Meteor } from 'meteor/meteor';
 import Auth from '/imports/ui/services/auth';
 import Button from '/imports/ui/components/button/component';
+import getFromUserSettings from '/imports/ui/services/users-settings';
+import logoutRouteHandler from '/imports/utils/logoutRouteHandler';
 import Rating from './rating/component';
 import { styles } from './styles';
+import logger from '/imports/startup/client/logger';
 
 const intlMessage = defineMessages({
   410: {
@@ -19,6 +22,10 @@ const intlMessage = defineMessages({
   430: {
     id: 'app.error.meeting.ended',
     description: 'user logged conference',
+  },
+  'acl-not-allowed': {
+    id: 'app.error.removed',
+    description: 'Message to display when user is removed from the conference',
   },
   messageEnded: {
     id: 'app.meeting.endedMessage',
@@ -40,10 +47,6 @@ const intlMessage = defineMessages({
     id: 'app.feedback.textarea',
     description: 'placeholder for textarea',
   },
-  confirmLabel: {
-    id: 'app.leaveConfirmation.confirmLabel',
-    description: 'Confirmation button label',
-  },
   confirmDesc: {
     id: 'app.leaveConfirmation.confirmDesc',
     description: 'adds context to confim option',
@@ -56,6 +59,26 @@ const intlMessage = defineMessages({
     id: 'app.feedback.sendFeedbackDesc',
     description: 'adds context to send feedback option',
   },
+  duplicate_user_in_meeting_eject_reason: {
+    id: 'app.meeting.logout.duplicateUserEjectReason',
+    description: 'message for duplicate users',
+  },
+  not_enough_permission_eject_reason: {
+    id: 'app.meeting.logout.permissionEjectReason',
+    description: 'message for whom was kicked by doing something without permission',
+  },
+  user_requested_eject_reason: {
+    id: 'app.meeting.logout.ejectedFromMeeting',
+    description: 'message when the user is removed by someone',
+  },
+  validate_token_failed_eject_reason: {
+    id: 'app.meeting.logout.validateTokenFailedEjectReason',
+    description: 'invalid auth token',
+  },
+  user_inactivity_eject_reason: {
+    id: 'app.meeting.logout.userInactivityEjectReason',
+    description: 'message for whom was kicked by inactivity',
+  },
 });
 
 const propTypes = {
@@ -63,9 +86,6 @@ const propTypes = {
     formatMessage: PropTypes.func.isRequired,
   }).isRequired,
   code: PropTypes.string.isRequired,
-  router: PropTypes.shape({
-    push: PropTypes.func.isRequired,
-  }).isRequired,
 };
 
 class MeetingEnded extends React.PureComponent {
@@ -82,8 +102,13 @@ class MeetingEnded extends React.PureComponent {
     };
     this.setSelectedStar = this.setSelectedStar.bind(this);
     this.sendFeedback = this.sendFeedback.bind(this);
-    this.shouldShowFeedback = Meteor.settings.public.app.askForFeedbackOnLogout;
+    this.shouldShowFeedback = getFromUserSettings('askForFeedbackOnLogout', Meteor.settings.public.app.askForFeedbackOnLogout);
   }
+
+  componentDidMount() {
+    Meteor.disconnect();
+  }
+
   setSelectedStar(starNumber) {
     this.setState({
       selected: starNumber,
@@ -95,12 +120,8 @@ class MeetingEnded extends React.PureComponent {
       selected,
     } = this.state;
 
-    const {
-      router,
-    } = this.props;
-
     if (selected <= 0) {
-      router.push('/logout');
+      logoutRouteHandler();
       return;
     }
 
@@ -120,13 +141,28 @@ class MeetingEnded extends React.PureComponent {
       },
     };
 
-    fetch(url, options)
-      .finally(() => router.push('/logout'));
+    // client logger
+    logger.info({ feedback: message, logCode: 'feedback' }, 'Feedback');
+
+    const FEEDBACK_WAIT_TIME = 500;
+    setTimeout(() => {
+      fetch(url, options)
+        .then(() => {
+          logoutRouteHandler();
+        })
+        .catch(() => {
+          logoutRouteHandler();
+        });
+    }, FEEDBACK_WAIT_TIME);
   }
 
   render() {
     const { intl, code } = this.props;
-    const noRating = this.state.selected <= 0;
+    const {
+      selected,
+    } = this.state;
+
+    const noRating = selected <= 0;
     return (
       <div className={styles.parent}>
         <div className={styles.modal}>
@@ -138,18 +174,20 @@ class MeetingEnded extends React.PureComponent {
                 : intl.formatMessage(intlMessage.messageEnded)}
             </div>
             {this.shouldShowFeedback ? (
-              <div className={styles.rating}>
+              <div>
                 <Rating
                   total="5"
                   onRate={this.setSelectedStar}
                 />
-                {!noRating ? (<textarea
-                  rows="5"
-                  id="feedbackComment"
-                  className={styles.textarea}
-                  placeholder={intl.formatMessage(intlMessage.textarea)}
-                  aria-describedby="textareaDesc"
-                />) : null}
+                {!noRating ? (
+                  <textarea
+                    rows="5"
+                    id="feedbackComment"
+                    className={styles.textarea}
+                    placeholder={intl.formatMessage(intlMessage.textarea)}
+                    aria-describedby="textareaDesc"
+                  />
+                ) : null}
               </div>
             ) : null }
             <Button
@@ -157,10 +195,10 @@ class MeetingEnded extends React.PureComponent {
               onClick={this.sendFeedback}
               className={styles.button}
               label={noRating
-                 ? intl.formatMessage(intlMessage.buttonOkay)
-                 : intl.formatMessage(intlMessage.sendLabel)}
-              description={noRating ?
-                intl.formatMessage(intlMessage.confirmDesc)
+                ? intl.formatMessage(intlMessage.buttonOkay)
+                : intl.formatMessage(intlMessage.sendLabel)}
+              description={noRating
+                ? intl.formatMessage(intlMessage.confirmDesc)
                 : intl.formatMessage(intlMessage.sendDesc)}
             />
           </div>
@@ -172,4 +210,4 @@ class MeetingEnded extends React.PureComponent {
 
 MeetingEnded.propTypes = propTypes;
 
-export default injectIntl(withRouter(MeetingEnded));
+export default injectIntl(MeetingEnded);

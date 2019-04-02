@@ -16,6 +16,7 @@ package org.bigbluebutton.air.video.services {
 	import org.bigbluebutton.air.main.models.IUserSession;
 	import org.bigbluebutton.air.main.models.LockSettings2x;
 	import org.bigbluebutton.air.user.models.UserRole;
+	import org.bigbluebutton.air.util.ConnUtil;
 	import org.bigbluebutton.air.video.commands.ShareCameraSignal;
 	import org.bigbluebutton.air.video.commands.StopShareCameraSignal;
 	import org.bigbluebutton.air.video.models.VideoProfile;
@@ -63,6 +64,8 @@ package org.bigbluebutton.air.video.services {
 		private var _selectedCameraQuality:VideoProfile;
 		
 		protected var _selectedCameraRotation:int;
+		
+		private var _connectionId : String;
 		
 		[PostConstruct]
 		public function init():void {
@@ -130,7 +133,8 @@ package org.bigbluebutton.air.video.services {
 		
 		public function connect():void {
 			trace("Video connect");
-			baseConnection.connect(uri, conferenceParameters.meetingID, userSession.userId, conferenceParameters.authToken);
+			_connectionId = ConnUtil.generateConnId();
+			baseConnection.connect(uri, conferenceParameters.meetingID, userSession.userId, conferenceParameters.authToken, _connectionId);
 		}
 		
 		public function disconnect(onUserCommand:Boolean):void {

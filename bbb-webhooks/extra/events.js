@@ -6,7 +6,7 @@ const redis = require("redis");
 const config = require('../config.js');
 var target_meeting = null;
 var events_printed = [];
-var subscriber = redis.createClient();
+var subscriber = redis.createClient(process.env.REDIS_PORT || config.redis.port, process.env.REDIS_HOST || config.redis.host);
 
 subscriber.on("psubscribe", function(channel, count) {
   console.log("subscribed to " + channel);

@@ -8,14 +8,21 @@ import '/imports/api/cursor/server';
 import '/imports/api/polls/server';
 import '/imports/api/captions/server';
 import '/imports/api/presentations/server';
+import '/imports/api/presentation-pods/server';
+import '/imports/api/presentation-upload-token/server';
 import '/imports/api/slides/server';
 import '/imports/api/breakouts/server';
-import '/imports/api/chat/server';
 import '/imports/api/group-chat/server';
+import '/imports/api/group-chat-msg/server';
 import '/imports/api/screenshare/server';
+import '/imports/api/users-settings/server';
 import '/imports/api/voice-users/server';
 import '/imports/api/whiteboard-multi-user/server';
 import '/imports/api/video/server';
+
+import '/imports/api/external-videos/server';
+import '/imports/api/guest-users/server';
+
 
 // Commons
 import '/imports/api/log-client/server';

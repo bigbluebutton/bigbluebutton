@@ -18,10 +18,12 @@
 */
 package org.bigbluebutton.main.model.modules
 {
+	import org.as3commons.lang.StringUtils;
 	import org.as3commons.logging.api.ILogger;
 	import org.as3commons.logging.api.getClassLogger;
 	import org.bigbluebutton.core.BBB;
 	import org.bigbluebutton.core.UsersUtil;
+	import org.bigbluebutton.main.events.PortTestEvent;
 	import org.bigbluebutton.main.model.PortTestProxy;
 	
 	public class ModulesProxy {
@@ -43,14 +45,28 @@ package org.bigbluebutton.main.model.modules
 			return _user.username;
 		}
 
-		public function portTestSuccess(tunnel:Boolean):void {
+		public function portTestSuccess(e:PortTestEvent):void {
             var logData:Object = UsersUtil.initLogData();
             logData.tags = ["initialization"];
-            logData.tunnel = tunnel;
+            logData.tunnel = e.tunnel;
+            logData.hostname = e.hostname;
             logData.logCode = "port_test_done";
             LOGGER.info(JSON.stringify(logData));
-                
-						BBB.initConnectionManager().useProtocol(tunnel);
+            
+            if (e.hostname == getPortTestAlternateHost()) {
+                var logData2:Object = UsersUtil.initLogData();
+                logData2.tags = ["initialization"];
+                logData2.hostname = e.hostname;
+                logData2.logCode = "fallback_to_ipv4_host";
+                LOGGER.info(JSON.stringify(logData2));
+            }
+            
+            BBB.initConnectionManager().useProtocol(e.tunnel);
+            
+            var pattern:RegExp = /(?P<protocol>.+):\/\/(?P<server>.+)/;
+            var result:Array = pattern.exec(e.hostname);
+            BBB.initConnectionManager().useHost(result.server);
+            
 			modulesManager.startUserServices();
 		}
 						
@@ -60,6 +76,10 @@ package org.bigbluebutton.main.model.modules
 		
 		public function getPortTestHost():String {
 			return BBB.initConnectionManager().portTestHost;
+		}
+		
+		public function getPortTestAlternateHost():String {
+			return BBB.initConnectionManager().portTestIpv4FallbackHost;
 		}
 		
 		public function getPortTestApplication():String {
@@ -82,10 +102,15 @@ package org.bigbluebutton.main.model.modules
 			portTestProxy.connect(false /*tunnel*/, getPortTestHost(), "", getPortTestApplication(), getPortTestTimeout());
 		}
 
-		public function testRTMPT(tunnel:Boolean):void {
-			if (!tunnel) {
-				// Try to test using rtmpt as rtmp failed.
-				portTestProxy.connect(true /*tunnel*/, getPortTestHost(), "", getPortTestApplication(), getPortTestTimeout());
+		public function portTestFailed(e:PortTestEvent):void {
+			if (!e.tunnel) {
+				if (e.hostname == getPortTestHost() && !StringUtils.isEmpty(getPortTestAlternateHost())) {
+					// try the alternate host
+					portTestProxy.connect(false /*tunnel*/, getPortTestAlternateHost(), "", getPortTestApplication(), getPortTestTimeout());
+				} else {
+					// Try to test using rtmpt as rtmp failed.
+					portTestProxy.connect(true /*tunnel*/, getPortTestHost(), "", getPortTestApplication(), getPortTestTimeout());
+				}
 			} else {
 				modulesDispatcher.sendTunnelingFailedEvent(getPortTestHost(), getPortTestApplication());
 			}

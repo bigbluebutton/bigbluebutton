@@ -48,7 +48,7 @@ public final class SupportedFileTypes {
 	private static final List<String> IMAGE_FILE_LIST = Collections.unmodifiableList(new ArrayList<String>(3) {		
 		{	
 			// Add all image file types
-			add(JPEG); add(JPG);	add(PNG);
+			add(JPEG); add(JPG); add(PNG);
 		}
 	});
 	

@@ -1,0 +1,118 @@
+@import '/imports/ui/stylesheets/mixins/focus';
+@import '/imports/ui/stylesheets/variables/_all';
+@import "/imports/ui/components/modal/simple/styles";
+
+:root {
+  --modal-margin: 3rem;
+  --title-position-left: 2.2rem;
+  --closeBtn-position-left: 2.5rem;
+}
+
+.title {
+  left: var(--title-position-left);
+  color: var(--color-gray-dark);
+  font-weight: bold;
+  font-size: var(--font-size-large);
+  text-align: center;
+}
+
+.form {
+  display: flex;
+  flex-flow: column;
+}
+
+.container {
+  margin: var(--modal-margin);
+  margin-top: 0;
+  margin-bottom: var(--lg-padding-x);
+}
+
+.subHeader {
+  display: flex;
+  flex-flow: row;
+  flex-grow: 1;
+  justify-content: space-between;
+  color: var(--color-gray-label);
+  font-size: var(--font-size-base);
+  margin-bottom: var(--title-position-left);
+}
+
+.modal {
+  @extend .modal;
+  padding: var(--jumbo-padding-y);
+}
+
+.overlay {
+  @extend .overlay;
+}
+
+.description {
+  text-align: center;
+  color: var(--color-gray);
+  margin-bottom: var(--jumbo-padding-y)
+}
+
+.row {
+  display: flex;
+  flex-flow: row;
+  flex-grow: 1;
+  justify-content: space-between;
+  margin-bottom: var(--md-padding-x);
+}
+
+.col {
+  display: flex;
+  flex-grow: 1;
+  flex-basis: 0;
+  margin-right: var(--md-padding-x);
+}
+
+.label {
+  color: var(--color-gray-label);
+  font-size: var(--font-size-small);
+  margin-bottom: var(--lg-padding-y);
+}
+
+.formElement {
+  position: relative;
+  display: flex;
+  flex-flow: column;
+  flex-grow: 1;
+}
+
+.pullContentRight {
+  display: flex;
+  justify-content: flex-end;
+  flex-flow: row;
+}
+
+.bold {
+  font-weight: bold;
+}
+
+.closeBtn {
+  position: relative;
+  background-color: var(--color-white);
+  left: var(--closeBtn-position-left);
+  bottom: var(--closeBtn-position-left);
+
+  i {
+    color: var(--color-gray-light);
+   }
+  
+  &:focus,
+  &:hover {
+      background-color: var(--color-gray-lighter);
+    i {
+      color: var(--color-gray);
+    }
+  }
+}
+
+.header {
+  margin: 0;
+  padding: 0;
+  border: none;
+  line-height: var(--title-position-left);
+  margin-bottom: var(--lg-padding-y);
+}

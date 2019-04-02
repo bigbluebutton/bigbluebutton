@@ -2,7 +2,6 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import cx from 'classnames';
 import VideoProviderContainer from '/imports/ui/components/video-provider/container';
-import PollingContainer from '/imports/ui/components/polling/container';
 
 import { styles } from './styles';
 
@@ -25,12 +24,11 @@ export default class Media extends Component {
 
   render() {
     const {
-      swapLayout, floatingOverlay, hideOverlay, disableVideo,
+      swapLayout, floatingOverlay, hideOverlay, disableVideo, children,
     } = this.props;
 
     const contentClassName = cx({
       [styles.content]: true,
-      [styles.hasOverlay]: !hideOverlay,
     });
 
     const overlayClassName = cx({
@@ -42,12 +40,11 @@ export default class Media extends Component {
     return (
       <div className={styles.container}>
         <div className={!swapLayout ? contentClassName : overlayClassName}>
-          {this.props.children}
+          {children}
         </div>
         <div className={!swapLayout ? overlayClassName : contentClassName}>
           { !disableVideo ? <VideoProviderContainer /> : null }
         </div>
-        <PollingContainer />
       </div>
     );
   }

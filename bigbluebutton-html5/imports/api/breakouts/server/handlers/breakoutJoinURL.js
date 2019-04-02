@@ -20,6 +20,7 @@ export default function handleBreakoutJoinURL({ body }) {
       users: {
         userId,
         redirectToHtml5JoinURL,
+        insertedTime: new Date().getTime(),
       },
     },
   };

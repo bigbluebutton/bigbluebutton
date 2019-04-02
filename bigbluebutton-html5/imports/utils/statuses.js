@@ -9,7 +9,6 @@ export const EMOJI_STATUSES = {
   applause: 'applause',
   thumbsUp: 'thumbs_up',
   thumbsDown: 'thumbs_down',
-  none: 'clear_status',
 };
 
 export default { EMOJI_STATUSES };

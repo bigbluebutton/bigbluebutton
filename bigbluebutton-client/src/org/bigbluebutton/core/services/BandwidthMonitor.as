@@ -99,6 +99,9 @@ package org.bigbluebutton.core.services
 					
 					var bwMonUrl: String;
 					var useRTMPS: Boolean = result.protocol == ConnUtil.RTMPS;
+					
+					var hostName:String = BBB.initConnectionManager().hostToUse;
+					
 					if (BBB.initConnectionManager().isTunnelling) {
 						var tunnelProtocol: String = ConnUtil.RTMPT;
 						
@@ -108,7 +111,7 @@ package org.bigbluebutton.core.services
 						}
 						
 						
-						bwMonUrl = tunnelProtocol + "://" + result.server + "/" + bwMonOption.application;
+						bwMonUrl = tunnelProtocol + "://" + hostName + "/" + bwMonOption.application;
 						LOGGER.debug("BW MON CONNECT tunnel = TRUE " + "url=" +  bwMonUrl);
 					} else {
 						var nativeProtocol: String = ConnUtil.RTMP;
@@ -117,7 +120,7 @@ package org.bigbluebutton.core.services
 							nativeProtocol = ConnUtil.RTMPS;
 						}
 						
-						bwMonUrl = nativeProtocol + "://" + result.server + "/" + bwMonOption.application;
+						bwMonUrl = nativeProtocol + "://" + hostName + "/" + bwMonOption.application;
 						LOGGER.debug("BBB MON CONNECT tunnel = FALSE " + "url=" +  bwMonUrl);
 					}
 					

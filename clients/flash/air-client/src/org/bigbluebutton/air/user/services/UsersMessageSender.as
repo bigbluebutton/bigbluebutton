@@ -19,7 +19,7 @@ package org.bigbluebutton.air.user.services {
 		public function joinMeeting():void {
 			var message:Object = {
 				header: {name: "UserJoinMeetingReqMsg", meetingId: conferenceParameters.meetingID, userId: conferenceParameters.internalUserID},
-				body: {userId: conferenceParameters.internalUserID, authToken: conferenceParameters.authToken}
+				body: {userId: conferenceParameters.internalUserID, authToken: conferenceParameters.authToken, clientType: "FLASH"}
 			};
 			
 			userSession.mainConnection.sendMessage2x(defaultSuccessResponse, defaultFailureResponse, message);

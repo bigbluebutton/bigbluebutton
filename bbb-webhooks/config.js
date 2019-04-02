@@ -20,8 +20,12 @@ if (!config.hooks) { config.hooks = {}; }
 if (!config.hooks.channels) {
   config.hooks.channels = {
     mainChannel: 'from-akka-apps-redis-channel',
-    rapChannel: 'bigbluebutton:from-rap',
-    chatChannel: 'from-akka-apps-chat-redis-channel'
+    rapChannel: 'from-bbb-web-redis-channel',
+    chatChannel: 'from-akka-apps-chat-redis-channel',
+    compMeetingChannel: 'bigbluebutton:from-bbb-apps:meeting',
+    compUserChannel: 'bigbluebutton:from-bbb-apps:users',
+    compChatChannel: 'bigbluebutton:from-bbb-apps:chat',
+    compRapChannel: 'bigbluebutton:from-rap'
   }
  }
 // IP where permanent hook will post data (more than 1 URL means more than 1 permanent hook)
@@ -42,7 +46,7 @@ config.hooks.retryIntervals = [
 ];
 
 // Reset permanent interval when exceeding maximum attemps
-config.hooks.permanentURLsIntervalReset = 8;
+config.hooks.permanentIntervalReset = 8;
 
 // Mappings of internal to external meeting IDs
 config.mappings = {};
@@ -51,6 +55,8 @@ config.mappings.timeout = 1000*60*60*24; // 24 hours, in ms
 
 // Redis
 config.redis = {};
+config.redis.host = '127.0.0.1';
+config.redis.port = 6379;
 config.redis.keys = {};
 config.redis.keys.hook = id => `bigbluebutton:webhooks:hook:${id}`;
 config.redis.keys.hooks = "bigbluebutton:webhooks:hooks";

@@ -217,10 +217,12 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}
 			
 			private function refreshListStatus():void {
-				
-				if (UsersUtil.amIModerator() || UsersUtil.amIPresenter()) return; // Settings only affect viewers.
-				
-				usersList.enabled = ! LiveMeeting.inst().me.disableMyPrivateChat;
+				if (LiveMeeting.inst().me.disableMyPrivateChat) {
+					handler.enableModeratorsFilter();
+				} else {
+					handler.disableModeratorsFilter();
+				}
+				users = removeMe(handler.users);
 			}
 			
 			public function sendSaveEvent():void{

@@ -32,8 +32,8 @@ export const processForHTML5ServerOnly = fn => (message, ...args) => {
 };
 
 
-export const getMultiUserStatus = (meetingId) => {
-  const data = WhiteboardMultiUser.findOne({ meetingId });
+export const getMultiUserStatus = (meetingId, whiteboardId) => {
+  const data = WhiteboardMultiUser.findOne({ meetingId, whiteboardId });
 
   if (data) {
     return data.multiUser;

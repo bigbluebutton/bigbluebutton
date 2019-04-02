@@ -33,14 +33,15 @@ class DataSaving extends BaseMenu {
       settings: props.settings,
     };
   }
+
   render() {
     const { intl } = this.props;
 
     const { viewParticipantsWebcams, viewScreenshare } = this.state.settings;
 
     return (
-      <div className={styles.tabContent}>
-        <div className={styles.header}>
+      <div>
+        <div>
           <h3 className={styles.title}>{intl.formatMessage(intlMessages.dataSavingLabel)}</h3>
           <p className={styles.subtitle}>{intl.formatMessage(intlMessages.dataSavingDesc)}</p>
         </div>

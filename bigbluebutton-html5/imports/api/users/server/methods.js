@@ -1,17 +1,18 @@
 import { Meteor } from 'meteor/meteor';
-import mapToAcl from '/imports/startup/mapToAcl';
 import validateAuthToken from './methods/validateAuthToken';
 import setEmojiStatus from './methods/setEmojiStatus';
 import assignPresenter from './methods/assignPresenter';
 import changeRole from './methods/changeRole';
 import removeUser from './methods/removeUser';
+import toggleUserLock from './methods/toggleUserLock';
+import userActivitySign from './methods/userActivitySign';
 
-Meteor.methods(mapToAcl(['methods.setEmojiStatus', 'methods.assignPresenter', 'methods.changeRole',
-  'methods.removeUser'], {
+Meteor.methods({
   setEmojiStatus,
   assignPresenter,
   changeRole,
   removeUser,
-}));
-
-Meteor.methods({ validateAuthToken });
+  validateAuthToken,
+  toggleUserLock,
+  userActivitySign,
+});

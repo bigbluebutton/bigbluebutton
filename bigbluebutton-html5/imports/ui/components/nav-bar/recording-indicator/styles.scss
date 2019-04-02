@@ -1,61 +1,137 @@
 @import "../../../stylesheets/variables/_all";
+@import "../../../stylesheets/variables/typography";
 
-%baseIndicator {
-  position: relative;
-  display: inline-block;
-  width: $font-size-base;
-  height: $font-size-base;
-  border-radius: 50%;
-  border: 1px solid $color-white;
+.visuallyHidden {
+  position: absolute;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  height: 1px; width: 1px;
+  margin: -1px; padding: 0; border: 0;
+}
 
-  &:after {
-    content: '';
-    width: $font-size-base / 2;
-    height: $font-size-base / 2;
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    margin-top: -($font-size-base / 4);
-    margin-left: -($font-size-base / 4);
-    border-radius: 50%;
-    background-color: $color-danger;
+%recordingControl {
+  display: flex;
+  border-radius: 2em 2em;
+
+  span {
+    border: none;
+    box-shadow: none;
+    background-color: transparent !important;
+    color: var(--color-white) !important;
+  }
+
+  &:hover {
+    color: var(--color-white) !important;
+    cursor: pointer;
+  }
+
+  &:focus {
+    outline: none;
+    box-shadow: 0 0 0 var(--border-size) var(--color-primary);
   }
 }
 
-%baseIndicatorLabel {
+.recordingControlON {
+  @extend %recordingControl;
+
+  padding: 5px;
+  background-color: var(--color-primary);
+  border: var(--border-size-large) solid var(--color-primary);
+
+  &:focus {
+    background-clip: padding-box;
+    border: var(--border-size-large) solid transparent;
+  }
+}
+
+.recordingControlOFF {
+  @extend %recordingControl;
+
+  padding: 7px;
+  border: 1px solid var(--color-white);
+  
+  &:focus {
+    padding: 5px;
+    border: var(--border-size-large) solid var(--color-white);
+    box-shadow: none;
+  }
+}
+
+.presentationTitle {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
   font-weight: 200;
-  font-size: $font-size-base;
-  margin: 0 0 0 0.5rem;
+  color: var(--color-white);
+  font-size: var(--font-size-base);
+  padding: 0;
+  margin: 0 0 0 var(--sm-padding-x);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  vertical-align: middle;
-}
+  max-width: 30vw;
 
-.recordIndicator {
-  @extend %baseIndicator;
-}
-
-.notRecording {
-  @extend %baseIndicator;
-  border: 1px solid $color-gray;
-
-  &:after {
-    background-color: $color-gray;
+  > [class^="icon-bbb-"] {
+    font-size: 75%;
   }
 
+  span {
+    vertical-align: middle;
+  }
 }
 
-.recordingLabel {
-  @extend %baseIndicatorLabel;
-  color: $color-white;
-}
-
-.notRecordingLabel {
-  @extend %baseIndicatorLabel;
-  color: $color-gray;
-}
-
-.recordState {
+.recordingStatusViewOnly {
   display: flex;
 }
+
+%recordingIndicator {
+  border: 1px solid var(--color-white) !important;
+  border-radius: 50%;
+  span {
+    border: none;
+    box-shadow: none;
+    background-color: transparent !important;
+  }
+  position: relative;
+  display: inline-block;
+  padding: 0 !important;
+  width: var(--font-size-large);
+  height: var(--font-size-large);
+  border-radius: 50%;
+  &:after {
+    content: '';
+    width: calc(var(--font-size-large) / 2);
+    height: calc(var(--font-size-large) / 2);
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    margin-top: calc((var(--font-size-large) / -4));
+    margin-left: calc((var(--font-size-large) / -4));
+    border-radius: 50%;
+  }
+}
+
+.recordingIndicatorON {
+  @extend %recordingIndicator;
+  &:after {
+    background-color: var(--color-danger);
+  }
+}
+
+.recordingIndicatorOFF {
+  @extend %recordingIndicator;
+  &:after {
+    background-color: var(--color-white);
+  }
+}
+
+.isRecordingCircle {
+  border: 1px solid var(--color-white) !important;
+  border-radius: 50%;
+  span {
+    border: none;
+    box-shadow: none;
+    background-color: transparent !important;
+  }
+}
+

@@ -10,22 +10,21 @@
 
 .modal {
   display: flex;
-  padding: $lg-padding-x;
-  background-color: $color-white;
+  padding: var(--lg-padding-x);
+  background-color: var(--color-white);
   flex-direction: column;
-  border-radius: $border-radius;
+  border-radius: var(--border-radius);
   max-width: 95vw;
   width: 600px;
-
 }
 
 .text {
-  color: $color-text;
+  color: var(--color-text);
   font-weight: normal;
-  padding: $line-height-computed 0;
+  padding: var(--line-height-computed) 0;
   @include mq($small-only) {
-    font-size: $font-size-small;
-  };
+    font-size: var(--font-size-small);
+  }
 }
 
 .content {
@@ -34,13 +33,13 @@
 
 .title {
   margin: 0;
-  font-size: $font-size-large;
-  font-weight: $headings-font-weight;
+  font-size: var(--font-size-large);
+  font-weight: var(--headings-font-weight);
 }
 
 .button {
   @include mq($small-only) {
-    font-size: $font-size-base;
+    font-size: var(--font-size-base);
   }
 }
 

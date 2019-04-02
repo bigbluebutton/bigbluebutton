@@ -1,23 +1,25 @@
 @import "../../stylesheets/variables/_all";
 
-$nb-default-color: $color-gray;
-$nb-default-bg: $color-white;
-$nb-default-border: $color-white;
+:root {
+  --nb-default-color: var(--color-gray);
+  --nb-default-bg: var(--color-white);
+  --nb-default-border: var(--color-white);
 
-$nb-primary-color: $color-white;
-$nb-primary-bg: $color-primary;
-$nb-primary-border: $color-primary;
+  --nb-primary-color: var(--color-white);
+  --nb-primary-bg: var(--color-primary);
+  --nb-primary-border: var(--color-primary);
 
-$nb-success-color: $color-white;
-$nb-success-bg: $color-success;
-$nb-success-border: $color-success;
+  --nb-success-color: var(--color-white);
+  --nb-success-bg: var(--color-success);
+  --nb-success-border: var(--color-success);
 
-$nb-danger-color: $color-white;
-$nb-danger-bg: $color-danger;
-$nb-danger-border: $color-danger;
+  --nb-danger-color: var(--color-white);
+  --nb-danger-bg: var(--color-danger);
+  --nb-danger-border: var(--color-danger);
+}
 
 .notificationsBar {
-  padding: $line-height-computed / 2;
+  padding: calc(var(--line-height-computed) / 2);
   display: flex;
   flex-direction: row;
   justify-content: center;
@@ -32,17 +34,17 @@ $nb-danger-border: $color-danger;
 }
 
 .default {
-  @include nb-variant($nb-default-color, $nb-default-bg, $nb-default-border);
+  @include nb-variant(var(--nb-default-color), var(--nb-default-bg), var(--nb-default-border));
 }
 
 .primary {
-  @include nb-variant($nb-primary-color, $nb-primary-bg, $nb-primary-border);
+  @include nb-variant(var(--nb-primary-color), var(--nb-primary-bg), var(--nb-primary-border));
 }
 
 .success {
-  @include nb-variant($nb-success-color, $nb-success-bg, $nb-success-border);
+  @include nb-variant(var(--nb-success-color), var(--nb-success-bg), var(--nb-success-border));
 }
 
 .danger {
-  @include nb-variant($nb-danger-color, $nb-danger-bg, $nb-danger-border);
+  @include nb-variant(var(--nb-danger-color), var(--nb-danger-bg), var(--nb-danger-border));
 }

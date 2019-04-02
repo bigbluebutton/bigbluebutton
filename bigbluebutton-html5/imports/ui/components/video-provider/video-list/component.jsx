@@ -93,7 +93,7 @@ class VideoList extends Component {
     }
 
     const { focusedId } = this.state;
-    const aspectRatio = 16 / 9;
+    const aspectRatio = 4 / 3;
     const { width: canvasWidth, height: canvasHeight } = this.canvas.getBoundingClientRect();
     const gridGutter = parseInt(window.getComputedStyle(this.grid).getPropertyValue('grid-row-gap'), 10);
 
@@ -143,19 +143,22 @@ class VideoList extends Component {
 
   renderVideoList() {
     const {
-      intl, users, onMount, getStats, stopGettingStats, enableVideoStats
+      intl, users, onMount, getStats, stopGettingStats, enableVideoStats,
     } = this.props;
     const { focusedId } = this.state;
 
     return users.map((user) => {
       const isFocused = focusedId === user.id;
       const isFocusedIntlKey = !isFocused ? 'focus' : 'unfocus';
-      const actions = [{
-        label: intl.formatMessage(intlMessages[`${isFocusedIntlKey}Label`]),
-        description: intl.formatMessage(intlMessages[`${isFocusedIntlKey}Desc`]),
-        onClick: () => this.handleVideoFocus(user.id),
-        disabled: users.length < 2,
-      }];
+      let actions = [];
+
+      if (users.length > 2) {
+        actions = [{
+          label: intl.formatMessage(intlMessages[`${isFocusedIntlKey}Label`]),
+          description: intl.formatMessage(intlMessages[`${isFocusedIntlKey}Desc`]),
+          onClick: () => this.handleVideoFocus(user.id),
+        }];
+      }
 
       return (
         <div
@@ -166,18 +169,15 @@ class VideoList extends Component {
           })}
         >
           <VideoListItem
+            numOfUsers={users.length}
             user={user}
             actions={actions}
             onMount={(videoRef) => {
               this.handleCanvasResize();
               return onMount(user.id, videoRef);
             }}
-            getStats={(videoRef, callback) => {
-              return getStats(user.id, videoRef, callback);
-            }}
-            stopGettingStats={() => {
-              return stopGettingStats(user.id);
-            }}
+            getStats={(videoRef, callback) => getStats(user.id, videoRef, callback)}
+            stopGettingStats={() => stopGettingStats(user.id)}
             enableVideoStats={enableVideoStats}
           />
         </div>

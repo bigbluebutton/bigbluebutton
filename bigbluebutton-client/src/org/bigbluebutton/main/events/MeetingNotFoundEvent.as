@@ -6,12 +6,12 @@ package org.bigbluebutton.main.events
   {
     public static const MEETING_NOT_FOUND:String = "meeting not found event";
     
-    public var logoutUrl:String;
+    public var reason:String;
     
-    public function MeetingNotFoundEvent(logoutTo:String)
+    public function MeetingNotFoundEvent(reason:String)
     {
       super(MEETING_NOT_FOUND, true, false);
-      logoutUrl = logoutTo;
+      this.reason = reason;
     }
   }
 }

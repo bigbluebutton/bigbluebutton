@@ -20,6 +20,7 @@
 package org.bigbluebutton.modules.screenshare.utils
 {
   import flash.external.ExternalInterface;
+  import flash.system.Capabilities;
   
   import org.as3commons.lang.StringUtils;
   import org.as3commons.logging.api.ILogger;
@@ -66,25 +67,32 @@ package org.bigbluebutton.modules.screenshare.utils
 
       // if its firefox go ahead and let webrtc handle it
       if (BrowserCheck.isFirefox()) {
-        webRTCWorksAndConfigured("Firefox, lets try");
+        if (Capabilities.os.indexOf("Mac") >= 0) {
+          cannotUseWebRTC("Firefox on Mac performs poorly fallback to Java");
+        } else {
+          webRTCWorksAndConfigured("Firefox, lets try");
+        }
         return;
 
       // if its chrome we need to check for the extension
       } else if (BrowserCheck.isChrome()) {
-        WebRTCScreenshareUtility.extensionLink = options.chromeExtensionLink;
+        // We only need to check for the extension for Chrome versions before 72
+        if (BrowserCheck.browserMajorVersion < '72') {
+          WebRTCScreenshareUtility.extensionLink = options.chromeExtensionLink;
         
-        // if theres no extension link-- users cant download-- fail
-        if (StringUtils.isEmpty(options.chromeExtensionLink)) {
-          cannotUseWebRTC("No extensionLink in config.xml");
-          return;
-        }
+          // if theres no extension link-- users cant download-- fail
+          if (StringUtils.isEmpty(options.chromeExtensionLink) || StringUtils.equalsIgnoreCase(options.chromeExtensionLink, "LINK")) {
+            cannotUseWebRTC("No extensionLink in config.xml");
+            return;
+          }
         
-        WebRTCScreenshareUtility.chromeExtensionKey = options.chromeExtensionKey;
+          WebRTCScreenshareUtility.chromeExtensionKey = options.chromeExtensionKey;
 
-        // if theres no key we cannot connect to the extension-- fail
-        if (StringUtils.isEmpty(WebRTCScreenshareUtility.chromeExtensionKey)) {
-          cannotUseWebRTC("No chromeExtensionKey in config.xml");
-          return;
+          // if theres no key we cannot connect to the extension-- fail
+          if (StringUtils.isEmpty(WebRTCScreenshareUtility.chromeExtensionKey) || StringUtils.equalsIgnoreCase(options.chromeExtensionKey, "KEY")) {
+            cannotUseWebRTC("No chromeExtensionKey in config.xml");
+            return;
+          }
         }
 
         // connect to the webrtc code to attempt a connection with the extension
@@ -105,6 +113,8 @@ package org.bigbluebutton.modules.screenshare.utils
         ExternalInterface.addCallback("onSuccess", onSuccess);
         // check if the extension exists
         ExternalInterface.call("checkChromeExtInstalled", "onSuccess", WebRTCScreenshareUtility.chromeExtensionKey);
+      } else if (BrowserCheck.isEdge()) {
+        webRTCWorksAndConfigured("Edge, lets try");
       } else {
         cannotUseWebRTC("Web browser doesn't support WebRTC");
         return;

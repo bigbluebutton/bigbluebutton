@@ -1,0 +1,69 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  labels:
+    app: bbb-kurento
+    version: latest
+  name: bbb-kurento
+  namespace: bigbluebutton
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: bbb-kurento
+      version: latest
+  strategy:
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 1
+    type: RollingUpdate
+  template:
+    metadata:
+      labels:
+        app: bbb-kurento
+        version: latest
+      name: bbb-kurento
+    spec:
+      containers:
+      - env:
+        - name: STUN_IP
+        # TODO: how to get this IP?
+          value: "35.185.19.180"
+        - name: STUN_PORT
+          value: "3478"
+        image: fcecagno/bigbluebutton:bbb-kurento
+        imagePullPolicy: Always
+        name: bbb-kurento
+        ports:
+        - containerPort: 8888
+          protocol: TCP
+      restartPolicy: Always
+      terminationGracePeriodSeconds: 30
+      nodeSelector:
+        role: 'bigbluebutton'
+      tolerations:
+      - key: role
+        operator: Equal
+        value: 'bigbluebutton'
+        effect: NoSchedule
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: bbb-kurento
+  namespace: bigbluebutton
+  annotations:
+    traefik.backend.circuitbreaker: "NetworkErrorRatio() > 0.5"
+spec:
+  ports:
+  - name: http
+    targetPort: 8888
+    port: 8888
+  selector:
+    app: bbb-kurento
+
+
+    # volumes:
+    #   - media-video:/var/kurento/recordings
+    #   - media-screenshare:/var/kurento/screenshare

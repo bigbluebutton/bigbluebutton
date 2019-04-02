@@ -9,9 +9,16 @@
   overflow: hidden;
 }
 
+.container{
+  display: flex;
+  align-items: center;
+  margin-bottom: var(--lg-padding-y);
+  margin-top: var(--sm-padding-x);
+}
+
 .scrollableList {
-  @include elementFocus($list-item-bg-hover);
-  @include scrollbox-vertical($user-list-bg);
+  @include elementFocus(var(--list-item-bg-hover));
+  @include scrollbox-vertical(var(--user-list-bg));
 
   &:active {
     box-shadow: none;
@@ -20,19 +27,21 @@
 }
 
 .list {
-  margin-left: $md-padding-y;
+  margin-left: var(--md-padding-y);
   margin-bottom: 1px;
 }
 
 .smallTitle {
   @extend .smallTitle;
+  flex: 1;
+  margin: 0;
 }
 
 .separator {
   margin: 1rem auto;
   width: 2.2rem;
   border: 0;
-  border-top: 1px solid $color-gray-lighter;
+  border-top: 1px solid var(--color-gray-lighter);
 }
 
 .chatsList {
@@ -41,8 +50,8 @@
   flex-shrink: 1;
 }
 
-.footer{
+.footer {
   @include mq($small-only) {
-		margin: 4rem;
+    margin: 4rem;
   }
 }

@@ -12,10 +12,12 @@ const Screenshare = require('./screenshare');
 const BaseManager = require('../base/BaseManager');
 const C = require('../bbb/messages/Constants');
 const Logger = require('../utils/Logger');
+const errors = require('../base/errors');
 
 module.exports = class ScreenshareManager extends BaseManager {
   constructor (connectionChannel, additionalChannels, logPrefix) {
     super(connectionChannel, additionalChannels, logPrefix);
+    this.sfuApp = C.SCREENSHARE_APP;
     this.messageFactory(this._onMessage);
     this._iceQueues = {};
   }
@@ -27,7 +29,7 @@ module.exports = class ScreenshareManager extends BaseManager {
     const connectionId = message.connectionId;
     const role = message.role;
     const sdpOffer = message.sdpOffer
-    const callerName = message.callerName? message.callerName : 'default';
+    const callerName = message.callerName;
     let iceQueue, session;
 
     session = this._fetchSession(sessionId);
@@ -68,17 +70,25 @@ module.exports = class ScreenshareManager extends BaseManager {
             this._stopSession(sessionId);
           });
 
+          // listen for presenter change to avoid inconsistent states on reconnection
+          if (role === C.SEND_ROLE) {
+            this._bbbGW.once(C.PRESENTER_ASSIGNED_2x+message.internalMeetingId, async (payload) => {
+              Logger.info(this._logPrefix, "Presenter changed, forcibly closing screensharing session at", message.internalMeetingId);
+              await this.closeSession(session, connectionId, role, sessionId);
+              this._bbbGW.publish(JSON.stringify({
+                connectionId: connectionId,
+                type: C.SCREENSHARE_APP,
+                id : 'close',
+              }), C.FROM_SCREENSHARE);
+            });
+          }
+
           Logger.info(this._logPrefix, "Sending startResponse to peer", sessionId, "for connection", session._id);
         }
         catch (error) {
-          Logger.error(this._logPrefix, error);
+          let errorMessage = this._handleError(this._logPrefix, connectionId, callerName, role, error);
           this._bbbGW.publish(JSON.stringify({
-            connectionId: connectionId,
-            type: C.SCREENSHARE_APP,
-            role: role,
-            id : 'startResponse',
-            response : 'rejected',
-            message : error
+            ...errorMessage
           }), C.FROM_SCREENSHARE);
         }
         break;
@@ -93,7 +103,7 @@ module.exports = class ScreenshareManager extends BaseManager {
         }
         break;
 
-      case 'onIceCandidate':
+      case 'iceCandidate':
         if (session && session.constructor === Screenshare) {
           session.onIceCandidate(message.candidate, role, callerName);
         } else {
@@ -104,26 +114,29 @@ module.exports = class ScreenshareManager extends BaseManager {
 
       case 'close':
         Logger.info(this._logPrefix, 'Connection ' + connectionId + ' closed');
-
-        if (session && session.constructor == Screenshare) {
-          if (role === C.SEND_ROLE && session) {
-            Logger.info(this._logPrefix, "Stopping presenter " + sessionId);
-            this._stopSession(sessionId);
-          }
-          if (role === C.RECV_ROLE && session) {
-            Logger.info(this._logPrefix, "Stopping viewer " + sessionId);
-            session.stopViewer(message.connectionId);
-          }
-        }
+        this.closeSession(session, connectionId, role, sessionId);
         break;
 
       default:
+        const errorMessage = this._handleError(this._logPrefix, connectionId, null, null, errors.SFU_INVALID_REQUEST);
         this._bbbGW.publish(JSON.stringify({
-          connectionId: (session && session._id) ? session._id : 'none',
-          id : 'error',
-          message: 'Invalid message ' + message
+          ...errorMessage,
         }), C.FROM_SCREENSHARE);
         break;
+    }
+  }
+
+  async closeSession (session, connectionId, role, sessionId) {
+    if (session && session.constructor == Screenshare) {
+      if (role === C.SEND_ROLE && session) {
+        Logger.info(this._logPrefix, "Stopping presenter " + sessionId);
+        await this._stopSession(sessionId);
+        return;
+      }
+      if (role === C.RECV_ROLE && session) {
+        Logger.info(this._logPrefix, "Stopping viewer " + sessionId);
+        await session.stopViewer(connectionId);
+      }
     }
   }
 };

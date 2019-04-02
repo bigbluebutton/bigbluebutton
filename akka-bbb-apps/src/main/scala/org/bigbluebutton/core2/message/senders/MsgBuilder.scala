@@ -156,6 +156,16 @@ object MsgBuilder {
     BbbCommonEnvCoreMsg(envelope, event)
   }
 
+  def buildRecordStatusResetSysMsg(meetingId: String, recording: Boolean, setBy: String): BbbCommonEnvCoreMsg = {
+    val routing = Routing.addMsgToClientRouting(MessageTypes.SYSTEM, meetingId, setBy)
+    val envelope = BbbCoreEnvelope(RecordStatusResetSysMsg.NAME, routing)
+    val body = RecordStatusResetSysMsgBody(recording, setBy)
+    val header = BbbCoreHeaderWithMeetingId(RecordStatusResetSysMsg.NAME, meetingId)
+    val event = RecordStatusResetSysMsg(header, body)
+
+    BbbCommonEnvCoreMsg(envelope, event)
+  }
+
   def buildDisconnectAllClientsSysMsg(meetingId: String, reason: String): BbbCommonEnvCoreMsg = {
     val routing = Routing.addMsgToClientRouting(MessageTypes.SYSTEM, meetingId, "not-used")
     val envelope = BbbCoreEnvelope(DisconnectAllClientsSysMsg.NAME, routing)
@@ -305,6 +315,15 @@ object MsgBuilder {
     val body = CreateNewPresentationPodEvtMsgBody(currentPresenterId, podId)
     val event = CreateNewPresentationPodEvtMsg(header, body)
 
+    BbbCommonEnvCoreMsg(envelope, event)
+  }
+
+  def buildRegisteredUserJoinTimeoutMsg(meetingId: String, userId: String, name: String): BbbCommonEnvCoreMsg = {
+    val routing = collection.immutable.HashMap("sender" -> "bbb-apps-akka")
+    val envelope = BbbCoreEnvelope(RegisteredUserJoinTimeoutMsg.NAME, routing)
+    val header = BbbCoreHeaderWithMeetingId(RegisteredUserJoinTimeoutMsg.NAME, meetingId)
+    val body = RegisteredUserJoinTimeoutMsgBody(meetingId, userId, name)
+    val event = RegisteredUserJoinTimeoutMsg(header, body)
     BbbCommonEnvCoreMsg(envelope, event)
   }
 }

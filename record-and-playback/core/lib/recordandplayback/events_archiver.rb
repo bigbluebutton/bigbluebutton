@@ -327,7 +327,21 @@ module BigBlueButton
             end
           end
         end
-        recording << event
+
+        # Handle out of order events - if this event has an earlier timestamp than the last event
+        # in the file, find the correct spot (it's usually no more than 1 or 2 off).
+        # Make sure not to change the relative order of two events with the same timestamp.
+        previous_event = recording.last_element_child
+        moved = 0
+        while previous_event.name == 'event' && previous_event['timestamp'].to_i > event['timestamp'].to_i
+          previous_event = previous_event.previous_element
+          moved += 1
+        end
+        if moved > 0
+          BigBlueButton.logger.info("Reordered event timestamp=#{res[TIMESTAMP]} module=#{res[MODULE]} " \
+                                    "eventname=#{res[EVENTNAME]} by #{moved} positions")
+        end
+        previous_event.add_next_sibling(event)
 
         # Stop reading events if we've reached the recording break for this
         # segment
@@ -346,11 +360,11 @@ module BigBlueButton
 
       # Once the events file has been written, we can delete this segment's
       # events from redis.
-      @redis.trim_events_for(meeting_id, last_index)
       msgs.each_with_index do |msg, i|
         @redis.delete_event_info_for(meeting_id, msg)
-        break if i >= 0 and i >= last_index
+        break if last_index >= 0 and i >= last_index
       end
+      @redis.trim_events_for(meeting_id, last_index)
 
     end
 

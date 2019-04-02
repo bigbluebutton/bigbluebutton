@@ -73,10 +73,10 @@ object UsersApp {
   }
 
   def sendEjectUserFromVoiceToFreeswitch(
-    outGW:       OutMsgRouter,
-    meetingId:   String,
-    voiceConf:   String,
-    voiceUserId: String
+      outGW:       OutMsgRouter,
+      meetingId:   String,
+      voiceConf:   String,
+      voiceUserId: String
   ): Unit = {
     val ejectFromVoiceEvent = MsgBuilder.buildEjectUserFromVoiceConfSysMsg(
       meetingId,
@@ -116,29 +116,29 @@ object UsersApp {
 }
 
 class UsersApp(
-  val liveMeeting: LiveMeeting,
-  val outGW:       OutMsgRouter,
-  val eventBus:    InternalEventBus
+    val liveMeeting: LiveMeeting,
+    val outGW:       OutMsgRouter,
+    val eventBus:    InternalEventBus
 )(implicit val context: ActorContext)
 
-    extends ValidateAuthTokenReqMsgHdlr
-    with GetUsersMeetingReqMsgHdlr
-    with RegisterUserReqMsgHdlr
-    with ChangeUserRoleCmdMsgHdlr
-    with SyncGetUsersMeetingRespMsgHdlr
-    with LogoutAndEndMeetingCmdMsgHdlr
-    with MeetingActivityResponseCmdMsgHdlr
-    with SetRecordingStatusCmdMsgHdlr
-    with RecordAndClearPreviousMarkersCmdMsgHdlr
-    with SendRecordingTimerInternalMsgHdlr
-    with UpdateWebcamsOnlyForModeratorCmdMsgHdlr
-    with GetRecordingStatusReqMsgHdlr
-    with GetWebcamsOnlyForModeratorReqMsgHdlr
-    with AssignPresenterReqMsgHdlr
-    with EjectDuplicateUserReqMsgHdlr
-    with EjectUserFromMeetingCmdMsgHdlr
-    with EjectUserFromMeetingSysMsgHdlr
-    with MuteUserCmdMsgHdlr {
+  extends ValidateAuthTokenReqMsgHdlr
+  with GetUsersMeetingReqMsgHdlr
+  with RegisterUserReqMsgHdlr
+  with ChangeUserRoleCmdMsgHdlr
+  with SyncGetUsersMeetingRespMsgHdlr
+  with LogoutAndEndMeetingCmdMsgHdlr
+  with MeetingActivityResponseCmdMsgHdlr
+  with SetRecordingStatusCmdMsgHdlr
+  with RecordAndClearPreviousMarkersCmdMsgHdlr
+  with SendRecordingTimerInternalMsgHdlr
+  with UpdateWebcamsOnlyForModeratorCmdMsgHdlr
+  with GetRecordingStatusReqMsgHdlr
+  with GetWebcamsOnlyForModeratorReqMsgHdlr
+  with AssignPresenterReqMsgHdlr
+  with EjectDuplicateUserReqMsgHdlr
+  with EjectUserFromMeetingCmdMsgHdlr
+  with EjectUserFromMeetingSysMsgHdlr
+  with MuteUserCmdMsgHdlr {
 
   val log = Logging(context.system, getClass)
 }

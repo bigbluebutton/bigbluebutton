@@ -2,11 +2,11 @@ package org.bigbluebutton.api2;
 
 import java.util.Map;
 
-import org.bigbluebutton.api.messaging.converters.messages.DeleteRecordingMessage;
 import org.bigbluebutton.api.messaging.converters.messages.DestroyMeetingMessage;
 import org.bigbluebutton.api.messaging.converters.messages.EndMeetingMessage;
-import org.bigbluebutton.api.messaging.converters.messages.PublishRecordingMessage;
-import org.bigbluebutton.api.messaging.converters.messages.UnpublishRecordingMessage;
+import org.bigbluebutton.api.messaging.converters.messages.PublishedRecordingMessage;
+import org.bigbluebutton.api.messaging.converters.messages.UnpublishedRecordingMessage;
+import org.bigbluebutton.api.messaging.converters.messages.DeletedRecordingMessage;
 import org.bigbluebutton.presentation.messages.IDocConversionMsg;
 
 public interface IBbbWebApiGWApp {
@@ -25,7 +25,8 @@ public interface IBbbWebApiGWApp {
                      Integer userInactivityInspectTimerInMinutes,
                      Integer userInactivityThresholdInMinutes,
                      Integer userActivitySignResponseDelayInMinutes,
-                     Boolean muteOnStart);
+                     Boolean muteOnStart,
+                     Boolean keepEvents);
 
   void registerUser(String meetingID, String internalUserId, String fullname, String role,
                     String externUserID, String authToken, String avatarURL,
@@ -36,8 +37,8 @@ public interface IBbbWebApiGWApp {
   void destroyMeeting(DestroyMeetingMessage msg);
   void endMeeting(EndMeetingMessage msg);
   void sendKeepAlive(String system, Long timestamp);
-  void publishRecording(PublishRecordingMessage msg);
-  void unpublishRecording(UnpublishRecordingMessage msg);
-  void deleteRecording(DeleteRecordingMessage msg);
+  void publishedRecording(PublishedRecordingMessage msg);
+  void unpublishedRecording(UnpublishedRecordingMessage msg);
+  void deletedRecording(DeletedRecordingMessage msg);
   void sendDocConversionMsg(IDocConversionMsg msg);
 }

@@ -20,19 +20,23 @@
 package org.bigbluebutton.presentation;
 
 public class ConversionMessageConstants {
-  public static final String OFFICE_DOC_CONVERSION_SUCCESS_KEY = "OFFICE_DOC_CONVERSION_SUCCESS";
-  public static final String OFFICE_DOC_CONVERSION_FAILED_KEY = "OFFICE_DOC_CONVERSION_FAILED";
-  public static final String OFFICE_DOC_CONVERSION_INVALID_KEY = "OFFICE_DOC_CONVERSION_INVALID";
-  public static final String SUPPORTED_DOCUMENT_KEY = "SUPPORTED_DOCUMENT";
-  public static final String UNSUPPORTED_DOCUMENT_KEY = "UNSUPPORTED_DOCUMENT";
-  public static final String PAGE_COUNT_FAILED_KEY = "PAGE_COUNT_FAILED";
-  public static final String PAGE_COUNT_EXCEEDED_KEY = "PAGE_COUNT_EXCEEDED";
-  public static final String GENERATED_SLIDE_KEY = "GENERATED_SLIDE";
-  public static final String GENERATING_THUMBNAIL_KEY = "GENERATING_THUMBNAIL";
-  public static final String GENERATED_THUMBNAIL_KEY = "GENERATED_THUMBNAIL";
-  public static final String GENERATING_TEXTFILES_KEY = "GENERATING_TEXTFILES";
-  public static final String GENERATED_TEXTFILES_KEY = "GENERATED_TEXTFILES";
-  public static final String GENERATING_SVGIMAGES_KEY = "GENERATING_SVGIMAGES";
-  public static final String GENERATED_SVGIMAGES_KEY = "GENERATED_SVGIMAGES";
-  public static final String CONVERSION_COMPLETED_KEY = "CONVERSION_COMPLETED";
+    public static final String OFFICE_DOC_CONVERSION_SUCCESS_KEY = "OFFICE_DOC_CONVERSION_SUCCESS";
+    public static final String OFFICE_DOC_CONVERSION_FAILED_KEY = "OFFICE_DOC_CONVERSION_FAILED";
+    public static final String OFFICE_DOC_CONVERSION_INVALID_KEY = "OFFICE_DOC_CONVERSION_INVALID";
+    public static final String SUPPORTED_DOCUMENT_KEY = "SUPPORTED_DOCUMENT";
+    public static final String UNSUPPORTED_DOCUMENT_KEY = "UNSUPPORTED_DOCUMENT";
+    public static final String PAGE_COUNT_FAILED_KEY = "PAGE_COUNT_FAILED";
+    public static final String PAGE_COUNT_EXCEEDED_KEY = "PAGE_COUNT_EXCEEDED";
+    public static final String GENERATED_SLIDE_KEY = "GENERATED_SLIDE";
+    public static final String GENERATING_THUMBNAIL_KEY = "GENERATING_THUMBNAIL";
+    public static final String GENERATED_THUMBNAIL_KEY = "GENERATED_THUMBNAIL";
+    public static final String GENERATING_TEXTFILES_KEY = "GENERATING_TEXTFILES";
+    public static final String GENERATED_TEXTFILES_KEY = "GENERATED_TEXTFILES";
+    public static final String GENERATING_SVGIMAGES_KEY = "GENERATING_SVGIMAGES";
+    public static final String GENERATED_SVGIMAGES_KEY = "GENERATED_SVGIMAGES";
+    public static final String CONVERSION_COMPLETED_KEY = "CONVERSION_COMPLETED";
+
+    private ConversionMessageConstants() {
+        throw new IllegalStateException("ConversionMessageConstants is a utility class. Instanciation is forbidden.");
+    }
 }

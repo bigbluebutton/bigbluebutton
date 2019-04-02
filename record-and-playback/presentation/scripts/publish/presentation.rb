@@ -368,7 +368,7 @@ def svg_render_shape_poll(g, slide, shape)
 
   result = JSON.load(shape[:result])
   num_responders = shape[:num_responders]
-  presentation = shape[:presentation]
+  presentation = slide[:presentation]
   max_num_votes = result.map{ |r| r['num_votes'] }.max
 
   dat_file = "#{$process_dir}/poll_result#{poll_id}.dat"

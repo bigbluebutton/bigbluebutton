@@ -1,0 +1,161 @@
+@import "/imports/ui/stylesheets/variables/_all";
+@import "/imports/ui/components/modal/simple/styles";
+@import "/imports/ui/stylesheets/mixins/focus";
+
+.header {
+  margin: 0;
+  padding: 0;
+  border: none;
+  line-height: 2rem;
+}
+
+.content {
+  justify-content: center;
+  padding-bottom: 0;
+  margin-right: auto;
+  margin-left: auto;
+  width: 100%;
+}
+
+.videoOptions {
+  margin-top: auto;
+  margin-bottom: auto;
+  display: flex;
+}
+
+.overlay {
+  @extend .overlay;
+}
+
+.modal {
+  @extend .modal;
+  padding: 1.5rem;
+  min-height: 20rem;
+}
+
+.closeBtn {
+  position: relative;
+  background-color: var(--color-white);
+
+  i {
+    color: var(--color-gray-light);
+  }
+
+  &:focus,
+  &:hover{
+    background-color: var(--color-gray-lighter);
+    i{
+      color: var(--color-gray);
+    }
+  }
+}
+.warning{
+  text-align: center;
+  font-weight: var(--headings-font-weight);
+  font-size: 5rem;
+  white-space: normal;
+}
+.text{
+  margin: var(--line-height-computed);
+  text-align: center;
+}
+
+.main {
+  margin: var(--line-height-computed);
+  text-align: center;
+  font-size: var(--font-size-large);
+}
+
+.startBtn {
+  &:focus {
+    outline: none !important;
+  }
+
+  i{
+    color: #3c5764;
+  }
+
+  margin: 0;
+  width: 40%;
+  display: block;
+  position: absolute;
+  bottom:   20px;
+  color: var(--color-white) !important;
+  background-color: var(--color-link) !important;
+}
+
+.stopBtn {
+  &:focus {
+    outline: none !important;
+  }
+
+  i{
+    color: red;
+  }
+
+  margin-left: 50%;
+  width: 40%;
+  display: block;
+  position: absolute;
+  bottom:   20px;
+  color: var(--color-white) !important;
+  background-color: red !important;
+}
+
+.title {
+  text-align: center;
+  font-weight: 400;
+  font-size: 1.3rem;
+  white-space: normal;
+
+  @include mq(var(--small-only)) {
+    font-size: 1rem;
+    padding: 0 1rem;
+  }
+}
+
+.videoUrl {
+  margin: 0 var(--border-size) 0 var(--border-size);
+
+  label {
+    display: block;
+  }
+
+  input {
+    @include inputFocus(var(--color-blue-light));
+    display: block;
+    margin: 10px 0 10px 0;
+    padding: 0.4em;
+    color: var(--color-text);
+    line-height: 2rem;
+    width: 100%;
+    font-family: inherit;
+    font-weight: inherit;
+    border: 1px solid var(--color-gray-lighter);
+    border-radius: var(--border-radius);
+
+    [style~="--enableAnimation:1;"] & {
+      transition: box-shadow .2s;
+    }
+  }
+
+  span {
+    font-weight: 600;
+  }
+}
+
+.urlError {
+  color: red;
+  padding: 1em;
+  
+  [style~="--enableAnimation:1;"] & {
+    transition: 1s;
+  }
+}
+
+.youtubeNote {
+  color: var(--color-gray);
+  font-size: var(--font-size-small);
+  font-style: italic;
+  padding-top: var(--sm-padding-x);
+}

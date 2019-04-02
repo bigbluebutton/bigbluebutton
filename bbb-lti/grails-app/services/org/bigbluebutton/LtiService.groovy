@@ -33,6 +33,8 @@ class LtiService {
     def mode = "simple"
     def restrictedAccess = "true"
     def recordedByDefault = "false"
+    def canvasPlacements = ""
+    def canvasPlacementName = "BigBlueButton"
 
     Map<String, String> consumerMap
 
@@ -144,4 +146,9 @@ class LtiService {
     def String getScheme(request) {
         return request.isSecure() ? "https" : "http"
     }
+
+    def String[] getCanvasPlacements() {
+        return this.canvasPlacements
+    }
 }
+

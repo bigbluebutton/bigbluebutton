@@ -1,16 +1,45 @@
 import { Meteor } from 'meteor/meteor';
+import { WebAppInternals } from 'meteor/webapp';
 import Langmap from 'langmap';
 import Users from '/imports/api/users';
 import fs from 'fs';
+import './settings';
 import Logger from './logger';
 import Redis from './redis';
+
+var parse = Npm.require('url').parse;
 
 const AVAILABLE_LOCALES = fs.readdirSync('assets/app/locales');
 
 Meteor.startup(() => {
   const APP_CONFIG = Meteor.settings.public.app;
   const env = Meteor.isDevelopment ? 'development' : 'production';
-  Logger.warn(`SERVER STARTED. ENV=${env}, nodejs version=${process.version}`, APP_CONFIG);
+  const CDN_URL = APP_CONFIG.cdn;
+
+  if (CDN_URL.trim()) {
+    // Add CDN
+    BrowserPolicy.content.disallowEval();
+    BrowserPolicy.content.allowInlineScripts();
+    BrowserPolicy.content.allowInlineStyles();
+    BrowserPolicy.content.allowImageDataUrl(CDN_URL);
+    BrowserPolicy.content.allowFontDataUrl(CDN_URL);
+    BrowserPolicy.content.allowOriginForAll(CDN_URL);
+    WebAppInternals.setBundledJsCssPrefix(CDN_URL + APP_CONFIG.basename);
+
+    var fontRegExp = /\.(eot|ttf|otf|woff|woff2)$/;
+
+    WebApp.rawConnectHandlers.use('/', function(req, res, next) {
+      if (fontRegExp.test(req._parsedUrl.pathname)) {
+        res.setHeader('Access-Control-Allow-Origin', '*');
+        res.setHeader('Vary', 'Origin');
+        res.setHeader('Pragma', 'public');
+        res.setHeader('Cache-Control', '"public"');
+      }
+      return next();
+    });
+  }
+
+  Logger.warn(`SERVER STARTED.\nENV=${env},\nnodejs version=${process.version}\nCDN=${CDN_URL}\n`, APP_CONFIG);
 });
 
 WebApp.connectHandlers.use('/check', (req, res) => {
@@ -29,8 +58,9 @@ WebApp.connectHandlers.use('/locale', (req, res) => {
 
   const usableLocales = AVAILABLE_LOCALES
     .map(file => file.replace('.json', ''))
-    .reduce((locales, locale) =>
-      (locale.match(browserLocale[0]) ? [...locales, locale] : locales), []);
+    .reduce((locales, locale) => (locale.match(browserLocale[0])
+      ? [...locales, locale]
+      : locales), []);
 
   const regionDefault = usableLocales.find(locale => browserLocale[0] === locale);
 
@@ -51,7 +81,8 @@ WebApp.connectHandlers.use('/locale', (req, res) => {
       messages = Object.assign(messages, JSON.parse(data));
       normalizedLocale = locale;
     } catch (e) {
-      // Getting here means the locale is not available on the files.
+      Logger.warn(`'Could not process locale ${locale}:${e}`);
+      // Getting here means the locale is not available in the current locale files.
     }
   });
 
@@ -70,7 +101,7 @@ WebApp.connectHandlers.use('/locales', (req, res) => {
         name: Langmap[locale].nativeName,
       }));
   } catch (e) {
-    // Getting here means the locale is not available on the files.
+    Logger.warn(`'Could not process locales error: ${e}`);
   }
 
   res.setHeader('Content-Type', 'application/json');

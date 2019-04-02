@@ -6,12 +6,12 @@ import org.bigbluebutton.core.bus.MessageBus
 
 object PresentationSender {
   def broadcastSetPresentationDownloadableEvtMsg(
-    bus:       MessageBus,
-    meetingId: String,
-    podId:     String, userId: String,
-    presentationId: String,
-    downloadable:   Boolean,
-    presFilename:   String
+      bus:       MessageBus,
+      meetingId: String,
+      podId:     String, userId: String,
+      presentationId: String,
+      downloadable:   Boolean,
+      presFilename:   String
   ): Unit = {
     val routing = Routing.addMsgToClientRouting(
       MessageTypes.BROADCAST_TO_MEETING,
@@ -27,10 +27,10 @@ object PresentationSender {
   }
 
   def broadcastPresentationConversionCompletedEvtMsg(
-    bus:       MessageBus,
-    meetingId: String,
-    podId:     String, userId: String, messageKey: String,
-    code: String, presentation: PresentationVO
+      bus:       MessageBus,
+      meetingId: String,
+      podId:     String, userId: String, messageKey: String,
+      code: String, presentation: PresentationVO
   ): Unit = {
     val routing = Routing.addMsgToClientRouting(
       MessageTypes.BROADCAST_TO_MEETING,

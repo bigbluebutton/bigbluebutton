@@ -61,6 +61,7 @@ public class Meeting {
 	private boolean record;
 	private boolean autoStartRecording = false;
 	private boolean allowStartStopRecording = false;
+	private boolean haveRecordingMarks = false;
 	private boolean webcamsOnlyForModerator = false;
 	private String dialNumber;
 	private String defaultAvatarURL;
@@ -259,7 +260,15 @@ public class Meeting {
 	public Boolean isBreakout() {
 	  return isBreakout;
 	}
+	
+    public void setHaveRecordingMarks(boolean marks) {
+        haveRecordingMarks = marks;
+    }
 
+    public boolean haveRecordingMarks() {
+        return  haveRecordingMarks;
+    }
+    
 	public String getName() {
 		return name;
 	}
@@ -326,6 +335,11 @@ public class Meeting {
 
 
 	public String calcGuestStatus(String role, Boolean guest, Boolean authned) {
+		// Allow moderators all the time.
+		if (ROLE_MODERATOR.equals(role)) {
+			return GuestPolicy.ALLOW;
+		}
+
 		if (GuestPolicy.ALWAYS_ACCEPT.equals(guestPolicy)) {
 			return GuestPolicy.ALLOW;
 		} else if (GuestPolicy.ALWAYS_DENY.equals(guestPolicy)) {
@@ -416,66 +430,70 @@ public class Meeting {
 	}
 
 	public User userLeft(String userid){
-		return (User) users.remove(userid);	
+		return users.remove(userid);	
 	}
 
 	public User getUserById(String id){
 		return this.users.get(id);
 	}
 
-	public User getUserWithExternalId(String externalUserId) {
-		for (String key : users.keySet()) {
-			User u = users.get(key);
-			if (u.getExternalUserId().equals(externalUserId)) {
-				return u;
-			}
-		}
-		return null;
-	}
+    public User getUserWithExternalId(String externalUserId) {
+        for (Map.Entry<String, User> entry : users.entrySet()) {
+            User u = entry.getValue();
+            if (u.getExternalUserId().equals(externalUserId)) {
+                return u;
+            }
+        }
+        return null;
+    }
 
+	    
 	public int getNumUsers(){
 		return this.users.size();
 	}
 	
-	public int getNumModerators(){
-		int sum = 0;
-		for (String key : users.keySet()) {
-		    User u =  users.get(key);
-		    if (u.isModerator()) sum++;
-		}
-		return sum;
-	}
+    public int getNumModerators() {
+        int sum = 0;
+        for (Map.Entry<String, User> entry : users.entrySet()) {
+            User u = entry.getValue();
+            if (u.isModerator())
+                sum++;
+        }
+        return sum;
+    }
 	
 	public String getDialNumber() {
 		return dialNumber;
 	}
 
-	public int getNumListenOnly() {
-		int sum = 0;
-		for (String key : users.keySet()) {
-			User u =  users.get(key);
-			if (u.isListeningOnly()) sum++;
-		}
-		return sum;
-	}
+    public int getNumListenOnly() {
+        int sum = 0;
+        for (Map.Entry<String, User> entry : users.entrySet()) {
+            User u = entry.getValue();
+            if (u.isListeningOnly())
+                sum++;
+        }
+        return sum;
+    }
 	
-	public int getNumVoiceJoined() {
-		int sum = 0;
-		for (String key : users.keySet()) {
-			User u =  users.get(key);
-			if (u.isVoiceJoined()) sum++;
-		}
-		return sum;
-	}
+    public int getNumVoiceJoined() {
+        int sum = 0;
+        for (Map.Entry<String, User> entry : users.entrySet()) {
+            User u = entry.getValue();
+            if (u.isVoiceJoined())
+                sum++;
+        }
+        return sum;
+    }
 
-	public int getNumVideos() {
-		int sum = 0;
-		for (String key : users.keySet()) {
-			User u =  users.get(key);
-			sum += u.getStreams().size();
-		}
-		return sum;
-	}
+    public int getNumVideos() {
+        int sum = 0;
+        for (Map.Entry<String, User> entry : users.entrySet()) {
+            User u = entry.getValue();
+            sum += u.getStreams().size();
+        }
+        return sum;
+    }
 	
 	public void addUserCustomData(String userID, Map<String, String> data) {
 		userCustomData.put(userID, data);
@@ -620,7 +638,7 @@ public class Meeting {
     		this.allowStartStopRecording = allow;
     		return this;
     	}
-    	
+    
         public Builder withWebcamsOnlyForModerator(boolean only) {
             this.webcamsOnlyForModerator = only;
             return this;

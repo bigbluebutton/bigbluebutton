@@ -40,7 +40,8 @@ const fetchImageSizes = imageUri =>
       return reason;
     });
 
-export default function addSlide(meetingId, presentationId, slide) {
+export default function addSlide(meetingId, podId, presentationId, slide) {
+  check(podId, String);
   check(presentationId, String);
 
   check(slide, {
@@ -55,10 +56,12 @@ export default function addSlide(meetingId, presentationId, slide) {
     yOffset: Number,
     widthRatio: Number,
     heightRatio: Number,
+    content: String,
   });
 
   const selector = {
     meetingId,
+    podId,
     presentationId,
     id: slide.id,
   };
@@ -68,6 +71,7 @@ export default function addSlide(meetingId, presentationId, slide) {
   const modifier = {
     $set: Object.assign(
       { meetingId },
+      { podId },
       { presentationId },
       flat(slide, { safe: true }),
     ),
@@ -83,10 +87,10 @@ export default function addSlide(meetingId, presentationId, slide) {
     requestWhiteboardHistory(meetingId, slide.id);
 
     if (insertedId) {
-      return Logger.info(`Added slide id=${slide.id} to presentation=${presentationId}`);
+      return Logger.info(`Added slide id=${slide.id} pod=${podId} presentation=${presentationId}`);
     }
 
-    return Logger.info(`Upserted slide id=${slide.id} to presentation=${presentationId}`);
+    return Logger.info(`Upserted slide id=${slide.id} pod=${podId} presentation=${presentationId}`);
   };
 
   return fetchImageSizes(imageUri)

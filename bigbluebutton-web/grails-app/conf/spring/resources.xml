@@ -44,6 +44,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         <property name="registeredUserCleanupTimerTask" ref="registeredUserCleanupTimerTask"/>
         <property name="gw" ref="bbbWebApiGWApp"/>
         <property name="callbackUrlService" ref="callbackUrlService"/>
+        <property name="keepEvents" value="${keepEvents}"/>
     </bean>
 
     <bean id="oldMessageReceivedGW" class="org.bigbluebutton.api2.bus.OldMessageReceivedGW">
@@ -59,32 +60,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         <constructor-arg index="1" value="${screenshareRtmpServer}"/>
         <constructor-arg index="2" value="${screenshareRtmpBroadcastApp}"/>
         <constructor-arg index="3" value="${screenshareConfSuffix}"/>
-        <constructor-arg index="4" value="${redisHost}"/>
-        <constructor-arg index="5" value="${redisPort}"/>
-        <constructor-arg index="6" value="${redisPassword}"/>
-    </bean>
-
-    <bean id="redisStorageService" class="org.bigbluebutton.api.messaging.RedisStorageService"
-          init-method="start" destroy-method="stop">
-        <property name="host" value="${redisHost}"/>
-        <property name="port" value="${redisPort}"/>
-        <property name="password" value="${redisPassword}"/>
-    </bean>
-
-
-    <bean id="redisMessageHandler" class="org.bigbluebutton.api.messaging.ReceivedMessageHandler"
-          init-method="start" destroy-method="stop">
-    </bean>
-
-
-    <bean id="redisMessageDistributor" class="org.bigbluebutton.api.messaging.MessageDistributor">
-        <property name="messageHandler"> <ref local="redisMessageHandler"/> </property>
-        <property name="messageListeners">
-            <set>
-                <ref bean="meetingService" />
-                <ref bean="keepAliveService" />
-            </set>
-        </property>
     </bean>
 
     <bean id="recordingServiceHelper" class="org.bigbluebutton.api.util.RecordingMetadataReaderHelper">
@@ -135,6 +110,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         <property name="defaultClientUrl" value="${defaultClientUrl}"/>
         <property name="defaultGuestWaitURL" value="${defaultGuestWaitURL}"/>
         <property name="html5ClientUrl" value="${html5ClientUrl}"/>
+        <property name="allowRequestsWithoutSession" value="${allowRequestsWithoutSession}"/>
         <property name="moderatorsJoinViaHTML5Client" value="${moderatorsJoinViaHTML5Client}"/>
         <property name="attendeesJoinViaHTML5Client" value="${attendeesJoinViaHTML5Client}"/>
         <property name="defaultMeetingDuration" value="${defaultMeetingDuration}"/>
@@ -158,8 +134,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
     </bean>
 
     <import resource="doc-conversion.xml"/>
-    <!--
     <import resource="bbb-redis-messaging.xml"/>
-    -->
     <import resource="turn-stun-servers.xml"/>
 </beans>

@@ -1,18 +1,19 @@
 package org.bigbluebutton.red5.pubsub;
 
-import com.google.gson.Gson;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
 import org.bigbluebutton.app.video.ConnectionInvokerService;
 import org.bigbluebutton.app.video.MeetingManager;
+import org.bigbluebutton.common2.redis.pubsub.MessageHandler;
 import org.bigbluebutton.red5.pubsub.message.RecordChapterBreakMessage;
 import org.bigbluebutton.red5.pubsub.message.ValidateConnTokenRespMsg;
 import org.red5.logging.Red5LoggerFactory;
 import org.slf4j.Logger;
 
+import com.google.gson.Gson;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
+
 public class MeetingMessageHandler implements MessageHandler {
     private static Logger log = Red5LoggerFactory.getLogger(MeetingMessageHandler.class, "video");
-
 
     private final String HEADER = "header";
     private final String NAME = "name";
@@ -61,8 +62,7 @@ public class MeetingMessageHandler implements MessageHandler {
             String logStr = gson.toJson(body);
 
             log.debug("HANDLE: {}", logStr);
-            if (body.has(MEETING_ID) && body.has(USERID)
-                    && body.has(AUTHZED) && body.has(CONN) && body.has(APP)) {
+            if (body.has(MEETING_ID) && body.has(USERID) && body.has(AUTHZED) && body.has(CONN) && body.has(APP)) {
 
                 String meetingId = body.get(MEETING_ID).getAsString();
                 String userId = body.get(USERID).getAsString();

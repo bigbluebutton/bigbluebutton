@@ -43,9 +43,7 @@ BASE=/var/bigbluebutton/recording
 STATUS=$BASE/status
 source /etc/bigbluebutton/bigbluebutton-release
 
-SERVLET_CONTAINER=tomcat7
-SERVLET_DIR=/var/lib/$SERVLET_CONTAINER/webapps
-BBB_WEB=$(cat ${SERVLET_DIR}/bigbluebutton/WEB-INF/classes/bigbluebutton.properties | sed -n '/^bigbluebutton.web.serverURL/{s/.*\///;p}')
+BBB_WEB=$(cat /usr/share/bbb-web/WEB-INF/classes/bigbluebutton.properties | sed -n '/^bigbluebutton.web.serverURL/{s/.*\///;p}')
 
 RECORDING_DIR=$(cat /usr/local/bigbluebutton/core/scripts/bigbluebutton.yml | sed -n '/\(recording_dir\)/{s/.*recording_dir:[ ]*//;s/;//;p}')
 PUBLISHED_DIR=$(cat /usr/local/bigbluebutton/core/scripts/bigbluebutton.yml | sed -n '/\(published_dir\)/{s/.*published_dir:[ ]*//;s/;//;p}')
@@ -355,6 +353,7 @@ if [ $DELETE ]; then
   echo "deleting: $MEETING_ID"
   # Remove the status files first to avoid issues with concurrent
   # recording processing
+  rm -f /var/bigbluebutton/recording/status/ended/$MEETING_ID*
   rm -f /var/bigbluebutton/recording/status/recorded/$MEETING_ID*
   rm -f /var/bigbluebutton/recording/status/archived/$MEETING_ID*
   rm -f /var/bigbluebutton/recording/status/sanity/$MEETING_ID*

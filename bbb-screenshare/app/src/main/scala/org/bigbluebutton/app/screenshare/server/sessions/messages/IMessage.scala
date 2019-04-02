@@ -34,8 +34,8 @@ case class UpdateShareStatus(meetingId: String, streamId: String, sequence: Int)
 
 case class IsScreenSharing(meetingId: String, userId: String)
 
-case class IsScreenSharingReply(sharing: Boolean, streamId: String, 
-                                  width: Int, height: Int, url: String)
+case class IsScreenSharingReply(sharing: Boolean, streamId: String,
+  width: Int, height: Int, url: String)
 
 case class ScreenShareInfoRequest(meetingId: String, token: String)
 

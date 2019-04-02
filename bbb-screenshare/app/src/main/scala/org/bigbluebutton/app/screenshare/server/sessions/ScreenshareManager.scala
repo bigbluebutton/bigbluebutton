@@ -1,13 +1,13 @@
 /**
  * BigBlueButton open source conferencing system - http://www.bigbluebutton.org/
- * 
+ *
  * Copyright (c) 2016 BigBlueButton Inc. and by respective authors (see below).
  *
  * This program is free software; you can redistribute it and/or modify it under the
  * terms of the GNU Lesser General Public License as published by the Free Software
  * Foundation; either version 3.0 of the License, or (at your option) any later
  * version.
- * 
+ *
  * BigBlueButton is distributed in the hope that it will be useful, but WITHOUT ANY
  * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
  * PARTICULAR PURPOSE. See the GNU Lesser General Public License for more details.
@@ -20,7 +20,7 @@ package org.bigbluebutton.app.screenshare.server.sessions
 
 import org.bigbluebutton.app.screenshare.StreamInfo
 import org.bigbluebutton.app.screenshare.server.sessions.Session.StopSession
-import akka.actor.{Actor, ActorLogging, ActorSystem, Props}
+import akka.actor.{ Actor, ActorLogging, ActorSystem, Props }
 
 import scala.collection.mutable.HashMap
 import org.bigbluebutton.app.screenshare.events._
@@ -28,37 +28,37 @@ import org.bigbluebutton.app.screenshare.server.sessions.messages._
 
 object ScreenshareManager {
   def props(system: ActorSystem, bus: IEventsMessageBus): Props =
-  Props(classOf[ScreenshareManager], system, bus)
+    Props(classOf[ScreenshareManager], system, bus)
 }
 
 class ScreenshareManager(val aSystem: ActorSystem, val bus: IEventsMessageBus)
-                                extends Actor with ActorLogging {
+  extends Actor with ActorLogging {
   log.info("Creating a new ScreenshareManager")
 
   private val screenshares = new HashMap[String, ActiveScreenshare]
   val actorSystem = aSystem //TODO remove
 
   def receive = {
-    case msg: RestartShareRequestMessage    => handleRestartShareRequestMessage(msg)
-    case msg: PauseShareRequestMessage    => handlePauseShareRequestMessage(msg)
-    case msg: RequestShareTokenMessage    => handleRequestShareTokenMessage(msg)
-    case msg: StartShareRequestMessage    => handleStartShareRequestMessage(msg)
-    case msg: StopShareRequestMessage     => handleStopShareRequestMessage(msg)
-    case msg: StreamStartedMessage        => handleStreamStartedMessage(msg)
-    case msg: StreamStoppedMessage        => handleStreamStoppedMessage(msg)
-    case msg: SharingStartedMessage       => handleSharingStartedMessage(msg)
-    case msg: SharingStoppedMessage       => handleSharingStoppedMessage(msg)
-    case msg: IsStreamRecorded            => handleIsStreamRecorded(msg)
-    case msg: GetSharingStatus            => handleGetSharingStatus(msg)
-    case msg: IsScreenSharing             => handleIsScreenSharing(msg)
-    case msg: ScreenShareInfoRequest      => handleScreenShareInfoRequest(msg)
-    case msg: UpdateShareStatus           => handleUpdateShareStatus(msg)
-    case msg: UserDisconnected            => handleUserDisconnected(msg)
-    case msg: UserConnected               => handleUserConnected(msg)
-    case msg: MeetingEnded             => handleMeetingHasEnded(msg)
-    case msg: MeetingCreated              => handleMeetingCreated(msg)
-    case msg: ClientPongMessage           => handleClientPongMessage(msg)
-    case msg: RecordingChapterBreak       => handleRecordingChapterBreak(msg)
+    case msg: RestartShareRequestMessage => handleRestartShareRequestMessage(msg)
+    case msg: PauseShareRequestMessage => handlePauseShareRequestMessage(msg)
+    case msg: RequestShareTokenMessage => handleRequestShareTokenMessage(msg)
+    case msg: StartShareRequestMessage => handleStartShareRequestMessage(msg)
+    case msg: StopShareRequestMessage => handleStopShareRequestMessage(msg)
+    case msg: StreamStartedMessage => handleStreamStartedMessage(msg)
+    case msg: StreamStoppedMessage => handleStreamStoppedMessage(msg)
+    case msg: SharingStartedMessage => handleSharingStartedMessage(msg)
+    case msg: SharingStoppedMessage => handleSharingStoppedMessage(msg)
+    case msg: IsStreamRecorded => handleIsStreamRecorded(msg)
+    case msg: GetSharingStatus => handleGetSharingStatus(msg)
+    case msg: IsScreenSharing => handleIsScreenSharing(msg)
+    case msg: ScreenShareInfoRequest => handleScreenShareInfoRequest(msg)
+    case msg: UpdateShareStatus => handleUpdateShareStatus(msg)
+    case msg: UserDisconnected => handleUserDisconnected(msg)
+    case msg: UserConnected => handleUserConnected(msg)
+    case msg: MeetingEnded => handleMeetingHasEnded(msg)
+    case msg: MeetingCreated => handleMeetingCreated(msg)
+    case msg: ClientPongMessage => handleClientPongMessage(msg)
+    case msg: RecordingChapterBreak => handleRecordingChapterBreak(msg)
     case msg: AuthorizeBroadcastStreamMessage => handleAuthorizeBroadcastStreamMessage(msg)
 
     case msg: Any => log.warning("Unknown message " + msg)
@@ -213,17 +213,17 @@ class ScreenshareManager(val aSystem: ActorSystem, val bus: IEventsMessageBus)
   }
 
   private def handleAuthorizeBroadcastStreamMessage(msg: AuthorizeBroadcastStreamMessage): Unit = {
-		if (log.isDebugEnabled) {
-			log.debug("handleAuthorizeBroadcastStreamMessage meetingId=" + msg.meetingId +
-			" streamId=" + msg.streamId + " connId=" + msg.connId + " scope=" + msg.scope)
-		}
+    if (log.isDebugEnabled) {
+      log.debug("handleAuthorizeBroadcastStreamMessage meetingId=" + msg.meetingId +
+        " streamId=" + msg.streamId + " connId=" + msg.connId + " scope=" + msg.scope)
+    }
 
-		screenshares.get(msg.meetingId) match {
-			case Some(ss) =>
-				ss.actorRef forward msg
-			case None =>
-				bus.send(new UnauthorizedBroadcastStreamEvent(msg.meetingId, msg.streamId, msg.connId, msg.scope))
-		}
+    screenshares.get(msg.meetingId) match {
+      case Some(ss) =>
+        ss.actorRef forward msg
+      case None =>
+        bus.send(new UnauthorizedBroadcastStreamEvent(msg.meetingId, msg.streamId, msg.connId, msg.scope))
+    }
   }
 
   private def handleStopShareRequestMessage(msg: StopShareRequestMessage) {
@@ -299,7 +299,7 @@ class ScreenshareManager(val aSystem: ActorSystem, val bus: IEventsMessageBus)
     log.debug("SessionManager: Removing session " + meetingId)
     screenshares.get(meetingId) foreach { s =>
       s.actorRef ! StopSession
-      val old:Int = screenshares.size
+      val old: Int = screenshares.size
       screenshares -= meetingId
       log.debug("RemoveSession: Session length [%d,%d]", old, screenshares.size)
     }

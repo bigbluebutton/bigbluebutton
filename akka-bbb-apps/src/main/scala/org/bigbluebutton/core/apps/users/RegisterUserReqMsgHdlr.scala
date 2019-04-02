@@ -22,7 +22,6 @@ trait RegisterUserReqMsgHdlr {
       BbbCommonEnvCoreMsg(envelope, event)
     }
 
-    val guestPolicy = liveMeeting.guestsWaiting.getGuestPolicy().policy
     val guestStatus = msg.body.guestStatus
 
     val regUser = RegisteredUsers.create(msg.body.intUserId, msg.body.extUserId,

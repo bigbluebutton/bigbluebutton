@@ -7,6 +7,10 @@ package org.bigbluebutton.core.model.users
     
     private var _users:ArrayCollection = new ArrayCollection();
     
+    public function getVoiceUsers(): ArrayCollection {
+      return new ArrayCollection(_users.toArray());
+    }
+    
     public function add(nuser: VoiceUser2x):void {
       var index:int = getIndex(nuser.intId);
       if (index != -1) {

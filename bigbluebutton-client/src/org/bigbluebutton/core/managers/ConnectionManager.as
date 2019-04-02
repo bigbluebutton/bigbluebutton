@@ -32,7 +32,8 @@ package org.bigbluebutton.core.managers {
 				private var _screenshareConnId:String = "";
 				private var _appsConnId:String = "";
 
-        private var _isTunnelling:Boolean = false;
+				private var _isTunnelling:Boolean = false;
+				private var _hostToUse:String = "";
 
 				private var portTestOptions : PortTestOptions;
 				
@@ -101,12 +102,24 @@ package org.bigbluebutton.core.managers {
 					_isTunnelling = tunnel;
 				}
 				
+				public function useHost(host:String):void {
+					_hostToUse = host;
+				}
+				
 				public function get isTunnelling():Boolean {
 					return _isTunnelling;
 				}
 				
+				public function get hostToUse():String {
+					return _hostToUse;
+				}
+				
 				public function get portTestHost():String {
 					return portTestOptions.host;
+				}
+				
+				public function get portTestIpv4FallbackHost():String {
+					return portTestOptions.ipv4FallbackHost;
 				}
 				
 				public function get portTestApplication():String {

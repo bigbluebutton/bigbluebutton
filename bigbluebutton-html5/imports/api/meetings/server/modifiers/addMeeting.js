@@ -1,5 +1,5 @@
 import flat from 'flat';
-import { check } from 'meteor/check';
+import { check, Match } from 'meteor/check';
 import Meetings from '/imports/api/meetings';
 import Logger from '/imports/startup/server/logger';
 
@@ -33,17 +33,21 @@ export default function addMeeting(meeting) {
       warnMinutesBeforeMax: Number,
       meetingExpireIfNoUserJoinedInMinutes: Number,
       meetingExpireWhenLastUserLeftInMinutes: Number,
+      userInactivityInspectTimerInMinutes: Number,
+      userInactivityThresholdInMinutes: Number,
+      userActivitySignResponseDelayInMinutes: Number,
+      timeRemaining: Number,
     },
     welcomeProp: {
       welcomeMsg: String,
       modOnlyMessage: String,
       welcomeMsgTemplate: String,
     },
-    recordProp: {
+    recordProp: Match.ObjectIncluding({
       allowStartStopRecording: Boolean,
       autoStartRecording: Boolean,
       record: Boolean,
-    },
+    }),
     password: {
       viewerPass: String,
       moderatorPass: String,
@@ -62,14 +66,44 @@ export default function addMeeting(meeting) {
     metadataProp: Object,
   });
 
+  const newMeeting = meeting;
+
   const selector = {
     meetingId,
   };
 
+  const lockSettingsProp = {
+    disableCam: false,
+    disableMic: false,
+    disablePrivChat: false,
+    disablePubChat: false,
+    lockOnJoin: true,
+    lockOnJoinConfigurable: false,
+    lockedLayout: false,
+    setBy: 'temp',
+  };
+
+  newMeeting.welcomeProp.welcomeMsg = newMeeting.welcomeProp.welcomeMsg.replace(
+    'href="event:',
+    'href="',
+  );
+
+  const insertBlankTarget = (s, i) => `${s.substr(0, i)} target="_blank"${s.substr(i)}`;
+  const linkWithoutTarget = new RegExp('<a href="(.*?)">', 'g');
+  linkWithoutTarget.test(newMeeting.welcomeProp.welcomeMsg);
+
+  if (linkWithoutTarget.lastIndex > 0) {
+    newMeeting.welcomeProp.welcomeMsg = insertBlankTarget(
+      newMeeting.welcomeProp.welcomeMsg,
+      linkWithoutTarget.lastIndex - 1,
+    );
+  }
+
   const modifier = {
     $set: Object.assign(
       { meetingId },
-      flat(meeting, { safe: true }),
+      flat(newMeeting, { safe: true }),
+      { lockSettingsProp },
     ),
   };
 

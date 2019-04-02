@@ -1,0 +1,7 @@
+kurentoUrl: KURENTO_URL
+kurentoIp: KURENTO_IP
+redisHost: REDIS_HOST
+freeswitch:
+    ip: FREESWITCH_IP
+log:
+    level: LOG_LEVEL

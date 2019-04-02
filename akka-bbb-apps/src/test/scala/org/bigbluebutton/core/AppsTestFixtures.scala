@@ -15,11 +15,18 @@ trait AppsTestFixtures {
   val meetingName = "test meeting"
   val record = false
   val voiceConfId = "85115"
+  val muteOnStart = true
   val deskshareConfId = "85115-DESKSHARE"
   val durationInMinutes = 10
   val maxInactivityTimeoutMinutes = 120
-  val warnMinutesBeforeMax = 5
+  val warnMinutesBeforeMax = 30
+  val meetingExpireIfNoUserJoinedInMinutes = 5
+  val meetingExpireWhenLastUserLeftInMinutes = 10
+  val userInactivityInspectTimerInMinutes = 60
+  val userInactivityThresholdInMinutes = 10
+  val userActivitySignResponseDelayInMinutes = 5
   val autoStartRecording = false
+  val keepEvents = false
   val allowStartStopRecording = false
   val webcamsOnlyForModerator = false;
   val moderatorPassword = "modpass"
@@ -38,24 +45,19 @@ trait AppsTestFixtures {
   val red5DeskShareAppTestFixtures = "red5App"
   val metadata: collection.immutable.Map[String, String] = Map("foo" -> "bar", "bar" -> "baz", "baz" -> "foo")
   val screenshareProps = ScreenshareProps("TODO", "TODO", "TODO")
-  val breakoutProps = BreakoutProps(parentMeetingId, sequence, Vector())
+  val breakoutProps = BreakoutProps(parentId = parentMeetingId, sequence = sequence, freeJoin = false, breakoutRooms = Vector())
 
   val meetingProp = MeetingProp(name = meetingName, extId = externalMeetingId, intId = meetingId,
     isBreakout = isBreakout.booleanValue())
-  val durationProps = DurationProps(
-    duration = durationInMinutes,
-    createdTime = createTime, createdDate = createDate,
-    maxInactivityTimeoutMinutes = maxInactivityTimeoutMinutes,
-    warnMinutesBeforeMax = warnMinutesBeforeMax,
-    meetingExpireIfNoUserJoinedInMinutes = 5,
-    meetingExpireWhenLastUserLeftInMinutes = 1
-  )
+  val durationProps = DurationProps(duration = durationInMinutes, createdTime = createTime, createdDate = createDate, maxInactivityTimeoutMinutes = maxInactivityTimeoutMinutes, warnMinutesBeforeMax = warnMinutesBeforeMax,
+    meetingExpireIfNoUserJoinedInMinutes = meetingExpireIfNoUserJoinedInMinutes, meetingExpireWhenLastUserLeftInMinutes = meetingExpireWhenLastUserLeftInMinutes,
+    userInactivityInspectTimerInMinutes = userInactivityInspectTimerInMinutes, userInactivityThresholdInMinutes = userInactivityInspectTimerInMinutes, userActivitySignResponseDelayInMinutes = userActivitySignResponseDelayInMinutes)
   val password = PasswordProp(moderatorPass = moderatorPassword, viewerPass = viewerPassword)
   val recordProp = RecordProp(record = record, autoStartRecording = autoStartRecording,
-    allowStartStopRecording = allowStartStopRecording)
+    allowStartStopRecording = allowStartStopRecording, keepEvents = keepEvents )
   val welcomeProp = WelcomeProp(welcomeMsgTemplate = welcomeMsgTemplate, welcomeMsg = welcomeMsg,
     modOnlyMessage = modOnlyMessage)
-  val voiceProp = VoiceProp(telVoice = voiceConfId, voiceConf = voiceConfId, dialNumber = dialNumber)
+  val voiceProp = VoiceProp(telVoice = voiceConfId, voiceConf = voiceConfId, dialNumber = dialNumber, muteOnStart = muteOnStart)
   val usersProp = UsersProp(maxUsers = maxUsers, webcamsOnlyForModerator = webcamsOnlyForModerator,
     guestPolicy = guestPolicy)
   val metadataProp = new MetadataProp(metadata)
@@ -84,7 +86,6 @@ trait AppsTestFixtures {
     val layouts = new Layouts()
     val wbModel = new WhiteboardModel()
     val presModel = new PresentationModel()
-    val breakoutRooms = new BreakoutRooms()
     val captionModel = new CaptionModel()
     val notesModel = new SharedNotesModel()
     val registeredUsers = new RegisteredUsers

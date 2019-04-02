@@ -12,8 +12,8 @@ package org.bigbluebutton.air.main.models {
 		function get pageTransitionStartSignal():ISignal;
 		function get currentPage():String;
 		function get lastPage():String;
-		function popPage(animation:int = TransitionAnimationEnum.APPEAR):void;
-		function pushPage(value:String, details:Object = null, animation:int = TransitionAnimationEnum.APPEAR):void;
+		function popPage(animation:int = 0):void;
+		function pushPage(value:String, details:Object = null, animation:int = 0):void;
 		function get currentPageDetails():Object;
 	}
 }

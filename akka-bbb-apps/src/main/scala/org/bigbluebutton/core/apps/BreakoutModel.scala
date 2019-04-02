@@ -4,14 +4,14 @@ import org.bigbluebutton.core.domain.{ BreakoutRoom2x, BreakoutUser }
 
 object BreakoutModel {
   def create(
-    parentId:      String,
-    id:            String,
-    externalId:    String,
-    name:          String,
-    sequence:      Integer,
-    freeJoin:      Boolean,
-    voiceConf:     String,
-    assignedUsers: Vector[String]
+      parentId:      String,
+      id:            String,
+      externalId:    String,
+      name:          String,
+      sequence:      Integer,
+      freeJoin:      Boolean,
+      voiceConf:     String,
+      assignedUsers: Vector[String]
   ): BreakoutRoom2x = {
     new BreakoutRoom2x(id, externalId, name, parentId, sequence, freeJoin, voiceConf, assignedUsers, Vector(), Vector(), None, false)
   }

@@ -30,16 +30,19 @@
                     <g:if test="${ismoderator}">
                     <th class="header c6 lastcol" style="text-align:center;" scope="col"><g:message code="tool.view.actions" /></th>
                     </g:if>
+                    <g:else>
+                    <th class="header c5 lastcol" style="text-align:center;" scope="col"></th>
+                    </g:else>
                 </tr>
             </thead>
             <tbody>
             <g:each in="${recordingList}" var="r">
-                <g:if test="${ismoderator || r.published == 'true'}">
+                <g:if test="${ismoderator || r.published}">
                 <tr class="r0 lastrow">
                     <td class="cell c0" style="text-align:center;">
                     <g:if test="${r.published}">
-                        <g:each in="${r.playback}" var="format">
-                            <a title="<g:message code="tool.view.recording.format.${format.getValue().type}" />" target="_new" href="${format.getValue().url}"><g:message code="tool.view.recording.format.${format.getValue().type}" /></a>&#32;
+                        <g:each in="${r.playbacks}" var="format">
+                            <a title="<g:message code="tool.view.recording.format.${format.type}" />" target="_new" href="${format.url}"><g:message code="tool.view.recording.format.${format.type}" /></a><br>
                         </g:each>
                     </g:if>
                     </td>
@@ -75,6 +78,10 @@
                       </a>
                     </td>
                     </g:if>
+                     <g:else>
+                        <td class="cell c5 lastcol" style="text-align:center;">
+                        </td>
+                      </g:else>
                 </tr>
                 </g:if>
             </g:each>

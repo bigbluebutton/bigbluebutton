@@ -49,7 +49,7 @@ public class PdfPageCounter implements PageCounter {
     try {
       process.waitFor(waitForSec, TimeUnit.SECONDS);
     } catch (InterruptedException e) {
-      log.error(e.getMessage());
+      log.error("InterruptedException while counting PDF pages {}", presentationFile.getName(), e);
     }
 
     numPages = pHandler.numberOfPages();

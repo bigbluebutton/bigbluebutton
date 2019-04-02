@@ -53,7 +53,9 @@ package org.bigbluebutton.core.managers {
 		private var dispatcher:Dispatcher = new Dispatcher();
 
 		public function handleMeetingNotFoundEvent(e:MeetingNotFoundEvent):void {
-			showlogoutWindow(MeetingNotFoundEvent.MEETING_NOT_FOUND, e.logoutUrl);
+			// No meeting found, the logout URL is not given
+			// We will fallback to the /signout URL later
+			showlogoutWindow(MeetingNotFoundEvent.MEETING_NOT_FOUND);
 		}
 
 		private function showlogoutWindow(reason:String, logoutUrl:String = ""):void {

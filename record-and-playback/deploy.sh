@@ -40,10 +40,12 @@ function deploy_format() {
 
 deploy_format "presentation"
 
+sudo mkdir -p /var/bigbluebutton/events/
 sudo mkdir -p /var/bigbluebutton/playback/
 sudo mkdir -p /var/bigbluebutton/recording/raw/
 sudo mkdir -p /var/bigbluebutton/recording/process/
 sudo mkdir -p /var/bigbluebutton/recording/publish/
+sudo mkdir -p /var/bigbluebutton/recording/status/ended/
 sudo mkdir -p /var/bigbluebutton/recording/status/recorded/
 sudo mkdir -p /var/bigbluebutton/recording/status/archived/
 sudo mkdir -p /var/bigbluebutton/recording/status/processed/
@@ -51,7 +53,7 @@ sudo mkdir -p /var/bigbluebutton/recording/status/sanity/
 
 sudo mv /usr/local/bigbluebutton/core/scripts/*.nginx /etc/bigbluebutton/nginx/
 sudo service nginx reload
-sudo chown -R tomcat7:tomcat7 /var/bigbluebutton/ /var/log/bigbluebutton/
+sudo chown -R bigbluebutton:bigbluebutton /var/bigbluebutton/ /var/log/bigbluebutton/
 sudo chown -R red5:red5 /var/bigbluebutton/screenshare/
 
 cd /usr/local/bigbluebutton/core/

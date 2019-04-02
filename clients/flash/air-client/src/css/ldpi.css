@@ -221,4 +221,8 @@
     .audioButtonStyle {
         iconSize: 33.000;
     }
+
+    .startingScreensharingLabel {
+        fontSize: 21.000;
+    }
 }

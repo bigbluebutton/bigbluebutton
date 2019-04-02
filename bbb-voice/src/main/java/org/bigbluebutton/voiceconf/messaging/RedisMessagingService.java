@@ -5,6 +5,8 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import org.bigbluebutton.common2.msgs.*;
+import org.bigbluebutton.common2.redis.pubsub.MessageSender;
+
 import com.google.gson.Gson;
 import org.bigbluebutton.voiceconf.messaging.messages.UserConnectedToGlobalAudio;
 import org.bigbluebutton.voiceconf.messaging.messages.UserDisconnectedFromGlobalAudio;

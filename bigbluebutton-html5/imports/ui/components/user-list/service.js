@@ -1,5 +1,7 @@
 import Users from '/imports/api/users';
-import Chat from '/imports/api/chat';
+import GroupChat from '/imports/api/group-chat';
+import GroupChatMsg from '/imports/api/group-chat-msg';
+import Breakouts from '/imports/api/breakouts/';
 import Meetings from '/imports/api/meetings';
 import Auth from '/imports/ui/services/auth';
 import UnreadMessages from '/imports/ui/services/unread-messages';
@@ -10,21 +12,24 @@ import { makeCall } from '/imports/ui/services/api';
 import _ from 'lodash';
 import KEY_CODES from '/imports/utils/keyCodes';
 
-const APP_CONFIG = Meteor.settings.public.app;
-const ALLOW_MODERATOR_TO_UNMUTE_AUDIO = APP_CONFIG.allowModeratorToUnmuteAudio;
-
 const CHAT_CONFIG = Meteor.settings.public.chat;
-const PRIVATE_CHAT_TYPE = CHAT_CONFIG.type_private;
-const PUBLIC_CHAT_USERID = CHAT_CONFIG.public_userid;
+const PUBLIC_GROUP_CHAT_ID = CHAT_CONFIG.public_group_id;
 
 // session for closed chat list
 const CLOSED_CHAT_LIST_KEY = 'closedChatList';
 
-const mapOpenChats = (chat) => {
+const mapActiveChats = (chat) => {
   const currentUserId = Auth.userID;
-  return chat.fromUserId !== currentUserId
-    ? chat.fromUserId
-    : chat.toUserId;
+
+  if (chat.sender !== currentUserId) {
+    return chat.sender;
+  }
+
+  const { chatId } = chat;
+
+  const userId = GroupChat.findOne({ chatId }).users.filter(user => user !== currentUserId);
+
+  return userId[0];
 };
 
 const CUSTOM_LOGO_URL_KEY = 'CustomLogoUrl';
@@ -36,11 +41,11 @@ const getCustomLogoUrl = () => Storage.getItem(CUSTOM_LOGO_URL_KEY);
 const sortUsersByName = (a, b) => {
   if (a.name.toLowerCase() < b.name.toLowerCase()) {
     return -1;
-  } else if (a.name.toLowerCase() > b.name.toLowerCase()) {
+  } if (a.name.toLowerCase() > b.name.toLowerCase()) {
     return 1;
-  } else if (a.id.toLowerCase() > b.id.toLowerCase()) {
+  } if (a.id.toLowerCase() > b.id.toLowerCase()) {
     return -1;
-  } else if (a.id.toLowerCase() < b.id.toLowerCase()) {
+  } if (a.id.toLowerCase() < b.id.toLowerCase()) {
     return 1;
   }
 
@@ -54,15 +59,15 @@ const sortUsersByEmoji = (a, b) => {
   const emojiA = statusA in EMOJI_STATUSES ? EMOJI_STATUSES[statusA] : statusA;
   const emojiB = statusB in EMOJI_STATUSES ? EMOJI_STATUSES[statusB] : statusB;
 
-  if (emojiA && emojiB && (emojiA !== EMOJI_STATUSES.none && emojiB !== EMOJI_STATUSES.none)) {
+  if (emojiA && emojiB && (emojiA !== 'none' && emojiB !== 'none')) {
     if (a.emoji.changedAt < b.emoji.changedAt) {
       return -1;
-    } else if (a.emoji.changedAt > b.emoji.changedAt) {
+    } if (a.emoji.changedAt > b.emoji.changedAt) {
       return 1;
     }
-  } else if (emojiA && emojiA !== EMOJI_STATUSES.none) {
+  } if (emojiA && emojiA !== 'none') {
     return -1;
-  } else if (emojiB && emojiB !== EMOJI_STATUSES.none) {
+  } if (emojiB && emojiB !== 'none') {
     return 1;
   }
   return 0;
@@ -71,9 +76,9 @@ const sortUsersByEmoji = (a, b) => {
 const sortUsersByModerator = (a, b) => {
   if (a.isModerator && b.isModerator) {
     return sortUsersByEmoji(a, b);
-  } else if (a.isModerator) {
+  } if (a.isModerator) {
     return -1;
-  } else if (b.isModerator) {
+  } if (b.isModerator) {
     return 1;
   }
 
@@ -83,9 +88,9 @@ const sortUsersByModerator = (a, b) => {
 const sortUsersByPhoneUser = (a, b) => {
   if (!a.isPhoneUser && !b.isPhoneUser) {
     return 0;
-  } else if (!a.isPhoneUser) {
+  } if (!a.isPhoneUser) {
     return -1;
-  } else if (!b.isPhoneUser) {
+  } if (!b.isPhoneUser) {
     return 1;
   }
 
@@ -96,7 +101,7 @@ const sortUsersByPhoneUser = (a, b) => {
 const sortUsersByCurrent = (a, b) => {
   if (a.isCurrent) {
     return -1;
-  } else if (b.isCurrent) {
+  } if (b.isCurrent) {
     return 1;
   }
 
@@ -128,11 +133,11 @@ const sortUsers = (a, b) => {
 const sortChatsByName = (a, b) => {
   if (a.name.toLowerCase() < b.name.toLowerCase()) {
     return -1;
-  } else if (a.name.toLowerCase() > b.name.toLowerCase()) {
+  } if (a.name.toLowerCase() > b.name.toLowerCase()) {
     return 1;
-  } else if (a.id.toLowerCase() > b.id.toLowerCase()) {
+  } if (a.id.toLowerCase() > b.id.toLowerCase()) {
     return -1;
-  } else if (a.id.toLowerCase() < b.id.toLowerCase()) {
+  } if (a.id.toLowerCase() < b.id.toLowerCase()) {
     return 1;
   }
 
@@ -142,9 +147,9 @@ const sortChatsByName = (a, b) => {
 const sortChatsByIcon = (a, b) => {
   if (a.icon && b.icon) {
     return sortChatsByName(a, b);
-  } else if (a.icon) {
+  } if (a.icon) {
     return -1;
-  } else if (b.icon) {
+  } if (b.icon) {
     return 1;
   }
 
@@ -175,7 +180,10 @@ const userFindSorting = {
 
 const getUsers = () => {
   const users = Users
-    .find({ connectionStatus: 'online' }, userFindSorting)
+    .find({
+      meetingId: Auth.meetingID,
+      connectionStatus: 'online',
+    }, userFindSorting)
     .fetch();
 
   return users
@@ -183,31 +191,48 @@ const getUsers = () => {
     .sort(sortUsers);
 };
 
-const getOpenChats = (chatID) => {
-  let openChats = Chat
-    .find({ type: PRIVATE_CHAT_TYPE })
-    .fetch()
-    .map(mapOpenChats);
+const getUsersId = () => getUsers().map(u => u.id);
 
-  if (chatID) {
-    openChats.push(chatID);
+const hasBreakoutRoom = () => Breakouts.find({ parentMeetingId: Auth.meetingID }).count() > 0;
+
+const getActiveChats = (chatID) => {
+  const privateChat = GroupChat
+    .find({ users: { $all: [Auth.userID] } })
+    .fetch()
+    .map(chat => chat.chatId);
+
+  const filter = {
+    chatId: { $ne: PUBLIC_GROUP_CHAT_ID },
+  };
+
+  if (privateChat) {
+    filter.chatId = { $in: privateChat };
   }
 
-  openChats = _.uniq(openChats);
+  let activeChats = GroupChatMsg
+    .find(filter)
+    .fetch()
+    .map(mapActiveChats);
 
-  openChats = Users
-    .find({ userId: { $in: openChats } })
+  if (chatID) {
+    activeChats.push(chatID);
+  }
+
+  activeChats = _.uniq(_.compact(activeChats));
+
+  activeChats = Users
+    .find({ userId: { $in: activeChats } })
     .map(mapUser)
     .map((op) => {
-      const openChat = op;
-      openChat.unreadCounter = UnreadMessages.count(op.id);
-      return openChat;
+      const activeChat = op;
+      activeChat.unreadCounter = UnreadMessages.count(op.id);
+      return activeChat;
     });
 
   const currentClosedChats = Storage.getItem(CLOSED_CHAT_LIST_KEY) || [];
   const filteredChatList = [];
 
-  openChats.forEach((op) => {
+  activeChats.forEach((op) => {
     // When a new private chat message is received, ensure the conversation view is restored.
     if (op.unreadCounter > 0) {
       if (_.indexOf(currentClosedChats, op.id) > -1) {
@@ -215,90 +240,28 @@ const getOpenChats = (chatID) => {
       }
     }
 
-    // Compare openChats with session and push it into filteredChatList
-    // if one of the openChat is not in session.
-    // It will pass to openChats.
+    // Compare activeChats with session and push it into filteredChatList
+    // if one of the activeChat is not in session.
+    // It will pass to activeChats.
     if (_.indexOf(currentClosedChats, op.id) < 0) {
       filteredChatList.push(op);
     }
   });
 
-  openChats = filteredChatList;
+  activeChats = filteredChatList;
 
-  openChats.push({
+  activeChats.push({
     id: 'public',
     name: 'Public Chat',
     icon: 'group_chat',
-    unreadCounter: UnreadMessages.count(PUBLIC_CHAT_USERID),
+    unreadCounter: UnreadMessages.count(PUBLIC_GROUP_CHAT_ID),
   });
 
-  return openChats
+  return activeChats
     .sort(sortChats);
 };
 
 const isVoiceOnlyUser = userId => userId.toString().startsWith('v_');
-
-const getAvailableActions = (currentUser, user, router, isBreakoutRoom) => {
-  const isDialInUser = isVoiceOnlyUser(user.id) || user.isPhoneUser;
-
-  const hasAuthority = currentUser.isModerator || user.isCurrent;
-
-  const allowedToChatPrivately = !user.isCurrent && !isDialInUser;
-
-  const allowedToMuteAudio = hasAuthority
-                            && user.isVoiceUser
-                            && !user.isMuted
-                            && !user.isListenOnly;
-
-  const allowedToUnmuteAudio = hasAuthority
-                              && user.isVoiceUser
-                              && !user.isListenOnly
-                              && user.isMuted
-                              && (ALLOW_MODERATOR_TO_UNMUTE_AUDIO || user.isCurrent);
-
-  const allowedToResetStatus = hasAuthority
-      && user.emoji.status !== EMOJI_STATUSES.none
-      && !isDialInUser;
-
-  // if currentUser is a moderator, allow removing other users
-  const allowedToRemove = currentUser.isModerator && !user.isCurrent && !isBreakoutRoom;
-
-  const allowedToSetPresenter = currentUser.isModerator
-      && !user.isPresenter
-      && !isDialInUser;
-
-  const allowedToPromote = currentUser.isModerator
-      && !user.isCurrent
-      && !user.isModerator
-      && !isDialInUser;
-
-  const allowedToDemote = currentUser.isModerator
-      && !user.isCurrent
-      && user.isModerator
-      && !isDialInUser;
-
-  return {
-    allowedToChatPrivately,
-    allowedToMuteAudio,
-    allowedToUnmuteAudio,
-    allowedToResetStatus,
-    allowedToRemove,
-    allowedToSetPresenter,
-    allowedToPromote,
-    allowedToDemote,
-  };
-};
-
-const getCurrentUser = () => {
-  const currentUserId = Auth.userID;
-  const currentUser = Users.findOne({ userId: currentUserId });
-
-  return (currentUser) ? mapUser(currentUser) : null;
-};
-
-const normalizeEmojiName = emoji => (
-  emoji in EMOJI_STATUSES ? EMOJI_STATUSES[emoji] : emoji
-);
 
 const isMeetingLocked = (id) => {
   const meeting = Meetings.findOne({ meetingId: id });
@@ -318,7 +281,84 @@ const isMeetingLocked = (id) => {
   return isLocked;
 };
 
-const setEmojiStatus = (userId) => { makeCall('setEmojiStatus', userId, 'none'); };
+const getAvailableActions = (currentUser, user, isBreakoutRoom) => {
+  const isDialInUser = isVoiceOnlyUser(user.id) || user.isPhoneUser;
+
+  const hasAuthority = currentUser.isModerator || user.isCurrent;
+
+  const allowedToChatPrivately = !user.isCurrent && !isDialInUser;
+
+  const allowedToMuteAudio = hasAuthority
+    && user.isVoiceUser
+    && !user.isMuted
+    && !user.isListenOnly;
+
+  const allowedToUnmuteAudio = hasAuthority
+    && user.isVoiceUser
+    && !user.isListenOnly
+    && user.isMuted
+    && user.isCurrent;
+
+  const allowedToResetStatus = hasAuthority
+    && user.emoji.status !== EMOJI_STATUSES.none
+    && !isDialInUser;
+
+  // if currentUser is a moderator, allow removing other users
+  const allowedToRemove = currentUser.isModerator && !user.isCurrent && !isBreakoutRoom;
+
+  const allowedToSetPresenter = currentUser.isModerator
+    && !user.isPresenter
+    && !isDialInUser;
+
+  const allowedToPromote = currentUser.isModerator
+    && !user.isCurrent
+    && !user.isModerator
+    && !isDialInUser
+    && !isBreakoutRoom;
+
+  const allowedToDemote = currentUser.isModerator
+    && !user.isCurrent
+    && user.isModerator
+    && !isDialInUser
+    && !isBreakoutRoom;
+
+  const allowedToChangeStatus = user.isCurrent;
+
+  const allowedToChangeUserLockStatus = currentUser.isModerator
+    && !user.isModerator && isMeetingLocked(Auth.meetingID);
+
+  return {
+    allowedToChatPrivately,
+    allowedToMuteAudio,
+    allowedToUnmuteAudio,
+    allowedToResetStatus,
+    allowedToRemove,
+    allowedToSetPresenter,
+    allowedToPromote,
+    allowedToDemote,
+    allowedToChangeStatus,
+    allowedToChangeUserLockStatus,
+  };
+};
+
+const getCurrentUser = () => {
+  const currentUserId = Auth.userID;
+  const currentUser = Users.findOne({ userId: currentUserId });
+
+  return (currentUser) ? mapUser(currentUser) : null;
+};
+
+const normalizeEmojiName = emoji => (
+  emoji in EMOJI_STATUSES ? EMOJI_STATUSES[emoji] : emoji
+);
+
+const setEmojiStatus = (data) => {
+  const statusAvailable = (Object.keys(EMOJI_STATUSES).includes(data));
+
+  return statusAvailable
+    ? makeCall('setEmojiStatus', Auth.userID, data)
+    : makeCall('setEmojiStatus', data, 'none');
+};
 
 const assignPresenter = (userId) => { makeCall('assignPresenter', userId); };
 
@@ -330,7 +370,17 @@ const removeUser = (userId) => {
   }
 };
 
-const toggleVoice = (userId) => { userId === Auth.userID ? makeCall('toggleSelfVoice') : makeCall('toggleVoice', userId); };
+const toggleVoice = (userId) => {
+  if (userId === Auth.userID) {
+    makeCall('toggleSelfVoice');
+  } else {
+    makeCall('toggleVoice', userId);
+  }
+};
+
+const muteAllUsers = (userId) => { makeCall('muteAllUsers', userId); };
+
+const muteAllExceptPresenter = (userId) => { makeCall('muteAllExceptPresenter', userId); };
 
 const changeRole = (userId, role) => { makeCall('changeRole', userId, role); };
 
@@ -393,14 +443,35 @@ const roving = (event, itemCount, changeState) => {
   }
 };
 
+const hasPrivateChatBetweenUsers = (sender, receiver) => GroupChat
+  .findOne({ users: { $all: [receiver.id, sender.id] } });
+
+const getGroupChatPrivate = (sender, receiver) => {
+  if (!hasPrivateChatBetweenUsers(sender, receiver)) {
+    makeCall('createGroupChat', receiver);
+  }
+};
+
+const isUserModerator = (userId) => {
+  const u = Users.findOne({ userId });
+  return u ? u.moderator : false;
+};
+
+const toggleUserLock = (userId, lockStatus) => {
+  makeCall('toggleUserLock', userId, lockStatus);
+};
+
 export default {
   setEmojiStatus,
   assignPresenter,
   removeUser,
   toggleVoice,
+  muteAllUsers,
+  muteAllExceptPresenter,
   changeRole,
   getUsers,
-  getOpenChats,
+  getUsersId,
+  getActiveChats,
   getCurrentUser,
   getAvailableActions,
   normalizeEmojiName,
@@ -409,4 +480,11 @@ export default {
   roving,
   setCustomLogoUrl,
   getCustomLogoUrl,
+  getGroupChatPrivate,
+  hasBreakoutRoom,
+  isUserModerator,
+  getEmojiList: () => EMOJI_STATUSES,
+  getEmoji: () => Users.findOne({ userId: Auth.userID }).emoji,
+  hasPrivateChatBetweenUsers,
+  toggleUserLock,
 };

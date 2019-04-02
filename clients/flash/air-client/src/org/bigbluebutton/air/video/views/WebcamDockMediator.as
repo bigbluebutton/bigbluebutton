@@ -1,4 +1,5 @@
 package org.bigbluebutton.air.video.views {
+	import org.bigbluebutton.air.main.models.IConferenceParameters;
 	import org.bigbluebutton.air.main.models.IMeetingData;
 	import org.bigbluebutton.air.main.models.IUserSession;
 	import org.bigbluebutton.air.video.models.VideoProfile;
@@ -17,6 +18,9 @@ package org.bigbluebutton.air.video.views {
 		
 		[Inject]
 		public var userSession:IUserSession;
+		
+		[Inject]
+		public var conferenceParameters:IConferenceParameters;
 		
 		override public function initialize():void {
 			meetingData.webcams.webcamChangeSignal.add(onWebcamChangeSignal);
@@ -65,7 +69,7 @@ package org.bigbluebutton.air.video.views {
 		private function startWebcam(webcam:WebcamStreamInfo):void {
 			var videoProfile:VideoProfile = userSession.videoProfileManager.getVideoProfileByStreamName(webcam.streamId);
 			if (videoProfile) {
-				view.startStream(userSession.videoConnection.connection, webcam.name, webcam.streamId, webcam.userId, videoProfile.width, videoProfile.height);
+				view.startStream(userSession.videoConnection.connection, webcam.name, webcam.streamId, webcam.userId, videoProfile.width, videoProfile.height, conferenceParameters.meetingID, conferenceParameters.authToken, conferenceParameters.externUserID);
 				meetingData.webcams.viewedWebcamStream = webcam.streamId;
 			}
 		}

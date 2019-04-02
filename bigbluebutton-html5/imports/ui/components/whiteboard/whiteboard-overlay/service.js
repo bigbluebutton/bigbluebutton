@@ -1,8 +1,6 @@
-import { makeCall } from '/imports/ui/services/api';
 import Storage from '/imports/ui/services/storage/session';
 import Auth from '/imports/ui/services/auth';
-
-import { sendAnnotation } from '/imports/ui/components/whiteboard/service';
+import { sendAnnotation, addAnnotationToDiscardedList } from '/imports/ui/components/whiteboard/service';
 
 const DRAW_SETTINGS = 'drawSettings';
 
@@ -49,11 +47,14 @@ const setTextShapeActiveId = (id) => {
 
 const getCurrentUserId = () => Auth.userID;
 
+const contextMenuHandler = event => event.preventDefault();
 
 export default {
+  addAnnotationToDiscardedList,
   sendAnnotation,
   getWhiteboardToolbarValues,
   setTextShapeActiveId,
   resetTextShapeSession,
   getCurrentUserId,
+  contextMenuHandler,
 };

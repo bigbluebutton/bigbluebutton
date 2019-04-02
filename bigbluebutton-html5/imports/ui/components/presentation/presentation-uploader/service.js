@@ -1,11 +1,14 @@
 import Presentations from '/imports/api/presentations';
+import PresentationUploadToken from '/imports/api/presentation-upload-token';
 import Auth from '/imports/ui/services/auth';
+import Poll from '/imports/api/polls/';
 import { makeCall } from '/imports/ui/services/api';
 import _ from 'lodash';
 
 const CONVERSION_TIMEOUT = 300000;
+const TOKEN_TIMEOUT = 5000;
 
-// fetch doens't support progress. So we use xhr which support progress.
+// fetch doesn't support progress. So we use xhr which support progress.
 const futch = (url, opts = {}, onProgress) => new Promise((res, rej) => {
   const xhr = new XMLHttpRequest();
 
@@ -28,19 +31,36 @@ const futch = (url, opts = {}, onProgress) => new Promise((res, rej) => {
   xhr.send(opts.body);
 });
 
-const getPresentations = () =>
-  Presentations
-    .find({
-      'conversion.error': false,
-    })
-    .fetch()
-    .map(presentation => ({
-      id: presentation.id,
-      filename: presentation.name,
-      isCurrent: presentation.current || false,
+const getPresentations = () => Presentations
+  .find({
+    'conversion.error': false,
+  })
+  .fetch()
+  .map((presentation) => {
+    const {
+      conversion,
+      current,
+      downloadable,
+      id,
+      name,
+    } = presentation;
+
+    const uploadTimestamp = id.split('-').pop();
+
+    return {
+      id,
+      filename: name,
+      isCurrent: current || false,
       upload: { done: true, error: false },
-      conversion: presentation.conversion || { done: true, error: false },
-    }));
+      isDownloadable: downloadable,
+      conversion: conversion || { done: true, error: false },
+      uploadTimestamp,
+    };
+  });
+
+const dispatchTogglePresentationDownloadable = (presentation, newState) => {
+  makeCall('setPresentationDownloadable', presentation.id, newState);
+};
 
 const observePresentationConversion = (meetingId, filename, onConversion) =>
   new Promise((resolve) => {
@@ -75,48 +95,94 @@ const observePresentationConversion = (meetingId, filename, onConversion) =>
     });
   });
 
-const uploadAndConvertPresentation = (file, meetingID, endpoint, onUpload, onProgress, onConversion) => {
+const requestPresentationUploadToken = (podId, meetingId, filename) =>
+  new Promise((resolve, reject) => {
+    makeCall('requestPresentationUploadToken', podId, filename);
+
+    let computation = null;
+    const timeout = setTimeout(() => {
+      computation.stop();
+      reject({ code: 408, message: 'requestPresentationUploadToken timeout' });
+    }, TOKEN_TIMEOUT);
+
+    Tracker.autorun((c) => {
+      computation = c;
+      const sub = Meteor.subscribe('presentation-upload-token', Auth.credentials, podId, filename);
+      if (!sub.ready()) return;
+
+      const PresentationToken = PresentationUploadToken.findOne({
+        podId,
+        meetingId,
+        filename,
+      });
+
+      if (!PresentationToken || !('failed' in PresentationToken)) return;
+
+      if (!PresentationToken.failed) {
+        clearTimeout(timeout);
+        resolve(PresentationToken.authzToken);
+      }
+
+      if (PresentationToken.failed) {
+        reject({ code: 401, message: 'requestPresentationUploadToken failed' });
+      }
+    });
+  });
+
+const uploadAndConvertPresentation = (file, downloadable, podId, meetingId, endpoint, onUpload, onProgress, onConversion) => {
   const data = new FormData();
   data.append('presentation_name', file.name);
   data.append('Filename', file.name);
   data.append('fileUpload', file);
-  data.append('conference', meetingID);
-  data.append('room', meetingID);
-  // TODO: Theres no way to set a presentation as downloadable.
-  data.append('is_downloadable', false);
+  data.append('conference', meetingId);
+  data.append('room', meetingId);
+
+  // TODO: Currently the uploader is not related to a POD so the id is fixed to the default
+  data.append('pod_id', podId);
+
+  data.append('is_downloadable', downloadable);
 
   const opts = {
     method: 'POST',
     body: data,
   };
 
-  return futch(endpoint, opts, onProgress)
-    .then(() => observePresentationConversion(meetingID, file.name, onConversion))
+  return requestPresentationUploadToken(podId, meetingId, file.name)
+    .then(token => futch(endpoint.replace('upload', `${token}/upload`), opts, onProgress))
+    .then(() => observePresentationConversion(meetingId, file.name, onConversion))
     // Trap the error so we can have parallel upload
     .catch((error) => {
+      console.error(error);
       onUpload({ error: true, done: true, status: error.code });
       return Promise.resolve();
     });
 };
 
-const uploadAndConvertPresentations = (presentationsToUpload, meetingID, uploadEndpoint) =>
+const uploadAndConvertPresentations = (presentationsToUpload, meetingId, podId, uploadEndpoint) =>
   Promise.all(presentationsToUpload.map(p =>
-    uploadAndConvertPresentation(p.file, meetingID, uploadEndpoint, p.onUpload, p.onProgress, p.onConversion)));
+    uploadAndConvertPresentation(
+      p.file, p.isDownloadable, podId, meetingId, uploadEndpoint,
+      p.onUpload, p.onProgress, p.onConversion,
+    )));
 
-const setPresentation = presentationID => makeCall('setPresentation', presentationID);
+const setPresentation = (presentationId, podId) => makeCall('setPresentation', presentationId, podId);
 
-const removePresentation = presentationID => makeCall('removePresentation', presentationID);
+const removePresentation = (presentationId, podId) => {
+  const hasPoll = Poll.find({}).fetch().length;
+  if (hasPoll) makeCall('stopPoll');
+  makeCall('removePresentation', presentationId, podId);
+};
 
-const removePresentations = presentationsToRemove =>
-  Promise.all(presentationsToRemove.map(p => removePresentation(p.id)));
+const removePresentations = (presentationsToRemove, podId) =>
+  Promise.all(presentationsToRemove.map(p => removePresentation(p.id, podId)));
 
-const persistPresentationChanges = (oldState, newState, uploadEndpoint) => {
+const persistPresentationChanges = (oldState, newState, uploadEndpoint, podId) => {
   const presentationsToUpload = newState.filter(p => !p.upload.done);
   const presentationsToRemove = oldState.filter(p => !_.find(newState, ['id', p.id]));
 
   let currentPresentation = newState.find(p => p.isCurrent);
 
-  return uploadAndConvertPresentations(presentationsToUpload, Auth.meetingID, uploadEndpoint)
+  return uploadAndConvertPresentations(presentationsToUpload, Auth.meetingID, podId, uploadEndpoint)
     .then((presentations) => {
       if (!presentations.length && !currentPresentation) return Promise.resolve();
 
@@ -144,12 +210,13 @@ const persistPresentationChanges = (oldState, newState, uploadEndpoint) => {
         return Promise.resolve();
       }
 
-      return setPresentation(currentPresentation.id);
+      return setPresentation(currentPresentation.id, podId);
     })
-    .then(removePresentations.bind(null, presentationsToRemove));
+    .then(removePresentations.bind(null, presentationsToRemove, podId));
 };
 
 export default {
   getPresentations,
   persistPresentationChanges,
+  dispatchTogglePresentationDownloadable,
 };

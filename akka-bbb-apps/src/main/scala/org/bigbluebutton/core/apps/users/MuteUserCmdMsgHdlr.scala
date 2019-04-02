@@ -34,7 +34,7 @@ trait MuteUserCmdMsgHdlr extends RightsManagementTrait {
         requester <- Users2x.findWithIntId(liveMeeting.users2x, msg.header.userId)
         u <- VoiceUsers.findWithIntId(liveMeeting.voiceUsers, msg.body.userId)
       } yield {
-        if (requester.role != Roles.MODERATOR_ROLE && permissions.disableMic && u.muted &&
+        if (requester.role != Roles.MODERATOR_ROLE && permissions.disableMic && requester.locked && u.muted &&
           msg.body.userId == msg.header.userId) {
           // unmuting self while not moderator and mic disabled. Do not allow.
         } else {

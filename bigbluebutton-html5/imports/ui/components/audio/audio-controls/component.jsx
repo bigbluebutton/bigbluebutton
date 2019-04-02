@@ -1,8 +1,10 @@
-import React from 'react';
+import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import cx from 'classnames';
 import { defineMessages, intlShape, injectIntl } from 'react-intl';
 import Button from '/imports/ui/components/button/component';
+import getFromUserSettings from '/imports/ui/services/users-settings';
+import withShortcutHelper from '/imports/ui/components/shortcut-help/service';
 import { styles } from './styles';
 
 const intlMessages = defineMessages({
@@ -25,69 +27,94 @@ const intlMessages = defineMessages({
 });
 
 const propTypes = {
+  processToggleMuteFromOutside: PropTypes.func.isRequired,
   handleToggleMuteMicrophone: PropTypes.func.isRequired,
   handleJoinAudio: PropTypes.func.isRequired,
   handleLeaveAudio: PropTypes.func.isRequired,
   disable: PropTypes.bool.isRequired,
-  unmute: PropTypes.bool,
-  mute: PropTypes.bool.isRequired,
-  join: PropTypes.bool.isRequired,
+  muted: PropTypes.bool.isRequired,
+  showMute: PropTypes.bool.isRequired,
+  inAudio: PropTypes.bool.isRequired,
+  listenOnly: PropTypes.bool.isRequired,
   intl: intlShape.isRequired,
-  glow: PropTypes.bool,
+  talking: PropTypes.bool.isRequired,
 };
 
-const defaultProps = {
-  glow: false,
-  unmute: false,
-};
+class AudioControls extends Component {
+  componentDidMount() {
+    const { processToggleMuteFromOutside } = this.props;
+    if (Meteor.settings.public.allowOutsideCommands.toggleSelfVoice
+      || getFromUserSettings('outsideToggleSelfVoice', false)) {
+      window.addEventListener('message', processToggleMuteFromOutside);
+    }
+  }
 
-const SHORTCUTS_CONFIG = Meteor.settings.public.app.shortcuts;
-const JOIN_AUDIO_AK = SHORTCUTS_CONFIG.joinAudio.accesskey;
-const LEAVE_AUDIO_AK = SHORTCUTS_CONFIG.leaveAudio.accesskey;
-const MUTE_UNMUTE_AK = SHORTCUTS_CONFIG.toggleMute.accesskey;
+  render() {
+    const {
+      handleToggleMuteMicrophone,
+      handleJoinAudio,
+      handleLeaveAudio,
+      showMute,
+      muted,
+      disable,
+      talking,
+      inAudio,
+      listenOnly,
+      intl,
+      shortcuts,
+      currentUser,
+    } = this.props;
 
-const AudioControls = ({
-  handleToggleMuteMicrophone,
-  handleJoinAudio,
-  handleLeaveAudio,
-  mute,
-  unmute,
-  disable,
-  glow,
-  join,
-  intl,
-}) => (
-  <span className={styles.container}>
-    {mute ?
-      <Button
-        className={glow ? cx(styles.button, styles.glow) : styles.button}
-        onClick={handleToggleMuteMicrophone}
-        disabled={disable}
-        hideLabel
-        label={unmute ? intl.formatMessage(intlMessages.unmuteAudio) : intl.formatMessage(intlMessages.muteAudio)}
-        aria-label={unmute ? intl.formatMessage(intlMessages.unmuteAudio) : intl.formatMessage(intlMessages.muteAudio)}
-        color="primary"
-        icon={unmute ? 'mute' : 'unmute'}
-        size="lg"
-        circle
-        accessKey={MUTE_UNMUTE_AK}
-      /> : null}
-    <Button
-      className={styles.button}
-      onClick={join ? handleLeaveAudio : handleJoinAudio}
-      disabled={disable}
-      hideLabel
-      aria-label={join ? intl.formatMessage(intlMessages.leaveAudio) : intl.formatMessage(intlMessages.joinAudio)}
-      label={join ? intl.formatMessage(intlMessages.leaveAudio) : intl.formatMessage(intlMessages.joinAudio)}
-      color={join ? 'danger' : 'primary'}
-      icon={join ? 'audio_off' : 'audio_on'}
-      size="lg"
-      circle
-      accessKey={join ? LEAVE_AUDIO_AK : JOIN_AUDIO_AK}
-    />
-  </span>);
+    let joinIcon = 'audio_off';
+    if (inAudio) {
+      if (listenOnly) {
+        joinIcon = 'listen';
+      } else {
+        joinIcon = 'audio_on';
+      }
+    }
+
+    return (
+      <span className={styles.container}>
+        {showMute && currentUser.isVoiceUser
+          ? (
+            <Button
+              className={cx(styles.button, !talking || styles.glow, !muted || styles.btn)}
+              onClick={handleToggleMuteMicrophone}
+              disabled={disable}
+              hideLabel
+              label={muted ? intl.formatMessage(intlMessages.unmuteAudio)
+                : intl.formatMessage(intlMessages.muteAudio)}
+              aria-label={muted ? intl.formatMessage(intlMessages.unmuteAudio)
+                : intl.formatMessage(intlMessages.muteAudio)}
+              color={!muted ? 'primary' : 'default'}
+              ghost={muted}
+              icon={muted ? 'mute' : 'unmute'}
+              size="lg"
+              circle
+              accessKey={shortcuts.toggleMute}
+            />
+          ) : null}
+        <Button
+          className={cx(styles.button, inAudio || styles.btn)}
+          onClick={inAudio ? handleLeaveAudio : handleJoinAudio}
+          disabled={disable}
+          hideLabel
+          aria-label={inAudio ? intl.formatMessage(intlMessages.leaveAudio)
+            : intl.formatMessage(intlMessages.joinAudio)}
+          label={inAudio ? intl.formatMessage(intlMessages.leaveAudio)
+            : intl.formatMessage(intlMessages.joinAudio)}
+          color={inAudio ? 'primary' : 'default'}
+          ghost={!inAudio}
+          icon={joinIcon}
+          size="lg"
+          circle
+          accessKey={inAudio ? shortcuts.leaveAudio : shortcuts.joinAudio}
+        />
+      </span>);
+  }
+}
 
 AudioControls.propTypes = propTypes;
-AudioControls.defaultProps = defaultProps;
 
-export default injectIntl(AudioControls);
+export default withShortcutHelper(injectIntl(AudioControls), ['joinAudio', 'leaveAudio', 'toggleMute']);

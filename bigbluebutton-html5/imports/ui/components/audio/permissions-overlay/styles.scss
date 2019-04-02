@@ -1,41 +1,75 @@
+@import "../../../stylesheets/variables/_all";
+
+:root {
+  --position-left-edge: 60%;
+  --position-bottom-edge: 5%;
+  --position-top-firefox: 8em;
+  --position-left-firefox: 22em;
+  --position-top-chrome: 5.5em;
+  --position-left-chrome: 18em;
+  --position-top-safari: 100px;
+  --position-left-safari-1280: 53em;
+  --position-left-safari-1440: 58em;
+  --position-left-safari-1680: 65em;
+  --position-left-safari-1920: 68em;
+  --arrow-top: -65px;
+  --arrow-left: -20px;
+  --arrow-top-edge: -2.5rem;
+  --arrow-left-edge: -21rem;
+}
+
 @mixin arrowIconStyle() {
   &:after {
-    top: -50px;
-    left: -20px;
+    top: var(--arrow-top);
+    left: var(--arrow-left);
     font-size: 20px;
-    -webkit-animation: bounce 2s infinite;
-    animation: bounce 2s infinite;
     display: block;
     font-family: 'bbb-icons';
     content: "\E906";
     position: relative;
+
+    [style~="--enableAnimation:1;"] & {
+      animation: bounce 2s infinite;
+    }
   }
 
   :global(.browser-edge) &:after {
-    top: -50px;
-    left: -15.5em;
+    top: var(--arrow-top-edge);
+    left: var(--arrow-left-edge);
     font-size: 20px;
-    -webkit-animation: bounceRotate 2s infinite;
-    animation: bounceRotate 2s infinite;
+    [style~="--enableAnimation:1;"] & {
+      animation: bounceRotate 2s infinite;
+    }
   }
 }
 
 @mixin positionHint() {
   :global(.browser-edge) & {
-    left: 50%;
-    bottom: 10%;
+    left: var(--position-left-edge);
+    bottom: var(--position-bottom-edge);
   }
   :global(.browser-firefox) & {
-    top: 210px;
-    left: 605px;
+    top: var(--position-top-firefox);
+    left: var(--position-left-firefox);
   }
   :global(.browser-chrome) & {
-    top: 145px;
-    left: 380px;
+    top: var(--position-top-chrome);
+    left: var(--position-left-chrome);
   }
   :global(.browser-safari) & {
-    top: 100px;
-    left: 100px;
+    top: var(--position-top-safari);
+    @include mq($safari1280) {
+      left: var(--position-left-safari-1280);
+    }
+    @include mq($safari1440) {
+      left: var(--position-left-safari-1440);
+    }
+    @include mq($safari1680) {
+      left: var(--position-left-safari-1680);
+    }
+    @include mq($safari1920) {
+      left: var(--position-left-safari-1920);
+    }
   }
 }
 
@@ -47,18 +81,27 @@
   left: 0;
   right: 0;
   background-color: rgba(0, 0, 0, .85);
-  animation: fade-in .5s ease-in;
+
+  [style~="--enableAnimation:1;"] & {
+    animation: fade-in .5s ease-in;
+  }
+}
+
+.content {
+  color: var(--color-white);
 }
 
 .hint {
   @include positionHint();
-
+  background: none;
+  box-shadow: none;
   position: absolute;
   color: #fff;
   font-size: 16px;
   font-weight: 400;
+  padding-left: var(--jumbo-padding-x);
   line-height: 18px;
-  width: 300px;
+  width: 340px;
 
   small {
     display: block;
@@ -72,57 +115,73 @@
 }
 
 @-webkit-keyframes bounce {
-	0%, 20%, 50%, 80%, 100% {
+  0%,
+  20%,
+  50%,
+  80%,
+  100% {
     -webkit-transform: translateY(0);
     transform: translateY(0);
   }
-	40% {
+  40% {
     -webkit-transform: translateY(10px);
     transform: translateY(10px);
   }
-	60% {
+  60% {
     -webkit-transform: translateY(5px);
     transform: translateY(5px);
   }
 }
 
 @-moz-keyframes bounce {
-	0%, 20%, 50%, 80%, 100% {
+  0%,
+  20%,
+  50%,
+  80%,
+  100% {
     transform: translateY(0);
   }
-	40% {
+  40% {
     transform: translateY(10px);
   }
-	60% {
+  60% {
     transform: translateY(5px);
   }
 }
 
 @keyframes bounce {
-	0%, 20%, 50%, 80%, 100% {
+  0%,
+  20%,
+  50%,
+  80%,
+  100% {
     -ms-transform: translateY(0);
     transform: translateY(0);
   }
-	40% {
+  40% {
     -ms-transform: translateY(10px);
     transform: translateY(10px);
   }
-	60% {
+  60% {
     -ms-transform: translateY(5px);
     transform: translateY(5px);
   }
 }
 
 @keyframes bounceRotate {
-  0%, 20%, 50%, 80%, 100% {
+  0%,
+  20%,
+  50%,
+  80%,
+  100% {
     -ms-transform: translateY(0) rotate(180deg);
     transform: translateY(0) rotate(180deg);
   }
-	40% {
+  40% {
     -ms-transform: translateY(10px) rotate(180deg);
     transform: translateY(10px) rotate(180deg);
   }
-	60% {
+  60% {
     -ms-transform: translateY(5px) rotate(180deg);
     transform: translateY(5px) rotate(180deg);
   }
@@ -132,7 +191,7 @@
   0% {
     opacity: 0;
   }
-	100% {
+  100% {
     opacity: 1;
   }
 }

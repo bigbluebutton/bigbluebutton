@@ -32,7 +32,7 @@ export default function handleValidateAuthToken({ body }, meetingId) {
 
   // Publish user join message
   if (valid && !waitForApproval) {
-    Logger.info('User=', JSON.stringify(User));
+    Logger.info('User=', User);
     userJoin(meetingId, userId, User.authToken);
   }
 
@@ -40,6 +40,8 @@ export default function handleValidateAuthToken({ body }, meetingId) {
     $set: {
       validated: valid,
       approved: !waitForApproval,
+      loginTime: Date.now(),
+      inactivityCheck: false,
     },
   };
 

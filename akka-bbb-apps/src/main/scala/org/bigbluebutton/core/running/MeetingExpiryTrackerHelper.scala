@@ -8,10 +8,10 @@ import org.bigbluebutton.core.util.TimeUtil
 trait MeetingExpiryTrackerHelper extends HandlerHelpers {
 
   def processMeetingExpiryAudit(
-    outGW:       OutMsgRouter,
-    eventBus:    InternalEventBus,
-    liveMeeting: LiveMeeting,
-    state:       MeetingState2x
+      outGW:       OutMsgRouter,
+      eventBus:    InternalEventBus,
+      liveMeeting: LiveMeeting,
+      state:       MeetingState2x
   ): (MeetingState2x, Option[String]) = {
     val nowInMs = TimeUtil.timeNowInMs()
 
@@ -29,10 +29,10 @@ trait MeetingExpiryTrackerHelper extends HandlerHelpers {
   }
 
   def processMeetingInactivityAudit(
-    outGW:       OutMsgRouter,
-    eventBus:    InternalEventBus,
-    liveMeeting: LiveMeeting,
-    state:       MeetingState2x
+      outGW:       OutMsgRouter,
+      eventBus:    InternalEventBus,
+      liveMeeting: LiveMeeting,
+      state:       MeetingState2x
   ): (MeetingState2x, Option[String]) = {
 
     val nowInMs = TimeUtil.timeNowInMs()

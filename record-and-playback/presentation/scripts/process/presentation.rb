@@ -228,13 +228,13 @@ if not FileTest.directory?(target_dir)
       end
 
       processed_audio_file = BigBlueButton::AudioProcessor.get_processed_audio_file("#{temp_dir}/#{meeting_id}", "#{target_dir}/audio")
-      BigBlueButton.process_webcam_videos(target_dir, temp_dir, meeting_id, webcam_width, webcam_height, presentation_props['audio_offset'], processed_audio_file)
+      BigBlueButton.process_webcam_videos(target_dir, temp_dir, meeting_id, webcam_width, webcam_height, presentation_props['audio_offset'], processed_audio_file, presentation_props['video_formats'])
     end
 
     if !Dir["#{raw_archive_dir}/deskshare/*"].empty? and presentation_props['include_deskshare']
       deskshare_width = presentation_props['deskshare_output_width']
       deskshare_height = presentation_props['deskshare_output_height']
-      BigBlueButton.process_deskshare_videos(target_dir, temp_dir, meeting_id, deskshare_width, deskshare_height)
+      BigBlueButton.process_deskshare_videos(target_dir, temp_dir, meeting_id, deskshare_width, deskshare_height, presentation_props['video_formats'])
     end
 
     process_done = File.new("#{recording_dir}/status/processed/#{meeting_id}-presentation.done", "w")

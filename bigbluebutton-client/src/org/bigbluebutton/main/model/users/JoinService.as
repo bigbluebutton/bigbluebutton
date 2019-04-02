@@ -34,7 +34,8 @@ package org.bigbluebutton.main.model.users
 	import org.bigbluebutton.core.UsersUtil;
 	import org.bigbluebutton.main.events.MeetingNotFoundEvent;
 	import org.bigbluebutton.main.model.users.events.ConnectionFailedEvent;
-	
+	import org.bigbluebutton.util.i18n.ResourceUtil;
+
 	public class JoinService
 	{  
 		private static const LOGGER:ILogger = getClassLogger(JoinService);      
@@ -127,37 +128,25 @@ package org.bigbluebutton.main.model.users
 				LOGGER.info(JSON.stringify(logData));
 				
 				var dispatcher:Dispatcher = new Dispatcher();
-				dispatcher.dispatchEvent(new MeetingNotFoundEvent(result.response.logoutURL));			
+				dispatcher.dispatchEvent(new MeetingNotFoundEvent(ResourceUtil.getInstance().getString('bbb.mainshell.enterAPIFailed')));			
 			} else if (returncode == 'SUCCESS') {
 				logData.logCode = "enter_api_succeeded"; 
 				LOGGER.info(JSON.stringify(logData));
 				
 				var apiResponse:EnterApiResponse = new EnterApiResponse();
-				apiResponse.meetingName = result.response.confname;
-				apiResponse.extMeetingId = result.response.externMeetingID;
-				apiResponse.intMeetingId = result.response.meetingID;
-				apiResponse.isBreakout = result.response.isBreakout;
 				
+				apiResponse.intUserId = result.response.internalUserID;
 				apiResponse.username = result.response.fullname;
 				apiResponse.extUserId = result.response.externUserID;
-				apiResponse.intUserId = result.response.internalUserID;
+				apiResponse.authToken = result.response.authToken;
+				apiResponse.defaultLayout = result.response.defaultLayout;
+				apiResponse.logoutUrl = processLogoutUrl(result.response);
 				apiResponse.role = result.response.role;
+				apiResponse.avatarURL = result.response.avatarURL;
+				apiResponse.dialnumber = result.response.dialnumber;
+
 				apiResponse.guest = result.response.guest;
 				apiResponse.authed = result.response.authed;
-				apiResponse.authToken = result.response.authToken;
-				
-				apiResponse.record = (result.response.record.toUpperCase() == "TRUE");
-				apiResponse.allowStartStopRecording = result.response.allowStartStopRecording;
-				
-				apiResponse.dialnumber = result.response.dialnumber;
-				apiResponse.voiceConf = result.response.voicebridge;
-				
-				apiResponse.welcome = result.response.welcome;
-				apiResponse.logoutUrl = processLogoutUrl(result.response);
-				apiResponse.logoutTimer = result.response.logoutTimer;
-				apiResponse.defaultLayout = result.response.defaultLayout;
-				apiResponse.avatarURL = result.response.avatarURL;
-				
 				apiResponse.customdata = new Object();
 				
 				if (result.response.customdata) {
@@ -170,15 +159,29 @@ package org.bigbluebutton.main.model.users
 					}
 				}
 				
-				apiResponse.metadata = extractMetadata(result.response.metadata);
-				
+				apiResponse.meetingName = result.response.confname;
+				apiResponse.intMeetingId = result.response.meetingID;
+				apiResponse.extMeetingId = result.response.externMeetingID;
+				apiResponse.isBreakout = result.response.isBreakout;
+				apiResponse.avatarURL = result.response.avatarURL;
+				apiResponse.voiceConf = result.response.voicebridge;
+				apiResponse.dialnumber = result.response.dialnumber;
+				apiResponse.record = (result.response.record.toUpperCase() == "TRUE");
+				apiResponse.defaultLayout = result.response.defaultLayout;
+				apiResponse.welcome = result.response.welcome;
 				if (result.response.hasOwnProperty("modOnlyMessage")) {
 					apiResponse.modOnlyMessage = result.response.modOnlyMessage;
 				}
+				apiResponse.allowStartStopRecording = result.response.allowStartStopRecording;
+				apiResponse.metadata = extractMetadata(result.response.metadata);
+				apiResponse.logoutTimer = result.response.logoutTimer;
+
+				apiResponse.bannerColor = result.response.bannerColor;
+				apiResponse.bannerText = result.response.bannerText;
 				
+				apiResponse.muteOnStart = result.response.muteOnStart as Boolean;
 				apiResponse.customLogo = result.response.customLogoURL;
 				apiResponse.customCopyright = result.response.customCopyright;
-				apiResponse.muteOnStart = result.response.muteOnStart as Boolean;
 				
 				if (_resultListener != null) _resultListener(true, apiResponse);
 			}

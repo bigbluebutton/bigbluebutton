@@ -8,8 +8,9 @@ const TextDrawContainer = props => (
 );
 
 export default withTracker((params) => {
+  const { whiteboardId } = params;
   const isPresenter = TextShapeService.isPresenter();
-  const isMultiUser = TextShapeService.getMultiUserStatus();
+  const isMultiUser = TextShapeService.getMultiUserStatus(whiteboardId);
   const activeTextShapeId = TextShapeService.activeTextShapeId();
   let isActive = false;
 

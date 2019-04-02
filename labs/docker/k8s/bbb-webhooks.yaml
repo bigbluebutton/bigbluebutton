@@ -1,0 +1,85 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  labels:
+    app: bbb-webhooks
+    version: latest
+  name: bbb-webhooks
+  namespace: bigbluebutton
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: bbb-webhooks
+      version: latest
+  strategy:
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 1
+    type: RollingUpdate
+  template:
+    metadata:
+      labels:
+        app: bbb-webhooks
+        version: latest
+      name: bbb-webhooks
+    spec:
+      containers:
+      - env:
+        - name: REDIS_HOST
+          value: redis
+        - name: SHARED_SECRET
+          value: "12345"
+        - name: SERVER_DOMAIN
+          value: bigbluebutton.rocket.chat
+        - name: BEARER_AUTH
+          value: "1"
+        image: fcecagno/bigbluebutton:bbb-webhooks
+        imagePullPolicy: Always
+        name: bbb-webhooks
+        ports:
+        - containerPort: 3005
+          protocol: TCP
+      restartPolicy: Always
+      terminationGracePeriodSeconds: 30
+      nodeSelector:
+        role: 'bigbluebutton'
+      tolerations:
+      - key: role
+        operator: Equal
+        value: 'bigbluebutton'
+        effect: NoSchedule
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: bbb-webhooks
+  namespace: bigbluebutton
+  annotations:
+    traefik.backend.circuitbreaker: "NetworkErrorRatio() > 0.5"
+spec:
+  ports:
+  - name: http
+    targetPort: 3005
+    port: 3005
+  selector:
+    app: bbb-webhooks
+
+---
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: bbb-webhooks
+  namespace: bigbluebutton
+  annotations:
+    kubernetes.io/ingress.class: "traefik"
+spec:
+  rules:
+  - host: bigbluebutton.rocket.chat
+    http:
+      paths:
+      - path: /bigbluebutton/api/hooks
+        backend:
+          serviceName: bbb-webhooks
+          servicePort: 3005

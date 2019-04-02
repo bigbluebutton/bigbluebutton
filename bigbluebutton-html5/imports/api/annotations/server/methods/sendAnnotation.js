@@ -1,15 +1,17 @@
-import Acl from '/imports/startup/acl';
 import { getMultiUserStatus } from '/imports/api/common/server/helpers';
 import RedisPubSub from '/imports/startup/server/redis';
 import { Meteor } from 'meteor/meteor';
 import { check } from 'meteor/check';
 import Annotations from '/imports/api/annotations';
 
-function isLastMessage(annotation, userId) {
+import isPodPresenter from '/imports/api/presentation-pods/server/utils/isPodPresenter';
+
+function isLastMessage(meetingId, annotation, userId) {
   const DRAW_END = Meteor.settings.public.whiteboard.annotations.status.end;
 
   if (annotation.status === DRAW_END) {
     const selector = {
+      meetingId,
       id: annotation.id,
       userId,
     };
@@ -27,11 +29,13 @@ export default function sendAnnotation(credentials, annotation) {
   const EVENT_NAME = 'SendWhiteboardAnnotationPubMsg';
 
   const { meetingId, requesterUserId, requesterToken } = credentials;
+  const whiteboardId = annotation.wbId;
 
   check(meetingId, String);
   check(requesterUserId, String);
   check(requesterToken, String);
   check(annotation, Object);
+  check(whiteboardId, String);
 
   // We allow messages to pass through in 3 cases:
   // 1. When it's a standard message in presenter mode (Acl check)
@@ -40,9 +44,9 @@ export default function sendAnnotation(credentials, annotation) {
   // and then slide/presentation changes, the user lost presenter rights,
   // or multi-user whiteboard gets turned off
   // So we allow the last "DRAW_END" message to pass through, to finish the shape.
-  const allowed = Acl.can('methods.sendAnnotation', credentials) ||
-    getMultiUserStatus(meetingId) ||
-    isLastMessage(annotation, requesterUserId);
+  const allowed = isPodPresenter(meetingId, whiteboardId, requesterUserId) ||
+    getMultiUserStatus(meetingId, whiteboardId) ||
+    isLastMessage(meetingId, annotation, requesterUserId);
 
   if (!allowed) {
     throw new Meteor.Error('not-allowed', `User ${requesterUserId} is not allowed to send an annotation`);

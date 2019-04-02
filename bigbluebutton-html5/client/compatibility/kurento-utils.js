@@ -38,11 +38,13 @@ function noop(error) {
         logger.error(error);
 }
 function trackStop(track) {
-    track.stop && track.stop();
+    track && track.stop && track.stop();
 }
 function streamStop(stream) {
-    stream.getTracks().forEach(trackStop);
+    let track = stream.track;
+    trackStop(track);
 }
+
 var dumpSDP = function (description) {
     if (typeof description === 'undefined' || description === null) {
         return '';
@@ -67,7 +69,9 @@ function bufferizeCandidates(pc, onerror) {
             break;
         case 'stable':
             if (pc.remoteDescription) {
-                pc.addIceCandidate(candidate, callback, callback);
+                pc.addIceCandidate(candidate).then(callback).catch(err => {
+                    callback(err);
+                });
                 break;
             }
         default:
@@ -189,6 +193,15 @@ function WebRtcPeer(mode, options, callback) {
     });
     if (!pc) {
         pc = new RTCPeerConnection(configuration);
+
+        //Add Transceiver for Webview on IOS
+        const userAgent = window.navigator.userAgent.toLocaleLowerCase();
+        if ((userAgent.indexOf('iphone') > -1 || userAgent.indexOf('ipad') > -1) && userAgent.indexOf('safari') == -1) {
+            try {
+                pc.addTransceiver('video');
+            } catch(e) {}
+        }
+
         if (useDataChannels && !dataChannel) {
             var dcId = 'WebRtcPeer-' + self.id;
             var dcOptions = undefined;
@@ -228,7 +241,7 @@ function WebRtcPeer(mode, options, callback) {
                 candidategatheringdone = true;
         }
     });
-    pc.ontrack = options.onaddstream;
+    pc.onaddtrack = options.onaddstream;
     pc.onnegotiationneeded = options.onnegotiationneeded;
     this.on('newListener', function (event, listener) {
         if (event === 'icecandidate' || event === 'candidategatheringdone') {
@@ -248,12 +261,34 @@ function WebRtcPeer(mode, options, callback) {
         } else {
             candidate = new RTCIceCandidate(iceCandidate);
         }
-        logger.debug('Remote ICE candidate received', iceCandidate);
+        // logger.debug('Remote ICE candidate received', iceCandidate);
         callback = (callback || noop).bind(this);
         addIceCandidate(candidate, callback);
     };
     this.generateOffer = function (callback) {
         callback = callback.bind(this);
+        const descriptionCallback = () => {
+            var localDescription = pc.localDescription;
+            // logger.debug('Local description set', localDescription.sdp);
+            if (multistream && usePlanB) {
+              localDescription = interop.toUnifiedPlan(localDescription);
+              logger.debug('offer::origPlanB->UnifiedPlan', dumpSDP(localDescription));
+            }
+            callback(null, localDescription.sdp, self.processAnswer.bind(self));
+        }
+
+        const userAgent = window.navigator.userAgent.toLocaleLowerCase();
+        const isSafari = ((userAgent.indexOf('iphone') > -1 || userAgent.indexOf('ipad') > -1) || browser.name.toLowerCase() == 'safari');
+
+        // Bind the SDP release to the gathering state on Safari-based envs
+        if (isSafari) {
+            pc.onicegatheringstatechange = function (event) {
+                if(event.target.iceGatheringState == "complete") {
+                  descriptionCallback();
+                }
+            }
+        }
+
         var offerAudio = true;
         var offerVideo = true;
         if (mediaConstraints) {
@@ -265,19 +300,17 @@ function WebRtcPeer(mode, options, callback) {
                 offerToReceiveVideo: mode !== 'sendonly' && offerVideo
             };
         var constraints = browserDependantConstraints;
-        logger.debug('constraints: ' + JSON.stringify(constraints));
+        // logger.debug('constraints: ' + JSON.stringify(constraints));
         pc.createOffer(constraints).then(function (offer) {
-            logger.debug('Created SDP offer');
+            // logger.debug('Created SDP offer');
             offer = mangleSdpToAddSimulcast(offer);
             return pc.setLocalDescription(offer);
-        }).then(function () {
-            var localDescription = pc.localDescription;
-            logger.debug('Local description set', localDescription.sdp);
-            if (multistream && usePlanB) {
-                localDescription = interop.toUnifiedPlan(localDescription);
-                logger.debug('offer::origPlanB->UnifiedPlan', dumpSDP(localDescription));
+        }).then(() => {
+            // The Safari offer release was already binded to the gathering state
+            if (isSafari) {
+                return;
             }
-            callback(null, localDescription.sdp, self.processAnswer.bind(self));
+            descriptionCallback();
         }).catch(callback);
     };
     this.getLocalSessionDescriptor = function () {
@@ -287,13 +320,31 @@ function WebRtcPeer(mode, options, callback) {
         return pc.remoteDescription;
     };
     function setRemoteVideo() {
-        if (remoteVideo) {
-            var stream = pc.getRemoteStreams()[0];
-            remoteVideo.pause();
-            remoteVideo.srcObject = stream;
-            remoteVideo.load();
-            logger.info('Remote URL:', remoteVideo.srcObject);
+      if (remoteVideo) {
+        // TODO review the retry - prlanzarin 08/18
+        let played = false;
+        const MAX_RETRIES = 5;
+        let attempt = 0;
+        const playVideo = () => {
+          if (!played && attempt < MAX_RETRIES) {
+            remoteVideo.play().catch(e => {
+                attempt++;
+                playVideo(remoteVideo);
+            }).then(() => { remoteVideo.muted = false; played = true; attempt = 0;});
+          }
         }
+
+        let stream = self.getRemoteStream();
+
+        remoteVideo.oncanplaythrough = function() {
+          playVideo();
+        };
+
+        remoteVideo.pause();
+        remoteVideo.srcObject = stream;
+        remoteVideo.load();
+        logger.info('Remote URL:', remoteVideo.srcObject);
+      }
     }
     this.showLocalVideo = function () {
         localVideo.srcObject = videoStream;
@@ -317,14 +368,14 @@ function WebRtcPeer(mode, options, callback) {
             logger.debug('asnwer::planB', dumpSDP(planBAnswer));
             answer = planBAnswer;
         }
-        logger.debug('SDP answer received, setting remote description');
+        // logger.debug('SDP answer received, setting remote description');
         if (pc.signalingState === 'closed') {
             return callback('PeerConnection is closed');
         }
-        pc.setRemoteDescription(answer, function () {
+        pc.setRemoteDescription(answer).then(function () {
             setRemoteVideo();
             callback();
-        }, callback);
+        }).catch(callback);
     };
     this.processOffer = function (sdpOffer, callback) {
         callback = callback.bind(this);
@@ -337,7 +388,7 @@ function WebRtcPeer(mode, options, callback) {
             logger.debug('offer::planB', dumpSDP(planBOffer));
             offer = planBOffer;
         }
-        logger.debug('SDP offer received, setting remote description');
+        // logger.debug('SDP offer received, setting remote description');
         if (pc.signalingState === 'closed') {
             return callback('PeerConnection is closed');
         }
@@ -347,7 +398,7 @@ function WebRtcPeer(mode, options, callback) {
             return pc.createAnswer();
         }).then(function (answer) {
             answer = mangleSdpToAddSimulcast(answer);
-            logger.debug('Created SDP answer');
+            // logger.debug('Created SDP answer');
             return pc.setLocalDescription(answer);
         }).then(function () {
             var localDescription = pc.localDescription;
@@ -355,7 +406,7 @@ function WebRtcPeer(mode, options, callback) {
                 localDescription = interop.toUnifiedPlan(localDescription);
                 logger.debug('answer::origPlanB->UnifiedPlan', dumpSDP(localDescription));
             }
-            logger.debug('Local description set', localDescription.sdp);
+            // logger.debug('Local description set', localDescription.sdp);
             callback(null, localDescription.sdp);
         }).catch(callback);
     };
@@ -381,10 +432,10 @@ function WebRtcPeer(mode, options, callback) {
             self.showLocalVideo();
         }
         if (videoStream) {
-            pc.addStream(videoStream);
+            videoStream.getTracks().forEach(track => pc.addTrack(track, videoStream));
         }
         if (audioStream) {
-            pc.addStream(audioStream);
+            audioStream.getTracks().forEach(track => pc.addTrack(track, audioStream));
         }
         var browser = parser.getBrowser();
         if (mode === 'sendonly' && (browser.name === 'Chrome' || browser.name === 'Chromium') && browser.major === 39) {
@@ -410,7 +461,27 @@ function WebRtcPeer(mode, options, callback) {
                     return callback(error);
                 constraints = [mediaConstraints];
                 constraints.unshift(constraints_);
-                getMedia(recursive.apply(undefined, constraints));
+                let gDMCallback = function(stream) {
+                    stream.getTracks()[0].applyConstraints(constraints[0].optional)
+                        .then(() => {
+                            videoStream = stream;
+                            start();
+                        }).catch(() => {
+                            videoStream = stream;
+                            start();
+                        });
+                }
+                if (typeof navigator.getDisplayMedia === 'function') {
+                    navigator.getDisplayMedia(recursive.apply(undefined, constraints))
+                        .then(gDMCallback)
+                        .catch(callback);
+                } else if (navigator.mediaDevices && typeof navigator.mediaDevices.getDisplayMedia === 'function') {
+                    navigator.mediaDevices.getDisplayMedia(recursive.apply(undefined, constraints))
+                        .then(gDMCallback)
+                        .catch(callback);
+                } else {
+                    getMedia(recursive.apply(undefined, constraints));
+                }
             }, guid);
         }
     } else {
@@ -442,23 +513,28 @@ function createEnableDescriptor(type) {
         get: function () {
             if (!this.peerConnection)
                 return;
-            var streams = this.peerConnection.getLocalStreams();
-            if (!streams.length)
+
+            var senders = this.peerConnection.getSenders();
+            if (!senders.length)
                 return;
-            for (var i = 0, stream; stream = streams[i]; i++) {
-                var tracks = stream[method]();
-                for (var j = 0, track; track = tracks[j]; j++)
-                    if (!track.enabled)
-                        return false;
-            }
+
+            senders.forEach(sender => {
+                let track = sender.track;
+                if (!track.enabled && track.kind === type) {
+                    return false;
+                }
+            });
             return true;
         },
         set: function (value) {
             function trackSetEnable(track) {
                 track.enabled = value;
             }
-            this.peerConnection.getLocalStreams().forEach(function (stream) {
-                stream[method]().forEach(trackSetEnable);
+            this.peerConnection.getSenders().forEach(function (stream) {
+                let track = stream.track;
+                if (track.kind === type) {
+                    trackSetEnable(track);
+                }
             });
         }
     };
@@ -476,18 +552,46 @@ Object.defineProperties(WebRtcPeer.prototype, {
     'audioEnabled': createEnableDescriptor('Audio'),
     'videoEnabled': createEnableDescriptor('Video')
 });
-WebRtcPeer.prototype.getLocalStream = function (index) {
-    if (this.peerConnection) {
-        return this.peerConnection.getLocalStreams()[index || 0];
-    }
+WebRtcPeer.prototype.getLocalStream = function () {
+  if (this.localStream) {
+    return this.localStream;
+  }
+
+  if (this.peerConnection) {
+    this.localStream = new MediaStream();
+    this.peerConnection.getSenders().forEach((ls) => {
+      let track = ls.track;
+      if (track && !track.muted) {
+        this.localStream.addTrack(track);
+      }
+    });
+    return this.localStream;
+  }
 };
-WebRtcPeer.prototype.getRemoteStream = function (index) {
-    if (this.peerConnection) {
-        return this.peerConnection.getRemoteStreams()[index || 0];
-    }
+WebRtcPeer.prototype.getRemoteStream = function () {
+  if (this.remoteStream) {
+    return this.remoteStream;
+  }
+
+  if (this.peerConnection) {
+    this.remoteStream = new MediaStream();
+    this.peerConnection.getReceivers().forEach((rs) => {
+      let track = rs.track;
+      if (track) {
+        if (track.muted) {
+          track.onunmute = () => {
+            this.remoteStream.addTrack(track);
+          };
+          return;
+        }
+        this.remoteStream.addTrack(track);
+      }
+    });
+    return this.remoteStream;
+  }
 };
 WebRtcPeer.prototype.dispose = function () {
-    logger.debug('Disposing WebRtcPeer');
+    // logger.debug('Disposing WebRtcPeer');
     var pc = this.peerConnection;
     var dc = this.dataChannel;
     try {
@@ -499,7 +603,13 @@ WebRtcPeer.prototype.dispose = function () {
         if (pc) {
             if (pc.signalingState === 'closed')
                 return;
-            pc.getLocalStreams().forEach(streamStop);
+            pc.getSenders().forEach(streamStop);
+            if (this.remoteStream) {
+                this.remoteStream = null;
+            }
+            if (this.localStream) {
+                this.localStream = null;
+            }
             pc.close();
         }
     } catch (err) {
@@ -1045,7 +1155,7 @@ module.exports = function(stream, options) {
   harker.setInterval = function(i) {
     interval = i;
   };
-  
+
   harker.stop = function() {
     running = false;
     harker.emit('volume_change', -100, threshold);
@@ -1063,12 +1173,12 @@ module.exports = function(stream, options) {
   // and emit events if changed
   var looper = function() {
     setTimeout(function() {
-    
+
       //check if stop has been called
       if(!running) {
         return;
       }
-      
+
       var currentVolume = getMaxVolume(analyser, fftBins);
 
       harker.emit('volume_change', currentVolume, threshold);
@@ -1145,7 +1255,7 @@ if (typeof Object.create === 'function') {
 ;(function(isNode) {
 
 	/**
-	 * Merge one or more objects 
+	 * Merge one or more objects
 	 * @param bool? clone
 	 * @param mixed,... arguments
 	 * @return object
@@ -1158,7 +1268,7 @@ if (typeof Object.create === 'function') {
 	}, publicName = 'merge';
 
 	/**
-	 * Merge two or more objects recursively 
+	 * Merge two or more objects recursively
 	 * @param bool? clone
 	 * @param mixed,... arguments
 	 * @return object

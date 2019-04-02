@@ -1,9 +1,16 @@
 @import "/imports/ui/stylesheets/variables/_all";
+@import "/imports/ui/stylesheets/variables/general";
+@import "/imports/ui/stylesheets/variables/palette";
+@import "/imports/ui/stylesheets/variables/typography";
 
-$navbar-height: 63px; // TODO: Change to NavBar real height
-$actionsbar-height: 75px; // TODO: Change to ActionsBar real height
-$bars-padding: $lg-padding-x - .45rem; // -.45 so user-list and chat title is aligned with the presentation title
-$userlist-handle-width: 5px; // 5px so user-list and chat resize handle render as the same size
+:root {
+  --navbar-height: 63px; // TODO: Change to NavBar real height
+  --actionsbar-height: 75px; // TODO: Change to ActionsBar real height
+  --bars-padding: calc(var(--lg-padding-x) - .45rem); // -.45 so user-list and chat title is aligned with the presentation title
+  --userlist-handle-width: 5px; // 5px so user-list and chat resize handle render as the same size
+  --poll-pane-min-width: 20em;
+  --panel-margin-left: 0.1em;
+}
 
 .main {
   position: relative;
@@ -17,7 +24,7 @@ $userlist-handle-width: 5px; // 5px so user-list and chat resize handle render a
   text-align: center;
 
   font-size: 1.5rem;
-  padding: $bars-padding;
+  padding: var(--bars-padding);
 }
 
 .wrapper {
@@ -51,7 +58,7 @@ $userlist-handle-width: 5px; // 5px so user-list and chat resize handle render a
   }
 }
 
-.content {
+.content, .noPanelContent {
   @extend %full-page;
   order: 3;
 
@@ -63,8 +70,11 @@ $userlist-handle-width: 5px; // 5px so user-list and chat resize handle render a
     width: 100%;
     height: 50%;
     opacity: 0;
-    transition: opacity .3s;
     pointer-events: none;
+
+    [style~="--enableAnimation:1;"] & {
+      transition: opacity .3s;
+    }
   }
 
   &:before {
@@ -77,20 +87,15 @@ $userlist-handle-width: 5px; // 5px so user-list and chat resize handle render a
     background: linear-gradient(to top, rgba(0, 0, 0, .45) -20%, transparent 20%);
   }
 
-  &:hover,
-  &:active {
-    &:before,
-    &:after {
-      opacity: 1;
-    }
-  }
-
   @include mq($medium-up) {
     flex: 5;
     order: 2;
   }
 }
 
+.content{
+  margin-left: var(--panel-margin-left);
+}
 
 .userList {
   @extend %full-page;
@@ -98,11 +103,10 @@ $userlist-handle-width: 5px; // 5px so user-list and chat resize handle render a
 
   z-index: 2;
   overflow: visible;
-
   order: 1;
 
   @include mq($small-only) {
-    top: $navbar-height;
+    top: var(--navbar-height);
   }
 
   @include mq($medium-up) {
@@ -116,14 +120,17 @@ $userlist-handle-width: 5px; // 5px so user-list and chat resize handle render a
 }
 
 .userlistPad {
-  background-color: $color-off-white;
-  width: $userlist-handle-width;
+  background-color: var(--color-off-white);
+  width: var(--userlist-handle-width);
 }
 
 .compact {
   flex-basis: 4.6rem;
 }
 
+.poll,
+.breakoutRoom,
+.note,
 .chat {
   @extend %full-page;
 
@@ -132,7 +139,8 @@ $userlist-handle-width: 5px; // 5px so user-list and chat resize handle render a
   @include mq($small-only) {
     z-index: 3;
     height: auto;
-    top: $navbar-height;
+    top: var(--navbar-height);
+    overflow: visible;
   }
 
   @include mq($medium-up) {
@@ -142,6 +150,21 @@ $userlist-handle-width: 5px; // 5px so user-list and chat resize handle render a
 
   @include mq($xlarge-up) {
     flex-basis: 20vw;
+  }
+}
+
+.poll {
+  background-color: var(--color-white);
+  min-width: var(--poll-pane-min-width);
+  padding: 1rem;
+}
+
+.breakoutRoom {
+  height: 100%;
+  width: 20vw;
+  background-color: var(--color-white);
+  @include mq($small-only) {
+    width: auto;
   }
 }
 
@@ -161,7 +184,7 @@ $userlist-handle-width: 5px; // 5px so user-list and chat resize handle render a
   order: 2;
   flex-direction: row;
   position: relative;
-
+  margin-left: var(--panel-margin-right);
   @include mq($portrait) {
     flex-direction: column;
   }
@@ -185,7 +208,7 @@ $userlist-handle-width: 5px; // 5px so user-list and chat resize handle render a
 
 .actionsbar {
   flex: 1;
-  padding: $bars-padding;
+  padding: var(--bars-padding);
   position: relative;
   order: 3;
 }

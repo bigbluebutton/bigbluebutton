@@ -10,8 +10,7 @@ export default function changeRole(role, status, userId, meetingId, changedBy) {
     userId,
   };
 
-  const action = status ? '$push' : '$pop';
-
+  const action = status ? '$addToSet' : '$pull';
   const user = Users.findOne(selector);
 
   const modifier = {

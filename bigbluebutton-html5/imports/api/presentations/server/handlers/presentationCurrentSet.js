@@ -4,10 +4,11 @@ import setCurrentPresentation from '../modifiers/setCurrentPresentation';
 export default function handlePresentationCurrentSet({ body }, meetingId) {
   check(body, Object);
 
-  const { presentationId } = body;
+  const { presentationId, podId } = body;
 
   check(meetingId, String);
   check(presentationId, String);
+  check(podId, String);
 
-  return setCurrentPresentation(meetingId, presentationId);
+  return setCurrentPresentation(meetingId, podId, presentationId);
 }

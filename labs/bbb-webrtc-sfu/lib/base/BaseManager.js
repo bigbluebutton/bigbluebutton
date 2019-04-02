@@ -10,7 +10,7 @@
 const BigBlueButtonGW = require('../bbb/pubsub/bbb-gw');
 const C = require('../bbb/messages/Constants');
 const Logger = require('../utils/Logger');
-const isRecordedStream = require('../utils/Utils.js').isRecordedStream;
+const errors = require('../base/errors');
 
 module.exports = class BaseManager {
   constructor (connectionChannel, additionalChannels = [], logPrefix = C.BASE_MANAGER_PREFIX) {
@@ -61,6 +61,12 @@ module.exports = class BaseManager {
       while(candidate = queue.pop()) {
         session.onIceCandidate(candidate);
       }
+    }
+  }
+
+  _deleteIceQueue (sessionId) {
+    if (this._iceQueues[sessionId]) {
+      delete this._iceQueues[sessionId];
     }
   }
 
@@ -135,4 +141,55 @@ module.exports = class BaseManager {
       Logger.debug(logInfo);
     }
   }
+
+  _handleError (logPrefix, connectionId, streamId, role, error) {
+    // Setting a default error in case it was unhandled
+    if (error == null) {
+      error = { code: 2200, reason: errors[2200] }
+    }
+
+    if (error && this._validateErrorMessage(error)) {
+      return error;
+    }
+
+    const { code } = error;
+    const reason = errors[code];
+
+    if (reason == null) {
+      return;
+    }
+
+    error.message = reason;
+
+    Logger.debug(logPrefix, "Handling error", error.code, error.message);
+    Logger.trace(logPrefix, error.stack);
+
+    return this._assembleErrorMessage(error, role, streamId, connectionId);
+  }
+
+  _assembleErrorMessage (error, role, streamId, connectionId) {
+    return {
+      connectionId,
+      type: this.sfuApp,
+      id: 'error',
+      role,
+      streamId,
+      code: error.code,
+      reason: error.message,
+    };
+  }
+
+  _validateErrorMessage (error) {
+    const {
+      connectionId = null,
+      type = null,
+      id = null,
+      role = null,
+      streamId = null,
+      code = null,
+      reason = null,
+    } = error;
+    return connectionId && type && id && role && streamId && code && reason;
+  }
+
 };

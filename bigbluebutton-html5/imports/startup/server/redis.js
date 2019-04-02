@@ -28,10 +28,10 @@ const makeEnvelope = (channel, eventName, header, body) => {
 
 const makeDebugger = enabled => (message) => {
   if (!enabled) return;
-  Logger.info(`REDIS: ${message}`);
+  Logger.debug(`REDIS: ${message}`);
 };
 
-class MettingMessageQueue {
+class MeetingMessageQueue {
   constructor(eventEmitter, asyncMessages = [], debug = () => {}) {
     this.asyncMessages = asyncMessages;
     this.emitter = eventEmitter;
@@ -105,8 +105,9 @@ class RedisPubSub {
     this.config = config;
 
     this.didSendRequestEvent = false;
-    this.pub = Redis.createClient();
-    this.sub = Redis.createClient();
+    const redisHost = process.env.REDIS_HOST || Meteor.settings.private.redis.host;
+    this.pub = Redis.createClient(Meteor.settings.private.redis.port, redisHost);
+    this.sub = Redis.createClient(Meteor.settings.private.redis.port, redisHost);
     this.emitter = new EventEmitter2();
     this.mettingsQueues = {};
 
@@ -158,17 +159,17 @@ class RedisPubSub {
 
     if (ignoredMessages.includes(channel)
       || ignoredMessages.includes(eventName)) {
+      if (eventName === 'CheckAlivePongSysMsg') {
+        return;
+      }
       this.debug(`${eventName} skipped`);
       return;
     }
 
-    // Please keep this log until the message handling is solid
-    console.warn(` ~~~~ REDIS RECEIVED: ${eventName}  ${message}`);
-
     const queueId = meetingId || NO_MEETING_ID;
 
     if (!(queueId in this.mettingsQueues)) {
-      this.mettingsQueues[meetingId] = new MettingMessageQueue(this.emitter, async, this.debug);
+      this.mettingsQueues[meetingId] = new MeetingMessageQueue(this.emitter, async, this.debug);
     }
 
     this.mettingsQueues[meetingId].add({
@@ -227,9 +228,6 @@ class RedisPubSub {
     };
 
     const envelope = makeEnvelope(channel, eventName, header, payload);
-
-    // Please keep this log until the message handling is solid
-    console.warn(` ~~~~ REDIS PUBLISHING:  ${envelope}`);
 
     return this.pub.publish(channel, envelope, RedisPubSub.handlePublishError);
   }

@@ -99,6 +99,10 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			private function tunnelingFailed(e:PortTestEvent):void {
 				loadingbarLabel.text = ResourceUtil.getInstance().getString('bbb.mainshell.statusProgress.cannotConnectServer');
 			}
+			
+			public function loadingFailed(message:String):void {
+				loadingbarLabel.text = message;
+			}
 		]]>
 	</fx:Script>
 

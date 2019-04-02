@@ -10,7 +10,7 @@
     }
 
     body {
-      position: absolute;
+      position: fixed;
       height: 100%;
       font-family: 'Source Sans Pro', Arial, sans-serif;
       font-size: 1rem; /* 16px */
@@ -41,10 +41,46 @@
     [hidden]:not([hidden="false"]) {
       display: none !important;
     }
+
+    .browserWarning {
+      border: 5px solid #F3F6F9;
+      border-radius: 0.5rem;
+      color: #F3F6F9;
+      text-align: center;
+      width:500px;
+      position:fixed;
+      left:50%;
+      margin-left: -250px;
+      top:50%;
+      margin-top: -4rem;
+      font-size: 1.5rem;
+      padding: 10px;
+    }
   </style>
+  <script>
+    document.addEventListener('gesturestart', function (e) {
+      e.preventDefault();
+    });
+
+    window.addEventListener('load', function (e) {
+      var ua = window.navigator.userAgent;
+
+      // detect for different version of IE and show a warning
+      if (ua.indexOf('MSIE ') > 0 || ua.indexOf('Trident/') > 0) {
+        var warning = document.getElementById("browserWarning");
+        if (warning) {
+          warning.style.display = "block";
+        }
+      }
+    });
+  </script>
 </head>
 <body style="background-color: #06172A">
-  <div id="app" role="document"></div>
+  <div id="app" role="document">
+    <p id="browserWarning" class="browserWarning" style="display: none">
+      It looks like you're using a browser that is not fully supported. Please use either <a href="https://www.google.com/chrome/">Chrome</a> or <a href="https://getfirefox.com">Firefox</a> for full support.
+    </p>
+  </div>
   <audio id="remote-media" autoPlay="autoplay">
     <track kind="captions" /> {/* These captions are brought to you by eslint */}
   </audio>
