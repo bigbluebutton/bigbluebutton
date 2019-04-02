@@ -82,7 +82,6 @@ const intlMessages = defineMessages({
 class ActionsDropdown extends Component {
   constructor(props) {
     super(props);
-    this.handlePresentationClick = this.handlePresentationClick.bind(this);
 
     this.presentationItemId = _.uniqueId('action-item-');
     this.recordId = _.uniqueId('action-item-');
@@ -90,6 +89,7 @@ class ActionsDropdown extends Component {
     this.takePresenterId = _.uniqueId('action-item-');
 
     this.handlePresentationClick = this.handlePresentationClick.bind(this);
+    this.handleExternalVideoClick = this.handleExternalVideoClick.bind(this);
   }
 
   componentWillUpdate(nextProps) {
@@ -171,7 +171,7 @@ class ActionsDropdown extends Component {
             onClick={this.handleExternalVideoClick}
           />
         )
-        : null)
+        : null),
     ]);
   }
 
