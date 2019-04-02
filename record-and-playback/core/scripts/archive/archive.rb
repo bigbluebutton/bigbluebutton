@@ -26,10 +26,10 @@ require 'trollop'
 require 'yaml'
 
 
-def archive_events(meeting_id, redis_host, redis_port, raw_archive_dir, break_timestamp)
+def archive_events(meeting_id, redis_host, redis_port, redis_password, raw_archive_dir, break_timestamp)
   BigBlueButton.logger.info("Archiving events for #{meeting_id}")
   #begin
-    redis = BigBlueButton::RedisWrapper.new(redis_host, redis_port)
+    redis = BigBlueButton::RedisWrapper.new(redis_host, redis_port, redis_password)
     events_archiver = BigBlueButton::RedisEventsArchiver.new redis    
     events = events_archiver.store_events(meeting_id,
                           "#{raw_archive_dir}/#{meeting_id}/events.xml",
@@ -121,6 +121,7 @@ deskshare_dir = props['raw_deskshare_src']
 screenshare_dir = props['raw_screenshare_src']
 redis_host = props['redis_host']
 redis_port = props['redis_port']
+redis_password = props['redis_password']
 presentation_dir = props['raw_presentation_src']
 video_dir = props['raw_video_src']
 kurento_video_dir = props['kurento_video_src']
@@ -140,7 +141,7 @@ BigBlueButton.logger = Logger.new("#{log_dir}/archive-#{meeting_id}.log", 'daily
 
 target_dir = "#{raw_archive_dir}/#{meeting_id}"
 FileUtils.mkdir_p target_dir
-archive_events(meeting_id, redis_host, redis_port, raw_archive_dir, break_timestamp)
+archive_events(meeting_id, redis_host, redis_port, redis_password, raw_archive_dir, break_timestamp)
 archive_audio(meeting_id, audio_dir, raw_archive_dir)
 archive_directory("#{presentation_dir}/#{meeting_id}/#{meeting_id}",
                   "#{target_dir}/presentation")
@@ -160,7 +161,7 @@ if not archive_has_recording_marks?(meeting_id, raw_archive_dir, break_timestamp
     # we need to delete the keys here because the sanity phase might not
     # automatically happen for this recording
     BigBlueButton.logger.info("Deleting redis keys")
-    redis = BigBlueButton::RedisWrapper.new(redis_host, redis_port)
+    redis = BigBlueButton::RedisWrapper.new(redis_host, redis_port, redis_password)
     events_archiver = BigBlueButton::RedisEventsArchiver.new(redis)
     events_archiver.delete_events(meeting_id)
   end

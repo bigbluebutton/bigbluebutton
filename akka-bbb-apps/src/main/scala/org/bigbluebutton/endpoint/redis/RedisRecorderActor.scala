@@ -10,13 +10,34 @@ import org.bigbluebutton.core.record.events._
 import org.bigbluebutton.core.apps.groupchats.GroupChatApp
 
 object RedisRecorderActor {
-  def props(system: ActorSystem): Props = Props(classOf[RedisRecorderActor], system)
+  def props(
+    system:           ActorSystem,
+    redisHost:        String,
+    redisPort:        Int,
+    redisPassword:    Option[String],
+    keysExpiresInSec: Int
+  ): Props = Props(
+    classOf[RedisRecorderActor],
+    system,
+    redisHost,
+    redisPort,
+    redisPassword,
+    keysExpiresInSec
+  )
 }
 
-class RedisRecorderActor(val system: ActorSystem)
-    extends SystemConfiguration
-    with Actor with ActorLogging {
-  val redis = RedisClient(redisHost, redisPort)(system)
+class RedisRecorderActor(
+    val system:       ActorSystem,
+    redisHost:        String,
+    redisPort:        Int,
+    redisPassword:    Option[String],
+    keysExpiresInSec: Int
+) extends Actor with ActorLogging {
+  val redis = RedisClient(
+    redisHost,
+    redisPort,
+    redisPassword
+  )(system)
 
   // Set the name of this client to be able to distinguish when doing
   // CLIENT LIST on redis-cli

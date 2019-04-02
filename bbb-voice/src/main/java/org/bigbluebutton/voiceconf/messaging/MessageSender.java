@@ -6,6 +6,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.LinkedBlockingQueue;
 import org.red5.logging.Red5LoggerFactory;
 import org.slf4j.Logger;
+import org.springframework.util.StringUtils;
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPool;
 import redis.clients.jedis.Protocol;
@@ -22,6 +23,7 @@ public class MessageSender {
 	private BlockingQueue<MessageToSend> messages = new LinkedBlockingQueue<MessageToSend>();
 	private String host;
 	private int port;
+	private String password;
 
 	public void stop() {
 		sendMessage = false;
@@ -42,9 +44,15 @@ public class MessageSender {
 		config.setTimeBetweenEvictionRunsMillis(60000);
 		config.setBlockWhenExhausted(true);
 
+		if (StringUtils.isEmpty(password)) {
+			// Need to set to NULL if password is empty so that Jedis won't
+			// AUTH with redis. (ralam nov 29, 2018)
+			password = null;
+		}
+
 		// Set the name of this client to be able to distinguish when doing
 		// CLIENT LIST on redis-cli
-		redisPool = new JedisPool(config, host, port, Protocol.DEFAULT_TIMEOUT, null,
+		redisPool = new JedisPool(config, host, port, Protocol.DEFAULT_TIMEOUT, password,
 				Protocol.DEFAULT_DATABASE, "BbbRed5VoicePub");
 
 		log.info("Redis org.bigbluebutton.red5.pubsub.message publisher starting!");
@@ -98,5 +106,9 @@ public class MessageSender {
 
 	public void setPort(int port) {
 		this.port = port;
+	}
+
+	public void setPassword(String password){
+		this.password = password;
 	}
 }

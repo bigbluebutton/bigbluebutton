@@ -24,17 +24,29 @@ import org.bigbluebutton.app.screenshare.server.recorder.event.AbstractDeskshare
 import org.bigbluebutton.app.screenshare.server.recorder.event.RecordEvent;
 import org.bigbluebutton.app.screenshare.server.recorder.event.RecordStartedEvent;
 import org.bigbluebutton.app.screenshare.server.recorder.event.RecordStoppedEvent;
-
+import org.springframework.util.StringUtils;
 import redis.clients.jedis.Jedis;
 
 public class EventRecorder implements RecordStatusListener {
 	private static final String COLON=":";
 	private String host;
 	private int port;
+	private String password;
 
-	public EventRecorder(String host, int port){
+	public EventRecorder(String host,
+											 int port,
+											 String password){
 		this.host = host;
-		this.port = port;		
+		this.port = port;
+
+		if (StringUtils.isEmpty(password)) {
+			// Need to set to NULL if password is empty so that Jedis won't
+			// AUTH with redis. (ralam nov 29, 2018)
+			this.password = null;
+		} else {
+			this.password = password;
+		}
+
 	}
 	
   private Long genTimestamp() {
@@ -43,6 +55,11 @@ public class EventRecorder implements RecordStatusListener {
   
 	private void record(String session, RecordEvent message) {
 		Jedis jedis = new Jedis(host, port);
+
+		if (password != null) {
+			jedis.auth(password);
+		}
+
 		Long msgid = jedis.incr("global:nextRecordedMsgId");
 		jedis.hmset("recording" + COLON + session + COLON + msgid, message.toMap());
 		jedis.rpush("meeting" + COLON + session + COLON + "recordings", msgid.toString());						

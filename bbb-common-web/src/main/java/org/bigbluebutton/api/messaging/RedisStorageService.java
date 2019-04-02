@@ -2,6 +2,7 @@ package org.bigbluebutton.api.messaging;
 
 import java.util.Map;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.pool2.impl.GenericObjectPoolConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -16,15 +17,21 @@ public class RedisStorageService {
   private JedisPool redisPool;
   private String host;
   private int port;
+  private String password;
 
   public void stop() {
 
   }
 
   public void start() {
+    if (StringUtils.isBlank(password)) {
+      // Need to set to NULL if password is empty so that Jedis won't
+      // AUTH with redis. (ralam nov 29, 2018)
+      password = null;
+    }
     // Set the name of this client to be able to distinguish when doing
     // CLIENT LIST on redis-cli
-    redisPool = new JedisPool(new GenericObjectPoolConfig(), host, port, Protocol.DEFAULT_TIMEOUT, null,
+    redisPool = new JedisPool(new GenericObjectPoolConfig(), host, port, Protocol.DEFAULT_TIMEOUT, password,
       Protocol.DEFAULT_DATABASE, "BbbRed5AppsPub");
   }
 
@@ -59,7 +66,6 @@ public class RedisStorageService {
   public void addBreakoutRoom(String parentId, String breakoutId) {
     Jedis jedis = redisPool.getResource();
     try {
-
       log.debug("Saving breakout room for meeting {}", parentId);
       jedis.sadd("meeting:breakout:rooms:" + parentId, breakoutId);
     } catch (Exception e) {
@@ -85,5 +91,9 @@ public class RedisStorageService {
 
   public void setPort(int port) {
     this.port = port;
+  }
+
+  public void setPassword(String password) {
+    this.password = password;
   }
 }

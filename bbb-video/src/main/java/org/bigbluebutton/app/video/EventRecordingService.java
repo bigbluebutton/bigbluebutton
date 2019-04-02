@@ -22,6 +22,7 @@ import java.util.Map;
 import org.apache.commons.pool2.impl.GenericObjectPoolConfig;
 import org.red5.logging.Red5LoggerFactory;
 import org.slf4j.Logger;
+import org.springframework.util.StringUtils;
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPool;
 import redis.clients.jedis.Protocol;
@@ -34,11 +35,13 @@ public class EventRecordingService {
 	private JedisPool redisPool;
 	private final String  host;
 	private final int port;
+	private String password;
 	private final int keyExpiry;
 	
-	public EventRecordingService(String host, int port, int keyExpiry) {
+	public EventRecordingService(String host, int port, String password, int keyExpiry) {
 		this.host = host;
 		this.port = port;
+		this.password = password;
 		this.keyExpiry = keyExpiry;
 	}
 	
@@ -70,9 +73,15 @@ public class EventRecordingService {
 	}
 
 	public void start() {
+		if (StringUtils.isEmpty(password)) {
+			// Need to set to NULL if password is empty so that Jedis won't
+			// AUTH with redis. (ralam nov 29, 2018)
+			password = null;
+		}
+
 		// Set the name of this client to be able to distinguish when doing
 		// CLIENT LIST on redis-cli
-		redisPool = new JedisPool(new GenericObjectPoolConfig(), host, port, Protocol.DEFAULT_TIMEOUT, null,
+		redisPool = new JedisPool(new GenericObjectPoolConfig(), host, port, Protocol.DEFAULT_TIMEOUT, password,
 			Protocol.DEFAULT_DATABASE, "BbbRed5AppsPub");
 	}
 }

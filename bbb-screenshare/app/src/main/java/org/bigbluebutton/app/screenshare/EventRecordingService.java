@@ -21,6 +21,7 @@ package org.bigbluebutton.app.screenshare;
 
 import java.util.Map;
 
+import org.springframework.util.StringUtils;
 import redis.clients.jedis.Jedis;
 
 public class EventRecordingService {
@@ -28,14 +29,30 @@ public class EventRecordingService {
 	
 	private final String  host;
 	private final int port;
-	
-	public EventRecordingService(String host, int port) {
+	private String password;
+
+	public EventRecordingService(String host,
+															 int port,
+															 String password) {
 		this.host = host;
 		this.port = port;
+
+		if (StringUtils.isEmpty(password)) {
+			// Need to set to NULL if password is empty so that Jedis won't
+			// AUTH with redis. (ralam nov 29, 2018)
+			this.password = null;
+		} else {
+			this.password = password;
+		}
 	}
 	
 	public void record(String meetingId, Map<String, String> event) {		
 		Jedis jedis = new Jedis(host, port);
+
+		if (password != null) {
+			jedis.auth(password);
+		}
+
 		Long msgid = jedis.incr("global:nextRecordedMsgId");
 		jedis.hmset("recording:" + meetingId + COLON + msgid, event);
 		jedis.rpush("meeting:" + meetingId + COLON + "recordings", msgid.toString());						

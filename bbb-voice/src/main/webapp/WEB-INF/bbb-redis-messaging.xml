@@ -35,6 +35,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		  init-method="start" destroy-method="stop">
 		<property name="host" value="${redis.host}"/>
 		<property name="port" value="${redis.port}"/>
+		<property name="password" value="${redis.pass}"/>
 	</bean>
 
 	<bean id="meetingMessageHandler" class="org.bigbluebutton.voiceconf.messaging.MeetingMessageHandler">
@@ -45,6 +46,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		  init-method="start" destroy-method="stop">
 		<property name="host" value="${redis.host}"/>
 		<property name="port" value="${redis.port}"/>
+		<property name="password" value="${redis.pass}"/>
 		<property name="messageHandler"> <ref local="redisMessageHandler"/> </property>
 	</bean>
 

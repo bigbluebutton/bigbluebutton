@@ -21,19 +21,34 @@ object AppsRedisSubscriberActor extends SystemConfiguration {
 
   val channels = Seq(toVoiceConfRedisChannel)
   val patterns = Seq("bigbluebutton:to-voice-conf:*", "bigbluebutton:from-bbb-apps:*")
+  val redisPass = Option(redisPassword)
 
-  def props(system: ActorSystem, inJsonMgBus: InsonMsgBus): Props =
-    Props(classOf[AppsRedisSubscriberActor], system, inJsonMgBus,
-      redisHost, redisPort,
-      channels, patterns).withDispatcher("akka.rediscala-subscriber-worker-dispatcher")
+  def props(system: ActorSystem,
+    inJsonMgBus: InsonMsgBus): Props =
+    Props(classOf[AppsRedisSubscriberActor],
+      system,
+      inJsonMgBus,
+      redisHost,
+      redisPort,
+      redisPass,
+      channels,
+      patterns).withDispatcher("akka.rediscala-subscriber-worker-dispatcher")
 }
 
 class AppsRedisSubscriberActor(val system: ActorSystem,
-  inJsonMgBus: InsonMsgBus, redisHost: String,
+  inJsonMgBus: InsonMsgBus,
+  redisHost: String,
   redisPort: Int,
-  channels: Seq[String] = Nil, patterns: Seq[String] = Nil)
-    extends RedisSubscriberActor(new InetSocketAddress(redisHost, redisPort),
-      channels, patterns, onConnectStatus = connected => { println(s"connected: $connected") }) with SystemConfiguration {
+  redisPassword: Option[String],
+  channels: Seq[String] = Nil,
+  patterns: Seq[String] = Nil)
+    extends RedisSubscriberActor(
+      new InetSocketAddress(redisHost,
+        redisPort),
+      channels,
+      patterns,
+      authPassword = redisPassword,
+      onConnectStatus = connected => { println(s"connected: $connected") }) with SystemConfiguration {
 
   override val supervisorStrategy = OneForOneStrategy(maxNrOfRetries = 10, withinTimeRange = 1 minute) {
     case e: Exception => {

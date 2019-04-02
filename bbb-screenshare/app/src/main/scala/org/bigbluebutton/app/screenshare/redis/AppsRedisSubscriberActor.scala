@@ -17,17 +17,35 @@ object AppsRedisSubscriberActor extends SystemConfiguration{
   val channels = Seq(fromAkkaAppsRedisChannel)
   val patterns = Seq("bigbluebutton:to-bbb-apps:*", "bigbluebutton:from-voice-conf:*")
 
-  def props(jsonMsgBus: IncomingJsonMessageBus): Props =
-    Props(classOf[AppsRedisSubscriberActor], jsonMsgBus,
-      redisHost, redisPort,
-      channels, patterns).withDispatcher("akka.rediscala-subscriber-worker-dispatcher")
+  def props(
+                   jsonMsgBus: IncomingJsonMessageBus,
+                   redisHost: String,
+                   redisPort: Int,
+                   redisPassword: Option[String]): Props =
+    Props(classOf[AppsRedisSubscriberActor],
+      jsonMsgBus,
+      redisHost,
+      redisPort,
+      redisPassword,
+      channels,
+      patterns).withDispatcher("akka.rediscala-subscriber-worker-dispatcher")
 }
 
-class AppsRedisSubscriberActor(jsonMsgBus: IncomingJsonMessageBus, redisHost: String,
-  redisPort: Int,
-  channels: Seq[String] = Nil, patterns: Seq[String] = Nil)
-    extends RedisSubscriberActor(new InetSocketAddress(redisHost, redisPort),
-      channels, patterns, onConnectStatus = connected => { println(s"connected: $connected") }) with SystemConfiguration {
+class AppsRedisSubscriberActor(
+                                      jsonMsgBus: IncomingJsonMessageBus,
+                                      redisHost: String,
+                                      redisPort: Int,
+                                      redisPassword: Option[String],
+                                      channels: Seq[String] = Nil,
+                                      patterns: Seq[String] = Nil)
+    extends RedisSubscriberActor(
+      new InetSocketAddress(
+        redisHost,
+        redisPort),
+      channels,
+      patterns,
+      redisPassword,
+      onConnectStatus = connected => { println(s"connected: $connected") }) with SystemConfiguration {
 
   override val supervisorStrategy = OneForOneStrategy(maxNrOfRetries = 10, withinTimeRange = 1 minute) {
     case e: Exception => {
