@@ -3,6 +3,33 @@ import { check, Match } from 'meteor/check';
 import Meetings from '/imports/api/meetings';
 import Logger from '/imports/startup/server/logger';
 
+const getLockSettings = props => {
+  if (props) {
+    // Since we miss a name convention here, we need to translate some properties
+    // key name to fit the rest of the messaging system
+    props = Object.assign(props, {
+      disablePrivChat: props.disablePrivateChat,
+      disablePubChat: props.disablePublicChat,
+      setBy: 'temp',
+    });
+    delete props['disablePrivateChat'];
+    delete props['disablePublicChat'];
+  } else {
+    // Default lock settings props
+    props = {
+      disableCam: false,
+      disableMic: false,
+      disablePrivChat: false,
+      disablePubChat: false,
+      lockOnJoin: true,
+      lockOnJoinConfigurable: false,
+      lockedLayout: false,
+      setBy: 'temp',
+    };
+  }
+  return props;
+};
+
 export default function addMeeting(meeting) {
   const meetingId = meeting.meetingProp.intId;
 
@@ -64,6 +91,7 @@ export default function addMeeting(meeting) {
       screenshareConf: String,
     },
     metadataProp: Object,
+    lockSettingsProps: Match.Any,
   });
 
   const newMeeting = meeting;
@@ -72,16 +100,7 @@ export default function addMeeting(meeting) {
     meetingId,
   };
 
-  const lockSettingsProp = {
-    disableCam: false,
-    disableMic: false,
-    disablePrivChat: false,
-    disablePubChat: false,
-    lockOnJoin: true,
-    lockOnJoinConfigurable: false,
-    lockedLayout: false,
-    setBy: 'temp',
-  };
+  newMeeting.lockSettingsProps = getLockSettings(meeting.lockSettingsProps);
 
   newMeeting.welcomeProp.welcomeMsg = newMeeting.welcomeProp.welcomeMsg.replace(
     'href="event:',
@@ -103,7 +122,6 @@ export default function addMeeting(meeting) {
     $set: Object.assign(
       { meetingId },
       flat(newMeeting, { safe: true }),
-      { lockSettingsProp },
     ),
   };
 

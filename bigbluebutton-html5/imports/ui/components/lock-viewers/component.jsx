@@ -95,9 +95,9 @@ class LockViewersComponent extends React.PureComponent {
                 <div className={cx(styles.formElement, styles.pullContentRight)}>
                   <Toggle
                     icons={false}
-                    defaultChecked={meeting.lockSettingsProp.disableCam}
+                    defaultChecked={meeting.lockSettingsProps.disableCam}
                     onChange={() => {
-                      meeting.lockSettingsProp.disableCam = !meeting.lockSettingsProp.disableCam;
+                      meeting.lockSettingsProps.disableCam = !meeting.lockSettingsProps.disableCam;
                       toggleLockSettings(meeting);
                     }}
                     ariaLabel={intl.formatMessage(intlMessages.webcamLabel)}
@@ -139,9 +139,9 @@ class LockViewersComponent extends React.PureComponent {
                 <div className={cx(styles.formElement, styles.pullContentRight)}>
                   <Toggle
                     icons={false}
-                    defaultChecked={meeting.lockSettingsProp.disableMic}
+                    defaultChecked={meeting.lockSettingsProps.disableMic}
                     onChange={() => {
-                      meeting.lockSettingsProp.disableMic = !meeting.lockSettingsProp.disableMic;
+                      meeting.lockSettingsProps.disableMic = !meeting.lockSettingsProps.disableMic;
                       toggleLockSettings(meeting);
                     }}
                     ariaLabel={intl.formatMessage(intlMessages.microphoneLable)}
@@ -161,9 +161,9 @@ class LockViewersComponent extends React.PureComponent {
                 <div className={cx(styles.formElement, styles.pullContentRight)}>
                   <Toggle
                     icons={false}
-                    defaultChecked={meeting.lockSettingsProp.disablePubChat}
+                    defaultChecked={meeting.lockSettingsProps.disablePubChat}
                     onChange={() => {
-                      meeting.lockSettingsProp.disablePubChat = !meeting.lockSettingsProp.disablePubChat;
+                      meeting.lockSettingsProps.disablePubChat = !meeting.lockSettingsProps.disablePubChat;
                       toggleLockSettings(meeting);
                     }}
                     ariaLabel={intl.formatMessage(intlMessages.publicChatLabel)}
@@ -183,9 +183,9 @@ class LockViewersComponent extends React.PureComponent {
                 <div className={cx(styles.formElement, styles.pullContentRight)}>
                   <Toggle
                     icons={false}
-                    defaultChecked={meeting.lockSettingsProp.disablePrivChat}
+                    defaultChecked={meeting.lockSettingsProps.disablePrivChat}
                     onChange={() => {
-                      meeting.lockSettingsProp.disablePrivChat = !meeting.lockSettingsProp.disablePrivChat;
+                      meeting.lockSettingsProps.disablePrivChat = !meeting.lockSettingsProp.disablePrivChat;
                       toggleLockSettings(meeting);
                     }}
                     ariaLabel={intl.formatMessage(intlMessages.privateChatLable)}

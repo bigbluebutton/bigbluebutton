@@ -21,7 +21,7 @@ export default function changeLockSettings(meetingId, payload) {
 
   const modifier = {
     $set: {
-      lockSettingsProp: payload,
+      lockSettingsProps: payload,
     },
   };
 
