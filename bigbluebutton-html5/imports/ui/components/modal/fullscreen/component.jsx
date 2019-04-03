@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import Button from '/imports/ui/components/button/component';
 import cx from 'classnames';
@@ -37,7 +37,7 @@ const defaultProps = {
   preventClosing: false,
 };
 
-class ModalFullscreen extends Component {
+class ModalFullscreen extends PureComponent {
   handleAction(name) {
     const action = this.props[name];
     return this.props.modalHide(action.callback);

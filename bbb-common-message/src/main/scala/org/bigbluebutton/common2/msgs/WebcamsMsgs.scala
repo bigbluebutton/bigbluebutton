@@ -1,8 +1,10 @@
 package org.bigbluebutton.common2.msgs
 
 object UserBroadcastCamStartedEvtMsg { val NAME = "UserBroadcastCamStartedEvtMsg" }
-case class UserBroadcastCamStartedEvtMsg(header: BbbClientMsgHeader,
-                                         body: UserBroadcastCamStartedEvtMsgBody) extends BbbCoreMsg
+case class UserBroadcastCamStartedEvtMsg(
+    header: BbbClientMsgHeader,
+    body:   UserBroadcastCamStartedEvtMsgBody
+) extends BbbCoreMsg
 case class UserBroadcastCamStartedEvtMsgBody(userId: String, stream: String)
 
 object UserBroadcastCamStartMsg { val NAME = "UserBroadcastCamStartMsg" }
@@ -32,7 +34,6 @@ case class GetWebcamStreamsMeetingRespMsgBody(streams: Vector[WebcamStreamVO])
 
 case class WebcamStreamVO(streamId: String, stream: MediaStreamVO)
 case class MediaStreamVO(id: String, url: String, userId: String, attributes: collection.immutable.Map[String, String], viewers: Set[String])
-
 
 object GetWebcamStreamsRespMsg {
   val NAME = "GetWebcamStreamsRespMsg"

@@ -16,10 +16,11 @@ import org.bigbluebutton.common2.redis._
 import org.bigbluebutton.common2.bus._
 
 class BbbWebApiGWApp(
-  val oldMessageReceivedGW:        OldMessageReceivedGW,
-  val screenshareRtmpServer:       String,
-  val screenshareRtmpBroadcastApp: String,
-  val screenshareConfSuffix:       String) extends IBbbWebApiGWApp with SystemConfiguration {
+    val oldMessageReceivedGW:        OldMessageReceivedGW,
+    val screenshareRtmpServer:       String,
+    val screenshareRtmpBroadcastApp: String,
+    val screenshareConfSuffix:       String
+) extends IBbbWebApiGWApp with SystemConfiguration {
 
   implicit val system = ActorSystem("bbb-web-common")
 
@@ -47,23 +48,27 @@ class BbbWebApiGWApp(
   //msgFromAkkaAppsEventBus.subscribe(meetingManagerActorRef, fromAkkaAppsChannel)
 
   private val oldMeetingMsgHdlrActor = system.actorOf(
-    OldMeetingMsgHdlrActor.props(oldMessageReceivedGW), "oldMeetingMsgHdlrActor")
+    OldMeetingMsgHdlrActor.props(oldMessageReceivedGW), "oldMeetingMsgHdlrActor"
+  )
   msgFromAkkaAppsEventBus.subscribe(oldMeetingMsgHdlrActor, fromAkkaAppsChannel)
 
   private val msgToAkkaAppsToJsonActor = system.actorOf(
-    MsgToAkkaAppsToJsonActor.props(jsonMsgToAkkaAppsBus), "msgToAkkaAppsToJsonActor")
+    MsgToAkkaAppsToJsonActor.props(jsonMsgToAkkaAppsBus), "msgToAkkaAppsToJsonActor"
+  )
 
   msgToAkkaAppsEventBus.subscribe(msgToAkkaAppsToJsonActor, toAkkaAppsChannel)
 
   private val appsRedisSubscriberActor = system.actorOf(WebRedisSubscriberActor.props(system, receivedJsonMsgBus, oldMessageEventBus), "appsRedisSubscriberActor")
 
   private val receivedJsonMsgHdlrActor = system.actorOf(
-    ReceivedJsonMsgHdlrActor.props(msgFromAkkaAppsEventBus), "receivedJsonMsgHdlrActor")
+    ReceivedJsonMsgHdlrActor.props(msgFromAkkaAppsEventBus), "receivedJsonMsgHdlrActor"
+  )
 
   receivedJsonMsgBus.subscribe(receivedJsonMsgHdlrActor, fromAkkaAppsJsonChannel)
 
   private val oldMessageJsonReceiverActor = system.actorOf(
-    OldMessageJsonReceiverActor.props(oldMessageReceivedGW), "oldMessageJsonReceiverActor")
+    OldMessageJsonReceiverActor.props(oldMessageReceivedGW), "oldMessageJsonReceiverActor"
+  )
 
   oldMessageEventBus.subscribe(oldMessageJsonReceiverActor, fromAkkaAppsOldJsonChannel)
 
@@ -105,7 +110,8 @@ class BbbWebApiGWApp(
       meetingExpireWhenLastUserLeftInMinutes = meetingExpireWhenLastUserLeftInMinutes.intValue(),
       userInactivityInspectTimerInMinutes = userInactivityInspectTimerInMinutes.intValue(),
       userInactivityThresholdInMinutes = userInactivityThresholdInMinutes.intValue(),
-      userActivitySignResponseDelayInMinutes = userActivitySignResponseDelayInMinutes.intValue())
+      userActivitySignResponseDelayInMinutes = userActivitySignResponseDelayInMinutes.intValue()
+    )
 
     val password = PasswordProp(moderatorPass = moderatorPass, viewerPass = viewerPass)
     val recordProp = RecordProp(record = recorded.booleanValue(), autoStartRecording = autoStartRecording.booleanValue(),
@@ -120,7 +126,8 @@ class BbbWebApiGWApp(
     val screenshareProps = ScreenshareProps(
       screenshareConf = voiceBridge + screenshareConfSuffix,
       red5ScreenshareIp = screenshareRtmpServer,
-      red5ScreenshareApp = screenshareRtmpBroadcastApp)
+      red5ScreenshareApp = screenshareRtmpBroadcastApp
+    )
 
     val defaultProps = DefaultProps(meetingProp, breakoutProps, durationProps, password, recordProp, welcomeProp, voiceProp,
       usersProp, metadataProp, screenshareProps)

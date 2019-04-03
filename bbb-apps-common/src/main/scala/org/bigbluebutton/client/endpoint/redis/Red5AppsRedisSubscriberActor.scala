@@ -21,7 +21,8 @@ object Red5AppsRedisSubscriberActor extends RedisSubscriber with RedisConfigurat
       classOf[Red5AppsRedisSubscriberActor],
       system, jsonMsgBus,
       redisHost, redisPort,
-      channels, patterns).withDispatcher("akka.redis-subscriber-worker-dispatcher")
+      channels, patterns
+    ).withDispatcher("akka.redis-subscriber-worker-dispatcher")
 }
 
 class Red5AppsRedisSubscriberActor(system: ActorSystem, jsonMsgBus: JsonMsgFromAkkaAppsBus,

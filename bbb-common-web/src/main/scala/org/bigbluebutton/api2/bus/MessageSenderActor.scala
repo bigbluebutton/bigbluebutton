@@ -1,14 +1,14 @@
 package org.bigbluebutton.api2.bus
 
-import java.io.{PrintWriter, StringWriter}
+import java.io.{ PrintWriter, StringWriter }
 
 import akka.actor.SupervisorStrategy.Resume
-import akka.actor.{Actor, ActorLogging, OneForOneStrategy, Props}
+import akka.actor.{ Actor, ActorLogging, OneForOneStrategy, Props }
 import org.bigbluebutton.common2.redis.MessageSender
 import scala.concurrent.duration._
 
 object MessageSenderActor {
-  def props(msgSender: MessageSender): Props =  Props(classOf[MessageSenderActor], msgSender)
+  def props(msgSender: MessageSender): Props = Props(classOf[MessageSenderActor], msgSender)
 }
 
 class MessageSenderActor(msgSender: MessageSender) extends Actor with ActorLogging {

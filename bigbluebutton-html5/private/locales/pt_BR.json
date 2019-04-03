@@ -97,7 +97,6 @@
     "app.presentation.presentationToolbar.fitToPage": "Ajustar à página",
     "app.presentation.presentationToolbar.goToSlide": "Slide {0}",
     "app.presentationUploder.title": "Apresentação",
-    "app.presentationUploder.message": "Como apresentador, você tem a capacidade de carregar qualquer documento do Office ou arquivo PDF. Para melhores resultados, recomendamos o formato PDF.",
     "app.presentationUploder.confirmLabel": "Iniciar",
     "app.presentationUploder.confirmDesc": "Salvar as alterações e inicie a apresentação",
     "app.presentationUploder.dismissLabel": "Cancelar",
@@ -549,9 +548,7 @@
     "app.externalVideo.title": "Compartilhar um vídeo do YouTube",
     "app.externalVideo.input": "URL do vídeo no YouTube",
     "app.externalVideo.urlError": "Esta não é uma URL válida para um vídeo no YouTube",
-    "app.externalVideo.close": "Fechar",
-    "app.actionsBar.actionsDropdown.shareExternalVideo": "Compartilhar vídeo do YouTube",
-    "app.actionsBar.actionsDropdown.stopShareExternalVideo": "Interromper compartilhamento do vídeo"
+    "app.externalVideo.close": "Fechar"
 
 }
 

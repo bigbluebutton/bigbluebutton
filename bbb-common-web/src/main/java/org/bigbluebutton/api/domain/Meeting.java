@@ -335,6 +335,11 @@ public class Meeting {
 
 
 	public String calcGuestStatus(String role, Boolean guest, Boolean authned) {
+		// Allow moderators all the time.
+		if (ROLE_MODERATOR.equals(role)) {
+			return GuestPolicy.ALLOW;
+		}
+
 		if (GuestPolicy.ALWAYS_ACCEPT.equals(guestPolicy)) {
 			return GuestPolicy.ALLOW;
 		} else if (GuestPolicy.ALWAYS_DENY.equals(guestPolicy)) {

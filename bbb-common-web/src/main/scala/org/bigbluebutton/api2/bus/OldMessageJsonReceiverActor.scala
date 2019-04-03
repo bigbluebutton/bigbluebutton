@@ -1,9 +1,9 @@
 package org.bigbluebutton.api2.bus
 
-import akka.actor.{Actor, ActorLogging, Props}
+import akka.actor.{ Actor, ActorLogging, Props }
 import org.bigbluebutton.common2.bus.OldReceivedJsonMessage
 
-object OldMessageJsonReceiverActor{
+object OldMessageJsonReceiverActor {
   def props(gw: OldMessageReceivedGW): Props = Props(classOf[OldMessageJsonReceiverActor], gw)
 }
 

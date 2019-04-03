@@ -32,6 +32,10 @@ testOptions in Test += Tests.Argument(TestFrameworks.ScalaTest, "-h", "target/sc
 Seq(Revolver.settings: _*)
 lazy val commonWeb = (project in file(".")).settings(name := "bbb-common-web", libraryDependencies ++= Dependencies.runtime).settings(compileSettings)
 
+// See https://github.com/scala-ide/scalariform
+// Config file is in ./.scalariform.conf
+scalariformAutoformat := true
+
 //-----------
 // Packaging
 //
