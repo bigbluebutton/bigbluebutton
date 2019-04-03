@@ -398,6 +398,7 @@
     "app.userList.guest.pendingUsers": "{0} Pending Users",
     "app.userList.guest.pendingGuestUsers": "{0} Pending Guest Users",
     "app.userList.guest.pendingGuestAlert": "Has joined the session and is waiting for your approval.",
+    "app.userList.guest.rememberChoice": "Remember choice",
     "app.toast.breakoutRoomEnded": "The breakout room ended.  Please rejoin in the audio.",
     "app.toast.chat.public": "New Public Chat message",
     "app.toast.chat.private": "New Private Chat message",
