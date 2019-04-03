@@ -339,6 +339,7 @@
     "app.audioModal.iOSErrorDescription": "受制于苹果操作系统的局限，目前iOS里的Chrome浏览器仍无法支持音频和视频。",
     "app.audioModal.iOSErrorRecommendation": "推荐使用Safari浏览器。",
     "app.audioModal.audioChoiceDesc": "选择加入会议的音频交流模式",
+    "app.audioModal.unsupportedBrowserLabel": "您使用的浏览器似乎不完全受支持。请使用 {0} 或{1} 以获得全面支持。",
     "app.audioModal.closeLabel": "关闭",
     "app.audioModal.yes": "是",
     "app.audioModal.no": "否",
