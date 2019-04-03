@@ -115,7 +115,7 @@ const renderPendingUsers = (message, usersArray, action) => {
 };
 
 const WaitingUsers = (props) => {
-  const [remenberChoice, setRemeberChoice] = useState(false);
+  const [rememberChoice, setRememberChoice] = useState(false);
 
   useEffect(() => {
     const {
@@ -135,7 +135,7 @@ const WaitingUsers = (props) => {
 
   const onCheckBoxChange = (e) => {
     const { checked } = e.target;
-    setRemeberChoice(checked);
+    setRememberChoice(checked);
   };
 
   const changePolicy = (shouldExecutePolicy, policyRule, cb) => () => {
@@ -151,7 +151,7 @@ const WaitingUsers = (props) => {
       color="primary"
       label={message}
       size="lg"
-      onClick={changePolicy(remenberChoice, policy, action)}
+      onClick={changePolicy(rememberChoice, policy, action)}
       className={styles.customBtn}
     />
   );
@@ -166,7 +166,7 @@ const WaitingUsers = (props) => {
     {
       messageId: intlMessages.allowAllGuests,
       action: () => guestUsersCall(
-        [...guestUsers].concat(remenberChoice ? authenticatedUsers : []),
+        [...guestUsers].concat(rememberChoice ? authenticatedUsers : []),
         ALLOW_STATUS,
       ),
       key: 'allow-all-guest',
@@ -217,7 +217,7 @@ const WaitingUsers = (props) => {
           }
         </div>
         <div>
-          <label htmlFor="remiderUsersId" className={styles.remenberContainer}>
+          <label htmlFor="remiderUsersId" className={styles.rememberContainer}>
             <input id="remiderUsersId" type="checkbox" onChange={onCheckBoxChange} />
             <p>{intl.formatMessage(intlMessages.rememberChoice)}</p>
           </label>
