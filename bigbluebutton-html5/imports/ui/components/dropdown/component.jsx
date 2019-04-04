@@ -114,7 +114,7 @@ class Dropdown extends Component {
     const { isOpen } = this.state;
     const triggerElement = findDOMNode(this.trigger);
     const contentElement = findDOMNode(this.content);
-    
+    if (!(triggerElement && contentElement)) return;
     if (keepOpen === null) {
       if (triggerElement.contains(event.target)) {
         return;
