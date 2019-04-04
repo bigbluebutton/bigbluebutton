@@ -23,7 +23,7 @@ const NotificationsBar = (props) => {
     alert,
   } = props;
 
-  const hasColor = COLORS[color];
+  const hasColor = COLORS.includes(color);
 
   return (
     <div
