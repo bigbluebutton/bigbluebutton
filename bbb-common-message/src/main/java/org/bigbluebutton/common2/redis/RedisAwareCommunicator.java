@@ -54,6 +54,8 @@ public abstract class RedisAwareCommunicator {
     }
 
     protected void connectionStatusHandler(Event event, Logger log) {
+        System.out.println("******** RedisAwareCommunicator - " + event);
+
         if (event instanceof ConnectedEvent) {
             log.info("Connected to redis");
         } else if (event instanceof ConnectionActivatedEvent) {

@@ -3,7 +3,7 @@ package org.bigbluebutton.common2.redis
 import scala.util.Try
 import com.typesafe.config.ConfigFactory
 
-trait RedisConfiguration {
+trait RedisConfiguration2 {
   val config = ConfigFactory.load()
 
   // Redis server configuration
