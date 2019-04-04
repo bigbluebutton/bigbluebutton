@@ -4,7 +4,6 @@ import { defineMessages, injectIntl } from 'react-intl';
 import PropTypes from 'prop-types';
 import Auth from '/imports/ui/services/auth';
 import Users from '/imports/api/users';
-import mapUser from '/imports/ui/services/user/mapUser';
 import Breakouts from '/imports/api/breakouts';
 import Meetings from '/imports/api/meetings';
 
@@ -69,8 +68,6 @@ const AppContainer = (props) => {
 
 export default injectIntl(withModalMounter(withTracker(({ intl, baseControls }) => {
   const currentUser = Users.findOne({ userId: Auth.userID });
-  const currentUserIsLocked = mapUser(currentUser).isLocked;
-  const meeting = Meetings.findOne({ meetingId: Auth.meetingID });
   const isMeetingBreakout = meetingIsBreakout();
 
   if (!currentUser.approved) {
@@ -92,7 +89,7 @@ export default injectIntl(withModalMounter(withTracker(({ intl, baseControls }) 
   Meetings.find({ meetingId: Auth.meetingID }).observeChanges({
     removed() {
       if (isMeetingBreakout) {
-        Auth.clearCredentials().then(window.close);
+        window.close();
       } else {
         endMeeting('410');
       }
@@ -102,7 +99,7 @@ export default injectIntl(withModalMounter(withTracker(({ intl, baseControls }) 
   // Close the window when the current breakout room ends
   Breakouts.find({ breakoutId: Auth.meetingID }).observeChanges({
     removed() {
-      Auth.clearCredentials().then(window.close);
+      window.close();
     },
   });
 
