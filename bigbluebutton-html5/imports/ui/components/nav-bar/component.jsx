@@ -176,7 +176,7 @@ class NavBar extends PureComponent {
 
       if (!userOnMeeting) return;
 
-      if ((!didSendBreakoutInvite && !isBreakoutRoom) ) {
+      if ((!didSendBreakoutInvite && !isBreakoutRoom)) {
         this.inviteUserToBreakout(breakout);
       }
     });
