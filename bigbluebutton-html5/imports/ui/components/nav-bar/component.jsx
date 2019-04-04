@@ -123,12 +123,8 @@ class NavBar extends PureComponent {
     }
   }
 
-  componentWillReceiveProps(nextProps) {
-    const { amIModerator } = this.state;
-
-    if (nextProps.amIModerator !== amIModerator) {
-      this.setState({ amIModerator: nextProps.amIModerator });
-    }
+  static getDerivedStateFromProps(nextProps) {
+    return { amIModerator: nextProps.amIModerator };
   }
 
   componentDidUpdate(oldProps) {
