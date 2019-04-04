@@ -470,19 +470,17 @@ export default class PresentationOverlay extends Component {
     if (this.touchStarted) {
       return;
     }
-    // for the case where you change settings in one of the lists (which are displayed on the slide)
-    // the mouse starts pointing to the slide right away and mouseEnter doesn't fire
-    // so we call it manually here
-    this.mouseEnterHandler();
-
     this.currentClientX = event.clientX;
     this.currentClientY = event.clientY;
+    this.checkCursor();
   }
 
-  mouseEnterHandler() {
+  mouseEnterHandler(event) {
     if (this.touchStarted) {
       return;
     }
+    this.currentClientX = event.clientX;
+    this.currentClientY = event.clientY;
     this.checkCursor();
   }
 
