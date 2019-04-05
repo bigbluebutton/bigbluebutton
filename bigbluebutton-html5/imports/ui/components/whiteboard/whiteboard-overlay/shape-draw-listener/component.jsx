@@ -298,7 +298,7 @@ export default class ShapeDrawListener extends Component {
 
   render() {
     const { tool } = this.props.drawSettings;
-    const baseName = Meteor.settings.public.app.basename;
+    const baseName = Meteor.settings.public.app.cdn + Meteor.settings.public.app.basename;
     const shapeDrawStyle = {
       width: '100%',
       height: '100%',
