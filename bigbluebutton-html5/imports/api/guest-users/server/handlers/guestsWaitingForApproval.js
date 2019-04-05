@@ -9,10 +9,7 @@ const COLOR_LIST = [
   '#0d47a1', '#0277bd', '#01579b',
 ];
 
-export default function handleGuestsWaitingForApproval({ header, body }, meetingId) {
-  const { userId } = header;
-  check(userId, String);
-  if (userId !== 'nodeJSapp') { return false; }
+export default function handleGuestsWaitingForApproval({ body }, meetingId) {
 
   const { guests } = body;
   check(guests, Array);

@@ -1,11 +1,7 @@
 import { check } from 'meteor/check';
 import setGuestStatus from '../modifiers/setGuestStatus';
 
-export default function handleGuestApproved({ header, body }, meetingId) {
-  const { userId } = header;
-  check(userId, String);
-  if (userId !== 'nodeJSapp') { return false; }
-
+export default function handleGuestApproved({ body }, meetingId) {
   const { approvedBy, guests } = body;
   check(meetingId, String);
   check(approvedBy, String);
