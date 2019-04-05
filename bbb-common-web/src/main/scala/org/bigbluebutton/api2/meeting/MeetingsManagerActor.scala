@@ -1,11 +1,11 @@
 package org.bigbluebutton.api2.meeting
 
-import akka.actor.{Actor, ActorLogging, Props}
+import akka.actor.{ Actor, ActorLogging, Props }
 import org.bigbluebutton.api.domain.UserSession
 import org.bigbluebutton.api2.bus.MsgToAkkaAppsEventBus
 import org.bigbluebutton.common2.domain.DefaultProps
 import org.bigbluebutton.api2.util.Util2
-import org.bigbluebutton.common2.msgs.{BbbCommonEnvCoreMsg, MeetingCreatedEvtMsg}
+import org.bigbluebutton.common2.msgs.{ BbbCommonEnvCoreMsg, MeetingCreatedEvtMsg }
 
 sealed trait ApiMsg
 case class CreateBreakoutRoomMsg(meetingId: String, parentMeetingId: String,
@@ -19,10 +19,7 @@ case class RegisterUser(meetingId: String, intUserId: String, name: String, role
                         extUserId: String, authToken: String, avatarURL: String,
                         guest: Boolean, authed: Boolean, guestStatus: String)
 
-
 case class CreateMeetingMsg(defaultProps: DefaultProps)
-
-
 
 object MeetingsManagerActor {
   def props(msgToAkkaAppsEventBus: MsgToAkkaAppsEventBus): Props =
@@ -31,14 +28,14 @@ object MeetingsManagerActor {
 
 class MeetingsManagerActor(val msgToAkkaAppsEventBus: MsgToAkkaAppsEventBus)
   extends Actor with ActorLogging
-    with ToAkkaAppsSendersTrait
-    with FromAkkaAppsHandlersTrait {
+  with ToAkkaAppsSendersTrait
+  with FromAkkaAppsHandlersTrait {
 
   private val manager = new MeetingsManager
 
   def receive = {
-    case msg: CreateMeetingMsg => handleCreateMeeting(msg)
-    case msg: RegisterUser => handleRegisterUser(msg)
+    case msg: CreateMeetingMsg    => handleCreateMeeting(msg)
+    case msg: RegisterUser        => handleRegisterUser(msg)
     case msg: BbbCommonEnvCoreMsg => handleBbbCommonEnvCoreMsg(msg)
   }
 
@@ -50,7 +47,8 @@ class MeetingsManagerActor(val msgToAkkaAppsEventBus: MsgToAkkaAppsEventBus)
     } yield {
       MeetingsManager.findMeetingThatStartsWith(manager, mid) match {
         case Some(m) => replyWithDuplicateMeeting(msg)
-        case None => createNewMeeting(msg)
+        case None =>
+          createNewMeeting(msg)
           log.debug("Received create meeting request for {} {} ", msg.defaultProps.meetingProp.intId,
             msg.defaultProps.meetingProp.name)
           sendCreateMeetingRequestToAkkaApps(msg.defaultProps)
@@ -58,8 +56,6 @@ class MeetingsManagerActor(val msgToAkkaAppsEventBus: MsgToAkkaAppsEventBus)
       }
     }
   }
-
-
 
   def replyWithDuplicateMeeting(msg: CreateMeetingMsg): Unit = {
     log.warning("Duplicate create meeting request for {} {} ", msg.defaultProps.meetingProp.intId,
@@ -81,7 +77,7 @@ class MeetingsManagerActor(val msgToAkkaAppsEventBus: MsgToAkkaAppsEventBus)
   private def handleBbbCommonEnvCoreMsg(msg: BbbCommonEnvCoreMsg): Unit = {
     msg.core match {
       case m: MeetingCreatedEvtMsg => handleMeetingCreatedEvtMsg(m)
-      case _ => log.error("***** Cannot handle " + msg.envelope.name)
+      case _                       => log.error("***** Cannot handle " + msg.envelope.name)
     }
   }
 }

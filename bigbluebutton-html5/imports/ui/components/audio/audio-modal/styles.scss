@@ -33,6 +33,14 @@
   margin-top: auto;
   margin-bottom: auto;
   display: flex;
+  justify-content: center;
+}
+
+.browserWarning {
+  padding: 0.5rem;
+  border-width: 3px;
+  border-style: solid;
+  border-radius: 0.25rem;
 }
 
 .overlay {
@@ -77,11 +85,8 @@
   text-align: center;
   font-size: var(--font-size-large);
 }
-.audioBtn {
-  &:focus {
-    outline: none !important;
-  }
 
+.audioBtn {
   i {
     color: #3c5764;
   }

@@ -111,6 +111,12 @@ class JoinHandler extends Component {
         resolve(true);
       });
     };
+
+    const setBannerProps = (resp) => {
+      Session.set('bannerText', resp.bannerText);
+      Session.set('bannerColor', resp.bannerColor);
+    };
+
     // use enter api to get params for the client
     const url = `/bigbluebutton/api/enter?sessionToken=${sessionToken}`;
     const fetchContent = await fetch(url, { credentials: 'same-origin' });
@@ -122,6 +128,8 @@ class JoinHandler extends Component {
     if (response.returncode !== 'FAILED') {
       await setAuth(response);
       await setCustomData(response);
+
+      setBannerProps(response);
       setLogoURL(response);
       logUserInfo();
 

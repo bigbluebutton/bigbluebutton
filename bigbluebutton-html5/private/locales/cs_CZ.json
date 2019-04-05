@@ -88,7 +88,6 @@
     "app.presentation.presentationToolbar.fitToWidth": "Přizpůsobit na šířku",
     "app.presentation.presentationToolbar.goToSlide": "Snímek {0}",
     "app.presentationUploder.title": "Prezentace",
-    "app.presentationUploder.message": "Jako přednášející v BigBlueButton máte možnost nahrát jakýkoliv Office dokument nebo PDF soubor. Pro nejlepší výsledky doporučujeme PDF soubor.",
     "app.presentationUploder.confirmLabel": "Start",
     "app.presentationUploder.confirmDesc": "Uloží změny a zahájí prezentaci",
     "app.presentationUploder.dismissLabel": "Zrušit",
@@ -517,9 +516,7 @@
     "app.externalVideo.title": "Sdílet video z YouTube",
     "app.externalVideo.input": "URL videa na YouTube",
     "app.externalVideo.urlError": "Tato URL není platné video na YouTube",
-    "app.externalVideo.close": "Zavřít",
-    "app.actionsBar.actionsDropdown.shareExternalVideo": "Sdílet video z YouTube",
-    "app.actionsBar.actionsDropdown.stopShareExternalVideo": "Zastavit sdílení videa"
+    "app.externalVideo.close": "Zavřít"
 
 }
 

@@ -9,12 +9,12 @@ import org.bigbluebutton.core.apps.WhiteboardKeyUtil
 case class Whiteboard(id: String, multiUser: Boolean, changedModeOn: Long, annotationCount: Int, annotationsMap: scala.collection.immutable.Map[String, scala.collection.immutable.List[AnnotationVO]])
 
 class WhiteboardApp2x(implicit val context: ActorContext)
-    extends SendCursorPositionPubMsgHdlr
-    with ClearWhiteboardPubMsgHdlr
-    with UndoWhiteboardPubMsgHdlr
-    with ModifyWhiteboardAccessPubMsgHdlr
-    with SendWhiteboardAnnotationPubMsgHdlr
-    with GetWhiteboardAnnotationsReqMsgHdlr {
+  extends SendCursorPositionPubMsgHdlr
+  with ClearWhiteboardPubMsgHdlr
+  with UndoWhiteboardPubMsgHdlr
+  with ModifyWhiteboardAccessPubMsgHdlr
+  with SendWhiteboardAnnotationPubMsgHdlr
+  with GetWhiteboardAnnotationsReqMsgHdlr {
 
   val log = Logging(context.system, getClass)
 

@@ -1,8 +1,11 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
+import cx from 'classnames';
 import Modal from '/imports/ui/components/modal/simple/component';
 import Button from '/imports/ui/components/button/component';
-import { defineMessages, injectIntl, intlShape } from 'react-intl';
+import {
+  defineMessages, injectIntl, intlShape, FormattedMessage,
+} from 'react-intl';
 import { styles } from './styles';
 import PermissionsOverlay from '../permissions-overlay/component';
 import AudioSettings from '../audio-settings/component';
@@ -98,8 +101,6 @@ class AudioModal extends Component {
       hasError: false,
     };
 
-    const { intl } = props;
-
     this.handleGoToAudioOptions = this.handleGoToAudioOptions.bind(this);
     this.handleGoToAudioSettings = this.handleGoToAudioSettings.bind(this);
     this.handleRetryGoToEchoTest = this.handleRetryGoToEchoTest.bind(this);
@@ -110,15 +111,15 @@ class AudioModal extends Component {
 
     this.contents = {
       echoTest: {
-        title: intl.formatMessage(intlMessages.echoTestTitle),
+        title: intlMessages.echoTestTitle,
         component: () => this.renderEchoTest(),
       },
       settings: {
-        title: intl.formatMessage(intlMessages.settingsTitle),
+        title: intlMessages.settingsTitle,
         component: () => this.renderAudioSettings(),
       },
       help: {
-        title: intl.formatMessage(intlMessages.helpTitle),
+        title: intlMessages.helpTitle,
         component: () => this.renderHelp(),
       },
     };
@@ -266,38 +267,53 @@ class AudioModal extends Component {
       skipCheck,
       audioLocked,
       isMobileNative,
+      isIEOrEdge,
     } = this.props;
 
     const showMicrophone = forceListenOnlyAttendee || audioLocked;
 
     return (
-      <span className={styles.audioOptions}>
-        {!showMicrophone && !isMobileNative
-          ? (
-            <Button
-              className={styles.audioBtn}
-              label={intl.formatMessage(intlMessages.microphoneLabel)}
-              icon="unmute"
-              circle
-              size="jumbo"
-              disabled={audioLocked}
-              onClick={skipCheck ? this.handleJoinMicrophone : this.handleGoToEchoTest}
+      <div>
+        <span className={styles.audioOptions}>
+          {!showMicrophone && !isMobileNative
+            ? (
+              <Button
+                className={styles.audioBtn}
+                label={intl.formatMessage(intlMessages.microphoneLabel)}
+                icon="unmute"
+                circle
+                size="jumbo"
+                disabled={audioLocked}
+                onClick={skipCheck ? this.handleJoinMicrophone : this.handleGoToEchoTest}
+              />
+            )
+            : null}
+          {listenOnlyMode
+            ? (
+              <Button
+                className={styles.audioBtn}
+                label={intl.formatMessage(intlMessages.listenOnlyLabel)}
+                icon="listen"
+                circle
+                size="jumbo"
+                onClick={this.handleJoinListenOnly}
+              />
+            )
+            : null}
+        </span>
+        {isIEOrEdge ? (
+          <p className={cx(styles.text, styles.browserWarning)}>
+            <FormattedMessage
+              id="app.audioModal.unsupportedBrowserLabel"
+              description="Warning when someone joins with a browser that isnt supported"
+              values={{
+                0: <a href="https://www.google.com/chrome/">Chrome</a>,
+                1: <a href="https://getfirefox.com">Firefox</a>,
+              }}
             />
-          )
-          : null}
-        {listenOnlyMode
-          ? (
-            <Button
-              className={styles.audioBtn}
-              label={intl.formatMessage(intlMessages.listenOnlyLabel)}
-              icon="listen"
-              circle
-              size="jumbo"
-              onClick={this.handleJoinListenOnly}
-            />
-          )
-          : null}
-      </span>
+          </p>
+        ) : null }
+      </div>
     );
   }
 
@@ -413,7 +429,7 @@ class AudioModal extends Component {
                   : (
                     <h3 className={styles.title}>
                       {content
-                        ? this.contents[content].title
+                        ? intl.formatMessage(this.contents[content].title)
                         : intl.formatMessage(intlMessages.audioChoiceLabel)}
                     </h3>
                   )

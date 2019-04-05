@@ -40,6 +40,8 @@ export default class Cursor extends Component {
   }
 
   static getScaledSizes(props) {
+    // TODO: This might need to change for the use case of fit-to-width portrait
+    //       slides in non-presenter view. Some elements are still shrinking.
     const scaleFactor = props.widthRatio / 100 / props.physicalWidthRatio;
 
     return {
