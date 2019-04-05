@@ -27,8 +27,6 @@ const intlMessages = defineMessages({
 });
 
 class LockViewersNotifyComponent extends Component {
-  componentDidMount() {}
-
   componentDidUpdate(prevProps) {
     const {
       lockSettings,
@@ -42,10 +40,11 @@ class LockViewersNotifyComponent extends Component {
     } = prevProps;
 
     if (!_.isEqual(lockSettings, prevLockSettings)) {
+      const rejectedKeys = ['setBy', 'lockedLayout'];
       const filteredSettings = Object.keys(lockSettings)
         .filter(key => prevLockSettings[key] !== lockSettings[key]
           && lockSettings[key]
-          && key !== 'setBy');
+          && !rejectedKeys.includes(key));
       filteredSettings.forEach((key) => {
         notify(intl.formatMessage(intlMessages[key]), 'info', 'lock');
       });
