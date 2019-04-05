@@ -82,7 +82,6 @@
     "app.presentation.presentationToolbar.fitToWidth": "Ajustar a lo ancho",
     "app.presentation.presentationToolbar.goToSlide": "Diapositiva {0}",
     "app.presentationUploder.title": "Presentación",
-    "app.presentationUploder.message": "Como presentador en BigBlueButton, puedes cargar cualquier documento de Office o archivo PDF. Te recomendamos utilizar archivos PDF para obtener mejores resultados.",
     "app.presentationUploder.confirmLabel": "Iniciar",
     "app.presentationUploder.confirmDesc": "Grardar los cambios e iniciar la presentación",
     "app.presentationUploder.dismissLabel": "Cancelar",
@@ -378,7 +377,6 @@
     "app.lock-viewers.PrivateChatLable": "Chat privado",
     "app.lock-viewers.Layout": "Diseño de pantalla",
     "app.recording.startTitle": "Iniciar grabación",
-    "app.recording.stopTitle": "Finalizar grabación",
     "app.recording.startDescription": "(Puedes hacer click en el icono nuevamente para detener la grabación)",
     "app.recording.stopDescription": "¿Quieres detener la grabación de la sesión? (Puedes continuar la grabación en cualquier momento haciendo click en el icono de iniciar grabación.)",
     "app.videoPreview.cameraLabel": "Webcam",
@@ -498,9 +496,7 @@
     "app.externalVideo.title": "Compartir un video de YouTube",
     "app.externalVideo.input": "Enlace a video de YouTube",
     "app.externalVideo.urlError": "Este enlace no es un video de YouTube valido",
-    "app.externalVideo.close": "Cerrar",
-    "app.actionsBar.actionsDropdown.shareExternalVideo": "Compartir video de YouTube",
-    "app.actionsBar.actionsDropdown.stopShareExternalVideo": "Dejar de compartir video"
+    "app.externalVideo.close": "Cerrar"
 
 }
 

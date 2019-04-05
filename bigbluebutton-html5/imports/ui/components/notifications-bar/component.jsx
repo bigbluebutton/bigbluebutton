@@ -9,7 +9,7 @@ const COLORS = [
 ];
 
 const propTypes = {
-  color: PropTypes.oneOf(COLORS),
+  color: PropTypes.string,
 };
 
 const defaultProps = {
@@ -17,13 +17,24 @@ const defaultProps = {
 };
 
 const NotificationsBar = (props) => {
-  const { color, children } = props;
+  const {
+    color,
+    children,
+    alert,
+  } = props;
+
+  const hasColor = COLORS.includes(color);
 
   return (
     <div
-      role="alert"
+      role={alert ? 'alert' : ''}
       aria-live="off"
-      className={cx(styles.notificationsBar, styles[color])}
+      style={
+        !hasColor ? {
+          backgroundColor: `${color}`,
+        } : {}
+    }
+      className={cx(styles.notificationsBar, hasColor ? styles[color] : null)}
     >
       {children}
     </div>

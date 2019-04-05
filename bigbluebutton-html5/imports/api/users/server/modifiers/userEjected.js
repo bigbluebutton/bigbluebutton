@@ -3,9 +3,10 @@ import Logger from '/imports/startup/server/logger';
 import Users from '/imports/api/users';
 import clearUserInfoForRequester from '/imports/api/users-infos/server/modifiers/clearUserInfoForRequester';
 
-export default function userEjected(meetingId, userId) {
+export default function userEjected(meetingId, userId, ejectedReason) {
   check(meetingId, String);
   check(userId, String);
+  check(ejectedReason, String);
 
   const selector = {
     meetingId,
@@ -15,6 +16,7 @@ export default function userEjected(meetingId, userId) {
   const modifier = {
     $set: {
       ejected: true,
+      ejectedReason,
     },
   };
 
@@ -25,7 +27,7 @@ export default function userEjected(meetingId, userId) {
 
     if (numChanged) {
       clearUserInfoForRequester(meetingId, userId);
-      return Logger.info(`Ejected user id=${userId} meeting=${meetingId}`);
+      return Logger.info(`Ejected user id=${userId} meeting=${meetingId} reason=${ejectedReason}`);
     }
 
     return null;

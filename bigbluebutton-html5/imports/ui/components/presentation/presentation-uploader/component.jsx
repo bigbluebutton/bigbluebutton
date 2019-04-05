@@ -23,7 +23,7 @@ const propTypes = {
   fileSizeMax: PropTypes.number.isRequired,
   handleSave: PropTypes.func.isRequired,
   dispatchTogglePresentationDownloadable: PropTypes.func.isRequired,
-  fileValidMimeTypes: PropTypes.arrayOf(PropTypes.string).isRequired,
+  fileValidMimeTypes: PropTypes.arrayOf(PropTypes.object).isRequired,
   presentations: PropTypes.arrayOf(PropTypes.shape({
     id: PropTypes.string.isRequired,
     filename: PropTypes.string.isRequired,
@@ -173,6 +173,29 @@ class PresentationUploader extends Component {
 
     this.updateFileKey = this.updateFileKey.bind(this);
     this.deepMergeUpdateFileKey = this.deepMergeUpdateFileKey.bind(this);
+
+    this.releaseActionsOnPresentationError = this.releaseActionsOnPresentationError.bind(this);
+  }
+
+  componentDidUpdate() {
+    this.releaseActionsOnPresentationError();
+  }
+
+  releaseActionsOnPresentationError() {
+    const {
+      presentations,
+      disableActions,
+    } = this.state;
+
+    presentations.forEach((presentation) => {
+      if (!presentation.conversion.done && presentation.conversion.error) {
+        if (disableActions) {
+          this.setState({
+            disableActions: false,
+          });
+        }
+      }
+    });
   }
 
   updateFileKey(id, key, value, operation = '$set') {
@@ -243,7 +266,6 @@ class PresentationUploader extends Component {
       })
       .catch((error) => {
         notify(intl.formatMessage(intlMessages.genericError), 'error');
-
         logger.error({ logCode: 'presentationuploader_component_save_error' }, error);
 
         this.setState({
@@ -268,8 +290,9 @@ class PresentationUploader extends Component {
 
   handleFiledrop(files, files2) {
     const { fileValidMimeTypes, intl } = this.props;
+    const mimeTypes = fileValidMimeTypes.map(fileValid => fileValid.mime);
     const [accepted, rejected] = _.partition(files
-      .concat(files2), f => fileValidMimeTypes.includes(f.type));
+      .concat(files2), f => mimeTypes.includes(f.type));
 
     const presentationsToUpload = accepted.map((file) => {
       const id = _.uniqueId(file.name);
@@ -405,17 +428,7 @@ class PresentationUploader extends Component {
     const { presentations } = this.state;
 
     const presentationsSorted = presentations
-      .sort((a, b) => {
-        // Sort by ID first so files with the same name have the same order
-        if (a.id > b.id) {
-          return 1;
-        }
-        if (a.id < b.id) {
-          return -1;
-        }
-        return 0;
-      })
-      .sort((a, b) => this.isDefault(b));
+      .sort((a, b) => a.uploadTimestamp - b.uploadTimestamp);
 
     return (
       <div className={styles.fileList}>
@@ -430,7 +443,6 @@ class PresentationUploader extends Component {
 
   renderPresentationItemStatus(item) {
     const { intl } = this.props;
-
     if (!item.upload.done && item.upload.progress === 0) {
       return intl.formatMessage(intlMessages.fileToUpload);
     }
@@ -446,7 +458,7 @@ class PresentationUploader extends Component {
       return intl.formatMessage(errorMessage);
     }
 
-    if (item.conversion.done && item.conversion.error) {
+    if (!item.conversion.done && item.conversion.error) {
       const errorMessage = intlMessages[item.conversion.status] || intlMessages.genericError;
       return intl.formatMessage(errorMessage);
     }
@@ -529,11 +541,12 @@ class PresentationUploader extends Component {
               onClick={() => this.toggleDownloadable(item)}
             />
             <Checkbox
-              disabled={disableActions}
               ariaLabel={intl.formatMessage(intlMessages.setAsCurrentPresentation)}
-              className={styles.itemAction}
               checked={item.isCurrent}
-              onChange={() => this.handleCurrentChange(item.id)}
+              className={styles.itemAction}
+              disabled={disableActions}
+              keyValue={item.id}
+              onChange={this.handleCurrentChange}
             />
             { hideRemove ? null : (
               <Button
@@ -605,7 +618,7 @@ class PresentationUploader extends Component {
         className={styles.dropzone}
         activeClassName={styles.dropzoneActive}
         rejectClassName={styles.dropzoneReject}
-        accept={isMobileBrowser ? '' : fileValidMimeTypes.join()}
+        accept={isMobileBrowser ? '' : fileValidMimeTypes.map(fileValid => fileValid.extension)}
         minSize={fileSizeMin}
         maxSize={fileSizeMax}
         disablepreview="true"

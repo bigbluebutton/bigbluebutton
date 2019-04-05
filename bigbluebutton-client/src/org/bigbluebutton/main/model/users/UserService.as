@@ -107,7 +107,7 @@ package org.bigbluebutton.main.model.users
 		private function joinListener(success:Boolean, result: EnterApiResponse):void {
 			if (success) {
 
-        LiveMeeting.inst().me.id = result.intUserId
+        LiveMeeting.inst().me.id = result.intUserId;
         LiveMeeting.inst().me.name = result.username;
         LiveMeeting.inst().me.externalId = result.extUserId;
         LiveMeeting.inst().me.authToken = result.authToken;

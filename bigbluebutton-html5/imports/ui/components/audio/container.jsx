@@ -84,10 +84,12 @@ export default withModalMounter(injectIntl(withTracker(({ mountModal, intl }) =>
   const openVideoPreviewModal = () => new Promise((resolve) => {
     mountModal(<VideoPreviewContainer resolve={resolve} />);
   });
-  if (Service.audioLocked() && Service.isConnected() && !Service.isListenOnly()) {
-    Service.exitAudio();
+  if (Service.audioLocked()
+    && Service.isConnected()
+    && !Service.isListenOnly()
+    && !Service.isMuted()) {
+    Service.toggleMuteMicrophone();
     notify(intl.formatMessage(intlMessages.reconectingAsListener), 'info', 'audio_on');
-    Service.joinListenOnly();
   }
 
   Breakouts.find().observeChanges({

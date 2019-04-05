@@ -7,6 +7,7 @@
   
   --poll-sm-margin: 0.3125rem;
   --poll-user-line-height: 1.75rem;
+  --poll-result-width: 13rem;
 }
 
 .btn {
@@ -26,6 +27,19 @@
   flex: 1 1 auto;
 }
 
+.left {
+  font-weight: bold;
+  max-width: var(--poll-result-width);
+  min-width: var(--poll-result-width);
+  word-wrap: break-word;
+}
+
+.right {
+  text-align: right;
+  max-width: var(--poll-stats-element-width);
+  min-width: var(--poll-stats-element-width);
+}
+
 .left,
 .right,
 .center {
@@ -39,20 +53,6 @@
 .right {
   flex: 0 0 auto;
   position: relative;
-  min-width: var(--poll-stats-element-width);
-}
-
-.left {
-  width: var(--poll-stats-option-width);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  font-weight: bold;
-}
-
-.right {
-  text-align: right;
-  max-width: var(--poll-stats-element-width);
 }
 
 .container,
@@ -93,6 +93,7 @@
   .usersHeading,
   .responseHeading {
     font-weight: var(--headings-font-weight);
+    margin-bottom: 0;
   }
   
   .usersHeading,
@@ -105,6 +106,8 @@
 
   .item,
   .itemR {
+    margin-top: .75rem;
     line-height: var(--poll-user-line-height);
     color: var(--color-text);
+    word-break: break-word;
   }

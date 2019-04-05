@@ -50,7 +50,6 @@ export default function handlePresentationConversionUpdate({ body }, meetingId) 
       statusModifier.id = presentationId;
       statusModifier.name = presentationName;
       statusModifier['conversion.error'] = true;
-      statusModifier['conversion.done'] = true;
       break;
 
     case GENERATED_SLIDE_KEY:

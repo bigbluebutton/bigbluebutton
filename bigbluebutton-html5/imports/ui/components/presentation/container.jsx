@@ -11,6 +11,7 @@ const PresentationAreaContainer = ({ presentationPodIds, mountPresentationArea, 
 export default withTracker(({ podId }) => {
   const currentSlide = PresentationAreaService.getCurrentSlide(podId);
   const presentationIsDownloadable = PresentationAreaService.isPresentationDownloadable(podId);
+  const isFullscreen = Session.get('isFullscreen');
   return {
     currentSlide,
     downloadPresentationUri: PresentationAreaService.downloadPresentationUri(podId),
@@ -18,7 +19,7 @@ export default withTracker(({ podId }) => {
     multiUser: PresentationAreaService.getMultiUserStatus(currentSlide && currentSlide.id)
       && !getSwapLayout(),
     presentationIsDownloadable,
-    isFullscreen: PresentationAreaService.isFullscreen(),
+    isFullscreen,
     mountPresentationArea: !!currentSlide,
   };
 })(PresentationAreaContainer);

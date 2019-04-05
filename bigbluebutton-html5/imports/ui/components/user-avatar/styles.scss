@@ -119,6 +119,13 @@
   }
 }
 
+.noVoice {
+  &:after {
+    content: "";
+    background-color: var(--color-off-white);
+  }
+}
+
 .muted {
   &:after {
     content: "\00a0\e932\00a0";
@@ -134,7 +141,8 @@
 
 .listenOnly,
 .muted,
-.voice {
+.voice,
+.noVoice {
   @include indicatorStyles();
 }
 

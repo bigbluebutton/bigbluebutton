@@ -13,7 +13,7 @@ object TranscodingActor extends SystemConfiguration {
 }
 
 class TranscodingActor(val system: ActorSystem, messageSender: MessageSender)
-    extends Actor with ActorLogging with TranscodingObserverApp {
+  extends Actor with ActorLogging with TranscodingObserverApp {
   val transcodersModel = new TranscodersModel()
 
   val messageSenderActor = context.actorOf(MessageSenderActor.props(messageSender), "bbb-sender-actor")

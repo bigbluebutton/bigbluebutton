@@ -8,14 +8,13 @@ import org.bigbluebutton.common2.msgs._
 import org.bigbluebutton.common2.util.JsonUtil
 import org.bigbluebutton.common2.redis.MessageSender
 
-
 object MessageSenderActor {
   def props(msgSender: MessageSender): Props =
     Props(classOf[MessageSenderActor], msgSender)
 }
 
 class MessageSenderActor(val msgSender: MessageSender)
-    extends Actor with ActorLogging {
+  extends Actor with ActorLogging {
 
   val fromBbbTranscodeRedisChannel = "bigbluebutton:from-bbb-transcode:system"
   val routing = collection.immutable.HashMap("sender" -> "bbb-transcode")

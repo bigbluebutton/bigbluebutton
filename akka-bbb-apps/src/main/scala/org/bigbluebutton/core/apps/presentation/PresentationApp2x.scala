@@ -6,8 +6,8 @@ import org.bigbluebutton.core.apps.Presentation
 import org.bigbluebutton.core.running.LiveMeeting
 
 class PresentationApp2x(implicit val context: ActorContext)
-    extends NewPresentationMsgHdlr
-    with PreuploadedPresentationsPubMsgHdlr {
+  extends NewPresentationMsgHdlr
+  with PreuploadedPresentationsPubMsgHdlr {
 
   val log = Logging(context.system, getClass)
 

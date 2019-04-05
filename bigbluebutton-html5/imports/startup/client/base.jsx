@@ -18,6 +18,7 @@ import mapUser from '/imports/ui/services/user/mapUser';
 import { Session } from 'meteor/session';
 import IntlStartup from './intl';
 import Meetings from '../../api/meetings';
+import AnnotationsTextService from '/imports/ui/components/whiteboard/annotations/text/service';
 
 
 const CHAT_CONFIG = Meteor.settings.public.chat;
@@ -39,7 +40,25 @@ const defaultProps = {
   meetingExist: false,
 };
 
+const fullscreenChangedEvents = [
+  'fullscreenchange',
+  'webkitfullscreenchange',
+  'mozfullscreenchange',
+  'MSFullscreenChange',
+];
+
 class Base extends Component {
+  static handleFullscreenChange() {
+    if (document.fullscreenElement
+      || document.webkitFullscreenElement
+      || document.mozFullScreenElement
+      || document.msFullscreenElement) {
+      Session.set('isFullscreen', true);
+    } else {
+      Session.set('isFullscreen', false);
+    }
+  }
+
   constructor(props) {
     super(props);
 
@@ -51,6 +70,13 @@ class Base extends Component {
     this.updateLoadingState = this.updateLoadingState.bind(this);
   }
 
+  componentDidMount() {
+    fullscreenChangedEvents.forEach((event) => {
+      document.addEventListener(event, Base.handleFullscreenChange);
+    });
+    Session.set('isFullscreen', false);
+  }
+
   componentDidUpdate(prevProps, prevState) {
     const {
       ejected,
@@ -60,7 +86,10 @@ class Base extends Component {
       meteorIsConnected,
       subscriptionsReady,
     } = this.props;
-    const { loading, meetingExisted } = this.state;
+    const {
+      loading,
+      meetingExisted,
+    } = this.state;
 
     if (!prevProps.subscriptionsReady && subscriptionsReady) {
       logger.info({ logCode: 'startup_client_subscriptions_ready' }, 'Subscriptions are ready');
@@ -97,6 +126,12 @@ class Base extends Component {
     }
   }
 
+  componentWillUnmount() {
+    fullscreenChangedEvents.forEach((event) => {
+      document.removeEventListener(event, Base.handleFullscreenChange);
+    });
+  }
+
   setMeetingExisted(meetingExisted) {
     this.setState({ meetingExisted });
   }
@@ -111,6 +146,8 @@ class Base extends Component {
     const { updateLoadingState } = this;
     const stateControls = { updateLoadingState };
 
+    const { ejected } = this.props;
+
     const { loading, meetingExisted } = this.state;
 
     const codeError = Session.get('codeError');
@@ -119,7 +156,13 @@ class Base extends Component {
       meetingExist,
     } = this.props;
 
-    if (meetingExisted && !meetingExist) {
+    if (ejected && ejected.ejectedReason) {
+      const { ejectedReason } = ejected;
+      AudioManager.exitAudio();
+      return (<MeetingEnded code={ejectedReason} />);
+    }
+
+    if ((meetingExisted && !meetingExist)) {
       AudioManager.exitAudio();
       return (<MeetingEnded code={Session.get('codeError')} />);
     }
@@ -168,6 +211,7 @@ const BaseContainer = withTracker(() => {
   const { credentials, loggedIn } = Auth;
   const { meetingId, requesterUserId } = credentials;
   let breakoutRoomSubscriptionHandler;
+  let meetingModeratorSubscriptionHandler;
   let userSubscriptionHandler;
   let userInfoSubscriptionHandler;
 
@@ -206,6 +250,7 @@ const BaseContainer = withTracker(() => {
     // override meteor subscription to verify if is moderator
     userSubscriptionHandler = Meteor.subscribe('users', credentials, mappedUser.isModerator, subscriptionErrorHandler);
     breakoutRoomSubscriptionHandler = Meteor.subscribe('breakouts', credentials, mappedUser.isModerator, subscriptionErrorHandler);
+    meetingModeratorSubscriptionHandler = Meteor.subscribe('meetings', credentials, mappedUser.isModerator, subscriptionErrorHandler);
 
     userInfoSubscriptionhandler = Meteor.subscribe('users-infos', credentials, subscriptionErrorHandler);
   }
@@ -214,8 +259,9 @@ const BaseContainer = withTracker(() => {
 
   const annotationsHandler = Meteor.subscribe('annotations', credentials, {
     onReady: () => {
-      AnnotationsLocal.remove({});
-      Annotations.find({}, { reactive: false }).forEach((a) => {
+      const activeTextShapeId = AnnotationsTextService.activeTextShapeId();
+      AnnotationsLocal.remove({ id: { $ne: `${activeTextShapeId}-fake` } });
+      Annotations.find({ id: { $ne: activeTextShapeId } }, { reactive: false }).forEach((a) => {
         try {
           AnnotationsLocal.insert(a);
         } catch (e) {
@@ -238,6 +284,7 @@ const BaseContainer = withTracker(() => {
     userSubscriptionHandler,
     userInfoSubscriptionHandler,
     breakoutRoomSubscriptionHandler,
+    meetingModeratorSubscriptionHandler,
     animations,
     meetingExist: !!Meetings.find({ meetingId }).count(),
     User,

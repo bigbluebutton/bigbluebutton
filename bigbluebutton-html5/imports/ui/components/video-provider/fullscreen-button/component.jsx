@@ -25,15 +25,25 @@ const defaultProps = {
 };
 
 const FullscreenButtonComponent = ({
-  intl, handleFullscreen, dark, elementName, tooltipDistance,
+  intl,
+  handleFullscreen,
+  dark,
+  elementName,
+  tooltipDistance,
 }) => {
   const formattedLabel = intl.formatMessage(
     intlMessages.fullscreenButton,
     ({ 0: elementName || '' }),
   );
 
+  const wrapperClassName = cx({
+    [styles.wrapper]: true,
+    [styles.dark]: dark,
+    [styles.light]: !dark,
+  });
+
   return (
-    <div className={cx(styles.wrapper, dark ? styles.dark : styles.light)}>
+    <div className={wrapperClassName}>
       <Button
         color="default"
         icon="fullscreen"

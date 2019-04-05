@@ -17,14 +17,16 @@ object AppsRedisSubscriberActor extends RedisSubscriber {
       classOf[AppsRedisSubscriberActor],
       system, jsonMsgBus,
       redisHost, redisPort,
-      channels, patterns).withDispatcher("akka.redis-subscriber-worker-dispatcher")
+      channels, patterns
+    ).withDispatcher("akka.redis-subscriber-worker-dispatcher")
 }
 
 class AppsRedisSubscriberActor(
-  system:     ActorSystem,
-  jsonMsgBus: IncomingJsonMessageBus,
-  redisHost:  String, redisPort: Int,
-  channels: Seq[String] = Nil, patterns: Seq[String] = Nil)
+    system:     ActorSystem,
+    jsonMsgBus: IncomingJsonMessageBus,
+    redisHost:  String, redisPort: Int,
+    channels: Seq[String] = Nil, patterns: Seq[String] = Nil
+)
   extends RedisSubscriberProvider(system, "BbbAppsAkkaSub", channels, patterns, jsonMsgBus) with SystemConfiguration {
 
   addListener(toAkkaAppsJsonChannel)

@@ -98,7 +98,11 @@ class BreakoutRoom extends Component {
     const hasUser = breakoutRoomUser(breakoutId);
     if (!hasUser && !waiting) {
       this.setState(
-        { waiting: true, requestedBreakoutId: breakoutId },
+        {
+          waiting: true,
+          requestedBreakoutId: breakoutId,
+          generated: false,
+        },
         () => requestJoinURL(breakoutId),
       );
     }
@@ -196,7 +200,7 @@ class BreakoutRoom extends Component {
           {intl.formatMessage(intlMessages.breakoutRoom, breakout.sequence.toString())}
           <span className={styles.usersAssignedNumberLabel}>
             (
-            {breakout.users.length}
+            {new Set(breakout.users.map(user => user.userId)).size}
             )
           </span>
         </span>

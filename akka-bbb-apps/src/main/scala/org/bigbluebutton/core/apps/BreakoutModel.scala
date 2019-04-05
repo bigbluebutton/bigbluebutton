@@ -4,23 +4,25 @@ import org.bigbluebutton.core.domain.{ BreakoutRoom2x, BreakoutUser }
 
 object BreakoutModel {
   def create(
-    parentId:      String,
-    id:            String,
-    externalId:    String,
-    name:          String,
-    sequence:      Integer,
-    freeJoin:      Boolean,
-    voiceConf:     String,
-    assignedUsers: Vector[String]): BreakoutRoom2x = {
+      parentId:      String,
+      id:            String,
+      externalId:    String,
+      name:          String,
+      sequence:      Integer,
+      freeJoin:      Boolean,
+      voiceConf:     String,
+      assignedUsers: Vector[String]
+  ): BreakoutRoom2x = {
     new BreakoutRoom2x(id, externalId, name, parentId, sequence, freeJoin, voiceConf, assignedUsers, Vector(), Vector(), None, false)
   }
 
 }
 
 case class BreakoutModel(
-  startedOn:         Option[Long],
-  durationInMinutes: Int,
-  rooms:             Map[String, BreakoutRoom2x]) {
+    startedOn:         Option[Long],
+    durationInMinutes: Int,
+    rooms:             Map[String, BreakoutRoom2x]
+) {
 
   def find(id: String): Option[BreakoutRoom2x] = {
     rooms.get(id)

@@ -10,8 +10,9 @@ trait SetPresentationDownloadablePubMsgHdlr extends RightsManagementTrait {
   this: PresentationPodHdlrs =>
 
   def handle(
-    msg: SetPresentationDownloadablePubMsg, state: MeetingState2x,
-    liveMeeting: LiveMeeting, bus: MessageBus): MeetingState2x = {
+      msg: SetPresentationDownloadablePubMsg, state: MeetingState2x,
+      liveMeeting: LiveMeeting, bus: MessageBus
+  ): MeetingState2x = {
 
     val meetingId = liveMeeting.props.meetingProp.intId
 
