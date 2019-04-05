@@ -33,7 +33,7 @@ trait GuestsWaitingApprovedMsgHdlr extends HandlerHelpers with RightsManagementT
   }
 
   def notifyModeratorsOfGuestsApproval(guests: Vector[GuestApprovedVO], approvedBy: String): Unit = {
-    val mods = Users2x.findAll(liveMeeting.users2x).filter(p => p.role == Roles.MODERATOR_ROLE)
+    val mods = Users2x.findAll(liveMeeting.users2x).filter(p => p.role == Roles.MODERATOR_ROLE && p.clientType == ClientType.FLASH)
     val meetingId = liveMeeting.props.meetingProp.intId
     mods foreach { m =>
       val event = MsgBuilder.buildGuestsWaitingApprovedEvtMsg(meetingId, m.intId, guests, approvedBy)
