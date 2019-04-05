@@ -42,6 +42,7 @@ class ToastContainer extends React.Component {
 
 export default injectIntl(injectNotify(withTracker(({ notify, intl }) => {
   const meetingId = Auth.meetingID;
+  const meeting = Meetings.findOne({ meetingId });
 
   Breakouts.find().observeChanges({
     added() {
@@ -49,7 +50,6 @@ export default injectIntl(injectNotify(withTracker(({ notify, intl }) => {
     },
     removed() {
       if (!AudioService.isUsingAudio() && !breakoutNotified) {
-        const meeting = Meetings.findOne({ meetingId });
         if (!meeting.meetingEnded) notify(intl.formatMessage(intlMessages.toastBreakoutRoomEnded), 'info', 'rooms');
         breakoutNotified = true;
       }
@@ -81,6 +81,6 @@ export default injectIntl(injectNotify(withTracker(({ notify, intl }) => {
     hideProgressBar: false,
     closeOnClick: true,
     pauseOnHover: true,
-    meeting: Meetings.findOne({ meetingId }),
+    meeting,
   };
 })(ToastContainer)));

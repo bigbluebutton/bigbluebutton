@@ -276,7 +276,7 @@ const BaseContainer = withTracker(() => {
     animations,
     User,
     meteorIsConnected: Meteor.status().connected,
-    meetingExist: !!Meetings.find({ meetingId }).count(),
+    meetingExist: !!Meetings.findOne({ meetingId }),
     meetingHasEnded: !!meeting && meeting.meetingEnded,
     meetingIsBreakout: AppService.meetingIsBreakout(),
   };

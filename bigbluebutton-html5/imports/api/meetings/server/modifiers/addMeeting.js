@@ -86,9 +86,7 @@ export default function addMeeting(meeting) {
     setBy: 'temp',
   };
 
-  const meetingEnded = {
-    meetingEnded: false,
-  };
+  const meetingEnded = false;
 
   newMeeting.welcomeProp.welcomeMsg = newMeeting.welcomeProp.welcomeMsg.replace(
     'href="event:',
@@ -109,11 +107,11 @@ export default function addMeeting(meeting) {
   const modifier = {
     $set: Object.assign({
       meetingId,
+      meetingEnded,
+      lockSettingsProp,
     }, flat(newMeeting, {
       safe: true,
-    }), {
-      lockSettingsProp,
-    }, meetingEnded),
+    })),
   };
 
   const cb = (err, numChanged) => {
