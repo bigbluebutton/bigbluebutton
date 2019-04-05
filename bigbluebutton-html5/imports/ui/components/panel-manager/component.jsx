@@ -69,11 +69,7 @@ class PanelManager extends Component {
     const { openPanel } = this.props;
     const { openPanel: oldOpenPanel } = prevProps;
 
-    if (openPanel !== oldOpenPanel
-      && (
-        openPanel === ''
-      || openPanel === 'userlist'
-      )) {
+    if (openPanel !== oldOpenPanel) {
       window.dispatchEvent(new Event('resize'));
     }
   }
