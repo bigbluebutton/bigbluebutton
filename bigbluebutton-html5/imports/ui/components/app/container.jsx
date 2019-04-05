@@ -4,7 +4,6 @@ import { defineMessages, injectIntl } from 'react-intl';
 import PropTypes from 'prop-types';
 import Auth from '/imports/ui/services/auth';
 import Users from '/imports/api/users';
-import Meetings from '/imports/api/meetings';
 
 import ClosedCaptionsContainer from '/imports/ui/components/closed-captions/container';
 import getFromUserSettings from '/imports/ui/services/users-settings';
@@ -66,7 +65,6 @@ const AppContainer = (props) => {
 
 export default injectIntl(withModalMounter(withTracker(({ intl, baseControls }) => {
   const currentUser = Users.findOne({ userId: Auth.userID });
-  const meeting = Meetings.findOne({ meetingId: Auth.meetingID });
 
   if (!currentUser.approved) {
     baseControls.updateLoadingState(intl.formatMessage(intlMessages.waitingApprovalMessage));
@@ -82,8 +80,6 @@ export default injectIntl(withModalMounter(withTracker(({ intl, baseControls }) 
       }
     },
   });
-
-  if (meeting && meeting.meetingEnded) window.close();
 
   return {
     closedCaption: getCaptionsStatus() ? <ClosedCaptionsContainer /> : null,

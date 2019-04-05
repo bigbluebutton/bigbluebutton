@@ -29,14 +29,13 @@ const propTypes = {
   subscriptionsReady: PropTypes.bool.isRequired,
   locale: PropTypes.string,
   approved: PropTypes.bool,
-  meetingIsEnded: PropTypes.bool,
+  meetingHasEnded: PropTypes.bool.isRequired,
   meetingExist: PropTypes.bool,
 };
 
 const defaultProps = {
   locale: undefined,
   approved: undefined,
-  meetingIsEnded: false,
   meetingExist: false,
 };
 
@@ -65,7 +64,6 @@ class Base extends Component {
     this.state = {
       loading: false,
       meetingExisted: false,
-      isBreakout: false,
     };
 
     this.updateLoadingState = this.updateLoadingState.bind(this);
@@ -86,6 +84,7 @@ class Base extends Component {
       meteorIsConnected,
       subscriptionsReady,
     } = this.props;
+
     const {
       loading,
       meetingExisted,
@@ -105,7 +104,7 @@ class Base extends Component {
     }
 
     // In case the meeting delayed to load
-    if (!meetingExist) return;
+    if (!subscriptionsReady || !meetingExist) return;
 
     if (approved && loading) this.updateLoadingState(false);
 
@@ -135,14 +134,18 @@ class Base extends Component {
   renderByState() {
     const { updateLoadingState } = this;
     const stateControls = { updateLoadingState };
-    const { loading, isBreakout } = this.state;
+    const { loading } = this.state;
     const codeError = Session.get('codeError');
     const {
       ejected,
       subscriptionsReady,
-      meetingIsEnded,
+      meetingHasEnded,
+      meetingIsBreakout,
     } = this.props;
-    const isMeetingBreakout = AppService.meetingIsBreakout();
+
+    if ((loading || !subscriptionsReady) && !meetingHasEnded) {
+      return (<LoadingScreen>{loading}</LoadingScreen>);
+    }
 
     if (ejected && ejected.ejectedReason) {
       const { ejectedReason } = ejected;
@@ -150,20 +153,16 @@ class Base extends Component {
       return (<MeetingEnded code={ejectedReason} />);
     }
 
-    if (isMeetingBreakout && !isBreakout) this.setState({ isBreakout: true });
+    if (meetingHasEnded && meetingIsBreakout) window.close();
 
-    if (meetingIsEnded && !isBreakout) {
+    if (meetingHasEnded && !meetingIsBreakout) {
       AudioManager.exitAudio();
       return (<MeetingEnded code={codeError} />);
     }
 
-    if (codeError && !meetingIsEnded) {
+    if (codeError && !meetingHasEnded) {
       logger.error({ logCode: 'startup_client_usercouldnotlogin_error' }, `User could not log in HTML5, hit ${codeError}`);
       return (<ErrorScreen code={codeError} />);
-    }
-
-    if ((loading || !subscriptionsReady) && !meetingIsEnded) {
-      return (<LoadingScreen>{loading}</LoadingScreen>);
     }
     // this.props.annotationsHandler.stop();
     return (<AppContainer {...this.props} baseControls={stateControls} />);
@@ -278,7 +277,8 @@ const BaseContainer = withTracker(() => {
     User,
     meteorIsConnected: Meteor.status().connected,
     meetingExist: !!Meetings.find({ meetingId }).count(),
-    meetingIsEnded: !!meeting && meeting.meetingEnded,
+    meetingHasEnded: !!meeting && meeting.meetingEnded,
+    meetingIsBreakout: AppService.meetingIsBreakout(),
   };
 })(Base);
 

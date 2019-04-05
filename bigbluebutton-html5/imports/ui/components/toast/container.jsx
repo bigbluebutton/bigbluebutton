@@ -81,6 +81,6 @@ export default injectIntl(injectNotify(withTracker(({ notify, intl }) => {
     hideProgressBar: false,
     closeOnClick: true,
     pauseOnHover: true,
-    meeting: Meetings.find({ meetingId }).fetch(),
+    meeting: Meetings.findOne({ meetingId }),
   };
 })(ToastContainer)));
