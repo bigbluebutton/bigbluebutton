@@ -10,7 +10,6 @@ const COLOR_LIST = [
 ];
 
 export default function handleGuestsWaitingForApproval({ body }, meetingId) {
-
   const { guests } = body;
   check(guests, Array);
   check(meetingId, String);
