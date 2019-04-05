@@ -8,6 +8,7 @@ import PanelManager from '/imports/ui/components/panel-manager/component';
 import PollingContainer from '/imports/ui/components/polling/container';
 import logger from '/imports/startup/client/logger';
 import ActivityCheckContainer from '/imports/ui/components/activity-check/container';
+import UserInfoContainer from '/imports/ui/components/user-info/container';
 import ToastContainer from '../toast/container';
 import ModalContainer from '../modal/container';
 import NotificationsBarContainer from '../notifications-bar/container';
@@ -206,6 +207,17 @@ class App extends Component {
       />) : null);
   }
 
+  renderUserInformation() {
+    const { UserInfo, User } = this.props;
+
+    return (UserInfo.length > 0 ? (
+      <UserInfoContainer
+        UserInfo={UserInfo}
+        requesterUserId={User.userId}
+        meetingId={User.meetingId}
+      />) : null);
+  }
+
   render() {
     const {
       customStyle, customStyleUrl, openPanel,
@@ -214,6 +226,7 @@ class App extends Component {
     return (
       <main className={styles.main}>
         {this.renderActivityCheck()}
+        {this.renderUserInformation()}
         <NotificationsBarContainer />
         <section className={styles.wrapper}>
           <div className={openPanel ? styles.content : styles.noPanelContent}>

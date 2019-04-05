@@ -89,6 +89,10 @@ const messages = defineMessages({
     id: 'app.userList.menu.lockUser.label',
     description: 'Lock a unlocked user',
   },
+  DirectoryLookupLabel: {
+    id: 'app.userList.menu.directoryLookup.label',
+    description: 'Directory lookup',
+  },
 });
 
 const propTypes = {
@@ -201,6 +205,7 @@ class UserDropdown extends PureComponent {
       lockSettingsProp,
       hasPrivateChatBetweenUsers,
       toggleUserLock,
+      requestUserInformation,
     } = this.props;
 
     const { showNestedOptions } = this.state;
@@ -229,6 +234,8 @@ class UserDropdown extends PureComponent {
       && (!(currentUser.isLocked && disablePrivChat)
         || hasPrivateChatBetweenUsers(currentUser, user)
         || user.isModerator);
+
+    const allowUserLookup = Meteor.settings.public.app.allowUserLookup;
 
     if (showNestedOptions) {
       if (allowedToChangeStatus) {
@@ -346,6 +353,15 @@ class UserDropdown extends PureComponent {
           : intl.formatMessage(messages.LockUserLabel, { 0: user.name }),
         () => this.onActionsHide(toggleUserLock(user.id, !user.isLocked)),
         user.isLocked ? 'unlock' : 'lock',
+      ));
+    }
+
+    if (allowUserLookup) {
+      actions.push(this.makeDropdownItem(
+        'directoryLookup',
+        intl.formatMessage(messages.DirectoryLookupLabel),
+        () => this.onActionsHide(requestUserInformation(user.externalUserId)),
+        'user',
       ));
     }
 

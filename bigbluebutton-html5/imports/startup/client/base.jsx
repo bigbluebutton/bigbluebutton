@@ -10,6 +10,7 @@ import Settings from '/imports/ui/services/settings';
 import AudioManager from '/imports/ui/services/audio-manager';
 import logger from '/imports/startup/client/logger';
 import Users from '/imports/api/users';
+import UserInfos from '/imports/api/users-infos';
 import Annotations from '/imports/api/annotations';
 import AnnotationsLocal from '/imports/ui/components/whiteboard/service';
 import GroupChat from '/imports/api/group-chat';
@@ -159,7 +160,7 @@ Base.defaultProps = defaultProps;
 const SUBSCRIPTIONS_NAME = [
   'users', 'meetings', 'polls', 'presentations',
   'slides', 'captions', 'voiceUsers', 'whiteboard-multi-user', 'screenshare',
-  'group-chat', 'presentation-pods', 'users-settings', 'guestUser',
+  'group-chat', 'presentation-pods', 'users-settings', 'guestUser', 'users-infos',
 ];
 
 const BaseContainer = withTracker(() => {
@@ -168,6 +169,7 @@ const BaseContainer = withTracker(() => {
   const { meetingId, requesterUserId } = credentials;
   let breakoutRoomSubscriptionHandler;
   let userSubscriptionHandler;
+  let userInfoSubscriptionHandler;
 
   const subscriptionErrorHandler = {
     onError: (error) => {
@@ -204,7 +206,11 @@ const BaseContainer = withTracker(() => {
     // override meteor subscription to verify if is moderator
     userSubscriptionHandler = Meteor.subscribe('users', credentials, mappedUser.isModerator, subscriptionErrorHandler);
     breakoutRoomSubscriptionHandler = Meteor.subscribe('breakouts', credentials, mappedUser.isModerator, subscriptionErrorHandler);
+
+    userInfoSubscriptionhandler = Meteor.subscribe('users-infos', credentials, subscriptionErrorHandler);
   }
+
+  const UserInfo = UserInfos.find({ meetingId, requesterUserId }).fetch();
 
   const annotationsHandler = Meteor.subscribe('annotations', credentials, {
     onReady: () => {
@@ -230,10 +236,12 @@ const BaseContainer = withTracker(() => {
     annotationsHandler,
     groupChatMessageHandler,
     userSubscriptionHandler,
+    userInfoSubscriptionHandler,
     breakoutRoomSubscriptionHandler,
     animations,
     meetingExist: !!Meetings.find({ meetingId }).count(),
     User,
+    UserInfo,
     meteorIsConnected: Meteor.status().connected,
   };
 })(Base);

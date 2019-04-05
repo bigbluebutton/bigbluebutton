@@ -32,6 +32,7 @@ const propTypes = {
   isMeetingLocked: PropTypes.func.isRequired,
   roving: PropTypes.func.isRequired,
   toggleUserLock: PropTypes.func.isRequired,
+  requestUserInformation: PropTypes.func.isRequired,
 };
 
 const defaultProps = {
@@ -128,6 +129,7 @@ class UserParticipants extends Component {
       users,
       hasPrivateChatBetweenUsers,
       toggleUserLock,
+      requestUserInformation,
     } = this.props;
 
     let index = -1;
@@ -164,6 +166,7 @@ class UserParticipants extends Component {
               getGroupChatPrivate,
               hasPrivateChatBetweenUsers,
               toggleUserLock,
+              requestUserInformation,
             }}
             userId={u}
             getScrollContainerRef={this.getScrollContainerRef}
