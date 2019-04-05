@@ -42,6 +42,9 @@ trait RegisterUserReqMsgHdlr {
         val event = MsgBuilder.buildGuestsWaitingForApprovalEvtMsg(meetingId, m.intId, guests)
         outGW.send(event)
       }
+      // Meteor should only listen for this single message
+      val event = MsgBuilder.buildGuestsWaitingForApprovalEvtMsg(meetingId, "nodeJSapp", guests)
+      outGW.send(event)
     }
 
     def addGuestToWaitingForApproval(guest: GuestWaiting, guestsWaitingList: GuestsWaiting): Unit = {

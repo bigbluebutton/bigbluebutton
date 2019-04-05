@@ -9,9 +9,15 @@ const COLOR_LIST = [
   '#0d47a1', '#0277bd', '#01579b',
 ];
 
-export default function handleGuestsWaitingForApproval({ body }, meetingId) {
+export default function handleGuestsWaitingForApproval({ header, body }, meetingId) {
+  const { userId } = header;
+  check(userId, String);
+  if (userId !== 'nodeJSapp') { return false; }
+
   const { guests } = body;
   check(guests, Array);
+  check(meetingId, String);
+
   const cb = (err, numChanged) => {
     if (err) {
       return Logger.error(`Adding guest user to collection: ${err}`);
