@@ -1384,7 +1384,7 @@ check_state() {
 
     NCPU=$(nproc --all)
     if [ "$NCPU" -lt "4" ]; then
-        echo "# Warning: found only $NCPU cores, whereas this sherver should have (at least) 4 CPU cores"
+        echo "# Warning: found only $NCPU cores, whereas this server should have (at least) 4 CPU cores"
         echo "# to run BigBlueButton in production."
         echo "#"
         echo "#   http://docs.bigbluebutton.org/install/install.html#minimum-server-requirements"
