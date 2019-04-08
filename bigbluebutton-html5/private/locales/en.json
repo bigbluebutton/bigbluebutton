@@ -462,7 +462,7 @@
     "app.video.mediaFlowTimeout1020": "Error 1020: media could not reach the server",
     "app.video.swapCam": "Swap",
     "app.video.swapCamDesc": "swap the direction of webcams",
-    "app.video.videoDisabled": "Webcam is disabled",
+    "app.video.videoLocked": "Webcam sharing locked",
     "app.video.videoButtonDesc": "Join video button",
     "app.video.videoMenu": "Video menu",
     "app.video.videoMenuDisabled": "Video menu Webcam is disabled in settings",
