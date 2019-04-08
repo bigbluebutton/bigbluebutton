@@ -1,7 +1,10 @@
 @import "/imports/ui/stylesheets/variables/_all";
+@import "/imports/ui/stylesheets/mixins/_indicators";
 @import "../base/styles";
 
 .modal {
+  @include highContrastOutline();
+  outline-style: solid;
   display: flex;
   flex-direction: column;
   padding: calc(var(--line-height-computed) / 2) var(--line-height-computed);

@@ -299,7 +299,7 @@ class PresentationToolbar extends Component {
                 : intl.formatMessage(intlMessages.fitToWidth)
               }
               hideLabel
-              className={styles.skipSlide}
+              className={styles.fitToWidth}
               tooltipDistance={tooltipDistance}
             />
             {

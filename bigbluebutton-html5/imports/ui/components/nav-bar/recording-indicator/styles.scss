@@ -1,4 +1,5 @@
 @import "../../../stylesheets/variables/_all";
+@import '/imports/ui/stylesheets/mixins/_indicators';
 @import "../../../stylesheets/variables/typography";
 
 .visuallyHidden {
@@ -135,3 +136,15 @@
   }
 }
 
+.recordingIndicator {
+  &:hover {
+    @include highContrastOutline();
+  }
+
+  &:active,
+  &:focus,
+  &:focus-within {
+    @include highContrastOutline();
+    outline-style: solid;
+  }
+}

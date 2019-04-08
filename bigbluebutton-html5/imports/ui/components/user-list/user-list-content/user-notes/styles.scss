@@ -14,13 +14,11 @@
 
 .scrollableList {
   margin-left: var(--md-padding-y);
-  outline: none;
 }
 
 .noteLink {
   @extend %list-item;
   align-items: center;
-
   cursor: pointer;
   display: flex;
   flex-flow: row;
@@ -56,6 +54,5 @@
   &:active {
     background-color: var(--list-item-bg-hover);
     box-shadow: inset 0 0 0 var(--border-size) var(--item-focus-border), inset 1px 0 0 1px var(--item-focus-border);
-    outline: none;
   }
 }
