@@ -75,7 +75,7 @@
     "app.meeting.endedMessage": "You will be forwarded back to the home screen",
     "app.meeting.alertMeetingEndsUnderOneMinute": "Meeting is closing in a minute.",
     "app.meeting.alertBreakoutEndsUnderOneMinute": "Breakout is closing in a minute.",
-    "app.presentation.close": "Close presentation",
+    "app.presentation.hide": "Hide presentation",
     "app.presentation.slideContent": "Slide Content",
     "app.presentation.startSlideContent": "Slide content start",
     "app.presentation.endSlideContent": "Slide content end",
