@@ -710,18 +710,22 @@ check_configuration() {
         fi
     fi
 
-
-    if [ -f ${SERVLET_DIR}/demo/bbb_api_conf.jsp ]; then
+    if [ -f /var/lib/tomcat7/webapps/demo/bbb_api_conf.jsp ]; then
         #
         # Make sure the shared secret for the API matches the server
         #
         SECRET_PROPERTIES=$(cat ${SERVLET_DIR}/WEB-INF/classes/bigbluebutton.properties | grep -v '#' | tr -d '\r' | sed -n '/securitySalt/{s/.*=//;p}')
-        SECRET_DEMO=$(cat ${SERVLET_DIR}/demo/bbb_api_conf.jsp | grep -v '^//' | tr -d '\r' | sed -n '/salt[ ]*=/{s/.*=[ ]*"//;s/".*//g;p}')
+        SECRET_DEMO=$(cat /var/lib/tomcat7/webapps/demo/bbb_api_conf.jsp | grep -v '^//' | tr -d '\r' | sed -n '/salt[ ]*=/{s/.*=[ ]*"//;s/".*//g;p}')
 
         if [ "$SECRET_PROPERTIES" != "$SECRET_DEMO" ]; then
+            echo "#"
             echo "# Warning: API Shared Secret mismatch: "
+            echo "#"
             echo "#  ${SERVLET_DIR}/WEB-INF/classes/bigbluebutton.properties  = $SECRET_PROPERTIES"
-            echo "#  ${SERVLET_DIR}/demo/bbb_api_conf.jsp                                   = $SECRET_DEMO"
+            echo "#  /var/lib/tomcat7/webapps/demo/bbb_api_conf.jsp               = $SECRET_DEMO"
+            echo "#"
+            echo "# You need to edit bbb_api_conf.jsp to have the same shared secret defined in bigbluebutton.properties"
+            echo "#"
             echo
         fi
 
