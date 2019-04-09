@@ -106,8 +106,18 @@ class RedisPubSub {
 
     this.didSendRequestEvent = false;
     const redisHost = process.env.REDIS_HOST || Meteor.settings.private.redis.host;
-    this.pub = Redis.createClient(Meteor.settings.private.redis.port, redisHost);
-    this.sub = Redis.createClient(Meteor.settings.private.redis.port, redisHost);
+    const redisConfig = {
+      port: Meteor.settings.private.redis.port,
+      host: redisHost,
+    };
+    const redisPassword = Meteor.settings.private.redis.password;
+
+    if (redisPassword !== null) {
+      redisConfig.password = redisPassword;
+    }
+
+    this.pub = Redis.createClient(redisConfig);
+    this.sub = Redis.createClient(redisConfig);
     this.emitter = new EventEmitter2();
     this.mettingsQueues = {};
 
