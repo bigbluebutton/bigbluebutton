@@ -20,10 +20,30 @@ import Meetings from '../../api/meetings';
 import AppService from '/imports/ui/components/app/service';
 import AnnotationsTextService from '/imports/ui/components/whiteboard/annotations/text/service';
 
+import Breakouts from '/imports/api/breakouts';
+import AudioService from '/imports/ui/components/audio/service';
+import { FormattedMessage, defineMessages } from 'react-intl';
+import { notify } from '/imports/ui/services/notification';
+
+const intlMessages = defineMessages({
+  toastBreakoutRoomEnded: {
+    id: 'app.toast.breakoutRoomEnded',
+    description: 'message when the breakout room is ended',
+  },
+  notificationRecordingStart: {
+    id: 'app.notification.recordingStart',
+    description: 'Notification for when the recording starts',
+  },
+  notificationRecordingStop: {
+    id: 'app.notification.recordingStop',
+    description: 'Notification for when the recording stops',
+  },
+});
 
 const CHAT_CONFIG = Meteor.settings.public.chat;
 const PUBLIC_GROUP_CHAT_ID = CHAT_CONFIG.public_group_id;
 const PUBLIC_CHAT_TYPE = CHAT_CONFIG.type_public;
+let breakoutNotified = false;
 
 const propTypes = {
   subscriptionsReady: PropTypes.bool.isRequired,
@@ -261,6 +281,55 @@ const BaseContainer = withTracker(() => {
       annotationsHandler.stop();
     },
     ...subscriptionErrorHandler,
+  });
+
+  Breakouts.find().observeChanges({
+    added() {
+      breakoutNotified = false;
+    },
+    removed() {
+      if (!AudioService.isUsingAudio() && !breakoutNotified) {
+        if (meeting && !meeting.meetingEnded) {
+          notify(
+            <FormattedMessage
+              id="app.toast.breakoutRoomEnded"
+              description="message when the breakout room is ended"
+            />,
+            'info',
+            'rooms',
+          );
+        }
+        breakoutNotified = true;
+      }
+    },
+  });
+
+  Meetings.find({ meetingId }).observe({
+    changed: (newDocument, oldDocument) => {
+      if (newDocument.recordProp && newDocument.recordProp.recording
+        && newDocument.recordProp.recording !== oldDocument.recordProp.recording) {
+        notify(
+          <FormattedMessage
+            id="app.notification.recordingStart"
+            description="Notification for when the recording starts"
+          />,
+          'success',
+          'record',
+        );
+      }
+
+      if (newDocument.recordProp && !newDocument.recordProp.recording
+        && newDocument.recordProp.recording !== oldDocument.recordProp.recording) {
+        notify(
+          <FormattedMessage
+            id="app.notification.recordingStop"
+            description="Notification for when the recording stops"
+          />,
+          'error',
+          'record',
+        );
+      }
+    },
   });
 
   return {
