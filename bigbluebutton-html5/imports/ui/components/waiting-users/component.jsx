@@ -1,3 +1,4 @@
+import _ from 'lodash';
 import React, { useEffect, useState } from 'react';
 import { Session } from 'meteor/session';
 import { defineMessages, injectIntl } from 'react-intl';
@@ -131,6 +132,7 @@ const WaitingUsers = (props) => {
     guestUsers,
     guestUsersCall,
     changeGuestPolicy,
+    authenticatedGuest,
   } = props;
 
   const onCheckBoxChange = (e) => {
@@ -156,7 +158,7 @@ const WaitingUsers = (props) => {
     />
   );
 
-  const buttonsData = [
+  const authGuestButtonsData = [
     {
       messageId: intlMessages.allowAllAuthenticated,
       action: () => guestUsersCall(authenticatedUsers, ALLOW_STATUS),
@@ -172,6 +174,9 @@ const WaitingUsers = (props) => {
       key: 'allow-all-guest',
       policy: 'ALWAYS_ACCEPT',
     },
+  ];
+
+  const guestButtonsData = [
     {
       messageId: intlMessages.allowEveryone,
       action: () => guestUsersCall([...guestUsers, ...authenticatedUsers], ALLOW_STATUS),
@@ -185,6 +190,8 @@ const WaitingUsers = (props) => {
       policy: 'ALWAYS_DENY',
     },
   ];
+
+  const buttonsData = authenticatedGuest ? _.concat(authGuestButtonsData , guestButtonsData) : guestButtonsData;
 
   return (
     <div
