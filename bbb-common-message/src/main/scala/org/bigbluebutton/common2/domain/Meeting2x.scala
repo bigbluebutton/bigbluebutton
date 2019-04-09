@@ -10,10 +10,13 @@ case class DurationProps(duration: Int, createdTime: Long, createdDate: String,
 case class MeetingProp(name: String, extId: String, intId: String, isBreakout: Boolean)
 
 case class BreakoutProps(
-    parentId:      String,
-    sequence:      Int,
-    freeJoin:      Boolean,
-    breakoutRooms: Vector[String]
+    parentId:           String,
+    sequence:           Int,
+    freeJoin:           Boolean,
+    breakoutRooms:      Vector[String],
+    enabled:            Boolean,
+    record:             Boolean,
+    privateChatEnabled: Boolean
 )
 
 case class PasswordProp(moderatorPass: String, viewerPass: String)
@@ -51,7 +54,7 @@ case class DefaultProps(
     usersProp:         UsersProp,
     metadataProp:      MetadataProp,
     screenshareProps:  ScreenshareProps,
-    lockSettingsProps: Option[LockSettingsProps]
+    lockSettingsProps: LockSettingsProps
 )
 
 case class StartEndTimeStatus(startTime: Long, endTime: Long)
