@@ -615,10 +615,13 @@ if [[ $SECRET ]]; then
         sed -i "s/sharedSecret[ ]*=[ ]*\"[^\"]*\"/sharedSecret=\"$SECRET\"/g" /usr/share/bbb-apps-akka/conf/application.conf
     fi
 
-    echo "Changed BigBlueButton's shared secret to $SECRET"
+    echo
+    echo "BigBlueButton's shared secret is now $SECRET"
     echo
     echo "You must restart BigBlueButton for the changes to take effect"
+    echo
     echo "  $SUDO bbb-conf --restart"
+    echo
     echo
 fi
 
@@ -1416,6 +1419,24 @@ check_state() {
       fi
     fi
 
+    CHECK=$(cat ${SERVLET_DIR}/WEB-INF/classes/bigbluebutton.properties | grep -v '#' | grep securitySalt | cut -d= -f2 | sha1sum | cut -d' ' -f1)
+    if [ "$CHECK" == "55b727b294158a877212570c3c0524c2b902a62c" ]; then
+      echo 
+      echo "#"
+      echo "# Warning: Detected you have the default shared secret.  You MUST change your shared"
+      echo "# secret NOW for BigBlueButton to finish starting up. Do either"
+      echo "#"
+      echo "#   sudo bbb-conf --setsecret <secret>"
+      echo "#"
+      echo "# or, to have openssl generate a strong secret for you (recommended)"
+      echo "#"
+      echo "#   sudo bbb-conf --setsecret \$(openssl rand -base64 32 | sed 's/=//g')"
+      echo "#"
+      echo "# Be sure to update any integrations with the new shared secret."
+      echo "#"
+      systemctl stop bbb-web
+      exit 1
+    fi
 
     exit 0
 }
