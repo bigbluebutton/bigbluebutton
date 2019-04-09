@@ -22,23 +22,8 @@ import AnnotationsTextService from '/imports/ui/components/whiteboard/annotation
 
 import Breakouts from '/imports/api/breakouts';
 import AudioService from '/imports/ui/components/audio/service';
-import { FormattedMessage, defineMessages } from 'react-intl';
+import { FormattedMessage } from 'react-intl';
 import { notify } from '/imports/ui/services/notification';
-
-const intlMessages = defineMessages({
-  toastBreakoutRoomEnded: {
-    id: 'app.toast.breakoutRoomEnded',
-    description: 'message when the breakout room is ended',
-  },
-  notificationRecordingStart: {
-    id: 'app.notification.recordingStart',
-    description: 'Notification for when the recording starts',
-  },
-  notificationRecordingStop: {
-    id: 'app.notification.recordingStop',
-    description: 'Notification for when the recording stops',
-  },
-});
 
 const CHAT_CONFIG = Meteor.settings.public.chat;
 const PUBLIC_GROUP_CHAT_ID = CHAT_CONFIG.public_group_id;
@@ -159,11 +144,12 @@ class Base extends Component {
     const {
       ejected,
       subscriptionsReady,
+      meetingExist,
       meetingHasEnded,
       meetingIsBreakout,
     } = this.props;
 
-    if ((loading || !subscriptionsReady) && !meetingHasEnded) {
+    if ((loading || !subscriptionsReady) && !meetingHasEnded && meetingExist) {
       return (<LoadingScreen>{loading}</LoadingScreen>);
     }
 
