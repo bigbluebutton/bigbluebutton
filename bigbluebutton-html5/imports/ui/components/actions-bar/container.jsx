@@ -43,6 +43,7 @@ export default withTracker(() => {
     createBreakoutRoom: Service.createBreakoutRoom,
     meetingIsBreakout: Service.meetingIsBreakout(),
     hasBreakoutRoom: Service.hasBreakoutRoom(),
+    isBreakoutEnabled: Service.isBreakoutEnabled(),
     meetingName: Service.meetingName(),
     users: Service.users(),
     isLayoutSwapped: getSwapLayout(),

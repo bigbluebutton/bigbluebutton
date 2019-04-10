@@ -49,6 +49,7 @@ export default {
   meetingName: () => Meetings.findOne({ meetingId: Auth.meetingID }).meetingProp.name,
   users: () => Users.find({ connectionStatus: 'online', meetingId: Auth.meetingID }).fetch(),
   hasBreakoutRoom: () => Breakouts.find({ parentMeetingId: Auth.meetingID }).fetch().length > 0,
+  isBreakoutEnabled: () => Meetings.findOne({ meetingId: Auth.meetingID }).breakoutProps.enabled,
   toggleRecording: () => makeCall('toggleRecording'),
   createBreakoutRoom: (numberOfRooms, durationInMinutes, freeJoin = true, record = false) => makeCall('createBreakoutRoom', numberOfRooms, durationInMinutes, freeJoin, record),
   sendInvitation: (breakoutId, userId) => makeCall('requestJoinURL', { breakoutId, userId }),
