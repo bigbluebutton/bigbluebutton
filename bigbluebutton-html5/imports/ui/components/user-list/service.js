@@ -267,13 +267,13 @@ const isMeetingLocked = (id) => {
   const meeting = Meetings.findOne({ meetingId: id });
   let isLocked = false;
 
-  if (meeting.lockSettingsProp !== undefined) {
-    const lockSettings = meeting.lockSettingsProp;
+  if (meeting.lockSettingsProps !== undefined) {
+    const lockSettings = meeting.lockSettingsProps;
 
     if (lockSettings.disableCam
       || lockSettings.disableMic
-      || lockSettings.disablePrivChat
-      || lockSettings.disablePubChat) {
+      || lockSettings.disablePrivateChat
+      || lockSettings.disablePublicChat) {
       isLocked = true;
     }
   }

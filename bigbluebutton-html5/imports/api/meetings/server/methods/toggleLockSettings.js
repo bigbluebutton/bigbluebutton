@@ -11,11 +11,11 @@ export default function toggleLockSettings(credentials, meeting) {
 
   check(meetingId, String);
   check(requesterUserId, String);
-  check(meeting.lockSettingsProp, {
+  check(meeting.lockSettingsProps, {
     disableCam: Boolean,
     disableMic: Boolean,
-    disablePrivChat: Boolean,
-    disablePubChat: Boolean,
+    disablePrivateChat: Boolean,
+    disablePublicChat: Boolean,
     lockedLayout: Boolean,
     lockOnJoin: Boolean,
     lockOnJoinConfigurable: Boolean,
@@ -23,13 +23,13 @@ export default function toggleLockSettings(credentials, meeting) {
   });
 
   const payload = {
-    disableCam: meeting.lockSettingsProp.disableCam,
-    disableMic: meeting.lockSettingsProp.disableMic,
-    disablePrivChat: meeting.lockSettingsProp.disablePrivChat,
-    disablePubChat: meeting.lockSettingsProp.disablePubChat,
-    lockedLayout: meeting.lockSettingsProp.lockedLayout,
-    lockOnJoin: meeting.lockSettingsProp.lockOnJoin,
-    lockOnJoinConfigurable: meeting.lockSettingsProp.lockOnJoinConfigurable,
+    disableCam: meeting.lockSettingsProps.disableCam,
+    disableMic: meeting.lockSettingsProps.disableMic,
+    disablePrivChat: meeting.lockSettingsProps.disablePrivateChat,
+    disablePubChat: meeting.lockSettingsProps.disablePublicChat,
+    lockedLayout: meeting.lockSettingsProps.lockedLayout,
+    lockOnJoin: meeting.lockSettingsProps.lockOnJoin,
+    lockOnJoinConfigurable: meeting.lockSettingsProps.lockOnJoinConfigurable,
     setBy: requesterUserId,
   };
 

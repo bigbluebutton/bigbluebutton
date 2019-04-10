@@ -23,6 +23,7 @@ const propTypes = {
   isUserModerator: PropTypes.bool.isRequired,
   meetingIsBreakout: PropTypes.bool.isRequired,
   hasBreakoutRoom: PropTypes.bool.isRequired,
+  isBreakoutEnabled: PropTypes.bool.isRequired,
   createBreakoutRoom: PropTypes.func.isRequired,
   meetingName: PropTypes.string.isRequired,
   shortcuts: PropTypes.string.isRequired,
@@ -139,6 +140,7 @@ class ActionsDropdown extends Component {
       allowExternalVideo,
       meetingIsBreakout,
       hasBreakoutRoom,
+      isBreakoutEnabled,
       getUsersNotAssigned,
       users,
       handleTakePresenter,
@@ -163,11 +165,13 @@ class ActionsDropdown extends Component {
 
     const canCreateBreakout = isUserModerator
     && !meetingIsBreakout
-    && !hasBreakoutRoom;
+    && !hasBreakoutRoom
+    && isBreakoutEnabled;
 
     const canInviteUsers = isUserModerator
     && !meetingIsBreakout
     && hasBreakoutRoom
+    && isBreakoutEnabled
     && getUsersNotAssigned(users).length;
 
     return _.compact([
