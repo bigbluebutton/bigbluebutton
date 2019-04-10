@@ -14,7 +14,7 @@ import clearVoiceUsers from '/imports/api/voice-users/server/modifiers/clearVoic
 import clearUserInfo from '/imports/api/users-infos/server/modifiers/clearUserInfo';
 
 
-export default function removeMeeting(meetingId) {
+export default function meetingHasEnded(meetingId) {
   return Meetings.remove({ meetingId }, () => {
     clearCaptions(meetingId);
     clearGroupChat(meetingId);
