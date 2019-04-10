@@ -244,8 +244,16 @@ const BaseContainer = withTracker(() => {
 
   const groupChatMessageHandler = Meteor.subscribe('group-chat-msg', credentials, chatIds, subscriptionErrorHandler);
   const User = Users.findOne({ intId: credentials.requesterUserId });
+  let responseDelay;
+  let inactivityCheck;
 
   if (User) {
+    const {
+      responseDelay: userResponseDelay,
+      inactivityCheck: userInactivityCheck,
+    } = User;
+    responseDelay = userResponseDelay;
+    inactivityCheck = userInactivityCheck;
     const mappedUser = mapUser(User);
     // override meteor subscription to verify if is moderator
     userSubscriptionHandler = Meteor.subscribe('users', credentials, mappedUser.isModerator, subscriptionErrorHandler);
@@ -292,28 +300,28 @@ const BaseContainer = withTracker(() => {
 
   Meetings.find({ meetingId }).observe({
     changed: (newDocument, oldDocument) => {
-      if (newDocument.recordProp && newDocument.recordProp.recording
-        && newDocument.recordProp.recording !== oldDocument.recordProp.recording) {
-        notify(
-          <FormattedMessage
-            id="app.notification.recordingStart"
-            description="Notification for when the recording starts"
-          />,
-          'success',
-          'record',
-        );
-      }
+      if (newDocument.recordProp) {
+        if (!oldDocument.recordProp.recording && newDocument.recordProp.recording) {
+          notify(
+            <FormattedMessage
+              id="app.notification.recordingStart"
+              description="Notification for when the recording starts"
+            />,
+            'success',
+            'record',
+          );
+        }
 
-      if (newDocument.recordProp && !newDocument.recordProp.recording
-        && newDocument.recordProp.recording !== oldDocument.recordProp.recording) {
-        notify(
-          <FormattedMessage
-            id="app.notification.recordingStop"
-            description="Notification for when the recording stops"
-          />,
-          'error',
-          'record',
-        );
+        if (oldDocument.recordProp.recording && !newDocument.recordProp.recording) {
+          notify(
+            <FormattedMessage
+              id="app.notification.recordingStop"
+              description="Notification for when the recording stops"
+            />,
+            'error',
+            'record',
+          );
+        }
       }
     },
   });
@@ -329,9 +337,11 @@ const BaseContainer = withTracker(() => {
     breakoutRoomSubscriptionHandler,
     meetingModeratorSubscriptionHandler,
     animations,
+    responseDelay,
+    inactivityCheck,
     User,
     meteorIsConnected: Meteor.status().connected,
-    meetingExist: !!Meetings.findOne({ meetingId }),
+    meetingExist: !!meeting,
     meetingHasEnded: !!meeting && meeting.meetingEnded,
     meetingIsBreakout: AppService.meetingIsBreakout(),
   };
