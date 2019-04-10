@@ -1,4 +1,4 @@
-import React, { PureComponent } from 'react';
+import React, { PureComponent, Fragment } from 'react';
 import PropTypes from 'prop-types';
 import { defineMessages, injectIntl } from 'react-intl';
 import { Session } from 'meteor/session';
@@ -117,9 +117,7 @@ class ChatAlert extends PureComponent {
       },
     );
 
-    if (!pushAlertDisabled) {
-      this.setChatMessagesState(newPendingNotificationsByChat, newLastAlertTimestampByChat);
-    }
+    this.setChatMessagesState(newPendingNotificationsByChat, newLastAlertTimestampByChat);
   }
 
   setAlertEnabledTimestamp(newAlertEnabledTimestamp) {
@@ -178,7 +176,7 @@ class ChatAlert extends PureComponent {
     const shouldPlay = Object.keys(pendingNotificationsByChat).length > 0;
 
     return (
-      <span>
+      <Fragment>
         {!audioAlertDisabled ? <ChatAudioAlert play={shouldPlay} /> : null}
         {
           !pushAlertDisabled
@@ -216,7 +214,7 @@ class ChatAlert extends PureComponent {
               })
             : null
         }
-      </span>
+      </Fragment>
     );
   }
 }

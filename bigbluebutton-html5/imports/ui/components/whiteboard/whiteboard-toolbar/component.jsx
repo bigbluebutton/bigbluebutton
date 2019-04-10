@@ -223,9 +223,9 @@ class WhiteboardToolbar extends Component {
   panOn(event) {
     const { annotationSelected } = this.state;
     const { target, which } = event;
-    const isInputArea = target.nodeName === 'TEXTAREA' || target.nodeName === 'INPUT';
+    const isBody = target.nodeName === 'BODY';
 
-    if (annotationSelected.value === 'hand' || isInputArea) return;
+    if (annotationSelected.value === 'hand' || !isBody) return;
 
     const { annotations } = this.props;
 
