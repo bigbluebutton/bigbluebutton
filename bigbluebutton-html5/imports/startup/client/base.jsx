@@ -10,7 +10,6 @@ import Settings from '/imports/ui/services/settings';
 import AudioManager from '/imports/ui/services/audio-manager';
 import logger from '/imports/startup/client/logger';
 import Users from '/imports/api/users';
-import UserInfos from '/imports/api/users-infos';
 import Annotations from '/imports/api/annotations';
 import AnnotationsLocal from '/imports/ui/components/whiteboard/service';
 import GroupChat from '/imports/api/group-chat';
@@ -213,7 +212,6 @@ const BaseContainer = withTracker(() => {
   let breakoutRoomSubscriptionHandler;
   let meetingModeratorSubscriptionHandler;
   let userSubscriptionHandler;
-  let userInfoSubscriptionHandler;
 
   const subscriptionErrorHandler = {
     onError: (error) => {
@@ -252,10 +250,8 @@ const BaseContainer = withTracker(() => {
     breakoutRoomSubscriptionHandler = Meteor.subscribe('breakouts', credentials, mappedUser.isModerator, subscriptionErrorHandler);
     meetingModeratorSubscriptionHandler = Meteor.subscribe('meetings', credentials, mappedUser.isModerator, subscriptionErrorHandler);
 
-    userInfoSubscriptionhandler = Meteor.subscribe('users-infos', credentials, subscriptionErrorHandler);
+    Meteor.subscribe('users-infos', credentials, subscriptionErrorHandler);
   }
-
-  const UserInfo = UserInfos.find({ meetingId, requesterUserId }).fetch();
 
   const annotationsHandler = Meteor.subscribe('annotations', credentials, {
     onReady: () => {
@@ -282,13 +278,11 @@ const BaseContainer = withTracker(() => {
     annotationsHandler,
     groupChatMessageHandler,
     userSubscriptionHandler,
-    userInfoSubscriptionHandler,
     breakoutRoomSubscriptionHandler,
     meetingModeratorSubscriptionHandler,
     animations,
     meetingExist: !!Meetings.find({ meetingId }).count(),
     User,
-    UserInfo,
     meteorIsConnected: Meteor.status().connected,
   };
 })(Base);

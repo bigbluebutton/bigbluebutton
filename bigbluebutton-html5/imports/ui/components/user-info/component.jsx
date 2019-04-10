@@ -6,6 +6,8 @@ import Button from '/imports/ui/components/button/component';
 import Modal from '/imports/ui/components/modal/simple/component';
 import { makeCall } from '/imports/ui/services/api';
 
+import Service from './service';
+
 import { styles } from './styles';
 
 const propTypes = {
@@ -22,12 +24,6 @@ const intlMessages = defineMessages({
 class UserInfo extends Component {
   constructor(props) {
     super(props);
-    this.handleCloseUserInfo = this.handleCloseUserInfo.bind(this);
-  }
-
-  handleCloseUserInfo() {
-    const { mountModal, requesterUserId, meetingId } = this.props;
-    makeCall('removeUserInformation', meetingId, requesterUserId);
   }
 
   renderUserInfo(UserInfo) {
@@ -58,11 +54,13 @@ class UserInfo extends Component {
   }
 
   render() {
-    const { intl, UserInfo } = this.props;
+    const {
+      intl, UserInfo, meetingId, requesterUserId,
+    } = this.props;
     return (
       <Modal
         title={intl.formatMessage(intlMessages.title)}
-        onRequestClose={this.handleCloseUserInfo}
+        onRequestClose={() => Service.handleCloseUserInfo(meetingId, requesterUserId)}
       >
         {this.renderUserInfo(UserInfo)}
       </Modal>
