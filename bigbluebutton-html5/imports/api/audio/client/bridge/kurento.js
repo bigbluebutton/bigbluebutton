@@ -1,6 +1,5 @@
 import BaseAudioBridge from './base';
 import Auth from '/imports/ui/services/auth';
-import Users from '/imports/api/users';
 import { fetchWebRTCMappedStunTurnServers } from '/imports/utils/fetchStunTurnServers';
 import logger from '/imports/startup/client/logger';
 
@@ -9,24 +8,15 @@ const MEDIA = Meteor.settings.public.media;
 const MEDIA_TAG = MEDIA.mediaTag.replace(/#/g, '');
 const GLOBAL_AUDIO_PREFIX = 'GLOBAL_AUDIO_';
 
-
-const getUsername = () => {
-  const User = Users.findOne({ userId: Auth.userID });
-  return User ? User.name : 'not found';
-};
-
 const logFunc = (type, message, options) => {
-  const userId = Auth.userID || 'not found';
-  const userName = getUsername();
-
   const topic = options.topic || 'audio';
 
-  logger[type]({ obj: Object.assign(options, { userId, userName, topic }) }, `[${topic}] ${message}`);
+  logger[type](`[${topic}] ${JSON.stringify(message)} options:${JSON.stringify(options)}`);
 };
 
 const modLogger = {
   info(message, options = {}) {
-    logFunc('info', message, options);
+    if (message.id !== 'ping' && options.message && options.message.id !== 'ping') logFunc('info', message, options);
   },
   error(message, options = {}) {
     logFunc('error', message, options);
