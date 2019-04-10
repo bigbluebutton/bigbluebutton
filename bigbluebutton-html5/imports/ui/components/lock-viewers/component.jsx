@@ -161,9 +161,9 @@ class LockViewersComponent extends React.PureComponent {
                 <div className={cx(styles.formElement, styles.pullContentRight)}>
                   <Toggle
                     icons={false}
-                    defaultChecked={meeting.lockSettingsProps.disablePubChat}
+                    defaultChecked={meeting.lockSettingsProps.disablePublicChat}
                     onChange={() => {
-                      meeting.lockSettingsProps.disablePubChat = !meeting.lockSettingsProps.disablePubChat;
+                      meeting.lockSettingsProps.disablePublicChat = !meeting.lockSettingsProps.disablePublicChat;
                       toggleLockSettings(meeting);
                     }}
                     ariaLabel={intl.formatMessage(intlMessages.publicChatLabel)}
@@ -183,9 +183,9 @@ class LockViewersComponent extends React.PureComponent {
                 <div className={cx(styles.formElement, styles.pullContentRight)}>
                   <Toggle
                     icons={false}
-                    defaultChecked={meeting.lockSettingsProps.disablePrivChat}
+                    defaultChecked={meeting.lockSettingsProps.disablePrivateChat}
                     onChange={() => {
-                      meeting.lockSettingsProps.disablePrivChat = !meeting.lockSettingsProp.disablePrivChat;
+                      meeting.lockSettingsProps.disablePrivateChat = !meeting.lockSettingsProps.disablePrivateChat;
                       toggleLockSettings(meeting);
                     }}
                     ariaLabel={intl.formatMessage(intlMessages.privateChatLable)}

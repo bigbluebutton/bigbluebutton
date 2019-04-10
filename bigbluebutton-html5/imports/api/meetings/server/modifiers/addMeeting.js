@@ -3,33 +3,6 @@ import { check, Match } from 'meteor/check';
 import Meetings from '/imports/api/meetings';
 import Logger from '/imports/startup/server/logger';
 
-const getLockSettings = props => {
-  if (props) {
-    // Since we miss a name convention here, we need to translate some properties
-    // key name to fit the rest of the messaging system
-    props = Object.assign(props, {
-      disablePrivChat: props.disablePrivateChat,
-      disablePubChat: props.disablePublicChat,
-      setBy: 'temp',
-    });
-    delete props['disablePrivateChat'];
-    delete props['disablePublicChat'];
-  } else {
-    // Default lock settings props
-    props = {
-      disableCam: false,
-      disableMic: false,
-      disablePrivChat: false,
-      disablePubChat: false,
-      lockOnJoin: true,
-      lockOnJoinConfigurable: false,
-      lockedLayout: false,
-      setBy: 'temp',
-    };
-  }
-  return props;
-};
-
 export default function addMeeting(meeting) {
   const meetingId = meeting.meetingProp.intId;
 
@@ -40,6 +13,9 @@ export default function addMeeting(meeting) {
       freeJoin: Boolean,
       breakoutRooms: Array,
       parentId: String,
+      enabled: Boolean,
+      record: Boolean,
+      privateChatEnabled: Boolean,
     },
     meetingProp: {
       intId: String,
@@ -91,7 +67,15 @@ export default function addMeeting(meeting) {
       screenshareConf: String,
     },
     metadataProp: Object,
-    lockSettingsProps: Match.Any,
+    lockSettingsProps: {
+      disableCam: Boolean,
+      disableMic: Boolean,
+      disablePrivateChat: Boolean,
+      disablePublicChat: Boolean,
+      lockOnJoin: Boolean,
+      lockOnJoinConfigurable: Boolean,
+      lockedLayout: Boolean,
+    },
   });
 
   const newMeeting = meeting;
@@ -100,7 +84,7 @@ export default function addMeeting(meeting) {
     meetingId,
   };
 
-  newMeeting.lockSettingsProps = getLockSettings(meeting.lockSettingsProps);
+  newMeeting.lockSettingsProps = Object.assign(meeting.lockSettingsProps, { setBy: 'temp' });
 
   newMeeting.welcomeProp.welcomeMsg = newMeeting.welcomeProp.welcomeMsg.replace(
     'href="event:',

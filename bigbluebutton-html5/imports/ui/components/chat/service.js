@@ -139,11 +139,11 @@ const isChatLocked = (receiverID) => {
   if (meeting.lockSettingsProps !== undefined) {
     if (mapUser(user).isLocked) {
       if (isPublic) {
-        return meeting.lockSettingsProps.disablePubChat;
+        return meeting.lockSettingsProps.disablePublicChat;
       }
       const receivingUser = Users.findOne({ userId: receiverID });
       const receiverIsMod = receivingUser && receivingUser.role === ROLE_MODERATOR;
-      return !receiverIsMod && meeting.lockSettingsProps.disablePrivChat;
+      return !receiverIsMod && meeting.lockSettingsProps.disablePrivateChat;
     }
   }
 
