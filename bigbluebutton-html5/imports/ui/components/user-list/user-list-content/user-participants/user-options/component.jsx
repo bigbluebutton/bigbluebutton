@@ -11,6 +11,7 @@ import DropdownList from '/imports/ui/components/dropdown/list/component';
 import DropdownListItem from '/imports/ui/components/dropdown/list/item/component';
 import LockViewersContainer from '/imports/ui/components/lock-viewers/container';
 import BreakoutRoom from '/imports/ui/components/actions-bar/create-breakout-room/component';
+import userListService from '/imports/ui/components/user-list/service';
 import { styles } from './styles';
 
 const propTypes = {
@@ -86,9 +87,32 @@ const intlMessages = defineMessages({
     id: 'app.invitation.title',
     description: 'invitation to breakout title',
   },
+  saveUserNames: {
+    id: 'app.actionsBar.actionsDropdown.saveUserNames',
+    description: 'Save user name feature description',
+  },
 });
 
 class UserOptions extends PureComponent {
+  static onSaveUserNames() {
+    const link = document.createElement('a');
+    const mimeType = 'text/plain';
+
+    const userNamesObj = userListService.getUsers();
+    let userNameListString = '';
+
+    Object.keys(userNamesObj).forEach((key) => {
+      userNameListString += userNamesObj[key].name;
+      userNameListString += '\n';
+    });
+    link.setAttribute('download', `save-users-list-${Date.now()}.txt`);
+    link.setAttribute(
+      'href',
+      `data: ${mimeType} ;charset=utf-8,${userNameListString}`,
+    );
+    link.dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true, view: window }));
+  }
+
   constructor(props) {
     super(props);
 
@@ -101,6 +125,7 @@ class UserOptions extends PureComponent {
     this.muteAllId = _.uniqueId('list-item-');
     this.lockId = _.uniqueId('list-item-');
     this.createBreakoutId = _.uniqueId('list-item-');
+    this.saveUsersNameId = _.uniqueId('list-item-');
 
     this.onActionsShow = this.onActionsShow.bind(this);
     this.onActionsHide = this.onActionsHide.bind(this);
@@ -229,6 +254,16 @@ class UserOptions extends PureComponent {
             label={intl.formatMessage(intlMessages.invitationItem)}
             key={this.createBreakoutId}
             onClick={this.onInvitationUsers}
+          />
+        )
+        : null),
+      (isUserModerator
+        ? (
+          <DropdownListItem
+            icon="download"
+            label={intl.formatMessage(intlMessages.saveUserNames)}
+            key={this.saveUsersNameId}
+            onClick={UserOptions.onSaveUserNames}
           />
         )
         : null),
