@@ -281,10 +281,20 @@ const isMeetingLocked = (id) => {
   return isLocked;
 };
 
+const areViewersUnmutable = () => {
+  const meeting = Meetings.findOne({ meetingId: Auth.meetingID });
+  if (meeting.usersProp) {
+    return meeting.usersProp.unmuteViewers;
+  }
+  return false;
+}
+
 const getAvailableActions = (currentUser, user, isBreakoutRoom) => {
   const isDialInUser = isVoiceOnlyUser(user.id) || user.isPhoneUser;
 
   const hasAuthority = currentUser.isModerator || user.isCurrent;
+
+  const unmuteViewer = !user.isModerator && areViewersUnmutable();
 
   const allowedToChatPrivately = !user.isCurrent && !isDialInUser;
 
@@ -297,7 +307,7 @@ const getAvailableActions = (currentUser, user, isBreakoutRoom) => {
     && user.isVoiceUser
     && !user.isListenOnly
     && user.isMuted
-    && user.isCurrent;
+    && (user.isCurrent || unmuteViewer);
 
   const allowedToResetStatus = hasAuthority
     && user.emoji.status !== EMOJI_STATUSES.none

@@ -90,6 +90,7 @@ public class ParamsProcessorUtil {
     private boolean allowStartStopRecording;
     private boolean webcamsOnlyForModerator;
     private boolean defaultMuteOnStart = false;
+    private boolean defaultUnmuteViewers = false;
 
     private String defaultConfigXML = null;
 
@@ -391,6 +392,13 @@ public class ParamsProcessorUtil {
         }
 
 		meeting.setMuteOnStart(muteOnStart);
+
+        Boolean unmuteViewers = defaultUnmuteViewers;
+        if (!StringUtils.isEmpty(params.get(ApiParams.UNMUTE_VIEWERS))) {
+            unmuteViewers = Boolean.parseBoolean(params.get(ApiParams.UNMUTE_VIEWERS));
+        }
+        meeting.setUnmuteViewers(unmuteViewers);
+
         return meeting;
     }
 	
@@ -888,6 +896,13 @@ public class ParamsProcessorUtil {
 		return defaultMuteOnStart;
 	}
 
+	public void setUnmuteViewers(Boolean value) {
+		defaultUnmuteViewers = value;
+	}
+
+	public Boolean getUnmuteViewers() {
+		return defaultUnmuteViewers;
+	}
 
 	public List<String> decodeIds(String encodeid) {
 		ArrayList<String> ids=new ArrayList<>();
