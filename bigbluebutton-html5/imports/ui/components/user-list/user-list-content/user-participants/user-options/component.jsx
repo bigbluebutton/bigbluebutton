@@ -99,12 +99,8 @@ class UserOptions extends PureComponent {
     const mimeType = 'text/plain';
 
     const userNamesObj = userListService.getUsers();
-    let userNameListString = '';
-
-    Object.keys(userNamesObj).forEach((key) => {
-      userNameListString += userNamesObj[key].name;
-      userNameListString += '\n';
-    });
+    const userNameListString = Object.keys(userNamesObj)
+      .map(key => userNamesObj[key].name, []).join('\r\n');
     link.setAttribute('download', `save-users-list-${Date.now()}.txt`);
     link.setAttribute(
       'href',
