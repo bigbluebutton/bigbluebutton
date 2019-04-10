@@ -13,7 +13,7 @@ import clearPresentationPods from '/imports/api/presentation-pods/server/modifie
 import clearVoiceUsers from '/imports/api/voice-users/server/modifiers/clearVoiceUsers';
 
 
-export default function removeMeeting(meetingId) {
+export default function meetingHasEnded(meetingId) {
   return Meetings.remove({ meetingId }, () => {
     clearCaptions(meetingId);
     clearGroupChat(meetingId);
