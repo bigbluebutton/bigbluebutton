@@ -4,6 +4,8 @@ import { withModalMounter } from '/imports/ui/components/modal/service';
 import browser from 'browser-detect';
 import getFromUserSettings from '/imports/ui/services/users-settings';
 import AudioModal from './component';
+import Meetings from '/imports/api/meetings';
+import Auth from '/imports/ui/services/auth';
 import Service from '../service';
 
 const AudioModalContainer = props => <AudioModal {...props} />;
@@ -15,6 +17,7 @@ export default withModalMounter(withTracker(({ mountModal }) => {
   const listenOnlyMode = getFromUserSettings('listenOnlyMode', APP_CONFIG.listenOnlyMode);
   const forceListenOnly = getFromUserSettings('forceListenOnly', APP_CONFIG.forceListenOnly);
   const skipCheck = getFromUserSettings('skipCheck', APP_CONFIG.skipCheck);
+  const { dialNumber, telVoice } = Meetings.findOne({ meetingId: Auth.meetingID }).voiceProp;
 
   return ({
     closeModal: () => {
@@ -57,6 +60,8 @@ export default withModalMounter(withTracker(({ mountModal }) => {
     showPermissionsOvelay: Service.isWaitingPermissions(),
     listenOnlyMode,
     skipCheck,
+    dialNumber,
+    telVoice,
     audioLocked: Service.audioLocked(),
     joinFullAudioImmediately: !listenOnlyMode && skipCheck,
     joinFullAudioEchoTest: !listenOnlyMode && !skipCheck,
