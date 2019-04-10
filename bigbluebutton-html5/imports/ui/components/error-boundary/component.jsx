@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 
 const propTypes = {
   children: PropTypes.element.isRequired,
-  Fallback: PropTypes.element.isRequired,
+  Fallback: PropTypes.func.isRequired,
 };
 
 class ErrorBoundary extends Component {
