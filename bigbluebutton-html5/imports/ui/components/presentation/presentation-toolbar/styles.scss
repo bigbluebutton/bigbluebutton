@@ -58,6 +58,10 @@
   grid-template-columns: 1fr 1fr 1fr;
 
   select {
+    &:-moz-focusring {
+      outline: none;
+    }
+
     margin-right: var(--whiteboard-toolbar-margin);
     padding: var(--whiteboard-toolbar-padding);
     padding-left: var(--whiteboard-toolbar-padding-sm);
@@ -133,6 +137,10 @@
   margin: var(--border-size);
   margin-left: var(--whiteboard-toolbar-margin);
 
+  &:-moz-focusring {
+    outline: none;
+  }
+  
   &:hover {
     @include highContrastOutline();
   }

@@ -9,6 +9,7 @@
   flex-direction: column;
   padding: calc(var(--line-height-computed) / 2) var(--line-height-computed);
   box-shadow: 0px 0px 15px rgba(0, 0, 0, 0.5);
+  background-color: var(--color-white) !important;
 }
 
 .content {

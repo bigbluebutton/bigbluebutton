@@ -49,7 +49,7 @@
   @extend %recordingControl;
 
   padding: 7px;
-  border: 1px solid var(--color-white);
+  border: var(--border-size-small) solid var(--color-white);
   
   &:focus {
     padding: 5px;
@@ -86,7 +86,7 @@
 }
 
 %recordingIndicator {
-  border: 1px solid var(--color-white) !important;
+  border: var(--border-size-small) solid var(--color-white) !important;
   border-radius: 50%;
   span {
     border: none;
@@ -115,6 +115,7 @@
 .recordingIndicatorON {
   @extend %recordingIndicator;
   &:after {
+    border: var(--border-size) solid transparent;
     background-color: var(--color-danger);
   }
 }
@@ -127,7 +128,7 @@
 }
 
 .isRecordingCircle {
-  border: 1px solid var(--color-white) !important;
+  border: var(--border-size-small) solid var(--color-white) !important;
   border-radius: 50%;
   span {
     border: none;
