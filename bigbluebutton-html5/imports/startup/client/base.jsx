@@ -92,6 +92,7 @@ class Base extends Component {
       approved,
       meetingExist,
       animations,
+      ejected,
       meteorIsConnected,
       subscriptionsReady,
     } = this.props;
