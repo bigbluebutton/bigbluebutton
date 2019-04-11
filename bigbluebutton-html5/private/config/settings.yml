@@ -18,6 +18,7 @@ public:
     cdn: ""
     basename: "/html5client"
     askForFeedbackOnLogout: false
+    allowRecordBreakoutRooms: true
     defaultSettings:
       application:
         animations: true

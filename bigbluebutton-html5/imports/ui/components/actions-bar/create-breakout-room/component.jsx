@@ -93,10 +93,16 @@ const intlMessages = defineMessages({
     id: 'app.createBreakoutRoom.addRoomTime',
     description: 'aria label for btn to increase room time',
   },
+  record: {
+    id: 'app.createBreakoutRoom.record',
+    description: 'label for checkbox to allow record',
+  },
 });
 
 const MIN_BREAKOUT_ROOMS = 2;
 const MAX_BREAKOUT_ROOMS = 8;
+const APP_CONFIG = Meteor.settings.public.app;
+const ALLOW_RECORD_BREAKOUT_ROOMS = APP_CONFIG.allowRecordBreakoutRooms;
 
 const propTypes = {
   intl: intlShape.isRequired,
@@ -127,7 +133,7 @@ class BreakoutRoom extends Component {
     this.renderUserItemByRoom = this.renderUserItemByRoom.bind(this);
     this.renderRoomsGrid = this.renderRoomsGrid.bind(this);
     this.renderBreakoutForm = this.renderBreakoutForm.bind(this);
-    this.renderFreeJoinCheck = this.renderFreeJoinCheck.bind(this);
+    this.renderCheckboxes = this.renderCheckboxes.bind(this);
     this.renderRoomSortList = this.renderRoomSortList.bind(this);
     this.renderDesktop = this.renderDesktop.bind(this);
     this.renderMobile = this.renderMobile.bind(this);
@@ -136,6 +142,7 @@ class BreakoutRoom extends Component {
     this.renderTitle = this.renderTitle.bind(this);
     this.handleDismiss = this.handleDismiss.bind(this);
     this.setInvitationConfig = this.setInvitationConfig.bind(this);
+    this.setRecord = this.setRecord.bind(this);
     this.blurDurationTime = this.blurDurationTime.bind(this);
 
     this.state = {
@@ -148,6 +155,7 @@ class BreakoutRoom extends Component {
       roomSelected: 0,
       preventClosing: true,
       valid: true,
+      record: false,
     };
 
     this.breakoutFormId = _.uniqueId('breakout-form-');
@@ -179,6 +187,7 @@ class BreakoutRoom extends Component {
     const {
       users,
       freeJoin,
+      record,
     } = this.state;
 
     if (users.length === this.getUserByRoom(0).length && !freeJoin) {
@@ -197,7 +206,7 @@ class BreakoutRoom extends Component {
       sequence: value,
     }));
 
-    createBreakoutRoom(rooms, durationTime, freeJoin);
+    createBreakoutRoom(rooms, durationTime, record);
     Session.set('isUserListOpen', true);
   }
 
@@ -254,6 +263,10 @@ class BreakoutRoom extends Component {
 
   setFreeJoin(e) {
     this.setState({ freeJoin: e.target.checked });
+  }
+
+  setRecord(e) {
+    this.setState({ record: e.target.checked });
   }
 
   getUserByRoom(room) {
@@ -460,21 +473,44 @@ class BreakoutRoom extends Component {
     );
   }
 
-  renderFreeJoinCheck() {
+  renderCheckboxes() {
     const { intl, isInvitation } = this.props;
     if (isInvitation) return null;
-    const { freeJoin } = this.state;
+    const {
+      freeJoin,
+      record,
+    } = this.state;
     return (
-      <label htmlFor="freeJoinCheckbox" className={styles.freeJoinLabel} key={this.freeJoinId}>
-        <input
-          type="checkbox"
-          className={styles.freeJoinCheckbox}
-          onChange={this.setFreeJoin}
-          checked={freeJoin}
-          aria-label={intl.formatMessage(intlMessages.freeJoinLabel)}
-        />
-        <span aria-hidden>{intl.formatMessage(intlMessages.freeJoinLabel)}</span>
-      </label>
+      <div className={styles.checkBoxesContainer}>
+        <label htmlFor="freeJoinCheckbox" className={styles.freeJoinLabel} key={this.freeJoinId}>
+          <input
+            type="checkbox"
+            id="freeJoinCheckbox"
+            className={styles.freeJoinCheckbox}
+            onChange={this.setFreeJoin}
+            checked={freeJoin}
+            aria-label={intl.formatMessage(intlMessages.freeJoinLabel)}
+          />
+          <span aria-hidden>{intl.formatMessage(intlMessages.freeJoinLabel)}</span>
+        </label>
+        {
+          ALLOW_RECORD_BREAKOUT_ROOMS ? (
+            <label htmlFor="recordBreakoutCheckbox" className={styles.freeJoinLabel} key={this.freeJoinId}>
+              <input
+                id="recordBreakoutCheckbox"
+                type="checkbox"
+                className={styles.freeJoinCheckbox}
+                onChange={this.setRecord}
+                checked={record}
+                aria-label={intl.formatMessage(intlMessages.record)}
+              />
+              <span aria-hidden>
+                {intl.formatMessage(intlMessages.record)}
+              </span>
+            </label>
+          ) : null
+        }
+      </div>
     );
   }
 
@@ -548,7 +584,7 @@ class BreakoutRoom extends Component {
   renderDesktop() {
     return [
       this.renderBreakoutForm(),
-      this.renderFreeJoinCheck(),
+      this.renderCheckboxes(),
       this.renderRoomsGrid(),
     ];
   }
@@ -566,7 +602,7 @@ class BreakoutRoom extends Component {
 
     return [
       this.renderBreakoutForm(),
-      this.renderFreeJoinCheck(),
+      this.renderCheckboxes(),
       this.renderButtonSetLevel(2, intl.formatMessage(intlMessages.nextLabel)),
     ];
   }
