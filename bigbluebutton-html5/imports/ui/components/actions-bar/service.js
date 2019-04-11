@@ -50,7 +50,7 @@ export default {
   users: () => Users.find({ connectionStatus: 'online', meetingId: Auth.meetingID }).fetch(),
   hasBreakoutRoom: () => Breakouts.find({ parentMeetingId: Auth.meetingID }).fetch().length > 0,
   toggleRecording: () => makeCall('toggleRecording'),
-  createBreakoutRoom: (numberOfRooms, durationInMinutes, freeJoin = true, record = false) => makeCall('createBreakoutRoom', numberOfRooms, durationInMinutes, freeJoin, record),
+  createBreakoutRoom: (numberOfRooms, durationInMinutes, record = false) => makeCall('createBreakoutRoom', numberOfRooms, durationInMinutes, record),
   sendInvitation: (breakoutId, userId) => makeCall('requestJoinURL', { breakoutId, userId }),
   getBreakouts,
   getUsersNotAssigned,
