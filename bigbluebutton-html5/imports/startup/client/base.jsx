@@ -19,10 +19,10 @@ import IntlStartup from './intl';
 import Meetings from '../../api/meetings';
 import AnnotationsTextService from '/imports/ui/components/whiteboard/annotations/text/service';
 
-
 const CHAT_CONFIG = Meteor.settings.public.chat;
 const PUBLIC_GROUP_CHAT_ID = CHAT_CONFIG.public_group_id;
 const PUBLIC_CHAT_TYPE = CHAT_CONFIG.type_public;
+const HTML = document.getElementsByTagName('html')[0];
 
 const propTypes = {
   subscriptionsReady: PropTypes.bool.isRequired,
@@ -70,6 +70,11 @@ class Base extends Component {
   }
 
   componentDidMount() {
+    const { animations } = this.props;
+
+    if (animations) HTML.classList.add('animationsEnabled');
+    if (!animations) HTML.classList.add('animationsDisabled');
+
     fullscreenChangedEvents.forEach((event) => {
       document.addEventListener(event, Base.handleFullscreenChange);
     });
@@ -118,10 +123,15 @@ class Base extends Component {
       this.setMeetingExisted(false);
     }
 
+    const enabled = HTML.classList.contains('animationsEnabled');
+    const disabled = HTML.classList.contains('animationsDisabled');
+
     if (animations && animations !== prevProps.animations) {
-      document.documentElement.style.setProperty('--enableAnimation', 1);
+      if (disabled) HTML.classList.remove('animationsDisabled');
+      HTML.classList.add('animationsEnabled');
     } else if (!animations && animations !== prevProps.animations) {
-      document.documentElement.style.setProperty('--enableAnimation', 0);
+      if (enabled) HTML.classList.remove('animationsEnabled');
+      HTML.classList.add('animationsDisabled');
     }
   }
 

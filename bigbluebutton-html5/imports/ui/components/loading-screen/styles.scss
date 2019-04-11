@@ -41,19 +41,19 @@
   border-radius: 100%;
   display: inline-block;
 
-  [style~="--enableAnimation:1;"] & {
+  :global(.animationsEnabled) & {
     animation: sk-bouncedelay 1.4s infinite ease-in-out both;
   }
 }
 
 .spinner .bounce1 {
-  [style~="--enableAnimation:1;"] & {
+  :global(.animationsEnabled) & {
     animation-delay: -0.32s;
   }
 }
 
 .spinner .bounce2 {
-  [style~="--enableAnimation:1;"] & {
+  :global(.animationsEnabled) & {
     animation-delay: -0.16s;
   }
 }
