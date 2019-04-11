@@ -517,6 +517,7 @@ export default class WebcamDraggableOverlay extends Component {
           bounds="#container"
           onStart={this.handleWebcamDragStart}
           onStop={this.handleWebcamDragStop}
+          onMouseDown={e => e.preventDefault()}
           disabled={swapLayout || isFullScreen || BROWSER_ISMOBILE}
           position={resetPosition || swapLayout ? initialPosition : lastPosition}
         >
