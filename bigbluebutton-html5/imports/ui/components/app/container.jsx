@@ -83,6 +83,8 @@ export default injectIntl(withModalMounter(withTracker(({ intl, baseControls }) 
     },
   });
 
+  const UserInfo = UserInfos.find({ meetingId: Auth.meetingID, requesterUserId: Auth.userID }).fetch();
+
   return {
     closedCaption: getCaptionsStatus() ? <ClosedCaptionsContainer /> : null,
     fontSize: getFontSize(),

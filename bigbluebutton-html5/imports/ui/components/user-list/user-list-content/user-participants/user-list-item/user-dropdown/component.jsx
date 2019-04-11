@@ -235,7 +235,7 @@ class UserDropdown extends PureComponent {
         || hasPrivateChatBetweenUsers(currentUser, user)
         || user.isModerator);
 
-    const allowUserLookup = Meteor.settings.public.app.allowUserLookup;
+    const { allowUserLookup } = Meteor.settings.public.app;
 
     if (showNestedOptions) {
       if (allowedToChangeStatus) {

@@ -6,7 +6,7 @@ export default function removeUserInformation(credentials, meetingId, requesterU
     meetingId,
     requesterUserId,
   };
-  const cb = (err, numChanged) => {
+  const cb = (err) => {
     if (err) {
       return Logger.error(`Removing user information from collection: ${err}`);
     }

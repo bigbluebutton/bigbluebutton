@@ -1,10 +1,7 @@
 import React, { Component } from 'react';
-import PropTypes from 'prop-types';
 import { defineMessages, intlShape } from 'react-intl';
 
-import Button from '/imports/ui/components/button/component';
 import Modal from '/imports/ui/components/modal/simple/component';
-import { makeCall } from '/imports/ui/services/api';
 
 import Service from './service';
 
@@ -22,10 +19,6 @@ const intlMessages = defineMessages({
 });
 
 class UserInfo extends Component {
-  constructor(props) {
-    super(props);
-  }
-
   renderUserInfo(UserInfo) {
     const userInfoList = UserInfo.map((user, index, array) => {
       const infoList = user.userInfo.map((info) => {
