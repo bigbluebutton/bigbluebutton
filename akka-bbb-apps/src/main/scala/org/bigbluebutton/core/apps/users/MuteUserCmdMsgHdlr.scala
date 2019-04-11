@@ -14,17 +14,24 @@ trait MuteUserCmdMsgHdlr extends RightsManagementTrait {
   val outGW: OutMsgRouter
 
   def handleMuteUserCmdMsg(msg: MuteUserCmdMsg) {
-    val unmuteDisabled = !liveMeeting.props.usersProp.unmuteViewers && msg.body.mute == false
-    if (msg.body.userId != msg.header.userId && (unmuteDisabled || permissionFailed(
+    val meetingId = liveMeeting.props.meetingProp.intId
+    val isViewer = Users2x.findWithIntId(liveMeeting.users2x, msg.body.userId) match {
+      case Some(u) => u.role == Roles.VIEWER_ROLE
+      case None => {
+        log.error("Could not find user. meetingId=" + meetingId + " userId=" + msg.body.userId)
+        false
+      }
+    }
+    val unmutePermitted = liveMeeting.props.usersProp.unmuteViewers && isViewer
+
+    if (msg.body.userId != msg.header.userId && ((msg.body.mute == false && !unmutePermitted) || permissionFailed(
       PermissionCheck.MOD_LEVEL,
       PermissionCheck.VIEWER_LEVEL, liveMeeting.users2x, msg.header.userId
     ))) {
-      val meetingId = liveMeeting.props.meetingProp.intId
       val muteUnmuteStr: String = if (msg.body.mute) "mute" else "unmute"
       val reason = "No permission to " + muteUnmuteStr + " user."
       PermissionCheck.ejectUserForFailedPermission(meetingId, msg.header.userId, reason, outGW, liveMeeting)
     } else {
-      val meetingId = liveMeeting.props.meetingProp.intId
       val voiceConf = liveMeeting.props.voiceProp.voiceConf
 
       log.info("Received mute user request. meetingId=" + meetingId + " userId="
