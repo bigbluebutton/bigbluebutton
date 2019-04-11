@@ -287,7 +287,7 @@ class AudioManager {
     }
 
     if (!this.error && !this.isEchoTest) {
-      this.notify(this.intl.formatMessage(this.messages.info.LEFT_AUDIO));
+      this.notify(this.intl.formatMessage(this.messages.info.LEFT_AUDIO), false, 'audio_off');
     }
     window.parent.postMessage({ response: 'notInAudio' }, '*');
   }
@@ -409,11 +409,15 @@ class AudioManager {
     return this._userData;
   }
 
-  notify(message, error = false) {
+  notify(message, error = false, icon) {
+    let _icon = 'unmute';
+    _icon = icon || _icon;
+    _icon = this.isListenOnly ? 'listen' : _icon;
+
     notify(
       message,
       error ? 'error' : 'info',
-      this.isListenOnly ? 'audio_on' : 'unmute',
+      _icon,
     );
   }
 }
