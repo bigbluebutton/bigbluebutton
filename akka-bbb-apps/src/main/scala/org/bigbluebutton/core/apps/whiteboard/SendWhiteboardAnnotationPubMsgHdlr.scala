@@ -22,9 +22,15 @@ trait SendWhiteboardAnnotationPubMsgHdlr extends RightsManagementTrait {
     }
 
     def sanitizeAnnotation(annotation: AnnotationVO): AnnotationVO = {
-      // Remove null values by wrapping value with Option
+      // Remove null values by wrapping value with Option. Null becomes None.
       val shape = annotation.annotationInfo.collect {
         case (key, value: Any) => key -> Option(value)
+      }
+
+      //printAnnotationShape(shape, annotation)
+
+      if (annotation.annotationInfo.values.exists(p => if (p == null) true else false)) {
+        log.warning("Whiteboard shape contains null values. " + annotation.toString)
       }
 
       // Unwrap the value wrapped as Option
@@ -37,8 +43,7 @@ trait SendWhiteboardAnnotationPubMsgHdlr extends RightsManagementTrait {
 
     // For testing
     def testInsertSomeNoneValues(annotation: AnnotationVO): AnnotationVO = {
-      //val c = annotation.annotationInfo + ("AR" -> "", "AZ" -> None, "foo" -> null)
-      val c = annotation.annotationInfo + ("AR" -> null, "AZ" -> null, "foo" -> null)
+      val c = annotation.annotationInfo + ("AR" -> "", "AZ" -> null, "foo" -> null)
       annotation.copy(annotationInfo = c)
     }
 
