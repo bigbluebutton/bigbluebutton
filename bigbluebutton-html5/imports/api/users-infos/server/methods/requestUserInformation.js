@@ -1,7 +1,6 @@
 import { Meteor } from 'meteor/meteor';
 import { check } from 'meteor/check';
 import RedisPubSub from '/imports/startup/server/redis';
-import Users from '/imports/api/users';
 
 export default function getUserInformation(credentials, externalUserId) {
   const REDIS_CONFIG = Meteor.settings.private.redis;

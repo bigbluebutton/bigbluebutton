@@ -7,7 +7,7 @@ export default function addUserInfo(userInfo, requesterUserId, meetingId) {
     requesterUserId,
     userInfo,
   };
-  const cb = (err, numChanged) => {
+  const cb = (err) => {
     if (err) {
       return Logger.error(`Adding user information to collection: ${err}`);
     }

@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import { defineMessages, intlShape } from 'react-intl';
+import PropTypes from 'prop-types';
 
 import Modal from '/imports/ui/components/modal/simple/component';
 
@@ -9,6 +10,8 @@ import { styles } from './styles';
 
 const propTypes = {
   intl: intlShape.isRequired,
+  meetingId: PropTypes.string.isRequired,
+  requesterUserId: PropTypes.string.isRequired,
 };
 
 const intlMessages = defineMessages({
@@ -18,8 +21,9 @@ const intlMessages = defineMessages({
   },
 });
 
-class UserInfo extends Component {
-  renderUserInfo(UserInfo) {
+class UserInfoComponent extends Component {
+  renderUserInfo() {
+    const { UserInfo } = this.props;
     const userInfoList = UserInfo.map((user, index, array) => {
       const infoList = user.userInfo.map((info) => {
         const key = Object.keys(info)[0];
@@ -31,9 +35,11 @@ class UserInfo extends Component {
         );
       });
       if (array.length > 1) {
-        infoList.unshift(<tr key={infoList.length}>
-          <th className={styles.titleCell}>{`User ${index + 1}`}</th>
-        </tr>);
+        infoList.unshift(
+          <tr key={infoList.length}>
+            <th className={styles.titleCell}>{`User ${index + 1}`}</th>
+          </tr>,
+        );
       }
       return infoList;
     });
@@ -48,19 +54,19 @@ class UserInfo extends Component {
 
   render() {
     const {
-      intl, UserInfo, meetingId, requesterUserId,
+      intl, meetingId, requesterUserId,
     } = this.props;
     return (
       <Modal
         title={intl.formatMessage(intlMessages.title)}
         onRequestClose={() => Service.handleCloseUserInfo(meetingId, requesterUserId)}
       >
-        {this.renderUserInfo(UserInfo)}
+        {this.renderUserInfo()}
       </Modal>
     );
   }
 }
 
-UserInfo.propTypes = propTypes;
+UserInfoComponent.propTypes = propTypes;
 
-export default UserInfo;
+export default UserInfoComponent;
