@@ -5,6 +5,7 @@ import Settings from '/imports/ui/services/settings';
 import LoadingScreen from '/imports/ui/components/loading-screen/component';
 
 // currently supported locales.
+import ar from 'react-intl/locale-data/ar';
 import bg from 'react-intl/locale-data/bg';
 import cs from 'react-intl/locale-data/cs';
 import de from 'react-intl/locale-data/de';
@@ -27,6 +28,7 @@ import zh from 'react-intl/locale-data/zh';
 
 
 addLocaleData([
+  ...ar,
   ...bg,
   ...cs,
   ...de,

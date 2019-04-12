@@ -24,7 +24,7 @@
 
 .pollingContainer {
   pointer-events:auto;
-  width: var(--poll-width);
+  min-width: var(--poll-width);
   position: absolute;
 
   z-index: var(--pollIndex);
@@ -38,6 +38,11 @@
   background-color: var(--color-white);
   bottom: var(--sm-padding-x);
   right: var(--sm-padding-x);
+
+  @include mq($medium-only) {
+    bottom: var(--jumbo-padding-x);
+    right: calc(var(--jumbo-padding-x) / 2);
+  }
 
   @include mq($hasPhoneDimentions) {
     bottom: auto;
@@ -56,29 +61,6 @@
   padding-top: var(--md-padding-y);
 }
 
-.pollingAnswers {
-  display: grid;
-  grid-template-columns: repeat(var(--col-amount), 1fr);
-
-  > pollButtonWrapper:nth-child(odd) {
-      grid-column: 1;
-  }
-
-  > pollButtonWrapper:nth-child(even) {
-      grid-column: var(--col-amount);
-  }
-
-  @include mq($hasPhoneDimentions) {
-    grid-template-columns: repeat(1, 1fr);
-
-    .pollButtonWrapper .button {
-      grid-column: 1;
-    }
-  }
-
-  z-index: 1;
-}
-
 .pollButtonWrapper {
   text-align: center;
   padding: var(--sm-padding-y);
@@ -95,6 +77,45 @@
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+}
+
+.pollingAnswers {
+  display: grid;
+  grid-template-columns: repeat(var(--col-amount), 1fr);
+
+  > pollButtonWrapper:nth-child(odd) {
+      grid-column: 1;
+  }
+
+  > pollButtonWrapper:nth-child(even) {
+      grid-column: var(--col-amount);
+  }
+
+  @include mq($hasPhoneDimentions) {
+    grid-template-columns: repeat(1, 1fr);
+
+    .pollButtonWrapper button {
+      grid-column: 1;
+    }
+  }
+
+  z-index: 1;
+}
+
+.stacked {
+  grid-template-columns: repeat(1, 1fr);
+
+  .pollButtonWrapper button {
+    max-width: none !important;
+  }
+}
+
+.removeColumns {
+  grid-template-columns: auto;
+}
+
+.autoWidth {
+  width: auto;
 }
 
 .hidden {

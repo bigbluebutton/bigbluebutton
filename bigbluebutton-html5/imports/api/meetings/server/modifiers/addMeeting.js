@@ -1,5 +1,8 @@
 import flat from 'flat';
-import { check, Match } from 'meteor/check';
+import {
+  check,
+  Match,
+} from 'meteor/check';
 import Meetings from '/imports/api/meetings';
 import Logger from '/imports/startup/server/logger';
 
@@ -86,6 +89,8 @@ export default function addMeeting(meeting) {
 
   newMeeting.lockSettingsProps = Object.assign(meeting.lockSettingsProps, { setBy: 'temp' });
 
+  const meetingEnded = false;
+
   newMeeting.welcomeProp.welcomeMsg = newMeeting.welcomeProp.welcomeMsg.replace(
     'href="event:',
     'href="',
@@ -103,10 +108,12 @@ export default function addMeeting(meeting) {
   }
 
   const modifier = {
-    $set: Object.assign(
-      { meetingId },
-      flat(newMeeting, { safe: true }),
-    ),
+    $set: Object.assign({
+      meetingId,
+      meetingEnded,
+    }, flat(newMeeting, {
+      safe: true,
+    })),
   };
 
   const cb = (err, numChanged) => {
@@ -115,7 +122,10 @@ export default function addMeeting(meeting) {
       return;
     }
 
-    const { insertedId } = numChanged;
+    const {
+      insertedId,
+    } = numChanged;
+
     if (insertedId) {
       Logger.info(`Added meeting id=${meetingId}`);
     }

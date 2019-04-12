@@ -12,6 +12,8 @@ const COLOR_LIST = [
 export default function handleGuestsWaitingForApproval({ body }, meetingId) {
   const { guests } = body;
   check(guests, Array);
+  check(meetingId, String);
+
   const cb = (err, numChanged) => {
     if (err) {
       return Logger.error(`Adding guest user to collection: ${err}`);

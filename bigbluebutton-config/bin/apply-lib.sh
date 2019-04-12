@@ -72,7 +72,41 @@ HERE
   #   tail -f /var/log/nginx/html5-client.log | sed -u 's/\\x22/"/g' | sed -u 's/\\x5C//g'
 }
 
-# Sample commands
+#
+# Enable HTML5 as default
+#
+setHTML5ClientAsDefault() {
+  echo "  - Make HTML5 the default client in /usr/share/bbb-web/WEB-INF/classes/bigbluebutton.properties"
+
+  sed -i 's/^attendeesJoinViaHTML5Client=.*/attendeesJoinViaHTML5Client=true/'   /usr/share/bbb-web/WEB-INF/classes/bigbluebutton.properties
+  sed -i 's/^moderatorsJoinViaHTML5Client=.*/moderatorsJoinViaHTML5Client=true/' /usr/share/bbb-web/WEB-INF/classes/bigbluebutton.properties
+}
+
+
+#
+# Enable firewall rules to open only 
+#
+enableUFWRules() {
+  echo "  - Enable Firewall and opening 22/tcp, 80/tcp, 443/tcp and 16384:32768/udp"
+
+  if ! which ufw > /dev/null; then
+    apt-get install -y ufw
+  fi
+
+  #  Add 1935 if Flash client is enabled
+  if [[ "$(cat $SERVLET_DIR/WEB-INF/classes/bigbluebutton.properties | sed -n '/^attendeesJoinViaHTML5Client/{s/.*=//;p}')" == "true" &&
+        "$(cat $SERVLET_DIR/WEB-INF/classes/bigbluebutton.properties | sed -n '/^moderatorsJoinViaHTML5Client/{s/.*=//;p}')" == "true" ]]; then
+    ufw deny 1935/tcp
+  else
+    ufw allow 1935/tcp
+  fi
+  ufw allow OpenSSH
+  ufw allow "Nginx Full"
+  ufw allow 16384:32768/udp
+  ufw --force enable
+}
+
+
 
 notCalled() {
 #
@@ -91,8 +125,11 @@ notCalled() {
 # Pull in the helper functions for configuring BigBlueButton
 source /etc/bigbluebutton/bbb-conf/apply-lib.sh
 
-# Put your custom configuration here
-# enableHTML5ClientLog
+# Available configuration options
+
+#enableHTML5ClientLog
+#setHTML5ClientAsDefault
+#enableUFWRules
 
 HERE
 chmod +x /etc/bigbluebutton/bbb-conf/apply-config.sh

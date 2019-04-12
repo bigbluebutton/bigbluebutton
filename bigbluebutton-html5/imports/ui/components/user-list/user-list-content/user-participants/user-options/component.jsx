@@ -27,6 +27,7 @@ const propTypes = {
   createBreakoutRoom: PropTypes.func.isRequired,
   meetingIsBreakout: PropTypes.bool.isRequired,
   hasBreakoutRoom: PropTypes.bool.isRequired,
+  isBreakoutEnabled: PropTypes.bool.isRequired,
 };
 
 const intlMessages = defineMessages({
@@ -166,6 +167,7 @@ class UserOptions extends PureComponent {
       toggleMuteAllUsersExceptPresenter,
       meetingIsBreakout,
       hasBreakoutRoom,
+      isBreakoutEnabled,
       getUsersNotAssigned,
       isUserModerator,
       users,
@@ -173,7 +175,8 @@ class UserOptions extends PureComponent {
 
     const canCreateBreakout = isUserModerator
     && !meetingIsBreakout
-    && !hasBreakoutRoom;
+    && !hasBreakoutRoom
+    && isBreakoutEnabled;
 
     const canInviteUsers = isUserModerator
     && !meetingIsBreakout

@@ -75,7 +75,7 @@ class ActivityCheck extends Component {
   }
 
   playAudioAlert() {
-    this.alert = new Audio(`${Meteor.settings.public.app.basename}/resources/sounds/notify.mp3`);
+    this.alert = new Audio(`${Meteor.settings.public.app.cdn + Meteor.settings.public.app.basename}/resources/sounds/notify.mp3`);
     this.alert.play();
   }
 

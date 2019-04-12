@@ -143,3 +143,16 @@
   text-overflow: ellipsis;
   width: 100%;
 }
+
+.remenberContainer {
+  margin: 1rem 0;
+  height: 2rem;
+  display: flex;
+  align-items: center;
+  & > p {
+    height: fit-content;
+    padding: 0;
+    margin: 0;
+    margin-left: .5rem;
+  }
+}

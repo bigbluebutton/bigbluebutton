@@ -56,8 +56,6 @@
     "app.presentationUploder.dropzoneLabel": "Drag file untuk unggah",
     "app.presentationUploder.browseFilesLabel": "atau telusuri file",
     "app.presentationUploder.genericError": "Ops, terjadi kesalahan",
-    "app.presentationUploder.upload.413": "File terlalu besar",
-    "app.presentationUploder.conversion.pageCountExceeded": "Ops, jumlah halaman melebihi batas",
     "app.poll.closeLabel": "Tutup",
     "app.poll.liveResult.usersTitle": "Pengguna",
     "app.failedMessage": "Mohon maaf, ada kesulitan terhubung ke server",

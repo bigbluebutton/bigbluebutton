@@ -59,13 +59,10 @@ export default withTracker(() => {
   const breakouts = Service.getBreakouts();
   const currentUserId = Auth.userID;
   const { connectRecordingObserver, processOutsideToggleRecording } = Service;
-
+  const currentUser = Users.findOne({ userId: Auth.userID });
   const isExpanded = Session.get('isUserListOpen');
 
-  const amIModerator = () => {
-    const currentUser = Users.findOne({ userId: Auth.userID });
-    return mapUser(currentUser).isModerator;
-  };
+  const amIModerator = mapUser(currentUser).isModerator;
 
   return {
     amIModerator,

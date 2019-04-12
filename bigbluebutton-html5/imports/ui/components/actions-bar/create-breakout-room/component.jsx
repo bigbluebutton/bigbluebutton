@@ -303,7 +303,8 @@ class BreakoutRoom extends Component {
   }
 
   blurDurationTime(event) {
-    this.setState({ durationTime: Number.parseInt(event.target.value, 10) || 1 });
+    const value = Number.parseInt(event.target.value, 10);
+    this.setState({ durationTime: !(value <= 0) ? value : 1 });
   }
 
   changeNumberOfRooms(event) {
