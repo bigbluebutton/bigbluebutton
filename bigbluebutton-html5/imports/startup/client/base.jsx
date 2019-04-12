@@ -198,7 +198,7 @@ Base.defaultProps = defaultProps;
 const SUBSCRIPTIONS_NAME = [
   'users', 'meetings', 'polls', 'presentations',
   'slides', 'captions', 'voiceUsers', 'whiteboard-multi-user', 'screenshare',
-  'group-chat', 'presentation-pods', 'users-settings', 'guestUser',
+  'group-chat', 'presentation-pods', 'users-settings', 'guestUser', 'users-infos',
 ];
 
 const BaseContainer = withTracker(() => {
@@ -259,6 +259,7 @@ const BaseContainer = withTracker(() => {
     userSubscriptionHandler = Meteor.subscribe('users', credentials, mappedUser.isModerator, subscriptionErrorHandler);
     breakoutRoomSubscriptionHandler = Meteor.subscribe('breakouts', credentials, mappedUser.isModerator, subscriptionErrorHandler);
     meetingModeratorSubscriptionHandler = Meteor.subscribe('meetings', credentials, mappedUser.isModerator, subscriptionErrorHandler);
+
   }
 
   const annotationsHandler = Meteor.subscribe('annotations', credentials, {
