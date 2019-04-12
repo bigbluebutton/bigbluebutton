@@ -72,6 +72,10 @@ const intlMessages = defineMessages({
     id: 'app.audio.leaveAudio',
     description: 'describes the leave audio shortcut',
   },
+  togglePan: {
+    id: 'app.shortcut-help.togglePan',
+    description: 'describes the toggle pan shortcut',
+  },
 });
 
 const ShortcutHelpComponent = (props) => {
@@ -97,6 +101,20 @@ const ShortcutHelpComponent = (props) => {
       break;
   }
 
+  const shortcutItems = shortcuts.map(shortcut => (
+    <tr key={_.uniqueId('hotkey-item-')}>
+      <td className={styles.keyCell}>{`${accessMod} + ${shortcut.accesskey}`}</td>
+      <td className={styles.descCell}>{intl.formatMessage(intlMessages[`${shortcut.descId}`])}</td>
+    </tr>
+  ));
+
+  shortcutItems.push((
+    <tr key={_.uniqueId('hotkey-item-')}>
+      <td className={styles.keyCell}>Spacebar</td>
+      <td className={styles.descCell}>{intl.formatMessage(intlMessages.togglePan)}</td>
+    </tr>
+  ));
+
   return (
     <Modal
       title={intl.formatMessage(intlMessages.title)}
@@ -105,23 +123,20 @@ const ShortcutHelpComponent = (props) => {
         description: intl.formatMessage(intlMessages.closeDesc),
       }}
     >
-      {!accessMod ? <p>{intl.formatMessage(intlMessages.accessKeyNotAvailable)}</p> :
-      <span>
-        <table className={styles.shortcutTable}>
-          <tbody>
-            <tr>
-              <th>{intl.formatMessage(intlMessages.comboLabel)}</th>
-              <th>{intl.formatMessage(intlMessages.functionLabel)}</th>
-            </tr>
-            {shortcuts.map(shortcut => (
-              <tr key={_.uniqueId('hotkey-item-')}>
-                <td className={styles.keyCell}>{`${accessMod} + ${shortcut.accesskey}`}</td>
-                <td className={styles.descCell}>{intl.formatMessage(intlMessages[`${shortcut.descId}`])}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </span>
+      {!accessMod ? <p>{intl.formatMessage(intlMessages.accessKeyNotAvailable)}</p>
+        : (
+          <span>
+            <table className={styles.shortcutTable}>
+              <tbody>
+                <tr>
+                  <th>{intl.formatMessage(intlMessages.comboLabel)}</th>
+                  <th>{intl.formatMessage(intlMessages.functionLabel)}</th>
+                </tr>
+                {shortcutItems}
+              </tbody>
+            </table>
+          </span>
+        )
       }
     </Modal>
   );
