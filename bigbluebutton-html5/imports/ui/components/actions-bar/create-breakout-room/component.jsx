@@ -101,8 +101,6 @@ const intlMessages = defineMessages({
 
 const MIN_BREAKOUT_ROOMS = 2;
 const MAX_BREAKOUT_ROOMS = 8;
-const APP_CONFIG = Meteor.settings.public.app;
-const ALLOW_RECORD_BREAKOUT_ROOMS = APP_CONFIG.allowRecordBreakoutRooms;
 
 const propTypes = {
   intl: intlShape.isRequired,
@@ -114,6 +112,7 @@ const propTypes = {
   getBreakouts: PropTypes.func.isRequired,
   sendInvitation: PropTypes.func.isRequired,
   mountModal: PropTypes.func.isRequired,
+  isBreakoutRecordable: PropTypes.bool.isRequired,
 };
 
 class BreakoutRoom extends Component {
@@ -474,7 +473,7 @@ class BreakoutRoom extends Component {
   }
 
   renderCheckboxes() {
-    const { intl, isInvitation } = this.props;
+    const { intl, isInvitation, isBreakoutRecordable } = this.props;
     if (isInvitation) return null;
     const {
       freeJoin,
@@ -494,7 +493,7 @@ class BreakoutRoom extends Component {
           <span aria-hidden>{intl.formatMessage(intlMessages.freeJoinLabel)}</span>
         </label>
         {
-          ALLOW_RECORD_BREAKOUT_ROOMS ? (
+          isBreakoutRecordable ? (
             <label htmlFor="recordBreakoutCheckbox" className={styles.freeJoinLabel} key={this.freeJoinId}>
               <input
                 id="recordBreakoutCheckbox"

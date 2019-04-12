@@ -35,6 +35,7 @@ const UserOptionsContainer = withTracker((props) => {
     meetingIsBreakout: Service.meetingIsBreakout(),
     hasBreakoutRoom: Service.hasBreakoutRoom(),
     isBreakoutEnabled: Service.isBreakoutEnabled(),
+    isBreakoutRecordable: Service.isBreakoutRecordable(),
     meetingName: Service.meetingName(),
     users: Service.users(),
     getBreakouts: Service.getBreakouts,

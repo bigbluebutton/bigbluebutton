@@ -28,6 +28,7 @@ const propTypes = {
   meetingIsBreakout: PropTypes.bool.isRequired,
   hasBreakoutRoom: PropTypes.bool.isRequired,
   isBreakoutEnabled: PropTypes.bool.isRequired,
+  isBreakoutRecordable: PropTypes.bool.isRequired,
 };
 
 const intlMessages = defineMessages({
@@ -140,6 +141,7 @@ class UserOptions extends PureComponent {
       getUsersNotAssigned,
       getBreakouts,
       sendInvitation,
+      isBreakoutRecordable,
     } = this.props;
 
     return mountModal(
@@ -152,6 +154,7 @@ class UserOptions extends PureComponent {
           isInvitation,
           getBreakouts,
           sendInvitation,
+          isBreakoutRecordable,
         }}
       />,
     );
