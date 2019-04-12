@@ -409,15 +409,13 @@ class AudioManager {
     return this._userData;
   }
 
-  notify(message, error = false, icon) {
-    let _icon = 'unmute';
-    _icon = icon || _icon;
-    _icon = this.isListenOnly ? 'listen' : _icon;
+  notify(message, error = false, icon = 'unmute') {
+    const audioIcon = this.isListenOnly ? 'listen' : icon;
 
     notify(
       message,
       error ? 'error' : 'info',
-      _icon,
+      audioIcon,
     );
   }
 }
