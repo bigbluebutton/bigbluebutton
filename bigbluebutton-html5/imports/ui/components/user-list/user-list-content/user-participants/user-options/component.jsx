@@ -11,7 +11,6 @@ import DropdownList from '/imports/ui/components/dropdown/list/component';
 import DropdownListItem from '/imports/ui/components/dropdown/list/item/component';
 import LockViewersContainer from '/imports/ui/components/lock-viewers/container';
 import BreakoutRoom from '/imports/ui/components/actions-bar/create-breakout-room/component';
-import userListService from '/imports/ui/components/user-list/service';
 import { styles } from './styles';
 
 const propTypes = {
@@ -94,21 +93,6 @@ const intlMessages = defineMessages({
 });
 
 class UserOptions extends PureComponent {
-  static onSaveUserNames() {
-    const link = document.createElement('a');
-    const mimeType = 'text/plain';
-
-    const userNamesObj = userListService.getUsers();
-    const userNameListString = Object.keys(userNamesObj)
-      .map(key => userNamesObj[key].name, []).join('\r\n');
-    link.setAttribute('download', `save-users-list-${Date.now()}.txt`);
-    link.setAttribute(
-      'href',
-      `data: ${mimeType} ;charset=utf-8,${userNameListString}`,
-    );
-    link.dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true, view: window }));
-  }
-
   constructor(props) {
     super(props);
 
@@ -129,6 +113,22 @@ class UserOptions extends PureComponent {
     this.onCreateBreakouts = this.onCreateBreakouts.bind(this);
     this.onInvitationUsers = this.onInvitationUsers.bind(this);
     this.renderMenuItems = this.renderMenuItems.bind(this);
+    this.onSaveUserNames = this.onSaveUserNames.bind(this);
+  }
+
+  onSaveUserNames() {
+    const link = document.createElement('a');
+    const mimeType = 'text/plain';
+    const { userListService } = this.props;
+    const userNamesObj = userListService.getUsers();
+    const userNameListString = Object.keys(userNamesObj)
+      .map(key => userNamesObj[key].name, []).join('\r\n');
+    link.setAttribute('download', `save-users-list-${Date.now()}.txt`);
+    link.setAttribute(
+      'href',
+      `data: ${mimeType} ;charset=utf-16,${encodeURIComponent(userNameListString)}`,
+    );
+    link.dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true, view: window }));
   }
 
   onActionsShow() {
@@ -259,7 +259,7 @@ class UserOptions extends PureComponent {
             icon="download"
             label={intl.formatMessage(intlMessages.saveUserNames)}
             key={this.saveUsersNameId}
-            onClick={UserOptions.onSaveUserNames}
+            onClick={this.onSaveUserNames}
           />
         )
         : null),
