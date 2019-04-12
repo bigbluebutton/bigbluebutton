@@ -32,7 +32,7 @@ const makeDebugger = enabled => (message) => {
 };
 
 class MeetingMessageQueue {
-  constructor(eventEmitter, asyncMessages = [], debug = () => {}) {
+  constructor(eventEmitter, asyncMessages = [], debug = () => { }) {
     this.asyncMessages = asyncMessages;
     this.emitter = eventEmitter;
     this.queue = new PowerQueue();
@@ -105,19 +105,20 @@ class RedisPubSub {
     this.config = config;
 
     this.didSendRequestEvent = false;
-    const redisHost = process.env.REDIS_HOST || Meteor.settings.private.redis.host;
-    const redisConfig = {
-      port: Meteor.settings.private.redis.port,
-      host: redisHost,
-    };
-    const redisPassword = Meteor.settings.private.redis.password;
+    const host = process.env.REDIS_HOST || Meteor.settings.private.redis.host;
+    const redisConf = Meteor.settings.private.redis;
+    const { password, port } = redisConf;
 
-    if (redisPassword !== null) {
-      redisConfig.password = redisPassword;
+    if (password !== null) {
+      this.pub = Redis.createClient({ host, port, password });
+      this.sub = Redis.createClient({ host, port, password });
+      this.pub.auth(password);
+      this.sub.auth(password);
+    } else {
+      this.pub = Redis.createClient({ host, port });
+      this.sub = Redis.createClient({ host, port });
     }
 
-    this.pub = Redis.createClient(redisConfig);
-    this.sub = Redis.createClient(redisConfig);
     this.emitter = new EventEmitter2();
     this.mettingsQueues = {};
 
