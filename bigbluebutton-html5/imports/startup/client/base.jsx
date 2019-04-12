@@ -260,7 +260,6 @@ const BaseContainer = withTracker(() => {
     breakoutRoomSubscriptionHandler = Meteor.subscribe('breakouts', credentials, mappedUser.isModerator, subscriptionErrorHandler);
     meetingModeratorSubscriptionHandler = Meteor.subscribe('meetings', credentials, mappedUser.isModerator, subscriptionErrorHandler);
 
-    Meteor.subscribe('users-infos', credentials, subscriptionErrorHandler);
   }
 
   const annotationsHandler = Meteor.subscribe('annotations', credentials, {
