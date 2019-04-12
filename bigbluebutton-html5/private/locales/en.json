@@ -564,5 +564,5 @@
     "app.actionsBar.actionsDropdown.stopShareExternalVideo": "Stop sharing video",
     "app.network.connection.effective.slow": "We're noticing connectivity issues.",
     "app.network.connection.effective.slow.help": "How to fix it?",
-    "app.externalVideo.noteLabel": "Note: Shared YouTube videos will not appear in the recording",
+    "app.externalVideo.noteLabel": "Note: Shared YouTube videos will not appear in the recording"
 }

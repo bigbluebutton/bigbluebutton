@@ -7,6 +7,13 @@ import ReconnectingWebSocket from 'reconnecting-websocket';
 import logger from '/imports/startup/client/logger';
 import { Session } from 'meteor/session';
 import browser from 'browser-detect';
+import {
+  currentWebcamConnections,
+  getCurrentWebcams,
+  deleteWebcamConnection,
+  newWebcamConnection,
+  updateWebcamStats,
+} from '/imports/ui/services/network-information/index';
 import { tryGenerateIceCandidates } from '../../../utils/safari-webrtc';
 import Auth from '/imports/ui/services/auth';
 
@@ -157,6 +164,28 @@ class VideoProvider extends Component {
 
     this.visibility.onVisible(this.unpauseViewers);
     this.visibility.onHidden(this.pauseViewers);
+
+    this.currentWebcamsStatsInterval = setInterval(() => {
+      const currentWebcams = getCurrentWebcams();
+      if (!currentWebcams) return;
+
+      const { payload } = currentWebcams;
+
+      payload.forEach((id) => {
+        const peer = this.webRtcPeers[id];
+
+        const hasLocalStream = peer && peer.started === true
+          && peer.peerConnection.getLocalStreams().length > 0;
+        const hasRemoteStream = peer && peer.started === true
+          && peer.peerConnection.getRemoteStreams().length > 0;
+
+        if (hasLocalStream) {
+          this.customGetStats(peer.peerConnection, peer.peerConnection.getLocalStreams()[0].getVideoTracks()[0], (stats => updateWebcamStats(id, stats)));
+        } else if (hasRemoteStream) {
+          this.customGetStats(peer.peerConnection, peer.peerConnection.getRemoteStreams()[0].getVideoTracks()[0], (stats => updateWebcamStats(id, stats)));
+        }
+      });
+    }, 10000);
   }
 
   componentWillUpdate({ users, userId }) {
@@ -193,6 +222,8 @@ class VideoProvider extends Component {
       this.stopGettingStats(id);
       this.stopWebRTCPeer(id);
     });
+
+    clearInterval(this.currentWebcamsStatsInterval);
 
     // Close websocket connection to prevent multiple reconnects from happening
     this.ws.close();
@@ -446,6 +477,8 @@ class VideoProvider extends Component {
         webRtcPeer.dispose();
       }
       delete this.webRtcPeers[id];
+      deleteWebcamConnection(id);
+      currentWebcamConnections(this.webRtcPeers);
     } else {
       this.logger('warn', 'No WebRTC peer to stop (not an error)', { cameraId: id });
     }
@@ -527,6 +560,9 @@ class VideoProvider extends Component {
       if (this.webRtcPeers[id].peerConnection) {
         this.webRtcPeers[id].peerConnection.oniceconnectionstatechange = this._getOnIceConnectionStateChangeCallback(id);
       }
+      console.log('VideoProvider.createWebRTCPeer', this.webRtcPeers);
+      newWebcamConnection({ userId: id, peer: this.webRtcPeers[id] });
+      currentWebcamConnections(this.webRtcPeers);
     }
   }
 
@@ -765,9 +801,9 @@ class VideoProvider extends Component {
 
       let videoBitrate;
       if (videoStats.packetsReceived > 0) { // Remote video
-        videoLostPercentage = ((videoStats.packetsLost / ((videoStats.packetsLost + videoStats.packetsReceived) * 100)) || 0).toFixed(1);
+        videoLostPercentage = ((videoStats.packetsLost / ((videoStats.packetsLost + videoStats.packetsReceived)) * 100) || 0).toFixed(1);
         videoBitrate = Math.floor(videoKbitsReceivedPerSecond || 0);
-        videoLostRecentPercentage = ((videoIntervalPacketsLost / ((videoIntervalPacketsLost + videoIntervalPacketsReceived) * 100)) || 0).toFixed(1);
+        videoLostRecentPercentage = ((videoIntervalPacketsLost / ((videoIntervalPacketsLost + videoIntervalPacketsReceived)) * 100) || 0).toFixed(1);
       } else {
         videoLostPercentage = (((videoStats.packetsLost / (videoStats.packetsLost + videoStats.packetsSent)) * 100) || 0).toFixed(1);
         videoBitrate = Math.floor(videoKbitsSentPerSecond || 0);

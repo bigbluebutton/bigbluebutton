@@ -7,7 +7,6 @@ import browser from 'browser-detect';
 import PanelManager from '/imports/ui/components/panel-manager/component';
 import PollingContainer from '/imports/ui/components/polling/container';
 import logger from '/imports/startup/client/logger';
-import { makeCall } from '/imports/ui/services/api';
 import ActivityCheckContainer from '/imports/ui/components/activity-check/container';
 import ToastContainer from '../toast/container';
 import ModalContainer from '../modal/container';
@@ -15,6 +14,7 @@ import NotificationsBarContainer from '../notifications-bar/container';
 import AudioContainer from '../audio/container';
 import ChatAlertContainer from '../chat/alert/container';
 import WaitingNotifierContainer from '/imports/ui/components/waiting-users/alert/container';
+import { startBandwidthMonitoring, updateNavigatorConnection } from '/imports/ui/services/network-information/index';
 import { styles } from './styles';
 
 const MOBILE_MEDIA = 'only screen and (max-width: 40em)';
@@ -98,6 +98,8 @@ class App extends Component {
       navigator.connection.addEventListener('change', this.handleNetworkConnection);
     }
 
+    startBandwidthMonitoring();
+
     logger.info({ logCode: 'app_component_componentdidmount' }, 'Client loaded successfully');
   }
 
@@ -115,8 +117,7 @@ class App extends Component {
   }
 
   handleNetworkConnection() {
-    const { effectiveType } = navigator.connection;
-    makeCall('setUserEffectiveConnectionType', effectiveType);
+    updateNavigatorConnection(navigator.connection);
   }
 
   renderPanel() {
