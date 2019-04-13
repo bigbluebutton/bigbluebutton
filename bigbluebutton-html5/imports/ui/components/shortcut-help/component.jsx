@@ -76,6 +76,14 @@ const intlMessages = defineMessages({
     id: 'app.shortcut-help.togglePan',
     description: 'describes the toggle pan shortcut',
   },
+  nextSlideDesc: {
+    id: 'app.shortcut-help.nextSlideDesc',
+    description: 'describes the next slide shortcut',
+  },
+  previousSlideDesc: {
+    id: 'app.shortcut-help.previousSlideDesc',
+    description: 'describes the previous slide shortcut',
+  },
 });
 
 const ShortcutHelpComponent = (props) => {
@@ -112,6 +120,20 @@ const ShortcutHelpComponent = (props) => {
     <tr key={_.uniqueId('hotkey-item-')}>
       <td className={styles.keyCell}>Spacebar</td>
       <td className={styles.descCell}>{intl.formatMessage(intlMessages.togglePan)}</td>
+    </tr>
+  ));
+
+  shortcutItems.push((
+    <tr key={_.uniqueId('hotkey-item-')}>
+      <td className={styles.keyCell}>Right Arrow</td>
+      <td className={styles.descCell}>{intl.formatMessage(intlMessages.nextSlideDesc)}</td>
+    </tr>
+  ));
+
+  shortcutItems.push((
+    <tr key={_.uniqueId('hotkey-item-')}>
+      <td className={styles.keyCell}>Left Arrow</td>
+      <td className={styles.descCell}>{intl.formatMessage(intlMessages.previousSlideDesc)}</td>
     </tr>
   ));
 

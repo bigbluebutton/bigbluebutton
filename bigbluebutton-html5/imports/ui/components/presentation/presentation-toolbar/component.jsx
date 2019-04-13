@@ -9,6 +9,7 @@ import { styles } from './styles.scss';
 import ZoomTool from './zoom-tool/component';
 import FullscreenButton from '../../video-provider/fullscreen-button/component';
 import Tooltip from '/imports/ui/components/tooltip/component';
+import KEY_CODES from '/imports/utils/keyCodes';
 
 
 const intlMessages = defineMessages({
@@ -150,7 +151,31 @@ class PresentationToolbar extends Component {
     this.handleValuesChange = this.handleValuesChange.bind(this);
     this.handleSkipToSlideChange = this.handleSkipToSlideChange.bind(this);
     this.change = this.change.bind(this);
+    this.switchSlide = this.switchSlide.bind(this);
     this.setInt = 0;
+  }
+
+  componentDidMount() {
+    document.addEventListener('keydown', this.switchSlide);
+  }
+
+  componentWillUnmount() {
+    document.removeEventListener('keydown', this.switchSlide);
+  }
+
+  switchSlide(event) {
+    const { target, which } = event;
+    const isBody = target.nodeName === 'BODY';
+    const { actions } = this.props;
+
+    if (isBody) {
+      if ([KEY_CODES.ARROW_LEFT].includes(which)) {
+        actions.previousSlideHandler();
+      }
+      if ([KEY_CODES.ARROW_RIGHT].includes(which)) {
+        actions.nextSlideHandler();
+      }
+    }
   }
 
   handleSkipToSlideChange(event) {
