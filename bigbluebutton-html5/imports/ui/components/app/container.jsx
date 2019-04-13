@@ -4,7 +4,7 @@ import { defineMessages, injectIntl } from 'react-intl';
 import PropTypes from 'prop-types';
 import Auth from '/imports/ui/services/auth';
 import Users from '/imports/api/users';
-
+import { notify } from '/imports/ui/services/notification';
 import ClosedCaptionsContainer from '/imports/ui/components/closed-captions/container';
 import getFromUserSettings from '/imports/ui/services/users-settings';
 
@@ -99,6 +99,7 @@ export default injectIntl(withModalMounter(withTracker(({ intl, baseControls }) 
     openPanel: Session.get('openPanel'),
     userListIsOpen: !Session.equals('openPanel', ''),
     UserInfo,
+    notify,
   };
 })(AppContainer)));
 

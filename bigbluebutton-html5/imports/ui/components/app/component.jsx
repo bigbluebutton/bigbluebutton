@@ -42,6 +42,10 @@ const intlMessages = defineMessages({
     id: 'app.actionsBar.label',
     description: 'Aria-label for ActionsBar Section',
   },
+  iOSWarning: {
+    id: 'app.iOSWarning.label',
+    description: 'message indicating to upgrade ios version',
+  },
 });
 
 const propTypes = {
@@ -77,7 +81,7 @@ class App extends Component {
   }
 
   componentDidMount() {
-    const { locale } = this.props;
+    const { locale, notify, intl } = this.props;
     const BROWSER_RESULTS = browser();
     const isMobileBrowser = BROWSER_RESULTS.mobile || BROWSER_RESULTS.os.includes('Android');
 
@@ -92,6 +96,19 @@ class App extends Component {
     if (BROWSER_RESULTS && BROWSER_RESULTS.os) {
       body.classList.add(`os-${BROWSER_RESULTS.os.split(' ').shift().toLowerCase()}`);
     }
+
+    if (BROWSER_RESULTS.os.includes('OS')) {
+      // checks for supported versions of iOS, curently 12.2+
+      const iOSValid = navigator.userAgent.match(/OS [1][2]_[23]/);
+      if (!iOSValid) {
+        notify(
+          intl.formatMessage(intlMessages.iOSWarning),
+          'error',
+          'warning',
+        );
+      }
+    }
+
 
     this.handleWindowResize();
     window.addEventListener('resize', this.handleWindowResize, false);
