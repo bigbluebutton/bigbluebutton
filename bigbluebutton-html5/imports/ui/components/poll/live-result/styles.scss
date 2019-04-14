@@ -7,7 +7,7 @@
   
   --poll-sm-margin: 0.3125rem;
   --poll-user-line-height: 1.75rem;
-  --poll-result-width: 13rem;
+  --poll-result-width: 15rem;
 }
 
 .btn {
@@ -25,12 +25,15 @@
 .center {
   position: relative;
   flex: 1 1 auto;
+  border-left: 1px solid var(--color-gray-lighter);
+  width: 100%;
+  height: 100%;
 }
 
 .left {
   font-weight: bold;
   max-width: var(--poll-result-width);
-  min-width: var(--poll-result-width);
+  min-width: var(--poll-stats-element-width);
   word-wrap: break-word;
 }
 
@@ -73,6 +76,7 @@
 
     > div:nth-child(even) {
       position: relative;
+      height: 75%;
       width: 50%;
       text-align: center;
     }
@@ -87,7 +91,7 @@
 
   .itemR,
   .responseHeading {
-    text-align: right;
+    text-align: left;
   }
 
   .usersHeading,
@@ -100,7 +104,6 @@
   .responseHeading,
   .item,
   .itemR {
-    width: 50%;
     line-height: var(--poll-user-line-height);
   }
 
@@ -111,3 +114,33 @@
     color: var(--color-text);
     word-break: break-word;
   }
+
+  .barShade {
+    background-color: var(--color-gray-lighter);
+    height: 100%;
+    min-height: 100%;
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    right: 0;
+  }
+
+  .barVal {
+    position: inherit;
+  }
+
+  .usersWrapper,
+  .answersWrapper {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .answersWrapper {
+    padding-left: 1rem;
+  }
+
+  .usersWrapper {
+    max-width: 50%;
+  }
+  

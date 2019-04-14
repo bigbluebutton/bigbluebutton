@@ -65,6 +65,11 @@ class LiveResult extends Component {
 
     answers.map((obj) => {
       const pct = Math.round(obj.numVotes / numRespondents * 100);
+      const pctFotmatted = `${Number.isNaN(pct) ? 0 : pct}%`;
+
+      const calculatedWidth = {
+        width: pctFotmatted,
+      };
 
       return pollStats.push(
         <div className={styles.main} key={_.uniqueId('stats-')}>
@@ -72,10 +77,11 @@ class LiveResult extends Component {
             {obj.key}
           </div>
           <div className={styles.center}>
-            {obj.numVotes}
+            <div className={styles.barShade} style={calculatedWidth} />
+            <div className={styles.barVal}>{obj.numVotes || 0}</div>
           </div>
           <div className={styles.right}>
-            {`${Number.isNaN(pct) ? 0 : pct}%`}
+            {pctFotmatted}
           </div>
         </div>,
       );
@@ -102,6 +108,16 @@ class LiveResult extends Component {
     } = this.props;
 
     const { userAnswers, pollStats } = this.state;
+
+    const namesList = [];
+    const answersList = [];
+    if (typeof userAnswers === 'object' && userAnswers) {
+      Object.keys(userAnswers).forEach((key) => {
+        userAnswers[key].props.className.includes('itemR')
+          ? answersList.push(userAnswers[key])
+          : namesList.push(userAnswers[key]);
+      });
+    }
 
     return (
       <div>
@@ -131,13 +147,18 @@ class LiveResult extends Component {
           )
         }
         <div className={styles.container}>
-          <h3 className={styles.usersHeading}>
-            {intl.formatMessage(intlMessages.usersTitle)}
-          </h3>
-          <h3 className={styles.responseHeading}>
-            {intl.formatMessage(intlMessages.responsesTitle)}
-          </h3>
-          {userAnswers}
+          <div className={styles.usersWrapper}>
+            <h3 className={styles.usersHeading}>
+              {intl.formatMessage(intlMessages.usersTitle)}
+            </h3>
+            {namesList}
+          </div>
+          <div className={styles.answersWrapper}>
+            <h3 className={styles.responseHeading}>
+              {intl.formatMessage(intlMessages.responsesTitle)}
+            </h3>
+            {answersList}
+          </div>
         </div>
       </div>
     );
