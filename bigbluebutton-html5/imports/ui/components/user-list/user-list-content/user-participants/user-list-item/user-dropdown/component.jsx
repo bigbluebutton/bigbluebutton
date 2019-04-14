@@ -57,8 +57,8 @@ const messages = defineMessages({
     id: 'app.userList.menu.clearStatus.label',
     description: 'Clear the emoji status of this user',
   },
-  MakePresenterLabel: {
-    id: 'app.userList.menu.makePresenter.label',
+  takePresenterLabel: {
+    id: 'app.actionsBar.actionsDropdown.takePresenter',
     description: 'Set this user to be the presenter in this meeting',
   },
   RemoveUserLabel: {
@@ -313,7 +313,7 @@ class UserDropdown extends PureComponent {
     if (allowedToSetPresenter) {
       actions.push(this.makeDropdownItem(
         'setPresenter',
-        intl.formatMessage(messages.MakePresenterLabel),
+        intl.formatMessage(messages.takePresenterLabel),
         () => this.onActionsHide(assignPresenter(user.id)),
         'presentation',
       ));
