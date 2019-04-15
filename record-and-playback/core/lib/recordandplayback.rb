@@ -156,12 +156,11 @@ module BigBlueButton
 
     uri = URI.parse(url)
     if ["http", "https", "ftp"].include? uri.scheme
-      response = nil
-      Net::HTTP.start(uri.host, uri.port) {|http|
-        response = http.head(uri.request_uri)
+      response = Net::HTTP.start(uri.host, uri.port) {|http|
+        http.head(uri.request_uri)
       }
-      unless response.is_a? Net::HTTPOK
-        raise "Note file not available"
+      unless response.is_a? Net::HTTPSuccess
+        raise "File not available: #{respose.message}"
       end
     end
 
