@@ -97,7 +97,7 @@
   .usersHeading,
   .responseHeading {
     font-weight: var(--headings-font-weight);
-    margin-bottom: 0;
+    margin-bottom: .5rem;
   }
   
   .usersHeading,
@@ -109,7 +109,6 @@
 
   .item,
   .itemR {
-    margin-top: .75rem;
     line-height: var(--poll-user-line-height);
     color: var(--color-text);
     word-break: break-word;
