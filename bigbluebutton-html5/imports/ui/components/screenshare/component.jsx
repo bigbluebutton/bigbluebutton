@@ -12,8 +12,6 @@ const intlMessages = defineMessages({
   },
 });
 
-const screenShareEndAlert = () => new Audio(`${Meteor.settings.public.app.cdn + Meteor.settings.public.app.basename}/resources/sounds/ScreenshareOff.mp3`).play();
-
 class ScreenshareComponent extends React.Component {
   constructor() {
     super();
@@ -30,18 +28,20 @@ class ScreenshareComponent extends React.Component {
   }
 
   componentWillReceiveProps(nextProps) {
-    const { isPresenter, unshareScreen } = this.props;
+    const {
+      isPresenter, unshareScreen,
+    } = this.props;
     if (isPresenter && !nextProps.isPresenter) {
       unshareScreen();
-      screenShareEndAlert();
     }
   }
 
   componentWillUnmount() {
-    const { presenterScreenshareHasEnded, unshareScreen } = this.props;
+    const {
+      presenterScreenshareHasEnded, unshareScreen,
+    } = this.props;
     presenterScreenshareHasEnded();
     unshareScreen();
-    screenShareEndAlert();
   }
 
   onVideoLoad() {
