@@ -160,10 +160,8 @@ module BigBlueButton
       Net::HTTP.start(uri.host, uri.port) {|http|
         response = http.head(uri.request_uri)
       }
-      if response.is_a? Net::HTTPOK
-        BigBlueButton.logger.info "Note file available."
-      else
-        BigBlueButton.logger.warn "Note file not available, server responded with status #{response.status}"
+      unless response.is_a? Net::HTTPOK
+        raise "Note file not available"
       end
     end
 
