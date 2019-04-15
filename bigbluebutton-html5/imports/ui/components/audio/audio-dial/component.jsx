@@ -16,7 +16,7 @@ const intlMessages = defineMessages({
 
 const propTypes = {
   intl: intlShape.isRequired,
-  dialNumber: PropTypes.string.isRequired,
+  formattedDialNum: PropTypes.string.isRequired,
   telVoice: PropTypes.string.isRequired,
 };
 
@@ -24,20 +24,16 @@ class AudioDial extends React.PureComponent {
   render() {
     const {
       intl,
-      dialNumber,
+      formattedDialNum,
       telVoice,
     } = this.props;
-
-    let phoneNumber = dialNumber;
-    phoneNumber = phoneNumber.replace(/-/g, '');
-    phoneNumber = `(${phoneNumber.substring(0, 3)}) ${phoneNumber.substring(3, 6)}-${phoneNumber.substring(6, 11)}`;
 
     return (
       <span className={styles.help}>
         <div className={styles.text}>
           {intl.formatMessage(intlMessages.audioDialDescription)}
         </div>
-        <div className={styles.dialText}>{phoneNumber}</div>
+        <div className={styles.dialText}>{formattedDialNum}</div>
         <div className={styles.conferenceText}>
           {intl.formatMessage(intlMessages.audioDialConfrenceText)}
         </div>

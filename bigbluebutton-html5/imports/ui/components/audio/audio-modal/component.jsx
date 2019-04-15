@@ -31,6 +31,7 @@ const propTypes = {
   outputDeviceId: PropTypes.string,
   dialNumber: PropTypes.string.isRequired,
   telVoice: PropTypes.string.isRequired,
+  formattedDialNum: PropTypes.string.isRequired,
   showPermissionsOvelay: PropTypes.bool.isRequired,
   listenOnlyMode: PropTypes.bool.isRequired,
   skipCheck: PropTypes.bool.isRequired,
@@ -88,10 +89,6 @@ const intlMessages = defineMessages({
   audioDialTitle: {
     id: 'app.audioModal.audioDialTitle',
     description: 'Title for the audio dial',
-  },
-  audioDialLabel: {
-    id: 'app.audioModal.audioDialLabel',
-    description: 'Label for the audio dial',
   },
   connecting: {
     id: 'app.audioModal.connecting',
@@ -287,7 +284,7 @@ class AudioModal extends Component {
     } = this.props;
 
     const showMicrophone = forceListenOnlyAttendee || audioLocked;
-    const showAudioDial = dialNumber !== '613-555-1212' && Number(dialNumber) !== 0;
+    const showAudioDial = dialNumber !== '613-555-1212' && Number(dialNumber) !== 0 && dialNumber;
 
     return (
       <div>
@@ -333,7 +330,7 @@ class AudioModal extends Component {
         {showAudioDial ? (
           <Button
             className={styles.audioDial}
-            label={intl.formatMessage(intlMessages.audioDialLabel)}
+            label={`${intl.formatMessage(intlMessages.audioDialTitle)}➔`}
             size="md"
             color="primary"
             onClick={() => {
@@ -430,10 +427,10 @@ class AudioModal extends Component {
   }
 
   renderAudioDial() {
-    const { dialNumber, telVoice } = this.props;
+    const { formattedDialNum, telVoice } = this.props;
     return (
       <AudioDial
-        dialNumber={dialNumber}
+        formattedDialNum={formattedDialNum}
         telVoice={telVoice}
         handleBack={this.handleGoToAudioOptions}
       />

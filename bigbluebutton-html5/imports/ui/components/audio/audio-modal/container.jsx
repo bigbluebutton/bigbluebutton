@@ -18,6 +18,9 @@ export default withModalMounter(withTracker(({ mountModal }) => {
   const forceListenOnly = getFromUserSettings('forceListenOnly', APP_CONFIG.forceListenOnly);
   const skipCheck = getFromUserSettings('skipCheck', APP_CONFIG.skipCheck);
   const { dialNumber, telVoice } = Meetings.findOne({ meetingId: Auth.meetingID }).voiceProp;
+  let formattedDialNum = dialNumber || '';
+  formattedDialNum = formattedDialNum.replace(/-/g, '');
+  formattedDialNum = `(${formattedDialNum.substring(0, 3)}) ${formattedDialNum.substring(3, 6)}-${formattedDialNum.substring(6, 11)}`;
 
   return ({
     closeModal: () => {
@@ -62,6 +65,7 @@ export default withModalMounter(withTracker(({ mountModal }) => {
     skipCheck,
     dialNumber,
     telVoice,
+    formattedDialNum,
     audioLocked: Service.audioLocked(),
     joinFullAudioImmediately: !listenOnlyMode && skipCheck,
     joinFullAudioEchoTest: !listenOnlyMode && !skipCheck,
