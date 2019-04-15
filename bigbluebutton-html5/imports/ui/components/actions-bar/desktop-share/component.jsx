@@ -48,6 +48,8 @@ const isMobileBrowser = (BROWSER_RESULTS ? BROWSER_RESULTS.mobile : false)
 
 const ICE_CONNECTION_FAILED = 'ICE connection failed';
 
+const screenShareEndAlert = () => new Audio(`${Meteor.settings.public.app.cdn + Meteor.settings.public.app.basename}/resources/sounds/ScreenshareOff.mp3`).play();
+
 const DesktopShare = ({
   intl,
   handleShareScreen,
@@ -66,9 +68,7 @@ const DesktopShare = ({
       default:
         logger.error({ logCode: 'desktopshare_default_error' }, error || 'Default error handler');
     }
-
-    const audioAlert = new Audio(`${Meteor.settings.public.app.cdn + Meteor.settings.public.app.basename}/resources/sounds/ScreenshareOff.mp3`);
-    audioAlert.play();
+    screenShareEndAlert();
   };
   return (screenSharingCheck && !isMobileBrowser && isUserPresenter
     ? (
