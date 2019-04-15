@@ -18,8 +18,8 @@ const intlMessages = defineMessages({
     id: 'app.video.videoButtonDesc',
     description: 'video button description',
   },
-  videoDisabled: {
-    id: 'app.video.videoDisabled',
+  videoLocked: {
+    id: 'app.video.videoLocked',
     description: 'video disabled label',
   },
 });
@@ -42,7 +42,7 @@ const JoinVideoButton = ({
 }) => (
   <Button
     label={isDisabled
-      ? intl.formatMessage(intlMessages.videoDisabled)
+      ? intl.formatMessage(intlMessages.videoLocked)
       : (isSharingVideo
         ? intl.formatMessage(intlMessages.leaveVideo)
         : intl.formatMessage(intlMessages.joinVideo)

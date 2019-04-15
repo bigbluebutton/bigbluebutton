@@ -51,6 +51,20 @@ object Polls {
   }
 
   def handleShowPollResultReqMsg(state: MeetingState2x, requesterId: String, pollId: String, lm: LiveMeeting): Option[(SimplePollResultOutVO, AnnotationVO)] = {
+    def sanitizeAnnotation(annotation: AnnotationVO): AnnotationVO = {
+      // Remove null values by wrapping value with Option
+      val shape = annotation.annotationInfo.collect {
+        case (key, value: Any) => key -> Option(value)
+      }
+
+      // Unwrap the value wrapped as Option
+      val shape2 = shape.collect {
+        case (key, Some(value)) => key -> value
+      }
+
+      annotation.copy(annotationInfo = shape2)
+    }
+
     def updateWhiteboardAnnotation(annotation: AnnotationVO): AnnotationVO = {
       lm.wbModel.updateAnnotation(annotation.wbId, annotation.userId, annotation)
     }
@@ -65,7 +79,8 @@ object Polls {
         val updatedShape = shape + ("whiteboardId" -> pageId)
         val annotation = new AnnotationVO(poll.id, WhiteboardKeyUtil.DRAW_END_STATUS,
           WhiteboardKeyUtil.POLL_RESULT_TYPE, updatedShape, pageId, requesterId, -1)
-        updateWhiteboardAnnotation(annotation)
+        val sanitizedShape = sanitizeAnnotation(annotation)
+        updateWhiteboardAnnotation(sanitizedShape)
       }
     }
 
