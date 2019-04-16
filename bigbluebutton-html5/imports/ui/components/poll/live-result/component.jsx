@@ -57,8 +57,12 @@ class LiveResult extends Component {
       .sort(Service.sortUsers)
       .reduce((acc, user) => [
         ...acc,
-        <div className={styles.item} key={_.uniqueId('stats-')}>{user.name}</div>,
-        <div className={styles.itemR} key={_.uniqueId('stats-')}>{user.answer}</div>,
+        (
+          <tr key={_.uniqueId('stats-')}>
+            <td className={styles.resultLeft}>{user.name}</td>
+            <td className={styles.resultRight}>{user.answer}</td>
+          </tr>
+        ),
       ], []);
 
     const pollStats = [];
@@ -109,16 +113,6 @@ class LiveResult extends Component {
 
     const { userAnswers, pollStats } = this.state;
 
-    const namesList = [];
-    const answersList = [];
-    if (typeof userAnswers === 'object' && userAnswers) {
-      Object.keys(userAnswers).forEach((key) => {
-        userAnswers[key].props.className.includes('itemR')
-          ? answersList.push(userAnswers[key])
-          : namesList.push(userAnswers[key]);
-      });
-    }
-
     return (
       <div>
         <div className={styles.stats}>
@@ -146,20 +140,15 @@ class LiveResult extends Component {
             />
           )
         }
-        <div className={styles.container}>
-          <div className={styles.usersWrapper}>
-            <h3 className={styles.usersHeading}>
-              {intl.formatMessage(intlMessages.usersTitle)}
-            </h3>
-            {namesList}
-          </div>
-          <div className={styles.answersWrapper}>
-            <h3 className={styles.responseHeading}>
-              {intl.formatMessage(intlMessages.responsesTitle)}
-            </h3>
-            {answersList}
-          </div>
-        </div>
+        <table>
+          <tbody>
+            <tr>
+              <th className={styles.theading}>{intl.formatMessage(intlMessages.usersTitle)}</th>
+              <th className={styles.theading}>{intl.formatMessage(intlMessages.responsesTitle)}</th>
+            </tr>
+            {userAnswers}
+          </tbody>
+        </table>
       </div>
     );
   }

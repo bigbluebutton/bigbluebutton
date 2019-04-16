@@ -84,62 +84,30 @@
   }
 }
 
-.container {
-    display: flex;
-    flex-wrap: wrap;
-  }
+.barShade {
+  background-color: var(--color-gray-lighter);
+  height: 100%;
+  min-height: 100%;
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  right: 0;
+}
 
-  .itemR,
-  .responseHeading {
-    text-align: left;
-  }
+.barVal {
+  position: inherit;
+}
 
-  .usersHeading,
-  .responseHeading {
-    font-weight: var(--headings-font-weight);
-    margin-bottom: .5rem;
-  }
-  
-  .usersHeading,
-  .responseHeading,
-  .item,
-  .itemR {
-    line-height: var(--poll-user-line-height);
-  }
+.theading {
+  text-align: left;
+}
 
-  .item,
-  .itemR {
-    line-height: var(--poll-user-line-height);
-    color: var(--color-text);
-    word-break: break-word;
-  }
+.resultLeft {
+  padding-right: .5rem;
+}
 
-  .barShade {
-    background-color: var(--color-gray-lighter);
-    height: 100%;
-    min-height: 100%;
-    position: absolute;
-    left: 0;
-    top: 0;
-    bottom: 0;
-    right: 0;
-  }
-
-  .barVal {
-    position: inherit;
-  }
-
-  .usersWrapper,
-  .answersWrapper {
-    display: flex;
-    flex-direction: column;
-  }
-
-  .answersWrapper {
-    padding-left: 1rem;
-  }
-
-  .usersWrapper {
-    max-width: 50%;
-  }
-  
+.resultRight,
+.resultLeft {
+  padding-bottom: .25rem;
+}
