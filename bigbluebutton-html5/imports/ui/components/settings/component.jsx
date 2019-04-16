@@ -180,14 +180,14 @@ class Settings extends Component {
           {/* <Icon iconName='video' className={styles.icon}/> */}
           {/* <span id="videoTab">{intl.formatMessage(intlMessages.videoTabLabel)}</span> */}
           {/* </Tab> */}
-          <Tab
-            className={styles.tabSelector}
-            aria-labelledby="ccTab"
-            selectedClassName={styles.selected}
-          >
-            <Icon iconName="user" className={styles.icon} />
-            <span id="ccTab">{intl.formatMessage(intlMessages.closecaptionTabLabel)}</span>
-          </Tab>
+          {/* <Tab */}
+          {/*   className={styles.tabSelector} */}
+          {/*   aria-labelledby="ccTab" */}
+          {/*   selectedClassName={styles.selected} */}
+          {/* > */}
+          {/*   <Icon iconName="user" className={styles.icon} /> */}
+          {/*   <span id="ccTab">{intl.formatMessage(intlMessages.closecaptionTabLabel)}</span> */}
+          {/* </Tab> */}
           <Tab
             className={styles.tabSelector}
             aria-labelledby="dataSavingTab"
@@ -216,13 +216,13 @@ class Settings extends Component {
         {/* settings={this.state.current.video} */}
         {/* /> */}
         {/* </TabPanel> */}
-        <TabPanel className={styles.tabPanel}>
-          <ClosedCaptions
-            settings={current.cc}
-            handleUpdateSettings={this.handleUpdateSettings}
-            locales={locales}
-          />
-        </TabPanel>
+        {/* <TabPanel className={styles.tabPanel}> */}
+        {/*   <ClosedCaptions */}
+        {/*     settings={current.cc} */}
+        {/*     handleUpdateSettings={this.handleUpdateSettings} */}
+        {/*     locales={locales} */}
+        {/*   /> */}
+        {/* </TabPanel> */}
         <TabPanel className={styles.tabPanel}>
           <DataSaving
             settings={current.dataSaving}
