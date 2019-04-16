@@ -6,7 +6,7 @@ import { styles } from './styles';
 const intlMessages = defineMessages({
   audioDialDescription: {
     id: 'app.audioDial.audioDialDescription',
-    description: 'Text decription for the audio help',
+    description: 'Text description for the audio help',
   },
   audioDialConfrenceText: {
     id: 'app.audioDial.audioDialConfrenceText',

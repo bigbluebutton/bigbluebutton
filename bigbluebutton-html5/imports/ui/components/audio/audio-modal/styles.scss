@@ -97,14 +97,9 @@
 }
 
 .audioDial {
-  margin-top: var(--sm-padding-y);
-  margin-left: var(--audioDial-margin-left);
-  display: flex;
-  justify-content: center;
-
-  @include mq($small-only) {
-    margin-left: var(--md-padding-x);
-  }
+  margin: 0 auto;
+  margin-top: var(--md-padding-y);
+  display: block;
 }
 
 // Modifies the audio button icon colour

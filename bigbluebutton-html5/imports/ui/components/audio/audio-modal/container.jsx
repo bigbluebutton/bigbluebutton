@@ -17,10 +17,19 @@ export default withModalMounter(withTracker(({ mountModal }) => {
   const listenOnlyMode = getFromUserSettings('listenOnlyMode', APP_CONFIG.listenOnlyMode);
   const forceListenOnly = getFromUserSettings('forceListenOnly', APP_CONFIG.forceListenOnly);
   const skipCheck = getFromUserSettings('skipCheck', APP_CONFIG.skipCheck);
-  const { dialNumber, telVoice } = Meetings.findOne({ meetingId: Auth.meetingID }).voiceProp;
-  let formattedDialNum = dialNumber || '';
-  formattedDialNum = formattedDialNum.replace(/-/g, '');
-  formattedDialNum = `(${formattedDialNum.substring(0, 3)}) ${formattedDialNum.substring(3, 6)}-${formattedDialNum.substring(6, 11)}`;
+  const meeting = Meetings.findOne({ meetingId: Auth.meetingID });
+  const invalidDialNumbers = ['0', '613-555-1212'];
+  let formattedDialNum = '';
+  let formattedTelVoice = '';
+  let combinedDialInNum = '';
+  if (meeting && meeting.voiceProp) {
+    const { dialNumber, telVoice } = meeting.voiceProp;
+    if (invalidDialNumbers.indexOf(dialNumber) < 0) {
+      formattedDialNum = dialNumber;
+      formattedTelVoice = telVoice;
+      combinedDialInNum = `${dialNumber.replace(/\D+/g, '')},,,${telVoice.replace(/\D+/g, '')}`;
+    }
+  }
 
   return ({
     closeModal: () => {
@@ -63,9 +72,9 @@ export default withModalMounter(withTracker(({ mountModal }) => {
     showPermissionsOvelay: Service.isWaitingPermissions(),
     listenOnlyMode,
     skipCheck,
-    dialNumber,
-    telVoice,
     formattedDialNum,
+    formattedTelVoice,
+    combinedDialInNum,
     audioLocked: Service.audioLocked(),
     joinFullAudioImmediately: !listenOnlyMode && skipCheck,
     joinFullAudioEchoTest: !listenOnlyMode && !skipCheck,
