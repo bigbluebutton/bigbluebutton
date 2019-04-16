@@ -11,6 +11,7 @@ import PermissionsOverlay from '../permissions-overlay/component';
 import AudioSettings from '../audio-settings/component';
 import EchoTest from '../echo-test/component';
 import Help from '../help/component';
+import AudioDial from '../audio-dial/component';
 
 
 const propTypes = {
@@ -28,6 +29,7 @@ const propTypes = {
   isConnected: PropTypes.bool.isRequired,
   inputDeviceId: PropTypes.string,
   outputDeviceId: PropTypes.string,
+  formattedDialNum: PropTypes.string.isRequired,
   showPermissionsOvelay: PropTypes.bool.isRequired,
   listenOnlyMode: PropTypes.bool.isRequired,
   skipCheck: PropTypes.bool.isRequired,
@@ -82,6 +84,10 @@ const intlMessages = defineMessages({
     id: 'app.audioModal.helpTitle',
     description: 'Title for the audio help',
   },
+  audioDialTitle: {
+    id: 'app.audioModal.audioDialTitle',
+    description: 'Title for the audio dial',
+  },
   connecting: {
     id: 'app.audioModal.connecting',
     description: 'Message for audio connecting',
@@ -121,6 +127,10 @@ class AudioModal extends Component {
       help: {
         title: intlMessages.helpTitle,
         component: () => this.renderHelp(),
+      },
+      audioDial: {
+        title: intlMessages.audioDialTitle,
+        component: () => this.renderAudioDial(),
       },
     };
   }
@@ -268,6 +278,7 @@ class AudioModal extends Component {
       audioLocked,
       isMobileNative,
       isIEOrEdge,
+      formattedDialNum,
     } = this.props;
 
     const showMicrophone = forceListenOnlyAttendee || audioLocked;
@@ -312,7 +323,21 @@ class AudioModal extends Component {
               }}
             />
           </p>
-        ) : null }
+        ) : null}
+        {formattedDialNum ? (
+          <Button
+            className={styles.audioDial}
+            label={`${intl.formatMessage(intlMessages.audioDialTitle)} ➔`}
+            size="md"
+            color="primary"
+            onClick={() => {
+              this.setState({
+                content: 'audioDial',
+              });
+            }}
+            ghost
+          />
+        ) : null}
       </div>
     );
   }
@@ -398,6 +423,17 @@ class AudioModal extends Component {
     );
   }
 
+  renderAudioDial() {
+    const { formattedDialNum, formattedTelVoice } = this.props;
+    return (
+      <AudioDial
+        formattedDialNum={formattedDialNum}
+        telVoice={formattedTelVoice}
+        handleBack={this.handleGoToAudioOptions}
+      />
+    );
+  }
+
   render() {
     const {
       intl,
@@ -425,15 +461,15 @@ class AudioModal extends Component {
                 className={styles.header}
               >
                 {
-                isIOSChrome ? null
-                  : (
-                    <h3 className={styles.title}>
-                      {content
-                        ? intl.formatMessage(this.contents[content].title)
-                        : intl.formatMessage(intlMessages.audioChoiceLabel)}
-                    </h3>
-                  )
-            }
+                  isIOSChrome ? null
+                    : (
+                      <h3 className={styles.title}>
+                        {content
+                          ? intl.formatMessage(this.contents[content].title)
+                          : intl.formatMessage(intlMessages.audioChoiceLabel)}
+                      </h3>
+                    )
+                }
               </header>
             )
             : null
