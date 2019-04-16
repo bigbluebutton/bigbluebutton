@@ -17,7 +17,7 @@
   opacity: 1;
   max-height: 10rem;
 
-  [style~="--enableAnimation:1;"] & {
+  :global(.animationsEnabled) & {
     transition: all 300ms;
   }
 }
@@ -31,7 +31,7 @@
   opacity: 0;
   max-height: 0rem;
   
-  [style~="--enableAnimation:1;"] & {
+  :global(.animationsEnabled) & {
     transition: all 500ms;
   }
 }
@@ -49,7 +49,7 @@
   opacity: 1;
   max-height: 10rem;
 
-  [style~="--enableAnimation:1;"] & {
+  :global(.animationsEnabled) & {
     transition: all 500ms;
   }
 }
@@ -63,7 +63,7 @@
   opacity: 0;
   transform: translateY(-100%);
 
-  [style~="--enableAnimation:1;"] & {
+  :global(.animationsEnabled) & {
     transition: all 300ms;
   }
 }

@@ -8,7 +8,7 @@
 .enterActive {
   opacity: 1;
 
-  [style~="--enableAnimation:1;"] & {
+  :global(.animationsEnabled) & {
     transition: opacity 400ms ease-in;
   }
 }
@@ -20,7 +20,7 @@
 .appearActive {
   opacity: 1;
 
-  [style~="--enableAnimation:1;"] & {
+  :global(.animationsEnabled) & {
     transition: opacity 400ms ease-in;
   }
 }
