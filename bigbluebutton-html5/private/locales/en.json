@@ -432,6 +432,8 @@
     "app.shortcut-help.openActions": "Open actions menu",
     "app.shortcut-help.openStatus": "Open status menu",
     "app.shortcut-help.togglePan": "Activate Pan tool (Presenter)",
+    "app.shortcut-help.nextSlideDesc": "Next slide (Presenter)",
+    "app.shortcut-help.previousSlideDesc": "Previous slide (Presenter)",
     "app.lock-viewers.title": "Lock viewers",
     "app.lock-viewers.description": "These options enable you to restrict viewers from using specific features.  (These lock settings do not apply to moderators.)",
     "app.lock-viewers.featuresLable": "Feature",
