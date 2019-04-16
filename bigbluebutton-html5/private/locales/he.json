@@ -18,8 +18,6 @@
     "app.userList.you": "את/ה",
     "app.userList.locked": "נעול",
     "app.userList.label": "משתתפים",
-    "app.userList.menu.chat.label": "צ'אט",
-    "app.userList.menu.makePresenter.label": "הפוך למציג",
     "app.userList.menu.removeUser.label": "הוצא משתתף",
     "app.userList.menu.muteUserAudio.label": "השתק",
     "app.userList.menu.unlockUser.label": "בטל נעילה ל {0} ",
