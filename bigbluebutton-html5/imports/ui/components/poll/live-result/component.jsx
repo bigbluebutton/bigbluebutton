@@ -23,7 +23,23 @@ const intlMessages = defineMessages({
     id: 'app.poll.backLabel',
     description: 'label for the return to poll options button',
   },
+  doneLabel: {
+    id: 'app.createBreakoutRoom.doneLabel',
+    description: 'label shown when all users have responded',
+  },
+  waitingLabel: {
+    id: 'app.poll.waitingLabel',
+    description: 'label shown while waiting for responses',
+  },
 });
+
+const getResponseString = (obj) => {
+  const { children } = obj.props;
+  if (typeof children !== 'string') {
+    return getResponseString(children[1]);
+  }
+  return children;
+};
 
 class LiveResult extends Component {
   static getDerivedStateFromProps(nextProps) {
@@ -113,10 +129,40 @@ class LiveResult extends Component {
 
     const { userAnswers, pollStats } = this.state;
 
+    let waiting;
+    let userCount = 0;
+    let respondedCount = 0;
+
+    if (userAnswers) {
+      userCount = userAnswers.length;
+      userAnswers.map((user) => {
+        const response = getResponseString(user);
+        if (response === '-') return user;
+        respondedCount += 1;
+        return user;
+      });
+
+      waiting = respondedCount !== userAnswers.length;
+    }
+
     return (
       <div>
         <div className={styles.stats}>
           {pollStats}
+        </div>
+        <div className={styles.status}>
+          {waiting
+            ? (
+              <span>
+                {`${intl.formatMessage(intlMessages.waitingLabel, {
+                  0: respondedCount,
+                  1: userCount,
+                })} `}
+              </span>
+            )
+            : <span>{intl.formatMessage(intlMessages.doneLabel)}</span>}
+          {waiting
+            ? <span className={styles.connectingAnimation} /> : null}
         </div>
         {currentPoll
           ? (
