@@ -614,7 +614,7 @@ class VideoProvider extends Component {
         // prevent the same error from being detected multiple times
         peer.peerConnection.oniceconnectionstatechange = null;
 
-        this.logger('error', 'ICE connection state', id);
+        this.logger('error', `ICE connection state id:${id}, connectionState:${connectionState}`);
         this.stopWebRTCPeer(id);
         this.notifyError(intl.formatMessage(intlClientErrors.iceConnectionStateError));
       }
