@@ -67,7 +67,7 @@
 			[Bindable]
 			private var webcamsOnlyForModerator:Boolean;
 
-			private var unmuteViewers:Boolean = false;
+			private var unmuteUsers:Boolean = false;
 			
 			private var moderator:Boolean = false;
 
@@ -94,7 +94,7 @@
 				BindingUtils.bindSetter(updateButtons, hasStreamInd, "visible");
 				BindingUtils.bindSetter(updateButtons, viewingStreamInd, "visible");
 
-				unmuteViewers = LiveMeeting.inst().meeting.unmuteViewers;
+				unmuteUsers = LiveMeeting.inst().meeting.unmuteUsers;
 			}
 
 			override public function set data(value:Object):void {
@@ -197,7 +197,7 @@
 				
 				var e:VoiceConfEvent = new VoiceConfEvent(VoiceConfEvent.MUTE_USER);
 				e.userid = data.userId;
-				e.mute = (data.me || unmuteViewers) ? !data.muted : true;
+				e.mute = (data.me || unmuteUsers) ? !data.muted : true;
 				dispatchEvent(e);
 			}
 			
@@ -250,8 +250,8 @@
 								muteImg.filters = [];
 							}
 						} else {
-							// can only unmute viewers when unmuteViewers is set on create
-							var unmute:Boolean = unmuteViewers && amIMod && (data.role == Role.VIEWER);
+							// moderators can only unmute users when unmuteUsers is set on create
+							var unmute:Boolean = unmuteUsers && amIMod;
 							var showMuteBtn:Boolean = rolledOver && (data.me || (amIMod && (!data.muted || unmute)));
 							muteImg.visible = !showMuteBtn;
 							muteImg.includeInLayout = !showMuteBtn;

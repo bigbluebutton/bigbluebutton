@@ -15,7 +15,7 @@ package org.bigbluebutton.core.model
     internal var modOnlyMessage:String;
     internal var allowStartStopRecording: Boolean;
     internal var metadata: Object;
-    internal var unmuteViewers: Boolean;
+    internal var unmuteUsers: Boolean;
 	internal var muteOnStart:Boolean;
     
     public function MeetingBuilder(id: String, name: String) {
@@ -78,8 +78,8 @@ package org.bigbluebutton.core.model
       return this;
     }
 
-    public function withUnmuteViewers(value: Boolean):MeetingBuilder {
-      unmuteViewers = value;
+    public function withUnmuteUsers(value: Boolean):MeetingBuilder {
+      unmuteUsers = value;
       return this;
     }
 	

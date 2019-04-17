@@ -131,7 +131,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         <property name="maxPresentationFileUpload" value="${maxFileSizeUpload}"/>
         <property name="clientLogoutTimerInMinutes" value="${clientLogoutTimerInMinutes}"/>
         <property name="muteOnStart" value="${muteOnStart}"/>
-        <property name="unmuteViewers" value="${unmuteViewers}"/>
+        <property name="unmuteUsers" value="${unmuteUsers}"/>
     </bean>
 
     <import resource="doc-conversion.xml"/>
