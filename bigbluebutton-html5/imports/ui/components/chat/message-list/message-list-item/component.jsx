@@ -169,7 +169,7 @@ export default class MessageListItem extends Component {
             <div className={styles.messages}>
               {messages.map(message => (
                 <Message
-                  className={styles.message}
+                  className={(message.text.includes('href') ? styles.hyperlink : styles.message)}
                   key={message.id}
                   text={message.text}
                   time={message.time}
