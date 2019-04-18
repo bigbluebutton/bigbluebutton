@@ -81,7 +81,9 @@ class App extends Component {
   }
 
   componentDidMount() {
-    const { locale, notify, intl } = this.props;
+    const {
+      locale, notify, intl, validIOSVersion,
+    } = this.props;
     const BROWSER_RESULTS = browser();
     const isMobileBrowser = BROWSER_RESULTS.mobile || BROWSER_RESULTS.os.includes('Android');
 
@@ -97,18 +99,13 @@ class App extends Component {
       body.classList.add(`os-${BROWSER_RESULTS.os.split(' ').shift().toLowerCase()}`);
     }
 
-    if (BROWSER_RESULTS.os.includes('OS')) {
-      // checks for supported versions of iOS, curently 12.2+
-      const iOSValid = navigator.userAgent.match(/OS [1][2]_[23]/);
-      if (!iOSValid) {
-        notify(
-          intl.formatMessage(intlMessages.iOSWarning),
-          'error',
-          'warning',
-        );
-      }
+    if (!validIOSVersion()) {
+      notify(
+        intl.formatMessage(intlMessages.iOSWarning),
+        'error',
+        'warning',
+      );
     }
-
 
     this.handleWindowResize();
     window.addEventListener('resize', this.handleWindowResize, false);

@@ -14,6 +14,7 @@ import {
   getFontSize,
   getCaptionsStatus,
   getBreakoutRooms,
+  validIOSVersion,
 } from './service';
 
 import { withModalMounter } from '../modal/service';
@@ -100,6 +101,7 @@ export default injectIntl(withModalMounter(withTracker(({ intl, baseControls }) 
     userListIsOpen: !Session.equals('openPanel', ''),
     UserInfo,
     notify,
+    validIOSVersion,
   };
 })(AppContainer)));
 
