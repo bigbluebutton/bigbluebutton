@@ -82,7 +82,6 @@ const intlMessages = defineMessages({
 class ActionsDropdown extends Component {
   constructor(props) {
     super(props);
-    this.handlePresentationClick = this.handlePresentationClick.bind(this);
 
     this.presentationItemId = _.uniqueId('action-item-');
     this.recordId = _.uniqueId('action-item-');
@@ -90,6 +89,7 @@ class ActionsDropdown extends Component {
     this.takePresenterId = _.uniqueId('action-item-');
 
     this.handlePresentationClick = this.handlePresentationClick.bind(this);
+    this.handleExternalVideoClick = this.handleExternalVideoClick.bind(this);
   }
 
   componentWillUpdate(nextProps) {
@@ -131,6 +131,9 @@ class ActionsDropdown extends Component {
             description={formatMessage(pollBtnDesc)}
             key={this.pollId}
             onClick={() => {
+              if (Session.equals('pollInitiated', true)) {
+                Session.set('resetPollPanel', true);
+              }
               Session.set('openPanel', 'poll');
               Session.set('forcePollOpen', true);
             }}
@@ -162,18 +165,19 @@ class ActionsDropdown extends Component {
           <DropdownListItem
             icon="video"
             label={!isSharingVideo ? intl.formatMessage(intlMessages.startExternalVideoLabel)
-              : intl.formatMessage(intlMessages.stopExternalVideoLabel) }
+              : intl.formatMessage(intlMessages.stopExternalVideoLabel)}
             description="External Video"
             key="external-video"
             onClick={this.handleExternalVideoClick}
           />
         )
-        : null)
+        : null),
     ]);
   }
 
-  handleExternalVideoClick = () => {
-    this.props.mountModal(<ExternalVideoModal />);
+  handleExternalVideoClick() {
+    const { mountModal } = this.props;
+    mountModal(<ExternalVideoModal />);
   }
 
   handlePresentationClick() {

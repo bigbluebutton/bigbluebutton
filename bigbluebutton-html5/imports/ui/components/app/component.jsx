@@ -8,12 +8,16 @@ import PanelManager from '/imports/ui/components/panel-manager/component';
 import PollingContainer from '/imports/ui/components/polling/container';
 import logger from '/imports/startup/client/logger';
 import ActivityCheckContainer from '/imports/ui/components/activity-check/container';
+import UserInfoContainer from '/imports/ui/components/user-info/container';
 import ToastContainer from '../toast/container';
 import ModalContainer from '../modal/container';
 import NotificationsBarContainer from '../notifications-bar/container';
 import AudioContainer from '../audio/container';
 import ChatAlertContainer from '../chat/alert/container';
+import BannerBarContainer from '/imports/ui/components/banner-bar/container';
 import WaitingNotifierContainer from '/imports/ui/components/waiting-users/alert/container';
+import LockNotifier from '/imports/ui/components/lock-viewers/notify/container';
+
 import { styles } from './styles';
 
 const MOBILE_MEDIA = 'only screen and (max-width: 40em)';
@@ -206,6 +210,17 @@ class App extends Component {
       />) : null);
   }
 
+  renderUserInformation() {
+    const { UserInfo, User } = this.props;
+
+    return (UserInfo.length > 0 ? (
+      <UserInfoContainer
+        UserInfo={UserInfo}
+        requesterUserId={User.userId}
+        meetingId={User.meetingId}
+      />) : null);
+  }
+
   render() {
     const {
       customStyle, customStyleUrl, openPanel,
@@ -214,6 +229,8 @@ class App extends Component {
     return (
       <main className={styles.main}>
         {this.renderActivityCheck()}
+        {this.renderUserInformation()}
+        <BannerBarContainer />
         <NotificationsBarContainer />
         <section className={styles.wrapper}>
           <div className={openPanel ? styles.content : styles.noPanelContent}>
@@ -230,6 +247,7 @@ class App extends Component {
         <ToastContainer />
         <ChatAlertContainer />
         <WaitingNotifierContainer />
+        <LockNotifier />
         {customStyleUrl ? <link rel="stylesheet" type="text/css" href={customStyleUrl} /> : null}
         {customStyle ? <link rel="stylesheet" type="text/css" href={`data:text/css;charset=UTF-8,${encodeURIComponent(customStyle)}`} /> : null}
       </main>

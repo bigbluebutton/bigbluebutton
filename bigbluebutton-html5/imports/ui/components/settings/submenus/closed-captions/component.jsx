@@ -172,7 +172,8 @@ class ClosedCaptionsMenu extends BaseMenu {
                       <div className={styles.col}>
                         <div className={cx(styles.formElement, styles.pullContentRight)}>
                           <Checkbox
-                            onChange={() => this.handleToggle('takeOwnership')}
+                            keyValue="takeOwnership"
+                            onChange={this.handleToggle}
                             checked={this.state.settings.takeOwnership}
                             ariaLabelledBy="takeOwnership"
                             ariaLabel={intl.formatMessage(intlMessages.takeOwnershipLabel)}

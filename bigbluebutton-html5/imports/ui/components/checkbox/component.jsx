@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import cx from 'classnames';
 import Icon from '../icon/component';
@@ -25,7 +25,7 @@ const defaultProps = {
   ariaDesc: null,
 };
 
-export default class Checkbox extends Component {
+export default class Checkbox extends PureComponent {
   constructor(props) {
     super(props);
 
@@ -34,8 +34,9 @@ export default class Checkbox extends Component {
   }
 
   handleChange() {
-    if (this.props.disabled) return;
-    this.onChange();
+    const { disabled, keyValue } = this.props;
+    if (disabled) return;
+    this.onChange(keyValue);
   }
 
   render() {

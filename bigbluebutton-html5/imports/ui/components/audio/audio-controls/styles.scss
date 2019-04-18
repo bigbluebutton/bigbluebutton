@@ -25,10 +25,11 @@
 .glow {
   border-radius: 50%;
   
-  [style~="--enableAnimation:1;"] & {
+  :global(.animationsEnabled) & {
     animation: pulse 1s infinite ease-in;
   }
-  [style~="--enableAnimation:0;"] & span {
+
+  :global(.animationsDisabled) & span {
     content: '';
     outline: none !important;
     background-clip: padding-box;

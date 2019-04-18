@@ -461,6 +461,10 @@ const toggleUserLock = (userId, lockStatus) => {
   makeCall('toggleUserLock', userId, lockStatus);
 };
 
+const requestUserInformation = (userId) => {
+  makeCall('requestUserInformation', userId);
+};
+
 export default {
   setEmojiStatus,
   assignPresenter,
@@ -487,4 +491,5 @@ export default {
   getEmoji: () => Users.findOne({ userId: Auth.userID }).emoji,
   hasPrivateChatBetweenUsers,
   toggleUserLock,
+  requestUserInformation,
 };

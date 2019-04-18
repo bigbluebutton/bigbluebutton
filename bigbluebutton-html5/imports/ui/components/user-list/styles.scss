@@ -144,7 +144,7 @@
 .appearActive {
   opacity: 1;
   
-  [style~="--enableAnimation:1;"] & {
+  :global(.animationsEnabled) & {
     transition: all 600ms;
   }
 }
@@ -156,7 +156,7 @@
 .leaveActive {
   opacity: 0;
 
-  [style~="--enableAnimation:1;"] & {
+  :global(.animationsEnabled) & {
     transition: all 600ms;
   }
 }

@@ -21,8 +21,8 @@
   text-align: center;
   font-size: .85rem;
   border: 2px solid transparent;
-    
-  [style~="--enableAnimation:1;"] & {
+
+  :global(.animationsEnabled) & {
     transition: .3s ease-in-out;
   }
 
@@ -51,7 +51,7 @@
     letter-spacing: -.65rem;
     z-index: 1;
 
-    [style~="--enableAnimation:1;"] & {
+    :global(.animationsEnabled) & {
         transition: .3s ease-in-out;
     }
   }
@@ -66,12 +66,12 @@
   background-color: var(--user-color);
   border-radius: inherit;
 
-  [style~="--enableAnimation:1;"] & {
+  :global(.animationsEnabled) & {
     animation: pulse 1s infinite ease-in;
   }
 
   &::before {
-    [style~="--enableAnimation:0;"] & {
+    :global(.animationsDisabled) & {
       content: '';
       position: absolute;
       top: 0;

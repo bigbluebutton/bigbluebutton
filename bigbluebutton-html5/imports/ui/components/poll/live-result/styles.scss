@@ -7,6 +7,7 @@
   
   --poll-sm-margin: 0.3125rem;
   --poll-user-line-height: 1.75rem;
+  --poll-result-width: 15rem;
 }
 
 .btn {
@@ -24,6 +25,22 @@
 .center {
   position: relative;
   flex: 1 1 auto;
+  border-left: 1px solid var(--color-gray-lighter);
+  width: 100%;
+  height: 100%;
+}
+
+.left {
+  font-weight: bold;
+  max-width: var(--poll-result-width);
+  min-width: var(--poll-stats-element-width);
+  word-wrap: break-word;
+}
+
+.right {
+  text-align: right;
+  max-width: var(--poll-stats-element-width);
+  min-width: var(--poll-stats-element-width);
 }
 
 .left,
@@ -39,20 +56,6 @@
 .right {
   flex: 0 0 auto;
   position: relative;
-  min-width: var(--poll-stats-element-width);
-}
-
-.left {
-  width: var(--poll-stats-option-width);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  font-weight: bold;
-}
-
-.right {
-  text-align: right;
-  max-width: var(--poll-stats-element-width);
 }
 
 .container,
@@ -73,6 +76,7 @@
 
     > div:nth-child(even) {
       position: relative;
+      height: 75%;
       width: 50%;
       text-align: center;
     }
@@ -80,31 +84,59 @@
   }
 }
 
-.container {
-    display: flex;
-    flex-wrap: wrap;
-  }
+.barShade {
+  background-color: var(--color-gray-lighter);
+  height: 100%;
+  min-height: 100%;
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  right: 0;
+}
 
-  .itemR,
-  .responseHeading {
-    text-align: right;
-  }
+.barVal {
+  position: inherit;
+}
 
-  .usersHeading,
-  .responseHeading {
-    font-weight: var(--headings-font-weight);
-  }
-  
-  .usersHeading,
-  .responseHeading,
-  .item,
-  .itemR {
-    width: 50%;
-    line-height: var(--poll-user-line-height);
-  }
+.theading {
+  text-align: left;
+}
 
-  .item,
-  .itemR {
-    line-height: var(--poll-user-line-height);
-    color: var(--color-text);
+.resultLeft {
+  padding-right: .5rem;
+  border-bottom: 1px solid var(--color-gray-lightest);
+}
+
+.resultRight,
+.resultLeft {
+  padding-bottom: .25rem;
+  word-break: break-all;
+}
+
+.status {
+  margin-top: .5rem;
+  margin-bottom: .5rem;
+}
+
+.connectingAnimation {
+  &:after {
+    overflow: hidden;
+    display: inline-block;
+    vertical-align: bottom;
+    content: "\2026"; /* ascii code for the ellipsis character */
+    width: 0;
+    margin-right: 1.25em;
+
+    :global(.animationsEnabled) & {
+      animation: ellipsis steps(4,end) 900ms infinite;
+    }
   }
+}
+
+@keyframes ellipsis {
+  to {
+    width: 1.25em;
+    margin-right: 0;
+  }
+}

@@ -11,9 +11,9 @@ const CALL_TRANSFER_TIMEOUT = MEDIA.callTransferTimeout;
 const CALL_HANGUP_TIMEOUT = MEDIA.callHangupTimeout;
 const CALL_HANGUP_MAX_RETRIES = MEDIA.callHangupMaximumRetries;
 const ICE_NEGOTIATION_FAILED = ['iceConnectionFailed'];
-const CALL_CONNECT_TIMEOUT = 10000;
+const CALL_CONNECT_TIMEOUT = 15000;
 const CALL_CONNECT_NOTIFICATION_TIMEOUT = 1000;
-const ICE_NEGOTIATION_TIMEOUT = 10000;
+const ICE_NEGOTIATION_TIMEOUT = 20000;
 
 export default class SIPBridge extends BaseAudioBridge {
   constructor(userData) {

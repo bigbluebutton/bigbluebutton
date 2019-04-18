@@ -5,7 +5,6 @@ const isSafari = navigator.userAgent.indexOf('Safari') >= 0 && !isChrome;
 const isElectron = navigator.userAgent.toLowerCase().indexOf(' electron/') > -1;
 const hasDisplayMedia = (typeof navigator.getDisplayMedia === 'function'
   || (navigator.mediaDevices && typeof navigator.mediaDevices.getDisplayMedia === 'function'));
-const kurentoHandler = null;
 
 Kurento = function (
   tag,
@@ -82,7 +81,7 @@ Kurento = function (
   } else {
     const _this = this;
     this.onSuccess = function () {
-      _this.logSuccess('Default success handler');
+      _this.logger('Default success handler');
     };
   }
 };
@@ -233,7 +232,7 @@ Kurento.prototype.init = function () {
     this.ws = new WebSocket(this.wsUrl);
 
     this.ws.onmessage = this.onWSMessage.bind(this);
-    this.ws.onclose = (close) => {
+    this.ws.onclose = () => {
       kurentoManager.exitScreenShare();
       self.onFail('Websocket connection closed');
     };
@@ -482,9 +481,9 @@ Kurento.prototype.setAudio = function (tag) {
 };
 
 Kurento.prototype.listenOnly = function () {
-  var self = this;
+  const self = this;
   if (!this.webRtcPeer) {
-    var options = {
+    const options = {
       onicecandidate : this.onListenOnlyIceCandidate.bind(this),
       mediaConstraints: {
         audio: true,
@@ -496,7 +495,7 @@ Kurento.prototype.listenOnly = function () {
 
     self.webRtcPeer = kurentoUtils.WebRtcPeer.WebRtcPeerRecvonly(options, function (error) {
       if (error) {
-        return self.onFail(PEER_ERROR);
+        return self.onFail(error);
       }
 
       this.generateOffer(self.onOfferListenOnly.bind(self));
@@ -522,7 +521,7 @@ Kurento.prototype.onOfferListenOnly = function (error, offerSdp) {
   const self = this;
   if (error) {
     this.logger.error('[onOfferListenOnly]', error);
-    return this.onFail(SDP_ERROR);
+    return this.onFail(error);
   }
 
   const message = {
@@ -657,7 +656,7 @@ window.getScreenConstraints = function (sendSource, callback) {
     let gDPConstraints = {
       video: true,
       optional: optionalConstraints
-    }
+    };
 
     return gDPConstraints;
   };
@@ -701,7 +700,7 @@ window.getScreenConstraints = function (sendSource, callback) {
         kurentoManager.kurentoScreenshare.extensionInstalled = true;
 
         // Re-wrap the video constraints into the mandatory object (latest adapter)
-        screenConstraints.video = {}
+        screenConstraints.video = {};
         screenConstraints.video.mandatory = {};
         screenConstraints.video.mandatory.maxFrameRate = 10;
         screenConstraints.video.mandatory.maxHeight = kurentoManager.kurentoScreenshare.vid_max_height;

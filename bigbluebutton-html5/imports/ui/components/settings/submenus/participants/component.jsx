@@ -217,7 +217,8 @@ class ApplicationMenu extends BaseMenu {
             className={cx(styles.formElement, styles.pullContentRight)}
           >
             <Checkbox
-              onChange={() => this.handleToggle(key)}
+              keyValue={key}
+              onChange={this.handleToggle}
               checked={this.state.settings[key]}
               ariaLabel={ariaLabel}
               ariaLabelledBy={ariaLabelledBy}

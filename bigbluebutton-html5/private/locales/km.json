@@ -26,7 +26,6 @@
     "app.userList.guest": "ភ្ញៀវ",
     "app.userList.chatListItem.unreadSingular": "សារ​ថ្មី {0}",
     "app.userList.chatListItem.unreadPlural": "សារ​ថ្មី {0}",
-    "app.userList.menu.chat.label": "ជជែក",
     "app.userList.menu.muteUserAudio.label": "បិទសម្លេងអ្នកប្រើប្រាស់",
     "app.userList.menu.unmuteUserAudio.label": "ឈប់បិទសម្លេងអ្នកប្រើប្រាស់",
     "app.media.label": "មេឌៀ",

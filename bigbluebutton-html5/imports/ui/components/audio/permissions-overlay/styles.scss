@@ -1,41 +1,75 @@
+@import "../../../stylesheets/variables/_all";
+
+:root {
+  --position-left-edge: 60%;
+  --position-bottom-edge: 5%;
+  --position-top-firefox: 8em;
+  --position-left-firefox: 22em;
+  --position-top-chrome: 5.5em;
+  --position-left-chrome: 18em;
+  --position-top-safari: 100px;
+  --position-left-safari-1280: 53em;
+  --position-left-safari-1440: 58em;
+  --position-left-safari-1680: 65em;
+  --position-left-safari-1920: 68em;
+  --arrow-top: -65px;
+  --arrow-left: -20px;
+  --arrow-top-edge: -2.5rem;
+  --arrow-left-edge: -21rem;
+}
+
 @mixin arrowIconStyle() {
   &:after {
-    top: -50px;
-    left: -20px;
+    top: var(--arrow-top);
+    left: var(--arrow-left);
     font-size: 20px;
     display: block;
     font-family: 'bbb-icons';
     content: "\E906";
     position: relative;
 
-    [style~="--enableAnimation:1;"] & {
+    :global(.animationsEnabled) & {
       animation: bounce 2s infinite;
     }
   }
 
   :global(.browser-edge) &:after {
-    top: -50px;
-    left: -15.5em;
+    top: var(--arrow-top-edge);
+    left: var(--arrow-left-edge);
     font-size: 20px;
+    :global(.animationsEnabled) & {
+      animation: bounceRotate 2s infinite;
+    }
   }
 }
 
 @mixin positionHint() {
   :global(.browser-edge) & {
-    left: 50%;
-    bottom: 10%;
+    left: var(--position-left-edge);
+    bottom: var(--position-bottom-edge);
   }
   :global(.browser-firefox) & {
-    top: 210px;
-    left: 605px;
+    top: var(--position-top-firefox);
+    left: var(--position-left-firefox);
   }
   :global(.browser-chrome) & {
-    top: 145px;
-    left: 380px;
+    top: var(--position-top-chrome);
+    left: var(--position-left-chrome);
   }
   :global(.browser-safari) & {
-    top: 100px;
-    left: 100px;
+    top: var(--position-top-safari);
+    @include mq($safari1280) {
+      left: var(--position-left-safari-1280);
+    }
+    @include mq($safari1440) {
+      left: var(--position-left-safari-1440);
+    }
+    @include mq($safari1680) {
+      left: var(--position-left-safari-1680);
+    }
+    @include mq($safari1920) {
+      left: var(--position-left-safari-1920);
+    }
   }
 }
 
@@ -48,20 +82,26 @@
   right: 0;
   background-color: rgba(0, 0, 0, .85);
 
-  [style~="--enableAnimation:1;"] & {
+  :global(.animationsEnabled) & {
     animation: fade-in .5s ease-in;
   }
 }
 
+.content {
+  color: var(--color-white);
+}
+
 .hint {
   @include positionHint();
-
+  background: none;
+  box-shadow: none;
   position: absolute;
   color: #fff;
   font-size: 16px;
   font-weight: 400;
+  padding-left: var(--jumbo-padding-x);
   line-height: 18px;
-  width: 300px;
+  width: 340px;
 
   small {
     display: block;

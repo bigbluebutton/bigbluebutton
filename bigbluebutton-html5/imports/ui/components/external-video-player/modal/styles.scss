@@ -134,7 +134,7 @@
     border: 1px solid var(--color-gray-lighter);
     border-radius: var(--border-radius);
 
-    [style~="--enableAnimation:1;"] & {
+    :global(.animationsEnabled) & {
       transition: box-shadow .2s;
     }
   }
@@ -148,7 +148,7 @@
   color: red;
   padding: 1em;
   
-  [style~="--enableAnimation:1;"] & {
+  :global(.animationsEnabled) & {
     transition: 1s;
   }
 }

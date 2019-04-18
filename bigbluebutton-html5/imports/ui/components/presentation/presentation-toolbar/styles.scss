@@ -24,6 +24,10 @@
   padding-right: var(--whiteboard-toolbar-padding);
 }
 
+.presentationBtn {
+  position: relative;
+}
+
 .presentationZoomControls {
   justify-content: flex-end;
   padding-right: var(--whiteboard-toolbar-padding);

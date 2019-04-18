@@ -1,6 +1,7 @@
 import { check } from 'meteor/check';
 import Logger from '/imports/startup/server/logger';
 import Users from '/imports/api/users';
+import clearUserInfoForRequester from '/imports/api/users-infos/server/modifiers/clearUserInfoForRequester';
 
 export default function userEjected(meetingId, userId, ejectedReason) {
   check(meetingId, String);
@@ -25,6 +26,7 @@ export default function userEjected(meetingId, userId, ejectedReason) {
     }
 
     if (numChanged) {
+      clearUserInfoForRequester(meetingId, userId);
       return Logger.info(`Ejected user id=${userId} meeting=${meetingId} reason=${ejectedReason}`);
     }
 

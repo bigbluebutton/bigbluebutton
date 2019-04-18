@@ -32,6 +32,7 @@ const propTypes = {
   getGroupChatPrivate: PropTypes.func.isRequired,
   showBranding: PropTypes.bool.isRequired,
   toggleUserLock: PropTypes.func.isRequired,
+  requestUserInformation: PropTypes.func.isRequired,
 };
 
 const defaultProps = {
@@ -69,6 +70,7 @@ class UserList extends PureComponent {
       getUsersId,
       hasPrivateChatBetweenUsers,
       toggleUserLock,
+      requestUserInformation,
     } = this.props;
 
     return (
@@ -106,6 +108,7 @@ class UserList extends PureComponent {
             getUsersId,
             hasPrivateChatBetweenUsers,
             toggleUserLock,
+            requestUserInformation,
           }
           }
         />}

@@ -8,11 +8,11 @@ import Logger from './logger';
 // Fake meetingId used for messages that have no meetingId
 const NO_MEETING_ID = '_';
 
-const makeEnvelope = (channel, eventName, header, body) => {
+const makeEnvelope = (channel, eventName, header, body, routing) => {
   const envelope = {
     envelope: {
       name: eventName,
-      routing: {
+      routing: routing || {
         sender: 'bbb-apps-akka',
         // sender: 'html5-server', // TODO
       },
@@ -227,7 +227,7 @@ class RedisPubSub {
       userId,
     };
 
-    const envelope = makeEnvelope(channel, eventName, header, payload);
+    const envelope = makeEnvelope(channel, eventName, header, payload, { meetingId, userId });
 
     return this.pub.publish(channel, envelope, RedisPubSub.handlePublishError);
   }

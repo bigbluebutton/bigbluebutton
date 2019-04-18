@@ -1,6 +1,7 @@
 import React from 'react';
 import { defineMessages, injectIntl, intlShape } from 'react-intl';
 import PropTypes from 'prop-types';
+import _ from 'lodash';
 import FullscreenButton from '../video-provider/fullscreen-button/component';
 import { styles } from './styles';
 
@@ -53,6 +54,7 @@ class ScreenshareComponent extends React.Component {
     return (
       <FullscreenButton
         handleFullscreen={full}
+        key={_.uniqueId('fullscreenButton-')}
         elementName={intl.formatMessage(intlMessages.screenShareLabel)}
       />
     );
@@ -60,25 +62,26 @@ class ScreenshareComponent extends React.Component {
 
   render() {
     const { loaded } = this.state;
-    const style = {
-      right: 0,
-      bottom: 0,
-    };
 
     return (
-      [!loaded ? (<div key="screenshareArea" innerStyle={style} className={styles.connecting} />) : null,
-        this.renderFullscreenButton(),
-        (
-          <video
-            key="screenshareVideo"
-            id="screenshareVideo"
-            style={{ maxHeight: '100%', width: '100%' }}
-            autoPlay
-            playsInline
-            onLoadedData={this.onVideoLoad}
-            ref={(ref) => { this.videoTag = ref; }}
-          />
-        )]
+      [!loaded ? (
+        <div
+          key={_.uniqueId('screenshareArea-')}
+          className={styles.connecting}
+        />
+      ) : null,
+      this.renderFullscreenButton(),
+      (
+        <video
+          id="screenshareVideo"
+          key="screenshareVideo"
+          style={{ maxHeight: '100%', width: '100%' }}
+          autoPlay
+          playsInline
+          onLoadedData={this.onVideoLoad}
+          ref={(ref) => { this.videoTag = ref; }}
+        />
+      )]
     );
   }
 }

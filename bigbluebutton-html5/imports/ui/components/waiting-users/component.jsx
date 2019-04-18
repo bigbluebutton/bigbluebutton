@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Session } from 'meteor/session';
 import { defineMessages, injectIntl } from 'react-intl';
 import injectWbResizeEvent from '/imports/ui/components/presentation/resize-wrapper/component';
@@ -43,21 +43,14 @@ const intlMessages = defineMessages({
     id: 'app.userList.guest.pendingGuestUsers',
     description: 'Title for the waiting users',
   },
+  rememberChoice: {
+    id: 'app.userList.guest.rememberChoice',
+    description: 'Remember label for checkbox',
+  },
 });
 
 const ALLOW_STATUS = 'ALLOW';
 const DENY_STATUS = 'DENY';
-
-const renderButton = (message, action, key) => (
-  <Button
-    key={key}
-    color="primary"
-    label={message}
-    size="lg"
-    onClick={action}
-    className={styles.customBtn}
-  />
-);
 
 const renderGuestUserItem = (name, color, handleAccept, handleDeny, role, sequence, userId) => (
   <div key={`userlist-item-${userId}`} className={styles.listItem}>
@@ -122,6 +115,8 @@ const renderPendingUsers = (message, usersArray, action) => {
 };
 
 const WaitingUsers = (props) => {
+  const [rememberChoice, setRememberChoice] = useState(false);
+
   useEffect(() => {
     const {
       authenticatedUsers,
@@ -135,28 +130,59 @@ const WaitingUsers = (props) => {
     authenticatedUsers,
     guestUsers,
     guestUsersCall,
+    changeGuestPolicy,
   } = props;
+
+  const onCheckBoxChange = (e) => {
+    const { checked } = e.target;
+    setRememberChoice(checked);
+  };
+
+  const changePolicy = (shouldExecutePolicy, policyRule, cb) => () => {
+    if (shouldExecutePolicy) {
+      changeGuestPolicy(policyRule);
+    }
+    return cb();
+  };
+
+  const renderButton = (message, { key, policy, action }) => (
+    <Button
+      key={key}
+      color="primary"
+      label={message}
+      size="lg"
+      onClick={changePolicy(rememberChoice, policy, action)}
+      className={styles.customBtn}
+    />
+  );
 
   const buttonsData = [
     {
       messageId: intlMessages.allowAllAuthenticated,
       action: () => guestUsersCall(authenticatedUsers, ALLOW_STATUS),
       key: 'allow-all-auth',
+      policy: 'ALWAYS_ACCEPT_AUTH',
     },
     {
       messageId: intlMessages.allowAllGuests,
-      action: () => guestUsersCall(guestUsers, ALLOW_STATUS),
+      action: () => guestUsersCall(
+        [...guestUsers].concat(rememberChoice ? authenticatedUsers : []),
+        ALLOW_STATUS,
+      ),
       key: 'allow-all-guest',
+      policy: 'ALWAYS_ACCEPT',
     },
     {
       messageId: intlMessages.allowEveryone,
       action: () => guestUsersCall([...guestUsers, ...authenticatedUsers], ALLOW_STATUS),
       key: 'allow-everyone',
+      policy: 'ALWAYS_ACCEPT',
     },
     {
       messageId: intlMessages.denyEveryone,
       action: () => guestUsersCall([...guestUsers, ...authenticatedUsers], DENY_STATUS),
       key: 'deny-everyone',
+      policy: 'ALWAYS_DENY',
     },
   ];
 
@@ -186,10 +212,15 @@ const WaitingUsers = (props) => {
           {
             buttonsData.map(buttonData => renderButton(
               intl.formatMessage(buttonData.messageId),
-              buttonData.action,
-              buttonData.key,
+              buttonData,
             ))
           }
+        </div>
+        <div>
+          <label htmlFor="remiderUsersId" className={styles.rememberContainer}>
+            <input id="remiderUsersId" type="checkbox" onChange={onCheckBoxChange} />
+            <p>{intl.formatMessage(intlMessages.rememberChoice)}</p>
+          </label>
         </div>
         {renderPendingUsers(
           intl.formatMessage(intlMessages.pendingUsers,
