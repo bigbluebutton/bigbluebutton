@@ -580,5 +580,6 @@
     "app.externalVideo.close": "Close",
     "app.externalVideo.noteLabel": "Note: Shared YouTube videos will not appear in the recording",
     "app.actionsBar.actionsDropdown.shareExternalVideo": "Share YouTube video",
-    "app.actionsBar.actionsDropdown.stopShareExternalVideo": "Stop sharing YouTube video"
+    "app.actionsBar.actionsDropdown.stopShareExternalVideo": "Stop sharing YouTube video",
+    "app.iOSWarning.label": "Please upgrade to iOS 12.2 or higher"
 }
