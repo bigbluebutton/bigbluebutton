@@ -140,16 +140,18 @@ class Tooltip extends Component {
   }
 
   handleEscapeHide(e) {
-    if (e.keyCode !== ESCAPE) return;
-    this.tooltip.tooltips[0].hide();
+    if (this.tooltip
+      && e.keyCode === ESCAPE
+      && this.tooltip.tooltips
+      && this.tooltip.tooltips[0]) {
+      this.tooltip.tooltips[0].hide();
+    }
   }
 
   render() {
     const {
       children,
       className,
-      title,
-      tooltipDistance,
       ...restProps
     } = this.props;
 
