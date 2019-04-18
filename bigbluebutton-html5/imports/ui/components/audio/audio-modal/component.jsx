@@ -155,7 +155,6 @@ class AudioModal extends Component {
     if (forceListenOnlyAttendee || audioLocked) {
       this.handleJoinListenOnly();
     }
-    Session.set('audioModalIsOpen', true);
   }
 
   componentWillUnmount() {
