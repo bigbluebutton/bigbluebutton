@@ -185,7 +185,7 @@ class VideoProvider extends Component {
           this.customGetStats(peer.peerConnection, peer.peerConnection.getRemoteStreams()[0].getVideoTracks()[0], (stats => updateWebcamStats(id, stats)));
         }
       });
-    }, 10000);
+    }, 5000);
   }
 
   componentWillUpdate({ users, userId }) {
@@ -560,7 +560,6 @@ class VideoProvider extends Component {
       if (this.webRtcPeers[id].peerConnection) {
         this.webRtcPeers[id].peerConnection.oniceconnectionstatechange = this._getOnIceConnectionStateChangeCallback(id);
       }
-      console.log('VideoProvider.createWebRTCPeer', this.webRtcPeers);
       newWebcamConnection({ userId: id, peer: this.webRtcPeers[id] });
       currentWebcamConnections(this.webRtcPeers);
     }
@@ -769,6 +768,7 @@ class VideoProvider extends Component {
         encodeUsagePercent: videoInOrOutbound.encodeUsagePercent,
         rtt: videoInOrOutbound.rtt,
         currentDelay: videoInOrOutbound.currentDelay,
+        pliCount: videoInOrOutbound.pliCount,
       };
 
       const videoStatsArray = statsState;
@@ -827,6 +827,7 @@ class VideoProvider extends Component {
           encodeUsagePercent: videoStats.encodeUsagePercent,
           rtt: videoStats.rtt,
           currentDelay: videoStats.currentDelay,
+          pliCount: videoStats.pliCount,
         },
       };
 

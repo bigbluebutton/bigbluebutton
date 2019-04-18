@@ -1,10 +1,19 @@
-const NetworkInformationCollection = new Mongo.Collection(null);
+import NetworkInformation from '/imports/api/network-information';
+import { makeCall } from '/imports/ui/services/api';
+import Auth from '/imports/ui/services/auth';
+
+const NetworkInformationLocal = new Mongo.Collection(null);
 
 const NAVIGATOR_CONNECTION = 'NAVIGATOR_CONNECTION';
 const NUMBER_OF_WEBCAMS_CHANGED = 'NUMBER_OF_WEBCAMS_CHANGED';
 const STARTED_WEBCAM_SHARING = 'STARTED_WEBCAM_SHARING';
 const STOPPED_WEBCAM_SHARING = 'STOPPED_WEBCAM_SHARING';
 const WEBCAMS_GET_STATUS = 'WEBCAMS_GET_STATUS';
+
+const DANGER_BEGIN_TIME = 5000;
+const DANGER_END_TIME = 30000;
+
+const WARNING_END_TIME = 60000;
 
 let monitoringIntervalRef;
 
@@ -15,7 +24,7 @@ export const currentWebcamConnections = (webrtcConnections) => {
     payload: Object.keys(webrtcConnections),
   };
 
-  NetworkInformationCollection.insert(doc);
+  NetworkInformationLocal.insert(doc);
 };
 
 export const deleteWebcamConnection = (id) => {
@@ -25,10 +34,10 @@ export const deleteWebcamConnection = (id) => {
     payload: { id },
   };
 
-  NetworkInformationCollection.insert(doc);
+  NetworkInformationLocal.insert(doc);
 };
 
-export const getCurrentWebcams = () => NetworkInformationCollection
+export const getCurrentWebcams = () => NetworkInformationLocal
   .findOne({
     event: NUMBER_OF_WEBCAMS_CHANGED,
   }, { sort: { timestamp: -1 } });
@@ -45,13 +54,74 @@ export const newWebcamConnection = (webRtcPeer) => {
     },
   };
 
-  NetworkInformationCollection.insert(doc);
+  NetworkInformationLocal.insert(doc);
 };
 
 export const startBandwidthMonitoring = () => {
   monitoringIntervalRef = setInterval(() => {
-    console.log('startBandwidthMonitoring', NetworkInformationCollection.find({}).fetch());
-  }, 15000);
+    const monitoringTime = new Date().getTime();
+
+    const dangerLowerBoundary = monitoringTime - DANGER_BEGIN_TIME;
+
+    const warningLowerBoundary = monitoringTime - DANGER_END_TIME;
+    const warningUpperBoundary = monitoringTime - WARNING_END_TIME;
+
+    const warningZone = NetworkInformationLocal
+      .find({
+        event: WEBCAMS_GET_STATUS,
+        timestamp: { $lte: warningLowerBoundary, $gt: warningUpperBoundary },
+        $or: [
+          {
+            'payload.id': Auth.userID,
+            'payload.stats.deltaPliCount': { $gt: 0 },
+          },
+          {
+            'payload.id': { $ne: Auth.userID },
+            'payload.stats.deltaPacketsLost': { $gt: 0 },
+          },
+        ],
+      }).count();
+
+    const warningZoneReceivers = NetworkInformation
+      .find({
+        sender: Auth.userID,
+        time: { $lte: warningLowerBoundary, $gt: warningUpperBoundary },
+      }).count();
+
+    const dangerZone = NetworkInformationLocal
+      .find({
+        event: WEBCAMS_GET_STATUS,
+        timestamp: { $lt: dangerLowerBoundary, $gte: warningLowerBoundary },
+        $or: [
+          {
+            'payload.id': Auth.userID,
+            'payload.stats.deltaPliCount': { $gt: 0 },
+          },
+          {
+            'payload.id': { $ne: Auth.userID },
+            'payload.stats.deltaPacketsLost': { $gt: 0 },
+          },
+        ],
+      }).count();
+
+    const dangerZoneReceivers = NetworkInformation
+      .find({
+        sender: Auth.userID,
+        time: { $lt: dangerLowerBoundary, $gte: warningLowerBoundary },
+      }).count();
+
+    if (warningZoneReceivers && !dangerZone) {
+      if (!warningZoneReceivers) {
+        makeCall('setUserEffectiveConnectionType', 'warning');
+      }
+    } else if (dangerZone) {
+      if (!dangerZoneReceivers) {
+        makeCall('setUserEffectiveConnectionType', 'danger');
+      }
+    } else {
+      makeCall('setUserEffectiveConnectionType', '');
+    }
+  }, 5000);
 };
 
 export const stopBandwidthMonitoring = () => {
@@ -69,11 +139,17 @@ export const updateNavigatorConnection = ({ effectiveType, downlink, rtt }) => {
     },
   };
 
-  NetworkInformationCollection.insert(doc);
+  NetworkInformationLocal.insert(doc);
 };
 
 export const updateWebcamStats = (id, stats) => {
   if (!stats) return;
+
+  const lastStatus = NetworkInformationLocal
+    .findOne(
+      { event: WEBCAMS_GET_STATUS, 'payload.id': id },
+      { sort: { timestamp: -1 } },
+    );
 
   const { video } = stats;
 
@@ -83,11 +159,39 @@ export const updateWebcamStats = (id, stats) => {
     payload: { id, stats: video },
   };
 
-  NetworkInformationCollection.insert(doc);
+  if (lastStatus) {
+    const {
+      payload: {
+        stats: {
+          packetsLost,
+          packetsReceived,
+          packetsSent,
+          pliCount,
+        },
+      },
+    } = lastStatus;
+    const normalizedVideo = { ...video };
+
+    normalizedVideo.deltaPacketsLost = video.packetsLost - packetsLost;
+    normalizedVideo.deltaPacketsReceived = video.packetsReceived - packetsReceived;
+    normalizedVideo.deltaPacketsSent = video.packetsSent - packetsSent;
+    normalizedVideo.deltaPliCount = video.pliCount - pliCount;
+
+    doc.payload = {
+      id,
+      stats: normalizedVideo,
+    };
+
+    if (normalizedVideo.deltaPacketsLost > 0) {
+      makeCall('userInstabilityDetected', id);
+    }
+  }
+
+  NetworkInformationLocal.insert(doc);
 };
 
 export default {
-  NetworkInformationCollection,
+  NetworkInformationLocal,
   currentWebcamConnections,
   deleteWebcamConnection,
   getCurrentWebcams,

@@ -4,7 +4,6 @@ import Icon from '/imports/ui/components/icon/component';
 import SlowConnection from '/imports/ui/components/slow-connection/component';
 import { styles } from './styles';
 
-// https://github.com/bigbluebutton/bigbluebutton/issues/5286#issuecomment-465342716
 const SLOW_CONNECTIONS_TYPES = Meteor.settings.public.app.effectiveConnection;
 
 const propTypes = {

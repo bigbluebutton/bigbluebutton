@@ -4,7 +4,6 @@ import RedisPubSub from '/imports/startup/server/redis';
 import Logger from '/imports/startup/server/logger';
 import setEffectiveConnectionType from '../modifiers/setUserEffectiveConnectionType';
 
-// http://wicg.github.io/netinfo/#effective-connection-types
 export default function setUserEffectiveConnectionType(credentials, effectiveConnectionType) {
   const REDIS_CONFIG = Meteor.settings.private.redis;
   const CHANNEL = REDIS_CONFIG.channels.toAkkaApps;

@@ -3,15 +3,15 @@ import cx from 'classnames';
 import { styles } from './styles';
 
 const SLOW_CONNECTIONS_TYPES = {
-  'slow-2g': {
+  critical: {
     level: styles.bad,
     bars: styles.oneBar,
   },
-  '2g': {
+  danger: {
     level: styles.bad,
     bars: styles.twoBars,
   },
-  '3g': {
+  warning: {
     level: styles.warning,
     bars: styles.threeBars,
   },
