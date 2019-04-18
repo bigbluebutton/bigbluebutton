@@ -152,6 +152,8 @@ class Tooltip extends Component {
     const {
       children,
       className,
+      title,
+      tooltipDistance,
       ...restProps
     } = this.props;
 
