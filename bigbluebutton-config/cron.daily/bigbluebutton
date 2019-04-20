@@ -68,10 +68,9 @@ find /var/freeswitch/meetings/ -name "*.wav" -mtime +$history -delete
 #
 find /opt/freeswitch/var/log/freeswitch -type f -mtime +$log_history -delete
 find /var/log/red5 -type f -mtime +$log_history -delete
-if [ -d /var/log/tomcat7 ]; then
-  find /var/log/tomcat7 -type f -mtime +$log_history -delete
-fi
+[[ -d /var/log/tomcat7 ]] && find /var/log/tomcat7 -type f -mtime +$log_history -delete
 find /var/log/bigbluebutton -type f -mtime +$log_history -delete
+find /var/log/kurento-media-server -type f -mtime +$log_history -delete
 
 #
 # Delete raw files of recordings without recording marks older than N days
