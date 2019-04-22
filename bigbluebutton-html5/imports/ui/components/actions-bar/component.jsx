@@ -30,6 +30,7 @@ class ActionsBar extends React.PureComponent {
       currentSlidHasContent,
       parseCurrentSlideContent,
       isSharingVideo,
+      screenShareEndAlert,
     } = this.props;
 
     const {
@@ -89,6 +90,7 @@ class ActionsBar extends React.PureComponent {
             isVideoBroadcasting,
             isUserPresenter,
             screenSharingCheck,
+            screenShareEndAlert,
           }}
           />
         </div>
