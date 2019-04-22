@@ -8,7 +8,7 @@ import logger from '/imports/startup/client/logger';
 import { Session } from 'meteor/session';
 import browser from 'browser-detect';
 import {
-  currentWebcamConnections,
+  updateCurrentWebcamsConnection,
   getCurrentWebcams,
   deleteWebcamConnection,
   newWebcamConnection,
@@ -478,7 +478,7 @@ class VideoProvider extends Component {
       }
       delete this.webRtcPeers[id];
       deleteWebcamConnection(id);
-      currentWebcamConnections(this.webRtcPeers);
+      updateCurrentWebcamsConnection(this.webRtcPeers);
     } else {
       this.logger('warn', 'No WebRTC peer to stop (not an error)', { cameraId: id });
     }
@@ -561,7 +561,7 @@ class VideoProvider extends Component {
         this.webRtcPeers[id].peerConnection.oniceconnectionstatechange = this._getOnIceConnectionStateChangeCallback(id);
       }
       newWebcamConnection({ userId: id, peer: this.webRtcPeers[id] });
-      currentWebcamConnections(this.webRtcPeers);
+      updateCurrentWebcamsConnection(this.webRtcPeers);
     }
   }
 

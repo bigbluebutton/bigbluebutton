@@ -17,11 +17,11 @@ const WARNING_END_TIME = 60000;
 
 let monitoringIntervalRef;
 
-export const currentWebcamConnections = (webrtcConnections) => {
+export const updateCurrentWebcamsConnection = (connections) => {
   const doc = {
     timestamp: new Date().getTime(),
     event: NUMBER_OF_WEBCAMS_CHANGED,
-    payload: Object.keys(webrtcConnections),
+    payload: Object.keys(connections),
   };
 
   NetworkInformationLocal.insert(doc);
@@ -110,13 +110,14 @@ export const startBandwidthMonitoring = () => {
         time: { $lt: dangerLowerBoundary, $gte: warningLowerBoundary },
       }).count();
 
-    if (warningZoneReceivers && !dangerZone) {
-      if (!warningZoneReceivers) {
-        makeCall('setUserEffectiveConnectionType', 'warning');
-      }
-    } else if (dangerZone) {
+
+    if (dangerZone) {
       if (!dangerZoneReceivers) {
         makeCall('setUserEffectiveConnectionType', 'danger');
+      }
+    } else if (warningZone) {
+      if (!warningZoneReceivers) {
+        makeCall('setUserEffectiveConnectionType', 'warning');
       }
     } else {
       makeCall('setUserEffectiveConnectionType', '');
@@ -192,7 +193,7 @@ export const updateWebcamStats = (id, stats) => {
 
 export default {
   NetworkInformationLocal,
-  currentWebcamConnections,
+  updateCurrentWebcamsConnection,
   deleteWebcamConnection,
   getCurrentWebcams,
   newWebcamConnection,
