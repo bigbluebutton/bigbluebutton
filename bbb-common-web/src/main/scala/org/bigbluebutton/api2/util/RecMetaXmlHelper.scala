@@ -131,8 +131,7 @@ class RecMetaXmlHelper extends RecordingServiceGW with LogHelper {
           case None    => ListBuffer()
         },
         recMeta.breakout,
-        recMeta.breakoutRooms
-      )
+        recMeta.breakoutRooms)
       recMetaResponse
     }
 
@@ -196,11 +195,11 @@ class RecMetaXmlHelper extends RecordingServiceGW with LogHelper {
     readCaptionJsonFile(captionsFilePath, StandardCharsets.UTF_8) match {
       case Some(captions) =>
         val ctracks = gson.fromJson(captions, classOf[util.ArrayList[Track]])
-        val result1 = GetRecTextTracksResult(SUCCESS, ctracks)
-        val response1 = GetRecTextTracksResp(result1)
-        val respText1 = gson.toJson(response1)
+        val textTracksResult = GetRecTextTracksResult(SUCCESS, ctracks)
+        val textTracksResponse = GetRecTextTracksResp(textTracksResult)
+        val textTracksJson = gson.toJson(textTracksResponse)
 
-        returnResponse = respText1
+        returnResponse = textTracksJson
       case None =>
         val resFailed = GetRecTextTracksResultFailed(FAILED, "noCaptionsFound", "No captions found for " + recordId)
         val respFailed = GetRecTextTracksRespFailed(resFailed)
@@ -262,8 +261,7 @@ class RecMetaXmlHelper extends RecordingServiceGW with LogHelper {
       kind = track.kind,
       lang = track.lang,
       label = track.label,
-      origFilename = track.origFilename
-    )
+      origFilename = track.origFilename)
 
     val gson = new Gson()
     val trackInfoJson = gson.toJson(trackInfo)
@@ -273,8 +271,7 @@ class RecMetaXmlHelper extends RecordingServiceGW with LogHelper {
         SUCCESS,
         track.recordId,
         messageKey = "upload_text_track_success",
-        message = "Text track uploaded successfully"
-      )
+        message = "Text track uploaded successfully")
       val resp = PutRecTextTrackResp(result)
       gson.toJson(resp)
     } else {
@@ -282,8 +279,7 @@ class RecMetaXmlHelper extends RecordingServiceGW with LogHelper {
         FAILED,
         track.recordId,
         messageKey = "upload_text_track_failed",
-        message = "Text track upload failed."
-      )
+        message = "Text track upload failed.")
       val resp = PutRecTextTrackResp(result)
       gson.toJson(resp)
     }

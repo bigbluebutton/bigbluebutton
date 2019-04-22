@@ -22,11 +22,11 @@ case class UploadedTrackInfo(
     origFilename: String
 )
 case class Track(
+    href:   String,
     kind:   String,
-    lang:   String,
     label:  String,
-    source: String,
-    href:   String
+    lang:   String,
+    source: String
 )
 case class GetRecTextTracksResult(
     returncode: String,

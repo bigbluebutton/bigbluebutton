@@ -84,7 +84,7 @@ class UrlMappings {
     }
 
     "/bigbluebutton/api/getRecordingTextTracks"(controller: "recording") {
-      action = [GET: 'getRecordingTextTracks']
+      action = [GET: 'getRecordingTextTracksHandler', POST: 'getRecordingTextTracksHandler']
     }
 
     "/bigbluebutton/api/putRecordingTextTrack"(controller: "recording") {
