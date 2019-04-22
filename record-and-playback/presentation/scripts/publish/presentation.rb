@@ -1185,6 +1185,9 @@ begin
     $process_dir = "#{recording_dir}/process/presentation/#{$meeting_id}"
     BigBlueButton.logger.info("setting publish dir")
     publish_dir = $presentation_props['publish_dir']
+    BigBlueButton.logger.info("setting captions dir")
+    captions_dir = bbb_props['captions_dir']
+    captions_publish_dir = "#{captions_dir}/#{$meeting_id}"
     BigBlueButton.logger.info("setting playback url info")
     playback_protocol = bbb_props['playback_protocol']
     playback_host = bbb_props['playback_host']
@@ -1226,11 +1229,12 @@ begin
         end
 
         if File.exist?("#{$process_dir}/captions.json")
-          BigBlueButton.logger.info("Copying caption files")
-          FileUtils.cp("#{$process_dir}/captions.json", package_dir)
+          BigBlueButton.logger.info("Copying caption files to #{captions_publish_dir}")
+          FileUtils.mkdir_p captions_publish_dir
+          FileUtils.cp("#{$process_dir}/captions.json", captions_publish_dir)
           Dir.glob("#{$process_dir}/caption_*.vtt").each do |caption|
             BigBlueButton.logger.debug(caption)
-            FileUtils.cp(caption, package_dir)
+            FileUtils.cp(caption, captions_publish_dir)
           end
         end
 
