@@ -4,18 +4,17 @@ import { defineMessages, injectIntl } from 'react-intl';
 import PropTypes from 'prop-types';
 import Auth from '/imports/ui/services/auth';
 import Users from '/imports/api/users';
-import mapUser from '/imports/ui/services/user/mapUser';
-import Breakouts from '/imports/api/breakouts';
-import Meetings from '/imports/api/meetings';
-
+import { notify } from '/imports/ui/services/notification';
 import ClosedCaptionsContainer from '/imports/ui/components/closed-captions/container';
 import getFromUserSettings from '/imports/ui/services/users-settings';
+
+import UserInfos from '/imports/api/users-infos';
 
 import {
   getFontSize,
   getCaptionsStatus,
-  meetingIsBreakout,
   getBreakoutRooms,
+  validIOSVersion,
 } from './service';
 
 import { withModalMounter } from '../modal/service';
@@ -69,9 +68,6 @@ const AppContainer = (props) => {
 
 export default injectIntl(withModalMounter(withTracker(({ intl, baseControls }) => {
   const currentUser = Users.findOne({ userId: Auth.userID });
-  const currentUserIsLocked = mapUser(currentUser).isLocked;
-  const meeting = Meetings.findOne({ meetingId: Auth.meetingID });
-  const isMeetingBreakout = meetingIsBreakout();
 
   if (!currentUser.approved) {
     baseControls.updateLoadingState(intl.formatMessage(intlMessages.waitingApprovalMessage));
@@ -88,23 +84,10 @@ export default injectIntl(withModalMounter(withTracker(({ intl, baseControls }) 
     },
   });
 
-  // forcefully log out when the meeting ends
-  Meetings.find({ meetingId: Auth.meetingID }).observeChanges({
-    removed() {
-      if (isMeetingBreakout) {
-        Auth.clearCredentials().then(window.close);
-      } else {
-        endMeeting('410');
-      }
-    },
-  });
-
-  // Close the window when the current breakout room ends
-  Breakouts.find({ breakoutId: Auth.meetingID }).observeChanges({
-    removed() {
-      Auth.clearCredentials().then(window.close);
-    },
-  });
+  const UserInfo = UserInfos.find({
+    meetingId: Auth.meetingID,
+    requesterUserId: Auth.userID,
+  }).fetch();
 
   return {
     closedCaption: getCaptionsStatus() ? <ClosedCaptionsContainer /> : null,
@@ -116,6 +99,9 @@ export default injectIntl(withModalMounter(withTracker(({ intl, baseControls }) 
     chatIsOpen: Session.equals('openPanel', 'chat'),
     openPanel: Session.get('openPanel'),
     userListIsOpen: !Session.equals('openPanel', ''),
+    UserInfo,
+    notify,
+    validIOSVersion,
   };
 })(AppContainer)));
 

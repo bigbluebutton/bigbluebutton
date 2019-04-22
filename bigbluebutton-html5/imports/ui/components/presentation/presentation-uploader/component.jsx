@@ -173,6 +173,29 @@ class PresentationUploader extends Component {
 
     this.updateFileKey = this.updateFileKey.bind(this);
     this.deepMergeUpdateFileKey = this.deepMergeUpdateFileKey.bind(this);
+
+    this.releaseActionsOnPresentationError = this.releaseActionsOnPresentationError.bind(this);
+  }
+
+  componentDidUpdate() {
+    this.releaseActionsOnPresentationError();
+  }
+
+  releaseActionsOnPresentationError() {
+    const {
+      presentations,
+      disableActions,
+    } = this.state;
+
+    presentations.forEach((presentation) => {
+      if (!presentation.conversion.done && presentation.conversion.error) {
+        if (disableActions) {
+          this.setState({
+            disableActions: false,
+          });
+        }
+      }
+    });
   }
 
   updateFileKey(id, key, value, operation = '$set') {
@@ -243,7 +266,6 @@ class PresentationUploader extends Component {
       })
       .catch((error) => {
         notify(intl.formatMessage(intlMessages.genericError), 'error');
-
         logger.error({ logCode: 'presentationuploader_component_save_error' }, error);
 
         this.setState({
@@ -421,7 +443,6 @@ class PresentationUploader extends Component {
 
   renderPresentationItemStatus(item) {
     const { intl } = this.props;
-
     if (!item.upload.done && item.upload.progress === 0) {
       return intl.formatMessage(intlMessages.fileToUpload);
     }
@@ -437,7 +458,7 @@ class PresentationUploader extends Component {
       return intl.formatMessage(errorMessage);
     }
 
-    if (item.conversion.done && item.conversion.error) {
+    if (!item.conversion.done && item.conversion.error) {
       const errorMessage = intlMessages[item.conversion.status] || intlMessages.genericError;
       return intl.formatMessage(errorMessage);
     }

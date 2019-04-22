@@ -615,10 +615,13 @@ if [[ $SECRET ]]; then
         sed -i "s/sharedSecret[ ]*=[ ]*\"[^\"]*\"/sharedSecret=\"$SECRET\"/g" /usr/share/bbb-apps-akka/conf/application.conf
     fi
 
-    echo "Changed BigBlueButton's shared secret to $SECRET"
+    echo
+    echo "BigBlueButton's shared secret is now $SECRET"
     echo
     echo "You must restart BigBlueButton for the changes to take effect"
+    echo
     echo "  $SUDO bbb-conf --restart"
+    echo
     echo
 fi
 
@@ -707,22 +710,26 @@ check_configuration() {
         fi
     fi
 
-
-    if [ -f ${SERVLET_DIR}/demo/bbb_api_conf.jsp ]; then
+    if [ -f /var/lib/tomcat7/webapps/demo/bbb_api_conf.jsp ]; then
         #
         # Make sure the shared secret for the API matches the server
         #
         SECRET_PROPERTIES=$(cat ${SERVLET_DIR}/WEB-INF/classes/bigbluebutton.properties | grep -v '#' | tr -d '\r' | sed -n '/securitySalt/{s/.*=//;p}')
-        SECRET_DEMO=$(cat ${SERVLET_DIR}/demo/bbb_api_conf.jsp | grep -v '^//' | tr -d '\r' | sed -n '/salt[ ]*=/{s/.*=[ ]*"//;s/".*//g;p}')
+        SECRET_DEMO=$(cat /var/lib/tomcat7/webapps/demo/bbb_api_conf.jsp | grep -v '^//' | tr -d '\r' | sed -n '/salt[ ]*=/{s/.*=[ ]*"//;s/".*//g;p}')
 
         if [ "$SECRET_PROPERTIES" != "$SECRET_DEMO" ]; then
+            echo "#"
             echo "# Warning: API Shared Secret mismatch: "
+            echo "#"
             echo "#  ${SERVLET_DIR}/WEB-INF/classes/bigbluebutton.properties  = $SECRET_PROPERTIES"
-            echo "#  ${SERVLET_DIR}/demo/bbb_api_conf.jsp                                   = $SECRET_DEMO"
+            echo "#  /var/lib/tomcat7/webapps/demo/bbb_api_conf.jsp               = $SECRET_DEMO"
+            echo "#"
+            echo "# You need to edit bbb_api_conf.jsp to have the same shared secret defined in bigbluebutton.properties"
+            echo "#"
             echo
         fi
 
-        API_IP=$(cat ${TOMCAT_DIR}/demo/bbb_api_conf.jsp | grep -v '^//' | sed -n '/String BigBlueButtonURL/{s/.*http[s]*:\/\///;s/\/.*//;p}' | tr -d '\015')
+        API_IP=$(cat /var/lib/tomcat7/webapps/demo/bbb_api_conf.jsp | grep -v '^//' | sed -n '/String BigBlueButtonURL/{s/.*http[s]*:\/\///;s/\/.*//;p}' | tr -d '\015')
         if [ "$IP" != "$API_IP" ]; then
             echo "# Warning: API URL IPs do not match host:"
             echo "#"
@@ -1384,7 +1391,7 @@ check_state() {
 
     NCPU=$(nproc --all)
     if [ "$NCPU" -lt "4" ]; then
-        echo "# Warning: found only $NCPU cores, whereas this sherver should have (at least) 4 CPU cores"
+        echo "# Warning: found only $NCPU cores, whereas this server should have (at least) 4 CPU cores"
         echo "# to run BigBlueButton in production."
         echo "#"
         echo "#   http://docs.bigbluebutton.org/install/install.html#minimum-server-requirements"
@@ -1416,6 +1423,24 @@ check_state() {
       fi
     fi
 
+    CHECK=$(cat ${SERVLET_DIR}/WEB-INF/classes/bigbluebutton.properties | grep -v '#' | grep securitySalt | cut -d= -f2 | sha1sum | cut -d' ' -f1)
+    if [ "$CHECK" == "55b727b294158a877212570c3c0524c2b902a62c" ]; then
+      echo 
+      echo "#"
+      echo "# Warning: Detected you have the default shared secret.  You MUST change your shared"
+      echo "# secret NOW for BigBlueButton to finish starting up. Do either"
+      echo "#"
+      echo "#   sudo bbb-conf --setsecret <secret>"
+      echo "#"
+      echo "# or, to have openssl generate a strong secret for you (recommended)"
+      echo "#"
+      echo "#   sudo bbb-conf --setsecret \$(openssl rand -base64 32 | sed 's/=//g' | sed 's/+//g' | sed 's/\///g')"
+      echo "#"
+      echo "# Be sure to update any integrations with the new shared secret."
+      echo "#"
+      systemctl stop bbb-web
+      exit 1
+    fi
 
     exit 0
 }

@@ -7,7 +7,7 @@
   justify-content: center;
   margin-left: var(--sm-padding-x) / 2;
 
-  [style~="--enableAnimation:1;"] & {
+  :global(.animationsEnabled) & {
     transition: .3s all;
   }
 }

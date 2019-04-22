@@ -281,6 +281,11 @@ object Roles {
   val AUTHENTICATED_ROLE = "AUTHENTICATED"
 }
 
+object ClientType {
+  val FLASH = "FLASH"
+  val HTML5 = "HTML5"
+}
+
 object SystemUser {
   val ID = "SYSTEM"
 }

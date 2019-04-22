@@ -1,0 +1,24 @@
+@import "/imports/ui/stylesheets/variables/_all";
+
+.keyCell, .valueCell, .userInfoTable {
+  border: var(--border-size) solid var(--color-gray-lighter);
+}
+
+.userInfoTable {
+  border-collapse: collapse;
+  border: none;
+
+  width: 90%;
+  margin: auto;
+
+  table-layout: fixed;
+
+  td {
+    word-wrap: break-word;
+  }
+}
+
+.keyCell, .valueCell {
+  padding: var(--md-padding-x);
+}
+

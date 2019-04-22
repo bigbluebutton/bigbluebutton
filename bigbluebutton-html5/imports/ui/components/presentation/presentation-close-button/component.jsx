@@ -5,8 +5,8 @@ import { styles } from './styles';
 
 const intlMessages = defineMessages({
   closePresentationLabel: {
-    id: 'app.presentation.close',
-    description: 'Close presentation label',
+    id: 'app.presentation.hide',
+    description: 'Hide presentation label',
   },
 });
 
@@ -16,7 +16,7 @@ const ClosePresentationComponent = ({ intl, toggleSwapLayout }) => (
     aria-labelledby="closeLabel"
     aria-describedby="closeDesc"
     color="primary"
-    icon="close"
+    icon="minus"
     size="sm"
     onClick={toggleSwapLayout}
     label={intl.formatMessage(intlMessages.closePresentationLabel)}

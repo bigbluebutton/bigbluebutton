@@ -20,6 +20,7 @@ import '/imports/api/voice-users/server';
 import '/imports/api/whiteboard-multi-user/server';
 import '/imports/api/video/server';
 import '/imports/api/network-information/server';
+import '/imports/api/users-infos/server';
 
 import '/imports/api/external-videos/server';
 import '/imports/api/guest-users/server';

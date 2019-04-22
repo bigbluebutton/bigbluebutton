@@ -1,6 +1,10 @@
 @import "/imports/ui/stylesheets/variables/_all";
 @import "/imports/ui/components/modal/simple/styles";
 
+:root {
+ --audioDial-margin-left: 2rem;
+}
+
 .header {
   margin: 0;
   padding: 0;
@@ -92,6 +96,12 @@
   }
 }
 
+.audioDial {
+  margin: 0 auto;
+  margin-top: var(--md-padding-y);
+  display: block;
+}
+
 // Modifies the audio button icon colour
 .audioBtn span:first-child {
   color: #1b3c4b;
@@ -147,7 +157,7 @@
     width: 0;
     margin-right: 1.25em;
 
-    [style~="--enableAnimation:1;"] & {
+    :global(.animationsEnabled) & {
       animation: ellipsis steps(4,end) 900ms infinite;
     }
   }

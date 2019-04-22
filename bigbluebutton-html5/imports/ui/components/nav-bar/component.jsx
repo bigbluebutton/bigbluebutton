@@ -104,6 +104,7 @@ class NavBar extends PureComponent {
       isActionsOpen: false,
       didSendBreakoutInvite: false,
       time: (props.recordProps.time ? props.recordProps.time : 0),
+      amIModerator: props.amIModerator,
     };
 
     this.incrementTime = this.incrementTime.bind(this);
@@ -120,6 +121,10 @@ class NavBar extends PureComponent {
       connectRecordingObserver();
       window.addEventListener('message', processOutsideToggleRecording);
     }
+  }
+
+  static getDerivedStateFromProps(nextProps) {
+    return { amIModerator: nextProps.amIModerator };
   }
 
   componentDidUpdate(oldProps) {
@@ -176,7 +181,7 @@ class NavBar extends PureComponent {
 
       if (!userOnMeeting) return;
 
-      if ((!didSendBreakoutInvite && !isBreakoutRoom) ) {
+      if ((!didSendBreakoutInvite && !isBreakoutRoom)) {
         this.inviteUserToBreakout(breakout);
       }
     });
@@ -269,7 +274,6 @@ class NavBar extends PureComponent {
 
   render() {
     const {
-      amIModerator,
       hasUnreadMessages,
       recordProps,
       isExpanded,
@@ -280,7 +284,7 @@ class NavBar extends PureComponent {
 
     const recordingMessage = recordProps.recording ? 'recordingIndicatorOn' : 'recordingIndicatorOff';
 
-    const { time } = this.state;
+    const { time, amIModerator } = this.state;
 
     if (!this.interval) {
       this.interval = setInterval(this.incrementTime, 1000);
@@ -322,11 +326,11 @@ class NavBar extends PureComponent {
               : intl.formatMessage(intlMessages.stopTitle))}
             mountModal={mountModal}
             time={time}
-            amIModerator={amIModerator()}
+            amIModerator={amIModerator}
           />
         </div>
         <div className={styles.right}>
-          <SettingsDropdownContainer amIModerator={amIModerator()} />
+          <SettingsDropdownContainer amIModerator={amIModerator} />
         </div>
       </div>
     );

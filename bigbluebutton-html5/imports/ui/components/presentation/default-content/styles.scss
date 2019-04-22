@@ -43,7 +43,7 @@
 .appearActive {
   opacity: 1;
 
-  [style~="--enableAnimation:1;"] & {
+  :global(.animationsEnabled) & {
     transition: opacity 700ms ease-in;
   }
 }

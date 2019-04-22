@@ -11,7 +11,7 @@
   i {
     color: var(--color-primary);
 
-    [style~="--enableAnimation:1;"] & {
+    :global(.animationsEnabled) & {
       transition: all .2s ease-in-out;
     }
   }
