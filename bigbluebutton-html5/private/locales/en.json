@@ -290,6 +290,7 @@
     "app.actionsBar.actionsDropdown.createBreakoutRoom": "Create breakout rooms",
     "app.actionsBar.actionsDropdown.createBreakoutRoomDesc": "create breakouts for split the current meeting ",
     "app.actionsBar.actionsDropdown.takePresenter": "Take presenter",
+    "app.actionsBar.actionsDropdown.makePresenter": "Make presenter",
     "app.actionsBar.actionsDropdown.takePresenterDesc": "Assign yourself as the new presenter",
     "app.actionsBar.emojiMenu.statusTriggerLabel": "Set status",
     "app.actionsBar.emojiMenu.awayLabel": "Away",
