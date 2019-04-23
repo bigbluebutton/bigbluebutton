@@ -1,11 +1,15 @@
 import PropTypes from 'prop-types';
 import React, { Component } from 'react';
-import { defineMessages, injectIntl, intlShape } from 'react-intl';
+import {
+  defineMessages, injectIntl, intlShape, FormattedMessage,
+} from 'react-intl';
 import Button from '/imports/ui/components/button/component';
 import { notify } from '/imports/ui/services/notification';
 import logger from '/imports/startup/client/logger';
 import Modal from '/imports/ui/components/modal/simple/component';
+import browser from 'browser-detect';
 import { styles } from './styles';
+
 
 const VIDEO_CONSTRAINTS = Meteor.settings.public.kurento.cameraConstraints;
 
@@ -174,7 +178,6 @@ class VideoPreview extends Component {
       }
 
       constraints.video.deviceId = { exact: this.state.webcamDeviceId };
-
       try {
         await navigator.mediaDevices.getUserMedia(constraints);
       } catch (exception) {
@@ -208,14 +211,17 @@ class VideoPreview extends Component {
     this.webcamListener(prevState.isStartSharingDisabled);
   }
 
-  async webcamListener(prevIsStartSharingDisabled) {
-    const { cameraAllowed, isInitialDeviceSet } = this.state;
+  async webcamListener() {
+    const { cameraAllowed, isInitialDeviceSet, isStartSharingDisabled } = this.state;
     const getDevices = await navigator.mediaDevices.enumerateDevices();
     const hasVideoInput = getDevices.filter(device => device.kind === 'videoinput').length > 0;
     const isStartSharingDisabled = !(hasVideoInput && cameraAllowed && isInitialDeviceSet);
 
-    if (prevIsStartSharingDisabled !== isStartSharingDisabled) {
-      this.setState({ isStartSharingDisabled });
+    const newSharingDisabled = !(hasVideoInput && cameraAllowed && isInitialDeviceSet);
+    if (newSharingDisabled !== isStartSharingDisabled) {
+      this.setState({
+        isStartSharingDisabled: newSharingDisabled,
+      });
     }
   }
 
@@ -288,6 +294,18 @@ class VideoPreview extends Component {
               )}
           </div>
         </div>
+        {browser().name === 'edge' || browser().name === 'ie' ? (
+          <p className={styles.browserWarning}>
+            <FormattedMessage
+              id="app.audioModal.unsupportedBrowserLabel"
+              description="Warning when someone joins with a browser that isnt supported"
+              values={{
+                0: <a href="https://www.google.com/chrome/">Chrome</a>,
+                1: <a href="https://getfirefox.com">Firefox</a>,
+              }}
+            />
+          </p>
+        ) : null }
         <div className={styles.footer}>
           <div className={styles.actions}>
             <Button

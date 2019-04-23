@@ -23,21 +23,14 @@ class ActionsBar extends React.PureComponent {
       toggleRecording,
       screenSharingCheck,
       enableVideo,
-      createBreakoutRoom,
-      meetingIsBreakout,
-      hasBreakoutRoom,
-      meetingName,
-      users,
       isLayoutSwapped,
       toggleSwapLayout,
-      getUsersNotAssigned,
-      sendInvitation,
-      getBreakouts,
       handleTakePresenter,
       intl,
       currentSlidHasContent,
       parseCurrentSlideContent,
       isSharingVideo,
+      screenShareEndAlert,
     } = this.props;
 
     const {
@@ -63,14 +56,6 @@ class ActionsBar extends React.PureComponent {
             isRecording,
             record,
             toggleRecording,
-            createBreakoutRoom,
-            meetingIsBreakout,
-            hasBreakoutRoom,
-            meetingName,
-            users,
-            getUsersNotAssigned,
-            sendInvitation,
-            getBreakouts,
             handleTakePresenter,
             intl,
             isSharingVideo,
@@ -105,6 +90,7 @@ class ActionsBar extends React.PureComponent {
             isVideoBroadcasting,
             isUserPresenter,
             screenSharingCheck,
+            screenShareEndAlert,
           }}
           />
         </div>

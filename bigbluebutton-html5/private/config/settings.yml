@@ -15,8 +15,10 @@ public:
     html5ClientBuild: HTML5_CLIENT_VERSION
     helpLink: https://bigbluebutton.org/html5/
     lockOnJoin: true
+    cdn: ""
     basename: "/html5client"
     askForFeedbackOnLogout: false
+    allowUserLookup: false
     defaultSettings:
       application:
         animations: true
@@ -281,9 +283,11 @@ private:
     debug: false
     channels:
       toAkkaApps: to-akka-apps-redis-channel
+      toThirdParty: to-third-party-redis-channel
     subscribeTo:
     - to-html5-redis-channel
     - from-akka-apps-*
+    - from-third-party-redis-channel
     async:
     - from-akka-apps-wb-redis-channel
     ignored:

@@ -7,7 +7,8 @@ object RegisteredUsers {
   def create(userId: String, extId: String, name: String, roles: String,
              token: String, avatar: String, guest: Boolean, authenticated: Boolean,
              guestStatus: String): RegisteredUser = {
-    new RegisteredUser(userId,
+    new RegisteredUser(
+      userId,
       extId,
       name,
       roles,
@@ -18,7 +19,8 @@ object RegisteredUsers {
       guestStatus,
       System.currentTimeMillis(),
       false,
-      false)
+      false
+    )
   }
 
   def findWithToken(token: String, users: RegisteredUsers): Option[RegisteredUser] = {
@@ -29,7 +31,7 @@ object RegisteredUsers {
     users.toVector.find(ru => id == ru.id)
   }
 
-  def findUsersNotJoined(users: RegisteredUsers):Vector[RegisteredUser] = {
+  def findUsersNotJoined(users: RegisteredUsers): Vector[RegisteredUser] = {
     users.toVector.filter(u => u.joined == false && u.markAsJoinTimedOut == false)
   }
 
@@ -102,16 +104,18 @@ class RegisteredUsers {
   }
 }
 
-case class RegisteredUser(id: String,
-                          externId: String,
-                          name: String,
-                          role: String,
-                          authToken: String,
-                          avatarURL: String,
-                          guest: Boolean,
-                          authed: Boolean,
-                          guestStatus: String,
-                          registeredOn: Long,
-                          joined: Boolean,
-                          markAsJoinTimedOut: Boolean)
+case class RegisteredUser(
+    id:                 String,
+    externId:           String,
+    name:               String,
+    role:               String,
+    authToken:          String,
+    avatarURL:          String,
+    guest:              Boolean,
+    authed:             Boolean,
+    guestStatus:        String,
+    registeredOn:       Long,
+    joined:             Boolean,
+    markAsJoinTimedOut: Boolean
+)
 

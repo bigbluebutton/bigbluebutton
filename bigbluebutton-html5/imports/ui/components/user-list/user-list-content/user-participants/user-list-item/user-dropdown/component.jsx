@@ -57,9 +57,13 @@ const messages = defineMessages({
     id: 'app.userList.menu.clearStatus.label',
     description: 'Clear the emoji status of this user',
   },
-  MakePresenterLabel: {
-    id: 'app.userList.menu.makePresenter.label',
+  takePresenterLabel: {
+    id: 'app.actionsBar.actionsDropdown.takePresenter',
     description: 'Set this user to be the presenter in this meeting',
+  },
+  makePresenterLabel: {
+    id: 'app.userList.menu.makePresenter.label',
+    description: 'label to make another user presenter',
   },
   RemoveUserLabel: {
     id: 'app.userList.menu.removeUser.label',
@@ -88,6 +92,10 @@ const messages = defineMessages({
   LockUserLabel: {
     id: 'app.userList.menu.lockUser.label',
     description: 'Lock a unlocked user',
+  },
+  DirectoryLookupLabel: {
+    id: 'app.userList.menu.directoryLookup.label',
+    description: 'Directory lookup',
   },
 });
 
@@ -201,6 +209,7 @@ class UserDropdown extends PureComponent {
       lockSettingsProp,
       hasPrivateChatBetweenUsers,
       toggleUserLock,
+      requestUserInformation,
     } = this.props;
 
     const { showNestedOptions } = this.state;
@@ -229,6 +238,8 @@ class UserDropdown extends PureComponent {
       && (!(currentUser.isLocked && disablePrivChat)
         || hasPrivateChatBetweenUsers(currentUser, user)
         || user.isModerator);
+
+    const { allowUserLookup } = Meteor.settings.public.app;
 
     if (showNestedOptions) {
       if (allowedToChangeStatus) {
@@ -306,7 +317,9 @@ class UserDropdown extends PureComponent {
     if (allowedToSetPresenter) {
       actions.push(this.makeDropdownItem(
         'setPresenter',
-        intl.formatMessage(messages.MakePresenterLabel),
+        user.isCurrent
+          ? intl.formatMessage(messages.takePresenterLabel)
+          : intl.formatMessage(messages.makePresenterLabel),
         () => this.onActionsHide(assignPresenter(user.id)),
         'presentation',
       ));
@@ -346,6 +359,15 @@ class UserDropdown extends PureComponent {
           : intl.formatMessage(messages.LockUserLabel, { 0: user.name }),
         () => this.onActionsHide(toggleUserLock(user.id, !user.isLocked)),
         user.isLocked ? 'unlock' : 'lock',
+      ));
+    }
+
+    if (allowUserLookup) {
+      actions.push(this.makeDropdownItem(
+        'directoryLookup',
+        intl.formatMessage(messages.DirectoryLookupLabel),
+        () => this.onActionsHide(requestUserInformation(user.externalUserId)),
+        'user',
       ));
     }
 
@@ -447,7 +469,7 @@ class UserDropdown extends PureComponent {
       ? (<Icon iconName={normalizeEmojiName(user.emoji.status)} />)
       : user.name.toLowerCase().slice(0, 2);
 
-    const iconVoiceOnlyUser = (<Icon iconName="speak_louder" />);
+    const iconVoiceOnlyUser = (<Icon iconName="audio_on" />);
 
     return (
       <UserAvatar

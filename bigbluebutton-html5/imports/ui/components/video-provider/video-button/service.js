@@ -4,7 +4,7 @@ import Auth from '/imports/ui/services/auth';
 import Users from '/imports/api/users/';
 import VideoService from '../service';
 
-const baseName = Meteor.settings.public.app.basename;
+const baseName = Meteor.settings.public.app.cdn + Meteor.settings.public.app.basename;
 
 const isSharingVideo = () => {
   const userId = Auth.userID;

@@ -48,24 +48,12 @@
 }
 
 .header {
+  position: relative;
+  top: var(--poll-header-offset);
   display: flex;
   flex-direction: row;
-  align-items: left;
-  flex-shrink: 0;
-  margin-bottom: 1rem;
-
-  a {
-    @include elementFocus(var(--color-primary));
-    padding-bottom: var(--sm-padding-y);
-    padding-left: var(--sm-padding-y);
-    text-decoration: none;
-    display: block;
-  }
-
-  [class^="icon-bbb-"],
-  [class*=" icon-bbb-"] {
-    font-size: 85%;
-  }
+  align-items: center;
+  justify-content: space-between;
 }
 
 .title {
@@ -73,47 +61,26 @@
   flex: 1;
 
   & > button, button:hover {
-    margin-top: 0;
-    padding-top: 0;
-    border-top: 0;
-    padding-bottom: 0;
+    max-width: 98%;
   }
-}
-
-.closeBtn {
-  background-color: var(--color-white);
-  flex: 0 0;
-  padding: 0 0.25rem !important;
-
-  i {
-    font-size: 0.85em;
-    color: var(--color-gray-dark) !important;
-    top: -.4em;
-  }
-
-  &:focus,
-  &:hover {
-    background-color: var(--color-white) !important;
-    i {
-      color: var(--color-gray);
-    }
-  }
+  
 }
 
 .hideBtn {
   position: relative;
-  background-color: white;
+  background-color: var(--color-white);
   display: block;
-  margin: 4px;
-  margin-bottom: 2px;
+  margin: var(--border-size-large);
+  margin-bottom: var(--border-size);
   padding-left: 0px;
 
   > i {
-    color: black;
+      color: var(--color-gray-dark);
+      font-size: smaller;
   }
 
   &:hover {
-    background-color: #fff;
+      background-color: var(--color-white);
   }
 }
 

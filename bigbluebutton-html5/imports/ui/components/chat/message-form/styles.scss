@@ -28,7 +28,7 @@
   padding: var(--sm-padding-y) var(--sm-padding-x);
   cursor: pointer;
 
-  [style~="--enableAnimation:1;"] & {
+  :global(.animationsEnabled) & {
     transition: all .3s;
   }
 
@@ -79,10 +79,6 @@
   margin-left: var(--sm-padding-x);
   align-self: center;
   font-size: 0.9rem;
-  i {
-    font-size: 115% !important;
-    line-height: 115%;
-  }
 }
 
 .info {

@@ -172,7 +172,7 @@
   font-size: 70%;
   top: var(--lg-padding-y);
 
-  [style~="--enableAnimation:1;"] & {
+  :global(.animationsEnabled) & {
     transition: .3s ease;
   }
 

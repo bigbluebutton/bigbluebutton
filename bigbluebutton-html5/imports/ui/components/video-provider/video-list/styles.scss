@@ -64,7 +64,7 @@
     opacity: 0;
     pointer-events: none;
 
-    [style~="--enableAnimation:1;"] & {
+    :global(.animationsEnabled) & {
       transition: opacity .1s;
     }
   }
@@ -127,7 +127,7 @@
     font-family: 'bbb-icons' !important;
     display: inline-block;
 
-    [style~="--enableAnimation:1;"] & {
+    :global(.animationsEnabled) & {
       animation: spin 4s infinite linear;
     }
   }

@@ -209,8 +209,6 @@ class VideoProvider extends Component {
     const parsedMessage = JSON.parse(msg.data);
 
     if (parsedMessage.id === 'pong') return;
-    this.logger('debug', `Received new message '${parsedMessage.id}'`, { topic: 'ws', message: parsedMessage });
-
     switch (parsedMessage.id) {
       case 'startResponse':
         this.startResponse(parsedMessage);
@@ -295,7 +293,7 @@ class VideoProvider extends Component {
     const { userId, userName } = this.props;
     const topic = options.topic || 'video';
 
-    logger[type]({ obj: Object.assign(options, { userId, userName, topic }) }, `[${topic}] ${message}`);
+    logger[type](`${JSON.stringify(Object.assign(options, { userId, userName, topic }))}, [${topic}] ${message}`);
   }
 
   _sendPauseStream(id, role, state) {
@@ -342,9 +340,6 @@ class VideoProvider extends Component {
 
     if (this.connectedToMediaServer()) {
       const jsonMessage = JSON.stringify(message);
-      if (message.id !== 'ping') {
-        this.logger('debug', `Sending message '${message.id}'`, { topic: 'ws', message });
-      }
       ws.send(jsonMessage, (error) => {
         if (error) {
           this.logger(`client: Websocket error '${error}' on message '${message.id}'`, { topic: 'ws' });
@@ -541,7 +536,7 @@ class VideoProvider extends Component {
     const { intl, userId } = this.props;
 
     return () => {
-      this.logger('error', `Camera share has not suceeded in ${CAMERA_SHARE_FAILED_WAIT_TIME}`, { cameraId: id });
+      this.logger('error', `Camera share has not succeeded in ${CAMERA_SHARE_FAILED_WAIT_TIME}`, { cameraId: id });
 
       if (userId === id) {
         VideoProvider.notifyError(intl.formatMessage(intlClientErrors.mediaFlowTimeout));
@@ -634,7 +629,7 @@ class VideoProvider extends Component {
         // prevent the same error from being detected multiple times
         peer.peerConnection.oniceconnectionstatechange = null;
 
-        this.logger('error', 'ICE connection state', id);
+        this.logger('error', `ICE connection state id:${id}, connectionState:${connectionState}`);
         this.stopWebRTCPeer(id);
         VideoProvider.notifyError(intl.formatMessage(intlClientErrors.iceConnectionStateError));
       }
