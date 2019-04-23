@@ -86,6 +86,10 @@ const intlMessages = defineMessages({
     id: 'app.invitation.title',
     description: 'invitation to breakout title',
   },
+  saveUserNames: {
+    id: 'app.actionsBar.actionsDropdown.saveUserNames',
+    description: 'Save user name feature description',
+  },
 });
 
 class UserOptions extends PureComponent {
@@ -101,6 +105,7 @@ class UserOptions extends PureComponent {
     this.muteAllId = _.uniqueId('list-item-');
     this.lockId = _.uniqueId('list-item-');
     this.createBreakoutId = _.uniqueId('list-item-');
+    this.saveUsersNameId = _.uniqueId('list-item-');
 
     this.onActionsShow = this.onActionsShow.bind(this);
     this.onActionsHide = this.onActionsHide.bind(this);
@@ -108,6 +113,22 @@ class UserOptions extends PureComponent {
     this.onCreateBreakouts = this.onCreateBreakouts.bind(this);
     this.onInvitationUsers = this.onInvitationUsers.bind(this);
     this.renderMenuItems = this.renderMenuItems.bind(this);
+    this.onSaveUserNames = this.onSaveUserNames.bind(this);
+  }
+
+  onSaveUserNames() {
+    const link = document.createElement('a');
+    const mimeType = 'text/plain';
+    const { userListService } = this.props;
+    const userNamesObj = userListService.getUsers();
+    const userNameListString = Object.keys(userNamesObj)
+      .map(key => userNamesObj[key].name, []).join('\r\n');
+    link.setAttribute('download', `save-users-list-${Date.now()}.txt`);
+    link.setAttribute(
+      'href',
+      `data: ${mimeType} ;charset=utf-16,${encodeURIComponent(userNameListString)}`,
+    );
+    link.dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true, view: window }));
   }
 
   onActionsShow() {
@@ -229,6 +250,16 @@ class UserOptions extends PureComponent {
             label={intl.formatMessage(intlMessages.invitationItem)}
             key={this.createBreakoutId}
             onClick={this.onInvitationUsers}
+          />
+        )
+        : null),
+      (isUserModerator
+        ? (
+          <DropdownListItem
+            icon="download"
+            label={intl.formatMessage(intlMessages.saveUserNames)}
+            key={this.saveUsersNameId}
+            onClick={this.onSaveUserNames}
           />
         )
         : null),

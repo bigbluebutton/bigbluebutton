@@ -121,7 +121,7 @@
   );
   background-size: 1rem 1rem;
 
-  [style~="--enableAnimation:1;"] & {
+  :global(.animationsEnabled) & {
     animation: bar-stripes 1s linear infinite;
   }
 }
@@ -142,7 +142,7 @@
   color: var(--color-gray-light);
   padding: 0;
 
-  [style~="--enableAnimation:1;"] & {
+  :global(.animationsEnabled) & {
     transition: all .25s;
   }
 

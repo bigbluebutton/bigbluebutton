@@ -8,7 +8,9 @@ import PresentationService from '/imports/ui/components/presentation/service';
 import ActionsBar from './component';
 import Service from './service';
 import VideoService from '../video-provider/service';
-import { shareScreen, unshareScreen, isVideoBroadcasting } from '../screenshare/service';
+import {
+  shareScreen, unshareScreen, isVideoBroadcasting, screenShareEndAlert,
+} from '../screenshare/service';
 
 import MediaService, { getSwapLayout } from '../media/service';
 
@@ -26,7 +28,6 @@ export default withTracker(() => {
       }
     },
   });
-
 
   return {
     isUserPresenter: Service.isUserPresenter(),
@@ -46,5 +47,6 @@ export default withTracker(() => {
     currentSlidHasContent: PresentationService.currentSlidHasContent(),
     parseCurrentSlideContent: PresentationService.parseCurrentSlideContent,
     isSharingVideo: Service.isSharingVideo(),
+    screenShareEndAlert,
   };
 })(injectIntl(ActionsBarContainer));

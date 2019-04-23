@@ -163,11 +163,18 @@ class MeetingEnded extends React.PureComponent {
     } = this.state;
 
     const noRating = selected <= 0;
+
+    logger.info({ endedCode: code, logCode: 'meeting_ended_code' }, code);
+
     return (
       <div className={styles.parent}>
         <div className={styles.modal}>
           <div className={styles.content}>
-            <h1 className={styles.title}>{intl.formatMessage(intlMessage[code])}</h1>
+            <h1 className={styles.title}>
+              {
+                intl.formatMessage(intlMessage[code] || intlMessage[430])
+              }
+            </h1>
             <div className={styles.text}>
               {this.shouldShowFeedback
                 ? intl.formatMessage(intlMessage.subtitle)

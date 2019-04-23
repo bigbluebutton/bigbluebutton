@@ -34,6 +34,9 @@ const propTypes = {
   openPanel: PropTypes.string.isRequired,
 };
 
+
+const DEFAULT_PANEL_WIDTH = 340;
+
 // Variables for resizing user-list.
 const USERLIST_MIN_WIDTH_PX = 150;
 const USERLIST_MAX_WIDTH_PX = 240;
@@ -42,9 +45,19 @@ const USERLIST_MAX_WIDTH_PX = 240;
 const CHAT_MIN_WIDTH = 150;
 const CHAT_MAX_WIDTH = 350;
 
+// Variables for resizing poll.
+const POLL_MIN_WIDTH = 320;
+const POLL_MAX_WIDTH = 400;
+
 // Variables for resizing shared notes.
-const NOTE_MIN_WIDTH = 340;
+const NOTE_MIN_WIDTH = DEFAULT_PANEL_WIDTH;
 const NOTE_MAX_WIDTH = 800;
+
+// Variables for resizing waiting users.
+const WAITING_MIN_WIDTH = DEFAULT_PANEL_WIDTH;
+const WAITING_MAX_WIDTH = 800;
+
+const dispatchResizeEvent = () => window.dispatchEvent(new Event('resize'));
 
 class PanelManager extends Component {
   constructor() {
@@ -59,10 +72,21 @@ class PanelManager extends Component {
     this.waitingUsers = _.uniqueId('waitingUsers-');
 
     this.state = {
-      chatWidth: 340,
+      chatWidth: DEFAULT_PANEL_WIDTH,
+      pollWidth: DEFAULT_PANEL_WIDTH,
       userlistWidth: 180,
-      noteWidth: NOTE_MIN_WIDTH,
+      noteWidth: DEFAULT_PANEL_WIDTH,
+      waitingWidth: DEFAULT_PANEL_WIDTH,
     };
+  }
+
+  componentDidUpdate(prevProps) {
+    const { openPanel } = this.props;
+    const { openPanel: oldOpenPanel } = prevProps;
+
+    if (openPanel !== oldOpenPanel) {
+      window.dispatchEvent(new Event('resize'));
+    }
   }
 
   renderUserList() {
@@ -104,8 +128,8 @@ class PanelManager extends Component {
         enable={resizableEnableOptions}
         key={this.userlistKey}
         size={{ width: userlistWidth }}
+        onResize={dispatchResizeEvent}
         onResizeStop={(e, direction, ref, d) => {
-          window.dispatchEvent(new Event('resize'));
           this.setState({
             userlistWidth: userlistWidth + d.width,
           });
@@ -152,8 +176,8 @@ class PanelManager extends Component {
         enable={resizableEnableOptions}
         key={this.chatKey}
         size={{ width: chatWidth }}
+        onResize={dispatchResizeEvent}
         onResizeStop={(e, direction, ref, d) => {
-          window.dispatchEvent(new Event('resize'));
           this.setState({
             chatWidth: chatWidth + d.width,
           });
@@ -200,8 +224,8 @@ class PanelManager extends Component {
         enable={resizableEnableOptions}
         key={this.noteKey}
         size={{ width: noteWidth }}
+        onResize={dispatchResizeEvent}
         onResizeStop={(e, direction, ref, d) => {
-          window.dispatchEvent(new Event('resize'));
           this.setState({
             noteWidth: noteWidth + d.width,
           });
@@ -227,7 +251,7 @@ class PanelManager extends Component {
   }
 
   renderWaitingUsersPanelResizable() {
-    const { noteWidth } = this.state;
+    const { waitingWidth } = this.state;
 
     const resizableEnableOptions = {
       top: false,
@@ -242,20 +266,29 @@ class PanelManager extends Component {
 
     return (
       <Resizable
-        minWidth={NOTE_MIN_WIDTH}
-        maxWidth={NOTE_MAX_WIDTH}
+        minWidth={WAITING_MIN_WIDTH}
+        maxWidth={WAITING_MAX_WIDTH}
         ref={(node) => { this.resizableWaitingUsersPanel = node; }}
         enable={resizableEnableOptions}
-        key={this.noteKey}
-        size={{ width: noteWidth }}
+        key={this.waitingUsers}
+        size={{ width: waitingWidth }}
+        onResize={dispatchResizeEvent}
         onResizeStop={(e, direction, ref, d) => {
           this.setState({
-            noteWidth: noteWidth + d.width,
+            waitingWidth: waitingWidth + d.width,
           });
         }}
       >
         {this.renderWaitingUsersPanel()}
       </Resizable>
+    );
+  }
+
+  renderBreakoutRoom() {
+    return (
+      <div className={styles.breakoutRoom} key={this.breakoutroomKey}>
+        <BreakoutRoomContainer />
+      </div>
     );
   }
 
@@ -267,11 +300,37 @@ class PanelManager extends Component {
     );
   }
 
-  renderBreakoutRoom() {
+  renderPollResizable() {
+    const { pollWidth } = this.state;
+
+    const resizableEnableOptions = {
+      top: false,
+      right: true,
+      bottom: false,
+      left: false,
+      topRight: false,
+      bottomRight: false,
+      bottomLeft: false,
+      topLeft: false,
+    };
+
     return (
-      <div className={styles.breakoutRoom} key={this.breakoutroomKey}>
-        <BreakoutRoomContainer />
-      </div>
+      <Resizable
+        minWidth={POLL_MIN_WIDTH}
+        maxWidth={POLL_MAX_WIDTH}
+        ref={(node) => { this.resizablePoll = node; }}
+        enable={resizableEnableOptions}
+        key={this.pollKey}
+        size={{ width: pollWidth }}
+        onResizeStop={(e, direction, ref, d) => {
+          window.dispatchEvent(new Event('resize'));
+          this.setState({
+            pollWidth: pollWidth + d.width,
+          });
+        }}
+      >
+        {this.renderPoll()}
+      </Resizable>
     );
   }
 
@@ -303,7 +362,7 @@ class PanelManager extends Component {
 
     if (openPanel === 'poll') {
       if (enableResize) {
-        resizablePanels.push(this.renderPoll());
+        resizablePanels.push(this.renderPollResizable());
       } else {
         panels.push(this.renderPoll());
       }

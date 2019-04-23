@@ -28,7 +28,7 @@
     content: "\E906";
     position: relative;
 
-    [style~="--enableAnimation:1;"] & {
+    :global(.animationsEnabled) & {
       animation: bounce 2s infinite;
     }
   }
@@ -37,7 +37,7 @@
     top: var(--arrow-top-edge);
     left: var(--arrow-left-edge);
     font-size: 20px;
-    [style~="--enableAnimation:1;"] & {
+    :global(.animationsEnabled) & {
       animation: bounceRotate 2s infinite;
     }
   }
@@ -82,7 +82,7 @@
   right: 0;
   background-color: rgba(0, 0, 0, .85);
 
-  [style~="--enableAnimation:1;"] & {
+  :global(.animationsEnabled) & {
     animation: fade-in .5s ease-in;
   }
 }

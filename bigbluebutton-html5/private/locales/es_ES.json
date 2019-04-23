@@ -24,7 +24,6 @@
     "app.userList.guest": "Huesped",
     "app.userList.chatListItem.unreadSingular": "{0} Nuevo Mensaje",
     "app.userList.chatListItem.unreadPlural": "{0} Nuevos mensajes",
-    "app.userList.menu.chat.label": "Chat",
     "app.userList.menu.muteUserAudio.label": "Silenciar usuario",
     "app.userList.menu.unmuteUserAudio.label": "Activar sonido de usuario",
     "app.media.label": "Media",

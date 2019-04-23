@@ -3,8 +3,10 @@ import { withTracker } from 'meteor/react-meteor-data';
 import Users from '/imports/api/users/';
 import Auth from '/imports/ui/services/auth';
 import mapUser from '/imports/ui/services/user/mapUser';
-import { isVideoBroadcasting, presenterScreenshareHasEnded, unshareScreen,
-  presenterScreenshareHasStarted } from './service';
+import {
+  isVideoBroadcasting, presenterScreenshareHasEnded, unshareScreen,
+  presenterScreenshareHasStarted,
+} from './service';
 import ScreenshareComponent from './component';
 
 class ScreenshareContainer extends React.Component {

@@ -72,7 +72,7 @@
     opacity: 0;
     pointer-events: none;
 
-    [style~="--enableAnimation:1;"] & {
+    :global(.animationsEnabled) & {
       transition: opacity .3s;
     }
   }
