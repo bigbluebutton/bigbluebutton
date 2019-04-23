@@ -62,7 +62,7 @@ const messages = defineMessages({
     description: 'Set this user to be the presenter in this meeting',
   },
   makePresenterLabel: {
-    id: 'app.actionsBar.actionsDropdown.makePresenter',
+    id: 'app.userList.menu.makePresenter.label',
     description: 'label to make another user presenter',
   },
   RemoveUserLabel: {
