@@ -90,7 +90,7 @@ public class ParamsProcessorUtil {
     private boolean allowStartStopRecording;
     private boolean webcamsOnlyForModerator;
     private boolean defaultMuteOnStart = false;
-    private boolean defaultUnmuteUsers = false;
+    private boolean defaultAllowModsToUnmuteUsers = false;
 
     private String defaultConfigXML = null;
 
@@ -393,11 +393,11 @@ public class ParamsProcessorUtil {
 
 		meeting.setMuteOnStart(muteOnStart);
 
-        Boolean unmuteUsers = defaultUnmuteUsers;
-        if (!StringUtils.isEmpty(params.get(ApiParams.UNMUTE_USERS))) {
-            unmuteUsers = Boolean.parseBoolean(params.get(ApiParams.UNMUTE_USERS));
+        Boolean allowModsToUnmuteUsers = defaultAllowModsToUnmuteUsers;
+        if (!StringUtils.isEmpty(params.get(ApiParams.ALLOW_MODS_TO_UNMUTE_USERS))) {
+            allowModsToUnmuteUsers = Boolean.parseBoolean(params.get(ApiParams.ALLOW_MODS_TO_UNMUTE_USERS));
         }
-        meeting.setUnmuteUsers(unmuteUsers);
+        meeting.setAllowModsToUnmuteUsers(allowModsToUnmuteUsers);
 
         return meeting;
     }
@@ -896,12 +896,12 @@ public class ParamsProcessorUtil {
 		return defaultMuteOnStart;
 	}
 
-	public void setUnmuteUsers(Boolean value) {
-		defaultUnmuteUsers = value;
+	public void setAllowModsToUnmuteUsers(Boolean value) {
+		defaultAllowModsToUnmuteUsers = value;
 	}
 
-	public Boolean getUnmuteUsers() {
-		return defaultUnmuteUsers;
+	public Boolean getAllowModsToUnmuteUsers() {
+		return defaultAllowModsToUnmuteUsers;
 	}
 
 	public List<String> decodeIds(String encodeid) {

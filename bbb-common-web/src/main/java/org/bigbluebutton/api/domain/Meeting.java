@@ -78,7 +78,7 @@ public class Meeting {
 	private String customLogoURL = "";
 	private String customCopyright = "";
 	private Boolean muteOnStart = false;
-	private Boolean unmuteUsers = false;
+	private Boolean allowModsToUnmuteUsers = false;
 
 	private Integer maxInactivityTimeoutMinutes = 120;
 	private Integer warnMinutesBeforeMax = 5;
@@ -425,12 +425,12 @@ public class Meeting {
     	return muteOnStart;
 	}
 
-	public void setUnmuteUsers(Boolean value) {
-		unmuteUsers = value;
+	public void setAllowModsToUnmuteUsers(Boolean value) {
+		allowModsToUnmuteUsers = value;
 	}
 
-	public Boolean getUnmuteUsers() {
-		return unmuteUsers;
+	public Boolean getAllowModsToUnmuteUsers() {
+		return allowModsToUnmuteUsers;
 	}
 
 	public void userJoined(User user) {

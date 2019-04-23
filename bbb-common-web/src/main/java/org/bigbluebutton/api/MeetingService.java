@@ -315,7 +315,7 @@ public class MeetingService implements MessageListener {
             m.getDialNumber(), m.getMaxUsers(), m.getMaxInactivityTimeoutMinutes(), m.getWarnMinutesBeforeMax(),
             m.getMeetingExpireIfNoUserJoinedInMinutes(), m.getmeetingExpireWhenLastUserLeftInMinutes(),
             m.getUserInactivityInspectTimerInMinutes(), m.getUserInactivityThresholdInMinutes(),
-            m.getUserActivitySignResponseDelayInMinutes(), m.getMuteOnStart(), m.getUnmuteUsers(), keepEvents);
+            m.getUserActivitySignResponseDelayInMinutes(), m.getMuteOnStart(), m.getAllowModsToUnmuteUsers(), keepEvents);
   }
 
   private String formatPrettyDate(Long timestamp) {

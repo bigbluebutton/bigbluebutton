@@ -97,7 +97,7 @@ class BbbWebApiGWApp(
                     userInactivityThresholdInMinutes:       java.lang.Integer,
                     userActivitySignResponseDelayInMinutes: java.lang.Integer,
                     muteOnStart:                            java.lang.Boolean,
-                    unmuteUsers:                            java.lang.Boolean,
+                    allowModsToUnmuteUsers:                 java.lang.Boolean,
                     keepEvents:                             java.lang.Boolean): Unit = {
 
     val meetingProp = MeetingProp(name = meetingName, extId = extMeetingId, intId = meetingId,
@@ -122,7 +122,7 @@ class BbbWebApiGWApp(
       modOnlyMessage = modOnlyMessage)
     val voiceProp = VoiceProp(telVoice = voiceBridge, voiceConf = voiceBridge, dialNumber = dialNumber, muteOnStart = muteOnStart.booleanValue())
     val usersProp = UsersProp(maxUsers = maxUsers.intValue(), webcamsOnlyForModerator = webcamsOnlyForModerator.booleanValue(),
-      guestPolicy = guestPolicy, unmuteUsers = unmuteUsers.booleanValue())
+      guestPolicy = guestPolicy, allowModsToUnmuteUsers = allowModsToUnmuteUsers.booleanValue())
     val metadataProp = MetadataProp(mapAsScalaMap(metadata).toMap)
     val screenshareProps = ScreenshareProps(
       screenshareConf = voiceBridge + screenshareConfSuffix,

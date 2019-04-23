@@ -284,7 +284,7 @@ const isMeetingLocked = (id) => {
 const areUsersUnmutable = () => {
   const meeting = Meetings.findOne({ meetingId: Auth.meetingID });
   if (meeting.usersProp) {
-    return meeting.usersProp.unmuteUsers;
+    return meeting.usersProp.allowModsToUnmuteUsers;
   }
   return false;
 }
