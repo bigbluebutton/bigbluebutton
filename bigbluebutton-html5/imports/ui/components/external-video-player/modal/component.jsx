@@ -133,6 +133,7 @@ class ExternalVideoModal extends Component {
                 name="video-modal-input"
                 value={url}
                 placeholder={intl.formatMessage(intlMessages.urlInput)}
+                disabled={sharing}
               />
             </label>
             <div className={styles.youtubeNote}>
@@ -140,22 +141,25 @@ class ExternalVideoModal extends Component {
             </div>
           </div>
 
-          <div className={styles.content}>
+          <div>
             {this.renderUrlError()}
           </div>
 
           <Button
-            className={styles.startBtn}
-            label={intl.formatMessage(intlMessages.start)}
-            onClick={this.startWatchingHandler}
-            disabled={startDisabled}
-          />
-
-          <Button
-            className={styles.stopBtn}
-            label={intl.formatMessage(intlMessages.stop)}
-            onClick={this.stopWatchingHandler}
-            disabled={!sharing}
+            className={
+              sharing
+                ? styles.stopBtn
+                : styles.startBtn
+            }
+            label={
+              sharing
+                ? intl.formatMessage(intlMessages.stop)
+                : intl.formatMessage(intlMessages.start)}
+            onClick={
+              sharing
+                ? this.stopWatchingHandler
+                : this.startWatchingHandler}
+            disabled={!sharing && startDisabled}
           />
         </div>
       </ModalBase>
