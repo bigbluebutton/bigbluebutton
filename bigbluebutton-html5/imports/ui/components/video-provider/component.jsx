@@ -285,7 +285,9 @@ class VideoProvider extends Component {
   logger(type, message, logCode, options = {}) {
     const { userId, userName } = this.props;
     const topic = options.topic || 'video';
-    logger[type](`${JSON.stringify(Object.assign(options, { userId, userName, topic, logCode }))}, [${topic}] ${message}`);
+    logger[type](`${JSON.stringify(Object.assign(options, {
+      userId, userName, topic, logCode,
+    }))}, [${topic}] ${message}`);
   }
 
   _sendPauseStream(id, role, state) {
@@ -889,7 +891,9 @@ class VideoProvider extends Component {
     const { intl } = this.props;
     const { userId } = this.props;
     const { code, reason } = message;
-    this.logger('error', 'Received error from SFU:', 'video_provider_sfu_error', { code, reason, streamId: message.streamId, userId });
+    this.logger('error', 'Received error from SFU:', 'video_provider_sfu_error', {
+      code, reason, streamId: message.streamId, userId,
+    });
     if (message.streamId === userId) {
       this.unshareWebcam();
       this.notifyError(intl.formatMessage(intlSFUErrors[code]
