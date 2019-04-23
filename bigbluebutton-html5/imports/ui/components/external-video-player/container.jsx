@@ -20,8 +20,10 @@ const ExternalVideoContainer = props => (
 export default injectIntl(withTracker(({ params, intl, isPresenter }) => {
   const title = intl.formatMessage(intlMessages.title);
   const inEchoTest = Session.get('inEchoTest');
+  const inFeedback = Session.get('inFeedback');
   return {
     inEchoTest,
+    inFeedback,
     title,
     isPresenter,
   };

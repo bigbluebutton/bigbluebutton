@@ -2,6 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { defineMessages, injectIntl } from 'react-intl';
 import { Meteor } from 'meteor/meteor';
+import { Session } from 'meteor/session';
 import Auth from '/imports/ui/services/auth';
 import Button from '/imports/ui/components/button/component';
 import getFromUserSettings from '/imports/ui/services/users-settings';
@@ -107,6 +108,7 @@ class MeetingEnded extends React.PureComponent {
 
   componentDidMount() {
     Meteor.disconnect();
+    Session.set('inFeedback', true);
   }
 
   setSelectedStar(starNumber) {

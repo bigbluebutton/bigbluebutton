@@ -18,6 +18,7 @@ import ShortcutHelpComponent from '/imports/ui/components/shortcut-help/componen
 import withShortcutHelper from '/imports/ui/components/shortcut-help/service';
 
 import { styles } from '../styles';
+import AudioService from '../../audio/service';
 
 const intlMessages = defineMessages({
   optionsLabel: {
@@ -166,6 +167,7 @@ class SettingsDropdown extends PureComponent {
     document.dispatchEvent(new Event('exitVideo'));
     const { mountModal } = this.props;
     const LOGOUT_CODE = '430';
+    AudioService.exitAudio();
     // we don't check askForFeedbackOnLogout here,
     // it is checked in meeting-ended component
     mountModal(<MeetingEndedComponent code={LOGOUT_CODE} />);

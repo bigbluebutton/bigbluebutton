@@ -1,7 +1,6 @@
 import React, { Component } from 'react';
 import injectWbResizeEvent from '/imports/ui/components/presentation/resize-wrapper/component';
 import YouTube from 'react-youtube';
-import Vimeo from 'react-vimeo';
 import { sendMessage, onMessage } from './service';
 
 const { PlayerState } = YouTube;
@@ -16,7 +15,7 @@ class VideoPlayer extends Component {
     this.presenterCommand = false;
     this.preventStateChange = false;
     this.state = {
-      mutedByEchoTest: false,
+      muted: false,
     };
 
     this.opts = {
@@ -45,17 +44,21 @@ class VideoPlayer extends Component {
   }
 
   componentDidUpdate(prevProps) {
-    const { inEchoTest } = this.props;
+    const { inEchoTest, inFeedback } = this.props;
     const {
-      mutedByEchoTest,
+      muted,
     } = this.state;
 
-    if (inEchoTest && !this.player.isMuted() && !mutedByEchoTest) {
+    if ((inEchoTest || inFeedback) && !this.player.isMuted() && !muted) {
       this.player.mute();
       this.changeState(true);
     }
 
-    if (!inEchoTest && prevProps.inEchoTest && mutedByEchoTest) {
+    const unmutedByEchoTest = !inEchoTest && prevProps.inEchoTest
+      && !inFeedback && muted;
+    const unmutedByFeedback = !inFeedback && prevProps.inFeedback
+      && !inEchoTest && muted;
+    if (unmutedByEchoTest || unmutedByFeedback) {
       this.player.unMute();
       this.changeState(false);
     }
@@ -74,7 +77,7 @@ class VideoPlayer extends Component {
   }
 
   changeState(booleanValue) {
-    this.setState({ mutedByEchoTest: booleanValue });
+    this.setState({ muted: booleanValue });
   }
 
   handleResize() {
