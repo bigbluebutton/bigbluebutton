@@ -23,6 +23,18 @@ const intlMessages = defineMessages({
   },
 });
 
+const fullRef = (ref) => {
+  if (ref.requestFullscreen) {
+    ref.requestFullscreen();
+  } else if (ref.mozRequestFullScreen) {
+    ref.mozRequestFullScreen();
+  } else if (ref.webkitRequestFullscreen) {
+    ref.webkitRequestFullscreen();
+  } else if (ref.msRequestFullscreen) {
+    ref.msRequestFullscreen();
+  }
+};
+
 class PresentationArea extends Component {
   constructor() {
     super();
@@ -50,8 +62,8 @@ class PresentationArea extends Component {
   componentDidUpdate(prevProps, prevState) {
     if (prevState.fitToWidth) {
       // When presenter is changed or slide changed we reset fitToWidth
-      if ((prevProps.userIsPresenter && !this.props.userIsPresenter) ||
-          (prevProps.currentSlide.id !== this.props.currentSlide.id)) {
+      if ((prevProps.userIsPresenter && !this.props.userIsPresenter)
+          || (prevProps.currentSlide.id !== this.props.currentSlide.id)) {
         this.setState({
           fitToWidth: false,
         });
@@ -196,16 +208,16 @@ class PresentationArea extends Component {
     const { fitToWidth } = this.state;
     if (userIsPresenter) {
       return fitToWidth;
-    } else {
-      const { width, height, viewBoxWidth, viewBoxHeight } = currentSlide.calculatedData;
-      const slideSizeRatio = width / height;
-      const viewBoxSizeRatio = viewBoxWidth / viewBoxHeight;
-      if (slideSizeRatio !== viewBoxSizeRatio) {
-        return true;
-      } else {
-        return false;
-      }
     }
+    const {
+      width, height, viewBoxWidth, viewBoxHeight,
+    } = currentSlide.calculatedData;
+    const slideSizeRatio = width / height;
+    const viewBoxSizeRatio = viewBoxWidth / viewBoxHeight;
+    if (slideSizeRatio !== viewBoxSizeRatio) {
+      return true;
+    }
+    return false;
   }
 
   zoomChanger(incomingZoom) {
@@ -242,7 +254,6 @@ class PresentationArea extends Component {
       fitToWidth: !fitToWidth,
     });
   }
-
 
   isPresentationAccessible() {
     const { currentSlide } = this.props;
@@ -446,10 +457,6 @@ class PresentationArea extends Component {
 
     const { zoom, fitToWidth } = this.state;
 
-    const fullRef = () => {
-      this.refPresentationContainer.requestFullscreen();
-    };
-
     if (!currentSlide) {
       return null;
     }
@@ -462,7 +469,7 @@ class PresentationArea extends Component {
           podId,
         }}
         isFullscreen={isFullscreen}
-        fullscreenRef={fullRef}
+        fullscreenRef={() => fullRef(this.refPresentationContainer)}
         currentSlideNum={currentSlide.num}
         presentationId={currentSlide.presentationId}
         zoomChanger={this.zoomChanger}
@@ -508,11 +515,9 @@ class PresentationArea extends Component {
     } = this.props;
     if (userIsPresenter) return null;
 
-    const full = () => this.refPresentationContainer.requestFullscreen();
-
     return (
       <FullscreenButton
-        handleFullscreen={full}
+        handleFullscreen={() => fullRef(this.refPresentationContainer)}
         elementName={intl.formatMessage(intlMessages.presentationLabel)}
         dark
         fullscreenButton
