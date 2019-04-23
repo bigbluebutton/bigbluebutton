@@ -87,7 +87,6 @@ public:
       - critical
       - danger
       - warning
-      - good
   kurento:
     wsUrl: HOST
     chromeDefaultExtensionKey: akgoaoikmbmhcopjgakkcepdgdgkjfbc

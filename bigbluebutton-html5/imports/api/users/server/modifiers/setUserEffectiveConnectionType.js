@@ -10,6 +10,7 @@ export default function setUserEffectiveConnectionType(meetingId, userId, effect
   const selector = {
     meetingId,
     userId,
+    effectiveConnectionType: { $ne: effectiveConnectionType },
   };
 
   const modifier = {

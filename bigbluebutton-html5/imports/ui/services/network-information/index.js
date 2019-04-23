@@ -120,7 +120,7 @@ export const startBandwidthMonitoring = () => {
         makeCall('setUserEffectiveConnectionType', 'warning');
       }
     } else {
-      makeCall('setUserEffectiveConnectionType', '');
+      makeCall('setUserEffectiveConnectionType', 'good');
     }
   }, 5000);
 };
