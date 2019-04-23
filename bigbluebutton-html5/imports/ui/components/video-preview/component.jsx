@@ -215,7 +215,6 @@ class VideoPreview extends Component {
     const { cameraAllowed, isInitialDeviceSet, isStartSharingDisabled } = this.state;
     const getDevices = await navigator.mediaDevices.enumerateDevices();
     const hasVideoInput = getDevices.filter(device => device.kind === 'videoinput').length > 0;
-    const isStartSharingDisabled = !(hasVideoInput && cameraAllowed && isInitialDeviceSet);
 
     const newSharingDisabled = !(hasVideoInput && cameraAllowed && isInitialDeviceSet);
     if (newSharingDisabled !== isStartSharingDisabled) {
