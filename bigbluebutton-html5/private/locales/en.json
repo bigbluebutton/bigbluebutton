@@ -49,6 +49,7 @@
     "app.userList.menu.unlockUser.label": "Unlock {0}",
     "app.userList.menu.lockUser.label": "Lock {0}",
     "app.userList.menu.directoryLookup.label": "Directory Lookup",
+    "app.userList.menu.makePresenter.label": "Make presenter",
     "app.userList.userOptions.manageUsersLabel": "Manage users",
     "app.userList.userOptions.muteAllLabel": "Mute all users",
     "app.userList.userOptions.muteAllDesc": "Mutes all users in the meeting",
