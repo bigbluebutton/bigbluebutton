@@ -18,6 +18,11 @@ const defaultProps = {
 
 
 export default class Media extends Component {
+  constructor(props) {
+    super(props);
+    this.refContainer = React.createRef();
+  }
+
   componentWillUpdate() {
     window.dispatchEvent(new Event('resize'));
   }
@@ -41,7 +46,7 @@ export default class Media extends Component {
       <div
         id="container"
         className={cx(styles.container)}
-        ref={(ref) => { this.refContainer = ref; }}
+        ref={this.refContainer}
       >
         <div className={!swapLayout ? contentClassName : overlayClassName}>
           {children}

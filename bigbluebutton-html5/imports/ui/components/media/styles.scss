@@ -19,7 +19,7 @@
 .content {
   display: flex;
   align-self: stretch;
-  flex: 4;
+  flex: 3;
   align-items: center;
   justify-content: center;
   overflow: auto;
@@ -36,6 +36,7 @@
   margin-top: 10px;
   margin-bottom: 10px;
   z-index: 2;
+  align-items: center;
   // max-height: 10vh;
 }
 
@@ -47,7 +48,6 @@
   position: absolute;
   height: calc(var(--overlay-width) / var(--overlay-ratio));
   min-height: calc(var(--overlay-min-width) / var(--overlay-ratio));
-  max-height: calc(var(--overlay-max-width) / var(--overlay-ratio));
 }
 
 .overlayToTop {
@@ -80,7 +80,6 @@
     max-width: var(--overlay-max-width);
     height: calc(var(--overlay-width) / var(--overlay-ratio));
     min-height: calc(var(--overlay-min-width) / var(--overlay-ratio));
-    max-height: calc(var(--overlay-max-width) / var(--overlay-ratio));
   }
 }
 

@@ -89,7 +89,7 @@ class VideoPreview extends Component {
     this.state = {
       webcamDeviceId,
       availableWebcams: null,
-      isStartSharingDisabled: false,
+      isStartSharingDisabled: null,
       isInitialDeviceSet: false,
       cameraAllowed: false,
     };
@@ -204,18 +204,19 @@ class VideoPreview extends Component {
     });
   }
 
-  componentDidUpdate() {
-    this.webcamListener();
+  componentDidUpdate(prevProps, prevState) {
+    this.webcamListener(prevState.isStartSharingDisabled);
   }
 
-  async webcamListener() {
+  async webcamListener(prevIsStartSharingDisabled) {
     const { cameraAllowed, isInitialDeviceSet } = this.state;
     const getDevices = await navigator.mediaDevices.enumerateDevices();
     const hasVideoInput = getDevices.filter(device => device.kind === 'videoinput').length > 0;
+    const isStartSharingDisabled = !(hasVideoInput && cameraAllowed && isInitialDeviceSet);
 
-    this.setState({
-      isStartSharingDisabled: !(hasVideoInput && cameraAllowed && isInitialDeviceSet),
-    });
+    if (prevIsStartSharingDisabled !== isStartSharingDisabled) {
+      this.setState({ isStartSharingDisabled });
+    }
   }
 
   handleJoinVideo() {
@@ -256,7 +257,7 @@ class VideoPreview extends Component {
               playsInline
             />
           </div>
-          <div className={styles}>
+          <div>
             <label className={styles.label}>
               {intl.formatMessage(intlMessages.cameraLabel)}
             </label>
@@ -297,7 +298,7 @@ class VideoPreview extends Component {
               color="primary"
               label={intl.formatMessage(intlMessages.startSharingLabel)}
               onClick={() => this.handleStartSharing()}
-              disabled={isStartSharingDisabled}
+              disabled={isStartSharingDisabled || isStartSharingDisabled === null}
             />
           </div>
         </div>

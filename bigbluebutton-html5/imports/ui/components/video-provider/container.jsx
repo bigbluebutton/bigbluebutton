@@ -10,6 +10,7 @@ const VideoProviderContainer = ({ children, ...props }) => {
 };
 
 export default withTracker(props => ({
+  cursor: props.cursor,
   meetingId: VideoService.meetingId(),
   users: VideoService.getAllUsersVideo(),
   userId: VideoService.userId(),
@@ -18,5 +19,4 @@ export default withTracker(props => ({
   enableVideoStats: getFromUserSettings('enableVideoStats', Meteor.settings.public.kurento.enableVideoStats),
   voiceBridge: VideoService.voiceBridge(),
   onMount: props.onMount,
-  onUpdate: props.onUpdate,
 }))(VideoProviderContainer);

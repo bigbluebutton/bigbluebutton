@@ -56,6 +56,8 @@ const findOptimalGrid = (canvasWidth, canvasHeight, gutter, aspectRatio, numItem
   };
 };
 
+const ASPECT_RATIO = 4 / 3;
+
 class VideoList extends Component {
   constructor(props) {
     super(props);
@@ -86,14 +88,14 @@ class VideoList extends Component {
   }
 
   setOptimalGrid() {
-    let numItems = this.props.users.length;
+    const { users } = this.props;
+    let numItems = users.length;
 
     if (numItems < 1 || !this.canvas || !this.grid) {
       return;
     }
 
     const { focusedId } = this.state;
-    const aspectRatio = 4 / 3;
     const { width: canvasWidth, height: canvasHeight } = this.canvas.getBoundingClientRect();
     const gridGutter = parseInt(window.getComputedStyle(this.grid).getPropertyValue('grid-row-gap'), 10);
 
@@ -108,7 +110,7 @@ class VideoList extends Component {
     const optimalGrid = _.range(1, numItems + 1).reduce((currentGrid, col) => {
       const testGrid = findOptimalGrid(
         canvasWidth, canvasHeight, gridGutter,
-        aspectRatio, numItems, col,
+        ASPECT_RATIO, numItems, col,
       );
 
       // We need a minimun of 2 rows and columns for the focused
@@ -186,8 +188,19 @@ class VideoList extends Component {
   }
 
   render() {
-    const { users } = this.props;
+    const { users, cursor } = this.props;
     const { optimalGrid } = this.state;
+    const {
+      width: optimalWidth,
+      columns,
+      rows,
+    } = optimalGrid;
+
+    const windowWidth = document.getElementsByTagName('html')[0].offsetWidth;
+    const maxWidth = windowWidth * 0.1;
+    let width = optimalWidth;
+    width = width > maxWidth && rows === 1 ? maxWidth * columns : width;
+    width = width <= 175 * columns && rows === 1 ? 175 * columns : width;
 
     return (
       <div
@@ -199,10 +212,11 @@ class VideoList extends Component {
             ref={(ref) => { this.grid = ref; }}
             className={styles.videoList}
             style={{
-              width: `${optimalGrid.width}px`,
-              height: `${optimalGrid.height}px`,
-              gridTemplateColumns: `repeat(${optimalGrid.columns}, 1fr)`,
-              gridTemplateRows: `repeat(${optimalGrid.rows}, 1fr)`,
+              cursor: `${cursor}`,
+              width: `${width}px`,
+              height: 'fit-content',
+              gridTemplateColumns: `repeat(${columns}, 1fr)`,
+              gridTemplateRows: `repeat(${rows}, 1fr)`,
             }}
           >
             {this.renderVideoList()}
