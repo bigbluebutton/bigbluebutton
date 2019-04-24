@@ -32,10 +32,10 @@ const HTML = document.getElementsByTagName('html')[0];
 let breakoutNotified = false;
 
 const propTypes = {
-  subscriptionsReady: PropTypes.bool.isRequired,
+  subscriptionsReady: PropTypes.bool,
   locale: PropTypes.string,
   approved: PropTypes.bool,
-  meetingHasEnded: PropTypes.bool.isRequired,
+  meetingHasEnded: PropTypes.bool,
   meetingExist: PropTypes.bool,
 };
 
@@ -43,6 +43,8 @@ const defaultProps = {
   locale: undefined,
   approved: undefined,
   meetingExist: false,
+  subscriptionsReady: false,
+  meetingHasEnded: false,
 };
 
 const fullscreenChangedEvents = [
@@ -169,9 +171,17 @@ class Base extends Component {
       meetingExist,
       meetingHasEnded,
       meetingIsBreakout,
+      loggedIn,
+      meetingExisted,
     } = this.props;
 
-    if ((loading || !subscriptionsReady) && !meetingHasEnded && meetingExist) {
+    if (codeError && !meetingHasEnded) {
+      logger.error({ logCode: 'startup_client_usercouldnotlogin_error' }, `User could not log in HTML5, hit ${codeError}`);
+      return (<ErrorScreen code={codeError} />);
+    }
+
+    if (((loading || !subscriptionsReady) && !meetingHasEnded && meetingExist)
+      || (!meetingExisted && !meetingExist && loggedIn)) {
       return (<LoadingScreen>{loading}</LoadingScreen>);
     }
 
@@ -188,28 +198,19 @@ class Base extends Component {
       return (<MeetingEnded code={codeError} />);
     }
 
-    if (codeError && !meetingHasEnded) {
-      logger.error({ logCode: 'startup_client_usercouldnotlogin_error' }, `User could not log in HTML5, hit ${codeError}`);
-      return (<ErrorScreen code={codeError} />);
-    }
     // this.props.annotationsHandler.stop();
     return (<AppContainer {...this.props} baseControls={stateControls} />);
   }
 
   render() {
     const { updateLoadingState } = this;
-    const { locale, meetingExist } = this.props;
+    const { locale } = this.props;
     const stateControls = { updateLoadingState };
-    const { meetingExisted } = this.state;
 
     return (
-      (!meetingExisted && !meetingExist && Auth.loggedIn)
-        ? <LoadingScreen />
-        : (
-          <IntlStartup locale={locale} baseControls={stateControls}>
-            {this.renderByState()}
-          </IntlStartup>
-        )
+      <IntlStartup locale={locale} baseControls={stateControls}>
+        {this.renderByState()}
+      </IntlStartup>
     );
   }
 }
@@ -234,6 +235,17 @@ const BaseContainer = withTracker(() => {
   if (meeting) {
     const { meetingEnded } = meeting;
     if (meetingEnded) Session.set('codeError', '410');
+  }
+
+  const approved = Users.findOne({ userId: Auth.userID, approved: true, guest: true });
+  const ejected = Users.findOne({ userId: Auth.userID, ejected: true });
+  if (Session.get('codeError')) {
+    return {
+      meetingHasEnded: !!meeting && meeting.meetingEnded,
+      approved,
+      ejected,
+      meetingIsBreakout: AppService.meetingIsBreakout(),
+    };
   }
 
   let userSubscriptionHandler;
@@ -281,7 +293,6 @@ const BaseContainer = withTracker(() => {
     userSubscriptionHandler = Meteor.subscribe('users', credentials, mappedUser.isModerator, subscriptionErrorHandler);
     breakoutRoomSubscriptionHandler = Meteor.subscribe('breakouts', credentials, mappedUser.isModerator, subscriptionErrorHandler);
     meetingModeratorSubscriptionHandler = Meteor.subscribe('meetings', credentials, mappedUser.isModerator, subscriptionErrorHandler);
-
   }
 
   const annotationsHandler = Meteor.subscribe('annotations', credentials, {
@@ -350,8 +361,8 @@ const BaseContainer = withTracker(() => {
   });
 
   return {
-    approved: Users.findOne({ userId: Auth.userID, approved: true, guest: true }),
-    ejected: Users.findOne({ userId: Auth.userID, ejected: true }),
+    approved,
+    ejected,
     locale,
     subscriptionsReady,
     annotationsHandler,
@@ -367,6 +378,7 @@ const BaseContainer = withTracker(() => {
     meetingExist: !!meeting,
     meetingHasEnded: !!meeting && meeting.meetingEnded,
     meetingIsBreakout: AppService.meetingIsBreakout(),
+    loggedIn,
   };
 })(Base);
 
