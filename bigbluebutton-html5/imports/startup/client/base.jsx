@@ -231,12 +231,20 @@ const BaseContainer = withTracker(() => {
   let breakoutRoomSubscriptionHandler;
   let meetingModeratorSubscriptionHandler;
 
-  if (Session.get('codeError')) return {};
-
   const meeting = Meetings.findOne({ meetingId });
   if (meeting) {
     const { meetingEnded } = meeting;
     if (meetingEnded) Session.set('codeError', '410');
+  }
+
+  const approved = Users.findOne({ userId: Auth.userID, approved: true, guest: true });
+  const ejected = Users.findOne({ userId: Auth.userID, ejected: true });
+  if (Session.get('codeError')) {
+    return {
+      meetingHasEnded: !!meeting && meeting.meetingEnded,
+      approved,
+      ejected,
+    };
   }
 
   let userSubscriptionHandler;
@@ -352,8 +360,8 @@ const BaseContainer = withTracker(() => {
   });
 
   return {
-    approved: Users.findOne({ userId: Auth.userID, approved: true, guest: true }),
-    ejected: Users.findOne({ userId: Auth.userID, ejected: true }),
+    approved,
+    ejected,
     locale,
     subscriptionsReady,
     annotationsHandler,
