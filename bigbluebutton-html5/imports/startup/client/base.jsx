@@ -244,6 +244,7 @@ const BaseContainer = withTracker(() => {
       meetingHasEnded: !!meeting && meeting.meetingEnded,
       approved,
       ejected,
+      meetingIsBreakout: AppService.meetingIsBreakout(),
     };
   }
 
