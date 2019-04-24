@@ -43,6 +43,7 @@
     "app.userList.menu.demoteUser.label": "Понизити до глядача",
     "app.userList.menu.unlockUser.label": "Зняти обмеження для {0}",
     "app.userList.menu.lockUser.label": "Обмежити можливості для {0}",
+    "app.userList.menu.makePresenter.label": "Зробити ведучим",
     "app.userList.userOptions.manageUsersLabel": "Керувати користувачами",
     "app.userList.userOptions.muteAllLabel": "Вимкнути мікрофон всім",
     "app.userList.userOptions.muteAllDesc": "Вимкнути всім учасникам мікрофон",

@@ -47,6 +47,7 @@
     "app.userList.menu.demoteUser.label": "ビューアーに戻す",
     "app.userList.menu.unlockUser.label": "{0}のロックを解除する",
     "app.userList.menu.lockUser.label": "{0}をロックする",
+    "app.userList.menu.makePresenter.label": "プレゼンターにする",
     "app.userList.userOptions.manageUsersLabel": "ユーザー管理",
     "app.userList.userOptions.muteAllLabel": "全ユーザーをミュートにする",
     "app.userList.userOptions.muteAllDesc": "この会議の全ユーザーをミュートにする",
