@@ -14,25 +14,28 @@ const intlMessages = defineMessages({
 
 const propTypes = {
   intl: intlShape.isRequired,
-  handleFullscreen: PropTypes.func.isRequired,
+  fullscreenRef: PropTypes.instanceOf(Element),
   dark: PropTypes.bool,
   elementName: PropTypes.string,
   className: PropTypes.string,
+  handleToggleFullScreen: PropTypes.func.isRequired,
 };
 
 const defaultProps = {
   dark: false,
   elementName: '',
   className: '',
+  fullscreenRef: null,
 };
 
 const FullscreenButtonComponent = ({
   intl,
-  handleFullscreen,
   dark,
   elementName,
   tooltipDistance,
   className,
+  fullscreenRef,
+  handleToggleFullScreen,
 }) => {
   const formattedLabel = intl.formatMessage(
     intlMessages.fullscreenButton,
@@ -51,7 +54,7 @@ const FullscreenButtonComponent = ({
         color="default"
         icon="fullscreen"
         size="sm"
-        onClick={handleFullscreen}
+        onClick={() => handleToggleFullScreen(fullscreenRef)}
         label={formattedLabel}
         hideLabel
         className={cx(styles.button, styles.fullScreenButton, className)}

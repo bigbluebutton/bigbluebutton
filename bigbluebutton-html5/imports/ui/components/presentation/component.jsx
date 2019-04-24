@@ -14,7 +14,7 @@ import { styles } from './styles.scss';
 import MediaService, { shouldEnableSwapLayout } from '../media/service';
 import PresentationCloseButton from './presentation-close-button/component';
 import DownloadPresentationButton from './download-presentation-button/component';
-import FullscreenButton from '/imports/ui/components/video-provider/fullscreen-button/component';
+import FullscreenButtonContainer from '../video-provider/fullscreen-button/container';
 
 const intlMessages = defineMessages({
   presentationLabel: {
@@ -22,18 +22,6 @@ const intlMessages = defineMessages({
     description: 'presentation area element label',
   },
 });
-
-const fullRef = (ref) => {
-  if (ref.requestFullscreen) {
-    ref.requestFullscreen();
-  } else if (ref.mozRequestFullScreen) {
-    ref.mozRequestFullScreen();
-  } else if (ref.webkitRequestFullscreen) {
-    ref.webkitRequestFullscreen();
-  } else if (ref.msRequestFullscreen) {
-    ref.msRequestFullscreen();
-  }
-};
 
 class PresentationArea extends Component {
   constructor() {
@@ -340,7 +328,7 @@ class PresentationArea extends Component {
   // renders the whole presentation area
   renderPresentationArea() {
     const { presentationWidth } = this.state;
-    const { podId, currentSlide } = this.props;
+    const { podId, currentSlide, isFullscreen } = this.props;
     if (!this.isPresentationAccessible()) return null;
 
 
@@ -380,7 +368,7 @@ class PresentationArea extends Component {
       >
         {this.renderPresentationClose()}
         {this.renderPresentationDownload()}
-        {this.renderPresentationFullscreen()}
+        {isFullscreen ? null : this.renderPresentationFullscreen()}
         <TransitionGroup>
           <CSSTransition
             key={slideObj.id}
@@ -469,7 +457,7 @@ class PresentationArea extends Component {
           podId,
         }}
         isFullscreen={isFullscreen}
-        fullscreenRef={() => fullRef(this.refPresentationContainer)}
+        fullscreenRef={this.refPresentationContainer}
         currentSlideNum={currentSlide.num}
         presentationId={currentSlide.presentationId}
         zoomChanger={this.zoomChanger}
@@ -516,11 +504,10 @@ class PresentationArea extends Component {
     if (userIsPresenter) return null;
 
     return (
-      <FullscreenButton
-        handleFullscreen={() => fullRef(this.refPresentationContainer)}
+      <FullscreenButtonContainer
+        fullscreenRef={this.refPresentationContainer}
         elementName={intl.formatMessage(intlMessages.presentationLabel)}
         dark
-        fullscreenButton
       />
     );
   }

@@ -2,7 +2,7 @@ import React from 'react';
 import { defineMessages, injectIntl, intlShape } from 'react-intl';
 import PropTypes from 'prop-types';
 import _ from 'lodash';
-import FullscreenButton from '../video-provider/fullscreen-button/component';
+import FullscreenButtonContainer from '../video-provider/fullscreen-button/container';
 import { styles } from './styles';
 
 const intlMessages = defineMessages({
@@ -52,10 +52,11 @@ class ScreenshareComponent extends React.Component {
     };
 
     return (
-      <FullscreenButton
+      <FullscreenButtonContainer
         handleFullscreen={full}
         key={_.uniqueId('fullscreenButton-')}
         elementName={intl.formatMessage(intlMessages.screenShareLabel)}
+        fullscreenRef={this.videoTag}
       />
     );
   }

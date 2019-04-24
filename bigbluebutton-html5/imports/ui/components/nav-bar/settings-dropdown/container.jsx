@@ -10,7 +10,7 @@ const SettingsDropdownContainer = props => (
 
 export default withTracker((props) => {
   const isFullscreen = Session.get('isFullscreen');
-  const handleToggleFullscreen = toggleFullScreen;
+  const handleToggleFullscreen = () => toggleFullScreen();
   const BROWSER_RESULTS = browser();
   const isSafari = BROWSER_RESULTS.name === 'safari';
   const noIOSFullscreen = isSafari && BROWSER_RESULTS.versionNumber < 12;
