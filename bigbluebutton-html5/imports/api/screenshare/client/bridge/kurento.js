@@ -23,12 +23,13 @@ const getUsername = () => Users.findOne({ userId: getUserId() }).name;
 const getSessionToken = () => Auth.sessionToken;
 
 const logFunc = (type, message, options) => {
+  // if (message && message.id && message.id === 'ping') return;
   const userId = getUserId();
   const userName = getUsername();
 
   const topic = options.topic || 'screenshare';
 
-  logger[type]({ obj: Object.assign(options, { userId, userName, topic }) }, `[${topic}] ${message}`);
+  logger[type](`[${topic}] ${message} ${JSON.stringify(Object.assign(options, { userId, userName, topic }))}`);
 };
 
 const modLogger = {

@@ -285,9 +285,9 @@ class VideoProvider extends Component {
   logger(type, message, logCode, options = {}) {
     const { userId, userName } = this.props;
     const topic = options.topic || 'video';
-    logger[type](`${JSON.stringify(Object.assign(options, {
+    logger[type](`[${topic}] ${message}, ${JSON.stringify(Object.assign(options, {
       userId, userName, topic, logCode,
-    }))}, [${topic}] ${message}`);
+    }))}`);
   }
 
   _sendPauseStream(id, role, state) {
@@ -375,7 +375,7 @@ class VideoProvider extends Component {
   handleIceCandidate(message) {
     const webRtcPeer = this.webRtcPeers[message.cameraId];
 
-    this.logger('debug', 'Received remote ice candidate', 'video_provider_ice_candidate_received', { topic: 'ice', candidate: message.candidate });
+    this.logger('debug', 'Received remote ice candidate', 'video_provider_ice_candidate_received', { topic: 'video', candidate: message.candidate });
 
     if (webRtcPeer) {
       if (webRtcPeer.didSDPAnswered) {
@@ -594,7 +594,7 @@ class VideoProvider extends Component {
           this.restartTimer[id]);
       }
 
-      this.logger('debug', 'Generated local ice candidate', 'video_provider_generated_local_ice', { topic: 'ice', candidate });
+      this.logger('debug', 'Generated local ice candidate', 'video_provider_generated_local_ice', { topic: 'video', candidate });
 
       const message = {
         type: 'video',
