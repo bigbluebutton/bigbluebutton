@@ -6,6 +6,7 @@ import logger from '/imports/startup/client/logger';
 import Base from '/imports/startup/client/base';
 import JoinHandler from '/imports/ui/components/join-handler/component';
 import AuthenticatedHandler from '/imports/ui/components/authenticated-handler/component';
+import Subscriptions from '/imports/ui/components/subscriptions/component';
 
 Meteor.startup(() => {
   // Logs all uncaught exceptions to the client logger
@@ -24,9 +25,11 @@ Meteor.startup(() => {
 
   // TODO make this a Promise
   render(
-    <JoinHandler >
+    <JoinHandler>
       <AuthenticatedHandler>
-        <Base />
+        <Subscriptions>
+          <Base />
+        </Subscriptions>
       </AuthenticatedHandler>
     </JoinHandler>,
     document.getElementById('app'),
