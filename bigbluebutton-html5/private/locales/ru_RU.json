@@ -1,4 +1,5 @@
 {
+    "app.home.greeting": "Ваша презентация скоро начнется...",
     "app.chat.submitLabel": "Отправить сообщение",
     "app.chat.errorMinMessageLength": "Сообщение из {0} символа(-ов) слишком короткое",
     "app.chat.errorMaxMessageLength": "Сообщение из {0} символа(-ов) слишком длинное",
@@ -325,6 +326,8 @@
     "app.videoDock.webcamUnfocusLabel": "Расфокусировать",
     "app.videoDock.webcamUnfocusDesc": "Расфокусировать выбранную веб-камеру",
     "app.createBreakoutRoom.joinAudio": "Присоединиться к аудио-конференции",
+    "app.externalVideo.input": "Ссылка на видео YouTube",
+    "app.externalVideo.urlInput": "Добавить ссылку на YouTube",
     "app.externalVideo.close": "Закрыть"
 
 }

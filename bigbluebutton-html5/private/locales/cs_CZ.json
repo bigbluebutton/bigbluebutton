@@ -43,6 +43,7 @@
     "app.userList.menu.demoteUser.label": "Degradovat na posluchače",
     "app.userList.menu.unlockUser.label": "Odemknout {0}",
     "app.userList.menu.lockUser.label": "Uzamknout {0}",
+    "app.userList.menu.makePresenter.label": "Učinit přednášejícím",
     "app.userList.userOptions.manageUsersLabel": "Spravovat uživatele",
     "app.userList.userOptions.muteAllLabel": "Ztlumit všechny uživatele",
     "app.userList.userOptions.muteAllDesc": "Ztlumit všechny uživatele na setkání",
