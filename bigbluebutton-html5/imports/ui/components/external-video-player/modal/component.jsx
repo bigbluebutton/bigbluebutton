@@ -14,10 +14,6 @@ const intlMessages = defineMessages({
     id: 'app.externalVideo.start',
     description: 'Share youtube video',
   },
-  stop: {
-    id: 'app.externalVideo.stop',
-    description: 'Stop sharing video',
-  },
   urlError: {
     id: 'app.externalVideo.urlError',
     description: 'Not a video URL error',
@@ -56,7 +52,6 @@ class ExternalVideoModal extends Component {
     };
 
     this.startWatchingHandler = this.startWatchingHandler.bind(this);
-    this.stopWatchingHandler = this.stopWatchingHandler.bind(this);
     this.updateVideoUrlHandler = this.updateVideoUrlHandler.bind(this);
     this.renderUrlError = this.renderUrlError.bind(this);
     this.updateVideoUrlHandler = this.updateVideoUrlHandler.bind(this);
@@ -67,13 +62,6 @@ class ExternalVideoModal extends Component {
     const { url } = this.state;
 
     startWatching(url);
-    closeModal();
-  }
-
-  stopWatchingHandler() {
-    const { stopWatching, closeModal } = this.props;
-
-    stopWatching();
     closeModal();
   }
 
@@ -146,20 +134,10 @@ class ExternalVideoModal extends Component {
           </div>
 
           <Button
-            className={
-              sharing
-                ? styles.stopBtn
-                : styles.startBtn
-            }
-            label={
-              sharing
-                ? intl.formatMessage(intlMessages.stop)
-                : intl.formatMessage(intlMessages.start)}
-            onClick={
-              sharing
-                ? this.stopWatchingHandler
-                : this.startWatchingHandler}
-            disabled={!sharing && startDisabled}
+            className={styles.startBtn}
+            label={intl.formatMessage(intlMessages.start)}
+            onClick={this.startWatchingHandler}
+            disabled={startDisabled}
           />
         </div>
       </ModalBase>

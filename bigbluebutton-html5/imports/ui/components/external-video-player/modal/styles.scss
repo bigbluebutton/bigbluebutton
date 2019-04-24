@@ -68,14 +68,9 @@
   font-size: var(--font-size-large);
 }
 
-.startBtn,
-.stopBtn {
+.startBtn {
   display: flex;
   align-self: center;
-}
-
-
-.startBtn {
   &:focus {
     outline: none !important;
   }
@@ -91,24 +86,6 @@
   bottom:   20px;
   color: var(--color-white) !important;
   background-color: var(--color-link) !important;
-}
-
-.stopBtn {
-  &:focus {
-    outline: none !important;
-  }
-
-  i{
-    color: red;
-  }
-
-
-  width: 40%;
-  display: block;
-  position: absolute;
-  bottom:   20px;
-  color: var(--color-white) !important;
-  background-color: red !important;
 }
 
 .title {

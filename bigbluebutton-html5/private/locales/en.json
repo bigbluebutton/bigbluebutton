@@ -573,7 +573,6 @@
     "app.createBreakoutRoom.leastOneWarnBreakout": "You must place at least one user in a breakout room.",
     "app.createBreakoutRoom.modalDesc": "Complete the steps below to create rooms in your session, To add participants to a room.",
     "app.externalVideo.start": "Share a new video",
-    "app.externalVideo.stop": "Stop sharing video",
     "app.externalVideo.title": "Share a YouTube video",
     "app.externalVideo.input": "YouTube video URL",
     "app.externalVideo.urlInput": "Add YouTube URL",
