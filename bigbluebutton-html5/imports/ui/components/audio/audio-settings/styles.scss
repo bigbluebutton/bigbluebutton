@@ -1,5 +1,10 @@
 @import "/imports/ui/stylesheets/variables/_all";
 
+.col,
+.formWrapper{
+  min-width: 0;
+}
+
 .form {
   display: flex;
   flex-flow: column;
