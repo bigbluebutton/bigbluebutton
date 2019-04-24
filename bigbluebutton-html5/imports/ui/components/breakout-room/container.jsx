@@ -19,6 +19,7 @@ export default withTracker((props) => {
     isPresenter,
     isModerator,
     closeBreakoutPanel,
+    getUsersByBreakoutId,
   } = Service;
   const breakoutRooms = findBreakouts();
   const isMicrophoneUser = AudioService.isConnected() && !AudioService.isListenOnly();
@@ -36,5 +37,6 @@ export default withTracker((props) => {
     isPresenter: isPresenter(),
     isModerator: isModerator(),
     closeBreakoutPanel,
+    getUsersByBreakoutId,
   };
 })(BreakoutContainer);
