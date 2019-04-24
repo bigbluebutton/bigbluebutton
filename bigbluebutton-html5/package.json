@@ -12,13 +12,6 @@
     "test": "jest",
     "lint": "eslint . --ext .jsx,.js"
   },
-  "meteor": {
-    "mainModule": {
-      "web.browser": "client/main.jsx",
-      "legacy": "client/legacy.jsx",
-      "server": "server/main.js"
-    }
-  },
   "lint-staged": {
     "linters": {
       "*.{js,jsx}": [
