@@ -46,9 +46,6 @@ export default withTracker(() => {
   const subscriptionsHandlers = SUBSCRIPTIONS.map(name => Meteor.subscribe(name, credentials, subscriptionErrorHandler));
 
   let groupChatMessageHandler = {};
-  // let userSubscriptionHandler = {};
-  // let breakoutRoomSubscriptionHandler = {};
-  // let meetingModeratorSubscriptionHandler = {};
   let annotationsHandler = {};
 
   const chats = GroupChat.find({
