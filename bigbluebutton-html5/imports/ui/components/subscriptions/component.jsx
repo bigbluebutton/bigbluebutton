@@ -3,7 +3,6 @@ import { withTracker } from 'meteor/react-meteor-data';
 import Auth from '/imports/ui/services/auth';
 import logger from '/imports/startup/client/logger';
 import GroupChat from '/imports/api/group-chat';
-import LoadingScreen from '/imports/ui/components/loading-screen/component';
 import Users from '/imports/api/users';
 import Annotations from '/imports/api/annotations';
 import AnnotationsTextService from '/imports/ui/components/whiteboard/annotations/text/service';
@@ -47,9 +46,9 @@ export default withTracker(() => {
   const subscriptionsHandlers = SUBSCRIPTIONS.map(name => Meteor.subscribe(name, credentials, subscriptionErrorHandler));
 
   let groupChatMessageHandler = {};
-  let userSubscriptionHandler = {};
-  let breakoutRoomSubscriptionHandler = {};
-  let meetingModeratorSubscriptionHandler = {};
+  // let userSubscriptionHandler = {};
+  // let breakoutRoomSubscriptionHandler = {};
+  // let meetingModeratorSubscriptionHandler = {};
   let annotationsHandler = {};
 
   const chats = GroupChat.find({
@@ -70,9 +69,9 @@ export default withTracker(() => {
 
   if (User) {
     const mappedUser = mapUser(User);
-    userSubscriptionHandler = Meteor.subscribe('users', credentials, mappedUser.isModerator, subscriptionErrorHandler);
-    breakoutRoomSubscriptionHandler = Meteor.subscribe('breakouts', credentials, mappedUser.isModerator, subscriptionErrorHandler);
-    meetingModeratorSubscriptionHandler = Meteor.subscribe('meetings', credentials, mappedUser.isModerator, subscriptionErrorHandler);
+    Meteor.subscribe('users', credentials, mappedUser.isModerator, subscriptionErrorHandler);
+    Meteor.subscribe('breakouts', credentials, mappedUser.isModerator, subscriptionErrorHandler);
+    Meteor.subscribe('meetings', credentials, mappedUser.isModerator, subscriptionErrorHandler);
   }
 
   annotationsHandler = Meteor.subscribe('annotations', credentials, {
