@@ -18,6 +18,18 @@
 
   --background: var(--color-white);
   --background-active: #eee;
+
+  --toast-offset: 4.5rem;
+  --toast-offset-sm: .325rem;
+  --toast-mobile-width: 75%;
+
+  --toast-max-width: 20rem !important;
+  --toast-body-max-width: 17.75rem !important;
+  --toast-container-max-width: 23rem !important;
+  --toast-container-min-width: var(--toast-max-width);
+
+  --toast-icon-md: 2rem;
+  --toast-icon-sm: 1.2rem;
 }
 
 @mixin notification-variant($icon-color, $icon-bg) {
@@ -36,17 +48,16 @@
 
 .smallToastContainer {
   background-color: inherit;
-  margin: -.35rem;
 }
 
 .icon {
   align-self: flex-start;
   margin-bottom: auto;
   margin-right: var(--sm-padding-x);
-  width: 2rem;
+  width: var(--toast-icon-md);
+  height: var(--toast-icon-md);
   border-radius: 50%;
   position: relative;
-  height: 2rem;
   flex-shrink: 0;
 
   > i {
@@ -59,25 +70,20 @@
 }
 
 .smallIcon {
-  width: 1.2rem;
-  height: 1.2rem;
+  width: var(--toast-icon-sm);
+  height: var(--toast-icon-sm);
   > i {
     font-size: 70%;
   }
 }
 
 .separator {
-  height: 1px;
-  width: 99%;
-  position: absolute;
-  margin-left: -.5em;
+  position: relative;
+  width: 100%;
+  height: var(--border-size-small);
   background-color: var(--color-gray-lighter);
   margin-top: calc(var(--line-height-computed) * .5);
   margin-bottom: calc(var(--line-height-computed) * .5);
-  @include mq($small-only) {
-    position: relative;
-    margin-left: auto;
-  }
 }
 
 .message {
@@ -113,20 +119,19 @@
 }
 
 .container {
-  z-index: 9999;
+  z-index: 9998;
   position: fixed;
   padding: var(--sm-padding-y);
-  width: 15vw;
-  min-width: 320px;
+  min-width: var(--toast-container-min-width);
+  max-width: var(--toast-container-max-width);
   box-sizing: border-box;
-  top: var(--md-padding-y);
-  right: var(--md-padding-y);
+  right: var(--jumbo-padding-y);
+  top: var(--toast-offset);
   max-height: 75vh;
   overflow: hidden;
 
   @include mq($small-only) {
-    left: var(--sm-padding-y);
-    width: auto;
+    width: var(--toast-mobile-width);
   }
 }
 
@@ -135,7 +140,7 @@
   margin-bottom: var(--sm-padding-x);
   padding: var(--md-padding-x);
   border-radius: var(--border-radius);
-  box-shadow: 0 1px 10px 0 rgba(0, 0, 0, 0.1), 0 2px 15px 0 rgba(0, 0, 0, 0.05);
+  box-shadow: 0 var(--border-size-small) 10px 0 rgba(0, 0, 0, 0.1), 0 var(--border-size) 15px 0 rgba(0, 0, 0, 0.05);
   display: flex;
   justify-content: space-between;
   cursor: pointer;
@@ -143,6 +148,7 @@
   background-color: var(--background);
   animation-duration: 0.75s;
   animation-fill-mode: both;
+  max-width: var(--toast-max-width);
 
   &:hover,
   &:focus {
@@ -151,9 +157,10 @@
 }
 
 .body {
-  margin: auto 0;
+  margin: auto auto;
   flex: 1;
   background-color: inherit;
+  max-width: var(--toast-body-max-width);
 }
 
 .close {
@@ -162,22 +169,19 @@
   border: none;
   cursor: pointer;
   opacity: .5;
-  font-size: .35rem;
+  font-size: var(--font-size-smallest);
   color: var(--color-gray-dark);
-  padding: .4rem;
   line-height: 0;
-  position: absolute;
-  top: var(--md-padding-y);
-  right: var(--md-padding-y);
+  position: relative;
   font-size: 70%;
-  top: var(--lg-padding-y);
+  left: var(--toast-offset-sm);
 
   :global(.animationsEnabled) & {
     transition: .3s ease;
   }
 
   &:before {
-    margin-left: -.2rem;
+    margin-left: -.4rem;
   }
 
   &:hover,
@@ -187,15 +191,8 @@
 
   @include mq($small-only) {
     position: relative;
-    top: auto;
-    right: auto;
-    align-self: flex-start;
-    margin-top: auto;
-    margin-bottom: auto;
-    margin-left: var(--sm-padding-x);
-    font-size: 1rem;
-    line-height: 1;
-    border: none;
+    font-size: var(--font-size-smaller);
+    left: auto;
   }
 }
 
@@ -208,7 +205,7 @@
   }
 }
 .backgroundColorInherit {
-  background-color: inherit;
+  position: relative;
 }
 
 .progress {

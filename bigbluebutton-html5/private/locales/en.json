@@ -49,6 +49,7 @@
     "app.userList.menu.unlockUser.label": "Unlock {0}",
     "app.userList.menu.lockUser.label": "Lock {0}",
     "app.userList.menu.directoryLookup.label": "Directory Lookup",
+    "app.userList.menu.makePresenter.label": "Make presenter",
     "app.userList.userOptions.manageUsersLabel": "Manage users",
     "app.userList.userOptions.muteAllLabel": "Mute all users",
     "app.userList.userOptions.muteAllDesc": "Mutes all users in the meeting",
@@ -140,6 +141,7 @@
     "app.poll.publishLabel": "Publish polling results",
     "app.poll.backLabel": "Back to polling options",
     "app.poll.closeLabel": "Close",
+    "app.poll.waitingLabel": "Waiting for responses ({0}/{1})",
     "app.poll.ariaInputCount": "Input {0} of {1}",
     "app.poll.customPlaceholder": "Add poll option",
     "app.poll.noPresentationSelected": "No presentation selected! Please select one.",
@@ -579,5 +581,6 @@
     "app.externalVideo.close": "Close",
     "app.externalVideo.noteLabel": "Note: Shared YouTube videos will not appear in the recording",
     "app.actionsBar.actionsDropdown.shareExternalVideo": "Share YouTube video",
-    "app.actionsBar.actionsDropdown.stopShareExternalVideo": "Stop sharing YouTube video"
+    "app.actionsBar.actionsDropdown.stopShareExternalVideo": "Stop sharing YouTube video",
+    "app.iOSWarning.label": "Please upgrade to iOS 12.2 or higher"
 }

@@ -20,7 +20,6 @@
     "app.userList.locked": "Locked",
     "app.userList.chatListItem.unreadSingular": "{0} New Message",
     "app.userList.chatListItem.unreadPlural": "{0} New Messages",
-    "app.userList.menu.chat.label": "Chat",
     "app.userList.menu.muteUserAudio.label": "Mute user",
     "app.userList.menu.unmuteUserAudio.label": "Unmute user",
     "app.media.label": "Media",

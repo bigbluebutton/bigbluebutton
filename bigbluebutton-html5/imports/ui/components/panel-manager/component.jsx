@@ -80,6 +80,15 @@ class PanelManager extends Component {
     };
   }
 
+  componentDidUpdate(prevProps) {
+    const { openPanel } = this.props;
+    const { openPanel: oldOpenPanel } = prevProps;
+
+    if (openPanel !== oldOpenPanel) {
+      window.dispatchEvent(new Event('resize'));
+    }
+  }
+
   renderUserList() {
     const {
       intl,

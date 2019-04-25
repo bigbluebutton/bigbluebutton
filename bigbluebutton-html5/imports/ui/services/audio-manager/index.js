@@ -174,7 +174,7 @@ class AudioManager {
         clearTimeout(iceGatheringTimeout);
       }
 
-      logger.error({ logCode: 'audiomanager_listenonly_error' }, 'Listen only error:', err, 'on try', retries);
+      logger.error({ logCode: 'audiomanager_listenonly_error' }, `Listen only error:${JSON.stringify(err)} on try ${retries}`);
       throw {
         type: 'MEDIA_ERROR',
         message: this.messages.error.MEDIA_ERROR,
@@ -317,7 +317,7 @@ class AudioManager {
         const errorMsg = this.intl.formatMessage(errorKey, { 0: bridgeError });
         this.error = !!error;
         this.notify(errorMsg, true);
-        logger.error({ logCode: 'audio_failure', error, cause: bridgeError }, 'Audio Error:', error, bridgeError);
+        logger.error({ logCode: 'audio_failure', error, cause: bridgeError }, `Audio Error ${JSON.stringify(errorMsg)}`);
         this.exitAudio();
         this.onAudioExit();
       }

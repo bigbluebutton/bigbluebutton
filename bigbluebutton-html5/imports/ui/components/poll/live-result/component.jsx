@@ -23,7 +23,23 @@ const intlMessages = defineMessages({
     id: 'app.poll.backLabel',
     description: 'label for the return to poll options button',
   },
+  doneLabel: {
+    id: 'app.createBreakoutRoom.doneLabel',
+    description: 'label shown when all users have responded',
+  },
+  waitingLabel: {
+    id: 'app.poll.waitingLabel',
+    description: 'label shown while waiting for responses',
+  },
 });
+
+const getResponseString = (obj) => {
+  const { children } = obj.props;
+  if (typeof children !== 'string') {
+    return getResponseString(children[1]);
+  }
+  return children;
+};
 
 class LiveResult extends Component {
   static getDerivedStateFromProps(nextProps) {
@@ -57,14 +73,23 @@ class LiveResult extends Component {
       .sort(Service.sortUsers)
       .reduce((acc, user) => [
         ...acc,
-        <div className={styles.item} key={_.uniqueId('stats-')}>{user.name}</div>,
-        <div className={styles.itemR} key={_.uniqueId('stats-')}>{user.answer}</div>,
+        (
+          <tr key={_.uniqueId('stats-')}>
+            <td className={styles.resultLeft}>{user.name}</td>
+            <td className={styles.resultRight}>{user.answer}</td>
+          </tr>
+        ),
       ], []);
 
     const pollStats = [];
 
     answers.map((obj) => {
       const pct = Math.round(obj.numVotes / numRespondents * 100);
+      const pctFotmatted = `${Number.isNaN(pct) ? 0 : pct}%`;
+
+      const calculatedWidth = {
+        width: pctFotmatted,
+      };
 
       return pollStats.push(
         <div className={styles.main} key={_.uniqueId('stats-')}>
@@ -72,10 +97,11 @@ class LiveResult extends Component {
             {obj.key}
           </div>
           <div className={styles.center}>
-            {obj.numVotes}
+            <div className={styles.barShade} style={calculatedWidth} />
+            <div className={styles.barVal}>{obj.numVotes || 0}</div>
           </div>
           <div className={styles.right}>
-            {`${Number.isNaN(pct) ? 0 : pct}%`}
+            {pctFotmatted}
           </div>
         </div>,
       );
@@ -103,10 +129,40 @@ class LiveResult extends Component {
 
     const { userAnswers, pollStats } = this.state;
 
+    let waiting;
+    let userCount = 0;
+    let respondedCount = 0;
+
+    if (userAnswers) {
+      userCount = userAnswers.length;
+      userAnswers.map((user) => {
+        const response = getResponseString(user);
+        if (response === '-') return user;
+        respondedCount += 1;
+        return user;
+      });
+
+      waiting = respondedCount !== userAnswers.length && currentPoll;
+    }
+
     return (
       <div>
         <div className={styles.stats}>
           {pollStats}
+        </div>
+        <div className={styles.status}>
+          {waiting
+            ? (
+              <span>
+                {`${intl.formatMessage(intlMessages.waitingLabel, {
+                  0: respondedCount,
+                  1: userCount,
+                })} `}
+              </span>
+            )
+            : <span>{intl.formatMessage(intlMessages.doneLabel)}</span>}
+          {waiting
+            ? <span className={styles.connectingAnimation} /> : null}
         </div>
         {currentPoll
           ? (
@@ -130,15 +186,15 @@ class LiveResult extends Component {
             />
           )
         }
-        <div className={styles.container}>
-          <h3 className={styles.usersHeading}>
-            {intl.formatMessage(intlMessages.usersTitle)}
-          </h3>
-          <h3 className={styles.responseHeading}>
-            {intl.formatMessage(intlMessages.responsesTitle)}
-          </h3>
-          {userAnswers}
-        </div>
+        <table>
+          <tbody>
+            <tr>
+              <th className={styles.theading}>{intl.formatMessage(intlMessages.usersTitle)}</th>
+              <th className={styles.theading}>{intl.formatMessage(intlMessages.responsesTitle)}</th>
+            </tr>
+            {userAnswers}
+          </tbody>
+        </table>
       </div>
     );
   }

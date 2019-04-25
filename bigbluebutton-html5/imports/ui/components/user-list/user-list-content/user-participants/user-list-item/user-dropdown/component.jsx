@@ -61,6 +61,10 @@ const messages = defineMessages({
     id: 'app.actionsBar.actionsDropdown.takePresenter',
     description: 'Set this user to be the presenter in this meeting',
   },
+  makePresenterLabel: {
+    id: 'app.userList.menu.makePresenter.label',
+    description: 'label to make another user presenter',
+  },
   RemoveUserLabel: {
     id: 'app.userList.menu.removeUser.label',
     description: 'Forcefully remove this user from the meeting',
@@ -313,7 +317,9 @@ class UserDropdown extends PureComponent {
     if (allowedToSetPresenter) {
       actions.push(this.makeDropdownItem(
         'setPresenter',
-        intl.formatMessage(messages.takePresenterLabel),
+        user.isCurrent
+          ? intl.formatMessage(messages.takePresenterLabel)
+          : intl.formatMessage(messages.makePresenterLabel),
         () => this.onActionsHide(assignPresenter(user.id)),
         'presentation',
       ));
@@ -463,7 +469,7 @@ class UserDropdown extends PureComponent {
       ? (<Icon iconName={normalizeEmojiName(user.emoji.status)} />)
       : user.name.toLowerCase().slice(0, 2);
 
-    const iconVoiceOnlyUser = (<Icon iconName="speak_louder" />);
+    const iconVoiceOnlyUser = (<Icon iconName="audio_on" />);
 
     return (
       <UserAvatar
