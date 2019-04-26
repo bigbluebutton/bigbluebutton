@@ -32,10 +32,10 @@ const HTML = document.getElementsByTagName('html')[0];
 let breakoutNotified = false;
 
 const propTypes = {
-  subscriptionsReady: PropTypes.bool,
+  subscriptionsReady: PropTypes.bool.isRequired,
   locale: PropTypes.string,
   approved: PropTypes.bool,
-  meetingHasEnded: PropTypes.bool,
+  meetingHasEnded: PropTypes.bool.isRequired,
   meetingExist: PropTypes.bool,
 };
 
@@ -43,8 +43,6 @@ const defaultProps = {
   locale: undefined,
   approved: undefined,
   meetingExist: false,
-  subscriptionsReady: false,
-  meetingHasEnded: false,
 };
 
 const fullscreenChangedEvents = [
@@ -171,17 +169,9 @@ class Base extends Component {
       meetingExist,
       meetingHasEnded,
       meetingIsBreakout,
-      loggedIn,
-      meetingExisted,
     } = this.props;
 
-    if (codeError && !meetingHasEnded) {
-      logger.error({ logCode: 'startup_client_usercouldnotlogin_error' }, `User could not log in HTML5, hit ${codeError}`);
-      return (<ErrorScreen code={codeError} />);
-    }
-
-    if (((loading || !subscriptionsReady) && !meetingHasEnded && meetingExist)
-      || (!meetingExisted && !meetingExist && loggedIn)) {
+    if ((loading || !subscriptionsReady) && !meetingHasEnded && meetingExist) {
       return (<LoadingScreen>{loading}</LoadingScreen>);
     }
 
@@ -198,19 +188,28 @@ class Base extends Component {
       return (<MeetingEnded code={codeError} />);
     }
 
+    if (codeError && !meetingHasEnded) {
+      logger.error({ logCode: 'startup_client_usercouldnotlogin_error' }, `User could not log in HTML5, hit ${codeError}`);
+      return (<ErrorScreen code={codeError} />);
+    }
     // this.props.annotationsHandler.stop();
     return (<AppContainer {...this.props} baseControls={stateControls} />);
   }
 
   render() {
     const { updateLoadingState } = this;
-    const { locale } = this.props;
+    const { locale, meetingExist } = this.props;
     const stateControls = { updateLoadingState };
+    const { meetingExisted } = this.state;
 
     return (
-      <IntlStartup locale={locale} baseControls={stateControls}>
-        {this.renderByState()}
-      </IntlStartup>
+      (!meetingExisted && !meetingExist && Auth.loggedIn)
+        ? <LoadingScreen />
+        : (
+          <IntlStartup locale={locale} baseControls={stateControls}>
+            {this.renderByState()}
+          </IntlStartup>
+        )
     );
   }
 }
@@ -293,6 +292,7 @@ const BaseContainer = withTracker(() => {
     userSubscriptionHandler = Meteor.subscribe('users', credentials, mappedUser.isModerator, subscriptionErrorHandler);
     breakoutRoomSubscriptionHandler = Meteor.subscribe('breakouts', credentials, mappedUser.isModerator, subscriptionErrorHandler);
     meetingModeratorSubscriptionHandler = Meteor.subscribe('meetings', credentials, mappedUser.isModerator, subscriptionErrorHandler);
+
   }
 
   const annotationsHandler = Meteor.subscribe('annotations', credentials, {
@@ -378,7 +378,6 @@ const BaseContainer = withTracker(() => {
     meetingExist: !!meeting,
     meetingHasEnded: !!meeting && meeting.meetingEnded,
     meetingIsBreakout: AppService.meetingIsBreakout(),
-    loggedIn,
   };
 })(Base);
 
