@@ -17,6 +17,7 @@ import mapUser from '/imports/ui/services/user/mapUser';
 import { Session } from 'meteor/session';
 import IntlStartup from './intl';
 import Meetings from '../../api/meetings';
+import AppService from '/imports/ui/components/app/service';
 import AnnotationsTextService from '/imports/ui/components/whiteboard/annotations/text/service';
 import Breakouts from '/imports/api/breakouts';
 import AudioService from '/imports/ui/components/audio/service';
@@ -169,9 +170,9 @@ class Base extends Component {
       subscriptionsReady,
       meetingExist,
       meetingHasEnded,
-      meetingIsBreakout,
     } = this.props;
 
+    const meetingIsBreakout = AppService.meetingIsBreakout();
     if ((loading || !subscriptionsReady) && !meetingHasEnded && meetingExist) {
       return (<LoadingScreen>{loading}</LoadingScreen>);
     }
@@ -237,6 +238,17 @@ const BaseContainer = withTracker(() => {
   if (meeting) {
     const { meetingEnded } = meeting;
     if (meetingEnded) Session.set('codeError', '410');
+  }
+
+  const approved = Users.findOne({ userId: Auth.userID, approved: true, guest: true });
+  const ejected = Users.findOne({ userId: Auth.userID, ejected: true });
+  if (Session.get('codeError')) {
+    return {
+      meetingHasEnded: !!meeting && meeting.meetingEnded,
+      approved,
+      ejected,
+      meetingIsBreakout: AppService.meetingIsBreakout(),
+    };
   }
 
   let userSubscriptionHandler;
@@ -352,8 +364,8 @@ const BaseContainer = withTracker(() => {
   });
 
   return {
-    approved: Users.findOne({ userId: Auth.userID, approved: true, guest: true }),
-    ejected: Users.findOne({ userId: Auth.userID, ejected: true }),
+    approved,
+    ejected,
     locale,
     subscriptionsReady,
     annotationsHandler,
