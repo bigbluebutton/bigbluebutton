@@ -230,21 +230,12 @@ const BaseContainer = withTracker(() => {
   let breakoutRoomSubscriptionHandler;
   let meetingModeratorSubscriptionHandler;
 
+  if (Session.get('codeError')) return {};
+
   const meeting = Meetings.findOne({ meetingId });
   if (meeting) {
     const { meetingEnded } = meeting;
     if (meetingEnded) Session.set('codeError', '410');
-  }
-
-  const approved = Users.findOne({ userId: Auth.userID, approved: true, guest: true });
-  const ejected = Users.findOne({ userId: Auth.userID, ejected: true });
-  if (Session.get('codeError')) {
-    return {
-      meetingHasEnded: !!meeting && meeting.meetingEnded,
-      approved,
-      ejected,
-      meetingIsBreakout: AppService.meetingIsBreakout(),
-    };
   }
 
   let userSubscriptionHandler;
@@ -292,7 +283,6 @@ const BaseContainer = withTracker(() => {
     userSubscriptionHandler = Meteor.subscribe('users', credentials, mappedUser.isModerator, subscriptionErrorHandler);
     breakoutRoomSubscriptionHandler = Meteor.subscribe('breakouts', credentials, mappedUser.isModerator, subscriptionErrorHandler);
     meetingModeratorSubscriptionHandler = Meteor.subscribe('meetings', credentials, mappedUser.isModerator, subscriptionErrorHandler);
-
   }
 
   const annotationsHandler = Meteor.subscribe('annotations', credentials, {
@@ -361,8 +351,8 @@ const BaseContainer = withTracker(() => {
   });
 
   return {
-    approved,
-    ejected,
+    approved: Users.findOne({ userId: Auth.userID, approved: true, guest: true }),
+    ejected: Users.findOne({ userId: Auth.userID, ejected: true }),
     locale,
     subscriptionsReady,
     annotationsHandler,
