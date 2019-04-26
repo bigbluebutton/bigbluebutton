@@ -17,7 +17,6 @@ import mapUser from '/imports/ui/services/user/mapUser';
 import { Session } from 'meteor/session';
 import IntlStartup from './intl';
 import Meetings from '../../api/meetings';
-import AppService from '/imports/ui/components/app/service';
 import AnnotationsTextService from '/imports/ui/components/whiteboard/annotations/text/service';
 import Breakouts from '/imports/api/breakouts';
 import AudioService from '/imports/ui/components/audio/service';
@@ -32,10 +31,10 @@ const HTML = document.getElementsByTagName('html')[0];
 let breakoutNotified = false;
 
 const propTypes = {
-  subscriptionsReady: PropTypes.bool.isRequired,
+  subscriptionsReady: PropTypes.bool,
   locale: PropTypes.string,
   approved: PropTypes.bool,
-  meetingHasEnded: PropTypes.bool.isRequired,
+  meetingHasEnded: PropTypes.bool,
   meetingExist: PropTypes.bool,
 };
 
@@ -43,6 +42,8 @@ const defaultProps = {
   locale: undefined,
   approved: undefined,
   meetingExist: false,
+  subscriptionsReady: false,
+  meetingHasEnded: false,
 };
 
 const fullscreenChangedEvents = [
@@ -367,7 +368,6 @@ const BaseContainer = withTracker(() => {
     meteorIsConnected: Meteor.status().connected,
     meetingExist: !!meeting,
     meetingHasEnded: !!meeting && meeting.meetingEnded,
-    meetingIsBreakout: AppService.meetingIsBreakout(),
   };
 })(Base);
 
