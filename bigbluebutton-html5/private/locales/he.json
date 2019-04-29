@@ -22,6 +22,7 @@
     "app.userList.menu.muteUserAudio.label": "השתק",
     "app.userList.menu.unlockUser.label": "בטל נעילה ל {0} ",
     "app.userList.menu.lockUser.label": "נעל {0}",
+    "app.userList.menu.makePresenter.label": "הפוך למציג",
     "app.userList.userOptions.muteAllLabel": "השתק את כולם",
     "app.presentation.presentationToolbar.fitWidthLabel": "התאם רוחב",
     "app.presentation.presentationToolbar.fitScreenLabel": "התאם למסך",

@@ -142,7 +142,7 @@ class LiveResult extends Component {
         return user;
       });
 
-      waiting = respondedCount !== userAnswers.length;
+      waiting = respondedCount !== userAnswers.length && currentPoll;
     }
 
     return (

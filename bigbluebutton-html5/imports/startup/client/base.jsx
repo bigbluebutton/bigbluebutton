@@ -32,10 +32,10 @@ const HTML = document.getElementsByTagName('html')[0];
 let breakoutNotified = false;
 
 const propTypes = {
-  subscriptionsReady: PropTypes.bool.isRequired,
+  subscriptionsReady: PropTypes.bool,
   locale: PropTypes.string,
   approved: PropTypes.bool,
-  meetingHasEnded: PropTypes.bool.isRequired,
+  meetingHasEnded: PropTypes.bool,
   meetingExist: PropTypes.bool,
 };
 
@@ -43,6 +43,8 @@ const defaultProps = {
   locale: undefined,
   approved: undefined,
   meetingExist: false,
+  subscriptionsReady: false,
+  meetingHasEnded: false,
 };
 
 const fullscreenChangedEvents = [
@@ -168,9 +170,9 @@ class Base extends Component {
       subscriptionsReady,
       meetingExist,
       meetingHasEnded,
-      meetingIsBreakout,
     } = this.props;
 
+    const meetingIsBreakout = AppService.meetingIsBreakout();
     if ((loading || !subscriptionsReady) && !meetingHasEnded && meetingExist) {
       return (<LoadingScreen>{loading}</LoadingScreen>);
     }
@@ -230,10 +232,23 @@ const BaseContainer = withTracker(() => {
   let breakoutRoomSubscriptionHandler;
   let meetingModeratorSubscriptionHandler;
 
+  if (Session.get('codeError')) return {};
+
   const meeting = Meetings.findOne({ meetingId });
   if (meeting) {
     const { meetingEnded } = meeting;
     if (meetingEnded) Session.set('codeError', '410');
+  }
+
+  const approved = Users.findOne({ userId: Auth.userID, approved: true, guest: true });
+  const ejected = Users.findOne({ userId: Auth.userID, ejected: true });
+  if (Session.get('codeError')) {
+    return {
+      meetingHasEnded: !!meeting && meeting.meetingEnded,
+      approved,
+      ejected,
+      meetingIsBreakout: AppService.meetingIsBreakout(),
+    };
   }
 
   let userSubscriptionHandler;
@@ -281,7 +296,6 @@ const BaseContainer = withTracker(() => {
     userSubscriptionHandler = Meteor.subscribe('users', credentials, mappedUser.isModerator, subscriptionErrorHandler);
     breakoutRoomSubscriptionHandler = Meteor.subscribe('breakouts', credentials, mappedUser.isModerator, subscriptionErrorHandler);
     meetingModeratorSubscriptionHandler = Meteor.subscribe('meetings', credentials, mappedUser.isModerator, subscriptionErrorHandler);
-
   }
 
   const annotationsHandler = Meteor.subscribe('annotations', credentials, {
@@ -350,8 +364,8 @@ const BaseContainer = withTracker(() => {
   });
 
   return {
-    approved: Users.findOne({ userId: Auth.userID, approved: true, guest: true }),
-    ejected: Users.findOne({ userId: Auth.userID, ejected: true }),
+    approved,
+    ejected,
     locale,
     subscriptionsReady,
     annotationsHandler,
@@ -366,7 +380,6 @@ const BaseContainer = withTracker(() => {
     meteorIsConnected: Meteor.status().connected,
     meetingExist: !!meeting,
     meetingHasEnded: !!meeting && meeting.meetingEnded,
-    meetingIsBreakout: AppService.meetingIsBreakout(),
   };
 })(Base);
 

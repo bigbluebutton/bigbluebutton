@@ -42,17 +42,12 @@ const Toast = ({
         <span>{message}</span>
       </div>
     </div>
-    {
-      content ? (
-        <div className={styles.backgroundColorInherit}>
-          <div className={styles.separator} />
-          <div className={styles.backgroundColorInherit}>
-            {content}
-          </div>
-        </div>
-      )
-      : null
-    }
+    <div className={styles.backgroundColorInherit}>
+      <div className={styles.separator} />
+      <div className={styles.backgroundColorInherit}>
+        {content}
+      </div>
+    </div>
   </div>
 );
 

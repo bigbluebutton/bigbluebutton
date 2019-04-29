@@ -1,42 +1,24 @@
 @import "/imports/ui/stylesheets/mixins/focus";
 @import "/imports/ui/stylesheets/variables/_all";
 
+:root {
+  --toast-content-width: 98%; 
+  --toast-font-size: 80%;
+  --toast-content-margin-sm: .4rem; 
+  --toast-content-margin-md: 1.4rem;
+}
 
-
-@mixin lineClamp($lineHeight: 1em, $lineCount: 1, $bgColor: inherit) {
-  display: block;
-  box-orient: vertical;
+@mixin lineClamp($lineHeight: 1em, $lineCount: 1) {
   position: relative;
-  word-break: break-word;
-
+  white-space: nowrap; 
   overflow: hidden;
+  text-overflow: ellipsis;
   line-height: $lineHeight;
   max-height: calc(#{"$lineHeight * $lineCount"});
-
-  &:before {
-    content: '...';
-    width: 10%;
-    height: lineHeight;
-    text-align: right;
-    position: absolute;
-    right: 0;
-    bottom: 0;
-    background: linear-gradient(to right, rgba(255, 255, 255, 0), $bgColor 75%);
-  }
-
-  &:after {
-    content: '';
-    position: absolute;
-    right: 0;
-    width: 1em;
-    height: $lineHeight;
-    margin-top: 0.2em;
-    background-color: $bgColor;
-  }
 }
 
 .chat {
-  background-color: #fff;
+  background-color: var(--color-white);
   padding: var(--md-padding-x);
   display: flex;
   flex-grow: 1;
@@ -61,9 +43,8 @@
   flex: 1;
 
   & > button, button:hover {
-    max-width: 98%;
+    max-width: var(--toast-content-width);
   }
-  
 }
 
 .hideBtn {
@@ -90,16 +71,17 @@
 }
 
 .pushMessageContent {
-  margin-left: 2rem;
-  margin-right: 2rem;
-  margin-top: 1.4rem;
-  margin-bottom: .4rem;
+  margin-top: var(--toast-content-margin-md);
+  margin-bottom: var(--toast-content-margin-sm);
+  margin-left: var(--toast-content-margin-sm);
+  margin-right: var(--toast-content-margin-sm);
   background-color: inherit;
+  width: var(--toast-content-width);
 }
 
 .userNameMessage {
   margin: 0;
-  font-size: 80%;
+  font-size: var(--toast-font-size);
   color: var(--color-gray-dark);
   font-weight: bold;
   background-color: inherit;
@@ -107,8 +89,8 @@
 }
 
 .contentMessage {
-  margin-top: .2rem;
-  font-size: 80%;
+  margin-top: var(--border-radius);
+  font-size: var(--toast-font-size);
   background-color: inherit;
   @include lineClamp(var(--font-size-small), 10);
 }

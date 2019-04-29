@@ -12,9 +12,15 @@ const intlMessages = defineMessages({
     id: 'app.error.500',
     defaultMessage: 'Ops, something went wrong',
   },
+  410: {
+    id: 'app.error.410',
+  },
   404: {
     id: 'app.error.404',
     defaultMessage: 'Not found',
+  },
+  403: {
+    id: 'app.error.403',
   },
   401: {
     id: 'app.error.401',
