@@ -17,7 +17,6 @@ abstract class RedisClientProvider(
     case None       => ""
   }
 
-  println("******* RedisClientProvider clientName=" + clientName + " password=" + redisPassword)
   val redisUri = RedisURI.Builder.redis(redisConfig.host, redisConfig.port).withClientName(clientName).withPassword(redisPassword).build()
 
   var redis = RedisClient.create(redisUri)

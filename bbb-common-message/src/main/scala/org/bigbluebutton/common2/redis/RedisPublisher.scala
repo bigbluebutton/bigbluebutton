@@ -24,7 +24,6 @@ class RedisPublisher(
 
   def publish(channel: String, data: String) {
     val async = connection.async()
-    println("****** RedisPublisher publish to channel " + channel)
     async.publish(channel, data)
   }
 

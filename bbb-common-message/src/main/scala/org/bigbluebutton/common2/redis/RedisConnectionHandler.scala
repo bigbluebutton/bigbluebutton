@@ -20,7 +20,6 @@ trait RedisConnectionHandler {
   }
 
   def connectionStatusHandler(event: Event, log: LoggingAdapter) {
-    println("******* RedisConnectionHandler - " + event)
 
     if (event.isInstanceOf[ConnectedEvent]) {
       log.info("Connected to redis. clientName=" + clientName)
