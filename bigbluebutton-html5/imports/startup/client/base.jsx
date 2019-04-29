@@ -170,18 +170,10 @@ class Base extends Component {
       subscriptionsReady,
       meetingExist,
       meetingHasEnded,
-      meetingIsBreakout,
-      loggedIn,
-      meetingExisted,
     } = this.props;
 
-    if (codeError && !meetingHasEnded) {
-      logger.error({ logCode: 'startup_client_usercouldnotlogin_error' }, `User could not log in HTML5, hit ${codeError}`);
-      return (<ErrorScreen code={codeError} />);
-    }
-
-    if (((loading || !subscriptionsReady) && !meetingHasEnded && meetingExist)
-      || (!meetingExisted && !meetingExist && loggedIn)) {
+    const meetingIsBreakout = AppService.meetingIsBreakout();
+    if ((loading || !subscriptionsReady) && !meetingHasEnded && meetingExist) {
       return (<LoadingScreen>{loading}</LoadingScreen>);
     }
 
@@ -198,19 +190,28 @@ class Base extends Component {
       return (<MeetingEnded code={codeError} />);
     }
 
+    if (codeError && !meetingHasEnded) {
+      logger.error({ logCode: 'startup_client_usercouldnotlogin_error' }, `User could not log in HTML5, hit ${codeError}`);
+      return (<ErrorScreen code={codeError} />);
+    }
     // this.props.annotationsHandler.stop();
     return (<AppContainer {...this.props} baseControls={stateControls} />);
   }
 
   render() {
     const { updateLoadingState } = this;
-    const { locale } = this.props;
+    const { locale, meetingExist } = this.props;
     const stateControls = { updateLoadingState };
+    const { meetingExisted } = this.state;
 
     return (
-      <IntlStartup locale={locale} baseControls={stateControls}>
-        {this.renderByState()}
-      </IntlStartup>
+      (!meetingExisted && !meetingExist && Auth.loggedIn)
+        ? <LoadingScreen />
+        : (
+          <IntlStartup locale={locale} baseControls={stateControls}>
+            {this.renderByState()}
+          </IntlStartup>
+        )
     );
   }
 }
@@ -230,6 +231,8 @@ const BaseContainer = withTracker(() => {
   const { meetingId, requesterUserId } = credentials;
   let breakoutRoomSubscriptionHandler;
   let meetingModeratorSubscriptionHandler;
+
+  if (Session.get('codeError')) return {};
 
   const meeting = Meetings.findOne({ meetingId });
   if (meeting) {
@@ -377,8 +380,6 @@ const BaseContainer = withTracker(() => {
     meteorIsConnected: Meteor.status().connected,
     meetingExist: !!meeting,
     meetingHasEnded: !!meeting && meeting.meetingEnded,
-    meetingIsBreakout: AppService.meetingIsBreakout(),
-    loggedIn,
   };
 })(Base);
 
