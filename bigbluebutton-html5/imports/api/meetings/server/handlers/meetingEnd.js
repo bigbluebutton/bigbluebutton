@@ -10,7 +10,7 @@ export default function handleMeetingEnd({ body }, meetingId) {
 
   const cb = () => {
     Users.find({ meetingId }).fetch().map(user => setConnectionStatus(user.meetingId, user.userId, 'offline'));
-    return Meteor.setTimeout(() => { meetingHasEnded(meetingId); }, 1000);
+    return Meteor.setTimeout(() => { meetingHasEnded(meetingId); }, 10000);
   };
 
   Meetings.update({
