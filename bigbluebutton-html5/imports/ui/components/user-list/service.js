@@ -14,6 +14,7 @@ import KEY_CODES from '/imports/utils/keyCodes';
 
 const CHAT_CONFIG = Meteor.settings.public.chat;
 const PUBLIC_GROUP_CHAT_ID = CHAT_CONFIG.public_group_id;
+const DIAL_IN_USER = 'dial-in-user';
 
 // session for closed chat list
 const CLOSED_CHAT_LIST_KEY = 'closedChatList';
@@ -108,25 +109,35 @@ const sortUsersByCurrent = (a, b) => {
   return 0;
 };
 
+
+const sortUsersByClientType = (a, b) => {
+  if (a.clientType === DIAL_IN_USER && b.clientType !== DIAL_IN_USER) {
+    return 1;
+  }
+  if (a.clientType !== DIAL_IN_USER && b.clientType === DIAL_IN_USER) {
+    return -1;
+  }
+  return 0;
+};
+
+
 const sortUsers = (a, b) => {
   let sort = sortUsersByCurrent(a, b);
-
   if (sort === 0) {
     sort = sortUsersByModerator(a, b);
   }
-
   if (sort === 0) {
     sort = sortUsersByEmoji(a, b);
   }
-
   if (sort === 0) {
     sort = sortUsersByPhoneUser(a, b);
   }
-
+  if (sort === 0) {
+    sort = sortUsersByClientType(a, b);
+  }
   if (sort === 0) {
     sort = sortUsersByName(a, b);
   }
-
   return sort;
 };
 
