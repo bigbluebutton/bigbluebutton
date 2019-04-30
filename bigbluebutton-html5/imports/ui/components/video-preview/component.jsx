@@ -39,6 +39,10 @@ const intlMessages = defineMessages({
     id: 'app.videoPreview.cameraLabel',
     description: 'Camera dropdown label',
   },
+  qualityLabel: {
+    id: 'app.videoPreview.profileLabel',
+    description: 'Quality dropdown label',
+  },
   cancelLabel: {
     id: 'app.videoPreview.cancelLabel',
     description: 'Cancel button label',
@@ -54,6 +58,10 @@ const intlMessages = defineMessages({
   webcamNotFoundLabel: {
     id: 'app.videoPreview.webcamNotFoundLabel',
     description: 'Webcam not found label',
+  },
+  profileNotFoundLabel: {
+    id: 'app.videoPreview.profileNotFoundLabel',
+    description: 'Profile not found label',
   },
   permissionError: {
     id: 'app.video.permissionError',
@@ -445,7 +453,7 @@ class VideoPreview extends Component {
                 </span>
               )}
             <label className={styles.label}>
-              {'Quality'}
+              {intl.formatMessage(intlMessages.qualityLabel)}
             </label>
             {availableProfiles && availableProfiles.length > 0 ? (
               <select
@@ -462,7 +470,7 @@ class VideoPreview extends Component {
             )
               : (
                 <span>
-                  {'No supported profiles'}
+                  {intl.formatMessage(intlMessages.profileNotFoundLabel)}
                 </span>
               )}
           </div>
