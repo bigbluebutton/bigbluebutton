@@ -1,4 +1,4 @@
-  # Set encoding to utf-8
+# Set encoding to utf-8
 # encoding: UTF-8
 
 #
