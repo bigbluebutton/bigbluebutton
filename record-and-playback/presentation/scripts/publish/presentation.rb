@@ -1187,7 +1187,7 @@ begin
     publish_dir = $presentation_props['publish_dir']
     BigBlueButton.logger.info("setting captions dir")
     captions_dir = bbb_props['captions_dir']
-    captions_publish_dir = "#{captions_dir}/#{$meeting_id}"
+    captions_meeting_dir = "#{captions_dir}/#{$meeting_id}"
     BigBlueButton.logger.info("setting playback url info")
     playback_protocol = bbb_props['playback_protocol']
     playback_host = bbb_props['playback_host']
@@ -1228,13 +1228,21 @@ begin
           BigBlueButton.logger.info("Copied audio.ogg file")
         end
 
+        if File.exist?("#{captions_meeting_dir}/captions.json")
+          BigBlueButton.logger.info("Copying caption files to #{target_dir}")
+          FileUtils.cp("#{captions_meeting_dir}/captions_playback.json", "#{target_dir}/captions.json")
+          Dir.glob("#{captions_meeting_dir}/caption_*.vtt").each do |caption|
+            BigBlueButton.logger.debug(caption)
+            FileUtils.cp(caption, target_dir)
+          end
+        end
+
         if File.exist?("#{$process_dir}/captions.json")
-          BigBlueButton.logger.info("Copying caption files to #{captions_publish_dir}")
-          FileUtils.mkdir_p captions_publish_dir
-          FileUtils.cp("#{$process_dir}/captions.json", captions_publish_dir)
+          BigBlueButton.logger.info("Copying caption files")
+          FileUtils.cp("#{$process_dir}/captions.json", package_dir)
           Dir.glob("#{$process_dir}/caption_*.vtt").each do |caption|
             BigBlueButton.logger.debug(caption)
-            FileUtils.cp(caption, captions_publish_dir)
+            FileUtils.cp(caption, package_dir)
           end
         end
 

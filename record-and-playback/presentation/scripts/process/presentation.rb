@@ -47,6 +47,10 @@ recording_dir = props['recording_dir']
 raw_archive_dir = "#{recording_dir}/raw/#{meeting_id}"
 log_dir = props['log_dir']
 
+BigBlueButton.logger.info("setting captions dir")
+captions_dir = props['captions_dir']
+captions_meeting_dir = "#{captions_dir}/#{meeting_id}"
+
 target_dir = "#{recording_dir}/process/presentation/#{meeting_id}"
 if not FileTest.directory?(target_dir)
   FileUtils.mkdir_p "#{log_dir}/presentation"
@@ -198,12 +202,15 @@ if not FileTest.directory?(target_dir)
       FileUtils.cp_r("#{pres_dir}/thumbnails", "#{target_pres_dir}/thumbnails")
     end
 
-    BigBlueButton.logger.info("Generating closed captions")
-    ret = BigBlueButton.exec_ret('utils/gen_webvtt', '-i', raw_archive_dir, '-o', target_dir)
-    if ret != 0
-      raise "Generating closed caption files failed"
+    if File.exist?("#{captions_meeting_dir}/captions.json")
+      BigBlueButton.logger.info("Copying closed captions")
+      FileUtils.cp("#{captions_meeting_dir}/captions_playback.json", "#{target_dir}/captions.json")
+      Dir.glob("#{captions_meeting_dir}/caption_*.vtt").each do |caption|
+        BigBlueButton.logger.debug(caption)
+        FileUtils.cp(caption, target_dir)
+      end
+      captions = JSON.load(File.new("#{target_dir}/captions.json", 'r'))
     end
-    captions = JSON.load(File.new("#{target_dir}/captions.json", 'r'))
 
     if not presentation_text.empty?
       # Write presentation_text.json to file
