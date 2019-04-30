@@ -10,9 +10,6 @@ import io.lettuce.core.pubsub.RedisPubSubListener
 
 object WebRedisSubscriberActor {
 
-  //  val channels = Seq(fromAkkaAppsRedisChannel)
-  //  val patterns = Seq("bigbluebutton:from-bbb-apps:*")
-
   def props(
       system:              ActorSystem,
       jsonMsgBus:          JsonMsgFromAkkaAppsBus,

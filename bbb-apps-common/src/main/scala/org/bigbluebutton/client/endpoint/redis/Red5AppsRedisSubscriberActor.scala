@@ -63,7 +63,6 @@ class Red5AppsRedisSubscriberActor(
     })
   }
 
-  //fromAkkaAppsJsonChannel
   addListener(forwardMsgToChannel)
   subscribe()
 }

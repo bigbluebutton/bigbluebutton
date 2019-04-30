@@ -40,26 +40,6 @@ class ScreenshareRedisSubscriberActor(
     jsonMsgBus,
     redisConfig) {
 
-  /**
-   * override def addListener(forwardMsgToChannel: String) {
-   * connection.addListener(new RedisPubSubListener[String, String] {
-   * def message(channel: String, message: String): Unit = {
-   * println("**** RECEIVED MESSASGE FROm CHANNLE " + channel)
-   * if (channelsToSubscribe.contains(channel)) {
-   * val receivedJsonMessage = new ReceivedJsonMessage(channel, message)
-   * jsonMsgBus.publish(IncomingJsonMessage(forwardMsgToChannel, receivedJsonMessage))
-   * }
-   * }
-   * def message(pattern: String, channel: String, message: String): Unit = {
-   * log.debug(s"RECEIVED:\n ${message} \n")
-   * }
-   * def psubscribed(pattern: String, count: Long): Unit = { log.info("Subscribed to pattern {}", pattern) }
-   * def punsubscribed(pattern: String, count: Long): Unit = { log.info("Unsubscribed from pattern {}", pattern) }
-   * def subscribed(channel: String, count: Long): Unit = { log.info("Subscribed to pattern {}", channel) }
-   * def unsubscribed(channel: String, count: Long): Unit = { log.info("Unsubscribed from channel {}", channel) }
-   * })
-   * }
-   */
   addListener(forwardMsgToChannel)
   subscribe()
 }

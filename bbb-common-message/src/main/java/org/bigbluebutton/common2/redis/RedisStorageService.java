@@ -37,7 +37,7 @@ public class RedisStorageService extends RedisAwareCommunicator {
     StatefulRedisConnection<String, String> connection;
 
     public void start() {
-        log.info("Starting RedisStorageService with client name: clientName={} password={}", clientName, this.password);
+        log.info("Starting RedisStorageService with client name: clientName={}", clientName);
         RedisURI redisUri = RedisURI.Builder.redis(this.host, this.port).withClientName(this.clientName)
                 .withPassword(this.password).build();
 
