@@ -115,11 +115,11 @@
     margin-top: var(--sm-padding-y);
     margin-bottom: var(--sm-padding-y);
     background-color: var(--color-white);
-    box-shadow: 0 0 0 1px var(--color-gray-light);
-    color: var(--color-gray-light);
+    box-shadow: 0 0 0 1px var(--color-gray);
+    color: var(--color-gray);
 
     > span {
-        color: var(--color-gray-light);
+        color: var(--color-gray);
     }
 
     > span:hover {
