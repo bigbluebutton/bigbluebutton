@@ -8,6 +8,7 @@ import PresentationService from '/imports/ui/components/presentation/service';
 import ActionsBar from './component';
 import Service from './service';
 import VideoService from '../video-provider/service';
+import ExternalVideoService from '/imports/ui/components/external-video-player/service';
 import {
   shareScreen, unshareScreen, isVideoBroadcasting, screenShareEndAlert,
 } from '../screenshare/service';
@@ -32,6 +33,7 @@ export default withTracker(() => {
   return {
     isUserPresenter: Service.isUserPresenter(),
     isUserModerator: Service.isUserModerator(),
+    stopExternalVideoShare: ExternalVideoService.stopWatching,
     handleExitVideo: () => VideoService.exitVideo(),
     handleJoinVideo: () => VideoService.joinVideo(),
     handleShareScreen: onFail => shareScreen(onFail),
