@@ -464,7 +464,7 @@
     "app.videoPreview.webcamPreviewLabel": "Webcam preview",
     "app.videoPreview.webcamSettingsTitle": "Webcam settings",
     "app.videoPreview.webcamNotFoundLabel": "Webcam not found",
-    "app.videoPreview.profileNotFoundLabel": "No supported profile",
+    "app.videoPreview.profileNotFoundLabel": "No supported camera profile",
     "app.video.joinVideo": "Share webcam",
     "app.video.leaveVideo": "Stop sharing webcam",
     "app.video.iceCandidateError": "Error on adding ICE candidate",

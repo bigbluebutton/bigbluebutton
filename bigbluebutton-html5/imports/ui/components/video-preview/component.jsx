@@ -457,7 +457,7 @@ class VideoPreview extends Component {
             </label>
             {availableProfiles && availableProfiles.length > 0 ? (
               <select
-                value={selectedProfile || undefined}
+                value={selectedProfile}
                 className={styles.select}
                 onChange={this.handleSelectProfile.bind(this)}
               >
