@@ -106,19 +106,21 @@ class RecordingController {
         response.addHeader("Cache-Control", "no-cache")
         withFormat {
             json {
-                render(contentType: "application/json") {
-                    response() {
-                        returncode = "FAILED"
-                        messageKey = errorKey
-                        messsage = errorMessage
-                    }
+                log.debug "Rendering as json"
+                def builder = new JsonBuilder()
+                builder.response {
+                    returncode RESP_CODE_FAILED
+                    messageKey errorKey
+                    message errorMessage
                 }
+                render(contentType: "application/json", text: builder.toPrettyString())
             }
         }
     }
 
     def putRecordingTextTrack = {
-        log.debug CONTROLLER_NAME + "#putRecordingTextTrack"
+        String API_CALL = "putRecordingTextTrack"
+        log.debug CONTROLLER_NAME + "#${API_CALL}"
 
         // BEGIN - backward compatibility
         if (StringUtils.isEmpty(params.checksum)) {
@@ -175,13 +177,13 @@ class RecordingController {
             response.addHeader("Cache-Control", "no-cache")
             withFormat {
                 json {
-                    render(contentType: "application/json") {
-                        response = {
-                            returncode = "FAILED"
-                            messageKey = "empty_uploaded_text_track"
-                            message = "Empty uploaded text track."
-                        }
+                    def builder = new JsonBuilder()
+                    builder.response {
+                        returncode RESP_CODE_FAILED
+                        messageKey = "empty_uploaded_text_track"
+                        message = "Empty uploaded text track."
                     }
+                    render(contentType: "application/json", text: builder.toPrettyString())
                 }
             }
         }
