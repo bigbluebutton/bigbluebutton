@@ -20,7 +20,9 @@ import java.nio.charset.Charset
 import java.nio.file.Files
 import java.nio.file.Paths
 
-class RecMetaXmlHelper extends RecordingServiceGW with LogHelper {
+import com.google.gson.internal.LinkedTreeMap
+
+class RecordingMetaXmlHelper extends RecordingServiceGW with LogHelper {
 
   val SUCCESS = "SUCCESS"
   val FAILED = "FAILED"
@@ -131,7 +133,8 @@ class RecMetaXmlHelper extends RecordingServiceGW with LogHelper {
           case None    => ListBuffer()
         },
         recMeta.breakout,
-        recMeta.breakoutRooms)
+        recMeta.breakoutRooms
+      )
       recMetaResponse
     }
 
@@ -187,17 +190,33 @@ class RecMetaXmlHelper extends RecordingServiceGW with LogHelper {
     }
   }
 
-  def getRecordingTextTracks(recordId: String, captionsDir: String): String = {
+  def getRecordingTextTracks(recordId: String, captionsDir: String, captionBasUrl: String): String = {
     val gson = new Gson()
     var returnResponse: String = ""
     val captionsFilePath = captionsDir + File.separatorChar + recordId + File.separatorChar + CAPTIONS_FILE
 
     readCaptionJsonFile(captionsFilePath, StandardCharsets.UTF_8) match {
       case Some(captions) =>
-        val ctracks = gson.fromJson(captions, classOf[util.ArrayList[Track]])
-        val textTracksResult = GetRecTextTracksResult(SUCCESS, ctracks)
+        val ctracks = gson.fromJson(captions, classOf[java.util.List[LinkedTreeMap[String, String]]])
+
+        val list = new util.ArrayList[Track]()
+        val it = ctracks.iterator()
+
+        while (it.hasNext()) {
+          val mapTrack = it.next()
+          list.add(new Track(
+            href = captionBasUrl + mapTrack.get("lang") + ".json",
+            kind = mapTrack.get("kind"),
+            label = mapTrack.get("label"),
+            lang = mapTrack.get("lang"),
+            source = mapTrack.get("source")
+          ))
+        }
+        val textTracksResult = GetRecTextTracksResult(SUCCESS, list)
+
         val textTracksResponse = GetRecTextTracksResp(textTracksResult)
         val textTracksJson = gson.toJson(textTracksResponse)
+        //  parse(textTracksJson).transformField{case JField(x, v) if x == "value" && v == JString("Company")=> JField("value1",JString("Company1"))}
 
         returnResponse = textTracksJson
       case None =>
@@ -261,7 +280,8 @@ class RecMetaXmlHelper extends RecordingServiceGW with LogHelper {
       kind = track.kind,
       lang = track.lang,
       label = track.label,
-      origFilename = track.origFilename)
+      origFilename = track.origFilename
+    )
 
     val gson = new Gson()
     val trackInfoJson = gson.toJson(trackInfo)
@@ -271,7 +291,8 @@ class RecMetaXmlHelper extends RecordingServiceGW with LogHelper {
         SUCCESS,
         track.recordId,
         messageKey = "upload_text_track_success",
-        message = "Text track uploaded successfully")
+        message = "Text track uploaded successfully"
+      )
       val resp = PutRecTextTrackResp(result)
       gson.toJson(resp)
     } else {
@@ -279,7 +300,8 @@ class RecMetaXmlHelper extends RecordingServiceGW with LogHelper {
         FAILED,
         track.recordId,
         messageKey = "upload_text_track_failed",
-        message = "Text track upload failed.")
+        message = "Text track upload failed."
+      )
       val resp = PutRecTextTrackResp(result)
       gson.toJson(resp)
     }
