@@ -10,6 +10,8 @@
 }
 
 .content {
+  display: flex;
+  flex-direction: column;
   justify-content: center;
   padding-bottom: 0;
   margin-right: auto;
@@ -67,6 +69,8 @@
 }
 
 .startBtn {
+  display: flex;
+  align-self: center;
   &:focus {
     outline: none !important;
   }
@@ -82,24 +86,6 @@
   bottom:   20px;
   color: var(--color-white) !important;
   background-color: var(--color-link) !important;
-}
-
-.stopBtn {
-  &:focus {
-    outline: none !important;
-  }
-
-  i{
-    color: red;
-  }
-
-  margin-left: 50%;
-  width: 40%;
-  display: block;
-  position: absolute;
-  bottom:   20px;
-  color: var(--color-white) !important;
-  background-color: red !important;
 }
 
 .title {

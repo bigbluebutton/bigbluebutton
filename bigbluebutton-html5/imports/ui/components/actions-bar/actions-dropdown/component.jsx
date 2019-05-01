@@ -107,6 +107,7 @@ class ActionsDropdown extends Component {
       allowExternalVideo,
       handleTakePresenter,
       isSharingVideo,
+      stopExternalVideoShare,
     } = this.props;
 
     const {
@@ -168,7 +169,7 @@ class ActionsDropdown extends Component {
               : intl.formatMessage(intlMessages.stopExternalVideoLabel)}
             description="External Video"
             key="external-video"
-            onClick={this.handleExternalVideoClick}
+            onClick={isSharingVideo ? stopExternalVideoShare : this.handleExternalVideoClick}
           />
         )
         : null),
