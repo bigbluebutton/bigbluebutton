@@ -1514,6 +1514,7 @@ class ApiController {
             customLogoURL meeting.getCustomLogoURL()
             customCopyright meeting.getCustomCopyright()
             muteOnStart meeting.getMuteOnStart()
+            allowModsToUnmuteUsers meeting.getAllowModsToUnmuteUsers()
             logoutUrl us.logoutUrl
             defaultLayout us.defaultLayout
             avatarURL us.avatarURL

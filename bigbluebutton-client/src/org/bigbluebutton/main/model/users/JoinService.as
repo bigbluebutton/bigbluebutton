@@ -179,6 +179,7 @@ package org.bigbluebutton.main.model.users
 				apiResponse.bannerColor = result.response.bannerColor;
 				apiResponse.bannerText = result.response.bannerText;
 				
+				apiResponse.allowModsToUnmuteUsers = result.response.allowModsToUnmuteUsers as Boolean;
 				apiResponse.muteOnStart = result.response.muteOnStart as Boolean;
 				apiResponse.customLogo = result.response.customLogoURL;
 				apiResponse.customCopyright = result.response.customCopyright;

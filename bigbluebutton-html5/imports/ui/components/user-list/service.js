@@ -281,6 +281,14 @@ const isMeetingLocked = (id) => {
   return isLocked;
 };
 
+const areUsersUnmutable = () => {
+  const meeting = Meetings.findOne({ meetingId: Auth.meetingID });
+  if (meeting.usersProp) {
+    return meeting.usersProp.allowModsToUnmuteUsers;
+  }
+  return false;
+}
+
 const getAvailableActions = (currentUser, user, isBreakoutRoom) => {
   const isDialInUser = isVoiceOnlyUser(user.id) || user.isPhoneUser;
 
@@ -297,7 +305,7 @@ const getAvailableActions = (currentUser, user, isBreakoutRoom) => {
     && user.isVoiceUser
     && !user.isListenOnly
     && user.isMuted
-    && user.isCurrent;
+    && (user.isCurrent || areUsersUnmutable());
 
   const allowedToResetStatus = hasAuthority
     && user.emoji.status !== EMOJI_STATUSES.none

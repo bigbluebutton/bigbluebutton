@@ -30,6 +30,7 @@ package org.bigbluebutton.main.model.users
     public var allowStartStopRecording: Boolean;
     public var metadata: Object = new Object();
     public var modOnlyMessage: String;
+    public var allowModsToUnmuteUsers:Boolean = false;
 		public var muteOnStart:Boolean = false;
   }
 }
