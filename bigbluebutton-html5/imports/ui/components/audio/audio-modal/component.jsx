@@ -452,6 +452,7 @@ class AudioModal extends Component {
           className={styles.modal}
           onRequestClose={closeModal}
           hideBorder
+          contentLabel="Join Audio Modal"
         >
           {!this.skipAudioOptions()
 

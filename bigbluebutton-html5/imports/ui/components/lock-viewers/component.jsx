@@ -68,11 +68,12 @@ class LockViewersComponent extends React.PureComponent {
         className={styles.modal}
         onRequestClose={closeModal}
         hideBorder
+        contentLabel="Lock Viewers Modal"
       >
 
         <div className={styles.container}>
           <div className={styles.header}>
-            <div className={styles.title}>{intl.formatMessage(intlMessages.lockViewersTitle)}</div>
+            <h2 className={styles.title}>{intl.formatMessage(intlMessages.lockViewersTitle)}</h2>
           </div>
           <div className={styles.description}>
             {`${intl.formatMessage(intlMessages.lockViewersDescription)}`}
