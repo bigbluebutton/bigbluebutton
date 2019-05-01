@@ -245,6 +245,7 @@ class Settings extends Component {
     const {
       intl,
       mountModal,
+      notify,
     } = this.props;
     const {
       current,
@@ -260,6 +261,11 @@ class Settings extends Component {
             *  from re-opening the modal.
             */
             mountModal(null);
+            notify(
+              'settings have been saved',
+              'info',
+              'settings',
+            );
           },
           label: intl.formatMessage(intlMessages.SaveLabel),
           description: intl.formatMessage(intlMessages.SaveLabelDesc),
