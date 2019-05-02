@@ -147,7 +147,7 @@ WebApp.connectHandlers.use('/useragent', (req, res) => {
   const userAgent = req.headers['user-agent'];
   let response = 'No user agent found in header';
   if (userAgent) {
-    response = lookupUserAgent(req.headers['user-agent']).toString();
+    response = lookupUserAgent(userAgent).toString();
   }
 
   Logger.info(`The requesting user agent is ${response}`);
