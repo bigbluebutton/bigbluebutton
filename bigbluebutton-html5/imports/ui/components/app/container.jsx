@@ -4,14 +4,17 @@ import { defineMessages, injectIntl } from 'react-intl';
 import PropTypes from 'prop-types';
 import Auth from '/imports/ui/services/auth';
 import Users from '/imports/api/users';
-
+import { notify } from '/imports/ui/services/notification';
 import ClosedCaptionsContainer from '/imports/ui/components/closed-captions/container';
 import getFromUserSettings from '/imports/ui/services/users-settings';
+
+import UserInfos from '/imports/api/users-infos';
 
 import {
   getFontSize,
   getCaptionsStatus,
   getBreakoutRooms,
+  validIOSVersion,
 } from './service';
 
 import { withModalMounter } from '../modal/service';
@@ -81,6 +84,11 @@ export default injectIntl(withModalMounter(withTracker(({ intl, baseControls }) 
     },
   });
 
+  const UserInfo = UserInfos.find({
+    meetingId: Auth.meetingID,
+    requesterUserId: Auth.userID,
+  }).fetch();
+
   return {
     closedCaption: getCaptionsStatus() ? <ClosedCaptionsContainer /> : null,
     fontSize: getFontSize(),
@@ -91,6 +99,9 @@ export default injectIntl(withModalMounter(withTracker(({ intl, baseControls }) 
     chatIsOpen: Session.equals('openPanel', 'chat'),
     openPanel: Session.get('openPanel'),
     userListIsOpen: !Session.equals('openPanel', ''),
+    UserInfo,
+    notify,
+    validIOSVersion,
   };
 })(AppContainer)));
 

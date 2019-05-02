@@ -53,6 +53,10 @@ const intlMessages = defineMessages({
     id: 'app.recording.stopTitle',
     description: 'stop recording title',
   },
+  resumeTitle: {
+    id: 'app.recording.resumeTitle',
+    description: 'resume recording title',
+  },
 });
 
 const propTypes = {
@@ -286,8 +290,17 @@ class NavBar extends PureComponent {
 
     const { time, amIModerator } = this.state;
 
+    let recordTitle;
+
     if (!this.interval) {
       this.interval = setInterval(this.incrementTime, 1000);
+    }
+
+    if (!recordProps.recording) {
+      recordTitle = recordProps.time >= 0 ? intl.formatMessage(intlMessages.resumeTitle)
+        : intl.formatMessage(intlMessages.startTitle);
+    } else {
+      recordTitle = intl.formatMessage(intlMessages.stopTitle);
     }
 
     const toggleBtnClasses = {};
@@ -322,8 +335,7 @@ class NavBar extends PureComponent {
           <RecordingIndicator
             {...recordProps}
             title={intl.formatMessage(intlMessages[recordingMessage])}
-            buttonTitle={(!recordProps.recording ? intl.formatMessage(intlMessages.startTitle)
-              : intl.formatMessage(intlMessages.stopTitle))}
+            buttonTitle={recordTitle}
             mountModal={mountModal}
             time={time}
             amIModerator={amIModerator}

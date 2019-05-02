@@ -49,6 +49,7 @@ class UserListItem extends PureComponent {
       toggleVoice,
       hasPrivateChatBetweenUsers,
       toggleUserLock,
+      requestUserInformation,
     } = this.props;
 
     const { meetingId, lockSettingsProps } = meeting;
@@ -78,6 +79,7 @@ class UserListItem extends PureComponent {
           user,
           hasPrivateChatBetweenUsers,
           toggleUserLock,
+          requestUserInformation,
         }}
       />
     );

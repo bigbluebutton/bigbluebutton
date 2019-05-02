@@ -25,10 +25,22 @@ function meetingIsBreakout() {
   return (meeting && meeting.meetingProp.isBreakout);
 }
 
+const validIOSVersion = () => {
+  const SUPPORTED_OS_VERSION = 12.2;
+  const iosMatch = navigator.userAgent.match(/OS (\d+)_(\d+)/);
+  if (iosMatch) {
+    const versionNumber = iosMatch[0].split(' ')[1].replace('_', '.');
+    const isInvalid = parseFloat(versionNumber) < SUPPORTED_OS_VERSION;
+    if (isInvalid) return false;
+  }
+  return true;
+};
+
 export {
   getCaptionsStatus,
   getFontSize,
   meetingIsBreakout,
   getBreakoutRooms,
   getMeeting,
+  validIOSVersion,
 };

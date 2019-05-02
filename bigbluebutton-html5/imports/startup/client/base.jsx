@@ -19,7 +19,6 @@ import IntlStartup from './intl';
 import Meetings from '../../api/meetings';
 import AppService from '/imports/ui/components/app/service';
 import AnnotationsTextService from '/imports/ui/components/whiteboard/annotations/text/service';
-
 import Breakouts from '/imports/api/breakouts';
 import AudioService from '/imports/ui/components/audio/service';
 import { FormattedMessage } from 'react-intl';
@@ -28,13 +27,15 @@ import { notify } from '/imports/ui/services/notification';
 const CHAT_CONFIG = Meteor.settings.public.chat;
 const PUBLIC_GROUP_CHAT_ID = CHAT_CONFIG.public_group_id;
 const PUBLIC_CHAT_TYPE = CHAT_CONFIG.type_public;
+const HTML = document.getElementsByTagName('html')[0];
+
 let breakoutNotified = false;
 
 const propTypes = {
-  subscriptionsReady: PropTypes.bool.isRequired,
+  subscriptionsReady: PropTypes.bool,
   locale: PropTypes.string,
   approved: PropTypes.bool,
-  meetingHasEnded: PropTypes.bool.isRequired,
+  meetingHasEnded: PropTypes.bool,
   meetingExist: PropTypes.bool,
 };
 
@@ -42,6 +43,8 @@ const defaultProps = {
   locale: undefined,
   approved: undefined,
   meetingExist: false,
+  subscriptionsReady: false,
+  meetingHasEnded: false,
 };
 
 const fullscreenChangedEvents = [
@@ -75,6 +78,11 @@ class Base extends Component {
   }
 
   componentDidMount() {
+    const { animations } = this.props;
+
+    if (animations) HTML.classList.add('animationsEnabled');
+    if (!animations) HTML.classList.add('animationsDisabled');
+
     fullscreenChangedEvents.forEach((event) => {
       document.addEventListener(event, Base.handleFullscreenChange);
     });
@@ -86,6 +94,7 @@ class Base extends Component {
       approved,
       meetingExist,
       animations,
+      ejected,
       meteorIsConnected,
       subscriptionsReady,
     } = this.props;
@@ -113,10 +122,25 @@ class Base extends Component {
 
     if (approved && loading) this.updateLoadingState(false);
 
+    if (prevProps.ejected || ejected) {
+      Session.set('codeError', '403');
+      Session.set('isMeetingEnded', true);
+    }
+
+    // In case the meteor restart avoid error log
+    if (meteorIsConnected && (prevState.meetingExisted !== meetingExisted)) {
+      this.setMeetingExisted(false);
+    }
+
+    const enabled = HTML.classList.contains('animationsEnabled');
+    const disabled = HTML.classList.contains('animationsDisabled');
+
     if (animations && animations !== prevProps.animations) {
-      document.documentElement.style.setProperty('--enableAnimation', 1);
+      if (disabled) HTML.classList.remove('animationsDisabled');
+      HTML.classList.add('animationsEnabled');
     } else if (!animations && animations !== prevProps.animations) {
-      document.documentElement.style.setProperty('--enableAnimation', 0);
+      if (enabled) HTML.classList.remove('animationsEnabled');
+      HTML.classList.add('animationsDisabled');
     }
   }
 
@@ -146,9 +170,9 @@ class Base extends Component {
       subscriptionsReady,
       meetingExist,
       meetingHasEnded,
-      meetingIsBreakout,
     } = this.props;
 
+    const meetingIsBreakout = AppService.meetingIsBreakout();
     if ((loading || !subscriptionsReady) && !meetingHasEnded && meetingExist) {
       return (<LoadingScreen>{loading}</LoadingScreen>);
     }
@@ -198,7 +222,7 @@ Base.defaultProps = defaultProps;
 const SUBSCRIPTIONS_NAME = [
   'users', 'meetings', 'polls', 'presentations',
   'slides', 'captions', 'voiceUsers', 'whiteboard-multi-user', 'screenshare',
-  'group-chat', 'presentation-pods', 'users-settings', 'guestUser',
+  'group-chat', 'presentation-pods', 'users-settings', 'guestUser', 'users-infos',
 ];
 
 const BaseContainer = withTracker(() => {
@@ -208,10 +232,23 @@ const BaseContainer = withTracker(() => {
   let breakoutRoomSubscriptionHandler;
   let meetingModeratorSubscriptionHandler;
 
+  if (Session.get('codeError')) return {};
+
   const meeting = Meetings.findOne({ meetingId });
   if (meeting) {
     const { meetingEnded } = meeting;
     if (meetingEnded) Session.set('codeError', '410');
+  }
+
+  const approved = Users.findOne({ userId: Auth.userID, approved: true, guest: true });
+  const ejected = Users.findOne({ userId: Auth.userID, ejected: true });
+  if (Session.get('codeError')) {
+    return {
+      meetingHasEnded: !!meeting && meeting.meetingEnded,
+      approved,
+      ejected,
+      meetingIsBreakout: AppService.meetingIsBreakout(),
+    };
   }
 
   let userSubscriptionHandler;
@@ -327,8 +364,8 @@ const BaseContainer = withTracker(() => {
   });
 
   return {
-    approved: Users.findOne({ userId: Auth.userID, approved: true, guest: true }),
-    ejected: Users.findOne({ userId: Auth.userID, ejected: true }),
+    approved,
+    ejected,
     locale,
     subscriptionsReady,
     annotationsHandler,
@@ -343,7 +380,6 @@ const BaseContainer = withTracker(() => {
     meteorIsConnected: Meteor.status().connected,
     meetingExist: !!meeting,
     meetingHasEnded: !!meeting && meeting.meetingEnded,
-    meetingIsBreakout: AppService.meetingIsBreakout(),
   };
 })(Base);
 

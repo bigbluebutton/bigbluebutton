@@ -19,7 +19,6 @@
     "app.userList.you": "Ty",
     "app.userList.guest": "Gość",
     "app.userList.chatListItem.unreadSingular": "{0} Nowa Wiadomość",
-    "app.userList.menu.chat.label": "Czat",
     "app.userList.menu.removeUser.label": "Usuń użytkownika",
     "app.poll.closeLabel": "Zamknij",
     "app.poll.liveResult.usersTitle": "Użytkownicy",

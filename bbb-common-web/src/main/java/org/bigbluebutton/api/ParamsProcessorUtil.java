@@ -92,6 +92,7 @@ public class ParamsProcessorUtil {
     private boolean allowStartStopRecording;
     private boolean webcamsOnlyForModerator;
     private boolean defaultMuteOnStart = false;
+    private boolean defaultAllowModsToUnmuteUsers = false;
 
 		private boolean defaultBreakoutRoomsEnabled;
 		private boolean defaultBreakoutRoomsRecord;
@@ -487,6 +488,13 @@ public class ParamsProcessorUtil {
         }
 
 		meeting.setMuteOnStart(muteOnStart);
+
+        Boolean allowModsToUnmuteUsers = defaultAllowModsToUnmuteUsers;
+        if (!StringUtils.isEmpty(params.get(ApiParams.ALLOW_MODS_TO_UNMUTE_USERS))) {
+            allowModsToUnmuteUsers = Boolean.parseBoolean(params.get(ApiParams.ALLOW_MODS_TO_UNMUTE_USERS));
+        }
+        meeting.setAllowModsToUnmuteUsers(allowModsToUnmuteUsers);
+
         return meeting;
     }
 	
@@ -984,6 +992,13 @@ public class ParamsProcessorUtil {
 		return defaultMuteOnStart;
 	}
 
+	public void setAllowModsToUnmuteUsers(Boolean value) {
+		defaultAllowModsToUnmuteUsers = value;
+	}
+
+	public Boolean getAllowModsToUnmuteUsers() {
+		return defaultAllowModsToUnmuteUsers;
+	}
 
 	public List<String> decodeIds(String encodeid) {
 		ArrayList<String> ids=new ArrayList<>();

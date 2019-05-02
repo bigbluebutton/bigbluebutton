@@ -1434,7 +1434,7 @@ check_state() {
       echo "#"
       echo "# or, to have openssl generate a strong secret for you (recommended)"
       echo "#"
-      echo "#   sudo bbb-conf --setsecret \$(openssl rand -base64 32 | sed 's/=//g')"
+      echo "#   sudo bbb-conf --setsecret \$(openssl rand -base64 32 | sed 's/=//g' | sed 's/+//g' | sed 's/\///g')"
       echo "#"
       echo "# Be sure to update any integrations with the new shared secret."
       echo "#"

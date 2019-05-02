@@ -25,6 +25,7 @@ const propTypes = {
   roving: PropTypes.func.isRequired,
   getGroupChatPrivate: PropTypes.func.isRequired,
   toggleUserLock: PropTypes.func.isRequired,
+  requestUserInformation: PropTypes.func.isRequired,
 };
 
 const UserListContainer = props => <UserList {...props} />;
@@ -58,4 +59,5 @@ export default withTracker(({ chatID, compact }) => ({
   showBranding: getFromUserSettings('displayBrandingArea', Meteor.settings.public.app.branding.displayBrandingArea),
   hasPrivateChatBetweenUsers: Service.hasPrivateChatBetweenUsers,
   toggleUserLock: Service.toggleUserLock,
+  requestUserInformation: Service.requestUserInformation,
 }))(UserListContainer);

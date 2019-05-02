@@ -14,10 +14,6 @@ const intlMessages = defineMessages({
     id: 'app.externalVideo.start',
     description: 'Share youtube video',
   },
-  stop: {
-    id: 'app.externalVideo.stop',
-    description: 'Stop sharing video',
-  },
   urlError: {
     id: 'app.externalVideo.urlError',
     description: 'Not a video URL error',
@@ -56,7 +52,6 @@ class ExternalVideoModal extends Component {
     };
 
     this.startWatchingHandler = this.startWatchingHandler.bind(this);
-    this.stopWatchingHandler = this.stopWatchingHandler.bind(this);
     this.updateVideoUrlHandler = this.updateVideoUrlHandler.bind(this);
     this.renderUrlError = this.renderUrlError.bind(this);
     this.updateVideoUrlHandler = this.updateVideoUrlHandler.bind(this);
@@ -66,14 +61,7 @@ class ExternalVideoModal extends Component {
     const { startWatching, closeModal } = this.props;
     const { url } = this.state;
 
-    startWatching(url);
-    closeModal();
-  }
-
-  stopWatchingHandler() {
-    const { stopWatching, closeModal } = this.props;
-
-    stopWatching();
+    startWatching(url.trim());
     closeModal();
   }
 
@@ -133,6 +121,7 @@ class ExternalVideoModal extends Component {
                 name="video-modal-input"
                 value={url}
                 placeholder={intl.formatMessage(intlMessages.urlInput)}
+                disabled={sharing}
               />
             </label>
             <div className={styles.youtubeNote}>
@@ -140,7 +129,7 @@ class ExternalVideoModal extends Component {
             </div>
           </div>
 
-          <div className={styles.content}>
+          <div>
             {this.renderUrlError()}
           </div>
 
@@ -149,13 +138,6 @@ class ExternalVideoModal extends Component {
             label={intl.formatMessage(intlMessages.start)}
             onClick={this.startWatchingHandler}
             disabled={startDisabled}
-          />
-
-          <Button
-            className={styles.stopBtn}
-            label={intl.formatMessage(intlMessages.stop)}
-            onClick={this.stopWatchingHandler}
-            disabled={!sharing}
           />
         </div>
       </ModalBase>

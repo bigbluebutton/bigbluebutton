@@ -1,4 +1,5 @@
 {
+    "app.home.greeting": "Ваша презентация скоро начнется...",
     "app.chat.submitLabel": "Отправить сообщение",
     "app.chat.errorMinMessageLength": "Сообщение из {0} символа(-ов) слишком короткое",
     "app.chat.errorMaxMessageLength": "Сообщение из {0} символа(-ов) слишком длинное",
@@ -31,7 +32,6 @@
     "app.userList.guest": "Гость",
     "app.userList.chatListItem.unreadSingular": "{0} новое сообщение",
     "app.userList.chatListItem.unreadPlural": "{0} новых сообщений",
-    "app.userList.menu.chat.label": "Чат",
     "app.userList.menu.removeUser.label": "Исключить пользователя",
     "app.userList.menu.muteUserAudio.label": "Выключить микрофон пользователя",
     "app.userList.menu.unmuteUserAudio.label": "Включить микрофон пользователя",
@@ -59,7 +59,6 @@
     "app.presentation.presentationToolbar.fitToWidth": "Подогнать по ширине",
     "app.presentation.presentationToolbar.goToSlide": "Слайд {0}",
     "app.presentationUploder.title": "Презентация",
-    "app.presentationUploder.confirmLabel": "Начать",
     "app.presentationUploder.confirmDesc": "Сохранить изменения и начать презентацию",
     "app.presentationUploder.dismissLabel": "Отменить",
     "app.presentationUploder.dismissDesc": "Закрыть окно изображения и отменить изменения",
@@ -327,6 +326,8 @@
     "app.videoDock.webcamUnfocusLabel": "Расфокусировать",
     "app.videoDock.webcamUnfocusDesc": "Расфокусировать выбранную веб-камеру",
     "app.createBreakoutRoom.joinAudio": "Присоединиться к аудио-конференции",
+    "app.externalVideo.input": "Ссылка на видео YouTube",
+    "app.externalVideo.urlInput": "Добавить ссылку на YouTube",
     "app.externalVideo.close": "Закрыть"
 
 }

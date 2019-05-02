@@ -8,6 +8,7 @@ import PanelManager from '/imports/ui/components/panel-manager/component';
 import PollingContainer from '/imports/ui/components/polling/container';
 import logger from '/imports/startup/client/logger';
 import ActivityCheckContainer from '/imports/ui/components/activity-check/container';
+import UserInfoContainer from '/imports/ui/components/user-info/container';
 import ToastContainer from '../toast/container';
 import ModalContainer from '../modal/container';
 import NotificationsBarContainer from '../notifications-bar/container';
@@ -40,6 +41,10 @@ const intlMessages = defineMessages({
   actionsBarLabel: {
     id: 'app.actionsBar.label',
     description: 'Aria-label for ActionsBar Section',
+  },
+  iOSWarning: {
+    id: 'app.iOSWarning.label',
+    description: 'message indicating to upgrade ios version',
   },
 });
 
@@ -76,7 +81,9 @@ class App extends Component {
   }
 
   componentDidMount() {
-    const { locale } = this.props;
+    const {
+      locale, notify, intl, validIOSVersion,
+    } = this.props;
     const BROWSER_RESULTS = browser();
     const isMobileBrowser = BROWSER_RESULTS.mobile || BROWSER_RESULTS.os.includes('Android');
 
@@ -90,6 +97,14 @@ class App extends Component {
     }
     if (BROWSER_RESULTS && BROWSER_RESULTS.os) {
       body.classList.add(`os-${BROWSER_RESULTS.os.split(' ').shift().toLowerCase()}`);
+    }
+
+    if (!validIOSVersion()) {
+      notify(
+        intl.formatMessage(intlMessages.iOSWarning),
+        'error',
+        'warning',
+      );
     }
 
     this.handleWindowResize();
@@ -209,6 +224,17 @@ class App extends Component {
       />) : null);
   }
 
+  renderUserInformation() {
+    const { UserInfo, User } = this.props;
+
+    return (UserInfo.length > 0 ? (
+      <UserInfoContainer
+        UserInfo={UserInfo}
+        requesterUserId={User.userId}
+        meetingId={User.meetingId}
+      />) : null);
+  }
+
   render() {
     const {
       customStyle, customStyleUrl, openPanel,
@@ -217,6 +243,7 @@ class App extends Component {
     return (
       <main className={styles.main}>
         {this.renderActivityCheck()}
+        {this.renderUserInformation()}
         <BannerBarContainer />
         <NotificationsBarContainer />
         <section className={styles.wrapper}>

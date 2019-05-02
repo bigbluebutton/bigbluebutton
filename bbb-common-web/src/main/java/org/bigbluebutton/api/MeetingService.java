@@ -315,7 +315,7 @@ public class MeetingService implements MessageListener {
             m.getDialNumber(), m.getMaxUsers(), m.getMaxInactivityTimeoutMinutes(), m.getWarnMinutesBeforeMax(),
             m.getMeetingExpireIfNoUserJoinedInMinutes(), m.getmeetingExpireWhenLastUserLeftInMinutes(),
             m.getUserInactivityInspectTimerInMinutes(), m.getUserInactivityThresholdInMinutes(),
-            m.getUserActivitySignResponseDelayInMinutes(), m.getMuteOnStart(), keepEvents,
+            m.getUserActivitySignResponseDelayInMinutes(), m.getMuteOnStart(), m.getAllowModsToUnmuteUsers(), keepEvents,
             m.breakoutRoomsParams,
             m.lockSettingsParams);
   }
@@ -488,7 +488,6 @@ public class MeetingService implements MessageListener {
       params.put(ApiParams.VOICE_BRIDGE, message.voiceConfId);
       params.put(ApiParams.DURATION, message.durationInMinutes.toString());
       params.put(ApiParams.RECORD, message.record.toString());
-      params.put(ApiParams.BREAKOUT_ROOMS_PRIVATE_CHAT_ENABLED, message.privateChatEnabled.toString());
       params.put(ApiParams.WELCOME, getMeeting(message.parentMeetingId).getWelcomeMessageTemplate());
 
       Map<String, String> parentMeetingMetadata = parentMeeting.getMetadata();

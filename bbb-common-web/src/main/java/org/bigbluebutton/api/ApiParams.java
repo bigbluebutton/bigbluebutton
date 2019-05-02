@@ -43,6 +43,7 @@ public class ApiParams {
     public static final String MODERATOR_ONLY_MESSAGE = "moderatorOnlyMessage";
     public static final String MODERATOR_PW = "moderatorPW";
     public static final String MUTE_ON_START = "muteOnStart";
+    public static final String ALLOW_MODS_TO_UNMUTE_USERS = "allowModsToUnmuteUsers";
     public static final String NAME = "name";
     public static final String PARENT_MEETING_ID = "parentMeetingID";
     public static final String PASSWORD = "password";

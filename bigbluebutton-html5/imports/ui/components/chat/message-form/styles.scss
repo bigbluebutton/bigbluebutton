@@ -28,7 +28,7 @@
   padding: var(--sm-padding-y) var(--sm-padding-x);
   cursor: pointer;
 
-  [style~="--enableAnimation:1;"] & {
+  :global(.animationsEnabled) & {
     transition: all .3s;
   }
 
