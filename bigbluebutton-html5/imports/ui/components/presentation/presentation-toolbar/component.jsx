@@ -364,9 +364,14 @@ PresentationToolbar.propTypes = {
   zoomChanger: PropTypes.func.isRequired,
   fitToWidthHandler: PropTypes.func.isRequired,
   fitToWidth: PropTypes.bool.isRequired,
-  fullscreenRef: PropTypes.instanceOf(Element).isRequired,
+  fullscreenRef: PropTypes.instanceOf(Element),
   isFullscreen: PropTypes.bool.isRequired,
   zoom: PropTypes.number.isRequired,
 };
+
+PresentationToolbar.defaultProps = {
+  fullscreenRef: null,
+};
+
 
 export default injectWbResizeEvent(injectIntl(PresentationToolbar));
