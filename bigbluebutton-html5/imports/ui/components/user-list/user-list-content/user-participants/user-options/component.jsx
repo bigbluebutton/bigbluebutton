@@ -10,7 +10,7 @@ import DropdownContent from '/imports/ui/components/dropdown/content/component';
 import DropdownList from '/imports/ui/components/dropdown/list/component';
 import DropdownListItem from '/imports/ui/components/dropdown/list/item/component';
 import LockViewersContainer from '/imports/ui/components/lock-viewers/container';
-import BreakoutRoom from '/imports/ui/components/actions-bar/create-breakout-room/component';
+import BreakoutRoom from '/imports/ui/components/actions-bar/create-breakout-room/container';
 import { styles } from './styles';
 
 const propTypes = {
@@ -23,8 +23,6 @@ const propTypes = {
   toggleStatus: PropTypes.func.isRequired,
   mountModal: PropTypes.func.isRequired,
   users: PropTypes.arrayOf(Object).isRequired,
-  meetingName: PropTypes.string.isRequired,
-  createBreakoutRoom: PropTypes.func.isRequired,
   meetingIsBreakout: PropTypes.bool.isRequired,
   hasBreakoutRoom: PropTypes.bool.isRequired,
 };
@@ -153,25 +151,13 @@ class UserOptions extends PureComponent {
 
   handleCreateBreakoutRoomClick(isInvitation) {
     const {
-      createBreakoutRoom,
       mountModal,
-      meetingName,
-      users,
-      getUsersNotAssigned,
-      getBreakouts,
-      sendInvitation,
     } = this.props;
 
     return mountModal(
       <BreakoutRoom
         {...{
-          createBreakoutRoom,
-          meetingName,
-          users,
-          getUsersNotAssigned,
           isInvitation,
-          getBreakouts,
-          sendInvitation,
         }}
       />,
     );
