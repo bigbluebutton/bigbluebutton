@@ -142,6 +142,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         <property name="lockSettingsLockedLayout" value="${lockSettingsLockedLayout}"/>
         <property name="lockSettingsLockOnJoin" value="${lockSettingsLockOnJoin}"/>
         <property name="lockSettingsLockOnJoinConfigurable" value="${lockSettingsLockOnJoinConfigurable}"/>
+        <property name="allowDuplicateExtUserid" value="${allowDuplicateExtUserid}"/>
     </bean>
 
     <import resource="doc-conversion.xml"/>

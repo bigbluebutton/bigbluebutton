@@ -92,6 +92,8 @@ public class Meeting {
 	public final BreakoutRoomsParams breakoutRoomsParams;
 	public final LockSettingsParams lockSettingsParams;
 
+	public final Boolean allowDuplicateExtUserid;
+
     public Meeting(Meeting.Builder builder) {
         name = builder.name;
         extMeetingId = builder.externalId;
@@ -120,6 +122,7 @@ public class Meeting {
         guestPolicy = builder.guestPolicy;
         breakoutRoomsParams = builder.breakoutRoomsParams;
         lockSettingsParams = builder.lockSettingsParams;
+		allowDuplicateExtUserid = builder.allowDuplicateExtUserid;
 
         userCustomData = new HashMap<>();
 
@@ -619,6 +622,7 @@ public class Meeting {
     	private String guestPolicy;
     	private BreakoutRoomsParams breakoutRoomsParams;
     	private LockSettingsParams lockSettingsParams;
+		private Boolean allowDuplicateExtUserid;
 
     	public Builder(String externalId, String internalId, long createTime) {
     		this.externalId = externalId;
@@ -744,6 +748,11 @@ public class Meeting {
 		public Builder withLockSettingsParams(LockSettingsParams params) {
     		lockSettingsParams = params;
     		return  this;
+		}
+
+		public Builder withAllowDuplicateExtUserid(Boolean allowDuplicateExtUserid) {
+    		this.allowDuplicateExtUserid = allowDuplicateExtUserid;
+    		return this;
 		}
     
     	public Meeting build() {

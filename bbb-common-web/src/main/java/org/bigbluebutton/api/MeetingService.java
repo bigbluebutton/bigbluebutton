@@ -347,9 +347,12 @@ public class MeetingService implements MessageListener {
         String logStr = gson.toJson(logData);
         log.info(" --analytics-- data={}", logStr);
 
-        gw.ejectDuplicateUser(message.meetingID,
-                prevUser.getInternalUserId(), prevUser.getFullname(),
-                prevUser.getExternalUserId());
+        if (!m.allowDuplicateExtUserid) {
+          gw.ejectDuplicateUser(message.meetingID,
+                  prevUser.getInternalUserId(), prevUser.getFullname(),
+                  prevUser.getExternalUserId());
+        }
+
       }
 
     }
