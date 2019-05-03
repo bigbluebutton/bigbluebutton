@@ -118,6 +118,7 @@ public class ParamsProcessorUtil {
 	private Integer userInactivityInspectTimerInMinutes = 120;
 	private Integer userInactivityThresholdInMinutes = 30;
     private Integer userActivitySignResponseDelayInMinutes = 5;
+    private Boolean defaultAllowDuplicateExtUserid = true;
 
     private String substituteKeywords(String message, String dialNumber, String telVoice, String meetingName) {
         String welcomeMessage = message;
@@ -446,8 +447,9 @@ public class ParamsProcessorUtil {
                 .withWelcomeMessageTemplate(welcomeMessageTemplate)
                 .withWelcomeMessage(welcomeMessage).isBreakout(isBreakout)
                 .withGuestPolicy(guestPolicy)
-								.withBreakoutRoomsParams(breakoutParams)
-								.withLockSettingsParams(lockSettingsParams)
+				.withBreakoutRoomsParams(breakoutParams)
+				.withLockSettingsParams(lockSettingsParams)
+				.withAllowDuplicateExtUserid(defaultAllowDuplicateExtUserid)
                 .build();
 
         String configXML = getDefaultConfigXML();
@@ -1093,5 +1095,9 @@ public class ParamsProcessorUtil {
 
 	public void setLockSettingsLockOnJoinConfigurable(Boolean lockSettingsLockOnJoinConfigurable) {
 		this.defaultLockSettingsLockOnJoinConfigurable = lockSettingsLockOnJoinConfigurable;
+	}
+
+	public void setAllowDuplicateExtUserid(Boolean allow) {
+		this.defaultAllowDuplicateExtUserid = allow;
 	}
 }
