@@ -143,6 +143,7 @@ class BreakoutRoom extends Component {
     this.setInvitationConfig = this.setInvitationConfig.bind(this);
     this.setRecord = this.setRecord.bind(this);
     this.blurDurationTime = this.blurDurationTime.bind(this);
+    this.removeRoomUsers = this.removeRoomUsers.bind(this);
 
     this.state = {
       numberOfRooms: MIN_BREAKOUT_ROOMS,
@@ -172,8 +173,19 @@ class BreakoutRoom extends Component {
 
   componentDidUpdate(prevProps, prevstate) {
     const { numberOfRooms } = this.state;
+    const { users } = this.props;
+    const { users: prevUsers } = prevProps;
     if (numberOfRooms < prevstate.numberOfRooms) {
       this.resetUserWhenRoomsChange(numberOfRooms);
+    }
+    const usersCount = users.length;
+    const prevUsersCount = prevUsers.length;
+    if (usersCount > prevUsersCount) {
+      this.setRoomUsers();
+    }
+
+    if (usersCount < prevUsersCount) {
+      this.removeRoomUsers();
     }
   }
 
@@ -237,6 +249,7 @@ class BreakoutRoom extends Component {
       ));
   }
 
+
   setInvitationConfig() {
     const { getBreakouts } = this.props;
     this.setState({
@@ -247,16 +260,22 @@ class BreakoutRoom extends Component {
 
   setRoomUsers() {
     const { users, getUsersNotAssigned } = this.props;
-
-    const roomUsers = getUsersNotAssigned(users).map(user => ({
-      userId: user.userId,
-      userName: user.name,
-      isModerator: user.moderator,
-      room: 0,
-    }));
+    const { users: stateUsers } = this.state;
+    const stateUsersId = stateUsers.map(user => user.userId);
+    const roomUsers = getUsersNotAssigned(users)
+      .filter(user => !stateUsersId.includes(user.userId))
+      .map(user => ({
+        userId: user.userId,
+        userName: user.name,
+        isModerator: user.moderator,
+        room: 0,
+      }));
 
     this.setState({
-      users: roomUsers,
+      users: [
+        ...stateUsers,
+        ...roomUsers,
+      ],
     });
   }
 
@@ -271,6 +290,17 @@ class BreakoutRoom extends Component {
   getUserByRoom(room) {
     const { users } = this.state;
     return users.filter(user => user.room === room);
+  }
+
+  removeRoomUsers() {
+    const { users } = this.props;
+    const { users: stateUsers } = this.state;
+    const userIds = users.map(user => user.userId);
+    const removeUsers = stateUsers.filter(user => userIds.includes(user.userId));
+
+    this.setState({
+      users: removeUsers,
+    });
   }
 
   handleDismiss() {

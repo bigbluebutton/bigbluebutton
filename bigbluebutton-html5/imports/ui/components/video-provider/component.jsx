@@ -13,7 +13,8 @@ import Auth from '/imports/ui/services/auth';
 import VideoService from './service';
 import VideoList from './video-list/component';
 
-const VIDEO_CONSTRAINTS = Meteor.settings.public.kurento.cameraConstraints;
+// const VIDEO_CONSTRAINTS = Meteor.settings.public.kurento.cameraConstraints;
+const CAMERA_PROFILES = Meteor.settings.public.kurento.cameraProfiles;
 
 const intlClientErrors = defineMessages({
   iceCandidateError: {
@@ -460,13 +461,18 @@ class VideoProvider extends Component {
     } catch (error) {
       this.logger('error', 'Video provider failed to fetch ice servers, using default', 'video_provider_missing_ice_servers');
     } finally {
+      const profileId = Session.get('WebcamProfileId') || '';
+      const cameraProfile = CAMERA_PROFILES.find(profile => profile.id === profileId)
+        || CAMERA_PROFILES.find(profile => profile.default)
+        || CAMERA_PROFILES[0];
+      const { constraints } = cameraProfile;
       if (Session.get('WebcamDeviceId')) {
-        VIDEO_CONSTRAINTS.deviceId = { exact: Session.get('WebcamDeviceId') };
+        constraints.deviceId = { exact: Session.get('WebcamDeviceId') };
       }
       const options = {
         mediaConstraints: {
           audio: false,
-          video: VIDEO_CONSTRAINTS,
+          video: constraints,
         },
         onicecandidate: this._getOnIceCandidateCallback(id, shareWebcam),
       };
