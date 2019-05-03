@@ -323,3 +323,22 @@ private:
     - DoLatencyTracerMsg
   serverLog:
     level: info
+  minBrowserVersions:
+    - browser: chrome
+      version: 59
+    - browser: firefox
+      version: 52
+    - browser: firefoxMobile
+      version: 52
+    - browser: edge
+      version: 17
+    - browser: ie
+      version: Infinity
+    - browser: mobileSafari
+      version: [11, 1]
+    - browser: opera
+      version: 46
+    - browser: safari
+      version: [11, 1]
+    - browser: electron
+      version: [0, 36]
