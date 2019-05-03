@@ -152,6 +152,13 @@ class ApplicationMenu extends BaseMenu {
   render() {
     const { availableLocales, intl } = this.props;
     const { isLargestFontSize, isSmallestFontSize } = this.state;
+    const pixelPercentage = {
+      '12px':	'86%',
+      '14px':	'100%',
+      '16px':	'114%',
+      '18px':	'129%',
+      '20px':	'143%',
+    };
 
     return (
       <div>
@@ -268,7 +275,7 @@ class ApplicationMenu extends BaseMenu {
             <div className={styles.col}>
               <div className={cx(styles.formElement, styles.pullContentCenter)}>
                 <label className={cx(styles.label, styles.bold)}>
-                  {this.state.settings.fontSize}
+                  {`${pixelPercentage[this.state.settings.fontSize]}`}
                 </label>
               </div>
             </div>
