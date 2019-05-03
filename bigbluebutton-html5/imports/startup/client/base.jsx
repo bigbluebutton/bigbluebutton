@@ -10,23 +10,15 @@ import Settings from '/imports/ui/services/settings';
 import AudioManager from '/imports/ui/services/audio-manager';
 import logger from '/imports/startup/client/logger';
 import Users from '/imports/api/users';
-import Annotations from '/imports/api/annotations';
-import AnnotationsLocal from '/imports/ui/components/whiteboard/service';
-import GroupChat from '/imports/api/group-chat';
-import mapUser from '/imports/ui/services/user/mapUser';
 import { Session } from 'meteor/session';
 import IntlStartup from './intl';
 import Meetings from '../../api/meetings';
 import AppService from '/imports/ui/components/app/service';
-import AnnotationsTextService from '/imports/ui/components/whiteboard/annotations/text/service';
 import Breakouts from '/imports/api/breakouts';
 import AudioService from '/imports/ui/components/audio/service';
 import { FormattedMessage } from 'react-intl';
 import { notify } from '/imports/ui/services/notification';
 
-const CHAT_CONFIG = Meteor.settings.public.chat;
-const PUBLIC_GROUP_CHAT_ID = CHAT_CONFIG.public_group_id;
-const PUBLIC_CHAT_TYPE = CHAT_CONFIG.type_public;
 const HTML = document.getElementsByTagName('html')[0];
 
 let breakoutNotified = false;
@@ -35,7 +27,7 @@ const propTypes = {
   subscriptionsReady: PropTypes.bool,
   locale: PropTypes.string,
   approved: PropTypes.bool,
-  meetingHasEnded: PropTypes.bool,
+  meetingHasEnded: PropTypes.bool.isRequired,
   meetingExist: PropTypes.bool,
 };
 
@@ -44,7 +36,6 @@ const defaultProps = {
   approved: undefined,
   meetingExist: false,
   subscriptionsReady: false,
-  meetingHasEnded: false,
 };
 
 const fullscreenChangedEvents = [
@@ -73,7 +64,6 @@ class Base extends Component {
       loading: false,
       meetingExisted: false,
     };
-
     this.updateLoadingState = this.updateLoadingState.bind(this);
   }
 
@@ -120,7 +110,7 @@ class Base extends Component {
     // In case the meeting delayed to load
     if (!subscriptionsReady || !meetingExist) return;
 
-    if (approved && loading) this.updateLoadingState(false);
+    if (approved && loading && subscriptionsReady) this.updateLoadingState(false);
 
     if (prevProps.ejected || ejected) {
       Session.set('codeError', '403');
@@ -167,12 +157,12 @@ class Base extends Component {
     const codeError = Session.get('codeError');
     const {
       ejected,
-      subscriptionsReady,
       meetingExist,
       meetingHasEnded,
+      meetingIsBreakout,
+      subscriptionsReady,
     } = this.props;
 
-    const meetingIsBreakout = AppService.meetingIsBreakout();
     if ((loading || !subscriptionsReady) && !meetingHasEnded && meetingExist) {
       return (<LoadingScreen>{loading}</LoadingScreen>);
     }
@@ -219,16 +209,10 @@ class Base extends Component {
 Base.propTypes = propTypes;
 Base.defaultProps = defaultProps;
 
-const SUBSCRIPTIONS_NAME = [
-  'users', 'meetings', 'polls', 'presentations',
-  'slides', 'captions', 'voiceUsers', 'whiteboard-multi-user', 'screenshare',
-  'group-chat', 'presentation-pods', 'users-settings', 'guestUser', 'users-infos',
-];
-
 const BaseContainer = withTracker(() => {
   const { locale, animations } = Settings.application;
   const { credentials, loggedIn } = Auth;
-  const { meetingId, requesterUserId } = credentials;
+  const { meetingId } = credentials;
   let breakoutRoomSubscriptionHandler;
   let meetingModeratorSubscriptionHandler;
 
@@ -253,66 +237,7 @@ const BaseContainer = withTracker(() => {
 
   let userSubscriptionHandler;
 
-  const subscriptionErrorHandler = {
-    onError: (error) => {
-      logger.error({ logCode: 'startup_client_subscription_error' }, error);
-      Session.set('codeError', error.error);
-    },
-  };
-
-  const subscriptionsHandlers = SUBSCRIPTIONS_NAME
-    .map(name => Meteor.subscribe(name, credentials, subscriptionErrorHandler));
-
-  const subscriptionsReady = subscriptionsHandlers.every(handler => handler.ready())
-    && loggedIn;
-
-  const chats = GroupChat.find({
-    $or: [
-      {
-        meetingId,
-        access: PUBLIC_CHAT_TYPE,
-        chatId: { $ne: PUBLIC_GROUP_CHAT_ID },
-      },
-      { meetingId, users: { $all: [requesterUserId] } },
-    ],
-  }).fetch();
-
-  const chatIds = chats.map(chat => chat.chatId);
-
-  const groupChatMessageHandler = Meteor.subscribe('group-chat-msg', credentials, chatIds, subscriptionErrorHandler);
   const User = Users.findOne({ intId: credentials.requesterUserId });
-  let responseDelay;
-  let inactivityCheck;
-
-  if (User) {
-    const {
-      responseDelay: userResponseDelay,
-      inactivityCheck: userInactivityCheck,
-    } = User;
-    responseDelay = userResponseDelay;
-    inactivityCheck = userInactivityCheck;
-    const mappedUser = mapUser(User);
-    // override meteor subscription to verify if is moderator
-    userSubscriptionHandler = Meteor.subscribe('users', credentials, mappedUser.isModerator, subscriptionErrorHandler);
-    breakoutRoomSubscriptionHandler = Meteor.subscribe('breakouts', credentials, mappedUser.isModerator, subscriptionErrorHandler);
-    meetingModeratorSubscriptionHandler = Meteor.subscribe('meetings', credentials, mappedUser.isModerator, subscriptionErrorHandler);
-  }
-
-  const annotationsHandler = Meteor.subscribe('annotations', credentials, {
-    onReady: () => {
-      const activeTextShapeId = AnnotationsTextService.activeTextShapeId();
-      AnnotationsLocal.remove({ id: { $ne: `${activeTextShapeId}-fake` } });
-      Annotations.find({ id: { $ne: activeTextShapeId } }, { reactive: false }).forEach((a) => {
-        try {
-          AnnotationsLocal.insert(a);
-        } catch (e) {
-          // TODO
-        }
-      });
-      annotationsHandler.stop();
-    },
-    ...subscriptionErrorHandler,
-  });
 
   Breakouts.find().observeChanges({
     added() {
@@ -367,19 +292,17 @@ const BaseContainer = withTracker(() => {
     approved,
     ejected,
     locale,
-    subscriptionsReady,
-    annotationsHandler,
-    groupChatMessageHandler,
     userSubscriptionHandler,
     breakoutRoomSubscriptionHandler,
     meetingModeratorSubscriptionHandler,
     animations,
-    responseDelay,
-    inactivityCheck,
     User,
     meteorIsConnected: Meteor.status().connected,
     meetingExist: !!meeting,
     meetingHasEnded: !!meeting && meeting.meetingEnded,
+    meetingIsBreakout: AppService.meetingIsBreakout(),
+    subscriptionsReady: Session.get('subscriptionsReady'),
+    loggedIn,
   };
 })(Base);
 
