@@ -562,6 +562,7 @@
     "app.createBreakoutRoom.joinAudio": "Join audio",
     "app.createBreakoutRoom.returnAudio": "Return audio",
     "app.createBreakoutRoom.confirm": "Create",
+    "app.createBreakoutRoom.record": "Record",
     "app.createBreakoutRoom.numberOfRooms": "Number of rooms",
     "app.createBreakoutRoom.durationInMinutes": "Duration (minutes)",
     "app.createBreakoutRoom.randomlyAssign": "Randomly assign",

@@ -27,6 +27,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
+import java.util.concurrent.locks.Lock;
 
 import org.apache.commons.lang3.RandomStringUtils;
 
@@ -88,6 +89,9 @@ public class Meeting {
 	private Integer userInactivityThresholdInMinutes = 30;
     private Integer userActivitySignResponseDelayInMinutes = 5;
 
+	public final BreakoutRoomsParams breakoutRoomsParams;
+	public final LockSettingsParams lockSettingsParams;
+
     public Meeting(Meeting.Builder builder) {
         name = builder.name;
         extMeetingId = builder.externalId;
@@ -114,6 +118,8 @@ public class Meeting {
         createdTime = builder.createdTime;
         isBreakout = builder.isBreakout;
         guestPolicy = builder.guestPolicy;
+        breakoutRoomsParams = builder.breakoutRoomsParams;
+        lockSettingsParams = builder.lockSettingsParams;
 
         userCustomData = new HashMap<>();
 
@@ -611,6 +617,8 @@ public class Meeting {
     	private long createdTime;
     	private boolean isBreakout;
     	private String guestPolicy;
+    	private BreakoutRoomsParams breakoutRoomsParams;
+    	private LockSettingsParams lockSettingsParams;
 
     	public Builder(String externalId, String internalId, long createTime) {
     		this.externalId = externalId;
@@ -725,6 +733,16 @@ public class Meeting {
 
     	public Builder withGuestPolicy(String policy) {
     		guestPolicy = policy;
+    		return  this;
+		}
+
+		public Builder withBreakoutRoomsParams(BreakoutRoomsParams params) {
+    		breakoutRoomsParams = params;
+    		return this;
+		}
+
+		public Builder withLockSettingsParams(LockSettingsParams params) {
+    		lockSettingsParams = params;
     		return  this;
 		}
     

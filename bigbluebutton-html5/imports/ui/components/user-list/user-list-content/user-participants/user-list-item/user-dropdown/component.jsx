@@ -206,7 +206,7 @@ class UserDropdown extends PureComponent {
       removeUser,
       toggleVoice,
       changeRole,
-      lockSettingsProp,
+      lockSettingsProps,
       hasPrivateChatBetweenUsers,
       toggleUserLock,
       requestUserInformation,
@@ -230,12 +230,12 @@ class UserDropdown extends PureComponent {
       allowedToChangeUserLockStatus,
     } = actionPermissions;
 
-    const { disablePrivChat } = lockSettingsProp;
+    const { disablePrivateChat } = lockSettingsProps;
 
     const enablePrivateChat = currentUser.isModerator
       ? allowedToChatPrivately
       : allowedToChatPrivately
-      && (!(currentUser.isLocked && disablePrivChat)
+      && (!(currentUser.isLocked && disablePrivateChat)
         || hasPrivateChatBetweenUsers(currentUser, user)
         || user.isModerator);
 

@@ -124,6 +124,11 @@ class AnalyticsActor extends Actor with ActorLogging {
       // Recording
       case m: RecordingChapterBreakSysMsg => logMessage(msg)
 
+      case m: GetLockSettingsRespMsg => logMessage(msg)
+      case m: ChangeLockSettingsInMeetingCmdMsg => logMessage(msg)
+      case m: GetLockSettingsReqMsg => logMessage(msg)
+      case m: LockSettingsNotInitializedRespMsg => logMessage(msg)
+
       case _ => // ignore message
     }
   }

@@ -61,7 +61,8 @@ trait CreateBreakoutRoomsCmdMsgHdlr extends RightsManagementTrait {
         msg.body.durationInMinutes,
         liveMeeting.props.password.moderatorPass,
         liveMeeting.props.password.viewerPass,
-        presId, presSlide, msg.body.record
+        presId, presSlide, msg.body.record,
+        liveMeeting.props.breakoutProps.privateChatEnabled
       )
 
       val event = buildCreateBreakoutRoomSysCmdMsg(liveMeeting.props.meetingProp.intId, roomDetail)
