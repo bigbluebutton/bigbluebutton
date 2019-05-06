@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
+import { notify } from '/imports/ui/services/notification';
 
 export default class PollDrawComponent extends Component {
   constructor(props) {
@@ -51,6 +52,11 @@ export default class PollDrawComponent extends Component {
   }
 
   componentWillMount() {
+    notify(
+      'Poll results published',
+      'info',
+      'polling',
+    );
     // in this part we retrieve the props and perform initial calculations for the state
     // calculating only the parts which have to be done just once and don't require
     // rendering / rerendering the text objects
