@@ -1514,9 +1514,17 @@ class ApiController {
             customLogoURL meeting.getCustomLogoURL()
             customCopyright meeting.getCustomCopyright()
             muteOnStart meeting.getMuteOnStart()
+            allowModsToUnmuteUsers meeting.getAllowModsToUnmuteUsers()
             logoutUrl us.logoutUrl
             defaultLayout us.defaultLayout
             avatarURL us.avatarURL
+            if (meeting.breakoutRoomsParams != null) {
+              breakoutRooms {
+                enabled meeting.breakoutRoomsParams.enabled
+                record meeting.breakoutRoomsParams.record
+                privateChatEnabled meeting.breakoutRoomsParams.privateChatEnabled
+              }
+            }
             customdata (
               meeting.getUserCustomData(us.externUserID).collect { k, v ->
                 ["$k": v]

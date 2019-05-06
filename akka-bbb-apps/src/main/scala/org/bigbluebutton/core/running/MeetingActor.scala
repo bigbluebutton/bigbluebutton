@@ -11,7 +11,7 @@ import org.bigbluebutton.core.apps.users._
 import org.bigbluebutton.core.apps.whiteboard.ClientToServerLatencyTracerMsgHdlr
 import org.bigbluebutton.core.domain._
 import org.bigbluebutton.core.util.TimeUtil
-import org.bigbluebutton.common2.domain.DefaultProps
+import org.bigbluebutton.common2.domain.{ DefaultProps, LockSettingsProps }
 import org.bigbluebutton.core.api._
 import org.bigbluebutton.core.apps._
 import org.bigbluebutton.core.apps.caption.CaptionApp2x
@@ -23,7 +23,7 @@ import org.bigbluebutton.core.apps.sharednotes.SharedNotesApp2x
 import org.bigbluebutton.core.apps.whiteboard.WhiteboardApp2x
 import org.bigbluebutton.core.bus._
 import org.bigbluebutton.core.models._
-import org.bigbluebutton.core2.MeetingStatus2x
+import org.bigbluebutton.core2.{ MeetingStatus2x, Permissions }
 import org.bigbluebutton.core2.message.handlers._
 import org.bigbluebutton.core2.message.handlers.meeting._
 import org.bigbluebutton.common2.msgs._
@@ -177,6 +177,8 @@ class MeetingActor(
   // Set webcamsOnlyForModerator property in case we didn't after meeting creation
   MeetingStatus2x.setWebcamsOnlyForModerator(liveMeeting.status, liveMeeting.props.usersProp.webcamsOnlyForModerator)
 
+  initLockSettings(liveMeeting, liveMeeting.props.lockSettingsProps)
+
   /** *****************************************************************/
   // Helper to create fake users for testing (ralam jan 5, 2018)
   //object FakeTestData extends FakeTestData
@@ -223,6 +225,23 @@ class MeetingActor(
       state = usersApp.handleSendRecordingTimerInternalMsg(msg, state)
 
     case _ => // do nothing
+  }
+
+  private def initLockSettings(liveMeeting: LiveMeeting, lockSettingsProp: LockSettingsProps): Unit = {
+    val settings = Permissions(
+      disableCam = lockSettingsProp.disableCam,
+      disableMic = lockSettingsProp.disableMic,
+      disablePrivChat = lockSettingsProp.disablePrivateChat,
+      disablePubChat = lockSettingsProp.disablePublicChat,
+      lockedLayout = lockSettingsProp.lockedLayout,
+      lockOnJoin = lockSettingsProp.lockOnJoin,
+      lockOnJoinConfigurable = lockSettingsProp.lockOnJoinConfigurable
+    )
+
+    MeetingStatus2x.initializePermissions(liveMeeting.status)
+
+    MeetingStatus2x.setPermissions(liveMeeting.status, settings)
+
   }
 
   private def updateInactivityTracker(state: MeetingState2x): MeetingState2x = {
@@ -525,7 +544,7 @@ class MeetingActor(
     val elapsedInMin = TimeUtil.millisToMinutes(elapsedInMs)
 
     if (props.recordProp.record &&
-            recordingChapterBreakLengthInMinutes > 0 &&
+      recordingChapterBreakLengthInMinutes > 0 &&
       elapsedInMin > recordingChapterBreakLengthInMinutes) {
       lastRecBreakSentOn = now
       val event = MsgBuilder.buildRecordingChapterBreakSysMsg(props.meetingProp.intId, TimeUtil.timeNowInMs())

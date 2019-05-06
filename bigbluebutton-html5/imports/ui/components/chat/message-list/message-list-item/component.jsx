@@ -140,6 +140,8 @@ export default class MessageListItem extends Component {
 
     const dateTime = new Date(time);
 
+    const regEx = /<a[^>]+>/i;
+
     if (!user) {
       return this.renderSystemMessage();
     }
@@ -169,7 +171,7 @@ export default class MessageListItem extends Component {
             <div className={styles.messages}>
               {messages.map(message => (
                 <Message
-                  className={styles.message}
+                  className={(regEx.test(message.text) ? styles.hyperlink : styles.message)}
                   key={message.id}
                   text={message.text}
                   time={message.time}

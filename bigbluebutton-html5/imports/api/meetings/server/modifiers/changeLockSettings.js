@@ -15,13 +15,33 @@ export default function changeLockSettings(meetingId, payload) {
     setBy: Match.Maybe(String),
   });
 
+  const {
+    disableCam,
+    disableMic,
+    disablePrivChat,
+    disablePubChat,
+    lockedLayout,
+    lockOnJoin,
+    lockOnJoinConfigurable,
+    setBy,
+  } = payload;
+
   const selector = {
     meetingId,
   };
 
   const modifier = {
     $set: {
-      lockSettingsProp: payload,
+      lockSettingsProps: {
+        disableCam,
+        disableMic,
+        disablePrivateChat: disablePrivChat,
+        disablePublicChat: disablePubChat,
+        lockedLayout,
+        lockOnJoin,
+        lockOnJoinConfigurable,
+        setBy,
+      },
     },
   };
 

@@ -41,46 +41,20 @@
     [hidden]:not([hidden="false"]) {
       display: none !important;
     }
-
-    .browserWarning {
-      border: 5px solid #F3F6F9;
-      border-radius: 0.5rem;
-      color: #F3F6F9;
-      text-align: center;
-      width:500px;
-      position:fixed;
-      left:50%;
-      margin-left: -250px;
-      top:50%;
-      margin-top: -4rem;
-      font-size: 1.5rem;
-      padding: 10px;
-    }
   </style>
   <script>
     document.addEventListener('gesturestart', function (e) {
       e.preventDefault();
     });
-
-    window.addEventListener('load', function (e) {
-      var ua = window.navigator.userAgent;
-
-      // detect for different version of IE and show a warning
-      if (ua.indexOf('MSIE ') > 0 || ua.indexOf('Trident/') > 0) {
-        var warning = document.getElementById("browserWarning");
-        if (warning) {
-          warning.style.display = "block";
-        }
-      }
-    });
   </script>
+  <script src="compatibility/adapter.js?v=VERSION" language="javascript"></script>
+  <script src="compatibility/bowser.js?v=VERSION" language="javascript"></script>
+  <script src="compatibility/sip.js?v=VERSION" language="javascript"></script>
+  <script src="compatibility/kurento-extension.js?v=VERSION" language="javascript"></script>
+  <script src="compatibility/kurento-utils.js?v=VERSION" language="javascript"></script>
 </head>
 <body style="background-color: #06172A">
-  <div id="app" role="document">
-    <p id="browserWarning" class="browserWarning" style="display: none">
-      It looks like you're using a browser that is not fully supported. Please use either <a href="https://www.google.com/chrome/">Chrome</a> or <a href="https://getfirefox.com">Firefox</a> for full support.
-    </p>
-  </div>
+  <div id="app" role="document"></div>
   <audio id="remote-media" autoPlay="autoplay">
     <track kind="captions" /> {/* These captions are brought to you by eslint */}
   </audio>

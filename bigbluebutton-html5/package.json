@@ -12,6 +12,13 @@
     "test": "jest",
     "lint": "eslint . --ext .jsx,.js"
   },
+  "meteor": {
+    "mainModule": {
+      "web.browser": "client/main.jsx",
+      "legacy": "client/legacy.jsx",
+      "server": "server/main.js"
+    }
+  },
   "lint-staged": {
     "linters": {
       "*.{js,jsx}": [
@@ -56,12 +63,12 @@
     "react-toastify": "^4.5.2",
     "react-toggle": "~4.0.2",
     "react-transition-group": "^2.5.3",
-    "react-vimeo": "^2.0.0",
     "react-youtube": "^7.9.0",
     "reconnecting-websocket": "~v4.1.10",
     "redis": "~2.8.0",
     "string-hash": "~1.1.3",
     "tippy.js": "^3.4.1",
+    "useragent": "^2.3.0",
     "winston": "^3.2.1",
     "yaml": "^1.3.2"
   },

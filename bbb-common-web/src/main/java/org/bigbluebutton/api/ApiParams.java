@@ -43,6 +43,7 @@ public class ApiParams {
     public static final String MODERATOR_ONLY_MESSAGE = "moderatorOnlyMessage";
     public static final String MODERATOR_PW = "moderatorPW";
     public static final String MUTE_ON_START = "muteOnStart";
+    public static final String ALLOW_MODS_TO_UNMUTE_USERS = "allowModsToUnmuteUsers";
     public static final String NAME = "name";
     public static final String PARENT_MEETING_ID = "parentMeetingID";
     public static final String PASSWORD = "password";
@@ -53,6 +54,18 @@ public class ApiParams {
     public static final String WEB_VOICE = "webVoice";
     public static final String WEBCAMS_ONLY_FOR_MODERATOR = "webcamsOnlyForModerator";
     public static final String WELCOME = "welcome";
+
+    public static final String BREAKOUT_ROOMS_ENABLED = "breakoutRoomsEnabled";
+    public static final String BREAKOUT_ROOMS_RECORD = "breakoutRoomsRecord";
+    public static final String BREAKOUT_ROOMS_PRIVATE_CHAT_ENABLED = "breakoutRoomsPrivateChatEnabled";
+
+    public static final String LOCK_SETTINGS_DISABLE_CAM = "lockSettingsDisableCam";
+    public static final String LOCK_SETTINGS_DISABLE_MIC = "lockSettingsDisableMic";
+    public static final String LOCK_SETTINGS_DISABLE_PRIVATE_CHAT = "lockSettingsDisablePrivateChat";
+    public static final String LOCK_SETTINGS_DISABLE_PUBLIC_CHAT = "lockSettingsDisablePublicChat";
+    public static final String LOCK_SETTINGS_LOCKED_LAYOUT = "lockSettingsLockedLayout";
+    public static final String LOCK_SETTINGS_LOCK_ON_JOIN = "lockSettingsLockOnJoin";
+    public static final String LOCK_SETTINGS_LOCK_ON_JOIN_CONFIGURABLE = "lockSettingsLockOnJoinConfigurable";
 
     private ApiParams() {
         throw new IllegalStateException("ApiParams is a utility class. Instanciation is forbidden.");
