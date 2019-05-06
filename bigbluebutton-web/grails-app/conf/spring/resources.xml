@@ -131,6 +131,18 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         <property name="maxPresentationFileUpload" value="${maxFileSizeUpload}"/>
         <property name="clientLogoutTimerInMinutes" value="${clientLogoutTimerInMinutes}"/>
         <property name="muteOnStart" value="${muteOnStart}"/>
+        <property name="allowModsToUnmuteUsers" value="${allowModsToUnmuteUsers}"/>
+        <property name="breakoutRoomsEnabled" value="${breakoutRoomsEnabled}"/>
+        <property name="breakoutRoomsRecord" value="${breakoutRoomsRecord}"/>
+        <property name="breakoutRoomsPrivateChatEnabled" value="${breakoutRoomsPrivateChatEnabled}"/>
+        <property name="lockSettingsDisableCam" value="${lockSettingsDisableCam}"/>
+        <property name="lockSettingsDisableMic" value="${lockSettingsDisableMic}"/>
+        <property name="lockSettingsDisablePrivateChat" value="${lockSettingsDisablePrivateChat}"/>
+        <property name="lockSettingsDisablePublicChat" value="${lockSettingsDisablePublicChat}"/>
+        <property name="lockSettingsLockedLayout" value="${lockSettingsLockedLayout}"/>
+        <property name="lockSettingsLockOnJoin" value="${lockSettingsLockOnJoin}"/>
+        <property name="lockSettingsLockOnJoinConfigurable" value="${lockSettingsLockOnJoinConfigurable}"/>
+        <property name="allowDuplicateExtUserid" value="${allowDuplicateExtUserid}"/>
     </bean>
 
     <import resource="doc-conversion.xml"/>

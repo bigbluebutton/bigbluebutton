@@ -1,6 +1,11 @@
 @import "/imports/ui/stylesheets/variables/_all";
 @import '/imports/ui/stylesheets/mixins/_indicators';
 
+.col,
+.formWrapper{
+  min-width: 0;
+}
+
 .form {
   display: flex;
   flex-flow: column;

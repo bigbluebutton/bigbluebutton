@@ -1,6 +1,5 @@
 import Auth from '/imports/ui/services/auth';
 import Users from '/imports/api/users';
-import fp from 'lodash/fp';
 import { makeCall } from '/imports/ui/services/api';
 import Meetings from '/imports/api/meetings';
 import Breakouts from '/imports/api/breakouts';
@@ -13,31 +12,13 @@ const getBreakouts = () => Breakouts.find({ parentMeetingId: Auth.meetingID })
   .fetch()
   .sort((a, b) => a.sequence - b.sequence);
 
-const getBreakoutUser = user => Users.find({
-  extId: new RegExp(`^${user.userId}`),
-  connectionStatus: 'online',
-}).fetch();
-
-const currentBreakoutUsers = userArray => userArray.length === 1;
+const currentBreakoutUsers = user => !Breakouts.findOne({
+  'joinedUsers.userId': new RegExp(`^${user.userId}`),
+});
 
 const filterBreakoutUsers = filter => users => users.filter(filter);
 
-const filterUsersNotAssigned = filterBreakoutUsers(currentBreakoutUsers);
-
-const mapUsersToNotAssined = mapFunction => users => users.map(mapFunction);
-
-const flatUsersArray = usersArray => usersArray.reduce((acc, users) => [...acc, ...users], []);
-
-/*
-  The concept of pipe is simple
-  it combines n functions. It’s a pipe flowing left-to-right,
-  calling each function with the output of the last one.
-*/
-const getUsersNotAssigned = fp.pipe(
-  mapUsersToNotAssined(getBreakoutUser),
-  filterUsersNotAssigned,
-  flatUsersArray,
-);
+const getUsersNotAssigned = filterBreakoutUsers(currentBreakoutUsers);
 
 const takePresenterRole = () => makeCall('assignPresenter', Auth.userID);
 
@@ -49,8 +30,10 @@ export default {
   meetingName: () => Meetings.findOne({ meetingId: Auth.meetingID }).meetingProp.name,
   users: () => Users.find({ connectionStatus: 'online', meetingId: Auth.meetingID }).fetch(),
   hasBreakoutRoom: () => Breakouts.find({ parentMeetingId: Auth.meetingID }).fetch().length > 0,
+  isBreakoutEnabled: () => Meetings.findOne({ meetingId: Auth.meetingID }).breakoutProps.enabled,
+  isBreakoutRecordable: () => Meetings.findOne({ meetingId: Auth.meetingID }).breakoutProps.record,
   toggleRecording: () => makeCall('toggleRecording'),
-  createBreakoutRoom: (numberOfRooms, durationInMinutes, freeJoin = true, record = false) => makeCall('createBreakoutRoom', numberOfRooms, durationInMinutes, freeJoin, record),
+  createBreakoutRoom: (numberOfRooms, durationInMinutes, record = false) => makeCall('createBreakoutRoom', numberOfRooms, durationInMinutes, record),
   sendInvitation: (breakoutId, userId) => makeCall('requestJoinURL', { breakoutId, userId }),
   getBreakouts,
   getUsersNotAssigned,

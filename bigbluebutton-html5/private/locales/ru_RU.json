@@ -1,4 +1,5 @@
 {
+    "app.home.greeting": "Ваша презентация скоро начнется...",
     "app.chat.submitLabel": "Отправить сообщение",
     "app.chat.errorMinMessageLength": "Сообщение из {0} символа(-ов) слишком короткое",
     "app.chat.errorMaxMessageLength": "Сообщение из {0} символа(-ов) слишком длинное",
@@ -236,10 +237,9 @@
     "app.error.removed": "Вас удалили из конференции",
     "app.error.meeting.ended": "Вы вышли из конференции",
     "app.dropdown.close": "Закрыть",
-    "app.error.500": "Упс, что-то пошло не так",
-    "app.error.404": "Не найдено",
     "app.error.401": "Не авторизирован",
-    "app.error.403": "Доступ запрещен",
+    "app.error.404": "Не найдено",
+    "app.error.500": "Упс, что-то пошло не так",
     "app.error.leaveLabel": "Зайдите снова",
     "app.guest.waiting": "Ожидание одобрения входа",
     "app.toast.chat.public": "Новое сообщение в публичном чате",
@@ -325,6 +325,8 @@
     "app.videoDock.webcamUnfocusLabel": "Расфокусировать",
     "app.videoDock.webcamUnfocusDesc": "Расфокусировать выбранную веб-камеру",
     "app.createBreakoutRoom.joinAudio": "Присоединиться к аудио-конференции",
+    "app.externalVideo.input": "Ссылка на видео YouTube",
+    "app.externalVideo.urlInput": "Добавить ссылку на YouTube",
     "app.externalVideo.close": "Закрыть"
 
 }

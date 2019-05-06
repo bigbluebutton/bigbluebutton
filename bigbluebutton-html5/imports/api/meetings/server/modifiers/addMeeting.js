@@ -16,6 +16,9 @@ export default function addMeeting(meeting) {
       freeJoin: Boolean,
       breakoutRooms: Array,
       parentId: String,
+      enabled: Boolean,
+      record: Boolean,
+      privateChatEnabled: Boolean,
     },
     meetingProp: {
       intId: String,
@@ -27,6 +30,7 @@ export default function addMeeting(meeting) {
       webcamsOnlyForModerator: Boolean,
       guestPolicy: String,
       maxUsers: Number,
+      allowModsToUnmuteUsers: Boolean,
     },
     durationProps: {
       createdTime: Number,
@@ -67,6 +71,15 @@ export default function addMeeting(meeting) {
       screenshareConf: String,
     },
     metadataProp: Object,
+    lockSettingsProps: {
+      disableCam: Boolean,
+      disableMic: Boolean,
+      disablePrivateChat: Boolean,
+      disablePublicChat: Boolean,
+      lockOnJoin: Boolean,
+      lockOnJoinConfigurable: Boolean,
+      lockedLayout: Boolean,
+    },
   });
 
   const newMeeting = meeting;
@@ -75,16 +88,7 @@ export default function addMeeting(meeting) {
     meetingId,
   };
 
-  const lockSettingsProp = {
-    disableCam: false,
-    disableMic: false,
-    disablePrivChat: false,
-    disablePubChat: false,
-    lockOnJoin: true,
-    lockOnJoinConfigurable: false,
-    lockedLayout: false,
-    setBy: 'temp',
-  };
+  newMeeting.lockSettingsProps = Object.assign(meeting.lockSettingsProps, { setBy: 'temp' });
 
   const meetingEnded = false;
 
@@ -108,7 +112,6 @@ export default function addMeeting(meeting) {
     $set: Object.assign({
       meetingId,
       meetingEnded,
-      lockSettingsProp,
     }, flat(newMeeting, {
       safe: true,
     })),

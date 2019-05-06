@@ -46,6 +46,8 @@ import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.util.EntityUtils;
+import org.bigbluebutton.api.domain.BreakoutRoomsParams;
+import org.bigbluebutton.api.domain.LockSettingsParams;
 import org.bigbluebutton.api.domain.Meeting;
 import org.bigbluebutton.api.util.ParamsUtil;
 import org.slf4j.Logger;
@@ -90,6 +92,19 @@ public class ParamsProcessorUtil {
     private boolean allowStartStopRecording;
     private boolean webcamsOnlyForModerator;
     private boolean defaultMuteOnStart = false;
+    private boolean defaultAllowModsToUnmuteUsers = false;
+
+		private boolean defaultBreakoutRoomsEnabled;
+		private boolean defaultBreakoutRoomsRecord;
+		private boolean defaultbreakoutRoomsPrivateChatEnabled;
+
+		private boolean defaultLockSettingsDisableCam;
+		private boolean defaultLockSettingsDisableMic;
+		private boolean defaultLockSettingsDisablePrivateChat;
+		private boolean defaultLockSettingsDisablePublicChat;
+		private boolean defaultLockSettingsLockedLayout;
+		private boolean defaultLockSettingsLockOnJoin;
+		private boolean defaultLockSettingsLockOnJoinConfigurable;
 
     private String defaultConfigXML = null;
 
@@ -103,6 +118,7 @@ public class ParamsProcessorUtil {
 	private Integer userInactivityInspectTimerInMinutes = 120;
 	private Integer userInactivityThresholdInMinutes = 30;
     private Integer userActivitySignResponseDelayInMinutes = 5;
+    private Boolean defaultAllowDuplicateExtUserid = true;
 
     private String substituteKeywords(String message, String dialNumber, String telVoice, String meetingName) {
         String welcomeMessage = message;
@@ -206,7 +222,83 @@ public class ParamsProcessorUtil {
 
         return metas;
     }
-	
+
+		private BreakoutRoomsParams processBreakoutRoomsParams(Map<String, String> params) {
+			Boolean breakoutRoomsEnabled = defaultBreakoutRoomsEnabled;
+			String breakoutRoomsEnabledParam = params.get(ApiParams.BREAKOUT_ROOMS_ENABLED);
+			if (!StringUtils.isEmpty(breakoutRoomsEnabledParam)) {
+				breakoutRoomsEnabled = Boolean.parseBoolean(breakoutRoomsEnabledParam);
+			}
+
+			Boolean breakoutRoomsRecord = defaultBreakoutRoomsRecord;
+			String breakoutRoomsRecordParam = params.get(ApiParams.BREAKOUT_ROOMS_RECORD);
+			if (!StringUtils.isEmpty(breakoutRoomsRecordParam)) {
+				breakoutRoomsRecord = Boolean.parseBoolean(breakoutRoomsRecordParam);
+			}
+
+			Boolean breakoutRoomsPrivateChatEnabled =  defaultbreakoutRoomsPrivateChatEnabled;
+			String breakoutRoomsPrivateChatEnabledParam = params.get(ApiParams.BREAKOUT_ROOMS_PRIVATE_CHAT_ENABLED);
+			if (!StringUtils.isEmpty(breakoutRoomsPrivateChatEnabledParam)) {
+				breakoutRoomsPrivateChatEnabled = Boolean.parseBoolean(breakoutRoomsPrivateChatEnabledParam);
+			}
+
+			return new BreakoutRoomsParams(breakoutRoomsEnabled,
+							breakoutRoomsRecord,
+							breakoutRoomsPrivateChatEnabled);
+		}
+
+		private LockSettingsParams processLockSettingsParams(Map<String, String> params) {
+			Boolean lockSettingsDisableCam = defaultLockSettingsDisableCam;
+			String lockSettingsDisableCamParam = params.get(ApiParams.LOCK_SETTINGS_DISABLE_CAM);
+			if (!StringUtils.isEmpty(lockSettingsDisableCamParam)) {
+				lockSettingsDisableCam = Boolean.parseBoolean(lockSettingsDisableCamParam);
+			}
+
+			Boolean lockSettingsDisableMic = defaultLockSettingsDisableMic;
+			String lockSettingsDisableMicParam = params.get(ApiParams.LOCK_SETTINGS_DISABLE_MIC);
+			if (!StringUtils.isEmpty(lockSettingsDisableMicParam)) {
+				lockSettingsDisableMic = Boolean.parseBoolean(lockSettingsDisableMicParam);
+			}
+
+			Boolean lockSettingsDisablePrivateChat = defaultLockSettingsDisablePrivateChat;
+			String lockSettingsDisablePrivateChatParam = params.get(ApiParams.LOCK_SETTINGS_DISABLE_PRIVATE_CHAT);
+			if (!StringUtils.isEmpty(lockSettingsDisablePrivateChatParam)) {
+				lockSettingsDisablePrivateChat = Boolean.parseBoolean(lockSettingsDisablePrivateChatParam);
+			}
+
+			Boolean lockSettingsDisablePublicChat = defaultLockSettingsDisablePublicChat;
+			String lockSettingsDisablePublicChatParam = params.get(ApiParams.LOCK_SETTINGS_DISABLE_PUBLIC_CHAT);
+			if (!StringUtils.isEmpty(lockSettingsDisablePublicChatParam)) {
+				lockSettingsDisablePublicChat = Boolean.parseBoolean(lockSettingsDisablePublicChatParam);
+			}
+
+			Boolean lockSettingsLockedLayout = defaultLockSettingsLockedLayout;
+			String lockSettingsLockedLayoutParam = params.get(ApiParams.LOCK_SETTINGS_LOCKED_LAYOUT);
+			if (!StringUtils.isEmpty(lockSettingsLockedLayoutParam)) {
+				lockSettingsLockedLayout = Boolean.parseBoolean(lockSettingsLockedLayoutParam);
+			}
+
+			Boolean lockSettingsLockOnJoin = defaultLockSettingsLockOnJoin;
+			String lockSettingsLockOnJoinParam = params.get(ApiParams.LOCK_SETTINGS_LOCK_ON_JOIN);
+			if (!StringUtils.isEmpty(lockSettingsLockOnJoinParam)) {
+				lockSettingsLockOnJoin = Boolean.parseBoolean(lockSettingsLockOnJoinParam);
+			}
+
+			Boolean lockSettingsLockOnJoinConfigurable = defaultLockSettingsLockOnJoinConfigurable;
+			String lockSettingsLockOnJoinConfigurableParam = params.get(ApiParams.LOCK_SETTINGS_LOCK_ON_JOIN_CONFIGURABLE);
+			if (!StringUtils.isEmpty(lockSettingsLockOnJoinConfigurableParam)) {
+				lockSettingsLockOnJoinConfigurable = Boolean.parseBoolean(lockSettingsLockOnJoinConfigurableParam);
+			}
+
+			return new LockSettingsParams(lockSettingsDisableCam,
+							lockSettingsDisableMic,
+							lockSettingsDisablePrivateChat,
+							lockSettingsDisablePublicChat,
+							lockSettingsLockedLayout,
+							lockSettingsLockOnJoin,
+							lockSettingsLockOnJoinConfigurable);
+		}
+
     public Meeting processCreateParams(Map<String, String> params) {
 
         String meetingName = params.get(ApiParams.NAME);
@@ -307,7 +399,11 @@ public class ParamsProcessorUtil {
         if (!StringUtils.isEmpty(params.get(ApiParams.GUEST_POLICY))) {
         	guestPolicy = params.get(ApiParams.GUEST_POLICY);
 		}
-        
+        BreakoutRoomsParams breakoutParams = processBreakoutRoomsParams(params);
+        LockSettingsParams lockSettingsParams = processLockSettingsParams(params);
+
+
+
         // Collect metadata for this meeting that the third-party app wants to
         // store if meeting is recorded.
         Map<String, String> meetingInfo = processMetaParam(params);
@@ -351,6 +447,9 @@ public class ParamsProcessorUtil {
                 .withWelcomeMessageTemplate(welcomeMessageTemplate)
                 .withWelcomeMessage(welcomeMessage).isBreakout(isBreakout)
                 .withGuestPolicy(guestPolicy)
+				.withBreakoutRoomsParams(breakoutParams)
+				.withLockSettingsParams(lockSettingsParams)
+				.withAllowDuplicateExtUserid(defaultAllowDuplicateExtUserid)
                 .build();
 
         String configXML = getDefaultConfigXML();
@@ -391,6 +490,13 @@ public class ParamsProcessorUtil {
         }
 
 		meeting.setMuteOnStart(muteOnStart);
+
+        Boolean allowModsToUnmuteUsers = defaultAllowModsToUnmuteUsers;
+        if (!StringUtils.isEmpty(params.get(ApiParams.ALLOW_MODS_TO_UNMUTE_USERS))) {
+            allowModsToUnmuteUsers = Boolean.parseBoolean(params.get(ApiParams.ALLOW_MODS_TO_UNMUTE_USERS));
+        }
+        meeting.setAllowModsToUnmuteUsers(allowModsToUnmuteUsers);
+
         return meeting;
     }
 	
@@ -888,6 +994,13 @@ public class ParamsProcessorUtil {
 		return defaultMuteOnStart;
 	}
 
+	public void setAllowModsToUnmuteUsers(Boolean value) {
+		defaultAllowModsToUnmuteUsers = value;
+	}
+
+	public Boolean getAllowModsToUnmuteUsers() {
+		return defaultAllowModsToUnmuteUsers;
+	}
 
 	public List<String> decodeIds(String encodeid) {
 		ArrayList<String> ids=new ArrayList<>();
@@ -944,4 +1057,47 @@ public class ParamsProcessorUtil {
         return filters;
     }
 
+	public void setBreakoutRoomsEnabled(Boolean breakoutRoomsEnabled) {
+		this.defaultBreakoutRoomsEnabled = breakoutRoomsEnabled;
+	}
+
+	public void setBreakoutRoomsRecord(Boolean breakoutRoomsRecord) {
+		this.defaultBreakoutRoomsRecord = breakoutRoomsRecord;
+	}
+
+	public void setBreakoutRoomsPrivateChatEnabled(Boolean breakoutRoomsPrivateChatEnabled) {
+		this.defaultbreakoutRoomsPrivateChatEnabled = breakoutRoomsPrivateChatEnabled;
+	}
+
+	public void setLockSettingsDisableCam(Boolean lockSettingsDisableCam) {
+		this.defaultLockSettingsDisableCam = lockSettingsDisableCam;
+	}
+
+	public void setLockSettingsDisableMic(Boolean lockSettingsDisableMic) {
+		this.defaultLockSettingsDisableMic = lockSettingsDisableMic;
+	}
+
+	public void setLockSettingsDisablePrivateChat(Boolean lockSettingsDisablePrivateChat) {
+		this.defaultLockSettingsDisablePrivateChat = lockSettingsDisablePrivateChat;
+	}
+
+	public void setLockSettingsDisablePublicChat(Boolean lockSettingsDisablePublicChat) {
+		this.defaultLockSettingsDisablePublicChat = lockSettingsDisablePublicChat;
+	}
+
+	public void setLockSettingsLockedLayout(Boolean lockSettingsLockedLayout) {
+		this.defaultLockSettingsLockedLayout = lockSettingsLockedLayout;
+	}
+
+	public void setLockSettingsLockOnJoin(Boolean lockSettingsLockOnJoin) {
+		this.defaultLockSettingsLockOnJoin = lockSettingsLockOnJoin;
+	}
+
+	public void setLockSettingsLockOnJoinConfigurable(Boolean lockSettingsLockOnJoinConfigurable) {
+		this.defaultLockSettingsLockOnJoinConfigurable = lockSettingsLockOnJoinConfigurable;
+	}
+
+	public void setAllowDuplicateExtUserid(Boolean allow) {
+		this.defaultAllowDuplicateExtUserid = allow;
+	}
 }

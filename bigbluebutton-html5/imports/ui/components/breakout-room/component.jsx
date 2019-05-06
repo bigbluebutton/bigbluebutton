@@ -180,6 +180,7 @@ class BreakoutRoom extends Component {
     const {
       breakoutRooms,
       intl,
+      getUsersByBreakoutId,
     } = this.props;
 
     const {
@@ -193,7 +194,7 @@ class BreakoutRoom extends Component {
           {intl.formatMessage(intlMessages.breakoutRoom, breakout.sequence.toString())}
           <span className={styles.usersAssignedNumberLabel}>
             (
-            {new Set(breakout.users.map(user => user.userId)).size}
+            {getUsersByBreakoutId(breakout.breakoutId).count()}
             )
           </span>
         </span>

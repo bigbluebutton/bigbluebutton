@@ -80,7 +80,8 @@ class OldMeetingMsgHdlrActor(val olgMsgGW: OldMessageReceivedGW)
       msg.body.room.durationInMinutes,
       msg.body.room.sourcePresentationId,
       msg.body.room.sourcePresentationSlide,
-      msg.body.room.record
+      msg.body.room.record,
+      msg.body.room.privateChatEnabled
     ))
 
   }
