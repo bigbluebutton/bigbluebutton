@@ -38,18 +38,19 @@ export default class Checkbox extends PureComponent {
 
   componentDidMount() {
     const checkbox = findDOMNode(this.checkbox);
-    checkbox.addEventListener('keydown', this.handleKeyDown);
+    if (checkbox) checkbox.addEventListener('keydown', this.handleKeyDown);
   }
 
   componentWillUnmount() {
-    checkbox.removeEventListener('keydown', this.handleKeyDown);
+    const checkbox = findDOMNode(this.checkbox);
+    if (checkbox) checkbox.removeEventListener('keydown', this.handleKeyDown);
   }
 
   handleKeyDown(event) {
     const { which } = event;
     const input = findDOMNode(this.input);
     if ([KEY_CODES.ENTER].includes(which)) {
-      input.click();
+      if (input) input.click();
     }
   }
 
