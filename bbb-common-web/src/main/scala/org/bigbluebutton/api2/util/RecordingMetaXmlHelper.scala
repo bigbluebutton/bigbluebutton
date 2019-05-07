@@ -205,6 +205,7 @@ class RecordingMetaXmlHelper extends RecordingServiceGW with LogHelper {
         while (it.hasNext()) {
           val mapTrack = it.next()
           list.add(new Track(
+            // TODO : change this later and provide authenticated/signed URLs to fetch the caption files
             href = captionBaseUrl + mapTrack.get("lang") + ".vtt",
             kind = mapTrack.get("kind"),
             label = mapTrack.get("label"),

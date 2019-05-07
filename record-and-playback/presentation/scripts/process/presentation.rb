@@ -204,11 +204,22 @@ if not FileTest.directory?(target_dir)
 
     if File.exist?("#{captions_meeting_dir}/captions.json")
       BigBlueButton.logger.info("Copying closed captions")
-      FileUtils.cp("#{captions_meeting_dir}/captions_playback.json", "#{target_dir}/captions.json")
-      Dir.glob("#{captions_meeting_dir}/caption_*.vtt").each do |caption|
-        BigBlueButton.logger.debug(caption)
-        FileUtils.cp(caption, target_dir)
+
+      captions = JSON.load(File.new("#{captions_meeting_dir}/captions.json"))
+      captions_json = []
+      captions.each do |track|
+        caption = {}
+        caption[:localeName] = track['label']
+        caption[:locale] = track['lang']
+        captions_json << caption
+        BigBlueButton.logger.info("_______LOCALE #{track}")
+        FileUtils.cp("#{captions_meeting_dir}/caption_" + track['lang'] + ".vtt", target_dir)
       end
+
+      File.open("#{target_dir}/captions.json", "w") do |f|
+        f.write(captions_json.to_json)
+      end
+
       captions = JSON.load(File.new("#{target_dir}/captions.json", 'r'))
     end
 

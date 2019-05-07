@@ -43,7 +43,7 @@ props = YAML::load(File.open('../../core/scripts/bigbluebutton.yml'))
 recording_dir = props['recording_dir']
 raw_archive_dir = "#{recording_dir}/raw/#{meeting_id}"
 BigBlueButton.logger.info("Setting process dir")
-$process_dir = "#{recording_dir}/process/presentation/#{$meeting_id}"
+$process_dir = "#{recording_dir}/process/presentation/#{meeting_id}"
 BigBlueButton.logger.info("setting captions dir")
 captions_dir = props['captions_dir']
 $captions_meeting_dir = "#{captions_dir}/#{meeting_id}"
@@ -83,15 +83,16 @@ if not FileTest.directory?(target_dir)
     BigBlueButton.logger.info("Generating closed captions")
     FileUtils.mkdir_p $captions_meeting_dir
     ret = BigBlueButton.exec_ret('utils/gen_webvtt', '-i', raw_archive_dir, '-o', $captions_meeting_dir)
-    FileUtils.cp("#{$captions_meeting_dir}/captions.json", "#{$captions_meeting_dir}/captions_playback.json")
     if ret != 0
       raise "Generating closed caption files failed"
     end
 
-    unless File.exist?("#{$captions_meeting_dir}/captions.json")
-      FileUtils.rmdir $captions_meeting_dir
-    else
+    if File.exist?("#{$captions_meeting_dir}/captions.json")
+      FileUtils.cp("#{$captions_meeting_dir}/captions.json", "#{$captions_meeting_dir}/captions_playback.json")
       create_api_captions_file
+      FileUtils.rm "#{$captions_meeting_dir}/captions_playback.json"
+    else
+      FileUtils.rmdir $captions_meeting_dir
     end
 
   rescue Exception => e
