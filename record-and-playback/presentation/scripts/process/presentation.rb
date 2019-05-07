@@ -212,7 +212,6 @@ if not FileTest.directory?(target_dir)
         caption[:localeName] = track['label']
         caption[:locale] = track['lang']
         captions_json << caption
-        BigBlueButton.logger.info("_______LOCALE #{track}")
         FileUtils.cp("#{captions_meeting_dir}/caption_" + track['lang'] + ".vtt", target_dir)
       end
 
