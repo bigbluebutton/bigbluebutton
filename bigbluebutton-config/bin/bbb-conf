@@ -430,7 +430,7 @@ display_bigbluebutton_status () {
     units="red5 nginx freeswitch $REDIS_SERVICE bbb-apps-akka bbb-transcode-akka bbb-fsesl-akka"
  
     if [ -d $TOMCAT_DIR ]; then
-      units="units $TOMCAT_SERVICE"
+      units="$units $TOMCAT_SERVICE"
     fi
 
     if [ -f /usr/lib/systemd/system/bbb-html5.service ]; then
