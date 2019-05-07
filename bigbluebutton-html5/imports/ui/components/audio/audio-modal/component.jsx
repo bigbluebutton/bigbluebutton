@@ -161,11 +161,13 @@ class AudioModal extends Component {
     const {
       isEchoTest,
       exitAudio,
+      resolve,
     } = this.props;
 
     if (isEchoTest) {
       exitAudio();
     }
+    if (resolve) resolve();
     Session.set('audioModalIsOpen', false);
   }
 

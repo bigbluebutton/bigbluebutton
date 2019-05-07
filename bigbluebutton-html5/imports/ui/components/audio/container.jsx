@@ -78,10 +78,10 @@ export default withModalMounter(injectIntl(withTracker(({ mountModal, intl }) =>
   const KURENTO_CONFIG = Meteor.settings.public.kurento;
 
   const autoJoin = getFromUserSettings('autoJoin', APP_CONFIG.autoJoin);
-  const openAudioModal = mountModal.bind(
-    null,
-    <AudioModalContainer />,
-  );
+  const openAudioModal = () => new Promise((resolve) => {
+    mountModal(<AudioModalContainer resolve={resolve} />);
+  });
+
   const openVideoPreviewModal = () => new Promise((resolve) => {
     mountModal(<VideoPreviewContainer resolve={resolve} />);
   });
@@ -137,7 +137,7 @@ export default withModalMounter(injectIntl(withTracker(({ mountModal, intl }) =>
       const enableVideo = getFromUserSettings('enableVideo', KURENTO_CONFIG.enableVideo);
       const autoShareWebcam = getFromUserSettings('autoShareWebcam', KURENTO_CONFIG.autoShareWebcam);
       if (enableVideo && autoShareWebcam) {
-        openVideoPreviewModal().then(() => { openAudioModal(); didMountAutoJoin = true; });
+        openAudioModal().then(() => { openVideoPreviewModal(); didMountAutoJoin = true; });
       } else {
         openAudioModal();
         didMountAutoJoin = true;
