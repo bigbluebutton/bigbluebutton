@@ -2,7 +2,6 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 
 export default class Cursor extends Component {
-
   static scale(attribute, widthRatio, physicalWidthRatio) {
     return ((attribute * widthRatio) / 100) / physicalWidthRatio;
   }
@@ -67,7 +66,9 @@ export default class Cursor extends Component {
   }
 
   componentWillMount() {
-    const { cursorX, cursorY, slideWidth, slideHeight, presenter, isMultiUser } = this.props;
+    const {
+      cursorX, cursorY, slideWidth, slideHeight, presenter, isMultiUser,
+    } = this.props;
 
     // setting the initial cursor info
     this.scaledSizes = Cursor.getScaledSizes(this.props);
@@ -109,11 +110,10 @@ export default class Cursor extends Component {
       this.fill = fill;
     }
 
-    if ((widthRatio !== nextProps.widthRatio ||
-          physicalWidthRatio !== nextProps.physicalWidthRatio)
-      ||
-        (labelBoxWidth !== nextProps.labelBoxWidth ||
-          labelBoxHeight !== nextProps.labelBoxHeight)) {
+    if ((widthRatio !== nextProps.widthRatio
+          || physicalWidthRatio !== nextProps.physicalWidthRatio)
+      || (labelBoxWidth !== nextProps.labelBoxWidth
+          || labelBoxHeight !== nextProps.labelBoxHeight)) {
       this.scaledSizes = Cursor.getScaledSizes(nextProps);
     }
 
@@ -132,11 +132,9 @@ export default class Cursor extends Component {
   calculateCursorLabelBoxDimensions() {
     let labelBoxWidth = 0;
     let labelBoxHeight = 0;
-
     if (this.cursorLabelRef) {
       const { width, height } = this.cursorLabelRef.getBBox();
       const { widthRatio, physicalWidthRatio } = this.props;
-
       labelBoxWidth = Cursor.invertScale(width, widthRatio, physicalWidthRatio);
       labelBoxHeight = Cursor.invertScale(height, widthRatio, physicalWidthRatio);
 
@@ -175,44 +173,46 @@ export default class Cursor extends Component {
           fill={fill}
           fillOpacity="0.6"
         />
-        {this.displayLabel ?
-          <g>
-            <rect
-              fill="white"
-              fillOpacity="0.8"
-              x={boxX}
-              y={boxY}
-              width={cursorLabelBox.width}
-              height={cursorLabelBox.height}
-              strokeWidth={cursorLabelBox.strokeWidth}
-              stroke={fill}
-              strokeOpacity="0.8"
-            />
-            <text
-              ref={(ref) => { this.cursorLabelRef = ref; }}
-              x={x}
-              y={y}
-              dy={cursorLabelText.textDY}
-              dx={cursorLabelText.textDX}
-              fontFamily="Arial"
-              fontWeight="600"
-              fill={fill}
-              fillOpacity="0.8"
-              fontSize={cursorLabelText.fontSize}
-              clipPath={`url(#${this.props.cursorId})`}
-            >
-              {this.props.userName}
-            </text>
-            <clipPath id={this.props.cursorId}>
+        {this.displayLabel
+          ? (
+            <g>
               <rect
+                fill="white"
+                fillOpacity="0.8"
                 x={boxX}
                 y={boxY}
                 width={cursorLabelBox.width}
                 height={cursorLabelBox.height}
+                strokeWidth={cursorLabelBox.strokeWidth}
+                stroke={fill}
+                strokeOpacity="0.8"
               />
-            </clipPath>
-          </g>
-        : null }
+              <text
+                ref={(ref) => { this.cursorLabelRef = ref; }}
+                x={x}
+                y={y}
+                dy={cursorLabelText.textDY}
+                dx={cursorLabelText.textDX}
+                fontFamily="Arial"
+                fontWeight="600"
+                fill={fill}
+                fillOpacity="0.8"
+                fontSize={cursorLabelText.fontSize}
+                clipPath={`url(#${this.props.cursorId})`}
+              >
+                {this.props.userName}
+              </text>
+              <clipPath id={this.props.cursorId}>
+                <rect
+                  x={boxX}
+                  y={boxY}
+                  width={cursorLabelBox.width}
+                  height={cursorLabelBox.height}
+                />
+              </clipPath>
+            </g>
+          )
+          : null }
       </g>
     );
   }
