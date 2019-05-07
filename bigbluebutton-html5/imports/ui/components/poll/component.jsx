@@ -109,7 +109,8 @@ class Poll extends Component {
   }
 
   componentDidMount() {
-    findDOMNode(this.hideBtn).focus();
+    const hideBtn = findDOMNode(this.hideBtn);
+    if (hideBtn) hideBtn.focus();
   }
 
   componentDidUpdate() {
