@@ -190,7 +190,7 @@ class RecordingMetaXmlHelper extends RecordingServiceGW with LogHelper {
     }
   }
 
-  def getRecordingTextTracks(recordId: String, captionsDir: String, captionBasUrl: String): String = {
+  def getRecordingTextTracks(recordId: String, captionsDir: String, captionBaseUrl: String): String = {
     val gson = new Gson()
     var returnResponse: String = ""
     val captionsFilePath = captionsDir + File.separatorChar + recordId + File.separatorChar + CAPTIONS_FILE
@@ -205,7 +205,7 @@ class RecordingMetaXmlHelper extends RecordingServiceGW with LogHelper {
         while (it.hasNext()) {
           val mapTrack = it.next()
           list.add(new Track(
-            href = captionBasUrl + mapTrack.get("lang") + ".json",
+            href = captionBaseUrl + mapTrack.get("lang") + ".vtt",
             kind = mapTrack.get("kind"),
             label = mapTrack.get("label"),
             lang = mapTrack.get("lang"),
