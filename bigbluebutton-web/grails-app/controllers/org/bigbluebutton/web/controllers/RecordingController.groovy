@@ -5,7 +5,6 @@ import groovy.json.JsonBuilder
 import org.bigbluebutton.api.MeetingService
 import org.bigbluebutton.api.ParamsProcessorUtil
 import org.bigbluebutton.api.util.ResponseBuilder
-import org.apache.commons.lang.StringUtils
 import org.bigbluebutton.api.ApiErrors
 import org.bigbluebutton.api.ApiParams
 import org.apache.commons.lang3.StringUtils
