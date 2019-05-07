@@ -152,6 +152,8 @@ class ApplicationMenu extends BaseMenu {
   render() {
     const { availableLocales, intl } = this.props;
     const { isLargestFontSize, isSmallestFontSize } = this.state;
+    
+    //conversions can be found at http://pxtoem.com
     const pixelPercentage = {
       '12px':	'86%',
       '14px':	'100%',
