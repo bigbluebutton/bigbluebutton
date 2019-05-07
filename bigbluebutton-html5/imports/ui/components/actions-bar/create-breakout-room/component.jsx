@@ -452,6 +452,9 @@ class BreakoutRoom extends Component {
             >
               <Button
                 label={intl.formatMessage(intlMessages.minusRoomTime)}
+                aria-label={
+                  `${intl.formatMessage(intlMessages.minusRoomTime)} ${durationTime}`
+                }
                 icon="substract"
                 onClick={() => {}}
                 hideLabel
@@ -466,6 +469,9 @@ class BreakoutRoom extends Component {
             >
               <Button
                 label={intl.formatMessage(intlMessages.addRoomTime)}
+                aria-label={
+                  `${intl.formatMessage(intlMessages.addRoomTime)} ${durationTime}`
+                }
                 icon="add"
                 onClick={() => {}}
                 hideLabel
