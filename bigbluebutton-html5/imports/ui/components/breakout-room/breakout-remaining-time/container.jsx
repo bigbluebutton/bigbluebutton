@@ -102,7 +102,7 @@ export default injectNotify(injectIntl(withTracker(({
     clearInterval(timeRemainingInterval);
   }
 
-  if (timeRemaining && timeRemaining >= 0) {
+  if (timeRemaining !== null && timeRemaining >= 0) {
     if (timeRemaining > 0) {
       const time = getTimeRemaining();
       if (time === (1 * 60) && alertMessageUnderOneMinute) notify(alertMessageUnderOneMinute, 'info', 'rooms');
