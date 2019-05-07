@@ -36,7 +36,7 @@ export default class Checkbox extends PureComponent {
     this.handleKeyDown = this.handleKeyDown.bind(this);
   }
 
-  componentDidMount () {
+  componentDidMount() {
     const checkbox = findDOMNode(this.checkbox);
     checkbox.addEventListener('keydown', this.handleKeyDown);
   }
@@ -58,7 +58,7 @@ export default class Checkbox extends PureComponent {
     if (disabled) return;
     this.onChange(keyValue);
   }
-l
+
   render() {
     const {
       ariaLabel, ariaLabelledBy, ariaDesc, ariaDescribedBy,
@@ -66,11 +66,12 @@ l
     } = this.props;
 
     return (
-      <div className={cx({
-        [styles.disabled]: !!disabled,
-      }, className)}
+      <div
+        className={cx({
+          [styles.disabled]: !!disabled,
+        }, className)}
         tabIndex={0}
-        ref={node => { this.checkbox = node; }}
+        ref={(node) => { this.checkbox = node; }}
       >
         <input
           type="checkbox"
@@ -80,7 +81,7 @@ l
           aria-labelledby={ariaLabelledBy}
           aria-describedby={ariaDescribedBy}
           disabled={disabled}
-          ref={node => { this.input = node; }}
+          ref={(node) => { this.input = node; }}
         />
         <div role="presentation" onClick={this.handleChange}>
           { checked
