@@ -277,7 +277,6 @@ class AudioModal extends Component {
       skipCheck,
       audioLocked,
       isMobileNative,
-      isIEOrEdge,
       formattedDialNum,
     } = this.props;
 
@@ -312,18 +311,6 @@ class AudioModal extends Component {
             )
             : null}
         </span>
-        {isIEOrEdge ? (
-          <p className={cx(styles.text, styles.browserWarning)}>
-            <FormattedMessage
-              id="app.audioModal.unsupportedBrowserLabel"
-              description="Warning when someone joins with a browser that isnt supported"
-              values={{
-                0: <a href="https://www.google.com/chrome/">Chrome</a>,
-                1: <a href="https://getfirefox.com">Firefox</a>,
-              }}
-            />
-          </p>
-        ) : null}
         {formattedDialNum ? (
           <Button
             className={styles.audioDial}
@@ -440,6 +427,7 @@ class AudioModal extends Component {
       showPermissionsOvelay,
       isIOSChrome,
       closeModal,
+      isIEOrEdge,
     } = this.props;
 
     const { content } = this.state;
@@ -453,6 +441,18 @@ class AudioModal extends Component {
           onRequestClose={closeModal}
           hideBorder
         >
+          {isIEOrEdge ? (
+            <p className={cx(styles.text, styles.browserWarning)}>
+              <FormattedMessage
+                id="app.audioModal.unsupportedBrowserLabel"
+                description="Warning when someone joins with a browser that isnt supported"
+                values={{
+                  0: <a href="https://www.google.com/chrome/">Chrome</a>,
+                  1: <a href="https://getfirefox.com">Firefox</a>,
+                }}
+              />
+            </p>
+          ) : null}
           {!this.skipAudioOptions()
 
             ? (
