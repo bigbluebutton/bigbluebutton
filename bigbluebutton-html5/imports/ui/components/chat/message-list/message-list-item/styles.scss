@@ -18,6 +18,9 @@
   display: flex;
   flex-flow: row;
   flex: 1;
+  position: relative;
+  margin-left: var(--border-size);
+  margin-top: var(--border-size);
 }
 
 .systemMessage {

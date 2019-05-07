@@ -1,6 +1,7 @@
 @import "../styles.scss";
 @import "/imports/ui/stylesheets/variables/_all";
 @import "/imports/ui/stylesheets/variables/typography";
+@import "/imports/ui/stylesheets/mixins/_indicators";
 
 .chatListItem {
   @extend %list-item;
@@ -13,6 +14,9 @@
   padding-top: var(--lg-padding-y);
   padding-bottom: var(--lg-padding-y);
   padding-left: var(--lg-padding-y);
+  margin-left: var(--border-size);
+  margin-top: var(--border-size);
+  margin-bottom: var(--border-size);
 }
 
 .chatListItemLink {
@@ -50,5 +54,4 @@
 .active {
   background-color: var(--list-item-bg-hover);
   box-shadow: inset 0 0 0 var(--border-size) var(--item-focus-border), inset 1px 0 0 1px var(--item-focus-border);
-  outline: none;
 }

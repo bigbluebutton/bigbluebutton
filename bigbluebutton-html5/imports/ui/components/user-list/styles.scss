@@ -1,5 +1,6 @@
 @import "/imports/ui/stylesheets/variables/_all";
 @import "/imports/ui/stylesheets/mixins/_scrollable";
+@import "/imports/ui/stylesheets/mixins/_indicators";
 
 /* Variables
  * ==========
@@ -48,22 +49,21 @@
   border-bottom-left-radius: 5px;
   cursor: pointer;
 
-  :global(.animationsEnabled) & {
-    transition: all .3s;
-  }
-
   &:first-child {
     margin-top: 0;
   }
 
-  &:focus {
+  &:hover {
+    @include highContrastOutline();
     background-color: var(--list-item-bg-hover);
-    box-shadow: inset 0 0 0 var(--border-size) var(--item-focus-border), inset 1px 0 0 1px var(--item-focus-border);
-    outline: none;
   }
 
-  &:hover {
+  &:active,
+  &:focus {
+    @include highContrastOutline();
+    outline-style: solid;
     background-color: var(--list-item-bg-hover);
+    box-shadow: inset 0 0 0 var(--border-size) var(--item-focus-border), inset 1px 0 0 1px var(--item-focus-border);
   }
 }
 
@@ -84,7 +84,13 @@
   @extend %flex-column;
   @extend %no-margin;
   padding: 0;
+  padding-top: var(--border-size);
   outline: none;
+}
+
+.participantsList {
+  padding-left: var(--border-size);
+  padding-bottom: var(--border-size);
 }
 
 .participantsList,

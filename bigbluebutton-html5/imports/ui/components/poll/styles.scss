@@ -1,5 +1,6 @@
 @import "/imports/ui/stylesheets/variables/_all";
 @import "/imports/ui/stylesheets/mixins/focus";
+@import "/imports/ui/stylesheets/mixins/_indicators";
 
 :root {
     --poll-column-amount: 2;
@@ -153,8 +154,16 @@
 
 .input {
     @include inputFocus(var(--color-blue-light));
+ 
+    &:hover,
+    &:focus {
+        @include highContrastOutline();
+    }
 
-    outline: 0;
+    &:focus {
+        outline-style: solid !important;
+    }
+    
     margin: 0;
     color: var(--color-text);
     background: var(--color-white);
