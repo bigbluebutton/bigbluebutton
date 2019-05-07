@@ -6,6 +6,7 @@ import { withModalMounter } from '/imports/ui/components/modal/service';
 import _ from 'lodash';
 import { Session } from 'meteor/session';
 import Button from '/imports/ui/components/button/component';
+import { findDOMNode } from 'react-dom';
 import LiveResult from './live-result/component';
 import { styles } from './styles.scss';
 
@@ -105,6 +106,11 @@ class Poll extends Component {
     this.renderInputFields = this.renderInputFields.bind(this);
     this.handleInputChange = this.handleInputChange.bind(this);
     this.handleBackClick = this.handleBackClick.bind(this);
+  }
+
+  componentDidMount() {
+    const hideBtn = findDOMNode(this.hideBtn);
+    if (hideBtn) hideBtn.focus();
   }
 
   componentDidUpdate() {
@@ -321,6 +327,7 @@ class Poll extends Component {
       <div>
         <header className={styles.header}>
           <Button
+            ref={(node) => { this.hideBtn = node; }}
             tabIndex={0}
             label={intl.formatMessage(intlMessages.pollPaneTitle)}
             icon="left_arrow"
