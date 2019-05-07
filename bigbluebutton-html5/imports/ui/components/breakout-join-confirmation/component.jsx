@@ -3,6 +3,7 @@ import { defineMessages, injectIntl } from 'react-intl';
 import { withModalMounter } from '/imports/ui/components/modal/service';
 import Modal from '/imports/ui/components/modal/fullscreen/component';
 import AudioService from '../audio/service';
+import VideoService from '../video-provider/service';
 import { styles } from './styles';
 
 const intlMessages = defineMessages({
@@ -59,7 +60,7 @@ class BreakoutJoinConfirmation extends Component {
     const url = isFreeJoin ? getURL(this.state.selectValue) : breakoutURL;
     // leave main room's audio when joining a breakout room
     AudioService.exitAudio();
-
+    VideoService.exitVideo();
     window.open(url);
     mountModal(null);
   }
