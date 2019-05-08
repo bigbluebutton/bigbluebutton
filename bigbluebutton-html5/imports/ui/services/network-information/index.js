@@ -1,6 +1,7 @@
 import NetworkInformation from '/imports/api/network-information';
 import { makeCall } from '/imports/ui/services/api';
 import Auth from '/imports/ui/services/auth';
+import Users from '/imports/api/users';
 
 const NetworkInformationLocal = new Mongo.Collection(null);
 
@@ -110,17 +111,23 @@ export const startBandwidthMonitoring = () => {
         time: { $lt: dangerLowerBoundary, $gte: warningLowerBoundary },
       }).count();
 
+    let effectiveType = 'good';
 
     if (dangerZone) {
       if (!dangerZoneReceivers) {
-        makeCall('setUserEffectiveConnectionType', 'danger');
+        effectiveType = 'danger';
       }
     } else if (warningZone) {
       if (!warningZoneReceivers) {
-        makeCall('setUserEffectiveConnectionType', 'warning');
+        effectiveType = 'warning';
       }
-    } else {
-      makeCall('setUserEffectiveConnectionType', 'good');
+    }
+
+    const lastEffectiveConnectionType = Users.findOne({ userId: Auth.userID });
+
+    if (lastEffectiveConnectionType
+      && lastEffectiveConnectionType.effectiveConnectionType !== effectiveType) {
+      makeCall('setUserEffectiveConnectionType', effectiveType);
     }
   }, 5000);
 };
