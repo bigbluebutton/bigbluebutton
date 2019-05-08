@@ -266,7 +266,7 @@ class Settings extends Component {
             */
             mountModal(null);
             notify(
-              intl.formatMessage(intlMessages.appTabLabel),
+              intl.formatMessage(intlMessages.savedAlertLabel),
               'info',
               'settings',
             );
