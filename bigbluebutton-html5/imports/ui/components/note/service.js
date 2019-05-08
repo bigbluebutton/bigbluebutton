@@ -8,19 +8,18 @@ import mapUser from '/imports/ui/services/user/mapUser';
 const NOTE_CONFIG = Meteor.settings.public.note;
 
 const getNoteId = () => {
-  const noteId = Note.findOne({ meetingId: Auth.meetingID }).noteId;
-  return noteId;
+  const note = Note.findOne({ meetingId: Auth.meetingID });
+  return note ? note.noteId : '';
 };
 
 const getReadOnlyNoteId = () => {
-  const readOnlyNoteId = Note.findOne({ meetingId: Auth.meetingID }).readOnlyNoteId;
-  return readOnlyNoteId;
+  const note = Note.findOne({ meetingId: Auth.meetingID });
+  return note ? note.readOnlyNoteId : '';
 };
 
 const getLang = () => {
-  const locale = Settings.application.locale;
-  const lang = locale.toLowerCase();
-  return lang;
+  const { locale } = Settings.application;
+  return locale ? locale.toLowerCase() : '';
 };
 
 const getCurrentUser = () => {
@@ -29,14 +28,14 @@ const getCurrentUser = () => {
 };
 
 const getNoteParams = () => {
-  let config = NOTE_CONFIG.config;
+  const { config } = NOTE_CONFIG;
   const User = getCurrentUser();
   config.userName = User.name;
   config.userColor = User.color;
   config.lang = getLang();
 
-  let params = [];
-  for (var key in config) {
+  const params = [];
+  for (const key in config) {
     if (config.hasOwnProperty(key)) {
       params.push(key + '=' + encodeURIComponent(config[key]));
     }
@@ -45,7 +44,7 @@ const getNoteParams = () => {
 };
 
 const isLocked = () => {
-  const meeting = Meetings.findOne({});
+  const meeting = Meetings.findOne({ meetingId: Auth.meetingID });
   const user = getCurrentUser();
 
   if (meeting.lockSettingsProps && mapUser(user).isLocked) {

@@ -1,5 +1,4 @@
 import { Meteor } from 'meteor/meteor';
-import Logger from '/imports/startup/server/logger';
 
 const ETHERPAD = Meteor.settings.private.etherpad;
 const NOTE_CONFIG = Meteor.settings.public.note;
@@ -31,7 +30,7 @@ const hashFNV32a = (str, asString, seed) => {
 
 const createPadURL = padId => {
   return `${BASE_URL}/createPad?apikey=${ETHERPAD.apikey}&padID=${padId}`;
-}
+};
 
 const getReadOnlyIdURL = padId => {
   return `${BASE_URL}/getReadOnlyID?apikey=${ETHERPAD.apikey}&padID=${padId}`;

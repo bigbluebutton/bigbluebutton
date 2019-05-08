@@ -1,8 +1,10 @@
 import { check } from 'meteor/check';
-import Note from '/imports/api/note';
 import Logger from '/imports/startup/server/logger';
-import { generateNoteId, createPadURL, getReadOnlyIdURL, isEnabled } from '/imports/api/note/server/helpers';
+import {
+  generateNoteId, createPadURL, getReadOnlyIdURL, isEnabled,
+} from '/imports/api/note/server/helpers';
 import addNote from '/imports/api/note/server/modifiers/addNote';
+import axios from 'axios';
 
 const getDataFromResponse = (data, key) => {
   if (data) {
@@ -11,6 +13,7 @@ const getDataFromResponse = (data, key) => {
       return innerData[key];
     }
   }
+  return null;
 };
 
 export default function createNote(meetingId) {
@@ -24,20 +27,23 @@ export default function createNote(meetingId) {
 
   const noteId = generateNoteId(meetingId);
 
-  const axios = require('axios');
   const createURL = createPadURL(noteId);
   axios({
-    method:'get',
+    method: 'get',
     url: createURL,
-    responseType: 'json'
-  }).then(response => {
+    responseType: 'json',
+  }).then((responseOuter) => {
+    const { status } = responseOuter;
+    if (status !== 200) {
+      Logger.error(`Could not get note info for ${meetingId} ${status}`);
+    }
     const readOnlyURL = getReadOnlyIdURL(noteId);
     axios({
-      method:'get',
+      method: 'get',
       url: readOnlyURL,
-      responseType: 'json'
-    }).then(response => {
-      const readOnlyNoteId =getDataFromResponse(response.data, 'readOnlyID');
+      responseType: 'json',
+    }).then((response) => {
+      const readOnlyNoteId = getDataFromResponse(response.data, 'readOnlyID');
       if (readOnlyNoteId) {
         addNote(meetingId, noteId, readOnlyNoteId);
       } else {
