@@ -149,9 +149,6 @@ class Poll extends Component {
 
   toggleCustomFields() {
     const { customPollReq } = this.state;
-
-    this.inputEditor = [];
-
     return this.setState({ customPollReq: !customPollReq });
   }
 
