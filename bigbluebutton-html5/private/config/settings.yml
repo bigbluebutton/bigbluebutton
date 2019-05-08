@@ -304,6 +304,11 @@ private:
   app:
     captionsChunkLength: 1000
     pencilChunkLength: 100
+  etherpad:
+    apikey: ETHERPAD_APIKEY
+    version: 1.2.13
+    host: 127.0.0.1
+    port: 9001
   redis:
     host: 127.0.0.1
     post: '6379'

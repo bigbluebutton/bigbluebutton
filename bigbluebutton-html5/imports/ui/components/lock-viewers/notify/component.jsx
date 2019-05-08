@@ -20,6 +20,10 @@ const intlMessages = defineMessages({
     id: 'app.userList.userOptions.disablePubChat',
     description: 'label to disable private chat notification',
   },
+  disableNote: {
+    id: 'app.userList.userOptions.disableNote',
+    description: 'label to disable note notification',
+  },
   onlyModeratorWebcam: {
     id: 'app.userList.userOptions.webcamsOnlyForModerator',
     description: 'label to disable all webcams except for the moderators cam',

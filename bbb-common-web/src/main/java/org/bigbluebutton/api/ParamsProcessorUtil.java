@@ -102,6 +102,7 @@ public class ParamsProcessorUtil {
 		private boolean defaultLockSettingsDisableMic;
 		private boolean defaultLockSettingsDisablePrivateChat;
 		private boolean defaultLockSettingsDisablePublicChat;
+		private boolean defaultLockSettingsDisableNote;
 		private boolean defaultLockSettingsLockedLayout;
 		private boolean defaultLockSettingsLockOnJoin;
 		private boolean defaultLockSettingsLockOnJoinConfigurable;
@@ -272,6 +273,12 @@ public class ParamsProcessorUtil {
 				lockSettingsDisablePublicChat = Boolean.parseBoolean(lockSettingsDisablePublicChatParam);
 			}
 
+			Boolean lockSettingsDisableNote = defaultLockSettingsDisableNote;
+			String lockSettingsDisableNoteParam = params.get(ApiParams.LOCK_SETTINGS_DISABLE_NOTE);
+			if (!StringUtils.isEmpty(lockSettingsDisableNoteParam)) {
+				lockSettingsDisableNote = Boolean.parseBoolean(lockSettingsDisableNoteParam);
+			}
+
 			Boolean lockSettingsLockedLayout = defaultLockSettingsLockedLayout;
 			String lockSettingsLockedLayoutParam = params.get(ApiParams.LOCK_SETTINGS_LOCKED_LAYOUT);
 			if (!StringUtils.isEmpty(lockSettingsLockedLayoutParam)) {
@@ -294,6 +301,7 @@ public class ParamsProcessorUtil {
 							lockSettingsDisableMic,
 							lockSettingsDisablePrivateChat,
 							lockSettingsDisablePublicChat,
+							lockSettingsDisableNote,
 							lockSettingsLockedLayout,
 							lockSettingsLockOnJoin,
 							lockSettingsLockOnJoinConfigurable);
@@ -1083,6 +1091,10 @@ public class ParamsProcessorUtil {
 
 	public void setLockSettingsDisablePublicChat(Boolean lockSettingsDisablePublicChat) {
 		this.defaultLockSettingsDisablePublicChat = lockSettingsDisablePublicChat;
+	}
+
+	public void setLockSettingsDisableNote(Boolean lockSettingsDisableNote) {
+		this.defaultLockSettingsDisableNote = lockSettingsDisableNote;
 	}
 
 	public void setLockSettingsLockedLayout(Boolean lockSettingsLockedLayout) {
