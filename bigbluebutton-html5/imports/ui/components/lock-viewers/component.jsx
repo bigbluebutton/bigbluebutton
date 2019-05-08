@@ -50,6 +50,10 @@ const intlMessages = defineMessages({
     id: 'app.lock-viewers.PrivateChatLable',
     description: 'description for close button',
   },
+  ariaModalTitle: {
+    id: 'app-lock-viewers.ariaTitle',
+    description: 'aria label for modal title',
+  },
 });
 
 class LockViewersComponent extends React.PureComponent {
@@ -68,7 +72,7 @@ class LockViewersComponent extends React.PureComponent {
         className={styles.modal}
         onRequestClose={closeModal}
         hideBorder
-        contentLabel="Lock Viewers Modal"
+        contentLabel={intl.formatMessage(intlMessages.ariaModalTitle)}
       >
 
         <div className={styles.container}>
