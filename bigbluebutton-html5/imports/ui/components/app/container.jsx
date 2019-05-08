@@ -7,7 +7,7 @@ import Users from '/imports/api/users';
 import { notify } from '/imports/ui/services/notification';
 import ClosedCaptionsContainer from '/imports/ui/components/closed-captions/container';
 import getFromUserSettings from '/imports/ui/services/users-settings';
-
+import deviceInfo from '/imports/utils/deviceInfo';
 import UserInfos from '/imports/api/users-infos';
 
 import {
@@ -96,12 +96,16 @@ export default injectIntl(withModalMounter(withTracker(({ intl, baseControls }) 
     customStyle: getFromUserSettings('customStyle', false),
     customStyleUrl: getFromUserSettings('customStyleUrl', false),
     breakoutRoomIsOpen: Session.equals('openPanel', 'breakoutroom'),
+    pollIsOpen: Session.equals('openPanel', 'poll'),
+    notesIsOpen: Session.equals('openPanel', 'note'),
+    waitingUsersIsOpen: Session.equals('openPanel', 'waitingUsersPanel'),
     chatIsOpen: Session.equals('openPanel', 'chat'),
     openPanel: Session.get('openPanel'),
     userListIsOpen: !Session.equals('openPanel', ''),
     UserInfo,
     notify,
     validIOSVersion,
+    isPhone: deviceInfo.type().isPhone,
   };
 })(AppContainer)));
 

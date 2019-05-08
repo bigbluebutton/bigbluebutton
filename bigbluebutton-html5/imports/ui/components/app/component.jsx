@@ -69,6 +69,9 @@ const defaultProps = {
   locale: 'en',
 };
 
+const LAYERED_BREAKPOINT = 640;
+const isLayeredView = window.matchMedia(`(max-width: ${LAYERED_BREAKPOINT}px)`);
+
 class App extends Component {
   constructor() {
     super();
@@ -177,8 +180,24 @@ class App extends Component {
 
   renderMedia() {
     const {
-      media, intl, chatIsOpen, userListIsOpen,
+      media,
+      intl,
+      chatIsOpen,
+      userListIsOpen,
+      isPhone,
+      breakoutRoomIsOpen,
+      pollIsOpen,
+      waitingUsersIsOpen,
+      notesIsOpen,
     } = this.props;
+
+    const enableScreenReaderTrap = (isPhone || isLayeredView)
+      && (userListIsOpen
+          || chatIsOpen
+          || breakoutRoomIsOpen
+          || pollIsOpen
+          || notesIsOpen
+          || waitingUsersIsOpen);
 
     if (!media) return null;
 
@@ -186,7 +205,7 @@ class App extends Component {
       <section
         className={styles.media}
         aria-label={intl.formatMessage(intlMessages.mediaLabel)}
-        aria-hidden={userListIsOpen || chatIsOpen}
+        aria-hidden={enableScreenReaderTrap}
       >
         {media}
         {this.renderClosedCaption()}
@@ -196,8 +215,24 @@ class App extends Component {
 
   renderActionsBar() {
     const {
-      actionsbar, intl, userListIsOpen, chatIsOpen,
+      actionsbar,
+      intl,
+      userListIsOpen,
+      chatIsOpen,
+      isPhone,
+      breakoutRoomIsOpen,
+      pollIsOpen,
+      notesIsOpen,
+      waitingUsersIsOpen,
     } = this.props;
+
+    const enableScreenReaderTrap = (isPhone || isLayeredView)
+    && (userListIsOpen
+        || chatIsOpen
+        || breakoutRoomIsOpen
+        || pollIsOpen
+        || notesIsOpen
+        || waitingUsersIsOpen);
 
     if (!actionsbar) return null;
 
@@ -205,7 +240,7 @@ class App extends Component {
       <section
         className={styles.actionsbar}
         aria-label={intl.formatMessage(intlMessages.actionsBarLabel)}
-        aria-hidden={userListIsOpen || chatIsOpen}
+        aria-hidden={enableScreenReaderTrap}
       >
         {actionsbar}
       </section>
