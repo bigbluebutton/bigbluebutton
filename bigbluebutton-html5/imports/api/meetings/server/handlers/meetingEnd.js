@@ -9,9 +9,9 @@ import Logger from '/imports/startup/server/logger';
 export default function handleMeetingEnd({ body }, meetingId) {
   check(meetingId, String);
 
-  const cb = (err, num) => {
+  const cb = (err, num, meetingType) => {
     if (err) {
-      Logger.error(`Meeting endind error: ${err}`);
+      Logger.error(`${meetingType} endind error: ${err}`);
       return;
     }
     if (num) {
@@ -21,6 +21,6 @@ export default function handleMeetingEnd({ body }, meetingId) {
     }
   };
 
-  Meetings.update({ meetingId }, { $set: { meetingEnded: true } }, cb);
-  Breakouts.update({ parentMeetingId: meetingId }, { $set: { meetingEnded: true } }, cb);
+  Meetings.update({ meetingId }, { $set: { meetingEnded: true } }, (err, num) => { cb(err, num, 'Metting'); });
+  Breakouts.update({ parentMeetingId: meetingId }, { $set: { meetingEnded: true } }, (err, num) => { cb(err, num, 'Breakout'); });
 }
