@@ -416,6 +416,7 @@ class VideoPreview extends Component {
         className={styles.modal}
         onRequestClose={this.handleProceed}
         hideBorder
+        contentLabel={intl.formatMessage(intlMessages.webcamSettingsTitle)}
       >
         <div className={styles.title}>
           {intl.formatMessage(intlMessages.webcamSettingsTitle)}

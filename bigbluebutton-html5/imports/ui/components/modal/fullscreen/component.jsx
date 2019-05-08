@@ -65,21 +65,23 @@ class ModalFullscreen extends PureComponent {
           <h1 className={styles.title}>{title}</h1>
           <div className={styles.actions}>
             <Button
-              data-test='modalDismissButton'
+              data-test="modalDismissButton"
               className={styles.dismiss}
               label={dismiss.label}
+              aria-label={`${dismiss.label} ${title}`}
               disabled={dismiss.disabled}
               onClick={this.handleAction.bind(this, 'dismiss')}
-              aria-describedby={'modalDismissDescription'}
+              aria-describedby="modalDismissDescription"
             />
             <Button
-              data-test='modalConfirmButton'
-              color={'primary'}
+              data-test="modalConfirmButton"
+              color="primary"
               className={styles.confirm}
               label={confirm.label}
+              aria-label={`${confirm.label} ${title}`}
               disabled={confirm.disabled}
               onClick={this.handleAction.bind(this, 'confirm')}
-              aria-describedby={'modalConfirmDescription'}
+              aria-describedby="modalConfirmDescription"
             />
           </div>
         </header>
