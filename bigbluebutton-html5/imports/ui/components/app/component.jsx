@@ -191,7 +191,7 @@ class App extends Component {
       notesIsOpen,
     } = this.props;
 
-    const enableScreenReaderTrap = (isPhone || isLayeredView)
+    const enableScreenReaderTrap = (isPhone || isLayeredView.matches)
       && (userListIsOpen
           || chatIsOpen
           || breakoutRoomIsOpen
@@ -226,7 +226,7 @@ class App extends Component {
       waitingUsersIsOpen,
     } = this.props;
 
-    const enableScreenReaderTrap = (isPhone || isLayeredView)
+    const enableScreenReaderTrap = (isPhone || isLayeredView.matches)
     && (userListIsOpen
         || chatIsOpen
         || breakoutRoomIsOpen
