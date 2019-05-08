@@ -51,7 +51,7 @@ const intlMessages = defineMessages({
     description: 'description for close button',
   },
   ariaModalTitle: {
-    id: 'app-lock-viewers.ariaTitle',
+    id: 'app.lock-viewers.ariaTitle',
     description: 'aria label for modal title',
   },
 });
