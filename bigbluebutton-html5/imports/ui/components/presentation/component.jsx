@@ -48,10 +48,20 @@ class PresentationArea extends Component {
   }
 
   componentDidUpdate(prevProps, prevState) {
+    const { currentPresentation, notify } = this.props;
+
+    if (prevProps.currentPresentation.name !== currentPresentation.name) {
+      notify(
+        `Current presentation ${currentPresentation.name}`,
+        'info',
+        'settings',
+      );
+    }
+
     if (prevState.fitToWidth) {
       // When presenter is changed or slide changed we reset fitToWidth
-      if ((prevProps.userIsPresenter && !this.props.userIsPresenter) ||
-          (prevProps.currentSlide.id !== this.props.currentSlide.id)) {
+      if ((prevProps.userIsPresenter && !this.props.userIsPresenter)
+          || (prevProps.currentSlide.id !== this.props.currentSlide.id)) {
         this.setState({
           fitToWidth: false,
         });
@@ -196,16 +206,16 @@ class PresentationArea extends Component {
     const { fitToWidth } = this.state;
     if (userIsPresenter) {
       return fitToWidth;
-    } else {
-      const { width, height, viewBoxWidth, viewBoxHeight } = currentSlide.calculatedData;
-      const slideSizeRatio = width / height;
-      const viewBoxSizeRatio = viewBoxWidth / viewBoxHeight;
-      if (slideSizeRatio !== viewBoxSizeRatio) {
-        return true;
-      } else {
-        return false;
-      }
     }
+    const {
+      width, height, viewBoxWidth, viewBoxHeight,
+    } = currentSlide.calculatedData;
+    const slideSizeRatio = width / height;
+    const viewBoxSizeRatio = viewBoxWidth / viewBoxHeight;
+    if (slideSizeRatio !== viewBoxSizeRatio) {
+      return true;
+    }
+    return false;
   }
 
   zoomChanger(incomingZoom) {
@@ -529,6 +539,7 @@ class PresentationArea extends Component {
       showSlide,
       fitToWidth,
     } = this.state;
+
 
     const adjustedSizes = this.calculateSize();
     const adjustedHeight = adjustedSizes.height;
