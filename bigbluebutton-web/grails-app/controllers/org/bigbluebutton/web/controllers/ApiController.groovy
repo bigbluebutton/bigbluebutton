@@ -109,6 +109,28 @@ class ApiController {
       return
     }
 
+    if (!StringUtils.isEmpty(params.moderatorPW)) {
+      params.moderatorPW = StringUtils.strip(params.moderatorPW);
+      if (StringUtils.isEmpty(params.moderatorPW)) {
+        invalid("missingParamModeratorPW", "You must specify a moderator password for the meeting.");
+        return
+      }
+    } else {
+      invalid("missingParamModeratorPW", "You must specify a moderator password for the meeting.");
+      return
+    }
+    
+    if (!StringUtils.isEmpty(params.attendeePW)) {
+      params.attendeePW = StringUtils.strip(params.attendeePW);
+      if (StringUtils.isEmpty(params.attendeePW)) {
+        invalid("missingParamAttendeePW", "You must specify an attendee password for the meeting.");
+        return
+      }
+    } else {
+      invalid("missingParamAttendeePW", "You must specify an attendee password for the meeting.");
+      return
+    }
+
     if (!paramsProcessorUtil.isChecksumSame(API_CALL, params.checksum, request.getQueryString())) {
       invalid("checksumError", "You did not pass the checksum security check")
       return
