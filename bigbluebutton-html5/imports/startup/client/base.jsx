@@ -216,8 +216,6 @@ const BaseContainer = withTracker(() => {
   let breakoutRoomSubscriptionHandler;
   let meetingModeratorSubscriptionHandler;
 
-  if (Session.get('codeError')) return {};
-
   const meeting = Meetings.findOne({ meetingId });
   if (meeting) {
     const { meetingEnded } = meeting;
