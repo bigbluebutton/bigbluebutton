@@ -35,9 +35,13 @@ module BigBlueButton
   # Class to wrap Redis so we can mock
   # for testing
   class RedisWrapper
-    def initialize(host, port)
-      @host, @port = host, port
-      @redis = Redis.new(:host => @host, :port => @port)
+    def initialize(host, port, password)
+      @host, @port, @password = host, port, password
+      if password.nil?
+        @redis = Redis.new(:host => @host, :port => @port)
+      else
+        @redis = Redis.new(:host => @host, :port => @port, :password => @password)
+      end
     end
     
     def connect      
