@@ -12,11 +12,11 @@ const intlMessages = defineMessages({
     id: 'app.userList.userOptions.disableMic',
     description: 'label to disable mic notification',
   },
-  disablePrivChat: {
+  disablePrivateChat: {
     id: 'app.userList.userOptions.disablePrivChat',
     description: 'label to disable private chat notification',
   },
-  disablePubChat: {
+  disablePublicChat: {
     id: 'app.userList.userOptions.disablePubChat',
     description: 'label to disable private chat notification',
   },
