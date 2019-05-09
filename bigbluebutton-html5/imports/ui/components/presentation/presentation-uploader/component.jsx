@@ -434,6 +434,9 @@ class PresentationUploader extends Component {
       <div className={styles.fileList}>
         <table className={styles.table}>
           <tbody>
+            <th className={styles.visuallyHidden} colSpan={3}>File Name</th>
+            <th className={styles.visuallyHidden}>Status</th>
+            <th className={styles.visuallyHidden}>Options</th>
             { presentationsSorted.map(item => this.renderPresentationItem(item))}
           </tbody>
         </table>
