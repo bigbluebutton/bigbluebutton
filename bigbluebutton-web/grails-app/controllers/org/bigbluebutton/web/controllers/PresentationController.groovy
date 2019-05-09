@@ -20,6 +20,9 @@ package org.bigbluebutton.web.controllers
 
 import grails.converters.*
 import org.bigbluebutton.api.ParamsProcessorUtil;
+
+import java.nio.charset.StandardCharsets
+
 import org.apache.commons.io.FilenameUtils;
 import org.bigbluebutton.web.services.PresentationService
 import org.bigbluebutton.presentation.UploadedPresentation
@@ -296,7 +299,7 @@ class PresentationController {
 
         def bytes = pres.readBytes()
         def responseName = pres.getName();
-        response.addHeader("content-disposition", "filename=$responseName")
+        response.addHeader("content-disposition", "filename=" + URLEncoder.encode(responseName, StandardCharsets.UTF_8.name()))
         response.addHeader("Cache-Control", "no-cache")
         response.outputStream << bytes;
       } else {
