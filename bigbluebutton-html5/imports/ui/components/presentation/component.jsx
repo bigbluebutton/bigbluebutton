@@ -21,6 +21,10 @@ const intlMessages = defineMessages({
     id: 'app.presentationUploder.title',
     description: 'presentation area element label',
   },
+  changeNotification: {
+    id: 'app.presentation.notificationLabel',
+    description: 'label displayed in toast when presentation switches',
+  },
 });
 
 class PresentationArea extends Component {
@@ -48,13 +52,13 @@ class PresentationArea extends Component {
   }
 
   componentDidUpdate(prevProps, prevState) {
-    const { currentPresentation, notify } = this.props;
+    const { currentPresentation, notify, intl } = this.props;
 
     if (prevProps.currentPresentation.name !== currentPresentation.name) {
       notify(
-        `Current presentation ${currentPresentation.name}`,
+        `${intl.formatMessage(intlMessages.changeNotification)} ${currentPresentation.name}`,
         'info',
-        'settings',
+        'presentation',
       );
     }
 
@@ -539,7 +543,6 @@ class PresentationArea extends Component {
       showSlide,
       fitToWidth,
     } = this.state;
-
 
     const adjustedSizes = this.calculateSize();
     const adjustedHeight = adjustedSizes.height;

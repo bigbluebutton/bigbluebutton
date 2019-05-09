@@ -77,6 +77,7 @@
     "app.meeting.alertMeetingEndsUnderOneMinute": "Meeting is closing in a minute.",
     "app.meeting.alertBreakoutEndsUnderOneMinute": "Breakout is closing in a minute.",
     "app.presentation.hide": "Hide presentation",
+    "app.presentation.notificationLabel": "Current presentation",
     "app.presentation.slideContent": "Slide Content",
     "app.presentation.startSlideContent": "Slide content start",
     "app.presentation.endSlideContent": "Slide content end",
