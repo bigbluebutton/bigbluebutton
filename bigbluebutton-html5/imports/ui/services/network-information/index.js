@@ -2,6 +2,7 @@ import NetworkInformation from '/imports/api/network-information';
 import { makeCall } from '/imports/ui/services/api';
 import Auth from '/imports/ui/services/auth';
 import Users from '/imports/api/users';
+import _ from 'lodash';
 
 const NetworkInformationLocal = new Mongo.Collection(null);
 
@@ -67,6 +68,12 @@ export const startBandwidthMonitoring = () => {
     const warningLowerBoundary = monitoringTime - DANGER_END_TIME;
     const warningUpperBoundary = monitoringTime - WARNING_END_TIME;
 
+    const usersWatchingWebcams = Users.find({
+      userId: { $ne: Auth.userID },
+      viewParticipantsWebcams: true,
+      connectionStatus: 'online',
+    }).map(user => user.userId);
+
     const warningZone = NetworkInformationLocal
       .find({
         event: WEBCAMS_GET_STATUS,
@@ -85,11 +92,12 @@ export const startBandwidthMonitoring = () => {
 
     const warningZoneReceivers = NetworkInformation
       .find({
+        receiver: { $in: usersWatchingWebcams },
         sender: Auth.userID,
         time: { $lte: warningLowerBoundary, $gt: warningUpperBoundary },
       }).count();
 
-    const dangerZone = NetworkInformationLocal
+    const dangerZone = _.uniqBy(NetworkInformationLocal
       .find({
         event: WEBCAMS_GET_STATUS,
         timestamp: { $lt: dangerLowerBoundary, $gte: warningLowerBoundary },
@@ -103,13 +111,14 @@ export const startBandwidthMonitoring = () => {
             'payload.stats.deltaPacketsLost': { $gt: 0 },
           },
         ],
-      }).count();
+      }).fetch(), 'payload.id').length;
 
-    const dangerZoneReceivers = NetworkInformation
+    const dangerZoneReceivers = _.uniqBy(NetworkInformation
       .find({
+        receiver: { $in: usersWatchingWebcams },
         sender: Auth.userID,
         time: { $lt: dangerLowerBoundary, $gte: warningLowerBoundary },
-      }).count();
+      }).fetch(), 'receiver').length;
 
     let effectiveType = 'good';
 
@@ -117,8 +126,16 @@ export const startBandwidthMonitoring = () => {
       if (!dangerZoneReceivers) {
         effectiveType = 'danger';
       }
+
+      if (dangerZoneReceivers === usersWatchingWebcams.length) {
+        effectiveType = 'danger';
+      }
     } else if (warningZone) {
       if (!warningZoneReceivers) {
+        effectiveType = 'warning';
+      }
+
+      if (warningZoneReceivers === usersWatchingWebcams.length) {
         effectiveType = 'warning';
       }
     }

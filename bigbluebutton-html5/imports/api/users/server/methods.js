@@ -7,6 +7,7 @@ import removeUser from './methods/removeUser';
 import toggleUserLock from './methods/toggleUserLock';
 import setUserEffectiveConnectionType from './methods/setUserEffectiveConnectionType';
 import userActivitySign from './methods/userActivitySign';
+import userChangedSettings from './methods/userChangedSettings';
 
 Meteor.methods({
   setEmojiStatus,
@@ -17,4 +18,5 @@ Meteor.methods({
   toggleUserLock,
   setUserEffectiveConnectionType,
   userActivitySign,
+  userChangedSettings,
 });
