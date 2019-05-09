@@ -17,7 +17,7 @@
 #
 
 
-source "http://rubygems.org"
+source "https://rubygems.org"
 
 gem "redis"
 gem "nokogiri"
@@ -31,3 +31,4 @@ gem "absolute_time"
 gem "jwt"
 gem "java_properties"
 gem "fnv"
+gem "rb-inotify"
