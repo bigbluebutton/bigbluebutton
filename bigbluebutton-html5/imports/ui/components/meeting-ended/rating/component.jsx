@@ -1,7 +1,15 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import _ from 'lodash';
+import { defineMessages, injectIntl } from 'react-intl';
 import { styles } from './styles';
+
+const intlMessages = defineMessages({
+  legendTitle: {
+    id: 'app.meeting-ended.rating.legendLabel',
+    description: 'label for star feedback legend',
+  },
+});
 
 class Rating extends Component {
   constructor(props) {
@@ -19,16 +27,19 @@ class Rating extends Component {
   }
 
   renderStars(num) {
+    const { intl } = this.props;
+
     return (
       <div className={styles.starRating}>
         <fieldset>
-
+          <legend>{intl.formatMessage(intlMessages.legendTitle)}</legend>
           {
               _.range(num)
-                .map(i =>
-            [(<input type="radio" id={`star ${i + 1}`} name="rating" value={i + 1} key={_.uniqueId('star-')} onChange={() => this.clickStar(i + 1)} />),
-             (<label htmlFor={`star ${i + 1}`} title={`star ${i + 1}`} key={_.uniqueId('star-')}>star {i + 1}</label>),
-           ]).reverse()
+                .map(i => [(<input type="radio" id={`${i + 1}star`} name="rating" value={i + 1} key={_.uniqueId('star-')} onChange={() => this.clickStar(i + 1)} />),
+                  (<label htmlFor={`${i + 1}star`} title={`${i + 1} star`} key={_.uniqueId('star-')}>
+                    {`${i + 1} star`}
+                   </label>),
+                ]).reverse()
           }
         </fieldset>
       </div>
@@ -49,4 +60,4 @@ class Rating extends Component {
   }
 }
 
-export default Rating;
+export default injectIntl(Rating);

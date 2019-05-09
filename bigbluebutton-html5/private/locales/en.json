@@ -393,6 +393,7 @@
     "app.meeting.logout.ejectedFromMeeting": "You have been removed from the meeting",
     "app.meeting.logout.validateTokenFailedEjectReason": "Failed to validate authorization token",
     "app.meeting.logout.userInactivityEjectReason": "User inactive for too long",
+    "app.meeting-ended.rating.legendLabel": "Feedback rating",
     "app.dropdown.close": "Close",
     "app.error.400": "Bad Request",
     "app.error.401": "Unauthorized",
