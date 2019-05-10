@@ -78,6 +78,7 @@ class RecordingComponent extends React.PureComponent {
         className={styles.modal}
         onRequestClose={closeModal}
         hideBorder
+        contentLabel={title}
       >
         <div className={styles.container}>
           <div className={styles.header}>

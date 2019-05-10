@@ -1,32 +1,45 @@
 package org.bigbluebutton.app.screenshare.redis
 
-import org.bigbluebutton.app.screenshare.SystemConfiguration
-import org.bigbluebutton.common2.bus.IncomingJsonMessageBus
-import org.bigbluebutton.common2.redis.RedisSubscriberProvider
-
+import org.bigbluebutton.common2.bus._
+import org.bigbluebutton.common2.redis.{ RedisConfig, RedisSubscriberProvider }
 import akka.actor.ActorSystem
 import akka.actor.Props
+import io.lettuce.core.pubsub.RedisPubSubListener
 
-object ScreenshareRedisSubscriberActor extends SystemConfiguration {
+object ScreenshareRedisSubscriberActor {
 
-  val channels = Seq(fromAkkaAppsRedisChannel)
-  val patterns = Seq("bigbluebutton:to-bbb-apps:*", "bigbluebutton:from-voice-conf:*")
-
-  def props(system: ActorSystem, jsonMsgBus: IncomingJsonMessageBus): Props =
+  def props(
+    system: ActorSystem,
+    jsonMsgBus: IncomingJsonMessageBus,
+    redisConfig: RedisConfig,
+    channelsToSubscribe: Seq[String],
+    patternsToSubscribe: Seq[String],
+    forwardMsgToChannel: String): Props =
     Props(
       classOf[ScreenshareRedisSubscriberActor],
-      system, jsonMsgBus,
-      redisHost, redisPort,
-      channels, patterns).withDispatcher("akka.redis-subscriber-worker-dispatcher")
+      system,
+      jsonMsgBus,
+      redisConfig,
+      channelsToSubscribe,
+      patternsToSubscribe,
+      forwardMsgToChannel).withDispatcher("akka.redis-subscriber-worker-dispatcher")
 }
 
 class ScreenshareRedisSubscriberActor(
   system: ActorSystem,
   jsonMsgBus: IncomingJsonMessageBus,
-  redisHost: String, redisPort: Int,
-  channels: Seq[String] = Nil, patterns: Seq[String] = Nil)
-  extends RedisSubscriberProvider(system, "BbbScreenshareAkkaSub", channels, patterns, jsonMsgBus) with SystemConfiguration {
+  redisConfig: RedisConfig,
+  channelsToSubscribe: Seq[String],
+  patternsToSubscribe: Seq[String],
+  forwardMsgToChannel: String)
+  extends RedisSubscriberProvider(
+    system,
+    "BbbScreenshareAkkaSub",
+    channelsToSubscribe,
+    patternsToSubscribe,
+    jsonMsgBus,
+    redisConfig) {
 
-  addListener(toScreenshareAppsJsonChannel)
+  addListener(forwardMsgToChannel)
   subscribe()
 }

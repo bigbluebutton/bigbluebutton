@@ -65,7 +65,7 @@ class RecordingIndicator extends React.PureComponent {
     const showButton = amIModerator && allowStartStopRecording;
 
     return (
-      <div>
+      <div className={styles.recordingIndicator}>
         {showButton ? (
           <Tooltip
             title={buttonTitle}

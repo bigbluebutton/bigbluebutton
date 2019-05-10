@@ -3,6 +3,7 @@ import { defineMessages, injectIntl } from 'react-intl';
 import Toggle from '/imports/ui/components/switch/component';
 import cx from 'classnames';
 import Modal from '/imports/ui/components/modal/simple/component';
+import NoteService from '/imports/ui/components/note/service';
 import { styles } from './styles';
 
 const intlMessages = defineMessages({
@@ -50,6 +51,14 @@ const intlMessages = defineMessages({
     id: 'app.lock-viewers.PrivateChatLable',
     description: 'description for close button',
   },
+  notesLabel: {
+    id: 'app.lock-viewers.notesLabel',
+    description: 'description for close button',
+  },
+  ariaModalTitle: {
+    id: 'app.lock-viewers.ariaTitle',
+    description: 'aria label for modal title',
+  },
 });
 
 class LockViewersComponent extends React.PureComponent {
@@ -68,11 +77,12 @@ class LockViewersComponent extends React.PureComponent {
         className={styles.modal}
         onRequestClose={closeModal}
         hideBorder
+        contentLabel={intl.formatMessage(intlMessages.ariaModalTitle)}
       >
 
         <div className={styles.container}>
           <div className={styles.header}>
-            <div className={styles.title}>{intl.formatMessage(intlMessages.lockViewersTitle)}</div>
+            <h2 className={styles.title}>{intl.formatMessage(intlMessages.lockViewersTitle)}</h2>
           </div>
           <div className={styles.description}>
             {`${intl.formatMessage(intlMessages.lockViewersDescription)}`}
@@ -193,6 +203,31 @@ class LockViewersComponent extends React.PureComponent {
                 </div>
               </div>
             </div>
+            { NoteService.isEnabled() ?
+              (<div className={styles.row}>
+                <div className={styles.col} aria-hidden="true">
+                  <div className={styles.formElement}>
+                    <div className={styles.label}>
+                      {intl.formatMessage(intlMessages.notesLabel)}
+                    </div>
+                  </div>
+                </div>
+                <div className={styles.col}>
+                  <div className={cx(styles.formElement, styles.pullContentRight)}>
+                    <Toggle
+                      icons={false}
+                      defaultChecked={meeting.lockSettingsProps.disableNote}
+                      onChange={() => {
+                        meeting.lockSettingsProps.disableNote = !meeting.lockSettingsProps.disableNote;
+                        toggleLockSettings(meeting);
+                      }}
+                      ariaLabel={intl.formatMessage(intlMessages.notesLabel)}
+                    />
+                  </div>
+                </div>
+              </div>)
+              : null
+            }
           </div>
         </div>
       </Modal>

@@ -10,8 +10,8 @@ sudo cp -r target/webapp/ /usr/share/red5/webapps/screenshare
 
 sudo rm -rf /usr/share/red5/webapps/screenshare/WEB-INF/lib/*
 sudo cp target/webapp/WEB-INF/lib/bbb-screenshare-akka_2.12-0.0.3.jar \
- target/webapp/WEB-INF/lib/scala-library.jar \
- target/webapp/WEB-INF/lib/scala-reflect.jar \
+ target/webapp/WEB-INF/lib/scala-library-2.12.8.jar \
+ target/webapp/WEB-INF/lib/scala-reflect-2.12.8.jar \
  target/webapp/WEB-INF/lib/jackson-* \
  target/webapp/WEB-INF/lib/paranamer-2.8.jar \
  target/webapp/WEB-INF/lib/akka-* \

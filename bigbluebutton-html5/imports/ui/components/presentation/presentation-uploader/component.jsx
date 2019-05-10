@@ -553,6 +553,7 @@ class PresentationUploader extends Component {
                 disabled={disableActions}
                 className={cx(styles.itemAction, styles.itemActionRemove)}
                 label={intl.formatMessage(intlMessages.removePresentation)}
+                aria-label={`${intl.formatMessage(intlMessages.removePresentation)} ${item.filename}`}
                 size="sm"
                 icon="delete"
                 hideLabel

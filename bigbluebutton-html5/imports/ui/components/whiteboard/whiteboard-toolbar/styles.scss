@@ -14,6 +14,7 @@
   --toolbar-list-bg: #ddd;
   --toolbar-list-bg-focus: #c6c6c6;
   --toolbar-list-color: var(--color-gray);
+  --toolbar-item-outline-offset: -.19rem;
 }
 
 .toolbarContainer {
@@ -44,6 +45,7 @@
   pointer-events: all;
 
   .buttonWrapper > .toolbarButton {
+    outline-offset: var(--toolbar-item-outline-offset);
     border-bottom: var(--toolbar-button-border) solid var(--toolbar-button-border-color);
   }
 
@@ -140,6 +142,7 @@
   box-shadow: none;
   border-radius: 0;
   padding: initial;
+  outline-offset: var(--toolbar-item-outline-offset);
 
   &:hover,
   &:focus {

@@ -1,6 +1,7 @@
 @import "/imports/ui/components/user-list/styles.scss";
 @import "/imports/ui/stylesheets/mixins/_scrollable";
 @import "/imports/ui/stylesheets/mixins/focus";
+@import "/imports/ui/stylesheets/mixins/_indicators";
 @import "/imports/ui/stylesheets/variables/_all";
 
 .content {
@@ -19,11 +20,20 @@
 .scrollableList {
   @include elementFocus(var(--list-item-bg-hover));
   @include scrollbox-vertical(var(--user-list-bg));
+  @include highContrastOutline();
+
+  &:focus-within,
+  &:focus {
+    outline-style: solid;
+  }
 
   &:active {
     box-shadow: none;
     border-radius: none;
   }
+
+  outline-width: 1px !important;
+  outline-color: transparent !important;
 }
 
 .list {

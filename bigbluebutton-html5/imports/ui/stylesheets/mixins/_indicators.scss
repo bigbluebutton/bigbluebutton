@@ -39,3 +39,10 @@
     padding-bottom: var(--indicator-padding-bottom);
   }
 }
+
+@mixin highContrastOutline() {
+  /* Visible in Windows high-contrast themes */
+  outline: transparent;
+  outline-style: dotted;
+  outline-width: 2px;
+}

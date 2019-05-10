@@ -122,9 +122,10 @@ class ExternalVideoModal extends Component {
                 value={url}
                 placeholder={intl.formatMessage(intlMessages.urlInput)}
                 disabled={sharing}
+                aria-describedby="youtube-note"
               />
             </label>
-            <div className={styles.youtubeNote}>
+            <div className={styles.youtubeNote} id="youtube-note">
               {intl.formatMessage(intlMessages.note)}
             </div>
           </div>

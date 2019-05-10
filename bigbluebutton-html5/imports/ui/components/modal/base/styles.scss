@@ -9,7 +9,6 @@
   border-radius: var(--border-radius);
   background: #fff;
   overflow: auto;
-  outline: none;
 
   @include mq($small-only) {
     max-width: 95vw;

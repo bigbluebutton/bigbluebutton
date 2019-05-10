@@ -15,7 +15,7 @@ const PUBLIC_CHAT_TYPE = CHAT_CONFIG.type_public;
 const SUBSCRIPTIONS = [
   'users', 'meetings', 'polls', 'presentations', 'slides', 'captions',
   'voiceUsers', 'whiteboard-multi-user', 'screenshare', 'group-chat',
-  'presentation-pods', 'users-settings', 'guestUser', 'users-infos',
+  'presentation-pods', 'users-settings', 'guestUser', 'users-infos', 'note',
   'network-information',
 ];
 
@@ -47,7 +47,7 @@ export default withTracker(() => {
   const subscriptionsHandlers = SUBSCRIPTIONS.map(name => Meteor.subscribe(name, credentials, subscriptionErrorHandler));
 
   let groupChatMessageHandler = {};
-  let annotationsHandler = {};
+  // let annotationsHandler = {};
 
   const chats = GroupChat.find({
     $or: [
@@ -72,21 +72,21 @@ export default withTracker(() => {
     Meteor.subscribe('meetings', credentials, mappedUser.isModerator, subscriptionErrorHandler);
   }
 
-  annotationsHandler = Meteor.subscribe('annotations', credentials, {
+  const annotationsHandler = Meteor.subscribe('annotations', credentials, {
     onReady: () => {
       const activeTextShapeId = AnnotationsTextService.activeTextShapeId();
       AnnotationsLocal.remove({ id: { $ne: `${activeTextShapeId}-fake` } });
+      Annotations.find({ id: { $ne: activeTextShapeId } }, { reactive: false }).forEach((a) => {
+        try {
+          AnnotationsLocal.insert(a);
+        } catch (e) {
+          // TODO
+        }
+      });
+      annotationsHandler.stop();
     },
     ...subscriptionErrorHandler,
   });
-
-  Annotations.find({ meetingId: Auth.meetingID }).observe({
-    added(doc) {
-      AnnotationsLocal.insert(doc);
-    },
-  });
-
-  subscriptionsHandlers.push(annotationsHandler);
 
   const ready = subscriptionsHandlers.every(handler => handler.ready());
 

@@ -9,6 +9,7 @@ case class Permissions(
     disableMic:             Boolean = false,
     disablePrivChat:        Boolean = false,
     disablePubChat:         Boolean = false,
+    disableNote:            Boolean = false,
     lockedLayout:           Boolean = false,
     lockOnJoin:             Boolean = true,
     lockOnJoinConfigurable: Boolean = false

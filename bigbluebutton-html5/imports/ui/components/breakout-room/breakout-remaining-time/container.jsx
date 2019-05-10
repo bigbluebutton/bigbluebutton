@@ -33,6 +33,10 @@ const intlMessages = defineMessages({
   },
 });
 
+let timeRemaining = 0;
+const timeRemainingDep = new Tracker.Dependency();
+let timeRemainingInterval = null;
+
 class breakoutRemainingTimeContainer extends React.Component {
   componentWillUnmount() {
     clearInterval(timeRemainingInterval);
@@ -41,21 +45,17 @@ class breakoutRemainingTimeContainer extends React.Component {
   }
 
   render() {
-    if (_.isEmpty(this.props.message)) {
+    const { message } = this.props;
+    if (_.isEmpty(message)) {
       return null;
     }
     return (
       <BreakoutRemainingTimeComponent>
-        {this.props.message}
+        {message}
       </BreakoutRemainingTimeComponent>
     );
   }
 }
-
-
-let timeRemaining = 0;
-const timeRemainingDep = new Tracker.Dependency();
-let timeRemainingInterval = null;
 
 const getTimeRemaining = () => {
   timeRemainingDep.depend();
@@ -102,7 +102,7 @@ export default injectNotify(injectIntl(withTracker(({
     clearInterval(timeRemainingInterval);
   }
 
-  if (timeRemaining >= 0) {
+  if (timeRemaining !== null && timeRemaining >= 0) {
     if (timeRemaining > 0) {
       const time = getTimeRemaining();
       if (time === (1 * 60) && alertMessageUnderOneMinute) notify(alertMessageUnderOneMinute, 'info', 'rooms');

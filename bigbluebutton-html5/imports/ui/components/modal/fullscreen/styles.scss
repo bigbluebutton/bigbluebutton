@@ -1,11 +1,14 @@
 @import "../../../stylesheets/variables/_all";
+@import "/imports/ui/stylesheets/mixins/_indicators";
 
 .modal {
+  @include highContrastOutline();
+  outline-style: solid;
   display: flex;
   flex-direction: column;
   align-self: flex-start;
   padding: calc(var(--line-height-computed) / 2) var(--line-height-computed);
-  outline: none;
+
   @include mq($small-only) {
     width: 100%;
     height: 100%;

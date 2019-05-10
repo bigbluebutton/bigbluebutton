@@ -1,4 +1,5 @@
 @import '/imports/ui/stylesheets/mixins/focus';
+@import '/imports/ui/stylesheets/mixins/_indicators';
 @import '/imports/ui/stylesheets/variables/_all';
 
 .title {
@@ -68,6 +69,15 @@
   width: 100%;
   height: 1.75rem;
   padding: 1px;
+
+  &:hover {
+    @include highContrastOutline();
+  }
+
+  &:focus {
+    @include highContrastOutline();
+    outline-style: solid;
+  }
 }
 
 .pullContentRight {

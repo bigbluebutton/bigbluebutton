@@ -427,7 +427,11 @@ start_bigbluebutton () {
 }
 
 display_bigbluebutton_status () {
-    units="red5 $TOMCAT_SERVICE nginx freeswitch $REDIS_SERVICE bbb-apps-akka bbb-transcode-akka bbb-fsesl-akka"
+    units="red5 nginx freeswitch $REDIS_SERVICE bbb-apps-akka bbb-transcode-akka bbb-fsesl-akka"
+ 
+    if [ -d $TOMCAT_DIR ]; then
+      units="$units $TOMCAT_SERVICE"
+    fi
 
     if [ -f /usr/lib/systemd/system/bbb-html5.service ]; then
         units="$units mongod bbb-html5 bbb-webrtc-sfu kurento-media-server"
@@ -1128,8 +1132,10 @@ check_state() {
     #
     # Check that the servlet container has started properly and has created log files
     #
-    if [ -z "$(ls -A $SERVLET_LOGS)" ]; then
+    if [ -d $TOMCAT_DIR ]; then
+      if [ -z "$(ls -A $SERVLET_LOGS)" ]; then
         echo "#                     empty directory: $SERVLET_LOGS contains no logs"
+      fi
     fi
 
     #

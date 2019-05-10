@@ -39,6 +39,10 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
     <constructor-arg index="0" ref="messageBus"/>
     <constructor-arg index="1" value="${jnlpFile}"/>
     <constructor-arg index="2" value="${streamBaseUrl}"/>
+    <constructor-arg index="3" value="${redis.host}"/>
+    <constructor-arg index="4" value="${redis.port}"/>
+    <constructor-arg index="5" value="${redis.password}"/>
+    <constructor-arg index="6" value="${redis.keyExpiry}"/>
   </bean>
   
   <bean id="connectionInvokerService" class="org.bigbluebutton.app.screenshare.red5.ConnectionInvokerService"
@@ -104,5 +108,4 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
   </bean>
 
    <import resource="bbb-redis-messaging.xml"/>
-
 </beans>
