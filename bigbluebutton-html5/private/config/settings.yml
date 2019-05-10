@@ -19,7 +19,7 @@ public:
     basename: "/html5client"
     askForFeedbackOnLogout: false
     allowUserLookup: false
-    enableNetworkInformation: true
+    enableNetworkInformation: false
     defaultSettings:
       application:
         animations: true
