@@ -86,13 +86,9 @@ if not FileTest.directory?(target_dir)
       raise "Generating closed caption files failed"
     end
 
-    if File.exist?("#{captions_meeting_dir}/captions.json")
-      FileUtils.cp("#{captions_meeting_dir}/captions.json", "#{captions_meeting_dir}/captions_playback.json")
-      create_api_captions_file
-      FileUtils.rm "#{captions_meeting_dir}/captions_playback.json"
-    else
-      FileUtils.rmdir captions_meeting_dir
-    end
+    FileUtils.cp("#{captions_meeting_dir}/captions.json", "#{captions_meeting_dir}/captions_playback.json")
+    create_api_captions_file
+    FileUtils.rm "#{captions_meeting_dir}/captions_playback.json"
 
   rescue Exception => e
     BigBlueButton.logger.error(e.message)
