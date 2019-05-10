@@ -43,10 +43,9 @@ props = YAML::load(File.open('../../core/scripts/bigbluebutton.yml'))
 recording_dir = props['recording_dir']
 raw_archive_dir = "#{recording_dir}/raw/#{meeting_id}"
 BigBlueButton.logger.info("Setting process dir")
-$process_dir = "#{recording_dir}/process/presentation/#{meeting_id}"
 BigBlueButton.logger.info("setting captions dir")
 captions_dir = props['captions_dir']
-$captions_meeting_dir = "#{captions_dir}/#{meeting_id}"
+captions_meeting_dir = "#{captions_dir}/#{meeting_id}"
 
 log_dir = props['log_dir']
 
@@ -55,7 +54,7 @@ target_dir = "#{recording_dir}/process/presentation/#{meeting_id}"
 # Generate captions.json for API
 def create_api_captions_file
   BigBlueButton.logger.info("Generating closed captions for API")
-  captions = JSON.load(File.new("#{$captions_meeting_dir}/captions_playback.json"))
+  captions = JSON.load(File.new("#{captions_meeting_dir}/captions_playback.json"))
   captions_json = []
   captions.each do |track|
     caption = {}
@@ -66,7 +65,7 @@ def create_api_captions_file
     captions_json << caption
   end
 
-  File.open("#{$captions_meeting_dir}/captions.json", "w") do |f|
+  File.open("#{captions_meeting_dir}/captions.json", "w") do |f|
     f.write(captions_json.to_json)
   end
 end
@@ -81,18 +80,18 @@ if not FileTest.directory?(target_dir)
 
   begin
     BigBlueButton.logger.info("Generating closed captions")
-    FileUtils.mkdir_p $captions_meeting_dir
-    ret = BigBlueButton.exec_ret('utils/gen_webvtt', '-i', raw_archive_dir, '-o', $captions_meeting_dir)
+    FileUtils.mkdir_p captions_meeting_dir
+    ret = BigBlueButton.exec_ret('utils/gen_webvtt', '-i', raw_archive_dir, '-o', captions_meeting_dir)
     if ret != 0
       raise "Generating closed caption files failed"
     end
 
-    if File.exist?("#{$captions_meeting_dir}/captions.json")
-      FileUtils.cp("#{$captions_meeting_dir}/captions.json", "#{$captions_meeting_dir}/captions_playback.json")
+    if File.exist?("#{captions_meeting_dir}/captions.json")
+      FileUtils.cp("#{captions_meeting_dir}/captions.json", "#{captions_meeting_dir}/captions_playback.json")
       create_api_captions_file
-      FileUtils.rm "#{$captions_meeting_dir}/captions_playback.json"
+      FileUtils.rm "#{captions_meeting_dir}/captions_playback.json"
     else
-      FileUtils.rmdir $captions_meeting_dir
+      FileUtils.rmdir captions_meeting_dir
     end
 
   rescue Exception => e

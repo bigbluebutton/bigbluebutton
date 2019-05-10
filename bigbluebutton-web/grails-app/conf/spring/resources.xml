@@ -66,7 +66,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         <property name="recordingServiceGW" ref="recordingServiceGW"/>
     </bean>
 
-    <bean id="recordingServiceGW" class="org.bigbluebutton.api2.util.RecordingMetaXmlHelper">
+    <bean id="recordingServiceGW" class="org.bigbluebutton.api2.util.RecMetaXmlHelper">
     </bean>
 
     <bean id="presDownloadService" class="org.bigbluebutton.presentation.PresentationUrlDownloadService"

@@ -3,19 +3,19 @@ package org.bigbluebutton.api2.util
 import org.bigbluebutton.api.util.UnitSpec
 import org.bigbluebutton.api2.domain.RecMeta
 
-class RecordingMetaXmlHelperTests extends UnitSpec {
+class RecMetaXmlHelperTests extends UnitSpec {
 
   val metaFile = "src/test/resources/sample-metadata.xml"
 
   it should "load metadata xml" in {
-    val helper = new RecordingMetaXmlHelper
+    val helper = new RecMetaXmlHelper
 
     val xml = helper.loadMetadataXml(metaFile)
    // println("METADATAXML = \n" + xml)
   }
 
   it should "get meta elements" in {
-    val helper = new RecordingMetaXmlHelper
+    val helper = new RecMetaXmlHelper
     val xml = helper.loadMetadataXml(metaFile)
     xml match {
       case Some(metaXml) =>
@@ -30,7 +30,7 @@ class RecordingMetaXmlHelperTests extends UnitSpec {
   }
 
   it should "get meeting element" in {
-    val helper = new RecordingMetaXmlHelper
+    val helper = new RecMetaXmlHelper
     val xml = helper.loadMetadataXml(metaFile)
     xml match {
       case Some(metaXml) =>
@@ -46,7 +46,7 @@ class RecordingMetaXmlHelperTests extends UnitSpec {
   }
 
   it should "get playback element" in {
-    val helper = new RecordingMetaXmlHelper
+    val helper = new RecMetaXmlHelper
     val xml = helper.loadMetadataXml(metaFile)
     xml match {
       case Some(metaXml) =>
@@ -62,7 +62,7 @@ class RecordingMetaXmlHelperTests extends UnitSpec {
   }
 
   it should "get extensions" in {
-    val helper = new RecordingMetaXmlHelper
+    val helper = new RecMetaXmlHelper
     val xml = helper.loadMetadataXml(metaFile)
     xml match {
       case Some(metaXml) =>
@@ -77,7 +77,7 @@ class RecordingMetaXmlHelperTests extends UnitSpec {
   }
 
   it should "get breakout rooms" in {
-    val helper = new RecordingMetaXmlHelper
+    val helper = new RecMetaXmlHelper
     val xml = helper.loadMetadataXml(metaFile)
     xml match {
       case Some(metaXml) =>
@@ -91,7 +91,7 @@ class RecordingMetaXmlHelperTests extends UnitSpec {
   }
 
   it should "get breakout" in {
-    val helper = new RecordingMetaXmlHelper
+    val helper = new RecMetaXmlHelper
     val xml = helper.loadMetadataXml(metaFile)
     xml match {
       case Some(metaXml) =>
@@ -104,7 +104,7 @@ class RecordingMetaXmlHelperTests extends UnitSpec {
   }
 
   it should "get recording metadata" in {
-    val helper = new RecordingMetaXmlHelper
+    val helper = new RecMetaXmlHelper
     val xml = helper.loadMetadataXml(metaFile)
     xml match {
       case Some(metaXml) =>
@@ -118,7 +118,7 @@ class RecordingMetaXmlHelperTests extends UnitSpec {
   }
 
   it should "get recording metadata and format back to metadata" in {
-    val helper = new RecordingMetaXmlHelper
+    val helper = new RecMetaXmlHelper
     val xml = helper.loadMetadataXml(metaFile)
     xml match {
       case Some(metaXml) =>
@@ -133,10 +133,10 @@ class RecordingMetaXmlHelperTests extends UnitSpec {
 
   /*
   it should "get copy meta" in {
-    val xml = RecordingMetaXmlHelper.loadMetadataXml(metaFile)
+    val xml = RecMetaXmlHelper.loadMetadataXml(metaFile)
     xml match {
       case Some(metaXml) =>
-        RecordingMetaXmlHelper.getMetaCopy(metaXml) match {
+        RecMetaXmlHelper.getMetaCopy(metaXml) match {
           case Some(br) =>
             println(br)
             assert(true)

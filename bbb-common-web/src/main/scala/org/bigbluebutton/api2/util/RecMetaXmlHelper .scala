@@ -22,7 +22,7 @@ import java.nio.file.Paths
 
 import com.google.gson.internal.LinkedTreeMap
 
-class RecordingMetaXmlHelper extends RecordingServiceGW with LogHelper {
+class RecMetaXmlHelper extends RecordingServiceGW with LogHelper {
 
   val SUCCESS = "SUCCESS"
   val FAILED = "FAILED"

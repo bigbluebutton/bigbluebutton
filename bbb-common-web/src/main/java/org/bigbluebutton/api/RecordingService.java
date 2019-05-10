@@ -76,7 +76,7 @@ public class RecordingService {
                 copyPresentationFile(presFile, downloadableFile);
             } else {
                 if (downloadableFile.exists()) {
-                    if (downloadableFile.delete()) {
+                    if(downloadableFile.delete()) {
                         log.info("File deleted. {}", downloadableFile.getAbsolutePath());
                     } else {
                         log.warn("Failed to delete. {}", downloadableFile.getAbsolutePath());
@@ -87,8 +87,7 @@ public class RecordingService {
     }
 
     public File getDownloadablePresentationFile(String meetingId, String presId, String presFilename) {
-        log.info("Find downloadable presentation for meetingId={} presId={} filename={}", meetingId, presId,
-                presFilename);
+    	log.info("Find downloadable presentation for meetingId={} presId={} filename={}", meetingId, presId, presFilename);
 
         File presDir = Util.getPresentationDir(presentationBaseDir, meetingId, presId);
         return new File(presDir.getAbsolutePath() + File.separatorChar + presFilename);
@@ -194,24 +193,21 @@ public class RecordingService {
         Map<String, String> recMeta = recording.getMeta();
         for (Map.Entry<String, String> filter : metadataFilters.entrySet()) {
             String metadataValue = recMeta.get(filter.getKey());
-            if (metadataValue == null) {
+            if ( metadataValue == null ) {
                 // The recording doesn't have metadata specified
                 matchesMetadata = false;
             } else {
                 String filterValue = filter.getValue();
-                if (filterValue.charAt(0) == '%' && filterValue.charAt(filterValue.length() - 1) == '%'
-                        && metadataValue.contains(filterValue.substring(1, filterValue.length() - 1))) {
+                if( filterValue.charAt(0) == '%' && filterValue.charAt(filterValue.length()-1) == '%' && metadataValue.contains(filterValue.substring(1, filterValue.length()-1)) ){
                     // Filter value embraced by two wild cards
                     // AND the filter value is part of the metadata value
-                } else if (filterValue.charAt(0) == '%'
-                        && metadataValue.endsWith(filterValue.substring(1, filterValue.length()))) {
+                } else if( filterValue.charAt(0) == '%' && metadataValue.endsWith(filterValue.substring(1, filterValue.length())) ) {
                     // Filter value starts with a wild cards
                     // AND the filter value ends with the metadata value
-                } else if (filterValue.charAt(filterValue.length() - 1) == '%'
-                        && metadataValue.startsWith(filterValue.substring(0, filterValue.length() - 1))) {
+                } else if( filterValue.charAt(filterValue.length()-1) == '%' && metadataValue.startsWith(filterValue.substring(0, filterValue.length()-1)) ) {
                     // Filter value ends with a wild cards
                     // AND the filter value starts with the metadata value
-                } else if (metadataValue.equals(filterValue)) {
+                } else if( metadataValue.equals(filterValue) ) {
                     // Filter value doesnt have wildcards
                     // AND the filter value is the same as metadata value
                 } else {
@@ -222,8 +218,8 @@ public class RecordingService {
         return matchesMetadata;
     }
 
-    public ArrayList<RecordingMetadata> filterRecordingsByMetadata(List<RecordingMetadata> recordings,
-            Map<String, String> metadataFilters) {
+
+    public ArrayList<RecordingMetadata> filterRecordingsByMetadata(List<RecordingMetadata> recordings, Map<String, String> metadataFilters) {
         ArrayList<RecordingMetadata> resultRecordings = new ArrayList<>();
         for (RecordingMetadata entry : recordings) {
             if (recordingMatchesMetadata(entry, metadataFilters))
@@ -298,7 +294,7 @@ public class RecordingService {
         while (iterator.hasNext()) {
             File rec = iterator.next();
             if (rec.getName().startsWith(id)) {
-                recs.add(rec);
+              recs.add(rec);
             }
         }
         return recs;
@@ -444,24 +440,24 @@ public class RecordingService {
         boolean exists = false;
         boolean succeeded = true;
         String[] format = getPlaybackFormats(path);
-        for (String aFormat : format) {
+         for (String aFormat : format) {
             List<File> recordings = getDirectories(path + File.separatorChar + aFormat);
             for (File recording : recordings) {
                 if (recording.getName().equalsIgnoreCase(recordingId)) {
                     exists = true;
                     File dest;
                     if (state.equals(Recording.STATE_PUBLISHED)) {
-                        dest = new File(publishedDir + File.separatorChar + aFormat);
-                        succeeded &= publishRecording(dest, recordingId, recording, aFormat);
+                       dest = new File(publishedDir + File.separatorChar + aFormat);
+                       succeeded &= publishRecording(dest, recordingId, recording, aFormat);
                     } else if (state.equals(Recording.STATE_UNPUBLISHED)) {
-                        dest = new File(unpublishedDir + File.separatorChar + aFormat);
-                        succeeded &= unpublishRecording(dest, recordingId, recording, aFormat);
+                       dest = new File(unpublishedDir + File.separatorChar + aFormat);
+                       succeeded &= unpublishRecording(dest, recordingId, recording, aFormat);
                     } else if (state.equals(Recording.STATE_DELETED)) {
-                        dest = new File(deletedDir + File.separatorChar + aFormat);
-                        succeeded &= deleteRecording(dest, recordingId, recording, aFormat);
+                       dest = new File(deletedDir + File.separatorChar + aFormat);
+                       succeeded &= deleteRecording(dest, recordingId, recording, aFormat);
                     } else {
-                        log.debug(String.format("State: %s, is not supported", state));
-                        return false;
+                       log.debug(String.format("State: %s, is not supported", state));
+                       return false;
                     }
                 }
             }
@@ -473,8 +469,7 @@ public class RecordingService {
         File metadataXml = recordingServiceHelper.getMetadataXmlLocation(recordingDir.getPath());
         RecordingMetadata r = recordingServiceHelper.getRecordingMetadata(metadataXml);
         if (r != null) {
-            if (!destDir.exists())
-                destDir.mkdirs();
+            if (!destDir.exists()) destDir.mkdirs();
 
             try {
                 FileUtils.moveDirectory(recordingDir, new File(destDir.getPath() + File.separatorChar + recordingId));
@@ -482,13 +477,13 @@ public class RecordingService {
                 r.setState(Recording.STATE_PUBLISHED);
                 r.setPublished(true);
 
-                File medataXmlFile = recordingServiceHelper
-                        .getMetadataXmlLocation(destDir.getAbsolutePath() + File.separatorChar + recordingId);
+                File medataXmlFile = recordingServiceHelper.getMetadataXmlLocation(
+                  destDir.getAbsolutePath() + File.separatorChar + recordingId);
 
                 // Process the changes by saving the recording into metadata.xml
                 return recordingServiceHelper.saveRecordingMetadata(medataXmlFile, r);
             } catch (IOException e) {
-                log.error("Failed to publish recording : " + recordingId, e);
+              log.error("Failed to publish recording : " + recordingId, e);
             }
         }
         return false;
@@ -499,21 +494,20 @@ public class RecordingService {
 
         RecordingMetadata r = recordingServiceHelper.getRecordingMetadata(metadataXml);
         if (r != null) {
-            if (!destDir.exists())
-                destDir.mkdirs();
+            if (!destDir.exists()) destDir.mkdirs();
 
             try {
                 FileUtils.moveDirectory(recordingDir, new File(destDir.getPath() + File.separatorChar + recordingId));
                 r.setState(Recording.STATE_UNPUBLISHED);
                 r.setPublished(false);
 
-                File medataXmlFile = recordingServiceHelper
-                        .getMetadataXmlLocation(destDir.getAbsolutePath() + File.separatorChar + recordingId);
+                File medataXmlFile = recordingServiceHelper.getMetadataXmlLocation(
+                  destDir.getAbsolutePath() + File.separatorChar + recordingId);
 
                 // Process the changes by saving the recording into metadata.xml
                 return recordingServiceHelper.saveRecordingMetadata(medataXmlFile, r);
             } catch (IOException e) {
-                log.error("Failed to unpublish recording : " + recordingId, e);
+              log.error("Failed to unpublish recording : " + recordingId, e);
             }
         }
         return false;
@@ -524,32 +518,32 @@ public class RecordingService {
 
         RecordingMetadata r = recordingServiceHelper.getRecordingMetadata(metadataXml);
         if (r != null) {
-            if (!destDir.exists())
-                destDir.mkdirs();
+            if (!destDir.exists()) destDir.mkdirs();
 
             try {
                 FileUtils.moveDirectory(recordingDir, new File(destDir.getPath() + File.separatorChar + recordingId));
                 r.setState(Recording.STATE_DELETED);
                 r.setPublished(false);
 
-                File medataXmlFile = recordingServiceHelper
-                        .getMetadataXmlLocation(destDir.getAbsolutePath() + File.separatorChar + recordingId);
+                File medataXmlFile = recordingServiceHelper.getMetadataXmlLocation(
+                  destDir.getAbsolutePath() + File.separatorChar + recordingId);
 
                 // Process the changes by saving the recording into metadata.xml
                 return recordingServiceHelper.saveRecordingMetadata(medataXmlFile, r);
             } catch (IOException e) {
-                log.error("Failed to delete recording : " + recordingId, e);
+              log.error("Failed to delete recording : " + recordingId, e);
             }
         }
         return false;
     }
+
 
     private List<File> getAllDirectories(String state) {
         List<File> allDirectories = new ArrayList<>();
 
         String dir = getDestinationBaseDirectoryName(state);
 
-        if (dir != null) {
+        if ( dir != null ) {
             String[] formats = getPlaybackFormats(dir);
             for (String format : formats) {
                 allDirectories.addAll(getDirectories(dir + File.separatorChar + format));
@@ -562,27 +556,27 @@ public class RecordingService {
     private Map<String, List<File>> getAllDirectories(List<String> states) {
         Map<String, List<File>> allDirectories = new HashMap<>();
 
-        if (shouldIncludeState(states, Recording.STATE_PUBLISHED)) {
+        if ( shouldIncludeState(states, Recording.STATE_PUBLISHED) ) {
             List<File> listedDirectories = getAllDirectories(Recording.STATE_PUBLISHED);
             allDirectories.put(Recording.STATE_PUBLISHED, listedDirectories);
         }
 
-        if (shouldIncludeState(states, Recording.STATE_UNPUBLISHED)) {
+        if ( shouldIncludeState(states, Recording.STATE_UNPUBLISHED) ) {
             List<File> listedDirectories = getAllDirectories(Recording.STATE_UNPUBLISHED);
             allDirectories.put(Recording.STATE_UNPUBLISHED, listedDirectories);
         }
 
-        if (shouldIncludeState(states, Recording.STATE_DELETED)) {
+        if ( shouldIncludeState(states, Recording.STATE_DELETED) ) {
             List<File> listedDirectories = getAllDirectories(Recording.STATE_DELETED);
             allDirectories.put(Recording.STATE_DELETED, listedDirectories);
         }
 
-        if (shouldIncludeState(states, Recording.STATE_PROCESSING)) {
+        if ( shouldIncludeState(states, Recording.STATE_PROCESSING) ) {
             List<File> listedDirectories = getAllDirectories(Recording.STATE_PROCESSING);
             allDirectories.put(Recording.STATE_PROCESSING, listedDirectories);
         }
 
-        if (shouldIncludeState(states, Recording.STATE_PROCESSED)) {
+        if ( shouldIncludeState(states, Recording.STATE_PROCESSED) ) {
             List<File> listedDirectories = getAllDirectories(Recording.STATE_PROCESSED);
             allDirectories.put(Recording.STATE_PROCESSED, listedDirectories);
         }
@@ -590,19 +584,17 @@ public class RecordingService {
         return allDirectories;
     }
 
-    public void updateMetaParams(List<String> recordIDs, Map<String, String> metaParams) {
+    public void updateMetaParams(List<String> recordIDs, Map<String,String> metaParams) {
         // Define the directories used to lookup the recording
         List<String> states = new ArrayList<>();
         states.add(Recording.STATE_PUBLISHED);
         states.add(Recording.STATE_UNPUBLISHED);
         states.add(Recording.STATE_DELETED);
 
-        // Gather all the existent directories based on the states defined for
-        // the lookup
+        // Gather all the existent directories based on the states defined for the lookup
         Map<String, List<File>> allDirectories = getAllDirectories(states);
 
-        // Retrieve the actual recording from the directories gathered for the
-        // lookup
+        // Retrieve the actual recording from the directories gathered for the lookup
         for (String recordID : recordIDs) {
             for (Map.Entry<String, List<File>> entry : allDirectories.entrySet()) {
                 List<File> recs = getRecordingsForPath(recordID, entry.getValue());
@@ -616,20 +608,19 @@ public class RecordingService {
         }
     }
 
-    public void updateRecordingMetadata(File srxMetadataXml, Map<String, String> metaParams, File destMetadataXml) {
+    public void updateRecordingMetadata(File srxMetadataXml, Map<String,String> metaParams, File destMetadataXml) {
         RecordingMetadata rec = recordingServiceHelper.getRecordingMetadata(srxMetadataXml);
 
         Map<String, String> recMeta = rec.getMeta();
 
         if (rec != null && !recMeta.isEmpty()) {
-            for (Map.Entry<String, String> meta : metaParams.entrySet()) {
-                if (!"".equals(meta.getValue())) {
-                    // As it has a value, if the meta parameter exists update
-                    // it, otherwise add it
+            for (Map.Entry<String,String> meta : metaParams.entrySet()) {
+                if ( !"".equals(meta.getValue()) ) {
+                    // As it has a value, if the meta parameter exists update it, otherwise add it
                     recMeta.put(meta.getKey(), meta.getValue());
                 } else {
                     // As it doesn't have a value, if it exists delete it
-                    if (recMeta.containsKey(meta.getKey())) {
+                    if ( recMeta.containsKey(meta.getKey()) ) {
                         recMeta.remove(meta.getKey());
                     }
                 }
@@ -642,8 +633,9 @@ public class RecordingService {
         }
     }
 
-    private Map<String, File> indexRecordings(List<File> recs) {
-        Map<String, File> indexedRecs = new HashMap<>();
+
+    private Map<String,File> indexRecordings(List<File> recs) {
+        Map<String,File> indexedRecs = new HashMap<>();
 
         Iterator<File> iterator = recs.iterator();
         while (iterator.hasNext()) {
@@ -661,15 +653,15 @@ public class RecordingService {
     private String getDestinationBaseDirectoryName(String state, boolean forceDefault) {
         String baseDir = null;
 
-        if (state.equals(Recording.STATE_PROCESSING) || state.equals(Recording.STATE_PROCESSED))
+        if ( state.equals(Recording.STATE_PROCESSING) || state.equals(Recording.STATE_PROCESSED) )
             baseDir = processDir;
-        else if (state.equals(Recording.STATE_PUBLISHED))
+        else if ( state.equals(Recording.STATE_PUBLISHED) )
             baseDir = publishedDir;
-        else if (state.equals(Recording.STATE_UNPUBLISHED))
+        else if ( state.equals(Recording.STATE_UNPUBLISHED) )
             baseDir = unpublishedDir;
-        else if (state.equals(Recording.STATE_DELETED))
+        else if ( state.equals(Recording.STATE_DELETED) )
             baseDir = deletedDir;
-        else if (forceDefault)
+        else if ( forceDefault )
             baseDir = publishedDir;
 
         return baseDir;

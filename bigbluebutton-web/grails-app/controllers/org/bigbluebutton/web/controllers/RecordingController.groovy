@@ -58,24 +58,6 @@ class RecordingController {
     }
     // END - backward compatibility
 
-    ApiErrors errors = new ApiErrors()
-
-    // Do we have a checksum? If none, complain.
-    if (StringUtils.isEmpty(params.checksum)) {
-      errors.missingParamError("checksum")
-    }
-
-    // Do we have a recording id? If none, complain.
-    String recordId = params.recordID
-    if (StringUtils.isEmpty(recordId)) {
-      errors.missingParamError(ApiParams.RECORD_ID)
-    }
-
-    if (errors.hasErrors()) {
-      respondWithErrors(errors)
-      return
-    }
-
     // Do we agree on the checksum? If not, complain.
     if (!paramsProcessorUtil.isChecksumSame(API_CALL, params.checksum, request.getQueryString())) {
       errors.checksumError()
@@ -189,7 +171,6 @@ class RecordingController {
 
   }
 
-  //TODO: method added for backward compatibility, it will be removed in next versions after 0.8
   private void invalid(key, msg, redirectResponse = false) {
     // Note: This xml scheme will be DEPRECATED.
     log.debug CONTROLLER_NAME + "#invalid " + msg

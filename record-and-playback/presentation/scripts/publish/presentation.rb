@@ -1228,21 +1228,19 @@ begin
           BigBlueButton.logger.info("Copied audio.ogg file")
         end
 
-        if File.exist?("#{captions_meeting_dir}/captions.json")
-          BigBlueButton.logger.info("Copying caption files to #{target_dir}")
-          captions = JSON.load(File.new("#{captions_meeting_dir}/captions.json"))
-          captions_json = []
-          captions.each do |track|
-            caption = {}
-            caption[:localeName] = track['label']
-            caption[:locale] = track['lang']
-            captions_json << caption
-            FileUtils.cp("#{captions_meeting_dir}/caption_" + track['lang'] + ".vtt", target_dir)
-          end
+        BigBlueButton.logger.info("Copying caption files to #{target_dir}")
+        captions = JSON.load(File.new("#{captions_meeting_dir}/captions.json"))
+        captions_json = []
+        captions.each do |track|
+          caption = {}
+          caption[:localeName] = track['label']
+          caption[:locale] = track['lang']
+          captions_json << caption
+          FileUtils.cp("#{captions_meeting_dir}/caption_" + track['lang'] + ".vtt", target_dir)
+        end
 
-          File.open("#{target_dir}/captions.json", "w") do |f|
-            f.write(captions_json.to_json)
-          end
+        File.open("#{target_dir}/captions.json", "w") do |f|
+          f.write(captions_json.to_json)
         end
 
         if File.exist?("#{$process_dir}/captions.json")
