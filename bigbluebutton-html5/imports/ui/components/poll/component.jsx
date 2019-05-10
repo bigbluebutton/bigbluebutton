@@ -196,6 +196,7 @@ class Poll extends Component {
           label={intl.formatMessage(intlMessages.startCustomLabel)}
           color="primary"
           aria-disabled={isDisabled}
+          disabled={isDisabled}
           className={styles.btn}
         />
       </div>
