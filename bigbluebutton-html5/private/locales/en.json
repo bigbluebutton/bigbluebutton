@@ -514,6 +514,7 @@
     "app.sfu.invalidSdp2202":"Error 2202: Client generated an invalid SDP",
     "app.sfu.noAvailableCodec2203": "Error 2203: Server could not find an appropriate codec",
     "app.meeting.endNotification.ok.label": "OK",
+    "app.whiteboard.annotations.poll": "Poll results were published",
     "app.whiteboard.toolbar.tools": "Tools",
     "app.whiteboard.toolbar.tools.hand": "Pan",
     "app.whiteboard.toolbar.tools.pencil": "Pencil",
