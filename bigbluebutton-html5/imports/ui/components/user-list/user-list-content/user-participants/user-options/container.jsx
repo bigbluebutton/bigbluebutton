@@ -32,14 +32,12 @@ const UserOptionsContainer = withTracker((props) => {
     isMeetingMuted: meeting.voiceProp.muteOnStart,
     isUserPresenter: Service.isUserPresenter(),
     isUserModerator: Service.isUserModerator(),
-    createBreakoutRoom: Service.createBreakoutRoom,
     meetingIsBreakout: Service.meetingIsBreakout(),
-    hasBreakoutRoom: Service.hasBreakoutRoom(),
-    meetingName: Service.meetingName(),
-    users: Service.users(),
-    getBreakouts: Service.getBreakouts,
-    sendInvitation: Service.sendInvitation,
     getUsersNotAssigned: Service.getUsersNotAssigned,
+    hasBreakoutRoom: Service.hasBreakoutRoom(),
+    isBreakoutEnabled: Service.isBreakoutEnabled(),
+    isBreakoutRecordable: Service.isBreakoutRecordable(),
+    users: Service.users(),
     userListService,
   };
 })(UserOptions);

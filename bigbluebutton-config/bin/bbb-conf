@@ -427,7 +427,11 @@ start_bigbluebutton () {
 }
 
 display_bigbluebutton_status () {
-    units="red5 $TOMCAT_SERVICE nginx freeswitch $REDIS_SERVICE bbb-apps-akka bbb-transcode-akka bbb-fsesl-akka"
+    units="red5 nginx freeswitch $REDIS_SERVICE bbb-apps-akka bbb-transcode-akka bbb-fsesl-akka"
+ 
+    if [ -d $TOMCAT_DIR ]; then
+      units="$units $TOMCAT_SERVICE"
+    fi
 
     if [ -f /usr/lib/systemd/system/bbb-html5.service ]; then
         units="$units mongod bbb-html5 bbb-webrtc-sfu kurento-media-server"
@@ -667,9 +671,9 @@ check_configuration() {
         if [ ! -f $file ]; then
             echo "# Error: File not found: $file"
         else
-            if cat $file | grep -v redis.pass | grep -q "^[^=]*=[ ]*$"; then
+            if cat $file | grep -v redis.pass | grep -v redisPassword  | grep -q "^[^=]*=[ ]*$"; then
                 echo "# The following properties in $file have no value:"
-                echo "#     $(grep '^[^=#]*=[ ]*$' $file | sed 's/=//g')"
+                echo "#     $(grep '^[^=#]*=[ ]*$' $file | grep -v redis.pass | grep -v redisPassword | sed 's/=//g')"
             fi
         fi
     done
@@ -879,6 +883,14 @@ check_configuration() {
             echo "#"
         fi
     fi
+
+    if find /usr/share /var/lib/red5 -name "*bbb-common-message*" | sed 's/\([^_]*_\).*/\1/g' | sort | uniq -c | grep -v 1 > /dev/null; then echo 
+        echo
+        echo "# Warning: detected multiple bbb-common-message in the same directory"
+        find /usr/share /var/lib/red5 -name "*bbb-common-message*" | sed 's/\([^_]*_\).*/\1/g' | sort | uniq -c | grep -v 1 
+        echo 
+    fi
+
 }
 
 
@@ -1128,8 +1140,10 @@ check_state() {
     #
     # Check that the servlet container has started properly and has created log files
     #
-    if [ -z "$(ls -A $SERVLET_LOGS)" ]; then
+    if [ -d $TOMCAT_DIR ]; then
+      if [ -z "$(ls -A $SERVLET_LOGS)" ]; then
         echo "#                     empty directory: $SERVLET_LOGS contains no logs"
+      fi
     fi
 
     #

@@ -315,7 +315,9 @@ public class MeetingService implements MessageListener {
             m.getDialNumber(), m.getMaxUsers(), m.getMaxInactivityTimeoutMinutes(), m.getWarnMinutesBeforeMax(),
             m.getMeetingExpireIfNoUserJoinedInMinutes(), m.getmeetingExpireWhenLastUserLeftInMinutes(),
             m.getUserInactivityInspectTimerInMinutes(), m.getUserInactivityThresholdInMinutes(),
-            m.getUserActivitySignResponseDelayInMinutes(), m.getMuteOnStart(), keepEvents);
+            m.getUserActivitySignResponseDelayInMinutes(), m.getMuteOnStart(), m.getAllowModsToUnmuteUsers(), keepEvents,
+            m.breakoutRoomsParams,
+            m.lockSettingsParams);
   }
 
   private String formatPrettyDate(Long timestamp) {
@@ -345,9 +347,12 @@ public class MeetingService implements MessageListener {
         String logStr = gson.toJson(logData);
         log.info(" --analytics-- data={}", logStr);
 
-        gw.ejectDuplicateUser(message.meetingID,
-                prevUser.getInternalUserId(), prevUser.getFullname(),
-                prevUser.getExternalUserId());
+        if (!m.allowDuplicateExtUserid) {
+          gw.ejectDuplicateUser(message.meetingID,
+                  prevUser.getInternalUserId(), prevUser.getFullname(),
+                  prevUser.getExternalUserId());
+        }
+
       }
 
     }

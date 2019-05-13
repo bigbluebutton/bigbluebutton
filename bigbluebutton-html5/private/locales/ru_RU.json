@@ -1,4 +1,5 @@
 {
+    "app.home.greeting": "Ваша презентация скоро начнется...",
     "app.chat.submitLabel": "Отправить сообщение",
     "app.chat.errorMinMessageLength": "Сообщение из {0} символа(-ов) слишком короткое",
     "app.chat.errorMaxMessageLength": "Сообщение из {0} символа(-ов) слишком длинное",
@@ -85,8 +86,6 @@
     "app.navBar.settingsDropdown.aboutDesc": "Показать информацию о клиенте",
     "app.navBar.settingsDropdown.leaveSessionDesc": "Покинуть конференцию",
     "app.navBar.settingsDropdown.exitFullscreenDesc": "Выйти из полноэкранного режима",
-    "app.navBar.settingsDropdown.hotkeysLabel": "Быстрые клавиши",
-    "app.navBar.settingsDropdown.hotkeysDesc": "Список доступных быстрых клавиш",
     "app.navBar.settingsDropdown.helpLabel": "Помощь",
     "app.navBar.settingsDropdown.helpDesc": "Ссылает пользователей на видеоуроки",
     "app.navBar.userListToggleBtnLabel": "Включить/выключить список пользователей",
@@ -236,10 +235,9 @@
     "app.error.removed": "Вас удалили из конференции",
     "app.error.meeting.ended": "Вы вышли из конференции",
     "app.dropdown.close": "Закрыть",
-    "app.error.500": "Упс, что-то пошло не так",
-    "app.error.404": "Не найдено",
     "app.error.401": "Не авторизирован",
-    "app.error.403": "Доступ запрещен",
+    "app.error.404": "Не найдено",
+    "app.error.500": "Упс, что-то пошло не так",
     "app.error.leaveLabel": "Зайдите снова",
     "app.guest.waiting": "Ожидание одобрения входа",
     "app.toast.chat.public": "Новое сообщение в публичном чате",
@@ -247,11 +245,9 @@
     "app.toast.chat.system": "Система",
     "app.notification.recordingStart": "Этот сеанс записывается",
     "app.notification.recordingStop": "Этот сеанс больше не будет записан",
-    "app.shortcut-help.title": "Клавиши быстрого доступа",
     "app.shortcut-help.comboLabel": "Комбо",
     "app.shortcut-help.functionLabel": "Функция",
     "app.shortcut-help.closeLabel": "Закрыть",
-    "app.shortcut-help.closeDesc": "Закрывает модальные клавиши быстрого доступа",
     "app.shortcut-help.openOptions": "Открывает параметры",
     "app.shortcut-help.toggleUserList": "Включает список пользователей",
     "app.shortcut-help.toggleMute": "Включает / Выключает микрофон",
@@ -325,6 +321,8 @@
     "app.videoDock.webcamUnfocusLabel": "Расфокусировать",
     "app.videoDock.webcamUnfocusDesc": "Расфокусировать выбранную веб-камеру",
     "app.createBreakoutRoom.joinAudio": "Присоединиться к аудио-конференции",
+    "app.externalVideo.input": "Ссылка на видео YouTube",
+    "app.externalVideo.urlInput": "Добавить ссылку на YouTube",
     "app.externalVideo.close": "Закрыть"
 
 }

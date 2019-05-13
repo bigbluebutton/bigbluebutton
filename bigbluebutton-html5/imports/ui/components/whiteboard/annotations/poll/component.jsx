@@ -1,7 +1,16 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
+import { notify } from '/imports/ui/services/notification';
+import { defineMessages, injectIntl } from 'react-intl';
 
-export default class PollDrawComponent extends Component {
+const intlMessages = defineMessages({
+  pollPublishedLabel: {
+    id: 'app.whiteboard.annotations.poll',
+    description: 'message displayed when a poll is published',
+  },
+});
+
+class PollDrawComponent extends Component {
   constructor(props) {
     super(props);
 
@@ -51,6 +60,12 @@ export default class PollDrawComponent extends Component {
   }
 
   componentWillMount() {
+    const { intl } = this.props;
+    notify(
+      intl.formatMessage(intlMessages.pollPublishedLabel),
+      'info',
+      'polling',
+    );
     // in this part we retrieve the props and perform initial calculations for the state
     // calculating only the parts which have to be done just once and don't require
     // rendering / rerendering the text objects
@@ -536,6 +551,8 @@ export default class PollDrawComponent extends Component {
     );
   }
 }
+
+export default injectIntl(PollDrawComponent);
 
 PollDrawComponent.propTypes = {
   // Defines an annotation object, which contains all the basic info we need to draw a line

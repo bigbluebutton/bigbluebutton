@@ -1,4 +1,5 @@
 @import "../../../stylesheets/variables/_all";
+@import '/imports/ui/stylesheets/mixins/_indicators';
 @import "../../../stylesheets/variables/typography";
 
 .visuallyHidden {
@@ -48,7 +49,7 @@
   @extend %recordingControl;
 
   padding: 7px;
-  border: 1px solid var(--color-white);
+  border: var(--border-size-small) solid var(--color-white);
   
   &:focus {
     padding: 5px;
@@ -85,7 +86,7 @@
 }
 
 %recordingIndicator {
-  border: 1px solid var(--color-white) !important;
+  border: var(--border-size-small) solid var(--color-white) !important;
   border-radius: 50%;
   span {
     border: none;
@@ -114,6 +115,7 @@
 .recordingIndicatorON {
   @extend %recordingIndicator;
   &:after {
+    border: var(--border-size) solid transparent;
     background-color: var(--color-danger);
   }
 }
@@ -126,7 +128,7 @@
 }
 
 .isRecordingCircle {
-  border: 1px solid var(--color-white) !important;
+  border: var(--border-size-small) solid var(--color-white) !important;
   border-radius: 50%;
   span {
     border: none;
@@ -135,3 +137,15 @@
   }
 }
 
+.recordingIndicator {
+  &:hover {
+    @include highContrastOutline();
+  }
+
+  &:active,
+  &:focus,
+  &:focus-within {
+    @include highContrastOutline();
+    outline-style: solid;
+  }
+}

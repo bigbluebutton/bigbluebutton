@@ -1,4 +1,5 @@
 @import "/imports/ui/stylesheets/mixins/focus";
+@import "/imports/ui/stylesheets/mixins/_indicators";
 @import "/imports/ui/stylesheets/variables/_all";
 
 .form {
@@ -56,7 +57,6 @@
   margin: 0;
   color: var(--color-text);
   -webkit-appearance: none;
-  outline: 0;
   padding: calc(var(--sm-padding-y) * 2.5) calc(var(--sm-padding-x) * 1.25);
   resize: none;
   transition: none;
@@ -72,6 +72,16 @@
     cursor: not-allowed;
     opacity: .75;
     background-color: rgba(167,179,189,0.25);
+  }
+
+  &:hover {
+    @include highContrastOutline();
+  }
+
+  &:active,
+  &:focus {
+    @include highContrastOutline();
+    outline-style: solid;
   }
 }
 

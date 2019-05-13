@@ -1,5 +1,6 @@
 @import "/imports/ui/stylesheets/variables/_all";
 @import "/imports/ui/stylesheets/mixins/_scrollable";
+@import "/imports/ui/stylesheets/mixins/_indicators";
 
 :root {
   --dropdown-bg: var(--color-white);
@@ -19,13 +20,15 @@
 }
 
 .content {
+  @include highContrastOutline();
+  outline-style: solid;
+  z-index: 9999;
   position: absolute;
   background: var(--dropdown-bg);
   border-radius: var(--border-radius);
   box-shadow: 0 6px 12px rgba(0, 0, 0, .175);
   border: 0;
   padding: calc(var(--line-height-computed) / 2);
-  z-index: 1000;
 
   &:after,
   &:before {
@@ -270,7 +273,7 @@
 .bottom-right {
   @extend %up-caret;
   @extend %horz-left-caret;
-  min-width: 9rem;
+  min-width: 10rem;
 
   @include mq($small-only) {
     width: auto;

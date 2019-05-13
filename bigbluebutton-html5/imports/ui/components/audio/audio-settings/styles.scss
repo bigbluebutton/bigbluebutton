@@ -1,4 +1,10 @@
 @import "/imports/ui/stylesheets/variables/_all";
+@import '/imports/ui/stylesheets/mixins/_indicators';
+
+.col,
+.formWrapper{
+  min-width: 0;
+}
 
 .form {
   display: flex;
@@ -32,8 +38,6 @@
   }
 
   &.spacedLeft {
-	// @extend .spaced;
-
     label {
       flex-grow: 1;
       flex-basis: 0;
@@ -84,8 +88,16 @@
   border-radius: .125rem;
   color: var(--color-text);
   width: 100%;
-  // appearance: none;
   padding: .4rem;
+
+  &:hover {
+    @include highContrastOutline();
+  }
+
+  &:focus {
+    @include highContrastOutline();
+    outline-style: solid;
+  }
 }
 
 .audioMeter {

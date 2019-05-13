@@ -60,6 +60,10 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         <constructor-arg index="1" value="${screenshareRtmpServer}"/>
         <constructor-arg index="2" value="${screenshareRtmpBroadcastApp}"/>
         <constructor-arg index="3" value="${screenshareConfSuffix}"/>
+        <constructor-arg index="4" value="${redisHost}"/>
+        <constructor-arg index="5" value="${redisPort}"/>
+        <constructor-arg index="6" value="${redisPassword}"/>
+        <constructor-arg index="7" value="${redisKeyExpiry}"/>
     </bean>
 
     <bean id="recordingServiceHelper" class="org.bigbluebutton.api.util.RecordingMetadataReaderHelper">
@@ -132,6 +136,19 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         <property name="maxPresentationFileUpload" value="${maxFileSizeUpload}"/>
         <property name="clientLogoutTimerInMinutes" value="${clientLogoutTimerInMinutes}"/>
         <property name="muteOnStart" value="${muteOnStart}"/>
+        <property name="allowModsToUnmuteUsers" value="${allowModsToUnmuteUsers}"/>
+        <property name="breakoutRoomsEnabled" value="${breakoutRoomsEnabled}"/>
+        <property name="breakoutRoomsRecord" value="${breakoutRoomsRecord}"/>
+        <property name="breakoutRoomsPrivateChatEnabled" value="${breakoutRoomsPrivateChatEnabled}"/>
+        <property name="lockSettingsDisableCam" value="${lockSettingsDisableCam}"/>
+        <property name="lockSettingsDisableMic" value="${lockSettingsDisableMic}"/>
+        <property name="lockSettingsDisablePrivateChat" value="${lockSettingsDisablePrivateChat}"/>
+        <property name="lockSettingsDisablePublicChat" value="${lockSettingsDisablePublicChat}"/>
+        <property name="lockSettingsDisableNote" value="${lockSettingsDisableNote}"/>
+        <property name="lockSettingsLockedLayout" value="${lockSettingsLockedLayout}"/>
+        <property name="lockSettingsLockOnJoin" value="${lockSettingsLockOnJoin}"/>
+        <property name="lockSettingsLockOnJoinConfigurable" value="${lockSettingsLockOnJoinConfigurable}"/>
+        <property name="allowDuplicateExtUserid" value="${allowDuplicateExtUserid}"/>
     </bean>
 
     <import resource="doc-conversion.xml"/>

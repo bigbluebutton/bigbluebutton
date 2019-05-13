@@ -502,6 +502,8 @@ class PresentationUploader extends Component {
       ? intl.formatMessage(intlMessages.isDownloadable)
       : intl.formatMessage(intlMessages.isNotDownloadable);
 
+    const formattedDownloadableAriaLabel = `${formattedDownloadableLabel} ${item.filename}`;
+
     const isDownloadableStyle = item.isDownloadable
       ? cx(styles.itemAction, styles.itemActionRemove, styles.checked)
       : cx(styles.itemAction, styles.itemActionRemove);
@@ -535,13 +537,14 @@ class PresentationUploader extends Component {
             <Button
               className={isDownloadableStyle}
               label={formattedDownloadableLabel}
+              aria-label={formattedDownloadableAriaLabel}
               hideLabel
               size="sm"
               icon={item.isDownloadable ? 'download' : 'download-off'}
               onClick={() => this.toggleDownloadable(item)}
             />
             <Checkbox
-              ariaLabel={intl.formatMessage(intlMessages.setAsCurrentPresentation)}
+              ariaLabel={`${intl.formatMessage(intlMessages.setAsCurrentPresentation)} ${item.filename}`}
               checked={item.isCurrent}
               className={styles.itemAction}
               disabled={disableActions}
@@ -553,6 +556,7 @@ class PresentationUploader extends Component {
                 disabled={disableActions}
                 className={cx(styles.itemAction, styles.itemActionRemove)}
                 label={intl.formatMessage(intlMessages.removePresentation)}
+                aria-label={`${intl.formatMessage(intlMessages.removePresentation)} ${item.filename}`}
                 size="sm"
                 icon="delete"
                 hideLabel

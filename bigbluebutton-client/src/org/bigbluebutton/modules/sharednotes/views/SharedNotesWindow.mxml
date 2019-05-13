@@ -36,6 +36,7 @@
 		<mate:Listener type="{SharedNotesEvent.DESTROY_ADDITIONAL_NOTES_REPLY_EVENT}" method="handleNoteDestroyed"/>
 		<mate:Listener type="{ShortcutEvent.FOCUS_SHARED_NOTES_WINDOW}" method="focusWindow" />
 		<mate:Listener type="{LocaleChangeEvent.LOCALE_CHANGED}" method="onLocaleChanged" />
+		<mate:Listener type="{LockControlEvent.CHANGED_LOCK_SETTINGS}" method="lockSettingsChanged" />
 	</fx:Declarations>
 
 	<fx:Script>
@@ -69,6 +70,7 @@
 			import org.bigbluebutton.core.Options;
 			import org.bigbluebutton.core.PopUpUtil;
 			import org.bigbluebutton.core.UsersUtil;
+			import org.bigbluebutton.core.events.LockControlEvent;
 			import org.bigbluebutton.core.model.LiveMeeting;
 			import org.bigbluebutton.main.events.ShortcutEvent;
 			import org.bigbluebutton.main.views.MainCanvas;
@@ -81,16 +83,6 @@
 			import org.bigbluebutton.modules.sharednotes.events.SharedNotesEvent;
 			import org.bigbluebutton.modules.sharednotes.util.DiffPatch;
 			import org.bigbluebutton.util.i18n.ResourceUtil;
-			
-			
-			
-			
-			
-			
-			
-			
-			
-			
 
 			private static const LOGGER:ILogger = getClassLogger(SharedNotesWindow);
 
@@ -103,6 +95,7 @@
 
 			[Bindable] protected var options:SharedNotesOptions;
 			[Bindable] private var usersTyping:String = "";
+			[Bindable] private var disabled:Boolean = LiveMeeting.inst().me.disableMyNote;
 
 			private var sendUpdateTimer:Timer;
 			private var getDocumentTimer:Timer = new Timer(5000);
@@ -149,6 +142,10 @@
 				typistsTimer.start();
 				
 				updateStyles();
+			}
+
+			public function lockSettingsChanged(e:*):void {
+				disabled = LiveMeeting.inst().me.disableMyNote;
 			}
 
 			private function updateTypists(e:Event):void {
@@ -532,10 +529,10 @@
 			public function handleCtrlCmd(event:KeyboardEvent):Boolean {
 				switch (event.keyCode) {
 					case Keyboard.Z:
-						if (btnUndo.enabled) btnUndo_clickHandler();
+						if (btnUndo.enabled && btnUndo.visible) btnUndo_clickHandler();
 						break;
 					case Keyboard.Y:
-						if (btnRedo.enabled) btnRedo_clickHandler();
+						if (btnRedo.enabled && btnRedo.visible) btnRedo_clickHandler();
 						break;
 					default:
 						return false;
@@ -613,6 +610,7 @@
 				borderThicknessBottom="0"
 				minWidth="100"
 				minHeight="100"
+				enabled="{!disabled}"
 				initialize="initSharedNotesRichTextEditor()"/>
 
 		<mx:HBox width="100%" paddingTop="0" minWidth="100" horizontalScrollPolicy="off">
@@ -622,15 +620,18 @@
 					height="26"
 					click="btnUndo_clickHandler(event)"
 					toolTip="{ResourceUtil.getInstance().getString('bbb.sharedNotes.undo.toolTip')}"
+					includeInLayout="{!disabled}"
 					enabled="false"
-					visible="true"/>
+					visible="{!disabled}"/>
 			<mx:Button id="btnRedo"
 					styleName="sharedNotesRedoButtonStyle"
 					width="26"
 					height="26"
 					click="btnRedo_clickHandler(event)"
 					toolTip="{ResourceUtil.getInstance().getString('bbb.sharedNotes.redo.toolTip')}"
-					enabled="false" visible="true"/>
+					includeInLayout="{!disabled}"
+					enabled="false"
+					visible="{!disabled}"/>
 			<mx:Label id="usersTypingLabel"
 					includeInLayout="true"
 					visible="true"
@@ -649,8 +650,8 @@
 					width="26" height="26"
 					click="btnToolbar_clickHandler(event)"
 					toolTip="{ResourceUtil.getInstance().getString('bbb.sharedNotes.toolbar.toolTip')}"
-					visible="{options.showToolbarButton}"
-					includeInLayout="{options.showToolbarButton}"/>
+					visible="{options.showToolbarButton &amp;&amp; !disabled}"
+					includeInLayout="{options.showToolbarButton &amp;&amp; !disabled}"/>
 			<mx:Button id="btnSave"
 					styleName="sharedNotesSaveButtonStyle"
 					width="26"

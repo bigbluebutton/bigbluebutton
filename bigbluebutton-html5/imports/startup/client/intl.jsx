@@ -12,9 +12,11 @@ import de from 'react-intl/locale-data/de';
 import el from 'react-intl/locale-data/el';
 import en from 'react-intl/locale-data/en';
 import es from 'react-intl/locale-data/es';
+import eu from 'react-intl/locale-data/eu';
 import fa from 'react-intl/locale-data/fa';
 import fr from 'react-intl/locale-data/fr';
 import he from 'react-intl/locale-data/he';
+import hi from 'react-intl/locale-data/hi';
 import id from 'react-intl/locale-data/id';
 import it from 'react-intl/locale-data/it';
 import ja from 'react-intl/locale-data/ja';
@@ -22,6 +24,7 @@ import km from 'react-intl/locale-data/km';
 import pl from 'react-intl/locale-data/pl';
 import pt from 'react-intl/locale-data/pt';
 import ru from 'react-intl/locale-data/ru';
+import sv from 'react-intl/locale-data/sv';
 import tr from 'react-intl/locale-data/tr';
 import uk from 'react-intl/locale-data/uk';
 import zh from 'react-intl/locale-data/zh';
@@ -35,9 +38,11 @@ addLocaleData([
   ...el,
   ...en,
   ...es,
+  ...eu,
   ...fa,
   ...fr,
   ...he,
+  ...hi,
   ...id,
   ...it,
   ...ja,
@@ -45,6 +50,7 @@ addLocaleData([
   ...pl,
   ...pt,
   ...ru,
+  ...sv,
   ...tr,
   ...uk,
   ...zh,

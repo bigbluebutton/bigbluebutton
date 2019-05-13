@@ -55,7 +55,7 @@ export default class Checkbox extends PureComponent {
           onChange={this.handleChange}
           checked={checked}
           className={styles.input}
-          aria-labelledby={ariaLabelledBy}
+          aria-label={ariaLabel}
           aria-describedby={ariaDescribedBy}
           disabled={disabled}
         />
@@ -65,7 +65,6 @@ export default class Checkbox extends PureComponent {
             : <Icon iconName="circle" className={styles.icon} />
           }
         </div>
-        <div id={ariaLabelledBy} hidden>{ariaLabel}</div>
         <div id={ariaDescribedBy} hidden>{ariaDesc}</div>
       </div>
     );

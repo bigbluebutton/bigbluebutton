@@ -96,6 +96,10 @@ const intlMessages = defineMessages({
     id: 'app.audioModal.connectingEchoTest',
     description: 'Message for echo test connecting',
   },
+  ariaModalTitle: {
+    id: 'app.audioModal.ariaTitle',
+    description: 'aria label for modal title',
+  },
 });
 
 class AudioModal extends Component {
@@ -452,6 +456,7 @@ class AudioModal extends Component {
           className={styles.modal}
           onRequestClose={closeModal}
           hideBorder
+          contentLabel={intl.formatMessage(intlMessages.ariaModalTitle)}
         >
           {!this.skipAudioOptions()
 
