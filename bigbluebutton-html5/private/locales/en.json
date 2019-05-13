@@ -275,6 +275,7 @@
     "app.settings.dataSavingTab.webcam": "Enable webcams",
     "app.settings.dataSavingTab.screenShare": "Enable desktop sharing",
     "app.settings.dataSavingTab.description": "To save your bandwidth adjust what's currently being displayed.",
+    "app.settings.save-notification.label": "Settings have been saved",
     "app.switch.onLabel": "ON",
     "app.switch.offLabel": "OFF",
     "app.actionsBar.actionsDropdown.actionsLabel": "Actions",
