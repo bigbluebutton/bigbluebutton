@@ -46,7 +46,7 @@ def process_archived_meetings(recording_dir)
     step_succeeded = true
 
     # Generate captions
-    ret = BigBlueButton.exec_ret('ruby', 'utils/gen_webvtt', '-m', meeting_id)
+    ret = BigBlueButton.exec_ret('ruby', 'utils/captions.rb', '-m', meeting_id)
     if ret != 0
       BigBlueButton.logger.warn("Failed to generate caption files #{ret}")
     end

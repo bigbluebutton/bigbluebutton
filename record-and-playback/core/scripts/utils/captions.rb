@@ -45,15 +45,15 @@ raw_archive_dir = "#{recording_dir}/raw/#{meeting_id}"
 BigBlueButton.logger.info("Setting process dir")
 BigBlueButton.logger.info("setting captions dir")
 captions_dir = props['captions_dir']
-captions_meeting_dir = "#{captions_dir}/#{meeting_id}"
 
 log_dir = props['log_dir']
 
 target_dir = "#{recording_dir}/process/presentation/#{meeting_id}"
 
 # Generate captions.json for API
-def create_api_captions_file
+def create_api_captions_file(captions_meeting_dir)
   BigBlueButton.logger.info("Generating closed captions for API")
+
   captions = JSON.load(File.new("#{captions_meeting_dir}/captions_playback.json"))
   captions_json = []
   captions.each do |track|
@@ -72,6 +72,8 @@ end
 
 if not FileTest.directory?(target_dir)
 
+  captions_meeting_dir = "#{captions_dir}/#{meeting_id}"
+
   FileUtils.mkdir_p "#{log_dir}/presentation"
   logger = Logger.new("#{log_dir}/presentation/process-#{meeting_id}.log", 'daily')
   BigBlueButton.logger = logger
@@ -87,7 +89,7 @@ if not FileTest.directory?(target_dir)
     end
 
     FileUtils.cp("#{captions_meeting_dir}/captions.json", "#{captions_meeting_dir}/captions_playback.json")
-    create_api_captions_file
+    create_api_captions_file(captions_meeting_dir)
     FileUtils.rm "#{captions_meeting_dir}/captions_playback.json"
 
   rescue Exception => e
