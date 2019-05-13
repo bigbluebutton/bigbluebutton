@@ -141,7 +141,6 @@
     "app.poll.backLabel": "Atzera jo inkestaren aukeretara",
     "app.poll.closeLabel": "Itxi",
     "app.poll.waitingLabel": "Erantzunen zain ({0}/{1})",
-    "app.poll.ariaInputCount": "{1}-tik {0}. sarrera",
     "app.poll.customPlaceholder": "Gehitu inkesta aukera",
     "app.poll.noPresentationSelected": "Ez da aurkezpenik hautatu. Hautatu bat, mesedez.",
     "app.poll.clickHereToSelect": "Egin klik hemen hautatzeko",

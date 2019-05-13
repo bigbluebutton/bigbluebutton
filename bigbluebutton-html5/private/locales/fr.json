@@ -140,7 +140,6 @@
     "app.poll.publishLabel": "Publier les résultats du sondage",
     "app.poll.backLabel": "Retour aux options de vote",
     "app.poll.closeLabel": "Fermer",
-    "app.poll.ariaInputCount": "Entrée {0} sur {1}",
     "app.poll.customPlaceholder": "Ajouter une option de sondage",
     "app.poll.noPresentationSelected": "Aucune présentation sélectionnée! SVP, sélectionnez en une.",
     "app.poll.clickHereToSelect": "Cliquez ici pour sélectionner",

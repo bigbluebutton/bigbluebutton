@@ -142,7 +142,6 @@
     "app.poll.backLabel": "वापस मतदान के विकल्प पर",
     "app.poll.closeLabel": "बंद करे",
     "app.poll.waitingLabel": "प्रतिक्रियाओं की प्रतीक्षा में ({0} / {1})",
-    "app.poll.ariaInputCount": "इनपुट {0} का {1}",
     "app.poll.customPlaceholder": "पोल विकल्प जोड़ें",
     "app.poll.noPresentationSelected": "कोई प्रस्तुति चयनित नहीं! कृपया एक का चयन करें",
     "app.poll.clickHereToSelect": "चयन करने के लिए यहां क्लिक करें",

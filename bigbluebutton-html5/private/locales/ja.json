@@ -131,7 +131,6 @@
     "app.poll.publishLabel": "投票結果を公開する",
     "app.poll.backLabel": "投票オプションに戻る",
     "app.poll.closeLabel": "閉じる",
-    "app.poll.ariaInputCount": "{1}の{0}を入力する",
     "app.poll.customPlaceholder": "選択肢を追加する",
     "app.poll.noPresentationSelected": "プレゼンテーションが選択されていません！1つ選択してください。",
     "app.poll.clickHereToSelect": "ここをクリックして選択する",
