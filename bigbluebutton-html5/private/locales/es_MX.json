@@ -140,7 +140,6 @@
     "app.poll.publishLabel": "Publicar resultados de encuesta",
     "app.poll.backLabel": "Regresar a las opciones de la encuesta",
     "app.poll.closeLabel": "Cerrar",
-    "app.poll.ariaInputCount": "Entrada {0} de  {1}",
     "app.poll.customPlaceholder": "Agregar respuesta de encuesta",
     "app.poll.noPresentationSelected": "No se ha seleccionado la presentación. Selecciona una.",
     "app.poll.clickHereToSelect": "Haz click aquí para seleccionar",

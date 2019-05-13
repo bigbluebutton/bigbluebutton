@@ -114,7 +114,6 @@
     "app.poll.publishLabel": "Publikovat výsledky ankety",
     "app.poll.backLabel": "Zpět na možnosti ankety",
     "app.poll.closeLabel": "Zavřít",
-    "app.poll.ariaInputCount": "Vstup {0} z {1}",
     "app.poll.customPlaceholder": "Přidat volbu",
     "app.poll.tf": "Pravda / Nepravda",
     "app.poll.y": "Ano, ukončit",
