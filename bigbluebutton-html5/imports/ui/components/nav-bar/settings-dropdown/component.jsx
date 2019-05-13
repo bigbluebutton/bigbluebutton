@@ -199,6 +199,7 @@ class SettingsDropdown extends PureComponent {
           <DropdownListItem
             key="list-item-help"
             icon="help"
+            iconRight="popout_window"
             label={intl.formatMessage(intlMessages.helpLabel)}
             description={intl.formatMessage(intlMessages.helpDesc)}
             onClick={() => window.open(`${helpLink}`)}
