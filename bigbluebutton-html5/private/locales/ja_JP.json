@@ -165,7 +165,6 @@
     "app.navBar.settingsDropdown.leaveSessionDesc": "会議から退室",
     "app.navBar.settingsDropdown.exitFullscreenDesc": "全画面表示解除",
     "app.navBar.settingsDropdown.helpLabel": "ヘルプ",
-    "app.navBar.settingsDropdown.helpDesc": "ユーザーをビデオチュートリアルへリンクする",
     "app.navBar.settingsDropdown.endMeetingDesc": "現在の会議を終了する",
     "app.navBar.settingsDropdown.endMeetingLabel": "会議を終了する",
     "app.navBar.userListToggleBtnLabel": "ユーザーリスト切替",

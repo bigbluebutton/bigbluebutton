@@ -178,7 +178,6 @@
     "app.navBar.settingsDropdown.hotkeysLabel": "键盘快捷键",
     "app.navBar.settingsDropdown.hotkeysDesc": "可用的键盘快捷键列表",
     "app.navBar.settingsDropdown.helpLabel": "帮助",
-    "app.navBar.settingsDropdown.helpDesc": "链接用户到视频教程",
     "app.navBar.settingsDropdown.endMeetingDesc": "终止当前会议",
     "app.navBar.settingsDropdown.endMeetingLabel": "结束会议",
     "app.navBar.userListToggleBtnLabel": "切换用户列表",
