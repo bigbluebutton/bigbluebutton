@@ -59,7 +59,8 @@
 #   2018-11-22 MNE  Dynamically detect if sudo is needed
 #   2018-12-09 GTR  More logs cleanup
 #   2019-02-08 GTR  Updates for 2.2 after extracting bbb-web to a standalone server application
-#   2019-03-14 GTR  Refactoring and cleanup for 2.2
+#   2019-03-14 FFD  Refactoring and cleanup for 2.2
+#   2019-05-14 FFD  Added more checks for configuration issues
 
 #set -x
 #set -e
