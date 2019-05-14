@@ -143,6 +143,18 @@ const intlMessages = defineMessages({
     id: 'app.presentationUploder.setAsCurrentPresentation',
     description: 'set this presentation to be the current one',
   },
+  status: {
+    id: 'app.presentationUploder.tableHeading.status',
+    description: 'aria label status table heading',
+  },
+  options: {
+    id: 'app.presentationUploder.tableHeading.options',
+    description: 'aria label for options table heading',
+  },
+  filename: {
+    id: 'app.presentationUploder.tableHeading.filename',
+    description: 'aria label for file name table heading',
+  },
 });
 
 const BROWSER_RESULTS = browser();
@@ -426,6 +438,7 @@ class PresentationUploader extends Component {
 
   renderPresentationList() {
     const { presentations } = this.state;
+    const { intl } = this.props;
 
     const presentationsSorted = presentations
       .sort((a, b) => a.uploadTimestamp - b.uploadTimestamp);
@@ -434,9 +447,9 @@ class PresentationUploader extends Component {
       <div className={styles.fileList}>
         <table className={styles.table}>
           <tbody>
-            <th className={styles.visuallyHidden} colSpan={3}>File Name</th>
-            <th className={styles.visuallyHidden}>Status</th>
-            <th className={styles.visuallyHidden}>Options</th>
+            <th className={styles.visuallyHidden} colSpan={3}>{intl.formatMessage(intlMessages.filename)}</th>
+            <th className={styles.visuallyHidden}>{intl.formatMessage(intlMessages.status)}</th>
+            <th className={styles.visuallyHidden}>{intl.formatMessage(intlMessages.options)}</th>
             { presentationsSorted.map(item => this.renderPresentationItem(item))}
           </tbody>
         </table>
