@@ -200,6 +200,7 @@ class Auth {
     return new Promise((resolve, reject) => {
       Meteor.connection.setUserId(`${this.meetingID}-${this.userID}`);
       let computation = null;
+      let currentUserHandler = null;
 
       const validationTimeout = setTimeout(() => {
         computation.stop();
@@ -211,11 +212,13 @@ class Auth {
 
       Tracker.autorun((c) => {
         computation = c;
-        Meteor.subscribe('current-user', this.credentials);
+
+        if (!currentUserHandler) {
+          currentUserHandler = Meteor.subscribe('current-user', this.credentials);
+        }
 
         const selector = { meetingId: this.meetingID, userId: this.userID };
         const User = Users.findOne(selector);
-
         // Skip in case the user is not in the collection yet or is a dummy user
         if (!User || !('intId' in User)) {
           logger.info({ logCode: 'auth_service_resend_validateauthtoken' }, 're-send validateAuthToken for delayed authentication');
@@ -238,7 +241,6 @@ class Auth {
           setTimeout(() => resolve(true), 100);
         }
       });
-
       makeCall('validateAuthToken');
     });
   }
@@ -247,9 +249,9 @@ class Auth {
     let authURL = url;
     if (authURL.indexOf('sessionToken=') === -1) {
       if (authURL.indexOf('?') !== -1) {
-        authURL = authURL + '&sessionToken=' + this.sessionToken;
+        authURL = `${authURL}&sessionToken=${this.sessionToken}`;
       } else {
-        authURL= authURL + '?sessionToken=' + this.sessionToken;
+        authURL = `${authURL}?sessionToken=${this.sessionToken}`;
       }
     }
     return authURL;
