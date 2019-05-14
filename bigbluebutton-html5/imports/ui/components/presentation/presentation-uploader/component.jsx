@@ -446,10 +446,14 @@ class PresentationUploader extends Component {
     return (
       <div className={styles.fileList}>
         <table className={styles.table}>
+          <thead>
+            <tr>
+              <th className={styles.visuallyHidden} colSpan={3}>{intl.formatMessage(intlMessages.filename)}</th>
+              <th className={styles.visuallyHidden}>{intl.formatMessage(intlMessages.status)}</th>
+              <th className={styles.visuallyHidden}>{intl.formatMessage(intlMessages.options)}</th>
+            </tr>
+          </thead>
           <tbody>
-            <th className={styles.visuallyHidden} colSpan={3}>{intl.formatMessage(intlMessages.filename)}</th>
-            <th className={styles.visuallyHidden}>{intl.formatMessage(intlMessages.status)}</th>
-            <th className={styles.visuallyHidden}>{intl.formatMessage(intlMessages.options)}</th>
             { presentationsSorted.map(item => this.renderPresentationItem(item))}
           </tbody>
         </table>
