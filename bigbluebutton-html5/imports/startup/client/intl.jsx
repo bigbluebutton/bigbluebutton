@@ -63,6 +63,8 @@ const propTypes = {
 
 const DEFAULT_LANGUAGE = Meteor.settings.public.app.defaultSettings.application.locale;
 
+const RTL_LANGUAGES = ['ar', 'he', 'fa'];
+
 const defaultProps = {
   locale: DEFAULT_LANGUAGE,
 };
@@ -111,17 +113,27 @@ class IntlStartup extends Component {
         .then(({ messages, normalizedLocale }) => {
           const dasherizedLocale = normalizedLocale.replace('_', '-');
           this.setState({ messages, fetching: false, normalizedLocale: dasherizedLocale }, () => {
-            Settings.application.locale = dasherizedLocale;
-            Settings.save();
+            this.saveLocale(dasherizedLocale);
           });
         })
         .catch(() => {
           this.setState({ fetching: false, normalizedLocale: null }, () => {
-            Settings.application.locale = DEFAULT_LANGUAGE;
-            Settings.save();
+            this.saveLocale(DEFAULT_LANGUAGE);
           });
         });
     });
+  }
+
+  saveLocale(localeName) {
+    Settings.application.locale = localeName;
+    if (RTL_LANGUAGES.includes(localeName)) {
+      document.body.parentNode.setAttribute('dir', 'rtl');
+      Settings.application.isRTL = true;
+    } else {
+      document.body.parentNode.setAttribute('dir', 'ltr');
+      Settings.application.isRTL = false;
+    }
+    Settings.save();
   }
 
   render() {

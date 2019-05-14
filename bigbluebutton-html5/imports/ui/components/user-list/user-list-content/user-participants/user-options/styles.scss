@@ -9,11 +9,18 @@
 .dropdown {
   position: absolute;
   right: 0;
+  left: auto;
+
+  [dir="rtl"] & {
+    left: 0;
+    right: auto;
+  }
 }
 
 .dropdownContent {
   top: var(--user-manage-menu-top);
   right: var(--user-manage-menu-right);
+  left: auto;
   width: var(--user-manage-menu-width);
 
   @include mq($small-only) {
