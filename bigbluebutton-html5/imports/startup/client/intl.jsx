@@ -126,7 +126,7 @@ class IntlStartup extends Component {
 
   saveLocale(localeName) {
     Settings.application.locale = localeName;
-    if (RTL_LANGUAGES.includes(localeName)) {
+    if (RTL_LANGUAGES.includes(localeName.substring(0,2))) {
       document.body.parentNode.setAttribute('dir', 'rtl');
       Settings.application.isRTL = true;
     } else {
