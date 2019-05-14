@@ -98,6 +98,7 @@ const propTypes = {
   noIOSFullscreen: PropTypes.bool,
   amIModerator: PropTypes.bool,
   shortcuts: PropTypes.string,
+  isBreakoutRoom: PropTypes.bool,
 };
 
 const defaultProps = {
@@ -105,6 +106,7 @@ const defaultProps = {
   noIOSFullscreen: true,
   amIModerator: false,
   shortcuts: '',
+  isBreakoutRoom: false,
 };
 
 class SettingsDropdown extends PureComponent {
@@ -173,8 +175,10 @@ class SettingsDropdown extends PureComponent {
 
   renderMenuItems() {
     const {
-      intl, mountModal, amIModerator,
+      intl, mountModal, amIModerator, isBreakoutRoom,
     } = this.props;
+
+    const allowedToEndMeeting = amIModerator && !isBreakoutRoom;
 
     const { showHelpButton: helpButton, helpLink } = Meteor.settings.public.app;
 
@@ -213,16 +217,16 @@ class SettingsDropdown extends PureComponent {
         onClick={() => mountModal(<ShortcutHelpComponent />)}
       />),
       (<DropdownListSeparator key={_.uniqueId('list-separator-')} />),
-      !amIModerator ? null
-        : (
-          <DropdownListItem
-            key="list-item-end-meeting"
-            icon="application"
-            label={intl.formatMessage(intlMessages.endMeetingLabel)}
-            description={intl.formatMessage(intlMessages.endMeetingDesc)}
-            onClick={() => mountModal(<EndMeetingConfirmationContainer />)}
-          />
-        ),
+      allowedToEndMeeting
+        ? (<DropdownListItem
+          key="list-item-end-meeting"
+          icon="application"
+          label={intl.formatMessage(intlMessages.endMeetingLabel)}
+          description={intl.formatMessage(intlMessages.endMeetingDesc)}
+          onClick={() => mountModal(<EndMeetingConfirmationContainer />)}
+        />
+        )
+        : null,
       (<DropdownListItem
         key="list-item-logout"
         icon="logout"
