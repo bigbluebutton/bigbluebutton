@@ -15,7 +15,7 @@ const PUBLIC_CHAT_TYPE = CHAT_CONFIG.type_public;
 const SUBSCRIPTIONS = [
   'users', 'meetings', 'polls', 'presentations', 'slides', 'captions',
   'voiceUsers', 'whiteboard-multi-user', 'screenshare', 'group-chat',
-  'presentation-pods', 'users-settings', 'guestUser', 'users-infos',
+  'presentation-pods', 'users-settings', 'guestUser', 'users-infos', 'note',
 ];
 
 class Subscriptions extends Component {

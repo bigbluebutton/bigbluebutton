@@ -416,7 +416,20 @@ class VideoPreview extends Component {
         className={styles.modal}
         onRequestClose={this.handleProceed}
         hideBorder
+        contentLabel={intl.formatMessage(intlMessages.webcamSettingsTitle)}
       >
+        {browser().name === 'edge' || browser().name === 'ie' ? (
+          <p className={styles.browserWarning}>
+            <FormattedMessage
+              id="app.audioModal.unsupportedBrowserLabel"
+              description="Warning when someone joins with a browser that isnt supported"
+              values={{
+                0: <a href="https://www.google.com/chrome/">Chrome</a>,
+                1: <a href="https://getfirefox.com">Firefox</a>,
+              }}
+            />
+          </p>
+        ) : null }
         <div className={styles.title}>
           {intl.formatMessage(intlMessages.webcamSettingsTitle)}
         </div>
@@ -431,11 +444,12 @@ class VideoPreview extends Component {
             />
           </div>
           <div className={styles.col}>
-            <label className={styles.label}>
+            <label className={styles.label} htmlFor="setCam">
               {intl.formatMessage(intlMessages.cameraLabel)}
             </label>
             {availableWebcams && availableWebcams.length > 0 ? (
               <select
+                id="setCam"
                 value={webcamDeviceId}
                 className={styles.select}
                 onChange={this.handleSelectWebcam.bind(this)}
@@ -452,11 +466,12 @@ class VideoPreview extends Component {
                   {intl.formatMessage(intlMessages.webcamNotFoundLabel)}
                 </span>
               )}
-            <label className={styles.label}>
+            <label className={styles.label} htmlFor="setQuality">
               {intl.formatMessage(intlMessages.qualityLabel)}
             </label>
             {availableProfiles && availableProfiles.length > 0 ? (
               <select
+                id="setQuality"
                 value={selectedProfile}
                 className={styles.select}
                 onChange={this.handleSelectProfile.bind(this)}
@@ -475,18 +490,7 @@ class VideoPreview extends Component {
               )}
           </div>
         </div>
-        {browser().name === 'edge' || browser().name === 'ie' ? (
-          <p className={styles.browserWarning}>
-            <FormattedMessage
-              id="app.audioModal.unsupportedBrowserLabel"
-              description="Warning when someone joins with a browser that isnt supported"
-              values={{
-                0: <a href="https://www.google.com/chrome/">Chrome</a>,
-                1: <a href="https://getfirefox.com">Firefox</a>,
-              }}
-            />
-          </p>
-        ) : null }
+
         <div className={styles.footer}>
           <div className={styles.actions}>
             <Button

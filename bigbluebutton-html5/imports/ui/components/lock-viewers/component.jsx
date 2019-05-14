@@ -3,6 +3,7 @@ import { defineMessages, injectIntl } from 'react-intl';
 import Toggle from '/imports/ui/components/switch/component';
 import cx from 'classnames';
 import Modal from '/imports/ui/components/modal/simple/component';
+import NoteService from '/imports/ui/components/note/service';
 import { styles } from './styles';
 
 const intlMessages = defineMessages({
@@ -48,6 +49,10 @@ const intlMessages = defineMessages({
   },
   privateChatLable: {
     id: 'app.lock-viewers.PrivateChatLable',
+    description: 'description for close button',
+  },
+  notesLabel: {
+    id: 'app.lock-viewers.notesLabel',
     description: 'description for close button',
   },
   ariaModalTitle: {
@@ -198,6 +203,31 @@ class LockViewersComponent extends React.PureComponent {
                 </div>
               </div>
             </div>
+            { NoteService.isEnabled() ?
+              (<div className={styles.row}>
+                <div className={styles.col} aria-hidden="true">
+                  <div className={styles.formElement}>
+                    <div className={styles.label}>
+                      {intl.formatMessage(intlMessages.notesLabel)}
+                    </div>
+                  </div>
+                </div>
+                <div className={styles.col}>
+                  <div className={cx(styles.formElement, styles.pullContentRight)}>
+                    <Toggle
+                      icons={false}
+                      defaultChecked={meeting.lockSettingsProps.disableNote}
+                      onChange={() => {
+                        meeting.lockSettingsProps.disableNote = !meeting.lockSettingsProps.disableNote;
+                        toggleLockSettings(meeting);
+                      }}
+                      ariaLabel={intl.formatMessage(intlMessages.notesLabel)}
+                    />
+                  </div>
+                </div>
+              </div>)
+              : null
+            }
           </div>
         </div>
       </Modal>

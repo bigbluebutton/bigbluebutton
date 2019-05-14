@@ -21,7 +21,11 @@ class BbbWebApiGWApp(
     val oldMessageReceivedGW:        OldMessageReceivedGW,
     val screenshareRtmpServer:       String,
     val screenshareRtmpBroadcastApp: String,
-    val screenshareConfSuffix:       String
+    val screenshareConfSuffix:       String,
+    redisHost:                       String,
+    redisPort:                       Int,
+    redisPassword:                   String,
+    redisExpireKey:                  Int
 ) extends IBbbWebApiGWApp with SystemConfiguration {
 
   implicit val system = ActorSystem("bbb-web-common")
@@ -31,7 +35,11 @@ class BbbWebApiGWApp(
   val log = Logging(system, getClass)
 
   private val jsonMsgToAkkaAppsBus = new JsonMsgToAkkaAppsBus
-  private val redisPublisher = new RedisPublisher(system, "BbbWebPub")
+
+  val redisPass = if (redisPassword != "") Some(redisPassword) else None
+  val redisConfig = RedisConfig(redisHost, redisPort, redisPass, redisExpireKey)
+  private val redisPublisher = new RedisPublisher(system, "BbbWebPub", redisConfig)
+
   private val msgSender: MessageSender = new MessageSender(redisPublisher)
   private val messageSenderActorRef = system.actorOf(MessageSenderActor.props(msgSender), "messageSenderActor")
 
@@ -60,7 +68,24 @@ class BbbWebApiGWApp(
 
   msgToAkkaAppsEventBus.subscribe(msgToAkkaAppsToJsonActor, toAkkaAppsChannel)
 
-  private val appsRedisSubscriberActor = system.actorOf(WebRedisSubscriberActor.props(system, receivedJsonMsgBus, oldMessageEventBus), "appsRedisSubscriberActor")
+  // Not used but needed by internal class (ralam april 4, 2019)
+  val incomingJsonMessageBus = new IncomingJsonMessageBus
+
+  val channelsToSubscribe = Seq(fromAkkaAppsRedisChannel)
+  private val appsRedisSubscriberActor = system.actorOf(
+    WebRedisSubscriberActor.props(
+      system,
+      receivedJsonMsgBus,
+      oldMessageEventBus,
+      incomingJsonMessageBus,
+      redisConfig,
+      channelsToSubscribe,
+      Nil,
+      fromAkkaAppsJsonChannel,
+      fromAkkaAppsOldJsonChannel
+    ),
+    "appsRedisSubscriberActor"
+  )
 
   private val receivedJsonMsgHdlrActor = system.actorOf(
     ReceivedJsonMsgHdlrActor.props(msgFromAkkaAppsEventBus), "receivedJsonMsgHdlrActor"
@@ -149,6 +174,7 @@ class BbbWebApiGWApp(
       disableMic = lockSettingsParams.disableMic.booleanValue(),
       disablePrivateChat = lockSettingsParams.disablePrivateChat.booleanValue(),
       disablePublicChat = lockSettingsParams.disablePublicChat.booleanValue(),
+      disableNote = lockSettingsParams.disableNote.booleanValue(),
       lockedLayout = lockSettingsParams.lockedLayout.booleanValue(),
       lockOnJoin = lockSettingsParams.lockOnJoin.booleanValue(),
       lockOnJoinConfigurable = lockSettingsParams.lockOnJoinConfigurable.booleanValue()

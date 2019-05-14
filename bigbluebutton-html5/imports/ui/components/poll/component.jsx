@@ -149,9 +149,6 @@ class Poll extends Component {
 
   toggleCustomFields() {
     const { customPollReq } = this.state;
-
-    this.inputEditor = [];
-
     return this.setState({ customPollReq: !customPollReq });
   }
 
@@ -199,6 +196,7 @@ class Poll extends Component {
           label={intl.formatMessage(intlMessages.startCustomLabel)}
           color="primary"
           aria-disabled={isDisabled}
+          disabled={isDisabled}
           className={styles.btn}
         />
       </div>

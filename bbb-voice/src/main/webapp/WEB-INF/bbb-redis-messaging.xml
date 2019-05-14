@@ -45,7 +45,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		<property name="host" value="${redis.host}"/>
 		<property name="port" value="${redis.port}"/>
 		<property name="clientName" value="BbbRed5VoiceSender" />
-		<property name="password" value="${redis.password:}" />
+		<property name="password" value="${redis.password}" />
 	</bean>
 	
 	<bean id="messagingService" class="org.bigbluebutton.voiceconf.messaging.RedisMessagingService">
@@ -60,8 +60,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		  init-method="start" destroy-method="stop">
 		<property name="host" value="${redis.host}"/>
 		<property name="port" value="${redis.port}"/>
-		<property name="password" value="${redis.password:}" />
-		<property name="clientName" value="BbbRed5VideoReceiver" />
+		<property name="password" value="${redis.password}" />
+		<property name="clientName" value="BbbRed5VoiceReceiver" />
 		<property name="messageHandler"> <ref local="redisMessageHandler"/> </property>
 	</bean>
 
