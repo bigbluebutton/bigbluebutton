@@ -693,6 +693,7 @@ package org.bigbluebutton.modules.users.services
         body.disableMic as Boolean,
         body.disablePrivChat as Boolean,
         body.disablePubChat as Boolean,
+        body.disableNote as Boolean,
         body.lockedLayout as Boolean,
         body.lockOnJoin as Boolean,
         body.lockOnJoinConfigurable as Boolean);
@@ -708,6 +709,7 @@ package org.bigbluebutton.modules.users.services
         body.disableMic as Boolean,
         body.disablePrivChat as Boolean,
         body.disablePubChat as Boolean,
+        body.disableNote as Boolean,
         body.lockedLayout as Boolean,
         body.lockOnJoin as Boolean,
         body.lockOnJoinConfigurable as Boolean);

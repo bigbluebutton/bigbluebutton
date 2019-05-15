@@ -1,7 +1,6 @@
 import React, { Component } from 'react';
 import { withModalMounter } from '/imports/ui/components/modal/service';
-
-import ModalBase from '/imports/ui/components/modal/base/component';
+import Modal from '/imports/ui/components/modal/simple/component';
 import Button from '/imports/ui/components/button/component';
 
 import { defineMessages, injectIntl } from 'react-intl';
@@ -93,22 +92,15 @@ class ExternalVideoModal extends Component {
     const startDisabled = !isUrlValid(url) || (getUrlFromVideoId(videoId) === url);
 
     return (
-      <ModalBase
+      <Modal
         overlayClassName={styles.overlay}
         className={styles.modal}
         onRequestClose={closeModal}
+        contentLabel={intl.formatMessage(intlMessages.title)}
+        hideBorder
       >
         <header data-test="videoModealHeader" className={styles.header}>
           <h3 className={styles.title}>{intl.formatMessage(intlMessages.title)}</h3>
-          <Button
-            data-test="modalBaseCloseButton"
-            className={styles.closeBtn}
-            label={intl.formatMessage(intlMessages.close)}
-            icon="close"
-            size="md"
-            hideLabel
-            onClick={closeModal}
-          />
         </header>
 
         <div className={styles.content}>
@@ -141,7 +133,7 @@ class ExternalVideoModal extends Component {
             disabled={startDisabled}
           />
         </div>
-      </ModalBase>
+      </Modal>
     );
   }
 }

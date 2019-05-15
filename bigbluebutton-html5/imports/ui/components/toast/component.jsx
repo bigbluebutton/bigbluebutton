@@ -32,7 +32,6 @@ const Toast = ({
 }) => (
   <div
     className={cx(styles.toastContainer, small ? styles.smallToastContainer : null)}
-    role="alert"
   >
     <div className={styles[type]}>
       <div className={cx(styles.icon, small ? styles.smallIcon : null)}>

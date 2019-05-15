@@ -5,6 +5,7 @@ import {
 } from 'meteor/check';
 import Meetings from '/imports/api/meetings';
 import Logger from '/imports/startup/server/logger';
+import createNote from '/imports/api/note/server/methods/createNote'
 
 export default function addMeeting(meeting) {
   const meetingId = meeting.meetingProp.intId;
@@ -76,6 +77,7 @@ export default function addMeeting(meeting) {
       disableMic: Boolean,
       disablePrivateChat: Boolean,
       disablePublicChat: Boolean,
+      disableNote: Boolean,
       lockOnJoin: Boolean,
       lockOnJoinConfigurable: Boolean,
       lockedLayout: Boolean,
@@ -129,6 +131,9 @@ export default function addMeeting(meeting) {
 
     if (insertedId) {
       Logger.info(`Added meeting id=${meetingId}`);
+      // TODO: Here we call Etherpad API to create this meeting notes. Is there a
+      // better place we can run this post-creation routine?
+      createNote(meetingId);
     }
 
     if (numChanged) {

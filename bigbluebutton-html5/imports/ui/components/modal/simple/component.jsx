@@ -43,6 +43,7 @@ class ModalSimple extends Component {
       modalisOpen,
       onRequestClose,
       shouldShowCloseButton,
+      contentLabel,
       ...otherProps
     } = this.props;
 
@@ -62,6 +63,7 @@ class ModalSimple extends Component {
             <Button
               className={styles.dismiss}
               label={dismiss.label}
+              aria-label={`${dismiss.label} ${title || contentLabel}`}
               icon="close"
               circle
               hideLabel

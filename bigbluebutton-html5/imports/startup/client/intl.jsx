@@ -24,6 +24,7 @@ import km from 'react-intl/locale-data/km';
 import pl from 'react-intl/locale-data/pl';
 import pt from 'react-intl/locale-data/pt';
 import ru from 'react-intl/locale-data/ru';
+import sv from 'react-intl/locale-data/sv';
 import tr from 'react-intl/locale-data/tr';
 import uk from 'react-intl/locale-data/uk';
 import zh from 'react-intl/locale-data/zh';
@@ -49,6 +50,7 @@ addLocaleData([
   ...pl,
   ...pt,
   ...ru,
+  ...sv,
   ...tr,
   ...uk,
   ...zh,

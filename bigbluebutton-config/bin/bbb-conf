@@ -59,7 +59,8 @@
 #   2018-11-22 MNE  Dynamically detect if sudo is needed
 #   2018-12-09 GTR  More logs cleanup
 #   2019-02-08 GTR  Updates for 2.2 after extracting bbb-web to a standalone server application
-#   2019-03-14 GTR  Refactoring and cleanup for 2.2
+#   2019-03-14 FFD  Refactoring and cleanup for 2.2
+#   2019-05-14 FFD  Added more checks for configuration issues
 
 #set -x
 #set -e
@@ -671,9 +672,9 @@ check_configuration() {
         if [ ! -f $file ]; then
             echo "# Error: File not found: $file"
         else
-            if cat $file | grep -v redis.pass | grep -q "^[^=]*=[ ]*$"; then
+            if cat $file | grep -v redis.pass | grep -v redisPassword  | grep -q "^[^=]*=[ ]*$"; then
                 echo "# The following properties in $file have no value:"
-                echo "#     $(grep '^[^=#]*=[ ]*$' $file | sed 's/=//g')"
+                echo "#     $(grep '^[^=#]*=[ ]*$' $file | grep -v redis.pass | grep -v redisPassword | sed 's/=//g')"
             fi
         fi
     done
@@ -883,6 +884,14 @@ check_configuration() {
             echo "#"
         fi
     fi
+
+    if find /usr/share /var/lib/red5 -name "*bbb-common-message*" | sed 's/\([^_]*_\).*/\1/g' | sort | uniq -c | grep -v 1 > /dev/null; then echo 
+        echo
+        echo "# Warning: detected multiple bbb-common-message in the same directory"
+        find /usr/share /var/lib/red5 -name "*bbb-common-message*" | sed 's/\([^_]*_\).*/\1/g' | sort | uniq -c | grep -v 1 
+        echo 
+    fi
+
 }
 
 
