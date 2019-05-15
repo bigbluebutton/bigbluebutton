@@ -54,8 +54,6 @@ const propTypes = {
   media: PropTypes.element,
   actionsbar: PropTypes.element,
   closedCaption: PropTypes.element,
-  userListIsOpen: PropTypes.bool.isRequired,
-  chatIsOpen: PropTypes.bool.isRequired,
   locale: PropTypes.string,
   intl: intlShape.isRequired,
 };
@@ -81,6 +79,7 @@ class App extends Component {
     };
 
     this.handleWindowResize = throttle(this.handleWindowResize).bind(this);
+    this.enableSRTrap = this.enableSRTrap.bind(this);
   }
 
   componentDidMount() {
@@ -126,6 +125,11 @@ class App extends Component {
     if (enableResize === shouldEnableResize) return;
 
     this.setState({ enableResize: shouldEnableResize });
+  }
+
+  enableSRTrap() {
+    const { openPanel, isPhone } = this.props;
+    return openPanel !== '' && (isPhone || isLayeredView.matches);
   }
 
   renderPanel() {
@@ -182,22 +186,7 @@ class App extends Component {
     const {
       media,
       intl,
-      chatIsOpen,
-      userListIsOpen,
-      isPhone,
-      breakoutRoomIsOpen,
-      pollIsOpen,
-      waitingUsersIsOpen,
-      notesIsOpen,
     } = this.props;
-
-    const enableScreenReaderTrap = (isPhone || isLayeredView.matches)
-      && (userListIsOpen
-          || chatIsOpen
-          || breakoutRoomIsOpen
-          || pollIsOpen
-          || notesIsOpen
-          || waitingUsersIsOpen);
 
     if (!media) return null;
 
@@ -205,7 +194,7 @@ class App extends Component {
       <section
         className={styles.media}
         aria-label={intl.formatMessage(intlMessages.mediaLabel)}
-        aria-hidden={enableScreenReaderTrap}
+        aria-hidden={this.enableSRTrap()}
       >
         {media}
         {this.renderClosedCaption()}
@@ -217,22 +206,7 @@ class App extends Component {
     const {
       actionsbar,
       intl,
-      userListIsOpen,
-      chatIsOpen,
-      isPhone,
-      breakoutRoomIsOpen,
-      pollIsOpen,
-      notesIsOpen,
-      waitingUsersIsOpen,
     } = this.props;
-
-    const enableScreenReaderTrap = (isPhone || isLayeredView.matches)
-    && (userListIsOpen
-        || chatIsOpen
-        || breakoutRoomIsOpen
-        || pollIsOpen
-        || notesIsOpen
-        || waitingUsersIsOpen);
 
     if (!actionsbar) return null;
 
@@ -240,7 +214,7 @@ class App extends Component {
       <section
         className={styles.actionsbar}
         aria-label={intl.formatMessage(intlMessages.actionsBarLabel)}
-        aria-hidden={enableScreenReaderTrap}
+        aria-hidden={this.enableSRTrap()}
       >
         {actionsbar}
       </section>
