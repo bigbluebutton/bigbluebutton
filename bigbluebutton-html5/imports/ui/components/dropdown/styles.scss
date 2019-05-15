@@ -11,6 +11,7 @@
   --dropdown-caret-height: 8px;
 
   --rtl-caret-offset: -0.4375rem;
+  --rtl-content-offset: 11.3rem;
 }
 
 .dropdown {
@@ -31,6 +32,10 @@
   box-shadow: 0 6px 12px rgba(0, 0, 0, .175);
   border: 0;
   padding: calc(var(--line-height-computed) / 2);
+
+  [dir="rtl"] & {
+    right: var(--rtl-content-offset);
+  }
 
   &:after,
   &:before {

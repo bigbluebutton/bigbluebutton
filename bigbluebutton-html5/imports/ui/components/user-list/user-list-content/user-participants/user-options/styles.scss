@@ -23,6 +23,11 @@
   left: auto;
   width: var(--user-manage-menu-width);
 
+  [dir="rtl"] & {
+    top: var(--user-manage-menu-top);
+    right: -1rem;
+  }
+
   @include mq($small-only) {
     width: 100vw;
   }
