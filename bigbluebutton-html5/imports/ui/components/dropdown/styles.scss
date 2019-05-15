@@ -9,6 +9,8 @@
 
   --dropdown-caret-width: 12px;
   --dropdown-caret-height: 8px;
+
+  --rtl-caret-offset: -0.4375rem;
 }
 
 .dropdown {
@@ -163,17 +165,21 @@
     right: 0;
 
     [dir="rtl"] & {
+      left: 0;
+      border-left: 0;
       border-right: var(--dropdown-caret-height) solid var(--dropdown-bg);
       margin-left: calc(var(--dropdown-caret-height) * -1);
-      left: 0;
     }
   }
 
   &:before {
+
+    
     border-left: var(--dropdown-caret-height) solid var(--caret-shadow-color);
     border-right: 0;
 
     [dir="rtl"] & {
+      transform: rotate(180deg);
       border-left: 0;
       border-right: var(--dropdown-caret-height) solid var(--caret-shadow-color);
     }
@@ -195,7 +201,7 @@
     left: 0;
 
     [dir="rtl"] & {
-      border-left: var(--dropdown-caret-height) solid var(--dropdown-bg);
+      transform: rotate(180deg);
       margin-right: calc(var(--dropdown-caret-height) * -1);
       right: 0;
     }
@@ -204,9 +210,11 @@
   &:before {
     border-right: var(--dropdown-caret-height) solid var(--caret-shadow-color);
     border-left: 0;
+
     [dir="rtl"] & {
-      border-right: 0;
-      border-left: var(--dropdown-caret-height) solid var(--caret-shadow-color);
+      right: var(--rtl-caret-offset);
+      border: none;
+      margin: 0;
     }
   }
 }
