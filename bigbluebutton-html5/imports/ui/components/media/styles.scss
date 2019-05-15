@@ -54,6 +54,7 @@
     position: fixed;
     margin: 0;
     bottom: .8rem;
+    left: auto;
     right: .8rem;
     width: var(--overlay-width);
     min-width: var(--overlay-min-width);
@@ -61,5 +62,10 @@
     height: calc(var(--overlay-width) / var(--overlay-ratio));
     min-height: calc(var(--overlay-min-width) / var(--overlay-ratio));
     max-height: calc(var(--overlay-max-width) / var(--overlay-ratio));
+
+    [dir="rtl"] & {
+      right: auto;
+      left: .8rem;
+    }
   }
 }
