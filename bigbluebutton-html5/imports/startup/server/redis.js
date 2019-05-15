@@ -109,7 +109,7 @@ class RedisPubSub {
     const redisConf = Meteor.settings.private.redis;
     const { password, port } = redisConf;
 
-    if (password !== null) {
+    if (!!password) {
       this.pub = Redis.createClient({ host, port, password });
       this.sub = Redis.createClient({ host, port, password });
       this.pub.auth(password);
