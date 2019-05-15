@@ -203,7 +203,7 @@
     [dir="rtl"] & {
       transform: rotate(180deg);
       margin-right: calc(var(--dropdown-caret-height) * -1);
-      right: 0;
+      right: 1px;
     }
   }
 
