@@ -93,13 +93,18 @@ class PanelManager extends Component {
     const {
       intl,
       enableResize,
+      openPanel,
+      shouldAriaHide,
     } = this.props;
+
+    const ariaHidden = shouldAriaHide() && openPanel !== 'userlist';
 
     return (
       <div
         className={styles.userList}
         aria-label={intl.formatMessage(intlMessages.userListLabel)}
         key={enableResize ? null : this.userlistKey}
+        aria-hidden={ariaHidden}
       >
         <UserListContainer />
       </div>

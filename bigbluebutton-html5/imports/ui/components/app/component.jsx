@@ -79,7 +79,7 @@ class App extends Component {
     };
 
     this.handleWindowResize = throttle(this.handleWindowResize).bind(this);
-    this.enableSRTrap = this.enableSRTrap.bind(this);
+    this.shouldAriaHide = this.shouldAriaHide.bind(this);
   }
 
   componentDidMount() {
@@ -127,7 +127,7 @@ class App extends Component {
     this.setState({ enableResize: shouldEnableResize });
   }
 
-  enableSRTrap() {
+  shouldAriaHide() {
     const { openPanel, isPhone } = this.props;
     return openPanel !== '' && (isPhone || isLayeredView.matches);
   }
@@ -142,6 +142,7 @@ class App extends Component {
           openPanel,
           enableResize,
         }}
+        shouldAriaHide={this.shouldAriaHide}
       />
     );
   }
@@ -194,7 +195,7 @@ class App extends Component {
       <section
         className={styles.media}
         aria-label={intl.formatMessage(intlMessages.mediaLabel)}
-        aria-hidden={this.enableSRTrap()}
+        aria-hidden={this.shouldAriaHide()}
       >
         {media}
         {this.renderClosedCaption()}
@@ -214,7 +215,7 @@ class App extends Component {
       <section
         className={styles.actionsbar}
         aria-label={intl.formatMessage(intlMessages.actionsBarLabel)}
-        aria-hidden={this.enableSRTrap()}
+        aria-hidden={this.shouldAriaHide()}
       >
         {actionsbar}
       </section>
