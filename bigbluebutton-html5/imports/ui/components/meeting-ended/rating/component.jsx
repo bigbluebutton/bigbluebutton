@@ -36,7 +36,7 @@ class Rating extends Component {
     return (
       <div className={styles.starRating}>
         <fieldset>
-          <legend>{intl.formatMessage(intlMessages.legendTitle)}</legend>
+          <legend className={styles.legend}>{intl.formatMessage(intlMessages.legendTitle)}</legend>
           {
             _.range(num)
               .map(i => [
