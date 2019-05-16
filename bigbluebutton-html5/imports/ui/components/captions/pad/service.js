@@ -1,0 +1,47 @@
+import Users from '/imports/api/users';
+import Auth from '/imports/ui/services/auth';
+import Settings from '/imports/ui/services/settings';
+
+const NOTE_CONFIG = Meteor.settings.public.note;
+
+const getLang = () => {
+  const { locale } = Settings.application;
+  return locale ? locale.toLowerCase() : '';
+};
+
+const getCurrentUser = () => {
+  const User = Users.findOne({ userId: Auth.userID });
+  return User;
+};
+
+const getPadParams = () => {
+  const { config } = NOTE_CONFIG;
+  const User = getCurrentUser();
+  config.userName = User.name;
+  config.userColor = User.color;
+  config.lang = getLang();
+
+  const params = [];
+  for (const key in config) {
+    if (config.hasOwnProperty(key)) {
+      params.push(key + '=' + encodeURIComponent(config[key]));
+    }
+  }
+  return params.join('&');
+};
+
+const getPadURL = (padId, readOnlyPadId, ownerId) => {
+  const userId = Auth.userID;
+  let url;
+  if (!ownerId || (ownerId && userId === ownerId)) {
+    const params = getPadParams();
+    url = Auth.authenticateURL(NOTE_CONFIG.url + '/p/' + padId + '?' + params);
+  } else {
+    url = Auth.authenticateURL(NOTE_CONFIG.url + '/p/' + readOnlyPadId);
+  }
+  return url;
+};
+
+export default {
+  getPadURL,
+};

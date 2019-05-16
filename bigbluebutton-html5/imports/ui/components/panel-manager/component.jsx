@@ -5,6 +5,7 @@ import UserListContainer from '/imports/ui/components/user-list/container';
 import ChatContainer from '/imports/ui/components/chat/container';
 import NoteContainer from '/imports/ui/components/note/container';
 import PollContainer from '/imports/ui/components/poll/container';
+import CaptionsContainer from '/imports/ui/components/captions/pad/container'
 import WaitingUsersPanel from '/imports/ui/components/waiting-users/container';
 import { defineMessages, injectIntl } from 'react-intl';
 import Resizable from 're-resizable';
@@ -19,6 +20,10 @@ const intlMessages = defineMessages({
   noteLabel: {
     id: 'app.note.label',
     description: 'Aria-label for Note Section',
+  },
+  captionsLabel: {
+    id: 'app.captions.label',
+    description: 'Aria-label for Captions Section',
   },
   userListLabel: {
     id: 'app.userList.label',
@@ -53,6 +58,10 @@ const POLL_MAX_WIDTH = 400;
 const NOTE_MIN_WIDTH = DEFAULT_PANEL_WIDTH;
 const NOTE_MAX_WIDTH = 800;
 
+// Variables for resizing captions.
+const CAPTIONS_MIN_WIDTH = DEFAULT_PANEL_WIDTH;
+const CAPTIONS_MAX_WIDTH = 400;
+
 // Variables for resizing waiting users.
 const WAITING_MIN_WIDTH = DEFAULT_PANEL_WIDTH;
 const WAITING_MAX_WIDTH = 800;
@@ -69,6 +78,7 @@ class PanelManager extends Component {
     this.chatKey = _.uniqueId('chat-');
     this.pollKey = _.uniqueId('poll-');
     this.noteKey = _.uniqueId('note-');
+    this.captionsKey = _.uniqueId('captions-');
     this.waitingUsers = _.uniqueId('waitingUsers-');
 
     this.state = {
@@ -76,6 +86,7 @@ class PanelManager extends Component {
       pollWidth: DEFAULT_PANEL_WIDTH,
       userlistWidth: 180,
       noteWidth: DEFAULT_PANEL_WIDTH,
+      captionsWidth: DEFAULT_PANEL_WIDTH,
       waitingWidth: DEFAULT_PANEL_WIDTH,
     };
   }
@@ -236,6 +247,54 @@ class PanelManager extends Component {
     );
   }
 
+  renderCaptions() {
+    const { intl, enableResize } = this.props;
+
+    return (
+      <section
+        className={styles.captions}
+        aria-label={intl.formatMessage(intlMessages.captionsLabel)}
+        key={enableResize ? null : this.captionsKey}
+      >
+        <CaptionsContainer />
+      </section>
+    );
+  }
+
+  renderCaptionsResizable() {
+    const { captionsWidth } = this.state;
+
+    const resizableEnableOptions = {
+      top: false,
+      right: true,
+      bottom: false,
+      left: false,
+      topRight: false,
+      bottomRight: false,
+      bottomLeft: false,
+      topLeft: false,
+    };
+
+    return (
+      <Resizable
+        minWidth={CAPTIONS_MIN_WIDTH}
+        maxWidth={CAPTIONS_MAX_WIDTH}
+        ref={(node) => { this.resizableCaptions = node; }}
+        enable={resizableEnableOptions}
+        key={this.captionsKey}
+        size={{ width: captionsWidth }}
+        onResize={dispatchResizeEvent}
+        onResizeStop={(e, direction, ref, d) => {
+          this.setState({
+            captionsWidth: captionsWidth + d.width,
+          });
+        }}
+      >
+        {this.renderCaptions()}
+      </Resizable>
+    );
+  }
+
   renderWaitingUsersPanel() {
     const { intl, enableResize } = this.props;
 
@@ -357,6 +416,14 @@ class PanelManager extends Component {
         resizablePanels.push(this.renderNoteResizable());
       } else {
         panels.push(this.renderNote());
+      }
+    }
+
+    if (openPanel === 'captions') {
+      if (enableResize) {
+        resizablePanels.push(this.renderCaptionsResizable());
+      } else {
+        panels.push(this.renderCaptions());
       }
     }
 

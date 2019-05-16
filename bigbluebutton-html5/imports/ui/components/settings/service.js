@@ -1,18 +1,7 @@
 import Users from '/imports/api/users';
-import Captions from '/imports/api/captions';
 import Auth from '/imports/ui/services/auth';
 import _ from 'lodash';
 import Settings from '/imports/ui/services/settings';
-
-const getClosedCaptionLocales = () => {
-  // list of unique locales in the Captions Collection
-  const locales = _.uniq(Captions.find({}, {
-    sort: { locale: 1 },
-    fields: { locale: true },
-  }).fetch().map(obj => obj.locale), true);
-
-  return locales;
-};
 
 const getUserRoles = () => {
   const user = Users.findOne({
@@ -30,7 +19,6 @@ const updateSettings = (obj) => {
 const getAvailableLocales = () => fetch('/html5client/locales').then(locales => locales.json());
 
 export {
-  getClosedCaptionLocales,
   getUserRoles,
   updateSettings,
   getAvailableLocales,

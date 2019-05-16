@@ -131,24 +131,3 @@
   height: 1.1rem;
   border-radius: var(--border-size);
 }
-
-.colorPickerOverlay {
-  position: fixed;
-  top: 0px;
-  right: 0px;
-  bottom: 0px;
-  left: 0px;
-}
-
-.colorPickerPopover {
-  position: absolute;
-  top: 2rem;
-  z-index: 1001;
-}
-
-.ccPreviewBox {
-  height: 100px;
-  padding: 5px;
-  border: 1px solid #f1f1f1;
-  overflow: auto;
-}
