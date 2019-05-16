@@ -64,7 +64,7 @@
 }
 
 .react-toggle-track-check:dir(rtl) {
-  left: 1.1rem;
+  left: 0.8rem;
 }
 
 .react-toggle--checked .react-toggle-track-check {
