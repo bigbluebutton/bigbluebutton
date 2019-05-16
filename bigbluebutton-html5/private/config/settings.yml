@@ -311,8 +311,9 @@ private:
     port: 9001
   redis:
     host: 127.0.0.1
-    post: '6379'
+    port: '6379'
     timeout: 5000
+    password: null
     debug: false
     channels:
       toAkkaApps: to-akka-apps-redis-channel
