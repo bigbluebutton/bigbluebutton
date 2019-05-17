@@ -438,6 +438,10 @@ display_bigbluebutton_status () {
         units="$units mongod bbb-html5 bbb-webrtc-sfu kurento-media-server"
     fi
 
+    if [ -f /usr/share/etherpad-lite/settings.json ]; then
+        units="$units etherpad"
+    fi
+
     if [ -f /lib/systemd/system/bbb-web.service ]; then
         units="$units bbb-web"
     fi
