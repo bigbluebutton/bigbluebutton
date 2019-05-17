@@ -29,12 +29,22 @@
   display: flex;
   flex-grow: 1;
   flex-basis: 0;
-  margin-right: 1rem;
+  margin: 0 1rem 0 0;
+
+  [dir="rtl"] & {
+    margin: 0 0 0 1rem;
+  }
 
   &:last-child {
     margin-right: 0;
-    padding-right: 0.1rem;
-    padding-left: 4rem;
+    margin-left: inherit;
+    padding: 0 0.1rem 0 4rem;
+
+    [dir="rtl"] & {
+      margin-right: inherit;
+      margin-left: 0;
+      padding: 0 4rem 0 0.1rem;
+    }
   }
 
   &.spacedLeft {
@@ -42,8 +52,14 @@
       flex-grow: 1;
       flex-basis: 0;
       margin-right: 0;
-      padding-right: 0.1rem;
-      padding-left: 4rem;
+      margin-left: inherit;
+      padding: 0 0.1rem 0 4rem;
+
+      [dir="rtl"] & {
+        margin-right: inherit;
+        margin-left: 0;
+        padding: 0 4rem 0 0.1rem;
+      }
     }
 
     &:before {
@@ -52,12 +68,24 @@
       flex-grow: 1;
       flex-basis: 0;
       margin-right: 1rem;
+      margin-left: inherit;
+
+      [dir="rtl"] & {
+        margin-right: inherit;
+        margin-left: 1rem;
+      }
     }
 
     &:last-child {
       margin-right: 0;
+      margin-left: inherit;
       padding-right: 0;
       padding-left: 0;
+
+      [dir="rtl"] & {
+        margin-right: 0;
+        margin-left: inherit;
+      }
     }
   }
 }
@@ -113,15 +141,29 @@
 .verticalLine {
   color: #f3f6f9;
   border-left: 1px solid;
+  border-right: none;
   height: 5rem;
+
+  [dir="rtl"] & {
+    border-left: none;
+    border-right: 1px solid;
+  }
 }
 
 .backBtn {
-  margin-right: 0.5rem;
+  margin: 0 0.5rem 0 0;
   border: none;
 
+  [dir="rtl"] & {
+    margin: 0 0 0 0.5rem;
+  }
+
   @include mq($small-only) {
-    margin-right: auto;
+    margin:0 auto 0 0;
+
+    [dir="rtl"] & {
+      margin:0 0 0 auto;
+    }
   }
 }
 

@@ -86,9 +86,18 @@
 }
 
 .sendButton {
-  margin-left: var(--sm-padding-x);
+  margin:0 0 0 var(--sm-padding-x);
   align-self: center;
   font-size: 0.9rem;
+
+  [dir="rtl"]  & {
+    margin: 0 var(--sm-padding-x) 0 0;
+    -webkit-transform: scale(-1, 1);
+    -moz-transform: scale(-1, 1);
+    -ms-transform: scale(-1, 1);
+    -o-transform: scale(-1, 1);
+    transform: scale(-1, 1);
+  }
 }
 
 .info {
@@ -96,6 +105,10 @@
   color: var(--color-gray-light);
   text-align: right;
   padding: var(--border-size) 0;
+
+  [dir="rtl"] & {
+    text-align: left;
+  }
 
   &:before {
     content: "\00a0"; // non-breaking space

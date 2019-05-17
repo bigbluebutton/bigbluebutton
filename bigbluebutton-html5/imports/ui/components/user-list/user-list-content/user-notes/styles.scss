@@ -13,7 +13,11 @@
 }
 
 .scrollableList {
-  margin-left: var(--md-padding-y);
+  margin: 0 0 0 var(--md-padding-y);
+
+  [dir="rtl"] & {
+    margin: 0 var(--md-padding-y) 0 0;
+  }
 }
 
 .noteLink {
@@ -27,10 +31,16 @@
   padding-top: var(--lg-padding-y);
   padding-bottom: var(--lg-padding-y);
   padding-left: var(--lg-padding-y);
+  padding-right: 0;
   text-decoration: none;
   width: 100%;
   color: var(--color-gray-dark);
   background-color: var(--color-off-white);
+
+  [dir="rtl"] & {
+    padding-left: 0;
+    padding-right: var(--lg-padding-y);
+  }
 
   > i {
     display: flex;
@@ -40,15 +50,22 @@
   }
 
   > span {
-      font-weight: 400;
-      font-size: var(--font-size-small);
-      color: var(--color-gray-dark);
-      position: relative;
-      flex-grow: 1;
-      line-height: 2;
-      text-align: left;
-      padding-left: var(--lg-padding-y);
-      text-overflow: ellipsis;
+    font-weight: 400;
+    font-size: var(--font-size-small);
+    color: var(--color-gray-dark);
+    position: relative;
+    flex-grow: 1;
+    line-height: 2;
+    text-align: left;
+    padding-left: var(--lg-padding-y);
+    padding-right: 0;
+    text-overflow: ellipsis;
+
+    [dir="rtl"] & {
+      text-align: right;
+      padding-left: 0;
+      padding-right: var(--lg-padding-y);
+    }
   }
 
   &:active {

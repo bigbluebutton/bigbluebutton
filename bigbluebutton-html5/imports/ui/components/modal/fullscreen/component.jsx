@@ -2,21 +2,37 @@ import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import Button from '/imports/ui/components/button/component';
 import cx from 'classnames';
+import { defineMessages, injectIntl } from 'react-intl';
 import ModalBase, { withModalState } from '../base/component';
 import { styles } from './styles.scss';
+
+const intlMessages = defineMessages({
+  modalClose: {
+    id: 'app.modal.close',
+    description: 'Close',
+  },
+  modalCloseDescription: {
+    id: 'app.modal.close.description',
+    description: 'Disregards changes and closes the modal',
+  },
+  modalDone: {
+    id: 'app.modal.confirm',
+    description: 'Close',
+  },
+  modalDoneDescription: {
+    id: 'app.modal.confirm.description',
+    description: 'Disregards changes and closes the modal',
+  },
+});
 
 const propTypes = {
   title: PropTypes.string.isRequired,
   confirm: PropTypes.shape({
     callback: PropTypes.func.isRequired,
-    label: PropTypes.string.isRequired,
-    description: PropTypes.string,
     disabled: PropTypes.bool,
   }),
   dismiss: PropTypes.shape({
     callback: PropTypes.func,
-    label: PropTypes.string.isRequired,
-    description: PropTypes.string,
     disabled: PropTypes.bool,
   }),
   preventClosing: PropTypes.bool,
@@ -25,13 +41,9 @@ const propTypes = {
 const defaultProps = {
   shouldCloseOnOverlayClick: false,
   confirm: {
-    label: 'Done',
-    description: 'Saves changes and closes the modal',
     disabled: false,
   },
   dismiss: {
-    label: 'Cancel',
-    description: 'Disregards changes and closes the modal',
     disabled: false,
   },
   preventClosing: false,
@@ -45,6 +57,7 @@ class ModalFullscreen extends PureComponent {
 
   render() {
     const {
+      intl,
       title,
       confirm,
       dismiss,
@@ -67,8 +80,8 @@ class ModalFullscreen extends PureComponent {
             <Button
               data-test="modalDismissButton"
               className={styles.dismiss}
-              label={dismiss.label}
-              aria-label={`${dismiss.label} ${title}`}
+              label={intl.formatMessage(intlMessages.modalClose)}
+              aria-label={`${intl.formatMessage(intlMessages.modalClose)} ${title}`}
               disabled={dismiss.disabled}
               onClick={this.handleAction.bind(this, 'dismiss')}
               aria-describedby="modalDismissDescription"
@@ -77,8 +90,8 @@ class ModalFullscreen extends PureComponent {
               data-test="modalConfirmButton"
               color="primary"
               className={styles.confirm}
-              label={confirm.label}
-              aria-label={`${confirm.label} ${title}`}
+              label={intl.formatMessage(intlMessages.modalDone)}
+              aria-label={`${intl.formatMessage(intlMessages.modalDone)} ${title}`}
               disabled={confirm.disabled}
               onClick={this.handleAction.bind(this, 'confirm')}
               aria-describedby="modalConfirmDescription"
@@ -88,8 +101,8 @@ class ModalFullscreen extends PureComponent {
         <div className={styles.content}>
           {this.props.children}
         </div>
-        <div id="modalDismissDescription" hidden>{dismiss.description}</div>
-        <div id="modalConfirmDescription" hidden>{confirm.description}</div>
+        <div id="modalDismissDescription" hidden>{intl.formatMessage(intlMessages.modalCloseDescription)}</div>
+        <div id="modalConfirmDescription" hidden>{intl.formatMessage(intlMessages.modalDoneDescription)}</div>
       </ModalBase>
     );
   }
@@ -98,4 +111,4 @@ class ModalFullscreen extends PureComponent {
 ModalFullscreen.propTypes = propTypes;
 ModalFullscreen.defaultProps = defaultProps;
 
-export default withModalState(ModalFullscreen);
+export default withModalState(injectIntl(ModalFullscreen));

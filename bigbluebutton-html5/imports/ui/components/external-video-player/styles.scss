@@ -23,10 +23,13 @@ $icon-offset: -.4em;
 
   a {
     @include elementFocus(var(--color-primary));
-    padding-bottom: var(--sm-padding-y);
-    padding-left: var(--sm-padding-y);
+    padding: 0 0 var(--sm-padding-y) var(--sm-padding-y);
     text-decoration: none;
     display: block;
+
+    [dir="rtl"] & {
+      padding: 0 var(--sm-padding-y) var(--sm-padding-y) 0;
+    }
   }
 
   [class^="icon-bbb-"],
