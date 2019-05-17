@@ -8,45 +8,34 @@ const LINE_BREAK = '\n';
 class Captions extends React.Component {
   constructor(props) {
     super(props);
+    this.state = { initial: true };
     this.text = "";
 
-    this.clearExtraTextLines = this.clearExtraTextLines.bind(this);
     this.updateText = this.updateText.bind(this);
-    this.deactivated = this.deactivated.bind(this);
   }
 
-  shouldComponentUpdate(nextProps) {
-    if (this.deactivated(nextProps)) return true;
-
-    // TODO: Care about fonts and background changes
+  shouldComponentUpdate(nextProps, nextState) {
     const { captions } = this.props;
-    if (_.isEmpty(nextProps.captions) || _.isEmpty(captions)) return false;
+    const nextCaptions = nextProps.captions;
 
-    // If is the same locale and at the same revision, don't update
-    if (nextProps.captions.padId === captions.padId) {
-      if (nextProps.captions.revs === captions.revs) return false;
+    if (!_.isEmpty(captions) && !_.isEmpty(nextCaptions)) {
+      // If is the same locale and at the same revision, don't update
+      if (nextCaptions.padId === captions.padId) {
+        if (nextCaptions.revs === captions.revs) return false;
+      }
     }
-
     return true;
   }
 
-  deactivated(nextProps) {
-    const { isActive } = this.props;
-    if (isActive && !nextProps.isActive) return true;
-    return false;
-  }
-
-  clearExtraTextLines() {
-    const splitText = this.text.split(LINE_BREAK);
-    while (splitText.length > CAPTIONS_CONFIG.lines) {
-      splitText.shift();
-    }
-    this.text = splitText.join(LINE_BREAK);
+  componentDidMount() {
+    this.setState({ initial: false });
   }
 
   updateText(data) {
-    this.text = this.text + data;
-    this.clearExtraTextLines();
+    const update = this.text + data;
+    const splitUpdate = update.split(LINE_BREAK);
+    while (splitUpdate.length > CAPTIONS_CONFIG.lines) splitUpdate.shift();
+    this.text = splitUpdate.join(LINE_BREAK);
   }
 
   render() {
@@ -56,19 +45,11 @@ class Captions extends React.Component {
       fontColor,
       backgroundColor,
       captions,
-      isActive,
     } = this.props;
 
-    if (!isActive) {
-      this.text = "";
-      return null;
+    if (!this.state.initial) {
+      if (!_.isEmpty(captions)) this.updateText(captions.data);
     }
-
-    if (_.isEmpty(captions)) {
-      return null;
-    }
-
-    this.updateText(captions.data);
 
     const captionStyles = {
       whiteSpace: 'pre-wrap',
@@ -91,7 +72,6 @@ class Captions extends React.Component {
 export default Captions;
 
 Captions.propTypes = {
-  isActive: PropTypes.bool.isRequired,
   captions: PropTypes.object,
   backgroundColor: PropTypes.string.isRequired,
   fontColor: PropTypes.string.isRequired,

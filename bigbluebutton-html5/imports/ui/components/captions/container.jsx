@@ -8,8 +8,6 @@ const CaptionsContainer = props => (
 );
 
 export default withTracker(() => {
-  const captions = CaptionsService.getCaptionsData();
-
   const {
     backgroundColor,
     fontColor,
@@ -22,7 +20,6 @@ export default withTracker(() => {
     fontSize,
     fontColor,
     backgroundColor,
-    captions,
-    isActive: CaptionsService.isCaptionsActive(),
+    captions: CaptionsService.getCaptionsData(),
   };
 })(CaptionsContainer);
