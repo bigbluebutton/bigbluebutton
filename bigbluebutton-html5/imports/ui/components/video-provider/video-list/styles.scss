@@ -176,6 +176,10 @@
 
 .dropdownContent {
   min-width: 8.5rem;
+  
+  [dir="rtl"] & {
+    right: 2rem;
+  }
 }
 
 .dropdownList {
