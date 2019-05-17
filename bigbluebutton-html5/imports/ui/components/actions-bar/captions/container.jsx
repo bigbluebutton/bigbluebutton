@@ -8,6 +8,6 @@ import CaptionsButton from './component';
 const CaptionsButtonContainer = props => <CaptionsButton {...props} />;
 
 export default withModalMounter(withTracker(({ mountModal }) => ({
-  isCaptionsActive: CaptionsService.getActiveCaptions() ? true : false,
-  handleOnClick: () => (CaptionsService.getActiveCaptions() ? CaptionsService.deactivateCaptions() : mountModal(<CaptionsReaderMenuContainer />)),
+  isActive: CaptionsService.isCaptionsActive(),
+  handleOnClick: () => (CaptionsService.isCaptionsActive() ? CaptionsService.deactivateCaptions() : mountModal(<CaptionsReaderMenuContainer />)),
 }))(CaptionsButtonContainer));

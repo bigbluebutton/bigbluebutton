@@ -8,7 +8,7 @@ import Button from '/imports/ui/components/button/component';
 
 const propTypes = {
   intl: intlShape.isRequired,
-  isCaptionsActive: PropTypes.bool.isRequired,
+  isActive: PropTypes.bool.isRequired,
   handleOnClick: PropTypes.func.isRequired,
 };
 
@@ -23,19 +23,19 @@ const intlMessages = defineMessages({
   },
 });
 
-const CaptionsButton = ({ intl, isCaptionsActive, handleOnClick }) => {
+const CaptionsButton = ({ intl, isActive, handleOnClick }) => {
   return (
     <Button
-      className={cx(styles.button, isCaptionsActive || styles.btn)}
+      className={cx(styles.button, isActive || styles.btn)}
       icon="polling"
-      label={intl.formatMessage(isCaptionsActive ? intlMessages.stop : intlMessages.start)}
-      color={isCaptionsActive ? 'primary' : 'default'}
-      ghost={!isCaptionsActive}
+      label={intl.formatMessage(isActive ? intlMessages.stop : intlMessages.start)}
+      color={isActive ? 'primary' : 'default'}
+      ghost={!isActive}
       hideLabel
       circle
       size="lg"
       onClick={handleOnClick}
-      id={isCaptionsActive ? 'stop-captions-button' : 'start-captions-button'}
+      id={isActive ? 'stop-captions-button' : 'start-captions-button'}
     />
   );
 };

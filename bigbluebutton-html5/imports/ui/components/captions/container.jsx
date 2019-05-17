@@ -23,6 +23,6 @@ export default withTracker(() => {
     fontColor,
     backgroundColor,
     captions,
-    isActive: CaptionsService.getActiveCaptions() ? true : false,
+    isActive: CaptionsService.isCaptionsActive(),
   };
 })(CaptionsContainer);

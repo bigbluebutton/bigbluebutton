@@ -92,7 +92,7 @@ const isCaptionsAvailable = () => {
 
 const isCaptionsActive = () => {
   const enabled = isCaptionsEnabled();
-  const activated = getActiveCaptions();
+  const activated = getActiveCaptions() !== '';
   return (enabled && activated);
 }
 
@@ -112,8 +112,6 @@ export default {
   takeOwnership,
   getCaptions,
   canIOwnThisPad,
-  getActiveCaptions,
-  setActiveCaptions,
   getCaptionsSettings,
   isCaptionsEnabled,
   isCaptionsAvailable,
