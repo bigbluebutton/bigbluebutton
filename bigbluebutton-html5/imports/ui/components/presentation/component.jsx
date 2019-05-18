@@ -21,6 +21,10 @@ const intlMessages = defineMessages({
     id: 'app.presentationUploder.title',
     description: 'presentation area element label',
   },
+  changeNotification: {
+    id: 'app.presentation.notificationLabel',
+    description: 'label displayed in toast when presentation switches',
+  },
 });
 
 class PresentationArea extends Component {
@@ -48,10 +52,20 @@ class PresentationArea extends Component {
   }
 
   componentDidUpdate(prevProps, prevState) {
+    const { currentPresentation, notify, intl } = this.props;
+
+    if (prevProps.currentPresentation.name !== currentPresentation.name) {
+      notify(
+        `${intl.formatMessage(intlMessages.changeNotification)} ${currentPresentation.name}`,
+        'info',
+        'presentation',
+      );
+    }
+
     if (prevState.fitToWidth) {
       // When presenter is changed or slide changed we reset fitToWidth
-      if ((prevProps.userIsPresenter && !this.props.userIsPresenter) ||
-          (prevProps.currentSlide.id !== this.props.currentSlide.id)) {
+      if ((prevProps.userIsPresenter && !this.props.userIsPresenter)
+          || (prevProps.currentSlide.id !== this.props.currentSlide.id)) {
         this.setState({
           fitToWidth: false,
         });
@@ -196,16 +210,16 @@ class PresentationArea extends Component {
     const { fitToWidth } = this.state;
     if (userIsPresenter) {
       return fitToWidth;
-    } else {
-      const { width, height, viewBoxWidth, viewBoxHeight } = currentSlide.calculatedData;
-      const slideSizeRatio = width / height;
-      const viewBoxSizeRatio = viewBoxWidth / viewBoxHeight;
-      if (slideSizeRatio !== viewBoxSizeRatio) {
-        return true;
-      } else {
-        return false;
-      }
     }
+    const {
+      width, height, viewBoxWidth, viewBoxHeight,
+    } = currentSlide.calculatedData;
+    const slideSizeRatio = width / height;
+    const viewBoxSizeRatio = viewBoxWidth / viewBoxHeight;
+    if (slideSizeRatio !== viewBoxSizeRatio) {
+      return true;
+    }
+    return false;
   }
 
   zoomChanger(incomingZoom) {

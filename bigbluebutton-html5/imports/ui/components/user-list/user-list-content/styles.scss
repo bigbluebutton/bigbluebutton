@@ -37,8 +37,11 @@
 }
 
 .list {
-  margin-left: var(--md-padding-y);
-  margin-bottom: 1px;
+  margin: 0 0 1px var(--md-padding-y);
+
+  [dir="rtl"] & {
+    margin: 0 var(--md-padding-y) 1px 0;
+  }
 }
 
 .smallTitle {

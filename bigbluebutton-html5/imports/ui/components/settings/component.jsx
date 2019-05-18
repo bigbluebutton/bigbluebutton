@@ -59,6 +59,10 @@ const intlMessages = defineMessages({
     id: 'app.settings.dataSavingTab.label',
     description: 'label for data savings tab',
   },
+  savedAlertLabel: {
+    id: 'app.settings.save-notification.label',
+    description: 'label shown in toast when settings are saved',
+  },
 });
 
 const propTypes = {
@@ -245,6 +249,7 @@ class Settings extends Component {
     const {
       intl,
       mountModal,
+      notify,
     } = this.props;
     const {
       current,
@@ -260,6 +265,11 @@ class Settings extends Component {
             *  from re-opening the modal.
             */
             mountModal(null);
+            notify(
+              intl.formatMessage(intlMessages.savedAlertLabel),
+              'info',
+              'settings',
+            );
           },
           label: intl.formatMessage(intlMessages.SaveLabel),
           description: intl.formatMessage(intlMessages.SaveLabelDesc),

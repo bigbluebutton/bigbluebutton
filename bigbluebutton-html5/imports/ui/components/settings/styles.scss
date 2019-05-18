@@ -27,8 +27,12 @@
 }
 
 .icon {
-  margin-right: .5rem;
+  margin: 0 .5rem 0 0;
   font-size: var(--font-size-large);
+
+  [dir="rtl"] & {
+     margin: 0 0 0 .5rem;
+  }
 }
 
 .tabSelector {
@@ -52,9 +56,13 @@
 
   @include mq($small-only) {
     max-width: 100%;
-    margin-right: var(--sm-padding-x);
+    margin: 0 var(--sm-padding-x) 0 0;
     & > .icon {
       display: none;
+    }
+
+    [dir="rtl"] & {
+       margin: 0 0 0 var(--sm-padding-x);
     }
   }
 }
@@ -71,13 +79,23 @@
 
 .tabPanel {
   display: none;
-  margin-left: 1rem;
+  margin: 0 0 0 1rem;
   width: calc(100% / 3 * 2);
+
+  [dir="rtl"] & {
+    margin: 0 1rem 0 0;
+  }
 
   @include mq($small-only) {
     width: 100%;
-    margin-left: 0;
-    margin-top: 1rem;
+    margin-left: 1rem;
+    margin-right: inherit;
+
+   [dir="rtl"] & {
+     margin-left: inherit;
+     margin-right: 1rem;
+   }
+
   }
 }
 

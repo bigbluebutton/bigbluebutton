@@ -279,3 +279,6 @@
 .icon-bbb-download-off:before {
   content: "\e955";
 }
+.icon-bbb-popout_window:before {
+  content: "\e956";
+}

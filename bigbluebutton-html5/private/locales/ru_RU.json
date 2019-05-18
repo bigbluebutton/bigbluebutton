@@ -87,7 +87,6 @@
     "app.navBar.settingsDropdown.leaveSessionDesc": "Покинуть конференцию",
     "app.navBar.settingsDropdown.exitFullscreenDesc": "Выйти из полноэкранного режима",
     "app.navBar.settingsDropdown.helpLabel": "Помощь",
-    "app.navBar.settingsDropdown.helpDesc": "Ссылает пользователей на видеоуроки",
     "app.navBar.userListToggleBtnLabel": "Включить/выключить список пользователей",
     "app.navBar.toggleUserList.newMessages": "с уведомлением о новых сообщениях",
     "app.navBar.recording": "Этот сеанс записывается",

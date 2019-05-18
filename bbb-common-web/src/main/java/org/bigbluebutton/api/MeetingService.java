@@ -550,6 +550,20 @@ public class MeetingService implements MessageListener {
       destroyMeeting(m.getInternalId());
       meetings.remove(m.getInternalId());
       removeUserSessions(m.getInternalId());
+
+      Map<String, Object> logData = new HashMap<>();
+      logData.put("meetingId", m.getInternalId());
+      logData.put("externalMeetingId", m.getExternalId());
+      logData.put("name", m.getName());
+      logData.put("duration", m.getDuration());
+      logData.put("record", m.isRecord());
+      logData.put("logCode", "meeting_removed_from_running");
+      logData.put("description", "Meeting removed from list of running meetings.");
+
+      Gson gson = new Gson();
+      String logStr = gson.toJson(logData);
+
+      log.info(" --analytics-- data={}", logStr);
     }
   }
 
@@ -681,12 +695,15 @@ public class MeetingService implements MessageListener {
             callbackUrl = new URIBuilder(new URI(callbackUrl))
                     .addParameter("recordingmarks", m.haveRecordingMarks() ? "true" : "false")
                     .addParameter("meetingID", m.getExternalId()).build().toURL().toString();
+            callbackUrlService.handleMessage(new MeetingEndedEvent(m.getInternalId(), m.getExternalId(), m.getName(), callbackUrl));
         } catch (MalformedURLException e) {
             log.error("Malformed URL in callback url=[{}]", callbackUrl, e);
         } catch (URISyntaxException e) {
             log.error("URI Syntax error in callback url=[{}]", callbackUrl, e);
+        } catch (Exception e) {
+          log.error("Error in callback url=[{}]", callbackUrl, e);
         }
-        callbackUrlService.handleMessage(new MeetingEndedEvent(m.getInternalId(), m.getExternalId(), m.getName(), callbackUrl));
+
       }
 
       processRemoveEndedMeeting(message);
