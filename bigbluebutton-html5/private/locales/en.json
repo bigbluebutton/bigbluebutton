@@ -364,6 +364,8 @@
     "app.audioDial.audioDialConfrenceText": "and enter the conference PIN number:",
     "app.audioModal.connecting": "Connecting",
     "app.audioModal.connectingEchoTest": "Connecting to echo test",
+    "app.audioModal.safariUnifiedPlanMobile": "Joining with a microphone is not supported in this version of Safari",
+    "app.audioModal.safariUnifiedPlanDesktop": "Joining with a microphone is not supported in this version of Safari. Please use Chrome or Firefox",
     "app.audioManager.joinedAudio": "You have joined the audio conference",
     "app.audioManager.joinedEcho": "You have joined the echo test",
     "app.audioManager.leftAudio": "You have left the audio conference",

@@ -31,6 +31,24 @@ export default withModalMounter(withTracker(({ mountModal }) => {
     }
   }
 
+  // We do no support Unified Plan SDP, but Safari 12.3 only ships with
+  // Unified Plan so we need to detect and warn
+  const isUnifiedPlanDefault = () => {
+    // Safari supports addTransceiver() but not Unified Plan when
+    // currentDirection is not defined.
+    if (!('currentDirection' in RTCRtpTransceiver.prototype)) return false;
+    // If Unified Plan is supported, addTransceiver() should not throw.
+    const tempPc = new RTCPeerConnection();
+    let canAddTransceiver = false;
+    try {
+      tempPc.addTransceiver('audio');
+      canAddTransceiver = true;
+    } catch (e) {
+    }
+    tempPc.close();
+    return canAddTransceiver;
+  };
+
   return ({
     closeModal: () => {
       if (!Service.isConnecting()) mountModal(null);
@@ -82,5 +100,7 @@ export default withModalMounter(withTracker(({ mountModal }) => {
     isIOSChrome: browser().name === 'crios',
     isMobileNative: navigator.userAgent.toLowerCase().includes('bbbnative'),
     isIEOrEdge: browser().name === 'edge' || browser().name === 'ie',
+    blockSafari123: browser().name === 'safari' && Meteor.settings.public.media.blockSafari12_3 === true && isUnifiedPlanDefault(),
+    isMobile: browser().mobile,
   });
 })(AudioModalContainer));

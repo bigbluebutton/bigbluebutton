@@ -172,6 +172,7 @@ public:
     callHangupTimeout: 2000
     callHangupMaximumRetries: 10
     echoTestNumber: '9196'
+    blockSafari12_3: true
   presentation:
     defaultPresentationFile: default.pdf
     uploadEndpoint: "/bigbluebutton/presentation/upload"

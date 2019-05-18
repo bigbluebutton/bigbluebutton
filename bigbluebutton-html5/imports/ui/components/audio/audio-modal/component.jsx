@@ -36,6 +36,8 @@ const propTypes = {
   joinFullAudioImmediately: PropTypes.bool.isRequired,
   joinFullAudioEchoTest: PropTypes.bool.isRequired,
   forceListenOnlyAttendee: PropTypes.bool.isRequired,
+  blockSafari123: PropTypes.bool.isRequired,
+  isMobile: PropTypes.bool.isRequired,
 };
 
 const defaultProps = {
@@ -99,6 +101,14 @@ const intlMessages = defineMessages({
   ariaModalTitle: {
     id: 'app.audioModal.ariaTitle',
     description: 'aria label for modal title',
+  },
+  safariUnifiedPlanMobile: {
+    id: 'app.audioModal.safariUnifiedPlanMobile',
+    description: 'warning for mobile Safari users with Unified Plan',
+  },
+  safariUnifiedPlanDesktop: {
+    id: 'app.audioModal.safariUnifiedPlanDesktop',
+    description: 'warning for desktop Safari users with Unified Plan',
   },
 });
 
@@ -283,14 +293,15 @@ class AudioModal extends Component {
       isMobileNative,
       isIEOrEdge,
       formattedDialNum,
+      blockSafari123,
+      isMobile,
     } = this.props;
 
     const showMicrophone = forceListenOnlyAttendee || audioLocked;
-
     return (
       <div>
         <span className={styles.audioOptions}>
-          {!showMicrophone && !isMobileNative
+          {!showMicrophone && !isMobileNative && !blockSafari123
             ? (
               <Button
                 className={styles.audioBtn}
@@ -316,6 +327,12 @@ class AudioModal extends Component {
             )
             : null}
         </span>
+        {blockSafari123 ? (
+          <p className={cx(styles.text, styles.browserWarning)}>
+            {isMobile ? intl.formatMessage(intlMessages.safariUnifiedPlanMobile)
+              : intl.formatMessage(intlMessages.safariUnifiedPlanDesktop)}
+          </p>
+        ) : null}
         {isIEOrEdge ? (
           <p className={cx(styles.text, styles.browserWarning)}>
             <FormattedMessage
