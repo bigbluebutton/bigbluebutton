@@ -304,6 +304,7 @@ private:
   app:
     captionsChunkLength: 1000
     pencilChunkLength: 100
+    loadSlidesFromHttpAlways: false
   etherpad:
     apikey: ETHERPAD_APIKEY
     version: 1.2.13
