@@ -138,6 +138,7 @@ public:
     fontSize: 24px
     takeOwnership: true
     lines: 2
+    time: 5000
   chat:
     min_message_length: 1
     max_message_length: 5000

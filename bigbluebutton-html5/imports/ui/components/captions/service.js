@@ -1,3 +1,4 @@
+import _ from 'lodash';
 import Captions from '/imports/api/captions';
 import Auth from '/imports/ui/services/auth';
 import { makeCall } from '/imports/ui/services/api';
@@ -9,12 +10,19 @@ const CAPTIONS = '_captions_';
 
 const getCaptionsData = () => {
   const activeCaptions = getActiveCaptions();
-  let captions = {};
+  let padId = "";
+  let revs = 0;
+  let data = "";
   if (activeCaptions) {
-    captions = getCaptions(activeCaptions);
+    const captions = getCaptions(activeCaptions);
+    if (!_.isEmpty(captions)) {
+      padId = captions.padId;
+      revs = captions.revs;
+      data = captions.data;
+    }
   }
 
-  return captions;
+  return { padId, revs, data };
 };
 
 const getAvailableLocales = () => {

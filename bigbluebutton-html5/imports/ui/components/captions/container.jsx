@@ -9,17 +9,14 @@ const CaptionsContainer = props => (
 
 export default withTracker(() => {
   const {
-    backgroundColor,
-    fontColor,
-    fontFamily,
-    fontSize,
-  } = CaptionsService.getCaptionsSettings();
+    padId,
+    revs,
+    data,
+  } = CaptionsService.getCaptionsData();
 
   return {
-    fontFamily,
-    fontSize,
-    fontColor,
-    backgroundColor,
-    captions: CaptionsService.getCaptionsData(),
+    padId,
+    revs,
+    data,
   };
 })(CaptionsContainer);
