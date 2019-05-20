@@ -3,7 +3,6 @@ import PropTypes from 'prop-types';
 import CaptionsService from './service';
 
 const CAPTIONS_CONFIG = Meteor.settings.public.captions;
-const LINE_BREAK = '\n';
 
 class Captions extends React.Component {
   constructor(props) {
@@ -50,10 +49,8 @@ class Captions extends React.Component {
     if (this.state.clear) {
       this.text = "";
     } else {
-      const update = this.text + data;
-      const splitUpdate = update.split(LINE_BREAK);
-      while (splitUpdate.length > CAPTIONS_CONFIG.lines) splitUpdate.shift();
-      this.text = splitUpdate.join(LINE_BREAK);
+      const text = this.text + data;
+      this.text = CaptionsService.formatCaptionsText(text);
     }
   }
 

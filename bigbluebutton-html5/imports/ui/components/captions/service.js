@@ -7,6 +7,7 @@ import { Session } from 'meteor/session';
 
 const CAPTIONS_CONFIG = Meteor.settings.public.captions;
 const CAPTIONS = '_captions_';
+const LINE_BREAK = '\n';
 
 const getCaptionsData = () => {
   const activeCaptions = getActiveCaptions();
@@ -84,11 +85,11 @@ const getCaptionsSettings = () => {
     return { backgroundColor, fontColor, fontFamily, fontSize };
   }
   return settings;
-}
+};
 
 const isCaptionsEnabled = () => {
   return CAPTIONS_CONFIG.enabled;
-}
+};
 
 const isCaptionsAvailable = () => {
   if (isCaptionsEnabled) {
@@ -96,22 +97,33 @@ const isCaptionsAvailable = () => {
     return (ownedLocales.length > 0);
   }
   return false;
-}
+};
 
 const isCaptionsActive = () => {
   const enabled = isCaptionsEnabled();
   const activated = getActiveCaptions() !== '';
   return (enabled && activated);
-}
+};
 
 const deactivateCaptions = () => {
   setActiveCaptions('');
-}
+};
 
 const activateCaptions = (locale, settings) => {
   setCaptionsSettings(settings);
   setActiveCaptions(locale);
-}
+};
+
+const formatCaptionsText = text => {
+  const splitText = text.split(LINE_BREAK);
+  const filteredText = splitText.filter((line, index) => {
+    const lastLine = index == (splitText.length - 1);
+    const emptyLine = line.length == 0;
+    return (!emptyLine || lastLine);
+  });
+  while (filteredText.length > CAPTIONS_CONFIG.lines) filteredText.shift();
+  return filteredText.join(LINE_BREAK);
+};
 
 export default {
   getCaptionsData,
@@ -126,4 +138,5 @@ export default {
   isCaptionsActive,
   deactivateCaptions,
   activateCaptions,
+  formatCaptionsText,
 };
