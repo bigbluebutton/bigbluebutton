@@ -119,6 +119,12 @@ class RecordingController {
     if (StringUtils.isEmpty(params.kind)) {
       respondWithError("paramError", "Missing param kind.")
       return
+    } else {
+      def isAllowedKind = StringUtils.strip(params.kind) in ['subtitles', 'captions']
+      if (!isAllowedKind) {
+        respondWithError("invalidKind", "The kind parameter is not set to a permitted value.")
+        return
+      }
     }
 
     String captionsKind = StringUtils.strip(params.kind)
