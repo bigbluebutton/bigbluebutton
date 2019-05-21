@@ -9567,6 +9567,8 @@ UA.prototype.loadConfig = function(configuration) {
       hackAllowUnregisteredOptionTags: false,
       hackCleanJitsiSdpImageattr: false,
       hackStripTcp: false,
+      hackPlanBUnifiedPlanTranslation: false,
+      hackAddAudioTransceiver: false,
 
       contactTransport: 'ws',
       forceRport: false,
@@ -9942,6 +9944,18 @@ UA.prototype.getConfigurationCheck = function () {
       hackStripTcp: function(hackStripTcp) {
         if (typeof hackStripTcp === 'boolean') {
           return hackStripTcp;
+        }
+      },
+
+      hackPlanBUnifiedPlanTranslation: function(hackPlanBUnifiedPlanTranslation) {
+        if (typeof hackPlanBUnifiedPlanTranslation === 'boolean') {
+          return hackPlanBUnifiedPlanTranslation;
+        }
+      },
+
+      hackAddAudioTransceiver: function(hackAddAudioTransceiver) {
+        if (typeof hackAddAudioTransceiver === 'boolean') {
+          return hackAddAudioTransceiver;
         }
       },
 
@@ -11210,6 +11224,16 @@ MediaHandler.prototype = Object.create(SIP.MediaHandler.prototype, {
       sdp: sdp
     };
 
+    // If the SDP translation hack is enabled and we're setting the answer, convert it
+    if (rawDescription.type === 'answer' &&
+      self.session.ua.configuration.hackPlanBUnifiedPlanTranslation) {
+      const localDescription = this.peerConnection.localDescription;
+      // Check is the localDescription is indeed unified plan before converting
+      if (window.isUnifiedPlan(localDescription.sdp)) {
+        rawDescription = window.toUnifiedPlan(rawDescription);
+      }
+    }
+
     this.emit('setDescription', rawDescription);
 
     var description = new SIP.WebRTC.RTCSessionDescription(rawDescription);
@@ -11564,11 +11588,14 @@ MediaHandler.prototype = Object.create(SIP.MediaHandler.prototype, {
     self.ready = false;
     methodName = self.hasOffer('remote') ? 'createAnswer' : 'createOffer';
 
-    if(constraints.offerToReceiveAudio) {
-      //Needed for Safari on webview
+    if(constraints.offerToReceiveAudio &&
+      self.session.ua.configuration.hackAddAudioTransceiver) {
+      // Needed for Safari on webview
       try {
-        pc.addTransceiver('audio');
-      } catch (e) {}
+        pc.addTransceiver('audio', { direction: 'sendrecv' } );
+      } catch (e) {
+        self.logger.error("Error on adding transceiver at SIP.js", JSON.stringify(e));
+      }
     }
 
     return SIP.Utils.promisify(pc, methodName, true)(constraints)
@@ -11596,6 +11623,11 @@ MediaHandler.prototype = Object.create(SIP.MediaHandler.prototype, {
           type: methodName === 'createOffer' ? 'offer' : 'answer',
           sdp: sdp
         };
+
+        if (window.isUnifiedPlan(sdp) &&
+          self.session.ua.configuration.hackPlanBUnifiedPlanTranslation) {
+          sdpWrapper.sdp = window.toPlanB(sdpWrapper.sdp);
+        }
 
         self.emit('getDescription', sdpWrapper);
 
