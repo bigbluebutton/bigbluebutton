@@ -123,12 +123,27 @@ class RecordingController {
 
     String captionsKind = StringUtils.strip(params.kind)
 
+    Locale locale;
     if (StringUtils.isEmpty(params.lang)) {
       respondWithError("paramError", "Missing param lang.")
       return
+    } else {
+      Collection<Locale> locales = new ArrayList<>();
+      locales.add(Locale.forLanguageTag(params.lang));
+      try {
+        List<Locale.LanguageRange> languageRanges = Locale.LanguageRange.parse(params.lang);
+        locale = Locale.lookup(languageRanges, locales);
+        if (locale == null) {
+          respondWithError("invalidLang", "The lang parameter is not a valid language tag.")
+          return;
+        }
+      } catch (IllegalArgumentException e) {
+        respondWithError("invalidLang", "The lang parameter is not a well-formed language tag.")
+        return;
+      }
     }
 
-    String captionsLang = StringUtils.strip(params.lang)
+    String captionsLang = locale.toString()
     String captionsLabel = captionsLang
 
     if (!StringUtils.isEmpty(params.label)) {
