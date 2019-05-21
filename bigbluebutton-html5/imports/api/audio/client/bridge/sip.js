@@ -187,7 +187,7 @@ export default class SIPBridge extends BaseAudioBridge {
 
       // Second UA check to get all Safari browsers to enable Unified Plan <-> PlanB
       // translation
-      const isSafari = true //browser().name === 'safari';
+      const isSafari = browser().name === 'safari';
 
       logger.debug('Creating the user agent');
 
