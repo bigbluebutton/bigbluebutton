@@ -23,6 +23,7 @@ export default function addCaption(meetingId, padId, locale) {
     readOnlyPadId: "",
     data: "",
     revs: 0,
+    length: 0,
   };
 
   const cb = (err, numChanged) => {

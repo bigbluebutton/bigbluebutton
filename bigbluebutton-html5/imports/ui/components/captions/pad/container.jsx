@@ -29,5 +29,6 @@ export default withTracker(() => {
     ownerId,
     padId,
     readOnlyPadId,
+    amIModerator: CaptionsService.amIModerator(),
   };
 })(PadContainer);

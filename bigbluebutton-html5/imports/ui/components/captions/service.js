@@ -1,6 +1,8 @@
 import _ from 'lodash';
 import Captions from '/imports/api/captions';
+import Users from '/imports/api/users';
 import Auth from '/imports/ui/services/auth';
+import mapUser from '/imports/ui/services/user/mapUser';
 import { makeCall } from '/imports/ui/services/api';
 import { Meteor } from 'meteor/meteor';
 import { Session } from 'meteor/session';
@@ -125,6 +127,11 @@ const formatCaptionsText = text => {
   return filteredText.join(LINE_BREAK);
 };
 
+const amIModerator = () => {
+  const currentUser = Users.findOne({ userId: Auth.userID });
+  return mapUser(currentUser).isModerator;
+};
+
 export default {
   getCaptionsData,
   getAvailableLocales,
@@ -139,4 +146,5 @@ export default {
   deactivateCaptions,
   activateCaptions,
   formatCaptionsText,
+  amIModerator,
 };

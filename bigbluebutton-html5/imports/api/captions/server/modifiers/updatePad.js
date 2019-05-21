@@ -1,5 +1,6 @@
 import Captions from '/imports/api/captions';
 import Logger from '/imports/startup/server/logger';
+import editCaptions from '/imports/api/captions/server/methods/editCaptions';
 import { check } from 'meteor/check';
 
 export default function padUpdate(padId, data, revs) {
@@ -16,13 +17,16 @@ export default function padUpdate(padId, data, revs) {
       data,
       revs,
     },
+    $inc: {
+      length: data.length,
+    },
   };
 
   const cb = (err) => {
     if (err) {
       return Logger.error(`Updating captions pad: ${err}`);
     }
-
+    editCaptions(padId, data, revs);
     return Logger.verbose(`Update captions pad=${padId} revs=${revs}`);
   };
 

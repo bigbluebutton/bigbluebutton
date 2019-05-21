@@ -29,6 +29,7 @@ const propTypes = {
   padId: PropTypes.string.isRequired,
   readOnlyPadId: PropTypes.string.isRequired,
   name: PropTypes.string.isRequired,
+  amIModerator: PropTypes.bool.isRequired,
   intl: PropTypes.shape({
     formatMessage: PropTypes.func.isRequired,
   }).isRequired,
@@ -42,7 +43,13 @@ const Pad = (props) => {
     readOnlyPadId,
     ownerId,
     name,
+    amIModerator,
   } = props;
+
+  if (!amIModerator) {
+    Session.set('openPanel', 'userlist');
+    return null;
+  }
 
   const url = PadService.getPadURL(padId, readOnlyPadId, ownerId);
 
