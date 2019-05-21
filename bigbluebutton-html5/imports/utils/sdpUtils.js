@@ -16,6 +16,7 @@ const isUnifiedPlan = (sdp) => {
   }
 
   logger.info({ logCode: 'sdp_utils_is_unified_plan' }, 'SDP looks like Unified Plan');
+
   return true;
 }
 

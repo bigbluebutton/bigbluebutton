@@ -184,7 +184,6 @@ export default class SIPBridge extends BaseAudioBridge {
       const isSafariWebview = ((browserUA.indexOf('iphone') > -1
         || browserUA.indexOf('ipad') > -1) && browserUA.indexOf('safari') == -1);
 
-
       // Second UA check to get all Safari browsers to enable Unified Plan <-> PlanB
       // translation
       const isSafari = browser().name === 'safari';

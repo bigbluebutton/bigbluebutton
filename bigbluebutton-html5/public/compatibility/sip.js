@@ -11626,7 +11626,7 @@ MediaHandler.prototype = Object.create(SIP.MediaHandler.prototype, {
 
         if (window.isUnifiedPlan(sdp) &&
           self.session.ua.configuration.hackPlanBUnifiedPlanTranslation) {
-          sdpWrapper.sdp = window.toPlanB(sdpWrapper.sdp);
+          sdpWrapper = window.toPlanB(sdpWrapper);
         }
 
         self.emit('getDescription', sdpWrapper);
