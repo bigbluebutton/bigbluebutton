@@ -417,7 +417,11 @@ public class MeetingService implements MessageListener {
 
   public String getCaptionTrackInboxDir() {
   	return recordingService.getCaptionTrackInboxDir();
-	}
+  }
+  
+  public String getCaptionsDir() {
+    return recordingService.getCaptionsDir();
+  }
 
   public String getRecordings2x(List<String> idList, List<String> states, Map<String, String> metadataFilters) {
     return recordingService.getRecordings2x(idList, states, metadataFilters);

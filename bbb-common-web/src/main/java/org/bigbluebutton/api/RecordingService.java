@@ -671,6 +671,10 @@ public class RecordingService {
         return captionsDir + File.separatorChar + "inbox";
     }
 
+    public String getCaptionsDir() {
+      return captionsDir;
+    }
+
     public String getCaptionFileUrlDirectory(String recordId) {
         return defaultServerUrl + "/captions/" + recordId + "/";
     }

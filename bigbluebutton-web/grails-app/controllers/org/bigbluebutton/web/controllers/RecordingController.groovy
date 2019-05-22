@@ -112,6 +112,13 @@ class RecordingController {
     if (StringUtils.isEmpty(params.recordID)) {
       respondWithError("paramError", "Missing param recordID.")
       return
+    } else {
+      String captionsDirPath = meetingService.getCaptionsDir() + File.separatorChar + StringUtils.isEmpty(params.recordID)
+      File captionsDir = new File(captionsDirPath);
+      if (!captionsDir.exists() || !captionsDir.isDirectory()) {
+        respondWithError("noRecordings", "No recording was found matching the provided recording ID.")
+        return;
+      } 
     }
 
     String recordId = StringUtils.strip(params.recordID)
