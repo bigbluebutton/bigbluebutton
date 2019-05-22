@@ -33,12 +33,12 @@ let lastMessage = null;
 const sendMessage = (event, data) => {
 
   // don't re-send repeated update messages
-   if (lastMessage && lastMessage.event === event
-       && event === 'playerUpdate' && lastMessage.time === data.time) {
-     return;
-   }
+  if (lastMessage && lastMessage.event === event
+    && event === 'playerUpdate' && lastMessage.time === data.time) {
+    return;
+  }
 
-   // don't register to redis a viewer joined message
+  // don't register to redis a viewer joined message
   if (event === 'viewerJoined') {
     return;
   }
