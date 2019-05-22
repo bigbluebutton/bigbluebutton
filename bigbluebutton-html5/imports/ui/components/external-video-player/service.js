@@ -31,12 +31,34 @@ const stopWatching = () => {
   makeCall('stopWatchingExternalVideo');
 };
 
+const sendServerVideoEvent = (event, data) => {
+  makeCall('updateExternalVideoStatus', { eventName: event, playerStatus: data });
+};
+
+let lastMessage = null;
+
 const sendMessage = (event, data) => {
+  // don't re-send repeated update messages
+  if (lastMessage && lastMessage.event === event
+      && event === 'playerUpdate' && lastMessage.time === data.time) {
+    return;
+  }
+
   ExternalVideoStreamer.emit(event, {
     ...data,
     meetingId: Auth.meetingID,
     userId: Auth.userID,
   });
+
+  // don't register to redis a viewer joined message
+  if (event === 'viewerJoined') {
+    return;
+  }
+
+  lastMessage = { ...data, event };
+
+  // register message to redis
+  sendServerVideoEvent(event, data);
 };
 
 const onMessage = (message, func) => {
