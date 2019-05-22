@@ -24,5 +24,7 @@ export default withTracker(({ podId }) => {
     mountPresentationArea: !!currentSlide,
     currentPresentation: PresentationAreaService.getCurrentPresentation(podId),
     notify,
+    isFitToWidth: PresentationAreaService.isFitToWidth(podId),
+    toggleFitToWidth: (podId) => PresentationAreaService.toggleFitToWidth(podId),
   };
 })(PresentationAreaContainer);

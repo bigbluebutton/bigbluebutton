@@ -66,6 +66,7 @@ export default function addPresentation(meetingId, podId, presentation) {
     $set: Object.assign({
       meetingId,
       podId,
+      fitToWidth: false,
       'conversion.done': true,
       'conversion.error': false,
     }, flat(presentation, { safe: true })),

@@ -4,6 +4,7 @@ import Presentations from '/imports/api/presentations';
 import Slides from '/imports/api/slides';
 import Users from '/imports/api/users';
 import Auth from '/imports/ui/services/auth';
+import { makeCall } from '/imports/ui/services/api';
 
 const getCurrentPresentation = podId => Presentations.findOne({
   podId,
@@ -166,13 +167,27 @@ const getMultiUserStatus = (whiteboardId) => {
   return data ? data.multiUser : false;
 };
 
+const toggleFitToWidth = (podId) => {
+  const currentPresentation = getCurrentPresentation(podId);
+  if (!currentPresentation) return null;
+  makeCall('setPresentationFitToWidth', currentPresentation.id, !currentPresentation.fitToWidth);
+};
+
+const isFitToWidth = (podId) => {
+  const currentPresentation = getCurrentPresentation(podId);
+  if (!currentPresentation) return false;
+  return currentPresentation.fitToWidth;
+};
+
 export default {
   getCurrentSlide,
   isPresenter,
   isPresentationDownloadable,
+  isFitToWidth,
   downloadPresentationUri,
   getMultiUserStatus,
   currentSlidHasContent,
   parseCurrentSlideContent,
   getCurrentPresentation,
+  toggleFitToWidth,
 };
