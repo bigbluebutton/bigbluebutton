@@ -5,7 +5,7 @@ import {
 } from 'meteor/check';
 import Meetings from '/imports/api/meetings';
 import Logger from '/imports/startup/server/logger';
-import createNote from '/imports/api/note/server/methods/createNote'
+import createNote from '/imports/api/note/server/methods/createNote';
 
 export default function addMeeting(meeting) {
   const meetingId = meeting.meetingProp.intId;
@@ -114,6 +114,7 @@ export default function addMeeting(meeting) {
     $set: Object.assign({
       meetingId,
       meetingEnded,
+      publishedPoll: false,
     }, flat(newMeeting, {
       safe: true,
     })),
