@@ -44,7 +44,9 @@ const PresentationToolbarContainer = (props) => {
 };
 
 export default withTracker((params) => {
-  const { podId, presentationId, fitToWidth } = params;
+  const {
+    podId, presentationId, fitToWidth, fullscreenRef,
+  } = params;
   const data = PresentationToolbarService.getSlideData(podId, presentationId);
 
   const {
@@ -55,6 +57,7 @@ export default withTracker((params) => {
     getSwapLayout: MediaService.getSwapLayout(),
     fitToWidthHandler: params.fitToWidthHandler,
     fitToWidth,
+    fullscreenRef,
     userIsPresenter: PresentationService.isPresenter(podId),
     numberOfSlides,
     zoom: params.zoom,
