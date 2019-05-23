@@ -27,6 +27,7 @@ import ru from 'react-intl/locale-data/ru';
 import sv from 'react-intl/locale-data/sv';
 import tr from 'react-intl/locale-data/tr';
 import uk from 'react-intl/locale-data/uk';
+import vi from 'react-intl/locale-data/vi';
 import zh from 'react-intl/locale-data/zh';
 
 
@@ -53,6 +54,7 @@ addLocaleData([
   ...sv,
   ...tr,
   ...uk,
+  ...vi,
   ...zh,
 ]);
 
@@ -126,7 +128,7 @@ class IntlStartup extends Component {
 
   saveLocale(localeName) {
     Settings.application.locale = localeName;
-    if (RTL_LANGUAGES.includes(localeName.substring(0,2))) {
+    if (RTL_LANGUAGES.includes(localeName.substring(0, 2))) {
       document.body.parentNode.setAttribute('dir', 'rtl');
       Settings.application.isRTL = true;
     } else {
