@@ -2,6 +2,7 @@ import { withTracker } from 'meteor/react-meteor-data';
 import PropTypes from 'prop-types';
 import Auth from '/imports/ui/services/auth';
 import Service from '/imports/ui/components/actions-bar/service';
+import userListService from '/imports/ui/components/user-list/service';
 import UserOptions from './component';
 
 const propTypes = {
@@ -31,14 +32,13 @@ const UserOptionsContainer = withTracker((props) => {
     isMeetingMuted: meeting.voiceProp.muteOnStart,
     isUserPresenter: Service.isUserPresenter(),
     isUserModerator: Service.isUserModerator(),
-    createBreakoutRoom: Service.createBreakoutRoom,
     meetingIsBreakout: Service.meetingIsBreakout(),
-    hasBreakoutRoom: Service.hasBreakoutRoom(),
-    meetingName: Service.meetingName(),
-    users: Service.users(),
-    getBreakouts: Service.getBreakouts,
-    sendInvitation: Service.sendInvitation,
     getUsersNotAssigned: Service.getUsersNotAssigned,
+    hasBreakoutRoom: Service.hasBreakoutRoom(),
+    isBreakoutEnabled: Service.isBreakoutEnabled(),
+    isBreakoutRecordable: Service.isBreakoutRecordable(),
+    users: Service.users(),
+    userListService,
   };
 })(UserOptions);
 

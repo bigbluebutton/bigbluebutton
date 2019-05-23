@@ -59,6 +59,26 @@ const intlMessage = defineMessages({
     id: 'app.feedback.sendFeedbackDesc',
     description: 'adds context to send feedback option',
   },
+  duplicate_user_in_meeting_eject_reason: {
+    id: 'app.meeting.logout.duplicateUserEjectReason',
+    description: 'message for duplicate users',
+  },
+  not_enough_permission_eject_reason: {
+    id: 'app.meeting.logout.permissionEjectReason',
+    description: 'message for whom was kicked by doing something without permission',
+  },
+  user_requested_eject_reason: {
+    id: 'app.meeting.logout.ejectedFromMeeting',
+    description: 'message when the user is removed by someone',
+  },
+  validate_token_failed_eject_reason: {
+    id: 'app.meeting.logout.validateTokenFailedEjectReason',
+    description: 'invalid auth token',
+  },
+  user_inactivity_eject_reason: {
+    id: 'app.meeting.logout.userInactivityEjectReason',
+    description: 'message for whom was kicked by inactivity',
+  },
 });
 
 const propTypes = {
@@ -124,13 +144,16 @@ class MeetingEnded extends React.PureComponent {
     // client logger
     logger.info({ feedback: message, logCode: 'feedback' }, 'Feedback');
 
-    fetch(url, options)
-      .then(() => {
-        logoutRouteHandler();
-      })
-      .catch(() => {
-        logoutRouteHandler();
-      });
+    const FEEDBACK_WAIT_TIME = 500;
+    setTimeout(() => {
+      fetch(url, options)
+        .then(() => {
+          logoutRouteHandler();
+        })
+        .catch(() => {
+          logoutRouteHandler();
+        });
+    }, FEEDBACK_WAIT_TIME);
   }
 
   render() {
@@ -140,11 +163,18 @@ class MeetingEnded extends React.PureComponent {
     } = this.state;
 
     const noRating = selected <= 0;
+
+    logger.info({ endedCode: code, logCode: 'meeting_ended_code' }, code);
+
     return (
       <div className={styles.parent}>
         <div className={styles.modal}>
           <div className={styles.content}>
-            <h1 className={styles.title}>{intl.formatMessage(intlMessage[code])}</h1>
+            <h1 className={styles.title}>
+              {
+                intl.formatMessage(intlMessage[code] || intlMessage[430])
+              }
+            </h1>
             <div className={styles.text}>
               {this.shouldShowFeedback
                 ? intl.formatMessage(intlMessage.subtitle)

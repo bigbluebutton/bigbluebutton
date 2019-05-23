@@ -10,7 +10,7 @@ function presentations(credentials) {
   check(requesterUserId, String);
   check(requesterToken, String);
 
-  Logger.info(`Publishing Presentations for ${meetingId} ${requesterUserId} ${requesterToken}`);
+  Logger.debug(`Publishing Presentations for ${meetingId} ${requesterUserId} ${requesterToken}`);
 
   return Presentations.find({ meetingId });
 }

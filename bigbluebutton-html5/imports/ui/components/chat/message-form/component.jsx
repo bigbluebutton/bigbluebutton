@@ -3,7 +3,7 @@ import { defineMessages, injectIntl } from 'react-intl';
 import cx from 'classnames';
 import TextareaAutosize from 'react-autosize-textarea';
 import browser from 'browser-detect';
-import { styles } from './styles';
+import { styles } from './styles.scss';
 import Button from '../../button/component';
 
 const propTypes = {

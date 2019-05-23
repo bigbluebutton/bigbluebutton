@@ -1,51 +1,31 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { defineMessages, injectIntl, intlShape } from 'react-intl';
 import { TransitionGroup, CSSTransition } from 'react-transition-group';
 import WhiteboardOverlayContainer from '/imports/ui/components/whiteboard/whiteboard-overlay/container';
 import WhiteboardToolbarContainer from '/imports/ui/components/whiteboard/whiteboard-toolbar/container';
 import { HUNDRED_PERCENT, MAX_PERCENT } from '/imports/utils/slideCalcUtils';
+import { defineMessages, injectIntl, intlShape } from 'react-intl';
+import PresentationToolbarContainer from './presentation-toolbar/container';
 import CursorWrapperContainer from './cursor/cursor-wrapper-container/container';
 import AnnotationGroupContainer from '../whiteboard/annotation-group/container';
-import PresentationToolbarContainer from './presentation-toolbar/container';
 import PresentationOverlayContainer from './presentation-overlay/container';
 import Slide from './slide/component';
 import { styles } from './styles.scss';
 import MediaService, { shouldEnableSwapLayout } from '../media/service';
 import PresentationCloseButton from './presentation-close-button/component';
 import DownloadPresentationButton from './download-presentation-button/component';
-import FullscreenButton from '../video-provider/fullscreen-button/component';
+import FullscreenButtonContainer from '../video-provider/fullscreen-button/container';
 
 const intlMessages = defineMessages({
   presentationLabel: {
     id: 'app.presentationUploder.title',
     description: 'presentation area element label',
   },
-  slideContent: {
-    id: 'app.presentation.slideContent',
-    description: 'Slide content',
-  },
-  slideContentStart: {
-    id: 'app.presentation.startSlideContent',
-    description: 'Indicate the slide content start',
-  },
-  slideContentEnd: {
-    id: 'app.presentation.endSlideContent',
-    description: 'Indicate the slide content end',
-  },
-  noSlideContent: {
-    id: 'app.presentation.emptySlideContent',
-    description: 'No content available for slide',
+  changeNotification: {
+    id: 'app.presentation.notificationLabel',
+    description: 'label displayed in toast when presentation switches',
   },
 });
-
-const isFullscreen = () => !(document.fullscreenElement === null
-    || document.webkitFullscreenElement === null); // Edge
-
-const renderPresentationClose = () => {
-  if (!shouldEnableSwapLayout() || isFullscreen()) return null;
-  return <PresentationCloseButton toggleSwapLayout={MediaService.toggleSwapLayout} />;
-};
 
 class PresentationArea extends Component {
   constructor() {
@@ -71,6 +51,28 @@ class PresentationArea extends Component {
     this.fitToWidthHandler = this.fitToWidthHandler.bind(this);
   }
 
+  componentDidUpdate(prevProps, prevState) {
+    const { currentPresentation, notify, intl } = this.props;
+
+    if (prevProps.currentPresentation.name !== currentPresentation.name) {
+      notify(
+        `${intl.formatMessage(intlMessages.changeNotification)} ${currentPresentation.name}`,
+        'info',
+        'presentation',
+      );
+    }
+
+    if (prevState.fitToWidth) {
+      // When presenter is changed or slide changed we reset fitToWidth
+      if ((prevProps.userIsPresenter && !this.props.userIsPresenter)
+          || (prevProps.currentSlide.id !== this.props.currentSlide.id)) {
+        this.setState({
+          fitToWidth: false,
+        });
+      }
+    }
+  }
+
   componentDidMount() {
     // adding an event listener to scale the whiteboard on 'resize' events sent by chat/userlist etc
     window.addEventListener('resize', () => {
@@ -92,12 +94,22 @@ class PresentationArea extends Component {
     return this.svggroup;
   }
 
+  getToolbarHeight() {
+    const { refPresentationToolbar } = this;
+    let height = 0;
+    if (refPresentationToolbar) {
+      const { clientHeight } = refPresentationToolbar;
+      height = clientHeight;
+    }
+    return height;
+  }
+
   getPresentationSizesAvailable() {
+    const { userIsPresenter, multiUser } = this.props;
     const { refPresentationArea, refWhiteboardArea } = this;
     const presentationSizes = {};
 
     if (refPresentationArea && refWhiteboardArea) {
-      const { userIsPresenter, multiUser } = this.props;
       // By default presentation sizes are equal to the sizes of the refPresentationArea
       // direct parent of the svg wrapper
       let { clientWidth, clientHeight } = refPresentationArea;
@@ -109,7 +121,7 @@ class PresentationArea extends Component {
         ({ clientWidth, clientHeight } = refWhiteboardArea);
       }
 
-      presentationSizes.presentationHeight = clientHeight;
+      presentationSizes.presentationHeight = clientHeight - this.getToolbarHeight();
       presentationSizes.presentationWidth = clientWidth;
     }
     return presentationSizes;
@@ -135,44 +147,79 @@ class PresentationArea extends Component {
     const presentationSizes = this.getPresentationSizesAvailable();
     if (Object.keys(presentationSizes).length > 0) {
       // updating the size of the space available for the slide
-      this.setState(presentationSizes);
+      this.setState({
+        presentationHeight: presentationSizes.presentationHeight,
+        presentationWidth: presentationSizes.presentationWidth,
+      });
     }
   }
 
   calculateSize() {
-    const { presentationHeight, presentationWidth } = this.state;
+    const { presentationHeight, presentationWidth, fitToWidth } = this.state;
     const { currentSlide } = this.props;
-
-    const originalWidth = currentSlide.calculatedData.width;
-    const originalHeight = currentSlide.calculatedData.height;
+    const slideSizes = currentSlide
+    && currentSlide.calculatedData
+      ? currentSlide.calculatedData : {};
+    const originalWidth = slideSizes.width;
+    const originalHeight = slideSizes.height;
 
     let adjustedWidth;
     let adjustedHeight;
 
-    // Slide has a portrait orientation
-    if (originalWidth <= originalHeight) {
-      adjustedWidth = (presentationHeight * originalWidth) / originalHeight;
-      if (presentationWidth < adjustedWidth) {
-        adjustedHeight = (presentationHeight * presentationWidth) / adjustedWidth;
-        adjustedWidth = presentationWidth;
-      } else {
-        adjustedHeight = presentationHeight;
-      }
+    if (!originalHeight || !originalWidth) {
+      return {
+        width: 0,
+        height: 0,
+      };
+    }
 
+    if (!fitToWidth) {
+      // Slide has a portrait orientation
+      if (originalWidth <= originalHeight) {
+        adjustedWidth = (presentationHeight * originalWidth) / originalHeight;
+        if (presentationWidth < adjustedWidth) {
+          adjustedHeight = (presentationHeight * presentationWidth) / adjustedWidth;
+          adjustedWidth = presentationWidth;
+        } else {
+          adjustedHeight = presentationHeight;
+        }
       // Slide has a landscape orientation
-    } else {
-      adjustedHeight = (presentationWidth * originalHeight) / originalWidth;
-      if (presentationHeight < adjustedHeight) {
-        adjustedWidth = (presentationWidth * presentationHeight) / adjustedHeight;
-        adjustedHeight = presentationHeight;
       } else {
-        adjustedWidth = presentationWidth;
+        adjustedHeight = (presentationWidth * originalHeight) / originalWidth;
+        if (presentationHeight < adjustedHeight) {
+          adjustedWidth = (presentationWidth * presentationHeight) / adjustedHeight;
+          adjustedHeight = presentationHeight;
+        } else {
+          adjustedWidth = presentationWidth;
+        }
       }
+    } else {
+      adjustedWidth = presentationWidth;
+      adjustedHeight = (adjustedWidth * originalHeight) / originalWidth;
+      if (adjustedHeight > presentationHeight) adjustedHeight = presentationHeight;
     }
     return {
       width: adjustedWidth,
       height: adjustedHeight,
     };
+  }
+
+  // TODO: This could be replaced if we synchronize the fit-to-width state between users
+  checkFitToWidth() {
+    const { userIsPresenter, currentSlide } = this.props;
+    const { fitToWidth } = this.state;
+    if (userIsPresenter) {
+      return fitToWidth;
+    }
+    const {
+      width, height, viewBoxWidth, viewBoxHeight,
+    } = currentSlide.calculatedData;
+    const slideSizeRatio = width / height;
+    const viewBoxSizeRatio = viewBoxWidth / viewBoxHeight;
+    if (slideSizeRatio !== viewBoxSizeRatio) {
+      return true;
+    }
+    return false;
   }
 
   zoomChanger(incomingZoom) {
@@ -205,7 +252,9 @@ class PresentationArea extends Component {
 
   fitToWidthHandler() {
     const { fitToWidth } = this.state;
-    this.setState({ fitToWidth: !fitToWidth });
+    this.setState({
+      fitToWidth: !fitToWidth,
+    });
   }
 
   isPresentationAccessible() {
@@ -214,25 +263,94 @@ class PresentationArea extends Component {
     return currentSlide && currentSlide.calculatedData;
   }
 
+  renderPresentationClose() {
+    const { isFullscreen } = this.props;
+    if (!shouldEnableSwapLayout() || isFullscreen) {
+      return null;
+    }
+    return <PresentationCloseButton toggleSwapLayout={MediaService.toggleSwapLayout} />;
+  }
+
+  renderOverlays(slideObj, adjustedSizes) {
+    const {
+      userIsPresenter,
+      multiUser,
+      podId,
+      currentSlide,
+    } = this.props;
+
+    const {
+      delta,
+      zoom,
+      touchZoom,
+      fitToWidth,
+    } = this.state;
+
+    if (!userIsPresenter && !multiUser) {
+      return null;
+    }
+
+    // retrieving the pre-calculated data from the slide object
+    const {
+      x,
+      y,
+      width,
+      height,
+      viewBoxWidth,
+      viewBoxHeight,
+    } = slideObj.calculatedData;
+
+    return (
+      <PresentationOverlayContainer
+        podId={podId}
+        currentSlideNum={currentSlide.num}
+        slide={slideObj}
+        whiteboardId={slideObj.id}
+        slideWidth={width}
+        slideHeight={height}
+        delta={delta}
+        viewBoxWidth={viewBoxWidth}
+        viewBoxHeight={viewBoxHeight}
+        zoom={zoom}
+        zoomChanger={this.zoomChanger}
+        adjustedSizes={adjustedSizes}
+        getSvgRef={this.getSvgRef}
+        presentationSize={this.getPresentationSizesAvailable()}
+        touchZoom={touchZoom}
+        fitToWidth={fitToWidth}
+      >
+        <WhiteboardOverlayContainer
+          getSvgRef={this.getSvgRef}
+          whiteboardId={slideObj.id}
+          slideWidth={width}
+          slideHeight={height}
+          viewBoxX={x}
+          viewBoxY={y}
+          pointChanger={this.pointUpdate}
+          viewBoxWidth={viewBoxWidth}
+          viewBoxHeight={viewBoxHeight}
+          physicalSlideWidth={(adjustedSizes.width / slideObj.widthRatio) * 100}
+          physicalSlideHeight={(adjustedSizes.height / slideObj.heightRatio) * 100}
+          zoom={zoom}
+          zoomChanger={this.zoomChanger}
+          touchUpdate={this.touchUpdate}
+        />
+      </PresentationOverlayContainer>
+    );
+  }
+
   // renders the whole presentation area
   renderPresentationArea() {
-    const { fitToWidth } = this.state;
-    const { podId, currentSlide, intl } = this.props;
+    const { presentationWidth } = this.state;
+    const { podId, currentSlide, isFullscreen } = this.props;
     if (!this.isPresentationAccessible()) return null;
+
 
     // to control the size of the svg wrapper manually
     // and adjust cursor's thickness, so that svg didn't scale it automatically
     const adjustedSizes = this.calculateSize();
     // a reference to the slide object
     const slideObj = currentSlide;
-
-    const presentationCloseButton = renderPresentationClose();
-    const presentationFullscreenButton = this.renderPresentationFullscreen();
-    const presentationDownloadButton = this.renderPresentationDownload();
-
-    const slideContent = currentSlide.content ? `${intl.formatMessage(intlMessages.slideContentStart)}
-     ${currentSlide.content}
-     ${intl.formatMessage(intlMessages.slideContentEnd)}` : intl.formatMessage(intlMessages.noSlideContent);
 
     // retrieving the pre-calculated data from the slide object
     const {
@@ -244,24 +362,27 @@ class PresentationArea extends Component {
       viewBoxHeight,
       imageUri,
     } = slideObj.calculatedData;
-    const svgDimensions = fitToWidth ? {
-      position: 'absolute',
-      width: 'inherit',
-    } : {
-      position: 'absolute',
-      width: adjustedSizes.width,
-      height: adjustedSizes.height,
-    };
+
+    const svgAreaDimensions = this.checkFitToWidth()
+      ? {
+        position: 'absolute',
+        width: 'inherit',
+        height: adjustedSizes.height,
+      }
+      : {
+        position: 'absolute',
+        width: adjustedSizes.width,
+        height: adjustedSizes.height,
+        textAlign: 'center',
+      };
+
     return (
       <div
-        style={svgDimensions}
-        aria-label={intl.formatMessage(intlMessages.slideContent)}
-        aria-describedby="currentSlideText"
+        style={svgAreaDimensions}
       >
-        <span id="currentSlideText" className={styles.visuallyHidden}>{slideContent}</span>
-        {presentationCloseButton}
-        {presentationFullscreenButton}
-        {presentationDownloadButton}
+        {this.renderPresentationClose()}
+        {this.renderPresentationDownload()}
+        {isFullscreen ? null : this.renderPresentationFullscreen()}
         <TransitionGroup>
           <CSSTransition
             key={slideObj.id}
@@ -287,6 +408,12 @@ class PresentationArea extends Component {
               version="1.1"
               xmlns="http://www.w3.org/2000/svg"
               className={styles.svgStyles}
+              style={this.checkFitToWidth()
+                ? {
+                  position: 'absolute',
+                }
+                : null
+              }
             >
               <defs>
                 <clipPath id="viewBox">
@@ -310,10 +437,9 @@ class PresentationArea extends Component {
                   podId={podId}
                   whiteboardId={slideObj.id}
                   widthRatio={slideObj.widthRatio}
-                  physicalWidthRatio={adjustedSizes.width / width}
+                  physicalWidthRatio={this.checkFitToWidth() ? (presentationWidth / width) : (adjustedSizes.width / width)}
                   slideWidth={width}
                   slideHeight={height}
-                  radius={fitToWidth ? 2 : 5}
                 />
               </g>
               {this.renderOverlays(slideObj, adjustedSizes)}
@@ -324,119 +450,28 @@ class PresentationArea extends Component {
     );
   }
 
-  renderOverlays(slideObj, adjustedSizes) {
-    const {
-      userIsPresenter, multiUser, podId, currentSlide,
-    } = this.props;
-    const {
-      delta, zoom, touchZoom, fitToWidth,
-    } = this.state;
-
-    if (!userIsPresenter && !multiUser) return null;
-
-    // retrieving the pre-calculated data from the slide object
-    const {
-      x,
-      y,
-      width,
-      height,
-      viewBoxWidth,
-      viewBoxHeight,
-    } = slideObj.calculatedData;
-
-    return (
-      <PresentationOverlayContainer
-        {...{
-          podId,
-          touchZoom,
-          fitToWidth,
-          zoom,
-          delta,
-          viewBoxWidth,
-          viewBoxHeight,
-          adjustedSizes,
-        }}
-        currentSlideNum={currentSlide.num}
-        whiteboardId={slideObj.id}
-        slide={slideObj}
-        slideWidth={width}
-        slideHeight={height}
-        zoomChanger={this.zoomChanger}
-        getSvgRef={this.getSvgRef}
-        presentationSize={this.getPresentationSizesAvailable()}
-      >
-        <WhiteboardOverlayContainer
-          {...{
-            zoom,
-            viewBoxWidth,
-            viewBoxHeight,
-          }}
-          getSvgRef={this.getSvgRef}
-          whiteboardId={slideObj.id}
-          slideWidth={width}
-          slideHeight={height}
-          viewBoxX={x}
-          viewBoxY={y}
-          pointChanger={this.pointUpdate}
-          physicalSlideWidth={(adjustedSizes.width / slideObj.widthRatio) * 100}
-          physicalSlideHeight={(adjustedSizes.height / slideObj.heightRatio) * 100}
-          zoomChanger={this.zoomChanger}
-          touchUpdate={this.touchUpdate}
-        />
-      </PresentationOverlayContainer>
-    );
-  }
-
-  renderPresentationFullscreen() {
-    const { intl } = this.props;
-    if (isFullscreen()) return null;
-
-    const full = () => {
-      const presentation = this.refPresentationContainer;
-      if (presentation.requestFullscreen) {
-        presentation.requestFullscreen();
-      } else if (presentation.webkitRequestFullscreen) { // Edge
-        presentation.webkitRequestFullscreen();
-      }
-    };
-
-    return (
-      <FullscreenButton
-        handleFullscreen={full}
-        elementName={intl.formatMessage(intlMessages.presentationLabel)}
-        dark
-      />
-    );
-  }
-
-  renderPresentationDownload() {
-    const { presentationIsDownloadable, downloadPresentationUri } = this.props;
-
-    if (!presentationIsDownloadable) return null;
-
-    const handleDownloadPresentation = () => {
-      window.open(downloadPresentationUri);
-    };
-
-    return (
-      <DownloadPresentationButton
-        handleDownloadPresentation={handleDownloadPresentation}
-        dark
-      />
-    );
-  }
-
   renderPresentationToolbar() {
-    const { zoom } = this.state;
-    const { currentSlide, podId } = this.props;
-    if (!currentSlide) return null;
+    const {
+      currentSlide,
+      podId,
+      isFullscreen,
+    } = this.props;
+
+    const { zoom, fitToWidth } = this.state;
+
+    if (!currentSlide) {
+      return null;
+    }
 
     return (
       <PresentationToolbarContainer
         {...{
-          podId,
+          fitToWidth,
           zoom,
+          podId,
         }}
+        isFullscreen={isFullscreen}
+        fullscreenRef={this.refPresentationContainer}
         currentSlideNum={currentSlide.num}
         presentationId={currentSlide.presentationId}
         zoomChanger={this.zoomChanger}
@@ -458,9 +493,71 @@ class PresentationArea extends Component {
     );
   }
 
+  renderPresentationDownload() {
+    const { presentationIsDownloadable, downloadPresentationUri } = this.props;
+
+    if (!presentationIsDownloadable) return null;
+
+    const handleDownloadPresentation = () => {
+      window.open(downloadPresentationUri);
+    };
+
+    return (
+      <DownloadPresentationButton
+        handleDownloadPresentation={handleDownloadPresentation}
+        dark
+      />
+    );
+  }
+
+  renderPresentationFullscreen() {
+    const {
+      intl,
+      userIsPresenter,
+    } = this.props;
+    if (userIsPresenter) return null;
+
+    return (
+      <FullscreenButtonContainer
+        fullscreenRef={this.refPresentationContainer}
+        elementName={intl.formatMessage(intlMessages.presentationLabel)}
+        dark
+      />
+    );
+  }
+
   render() {
-    const { showSlide } = this.state;
-    const { userIsPresenter, multiUser } = this.props;
+    const {
+      userIsPresenter,
+      multiUser,
+    } = this.props;
+    const {
+      showSlide,
+      fitToWidth,
+    } = this.state;
+
+    const adjustedSizes = this.calculateSize();
+    const adjustedHeight = adjustedSizes.height;
+    const adjustedWidth = adjustedSizes.width;
+
+    const toolbarHeight = this.getToolbarHeight();
+
+    let toolbarWidth = 0;
+    if (this.refWhiteboardArea) {
+      const { clientWidth: areaWidth } = this.refWhiteboardArea;
+      if (adjustedWidth <= 400
+        && adjustedWidth !== areaWidth
+        && areaWidth > 400
+        && fitToWidth === false) {
+        toolbarWidth = '400px';
+      } else if (adjustedWidth === areaWidth
+        || areaWidth <= 400
+        || fitToWidth === true) {
+        toolbarWidth = '100%';
+      } else {
+        toolbarWidth = adjustedWidth;
+      }
+    }
 
     return (
       <div
@@ -475,10 +572,35 @@ class PresentationArea extends Component {
             ref={(ref) => { this.refWhiteboardArea = ref; }}
             className={styles.whiteboardSizeAvailable}
           />
-          {showSlide ? this.renderPresentationArea() : null}
-          {userIsPresenter || multiUser ? this.renderWhiteboardToolbar() : null}
+          <div
+            className={styles.svgContainer}
+            style={{
+              height: adjustedHeight + toolbarHeight,
+            }}
+          >
+            {showSlide
+              ? this.renderPresentationArea()
+              : null}
+            {userIsPresenter || multiUser
+              ? this.renderWhiteboardToolbar()
+              : null}
+            {userIsPresenter || multiUser
+              ? (
+                <div
+                  className={styles.presentationToolbar}
+                  ref={(ref) => { this.refPresentationToolbar = ref; }}
+                  style={
+                    {
+                      width: toolbarWidth,
+                    }
+                  }
+                >
+                  {this.renderPresentationToolbar()}
+                </div>
+              )
+              : null}
+          </div>
         </div>
-        {this.renderPresentationToolbar()}
       </div>
     );
   }

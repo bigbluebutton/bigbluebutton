@@ -38,7 +38,6 @@ const propTypes = {
   intl: intlShape.isRequired,
   parseCurrentSlideContent: PropTypes.func.isRequired,
   isUserPresenter: PropTypes.bool.isRequired,
-
 };
 
 const handleClickQuickPoll = (slideId, poll) => {
@@ -49,9 +48,8 @@ const handleClickQuickPoll = (slideId, poll) => {
   makeCall('startPoll', type, slideId);
 };
 
-
 const getAvailableQuickPolls = (slideId, parsedSlides) => {
-  return parsedSlides.map((poll) => {
+  const pollItemElements = parsedSlides.map((poll) => {
     const { poll: label, type } = poll;
     let itemLabel = label;
 
@@ -60,12 +58,32 @@ const getAvailableQuickPolls = (slideId, parsedSlides) => {
       itemLabel = options.join('/').replace(/[\n.)]/g, '');
     }
 
+    // removes any whitespace from the label
+    itemLabel = itemLabel.replace(/\s+/g, '').toUpperCase();
+
+    const numChars = {
+      1: 'A', 2: 'B', 3: 'C', 4: 'D', 5: 'E',
+    };
+    itemLabel = itemLabel.split('').map((c) => {
+      if (numChars[c]) return numChars[c];
+      return c;
+    }).join('');
+
     return (
       <DropdownListItem
         label={itemLabel}
         key={_.uniqueId('quick-poll-item')}
         onClick={() => handleClickQuickPoll(slideId, poll)}
-      />);
+      />
+    );
+  });
+
+  const sizes = [];
+  return pollItemElements.filter((el) => {
+    const { label } = el.props;
+    if (label.length === sizes[sizes.length - 1]) return;
+    sizes.push(label.length);
+    return el;
   });
 };
 

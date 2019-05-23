@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { FormattedMessage, defineMessages, injectIntl } from 'react-intl';
 import Button from '/imports/ui/components/button/component';
+import cx from 'classnames';
 import { styles } from '../styles.scss';
 import HoldButton from './holdButton/component';
 
@@ -193,6 +194,7 @@ class ZoomTool extends Component {
       minBound,
       maxBound,
       intl,
+      tooltipDistance,
     } = this.props;
     const { stateZoomValue } = this.state;
     return (
@@ -210,10 +212,11 @@ class ZoomTool extends Component {
               aria-describedby="zoomOutDesc"
               aria-label={intl.formatMessage(intlMessages.zoomOutLabel)}
               label={intl.formatMessage(intlMessages.zoomOutLabel)}
-              icon="minus"
+              icon="substract"
               onClick={() => { }}
               disabled={(zoomValue <= minBound)}
-              className={styles.prevSlide}
+              className={cx(styles.prevSlide, styles.presentationBtn)}
+              tooltipDistance={tooltipDistance}
               hideLabel
             />
           </HoldButton>
@@ -228,8 +231,9 @@ class ZoomTool extends Component {
             size="md"
             onClick={() => this.resetZoom()}
             label={intl.formatMessage(intlMessages.resetZoomLabel)}
+            className={cx(styles.zoomPercentageDisplay, styles.presentationBtn)}
+            tooltipDistance={tooltipDistance}
             hideLabel
-            className={styles.zoomPercentageDisplay}
           />
         ),
         (
@@ -245,10 +249,11 @@ class ZoomTool extends Component {
               aria-describedby="zoomInDesc"
               aria-label={intl.formatMessage(intlMessages.zoomInLabel)}
               label={intl.formatMessage(intlMessages.zoomInLabel)}
-              icon="plus"
+              icon="add"
               onClick={() => { }}
               disabled={(zoomValue >= maxBound)}
-              className={styles.skipSlide}
+              className={cx(styles.skipSlide, styles.presentationBtn)}
+              tooltipDistance={tooltipDistance}
               hideLabel
             />
           </HoldButton>

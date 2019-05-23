@@ -11,38 +11,42 @@
     @include mq($small-only) {
       margin: 0 var(--sm-padding-y);
     }
-
-    span:first-child {
-      box-shadow: 0 2px 5px 0 rgb(0, 0, 0);
-    }
   }
 
   > :first-child {
     margin-left: 0;
+    margin-right: inherit;
+
+    [dir="rtl"] & {
+      margin-left: inherit;
+      margin-right: 0;
+    }
   }
 
   > :last-child {
-    margin-right: 0;
+      margin-left: inherit;
+      margin-right: 0;
+
+    [dir="rtl"] & {
+      margin-left: 0;
+      margin-right: inherit;
+    }
   }
 }
 
-.button {
-  &:focus {
+.glow {
+  border-radius: 50%;
+  
+  :global(.animationsEnabled) & {
+    animation: pulse 1s infinite ease-in;
+  }
+
+  :global(.animationsDisabled) & span {
+    content: '';
     outline: none !important;
+    background-clip: padding-box;
+    box-shadow: 0 0 0 4px rgba(255,255,255,.5);
   }
-
-  &.glow {
-    animation: pulse calc(var(--enableAnimation) * 1s) infinite ease-in;
-    border-radius: 50%;
-  }
-}
-
-[style~="--enableAnimation:0;"] .button.glow span {
-  content: '';
-  outline: none !important;
-  background-clip: padding-box;
-  border: var(--border-size-large) solid transparent;
-  box-shadow: 0 0 0 var(--border-size) rgba(255,255,255,.5);
 }
 
 @keyframes pulse {
@@ -55,8 +59,4 @@
   100% {
     box-shadow: 0 0 0 0 transparent;
   }
-}
-
-.ghostButton {
-  @extend .btn;
 }

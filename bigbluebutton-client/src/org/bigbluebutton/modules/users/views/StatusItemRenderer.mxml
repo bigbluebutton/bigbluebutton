@@ -189,12 +189,15 @@
 			}
 
   			private function roleBtnClicked():void {
-                if (!data.presenter) {
-    				var e:RoleChangeEvent = new RoleChangeEvent(RoleChangeEvent.ASSIGN_PRESENTER);
-    				e.userid = data.userId;
-    				e.username = data.name;
-    				dispatchEvent(e);
-                }
+				if (!data.me && !UsersUtil.amIModerator())
+					return;
+				
+				if (!data.presenter) {
+					var e:RoleChangeEvent = new RoleChangeEvent(RoleChangeEvent.ASSIGN_PRESENTER);
+					e.userid = data.userId;
+					e.username = data.name;
+					dispatchEvent(e);
+				}
         	}
 
 			private function emojiBtnClicked():void {

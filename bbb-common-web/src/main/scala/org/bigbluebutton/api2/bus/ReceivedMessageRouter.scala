@@ -1,8 +1,7 @@
 package org.bigbluebutton.api2.bus
 
 import org.bigbluebutton.api2.SystemConfiguration
-import org.bigbluebutton.common2.msgs.{BbbCommonEnvCoreMsg, BbbCoreEnvelope, BbbCoreMsg}
-
+import org.bigbluebutton.common2.msgs.{ BbbCommonEnvCoreMsg, BbbCoreEnvelope, BbbCoreMsg }
 
 trait ReceivedMessageRouter extends SystemConfiguration {
   val msgFromAkkaAppsEventBus: MsgFromAkkaAppsEventBus

@@ -1,6 +1,5 @@
 import { Tracker } from 'meteor/tracker';
 import { makeCall } from '/imports/ui/services/api';
-import VertoBridge from '/imports/api/audio/client/bridge/verto';
 import KurentoBridge from '/imports/api/audio/client/bridge/kurento';
 import Auth from '/imports/ui/services/auth';
 import VoiceUsers from '/imports/api/voice-users';
@@ -13,7 +12,6 @@ import { tryGenerateIceCandidates } from '../../../utils/safari-webrtc';
 
 const MEDIA = Meteor.settings.public.media;
 const MEDIA_TAG = MEDIA.mediaTag;
-const USE_SIP = MEDIA.useSIPAudio;
 const ECHO_TEST_NUMBER = MEDIA.echoTestNumber;
 const MAX_LISTEN_ONLY_RETRIES = 1;
 
@@ -48,7 +46,7 @@ class AudioManager {
   }
 
   init(userData) {
-    this.bridge = USE_SIP ? new SIPBridge(userData) : new VertoBridge(userData);
+    this.bridge = new SIPBridge(userData); // no alternative as of 2019-03-08
     if (this.useKurento) {
       this.listenOnlyBridge = new KurentoBridge(userData);
     }
@@ -176,7 +174,7 @@ class AudioManager {
         clearTimeout(iceGatheringTimeout);
       }
 
-      logger.error({ logCode: 'audiomanager_listenonly_error' }, 'Listen only error:', err, 'on try', retries);
+      logger.error({ logCode: 'audiomanager_listenonly_error' }, `Listen only error:${JSON.stringify(err)} on try ${retries}`);
       throw {
         type: 'MEDIA_ERROR',
         message: this.messages.error.MEDIA_ERROR,
@@ -289,7 +287,7 @@ class AudioManager {
     }
 
     if (!this.error && !this.isEchoTest) {
-      this.notify(this.intl.formatMessage(this.messages.info.LEFT_AUDIO));
+      this.notify(this.intl.formatMessage(this.messages.info.LEFT_AUDIO), false, 'audio_off');
     }
     window.parent.postMessage({ response: 'notInAudio' }, '*');
   }
@@ -319,7 +317,7 @@ class AudioManager {
         const errorMsg = this.intl.formatMessage(errorKey, { 0: bridgeError });
         this.error = !!error;
         this.notify(errorMsg, true);
-        logger.error({ logCode: 'audio_failure', error, cause: bridgeError }, 'Audio Error:', error, bridgeError);
+        logger.error({ logCode: 'audio_failure', error, cause: bridgeError }, `Audio Error ${JSON.stringify(errorMsg)}`);
         this.exitAudio();
         this.onAudioExit();
       }
@@ -411,11 +409,13 @@ class AudioManager {
     return this._userData;
   }
 
-  notify(message, error = false) {
+  notify(message, error = false, icon = 'unmute') {
+    const audioIcon = this.isListenOnly ? 'listen' : icon;
+
     notify(
       message,
       error ? 'error' : 'info',
-      this.isListenOnly ? 'audio_on' : 'unmute',
+      audioIcon,
     );
   }
 }

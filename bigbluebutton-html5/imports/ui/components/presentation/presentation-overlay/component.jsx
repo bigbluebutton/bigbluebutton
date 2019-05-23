@@ -70,8 +70,6 @@ export default class PresentationOverlay extends Component {
       presentationSize,
     } = props;
 
-    this.fitToPage = false;
-
     this.viewportW = slideWidth;
     this.viewportH = slideHeight;
 
@@ -107,6 +105,7 @@ export default class PresentationOverlay extends Component {
     const zoomPercentage = (Math.round((100 / realZoom) * 100));
     const roundedUpToFive = Math.round(zoomPercentage / 5) * 5;
     zoomChanger(roundedUpToFive);
+    this.doZoomCall(HUNDRED_PERCENT, 0, 0);
   }
 
   componentDidUpdate(prevProps) {
@@ -117,6 +116,7 @@ export default class PresentationOverlay extends Component {
       presentationSize,
       slideHeight,
       slideWidth,
+      fitToWidth,
     } = this.props;
     const isDifferent = zoom !== this.state.zoom && !touchZoom;
     const moveSLide = ((delta.x !== prevProps.delta.x)
@@ -134,15 +134,15 @@ export default class PresentationOverlay extends Component {
       this.toolbarZoom();
     }
 
-    if (!prevProps.fitToWidth && this.props.fitToWidth) {
-      this.parentH = presentationSize.presentationHeight;
-      this.parentW = presentationSize.presentationWidth;
-      this.viewportH = this.parentH;
-      this.viewportW = this.parentW;
-      this.doZoomCall(HUNDRED_PERCENT, 0, 0);
-    }
-
-    if (!this.props.fitToWidth && prevProps.fitToWidth) {
+    if (fitToWidth) {
+      if (!prevProps.fitToWidth || this.checkResize(prevProps.presentationSize)) {
+        this.parentH = presentationSize.presentationHeight;
+        this.parentW = presentationSize.presentationWidth;
+        this.viewportH = this.parentH;
+        this.viewportW = this.parentW;
+        this.doZoomCall(HUNDRED_PERCENT, 0, 0);
+      }
+    } else if (prevProps.fitToWidth) {
       this.viewportH = slideHeight;
       this.viewportW = slideWidth;
       this.doZoomCall(HUNDRED_PERCENT, 0, 0);
@@ -156,15 +156,20 @@ export default class PresentationOverlay extends Component {
     const relXcoordInPage = absXcoordInPage / this.calcPageW;
     const relYcoordInPage = absYcoordInPage / this.calcPageH;
 
-    if (this.isPortraitDoc() && this.fitToPage) {
-      this.calcPageH = (this.viewportH * zoomValue) / HUNDRED_PERCENT;
-      this.calcPageW = (this.pageOrigW / this.pageOrigH) * this.calcPageH;
-    } else if (!this.isPortraitDoc() && this.fitToPage) {
-      this.calcPageW = (this.viewportW * zoomValue) / HUNDRED_PERCENT;
-      this.calcPageH = (this.viewportH * zoomValue) / HUNDRED_PERCENT;
-    } else {
+    if (this.isPortraitDoc()) {
+      if (this.props.fitToWidth) {
+        this.calcPageW = (this.viewportW * zoomValue) / HUNDRED_PERCENT;
+        this.calcPageH = (this.calcPageW / this.pageOrigW) * this.pageOrigH;
+      } else {
+        this.calcPageH = (this.viewportH * zoomValue) / HUNDRED_PERCENT;
+        this.calcPageW = (this.pageOrigW / this.pageOrigH) * this.calcPageH;
+      }
+    } else if (this.props.fitToWidth) {
       this.calcPageW = (this.viewportW * zoomValue) / HUNDRED_PERCENT;
       this.calcPageH = (this.calcPageW / this.pageOrigW) * this.pageOrigH;
+    } else {
+      this.calcPageW = (this.viewportW * zoomValue) / HUNDRED_PERCENT;
+      this.calcPageH = (this.viewportH * zoomValue) / HUNDRED_PERCENT;
     }
 
     absXcoordInPage = relXcoordInPage * this.calcPageW;
@@ -181,6 +186,8 @@ export default class PresentationOverlay extends Component {
 
   getTransformedSvgPoint(clientX, clientY) {
     const svgObject = this.props.getSvgRef();
+    // If svgObject is not ready, return origin
+    if (!svgObject) return { x: 0, y: 0 };
     const screenPoint = svgObject.createSVGPoint();
     screenPoint.x = clientX;
     screenPoint.y = clientY;
@@ -188,6 +195,13 @@ export default class PresentationOverlay extends Component {
     const CTM = svgObject.getScreenCTM();
 
     return screenPoint.matrixTransform(CTM.inverse());
+  }
+
+  checkResize(prevPresentationSize) {
+    const { presentationSize } = this.props;
+    const heightChanged = prevPresentationSize.presentationHeight !== presentationSize.presentationHeight;
+    const widthChanged = prevPresentationSize.presentationWidth !== presentationSize.presentationWidth;
+    return heightChanged || widthChanged;
   }
 
   panZoom() {
@@ -456,31 +470,24 @@ export default class PresentationOverlay extends Component {
     if (this.touchStarted) {
       return;
     }
-    // for the case where you change settings in one of the lists (which are displayed on the slide)
-    // the mouse starts pointing to the slide right away and mouseEnter doesn't fire
-    // so we call it manually here
-    if (!this.intervalId) {
-      this.mouseEnterHandler();
-    }
-
     this.currentClientX = event.clientX;
     this.currentClientY = event.clientY;
+    this.checkCursor();
   }
 
-  mouseEnterHandler() {
+  mouseEnterHandler(event) {
     if (this.touchStarted) {
       return;
     }
-
-    const intervalId = setInterval(this.checkCursor, CURSOR_INTERVAL);
-    this.intervalId = intervalId;
+    this.currentClientX = event.clientX;
+    this.currentClientY = event.clientY;
+    this.checkCursor();
   }
 
   mouseOutHandler() {
     // mouse left the whiteboard, removing the interval
     clearInterval(this.intervalId);
     this.intervalId = 0;
-
     // setting the coords to negative values and send the last message (the cursor will disappear)
     this.currentClientX = -1;
     this.currentClientY = -1;

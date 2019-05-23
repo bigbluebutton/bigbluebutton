@@ -42,5 +42,8 @@
 
 .appearActive {
   opacity: 1;
-  transition: opacity calc(var(--enableAnimation) * 700ms) ease-in;
+
+  :global(.animationsEnabled) & {
+    transition: opacity 700ms ease-in;
+  }
 }

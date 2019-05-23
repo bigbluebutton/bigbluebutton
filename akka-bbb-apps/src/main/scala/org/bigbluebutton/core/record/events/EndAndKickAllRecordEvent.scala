@@ -20,5 +20,15 @@
 package org.bigbluebutton.core.record.events
 
 class EndAndKickAllRecordEvent extends AbstractParticipantRecordEvent {
+  import EndAndKickAllRecordEvent._
+
   setEvent("EndAndKickAllEvent")
+
+  def setReason(reason: String) {
+    eventMap.put(REASON, reason)
+  }
+}
+
+object EndAndKickAllRecordEvent {
+  protected final val REASON = "reason"
 }

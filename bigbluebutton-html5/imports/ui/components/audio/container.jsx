@@ -1,5 +1,6 @@
 import React from 'react';
 import { withTracker } from 'meteor/react-meteor-data';
+import { Session } from 'meteor/session';
 import { withModalMounter } from '/imports/ui/components/modal/service';
 import { injectIntl, defineMessages } from 'react-intl';
 import _ from 'lodash';
@@ -77,17 +78,19 @@ export default withModalMounter(injectIntl(withTracker(({ mountModal, intl }) =>
   const KURENTO_CONFIG = Meteor.settings.public.kurento;
 
   const autoJoin = getFromUserSettings('autoJoin', APP_CONFIG.autoJoin);
-  const openAudioModal = mountModal.bind(
-    null,
-    <AudioModalContainer />,
-  );
+  const openAudioModal = () => new Promise((resolve) => {
+    mountModal(<AudioModalContainer resolve={resolve} />);
+  });
+
   const openVideoPreviewModal = () => new Promise((resolve) => {
     mountModal(<VideoPreviewContainer resolve={resolve} />);
   });
-  if (Service.audioLocked() && Service.isConnected() && !Service.isListenOnly()) {
-    Service.exitAudio();
+  if (Service.audioLocked()
+    && Service.isConnected()
+    && !Service.isListenOnly()
+    && !Service.isMuted()) {
+    Service.toggleMuteMicrophone();
     notify(intl.formatMessage(intlMessages.reconectingAsListener), 'info', 'audio_on');
-    Service.joinListenOnly();
   }
 
   Breakouts.find().observeChanges({
@@ -130,11 +133,11 @@ export default withModalMounter(injectIntl(withTracker(({ mountModal, intl }) =>
       Service.init(messages, intl);
       Service.changeOutputDevice(document.querySelector('#remote-media').sinkId);
       if (!autoJoin || didMountAutoJoin) return;
-
+      Session.set('audioModalIsOpen', true);
       const enableVideo = getFromUserSettings('enableVideo', KURENTO_CONFIG.enableVideo);
       const autoShareWebcam = getFromUserSettings('autoShareWebcam', KURENTO_CONFIG.autoShareWebcam);
       if (enableVideo && autoShareWebcam) {
-        openVideoPreviewModal().then(() => { openAudioModal(); didMountAutoJoin = true; });
+        openAudioModal().then(() => { openVideoPreviewModal(); didMountAutoJoin = true; });
       } else {
         openAudioModal();
         didMountAutoJoin = true;

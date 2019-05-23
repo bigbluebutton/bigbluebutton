@@ -387,7 +387,7 @@ export default class TextDrawListener extends Component {
   }
 
   render() {
-    const baseName = Meteor.settings.public.app.basename;
+    const baseName = Meteor.settings.public.app.cdn + Meteor.settings.public.app.basename;
     const textDrawStyle = {
       width: '100%',
       height: '100%',

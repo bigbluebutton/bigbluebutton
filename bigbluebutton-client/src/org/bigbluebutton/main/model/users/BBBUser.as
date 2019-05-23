@@ -59,6 +59,7 @@ package org.bigbluebutton.main.model.users
     [Bindable] public var disableMyMic:Boolean = false;
     [Bindable] public var disableMyPrivateChat:Boolean = false;
     [Bindable] public var disableMyPublicChat:Boolean = false;
+    [Bindable] public var disableMyNote:Boolean = false;
     [Bindable] public var lockedLayout:Boolean = false;
     [Bindable] public var avatarURL:String="";
     
@@ -390,6 +391,7 @@ package org.bigbluebutton.main.model.users
       n.disableMyMic = user.disableMyMic;
       n.disableMyPrivateChat = user.disableMyPrivateChat;
       n.disableMyPublicChat = user.disableMyPublicChat;
+      n.disableMyNote = user.disableMyNote;
       n.breakoutRooms = user.breakoutRooms.concat(); // concatenate an array with nothing to deliver a new array.
       n.guest = user.guest;
       return n;		
@@ -410,6 +412,7 @@ package org.bigbluebutton.main.model.users
       disableMyMic = lockAppliesToMe && lockSettings.getDisableMic();
       disableMyPrivateChat = lockAppliesToMe && lockSettings.getDisablePrivateChat();
       disableMyPublicChat = lockAppliesToMe && lockSettings.getDisablePublicChat();
+      disableMyNote = lockAppliesToMe && lockSettings.getDisableNote();
       lockedLayout = lockAppliesToMe && lockSettings.getLockedLayout();
       
       var dispatcher:Dispatcher = new Dispatcher();

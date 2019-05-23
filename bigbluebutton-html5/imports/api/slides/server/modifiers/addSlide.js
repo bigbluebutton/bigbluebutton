@@ -8,6 +8,8 @@ import Logger from '/imports/startup/server/logger';
 import { SVG, PNG } from '/imports/utils/mimeTypes';
 import calculateSlideData from '/imports/api/slides/server/helpers';
 
+const loadSlidesFromHttpAlways = Meteor.settings.private.app.loadSlidesFromHttpAlways || false;
+
 const requestWhiteboardHistory = (meetingId, slideId) => {
   const REDIS_CONFIG = Meteor.settings.private.redis;
   const CHANNEL = REDIS_CONFIG.channels.toAkkaApps;
@@ -23,22 +25,21 @@ const requestWhiteboardHistory = (meetingId, slideId) => {
 
 const SUPPORTED_TYPES = [SVG, PNG];
 
-const fetchImageSizes = imageUri =>
-  probe(imageUri)
-    .then((result) => {
-      if (!SUPPORTED_TYPES.includes(result.mime)) {
-        throw new Meteor.Error('invalid-image-type', `received ${result.mime} expecting ${SUPPORTED_TYPES.join()}`);
-      }
+const fetchImageSizes = imageUri => probe(imageUri)
+  .then((result) => {
+    if (!SUPPORTED_TYPES.includes(result.mime)) {
+      throw new Meteor.Error('invalid-image-type', `received ${result.mime} expecting ${SUPPORTED_TYPES.join()}`);
+    }
 
-      return {
-        width: result.width,
-        height: result.height,
-      };
-    })
-    .catch((reason) => {
-      Logger.error(`Error parsing image size. ${reason}. uri=${imageUri}`);
-      return reason;
-    });
+    return {
+      width: result.width,
+      height: result.height,
+    };
+  })
+  .catch((reason) => {
+    Logger.error(`Error parsing image size. ${reason}. uri=${imageUri}`);
+    return reason;
+  });
 
 export default function addSlide(meetingId, podId, presentationId, slide) {
   check(podId, String);
@@ -93,7 +94,9 @@ export default function addSlide(meetingId, podId, presentationId, slide) {
     return Logger.info(`Upserted slide id=${slide.id} pod=${podId} presentation=${presentationId}`);
   };
 
-  return fetchImageSizes(imageUri)
+  const imageSizeUri = (loadSlidesFromHttpAlways ? imageUri.replace(/^https/i, 'http') : imageUri);
+
+  return fetchImageSizes(imageSizeUri)
     .then(({ width, height }) => {
       // there is a rare case when for a very long not-active meeting
       // the presentation files just disappear
@@ -120,6 +123,5 @@ export default function addSlide(meetingId, podId, presentationId, slide) {
 
       return Slides.upsert(selector, modifier, cb);
     })
-    .catch(reason =>
-      Logger.error(`Error parsing image size. ${reason}. slide=${slide.id} uri=${imageUri}`));
+    .catch(reason => Logger.error(`Error parsing image size. ${reason}. slide=${slide.id} uri=${imageUri}`));
 }

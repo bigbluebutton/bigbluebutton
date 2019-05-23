@@ -63,11 +63,11 @@ const intlMessages = defineMessages({
 });
 
 const NotificationsBarContainer = (props) => {
-  if (_.isEmpty(props.message)) {
+  const { message, color } = props;
+  if (_.isEmpty(message)) {
     return null;
   }
 
-  const { message, color } = props;
 
   return (
     <NotificationsBar color={color}>
@@ -144,7 +144,9 @@ export default injectIntl(withTracker(({ intl }) => {
           breakoutRoom={currentBreakout}
           messageDuration={intlMessages.breakoutTimeRemaining}
           timeEndedMessage={intlMessages.breakoutWillClose}
-          alertMessageUnderOneMinute={intl.formatMessage(intlMessages.alertBreakoutEndsUnderOneMinute)}
+          alertMessageUnderOneMinute={
+            intl.formatMessage(intlMessages.alertBreakoutEndsUnderOneMinute)
+          }
         />
       );
     }
@@ -164,13 +166,15 @@ export default injectIntl(withTracker(({ intl }) => {
           breakoutRoom={Meeting.durationProps}
           messageDuration={intlMessages.meetingTimeRemaining}
           timeEndedMessage={intlMessages.meetingWillClose}
-          alertMessageUnderOneMinute={intl.formatMessage(intlMessages.alertMeetingEndsUnderOneMinute)}
+          alertMessageUnderOneMinute={
+            intl.formatMessage(intlMessages.alertMeetingEndsUnderOneMinute)
+          }
         />
       );
     }
   }
 
-
+  data.alert = true;
   data.color = 'primary';
   return data;
 })(NotificationsBarContainer));

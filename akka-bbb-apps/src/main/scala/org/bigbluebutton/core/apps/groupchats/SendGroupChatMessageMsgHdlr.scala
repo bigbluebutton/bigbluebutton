@@ -28,7 +28,14 @@ trait SendGroupChatMessageMsgHdlr {
       if (user.role != Roles.MODERATOR_ROLE && user.locked) {
         val permissions = MeetingStatus2x.getPermissions(liveMeeting.status)
         if (groupChat.access == GroupChatAccess.PRIVATE) {
-          chatLocked = permissions.disablePrivChat
+          val modMembers = groupChat.users.filter(cu => Users2x.findWithIntId(liveMeeting.users2x, cu.id) match {
+            case Some(user) => user.role == Roles.MODERATOR_ROLE
+            case None       => false
+          })
+          // don't lock private chats that involve a moderator
+          if (modMembers.length == 0) {
+            chatLocked = permissions.disablePrivChat
+          }
         } else {
           chatLocked = permissions.disablePubChat
         }
@@ -88,7 +95,8 @@ trait SendGroupChatMessageMsgHdlr {
 
         val event = buildGroupChatMessageBroadcastEvtMsg(
           liveMeeting.props.meetingProp.intId,
-          msg.header.userId, msg.body.chatId, gcm)
+          msg.header.userId, msg.body.chatId, gcm
+        )
 
         bus.outGW.send(event)
 

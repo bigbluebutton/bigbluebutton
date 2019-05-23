@@ -13,10 +13,22 @@
 
 .backBtn {
   margin-right: 0.5rem;
+  margin-left: inherit;
   border: none;
+
+  [dir="rtl"] & {
+    margin-right: inherit;
+    margin-left: 0.5rem;
+  }
 
   @include mq($small-only) {
     margin-right: auto;
+    margin-left: inherit;
+
+    [dir="rtl"] & {
+      margin-right: inherit;
+      margin-left: auto;
+    }
   }
 }
 

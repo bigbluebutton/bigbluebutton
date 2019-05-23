@@ -16,7 +16,7 @@ object JsonMsgHdlrActor {
 }
 
 class JsonMsgHdlrActor(val inGW: TranscodingInGW) extends Actor with ActorLogging
-    with SystemConfiguration with JsonMsgDeserializer {
+  with SystemConfiguration with JsonMsgDeserializer {
   def receive = {
     case msg: ReceivedJsonMessage =>
       log.debug("handling {} - {}", msg.channel, msg.data)

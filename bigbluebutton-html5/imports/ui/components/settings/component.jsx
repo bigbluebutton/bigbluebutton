@@ -59,6 +59,10 @@ const intlMessages = defineMessages({
     id: 'app.settings.dataSavingTab.label',
     description: 'label for data savings tab',
   },
+  savedAlertLabel: {
+    id: 'app.settings.save-notification.label',
+    description: 'label shown in toast when settings are saved',
+  },
 });
 
 const propTypes = {
@@ -180,14 +184,14 @@ class Settings extends Component {
           {/* <Icon iconName='video' className={styles.icon}/> */}
           {/* <span id="videoTab">{intl.formatMessage(intlMessages.videoTabLabel)}</span> */}
           {/* </Tab> */}
-          <Tab
-            className={styles.tabSelector}
-            aria-labelledby="ccTab"
-            selectedClassName={styles.selected}
-          >
-            <Icon iconName="user" className={styles.icon} />
-            <span id="ccTab">{intl.formatMessage(intlMessages.closecaptionTabLabel)}</span>
-          </Tab>
+          {/* <Tab */}
+          {/*   className={styles.tabSelector} */}
+          {/*   aria-labelledby="ccTab" */}
+          {/*   selectedClassName={styles.selected} */}
+          {/* > */}
+          {/*   <Icon iconName="user" className={styles.icon} /> */}
+          {/*   <span id="ccTab">{intl.formatMessage(intlMessages.closecaptionTabLabel)}</span> */}
+          {/* </Tab> */}
           <Tab
             className={styles.tabSelector}
             aria-labelledby="dataSavingTab"
@@ -216,13 +220,13 @@ class Settings extends Component {
         {/* settings={this.state.current.video} */}
         {/* /> */}
         {/* </TabPanel> */}
-        <TabPanel className={styles.tabPanel}>
-          <ClosedCaptions
-            settings={current.cc}
-            handleUpdateSettings={this.handleUpdateSettings}
-            locales={locales}
-          />
-        </TabPanel>
+        {/* <TabPanel className={styles.tabPanel}> */}
+        {/*   <ClosedCaptions */}
+        {/*     settings={current.cc} */}
+        {/*     handleUpdateSettings={this.handleUpdateSettings} */}
+        {/*     locales={locales} */}
+        {/*   /> */}
+        {/* </TabPanel> */}
         <TabPanel className={styles.tabPanel}>
           <DataSaving
             settings={current.dataSaving}
@@ -245,6 +249,7 @@ class Settings extends Component {
     const {
       intl,
       mountModal,
+      notify,
     } = this.props;
     const {
       current,
@@ -256,11 +261,15 @@ class Settings extends Component {
         confirm={{
           callback: () => {
             this.updateSettings(current);
-            // router.push(location.pathname); // TODO 4767
             /* We need to use mountModal(null) here to prevent submenu state updates,
             *  from re-opening the modal.
             */
             mountModal(null);
+            notify(
+              intl.formatMessage(intlMessages.savedAlertLabel),
+              'info',
+              'settings',
+            );
           },
           label: intl.formatMessage(intlMessages.SaveLabel),
           description: intl.formatMessage(intlMessages.SaveLabelDesc),

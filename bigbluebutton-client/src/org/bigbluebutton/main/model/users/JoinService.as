@@ -28,12 +28,16 @@ package org.bigbluebutton.main.model.users
 	import flash.net.URLRequestMethod;
 	import flash.net.URLVariables;
 	
+	import mx.utils.ObjectUtil;
+	
 	import org.as3commons.logging.api.ILogger;
 	import org.as3commons.logging.api.getClassLogger;
 	import org.bigbluebutton.core.BBB;
+	import org.bigbluebutton.core.Options;
 	import org.bigbluebutton.core.UsersUtil;
 	import org.bigbluebutton.main.events.MeetingNotFoundEvent;
 	import org.bigbluebutton.main.model.users.events.ConnectionFailedEvent;
+	import org.bigbluebutton.modules.users.model.BreakoutRoomsOptions;
 	import org.bigbluebutton.util.i18n.ResourceUtil;
 
 	public class JoinService
@@ -134,31 +138,19 @@ package org.bigbluebutton.main.model.users
 				LOGGER.info(JSON.stringify(logData));
 				
 				var apiResponse:EnterApiResponse = new EnterApiResponse();
-				apiResponse.meetingName = result.response.confname;
-				apiResponse.extMeetingId = result.response.externMeetingID;
-				apiResponse.intMeetingId = result.response.meetingID;
-				apiResponse.isBreakout = result.response.isBreakout;
 				
+				apiResponse.intUserId = result.response.internalUserID;
 				apiResponse.username = result.response.fullname;
 				apiResponse.extUserId = result.response.externUserID;
-				apiResponse.intUserId = result.response.internalUserID;
+				apiResponse.authToken = result.response.authToken;
+				apiResponse.defaultLayout = result.response.defaultLayout;
+				apiResponse.logoutUrl = processLogoutUrl(result.response);
 				apiResponse.role = result.response.role;
+				apiResponse.avatarURL = result.response.avatarURL;
+				apiResponse.dialnumber = result.response.dialnumber;
+
 				apiResponse.guest = result.response.guest;
 				apiResponse.authed = result.response.authed;
-				apiResponse.authToken = result.response.authToken;
-				
-				apiResponse.record = (result.response.record.toUpperCase() == "TRUE");
-				apiResponse.allowStartStopRecording = result.response.allowStartStopRecording;
-				
-				apiResponse.dialnumber = result.response.dialnumber;
-				apiResponse.voiceConf = result.response.voicebridge;
-				
-				apiResponse.welcome = result.response.welcome;
-				apiResponse.logoutUrl = processLogoutUrl(result.response);
-				apiResponse.logoutTimer = result.response.logoutTimer;
-				apiResponse.defaultLayout = result.response.defaultLayout;
-				apiResponse.avatarURL = result.response.avatarURL;
-				
 				apiResponse.customdata = new Object();
 				
 				if (result.response.customdata) {
@@ -171,15 +163,52 @@ package org.bigbluebutton.main.model.users
 					}
 				}
 				
-				apiResponse.metadata = extractMetadata(result.response.metadata);
-				
+				apiResponse.meetingName = result.response.confname;
+				apiResponse.intMeetingId = result.response.meetingID;
+				apiResponse.extMeetingId = result.response.externMeetingID;
+				apiResponse.isBreakout = result.response.isBreakout;
+				apiResponse.avatarURL = result.response.avatarURL;
+				apiResponse.voiceConf = result.response.voicebridge;
+				apiResponse.dialnumber = result.response.dialnumber;
+				apiResponse.record = (result.response.record.toUpperCase() == "TRUE");
+				apiResponse.defaultLayout = result.response.defaultLayout;
+				apiResponse.welcome = result.response.welcome;
 				if (result.response.hasOwnProperty("modOnlyMessage")) {
 					apiResponse.modOnlyMessage = result.response.modOnlyMessage;
 				}
+				apiResponse.allowStartStopRecording = result.response.allowStartStopRecording;
+				apiResponse.metadata = extractMetadata(result.response.metadata);
+				apiResponse.logoutTimer = result.response.logoutTimer;
+
+				apiResponse.bannerColor = result.response.bannerColor;
+				apiResponse.bannerText = result.response.bannerText;
 				
+				apiResponse.allowModsToUnmuteUsers = result.response.allowModsToUnmuteUsers as Boolean;
+				apiResponse.muteOnStart = result.response.muteOnStart as Boolean;
 				apiResponse.customLogo = result.response.customLogoURL;
 				apiResponse.customCopyright = result.response.customCopyright;
-				apiResponse.muteOnStart = result.response.muteOnStart as Boolean;
+
+				var breakoutOptions: BreakoutRoomsOptions = Options.getOptions(BreakoutRoomsOptions) as BreakoutRoomsOptions;
+				if (result.response.hasOwnProperty("breakoutRooms")) {
+					logData.logCode = "override_breakout_rooms_settings";
+					logData.oldBreakoutSettings = ObjectUtil.copy(breakoutOptions);
+					// Overrive breakout options from config.xml with those passed on create API call
+					// ralam (mar 26, 2019)
+					
+					if (result.response.breakoutRooms.hasOwnProperty("enabled")) {
+						breakoutOptions.enabled = result.response.breakoutRooms.enabled as Boolean;
+					}
+					
+					if (result.response.breakoutRooms.hasOwnProperty("record")) {
+						breakoutOptions.record = result.response.breakoutRooms.record as Boolean;
+					}
+					
+					if (result.response.breakoutRooms.hasOwnProperty("privateChatEnabled")) {
+						breakoutOptions.privateChateEnabled = result.response.breakoutRooms.privateChatEnabled as Boolean;
+					}
+					logData.newBreakoutSettings = breakoutOptions;
+					LOGGER.info(JSON.stringify(logData));
+				}
 				
 				if (_resultListener != null) _resultListener(true, apiResponse);
 			}

@@ -4,7 +4,6 @@ import { defineMessages, injectIntl } from 'react-intl';
 import _ from 'lodash';
 import Button from '/imports/ui/components/button/component';
 import { styles } from './styles';
-import Icon from '../icon/component';
 import BreakoutRoomContainer from './breakout-remaining-time/container';
 
 const intlMessages = defineMessages({
@@ -62,7 +61,6 @@ class BreakoutRoom extends Component {
     this.state = {
       requestedBreakoutId: '',
       waiting: false,
-      generated: false,
       joinedAudioOnly: false,
       breakoutId: '',
     };
@@ -77,18 +75,18 @@ class BreakoutRoom extends Component {
 
     const {
       waiting,
-      generated,
       requestedBreakoutId,
     } = this.state;
 
     if (breakoutRooms.length <= 0) closeBreakoutPanel();
 
-    if (waiting && !generated) {
+    if (waiting) {
       const breakoutUser = breakoutRoomUser(requestedBreakoutId);
 
       if (!breakoutUser) return;
       if (breakoutUser.redirectToHtml5JoinURL !== '') {
-        _.delay(() => this.setState({ generated: true, waiting: false }), 1000);
+        window.open(breakoutUser.redirectToHtml5JoinURL, '_blank');
+        _.delay(() => this.setState({ waiting: false }), 1000);
       }
     }
   }
@@ -99,14 +97,17 @@ class BreakoutRoom extends Component {
     const hasUser = breakoutRoomUser(breakoutId);
     if (!hasUser && !waiting) {
       this.setState(
-        { waiting: true, requestedBreakoutId: breakoutId },
+        {
+          waiting: true,
+          requestedBreakoutId: breakoutId,
+        },
         () => requestJoinURL(breakoutId),
       );
     }
 
     if (hasUser) {
-      window.open(hasUser.redirectToHtml5JoinURL);
-      this.setState({ waiting: false, generated: false });
+      window.open(hasUser.redirectToHtml5JoinURL, '_blank');
+      this.setState({ waiting: false });
     }
     return null;
   }
@@ -133,7 +134,6 @@ class BreakoutRoom extends Component {
     const {
       joinedAudioOnly,
       breakoutId: stateBreakoutId,
-      generated,
       requestedBreakoutId,
       waiting,
     } = this.state;
@@ -146,12 +146,8 @@ class BreakoutRoom extends Component {
     return (
       <div className={styles.breakoutActions}>
         <Button
-          label={generated && requestedBreakoutId === breakoutId
-            ? intl.formatMessage(intlMessages.generatedURL)
-            : intl.formatMessage(intlMessages.breakoutJoin)}
-          aria-label={generated && requestedBreakoutId === breakoutId
-            ? intl.formatMessage(intlMessages.generatedURL)
-            : `${intl.formatMessage(intlMessages.breakoutJoin)} ${number}`}
+          label={intl.formatMessage(intlMessages.breakoutJoin)}
+          aria-label={`${intl.formatMessage(intlMessages.breakoutJoin)} ${number}`}
           onClick={() => this.getBreakoutURL(breakoutId)}
           disabled={disable}
           className={styles.joinButton}
@@ -184,6 +180,7 @@ class BreakoutRoom extends Component {
     const {
       breakoutRooms,
       intl,
+      getUsersByBreakoutId,
     } = this.props;
 
     const {
@@ -191,15 +188,22 @@ class BreakoutRoom extends Component {
       requestedBreakoutId,
     } = this.state;
 
-    const roomItems = breakoutRooms.map(item => (
-      <div className={styles.content} key={`breakoutRoomList-${item.breakoutId}`}>
-        <span aria-hidden>{intl.formatMessage(intlMessages.breakoutRoom, item.sequence.toString())}</span>
-        {waiting && requestedBreakoutId === item.breakoutId ? (
+    const roomItems = breakoutRooms.map(breakout => (
+      <div className={styles.content} key={`breakoutRoomList-${breakout.breakoutId}`}>
+        <span aria-hidden>
+          {intl.formatMessage(intlMessages.breakoutRoom, breakout.sequence.toString())}
+          <span className={styles.usersAssignedNumberLabel}>
+            (
+            {getUsersByBreakoutId(breakout.breakoutId).count()}
+            )
+          </span>
+        </span>
+        {waiting && requestedBreakoutId === breakout.breakoutId ? (
           <span>
             {intl.formatMessage(intlMessages.generatingURL)}
             <span className={styles.connectingAnimation} />
           </span>
-        ) : this.renderUserActions(item.breakoutId, item.sequence.toString())}
+        ) : this.renderUserActions(breakout.breakoutId, breakout.sequence.toString())}
       </div>
     ));
 

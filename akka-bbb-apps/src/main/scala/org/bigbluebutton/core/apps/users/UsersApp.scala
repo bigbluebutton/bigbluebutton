@@ -32,7 +32,8 @@ object UsersApp {
 
       val event = MsgBuilder.buildGuestApprovedEvtMsg(
         liveMeeting.props.meetingProp.intId,
-        guest.guest, guest.status, approvedBy)
+        guest.guest, guest.status, approvedBy
+      )
 
       outGW.send(event)
 
@@ -60,7 +61,8 @@ object UsersApp {
     // send a message to client
     Sender.sendUserEjectedFromMeetingClientEvtMsg(
       meetingId,
-      userId, ejectedBy, reason, reasonCode, outGW)
+      userId, ejectedBy, reason, reasonCode, outGW
+    )
   }
 
   def sendUserLeftMeetingToAllClients(outGW: OutMsgRouter, meetingId: String,
@@ -71,14 +73,16 @@ object UsersApp {
   }
 
   def sendEjectUserFromVoiceToFreeswitch(
-    outGW:       OutMsgRouter,
-    meetingId:   String,
-    voiceConf:   String,
-    voiceUserId: String): Unit = {
+      outGW:       OutMsgRouter,
+      meetingId:   String,
+      voiceConf:   String,
+      voiceUserId: String
+  ): Unit = {
     val ejectFromVoiceEvent = MsgBuilder.buildEjectUserFromVoiceConfSysMsg(
       meetingId,
       voiceConf,
-      voiceUserId)
+      voiceUserId
+    )
     outGW.send(ejectFromVoiceEvent)
   }
 
@@ -104,35 +108,37 @@ object UsersApp {
       sendEjectUserFromVoiceToFreeswitch(
         outGW,
         liveMeeting.props.meetingProp.intId,
-        liveMeeting.props.voiceProp.voiceConf, vu.voiceUserId)
+        liveMeeting.props.voiceProp.voiceConf, vu.voiceUserId
+      )
     }
   }
 
 }
 
 class UsersApp(
-  val liveMeeting: LiveMeeting,
-  val outGW:       OutMsgRouter,
-  val eventBus:    InternalEventBus)(implicit val context: ActorContext)
+    val liveMeeting: LiveMeeting,
+    val outGW:       OutMsgRouter,
+    val eventBus:    InternalEventBus
+)(implicit val context: ActorContext)
 
-    extends ValidateAuthTokenReqMsgHdlr
-    with GetUsersMeetingReqMsgHdlr
-    with RegisterUserReqMsgHdlr
-    with ChangeUserRoleCmdMsgHdlr
-    with SyncGetUsersMeetingRespMsgHdlr
-    with LogoutAndEndMeetingCmdMsgHdlr
-    with MeetingActivityResponseCmdMsgHdlr
-    with SetRecordingStatusCmdMsgHdlr
-    with RecordAndClearPreviousMarkersCmdMsgHdlr
-    with SendRecordingTimerInternalMsgHdlr
-    with UpdateWebcamsOnlyForModeratorCmdMsgHdlr
-    with GetRecordingStatusReqMsgHdlr
-    with GetWebcamsOnlyForModeratorReqMsgHdlr
-    with AssignPresenterReqMsgHdlr
-    with EjectDuplicateUserReqMsgHdlr
-    with EjectUserFromMeetingCmdMsgHdlr
-    with EjectUserFromMeetingSysMsgHdlr
-    with MuteUserCmdMsgHdlr {
+  extends ValidateAuthTokenReqMsgHdlr
+  with GetUsersMeetingReqMsgHdlr
+  with RegisterUserReqMsgHdlr
+  with ChangeUserRoleCmdMsgHdlr
+  with SyncGetUsersMeetingRespMsgHdlr
+  with LogoutAndEndMeetingCmdMsgHdlr
+  with MeetingActivityResponseCmdMsgHdlr
+  with SetRecordingStatusCmdMsgHdlr
+  with RecordAndClearPreviousMarkersCmdMsgHdlr
+  with SendRecordingTimerInternalMsgHdlr
+  with UpdateWebcamsOnlyForModeratorCmdMsgHdlr
+  with GetRecordingStatusReqMsgHdlr
+  with GetWebcamsOnlyForModeratorReqMsgHdlr
+  with AssignPresenterReqMsgHdlr
+  with EjectDuplicateUserReqMsgHdlr
+  with EjectUserFromMeetingCmdMsgHdlr
+  with EjectUserFromMeetingSysMsgHdlr
+  with MuteUserCmdMsgHdlr {
 
   val log = Logging(context.system, getClass)
 }

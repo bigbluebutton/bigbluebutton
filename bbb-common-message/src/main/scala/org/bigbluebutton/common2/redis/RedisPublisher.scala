@@ -3,7 +3,16 @@ package org.bigbluebutton.common2.redis
 import akka.actor.ActorSystem
 import akka.event.Logging
 
-class RedisPublisher(system: ActorSystem, clientName: String) extends RedisClientProvider(system, clientName) with RedisConnectionHandler {
+class RedisPublisher(
+    system:      ActorSystem,
+    clientName:  String,
+    redisConfig: RedisConfig
+)
+  extends RedisClientProvider(
+    system,
+    clientName,
+    redisConfig
+  ) with RedisConnectionHandler {
 
   val log = Logging(system, getClass)
 
@@ -14,8 +23,8 @@ class RedisPublisher(system: ActorSystem, clientName: String) extends RedisClien
   redis.connect()
 
   def publish(channel: String, data: String) {
-    val async = connection.async();
-    async.publish(channel, data);
+    val async = connection.async()
+    async.publish(channel, data)
   }
 
 }

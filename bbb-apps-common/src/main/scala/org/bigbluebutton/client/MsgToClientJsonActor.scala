@@ -1,10 +1,9 @@
 package org.bigbluebutton.client
 
-import akka.actor.{Actor, ActorLogging, Props}
+import akka.actor.{ Actor, ActorLogging, Props }
 import org.bigbluebutton.client.bus._
 import org.bigbluebutton.common2.util.JsonUtil
 import org.bigbluebutton.red5.client.messaging._
-
 
 object MsgToClientJsonActor {
   def props(msgToClientGW: MsgToClientGW): Props =
@@ -14,12 +13,11 @@ object MsgToClientJsonActor {
 class MsgToClientJsonActor(msgToClientGW: MsgToClientGW) extends Actor with ActorLogging {
 
   def receive = {
-    case msg: BroadcastMsgToMeeting => handleBroadcastMsg(msg)
-    case msg: DirectMsgToClient => handleDirectMsg(msg)
-    case msg: DisconnectClientMsg => handleDisconnectClientMsg(msg)
+    case msg: BroadcastMsgToMeeting          => handleBroadcastMsg(msg)
+    case msg: DirectMsgToClient              => handleDirectMsg(msg)
+    case msg: DisconnectClientMsg            => handleDisconnectClientMsg(msg)
     case msg: DisconnectAllMeetingClientsMsg => handleDisconnectAllMeetingClientsMsg(msg)
   }
-
 
   def handleBroadcastMsg(msg: BroadcastMsgToMeeting): Unit = {
     val meetingId = msg.meetingId

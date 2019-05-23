@@ -25,6 +25,7 @@ package org.bigbluebutton.core.vo
     private var disableMic:Boolean;
     private var disablePrivateChat:Boolean;
     private var disablePublicChat:Boolean;
+    private var disableNote:Boolean;
     private var lockedLayout:Boolean;
     private var lockOnJoin:Boolean;
     
@@ -32,6 +33,7 @@ package org.bigbluebutton.core.vo
                                    pDisableMic:Boolean=false,
                                    pDisablePrivateChat:Boolean=false,
                                    pDisablePublicChat:Boolean=false,
+                                   pDisableNote:Boolean=false,
                                    pLockLayout: Boolean=false,
                                    pLockOnJoin:Boolean=false,
                                    pLockOnJoinConfigurable:Boolean=false)
@@ -40,6 +42,7 @@ package org.bigbluebutton.core.vo
       this.disableMic = pDisableMic;
       this.disablePrivateChat = pDisablePrivateChat;
       this.disablePublicChat = pDisablePublicChat;
+      this.disableNote = pDisableNote;
       this.lockedLayout = pLockLayout;
       this.lockOnJoin = pLockOnJoin;
       this.lockOnJoinConfigurable = pLockOnJoinConfigurable;
@@ -51,6 +54,7 @@ package org.bigbluebutton.core.vo
           disableMic: this.disableMic,
           disablePrivateChat: this.disablePrivateChat,
           disablePublicChat: this.disablePublicChat,
+          disableNote: this.disableNote,
           lockedLayout: this.lockedLayout,
           lockOnJoin: this.lockOnJoin,
           lockOnJoinConfigurable:  this.lockOnJoinConfigurable
@@ -74,6 +78,10 @@ package org.bigbluebutton.core.vo
     public function getDisablePublicChat():Boolean {
       return disablePublicChat;
     }
+
+    public function getDisableNote():Boolean {
+      return disableNote;
+    }
     
     public function getLockedLayout():Boolean {
       return lockedLayout;
@@ -88,7 +96,7 @@ package org.bigbluebutton.core.vo
     }
     
     public function isAnythingLocked():Boolean {
-      return ( lockedLayout || disableCam || disableMic || disablePrivateChat || disablePublicChat );
+      return ( lockedLayout || disableCam || disableMic || disablePrivateChat || disablePublicChat || disableNote);
     }
   }
 }

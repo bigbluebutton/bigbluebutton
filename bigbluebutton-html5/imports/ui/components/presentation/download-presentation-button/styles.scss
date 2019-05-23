@@ -9,9 +9,15 @@
 .wrapper {
   position: absolute;
   left: 0;
+  right: auto;
   background-color: var(--color-transparent);
   cursor: pointer;
   border: none !important;
+
+  [dir="rtl"] & {
+    left: auto;
+    right: 0;
+  }
 }
 
 .button {

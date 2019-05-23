@@ -2,7 +2,7 @@ import React, { PureComponent } from 'react';
 import { injectIntl } from 'react-intl';
 import PropTypes from 'prop-types';
 import injectWbResizeEvent from '/imports/ui/components/presentation/resize-wrapper/component';
-import { styles } from './styles';
+import { styles } from './styles.scss';
 import CustomLogo from './custom-logo/component';
 import UserContentContainer from './user-list-content/container';
 
@@ -32,6 +32,7 @@ const propTypes = {
   getGroupChatPrivate: PropTypes.func.isRequired,
   showBranding: PropTypes.bool.isRequired,
   toggleUserLock: PropTypes.func.isRequired,
+  requestUserInformation: PropTypes.func.isRequired,
 };
 
 const defaultProps = {
@@ -69,6 +70,7 @@ class UserList extends PureComponent {
       getUsersId,
       hasPrivateChatBetweenUsers,
       toggleUserLock,
+      requestUserInformation,
     } = this.props;
 
     return (
@@ -106,6 +108,7 @@ class UserList extends PureComponent {
             getUsersId,
             hasPrivateChatBetweenUsers,
             toggleUserLock,
+            requestUserInformation,
           }
           }
         />}

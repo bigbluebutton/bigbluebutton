@@ -2,33 +2,48 @@ package org.bigbluebutton.endpoint.redis
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.duration.DurationInt
-
-import org.bigbluebutton.SystemConfiguration
 import org.bigbluebutton.common2.bus.IncomingJsonMessageBus
-import org.bigbluebutton.common2.redis.{ RedisSubscriber, RedisSubscriberProvider }
-
+import org.bigbluebutton.common2.redis.{ RedisConfig, RedisSubscriberProvider }
 import akka.actor.ActorSystem
 import akka.actor.Props
 
-object FSESLRedisSubscriberActor extends RedisSubscriber {
+object FSESLRedisSubscriberActor {
 
-  val channels = Seq(toVoiceConfRedisChannel)
-  val patterns = Seq("bigbluebutton:to-voice-conf:*", "bigbluebutton:from-bbb-apps:*")
-
-  def props(system: ActorSystem, inJsonMgBus: IncomingJsonMessageBus): Props =
+  def props(
+      system:              ActorSystem,
+      inJsonMgBus:         IncomingJsonMessageBus,
+      redisConfig:         RedisConfig,
+      channelsToSubscribe: Seq[String],
+      patternsToSubscribe: Seq[String],
+      forwardMsgToChannel: String
+  ): Props =
     Props(
       classOf[FSESLRedisSubscriberActor],
-      system, inJsonMgBus,
-      redisHost, redisPort,
-      channels, patterns).withDispatcher("akka.redis-subscriber-worker-dispatcher")
+      system,
+      inJsonMgBus,
+      redisConfig,
+      channelsToSubscribe,
+      patternsToSubscribe,
+      forwardMsgToChannel
+    ).withDispatcher("akka.redis-subscriber-worker-dispatcher")
 }
 
 class FSESLRedisSubscriberActor(
-  system:      ActorSystem,
-  inJsonMgBus: IncomingJsonMessageBus,
-  redisHost:   String, redisPort: Int,
-  channels: Seq[String] = Nil, patterns: Seq[String] = Nil)
-  extends RedisSubscriberProvider(system, "BbbFsEslAkkaSub", channels, patterns, inJsonMgBus) with SystemConfiguration {
+    system:              ActorSystem,
+    inJsonMgBus:         IncomingJsonMessageBus,
+    redisConfig:         RedisConfig,
+    channelsToSubscribe: Seq[String],
+    patternsToSubscribe: Seq[String],
+    forwardMsgToChannel: String
+)
+  extends RedisSubscriberProvider(
+    system,
+    "BbbFsEslAkkaSub",
+    channelsToSubscribe,
+    patternsToSubscribe,
+    inJsonMgBus,
+    redisConfig
+  ) {
 
   var lastPongReceivedOn = 0L
   system.scheduler.schedule(10 seconds, 10 seconds)(checkPongMessage())
@@ -41,6 +56,6 @@ class FSESLRedisSubscriberActor(
     }
   }
 
-  addListener(toFsAppsJsonChannel)
+  addListener(forwardMsgToChannel)
   subscribe()
 }

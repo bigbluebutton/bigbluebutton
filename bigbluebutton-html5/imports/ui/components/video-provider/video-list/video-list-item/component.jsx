@@ -1,8 +1,9 @@
 import React, { Component } from 'react';
 import browser from 'browser-detect';
 import { Meteor } from 'meteor/meteor';
+import PropTypes from 'prop-types';
 import cx from 'classnames';
-import { defineMessages, injectIntl } from 'react-intl';
+import { defineMessages, injectIntl, intlShape } from 'react-intl';
 import Dropdown from '/imports/ui/components/dropdown/component';
 import DropdownTrigger from '/imports/ui/components/dropdown/trigger/component';
 import DropdownContent from '/imports/ui/components/dropdown/content/component';
@@ -13,7 +14,7 @@ import DropdownListItem from '/imports/ui/components/dropdown/list/item/componen
 import Icon from '/imports/ui/components/icon/component';
 import logger from '/imports/startup/client/logger';
 import VideoListItemStats from './video-list-item-stats/component';
-import FullscreenButton from '../../fullscreen-button/component';
+import FullscreenButtonContainer from '../../fullscreen-button/container';
 import { styles } from '../styles';
 
 const intlMessages = defineMessages({
@@ -48,9 +49,9 @@ class VideoListItem extends Component {
         if (p && (typeof Promise !== 'undefined') && (p instanceof Promise)) {
           // Catch exception when playing video
           p.catch((e) => {
-            logger.error(
+            logger.warn(
               { logCode: 'videolistitem_component_play_error' },
-              `Error playing video: ${JSON.stringify(e)}`,
+              `Could not play video: ${JSON.stringify(e)}`,
             );
           });
         }
@@ -108,20 +109,17 @@ class VideoListItem extends Component {
 
   renderFullscreenButton() {
     const { user } = this.props;
-    const full = () => {
-      const tag = this.videoTag;
-      if (tag.requestFullscreen) {
-        tag.requestFullscreen();
-      } else if (tag.webkitRequestFullscreen) { // Edge
-        tag.webkitRequestFullscreen();
-      }
-    };
-    return <FullscreenButton handleFullscreen={full} elementName={user.name} />;
+    return (
+      <FullscreenButtonContainer
+        fullscreenRef={this.videoTag}
+        elementName={user.name}
+      />
+    );
   }
 
   render() {
     const { showStats, stats } = this.state;
-    const { user } = this.props;
+    const { user, numOfUsers } = this.props;
     const availableActions = this.getAvailableActions();
     const enableVideoMenu = Meteor.settings.public.kurento.enableVideoMenu || false;
 
@@ -162,7 +160,13 @@ class VideoListItem extends Component {
               <div className={isFirefox ? styles.dropdownFireFox
                 : styles.dropdown}
               >
-                <span className={styles.userName}>{user.name}</span>
+                <span className={cx({
+                  [styles.userName]: true,
+                  [styles.noMenu]: numOfUsers < 3,
+                })}
+                >
+                  {user.name}
+                </span>
               </div>
             )
           }
@@ -177,3 +181,20 @@ class VideoListItem extends Component {
 }
 
 export default injectIntl(VideoListItem);
+
+VideoListItem.defaultProps = {
+  numOfUsers: 0,
+};
+
+VideoListItem.propTypes = {
+  intl: intlShape.isRequired,
+  enableVideoStats: PropTypes.bool.isRequired,
+  actions: PropTypes.arrayOf(PropTypes.func).isRequired,
+  user: PropTypes.objectOf(PropTypes.oneOfType([
+    PropTypes.bool,
+    PropTypes.number,
+    PropTypes.object,
+    PropTypes.string,
+  ])).isRequired,
+  numOfUsers: PropTypes.number,
+};

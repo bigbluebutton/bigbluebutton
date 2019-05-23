@@ -4,6 +4,7 @@ import Button from '/imports/ui/components/button/component';
 import injectWbResizeEvent from '/imports/ui/components/presentation/resize-wrapper/component';
 import { defineMessages, injectIntl } from 'react-intl';
 import Tooltip from '/imports/ui/components/tooltip/component';
+import cx from 'classnames';
 import { styles } from './styles.scss';
 
 const intlMessages = defineMessages({
@@ -30,20 +31,32 @@ class Polling extends Component {
   }
 
   play() {
-    this.alert = new Audio(`${Meteor.settings.public.app.basename}/resources/sounds/Poll.mp3`);
+    this.alert = new Audio(`${Meteor.settings.public.app.cdn + Meteor.settings.public.app.basename}/resources/sounds/Poll.mp3`);
     this.alert.play();
   }
 
   render() {
     const { intl, poll, handleVote } = this.props;
+    const { stackOptions, answers } = poll;
+    const pollAnswerStyles = {
+      [styles.pollingAnswers]: true,
+      [styles.removeColumns]: answers.length === 1,
+      [styles.stacked]: stackOptions,
+    };
 
     return (
       <div className={styles.overlay}>
-        <div className={styles.pollingContainer} role="alert">
+        <div
+          className={cx({
+            [styles.pollingContainer]: true,
+            [styles.autoWidth]: stackOptions,
+          })}
+          role="alert"
+        >
           <div className={styles.pollingTitle}>
             {intl.formatMessage(intlMessages.pollingTitleLabel)}
           </div>
-          <div className={styles.pollingAnswers}>
+          <div className={cx(pollAnswerStyles)}>
             {poll.answers.map(pollAnswer => (
               <div
                 key={pollAnswer.id}
@@ -77,7 +90,7 @@ class Polling extends Component {
                   {intl.formatMessage(intlMessages.pollAnswerDesc, { 0: pollAnswer.key })}
                 </div>
               </div>
-        ))}
+            ))}
           </div>
         </div>
       </div>);

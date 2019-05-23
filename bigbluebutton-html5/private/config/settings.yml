@@ -3,8 +3,8 @@ public:
     mobileFontSize: 16px
     desktopFontSize: 14px
     audioChatNotification: false
-    autoJoin: true
     showParticipantsOnLogin: true
+    autoJoin: true
     listenOnlyMode: true
     forceListenOnly: false
     skipCheck: false
@@ -15,8 +15,10 @@ public:
     html5ClientBuild: HTML5_CLIENT_VERSION
     helpLink: https://bigbluebutton.org/html5/
     lockOnJoin: true
+    cdn: ""
     basename: "/html5client"
     askForFeedbackOnLogout: false
+    allowUserLookup: false
     defaultSettings:
       application:
         animations: true
@@ -91,12 +93,40 @@ public:
     - window
     - screen
     firefoxScreenshareSource: window
-    cameraConstraints:
-      width:
-        max: 320
-      height:
-        max: 240
-    enableScreensharing: false
+    cameraProfiles:
+      - id: low
+        name: Low quality
+        default: false
+        constraints:
+          width:
+            max: 160
+          height:
+            max: 120
+      - id: medium
+        name: Medium quality
+        default: true
+        constraints:
+          width:
+            max: 320
+          height:
+            max: 240
+      - id: high
+        name: High quality
+        default: false
+        constraints:
+          width:
+            max: 640
+          height:
+            max: 480
+      - id: hd
+        name: High definition
+        default: false
+        constraints:
+          width:
+            max: 1280
+          height:
+            max: 960
+    enableScreensharing: true
     enableVideo: true
     enableVideoStats: false
     enableVideoMenu: true
@@ -136,11 +166,6 @@ public:
     autoSwapLayout: false
     hidePresentation: false
   media:
-    WebRTCHangupRetryInterval: 2000
-    vertoServerAddress: HOST
-    freeswitchProfilePassword: '1234'
-    vertoPort: '8082'
-    useSIPAudio: true
     stunTurnServersFetchAddress: "/bigbluebutton/api/stuns"
     mediaTag: "#remote-media"
     callTransferTimeout: 5000
@@ -153,24 +178,40 @@ public:
     uploadSizeMin: 0
     uploadSizeMax: 50000000
     uploadValidMimeTypes:
-    - application/vnd.ms-excel
-    - application/vnd.openxmlformats-officedocument.spreadsheetml.sheet
-    - application/msword
-    - application/vnd.openxmlformats-officedocument.wordprocessingml.document
-    - application/vnd.ms-powerpoint
-    - application/vnd.openxmlformats-officedocument.presentationml.presentation
-    - application/vnd.oasis.opendocument.text
-    - application/rtf
-    - text/plain
-    - application/vnd.oasis.opendocument.spreadsheet
-    - application/vnd.oasis.opendocument.presentation
-    - application/vnd.oasis.opendocument.text
-    - application/vnd.oasis.opendocument.graphics
-    - application/vnd.oasis.opendocument.chart
-    - application/vnd.oasis.opendocument.image
-    - application/pdf
-    - image/jpeg
-    - image/png
+    - extension: .pdf
+      mime: application/pdf
+    - extension: .doc
+      mime: application/msword
+    - extension: .docx
+      mime: application/vnd.openxmlformats-officedocument.wordprocessingml.document
+    - extension: .xls
+      mime: application/vnd.ms-excel
+    - extension: .xlsx
+      mime: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet
+    - extension: .ppt
+      mime: application/vnd.ms-powerpoint
+    - extension: .pptx
+      mime: application/vnd.openxmlformats-officedocument.presentationml.presentation
+    - extension: .txt
+      mime: text/plain
+    - extension: .rtf
+      mime: application/rtf
+    - extension: .odt
+      mime: application/vnd.oasis.opendocument.text
+    - extension: .ods
+      mime: application/vnd.oasis.opendocument.spreadsheet
+    - extension: .odp
+      mime: application/vnd.oasis.opendocument.presentation
+    - extension: .odg
+      mime: application/vnd.oasis.opendocument.graphics
+    - extension: .odc
+      mime: application/vnd.oasis.opendocument.chart
+    - extension: .odi
+      mime: application/vnd.oasis.opendocument.image
+    - extension: .jpg
+      mime: image/jpeg
+    - extension: .png
+      mime: image/png
   user:
     role_moderator: MODERATOR
     role_viewer: VIEWER
@@ -258,21 +299,30 @@ public:
   clientLog:
     server: { enabled: true, level: info }
     console: { enabled: true, level: debug }
-    external: { enabled: false, level: info, url: https://LOG_HOST/html5Log, method: POST }
+    external: { enabled: false, level: info, url: https://LOG_HOST/html5Log, method: POST, throttleInterval: 400 }
 private:
   app:
     captionsChunkLength: 1000
     pencilChunkLength: 100
+    loadSlidesFromHttpAlways: false
+  etherpad:
+    apikey: ETHERPAD_APIKEY
+    version: 1.2.13
+    host: 127.0.0.1
+    port: 9001
   redis:
     host: 127.0.0.1
-    post: '6379'
+    port: '6379'
     timeout: 5000
+    password: null
     debug: false
     channels:
       toAkkaApps: to-akka-apps-redis-channel
+      toThirdParty: to-third-party-redis-channel
     subscribeTo:
     - to-html5-redis-channel
     - from-akka-apps-*
+    - from-third-party-redis-channel
     async:
     - from-akka-apps-wb-redis-channel
     ignored:
@@ -280,3 +330,22 @@ private:
     - DoLatencyTracerMsg
   serverLog:
     level: info
+  minBrowserVersions:
+    - browser: chrome
+      version: 59
+    - browser: firefox
+      version: 52
+    - browser: firefoxMobile
+      version: 52
+    - browser: edge
+      version: 17
+    - browser: ie
+      version: Infinity
+    - browser: mobileSafari
+      version: [11, 1]
+    - browser: opera
+      version: 46
+    - browser: safari
+      version: [11, 1]
+    - browser: electron
+      version: [0, 36]

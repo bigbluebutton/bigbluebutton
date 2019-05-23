@@ -12,7 +12,6 @@ import Auth from '/imports/ui/services/auth';
 import Button from '/imports/ui/components/button/component';
 
 import ChatService from '../service';
-import { styles } from './styles';
 
 const intlMessages = defineMessages({
   clear: {
@@ -133,12 +132,12 @@ class ChatDropdown extends PureComponent {
         <DropdownTrigger tabIndex={0}>
           <Button
             data-test="chatDropdownTrigger"
-            className={styles.btn}
             icon="more"
+            size="sm"
             ghost
             circle
             hideLabel
-            color="primary"
+            color="dark"
             label={intl.formatMessage(intlMessages.options)}
             aria-label={intl.formatMessage(intlMessages.options)}
             onClick={() => null}

@@ -31,6 +31,7 @@ class AnalyticsActor extends Actor with ActorLogging {
 
     msg.core match {
       case m: RegisterUserReqMsg => logMessage(msg)
+      case m: RegisteredUserJoinTimeoutMsg => logMessage(msg)
       case m: UserRegisteredRespMsg => logMessage(msg)
       case m: DisconnectAllClientsSysMsg => logMessage(msg)
       case m: DisconnectClientSysMsg => logMessage(msg)
@@ -122,6 +123,11 @@ class AnalyticsActor extends Actor with ActorLogging {
 
       // Recording
       case m: RecordingChapterBreakSysMsg => logMessage(msg)
+
+      case m: GetLockSettingsRespMsg => logMessage(msg)
+      case m: ChangeLockSettingsInMeetingCmdMsg => logMessage(msg)
+      case m: GetLockSettingsReqMsg => logMessage(msg)
+      case m: LockSettingsNotInitializedRespMsg => logMessage(msg)
 
       case _ => // ignore message
     }

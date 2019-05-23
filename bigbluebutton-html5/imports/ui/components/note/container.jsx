@@ -14,9 +14,9 @@ class NoteContainer extends PureComponent {
 }
 
 export default withTracker(() => {
-  const url = NoteService.getNoteURL();
+  const isLocked = NoteService.isLocked();
 
   return {
-    url,
+    isLocked,
   };
 })(NoteContainer);

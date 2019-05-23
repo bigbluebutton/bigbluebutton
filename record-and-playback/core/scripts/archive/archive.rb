@@ -24,12 +24,12 @@ require '../lib/recordandplayback'
 require 'logger'
 require 'trollop'
 require 'yaml'
+require 'fnv'
 
-
-def archive_events(meeting_id, redis_host, redis_port, raw_archive_dir, break_timestamp)
+def archive_events(meeting_id, redis_host, redis_port, redis_password, raw_archive_dir, break_timestamp)
   BigBlueButton.logger.info("Archiving events for #{meeting_id}")
   #begin
-    redis = BigBlueButton::RedisWrapper.new(redis_host, redis_port)
+    redis = BigBlueButton::RedisWrapper.new(redis_host, redis_port, redis_password)
     events_archiver = BigBlueButton::RedisEventsArchiver.new redis    
     events = events_archiver.store_events(meeting_id,
                           "#{raw_archive_dir}/#{meeting_id}/events.xml",
@@ -37,6 +37,36 @@ def archive_events(meeting_id, redis_host, redis_port, raw_archive_dir, break_ti
   #rescue => e
   #  BigBlueButton.logger.warn("Failed to archive events for #{meeting_id}. " + e.to_s)
   #end
+end
+
+def archive_notes(meeting_id, notes_endpoint, notes_formats, raw_archive_dir)
+  BigBlueButton.logger.info("Archiving notes for #{meeting_id}")
+  notes_dir = "#{raw_archive_dir}/#{meeting_id}/notes"
+  FileUtils.mkdir_p(notes_dir)
+  notes_id = FNV.new.fnv1a_32(meeting_id).to_s(16)
+
+  tmp_note = "#{notes_dir}/tmp_note.txt"
+  BigBlueButton.try_download("#{notes_endpoint}/#{notes_id}/export/txt", tmp_note)
+  if File.exist? tmp_note
+    # If the notes are empty, do not archive them
+    blank = false
+    content = File.open(tmp_note).read
+    if content.strip.empty?
+      blank = true
+    end
+    FileUtils.rm_f(tmp_note)
+    if blank
+      BigBlueButton.logger.info("Empty notes for #{meeting_id}")
+      return
+    end
+  else
+    BigBlueButton.logger.info("Notes were not used in #{meeting_id}")
+    return
+  end
+
+  notes_formats.each do |format|
+    BigBlueButton.try_download("#{notes_endpoint}/#{notes_id}/export/#{format}", "#{notes_dir}/notes.#{format}")
+  end
 end
 
 def archive_audio(meeting_id, audio_dir, raw_archive_dir)
@@ -121,11 +151,14 @@ deskshare_dir = props['raw_deskshare_src']
 screenshare_dir = props['raw_screenshare_src']
 redis_host = props['redis_host']
 redis_port = props['redis_port']
+redis_password = props['redis_password']
 presentation_dir = props['raw_presentation_src']
 video_dir = props['raw_video_src']
 kurento_video_dir = props['kurento_video_src']
 kurento_screenshare_dir = props['kurento_screenshare_src']
 log_dir = props['log_dir']
+notes_endpoint = props['notes_endpoint']
+notes_formats = props['notes_formats']
 
 # Determine the filenames for the done and fail files
 if !break_timestamp.nil?
@@ -140,8 +173,9 @@ BigBlueButton.logger = Logger.new("#{log_dir}/archive-#{meeting_id}.log", 'daily
 
 target_dir = "#{raw_archive_dir}/#{meeting_id}"
 FileUtils.mkdir_p target_dir
-archive_events(meeting_id, redis_host, redis_port, raw_archive_dir, break_timestamp)
+archive_events(meeting_id, redis_host, redis_port, redis_password, raw_archive_dir, break_timestamp)
 archive_audio(meeting_id, audio_dir, raw_archive_dir)
+archive_notes(meeting_id, notes_endpoint, notes_formats, raw_archive_dir)
 archive_directory("#{presentation_dir}/#{meeting_id}/#{meeting_id}",
                   "#{target_dir}/presentation")
 archive_directory("#{screenshare_dir}/#{meeting_id}",
@@ -160,7 +194,7 @@ if not archive_has_recording_marks?(meeting_id, raw_archive_dir, break_timestamp
     # we need to delete the keys here because the sanity phase might not
     # automatically happen for this recording
     BigBlueButton.logger.info("Deleting redis keys")
-    redis = BigBlueButton::RedisWrapper.new(redis_host, redis_port)
+    redis = BigBlueButton::RedisWrapper.new(redis_host, redis_port, redis_password)
     events_archiver = BigBlueButton::RedisEventsArchiver.new(redis)
     events_archiver.delete_events(meeting_id)
   end

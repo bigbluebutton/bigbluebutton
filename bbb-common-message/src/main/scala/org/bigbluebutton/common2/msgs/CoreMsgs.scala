@@ -2,14 +2,12 @@ package org.bigbluebutton.common2.msgs
 
 import com.fasterxml.jackson.databind.JsonNode
 
-
 object MessageTypes {
   val DIRECT = "DIRECT"
   val BROADCAST_TO_MEETING = "BROADCAST_TO_MEETING" // Send to all clients in the meeting
   val BROADCAST_TO_ALL = "BROADCAST_TO_ALL" // Send to all clients
   val SYSTEM = "SYSTEM"
 }
-
 
 trait BbbCoreMsg
 

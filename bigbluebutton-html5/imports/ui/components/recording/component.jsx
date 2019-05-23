@@ -14,6 +14,10 @@ const intlMessages = defineMessages({
     id: 'app.recording.stopTitle',
     description: 'stop recording title',
   },
+  resumeTitle: {
+    id: 'app.recording.resumeTitle',
+    description: 'resume recording title',
+  },
   startDescription: {
     id: 'app.recording.startDescription',
     description: 'start recording description',
@@ -36,11 +40,13 @@ const propTypes = {
   intl: intlShape.isRequired,
   closeModal: PropTypes.func.isRequired,
   toggleRecording: PropTypes.func.isRequired,
+  recordingTime: PropTypes.number,
   recordingStatus: PropTypes.bool,
   amIModerator: PropTypes.bool,
 };
 
 const defaultProps = {
+  recordingTime: -1,
   recordingStatus: false,
   amIModerator: false,
 };
@@ -50,10 +56,20 @@ class RecordingComponent extends React.PureComponent {
     const {
       intl,
       recordingStatus,
+      recordingTime,
       amIModerator,
       closeModal,
       toggleRecording,
     } = this.props;
+
+    let title;
+
+    if (!recordingStatus) {
+      title = recordingTime >= 0 ? intl.formatMessage(intlMessages.resumeTitle)
+        : intl.formatMessage(intlMessages.startTitle);
+    } else {
+      title = intl.formatMessage(intlMessages.stopTitle);
+    }
 
     if (!amIModerator) return null;
     return (
@@ -62,15 +78,12 @@ class RecordingComponent extends React.PureComponent {
         className={styles.modal}
         onRequestClose={closeModal}
         hideBorder
+        contentLabel={title}
       >
         <div className={styles.container}>
           <div className={styles.header}>
             <div className={styles.title}>
-              {
-                intl.formatMessage(!recordingStatus
-                  ? intlMessages.startTitle
-                  : intlMessages.stopTitle)
-              }
+              {title}
             </div>
           </div>
           <div className={styles.description}>

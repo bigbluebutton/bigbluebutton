@@ -18,23 +18,27 @@
  */
 package org.bigbluebutton.app.screenshare
 
-import scala.util.{ Failure, Success }
-import akka.util.Timeout
 import akka.pattern.ask
 import org.bigbluebutton.app.screenshare.events.IEventsMessageBus
 import org.bigbluebutton.app.screenshare.server.sessions.ScreenshareManager
 import org.bigbluebutton.app.screenshare.server.sessions.messages._
-import org.bigbluebutton.app.screenshare.server.util.LogHelper
 import akka.actor.ActorSystem
-import org.bigbluebutton.app.screenshare.redis.{ ScreenshareRedisSubscriberActor, ReceivedJsonMsgHandlerActor }
+import org.bigbluebutton.app.screenshare.redis.{ ReceivedJsonMsgHandlerActor, ScreenshareRedisSubscriberActor }
 
 import scala.concurrent.{ Await, Future, TimeoutException }
 import scala.concurrent.duration._
 import org.bigbluebutton.common2.bus.IncomingJsonMessageBus
+import org.bigbluebutton.common2.redis.RedisConfig
 
-class ScreenShareApplication(val bus: IEventsMessageBus, val jnlpFile: String,
-  val streamBaseUrl: String) extends IScreenShareApplication
-  with SystemConfiguration { //} with LogHelper {
+class ScreenShareApplication(
+  val bus: IEventsMessageBus,
+  val jnlpFile: String,
+  val streamBaseUrl: String,
+  redisHost: String,
+  redisPort: Int,
+  redisPass: String,
+  redisExpireKey: Int) extends IScreenShareApplication
+  with SystemConfiguration { //with LogHelper {
 
   implicit val system = ActorSystem("bbb-screenshare-system")
   implicit val timeout = akka.util.Timeout(3 seconds)
@@ -46,8 +50,21 @@ class ScreenShareApplication(val bus: IEventsMessageBus, val jnlpFile: String,
   //println("*********** meetingManagerChannel = " + meetingManagerChannel)
   //logger.debug("*********** meetingManagerChannel = " + meetingManagerChannel)
 
+  // Need to wrap redisPassword into Option as it may be
+  // null (ralam nov 29, 2018)
+  val redisPassword = Option(redisPass)
+  val redisConfig = RedisConfig(redisHost, redisPort, redisPassword, redisExpireKey)
+  val channelsToSubscribe = Seq(fromAkkaAppsRedisChannel)
+  val patternsToSubscribe = Nil
   val incomingJsonMessageBus = new IncomingJsonMessageBus
-  val redisSubscriberActor = system.actorOf(ScreenshareRedisSubscriberActor.props(system, incomingJsonMessageBus), "redis-subscriber")
+  val redisSubscriberActor = system.actorOf(
+    ScreenshareRedisSubscriberActor.props(
+      system,
+      incomingJsonMessageBus,
+      redisConfig,
+      channelsToSubscribe,
+      patternsToSubscribe,
+      toScreenshareAppsJsonChannel), "redis-subscriber")
 
   val screenShareManager = system.actorOf(ScreenshareManager.props(system, bus), "screenshare-manager")
 
@@ -61,17 +78,13 @@ class ScreenShareApplication(val bus: IEventsMessageBus, val jnlpFile: String,
   //}
 
   def meetingHasEnded(meetingId: String) {
-    //    if (logger.isDebugEnabled()) {
-    //      logger.debug("Received meetingHasEnded on meeting=" + meetingId + "]")
-    //    }
+    //logger.info("Received meetingHasEnded on meeting=" + meetingId + "]")
 
     screenShareManager ! new MeetingEnded(meetingId)
   }
 
   def meetingCreated(meetingId: String, record: java.lang.Boolean) {
-    //    if (logger.isDebugEnabled()) {
-    //      logger.debug("Received meetingCreated on meeting=" + meetingId + "]")
-    //    }
+    //logger.debug("Received meetingCreated on meeting=" + meetingId + "]")
 
     screenShareManager ! new MeetingCreated(meetingId, record)
 
@@ -115,9 +128,7 @@ class ScreenShareApplication(val bus: IEventsMessageBus, val jnlpFile: String,
       new ScreenShareInfoResponse(info, null)
     } catch {
       case e: TimeoutException =>
-        //       if (logger.isDebugEnabled()) {
-        //         logger.debug("FAILED to get screen share info on meetingId=" + meetingId + "]")
-        //       }
+        //logger.warn("FAILED to get screen share info on meetingId=" + meetingId + "]")
         new ScreenShareInfoResponse(null, initError)
     }
 
@@ -135,18 +146,15 @@ class ScreenShareApplication(val bus: IEventsMessageBus, val jnlpFile: String,
       }
     } catch {
       case e: TimeoutException =>
-        //        if (logger.isDebugEnabled()) {
-        //          logger.debug("FAILED to get sharing status on stream=" + streamId + "]")
-        //        }
+        //logger.warn("FAILED to get sharing status on stream=" + streamId + "]")
+
         new SharingStatus("STOP", null)
     }
 
   }
 
   def recordStream(meetingId: String, streamId: String): java.lang.Boolean = {
-    //    if (logger.isDebugEnabled()) {
-    //      logger.debug("Received record stream request on stream=" + streamId + "]")
-    //    }
+    //logger.info("Received record stream request on stream=" + streamId + "]")
 
     var record = false
 
@@ -170,50 +178,50 @@ class ScreenShareApplication(val bus: IEventsMessageBus, val jnlpFile: String,
   }
 
   def requestShareToken(meetingId: String, userId: String, record: java.lang.Boolean, tunnel: java.lang.Boolean) {
-    //    if (logger.isDebugEnabled()) {
-    //      logger.debug("Received request share token on meeting=" + meetingId + "for user=" + userId + "]")
-    //    }
+    //if (logger.isDebugEnabled()) {
+    //  logger.debug("Received request share token on meeting=" + meetingId + "for user=" + userId + "]")
+    //}
 
     screenShareManager ! RequestShareTokenMessage(meetingId, userId, jnlpFile, record, tunnel)
   }
 
   def startShareRequest(meetingId: String, userId: String, session: String) {
-    //    if (logger.isDebugEnabled()) {
-    //      logger.debug("Received start share request on meeting=" + meetingId + "for user=" + userId + "]")
-    //    }
+    //if (logger.isDebugEnabled()) {
+    //  logger.debug("Received start share request on meeting=" + meetingId + "for user=" + userId + "]")
+    //}
 
     screenShareManager ! StartShareRequestMessage(meetingId, userId, session)
   }
 
   def restartShareRequest(meetingId: String, userId: String) {
-    //    if (logger.isDebugEnabled()) {
-    //     logger.debug("Received restart share request on meeting=[" + meetingId
-    //      + "] from userId=[" + userId + "]")
-    // }
+    //if (logger.isDebugEnabled()) {
+    //  logger.debug("Received restart share request on meeting=[" + meetingId
+    //    + "] from userId=[" + userId + "]")
+    //}
     screenShareManager ! new RestartShareRequestMessage(meetingId, userId)
   }
 
   def pauseShareRequest(meetingId: String, userId: String, streamId: String) {
-    //    if (logger.isDebugEnabled()) {
-    //      logger.debug("Received pause share request on meeting=[" + meetingId
-    //        + "] for stream=[" + streamId + "]")
-    //    }
+    //if (logger.isDebugEnabled()) {
+    //  logger.debug("Received pause share request on meeting=[" + meetingId
+    //    + "] for stream=[" + streamId + "]")
+    //}
     screenShareManager ! new PauseShareRequestMessage(meetingId, userId, streamId)
   }
 
   def stopShareRequest(meetingId: String, streamId: String) {
-    //    if (logger.isDebugEnabled()) {
-    //      logger.debug("Received stop share request on meeting=[" + meetingId
-    //          + "] for stream=[" + streamId + "]")
-    //    }
+    //if (logger.isDebugEnabled()) {
+    //  logger.debug("Received stop share request on meeting=[" + meetingId
+    //    + "] for stream=[" + streamId + "]")
+    // }
     screenShareManager ! new StopShareRequestMessage(meetingId, streamId)
   }
 
   def streamStarted(meetingId: String, streamId: String, url: String) {
-    //    if (logger.isDebugEnabled()) {
-    //      logger.debug("Received stream started on meeting=[" + meetingId
-    //          + "] for stream=[" + streamId + "]")
-    //    }
+    //if (logger.isDebugEnabled()) {
+    //  logger.debug("Received stream started on meeting=[" + meetingId
+    //    + "] for stream=[" + streamId + "]")
+    //}
     screenShareManager ! new StreamStartedMessage(meetingId, streamId, url)
   }
 
@@ -223,26 +231,26 @@ class ScreenShareApplication(val bus: IEventsMessageBus, val jnlpFile: String,
   }
 
   def streamStopped(meetingId: String, streamId: String) {
-    //    if (logger.isDebugEnabled()) {
-    //      logger.debug("Received stream stopped on meeting=[" + meetingId
-    //          + "] for stream=[" + streamId + "]")
-    //    }
+    //if (logger.isDebugEnabled()) {
+    //  logger.debug("Received stream stopped on meeting=[" + meetingId
+    //    + "] for stream=[" + streamId + "]")
+    // }
     screenShareManager ! new StreamStoppedMessage(meetingId, streamId)
   }
 
   def sharingStarted(meetingId: String, streamId: String, width: java.lang.Integer, height: java.lang.Integer) {
-    //    if (logger.isDebugEnabled()) {
-    //      logger.debug("Received share started on meeting=[" + meetingId
-    //          + "] for stream=[" + streamId + "] with region=[" + width + "x" + height + "]")
-    //    }
+    //if (logger.isDebugEnabled()) {
+    //  logger.debug("Received share started on meeting=[" + meetingId
+    //    + "] for stream=[" + streamId + "] with region=[" + width + "x" + height + "]")
+    //}
     screenShareManager ! new SharingStartedMessage(meetingId, streamId, width, height)
   }
 
   def sharingStopped(meetingId: String, streamId: String) {
-    //    if (logger.isDebugEnabled()) {
-    //      logger.debug("Received sharing stopped on meeting=" + meetingId
-    //          + "for stream=" + streamId + "]")
-    //    }
+    //if (logger.isDebugEnabled()) {
+    //  logger.debug("Received sharing stopped on meeting=" + meetingId
+    //    + "for stream=" + streamId + "]")
+    //}
     screenShareManager ! new SharingStoppedMessage(meetingId, streamId)
   }
 

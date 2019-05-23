@@ -430,9 +430,6 @@ class ApiController {
       us.avatarURL = meeting.defaultAvatarURL
     }
 
-    session[sessionToken] = sessionToken
-    meetingService.addUserSession(sessionToken, us);
-
     // Register user into the meeting.
     meetingService.registerUser(us.meetingID, us.internalUserId, us.fullname, us.role, us.externUserID,
         us.authToken, us.avatarURL, us.guest, us.authed, guestStatusVal)
@@ -463,12 +460,12 @@ class ApiController {
     // server-wide configuration:
     // Depending on configuration, prefer the HTML5 client over Flash for moderators
     if (paramsProcessorUtil.getModeratorsJoinViaHTML5Client() && role == ROLE_MODERATOR) {
-      clientURL = paramsProcessorUtil.getHTML5ClientUrl();
+      joinViaHtml5 = true
     }
 
     // Depending on configuration, prefer the HTML5 client over Flash for attendees
     if (paramsProcessorUtil.getAttendeesJoinViaHTML5Client() && role == ROLE_ATTENDEE) {
-      clientURL = paramsProcessorUtil.getHTML5ClientUrl();
+      joinViaHtml5 = true
     }
 
     // single client join configuration:
@@ -491,10 +488,21 @@ class ApiController {
 
     String msgKey = "successfullyJoined"
     String msgValue = "You have joined successfully."
+
+    // Keep track of the client url in case this needs to wait for
+    // approval as guest. We need to be able to send the user to the
+    // client after being approved by moderator.
+    us.clientUrl = clientURL + "?sessionToken=" + sessionToken
+
+    session[sessionToken] = sessionToken
+    meetingService.addUserSession(sessionToken, us);
+
+    // Process if we send the user directly to the client or
+    // have it wait for approval.
     String destUrl = clientURL + "?sessionToken=" + sessionToken
     if (guestStatusVal.equals(GuestPolicy.WAIT)) {
-      clientURL = paramsProcessorUtil.getDefaultGuestWaitURL();
-      destUrl = clientURL + "?sessionToken=" + sessionToken
+      String guestWaitUrl = paramsProcessorUtil.getDefaultGuestWaitURL();
+      destUrl = guestWaitUrl + "?sessionToken=" + sessionToken
       msgKey = "guestWait"
       msgValue = "Guest waiting for approval to join meeting."
     } else if (guestStatusVal.equals(GuestPolicy.DENY)) {
@@ -1276,7 +1284,11 @@ class ApiController {
     } else {
       //check if exists the param redirect
       boolean redirectClient = true;
-      String clientURL = paramsProcessorUtil.getDefaultClientUrl();
+
+      // Get the client url we stored in the join api call before
+      // being told to wait.
+      String clientURL = us.clientUrl;
+      log.info("clientURL = " + clientURL)
       log.info("redirect = ." + redirectClient)
       if (!StringUtils.isEmpty(params.redirect)) {
         try {
@@ -1287,6 +1299,7 @@ class ApiController {
         }
       }
 
+      // The client url is ovewriten. Let's allow it.
       if (!StringUtils.isEmpty(params.clientURL)) {
         clientURL = params.clientURL;
       }
@@ -1297,8 +1310,10 @@ class ApiController {
 
       String msgKey = "guestAllowed"
       String msgValue = "Guest allowed to join meeting."
-      String destUrl = clientURL + "?sessionToken=" + sessionToken
+
+      String destUrl = clientURL
       log.debug("destUrl = " + destUrl)
+
 
       if (guestWaitStatus.equals(GuestPolicy.WAIT)) {
         clientURL = paramsProcessorUtil.getDefaultGuestWaitURL();
@@ -1499,9 +1514,17 @@ class ApiController {
             customLogoURL meeting.getCustomLogoURL()
             customCopyright meeting.getCustomCopyright()
             muteOnStart meeting.getMuteOnStart()
+            allowModsToUnmuteUsers meeting.getAllowModsToUnmuteUsers()
             logoutUrl us.logoutUrl
             defaultLayout us.defaultLayout
             avatarURL us.avatarURL
+            if (meeting.breakoutRoomsParams != null) {
+              breakoutRooms {
+                enabled meeting.breakoutRoomsParams.enabled
+                record meeting.breakoutRoomsParams.record
+                privateChatEnabled meeting.breakoutRoomsParams.privateChatEnabled
+              }
+            }
             customdata (
               meeting.getUserCustomData(us.externUserID).collect { k, v ->
                 ["$k": v]

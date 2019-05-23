@@ -93,6 +93,10 @@ const intlMessages = defineMessages({
     id: 'app.createBreakoutRoom.addRoomTime',
     description: 'aria label for btn to increase room time',
   },
+  record: {
+    id: 'app.createBreakoutRoom.record',
+    description: 'label for checkbox to allow record',
+  },
 });
 
 const MIN_BREAKOUT_ROOMS = 2;
@@ -108,6 +112,7 @@ const propTypes = {
   getBreakouts: PropTypes.func.isRequired,
   sendInvitation: PropTypes.func.isRequired,
   mountModal: PropTypes.func.isRequired,
+  isBreakoutRecordable: PropTypes.bool.isRequired,
 };
 
 class BreakoutRoom extends Component {
@@ -127,7 +132,7 @@ class BreakoutRoom extends Component {
     this.renderUserItemByRoom = this.renderUserItemByRoom.bind(this);
     this.renderRoomsGrid = this.renderRoomsGrid.bind(this);
     this.renderBreakoutForm = this.renderBreakoutForm.bind(this);
-    this.renderFreeJoinCheck = this.renderFreeJoinCheck.bind(this);
+    this.renderCheckboxes = this.renderCheckboxes.bind(this);
     this.renderRoomSortList = this.renderRoomSortList.bind(this);
     this.renderDesktop = this.renderDesktop.bind(this);
     this.renderMobile = this.renderMobile.bind(this);
@@ -136,17 +141,21 @@ class BreakoutRoom extends Component {
     this.renderTitle = this.renderTitle.bind(this);
     this.handleDismiss = this.handleDismiss.bind(this);
     this.setInvitationConfig = this.setInvitationConfig.bind(this);
+    this.setRecord = this.setRecord.bind(this);
+    this.blurDurationTime = this.blurDurationTime.bind(this);
+    this.removeRoomUsers = this.removeRoomUsers.bind(this);
 
     this.state = {
       numberOfRooms: MIN_BREAKOUT_ROOMS,
       seletedId: '',
       users: [],
-      durationTime: 1,
+      durationTime: 15,
       freeJoin: false,
       formFillLevel: 1,
       roomSelected: 0,
       preventClosing: true,
       valid: true,
+      record: false,
     };
 
     this.breakoutFormId = _.uniqueId('breakout-form-');
@@ -164,8 +173,19 @@ class BreakoutRoom extends Component {
 
   componentDidUpdate(prevProps, prevstate) {
     const { numberOfRooms } = this.state;
+    const { users } = this.props;
+    const { users: prevUsers } = prevProps;
     if (numberOfRooms < prevstate.numberOfRooms) {
       this.resetUserWhenRoomsChange(numberOfRooms);
+    }
+    const usersCount = users.length;
+    const prevUsersCount = prevUsers.length;
+    if (usersCount > prevUsersCount) {
+      this.setRoomUsers();
+    }
+
+    if (usersCount < prevUsersCount) {
+      this.removeRoomUsers();
     }
   }
 
@@ -178,6 +198,7 @@ class BreakoutRoom extends Component {
     const {
       users,
       freeJoin,
+      record,
     } = this.state;
 
     if (users.length === this.getUserByRoom(0).length && !freeJoin) {
@@ -196,7 +217,7 @@ class BreakoutRoom extends Component {
       sequence: value,
     }));
 
-    createBreakoutRoom(rooms, durationTime, freeJoin);
+    createBreakoutRoom(rooms, durationTime, record);
     Session.set('isUserListOpen', true);
   }
 
@@ -228,6 +249,7 @@ class BreakoutRoom extends Component {
       ));
   }
 
+
   setInvitationConfig() {
     const { getBreakouts } = this.props;
     this.setState({
@@ -238,16 +260,22 @@ class BreakoutRoom extends Component {
 
   setRoomUsers() {
     const { users, getUsersNotAssigned } = this.props;
-
-    const roomUsers = getUsersNotAssigned(users).map(user => ({
-      userId: user.userId,
-      userName: user.name,
-      isModerator: user.moderator,
-      room: 0,
-    }));
+    const { users: stateUsers } = this.state;
+    const stateUsersId = stateUsers.map(user => user.userId);
+    const roomUsers = getUsersNotAssigned(users)
+      .filter(user => !stateUsersId.includes(user.userId))
+      .map(user => ({
+        userId: user.userId,
+        userName: user.name,
+        isModerator: user.moderator,
+        room: 0,
+      }));
 
     this.setState({
-      users: roomUsers,
+      users: [
+        ...stateUsers,
+        ...roomUsers,
+      ],
     });
   }
 
@@ -255,9 +283,24 @@ class BreakoutRoom extends Component {
     this.setState({ freeJoin: e.target.checked });
   }
 
+  setRecord(e) {
+    this.setState({ record: e.target.checked });
+  }
+
   getUserByRoom(room) {
     const { users } = this.state;
     return users.filter(user => user.room === room);
+  }
+
+  removeRoomUsers() {
+    const { users } = this.props;
+    const { users: stateUsers } = this.state;
+    const userIds = users.map(user => user.userId);
+    const removeUsers = stateUsers.filter(user => userIds.includes(user.userId));
+
+    this.setState({
+      users: removeUsers,
+    });
   }
 
   handleDismiss() {
@@ -299,6 +342,11 @@ class BreakoutRoom extends Component {
 
   changeDurationTime(event) {
     this.setState({ durationTime: Number.parseInt(event.target.value, 10) || '' });
+  }
+
+  blurDurationTime(event) {
+    const value = Number.parseInt(event.target.value, 10);
+    this.setState({ durationTime: !(value <= 0) ? value : 1 });
   }
 
   changeNumberOfRooms(event) {
@@ -389,9 +437,10 @@ class BreakoutRoom extends Component {
             <input
               type="number"
               className={styles.duration}
-              min={MIN_BREAKOUT_ROOMS}
+              min="1"
               value={durationTime}
               onChange={this.changeDurationTime}
+              onBlur={this.blurDurationTime}
               aria-label={intl.formatMessage(intlMessages.duration)}
             />
             <HoldButton
@@ -403,6 +452,9 @@ class BreakoutRoom extends Component {
             >
               <Button
                 label={intl.formatMessage(intlMessages.minusRoomTime)}
+                aria-label={
+                  `${intl.formatMessage(intlMessages.minusRoomTime)} ${durationTime}`
+                }
                 icon="substract"
                 onClick={() => {}}
                 hideLabel
@@ -417,6 +469,9 @@ class BreakoutRoom extends Component {
             >
               <Button
                 label={intl.formatMessage(intlMessages.addRoomTime)}
+                aria-label={
+                  `${intl.formatMessage(intlMessages.addRoomTime)} ${durationTime}`
+                }
                 icon="add"
                 onClick={() => {}}
                 hideLabel
@@ -453,21 +508,44 @@ class BreakoutRoom extends Component {
     );
   }
 
-  renderFreeJoinCheck() {
-    const { intl, isInvitation } = this.props;
+  renderCheckboxes() {
+    const { intl, isInvitation, isBreakoutRecordable } = this.props;
     if (isInvitation) return null;
-    const { freeJoin } = this.state;
+    const {
+      freeJoin,
+      record,
+    } = this.state;
     return (
-      <label htmlFor="freeJoinCheckbox" className={styles.freeJoinLabel} key={this.freeJoinId}>
-        <input
-          type="checkbox"
-          className={styles.freeJoinCheckbox}
-          onChange={this.setFreeJoin}
-          checked={freeJoin}
-          aria-label={intl.formatMessage(intlMessages.freeJoinLabel)}
-        />
-        <span aria-hidden>{intl.formatMessage(intlMessages.freeJoinLabel)}</span>
-      </label>
+      <div className={styles.checkBoxesContainer}>
+        <label htmlFor="freeJoinCheckbox" className={styles.freeJoinLabel} key={this.freeJoinId}>
+          <input
+            type="checkbox"
+            id="freeJoinCheckbox"
+            className={styles.freeJoinCheckbox}
+            onChange={this.setFreeJoin}
+            checked={freeJoin}
+            aria-label={intl.formatMessage(intlMessages.freeJoinLabel)}
+          />
+          <span aria-hidden>{intl.formatMessage(intlMessages.freeJoinLabel)}</span>
+        </label>
+        {
+          isBreakoutRecordable ? (
+            <label htmlFor="recordBreakoutCheckbox" className={styles.freeJoinLabel} key={this.freeJoinId}>
+              <input
+                id="recordBreakoutCheckbox"
+                type="checkbox"
+                className={styles.freeJoinCheckbox}
+                onChange={this.setRecord}
+                checked={record}
+                aria-label={intl.formatMessage(intlMessages.record)}
+              />
+              <span aria-hidden>
+                {intl.formatMessage(intlMessages.record)}
+              </span>
+            </label>
+          ) : null
+        }
+      </div>
     );
   }
 
@@ -541,7 +619,7 @@ class BreakoutRoom extends Component {
   renderDesktop() {
     return [
       this.renderBreakoutForm(),
-      this.renderFreeJoinCheck(),
+      this.renderCheckboxes(),
       this.renderRoomsGrid(),
     ];
   }
@@ -559,7 +637,7 @@ class BreakoutRoom extends Component {
 
     return [
       this.renderBreakoutForm(),
-      this.renderFreeJoinCheck(),
+      this.renderCheckboxes(),
       this.renderButtonSetLevel(2, intl.formatMessage(intlMessages.nextLabel)),
     ];
   }

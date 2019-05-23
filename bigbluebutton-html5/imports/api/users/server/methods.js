@@ -5,6 +5,8 @@ import assignPresenter from './methods/assignPresenter';
 import changeRole from './methods/changeRole';
 import removeUser from './methods/removeUser';
 import toggleUserLock from './methods/toggleUserLock';
+import userActivitySign from './methods/userActivitySign';
+import userLeftMeeting from './methods/userLeftMeeting';
 
 Meteor.methods({
   setEmojiStatus,
@@ -13,4 +15,6 @@ Meteor.methods({
   removeUser,
   validateAuthToken,
   toggleUserLock,
+  userActivitySign,
+  userLeftMeeting,
 });
