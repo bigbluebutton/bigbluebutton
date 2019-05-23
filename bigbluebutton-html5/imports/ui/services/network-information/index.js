@@ -44,16 +44,11 @@ export const getCurrentWebcams = () => NetworkInformationLocal
     event: NUMBER_OF_WEBCAMS_CHANGED,
   }, { sort: { timestamp: -1 } });
 
-export const newWebcamConnection = (webRtcPeer) => {
-  const { userId, peer } = webRtcPeer;
-  const { id: mediaStreamId } = peer.getLocalStream();
+export const newWebcamConnection = (id) => {
   const doc = {
     timestamp: new Date().getTime(),
     event: STARTED_WEBCAM_SHARING,
-    payload: {
-      userId,
-      mediaStreamId,
-    },
+    payload: { id },
   };
 
   NetworkInformationLocal.insert(doc);
@@ -67,6 +62,12 @@ export const startBandwidthMonitoring = () => {
 
     const warningLowerBoundary = monitoringTime - DANGER_END_TIME;
     const warningUpperBoundary = monitoringTime - WARNING_END_TIME;
+
+    // Remove old documents to reduce the size of the local collection.
+    NetworkInformationLocal.remove({
+      event: WEBCAMS_GET_STATUS,
+      timestamp: { $lt: warningUpperBoundary },
+    });
 
     const usersWatchingWebcams = Users.find({
       userId: { $ne: Auth.userID },

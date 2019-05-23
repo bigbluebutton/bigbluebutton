@@ -4,7 +4,8 @@ import Logger from '/imports/startup/server/logger';
 
 export default function setChangedSettings(userId, setting, value) {
   check(userId, String);
-  check(setting, Match.Maybe(String));
+  check(setting, String);
+  check(value, Match.Any);
 
   const selector = {
     userId,

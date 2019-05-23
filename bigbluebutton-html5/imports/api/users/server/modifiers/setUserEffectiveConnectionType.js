@@ -25,7 +25,7 @@ export default function setUserEffectiveConnectionType(meetingId, userId, effect
     }
 
     if (numChanged) {
-      Logger.info(`Updated user ${userId} effective connection to ${effectiveConnectionType}`);
+      Logger.info(`Updated user ${userId} effective connection to ${effectiveConnectionType} in meeting ${meetingId}`);
     }
   };
 

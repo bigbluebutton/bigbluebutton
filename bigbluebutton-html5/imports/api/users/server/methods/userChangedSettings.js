@@ -15,6 +15,7 @@ export default function userChangedSettings(credentials, setting, value) {
   check(meetingId, String);
   check(requesterUserId, String);
   check(setting, String);
+  check(value, Match.Any);
 
   const payload = {
     meetingId,

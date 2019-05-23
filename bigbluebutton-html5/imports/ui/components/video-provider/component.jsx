@@ -181,9 +181,9 @@ class VideoProvider extends Component {
           && peer.peerConnection.getRemoteStreams().length > 0;
 
         if (hasLocalStream) {
-          this.customGetStats(peer.peerConnection, peer.peerConnection.getLocalStreams()[0].getVideoTracks()[0], (stats => updateWebcamStats(id, stats)));
+          this.customGetStats(peer.peerConnection, peer.peerConnection.getLocalStreams()[0].getVideoTracks()[0], (stats => updateWebcamStats(id, stats)), true);
         } else if (hasRemoteStream) {
-          this.customGetStats(peer.peerConnection, peer.peerConnection.getRemoteStreams()[0].getVideoTracks()[0], (stats => updateWebcamStats(id, stats)));
+          this.customGetStats(peer.peerConnection, peer.peerConnection.getRemoteStreams()[0].getVideoTracks()[0], (stats => updateWebcamStats(id, stats)), true);
         }
       });
     }, 5000);
@@ -559,7 +559,7 @@ class VideoProvider extends Component {
       if (this.webRtcPeers[id].peerConnection) {
         this.webRtcPeers[id].peerConnection.oniceconnectionstatechange = this._getOnIceConnectionStateChangeCallback(id);
       }
-      newWebcamConnection({ userId: id, peer: this.webRtcPeers[id] });
+      newWebcamConnection(id);
       updateCurrentWebcamsConnection(this.webRtcPeers);
     }
   }
@@ -714,7 +714,7 @@ class VideoProvider extends Component {
     }
   }
 
-  customGetStats(peer, mediaStreamTrack, callback) {
+  customGetStats(peer, mediaStreamTrack, callback, monitoring = false) {
     const { stats } = this.state;
     const statsState = stats;
     let promise;
@@ -777,7 +777,10 @@ class VideoProvider extends Component {
       while (videoStatsArray.length > 5) { // maximum interval to consider
         videoStatsArray.shift();
       }
-      this.setState({ stats: videoStatsArray });
+
+      if (!monitoring) {
+        this.setState({ stats: videoStatsArray });
+      }
 
       const firstVideoStats = videoStatsArray[0];
       const lastVideoStats = videoStatsArray[videoStatsArray.length - 1];

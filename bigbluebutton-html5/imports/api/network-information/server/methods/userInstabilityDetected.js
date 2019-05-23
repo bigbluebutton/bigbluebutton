@@ -16,7 +16,7 @@ export default function userInstabilityDetected(credentials, sender) {
     sender,
   };
 
-  Logger.debug(`Receiver ${receiver} reported a network instability`);
+  Logger.debug(`Receiver ${receiver} reported a network instability in meeting ${meetingId}`);
 
   return NetworkInformation.insert(payload);
 }
