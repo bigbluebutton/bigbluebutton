@@ -41,6 +41,7 @@ class PresentationArea extends Component {
         x: 0,
         y: 0,
       },
+      newPresentation: false,
     };
 
     this.getSvgRef = this.getSvgRef.bind(this);
@@ -50,15 +51,35 @@ class PresentationArea extends Component {
     this.fitToWidthHandler = this.fitToWidthHandler.bind(this);
   }
 
-  componentDidUpdate(prevProps, prevState) {
-    const { currentPresentation, notify, intl } = this.props;
+  componentDidUpdate(prevProps) {
+    const {
+      currentPresentation,
+      notify,
+      intl,
+      podId,
+      isFitToWidth,
+      userIsPresenter,
+      toggleFitToWidth,
+      currentSlide,
+    } = this.props;
+    const { newPresentation } = this.state;
 
     if (prevProps.currentPresentation.name !== currentPresentation.name) {
+      this.setState({ newPresentation: true });
       notify(
         `${intl.formatMessage(intlMessages.changeNotification)} ${currentPresentation.name}`,
         'info',
         'presentation',
       );
+    }
+
+    // If the new presentation is portrait. Set fit-to-width by default
+    if (newPresentation && currentSlide) {
+      const slideSizes = currentSlide.calculatedData;
+      this.setState({ newPresentation: false });
+      if (!isFitToWidth && userIsPresenter) {
+        if (slideSizes.width < slideSizes.height) toggleFitToWidth(podId);
+      }
     }
   }
 

@@ -41,6 +41,7 @@ export default class PresentationOverlay extends Component {
     this.handleTouchCancel = this.handleTouchCancel.bind(this);
     this.mouseMoveHandler = this.mouseMoveHandler.bind(this);
     this.checkCursor = this.checkCursor.bind(this);
+    this.checkResize = this.checkResize.bind(this);
     this.mouseEnterHandler = this.mouseEnterHandler.bind(this);
     this.mouseOutHandler = this.mouseOutHandler.bind(this);
     this.getTransformedSvgPoint = this.getTransformedSvgPoint.bind(this);
@@ -51,6 +52,8 @@ export default class PresentationOverlay extends Component {
     this.tapHandler = this.tapHandler.bind(this);
     this.zoomCall = this.zoomCall.bind(this);
 
+    this.doResize = this.doResize.bind(this);
+    this.fitChange = this.fitChange.bind(this);
     this.panZoom = this.panZoom.bind(this);
     this.pinchZoom = this.pinchZoom.bind(this);
     this.toolbarZoom = this.toolbarZoom.bind(this);
@@ -98,7 +101,14 @@ export default class PresentationOverlay extends Component {
       viewBoxWidth,
       slideWidth,
       zoomChanger,
+      fitToWidth,
+      presentationSize,
     } = this.props;
+
+    if (fitToWidth) {
+      this.viewportW = presentationSize.presentationWidth;
+      this.viewportH = presentationSize.presentationHeight;
+    }
 
     const realZoom = (viewBoxWidth / slideWidth) * 100;
 
@@ -122,6 +132,17 @@ export default class PresentationOverlay extends Component {
     const moveSLide = ((delta.x !== prevProps.delta.x)
     || (delta.y !== prevProps.delta.y)) && !isDifferent;
     const isTouchZoom = zoom !== this.state.zoom && touchZoom;
+    const isFitChange = prevProps.fitToWidth !== fitToWidth;
+    const isResize = this.checkResize(prevProps.presentationSize);
+
+    if (isFitChange) {
+      this.fitChange();
+    }
+
+    if (isResize) {
+      this.doResize();
+    }
+
     if (moveSLide) {
       this.panZoom();
     }
@@ -133,23 +154,11 @@ export default class PresentationOverlay extends Component {
     if (isDifferent) {
       this.toolbarZoom();
     }
-
-    if (fitToWidth) {
-      if (!prevProps.fitToWidth || this.checkResize(prevProps.presentationSize)) {
-        this.parentH = presentationSize.presentationHeight;
-        this.parentW = presentationSize.presentationWidth;
-        this.viewportH = this.parentH;
-        this.viewportW = this.parentW;
-        this.doZoomCall(HUNDRED_PERCENT, 0, 0);
-      }
-    } else if (prevProps.fitToWidth) {
-      this.viewportH = slideHeight;
-      this.viewportW = slideWidth;
-      this.doZoomCall(HUNDRED_PERCENT, 0, 0);
-    }
   }
 
   onZoom(zoomValue, mouseX, mouseY) {
+    const { fitToWidth } = this.props;
+
     let absXcoordInPage = (Math.abs(this.calcPageX) * MYSTERY_NUM) + mouseX;
     let absYcoordInPage = (Math.abs(this.calcPageY) * MYSTERY_NUM) + mouseY;
 
@@ -157,19 +166,21 @@ export default class PresentationOverlay extends Component {
     const relYcoordInPage = absYcoordInPage / this.calcPageH;
 
     if (this.isPortraitDoc()) {
-      if (this.props.fitToWidth) {
+      if (fitToWidth) {
         this.calcPageW = (this.viewportW * zoomValue) / HUNDRED_PERCENT;
         this.calcPageH = (this.calcPageW / this.pageOrigW) * this.pageOrigH;
       } else {
         this.calcPageH = (this.viewportH * zoomValue) / HUNDRED_PERCENT;
         this.calcPageW = (this.pageOrigW / this.pageOrigH) * this.calcPageH;
       }
-    } else if (this.props.fitToWidth) {
-      this.calcPageW = (this.viewportW * zoomValue) / HUNDRED_PERCENT;
-      this.calcPageH = (this.calcPageW / this.pageOrigW) * this.pageOrigH;
     } else {
-      this.calcPageW = (this.viewportW * zoomValue) / HUNDRED_PERCENT;
-      this.calcPageH = (this.viewportH * zoomValue) / HUNDRED_PERCENT;
+      if (fitToWidth) {
+        this.calcPageW = (this.viewportW * zoomValue) / HUNDRED_PERCENT;
+        this.calcPageH = (this.calcPageW / this.pageOrigW) * this.pageOrigH;
+      } else {
+        this.calcPageW = (this.viewportW * zoomValue) / HUNDRED_PERCENT;
+        this.calcPageH = (this.viewportH * zoomValue) / HUNDRED_PERCENT;
+      }
     }
 
     absXcoordInPage = relXcoordInPage * this.calcPageW;
@@ -202,6 +213,37 @@ export default class PresentationOverlay extends Component {
     const heightChanged = prevPresentationSize.presentationHeight !== presentationSize.presentationHeight;
     const widthChanged = prevPresentationSize.presentationWidth !== presentationSize.presentationWidth;
     return heightChanged || widthChanged;
+  }
+
+  doResize() {
+    const {
+      zoom,
+      presentationSize,
+      fitToWidth,
+    } = this.props;
+    if (fitToWidth) {
+      this.viewportW = presentationSize.presentationWidth;
+      this.viewportH = presentationSize.presentationHeight;
+      this.doZoomCall(zoom, this.lastSentClientX, this.lastSentClientY);
+    }
+  }
+
+  fitChange() {
+    const {
+      presentationSize,
+      slideHeight,
+      slideWidth,
+      fitToWidth,
+      slide,
+    } = this.props;
+    if (fitToWidth) {
+      this.viewportH = presentationSize.presentationHeight;
+      this.viewportW = presentationSize.presentationWidth;
+    } else {
+      this.viewportH = slideHeight;
+      this.viewportW = slideWidth;
+    }
+    this.doZoomCall(HUNDRED_PERCENT, 0, 0);
   }
 
   panZoom() {
