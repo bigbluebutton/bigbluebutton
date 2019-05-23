@@ -16,6 +16,7 @@
     "app.chat.dropdown.copy": "نسخ",
     "app.chat.dropdown.save": "حفظ",
     "app.chat.label": "دردشة",
+    "app.chat.offline": "غير متصل",
     "app.chat.emptyLogLabel": "سجل دردشة فارغة",
     "app.chat.clearPublicChatMessage": "تم مسح تاريخ الدردشة من قبل المشرف",
     "app.note.title": "ملاحظات مشتركة",

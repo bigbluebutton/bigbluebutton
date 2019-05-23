@@ -16,6 +16,7 @@
     "app.chat.dropdown.copy": "Copy",
     "app.chat.dropdown.save": "Save",
     "app.chat.label": "Chat",
+    "app.chat.offline": "Offline",
     "app.chat.emptyLogLabel": "Chat log empty",
     "app.chat.clearPublicChatMessage": "The public chat history was cleared by a moderator",
     "app.note.title": "Shared Notes",

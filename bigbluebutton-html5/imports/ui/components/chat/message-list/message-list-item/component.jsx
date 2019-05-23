@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { FormattedTime } from 'react-intl';
+import { FormattedTime, defineMessages, injectIntl } from 'react-intl';
 import _ from 'lodash';
 
 import UserAvatar from '/imports/ui/components/user-avatar/component';
@@ -22,6 +22,13 @@ const eventsToBeBound = [
   'resize',
 ];
 
+const intlMessages = defineMessages({
+  offline: {
+    id: 'app.chat.offline',
+    description: 'Offline',
+  },
+});
+
 const isElementInViewport = (el) => {
   if (!el) return false;
   const rect = el.getBoundingClientRect();
@@ -30,7 +37,7 @@ const isElementInViewport = (el) => {
   return (rect.top >= -(prefetchHeight) || rect.bottom >= -(prefetchHeight));
 };
 
-export default class MessageListItem extends Component {
+class MessageListItem extends Component {
   constructor(props) {
     super(props);
 
@@ -136,6 +143,7 @@ export default class MessageListItem extends Component {
       lastReadMessageTime,
       handleReadMessage,
       scrollArea,
+      intl,
     } = this.props;
 
     const dateTime = new Date(time);
@@ -162,7 +170,7 @@ export default class MessageListItem extends Component {
             <div className={styles.meta}>
               <div className={user.isOnline ? styles.name : styles.logout}>
                 <span>{user.name}</span>
-                {user.isOnline ? null : <span className={styles.offline}>(offline)</span>}
+                {user.isOnline ? null : <span className={styles.offline}>{`(${intl.formatMessage(intlMessages.offline)})`}</span>}
               </div>
               <time className={styles.time} dateTime={dateTime}>
                 <FormattedTime value={dateTime} />
@@ -191,3 +199,5 @@ export default class MessageListItem extends Component {
 
 MessageListItem.propTypes = propTypes;
 MessageListItem.defaultProps = defaultProps;
+
+export default injectIntl(MessageListItem);
