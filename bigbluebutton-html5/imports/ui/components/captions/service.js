@@ -11,6 +11,17 @@ const CAPTIONS_CONFIG = Meteor.settings.public.captions;
 const CAPTIONS = '_captions_';
 const LINE_BREAK = '\n';
 
+const getActiveCaptions = () => {
+  const activeCaptions = Session.get('activeCaptions');
+  if (!activeCaptions) return '';
+  return activeCaptions;
+};
+
+const getCaptions = (locale) => {
+  const captions = Captions.findOne({ meetingId: Auth.meetingID, padId: { $regex: `${CAPTIONS}${locale}$` } });
+  return captions;
+};
+
 const getCaptionsData = () => {
   const activeCaptions = getActiveCaptions();
   let padId = "";
@@ -50,11 +61,6 @@ const getOwnedLocales = () => {
   return locales;
 };
 
-const getCaptions = locale => {
-  const captions = Captions.findOne({ meetingId: Auth.meetingID, padId: { $regex: `${CAPTIONS}${locale}$` }});
-  return captions;
-};
-
 const takeOwnership = locale => {
   makeCall('takeOwnership', locale);
 };
@@ -64,12 +70,6 @@ const canIOwnThisPad = ownerId => {
   if (!CAPTIONS_CONFIG.takeOwnership) return false;
   if (ownerId === "") return false;
   return ownerId !== userID;
-};
-
-const getActiveCaptions = () => {
-  const activeCaptions = Session.get('activeCaptions');
-  if (!activeCaptions) return '';
-  return activeCaptions;
 };
 
 const setActiveCaptions = (locale) => {
@@ -119,8 +119,8 @@ const activateCaptions = (locale, settings) => {
 const formatCaptionsText = text => {
   const splitText = text.split(LINE_BREAK);
   const filteredText = splitText.filter((line, index) => {
-    const lastLine = index == (splitText.length - 1);
-    const emptyLine = line.length == 0;
+    const lastLine = index === (splitText.length - 1);
+    const emptyLine = line.length === 0;
     return (!emptyLine || lastLine);
   });
   while (filteredText.length > CAPTIONS_CONFIG.lines) filteredText.shift();

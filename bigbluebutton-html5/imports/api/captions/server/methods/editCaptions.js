@@ -16,7 +16,7 @@ export default function editCaptions(padId, data) {
   check(padId, String);
   check(data, String);
 
-  const pad = Captions.findOne({ padId: padId });
+  const pad = Captions.findOne({ padId });
 
   if (!pad) return Logger.error(`Editing captions history: ${padId}`);
 

@@ -12,7 +12,6 @@ import PresentationUploaderContainer from '/imports/ui/components/presentation/p
 import { withModalMounter } from '/imports/ui/components/modal/service';
 import withShortcutHelper from '/imports/ui/components/shortcut-help/service';
 import { styles } from '../styles';
-import { Meteor } from 'meteor/meteor';
 import ExternalVideoModal from '/imports/ui/components/external-video-player/modal/container';
 import CaptionsWriterMenu from '/imports/ui/components/captions/writer-menu/container';
 import CaptionsService from '/imports/ui/components/captions/service';

@@ -5,6 +5,6 @@ import CaptionsService from '/imports/ui/components/captions/service';
 
 const UserCaptionsItemContainer = props => <UserCaptionsItem {...props} />;
 
-export default withTracker(({}) => ({
+export default withTracker(() => ({
   ownedLocales: CaptionsService.getOwnedLocales(),
 }))(UserCaptionsItemContainer);

@@ -9,5 +9,7 @@ const CaptionsButtonContainer = props => <CaptionsButton {...props} />;
 
 export default withModalMounter(withTracker(({ mountModal }) => ({
   isActive: CaptionsService.isCaptionsActive(),
-  handleOnClick: () => (CaptionsService.isCaptionsActive() ? CaptionsService.deactivateCaptions() : mountModal(<CaptionsReaderMenuContainer />)),
+  handleOnClick: () => (CaptionsService.isCaptionsActive()
+    ? CaptionsService.deactivateCaptions()
+    : mountModal(<CaptionsReaderMenuContainer />)),
 }))(CaptionsButtonContainer));

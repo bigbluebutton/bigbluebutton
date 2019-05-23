@@ -1,6 +1,5 @@
 import Users from '/imports/api/users';
 import Auth from '/imports/ui/services/auth';
-import _ from 'lodash';
 import Settings from '/imports/ui/services/settings';
 
 const getUserRoles = () => {

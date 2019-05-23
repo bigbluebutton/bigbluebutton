@@ -15,7 +15,7 @@ const listTransition = {
 };
 
 const propTypes = {
-  ownedLocales: PropTypes.arrayOf(PropTypes.object),
+  ownedLocales: PropTypes.arrayOf(PropTypes.object).isRequired,
   intl: PropTypes.shape({
     formatMessage: PropTypes.func.isRequired,
   }).isRequired,
@@ -36,14 +36,12 @@ class UserCaptions extends Component {
   }
 
   shouldComponentUpdate(nextProps) {
-    if (this.updatedOwnledLocales(nextProps)) return true;
-    return false;
+    return this.updatedOwnledLocales(nextProps);
   }
 
   updatedOwnledLocales(nextProps) {
     const { ownedLocales } = this.props;
-    if (ownedLocales.length !== nextProps.ownedLocales.length) return true;
-    return false;
+    return ownedLocales.length !== nextProps.ownedLocales.length;
   }
 
   renderCaptions() {

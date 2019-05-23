@@ -68,6 +68,8 @@ class WriterMenu extends PureComponent {
       closeModal,
     } = this.props;
 
+    const { locale } = this.state;
+
     return (
       <Modal
         overlayClassName={styles.overlay}
@@ -100,7 +102,7 @@ class WriterMenu extends PureComponent {
             className={styles.startBtn}
             label={intl.formatMessage(intlMessages.start)}
             onClick={this.handleStart}
-            disabled={this.state.locale == null}
+            disabled={locale == null}
           />
         </div>
       </Modal>

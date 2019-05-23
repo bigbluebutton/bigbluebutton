@@ -23,9 +23,10 @@ export default withTracker(() => {
     readOnlyPadId,
   } = caption;
 
+  const { name } = caption ? caption.locale : '';
   return {
     locale,
-    name: caption.locale.name,
+    name,
     ownerId,
     padId,
     readOnlyPadId,

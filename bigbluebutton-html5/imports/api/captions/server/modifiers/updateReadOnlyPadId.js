@@ -2,9 +2,9 @@ import Captions from '/imports/api/captions';
 import Logger from '/imports/startup/server/logger';
 import { check } from 'meteor/check';
 
-export default function addReadOnlyPadId(padId, readOnlyNoteId) {
+export default function updateReadOnlyPadId(padId, readOnlyPadId) {
   check(padId, String);
-  check(readOnlyNoteId, String);
+  check(readOnlyPadId, String);
 
   const selector = {
     padId,
@@ -12,7 +12,7 @@ export default function addReadOnlyPadId(padId, readOnlyNoteId) {
 
   const modifier = {
     $set: {
-      readOnlyPadId: readOnlyNoteId,
+      readOnlyPadId,
     },
   };
 
@@ -21,7 +21,7 @@ export default function addReadOnlyPadId(padId, readOnlyNoteId) {
       return Logger.error(`Adding readOnlyPadId captions pad: ${err}`);
     }
 
-    return Logger.verbose(`Added readOnlyPadId captions pad=${padId} readOnlyNoteId=${readOnlyNoteId}`);
+    return Logger.verbose(`Added readOnlyPadId captions pad=${padId} readOnlyPadId=${readOnlyPadId}`);
   };
 
   return Captions.update(selector, modifier, { multi: true }, cb);

@@ -4,7 +4,7 @@ import {
   getReadOnlyIdURL,
   getDataFromResponse,
 } from '/imports/api/note/server/helpers';
-import addReadOnlyPadId from '/imports/api/captions/server/modifiers/addReadOnlyPadId';
+import updateReadOnlyPadId from '/imports/api/captions/server/modifiers/updateReadOnlyPadId';
 import axios from 'axios';
 
 export default function fetchReadOnlyPadId(padId) {
@@ -16,9 +16,9 @@ export default function fetchReadOnlyPadId(padId) {
     url: readOnlyURL,
     responseType: 'json',
   }).then((response) => {
-    const readOnlyNoteId = getDataFromResponse(response.data, 'readOnlyID');
-    if (readOnlyNoteId) {
-      addReadOnlyPadId(padId, readOnlyNoteId);
+    const readOnlyPadId = getDataFromResponse(response.data, 'readOnlyID');
+    if (readOnlyPadId) {
+      updateReadOnlyPadId(padId, readOnlyPadId);
     } else {
       Logger.error(`Could not get pad readOnlyID for ${padId}`);
     }

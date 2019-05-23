@@ -3,7 +3,9 @@ import { hashFNV32a } from '/imports/api/common/server/helpers';
 import { check } from 'meteor/check';
 
 const CAPTIONS_CONFIG = Meteor.settings.public.captions;
-const LOCALES_URL = 'http://localhost:3000/html5client/locales';
+const BASENAME = Meteor.settings.public.app.basename;
+const APP = Meteor.settings.private.app;
+const LOCALES_URL = `http://${APP.host}:${APP.port}${BASENAME}${APP.localesUrl}`;
 const CAPTIONS = '_captions_';
 const TOKEN = '$';
 
@@ -19,7 +21,7 @@ const isCaptionsPad = padId => {
     return true;
   }
   return false;
-}
+};
 
 const getDataFromChangeset = changeset => {
   const splitChangeset = changeset.split(TOKEN);
@@ -28,7 +30,7 @@ const getDataFromChangeset = changeset => {
     return splitChangeset.join(TOKEN);
   }
   return "";
-}
+};
 
 const isEnabled = () => {
   return CAPTIONS_CONFIG.enabled;

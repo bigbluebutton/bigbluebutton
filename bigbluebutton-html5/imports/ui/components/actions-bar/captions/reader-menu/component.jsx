@@ -89,12 +89,6 @@ class ReaderMenu extends PureComponent {
     this.getPreviewStyle = this.getPreviewStyle.bind(this);
   }
 
-  handleSelectChange(fieldname, options, event) {
-    const obj = {};
-    obj[fieldname] = options[event.target.value];
-    this.setState(obj);
-  }
-
   handleColorPickerClick(fieldname) {
     const obj = {};
     obj[fieldname] = !this.state[fieldname];
@@ -115,7 +109,7 @@ class ReaderMenu extends PureComponent {
     this.handleCloseColorPicker();
   }
 
-  handleLocaleChange(e) {
+  handleLocaleChange(event) {
     this.setState({ locale: event.target.value });
   }
 
@@ -134,15 +128,28 @@ class ReaderMenu extends PureComponent {
   }
 
   getPreviewStyle() {
+    const {
+      backgroundColor,
+      fontColor,
+      fontFamily,
+      fontSize,
+    } = this.state;
+
     return {
       position: 'fixed',
       bottom: '75px',
       left: '75px',
-      fontFamily: this.state.fontFamily,
-      fontSize: this.state.fontSize,
-      color: this.state.fontColor,
-      background: this.state.backgroundColor,
+      fontFamily,
+      fontSize,
+      color: fontColor,
+      background: backgroundColor,
     };
+  }
+
+  handleSelectChange(fieldname, options, event) {
+    const obj = {};
+    obj[fieldname] = options[event.target.value];
+    this.setState(obj);
   }
 
   render() {
@@ -151,6 +158,16 @@ class ReaderMenu extends PureComponent {
       ownedLocales,
       closeModal,
     } = this.props;
+
+    const {
+      backgroundColor,
+      displayBackgroundColorPicker,
+      displayFontColorPicker,
+      fontColor,
+      fontFamily,
+      fontSize,
+      locale,
+    } = this.state;
 
     return (
       <Modal
@@ -170,8 +187,20 @@ class ReaderMenu extends PureComponent {
               onChange={this.handleLocaleChange}
               defaultValue={DEFAULT_VALUE}
             >
-              <option disabled key={DEFAULT_KEY} value={DEFAULT_VALUE}>{intl.formatMessage(intlMessages.select)}</option>
-              {ownedLocales.map((locale, index) => (<option key={index} value={locale.locale}>{locale.name}</option>))}
+              <option
+                disabled
+                key={DEFAULT_KEY}
+                value={DEFAULT_VALUE}
+              >
+                {intl.formatMessage(intlMessages.select)}
+              </option>
+              {ownedLocales.map((loc, index) => (
+                <option
+                  key={index}
+                  value={loc.locale}
+                >
+                  {loc.name}
+                </option>))}
             </select>
             <span style={this.getPreviewStyle()}>AaBbCc</span>
           </div>
@@ -183,15 +212,18 @@ class ReaderMenu extends PureComponent {
                 className={styles.swatch}
                 onClick={this.handleColorPickerClick.bind(this, 'displayFontColorPicker')}
               >
-                <div className={styles.swatchInner} style={{ background: this.state.fontColor }}/>
+                <div className={styles.swatchInner} style={{ background: fontColor }}/>
               </div>
-              {this.state.displayFontColorPicker
+              {displayFontColorPicker
                 ? (
                   <div className={styles.colorPickerPopover}>
-                    <div className={styles.colorPickerOverlay} onClick={this.handleCloseColorPicker.bind(this)}/>
+                    <div
+                      className={styles.colorPickerOverlay}
+                      onClick={this.handleCloseColorPicker.bind(this)}
+                    />
                     <GithubPicker
                       onChange={this.handleColorChange.bind(this, 'fontColor')}
-                      color={this.state.fontColor}
+                      color={fontColor}
                       colors={COLORS}
                       width="140px"
                       triangle="hide"
@@ -207,15 +239,18 @@ class ReaderMenu extends PureComponent {
                 className={styles.swatch}
                 onClick={this.handleColorPickerClick.bind(this, 'displayBackgroundColorPicker')}
               >
-                <div className={styles.swatchInner} style={{ background: this.state.backgroundColor }}/>
+                <div className={styles.swatchInner} style={{ background: backgroundColor }}/>
               </div>
-              {this.state.displayBackgroundColorPicker
+              {displayBackgroundColorPicker
                 ? (
                   <div className={styles.colorPickerPopover}>
-                    <div className={styles.colorPickerOverlay} onClick={this.handleCloseColorPicker.bind(this)}/>
+                    <div
+                      className={styles.colorPickerOverlay}
+                      onClick={this.handleCloseColorPicker.bind(this)}
+                    />
                     <GithubPicker
                       onChange={this.handleColorChange.bind(this, 'backgroundColor')}
-                      color={this.state.backgroundColor}
+                      color={backgroundColor}
                       colors={COLORS}
                       width="140px"
                       triangle="hide"
@@ -228,20 +263,34 @@ class ReaderMenu extends PureComponent {
               <div>{intl.formatMessage(intlMessages.fontFamily)}</div>
               <select
                 className={styles.select}
-                defaultValue={FONT_FAMILIES.indexOf(this.state.fontFamily)}
+                defaultValue={FONT_FAMILIES.indexOf(fontFamily)}
                 onChange={this.handleSelectChange.bind(this, 'fontFamily', FONT_FAMILIES)}
               >
-                {FONT_FAMILIES.map((family, index) => (<option key={index} value={index}>{family}</option>))}
+                {FONT_FAMILIES.map((family, index) => (
+                  <option
+                    key={index}
+                    value={index}
+                  >
+                    {family}
+                  </option>
+                ))}
               </select>
             </div>
             <div className={styles.row}>
               <div>{intl.formatMessage(intlMessages.fontSize)}</div>
               <select
                 className={styles.select}
-                defaultValue={FONT_SIZES.indexOf(this.state.fontSize)}
+                defaultValue={FONT_SIZES.indexOf(fontSize)}
                 onChange={this.handleSelectChange.bind(this, 'fontSize', FONT_SIZES)}
               >
-                {FONT_SIZES.map((size, index) => (<option key={index} value={index}>{size}</option>))}
+                {FONT_SIZES.map((size, index) => (
+                  <option
+                    key={index}
+                    value={index}
+                  >
+                    {size}
+                  </option>
+                ))}
               </select>
             </div>
           </div>
@@ -249,7 +298,7 @@ class ReaderMenu extends PureComponent {
             className={styles.startBtn}
             label={intl.formatMessage(intlMessages.start)}
             onClick={this.handleStart}
-            disabled={this.state.locale == null}
+            disabled={locale == null}
           />
         </div>
       </Modal>

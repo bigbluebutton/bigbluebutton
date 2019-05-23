@@ -16,6 +16,10 @@ class Captions extends React.Component {
     this.resetTimer = this.resetTimer.bind(this);
   }
 
+  componentDidMount() {
+    this.setState({ initial: false });
+  }
+
   shouldComponentUpdate(nextProps, nextState) {
     const {
       padId,
@@ -28,16 +32,9 @@ class Captions extends React.Component {
     return true;
   }
 
-  componentDidMount() {
-    this.setState({ initial: false });
-  }
-
-  componentWillUnmount() {
-    this.resetTimer();
-  }
-
   componentDidUpdate(prevProps, prevState) {
-    if (this.state.clear) {
+    const { clear } = this.state;
+    if (clear) {
       this.setState({ clear: false });
     } else {
       this.resetTimer();
@@ -45,8 +42,13 @@ class Captions extends React.Component {
     }
   }
 
+  componentWillUnmount() {
+    this.resetTimer();
+  }
+
   updateText(data) {
-    if (this.state.clear) {
+    const { clear } = this.state;
+    if (clear) {
       this.text = "";
     } else {
       const text = this.text + data;
@@ -63,6 +65,7 @@ class Captions extends React.Component {
 
   render() {
     const { data } = this.props;
+    const { initial } = this.state;
     const {
       fontFamily,
       fontSize,
@@ -70,7 +73,7 @@ class Captions extends React.Component {
       backgroundColor,
     } = this.settings;
 
-    if (!this.state.initial) {
+    if (!initial) {
       this.updateText(data);
     }
 

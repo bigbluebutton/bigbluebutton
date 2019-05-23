@@ -1,4 +1,3 @@
-import { Meteor } from 'meteor/meteor';
 import { check } from 'meteor/check';
 import Captions from '/imports/api/captions';
 import updateOwnerId from '/imports/api/captions/server/modifiers/updateOwnerId';
@@ -11,7 +10,7 @@ export default function takeOwnership(credentials, locale) {
   check(requesterUserId, String);
   check(locale, String);
 
-  const pad = Captions.findOne({ meetingId: meetingId, padId: { $regex: `_captions_${locale}$` }});
+  const pad = Captions.findOne({ meetingId, padId: { $regex: `_captions_${locale}$` }});
 
   if (pad) {
     updateOwnerId(meetingId, requesterUserId, pad.padId);
