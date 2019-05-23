@@ -1,6 +1,7 @@
 import React from 'react';
 import { withTracker } from 'meteor/react-meteor-data';
 import { getSwapLayout } from '/imports/ui/components/media/service';
+import { notify } from '/imports/ui/services/notification';
 import PresentationAreaService from './service';
 import PresentationArea from './component';
 
@@ -21,5 +22,7 @@ export default withTracker(({ podId }) => {
     presentationIsDownloadable,
     isFullscreen,
     mountPresentationArea: !!currentSlide,
+    currentPresentation: PresentationAreaService.getCurrentPresentation(podId),
+    notify,
   };
 })(PresentationAreaContainer);

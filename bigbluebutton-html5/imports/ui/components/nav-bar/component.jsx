@@ -284,6 +284,7 @@ class NavBar extends PureComponent {
       intl,
       shortcuts: TOGGLE_USERLIST_AK,
       mountModal,
+      isBreakoutRoom,
     } = this.props;
 
     const recordingMessage = recordProps.recording ? 'recordingIndicatorOn' : 'recordingIndicatorOff';
@@ -342,7 +343,7 @@ class NavBar extends PureComponent {
           />
         </div>
         <div className={styles.right}>
-          <SettingsDropdownContainer amIModerator={amIModerator} />
+          <SettingsDropdownContainer amIModerator={amIModerator} isBreakoutRoom={isBreakoutRoom} />
         </div>
       </div>
     );

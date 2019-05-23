@@ -28,6 +28,12 @@
   @include mq($small-only) {
     bottom: var(--sm-padding-x);
     left: var(--sm-padding-x);
+    right: auto;
+
+    [dir="rtl"] & {
+      left: auto;
+      right: var(--sm-padding-x);
+    }
   }
 }
 
@@ -35,6 +41,12 @@
   position: absolute;
   bottom: var(--sm-padding-x);
   right: var(--sm-padding-x);
+  left: auto;
+
+  [dir="rtl"] & {
+    right: auto;
+    left: var(--sm-padding-x);
+  }
 }
 
 .centerWithActions {

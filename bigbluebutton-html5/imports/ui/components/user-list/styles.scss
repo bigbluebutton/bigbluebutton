@@ -47,7 +47,16 @@
   flex-flow: row;
   border-top-left-radius: 5px;
   border-bottom-left-radius: 5px;
+  border-top-right-radius: 0;
+  border-bottom-right-radius: 0;
   cursor: pointer;
+
+  [dir="rtl"] & {
+    border-top-left-radius: 0;
+    border-bottom-left-radius: 0;
+    border-top-right-radius: 5px;
+    border-bottom-right-radius: 5px;
+  }
 
   &:first-child {
     margin-top: 0;
@@ -89,8 +98,11 @@
 }
 
 .participantsList {
-  padding-left: var(--border-size);
-  padding-bottom: var(--border-size);
+  padding: 0 0 var(--border-size) var(--border-size);
+
+  [dir="rtl"] & {
+    padding: 0 var(--border-size) var(--border-size) 0;
+  }
 }
 
 .participantsList,

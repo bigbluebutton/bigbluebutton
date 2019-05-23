@@ -1,11 +1,11 @@
 import React, { Component } from 'react';
 import { defineMessages, injectIntl } from 'react-intl';
+import { Session } from 'meteor/session';
 import { notify } from '/imports/ui/services/notification';
 import VisibilityEvent from '/imports/utils/visibilityEvent';
 import { fetchWebRTCMappedStunTurnServers } from '/imports/utils/fetchStunTurnServers';
 import ReconnectingWebSocket from 'reconnecting-websocket';
 import logger from '/imports/startup/client/logger';
-import { Session } from 'meteor/session';
 import browser from 'browser-detect';
 import {
   updateCurrentWebcamsConnection,
@@ -217,6 +217,7 @@ class VideoProvider extends Component {
     // Unshare user webcam
     if (this.sharedWebcam) {
       this.unshareWebcam();
+      Session.set('userWasInWebcam', true);
     }
 
     Object.keys(this.webRtcPeers).forEach((id) => {

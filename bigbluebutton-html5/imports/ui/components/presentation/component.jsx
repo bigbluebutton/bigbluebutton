@@ -14,12 +14,16 @@ import { styles } from './styles.scss';
 import MediaService, { shouldEnableSwapLayout } from '../media/service';
 import PresentationCloseButton from './presentation-close-button/component';
 import DownloadPresentationButton from './download-presentation-button/component';
-import FullscreenButton from '/imports/ui/components/video-provider/fullscreen-button/component';
+import FullscreenButtonContainer from '../video-provider/fullscreen-button/container';
 
 const intlMessages = defineMessages({
   presentationLabel: {
     id: 'app.presentationUploder.title',
     description: 'presentation area element label',
+  },
+  changeNotification: {
+    id: 'app.presentation.notificationLabel',
+    description: 'label displayed in toast when presentation switches',
   },
 });
 
@@ -48,10 +52,20 @@ class PresentationArea extends Component {
   }
 
   componentDidUpdate(prevProps, prevState) {
+    const { currentPresentation, notify, intl } = this.props;
+
+    if (prevProps.currentPresentation.name !== currentPresentation.name) {
+      notify(
+        `${intl.formatMessage(intlMessages.changeNotification)} ${currentPresentation.name}`,
+        'info',
+        'presentation',
+      );
+    }
+
     if (prevState.fitToWidth) {
       // When presenter is changed or slide changed we reset fitToWidth
-      if ((prevProps.userIsPresenter && !this.props.userIsPresenter) ||
-          (prevProps.currentSlide.id !== this.props.currentSlide.id)) {
+      if ((prevProps.userIsPresenter && !this.props.userIsPresenter)
+          || (prevProps.currentSlide.id !== this.props.currentSlide.id)) {
         this.setState({
           fitToWidth: false,
         });
@@ -196,16 +210,16 @@ class PresentationArea extends Component {
     const { fitToWidth } = this.state;
     if (userIsPresenter) {
       return fitToWidth;
-    } else {
-      const { width, height, viewBoxWidth, viewBoxHeight } = currentSlide.calculatedData;
-      const slideSizeRatio = width / height;
-      const viewBoxSizeRatio = viewBoxWidth / viewBoxHeight;
-      if (slideSizeRatio !== viewBoxSizeRatio) {
-        return true;
-      } else {
-        return false;
-      }
     }
+    const {
+      width, height, viewBoxWidth, viewBoxHeight,
+    } = currentSlide.calculatedData;
+    const slideSizeRatio = width / height;
+    const viewBoxSizeRatio = viewBoxWidth / viewBoxHeight;
+    if (slideSizeRatio !== viewBoxSizeRatio) {
+      return true;
+    }
+    return false;
   }
 
   zoomChanger(incomingZoom) {
@@ -242,7 +256,6 @@ class PresentationArea extends Component {
       fitToWidth: !fitToWidth,
     });
   }
-
 
   isPresentationAccessible() {
     const { currentSlide } = this.props;
@@ -329,7 +342,7 @@ class PresentationArea extends Component {
   // renders the whole presentation area
   renderPresentationArea() {
     const { presentationWidth } = this.state;
-    const { podId, currentSlide } = this.props;
+    const { podId, currentSlide, isFullscreen } = this.props;
     if (!this.isPresentationAccessible()) return null;
 
 
@@ -369,7 +382,7 @@ class PresentationArea extends Component {
       >
         {this.renderPresentationClose()}
         {this.renderPresentationDownload()}
-        {this.renderPresentationFullscreen()}
+        {isFullscreen ? null : this.renderPresentationFullscreen()}
         <TransitionGroup>
           <CSSTransition
             key={slideObj.id}
@@ -446,10 +459,6 @@ class PresentationArea extends Component {
 
     const { zoom, fitToWidth } = this.state;
 
-    const fullRef = () => {
-      this.refPresentationContainer.requestFullscreen();
-    };
-
     if (!currentSlide) {
       return null;
     }
@@ -462,7 +471,7 @@ class PresentationArea extends Component {
           podId,
         }}
         isFullscreen={isFullscreen}
-        fullscreenRef={fullRef}
+        fullscreenRef={this.refPresentationContainer}
         currentSlideNum={currentSlide.num}
         presentationId={currentSlide.presentationId}
         zoomChanger={this.zoomChanger}
@@ -508,14 +517,11 @@ class PresentationArea extends Component {
     } = this.props;
     if (userIsPresenter) return null;
 
-    const full = () => this.refPresentationContainer.requestFullscreen();
-
     return (
-      <FullscreenButton
-        handleFullscreen={full}
+      <FullscreenButtonContainer
+        fullscreenRef={this.refPresentationContainer}
         elementName={intl.formatMessage(intlMessages.presentationLabel)}
         dark
-        fullscreenButton
       />
     );
   }

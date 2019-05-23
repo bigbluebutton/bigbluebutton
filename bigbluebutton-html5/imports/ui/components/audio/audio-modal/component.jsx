@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 import cx from 'classnames';
 import Modal from '/imports/ui/components/modal/simple/component';
 import Button from '/imports/ui/components/button/component';
+import { Session } from 'meteor/session';
 import {
   defineMessages, injectIntl, intlShape, FormattedMessage,
 } from 'react-intl';
@@ -139,7 +140,7 @@ class AudioModal extends Component {
     };
   }
 
-  componentWillMount() {
+  componentDidMount() {
     const {
       joinFullAudioImmediately,
       joinFullAudioEchoTest,
@@ -164,11 +165,14 @@ class AudioModal extends Component {
     const {
       isEchoTest,
       exitAudio,
+      resolve,
     } = this.props;
 
     if (isEchoTest) {
       exitAudio();
     }
+    if (resolve) resolve();
+    Session.set('audioModalIsOpen', false);
   }
 
   handleGoToAudioOptions() {
@@ -281,7 +285,6 @@ class AudioModal extends Component {
       skipCheck,
       audioLocked,
       isMobileNative,
-      isIEOrEdge,
       formattedDialNum,
     } = this.props;
 
@@ -316,18 +319,6 @@ class AudioModal extends Component {
             )
             : null}
         </span>
-        {isIEOrEdge ? (
-          <p className={cx(styles.text, styles.browserWarning)}>
-            <FormattedMessage
-              id="app.audioModal.unsupportedBrowserLabel"
-              description="Warning when someone joins with a browser that isnt supported"
-              values={{
-                0: <a href="https://www.google.com/chrome/">Chrome</a>,
-                1: <a href="https://getfirefox.com">Firefox</a>,
-              }}
-            />
-          </p>
-        ) : null}
         {formattedDialNum ? (
           <Button
             className={styles.audioDial}
@@ -444,6 +435,7 @@ class AudioModal extends Component {
       showPermissionsOvelay,
       isIOSChrome,
       closeModal,
+      isIEOrEdge,
     } = this.props;
 
     const { content } = this.state;
@@ -458,6 +450,18 @@ class AudioModal extends Component {
           hideBorder
           contentLabel={intl.formatMessage(intlMessages.ariaModalTitle)}
         >
+          {isIEOrEdge ? (
+            <p className={cx(styles.text, styles.browserWarning)}>
+              <FormattedMessage
+                id="app.audioModal.unsupportedBrowserLabel"
+                description="Warning when someone joins with a browser that isnt supported"
+                values={{
+                  0: <a href="https://www.google.com/chrome/">Chrome</a>,
+                  1: <a href="https://getfirefox.com">Firefox</a>,
+                }}
+              />
+            </p>
+          ) : null}
           {!this.skipAudioOptions()
 
             ? (

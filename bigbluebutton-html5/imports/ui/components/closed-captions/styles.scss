@@ -25,5 +25,9 @@
   height: 20px;
   margin-top: 0px;
   margin-bottom: 0px;
-  padding-left: 20px;
+  padding: 0 0 0 20px;
+
+  [dir="rtl"] & {
+    padding: 0 20px 0 0;
+  }
 }

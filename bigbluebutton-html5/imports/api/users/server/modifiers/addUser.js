@@ -83,6 +83,7 @@ export default function addUser(meetingId, user) {
         effectiveConnectionType: null,
         inactivityCheck: false,
         responseDelay: 0,
+        loggedOut: false,
       },
       flat(user),
     ),

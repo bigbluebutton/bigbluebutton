@@ -163,16 +163,6 @@ public class ParamsProcessorUtil {
         } else {
             errors.missingParamError(ApiParams.MEETING_ID);
         }
-
-        // Check if moderator password was provided
-        if (StringUtils.isEmpty(params.get(ApiParams.MODERATOR_PW))) {
-          errors.missingParamError(ApiParams.MODERATOR_PW);
-        }
-
-        // Check if attendee password was provided
-        if (StringUtils.isEmpty(params.get(ApiParams.ATTENDEE_PW))) {
-          errors.missingParamError(ApiParams.ATTENDEE_PW);
-        }
     }
 	
 	public Map<String, Object> processUpdateCreateParams(Map<String, String> params) {
@@ -328,8 +318,8 @@ public class ParamsProcessorUtil {
 
         String externalMeetingId = params.get(ApiParams.MEETING_ID);
 
-        String viewerPass = params.get(ApiParams.ATTENDEE_PW);
-        String modPass = params.get(ApiParams.MODERATOR_PW);
+        String viewerPass = processPassword(params.get(ApiParams.ATTENDEE_PW));
+        String modPass = processPassword(params.get(ApiParams.MODERATOR_PW));
 
         // Get the digits for voice conference for users joining through the
         // phone.
@@ -620,6 +610,10 @@ public class ParamsProcessorUtil {
 		return DigestUtils.sha1Hex(extMeetingId);
 	}
 	
+	public String processPassword(String pass) {
+		return StringUtils.isEmpty(pass) ? RandomStringUtils.randomAlphanumeric(8) : pass;
+	}
+
 	public boolean hasChecksumAndQueryString(String checksum, String queryString) {
 		return (! StringUtils.isEmpty(checksum) && StringUtils.isEmpty(queryString));
 	}

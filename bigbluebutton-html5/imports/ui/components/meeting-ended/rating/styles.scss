@@ -16,14 +16,17 @@
       > label {
         float: right;
         width: 1em;
-        padding: 0 .05em;
+        padding: 0 .05em 0 .1rem;
         overflow: hidden;
         white-space: nowrap;
         cursor: pointer;
         font-size: 2.5rem;
-        padding-left: .1rem;
         color: black;
         font-weight: 100;
+
+        [dir="rtl"] & {
+          padding: 0 .1rem 0 .05em;
+        }
 
         @include mq($small-only) {
           font-size: 2rem;
@@ -58,4 +61,9 @@
       top: 2px;
     }
   }
+}
+
+.legend {
+  font-family: Arial, sans-serif;
+  font-weight: normal;
 }

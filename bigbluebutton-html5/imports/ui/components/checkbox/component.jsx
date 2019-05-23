@@ -1,6 +1,8 @@
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import cx from 'classnames';
+import { findDOMNode } from 'react-dom';
+import KEY_CODES from '/imports/utils/keyCodes';
 import Icon from '../icon/component';
 import { styles } from './styles';
 
@@ -31,6 +33,25 @@ export default class Checkbox extends PureComponent {
 
     this.onChange = props.onChange;
     this.handleChange = this.handleChange.bind(this);
+    this.handleKeyDown = this.handleKeyDown.bind(this);
+  }
+
+  componentDidMount() {
+    const checkbox = findDOMNode(this.checkbox);
+    if (checkbox) checkbox.addEventListener('keydown', this.handleKeyDown);
+  }
+
+  componentWillUnmount() {
+    const checkbox = findDOMNode(this.checkbox);
+    if (checkbox) checkbox.removeEventListener('keydown', this.handleKeyDown);
+  }
+
+  handleKeyDown(event) {
+    const { which } = event;
+    const input = findDOMNode(this.input);
+    if ([KEY_CODES.ENTER].includes(which)) {
+      if (input) input.click();
+    }
   }
 
   handleChange() {
@@ -46,18 +67,22 @@ export default class Checkbox extends PureComponent {
     } = this.props;
 
     return (
-      <div className={cx({
-        [styles.disabled]: !!disabled,
-      }, className)}
+      <div
+        className={cx({
+          [styles.disabled]: !!disabled,
+        }, className)}
+        tabIndex={0}
+        ref={(node) => { this.checkbox = node; }}
       >
         <input
           type="checkbox"
           onChange={this.handleChange}
           checked={checked}
           className={styles.input}
-          aria-labelledby={ariaLabelledBy}
+          aria-label={ariaLabel}
           aria-describedby={ariaDescribedBy}
           disabled={disabled}
+          ref={(node) => { this.input = node; }}
         />
         <div role="presentation" onClick={this.handleChange}>
           { checked
@@ -65,7 +90,6 @@ export default class Checkbox extends PureComponent {
             : <Icon iconName="circle" className={styles.icon} />
           }
         </div>
-        <div id={ariaLabelledBy} hidden>{ariaLabel}</div>
         <div id={ariaDescribedBy} hidden>{ariaDesc}</div>
       </div>
     );

@@ -31,11 +31,15 @@
   display: flex;
   flex-grow: 1;
   flex-basis: 0;
-  margin-right: 1rem;
 
   &:last-child {
-    margin-right: 0;
-    padding-right: 0.1rem;
+    padding-right: 0;
+    padding-left: 1rem;
+
+    [dir="rtl"] & {
+      padding-right: 0.1rem;
+      padding-left: 0;
+    }
   }
 }
 
@@ -103,7 +107,11 @@
 }
 
 .spacedLeft {
-  margin-left: 1rem;
+  margin: 0 0 0 1rem;
+
+  [dir="rtl"] & {
+    margin: 0 1rem 0 0;
+  }
 }
 
 .swatch {
