@@ -1,8 +1,5 @@
-import Users from '/imports/api/users';
-import Polls from '/imports/api/polls';
 import Meetings from '/imports/api/meetings';
 import Logger from '/imports/startup/server/logger';
-import flat from 'flat';
 import { check } from 'meteor/check';
 
 export default function setPublishedPoll(meetingId, isPublished) {
