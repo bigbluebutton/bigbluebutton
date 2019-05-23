@@ -4,6 +4,7 @@ import { withTracker } from 'meteor/react-meteor-data';
 import Users from '/imports/api/users';
 import Auth from '/imports/ui/services/auth';
 import PollingService from './service';
+import Service from '/imports/ui/components/poll/service';
 import PollingComponent from './component';
 
 const propTypes = {
@@ -23,6 +24,11 @@ const PollingContainer = ({ pollExists, ...props }) => {
 PollingContainer.propTypes = propTypes;
 
 export default withTracker(() => {
-  const data = PollingService.mapPolls();
-  return data;
+  const { pollExists, handleVote, poll } = PollingService.mapPolls();
+  return ({
+    pollExists,
+    handleVote,
+    poll,
+    pollAnswerIds: Service.pollAnswerIds,
+  });
 })(PollingContainer);

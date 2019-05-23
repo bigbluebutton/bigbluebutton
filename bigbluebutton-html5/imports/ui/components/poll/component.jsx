@@ -231,7 +231,13 @@ class Poll extends Component {
 
   renderActivePollOptions() {
     const {
-      intl, publishPoll, stopPoll, currentUser, currentPoll, getUser,
+      intl,
+      publishPoll,
+      stopPoll,
+      currentUser,
+      currentPoll,
+      getUser,
+      pollAnswerIds,
     } = this.props;
 
     return (
@@ -246,6 +252,7 @@ class Poll extends Component {
             currentUser,
             getUser,
             currentPoll,
+            pollAnswerIds,
           }}
           handleBackClick={this.handleBackClick}
         />
