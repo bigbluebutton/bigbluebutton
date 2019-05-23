@@ -9,12 +9,21 @@ import Message from './message/component';
 import { styles } from './styles';
 
 const propTypes = {
-  user: PropTypes.object,
-  messages: PropTypes.array.isRequired,
+  user: PropTypes.shape({
+    color: PropTypes.string,
+    isModerator: PropTypes.bool,
+    isOnline: PropTypes.bool,
+    name: PropTypes.string,
+  }),
+  messages: PropTypes.arrayOf(Object).isRequired,
   time: PropTypes.number.isRequired,
+  intl: PropTypes.shape({
+    formatMessage: PropTypes.func.isRequired,
+  }).isRequired,
 };
 
 const defaultProps = {
+  user: null,
 };
 
 const eventsToBeBound = [
@@ -170,7 +179,13 @@ class MessageListItem extends Component {
             <div className={styles.meta}>
               <div className={user.isOnline ? styles.name : styles.logout}>
                 <span>{user.name}</span>
-                {user.isOnline ? null : <span className={styles.offline}>{`(${intl.formatMessage(intlMessages.offline)})`}</span>}
+                {user.isOnline
+                  ? null
+                  : (
+                    <span className={styles.offline}>
+                      {intl.formatMessage(intlMessages.offline)}
+                    </span>
+                  )}
               </div>
               <time className={styles.time} dateTime={dateTime}>
                 <FormattedTime value={dateTime} />
