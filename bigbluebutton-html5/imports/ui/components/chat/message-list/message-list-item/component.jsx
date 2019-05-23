@@ -183,7 +183,7 @@ class MessageListItem extends Component {
                   ? null
                   : (
                     <span className={styles.offline}>
-                      {intl.formatMessage(intlMessages.offline)}
+                      {`(${intl.formatMessage(intlMessages.offline)})`}
                     </span>
                   )}
               </div>
