@@ -110,15 +110,6 @@ const defaultProps = {
 };
 
 class SettingsDropdown extends PureComponent {
-  static leaveSession() {
-    document.dispatchEvent(new Event('exitVideo'));
-    const LOGOUT_CODE = '403';
-    makeCall('userLeftMeeting');
-    // we don't check askForFeedbackOnLogout here,
-    // it is checked in meeting-ended component
-    Session.set('codeError', LOGOUT_CODE);
-    // mountModal(<MeetingEndedComponent code={LOGOUT_CODE} />);
-  }
   constructor(props) {
     super(props);
 
@@ -171,6 +162,16 @@ class SettingsDropdown extends PureComponent {
         onClick={handleToggleFullscreen}
       />
     );
+  }
+
+  leaveSession() {
+    document.dispatchEvent(new Event('exitVideo'));
+    const LOGOUT_CODE = '403';
+    makeCall('userLeftMeeting');
+    // we don't check askForFeedbackOnLogout here,
+    // it is checked in meeting-ended component
+    Session.set('codeError', LOGOUT_CODE);
+    // mountModal(<MeetingEndedComponent code={LOGOUT_CODE} />);
   }
 
   renderMenuItems() {
