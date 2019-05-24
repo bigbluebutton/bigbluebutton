@@ -20,7 +20,7 @@ const intlMessages = defineMessages({
     description: 'Join breakout confim message',
   },
   confirmLabel: {
-    id: 'app.breakoutJoinConfirmation.confirmLabel',
+    id: 'app.createBreakoutRoom.join',
     description: 'Join confirmation button label',
   },
   confirmDesc: {
@@ -94,7 +94,7 @@ class BreakoutJoinConfirmation extends Component {
         title={intl.formatMessage(intlMessages.title)}
         confirm={{
           callback: this.handleJoinBreakoutConfirmation,
-          label: 'Join room',
+          label: intl.formatMessage(intlMessages.confirmLabel),
           description: intl.formatMessage(intlMessages.confirmDesc),
           icon: 'popout_window',
         }}
