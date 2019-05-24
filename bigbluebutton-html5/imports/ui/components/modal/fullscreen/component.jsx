@@ -23,6 +23,10 @@ const intlMessages = defineMessages({
     id: 'app.modal.confirm.description',
     description: 'Disregards changes and closes the modal',
   },
+  newTabLabel: {
+    id: 'app.modal.newTab',
+    description: 'aria label used to indicate opening a new window',
+  },
 });
 
 const propTypes = {
@@ -91,6 +95,12 @@ class ModalFullscreen extends PureComponent {
       ...otherProps
     } = this.props;
 
+    const popoutIcon = confirm.icon === 'popout_window';
+    let confirmAriaLabel = `${confirm.label || intl.formatMessage(intlMessages.modalDone)} `;
+    if (popoutIcon) {
+      confirmAriaLabel = `${confirmAriaLabel} ${intl.formatMessage(intlMessages.newTabLabel)}`;
+    }
+
     return (
       <ModalBase
         isOpen={modalisOpen || preventClosing}
@@ -113,12 +123,14 @@ class ModalFullscreen extends PureComponent {
             <Button
               data-test="modalConfirmButton"
               color="primary"
-              className={styles.confirm}
+              className={popoutIcon ? cx(styles.confirm, styles.popout) : styles.confirm}
               label={confirm.label || intl.formatMessage(intlMessages.modalDone)}
-              aria-label={`${intl.formatMessage(intlMessages.modalDone)} ${title}`}
+              aria-label={confirmAriaLabel}
               disabled={confirm.disabled}
               onClick={() => this.handleAction('confirm')}
               aria-describedby="modalConfirmDescription"
+              icon={confirm.icon || null}
+              iconRight={popoutIcon}
             />
           </div>
         </header>

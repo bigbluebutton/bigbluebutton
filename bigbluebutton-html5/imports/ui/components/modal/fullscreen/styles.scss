@@ -50,6 +50,13 @@
   @extend %btn;
 }
 
+.popout {
+  > i {
+    bottom: 2px;
+    left: .75rem;
+  }
+}
+
 .dismiss {
 }
 
