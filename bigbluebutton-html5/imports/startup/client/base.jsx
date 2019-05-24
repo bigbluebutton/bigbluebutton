@@ -161,6 +161,7 @@ class Base extends Component {
       meetingHasEnded,
       meetingIsBreakout,
       subscriptionsReady,
+      User,
     } = this.props;
 
     if ((loading || !subscriptionsReady) && !meetingHasEnded && meetingExist) {
@@ -175,7 +176,7 @@ class Base extends Component {
 
     if (meetingHasEnded && meetingIsBreakout) window.close();
 
-    if (meetingHasEnded && !meetingIsBreakout) {
+    if (((meetingHasEnded && !meetingIsBreakout)) || (codeError && (User && User.loggedOut))) {
       AudioManager.exitAudio();
       return (<MeetingEnded code={codeError} />);
     }
@@ -216,6 +217,7 @@ const BaseContainer = withTracker(() => {
   let breakoutRoomSubscriptionHandler;
   let meetingModeratorSubscriptionHandler;
 
+  const User = Users.findOne({ intId: credentials.requesterUserId });
   const meeting = Meetings.findOne({ meetingId });
   if (meeting) {
     const { meetingEnded } = meeting;
@@ -226,6 +228,7 @@ const BaseContainer = withTracker(() => {
   const ejected = Users.findOne({ userId: Auth.userID, ejected: true });
   if (Session.get('codeError')) {
     return {
+      User,
       meetingHasEnded: !!meeting && meeting.meetingEnded,
       approved,
       ejected,
@@ -235,7 +238,6 @@ const BaseContainer = withTracker(() => {
 
   let userSubscriptionHandler;
 
-  const User = Users.findOne({ intId: credentials.requesterUserId });
 
   Breakouts.find().observeChanges({
     added() {

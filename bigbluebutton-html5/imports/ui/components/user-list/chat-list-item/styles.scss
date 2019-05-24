@@ -14,9 +14,18 @@
   padding-top: var(--lg-padding-y);
   padding-bottom: var(--lg-padding-y);
   padding-left: var(--lg-padding-y);
+  padding-right: 0;
   margin-left: var(--border-size);
   margin-top: var(--border-size);
   margin-bottom: var(--border-size);
+  margin-right: 0;
+
+  [dir="rtl"] & {
+    padding-left: 0;
+    padding-right: var(--lg-padding-y);
+    margin-left: 0;
+    margin-right: var(--border-size);
+  }
 }
 
 .chatListItemLink {
@@ -47,8 +56,13 @@
   flex-grow: 1;
   line-height: 2;
   text-align: left;
-  padding-left: var(--lg-padding-y);
+  padding: 0 0 0 var(--lg-padding-y);
   text-overflow: ellipsis;
+
+  [dir="rtl"] & {
+    text-align: right;
+    padding: 0 var(--lg-padding-y) 0 0;
+  }
 }
 
 .active {

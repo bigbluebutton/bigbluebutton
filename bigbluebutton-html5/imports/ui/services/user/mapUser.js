@@ -31,6 +31,7 @@ const mapUser = (user) => {
     isOnline: user.connectionStatus === 'online',
     clientType: user.clientType,
     loginTime: user.loginTime,
+    effectiveConnectionType: user.effectiveConnectionType,
     externalUserId: user.extId,
   };
 

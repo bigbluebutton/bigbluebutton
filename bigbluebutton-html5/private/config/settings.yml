@@ -19,6 +19,7 @@ public:
     basename: "/html5client"
     askForFeedbackOnLogout: false
     allowUserLookup: false
+    enableNetworkInformation: false
     defaultSettings:
       application:
         animations: true
@@ -83,6 +84,10 @@ public:
     connectionTimeout: 60000
     showHelpButton: true
     enableExternalVideo: true
+    effectiveConnection:
+      - critical
+      - danger
+      - warning
   kurento:
     wsUrl: HOST
     chromeDefaultExtensionKey: akgoaoikmbmhcopjgakkcepdgdgkjfbc
@@ -304,6 +309,7 @@ private:
   app:
     captionsChunkLength: 1000
     pencilChunkLength: 100
+    loadSlidesFromHttpAlways: false
   etherpad:
     apikey: ETHERPAD_APIKEY
     version: 1.2.13

@@ -15,10 +15,22 @@
 
   > :first-child {
     margin-left: 0;
+    margin-right: inherit;
+
+    [dir="rtl"] & {
+      margin-left: inherit;
+      margin-right: 0;
+    }
   }
 
   > :last-child {
-    margin-right: 0;
+      margin-left: inherit;
+      margin-right: 0;
+
+    [dir="rtl"] & {
+      margin-left: 0;
+      margin-right: inherit;
+    }
   }
 }
 

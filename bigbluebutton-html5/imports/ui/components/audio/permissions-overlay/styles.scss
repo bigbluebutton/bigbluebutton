@@ -22,11 +22,17 @@
   &:after {
     top: var(--arrow-top);
     left: var(--arrow-left);
+    right: auto;
     font-size: 20px;
     display: block;
     font-family: 'bbb-icons';
     content: "\E906";
     position: relative;
+
+    [dir="rtl"] & {
+      left: auto;
+      right: var(--arrow-left);
+    }
 
     :global(.animationsEnabled) & {
       animation: bounce 2s infinite;
@@ -36,9 +42,15 @@
   :global(.browser-edge) &:after {
     top: var(--arrow-top-edge);
     left: var(--arrow-left-edge);
+    right: auto;
     font-size: 20px;
     :global(.animationsEnabled) & {
       animation: bounceRotate 2s infinite;
+    }
+
+    [dir="rtl"] & {
+      left: auto;
+      right: var(--arrow-left-edge);
     }
   }
 }
@@ -46,29 +58,71 @@
 @mixin positionHint() {
   :global(.browser-edge) & {
     left: var(--position-left-edge);
+    right: auto;
     bottom: var(--position-bottom-edge);
+
+    [dir="rtl"] & {
+      left: auto;
+      right: var(--position-left-edge);
+    }
   }
   :global(.browser-firefox) & {
     top: var(--position-top-firefox);
     left: var(--position-left-firefox);
+    right: auto;
+
+    [dir="rtl"] & {
+      right: var(--position-left-firefox-left-edge);
+      left: auto;
+    }
   }
   :global(.browser-chrome) & {
     top: var(--position-top-chrome);
     left: var(--position-left-chrome);
+    right: auto;
+
+    [dir="rtl"] & {
+      left: auto;
+      right: var(--position-left-chrome);
+    }
   }
   :global(.browser-safari) & {
     top: var(--position-top-safari);
     @include mq($safari1280) {
       left: var(--position-left-safari-1280);
+      right: auto;
+
+      [dir="rtl"] & {
+        left: auto;
+        right: var(--position-left-safari-1280);
+      }
     }
     @include mq($safari1440) {
       left: var(--position-left-safari-1440);
+      right: auto;
+
+      [dir="rtl"] & {
+        right: var(--position-left-safari-1440);
+        left: auto;
+      }
     }
     @include mq($safari1680) {
       left: var(--position-left-safari-1680);
+      right: auto;
+
+      [dir="rtl"] & {
+        right: var(--position-left-safari-1680);
+        left: auto;
+      }
     }
     @include mq($safari1920) {
       left: var(--position-left-safari-1920);
+      right: auto;
+
+      [dir="rtl"] & {
+        right: var(--position-left-safari-1920);
+        left: auto;
+      }
     }
   }
 }
@@ -99,9 +153,13 @@
   color: #fff;
   font-size: 16px;
   font-weight: 400;
-  padding-left: var(--jumbo-padding-x);
+  padding: 0 0 0 var(--jumbo-padding-x);
   line-height: 18px;
   width: 340px;
+
+  [dir="rtl"] & {
+    padding-right: 0 var(--jumbo-padding-x) 0 0;
+  }
 
   small {
     display: block;

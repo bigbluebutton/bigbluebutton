@@ -66,11 +66,17 @@
   color: var(--color-white);
   font-size: var(--font-size-base);
   padding: 0;
-  margin: 0 0 0 var(--sm-padding-x);
+  margin-left: var(--sm-padding-x);
+  margin-right: 0;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
   max-width: 30vw;
+
+  [dir="rtl"]  & {
+    margin-left: 0;
+    margin-right: var(--sm-padding-x);
+  }
 
   > [class^="icon-bbb-"] {
     font-size: 75%;

@@ -95,7 +95,11 @@
 }
 
 .content{
-  margin-left: var(--panel-margin-left);
+  margin:0 0 0 var(--panel-margin-left);
+
+  [dir="rtl"] & {
+    margin:0 var(--panel-margin-left) 0 0;
+  }
 }
 
 .userList {
@@ -187,7 +191,12 @@
   order: 2;
   flex-direction: row;
   position: relative;
-  margin-left: var(--panel-margin-right);
+  margin: 0 0 0 var(--panel-margin-right);
+
+  [dir="rtl"] & {
+    margin: 0 var(--panel-margin-right) 0 0;
+  }
+
   @include mq($portrait) {
     flex-direction: column;
   }

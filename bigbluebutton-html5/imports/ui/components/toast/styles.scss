@@ -52,13 +52,16 @@
 
 .icon {
   align-self: flex-start;
-  margin-bottom: auto;
-  margin-right: var(--sm-padding-x);
+  margin: 0 var(--sm-padding-x) auto 0;
   width: var(--toast-icon-md);
   height: var(--toast-icon-md);
   border-radius: 50%;
   position: relative;
   flex-shrink: 0;
+
+  [dir="rtl"]  & {
+    margin: 0 0 auto var(--sm-padding-x);
+  }
 
   > i {
     line-height: 0;
@@ -126,9 +129,15 @@
   max-width: var(--toast-container-max-width);
   box-sizing: border-box;
   right: var(--jumbo-padding-y);
+  left: auto;
   top: var(--toast-offset);
   max-height: 75vh;
   overflow: hidden;
+
+  [dir="rtl"] & {
+    right: auto;
+    left: var(--jumbo-padding-y);
+  }
 
   @include mq($small-only) {
     width: var(--toast-mobile-width);
@@ -175,13 +184,22 @@
   position: relative;
   font-size: 70%;
   left: var(--toast-offset-sm);
+  
+  [dir="rtl"] & {
+    left: auto;
+    right: var(--toast-offset-sm);
+  }
 
   :global(.animationsEnabled) & {
     transition: .3s ease;
   }
 
   &:before {
-    margin-left: -.4rem;
+    margin: inherit inherit inherit -.4rem;
+
+    [dir="rtl"] & {
+      margin: inherit -.4rem inherit inherit;
+    }
   }
 
   &:hover,
@@ -212,10 +230,17 @@
   position: absolute;
   bottom: 0;
   left: 0;
+  right: auto;
   width: 0;
   height: 5px;
   z-index: 9999;
   animation: track-progress linear 1;
   background-color: var(--color-gray-lighter);
   border-radius: var(--border-radius);
+
+  
+  [dir="rtl"] & {
+    left: auto;
+    right: 0;
+  }
 }

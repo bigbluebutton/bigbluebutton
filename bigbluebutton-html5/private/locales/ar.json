@@ -16,6 +16,7 @@
     "app.chat.dropdown.copy": "نسخ",
     "app.chat.dropdown.save": "حفظ",
     "app.chat.label": "دردشة",
+    "app.chat.offline": "غير متصل",
     "app.chat.emptyLogLabel": "سجل دردشة فارغة",
     "app.chat.clearPublicChatMessage": "تم مسح تاريخ الدردشة من قبل المشرف",
     "app.note.title": "ملاحظات مشتركة",
@@ -78,6 +79,7 @@
     "app.meeting.alertMeetingEndsUnderOneMinute": "يغلق الاجتماع في غضون دقيقة.",
     "app.meeting.alertBreakoutEndsUnderOneMinute": "تغلق الغرفة المفرقة في غضون دقيقة.",
     "app.presentation.hide": "إغفاء العرض",
+    "app.presentation.notificationLabel": "العرض الحالي",
     "app.presentation.slideContent": "محتوى الشريحة",
     "app.presentation.startSlideContent": "بداية محتوى الشريحة",
     "app.presentation.endSlideContent": "نهاية محتوى الشريحة",
@@ -131,6 +133,9 @@
     "app.presentationUploder.isNotDownloadableLabel": "السماح بتحميل العرض",
     "app.presentationUploder.removePresentationLabel": "حذف العرض",
     "app.presentationUploder.setAsCurrentPresentation": "اختيار العرض لجعله العرض الحالي",
+    "app.presentationUploder.tableHeading.filename": "اسم الملف",
+    "app.presentationUploder.tableHeading.options": "خيارات",
+    "app.presentationUploder.tableHeading.status": "الحالة",
     "app.poll.pollPaneTitle": "تصويت",
     "app.poll.quickPollTitle": "تصويت سريع",
     "app.poll.hidePollDesc": "إخفاء لائحة لوحة التصويت",
@@ -397,6 +402,10 @@
     "app.meeting.logout.userInactivityEjectReason": "المستخدم غير نشط لفتره طويلة جدا",
     "app.meeting-ended.rating.legendLabel": "تقييم و تعليقات",
     "app.meeting-ended.rating.starLabel": "نجمة",
+    "app.modal.close": "غلق",
+    "app.modal.close.description": "تجاهل التغييرات و غلق النافذة",
+    "app.modal.confirm": "تم",
+    "app.modal.confirm.description": "حفظ التغييرات وغلق النافذة",
     "app.dropdown.close": "غلق",
     "app.error.400": "طلب خاطئ",
     "app.error.401": "غير مصرح",
@@ -596,6 +605,4 @@
     "app.iOSWarning.label": "يرجى الترقية إلى iOS 12.2 أو اعلى",
     "app.legacy.unsupportedBrowser": "يبدو انك تستخدم مستعرضا غير معتمد. الرجاء استخدام {0} أو {1} للحصول علي الدعم الكامل.",
     "app.legacy.upgradeBrowser": "يبدو انك تستخدم إصدارا قديما من مستعرض معتمد. الرجاء ترقيه المتصفح للحصول علي الدعم الكامل."
-
 }
-

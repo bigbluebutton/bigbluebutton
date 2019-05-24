@@ -14,7 +14,7 @@ import { styles } from './styles.scss';
 import MediaService, { shouldEnableSwapLayout } from '../media/service';
 import PresentationCloseButton from './presentation-close-button/component';
 import DownloadPresentationButton from './download-presentation-button/component';
-import FullscreenButton from '/imports/ui/components/video-provider/fullscreen-button/component';
+import FullscreenButtonContainer from '../video-provider/fullscreen-button/container';
 
 const intlMessages = defineMessages({
   presentationLabel: {
@@ -257,7 +257,6 @@ class PresentationArea extends Component {
     });
   }
 
-
   isPresentationAccessible() {
     const { currentSlide } = this.props;
     // sometimes tomcat publishes the slide url, but the actual file is not accessible (why?)
@@ -343,7 +342,7 @@ class PresentationArea extends Component {
   // renders the whole presentation area
   renderPresentationArea() {
     const { presentationWidth } = this.state;
-    const { podId, currentSlide } = this.props;
+    const { podId, currentSlide, isFullscreen } = this.props;
     if (!this.isPresentationAccessible()) return null;
 
 
@@ -383,7 +382,7 @@ class PresentationArea extends Component {
       >
         {this.renderPresentationClose()}
         {this.renderPresentationDownload()}
-        {this.renderPresentationFullscreen()}
+        {isFullscreen ? null : this.renderPresentationFullscreen()}
         <TransitionGroup>
           <CSSTransition
             key={slideObj.id}
@@ -460,10 +459,6 @@ class PresentationArea extends Component {
 
     const { zoom, fitToWidth } = this.state;
 
-    const fullRef = () => {
-      this.refPresentationContainer.requestFullscreen();
-    };
-
     if (!currentSlide) {
       return null;
     }
@@ -476,7 +471,7 @@ class PresentationArea extends Component {
           podId,
         }}
         isFullscreen={isFullscreen}
-        fullscreenRef={fullRef}
+        fullscreenRef={this.refPresentationContainer}
         currentSlideNum={currentSlide.num}
         presentationId={currentSlide.presentationId}
         zoomChanger={this.zoomChanger}
@@ -522,14 +517,11 @@ class PresentationArea extends Component {
     } = this.props;
     if (userIsPresenter) return null;
 
-    const full = () => this.refPresentationContainer.requestFullscreen();
-
     return (
-      <FullscreenButton
-        handleFullscreen={full}
+      <FullscreenButtonContainer
+        fullscreenRef={this.refPresentationContainer}
         elementName={intl.formatMessage(intlMessages.presentationLabel)}
         dark
-        fullscreenButton
       />
     );
   }

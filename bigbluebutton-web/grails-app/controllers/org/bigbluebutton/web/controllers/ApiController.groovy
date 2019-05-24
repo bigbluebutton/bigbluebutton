@@ -109,28 +109,6 @@ class ApiController {
       return
     }
 
-    if (!StringUtils.isEmpty(params.moderatorPW)) {
-      params.moderatorPW = StringUtils.strip(params.moderatorPW);
-      if (StringUtils.isEmpty(params.moderatorPW)) {
-        invalid("missingParamModeratorPW", "You must specify a moderator password for the meeting.");
-        return
-      }
-    } else {
-      invalid("missingParamModeratorPW", "You must specify a moderator password for the meeting.");
-      return
-    }
-    
-    if (!StringUtils.isEmpty(params.attendeePW)) {
-      params.attendeePW = StringUtils.strip(params.attendeePW);
-      if (StringUtils.isEmpty(params.attendeePW)) {
-        invalid("missingParamAttendeePW", "You must specify an attendee password for the meeting.");
-        return
-      }
-    } else {
-      invalid("missingParamAttendeePW", "You must specify an attendee password for the meeting.");
-      return
-    }
-
     if (!paramsProcessorUtil.isChecksumSame(API_CALL, params.checksum, request.getQueryString())) {
       invalid("checksumError", "You did not pass the checksum security check")
       return
@@ -165,7 +143,7 @@ class ApiController {
       if (existing != null) {
         log.debug "Existing conference found"
         Map<String, Object> updateParams = paramsProcessorUtil.processUpdateCreateParams(params);
-        if (existing.getViewerPassword().equals(params.get(ApiParams.ATTENDEE_PW)) && existing.getModeratorPassword().equals(params.get(ApiParams.MODERATOR_PW))) {
+        if (existing.getViewerPassword().equals(params.get("attendeePW")) && existing.getModeratorPassword().equals(params.get("moderatorPW"))) {
           //paramsProcessorUtil.updateMeeting(updateParams, existing);
           // trying to create a conference a second time, return success, but give extra info
           // Ignore pre-uploaded presentations. We only allow uploading of presentation once.

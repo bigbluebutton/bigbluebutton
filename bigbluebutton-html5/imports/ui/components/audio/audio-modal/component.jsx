@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 import cx from 'classnames';
 import Modal from '/imports/ui/components/modal/simple/component';
 import Button from '/imports/ui/components/button/component';
+import { Session } from 'meteor/session';
 import {
   defineMessages, injectIntl, intlShape, FormattedMessage,
 } from 'react-intl';
@@ -139,7 +140,7 @@ class AudioModal extends Component {
     };
   }
 
-  componentWillMount() {
+  componentDidMount() {
     const {
       joinFullAudioImmediately,
       joinFullAudioEchoTest,
@@ -164,11 +165,14 @@ class AudioModal extends Component {
     const {
       isEchoTest,
       exitAudio,
+      resolve,
     } = this.props;
 
     if (isEchoTest) {
       exitAudio();
     }
+    if (resolve) resolve();
+    Session.set('audioModalIsOpen', false);
   }
 
   handleGoToAudioOptions() {

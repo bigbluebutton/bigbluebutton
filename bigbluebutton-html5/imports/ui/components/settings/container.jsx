@@ -1,7 +1,6 @@
 import React from 'react';
 import { withTracker } from 'meteor/react-meteor-data';
 import SettingsService from '/imports/ui/services/settings';
-import { notify } from '/imports/ui/services/notification';
 import Settings from './component';
 
 import {
@@ -25,5 +24,4 @@ export default withTracker(() => ({
   locales: getClosedCaptionLocales(),
   availableLocales: getAvailableLocales(),
   isModerator: getUserRoles() === 'MODERATOR',
-  notify,
 }))(SettingsContainer);

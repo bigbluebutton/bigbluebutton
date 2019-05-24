@@ -30,6 +30,7 @@
     "app.presentationUploder.dismissLabel": "Ακύρωση",
     "app.presentationUploder.genericError": "Ωχ, κάτι πήγε στραβά",
     "app.presentationUploder.upload.progress": "Μεταφόρτωση ({0}%)",
+    "app.presentationUploder.tableHeading.options": "Επιλογές",
     "app.poll.liveResult.usersTitle": "Χρήστες",
     "app.navBar.settingsDropdown.optionsLabel": "Επιλογές",
     "app.navBar.settingsDropdown.settingsLabel": "Άνοιγμα ρυθμίσεων",

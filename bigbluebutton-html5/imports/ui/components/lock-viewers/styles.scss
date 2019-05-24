@@ -10,10 +10,16 @@
 
 .title {
   left: var(--title-position-left);
+  right: auto;
   color: var(--color-gray-dark);
   font-weight: bold;
   font-size: var(--font-size-large);
   text-align: center;
+
+  [dir="rtl"] & {
+    left: auto;
+    right: var(--title-position-left);
+  }
 }
 
 .form {
@@ -64,7 +70,11 @@
   display: flex;
   flex-grow: 1;
   flex-basis: 0;
-  margin-right: var(--md-padding-x);
+  margin: 0 var(--md-padding-x) 0 0;
+
+  [dir="rtl"] & {
+    margin: 0 0 0 var(--md-padding-x);
+  }
 }
 
 .label {
@@ -94,12 +104,18 @@
   position: relative;
   background-color: var(--color-white);
   left: var(--closeBtn-position-left);
+  right: auto;
   bottom: var(--closeBtn-position-left);
+
+  [dir="rtl"] & {
+    left: auto;
+    right: var(--closeBtn-position-left);
+  }
 
   i {
     color: var(--color-gray-light);
    }
-  
+
   &:focus,
   &:hover {
       background-color: var(--color-gray-lighter);

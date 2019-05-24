@@ -1,19 +1,27 @@
 import React, { Component } from 'react';
 import { defineMessages, injectIntl } from 'react-intl';
+import { Session } from 'meteor/session';
 import { notify } from '/imports/ui/services/notification';
 import VisibilityEvent from '/imports/utils/visibilityEvent';
 import { fetchWebRTCMappedStunTurnServers } from '/imports/utils/fetchStunTurnServers';
 import ReconnectingWebSocket from 'reconnecting-websocket';
 import logger from '/imports/startup/client/logger';
-import { Session } from 'meteor/session';
 import browser from 'browser-detect';
+import {
+  updateCurrentWebcamsConnection,
+  getCurrentWebcams,
+  deleteWebcamConnection,
+  newWebcamConnection,
+  updateWebcamStats,
+} from '/imports/ui/services/network-information/index';
 import { tryGenerateIceCandidates } from '../../../utils/safari-webrtc';
 import Auth from '/imports/ui/services/auth';
 
 import VideoService from './service';
 import VideoList from './video-list/component';
 
-// const VIDEO_CONSTRAINTS = Meteor.settings.public.kurento.cameraConstraints;
+const APP_CONFIG = Meteor.settings.public.app;
+const ENABLE_NETWORK_INFORMATION = APP_CONFIG.enableNetworkInformation;
 const CAMERA_PROFILES = Meteor.settings.public.kurento.cameraProfiles;
 
 const intlClientErrors = defineMessages({
@@ -158,6 +166,30 @@ class VideoProvider extends Component {
 
     this.visibility.onVisible(this.unpauseViewers);
     this.visibility.onHidden(this.pauseViewers);
+
+    if (ENABLE_NETWORK_INFORMATION) {
+      this.currentWebcamsStatsInterval = setInterval(() => {
+        const currentWebcams = getCurrentWebcams();
+        if (!currentWebcams) return;
+
+        const { payload } = currentWebcams;
+
+        payload.forEach((id) => {
+          const peer = this.webRtcPeers[id];
+
+          const hasLocalStream = peer && peer.started === true
+            && peer.peerConnection.getLocalStreams().length > 0;
+          const hasRemoteStream = peer && peer.started === true
+            && peer.peerConnection.getRemoteStreams().length > 0;
+
+          if (hasLocalStream) {
+            this.customGetStats(peer.peerConnection, peer.peerConnection.getLocalStreams()[0].getVideoTracks()[0], (stats => updateWebcamStats(id, stats)), true);
+          } else if (hasRemoteStream) {
+            this.customGetStats(peer.peerConnection, peer.peerConnection.getRemoteStreams()[0].getVideoTracks()[0], (stats => updateWebcamStats(id, stats)), true);
+          }
+        });
+      }, 5000);
+    }
   }
 
   componentWillUpdate({ users, userId }) {
@@ -188,12 +220,15 @@ class VideoProvider extends Component {
     // Unshare user webcam
     if (this.sharedWebcam) {
       this.unshareWebcam();
+      Session.set('userWasInWebcam', true);
     }
 
     Object.keys(this.webRtcPeers).forEach((id) => {
       this.stopGettingStats(id);
       this.stopWebRTCPeer(id);
     });
+
+    clearInterval(this.currentWebcamsStatsInterval);
 
     // Close websocket connection to prevent multiple reconnects from happening
     this.ws.close();
@@ -440,6 +475,10 @@ class VideoProvider extends Component {
         webRtcPeer.dispose();
       }
       delete this.webRtcPeers[id];
+      if (ENABLE_NETWORK_INFORMATION) {
+        deleteWebcamConnection(id);
+        updateCurrentWebcamsConnection(this.webRtcPeers);
+      }
     } else {
       this.logger('warn', 'No WebRTC peer to stop (not an error)', 'video_provider_no_peer_to_destroy', { cameraId: id });
     }
@@ -525,6 +564,10 @@ class VideoProvider extends Component {
       });
       if (this.webRtcPeers[id].peerConnection) {
         this.webRtcPeers[id].peerConnection.oniceconnectionstatechange = this._getOnIceConnectionStateChangeCallback(id);
+      }
+      if (ENABLE_NETWORK_INFORMATION) {
+        newWebcamConnection(id);
+        updateCurrentWebcamsConnection(this.webRtcPeers);
       }
     }
   }
@@ -679,7 +722,7 @@ class VideoProvider extends Component {
     }
   }
 
-  customGetStats(peer, mediaStreamTrack, callback) {
+  customGetStats(peer, mediaStreamTrack, callback, monitoring = false) {
     const { stats } = this.state;
     const statsState = stats;
     let promise;
@@ -734,6 +777,7 @@ class VideoProvider extends Component {
         encodeUsagePercent: videoInOrOutbound.encodeUsagePercent,
         rtt: videoInOrOutbound.rtt,
         currentDelay: videoInOrOutbound.currentDelay,
+        pliCount: videoInOrOutbound.pliCount,
       };
 
       const videoStatsArray = statsState;
@@ -741,7 +785,10 @@ class VideoProvider extends Component {
       while (videoStatsArray.length > 5) { // maximum interval to consider
         videoStatsArray.shift();
       }
-      this.setState({ stats: videoStatsArray });
+
+      if (!monitoring) {
+        this.setState({ stats: videoStatsArray });
+      }
 
       const firstVideoStats = videoStatsArray[0];
       const lastVideoStats = videoStatsArray[videoStatsArray.length - 1];
@@ -766,9 +813,9 @@ class VideoProvider extends Component {
 
       let videoBitrate;
       if (videoStats.packetsReceived > 0) { // Remote video
-        videoLostPercentage = ((videoStats.packetsLost / ((videoStats.packetsLost + videoStats.packetsReceived) * 100)) || 0).toFixed(1);
+        videoLostPercentage = ((videoStats.packetsLost / ((videoStats.packetsLost + videoStats.packetsReceived)) * 100) || 0).toFixed(1);
         videoBitrate = Math.floor(videoKbitsReceivedPerSecond || 0);
-        videoLostRecentPercentage = ((videoIntervalPacketsLost / ((videoIntervalPacketsLost + videoIntervalPacketsReceived) * 100)) || 0).toFixed(1);
+        videoLostRecentPercentage = ((videoIntervalPacketsLost / ((videoIntervalPacketsLost + videoIntervalPacketsReceived)) * 100) || 0).toFixed(1);
       } else {
         videoLostPercentage = (((videoStats.packetsLost / (videoStats.packetsLost + videoStats.packetsSent)) * 100) || 0).toFixed(1);
         videoBitrate = Math.floor(videoKbitsSentPerSecond || 0);
@@ -792,6 +839,7 @@ class VideoProvider extends Component {
           encodeUsagePercent: videoStats.encodeUsagePercent,
           rtt: videoStats.rtt,
           currentDelay: videoStats.currentDelay,
+          pliCount: videoStats.pliCount,
         },
       };
 

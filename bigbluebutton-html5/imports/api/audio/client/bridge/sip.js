@@ -2,6 +2,7 @@ import browser from 'browser-detect';
 import BaseAudioBridge from './base';
 import logger from '/imports/startup/client/logger';
 import { fetchStunTurnServers } from '/imports/utils/fetchStunTurnServers';
+import { isUnifiedPlan, toUnifiedPlan, toPlanB } from '/imports/utils/sdpUtils';
 
 const MEDIA = Meteor.settings.public.media;
 const MEDIA_TAG = MEDIA.mediaTag;
@@ -34,6 +35,11 @@ export default class SIPBridge extends BaseAudioBridge {
 
     this.protocol = window.document.location.protocol;
     this.hostname = window.document.location.hostname;
+
+    // SDP conversion utilitary methods to be used inside SIP.js
+    window.isUnifiedPlan = isUnifiedPlan;
+    window.toUnifiedPlan = toUnifiedPlan;
+    window.toPlanB = toPlanB;
   }
 
   static parseDTMF(message) {
@@ -171,6 +177,17 @@ export default class SIPBridge extends BaseAudioBridge {
 
       let userAgentConnected = false;
 
+      // WebView safari needs a transceiver to be added. Made it a SIP.js hack.
+      // Don't like the UA picking though, we should straighten everything to user
+      // transceivers - prlanzarin 2019/05/21
+      const browserUA = window.navigator.userAgent.toLocaleLowerCase();
+      const isSafariWebview = ((browserUA.indexOf('iphone') > -1
+        || browserUA.indexOf('ipad') > -1) && browserUA.indexOf('safari') == -1);
+
+      // Second UA check to get all Safari browsers to enable Unified Plan <-> PlanB
+      // translation
+      const isSafari = browser().name === 'safari';
+
       logger.debug('Creating the user agent');
 
       let userAgent = new window.SIP.UA({
@@ -183,6 +200,8 @@ export default class SIPBridge extends BaseAudioBridge {
         userAgentString: 'BigBlueButton',
         stunServers: stun,
         turnServers: turn,
+        hackPlanBUnifiedPlanTranslation: isSafari,
+        hackAddAudioTransceiver: isSafariWebview,
       });
 
       userAgent.removeAllListeners('connected');
