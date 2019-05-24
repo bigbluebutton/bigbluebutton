@@ -405,6 +405,7 @@
     "app.modal.close": "Close",
     "app.modal.close.description": "Disregards changes and closes the modal",
     "app.modal.confirm": "Done",
+    "app.modal.newTab": "(opens new tab)",
     "app.modal.confirm.description": "Saves changes and closes the modal",
     "app.dropdown.close": "Close",
     "app.error.400": "Bad Request",
