@@ -97,6 +97,10 @@ const intlMessages = defineMessages({
     id: 'app.createBreakoutRoom.record',
     description: 'label for checkbox to allow record',
   },
+  roomTime: {
+    id: 'app.createBreakoutRoom.roomTime',
+    description: 'used to provide current room time for aria label',
+  },
 });
 
 const MIN_BREAKOUT_ROOMS = 2;
@@ -453,7 +457,7 @@ class BreakoutRoom extends Component {
               <Button
                 label={intl.formatMessage(intlMessages.minusRoomTime)}
                 aria-label={
-                  `${intl.formatMessage(intlMessages.minusRoomTime)} ${durationTime}`
+                  `${intl.formatMessage(intlMessages.minusRoomTime)} ${intl.formatMessage(intlMessages.roomTime, { 0: durationTime - 1 })}`
                 }
                 icon="substract"
                 onClick={() => {}}
@@ -470,7 +474,7 @@ class BreakoutRoom extends Component {
               <Button
                 label={intl.formatMessage(intlMessages.addRoomTime)}
                 aria-label={
-                  `${intl.formatMessage(intlMessages.addRoomTime)} ${durationTime}`
+                  `${intl.formatMessage(intlMessages.addRoomTime)} ${intl.formatMessage(intlMessages.roomTime, { 0: durationTime + 1 })}`
                 }
                 icon="add"
                 onClick={() => {}}
