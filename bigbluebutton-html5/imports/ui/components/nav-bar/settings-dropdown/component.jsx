@@ -166,7 +166,8 @@ class SettingsDropdown extends PureComponent {
 
   leaveSession() {
     document.dispatchEvent(new Event('exitVideo'));
-    const LOGOUT_CODE = '403';
+    // Set the logout code to 680 because it's not a real code and can be matched on the other side
+    const LOGOUT_CODE = '680';
     makeCall('userLeftMeeting');
     // we don't check askForFeedbackOnLogout here,
     // it is checked in meeting-ended component
