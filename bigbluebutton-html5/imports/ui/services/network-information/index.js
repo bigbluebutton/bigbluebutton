@@ -2,6 +2,7 @@ import NetworkInformation from '/imports/api/network-information';
 import { makeCall } from '/imports/ui/services/api';
 import Auth from '/imports/ui/services/auth';
 import Users from '/imports/api/users';
+import logger from '/imports/startup/client/logger';
 import _ from 'lodash';
 
 const NetworkInformationLocal = new Mongo.Collection(null);
@@ -145,6 +146,7 @@ export const startBandwidthMonitoring = () => {
 
     if (lastEffectiveConnectionType
       && lastEffectiveConnectionType.effectiveConnectionType !== effectiveType) {
+      logger.info({ logCode: 'user_connection_instability' }, `User ${Auth.userID} effective connection is now ${effectiveType}`);
       makeCall('setUserEffectiveConnectionType', effectiveType);
     }
   }, 5000);
