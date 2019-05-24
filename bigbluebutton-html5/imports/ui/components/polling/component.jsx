@@ -36,7 +36,9 @@ class Polling extends Component {
   }
 
   render() {
-    const { intl, poll, handleVote } = this.props;
+    const {
+      intl, poll, handleVote, pollAnswerIds,
+    } = this.props;
     const { stackOptions, answers } = poll;
     const pollAnswerStyles = {
       [styles.pollingAnswers]: true,
@@ -57,40 +59,48 @@ class Polling extends Component {
             {intl.formatMessage(intlMessages.pollingTitleLabel)}
           </div>
           <div className={cx(pollAnswerStyles)}>
-            {poll.answers.map(pollAnswer => (
-              <div
-                key={pollAnswer.id}
-                className={styles.pollButtonWrapper}
-              >
-                <Tooltip
+            {poll.answers.map((pollAnswer) => {
+              const formattedMessageIndex = pollAnswer.key.toLowerCase();
+              let label = pollAnswer.key;
+              if (pollAnswerIds[formattedMessageIndex]) {
+                label = intl.formatMessage(pollAnswerIds[formattedMessageIndex]);
+              }
+
+              return (
+                <div
                   key={pollAnswer.id}
-                  title={pollAnswer.key}
+                  className={styles.pollButtonWrapper}
                 >
-                  <Button
-                    className={styles.pollingButton}
-                    color="primary"
-                    size="md"
-                    label={pollAnswer.key}
-                    key={pollAnswer.key}
-                    onClick={() => handleVote(poll.pollId, pollAnswer)}
-                    aria-labelledby={`pollAnswerLabel${pollAnswer.key}`}
-                    aria-describedby={`pollAnswerDesc${pollAnswer.key}`}
-                  />
-                </Tooltip>
-                <div
-                  className={styles.hidden}
-                  id={`pollAnswerLabel${pollAnswer.key}`}
-                >
-                  {intl.formatMessage(intlMessages.pollAnswerLabel, { 0: pollAnswer.key })}
+                  <Tooltip
+                    key={pollAnswer.id}
+                    title={label}
+                  >
+                    <Button
+                      className={styles.pollingButton}
+                      color="primary"
+                      size="md"
+                      label={label}
+                      key={pollAnswer.key}
+                      onClick={() => handleVote(poll.pollId, pollAnswer)}
+                      aria-labelledby={`pollAnswerLabel${pollAnswer.key}`}
+                      aria-describedby={`pollAnswerDesc${pollAnswer.key}`}
+                    />
+                  </Tooltip>
+                  <div
+                    className={styles.hidden}
+                    id={`pollAnswerLabel${pollAnswer.key}`}
+                  >
+                    {intl.formatMessage(intlMessages.pollAnswerLabel, { 0: label })}
+                  </div>
+                  <div
+                    className={styles.hidden}
+                    id={`pollAnswerDesc${pollAnswer.key}`}
+                  >
+                    {intl.formatMessage(intlMessages.pollAnswerDesc, { 0: label })}
+                  </div>
                 </div>
-                <div
-                  className={styles.hidden}
-                  id={`pollAnswerDesc${pollAnswer.key}`}
-                >
-                  {intl.formatMessage(intlMessages.pollAnswerDesc, { 0: pollAnswer.key })}
-                </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         </div>
       </div>);
