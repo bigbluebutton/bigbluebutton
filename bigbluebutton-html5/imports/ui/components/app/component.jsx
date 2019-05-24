@@ -127,7 +127,9 @@ class App extends Component {
 
   componentWillUnmount() {
     window.removeEventListener('resize', this.handleWindowResize, false);
-    navigator.connection.addEventListener('change', this.handleNetworkConnection, false);
+    if (navigator.connection) {
+      navigator.connection.addEventListener('change', this.handleNetworkConnection, false);
+    }
   }
 
   handleWindowResize() {
