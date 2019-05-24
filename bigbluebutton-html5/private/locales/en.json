@@ -232,6 +232,7 @@
     "app.submenu.application.fontSizeControlLabel": "Font size",
     "app.submenu.application.increaseFontBtnLabel": "Increase application font size",
     "app.submenu.application.decreaseFontBtnLabel": "Decrease application font size",
+    "app.submenu.application.currentSize": "currently {0}",
     "app.submenu.application.languageLabel": "Application Language",
     "app.submenu.application.ariaLanguageLabel": "Change application language",
     "app.submenu.application.languageOptionLabel": "Choose language",
