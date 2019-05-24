@@ -259,6 +259,7 @@ class ApplicationMenu extends BaseMenu {
                 {availableLocales && availableLocales.length > 0 ? (
                   <select
                     defaultValue={this.state.settings.locale}
+                    lang={this.state.settings.locale}
                     className={styles.select}
                     onChange={this.handleSelectChange.bind(this, 'locale', availableLocales)}
                   >
