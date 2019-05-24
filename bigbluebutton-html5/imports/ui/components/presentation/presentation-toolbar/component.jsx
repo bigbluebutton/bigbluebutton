@@ -8,7 +8,7 @@ import { HUNDRED_PERCENT, MAX_PERCENT, STEP } from '/imports/utils/slideCalcUtil
 import cx from 'classnames';
 import { styles } from './styles.scss';
 import ZoomTool from './zoom-tool/component';
-import FullscreenButton from '../../video-provider/fullscreen-button/component';
+import FullscreenButtonContainer from '../../video-provider/fullscreen-button/container';
 import Tooltip from '/imports/ui/components/tooltip/component';
 import KEY_CODES from '/imports/utils/keyCodes';
 
@@ -331,8 +331,8 @@ class PresentationToolbar extends Component {
             {
               !isFullscreen
               && (
-                <FullscreenButton
-                  handleFullscreen={fullscreenRef}
+                <FullscreenButtonContainer
+                  fullscreenRef={fullscreenRef}
                   elementName={intl.formatMessage(intlMessages.presentationLabel)}
                   tooltipDistance={tooltipDistance}
                   dark
@@ -364,9 +364,14 @@ PresentationToolbar.propTypes = {
   zoomChanger: PropTypes.func.isRequired,
   fitToWidthHandler: PropTypes.func.isRequired,
   fitToWidth: PropTypes.bool.isRequired,
-  fullscreenRef: PropTypes.func.isRequired,
+  fullscreenRef: PropTypes.instanceOf(Element),
   isFullscreen: PropTypes.bool.isRequired,
   zoom: PropTypes.number.isRequired,
 };
+
+PresentationToolbar.defaultProps = {
+  fullscreenRef: null,
+};
+
 
 export default injectWbResizeEvent(injectIntl(PresentationToolbar));

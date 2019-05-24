@@ -43,7 +43,9 @@ const getResponseString = (obj) => {
 
 class LiveResult extends Component {
   static getDerivedStateFromProps(nextProps) {
-    const { currentPoll, getUser } = nextProps;
+    const {
+      currentPoll, getUser, intl, pollAnswerIds,
+    } = nextProps;
 
     if (!currentPoll) return null;
 
@@ -71,19 +73,29 @@ class LiveResult extends Component {
         };
       })
       .sort(Service.sortUsers)
-      .reduce((acc, user) => [
-        ...acc,
-        (
-          <tr key={_.uniqueId('stats-')}>
-            <td className={styles.resultLeft}>{user.name}</td>
-            <td className={styles.resultRight}>{user.answer}</td>
-          </tr>
-        ),
-      ], []);
+      .reduce((acc, user) => {
+        const formattedMessageIndex = user.answer.toLowerCase();
+        return ([
+          ...acc,
+          (
+            <tr key={_.uniqueId('stats-')}>
+              <td className={styles.resultLeft}>{user.name}</td>
+              <td className={styles.resultRight}>
+                {
+                  pollAnswerIds[formattedMessageIndex]
+                    ? intl.formatMessage(pollAnswerIds[formattedMessageIndex])
+                    : user.answer
+                }
+              </td>
+            </tr>
+          ),
+        ]);
+      }, []);
 
     const pollStats = [];
 
     answers.map((obj) => {
+      const formattedMessageIndex = obj.key.toLowerCase();
       const pct = Math.round(obj.numVotes / numRespondents * 100);
       const pctFotmatted = `${Number.isNaN(pct) ? 0 : pct}%`;
 
@@ -94,7 +106,11 @@ class LiveResult extends Component {
       return pollStats.push(
         <div className={styles.main} key={_.uniqueId('stats-')}>
           <div className={styles.left}>
-            {obj.key}
+            {
+              pollAnswerIds[formattedMessageIndex]
+                ? intl.formatMessage(pollAnswerIds[formattedMessageIndex])
+                : obj.key
+            }
           </div>
           <div className={styles.center}>
             <div className={styles.barShade} style={calculatedWidth} />

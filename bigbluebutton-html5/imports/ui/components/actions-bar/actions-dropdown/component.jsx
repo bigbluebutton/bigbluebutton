@@ -127,7 +127,7 @@ class ActionsDropdown extends Component {
       (isUserPresenter
         ? (
           <DropdownListItem
-            icon="user"
+            icon="polling"
             label={formatMessage(pollBtnLabel)}
             description={formatMessage(pollBtnDesc)}
             key={this.pollId}

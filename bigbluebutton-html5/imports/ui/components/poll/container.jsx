@@ -33,5 +33,6 @@ export default withTracker(() => {
     currentPoll: Service.currentPoll(),
     getUser: Service.getUser,
     resetPollPanel: Session.get('resetPollPanel') || false,
+    pollAnswerIds: Service.pollAnswerIds,
   };
 })(PollContainer);

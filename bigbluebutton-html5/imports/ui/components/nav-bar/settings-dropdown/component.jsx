@@ -4,7 +4,7 @@ import _ from 'lodash';
 import PropTypes from 'prop-types';
 import { withModalMounter } from '/imports/ui/components/modal/service';
 import EndMeetingConfirmationContainer from '/imports/ui/components/end-meeting-confirmation/container';
-import MeetingEndedComponent from '/imports/ui/components/meeting-ended/component';
+import { makeCall } from '/imports/ui/services/api';
 import AboutContainer from '/imports/ui/components/about/container';
 import SettingsMenuContainer from '/imports/ui/components/settings/container';
 import Button from '/imports/ui/components/button/component';
@@ -110,6 +110,15 @@ const defaultProps = {
 };
 
 class SettingsDropdown extends PureComponent {
+  static leaveSession() {
+    document.dispatchEvent(new Event('exitVideo'));
+    const LOGOUT_CODE = '403';
+    makeCall('userLeftMeeting');
+    // we don't check askForFeedbackOnLogout here,
+    // it is checked in meeting-ended component
+    Session.set('codeError', LOGOUT_CODE);
+    // mountModal(<MeetingEndedComponent code={LOGOUT_CODE} />);
+  }
   constructor(props) {
     super(props);
 
@@ -162,15 +171,6 @@ class SettingsDropdown extends PureComponent {
         onClick={handleToggleFullscreen}
       />
     );
-  }
-
-  leaveSession() {
-    document.dispatchEvent(new Event('exitVideo'));
-    const { mountModal } = this.props;
-    const LOGOUT_CODE = '430';
-    // we don't check askForFeedbackOnLogout here,
-    // it is checked in meeting-ended component
-    mountModal(<MeetingEndedComponent code={LOGOUT_CODE} />);
   }
 
   renderMenuItems() {

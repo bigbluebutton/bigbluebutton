@@ -7,6 +7,7 @@ import { getVideoId } from '/imports/ui/components/external-video-player/service
 
 const USER_CONFIG = Meteor.settings.public.user;
 const ROLE_MODERATOR = USER_CONFIG.role_moderator;
+const DIAL_IN_USER = 'dial-in-user';
 
 const getBreakouts = () => Breakouts.find({ parentMeetingId: Auth.meetingID })
   .fetch()
@@ -28,7 +29,7 @@ export default {
   recordSettingsList: () => Meetings.findOne({ meetingId: Auth.meetingID }).recordProp,
   meetingIsBreakout: () => Meetings.findOne({ meetingId: Auth.meetingID }).meetingProp.isBreakout,
   meetingName: () => Meetings.findOne({ meetingId: Auth.meetingID }).meetingProp.name,
-  users: () => Users.find({ connectionStatus: 'online', meetingId: Auth.meetingID }).fetch(),
+  users: () => Users.find({ connectionStatus: 'online', meetingId: Auth.meetingID, clientType: { $ne: DIAL_IN_USER } }).fetch(),
   hasBreakoutRoom: () => Breakouts.find({ parentMeetingId: Auth.meetingID }).fetch().length > 0,
   isBreakoutEnabled: () => Meetings.findOne({ meetingId: Auth.meetingID }).breakoutProps.enabled,
   isBreakoutRecordable: () => Meetings.findOne({ meetingId: Auth.meetingID }).breakoutProps.record,
