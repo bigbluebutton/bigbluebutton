@@ -339,7 +339,6 @@
     "app.audioNotificaion.reconnectingAsListenOnly": "Microphone has been locked for viewers, you are being connected as listen only",
     "app.breakoutJoinConfirmation.title": "Join breakout room",
     "app.breakoutJoinConfirmation.message": "Do you want to join",
-    "app.breakoutJoinConfirmation.confirmLabel": "Join",
     "app.breakoutJoinConfirmation.confirmDesc": "Join you to the breakout room",
     "app.breakoutJoinConfirmation.dismissLabel": "Cancel",
     "app.breakoutJoinConfirmation.dismissDesc": "Closes and rejects joining the breakout room",
