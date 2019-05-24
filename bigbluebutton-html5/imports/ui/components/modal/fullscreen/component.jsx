@@ -36,6 +36,7 @@ const propTypes = {
     disabled: PropTypes.bool,
   }),
   preventClosing: PropTypes.bool,
+  shouldCloseOnOverlayClick: PropTypes.bool,
 };
 
 const defaultProps = {
@@ -50,9 +51,31 @@ const defaultProps = {
 };
 
 class ModalFullscreen extends PureComponent {
+  constructor(props) {
+    super(props);
+
+    this.handleAction = this.handleAction.bind(this);
+  }
+
   handleAction(name) {
-    const action = this.props[name];
-    return this.props.modalHide(action.callback);
+    const { confirm, dismiss, modalHide } = this.props;
+    const { callback: callBackConfirm } = confirm;
+    const { callback: callBackDismiss } = dismiss;
+
+    let callback;
+
+    switch (name) {
+      case 'confirm':
+        callback = callBackConfirm;
+        break;
+      case 'dismiss':
+        callback = callBackDismiss;
+        break;
+      default:
+        break;
+    }
+
+    return modalHide(callback);
   }
 
   render() {
@@ -62,6 +85,7 @@ class ModalFullscreen extends PureComponent {
       confirm,
       dismiss,
       className,
+      children,
       modalisOpen,
       preventClosing,
       ...otherProps
@@ -83,23 +107,23 @@ class ModalFullscreen extends PureComponent {
               label={intl.formatMessage(intlMessages.modalClose)}
               aria-label={`${intl.formatMessage(intlMessages.modalClose)} ${title}`}
               disabled={dismiss.disabled}
-              onClick={this.handleAction.bind(this, 'dismiss')}
+              onClick={() => this.handleAction('dismiss')}
               aria-describedby="modalDismissDescription"
             />
             <Button
               data-test="modalConfirmButton"
               color="primary"
               className={styles.confirm}
-              label={intl.formatMessage(intlMessages.modalDone)}
+              label={confirm.label || intl.formatMessage(intlMessages.modalDone)}
               aria-label={`${intl.formatMessage(intlMessages.modalDone)} ${title}`}
               disabled={confirm.disabled}
-              onClick={this.handleAction.bind(this, 'confirm')}
+              onClick={() => this.handleAction('confirm')}
               aria-describedby="modalConfirmDescription"
             />
           </div>
         </header>
         <div className={styles.content}>
-          {this.props.children}
+          {children}
         </div>
         <div id="modalDismissDescription" hidden>{intl.formatMessage(intlMessages.modalCloseDescription)}</div>
         <div id="modalConfirmDescription" hidden>{intl.formatMessage(intlMessages.modalDoneDescription)}</div>

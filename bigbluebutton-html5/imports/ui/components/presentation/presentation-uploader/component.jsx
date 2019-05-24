@@ -18,6 +18,7 @@ import { styles } from './styles.scss';
 
 const propTypes = {
   intl: intlShape.isRequired,
+  mountModal: PropTypes.func.isRequired,
   defaultFileName: PropTypes.string.isRequired,
   fileSizeMin: PropTypes.number.isRequired,
   fileSizeMax: PropTypes.number.isRequired,
@@ -51,6 +52,10 @@ const intlMessages = defineMessages({
   confirmLabel: {
     id: 'app.presentationUploder.confirmLabel',
     description: 'used in the button that start the upload of the new presentation',
+  },
+  doneLabel: {
+    id: 'app.modal.confirm',
+    description: 'confirm label when no presentations are to be uploaded',
   },
   confirmDesc: {
     id: 'app.presentationUploder.confirmDesc',
@@ -448,7 +453,9 @@ class PresentationUploader extends Component {
         <table className={styles.table}>
           <thead>
             <tr>
-              <th className={styles.visuallyHidden} colSpan={3}>{intl.formatMessage(intlMessages.filename)}</th>
+              <th className={styles.visuallyHidden} colSpan={3}>
+                {intl.formatMessage(intlMessages.filename)}
+              </th>
               <th className={styles.visuallyHidden}>{intl.formatMessage(intlMessages.status)}</th>
               <th className={styles.visuallyHidden}>{intl.formatMessage(intlMessages.options)}</th>
             </tr>
@@ -662,7 +669,17 @@ class PresentationUploader extends Component {
 
   render() {
     const { intl } = this.props;
-    const { preventClosing, disableActions } = this.state;
+    const { preventClosing, disableActions, presentations } = this.state;
+
+    let awaitingConversion = false;
+    presentations.map((presentation) => {
+      if (!presentation.conversion.done) awaitingConversion = true;
+      return null;
+    });
+
+    const confirmLabel = awaitingConversion
+      ? intl.formatMessage(intlMessages.confirmLabel)
+      : intl.formatMessage(intlMessages.doneLabel);
 
     return (
       <ModalFullscreen
@@ -670,7 +687,7 @@ class PresentationUploader extends Component {
         preventClosing={preventClosing}
         confirm={{
           callback: this.handleConfirm,
-          label: intl.formatMessage(intlMessages.confirmLabel),
+          label: confirmLabel,
           description: intl.formatMessage(intlMessages.confirmDesc),
           disabled: disableActions,
         }}
