@@ -20,7 +20,8 @@ import Auth from '/imports/ui/services/auth';
 import VideoService from './service';
 import VideoList from './video-list/component';
 
-// const VIDEO_CONSTRAINTS = Meteor.settings.public.kurento.cameraConstraints;
+const APP_CONFIG = Meteor.settings.public.app;
+const ENABLE_NETWORK_INFORMATION = APP_CONFIG.enableNetworkInformation;
 const CAMERA_PROFILES = Meteor.settings.public.kurento.cameraProfiles;
 
 const intlClientErrors = defineMessages({
@@ -166,27 +167,29 @@ class VideoProvider extends Component {
     this.visibility.onVisible(this.unpauseViewers);
     this.visibility.onHidden(this.pauseViewers);
 
-    this.currentWebcamsStatsInterval = setInterval(() => {
-      const currentWebcams = getCurrentWebcams();
-      if (!currentWebcams) return;
+    if (ENABLE_NETWORK_INFORMATION) {
+      this.currentWebcamsStatsInterval = setInterval(() => {
+        const currentWebcams = getCurrentWebcams();
+        if (!currentWebcams) return;
 
-      const { payload } = currentWebcams;
+        const { payload } = currentWebcams;
 
-      payload.forEach((id) => {
-        const peer = this.webRtcPeers[id];
+        payload.forEach((id) => {
+          const peer = this.webRtcPeers[id];
 
-        const hasLocalStream = peer && peer.started === true
-          && peer.peerConnection.getLocalStreams().length > 0;
-        const hasRemoteStream = peer && peer.started === true
-          && peer.peerConnection.getRemoteStreams().length > 0;
+          const hasLocalStream = peer && peer.started === true
+            && peer.peerConnection.getLocalStreams().length > 0;
+          const hasRemoteStream = peer && peer.started === true
+            && peer.peerConnection.getRemoteStreams().length > 0;
 
-        if (hasLocalStream) {
-          this.customGetStats(peer.peerConnection, peer.peerConnection.getLocalStreams()[0].getVideoTracks()[0], (stats => updateWebcamStats(id, stats)), true);
-        } else if (hasRemoteStream) {
-          this.customGetStats(peer.peerConnection, peer.peerConnection.getRemoteStreams()[0].getVideoTracks()[0], (stats => updateWebcamStats(id, stats)), true);
-        }
-      });
-    }, 5000);
+          if (hasLocalStream) {
+            this.customGetStats(peer.peerConnection, peer.peerConnection.getLocalStreams()[0].getVideoTracks()[0], (stats => updateWebcamStats(id, stats)), true);
+          } else if (hasRemoteStream) {
+            this.customGetStats(peer.peerConnection, peer.peerConnection.getRemoteStreams()[0].getVideoTracks()[0], (stats => updateWebcamStats(id, stats)), true);
+          }
+        });
+      }, 5000);
+    }
   }
 
   componentWillUpdate({ users, userId }) {
@@ -472,8 +475,10 @@ class VideoProvider extends Component {
         webRtcPeer.dispose();
       }
       delete this.webRtcPeers[id];
-      deleteWebcamConnection(id);
-      updateCurrentWebcamsConnection(this.webRtcPeers);
+      if (ENABLE_NETWORK_INFORMATION) {
+        deleteWebcamConnection(id);
+        updateCurrentWebcamsConnection(this.webRtcPeers);
+      }
     } else {
       this.logger('warn', 'No WebRTC peer to stop (not an error)', 'video_provider_no_peer_to_destroy', { cameraId: id });
     }
@@ -560,8 +565,10 @@ class VideoProvider extends Component {
       if (this.webRtcPeers[id].peerConnection) {
         this.webRtcPeers[id].peerConnection.oniceconnectionstatechange = this._getOnIceConnectionStateChangeCallback(id);
       }
-      newWebcamConnection(id);
-      updateCurrentWebcamsConnection(this.webRtcPeers);
+      if (ENABLE_NETWORK_INFORMATION) {
+        newWebcamConnection(id);
+        updateCurrentWebcamsConnection(this.webRtcPeers);
+      }
     }
   }
 
