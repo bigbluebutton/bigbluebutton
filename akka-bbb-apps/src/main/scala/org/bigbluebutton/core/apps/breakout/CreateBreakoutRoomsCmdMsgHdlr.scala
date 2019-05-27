@@ -38,7 +38,7 @@ trait CreateBreakoutRoomsCmdMsgHdlr extends RightsManagementTrait {
     val presId = getPresentationId(state)
     val presSlide = getPresentationSlide(state)
     val parentId = liveMeeting.props.meetingProp.intId
-    var rooms = new collection.immutable.HashMap[String, BreakoutRoom2x]
+    var rooms = new collection.immutable.HashMap[String, BreakoutRoom2x].take(props.meetingProp.maxNumberOfBreakouts)
 
     var i = 0
     for (room <- msg.body.rooms) {

@@ -127,10 +127,11 @@ class BbbWebApiGWApp(
                     allowModsToUnmuteUsers:                 java.lang.Boolean,
                     keepEvents:                             java.lang.Boolean,
                     breakoutParams:                         BreakoutRoomsParams,
-                    lockSettingsParams:                     LockSettingsParams): Unit = {
+                    lockSettingsParams:                     LockSettingsParams,
+                    maxNumberOfBreakouts:                   java.lang.Integer): Unit = {
 
     val meetingProp = MeetingProp(name = meetingName, extId = extMeetingId, intId = meetingId,
-      isBreakout = isBreakout.booleanValue())
+      isBreakout = isBreakout.booleanValue(), maxNumberOfBreakouts=maxNumberOfBreakouts.intValue())
     val durationProps = DurationProps(
       duration = duration.intValue(),
       createdTime = createTime.longValue(), createDate,

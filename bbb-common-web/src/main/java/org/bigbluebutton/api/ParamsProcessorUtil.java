@@ -120,6 +120,7 @@ public class ParamsProcessorUtil {
 	private Integer userInactivityThresholdInMinutes = 30;
     private Integer userActivitySignResponseDelayInMinutes = 5;
     private Boolean defaultAllowDuplicateExtUserid = true;
+    private Integer maxNumberOfBreakouts = 8;
 
     private String substituteKeywords(String message, String dialNumber, String telVoice, String meetingName) {
         String welcomeMessage = message;
@@ -471,6 +472,7 @@ public class ParamsProcessorUtil {
         }
 
         meeting.setMaxInactivityTimeoutMinutes(maxInactivityTimeoutMinutes);
+        meeting.setMaxNumberOfBreakouts(maxNumberOfBreakouts);
         meeting.setWarnMinutesBeforeMax(warnMinutesBeforeMax);
         meeting.setMeetingExpireIfNoUserJoinedInMinutes(meetingExpireIfNoUserJoinedInMinutes);
 		meeting.setMeetingExpireWhenLastUserLeftInMinutes(meetingExpireWhenLastUserLeftInMinutes);
@@ -933,6 +935,10 @@ public class ParamsProcessorUtil {
 	public void setMaxInactivityTimeoutMinutes(Integer value) {
 		maxInactivityTimeoutMinutes = value;
 	}
+	
+	public void setMaxNumberOfBreakouts(Integer value) {
+	  maxNumberOfBreakouts = value;
+	}
 
 	public void setClientLogoutTimerInMinutes(Integer value) {
 		clientLogoutTimerInMinutes = value;
@@ -944,6 +950,10 @@ public class ParamsProcessorUtil {
 
 	public Integer getMaxInactivityTimeoutMinutes() {
 		return maxInactivityTimeoutMinutes;
+	}
+	
+	public Integer getMaxNumberOfBreakouts() {
+	  return maxNumberOfBreakouts;
 	}
 
 	public Integer getWarnMinutesBeforeMax() {

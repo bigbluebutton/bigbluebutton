@@ -7,7 +7,7 @@ case class DurationProps(duration: Int, createdTime: Long, createdDate: String,
                          meetingExpireIfNoUserJoinedInMinutes: Int, meetingExpireWhenLastUserLeftInMinutes: Int,
                          userInactivityInspectTimerInMinutes: Int, userInactivityThresholdInMinutes: Int, userActivitySignResponseDelayInMinutes: Int)
 
-case class MeetingProp(name: String, extId: String, intId: String, isBreakout: Boolean)
+case class MeetingProp(name: String, extId: String, intId: String, isBreakout: Boolean, maxNumberOfBreakouts:Int)
 
 case class BreakoutProps(
     parentId:           String,

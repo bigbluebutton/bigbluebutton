@@ -88,6 +88,7 @@ public class Meeting {
 	private Integer userInactivityInspectTimerInMinutes = 120;
 	private Integer userInactivityThresholdInMinutes = 30;
     private Integer userActivitySignResponseDelayInMinutes = 5;
+    private Integer maxNumberOfBreakouts = 8;
 
 	public final BreakoutRoomsParams breakoutRoomsParams;
 	public final LockSettingsParams lockSettingsParams;
@@ -520,6 +521,10 @@ public class Meeting {
 	public void setMaxInactivityTimeoutMinutes(Integer value) {
 		maxInactivityTimeoutMinutes = value;
 	}
+	
+	public void setMaxNumberOfBreakouts(Integer value) {
+	  maxNumberOfBreakouts = value;
+	}
 
 	public void setWarnMinutesBeforeMax(Integer value) {
 		warnMinutesBeforeMax = value;
@@ -527,6 +532,10 @@ public class Meeting {
 
 	public Integer getMaxInactivityTimeoutMinutes() {
 		return maxInactivityTimeoutMinutes;
+	}
+	
+	public Integer getMaxNumberOfBreakouts() {
+	  return maxNumberOfBreakouts;
 	}
 
 	public Integer getWarnMinutesBeforeMax() {
