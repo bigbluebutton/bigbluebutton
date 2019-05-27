@@ -1,7 +1,9 @@
 import React from 'react';
 import Toggle from 'react-toggle';
 import classNames from 'classnames';
+import cx from 'classnames';
 import { defineMessages, injectIntl } from 'react-intl';
+import { styles } from './styles';
 
 const intlMessages = defineMessages({
   on: {
@@ -35,7 +37,7 @@ class Switch extends Toggle {
 
     return (
       <div
-        className={classes}
+        className={cx(classes, styles.switch)}
         onClick={this.handleClick}
         onTouchStart={this.handleTouchStart}
         onTouchMove={this.handleTouchMove}

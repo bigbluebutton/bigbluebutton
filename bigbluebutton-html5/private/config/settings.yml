@@ -93,11 +93,39 @@ public:
     - window
     - screen
     firefoxScreenshareSource: window
-    cameraConstraints:
-      width:
-        max: 320
-      height:
-        max: 240
+    cameraProfiles:
+      - id: low
+        name: Low quality
+        default: false
+        constraints:
+          width:
+            max: 160
+          height:
+            max: 120
+      - id: medium
+        name: Medium quality
+        default: true
+        constraints:
+          width:
+            max: 320
+          height:
+            max: 240
+      - id: high
+        name: High quality
+        default: false
+        constraints:
+          width:
+            max: 640
+          height:
+            max: 480
+      - id: hd
+        name: High definition
+        default: false
+        constraints:
+          width:
+            max: 1280
+          height:
+            max: 960
     enableScreensharing: true
     enableVideo: true
     enableVideoStats: false
@@ -276,10 +304,16 @@ private:
   app:
     captionsChunkLength: 1000
     pencilChunkLength: 100
+  etherpad:
+    apikey: ETHERPAD_APIKEY
+    version: 1.2.13
+    host: 127.0.0.1
+    port: 9001
   redis:
     host: 127.0.0.1
-    post: '6379'
+    port: '6379'
     timeout: 5000
+    password: null
     debug: false
     channels:
       toAkkaApps: to-akka-apps-redis-channel
@@ -295,3 +329,22 @@ private:
     - DoLatencyTracerMsg
   serverLog:
     level: info
+  minBrowserVersions:
+    - browser: chrome
+      version: 59
+    - browser: firefox
+      version: 52
+    - browser: firefoxMobile
+      version: 52
+    - browser: edge
+      version: 17
+    - browser: ie
+      version: Infinity
+    - browser: mobileSafari
+      version: [11, 1]
+    - browser: opera
+      version: 46
+    - browser: safari
+      version: [11, 1]
+    - browser: electron
+      version: [0, 36]

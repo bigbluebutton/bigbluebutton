@@ -1,7 +1,6 @@
 import React, { Component } from 'react';
 import { withModalMounter } from '/imports/ui/components/modal/service';
-
-import ModalBase from '/imports/ui/components/modal/base/component';
+import Modal from '/imports/ui/components/modal/simple/component';
 import Button from '/imports/ui/components/button/component';
 
 import { defineMessages, injectIntl } from 'react-intl';
@@ -13,10 +12,6 @@ const intlMessages = defineMessages({
   start: {
     id: 'app.externalVideo.start',
     description: 'Share youtube video',
-  },
-  stop: {
-    id: 'app.externalVideo.stop',
-    description: 'Stop sharing video',
   },
   urlError: {
     id: 'app.externalVideo.urlError',
@@ -56,7 +51,6 @@ class ExternalVideoModal extends Component {
     };
 
     this.startWatchingHandler = this.startWatchingHandler.bind(this);
-    this.stopWatchingHandler = this.stopWatchingHandler.bind(this);
     this.updateVideoUrlHandler = this.updateVideoUrlHandler.bind(this);
     this.renderUrlError = this.renderUrlError.bind(this);
     this.updateVideoUrlHandler = this.updateVideoUrlHandler.bind(this);
@@ -66,14 +60,7 @@ class ExternalVideoModal extends Component {
     const { startWatching, closeModal } = this.props;
     const { url } = this.state;
 
-    startWatching(url);
-    closeModal();
-  }
-
-  stopWatchingHandler() {
-    const { stopWatching, closeModal } = this.props;
-
-    stopWatching();
+    startWatching(url.trim());
     closeModal();
   }
 
@@ -105,22 +92,15 @@ class ExternalVideoModal extends Component {
     const startDisabled = !isUrlValid(url) || (getUrlFromVideoId(videoId) === url);
 
     return (
-      <ModalBase
+      <Modal
         overlayClassName={styles.overlay}
         className={styles.modal}
         onRequestClose={closeModal}
+        contentLabel={intl.formatMessage(intlMessages.title)}
+        hideBorder
       >
         <header data-test="videoModealHeader" className={styles.header}>
           <h3 className={styles.title}>{intl.formatMessage(intlMessages.title)}</h3>
-          <Button
-            data-test="modalBaseCloseButton"
-            className={styles.closeBtn}
-            label={intl.formatMessage(intlMessages.close)}
-            icon="close"
-            size="md"
-            hideLabel
-            onClick={closeModal}
-          />
         </header>
 
         <div className={styles.content}>
@@ -133,14 +113,16 @@ class ExternalVideoModal extends Component {
                 name="video-modal-input"
                 value={url}
                 placeholder={intl.formatMessage(intlMessages.urlInput)}
+                disabled={sharing}
+                aria-describedby="youtube-note"
               />
             </label>
-            <div className={styles.youtubeNote}>
+            <div className={styles.youtubeNote} id="youtube-note">
               {intl.formatMessage(intlMessages.note)}
             </div>
           </div>
 
-          <div className={styles.content}>
+          <div>
             {this.renderUrlError()}
           </div>
 
@@ -150,15 +132,8 @@ class ExternalVideoModal extends Component {
             onClick={this.startWatchingHandler}
             disabled={startDisabled}
           />
-
-          <Button
-            className={styles.stopBtn}
-            label={intl.formatMessage(intlMessages.stop)}
-            onClick={this.stopWatchingHandler}
-            disabled={!sharing}
-          />
         </div>
-      </ModalBase>
+      </Modal>
     );
   }
 }

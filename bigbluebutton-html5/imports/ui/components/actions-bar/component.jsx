@@ -31,6 +31,7 @@ class ActionsBar extends React.PureComponent {
       parseCurrentSlideContent,
       isSharingVideo,
       screenShareEndAlert,
+      stopExternalVideoShare,
     } = this.props;
 
     const {
@@ -59,6 +60,7 @@ class ActionsBar extends React.PureComponent {
             handleTakePresenter,
             intl,
             isSharingVideo,
+            stopExternalVideoShare,
           }}
           />
           <QuickPollDropdown

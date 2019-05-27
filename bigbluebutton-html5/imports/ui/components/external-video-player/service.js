@@ -17,9 +17,9 @@ const getUrlFromVideoId = id => (id ? `${YOUTUBE_PREFIX}${id}` : '');
 
 // https://stackoverflow.com/questions/3452546/how-do-i-get-the-youtube-video-id-from-a-url
 const videoIdFromUrl = (url) => {
-  const regExp = /.*(?:youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=)([^#\&\?]*).*/;
+  const regExp = /.*(?:youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=)([^#]*).*/;
   const match = url.match(regExp);
-  return (match && match[1].length == 11) ? match[1] : false;
+  return (match && match[1].length === 11) ? match[1] : false;
 };
 
 const startWatching = (url) => {

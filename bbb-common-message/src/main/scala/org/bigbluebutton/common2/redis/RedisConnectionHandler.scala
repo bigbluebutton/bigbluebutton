@@ -7,23 +7,28 @@ import io.lettuce.core.event.connection.{ ConnectionDeactivatedEvent, Connection
 import reactor.core.Disposable
 import akka.event.LoggingAdapter
 
+case class RedisConfig(host: String, port: Int, password: Option[String], expireKey: Int)
+
 trait RedisConnectionHandler {
 
+  val clientName: String
+
   def subscribeToEventBus(redis: RedisClient, log: LoggingAdapter) {
-    val eventBus: EventBus = redis.getResources().eventBus();
+    val eventBus: EventBus = redis.getResources().eventBus()
     // @todo : unsubscribe when connection is closed
     val eventBusSubscription: Disposable = eventBus.get().subscribe(e => connectionStatusHandler(e, log))
   }
 
   def connectionStatusHandler(event: Event, log: LoggingAdapter) {
+
     if (event.isInstanceOf[ConnectedEvent]) {
-      log.info("Connected to redis");
+      log.info("Connected to redis. clientName=" + clientName)
     } else if (event.isInstanceOf[ConnectionActivatedEvent]) {
-      log.info("Connection to redis activated");
+      log.info("Connection to redis activated. clientName=" + clientName)
     } else if (event.isInstanceOf[DisconnectedEvent]) {
-      log.info("Disconnected from redis");
+      log.info("Disconnected from redis. clientName=" + clientName)
     } else if (event.isInstanceOf[ConnectionDeactivatedEvent]) {
-      log.info("Connection to redis deactivated");
+      log.info("Connection to redis deactivated. clientName=" + clientName)
     }
   }
 }

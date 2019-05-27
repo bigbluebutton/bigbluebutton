@@ -381,7 +381,7 @@ class WhiteboardToolbar extends Component {
 
     this.setState({
       prevThicknessSelected: thicknessSelected,
-      thicknessSelected,
+      thicknessSelected: incomingThickness,
       onBlurEnabled: true,
       currentSubmenuOpen: '',
     });

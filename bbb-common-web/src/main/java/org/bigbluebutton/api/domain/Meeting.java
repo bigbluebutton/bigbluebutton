@@ -27,6 +27,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
+import java.util.concurrent.locks.Lock;
 
 import org.apache.commons.lang3.RandomStringUtils;
 
@@ -78,6 +79,7 @@ public class Meeting {
 	private String customLogoURL = "";
 	private String customCopyright = "";
 	private Boolean muteOnStart = false;
+	private Boolean allowModsToUnmuteUsers = false;
 
 	private Integer maxInactivityTimeoutMinutes = 120;
 	private Integer warnMinutesBeforeMax = 5;
@@ -86,6 +88,11 @@ public class Meeting {
 	private Integer userInactivityInspectTimerInMinutes = 120;
 	private Integer userInactivityThresholdInMinutes = 30;
     private Integer userActivitySignResponseDelayInMinutes = 5;
+
+	public final BreakoutRoomsParams breakoutRoomsParams;
+	public final LockSettingsParams lockSettingsParams;
+
+	public final Boolean allowDuplicateExtUserid;
 
     public Meeting(Meeting.Builder builder) {
         name = builder.name;
@@ -113,6 +120,9 @@ public class Meeting {
         createdTime = builder.createdTime;
         isBreakout = builder.isBreakout;
         guestPolicy = builder.guestPolicy;
+        breakoutRoomsParams = builder.breakoutRoomsParams;
+        lockSettingsParams = builder.lockSettingsParams;
+		allowDuplicateExtUserid = builder.allowDuplicateExtUserid;
 
         userCustomData = new HashMap<>();
 
@@ -424,6 +434,14 @@ public class Meeting {
     	return muteOnStart;
 	}
 
+	public void setAllowModsToUnmuteUsers(Boolean value) {
+		allowModsToUnmuteUsers = value;
+	}
+
+	public Boolean getAllowModsToUnmuteUsers() {
+		return allowModsToUnmuteUsers;
+	}
+
 	public void userJoined(User user) {
 	    userHasJoined = true;
 	    this.users.put(user.getInternalUserId(), user);
@@ -602,6 +620,9 @@ public class Meeting {
     	private long createdTime;
     	private boolean isBreakout;
     	private String guestPolicy;
+    	private BreakoutRoomsParams breakoutRoomsParams;
+    	private LockSettingsParams lockSettingsParams;
+		private Boolean allowDuplicateExtUserid;
 
     	public Builder(String externalId, String internalId, long createTime) {
     		this.externalId = externalId;
@@ -717,6 +738,21 @@ public class Meeting {
     	public Builder withGuestPolicy(String policy) {
     		guestPolicy = policy;
     		return  this;
+		}
+
+		public Builder withBreakoutRoomsParams(BreakoutRoomsParams params) {
+    		breakoutRoomsParams = params;
+    		return this;
+		}
+
+		public Builder withLockSettingsParams(LockSettingsParams params) {
+    		lockSettingsParams = params;
+    		return  this;
+		}
+
+		public Builder withAllowDuplicateExtUserid(Boolean allowDuplicateExtUserid) {
+    		this.allowDuplicateExtUserid = allowDuplicateExtUserid;
+    		return this;
 		}
     
     	public Meeting build() {

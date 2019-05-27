@@ -1,11 +1,5 @@
-:root {
-  --overlay-width: 10vw;
-  --overlay-min-width: 175px;
-  --overlay-max-width: 10vw;
-  --overlay-ratio: calc(4 / 3);
-}
-
 @import "../../stylesheets/variables/_all";
+@import "../../stylesheets/variables/video";
 
 .container {
   order: 1;
@@ -29,7 +23,7 @@
 }
 
 .overlay {
-  flex: 1;
+  // flex: 1;
   display: flex;
   width: 100%;
   border: 0;
@@ -37,6 +31,8 @@
   margin-bottom: 10px;
   z-index: 2;
   align-items: center;
+  
+  min-height: calc(var(--video-width) / var(--video-ratio));
   // max-height: 10vh;
 }
 
@@ -46,8 +42,7 @@
 
 .overlayAbsolute{
   position: absolute;
-  height: calc(var(--overlay-width) / var(--overlay-ratio));
-  min-height: calc(var(--overlay-min-width) / var(--overlay-ratio));
+  height: calc(var(--video-width) / var(--video-ratio));
 }
 
 .overlayToTop {
@@ -75,11 +70,11 @@
     position: absolute;
     bottom: 0;
     right: 0;
-    width: var(--overlay-width);
-    min-width: var(--overlay-min-width);
-    max-width: var(--overlay-max-width);
-    height: calc(var(--overlay-width) / var(--overlay-ratio));
-    min-height: calc(var(--overlay-min-width) / var(--overlay-ratio));
+    width: var(--video-width);
+    min-width: var(--video-width);
+    max-width: var(--video-max-width);
+    height: calc(var(--video-width) / var(--video-ratio));
+    min-height: calc(var(--video-width) / var(--video-ratio));
   }
 }
 

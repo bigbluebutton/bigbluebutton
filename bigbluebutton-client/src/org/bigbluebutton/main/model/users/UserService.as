@@ -140,6 +140,7 @@ package org.bigbluebutton.main.model.users
 		LiveMeeting.inst().meeting.bannerColor = result.bannerColor;
 		LiveMeeting.inst().meeting.bannerText = result.bannerText;
 
+        LiveMeeting.inst().meeting.allowModsToUnmuteUsers = result.allowModsToUnmuteUsers;
         LiveMeeting.inst().meeting.muteOnStart = result.muteOnStart;
 				LiveMeeting.inst().meetingStatus.isMeetingMuted = result.muteOnStart;
         LiveMeeting.inst().meeting.customLogo = result.customLogo;

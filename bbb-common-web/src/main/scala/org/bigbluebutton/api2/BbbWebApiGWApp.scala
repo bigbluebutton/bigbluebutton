@@ -3,14 +3,16 @@ package org.bigbluebutton.api2
 import scala.collection.JavaConverters._
 import akka.actor.ActorSystem
 import akka.event.Logging
+import org.bigbluebutton.api.domain.{ BreakoutRoomsParams, LockSettingsParams }
 import org.bigbluebutton.api.messaging.converters.messages._
 import org.bigbluebutton.api2.bus._
-import org.bigbluebutton.api2.endpoint.redis.{ WebRedisSubscriberActor }
+import org.bigbluebutton.api2.endpoint.redis.WebRedisSubscriberActor
 import org.bigbluebutton.common2.redis.MessageSender
 import org.bigbluebutton.api2.meeting.{ OldMeetingMsgHdlrActor, RegisterUser }
 import org.bigbluebutton.common2.domain._
 import org.bigbluebutton.common2.util.JsonUtil
 import org.bigbluebutton.presentation.messages._
+
 import scala.concurrent.duration._
 import org.bigbluebutton.common2.redis._
 import org.bigbluebutton.common2.bus._
@@ -19,7 +21,11 @@ class BbbWebApiGWApp(
     val oldMessageReceivedGW:        OldMessageReceivedGW,
     val screenshareRtmpServer:       String,
     val screenshareRtmpBroadcastApp: String,
-    val screenshareConfSuffix:       String
+    val screenshareConfSuffix:       String,
+    redisHost:                       String,
+    redisPort:                       Int,
+    redisPassword:                   String,
+    redisExpireKey:                  Int
 ) extends IBbbWebApiGWApp with SystemConfiguration {
 
   implicit val system = ActorSystem("bbb-web-common")
@@ -29,7 +35,11 @@ class BbbWebApiGWApp(
   val log = Logging(system, getClass)
 
   private val jsonMsgToAkkaAppsBus = new JsonMsgToAkkaAppsBus
-  private val redisPublisher = new RedisPublisher(system, "BbbWebPub")
+
+  val redisPass = if (redisPassword != "") Some(redisPassword) else None
+  val redisConfig = RedisConfig(redisHost, redisPort, redisPass, redisExpireKey)
+  private val redisPublisher = new RedisPublisher(system, "BbbWebPub", redisConfig)
+
   private val msgSender: MessageSender = new MessageSender(redisPublisher)
   private val messageSenderActorRef = system.actorOf(MessageSenderActor.props(msgSender), "messageSenderActor")
 
@@ -58,7 +68,24 @@ class BbbWebApiGWApp(
 
   msgToAkkaAppsEventBus.subscribe(msgToAkkaAppsToJsonActor, toAkkaAppsChannel)
 
-  private val appsRedisSubscriberActor = system.actorOf(WebRedisSubscriberActor.props(system, receivedJsonMsgBus, oldMessageEventBus), "appsRedisSubscriberActor")
+  // Not used but needed by internal class (ralam april 4, 2019)
+  val incomingJsonMessageBus = new IncomingJsonMessageBus
+
+  val channelsToSubscribe = Seq(fromAkkaAppsRedisChannel)
+  private val appsRedisSubscriberActor = system.actorOf(
+    WebRedisSubscriberActor.props(
+      system,
+      receivedJsonMsgBus,
+      oldMessageEventBus,
+      incomingJsonMessageBus,
+      redisConfig,
+      channelsToSubscribe,
+      Nil,
+      fromAkkaAppsJsonChannel,
+      fromAkkaAppsOldJsonChannel
+    ),
+    "appsRedisSubscriberActor"
+  )
 
   private val receivedJsonMsgHdlrActor = system.actorOf(
     ReceivedJsonMsgHdlrActor.props(msgFromAkkaAppsEventBus), "receivedJsonMsgHdlrActor"
@@ -97,7 +124,10 @@ class BbbWebApiGWApp(
                     userInactivityThresholdInMinutes:       java.lang.Integer,
                     userActivitySignResponseDelayInMinutes: java.lang.Integer,
                     muteOnStart:                            java.lang.Boolean,
-                    keepEvents:                             java.lang.Boolean): Unit = {
+                    allowModsToUnmuteUsers:                 java.lang.Boolean,
+                    keepEvents:                             java.lang.Boolean,
+                    breakoutParams:                         BreakoutRoomsParams,
+                    lockSettingsParams:                     LockSettingsParams): Unit = {
 
     val meetingProp = MeetingProp(name = meetingName, extId = extMeetingId, intId = meetingId,
       isBreakout = isBreakout.booleanValue())
@@ -116,12 +146,22 @@ class BbbWebApiGWApp(
     val password = PasswordProp(moderatorPass = moderatorPass, viewerPass = viewerPass)
     val recordProp = RecordProp(record = recorded.booleanValue(), autoStartRecording = autoStartRecording.booleanValue(),
       allowStartStopRecording = allowStartStopRecording.booleanValue(), keepEvents = keepEvents.booleanValue())
-    val breakoutProps = BreakoutProps(parentId = parentMeetingId, sequence = sequence.intValue(), freeJoin = freeJoin.booleanValue(), breakoutRooms = Vector())
+
+    val breakoutProps = BreakoutProps(
+      parentId = parentMeetingId,
+      sequence = sequence.intValue(),
+      freeJoin = freeJoin.booleanValue(),
+      breakoutRooms = Vector(),
+      enabled = breakoutParams.enabled.booleanValue(),
+      record = breakoutParams.record.booleanValue(),
+      privateChatEnabled = breakoutParams.privateChatEnabled.booleanValue()
+    )
+
     val welcomeProp = WelcomeProp(welcomeMsgTemplate = welcomeMsgTemplate, welcomeMsg = welcomeMsg,
       modOnlyMessage = modOnlyMessage)
     val voiceProp = VoiceProp(telVoice = voiceBridge, voiceConf = voiceBridge, dialNumber = dialNumber, muteOnStart = muteOnStart.booleanValue())
     val usersProp = UsersProp(maxUsers = maxUsers.intValue(), webcamsOnlyForModerator = webcamsOnlyForModerator.booleanValue(),
-      guestPolicy = guestPolicy)
+      guestPolicy = guestPolicy, allowModsToUnmuteUsers = allowModsToUnmuteUsers.booleanValue())
     val metadataProp = MetadataProp(mapAsScalaMap(metadata).toMap)
     val screenshareProps = ScreenshareProps(
       screenshareConf = voiceBridge + screenshareConfSuffix,
@@ -129,8 +169,30 @@ class BbbWebApiGWApp(
       red5ScreenshareApp = screenshareRtmpBroadcastApp
     )
 
-    val defaultProps = DefaultProps(meetingProp, breakoutProps, durationProps, password, recordProp, welcomeProp, voiceProp,
-      usersProp, metadataProp, screenshareProps)
+    val lockSettingsProps = LockSettingsProps(
+      disableCam = lockSettingsParams.disableCam.booleanValue(),
+      disableMic = lockSettingsParams.disableMic.booleanValue(),
+      disablePrivateChat = lockSettingsParams.disablePrivateChat.booleanValue(),
+      disablePublicChat = lockSettingsParams.disablePublicChat.booleanValue(),
+      disableNote = lockSettingsParams.disableNote.booleanValue(),
+      lockedLayout = lockSettingsParams.lockedLayout.booleanValue(),
+      lockOnJoin = lockSettingsParams.lockOnJoin.booleanValue(),
+      lockOnJoinConfigurable = lockSettingsParams.lockOnJoinConfigurable.booleanValue()
+    )
+
+    val defaultProps = DefaultProps(
+      meetingProp,
+      breakoutProps,
+      durationProps,
+      password,
+      recordProp,
+      welcomeProp,
+      voiceProp,
+      usersProp,
+      metadataProp,
+      screenshareProps,
+      lockSettingsProps
+    )
 
     //meetingManagerActorRef ! new CreateMeetingMsg(defaultProps)
 

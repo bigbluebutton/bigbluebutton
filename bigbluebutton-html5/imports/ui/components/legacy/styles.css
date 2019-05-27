@@ -1,0 +1,18 @@
+/* 
+  The legacy styles can't be scss because it will use Proxy and you can't polyfill it
+*/
+
+.browserWarning {
+  border: 5px solid #F3F6F9;
+  border-radius: 0.5rem;
+  color: #F3F6F9;
+  text-align: center;
+  width:500px;
+  position:fixed;
+  left:50%;
+  margin-left: -250px;
+  top:50%;
+  margin-top: -4rem;
+  font-size: 1.5rem;
+  padding: 10px;
+}

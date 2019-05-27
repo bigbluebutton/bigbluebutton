@@ -1,0 +1,13 @@
+@import '/imports/ui/stylesheets/mixins/_indicators';
+
+.switch {
+    &:hover {
+        @include highContrastOutline();
+    }
+
+    &:focus,
+    &:focus-within {
+        @include highContrastOutline();
+        outline-style: solid;
+    }
+}

@@ -20,23 +20,23 @@ function updateCursor(meetingId, userId, payload) {
     },
   };
 
-	return Cursor.upsert(selector, modifier);
+  return Cursor.upsert(selector, modifier);
 }
 
 CursorStreamer.on('message', ({ meetingId, cursors }) => {
-  Object.keys(cursors).forEach(userId => {
+  Object.keys(cursors).forEach((userId) => {
     if (Auth.meetingID === meetingId && Auth.userID === userId) return;
     updateCursor(meetingId, userId, cursors[userId]);
   });
 });
 
-const throttledEmit = throttle(CursorStreamer.emit.bind(CursorStreamer), 30, { 'trailing': false });
+const throttledEmit = throttle(CursorStreamer.emit.bind(CursorStreamer), 30, { trailing: true });
 
 export function publishCursorUpdate(payload) {
   throttledEmit('publish', {
-		credentials: Auth.credentials,
-		payload,
-	});
+    credentials: Auth.credentials,
+    payload,
+  });
 
   return updateCursor(Auth.meetingID, Auth.userID, payload);
 }

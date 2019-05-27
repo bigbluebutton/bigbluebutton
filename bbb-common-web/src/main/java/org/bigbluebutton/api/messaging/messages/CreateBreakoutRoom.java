@@ -16,10 +16,22 @@ public class CreateBreakoutRoom implements IMessage {
     public final String sourcePresentationId;
     public final Integer sourcePresentationSlide;
     public final Boolean record;
+    public final Boolean privateChatEnabled;
 
-    public CreateBreakoutRoom(String meetingId, String parentMeetingId, String name, Integer sequence, Boolean freeJoin,
-            String dialNumber, String voiceConfId, String viewerPassword, String moderatorPassword, Integer duration,
-            String sourcePresentationId, Integer sourcePresentationSlide, Boolean record) {
+    public CreateBreakoutRoom(String meetingId,
+															String parentMeetingId,
+															String name,
+															Integer sequence,
+															Boolean freeJoin,
+															String dialNumber,
+															String voiceConfId,
+															String viewerPassword,
+															String moderatorPassword,
+															Integer duration,
+															String sourcePresentationId,
+															Integer sourcePresentationSlide,
+															Boolean record,
+															Boolean privateChatEnabled) {
         this.meetingId = meetingId;
         this.parentMeetingId = parentMeetingId;
         this.name = name;
@@ -33,5 +45,6 @@ public class CreateBreakoutRoom implements IMessage {
         this.sourcePresentationId = sourcePresentationId;
         this.sourcePresentationSlide = sourcePresentationSlide;
         this.record = record;
+        this.privateChatEnabled = privateChatEnabled;
     }
 }

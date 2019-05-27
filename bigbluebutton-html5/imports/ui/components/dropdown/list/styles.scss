@@ -1,4 +1,5 @@
 @import "/imports/ui/stylesheets/variables/_all";
+@import '/imports/ui/stylesheets/mixins/_indicators';
 
 %list {
   list-style: none;
@@ -10,6 +11,10 @@
   display: flex;
   overflow-wrap: break-word;
   white-space: pre-line;
+
+  [dir="rtl"] & {
+    text-align: right;
+  }
 
   @include mq($small-only) {
     font-size: calc(var(--font-size-large) * 1.1);
@@ -75,8 +80,8 @@
 
   &:hover,
   &:focus {
+    @include highContrastOutline();
     cursor: pointer;
-    outline: none;
     background-color: var(--color-primary);
     color: var(--color-white);
 
@@ -85,6 +90,13 @@
       margin-right: -.25rem;
       padding-left: .25rem;
       padding-right: .25rem;
+
+      [dir="rtl"] & {
+        margin-right: -.25rem;
+        margin-left: -.25rem;
+        padding-right: .25rem;
+        padding-left: .25rem;
+      }
     }
 
     .horizontalList & {
@@ -116,14 +128,19 @@
 
   &:focus {
     box-shadow: 0 0 0 2px var(--color-white), 0 0 2px 4px rgba(var(--color-primary), .4);
+    outline-style: solid;
   }
 }
 
 .iconRight,
 .itemIcon {
-  margin-right: calc(var(--line-height-computed) / 2);
+  margin: 0 calc(var(--line-height-computed) / 2) 0 0;
   color: var(--color-text);
   flex: 0 0;
+
+  [dir="rtl"] & {
+    margin: 0 0 0 calc(var(--line-height-computed) / 2);
+  }
 }
 
 .iconRight {
@@ -131,6 +148,16 @@
   margin-left: 1rem;
   font-size: 12px;
   line-height: 16px;
+
+  [dir="rtl"] & {
+    margin-left: 0;
+    margin-right: 1rem;
+    -webkit-transform: scale(-1, 1);
+    -moz-transform: scale(-1, 1);
+    -ms-transform: scale(-1, 1);
+    -o-transform: scale(-1, 1);
+    transform: scale(-1, 1);
+  }
 }
 
 .itemLabel {

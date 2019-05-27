@@ -24,6 +24,7 @@ import km from 'react-intl/locale-data/km';
 import pl from 'react-intl/locale-data/pl';
 import pt from 'react-intl/locale-data/pt';
 import ru from 'react-intl/locale-data/ru';
+import sv from 'react-intl/locale-data/sv';
 import tr from 'react-intl/locale-data/tr';
 import uk from 'react-intl/locale-data/uk';
 import zh from 'react-intl/locale-data/zh';
@@ -49,6 +50,7 @@ addLocaleData([
   ...pl,
   ...pt,
   ...ru,
+  ...sv,
   ...tr,
   ...uk,
   ...zh,
@@ -60,6 +62,8 @@ const propTypes = {
 };
 
 const DEFAULT_LANGUAGE = Meteor.settings.public.app.defaultSettings.application.locale;
+
+const RTL_LANGUAGES = ['ar', 'he', 'fa'];
 
 const defaultProps = {
   locale: DEFAULT_LANGUAGE,
@@ -109,17 +113,27 @@ class IntlStartup extends Component {
         .then(({ messages, normalizedLocale }) => {
           const dasherizedLocale = normalizedLocale.replace('_', '-');
           this.setState({ messages, fetching: false, normalizedLocale: dasherizedLocale }, () => {
-            Settings.application.locale = dasherizedLocale;
-            Settings.save();
+            this.saveLocale(dasherizedLocale);
           });
         })
         .catch(() => {
           this.setState({ fetching: false, normalizedLocale: null }, () => {
-            Settings.application.locale = DEFAULT_LANGUAGE;
-            Settings.save();
+            this.saveLocale(DEFAULT_LANGUAGE);
           });
         });
     });
+  }
+
+  saveLocale(localeName) {
+    Settings.application.locale = localeName;
+    if (RTL_LANGUAGES.includes(localeName.substring(0,2))) {
+      document.body.parentNode.setAttribute('dir', 'rtl');
+      Settings.application.isRTL = true;
+    } else {
+      document.body.parentNode.setAttribute('dir', 'ltr');
+      Settings.application.isRTL = false;
+    }
+    Settings.save();
   }
 
   render() {

@@ -210,7 +210,7 @@ VideoListItem.defaultProps = {
 VideoListItem.propTypes = {
   intl: intlShape.isRequired,
   enableVideoStats: PropTypes.bool.isRequired,
-  actions: PropTypes.arrayOf(PropTypes.func).isRequired,
+  actions: PropTypes.arrayOf(PropTypes.object).isRequired,
   user: PropTypes.objectOf(PropTypes.oneOfType([
     PropTypes.bool,
     PropTypes.number,
