@@ -50,6 +50,9 @@ class UserListItem extends PureComponent {
       hasPrivateChatBetweenUsers,
       toggleUserLock,
       requestUserInformation,
+      userInBreakout,
+      breakoutSequence,
+      meetignIsBreakout,
     } = this.props;
 
     const { meetingId, lockSettingsProps } = meeting;
@@ -80,6 +83,9 @@ class UserListItem extends PureComponent {
           hasPrivateChatBetweenUsers,
           toggleUserLock,
           requestUserInformation,
+          userInBreakout,
+          breakoutSequence,
+          meetignIsBreakout,
         }}
       />
     );
