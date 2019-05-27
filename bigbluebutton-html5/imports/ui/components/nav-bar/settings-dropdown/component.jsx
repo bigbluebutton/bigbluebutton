@@ -4,7 +4,7 @@ import _ from 'lodash';
 import PropTypes from 'prop-types';
 import { withModalMounter } from '/imports/ui/components/modal/service';
 import EndMeetingConfirmationContainer from '/imports/ui/components/end-meeting-confirmation/container';
-import MeetingEndedComponent from '/imports/ui/components/meeting-ended/component';
+import { makeCall } from '/imports/ui/services/api';
 import AboutContainer from '/imports/ui/components/about/container';
 import SettingsMenuContainer from '/imports/ui/components/settings/container';
 import Button from '/imports/ui/components/button/component';
@@ -166,11 +166,13 @@ class SettingsDropdown extends PureComponent {
 
   leaveSession() {
     document.dispatchEvent(new Event('exitVideo'));
-    const { mountModal } = this.props;
-    const LOGOUT_CODE = '430';
+    // Set the logout code to 680 because it's not a real code and can be matched on the other side
+    const LOGOUT_CODE = '680';
+    makeCall('userLeftMeeting');
     // we don't check askForFeedbackOnLogout here,
     // it is checked in meeting-ended component
-    mountModal(<MeetingEndedComponent code={LOGOUT_CODE} />);
+    Session.set('codeError', LOGOUT_CODE);
+    // mountModal(<MeetingEndedComponent code={LOGOUT_CODE} />);
   }
 
   renderMenuItems() {

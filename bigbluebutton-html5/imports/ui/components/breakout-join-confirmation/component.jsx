@@ -20,7 +20,7 @@ const intlMessages = defineMessages({
     description: 'Join breakout confim message',
   },
   confirmLabel: {
-    id: 'app.breakoutJoinConfirmation.confirmLabel',
+    id: 'app.createBreakoutRoom.join',
     description: 'Join confirmation button label',
   },
   confirmDesc: {
@@ -81,7 +81,7 @@ class BreakoutJoinConfirmation extends Component {
           value={this.state.selectValue}
           onChange={this.handleSelectChange}
         >
-          {breakouts.map(({ name, breakoutId }) => (<option key={breakoutId} value={breakoutId} >{name}</option>))}
+          {breakouts.map(({ name, breakoutId }) => (<option key={breakoutId} value={breakoutId}>{name}</option>))}
         </select>
       </div>
     );
@@ -96,6 +96,7 @@ class BreakoutJoinConfirmation extends Component {
           callback: this.handleJoinBreakoutConfirmation,
           label: intl.formatMessage(intlMessages.confirmLabel),
           description: intl.formatMessage(intlMessages.confirmDesc),
+          icon: 'popout_window',
         }}
         dismiss={{
           label: intl.formatMessage(intlMessages.dismissLabel),

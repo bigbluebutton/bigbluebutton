@@ -27,9 +27,31 @@ export default class Media extends Component {
     window.dispatchEvent(new Event('resize'));
   }
 
+  componentDidUpdate(prevProps) {
+    const {
+      userWasInWebcam,
+      audioModalIsOpen,
+      joinVideo,
+    } = this.props;
+
+    const {
+      audioModalIsOpen: oldAudioModalIsOpen,
+    } = prevProps;
+
+    if ((!audioModalIsOpen && oldAudioModalIsOpen) && userWasInWebcam) {
+      Session.set('userWasInWebcam', false);
+      joinVideo();
+    }
+  }
+
   render() {
     const {
-      swapLayout, floatingOverlay, hideOverlay, disableVideo, children,
+      swapLayout,
+      floatingOverlay,
+      hideOverlay,
+      disableVideo,
+      children,
+      audioModalIsOpen,
     } = this.props;
 
     const contentClassName = cx({
@@ -57,6 +79,7 @@ export default class Media extends Component {
           floatingOverlay={floatingOverlay}
           hideOverlay={hideOverlay}
           disableVideo={disableVideo}
+          audioModalIsOpen={audioModalIsOpen}
         />
       </div>
     );

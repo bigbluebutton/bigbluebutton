@@ -119,6 +119,24 @@ public class ConnectionManager {
 		}
 	}
 
+	public void checkIfConfIsRunningCommand(CheckIfConfIsRunningCommand command) {
+    Client c = manager.getESLClient();
+    if (c.canSend()) {
+      EslMessage response = c.sendSyncApiCommand(command.getCommand(),
+        command.getCommandArgs());
+      command.handleResponse(response, conferenceEventListener);
+    }
+  }
+
+	public void checkIfConferenceIsRecording(ConferenceCheckRecordCommand ccrc) {
+		Client c = manager.getESLClient();
+		if (c.canSend()) {
+			EslMessage response = c.sendSyncApiCommand(ccrc.getCommand(),
+				ccrc.getCommandArgs());
+			ccrc.handleResponse(response, conferenceEventListener);
+		}
+	}
+
 	public void mute(MuteUserCommand mpc) {
 		Client c = manager.getESLClient();
 		if (c.canSend()) {

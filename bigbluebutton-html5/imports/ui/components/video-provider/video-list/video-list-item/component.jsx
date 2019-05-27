@@ -14,7 +14,7 @@ import DropdownListItem from '/imports/ui/components/dropdown/list/item/componen
 import Icon from '/imports/ui/components/icon/component';
 import logger from '/imports/startup/client/logger';
 import VideoListItemStats from './video-list-item-stats/component';
-import FullscreenButton from '../../fullscreen-button/component';
+import FullscreenButtonContainer from '../../fullscreen-button/container';
 import { styles } from '../styles';
 
 const intlMessages = defineMessages({
@@ -119,15 +119,12 @@ class VideoListItem extends Component {
 
   renderFullscreenButton() {
     const { user } = this.props;
-    const full = () => {
-      const tag = this.videoTag;
-      if (tag.requestFullscreen) {
-        tag.requestFullscreen();
-      } else if (tag.webkitRequestFullscreen) { // Edge
-        tag.webkitRequestFullscreen();
-      }
-    };
-    return <FullscreenButton handleFullscreen={full} elementName={user.name} />;
+    return (
+      <FullscreenButtonContainer
+        fullscreenRef={this.videoTag}
+        elementName={user.name}
+      />
+    );
   }
 
   render() {

@@ -364,6 +364,7 @@ export default class WebcamDraggableOverlay extends Component {
       floatingOverlay,
       hideOverlay,
       disableVideo,
+      audioModalIsOpen,
     } = this.props;
 
     const {
@@ -454,7 +455,7 @@ export default class WebcamDraggableOverlay extends Component {
             className={!swapLayout ? overlayClassName : contentClassName}
           >
             {
-              !disableVideo
+              !disableVideo && !audioModalIsOpen
                 ? (
                   <VideoProviderContainer
                     cursor={cursor()}

@@ -67,6 +67,8 @@
     "react-youtube": "^7.9.0",
     "reconnecting-websocket": "~v4.1.10",
     "redis": "~2.8.0",
+    "@jitsi/sdp-interop": "0.1.14",
+    "sdp-transform": "2.7.0",
     "string-hash": "~1.1.3",
     "tippy.js": "^3.4.1",
     "useragent": "^2.3.0",
