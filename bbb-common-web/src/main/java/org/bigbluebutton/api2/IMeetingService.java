@@ -8,7 +8,9 @@ import org.bigbluebutton.api.domain.UserSession;
 import org.bigbluebutton.api.messaging.messages.UserJoinedVoice;
 import org.bigbluebutton.api.messaging.messages.UserLeftVoice;
 import org.bigbluebutton.api.messaging.messages.UserListeningOnly;
+import org.bigbluebutton.api.messaging.messages.UserSharedScreen;
 import org.bigbluebutton.api.messaging.messages.UserSharedWebcam;
+import org.bigbluebutton.api.messaging.messages.UserUnsharedScreen;
 import org.bigbluebutton.api.messaging.messages.UserUnsharedWebcam;
 
 public interface IMeetingService {
@@ -38,6 +40,8 @@ public interface IMeetingService {
   void userListeningOnly(UserListeningOnly message);
   void userSharedWebcam(UserSharedWebcam message);
   void userUnsharedWebcam(UserUnsharedWebcam message);
+  void userSharedScreen(UserSharedScreen message);
+  void userUnsharedScreen(UserUnsharedScreen message);
 
 
 }

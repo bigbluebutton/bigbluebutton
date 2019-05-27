@@ -9,6 +9,7 @@ object ScreenshareModel {
     status.screenshareVideoHeight = 0
     status.voiceConf = ""
     status.screenshareConf = ""
+    status.userId = ""
     status.timestamp = ""
   }
 
@@ -72,12 +73,20 @@ object ScreenshareModel {
     status.screenshareConf
   }
 
-  def setTimestamp(status: ScreenshareModel, timestamp: String): Unit = {
-    status.timestamp = timestamp
+  def setUserId(status: ScreenshareModel, userId: String): Unit = {
+    status.userId = userId
   }
 
+  def getUserId(status: ScreenshareModel): String = {
+    status.userId
+  }
+  
+  def setTimestamp(status: ScreenshareModel, timestamp: String): Unit = {
+          status.timestamp = timestamp
+  }
+  
   def getTimestamp(status: ScreenshareModel): String = {
-    status.timestamp
+          status.timestamp
   }
 }
 
@@ -89,5 +98,6 @@ class ScreenshareModel {
   private var broadcastingRTMP = false
   private var voiceConf: String = ""
   private var screenshareConf: String = ""
+  private var userId: String = ""
   private var timestamp: String = ""
 }

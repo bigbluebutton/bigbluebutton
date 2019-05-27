@@ -12,7 +12,7 @@ trait ScreenshareRtmpBroadcastStoppedVoiceConfEvtMsgHdlr {
 
     def broadcastEvent(voiceConf: String, screenshareConf: String,
                        stream: String, vidWidth: Int, vidHeight: Int,
-                       timestamp: String): BbbCommonEnvCoreMsg = {
+                       userId: String, timestamp: String): BbbCommonEnvCoreMsg = {
 
       val routing = Routing.addMsgToClientRouting(
         MessageTypes.BROADCAST_TO_MEETING,
@@ -25,7 +25,7 @@ trait ScreenshareRtmpBroadcastStoppedVoiceConfEvtMsgHdlr {
       )
 
       val body = ScreenshareRtmpBroadcastStoppedEvtMsgBody(voiceConf, screenshareConf,
-        stream, vidWidth, vidHeight, timestamp)
+        stream, vidWidth, vidHeight, userId, timestamp)
       val event = ScreenshareRtmpBroadcastStoppedEvtMsg(header, body)
       BbbCommonEnvCoreMsg(envelope, event)
     }
@@ -41,7 +41,7 @@ trait ScreenshareRtmpBroadcastStoppedVoiceConfEvtMsgHdlr {
 
       // notify viewers that RTMP broadcast stopped
       val msgEvent = broadcastEvent(msg.body.voiceConf, msg.body.screenshareConf, msg.body.stream,
-        msg.body.vidWidth, msg.body.vidHeight, msg.body.timestamp)
+        msg.body.vidWidth, msg.body.vidHeight, msg.body.userId, msg.body.timestamp)
       bus.outGW.send(msgEvent)
     } else {
       log.info("STOP broadcast NOT ALLOWED when isBroadcastingRTMP=false")

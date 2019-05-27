@@ -86,6 +86,10 @@ class ReceivedJsonMsgHdlrActor(val msgFromAkkaAppsEventBus: MsgFromAkkaAppsEvent
         route[UserBroadcastCamStoppedEvtMsg](envelope, jsonNode)
       case UserRoleChangedEvtMsg.NAME =>
         route[UserRoleChangedEvtMsg](envelope, jsonNode)
+      case ScreenshareRtmpBroadcastStartedEvtMsg.NAME =>
+        route[ScreenshareRtmpBroadcastStartedEvtMsg](envelope, jsonNode)
+      case ScreenshareRtmpBroadcastStoppedEvtMsg.NAME =>
+        route[ScreenshareRtmpBroadcastStoppedEvtMsg](envelope, jsonNode)
       case CreateBreakoutRoomSysCmdMsg.NAME =>
         route[CreateBreakoutRoomSysCmdMsg](envelope, jsonNode)
       case PresentationUploadTokenSysPubMsg.NAME =>

@@ -10,7 +10,7 @@ trait ScreenshareRtmpBroadcastStartedVoiceConfEvtMsgHdlr {
 
   def handle(msg: ScreenshareRtmpBroadcastStartedVoiceConfEvtMsg, liveMeeting: LiveMeeting, bus: MessageBus): Unit = {
     def broadcastEvent(voiceConf: String, screenshareConf: String, stream: String, vidWidth: Int, vidHeight: Int,
-                       timestamp: String): BbbCommonEnvCoreMsg = {
+                       userId: String, timestamp: String): BbbCommonEnvCoreMsg = {
 
       val routing = Routing.addMsgToClientRouting(
         MessageTypes.BROADCAST_TO_MEETING,
@@ -23,7 +23,7 @@ trait ScreenshareRtmpBroadcastStartedVoiceConfEvtMsgHdlr {
       )
 
       val body = ScreenshareRtmpBroadcastStartedEvtMsgBody(voiceConf, screenshareConf,
-        stream, vidWidth, vidHeight, timestamp)
+        stream, vidWidth, vidHeight, userId, timestamp)
       val event = ScreenshareRtmpBroadcastStartedEvtMsg(header, body)
       BbbCommonEnvCoreMsg(envelope, event)
     }
@@ -40,13 +40,14 @@ trait ScreenshareRtmpBroadcastStartedVoiceConfEvtMsgHdlr {
       ScreenshareModel.setScreenshareVideoHeight(liveMeeting.screenshareModel, msg.body.vidHeight)
       ScreenshareModel.setVoiceConf(liveMeeting.screenshareModel, msg.body.voiceConf)
       ScreenshareModel.setScreenshareConf(liveMeeting.screenshareModel, msg.body.screenshareConf)
+      ScreenshareModel.setUserId(liveMeeting.screenshareModel, msg.body.userId)
       ScreenshareModel.setTimestamp(liveMeeting.screenshareModel, msg.body.timestamp)
 
       log.info("START broadcast ALLOWED when isBroadcastingRTMP=false")
 
       // Notify viewers in the meeting that there's an rtmp stream to view
       val msgEvent = broadcastEvent(msg.body.voiceConf, msg.body.screenshareConf, msg.body.stream,
-        msg.body.vidWidth, msg.body.vidHeight, msg.body.timestamp)
+        msg.body.vidWidth, msg.body.vidHeight, msg.body.userId, msg.body.timestamp)
       bus.outGW.send(msgEvent)
     } else {
       log.info("START broadcast NOT ALLOWED when isBroadcastingRTMP=true")

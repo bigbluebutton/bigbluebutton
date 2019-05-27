@@ -36,6 +36,7 @@ public class User {
 	private String  guestStatus;
 	private Boolean listeningOnly = false;
 	private Boolean voiceJoined = false;
+	private Boolean sharingScreen = false;
 	private String clientType;
 	private List<String> streams;
 
@@ -163,6 +164,14 @@ public class User {
 
 	public void setVoiceJoined(Boolean voiceJoined) {
 		this.voiceJoined = voiceJoined;
+	}
+	
+	public Boolean isSharingScreen() {
+	    return sharingScreen;
+	}
+	
+	public void setSharingScreen(Boolean sharingScreen) {
+	    this.sharingScreen = sharingScreen;
 	}
 
 	public String getClientType() {
