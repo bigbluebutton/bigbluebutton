@@ -132,21 +132,32 @@ class ToolbarSubmenu extends Component {
     this.onItemClick = this.onItemClick.bind(this);
   }
 
+  componentDidMount() {
+    const { handleMouseEnter } = this.props;
+    if (handleMouseEnter) {
+      handleMouseEnter();
+    }
+  }
+
   onItemClick(objectToReturn) {
-    if (this.props.onItemClick) {
-      this.props.onItemClick(objectToReturn);
+    const { onItemClick } = this.props;
+
+    if (onItemClick) {
+      onItemClick(objectToReturn);
     }
   }
 
   handleMouseEnter() {
-    if (this.props.handleMouseEnter) {
-      this.props.handleMouseEnter();
+    const { handleMouseEnter } = this.props;
+    if (handleMouseEnter) {
+      handleMouseEnter();
     }
   }
 
   handleMouseLeave() {
-    if (this.props.handleMouseLeave) {
-      this.props.handleMouseLeave();
+    const { handleMouseLeave } = this.props;
+    if (handleMouseLeave) {
+      handleMouseLeave();
     }
   }
 
@@ -232,11 +243,8 @@ ToolbarSubmenu.propTypes = {
       icon: PropTypes.string.isRequired,
     }),
   ]).isRequired,
-  label: PropTypes.string.isRequired,
   customIcon: PropTypes.bool.isRequired,
-
   intl: intlShape.isRequired,
-
 };
 
 export default injectIntl(ToolbarSubmenu);
