@@ -182,7 +182,10 @@ class Base extends Component {
     }
 
     if (codeError && !meetingHasEnded) {
-      logger.error({ logCode: 'startup_client_usercouldnotlogin_error' }, `User could not log in HTML5, hit ${codeError}`);
+      // 680 is set for the codeError when the user requests a logout
+      if (codeError !== '680') {
+        logger.error({ logCode: 'startup_client_usercouldnotlogin_error' }, `User could not log in HTML5, hit ${codeError}`);
+      }
       return (<ErrorScreen code={codeError} />);
     }
     // this.props.annotationsHandler.stop();

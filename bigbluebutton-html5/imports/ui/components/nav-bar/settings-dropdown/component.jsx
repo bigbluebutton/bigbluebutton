@@ -109,17 +109,18 @@ const defaultProps = {
   isBreakoutRoom: false,
 };
 
-class SettingsDropdown extends PureComponent {
-  static leaveSession() {
-    document.dispatchEvent(new Event('exitVideo'));
-    const LOGOUT_CODE = '403';
-    makeCall('userLeftMeeting');
-    // we don't check askForFeedbackOnLogout here,
-    // it is checked in meeting-ended component
-    Session.set('codeError', LOGOUT_CODE);
-    // mountModal(<MeetingEndedComponent code={LOGOUT_CODE} />);
-  }
+const leaveSession = () => {
+  document.dispatchEvent(new Event('exitVideo'));
+  // Set the logout code to 680 because it's not a real code and can be matched on the other side
+  const LOGOUT_CODE = '680';
+  makeCall('userLeftMeeting');
+  // we don't check askForFeedbackOnLogout here,
+  // it is checked in meeting-ended component
+  Session.set('codeError', LOGOUT_CODE);
+  // mountModal(<MeetingEndedComponent code={LOGOUT_CODE} />);
+};
 
+class SettingsDropdown extends PureComponent {
   constructor(props) {
     super(props);
 
@@ -233,7 +234,7 @@ class SettingsDropdown extends PureComponent {
         icon="logout"
         label={intl.formatMessage(intlMessages.leaveSessionLabel)}
         description={intl.formatMessage(intlMessages.leaveSessionDesc)}
-        onClick={() => this.leaveSession()}
+        onClick={() => leaveSession()}
       />),
     ]);
   }

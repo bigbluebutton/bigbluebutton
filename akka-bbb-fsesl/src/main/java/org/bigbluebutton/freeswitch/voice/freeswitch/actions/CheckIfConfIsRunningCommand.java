@@ -18,27 +18,24 @@
 */
 package org.bigbluebutton.freeswitch.voice.freeswitch.actions;
 
-import org.freeswitch.esl.client.transport.message.EslMessage;
 import org.apache.commons.lang3.StringUtils;
 import org.bigbluebutton.freeswitch.voice.events.ConferenceEventListener;
-import org.bigbluebutton.freeswitch.voice.events.VoiceUserJoinedEvent;
-import org.bigbluebutton.freeswitch.voice.freeswitch.response.ConferenceMember;
 import org.bigbluebutton.freeswitch.voice.freeswitch.response.XMLResponseConferenceListParser;
-
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+import org.freeswitch.esl.client.transport.message.EslMessage;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.xml.sax.SAXException;
 
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
 
-import org.xml.sax.SAXException;
+public class CheckIfConfIsRunningCommand extends FreeswitchCommand {
+    private static Logger log = LoggerFactory.getLogger(CheckIfConfIsRunningCommand.class);
 
-public class GetAllUsersCommand extends FreeswitchCommand {
-
-    public GetAllUsersCommand(String room, String requesterId) {
+    public CheckIfConfIsRunningCommand(String room, String requesterId) {
             super(room, requesterId);
     }
     
@@ -46,8 +43,6 @@ public class GetAllUsersCommand extends FreeswitchCommand {
     public String getCommandArgs() {
         return getRoom() + SPACE + "xml_list";
     }
-
-    private static final Pattern CALLERNAME_PATTERN = Pattern.compile("(.*)-bbbID-(.*)$");
     
     public void handleResponse(EslMessage response, ConferenceEventListener eventListener) {
 
@@ -55,10 +50,11 @@ public class GetAllUsersCommand extends FreeswitchCommand {
 
         String firstLine = response.getBodyLines().get(0);
 
+        log.info("Check conference response: " + firstLine);
         //E.g. Conference 85115 not found
         
         if(!firstLine.startsWith("<?xml")) {
-//            System.out.println("Not XML: [{}]", firstLine);
+            log.info("INFO! Successfully ejected all users from conference {}.", room);
             return;
         }
 
@@ -83,26 +79,11 @@ public class GetAllUsersCommand extends FreeswitchCommand {
             ByteArrayInputStream bs = new ByteArrayInputStream(responseBody.getBytes());
             sp.parse(bs, confXML);
 
-            //Maybe move this to XMLResponseConferenceListParser, sendConfrenceEvents ?
-            VoiceUserJoinedEvent pj;
-
-            for(ConferenceMember member : confXML.getConferenceList()) {
-                //Foreach found member in conference create a JoinedEvent
-                String callerId = member.getCallerId();
-                String callerIdName = member.getCallerIdName();
-                String voiceUserId = callerIdName;
-                
-        		Matcher matcher = CALLERNAME_PATTERN.matcher(callerIdName);
-        		if (matcher.matches()) {			
-        			voiceUserId = matcher.group(1).trim();
-        			callerIdName = matcher.group(2).trim();
-        		} 
-        		
-                pj = new VoiceUserJoinedEvent(voiceUserId, member.getId().toString(), confXML.getConferenceRoom(),
-                		callerId, callerIdName, member.getMuted(), member.getSpeaking(), "none");
-                eventListener.handleConferenceEvent(pj);
+            if (confXML.getConferenceList().size() > 0) {
+                log.warn("WARNING! Failed to eject all users from conference {}.", room);
+            } else {
+                log.info("INFO! Successfully ejected all users from conference {}.", room);
             }
-
         }catch(SAXException se) {
 //            System.out.println("Cannot parse repsonce. ", se);
         }catch(ParserConfigurationException pce) {

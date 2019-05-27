@@ -72,6 +72,8 @@ const defaultProps = {
 const LAYERED_BREAKPOINT = 640;
 const isLayeredView = window.matchMedia(`(max-width: ${LAYERED_BREAKPOINT}px)`);
 
+const handleNetworkConnection = () => updateNavigatorConnection(navigator.connection);
+
 class App extends Component {
   constructor() {
     super();
@@ -116,8 +118,8 @@ class App extends Component {
 
     if (ENABLE_NETWORK_INFORMATION) {
       if (navigator.connection) {
-        this.handleNetworkConnection();
-        navigator.connection.addEventListener('change', this.handleNetworkConnection);
+        handleNetworkConnection();
+        navigator.connection.addEventListener('change', handleNetworkConnection);
       }
 
       startBandwidthMonitoring();
@@ -129,7 +131,9 @@ class App extends Component {
 
   componentWillUnmount() {
     window.removeEventListener('resize', this.handleWindowResize, false);
-    navigator.connection.addEventListener('change', this.handleNetworkConnection, false);
+    if (navigator.connection) {
+      navigator.connection.addEventListener('change', handleNetworkConnection, false);
+    }
   }
 
   handleWindowResize() {
@@ -138,10 +142,6 @@ class App extends Component {
     if (enableResize === shouldEnableResize) return;
 
     this.setState({ enableResize: shouldEnableResize });
-  }
-
-  handleNetworkConnection() {
-    updateNavigatorConnection(navigator.connection);
   }
 
   shouldAriaHide() {
