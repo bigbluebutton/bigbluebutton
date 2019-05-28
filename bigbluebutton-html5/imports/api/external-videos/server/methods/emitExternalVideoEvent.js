@@ -21,7 +21,7 @@ export default function emitExternalVideoEvent(options) {
     check(playerStatus, {
       rate: Match.Maybe(Number),
       time: Match.Maybe(Number),
-      state: Match.Maybe(Number),
+      state: Match.Maybe(Boolean),
     });
 
     let rate = playerStatus.rate || 0;
