@@ -5,9 +5,9 @@ import Button from '/imports/ui/components/button/component';
 import { GithubPicker } from 'react-color';
 import { defineMessages, injectIntl } from 'react-intl';
 import { withModalMounter } from '/imports/ui/components/modal/service';
-import { styles } from './styles';
+import { styles } from './styles.scss';
 
-const DEFAULT_VALUE = "select";
+const DEFAULT_VALUE = 'select';
 const DEFAULT_KEY = -1;
 const DEFAULT_INDEX = 0;
 const FONT_FAMILIES = ['Arial', 'Calibri', 'Time New Roman', 'Sans-serif'];
@@ -53,11 +53,20 @@ const intlMessages = defineMessages({
     id: 'app.captions.menu.fontSize',
     description: 'Select closed captions font size',
   },
+  cancelLabel: {
+    id: 'app.captions.menu.cancelLabel',
+    description: 'Cancel button label',
+  },
+  preview: {
+    id: 'app.captions.menu.previewLabel',
+    description: 'Preview area label',
+  },
 });
 
 const propTypes = {
   activateCaptions: PropTypes.func.isRequired,
   getCaptionsSettings: PropTypes.func.isRequired,
+  closeModal: PropTypes.func.isRequired,
   ownedLocales: PropTypes.arrayOf(PropTypes.object).isRequired,
   intl: PropTypes.shape({
     formatMessage: PropTypes.func.isRequired,
@@ -68,7 +77,12 @@ class ReaderMenu extends PureComponent {
   constructor(props) {
     super(props);
 
-    const { backgroundColor, fontColor, fontFamily, fontSize } = props.getCaptionsSettings();
+    const {
+      backgroundColor,
+      fontColor,
+      fontFamily,
+      fontSize,
+    } = props.getCaptionsSettings();
 
     this.state = {
       locale: null,
@@ -89,8 +103,25 @@ class ReaderMenu extends PureComponent {
     this.getPreviewStyle = this.getPreviewStyle.bind(this);
   }
 
+  getPreviewStyle() {
+    const {
+      backgroundColor,
+      fontColor,
+      fontFamily,
+      fontSize,
+    } = this.state;
+
+    return {
+      fontFamily,
+      fontSize,
+      color: fontColor,
+      background: backgroundColor,
+    };
+  }
+
   handleColorPickerClick(fieldname) {
     const obj = {};
+    // eslint-disable-next-line react/destructuring-assignment
     obj[fieldname] = !this.state[fieldname];
     this.setState(obj);
   }
@@ -113,6 +144,12 @@ class ReaderMenu extends PureComponent {
     this.setState({ locale: event.target.value });
   }
 
+  handleSelectChange(fieldname, options, event) {
+    const obj = {};
+    obj[fieldname] = options[event.target.value];
+    this.setState(obj);
+  }
+
   handleStart() {
     const { closeModal, activateCaptions } = this.props;
     const {
@@ -122,34 +159,14 @@ class ReaderMenu extends PureComponent {
       fontFamily,
       fontSize,
     } = this.state;
-    const settings = { backgroundColor, fontColor, fontFamily, fontSize };
-    activateCaptions(locale, settings);
-    closeModal();
-  }
-
-  getPreviewStyle() {
-    const {
+    const settings = {
       backgroundColor,
       fontColor,
       fontFamily,
       fontSize,
-    } = this.state;
-
-    return {
-      position: 'fixed',
-      bottom: '75px',
-      left: '75px',
-      fontFamily,
-      fontSize,
-      color: fontColor,
-      background: backgroundColor,
     };
-  }
-
-  handleSelectChange(fieldname, options, event) {
-    const obj = {};
-    obj[fieldname] = options[event.target.value];
-    this.setState(obj);
+    activateCaptions(locale, settings);
+    closeModal();
   }
 
   render() {
@@ -177,129 +194,148 @@ class ReaderMenu extends PureComponent {
         hideBorder
         contentLabel={intl.formatMessage(intlMessages.title)}
       >
-        <header className={styles.header}>
-          <h3 className={styles.title}>{intl.formatMessage(intlMessages.title)}</h3>
+        <header className={styles.title}>
+          {intl.formatMessage(intlMessages.title)}
         </header>
-        <div className={styles.content}>
-          <div className={styles.left}>
-            <select
-              className={styles.select}
-              onChange={this.handleLocaleChange}
-              defaultValue={DEFAULT_VALUE}
+        <div className={styles.selectLanguage}>
+          <select
+            className={styles.select}
+            onChange={this.handleLocaleChange}
+            defaultValue={DEFAULT_VALUE}
+          >
+            <option
+              disabled
+              key={DEFAULT_KEY}
+              value={DEFAULT_VALUE}
             >
+              {intl.formatMessage(intlMessages.select)}
+            </option>
+            {ownedLocales.map(loc => (
               <option
-                disabled
-                key={DEFAULT_KEY}
-                value={DEFAULT_VALUE}
+                key={loc.locale}
+                value={loc.locale}
               >
-                {intl.formatMessage(intlMessages.select)}
-              </option>
-              {ownedLocales.map((loc, index) => (
-                <option
-                  key={index}
-                  value={loc.locale}
+                {loc.name}
+              </option>))}
+          </select>
+        </div>
+        {!locale ? null : (
+          <div className={styles.content}>
+            <div className={styles.col}>
+              <div className={styles.row}>
+                <div className={styles.label}>{intl.formatMessage(intlMessages.fontColor)}</div>
+                <div
+                  tabIndex={DEFAULT_INDEX}
+                  className={styles.swatch}
+                  onClick={this.handleColorPickerClick.bind(this, 'displayFontColorPicker')}
                 >
-                  {loc.name}
-                </option>))}
-            </select>
-            <span style={this.getPreviewStyle()}>AaBbCc</span>
-          </div>
-          <div className={styles.right}>
-            <div className={styles.row}>
-              <div>{intl.formatMessage(intlMessages.fontColor)}</div>
-              <div
-                tabIndex={DEFAULT_INDEX}
-                className={styles.swatch}
-                onClick={this.handleColorPickerClick.bind(this, 'displayFontColorPicker')}
-              >
-                <div className={styles.swatchInner} style={{ background: fontColor }}/>
-              </div>
-              {displayFontColorPicker
-                ? (
-                  <div className={styles.colorPickerPopover}>
-                    <div
-                      className={styles.colorPickerOverlay}
-                      onClick={this.handleCloseColorPicker.bind(this)}
-                    />
-                    <GithubPicker
-                      onChange={this.handleColorChange.bind(this, 'fontColor')}
-                      color={fontColor}
-                      colors={COLORS}
-                      width="140px"
-                      triangle="hide"
-                    />
-                  </div>
-                ) : null
+                  <div className={styles.swatchInner} style={{ background: fontColor }} />
+                </div>
+                {displayFontColorPicker
+                  ? (
+                    <div className={styles.colorPickerPopover}>
+                      <div
+                        className={styles.colorPickerOverlay}
+                        onClick={this.handleCloseColorPicker.bind(this)}
+                      />
+                      <GithubPicker
+                        onChange={this.handleColorChange.bind(this, 'fontColor')}
+                        color={fontColor}
+                        colors={COLORS}
+                        width="140px"
+                        triangle="hide"
+                      />
+                    </div>
+                  ) : null
               }
-            </div>
-            <div className={styles.row}>
-              <div>{intl.formatMessage(intlMessages.backgroundColor)}</div>
-              <div
-                tabIndex={DEFAULT_INDEX}
-                className={styles.swatch}
-                onClick={this.handleColorPickerClick.bind(this, 'displayBackgroundColorPicker')}
-              >
-                <div className={styles.swatchInner} style={{ background: backgroundColor }}/>
               </div>
-              {displayBackgroundColorPicker
-                ? (
-                  <div className={styles.colorPickerPopover}>
-                    <div
-                      className={styles.colorPickerOverlay}
-                      onClick={this.handleCloseColorPicker.bind(this)}
-                    />
-                    <GithubPicker
-                      onChange={this.handleColorChange.bind(this, 'backgroundColor')}
-                      color={backgroundColor}
-                      colors={COLORS}
-                      width="140px"
-                      triangle="hide"
-                    />
-                  </div>
-                ) : null
+
+              <div className={styles.row}>
+                <div className={styles.label}>
+                  {intl.formatMessage(intlMessages.backgroundColor)}
+                </div>
+                <div
+                  tabIndex={DEFAULT_INDEX}
+                  className={styles.swatch}
+                  onClick={this.handleColorPickerClick.bind(this, 'displayBackgroundColorPicker')}
+                >
+                  <div className={styles.swatchInner} style={{ background: backgroundColor }} />
+                </div>
+                {displayBackgroundColorPicker
+                  ? (
+                    <div className={styles.colorPickerPopover}>
+                      <div
+                        className={styles.colorPickerOverlay}
+                        onClick={this.handleCloseColorPicker.bind(this)}
+                      />
+                      <GithubPicker
+                        onChange={this.handleColorChange.bind(this, 'backgroundColor')}
+                        color={backgroundColor}
+                        colors={COLORS}
+                        width="140px"
+                        triangle="hide"
+                      />
+                    </div>
+                  ) : null
               }
-            </div>
-            <div className={styles.row}>
-              <div>{intl.formatMessage(intlMessages.fontFamily)}</div>
-              <select
-                className={styles.select}
-                defaultValue={FONT_FAMILIES.indexOf(fontFamily)}
-                onChange={this.handleSelectChange.bind(this, 'fontFamily', FONT_FAMILIES)}
-              >
-                {FONT_FAMILIES.map((family, index) => (
-                  <option
-                    key={index}
-                    value={index}
-                  >
-                    {family}
-                  </option>
-                ))}
-              </select>
-            </div>
-            <div className={styles.row}>
-              <div>{intl.formatMessage(intlMessages.fontSize)}</div>
-              <select
-                className={styles.select}
-                defaultValue={FONT_SIZES.indexOf(fontSize)}
-                onChange={this.handleSelectChange.bind(this, 'fontSize', FONT_SIZES)}
-              >
-                {FONT_SIZES.map((size, index) => (
-                  <option
-                    key={index}
-                    value={index}
-                  >
-                    {size}
-                  </option>
-                ))}
-              </select>
+              </div>
+
+              <div className={styles.row}>
+                <div className={styles.label}>{intl.formatMessage(intlMessages.fontFamily)}</div>
+                <select
+                  className={styles.select}
+                  defaultValue={FONT_FAMILIES.indexOf(fontFamily)}
+                  onChange={this.handleSelectChange.bind(this, 'fontFamily', FONT_FAMILIES)}
+                >
+                  {FONT_FAMILIES.map((family, index) => (
+                    <option
+                      key={family}
+                      value={index}
+                    >
+                      {family}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div className={styles.row}>
+                <div className={styles.label}>{intl.formatMessage(intlMessages.fontSize)}</div>
+                <select
+                  className={styles.select}
+                  defaultValue={FONT_SIZES.indexOf(fontSize)}
+                  onChange={this.handleSelectChange.bind(this, 'fontSize', FONT_SIZES)}
+                >
+                  {FONT_SIZES.map((size, index) => (
+                    <option
+                      key={size}
+                      value={index}
+                    >
+                      {size}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div className={styles.row}>
+                <div className={styles.label}>{intl.formatMessage(intlMessages.preview)}</div>
+                <span style={this.getPreviewStyle()}>AaBbCc</span>
+              </div>
             </div>
           </div>
-          <Button
-            className={styles.startBtn}
-            label={intl.formatMessage(intlMessages.start)}
-            onClick={this.handleStart}
-            disabled={locale == null}
-          />
+        )}
+        <div className={styles.footer}>
+          <div className={styles.actions}>
+            <Button
+              label={intl.formatMessage(intlMessages.cancelLabel)}
+              onClick={closeModal}
+            />
+            <Button
+              color="primary"
+              label={intl.formatMessage(intlMessages.start)}
+              onClick={() => this.handleStart()}
+              disabled={locale == null}
+            />
+          </div>
         </div>
       </Modal>
     );
