@@ -5,21 +5,19 @@ import ExternalVideoStreamer from '/imports/api/external-videos';
 import { makeCall } from '/imports/ui/services/api';
 
 const YOUTUBE_PREFIX = 'https://youtube.com/watch?v=';
+const YOUTUBE_REGEX = /(?:youtube\.com\/\S*(?:(?:\/e(?:mbed))?\/|watch\/?\?(?:\S*?&?v\=))|youtu\.be\/)([a-zA-Z0-9_-]{6,11})/g;
 
 const isUrlEmpty = url => !url || url.length === 0;
 
 const isUrlValid = (url) => {
-  const regexp = RegExp('^(https?://)?(www.)?(youtube.com|youtu.?be)/.+$');
-  return !isUrlEmpty(url) && url.match(regexp);
+  return !isUrlEmpty(url) && url.match(YOUTUBE_REGEX);
 };
 
 const getUrlFromVideoId = id => (id ? `${YOUTUBE_PREFIX}${id}` : '');
 
-// https://stackoverflow.com/questions/3452546/how-do-i-get-the-youtube-video-id-from-a-url
 const videoIdFromUrl = (url) => {
-  const regExp = /.*(?:youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=)([^#]*).*/;
-  const match = url.match(regExp);
-  return (match && match[1].length === 11) ? match[1] : false;
+  const match = YOUTUBE_REGEX.exec(url);
+  return match ? match[1] : false;
 };
 
 const startWatching = (url) => {
