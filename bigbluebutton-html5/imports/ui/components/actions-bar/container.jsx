@@ -10,7 +10,7 @@ import Service from './service';
 import VideoService from '../video-provider/service';
 import ExternalVideoService from '/imports/ui/components/external-video-player/service';
 import {
-  shareScreen, unshareScreen, isVideoBroadcasting, screenShareEndAlert,
+  shareScreen, unshareScreen, isVideoBroadcasting, screenShareEndAlert, dataSavingSetting,
 } from '../screenshare/service';
 
 import MediaService, { getSwapLayout } from '../media/service';
@@ -50,5 +50,6 @@ export default withTracker(() => {
     parseCurrentSlideContent: PresentationService.parseCurrentSlideContent,
     isSharingVideo: Service.isSharingVideo(),
     screenShareEndAlert,
+    screenshareDataSavingSetting: dataSavingSetting(),
   };
 })(injectIntl(ActionsBarContainer));
