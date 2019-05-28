@@ -242,22 +242,20 @@ class ApplicationMenu extends BaseMenu {
           <div className={styles.row}>
             <div className={styles.col} aria-hidden="true">
               <div className={styles.formElement}>
-                <label className={styles.label}>
+                <label
+                  className={styles.label}
+                  htmlFor="langSelector"
+                  aria-label={intl.formatMessage(intlMessages.ariaLanguageLabel)}
+                >
                   {intl.formatMessage(intlMessages.languageLabel)}
                 </label>
               </div>
             </div>
             <div className={styles.col}>
-              <div
-                id="changeLangLabel"
-                aria-label={intl.formatMessage(intlMessages.ariaLanguageLabel)}
-              />
-              <label
-                aria-labelledby="changeLangLabel"
-                className={cx(styles.formElement, styles.pullContentRight)}
-              >
+              <span className={cx(styles.formElement, styles.pullContentRight)}>
                 {availableLocales && availableLocales.length > 0 ? (
                   <select
+                    id="langSelector"
                     defaultValue={this.state.settings.locale}
                     lang={this.state.settings.locale}
                     className={styles.select}
@@ -271,7 +269,7 @@ class ApplicationMenu extends BaseMenu {
                     ))}
                   </select>
                 ) : null}
-              </label>
+              </span>
             </div>
           </div>
           <hr className={styles.separator} />
