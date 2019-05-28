@@ -9,11 +9,11 @@ export default function updateExternalVideoStatus(credentials, options) {
   const EVENT_NAME = 'UpdateExternalVideoPubMsg';
 
   const { meetingId, requesterUserId } = credentials;
-  const { eventName, playerStatus } = options;
+  const { status, playerStatus } = options;
 
   check(meetingId, String);
   check(requesterUserId, String);
-  check(eventName, String);
+  check(status, String);
   check(playerStatus, {
     rate: Match.Maybe(Number),
     time: Number,
@@ -24,9 +24,9 @@ export default function updateExternalVideoStatus(credentials, options) {
   let time = playerStatus.time;
   let state = playerStatus.state || 0;
 
-  const payload = { eventName, rate, time, state };
+  const payload = { status, rate, time, state };
 
-  Logger.info(`User id=${requesterUserId} sending video status: ${eventName} for meeting ${meetingId}`);
+  Logger.info(`User id=${requesterUserId} sending video status: ${status} for meeting ${meetingId}`);
 
   return RedisPubSub.publishUserMessage(CHANNEL, EVENT_NAME, meetingId, requesterUserId, payload);
 }

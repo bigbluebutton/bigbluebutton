@@ -473,7 +473,7 @@ class RedisRecorderActor(
   private def handleUpdateExternalVideoEvtMsg(msg: UpdateExternalVideoEvtMsg) {
     val ev = new UpdateExternalVideoRecordEvent()
     ev.setMeetingId(msg.header.meetingId)
-    ev.setEventName(msg.body.eventName)
+    ev.setStatus(msg.body.status)
     ev.setRate(msg.body.rate)
     ev.setTime(msg.body.time)
     ev.setState(msg.body.state)

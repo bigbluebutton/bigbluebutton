@@ -32,7 +32,7 @@ const stopWatching = () => {
 };
 
 const sendServerVideoEvent = (event, data) => {
-  makeCall('updateExternalVideoStatus', { eventName: event, playerStatus: data });
+  makeCall('updateExternalVideoStatus', { status: event, playerStatus: data });
 };
 
 let lastMessage = null;
