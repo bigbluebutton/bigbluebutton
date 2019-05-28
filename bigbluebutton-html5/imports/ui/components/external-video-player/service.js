@@ -1,7 +1,5 @@
 import Meetings from '/imports/api/meetings';
-import Users from '/imports/api/users';
 import Auth from '/imports/ui/services/auth';
-import Logger from '/imports/startup/client/logger';
 
 import { getStreamer } from '/imports/api/external-videos';
 import { makeCall } from '/imports/ui/services/api';
