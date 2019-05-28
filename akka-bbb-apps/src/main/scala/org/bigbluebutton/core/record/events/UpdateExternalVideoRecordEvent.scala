@@ -24,8 +24,8 @@ class UpdateExternalVideoRecordEvent extends AbstractExternalVideoRecordEvent {
 
   setEvent("UpdateExternalVideoRecordEvent")
 
-  def setEventName(eventName: String) {
-    eventMap.put(EVENT_NAME, eventName)
+  def setStatus(status: String) {
+    eventMap.put(STATUS, status)
   }
 
   def setRate(rate: Double) {
@@ -42,7 +42,7 @@ class UpdateExternalVideoRecordEvent extends AbstractExternalVideoRecordEvent {
 }
 
 object UpdateExternalVideoRecordEvent {
-  protected final val EVENT_NAME = "eventName"
+  protected final val STATUS = "status"
   protected final val RATE = "rate"
   protected final val TIME = "time"
   protected final val STATE = "state"

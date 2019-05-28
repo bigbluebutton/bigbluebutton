@@ -12,7 +12,7 @@ trait UpdateExternalVideoPubMsgHdlr {
       val envelope = BbbCoreEnvelope(UpdateExternalVideoEvtMsg.NAME, routing)
       val header = BbbClientMsgHeader(UpdateExternalVideoEvtMsg.NAME, liveMeeting.props.meetingProp.intId, msg.header.userId)
 
-      val body = UpdateExternalVideoEvtMsgBody(msg.body.eventName, msg.body.rate, msg.body.time, msg.body.state)
+      val body = UpdateExternalVideoEvtMsgBody(msg.body.status, msg.body.rate, msg.body.time, msg.body.state)
       val event = UpdateExternalVideoEvtMsg(header, body)
       val msgEvent = BbbCommonEnvCoreMsg(envelope, event)
       bus.outGW.send(msgEvent)
