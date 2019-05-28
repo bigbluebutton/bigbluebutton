@@ -3,98 +3,90 @@
 @import "/imports/ui/stylesheets/mixins/focus";
 
 .header {
-  margin: 0;
-  padding: 0;
+  display: flex;
   border: none;
-  line-height: 2rem;
 }
 
-.content {
-  flex-grow: 1;
+.footer {
   display: flex;
-  justify-content: center;
-  margin-top: auto;
-  margin-bottom: auto;
-  height: 120px;
-}
-
-.captionsOptions {
-  margin-top: auto;
-  margin-bottom: auto;
-  display: flex;
-  justify-content: center;
-}
-
-.overlay {
-  @extend .overlay;
-}
-
-.modal {
-  @extend .modal;
-  padding: 1.5rem;
-  min-height: 20rem;
-}
-
-.select {
-  @include elementFocus(var(--color-primary));
-  background-color: var(--color-white);
-  border: var(--border-size) solid var(--color-white);
-  border-radius: var(--border-size);
-  border-bottom: 0.1rem solid var(--color-gray-lighter);
-  color: var(--color-gray-label);
-  width: auto;
-  height: 1.75rem;
-  padding: 1px;
-
-  &:hover {
-    @include highContrastOutline();
-  }
-
-  &:focus {
-    @include highContrastOutline();
-    outline-style: solid;
-  }
 }
 
 .title {
-  text-align: center;
-  font-weight: 400;
-  font-size: 1.3rem;
+  display: block;
   color: var(--color-background);
-  white-space: normal;
+  font-size: 1.4rem;
+  text-align: center;
+}
+
+.actions {
+  margin-left: auto;
+  margin-right: 3px;
+
+
+  [dir="rtl"] & {
+    margin-right: auto;
+    margin-left: 3px;
+  }
+
+  :first-child {
+    margin-right: 3px;
+    margin-left: inherit;
+
+    [dir="rtl"] & {
+      margin-right: inherit;
+      margin-left: 3px;
+    }
+  }
+}
+.modal {
+  @extend .modal;
+  padding: 1rem;
+}
+
+.content {
+}
+
+.selectLanguage {
+  text-align: center;
+}
+
+.col {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  margin: 0 1.5rem 0 0;
+  justify-content: center;
+
+  [dir="rtl"] & {
+    margin: 0 0 0 1.5rem;
+  }
 
   @include mq($small-only) {
-    font-size: 1rem;
-    padding: 0 1rem;
+    width: 100%;
+    height: unset;
   }
 }
 
-.startBtn {
-  display: flex;
-  align-self: center;
-  margin: 0;
-  width: 40%;
-  display: block;
-  position: absolute;
-  bottom:   20px;
-  color: var(--color-white) !important;
-  background-color: var(--color-link) !important;
-
-  &:focus {
-    outline: none !important;
-  }
-
-  i {
-    color: #3c5764;
-  }
+.select {
+  background-color: var(--color-white);
+  border-radius: 0.3rem;
+  color: var(--color-gray-label);
+  height: 1.6rem;
+  margin-top: 0.4rem;
+  width: 50%;
 }
+
+.label {
+  flex: 1 0 0;
+}
+
 
 .colorPickerOverlay {
   position: fixed;
-  top: 0px;
-  right: 0px;
-  bottom: 0px;
-  left: 0px;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
 }
 
 .colorPickerPopover {
@@ -103,6 +95,7 @@
 }
 
 .swatch {
+  flex: 1 0 0;
   @include elementFocus(var(--color-primary));
   border-radius: var(--border-size);
   border: var(--border-size) solid var(--color-gray-light);
@@ -118,18 +111,9 @@
 }
 
 .row {
-  display: grid;
-  grid-template-columns: 50% 50%;
+  display: flex;
+  justify-content: space-between;
+  padding: .2rem 0 .2rem 0;
 }
 
-.right,
-.left {
-  padding-left: 20px;
-  padding-right: 20px;
-  width: 50%;
-}
 
-.right {
-  display: grid;
-  grid-template-columns: 100%;
-}
