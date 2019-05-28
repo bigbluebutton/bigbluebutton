@@ -7,7 +7,7 @@ import RedisPubSub from '/imports/startup/server/redis';
 export default function startWatchingExternalVideo(credentials, options) {
   const REDIS_CONFIG = Meteor.settings.private.redis;
   const CHANNEL = REDIS_CONFIG.channels.toAkkaApps;
-  const EVENT_NAME = 'StartExternalVideoMsg';
+  const EVENT_NAME = 'StartExternalVideoPubMsg';
 
   const { meetingId, requesterUserId } = credentials;
   const { externalVideoUrl } = options;

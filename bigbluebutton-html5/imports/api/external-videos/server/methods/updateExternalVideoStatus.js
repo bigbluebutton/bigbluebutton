@@ -6,15 +6,25 @@ import RedisPubSub from '/imports/startup/server/redis';
 export default function updateExternalVideoStatus(credentials, options) {
   const REDIS_CONFIG = Meteor.settings.private.redis;
   const CHANNEL = REDIS_CONFIG.channels.toAkkaApps;
-  const EVENT_NAME = 'UpdateExternalVideoStatusMsg';
+  const EVENT_NAME = 'UpdateExternalVideoPubMsg';
 
   const { meetingId, requesterUserId } = credentials;
   const { eventName, playerStatus } = options;
 
   check(meetingId, String);
   check(requesterUserId, String);
+  check(eventName, String);
+  check(playerStatus, {
+    rate: Match.Maybe(Number),
+    time: Number,
+    state: Match.Maybe(Number),
+  });
 
-  const payload = { eventName, playerStatus };
+  let rate = playerStatus.rate || 0;
+  let time = playerStatus.time;
+  let state = playerStatus.state || 0;
+
+  const payload = { eventName, rate, time, state };
 
   Logger.info(`User id=${requesterUserId} sending video status: ${eventName} for meeting ${meetingId}`);
 
