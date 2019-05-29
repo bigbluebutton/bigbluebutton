@@ -19,9 +19,9 @@ export default function addCaption(meetingId, padId, locale) {
     meetingId,
     padId,
     locale,
-    ownerId: "",
-    readOnlyPadId: "",
-    data: "",
+    ownerId: '',
+    readOnlyPadId: '',
+    data: '',
     revs: 0,
     length: 0,
   };

@@ -12,7 +12,7 @@ export default function handlePadUpdate({ body }) {
 
   const data = getDataFromChangeset(changeset);
 
-  if (data !== "") {
+  if (data !== '') {
     updatePad(id, data, revs);
   }
 }

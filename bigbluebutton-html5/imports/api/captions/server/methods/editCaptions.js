@@ -4,9 +4,7 @@ import Logger from '/imports/startup/server/logger';
 import { Meteor } from 'meteor/meteor';
 import { check } from 'meteor/check';
 
-const getIndex = (data, length) => {
-  return length - data.length;
-};
+const getIndex = (data, length) => length - data.length;
 
 export default function editCaptions(padId, data) {
   const REDIS_CONFIG = Meteor.settings.private.redis;

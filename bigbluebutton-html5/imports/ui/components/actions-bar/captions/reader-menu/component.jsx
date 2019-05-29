@@ -10,7 +10,7 @@ import { styles } from './styles.scss';
 const DEFAULT_VALUE = 'select';
 const DEFAULT_KEY = -1;
 const DEFAULT_INDEX = 0;
-const FONT_FAMILIES = ['Arial', 'Calibri', 'Time New Roman', 'Sans-serif'];
+const FONT_FAMILIES = ['Arial', 'Calibri', 'Times New Roman', 'Sans-serif'];
 const FONT_SIZES = ['12px', '14px', '18px', '24px', '32px', '42px'];
 const COLORS = [
   '#000000', '#7A7A7A',

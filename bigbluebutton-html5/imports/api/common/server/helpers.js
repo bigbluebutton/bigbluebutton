@@ -53,6 +53,7 @@ export const getMultiUserStatus = (meetingId, whiteboardId) => {
  * @param {integer} [seed] optionally pass the hash of the previous chunk
  * @returns {integer | string}
  */
+/* eslint-disable */
 export const hashFNV32a = (str, asString, seed) => {
   let hval = (seed === undefined) ? 0x811c9dc5 : seed;
 
@@ -65,3 +66,4 @@ export const hashFNV32a = (str, asString, seed) => {
   }
   return hval >>> 0;
 };
+/* eslint-enable */

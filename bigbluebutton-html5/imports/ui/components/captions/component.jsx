@@ -8,7 +8,7 @@ class Captions extends React.Component {
   constructor(props) {
     super(props);
     this.state = { initial: true };
-    this.text = "";
+    this.text = '';
     this.timer = null;
     this.settings = CaptionsService.getCaptionsSettings();
 
@@ -32,7 +32,11 @@ class Captions extends React.Component {
     return true;
   }
 
-  componentDidUpdate(prevProps, prevState) {
+  componentDidUpdate() {
+    /* https://reactjs.org/docs/react-component.html#componentdidupdate
+     You may call setState() immediately in componentDidUpdate()
+     but note that it must be wrapped in a condition (...),
+     or you’ll cause an infinite loop. */
     const { clear } = this.state;
     if (clear) {
       this.setState({ clear: false });
@@ -49,7 +53,7 @@ class Captions extends React.Component {
   updateText(data) {
     const { clear } = this.state;
     if (clear) {
-      this.text = "";
+      this.text = '';
     } else {
       const text = this.text + data;
       this.text = CaptionsService.formatCaptionsText(text);

@@ -22,22 +22,20 @@ const intlMessages = defineMessages({
   },
 });
 
-const CaptionsButton = ({ intl, isActive, handleOnClick }) => {
-  return (
-    <Button
-      className={cx(styles.button, isActive || styles.btn)}
-      icon="polling"
-      label={intl.formatMessage(isActive ? intlMessages.stop : intlMessages.start)}
-      color={isActive ? 'primary' : 'default'}
-      ghost={!isActive}
-      hideLabel
-      circle
-      size="lg"
-      onClick={handleOnClick}
-      id={isActive ? 'stop-captions-button' : 'start-captions-button'}
-    />
-  );
-};
+const CaptionsButton = ({ intl, isActive, handleOnClick }) => (
+  <Button
+    className={cx(styles.button, isActive || styles.btn)}
+    icon="polling"
+    label={intl.formatMessage(isActive ? intlMessages.stop : intlMessages.start)}
+    color={isActive ? 'primary' : 'default'}
+    ghost={!isActive}
+    hideLabel
+    circle
+    size="lg"
+    onClick={handleOnClick}
+    id={isActive ? 'stop-captions-button' : 'start-captions-button'}
+  />
+);
 
 CaptionsButton.propTypes = propTypes;
 export default injectIntl(CaptionsButton);

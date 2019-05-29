@@ -5,7 +5,7 @@ import UserListContainer from '/imports/ui/components/user-list/container';
 import ChatContainer from '/imports/ui/components/chat/container';
 import NoteContainer from '/imports/ui/components/note/container';
 import PollContainer from '/imports/ui/components/poll/container';
-import CaptionsContainer from '/imports/ui/components/captions/pad/container'
+import CaptionsContainer from '/imports/ui/components/captions/pad/container';
 import WaitingUsersPanel from '/imports/ui/components/waiting-users/container';
 import { defineMessages, injectIntl } from 'react-intl';
 import Resizable from 're-resizable';
