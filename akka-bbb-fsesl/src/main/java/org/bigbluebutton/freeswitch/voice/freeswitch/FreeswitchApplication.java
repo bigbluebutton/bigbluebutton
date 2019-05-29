@@ -17,13 +17,11 @@
  */
 package org.bigbluebutton.freeswitch.voice.freeswitch;
 
-import java.io.File;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
-
 import org.bigbluebutton.freeswitch.voice.freeswitch.actions.BroadcastConferenceCommand;
 import org.bigbluebutton.freeswitch.voice.freeswitch.actions.EjectAllUsersCommand;
 import org.bigbluebutton.freeswitch.voice.freeswitch.actions.EjectUserCommand;
@@ -34,7 +32,11 @@ import org.bigbluebutton.freeswitch.voice.freeswitch.actions.RecordConferenceCom
 import org.bigbluebutton.freeswitch.voice.freeswitch.actions.TransferUserToMeetingCommand;
 import org.bigbluebutton.freeswitch.voice.freeswitch.actions.*;
 
-public class FreeswitchApplication {
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+public class FreeswitchApplication implements  IDelayedCommandListener{
+  private static Logger log = LoggerFactory.getLogger(FreeswitchApplication.class);
 
   private static final int SENDERTHREADS = 1;
   private static final Executor msgSenderExec = Executors.newFixedThreadPool(SENDERTHREADS);
@@ -42,6 +44,7 @@ public class FreeswitchApplication {
   private BlockingQueue<FreeswitchCommand> messages = new LinkedBlockingQueue<FreeswitchCommand>();
 
   private final ConnectionManager manager;
+  private DelayedCommandSenderService delayedCommandSenderService;
 
   private final String USER = "0"; /* not used for now */
 
@@ -52,6 +55,12 @@ public class FreeswitchApplication {
   public FreeswitchApplication(ConnectionManager manager, String profile) {
     this.manager = manager;
     this.audioProfile = profile;
+    delayedCommandSenderService = new DelayedCommandSenderService();
+    delayedCommandSenderService.setDelayedCommandListener(this);
+  }
+
+  public void runDelayedCommand(FreeswitchCommand command) {
+    queueMessage(command);
   }
 
   private void queueMessage(FreeswitchCommand command) {
@@ -72,6 +81,8 @@ public class FreeswitchApplication {
   }
 
   public void start() {
+    delayedCommandSenderService.start();
+
     sendMessages = true;
     Runnable sender = new Runnable() {
       public void run() {
@@ -93,6 +104,9 @@ public class FreeswitchApplication {
   public void getAllUsers(String voiceConfId) {
     GetAllUsersCommand prc = new GetAllUsersCommand(voiceConfId, USER);
     queueMessage(prc);
+
+    ConferenceCheckRecordCommand ccrc = new ConferenceCheckRecordCommand(voiceConfId, USER);
+    queueMessage(ccrc);
   }
 
   public void muteUser(String voiceConfId, String voiceUserId, Boolean mute) {
@@ -150,6 +164,11 @@ public class FreeswitchApplication {
         } else if (command instanceof EjectAllUsersCommand) {
           EjectAllUsersCommand cmd = (EjectAllUsersCommand) command;
           manager.ejectAll(cmd);
+
+          log.debug("Check if ejecting users success for {}.", cmd.getRoom());
+          CheckIfConfIsRunningCommand command = new CheckIfConfIsRunningCommand(cmd.getRoom(), cmd.getRequesterId());
+          delayedCommandSenderService.handleMessage(command, 5000);
+
         } else if (command instanceof TransferUserToMeetingCommand) {
           TransferUserToMeetingCommand cmd = (TransferUserToMeetingCommand) command;
           manager.tranfer(cmd);
@@ -162,6 +181,10 @@ public class FreeswitchApplication {
           manager.hangUp(cmd);
         } else if (command instanceof BroadcastConferenceCommand) {
           manager.broadcast((BroadcastConferenceCommand) command);
+        } else if (command instanceof ConferenceCheckRecordCommand) {
+          manager.checkIfConferenceIsRecording((ConferenceCheckRecordCommand) command);
+        } else if (command instanceof CheckIfConfIsRunningCommand) {
+          manager.checkIfConfIsRunningCommand((CheckIfConfIsRunningCommand) command);
         }
       }
     };
@@ -170,6 +193,9 @@ public class FreeswitchApplication {
   }
 
   public void stop() {
+    delayedCommandSenderService.stop();
+
     sendMessages = false;
   }
+
 }

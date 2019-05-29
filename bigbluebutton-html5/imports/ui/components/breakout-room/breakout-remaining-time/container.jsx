@@ -62,7 +62,7 @@ const getTimeRemaining = () => {
   return timeRemaining;
 };
 
-const setTimeRemaining = (sec = 0) => {
+const setTimeRemaining = (sec) => {
   if (sec !== timeRemaining) {
     timeRemaining = sec;
     timeRemainingDep.changed();
@@ -71,10 +71,9 @@ const setTimeRemaining = (sec = 0) => {
 
 const startCounter = (sec, set, get, interval) => {
   clearInterval(interval);
+  if (!sec) return;
   set(sec);
-  return setInterval(() => {
-    set(get() - 1);
-  }, 1000);
+  return setInterval(() => set(get() - 1), 1000);
 };
 
 
@@ -102,7 +101,7 @@ export default injectNotify(injectIntl(withTracker(({
     clearInterval(timeRemainingInterval);
   }
 
-  if (timeRemaining !== null && timeRemaining >= 0) {
+  if (timeRemaining >= 0 && timeRemainingInterval) {
     if (timeRemaining > 0) {
       const time = getTimeRemaining();
       if (time === (1 * 60) && alertMessageUnderOneMinute) notify(alertMessageUnderOneMinute, 'info', 'rooms');

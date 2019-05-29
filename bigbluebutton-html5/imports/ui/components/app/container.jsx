@@ -4,11 +4,11 @@ import { defineMessages, injectIntl } from 'react-intl';
 import PropTypes from 'prop-types';
 import Auth from '/imports/ui/services/auth';
 import Users from '/imports/api/users';
+import Meetings from '/imports/api/meetings';
 import { notify } from '/imports/ui/services/notification';
 import CaptionsContainer from '/imports/ui/components/captions/container';
 import CaptionsService from '/imports/ui/components/captions/service';
 import getFromUserSettings from '/imports/ui/services/users-settings';
-
 import UserInfos from '/imports/api/users-infos';
 
 import {
@@ -102,6 +102,7 @@ export default injectIntl(withModalMounter(withTracker(({ intl, baseControls }) 
     UserInfo,
     notify,
     validIOSVersion,
+    hasPublishedPoll: Meetings.findOne({ meetingId: Auth.meetingID }).publishedPoll,
   };
 })(AppContainer)));
 

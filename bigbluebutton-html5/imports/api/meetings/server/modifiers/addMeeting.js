@@ -115,6 +115,7 @@ export default function addMeeting(meeting) {
     $set: Object.assign({
       meetingId,
       meetingEnded,
+      publishedPoll: false,
     }, flat(newMeeting, {
       safe: true,
     })),

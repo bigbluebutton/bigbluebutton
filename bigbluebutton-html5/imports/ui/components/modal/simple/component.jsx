@@ -20,7 +20,7 @@ const intlMessages = defineMessages({
 const propTypes = {
   title: PropTypes.string,
   dismiss: PropTypes.shape({
-    callback: PropTypes.func
+    callback: PropTypes.func,
   }),
 };
 
@@ -61,7 +61,7 @@ class ModalSimple extends Component {
         isOpen={modalisOpen}
         className={cx(className, styles.modal)}
         onRequestClose={closeModel}
-        contentLabel={title}
+        contentLabel={title || contentLabel}
         {...otherProps}
       >
         <header className={hideBorder ? styles.headerNoBorder : styles.header}>

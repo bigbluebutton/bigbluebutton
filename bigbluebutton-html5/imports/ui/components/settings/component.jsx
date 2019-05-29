@@ -218,7 +218,6 @@ class Settings extends Component {
     const {
       intl,
       mountModal,
-      notify,
     } = this.props;
     const {
       current,
@@ -229,16 +228,11 @@ class Settings extends Component {
         title={intl.formatMessage(intlMessages.SettingsLabel)}
         confirm={{
           callback: () => {
-            this.updateSettings(current);
+            this.updateSettings(current, intl.formatMessage(intlMessages.savedAlertLabel));
             /* We need to use mountModal(null) here to prevent submenu state updates,
             *  from re-opening the modal.
             */
             mountModal(null);
-            notify(
-              intl.formatMessage(intlMessages.savedAlertLabel),
-              'info',
-              'settings',
-            );
           },
           label: intl.formatMessage(intlMessages.SaveLabel),
           description: intl.formatMessage(intlMessages.SaveLabelDesc),
