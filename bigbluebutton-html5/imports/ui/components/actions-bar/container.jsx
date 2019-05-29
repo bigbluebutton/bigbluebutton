@@ -9,6 +9,7 @@ import ActionsBar from './component';
 import Service from './service';
 import VideoService from '../video-provider/service';
 import ExternalVideoService from '/imports/ui/components/external-video-player/service';
+import CaptionsService from '/imports/ui/components/captions/service';
 import {
   shareScreen, unshareScreen, isVideoBroadcasting, screenShareEndAlert,
 } from '../screenshare/service';
@@ -50,5 +51,6 @@ export default withTracker(() => {
     parseCurrentSlideContent: PresentationService.parseCurrentSlideContent,
     isSharingVideo: Service.isSharingVideo(),
     screenShareEndAlert,
+    isCaptionsAvailable: CaptionsService.isCaptionsAvailable(),
   };
 })(injectIntl(ActionsBarContainer));

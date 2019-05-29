@@ -32,13 +32,6 @@ public:
       dataSaving:
         viewParticipantsWebcams: true
         viewScreenshare: true
-      cc:
-        backgroundColor: "#FFFFFF"
-        fontColor: "#000000"
-        enabled: false
-        fontFamily: Calibri
-        fontSize: 16px
-        takeOwnership: false
       participants:
         muteAll: false
         lockAll: false
@@ -142,6 +135,15 @@ public:
     toggleSelfVoice: false
   poll:
     max_custom: 5
+  captions:
+    enabled: false
+    backgroundColor: "#000000"
+    fontColor: "#FFFFFF"
+    fontFamily: Calibri
+    fontSize: 24px
+    takeOwnership: true
+    lines: 2
+    time: 5000
   chat:
     min_message_length: 1
     max_message_length: 5000
@@ -307,7 +309,9 @@ public:
     external: { enabled: false, level: info, url: https://LOG_HOST/html5Log, method: POST, throttleInterval: 400 }
 private:
   app:
-    captionsChunkLength: 1000
+    host: 127.0.0.1
+    port: 3000
+    localesUrl: /locales
     pencilChunkLength: 100
     loadSlidesFromHttpAlways: false
   etherpad:
@@ -328,6 +332,7 @@ private:
     - to-html5-redis-channel
     - from-akka-apps-*
     - from-third-party-redis-channel
+    - from-etherpad-redis-channel
     async:
     - from-akka-apps-wb-redis-channel
     ignored:

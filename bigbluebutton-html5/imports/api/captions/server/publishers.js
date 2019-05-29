@@ -4,13 +4,11 @@ import { check } from 'meteor/check';
 import Logger from '/imports/startup/server/logger';
 
 function captions(credentials) {
-  const { meetingId, requesterUserId, requesterToken } = credentials;
+  const { meetingId } = credentials;
 
   check(meetingId, String);
-  check(requesterUserId, String);
-  check(requesterToken, String);
 
-  Logger.debug(`Publishing Captions for ${meetingId} ${requesterUserId} ${requesterToken}`);
+  Logger.debug(`Publishing Captions for ${meetingId}`);
 
   return Captions.find({ meetingId });
 }
