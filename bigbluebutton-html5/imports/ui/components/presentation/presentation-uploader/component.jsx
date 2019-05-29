@@ -53,8 +53,8 @@ const intlMessages = defineMessages({
     id: 'app.presentationUploder.uploadLabel',
     description: 'confirm label when presentations are to be uploaded',
   },
-  presentLabel: {
-    id: 'app.presentationUploder.presentLabel',
+  confirmLabel: {
+    id: 'app.presentationUploder.confirmLabel',
     description: 'confirm label when no presentations are to be uploaded',
   },
   confirmDesc: {
@@ -693,7 +693,7 @@ class PresentationUploader extends Component {
 
     const confirmLabel = awaitingConversion
       ? intl.formatMessage(intlMessages.uploadLabel)
-      : intl.formatMessage(intlMessages.presentLabel);
+      : intl.formatMessage(intlMessages.confirmLabel);
 
     return (
       <ModalFullscreen
