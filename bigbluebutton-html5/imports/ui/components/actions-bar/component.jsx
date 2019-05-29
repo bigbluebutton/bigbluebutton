@@ -6,7 +6,7 @@ import ActionsDropdown from './actions-dropdown/component';
 import QuickPollDropdown from './quick-poll-dropdown/component';
 import AudioControlsContainer from '../audio/audio-controls/container';
 import JoinVideoOptionsContainer from '../video-provider/video-button/container';
-
+import CaptionsButtonContainer from '/imports/ui/components/actions-bar/captions/container';
 import PresentationOptionsContainer from './presentation-options/component';
 
 class ActionsBar extends React.PureComponent {
@@ -23,21 +23,16 @@ class ActionsBar extends React.PureComponent {
       toggleRecording,
       screenSharingCheck,
       enableVideo,
-      createBreakoutRoom,
-      meetingIsBreakout,
-      hasBreakoutRoom,
-      meetingName,
-      users,
       isLayoutSwapped,
       toggleSwapLayout,
-      getUsersNotAssigned,
-      sendInvitation,
-      getBreakouts,
       handleTakePresenter,
       intl,
       currentSlidHasContent,
       parseCurrentSlideContent,
       isSharingVideo,
+      screenShareEndAlert,
+      stopExternalVideoShare,
+      isCaptionsAvailable,
     } = this.props;
 
     const {
@@ -63,17 +58,10 @@ class ActionsBar extends React.PureComponent {
             isRecording,
             record,
             toggleRecording,
-            createBreakoutRoom,
-            meetingIsBreakout,
-            hasBreakoutRoom,
-            meetingName,
-            users,
-            getUsersNotAssigned,
-            sendInvitation,
-            getBreakouts,
             handleTakePresenter,
             intl,
             isSharingVideo,
+            stopExternalVideoShare,
           }}
           />
           <QuickPollDropdown
@@ -105,8 +93,15 @@ class ActionsBar extends React.PureComponent {
             isVideoBroadcasting,
             isUserPresenter,
             screenSharingCheck,
+            screenShareEndAlert,
           }}
           />
+          {isCaptionsAvailable
+            ? (
+              <CaptionsButtonContainer {...{ intl }} />
+            )
+            : null
+        }
         </div>
         <div className={styles.right}>
           {isLayoutSwapped

@@ -2,6 +2,7 @@
 @import "/imports/ui/stylesheets/variables/general";
 @import "/imports/ui/stylesheets/variables/palette";
 @import "/imports/ui/stylesheets/variables/typography";
+@import '/imports/ui/stylesheets/mixins/_indicators';
 
 :root {
   --navbar-height: 63px; // TODO: Change to NavBar real height
@@ -72,7 +73,7 @@
     opacity: 0;
     pointer-events: none;
 
-    [style~="--enableAnimation:1;"] & {
+    :global(.animationsEnabled) & {
       transition: opacity .3s;
     }
   }
@@ -94,13 +95,18 @@
 }
 
 .content{
-  margin-left: var(--panel-margin-left);
+  margin:0 0 0 var(--panel-margin-left);
+
+  [dir="rtl"] & {
+    margin:0 var(--panel-margin-left) 0 0;
+  }
 }
 
 .userList {
   @extend %full-page;
   @extend %text-elipsis;
-
+  @include highContrastOutline();
+  outline-style: solid;
   z-index: 2;
   overflow: visible;
   order: 1;
@@ -131,9 +137,11 @@
 .poll,
 .breakoutRoom,
 .note,
+.captions,
 .chat {
   @extend %full-page;
-
+  @include highContrastOutline();
+  outline-style: solid;
   order: 2;
   height: 100%;
   @include mq($small-only) {
@@ -184,26 +192,24 @@
   order: 2;
   flex-direction: row;
   position: relative;
-  margin-left: var(--panel-margin-right);
+  margin: 0 0 0 var(--panel-margin-right);
+
+  [dir="rtl"] & {
+    margin: 0 var(--panel-margin-right) 0 0;
+  }
+
   @include mq($portrait) {
     flex-direction: column;
   }
 }
 
-.closedCaptionBox {
-  position: relative;
-  flex-basis: 15vw;
-  order: 2;
-
-  @include mq($portrait) {
-    min-height: 35%;
-  }
-}
-
-.closedCaptions {
-  order: 3;
-  flex-basis: 20%;
-  max-width: 20%;
+.captionsWrapper {
+  position: absolute;
+  width: auto;
+  height: auto;
+  bottom: 100px;
+  left: 20%;
+  z-index: 2;
 }
 
 .actionsbar {

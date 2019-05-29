@@ -267,19 +267,28 @@ const isMeetingLocked = (id) => {
   const meeting = Meetings.findOne({ meetingId: id });
   let isLocked = false;
 
-  if (meeting.lockSettingsProp !== undefined) {
-    const lockSettings = meeting.lockSettingsProp;
+  if (meeting.lockSettingsProps !== undefined) {
+    const lockSettings = meeting.lockSettingsProps;
 
     if (lockSettings.disableCam
       || lockSettings.disableMic
-      || lockSettings.disablePrivChat
-      || lockSettings.disablePubChat) {
+      || lockSettings.disablePrivateChat
+      || lockSettings.disablePublicChat
+      || lockSettings.disableNote) {
       isLocked = true;
     }
   }
 
   return isLocked;
 };
+
+const areUsersUnmutable = () => {
+  const meeting = Meetings.findOne({ meetingId: Auth.meetingID });
+  if (meeting.usersProp) {
+    return meeting.usersProp.allowModsToUnmuteUsers;
+  }
+  return false;
+}
 
 const getAvailableActions = (currentUser, user, isBreakoutRoom) => {
   const isDialInUser = isVoiceOnlyUser(user.id) || user.isPhoneUser;
@@ -297,7 +306,7 @@ const getAvailableActions = (currentUser, user, isBreakoutRoom) => {
     && user.isVoiceUser
     && !user.isListenOnly
     && user.isMuted
-    && user.isCurrent;
+    && (user.isCurrent || areUsersUnmutable());
 
   const allowedToResetStatus = hasAuthority
     && user.emoji.status !== EMOJI_STATUSES.none
@@ -461,6 +470,10 @@ const toggleUserLock = (userId, lockStatus) => {
   makeCall('toggleUserLock', userId, lockStatus);
 };
 
+const requestUserInformation = (userId) => {
+  makeCall('requestUserInformation', userId);
+};
+
 export default {
   setEmojiStatus,
   assignPresenter,
@@ -487,4 +500,5 @@ export default {
   getEmoji: () => Users.findOne({ userId: Auth.userID }).emoji,
   hasPrivateChatBetweenUsers,
   toggleUserLock,
+  requestUserInformation,
 };

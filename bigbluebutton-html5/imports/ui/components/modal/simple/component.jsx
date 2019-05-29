@@ -2,15 +2,25 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import cx from 'classnames';
 import Button from '/imports/ui/components/button/component';
+import { defineMessages, injectIntl } from 'react-intl';
 import ModalBase, { withModalState } from '../base/component';
 import { styles } from './styles';
+
+const intlMessages = defineMessages({
+  modalClose: {
+    id: 'app.modal.close',
+    description: 'Close',
+  },
+  modalCloseDescription: {
+    id: 'app.modal.close.description',
+    description: 'Disregards changes and closes the modal',
+  },
+});
 
 const propTypes = {
   title: PropTypes.string,
   dismiss: PropTypes.shape({
     callback: PropTypes.func,
-    label: PropTypes.string.isRequired,
-    description: PropTypes.string,
   }),
 };
 
@@ -18,10 +28,6 @@ const defaultProps = {
   shouldCloseOnOverlayClick: true,
   shouldShowCloseButton: true,
   overlayClassName: styles.overlay,
-  dismiss: {
-    label: 'Cancel',
-    description: 'Disregards changes and closes the modal',
-  },
 };
 
 class ModalSimple extends Component {
@@ -36,6 +42,7 @@ class ModalSimple extends Component {
 
   render() {
     const {
+      intl,
       title,
       hideBorder,
       dismiss,
@@ -43,6 +50,7 @@ class ModalSimple extends Component {
       modalisOpen,
       onRequestClose,
       shouldShowCloseButton,
+      contentLabel,
       ...otherProps
     } = this.props;
 
@@ -53,7 +61,7 @@ class ModalSimple extends Component {
         isOpen={modalisOpen}
         className={cx(className, styles.modal)}
         onRequestClose={closeModel}
-        contentLabel={title}
+        contentLabel={title || contentLabel}
         {...otherProps}
       >
         <header className={hideBorder ? styles.headerNoBorder : styles.header}>
@@ -61,7 +69,8 @@ class ModalSimple extends Component {
           {shouldShowCloseButton ? (
             <Button
               className={styles.dismiss}
-              label={dismiss.label}
+              label={intl.formatMessage(intlMessages.modalClose)}
+              aria-label={`${intl.formatMessage(intlMessages.modalClose)} ${title || contentLabel}`}
               icon="close"
               circle
               hideLabel
@@ -73,7 +82,7 @@ class ModalSimple extends Component {
         <div className={styles.content}>
           {this.props.children}
         </div>
-        <div id="modalDismissDescription" hidden>{confirm.description}</div>
+        <div id="modalDismissDescription" hidden>{intl.formatMessage(intlMessages.modalCloseDescription)}</div>
       </ModalBase>
     );
   }
@@ -82,4 +91,4 @@ class ModalSimple extends Component {
 ModalSimple.propTypes = propTypes;
 ModalSimple.defaultProps = defaultProps;
 
-export default withModalState(ModalSimple);
+export default withModalState(injectIntl(ModalSimple));

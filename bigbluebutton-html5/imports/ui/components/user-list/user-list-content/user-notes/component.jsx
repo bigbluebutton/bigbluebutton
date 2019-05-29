@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 import { defineMessages } from 'react-intl';
 import Icon from '/imports/ui/components/icon/component';
 import { Session } from 'meteor/session';
+import NoteService from '/imports/ui/components/note/service';
 import { styles } from './styles';
 
 const propTypes = {
@@ -28,7 +29,7 @@ class UserNotes extends PureComponent {
       intl,
     } = this.props;
 
-    if (!Meteor.settings.public.note.enabled) return null;
+    if (!NoteService.isEnabled()) return null;
 
     const toggleNotePanel = () => {
       Session.set(

@@ -32,7 +32,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		init-method="start" destroy-method="stop">
 		<property name="host" value="${redis.host}" />
 		<property name="port" value="${redis.port}" />
-		<property name="password" value="${redis.password:}" />
-		<property name="clientName" value="BbbScreenshare" />
+		<property name="password" value="${redis.password}" />
+		<property name="expireKey" value="${redis.keyExpiry}" />
+		<property name="clientName" value="BbbScreenshareRedisStore" />
 	</bean>
 </beans>

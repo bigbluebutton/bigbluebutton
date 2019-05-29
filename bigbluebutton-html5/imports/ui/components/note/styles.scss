@@ -21,10 +21,13 @@
 
   a {
     @include elementFocus(var(--color-primary));
-    padding-bottom: var(--sm-padding-y);
-    padding-left: var(--sm-padding-y);
+    padding: 0 0 var(--sm-padding-y) var(--sm-padding-y);
     text-decoration: none;
     display: block;
+
+    [dir="rtl"] & {
+      padding: 0 var(--sm-padding-y) var(--sm-padding-y) 0;
+    }
   }
 
   [class^="icon-bbb-"],
@@ -50,7 +53,11 @@
   display: block;
   margin: 4px;
   margin-bottom: 2px;
-  padding-left: 0px;
+  padding: inherit inherit inherit 0;
+
+  [dir="rtl"] & {
+    padding: inherit 0 inherit inherit;
+  }
 
   > i {
     color: black;
@@ -71,9 +78,13 @@
     color: var(--color-gray);
     font-size: var(--font-size-small);
     font-style: italic;
-    padding-top: var(--sm-padding-x);
-    padding-left: var(--lg-padding-y);
+    padding: var(--sm-padding-x) 0 0 var(--sm-padding-x);
     text-align: left;
+
+    [dir="rtl"] & {
+      padding-right: var(--lg-padding-y) var(--lg-padding-y) 0 0;
+      text-align: right;
+    }
   }
 }
 

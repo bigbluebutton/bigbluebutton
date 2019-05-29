@@ -11,38 +11,41 @@
     @include mq($small-only) {
       margin: 0 var(--sm-padding-y);
     }
-
-    span:first-child {
-      box-shadow: 0 2px 5px 0 rgb(0, 0, 0);
-    }
   }
 
   > :first-child {
     margin-left: 0;
+    margin-right: inherit;
+
+    [dir="rtl"] & {
+      margin-left: inherit;
+      margin-right: 0;
+    }
   }
 
   > :last-child {
-    margin-right: 0;
+      margin-left: inherit;
+      margin-right: 0;
+
+    [dir="rtl"] & {
+      margin-left: 0;
+      margin-right: inherit;
+    }
   }
 }
 
-.button {
-  &:focus {
-    outline: none !important;
+.glow {
+  border-radius: 50%;
+  
+  :global(.animationsEnabled) & {
+    animation: pulse 1s infinite ease-in;
   }
 
-  &.glow {
-    border-radius: 50%;
-    
-    [style~="--enableAnimation:1;"] & {
-      animation: pulse 1s infinite ease-in;
-    }
-    [style~="--enableAnimation:0;"] & span {
-      content: '';
-      outline: none !important;
-      background-clip: padding-box;
-      box-shadow: 0 0 0 4px rgba(255,255,255,.5);
-    }
+  :global(.animationsDisabled) & span {
+    content: '';
+    outline: none !important;
+    background-clip: padding-box;
+    box-shadow: 0 0 0 4px rgba(255,255,255,.5);
   }
 }
 
@@ -56,8 +59,4 @@
   100% {
     box-shadow: 0 0 0 0 transparent;
   }
-}
-
-.ghostButton {
-  @extend .btn;
 }

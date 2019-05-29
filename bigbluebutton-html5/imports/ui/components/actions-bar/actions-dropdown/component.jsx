@@ -11,23 +11,20 @@ import DropdownListItem from '/imports/ui/components/dropdown/list/item/componen
 import PresentationUploaderContainer from '/imports/ui/components/presentation/presentation-uploader/container';
 import { withModalMounter } from '/imports/ui/components/modal/service';
 import withShortcutHelper from '/imports/ui/components/shortcut-help/service';
-import BreakoutRoom from '../create-breakout-room/component';
 import { styles } from '../styles';
-
 import ExternalVideoModal from '/imports/ui/components/external-video-player/modal/container';
+import CaptionsWriterMenu from '/imports/ui/components/captions/writer-menu/container';
+import CaptionsService from '/imports/ui/components/captions/service';
 
 const propTypes = {
   isUserPresenter: PropTypes.bool.isRequired,
   intl: intlShape.isRequired,
   mountModal: PropTypes.func.isRequired,
   isUserModerator: PropTypes.bool.isRequired,
-  meetingIsBreakout: PropTypes.bool.isRequired,
-  hasBreakoutRoom: PropTypes.bool.isRequired,
-  createBreakoutRoom: PropTypes.func.isRequired,
-  meetingName: PropTypes.string.isRequired,
   shortcuts: PropTypes.string.isRequired,
-  users: PropTypes.arrayOf(PropTypes.object).isRequired,
   handleTakePresenter: PropTypes.func.isRequired,
+  allowExternalVideo: PropTypes.bool.isRequired,
+  stopExternalVideoShare: PropTypes.func.isRequired,
 };
 
 const intlMessages = defineMessages({
@@ -67,18 +64,6 @@ const intlMessages = defineMessages({
     id: 'app.actionsBar.actionsDropdown.pollBtnDesc',
     description: 'poll menu toggle button description',
   },
-  createBreakoutRoom: {
-    id: 'app.actionsBar.actionsDropdown.createBreakoutRoom',
-    description: 'Create breakout room option',
-  },
-  createBreakoutRoomDesc: {
-    id: 'app.actionsBar.actionsDropdown.createBreakoutRoomDesc',
-    description: 'Description of create breakout room option',
-  },
-  invitationItem: {
-    id: 'app.invitation.title',
-    description: 'invitation to breakout title',
-  },
   takePresenter: {
     id: 'app.actionsBar.actionsDropdown.takePresenter',
     description: 'Label for take presenter role option',
@@ -86,6 +71,14 @@ const intlMessages = defineMessages({
   takePresenterDesc: {
     id: 'app.actionsBar.actionsDropdown.takePresenterDesc',
     description: 'Description of take presenter role option',
+  },
+  captionsLabel: {
+    id: 'app.actionsBar.actionsDropdown.captionsLabel',
+    description: 'Captions menu toggle label',
+  },
+  captionsDesc: {
+    id: 'app.actionsBar.actionsDropdown.captionsDesc',
+    description: 'Captions menu toggle description',
   },
   startExternalVideoLabel: {
     id: 'app.actionsBar.actionsDropdown.shareExternalVideo',
@@ -100,19 +93,15 @@ const intlMessages = defineMessages({
 class ActionsDropdown extends Component {
   constructor(props) {
     super(props);
-    this.handlePresentationClick = this.handlePresentationClick.bind(this);
-    this.handleCreateBreakoutRoomClick = this.handleCreateBreakoutRoomClick.bind(this);
-    this.onCreateBreakouts = this.onCreateBreakouts.bind(this);
-    this.onInvitationUsers = this.onInvitationUsers.bind(this);
 
     this.presentationItemId = _.uniqueId('action-item-');
-    this.recordId = _.uniqueId('action-item-');
     this.pollId = _.uniqueId('action-item-');
-    this.createBreakoutRoomId = _.uniqueId('action-item-');
+    this.captionsId = _.uniqueId('action-item-');
     this.takePresenterId = _.uniqueId('action-item-');
 
     this.handlePresentationClick = this.handlePresentationClick.bind(this);
-    this.handleCreateBreakoutRoomClick = this.handleCreateBreakoutRoomClick.bind(this);
+    this.handleExternalVideoClick = this.handleExternalVideoClick.bind(this);
+    this.handleCaptionsClick = this.handleCaptionsClick.bind(this);
   }
 
   componentWillUpdate(nextProps) {
@@ -123,26 +112,14 @@ class ActionsDropdown extends Component {
     }
   }
 
-  onCreateBreakouts() {
-    return this.handleCreateBreakoutRoomClick(false);
-  }
-
-  onInvitationUsers() {
-    return this.handleCreateBreakoutRoomClick(true);
-  }
-
   getAvailableActions() {
     const {
       intl,
       isUserPresenter,
-      isUserModerator,
       allowExternalVideo,
-      meetingIsBreakout,
-      hasBreakoutRoom,
-      getUsersNotAssigned,
-      users,
       handleTakePresenter,
       isSharingVideo,
+      stopExternalVideoShare,
     } = this.props;
 
     const {
@@ -150,9 +127,8 @@ class ActionsDropdown extends Component {
       pollBtnDesc,
       presentationLabel,
       presentationDesc,
-      createBreakoutRoom,
-      createBreakoutRoomDesc,
-      invitationItem,
+      captionsLabel,
+      captionsDesc,
       takePresenter,
       takePresenterDesc,
     } = intlMessages;
@@ -161,24 +137,18 @@ class ActionsDropdown extends Component {
       formatMessage,
     } = intl;
 
-    const canCreateBreakout = isUserModerator
-    && !meetingIsBreakout
-    && !hasBreakoutRoom;
-
-    const canInviteUsers = isUserModerator
-    && !meetingIsBreakout
-    && hasBreakoutRoom
-    && getUsersNotAssigned(users).length;
-
     return _.compact([
       (isUserPresenter
         ? (
           <DropdownListItem
-            icon="user"
+            icon="polling"
             label={formatMessage(pollBtnLabel)}
             description={formatMessage(pollBtnDesc)}
             key={this.pollId}
             onClick={() => {
+              if (Session.equals('pollInitiated', true)) {
+                Session.set('resetPollPanel', true);
+              }
               Session.set('openPanel', 'poll');
               Session.set('forcePollOpen', true);
             }}
@@ -193,6 +163,17 @@ class ActionsDropdown extends Component {
             onClick={() => handleTakePresenter()}
           />
         )),
+      (CaptionsService.isCaptionsEnabled()
+        ? (
+          <DropdownListItem
+            icon="polling"
+            label={formatMessage(captionsLabel)}
+            description={formatMessage(captionsDesc)}
+            key={this.captionsId}
+            onClick={this.handleCaptionsClick}
+          />
+        ) : null
+      ),
       (isUserPresenter
         ? (
           <DropdownListItem
@@ -210,70 +191,29 @@ class ActionsDropdown extends Component {
           <DropdownListItem
             icon="video"
             label={!isSharingVideo ? intl.formatMessage(intlMessages.startExternalVideoLabel)
-              : intl.formatMessage(intlMessages.stopExternalVideoLabel) }
+              : intl.formatMessage(intlMessages.stopExternalVideoLabel)}
             description="External Video"
             key="external-video"
-            onClick={this.handleExternalVideoClick}
-          />
-        )
-        : null),
-      (canCreateBreakout
-        ? (
-          <DropdownListItem
-            icon="rooms"
-            label={formatMessage(createBreakoutRoom)}
-            description={formatMessage(createBreakoutRoomDesc)}
-            key={this.createBreakoutRoomId}
-            onClick={this.onCreateBreakouts}
-          />
-        )
-        : null),
-      (canInviteUsers
-        ? (
-          <DropdownListItem
-            icon="rooms"
-            label={formatMessage(invitationItem)}
-            key={this.createBreakoutRoomId}
-            onClick={this.onInvitationUsers}
+            onClick={isSharingVideo ? stopExternalVideoShare : this.handleExternalVideoClick}
           />
         )
         : null),
     ]);
   }
 
-  handleExternalVideoClick = () => {
-    this.props.mountModal(<ExternalVideoModal />);
+  handleExternalVideoClick() {
+    const { mountModal } = this.props;
+    mountModal(<ExternalVideoModal />);
+  }
+
+  handleCaptionsClick() {
+    const { mountModal } = this.props;
+    mountModal(<CaptionsWriterMenu />);
   }
 
   handlePresentationClick() {
     const { mountModal } = this.props;
     mountModal(<PresentationUploaderContainer />);
-  }
-
-  handleCreateBreakoutRoomClick(isInvitation) {
-    const {
-      createBreakoutRoom,
-      mountModal,
-      meetingName,
-      users,
-      getUsersNotAssigned,
-      getBreakouts,
-      sendInvitation,
-    } = this.props;
-
-    mountModal(
-      <BreakoutRoom
-        {...{
-          createBreakoutRoom,
-          meetingName,
-          users,
-          getUsersNotAssigned,
-          isInvitation,
-          getBreakouts,
-          sendInvitation,
-        }}
-      />,
-    );
   }
 
   render() {

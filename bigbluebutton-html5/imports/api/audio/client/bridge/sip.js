@@ -1,9 +1,8 @@
-import VoiceUsers from '/imports/api/voice-users';
-import { Tracker } from 'meteor/tracker';
 import browser from 'browser-detect';
 import BaseAudioBridge from './base';
 import logger from '/imports/startup/client/logger';
 import { fetchStunTurnServers } from '/imports/utils/fetchStunTurnServers';
+import { isUnifiedPlan, toUnifiedPlan, toPlanB} from '/imports/utils/sdpUtils';
 
 const MEDIA = Meteor.settings.public.media;
 const MEDIA_TAG = MEDIA.mediaTag;
@@ -11,9 +10,8 @@ const CALL_TRANSFER_TIMEOUT = MEDIA.callTransferTimeout;
 const CALL_HANGUP_TIMEOUT = MEDIA.callHangupTimeout;
 const CALL_HANGUP_MAX_RETRIES = MEDIA.callHangupMaximumRetries;
 const ICE_NEGOTIATION_FAILED = ['iceConnectionFailed'];
-const CALL_CONNECT_TIMEOUT = 10000;
-const CALL_CONNECT_NOTIFICATION_TIMEOUT = 1000;
-const ICE_NEGOTIATION_TIMEOUT = 10000;
+const CALL_CONNECT_TIMEOUT = 15000;
+const ICE_NEGOTIATION_TIMEOUT = 20000;
 
 export default class SIPBridge extends BaseAudioBridge {
   constructor(userData) {
@@ -37,6 +35,19 @@ export default class SIPBridge extends BaseAudioBridge {
 
     this.protocol = window.document.location.protocol;
     this.hostname = window.document.location.hostname;
+
+    // SDP conversion utilitary methods to be used inside SIP.js
+    window.isUnifiedPlan = isUnifiedPlan;
+    window.toUnifiedPlan = toUnifiedPlan;
+    window.toPlanB = toPlanB;
+  }
+
+  static parseDTMF(message) {
+    const parse = message.match(/Signal=(.)/);
+    if (parse && parse.length === 2) {
+      return parse[1];
+    }
+    return '';
   }
 
   joinAudio({ isListenOnly, extension, inputStream }, managerCallback) {
@@ -84,47 +95,29 @@ export default class SIPBridge extends BaseAudioBridge {
 
   transferCall(onTransferSuccess) {
     return new Promise((resolve, reject) => {
-      let trackerControl = null;
-      let transferAttemptCount = 0;
-
       const timeout = setInterval(() => {
-        // There's a bug with FS and FF where the connection can take awhile to negotiate. I'm
-        // adding retries if they're on that to mitigate the issue. Refer to the following bug 
-        // for more info, https://freeswitch.org/jira/browse/FS-11661.
-        if (browser().name === 'firefox' && transferAttemptCount < 3) {
-          transferAttemptCount++;
-          this.currentSession.dtmf(1);
-        } else {
-          clearInterval(timeout);
-          trackerControl.stop();
-          logger.error({ logCode: 'sip_js_transfer_timed_out' }, 'Timeout on transfering from echo test to conference');
-          this.callback({
-            status: this.baseCallStates.failed,
-            error: 1008,
-            bridgeError: 'Timeout on call transfer',
-          });
-          reject(this.baseErrorCodes.REQUEST_TIMEOUT);
-        }
+        clearInterval(timeout);
+        logger.error({ logCode: 'sip_js_transfer_timed_out' }, 'Timeout on transfering from echo test to conference');
+        this.callback({
+          status: this.baseCallStates.failed,
+          error: 1008,
+          bridgeError: 'Timeout on call transfer',
+        });
+        reject(this.baseErrorCodes.REQUEST_TIMEOUT);
       }, CALL_TRANSFER_TIMEOUT);
 
       // This is is the call transfer code ask @chadpilkey
       this.currentSession.dtmf(1);
 
-      Tracker.autorun((c) => {
-        trackerControl = c;
-        const selector = { meetingId: this.userData.meetingId, intId: this.userData.userId };
-        const query = VoiceUsers.find(selector);
-
-        query.observeChanges({
-          changed: (id, fields) => {
-            if (fields.joined) {
-              clearInterval(timeout);
-              onTransferSuccess();
-              c.stop();
-              resolve();
-            }
-          },
-        });
+      this.currentSession.on('dtmf', (event) => {
+        if (event.body && (typeof event.body === 'string')) {
+          const key = SIPBridge.parseDTMF(event.body);
+          if (key === '7') {
+            clearInterval(timeout);
+            onTransferSuccess();
+            resolve();
+          }
+        }
       });
     });
   }
@@ -184,6 +177,17 @@ export default class SIPBridge extends BaseAudioBridge {
 
       let userAgentConnected = false;
 
+      // WebView safari needs a transceiver to be added. Made it a SIP.js hack.
+      // Don't like the UA picking though, we should straighten everything to user
+      // transceivers - prlanzarin 2019/05/21
+      const browserUA = window.navigator.userAgent.toLocaleLowerCase();
+      const isSafariWebview = ((browserUA.indexOf('iphone') > -1
+        || browserUA.indexOf('ipad') > -1) && browserUA.indexOf('safari') == -1);
+
+      // Second UA check to get all Safari browsers to enable Unified Plan <-> PlanB
+      // translation
+      const isSafari = browser().name === 'safari';
+
       logger.debug('Creating the user agent');
 
       let userAgent = new window.SIP.UA({
@@ -196,6 +200,8 @@ export default class SIPBridge extends BaseAudioBridge {
         userAgentString: 'BigBlueButton',
         stunServers: stun,
         turnServers: turn,
+        hackPlanBUnifiedPlanTranslation: isSafari,
+        hackAddAudioTransceiver: isSafariWebview,
       });
 
       userAgent.removeAllListeners('connected');
@@ -271,6 +277,7 @@ export default class SIPBridge extends BaseAudioBridge {
       const { mediaHandler } = currentSession;
 
       this.connectionCompleted = false;
+      this.inEcho = false;
 
       let connectionCompletedEvents = ['iceConnectionCompleted', 'iceConnectionConnected'];
       // Edge sends a connected first and then a completed, but the call isn't ready until
@@ -279,6 +286,13 @@ export default class SIPBridge extends BaseAudioBridge {
       if (browser().name === 'edge') {
         connectionCompletedEvents = ['iceConnectionCompleted'];
       }
+
+      const checkIfCallReady = () => {
+        if (this.connectionCompleted && this.inEcho) {
+          this.callback({ status: this.baseCallStates.started });
+          resolve();
+        }
+      };
 
       // Sometimes FreeSWITCH just won't respond with anything and hangs. This timeout is to
       // avoid that issue
@@ -322,15 +336,8 @@ export default class SIPBridge extends BaseAudioBridge {
         clearTimeout(iceNegotiationTimeout);
         connectionCompletedEvents.forEach(e => mediaHandler.off(e, handleConnectionCompleted));
         this.connectionCompleted = true;
-        // We have to delay notifying that the call is connected because it is sometimes not
-        // actually ready and if the user says "Yes they can hear themselves" too quickly the
-        // B-leg transfer will fail
-        const that = this;
-        const notificationTimeout = (browser().name === 'firefox' ? CALL_CONNECT_NOTIFICATION_TIMEOUT : 0);
-        setTimeout(() => {
-          that.callback({ status: that.baseCallStates.started });
-          resolve();
-        }, notificationTimeout);
+
+        checkIfCallReady();
       };
       connectionCompletedEvents.forEach(e => mediaHandler.on(e, handleConnectionCompleted));
 
@@ -361,6 +368,11 @@ export default class SIPBridge extends BaseAudioBridge {
       currentSession.on('terminated', handleSessionTerminated);
 
       const handleIceNegotiationFailed = (peer) => {
+        if (this.connectionCompleted) {
+          logger.error({ logCode: 'sipjs_ice_failed_after' }, 'ICE connection failed after success');
+        } else {
+          logger.error({ logCode: 'sipjs_ice_failed_before' }, 'ICE connection failed before success');
+        }
         clearTimeout(callTimeout);
         clearTimeout(iceNegotiationTimeout);
         ICE_NEGOTIATION_FAILED.forEach(e => mediaHandler.off(e, handleIceNegotiationFailed));
@@ -386,6 +398,18 @@ export default class SIPBridge extends BaseAudioBridge {
         */
       };
       ['iceConnectionClosed'].forEach(e => mediaHandler.on(e, handleIceConnectionTerminated));
+
+      const inEchoDTMF = (event) => {
+        if (event.body && typeof event.body === 'string') {
+          const dtmf = SIPBridge.parseDTMF(event.body);
+          if (dtmf === '0') {
+            this.inEcho = true;
+            checkIfCallReady();
+          }
+        }
+        currentSession.off('dtmf', inEchoDTMF);
+      };
+      currentSession.on('dtmf', inEchoDTMF);
 
       this.currentSession = currentSession;
     });

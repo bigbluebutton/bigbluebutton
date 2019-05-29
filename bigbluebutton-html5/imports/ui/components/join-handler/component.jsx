@@ -7,7 +7,6 @@ import { makeCall } from '/imports/ui/services/api';
 import deviceInfo from '/imports/utils/deviceInfo';
 import logger from '/imports/startup/client/logger';
 import LoadingScreen from '/imports/ui/components/loading-screen/component';
-import Settings from '/imports/ui/services/settings';
 
 const propTypes = {
   children: PropTypes.element.isRequired,
@@ -34,10 +33,6 @@ class JoinHandler extends Component {
 
   componentDidMount() {
     this.fetchToken();
-
-    const { animations } = Settings.application;
-    const enableAnimation = (animations) ? 1 : 0;
-    document.documentElement.style.setProperty('--enableAnimation', enableAnimation);
   }
 
   changeToJoin(bool) {
@@ -111,6 +106,12 @@ class JoinHandler extends Component {
         resolve(true);
       });
     };
+
+    const setBannerProps = (resp) => {
+      Session.set('bannerText', resp.bannerText);
+      Session.set('bannerColor', resp.bannerColor);
+    };
+
     // use enter api to get params for the client
     const url = `/bigbluebutton/api/enter?sessionToken=${sessionToken}`;
     const fetchContent = await fetch(url, { credentials: 'same-origin' });
@@ -122,6 +123,8 @@ class JoinHandler extends Component {
     if (response.returncode !== 'FAILED') {
       await setAuth(response);
       await setCustomData(response);
+
+      setBannerProps(response);
       setLogoURL(response);
       logUserInfo();
 

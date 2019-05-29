@@ -1,8 +1,5 @@
 import org.bigbluebutton.build._
 
-import scalariform.formatter.preferences._
-import com.typesafe.sbt.SbtScalariform
-import com.typesafe.sbt.SbtScalariform.ScalariformKeys
 import NativePackagerHelper._
 import com.typesafe.sbt.SbtNativePackager.autoImport._
 
@@ -45,12 +42,9 @@ retrieveManaged := true
 Seq(Revolver.settings: _*)
 lazy val bbbAppsAkka = (project in file(".")).settings(name := "bbb-apps-akka", libraryDependencies ++= Dependencies.runtime).settings(compileSettings)
 
-scalariformAutoformat := false
-
-scalariformPreferences := scalariformPreferences.value
-  .setPreference(AlignSingleLineCaseStatements, true)
-  .setPreference(DoubleIndentConstructorArguments, true)
-  .setPreference(AlignParameters, true)
+// See https://github.com/scala-ide/scalariform
+// Config file is in ./.scalariform.conf
+scalariformAutoformat := true
 
 //-----------
 // Packaging

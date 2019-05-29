@@ -1,40 +1,58 @@
 package org.bigbluebutton.client.endpoint.redis
 
-import org.bigbluebutton.common2.redis.RedisSubscriberProvider
+import org.bigbluebutton.common2.redis.{ RedisConfig, RedisSubscriberProvider }
 import io.lettuce.core.pubsub.RedisPubSubListener
-import org.bigbluebutton.common2.bus.JsonMsgFromAkkaApps
-import org.bigbluebutton.common2.redis.RedisConfiguration
-import org.bigbluebutton.client.SystemConfiguration
+import org.bigbluebutton.common2.bus.{ IncomingJsonMessageBus, JsonMsgFromAkkaApps, JsonMsgFromAkkaAppsBus, JsonMsgFromAkkaAppsEvent }
 import akka.actor.ActorSystem
-import org.bigbluebutton.common2.redis.RedisSubscriber
-import org.bigbluebutton.common2.bus.JsonMsgFromAkkaAppsBus
 import akka.actor.Props
-import org.bigbluebutton.common2.bus.JsonMsgFromAkkaAppsEvent
 
-object Red5AppsRedisSubscriberActor extends RedisSubscriber with RedisConfiguration with SystemConfiguration {
+object Red5AppsRedisSubscriberActor {
 
-  val channels = Seq(fromAkkaAppsRedisChannel, fromAkkaAppsWbRedisChannel, fromAkkaAppsChatRedisChannel, fromAkkaAppsPresRedisChannel, fromThirdPartyRedisChannel)
-  val patterns = Seq("bigbluebutton:from-bbb-apps:*")
-
-  def props(system: ActorSystem, jsonMsgBus: JsonMsgFromAkkaAppsBus): Props =
+  def props(
+      system:              ActorSystem,
+      jsonMsgBus:          JsonMsgFromAkkaAppsBus,
+      incomingJsonMsgBus:  IncomingJsonMessageBus,
+      redisConfig:         RedisConfig,
+      channelsToSubscribe: Seq[String],
+      patternsToSubscribe: Seq[String],
+      forwardMsgToChannel: String
+  ): Props =
     Props(
       classOf[Red5AppsRedisSubscriberActor],
-      system, jsonMsgBus,
-      redisHost, redisPort,
-      channels, patterns).withDispatcher("akka.redis-subscriber-worker-dispatcher")
+      system,
+      jsonMsgBus,
+      incomingJsonMsgBus,
+      redisConfig,
+      channelsToSubscribe,
+      patternsToSubscribe,
+      forwardMsgToChannel
+    ).withDispatcher("akka.redis-subscriber-worker-dispatcher")
 }
 
-class Red5AppsRedisSubscriberActor(system: ActorSystem, jsonMsgBus: JsonMsgFromAkkaAppsBus,
-                                   redisHost: String, redisPort: Int,
-                                   channels: Seq[String] = Nil, patterns: Seq[String] = Nil)
-  extends RedisSubscriberProvider(system, "Red5AppsSub", channels, patterns, null) with SystemConfiguration {
+class Red5AppsRedisSubscriberActor(
+    system:              ActorSystem,
+    jsonMsgBus:          JsonMsgFromAkkaAppsBus,
+    incomingJsonMsgBus:  IncomingJsonMessageBus, // Not used. Just to satisfy RedisSubscriberProvider (ralam april 4, 2019)
+    redisConfig:         RedisConfig,
+    channelsToSubscribe: Seq[String],
+    patternsToSubscribe: Seq[String],
+    forwardMsgToChannel: String
+)
+  extends RedisSubscriberProvider(
+    system,
+    "Red5AppsSub",
+    channelsToSubscribe,
+    patternsToSubscribe,
+    incomingJsonMsgBus, // Not used. Just to satisfy RedisSubscriberProvider (ralam april 4, 2019)
+    redisConfig
+  ) {
 
-  override def addListener(appChannel: String) {
+  override def addListener(forwardMsgToChannel: String) {
     connection.addListener(new RedisPubSubListener[String, String] {
       def message(channel: String, message: String): Unit = {
-        if (channels.contains(channel)) {
+        if (channelsToSubscribe.contains(channel)) {
           val receivedJsonMessage = new JsonMsgFromAkkaApps(channel, message)
-          jsonMsgBus.publish(JsonMsgFromAkkaAppsEvent(fromAkkaAppsJsonChannel, receivedJsonMessage))
+          jsonMsgBus.publish(JsonMsgFromAkkaAppsEvent(forwardMsgToChannel, receivedJsonMessage))
         }
       }
       def message(pattern: String, channel: String, message: String): Unit = { log.info("Subscribed to channel {} with pattern {}", channel, pattern) }
@@ -45,6 +63,6 @@ class Red5AppsRedisSubscriberActor(system: ActorSystem, jsonMsgBus: JsonMsgFromA
     })
   }
 
-  addListener(null)
+  addListener(forwardMsgToChannel)
   subscribe()
 }

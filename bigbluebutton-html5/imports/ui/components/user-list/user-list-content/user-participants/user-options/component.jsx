@@ -10,7 +10,7 @@ import DropdownContent from '/imports/ui/components/dropdown/content/component';
 import DropdownList from '/imports/ui/components/dropdown/list/component';
 import DropdownListItem from '/imports/ui/components/dropdown/list/item/component';
 import LockViewersContainer from '/imports/ui/components/lock-viewers/container';
-import BreakoutRoom from '/imports/ui/components/actions-bar/create-breakout-room/component';
+import BreakoutRoom from '/imports/ui/components/actions-bar/create-breakout-room/container';
 import { styles } from './styles';
 
 const propTypes = {
@@ -23,10 +23,10 @@ const propTypes = {
   toggleStatus: PropTypes.func.isRequired,
   mountModal: PropTypes.func.isRequired,
   users: PropTypes.arrayOf(Object).isRequired,
-  meetingName: PropTypes.string.isRequired,
-  createBreakoutRoom: PropTypes.func.isRequired,
   meetingIsBreakout: PropTypes.bool.isRequired,
   hasBreakoutRoom: PropTypes.bool.isRequired,
+  isBreakoutEnabled: PropTypes.bool.isRequired,
+  isBreakoutRecordable: PropTypes.bool.isRequired,
 };
 
 const intlMessages = defineMessages({
@@ -86,6 +86,10 @@ const intlMessages = defineMessages({
     id: 'app.invitation.title',
     description: 'invitation to breakout title',
   },
+  saveUserNames: {
+    id: 'app.actionsBar.actionsDropdown.saveUserNames',
+    description: 'Save user name feature description',
+  },
 });
 
 class UserOptions extends PureComponent {
@@ -101,6 +105,7 @@ class UserOptions extends PureComponent {
     this.muteAllId = _.uniqueId('list-item-');
     this.lockId = _.uniqueId('list-item-');
     this.createBreakoutId = _.uniqueId('list-item-');
+    this.saveUsersNameId = _.uniqueId('list-item-');
 
     this.onActionsShow = this.onActionsShow.bind(this);
     this.onActionsHide = this.onActionsHide.bind(this);
@@ -108,6 +113,22 @@ class UserOptions extends PureComponent {
     this.onCreateBreakouts = this.onCreateBreakouts.bind(this);
     this.onInvitationUsers = this.onInvitationUsers.bind(this);
     this.renderMenuItems = this.renderMenuItems.bind(this);
+    this.onSaveUserNames = this.onSaveUserNames.bind(this);
+  }
+
+  onSaveUserNames() {
+    const link = document.createElement('a');
+    const mimeType = 'text/plain';
+    const { userListService } = this.props;
+    const userNamesObj = userListService.getUsers();
+    const userNameListString = Object.keys(userNamesObj)
+      .map(key => userNamesObj[key].name, []).join('\r\n');
+    link.setAttribute('download', `save-users-list-${Date.now()}.txt`);
+    link.setAttribute(
+      'href',
+      `data: ${mimeType} ;charset=utf-16,${encodeURIComponent(userNameListString)}`,
+    );
+    link.dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true, view: window }));
   }
 
   onActionsShow() {
@@ -132,25 +153,15 @@ class UserOptions extends PureComponent {
 
   handleCreateBreakoutRoomClick(isInvitation) {
     const {
-      createBreakoutRoom,
       mountModal,
-      meetingName,
-      users,
-      getUsersNotAssigned,
-      getBreakouts,
-      sendInvitation,
+      isBreakoutRecordable,
     } = this.props;
 
     return mountModal(
       <BreakoutRoom
         {...{
-          createBreakoutRoom,
-          meetingName,
-          users,
-          getUsersNotAssigned,
+          isBreakoutRecordable,
           isInvitation,
-          getBreakouts,
-          sendInvitation,
         }}
       />,
     );
@@ -166,6 +177,7 @@ class UserOptions extends PureComponent {
       toggleMuteAllUsersExceptPresenter,
       meetingIsBreakout,
       hasBreakoutRoom,
+      isBreakoutEnabled,
       getUsersNotAssigned,
       isUserModerator,
       users,
@@ -173,7 +185,8 @@ class UserOptions extends PureComponent {
 
     const canCreateBreakout = isUserModerator
     && !meetingIsBreakout
-    && !hasBreakoutRoom;
+    && !hasBreakoutRoom
+    && isBreakoutEnabled;
 
     const canInviteUsers = isUserModerator
     && !meetingIsBreakout
@@ -229,6 +242,16 @@ class UserOptions extends PureComponent {
             label={intl.formatMessage(intlMessages.invitationItem)}
             key={this.createBreakoutId}
             onClick={this.onInvitationUsers}
+          />
+        )
+        : null),
+      (isUserModerator
+        ? (
+          <DropdownListItem
+            icon="download"
+            label={intl.formatMessage(intlMessages.saveUserNames)}
+            key={this.saveUsersNameId}
+            onClick={this.onSaveUserNames}
           />
         )
         : null),

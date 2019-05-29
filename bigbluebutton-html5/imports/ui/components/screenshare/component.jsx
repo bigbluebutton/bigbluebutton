@@ -1,7 +1,8 @@
 import React from 'react';
 import { defineMessages, injectIntl, intlShape } from 'react-intl';
 import PropTypes from 'prop-types';
-import FullscreenButton from '../video-provider/fullscreen-button/component';
+import _ from 'lodash';
+import FullscreenButtonContainer from '../video-provider/fullscreen-button/container';
 import { styles } from './styles';
 
 const intlMessages = defineMessages({
@@ -27,14 +28,18 @@ class ScreenshareComponent extends React.Component {
   }
 
   componentWillReceiveProps(nextProps) {
-    const { isPresenter, unshareScreen } = this.props;
+    const {
+      isPresenter, unshareScreen,
+    } = this.props;
     if (isPresenter && !nextProps.isPresenter) {
       unshareScreen();
     }
   }
 
   componentWillUnmount() {
-    const { presenterScreenshareHasEnded, unshareScreen } = this.props;
+    const {
+      presenterScreenshareHasEnded, unshareScreen,
+    } = this.props;
     presenterScreenshareHasEnded();
     unshareScreen();
   }
@@ -51,34 +56,37 @@ class ScreenshareComponent extends React.Component {
     };
 
     return (
-      <FullscreenButton
+      <FullscreenButtonContainer
         handleFullscreen={full}
+        key={_.uniqueId('fullscreenButton-')}
         elementName={intl.formatMessage(intlMessages.screenShareLabel)}
+        fullscreenRef={this.videoTag}
       />
     );
   }
 
   render() {
     const { loaded } = this.state;
-    const style = {
-      right: 0,
-      bottom: 0,
-    };
 
     return (
-      [!loaded ? (<div key="screenshareArea" innerStyle={style} className={styles.connecting} />) : null,
-        this.renderFullscreenButton(),
-        (
-          <video
-            key="screenshareVideo"
-            id="screenshareVideo"
-            style={{ maxHeight: '100%', width: '100%' }}
-            autoPlay
-            playsInline
-            onLoadedData={this.onVideoLoad}
-            ref={(ref) => { this.videoTag = ref; }}
-          />
-        )]
+      [!loaded ? (
+        <div
+          key={_.uniqueId('screenshareArea-')}
+          className={styles.connecting}
+        />
+      ) : null,
+      this.renderFullscreenButton(),
+      (
+        <video
+          id="screenshareVideo"
+          key="screenshareVideo"
+          style={{ maxHeight: '100%', width: '100%' }}
+          autoPlay
+          playsInline
+          onLoadedData={this.onVideoLoad}
+          ref={(ref) => { this.videoTag = ref; }}
+        />
+      )]
     );
   }
 }

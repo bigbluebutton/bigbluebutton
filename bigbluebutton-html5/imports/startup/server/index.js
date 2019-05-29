@@ -1,17 +1,49 @@
 import { Meteor } from 'meteor/meteor';
+import { WebAppInternals } from 'meteor/webapp';
 import Langmap from 'langmap';
 import Users from '/imports/api/users';
 import fs from 'fs';
 import './settings';
+import { lookup as lookupUserAgent } from 'useragent';
 import Logger from './logger';
 import Redis from './redis';
+import setMinBrowserVersions from './minBrowserVersion';
+
+const parse = Npm.require('url').parse;
 
 const AVAILABLE_LOCALES = fs.readdirSync('assets/app/locales');
 
 Meteor.startup(() => {
   const APP_CONFIG = Meteor.settings.public.app;
   const env = Meteor.isDevelopment ? 'development' : 'production';
-  Logger.warn(`SERVER STARTED. ENV=${env}, nodejs version=${process.version}`, APP_CONFIG);
+  const CDN_URL = APP_CONFIG.cdn;
+
+  if (CDN_URL.trim()) {
+    // Add CDN
+    BrowserPolicy.content.disallowEval();
+    BrowserPolicy.content.allowInlineScripts();
+    BrowserPolicy.content.allowInlineStyles();
+    BrowserPolicy.content.allowImageDataUrl(CDN_URL);
+    BrowserPolicy.content.allowFontDataUrl(CDN_URL);
+    BrowserPolicy.content.allowOriginForAll(CDN_URL);
+    WebAppInternals.setBundledJsCssPrefix(CDN_URL + APP_CONFIG.basename);
+
+    const fontRegExp = /\.(eot|ttf|otf|woff|woff2)$/;
+
+    WebApp.rawConnectHandlers.use('/', (req, res, next) => {
+      if (fontRegExp.test(req._parsedUrl.pathname)) {
+        res.setHeader('Access-Control-Allow-Origin', '*');
+        res.setHeader('Vary', 'Origin');
+        res.setHeader('Pragma', 'public');
+        res.setHeader('Cache-Control', '"public"');
+      }
+      return next();
+    });
+  }
+
+  setMinBrowserVersions();
+
+  Logger.warn(`SERVER STARTED.\nENV=${env},\nnodejs version=${process.version}\nCDN=${CDN_URL}\n`, APP_CONFIG);
 });
 
 WebApp.connectHandlers.use('/check', (req, res) => {
@@ -111,6 +143,19 @@ WebApp.connectHandlers.use('/feedback', (req, res) => {
   }));
 });
 
+WebApp.connectHandlers.use('/useragent', (req, res) => {
+  const userAgent = req.headers['user-agent'];
+  let response = 'No user agent found in header';
+  if (userAgent) {
+    response = lookupUserAgent(userAgent).toString();
+  }
+
+  Logger.info(`The requesting user agent is ${response}`);
+
+  // res.setHeader('Content-Type', 'application/json');
+  res.writeHead(200);
+  res.end(response);
+});
 
 export const eventEmitter = Redis.emitter;
 

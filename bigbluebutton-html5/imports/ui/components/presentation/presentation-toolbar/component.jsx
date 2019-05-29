@@ -5,11 +5,12 @@ import browser from 'browser-detect';
 import injectWbResizeEvent from '/imports/ui/components/presentation/resize-wrapper/component';
 import Button from '/imports/ui/components/button/component';
 import { HUNDRED_PERCENT, MAX_PERCENT, STEP } from '/imports/utils/slideCalcUtils';
+import cx from 'classnames';
 import { styles } from './styles.scss';
 import ZoomTool from './zoom-tool/component';
-import FullscreenButton from '../../video-provider/fullscreen-button/component';
+import FullscreenButtonContainer from '../../video-provider/fullscreen-button/container';
 import Tooltip from '/imports/ui/components/tooltip/component';
-
+import KEY_CODES from '/imports/utils/keyCodes';
 
 const intlMessages = defineMessages({
   previousSlideLabel: {
@@ -150,7 +151,31 @@ class PresentationToolbar extends Component {
     this.handleValuesChange = this.handleValuesChange.bind(this);
     this.handleSkipToSlideChange = this.handleSkipToSlideChange.bind(this);
     this.change = this.change.bind(this);
+    this.switchSlide = this.switchSlide.bind(this);
     this.setInt = 0;
+  }
+
+  componentDidMount() {
+    document.addEventListener('keydown', this.switchSlide);
+  }
+
+  componentWillUnmount() {
+    document.removeEventListener('keydown', this.switchSlide);
+  }
+
+  switchSlide(event) {
+    const { target, which } = event;
+    const isBody = target.nodeName === 'BODY';
+    const { actions } = this.props;
+
+    if (isBody) {
+      if ([KEY_CODES.ARROW_LEFT].includes(which)) {
+        actions.previousSlideHandler();
+      }
+      if ([KEY_CODES.ARROW_RIGHT].includes(which)) {
+        actions.nextSlideHandler();
+      }
+    }
   }
 
   handleSkipToSlideChange(event) {
@@ -227,13 +252,14 @@ class PresentationToolbar extends Component {
               onClick={actions.previousSlideHandler}
               label={intl.formatMessage(intlMessages.previousSlideLabel)}
               hideLabel
-              className={styles.prevSlide}
+              className={cx(styles.prevSlide, styles.presentationBtn)}
               tooltipDistance={tooltipDistance}
             />
 
             <Tooltip
               tooltipDistance={tooltipDistance}
               title={intl.formatMessage(intlMessages.selectLabel)}
+              className={styles.presentationBtn}
             >
               <select
                 role="button"
@@ -264,7 +290,7 @@ class PresentationToolbar extends Component {
               onClick={actions.nextSlideHandler}
               label={intl.formatMessage(intlMessages.nextSlideLabel)}
               hideLabel
-              className={styles.skipSlide}
+              className={cx(styles.skipSlide, styles.presentationBtn)}
               tooltipDistance={tooltipDistance}
             />
           </div>
@@ -299,17 +325,18 @@ class PresentationToolbar extends Component {
                 : intl.formatMessage(intlMessages.fitToWidth)
               }
               hideLabel
-              className={styles.skipSlide}
+              className={cx(styles.fitToWidth, styles.presentationBtn)}
               tooltipDistance={tooltipDistance}
             />
             {
               !isFullscreen
               && (
-                <FullscreenButton
-                  handleFullscreen={fullscreenRef}
+                <FullscreenButtonContainer
+                  fullscreenRef={fullscreenRef}
                   elementName={intl.formatMessage(intlMessages.presentationLabel)}
                   tooltipDistance={tooltipDistance}
                   dark
+                  className={styles.presentationBtn}
                 />
               )
             }
@@ -337,9 +364,14 @@ PresentationToolbar.propTypes = {
   zoomChanger: PropTypes.func.isRequired,
   fitToWidthHandler: PropTypes.func.isRequired,
   fitToWidth: PropTypes.bool.isRequired,
-  fullscreenRef: PropTypes.func.isRequired,
+  fullscreenRef: PropTypes.instanceOf(Element),
   isFullscreen: PropTypes.bool.isRequired,
   zoom: PropTypes.number.isRequired,
 };
+
+PresentationToolbar.defaultProps = {
+  fullscreenRef: null,
+};
+
 
 export default injectWbResizeEvent(injectIntl(PresentationToolbar));

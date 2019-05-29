@@ -143,6 +143,18 @@ const intlMessages = defineMessages({
     id: 'app.presentationUploder.setAsCurrentPresentation',
     description: 'set this presentation to be the current one',
   },
+  status: {
+    id: 'app.presentationUploder.tableHeading.status',
+    description: 'aria label status table heading',
+  },
+  options: {
+    id: 'app.presentationUploder.tableHeading.options',
+    description: 'aria label for options table heading',
+  },
+  filename: {
+    id: 'app.presentationUploder.tableHeading.filename',
+    description: 'aria label for file name table heading',
+  },
 });
 
 const BROWSER_RESULTS = browser();
@@ -173,6 +185,29 @@ class PresentationUploader extends Component {
 
     this.updateFileKey = this.updateFileKey.bind(this);
     this.deepMergeUpdateFileKey = this.deepMergeUpdateFileKey.bind(this);
+
+    this.releaseActionsOnPresentationError = this.releaseActionsOnPresentationError.bind(this);
+  }
+
+  componentDidUpdate() {
+    this.releaseActionsOnPresentationError();
+  }
+
+  releaseActionsOnPresentationError() {
+    const {
+      presentations,
+      disableActions,
+    } = this.state;
+
+    presentations.forEach((presentation) => {
+      if (!presentation.conversion.done && presentation.conversion.error) {
+        if (disableActions) {
+          this.setState({
+            disableActions: false,
+          });
+        }
+      }
+    });
   }
 
   updateFileKey(id, key, value, operation = '$set') {
@@ -243,7 +278,6 @@ class PresentationUploader extends Component {
       })
       .catch((error) => {
         notify(intl.formatMessage(intlMessages.genericError), 'error');
-
         logger.error({ logCode: 'presentationuploader_component_save_error' }, error);
 
         this.setState({
@@ -407,23 +441,21 @@ class PresentationUploader extends Component {
 
   renderPresentationList() {
     const { presentations } = this.state;
+    const { intl } = this.props;
 
     const presentationsSorted = presentations
-      .sort((a, b) => {
-        // Sort by ID first so files with the same name have the same order
-        if (a.id > b.id) {
-          return 1;
-        }
-        if (a.id < b.id) {
-          return -1;
-        }
-        return 0;
-      })
-      .sort((a, b) => this.isDefault(b));
+      .sort((a, b) => a.uploadTimestamp - b.uploadTimestamp);
 
     return (
       <div className={styles.fileList}>
         <table className={styles.table}>
+          <thead>
+            <tr>
+              <th className={styles.visuallyHidden} colSpan={3}>{intl.formatMessage(intlMessages.filename)}</th>
+              <th className={styles.visuallyHidden}>{intl.formatMessage(intlMessages.status)}</th>
+              <th className={styles.visuallyHidden}>{intl.formatMessage(intlMessages.options)}</th>
+            </tr>
+          </thead>
           <tbody>
             { presentationsSorted.map(item => this.renderPresentationItem(item))}
           </tbody>
@@ -434,7 +466,6 @@ class PresentationUploader extends Component {
 
   renderPresentationItemStatus(item) {
     const { intl } = this.props;
-
     if (!item.upload.done && item.upload.progress === 0) {
       return intl.formatMessage(intlMessages.fileToUpload);
     }
@@ -450,7 +481,7 @@ class PresentationUploader extends Component {
       return intl.formatMessage(errorMessage);
     }
 
-    if (item.conversion.done && item.conversion.error) {
+    if (!item.conversion.done && item.conversion.error) {
       const errorMessage = intlMessages[item.conversion.status] || intlMessages.genericError;
       return intl.formatMessage(errorMessage);
     }
@@ -494,6 +525,8 @@ class PresentationUploader extends Component {
       ? intl.formatMessage(intlMessages.isDownloadable)
       : intl.formatMessage(intlMessages.isNotDownloadable);
 
+    const formattedDownloadableAriaLabel = `${formattedDownloadableLabel} ${item.filename}`;
+
     const isDownloadableStyle = item.isDownloadable
       ? cx(styles.itemAction, styles.itemActionRemove, styles.checked)
       : cx(styles.itemAction, styles.itemActionRemove);
@@ -527,23 +560,26 @@ class PresentationUploader extends Component {
             <Button
               className={isDownloadableStyle}
               label={formattedDownloadableLabel}
+              aria-label={formattedDownloadableAriaLabel}
               hideLabel
               size="sm"
               icon={item.isDownloadable ? 'download' : 'download-off'}
               onClick={() => this.toggleDownloadable(item)}
             />
             <Checkbox
-              disabled={disableActions}
-              ariaLabel={intl.formatMessage(intlMessages.setAsCurrentPresentation)}
-              className={styles.itemAction}
+              ariaLabel={`${intl.formatMessage(intlMessages.setAsCurrentPresentation)} ${item.filename}`}
               checked={item.isCurrent}
-              onChange={() => this.handleCurrentChange(item.id)}
+              className={styles.itemAction}
+              disabled={disableActions}
+              keyValue={item.id}
+              onChange={this.handleCurrentChange}
             />
             { hideRemove ? null : (
               <Button
                 disabled={disableActions}
                 className={cx(styles.itemAction, styles.itemActionRemove)}
                 label={intl.formatMessage(intlMessages.removePresentation)}
+                aria-label={`${intl.formatMessage(intlMessages.removePresentation)} ${item.filename}`}
                 size="sm"
                 icon="delete"
                 hideLabel

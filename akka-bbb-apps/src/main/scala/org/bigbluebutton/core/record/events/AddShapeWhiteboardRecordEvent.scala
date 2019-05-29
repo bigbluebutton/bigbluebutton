@@ -61,6 +61,20 @@ class AddShapeWhiteboardRecordEvent extends AbstractWhiteboardRecordEvent {
         }
       } else {
         eventMap.put(f._1, f._2.toString)
+        // Sometimes, we get null values for some of our whiteboard shapes. We need to
+        // weed these out so as not to cause any problems to other components. We've
+        // seen where the null values killed the RecorderActor when trying to write to redis.
+        // We've modified this in SendWhiteboardAnnotationPubMsgHdlr but keeping here in case
+        // we also need to clean here.
+        //
+        // ralam april 11, 2019
+        //        f._1 match {
+        //          case f1: String =>
+        //            f._2 match {
+        //              case Some(f2) => eventMap.put(f._1, f2.toString)
+        //              case _        => // discard
+        //            }
+        //        }
       }
     })
   }

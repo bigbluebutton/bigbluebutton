@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { FormattedTime } from 'react-intl';
+import { FormattedTime, defineMessages, injectIntl } from 'react-intl';
 import _ from 'lodash';
 
 import UserAvatar from '/imports/ui/components/user-avatar/component';
@@ -9,18 +9,34 @@ import Message from './message/component';
 import { styles } from './styles';
 
 const propTypes = {
-  user: PropTypes.object,
-  messages: PropTypes.array.isRequired,
+  user: PropTypes.shape({
+    color: PropTypes.string,
+    isModerator: PropTypes.bool,
+    isOnline: PropTypes.bool,
+    name: PropTypes.string,
+  }),
+  messages: PropTypes.arrayOf(Object).isRequired,
   time: PropTypes.number.isRequired,
+  intl: PropTypes.shape({
+    formatMessage: PropTypes.func.isRequired,
+  }).isRequired,
 };
 
 const defaultProps = {
+  user: null,
 };
 
 const eventsToBeBound = [
   'scroll',
   'resize',
 ];
+
+const intlMessages = defineMessages({
+  offline: {
+    id: 'app.chat.offline',
+    description: 'Offline',
+  },
+});
 
 const isElementInViewport = (el) => {
   if (!el) return false;
@@ -30,7 +46,7 @@ const isElementInViewport = (el) => {
   return (rect.top >= -(prefetchHeight) || rect.bottom >= -(prefetchHeight));
 };
 
-export default class MessageListItem extends Component {
+class MessageListItem extends Component {
   constructor(props) {
     super(props);
 
@@ -136,9 +152,12 @@ export default class MessageListItem extends Component {
       lastReadMessageTime,
       handleReadMessage,
       scrollArea,
+      intl,
     } = this.props;
 
     const dateTime = new Date(time);
+
+    const regEx = /<a[^>]+>/i;
 
     if (!user) {
       return this.renderSystemMessage();
@@ -160,7 +179,13 @@ export default class MessageListItem extends Component {
             <div className={styles.meta}>
               <div className={user.isOnline ? styles.name : styles.logout}>
                 <span>{user.name}</span>
-                {user.isOnline ? null : <span className={styles.offline}>(offline)</span>}
+                {user.isOnline
+                  ? null
+                  : (
+                    <span className={styles.offline}>
+                      {`(${intl.formatMessage(intlMessages.offline)})`}
+                    </span>
+                  )}
               </div>
               <time className={styles.time} dateTime={dateTime}>
                 <FormattedTime value={dateTime} />
@@ -169,7 +194,7 @@ export default class MessageListItem extends Component {
             <div className={styles.messages}>
               {messages.map(message => (
                 <Message
-                  className={styles.message}
+                  className={(regEx.test(message.text) ? styles.hyperlink : styles.message)}
                   key={message.id}
                   text={message.text}
                   time={message.time}
@@ -189,3 +214,5 @@ export default class MessageListItem extends Component {
 
 MessageListItem.propTypes = propTypes;
 MessageListItem.defaultProps = defaultProps;
+
+export default injectIntl(MessageListItem);

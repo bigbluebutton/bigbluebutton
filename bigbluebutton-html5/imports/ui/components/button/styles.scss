@@ -1,4 +1,5 @@
 @import "/imports/ui/stylesheets/variables/_all";
+@import "/imports/ui/stylesheets/mixins/_indicators";
 
 /* Base
  * ==========
@@ -21,6 +22,10 @@
   --btn-danger-bg: var(--color-danger);
   --btn-danger-border: var(--color-danger);
 
+  --btn-dark-color: var(--color-white);
+  --btn-dark-bg: var(--color-gray-dark);
+  --btn-dark-border: var(--color-danger);
+
   --btn-border-size: var(--border-size);
   --btn-border-radius: var(--border-radius);
   --btn-font-weight: 600;
@@ -41,7 +46,6 @@
 
 .button {
   border: none;
-  outline: none;
   overflow: visible;
   display: inline-block;
   border-radius: var(--border-size);
@@ -53,18 +57,24 @@
   cursor: pointer;
   user-select: none;
 
-  [style~="--enableAnimation:1;"] & {
-    transition: all .2s ease-in-out;
+  &:-moz-focusring {
+    outline: none;
   }
 
   &:hover,
   &:focus {
+    @include highContrastOutline();
     text-decoration: none;
+  }
+
+  &:active,
+  &:focus {
+    @include highContrastOutline();
+    outline-style: solid;
   }
 
   &:active {
     background-image: none;
-    outline: 0;
   }
 
   &[aria-disabled="true"] {
@@ -87,13 +97,27 @@
   border: none;
   overflow: visible !important;
   display: inline-block;
-  outline: none;
+  cursor: pointer;
 
-  &,
+  &:-moz-focusring {
+    outline: none;
+  }
+
+  &:focus,
+  &:hover {
+    @include highContrastOutline();
+  }
+
+  &:focus {
+    outline-style: solid;
+  }
+
   &:active {
     &:focus {
       span:first-of-type::before {
         border-radius: 50%;
+        @include highContrastOutline();
+        outline-style: solid;
       }
     }
   }
@@ -126,13 +150,20 @@
 
   .buttonWrapper.sm & {
     display: inline-block;
-    margin-top: 0;
-    margin-left: var(--btn-spacing);
+    margin: 0 0 0var(--btn-spacing);
+
+    [dir="rtl"] & {
+      margin:0 var(--btn-spacing) 0 0;
+    }
   }
 
   & + .icon,
   & + .button {
-    margin-left: var(--btn-spacing);
+    margin: 0 0 0 var(--btn-spacing);
+
+    [dir="rtl"] & {
+      margin: 0 var(--btn-spacing) 0 0;
+    }
   }
   &:hover {
     opacity: .5;
@@ -151,16 +182,19 @@
 }
 
 .icon {
-  width: 1.28571429em;
+  width: 1em;
   text-align: center;
-  color: #fff;
 
   .buttonWrapper & {
     font-size: 125%;
   }
 
   & + .label {
-    margin-left: var(--btn-spacing);
+    margin: 0 0 0 var(--btn-spacing);
+
+    [dir="rtl"] & {
+      margin: 0 var(--btn-spacing) 0 0;
+    }
   }
   .buttonWrapper:hover & {
     opacity: .75;
@@ -177,11 +211,9 @@
 
   &:focus,
   .buttonWrapper:focus:not([aria-disabled="true"]) & {
-    outline: none !important;
     color: $color;
     background-color: $background;
     background-clip: padding-box;
-    border: var(--border-size-large) solid transparent;
     box-shadow: 0 0 0 var(--border-size) $border;
   }
 
@@ -190,7 +222,6 @@
     color: $color;
     // background-color: $active-background; TODO;
     // border-color: $active-border; TODO;
-    border: var(--border-size-large) solid transparent;
   }
 }
 
@@ -203,10 +234,8 @@
   &:focus,
   .buttonWrapper:focus & {
     color: $color;
-    outline: none !important;
     background-color: $variant;
     background-clip: padding-box;
-    border: var(--border-size-large) solid transparent;
     box-shadow: 0 0 0 var(--border-size-large) $color;
   }
 
@@ -214,8 +243,6 @@
   .buttonWrapper:hover & {
     color: $color;
     background-color: $variant;
-    border-color: $variant;
-    border: var(--border-size-large) solid transparent;
   }
 }
 
@@ -233,6 +260,10 @@
 
 .danger {
   @include button-variant(var(--btn-danger-color), var(--btn-danger-bg), var(--btn-danger-border));
+}
+
+.dark {
+  @include button-variant(var(--btn-dark-color), var(--btn-dark-bg), var(--btn-dark-border));
 }
 
 /* Styles
@@ -260,34 +291,34 @@
   &.danger {
     @include button-ghost-variant(var(--btn-danger-bg), var(--btn-danger-color));
   }
+
+  &.dark {
+    @include button-ghost-variant(var(--btn-dark-bg), var(--btn-dark-color));
+  }
 }
 
 .circle {
-  --btn-sm-padding-x: calc(var(--sm-padding-x) / 2.75);
-  --btn-md-padding-x: calc(var(--md-padding-x) / 2.75);
-  --btn-lg-padding-x: calc(var(--lg-padding-x) / 2.75);
-  --btn-jumbo-padding-x: calc(var(--jumbo-padding-x) / 2.75);
+  --btn-sm-padding-x: calc(var(--sm-padding-x) / 2);
+  --btn-md-padding-x: calc(var(--md-padding-x) / 2);
+  --btn-lg-padding-x: calc(var(--lg-padding-x) / 2);
+  --btn-jumbo-padding-x: calc(var(--jumbo-padding-x) / 2);
 
   border-radius: 50%;
 
   &.sm {
-    padding-right: var(--btn-sm-padding-x);
-    padding-left: var(--btn-sm-padding-x);
+    padding: var(--btn-sm-padding-x);
   }
 
   &.md {
-    padding-right: var(--btn-md-padding-x);
-    padding-left: var(--btn-md-padding-x);
+    padding: var(--btn-md-padding-x);
   }
 
   &.lg {
-    padding-right: var(--btn-lg-padding-x);
-    padding-left: var(--btn-lg-padding-x);
+    padding: var(--btn-lg-padding-x);
   }
 
   &.jumbo {
-    padding-right: var(--btn-jumbo-padding-x);
-    padding-left: var(--btn-jumbo-padding-x);
+    padding: var(--btn-jumbo-padding-x);
   }
 }
 

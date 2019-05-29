@@ -15,21 +15,30 @@ import java.io.StringWriter
 import scala.concurrent.duration._
 import java.io.PrintWriter
 
-abstract class RedisSubscriberProvider(system: ActorSystem, clientName: String,
-                                       channels: Seq[String], patterns: Seq[String],
-                                       jsonMsgBus: IncomingJsonMessageBus)
-  extends RedisClientProvider(system, clientName) with RedisConnectionHandler with Actor with ActorLogging {
+abstract class RedisSubscriberProvider(
+    system:              ActorSystem,
+    clientName:          String,
+    channelsToSubscribe: Seq[String],
+    patternsToSubscribe: Seq[String],
+    jsonMsgBus:          IncomingJsonMessageBus,
+    redisConfig:         RedisConfig
+)
+  extends RedisClientProvider(
+    system,
+    clientName,
+    redisConfig
+  ) with RedisConnectionHandler with Actor with ActorLogging {
 
   subscribeToEventBus(redis, log)
 
   var connection = redis.connectPubSub()
 
-  def addListener(appChannel: String) {
+  def addListener(forwardMsgToChannel: String) {
     connection.addListener(new RedisPubSubListener[String, String] {
       def message(channel: String, message: String): Unit = {
-        if (channels.contains(channel)) {
+        if (channelsToSubscribe.contains(channel)) {
           val receivedJsonMessage = new ReceivedJsonMessage(channel, message)
-          jsonMsgBus.publish(IncomingJsonMessage(appChannel, receivedJsonMessage))
+          jsonMsgBus.publish(IncomingJsonMessage(forwardMsgToChannel, receivedJsonMessage))
         }
       }
       def message(pattern: String, channel: String, message: String): Unit = { log.info("Subscribed to channel {} with pattern {}", channel, pattern) }
@@ -42,8 +51,8 @@ abstract class RedisSubscriberProvider(system: ActorSystem, clientName: String,
 
   def subscribe() {
     val async = connection.async()
-    for (channel <- channels) async.subscribe(channel)
-    for (pattern <- patterns) async.psubscribe(pattern)
+    for (channel <- channelsToSubscribe) async.subscribe(channel)
+    for (pattern <- patternsToSubscribe) async.psubscribe(pattern)
   }
 
   override val supervisorStrategy = OneForOneStrategy(maxNrOfRetries = 10, withinTimeRange = 1 minute) {

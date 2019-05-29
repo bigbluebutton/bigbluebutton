@@ -6,6 +6,7 @@ import { withModalMounter } from '/imports/ui/components/modal/service';
 import _ from 'lodash';
 import { Session } from 'meteor/session';
 import Button from '/imports/ui/components/button/component';
+import { findDOMNode } from 'react-dom';
 import LiveResult from './live-result/component';
 import { styles } from './styles.scss';
 
@@ -85,6 +86,7 @@ const intlMessages = defineMessages({
 });
 
 const MAX_CUSTOM_FIELDS = Meteor.settings.public.poll.max_custom;
+const MAX_INPUT_CHARS = 45;
 
 class Poll extends Component {
   constructor(props) {
@@ -106,8 +108,17 @@ class Poll extends Component {
     this.handleBackClick = this.handleBackClick.bind(this);
   }
 
+  componentDidMount() {
+    const hideBtn = findDOMNode(this.hideBtn);
+    if (hideBtn) hideBtn.focus();
+  }
+
   componentDidUpdate() {
     const { currentUser } = this.props;
+
+    if (Session.equals('resetPollPanel', true)) {
+      this.handleBackClick();
+    }
 
     if (!currentUser.presenter) {
       Session.set('openPanel', 'userlist');
@@ -115,17 +126,18 @@ class Poll extends Component {
     }
   }
 
-
   handleInputChange(index, event) {
     // This regex will replace any instance of 2 or more consecutive white spaces
     // with a single white space character.
     const option = event.target.value.replace(/\s{2,}/g, ' ').trim();
+
     this.inputEditor[index] = option === '' ? '' : option;
     this.setState({ customPollValues: this.inputEditor });
   }
 
   handleBackClick() {
     const { stopPoll } = this.props;
+    Session.set('resetPollPanel', false);
 
     stopPoll();
     this.inputEditor = [];
@@ -137,9 +149,6 @@ class Poll extends Component {
 
   toggleCustomFields() {
     const { customPollReq } = this.state;
-
-    this.inputEditor = [];
-
     return this.setState({ customPollReq: !customPollReq });
   }
 
@@ -161,6 +170,7 @@ class Poll extends Component {
           className={styles.pollBtn}
           key={_.uniqueId('quick-poll-')}
           onClick={() => {
+            Session.set('pollInitiated', true);
             this.setState({ isPolling: true }, () => startPoll(type));
           }}
         />);
@@ -171,20 +181,22 @@ class Poll extends Component {
 
   renderCustomView() {
     const { intl, startCustomPoll } = this.props;
-    const isDisabled = _.compact(this.inputEditor).length < 2;
+    const isDisabled = _.compact(this.inputEditor).length < 1;
 
     return (
       <div className={styles.customInputWrapper}>
         {this.renderInputFields()}
         <Button
           onClick={() => {
-            if (this.inputEditor.length > 1) {
+            if (this.inputEditor.length > 0) {
+              Session.set('pollInitiated', true);
               this.setState({ isPolling: true }, () => startCustomPoll('custom', _.compact(this.inputEditor)));
             }
           }}
           label={intl.formatMessage(intlMessages.startCustomLabel)}
           color="primary"
           aria-disabled={isDisabled}
+          disabled={isDisabled}
           className={styles.btn}
         />
       </div>
@@ -208,6 +220,7 @@ class Poll extends Component {
             className={styles.input}
             onChange={event => this.handleInputChange(id, event)}
             defaultValue={customPollValues[id]}
+            maxLength={MAX_INPUT_CHARS}
           />
         </div>
       );
@@ -218,7 +231,13 @@ class Poll extends Component {
 
   renderActivePollOptions() {
     const {
-      intl, publishPoll, stopPoll, currentUser, currentPoll, getUser,
+      intl,
+      publishPoll,
+      stopPoll,
+      currentUser,
+      currentPoll,
+      getUser,
+      pollAnswerIds,
     } = this.props;
 
     return (
@@ -233,6 +252,7 @@ class Poll extends Component {
             currentUser,
             getUser,
             currentPoll,
+            pollAnswerIds,
           }}
           handleBackClick={this.handleBackClick}
         />
@@ -267,7 +287,7 @@ class Poll extends Component {
     );
   }
 
-  renderNoSlidePanel = () => {
+  renderNoSlidePanel() {
     const { mountModal, intl } = this.props;
     return (
       <div className={styles.noSlidePanelContainer}>
@@ -282,7 +302,7 @@ class Poll extends Component {
     );
   }
 
-  renderPollPanel = () => {
+  renderPollPanel() {
     const { isPolling } = this.state;
     const {
       currentPoll,
@@ -312,6 +332,7 @@ class Poll extends Component {
       <div>
         <header className={styles.header}>
           <Button
+            ref={(node) => { this.hideBtn = node; }}
             tabIndex={0}
             label={intl.formatMessage(intlMessages.pollPaneTitle)}
             icon="left_arrow"

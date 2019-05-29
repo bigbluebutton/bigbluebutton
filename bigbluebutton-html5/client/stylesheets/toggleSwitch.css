@@ -44,6 +44,10 @@
   transition: all calc(var(--enableAnimation) * 0.2s) ease;
 }
 
+.react-toggle-track:dir(rtl) {
+  width: 4rem;
+}
+
 .react-toggle--checked .react-toggle-track {
   background-color: #008081;
 }
@@ -57,6 +61,10 @@
   left: 0.5rem;
   opacity: 0;
   transition: opacity calc(var(--enableAnimation) * 0.25s) ease;
+}
+
+.react-toggle-track-check:dir(rtl) {
+  left: 0.8rem;
 }
 
 .react-toggle--checked .react-toggle-track-check {
@@ -73,6 +81,10 @@
   left: 1.7rem;
   opacity: 1;
   transition: opacity calc(var(--enableAnimation) * 0.25s) ease;
+}
+
+.react-toggle-track-x:dir(rtl) {
+  left: 2.2rem;
 }
 
 .react-toggle--checked .react-toggle-track-x {
@@ -96,6 +108,10 @@
 .react-toggle--checked .react-toggle-thumb {
   left: 2.1rem;
   box-shadow: -2px 0px 10px -1px rgba(0,0,0,0.4);
+}
+
+.react-toggle--checked:dir(rtl) .react-toggle-thumb:dir(rtl) {
+  left: 2.6rem;
 }
 
 .react-toggle--focus .react-toggle-thumb {

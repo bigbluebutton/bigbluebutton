@@ -1,5 +1,6 @@
 @import "/imports/ui/stylesheets/variables/_all";
 @import "/imports/ui/stylesheets/mixins/_scrollable";
+@import "/imports/ui/stylesheets/mixins/_indicators";
 
 :root {
   --dropdown-bg: var(--color-white);
@@ -8,6 +9,9 @@
 
   --dropdown-caret-width: 12px;
   --dropdown-caret-height: 8px;
+
+  --rtl-caret-offset: -0.4375rem;
+  --rtl-content-offset: 10.75rem;
 }
 
 .dropdown {
@@ -19,13 +23,19 @@
 }
 
 .content {
+  @include highContrastOutline();
+  outline-style: solid;
+  z-index: 9999;
   position: absolute;
   background: var(--dropdown-bg);
   border-radius: var(--border-radius);
   box-shadow: 0 6px 12px rgba(0, 0, 0, .175);
   border: 0;
   padding: calc(var(--line-height-computed) / 2);
-  z-index: 1000;
+
+  [dir="rtl"] & {
+    right: var(--rtl-content-offset);
+  }
 
   &:after,
   &:before {
@@ -133,6 +143,11 @@
     border-bottom: var(--dropdown-caret-height) solid var(--dropdown-bg);
     margin-top: calc(var(--dropdown-caret-height) * -1);
     top: 0;
+
+    [dir="rtl"] & {
+      right: 50%;
+      transform: translateX(-150%);
+    }
   }
 
   &:before {
@@ -153,10 +168,26 @@
     margin-right: calc(var(--dropdown-caret-height) * -1);
     top: 50%;
     right: 0;
+
+    [dir="rtl"] & {
+      left: 0;
+      border-left: 0;
+      border-right: var(--dropdown-caret-height) solid var(--dropdown-bg);
+      margin-left: calc(var(--dropdown-caret-height) * -1);
+    }
   }
 
   &:before {
+
+    
     border-left: var(--dropdown-caret-height) solid var(--caret-shadow-color);
+    border-right: 0;
+
+    [dir="rtl"] & {
+      transform: rotate(180deg);
+      border-left: 0;
+      border-right: var(--dropdown-caret-height) solid var(--caret-shadow-color);
+    }
   }
 }
 
@@ -173,10 +204,23 @@
     margin-left: calc(var(--dropdown-caret-height) * -1);
     top: 50%;
     left: 0;
+
+    [dir="rtl"] & {
+      transform: rotate(180deg);
+      margin-right: calc(var(--dropdown-caret-height) * -1);
+      right: 1px;
+    }
   }
 
   &:before {
     border-right: var(--dropdown-caret-height) solid var(--caret-shadow-color);
+    border-left: 0;
+
+    [dir="rtl"] & {
+      right: var(--rtl-caret-offset);
+      border: none;
+      margin: 0;
+    }
   }
 }
 
@@ -185,12 +229,20 @@
   &:before {
     left: 50%;
     margin-left: calc(var(--dropdown-caret-width) * -1);
+
+    [dir="rtl"] & {
+      margin-right: calc(var(--dropdown-caret-width) * -1);
+    }
   }
 }
 
 %horz-left-caret {
   transform: translateX(-100%);
   left: 100%;
+
+  [dir="rtl"] & {
+    right: 100%;
+  }
 
   &:after,
   &:before {
@@ -234,6 +286,11 @@
   &:before {
     top: auto;
     bottom: calc(var(--dropdown-caret-width) / 2);
+
+    [dir="rtl"] & {
+      top: calc(var(--dropdown-caret-width) / 2);
+      bottom: auto;
+    }
   }
 }
 
@@ -242,7 +299,7 @@
   @extend %horz-center-caret;
 }
 
-.top-left {
+.top-left, [dir="rtl"] .top-right {
   @extend %down-caret;
   @extend %horz-right-caret;
   min-width: 11.5rem;
@@ -257,32 +314,38 @@
   @extend %horz-left-caret;
 }
 
+[dir="rtl"] .top-left {
+  @extend %down-caret;
+  @extend %horz-left-caret;
+  transform: translateX(25%);
+}
+
 .bottom {
   @extend %up-caret;
   @extend %horz-center-caret;
 }
 
-.bottom-left {
+.bottom-left, [dir="rtl"] .bottom-right {
   @extend %up-caret;
   @extend %horz-right-caret;
 }
 
-.bottom-right {
+.bottom-right, [dir="rtl"] .bottom-left  {
   @extend %up-caret;
   @extend %horz-left-caret;
-  min-width: 9rem;
+  min-width: 10rem;
 
   @include mq($small-only) {
     width: auto;
   }
 }
 
-.left {
+.left, [dir="rtl"] .right {
   @extend %right-caret;
   @extend %vert-center-caret;
 }
 
-.left-top {
+.left-top, [dir="rtl"] .right-top {
   @extend %right-caret;
   @extend %vert-top-caret;
   transform: translateX(-100%) translateY(0);
@@ -294,18 +357,34 @@
   transform: translateX(-100%) translateY(0);
 }
 
-.right {
+[dir="rtl"] .right-bottom  {
+  @extend %right-caret;
+  @extend %vert-bottom-caret;
+  transform: translateX(-110%) translateY(0);
+}
+
+.right, [dir="rtl"] .left {
   @extend %left-caret;
   @extend %vert-center-caret;
 }
 
-.right-top {
+.right-top  {
   @extend %left-caret;
   @extend %vert-top-caret;
   transform: translateX(100%) translateY(0);
 }
 
-.right-bottom {
+[dir="rtl"] .right-top {
+  transform: translateX(-25%) translateY(0%);
+}
+
+[dir="rtl"] .left-top {
+  @extend %left-caret;
+  @extend %vert-top-caret;
+  transform: translateX(125%) translateY(-25%);
+}
+
+.right-bottom, [dir="rtl"] .left-bottom {
   @extend %left-caret;
   @extend %vert-bottom-caret;
   transform: translateX(100%) translateY(0);

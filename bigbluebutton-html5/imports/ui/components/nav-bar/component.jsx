@@ -53,6 +53,10 @@ const intlMessages = defineMessages({
     id: 'app.recording.stopTitle',
     description: 'stop recording title',
   },
+  resumeTitle: {
+    id: 'app.recording.resumeTitle',
+    description: 'resume recording title',
+  },
 });
 
 const propTypes = {
@@ -104,6 +108,7 @@ class NavBar extends PureComponent {
       isActionsOpen: false,
       didSendBreakoutInvite: false,
       time: (props.recordProps.time ? props.recordProps.time : 0),
+      amIModerator: props.amIModerator,
     };
 
     this.incrementTime = this.incrementTime.bind(this);
@@ -120,6 +125,10 @@ class NavBar extends PureComponent {
       connectRecordingObserver();
       window.addEventListener('message', processOutsideToggleRecording);
     }
+  }
+
+  static getDerivedStateFromProps(nextProps) {
+    return { amIModerator: nextProps.amIModerator };
   }
 
   componentDidUpdate(oldProps) {
@@ -176,7 +185,7 @@ class NavBar extends PureComponent {
 
       if (!userOnMeeting) return;
 
-      if ((!didSendBreakoutInvite && !isBreakoutRoom) ) {
+      if ((!didSendBreakoutInvite && !isBreakoutRoom)) {
         this.inviteUserToBreakout(breakout);
       }
     });
@@ -269,21 +278,30 @@ class NavBar extends PureComponent {
 
   render() {
     const {
-      amIModerator,
       hasUnreadMessages,
       recordProps,
       isExpanded,
       intl,
       shortcuts: TOGGLE_USERLIST_AK,
       mountModal,
+      isBreakoutRoom,
     } = this.props;
 
     const recordingMessage = recordProps.recording ? 'recordingIndicatorOn' : 'recordingIndicatorOff';
 
-    const { time } = this.state;
+    const { time, amIModerator } = this.state;
+
+    let recordTitle;
 
     if (!this.interval) {
       this.interval = setInterval(this.incrementTime, 1000);
+    }
+
+    if (!recordProps.recording) {
+      recordTitle = recordProps.time >= 0 ? intl.formatMessage(intlMessages.resumeTitle)
+        : intl.formatMessage(intlMessages.startTitle);
+    } else {
+      recordTitle = intl.formatMessage(intlMessages.stopTitle);
     }
 
     const toggleBtnClasses = {};
@@ -318,15 +336,14 @@ class NavBar extends PureComponent {
           <RecordingIndicator
             {...recordProps}
             title={intl.formatMessage(intlMessages[recordingMessage])}
-            buttonTitle={(!recordProps.recording ? intl.formatMessage(intlMessages.startTitle)
-              : intl.formatMessage(intlMessages.stopTitle))}
+            buttonTitle={recordTitle}
             mountModal={mountModal}
             time={time}
-            amIModerator={amIModerator()}
+            amIModerator={amIModerator}
           />
         </div>
         <div className={styles.right}>
-          <SettingsDropdownContainer amIModerator={amIModerator()} />
+          <SettingsDropdownContainer amIModerator={amIModerator} isBreakoutRoom={isBreakoutRoom} />
         </div>
       </div>
     );

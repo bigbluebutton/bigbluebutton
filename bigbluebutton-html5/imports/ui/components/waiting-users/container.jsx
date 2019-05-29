@@ -14,7 +14,7 @@ class WaitingContainer extends PureComponent {
 }
 
 export default withTracker(() => {
-  const  guestUsers = GuestUsers.find({
+  const guestUsers = GuestUsers.find({
     meetingId: Auth.meetingID,
     guest: true,
     approved: false,
@@ -34,5 +34,6 @@ export default withTracker(() => {
     guestUsers,
     authenticatedUsers,
     guestUsersCall: Service.guestUsersCall,
+    changeGuestPolicy: Service.changeGuestPolicy,
   };
 })(WaitingContainer);

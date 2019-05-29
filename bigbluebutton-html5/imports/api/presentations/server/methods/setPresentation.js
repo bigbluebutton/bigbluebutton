@@ -18,17 +18,22 @@ export default function setPresentation(credentials, presentationId, podId) {
     meetingId,
     id: presentationId,
     podId,
-    current: true,
   });
 
-  if (currentPresentation && currentPresentation.id === presentationId) {
-    return Promise.resolve();
+  if (currentPresentation) {
+    if (currentPresentation.current) {
+      return Promise.resolve();
+    }
+
+    const payload = {
+      presentationId,
+      podId,
+    };
+
+    return RedisPubSub.publishUserMessage(CHANNEL, EVENT_NAME, meetingId, requesterUserId, payload);
   }
 
-  const payload = {
-    presentationId,
-    podId,
-  };
-
-  return RedisPubSub.publishUserMessage(CHANNEL, EVENT_NAME, meetingId, requesterUserId, payload);
+  // did not find presentation with such id. abandon
+  // return Promise.resolve(); // will close the uploading modal
+  throw new Meteor.Error('presentation-not-found', `Did not find a presentation with id ${presentationId} in method setPresentation`);
 }

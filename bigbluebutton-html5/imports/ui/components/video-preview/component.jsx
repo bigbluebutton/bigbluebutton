@@ -1,19 +1,25 @@
 import PropTypes from 'prop-types';
 import React, { Component } from 'react';
-import { defineMessages, injectIntl, intlShape } from 'react-intl';
+import {
+  defineMessages, injectIntl, intlShape, FormattedMessage,
+} from 'react-intl';
 import Button from '/imports/ui/components/button/component';
-import { notify } from '/imports/ui/services/notification';
+// import { notify } from '/imports/ui/services/notification';
 import logger from '/imports/startup/client/logger';
 import Modal from '/imports/ui/components/modal/simple/component';
+import browser from 'browser-detect';
 import { styles } from './styles';
 
-const VIDEO_CONSTRAINTS = Meteor.settings.public.kurento.cameraConstraints;
+
+// const VIDEO_CONSTRAINTS = Meteor.settings.public.kurento.cameraConstraints;
+const CAMERA_PROFILES = Meteor.settings.public.kurento.cameraProfiles;
 
 const propTypes = {
   intl: intlShape.isRequired,
   closeModal: PropTypes.func.isRequired,
   startSharing: PropTypes.func.isRequired,
   changeWebcam: PropTypes.func.isRequired,
+  changeProfile: PropTypes.func.isRequired,
 };
 
 const intlMessages = defineMessages({
@@ -33,6 +39,10 @@ const intlMessages = defineMessages({
     id: 'app.videoPreview.cameraLabel',
     description: 'Camera dropdown label',
   },
+  qualityLabel: {
+    id: 'app.videoPreview.profileLabel',
+    description: 'Quality dropdown label',
+  },
   cancelLabel: {
     id: 'app.videoPreview.cancelLabel',
     description: 'Cancel button label',
@@ -48,6 +58,10 @@ const intlMessages = defineMessages({
   webcamNotFoundLabel: {
     id: 'app.videoPreview.webcamNotFoundLabel',
     description: 'Webcam not found label',
+  },
+  profileNotFoundLabel: {
+    id: 'app.videoPreview.profileNotFoundLabel',
+    description: 'Profile not found label',
   },
   permissionError: {
     id: 'app.video.permissionError',
@@ -82,56 +96,84 @@ class VideoPreview extends Component {
     this.handleJoinVideo = this.handleJoinVideo.bind(this);
     this.handleProceed = this.handleProceed.bind(this);
     this.handleStartSharing = this.handleStartSharing.bind(this);
-    this.webcamListener = this.webcamListener.bind(this);
+    // this.startPreview = this.startPreview.bind(this);
+    this.scanProfiles = this.scanProfiles.bind(this);
+    this.doGUM = this.doGUM.bind(this);
+    this.displayPreview = this.displayPreview.bind(this);
 
     this.deviceStream = null;
+
+    this._isMounted = false;
 
     this.state = {
       webcamDeviceId,
       availableWebcams: null,
-      isStartSharingDisabled: false,
-      isInitialDeviceSet: false,
-      cameraAllowed: false,
+      availableProfiles: {},
+      selectedProfile: null,
+      isStartSharingDisabled: true,
     };
   }
 
   stopTracks() {
+    // console.log("in stop tracks");
     if (this.deviceStream) {
+      // console.log("stopping tracks");
       this.deviceStream.getTracks().forEach((track) => {
+        // console.log("found track to stop");
         track.stop();
       });
     }
   }
 
-  handlegUMError(error) {
-    const {
-      intl,
-    } = this.props;
-    const errorMessage = intlMessages[error.name]
-      || intlMessages.permissionError;
-    notify(intl.formatMessage(errorMessage), 'error', 'video');
-    logger.error({ logCode: 'videopreview_component_gum_error' }, error);
+  handleGUMError(error) {
+    // logger.error(error);
+    // logger.error(error.id);
+    // logger.error(error.name);
+    // console.log(error);
+
+    let convertedError;
+
+    switch (error.name) {
+      case 'SourceUnavailableError':
+      case 'NotReadableError':
+        // hardware failure with the device
+        break;
+      case 'NotAllowedError':
+        // media was disallowed
+        convertedError = intlMessages.NotAllowedError;
+        break;
+      case 'AbortError':
+        // generic error occured
+        break;
+      case 'NotFoundError':
+        // no webcam found
+        convertedError = intlMessages.NotFoundError;
+        break;
+      case 'SecurityError':
+        // user media support is disabled on the document
+        break;
+      case 'TypeError':
+        // issue with constraints or maybe Chrome with HTTP
+        break;
+      default:
+        // default error message handling
+        break;
+    }
   }
 
   handleSelectWebcam(event) {
-    const {
-      changeWebcam,
-    } = this.props;
-
     const webcamValue = event.target.value;
-    this.setState({ webcamDeviceId: webcamValue });
-    changeWebcam(webcamValue);
-    VIDEO_CONSTRAINTS.deviceId = webcamValue ? { exact: webcamValue } : undefined;
-    const constraints = {
-      video: VIDEO_CONSTRAINTS,
-    };
-    this.stopTracks();
-    navigator.mediaDevices.getUserMedia(constraints).then((stream) => {
-      this.video.srcObject = stream;
-      this.deviceStream = stream;
-    }).catch((error) => {
-      this.handlegUMError(error);
-    });
+
+    this.scanProfiles(webcamValue);
+  }
+
+  handleSelectProfile(event) {
+    const profileValue = event.target.value;
+    const { webcamDeviceId } = this.state;
+
+    const selectedProfile = CAMERA_PROFILES.find(profile => profile.id === profileValue);
+
+    this.displayPreview(webcamDeviceId, selectedProfile);
   }
 
   handleStartSharing() {
@@ -148,74 +190,203 @@ class VideoPreview extends Component {
     if (resolve) resolve();
   }
 
-  componentDidMount() {
-    const { webcamDeviceId, changeWebcam } = this.props;
-    const constraints = {
-      video: VIDEO_CONSTRAINTS,
+  scanProfiles(deviceId) {
+    const { changeWebcam } = this.props;
+
+    this.stopTracks();
+
+    this.setState({ webcamDeviceId: deviceId });
+    changeWebcam(deviceId);
+
+    const availableProfiles = [];
+    let currNum = 0;
+    let previousWidth = 0;
+    let previousHeight = 0;
+
+    this.setState({
+      scanning: true,
+      isStartSharingDisabled: true,
+    });
+
+    // logger.debug('starting scan');
+
+    const checkWebcamExists = () => {
+      // logger.debug('initial webcam check');
+      // we call gUM with no constraints so we know if any stream is available
+      this.doGUM(deviceId, {}).then((stream) => {
+        if (!this._isMounted) return;
+
+        // We don't need to do anything with the returned stream
+        nextProfile();
+      }).catch((error) => {
+        if (!this._isMounted) return;
+
+        // webcam might no longer exist or be available
+        logger.debug(`Error with profile: ${CAMERA_PROFILES[currNum].name}`);
+
+        this.handleGUMError(error);
+
+        scanningCleanup();
+      });
     };
 
-    navigator.mediaDevices.enumerateDevices().then(async (devices) => {
-      const { isInitialDeviceSet } = this.state;
-      const webcams = [];
+    const nextProfile = () => {
+      // logger.debug('next profile');
+      if (currNum < CAMERA_PROFILES.length) {
+        this.doGUM(deviceId, CAMERA_PROFILES[currNum]).then((stream) => {
+          if (!this._isMounted) return;
 
-      // set webcam
-      devices.forEach((device) => {
-        if (device.kind === 'videoinput') {
-          if (!isInitialDeviceSet || (webcamDeviceId && webcamDeviceId === device.deviceId)) {
-            changeWebcam(device.deviceId);
-            this.setState({ webcamDeviceId: device.deviceId });
-            this.setState({ isInitialDeviceSet: true });
-          }
-        }
+          logger.debug(`Display preview came back for profile: ${CAMERA_PROFILES[currNum].name}`);
+          this.video.srcObject = stream;
+          this.deviceStream = stream;
+        }).catch((error) => {
+          if (!this._isMounted) return;
+
+          logger.debug(`Error with fetching profile {${CAMERA_PROFILES[currNum].name}} skipping to next profile. Error is {${error.name}}`);
+          currNum++;
+          nextProfile();
+        });
+      } else {
+        // do clean up and select the starting profile
+        scanningCleanup();
+      }
+    };
+
+    const getVideoDimensions = () => {
+      // logger.debug('loaded metadata');
+      if (!this.video.videoWidth) {
+        // logger.debug('no video width yet');
+        setTimeout(getVideoDimensions, 250);
+      }
+
+      if (this.video.videoWidth !== previousWidth || this.video.videoHeight !== previousHeight) {
+        previousWidth = this.video.videoWidth;
+        previousHeight = this.video.videoHeight;
+        logger.debug(`Found profile ${CAMERA_PROFILES[currNum].name}`);
+        availableProfiles.push(CAMERA_PROFILES[currNum]);
+      } else {
+        logger.debug(`Not including profile ${CAMERA_PROFILES[currNum].name}`);
+      }
+
+      currNum++;
+      nextProfile();
+    };
+
+    const scanningCleanup = () => {
+      this.video.onloadedmetadata = undefined;
+
+      if (availableProfiles.length > 0) {
+        const defaultProfile = availableProfiles.find(profile => profile.default)
+          || availableProfiles[0];
+        logger.debug(`Found default profile: ${JSON.stringify(defaultProfile)}`);
+
+        this.displayPreview(deviceId, defaultProfile);
+      }
+
+      this.setState({
+        scanning: false,
+        availableProfiles,
       });
+    };
 
-      if (webcams.length > 0) {
-        this.setState({ availableWebcams: webcams });
-      }
+    this.video.onloadedmetadata = getVideoDimensions;
 
-      constraints.video.deviceId = { exact: this.state.webcamDeviceId };
+    checkWebcamExists();
+  }
 
-      try {
-        await navigator.mediaDevices.getUserMedia(constraints);
-      } catch (exception) {
-        logger.info({ logCode: 'insufficient_constraints' }, 'No webcam found for constraint values, increasing constraints.', exception);
-        constraints.video.width = { max: 640 };
-        constraints.video.height = { max: 480 };
-      }
+  doGUM(deviceId, profile) {
+    const constraints = {
+      audio: false,
+      video: { ...profile.constraints },
+    };
+    constraints.video.deviceId = { exact: deviceId };
 
-      navigator.mediaDevices.getUserMedia(constraints).then((stream) => {
-        // display the preview
-        this.setState({ cameraAllowed: true });
-        this.video.srcObject = stream;
-        this.deviceStream = stream;
+    this.stopTracks();
+    this.video.srcObject = null;
+    this.deviceStream = null;
 
-        navigator.mediaDevices.enumerateDevices().then((devices) => {
-          // get the list of webcams (labels are available at this point)
+    return navigator.mediaDevices.getUserMedia(constraints);
+  }
+
+  displayPreview(deviceId, profile) {
+    const { changeProfile } = this.props;
+
+    this.setState({ selectedProfile: profile.id });
+    changeProfile(profile.id);
+
+    this.doGUM(deviceId, profile).then((stream) => {
+      if (!this._isMounted) return;
+
+      this.setState({
+        isStartSharingDisabled: false,
+      });
+      this.video.srcObject = stream;
+      this.deviceStream = stream;
+    }).catch((error) => {
+      logger.warning({ logCode: 'video_preview_error' }, `Error displaying final selection. name: [${error.name}] message: [${error.message}]`);
+      // logger.debug(error);
+    });
+  }
+
+  componentDidMount() {
+    const { webcamDeviceId } = this.props;
+
+    this._isMounted = true;
+
+    // Have to request any device to get past checks before finding devices. If this is
+    // skipped then we get devices with no labels
+    try {
+      navigator.mediaDevices.getUserMedia({ audio: false, video: true }).then((stream) => {
+        if (!this._isMounted) return;
+
+        navigator.mediaDevices.enumerateDevices().then(async (devices) => {
+          const webcams = [];
+          let initialDeviceId;
+
+          if (!this._isMounted) return;
+
+          // set webcam
           devices.forEach((device) => {
             if (device.kind === 'videoinput') {
               webcams.push(device);
+              if (!initialDeviceId || (webcamDeviceId && webcamDeviceId === device.deviceId)) {
+                initialDeviceId = device.deviceId;
+              }
             }
           });
-          if (webcams.length > 0) {
-            this.setState({ availableWebcams: webcams });
+
+          logger.debug(`Enumerate devices came back. There are ${devices.length} devices and ${webcams.length} are video inputs`);
+
+          if (initialDeviceId) {
+            this.setState({
+              availableWebcams: webcams,
+            });
+
+            this.scanProfiles(initialDeviceId);
           }
+        }).catch((error) => {
+          // CHANGE THIS TO SOMETHING USEFUL
+          logger.warning(`Error enumerating devices. name: [${error.name}] message: [${error.message}]`);
+          this.handleGUMError(error);
         });
       });
-    });
+    } catch (error) {
+      // CHANGE THIS TO SOMETHING USEFUL
+      logger.warning(`Error grabbing initial video stream. name: [${error.name}] message: [${error.message}]`);
+      this.handleGUMError(error);
+    }
   }
 
-  componentDidUpdate() {
-    this.webcamListener();
-  }
+  componentWillUnmount() {
+    // console.log("unmounting video preview");
+    this.stopTracks();
+    this.deviceStream = null;
+    if (this.video) {
+      // console.log("clear video srcObject");
+      this.video.srcObject = null;
+    }
 
-  async webcamListener() {
-    const { cameraAllowed, isInitialDeviceSet } = this.state;
-    const getDevices = await navigator.mediaDevices.enumerateDevices();
-    const hasVideoInput = getDevices.filter(device => device.kind === 'videoinput').length > 0;
-
-    this.setState({
-      isStartSharingDisabled: !(hasVideoInput && cameraAllowed && isInitialDeviceSet),
-    });
+    this._isMounted = false;
   }
 
   handleJoinVideo() {
@@ -234,15 +405,31 @@ class VideoPreview extends Component {
     const {
       webcamDeviceId,
       availableWebcams,
+      availableProfiles,
+      selectedProfile,
       isStartSharingDisabled,
     } = this.state;
+
     return (
       <Modal
         overlayClassName={styles.overlay}
         className={styles.modal}
         onRequestClose={this.handleProceed}
         hideBorder
+        contentLabel={intl.formatMessage(intlMessages.webcamSettingsTitle)}
       >
+        {browser().name === 'edge' || browser().name === 'ie' ? (
+          <p className={styles.browserWarning}>
+            <FormattedMessage
+              id="app.audioModal.unsupportedBrowserLabel"
+              description="Warning when someone joins with a browser that isnt supported"
+              values={{
+                0: <a href="https://www.google.com/chrome/">Chrome</a>,
+                1: <a href="https://getfirefox.com">Firefox</a>,
+              }}
+            />
+          </p>
+        ) : null }
         <div className={styles.title}>
           {intl.formatMessage(intlMessages.webcamSettingsTitle)}
         </div>
@@ -256,37 +443,54 @@ class VideoPreview extends Component {
               playsInline
             />
           </div>
-          <div className={styles}>
-            <label className={styles.label}>
+          <div className={styles.col}>
+            <label className={styles.label} htmlFor="setCam">
               {intl.formatMessage(intlMessages.cameraLabel)}
             </label>
             {availableWebcams && availableWebcams.length > 0 ? (
               <select
+                id="setCam"
                 value={webcamDeviceId}
                 className={styles.select}
                 onChange={this.handleSelectWebcam.bind(this)}
               >
-                <option disabled>
-                  {intl.formatMessage(intlMessages.webcamOptionLabel)}
-                </option>
-                {availableWebcams.map((webcam, index) => (
-                  <option key={index} value={webcam.deviceId}>
+                {availableWebcams.map(webcam => (
+                  <option key={webcam.deviceId} value={webcam.deviceId}>
                     {webcam.label}
                   </option>
                 ))}
               </select>
             )
               : (
-                <select
-                  className={styles.select}
-                >
-                  <option disabled>
-                    {intl.formatMessage(intlMessages.webcamNotFoundLabel)}
+                <span>
+                  {intl.formatMessage(intlMessages.webcamNotFoundLabel)}
+                </span>
+              )}
+            <label className={styles.label} htmlFor="setQuality">
+              {intl.formatMessage(intlMessages.qualityLabel)}
+            </label>
+            {availableProfiles && availableProfiles.length > 0 ? (
+              <select
+                id="setQuality"
+                value={selectedProfile}
+                className={styles.select}
+                onChange={this.handleSelectProfile.bind(this)}
+              >
+                {availableProfiles.map(profile => (
+                  <option key={profile.id} value={profile.id}>
+                    {profile.name}
                   </option>
-                </select>
+                ))}
+              </select>
+            )
+              : (
+                <span>
+                  {intl.formatMessage(intlMessages.profileNotFoundLabel)}
+                </span>
               )}
           </div>
         </div>
+
         <div className={styles.footer}>
           <div className={styles.actions}>
             <Button

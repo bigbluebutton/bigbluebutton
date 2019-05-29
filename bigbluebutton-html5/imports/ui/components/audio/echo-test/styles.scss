@@ -11,10 +11,18 @@
   }
 
   &:first-child {
-    margin-right: 3rem;
+    margin: 0 3rem 0 0;
+
+    [dir="rtl"] & {
+      margin: 0 0 0 3rem;
+    }
 
     @include mq($small-only) {
-      margin-right: 1rem;
+      margin: 0 1rem 0 0;
+
+      [dir="rtl"] & {
+        margin: 0 0 0 1rem;
+      }
     }
   }
 

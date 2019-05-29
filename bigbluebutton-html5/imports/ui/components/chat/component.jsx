@@ -5,7 +5,7 @@ import injectWbResizeEvent from '/imports/ui/components/presentation/resize-wrap
 import Button from '/imports/ui/components/button/component';
 import { Session } from 'meteor/session';
 import withShortcutHelper from '/imports/ui/components/shortcut-help/service';
-import { styles } from './styles';
+import { styles } from './styles.scss';
 import MessageForm from './message-form/component';
 import MessageList from './message-list/component';
 import ChatDropdown from './chat-dropdown/component';
@@ -71,9 +71,10 @@ const Chat = (props) => {
           chatID !== 'public'
             ? (
               <Button
-                className={styles.closeBtn}
                 icon="close"
-                size="md"
+                size="sm"
+                ghost
+                color="dark"
                 hideLabel
                 onClick={() => {
                   actions.handleClosePrivateChat(chatID);

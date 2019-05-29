@@ -16,15 +16,13 @@
 
 .avatar {
   position: relative;
-  width: 100%;
-  height: 0;
-  padding-bottom: 100%;
+  padding-bottom: 2rem;
   border-radius: 50%;
   text-align: center;
-  text-transform: capitalize;
   font-size: .85rem;
+  border: 2px solid transparent;
 
-  [style~="--enableAnimation:1;"] & {
+  :global(.animationsEnabled) & {
     transition: .3s ease-in-out;
   }
 
@@ -34,7 +32,10 @@
     position: absolute;
     width: 0;
     height: 0;
-    padding: .5rem;
+    padding-top: .5rem;
+    padding-right: 0;
+    padding-left: 0;
+    padding-bottom: 0;
     color: inherit;
     top: auto;
     left: auto;
@@ -53,7 +54,14 @@
     letter-spacing: -.65rem;
     z-index: 1;
 
-    [style~="--enableAnimation:1;"] & {
+    [dir="rtl"] & {
+      left: var(--user-indicators-offset);
+      right: auto;
+      padding-right: .65rem;
+      padding-left: 0;
+    }
+
+    :global(.animationsEnabled) & {
         transition: .3s ease-in-out;
     }
   }
@@ -68,12 +76,12 @@
   background-color: var(--user-color);
   border-radius: inherit;
 
-  [style~="--enableAnimation:1;"] & {
+  :global(.animationsEnabled) & {
     animation: pulse 1s infinite ease-in;
   }
 
   &::before {
-    [style~="--enableAnimation:0;"] & {
+    :global(.animationsDisabled) & {
       content: '';
       position: absolute;
       top: 0;
@@ -116,6 +124,19 @@
     background-color: var(--user-indicator-voice-bg);
     top: 1.375rem;
     left: 1.375rem;
+    right: auto;
+
+    [dir="rtl"] & {
+      left: auto;
+      right: 1.375rem;
+    }
+  }
+}
+
+.noVoice {
+  &:after {
+    content: "";
+    background-color: var(--color-off-white);
   }
 }
 
@@ -134,7 +155,8 @@
 
 .listenOnly,
 .muted,
-.voice {
+.voice,
+.noVoice {
   @include indicatorStyles();
 }
 

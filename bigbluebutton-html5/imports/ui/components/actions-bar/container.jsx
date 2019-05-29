@@ -8,7 +8,11 @@ import PresentationService from '/imports/ui/components/presentation/service';
 import ActionsBar from './component';
 import Service from './service';
 import VideoService from '../video-provider/service';
-import { shareScreen, unshareScreen, isVideoBroadcasting } from '../screenshare/service';
+import ExternalVideoService from '/imports/ui/components/external-video-player/service';
+import CaptionsService from '/imports/ui/components/captions/service';
+import {
+  shareScreen, unshareScreen, isVideoBroadcasting, screenShareEndAlert,
+} from '../screenshare/service';
 
 import MediaService, { getSwapLayout } from '../media/service';
 
@@ -27,10 +31,10 @@ export default withTracker(() => {
     },
   });
 
-
   return {
     isUserPresenter: Service.isUserPresenter(),
     isUserModerator: Service.isUserModerator(),
+    stopExternalVideoShare: ExternalVideoService.stopWatching,
     handleExitVideo: () => VideoService.exitVideo(),
     handleJoinVideo: () => VideoService.joinVideo(),
     handleShareScreen: onFail => shareScreen(onFail),
@@ -40,19 +44,13 @@ export default withTracker(() => {
     toggleRecording: Service.toggleRecording,
     screenSharingCheck: getFromUserSettings('enableScreensharing', Meteor.settings.public.kurento.enableScreensharing),
     enableVideo: getFromUserSettings('enableVideo', Meteor.settings.public.kurento.enableVideo),
-    createBreakoutRoom: Service.createBreakoutRoom,
-    meetingIsBreakout: Service.meetingIsBreakout(),
-    hasBreakoutRoom: Service.hasBreakoutRoom(),
-    meetingName: Service.meetingName(),
-    users: Service.users(),
     isLayoutSwapped: getSwapLayout(),
     toggleSwapLayout: MediaService.toggleSwapLayout,
-    sendInvitation: Service.sendInvitation,
-    getBreakouts: Service.getBreakouts,
-    getUsersNotAssigned: Service.getUsersNotAssigned,
     handleTakePresenter: Service.takePresenterRole,
     currentSlidHasContent: PresentationService.currentSlidHasContent(),
     parseCurrentSlideContent: PresentationService.parseCurrentSlideContent,
     isSharingVideo: Service.isSharingVideo(),
+    screenShareEndAlert,
+    isCaptionsAvailable: CaptionsService.isCaptionsAvailable(),
   };
 })(injectIntl(ActionsBarContainer));

@@ -12,6 +12,10 @@
   background-size: 100% 40px, 100% 40px, 100% 14px, 100% 14px;
   background-attachment: local, local, scroll, scroll;
 
+  :global(.browser-edge) & {
+    background: none;
+  }
+
 	// Fancy scroll
   &::-webkit-scrollbar {
     width: 5px;

@@ -61,7 +61,6 @@ class BreakoutRoom extends Component {
     this.state = {
       requestedBreakoutId: '',
       waiting: false,
-      generated: false,
       joinedAudioOnly: false,
       breakoutId: '',
     };
@@ -76,18 +75,18 @@ class BreakoutRoom extends Component {
 
     const {
       waiting,
-      generated,
       requestedBreakoutId,
     } = this.state;
 
     if (breakoutRooms.length <= 0) closeBreakoutPanel();
 
-    if (waiting && !generated) {
+    if (waiting) {
       const breakoutUser = breakoutRoomUser(requestedBreakoutId);
 
       if (!breakoutUser) return;
       if (breakoutUser.redirectToHtml5JoinURL !== '') {
-        _.delay(() => this.setState({ generated: true, waiting: false }), 1000);
+        window.open(breakoutUser.redirectToHtml5JoinURL, '_blank');
+        _.delay(() => this.setState({ waiting: false }), 1000);
       }
     }
   }
@@ -101,15 +100,14 @@ class BreakoutRoom extends Component {
         {
           waiting: true,
           requestedBreakoutId: breakoutId,
-          generated: false,
         },
         () => requestJoinURL(breakoutId),
       );
     }
 
     if (hasUser) {
-      window.open(hasUser.redirectToHtml5JoinURL);
-      this.setState({ waiting: false, generated: false });
+      window.open(hasUser.redirectToHtml5JoinURL, '_blank');
+      this.setState({ waiting: false });
     }
     return null;
   }
@@ -136,7 +134,6 @@ class BreakoutRoom extends Component {
     const {
       joinedAudioOnly,
       breakoutId: stateBreakoutId,
-      generated,
       requestedBreakoutId,
       waiting,
     } = this.state;
@@ -149,12 +146,8 @@ class BreakoutRoom extends Component {
     return (
       <div className={styles.breakoutActions}>
         <Button
-          label={generated && requestedBreakoutId === breakoutId
-            ? intl.formatMessage(intlMessages.generatedURL)
-            : intl.formatMessage(intlMessages.breakoutJoin)}
-          aria-label={generated && requestedBreakoutId === breakoutId
-            ? intl.formatMessage(intlMessages.generatedURL)
-            : `${intl.formatMessage(intlMessages.breakoutJoin)} ${number}`}
+          label={intl.formatMessage(intlMessages.breakoutJoin)}
+          aria-label={`${intl.formatMessage(intlMessages.breakoutJoin)} ${number}`}
           onClick={() => this.getBreakoutURL(breakoutId)}
           disabled={disable}
           className={styles.joinButton}
@@ -187,6 +180,7 @@ class BreakoutRoom extends Component {
     const {
       breakoutRooms,
       intl,
+      getUsersByBreakoutId,
     } = this.props;
 
     const {
@@ -200,7 +194,7 @@ class BreakoutRoom extends Component {
           {intl.formatMessage(intlMessages.breakoutRoom, breakout.sequence.toString())}
           <span className={styles.usersAssignedNumberLabel}>
             (
-            {new Set(breakout.users.map(user => user.intId)).size}
+            {getUsersByBreakoutId(breakout.breakoutId).count()}
             )
           </span>
         </span>

@@ -1,5 +1,6 @@
 @import "/imports/ui/stylesheets/variables/_all";
 @import "/imports/ui/stylesheets/mixins/_scrollable";
+@import "/imports/ui/stylesheets/mixins/_indicators";
 
 /* Variables
  * ==========
@@ -46,24 +47,32 @@
   flex-flow: row;
   border-top-left-radius: 5px;
   border-bottom-left-radius: 5px;
+  border-top-right-radius: 0;
+  border-bottom-right-radius: 0;
   cursor: pointer;
 
-  [style~="--enableAnimation:1;"] & {
-    transition: all .3s;
+  [dir="rtl"] & {
+    border-top-left-radius: 0;
+    border-bottom-left-radius: 0;
+    border-top-right-radius: 5px;
+    border-bottom-right-radius: 5px;
   }
 
   &:first-child {
     margin-top: 0;
   }
 
-  &:focus {
+  &:hover {
+    @include highContrastOutline();
     background-color: var(--list-item-bg-hover);
-    box-shadow: inset 0 0 0 var(--border-size) var(--item-focus-border), inset 1px 0 0 1px var(--item-focus-border);
-    outline: none;
   }
 
-  &:hover {
+  &:active,
+  &:focus {
+    @include highContrastOutline();
+    outline-style: solid;
     background-color: var(--list-item-bg-hover);
+    box-shadow: inset 0 0 0 var(--border-size) var(--item-focus-border), inset 1px 0 0 1px var(--item-focus-border);
   }
 }
 
@@ -84,7 +93,16 @@
   @extend %flex-column;
   @extend %no-margin;
   padding: 0;
+  padding-top: var(--border-size);
   outline: none;
+}
+
+.participantsList {
+  padding: 0 0 var(--border-size) var(--border-size);
+
+  [dir="rtl"] & {
+    padding: 0 var(--border-size) var(--border-size) 0;
+  }
 }
 
 .participantsList,
@@ -121,7 +139,7 @@
   text-transform: uppercase;
   padding: 0 var(--sm-padding-x);
   margin: 0 0 (var(--lg-padding-x) / 2) 0;
-  color: var(--color-gray-light);
+  color: var(--color-gray);
 }
 
 .userListColumn {
@@ -138,7 +156,7 @@
 .appearActive {
   opacity: 1;
   
-  [style~="--enableAnimation:1;"] & {
+  :global(.animationsEnabled) & {
     transition: all 600ms;
   }
 }
@@ -150,7 +168,7 @@
 .leaveActive {
   opacity: 0;
 
-  [style~="--enableAnimation:1;"] & {
+  :global(.animationsEnabled) & {
     transition: all 600ms;
   }
 }

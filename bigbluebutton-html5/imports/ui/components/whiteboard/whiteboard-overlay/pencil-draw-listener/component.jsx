@@ -224,7 +224,7 @@ export default class PencilDrawListener extends Component {
   }
 
   render() {
-    const baseName = Meteor.settings.public.app.basename;
+    const baseName = Meteor.settings.public.app.cdn + Meteor.settings.public.app.basename;
     const pencilDrawStyle = {
       width: '100%',
       height: '100%',

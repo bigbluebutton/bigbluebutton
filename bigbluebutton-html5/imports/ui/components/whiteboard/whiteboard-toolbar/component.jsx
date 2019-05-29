@@ -5,6 +5,7 @@ import { HEXToINTColor, INTToHEXColor } from '/imports/utils/hexInt';
 import { defineMessages, injectIntl, intlShape } from 'react-intl';
 import browser from 'browser-detect';
 import { noop } from 'lodash';
+import KEY_CODES from '/imports/utils/keyCodes';
 import injectWbResizeEvent from '/imports/ui/components/presentation/resize-wrapper/component';
 import { styles } from './styles.scss';
 import ToolbarMenuItem from './toolbar-menu-item/component';
@@ -57,6 +58,10 @@ const intlMessages = defineMessages({
     id: 'app.whiteboard.toolbar.fontSize',
     description: 'Whiteboard toolbar font size menu',
   },
+  toolbarItemPan: {
+    id: 'app.whiteboard.toolbar.tools.hand',
+    description: 'Label for the pan toolbar item',
+  },
 });
 
 const isEdge = browser().name === 'edge';
@@ -84,6 +89,7 @@ class WhiteboardToolbar extends Component {
 
       // variables to keep current selected draw settings
       annotationSelected,
+      prevAnnotationSelected: annotationSelected,
       thicknessSelected: { value: 2 },
       colorSelected: { value: '#ff0000' },
       fontSizeSelected: { value: 20 },
@@ -97,6 +103,8 @@ class WhiteboardToolbar extends Component {
       // (click anywhere on the screen) thus we have to control the blur manually by disabling it
       // when you hover over the buttons in the list and enabling when the mouse leaves the list
       onBlurEnabled: true,
+
+      panMode: false,
     };
 
     this.displaySubMenu = this.displaySubMenu.bind(this);
@@ -112,10 +120,13 @@ class WhiteboardToolbar extends Component {
     this.handleMouseLeave = this.handleMouseLeave.bind(this);
     this.componentDidMount = runExceptInEdge(this.componentDidMount);
     this.componentDidUpdate = runExceptInEdge(this.componentDidUpdate);
+    this.panOn = this.panOn.bind(this);
+    this.panOff = this.panOff.bind(this);
   }
 
   componentWillMount() {
-    const drawSettings = this.props.actions.getCurrentDrawSettings();
+    const { actions } = this.props;
+    const drawSettings = actions.getCurrentDrawSettings();
     // if there are saved drawSettings in the session storage
     // - retrieve them and update toolbar values
     if (drawSettings) {
@@ -126,7 +137,7 @@ class WhiteboardToolbar extends Component {
       const {
         annotationSelected, thicknessSelected, colorSelected, fontSizeSelected,
       } = this.state;
-      this.props.actions.setInitialWhiteboardToolbarValues(
+      actions.setInitialWhiteboardToolbarValues(
         annotationSelected.value,
         thicknessSelected.value * 2,
         HEXToINTColor(colorSelected.value),
@@ -140,7 +151,12 @@ class WhiteboardToolbar extends Component {
   }
 
   componentDidMount() {
-    if (this.state.annotationSelected.value !== 'text') {
+    const { annotationSelected } = this.state;
+
+    document.addEventListener('keydown', this.panOn);
+    document.addEventListener('keyup', this.panOff);
+
+    if (annotationSelected.value !== 'text') {
       // trigger initial animation on the thickness circle, otherwise it stays at 0
       this.thicknessListIconColor.beginElement();
       this.thicknessListIconRadius.beginElement();
@@ -168,16 +184,31 @@ class WhiteboardToolbar extends Component {
     }
   }
 
+  componentWillUnmount() {
+    document.removeEventListener('keydown', this.panOn);
+    document.removeEventListener('keyup', this.panOff);
+  }
+
   setToolbarValues(drawSettings) {
+    const {
+      annotations,
+    } = this.props;
+
+    const {
+      whiteboardAnnotationThickness,
+      textFontSize, whiteboardAnnotationColor,
+      whiteboardAnnotationTool,
+    } = drawSettings;
+
     // divide by 2, since we need the radius for the thickness icon
-    const thicknessSelected = { value: drawSettings.whiteboardAnnotationThickness / 2 };
-    const fontSizeSelected = { value: drawSettings.textFontSize };
-    const colorSelected = { value: INTToHEXColor(drawSettings.whiteboardAnnotationColor) };
+    const thicknessSelected = { value: whiteboardAnnotationThickness / 2 };
+    const fontSizeSelected = { value: textFontSize };
+    const colorSelected = { value: INTToHEXColor(whiteboardAnnotationColor) };
 
     let annotationSelected = {};
-    for (let i = 0; i < this.props.annotations.length; i += 1) {
-      if (drawSettings.whiteboardAnnotationTool === this.props.annotations[i].value) {
-        annotationSelected = this.props.annotations[i];
+    for (let i = 0; i < annotations.length; i += 1) {
+      if (whiteboardAnnotationTool === annotations[i].value) {
+        annotationSelected = annotations[i];
         break;
       }
     }
@@ -189,7 +220,47 @@ class WhiteboardToolbar extends Component {
     });
   }
 
+  panOn(event) {
+    const { annotationSelected } = this.state;
+    const { target, which } = event;
+    const isBody = target.nodeName === 'BODY';
+
+    if (annotationSelected.value === 'hand' || !isBody) return;
+
+    const { annotations } = this.props;
+
+    if ([KEY_CODES.SPACE].includes(which)) {
+      this.setState(
+        {
+          panMode: true,
+          prevAnnotationSelected: annotationSelected,
+        },
+        this.handleAnnotationChange(annotations[annotations.length - 1]),
+      );
+    }
+  }
+
+  panOff(event) {
+    const { target, which } = event;
+    const isInputArea = target.nodeName === 'TEXTAREA' || target.nodeName === 'INPUT';
+
+    if (isInputArea) return;
+
+    const { prevAnnotationSelected } = this.state;
+
+    if ([KEY_CODES.SPACE].includes(which)) {
+      this.setState({ panMode: false },
+        this.handleAnnotationChange(prevAnnotationSelected));
+    }
+  }
+
   animateSvgIcons(prevState) {
+    const {
+      colorSelected,
+      annotationSelected,
+      thicknessSelected,
+    } = this.state;
+
     /* Animation for the svg icons that we use for thickness (circle) and color (rectangle)
      * has to be triggered manually
      * we have 4 main cases:
@@ -202,18 +273,18 @@ class WhiteboardToolbar extends Component {
      * 4. Trigger initial animation for the icons
     */
     // 1st case
-    if (this.state.colorSelected.value !== prevState.colorSelected.value) {
+    if (colorSelected.value !== prevState.colorSelected.value) {
       // 1st case b)
-      if (this.state.annotationSelected.value !== 'text') {
+      if (annotationSelected.value !== 'text') {
         this.thicknessListIconColor.beginElement();
       }
       // 1st case a)
       this.colorListIconColor.beginElement();
     // 2nd case
-    } else if (this.state.thicknessSelected.value !== prevState.thicknessSelected.value) {
+    } else if (thicknessSelected.value !== prevState.thicknessSelected.value) {
       this.thicknessListIconRadius.beginElement();
     // 3rd case
-    } else if (this.state.annotationSelected.value !== 'text'
+    } else if (annotationSelected.value !== 'text'
         && prevState.annotationSelected.value === 'text') {
       this.thicknessListIconRadius.beginElement();
       this.thicknessListIconColor.beginElement();
@@ -223,19 +294,27 @@ class WhiteboardToolbar extends Component {
 
   // open a submenu
   displaySubMenu(listName) {
+    const { currentSubmenuOpen } = this.state;
     this.setState({
-      currentSubmenuOpen: this.state.currentSubmenuOpen === listName ? '' : listName,
+      currentSubmenuOpen: currentSubmenuOpen === listName ? '' : listName,
     });
   }
 
   // close a current submenu (fires onBlur only, when you click anywhere on the screen)
   closeSubMenu() {
-    // a separate case for the active text shape
-    if (this.state.annotationSelected.value === 'text' && this.props.textShapeActiveId !== '') {
-      return;
-    }
+    const {
+      annotationSelected,
+      onBlurEnabled,
+    } = this.state;
 
-    if (this.state.onBlurEnabled) {
+    const {
+      textShapeActiveId,
+    } = this.props;
+
+    // a separate case for the active text shape
+    if (annotationSelected.value === 'text' && textShapeActiveId !== '') return;
+
+    if (onBlurEnabled) {
       this.setState({
         currentSubmenuOpen: undefined,
       });
@@ -244,22 +323,38 @@ class WhiteboardToolbar extends Component {
 
   // undo annotation
   handleUndo() {
-    this.props.actions.undoAnnotation(this.props.whiteboardId);
+    const {
+      actions,
+      whiteboardId,
+    } = this.props;
+
+    actions.undoAnnotation(whiteboardId);
   }
 
   // clear all annotations
   handleClearAll() {
-    this.props.actions.clearWhiteboard(this.props.whiteboardId);
+    const {
+      actions,
+      whiteboardId,
+    } = this.props;
+
+    actions.clearWhiteboard(whiteboardId);
   }
 
   handleSwitchWhiteboardMode() {
-    const { multiUser, whiteboardId } = this.props;
-    this.props.actions.changeWhiteboardMode(!multiUser, whiteboardId);
+    const {
+      multiUser,
+      whiteboardId,
+      actions,
+    } = this.props;
+
+    actions.changeWhiteboardMode(!multiUser, whiteboardId);
   }
 
   // changes a current selected annotation both in the state and in the session
   // and closes the annotation list
   handleAnnotationChange(annotation) {
+    const { actions } = this.props;
     const obj = {
       annotationSelected: annotation,
       onBlurEnabled: true,
@@ -271,26 +366,30 @@ class WhiteboardToolbar extends Component {
       obj.prevThicknessSelected = { value: 0 };
     }
 
-    this.props.actions.setTool(annotation.value);
+    actions.setTool(annotation.value);
     this.setState(obj);
   }
 
   // changes a current selected thickness both in the state and in the session
   // and closes the thickness list
-  handleThicknessChange(thicknessSelected) {
+  handleThicknessChange(incomingThickness) {
+    const { actions } = this.props;
+    const { thicknessSelected } = this.state;
+
     // thickness value * 2 since this is radius, we need to double it
-    this.props.actions.setThickness(thicknessSelected.value * 2);
+    actions.setThickness(incomingThickness.value * 2);
 
     this.setState({
-      prevThicknessSelected: this.state.thicknessSelected,
-      thicknessSelected,
+      prevThicknessSelected: thicknessSelected,
+      thicknessSelected: incomingThickness,
       onBlurEnabled: true,
       currentSubmenuOpen: '',
     });
   }
 
   handleFontSizeChange(fontSize) {
-    this.props.actions.setFontSize(fontSize.value);
+    const { actions } = this.props;
+    actions.setFontSize(fontSize.value);
 
     this.setState({
       fontSizeSelected: fontSize,
@@ -302,10 +401,12 @@ class WhiteboardToolbar extends Component {
   // changes a current selected color both in the state and in the session
   // and closes the color list
   handleColorChange(color) {
-    this.props.actions.setColor(HEXToINTColor(color.value));
+    const { actions } = this.props;
+    const { colorSelected } = this.state;
+    actions.setColor(HEXToINTColor(color.value));
 
     this.setState({
-      prevColorSelected: this.state.colorSelected,
+      prevColorSelected: colorSelected,
       colorSelected: color,
       onBlurEnabled: true,
       currentSubmenuOpen: '',
@@ -327,38 +428,49 @@ class WhiteboardToolbar extends Component {
   }
 
   renderToolItem() {
+    const { panMode, annotationSelected, currentSubmenuOpen } = this.state;
     const { intl, annotations } = this.props;
     const isDisabled = !annotations.length;
-    return (
-      <ToolbarMenuItem
-        disabled={isDisabled}
-        label={intl.formatMessage(intlMessages.toolbarTools)}
-        icon={this.state.annotationSelected.icon}
-        onItemClick={this.displaySubMenu}
-        objectToReturn="annotationList"
-        onBlur={this.closeSubMenu}
-        className={cx(styles.toolbarButton, this.state.currentSubmenuOpen === 'annotationList' ? styles.toolbarActive : null)}
-      >
-        {this.state.currentSubmenuOpen === 'annotationList' && annotations.length > 1
-          ? (
-            <ToolbarSubmenu
-              type="annotations"
-              customIcon={false}
-              label="Annotations"
-              onItemClick={this.handleAnnotationChange}
-              objectsToRender={annotations}
-              objectSelected={this.state.annotationSelected}
-              handleMouseEnter={this.handleMouseEnter}
-              handleMouseLeave={this.handleMouseLeave}
-            />
-          )
-          : null}
-      </ToolbarMenuItem>
-    );
+
+    return panMode
+      ? (
+        <ToolbarMenuItem
+          icon="hand"
+          label={intl.formatMessage(intlMessages.toolbarItemPan)}
+          onItemClick={() => {}}
+          className={styles.toolbarButton}
+        />
+      ) : (
+        <ToolbarMenuItem
+          disabled={isDisabled}
+          label={intl.formatMessage(intlMessages.toolbarTools)}
+          icon={annotationSelected.icon}
+          onItemClick={this.displaySubMenu}
+          objectToReturn="annotationList"
+          onBlur={this.closeSubMenu}
+          className={cx(styles.toolbarButton, currentSubmenuOpen === 'annotationList' ? styles.toolbarActive : null)}
+        >
+          {currentSubmenuOpen === 'annotationList' && annotations.length > 1
+            ? (
+              <ToolbarSubmenu
+                type="annotations"
+                customIcon={false}
+                label="Annotations"
+                onItemClick={this.handleAnnotationChange}
+                objectsToRender={panMode ? annotations[annotations.length - 1] : annotations}
+                objectSelected={annotationSelected}
+                handleMouseEnter={this.handleMouseEnter}
+                handleMouseLeave={this.handleMouseLeave}
+              />
+            )
+            : null}
+        </ToolbarMenuItem>
+      );
   }
 
   renderFontItem() {
-    const { intl } = this.props;
+    const { intl, fontSizes } = this.props;
+    const { currentSubmenuOpen, fontSizeSelected } = this.state;
 
     return (
       <ToolbarMenuItem
@@ -367,17 +479,17 @@ class WhiteboardToolbar extends Component {
         onItemClick={this.displaySubMenu}
         objectToReturn="fontSizeList"
         onBlur={this.closeSubMenu}
-        className={cx(styles.toolbarButton, this.state.currentSubmenuOpen === 'fontSizeList' ? styles.toolbarActive : null)}
+        className={cx(styles.toolbarButton, currentSubmenuOpen === 'fontSizeList' ? styles.toolbarActive : null)}
       >
-        {this.state.currentSubmenuOpen === 'fontSizeList'
+        {currentSubmenuOpen === 'fontSizeList'
           ? (
             <ToolbarSubmenu
               type="font-size"
               customIcon
               label="Font Size"
               onItemClick={this.handleFontSizeChange}
-              objectsToRender={this.props.fontSizes}
-              objectSelected={this.state.fontSizeSelected}
+              objectsToRender={fontSizes}
+              objectSelected={fontSizeSelected}
               handleMouseEnter={this.handleMouseEnter}
               handleMouseLeave={this.handleMouseLeave}
             />
@@ -388,12 +500,13 @@ class WhiteboardToolbar extends Component {
   }
 
   renderFontItemIcon() {
+    const { fontSizeSelected, colorSelected } = this.state;
     return (
       <p
         className={styles.textThickness}
         style={{
-          fontSize: this.state.fontSizeSelected.value,
-          color: this.state.colorSelected.value,
+          fontSize: fontSizeSelected.value,
+          color: colorSelected.value,
           WebkitTransition: `color ${TRANSITION_DURATION}, font-size ${TRANSITION_DURATION}`, /* Safari */
           transition: `color ${TRANSITION_DURATION}, font-size ${TRANSITION_DURATION}`,
         }}
@@ -404,8 +517,19 @@ class WhiteboardToolbar extends Component {
   }
 
   renderThicknessItem() {
-    const { intl, annotations } = this.props;
-    const isDisabled = this.state.annotationSelected.value === 'hand' || !annotations.length;
+    const {
+      intl,
+      annotations,
+      thicknessRadiuses,
+    } = this.props;
+
+    const {
+      annotationSelected,
+      currentSubmenuOpen,
+      thicknessSelected,
+    } = this.state;
+
+    const isDisabled = annotationSelected.value === 'hand' || !annotations.length;
     return (
       <ToolbarMenuItem
         disabled={isDisabled}
@@ -415,18 +539,18 @@ class WhiteboardToolbar extends Component {
         onItemClick={this.displaySubMenu}
         objectToReturn="thicknessList"
         onBlur={this.closeSubMenu}
-        className={cx(styles.toolbarButton, this.state.currentSubmenuOpen === 'thicknessList' ? styles.toolbarActive : null)}
+        className={cx(styles.toolbarButton, currentSubmenuOpen === 'thicknessList' ? styles.toolbarActive : null)}
         customIcon={this.renderThicknessItemIcon()}
       >
-        {this.state.currentSubmenuOpen === 'thicknessList'
+        {currentSubmenuOpen === 'thicknessList'
           ? (
             <ToolbarSubmenu
               type="thickness"
               customIcon
               label="Thickness"
               onItemClick={this.handleThicknessChange}
-              objectsToRender={this.props.thicknessRadiuses}
-              objectSelected={this.state.thicknessSelected}
+              objectsToRender={thicknessRadiuses}
+              objectSelected={thicknessSelected}
               handleMouseEnter={this.handleMouseEnter}
               handleMouseLeave={this.handleMouseLeave}
             />
@@ -437,6 +561,13 @@ class WhiteboardToolbar extends Component {
   }
 
   renderThicknessItemIcon() {
+    const {
+      colorSelected,
+      thicknessSelected,
+      prevThicknessSelected,
+      prevColorSelected,
+    } = this.state;
+
     return (
       <svg className={styles.customSvgIcon} shapeRendering="geometricPrecision">
         {isEdge
@@ -444,10 +575,10 @@ class WhiteboardToolbar extends Component {
             <circle
               cx="50%"
               cy="50%"
-              r={this.state.thicknessSelected.value}
+              r={thicknessSelected.value}
               stroke="black"
               strokeWidth="1"
-              fill={this.state.colorSelected.value}
+              fill={colorSelected.value}
             />
           )
           : (
@@ -462,8 +593,8 @@ class WhiteboardToolbar extends Component {
                 ref={(ref) => { this.thicknessListIconColor = ref; }}
                 attributeName="fill"
                 attributeType="XML"
-                from={this.state.prevColorSelected.value}
-                to={this.state.colorSelected.value}
+                from={prevColorSelected.value}
+                to={colorSelected.value}
                 begin="indefinite"
                 dur={TRANSITION_DURATION}
                 repeatCount="0"
@@ -473,8 +604,8 @@ class WhiteboardToolbar extends Component {
                 ref={(ref) => { this.thicknessListIconRadius = ref; }}
                 attributeName="r"
                 attributeType="XML"
-                from={this.state.prevThicknessSelected.value}
-                to={this.state.thicknessSelected.value}
+                from={prevThicknessSelected.value}
+                to={thicknessSelected.value}
                 begin="indefinite"
                 dur={TRANSITION_DURATION}
                 repeatCount="0"
@@ -487,8 +618,19 @@ class WhiteboardToolbar extends Component {
   }
 
   renderColorItem() {
-    const { intl, annotations } = this.props;
-    const isDisabled = this.state.annotationSelected.value === 'hand' || !annotations.length;
+    const {
+      intl,
+      annotations,
+      colors,
+    } = this.props;
+
+    const {
+      annotationSelected,
+      currentSubmenuOpen,
+      colorSelected,
+    } = this.state;
+
+    const isDisabled = annotationSelected.value === 'hand' || !annotations.length;
     return (
       <ToolbarMenuItem
         disabled={isDisabled}
@@ -498,18 +640,18 @@ class WhiteboardToolbar extends Component {
         onItemClick={this.displaySubMenu}
         objectToReturn="colorList"
         onBlur={this.closeSubMenu}
-        className={cx(styles.toolbarButton, this.state.currentSubmenuOpen === 'colorList' ? styles.toolbarActive : null)}
+        className={cx(styles.toolbarButton, currentSubmenuOpen === 'colorList' ? styles.toolbarActive : null)}
         customIcon={this.renderColorItemIcon()}
       >
-        {this.state.currentSubmenuOpen === 'colorList'
+        {currentSubmenuOpen === 'colorList'
           ? (
             <ToolbarSubmenu
               type="color"
               customIcon
               label="Color"
               onItemClick={this.handleColorChange}
-              objectsToRender={this.props.colors}
-              objectSelected={this.state.colorSelected}
+              objectsToRender={colors}
+              objectSelected={colorSelected}
               handleMouseEnter={this.handleMouseEnter}
               handleMouseLeave={this.handleMouseLeave}
             />
@@ -520,6 +662,11 @@ class WhiteboardToolbar extends Component {
   }
 
   renderColorItemIcon() {
+    const {
+      colorSelected,
+      prevColorSelected,
+    } = this.state;
+
     return (
       <svg className={styles.customSvgIcon}>
         {isEdge
@@ -531,7 +678,7 @@ class WhiteboardToolbar extends Component {
               height="50%"
               stroke="black"
               strokeWidth="1"
-              fill={this.state.colorSelected.value}
+              fill={colorSelected.value}
             />
           ) : (
             <rect x="25%" y="25%" width="50%" height="50%" stroke="black" strokeWidth="1">
@@ -539,8 +686,8 @@ class WhiteboardToolbar extends Component {
                 ref={(ref) => { this.colorListIconColor = ref; }}
                 attributeName="fill"
                 attributeType="XML"
-                from={this.state.prevColorSelected.value}
-                to={this.state.colorSelected.value}
+                from={prevColorSelected.value}
+                to={colorSelected.value}
                 begin="indefinite"
                 dur={TRANSITION_DURATION}
                 repeatCount="0"

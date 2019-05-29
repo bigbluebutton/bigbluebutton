@@ -1,5 +1,6 @@
 @import "/imports/ui/stylesheets/variables/_all";
 @import "/imports/ui/stylesheets/mixins/focus";
+@import "/imports/ui/stylesheets/mixins/_indicators";
 
 :root {
     --poll-column-amount: 2;
@@ -10,7 +11,7 @@
 .closeBtn {
     position: relative;
 	> i {
-		color: var(--color-text);
+        color: var(--color-text);
 	}
 }
 
@@ -25,11 +26,25 @@
     display: block;
     margin: var(--border-size-large);
     margin-bottom: var(--border-size);
-    padding-left: 0px;
+    padding-left: 0;
+    padding-right: inherit;
+
+    [dir="rtl"] & {
+      padding-left: inherit;
+      padding-right: 0;
+    }
 
     > i {
         color: var(--color-gray-dark);
         font-size: smaller;
+
+        [dir="rtl"] & {
+            -webkit-transform: scale(-1, 1);
+            -moz-transform: scale(-1, 1);
+            -ms-transform: scale(-1, 1);
+            -o-transform: scale(-1, 1);
+            transform: scale(-1, 1);
+        }
     }
 
     &:hover {
@@ -71,6 +86,7 @@
 }
 
 .instructions {
+    margin-top: var(--lg-padding-x);
     margin-bottom: var(--lg-padding-x);
     color: var(--color-text);
 }
@@ -89,11 +105,23 @@
 }
 
 .pollBtn:nth-child(even) {
+    margin-right: inherit;
     margin-left: var(--sm-padding-y);
+
+    [dir="rtl"] & {
+        margin-right: var(--sm-padding-y);
+        margin-left: inherit;
+    }
 }
 
 .pollBtn:nth-child(odd) {
     margin-right: var(--sm-padding-y);
+    margin-left: inherit;
+
+    [dir="rtl"] & {
+        margin-right: inherit;
+        margin-left: var(--sm-padding-y);
+    }
 }
 
 .customBtn:hover,
@@ -113,11 +141,11 @@
     margin-top: var(--sm-padding-y);
     margin-bottom: var(--sm-padding-y);
     background-color: var(--color-white);
-    box-shadow: 0 0 0 1px var(--color-gray-light);
-    color: var(--color-gray-light);
+    box-shadow: 0 0 0 1px var(--color-gray);
+    color: var(--color-gray);
 
     > span {
-        color: var(--color-gray-light);
+        color: var(--color-gray);
     }
 
     > span:hover {
@@ -152,8 +180,16 @@
 
 .input {
     @include inputFocus(var(--color-blue-light));
+ 
+    &:hover,
+    &:focus {
+        @include highContrastOutline();
+    }
 
-    outline: 0;
+    &:focus {
+        outline-style: solid !important;
+    }
+    
     margin: 0;
     color: var(--color-text);
     background: var(--color-white);
@@ -162,6 +198,11 @@
     border-radius: var(--border-radius);
     padding: .3rem * 1 .3rem * 0.25;
     padding-left: var(--lg-padding-y);
+
+    [dir="rtl"] & {
+    	padding: .3rem * 1 .3rem * 0.25;
+        padding-right:var(--lg-padding-y);
+    }
 }
 
 .noSlidePanelContainer {

@@ -4,9 +4,13 @@
   @extend %flex-column;
   min-width: 0;
   flex-grow: 1;
-  margin-left: var(--sm-padding-x);
+  margin: 0 0 0 var(--sm-padding-x);
   justify-content: center;
   font-size: 0.95rem;
+
+  [dir="rtl"]  & {
+    margin: 0 var(--sm-padding-x) 0 0;
+  }
 }
 
 .userNameMain {
@@ -18,7 +22,7 @@
   font-weight: 400;
   color: var(--color-gray-dark);
 
-  [style~="--enableAnimation:1;"] & {
+  :global(.animationsEnabled) & {
     transition: all .3s;
   }
 }

@@ -5,9 +5,13 @@
   text-align: center;
   flex-basis: 1rem;
   justify-content: center;
-  margin-left: var(--sm-padding-x) / 2;
+  margin: 0 0 0 var(--sm-padding-x) / 2;
 
-  [style~="--enableAnimation:1;"] & {
+  [dir="rtl"] & {
+    margin: 0 var(--sm-padding-x) / 2 0 0;
+  }
+
+  :global(.animationsEnabled) & {
     transition: .3s all;
   }
 }
@@ -16,9 +20,14 @@
   display: flex;
   flex-flow: row;
   justify-content: space-between;
-  margin-left: var(--sm-padding-x) / 2;
+  margin: 0 0 0 var(--sm-padding-x)/2;
   text-align: right;
-  font-size: 1rem;
+  font-size: 1.25rem;
   flex-shrink: 1;
   color: var(--user-icons-color);
+
+  [dir="rtl"] & {
+    margin: 0 var(--sm-padding-x)/2 0 0;
+    text-align: left;
+  }
 }

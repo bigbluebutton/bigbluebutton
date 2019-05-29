@@ -10,6 +10,12 @@
     right: auto;
     border-radius: 5px;
     background-color: var(--color-primary);
+
+    [dir="rtl"] & {
+      left: auto;
+      right: var(--user-indicators-offset);
+      letter-spacing: -.33rem;
+    }
   }
 
   :global(.browser-chrome) &:before,
@@ -22,6 +28,11 @@
     padding-left: var(--indicator-padding-left);
     padding-right: var(--indicator-padding-right);
     padding-bottom: var(--indicator-padding-bottom);
+
+    [dir="rtl"] & {
+      padding-right: var(--indicator-padding-left);
+      padding-left: var(--indicator-padding-right);
+    }
   }
 }
 
@@ -38,4 +49,11 @@
     padding-right: var(--indicator-padding-right);
     padding-bottom: var(--indicator-padding-bottom);
   }
+}
+
+@mixin highContrastOutline() {
+  /* Visible in Windows high-contrast themes */
+  outline: transparent;
+  outline-style: dotted;
+  outline-width: 2px;
 }

@@ -7,18 +7,22 @@
     "app.chat.partnerDisconnected": "{0} עזב את המפגש",
     "app.chat.closeChatLabel": "סגור {0}",
     "app.chat.hideChatLabel": "הסתר {0}",
+    "app.chat.moreMessages": "התקבלו הודעות חדשות ",
     "app.chat.dropdown.clear": "נקה",
     "app.chat.dropdown.copy": "העתק",
     "app.chat.dropdown.save": "שמור",
     "app.chat.label": "צ'אט",
+    "app.note.title": "פנקס משותף",
+    "app.userList.usersTitle": "משתתפים",
+    "app.userList.notesTitle": "הערות",
     "app.userList.you": "את/ה",
     "app.userList.locked": "נעול",
     "app.userList.label": "משתתפים",
-    "app.userList.menu.chat.label": "צ'אט",
-    "app.userList.menu.makePresenter.label": "הפוך למציג",
     "app.userList.menu.removeUser.label": "הוצא משתתף",
     "app.userList.menu.muteUserAudio.label": "השתק",
+    "app.userList.menu.unlockUser.label": "בטל נעילה ל {0} ",
     "app.userList.menu.lockUser.label": "נעל {0}",
+    "app.userList.menu.makePresenter.label": "הפוך למציג",
     "app.userList.userOptions.muteAllLabel": "השתק את כולם",
     "app.presentation.presentationToolbar.fitWidthLabel": "התאם רוחב",
     "app.presentation.presentationToolbar.fitScreenLabel": "התאם למסך",
@@ -29,6 +33,7 @@
     "app.presentationUploder.dismissLabel": "בטל",
     "app.poll.y": "כן",
     "app.poll.n": "לא",
+    "app.poll.liveResult.usersTitle": "משתתפים",
     "app.connectingMessage": "מתחבר ...",
     "app.navBar.settingsDropdown.aboutLabel": "אודות",
     "app.navBar.settingsDropdown.endMeetingLabel": "סגור כיתה",
@@ -49,7 +54,8 @@
     "app.audioModal.no": "לא",
     "app.lock-viewers.PublicChatLabel": "צ'אט ציבורי",
     "app.lock-viewers.PrivateChatLable": "צ'אט פרטי",
-    "app.videoPreview.cancelLabel": "בטל"
+    "app.videoPreview.cancelLabel": "בטל",
+    "app.externalVideo.noteLabel": "הערה: הסרטון לא יופיע בהקלטה, מומלץ לשלוח הקישור גם בצ'אט "
 
 }
 

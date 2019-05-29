@@ -3,6 +3,7 @@ import { defineMessages, injectIntl } from 'react-intl';
 import { withModalMounter } from '/imports/ui/components/modal/service';
 import Modal from '/imports/ui/components/modal/fullscreen/component';
 import AudioService from '../audio/service';
+import VideoService from '../video-provider/service';
 import { styles } from './styles';
 
 const intlMessages = defineMessages({
@@ -19,7 +20,7 @@ const intlMessages = defineMessages({
     description: 'Join breakout confim message',
   },
   confirmLabel: {
-    id: 'app.breakoutJoinConfirmation.confirmLabel',
+    id: 'app.createBreakoutRoom.join',
     description: 'Join confirmation button label',
   },
   confirmDesc: {
@@ -59,7 +60,7 @@ class BreakoutJoinConfirmation extends Component {
     const url = isFreeJoin ? getURL(this.state.selectValue) : breakoutURL;
     // leave main room's audio when joining a breakout room
     AudioService.exitAudio();
-
+    VideoService.exitVideo();
     window.open(url);
     mountModal(null);
   }
@@ -80,7 +81,7 @@ class BreakoutJoinConfirmation extends Component {
           value={this.state.selectValue}
           onChange={this.handleSelectChange}
         >
-          {breakouts.map(({ name, breakoutId }) => (<option key={breakoutId} value={breakoutId} >{name}</option>))}
+          {breakouts.map(({ name, breakoutId }) => (<option key={breakoutId} value={breakoutId}>{name}</option>))}
         </select>
       </div>
     );
@@ -95,6 +96,7 @@ class BreakoutJoinConfirmation extends Component {
           callback: this.handleJoinBreakoutConfirmation,
           label: intl.formatMessage(intlMessages.confirmLabel),
           description: intl.formatMessage(intlMessages.confirmDesc),
+          icon: 'popout_window',
         }}
         dismiss={{
           label: intl.formatMessage(intlMessages.dismissLabel),

@@ -1,22 +1,42 @@
-import React, { Component } from 'react';
+import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import Button from '/imports/ui/components/button/component';
 import cx from 'classnames';
+import { defineMessages, injectIntl } from 'react-intl';
 import ModalBase, { withModalState } from '../base/component';
 import { styles } from './styles.scss';
+
+const intlMessages = defineMessages({
+  modalClose: {
+    id: 'app.modal.close',
+    description: 'Close',
+  },
+  modalCloseDescription: {
+    id: 'app.modal.close.description',
+    description: 'Disregards changes and closes the modal',
+  },
+  modalDone: {
+    id: 'app.modal.confirm',
+    description: 'Close',
+  },
+  modalDoneDescription: {
+    id: 'app.modal.confirm.description',
+    description: 'Disregards changes and closes the modal',
+  },
+  newTabLabel: {
+    id: 'app.modal.newTab',
+    description: 'aria label used to indicate opening a new window',
+  },
+});
 
 const propTypes = {
   title: PropTypes.string.isRequired,
   confirm: PropTypes.shape({
     callback: PropTypes.func.isRequired,
-    label: PropTypes.string.isRequired,
-    description: PropTypes.string,
     disabled: PropTypes.bool,
   }),
   dismiss: PropTypes.shape({
     callback: PropTypes.func,
-    label: PropTypes.string.isRequired,
-    description: PropTypes.string,
     disabled: PropTypes.bool,
   }),
   preventClosing: PropTypes.bool,
@@ -25,19 +45,15 @@ const propTypes = {
 const defaultProps = {
   shouldCloseOnOverlayClick: false,
   confirm: {
-    label: 'Done',
-    description: 'Saves changes and closes the modal',
     disabled: false,
   },
   dismiss: {
-    label: 'Cancel',
-    description: 'Disregards changes and closes the modal',
     disabled: false,
   },
   preventClosing: false,
 };
 
-class ModalFullscreen extends Component {
+class ModalFullscreen extends PureComponent {
   handleAction(name) {
     const action = this.props[name];
     return this.props.modalHide(action.callback);
@@ -45,6 +61,7 @@ class ModalFullscreen extends Component {
 
   render() {
     const {
+      intl,
       title,
       confirm,
       dismiss,
@@ -53,6 +70,12 @@ class ModalFullscreen extends Component {
       preventClosing,
       ...otherProps
     } = this.props;
+
+    const popoutIcon = confirm.icon === 'popout_window';
+    let confirmAriaLabel = `${confirm.label || intl.formatMessage(intlMessages.modalDone)} `;
+    if (popoutIcon) {
+      confirmAriaLabel = `${confirmAriaLabel} ${intl.formatMessage(intlMessages.newTabLabel)}`;
+    }
 
     return (
       <ModalBase
@@ -65,29 +88,33 @@ class ModalFullscreen extends Component {
           <h1 className={styles.title}>{title}</h1>
           <div className={styles.actions}>
             <Button
-              data-test='modalDismissButton'
+              data-test="modalDismissButton"
               className={styles.dismiss}
-              label={dismiss.label}
+              label={intl.formatMessage(intlMessages.modalClose)}
+              aria-label={`${intl.formatMessage(intlMessages.modalClose)} ${title}`}
               disabled={dismiss.disabled}
               onClick={this.handleAction.bind(this, 'dismiss')}
-              aria-describedby={'modalDismissDescription'}
+              aria-describedby="modalDismissDescription"
             />
             <Button
-              data-test='modalConfirmButton'
-              color={'primary'}
-              className={styles.confirm}
+              data-test="modalConfirmButton"
+              color="primary"
+              className={popoutIcon ? cx(styles.confirm, styles.popout) : styles.confirm}
               label={confirm.label}
+              aria-label={confirmAriaLabel}
               disabled={confirm.disabled}
               onClick={this.handleAction.bind(this, 'confirm')}
-              aria-describedby={'modalConfirmDescription'}
+              aria-describedby="modalConfirmDescription"
+              icon={confirm.icon || null}
+              iconRight={popoutIcon}
             />
           </div>
         </header>
         <div className={styles.content}>
           {this.props.children}
         </div>
-        <div id="modalDismissDescription" hidden>{dismiss.description}</div>
-        <div id="modalConfirmDescription" hidden>{confirm.description}</div>
+        <div id="modalDismissDescription" hidden>{intl.formatMessage(intlMessages.modalCloseDescription)}</div>
+        <div id="modalConfirmDescription" hidden>{intl.formatMessage(intlMessages.modalDoneDescription)}</div>
       </ModalBase>
     );
   }
@@ -96,4 +123,4 @@ class ModalFullscreen extends Component {
 ModalFullscreen.propTypes = propTypes;
 ModalFullscreen.defaultProps = defaultProps;
 
-export default withModalState(ModalFullscreen);
+export default withModalState(injectIntl(ModalFullscreen));

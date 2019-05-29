@@ -3,6 +3,7 @@ import { withTracker } from 'meteor/react-meteor-data';
 import Settings from '/imports/ui/services/settings';
 import { defineMessages, injectIntl, intlShape } from 'react-intl';
 import PropTypes from 'prop-types';
+import { Session } from 'meteor/session';
 import { notify } from '/imports/ui/services/notification';
 import VideoService from '/imports/ui/components/video-provider/service';
 import getFromUserSettings from '/imports/ui/services/users-settings';
@@ -104,10 +105,12 @@ class MediaContainer extends Component {
 export default withModalMounter(withTracker(() => {
   const { dataSaving } = Settings;
   const { viewParticipantsWebcams, viewScreenshare } = dataSaving;
-
   const hidePresentation = getFromUserSettings('hidePresentation', LAYOUT_CONFIG.hidePresentation);
   const data = {
     children: <DefaultContent />,
+    audioModalIsOpen: Session.get('audioModalIsOpen'),
+    userWasInWebcam: Session.get('userWasInWebcam'),
+    joinVideo: VideoService.joinVideo,
   };
 
   if (MediaService.shouldShowWhiteboard() && !hidePresentation) {
@@ -137,7 +140,6 @@ export default withModalMounter(withTracker(() => {
   if (data.isScreensharing) {
     data.floatingOverlay = false;
   }
-
   if (MediaService.shouldShowExternalVideo()) {
     data.children = (
       <ExternalVideoContainer

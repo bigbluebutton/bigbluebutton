@@ -5,8 +5,10 @@ import { defineMessages, injectIntl } from 'react-intl';
 import _ from 'lodash';
 import Auth from '/imports/ui/services/auth';
 import Meetings from '/imports/api/meetings';
-import NavBarService from '../nav-bar/service';
+import Users from '/imports/api/users';
 import BreakoutRemainingTime from '/imports/ui/components/breakout-room/breakout-remaining-time/container';
+import SlowConnection from '/imports/ui/components/slow-connection/component';
+import NavBarService from '../nav-bar/service';
 
 import NotificationsBar from './component';
 
@@ -18,6 +20,14 @@ const STATUS_FAILED = 'failed';
 
 // failed to connect and waiting to try to reconnect
 const STATUS_WAITING = 'waiting';
+
+const METEOR_SETTINGS_APP = Meteor.settings.public.app;
+
+// https://github.com/bigbluebutton/bigbluebutton/issues/5286#issuecomment-465342716
+const SLOW_CONNECTIONS_TYPES = METEOR_SETTINGS_APP.effectiveConnection;
+const ENABLE_NETWORK_INFORMATION = METEOR_SETTINGS_APP.enableNetworkInformation;
+
+const HELP_LINK = METEOR_SETTINGS_APP.helpLink;
 
 const intlMessages = defineMessages({
   failedMessage: {
@@ -60,14 +70,22 @@ const intlMessages = defineMessages({
     id: 'app.meeting.alertBreakoutEndsUnderOneMinute',
     description: 'Alert that tells that the breakout end under a minute',
   },
+  slowEffectiveConnectionDetected: {
+    id: 'app.network.connection.effective.slow',
+    description: 'Alert for detected slow connections',
+  },
+  slowEffectiveConnectionHelpLink: {
+    id: 'app.network.connection.effective.slow.help',
+    description: 'Help link for slow connections',
+  },
 });
 
 const NotificationsBarContainer = (props) => {
-  if (_.isEmpty(props.message)) {
+  const { message, color } = props;
+  if (_.isEmpty(message)) {
     return null;
   }
 
-  const { message, color } = props;
 
   return (
     <NotificationsBar color={color}>
@@ -103,6 +121,22 @@ const startCounter = (sec, set, get, interval) => {
 export default injectIntl(withTracker(({ intl }) => {
   const { status, connected, retryTime } = Meteor.status();
   const data = {};
+
+  const user = Users.findOne({ userId: Auth.userID });
+
+  if (user) {
+    const { effectiveConnectionType } = user;
+    if (ENABLE_NETWORK_INFORMATION && SLOW_CONNECTIONS_TYPES.includes(effectiveConnectionType)) {
+      data.message = (
+        <SlowConnection effectiveConnectionType={effectiveConnectionType}>
+          {intl.formatMessage(intlMessages.slowEffectiveConnectionDetected)}
+          <a href={HELP_LINK} target="_blank" rel="noopener noreferrer">
+            {intl.formatMessage(intlMessages.slowEffectiveConnectionHelpLink)}
+          </a>
+        </SlowConnection>
+      );
+    }
+  }
 
   if (!connected) {
     data.color = 'primary';
@@ -144,7 +178,9 @@ export default injectIntl(withTracker(({ intl }) => {
           breakoutRoom={currentBreakout}
           messageDuration={intlMessages.breakoutTimeRemaining}
           timeEndedMessage={intlMessages.breakoutWillClose}
-          alertMessageUnderOneMinute={intl.formatMessage(intlMessages.alertBreakoutEndsUnderOneMinute)}
+          alertMessageUnderOneMinute={
+            intl.formatMessage(intlMessages.alertBreakoutEndsUnderOneMinute)
+          }
         />
       );
     }
@@ -164,13 +200,15 @@ export default injectIntl(withTracker(({ intl }) => {
           breakoutRoom={Meeting.durationProps}
           messageDuration={intlMessages.meetingTimeRemaining}
           timeEndedMessage={intlMessages.meetingWillClose}
-          alertMessageUnderOneMinute={intl.formatMessage(intlMessages.alertMeetingEndsUnderOneMinute)}
+          alertMessageUnderOneMinute={
+            intl.formatMessage(intlMessages.alertMeetingEndsUnderOneMinute)
+          }
         />
       );
     }
   }
 
-
+  data.alert = true;
   data.color = 'primary';
   return data;
 })(NotificationsBarContainer));

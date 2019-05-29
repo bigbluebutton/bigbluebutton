@@ -1,5 +1,6 @@
 @import "/imports/ui/components/user-list/styles.scss";
 @import "/imports/ui/stylesheets/variables/_all";
+@import '/imports/ui/stylesheets/mixins/_indicators';
 
 /* Animations
  * ==========
@@ -17,7 +18,7 @@
   opacity: 1;
   max-height: 10rem;
 
-  [style~="--enableAnimation:1;"] & {
+  :global(.animationsEnabled) & {
     transition: all 300ms;
   }
 }
@@ -31,7 +32,7 @@
   opacity: 0;
   max-height: 0rem;
   
-  [style~="--enableAnimation:1;"] & {
+  :global(.animationsEnabled) & {
     transition: all 500ms;
   }
 }
@@ -49,7 +50,7 @@
   opacity: 1;
   max-height: 10rem;
 
-  [style~="--enableAnimation:1;"] & {
+  :global(.animationsEnabled) & {
     transition: all 500ms;
   }
 }
@@ -63,7 +64,7 @@
   opacity: 0;
   transform: translateY(-100%);
 
-  [style~="--enableAnimation:1;"] & {
+  :global(.animationsEnabled) & {
     transition: all 300ms;
   }
 }
@@ -80,15 +81,20 @@
 .active {
   background-color: var(--list-item-bg-hover);
   box-shadow: inset 0 0 0 var(--border-size) var(--item-focus-border), inset 1px 0 0 1px var(--item-focus-border);
-  outline: none;
 }
 
 .usertListItemWithMenu {
+  @include highContrastOutline();
+  outline-style: solid;
   background-color: var(--list-item-bg-hover);
+
+  &:focus {
+    outline-style: solid;
+    outline-color: transparent !important;
+  }
 }
 
 .userListItem {
-
   @extend %list-item;
   flex-flow: column;
   flex-shrink: 0;
@@ -103,9 +109,11 @@
   display: flex;
   flex-flow: row;
 
-  padding-top: var(--lg-padding-y);
-  padding-bottom: var(--lg-padding-y);
-  padding-left: var(--lg-padding-y);
+  padding: var(--lg-padding-y) 0 var(--lg-padding-y) var(--lg-padding-y);
+
+  [dir="rtl"] & {
+    padding: var(--lg-padding-y) var(--lg-padding-y) var(--lg-padding-y) 0;
+  }
 }
 
 .dropdown {

@@ -37,7 +37,7 @@ class UserPolls extends PureComponent {
       <div className={styles.messages}>
         {
           <h2 className={styles.smallTitle}>
-            {'Polling'}
+            {intl.formatMessage(intlMessages.pollLabel)}
           </h2>
         }
         <div className={styles.scrollableList}>

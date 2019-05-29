@@ -30,6 +30,7 @@ const propTypes = {
   buttonTitle: PropTypes.string.isRequired,
   mountModal: PropTypes.func.isRequired,
   time: PropTypes.number,
+  allowStartStopRecording: PropTypes.bool.isRequired,
 };
 
 const defaultProps = {
@@ -51,6 +52,7 @@ class RecordingIndicator extends React.PureComponent {
       time,
       amIModerator,
       intl,
+      allowStartStopRecording,
     } = this.props;
 
     if (!record) return null;
@@ -60,9 +62,11 @@ class RecordingIndicator extends React.PureComponent {
       document.activeElement.blur();
     };
 
+    const showButton = amIModerator && allowStartStopRecording;
+
     return (
-      <div>
-        {amIModerator ? (
+      <div className={styles.recordingIndicator}>
+        {showButton ? (
           <Tooltip
             title={buttonTitle}
           >
@@ -96,7 +100,7 @@ class RecordingIndicator extends React.PureComponent {
           </Tooltip>
         ) : null }
 
-        {amIModerator ? null : (
+        {showButton ? null : (
           <Tooltip
             title={`${intl.formatMessage(recording
               ? intlMessages.notificationRecordingStart

@@ -24,12 +24,26 @@
 
 .header {
   position: relative;
-  margin-bottom: 2rem;
-  margin-right: auto;
+  margin: 0 auto 2rem 0;
   padding-left: 0;
+  padding-right: inherit;
+
+  [dir="rtl"] & {
+    margin: 0 0 2rem auto;
+    padding-left: inherit;
+    padding-right: 0;
+  }
   
   > i  {
     color: var(--color-gray-dark);
+
+    [dir="rtl"] & {
+      -webkit-transform: scale(-1, 1);
+      -moz-transform: scale(-1, 1);
+      -ms-transform: scale(-1, 1);
+      -o-transform: scale(-1, 1);
+      transform: scale(-1, 1);
+    }
   }
 }
 
@@ -73,6 +87,7 @@
   position: fixed;
   top: 0; 
   left: 0;
+  right: auto;
   z-index: 100;
   display: flex;
   justify-content: center;
@@ -80,6 +95,11 @@
   height: 100%;
   width: 100%;
   color: var(--color-gray);
+
+  [dir="rtl"] & {
+    left: auto;
+    right: 0;
+  }
 }
 
 .connectingAnimation{
@@ -89,9 +109,13 @@
     vertical-align: bottom;
     content: "\2026"; /* ascii code for the ellipsis character */
     width: 0;
-    margin-right: 1.25em;
+    margin: 0 1.25em 0 0;
 
-    [style~="--enableAnimation:1;"] & {
+    [dir="rtl"] & {
+      margin: 0 0 0 1.25em;
+    }
+
+    :global(.animationsEnabled) & {
       animation: ellipsis steps(4,end) 900ms infinite;
     }
   }
@@ -101,6 +125,7 @@
   to {
     width: 1.25em;
     margin-right: 0;
+    margin-left: 0;
   }
 }
 
@@ -111,5 +136,9 @@
 }
 
 .usersAssignedNumberLabel {
-  margin-left: .25rem;
+  margin: 0 0 0 .25rem;
+
+  [dir="rtl"] & {
+    margin: 0 .25em 0 0;
+  }
 }

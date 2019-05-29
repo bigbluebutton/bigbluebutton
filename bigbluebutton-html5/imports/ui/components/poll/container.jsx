@@ -4,8 +4,8 @@ import { withTracker } from 'meteor/react-meteor-data';
 import Auth from '/imports/ui/services/auth';
 import Presentations from '/imports/api/presentations';
 import PresentationAreaService from '/imports/ui/components/presentation/service';
-import Poll from './component';
-import Service from './service';
+import Poll from '/imports/ui/components/poll/component';
+import Service from '/imports/ui/components/poll/service';
 
 const PollContainer = ({ ...props }) => <Poll {...props} />;
 
@@ -32,5 +32,7 @@ export default withTracker(() => {
     publishPoll: Service.publishPoll,
     currentPoll: Service.currentPoll(),
     getUser: Service.getUser,
+    resetPollPanel: Session.get('resetPollPanel') || false,
+    pollAnswerIds: Service.pollAnswerIds,
   };
 })(PollContainer);

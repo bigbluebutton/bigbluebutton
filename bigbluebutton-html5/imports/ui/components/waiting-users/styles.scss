@@ -19,10 +19,13 @@
 
   a {
     @include elementFocus(var(--color-primary));
-    padding-bottom: var(--sm-padding-y);
-    padding-left: var(--sm-padding-y);
+    padding: 0 0 var(--sm-padding-y) var(--sm-padding-y);
     text-decoration: none;
     display: block;
+
+    [dir="rtl"] & {
+      padding: 0 var(--sm-padding-y) var(--sm-padding-y) 0;
+    }
   }
 
   [class^="icon-bbb-"],
@@ -48,7 +51,13 @@
   display: block;
   margin: 4px;
   margin-bottom: 2px;
-  padding-left: 0px;
+  padding-left: 0;
+  padding-right: inherit;
+
+  [dir="rtl"] & {
+    padding-left: inherit;
+    padding-right: 0;
+  }
 
   > i {
     color: black;
@@ -84,8 +93,8 @@
   justify-content: space-between;
   border-radius: 5px;
   cursor: pointer;
-  [style~="--enableAnimation:1;"] & {
-    transition: all calc(var(--enableAnimation) * .3s);
+  :global(.animationsEnabled) & {
+    transition: all .3s;
   }
 
   &:first-child {
@@ -142,4 +151,22 @@
   overflow: hidden;
   text-overflow: ellipsis;
   width: 100%;
+}
+
+.remenberContainer {
+  margin: 1rem 0;
+  height: 2rem;
+  display: flex;
+  align-items: center;
+  & > p {
+    height: fit-content;
+    padding: 0;
+    margin: 0;
+    margin-left: .5rem;
+
+    [dir="rtl"] & {
+      margin: 0;
+      margin-right: .5rem;
+    }
+  }
 }

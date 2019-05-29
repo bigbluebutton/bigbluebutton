@@ -1,4 +1,11 @@
 @import "/imports/ui/stylesheets/variables/_all";
+@import "/imports/ui/stylesheets/mixins/_indicators";
+
+:root {
+  --whiteboard-toolbar-padding-sm: .3rem; 
+  --whiteboard-toolbar-padding: .5rem; 
+  --whiteboard-toolbar-margin: .5rem; 
+}
 
 .visuallyhidden {
   position: absolute;
@@ -13,13 +20,21 @@
 
 .presentationSlideControls {
   justify-content: center;
-  padding-left: .5rem;
-  padding-right: .5rem;
+  padding-left: var(--whiteboard-toolbar-padding);
+  padding-right: var(--whiteboard-toolbar-padding);
+}
+
+.presentationBtn {
+  position: relative;
 }
 
 .presentationZoomControls {
   justify-content: flex-end;
-  padding-right: .5rem;
+  padding: 0 var(--whiteboard-toolbar-padding) 0 0;
+
+  [dir="rtl"] & {
+    padding: 0 0 0 var(--whiteboard-toolbar-padding);
+  }
 }
 
 .presentationSlideControls,
@@ -35,7 +50,7 @@
 .presentationZoomControls,
 .zoomWrapper {
   button {
-    padding: .5rem;
+    padding: var(--whiteboard-toolbar-padding);
   }
 }
 
@@ -51,12 +66,19 @@
   grid-template-columns: 1fr 1fr 1fr;
 
   select {
-    margin-right: .5rem;
-    padding: .5rem .5rem .5rem .3rem;
+    &:-moz-focusring {
+      outline: none;
+    }
 
-    outline-color: transparent;
-    outline-style: none;
-    outline: none;
+    margin: 0 var(--whiteboard-toolbar-margin) 0 0;
+    padding: var(--whiteboard-toolbar-padding);
+    padding-left: var(--whiteboard-toolbar-padding-sm);
+
+    [dir="rtl"] & {
+      margin: 0 0 0 var(--whiteboard-toolbar-margin);
+      padding: var(--whiteboard-toolbar-padding);
+      padding-right: var(--whiteboard-toolbar-padding-sm);
+    }
 
     option {
       color: var(--toolbar-button-color);
@@ -69,9 +91,6 @@
   >div {
     color: var(--toolbar-button-color);
     background-color: var(--color-off-white);
-    border-top: 0;
-    border-bottom: 0;
-    border-left: 0;
     border-radius: 0;
     box-shadow: none !important;
     border: 0;
@@ -99,17 +118,31 @@
   border-right: 0 !important;
 }
 
+.fitToWidth,
 .skipSlide,
 .prevSlide {
   border: none !important;
 
   i {
     font-size: 1rem;
+
+    [dir="rtl"] & {
+      -webkit-transform: scale(-1, 1);
+      -moz-transform: scale(-1, 1);
+      -ms-transform: scale(-1, 1);
+      -o-transform: scale(-1, 1);
+      transform: scale(-1, 1);
+    }
   }
 }
 
-.presentationZoomControls {
+.fitToWidth {
+  margin-left: var(--whiteboard-toolbar-margin);
+  margin-right: var(--whiteboard-toolbar-margin);
+}
 
+.presentationZoomControls {
+  .fitToWidth,
   .skipSlide,
   .prevSlide {
     i {
@@ -120,6 +153,26 @@
 
 .skipSlideSelect {
   padding: 0 var(--sm-padding-y);
+  margin: var(--border-size);
+  margin-left: var(--whiteboard-toolbar-margin);
+
+  [dir="rtl"] & {
+    margin: var(--border-size);
+    margin-right: var(--whiteboard-toolbar-margin);
+  }
+
+  &:-moz-focusring {
+    outline: none;
+  }
+  
+  &:hover {
+    @include highContrastOutline();
+  }
+
+  &:focus {
+    @include highContrastOutline();
+    outline-style: solid;
+  }
 }
 
 .zoomSlider {
@@ -138,6 +191,8 @@
   justify-content: center;
   border: 0 !important;
   font-weight: 200;
+  margin-left: var(--whiteboard-toolbar-margin);
+  margin-right: var(--whiteboard-toolbar-margin);
 
   &:hover {
     opacity: .8;

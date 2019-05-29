@@ -57,7 +57,7 @@
     opacity: 0;
     pointer-events: none;
 
-    [style~="--enableAnimation:1;"] & {
+    :global(.animationsEnabled) & {
       transition: opacity .1s;
     }
   }
@@ -94,7 +94,11 @@
     display: inline-block;
     height: 100%;
     vertical-align: middle;
-    margin-right: -0.25em;
+    margin:0 -0.25em 0 0;
+
+    [dir="rtl"] & {
+      margin: 0 0 0 -0.25em
+    }
   }
 
   &::before {
@@ -102,7 +106,7 @@
     font-family: 'bbb-icons' !important;
     display: inline-block;
 
-    [style~="--enableAnimation:1;"] & {
+    :global(.animationsEnabled) & {
       animation: spin 4s infinite linear;
     }
   }
@@ -172,6 +176,10 @@
 
 .dropdownContent {
   min-width: 8.5rem;
+  
+  [dir="rtl"] & {
+    right: 2rem;
+  }
 }
 
 .dropdownList {
