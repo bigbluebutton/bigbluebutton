@@ -6,7 +6,7 @@ import ActionsDropdown from './actions-dropdown/component';
 import QuickPollDropdown from './quick-poll-dropdown/component';
 import AudioControlsContainer from '../audio/audio-controls/container';
 import JoinVideoOptionsContainer from '../video-provider/video-button/container';
-
+import CaptionsButtonContainer from '/imports/ui/components/actions-bar/captions/container';
 import PresentationOptionsContainer from './presentation-options/component';
 
 class ActionsBar extends React.PureComponent {
@@ -32,6 +32,7 @@ class ActionsBar extends React.PureComponent {
       isSharingVideo,
       screenShareEndAlert,
       stopExternalVideoShare,
+      isCaptionsAvailable,
     } = this.props;
 
     const {
@@ -95,6 +96,12 @@ class ActionsBar extends React.PureComponent {
             screenShareEndAlert,
           }}
           />
+          {isCaptionsAvailable
+            ? (
+              <CaptionsButtonContainer {...{ intl }} />
+            )
+            : null
+        }
         </div>
         <div className={styles.right}>
           {isLayoutSwapped
