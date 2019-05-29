@@ -2,8 +2,11 @@ import React, { Component } from 'react';
 import injectWbResizeEvent from '/imports/ui/components/presentation/resize-wrapper/component';
 import YouTube from 'react-youtube';
 import { sendMessage, onMessage } from './service';
+import logger from '/imports/startup/client/logger';
 
 const { PlayerState } = YouTube;
+
+const SYNC_INTERVAL_SECONDS = 2;
 
 class VideoPlayer extends Component {
   constructor(props) {
@@ -102,7 +105,7 @@ class VideoPlayer extends Component {
         const curTime = this.player.getCurrentTime();
         const rate = this.player.getPlaybackRate();
         sendMessage('playerUpdate', { rate, time: curTime, state: this.playerState });
-      }, 2000);
+      }, SYNC_INTERVAL_SECONDS * 1000);
     } else {
       onMessage('play', ({ time }) => {
         this.presenterCommand = true;
@@ -111,6 +114,7 @@ class VideoPlayer extends Component {
           this.playerState = PlayerState.PLAYING;
           this.player.playVideo();
         }
+        logger.debug('Play external video');
       });
 
       onMessage('stop', ({ time }) => {
@@ -121,6 +125,7 @@ class VideoPlayer extends Component {
           this.player.seekTo(time, true);
           this.player.pauseVideo();
         }
+        logger.debug('Stop external video');
       });
 
       onMessage('playerUpdate', (data) => {
@@ -130,10 +135,12 @@ class VideoPlayer extends Component {
 
         if (data.rate !== this.player.getPlaybackRate()) {
           this.player.setPlaybackRate(data.rate);
+          logger.debug('Change external video playback rate to:', data.rate);
         }
 
-        if (Math.abs(this.player.getCurrentTime() - data.time) > 2) {
+        if (Math.abs(this.player.getCurrentTime() - data.time) > SYNC_INTERVAL_SECONDS) {
           this.player.seekTo(data.time, true);
+          logger.debug('Seek external video to:', data.time);
         }
 
         if (this.playerState !== data.state) {
@@ -141,14 +148,12 @@ class VideoPlayer extends Component {
           this.playerState = data.state;
           if (this.playerState === PlayerState.PLAYING) {
             this.player.playVideo();
+            logger.debug('Prevent pause external video');
           } else {
             this.player.pauseVideo();
+            logger.debug('Prevent play external video');
           }
         }
-      });
-
-      onMessage('changePlaybackRate', (rate) => {
-        this.player.setPlaybackRate(rate);
       });
     }
   }
