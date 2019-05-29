@@ -7,7 +7,7 @@ import Modal from '/imports/ui/components/modal/simple/component';
 import Button from '/imports/ui/components/button/component';
 import { styles } from './styles';
 
-const DEFAULT_VALUE = "select";
+const DEFAULT_VALUE = 'select';
 const DEFAULT_KEY = -1;
 
 const intlMessages = defineMessages({
@@ -32,6 +32,7 @@ const intlMessages = defineMessages({
 const propTypes = {
   takeOwnership: PropTypes.func.isRequired,
   availableLocales: PropTypes.arrayOf(PropTypes.object).isRequired,
+  closeModal: PropTypes.func.isRequired,
   intl: PropTypes.shape({
     formatMessage: PropTypes.func.isRequired,
   }).isRequired,
@@ -92,9 +93,9 @@ class WriterMenu extends PureComponent {
             <option disabled key={DEFAULT_KEY} value={DEFAULT_VALUE}>
               {intl.formatMessage(intlMessages.select)}
             </option>
-            {availableLocales.map((locale, index) => (
-              <option key={index} value={locale.locale}>
-                {locale.name}
+            {availableLocales.map(localeItem => (
+              <option key={localeItem.locale} value={localeItem.locale}>
+                {localeItem.name}
               </option>
             ))}
           </select>

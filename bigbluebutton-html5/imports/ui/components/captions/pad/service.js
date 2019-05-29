@@ -22,11 +22,10 @@ const getPadParams = () => {
   config.lang = getLang();
 
   const params = [];
-  for (const key in config) {
-    if (config.hasOwnProperty(key)) {
-      params.push(key + '=' + encodeURIComponent(config[key]));
-    }
-  }
+  Object.keys(config).forEach((k) => {
+    params.push(`${k}=${encodeURIComponent(config[k])}`);
+  });
+
   return params.join('&');
 };
 
@@ -35,9 +34,9 @@ const getPadURL = (padId, readOnlyPadId, ownerId) => {
   let url;
   if (!ownerId || (ownerId && userId === ownerId)) {
     const params = getPadParams();
-    url = Auth.authenticateURL(NOTE_CONFIG.url + '/p/' + padId + '?' + params);
+    url = Auth.authenticateURL(`${NOTE_CONFIG.url}/p/${padId}?${params}`);
   } else {
-    url = Auth.authenticateURL(NOTE_CONFIG.url + '/p/' + readOnlyPadId);
+    url = Auth.authenticateURL(`${NOTE_CONFIG.url}/p/${readOnlyPadId}`);
   }
   return url;
 };

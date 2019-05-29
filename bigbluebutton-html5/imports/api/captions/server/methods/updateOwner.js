@@ -13,7 +13,7 @@ export default function editCaptions(meetingId, userId, padId) {
   check(userId, String);
   check(padId, String);
 
-  const pad = Captions.findOne({ meetingId: meetingId, padId: padId });
+  const pad = Captions.findOne({ meetingId, padId });
 
   if (!pad) return Logger.error(`Editing captions owner: ${padId}`);
 

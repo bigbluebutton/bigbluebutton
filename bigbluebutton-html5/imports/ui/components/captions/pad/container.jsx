@@ -6,9 +6,10 @@ import CaptionsService from '/imports/ui/components/captions/service';
 
 class PadContainer extends PureComponent {
   render() {
+    const { children } = this.props;
     return (
       <Pad {...this.props}>
-        {this.props.children}
+        {children}
       </Pad>
     );
   }

@@ -96,11 +96,11 @@ class ActionsBar extends React.PureComponent {
             screenShareEndAlert,
           }}
           />
-        {isCaptionsAvailable
-          ? (
-            <CaptionsButtonContainer {...{ intl }} />
-          )
-          : null
+          {isCaptionsAvailable
+            ? (
+              <CaptionsButtonContainer {...{ intl }} />
+            )
+            : null
         }
         </div>
         <div className={styles.right}>

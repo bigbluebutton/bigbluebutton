@@ -15,26 +15,21 @@ const generatePadId = (meetingId, locale) => {
   return padId;
 };
 
-const isCaptionsPad = padId => {
+const isCaptionsPad = (padId) => {
   const splitPadId = padId.split(CAPTIONS);
-  if (splitPadId.length === 2) {
-    return true;
-  }
-  return false;
+  return splitPadId.length === 2;
 };
 
-const getDataFromChangeset = changeset => {
+const getDataFromChangeset = (changeset) => {
   const splitChangeset = changeset.split(TOKEN);
   if (splitChangeset.length > 1) {
     splitChangeset.shift();
     return splitChangeset.join(TOKEN);
   }
-  return "";
+  return '';
 };
 
-const isEnabled = () => {
-  return CAPTIONS_CONFIG.enabled;
-};
+const isEnabled = () => CAPTIONS_CONFIG.enabled;
 
 const getLocalesURL = () => LOCALES_URL;
 

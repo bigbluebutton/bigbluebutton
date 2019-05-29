@@ -23,6 +23,8 @@ const propTypes = {
   isUserModerator: PropTypes.bool.isRequired,
   shortcuts: PropTypes.string.isRequired,
   handleTakePresenter: PropTypes.func.isRequired,
+  allowExternalVideo: PropTypes.bool.isRequired,
+  stopExternalVideoShare: PropTypes.func.isRequired,
 };
 
 const intlMessages = defineMessages({
@@ -93,7 +95,6 @@ class ActionsDropdown extends Component {
     super(props);
 
     this.presentationItemId = _.uniqueId('action-item-');
-    this.recordId = _.uniqueId('action-item-');
     this.pollId = _.uniqueId('action-item-');
     this.captionsId = _.uniqueId('action-item-');
     this.takePresenterId = _.uniqueId('action-item-');
@@ -164,13 +165,13 @@ class ActionsDropdown extends Component {
         )),
       (CaptionsService.isCaptionsEnabled()
         ? (
-        <DropdownListItem
-          icon="polling"
-          label={formatMessage(captionsLabel)}
-          description={formatMessage(captionsDesc)}
-          key={this.captionsId}
-          onClick={this.handleCaptionsClick}
-        />
+          <DropdownListItem
+            icon="polling"
+            label={formatMessage(captionsLabel)}
+            description={formatMessage(captionsDesc)}
+            key={this.captionsId}
+            onClick={this.handleCaptionsClick}
+          />
         ) : null
       ),
       (isUserPresenter
