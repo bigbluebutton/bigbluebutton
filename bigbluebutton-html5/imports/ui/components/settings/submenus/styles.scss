@@ -113,21 +113,3 @@
     margin: 0 1rem 0 0;
   }
 }
-
-.swatch {
-  @include elementFocus(var(--color-primary));
-
-  position: absolute;
-  float: right;
-  background: var(--color-white);
-  border-radius: var(--border-size);
-  border: var(--border-size) solid var(--color-gray-light);
-  display: inline-block;
-  cursor: pointer;
-}
-
-.swatchInner {
-  width: 3rem;
-  height: 1.1rem;
-  border-radius: var(--border-size);
-}
