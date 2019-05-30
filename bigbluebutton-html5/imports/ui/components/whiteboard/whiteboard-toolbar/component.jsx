@@ -295,8 +295,10 @@ class WhiteboardToolbar extends Component {
   // open a submenu
   displaySubMenu(listName) {
     const { currentSubmenuOpen } = this.state;
+
     this.setState({
       currentSubmenuOpen: currentSubmenuOpen === listName ? '' : listName,
+      onBlurEnabled: false,
     });
   }
 
