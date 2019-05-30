@@ -92,8 +92,12 @@ public class XMLResponseConferenceListParser extends DefaultHandler {
         inFlags = false;
         tempVal = "";
         if(qName.equalsIgnoreCase("member")) {
+            String memberType = attributes.getValue("type");
+            System.out.println("******************* Member Type = " + memberType);
+
             //create a new instance of ConferenceMember
             tempMember = new ConferenceMember();
+            tempMember.setMemberType(memberType);
         }
 
         if(qName.equalsIgnoreCase("flags")) {

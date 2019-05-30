@@ -32,6 +32,7 @@ public class ConferenceMember {
     protected String callerId;
     protected Integer joinTime;
     protected Integer lastTalking;
+    protected String memberType;
 
     public Integer getId() {
         return memberId;
@@ -69,6 +70,10 @@ public class ConferenceMember {
         this.uuid = tempVal;
     }
 
+    public String getUUID() {
+        return uuid;
+    }
+
     public void setCallerIdName(String tempVal) {
         this.callerIdName = tempVal;
     }
@@ -85,4 +90,11 @@ public class ConferenceMember {
         this.lastTalking = parseInt;
     }
 
+    public void setMemberType(String memberType) {
+        this.memberType = memberType;
+    }
+
+    public String getMemberType() {
+        return memberType;
+    }
 }
