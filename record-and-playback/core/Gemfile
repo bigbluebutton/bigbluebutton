@@ -34,3 +34,7 @@ gem "rb-inotify"
 gem "redis"
 gem "rubyzip"
 gem "trollop", "2.1.3"
+
+group :test, optional: true do
+  gem "rubocop", "~> 0.71.0"
+end
