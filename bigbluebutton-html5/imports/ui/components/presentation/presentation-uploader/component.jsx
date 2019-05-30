@@ -451,7 +451,9 @@ class PresentationUploader extends Component {
         <table className={styles.table}>
           <thead>
             <tr>
-              <th className={styles.visuallyHidden} colSpan={3}>{intl.formatMessage(intlMessages.filename)}</th>
+              <th className={styles.visuallyHidden} colSpan={3}>
+                {intl.formatMessage(intlMessages.filename)}
+              </th>
               <th className={styles.visuallyHidden}>{intl.formatMessage(intlMessages.status)}</th>
               <th className={styles.visuallyHidden}>{intl.formatMessage(intlMessages.options)}</th>
             </tr>
@@ -647,7 +649,7 @@ class PresentationUploader extends Component {
         multiple
         className={styles.dropzone}
         activeClassName={styles.dropzoneActive}
-        accept={isMobileBrowser ? '' : fileValidMimeTypes.map(fileValid => fileValid.mime)}
+        accept={isMobileBrowser ? '' : fileValidMimeTypes.map(fileValid => fileValid.extension)}
         minSize={fileSizeMin}
         maxSize={fileSizeMax}
         disablepreview="true"
