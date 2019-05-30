@@ -46,6 +46,22 @@ const intlMessages = defineMessages({
     id: 'app.iOSWarning.label',
     description: 'message indicating to upgrade ios version',
   },
+  clearedEmoji: {
+    id: 'app.toast.clearedEmoji.label',
+    description: '',
+  },
+  setEmoji: {
+    id: 'app.toast.setEmoji.label',
+    description: '',
+  },
+  meetingMuteOn: {
+    id: 'app.toast.meetingMuteOn.label',
+    description: '',
+  },
+  meetingMuteOff: {
+    id: 'app.toast.meetingMuteOff.label',
+    description: '',
+  },
 });
 
 const propTypes = {
@@ -111,6 +127,47 @@ class App extends Component {
     window.addEventListener('resize', this.handleWindowResize, false);
 
     logger.info({ logCode: 'app_component_componentdidmount' }, 'Client loaded successfully');
+  }
+
+  componentDidUpdate(prevProps) {
+    const {
+      meetingMuted, notify, currentUserEmoji, intl,
+    } = this.props;
+
+    if (prevProps.currentUserEmoji !== currentUserEmoji) {
+      if (currentUserEmoji === 'none') {
+        notify(
+          intl.formatMessage(intlMessages.clearedEmoji),
+          'info',
+          'clear_status',
+        );
+      }
+
+      const formattedEmojiStatus = intl.formatMessage({ id: `app.actionsBar.emojiMenu.${currentUserEmoji}Label` })
+        || currentUserEmoji;
+
+      if (currentUserEmoji !== 'none') {
+        notify(
+          intl.formatMessage(intlMessages.setEmoji, ({ 0: formattedEmojiStatus })),
+          'info',
+          'user',
+        );
+      }
+    }
+    if (!prevProps.meetingMuted && meetingMuted) {
+      notify(
+        intl.formatMessage(intlMessages.meetingMuteOn),
+        'info',
+        'mute',
+      );
+    }
+    if (prevProps.meetingMuted && !meetingMuted) {
+      notify(
+        intl.formatMessage(intlMessages.meetingMuteOff),
+        'info',
+        'unmute',
+      );
+    }
   }
 
   componentWillUnmount() {
