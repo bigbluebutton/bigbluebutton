@@ -216,13 +216,7 @@
 }
 
 .dropzoneActive {
-  background-color: var(--color-gray-light);
-}
-
-.dropzoneReject {
-  color: var(--color-danger);
-  background-color: var(--color-danger);
-  cursor: no-drop;
+  background-color: var(--color-gray-lighter);
 }
 
 .dropzoneIcon {

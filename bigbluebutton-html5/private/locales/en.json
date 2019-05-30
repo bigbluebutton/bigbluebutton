@@ -134,7 +134,7 @@
     "app.presentationUploder.fileToUpload": "To be uploaded ...",
     "app.presentationUploder.currentBadge": "Current",
     "app.presentationUploder.genericError": "Ops, something went wrong",
-    "app.presentationUploder.rejectedError": "Some of the selected files are rejected. Please check the file mime types.",
+    "app.presentationUploder.rejectedError": "The selected file(s) have been rejected. Please check the file type(s).",
     "app.presentationUploder.upload.progress": "Uploading ({0}%)",
     "app.presentationUploder.upload.413": "File is too large, maximum of 200 pages reached",
     "app.presentationUploder.conversion.conversionProcessingSlides": "Processing page {0} of {1}",
