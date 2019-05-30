@@ -1,8 +1,9 @@
 #!/usr/bin/ruby
+# frozen_string_literal: true
 
 # Copyright © 2019 BigBlueButton Inc. and by respective authors.
 #
-# This file is part of BigBlueButton open source conferencing system.
+# This file is part of the BigBlueButton open source conferencing system.
 #
 # BigBlueButton is free software: you can redistribute it and/or modify it
 # under the terms of the GNU Lesser General Public License as published by the
@@ -15,32 +16,33 @@
 # details.
 #
 # You should have received a copy of the GNU Lesser General Public License
-# along with BigBlueButton.  If not, see <http://www.gnu.org/licenses/>.
+# along with BigBlueButton.  If not, see <https://www.gnu.org/licenses/>.
 
-require "rubygems"
-require "bundler/setup"
+require 'rubygems'
+require 'bundler/setup'
 
-require File.expand_path("../../lib/recordandplayback", __FILE__)
+require File.expand_path('../lib/recordandplayback', __dir__)
 
-require "journald-logger"
-require "locale"
-require "rb-inotify"
-require "yaml"
+require 'journald-logger'
+require 'locale'
+require 'rb-inotify'
+require 'yaml'
 
 # Read configuration and set up logger
 
-props = YAML::load(File.open(File.expand_path("../bigbluebutton.yml", __FILE__)))
+props = File.open(File.expand_path('bigbluebutton.yml', __dir__)) do |bbb_yml|
+  YAML.safe_load(bbb_yml)
+end
 
-log_dir = props["log_dir"]
-logger = Journald::Logger.new("bbb-rap-caption-inbox")
+logger = Journald::Logger.new('bbb-rap-caption-inbox')
 BigBlueButton.logger = logger
 
-captions_dir = props["captions_dir"]
+captions_dir = props['captions_dir']
 unless captions_dir
-  logger.error("captions_dir was not defined in bigbluebutton.yml")
+  logger.error('captions_dir was not defined in bigbluebutton.yml')
   exit(1)
 end
-captions_inbox_dir = File.join(captions_dir, "inbox")
+captions_inbox_dir = File.join(captions_dir, 'inbox')
 
 # Internal error classes
 
@@ -64,54 +66,81 @@ def caption_file_notify(json_filename)
   # TODO: Rather than do anything directly in this script, it should create a
   # queue job (resque?) that does the actual work.
 
+  captions_work_base = File.join(props['recording_dir'], 'caption', 'inbox')
   new_caption_info = File.open(json_filename) { |file| JSON.parse(file) }
-  logger.tag(record_id: new_caption_info["record_id"]) do
-
+  logger.tag(record_id: new_caption_info['record_id']) do
     # TODO: This is racy if multiple tools are editing the captions.json file
+    index_filename = File.join(captions_dir, new_caption_info['record_id'], 'captions.json')
     captions_info = begin
-      File.open(
-        File.join(captions_dir, new_caption_info["record_id"], "captions.json")
-      ) do |file|
-        JSON.parse(file)
-      end
-    rescue
+      File.open(index_filename) { |file| JSON.parse(file) }
+    rescue StandardError
       # No captions file or cannot be read, assume none present
       []
     end
 
-    langtag = Locale::Tag::Rfc.parse(new_caption_info["lang"])
-    raise InvalidCaptionError, "Language tag is not well-formed" unless langtag
+    langtag = Locale::Tag::Rfc.parse(new_caption_info['lang'])
+    raise InvalidCaptionError, 'Language tag is not well-formed' unless langtag
 
     # Remove the info for an existing matching track
     captions_info.delete_if do |caption_info|
-      caption_info["lang"] == new_caption_info["lang"] &&
-        caption_info["kind"] == new_caption_info["kind"]
+      caption_info['lang'] == new_caption_info['lang'] &&
+        caption_info['kind'] == new_caption_info['kind']
     end
 
     captions_info << {
-      "kind"   => new_caption_info["kind"],
-      "label"  => new_caption_info["label"],
-      "lang"   => langtag.to_s,
-      "source" => "upload",
+      'kind'   => new_caption_info['kind'],
+      'label'  => new_caption_info['label'],
+      'lang'   => langtag.to_s,
+      'source' => 'upload',
     }
 
-    dest_filename = "#{captions_info["kind"]}_#{captions_info["lang"]}.vtt"
+    src_filename = File.join(captions_inbox_dir, new_caption_info['temp_filename'])
+    dest_filename = "#{captions_info['kind']}_#{captions_info['lang']}.vtt"
+    tmp_dest = File.join(captions_work_base, new_caption_info['record_id'], dest_filename)
+    final_dest = File.join(captions_dir, new_caption_info['record_id'], dest_filename)
 
+    # Try to use ffmpeg to convert the received caption file to WebVTT
+    ffmpeg_cmd = [
+      'ffmpeg',
+      '-i', src_filename, '-map', '0:s',
+      '-f', 'webvtt', tmp_dest,
+    ]
+    ret = BigBlueButton.exec_ret(*ffmpeg_cmd)
+    raise InvalidCaptionError, 'FFmpeg could not read input' unless ret.zero?
+
+    FileUtils.mv(tmp_dest, final_dest)
+    File.open(index_filename, 'w') do |file|
+      result = JSON.pretty_generate(captions_info)
+      file.write(result)
+    end
+
+    # TODO: trigger incorporating caption file into existing published recordings
+
+    logger.info('Removing files from inbox directory')
+    FileUtils.rm_f(src_filename) if src_filename
+    FileUtils.rm_f(json_filename)
+
+  rescue InvalidCaptionError => e
+    logger.exception(e)
+
+    logger.info('Deleting invalid files from inbox directory')
+    FileUtils.rm_f(src_filename) if src_filename
+    FileUtils.rm_f(json_filename)
   end
 end
 
 logger.info("Setting up inotify watch on #{captions_inbox_dir}")
 notifier = INotify::Notifier.new
 notifier.watch(captions_inbox_dir, :moved_to, :create) do |event|
-  next unless event.name.end_with?("-track.json")
+  next unless event.name.end_with?('-track.json')
 
   handle_caption_file(event.absolute_name)
 end
 
-logger.info("Checking for missed/skipped caption files")
-Dir.glob(File.join(captions_inbox_dir, "*-track.json")).each do |filename|
+logger.info('Checking for missed/skipped caption files')
+Dir.glob(File.join(captions_inbox_dir, '*-track.json')).each do |filename|
   caption_file_notify(filename)
 end
 
-logger.info("Waiting for new caption files...")
+logger.info('Waiting for new caption files...')
 notifier.run

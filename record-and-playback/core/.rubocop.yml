@@ -1,0 +1,16 @@
+AllCops:
+  TargetRubyVersion: 2.5
+Layout/AlignHash:
+  EnforcedHashRocketStyle: [ key, table ]
+Layout/EndAlignment:
+  EnforcedStyleAlignWith: variable
+Layout/RescueEnsureAlignment:
+  Enabled: false # https://github.com/rubocop-hq/rubocop/issues/6918
+Metrics:
+  Enabled: false
+Style/AsciiComments:
+  AllowedChars: [ © ]
+Style/TrailingCommaInArrayLiteral:
+  EnforcedStyleForMultiline: consistent_comma
+Style/TrailingCommaInHashLiteral:
+  EnforcedStyleForMultiline: consistent_comma
