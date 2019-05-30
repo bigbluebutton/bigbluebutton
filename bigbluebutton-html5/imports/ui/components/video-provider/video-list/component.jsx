@@ -77,11 +77,11 @@ class VideoList extends Component {
             [styles.videoListItem]: true,
             [styles.focused]: focusedId === user.id && users.length > 2,
           })}
+          style={{
+            cursor,
+          }}
         >
           <VideoListItem
-            style={{
-              cursor: `${cursor}`,
-            }}
             numOfUsers={users.length}
             user={user}
             actions={actions}

@@ -57,10 +57,6 @@
     max-height: 100%;
   }
 
-  &:hover {
-    cursor: grabbing;
-  }
-
   width: var(--video-width);
   min-width: var(--video-width);
   height: calc(var(--video-width) / var(--video-ratio));
