@@ -3,7 +3,6 @@ import RedisPubSub from '/imports/startup/server/redis';
 import { Meteor } from 'meteor/meteor';
 import { check } from 'meteor/check';
 import Annotations from '/imports/api/annotations';
-import Logger from '/imports/startup/server/logger';
 
 import isPodPresenter from '/imports/api/presentation-pods/server/utils/isPodPresenter';
 
@@ -54,10 +53,29 @@ export default function sendAnnotation(credentials, annotation) {
   }
 
   if (annotation.annotation === 'text') {
-    const { annotationInfo } = annotation;
-    if (!annotationInfo.textBoxWidth || !annotationInfo.textBoxHeight) {
-      return Logger.error('text box size not defined');
-    }
+    check(annotation, {
+      id: String,
+      status: String,
+      annotationType: String,
+      annotationInfo: {
+        x: Number,
+        y: Number,
+        fontColor: Number,
+        calcedFontSize: Number,
+        textBoxWidth: Number,
+        text: String,
+        textBoxHeight: Number,
+        id: String,
+        whiteboardId: String,
+        status: String,
+        fontSize: Number,
+        dataPoints: String,
+        type: String,
+      },
+      wbId: String,
+      userId: String,
+      position: Number,
+    });
   }
 
   const payload = {
