@@ -40,6 +40,7 @@ function deploy_format() {
 
 deploy_format "presentation"
 
+sudo mkdir -p /var/bigbluebutton/captions/
 sudo mkdir -p /var/bigbluebutton/events/
 sudo mkdir -p /var/bigbluebutton/playback/
 sudo mkdir -p /var/bigbluebutton/recording/raw/

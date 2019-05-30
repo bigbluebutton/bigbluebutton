@@ -54,6 +54,7 @@ public class RecordingService {
     private String recordStatusDir;
     private String captionsDir;
     private String presentationBaseDir;
+    private String defaultServerUrl;
 
     private void copyPresentationFile(File presFile, File dlownloadableFile) {
         try {
@@ -169,7 +170,7 @@ public class RecordingService {
     }
 
     public String getRecordingTextTracks(String recordId) {
-        return recordingServiceHelper.getRecordingTextTracks(recordId, captionsDir);
+        return recordingServiceHelper.getRecordingTextTracks(recordId, captionsDir, getCaptionFileUrlDirectory(recordId));
     }
 
     public String putRecordingTextTrack(UploadedTrack track) {
@@ -372,6 +373,10 @@ public class RecordingService {
 
     public void setPresentationBaseDir(String dir) {
         presentationBaseDir = dir;
+    }
+
+    public void setDefaultServerUrl(String url) {
+        defaultServerUrl = url;
     }
 
     public void setPublishedDir(String dir) {
@@ -662,7 +667,16 @@ public class RecordingService {
         return baseDir;
     }
 
-		public String getCaptionTrackInboxDir() {
-			return captionsDir + File.separatorChar + "inbox";
-		}
+    public String getCaptionTrackInboxDir() {
+        return captionsDir + File.separatorChar + "inbox";
+    }
+
+    public String getCaptionsDir() {
+      return captionsDir;
+    }
+
+    public String getCaptionFileUrlDirectory(String recordId) {
+        return defaultServerUrl + "/captions/" + recordId + "/";
+    }
+
 }

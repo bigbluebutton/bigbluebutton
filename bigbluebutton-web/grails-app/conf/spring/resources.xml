@@ -89,6 +89,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         <property name="captionsDir" value="${captionsDir}"/>
         <property name="recordingServiceHelper" ref="recordingServiceHelper"/>
         <property name="presentationBaseDir" value="${presentationDir}"/>
+        <property name="defaultServerUrl" value="${bigbluebutton.web.serverURL}"/>
     </bean>
 
     <bean id="configServiceHelper" class="org.bigbluebutton.api.ClientConfigServiceHelperImp"/>
