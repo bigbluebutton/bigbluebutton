@@ -2,29 +2,44 @@ GEM
   remote: https://rubygems.org/
   specs:
     absolute_time (1.0.0)
+    ast (2.4.0)
     builder (3.2.3)
     crass (1.0.4)
     fastimage (2.1.5)
-    ffi (1.10.0)
+    ffi (1.11.1)
     fnv (0.2.0)
+    jaro_winkler (1.5.2)
     java_properties (0.0.4)
     journald-logger (2.0.4)
       journald-native (~> 1.0)
     journald-native (1.0.11)
-    jwt (2.1.0)
+    jwt (2.2.1)
     locale (2.1.2)
     loofah (2.2.3)
       crass (~> 1.0.2)
       nokogiri (>= 1.5.9)
     mini_portile2 (2.4.0)
-    nokogiri (1.10.1)
+    nokogiri (1.10.3)
       mini_portile2 (~> 2.4.0)
     open4 (1.3.4)
+    parallel (1.17.0)
+    parser (2.6.3.0)
+      ast (~> 2.4.0)
+    rainbow (3.0.0)
     rb-inotify (0.10.0)
       ffi (~> 1.0)
-    redis (4.1.0)
-    rubyzip (1.2.2)
+    redis (4.1.2)
+    rubocop (0.71.0)
+      jaro_winkler (~> 1.5.1)
+      parallel (~> 1.10)
+      parser (>= 2.6)
+      rainbow (>= 2.2.2, < 4.0)
+      ruby-progressbar (~> 1.7)
+      unicode-display_width (>= 1.4.0, < 1.7)
+    ruby-progressbar (1.10.1)
+    rubyzip (1.2.3)
     trollop (2.1.3)
+    unicode-display_width (1.6.0)
 
 PLATFORMS
   ruby
@@ -43,6 +58,7 @@ DEPENDENCIES
   open4
   rb-inotify
   redis
+  rubocop (~> 0.71.0)
   rubyzip
   trollop (= 2.1.3)
 
