@@ -75,9 +75,8 @@
   font-weight: 600;
   position: relative;
 
-  > span {
+  :first-child {
     @extend %text-elipsis;
-    padding: .5rem 0;
   }
 }
 

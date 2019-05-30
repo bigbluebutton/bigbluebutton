@@ -137,6 +137,7 @@
 .poll,
 .breakoutRoom,
 .note,
+.captions,
 .chat {
   @extend %full-page;
   @include highContrastOutline();
@@ -202,20 +203,13 @@
   }
 }
 
-.closedCaptionBox {
-  position: relative;
-  flex-basis: 15vw;
-  order: 2;
-
-  @include mq($portrait) {
-    min-height: 35%;
-  }
-}
-
-.closedCaptions {
-  order: 3;
-  flex-basis: 20%;
-  max-width: 20%;
+.captionsWrapper {
+  position: absolute;
+  width: auto;
+  height: auto;
+  bottom: 100px;
+  left: 20%;
+  z-index: 2;
 }
 
 .actionsbar {

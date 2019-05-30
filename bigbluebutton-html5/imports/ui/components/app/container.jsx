@@ -6,14 +6,13 @@ import Auth from '/imports/ui/services/auth';
 import Users from '/imports/api/users';
 import Meetings from '/imports/api/meetings';
 import { notify } from '/imports/ui/services/notification';
-import ClosedCaptionsContainer from '/imports/ui/components/closed-captions/container';
+import CaptionsContainer from '/imports/ui/components/captions/container';
+import CaptionsService from '/imports/ui/components/captions/service';
 import getFromUserSettings from '/imports/ui/services/users-settings';
-
 import UserInfos from '/imports/api/users-infos';
 
 import {
   getFontSize,
-  getCaptionsStatus,
   getBreakoutRooms,
   validIOSVersion,
 } from './service';
@@ -96,7 +95,7 @@ export default injectIntl(withModalMounter(withTracker(({ intl, baseControls }) 
   const currentUserEmoji = Users.findOne({ userId: Auth.userID }).emoji;
 
   return {
-    closedCaption: getCaptionsStatus() ? <ClosedCaptionsContainer /> : null,
+    captions: CaptionsService.isCaptionsActive() ? <CaptionsContainer /> : null,
     fontSize: getFontSize(),
     hasBreakoutRooms: getBreakoutRooms().length > 0,
     customStyle: getFromUserSettings('customStyle', false),
@@ -110,6 +109,7 @@ export default injectIntl(withModalMounter(withTracker(({ intl, baseControls }) 
     validIOSVersion,
     meetingMuted: muteOnStart,
     currentUserEmoji,
+    hasPublishedPoll: Meetings.findOne({ meetingId: Auth.meetingID }).publishedPoll,
   };
 })(AppContainer)));
 

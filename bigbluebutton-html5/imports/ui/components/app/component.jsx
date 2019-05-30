@@ -16,6 +16,7 @@ import AudioContainer from '../audio/container';
 import ChatAlertContainer from '../chat/alert/container';
 import BannerBarContainer from '/imports/ui/components/banner-bar/container';
 import WaitingNotifierContainer from '/imports/ui/components/waiting-users/alert/container';
+import { startBandwidthMonitoring, updateNavigatorConnection } from '/imports/ui/services/network-information/index';
 import LockNotifier from '/imports/ui/components/lock-viewers/notify/container';
 
 import { styles } from './styles';
@@ -24,6 +25,7 @@ const MOBILE_MEDIA = 'only screen and (max-width: 40em)';
 const APP_CONFIG = Meteor.settings.public.app;
 const DESKTOP_FONT_SIZE = APP_CONFIG.desktopFontSize;
 const MOBILE_FONT_SIZE = APP_CONFIG.mobileFontSize;
+const ENABLE_NETWORK_INFORMATION = APP_CONFIG.enableNetworkInformation;
 
 const intlMessages = defineMessages({
   userListLabel: {
@@ -62,6 +64,10 @@ const intlMessages = defineMessages({
     id: 'app.toast.meetingMuteOff.label',
     description: '',
   },
+  pollPublishedLabel: {
+    id: 'app.whiteboard.annotations.poll',
+    description: 'message displayed when a poll is published',
+  },
 });
 
 const propTypes = {
@@ -69,7 +75,7 @@ const propTypes = {
   sidebar: PropTypes.element,
   media: PropTypes.element,
   actionsbar: PropTypes.element,
-  closedCaption: PropTypes.element,
+  captions: PropTypes.element,
   userListIsOpen: PropTypes.bool.isRequired,
   chatIsOpen: PropTypes.bool.isRequired,
   locale: PropTypes.string,
@@ -81,7 +87,7 @@ const defaultProps = {
   sidebar: null,
   media: null,
   actionsbar: null,
-  closedCaption: null,
+  captions: null,
   locale: 'en',
 };
 
@@ -126,12 +132,22 @@ class App extends Component {
     this.handleWindowResize();
     window.addEventListener('resize', this.handleWindowResize, false);
 
+    if (ENABLE_NETWORK_INFORMATION) {
+      if (navigator.connection) {
+        this.handleNetworkConnection();
+        navigator.connection.addEventListener('change', this.handleNetworkConnection);
+      }
+
+      startBandwidthMonitoring();
+    }
+
+
     logger.info({ logCode: 'app_component_componentdidmount' }, 'Client loaded successfully');
   }
 
   componentDidUpdate(prevProps) {
     const {
-      meetingMuted, notify, currentUserEmoji, intl,
+      meetingMuted, notify, currentUserEmoji, intl, hasPublishedPoll,
     } = this.props;
 
     if (prevProps.currentUserEmoji !== currentUserEmoji) {
@@ -168,10 +184,20 @@ class App extends Component {
         'unmute',
       );
     }
+    if (!prevProps.hasPublishedPoll && hasPublishedPoll) {
+      notify(
+        intl.formatMessage(intlMessages.pollPublishedLabel),
+        'info',
+        'polling',
+      );
+    }
   }
 
   componentWillUnmount() {
     window.removeEventListener('resize', this.handleWindowResize, false);
+    if (navigator.connection) {
+      navigator.connection.addEventListener('change', this.handleNetworkConnection, false);
+    }
   }
 
   handleWindowResize() {
@@ -180,6 +206,10 @@ class App extends Component {
     if (enableResize === shouldEnableResize) return;
 
     this.setState({ enableResize: shouldEnableResize });
+  }
+
+  handleNetworkConnection() {
+    updateNavigatorConnection(navigator.connection);
   }
 
   renderPanel() {
@@ -220,14 +250,14 @@ class App extends Component {
     );
   }
 
-  renderClosedCaption() {
-    const { closedCaption } = this.props;
+  renderCaptions() {
+    const { captions } = this.props;
 
-    if (!closedCaption) return null;
+    if (!captions) return null;
 
     return (
-      <div className={styles.closedCaptionBox}>
-        {closedCaption}
+      <div className={styles.captionsWrapper}>
+        {captions}
       </div>
     );
   }
@@ -246,7 +276,7 @@ class App extends Component {
         aria-hidden={userListIsOpen || chatIsOpen}
       >
         {media}
-        {this.renderClosedCaption()}
+        {this.renderCaptions()}
       </section>
     );
   }

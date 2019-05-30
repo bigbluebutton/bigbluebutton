@@ -490,6 +490,7 @@ class UserDropdown extends PureComponent {
   render() {
     const {
       compact,
+      currentUser,
       user,
       intl,
       isMeetingLocked,
@@ -507,6 +508,8 @@ class UserDropdown extends PureComponent {
     const actions = this.getUsersActions();
 
     const userItemContentsStyle = {};
+
+    const { isModerator } = currentUser;
 
     userItemContentsStyle[styles.dropdown] = true;
     userItemContentsStyle[styles.userListItem] = !isActionsOpen;
@@ -551,7 +554,7 @@ class UserDropdown extends PureComponent {
           {<UserIcons
             {...{
               user,
-              compact,
+              isModerator,
             }}
           />}
         </div>
