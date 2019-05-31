@@ -148,21 +148,19 @@ class App extends Component {
       meetingMuted, notify, currentUserEmoji, intl, hasPublishedPoll,
     } = this.props;
 
-    if (prevProps.currentUserEmoji !== currentUserEmoji) {
-      if (currentUserEmoji === 'none') {
-        notify(
-          intl.formatMessage(intlMessages.clearedEmoji), 'info', 'clear_status',
-        );
-      }
+    if (prevProps.currentUserEmoji.status !== currentUserEmoji.status) {
+      const formattedEmojiStatus = intl.formatMessage({ id: `app.actionsBar.emojiMenu.${currentUserEmoji.status}Label` })
+      || currentUserEmoji.status;
 
-      const formattedEmojiStatus = intl.formatMessage({ id: `app.actionsBar.emojiMenu.${currentUserEmoji}Label` })
-        || currentUserEmoji;
-
-      if (currentUserEmoji !== 'none') {
-        notify(
-          intl.formatMessage(intlMessages.setEmoji, ({ 0: formattedEmojiStatus })), 'info', 'user',
-        );
-      }
+      notify(
+        currentUserEmoji.status === 'none'
+          ? intl.formatMessage(intlMessages.clearedEmoji)
+          : intl.formatMessage(intlMessages.setEmoji, ({ 0: formattedEmojiStatus })),
+        'info',
+        currentUserEmoji.status === 'none'
+          ? 'clear_status'
+          : 'user',
+      );
     }
     if (!prevProps.meetingMuted && meetingMuted) {
       notify(
