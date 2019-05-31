@@ -302,9 +302,12 @@ class PresentationUploader extends Component {
 
   handleFiledrop(files, files2) {
     const { fileValidMimeTypes, intl } = this.props;
-    const mimeTypes = fileValidMimeTypes.map(fileValid => fileValid.mime);
+    const validMimes = fileValidMimeTypes.map(fileValid => fileValid.mime);
+    const validExtentions = fileValidMimeTypes.map(fileValid => fileValid.extension);
     const [accepted, rejected] = _.partition(files
-      .concat(files2), f => mimeTypes.includes(f.type));
+      .concat(files2), f => (
+      validMimes.includes(f.type) || validExtentions.includes(`.${f.name.split('.').pop()}`)
+    ));
 
     const presentationsToUpload = accepted.map((file) => {
       const id = _.uniqueId(file.name);
@@ -448,7 +451,9 @@ class PresentationUploader extends Component {
         <table className={styles.table}>
           <thead>
             <tr>
-              <th className={styles.visuallyHidden} colSpan={3}>{intl.formatMessage(intlMessages.filename)}</th>
+              <th className={styles.visuallyHidden} colSpan={3}>
+                {intl.formatMessage(intlMessages.filename)}
+              </th>
               <th className={styles.visuallyHidden}>{intl.formatMessage(intlMessages.status)}</th>
               <th className={styles.visuallyHidden}>{intl.formatMessage(intlMessages.options)}</th>
             </tr>
@@ -637,11 +642,13 @@ class PresentationUploader extends Component {
     if (disableActions) return null;
 
     return (
+      // Until the Dropzone package has fixed the mime type hover validation, the rejectClassName
+      // prop is being remove to prevent the error styles from being applied to valid file types.
+      // Error handling is being done in the onDrop prop.
       <Dropzone
         multiple
         className={styles.dropzone}
         activeClassName={styles.dropzoneActive}
-        rejectClassName={styles.dropzoneReject}
         accept={isMobileBrowser ? '' : fileValidMimeTypes.map(fileValid => fileValid.extension)}
         minSize={fileSizeMin}
         maxSize={fileSizeMax}

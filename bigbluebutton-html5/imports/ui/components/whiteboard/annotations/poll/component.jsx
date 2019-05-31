@@ -543,8 +543,7 @@ class PollDrawComponent extends Component {
     }
     return (
       <g>
-        {textArray.map(line => this.renderLine(line))
-        }
+        {textArray.map(line => this.renderLine(line))}
         <text
           fontFamily="Arial"
           fontSize={calcFontSize}

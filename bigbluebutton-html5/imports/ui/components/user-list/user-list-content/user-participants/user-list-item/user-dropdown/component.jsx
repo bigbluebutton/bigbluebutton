@@ -460,6 +460,9 @@ class UserDropdown extends PureComponent {
     const {
       normalizeEmojiName,
       user,
+      userInBreakout,
+      breakoutSequence,
+      meetignIsBreakout,
     } = this.props;
 
     const { clientType } = user;
@@ -470,6 +473,7 @@ class UserDropdown extends PureComponent {
       : user.name.toLowerCase().slice(0, 2);
 
     const iconVoiceOnlyUser = (<Icon iconName="audio_on" />);
+    const userIcon = isVoiceOnly ? iconVoiceOnlyUser : iconUser;
 
     return (
       <UserAvatar
@@ -482,7 +486,10 @@ class UserDropdown extends PureComponent {
         noVoice={!user.isVoiceUser}
         color={user.color}
       >
-        {isVoiceOnly ? iconVoiceOnlyUser : iconUser}
+        {
+        userInBreakout
+        && !meetignIsBreakout
+          ? breakoutSequence : userIcon}
       </UserAvatar>
     );
   }
@@ -496,7 +503,7 @@ class UserDropdown extends PureComponent {
       isMeetingLocked,
       meetingId,
     } = this.props;
-
+    
     const {
       isActionsOpen,
       dropdownVisible,

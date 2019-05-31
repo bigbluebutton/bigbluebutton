@@ -4,6 +4,7 @@ import { styles } from './styles';
 import UserParticipantsContainer from './user-participants/container';
 import UserMessages from './user-messages/component';
 import UserNotes from './user-notes/component';
+import UserCaptionsContainer from './user-captions/container';
 import WaitingUsers from './waiting-users/component';
 import UserPolls from './user-polls/component';
 import BreakoutRoomItem from './breakout-room/component';
@@ -91,6 +92,15 @@ class UserContent extends PureComponent {
             roving,
           }}
         />
+        {currentUser.isModerator
+          ? (
+            <UserCaptionsContainer
+              {...{
+                intl,
+              }}
+            />
+          ) : null
+        }
         <UserNotes
           {...{
             intl,

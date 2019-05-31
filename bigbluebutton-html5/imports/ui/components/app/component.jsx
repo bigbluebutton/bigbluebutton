@@ -48,6 +48,10 @@ const intlMessages = defineMessages({
     id: 'app.iOSWarning.label',
     description: 'message indicating to upgrade ios version',
   },
+  pollPublishedLabel: {
+    id: 'app.whiteboard.annotations.poll',
+    description: 'message displayed when a poll is published',
+  },
 });
 
 const propTypes = {
@@ -55,7 +59,7 @@ const propTypes = {
   sidebar: PropTypes.element,
   media: PropTypes.element,
   actionsbar: PropTypes.element,
-  closedCaption: PropTypes.element,
+  captions: PropTypes.element,
   userListIsOpen: PropTypes.bool.isRequired,
   chatIsOpen: PropTypes.bool.isRequired,
   locale: PropTypes.string,
@@ -67,7 +71,7 @@ const defaultProps = {
   sidebar: null,
   media: null,
   actionsbar: null,
-  closedCaption: null,
+  captions: null,
   locale: 'en',
 };
 
@@ -123,6 +127,17 @@ class App extends Component {
 
 
     logger.info({ logCode: 'app_component_componentdidmount' }, 'Client loaded successfully');
+  }
+
+  componentDidUpdate(prevProps, prevState) {
+    const { hasPublishedPoll, intl, notify } = this.props;
+    if (!prevProps.hasPublishedPoll && hasPublishedPoll) {
+      notify(
+        intl.formatMessage(intlMessages.pollPublishedLabel),
+        'info',
+        'polling',
+      );
+    }
   }
 
   componentWillUnmount() {
@@ -182,14 +197,14 @@ class App extends Component {
     );
   }
 
-  renderClosedCaption() {
-    const { closedCaption } = this.props;
+  renderCaptions() {
+    const { captions } = this.props;
 
-    if (!closedCaption) return null;
+    if (!captions) return null;
 
     return (
-      <div className={styles.closedCaptionBox}>
-        {closedCaption}
+      <div className={styles.captionsWrapper}>
+        {captions}
       </div>
     );
   }
@@ -208,7 +223,7 @@ class App extends Component {
         aria-hidden={userListIsOpen || chatIsOpen}
       >
         {media}
-        {this.renderClosedCaption()}
+        {this.renderCaptions()}
       </section>
     );
   }

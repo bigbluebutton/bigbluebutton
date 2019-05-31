@@ -12,8 +12,9 @@ import PresentationUploaderContainer from '/imports/ui/components/presentation/p
 import { withModalMounter } from '/imports/ui/components/modal/service';
 import withShortcutHelper from '/imports/ui/components/shortcut-help/service';
 import { styles } from '../styles';
-
 import ExternalVideoModal from '/imports/ui/components/external-video-player/modal/container';
+import CaptionsWriterMenu from '/imports/ui/components/captions/writer-menu/container';
+import CaptionsService from '/imports/ui/components/captions/service';
 
 const propTypes = {
   isUserPresenter: PropTypes.bool.isRequired,
@@ -22,6 +23,8 @@ const propTypes = {
   isUserModerator: PropTypes.bool.isRequired,
   shortcuts: PropTypes.string.isRequired,
   handleTakePresenter: PropTypes.func.isRequired,
+  allowExternalVideo: PropTypes.bool.isRequired,
+  stopExternalVideoShare: PropTypes.func.isRequired,
 };
 
 const intlMessages = defineMessages({
@@ -69,6 +72,14 @@ const intlMessages = defineMessages({
     id: 'app.actionsBar.actionsDropdown.takePresenterDesc',
     description: 'Description of take presenter role option',
   },
+  captionsLabel: {
+    id: 'app.actionsBar.actionsDropdown.captionsLabel',
+    description: 'Captions menu toggle label',
+  },
+  captionsDesc: {
+    id: 'app.actionsBar.actionsDropdown.captionsDesc',
+    description: 'Captions menu toggle description',
+  },
   startExternalVideoLabel: {
     id: 'app.actionsBar.actionsDropdown.shareExternalVideo',
     description: 'Start sharing external video button',
@@ -84,12 +95,13 @@ class ActionsDropdown extends Component {
     super(props);
 
     this.presentationItemId = _.uniqueId('action-item-');
-    this.recordId = _.uniqueId('action-item-');
     this.pollId = _.uniqueId('action-item-');
+    this.captionsId = _.uniqueId('action-item-');
     this.takePresenterId = _.uniqueId('action-item-');
 
     this.handlePresentationClick = this.handlePresentationClick.bind(this);
     this.handleExternalVideoClick = this.handleExternalVideoClick.bind(this);
+    this.handleCaptionsClick = this.handleCaptionsClick.bind(this);
   }
 
   componentWillUpdate(nextProps) {
@@ -115,6 +127,8 @@ class ActionsDropdown extends Component {
       pollBtnDesc,
       presentationLabel,
       presentationDesc,
+      captionsLabel,
+      captionsDesc,
       takePresenter,
       takePresenterDesc,
     } = intlMessages;
@@ -149,6 +163,17 @@ class ActionsDropdown extends Component {
             onClick={() => handleTakePresenter()}
           />
         )),
+      (CaptionsService.isCaptionsEnabled()
+        ? (
+          <DropdownListItem
+            icon="polling"
+            label={formatMessage(captionsLabel)}
+            description={formatMessage(captionsDesc)}
+            key={this.captionsId}
+            onClick={this.handleCaptionsClick}
+          />
+        ) : null
+      ),
       (isUserPresenter
         ? (
           <DropdownListItem
@@ -179,6 +204,11 @@ class ActionsDropdown extends Component {
   handleExternalVideoClick() {
     const { mountModal } = this.props;
     mountModal(<ExternalVideoModal />);
+  }
+
+  handleCaptionsClick() {
+    const { mountModal } = this.props;
+    mountModal(<CaptionsWriterMenu />);
   }
 
   handlePresentationClick() {

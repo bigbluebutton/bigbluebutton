@@ -69,6 +69,7 @@ export default class ToolbarSubmenuItem extends Component {
           icon={icon}
           customIcon={customIcon}
           onMouseUp={this.handleOnMouseUp}
+          onKeyPress={this.handleOnMouseUp}
           className={className}
           setRef={this.setRef}
         />
