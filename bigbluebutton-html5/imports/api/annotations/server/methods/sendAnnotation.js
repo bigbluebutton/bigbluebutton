@@ -76,6 +76,25 @@ export default function sendAnnotation(credentials, annotation) {
       userId: String,
       position: Number,
     });
+  } else {
+    check(annotation, {
+      id: String,
+      status: String,
+      annotationType: String,
+      annotationInfo: {
+        color: Number,
+        thickness: Number,
+        points: Array,
+        id: String,
+        whiteboardId: String,
+        status: String,
+        type: String,
+        dimensions: Match.Maybe([Number]),
+      },
+      wbId: String,
+      userId: String,
+      position: Number,
+    });
   }
 
   const payload = {
