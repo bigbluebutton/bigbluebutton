@@ -50,19 +50,19 @@ const intlMessages = defineMessages({
   },
   clearedEmoji: {
     id: 'app.toast.clearedEmoji.label',
-    description: '',
+    description: 'message for cleared emoji status',
   },
   setEmoji: {
     id: 'app.toast.setEmoji.label',
-    description: '',
+    description: 'message when a user emoji has been set',
   },
   meetingMuteOn: {
     id: 'app.toast.meetingMuteOn.label',
-    description: '',
+    description: 'message used when meeting has been muted',
   },
   meetingMuteOff: {
     id: 'app.toast.meetingMuteOff.label',
-    description: '',
+    description: 'message used when meeting has been unmuted',
   },
   pollPublishedLabel: {
     id: 'app.whiteboard.annotations.poll',
