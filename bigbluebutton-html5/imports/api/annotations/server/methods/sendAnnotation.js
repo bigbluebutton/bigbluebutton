@@ -52,7 +52,7 @@ export default function sendAnnotation(credentials, annotation) {
     throw new Meteor.Error('not-allowed', `User ${requesterUserId} is not allowed to send an annotation`);
   }
 
-  if (annotation.annotation === 'text') {
+  if (annotation.annotationType === 'text') {
     check(annotation, {
       id: String,
       status: String,
