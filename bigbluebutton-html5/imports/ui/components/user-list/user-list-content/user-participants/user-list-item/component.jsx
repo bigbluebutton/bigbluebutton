@@ -1,7 +1,6 @@
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import { injectIntl } from 'react-intl';
-import _ from 'lodash';
 import UserDropdown from './user-dropdown/component';
 
 const propTypes = {
@@ -50,6 +49,9 @@ class UserListItem extends PureComponent {
       hasPrivateChatBetweenUsers,
       toggleUserLock,
       requestUserInformation,
+      userInBreakout,
+      breakoutSequence,
+      meetignIsBreakout,
     } = this.props;
 
     const { meetingId, lockSettingsProps } = meeting;
@@ -80,6 +82,9 @@ class UserListItem extends PureComponent {
           hasPrivateChatBetweenUsers,
           toggleUserLock,
           requestUserInformation,
+          userInBreakout,
+          breakoutSequence,
+          meetignIsBreakout,
         }}
       />
     );

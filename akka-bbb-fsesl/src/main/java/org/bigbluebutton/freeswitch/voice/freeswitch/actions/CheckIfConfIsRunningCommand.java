@@ -20,6 +20,7 @@ package org.bigbluebutton.freeswitch.voice.freeswitch.actions;
 
 import org.apache.commons.lang3.StringUtils;
 import org.bigbluebutton.freeswitch.voice.events.ConferenceEventListener;
+import org.bigbluebutton.freeswitch.voice.freeswitch.response.ConferenceMember;
 import org.bigbluebutton.freeswitch.voice.freeswitch.response.XMLResponseConferenceListParser;
 import org.freeswitch.esl.client.transport.message.EslMessage;
 import org.slf4j.Logger;
@@ -31,6 +32,7 @@ import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.util.regex.Matcher;
 
 public class CheckIfConfIsRunningCommand extends FreeswitchCommand {
     private static Logger log = LoggerFactory.getLogger(CheckIfConfIsRunningCommand.class);
@@ -41,6 +43,7 @@ public class CheckIfConfIsRunningCommand extends FreeswitchCommand {
     
     @Override
     public String getCommandArgs() {
+        log.debug("Check if ejecting users was a success for {}.", room);
         return getRoom() + SPACE + "xml_list";
     }
     
@@ -50,7 +53,7 @@ public class CheckIfConfIsRunningCommand extends FreeswitchCommand {
 
         String firstLine = response.getBodyLines().get(0);
 
-        log.info("Check conference response: " + firstLine);
+        log.info("Check conference first line response: " + firstLine);
         //E.g. Conference 85115 not found
         
         if(!firstLine.startsWith("<?xml")) {
@@ -69,9 +72,7 @@ public class CheckIfConfIsRunningCommand extends FreeswitchCommand {
             SAXParser sp = spf.newSAXParser();
 
             //Hack turning body lines back into string then to ByteStream.... BLAH!
-            
             String responseBody = StringUtils.join(response.getBodyLines(), "\n");
-
             //http://mark.koli.ch/2009/02/resolving-orgxmlsaxsaxparseexception-content-is-not-allowed-in-prolog.html
             //This Sux!
             responseBody = responseBody.trim().replaceFirst("^([\\W]+)<","<");
@@ -79,11 +80,31 @@ public class CheckIfConfIsRunningCommand extends FreeswitchCommand {
             ByteArrayInputStream bs = new ByteArrayInputStream(responseBody.getBytes());
             sp.parse(bs, confXML);
 
-            if (confXML.getConferenceList().size() > 0) {
-                log.warn("WARNING! Failed to eject all users from conference {}.", room);
+            Integer numUsers =  confXML.getConferenceList().size();
+            if (numUsers > 0) {
+
+                log.info("Check conference response: " + responseBody);
+                log.warn("WARNING! Failed to eject all users from conf={},numUsers={}.", room, numUsers);
+                for(ConferenceMember member : confXML.getConferenceList()) {
+                    if ("caller".equals(member.getMemberType())) {
+                        //Foreach found member in conference create a JoinedEvent
+                        String callerId = member.getCallerId();
+                        String callerIdName = member.getCallerIdName();
+                        String voiceUserId = callerIdName;
+                        String uuid = member.getUUID();
+                        log.info("WARNING! User possibly stuck in conference. uuid=" + uuid
+                                + ",caller=" + callerIdName + ",callerId=" + callerId + ",conf=" + room);
+                    } else if ("recording_node".equals(member.getMemberType())) {
+
+                    }
+
+
+                }
             } else {
                 log.info("INFO! Successfully ejected all users from conference {}.", room);
             }
+
+
         }catch(SAXException se) {
 //            System.out.println("Cannot parse repsonce. ", se);
         }catch(ParserConfigurationException pce) {

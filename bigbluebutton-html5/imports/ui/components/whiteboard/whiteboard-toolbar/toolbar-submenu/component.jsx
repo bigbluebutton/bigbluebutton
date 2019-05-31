@@ -130,23 +130,75 @@ class ToolbarSubmenu extends Component {
     this.handleMouseEnter = this.handleMouseEnter.bind(this);
     this.handleMouseLeave = this.handleMouseLeave.bind(this);
     this.onItemClick = this.onItemClick.bind(this);
+    this.findCurrentElement = this.findCurrentElement.bind(this);
   }
 
-  onItemClick(objectToReturn) {
-    if (this.props.onItemClick) {
-      this.props.onItemClick(objectToReturn);
+  componentDidMount() {
+    const { handleMouseEnter, objectSelected, type } = this.props;
+
+    if (handleMouseEnter) {
+      handleMouseEnter();
+
+      if (type === 'annotations') {
+        this.submenuItems.childNodes.forEach((element) => {
+          const node = this.findCurrentElement(element.childNodes[0]);
+          const classname = node.getAttribute('class');
+          if (classname) {
+            const name = classname.split('-');
+            if (name[name.length - 1] === objectSelected.icon) {
+              element.firstChild.focus();
+            }
+          }
+        });
+      }
+
+      if (type === 'thickness') {
+        this.submenuItems.childNodes.forEach((element) => {
+          const node = this.findCurrentElement(element.childNodes[0]);
+          const radius = node.getAttribute('r');
+          if (radius === objectSelected.value.toString()) {
+            element.firstChild.focus();
+          }
+        });
+      }
+
+      if (type === 'color') {
+        this.submenuItems.childNodes.forEach((element) => {
+          const node = this.findCurrentElement(element.childNodes[0]);
+          const fill = node.getAttribute('fill');
+          if (fill === objectSelected.value) {
+            element.firstChild.focus();
+          }
+        });
+      }
     }
   }
 
+  onItemClick(objectToReturn) {
+    const { onItemClick } = this.props;
+
+    if (onItemClick) {
+      onItemClick(objectToReturn);
+    }
+  }
+
+  findCurrentElement(node) {
+    if (node.nodeName === 'BUTTON') return this.findCurrentElement(node.childNodes[0]);
+    if (node.nodeName === 'svg') return node.firstChild;
+    return node;
+  }
+
   handleMouseEnter() {
-    if (this.props.handleMouseEnter) {
-      this.props.handleMouseEnter();
+    const { handleMouseEnter } = this.props;
+    if (handleMouseEnter) {
+      handleMouseEnter();
     }
   }
 
   handleMouseLeave() {
-    if (this.props.handleMouseLeave) {
-      this.props.handleMouseLeave();
+    const { handleMouseLeave } = this.props;
+    if (handleMouseLeave) {
+      handleMouseLeave();
     }
   }
 
@@ -183,6 +235,7 @@ class ToolbarSubmenu extends Component {
         onMouseEnter={this.handleMouseEnter}
         onMouseLeave={this.handleMouseLeave}
         className={ToolbarSubmenu.getWrapperClassNames(type)}
+        ref={(node) => { this.submenuItems = node; }}
       >
         {objectsToRender ? objectsToRender.map(obj => (
           <ToolbarSubmenuItem
@@ -232,11 +285,8 @@ ToolbarSubmenu.propTypes = {
       icon: PropTypes.string.isRequired,
     }),
   ]).isRequired,
-  label: PropTypes.string.isRequired,
   customIcon: PropTypes.bool.isRequired,
-
   intl: intlShape.isRequired,
-
 };
 
 export default injectIntl(ToolbarSubmenu);

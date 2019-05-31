@@ -123,9 +123,7 @@ class App extends Component {
 
     if (!validIOSVersion()) {
       notify(
-        intl.formatMessage(intlMessages.iOSWarning),
-        'error',
-        'warning',
+        intl.formatMessage(intlMessages.iOSWarning), 'error', 'warning',
       );
     }
 
@@ -153,9 +151,7 @@ class App extends Component {
     if (prevProps.currentUserEmoji !== currentUserEmoji) {
       if (currentUserEmoji === 'none') {
         notify(
-          intl.formatMessage(intlMessages.clearedEmoji),
-          'info',
-          'clear_status',
+          intl.formatMessage(intlMessages.clearedEmoji), 'info', 'clear_status',
         );
       }
 
@@ -164,31 +160,23 @@ class App extends Component {
 
       if (currentUserEmoji !== 'none') {
         notify(
-          intl.formatMessage(intlMessages.setEmoji, ({ 0: formattedEmojiStatus })),
-          'info',
-          'user',
+          intl.formatMessage(intlMessages.setEmoji, ({ 0: formattedEmojiStatus })), 'info', 'user',
         );
       }
     }
     if (!prevProps.meetingMuted && meetingMuted) {
       notify(
-        intl.formatMessage(intlMessages.meetingMuteOn),
-        'info',
-        'mute',
+        intl.formatMessage(intlMessages.meetingMuteOn), 'info', 'mute',
       );
     }
     if (prevProps.meetingMuted && !meetingMuted) {
       notify(
-        intl.formatMessage(intlMessages.meetingMuteOff),
-        'info',
-        'unmute',
+        intl.formatMessage(intlMessages.meetingMuteOff), 'info', 'unmute',
       );
     }
     if (!prevProps.hasPublishedPoll && hasPublishedPoll) {
       notify(
-        intl.formatMessage(intlMessages.pollPublishedLabel),
-        'info',
-        'polling',
+        intl.formatMessage(intlMessages.pollPublishedLabel), 'info', 'polling',
       );
     }
   }
