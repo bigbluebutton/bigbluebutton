@@ -501,7 +501,7 @@ class VideoPreview extends Component {
               color="primary"
               label={intl.formatMessage(intlMessages.startSharingLabel)}
               onClick={() => this.handleStartSharing()}
-              disabled={isStartSharingDisabled}
+              disabled={isStartSharingDisabled || isStartSharingDisabled === null}
             />
           </div>
         </div>

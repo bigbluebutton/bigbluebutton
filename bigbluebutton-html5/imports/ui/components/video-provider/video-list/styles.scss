@@ -1,4 +1,6 @@
 @import "/imports/ui/stylesheets/variables/_all";
+@import "/imports/ui/stylesheets/variables/video";
+
 :root {
   --color-white-with-transparency: #ffffff40;
 }
@@ -7,21 +9,33 @@
   --cam-dropdown-width: 70%;
   --audio-indicator-width: 1.12rem;
   --audio-indicator-fs: 75%;
-  position: absolute;
+  position: relative;
+  width: 100%;
   top: 0;
   left: 0;
   right: 0;
   bottom: 0;
-  display: flex;
   align-items: center;
   justify-content: center;
+  min-height: calc(var(--video-width) / var(--video-ratio));
 }
 
 .videoList {
   display: grid;
+  padding: 10px;
+  border-radius: 5px;
+  // max-width: fit-content;
 
-  grid-auto-flow: dense;
+  min-height: calc(var(--video-width) / var(--video-ratio));
+
+  grid-template-columns: repeat(auto-fit, var(--video-width));
+  grid-template-rows: repeat(auto-fit, calc(var(--video-width) / var(--video-ratio)));
+
+  grid-auto-flow: column dense;
   grid-gap: 5px;
+
+  align-items: center;
+  justify-content: center;
 
   @include mq($medium-up) {
     grid-gap: 10px;
@@ -30,20 +44,38 @@
 
 .videoListItem {
   display: flex;
-  overflow: hidden;
+  max-width: fit-content;
 
   &.focused {
     grid-column: 1 / span 2;
     grid-row: 1 / span 2;
+    width: 100%;
+    min-width: 100%;
+    max-width: 100%;
+    height: 100%;
+    min-height: 100%;
+    max-height: 100%;
   }
+
+  width: var(--video-width);
+  min-width: var(--video-width);
+  height: calc(var(--video-width) / var(--video-ratio));
+  min-height: calc(var(--video-width) / var(--video-ratio));
 }
 
 .content {
   position: relative;
-  display: flex;
   min-width: 100%;
   height: 100%;
+  min-height: 100%;
   border-radius: 5px;
+
+  background-color: var(--color-gray);
+
+  width: var(--video-width);
+  min-width: var(--video-width);
+  height: calc(var(--video-width) / var(--video-ratio));
+  min-height: calc(var(--video-width) / var(--video-ratio));
 
   &::after {
     content: "";
@@ -65,9 +97,26 @@
   &.talking::after {
     opacity: 1;
   }
+
+  .focused & {
+    width: 100%;
+    min-width: 100%;
+    max-width: 100%;
+    height: 100%;
+    min-height: 100%;
+    max-height: 100%;
+  }
+}
+
+.contentLoading {
+  width: var(--video-width);
+  min-width: var(--video-width);
+  height: calc(var(--video-width) / var(--video-ratio));
+  min-height: calc(var(--video-width) / var(--video-ratio));
 }
 
 %media-area {
+
   position: relative;
   height: 100%;
   width: 100%;
@@ -76,8 +125,13 @@
 }
 
 @keyframes spin {
-  from { transform: rotate(0deg); }
-  to { transform: rotate(-360deg); }
+  from {
+    transform: rotate(0deg);
+  }
+
+  to {
+    transform: rotate(-360deg);
+  }
 }
 
 .connecting {
@@ -88,6 +142,9 @@
   font-size: 2.5rem;
   text-align: center;
   white-space: nowrap;
+  width: 100%;
+  height: 100%;
+
 
   &::after {
     content: '';
@@ -102,7 +159,8 @@
   }
 
   &::before {
-    content: "\e949"; /* ascii code for the ellipsis character */
+    content: "\e949";
+    /* ascii code for the ellipsis character */
     font-family: 'bbb-icons' !important;
     display: inline-block;
 
@@ -128,14 +186,15 @@
   z-index: 2;
 }
 
-.dropdown, .dropdownFireFox {
+.dropdown,
+.dropdownFireFox {
   flex: 1;
   display: flex;
   outline: none !important;
   width: var(--cam-dropdown-width);
 
   @include mq($medium-up) {
-    > [aria-expanded] {
+    >[aria-expanded] {
       padding: .25rem;
     }
   }
@@ -145,7 +204,8 @@
   max-width: 100%;
 }
 
-.dropdownTrigger, .userName {
+.dropdownTrigger,
+.userName {
   @extend %text-elipsis;
   position: relative;
   background-color: var(--color-black);
@@ -212,7 +272,7 @@
 }
 
 .webRTCStats {
-  background: rgba(0,0,0,0.85);
+  background: rgba(0, 0, 0, 0.85);
   padding: 15px;
   height: 100%;
   color: var(--color-white);
