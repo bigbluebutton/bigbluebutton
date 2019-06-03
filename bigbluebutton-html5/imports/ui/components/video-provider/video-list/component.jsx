@@ -1,7 +1,6 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { defineMessages, injectIntl } from 'react-intl';
-import _ from 'lodash';
 import cx from 'classnames';
 import { styles } from './styles';
 import VideoListItem from './video-list-item/component';

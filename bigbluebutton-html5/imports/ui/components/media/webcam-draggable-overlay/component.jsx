@@ -49,6 +49,10 @@ export default class WebcamDraggableOverlay extends Component {
     return document.querySelector('div[class*="overlay"]');
   }
 
+  static isOverlayAbsolute() {
+    return !!(document.querySelector('div[class*="overlayAbsolute"]'));
+  }
+
   static getIsOverlayChanged() {
     const overlayToTop = document.querySelector('div[class*="overlayToTop"]');
     const overlayToBottom = document.querySelector('div[class*="overlayToBottom"]');
@@ -97,6 +101,7 @@ export default class WebcamDraggableOverlay extends Component {
       isFullScreen: false,
       isVideoLoaded: false,
       isMinWidth: false,
+      userLength: 0,
     };
 
     this.updateWebcamPositionByResize = this.updateWebcamPositionByResize.bind(this);
@@ -117,6 +122,7 @@ export default class WebcamDraggableOverlay extends Component {
     this.handleFullscreenChange = this.handleFullscreenChange.bind(this);
     this.fullscreenButtonChange = this.fullscreenButtonChange.bind(this);
 
+    this.getVideoListUsersChange = this.getVideoListUsersChange.bind(this);
     this.setIsFullScreen = this.setIsFullScreen.bind(this);
     this.setResetPosition = this.setResetPosition.bind(this);
     this.setInitialReferencePoint = this.setInitialReferencePoint.bind(this);
@@ -149,6 +155,15 @@ export default class WebcamDraggableOverlay extends Component {
 
     // Ensures that the event will be called before the resize
     document.addEventListener('webcamFullscreenButtonChange', this.fullscreenButtonChange);
+
+    window.addEventListener('videoListUsersChange', this.getVideoListUsersChange);
+  }
+
+  componentDidUpdate(prevProps, prevState) {
+    const { userLength } = this.state;
+    if (userLength !== prevState.userLength) {
+      this.setLastWebcamPosition({ x: 0 });
+    }
   }
 
   componentWillUnmount() {
@@ -157,6 +172,11 @@ export default class WebcamDraggableOverlay extends Component {
     });
 
     document.removeEventListener('webcamFullscreenButtonChange', this.fullscreenButtonChange);
+  }
+
+  getVideoListUsersChange() {
+    const userLength = WebcamDraggableOverlay.getWebcamBySelectorCount();
+    this.setState({ userLength });
   }
 
   setIsFullScreen(isFullScreen) {
@@ -173,12 +193,14 @@ export default class WebcamDraggableOverlay extends Component {
 
   setInitialReferencePoint() {
     const { refMediaContainer } = this.props;
+    const { userLength } = this.state;
     const { current: mediaContainer } = refMediaContainer;
 
     const webcamBySelector = WebcamDraggableOverlay.getWebcamBySelector();
 
     if (webcamBySelector && mediaContainer) {
-      const webcamBySelectorCount = WebcamDraggableOverlay.getWebcamBySelectorCount();
+      if (userLength === 0) this.getVideoListUsersChange();
+
       let x = 0;
       let y = 0;
 
@@ -195,9 +217,9 @@ export default class WebcamDraggableOverlay extends Component {
       } = mediaContainerRect;
 
       const lineNum = WebcamDraggableOverlay
-        .getGridLineNum(webcamBySelectorCount, webcamWidth, mediaWidth);
+        .getGridLineNum(userLength, webcamWidth, mediaWidth);
 
-      x = mediaWidth - ((webcamWidth + 10) * webcamBySelectorCount); // 10 is margin
+      x = mediaWidth - ((webcamWidth + 10) * userLength); // 10 is margin
       y = mediaHeight - ((webcamHeight + 10) * lineNum); // 10 is margin
 
       if (x === 0 && y === 0) return false;
@@ -208,16 +230,15 @@ export default class WebcamDraggableOverlay extends Component {
     return false;
   }
 
-  setLastWebcamPosition() {
+  setLastWebcamPosition(position) {
     const { refMediaContainer } = this.props;
     const { current: mediaContainer } = refMediaContainer;
-    const { initialRectPosition } = this.state;
+    const { initialRectPosition, userLength } = this.state;
 
     const { x: initX, y: initY } = initialRectPosition;
     const webcamBySelector = WebcamDraggableOverlay.getWebcamBySelector();
 
     if (webcamBySelector && mediaContainer) {
-      const webcamBySelectorCount = WebcamDraggableOverlay.getWebcamBySelectorCount();
       const webcamBySelectorRect = webcamBySelector.getBoundingClientRect();
       const {
         left: webcamLeft,
@@ -230,7 +251,7 @@ export default class WebcamDraggableOverlay extends Component {
         top: mediaTop,
       } = mediaContainerRect;
 
-      const webcamXByMedia = webcamBySelectorCount > 1 ? 0 : webcamLeft - mediaLeft;
+      const webcamXByMedia = userLength > 1 ? 0 : webcamLeft - mediaLeft;
       const webcamYByMedia = webcamTop - mediaTop;
 
       let x = 0;
@@ -241,12 +262,16 @@ export default class WebcamDraggableOverlay extends Component {
       } else {
         x = 0 - initX;
       }
+      if (userLength > 1) x = 0;
+      if (position && position.x) x = position.x;
+      if (webcamXByMedia > initX) x = -(initY - 10);
 
-      if (webcamYByMedia > 0) {
-        y = webcamYByMedia - initY;
-      } else {
-        y = 0 - initY;
+      y = webcamYByMedia - (initY - 10);
+
+      if (webcamYByMedia > initY) {
+        y = -10;
       }
+      if (webcamYByMedia < 0) y = -(initY - 10);
 
       this.setLastPosition(x, y);
     }
@@ -267,8 +292,20 @@ export default class WebcamDraggableOverlay extends Component {
   }
 
   updateWebcamPositionByResize() {
-    const { isVideoLoaded, isMinWidth } = this.state;
+    const {
+      isVideoLoaded,
+      isMinWidth,
+      dropOnTop,
+      dropOnBottom,
+    } = this.state;
+    const webcamBySelectorCount = WebcamDraggableOverlay.getWebcamBySelectorCount();
+
     if (isVideoLoaded) {
+      // if (!dropOnTop && !dropOnBottom) this.setState({ dropOnBottom: true });
+      if (this.isOverlayAbsolute && webcamBySelectorCount > 1) {
+        this.setInitialReferencePoint();
+        this.setLastWebcamPosition({ x: 0 });
+      }
       this.setInitialReferencePoint();
       this.setLastWebcamPosition();
     }
@@ -407,6 +444,8 @@ export default class WebcamDraggableOverlay extends Component {
       isMinWidth,
     } = this.state;
 
+    const webcamBySelectorCount = WebcamDraggableOverlay.getWebcamBySelectorCount();
+
     const contentClassName = cx({
       [styles.content]: true,
     });
@@ -414,7 +453,8 @@ export default class WebcamDraggableOverlay extends Component {
     const overlayClassName = cx({
       [styles.overlay]: true,
       [styles.overlayRelative]: (dropOnTop || dropOnBottom),
-      [styles.overlayAbsolute]: (!dropOnTop && !dropOnBottom),
+      [styles.overlayAbsoluteSingle]: (!dropOnTop && !dropOnBottom && webcamBySelectorCount <= 1),
+      [styles.overlayAbsoluteMult]: (!dropOnTop && !dropOnBottom && webcamBySelectorCount > 1),
       [styles.hideOverlay]: hideOverlay,
       [styles.floatingOverlay]: floatingOverlay && (!dropOnTop && !dropOnBottom),
       [styles.overlayToTop]: dropOnTop,

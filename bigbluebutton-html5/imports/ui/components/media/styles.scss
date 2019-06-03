@@ -40,9 +40,13 @@
   position: relative;
 }
 
-.overlayAbsolute{
+.overlayAbsoluteSingle{
   position: absolute;
   height: calc(var(--video-width) / var(--video-ratio));
+}
+
+.overlayAbsoluteMult{
+  position: absolute;
 }
 
 .overlayToTop {

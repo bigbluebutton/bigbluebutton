@@ -210,6 +210,11 @@ class VideoProvider extends Component {
     usersToDisconnect.forEach(id => this.stopWebRTCPeer(id));
   }
 
+  componentDidUpdate(prevProps) {
+    const { users } = this.props;
+    if (users.length !== prevProps.users.length) window.dispatchEvent(new Event('videoListUsersChange'));
+  }
+
   componentWillUnmount() {
     document.removeEventListener('joinVideo', this.shareWebcam);
     document.removeEventListener('exitVideo', this.unshareWebcam);
@@ -830,7 +835,7 @@ class VideoProvider extends Component {
       if (videoStats.packetsReceived > 0) { // Remote video
         videoLostPercentage = ((videoStats
           .packetsLost / ((videoStats
-          .packetsLost + videoStats.packetsReceived) * 100)) || 0).toFixed(1);
+            .packetsLost + videoStats.packetsReceived) * 100)) || 0).toFixed(1);
         videoBitrate = Math.floor(videoKbitsReceivedPerSecond || 0);
         videoLostRecentPercentage = ((videoIntervalPacketsLost / ((videoIntervalPacketsLost
           + videoIntervalPacketsReceived) * 100)) || 0).toFixed(1);
