@@ -17,6 +17,7 @@ import fa from 'react-intl/locale-data/fa';
 import fr from 'react-intl/locale-data/fr';
 import he from 'react-intl/locale-data/he';
 import hi from 'react-intl/locale-data/hi';
+import hu from 'react-intl/locale-data/hu';
 import id from 'react-intl/locale-data/id';
 import it from 'react-intl/locale-data/it';
 import ja from 'react-intl/locale-data/ja';
@@ -44,6 +45,7 @@ addLocaleData([
   ...fr,
   ...he,
   ...hi,
+  ...hu,
   ...id,
   ...it,
   ...ja,
