@@ -349,6 +349,7 @@ export default class WebcamDraggableOverlay extends Component {
     if (dropOnTop) this.setState({ dropOnTop: false });
     if (dropOnBottom) this.setState({ dropOnBottom: false });
     if (resetPosition) this.setState({ resetPosition: false });
+    window.dispatchEvent(new Event('resize'));
   }
 
   handleWebcamDragStop(e, position) {
@@ -406,6 +407,7 @@ export default class WebcamDraggableOverlay extends Component {
         resetPosition: true,
       });
     }
+    window.dispatchEvent(new Event('resize'));
     setTimeout(() => this.setLastWebcamPosition(), 500);
   }
 
@@ -418,6 +420,7 @@ export default class WebcamDraggableOverlay extends Component {
         resetPosition: true,
       });
     }
+    window.dispatchEvent(new Event('resize'));
     setTimeout(() => this.setLastWebcamPosition(), 500);
   }
 
