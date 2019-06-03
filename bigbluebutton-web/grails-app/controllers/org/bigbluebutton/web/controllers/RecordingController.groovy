@@ -52,8 +52,6 @@ class RecordingController {
       return
     }
 
-/**
- * Commenting out for testing purposes!!!!!!!!!!!!!!!!!!
     if (!paramsProcessorUtil.isChecksumSame(API_CALL, params.checksum, request.getQueryString())) {
       invalid("checksumError", "You did not pass the checksum security check")
       return
@@ -66,16 +64,8 @@ class RecordingController {
       respondWithErrors(errors)
       return
     }
-**/
 
     String recId = StringUtils.strip(params.recordID)
-
-    // Do we agree on the checksum? If not, complain.
-    //if (! paramsProcessorUtil.isChecksumSame(API_CALL, params.checksum, request.getQueryString())) {
-    //    respondWithError("checksumError", "You did not pass the checksum security check.")
-    //    return
-    //}
-
     String result = meetingService.getRecordingTextTracks(recId)
 
     response.addHeader("Cache-Control", "no-cache")
@@ -119,6 +109,11 @@ class RecordingController {
 
     String recordId = StringUtils.strip(params.recordID)
 
+    if (!paramsProcessorUtil.isChecksumSame(API_CALL, params.checksum, request.getQueryString())) {
+      invalid("checksumError", "You did not pass the checksum security check")
+      return
+    }
+
     String captionsDirPath = meetingService.getCaptionsDir() + File.separatorChar + recordId
     File captionsDir = new File(captionsDirPath);
     if (!captionsDir.exists() || !captionsDir.isDirectory()) {
@@ -161,7 +156,7 @@ class RecordingController {
     }
 
     String contentType = request.getContentType()
-    
+
     String captionsLang = locale.toString()
     String captionsLabel = captionsLang
 
