@@ -1,5 +1,5 @@
 AllCops:
-  TargetRubyVersion: 2.3
+  TargetRubyVersion: 2.3 # System ruby on Ubuntu 18.04
 Layout/AlignHash:
   EnforcedHashRocketStyle: [ key, table ]
 Metrics:
