@@ -17,13 +17,13 @@ case class UploadedTrack(
     tempFilename: String
 )
 case class UploadedTrackInfo(
-    recordId:     String,
-    kind:         String,
-    lang:         String,
-    label:        String,
-    origFilename: String,
-    contentType:  String,
-    tempFilename: String
+    record_id:         String,
+    kind:              String,
+    lang:              String,
+    label:             String,
+    original_filename: String,
+    content_type:      String,
+    temp_filename:     String
 )
 case class Track(
     href:   String,

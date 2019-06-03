@@ -292,13 +292,13 @@ class RecMetaXmlHelper extends RecordingServiceGW with LogHelper {
     val trackInfoFilePath = track.inboxDir + File.separatorChar + track.trackId + "-track.json"
 
     val trackInfo = new UploadedTrackInfo(
-      recordId = track.recordId,
+      record_id = track.recordId,
       kind = track.kind,
       lang = track.lang,
       label = track.label,
-      origFilename = track.origFilename,
-      tempFilename = track.tempFilename,
-      contentType = track.contentType
+      original_filename = track.origFilename,
+      temp_filename = track.tempFilename,
+      content_type = track.contentType
     )
 
     val gson = new Gson()
