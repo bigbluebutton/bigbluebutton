@@ -1,5 +1,5 @@
 import _ from 'lodash';
-import React, { Component } from 'react';
+import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import { defineMessages, intlShape } from 'react-intl';
 import Button from '/imports/ui/components/button/component';
@@ -90,7 +90,7 @@ const intlMessages = defineMessages({
   },
 });
 
-class ActionsDropdown extends Component {
+class ActionsDropdown extends PureComponent {
   constructor(props) {
     super(props);
 
