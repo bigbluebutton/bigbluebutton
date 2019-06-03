@@ -69,63 +69,65 @@ def caption_file_notify(json_filename)
   captions_work_base = File.join(props['recording_dir'], 'caption', 'inbox')
   new_caption_info = File.open(json_filename) { |file| JSON.parse(file) }
   logger.tag(record_id: new_caption_info['record_id']) do
-    # TODO: This is racy if multiple tools are editing the captions.json file
-    index_filename = File.join(captions_dir, new_caption_info['record_id'], 'captions.json')
-    captions_info = begin
-      File.open(index_filename) { |file| JSON.parse(file) }
-    rescue StandardError
-      # No captions file or cannot be read, assume none present
-      []
+    begin
+      # TODO: This is racy if multiple tools are editing the captions.json file
+      index_filename = File.join(captions_dir, new_caption_info['record_id'], 'captions.json')
+      captions_info =
+        begin
+          File.open(index_filename) { |file| JSON.parse(file) }
+        rescue StandardError
+          # No captions file or cannot be read, assume none present
+          []
+        end
+
+      langtag = Locale::Tag::Rfc.parse(new_caption_info['lang'])
+      raise InvalidCaptionError, 'Language tag is not well-formed' unless langtag
+
+      # Remove the info for an existing matching track
+      captions_info.delete_if do |caption_info|
+        caption_info['lang'] == new_caption_info['lang'] &&
+          caption_info['kind'] == new_caption_info['kind']
+      end
+
+      captions_info << {
+        'kind'   => new_caption_info['kind'],
+        'label'  => new_caption_info['label'],
+        'lang'   => langtag.to_s,
+        'source' => 'upload',
+      }
+
+      src_filename = File.join(captions_inbox_dir, new_caption_info['temp_filename'])
+      dest_filename = "#{captions_info['kind']}_#{captions_info['lang']}.vtt"
+      tmp_dest = File.join(captions_work_base, new_caption_info['record_id'], dest_filename)
+      final_dest = File.join(captions_dir, new_caption_info['record_id'], dest_filename)
+
+      # Try to use ffmpeg to convert the received caption file to WebVTT
+      ffmpeg_cmd = [
+        'ffmpeg',
+        '-i', src_filename, '-map', '0:s',
+        '-f', 'webvtt', tmp_dest,
+      ]
+      ret = BigBlueButton.exec_ret(*ffmpeg_cmd)
+      raise InvalidCaptionError, 'FFmpeg could not read input' unless ret.zero?
+
+      FileUtils.mv(tmp_dest, final_dest)
+      File.open(index_filename, 'w') do |file|
+        result = JSON.pretty_generate(captions_info)
+        file.write(result)
+      end
+
+      # TODO: trigger incorporating caption file into existing published recordings
+
+      logger.info('Removing files from inbox directory')
+      FileUtils.rm_f(src_filename) if src_filename
+      FileUtils.rm_f(json_filename)
+    rescue InvalidCaptionError => e
+      logger.exception(e)
+
+      logger.info('Deleting invalid files from inbox directory')
+      FileUtils.rm_f(src_filename) if src_filename
+      FileUtils.rm_f(json_filename)
     end
-
-    langtag = Locale::Tag::Rfc.parse(new_caption_info['lang'])
-    raise InvalidCaptionError, 'Language tag is not well-formed' unless langtag
-
-    # Remove the info for an existing matching track
-    captions_info.delete_if do |caption_info|
-      caption_info['lang'] == new_caption_info['lang'] &&
-        caption_info['kind'] == new_caption_info['kind']
-    end
-
-    captions_info << {
-      'kind'   => new_caption_info['kind'],
-      'label'  => new_caption_info['label'],
-      'lang'   => langtag.to_s,
-      'source' => 'upload',
-    }
-
-    src_filename = File.join(captions_inbox_dir, new_caption_info['temp_filename'])
-    dest_filename = "#{captions_info['kind']}_#{captions_info['lang']}.vtt"
-    tmp_dest = File.join(captions_work_base, new_caption_info['record_id'], dest_filename)
-    final_dest = File.join(captions_dir, new_caption_info['record_id'], dest_filename)
-
-    # Try to use ffmpeg to convert the received caption file to WebVTT
-    ffmpeg_cmd = [
-      'ffmpeg',
-      '-i', src_filename, '-map', '0:s',
-      '-f', 'webvtt', tmp_dest,
-    ]
-    ret = BigBlueButton.exec_ret(*ffmpeg_cmd)
-    raise InvalidCaptionError, 'FFmpeg could not read input' unless ret.zero?
-
-    FileUtils.mv(tmp_dest, final_dest)
-    File.open(index_filename, 'w') do |file|
-      result = JSON.pretty_generate(captions_info)
-      file.write(result)
-    end
-
-    # TODO: trigger incorporating caption file into existing published recordings
-
-    logger.info('Removing files from inbox directory')
-    FileUtils.rm_f(src_filename) if src_filename
-    FileUtils.rm_f(json_filename)
-
-  rescue InvalidCaptionError => e
-    logger.exception(e)
-
-    logger.info('Deleting invalid files from inbox directory')
-    FileUtils.rm_f(src_filename) if src_filename
-    FileUtils.rm_f(json_filename)
   end
 end
 
