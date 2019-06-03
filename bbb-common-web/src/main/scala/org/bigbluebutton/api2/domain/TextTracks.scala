@@ -12,14 +12,18 @@ case class UploadedTrack(
     origFilename: String,
     track:        File,
     trackId:      String,
-    inboxDir:     String
+    inboxDir:     String,
+    contentType:  String,
+    tempFilename: String
 )
 case class UploadedTrackInfo(
     recordId:     String,
     kind:         String,
     lang:         String,
     label:        String,
-    origFilename: String
+    origFilename: String,
+    contentType:  String,
+    tempFilename: String
 )
 case class Track(
     href:   String,

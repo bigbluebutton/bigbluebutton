@@ -4,7 +4,7 @@ import java.io.{ File, FileOutputStream, FileWriter, IOException }
 import java.nio.channels.Channels
 import java.nio.charset.StandardCharsets
 import java.util
-
+import java.nio.file.{ Paths, Files }
 import com.google.gson.Gson
 import org.bigbluebutton.api.domain.RecordingMetadata
 import org.bigbluebutton.api2.RecordingServiceGW
@@ -190,7 +190,7 @@ class RecMetaXmlHelper extends RecordingServiceGW with LogHelper {
     }
   }
 
-  def getRecordingTextTracks(recordId: String, captionsDir: String, captionBaseUrl: String): String = {
+  def getRecordingsCaptionsJson(recordId: String, captionsDir: String, captionBaseUrl: String): String = {
     val gson = new Gson()
     var returnResponse: String = ""
     val captionsFilePath = captionsDir + File.separatorChar + recordId + File.separatorChar + CAPTIONS_FILE
@@ -226,6 +226,21 @@ class RecMetaXmlHelper extends RecordingServiceGW with LogHelper {
         val failedTxt = gson.toJson(respFailed)
 
         returnResponse = failedTxt
+    }
+
+    returnResponse
+  }
+
+  def getRecordingTextTracks(recordId: String, captionsDir: String, captionBaseUrl: String): String = {
+    val gson = new Gson()
+    var returnResponse: String = ""
+    val recordingPath = captionsDir + File.separatorChar + recordId
+    if (!Files.exists(Paths.get(recordingPath))) {
+      val resFailed = GetRecTextTracksResultFailed(FAILED, "noRecordings", "No recording found for " + recordId)
+      val respFailed = GetRecTextTracksRespFailed(resFailed)
+      returnResponse = gson.toJson(respFailed)
+    } else {
+      returnResponse = getRecordingsCaptionsJson(recordId, captionsDir, captionBaseUrl)
     }
 
     returnResponse
@@ -281,7 +296,9 @@ class RecMetaXmlHelper extends RecordingServiceGW with LogHelper {
       kind = track.kind,
       lang = track.lang,
       label = track.label,
-      origFilename = track.origFilename
+      origFilename = track.origFilename,
+      tempFilename = track.tempFilename,
+      contentType = track.contentType
     )
 
     val gson = new Gson()

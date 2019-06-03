@@ -408,10 +408,10 @@ public class MeetingService implements MessageListener {
   }
 
   public String putRecordingTextTrack(String recordId, String kind, String lang, File file, String label,
-          String origFilename, String trackId) {
+          String origFilename, String trackId, String contentType, String tempFilename) {
 
       UploadedTrack track = new UploadedTrack(recordId, kind, lang, label, origFilename, file, trackId,
-              getCaptionTrackInboxDir());
+              getCaptionTrackInboxDir(), contentType, tempFilename);
       return recordingService.putRecordingTextTrack(track);
   }
 

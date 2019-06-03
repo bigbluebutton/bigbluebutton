@@ -52,6 +52,8 @@ class RecordingController {
       return
     }
 
+/**
+ * Commenting out for testing purposes!!!!!!!!!!!!!!!!!!
     if (!paramsProcessorUtil.isChecksumSame(API_CALL, params.checksum, request.getQueryString())) {
       invalid("checksumError", "You did not pass the checksum security check")
       return
@@ -64,6 +66,7 @@ class RecordingController {
       respondWithErrors(errors)
       return
     }
+**/
 
     String recId = StringUtils.strip(params.recordID)
 
@@ -112,50 +115,53 @@ class RecordingController {
     if (StringUtils.isEmpty(params.recordID)) {
       respondWithError("paramError", "Missing param recordID.")
       return
-    } else {
-      String captionsDirPath = meetingService.getCaptionsDir() + File.separatorChar + StringUtils.isEmpty(params.recordID)
-      File captionsDir = new File(captionsDirPath);
-      if (!captionsDir.exists() || !captionsDir.isDirectory()) {
-        respondWithError("noRecordings", "No recording was found matching the provided recording ID.")
-        return;
-      } 
     }
 
     String recordId = StringUtils.strip(params.recordID)
 
+    String captionsDirPath = meetingService.getCaptionsDir() + File.separatorChar + recordId
+    File captionsDir = new File(captionsDirPath);
+    if (!captionsDir.exists() || !captionsDir.isDirectory()) {
+      respondWithError("noRecordings", "No recording was found for " + recordId)
+      return;
+    }
+
     if (StringUtils.isEmpty(params.kind)) {
       respondWithError("paramError", "Missing param kind.")
       return
-    } else {
-      def isAllowedKind = StringUtils.strip(params.kind) in ['subtitles', 'captions']
-      if (!isAllowedKind) {
-        respondWithError("invalidKind", "The kind parameter is not set to a permitted value.")
-        return
-      }
     }
 
     String captionsKind = StringUtils.strip(params.kind)
+    def isAllowedKind = captionsKind in ['subtitles', 'captions']
+    if (!isAllowedKind) {
+      respondWithError("invalidKind", "Invalid kind parameter, expected='subtitles|captions' actual=" + captionsKind)
+      return
+    }
 
     Locale locale;
     if (StringUtils.isEmpty(params.lang)) {
       respondWithError("paramError", "Missing param lang.")
       return
-    } else {
-      Collection<Locale> locales = new ArrayList<>();
-      locales.add(Locale.forLanguageTag(params.lang));
-      try {
-        List<Locale.LanguageRange> languageRanges = Locale.LanguageRange.parse(params.lang);
-        locale = Locale.lookup(languageRanges, locales);
-        if (locale == null) {
-          respondWithError("invalidLang", "The lang parameter is not a valid language tag.")
-          return;
-        }
-      } catch (IllegalArgumentException e) {
-        respondWithError("invalidLang", "The lang parameter is not a well-formed language tag.")
-        return;
-      }
     }
 
+    String paramsLang = StringUtils.strip(params.lang)
+
+    Collection<Locale> locales = new ArrayList<>()
+    locales.add(Locale.forLanguageTag(paramsLang))
+    try {
+      List<Locale.LanguageRange> languageRanges = Locale.LanguageRange.parse(paramsLang)
+      locale = Locale.lookup(languageRanges, locales)
+      if (locale == null) {
+        respondWithError("invalidLang", "Invalid lang param, received=" + paramsLang)
+        return
+      }
+    } catch (IllegalArgumentException e) {
+      respondWithError("invalidLang", "Malformed lang param, received=" + paramsLang)
+      return
+    }
+
+    String contentType = request.getContentType()
+    
     String captionsLang = locale.toString()
     String captionsLabel = captionsLang
 
@@ -167,13 +173,14 @@ class RecordingController {
     if (uploadedCaptionsFile && !uploadedCaptionsFile.empty) {
       def origFilename = uploadedCaptionsFile.getOriginalFilename()
       def trackId = recordId + "-" + System.currentTimeMillis()
-      def captionsFilePath = meetingService.getCaptionTrackInboxDir() + File.separatorChar + trackId + "-track.txt"
+      def tempFilename = trackId + "-track.txt"
+      def captionsFilePath = meetingService.getCaptionTrackInboxDir() + File.separatorChar + tempFilename
       def captionsFile = new File(captionsFilePath)
 
       uploadedCaptionsFile.transferTo(captionsFile)
 
       String result = meetingService.putRecordingTextTrack(recordId, captionsKind,
-          captionsLang, captionsFile, captionsLabel, origFilename, trackId)
+          captionsLang, captionsFile, captionsLabel, origFilename, trackId, contentType, tempFilename)
 
       response.addHeader("Cache-Control", "no-cache")
       withFormat {
