@@ -11,19 +11,21 @@ import { notify } from '/imports/ui/services/notification';
  * @return {Promise}
  */
 export function makeCall(name, ...args) {
-  check(name, String);
+  if (Meteor.status().connected) {
+    check(name, String);
 
-  const { credentials } = Auth;
+    const { credentials } = Auth;
 
-  return new Promise((resolve, reject) => {
-    Meteor.call(name, credentials, ...args, (error, result) => {
-      if (error) {
-        reject(error);
-      }
+    return new Promise((resolve, reject) => {
+      Meteor.call(name, credentials, ...args, (error, result) => {
+        if (error) {
+          reject(error);
+        }
 
-      resolve(result);
+        resolve(result);
+      });
     });
-  });
+  }
 }
 
 /**
