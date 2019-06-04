@@ -82,6 +82,11 @@ caption_file_notify = proc do |json_filename|
           []
         end
 
+      temp_filename = new_caption_info['temp_filename']
+      raise InvalidCaptionError, 'Temp filename is blank' if temp_filename.nil? || temp_filename.empty?
+
+      src_filename = File.join(captions_inbox_dir, temp_filename)
+
       langtag = Locale::Tag::Rfc.parse(new_caption_info['lang'])
       raise InvalidCaptionError, 'Language tag is not well-formed' unless langtag
 
@@ -99,7 +104,6 @@ caption_file_notify = proc do |json_filename|
 
       captions_work = File.join(captions_work_base, record_id)
       FileUtils.mkdir_p(captions_work)
-      src_filename = File.join(captions_inbox_dir, new_caption_info['temp_filename'])
       dest_filename = "#{captions_info['kind']}_#{captions_info['lang']}.vtt"
       tmp_dest = File.join(captions_work, dest_filename)
       final_dest = File.join(captions_dir, record_id, dest_filename)
