@@ -24,14 +24,13 @@
   display: grid;
   padding: 10px;
   border-radius: 5px;
-  // max-width: fit-content;
 
   min-height: calc(var(--video-width) / var(--video-ratio));
 
   grid-template-columns: repeat(auto-fit, var(--video-width));
-  grid-template-rows: repeat(auto-fit, calc(var(--video-width) / var(--video-ratio)));
+  grid-auto-columns: var(--video-width);
+  grid-auto-rows: calc(var(--video-width) / var(--video-ratio));
 
-  grid-auto-flow: column dense;
   grid-gap: 5px;
 
   align-items: center;
@@ -151,7 +150,7 @@
     display: inline-block;
     height: 100%;
     vertical-align: middle;
-    margin:0 -0.25em 0 0;
+    margin: 0 -0.25em 0 0;
 
     [dir="rtl"] & {
       margin: 0 0 0 -0.25em
@@ -236,7 +235,7 @@
 
 .dropdownContent {
   min-width: 8.5rem;
-  
+
   [dir="rtl"] & {
     right: 2rem;
   }
