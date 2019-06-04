@@ -310,7 +310,7 @@ class AudioManager {
         this.onAudioJoin();
         resolve(STARTED);
       } else if (status === ENDED) {
-        logger.debug({ logCode: 'audio_ended' }, 'Audio ended without issue');
+        logger.info({ logCode: 'audio_ended' }, 'Audio ended without issue');
         this.onAudioExit();
       } else if (status === FAILED) {
         const errorKey = this.messages.error[error] || this.messages.error.GENERIC_ERROR;
