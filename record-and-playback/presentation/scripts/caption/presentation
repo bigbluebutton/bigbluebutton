@@ -69,7 +69,7 @@ begin
   logger.info('Loading recording playback captions list')
   playback_captions_path = File.join(publish_dir, recording_id, 'captions.json')
   playback_captions = File.open(playback_captions_path) do |json|
-    JSON.parse(json)
+    JSON.parse(json.read)
   end
 rescue Errno::ENOENT
   logger.info("Playback doesn't have a captions.json - old playback format version?")
@@ -87,7 +87,7 @@ begin
   logger.info('Loading captions index file')
   captions_path = File.join(captions_dir, recording_id, 'captions.json')
   captions = File.open(captions_path) do |json|
-    JSON.parse(json)
+    JSON.parse(json.read)
   end
 rescue Errno::ENOENT
   captions = []

@@ -56,7 +56,7 @@ end
 
 # Implementation
 
-def caption_file_notify(json_filename)
+caption_file_notify = proc do |json_filename|
   # There's a possible race condition where we can be notified twice for a new
   # file. That's fine, just do nothing the second time.
   return unless File.exist?(json_filename)
@@ -67,7 +67,7 @@ def caption_file_notify(json_filename)
   # queue job (resque?) that does the actual work.
 
   captions_work_base = File.join(props['recording_dir'], 'caption', 'inbox')
-  new_caption_info = File.open(json_filename) { |file| JSON.parse(file) }
+  new_caption_info = File.open(json_filename) { |file| JSON.parse(file.read) }
   record_id = new_caption_info['record_id']
   logger.tag(record_id: record_id) do
     begin
@@ -76,7 +76,7 @@ def caption_file_notify(json_filename)
       index_filename = File.join(captions_dir, record_id, 'captions.json')
       captions_info =
         begin
-          File.open(index_filename) { |file| JSON.parse(file) }
+          File.open(index_filename) { |file| JSON.parse(file.read) }
         rescue StandardError
           # No captions file or cannot be read, assume none present
           []
@@ -117,8 +117,7 @@ def caption_file_notify(json_filename)
 
       # Finally, save the updated index file that references the new caption
       File.open(index_filename, 'w') do |file|
-        result = JSON.pretty_generate(captions_info)
-        file.write(result)
+        file.write(JSON.pretty_generate(captions_info))
       end
 
       caption_scripts = File.glob(File.expand_path('captions/*', __dir__))
@@ -150,12 +149,12 @@ notifier = INotify::Notifier.new
 notifier.watch(captions_inbox_dir, :moved_to, :create) do |event|
   next unless event.name.end_with?('-track.json')
 
-  handle_caption_file(event.absolute_name)
+  caption_file_notify.call(event.absolute_name)
 end
 
 logger.info('Checking for missed/skipped caption files')
 Dir.glob(File.join(captions_inbox_dir, '*-track.json')).each do |filename|
-  caption_file_notify(filename)
+  caption_file_notify.call(filename)
 end
 
 logger.info('Waiting for new caption files...')
