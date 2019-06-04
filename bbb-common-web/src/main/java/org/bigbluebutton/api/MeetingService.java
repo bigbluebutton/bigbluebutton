@@ -410,6 +410,21 @@ public class MeetingService implements MessageListener {
   public String putRecordingTextTrack(String recordId, String kind, String lang, File file, String label,
           String origFilename, String trackId, String contentType, String tempFilename) {
 
+    Map<String, Object> logData = new HashMap<>();
+    logData.put("recordId", recordId);
+    logData.put("kind", kind);
+    logData.put("lang", lang);
+    logData.put("label", label);
+    logData.put("origFilename", origFilename);
+    logData.put("contentType", contentType);
+    logData.put("tempFilename", tempFilename);
+    logData.put("logCode", "recording_captions_uploaded");
+    logData.put("description", "Captions for recording uploaded.");
+
+    Gson gson = new Gson();
+    String logStr = gson.toJson(logData);
+    log.info(" --analytics-- data={}", logStr);
+
       UploadedTrack track = new UploadedTrack(recordId, kind, lang, label, origFilename, file, trackId,
               getCaptionTrackInboxDir(), contentType, tempFilename);
       return recordingService.putRecordingTextTrack(track);

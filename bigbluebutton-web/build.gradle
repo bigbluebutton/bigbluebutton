@@ -84,6 +84,9 @@ dependencies {
   compile "org.libreoffice:ridl:5.4.2"
   compile "org.libreoffice:juh:5.4.2"
   compile "org.libreoffice:jurt:5.4.2"
+  // https://mvnrepository.com/artifact/commons-fileupload/commons-fileupload
+  compile group: 'commons-fileupload', name: 'commons-fileupload', version: '1.4'
+
   //--- BigBlueButton Dependencies End
   console "org.grails:grails-console"
   profile "org.grails.profiles:web"

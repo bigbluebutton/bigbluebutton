@@ -9,7 +9,7 @@ import org.bigbluebutton.api.ApiErrors
 import org.bigbluebutton.api.ApiParams
 import org.apache.commons.lang3.StringUtils
 import org.json.JSONArray
-
+import org.springframework.web.multipart.commons.CommonsMultipartFile
 
 class RecordingController {
   private static final String CONTROLLER_NAME = 'RecordingController'
@@ -108,6 +108,8 @@ class RecordingController {
     }
 
     String recordId = StringUtils.strip(params.recordID)
+    log.debug("Captions for recordID: " + recordId)
+
 
     if (!paramsProcessorUtil.isChecksumSame(API_CALL, params.checksum, request.getQueryString())) {
       invalid("checksumError", "You did not pass the checksum security check")
@@ -127,22 +129,28 @@ class RecordingController {
     }
 
     String captionsKind = StringUtils.strip(params.kind)
+    log.debug("Captions kind: " + captionsKind)
+
     def isAllowedKind = captionsKind in ['subtitles', 'captions']
     if (!isAllowedKind) {
       respondWithError("invalidKind", "Invalid kind parameter, expected='subtitles|captions' actual=" + captionsKind)
       return
     }
-
-    Locale locale;
+    
+    Locale locale
     if (StringUtils.isEmpty(params.lang)) {
       respondWithError("paramError", "Missing param lang.")
       return
     }
 
     String paramsLang = StringUtils.strip(params.lang)
+    log.debug("Captions lang: " + paramsLang)
+
+    Locale paramLocale = Locale.forLanguageTag(paramsLang)
+    log.debug("Captions locale: " + paramLocale.toString())
 
     Collection<Locale> locales = new ArrayList<>()
-    locales.add(Locale.forLanguageTag(paramsLang))
+    locales.add(paramLocale)
     try {
       List<Locale.LanguageRange> languageRanges = Locale.LanguageRange.parse(paramsLang)
       locale = Locale.lookup(languageRanges, locales)
@@ -155,10 +163,8 @@ class RecordingController {
       return
     }
 
-    String contentType = request.getContentType()
-
     String captionsLang = locale.toString()
-    String captionsLabel = captionsLang
+    String captionsLabel = paramLocale.getDisplayLanguage()
 
     if (!StringUtils.isEmpty(params.label)) {
       captionsLabel = StringUtils.strip(params.label)
@@ -166,6 +172,12 @@ class RecordingController {
 
     def uploadedCaptionsFile = request.getFile('file')
     if (uploadedCaptionsFile && !uploadedCaptionsFile.empty) {
+      CommonsMultipartFile contentType = uploadedCaptionsFile.contentType
+      def fileContentType = null
+      if (contentType != null) {
+        fileContentType = contentType.getContentType()
+      }
+      log.debug("Captions content type: " + fileContentType)
       def origFilename = uploadedCaptionsFile.getOriginalFilename()
       def trackId = recordId + "-" + System.currentTimeMillis()
       def tempFilename = trackId + "-track.txt"
@@ -175,7 +187,7 @@ class RecordingController {
       uploadedCaptionsFile.transferTo(captionsFile)
 
       String result = meetingService.putRecordingTextTrack(recordId, captionsKind,
-          captionsLang, captionsFile, captionsLabel, origFilename, trackId, contentType, tempFilename)
+          captionsLang, captionsFile, captionsLabel, origFilename, trackId, fileContentType, tempFilename)
 
       response.addHeader("Cache-Control", "no-cache")
       withFormat {
