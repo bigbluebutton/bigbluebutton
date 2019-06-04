@@ -23,7 +23,7 @@ require 'bundler/setup'
 
 require File.expand_path('../lib/recordandplayback', __dir__)
 
-require 'journald-logger'
+require 'journald/logger'
 require 'locale'
 require 'rb-inotify'
 require 'yaml'

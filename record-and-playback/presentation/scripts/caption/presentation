@@ -22,6 +22,7 @@ require 'rubygems'
 require 'bundler/setup'
 
 require 'optparse'
+require 'journald/logger'
 
 # Parse command-line options
 
