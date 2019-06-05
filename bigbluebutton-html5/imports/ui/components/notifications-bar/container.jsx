@@ -1,6 +1,6 @@
 import { Meteor } from 'meteor/meteor';
 import { withTracker } from 'meteor/react-meteor-data';
-import React from 'react';
+import React, { Fragment } from 'react';
 import { defineMessages, injectIntl } from 'react-intl';
 import _ from 'lodash';
 import Auth from '/imports/ui/services/auth';
@@ -8,6 +8,7 @@ import Meetings from '/imports/api/meetings';
 import Users from '/imports/api/users';
 import BreakoutRemainingTime from '/imports/ui/components/breakout-room/breakout-remaining-time/container';
 import SlowConnection from '/imports/ui/components/slow-connection/component';
+import { styles } from './styles.scss';
 import NavBarService from '../nav-bar/service';
 
 import NotificationsBar from './component';
@@ -23,7 +24,6 @@ const STATUS_WAITING = 'waiting';
 
 const METEOR_SETTINGS_APP = Meteor.settings.public.app;
 
-// https://github.com/bigbluebutton/bigbluebutton/issues/5286#issuecomment-465342716
 const SLOW_CONNECTIONS_TYPES = METEOR_SETTINGS_APP.effectiveConnection;
 const ENABLE_NETWORK_INFORMATION = METEOR_SETTINGS_APP.enableNetworkInformation;
 
@@ -41,6 +41,10 @@ const intlMessages = defineMessages({
   waitingMessage: {
     id: 'app.waitingMessage',
     description: 'Notification message for disconnection with reconnection counter',
+  },
+  retryNow: {
+    id: 'app.retryNow',
+    description: 'Retry now text for reconnection counter',
   },
   breakoutTimeRemaining: {
     id: 'app.breakoutTimeRemainingMessage',
@@ -118,6 +122,10 @@ const startCounter = (sec, set, get, interval) => {
   }, 1000);
 };
 
+const reconnect = () => {
+  Meteor.reconnect();
+};
+
 export default injectIntl(withTracker(({ intl }) => {
   const { status, connected, retryTime } = Meteor.status();
   const data = {};
@@ -153,9 +161,13 @@ export default injectIntl(withTracker(({ intl }) => {
       case STATUS_WAITING: {
         const sec = Math.round((retryTime - (new Date()).getTime()) / 1000);
         retryInterval = startCounter(sec, setRetrySeconds, getRetrySeconds, retryInterval);
-        data.message = intl.formatMessage(
-          intlMessages.waitingMessage,
-          { 0: getRetrySeconds() },
+        data.message = (
+          <Fragment>
+            {intl.formatMessage(intlMessages.waitingMessage, { 0: getRetrySeconds() })}
+            <button className={styles.retryButton} type="button" onClick={reconnect}>
+              {intl.formatMessage(intlMessages.retryNow)}
+            </button>
+          </Fragment>
         );
         break;
       }

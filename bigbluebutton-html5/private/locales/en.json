@@ -202,6 +202,7 @@
     "app.downloadPresentationButton.label": "Download the original presentation",
     "app.connectingMessage": "Connecting ...",
     "app.waitingMessage": "Disconnected. Trying to reconnect in {0} seconds ...",
+    "app.retryNow": "Retry now",
     "app.navBar.settingsDropdown.optionsLabel": "Options",
     "app.navBar.settingsDropdown.fullscreenLabel": "Make fullscreen",
     "app.navBar.settingsDropdown.settingsLabel": "Settings",
