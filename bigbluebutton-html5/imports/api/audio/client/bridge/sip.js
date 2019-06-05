@@ -2,7 +2,9 @@ import browser from 'browser-detect';
 import BaseAudioBridge from './base';
 import logger from '/imports/startup/client/logger';
 import { fetchStunTurnServers } from '/imports/utils/fetchStunTurnServers';
-import { isUnifiedPlan, toUnifiedPlan, toPlanB} from '/imports/utils/sdpUtils';
+import {
+  isUnifiedPlan, toUnifiedPlan, toPlanB, stripMDnsCandidates,
+} from '/imports/utils/sdpUtils';
 
 const MEDIA = Meteor.settings.public.media;
 const MEDIA_TAG = MEDIA.mediaTag;
@@ -40,6 +42,7 @@ export default class SIPBridge extends BaseAudioBridge {
     window.isUnifiedPlan = isUnifiedPlan;
     window.toUnifiedPlan = toUnifiedPlan;
     window.toPlanB = toPlanB;
+    window.stripMDnsCandidates = stripMDnsCandidates;
   }
 
   static parseDTMF(message) {
@@ -182,7 +185,7 @@ export default class SIPBridge extends BaseAudioBridge {
       // transceivers - prlanzarin 2019/05/21
       const browserUA = window.navigator.userAgent.toLocaleLowerCase();
       const isSafariWebview = ((browserUA.indexOf('iphone') > -1
-        || browserUA.indexOf('ipad') > -1) && browserUA.indexOf('safari') == -1);
+        || browserUA.indexOf('ipad') > -1) && browserUA.indexOf('safari') === -1);
 
       // Second UA check to get all Safari browsers to enable Unified Plan <-> PlanB
       // translation
