@@ -106,7 +106,8 @@ caption_file_notify = proc do |json_filename|
       FileUtils.mkdir_p(captions_work)
       dest_filename = "#{captions_info['kind']}_#{captions_info['lang']}.vtt"
       tmp_dest = File.join(captions_work, dest_filename)
-      final_dest = File.join(captions_dir, record_id, dest_filename)
+      final_dest_dir = File.join(captions_dir, record_id)
+      final_dest = File.join(final_dest_dir, dest_filename)
 
       # Convert the received caption file to WebVTT
       ffmpeg_cmd = [
@@ -117,6 +118,7 @@ caption_file_notify = proc do |json_filename|
       ret = BigBlueButton.exec_ret(*ffmpeg_cmd)
       raise InvalidCaptionError, 'FFmpeg could not read input' unless ret.zero?
 
+      FileUtils.mkdir_p(final_dest_dir)
       FileUtils.mv(tmp_dest, final_dest)
 
       # Finally, save the updated index file that references the new caption
