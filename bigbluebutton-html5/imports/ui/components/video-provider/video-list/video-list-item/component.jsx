@@ -31,15 +31,19 @@ class VideoListItem extends Component {
     this.state = {
       showStats: false,
       stats: { video: {} },
+      videoIsReady: false,
     };
 
     this.toggleStats = this.toggleStats.bind(this);
     this.setStats = this.setStats.bind(this);
+    this.setVideoIsReady = this.setVideoIsReady.bind(this);
   }
 
   componentDidMount() {
     const { onMount } = this.props;
     onMount(this.videoTag);
+
+    this.videoTag.addEventListener('loadeddata', () => this.setVideoIsReady());
   }
 
   componentDidUpdate() {
@@ -70,6 +74,12 @@ class VideoListItem extends Component {
     const { stats } = this.state;
     const { audio, video } = updatedStats;
     this.setState({ stats: { ...stats, video, audio } });
+  }
+
+  setVideoIsReady() {
+    const { videoIsReady } = this.state;
+    if (!videoIsReady) this.setState({ videoIsReady: true });
+    window.dispatchEvent(new Event('resize'));
   }
 
   getAvailableActions() {
@@ -118,7 +128,7 @@ class VideoListItem extends Component {
   }
 
   render() {
-    const { showStats, stats } = this.state;
+    const { showStats, stats, videoIsReady } = this.state;
     const { user, numOfUsers } = this.props;
     const availableActions = this.getAvailableActions();
     const enableVideoMenu = Meteor.settings.public.kurento.enableVideoMenu || false;
@@ -130,13 +140,17 @@ class VideoListItem extends Component {
       <div className={cx({
         [styles.content]: true,
         [styles.talking]: user.isTalking,
+        [styles.contentLoading]: !videoIsReady,
       })}
       >
-        <div className={styles.connecting} />
+        {!videoIsReady && <div className={styles.connecting} />}
         <video
-          className={styles.media}
+          muted
+          className={cx({
+            [styles.media]: true,
+            [styles.contentLoading]: !videoIsReady,
+          })}
           ref={(ref) => { this.videoTag = ref; }}
-          muted={user.isCurrent}
           autoPlay
           playsInline
         />
@@ -173,8 +187,12 @@ class VideoListItem extends Component {
           {user.isMuted ? <Icon className={styles.muted} iconName="unmute_filled" /> : null}
           {user.isListenOnly ? <Icon className={styles.voice} iconName="listen" /> : null}
         </div>
-        {showStats ? <VideoListItemStats toggleStats={this.toggleStats} stats={stats} /> : null}
-        {this.renderFullscreenButton()}
+        {
+          showStats
+            ? <VideoListItemStats toggleStats={this.toggleStats} stats={stats} />
+            : null
+        }
+        {videoIsReady && this.renderFullscreenButton()}
       </div>
     );
   }
@@ -189,7 +207,7 @@ VideoListItem.defaultProps = {
 VideoListItem.propTypes = {
   intl: intlShape.isRequired,
   enableVideoStats: PropTypes.bool.isRequired,
-  actions: PropTypes.arrayOf(PropTypes.func).isRequired,
+  actions: PropTypes.arrayOf(PropTypes.object).isRequired,
   user: PropTypes.objectOf(PropTypes.oneOfType([
     PropTypes.bool,
     PropTypes.number,

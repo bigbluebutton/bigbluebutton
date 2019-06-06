@@ -160,7 +160,7 @@ module BigBlueButton
         http.head(uri.request_uri)
       }
       unless response.is_a? Net::HTTPSuccess
-        raise "File not available: #{respose.message}"
+        raise "File not available: #{response.message}"
       end
     end
 

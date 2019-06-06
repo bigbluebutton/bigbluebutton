@@ -92,14 +92,14 @@ source /etc/bigbluebutton/bigbluebutton-release
 
 if [ -f /etc/centos-release ]; then
     DISTRIB_ID=centos
-    TOMCAT_SERVICE=tomcat
-    TOMCAT_DIR=/var/lib/$TOMCAT_SERVICE
+    TOMCAT_USER=tomcat
+    TOMCAT_DIR=/var/lib/$TOMCAT_USER
     SERVLET_LOGS=/usr/share/tomcat/logs
     REDIS_SERVICE=redis.service
 else
     . /etc/lsb-release    # Get value for DISTRIB_ID
-    TOMCAT_SERVICE=tomcat7
-    TOMCAT_DIR=/var/lib/$TOMCAT_SERVICE
+    TOMCAT_USER=tomcat7
+    TOMCAT_DIR=/var/lib/$TOMCAT_USER
     SERVLET_LOGS=$TOMCAT_DIR/logs
     REDIS_SERVICE=redis-server
 fi
@@ -328,7 +328,15 @@ stop_bigbluebutton () {
         BBB_WEB=bbb-web
     fi
 
-    systemctl stop red5 $TOMCAT_SERVICE nginx freeswitch $REDIS_SERVICE bbb-apps-akka $BBB_TRANSCODE_AKKA bbb-fsesl-akka bbb-rap-archive-worker.service bbb-rap-process-worker.service bbb-rap-publish-worker.service bbb-rap-sanity-worker.service bbb-record-core.timer $HTML5 $WEBHOOKS $ETHERPAD $BBB_WEB
+    if [ -d $TOMCAT_DIR ]; then
+      TOMCAT_SERVICE=$TOMCAT_USER
+    fi
+
+    if [ -d $RED5_DIR ]; then
+      BBB_APPS_AKKA_SERVICE=bbb-apps-akka
+    fi
+
+    systemctl stop red5 $TOMCAT_SERVICE $BBB_APPS_AKKA_SERVICE nginx freeswitch $REDIS_SERVICE bbb-apps-akka $BBB_TRANSCODE_AKKA bbb-fsesl-akka bbb-rap-archive-worker.service bbb-rap-process-worker.service bbb-rap-publish-worker.service bbb-rap-sanity-worker.service bbb-record-core.timer $HTML5 $WEBHOOKS $ETHERPAD $BBB_WEB
 }
 
 start_bigbluebutton () {
@@ -431,7 +439,7 @@ display_bigbluebutton_status () {
     units="red5 nginx freeswitch $REDIS_SERVICE bbb-apps-akka bbb-transcode-akka bbb-fsesl-akka"
  
     if [ -d $TOMCAT_DIR ]; then
-      units="$units $TOMCAT_SERVICE"
+      units="$units $TOMCAT_USER"
     fi
 
     if [ -f /usr/lib/systemd/system/bbb-html5.service ]; then
@@ -936,14 +944,14 @@ check_state() {
 
     if ! netstat -ant | grep '8090' > /dev/null; then
         print_header
-        NOT_RUNNING_APPS="${NOT_RUNNING_APPS} ${TOMCAT_SERVICE} or grails"
+        NOT_RUNNING_APPS="${NOT_RUNNING_APPS} ${TOMCAT_USER} or grails"
     else
         if ps aux |  ps -aef | grep -v grep | grep grails | grep run-app > /dev/null; then
         print_header
         RUNNING_APPS="${RUNNING_APPS} Grails"
-        echo "#   ${TOMCAT_SERVICE}:      noticed you are running grails run-app instead of ${TOMCAT_SERVICE}"
+        echo "#   ${TOMCAT_USER}:      noticed you are running grails run-app instead of ${TOMCAT_USER}"
         else
-            RUNNING_APPS="${RUNNING_APPS} ${TOMCAT_SERVICE}"
+            RUNNING_APPS="${RUNNING_APPS} ${TOMCAT_USER}"
         fi
     fi
 
