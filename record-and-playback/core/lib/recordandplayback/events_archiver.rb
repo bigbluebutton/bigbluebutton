@@ -28,7 +28,7 @@ require 'yaml'
 require 'fileutils'
 
 module BigBlueButton  
-  $bbb_props = YAML::load(File.open('../../core/scripts/bigbluebutton.yml'))
+  $bbb_props = YAML::load(File.open(File.expand_path('../../../scripts/bigbluebutton.yml', __FILE__)))
   $recording_dir = $bbb_props['recording_dir']
   $raw_recording_dir = "#{$recording_dir}/raw"
 

@@ -12,21 +12,25 @@ case class UploadedTrack(
     origFilename: String,
     track:        File,
     trackId:      String,
-    inboxDir:     String
+    inboxDir:     String,
+    contentType:  String,
+    tempFilename: String
 )
 case class UploadedTrackInfo(
-    recordId:     String,
-    kind:         String,
-    lang:         String,
-    label:        String,
-    origFilename: String
+    record_id:         String,
+    kind:              String,
+    lang:              String,
+    label:             String,
+    original_filename: String,
+    content_type:      String,
+    temp_filename:     String
 )
 case class Track(
+    href:   String,
     kind:   String,
-    lang:   String,
     label:  String,
-    source: String,
-    href:   String
+    lang:   String,
+    source: String
 )
 case class GetRecTextTracksResult(
     returncode: String,

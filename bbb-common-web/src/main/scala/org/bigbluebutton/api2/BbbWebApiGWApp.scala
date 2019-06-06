@@ -38,6 +38,19 @@ class BbbWebApiGWApp(
 
   val redisPass = if (redisPassword != "") Some(redisPassword) else None
   val redisConfig = RedisConfig(redisHost, redisPort, redisPass, redisExpireKey)
+
+  var redisStorage = new RedisStorageService()
+  redisStorage.setHost(redisConfig.host)
+  redisStorage.setPort(redisConfig.port)
+  val redisPassStr = redisConfig.password match {
+    case Some(pass) => pass
+    case None       => ""
+  }
+  redisStorage.setPassword(redisPassStr)
+  redisStorage.setExpireKey(redisConfig.expireKey)
+  redisStorage.setClientName("BbbWebRedisStore")
+  redisStorage.start()
+
   private val redisPublisher = new RedisPublisher(system, "BbbWebPub", redisConfig)
 
   private val msgSender: MessageSender = new MessageSender(redisPublisher)
@@ -273,5 +286,14 @@ class BbbWebApiGWApp(
       val event = MsgBuilder.buildPresentationPageCountExceededSysPubMsg(msg.asInstanceOf[DocPageCountExceeded])
       msgToAkkaAppsEventBus.publish(MsgToAkkaApps(toAkkaAppsChannel, event))
     }
+  }
+
+/*** Caption API ***/
+  def generateSingleUseCaptionToken(recordId: String, caption: String, expirySeconds: Long): String = {
+    redisStorage.generateSingleUseCaptionToken(recordId, caption, expirySeconds)
+  }
+
+  def validateSingleUseCaptionToken(token: String, meetingId: String, caption: String): Boolean = {
+    redisStorage.validateSingleUseCaptionToken(token, meetingId, caption)
   }
 }
