@@ -126,8 +126,7 @@ caption_file_notify = proc do |json_filename|
         file.write(JSON.pretty_generate(captions_info))
       end
 
-      caption_scripts = Dir.glob(File.expand_path('captions/*', __dir__))
-      caption_scripts.each do |caption_script|
+      Dir.glob(File.expand_path('captions/*', __dir__)) do |caption_script|
         next unless File.file?(caption_script) && File.executable?(caption_script)
 
         logger.info("Running caption integration script #{caption_script}")
