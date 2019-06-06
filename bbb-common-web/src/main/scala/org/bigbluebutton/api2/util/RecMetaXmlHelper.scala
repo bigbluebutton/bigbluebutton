@@ -4,7 +4,8 @@ import java.io.{ File, FileOutputStream, FileWriter, IOException }
 import java.nio.channels.Channels
 import java.nio.charset.StandardCharsets
 import java.util
-import java.nio.file.{ Paths, Files }
+import java.nio.file.{ Files, Paths }
+
 import com.google.gson.Gson
 import org.bigbluebutton.api.domain.RecordingMetadata
 import org.bigbluebutton.api2.RecordingServiceGW
@@ -14,13 +15,14 @@ import scala.xml.{ Elem, PrettyPrinter, XML }
 import scala.collection.JavaConverters._
 import scala.collection.mutable.{ Buffer, ListBuffer, Map }
 import scala.collection.Iterable
-
 import java.io.IOException
 import java.nio.charset.Charset
 import java.nio.file.Files
 import java.nio.file.Paths
 
 import com.google.gson.internal.LinkedTreeMap
+
+import scala.util.Try
 
 class RecMetaXmlHelper extends RecordingServiceGW with LogHelper {
 
@@ -206,7 +208,7 @@ class RecMetaXmlHelper extends RecordingServiceGW with LogHelper {
           val mapTrack = it.next()
           list.add(new Track(
             // TODO : change this later and provide authenticated/signed URLs to fetch the caption files
-            href = captionBaseUrl + mapTrack.get("lang") + ".vtt",
+            href = captionBaseUrl + mapTrack.get("kind") + "_" + mapTrack.get("lang") + ".vtt",
             kind = mapTrack.get("kind"),
             label = mapTrack.get("label"),
             lang = mapTrack.get("lang"),
@@ -266,23 +268,35 @@ class RecMetaXmlHelper extends RecordingServiceGW with LogHelper {
     }
   }
 
+  def mv(oldName: String, newName: String) =
+    Try(new File(oldName).renameTo(new File(newName))).getOrElse(false)
+
   def saveTrackInfoFile(trackInfoJson: String, trackInfoFilePath: String): Boolean = {
+    // Need to create intermediate file to prevent race where the file is processed before
+    // contents have been written.
+    val tempTrackInfoFilePath = trackInfoFilePath + ".tmp"
+
     var result = false
-    val fileWriter = new FileWriter(trackInfoFilePath)
+    val fileWriter = new FileWriter(tempTrackInfoFilePath)
     try {
       fileWriter.write(trackInfoJson)
       result = true
     } catch {
       case ioe: IOException =>
-        logger.info("Failed to write caption.json {}", trackInfoFilePath)
+        logger.info("Failed to write caption.json {}", tempTrackInfoFilePath)
         result = false
       case ex: Exception =>
-        logger.info("Exception while writing {}", trackInfoFilePath)
+        logger.info("Exception while writing {}", tempTrackInfoFilePath)
         logger.info("Exception details: {}", ex.getMessage)
         result = false
     } finally {
       fileWriter.flush()
       fileWriter.close()
+    }
+
+    if (result) {
+      // Rename so that the captions processor will pick up the uploaded captions.
+      result = mv(tempTrackInfoFilePath, trackInfoFilePath)
     }
 
     result
