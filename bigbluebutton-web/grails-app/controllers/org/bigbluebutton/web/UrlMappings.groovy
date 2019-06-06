@@ -83,6 +83,10 @@ class UrlMappings {
       action = [GET: 'guestWaitHandler']
     }
 
+    "/bigbluebutton/textTrack/validateAuthToken"(controller: "recording") {
+      action = [GET: 'checkTextTrackAuthToken']
+    }
+
     "/bigbluebutton/api/getRecordingTextTracks"(controller: "recording") {
       action = [GET: 'getRecordingTextTracksHandler', POST: 'getRecordingTextTracksHandler']
     }

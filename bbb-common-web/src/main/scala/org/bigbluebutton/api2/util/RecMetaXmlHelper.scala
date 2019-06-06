@@ -8,7 +8,7 @@ import java.nio.file.{ Files, Paths }
 
 import com.google.gson.Gson
 import org.bigbluebutton.api.domain.RecordingMetadata
-import org.bigbluebutton.api2.RecordingServiceGW
+import org.bigbluebutton.api2.{ BbbWebApiGWApp, RecordingServiceGW }
 import org.bigbluebutton.api2.domain._
 
 import scala.xml.{ Elem, PrettyPrinter, XML }
@@ -24,7 +24,7 @@ import com.google.gson.internal.LinkedTreeMap
 
 import scala.util.Try
 
-class RecMetaXmlHelper extends RecordingServiceGW with LogHelper {
+class RecMetaXmlHelper(gw: BbbWebApiGWApp) extends RecordingServiceGW with LogHelper {
 
   val SUCCESS = "SUCCESS"
   val FAILED = "FAILED"
@@ -192,6 +192,10 @@ class RecMetaXmlHelper extends RecordingServiceGW with LogHelper {
     }
   }
 
+  def validateTextTrackSingleUseToken(recordId: String, caption: String, token: String): Boolean = {
+    gw.validateSingleUseCaptionToken(token, recordId, caption)
+  }
+
   def getRecordingsCaptionsJson(recordId: String, captionsDir: String, captionBaseUrl: String): String = {
     val gson = new Gson()
     var returnResponse: String = ""
@@ -206,9 +210,12 @@ class RecMetaXmlHelper extends RecordingServiceGW with LogHelper {
 
         while (it.hasNext()) {
           val mapTrack = it.next()
+          val caption = mapTrack.get("kind") + "_" + mapTrack.get("lang") + ".vtt"
+          val singleUseToken = gw.generateSingleUseCaptionToken(recordId, caption, 60 * 60)
+
           list.add(new Track(
-            // TODO : change this later and provide authenticated/signed URLs to fetch the caption files
-            href = captionBaseUrl + mapTrack.get("kind") + "_" + mapTrack.get("lang") + ".vtt",
+            // captionBaseUrl contains the '/' so no need to put one before singleUseToken
+            href = captionBaseUrl + singleUseToken + '/' + recordId + '/' + caption,
             kind = mapTrack.get("kind"),
             label = mapTrack.get("label"),
             lang = mapTrack.get("lang"),

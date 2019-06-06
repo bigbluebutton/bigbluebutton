@@ -35,6 +35,35 @@ class RecordingController {
     }
   }
 
+  def checkTextTrackAuthToken = {
+    try {
+      def textTrackToken = request.getHeader("x-textTrack-token")
+      def textTrackRecordId = request.getHeader("x-textTrack-recordId")
+      def textTrackTrack = request.getHeader("x-textTrack-track")
+
+      def isValid = false
+      if (textTrackToken != null &&
+              textTrackRecordId != null &&
+              textTrackTrack != null) {
+        isValid = meetingService.validateTextTrackSingleUseToken(textTrackRecordId, textTrackTrack, textTrackToken)
+      }
+
+      response.addHeader("Cache-Control", "no-cache")
+      response.contentType = 'plain/text'
+      if (isValid) {
+        response.setStatus(200)
+        response.outputStream << 'authorized'
+      } else {
+        response.setStatus(401)
+        response.outputStream << 'unauthorized'
+      }
+    } catch (IOException e) {
+      log.error("Error while checking text track token.\n" + e.getMessage())
+      response.setStatus(401)
+      response.outputStream << 'unauthorized'
+    }
+  }
+
   /******************************************************
    * GET RECORDING TEXT TRACKS API
    ******************************************************/
@@ -115,7 +144,7 @@ class RecordingController {
       invalid("checksumError", "You did not pass the checksum security check")
       return
     }
-    
+
     if (!meetingService.isRecordingExist(recordId)) {
       respondWithError("noRecordings", "No recording was found for " + recordId)
       return

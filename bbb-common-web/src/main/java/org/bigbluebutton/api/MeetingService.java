@@ -403,6 +403,10 @@ public class MeetingService implements MessageListener {
       return null;
   }
 
+  public Boolean validateTextTrackSingleUseToken(String recordId, String caption, String token) {
+    return recordingService.validateTextTrackSingleUseToken(recordId, caption, token);
+  }
+
   public String getRecordingTextTracks(String recordId) {
     return recordingService.getRecordingTextTracks(recordId);
   }
