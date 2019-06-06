@@ -23,9 +23,21 @@ const intlMessages = defineMessages({
     id: 'app.captions.menu.start',
     description: 'Write closed captions',
   },
+  ariaStart: {
+    id: 'app.captions.menu.ariaStart',
+    description: 'aria label for start captions button',
+  },
+  ariaStartDesc: {
+    id: 'app.captions.menu.ariaStartDesc',
+    description: 'aria description for start captions button',
+  },
   select: {
     id: 'app.captions.menu.select',
     description: 'Select closed captions available language',
+  },
+  ariaSelect: {
+    id: 'app.captions.menu.ariaSelect',
+    description: 'Aria label for captions language selector',
   },
 });
 
@@ -85,7 +97,13 @@ class WriterMenu extends PureComponent {
           </h3>
         </header>
         <div className={styles.content}>
+          <label
+            aria-hidden
+            htmlFor="captionsLangSelector"
+            aria-label={intl.formatMessage(intlMessages.ariaSelect)}
+          />
           <select
+            id="captionsLangSelector"
             className={styles.select}
             onChange={this.handleChange}
             defaultValue={DEFAULT_VALUE}
@@ -102,9 +120,12 @@ class WriterMenu extends PureComponent {
           <Button
             className={styles.startBtn}
             label={intl.formatMessage(intlMessages.start)}
+            aria-label={intl.formatMessage(intlMessages.ariaStart)}
+            aria-describedby="descriptionStart"
             onClick={this.handleStart}
             disabled={locale == null}
           />
+          <div id="descriptionStart" hidden>{intl.formatMessage(intlMessages.ariaStartDesc)}</div>
         </div>
       </Modal>
     );
