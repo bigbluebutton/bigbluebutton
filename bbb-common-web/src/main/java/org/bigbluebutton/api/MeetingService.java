@@ -438,6 +438,10 @@ public class MeetingService implements MessageListener {
     return recordingService.getCaptionsDir();
   }
 
+  public boolean isRecordingExist(String recordId) {
+    return recordingService.isRecordingExist(recordId);
+  }
+
   public String getRecordings2x(List<String> idList, List<String> states, Map<String, String> metadataFilters) {
     return recordingService.getRecordings2x(idList, states, metadataFilters);
   }

@@ -243,6 +243,16 @@ public class RecordingService {
         return ids;
     }
 
+    public boolean isRecordingExist(String recordId) {
+        List<String> publishList = getAllRecordingIds(publishedDir);
+        List<String> unpublishList = getAllRecordingIds(unpublishedDir);
+        if (publishList.contains(recordId) || unpublishList.contains(recordId)) {
+            return true;
+        }
+
+        return false;
+    }
+
     public boolean existAnyRecording(List<String> idList) {
         List<String> publishList = getAllRecordingIds(publishedDir);
         List<String> unpublishList = getAllRecordingIds(unpublishedDir);

@@ -10,6 +10,7 @@ import org.bigbluebutton.api.ApiParams
 import org.apache.commons.lang3.StringUtils
 import org.json.JSONArray
 import org.springframework.web.multipart.commons.CommonsMultipartFile
+import org.apache.commons.lang.LocaleUtils
 
 class RecordingController {
   private static final String CONTROLLER_NAME = 'RecordingController'
@@ -110,17 +111,14 @@ class RecordingController {
     String recordId = StringUtils.strip(params.recordID)
     log.debug("Captions for recordID: " + recordId)
 
-
     if (!paramsProcessorUtil.isChecksumSame(API_CALL, params.checksum, request.getQueryString())) {
       invalid("checksumError", "You did not pass the checksum security check")
       return
     }
-
-    String captionsDirPath = meetingService.getCaptionsDir() + File.separatorChar + recordId
-    File captionsDir = new File(captionsDirPath);
-    if (!captionsDir.exists() || !captionsDir.isDirectory()) {
+    
+    if (!meetingService.isRecordingExist(recordId)) {
       respondWithError("noRecordings", "No recording was found for " + recordId)
-      return;
+      return
     }
 
     if (StringUtils.isEmpty(params.kind)) {
@@ -136,7 +134,7 @@ class RecordingController {
       respondWithError("invalidKind", "Invalid kind parameter, expected='subtitles|captions' actual=" + captionsKind)
       return
     }
-    
+
     Locale locale
     if (StringUtils.isEmpty(params.lang)) {
       respondWithError("paramError", "Missing param lang.")
@@ -146,25 +144,17 @@ class RecordingController {
     String paramsLang = StringUtils.strip(params.lang)
     log.debug("Captions lang: " + paramsLang)
 
-    Locale paramLocale = Locale.forLanguageTag(paramsLang)
-    log.debug("Captions locale: " + paramLocale.toString())
 
-    Collection<Locale> locales = new ArrayList<>()
-    locales.add(paramLocale)
     try {
-      List<Locale.LanguageRange> languageRanges = Locale.LanguageRange.parse(paramsLang)
-      locale = Locale.lookup(languageRanges, locales)
-      if (locale == null) {
-        respondWithError("invalidLang", "Invalid lang param, received=" + paramsLang)
-        return
-      }
+      locale = LocaleUtils.toLocale(paramsLang)
+      log.debug("Captions locale: " + locale.toLanguageTag())
     } catch (IllegalArgumentException e) {
       respondWithError("invalidLang", "Malformed lang param, received=" + paramsLang)
       return
     }
 
-    String captionsLang = locale.toString()
-    String captionsLabel = paramLocale.getDisplayLanguage()
+    String captionsLang = locale.toLanguageTag()
+    String captionsLabel = locale.getDisplayLanguage()
 
     if (!StringUtils.isEmpty(params.label)) {
       captionsLabel = StringUtils.strip(params.label)
