@@ -104,7 +104,7 @@ caption_file_notify = proc do |json_filename|
 
       captions_work = File.join(captions_work_base, record_id)
       FileUtils.mkdir_p(captions_work)
-      dest_filename = "#{captions_info['kind']}_#{captions_info['lang']}.vtt"
+      dest_filename = "#{new_caption_info['kind']}_#{new_caption_info['lang']}.vtt"
       tmp_dest = File.join(captions_work, dest_filename)
       final_dest_dir = File.join(captions_dir, record_id)
       final_dest = File.join(final_dest_dir, dest_filename)
