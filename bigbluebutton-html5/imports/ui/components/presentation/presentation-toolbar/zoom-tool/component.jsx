@@ -14,10 +14,6 @@ const intlMessages = defineMessages({
     id: 'app.presentation.presentationToolbar.zoomReset',
     description: 'Reset zoom button label',
   },
-  resetZoomAriaLabel: {
-    id: 'app.presentation.presentationToolbar.ariaZoomReset',
-    description: 'Reset zoom button label',
-  },
   zoomInLabel: {
     id: 'app.presentation.presentationToolbar.zoomInLabel',
     description: 'Aria label for increment zoom level',
@@ -33,6 +29,10 @@ const intlMessages = defineMessages({
   zoomOutDesc: {
     id: 'app.presentation.presentationToolbar.zoomOutDesc',
     description: 'Aria description for decrement zoom level',
+  },
+  currentValue: {
+    id: 'app.submenu.application.currentSize',
+    description: 'current presentation zoom percentage aria description',
   },
 });
 
@@ -149,6 +149,19 @@ class ZoomTool extends Component {
       step,
     } = this.props;
     const { stateZoomValue } = this.state;
+
+    let zoomOutAriaLabel = intl.formatMessage(intlMessages.zoomOutLabel);
+    if (zoomValue > minBound) {
+      zoomOutAriaLabel += ` ${intl.formatNumber(((zoomValue - step) / 100), { style: 'percent' })}`;
+    }
+
+    let zoomInAriaLabel = intl.formatMessage(intlMessages.zoomInLabel);
+    if (zoomValue < maxBound) {
+      zoomInAriaLabel += ` ${intl.formatNumber(((zoomValue + step) / 100), { style: 'percent' })}`;
+    }
+
+    const stateZoomPct = intl.formatNumber((stateZoomValue / 100), { style: 'percent' });
+
     return (
       [
         (
@@ -161,7 +174,7 @@ class ZoomTool extends Component {
             <Button
               key="zoom-tool-1"
               aria-describedby="zoomOutDescription"
-              aria-label={`${intl.formatMessage(intlMessages.zoomOutLabel)} ${zoomValue <= minBound ? '' : `${zoomValue - step}%`}`}
+              aria-label={zoomOutAriaLabel}
               label={intl.formatMessage(intlMessages.zoomOutLabel)}
               icon="substract"
               onClick={() => { }}
@@ -174,19 +187,24 @@ class ZoomTool extends Component {
           </HoldButton>
         ),
         (
-          <Button
-            key="zoom-tool-2"
-            aria-label={`${intl.formatMessage(intlMessages.resetZoomAriaLabel)} ${stateZoomValue}%`}
-            disabled={stateZoomValue === minBound}
-            color="default"
-            customIcon={`${stateZoomValue}%`}
-            size="md"
-            onClick={() => this.resetZoom()}
-            label={intl.formatMessage(intlMessages.resetZoomLabel)}
-            className={cx(styles.zoomPercentageDisplay, styles.presentationBtn)}
-            tooltipDistance={tooltipDistance}
-            hideLabel
-          />
+          <span key="zoom-tool-2">
+            <Button
+              aria-label={intl.formatMessage(intlMessages.resetZoomLabel)}
+              aria-describedby="resetZoomDescription"
+              disabled={stateZoomValue === minBound}
+              color="default"
+              customIcon={stateZoomPct}
+              size="md"
+              onClick={() => this.resetZoom()}
+              label={intl.formatMessage(intlMessages.resetZoomLabel)}
+              className={cx(styles.zoomPercentageDisplay, styles.presentationBtn)}
+              tooltipDistance={tooltipDistance}
+              hideLabel
+            />
+            <div id="resetZoomDescription" hidden>
+              {intl.formatMessage(intlMessages.currentValue, ({ 0: stateZoomPct }))}
+            </div>
+          </span>
         ),
         (
           <HoldButton
@@ -198,7 +216,7 @@ class ZoomTool extends Component {
             <Button
               key="zoom-tool-3"
               aria-describedby="zoomInDescription"
-              aria-label={`${intl.formatMessage(intlMessages.zoomInLabel)} ${zoomValue >= maxBound ? '' : `${zoomValue + step}%`}`}
+              aria-label={zoomInAriaLabel}
               label={intl.formatMessage(intlMessages.zoomInLabel)}
               icon="add"
               onClick={() => { }}

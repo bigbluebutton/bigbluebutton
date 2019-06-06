@@ -128,7 +128,6 @@
     "app.presentation.presentationToolbar.zoomOutLabel": "Zoom out",
     "app.presentation.presentationToolbar.zoomOutDesc": "Zoom out of the presentation",
     "app.presentation.presentationToolbar.zoomReset": "Reset Zoom",
-    "app.presentation.presentationToolbar.ariaZoomReset": "Reset zoom, currently:",
     "app.presentation.presentationToolbar.zoomIndicator": "Current zoom percentage",
     "app.presentation.presentationToolbar.fitToWidth": "Fit to width",
     "app.presentation.presentationToolbar.fitToPage": "Fit to page",
