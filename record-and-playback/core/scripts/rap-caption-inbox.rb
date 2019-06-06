@@ -111,7 +111,7 @@ caption_file_notify = proc do |json_filename|
 
       # Convert the received caption file to WebVTT
       ffmpeg_cmd = [
-        'ffmpeg',
+        'ffmpeg', '-y', '-v', 'warning', '-nostats', '-nostdin',
         '-i', src_filename, '-map', '0:s',
         '-f', 'webvtt', tmp_dest,
       ]
