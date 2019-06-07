@@ -52,7 +52,15 @@ class VideoList extends Component {
 
   renderVideoList() {
     const {
-      intl, users, onMount, getStats, stopGettingStats, enableVideoStats, cursor,
+      intl,
+      users,
+      onMount,
+      getStats,
+      stopGettingStats,
+      enableVideoStats,
+      cursor,
+      swapLayout,
+      mediaHeight,
     } = this.props;
     const { focusedId } = this.state;
 
@@ -73,7 +81,8 @@ class VideoList extends Component {
         <div
           key={user.id}
           className={cx({
-            [styles.videoListItem]: true,
+            [styles.videoListItem]: !swapLayout,
+            [styles.videoListItemSwapLayout]: swapLayout,
             [styles.focused]: focusedId === user.id && users.length > 2,
           })}
           style={{
@@ -88,6 +97,8 @@ class VideoList extends Component {
             getStats={(videoRef, callback) => getStats(user.id, videoRef, callback)}
             stopGettingStats={() => stopGettingStats(user.id)}
             enableVideoStats={enableVideoStats}
+            swapLayout={swapLayout}
+            mediaHeight={mediaHeight}
           />
         </div>
       );
@@ -100,6 +111,8 @@ class VideoList extends Component {
       <div
         ref={(ref) => { this.canvas = ref; }}
         className={styles.videoCanvas}
+
+        // TODO adicionar videoCanvasSwapLayout quando for swaplayout
       >
         {!users.length ? null : (
           <div

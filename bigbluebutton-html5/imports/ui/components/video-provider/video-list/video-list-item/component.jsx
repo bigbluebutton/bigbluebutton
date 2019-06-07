@@ -129,7 +129,9 @@ class VideoListItem extends Component {
 
   render() {
     const { showStats, stats, videoIsReady } = this.state;
-    const { user, numOfUsers } = this.props;
+    const {
+      user, numOfUsers, swapLayout, mediaHeight,
+    } = this.props;
     const availableActions = this.getAvailableActions();
     const enableVideoMenu = Meteor.settings.public.kurento.enableVideoMenu || false;
 
@@ -138,13 +140,18 @@ class VideoListItem extends Component {
 
     return (
       <div className={cx({
-        [styles.content]: true,
+        [styles.content]: !swapLayout,
+        [styles.contentSwapLayout]: swapLayout,
         [styles.talking]: user.isTalking,
-        [styles.contentLoading]: !videoIsReady,
+        [styles.contentLoading]: !videoIsReady && !swapLayout,
+        [styles.contentLoadingSwapLayout]: !videoIsReady && swapLayout,
       })}
       >
         {!videoIsReady && <div className={styles.connecting} />}
         <video
+          style={{
+            maxHeight: mediaHeight,
+          }}
           muted
           className={cx({
             [styles.media]: true,

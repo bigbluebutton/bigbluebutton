@@ -190,9 +190,13 @@ class VideoProvider extends Component {
             && peer.peerConnection.getRemoteStreams().length > 0;
 
           if (hasLocalStream) {
-            this.customGetStats(peer.peerConnection, peer.peerConnection.getLocalStreams()[0].getVideoTracks()[0], (stats => updateWebcamStats(id, stats)), true);
+            this.customGetStats(peer.peerConnection,
+              peer.peerConnection.getLocalStreams()[0].getVideoTracks()[0],
+              (stats => updateWebcamStats(id, stats)), true);
           } else if (hasRemoteStream) {
-            this.customGetStats(peer.peerConnection, peer.peerConnection.getRemoteStreams()[0].getVideoTracks()[0], (stats => updateWebcamStats(id, stats)), true);
+            this.customGetStats(peer.peerConnection,
+              peer.peerConnection.getRemoteStreams()[0].getVideoTracks()[0],
+              (stats => updateWebcamStats(id, stats)), true);
           }
         });
       }, 5000);
@@ -833,9 +837,9 @@ class VideoProvider extends Component {
 
       let videoBitrate;
       if (videoStats.packetsReceived > 0) { // Remote video
-        videoLostPercentage = ((videoStats
-          .packetsLost / ((videoStats
-            .packetsLost + videoStats.packetsReceived) * 100)) || 0).toFixed(1);
+        videoLostPercentage = ((videoStats.packetsLost / (
+          (videoStats.packetsLost + videoStats.packetsReceived) * 100
+        )) || 0).toFixed(1);
         videoBitrate = Math.floor(videoKbitsReceivedPerSecond || 0);
         videoLostRecentPercentage = ((videoIntervalPacketsLost / ((videoIntervalPacketsLost
           + videoIntervalPacketsReceived) * 100)) || 0).toFixed(1);
@@ -1005,10 +1009,18 @@ class VideoProvider extends Component {
     const { socketOpen } = this.state;
     if (!socketOpen) return null;
 
-    const { users, enableVideoStats, cursor } = this.props;
+    const {
+      users,
+      enableVideoStats,
+      cursor,
+      swapLayout,
+      mediaHeight,
+    } = this.props;
     return (
       <VideoList
         cursor={cursor}
+        swapLayout={swapLayout}
+        mediaHeight={mediaHeight}
         users={users}
         onMount={this.createVideoTag}
         getStats={this.getStats}

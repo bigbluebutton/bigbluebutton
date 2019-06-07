@@ -425,7 +425,20 @@ export default class WebcamDraggableOverlay extends Component {
       hideOverlay,
       disableVideo,
       audioModalIsOpen,
+      refMediaContainer,
     } = this.props;
+    const { current: mediaContainer } = refMediaContainer;
+
+    let mediaContainerRect;
+    let mediaHeight;
+    if (mediaContainer) {
+      mediaContainerRect = mediaContainer.getBoundingClientRect();
+      const {
+        height,
+      } = mediaContainerRect;
+      mediaHeight = height;
+    }
+
 
     const {
       dragging,
@@ -440,6 +453,14 @@ export default class WebcamDraggableOverlay extends Component {
       isFullScreen,
       isMinWidth,
     } = this.state;
+
+
+    console.log(
+      '%c swapLayout %s',
+      'background:black;color:#fff;',
+      swapLayout,
+    );
+
 
     const webcamBySelectorCount = WebcamDraggableOverlay.getWebcamBySelectorCount();
 
@@ -523,6 +544,8 @@ export default class WebcamDraggableOverlay extends Component {
                 ? (
                   <VideoProviderContainer
                     cursor={cursor()}
+                    swapLayout={swapLayout}
+                    mediaHeight={mediaHeight}
                     onMount={this.videoMounted}
                     onUpdate={this.videoUpdated}
                   />
