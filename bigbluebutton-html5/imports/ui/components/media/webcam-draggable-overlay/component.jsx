@@ -184,6 +184,8 @@ export default class WebcamDraggableOverlay extends Component {
     });
 
     document.removeEventListener('webcamFullscreenButtonChange', this.fullscreenButtonChange);
+    document.removeEventListener('videoListUsersChange', this.getVideoListUsersChange);
+    document.removeEventListener('videoFocusChange', this.eventVideoFocusChangeListener);
   }
 
   getVideoListUsersChange() {
@@ -263,7 +265,6 @@ export default class WebcamDraggableOverlay extends Component {
       const {
         left: webcamLeft,
         top: webcamTop,
-        height: webcamHeight,
       } = webcamBySelectorRect;
 
       const mediaContainerRect = mediaContainer.getBoundingClientRect();
