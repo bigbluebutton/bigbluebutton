@@ -87,7 +87,7 @@ class RecordingController {
       return
     }
     // END - backward compatibility
-    
+
     String recId = StringUtils.strip(params.recordID)
     String result = meetingService.getRecordingTextTracks(recId)
 
@@ -168,7 +168,7 @@ class RecordingController {
 
 
     try {
-      locale = LocaleUtils.toLocale(paramsLang)
+      locale = Locale.forLanguageTag(paramsLang)
       log.debug("Captions locale: " + locale.toLanguageTag())
     } catch (IllegalArgumentException e) {
       respondWithError("invalidLang", "Malformed lang param, received=" + paramsLang)
