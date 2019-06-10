@@ -284,7 +284,7 @@ const BaseContainer = withTracker(() => {
         if (oldDocument.recordProp.recording && !newDocument.recordProp.recording) {
           notify(
             <FormattedMessage
-              id="app.notification.recordingStop"
+              id="app.notification.recordingPaused"
               description="Notification for when the recording stops"
             />,
             'error',
