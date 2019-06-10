@@ -122,8 +122,6 @@ class VideoList extends Component {
       <div
         ref={(ref) => { this.canvas = ref; }}
         className={canvasClassName}
-
-        // TODO adicionar videoCanvasSwapLayout quando for swaplayout
       >
         {!users.length ? null : (
           <div
