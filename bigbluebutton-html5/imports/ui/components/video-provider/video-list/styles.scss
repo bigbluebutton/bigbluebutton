@@ -38,7 +38,6 @@
 
 .videoList {
   display: grid;
-  padding: 10px;
   border-radius: 5px;
 
   min-height: calc(var(--video-width) / var(--video-ratio));
@@ -68,7 +67,7 @@
   grid-gap: 5px;
   align-items: center;
   justify-content: center;
-  grid-auto-flow: column dense;
+  grid-auto-flow: row;
 
   @include mq($medium-up) {
     grid-gap: 10px;

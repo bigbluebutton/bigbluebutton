@@ -47,7 +47,7 @@ class VideoList extends Component {
     this.setState({
       focusedId: focusedId !== id ? id : false,
     }, this.handleCanvasResize);
-    window.dispatchEvent(new Event('resize'));
+    window.dispatchEvent(new Event('videoFocusChange'));
   }
 
   renderVideoList() {
@@ -106,18 +106,29 @@ class VideoList extends Component {
   }
 
   render() {
-    const { users } = this.props;
+    const { users, swapLayout } = this.props;
+
+    const canvasClassName = cx({
+      [styles.videoCanvas]: !swapLayout,
+      [styles.videoCanvasSwapLayout]: swapLayout,
+    });
+
+    const videoListClassName = cx({
+      [styles.videoList]: !swapLayout,
+      [styles.videoListSwapLayout]: swapLayout,
+    });
+
     return (
       <div
         ref={(ref) => { this.canvas = ref; }}
-        className={styles.videoCanvas}
+        className={canvasClassName}
 
         // TODO adicionar videoCanvasSwapLayout quando for swaplayout
       >
         {!users.length ? null : (
           <div
             ref={(ref) => { this.grid = ref; }}
-            className={styles.videoList}
+            className={videoListClassName}
           >
             {this.renderVideoList()}
           </div>

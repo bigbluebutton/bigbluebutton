@@ -150,7 +150,7 @@ class VideoListItem extends Component {
         {!videoIsReady && <div className={styles.connecting} />}
         <video
           style={{
-            maxHeight: mediaHeight,
+            maxHeight: mediaHeight - 20, // 20 is margin
           }}
           muted
           className={cx({
