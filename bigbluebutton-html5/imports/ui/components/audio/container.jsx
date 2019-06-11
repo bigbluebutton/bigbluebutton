@@ -78,7 +78,7 @@ export default lockContextContainer(withModalMounter(injectIntl(withTracker(({ m
   const APP_CONFIG = Meteor.settings.public.app;
   const KURENTO_CONFIG = Meteor.settings.public.kurento;
   const autoJoin = getFromUserSettings('autoJoin', APP_CONFIG.autoJoin);
-  const { userWebcam } = userLocks;
+  const { userWebcam, userMic } = userLocks;
   const openAudioModal = () => new Promise((resolve) => {
     mountModal(<AudioModalContainer resolve={resolve} />);
   });
@@ -87,7 +87,7 @@ export default lockContextContainer(withModalMounter(injectIntl(withTracker(({ m
     if (userWebcam) return resolve();
     mountModal(<VideoPreviewContainer resolve={resolve} />);
   });
-  if (userWebcam
+  if (userMic
     && Service.isConnected()
     && !Service.isListenOnly()
     && !Service.isMuted()) {
