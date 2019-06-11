@@ -34,7 +34,7 @@ const mapUser = (user) => {
     externalUserId: user.extId,
   };
 
-  mappedUser.isLocked = user.locked && !(mappedUser.isPresenter || mappedUser.isModerator);
+  mappedUser.isLocked = user.locked && !mappedUser.isModerator;
 
   return mappedUser;
 };
