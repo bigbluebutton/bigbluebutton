@@ -9,12 +9,14 @@ export default function addNote(meetingId, noteId, readOnlyNoteId) {
 
   const selector = {
     meetingId,
+    noteId,
   };
 
   const modifier = {
     meetingId,
     noteId,
     readOnlyNoteId,
+    revs: 0,
   };
 
   const cb = (err, numChanged) => {
