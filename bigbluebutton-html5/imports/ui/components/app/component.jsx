@@ -48,6 +48,22 @@ const intlMessages = defineMessages({
     id: 'app.iOSWarning.label',
     description: 'message indicating to upgrade ios version',
   },
+  clearedEmoji: {
+    id: 'app.toast.clearedEmoji.label',
+    description: 'message for cleared emoji status',
+  },
+  setEmoji: {
+    id: 'app.toast.setEmoji.label',
+    description: 'message when a user emoji has been set',
+  },
+  meetingMuteOn: {
+    id: 'app.toast.meetingMuteOn.label',
+    description: 'message used when meeting has been muted',
+  },
+  meetingMuteOff: {
+    id: 'app.toast.meetingMuteOff.label',
+    description: 'message used when meeting has been unmuted',
+  },
   pollPublishedLabel: {
     id: 'app.whiteboard.annotations.poll',
     description: 'message displayed when a poll is published',
@@ -107,9 +123,7 @@ class App extends Component {
 
     if (!validIOSVersion()) {
       notify(
-        intl.formatMessage(intlMessages.iOSWarning),
-        'error',
-        'warning',
+        intl.formatMessage(intlMessages.iOSWarning), 'error', 'warning',
       );
     }
 
@@ -129,13 +143,38 @@ class App extends Component {
     logger.info({ logCode: 'app_component_componentdidmount' }, 'Client loaded successfully');
   }
 
-  componentDidUpdate(prevProps, prevState) {
-    const { hasPublishedPoll, intl, notify } = this.props;
+  componentDidUpdate(prevProps) {
+    const {
+      meetingMuted, notify, currentUserEmoji, intl, hasPublishedPoll,
+    } = this.props;
+
+    if (prevProps.currentUserEmoji.status !== currentUserEmoji.status) {
+      const formattedEmojiStatus = intl.formatMessage({ id: `app.actionsBar.emojiMenu.${currentUserEmoji.status}Label` })
+      || currentUserEmoji.status;
+
+      notify(
+        currentUserEmoji.status === 'none'
+          ? intl.formatMessage(intlMessages.clearedEmoji)
+          : intl.formatMessage(intlMessages.setEmoji, ({ 0: formattedEmojiStatus })),
+        'info',
+        currentUserEmoji.status === 'none'
+          ? 'clear_status'
+          : 'user',
+      );
+    }
+    if (!prevProps.meetingMuted && meetingMuted) {
+      notify(
+        intl.formatMessage(intlMessages.meetingMuteOn), 'info', 'mute',
+      );
+    }
+    if (prevProps.meetingMuted && !meetingMuted) {
+      notify(
+        intl.formatMessage(intlMessages.meetingMuteOff), 'info', 'unmute',
+      );
+    }
     if (!prevProps.hasPublishedPoll && hasPublishedPoll) {
       notify(
-        intl.formatMessage(intlMessages.pollPublishedLabel),
-        'info',
-        'polling',
+        intl.formatMessage(intlMessages.pollPublishedLabel), 'info', 'polling',
       );
     }
   }

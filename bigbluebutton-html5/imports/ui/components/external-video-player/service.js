@@ -9,9 +9,7 @@ const YOUTUBE_REGEX = /(?:youtube\.com\/\S*(?:(?:\/e(?:mbed))?\/|watch\/?\?(?:\S
 
 const isUrlEmpty = url => !url || url.length === 0;
 
-const isUrlValid = (url) => {
-  return !isUrlEmpty(url) && url.match(YOUTUBE_REGEX);
-};
+const isUrlValid = url => !isUrlEmpty(url) && url.match(YOUTUBE_REGEX);
 
 const getUrlFromVideoId = id => (id ? `${YOUTUBE_PREFIX}${id}` : '');
 

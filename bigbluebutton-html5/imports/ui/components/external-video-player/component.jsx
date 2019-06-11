@@ -114,7 +114,7 @@ class VideoPlayer extends Component {
           this.playerState = PlayerState.PLAYING;
           this.player.playVideo();
         }
-        logger.debug({logCode: 'external_video_client_play'}, 'Play external video');
+        logger.debug({ logCode: 'external_video_client_play' }, 'Play external video');
       });
 
       onMessage('stop', ({ time }) => {
@@ -125,7 +125,7 @@ class VideoPlayer extends Component {
           this.player.seekTo(time, true);
           this.player.pauseVideo();
         }
-        logger.debug({logCode: 'external_video_client_stop'}, 'Stop external video');
+        logger.debug({ logCode: 'external_video_client_stop' }, 'Stop external video');
       });
 
       onMessage('playerUpdate', (data) => {
@@ -135,12 +135,12 @@ class VideoPlayer extends Component {
 
         if (data.rate !== this.player.getPlaybackRate()) {
           this.player.setPlaybackRate(data.rate);
-          logger.debug({logCode: 'external_video_client_update_rate'}, 'Change external video playback rate to:', data.rate);
+          logger.debug({ logCode: 'external_video_client_update_rate' }, 'Change external video playback rate to:', data.rate);
         }
 
         if (Math.abs(this.player.getCurrentTime() - data.time) > SYNC_INTERVAL_SECONDS) {
           this.player.seekTo(data.time, true);
-          logger.debug({logCode: 'external_video_client_update_seek'}, 'Seek external video to:', data.time);
+          logger.debug({ logCode: 'external_video_client_update_seek' }, 'Seek external video to:', data.time);
         }
 
         if (this.playerState !== data.state) {
@@ -148,10 +148,10 @@ class VideoPlayer extends Component {
           this.playerState = data.state;
           if (this.playerState === PlayerState.PLAYING) {
             this.player.playVideo();
-            logger.debug({logCode: 'external_video_client_prevent_pause'}, 'Prevent pause external video');
+            logger.debug({ logCode: 'external_video_client_prevent_pause' }, 'Prevent pause external video');
           } else {
             this.player.pauseVideo();
-            logger.debug({logCode: 'external_video_client_prevent_play'}, 'Prevent play external video');
+            logger.debug({ logCode: 'external_video_client_prevent_play' }, 'Prevent play external video');
           }
         }
       });
