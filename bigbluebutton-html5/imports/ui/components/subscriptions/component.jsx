@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React from 'react';
 import { withTracker } from 'meteor/react-meteor-data';
 import Auth from '/imports/ui/services/auth';
 import logger from '/imports/startup/client/logger';
@@ -19,7 +19,7 @@ const SUBSCRIPTIONS = [
   'network-information',
 ];
 
-class Subscriptions extends Component {
+class Subscriptions extends React.Component {
   componentDidUpdate() {
     const { subscriptionsReady } = this.props;
     if (subscriptionsReady) {
@@ -36,7 +36,11 @@ class Subscriptions extends Component {
 export default withTracker(() => {
   const { credentials } = Auth;
   const { meetingId, requesterUserId } = credentials;
-
+  if (Session.get('codeError')) {
+    return {
+      subscriptionsReady: true,
+    };
+  }
   const subscriptionErrorHandler = {
     onError: (error) => {
       logger.error({ logCode: 'startup_client_subscription_error' }, error);
@@ -44,7 +48,11 @@ export default withTracker(() => {
     },
   };
 
-  const subscriptionsHandlers = SUBSCRIPTIONS.map(name => Meteor.subscribe(name, credentials, subscriptionErrorHandler));
+  const subscriptionsHandlers = SUBSCRIPTIONS.map(name => Meteor.subscribe(
+    name,
+    credentials,
+    subscriptionErrorHandler,
+  ));
 
   let groupChatMessageHandler = {};
   // let annotationsHandler = {};
