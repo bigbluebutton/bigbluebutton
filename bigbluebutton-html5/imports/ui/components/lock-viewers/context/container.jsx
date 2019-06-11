@@ -4,12 +4,12 @@ import Meetings from '/imports/api/meetings';
 import Users from '/imports/api/users';
 import Auth from '/imports/ui/services/auth';
 import mapUser from '/imports/ui/services/user/mapUser';
-import { DataStruct } from './context';
+import { LockStruct } from './context';
 import { withLockContext } from './withContext';
 
 
 const lockContextContainer = component => withTracker(() => {
-  const lockSetting = new DataStruct();
+  const lockSetting = new LockStruct();
   const Meeting = Meetings.findOne({ meetingId: Auth.meetingID });
   const User = Users.findOne({ userId: Auth.userID });
   const mappedUser = mapUser(User);
@@ -23,10 +23,7 @@ const lockContextContainer = component => withTracker(() => {
   lockSetting.userLocks.userNote = userIsLocked && lockSettings.disableNote;
   lockSetting.userLocks.userPrivateChat = userIsLocked && lockSettings.disablePrivateChat;
   lockSetting.userLocks.userPublicChat = userIsLocked && lockSettings.disablePublicChat;
-  lockSetting.userLocks.userLockOnJoin = userIsLocked && lockSettings.lockOnJoin;
   lockSetting.userLocks.userLockedLayout = userIsLocked && lockSettings.lockedLayout;
-  lockSetting.userLocks.userOnJoinConfigurable = userIsLocked
-  && lockSettings.lockOnJoinConfigurable;
 
   return lockSetting;
 })(withLockContext(component));

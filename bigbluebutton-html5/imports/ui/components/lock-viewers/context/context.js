@@ -1,6 +1,6 @@
 import React from 'react';
 
-export function DataStruct() {
+export function LockStruct() {
   return ({
     isLocked: false,
     lockSettings: {
@@ -19,13 +19,11 @@ export function DataStruct() {
       userNote: false,
       userPrivateChat: false,
       userPublicChat: false,
-      userLockOnJoin: false,
-      userOnJoinConfigurable: false,
       userLockedLayout: false,
     },
   });
 }
 
-const lockContext = React.createContext(new DataStruct());
+const lockContext = React.createContext(new LockStruct());
 
 export default lockContext;
