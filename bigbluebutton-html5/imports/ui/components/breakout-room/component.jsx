@@ -3,6 +3,7 @@ import React, { Component } from 'react';
 import { defineMessages, injectIntl } from 'react-intl';
 import _ from 'lodash';
 import Button from '/imports/ui/components/button/component';
+import { Session } from 'meteor/session';
 import { styles } from './styles';
 import BreakoutRoomContainer from './breakout-remaining-time/container';
 
@@ -92,6 +93,7 @@ class BreakoutRoom extends Component {
   }
 
   getBreakoutURL(breakoutId) {
+    Session.set('lastBreakoutOpened', breakoutId);
     const { requestJoinURL, breakoutRoomUser } = this.props;
     const { waiting } = this.state;
     const hasUser = breakoutRoomUser(breakoutId);

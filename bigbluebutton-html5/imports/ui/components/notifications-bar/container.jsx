@@ -8,8 +8,7 @@ import Meetings from '/imports/api/meetings';
 import Users from '/imports/api/users';
 import BreakoutRemainingTime from '/imports/ui/components/breakout-room/breakout-remaining-time/container';
 import SlowConnection from '/imports/ui/components/slow-connection/component';
-import NavBarService from '../nav-bar/service';
-
+import breakoutService from '/imports/ui/components/breakout-room/service';
 import NotificationsBar from './component';
 
 // disconnected and trying to open a new connection
@@ -167,7 +166,7 @@ export default injectIntl(withTracker(({ intl }) => {
   }
 
   const meetingId = Auth.meetingID;
-  const breakouts = NavBarService.getBreakouts();
+  const breakouts = breakoutService.getBreakouts();
 
   if (breakouts.length > 0) {
     const currentBreakout = breakouts.find(b => b.breakoutId === meetingId);
@@ -185,7 +184,6 @@ export default injectIntl(withTracker(({ intl }) => {
       );
     }
   }
-
 
   const Meeting = Meetings.findOne({ meetingId: Auth.meetingID });
 
