@@ -320,7 +320,7 @@
     "app.actionsBar.actionsDropdown.stopDesktopShareDesc": "Stop sharing your screen with",
     "app.actionsBar.actionsDropdown.pollBtnLabel": "Start a poll",
     "app.actionsBar.actionsDropdown.pollBtnDesc": "Toggles poll pane",
-    "app.actionsBar.actionsDropdown.saveUserNames": "Save User Names",
+    "app.actionsBar.actionsDropdown.saveUserNames": "Save user names",
     "app.actionsBar.actionsDropdown.createBreakoutRoom": "Create breakout rooms",
     "app.actionsBar.actionsDropdown.createBreakoutRoomDesc": "create breakouts for split the current meeting ",
     "app.actionsBar.actionsDropdown.captionsLabel": "Write closed captions",
