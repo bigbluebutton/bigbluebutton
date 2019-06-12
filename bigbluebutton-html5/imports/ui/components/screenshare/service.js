@@ -32,18 +32,18 @@ const shareScreen = (onFail) => {
   KurentoBridge.kurentoShareScreen(onFail);
 };
 
+const screenShareEndAlert = () => new Audio(`${Meteor.settings.public.app.cdn + Meteor.settings.public.app.basename}/resources/sounds/ScreenshareOff.mp3`).play();
+
 const unshareScreen = () => {
   KurentoBridge.kurentoExitScreenShare();
   screenShareEndAlert();
 };
-
-const screenShareEndAlert = () => new Audio(`${Meteor.settings.public.app.cdn + Meteor.settings.public.app.basename}/resources/sounds/ScreenshareOff.mp3`).play();
 
 export {
   isVideoBroadcasting,
   presenterScreenshareHasEnded,
   presenterScreenshareHasStarted,
   shareScreen,
-  unshareScreen,
   screenShareEndAlert,
+  unshareScreen,
 };

@@ -210,6 +210,7 @@ class UserDropdown extends PureComponent {
       hasPrivateChatBetweenUsers,
       toggleUserLock,
       requestUserInformation,
+      meteorIsConnected,
     } = this.props;
 
     const { showNestedOptions } = this.state;
@@ -237,11 +238,11 @@ class UserDropdown extends PureComponent {
       : allowedToChatPrivately
       && (!(currentUser.isLocked && disablePrivateChat)
         || hasPrivateChatBetweenUsers(currentUser, user)
-        || user.isModerator);
+        || user.isModerator) && meteorIsConnected;
 
     const { allowUserLookup } = Meteor.settings.public.app;
 
-    if (showNestedOptions) {
+    if (showNestedOptions && meteorIsConnected) {
       if (allowedToChangeStatus) {
         actions.push(this.makeDropdownItem(
           'back',
@@ -264,7 +265,7 @@ class UserDropdown extends PureComponent {
       return actions;
     }
 
-    if (allowedToChangeStatus) {
+    if (allowedToChangeStatus && meteorIsConnected) {
       actions.push(this.makeDropdownItem(
         'setstatus',
         intl.formatMessage(messages.statusTriggerLabel),
@@ -274,7 +275,7 @@ class UserDropdown extends PureComponent {
       ));
     }
 
-    if (enablePrivateChat) {
+    if (enablePrivateChat && meteorIsConnected) {
       actions.push(this.makeDropdownItem(
         'activeChat',
         intl.formatMessage(messages.ChatLabel),
@@ -287,7 +288,7 @@ class UserDropdown extends PureComponent {
       ));
     }
 
-    if (allowedToResetStatus && user.emoji.status !== 'none') {
+    if (allowedToResetStatus && user.emoji.status !== 'none' && meteorIsConnected) {
       actions.push(this.makeDropdownItem(
         'clearStatus',
         intl.formatMessage(messages.ClearStatusLabel),
@@ -296,7 +297,7 @@ class UserDropdown extends PureComponent {
       ));
     }
 
-    if (allowedToMuteAudio) {
+    if (allowedToMuteAudio && meteorIsConnected) {
       actions.push(this.makeDropdownItem(
         'mute',
         intl.formatMessage(messages.MuteUserAudioLabel),
@@ -305,7 +306,7 @@ class UserDropdown extends PureComponent {
       ));
     }
 
-    if (allowedToUnmuteAudio) {
+    if (allowedToUnmuteAudio && meteorIsConnected) {
       actions.push(this.makeDropdownItem(
         'unmute',
         intl.formatMessage(messages.UnmuteUserAudioLabel),
@@ -314,7 +315,7 @@ class UserDropdown extends PureComponent {
       ));
     }
 
-    if (allowedToSetPresenter) {
+    if (allowedToSetPresenter && meteorIsConnected) {
       actions.push(this.makeDropdownItem(
         'setPresenter',
         user.isCurrent
@@ -325,7 +326,7 @@ class UserDropdown extends PureComponent {
       ));
     }
 
-    if (allowedToRemove) {
+    if (allowedToRemove && meteorIsConnected) {
       actions.push(this.makeDropdownItem(
         'remove',
         intl.formatMessage(messages.RemoveUserLabel, { 0: user.name }),
@@ -334,7 +335,7 @@ class UserDropdown extends PureComponent {
       ));
     }
 
-    if (allowedToPromote) {
+    if (allowedToPromote && meteorIsConnected) {
       actions.push(this.makeDropdownItem(
         'promote',
         intl.formatMessage(messages.PromoteUserLabel),
@@ -343,7 +344,7 @@ class UserDropdown extends PureComponent {
       ));
     }
 
-    if (allowedToDemote) {
+    if (allowedToDemote && meteorIsConnected) {
       actions.push(this.makeDropdownItem(
         'demote',
         intl.formatMessage(messages.DemoteUserLabel),
@@ -352,7 +353,7 @@ class UserDropdown extends PureComponent {
       ));
     }
 
-    if (allowedToChangeUserLockStatus) {
+    if (allowedToChangeUserLockStatus && meteorIsConnected) {
       actions.push(this.makeDropdownItem(
         'unlockUser',
         user.isLocked ? intl.formatMessage(messages.UnlockUserLabel, { 0: user.name })
@@ -362,7 +363,7 @@ class UserDropdown extends PureComponent {
       ));
     }
 
-    if (allowUserLookup) {
+    if (allowUserLookup && meteorIsConnected) {
       actions.push(this.makeDropdownItem(
         'directoryLookup',
         intl.formatMessage(messages.DirectoryLookupLabel),

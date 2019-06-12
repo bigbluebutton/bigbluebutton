@@ -39,6 +39,7 @@ const UserOptionsContainer = withTracker((props) => {
     isBreakoutRecordable: Service.isBreakoutRecordable(),
     users: Service.users(),
     userListService,
+    meteorIsConnected: Meteor.status().connected,
   };
 })(UserOptions);
 

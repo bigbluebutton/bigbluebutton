@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import { defineMessages, injectIntl, FormattedMessage } from 'react-intl';
 import browser from 'browser-detect';
@@ -43,7 +43,7 @@ const intlMessages = defineMessages({
   },
 });
 
-class PresentationToolbar extends Component {
+class PresentationToolbar extends PureComponent {
   static renderAriaLabelsDescs() {
     return (
       <div hidden>
@@ -227,7 +227,10 @@ class PresentationToolbar extends Component {
       zoom,
       isFullscreen,
       fullscreenRef,
+      meteorIsConnected,
     } = this.props;
+
+    console.log('PresentationToolbar', meteorIsConnected);
 
     const BROWSER_RESULTS = browser();
     const isMobileBrowser = BROWSER_RESULTS.mobile
@@ -245,7 +248,7 @@ class PresentationToolbar extends Component {
               role="button"
               aria-labelledby="prevSlideLabel"
               aria-describedby="prevSlideDesc"
-              disabled={!(currentSlideNum > 1)}
+              disabled={!(currentSlideNum > 1) || !meteorIsConnected}
               color="default"
               icon="left_arrow"
               size="md"
@@ -272,6 +275,7 @@ class PresentationToolbar extends Component {
                 aria-describedby="skipSlideDesc"
                 aria-live="polite"
                 aria-relevant="all"
+                disabled={!meteorIsConnected}
                 value={currentSlideNum}
                 onChange={this.handleSkipToSlideChange}
                 className={styles.skipSlideSelect}
@@ -283,7 +287,7 @@ class PresentationToolbar extends Component {
               role="button"
               aria-labelledby="nextSlideLabel"
               aria-describedby="nextSlideDesc"
-              disabled={!(currentSlideNum < numberOfSlides)}
+              disabled={!(currentSlideNum < numberOfSlides) || !meteorIsConnected}
               color="default"
               icon="right_arrow"
               size="md"
@@ -307,6 +311,7 @@ class PresentationToolbar extends Component {
                     maxBound={MAX_PERCENT}
                     step={STEP}
                     tooltipDistance={tooltipDistance}
+                    meteorIsConnected={meteorIsConnected}
                   />
                 )
                 : null
@@ -316,6 +321,7 @@ class PresentationToolbar extends Component {
               aria-labelledby="fitWidthLabel"
               aria-describedby="fitWidthDesc"
               color="default"
+              disabled={!meteorIsConnected}
               icon="fit_to_width"
               size="md"
               circle={false}
@@ -367,6 +373,7 @@ PresentationToolbar.propTypes = {
   fullscreenRef: PropTypes.instanceOf(Element),
   isFullscreen: PropTypes.bool.isRequired,
   zoom: PropTypes.number.isRequired,
+  meteorIsConnected: PropTypes.bool.isRequired,
 };
 
 PresentationToolbar.defaultProps = {

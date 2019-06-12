@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { PureComponent } from 'react';
 import cx from 'classnames';
 import { styles } from './styles.scss';
 import DesktopShare from './desktop-share/component';
@@ -9,7 +9,7 @@ import JoinVideoOptionsContainer from '../video-provider/video-button/container'
 import CaptionsButtonContainer from '/imports/ui/components/actions-bar/captions/container';
 import PresentationOptionsContainer from './presentation-options/component';
 
-class ActionsBar extends React.PureComponent {
+class ActionsBar extends PureComponent {
   render() {
     const {
       isUserPresenter,
@@ -33,6 +33,7 @@ class ActionsBar extends React.PureComponent {
       screenShareEndAlert,
       stopExternalVideoShare,
       isCaptionsAvailable,
+      meteorIsConnected,
     } = this.props;
 
     const {
@@ -62,6 +63,7 @@ class ActionsBar extends React.PureComponent {
             intl,
             isSharingVideo,
             stopExternalVideoShare,
+            meteorIsConnected,
           }}
           />
           <QuickPollDropdown
@@ -94,6 +96,7 @@ class ActionsBar extends React.PureComponent {
             isUserPresenter,
             screenSharingCheck,
             screenShareEndAlert,
+            meteorIsConnected,
           }}
           />
           {isCaptionsAvailable

@@ -26,6 +26,7 @@ export function makeCall(name, ...args) {
       });
     });
   }
+  return null;
 }
 
 /**

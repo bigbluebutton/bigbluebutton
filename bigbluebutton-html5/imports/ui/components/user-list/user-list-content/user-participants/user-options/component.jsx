@@ -181,34 +181,39 @@ class UserOptions extends PureComponent {
       getUsersNotAssigned,
       isUserModerator,
       users,
+      meteorIsConnected,
     } = this.props;
 
     const canCreateBreakout = isUserModerator
-    && !meetingIsBreakout
-    && !hasBreakoutRoom
-    && isBreakoutEnabled;
+      && !meetingIsBreakout
+      && !hasBreakoutRoom
+      && isBreakoutEnabled;
 
     const canInviteUsers = isUserModerator
-    && !meetingIsBreakout
-    && hasBreakoutRoom
-    && getUsersNotAssigned(users).length;
+      && !meetingIsBreakout
+      && hasBreakoutRoom
+      && getUsersNotAssigned(users).length;
 
     this.menuItems = _.compact([
-      (<DropdownListItem
-        key={this.clearStatusId}
-        icon="clear_status"
-        label={intl.formatMessage(intlMessages.clearAllLabel)}
-        description={intl.formatMessage(intlMessages.clearAllDesc)}
-        onClick={toggleStatus}
-      />),
-      (<DropdownListItem
-        key={this.muteAllId}
-        icon={isMeetingMuted ? 'unmute' : 'mute'}
-        label={intl.formatMessage(intlMessages[isMeetingMuted ? 'unmuteAllLabel' : 'muteAllLabel'])}
-        description={intl.formatMessage(intlMessages[isMeetingMuted ? 'unmuteAllDesc' : 'muteAllDesc'])}
-        onClick={toggleMuteAllUsers}
-      />),
-      (!isMeetingMuted ? (
+      (meteorIsConnected ? (
+        <DropdownListItem
+          key={this.clearStatusId}
+          icon="clear_status"
+          label={intl.formatMessage(intlMessages.clearAllLabel)}
+          description={intl.formatMessage(intlMessages.clearAllDesc)}
+          onClick={toggleStatus}
+        />) : null
+      ),
+      (meteorIsConnected ? (
+        <DropdownListItem
+          key={this.muteAllId}
+          icon={isMeetingMuted ? 'unmute' : 'mute'}
+          label={intl.formatMessage(intlMessages[isMeetingMuted ? 'unmuteAllLabel' : 'muteAllLabel'])}
+          description={intl.formatMessage(intlMessages[isMeetingMuted ? 'unmuteAllDesc' : 'muteAllDesc'])}
+          onClick={toggleMuteAllUsers}
+        />) : null
+      ),
+      (!isMeetingMuted && meteorIsConnected ? (
         <DropdownListItem
           key={this.muteId}
           icon="mute"
@@ -217,34 +222,32 @@ class UserOptions extends PureComponent {
           onClick={toggleMuteAllUsersExceptPresenter}
         />) : null
       ),
-      (<DropdownListItem
-        key={this.lockId}
-        icon="lock"
-        label={intl.formatMessage(intlMessages.lockViewersLabel)}
-        description={intl.formatMessage(intlMessages.lockViewersDesc)}
-        onClick={() => mountModal(<LockViewersContainer />)}
-      />),
-      (canCreateBreakout
-        ? (
-          <DropdownListItem
-            key={this.createBreakoutId}
-            icon="rooms"
-            label={intl.formatMessage(intlMessages.createBreakoutRoom)}
-            description={intl.formatMessage(intlMessages.createBreakoutRoomDesc)}
-            onClick={this.onCreateBreakouts}
-          />
-        ) : null
+      (meteorIsConnected ? (
+        <DropdownListItem
+          key={this.lockId}
+          icon="lock"
+          label={intl.formatMessage(intlMessages.lockViewersLabel)}
+          description={intl.formatMessage(intlMessages.lockViewersDesc)}
+          onClick={() => mountModal(<LockViewersContainer />)}
+        />) : null
       ),
-      (canInviteUsers
-        ? (
-          <DropdownListItem
-            icon="rooms"
-            label={intl.formatMessage(intlMessages.invitationItem)}
-            key={this.createBreakoutId}
-            onClick={this.onInvitationUsers}
-          />
-        )
-        : null),
+      (canCreateBreakout && meteorIsConnected ? (
+        <DropdownListItem
+          key={this.createBreakoutId}
+          icon="rooms"
+          label={intl.formatMessage(intlMessages.createBreakoutRoom)}
+          description={intl.formatMessage(intlMessages.createBreakoutRoomDesc)}
+          onClick={this.onCreateBreakouts}
+        />) : null
+      ),
+      (canInviteUsers && meteorIsConnected ? (
+        <DropdownListItem
+          icon="rooms"
+          label={intl.formatMessage(intlMessages.invitationItem)}
+          key={this.createBreakoutId}
+          onClick={this.onInvitationUsers}
+        />) : null
+      ),
       (isUserModerator
         ? (
           <DropdownListItem
@@ -252,9 +255,9 @@ class UserOptions extends PureComponent {
             label={intl.formatMessage(intlMessages.saveUserNames)}
             key={this.saveUsersNameId}
             onClick={this.onSaveUserNames}
-          />
-        )
-        : null),
+          />)
+        : null
+      ),
     ]);
 
     return this.menuItems;

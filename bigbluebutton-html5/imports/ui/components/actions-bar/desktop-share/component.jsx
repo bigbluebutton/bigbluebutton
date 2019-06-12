@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { memo } from 'react';
 import PropTypes from 'prop-types';
 import { defineMessages, injectIntl, intlShape } from 'react-intl';
 import browser from 'browser-detect';
@@ -15,6 +15,8 @@ const propTypes = {
   handleUnshareScreen: PropTypes.func.isRequired,
   isVideoBroadcasting: PropTypes.bool.isRequired,
   screenSharingCheck: PropTypes.bool.isRequired,
+  screenShareEndAlert: PropTypes.func.isRequired,
+  meteorIsConnected: PropTypes.bool.isRequired,
 };
 
 const intlMessages = defineMessages({
@@ -56,6 +58,7 @@ const DesktopShare = ({
   isUserPresenter,
   screenSharingCheck,
   screenShareEndAlert,
+  meteorIsConnected,
 }) => {
   const onFail = (error) => {
     switch (error) {
@@ -73,6 +76,7 @@ const DesktopShare = ({
     ? (
       <Button
         className={cx(styles.button, isVideoBroadcasting || styles.btn)}
+        disabled={!meteorIsConnected && !isVideoBroadcasting}
         icon={isVideoBroadcasting ? 'desktop' : 'desktop_off'}
         label={intl.formatMessage(isVideoBroadcasting
           ? intlMessages.stopDesktopShareLabel : intlMessages.desktopShareLabel)}
@@ -91,4 +95,4 @@ const DesktopShare = ({
 };
 
 DesktopShare.propTypes = propTypes;
-export default injectIntl(DesktopShare);
+export default injectIntl(memo(DesktopShare));

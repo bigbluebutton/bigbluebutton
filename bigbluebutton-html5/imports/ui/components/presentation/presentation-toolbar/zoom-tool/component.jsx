@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import { FormattedMessage, defineMessages, injectIntl } from 'react-intl';
 import Button from '/imports/ui/components/button/component';
@@ -36,7 +36,7 @@ const intlMessages = defineMessages({
   },
 });
 
-class ZoomTool extends Component {
+class ZoomTool extends PureComponent {
   static renderAriaLabelsDescs() {
     return (
       <div hidden key="hidden-div">
@@ -195,6 +195,7 @@ class ZoomTool extends Component {
       maxBound,
       intl,
       tooltipDistance,
+      meteorIsConnected,
     } = this.props;
     const { stateZoomValue } = this.state;
     return (
@@ -214,7 +215,7 @@ class ZoomTool extends Component {
               label={intl.formatMessage(intlMessages.zoomOutLabel)}
               icon="substract"
               onClick={() => { }}
-              disabled={(zoomValue <= minBound)}
+              disabled={(zoomValue <= minBound) || !meteorIsConnected}
               className={cx(styles.prevSlide, styles.presentationBtn)}
               tooltipDistance={tooltipDistance}
               hideLabel
@@ -228,6 +229,7 @@ class ZoomTool extends Component {
             aria-describedby={stateZoomValue}
             color="default"
             customIcon={`${stateZoomValue}%`}
+            disabled={!meteorIsConnected}
             size="md"
             onClick={() => this.resetZoom()}
             label={intl.formatMessage(intlMessages.resetZoomLabel)}
@@ -251,7 +253,7 @@ class ZoomTool extends Component {
               label={intl.formatMessage(intlMessages.zoomInLabel)}
               icon="add"
               onClick={() => { }}
-              disabled={(zoomValue >= maxBound)}
+              disabled={(zoomValue >= maxBound) || !meteorIsConnected}
               className={cx(styles.skipSlide, styles.presentationBtn)}
               tooltipDistance={tooltipDistance}
               hideLabel
@@ -269,6 +271,7 @@ const propTypes = {
   minBound: PropTypes.number.isRequired,
   maxBound: PropTypes.number.isRequired,
   step: PropTypes.number.isRequired,
+  meteorIsConnected: PropTypes.bool.isRequired,
 };
 
 ZoomTool.propTypes = propTypes;

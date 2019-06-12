@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { memo } from 'react';
 import PropTypes from 'prop-types';
 import cx from 'classnames';
 import Button from '/imports/ui/components/button/component';
@@ -80,4 +80,4 @@ const JoinVideoButton = ({
 };
 
 JoinVideoButton.propTypes = propTypes;
-export default injectIntl(JoinVideoButton);
+export default injectIntl(memo(JoinVideoButton));

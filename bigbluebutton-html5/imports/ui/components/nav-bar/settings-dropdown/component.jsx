@@ -99,6 +99,7 @@ const propTypes = {
   amIModerator: PropTypes.bool,
   shortcuts: PropTypes.string,
   isBreakoutRoom: PropTypes.bool,
+  meteorIsConnected: PropTypes.bool.isRequired,
 };
 
 const defaultProps = {
@@ -177,7 +178,7 @@ class SettingsDropdown extends PureComponent {
 
   renderMenuItems() {
     const {
-      intl, mountModal, amIModerator, isBreakoutRoom,
+      intl, mountModal, amIModerator, isBreakoutRoom, meteorIsConnected,
     } = this.props;
 
     const allowedToEndMeeting = amIModerator && !isBreakoutRoom;
@@ -219,7 +220,7 @@ class SettingsDropdown extends PureComponent {
         onClick={() => mountModal(<ShortcutHelpComponent />)}
       />),
       (<DropdownListSeparator key={_.uniqueId('list-separator-')} />),
-      allowedToEndMeeting
+      allowedToEndMeeting && meteorIsConnected
         ? (<DropdownListItem
           key="list-item-end-meeting"
           icon="application"
@@ -229,13 +230,14 @@ class SettingsDropdown extends PureComponent {
         />
         )
         : null,
-      (<DropdownListItem
-        key="list-item-logout"
-        icon="logout"
-        label={intl.formatMessage(intlMessages.leaveSessionLabel)}
-        description={intl.formatMessage(intlMessages.leaveSessionDesc)}
-        onClick={() => this.leaveSession()}
-      />),
+      meteorIsConnected ? (
+        <DropdownListItem
+          key="list-item-logout"
+          icon="logout"
+          label={intl.formatMessage(intlMessages.leaveSessionLabel)}
+          description={intl.formatMessage(intlMessages.leaveSessionDesc)}
+          onClick={() => this.leaveSession()}
+        />) : null,
     ]);
   }
 

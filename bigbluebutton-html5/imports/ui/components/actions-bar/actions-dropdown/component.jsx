@@ -40,14 +40,6 @@ const intlMessages = defineMessages({
     id: 'app.actionsBar.actionsDropdown.presentationDesc',
     description: 'adds context to upload presentation option',
   },
-  desktopShareLabel: {
-    id: 'app.actionsBar.actionsDropdown.desktopShareLabel',
-    description: 'Desktop Share option label',
-  },
-  stopDesktopShareLabel: {
-    id: 'app.actionsBar.actionsDropdown.stopDesktopShareLabel',
-    description: 'Stop Desktop Share option label',
-  },
   desktopShareDesc: {
     id: 'app.actionsBar.actionsDropdown.desktopShareDesc',
     description: 'adds context to desktop share option',
@@ -222,11 +214,12 @@ class ActionsDropdown extends PureComponent {
       isUserPresenter,
       isUserModerator,
       shortcuts: OPEN_ACTIONS_AK,
+      meteorIsConnected,
     } = this.props;
 
     const availableActions = this.getAvailableActions();
 
-    if ((!isUserPresenter && !isUserModerator) || availableActions.length === 0) return null;
+    if ((!isUserPresenter && !isUserModerator) || availableActions.length === 0 || !meteorIsConnected) return null;
 
     return (
       <Dropdown ref={(ref) => { this._dropdown = ref; }}>

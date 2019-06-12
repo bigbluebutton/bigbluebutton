@@ -1,4 +1,5 @@
 import React from 'react';
+import { Meteor } from 'meteor/meteor';
 import { withTracker } from 'meteor/react-meteor-data';
 import { injectIntl } from 'react-intl';
 import getFromUserSettings from '/imports/ui/services/users-settings';
@@ -52,5 +53,6 @@ export default withTracker(() => {
     isSharingVideo: Service.isSharingVideo(),
     screenShareEndAlert,
     isCaptionsAvailable: CaptionsService.isCaptionsAvailable(),
+    meteorIsConnected: Meteor.status().connected,
   };
 })(injectIntl(ActionsBarContainer));

@@ -19,6 +19,7 @@ const PresentationToolbarContainer = (props) => {
     isFullscreen,
     fullscreenRef,
     fitToWidth,
+    meteorIsConnected,
   } = props;
 
   if (userIsPresenter && !getSwapLayout) {
@@ -36,6 +37,7 @@ const PresentationToolbarContainer = (props) => {
           zoomChanger,
           fitToWidthHandler,
           fitToWidth,
+          meteorIsConnected,
         }}
       />
     );
@@ -82,6 +84,7 @@ export default withTracker((params) => {
         value,
       ),
     },
+    meteorIsConnected: Meteor.status().connected,
   };
 })(PresentationToolbarContainer);
 
