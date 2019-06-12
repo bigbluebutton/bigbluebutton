@@ -67,11 +67,11 @@
       padding-right: var(--lg-padding-y);
     }
   }
+}
 
-  &:active {
-    background-color: var(--list-item-bg-hover);
-    box-shadow: inset 0 0 0 var(--border-size) var(--item-focus-border), inset 1px 0 0 1px var(--item-focus-border);
-  }
+.active {
+  background-color: var(--list-item-bg-hover);
+  box-shadow: inset 0 0 0 var(--border-size) var(--item-focus-border), inset 1px 0 0 1px var(--item-focus-border);
 }
 
 .notification {
