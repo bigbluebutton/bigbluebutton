@@ -26,21 +26,6 @@ const intlMessages = defineMessages({
 });
 
 class UserNotes extends Component {
-  static getDerivedStateFromProps(props, state) {
-    const { isPanelOpened, revs } = props;
-    const { unread, revs: revsState } = state;
-
-    if (!isPanelOpened && !unread) {
-      if (revsState !== revs) return ({ unread: true });
-    }
-
-    if (isPanelOpened && unread) {
-      return ({ unread: false });
-    }
-
-    return null;
-  }
-
   constructor(props) {
     super(props);
 
@@ -52,12 +37,20 @@ class UserNotes extends Component {
   componentDidMount() {
     const { revs } = this.props;
 
-    const stateValues = {
-      revs,
-      unread: revs !== 0,
-    };
+    if (revs !== 0) this.setState({ unread: true });
+  }
 
-    this.setState(stateValues);
+  componentDidUpdate(prevProps) {
+    const { isPanelOpened, revs } = this.props;
+    const { unread } = this.state;
+
+    if (!isPanelOpened && !unread) {
+      if (prevProps.revs !== revs) this.setState({ unread: true });
+    }
+
+    if (isPanelOpened && unread) {
+      this.setState({ unread: false });
+    }
   }
 
   render() {
