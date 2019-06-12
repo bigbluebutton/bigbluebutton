@@ -635,7 +635,7 @@
     "app.externalVideo.urlError": "This URL isn't a valid YouTube video",
     "app.externalVideo.close": "Close",
     "app.network.connection.effective.slow": "We're noticing connectivity issues.",
-    "app.network.connection.effective.slow.help": "How to fix it?",
+    "app.network.connection.effective.slow.help": "More information",
     "app.externalVideo.noteLabel": "Note: Shared YouTube videos will not appear in the recording",
     "app.actionsBar.actionsDropdown.shareExternalVideo": "Share YouTube video",
     "app.actionsBar.actionsDropdown.stopShareExternalVideo": "Stop sharing YouTube video",
