@@ -26,7 +26,7 @@ const MOBILE_MEDIA = 'only screen and (max-width: 40em)';
 const APP_CONFIG = Meteor.settings.public.app;
 const DESKTOP_FONT_SIZE = APP_CONFIG.desktopFontSize;
 const MOBILE_FONT_SIZE = APP_CONFIG.mobileFontSize;
-const ENABLE_NETWORK_INFORMATION = APP_CONFIG.enableNetworkInformation;
+const ENABLE_NETWORK_MONITORING = Meteor.settings.public.networkMonitoring.enableNetworkMonitoring;
 
 const intlMessages = defineMessages({
   userListLabel: {
@@ -131,7 +131,7 @@ class App extends Component {
     this.handleWindowResize();
     window.addEventListener('resize', this.handleWindowResize, false);
 
-    if (ENABLE_NETWORK_INFORMATION) {
+    if (ENABLE_NETWORK_MONITORING) {
       if (navigator.connection) {
         this.handleNetworkConnection();
         navigator.connection.addEventListener('change', this.handleNetworkConnection);

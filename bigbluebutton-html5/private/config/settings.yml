@@ -19,7 +19,6 @@ public:
     basename: "/html5client"
     askForFeedbackOnLogout: false
     allowUserLookup: false
-    enableNetworkInformation: false
     defaultSettings:
       application:
         animations: true
@@ -81,6 +80,9 @@ public:
       - critical
       - danger
       - warning
+  networkMonitoring:
+    enableNetworkMonitoring: false
+    packetLostThreshold: 10
   kurento:
     wsUrl: HOST
     chromeDefaultExtensionKey: akgoaoikmbmhcopjgakkcepdgdgkjfbc

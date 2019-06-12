@@ -20,8 +20,7 @@ import Auth from '/imports/ui/services/auth';
 import VideoService from './service';
 import VideoList from './video-list/component';
 
-const APP_CONFIG = Meteor.settings.public.app;
-const ENABLE_NETWORK_INFORMATION = APP_CONFIG.enableNetworkInformation;
+const ENABLE_NETWORK_MONITORING = Meteor.settings.public.networkMonitoring.enableNetworkMonitoring;
 const CAMERA_PROFILES = Meteor.settings.public.kurento.cameraProfiles;
 
 const intlClientErrors = defineMessages({
@@ -174,7 +173,7 @@ class VideoProvider extends Component {
     this.visibility.onVisible(this.unpauseViewers);
     this.visibility.onHidden(this.pauseViewers);
 
-    if (ENABLE_NETWORK_INFORMATION) {
+    if (ENABLE_NETWORK_MONITORING) {
       this.currentWebcamsStatsInterval = setInterval(() => {
         const currentWebcams = getCurrentWebcams();
         if (!currentWebcams) return;
@@ -491,7 +490,7 @@ class VideoProvider extends Component {
         webRtcPeer.dispose();
       }
       delete this.webRtcPeers[id];
-      if (ENABLE_NETWORK_INFORMATION) {
+      if (ENABLE_NETWORK_MONITORING) {
         deleteWebcamConnection(id);
         updateCurrentWebcamsConnection(this.webRtcPeers);
       }
@@ -585,7 +584,7 @@ class VideoProvider extends Component {
           .peerConnection
           .oniceconnectionstatechange = this._getOnIceConnectionStateChangeCallback(id);
       }
-      if (ENABLE_NETWORK_INFORMATION) {
+      if (ENABLE_NETWORK_MONITORING) {
         newWebcamConnection(id);
         updateCurrentWebcamsConnection(this.webRtcPeers);
       }
