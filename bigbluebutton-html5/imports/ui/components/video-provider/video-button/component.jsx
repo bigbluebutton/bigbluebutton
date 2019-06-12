@@ -56,15 +56,15 @@ const JoinVideoButton = ({
     handleJoinVideo();
   };
 
+  const sharingVideoLabel = isSharingVideo
+    ? intl.formatMessage(intlMessages.leaveVideo) : intl.formatMessage(intlMessages.joinVideo);
+
+  const disabledLabel = isDisabled
+    ? intl.formatMessage(intlMessages.videoLocked) : sharingVideoLabel;
+
   return (
     <Button
-      label={isDisabled
-        ? intl.formatMessage(intlMessages.videoLocked)
-        : (isSharingVideo
-          ? intl.formatMessage(intlMessages.leaveVideo)
-          : intl.formatMessage(intlMessages.joinVideo)
-        )
-      }
+      label={disabledLabel}
       className={cx(styles.button, isSharingVideo || styles.btn)}
       onClick={isSharingVideo ? handleCloseVideo : verifyIOS}
       hideLabel

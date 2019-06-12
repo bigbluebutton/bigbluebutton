@@ -32,6 +32,7 @@ class ActionsBar extends PureComponent {
       isSharingVideo,
       screenShareEndAlert,
       stopExternalVideoShare,
+      screenshareDataSavingSetting,
       isCaptionsAvailable,
       meteorIsConnected,
     } = this.props;
@@ -97,6 +98,7 @@ class ActionsBar extends PureComponent {
             screenSharingCheck,
             screenShareEndAlert,
             meteorIsConnected,
+            screenshareDataSavingSetting,
           }}
           />
           {isCaptionsAvailable

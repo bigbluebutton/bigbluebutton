@@ -71,6 +71,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
     </bean>
 
     <bean id="recordingServiceGW" class="org.bigbluebutton.api2.util.RecMetaXmlHelper">
+        <constructor-arg index="0" ref="bbbWebApiGWApp"/>
     </bean>
 
     <bean id="presDownloadService" class="org.bigbluebutton.presentation.PresentationUrlDownloadService"
@@ -89,6 +90,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         <property name="captionsDir" value="${captionsDir}"/>
         <property name="recordingServiceHelper" ref="recordingServiceHelper"/>
         <property name="presentationBaseDir" value="${presentationDir}"/>
+        <property name="defaultServerUrl" value="${bigbluebutton.web.serverURL}"/>
+        <property name="defaultTextTrackUrl" value="${defaultTextTrackUrl}"/>
     </bean>
 
     <bean id="configServiceHelper" class="org.bigbluebutton.api.ClientConfigServiceHelperImp"/>

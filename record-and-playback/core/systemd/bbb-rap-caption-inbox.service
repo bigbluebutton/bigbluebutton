@@ -1,0 +1,9 @@
+[Unit]
+Description=BigBlueButton recording caption upload handler
+
+[Service]
+Type=simple
+ExecStart=/usr/local/bigbluebutton/core/scripts/rap-caption-inbox.rb
+User=bigbluebutton
+Slice=bbb_record_core.slice
+Restart=on-failure

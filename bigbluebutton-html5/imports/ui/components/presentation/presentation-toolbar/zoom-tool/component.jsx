@@ -1,6 +1,6 @@
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
-import { FormattedMessage, defineMessages, injectIntl } from 'react-intl';
+import { defineMessages, injectIntl, intlShape } from 'react-intl';
 import Button from '/imports/ui/components/button/component';
 import cx from 'classnames';
 import { styles } from '../styles.scss';
@@ -30,62 +30,13 @@ const intlMessages = defineMessages({
     id: 'app.presentation.presentationToolbar.zoomOutDesc',
     description: 'Aria description for decrement zoom level',
   },
-  zoomIndicator: {
-    id: 'app.presentation.presentationToolbar.zoomIndicator',
-    description: 'Aria label for current zoom level',
+  currentValue: {
+    id: 'app.submenu.application.currentSize',
+    description: 'current presentation zoom percentage aria description',
   },
 });
 
 class ZoomTool extends PureComponent {
-  static renderAriaLabelsDescs() {
-    return (
-      <div hidden key="hidden-div">
-        <div id="zoomInLabel">
-          <FormattedMessage
-            id="app.presentation.presentationToolbar.zoomInLabel"
-            description="Aria label for increment zoom level"
-            defaultMessage="Increment zoom"
-          />
-        </div>
-        <div id="zoomInDesc">
-          <FormattedMessage
-            id="app.presentation.presentationToolbar.zoomInDesc"
-            description="Aria description for increment zoom level"
-            defaultMessage="Increment zoom"
-          />
-        </div>
-        <div id="zoomOutLabel">
-          <FormattedMessage
-            id="app.presentation.presentationToolbar.zoomOutLabel"
-            description="Aria label for decrement zoom level"
-            defaultMessage="Decrement zoom"
-          />
-        </div>
-        <div id="zoomOutDesc">
-          <FormattedMessage
-            id="app.presentation.presentationToolbar.zoomOutDesc"
-            description="Aria description for decrement zoom level"
-            defaultMessage="Decrement zoom"
-          />
-        </div>
-        <div id="zoomIndicator">
-          <FormattedMessage
-            id="app.presentation.presentationToolbar.zoomIndicator"
-            description="Aria label for current zoom level"
-            defaultMessage="Current zoom level"
-          />
-        </div>
-        <div id="zoomReset">
-          <FormattedMessage
-            id="app.presentation.presentationToolbar.zoomReset"
-            description="Aria label for reset zoom level"
-            defaultMessage="Reset zoom level"
-          />
-        </div>
-      </div>
-    );
-  }
-
   constructor(props) {
     super(props);
     this.increment = this.increment.bind(this);
@@ -196,8 +147,22 @@ class ZoomTool extends PureComponent {
       intl,
       tooltipDistance,
       meteorIsConnected,
+      step,
     } = this.props;
     const { stateZoomValue } = this.state;
+
+    let zoomOutAriaLabel = intl.formatMessage(intlMessages.zoomOutLabel);
+    if (zoomValue > minBound) {
+      zoomOutAriaLabel += ` ${intl.formatNumber(((zoomValue - step) / 100), { style: 'percent' })}`;
+    }
+
+    let zoomInAriaLabel = intl.formatMessage(intlMessages.zoomInLabel);
+    if (zoomValue < maxBound) {
+      zoomInAriaLabel += ` ${intl.formatNumber(((zoomValue + step) / 100), { style: 'percent' })}`;
+    }
+
+    const stateZoomPct = intl.formatNumber((stateZoomValue / 100), { style: 'percent' });
+
     return (
       [
         (
@@ -209,9 +174,8 @@ class ZoomTool extends PureComponent {
           >
             <Button
               key="zoom-tool-1"
-              aria-labelledby="zoomOutLabel"
-              aria-describedby="zoomOutDesc"
-              aria-label={intl.formatMessage(intlMessages.zoomOutLabel)}
+              aria-describedby="zoomOutDescription"
+              aria-label={zoomOutAriaLabel}
               label={intl.formatMessage(intlMessages.zoomOutLabel)}
               icon="substract"
               onClick={() => { }}
@@ -220,23 +184,28 @@ class ZoomTool extends PureComponent {
               tooltipDistance={tooltipDistance}
               hideLabel
             />
+            <div id="zoomOutDescription" hidden>{intl.formatMessage(intlMessages.zoomOutDesc)}</div>
           </HoldButton>
         ),
         (
-          <Button
-            key="zoom-tool-2"
-            aria-labelledby="zoomReset"
-            aria-describedby={stateZoomValue}
-            color="default"
-            customIcon={`${stateZoomValue}%`}
-            disabled={!meteorIsConnected}
-            size="md"
-            onClick={() => this.resetZoom()}
-            label={intl.formatMessage(intlMessages.resetZoomLabel)}
-            className={cx(styles.zoomPercentageDisplay, styles.presentationBtn)}
-            tooltipDistance={tooltipDistance}
-            hideLabel
-          />
+          <span key="zoom-tool-2">
+            <Button
+              aria-label={intl.formatMessage(intlMessages.resetZoomLabel)}
+              aria-describedby="resetZoomDescription"
+              disabled={(stateZoomValue === minBound) || !meteorIsConnected}
+              color="default"
+              customIcon={stateZoomPct}
+              size="md"
+              onClick={() => this.resetZoom()}
+              label={intl.formatMessage(intlMessages.resetZoomLabel)}
+              className={cx(styles.zoomPercentageDisplay, styles.presentationBtn)}
+              tooltipDistance={tooltipDistance}
+              hideLabel
+            />
+            <div id="resetZoomDescription" hidden>
+              {intl.formatMessage(intlMessages.currentValue, ({ 0: stateZoomPct }))}
+            </div>
+          </span>
         ),
         (
           <HoldButton
@@ -247,9 +216,8 @@ class ZoomTool extends PureComponent {
           >
             <Button
               key="zoom-tool-3"
-              aria-labelledby="zoomInLabel"
-              aria-describedby="zoomInDesc"
-              aria-label={intl.formatMessage(intlMessages.zoomInLabel)}
+              aria-describedby="zoomInDescription"
+              aria-label={zoomInAriaLabel}
               label={intl.formatMessage(intlMessages.zoomInLabel)}
               icon="add"
               onClick={() => { }}
@@ -258,6 +226,7 @@ class ZoomTool extends PureComponent {
               tooltipDistance={tooltipDistance}
               hideLabel
             />
+            <div id="zoomInDescription" hidden>{intl.formatMessage(intlMessages.zoomInDesc)}</div>
           </HoldButton>
         ),
       ]
@@ -266,12 +235,14 @@ class ZoomTool extends PureComponent {
 }
 
 const propTypes = {
+  intl: intlShape.isRequired,
   zoomValue: PropTypes.number.isRequired,
   change: PropTypes.func.isRequired,
   minBound: PropTypes.number.isRequired,
   maxBound: PropTypes.number.isRequired,
   step: PropTypes.number.isRequired,
   meteorIsConnected: PropTypes.bool.isRequired,
+  tooltipDistance: PropTypes.number.isRequired,
 };
 
 ZoomTool.propTypes = propTypes;

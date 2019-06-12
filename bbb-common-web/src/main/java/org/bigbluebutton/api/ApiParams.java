@@ -48,6 +48,7 @@ public class ApiParams {
     public static final String PARENT_MEETING_ID = "parentMeetingID";
     public static final String PASSWORD = "password";
     public static final String RECORD = "record";
+    public static final String RECORD_ID = "recordID";
     public static final String REDIRECT = "redirect";
     public static final String SEQUENCE = "sequence";
     public static final String VOICE_BRIDGE = "voiceBridge";

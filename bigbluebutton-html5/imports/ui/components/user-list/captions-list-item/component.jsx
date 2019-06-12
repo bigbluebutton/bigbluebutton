@@ -2,15 +2,24 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import Icon from '/imports/ui/components/icon/component';
 import { Session } from 'meteor/session';
+import { defineMessages, injectIntl, intlShape } from 'react-intl';
 import { styles } from './styles';
 
 const propTypes = {
+  intl: intlShape.isRequired,
   locale: PropTypes.shape({
     locale: PropTypes.string.isRequired,
     name: PropTypes.string.isRequired,
   }).isRequired,
   tabIndex: PropTypes.number.isRequired,
 };
+
+const intlMessages = defineMessages({
+  captionLabel: {
+    id: 'app.captions.label',
+    description: 'used for captions button aria label',
+  },
+});
 
 const handleClickToggleCaptions = (locale) => {
   const panel = Session.get('openPanel');
@@ -30,6 +39,7 @@ const handleClickToggleCaptions = (locale) => {
 
 const CaptionsListItem = (props) => {
   const {
+    intl,
     locale,
     tabIndex,
   } = props;
@@ -41,13 +51,14 @@ const CaptionsListItem = (props) => {
       id={locale.locale}
       className={styles.captionsListItem}
       onClick={() => handleClickToggleCaptions(locale.locale)}
+      aria-label={`${locale.name} ${intl.formatMessage(intlMessages.captionLabel)}`}
     >
       <Icon iconName="polling" />
-      <span>{locale.name}</span>
+      <span aria-hidden>{locale.name}</span>
     </div>
   );
 };
 
 CaptionsListItem.propTypes = propTypes;
 
-export default CaptionsListItem;
+export default injectIntl(CaptionsListItem);

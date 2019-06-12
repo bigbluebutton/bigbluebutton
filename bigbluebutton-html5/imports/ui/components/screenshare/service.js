@@ -1,5 +1,6 @@
 import Screenshare from '/imports/api/screenshare';
 import KurentoBridge from '/imports/api/screenshare/client/bridge';
+import Settings from '/imports/ui/services/settings';
 
 // when the meeting information has been updated check to see if it was
 // screensharing. If it has changed either trigger a call to receive video
@@ -39,6 +40,8 @@ const unshareScreen = () => {
   screenShareEndAlert();
 };
 
+const dataSavingSetting = () => Settings.dataSaving.viewScreenshare;
+
 export {
   isVideoBroadcasting,
   presenterScreenshareHasEnded,
@@ -46,4 +49,5 @@ export {
   shareScreen,
   screenShareEndAlert,
   unshareScreen,
+  dataSavingSetting,
 };

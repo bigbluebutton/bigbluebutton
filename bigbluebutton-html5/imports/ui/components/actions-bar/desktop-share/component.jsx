@@ -17,12 +17,17 @@ const propTypes = {
   screenSharingCheck: PropTypes.bool.isRequired,
   screenShareEndAlert: PropTypes.func.isRequired,
   meteorIsConnected: PropTypes.bool.isRequired,
+  screenshareDataSavingSetting: PropTypes.bool.isRequired,
 };
 
 const intlMessages = defineMessages({
   desktopShareLabel: {
     id: 'app.actionsBar.actionsDropdown.desktopShareLabel',
     description: 'Desktop Share option label',
+  },
+  lockedDesktopShareLabel: {
+    id: 'app.actionsBar.actionsDropdown.lockedDesktopShareLabel',
+    description: 'Desktop locked Share option label',
   },
   stopDesktopShareLabel: {
     id: 'app.actionsBar.actionsDropdown.stopDesktopShareLabel',
@@ -59,6 +64,7 @@ const DesktopShare = ({
   screenSharingCheck,
   screenShareEndAlert,
   meteorIsConnected,
+  screenshareDataSavingSetting,
 }) => {
   const onFail = (error) => {
     switch (error) {
@@ -72,16 +78,24 @@ const DesktopShare = ({
     }
     screenShareEndAlert();
   };
+
+  const screenshareLocked = screenshareDataSavingSetting
+    ? intlMessages.desktopShareLabel : intlMessages.lockedDesktopShareLabel;
+
+  const vLabel = isVideoBroadcasting
+    ? intlMessages.stopDesktopShareLabel : screenshareLocked;
+
+  const vDescr = isVideoBroadcasting
+    ? intlMessages.stopDesktopShareDesc : intlMessages.desktopShareDesc;
+
   return (screenSharingCheck && !isMobileBrowser && isUserPresenter
     ? (
       <Button
         className={cx(styles.button, isVideoBroadcasting || styles.btn)}
         disabled={!meteorIsConnected && !isVideoBroadcasting}
         icon={isVideoBroadcasting ? 'desktop' : 'desktop_off'}
-        label={intl.formatMessage(isVideoBroadcasting
-          ? intlMessages.stopDesktopShareLabel : intlMessages.desktopShareLabel)}
-        description={intl.formatMessage(isVideoBroadcasting
-          ? intlMessages.stopDesktopShareDesc : intlMessages.desktopShareDesc)}
+        label={intl.formatMessage(vLabel)}
+        description={intl.formatMessage(vDescr)}
         color={isVideoBroadcasting ? 'primary' : 'default'}
         ghost={!isVideoBroadcasting}
         hideLabel
@@ -89,6 +103,7 @@ const DesktopShare = ({
         size="lg"
         onClick={isVideoBroadcasting ? handleUnshareScreen : () => handleShareScreen(onFail)}
         id={isVideoBroadcasting ? 'unshare-screen-button' : 'share-screen-button'}
+        disabled={!screenshareDataSavingSetting}
       />
     )
     : null);
