@@ -20,6 +20,7 @@ public:
     askForFeedbackOnLogout: false
     allowUserLookup: false
     enableNetworkInformation: false
+    ipv4FallbackDomain: ""
     defaultSettings:
       application:
         animations: true
