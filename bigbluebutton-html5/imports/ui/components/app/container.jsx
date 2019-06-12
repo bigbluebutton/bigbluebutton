@@ -11,6 +11,7 @@ import CaptionsService from '/imports/ui/components/captions/service';
 import getFromUserSettings from '/imports/ui/services/users-settings';
 import deviceInfo from '/imports/utils/deviceInfo';
 import UserInfos from '/imports/api/users-infos';
+import mapUser from '../../services/user/mapUser';
 
 import {
   getFontSize,
@@ -69,6 +70,8 @@ const AppContainer = (props) => {
 
 export default injectIntl(withModalMounter(withTracker(({ intl, baseControls }) => {
   const currentUser = Users.findOne({ userId: Auth.userID });
+  const currentMeeting = Meetings.findOne({ meetingId: Auth.meetingID });
+  const { publishedPoll, voiceProp } = currentMeeting;
 
   if (!currentUser.approved) {
     baseControls.updateLoadingState(intl.formatMessage(intlMessages.waitingApprovalMessage));
@@ -101,7 +104,9 @@ export default injectIntl(withModalMounter(withTracker(({ intl, baseControls }) 
     notify,
     validIOSVersion,
     isPhone: deviceInfo.type().isPhone,
-    hasPublishedPoll: Meetings.findOne({ meetingId: Auth.meetingID }).publishedPoll,
+    meetingMuted: voiceProp.muteOnStart,
+    currentUserEmoji: mapUser(currentUser).emoji,
+    hasPublishedPoll: publishedPoll,
   };
 })(AppContainer)));
 

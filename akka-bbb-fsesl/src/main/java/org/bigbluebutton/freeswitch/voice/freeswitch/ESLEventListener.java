@@ -11,8 +11,11 @@ import org.bigbluebutton.freeswitch.voice.events.ScreenshareStartedEvent;
 import org.freeswitch.esl.client.IEslEventListener;
 import org.freeswitch.esl.client.transport.event.EslEvent;
 import org.jboss.netty.channel.ExceptionEvent;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class ESLEventListener implements IEslEventListener {
+    private static Logger log = LoggerFactory.getLogger(ESLEventListener.class);
 
     private static final String START_TALKING_EVENT = "start-talking";
     private static final String STOP_TALKING_EVENT = "stop-talking";
@@ -83,7 +86,24 @@ public class ESLEventListener implements IEslEventListener {
                 voiceUserId = "v_" + memberId.toString();
             }
 
-            VoiceUserJoinedEvent pj = new VoiceUserJoinedEvent(voiceUserId, memberId.toString(), confName, callerId, callerIdName, muted, speaking, "none");
+            String callerUUID = this.getMemberUUIDFromEvent(event);
+            log.info("Caller joined: conf=" + confName +
+                    ",uuid=" + callerUUID +
+                    ",memberId=" + memberId +
+                    ",callerId=" + callerId +
+                    ",callerIdName=" + callerIdName +
+                    ",muted=" + muted +
+                    ",talking=" + speaking
+                    );
+
+            VoiceUserJoinedEvent pj = new VoiceUserJoinedEvent(voiceUserId,
+                    memberId.toString(),
+                    confName,
+                    callerId,
+                    callerIdName,
+                    muted,
+                    speaking,
+                    "none");
             conferenceEventListener.handleConferenceEvent(pj);
         }
     }
@@ -100,6 +120,13 @@ public class ESLEventListener implements IEslEventListener {
             DeskShareEndedEvent dsEnd = new DeskShareEndedEvent(confName, callerId, callerIdName);
             conferenceEventListener.handleConferenceEvent(dsEnd);
         } else {
+            String callerUUID = this.getMemberUUIDFromEvent(event);
+            log.info("Caller left: conf=" + confName +
+                    ",uuid=" + callerUUID +
+                    ",memberId=" + memberId +
+                    ",callerId=" + callerId +
+                    ",callerIdName=" + callerIdName
+            );
             VoiceUserLeftEvent pl = new VoiceUserLeftEvent(memberId.toString(), confName);
             conferenceEventListener.handleConferenceEvent(pl);
         }
@@ -226,6 +253,19 @@ public class ESLEventListener implements IEslEventListener {
     private String getCallerIdFromEvent(EslEvent e) {
         return e.getEventHeaders().get("Caller-Caller-ID-Number");
     }
+
+    private String getMemberUUIDFromEvent(EslEvent e) {
+        return e.getEventHeaders().get("Caller-Unique-ID");
+    }
+
+    private String getCallerChannelCreateTimeFromEvent(EslEvent e) {
+        return e.getEventHeaders().get("Caller-Channel-Created-Time");
+    }
+
+    private String getCallerChannelHangupTimeFromEvent(EslEvent e) {
+        return e.getEventHeaders().get("Caller-Channel-Hangup-Time");
+    }
+
 
     private String getCallerIdNameFromEvent(EslEvent e) {
         return e.getEventHeaders().get("Caller-Caller-ID-Name");

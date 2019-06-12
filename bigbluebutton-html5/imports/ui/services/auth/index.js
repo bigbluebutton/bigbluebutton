@@ -200,7 +200,6 @@ class Auth {
     return new Promise((resolve, reject) => {
       Meteor.connection.setUserId(`${this.meetingID}-${this.userID}`);
       let computation = null;
-      let currentUserHandler = null;
 
       const validationTimeout = setTimeout(() => {
         computation.stop();
@@ -212,10 +211,7 @@ class Auth {
 
       Tracker.autorun((c) => {
         computation = c;
-
-        if (!currentUserHandler) {
-          currentUserHandler = Meteor.subscribe('current-user', this.credentials);
-        }
+        Meteor.subscribe('current-user', this.credentials);
 
         const selector = { meetingId: this.meetingID, userId: this.userID };
         const User = Users.findOne(selector);

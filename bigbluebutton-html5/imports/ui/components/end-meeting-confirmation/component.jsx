@@ -49,6 +49,7 @@ class EndMeetingComponent extends React.PureComponent {
           </div>
           <div className={styles.footer}>
             <Button
+              data-test="confirmEndMeeting"
               color="primary"
               className={styles.button}
               label={intl.formatMessage(intlMessages.yesLabel)}

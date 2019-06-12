@@ -1,0 +1,13 @@
+@import "../../stylesheets/variables/_all";
+
+:root {
+  --video-width: 10vw;
+  --video-ratio: calc(4 / 3);
+}
+
+
+@include mq($small-only) {
+  :root {
+    --video-width: 20vw;
+  }
+}

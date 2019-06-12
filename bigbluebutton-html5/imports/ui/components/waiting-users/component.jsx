@@ -216,10 +216,10 @@ const WaitingUsers = (props) => {
             ))
           }
         </div>
-        <div>
-          <label htmlFor="remiderUsersId" className={styles.rememberContainer}>
-            <input id="remiderUsersId" type="checkbox" onChange={onCheckBoxChange} />
-            <p>{intl.formatMessage(intlMessages.rememberChoice)}</p>
+        <div className={styles.rememberContainer}>
+          <input id="rememderCheckboxId" type="checkbox" onChange={onCheckBoxChange} />
+          <label htmlFor="rememderCheckboxId">
+            {intl.formatMessage(intlMessages.rememberChoice)}
           </label>
         </div>
         {renderPendingUsers(

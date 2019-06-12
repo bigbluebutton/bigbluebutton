@@ -403,21 +403,48 @@ public class MeetingService implements MessageListener {
       return null;
   }
 
+  public Boolean validateTextTrackSingleUseToken(String recordId, String caption, String token) {
+    return recordingService.validateTextTrackSingleUseToken(recordId, caption, token);
+  }
+
   public String getRecordingTextTracks(String recordId) {
     return recordingService.getRecordingTextTracks(recordId);
   }
 
   public String putRecordingTextTrack(String recordId, String kind, String lang, File file, String label,
-          String origFilename, String trackId) {
+          String origFilename, String trackId, String contentType, String tempFilename) {
+
+    Map<String, Object> logData = new HashMap<>();
+    logData.put("recordId", recordId);
+    logData.put("kind", kind);
+    logData.put("lang", lang);
+    logData.put("label", label);
+    logData.put("origFilename", origFilename);
+    logData.put("contentType", contentType);
+    logData.put("tempFilename", tempFilename);
+    logData.put("logCode", "recording_captions_uploaded");
+    logData.put("description", "Captions for recording uploaded.");
+
+    Gson gson = new Gson();
+    String logStr = gson.toJson(logData);
+    log.info(" --analytics-- data={}", logStr);
 
       UploadedTrack track = new UploadedTrack(recordId, kind, lang, label, origFilename, file, trackId,
-              getCaptionTrackInboxDir());
+              getCaptionTrackInboxDir(), contentType, tempFilename);
       return recordingService.putRecordingTextTrack(track);
   }
 
   public String getCaptionTrackInboxDir() {
   	return recordingService.getCaptionTrackInboxDir();
-	}
+  }
+  
+  public String getCaptionsDir() {
+    return recordingService.getCaptionsDir();
+  }
+
+  public boolean isRecordingExist(String recordId) {
+    return recordingService.isRecordingExist(recordId);
+  }
 
   public String getRecordings2x(List<String> idList, List<String> states, Map<String, String> metadataFilters) {
     return recordingService.getRecordings2x(idList, states, metadataFilters);

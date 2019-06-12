@@ -45,6 +45,24 @@ const toUnifiedPlan = (planBSDP) => {
   return unifiedPlanSDP;
 };
 
+const stripMDnsCandidates = (sdp) => {
+  const parsedSDP = transform.parse(sdp);
+  let strippedCandidates = 0;
+  parsedSDP.media.forEach((media) => {
+    media.candidates = media.candidates.filter((candidate) => {
+      if (candidate.ip && candidate.ip.indexOf('.local') === -1) {
+        return true;
+      }
+      strippedCandidates += 1;
+      return false;
+    });
+  });
+  if (strippedCandidates > 0) {
+    logger.info({ logCode: 'sdp_utils_mdns_candidate_strip' }, `Stripped ${strippedCandidates} mDNS candidates`);
+  }
+  return transform.write(parsedSDP);
+};
+
 export {
-  interop, isUnifiedPlan, toPlanB, toUnifiedPlan,
+  interop, isUnifiedPlan, toPlanB, toUnifiedPlan, stripMDnsCandidates,
 };

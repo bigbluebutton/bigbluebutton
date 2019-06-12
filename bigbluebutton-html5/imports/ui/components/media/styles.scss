@@ -1,4 +1,5 @@
 @import "../../stylesheets/variables/_all";
+@import "../../stylesheets/variables/video";
 
 .container {
   order: 1;
@@ -18,20 +19,40 @@
   overflow: auto;
   width: 100%;
   position: relative;
+  order: 2;
 }
 
 .overlay {
-  flex: 1;
   display: flex;
-  order: 1;
   width: 100%;
-  border: 5px solid transparent;
-  border-top: 0 !important;
-  position: relative;
+  border: 0;
+  margin-top: 10px;
+  margin-bottom: 10px;
+  z-index: 2;
+  align-items: center;
+  
+  min-height: calc(var(--video-width) / var(--video-ratio));
+}
 
-  @include mq($medium-up) {
-    border: 10px solid transparent;
-  }
+.overlayRelative{
+  position: relative;
+}
+
+.overlayAbsoluteSingle{
+  position: absolute;
+  height: calc(var(--video-width) / var(--video-ratio));
+}
+
+.overlayAbsoluteMult{
+  position: absolute;
+}
+
+.overlayToTop {
+  order: 3;
+}
+
+.overlayToBottom {
+  order: 1;
 }
 
 .hideOverlay {
@@ -44,28 +65,60 @@
 }
 
 .floatingOverlay {
-  --overlay-width: 20vw;
-  --overlay-min-width: 235px;
-  --overlay-max-width: 20vw;
-  --overlay-ratio: calc(16 / 9);
+  margin: 10px;
 
   @include mq($medium-up) {
     z-index: 999;
-    position: fixed;
-    margin: 0;
-    bottom: .8rem;
-    left: auto;
-    right: .8rem;
-    width: var(--overlay-width);
-    min-width: var(--overlay-min-width);
-    max-width: var(--overlay-max-width);
-    height: calc(var(--overlay-width) / var(--overlay-ratio));
-    min-height: calc(var(--overlay-min-width) / var(--overlay-ratio));
-    max-height: calc(var(--overlay-max-width) / var(--overlay-ratio));
-
-    [dir="rtl"] & {
-      right: auto;
-      left: .8rem;
-    }
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    width: var(--video-width);
+    min-width: var(--video-width);
+    max-width: var(--video-max-width);
+    height: calc(var(--video-width) / var(--video-ratio));
+    min-height: calc(var(--video-width) / var(--video-ratio));
   }
+}
+
+.hide {
+  display: none;
+}
+
+.show {
+  display: block;
+}
+
+.top {
+  top: 0;
+}
+
+.bottom {
+  bottom: 0;
+}
+
+.dragging {
+  opacity: .5;
+}
+
+.dropZoneTop,
+.dropZoneBottom {
+  border: 1px dashed var(--color-gray-light);
+  position: absolute;
+  width: 100%;
+  z-index: 9999;
+}
+
+.dropZoneTop {
+  top: 0;
+}
+
+.dropZoneBottom {
+  bottom: 0;
+}
+
+.dropZoneBg {
+  position: absolute;
+  z-index: 99;
+  width: 100%;
+  background-color: rgba(255, 255, 255, .3);
 }

@@ -30,17 +30,6 @@ const init = (messages, intl) => {
   AudioManager.init(userData);
 };
 
-const audioLocked = () => {
-  const userId = Auth.userID;
-  const User = mapUser(Users.findOne({ userId }));
-
-  const Meeting = Meetings.findOne({ meetingId: Auth.meetingID });
-  const lockSetting = Meeting.lockSettingsProps;
-  const audioLock = lockSetting ? lockSetting.disableMic : false;
-
-  return audioLock && User.isLocked;
-};
-
 const currentUser = () => mapUser(Users.findOne({ intId: Auth.userID }));
 
 export default {
@@ -66,6 +55,5 @@ export default {
   isEchoTest: () => AudioManager.isEchoTest,
   error: () => AudioManager.error,
   isUserModerator: () => Users.findOne({ userId: Auth.userID }).moderator,
-  audioLocked,
   currentUser,
 };

@@ -89,7 +89,10 @@ export default class KurentoAudioBridge extends BaseAudioBridge {
         };
 
         const onFail = (error) => {
-          const { reason } = error;
+          let reason = 'Undefined';
+          if (error) {
+            reason = error.reason || error.id || error;
+          }
           this.callback({
             status: this.baseCallStates.failed,
             error: this.baseErrorCodes.CONNECTION_ERROR,

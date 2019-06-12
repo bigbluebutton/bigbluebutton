@@ -170,7 +170,7 @@ class MeetingEnded extends React.PureComponent {
       <div className={styles.parent}>
         <div className={styles.modal}>
           <div className={styles.content}>
-            <h1 className={styles.title}>
+            <h1 className={styles.title} data-test="meetingEndedModalTitle">
               {
                 intl.formatMessage(intlMessage[code] || intlMessage[430])
               }

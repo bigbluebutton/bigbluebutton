@@ -34,5 +34,13 @@
         alias="${cert.alias}" />
     </target>
 
+  <target name="resign-ffmpeg-jar" depends="get-alias-name">
+      <signjar jar="workdir/ffmpeg-win-x86-svc2.jar"
+        storetype="pkcs12"
+        keystore="${cert.name}"
+        storepass="${cert.password}"
+        alias="${cert.alias}" />
+    </target>
+
 	
 </project>

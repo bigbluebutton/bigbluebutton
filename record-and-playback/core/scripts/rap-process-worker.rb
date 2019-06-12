@@ -45,6 +45,12 @@ def process_archived_meetings(recording_dir)
 
     step_succeeded = true
 
+    # Generate captions
+    ret = BigBlueButton.exec_ret('ruby', 'utils/captions.rb', '-m', meeting_id)
+    if ret != 0
+      BigBlueButton.logger.warn("Failed to generate caption files #{ret}")
+    end
+
     # Iterate over the list of recording processing scripts to find available
     # types. For now, we look for the ".rb" extension - TODO other scripting
     # languages?
