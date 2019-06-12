@@ -166,7 +166,7 @@ class ActionsDropdown extends Component {
       (CaptionsService.isCaptionsEnabled()
         ? (
           <DropdownListItem
-            icon="polling"
+            icon="closed_caption"
             label={formatMessage(captionsLabel)}
             description={formatMessage(captionsDesc)}
             key={this.captionsId}
