@@ -57,7 +57,7 @@
     "app.userList.menuTitleContext": "Available options",
     "app.userList.chatListItem.unreadSingular": "{0} New Message",
     "app.userList.chatListItem.unreadPlural": "{0} New Messages",
-    "app.userList.menu.chat.label": "Start private chat",
+    "app.userList.menu.chat.label": "Start a private chat",
     "app.userList.menu.clearStatus.label": "Clear status",
     "app.userList.menu.removeUser.label": "Remove user",
     "app.userList.menu.muteUserAudio.label": "Mute user",
