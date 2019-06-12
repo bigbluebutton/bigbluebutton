@@ -30,6 +30,7 @@ export default function addUser(meetingId, user) {
     guestStatus: String,
     emoji: String,
     presenter: Boolean,
+    moderator: Boolean,
     locked: Boolean,
     avatar: String,
     clientType: String,

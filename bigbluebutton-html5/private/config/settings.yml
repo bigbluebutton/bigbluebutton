@@ -20,6 +20,8 @@ public:
     askForFeedbackOnLogout: false
     allowUserLookup: false
     enableNetworkInformation: false
+    enableLimitOfViewersInWebcam: false
+    viewersInWebcam: 8
     defaultSettings:
       application:
         animations: true
