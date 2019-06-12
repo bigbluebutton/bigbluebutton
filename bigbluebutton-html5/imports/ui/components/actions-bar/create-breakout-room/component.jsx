@@ -245,12 +245,15 @@ class BreakoutRoom extends Component {
 
   onAssignRandomly() {
     const { numberOfRooms } = this.state;
-    return this.getUserByRoom(0)
-      .filter(user => !user.isModerator)
-      .forEach(user => this.changeUserRoom(
-        user.userId,
-        Math.floor(Math.random() * (numberOfRooms) + 1),
-      ));
+    const { users } = this.state;
+    const viewers = users.filter(user => !user.isModerator);
+    while (viewers.length > 0) {
+      for (let i = 1; i <= numberOfRooms && viewers.length > 0; i++) {
+        const userIdx = Math.floor(Math.random() * (viewers.length));
+        this.changeUserRoom(viewers[userIdx].userId, i);
+        viewers.splice(userIdx, 1);
+      }
+    }
   }
 
 
