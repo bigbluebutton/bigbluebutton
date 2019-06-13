@@ -112,7 +112,7 @@ public:
             max: 320
           height:
             max: 240
-        bitrate: 300
+        bitrate: 200
       - id: high
         name: High quality
         default: false
