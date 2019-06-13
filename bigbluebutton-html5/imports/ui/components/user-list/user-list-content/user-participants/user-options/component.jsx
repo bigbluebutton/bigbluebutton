@@ -11,6 +11,8 @@ import DropdownList from '/imports/ui/components/dropdown/list/component';
 import DropdownListItem from '/imports/ui/components/dropdown/list/item/component';
 import LockViewersContainer from '/imports/ui/components/lock-viewers/container';
 import BreakoutRoom from '/imports/ui/components/actions-bar/create-breakout-room/container';
+import CaptionsService from '/imports/ui/components/captions/service';
+import CaptionsWriterMenu from '/imports/ui/components/captions/writer-menu/container';
 import { styles } from './styles';
 
 const propTypes = {
@@ -90,6 +92,14 @@ const intlMessages = defineMessages({
     id: 'app.actionsBar.actionsDropdown.saveUserNames',
     description: 'Save user name feature description',
   },
+  captionsLabel: {
+    id: 'app.actionsBar.actionsDropdown.captionsLabel',
+    description: 'Captions menu toggle label',
+  },
+  captionsDesc: {
+    id: 'app.actionsBar.actionsDropdown.captionsDesc',
+    description: 'Captions menu toggle description',
+  },
 });
 
 class UserOptions extends PureComponent {
@@ -106,10 +116,12 @@ class UserOptions extends PureComponent {
     this.lockId = _.uniqueId('list-item-');
     this.createBreakoutId = _.uniqueId('list-item-');
     this.saveUsersNameId = _.uniqueId('list-item-');
+    this.captionsId = _.uniqueId('action-item-');
 
     this.onActionsShow = this.onActionsShow.bind(this);
     this.onActionsHide = this.onActionsHide.bind(this);
     this.handleCreateBreakoutRoomClick = this.handleCreateBreakoutRoomClick.bind(this);
+    this.handleCaptionsClick = this.handleCaptionsClick.bind(this);
     this.onCreateBreakouts = this.onCreateBreakouts.bind(this);
     this.onInvitationUsers = this.onInvitationUsers.bind(this);
     this.renderMenuItems = this.renderMenuItems.bind(this);
@@ -165,6 +177,11 @@ class UserOptions extends PureComponent {
         }}
       />,
     );
+  }
+
+  handleCaptionsClick() {
+    const { mountModal } = this.props;
+    mountModal(<CaptionsWriterMenu />);
   }
 
   renderMenuItems() {
@@ -242,6 +259,17 @@ class UserOptions extends PureComponent {
             label={intl.formatMessage(intlMessages.invitationItem)}
             key={this.createBreakoutId}
             onClick={this.onInvitationUsers}
+          />
+        )
+        : null),
+      (isUserModerator && CaptionsService.isCaptionsEnabled()
+        ? (
+          <DropdownListItem
+            icon="closed_caption"
+            label={intl.formatMessage(intlMessages.captionsLabel)}
+            description={intl.formatMessage(intlMessages.captionsDesc)}
+            key={this.captionsId}
+            onClick={this.handleCaptionsClick}
           />
         )
         : null),
