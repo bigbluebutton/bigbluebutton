@@ -17,7 +17,6 @@ import AudioContainer from '../audio/container';
 import ChatAlertContainer from '../chat/alert/container';
 import BannerBarContainer from '/imports/ui/components/banner-bar/container';
 import WaitingNotifierContainer from '/imports/ui/components/waiting-users/alert/container';
-import { startBandwidthMonitoring, updateNavigatorConnection } from '/imports/ui/services/network-information/index';
 import LockNotifier from '/imports/ui/components/lock-viewers/notify/container';
 
 import { styles } from './styles';
@@ -76,6 +75,7 @@ const propTypes = {
   sidebar: PropTypes.element,
   media: PropTypes.element,
   actionsbar: PropTypes.element,
+  captions: PropTypes.element,
   locale: PropTypes.string,
   intl: intlShape.isRequired,
 };
@@ -92,8 +92,6 @@ const defaultProps = {
 const LAYERED_BREAKPOINT = 640;
 const isLayeredView = window.matchMedia(`(max-width: ${LAYERED_BREAKPOINT}px)`);
 
-const handleNetworkConnection = () => updateNavigatorConnection(navigator.connection);
-
 class App extends Component {
   constructor() {
     super();
@@ -108,7 +106,7 @@ class App extends Component {
 
   componentDidMount() {
     const {
-      locale, notify, intl, validIOSVersion,
+      locale, notify, intl, validIOSVersion, startBandwidthMonitoring, handleNetworkConnection,
     } = this.props;
     const BROWSER_RESULTS = browser();
     const isMobileBrowser = BROWSER_RESULTS.mobile || BROWSER_RESULTS.os.includes('Android');
@@ -184,6 +182,7 @@ class App extends Component {
   }
 
   componentWillUnmount() {
+    const { handleNetworkConnection } = this.props;
     window.removeEventListener('resize', this.handleWindowResize, false);
     if (navigator.connection) {
       navigator.connection.addEventListener('change', handleNetworkConnection, false);
