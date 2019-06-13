@@ -10,8 +10,6 @@ import Modal from '/imports/ui/components/modal/simple/component';
 import browser from 'browser-detect';
 import { styles } from './styles';
 
-
-// const VIDEO_CONSTRAINTS = Meteor.settings.public.kurento.cameraConstraints;
 const CAMERA_PROFILES = Meteor.settings.public.kurento.cameraProfiles;
 
 const propTypes = {
