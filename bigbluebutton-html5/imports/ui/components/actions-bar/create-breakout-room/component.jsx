@@ -246,11 +246,18 @@ class BreakoutRoom extends Component {
   onAssignRandomly() {
     const { numberOfRooms } = this.state;
     const { users } = this.state;
+    // We only want to assign viewers so filter out the moderators. We also want to get
+    // all users each run so that clicking the button again will reshuffle
     const viewers = users.filter(user => !user.isModerator);
+    // We want to keep assigning users until all viewers have been assigned a room
     while (viewers.length > 0) {
+      // We cycle through the rooms picking one user for each room so that the rooms
+      // will have an equal number of people in each one
       for (let i = 1; i <= numberOfRooms && viewers.length > 0; i++) {
+        // Select a random user for the room
         const userIdx = Math.floor(Math.random() * (viewers.length));
         this.changeUserRoom(viewers[userIdx].userId, i);
+        // Remove the picked user so they aren't selected again
         viewers.splice(userIdx, 1);
       }
     }
