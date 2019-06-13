@@ -594,7 +594,7 @@ Kurento.prototype.ping = function () {
 
 Kurento.prototype.sendMessage = function (message) {
   const jsonMessage = JSON.stringify(message);
-  this.logger.info('Sending message:', { message });
+  this.logger.debug('Sending message:', { message });
   this.ws.send(jsonMessage);
 };
 
