@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import Button from '/imports/ui/components/button/component';
 import _ from 'lodash';
+import cx from 'classnames';
 import { styles } from '../styles';
 
 export default class ToolbarMenuItem extends Component {
@@ -77,10 +78,14 @@ export default class ToolbarMenuItem extends Component {
       onBlur,
       className,
       children,
+      showCornerTriangle,
     } = this.props;
 
     return (
-      <div className={styles.buttonWrapper} hidden={disabled}>
+      <div
+        className={cx(styles.buttonWrapper, !showCornerTriangle || styles.cornerTriangle)}
+        hidden={disabled}
+      >
         <Button
           hideLabel
           role="button"
@@ -122,6 +127,7 @@ ToolbarMenuItem.propTypes = {
   label: PropTypes.string.isRequired,
   className: PropTypes.string.isRequired,
   disabled: PropTypes.bool,
+  showCornerTriangle: PropTypes.bool,
 };
 
 ToolbarMenuItem.defaultProps = {
@@ -131,4 +137,5 @@ ToolbarMenuItem.defaultProps = {
   onBlur: null,
   children: null,
   disabled: false,
+  showCornerTriangle: false,
 };
