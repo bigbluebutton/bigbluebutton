@@ -1,4 +1,13 @@
-package org.bigbluebutton
+package org.bigbluebutton.lti.controllers
+
+import net.oauth.OAuthMessage
+import net.oauth.signature.HMAC_SHA1
+import net.oauth.signature.HMAC_SHA256
+import org.bigbluebutton.lti.Parameter
+import org.bigbluebutton.BigbluebuttonService
+import org.bigbluebutton.LtiService
+import java.text.DateFormat
+
 /*
     BigBlueButton open source conferencing system - http://www.bigbluebutton.org/
 
@@ -10,28 +19,15 @@ package org.bigbluebutton
     version.
 
     BigBlueButton is distributed in the hope that it will be useful, but WITHOUT ANY
-    WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
+    WARRANTY; without even the implied warranty of MERCHANTABIL ITY or FITNESS FOR A
     PARTICULAR PURPOSE. See the GNU Lesser General Public License for more details.
 
     You should have received a copy of the GNU Lesser General Public License along
     with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 */
 
-import java.text.DateFormat
 import java.text.SimpleDateFormat
-import java.util.ArrayList
-import java.util.HashMap
-import java.util.List
-import java.util.Map
-import java.util.Properties
-
-import org.apache.commons.codec.digest.DigestUtils
-
-import net.oauth.OAuthMessage
-import net.oauth.signature.OAuthSignatureMethod
-import net.oauth.signature.HMAC_SHA1
-import net.oauth.signature.HMAC_SHA256
-import org.bigbluebutton.lti.Parameter
+import java.util.*
 
 class ToolController {
     private static final String CONTROLLER_NAME = 'ToolController'
