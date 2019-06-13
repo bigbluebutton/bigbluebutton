@@ -17,7 +17,6 @@ import AudioContainer from '../audio/container';
 import ChatAlertContainer from '../chat/alert/container';
 import BannerBarContainer from '/imports/ui/components/banner-bar/container';
 import WaitingNotifierContainer from '/imports/ui/components/waiting-users/alert/container';
-import { startBandwidthMonitoring, updateNavigatorConnection } from '/imports/ui/services/network-information/index';
 import LockNotifier from '/imports/ui/components/lock-viewers/notify/container';
 
 import { styles } from './styles';
@@ -77,8 +76,6 @@ const propTypes = {
   media: PropTypes.element,
   actionsbar: PropTypes.element,
   captions: PropTypes.element,
-  userListIsOpen: PropTypes.bool.isRequired,
-  chatIsOpen: PropTypes.bool.isRequired,
   locale: PropTypes.string,
   intl: intlShape.isRequired,
 };
@@ -92,6 +89,9 @@ const defaultProps = {
   locale: 'en',
 };
 
+const LAYERED_BREAKPOINT = 640;
+const isLayeredView = window.matchMedia(`(max-width: ${LAYERED_BREAKPOINT}px)`);
+
 class App extends Component {
   constructor() {
     super();
@@ -101,11 +101,12 @@ class App extends Component {
     };
 
     this.handleWindowResize = throttle(this.handleWindowResize).bind(this);
+    this.shouldAriaHide = this.shouldAriaHide.bind(this);
   }
 
   componentDidMount() {
     const {
-      locale, notify, intl, validIOSVersion,
+      locale, notify, intl, validIOSVersion, startBandwidthMonitoring, handleNetworkConnection,
     } = this.props;
     const BROWSER_RESULTS = browser();
     const isMobileBrowser = BROWSER_RESULTS.mobile || BROWSER_RESULTS.os.includes('Android');
@@ -133,8 +134,8 @@ class App extends Component {
 
     if (ENABLE_NETWORK_MONITORING) {
       if (navigator.connection) {
-        this.handleNetworkConnection();
-        navigator.connection.addEventListener('change', this.handleNetworkConnection);
+        handleNetworkConnection();
+        navigator.connection.addEventListener('change', handleNetworkConnection);
       }
 
       startBandwidthMonitoring();
@@ -181,9 +182,10 @@ class App extends Component {
   }
 
   componentWillUnmount() {
+    const { handleNetworkConnection } = this.props;
     window.removeEventListener('resize', this.handleWindowResize, false);
     if (navigator.connection) {
-      navigator.connection.addEventListener('change', this.handleNetworkConnection, false);
+      navigator.connection.addEventListener('change', handleNetworkConnection, false);
     }
   }
 
@@ -195,8 +197,9 @@ class App extends Component {
     this.setState({ enableResize: shouldEnableResize });
   }
 
-  handleNetworkConnection() {
-    updateNavigatorConnection(navigator.connection);
+  shouldAriaHide() {
+    const { openPanel, isPhone } = this.props;
+    return openPanel !== '' && (isPhone || isLayeredView.matches);
   }
 
   renderPanel() {
@@ -209,6 +212,7 @@ class App extends Component {
           openPanel,
           enableResize,
         }}
+        shouldAriaHide={this.shouldAriaHide}
       />
     );
   }
@@ -251,7 +255,8 @@ class App extends Component {
 
   renderMedia() {
     const {
-      media, intl, chatIsOpen, userListIsOpen,
+      media,
+      intl,
     } = this.props;
 
     if (!media) return null;
@@ -260,7 +265,7 @@ class App extends Component {
       <section
         className={styles.media}
         aria-label={intl.formatMessage(intlMessages.mediaLabel)}
-        aria-hidden={userListIsOpen || chatIsOpen}
+        aria-hidden={this.shouldAriaHide()}
       >
         {media}
         {this.renderCaptions()}
@@ -270,7 +275,8 @@ class App extends Component {
 
   renderActionsBar() {
     const {
-      actionsbar, intl, userListIsOpen, chatIsOpen,
+      actionsbar,
+      intl,
     } = this.props;
 
     if (!actionsbar) return null;
@@ -279,7 +285,7 @@ class App extends Component {
       <section
         className={styles.actionsbar}
         aria-label={intl.formatMessage(intlMessages.actionsBarLabel)}
-        aria-hidden={userListIsOpen || chatIsOpen}
+        aria-hidden={this.shouldAriaHide()}
       >
         {actionsbar}
       </section>
