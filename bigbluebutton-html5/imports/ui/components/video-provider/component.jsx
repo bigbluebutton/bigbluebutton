@@ -519,7 +519,7 @@ class VideoProvider extends Component {
       const cameraProfile = CAMERA_PROFILES.find(profile => profile.id === profileId)
         || CAMERA_PROFILES.find(profile => profile.default)
         || CAMERA_PROFILES[0];
-      const { constraints } = cameraProfile;
+      const { constraints, bitrate } = cameraProfile;
       if (Session.get('WebcamDeviceId')) {
         constraints.deviceId = { exact: Session.get('WebcamDeviceId') };
       }
@@ -573,6 +573,7 @@ class VideoProvider extends Component {
             cameraId: id,
             meetingId,
             voiceBridge,
+            bitrate,
           };
           this.sendMessage(message);
           return true;
