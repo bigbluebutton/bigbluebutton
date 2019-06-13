@@ -19,6 +19,7 @@ public:
     basename: "/html5client"
     askForFeedbackOnLogout: false
     allowUserLookup: false
+    ipv4FallbackDomain: ""
     defaultSettings:
       application:
         animations: true
