@@ -21,6 +21,22 @@ const intlMessages = defineMessages({
     id: 'app.captions.pad.ownership',
     description: 'Label for taking ownership of closed captions pad',
   },
+  dictationStart: {
+    id: 'app.captions.pad.dictationStart',
+    description: 'Label for starting speech recognition',
+  },
+  dictationStop: {
+    id: 'app.captions.pad.dictationStop',
+    description: 'Label for stoping speech recognition',
+  },
+  dictationOnDesc: {
+    id: 'app.captions.pad.dictationOnDesc',
+    description: 'Aria description for button that turns on speech recognition',
+  },
+  dictationOffDesc: {
+    id: 'app.captions.pad.dictationOffDesc',
+    description: 'Aria description for button that turns off speech recognition',
+  },
 });
 
 const propTypes = {
@@ -31,26 +47,23 @@ const propTypes = {
   name: PropTypes.string.isRequired,
   amIModerator: PropTypes.bool.isRequired,
   editCaptions: PropTypes.func.isRequired,
+  initVoiceRecognition: PropTypes.func.isRequired,
   intl: PropTypes.shape({
     formatMessage: PropTypes.func.isRequired,
   }).isRequired,
 };
 
-
 class Pad extends Component {
-  constructor() {
-    super();
+  constructor(props) {
+    super(props);
+
     this.state = {
       listening: false,
       text: '',
     };
 
-    const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
-    this.recognition = new SR();
-
-    this.recognition.continuous = true;
-    this.recognition.interimResults = true;
-    this.recognition.lang = 'en-CA';
+    const { initVoiceRecognition } = props;
+    this.recognition = initVoiceRecognition();
 
     this.toggleListen = this.toggleListen.bind(this);
     this.handleListen = this.handleListen.bind(this);
@@ -62,12 +75,13 @@ class Pad extends Component {
       listening,
     } = this.state;
 
-    if (nextState.text !== text && nextState.text !== '') {
+    const padTextUpdate = nextState.text !== text && nextState.text !== '';
+    const listeningUpdate = nextState.listening !== listening;
+
+    if (padTextUpdate || listeningUpdate) {
       return true;
     }
-    if (nextState.listening !== listening) {
-      return true;
-    }
+
     return false;
   }
 
@@ -160,11 +174,23 @@ class Pad extends Component {
               className={styles.hideBtn}
             />
           </div>
-          <Button
-            onClick={() => { this.toggleListen(); }}
-            label="Voice Recognition"
-            color="primary"
-          />
+          <span>
+            <Button
+              onClick={() => { this.toggleListen(); }}
+              label={listening
+                ? intl.formatMessage(intlMessages.dictationStop)
+                : intl.formatMessage(intlMessages.dictationStart)
+              }
+              aria-describedby="dictationBtnDesc"
+              color="primary"
+            />
+            <div id="dictationBtnDesc" hidden>
+              {listening
+                ? intl.formatMessage(intlMessages.dictationOffDesc)
+                : intl.formatMessage(intlMessages.dictationOnDesc)
+              }
+            </div>
+          </span>
           {CaptionsService.canIOwnThisPad(ownerId)
             ? (
               <Button

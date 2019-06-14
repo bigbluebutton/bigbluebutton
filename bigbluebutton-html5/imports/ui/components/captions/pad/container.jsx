@@ -30,6 +30,18 @@ export default withTracker(() => {
 
   const { name } = caption ? caption.locale : '';
 
+  const initVoiceRecognition = (lang = 'en-CA') => {
+    const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+    let recognition = null;
+    if (SR) {
+      recognition = new SR();
+      recognition.continuous = true;
+      recognition.interimResults = true;
+      recognition.lang = lang;
+    }
+    return recognition;
+  };
+
   return {
     locale,
     name,
@@ -38,5 +50,6 @@ export default withTracker(() => {
     readOnlyPadId,
     amIModerator: CaptionsService.amIModerator(),
     editCaptions,
+    initVoiceRecognition,
   };
 })(PadContainer);
