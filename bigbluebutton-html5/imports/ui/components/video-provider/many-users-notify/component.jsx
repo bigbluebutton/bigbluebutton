@@ -3,25 +3,24 @@ import { defineMessages, injectIntl } from 'react-intl';
 import { notify } from '/imports/ui/services/notification';
 import Button from '/imports/ui/components/button/component';
 import { toast } from 'react-toastify';
-import _ from 'lodash';
 import { styles } from './styles';
 
 const intlMessages = defineMessages({
   suggestLockTitle: {
     id: 'app.video.suggestWebcamLock',
-    description: 'Error message for ice candidate fail',
+    description: 'Label for notification title',
   },
   suggestLockReason: {
     id: 'app.video.suggestWebcamLockReason',
-    description: 'Error message for ice candidate fail',
+    description: 'Reason for activate the webcams\'s lock',
   },
   enable: {
     id: 'app.video.enable',
-    description: 'Error message for ice candidate fail',
+    description: 'Enable button label',
   },
   cancel: {
     id: 'app.video.cancel',
-    description: 'Error message for ice candidate fail',
+    description: 'Cancel button label',
   },
 });
 
