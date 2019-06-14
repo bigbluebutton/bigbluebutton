@@ -1,6 +1,7 @@
 import React, { PureComponent } from 'react';
 import { withTracker } from 'meteor/react-meteor-data';
 import { Session } from 'meteor/session';
+import { makeCall } from '/imports/ui/services/api';
 import Pad from './component';
 import CaptionsService from '/imports/ui/components/captions/service';
 
@@ -24,7 +25,11 @@ export default withTracker(() => {
     readOnlyPadId,
   } = caption;
 
+
+  const editCaptions = textData => makeCall('vrEditCaptions', textData);
+
   const { name } = caption ? caption.locale : '';
+
   return {
     locale,
     name,
@@ -32,5 +37,6 @@ export default withTracker(() => {
     padId,
     readOnlyPadId,
     amIModerator: CaptionsService.amIModerator(),
+    editCaptions,
   };
 })(PadContainer);

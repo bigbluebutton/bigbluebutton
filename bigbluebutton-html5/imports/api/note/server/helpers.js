@@ -9,6 +9,8 @@ const createPadURL = padId => `${BASE_URL}/createPad?apikey=${ETHERPAD.apikey}&p
 
 const getReadOnlyIdURL = padId => `${BASE_URL}/getReadOnlyID?apikey=${ETHERPAD.apikey}&padID=${padId}`;
 
+const appendTextURL = (padId, text) => `${BASE_URL}/appendText?apikey=${ETHERPAD.apikey}&padID=${padId}&text=${text}`;
+
 const generateNoteId = (meetingId) => {
   const noteId = hashFNV32a(meetingId, true);
   return noteId;
@@ -32,4 +34,5 @@ export {
   getReadOnlyIdURL,
   isEnabled,
   getDataFromResponse,
+  appendTextURL,
 };
