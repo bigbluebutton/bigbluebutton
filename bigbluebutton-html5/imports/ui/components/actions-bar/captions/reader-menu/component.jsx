@@ -84,8 +84,10 @@ class ReaderMenu extends PureComponent {
       fontSize,
     } = props.getCaptionsSettings();
 
+    const { ownedLocales } = this.props;
+
     this.state = {
-      locale: null,
+      locale: (ownedLocales && ownedLocales[0]) ? ownedLocales[0].locale : null,
       backgroundColor,
       fontColor,
       fontFamily,
@@ -186,6 +188,7 @@ class ReaderMenu extends PureComponent {
       locale,
     } = this.state;
 
+    const defaultLocale = locale || DEFAULT_VALUE;
     return (
       <Modal
         overlayClassName={styles.overlay}
@@ -201,7 +204,7 @@ class ReaderMenu extends PureComponent {
           <select
             className={styles.select}
             onChange={this.handleLocaleChange}
-            defaultValue={DEFAULT_VALUE}
+            defaultValue={defaultLocale}
           >
             <option
               disabled

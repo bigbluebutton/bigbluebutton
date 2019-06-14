@@ -13,6 +13,7 @@ import LockViewersContainer from '/imports/ui/components/lock-viewers/container'
 import BreakoutRoom from '/imports/ui/components/actions-bar/create-breakout-room/container';
 import CaptionsService from '/imports/ui/components/captions/service';
 import CaptionsWriterMenu from '/imports/ui/components/captions/writer-menu/container';
+import DropdownListSeparator from '/imports/ui/components/dropdown/list/separator/component';
 import { styles } from './styles';
 
 const propTypes = {
@@ -234,6 +235,16 @@ class UserOptions extends PureComponent {
           onClick={toggleMuteAllUsersExceptPresenter}
         />) : null
       ),
+      (isUserModerator
+        ? (
+          <DropdownListItem
+            icon="download"
+            label={intl.formatMessage(intlMessages.saveUserNames)}
+            key={this.saveUsersNameId}
+            onClick={this.onSaveUserNames}
+          />
+        )
+        : null),
       (<DropdownListItem
         key={this.lockId}
         icon="lock"
@@ -241,6 +252,7 @@ class UserOptions extends PureComponent {
         description={intl.formatMessage(intlMessages.lockViewersDesc)}
         onClick={() => mountModal(<LockViewersContainer />)}
       />),
+      (<DropdownListSeparator key={_.uniqueId('list-separator-')} />),
       (canCreateBreakout
         ? (
           <DropdownListItem
@@ -270,16 +282,6 @@ class UserOptions extends PureComponent {
             description={intl.formatMessage(intlMessages.captionsDesc)}
             key={this.captionsId}
             onClick={this.handleCaptionsClick}
-          />
-        )
-        : null),
-      (isUserModerator
-        ? (
-          <DropdownListItem
-            icon="download"
-            label={intl.formatMessage(intlMessages.saveUserNames)}
-            key={this.saveUsersNameId}
-            onClick={this.onSaveUserNames}
           />
         )
         : null),

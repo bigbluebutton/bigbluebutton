@@ -26,6 +26,7 @@
     "app.captions.menu.ariaStartDesc": "Opens captions editor and closes the modal",
     "app.captions.menu.select": "Select available language",
     "app.captions.menu.ariaSelect": "Captions language",
+    "app.captions.menu.subtitle": "Please select a language and styles for closed captions within your session.",
     "app.captions.menu.title": "Closed captions",
     "app.captions.menu.fontSize": "Size",
     "app.captions.menu.fontColor": "Text color",
