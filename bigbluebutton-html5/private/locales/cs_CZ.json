@@ -20,6 +20,7 @@
     "app.chat.clearPublicChatMessage": "Historie chatu byla smazána moderátorem",
     "app.captions.menu.close": "Zavřít",
     "app.captions.menu.start": "Start",
+    "app.captions.menu.title": "Titulky",
     "app.captions.menu.backgroundColor": "Barva pozadí",
     "app.captions.menu.cancelLabel": "Zrušit",
     "app.captions.pad.ownership": "Převzít kontrolu nad titulky",

@@ -7,7 +7,6 @@
   font-weight: 600;
   text-transform: uppercase;
   padding: 0 var(--sm-padding-x);
-  color: var(--color-gray-light);
   margin-bottom: var(--lg-padding-y);
   margin-top: var(--sm-padding-x);
 }
@@ -71,5 +70,20 @@
   &:active {
     background-color: var(--list-item-bg-hover);
     box-shadow: inset 0 0 0 var(--border-size) var(--item-focus-border), inset 1px 0 0 1px var(--item-focus-border);
+  }
+}
+
+.notification {
+  position: relative;
+
+  &:after {
+    content: '';
+    position: absolute;
+    border-radius: 50%;
+    width: 8px;
+    height: 8px;
+    bottom: 3px;
+    right: 3px;
+    background-color: var(--color-danger);
   }
 }

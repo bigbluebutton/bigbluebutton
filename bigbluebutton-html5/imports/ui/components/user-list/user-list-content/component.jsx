@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import { styles } from './styles';
 import UserParticipantsContainer from './user-participants/container';
 import UserMessages from './user-messages/component';
-import UserNotes from './user-notes/component';
+import UserNotesContainer from './user-notes/container';
 import UserCaptionsContainer from './user-captions/container';
 import WaitingUsers from './waiting-users/component';
 import UserPolls from './user-polls/component';
@@ -101,7 +101,7 @@ class UserContent extends PureComponent {
             />
           ) : null
         }
-        <UserNotes
+        <UserNotesContainer
           {...{
             intl,
           }}

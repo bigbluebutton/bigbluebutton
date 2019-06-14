@@ -9,6 +9,7 @@ import PollingContainer from '/imports/ui/components/polling/container';
 import logger from '/imports/startup/client/logger';
 import ActivityCheckContainer from '/imports/ui/components/activity-check/container';
 import UserInfoContainer from '/imports/ui/components/user-info/container';
+import BreakoutRoomInvitation from '/imports/ui/components/breakout-room/invitation/container';
 import ToastContainer from '../toast/container';
 import ModalContainer from '../modal/container';
 import NotificationsBarContainer from '../notifications-bar/container';
@@ -16,7 +17,6 @@ import AudioContainer from '../audio/container';
 import ChatAlertContainer from '../chat/alert/container';
 import BannerBarContainer from '/imports/ui/components/banner-bar/container';
 import WaitingNotifierContainer from '/imports/ui/components/waiting-users/alert/container';
-import { startBandwidthMonitoring, updateNavigatorConnection } from '/imports/ui/services/network-information/index';
 import LockNotifier from '/imports/ui/components/lock-viewers/notify/container';
 
 import { styles } from './styles';
@@ -25,7 +25,7 @@ const MOBILE_MEDIA = 'only screen and (max-width: 40em)';
 const APP_CONFIG = Meteor.settings.public.app;
 const DESKTOP_FONT_SIZE = APP_CONFIG.desktopFontSize;
 const MOBILE_FONT_SIZE = APP_CONFIG.mobileFontSize;
-const ENABLE_NETWORK_INFORMATION = APP_CONFIG.enableNetworkInformation;
+const ENABLE_NETWORK_MONITORING = Meteor.settings.public.networkMonitoring.enableNetworkMonitoring;
 
 const intlMessages = defineMessages({
   userListLabel: {
@@ -48,6 +48,22 @@ const intlMessages = defineMessages({
     id: 'app.iOSWarning.label',
     description: 'message indicating to upgrade ios version',
   },
+  clearedEmoji: {
+    id: 'app.toast.clearedEmoji.label',
+    description: 'message for cleared emoji status',
+  },
+  setEmoji: {
+    id: 'app.toast.setEmoji.label',
+    description: 'message when a user emoji has been set',
+  },
+  meetingMuteOn: {
+    id: 'app.toast.meetingMuteOn.label',
+    description: 'message used when meeting has been muted',
+  },
+  meetingMuteOff: {
+    id: 'app.toast.meetingMuteOff.label',
+    description: 'message used when meeting has been unmuted',
+  },
   pollPublishedLabel: {
     id: 'app.whiteboard.annotations.poll',
     description: 'message displayed when a poll is published',
@@ -60,8 +76,6 @@ const propTypes = {
   media: PropTypes.element,
   actionsbar: PropTypes.element,
   captions: PropTypes.element,
-  userListIsOpen: PropTypes.bool.isRequired,
-  chatIsOpen: PropTypes.bool.isRequired,
   locale: PropTypes.string,
   intl: intlShape.isRequired,
 };
@@ -75,6 +89,9 @@ const defaultProps = {
   locale: 'en',
 };
 
+const LAYERED_BREAKPOINT = 640;
+const isLayeredView = window.matchMedia(`(max-width: ${LAYERED_BREAKPOINT}px)`);
+
 class App extends Component {
   constructor() {
     super();
@@ -84,11 +101,12 @@ class App extends Component {
     };
 
     this.handleWindowResize = throttle(this.handleWindowResize).bind(this);
+    this.shouldAriaHide = this.shouldAriaHide.bind(this);
   }
 
   componentDidMount() {
     const {
-      locale, notify, intl, validIOSVersion,
+      locale, notify, intl, validIOSVersion, startBandwidthMonitoring, handleNetworkConnection,
     } = this.props;
     const BROWSER_RESULTS = browser();
     const isMobileBrowser = BROWSER_RESULTS.mobile || BROWSER_RESULTS.os.includes('Android');
@@ -107,19 +125,17 @@ class App extends Component {
 
     if (!validIOSVersion()) {
       notify(
-        intl.formatMessage(intlMessages.iOSWarning),
-        'error',
-        'warning',
+        intl.formatMessage(intlMessages.iOSWarning), 'error', 'warning',
       );
     }
 
     this.handleWindowResize();
     window.addEventListener('resize', this.handleWindowResize, false);
 
-    if (ENABLE_NETWORK_INFORMATION) {
+    if (ENABLE_NETWORK_MONITORING) {
       if (navigator.connection) {
-        this.handleNetworkConnection();
-        navigator.connection.addEventListener('change', this.handleNetworkConnection);
+        handleNetworkConnection();
+        navigator.connection.addEventListener('change', handleNetworkConnection);
       }
 
       startBandwidthMonitoring();
@@ -129,21 +145,47 @@ class App extends Component {
     logger.info({ logCode: 'app_component_componentdidmount' }, 'Client loaded successfully');
   }
 
-  componentDidUpdate(prevProps, prevState) {
-    const { hasPublishedPoll, intl, notify } = this.props;
+  componentDidUpdate(prevProps) {
+    const {
+      meetingMuted, notify, currentUserEmoji, intl, hasPublishedPoll,
+    } = this.props;
+
+    if (prevProps.currentUserEmoji.status !== currentUserEmoji.status) {
+      const formattedEmojiStatus = intl.formatMessage({ id: `app.actionsBar.emojiMenu.${currentUserEmoji.status}Label` })
+      || currentUserEmoji.status;
+
+      notify(
+        currentUserEmoji.status === 'none'
+          ? intl.formatMessage(intlMessages.clearedEmoji)
+          : intl.formatMessage(intlMessages.setEmoji, ({ 0: formattedEmojiStatus })),
+        'info',
+        currentUserEmoji.status === 'none'
+          ? 'clear_status'
+          : 'user',
+      );
+    }
+    if (!prevProps.meetingMuted && meetingMuted) {
+      notify(
+        intl.formatMessage(intlMessages.meetingMuteOn), 'info', 'mute',
+      );
+    }
+    if (prevProps.meetingMuted && !meetingMuted) {
+      notify(
+        intl.formatMessage(intlMessages.meetingMuteOff), 'info', 'unmute',
+      );
+    }
     if (!prevProps.hasPublishedPoll && hasPublishedPoll) {
       notify(
-        intl.formatMessage(intlMessages.pollPublishedLabel),
-        'info',
-        'polling',
+        intl.formatMessage(intlMessages.pollPublishedLabel), 'info', 'polling',
       );
     }
   }
 
   componentWillUnmount() {
+    const { handleNetworkConnection } = this.props;
     window.removeEventListener('resize', this.handleWindowResize, false);
     if (navigator.connection) {
-      navigator.connection.addEventListener('change', this.handleNetworkConnection, false);
+      navigator.connection.addEventListener('change', handleNetworkConnection, false);
     }
   }
 
@@ -155,8 +197,9 @@ class App extends Component {
     this.setState({ enableResize: shouldEnableResize });
   }
 
-  handleNetworkConnection() {
-    updateNavigatorConnection(navigator.connection);
+  shouldAriaHide() {
+    const { openPanel, isPhone } = this.props;
+    return openPanel !== '' && (isPhone || isLayeredView.matches);
   }
 
   renderPanel() {
@@ -169,6 +212,7 @@ class App extends Component {
           openPanel,
           enableResize,
         }}
+        shouldAriaHide={this.shouldAriaHide}
       />
     );
   }
@@ -211,7 +255,8 @@ class App extends Component {
 
   renderMedia() {
     const {
-      media, intl, chatIsOpen, userListIsOpen,
+      media,
+      intl,
     } = this.props;
 
     if (!media) return null;
@@ -220,7 +265,7 @@ class App extends Component {
       <section
         className={styles.media}
         aria-label={intl.formatMessage(intlMessages.mediaLabel)}
-        aria-hidden={userListIsOpen || chatIsOpen}
+        aria-hidden={this.shouldAriaHide()}
       >
         {media}
         {this.renderCaptions()}
@@ -230,7 +275,8 @@ class App extends Component {
 
   renderActionsBar() {
     const {
-      actionsbar, intl, userListIsOpen, chatIsOpen,
+      actionsbar,
+      intl,
     } = this.props;
 
     if (!actionsbar) return null;
@@ -239,7 +285,7 @@ class App extends Component {
       <section
         className={styles.actionsbar}
         aria-label={intl.formatMessage(intlMessages.actionsBarLabel)}
-        aria-hidden={userListIsOpen || chatIsOpen}
+        aria-hidden={this.shouldAriaHide()}
       >
         {actionsbar}
       </section>
@@ -289,6 +335,7 @@ class App extends Component {
           {this.renderPanel()}
           {this.renderSidebar()}
         </section>
+        <BreakoutRoomInvitation />
         <PollingContainer />
         <ModalContainer />
         <AudioContainer />

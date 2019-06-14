@@ -4,6 +4,7 @@ import { hashFNV32a } from '/imports/api/common/server/helpers';
 const ETHERPAD = Meteor.settings.private.etherpad;
 const NOTE_CONFIG = Meteor.settings.public.note;
 const BASE_URL = `http://${ETHERPAD.host}:${ETHERPAD.port}/api/${ETHERPAD.version}`;
+const TOKEN = '_';
 
 const createPadURL = padId => `${BASE_URL}/createPad?apikey=${ETHERPAD.apikey}&padID=${padId}`;
 
@@ -28,6 +29,21 @@ const getDataFromResponse = (data, key) => {
   return null;
 };
 
+const isNotePad = (padId) => {
+  return padId.search(TOKEN);
+};
+
+const processForNotePadOnly = fn => (message, ...args) => {
+  const { body } = message;
+  const { pad } = body;
+  const { id } = pad;
+
+  check(id, String);
+
+  if (isNotePad(id)) return fn(message, ...args);
+  return () => {};
+};
+
 export {
   generateNoteId,
   createPadURL,
@@ -35,4 +51,5 @@ export {
   isEnabled,
   getDataFromResponse,
   appendTextURL,
+  processForNotePadOnly,
 };

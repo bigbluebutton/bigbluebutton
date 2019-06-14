@@ -110,12 +110,16 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         <property name="jpgPageConverter" ref="jpg2SwfConverter"/>
         <property name="svgImageCreator" ref="svgImageCreator"/>
         <property name="thumbnailCreator" ref="thumbCreator"/>
+        <property name="pngCreator" ref="pngCreator"/>
         <property name="textFileCreator" ref="textFileCreator"/>
         <property name="blankSlide" value="${BLANK_SLIDE}"/>
         <property name="maxConversionTime" value="${maxConversionTime}"/>
         <property name="swfSlidesGenerationProgressNotifier" ref="swfSlidesGenerationProgressNotifier"/>
         <property name="imageResizer" ref="imageResizer"/>
         <property name="maxImageSize" value="${maxImageSize}"/>
+        <property name="swfSlidesRequired" value="${swfSlidesRequired}"/>
+        <property name="svgImagesRequired" value="${svgImagesRequired}"/>
+        <property name="generatePngs" value="${generatePngs}"/>
     </bean>
 
     <bean id="swfSlidesGenerationProgressNotifier"
