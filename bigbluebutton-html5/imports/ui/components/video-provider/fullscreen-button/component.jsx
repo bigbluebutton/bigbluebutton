@@ -36,7 +36,10 @@ const FullscreenButtonComponent = ({
   className,
   fullscreenRef,
   handleToggleFullScreen,
+  isIphone,
 }) => {
+  if (isIphone) return null;
+
   const formattedLabel = intl.formatMessage(
     intlMessages.fullscreenButton,
     ({ 0: elementName || '' }),
