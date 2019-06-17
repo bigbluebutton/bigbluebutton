@@ -43,7 +43,7 @@ function shouldShowOverlay() {
 }
 
 const swapLayout = {
-  value: false,
+  value: getFromUserSettings('autoSwapLayout', LAYOUT_CONFIG.autoSwapLayout),
   tracker: new Tracker.Dependency(),
 };
 
@@ -64,8 +64,7 @@ export const shouldEnableSwapLayout = () => {
 
 export const getSwapLayout = () => {
   swapLayout.tracker.depend();
-  const autoSwapLayout = getFromUserSettings('autoSwapLayout', LAYOUT_CONFIG.autoSwapLayout);
-  return autoSwapLayout || (swapLayout.value && shouldEnableSwapLayout());
+  return swapLayout.value && shouldEnableSwapLayout();
 };
 
 export default {
