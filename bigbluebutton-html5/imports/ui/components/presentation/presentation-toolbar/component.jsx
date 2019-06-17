@@ -195,8 +195,6 @@ class PresentationToolbar extends PureComponent {
       meteorIsConnected,
     } = this.props;
 
-    console.log('PresentationToolbar', meteorIsConnected);
-
     const BROWSER_RESULTS = browser();
     const isMobileBrowser = BROWSER_RESULTS.mobile
       || BROWSER_RESULTS.os.includes('Android');
