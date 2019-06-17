@@ -71,6 +71,9 @@ class UserNotes extends Component {
     const iconClasses = {};
     iconClasses[styles.notification] = unread;
 
+    const linkClasses = {};
+    linkClasses[styles.active] = isPanelOpened;
+
     return (
       <div className={styles.messages}>
         {
@@ -82,10 +85,10 @@ class UserNotes extends Component {
           <div
             role="button"
             tabIndex={0}
-            className={styles.noteLink}
+            className={cx(styles.noteLink, linkClasses)}
             onClick={toggleNotePanel}
           >
-            <Icon iconName="copy" className={cx(iconClasses)}/>
+            <Icon iconName="copy" className={cx(iconClasses)} />
             <span>{intl.formatMessage(intlMessages.title)}</span>
           </div>
         </div>

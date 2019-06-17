@@ -37,6 +37,7 @@ const propTypes = {
   }).isRequired,
   tabIndex: PropTypes.number.isRequired,
   isPublicChat: PropTypes.func.isRequired,
+  chatPanelOpen: PropTypes.bool.isRequired,
   shortcuts: PropTypes.string,
 };
 
@@ -66,9 +67,10 @@ const ChatListItem = (props) => {
     tabIndex,
     isPublicChat,
     shortcuts: TOGGLE_CHAT_PUB_AK,
+    chatPanelOpen,
   } = props;
 
-  const isCurrentChat = chat.id === activeChatId;
+  const isCurrentChat = chat.id === activeChatId && chatPanelOpen;
   const linkClasses = {};
   linkClasses[styles.active] = isCurrentChat;
 
