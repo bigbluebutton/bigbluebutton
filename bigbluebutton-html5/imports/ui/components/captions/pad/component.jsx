@@ -152,7 +152,7 @@ class Pad extends Component {
         if (finalTranscript !== '' && finalTranscript !== text) {
           const ucfirstLetter = (string) => {
             const letterIndex = string.charAt(0) === ' ' ? 1 : 0;
-            const formattedString = ` ${string.charAt(letterIndex).toUpperCase() + string.slice(letterIndex + 1)}.`;
+            const formattedString = `${string.charAt(letterIndex).toUpperCase() + string.slice(letterIndex + 1)}.\n\n`;
             return formattedString;
           };
 
