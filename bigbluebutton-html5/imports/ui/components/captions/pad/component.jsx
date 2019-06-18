@@ -6,7 +6,6 @@ import injectWbResizeEvent from '/imports/ui/components/presentation/resize-wrap
 import Button from '/imports/ui/components/button/component';
 import PadService from './service';
 import CaptionsService from '/imports/ui/components/captions/service';
-import logger from '/imports/startup/client/logger';
 import { styles } from './styles';
 
 const intlMessages = defineMessages({
@@ -43,6 +42,7 @@ const intlMessages = defineMessages({
 const propTypes = {
   locale: PropTypes.string.isRequired,
   ownerId: PropTypes.string.isRequired,
+  currentUserId: PropTypes.string.isRequired,
   padId: PropTypes.string.isRequired,
   readOnlyPadId: PropTypes.string.isRequired,
   name: PropTypes.string.isRequired,
@@ -57,6 +57,13 @@ const propTypes = {
 const CAPTIONS_CONFIG = Meteor.settings.public.captions;
 
 class Pad extends Component {
+  static getDerivedStateFromProps(nextProps) {
+    if (nextProps.ownerId !== nextProps.currentUserId) {
+      return ({ listening: false });
+    }
+    return null;
+  }
+
   constructor(props) {
     super(props);
 
@@ -75,27 +82,26 @@ class Pad extends Component {
   shouldComponentUpdate(nextProps, nextState) {
     const {
       text,
-      listening,
     } = this.state;
 
-    const padTextUpdate = nextState.text !== text && nextState.text !== '';
-    const listeningUpdate = nextState.listening !== listening;
+    const noTextUpdate = nextState.text === text && nextState.text !== '';
 
-    if (padTextUpdate || listeningUpdate) {
-      return true;
-    }
-
-    return false;
+    return !noTextUpdate;
   }
 
   componentDidUpdate() {
     const {
       handleAppendText,
+      locale,
     } = this.props;
 
     const {
       text,
     } = this.state;
+
+    if (this.recognition) {
+      this.recognition.lang = locale;
+    }
 
     if (text !== '') {
       handleAppendText(text);
@@ -120,45 +126,47 @@ class Pad extends Component {
       text,
     } = this.state;
 
-    if (listening) this.recognition.start();
-    if (!listening) this.recognition.stop();
+    if (this.recognition) {
+      if (listening) this.recognition.start();
+      if (!listening) this.recognition.stop();
 
-    let finalTranscript = '';
-    this.recognition.onresult = (event) => {
-      const {
-        resultIndex,
-        results,
-      } = event;
+      let finalTranscript = '';
+      this.recognition.onresult = (event) => {
+        const {
+          resultIndex,
+          results,
+        } = event;
 
-      let interimTranscript = '';
+        let interimTranscript = '';
 
-      for (let i = resultIndex; i < results.length; i += 1) {
-        const { transcript } = event.results[i][0];
-        if (results[i].isFinal) finalTranscript += `${transcript} `;
-        else interimTranscript += transcript;
-      }
+        for (let i = resultIndex; i < results.length; i += 1) {
+          const { transcript } = event.results[i][0];
+          if (results[i].isFinal) finalTranscript += `${transcript} `;
+          else interimTranscript += transcript;
+        }
 
-      if (this.itermResultContainer) {
-        this.itermResultContainer.innerHTML = interimTranscript;
-      }
+        if (this.itermResultContainer) {
+          this.itermResultContainer.innerHTML = interimTranscript;
+        }
 
-      if (finalTranscript !== '' && finalTranscript !== text) {
-        const ucfirstLetter = (string) => {
-          const letterIndex = string.charAt(0) === ' ' ? 1 : 0;
-          const formattedString = ` ${string.charAt(letterIndex).toUpperCase() + string.slice(letterIndex + 1)}.`;
-          return formattedString;
-        };
+        if (finalTranscript !== '' && finalTranscript !== text) {
+          const ucfirstLetter = (string) => {
+            const letterIndex = string.charAt(0) === ' ' ? 1 : 0;
+            const formattedString = ` ${string.charAt(letterIndex).toUpperCase() + string.slice(letterIndex + 1)}.`;
+            return formattedString;
+          };
 
-        const formatFinalTranscript = ucfirstLetter(finalTranscript.trimRight());
+          const formatFinalTranscript = ucfirstLetter(finalTranscript.trimRight());
 
-        this.setState({ text: formatFinalTranscript });
-        finalTranscript = '';
-      }
-    };
+          this.setState({ text: formatFinalTranscript });
+          finalTranscript = '';
+        }
+      };
 
-    this.recognition.onerror = (event) => {
-      logger.warning(`Error occurred in recognition: ${event.error}`);
-    };
+      this.recognition.onerror = (event) => {
+        console.log(`Error occurred in recognition: ${event.error}`);
+      };
+    }
   }
 
   render() {
@@ -170,6 +178,7 @@ class Pad extends Component {
       ownerId,
       name,
       amIModerator,
+      currentUserId,
     } = this.props;
 
     if (!amIModerator) {
@@ -179,6 +188,7 @@ class Pad extends Component {
 
     const { listening } = this.state;
     const { enableDictation } = CAPTIONS_CONFIG;
+    const allowDictation = enableDictation && currentUserId === ownerId;
     const url = PadService.getPadURL(padId, readOnlyPadId, ownerId);
 
     return (
@@ -193,7 +203,7 @@ class Pad extends Component {
               className={styles.hideBtn}
             />
           </div>
-          {enableDictation
+          {allowDictation
             ? (
               <span>
                 <Button

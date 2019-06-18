@@ -2,8 +2,10 @@ import React, { PureComponent } from 'react';
 import { withTracker } from 'meteor/react-meteor-data';
 import { Session } from 'meteor/session';
 import { makeCall } from '/imports/ui/services/api';
-import Pad from './component';
+import Users from '/imports/api/users';
+import Auth from '/imports/ui/services/auth';
 import CaptionsService from '/imports/ui/components/captions/service';
+import Pad from './component';
 
 class PadContainer extends PureComponent {
   render() {
@@ -42,6 +44,8 @@ export default withTracker(() => {
     return recognition;
   };
 
+  const currentUserId = Users.findOne({ userId: Auth.userID }).userId;
+
   return {
     locale,
     name,
@@ -51,5 +55,6 @@ export default withTracker(() => {
     amIModerator: CaptionsService.amIModerator(),
     handleAppendText,
     initVoiceRecognition,
+    currentUserId,
   };
 })(PadContainer);
