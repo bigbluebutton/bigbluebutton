@@ -46,12 +46,14 @@ const propTypes = {
   readOnlyPadId: PropTypes.string.isRequired,
   name: PropTypes.string.isRequired,
   amIModerator: PropTypes.bool.isRequired,
-  editCaptions: PropTypes.func.isRequired,
+  handleAppendText: PropTypes.func.isRequired,
   initVoiceRecognition: PropTypes.func.isRequired,
   intl: PropTypes.shape({
     formatMessage: PropTypes.func.isRequired,
   }).isRequired,
 };
+
+const CAPTIONS_CONFIG = Meteor.settings.public.captions;
 
 class Pad extends Component {
   constructor(props) {
@@ -87,7 +89,7 @@ class Pad extends Component {
 
   componentDidUpdate() {
     const {
-      editCaptions,
+      handleAppendText,
     } = this.props;
 
     const {
@@ -95,12 +97,15 @@ class Pad extends Component {
     } = this.state;
 
     if (text !== '') {
-      editCaptions(text);
+      handleAppendText(text);
     }
   }
 
   toggleListen() {
-    const { listening, text } = this.state;
+    const {
+      listening,
+      text,
+    } = this.state;
 
     this.setState({
       listening: !listening,
@@ -119,11 +124,16 @@ class Pad extends Component {
 
     let finalTranscript = '';
     this.recognition.onresult = (event) => {
+      const {
+        resultIndex,
+        results,
+      } = event;
+
       let interimTranscript = '';
 
-      for (let i = event.resultIndex; i < event.results.length; i += 1) {
+      for (let i = resultIndex; i < results.length; i += 1) {
         const { transcript } = event.results[i][0];
-        if (event.results[i].isFinal) finalTranscript += `${transcript} `;
+        if (results[i].isFinal) finalTranscript += `${transcript} `;
         else interimTranscript += transcript;
       }
 
@@ -132,7 +142,15 @@ class Pad extends Component {
       }
 
       if (finalTranscript !== '' && finalTranscript !== text) {
-        this.setState({ text: finalTranscript });
+        const ucfirstLetter = (string) => {
+          const letterIndex = string.charAt(0) === ' ' ? 1 : 0;
+          const formattedString = ` ${string.charAt(letterIndex).toUpperCase() + string.slice(letterIndex + 1)}.`;
+          return formattedString;
+        };
+
+        const formatFinalTranscript = ucfirstLetter(finalTranscript.trimRight());
+
+        this.setState({ text: formatFinalTranscript });
         finalTranscript = '';
       }
     };
@@ -153,13 +171,13 @@ class Pad extends Component {
       amIModerator,
     } = this.props;
 
-    const { listening } = this.state;
-
     if (!amIModerator) {
       Session.set('openPanel', 'userlist');
       return null;
     }
 
+    const { listening } = this.state;
+    const { enableDictation } = CAPTIONS_CONFIG;
     const url = PadService.getPadURL(padId, readOnlyPadId, ownerId);
 
     return (
@@ -174,23 +192,27 @@ class Pad extends Component {
               className={styles.hideBtn}
             />
           </div>
-          <span>
-            <Button
-              onClick={() => { this.toggleListen(); }}
-              label={listening
-                ? intl.formatMessage(intlMessages.dictationStop)
-                : intl.formatMessage(intlMessages.dictationStart)
-              }
-              aria-describedby="dictationBtnDesc"
-              color="primary"
-            />
-            <div id="dictationBtnDesc" hidden>
-              {listening
-                ? intl.formatMessage(intlMessages.dictationOffDesc)
-                : intl.formatMessage(intlMessages.dictationOnDesc)
-              }
-            </div>
-          </span>
+          {enableDictation
+            ? (
+              <span>
+                <Button
+                  onClick={() => { this.toggleListen(); }}
+                  label={listening
+                    ? intl.formatMessage(intlMessages.dictationStop)
+                    : intl.formatMessage(intlMessages.dictationStart)
+                  }
+                  aria-describedby="dictationBtnDesc"
+                  color="primary"
+                />
+                <div id="dictationBtnDesc" hidden>
+                  {listening
+                    ? intl.formatMessage(intlMessages.dictationOffDesc)
+                    : intl.formatMessage(intlMessages.dictationOnDesc)
+                  }
+                </div>
+              </span>
+            ) : null
+          }
           {CaptionsService.canIOwnThisPad(ownerId)
             ? (
               <Button

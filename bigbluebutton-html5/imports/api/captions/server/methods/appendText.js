@@ -8,13 +8,14 @@ import {
   appendTextURL,
 } from '/imports/api/note/server/helpers';
 
-export default function vrEditCaptions(body, textData) {
+export default function appendText(body, textData, locale) {
   const { meetingId } = body;
 
   check(meetingId, String);
   check(textData, String);
+  check(locale, String);
 
-  const padId = generatePadId(meetingId, 'en');
+  const padId = generatePadId(meetingId, locale);
 
   axios({
     method: 'get',

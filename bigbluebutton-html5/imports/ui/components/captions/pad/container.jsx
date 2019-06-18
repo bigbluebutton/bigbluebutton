@@ -25,20 +25,20 @@ export default withTracker(() => {
     readOnlyPadId,
   } = caption;
 
-
-  const editCaptions = textData => makeCall('vrEditCaptions', textData);
-
   const { name } = caption ? caption.locale : '';
 
-  const initVoiceRecognition = (lang = 'en-CA') => {
+  const handleAppendText = text => makeCall('appendText', text, locale);
+
+  const initVoiceRecognition = () => {
     const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
     let recognition = null;
     if (SR) {
       recognition = new SR();
       recognition.continuous = true;
       recognition.interimResults = true;
-      recognition.lang = lang;
+      recognition.lang = locale;
     }
+
     return recognition;
   };
 
@@ -49,7 +49,7 @@ export default withTracker(() => {
     padId,
     readOnlyPadId,
     amIModerator: CaptionsService.amIModerator(),
-    editCaptions,
+    handleAppendText,
     initVoiceRecognition,
   };
 })(PadContainer);

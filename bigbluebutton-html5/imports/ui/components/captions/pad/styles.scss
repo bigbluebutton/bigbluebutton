@@ -1,15 +1,20 @@
 @import "/imports/ui/stylesheets/mixins/focus";
 @import "/imports/ui/stylesheets/variables/_all";
 
-.processing {
-  margin-top: .5rem;
-  margin-bottom: .5rem;
-  height: 3rem;
-  width: 22.3rem;
-  border: solid 1px gray;
+:root {
+  --speech-results-width: 22.3rem;
 }
+
+.processing {
+  margin-top: var(--lg-padding-y);
+  margin-bottom: var(--lg-padding-y);
+  min-height: var(--jumbo-padding-x);
+  width: var(--speech-results-width);
+  border: solid var(--border-size-small) var(--color-gray);
+}
+
 .intermTitle {
-  margin-top: .5rem;
+  margin-top: var(--lg-padding-y);
 }
 
 .pad {
