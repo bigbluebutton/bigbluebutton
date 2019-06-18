@@ -6,6 +6,7 @@ import injectWbResizeEvent from '/imports/ui/components/presentation/resize-wrap
 import Button from '/imports/ui/components/button/component';
 import PadService from './service';
 import CaptionsService from '/imports/ui/components/captions/service';
+import logger from '/imports/startup/client/logger';
 import { styles } from './styles';
 
 const intlMessages = defineMessages({
@@ -156,7 +157,7 @@ class Pad extends Component {
     };
 
     this.recognition.onerror = (event) => {
-      console.log(`Error occurred in recognition: ${event.error}`);
+      logger.warning(`Error occurred in recognition: ${event.error}`);
     };
   }
 
