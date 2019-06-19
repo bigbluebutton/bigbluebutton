@@ -44,6 +44,12 @@ export default withTracker(() => {
     return recognition;
   };
 
+  const formatEntry = (string) => {
+    const letterIndex = string.charAt(0) === ' ' ? 1 : 0;
+    const formattedString = `${string.charAt(letterIndex).toUpperCase() + string.slice(letterIndex + 1)}.\n\n`;
+    return formattedString;
+  };
+
   const currentUserId = Users.findOne({ userId: Auth.userID }).userId;
 
   return {
@@ -56,5 +62,6 @@ export default withTracker(() => {
     handleAppendText,
     initVoiceRecognition,
     currentUserId,
+    formatEntry,
   };
 })(PadContainer);

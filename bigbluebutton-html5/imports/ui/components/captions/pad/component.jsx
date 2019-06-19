@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import { Session } from 'meteor/session';
 import { defineMessages, injectIntl } from 'react-intl';
@@ -49,6 +49,7 @@ const propTypes = {
   amIModerator: PropTypes.bool.isRequired,
   handleAppendText: PropTypes.func.isRequired,
   initVoiceRecognition: PropTypes.func.isRequired,
+  formatEntry: PropTypes.func.isRequired,
   intl: PropTypes.shape({
     formatMessage: PropTypes.func.isRequired,
   }).isRequired,
@@ -56,7 +57,7 @@ const propTypes = {
 
 const CAPTIONS_CONFIG = Meteor.settings.public.captions;
 
-class Pad extends Component {
+class Pad extends PureComponent {
   static getDerivedStateFromProps(nextProps) {
     if (nextProps.ownerId !== nextProps.currentUserId) {
       return ({ listening: false });
@@ -69,7 +70,6 @@ class Pad extends Component {
 
     this.state = {
       listening: false,
-      text: '',
     };
 
     const { initVoiceRecognition } = props;
@@ -79,86 +79,77 @@ class Pad extends Component {
     this.handleListen = this.handleListen.bind(this);
   }
 
-  shouldComponentUpdate(nextProps, nextState) {
-    const {
-      text,
-    } = this.state;
-
-    const noTextUpdate = nextState.text === text && nextState.text !== '';
-
-    return !noTextUpdate;
-  }
-
   componentDidUpdate() {
     const {
-      handleAppendText,
       locale,
+      ownerId,
+      currentUserId,
     } = this.props;
-
-    const {
-      text,
-    } = this.state;
 
     if (this.recognition) {
       this.recognition.lang = locale;
-    }
-
-    if (text !== '') {
-      handleAppendText(text);
+      if (ownerId !== currentUserId) this.recognition.stop();
     }
   }
 
   toggleListen() {
     const {
       listening,
-      text,
     } = this.state;
 
     this.setState({
       listening: !listening,
-      text: !listening ? text : '',
     }, this.handleListen);
   }
 
   handleListen() {
     const {
       listening,
-      text,
     } = this.state;
 
+    const {
+      formatEntry,
+      handleAppendText,
+    } = this.props;
+
     if (this.recognition) {
+      // Starts and stops the recognition when listening.
+      // Throws an error if start() is called on a recognition that has already been started.
       if (listening) this.recognition.start();
       if (!listening) this.recognition.stop();
 
+      // Stores the voice recognition results that have been verified.
       let finalTranscript = '';
+
       this.recognition.onresult = (event) => {
         const {
           resultIndex,
           results,
         } = event;
 
+        // Stores the first guess at what was recognised (Not always accurate).
         let interimTranscript = '';
 
+        // Loops through the results to check if any of the entries have been validated,
+        // signaled by the isFinal flag.
         for (let i = resultIndex; i < results.length; i += 1) {
           const { transcript } = event.results[i][0];
           if (results[i].isFinal) finalTranscript += `${transcript} `;
           else interimTranscript += transcript;
         }
 
+        // Adds the interimTranscript text to the itermResultContainer to show
+        // what's being said while speaking.
         if (this.itermResultContainer) {
           this.itermResultContainer.innerHTML = interimTranscript;
         }
 
-        if (finalTranscript !== '' && finalTranscript !== text) {
-          const ucfirstLetter = (string) => {
-            const letterIndex = string.charAt(0) === ' ' ? 1 : 0;
-            const formattedString = `${string.charAt(letterIndex).toUpperCase() + string.slice(letterIndex + 1)}.\n\n`;
-            return formattedString;
-          };
+        const newEntry = finalTranscript !== '';
 
-          const formatFinalTranscript = ucfirstLetter(finalTranscript.trimRight());
-
-          this.setState({ text: formatFinalTranscript });
+        // Changes to the finalTranscript are shown to in the captions
+        if (newEntry) {
+          const formattedTranscript = formatEntry(finalTranscript.trimRight());
+          handleAppendText(formattedTranscript);
           finalTranscript = '';
         }
       };
@@ -214,6 +205,7 @@ class Pad extends Component {
                   }
                   aria-describedby="dictationBtnDesc"
                   color="primary"
+                  disabled={!this.recognition}
                 />
                 <div id="dictationBtnDesc" hidden>
                   {listening
