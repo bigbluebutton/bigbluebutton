@@ -7,7 +7,7 @@ import browser from 'browser-detect';
 
 import Draggable from 'react-draggable';
 
-import { styles } from '../styles';
+import { styles } from '../styles.scss';
 
 const propTypes = {
   floatingOverlay: PropTypes.bool,

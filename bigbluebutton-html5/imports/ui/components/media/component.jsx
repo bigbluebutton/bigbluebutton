@@ -52,7 +52,10 @@ export default class Media extends Component {
       disableVideo,
       children,
       audioModalIsOpen,
+      usersVideo,
     } = this.props;
+
+    console.log(children);
 
     const contentClassName = cx({
       [styles.content]: true,
@@ -70,7 +73,12 @@ export default class Media extends Component {
         className={cx(styles.container)}
         ref={this.refContainer}
       >
-        <div className={!swapLayout ? contentClassName : overlayClassName}>
+        <div
+          className={!swapLayout ? contentClassName : overlayClassName}
+          style={{
+            maxHeight: usersVideo.length < 1 || floatingOverlay ? '100%' : '80%',
+          }}
+        >
           {children}
         </div>
         <WebcamDraggableOverlay
@@ -80,6 +88,7 @@ export default class Media extends Component {
           hideOverlay={hideOverlay}
           disableVideo={disableVideo}
           audioModalIsOpen={audioModalIsOpen}
+          usersVideo={usersVideo}
         />
       </div>
     );

@@ -143,8 +143,8 @@ class VideoListItem extends Component {
         [styles.content]: !swapLayout,
         [styles.contentSwapLayout]: swapLayout,
         [styles.talking]: user.isTalking,
-        [styles.contentLoading]: !videoIsReady && !swapLayout,
-        [styles.contentLoadingSwapLayout]: !videoIsReady && swapLayout,
+        // [styles.contentLoading]: !videoIsReady && !swapLayout,
+        // [styles.contentLoadingSwapLayout]: !videoIsReady && swapLayout,
       })}
       >
         {!videoIsReady && <div className={styles.connecting} />}
@@ -155,7 +155,7 @@ class VideoListItem extends Component {
           muted
           className={cx({
             [styles.media]: true,
-            [styles.contentLoading]: !videoIsReady,
+            // [styles.contentLoading]: !videoIsReady,
           })}
           ref={(ref) => { this.videoTag = ref; }}
           autoPlay

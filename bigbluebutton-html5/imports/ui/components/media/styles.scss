@@ -30,8 +30,7 @@
   margin-bottom: 10px;
   z-index: 2;
   align-items: center;
-  
-  min-height: calc(var(--video-width) / var(--video-ratio));
+  max-height: var(--video-height);
 }
 
 .overlayRelative{
@@ -40,7 +39,6 @@
 
 .overlayAbsoluteSingle{
   position: absolute;
-  height: calc(var(--video-width) / var(--video-ratio));
 }
 
 .overlayAbsoluteMult{
@@ -66,17 +64,18 @@
 
 .floatingOverlay {
   margin: 10px;
+  max-width: calc(var(--video-height) * var(--video-ratio));
 
   @include mq($medium-up) {
     z-index: 999;
     position: absolute;
     bottom: 0;
     right: 0;
-    width: var(--video-width);
-    min-width: var(--video-width);
-    max-width: var(--video-max-width);
-    height: calc(var(--video-width) / var(--video-ratio));
-    min-height: calc(var(--video-width) / var(--video-ratio));
+    width: calc(var(--video-height) * var(--video-ratio));
+    min-width: calc(var(--video-height) * var(--video-ratio));
+    max-width: calc(var(--video-height) * var(--video-ratio));
+    height: var(--video-height);
+    min-height: var(--video-height);
   }
 }
 
