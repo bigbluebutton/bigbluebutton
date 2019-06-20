@@ -73,6 +73,12 @@ class ActionsBar extends React.PureComponent {
               parseCurrentSlideContent,
             }}
           />
+          {isCaptionsAvailable
+            ? (
+              <CaptionsButtonContainer {...{ intl }} />
+            )
+            : null
+          }
         </div>
         <div
           className={
@@ -98,12 +104,6 @@ class ActionsBar extends React.PureComponent {
             screenshareDataSavingSetting,
           }}
           />
-          {isCaptionsAvailable
-            ? (
-              <CaptionsButtonContainer {...{ intl }} />
-            )
-            : null
-        }
         </div>
         <div className={styles.right}>
           {isLayoutSwapped
