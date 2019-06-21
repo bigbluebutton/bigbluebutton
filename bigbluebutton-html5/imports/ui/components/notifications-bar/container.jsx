@@ -25,7 +25,7 @@ const STATUS_WAITING = 'waiting';
 const METEOR_SETTINGS_APP = Meteor.settings.public.app;
 
 const SLOW_CONNECTIONS_TYPES = METEOR_SETTINGS_APP.effectiveConnection;
-const ENABLE_NETWORK_INFORMATION = METEOR_SETTINGS_APP.enableNetworkInformation;
+const ENABLE_NETWORK_MONITORING = Meteor.settings.public.networkMonitoring.enableNetworkMonitoring;
 
 const HELP_LINK = METEOR_SETTINGS_APP.helpLink;
 
@@ -134,7 +134,7 @@ export default injectIntl(withTracker(({ intl }) => {
 
   if (user) {
     const { effectiveConnectionType } = user;
-    if (ENABLE_NETWORK_INFORMATION && SLOW_CONNECTIONS_TYPES.includes(effectiveConnectionType)) {
+    if (ENABLE_NETWORK_MONITORING && SLOW_CONNECTIONS_TYPES.includes(effectiveConnectionType)) {
       data.message = (
         <SlowConnection effectiveConnectionType={effectiveConnectionType}>
           {intl.formatMessage(intlMessages.slowEffectiveConnectionDetected)}

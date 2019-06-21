@@ -8,6 +8,7 @@ import Button from '/imports/ui/components/button/component';
 import { styles } from './styles';
 
 const DEFAULT_VALUE = 'select';
+
 const DEFAULT_KEY = -1;
 
 const intlMessages = defineMessages({
@@ -18,6 +19,10 @@ const intlMessages = defineMessages({
   title: {
     id: 'app.captions.menu.title',
     description: 'Title for the closed captions menu',
+  },
+  subtitle: {
+    id: 'app.captions.menu.subtitle',
+    description: 'Subtitle for the closed captions writer menu',
   },
   start: {
     id: 'app.captions.menu.start',
@@ -53,7 +58,15 @@ const propTypes = {
 class WriterMenu extends PureComponent {
   constructor(props) {
     super(props);
-    this.state = { locale: null };
+    const { availableLocales, intl } = this.props;
+
+    const candidate = availableLocales.filter(
+      l => l.locale.substring(0, 2) === intl.locale.substring(0, 2),
+    );
+
+    this.state = {
+      locale: candidate && candidate[0] ? candidate[0].locale : null,
+    };
 
     this.handleChange = this.handleChange.bind(this);
     this.handleStart = this.handleStart.bind(this);
@@ -82,7 +95,7 @@ class WriterMenu extends PureComponent {
     } = this.props;
 
     const { locale } = this.state;
-
+    const defaultLocale = locale || DEFAULT_VALUE;
     return (
       <Modal
         overlayClassName={styles.overlay}
@@ -97,6 +110,9 @@ class WriterMenu extends PureComponent {
           </h3>
         </header>
         <div className={styles.content}>
+          <label>
+            {intl.formatMessage(intlMessages.subtitle)}
+          </label>
           <label
             aria-hidden
             htmlFor="captionsLangSelector"
@@ -106,7 +122,7 @@ class WriterMenu extends PureComponent {
             id="captionsLangSelector"
             className={styles.select}
             onChange={this.handleChange}
-            defaultValue={DEFAULT_VALUE}
+            defaultValue={defaultLocale}
           >
             <option disabled key={DEFAULT_KEY} value={DEFAULT_VALUE}>
               {intl.formatMessage(intlMessages.select)}

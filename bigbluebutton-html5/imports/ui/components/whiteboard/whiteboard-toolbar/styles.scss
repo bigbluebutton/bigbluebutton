@@ -15,6 +15,7 @@
   --toolbar-list-bg-focus: #c6c6c6;
   --toolbar-list-color: var(--color-gray);
   --toolbar-item-outline-offset: -.19rem;
+  --toolbar-item-triangle-padding: 2px;
 }
 
 .toolbarContainer {
@@ -94,6 +95,28 @@
   height: var(--toolbar-button-height);
   min-height: var(--toolbar-button-height);
   position: relative;
+}
+
+.cornerTriangle::before {
+  content: '';
+  position: absolute;
+  border-color: transparent;
+  border-style: solid;
+  z-index: 100;
+  border-radius: 0;
+  border-width: 0.35em;
+  bottom: var(--toolbar-item-triangle-padding);
+  left: var(--toolbar-item-triangle-padding);
+  border-left-color: var(--toolbar-list-color);
+  border-bottom-color: var(--toolbar-list-color);
+
+  [dir="rtl"] & {
+    left: auto;
+    right: var(--toolbar-item-triangle-padding);
+
+    border-left-color: transparent;
+    border-right-color: var(--toolbar-list-color);
+  }
 }
 
 .toolbarButton {

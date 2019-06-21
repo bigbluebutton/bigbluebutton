@@ -7,7 +7,6 @@
   font-weight: 600;
   text-transform: uppercase;
   padding: 0 var(--sm-padding-x);
-  color: var(--color-gray-light);
   margin-bottom: var(--lg-padding-y);
   margin-top: var(--sm-padding-x);
 }
@@ -67,24 +66,27 @@
       padding-right: var(--lg-padding-y);
     }
   }
-
-  &:active {
-    background-color: var(--list-item-bg-hover);
-    box-shadow: inset 0 0 0 var(--border-size) var(--item-focus-border), inset 1px 0 0 1px var(--item-focus-border);
-  }
 }
 
-.notification {
-  position: relative;
+.active {
+  background-color: var(--list-item-bg-hover);
+  box-shadow: inset 0 0 0 var(--border-size) var(--item-focus-border), inset 1px 0 0 1px var(--item-focus-border);
+}
 
-  &:after {
-    content: '';
-    position: absolute;
-    border-radius: 50%;
-    width: 8px;
-    height: 8px;
-    bottom: 3px;
-    right: 3px;
-    background-color: var(--color-danger);
-  }
+.unreadContent {
+  @extend %flex-column;
+  justify-content: center;
+}
+
+.unreadContentText {
+  @extend %flex-column;
+  @extend %no-margin;
+  justify-content: center;
+  color: var(--color-white);
+  line-height: calc(1rem + 1px);
+  padding: 0 0.5rem;
+  text-align: center;
+  border-radius: 0.5rem/50%;
+  font-size: 0.8rem;
+  background-color: var(--unread-messages-bg);
 }

@@ -80,6 +80,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
     <bean id="textFileCreator" class="org.bigbluebutton.presentation.imp.TextFileCreatorImp"/>
 
     <bean id="svgImageCreator" class="org.bigbluebutton.presentation.imp.SvgImageCreatorImp">
+    	<property name="swfSlidesGenerationProgressNotifier" ref="swfSlidesGenerationProgressNotifier"/>
         <property name="imageTagThreshold" value="${imageTagThreshold}"/>
         <property name="pathsThreshold" value="${placementsThreshold}"/>
     </bean>

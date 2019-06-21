@@ -25,6 +25,10 @@ const intlMessages = defineMessages({
     id: 'app.audioManager.leftAudio',
     description: 'Left audio toast message',
   },
+  reconnectingAudio: {
+    id: 'app.audioManager.reconnectingAudio',
+    description: 'Reconnecting audio toast message',
+  },
   genericError: {
     id: 'app.audioManager.genericError',
     description: 'Generic error message',
@@ -118,6 +122,7 @@ export default lockContextContainer(withModalMounter(injectIntl(withTracker(({ m
       JOINED_AUDIO: intlMessages.joinedAudio,
       JOINED_ECHO: intlMessages.joinedEcho,
       LEFT_AUDIO: intlMessages.leftAudio,
+      RECONNECTING_AUDIO: intlMessages.reconnectingAudio,
     },
     error: {
       GENERIC_ERROR: intlMessages.genericError,

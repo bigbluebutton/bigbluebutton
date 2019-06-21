@@ -282,3 +282,6 @@
 .icon-bbb-popout_window:before {
   content: "\e956";
 }
+.icon-bbb-closed_caption:before {
+  content: "\e957";
+}

@@ -23,6 +23,10 @@ const intlMessages = defineMessages({
     id: 'app.note.title',
     description: 'Title for the shared notes',
   },
+  unreadContent: {
+    id: 'app.userList.notesListItem.unreadContent',
+    description: 'Aria label for notes unread content',
+  }
 });
 
 class UserNotes extends Component {
@@ -68,8 +72,23 @@ class UserNotes extends Component {
       );
     };
 
-    const iconClasses = {};
-    iconClasses[styles.notification] = unread;
+    const linkClasses = {};
+    linkClasses[styles.active] = isPanelOpened;
+
+
+    let notification = null;
+    if (unread) {
+      notification = (
+        <div
+          className={styles.unreadContent}
+          aria-label={intl.formatMessage(intlMessages.unreadContent)}
+        >
+          <div className={styles.unreadContentText} aria-hidden="true">
+            ···
+          </div>
+        </div>
+      );
+    }
 
     return (
       <div className={styles.messages}>
@@ -82,11 +101,12 @@ class UserNotes extends Component {
           <div
             role="button"
             tabIndex={0}
-            className={styles.noteLink}
+            className={cx(styles.noteLink, linkClasses)}
             onClick={toggleNotePanel}
           >
-            <Icon iconName="copy" className={cx(iconClasses)}/>
+            <Icon iconName="copy" />
             <span>{intl.formatMessage(intlMessages.title)}</span>
+            {notification}
           </div>
         </div>
       </div>
