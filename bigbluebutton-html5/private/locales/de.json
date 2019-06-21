@@ -402,6 +402,7 @@
     "app.audioManager.joinedAudio": "Sie sind der Konferenz beigetreten",
     "app.audioManager.joinedEcho": "Der Echotest wurde gestartet",
     "app.audioManager.leftAudio": "Sie haben die Audiokonferenz verlassen",
+    "app.audioManager.reconnectingAudio": "Versuche Audio neu zu verbinden",
     "app.audioManager.genericError": "Fehler: Es ist ein Fehler aufgetreten, bitte versuchen Sie es erneut",
     "app.audioManager.connectionError": "Fehler: Verbindungsfehler",
     "app.audioManager.requestTimeout": "Fehler: Zeitüberschreitung beim Aufruf",
