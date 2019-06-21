@@ -44,6 +44,10 @@ export default class Legacy extends Component {
   render() {
     const { messages, normalizedLocale, viewState } = this.state;
     const isSupportedBrowser = supportedBrowsers.includes(browser().name);
+    const isChromeIos = browser().name === 'crios';
+
+    let messageId = isSupportedBrowser ? 'app.legacy.upgradeBrowser' : 'app.legacy.unsupportedBrowser';
+    if (isChromeIos) messageId = 'app.legacy.criosBrowser';
 
     switch (viewState) {
       case READY:
@@ -51,7 +55,7 @@ export default class Legacy extends Component {
           <IntlProvider locale={normalizedLocale} messages={messages}>
             <p className="browserWarning">
               <FormattedMessage
-                id={isSupportedBrowser ? 'app.legacy.upgradeBrowser' : 'app.legacy.unsupportedBrowser'}
+                id={messageId}
                 description="Warning when someone joins with a browser that isnt supported"
                 values={{
                   0: <a href="https://www.google.com/chrome/">Chrome</a>,
@@ -64,11 +68,22 @@ export default class Legacy extends Component {
       case FALLBACK:
         return (
           <p className="browserWarning">
-            <span>It looks like you&#39;re using a browser that is not fully supported. Please use either </span>
-            <a href="https://www.google.com/chrome/">Chrome</a>
-            <span> or </span>
-            <a href="https://getfirefox.com">Firefox</a>
-            <span> for full support.</span>
+            {isChromeIos ? (
+              <span>Please use Safari on iOS for full support.</span>
+            ) : (
+              <span>
+                <span>
+                  It looks like you&#39;re using a browser that
+                  is not fully supported. Please use either
+                  {' '}
+                </span>
+                <a href="https://www.google.com/chrome/">Chrome</a>
+                <span> or </span>
+                <a href="https://getfirefox.com">Firefox</a>
+                <span> for full support.</span>
+              </span>
+            )
+            }
           </p>
         );
       case FETCHING:
