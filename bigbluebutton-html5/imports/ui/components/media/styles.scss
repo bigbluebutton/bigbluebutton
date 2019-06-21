@@ -24,7 +24,7 @@
 
 .overlay {
   display: flex;
-  width: 100%;
+  width: fit-content;
   border: 0;
   margin-top: 10px;
   margin-bottom: 10px;
@@ -63,18 +63,19 @@
 }
 
 .floatingOverlay {
-  margin: 10px;
-  max-width: calc(var(--video-height) * var(--video-ratio));
+  margin-top: 10px;
+  margin-bottom: 10px;
+  //max-width: calc(var(--video-height) * var(--video-ratio));
 
   @include mq($medium-up) {
     z-index: 999;
     position: absolute;
     bottom: 0;
     right: 0;
-    width: calc(var(--video-height) * var(--video-ratio));
+    width: fit-content;
     min-width: calc(var(--video-height) * var(--video-ratio));
-    max-width: calc(var(--video-height) * var(--video-ratio));
-    height: var(--video-height);
+    max-width: fit-content;
+    height: fit-content;
     min-height: var(--video-height);
   }
 }

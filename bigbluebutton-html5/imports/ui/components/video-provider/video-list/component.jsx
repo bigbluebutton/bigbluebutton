@@ -68,7 +68,11 @@ class VideoList extends Component {
     this.ticking = false;
     this.grid = null;
     this.canvas = null;
-    this.handleCanvasResize = _.throttle(this.handleCanvasResize.bind(this), 66);
+    this.handleCanvasResize = _.throttle(this.handleCanvasResize.bind(this), 66,
+      {
+        leading: true,
+        trailing: true,
+      });
     this.setOptimalGrid = this.setOptimalGrid.bind(this);
   }
 

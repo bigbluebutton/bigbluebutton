@@ -55,8 +55,6 @@ export default class Media extends Component {
       usersVideo,
     } = this.props;
 
-    console.log(children);
-
     const contentClassName = cx({
       [styles.content]: true,
     });

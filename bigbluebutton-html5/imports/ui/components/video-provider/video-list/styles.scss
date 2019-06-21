@@ -11,7 +11,7 @@
   --audio-indicator-fs: 75%;
   position: relative;
   width: 100%;
-  min-height: calc(var(--video-width) / var(--video-ratio));
+  min-height: calc(var(--video-height));
   height: 100%;
   top: 0;
   left: 0;
@@ -28,7 +28,7 @@
   --audio-indicator-fs: 75%;
   position: relative;
   width: 100%;
-  min-height: calc(var(--video-width) / var(--video-ratio));
+  min-height: calc(var(--video-height));
   top: 0;
   left: 0;
   right: 0;
@@ -52,34 +52,7 @@
   }
 }
 
-.videoListSwapLayout {
-  display: grid;
-  padding: 10px;
-  border-radius: 5px;
-  min-height: calc(var(--video-width) / var(--video-ratio));
-  grid-template-columns: repeat(auto-fit, minmax(var(--video-width), 1fr));
-  grid-auto-columns: minmax(var(--video-width), 1fr);
-  grid-auto-rows: 1fr;
-  grid-gap: 5px;
-  align-items: center;
-  justify-content: center;
-  grid-auto-flow: row;
-
-  @include mq($medium-up) {
-    grid-gap: 10px;
-  }
-}
-
 .videoListItem {
-  display: flex;
-
-  &.focused {
-    grid-column: 1 / span 2;
-    grid-row: 1 / span 2;
-  }
-}
-
-.videoListItemSwapLayout {
   display: flex;
 
   &.focused {
@@ -94,39 +67,6 @@
   min-width: 100%;
   height: 100%;
   border-radius: 5px;
-
-  &::after {
-    content: "";
-    position: absolute;
-    top: 0;
-    right: 0;
-    bottom: 0;
-    left: 0;
-    border: 5px solid var(--color-white-with-transparency);
-    border-radius: 5px;
-    opacity: 0;
-    pointer-events: none;
-
-    :global(.animationsEnabled) & {
-      transition: opacity .1s;
-    }
-  }
-
-  &.talking::after {
-    opacity: 1;
-  }
-}
-
-.contentSwapLayout {
-  position: relative;
-  min-width: 100%;
-  height: 100%;
-  min-height: 100%;
-  border-radius: 5px;
-
-  background-color: var(--color-gray);
-
-  width: 100%;
 
   &::after {
     content: "";
