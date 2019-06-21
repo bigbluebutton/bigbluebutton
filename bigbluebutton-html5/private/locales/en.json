@@ -642,5 +642,6 @@
     "app.actionsBar.actionsDropdown.stopShareExternalVideo": "Stop sharing YouTube video",
     "app.iOSWarning.label": "Please upgrade to iOS 12.2 or higher",
     "app.legacy.unsupportedBrowser": "It looks like you're using a browser that is not supported. Please use either {0} or {1} for full support.",
-    "app.legacy.upgradeBrowser": "It looks like you're using an older version of a supported browser. Please upgrade your browser for full support."
+    "app.legacy.upgradeBrowser": "It looks like you're using an older version of a supported browser. Please upgrade your browser for full support.",
+    "app.legacy.criosBrowser": "Please use Safari on iOS for full support."
 }

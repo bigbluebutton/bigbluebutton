@@ -350,6 +350,8 @@ private:
   minBrowserVersions:
     - browser: chrome
       version: 59
+    - browser: chromeMobileIOS
+      version: Infinity
     - browser: firefox
       version: 52
     - browser: firefoxMobile
@@ -358,11 +360,11 @@ private:
       version: 17
     - browser: ie
       version: Infinity
+    - browser: safari
+      version: [11, 1]
     - browser: mobileSafari
       version: [11, 1]
     - browser: opera
       version: 46
-    - browser: safari
-      version: [11, 1]
     - browser: electron
       version: [0, 36]
