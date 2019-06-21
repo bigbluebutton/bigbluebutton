@@ -4,6 +4,7 @@ import { Session } from 'meteor/session';
 import { defineMessages, injectIntl } from 'react-intl';
 import injectWbResizeEvent from '/imports/ui/components/presentation/resize-wrapper/component';
 import Button from '/imports/ui/components/button/component';
+import logger from '/imports/startup/client/logger';
 import PadService from './service';
 import CaptionsService from '/imports/ui/components/captions/service';
 import { styles } from './styles';
@@ -20,6 +21,10 @@ const intlMessages = defineMessages({
   takeOwnership: {
     id: 'app.captions.pad.ownership',
     description: 'Label for taking ownership of closed captions pad',
+  },
+  interimResult: {
+    id: 'app.captions.pad.interimResult',
+    description: 'Title for speech recognition interim results',
   },
   dictationStart: {
     id: 'app.captions.pad.dictationStart',
@@ -47,15 +52,10 @@ const propTypes = {
   readOnlyPadId: PropTypes.string.isRequired,
   name: PropTypes.string.isRequired,
   amIModerator: PropTypes.bool.isRequired,
-  handleAppendText: PropTypes.func.isRequired,
-  initVoiceRecognition: PropTypes.func.isRequired,
-  formatEntry: PropTypes.func.isRequired,
   intl: PropTypes.shape({
     formatMessage: PropTypes.func.isRequired,
   }).isRequired,
 };
-
-const CAPTIONS_CONFIG = Meteor.settings.public.captions;
 
 class Pad extends PureComponent {
   static getDerivedStateFromProps(nextProps) {
@@ -72,8 +72,8 @@ class Pad extends PureComponent {
       listening: false,
     };
 
-    const { initVoiceRecognition } = props;
-    this.recognition = initVoiceRecognition();
+    const { locale } = props;
+    this.recognition = CaptionsService.initSpeechRecognition(locale);
 
     this.toggleListen = this.toggleListen.bind(this);
     this.handleListen = this.handleListen.bind(this);
@@ -107,16 +107,14 @@ class Pad extends PureComponent {
       listening,
     } = this.state;
 
-    const {
-      formatEntry,
-      handleAppendText,
-    } = this.props;
-
     if (this.recognition) {
       // Starts and stops the recognition when listening.
       // Throws an error if start() is called on a recognition that has already been started.
-      if (listening) this.recognition.start();
-      if (!listening) this.recognition.stop();
+      if (listening) {
+        this.recognition.start();
+      } else {
+        this.recognition.stop();
+      }
 
       // Stores the voice recognition results that have been verified.
       let finalTranscript = '';
@@ -138,24 +136,24 @@ class Pad extends PureComponent {
           else interimTranscript += transcript;
         }
 
-        // Adds the interimTranscript text to the itermResultContainer to show
+        // Adds the interimTranscript text to the iterimResultContainer to show
         // what's being said while speaking.
-        if (this.itermResultContainer) {
-          this.itermResultContainer.innerHTML = interimTranscript;
+        if (this.iterimResultContainer) {
+          this.iterimResultContainer.innerHTML = interimTranscript;
         }
 
         const newEntry = finalTranscript !== '';
 
         // Changes to the finalTranscript are shown to in the captions
         if (newEntry) {
-          const formattedTranscript = formatEntry(finalTranscript.trimRight());
-          handleAppendText(formattedTranscript);
+          const text = finalTranscript.trimRight();
+          CaptionsService.appendText(text);
           finalTranscript = '';
         }
       };
 
       this.recognition.onerror = (event) => {
-        console.log(`Error occurred in recognition: ${event.error}`);
+        logger.error({ logCode: 'captions_recognition' }, event.error);
       };
     }
   }
@@ -169,7 +167,6 @@ class Pad extends PureComponent {
       ownerId,
       name,
       amIModerator,
-      currentUserId,
     } = this.props;
 
     if (!amIModerator) {
@@ -178,8 +175,6 @@ class Pad extends PureComponent {
     }
 
     const { listening } = this.state;
-    const { enableDictation } = CAPTIONS_CONFIG;
-    const allowDictation = enableDictation && currentUserId === ownerId;
     const url = PadService.getPadURL(padId, readOnlyPadId, ownerId);
 
     return (
@@ -194,7 +189,7 @@ class Pad extends PureComponent {
               className={styles.hideBtn}
             />
           </div>
-          {allowDictation
+          {CaptionsService.canIDictateThisPad(ownerId)
             ? (
               <span>
                 <Button
@@ -233,10 +228,12 @@ class Pad extends PureComponent {
         </header>
         {listening ? (
           <div>
-            <span className={styles.intermTitle}>Interm results</span>
+            <span className={styles.interimTitle}>
+              {intl.formatMessage(intlMessages.interimResult)}
+            </span>
             <div
               className={styles.processing}
-              ref={(node) => { this.itermResultContainer = node; }}
+              ref={(node) => { this.iterimResultContainer = node; }}
             />
           </div>
         ) : null
