@@ -22,6 +22,7 @@ public:
     enableNetworkInformation: false
     enableLimitOfViewersInWebcam: false
     viewersInWebcam: 8
+    ipv4FallbackDomain: ""
     defaultSettings:
       application:
         animations: true
@@ -83,6 +84,9 @@ public:
       - critical
       - danger
       - warning
+  networkMonitoring:
+    enableNetworkMonitoring: false
+    packetLostThreshold: 10
   kurento:
     wsUrl: HOST
     chromeDefaultExtensionKey: akgoaoikmbmhcopjgakkcepdgdgkjfbc
@@ -102,6 +106,7 @@ public:
             max: 160
           height:
             max: 120
+        bitrate: 100
       - id: medium
         name: Medium quality
         default: true
@@ -110,6 +115,7 @@ public:
             max: 320
           height:
             max: 240
+        bitrate: 200
       - id: high
         name: High quality
         default: false
@@ -118,6 +124,7 @@ public:
             max: 640
           height:
             max: 480
+        bitrate: 500
       - id: hd
         name: High definition
         default: false
@@ -126,6 +133,7 @@ public:
             max: 1280
           height:
             max: 960
+        bitrate: 800
     enableScreensharing: true
     enableVideo: true
     enableVideoStats: false

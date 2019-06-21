@@ -20,8 +20,7 @@ import Auth from '/imports/ui/services/auth';
 import VideoService from './service';
 import VideoList from './video-list/component';
 
-const APP_CONFIG = Meteor.settings.public.app;
-const ENABLE_NETWORK_INFORMATION = APP_CONFIG.enableNetworkInformation;
+const ENABLE_NETWORK_MONITORING = Meteor.settings.public.networkMonitoring.enableNetworkMonitoring;
 const CAMERA_PROFILES = Meteor.settings.public.kurento.cameraProfiles;
 
 const intlClientErrors = defineMessages({
@@ -174,7 +173,7 @@ class VideoProvider extends Component {
     this.visibility.onVisible(this.unpauseViewers);
     this.visibility.onHidden(this.pauseViewers);
 
-    if (ENABLE_NETWORK_INFORMATION) {
+    if (ENABLE_NETWORK_MONITORING) {
       this.currentWebcamsStatsInterval = setInterval(() => {
         const currentWebcams = getCurrentWebcams();
         if (!currentWebcams) return;
@@ -190,9 +189,13 @@ class VideoProvider extends Component {
             && peer.peerConnection.getRemoteStreams().length > 0;
 
           if (hasLocalStream) {
-            this.customGetStats(peer.peerConnection, peer.peerConnection.getLocalStreams()[0].getVideoTracks()[0], (stats => updateWebcamStats(id, stats)), true);
+            this.customGetStats(peer.peerConnection,
+              peer.peerConnection.getLocalStreams()[0].getVideoTracks()[0],
+              (stats => updateWebcamStats(id, stats)), true);
           } else if (hasRemoteStream) {
-            this.customGetStats(peer.peerConnection, peer.peerConnection.getRemoteStreams()[0].getVideoTracks()[0], (stats => updateWebcamStats(id, stats)), true);
+            this.customGetStats(peer.peerConnection,
+              peer.peerConnection.getRemoteStreams()[0].getVideoTracks()[0],
+              (stats => updateWebcamStats(id, stats)), true);
           }
         });
       }, 5000);
@@ -487,7 +490,7 @@ class VideoProvider extends Component {
         webRtcPeer.dispose();
       }
       delete this.webRtcPeers[id];
-      if (ENABLE_NETWORK_INFORMATION) {
+      if (ENABLE_NETWORK_MONITORING) {
         deleteWebcamConnection(id);
         updateCurrentWebcamsConnection(this.webRtcPeers);
       }
@@ -516,7 +519,7 @@ class VideoProvider extends Component {
       const cameraProfile = CAMERA_PROFILES.find(profile => profile.id === profileId)
         || CAMERA_PROFILES.find(profile => profile.default)
         || CAMERA_PROFILES[0];
-      const { constraints } = cameraProfile;
+      const { constraints, bitrate } = cameraProfile;
       if (Session.get('WebcamDeviceId')) {
         constraints.deviceId = { exact: Session.get('WebcamDeviceId') };
       }
@@ -570,6 +573,7 @@ class VideoProvider extends Component {
             cameraId: id,
             meetingId,
             voiceBridge,
+            bitrate,
           };
           this.sendMessage(message);
           return true;
@@ -581,7 +585,7 @@ class VideoProvider extends Component {
           .peerConnection
           .oniceconnectionstatechange = this._getOnIceConnectionStateChangeCallback(id);
       }
-      if (ENABLE_NETWORK_INFORMATION) {
+      if (ENABLE_NETWORK_MONITORING) {
         newWebcamConnection(id);
         updateCurrentWebcamsConnection(this.webRtcPeers);
       }
@@ -833,9 +837,9 @@ class VideoProvider extends Component {
 
       let videoBitrate;
       if (videoStats.packetsReceived > 0) { // Remote video
-        videoLostPercentage = ((videoStats
-          .packetsLost / ((videoStats
-            .packetsLost + videoStats.packetsReceived) * 100)) || 0).toFixed(1);
+        videoLostPercentage = ((videoStats.packetsLost / (
+          (videoStats.packetsLost + videoStats.packetsReceived) * 100
+        )) || 0).toFixed(1);
         videoBitrate = Math.floor(videoKbitsReceivedPerSecond || 0);
         videoLostRecentPercentage = ((videoIntervalPacketsLost / ((videoIntervalPacketsLost
           + videoIntervalPacketsReceived) * 100)) || 0).toFixed(1);
@@ -1005,10 +1009,18 @@ class VideoProvider extends Component {
     const { socketOpen } = this.state;
     if (!socketOpen) return null;
 
-    const { users, enableVideoStats, cursor } = this.props;
+    const {
+      users,
+      enableVideoStats,
+      cursor,
+      swapLayout,
+      mediaHeight,
+    } = this.props;
     return (
       <VideoList
         cursor={cursor}
+        swapLayout={swapLayout}
+        mediaHeight={mediaHeight}
         users={users}
         onMount={this.createVideoTag}
         getStats={this.getStats}

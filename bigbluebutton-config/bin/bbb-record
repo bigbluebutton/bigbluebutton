@@ -35,6 +35,7 @@
 #   2016-07-02 FFD  Updates for 1.1-beta
 #   2016-10-17 GTR  Stricter rule for detection of recording directories names
 #   2017-04-28 FFD  Updated references to systemd processing units
+#   2019-05-13 GTR  Delete caption files
 
 #set -e
 #set -x
@@ -372,6 +373,10 @@ if [ $DELETE ]; then
     rm -rf /var/log/bigbluebutton/$type/*$MEETING_ID*
   done
 
+  rm -rf /var/bigbluebutton/captions/$MEETING_ID*
+  rm -f /var/bigbluebutton/inbox/$MEETING_ID*.json
+  rm -f /var/bigbluebutton/inbox/$MEETING_ID*.txt
+
   rm -rf /var/bigbluebutton/recording/raw/$MEETING_ID*
 
   rm -rf /usr/share/red5/webapps/video/streams/$MEETING_ID
@@ -402,7 +407,9 @@ if [ $DELETEALL ]; then
   done
 
   rm -rf /var/bigbluebutton/recording/raw/*
-  
+
+  rm -f /var/bigbluebutton/captions/inbox/*
+
   find /usr/share/red5/webapps/video/streams -name "*.flv" -exec rm '{}' \;
   find /usr/share/red5/webapps/video-broadcast/streams -name "*.flv" -exec rm '{}' \;
   rm -f /var/bigbluebutton/screenshare/*.flv
@@ -411,6 +418,7 @@ if [ $DELETEALL ]; then
   for meeting in $(ls /var/bigbluebutton | grep "^[0-9a-f]\{40\}-[[:digit:]]\{13\}$"); do
     echo "deleting: $meeting"
     rm -rf /var/bigbluebutton/$meeting
+    rm -rf /var/bigbluebutton/captions/$meeting
   done
 fi
 

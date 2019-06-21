@@ -4,6 +4,7 @@ import Note from '/imports/api/note';
 import Auth from '/imports/ui/services/auth';
 import Settings from '/imports/ui/services/settings';
 import mapUser from '/imports/ui/services/user/mapUser';
+import { Session } from 'meteor/session';
 
 const NOTE_CONFIG = Meteor.settings.public.note;
 
@@ -66,9 +67,18 @@ const getNoteURL = () => {
   return url;
 };
 
+const getRevs = () => {
+  const note = Note.findOne({ meetingId: Auth.meetingID });
+  return note ? note.revs : 0;
+};
+
 const isEnabled = () => {
   const note = Note.findOne({ meetingId: Auth.meetingID });
   return NOTE_CONFIG.enabled && note;
+};
+
+const isPanelOpened = () => {
+  return Session.get('openPanel') === 'note';
 };
 
 export default {
@@ -76,4 +86,6 @@ export default {
   getReadOnlyURL,
   isLocked,
   isEnabled,
+  isPanelOpened,
+  getRevs,
 };

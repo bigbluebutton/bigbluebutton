@@ -16,8 +16,12 @@ public class RecordingMetadataReaderHelper {
 
   private RecordingServiceGW recordingServiceGW;
 
-  public String getRecordingTextTracks(String recordId, String captionsDir) {
-    return recordingServiceGW.getRecordingTextTracks(recordId, captionsDir);
+  public Boolean validateTextTrackSingleUseToken(String recordId, String caption, String token) {
+    return recordingServiceGW.validateTextTrackSingleUseToken(recordId, caption, token);
+  }
+
+  public String getRecordingTextTracks(String recordId, String captionsDir, String captionsBaseUrl) {
+    return recordingServiceGW.getRecordingTextTracks(recordId, captionsDir, captionsBaseUrl);
   }
 
   public String putRecordingTextTrack(UploadedTrack track) {

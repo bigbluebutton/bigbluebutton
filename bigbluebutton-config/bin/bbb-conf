@@ -1469,6 +1469,32 @@ check_state() {
       exit 1
     fi
 
+    if ! systemctl show-environment | grep -q LANG=en_US.UTF-8; then
+      echo 
+      echo "#"
+      echo "# Warning: Detected that systemctl does not define LANG=en_US.UTF-8"
+      echo "#"
+      echo "# To correct, run the command "
+      echo "#"
+      echo "#   sudo systemctl set-environment LANG=en_US.UTF-8"
+      echo "#"
+      echo "# See http://docs.bigbluebutton.org/2.2/install.html#pre-installation-checks"
+      echo "#"
+    fi
+
+    if [ "$(stat -c "%U %G" /var/bigbluebutton)" != "bigbluebutton bigbluebutton" ]; then
+      echo 
+      echo "#"
+      echo "# Warning: The directory"
+      echo "#"
+      echo "#  /var/bigbluebutton"
+      echo "#"
+      echo "# is not owned by bigbluebutton:bigbluebutton.  To fix, run the command"
+      echo "#"
+      echo "#   sudo chown -R bigbluebutton:bigbluebutton /var/bigbluebutton"
+      echo "#"
+    fi
+
     exit 0
 }
 

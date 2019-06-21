@@ -8,8 +8,7 @@ import Meetings from '/imports/api/meetings';
 import Users from '/imports/api/users';
 import BreakoutRemainingTime from '/imports/ui/components/breakout-room/breakout-remaining-time/container';
 import SlowConnection from '/imports/ui/components/slow-connection/component';
-import NavBarService from '../nav-bar/service';
-
+import breakoutService from '/imports/ui/components/breakout-room/service';
 import NotificationsBar from './component';
 
 // disconnected and trying to open a new connection
@@ -23,9 +22,8 @@ const STATUS_WAITING = 'waiting';
 
 const METEOR_SETTINGS_APP = Meteor.settings.public.app;
 
-// https://github.com/bigbluebutton/bigbluebutton/issues/5286#issuecomment-465342716
 const SLOW_CONNECTIONS_TYPES = METEOR_SETTINGS_APP.effectiveConnection;
-const ENABLE_NETWORK_INFORMATION = METEOR_SETTINGS_APP.enableNetworkInformation;
+const ENABLE_NETWORK_MONITORING = Meteor.settings.public.networkMonitoring.enableNetworkMonitoring;
 
 const HELP_LINK = METEOR_SETTINGS_APP.helpLink;
 
@@ -126,7 +124,7 @@ export default injectIntl(withTracker(({ intl }) => {
 
   if (user) {
     const { effectiveConnectionType } = user;
-    if (ENABLE_NETWORK_INFORMATION && SLOW_CONNECTIONS_TYPES.includes(effectiveConnectionType)) {
+    if (ENABLE_NETWORK_MONITORING && SLOW_CONNECTIONS_TYPES.includes(effectiveConnectionType)) {
       data.message = (
         <SlowConnection effectiveConnectionType={effectiveConnectionType}>
           {intl.formatMessage(intlMessages.slowEffectiveConnectionDetected)}
@@ -167,7 +165,7 @@ export default injectIntl(withTracker(({ intl }) => {
   }
 
   const meetingId = Auth.meetingID;
-  const breakouts = NavBarService.getBreakouts();
+  const breakouts = breakoutService.getBreakouts();
 
   if (breakouts.length > 0) {
     const currentBreakout = breakouts.find(b => b.breakoutId === meetingId);
@@ -185,7 +183,6 @@ export default injectIntl(withTracker(({ intl }) => {
       );
     }
   }
-
 
   const Meeting = Meetings.findOne({ meetingId: Auth.meetingID });
 

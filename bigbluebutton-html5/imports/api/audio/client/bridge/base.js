@@ -16,6 +16,7 @@ export default class BaseAudioBridge {
       started: 'started',
       ended: 'ended',
       failed: 'failed',
+      reconnecting: 'reconnecting',
     };
   }
 

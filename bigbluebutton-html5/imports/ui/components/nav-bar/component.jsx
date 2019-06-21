@@ -3,14 +3,6 @@ import PropTypes from 'prop-types';
 import { Session } from 'meteor/session';
 import _ from 'lodash';
 import cx from 'classnames';
-import Auth from '/imports/ui/services/auth';
-import Icon from '/imports/ui/components/icon/component';
-import BreakoutJoinConfirmation from '/imports/ui/components/breakout-join-confirmation/container';
-import Dropdown from '/imports/ui/components/dropdown/component';
-import DropdownTrigger from '/imports/ui/components/dropdown/trigger/component';
-import DropdownContent from '/imports/ui/components/dropdown/content/component';
-import DropdownList from '/imports/ui/components/dropdown/list/component';
-import DropdownListItem from '/imports/ui/components/dropdown/list/item/component';
 import { withModalMounter } from '/imports/ui/components/modal/service';
 import withShortcutHelper from '/imports/ui/components/shortcut-help/service';
 import getFromUserSettings from '/imports/ui/services/users-settings';
@@ -81,15 +73,6 @@ const defaultProps = {
   shortcuts: '',
 };
 
-const openBreakoutJoinConfirmation = (breakout, breakoutName, mountModal) => mountModal(
-  <BreakoutJoinConfirmation
-    breakout={breakout}
-    breakoutName={breakoutName}
-  />,
-);
-
-const closeBreakoutJoinConfirmation = mountModal => mountModal(null);
-
 class NavBar extends PureComponent {
   static handleToggleUserList() {
     Session.set(
@@ -105,8 +88,6 @@ class NavBar extends PureComponent {
     super(props);
 
     this.state = {
-      isActionsOpen: false,
-      didSendBreakoutInvite: false,
       time: (props.recordProps.time ? props.recordProps.time : 0),
       amIModerator: props.amIModerator,
     };
@@ -131,14 +112,9 @@ class NavBar extends PureComponent {
     return { amIModerator: nextProps.amIModerator };
   }
 
-  componentDidUpdate(oldProps) {
+  componentDidUpdate() {
     const {
-      breakouts,
-      isBreakoutRoom,
-      mountModal,
       recordProps,
-      currentBreakoutUser,
-      getBreakoutByUser,
     } = this.props;
 
     if (!recordProps.recording) {
@@ -147,66 +123,10 @@ class NavBar extends PureComponent {
     } else if (this.interval === null) {
       this.interval = setInterval(this.incrementTime, 1000);
     }
-
-    const {
-      didSendBreakoutInvite,
-    } = this.state;
-
-    const hadBreakouts = oldProps.breakouts.length;
-    const hasBreakouts = breakouts.length;
-    if (!hasBreakouts && hadBreakouts) {
-      closeBreakoutJoinConfirmation(mountModal);
-    }
-
-    if (hasBreakouts && currentBreakoutUser) {
-      const currentIsertedTime = currentBreakoutUser.insertedTime;
-      const oldCurrentUser = oldProps.currentBreakoutUser || {};
-      const oldInsertedTime = oldCurrentUser.insertedTime;
-
-      if (currentIsertedTime !== oldInsertedTime) {
-        const breakoutRoom = getBreakoutByUser(currentBreakoutUser);
-        this.inviteUserToBreakout(breakoutRoom);
-      }
-    }
-
-    breakouts.forEach((breakout) => {
-      const userOnMeeting = breakout.users.filter(u => u.userId === Auth.userID).length;
-      if (breakout.freeJoin
-        && !didSendBreakoutInvite
-        && !userOnMeeting
-        && !isBreakoutRoom) {
-        this.inviteUserToBreakout(breakout);
-        this.setState({ didSendBreakoutInvite: true });
-      }
-
-      if (!breakout.users) {
-        return;
-      }
-
-      if (!userOnMeeting) return;
-
-      if ((!didSendBreakoutInvite && !isBreakoutRoom)) {
-        this.inviteUserToBreakout(breakout);
-      }
-    });
-
-    if (!breakouts.length && didSendBreakoutInvite) {
-      this.setState({ didSendBreakoutInvite: false });
-    }
   }
 
   componentWillUnmount() {
     clearInterval(this.interval);
-  }
-
-  inviteUserToBreakout(breakout) {
-    const {
-      mountModal,
-    } = this.props;
-
-    this.setState({ didSendBreakoutInvite: true }, () => {
-      openBreakoutJoinConfirmation.call(this, breakout, breakout.name, mountModal);
-    });
   }
 
   incrementTime() {
@@ -220,62 +140,6 @@ class NavBar extends PureComponent {
     }
   }
 
-  renderPresentationTitle() {
-    const {
-      breakouts,
-      isBreakoutRoom,
-      presentationTitle,
-    } = this.props;
-
-    const {
-      isActionsOpen,
-    } = this.state;
-
-    if (isBreakoutRoom || !breakouts.length) {
-      return (
-        <h1 className={styles.presentationTitle}>{presentationTitle}</h1>
-      );
-    }
-    const breakoutItems = breakouts.map(breakout => this.renderBreakoutItem(breakout));
-
-    return (
-      <Dropdown isOpen={isActionsOpen}>
-        <DropdownTrigger>
-          <h1 className={cx(styles.presentationTitle, styles.dropdownBreakout)}>
-            {presentationTitle}
-            {' '}
-            <Icon iconName="down-arrow" />
-          </h1>
-        </DropdownTrigger>
-        <DropdownContent
-          placement="bottom"
-        >
-          <DropdownList>
-            {breakoutItems}
-          </DropdownList>
-        </DropdownContent>
-      </Dropdown>
-    );
-  }
-
-  renderBreakoutItem(breakout) {
-    const {
-      mountModal,
-    } = this.props;
-
-    const breakoutName = breakout.name;
-
-    return (
-      <DropdownListItem
-        key={_.uniqueId('action-header')}
-        label={breakoutName}
-        onClick={
-          openBreakoutJoinConfirmation.bind(this, breakout, breakoutName, mountModal)
-        }
-      />
-    );
-  }
-
   render() {
     const {
       hasUnreadMessages,
@@ -285,12 +149,11 @@ class NavBar extends PureComponent {
       shortcuts: TOGGLE_USERLIST_AK,
       mountModal,
       isBreakoutRoom,
+      presentationTitle,
     } = this.props;
 
     const recordingMessage = recordProps.recording ? 'recordingIndicatorOn' : 'recordingIndicatorOff';
-
     const { time, amIModerator } = this.state;
-
     let recordTitle;
 
     if (!this.interval) {
@@ -329,7 +192,7 @@ class NavBar extends PureComponent {
           />
         </div>
         <div className={styles.center}>
-          {this.renderPresentationTitle()}
+          <h1 className={styles.presentationTitle}>{presentationTitle}</h1>
           {recordProps.record
             ? <span className={styles.presentationTitleSeparator} aria-hidden>|</span>
             : null}
