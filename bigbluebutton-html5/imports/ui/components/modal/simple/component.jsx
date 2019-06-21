@@ -41,7 +41,7 @@ class ModalSimple extends Component {
       modalHide,
       dismiss,
     } = this.props;
-    if (!dismiss && !modalHide) return;
+    if (!dismiss || !modalHide) return;
     modalHide(dismiss.callback);
   }
 
