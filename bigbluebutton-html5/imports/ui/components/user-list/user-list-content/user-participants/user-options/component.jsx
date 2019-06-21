@@ -117,7 +117,7 @@ class UserOptions extends PureComponent {
     this.lockId = _.uniqueId('list-item-');
     this.createBreakoutId = _.uniqueId('list-item-');
     this.saveUsersNameId = _.uniqueId('list-item-');
-    this.captionsId = _.uniqueId('action-item-');
+    this.captionsId = _.uniqueId('list-item-');
 
     this.onActionsShow = this.onActionsShow.bind(this);
     this.onActionsHide = this.onActionsHide.bind(this);
