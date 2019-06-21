@@ -19,7 +19,7 @@ export default function appendText(body, textData, locale) {
 
   axios({
     method: 'get',
-    url: appendTextURL(padId, encodeURIComponent(textData)),
+    url: appendTextURL(padId, textData),
     responseType: 'json',
   }).then((response) => {
     const { status } = response;
