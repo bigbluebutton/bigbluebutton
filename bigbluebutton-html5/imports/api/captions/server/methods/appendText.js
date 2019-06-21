@@ -8,23 +8,23 @@ import {
   appendTextURL,
 } from '/imports/api/note/server/helpers';
 
-export default function appendText(body, textData, locale) {
+export default function appendText(body, text, locale) {
   const { meetingId } = body;
 
   check(meetingId, String);
-  check(textData, String);
+  check(text, String);
   check(locale, String);
 
   const padId = generatePadId(meetingId, locale);
 
   axios({
     method: 'get',
-    url: appendTextURL(padId, textData),
+    url: appendTextURL(padId, text),
     responseType: 'json',
   }).then((response) => {
     const { status } = response;
     if (status === 200) {
-      Logger.info(`Appended text for padId:${padId}`);
+      Logger.verbose(`Appended text for padId:${padId}`);
     }
   }).catch(error => Logger.error(`Could not append captions for padId=${padId}: ${error}`));
 }
