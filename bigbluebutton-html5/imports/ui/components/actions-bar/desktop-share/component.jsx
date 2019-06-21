@@ -92,7 +92,7 @@ const DesktopShare = ({
     ? (
       <Button
         className={cx(styles.button, isVideoBroadcasting || styles.btn)}
-        disabled={!meteorIsConnected && !isVideoBroadcasting}
+        disabled={!meteorIsConnected && !isVideoBroadcasting || !screenshareDataSavingSetting}
         icon={isVideoBroadcasting ? 'desktop' : 'desktop_off'}
         label={intl.formatMessage(vLabel)}
         description={intl.formatMessage(vDescr)}
@@ -103,7 +103,6 @@ const DesktopShare = ({
         size="lg"
         onClick={isVideoBroadcasting ? handleUnshareScreen : () => handleShareScreen(onFail)}
         id={isVideoBroadcasting ? 'unshare-screen-button' : 'share-screen-button'}
-        disabled={!screenshareDataSavingSetting}
       />
     )
     : null);
