@@ -73,17 +73,20 @@
   box-shadow: inset 0 0 0 var(--border-size) var(--item-focus-border), inset 1px 0 0 1px var(--item-focus-border);
 }
 
-.notification {
-  position: relative;
+.unreadContent {
+  @extend %flex-column;
+  justify-content: center;
+}
 
-  &:after {
-    content: '';
-    position: absolute;
-    border-radius: 50%;
-    width: 8px;
-    height: 8px;
-    bottom: 3px;
-    right: 3px;
-    background-color: var(--color-danger);
-  }
+.unreadContentText {
+  @extend %flex-column;
+  @extend %no-margin;
+  justify-content: center;
+  color: var(--color-white);
+  line-height: calc(1rem + 1px);
+  padding: 0 0.5rem;
+  text-align: center;
+  border-radius: 0.5rem/50%;
+  font-size: 0.8rem;
+  background-color: var(--unread-messages-bg);
 }
