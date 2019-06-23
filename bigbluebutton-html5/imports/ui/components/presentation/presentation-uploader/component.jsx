@@ -196,7 +196,8 @@ class PresentationUploader extends Component {
   }
 
   static getDerivedStateFromProps(props, state) {
-    if (props.presentations[0].isCurrent && state.disableConfirm) {
+    const firstPres = props.presentations[0];
+    if (firstPres && firstPres.isCurrent && state.disableConfirm) {
       return {
         disableConfirm: !state.disableConfirm,
       };
