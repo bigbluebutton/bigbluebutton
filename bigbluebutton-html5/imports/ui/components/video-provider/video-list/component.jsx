@@ -165,8 +165,7 @@ class VideoList extends Component {
         <div
           key={user.id}
           className={cx({
-            [styles.videoListItem]: !swapLayout,
-            [styles.videoListItemSwapLayout]: swapLayout,
+            [styles.videoListItem]: true,
             [styles.focused]: focusedId === user.id && users.length > 2,
           })}
           style={{
@@ -197,13 +196,11 @@ class VideoList extends Component {
     const { optimalGrid } = this.state;
 
     const canvasClassName = cx({
-      [styles.videoCanvas]: !swapLayout,
-      [styles.videoCanvasSwapLayout]: swapLayout,
+      [styles.videoCanvas]: true,
     });
 
     const videoListClassName = cx({
-      [styles.videoList]: !swapLayout,
-      [styles.videoListSwapLayout]: swapLayout,
+      [styles.videoList]: true,
     });
 
     return (

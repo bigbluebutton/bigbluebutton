@@ -31,10 +31,12 @@
   z-index: 2;
   align-items: center;
   max-height: var(--video-height);
+  min-height: var(--video-height);
 }
 
 .overlayRelative{
   position: relative;
+  width: 100%;
 }
 
 .overlayAbsoluteSingle{
@@ -65,7 +67,6 @@
 .floatingOverlay {
   margin-top: 10px;
   margin-bottom: 10px;
-  //max-width: calc(var(--video-height) * var(--video-ratio));
 
   @include mq($medium-up) {
     z-index: 999;

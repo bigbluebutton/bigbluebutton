@@ -1,14 +1,6 @@
 @import "../../stylesheets/variables/_all";
 
 :root {
-  //--video-width: 10vw;
-  --video-height: calc(20vh - calc(var(--navbar-height) + var(--actionsbar-height)));
+  --video-height: calc((100vh - calc(var(--navbar-height) + var(--actionsbar-height))) * 0.2);
   --video-ratio: calc(4 / 3);
 }
-
-
-//@include mq($small-only) {
-//  :root {
-//    --video-width: 20vw;
-//  }
-//}

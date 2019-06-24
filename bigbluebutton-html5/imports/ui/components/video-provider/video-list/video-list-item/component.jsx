@@ -140,22 +140,15 @@ class VideoListItem extends Component {
 
     return (
       <div className={cx({
-        [styles.content]: !swapLayout,
-        [styles.contentSwapLayout]: swapLayout,
+        [styles.content]: true,
         [styles.talking]: user.isTalking,
-        // [styles.contentLoading]: !videoIsReady && !swapLayout,
-        // [styles.contentLoadingSwapLayout]: !videoIsReady && swapLayout,
       })}
       >
         {!videoIsReady && <div className={styles.connecting} />}
         <video
-          style={{
-            maxHeight: mediaHeight - 20, // 20 is margin
-          }}
           muted
           className={cx({
             [styles.media]: true,
-            // [styles.contentLoading]: !videoIsReady,
           })}
           ref={(ref) => { this.videoTag = ref; }}
           autoPlay

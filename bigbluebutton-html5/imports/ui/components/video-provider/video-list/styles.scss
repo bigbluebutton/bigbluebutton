@@ -9,30 +9,15 @@
   --cam-dropdown-width: 70%;
   --audio-indicator-width: 1.12rem;
   --audio-indicator-fs: 75%;
-  position: relative;
+  position: absolute;
   width: 100%;
-  min-height: calc(var(--video-height));
+  min-height: var(--video-height);
   height: 100%;
   top: 0;
   left: 0;
   right: 0;
   bottom: 0;
   display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.videoCanvasSwapLayout {
-  --cam-dropdown-width: 70%;
-  --audio-indicator-width: 1.12rem;
-  --audio-indicator-fs: 75%;
-  position: relative;
-  width: 100%;
-  min-height: calc(var(--video-height));
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
   align-items: center;
   justify-content: center;
 }
