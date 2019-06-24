@@ -47,6 +47,11 @@ const swapLayout = {
   tracker: new Tracker.Dependency(),
 };
 
+const setSwapLayout = () => {
+  swapLayout.value = getFromUserSettings('autoSwapLayout', LAYOUT_CONFIG.autoSwapLayout);
+  swapLayout.tracker.changed();
+};
+
 const toggleSwapLayout = () => {
   swapLayout.value = !swapLayout.value;
   swapLayout.tracker.changed();
@@ -64,7 +69,7 @@ export const shouldEnableSwapLayout = () => {
 
 export const getSwapLayout = () => {
   swapLayout.tracker.depend();
-  return swapLayout.value && shouldEnableSwapLayout();
+  return swapLayout.value;
 };
 
 export default {
@@ -78,4 +83,5 @@ export default {
   toggleSwapLayout,
   shouldEnableSwapLayout,
   getSwapLayout,
+  setSwapLayout,
 };
