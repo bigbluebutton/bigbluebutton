@@ -259,7 +259,7 @@ class UserOptions extends PureComponent {
           onClick={() => mountModal(<LockViewersContainer />)}
         />) : null
       ),
-      (<DropdownListSeparator key={_.uniqueId('list-separator-')} />),
+      (meteorIsConnected ? <DropdownListSeparator key={_.uniqueId('list-separator-')} /> : null),
       (canCreateBreakout && meteorIsConnected ? (
         <DropdownListItem
           key={this.createBreakoutId}

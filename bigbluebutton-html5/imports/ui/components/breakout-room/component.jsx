@@ -1,5 +1,4 @@
-import React, { Component } from 'react';
-
+import React, { PureComponent } from 'react';
 import { defineMessages, injectIntl } from 'react-intl';
 import _ from 'lodash';
 import Button from '/imports/ui/components/button/component';
@@ -50,7 +49,7 @@ const intlMessages = defineMessages({
   },
 });
 
-class BreakoutRoom extends Component {
+class BreakoutRoom extends PureComponent {
   constructor(props) {
     super(props);
     this.renderBreakoutRooms = this.renderBreakoutRooms.bind(this);
@@ -226,7 +225,7 @@ class BreakoutRoom extends Component {
 
   render() {
     const {
-      intl, endAllBreakouts, isModerator, closeBreakoutPanel,
+      meteorIsConnected, intl, endAllBreakouts, isModerator, closeBreakoutPanel,
     } = this.props;
     return (
       <div className={styles.panel}>
@@ -244,6 +243,7 @@ class BreakoutRoom extends Component {
             ? (
               <Button
                 color="primary"
+                disabled={!meteorIsConnected}
                 size="lg"
                 label={intl.formatMessage(intlMessages.endAllBreakouts)}
                 className={styles.endButton}

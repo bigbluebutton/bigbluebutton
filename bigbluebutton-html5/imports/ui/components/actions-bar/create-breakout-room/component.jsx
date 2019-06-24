@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import { defineMessages, injectIntl, intlShape } from 'react-intl';
 import _ from 'lodash';
@@ -119,7 +119,7 @@ const propTypes = {
   isBreakoutRecordable: PropTypes.bool.isRequired,
 };
 
-class BreakoutRoom extends Component {
+class BreakoutRoom extends PureComponent {
   constructor(props) {
     super(props);
     this.changeNumberOfRooms = this.changeNumberOfRooms.bind(this);

@@ -222,7 +222,7 @@ class SettingsDropdown extends PureComponent {
         description={intl.formatMessage(intlMessages.hotkeysDesc)}
         onClick={() => mountModal(<ShortcutHelpComponent />)}
       />),
-      (<DropdownListSeparator key={_.uniqueId('list-separator-')} />),
+      (meteorIsConnected ? <DropdownListSeparator key={_.uniqueId('list-separator-')} /> : null),
       allowedToEndMeeting && meteorIsConnected
         ? (<DropdownListItem
           key="list-item-end-meeting"

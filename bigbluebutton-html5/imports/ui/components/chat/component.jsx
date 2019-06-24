@@ -87,7 +87,7 @@ const Chat = (props) => {
                 accessKey={CLOSE_CHAT_AK}
               />
             )
-            : <ChatDropdown />
+            : <ChatDropdown meteorIsConnected={meteorIsConnected} />
         }
       </header>
       <MessageList
