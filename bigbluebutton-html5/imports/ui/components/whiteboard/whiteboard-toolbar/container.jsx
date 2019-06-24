@@ -26,6 +26,7 @@ export default withTracker((params) => {
     multiUser: WhiteboardToolbarService.getMultiUserStatus(whiteboardId),
     isPresenter: WhiteboardToolbarService.isPresenter(),
     annotations: WhiteboardToolbarService.filterAnnotationList(),
+    meteorIsConnected: Meteor.status().connected,
   };
 
   return data;
