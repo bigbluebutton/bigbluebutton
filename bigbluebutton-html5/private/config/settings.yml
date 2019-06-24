@@ -144,6 +144,7 @@ public:
     max_custom: 5
   captions:
     enabled: false
+    enableDictation: false
     backgroundColor: "#000000"
     fontColor: "#FFFFFF"
     fontFamily: Calibri

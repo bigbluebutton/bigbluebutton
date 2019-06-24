@@ -68,11 +68,30 @@ const takeOwnership = (locale) => {
   makeCall('takeOwnership', locale);
 };
 
+const formatEntry = (entry) => {
+  const letterIndex = entry.charAt(0) === ' ' ? 1 : 0;
+  const formattedEntry = `${entry.charAt(letterIndex).toUpperCase() + entry.slice(letterIndex + 1)}.\n\n`;
+  return formattedEntry;
+};
+
+const appendText = (text, locale) => {
+  makeCall('appendText', formatEntry(text), locale);
+};
+
 const canIOwnThisPad = (ownerId) => {
   const { userID } = Auth;
   if (!CAPTIONS_CONFIG.takeOwnership) return false;
   if (ownerId === '') return false;
   return ownerId !== userID;
+};
+
+const canIDictateThisPad = (ownerId) => {
+  const { userID } = Auth;
+  if (!CAPTIONS_CONFIG.enableDictation) return false;
+  if (ownerId === '') return false;
+  const SpeechRecognitionAPI = getSpeechRecognitionAPI();
+  if (!SpeechRecognitionAPI) return false;
+  return ownerId === userID;
 };
 
 const setActiveCaptions = (locale) => {
@@ -137,13 +156,32 @@ const amIModerator = () => {
   return mapUser(currentUser).isModerator;
 };
 
+const getSpeechRecognitionAPI = () => {
+  return window.SpeechRecognition || window.webkitSpeechRecognition;
+};
+
+const initSpeechRecognition = (locale) => {
+  const SpeechRecognitionAPI = getSpeechRecognitionAPI();
+  let recognition = null;
+  if (SpeechRecognitionAPI) {
+    recognition = new SpeechRecognitionAPI();
+    recognition.continuous = true;
+    recognition.interimResults = true;
+    recognition.lang = locale;
+  }
+
+  return recognition;
+};
+
 export default {
   getCaptionsData,
   getAvailableLocales,
   getOwnedLocales,
   takeOwnership,
+  appendText,
   getCaptions,
   canIOwnThisPad,
+  canIDictateThisPad,
   getCaptionsSettings,
   isCaptionsEnabled,
   isCaptionsAvailable,
@@ -152,4 +190,5 @@ export default {
   activateCaptions,
   formatCaptionsText,
   amIModerator,
+  initSpeechRecognition,
 };
