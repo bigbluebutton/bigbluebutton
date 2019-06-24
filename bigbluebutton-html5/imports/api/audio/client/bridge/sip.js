@@ -17,12 +17,13 @@ const CALL_CONNECT_TIMEOUT = 15000;
 const ICE_NEGOTIATION_TIMEOUT = 20000;
 
 class SIPSession {
-  constructor(user, userData, protocol, hostname, baseCallStates) {
+  constructor(user, userData, protocol, hostname, baseCallStates, baseErrorCodes) {
     this.user = user;
     this.userData = userData;
     this.protocol = protocol;
     this.hostname = hostname;
     this.baseCallStates = baseCallStates;
+    this.baseErrorCodes = baseErrorCodes;
   }
 
   static parseDTMF(message) {
