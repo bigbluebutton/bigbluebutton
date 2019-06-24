@@ -104,6 +104,10 @@ class Pad extends PureComponent {
 
   handleListen() {
     const {
+      locale,
+    } = this.props;
+
+    const {
       listening,
     } = this.state;
 
@@ -147,7 +151,7 @@ class Pad extends PureComponent {
         // Changes to the finalTranscript are shown to in the captions
         if (newEntry) {
           const text = finalTranscript.trimRight();
-          CaptionsService.appendText(text);
+          CaptionsService.appendText(text, locale);
           finalTranscript = '';
         }
       };
