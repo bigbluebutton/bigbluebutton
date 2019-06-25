@@ -24,7 +24,6 @@
 
 .overlay {
   display: flex;
-  width: fit-content;
   border: 0;
   margin-top: 10px;
   margin-bottom: 10px;
@@ -32,6 +31,7 @@
   align-items: center;
   max-height: var(--video-height);
   min-height: var(--video-height);
+  overflow: hidden;
 }
 
 .overlayRelative{
@@ -40,11 +40,12 @@
 }
 
 .overlayAbsoluteSingle{
-  position: absolute;
+  width: fit-content;
 }
 
 .overlayAbsoluteMult{
-  position: absolute;
+  width: 100%;
+  max-width: 100%;
 }
 
 .overlayToTop {

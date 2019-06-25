@@ -144,7 +144,6 @@ class VideoList extends Component {
       enableVideoStats,
       cursor,
       swapLayout,
-      mediaHeight,
     } = this.props;
     const { focusedId } = this.state;
 
@@ -184,7 +183,6 @@ class VideoList extends Component {
             stopGettingStats={() => stopGettingStats(user.id)}
             enableVideoStats={enableVideoStats}
             swapLayout={swapLayout}
-            mediaHeight={mediaHeight}
           />
         </div>
       );
@@ -192,7 +190,7 @@ class VideoList extends Component {
   }
 
   render() {
-    const { users, swapLayout } = this.props;
+    const { users } = this.props;
     const { optimalGrid } = this.state;
 
     const canvasClassName = cx({

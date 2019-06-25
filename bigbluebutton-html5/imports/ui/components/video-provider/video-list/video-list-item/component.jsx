@@ -130,7 +130,7 @@ class VideoListItem extends Component {
   render() {
     const { showStats, stats, videoIsReady } = this.state;
     const {
-      user, numOfUsers, swapLayout, mediaHeight,
+      user, numOfUsers,
     } = this.props;
     const availableActions = this.getAvailableActions();
     const enableVideoMenu = Meteor.settings.public.kurento.enableVideoMenu || false;
