@@ -32,6 +32,7 @@ class ActionsBar extends React.PureComponent {
       isSharingVideo,
       screenShareEndAlert,
       stopExternalVideoShare,
+      screenshareDataSavingSetting,
       isCaptionsAvailable,
     } = this.props;
 
@@ -72,6 +73,12 @@ class ActionsBar extends React.PureComponent {
               parseCurrentSlideContent,
             }}
           />
+          {isCaptionsAvailable
+            ? (
+              <CaptionsButtonContainer {...{ intl }} />
+            )
+            : null
+          }
         </div>
         <div
           className={
@@ -94,14 +101,9 @@ class ActionsBar extends React.PureComponent {
             isUserPresenter,
             screenSharingCheck,
             screenShareEndAlert,
+            screenshareDataSavingSetting,
           }}
           />
-          {isCaptionsAvailable
-            ? (
-              <CaptionsButtonContainer {...{ intl }} />
-            )
-            : null
-        }
         </div>
         <div className={styles.right}>
           {isLayoutSwapped

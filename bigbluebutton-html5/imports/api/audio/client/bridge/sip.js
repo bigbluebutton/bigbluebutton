@@ -11,38 +11,19 @@ const MEDIA_TAG = MEDIA.mediaTag;
 const CALL_TRANSFER_TIMEOUT = MEDIA.callTransferTimeout;
 const CALL_HANGUP_TIMEOUT = MEDIA.callHangupTimeout;
 const CALL_HANGUP_MAX_RETRIES = MEDIA.callHangupMaximumRetries;
+const IPV4_FALLBACK_DOMAIN = Meteor.settings.public.app.ipv4FallbackDomain;
 const ICE_NEGOTIATION_FAILED = ['iceConnectionFailed'];
 const CALL_CONNECT_TIMEOUT = 15000;
 const ICE_NEGOTIATION_TIMEOUT = 20000;
 
-export default class SIPBridge extends BaseAudioBridge {
-  constructor(userData) {
-    super(userData);
-
-    const {
-      userId,
-      username,
-      sessionToken,
-    } = userData;
-
-    this.user = {
-      userId,
-      sessionToken,
-      name: username,
-    };
-
-    this.media = {
-      inputDevice: {},
-    };
-
-    this.protocol = window.document.location.protocol;
-    this.hostname = window.document.location.hostname;
-
-    // SDP conversion utilitary methods to be used inside SIP.js
-    window.isUnifiedPlan = isUnifiedPlan;
-    window.toUnifiedPlan = toUnifiedPlan;
-    window.toPlanB = toPlanB;
-    window.stripMDnsCandidates = stripMDnsCandidates;
+class SIPSession {
+  constructor(user, userData, protocol, hostname, baseCallStates, baseErrorCodes) {
+    this.user = user;
+    this.userData = userData;
+    this.protocol = protocol;
+    this.hostname = hostname;
+    this.baseCallStates = baseCallStates;
+    this.baseErrorCodes = baseErrorCodes;
   }
 
   static parseDTMF(message) {
@@ -58,10 +39,24 @@ export default class SIPBridge extends BaseAudioBridge {
       const callExtension = extension ? `${extension}${this.userData.voiceBridge}` : this.userData.voiceBridge;
 
       const callback = (message) => {
+        // There will sometimes we erroneous errors put out like timeouts and improper shutdowns,
+        // but only the first error ever matters
+        if (this.alreadyErrored) {
+          logger.info({ logCode: 'sip_js_absorbing_callback_message' }, `Absorbing a redundant callback message. ${JSON.stringify(message)}`);
+          return;
+        }
+
+        if (message.status === this.baseCallStates.failed) {
+          this.alreadyErrored = true;
+        }
+
         managerCallback(message).then(resolve);
       };
 
       this.callback = callback;
+
+      // If there's an extension passed it means that we're joining the echo test first
+      this.inEchoTest = !!extension;
 
       return this.doCall({ callExtension, isListenOnly, inputStream })
         .catch((reason) => {
@@ -98,6 +93,8 @@ export default class SIPBridge extends BaseAudioBridge {
 
   transferCall(onTransferSuccess) {
     return new Promise((resolve, reject) => {
+      this.inEchoTest = false;
+
       const timeout = setInterval(() => {
         clearInterval(timeout);
         logger.error({ logCode: 'sip_js_transfer_timed_out' }, 'Timeout on transfering from echo test to conference');
@@ -114,7 +111,7 @@ export default class SIPBridge extends BaseAudioBridge {
 
       this.currentSession.on('dtmf', (event) => {
         if (event.body && (typeof event.body === 'string')) {
-          const key = SIPBridge.parseDTMF(event.body);
+          const key = SIPSession.parseDTMF(event.body);
           if (key === '7') {
             clearInterval(timeout);
             onTransferSuccess();
@@ -141,6 +138,8 @@ export default class SIPBridge extends BaseAudioBridge {
         }
 
         this.currentSession.bye();
+        this.userAgent.stop();
+
         hangupRetries += 1;
 
         setTimeout(() => {
@@ -178,8 +177,6 @@ export default class SIPBridge extends BaseAudioBridge {
         callerIdName,
       } = this.user;
 
-      let userAgentConnected = false;
-
       // WebView safari needs a transceiver to be added. Made it a SIP.js hack.
       // Don't like the UA picking though, we should straighten everything to user
       // transceivers - prlanzarin 2019/05/21
@@ -193,7 +190,18 @@ export default class SIPBridge extends BaseAudioBridge {
 
       logger.debug('Creating the user agent');
 
-      let userAgent = new window.SIP.UA({
+      if (this.userAgent && this.userAgent.isConnected()) {
+        if (this.userAgent.configuration.hostPortParams === this.hostname) {
+          logger.debug('Reusing the user agent');
+          resolve(this.userAgent);
+          return;
+        }
+        logger.debug('different host name. need to kill');
+      }
+
+      let userAgentConnected = false;
+
+      this.userAgent = new window.SIP.UA({
         uri: `sip:${encodeURIComponent(callerIdName)}@${hostname}`,
         wsServers: `${(protocol === 'https:' ? 'wss://' : 'ws://')}${hostname}/ws`,
         displayName: callerIdName,
@@ -207,20 +215,22 @@ export default class SIPBridge extends BaseAudioBridge {
         hackAddAudioTransceiver: isSafariWebview,
       });
 
-      userAgent.removeAllListeners('connected');
-      userAgent.removeAllListeners('disconnected');
-
       const handleUserAgentConnection = () => {
         userAgentConnected = true;
-        resolve(userAgent);
+        resolve(this.userAgent);
       };
 
       const handleUserAgentDisconnection = () => {
-        userAgent.stop();
-        userAgent = null;
+        if (this.userAgent) {
+          this.userAgent.removeAllListeners();
+          this.userAgent.stop();
+          this.userAgent = null;
+        }
 
         let error;
         let bridgeError;
+
+        if (this.userRequestedHangup) return;
 
         if (userAgentConnected) {
           error = 1001;
@@ -238,10 +248,10 @@ export default class SIPBridge extends BaseAudioBridge {
         reject(this.baseErrorCodes.CONNECTION_ERROR);
       };
 
-      userAgent.on('connected', handleUserAgentConnection);
-      userAgent.on('disconnected', handleUserAgentDisconnection);
+      this.userAgent.on('connected', handleUserAgentConnection);
+      this.userAgent.on('disconnected', handleUserAgentDisconnection);
 
-      userAgent.start();
+      this.userAgent.start();
     });
   }
 
@@ -279,8 +289,10 @@ export default class SIPBridge extends BaseAudioBridge {
     return new Promise((resolve) => {
       const { mediaHandler } = currentSession;
 
-      this.connectionCompleted = false;
-      this.inEcho = false;
+      let iceCompleted = false;
+      let fsReady = false;
+
+      this.currentSession = currentSession;
 
       let connectionCompletedEvents = ['iceConnectionCompleted', 'iceConnectionConnected'];
       // Edge sends a connected first and then a completed, but the call isn't ready until
@@ -291,7 +303,8 @@ export default class SIPBridge extends BaseAudioBridge {
       }
 
       const checkIfCallReady = () => {
-        if (this.connectionCompleted && this.inEcho) {
+        if (iceCompleted && fsReady) {
+          this.webrtcConnected = true;
           this.callback({ status: this.baseCallStates.started });
           resolve();
         }
@@ -312,9 +325,10 @@ export default class SIPBridge extends BaseAudioBridge {
       const handleSessionAccepted = () => {
         logger.info({ logCode: 'sip_js_session_accepted' }, 'Audio call session accepted');
         clearTimeout(callTimeout);
+        currentSession.off('accepted', handleSessionAccepted);
 
         // If ICE isn't connected yet then start timeout waiting for ICE to finish
-        if (!this.connectionCompleted) {
+        if (!iceCompleted) {
           iceNegotiationTimeout = setTimeout(() => {
             this.callback({
               status: this.baseCallStates.failed,
@@ -338,7 +352,7 @@ export default class SIPBridge extends BaseAudioBridge {
         clearTimeout(callTimeout);
         clearTimeout(iceNegotiationTimeout);
         connectionCompletedEvents.forEach(e => mediaHandler.off(e, handleConnectionCompleted));
-        this.connectionCompleted = true;
+        iceCompleted = true;
 
         checkIfCallReady();
       };
@@ -347,6 +361,8 @@ export default class SIPBridge extends BaseAudioBridge {
       const handleSessionTerminated = (message, cause) => {
         clearTimeout(callTimeout);
         clearTimeout(iceNegotiationTimeout);
+        currentSession.off('terminated', handleSessionTerminated);
+
         if (!message && !cause && !!this.userRequestedHangup) {
           return this.callback({
             status: this.baseCallStates.ended,
@@ -356,7 +372,7 @@ export default class SIPBridge extends BaseAudioBridge {
         logger.error({ logCode: 'sip_js_call_terminated' }, `Audio call terminated. cause=${cause}`);
 
         let mappedCause;
-        if (!this.connectionCompleted) {
+        if (!iceCompleted) {
           mappedCause = '1004';
         } else {
           mappedCause = '1005';
@@ -371,7 +387,7 @@ export default class SIPBridge extends BaseAudioBridge {
       currentSession.on('terminated', handleSessionTerminated);
 
       const handleIceNegotiationFailed = (peer) => {
-        if (this.connectionCompleted) {
+        if (iceCompleted) {
           logger.error({ logCode: 'sipjs_ice_failed_after' }, 'ICE connection failed after success');
         } else {
           logger.error({ logCode: 'sipjs_ice_failed_before' }, 'ICE connection failed before success');
@@ -404,18 +420,108 @@ export default class SIPBridge extends BaseAudioBridge {
 
       const inEchoDTMF = (event) => {
         if (event.body && typeof event.body === 'string') {
-          const dtmf = SIPBridge.parseDTMF(event.body);
+          const dtmf = SIPSession.parseDTMF(event.body);
           if (dtmf === '0') {
-            this.inEcho = true;
+            fsReady = true;
             checkIfCallReady();
           }
         }
         currentSession.off('dtmf', inEchoDTMF);
       };
       currentSession.on('dtmf', inEchoDTMF);
-
-      this.currentSession = currentSession;
     });
+  }
+}
+
+export default class SIPBridge extends BaseAudioBridge {
+  constructor(userData) {
+    super(userData);
+
+    const {
+      userId,
+      username,
+      sessionToken,
+    } = userData;
+
+    this.user = {
+      userId,
+      sessionToken,
+      name: username,
+    };
+
+    this.media = {
+      inputDevice: {},
+    };
+
+    this.protocol = window.document.location.protocol;
+    this.hostname = window.document.location.hostname;
+
+    // SDP conversion utilitary methods to be used inside SIP.js
+    window.isUnifiedPlan = isUnifiedPlan;
+    window.toUnifiedPlan = toUnifiedPlan;
+    window.toPlanB = toPlanB;
+    window.stripMDnsCandidates = stripMDnsCandidates;
+  }
+
+  joinAudio({ isListenOnly, extension, inputStream }, managerCallback) {
+    const hasFallbackDomain = typeof IPV4_FALLBACK_DOMAIN === 'string' && IPV4_FALLBACK_DOMAIN !== '';
+
+    return new Promise((resolve, reject) => {
+      let { hostname } = this;
+
+      this.activeSession = new SIPSession(this.user, this.userData, this.protocol,
+        hostname, this.baseCallStates, this.baseErrorCodes);
+
+      const callback = (message) => {
+        if (message.status === this.baseCallStates.failed) {
+          let shouldTryReconnect = false;
+
+          // Try and get the call to clean up and end on an error
+          this.activeSession.exitAudio().catch(() => {});
+
+          if (this.activeSession.webrtcConnected) {
+            // webrtc was able to connect so just try again
+            message.silenceNotifications = true;
+            callback({ status: this.baseCallStates.reconnecting });
+            shouldTryReconnect = true;
+          } else if (hasFallbackDomain === true && hostname !== IPV4_FALLBACK_DOMAIN) {
+            message.silenceNotifications = true;
+            logger.info({ logCode: 'sip_js_attempt_ipv4_fallback' }, 'Attempting to fallback to IPv4 domain for audio');
+            hostname = IPV4_FALLBACK_DOMAIN;
+            shouldTryReconnect = true;
+          }
+
+          if (shouldTryReconnect) {
+            const fallbackExtension = this.activeSession.inEchoTest ? extension : undefined;
+            this.activeSession = new SIPSession(this.user, this.userData, this.protocol,
+              hostname, this.baseCallStates, this.baseErrorCodes);
+            this.activeSession.joinAudio({ isListenOnly, extension: fallbackExtension, inputStream }, callback)
+              .then((value) => {
+                resolve(value);
+              }).catch((reason) => {
+                reject(reason);
+              });
+          }
+        }
+
+        return managerCallback(message);
+      };
+
+      this.activeSession.joinAudio({ isListenOnly, extension, inputStream }, callback)
+        .then((value) => {
+          resolve(value);
+        }).catch((reason) => {
+          reject(reason);
+        });
+    });
+  }
+
+  transferCall(onTransferSuccess) {
+    return this.activeSession.transferCall(onTransferSuccess);
+  }
+
+  exitAudio() {
+    return this.activeSession.exitAudio();
   }
 
   setDefaultInputDevice() {
@@ -424,24 +530,23 @@ export default class SIPBridge extends BaseAudioBridge {
       window.defaultInputStream = mediaStream.getTracks();
       return navigator.mediaDevices.enumerateDevices().then((mediaDevices) => {
         const device = mediaDevices.find(d => d.label === deviceLabel);
-        return this.changeInputDevice(device.deviceId);
+        return this.changeInputDevice(device.deviceId, deviceLabel);
       });
     };
 
     return navigator.mediaDevices.getUserMedia({ audio: true }).then(handleMediaSuccess);
   }
 
-  changeInputDevice(value) {
+  changeInputDevice(deviceId, deviceLabel) {
     const {
       media,
     } = this;
-
     if (media.inputDevice.audioContext) {
       const handleAudioContextCloseSuccess = () => {
         media.inputDevice.audioContext = null;
         media.inputDevice.scriptProcessor = null;
         media.inputDevice.source = null;
-        return this.changeInputDevice(value);
+        return this.changeInputDevice(deviceId);
       };
 
       return media.inputDevice.audioContext.close().then(handleAudioContextCloseSuccess);
@@ -453,14 +558,15 @@ export default class SIPBridge extends BaseAudioBridge {
       media.inputDevice.audioContext = new window.webkitAudioContext();
     }
 
-    media.inputDevice.id = value;
+    media.inputDevice.id = deviceId;
+    media.inputDevice.label = deviceLabel;
     media.inputDevice.scriptProcessor = media.inputDevice.audioContext
       .createScriptProcessor(2048, 1, 1);
     media.inputDevice.source = null;
 
     const constraints = {
       audio: {
-        deviceId: value,
+        deviceId,
       },
     };
 

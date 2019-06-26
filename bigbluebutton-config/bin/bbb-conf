@@ -148,10 +148,9 @@ BBB_USER=bigbluebutton
 
 if [ ! -f /usr/share/red5/webapps/bigbluebutton/WEB-INF/red5-web.xml ]; then
     echo "#"
-    echo "# BigBlueButton does not appear to be installed.  Could not"
-    echo "# locate:"
+    echo "# BigBlueButton does not appear to be installed.  Could not locate:"
     echo "#"
-    echo "# /usr/share/red5/webapps/bigbluebutton/WEB-INF/red5-web.xml"
+    echo "#    /usr/share/red5/webapps/bigbluebutton/WEB-INF/red5-web.xml"
     exit 1
 fi
 
@@ -1467,6 +1466,32 @@ check_state() {
       echo "#"
       systemctl stop bbb-web
       exit 1
+    fi
+
+    if ! systemctl show-environment | grep LANG= | grep -q UTF-8; then
+      echo 
+      echo "#"
+      echo "# Warning: Detected that systemctl does not define a UTF-8 language3"
+      echo "#"
+      echo "# To temporarily correct, run the command "
+      echo "#"
+      echo "#   sudo systemctl set-environment LANG=C.UTF-8"
+      echo "#"
+      echo "# See http://docs.bigbluebutton.org/2.2/install.html#pre-installation-checks"
+      echo "#"
+    fi
+
+    if [ "$(stat -c "%U %G" /var/bigbluebutton)" != "bigbluebutton bigbluebutton" ]; then
+      echo 
+      echo "#"
+      echo "# Warning: The directory"
+      echo "#"
+      echo "#  /var/bigbluebutton"
+      echo "#"
+      echo "# is not owned by bigbluebutton:bigbluebutton.  To fix, run the command"
+      echo "#"
+      echo "#   sudo chown -R bigbluebutton:bigbluebutton /var/bigbluebutton"
+      echo "#"
     fi
 
     exit 0

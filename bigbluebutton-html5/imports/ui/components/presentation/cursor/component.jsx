@@ -130,22 +130,23 @@ export default class Cursor extends Component {
 
   // this function retrieves the text node, measures its BBox and sets the size for the outer box
   calculateCursorLabelBoxDimensions() {
+    const { setLabelBoxDimensions } = this.props;
     let labelBoxWidth = 0;
     let labelBoxHeight = 0;
     if (this.cursorLabelRef) {
       const { width, height } = this.cursorLabelRef.getBBox();
-      const { widthRatio, physicalWidthRatio } = this.props;
+      const { widthRatio, physicalWidthRatio, cursorLabelBox } = this.props;
       labelBoxWidth = Cursor.invertScale(width, widthRatio, physicalWidthRatio);
       labelBoxHeight = Cursor.invertScale(height, widthRatio, physicalWidthRatio);
 
       // if the width of the text node is bigger than the maxSize - set the width to maxWidth
-      if (labelBoxWidth > this.props.cursorLabelBox.maxWidth) {
-        labelBoxWidth = this.props.cursorLabelBox.maxWidth;
+      if (labelBoxWidth > cursorLabelBox.maxWidth) {
+        labelBoxWidth = cursorLabelBox.maxWidth;
       }
     }
 
     // updating labelBoxWidth and labelBoxHeight in the container, which then passes it down here
-    this.props.setLabelBoxDimensions(labelBoxWidth, labelBoxHeight);
+    setLabelBoxDimensions(labelBoxWidth, labelBoxHeight);
   }
 
   render() {
@@ -154,10 +155,11 @@ export default class Cursor extends Component {
       fill,
     } = this;
 
+    const { cursorId, userName, isRTL } = this.props;
+
     const { cursorLabelBox, cursorLabelText, finalRadius } = this.scaledSizes;
 
-    const x = cursorCoordinate.x;
-    const y = cursorCoordinate.y;
+    const { x, y } = cursorCoordinate;
     const boxX = x + cursorLabelBox.xOffset;
     const boxY = y + cursorLabelBox.yOffset;
 
@@ -198,11 +200,12 @@ export default class Cursor extends Component {
                 fill={fill}
                 fillOpacity="0.8"
                 fontSize={cursorLabelText.fontSize}
-                clipPath={`url(#${this.props.cursorId})`}
+                clipPath={`url(#${cursorId})`}
+                textAnchor={isRTL ? 'end' : 'start'}
               >
-                {this.props.userName}
+                {userName}
               </text>
-              <clipPath id={this.props.cursorId}>
+              <clipPath id={cursorId}>
                 <rect
                   x={boxX}
                   y={boxY}
@@ -255,7 +258,7 @@ Cursor.propTypes = {
    * Defines the cursor radius (not scaled)
    * @defaultValue 5
    */
-  radius: PropTypes.number.isRequired,
+  radius: PropTypes.number,
 
   cursorLabelBox: PropTypes.shape({
     labelBoxStrokeWidth: PropTypes.number.isRequired,
@@ -279,6 +282,9 @@ Cursor.propTypes = {
   // set proper width and height of the border box -> pass it down ->
   // catch in the 'componentWillReceiveProps' -> apply new values
   setLabelBoxDimensions: PropTypes.func.isRequired,
+
+  // Defines the direction the client text should be displayed
+  isRTL: PropTypes.bool.isRequired,
 };
 
 Cursor.defaultProps = {

@@ -6,7 +6,8 @@ const FullscreenButtonContainer = props => <FullscreenButtonComponent {...props}
 
 export default (props) => {
   const handleToggleFullScreen = ref => toggleFullScreen(ref);
+  const isIphone = navigator.userAgent.match(/iPhone/i);
   return (
-    <FullscreenButtonContainer {...props} {...{ handleToggleFullScreen }} />
+    <FullscreenButtonContainer {...props} {...{ handleToggleFullScreen, isIphone }} />
   );
 };

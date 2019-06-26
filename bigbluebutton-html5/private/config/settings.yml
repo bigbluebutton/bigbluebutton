@@ -20,6 +20,9 @@ public:
     askForFeedbackOnLogout: false
     allowUserLookup: false
     enableNetworkInformation: false
+    enableLimitOfViewersInWebcam: false
+    viewersInWebcam: 8
+    ipv4FallbackDomain: ""
     defaultSettings:
       application:
         animations: true
@@ -81,6 +84,9 @@ public:
       - critical
       - danger
       - warning
+  networkMonitoring:
+    enableNetworkMonitoring: false
+    packetLostThreshold: 10
   kurento:
     wsUrl: HOST
     chromeDefaultExtensionKey: akgoaoikmbmhcopjgakkcepdgdgkjfbc
@@ -100,6 +106,7 @@ public:
             max: 160
           height:
             max: 120
+        bitrate: 100
       - id: medium
         name: Medium quality
         default: true
@@ -108,6 +115,7 @@ public:
             max: 320
           height:
             max: 240
+        bitrate: 200
       - id: high
         name: High quality
         default: false
@@ -116,6 +124,7 @@ public:
             max: 640
           height:
             max: 480
+        bitrate: 500
       - id: hd
         name: High definition
         default: false
@@ -124,6 +133,7 @@ public:
             max: 1280
           height:
             max: 960
+        bitrate: 800
     enableScreensharing: true
     enableVideo: true
     enableVideoStats: false
@@ -136,7 +146,8 @@ public:
   poll:
     max_custom: 5
   captions:
-    enabled: false
+    enabled: true
+    enableDictation: false
     backgroundColor: "#000000"
     fontColor: "#FFFFFF"
     fontFamily: Calibri
@@ -306,7 +317,7 @@ public:
   clientLog:
     server: { enabled: true, level: info }
     console: { enabled: true, level: debug }
-    external: { enabled: false, level: info, url: https://LOG_HOST/html5Log, method: POST, throttleInterval: 400 }
+    external: { enabled: false, level: info, url: https://LOG_HOST/html5Log, method: POST, throttleInterval: 400, flushOnClose: true }
 private:
   app:
     host: 127.0.0.1
@@ -343,6 +354,8 @@ private:
   minBrowserVersions:
     - browser: chrome
       version: 59
+    - browser: chromeMobileIOS
+      version: Infinity
     - browser: firefox
       version: 52
     - browser: firefoxMobile
@@ -351,11 +364,11 @@ private:
       version: 17
     - browser: ie
       version: Infinity
+    - browser: safari
+      version: [11, 1]
     - browser: mobileSafari
       version: [11, 1]
     - browser: opera
       version: 46
-    - browser: safari
-      version: [11, 1]
     - browser: electron
       version: [0, 36]

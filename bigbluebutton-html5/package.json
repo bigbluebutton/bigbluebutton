@@ -28,10 +28,11 @@
     }
   },
   "dependencies": {
-    "axios": "^0.19.0",
     "@babel/runtime": "^7.3.1",
-    "@browser-bunyan/server-stream": "^1.5.0",
+    "@browser-bunyan/server-stream": "^1.5.1",
+    "@jitsi/sdp-interop": "0.1.14",
     "autoprefixer": "~9.3.1",
+    "axios": "^0.19.0",
     "babel-plugin-react-remove-properties": "~0.2.5",
     "babel-runtime": "~6.26.0",
     "browser-bunyan": "^1.5.0",
@@ -68,7 +69,6 @@
     "react-youtube": "^7.9.0",
     "reconnecting-websocket": "~v4.1.10",
     "redis": "~2.8.0",
-    "@jitsi/sdp-interop": "0.1.14",
     "sdp-transform": "2.7.0",
     "string-hash": "~1.1.3",
     "tippy.js": "^3.4.1",
@@ -78,6 +78,7 @@
   },
   "devDependencies": {
     "chai": "~4.2.0",
+    "clipboardy": "^2.1.0",
     "eslint": "~5.8.0",
     "eslint-config-airbnb": "~17.1.0",
     "eslint-config-airbnb-base": "~13.1.0",

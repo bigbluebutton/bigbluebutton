@@ -1,8 +1,9 @@
 import React, { PureComponent } from 'react';
 import { withTracker } from 'meteor/react-meteor-data';
 import { Session } from 'meteor/session';
-import Pad from './component';
 import CaptionsService from '/imports/ui/components/captions/service';
+import PadService from './service';
+import Pad from './component';
 
 class PadContainer extends PureComponent {
   render() {
@@ -25,12 +26,14 @@ export default withTracker(() => {
   } = caption;
 
   const { name } = caption ? caption.locale : '';
+
   return {
     locale,
     name,
     ownerId,
     padId,
     readOnlyPadId,
+    currentUserId: PadService.getCurrentUser().userId,
     amIModerator: CaptionsService.amIModerator(),
   };
 })(PadContainer);

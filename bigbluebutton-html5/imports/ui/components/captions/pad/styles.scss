@@ -1,6 +1,22 @@
 @import "/imports/ui/stylesheets/mixins/focus";
 @import "/imports/ui/stylesheets/variables/_all";
 
+:root {
+  --speech-results-width: 22.3rem;
+}
+
+.processing {
+  margin-top: var(--lg-padding-y);
+  margin-bottom: var(--lg-padding-y);
+  min-height: var(--jumbo-padding-x);
+  width: var(--speech-results-width);
+  border: solid var(--border-size-small) var(--color-gray);
+}
+
+.interimTitle {
+  margin-top: var(--lg-padding-y);
+}
+
 .pad {
   background-color: var(--color-white);
   padding: var(--md-padding-x);

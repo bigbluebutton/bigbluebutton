@@ -30,6 +30,7 @@ export default function addUser(meetingId, user) {
     guestStatus: String,
     emoji: String,
     presenter: Boolean,
+    moderator: Boolean,
     locked: Boolean,
     avatar: String,
     clientType: String,
@@ -89,8 +90,9 @@ export default function addUser(meetingId, user) {
     ),
   };
 
-  // Only add an empty VoiceUser if there isn't one already. We want to avoid overwriting good data
-  if (!VoiceUsers.findOne({ meetingId, intId: userId })) {
+  // Only add an empty VoiceUser if there isn't one already and if the user coming in isn't a
+  // dial-in user. We want to avoid overwriting good data
+  if (user.clientType !== 'dial-in-user' && !VoiceUsers.findOne({ meetingId, intId: userId })) {
     addVoiceUser(meetingId, {
       voiceUserId: '',
       intId: userId,

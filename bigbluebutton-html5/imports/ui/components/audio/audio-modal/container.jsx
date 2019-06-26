@@ -6,6 +6,7 @@ import getFromUserSettings from '/imports/ui/services/users-settings';
 import AudioModal from './component';
 import Meetings from '/imports/api/meetings';
 import Auth from '/imports/ui/services/auth';
+import lockContextContainer from '/imports/ui/components/lock-viewers/context/container';
 import Service from '../service';
 
 const AudioModalContainer = props => <AudioModal {...props} />;
@@ -13,7 +14,7 @@ const AudioModalContainer = props => <AudioModal {...props} />;
 const APP_CONFIG = Meteor.settings.public.app;
 
 
-export default withModalMounter(withTracker(({ mountModal }) => {
+export default lockContextContainer(withModalMounter(withTracker(({ mountModal, userLocks }) => {
   const listenOnlyMode = getFromUserSettings('listenOnlyMode', APP_CONFIG.listenOnlyMode);
   const forceListenOnly = getFromUserSettings('forceListenOnly', APP_CONFIG.forceListenOnly);
   const skipCheck = getFromUserSettings('skipCheck', APP_CONFIG.skipCheck);
@@ -75,7 +76,7 @@ export default withModalMounter(withTracker(({ mountModal }) => {
     formattedDialNum,
     formattedTelVoice,
     combinedDialInNum,
-    audioLocked: Service.audioLocked(),
+    audioLocked: userLocks.userMic,
     joinFullAudioImmediately: !listenOnlyMode && skipCheck,
     joinFullAudioEchoTest: !listenOnlyMode && !skipCheck,
     forceListenOnlyAttendee: listenOnlyMode && forceListenOnly && !Service.isUserModerator(),
@@ -83,4 +84,4 @@ export default withModalMounter(withTracker(({ mountModal }) => {
     isMobileNative: navigator.userAgent.toLowerCase().includes('bbbnative'),
     isIEOrEdge: browser().name === 'edge' || browser().name === 'ie',
   });
-})(AudioModalContainer));
+})(AudioModalContainer)));

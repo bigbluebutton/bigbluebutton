@@ -503,7 +503,7 @@ class UserDropdown extends PureComponent {
       isMeetingLocked,
       meetingId,
     } = this.props;
-    
+
     const {
       isActionsOpen,
       dropdownVisible,

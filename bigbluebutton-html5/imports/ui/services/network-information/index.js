@@ -5,6 +5,10 @@ import Users from '/imports/api/users';
 import logger from '/imports/startup/client/logger';
 import _ from 'lodash';
 
+const NETWORK_MONITORING_CONFIG = Meteor.settings.public.networkMonitoring;
+
+const PACKET_LOST_THRESHOLD = NETWORK_MONITORING_CONFIG.packetLostThreshold;
+
 const NetworkInformationLocal = new Mongo.Collection(null);
 
 const NAVIGATOR_CONNECTION = 'NAVIGATOR_CONNECTION';
@@ -87,7 +91,7 @@ export const startBandwidthMonitoring = () => {
           },
           {
             'payload.id': { $ne: Auth.userID },
-            'payload.stats.deltaPacketsLost': { $gt: 0 },
+            'payload.stats.deltaPacketsLost': { $gt: PACKET_LOST_THRESHOLD },
           },
         ],
       }).count();
@@ -110,7 +114,7 @@ export const startBandwidthMonitoring = () => {
           },
           {
             'payload.id': { $ne: Auth.userID },
-            'payload.stats.deltaPacketsLost': { $gt: 0 },
+            'payload.stats.deltaPacketsLost': { $gt: PACKET_LOST_THRESHOLD },
           },
         ],
       }).fetch(), 'payload.id').length;
@@ -210,7 +214,7 @@ export const updateWebcamStats = (id, stats) => {
       stats: normalizedVideo,
     };
 
-    if (normalizedVideo.deltaPacketsLost > 0) {
+    if (normalizedVideo.deltaPacketsLost > PACKET_LOST_THRESHOLD) {
       makeCall('userInstabilityDetected', id);
     }
   }

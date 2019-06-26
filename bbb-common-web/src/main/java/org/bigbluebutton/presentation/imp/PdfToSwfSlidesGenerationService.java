@@ -50,7 +50,7 @@ public class PdfToSwfSlidesGenerationService {
   private PageConverter pdfToSwfConverter;
   private ExecutorService executor;
   private ThumbnailCreator thumbnailCreator;
-	private PngCreator pngCreator;
+  private PngCreator pngCreator;
 
   private TextFileCreator textFileCreator;
   private SvgImageCreator svgImageCreator;
@@ -71,9 +71,10 @@ public class PdfToSwfSlidesGenerationService {
             // Only create SWF files if the configuration requires it
             if (swfSlidesRequired) {
                 convertPdfToSwf(pres);
-                createThumbnails(pres);
             }
 
+            /* adding accessibility */
+            createThumbnails(pres);
             createTextFiles(pres);
 
             // only create SVG images if the configuration requires it

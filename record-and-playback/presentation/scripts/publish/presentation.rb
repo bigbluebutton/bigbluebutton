@@ -1185,9 +1185,6 @@ begin
     $process_dir = "#{recording_dir}/process/presentation/#{$meeting_id}"
     BigBlueButton.logger.info("setting publish dir")
     publish_dir = $presentation_props['publish_dir']
-    BigBlueButton.logger.info("setting captions dir")
-    captions_dir = bbb_props['captions_dir']
-    captions_meeting_dir = "#{captions_dir}/#{$meeting_id}"
     BigBlueButton.logger.info("setting playback url info")
     playback_protocol = bbb_props['playback_protocol']
     playback_host = bbb_props['playback_host']
@@ -1226,21 +1223,6 @@ begin
           BigBlueButton.logger.info("Copied audio.webm file - copying: #{$process_dir}/audio.ogg to -> #{audio_dir}")
           FileUtils.cp("#{$process_dir}/audio.ogg", audio_dir)
           BigBlueButton.logger.info("Copied audio.ogg file")
-        end
-
-        BigBlueButton.logger.info("Copying caption files to #{target_dir}")
-        captions = JSON.load(File.new("#{captions_meeting_dir}/captions.json"))
-        captions_json = []
-        captions.each do |track|
-          caption = {}
-          caption[:localeName] = track['label']
-          caption[:locale] = track['lang']
-          captions_json << caption
-          FileUtils.cp("#{captions_meeting_dir}/caption_" + track['lang'] + ".vtt", target_dir)
-        end
-
-        File.open("#{target_dir}/captions.json", "w") do |f|
-          f.write(captions_json.to_json)
         end
 
         if File.exist?("#{$process_dir}/captions.json")

@@ -8,6 +8,7 @@ import Button from '/imports/ui/components/button/component';
 import { styles } from './styles';
 
 const DEFAULT_VALUE = 'select';
+
 const DEFAULT_KEY = -1;
 
 const intlMessages = defineMessages({
@@ -19,13 +20,29 @@ const intlMessages = defineMessages({
     id: 'app.captions.menu.title',
     description: 'Title for the closed captions menu',
   },
+  subtitle: {
+    id: 'app.captions.menu.subtitle',
+    description: 'Subtitle for the closed captions writer menu',
+  },
   start: {
     id: 'app.captions.menu.start',
     description: 'Write closed captions',
   },
+  ariaStart: {
+    id: 'app.captions.menu.ariaStart',
+    description: 'aria label for start captions button',
+  },
+  ariaStartDesc: {
+    id: 'app.captions.menu.ariaStartDesc',
+    description: 'aria description for start captions button',
+  },
   select: {
     id: 'app.captions.menu.select',
     description: 'Select closed captions available language',
+  },
+  ariaSelect: {
+    id: 'app.captions.menu.ariaSelect',
+    description: 'Aria label for captions language selector',
   },
 });
 
@@ -41,7 +58,15 @@ const propTypes = {
 class WriterMenu extends PureComponent {
   constructor(props) {
     super(props);
-    this.state = { locale: null };
+    const { availableLocales, intl } = this.props;
+
+    const candidate = availableLocales.filter(
+      l => l.locale.substring(0, 2) === intl.locale.substring(0, 2),
+    );
+
+    this.state = {
+      locale: candidate && candidate[0] ? candidate[0].locale : null,
+    };
 
     this.handleChange = this.handleChange.bind(this);
     this.handleStart = this.handleStart.bind(this);
@@ -70,7 +95,7 @@ class WriterMenu extends PureComponent {
     } = this.props;
 
     const { locale } = this.state;
-
+    const defaultLocale = locale || DEFAULT_VALUE;
     return (
       <Modal
         overlayClassName={styles.overlay}
@@ -85,10 +110,19 @@ class WriterMenu extends PureComponent {
           </h3>
         </header>
         <div className={styles.content}>
+          <label>
+            {intl.formatMessage(intlMessages.subtitle)}
+          </label>
+          <label
+            aria-hidden
+            htmlFor="captionsLangSelector"
+            aria-label={intl.formatMessage(intlMessages.ariaSelect)}
+          />
           <select
+            id="captionsLangSelector"
             className={styles.select}
             onChange={this.handleChange}
-            defaultValue={DEFAULT_VALUE}
+            defaultValue={defaultLocale}
           >
             <option disabled key={DEFAULT_KEY} value={DEFAULT_VALUE}>
               {intl.formatMessage(intlMessages.select)}
@@ -102,9 +136,12 @@ class WriterMenu extends PureComponent {
           <Button
             className={styles.startBtn}
             label={intl.formatMessage(intlMessages.start)}
+            aria-label={intl.formatMessage(intlMessages.ariaStart)}
+            aria-describedby="descriptionStart"
             onClick={this.handleStart}
             disabled={locale == null}
           />
+          <div id="descriptionStart" hidden>{intl.formatMessage(intlMessages.ariaStartDesc)}</div>
         </div>
       </Modal>
     );
