@@ -19,6 +19,9 @@ public:
     basename: "/html5client"
     askForFeedbackOnLogout: false
     allowUserLookup: false
+    enableNetworkInformation: false
+    enableLimitOfViewersInWebcam: false
+    viewersInWebcam: 8
     ipv4FallbackDomain: ""
     defaultSettings:
       application:

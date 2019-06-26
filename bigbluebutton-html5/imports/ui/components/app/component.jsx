@@ -18,7 +18,7 @@ import ChatAlertContainer from '../chat/alert/container';
 import BannerBarContainer from '/imports/ui/components/banner-bar/container';
 import WaitingNotifierContainer from '/imports/ui/components/waiting-users/alert/container';
 import LockNotifier from '/imports/ui/components/lock-viewers/notify/container';
-
+import ManyWebcamsNotifier from '/imports/ui/components/video-provider/many-users-notify/container';
 import { styles } from './styles';
 
 const MOBILE_MEDIA = 'only screen and (max-width: 40em)';
@@ -343,6 +343,7 @@ class App extends Component {
         <ChatAlertContainer />
         <WaitingNotifierContainer />
         <LockNotifier />
+        <ManyWebcamsNotifier />
         {customStyleUrl ? <link rel="stylesheet" type="text/css" href={customStyleUrl} /> : null}
         {customStyle ? <link rel="stylesheet" type="text/css" href={`data:text/css;charset=UTF-8,${encodeURIComponent(customStyle)}`} /> : null}
       </main>
