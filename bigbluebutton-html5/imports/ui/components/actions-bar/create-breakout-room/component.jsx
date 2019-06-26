@@ -383,7 +383,9 @@ class BreakoutRoom extends Component {
       valid,
       numberOfRooms,
     } = this.state;
-    const rooms = (numberOfRooms > MAX_BREAKOUT_ROOMS) ? MIN_BREAKOUT_ROOMS : numberOfRooms;
+    const rooms = (numberOfRooms > MAX_BREAKOUT_ROOMS
+      || numberOfRooms < MIN_BREAKOUT_ROOMS)
+      ? 0 : numberOfRooms;
     const allowDrop = (ev) => {
       ev.preventDefault();
     };
