@@ -49,10 +49,6 @@ const intlMessages = defineMessages({
     id: 'app.submenu.application.languageLabel',
     description: 'displayed label for changing application locale',
   },
-  ariaLanguageLabel: {
-    id: 'app.submenu.application.ariaLanguageLabel',
-    description: 'aria label for locale change section',
-  },
   currentValue: {
     id: 'app.submenu.application.currentSize',
     description: 'current value label',
@@ -245,7 +241,7 @@ class ApplicationMenu extends BaseMenu {
                 <label
                   className={styles.label}
                   htmlFor="langSelector"
-                  aria-label={intl.formatMessage(intlMessages.ariaLanguageLabel)}
+                  aria-label={intl.formatMessage(intlMessages.languageLabel)}
                 >
                   {intl.formatMessage(intlMessages.languageLabel)}
                 </label>
