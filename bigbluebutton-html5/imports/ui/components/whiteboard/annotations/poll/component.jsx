@@ -295,6 +295,8 @@ class PollDrawComponent extends Component {
 
     const { pollAnswerIds } = Service;
 
+    const isRTL = document.documentElement.getAttribute('dir') === 'rtl';
+
     //* ********************************************************************************************
     //* *****************************************MAGIC NUMBER***************************************
     // There is no automatic vertical centering in SVG.
@@ -419,7 +421,7 @@ class PollDrawComponent extends Component {
           fill="#333333"
           fontFamily="Arial"
           fontSize={calcFontSize}
-          textAnchor="start"
+          textAnchor={isRTL ? 'end' : 'start'}
         >
           {extendedTextArray.map(line => (
             <tspan
@@ -450,7 +452,7 @@ class PollDrawComponent extends Component {
           fill="#333333"
           fontFamily="Arial"
           fontSize={calcFontSize}
-          textAnchor="end"
+          textAnchor={isRTL ? 'start' : 'end'}
         >
           {extendedTextArray.map(line => (
             <tspan
@@ -469,6 +471,7 @@ class PollDrawComponent extends Component {
           fill="#333333"
           fontFamily="Arial"
           fontSize={calcFontSize}
+          textAnchor={isRTL ? 'end' : 'start'}
         >
           {extendedTextArray.map(line => (
             <tspan
