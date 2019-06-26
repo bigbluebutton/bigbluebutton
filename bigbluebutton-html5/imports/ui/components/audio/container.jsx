@@ -8,6 +8,7 @@ import Breakouts from '/imports/api/breakouts';
 import { notify } from '/imports/ui/services/notification';
 import getFromUserSettings from '/imports/ui/services/users-settings';
 import VideoPreviewContainer from '/imports/ui/components/video-preview/container';
+import lockContextContainer from '/imports/ui/components/lock-viewers/context/container';
 import Service from './service';
 import AudioModalContainer from './audio-modal/container';
 
@@ -23,6 +24,10 @@ const intlMessages = defineMessages({
   leftAudio: {
     id: 'app.audioManager.leftAudio',
     description: 'Left audio toast message',
+  },
+  reconnectingAudio: {
+    id: 'app.audioManager.reconnectingAudio',
+    description: 'Reconnecting audio toast message',
   },
   genericError: {
     id: 'app.audioManager.genericError',
@@ -73,19 +78,20 @@ class AudioContainer extends React.Component {
 
 let didMountAutoJoin = false;
 
-export default withModalMounter(injectIntl(withTracker(({ mountModal, intl }) => {
+export default lockContextContainer(withModalMounter(injectIntl(withTracker(({ mountModal, intl, userLocks }) => {
   const APP_CONFIG = Meteor.settings.public.app;
   const KURENTO_CONFIG = Meteor.settings.public.kurento;
-
   const autoJoin = getFromUserSettings('autoJoin', APP_CONFIG.autoJoin);
+  const { userWebcam, userMic } = userLocks;
   const openAudioModal = () => new Promise((resolve) => {
     mountModal(<AudioModalContainer resolve={resolve} />);
   });
 
   const openVideoPreviewModal = () => new Promise((resolve) => {
+    if (userWebcam) return resolve();
     mountModal(<VideoPreviewContainer resolve={resolve} />);
   });
-  if (Service.audioLocked()
+  if (userMic
     && Service.isConnected()
     && !Service.isListenOnly()
     && !Service.isMuted()) {
@@ -116,6 +122,7 @@ export default withModalMounter(injectIntl(withTracker(({ mountModal, intl }) =>
       JOINED_AUDIO: intlMessages.joinedAudio,
       JOINED_ECHO: intlMessages.joinedEcho,
       LEFT_AUDIO: intlMessages.leftAudio,
+      RECONNECTING_AUDIO: intlMessages.reconnectingAudio,
     },
     error: {
       GENERIC_ERROR: intlMessages.genericError,
@@ -144,4 +151,4 @@ export default withModalMounter(injectIntl(withTracker(({ mountModal, intl }) =>
       }
     },
   };
-})(AudioContainer)));
+})(AudioContainer))));

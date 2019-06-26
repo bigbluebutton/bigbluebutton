@@ -54,6 +54,8 @@ public class RecordingService {
     private String recordStatusDir;
     private String captionsDir;
     private String presentationBaseDir;
+    private String defaultServerUrl;
+    private String defaultTextTrackUrl;
 
     private void copyPresentationFile(File presFile, File dlownloadableFile) {
         try {
@@ -168,8 +170,12 @@ public class RecordingService {
         return recs;
     }
 
+    public Boolean validateTextTrackSingleUseToken(String recordId, String caption, String token) {
+        return recordingServiceHelper.validateTextTrackSingleUseToken(recordId, caption, token);
+    }
+
     public String getRecordingTextTracks(String recordId) {
-        return recordingServiceHelper.getRecordingTextTracks(recordId, captionsDir);
+        return recordingServiceHelper.getRecordingTextTracks(recordId, captionsDir, getCaptionFileUrlDirectory());
     }
 
     public String putRecordingTextTrack(UploadedTrack track) {
@@ -240,6 +246,16 @@ public class RecordingService {
         }
 
         return ids;
+    }
+
+    public boolean isRecordingExist(String recordId) {
+        List<String> publishList = getAllRecordingIds(publishedDir);
+        List<String> unpublishList = getAllRecordingIds(unpublishedDir);
+        if (publishList.contains(recordId) || unpublishList.contains(recordId)) {
+            return true;
+        }
+
+        return false;
     }
 
     public boolean existAnyRecording(List<String> idList) {
@@ -372,6 +388,14 @@ public class RecordingService {
 
     public void setPresentationBaseDir(String dir) {
         presentationBaseDir = dir;
+    }
+
+    public void setDefaultServerUrl(String url) {
+        defaultServerUrl = url;
+    }
+
+    public void setDefaultTextTrackUrl(String url) {
+        defaultTextTrackUrl = url;
     }
 
     public void setPublishedDir(String dir) {
@@ -662,7 +686,16 @@ public class RecordingService {
         return baseDir;
     }
 
-		public String getCaptionTrackInboxDir() {
-			return captionsDir + File.separatorChar + "inbox";
-		}
+    public String getCaptionTrackInboxDir() {
+        return captionsDir + File.separatorChar + "inbox";
+    }
+
+    public String getCaptionsDir() {
+      return captionsDir;
+    }
+
+    public String getCaptionFileUrlDirectory() {
+        return defaultTextTrackUrl + "/textTrack/";
+    }
+
 }

@@ -33,7 +33,7 @@ const propTypes = {
 
 const defaultProps = {
   locale: undefined,
-  approved: undefined,
+  approved: false,
   meetingExist: false,
   subscriptionsReady: false,
 };
@@ -227,18 +227,8 @@ const BaseContainer = withTracker(() => {
     if (meetingEnded) Session.set('codeError', '410');
   }
 
-  const approved = Users.findOne({ userId: Auth.userID, approved: true, guest: true });
+  const approved = !!Users.findOne({ userId: Auth.userID, approved: true, guest: true });
   const ejected = Users.findOne({ userId: Auth.userID, ejected: true });
-  if (Session.get('codeError')) {
-    return {
-      User,
-      meetingHasEnded: !!meeting && meeting.meetingEnded,
-      approved,
-      ejected,
-      meetingIsBreakout: AppService.meetingIsBreakout(),
-    };
-  }
-
   let userSubscriptionHandler;
 
 

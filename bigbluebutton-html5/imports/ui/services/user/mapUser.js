@@ -36,7 +36,7 @@ const mapUser = (user) => {
     isBreakoutUser: user.breakoutProps.isBreakoutUser,
   };
 
-  mappedUser.isLocked = user.locked && !(mappedUser.isPresenter || mappedUser.isModerator);
+  mappedUser.isLocked = user.locked && !mappedUser.isModerator;
 
   return mappedUser;
 };

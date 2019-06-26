@@ -32,6 +32,7 @@ class ActionsBar extends React.PureComponent {
       isSharingVideo,
       screenShareEndAlert,
       stopExternalVideoShare,
+      screenshareDataSavingSetting,
       isCaptionsAvailable,
     } = this.props;
 
@@ -94,6 +95,7 @@ class ActionsBar extends React.PureComponent {
             isUserPresenter,
             screenSharingCheck,
             screenShareEndAlert,
+            screenshareDataSavingSetting,
           }}
           />
           {isCaptionsAvailable

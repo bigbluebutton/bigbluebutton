@@ -23,7 +23,6 @@
 }
 
 .overlay {
-  // flex: 1;
   display: flex;
   width: 100%;
   border: 0;
@@ -33,7 +32,6 @@
   align-items: center;
   
   min-height: calc(var(--video-width) / var(--video-ratio));
-  // max-height: 10vh;
 }
 
 .overlayRelative{
@@ -108,7 +106,6 @@
   position: absolute;
   width: 100%;
   z-index: 9999;
-  cursor: grabbing;
 }
 
 .dropZoneTop {

@@ -44,12 +44,57 @@ export default function sendAnnotation(credentials, annotation) {
   // and then slide/presentation changes, the user lost presenter rights,
   // or multi-user whiteboard gets turned off
   // So we allow the last "DRAW_END" message to pass through, to finish the shape.
-  const allowed = isPodPresenter(meetingId, whiteboardId, requesterUserId) ||
-    getMultiUserStatus(meetingId, whiteboardId) ||
-    isLastMessage(meetingId, annotation, requesterUserId);
+  const allowed = isPodPresenter(meetingId, whiteboardId, requesterUserId)
+    || getMultiUserStatus(meetingId, whiteboardId)
+    || isLastMessage(meetingId, annotation, requesterUserId);
 
   if (!allowed) {
     throw new Meteor.Error('not-allowed', `User ${requesterUserId} is not allowed to send an annotation`);
+  }
+
+  if (annotation.annotationType === 'text') {
+    check(annotation, {
+      id: String,
+      status: String,
+      annotationType: String,
+      annotationInfo: {
+        x: Number,
+        y: Number,
+        fontColor: Number,
+        calcedFontSize: Number,
+        textBoxWidth: Number,
+        text: String,
+        textBoxHeight: Number,
+        id: String,
+        whiteboardId: String,
+        status: String,
+        fontSize: Number,
+        dataPoints: String,
+        type: String,
+      },
+      wbId: String,
+      userId: String,
+      position: Number,
+    });
+  } else {
+    check(annotation, {
+      id: String,
+      status: String,
+      annotationType: String,
+      annotationInfo: {
+        color: Number,
+        thickness: Number,
+        points: Array,
+        id: String,
+        whiteboardId: String,
+        status: String,
+        type: String,
+        dimensions: Match.Maybe([Number]),
+      },
+      wbId: String,
+      userId: String,
+      position: Number,
+    });
   }
 
   const payload = {

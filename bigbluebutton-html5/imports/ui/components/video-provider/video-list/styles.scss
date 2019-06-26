@@ -11,31 +11,63 @@
   --audio-indicator-fs: 75%;
   position: relative;
   width: 100%;
+  min-height: calc(var(--video-width) / var(--video-ratio));
+  height: 100%;
   top: 0;
   left: 0;
   right: 0;
   bottom: 0;
   align-items: center;
   justify-content: center;
+}
+
+.videoCanvasSwapLayout {
+  --cam-dropdown-width: 70%;
+  --audio-indicator-width: 1.12rem;
+  --audio-indicator-fs: 75%;
+  position: relative;
+  width: 100%;
   min-height: calc(var(--video-width) / var(--video-ratio));
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  align-items: center;
+  justify-content: center;
 }
 
 .videoList {
   display: grid;
-  padding: 10px;
   border-radius: 5px;
-  // max-width: fit-content;
 
   min-height: calc(var(--video-width) / var(--video-ratio));
 
   grid-template-columns: repeat(auto-fit, var(--video-width));
-  grid-template-rows: repeat(auto-fit, calc(var(--video-width) / var(--video-ratio)));
+  grid-auto-columns: var(--video-width);
+  grid-auto-rows: calc(var(--video-width) / var(--video-ratio));
 
-  grid-auto-flow: column dense;
   grid-gap: 5px;
 
   align-items: center;
   justify-content: center;
+
+  @include mq($medium-up) {
+    grid-gap: 10px;
+  }
+}
+
+.videoListSwapLayout {
+  display: grid;
+  padding: 10px;
+  border-radius: 5px;
+  min-height: calc(var(--video-width) / var(--video-ratio));
+  grid-template-columns: repeat(auto-fit, minmax(var(--video-width), 1fr));
+  grid-auto-columns: minmax(var(--video-width), 1fr);
+  grid-auto-rows: 1fr;
+  grid-gap: 5px;
+  align-items: center;
+  justify-content: center;
+  grid-auto-flow: row;
 
   @include mq($medium-up) {
     grid-gap: 10px;
@@ -61,6 +93,25 @@
   min-width: var(--video-width);
   height: calc(var(--video-width) / var(--video-ratio));
   min-height: calc(var(--video-width) / var(--video-ratio));
+}
+
+.videoListItemSwapLayout {
+  display: flex;
+  max-width: -moz-fit-content;
+  max-height: -moz-fit-content;
+  width: 100%;
+  height: 100%;
+
+  &.focused {
+    grid-column: 1 / span 2;
+    grid-row: 1 / span 2;
+    width: 100%;
+    min-width: 100%;
+    max-width: 100%;
+    height: 100%;
+    min-height: 100%;
+    max-height: 100%;
+  }
 }
 
 .content {
@@ -108,6 +159,48 @@
   }
 }
 
+.contentSwapLayout {
+  position: relative;
+  min-width: 100%;
+  height: 100%;
+  min-height: 100%;
+  border-radius: 5px;
+
+  background-color: var(--color-gray);
+
+  width: 100%;
+
+  &::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    border: 5px solid var(--color-white-with-transparency);
+    border-radius: 5px;
+    opacity: 0;
+    pointer-events: none;
+
+    :global(.animationsEnabled) & {
+      transition: opacity .1s;
+    }
+  }
+
+  &.talking::after {
+    opacity: 1;
+  }
+
+  .focused & {
+    width: 100%;
+    min-width: 100%;
+    max-width: 100%;
+    height: 100%;
+    min-height: 100%;
+    max-height: 100%;
+  }
+}
+
 .contentLoading {
   width: var(--video-width);
   min-width: var(--video-width);
@@ -115,8 +208,12 @@
   min-height: calc(var(--video-width) / var(--video-ratio));
 }
 
-%media-area {
+.contentLoadingSwapLayout {
+  width: 100%;
+  height: 100%;
+}
 
+%media-area {
   position: relative;
   height: 100%;
   width: 100%;
@@ -151,7 +248,7 @@
     display: inline-block;
     height: 100%;
     vertical-align: middle;
-    margin:0 -0.25em 0 0;
+    margin: 0 -0.25em 0 0;
 
     [dir="rtl"] & {
       margin: 0 0 0 -0.25em
@@ -236,7 +333,7 @@
 
 .dropdownContent {
   min-width: 8.5rem;
-  
+
   [dir="rtl"] & {
     right: 2rem;
   }

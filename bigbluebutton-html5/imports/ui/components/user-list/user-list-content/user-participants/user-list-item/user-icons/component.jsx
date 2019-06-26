@@ -7,7 +7,7 @@ import { styles } from './styles';
 const METEOR_SETTINGS_APP = Meteor.settings.public.app;
 
 const SLOW_CONNECTIONS_TYPES = METEOR_SETTINGS_APP.effectiveConnection;
-const ENABLE_NETWORK_INFORMATION = METEOR_SETTINGS_APP.enableNetworkInformation;
+const ENABLE_NETWORK_MONITORING = Meteor.settings.public.networkMonitoring.enableNetworkMonitoring;
 
 const propTypes = {
   isModerator: PropTypes.bool.isRequired,
@@ -29,7 +29,7 @@ const UserIcons = (props) => {
     },
   } = props;
 
-  const showNetworkInformation = ENABLE_NETWORK_INFORMATION
+  const showNetworkInformation = ENABLE_NETWORK_MONITORING
     && SLOW_CONNECTIONS_TYPES.includes(effectiveConnectionType)
     && (id === Auth.userID || isModerator);
 

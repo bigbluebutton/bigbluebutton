@@ -1,0 +1,12 @@
+AllCops:
+  TargetRubyVersion: 2.3 # System ruby on Ubuntu 16.04
+Layout/AlignHash:
+  EnforcedHashRocketStyle: [ key, table ]
+Metrics:
+  Enabled: false
+Style/AsciiComments:
+  AllowedChars: [ © ]
+Style/TrailingCommaInArrayLiteral:
+  EnforcedStyleForMultiline: consistent_comma
+Style/TrailingCommaInHashLiteral:
+  EnforcedStyleForMultiline: consistent_comma

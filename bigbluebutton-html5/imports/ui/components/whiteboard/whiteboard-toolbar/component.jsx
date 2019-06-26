@@ -72,11 +72,10 @@ class WhiteboardToolbar extends Component {
     super(props);
 
     const { annotations } = this.props;
-    const isMobile = browser().mobile;
 
     let annotationSelected = {
-      icon: isMobile ? 'hand' : 'pen_tool',
-      value: isMobile ? 'hand' : 'pencil',
+      icon: 'hand',
+      value: 'hand',
     };
 
     if (!annotations.some(el => el.value === annotationSelected.value) && annotations.length > 0) {
@@ -243,8 +242,9 @@ class WhiteboardToolbar extends Component {
   panOff(event) {
     const { target, which } = event;
     const isInputArea = target.nodeName === 'TEXTAREA' || target.nodeName === 'INPUT';
+    const { panMode } = this.state;
 
-    if (isInputArea) return;
+    if (isInputArea || !panMode) return;
 
     const { prevAnnotationSelected } = this.state;
 
@@ -451,6 +451,7 @@ class WhiteboardToolbar extends Component {
           objectToReturn="annotationList"
           onBlur={this.closeSubMenu}
           className={cx(styles.toolbarButton, currentSubmenuOpen === 'annotationList' ? styles.toolbarActive : null)}
+          showCornerTriangle
         >
           {currentSubmenuOpen === 'annotationList' && annotations.length > 1
             ? (
@@ -482,6 +483,7 @@ class WhiteboardToolbar extends Component {
         objectToReturn="fontSizeList"
         onBlur={this.closeSubMenu}
         className={cx(styles.toolbarButton, currentSubmenuOpen === 'fontSizeList' ? styles.toolbarActive : null)}
+        showCornerTriangle
       >
         {currentSubmenuOpen === 'fontSizeList'
           ? (
@@ -543,6 +545,7 @@ class WhiteboardToolbar extends Component {
         onBlur={this.closeSubMenu}
         className={cx(styles.toolbarButton, currentSubmenuOpen === 'thicknessList' ? styles.toolbarActive : null)}
         customIcon={this.renderThicknessItemIcon()}
+        showCornerTriangle
       >
         {currentSubmenuOpen === 'thicknessList'
           ? (
@@ -599,7 +602,7 @@ class WhiteboardToolbar extends Component {
                 to={colorSelected.value}
                 begin="indefinite"
                 dur={TRANSITION_DURATION}
-                repeatCount="0"
+                repeatCount="1"
                 fill="freeze"
               />
               <animate
@@ -610,7 +613,7 @@ class WhiteboardToolbar extends Component {
                 to={thicknessSelected.value}
                 begin="indefinite"
                 dur={TRANSITION_DURATION}
-                repeatCount="0"
+                repeatCount="1"
                 fill="freeze"
               />
             </circle>
@@ -644,6 +647,7 @@ class WhiteboardToolbar extends Component {
         onBlur={this.closeSubMenu}
         className={cx(styles.toolbarButton, currentSubmenuOpen === 'colorList' ? styles.toolbarActive : null)}
         customIcon={this.renderColorItemIcon()}
+        showCornerTriangle
       >
         {currentSubmenuOpen === 'colorList'
           ? (
@@ -692,7 +696,7 @@ class WhiteboardToolbar extends Component {
                 to={colorSelected.value}
                 begin="indefinite"
                 dur={TRANSITION_DURATION}
-                repeatCount="0"
+                repeatCount="1"
                 fill="freeze"
               />
             </rect>

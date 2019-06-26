@@ -162,14 +162,17 @@
 }
 
 .connectingAnimation {
+  margin: auto;
+  display: inline-block;
+  width: 1.5em;
+
   &:after {
     overflow: hidden;
     display: inline-block;
     vertical-align: bottom;
     content: "\2026"; /* ascii code for the ellipsis character */
     width: 0;
-    margin-right: 0.75em;
-    margin-left: 0.75em;
+    margin-left: 0.25em;
 
     :global(.animationsEnabled) & {
       animation: ellipsis steps(4, end) 900ms infinite;
@@ -179,9 +182,7 @@
 
 @keyframes ellipsis {
   to {
-    width: 1.25em;
-    margin-right: 0;
-    margin-left: 0;
+    width: 1.5em;
   }
 }
 

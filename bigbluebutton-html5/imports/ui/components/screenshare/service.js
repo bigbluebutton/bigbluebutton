@@ -1,5 +1,6 @@
 import Screenshare from '/imports/api/screenshare';
 import KurentoBridge from '/imports/api/screenshare/client/bridge';
+import Settings from '/imports/ui/services/settings';
 
 // when the meeting information has been updated check to see if it was
 // screensharing. If it has changed either trigger a call to receive video
@@ -32,12 +33,14 @@ const shareScreen = (onFail) => {
   KurentoBridge.kurentoShareScreen(onFail);
 };
 
+const screenShareEndAlert = () => new Audio(`${Meteor.settings.public.app.cdn + Meteor.settings.public.app.basename}/resources/sounds/ScreenshareOff.mp3`).play();
+
 const unshareScreen = () => {
   KurentoBridge.kurentoExitScreenShare();
   screenShareEndAlert();
 };
 
-const screenShareEndAlert = () => new Audio(`${Meteor.settings.public.app.cdn + Meteor.settings.public.app.basename}/resources/sounds/ScreenshareOff.mp3`).play();
+const dataSavingSetting = () => Settings.dataSaving.viewScreenshare;
 
 export {
   isVideoBroadcasting,
@@ -46,4 +49,5 @@ export {
   shareScreen,
   unshareScreen,
   screenShareEndAlert,
+  dataSavingSetting,
 };
