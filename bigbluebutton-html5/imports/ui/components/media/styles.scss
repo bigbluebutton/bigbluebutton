@@ -24,27 +24,28 @@
 
 .overlay {
   display: flex;
-  width: 100%;
   border: 0;
   margin-top: 10px;
   margin-bottom: 10px;
   z-index: 2;
   align-items: center;
-  
-  min-height: calc(var(--video-width) / var(--video-ratio));
+  max-height: var(--video-height);
+  min-height: var(--video-height);
+  overflow: hidden;
 }
 
 .overlayRelative{
   position: relative;
+  width: 100%;
 }
 
 .overlayAbsoluteSingle{
-  position: absolute;
-  height: calc(var(--video-width) / var(--video-ratio));
+  width: fit-content;
 }
 
 .overlayAbsoluteMult{
-  position: absolute;
+  width: 100%;
+  max-width: 100%;
 }
 
 .overlayToTop {
@@ -65,18 +66,19 @@
 }
 
 .floatingOverlay {
-  margin: 10px;
+  margin-top: 10px;
+  margin-bottom: 10px;
 
   @include mq($medium-up) {
     z-index: 999;
     position: absolute;
     bottom: 0;
     right: 0;
-    width: var(--video-width);
-    min-width: var(--video-width);
-    max-width: var(--video-max-width);
-    height: calc(var(--video-width) / var(--video-ratio));
-    min-height: calc(var(--video-width) / var(--video-ratio));
+    width: fit-content;
+    min-width: calc(var(--video-height) * var(--video-ratio));
+    max-width: fit-content;
+    height: fit-content;
+    min-height: var(--video-height);
   }
 }
 
