@@ -955,12 +955,12 @@ class VideoProvider extends Component {
       const { userId } = this.props;
       this.logger('info', 'Handle play start for camera', 'video_provider_handle_play_start', { cameraId: id });
 
+      peer.started = true;
+
       // Clear camera shared timeout when camera succesfully starts
       clearTimeout(this.restartTimeout[id]);
       delete this.restartTimeout[id];
       delete this.restartTimer[id];
-
-      peer.started = true;
 
       if (!peer.attached) {
         this.attachVideoStream(id);
