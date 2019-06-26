@@ -519,6 +519,7 @@ class BreakoutRoom extends Component {
             onClick={this.onAssignRandomly}
             size="sm"
             color="default"
+            disabled={!numberOfRoomsIsValid}
           />
         </div>
         <span className={!numberOfRoomsIsValid
