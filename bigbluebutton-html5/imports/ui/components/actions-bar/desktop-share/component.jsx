@@ -16,7 +16,7 @@ const propTypes = {
   isVideoBroadcasting: PropTypes.bool.isRequired,
   screenSharingCheck: PropTypes.bool.isRequired,
   screenShareEndAlert: PropTypes.func.isRequired,
-  meteorIsConnected: PropTypes.bool.isRequired,
+  isMeteorConnected: PropTypes.bool.isRequired,
   screenshareDataSavingSetting: PropTypes.bool.isRequired,
 };
 
@@ -63,7 +63,7 @@ const DesktopShare = ({
   isUserPresenter,
   screenSharingCheck,
   screenShareEndAlert,
-  meteorIsConnected,
+  isMeteorConnected,
   screenshareDataSavingSetting,
 }) => {
   const onFail = (error) => {
@@ -92,7 +92,7 @@ const DesktopShare = ({
     ? (
       <Button
         className={cx(styles.button, isVideoBroadcasting || styles.btn)}
-        disabled={!meteorIsConnected && !isVideoBroadcasting || !screenshareDataSavingSetting}
+        disabled={!isMeteorConnected && !isVideoBroadcasting || !screenshareDataSavingSetting}
         icon={isVideoBroadcasting ? 'desktop' : 'desktop_off'}
         label={intl.formatMessage(vLabel)}
         description={intl.formatMessage(vDescr)}

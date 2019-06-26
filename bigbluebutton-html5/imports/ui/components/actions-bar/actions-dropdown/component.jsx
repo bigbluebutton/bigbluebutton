@@ -184,12 +184,12 @@ class ActionsDropdown extends PureComponent {
       isUserPresenter,
       isUserModerator,
       shortcuts: OPEN_ACTIONS_AK,
-      meteorIsConnected,
+      isMeteorConnected,
     } = this.props;
 
     const availableActions = this.getAvailableActions();
 
-    if ((!isUserPresenter && !isUserModerator) || availableActions.length === 0 || !meteorIsConnected) return null;
+    if ((!isUserPresenter && !isUserModerator) || availableActions.length === 0 || !isMeteorConnected) return null;
 
     return (
       <Dropdown ref={(ref) => { this._dropdown = ref; }}>

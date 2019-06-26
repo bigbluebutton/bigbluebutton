@@ -18,6 +18,6 @@ export default withTracker(({ userId }) => {
     userInBreakout: !!findUserInBreakout,
     breakoutSequence,
     meetignIsBreakout: Meeting && Meeting.meetingProp.isBreakout,
-    meteorIsConnected: Meteor.status().connected,
+    isMeteorConnected: Meteor.status().connected,
   };
 })(UserListItemContainer);

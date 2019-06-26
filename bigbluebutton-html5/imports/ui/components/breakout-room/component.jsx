@@ -225,7 +225,7 @@ class BreakoutRoom extends PureComponent {
 
   render() {
     const {
-      meteorIsConnected, intl, endAllBreakouts, isModerator, closeBreakoutPanel,
+      isMeteorConnected, intl, endAllBreakouts, isModerator, closeBreakoutPanel,
     } = this.props;
     return (
       <div className={styles.panel}>
@@ -243,7 +243,7 @@ class BreakoutRoom extends PureComponent {
             ? (
               <Button
                 color="primary"
-                disabled={!meteorIsConnected}
+                disabled={!isMeteorConnected}
                 size="lg"
                 label={intl.formatMessage(intlMessages.endAllBreakouts)}
                 className={styles.endButton}

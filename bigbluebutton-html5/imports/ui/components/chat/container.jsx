@@ -143,7 +143,7 @@ export default injectIntl(withTracker(({ intl }) => {
   const hasUnreadMessages = ChatService.hasUnreadMessages(chatID);
   const lastReadMessageTime = ChatService.lastReadMessageTime(chatID);
 
-  const { connected: meteorIsConnected } = Meteor.status();
+  const { connected: isMeteorConnected } = Meteor.status();
 
   return {
     chatID,
@@ -155,7 +155,7 @@ export default injectIntl(withTracker(({ intl }) => {
     partnerIsLoggedOut,
     isChatLocked,
     scrollPosition,
-    meteorIsConnected,
+    isMeteorConnected,
     minMessageLength: CHAT_CONFIG.min_message_length,
     maxMessageLength: CHAT_CONFIG.max_message_length,
     UnsentMessagesCollection: ChatService.UnsentMessagesCollection,

@@ -146,7 +146,7 @@ class ZoomTool extends PureComponent {
       maxBound,
       intl,
       tooltipDistance,
-      meteorIsConnected,
+      isMeteorConnected,
       step,
     } = this.props;
     const { stateZoomValue } = this.state;
@@ -179,7 +179,7 @@ class ZoomTool extends PureComponent {
               label={intl.formatMessage(intlMessages.zoomOutLabel)}
               icon="substract"
               onClick={() => { }}
-              disabled={(zoomValue <= minBound) || !meteorIsConnected}
+              disabled={(zoomValue <= minBound) || !isMeteorConnected}
               className={cx(styles.prevSlide, styles.presentationBtn)}
               tooltipDistance={tooltipDistance}
               hideLabel
@@ -192,7 +192,7 @@ class ZoomTool extends PureComponent {
             <Button
               aria-label={intl.formatMessage(intlMessages.resetZoomLabel)}
               aria-describedby="resetZoomDescription"
-              disabled={(stateZoomValue === minBound) || !meteorIsConnected}
+              disabled={(stateZoomValue === minBound) || !isMeteorConnected}
               color="default"
               customIcon={stateZoomPct}
               size="md"
@@ -221,7 +221,7 @@ class ZoomTool extends PureComponent {
               label={intl.formatMessage(intlMessages.zoomInLabel)}
               icon="add"
               onClick={() => { }}
-              disabled={(zoomValue >= maxBound) || !meteorIsConnected}
+              disabled={(zoomValue >= maxBound) || !isMeteorConnected}
               className={cx(styles.skipSlide, styles.presentationBtn)}
               tooltipDistance={tooltipDistance}
               hideLabel
@@ -241,7 +241,7 @@ const propTypes = {
   minBound: PropTypes.number.isRequired,
   maxBound: PropTypes.number.isRequired,
   step: PropTypes.number.isRequired,
-  meteorIsConnected: PropTypes.bool.isRequired,
+  isMeteorConnected: PropTypes.bool.isRequired,
   tooltipDistance: PropTypes.number.isRequired,
 };
 

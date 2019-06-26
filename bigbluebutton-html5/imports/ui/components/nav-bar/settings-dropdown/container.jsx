@@ -19,6 +19,6 @@ export default withTracker((props) => {
     handleToggleFullscreen,
     isFullscreen,
     noIOSFullscreen,
-    meteorIsConnected: Meteor.status().connected,
+    isMeteorConnected: Meteor.status().connected,
   };
 })(SettingsDropdownContainer);

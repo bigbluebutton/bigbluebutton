@@ -192,7 +192,7 @@ class PresentationToolbar extends PureComponent {
       zoom,
       isFullscreen,
       fullscreenRef,
-      meteorIsConnected,
+      isMeteorConnected,
     } = this.props;
 
     const BROWSER_RESULTS = browser();
@@ -222,7 +222,7 @@ class PresentationToolbar extends PureComponent {
               role="button"
               aria-label={prevSlideAriaLabel}
               aria-describedby={startOfSlides ? 'noPrevSlideDesc' : 'prevSlideDesc'}
-              disabled={startOfSlides || !meteorIsConnected}
+              disabled={startOfSlides || !isMeteorConnected}
               color="default"
               icon="left_arrow"
               size="md"
@@ -244,7 +244,7 @@ class PresentationToolbar extends PureComponent {
                 aria-describedby="skipSlideDesc"
                 aria-live="polite"
                 aria-relevant="all"
-                disabled={!meteorIsConnected}
+                disabled={!isMeteorConnected}
                 value={currentSlideNum}
                 onChange={this.handleSkipToSlideChange}
                 className={styles.skipSlideSelect}
@@ -256,7 +256,7 @@ class PresentationToolbar extends PureComponent {
               role="button"
               aria-label={nextSlideAriaLabel}
               aria-describedby={endOfSlides ? 'noNextSlideDesc' : 'nextSlideDesc'}
-              disabled={endOfSlides || !meteorIsConnected }
+              disabled={endOfSlides || !isMeteorConnected }
               color="default"
               icon="right_arrow"
               size="md"
@@ -280,7 +280,7 @@ class PresentationToolbar extends PureComponent {
                     maxBound={MAX_PERCENT}
                     step={STEP}
                     tooltipDistance={tooltipDistance}
-                    meteorIsConnected={meteorIsConnected}
+                    isMeteorConnected={isMeteorConnected}
                   />
                 )
                 : null
@@ -293,7 +293,7 @@ class PresentationToolbar extends PureComponent {
                 : `${intl.formatMessage(intlMessages.presentationLabel)} ${intl.formatMessage(intlMessages.fitToWidth)}`
               }
               color="default"
-              disabled={!meteorIsConnected}
+              disabled={!isMeteorConnected}
               icon="fit_to_width"
               size="md"
               circle={false}
@@ -345,7 +345,7 @@ PresentationToolbar.propTypes = {
   fullscreenRef: PropTypes.instanceOf(Element),
   isFullscreen: PropTypes.bool.isRequired,
   zoom: PropTypes.number.isRequired,
-  meteorIsConnected: PropTypes.bool.isRequired,
+  isMeteorConnected: PropTypes.bool.isRequired,
 };
 
 PresentationToolbar.defaultProps = {

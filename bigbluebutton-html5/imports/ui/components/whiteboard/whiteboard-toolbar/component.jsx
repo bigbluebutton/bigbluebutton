@@ -707,11 +707,11 @@ class WhiteboardToolbar extends Component {
   }
 
   renderUndoItem() {
-    const { intl, meteorIsConnected } = this.props;
+    const { intl, isMeteorConnected } = this.props;
 
     return (
       <ToolbarMenuItem
-        disabled={!meteorIsConnected}
+        disabled={!isMeteorConnected}
         label={intl.formatMessage(intlMessages.toolbarUndoAnnotation)}
         icon="undo"
         onItemClick={this.handleUndo}
@@ -721,11 +721,11 @@ class WhiteboardToolbar extends Component {
   }
 
   renderClearAllItem() {
-    const { intl, meteorIsConnected } = this.props;
+    const { intl, isMeteorConnected } = this.props;
 
     return (
       <ToolbarMenuItem
-        disabled={!meteorIsConnected}
+        disabled={!isMeteorConnected}
         label={intl.formatMessage(intlMessages.toolbarClearAnnotations)}
         icon="delete"
         onItemClick={this.handleClearAll}
@@ -735,11 +735,11 @@ class WhiteboardToolbar extends Component {
   }
 
   renderMultiUserItem() {
-    const { intl, multiUser, meteorIsConnected } = this.props;
+    const { intl, multiUser, isMeteorConnected } = this.props;
 
     return (
       <ToolbarMenuItem
-        disabled={!meteorIsConnected}
+        disabled={!isMeteorConnected}
         label={multiUser
           ? intl.formatMessage(intlMessages.toolbarMultiUserOff)
           : intl.formatMessage(intlMessages.toolbarMultiUserOn)

@@ -99,7 +99,7 @@ const propTypes = {
   amIModerator: PropTypes.bool,
   shortcuts: PropTypes.string,
   isBreakoutRoom: PropTypes.bool,
-  meteorIsConnected: PropTypes.bool.isRequired,
+  isMeteorConnected: PropTypes.bool.isRequired,
 };
 
 const defaultProps = {
@@ -181,7 +181,7 @@ class SettingsDropdown extends PureComponent {
 
   renderMenuItems() {
     const {
-      intl, mountModal, amIModerator, isBreakoutRoom, meteorIsConnected,
+      intl, mountModal, amIModerator, isBreakoutRoom, isMeteorConnected,
     } = this.props;
 
     const allowedToEndMeeting = amIModerator && !isBreakoutRoom;
@@ -222,8 +222,8 @@ class SettingsDropdown extends PureComponent {
         description={intl.formatMessage(intlMessages.hotkeysDesc)}
         onClick={() => mountModal(<ShortcutHelpComponent />)}
       />),
-      (meteorIsConnected ? <DropdownListSeparator key={_.uniqueId('list-separator-')} /> : null),
-      allowedToEndMeeting && meteorIsConnected
+      (isMeteorConnected ? <DropdownListSeparator key={_.uniqueId('list-separator-')} /> : null),
+      allowedToEndMeeting && isMeteorConnected
         ? (<DropdownListItem
           key="list-item-end-meeting"
           icon="application"
@@ -233,7 +233,7 @@ class SettingsDropdown extends PureComponent {
         />
         )
         : null,
-      meteorIsConnected ? (
+      isMeteorConnected ? (
         <DropdownListItem
           key="list-item-logout"
           icon="logout"

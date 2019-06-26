@@ -34,7 +34,7 @@ class ActionsBar extends PureComponent {
       stopExternalVideoShare,
       screenshareDataSavingSetting,
       isCaptionsAvailable,
-      meteorIsConnected,
+      isMeteorConnected,
     } = this.props;
 
     const {
@@ -64,7 +64,7 @@ class ActionsBar extends PureComponent {
             intl,
             isSharingVideo,
             stopExternalVideoShare,
-            meteorIsConnected,
+            isMeteorConnected,
           }}
           />
           <QuickPollDropdown
@@ -103,7 +103,7 @@ class ActionsBar extends PureComponent {
             isUserPresenter,
             screenSharingCheck,
             screenShareEndAlert,
-            meteorIsConnected,
+            isMeteorConnected,
             screenshareDataSavingSetting,
           }}
           />

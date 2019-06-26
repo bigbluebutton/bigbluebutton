@@ -54,6 +54,6 @@ export default withTracker(() => {
     screenShareEndAlert,
     screenshareDataSavingSetting: dataSavingSetting(),
     isCaptionsAvailable: CaptionsService.isCaptionsAvailable(),
-    meteorIsConnected: Meteor.status().connected,
+    isMeteorConnected: Meteor.status().connected,
   };
 })(injectIntl(ActionsBarContainer));

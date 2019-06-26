@@ -199,7 +199,7 @@ class UserOptions extends PureComponent {
       getUsersNotAssigned,
       isUserModerator,
       users,
-      meteorIsConnected,
+      isMeteorConnected,
     } = this.props;
 
     const canCreateBreakout = isUserModerator
@@ -213,7 +213,7 @@ class UserOptions extends PureComponent {
       && getUsersNotAssigned(users).length;
 
     this.menuItems = _.compact([
-      (meteorIsConnected ? (
+      (isMeteorConnected ? (
         <DropdownListItem
           key={this.clearStatusId}
           icon="clear_status"
@@ -222,7 +222,7 @@ class UserOptions extends PureComponent {
           onClick={toggleStatus}
         />) : null
       ),
-      (meteorIsConnected ? (
+      (isMeteorConnected ? (
         <DropdownListItem
           key={this.muteAllId}
           icon={isMeetingMuted ? 'unmute' : 'mute'}
@@ -231,7 +231,7 @@ class UserOptions extends PureComponent {
           onClick={toggleMuteAllUsers}
         />) : null
       ),
-      (!isMeetingMuted && meteorIsConnected ? (
+      (!isMeetingMuted && isMeteorConnected ? (
         <DropdownListItem
           key={this.muteId}
           icon="mute"
@@ -250,7 +250,7 @@ class UserOptions extends PureComponent {
           />)
         : null
       ),
-      (meteorIsConnected ? (
+      (isMeteorConnected ? (
         <DropdownListItem
           key={this.lockId}
           icon="lock"
@@ -259,8 +259,8 @@ class UserOptions extends PureComponent {
           onClick={() => mountModal(<LockViewersContainer />)}
         />) : null
       ),
-      (meteorIsConnected ? <DropdownListSeparator key={_.uniqueId('list-separator-')} /> : null),
-      (canCreateBreakout && meteorIsConnected ? (
+      (isMeteorConnected ? <DropdownListSeparator key={_.uniqueId('list-separator-')} /> : null),
+      (canCreateBreakout && isMeteorConnected ? (
         <DropdownListItem
           key={this.createBreakoutId}
           icon="rooms"
@@ -269,7 +269,7 @@ class UserOptions extends PureComponent {
           onClick={this.onCreateBreakouts}
         />) : null
       ),
-      (canInviteUsers && meteorIsConnected ? (
+      (canInviteUsers && isMeteorConnected ? (
         <DropdownListItem
           icon="rooms"
           label={intl.formatMessage(intlMessages.invitationItem)}
@@ -277,7 +277,7 @@ class UserOptions extends PureComponent {
           onClick={this.onInvitationUsers}
         />) : null
       ),
-      (isUserModerator && CaptionsService.isCaptionsEnabled() && meteorIsConnected
+      (isUserModerator && CaptionsService.isCaptionsEnabled() && isMeteorConnected
         ? (
           <DropdownListItem
             icon="closed_caption"

@@ -43,7 +43,7 @@ const propTypes = {
   recordingTime: PropTypes.number,
   recordingStatus: PropTypes.bool,
   amIModerator: PropTypes.bool,
-  meteorIsConnected: PropTypes.bool.isRequired,
+  isMeteorConnected: PropTypes.bool.isRequired,
 };
 
 const defaultProps = {
@@ -61,7 +61,7 @@ class RecordingComponent extends PureComponent {
       amIModerator,
       closeModal,
       toggleRecording,
-      meteorIsConnected,
+      isMeteorConnected,
     } = this.props;
 
     let title;
@@ -97,7 +97,7 @@ class RecordingComponent extends PureComponent {
             <Button
               color="primary"
               className={styles.button}
-              disabled={!meteorIsConnected}
+              disabled={!isMeteorConnected}
               label={intl.formatMessage(intlMessages.yesLabel)}
               onClick={toggleRecording}
             />
