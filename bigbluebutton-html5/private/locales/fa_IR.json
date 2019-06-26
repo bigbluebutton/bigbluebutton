@@ -26,6 +26,7 @@
     "app.captions.menu.ariaStartDesc": "ویرایشگر زیرنویس ها را باز کرده و مدال را می بندد",
     "app.captions.menu.select": "انتخاب زبان موجود",
     "app.captions.menu.ariaSelect": "زبان زیرنویس ها",
+    "app.captions.menu.subtitle": "لطفا در جلسه خود یک زبان و سبک برای زیرنویس ها انتخاب کنید",
     "app.captions.menu.title": "زیر نویس ها",
     "app.captions.menu.fontSize": "اندازه",
     "app.captions.menu.fontColor": "زنگ متن",
@@ -36,6 +37,11 @@
     "app.captions.pad.hide": "پنهان سازی زیرنویس",
     "app.captions.pad.tip": "برای فعال کردن ادیتور نوار ابزار Esc را فشار دهید",
     "app.captions.pad.ownership": "بدست گرفتن کنترل",
+    "app.captions.pad.interimResult": "نتایح موقت",
+    "app.captions.pad.dictationStart": "آغاز نوشتن کلمات",
+    "app.captions.pad.dictationStop": "توقف نوستن کلمات",
+    "app.captions.pad.dictationOnDesc": "روشن کردن امکان تشخیص صوت",
+    "app.captions.pad.dictationOffDesc": "غیر فعال کردن امکان تشخیص صوت",
     "app.note.title": "یادداشت های اشتراکی",
     "app.note.label": "یادداشت",
     "app.note.hideNoteLabel": "پنهان کردن یادداشت",
@@ -47,6 +53,7 @@
     "app.userList.participantsTitle": "شرکت کنندگان",
     "app.userList.messagesTitle": "پیام ها",
     "app.userList.notesTitle": "یاددادشت ها",
+    "app.userList.notesListItem.unreadContent": "محتوای جدید در بخش یادداشت های اشتراکی وجود دارد.",
     "app.userList.captionsTitle": "عناوین",
     "app.userList.presenter": "ارائه دهنده",
     "app.userList.you": "شما",
@@ -642,7 +649,8 @@
     "app.actionsBar.actionsDropdown.stopShareExternalVideo": "متوقف کردن اشتراک ویدئو یوتیوب",
     "app.iOSWarning.label": "لطفا به IOS نسخه 12.2 یا بالاتر ارتقا دهید",
     "app.legacy.unsupportedBrowser": "به نظر میرسد شما از مرورگری استفاده میکنید که پشتیبانی نمیشود. لطفا برای پشتیبانی کامل از {0} یا {1} استفاده کنید",
-    "app.legacy.upgradeBrowser": "به نظر میرسد شما از نسخه قدیمی یک مرورگر پشتیبانی شده استفاده میکنید. لطفا به منظور پشتیبانی کامل مرورگر خود را به روز رسانی کنید."
+    "app.legacy.upgradeBrowser": "به نظر میرسد شما از نسخه قدیمی یک مرورگر پشتیبانی شده استفاده میکنید. لطفا به منظور پشتیبانی کامل مرورگر خود را به روز رسانی کنید.",
+    "app.legacy.criosBrowser": "در iOS برای پشتیبانی کامل لطفا از سافاری استفاده کنید"
 
 }
 
