@@ -383,6 +383,7 @@ class BreakoutRoom extends Component {
       valid,
       numberOfRooms,
     } = this.state;
+    const rooms = (numberOfRooms > MAX_BREAKOUT_ROOMS) ? 0 : numberOfRooms;
     const allowDrop = (ev) => {
       ev.preventDefault();
     };
@@ -408,7 +409,7 @@ class BreakoutRoom extends Component {
           </span>
         </div>
         {
-          _.range(1, numberOfRooms + 1).map(value => (
+          _.range(1, rooms + 1).map(value => (
             <div key={`room-${value}`}>
               <p className={styles.freeJoinLabel}>
                 {intl.formatMessage(intlMessages.roomLabel, { 0: (value) })}
