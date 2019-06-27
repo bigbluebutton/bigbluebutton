@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import _ from 'lodash';
 import { defineMessages, injectIntl } from 'react-intl';
@@ -41,7 +41,7 @@ const getResponseString = (obj) => {
   return children;
 };
 
-class LiveResult extends Component {
+class LiveResult extends PureComponent {
   static getDerivedStateFromProps(nextProps) {
     const {
       currentPoll, getUser, intl, pollAnswerIds,
@@ -140,7 +140,12 @@ class LiveResult extends Component {
 
   render() {
     const {
-      intl, publishPoll, stopPoll, handleBackClick, currentPoll,
+      isMeteorConnected,
+      intl,
+      publishPoll,
+      stopPoll,
+      handleBackClick,
+      currentPoll,
     } = this.props;
 
     const { userAnswers, pollStats } = this.state;
@@ -183,6 +188,7 @@ class LiveResult extends Component {
         {currentPoll
           ? (
             <Button
+              disabled={!isMeteorConnected}
               onClick={() => {
                 publishPoll();
                 stopPoll();
@@ -193,6 +199,7 @@ class LiveResult extends Component {
             />
           ) : (
             <Button
+              disabled={!isMeteorConnected}
               onClick={() => {
                 handleBackClick();
               }}

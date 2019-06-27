@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import { defineMessages, injectIntl } from 'react-intl';
 import PresentationUploaderContainer from '/imports/ui/components/presentation/presentation-uploader/container';
@@ -88,7 +88,7 @@ const intlMessages = defineMessages({
 const MAX_CUSTOM_FIELDS = Meteor.settings.public.poll.max_custom;
 const MAX_INPUT_CHARS = 45;
 
-class Poll extends Component {
+class Poll extends PureComponent {
   constructor(props) {
     super(props);
 
@@ -153,7 +153,7 @@ class Poll extends Component {
   }
 
   renderQuickPollBtns() {
-    const { pollTypes, startPoll, intl } = this.props;
+    const { isMeteorConnected, pollTypes, startPoll, intl } = this.props;
 
     const btns = pollTypes.map((type) => {
       if (type === 'custom') return;
@@ -165,6 +165,7 @@ class Poll extends Component {
 
       return (
         <Button
+          disabled={!isMeteorConnected}
           label={label}
           color="default"
           className={styles.pollBtn}
@@ -232,6 +233,7 @@ class Poll extends Component {
   renderActivePollOptions() {
     const {
       intl,
+      isMeteorConnected,
       publishPoll,
       stopPoll,
       currentUser,
@@ -247,6 +249,7 @@ class Poll extends Component {
         </div>
         <LiveResult
           {...{
+            isMeteorConnected,
             publishPoll,
             stopPoll,
             currentUser,
@@ -261,7 +264,7 @@ class Poll extends Component {
   }
 
   renderPollOptions() {
-    const { intl } = this.props;
+    const { isMeteorConnected, intl } = this.props;
     const { customPollReq } = this.state;
 
     return (
@@ -276,6 +279,7 @@ class Poll extends Component {
           {intl.formatMessage(intlMessages.customPollInstruction)}
         </div>
         <Button
+          disabled={!isMeteorConnected}
           className={styles.customBtn}
           color="default"
           onClick={this.toggleCustomFields}

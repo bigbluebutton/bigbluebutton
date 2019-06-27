@@ -30,5 +30,6 @@ export default withTracker(() => {
     handleVote,
     poll,
     pollAnswerIds: Service.pollAnswerIds,
+    isMeteorConnected: Meteor.status().connected,
   });
 })(PollingContainer);
