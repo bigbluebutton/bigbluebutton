@@ -135,12 +135,22 @@ class VideoPlayer extends Component {
 
         if (data.rate !== this.player.getPlaybackRate()) {
           this.player.setPlaybackRate(data.rate);
-          logger.debug({ logCode: 'external_video_client_update_rate' }, 'Change external video playback rate to:', data.rate);
+          logger.debug({
+            logCode: 'external_video_client_update_rate',
+            extraInfo: {
+              rate: data.rate,
+            },
+          }, 'Change external video playback rate to:');
         }
 
         if (Math.abs(this.player.getCurrentTime() - data.time) > SYNC_INTERVAL_SECONDS) {
           this.player.seekTo(data.time, true);
-          logger.debug({ logCode: 'external_video_client_update_seek' }, 'Seek external video to:', data.time);
+          logger.debug({
+            logCode: 'external_video_client_update_seek',
+            extraInfo: {
+              time: data.time,
+            },
+          }, 'Seek external video to:');
         }
 
         if (this.playerState !== data.state) {

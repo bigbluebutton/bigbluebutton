@@ -42,7 +42,10 @@ class SIPSession {
         // There will sometimes we erroneous errors put out like timeouts and improper shutdowns,
         // but only the first error ever matters
         if (this.alreadyErrored) {
-          logger.info({ logCode: 'sip_js_absorbing_callback_message' }, `Absorbing a redundant callback message. ${JSON.stringify(message)}`);
+          logger.info({
+            logCode: 'sip_js_absorbing_callback_message',
+            extraInfo: { message },
+          }, 'Absorbing a redundant callback message.');
           return;
         }
 
@@ -97,7 +100,7 @@ class SIPSession {
 
       const timeout = setInterval(() => {
         clearInterval(timeout);
-        logger.error({ logCode: 'sip_js_transfer_timed_out' }, 'Timeout on transfering from echo test to conference');
+        logger.error({ logCode: 'sip_js_transfer_timed_out' }, 'Timeout on transferring from echo test to conference');
         this.callback({
           status: this.baseCallStates.failed,
           error: 1008,
@@ -188,15 +191,15 @@ class SIPSession {
       // translation
       const isSafari = browser().name === 'safari';
 
-      logger.debug('Creating the user agent');
+      logger.debug({ logCode: 'creating_user_agent' }, 'Creating the user agent');
 
       if (this.userAgent && this.userAgent.isConnected()) {
         if (this.userAgent.configuration.hostPortParams === this.hostname) {
-          logger.debug('Reusing the user agent');
+          logger.debug({ logCode: 'reusing_user_agent' }, 'Reusing the user agent');
           resolve(this.userAgent);
           return;
         }
-        logger.debug('different host name. need to kill');
+        logger.debug({ logCode: 'different_host_name' }, 'Different host name. need to kill');
       }
 
       let userAgentConnected = false;
@@ -348,7 +351,10 @@ class SIPSession {
       currentSession.on('progress', handleSessionProgress);
 
       const handleConnectionCompleted = (peer) => {
-        logger.info({ logCode: 'sip_js_ice_connection_success' }, `ICE connection success. Current state - ${peer.iceConnectionState}`);
+        logger.info({
+          logCode: 'sip_js_ice_connection_success',
+          extraInfo: { currentState: peer.iceConnectionState },
+        }, `ICE connection success. Current state - ${peer.iceConnectionState}`);
         clearTimeout(callTimeout);
         clearTimeout(iceNegotiationTimeout);
         connectionCompletedEvents.forEach(e => mediaHandler.off(e, handleConnectionCompleted));
@@ -369,7 +375,10 @@ class SIPSession {
           });
         }
 
-        logger.error({ logCode: 'sip_js_call_terminated' }, `Audio call terminated. cause=${cause}`);
+        logger.error({
+          logCode: 'sip_js_call_terminated',
+          extraInfo: { cause },
+        }, `Audio call terminated. cause=${cause}`);
 
         let mappedCause;
         if (!iceCompleted) {
@@ -592,7 +601,10 @@ export default class SIPBridge extends BaseAudioBridge {
         await audioContext.setSinkId(value);
         this.media.outputDeviceId = value;
       } catch (err) {
-        logger.error({ logCode: 'audio_sip_changeoutputdevice_error' }, err);
+        logger.error({
+          logCode: 'audio_sip_changeoutputdevice_error',
+          extraInfo: { error: err },
+        }, 'Change Output Device error');
         throw new Error(this.baseErrorCodes.MEDIA_ERROR);
       }
     }

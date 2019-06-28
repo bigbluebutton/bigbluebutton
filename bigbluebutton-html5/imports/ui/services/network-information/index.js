@@ -150,7 +150,12 @@ export const startBandwidthMonitoring = () => {
 
     if (lastEffectiveConnectionType
       && lastEffectiveConnectionType.effectiveConnectionType !== effectiveType) {
-      logger.info({ logCode: 'user_connection_instability' }, `User ${Auth.userID} effective connection is now ${effectiveType}`);
+      logger.info({
+        logCode: 'user_connection_instability',
+        extraInfo: {
+          effectiveType,
+        },
+      }, `User ${Auth.userID} effective connection is now ${effectiveType}`);
       makeCall('setUserEffectiveConnectionType', effectiveType);
     }
   }, 5000);

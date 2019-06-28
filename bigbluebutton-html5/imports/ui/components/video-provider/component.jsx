@@ -356,7 +356,7 @@ class VideoProvider extends Component {
     this.logger('debug', 'Calling pause in viewer streams', 'video_provider_pause_viewers');
 
     Object.keys(this.webRtcPeers).forEach((id) => {
-      if (userId !== id && this.webRtcPeers[id].started) {
+      if (userId !== id && this.webRtcPeers[id] && this.webRtcPeers[id].started) {
         this._sendPauseStream(id, 'viewer', true);
       }
     });
@@ -367,7 +367,7 @@ class VideoProvider extends Component {
     this.logger('debug', 'Calling un-pause in viewer streams', 'video_provider_unpause_viewers');
 
     Object.keys(this.webRtcPeers).forEach((id) => {
-      if (id !== userId && this.webRtcPeers[id].started) {
+      if (id !== userId && this.webRtcPeers[id] && this.webRtcPeers[id].started) {
         this._sendPauseStream(id, 'viewer', false);
       }
     });

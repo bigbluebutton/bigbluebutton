@@ -141,7 +141,6 @@ class App extends Component {
       startBandwidthMonitoring();
     }
 
-
     logger.info({ logCode: 'app_component_componentdidmount' }, 'Client loaded successfully');
   }
 

@@ -43,8 +43,8 @@ function handleAddedAnnotation({
       Annotations.update(fakeAnnotation._id, {
         $set: {
           position: annotation.position,
-          'annotationInfo.color': isEqual(fakePoints, lastPoints) || annotation.status === DRAW_END ?
-            annotation.annotationInfo.color : fakeAnnotation.annotationInfo.color,
+          'annotationInfo.color': isEqual(fakePoints, lastPoints) || annotation.status === DRAW_END
+            ? annotation.annotationInfo.color : fakeAnnotation.annotationInfo.color,
         },
         $inc: { version: 1 }, // TODO: Remove all this version stuff
       });
@@ -54,7 +54,10 @@ function handleAddedAnnotation({
 
   Annotations.upsert(query.selector, query.modifier, (err) => {
     if (err) {
-      logger.error({ logCode: 'whiteboard_annotation_upsert_error' }, err);
+      logger.error({
+        logCode: 'whiteboard_annotation_upsert_error',
+        extraInfo: { error: err },
+      }, 'Error on adding an annotation');
       return;
     }
 
@@ -117,9 +120,9 @@ function increaseBrightness(realHex, percent) {
   const b = parseInt(hex.substr(4, 2), 16);
 
   /* eslint-disable no-bitwise, no-mixed-operators */
-  return parseInt(((0 | (1 << 8) + r + ((256 - r) * percent) / 100).toString(16)).substr(1) +
-     ((0 | (1 << 8) + g + ((256 - g) * percent) / 100).toString(16)).substr(1) +
-     ((0 | (1 << 8) + b + ((256 - b) * percent) / 100).toString(16)).substr(1), 16);
+  return parseInt(((0 | (1 << 8) + r + ((256 - r) * percent) / 100).toString(16)).substr(1)
+     + ((0 | (1 << 8) + g + ((256 - g) * percent) / 100).toString(16)).substr(1)
+     + ((0 | (1 << 8) + b + ((256 - b) * percent) / 100).toString(16)).substr(1), 16);
   /* eslint-enable no-bitwise, no-mixed-operators */
 }
 
@@ -144,11 +147,10 @@ const proccessAnnotationsQueue = async () => {
   const annotations = annotationsQueue.splice(0, queueSize);
 
   // console.log('annotationQueue.length', annotationsQueue, annotationsQueue.length);
-  await makeCall('sendBulkAnnotations', annotations.filter(({ id }) => !discardedList.includes(id)))
+  await makeCall('sendBulkAnnotations', annotations.filter(({ id }) => !discardedList.includes(id)));
 
   // ask tiago
-  const delayPerc =
-    Math.min(annotationsMaxDelayQueueSize, queueSize) / annotationsMaxDelayQueueSize;
+  const delayPerc = Math.min(annotationsMaxDelayQueueSize, queueSize) / annotationsMaxDelayQueueSize;
   const delayDelta = annotationsBufferTimeMax - annotationsBufferTimeMin;
   const delayTime = annotationsBufferTimeMin + (delayDelta * delayPerc);
   setTimeout(proccessAnnotationsQueue, delayTime);
