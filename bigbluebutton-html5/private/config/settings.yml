@@ -75,7 +75,6 @@ public:
         descId: openStatus
     branding:
       displayBrandingArea: false
-    allowHTML5Moderator: true
     httpsConnection: false
     connectionTimeout: 60000
     showHelpButton: true
@@ -233,7 +232,6 @@ public:
   user:
     role_moderator: MODERATOR
     role_viewer: VIEWER
-    role_presenter: PRESENTER
   whiteboard:
     annotations:
       status:

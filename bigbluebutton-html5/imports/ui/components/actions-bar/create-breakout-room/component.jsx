@@ -12,6 +12,8 @@ import HoldButton from '/imports/ui/components/presentation/presentation-toolbar
 import SortList from './sort-user-list/component';
 import styles from './styles';
 
+const ROLE_MODERATOR = Meteor.settings.public.user.role_moderator;
+
 const intlMessages = defineMessages({
   breakoutRoomTitle: {
     id: 'app.createBreakoutRoom.title',
@@ -265,7 +267,7 @@ class BreakoutRoom extends Component {
     while (viewers.length > 0) {
       // We cycle through the rooms picking one user for each room so that the rooms
       // will have an equal number of people in each one
-      for (let i = 1; i <= numberOfRooms && viewers.length > 0; i++) {
+      for (let i = 1; i <= numberOfRooms && viewers.length > 0; i += 1) {
         // Select a random user for the room
         const userIdx = Math.floor(Math.random() * (viewers.length));
         this.changeUserRoom(viewers[userIdx].userId, i);
@@ -293,7 +295,7 @@ class BreakoutRoom extends Component {
       .map(user => ({
         userId: user.userId,
         userName: user.name,
-        isModerator: user.moderator,
+        isModerator: user.role === ROLE_MODERATOR,
         room: 0,
       }));
 

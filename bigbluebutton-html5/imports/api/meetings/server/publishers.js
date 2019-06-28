@@ -4,6 +4,8 @@ import Meetings from '/imports/api/meetings';
 import Users from '/imports/api/users';
 import Logger from '/imports/startup/server/logger';
 
+const ROLE_MODERATOR = Meteor.settings.public.user.role_moderator;
+
 function meetings(credentials, isModerator = false) {
   const { meetingId, requesterUserId, requesterToken } = credentials;
 
@@ -21,7 +23,7 @@ function meetings(credentials, isModerator = false) {
 
   if (isModerator) {
     const User = Users.findOne({ userId: requesterUserId });
-    if (!!User && User.moderator) {
+    if (!!User && User.role === ROLE_MODERATOR) {
       selector.$or.push({
         'meetingProp.isBreakout': true,
         'breakoutProps.parentId': meetingId,
