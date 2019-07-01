@@ -88,7 +88,6 @@ class Base extends Component {
       meteorIsConnected,
       subscriptionsReady,
     } = this.props;
-
     const {
       loading,
       meetingExisted,
