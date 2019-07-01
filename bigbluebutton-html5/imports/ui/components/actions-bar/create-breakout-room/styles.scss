@@ -27,7 +27,7 @@ input[type="number"]::-webkit-outer-spin-button, input[type="number"]::-webkit-i
   grid-template-columns: 2fr 2fr 1fr; 
   grid-template-rows: 1fr;
   grid-gap: 1rem;
-  margin-bottom: 1rem;
+
   @include mq($small-only) {
     grid-template-columns: 1fr ;
     grid-template-rows: 1fr 1fr 1fr; 
@@ -334,4 +334,13 @@ input[type="number"]::-webkit-outer-spin-button, input[type="number"]::-webkit-i
 .checkBoxesContainer {
   display: flex;
   flex-direction: row;
+  margin-top: 1rem;
+}
+
+.withError {
+  color: var(--color-danger);
+}
+
+.errorBorder {
+  border-color: var(--color-danger) !important;
 }

@@ -2,6 +2,7 @@ import { Meteor } from 'meteor/meteor';
 import { check } from 'meteor/check';
 import RedisPubSub from '/imports/startup/server/redis';
 import setChangedSettings from '../modifiers/setChangedSettings';
+import Users from '../../index';
 
 export default function userChangedSettings(credentials, setting, value) {
   const REDIS_CONFIG = Meteor.settings.private.redis;
@@ -10,7 +11,9 @@ export default function userChangedSettings(credentials, setting, value) {
 
   const { meetingId, requesterUserId } = credentials;
 
-  if (!meetingId || !requesterUserId) return;
+  const User = Users.findOne({ meetingId, userId: requesterUserId });
+
+  if (!meetingId || !requesterUserId || !User || User[setting] === value) return;
 
   check(meetingId, String);
   check(requesterUserId, String);

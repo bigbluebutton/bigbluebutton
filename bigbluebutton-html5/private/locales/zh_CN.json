@@ -26,6 +26,7 @@
     "app.captions.menu.ariaStartDesc": "打开字幕编辑器并关闭模式",
     "app.captions.menu.select": "选择可用语言",
     "app.captions.menu.ariaSelect": "字幕语言",
+    "app.captions.menu.subtitle": "请为会话中的隐藏字幕选择语言和样式。",
     "app.captions.menu.title": "隐藏式字幕",
     "app.captions.menu.fontSize": "大小",
     "app.captions.menu.fontColor": "文本颜色",
@@ -47,6 +48,7 @@
     "app.userList.participantsTitle": "参会者",
     "app.userList.messagesTitle": "消息",
     "app.userList.notesTitle": "笔记",
+    "app.userList.notesListItem.unreadContent": "“共享笔记”栏目有了新内容",
     "app.userList.captionsTitle": "字幕",
     "app.userList.presenter": "演示者",
     "app.userList.you": "您",
@@ -642,7 +644,8 @@
     "app.actionsBar.actionsDropdown.stopShareExternalVideo": "停止分享YouTube视频",
     "app.iOSWarning.label": "请升级至iOS 12.2或更高版本",
     "app.legacy.unsupportedBrowser": "看起来您使用的浏览器不受支持。 请使用 {0} 或 {1} 以获得全面支持。",
-    "app.legacy.upgradeBrowser": "看起来您使用的是受支持浏览器的旧版本。请升级浏览器以获得完全支持。"
+    "app.legacy.upgradeBrowser": "看起来您使用的是受支持浏览器的旧版本。请升级浏览器以获得完全支持。",
+    "app.legacy.criosBrowser": "在iOS上，请使用Safari以获得全面支持。"
 
 }
 
