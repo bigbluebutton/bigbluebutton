@@ -43,7 +43,10 @@ export default withTracker(() => {
   }
   const subscriptionErrorHandler = {
     onError: (error) => {
-      logger.error({ logCode: 'startup_client_subscription_error' }, error);
+      logger.error({
+        logCode: 'startup_client_subscription_error',
+        extraInfo: { error },
+      }, 'Error while subscribing to collections');
       Session.set('codeError', error.error);
     },
   };

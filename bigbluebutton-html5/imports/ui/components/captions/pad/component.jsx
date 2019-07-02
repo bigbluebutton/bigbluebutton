@@ -157,7 +157,10 @@ class Pad extends PureComponent {
       };
 
       this.recognition.onerror = (event) => {
-        logger.error({ logCode: 'captions_recognition' }, event.error);
+        logger.error({
+          logCode: 'captions_recognition',
+          extraInfo: { error: event.error },
+        }, 'Captions pad error on recognition');
       };
     }
   }

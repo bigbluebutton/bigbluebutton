@@ -142,7 +142,7 @@ class MeetingEnded extends React.PureComponent {
     };
 
     // client logger
-    logger.info({ feedback: message, logCode: 'feedback' }, 'Feedback');
+    logger.info({ logCode: 'feedback_functionality', extraInfo: { feedback: message } }, 'Feedback component');
 
     const FEEDBACK_WAIT_TIME = 500;
     setTimeout(() => {
@@ -164,7 +164,7 @@ class MeetingEnded extends React.PureComponent {
 
     const noRating = selected <= 0;
 
-    logger.info({ endedCode: code, logCode: 'meeting_ended_code' }, code);
+    logger.info({ logCode: 'meeting_ended_code', extraInfo: { endedCode: code } }, 'Meeting ended component');
 
     return (
       <div className={styles.parent}>
