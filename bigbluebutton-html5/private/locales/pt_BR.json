@@ -26,6 +26,7 @@
     "app.captions.menu.ariaStartDesc": "Abra o editor de legendas e feche esta janela",
     "app.captions.menu.select": "Selecione o idioma disponível",
     "app.captions.menu.ariaSelect": "Idioma das legendas",
+    "app.captions.menu.subtitle": "Por favor, selecione um idioma e um estilo de fonte para as legendas da sua conferência.",
     "app.captions.menu.title": "Legendas",
     "app.captions.menu.fontSize": "Tamanho",
     "app.captions.menu.fontColor": "Cor do texto",
@@ -36,6 +37,11 @@
     "app.captions.pad.hide": "Ocultar legendas",
     "app.captions.pad.tip": "Pressione Esc para focar na barra de ferramentas do editor",
     "app.captions.pad.ownership": "Assumir o controle",
+    "app.captions.pad.interimResult": "Resultados provisórios",
+    "app.captions.pad.dictationStart": "Iniciar o reconhecimento de fala",
+    "app.captions.pad.dictationStop": "Parar o reconhecimento de fala",
+    "app.captions.pad.dictationOnDesc": "Ativar o reconhecimento de fala",
+    "app.captions.pad.dictationOffDesc": "Desativar o reconhecimento de fala",
     "app.note.title": "Notas compartilhadas",
     "app.note.label": "Nota",
     "app.note.hideNoteLabel": "Ocultar nota",
@@ -47,6 +53,7 @@
     "app.userList.participantsTitle": "Participantes",
     "app.userList.messagesTitle": "Mensagens",
     "app.userList.notesTitle": "Notas",
+    "app.userList.notesListItem.unreadContent": "Novo conteúdo em notas compartilhadas está disponível",
     "app.userList.captionsTitle": "Legendas",
     "app.userList.presenter": "Apresentador",
     "app.userList.you": "Você",
@@ -642,7 +649,8 @@
     "app.actionsBar.actionsDropdown.stopShareExternalVideo": "Parar de compartilhar o vídeo do Youtube",
     "app.iOSWarning.label": "Por favor, atualize para o iOS 12.2 ou superior",
     "app.legacy.unsupportedBrowser": "Parece que você está usando um navegador que não é suportado. Por favor, use {0} ou {1} para suporte completo.",
-    "app.legacy.upgradeBrowser": "Parece que você está usando uma versão desatualizada de um navegador compatível. Por favor, atualize o navegador para suporte completo."
+    "app.legacy.upgradeBrowser": "Parece que você está usando uma versão desatualizada de um navegador compatível. Por favor, atualize o navegador para suporte completo.",
+    "app.legacy.criosBrowser": "No iOS, use o Safari para obter suporte total."
 
 }
 

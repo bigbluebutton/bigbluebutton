@@ -14,7 +14,7 @@ import {
   shareScreen, unshareScreen, isVideoBroadcasting, screenShareEndAlert, dataSavingSetting,
 } from '../screenshare/service';
 
-import MediaService, { getSwapLayout } from '../media/service';
+import MediaService, { getSwapLayout, shouldEnableSwapLayout } from '../media/service';
 
 const ActionsBarContainer = props => <ActionsBar {...props} />;
 
@@ -44,7 +44,7 @@ export default withTracker(() => {
     toggleRecording: Service.toggleRecording,
     screenSharingCheck: getFromUserSettings('enableScreensharing', Meteor.settings.public.kurento.enableScreensharing),
     enableVideo: getFromUserSettings('enableVideo', Meteor.settings.public.kurento.enableVideo),
-    isLayoutSwapped: getSwapLayout(),
+    isLayoutSwapped: getSwapLayout() && shouldEnableSwapLayout(),
     toggleSwapLayout: MediaService.toggleSwapLayout,
     handleTakePresenter: Service.takePresenterRole,
     currentSlidHasContent: PresentationService.currentSlidHasContent(),

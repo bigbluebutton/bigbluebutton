@@ -1471,7 +1471,7 @@ check_state() {
     if ! systemctl show-environment | grep LANG= | grep -q UTF-8; then
       echo 
       echo "#"
-      echo "# Warning: Detected that systemctl does not define a UTF-8 language3"
+      echo "# Warning: Detected that systemctl does not define a UTF-8 language."
       echo "#"
       echo "# To temporarily correct, run the command "
       echo "#"

@@ -50,10 +50,12 @@ export default withTracker((params) => {
 
   if (cursor) {
     const { xPercent: cursorX, yPercent: cursorY, userName } = cursor;
+    const isRTL = document.documentElement.getAttribute('dir') === 'rtl';
     return {
       cursorX,
       cursorY,
       userName,
+      isRTL,
     };
   }
 

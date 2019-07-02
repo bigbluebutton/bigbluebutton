@@ -19,6 +19,9 @@ public:
     basename: "/html5client"
     askForFeedbackOnLogout: false
     allowUserLookup: false
+    enableNetworkInformation: false
+    enableLimitOfViewersInWebcam: false
+    viewersInWebcam: 8
     ipv4FallbackDomain: ""
     defaultSettings:
       application:
@@ -143,7 +146,7 @@ public:
   poll:
     max_custom: 5
   captions:
-    enabled: false
+    enabled: true
     enableDictation: false
     backgroundColor: "#000000"
     fontColor: "#FFFFFF"

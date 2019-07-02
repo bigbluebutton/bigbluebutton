@@ -26,6 +26,7 @@
     "app.captions.menu.ariaStartDesc": "Feliratszerkesztő megnyitása és ablak bezárása",
     "app.captions.menu.select": "Válassz nyelvet",
     "app.captions.menu.ariaSelect": "Felirat nyelve",
+    "app.captions.menu.subtitle": "Válassz nyelvet és stílust a feliratokhoz a munkamenetedben.",
     "app.captions.menu.title": "Feliratok",
     "app.captions.menu.fontSize": "Méret",
     "app.captions.menu.fontColor": "Betűszín",
@@ -47,6 +48,7 @@
     "app.userList.participantsTitle": "Résztvevők",
     "app.userList.messagesTitle": "Üzenetek",
     "app.userList.notesTitle": "Jegyetek",
+    "app.userList.notesListItem.unreadContent": "Új tartalom érhető el a megosztott jegyzetek részben",
     "app.userList.captionsTitle": "Feliratok",
     "app.userList.presenter": "Előadó",
     "app.userList.you": "Én",
@@ -642,7 +644,8 @@
     "app.actionsBar.actionsDropdown.stopShareExternalVideo": "YouTube videó megosztásának leállítása",
     "app.iOSWarning.label": "Frissíts iOS 12.2-re vagy újabbra",
     "app.legacy.unsupportedBrowser": "Úgy néz ki, hogy a böngésződ nem támogatott. Kérjük, használj {0} vagy {1} böngészőt a teljes támogatás érdekében.",
-    "app.legacy.upgradeBrowser": "Úgy néz ki, hogy a böngésződ egy régi verzióját használod. Kérjük, frissítsd a böngésződet a teljes támogatás érdekében."
+    "app.legacy.upgradeBrowser": "Úgy néz ki, hogy a böngésződ egy régi verzióját használod. Kérjük, frissítsd a böngésződet a teljes támogatás érdekében.",
+    "app.legacy.criosBrowser": "iOS-en a teljes támogatáshoz használj Safari böngészőt ."
 
 }
 
