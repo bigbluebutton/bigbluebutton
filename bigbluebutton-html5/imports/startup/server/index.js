@@ -56,11 +56,11 @@ Meteor.startup(() => {
     if (!users.length) return Logger.info('No inactive users');
     Logger.info('Removing inactive users');
     users.forEach((user) => {
-      const loginTimeSec = (currentTime - user.loginTime) / 1000;
-      const lastPingSec = (currentTime - user.lastPing) / 1000;
+      const loginTimeDelta = currentTime - user.loginTime;
+      const lastPingDelta = currentTime - user.lastPing;
       user.requesterUserId = user.userId;
-      return loginTimeSec >= 10
-      && lastPingSec >= 10
+      return loginTimeDelta >= INTERVAL_TIME
+      && lastPingDelta >= INTERVAL_TIME
       && userLeaving(user, user.userId, user.connectionId);
     });
     return Logger.info('All inactive user have been removed');
