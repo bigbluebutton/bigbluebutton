@@ -197,7 +197,7 @@ class Auth {
     return this.validateAuthToken()
       .then(() => {
         this.loggedIn = true;
-        this.uniqueClientSession = Math.random().toString(36).substring(6);
+        this.uniqueClientSession = `${this.sessionToken}-${Math.random().toString(36).substring(6)}`;
       });
   }
 
