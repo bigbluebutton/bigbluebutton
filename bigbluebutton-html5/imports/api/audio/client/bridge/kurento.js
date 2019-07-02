@@ -133,7 +133,6 @@ export default class KurentoAudioBridge extends BaseAudioBridge {
         await audioContext.setSinkId(value);
         this.media.outputDeviceId = value;
       } catch (err) {
-        logger.error({ logCode: 'audio_kurento_changeoutputdevice_error', err });
         logFunc('error', 'SFU audio bridge failed to fetch STUN/TURN info, using default',
           { logCode: 'audio_kurento_changeoutputdevice_error', err });
         throw new Error(this.baseErrorCodes.MEDIA_ERROR);

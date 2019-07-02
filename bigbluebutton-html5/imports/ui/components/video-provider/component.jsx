@@ -1222,7 +1222,6 @@ class VideoProvider extends Component {
         topic: 'video',
       },
     }, 'Unsharing webcam');
-    this.sharedWebcam = true;
 
     VideoService.sendUserUnshareWebcam(userId);
     VideoService.exitedVideo();
