@@ -43,8 +43,13 @@ function shouldShowOverlay() {
 }
 
 const swapLayout = {
-  value: false,
+  value: getFromUserSettings('autoSwapLayout', LAYOUT_CONFIG.autoSwapLayout),
   tracker: new Tracker.Dependency(),
+};
+
+const setSwapLayout = () => {
+  swapLayout.value = getFromUserSettings('autoSwapLayout', LAYOUT_CONFIG.autoSwapLayout);
+  swapLayout.tracker.changed();
 };
 
 const toggleSwapLayout = () => {
@@ -64,8 +69,7 @@ export const shouldEnableSwapLayout = () => {
 
 export const getSwapLayout = () => {
   swapLayout.tracker.depend();
-  const autoSwapLayout = getFromUserSettings('autoSwapLayout', LAYOUT_CONFIG.autoSwapLayout);
-  return autoSwapLayout || (swapLayout.value && shouldEnableSwapLayout());
+  return swapLayout.value;
 };
 
 export default {
@@ -79,4 +83,5 @@ export default {
   toggleSwapLayout,
   shouldEnableSwapLayout,
   getSwapLayout,
+  setSwapLayout,
 };
