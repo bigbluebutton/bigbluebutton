@@ -374,7 +374,7 @@ class AudioManager {
     audio.src = 'resources/sounds/silence.mp3';
 
     audio.play().catch((e) => {
-      logger.warning({
+      logger.warn({
         logCode: 'audiomanager_error_test_audio',
         extraInfo: { error: e },
       }, 'Error on playing test audio');

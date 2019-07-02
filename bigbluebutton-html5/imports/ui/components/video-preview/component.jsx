@@ -358,7 +358,7 @@ class VideoPreview extends Component {
       this.video.srcObject = stream;
       this.deviceStream = stream;
     }).catch((error) => {
-      logger.warning({
+      logger.warn({
         logCode: 'video_preview_do_gum_preview_error',
         extraInfo: {
           error,
@@ -412,7 +412,7 @@ class VideoPreview extends Component {
           }
         }).catch((error) => {
           // CHANGE THIS TO SOMETHING USEFUL
-          logger.warning({
+          logger.warn({
             logCode: 'video_preview_enumerate_error',
             extraInfo: {
               error,
@@ -423,7 +423,7 @@ class VideoPreview extends Component {
       });
     } catch (error) {
       // CHANGE THIS TO SOMETHING USEFUL
-      logger.warning({
+      logger.warn({
         logCode: 'video_preview_grabbing_error',
         extraInfo: {
           error,

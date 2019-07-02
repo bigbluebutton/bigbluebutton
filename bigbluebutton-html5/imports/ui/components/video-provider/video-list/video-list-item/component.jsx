@@ -53,7 +53,7 @@ class VideoListItem extends Component {
         if (p && (typeof Promise !== 'undefined') && (p instanceof Promise)) {
           // Catch exception when playing video
           p.catch((e) => {
-            logger.warning({
+            logger.warn({
               logCode: 'videolistitem_component_play_error',
               extraInfo: { error: e },
             }, 'Could not play video');

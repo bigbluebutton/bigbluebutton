@@ -138,9 +138,9 @@ class VideoPlayer extends Component {
           logger.debug({
             logCode: 'external_video_client_update_rate',
             extraInfo: {
-              rate: data.rate,
+              newRate: data.rate,
             },
-          }, 'Change external video playback rate to:');
+          }, 'Change external video playback rate.');
         }
 
         if (Math.abs(this.player.getCurrentTime() - data.time) > SYNC_INTERVAL_SECONDS) {
