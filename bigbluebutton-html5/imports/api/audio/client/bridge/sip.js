@@ -191,15 +191,15 @@ class SIPSession {
       // translation
       const isSafari = browser().name === 'safari';
 
-      logger.debug({ logCode: 'creating_user_agent' }, 'Creating the user agent');
+      logger.debug({ logCode: 'sip_js_creating_user_agent' }, 'Creating the user agent');
 
       if (this.userAgent && this.userAgent.isConnected()) {
         if (this.userAgent.configuration.hostPortParams === this.hostname) {
-          logger.debug({ logCode: 'reusing_user_agent' }, 'Reusing the user agent');
+          logger.debug({ logCode: 'sip_js_reusing_user_agent' }, 'Reusing the user agent');
           resolve(this.userAgent);
           return;
         }
-        logger.debug({ logCode: 'different_host_name' }, 'Different host name. need to kill');
+        logger.debug({ logCode: 'sip_js_different_host_name' }, 'Different host name. need to kill');
       }
 
       let userAgentConnected = false;
@@ -397,9 +397,9 @@ class SIPSession {
 
       const handleIceNegotiationFailed = (peer) => {
         if (iceCompleted) {
-          logger.error({ logCode: 'sipjs_ice_failed_after' }, 'ICE connection failed after success');
+          logger.error({ logCode: 'sip_js_ice_failed_after' }, 'ICE connection failed after success');
         } else {
-          logger.error({ logCode: 'sipjs_ice_failed_before' }, 'ICE connection failed before success');
+          logger.error({ logCode: 'sip_js_ice_failed_before' }, 'ICE connection failed before success');
         }
         clearTimeout(callTimeout);
         clearTimeout(iceNegotiationTimeout);
@@ -415,7 +415,7 @@ class SIPSession {
       const handleIceConnectionTerminated = (peer) => {
         ['iceConnectionClosed'].forEach(e => mediaHandler.off(e, handleIceConnectionTerminated));
         if (!this.userRequestedHangup) {
-          logger.error({ logCode: 'sipjs_ice_closed' }, 'ICE connection closed');
+          logger.error({ logCode: 'sip_js_ice_closed' }, 'ICE connection closed');
         }
         /*
         this.callback({
@@ -602,7 +602,7 @@ export default class SIPBridge extends BaseAudioBridge {
         this.media.outputDeviceId = value;
       } catch (err) {
         logger.error({
-          logCode: 'audio_sip_changeoutputdevice_error',
+          logCode: 'sip_js_audio_changeoutputdevice_error',
           extraInfo: { error: err },
         }, 'Change Output Device error');
         throw new Error(this.baseErrorCodes.MEDIA_ERROR);
