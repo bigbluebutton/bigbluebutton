@@ -20,6 +20,7 @@ import WaitingNotifierContainer from '/imports/ui/components/waiting-users/alert
 import LockNotifier from '/imports/ui/components/lock-viewers/notify/container';
 import PingPongContainer from '/imports/ui/components/ping-pong/container';
 
+import MediaService from '/imports/ui/components/media/service';
 import ManyWebcamsNotifier from '/imports/ui/components/video-provider/many-users-notify/container';
 import { styles } from './styles';
 
@@ -112,6 +113,7 @@ class App extends Component {
     const BROWSER_RESULTS = browser();
     const isMobileBrowser = BROWSER_RESULTS.mobile || BROWSER_RESULTS.os.includes('Android');
 
+    MediaService.setSwapLayout();
     Modal.setAppElement('#app');
     document.getElementsByTagName('html')[0].lang = locale;
     document.getElementsByTagName('html')[0].style.fontSize = isMobileBrowser ? MOBILE_FONT_SIZE : DESKTOP_FONT_SIZE;
@@ -141,7 +143,6 @@ class App extends Component {
 
       startBandwidthMonitoring();
     }
-
 
     logger.info({ logCode: 'app_component_componentdidmount' }, 'Client loaded successfully');
   }
