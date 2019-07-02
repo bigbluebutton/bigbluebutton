@@ -144,6 +144,7 @@ public:
     toggleRecording: false
     toggleSelfVoice: false
   poll:
+    enabled: true
     max_custom: 5
   captions:
     enabled: true

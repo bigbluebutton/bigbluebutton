@@ -34,6 +34,7 @@ class ActionsBar extends React.PureComponent {
       stopExternalVideoShare,
       screenshareDataSavingSetting,
       isCaptionsAvailable,
+      isPollingEnabled,
     } = this.props;
 
     const {
@@ -54,6 +55,7 @@ class ActionsBar extends React.PureComponent {
           <ActionsDropdown {...{
             isUserPresenter,
             isUserModerator,
+            isPollingEnabled,
             allowStartStopRecording,
             allowExternalVideo: enableExternalVideo,
             isRecording,
@@ -65,14 +67,18 @@ class ActionsBar extends React.PureComponent {
             stopExternalVideoShare,
           }}
           />
-          <QuickPollDropdown
-            {...{
-              currentSlidHasContent,
-              intl,
-              isUserPresenter,
-              parseCurrentSlideContent,
-            }}
-          />
+          {isPollingEnabled
+            ? (
+              <QuickPollDropdown
+                {...{
+                  currentSlidHasContent,
+                  intl,
+                  isUserPresenter,
+                  parseCurrentSlideContent,
+                }}
+              />
+            ) : null
+          }
           {isCaptionsAvailable
             ? (
               <CaptionsButtonContainer {...{ intl }} />
