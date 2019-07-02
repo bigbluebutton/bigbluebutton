@@ -397,9 +397,9 @@ class SIPSession {
 
       const handleIceNegotiationFailed = (peer) => {
         if (iceCompleted) {
-          logger.error({ logCode: 'sip_js_ice_failed_after' }, 'ICE connection failed after success');
+          logger.error({ logCode: 'sipjs_ice_failed_after' }, 'ICE connection failed after success');
         } else {
-          logger.error({ logCode: 'sip_js_ice_failed_before' }, 'ICE connection failed before success');
+          logger.error({ logCode: 'sipjs_ice_failed_before' }, 'ICE connection failed before success');
         }
         clearTimeout(callTimeout);
         clearTimeout(iceNegotiationTimeout);
@@ -415,7 +415,7 @@ class SIPSession {
       const handleIceConnectionTerminated = (peer) => {
         ['iceConnectionClosed'].forEach(e => mediaHandler.off(e, handleIceConnectionTerminated));
         if (!this.userRequestedHangup) {
-          logger.error({ logCode: 'sip_js_ice_closed' }, 'ICE connection closed');
+          logger.error({ logCode: 'sipjs_ice_closed' }, 'ICE connection closed');
         }
         /*
         this.callback({
@@ -602,7 +602,7 @@ export default class SIPBridge extends BaseAudioBridge {
         this.media.outputDeviceId = value;
       } catch (err) {
         logger.error({
-          logCode: 'sip_js_audio_changeoutputdevice_error',
+          logCode: 'audio_sip_changeoutputdevice_error',
           extraInfo: { error: err },
         }, 'Change Output Device error');
         throw new Error(this.baseErrorCodes.MEDIA_ERROR);
