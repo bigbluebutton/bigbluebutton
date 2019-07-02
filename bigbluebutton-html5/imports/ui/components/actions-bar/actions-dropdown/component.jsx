@@ -141,7 +141,9 @@ class ActionsDropdown extends Component {
             }}
           />
         )
-        : (
+        : null),
+      (!isUserPresenter
+        ? (
           <DropdownListItem
             icon="presentation"
             label={formatMessage(takePresenter)}
@@ -149,7 +151,8 @@ class ActionsDropdown extends Component {
             key={this.takePresenterId}
             onClick={() => handleTakePresenter()}
           />
-        )),
+        )
+        : null),
       (isUserPresenter
         ? (
           <DropdownListItem
