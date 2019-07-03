@@ -298,13 +298,11 @@ const getAvailableActions = (currentUser, user, isBreakoutRoom) => {
   const allowedToChatPrivately = !user.isCurrent && !isDialInUser;
 
   const allowedToMuteAudio = hasAuthority
-    && !user.isLocked
     && user.isVoiceUser
     && !user.isMuted
     && !user.isListenOnly;
 
   const allowedToUnmuteAudio = hasAuthority
-    && !user.isLocked
     && user.isVoiceUser
     && !user.isListenOnly
     && user.isMuted
