@@ -288,7 +288,7 @@ const areUsersUnmutable = () => {
     return meeting.usersProp.allowModsToUnmuteUsers;
   }
   return false;
-}
+};
 
 const getAvailableActions = (currentUser, user, isBreakoutRoom) => {
   const isDialInUser = isVoiceOnlyUser(user.id) || user.isPhoneUser;
@@ -298,11 +298,13 @@ const getAvailableActions = (currentUser, user, isBreakoutRoom) => {
   const allowedToChatPrivately = !user.isCurrent && !isDialInUser;
 
   const allowedToMuteAudio = hasAuthority
+    && !user.isLocked
     && user.isVoiceUser
     && !user.isMuted
     && !user.isListenOnly;
 
   const allowedToUnmuteAudio = hasAuthority
+    && !user.isLocked
     && user.isVoiceUser
     && !user.isListenOnly
     && user.isMuted
