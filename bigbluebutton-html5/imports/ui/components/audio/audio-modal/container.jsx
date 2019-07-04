@@ -6,6 +6,7 @@ import getFromUserSettings from '/imports/ui/services/users-settings';
 import AudioModal from './component';
 import Meetings from '/imports/api/meetings';
 import Auth from '/imports/ui/services/auth';
+import deviceInfo from '/imports/utils/deviceInfo';
 import lockContextContainer from '/imports/ui/components/lock-viewers/context/container';
 import Service from '../service';
 
@@ -83,5 +84,6 @@ export default lockContextContainer(withModalMounter(withTracker(({ mountModal, 
     isIOSChrome: browser().name === 'crios',
     isMobileNative: navigator.userAgent.toLowerCase().includes('bbbnative'),
     isIEOrEdge: browser().name === 'edge' || browser().name === 'ie',
+    hasMediaDevices: deviceInfo.hasMediaDevices,
   });
 })(AudioModalContainer)));

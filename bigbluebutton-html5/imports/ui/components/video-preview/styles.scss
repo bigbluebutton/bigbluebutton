@@ -2,6 +2,23 @@
 @import '/imports/ui/stylesheets/mixins/focus';
 @import "/imports/ui/components/modal/simple/styles";
 
+.warning {
+  text-align: center;
+  font-weight: var(--headings-font-weight);
+  font-size: 5rem;
+  white-space: normal;
+}
+.text {
+  margin: var(--line-height-computed);
+  text-align: center;
+}
+
+.main {
+  margin: var(--line-height-computed);
+  text-align: center;
+  font-size: var(--font-size-large);
+}
+
 .actions {
   margin-left: auto;
   margin-right: 3px;
