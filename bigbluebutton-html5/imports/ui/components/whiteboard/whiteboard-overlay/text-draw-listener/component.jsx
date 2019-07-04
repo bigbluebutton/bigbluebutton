@@ -7,7 +7,7 @@ const DRAW_UPDATE = ANNOTATION_CONFIG.status.update;
 const DRAW_END = ANNOTATION_CONFIG.status.end;
 
 // maximum value of z-index to prevent other things from overlapping
-const MAX_Z_INDEX = 2 ** 31 - 1;
+const MAX_Z_INDEX = (2 ** 31) - 1;
 
 export default class TextDrawListener extends Component {
   constructor() {
