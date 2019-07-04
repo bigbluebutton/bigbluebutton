@@ -5,7 +5,7 @@ const ANNOTATION_CONFIG = Meteor.settings.public.whiteboard.annotations;
 const DRAW_START = ANNOTATION_CONFIG.status.start;
 const DRAW_UPDATE = ANNOTATION_CONFIG.status.update;
 const DRAW_END = ANNOTATION_CONFIG.status.end;
-const MAX_Z_INDEX = 2147483647;
+const MAX_Z_INDEX = 2147483647; // maximun value of z-index to prevent other things from overlapping
 
 export default class TextDrawListener extends Component {
   constructor() {
@@ -415,7 +415,7 @@ export default class TextDrawListener extends Component {
       width: '100%',
       height: '100%',
       touchAction: 'none',
-      zIndex: MAX_Z_INDEX, // maximun value of z-index to prevent other things from overlapping
+      zIndex: MAX_Z_INDEX,
       cursor: `url('${baseName}/resources/images/whiteboard-cursor/text.png'), default`,
     };
 
