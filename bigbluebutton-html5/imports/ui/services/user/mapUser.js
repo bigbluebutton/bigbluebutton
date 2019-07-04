@@ -33,7 +33,7 @@ const mapUser = (user) => {
     loginTime: user.loginTime,
     effectiveConnectionType: user.effectiveConnectionType,
     externalUserId: user.extId,
-    isBreakoutUser: user.breakoutProps.isBreakoutUser,
+    isBreakoutUser: user && user.breakoutProps ? user.breakoutProps.isBreakoutUser : false,
   };
 
   mappedUser.isLocked = user.locked && !mappedUser.isModerator;
