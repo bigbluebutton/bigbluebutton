@@ -10,6 +10,7 @@ module.exports = {
       "node": true,
       "browser": true,
       "meteor": true,
+      "jasmine": true,
     },
     "rules": {
       "no-underscore-dangle": 0,
@@ -18,5 +19,8 @@ module.exports = {
       "import/no-unresolved": 0,
       "import/no-extraneous-dependencies": 1,
       "react/prop-types": 1,
+    },
+    "globals": {
+      "browser": "writable",
     },
 };

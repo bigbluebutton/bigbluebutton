@@ -74,7 +74,12 @@ const DesktopShare = ({
         notify(intl.formatMessage(intlMessages.iceConnectionStateError), 'error', 'desktop');
         break;
       default:
-        logger.error({ logCode: 'desktopshare_default_error' }, error || 'Default error handler');
+        logger.error({
+          logCode: 'desktopshare_default_error',
+          extraInfo: {
+            maybeError: error || 'Default error handler',
+          },
+        }, 'Default error handler for screenshare');
     }
     screenShareEndAlert();
   };

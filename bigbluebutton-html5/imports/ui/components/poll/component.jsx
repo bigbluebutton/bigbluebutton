@@ -349,6 +349,7 @@ class Poll extends PureComponent {
 
           <Button
             label={intl.formatMessage(intlMessages.closeLabel)}
+            aria-label={`${intl.formatMessage(intlMessages.closeLabel)} ${intl.formatMessage(intlMessages.pollPaneTitle)}`}
             onClick={() => {
               if (currentPoll) {
                 stopPoll();

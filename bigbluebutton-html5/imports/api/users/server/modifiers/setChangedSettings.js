@@ -23,7 +23,7 @@ export default function setChangedSettings(userId, setting, value) {
     }
 
     if (numChanged) {
-      Logger.info(`Updated setting ${setting} to ${value} for user ${userId}`);
+      Logger.info(`Updated setting ${setting} to ${value} for userId ${userId}`);
     }
   };
 

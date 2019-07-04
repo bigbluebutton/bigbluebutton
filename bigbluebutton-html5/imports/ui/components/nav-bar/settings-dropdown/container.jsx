@@ -13,7 +13,8 @@ export default withTracker((props) => {
   const handleToggleFullscreen = () => toggleFullScreen();
   const BROWSER_RESULTS = browser();
   const isSafari = BROWSER_RESULTS.name === 'safari';
-  const noIOSFullscreen = isSafari && BROWSER_RESULTS.versionNumber < 12;
+  const isIphone = navigator.userAgent.match(/iPhone/i);
+  const noIOSFullscreen = (isSafari && BROWSER_RESULTS.versionNumber < 12) || isIphone;
   return {
     amIModerator: props.amIModerator,
     handleToggleFullscreen,

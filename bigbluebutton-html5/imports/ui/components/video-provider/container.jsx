@@ -12,7 +12,6 @@ const VideoProviderContainer = ({ children, ...props }) => {
 export default withTracker(props => ({
   cursor: props.cursor,
   swapLayout: props.swapLayout,
-  mediaHeight: props.mediaHeight,
   meetingId: VideoService.meetingId(),
   users: VideoService.getAllUsersVideo(),
   userId: VideoService.userId(),

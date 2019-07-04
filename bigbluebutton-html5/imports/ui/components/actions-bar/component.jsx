@@ -35,6 +35,7 @@ class ActionsBar extends PureComponent {
       screenshareDataSavingSetting,
       isCaptionsAvailable,
       isMeteorConnected,
+      isPollingEnabled,
     } = this.props;
 
     const {
@@ -55,6 +56,7 @@ class ActionsBar extends PureComponent {
           <ActionsDropdown {...{
             isUserPresenter,
             isUserModerator,
+            isPollingEnabled,
             allowStartStopRecording,
             allowExternalVideo: enableExternalVideo,
             isRecording,
@@ -67,14 +69,18 @@ class ActionsBar extends PureComponent {
             isMeteorConnected,
           }}
           />
-          <QuickPollDropdown
-            {...{
-              currentSlidHasContent,
-              intl,
-              isUserPresenter,
-              parseCurrentSlideContent,
-            }}
-          />
+          {isPollingEnabled
+            ? (
+              <QuickPollDropdown
+                {...{
+                  currentSlidHasContent,
+                  intl,
+                  isUserPresenter,
+                  parseCurrentSlideContent,
+                }}
+              />
+            ) : null
+          }
           {isCaptionsAvailable
             ? (
               <CaptionsButtonContainer {...{ intl }} />

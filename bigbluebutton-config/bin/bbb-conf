@@ -148,10 +148,9 @@ BBB_USER=bigbluebutton
 
 if [ ! -f /usr/share/red5/webapps/bigbluebutton/WEB-INF/red5-web.xml ]; then
     echo "#"
-    echo "# BigBlueButton does not appear to be installed.  Could not"
-    echo "# locate:"
+    echo "# BigBlueButton does not appear to be installed.  Could not locate:"
     echo "#"
-    echo "# /usr/share/red5/webapps/bigbluebutton/WEB-INF/red5-web.xml"
+    echo "#    /usr/share/red5/webapps/bigbluebutton/WEB-INF/red5-web.xml"
     exit 1
 fi
 
@@ -1469,14 +1468,14 @@ check_state() {
       exit 1
     fi
 
-    if ! systemctl show-environment | grep -q LANG=en_US.UTF-8; then
+    if ! systemctl show-environment | grep LANG= | grep -q UTF-8; then
       echo 
       echo "#"
-      echo "# Warning: Detected that systemctl does not define LANG=en_US.UTF-8"
+      echo "# Warning: Detected that systemctl does not define a UTF-8 language."
       echo "#"
-      echo "# To correct, run the command "
+      echo "# To temporarily correct, run the command "
       echo "#"
-      echo "#   sudo systemctl set-environment LANG=en_US.UTF-8"
+      echo "#   sudo systemctl set-environment LANG=C.UTF-8"
       echo "#"
       echo "# See http://docs.bigbluebutton.org/2.2/install.html#pre-installation-checks"
       echo "#"

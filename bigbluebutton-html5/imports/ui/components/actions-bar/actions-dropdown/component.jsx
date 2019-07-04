@@ -99,6 +99,7 @@ class ActionsDropdown extends PureComponent {
       allowExternalVideo,
       handleTakePresenter,
       isSharingVideo,
+      isPollingEnabled,
       stopExternalVideoShare,
     } = this.props;
 
@@ -116,7 +117,7 @@ class ActionsDropdown extends PureComponent {
     } = intl;
 
     return _.compact([
-      (isUserPresenter
+      (isUserPresenter && isPollingEnabled
         ? (
           <DropdownListItem
             icon="polling"
@@ -132,7 +133,9 @@ class ActionsDropdown extends PureComponent {
             }}
           />
         )
-        : (
+        : null),
+      (!isUserPresenter
+        ? (
           <DropdownListItem
             icon="presentation"
             label={formatMessage(takePresenter)}
@@ -140,7 +143,8 @@ class ActionsDropdown extends PureComponent {
             key={this.takePresenterId}
             onClick={() => handleTakePresenter()}
           />
-        )),
+        )
+        : null),
       (isUserPresenter
         ? (
           <DropdownListItem

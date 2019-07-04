@@ -1,16 +1,18 @@
 
-
+const chai = require('chai');
+const clipboardy = require('clipboardy');
 const LandingPage = require('../pageobjects/landing.page');
 const ModalPage = require('../pageobjects/modal.page');
 const ChatPage = require('../pageobjects/chat.page');
 const Utils = require('../utils');
 
 const WAIT_TIME = 10000;
+const message = 'Hello';
 
-const loginWithoutAudio = function () {
+const loginWithoutAudio = function (username) {
   // login
   LandingPage.open();
-  browser.setValue(LandingPage.usernameInputSelector, 'user');
+  browser.setValue(LandingPage.usernameInputSelector, username);
   LandingPage.joinWithEnterKey();
 
   // close audio modal
@@ -26,18 +28,20 @@ describe('Chat', () => {
 
   it('should be able to send a message',
     () => {
-      loginWithoutAudio();
+      const username = 'chatUser1';
+      loginWithoutAudio(username);
 
       browser.waitForExist(ChatPage.publicChatSelector, WAIT_TIME);
-      ChatPage.sendPublicChatMessage('Hello');
+      ChatPage.sendPublicChatMessage(message);
     });
 
   it('should be able to save chat',
     () => {
-      loginWithoutAudio();
+      const username = 'chatUser2';
+      loginWithoutAudio(username);
 
       browser.waitForExist(ChatPage.publicChatSelector, WAIT_TIME);
-      ChatPage.sendPublicChatMessage('Hello');
+      ChatPage.sendPublicChatMessage(message);
 
       browser.waitForExist(ChatPage.chatDropdownTriggerSelector, WAIT_TIME);
       ChatPage.triggerChatDropdown();
@@ -48,24 +52,28 @@ describe('Chat', () => {
 
   it('should be able to copy chat',
     () => {
-      loginWithoutAudio();
+      const username = 'chatUser3';
+      loginWithoutAudio(username);
 
       browser.waitForExist(ChatPage.publicChatSelector, WAIT_TIME);
-      ChatPage.sendPublicChatMessage('Hello');
+      ChatPage.sendPublicChatMessage(message);
 
       browser.waitForExist(ChatPage.chatDropdownTriggerSelector, WAIT_TIME);
       ChatPage.triggerChatDropdown();
 
       browser.waitForExist(ChatPage.copyChatButtonSelector, WAIT_TIME);
       ChatPage.copyChat();
+      const copiedChat = clipboardy.readSync();
+      chai.expect(copiedChat).to.include(`${username} : ${message}`);
     });
 
   it('should be able to clear chat',
     () => {
-      loginWithoutAudio();
+      const username = 'chatUser4';
+      loginWithoutAudio(username);
 
       browser.waitForExist(ChatPage.publicChatSelector, WAIT_TIME);
-      ChatPage.sendPublicChatMessage('Hello');
+      ChatPage.sendPublicChatMessage(message);
 
       browser.waitForExist(ChatPage.chatDropdownTriggerSelector, WAIT_TIME);
       ChatPage.triggerChatDropdown();

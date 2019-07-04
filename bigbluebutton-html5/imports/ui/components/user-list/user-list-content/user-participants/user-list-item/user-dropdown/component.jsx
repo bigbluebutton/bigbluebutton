@@ -10,6 +10,7 @@ import DropdownContent from '/imports/ui/components/dropdown/content/component';
 import DropdownList from '/imports/ui/components/dropdown/list/component';
 import DropdownListItem from '/imports/ui/components/dropdown/list/item/component';
 import DropdownListSeparator from '/imports/ui/components/dropdown/list/separator/component';
+import lockContextContainer from '/imports/ui/components/lock-viewers/context/container';
 import _ from 'lodash';
 import { Session } from 'meteor/session';
 import { styles } from './styles';
@@ -211,8 +212,8 @@ class UserDropdown extends PureComponent {
       toggleUserLock,
       requestUserInformation,
       isMeteorConnected,
+      userLocks,
     } = this.props;
-
     const { showNestedOptions } = this.state;
 
     const actionPermissions = getAvailableActions(currentUser, user, isBreakoutRoom);
@@ -306,7 +307,7 @@ class UserDropdown extends PureComponent {
       ));
     }
 
-    if (allowedToUnmuteAudio && isMeteorConnected) {
+    if (allowedToUnmuteAudio && !userLocks.userMic && isMeteorConnected) {
       actions.push(this.makeDropdownItem(
         'unmute',
         intl.formatMessage(messages.UnmuteUserAudioLabel),
@@ -608,4 +609,4 @@ class UserDropdown extends PureComponent {
 }
 
 UserDropdown.propTypes = propTypes;
-export default UserDropdown;
+export default lockContextContainer(UserDropdown);

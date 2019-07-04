@@ -18,7 +18,8 @@ import ChatAlertContainer from '../chat/alert/container';
 import BannerBarContainer from '/imports/ui/components/banner-bar/container';
 import WaitingNotifierContainer from '/imports/ui/components/waiting-users/alert/container';
 import LockNotifier from '/imports/ui/components/lock-viewers/notify/container';
-
+import MediaService from '/imports/ui/components/media/service';
+import ManyWebcamsNotifier from '/imports/ui/components/video-provider/many-users-notify/container';
 import { styles } from './styles';
 
 const MOBILE_MEDIA = 'only screen and (max-width: 40em)';
@@ -111,6 +112,7 @@ class App extends Component {
     const BROWSER_RESULTS = browser();
     const isMobileBrowser = BROWSER_RESULTS.mobile || BROWSER_RESULTS.os.includes('Android');
 
+    MediaService.setSwapLayout();
     Modal.setAppElement('#app');
     document.getElementsByTagName('html')[0].lang = locale;
     document.getElementsByTagName('html')[0].style.fontSize = isMobileBrowser ? MOBILE_FONT_SIZE : DESKTOP_FONT_SIZE;
@@ -140,7 +142,6 @@ class App extends Component {
 
       startBandwidthMonitoring();
     }
-
 
     logger.info({ logCode: 'app_component_componentdidmount' }, 'Client loaded successfully');
   }
@@ -343,6 +344,7 @@ class App extends Component {
         <ChatAlertContainer />
         <WaitingNotifierContainer />
         <LockNotifier />
+        <ManyWebcamsNotifier />
         {customStyleUrl ? <link rel="stylesheet" type="text/css" href={customStyleUrl} /> : null}
         {customStyle ? <link rel="stylesheet" type="text/css" href={`data:text/css;charset=UTF-8,${encodeURIComponent(customStyle)}`} /> : null}
       </main>

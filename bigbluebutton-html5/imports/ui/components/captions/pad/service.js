@@ -43,4 +43,5 @@ const getPadURL = (padId, readOnlyPadId, ownerId) => {
 
 export default {
   getPadURL,
+  getCurrentUser,
 };

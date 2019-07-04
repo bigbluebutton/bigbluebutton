@@ -288,7 +288,7 @@ const areUsersUnmutable = () => {
     return meeting.usersProp.allowModsToUnmuteUsers;
   }
   return false;
-}
+};
 
 const getAvailableActions = (currentUser, user, isBreakoutRoom) => {
   const isDialInUser = isVoiceOnlyUser(user.id) || user.isPhoneUser;
