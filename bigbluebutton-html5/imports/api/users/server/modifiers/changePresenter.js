@@ -1,7 +1,7 @@
 import Logger from '/imports/startup/server/logger';
 import Users from '/imports/api/users';
 
-export default function changeRole(role, userId, meetingId, changedBy) {
+export default function changePresenter(presenter, userId, meetingId, changedBy) {
   const selector = {
     meetingId,
     userId,
@@ -9,7 +9,7 @@ export default function changeRole(role, userId, meetingId, changedBy) {
 
   const modifier = {
     $set: {
-      role,
+      presenter,
     },
   };
 
@@ -19,7 +19,7 @@ export default function changeRole(role, userId, meetingId, changedBy) {
     }
 
     if (numChanged) {
-      return Logger.info(`Changed user role=${role} id=${userId} meeting=${meetingId}`
+      return Logger.info(`Changed presenter=${presenter} id=${userId} meeting=${meetingId}`
       + `${changedBy ? ` changedBy=${changedBy}` : ''}`);
     }
 

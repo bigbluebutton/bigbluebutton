@@ -14,6 +14,7 @@ import KEY_CODES from '/imports/utils/keyCodes';
 
 const CHAT_CONFIG = Meteor.settings.public.chat;
 const PUBLIC_GROUP_CHAT_ID = CHAT_CONFIG.public_group_id;
+const ROLE_MODERATOR = Meteor.settings.public.user.role_moderator;
 
 // session for closed chat list
 const CLOSED_CHAT_LIST_KEY = 'closedChatList';
@@ -463,7 +464,7 @@ const getGroupChatPrivate = (sender, receiver) => {
 
 const isUserModerator = (userId) => {
   const u = Users.findOne({ userId });
-  return u ? u.moderator : false;
+  return u ? u.role === ROLE_MODERATOR : false;
 };
 
 const toggleUserLock = (userId, lockStatus) => {
