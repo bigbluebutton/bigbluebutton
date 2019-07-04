@@ -5,7 +5,9 @@ const ANNOTATION_CONFIG = Meteor.settings.public.whiteboard.annotations;
 const DRAW_START = ANNOTATION_CONFIG.status.start;
 const DRAW_UPDATE = ANNOTATION_CONFIG.status.update;
 const DRAW_END = ANNOTATION_CONFIG.status.end;
-const MAX_Z_INDEX = 2147483647; // maximun value of z-index to prevent other things from overlapping
+
+// maximum value of z-index to prevent other things from overlapping
+const MAX_Z_INDEX = 2 ** 31 - 1;
 
 export default class TextDrawListener extends Component {
   constructor() {
