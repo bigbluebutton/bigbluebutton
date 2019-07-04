@@ -99,6 +99,7 @@ const propTypes = {
   amIModerator: PropTypes.bool,
   shortcuts: PropTypes.string,
   isBreakoutRoom: PropTypes.bool,
+  isMeteorConnected: PropTypes.bool.isRequired,
 };
 
 const defaultProps = {
@@ -180,7 +181,7 @@ class SettingsDropdown extends PureComponent {
 
   renderMenuItems() {
     const {
-      intl, mountModal, amIModerator, isBreakoutRoom,
+      intl, mountModal, amIModerator, isBreakoutRoom, isMeteorConnected,
     } = this.props;
 
     const allowedToEndMeeting = amIModerator && !isBreakoutRoom;
@@ -221,8 +222,8 @@ class SettingsDropdown extends PureComponent {
         description={intl.formatMessage(intlMessages.hotkeysDesc)}
         onClick={() => mountModal(<ShortcutHelpComponent />)}
       />),
-      (<DropdownListSeparator key={_.uniqueId('list-separator-')} />),
-      allowedToEndMeeting
+      (isMeteorConnected ? <DropdownListSeparator key={_.uniqueId('list-separator-')} /> : null),
+      allowedToEndMeeting && isMeteorConnected
         ? (<DropdownListItem
           key="list-item-end-meeting"
           icon="application"
@@ -232,13 +233,14 @@ class SettingsDropdown extends PureComponent {
         />
         )
         : null,
-      (<DropdownListItem
-        key="list-item-logout"
-        icon="logout"
-        label={intl.formatMessage(intlMessages.leaveSessionLabel)}
-        description={intl.formatMessage(intlMessages.leaveSessionDesc)}
-        onClick={() => this.leaveSession()}
-      />),
+      isMeteorConnected ? (
+        <DropdownListItem
+          key="list-item-logout"
+          icon="logout"
+          label={intl.formatMessage(intlMessages.leaveSessionLabel)}
+          description={intl.formatMessage(intlMessages.leaveSessionDesc)}
+          onClick={() => this.leaveSession()}
+        />) : null,
     ]);
   }
 

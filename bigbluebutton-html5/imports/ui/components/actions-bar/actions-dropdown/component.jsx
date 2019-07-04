@@ -1,5 +1,5 @@
 import _ from 'lodash';
-import React, { Component } from 'react';
+import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import { defineMessages, intlShape } from 'react-intl';
 import Button from '/imports/ui/components/button/component';
@@ -38,14 +38,6 @@ const intlMessages = defineMessages({
     id: 'app.actionsBar.actionsDropdown.presentationDesc',
     description: 'adds context to upload presentation option',
   },
-  desktopShareLabel: {
-    id: 'app.actionsBar.actionsDropdown.desktopShareLabel',
-    description: 'Desktop Share option label',
-  },
-  stopDesktopShareLabel: {
-    id: 'app.actionsBar.actionsDropdown.stopDesktopShareLabel',
-    description: 'Stop Desktop Share option label',
-  },
   desktopShareDesc: {
     id: 'app.actionsBar.actionsDropdown.desktopShareDesc',
     description: 'adds context to desktop share option',
@@ -80,7 +72,7 @@ const intlMessages = defineMessages({
   },
 });
 
-class ActionsDropdown extends Component {
+class ActionsDropdown extends PureComponent {
   constructor(props) {
     super(props);
 
@@ -196,11 +188,12 @@ class ActionsDropdown extends Component {
       isUserPresenter,
       isUserModerator,
       shortcuts: OPEN_ACTIONS_AK,
+      isMeteorConnected,
     } = this.props;
 
     const availableActions = this.getAvailableActions();
 
-    if ((!isUserPresenter && !isUserModerator) || availableActions.length === 0) return null;
+    if ((!isUserPresenter && !isUserModerator) || availableActions.length === 0 || !isMeteorConnected) return null;
 
     return (
       <Dropdown ref={(ref) => { this._dropdown = ref; }}>

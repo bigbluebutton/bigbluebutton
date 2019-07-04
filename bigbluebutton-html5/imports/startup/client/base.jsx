@@ -85,7 +85,7 @@ class Base extends Component {
       meetingExist,
       animations,
       ejected,
-      meteorIsConnected,
+      isMeteorConnected,
       subscriptionsReady,
     } = this.props;
     const {
@@ -102,7 +102,7 @@ class Base extends Component {
     }
 
     // In case the meteor restart avoid error log
-    if (meteorIsConnected && (prevState.meetingExisted !== meetingExisted) && meetingExisted) {
+    if (isMeteorConnected && (prevState.meetingExisted !== meetingExisted) && meetingExisted) {
       this.setMeetingExisted(false);
     }
 
@@ -117,7 +117,7 @@ class Base extends Component {
     }
 
     // In case the meteor restart avoid error log
-    if (meteorIsConnected && (prevState.meetingExisted !== meetingExisted)) {
+    if (isMeteorConnected && (prevState.meetingExisted !== meetingExisted)) {
       this.setMeetingExisted(false);
     }
 
@@ -269,7 +269,7 @@ const BaseContainer = withTracker(() => {
         if (oldDocument.recordProp.recording && !newDocument.recordProp.recording) {
           notify(
             <FormattedMessage
-              id="app.notification.recordingStop"
+              id="app.notification.recordingPaused"
               description="Notification for when the recording stops"
             />,
             'error',
@@ -289,7 +289,7 @@ const BaseContainer = withTracker(() => {
     meetingModeratorSubscriptionHandler,
     animations,
     User,
-    meteorIsConnected: Meteor.status().connected,
+    isMeteorConnected: Meteor.status().connected,
     meetingExist: !!meeting,
     meetingHasEnded: !!meeting && meeting.meetingEnded,
     meetingIsBreakout: AppService.meetingIsBreakout(),
