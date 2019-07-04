@@ -22,7 +22,7 @@ export default function endMeeting(credentials) {
   };
   const user = Users.findOne(selector);
 
-  if (user.role === ROLE_MODERATOR) {
+  if (!!user && user.role === ROLE_MODERATOR) {
     const payload = {
       userId: requesterUserId,
     };

@@ -6,7 +6,6 @@ import EndMeetingComponent from './component';
 
 const EndMeetingContainer = props => <EndMeetingComponent {...props} />;
 
-
 export default withModalMounter(withTracker(({ mountModal }) => ({
   closeModal() {
     mountModal(null);

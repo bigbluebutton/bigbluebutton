@@ -44,7 +44,7 @@ export default function toggleRecording(credentials) {
   };
   const user = Users.findOne(selector);
 
-  if (allowedToRecord && user.role === ROLE_MODERATOR) {
+  if (allowedToRecord && !!user && user.role === ROLE_MODERATOR) {
     Logger.info(`Setting the record parameter to ${!meetingRecorded} for ${meetingId} by ${requesterUserId}`);
     return RedisPubSub.publishUserMessage(CHANNEL, EVENT_NAME, meetingId, requesterUserId, payload);
   }
