@@ -11,7 +11,14 @@ const GLOBAL_AUDIO_PREFIX = 'GLOBAL_AUDIO_';
 const logFunc = (type, message, options) => {
   const topic = options.topic || 'audio';
 
-  logger[type](`[${topic}] ${JSON.stringify(message)} options:${JSON.stringify(options)}`);
+  logger[type]({
+    logCode: 'TODO_kurento_audio',
+    extraInfo: {
+      topic,
+      message,
+      options,
+    },
+  }, options && options.message && options.message.id ? options.message.id : 'kurento audio');
 };
 
 const modLogger = {
@@ -126,7 +133,8 @@ export default class KurentoAudioBridge extends BaseAudioBridge {
         await audioContext.setSinkId(value);
         this.media.outputDeviceId = value;
       } catch (err) {
-        logger.error({ logCode: 'audio_kurento_changeoutputdevice_error' }, err);
+        logFunc('error', 'SFU audio bridge failed to fetch STUN/TURN info, using default',
+          { logCode: 'audio_kurento_changeoutputdevice_error', err });
         throw new Error(this.baseErrorCodes.MEDIA_ERROR);
       }
     }

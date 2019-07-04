@@ -1,6 +1,6 @@
 import Logger from '/imports/startup/server/logger';
 import Users from '/imports/api/users';
-import { check }  from 'meteor/check';
+import { check } from 'meteor/check';
 
 export default function sharedWebcam(meetingId, userId) {
   check(meetingId, String);
@@ -15,7 +15,7 @@ export default function sharedWebcam(meetingId, userId) {
     $set: {
       meetingId,
       userId,
-      has_stream: true,
+      hasStream: true,
     },
   };
 

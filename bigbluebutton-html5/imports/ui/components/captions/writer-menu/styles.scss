@@ -10,12 +10,10 @@
 }
 
 .content {
-  flex-grow: 1;
+  align-items: center;
   display: flex;
-  justify-content: center;
-  margin-top: auto;
-  margin-bottom: auto;
-  padding: 3rem 0 0.5rem 0;
+  flex-direction: column;
+  padding: .3rem 0 0.5rem 0;
 }
 
 .captionsOptions {
@@ -43,7 +41,7 @@
   border-radius: var(--border-size);
   border-bottom: 0.1rem solid var(--color-gray-lighter);
   color: var(--color-gray-label);
-  width: 50%;
+  width: 40%;
   height: 1.75rem;
   padding: 1px;
 
@@ -71,13 +69,12 @@
 }
 
 .startBtn {
-  display: flex;
   align-self: center;
   margin: 0;
   width: 40%;
   display: block;
   position: absolute;
-  bottom:   20px;
+  bottom: 20px;
   color: var(--color-white) !important;
   background-color: var(--color-link) !important;
 

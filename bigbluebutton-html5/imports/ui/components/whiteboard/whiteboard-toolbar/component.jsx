@@ -89,7 +89,7 @@ class WhiteboardToolbar extends Component {
       // variables to keep current selected draw settings
       annotationSelected,
       prevAnnotationSelected: annotationSelected,
-      thicknessSelected: { value: 2 },
+      thicknessSelected: { value: 1 },
       colorSelected: { value: '#ff0000' },
       fontSizeSelected: { value: 20 },
 

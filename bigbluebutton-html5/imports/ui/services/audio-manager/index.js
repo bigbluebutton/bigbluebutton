@@ -184,7 +184,13 @@ class AudioManager {
         clearTimeout(iceGatheringTimeout);
       }
 
-      logger.error({ logCode: 'audiomanager_listenonly_error' }, `Listen only error:${JSON.stringify(err)} on try ${retries}`);
+      logger.error({
+        logCode: 'audiomanager_listenonly_error',
+        extraInfo: {
+          error: err,
+          retries,
+        },
+      }, 'Listen only error');
       throw {
         type: 'MEDIA_ERROR',
         message: this.messages.error.MEDIA_ERROR,
@@ -331,7 +337,13 @@ class AudioManager {
         const errorKey = this.messages.error[error] || this.messages.error.GENERIC_ERROR;
         const errorMsg = this.intl.formatMessage(errorKey, { 0: bridgeError });
         this.error = !!error;
-        logger.error({ logCode: 'audio_failure', error, cause: bridgeError }, `Audio Error ${JSON.stringify(errorMsg)}`);
+        logger.error({
+          logCode: 'audio_failure',
+          extraInfo: {
+            error,
+            cause: bridgeError,
+          },
+        }, 'Audio Error');
         if (silenceNotifications !== true) {
           this.notify(errorMsg, true);
           this.exitAudio();
@@ -362,7 +374,10 @@ class AudioManager {
     audio.src = 'resources/sounds/silence.mp3';
 
     audio.play().catch((e) => {
-      logger.warn({ logCode: 'audiomanager_error_test_audio' }, 'Error on playing test audio:', e);
+      logger.warn({
+        logCode: 'audiomanager_error_test_audio',
+        extraInfo: { error: e },
+      }, 'Error on playing test audio');
     });
 
     return dest.stream;

@@ -49,6 +49,7 @@ const defaultProps = {
     disabled: false,
   },
   dismiss: {
+    callback: () => {},
     disabled: false,
   },
   preventClosing: false,

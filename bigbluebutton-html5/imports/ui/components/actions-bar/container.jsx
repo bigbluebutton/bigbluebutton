@@ -14,11 +14,13 @@ import {
   shareScreen, unshareScreen, isVideoBroadcasting, screenShareEndAlert, dataSavingSetting,
 } from '../screenshare/service';
 
-import MediaService, { getSwapLayout } from '../media/service';
+import MediaService, { getSwapLayout, shouldEnableSwapLayout } from '../media/service';
 
 const ActionsBarContainer = props => <ActionsBar {...props} />;
 
 export default withTracker(() => {
+  const POLLING_ENABLED = Meteor.settings.public.poll.enabled;
+
   Meetings.find({ meetingId: Auth.meetingID }).observeChanges({
     changed: (id, fields) => {
       if (fields.recordProp && fields.recordProp.recording) {
@@ -44,7 +46,7 @@ export default withTracker(() => {
     toggleRecording: Service.toggleRecording,
     screenSharingCheck: getFromUserSettings('enableScreensharing', Meteor.settings.public.kurento.enableScreensharing),
     enableVideo: getFromUserSettings('enableVideo', Meteor.settings.public.kurento.enableVideo),
-    isLayoutSwapped: getSwapLayout(),
+    isLayoutSwapped: getSwapLayout() && shouldEnableSwapLayout(),
     toggleSwapLayout: MediaService.toggleSwapLayout,
     handleTakePresenter: Service.takePresenterRole,
     currentSlidHasContent: PresentationService.currentSlidHasContent(),
@@ -53,5 +55,6 @@ export default withTracker(() => {
     screenShareEndAlert,
     screenshareDataSavingSetting: dataSavingSetting(),
     isCaptionsAvailable: CaptionsService.isCaptionsAvailable(),
+    isPollingEnabled: POLLING_ENABLED,
   };
 })(injectIntl(ActionsBarContainer));

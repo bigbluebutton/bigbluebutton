@@ -196,7 +196,8 @@ class PresentationUploader extends Component {
   }
 
   static getDerivedStateFromProps(props, state) {
-    if (props.presentations[0].isCurrent && state.disableConfirm) {
+    const firstPres = props.presentations[0];
+    if (firstPres && firstPres.isCurrent && state.disableConfirm) {
       return {
         disableConfirm: !state.disableConfirm,
       };
@@ -293,7 +294,10 @@ class PresentationUploader extends Component {
       })
       .catch((error) => {
         notify(intl.formatMessage(intlMessages.genericError), 'error');
-        logger.error({ logCode: 'presentationuploader_component_save_error' }, error);
+        logger.error({
+          logCode: 'presentationuploader_component_save_error',
+          extraInfo: { error },
+        }, 'Presentation uploader catch error on confirm');
 
         this.setState({
           disableActions: false,

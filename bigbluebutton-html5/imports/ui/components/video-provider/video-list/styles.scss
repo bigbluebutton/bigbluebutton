@@ -9,29 +9,15 @@
   --cam-dropdown-width: 70%;
   --audio-indicator-width: 1.12rem;
   --audio-indicator-fs: 75%;
-  position: relative;
+  position: absolute;
   width: 100%;
-  min-height: calc(var(--video-width) / var(--video-ratio));
+  min-height: var(--video-height);
   height: 100%;
   top: 0;
   left: 0;
   right: 0;
   bottom: 0;
-  align-items: center;
-  justify-content: center;
-}
-
-.videoCanvasSwapLayout {
-  --cam-dropdown-width: 70%;
-  --audio-indicator-width: 1.12rem;
-  --audio-indicator-fs: 75%;
-  position: relative;
-  width: 100%;
-  min-height: calc(var(--video-width) / var(--video-ratio));
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
+  display: flex;
   align-items: center;
   justify-content: center;
 }
@@ -40,34 +26,11 @@
   display: grid;
   border-radius: 5px;
 
-  min-height: calc(var(--video-width) / var(--video-ratio));
-
-  grid-template-columns: repeat(auto-fit, var(--video-width));
-  grid-auto-columns: var(--video-width);
-  grid-auto-rows: calc(var(--video-width) / var(--video-ratio));
-
+  grid-auto-flow: dense;
   grid-gap: 5px;
 
   align-items: center;
   justify-content: center;
-
-  @include mq($medium-up) {
-    grid-gap: 10px;
-  }
-}
-
-.videoListSwapLayout {
-  display: grid;
-  padding: 10px;
-  border-radius: 5px;
-  min-height: calc(var(--video-width) / var(--video-ratio));
-  grid-template-columns: repeat(auto-fit, minmax(var(--video-width), 1fr));
-  grid-auto-columns: minmax(var(--video-width), 1fr);
-  grid-auto-rows: 1fr;
-  grid-gap: 5px;
-  align-items: center;
-  justify-content: center;
-  grid-auto-flow: row;
 
   @include mq($medium-up) {
     grid-gap: 10px;
@@ -76,57 +39,19 @@
 
 .videoListItem {
   display: flex;
-  max-width: fit-content;
 
   &.focused {
     grid-column: 1 / span 2;
     grid-row: 1 / span 2;
-    width: 100%;
-    min-width: 100%;
-    max-width: 100%;
-    height: 100%;
-    min-height: 100%;
-    max-height: 100%;
-  }
-
-  width: var(--video-width);
-  min-width: var(--video-width);
-  height: calc(var(--video-width) / var(--video-ratio));
-  min-height: calc(var(--video-width) / var(--video-ratio));
-}
-
-.videoListItemSwapLayout {
-  display: flex;
-  max-width: -moz-fit-content;
-  max-height: -moz-fit-content;
-  width: 100%;
-  height: 100%;
-
-  &.focused {
-    grid-column: 1 / span 2;
-    grid-row: 1 / span 2;
-    width: 100%;
-    min-width: 100%;
-    max-width: 100%;
-    height: 100%;
-    min-height: 100%;
-    max-height: 100%;
   }
 }
 
 .content {
   position: relative;
+  display: flex;
   min-width: 100%;
   height: 100%;
-  min-height: 100%;
   border-radius: 5px;
-
-  background-color: var(--color-gray);
-
-  width: var(--video-width);
-  min-width: var(--video-width);
-  height: calc(var(--video-width) / var(--video-ratio));
-  min-height: calc(var(--video-width) / var(--video-ratio));
 
   &::after {
     content: "";
@@ -148,69 +73,6 @@
   &.talking::after {
     opacity: 1;
   }
-
-  .focused & {
-    width: 100%;
-    min-width: 100%;
-    max-width: 100%;
-    height: 100%;
-    min-height: 100%;
-    max-height: 100%;
-  }
-}
-
-.contentSwapLayout {
-  position: relative;
-  min-width: 100%;
-  height: 100%;
-  min-height: 100%;
-  border-radius: 5px;
-
-  background-color: var(--color-gray);
-
-  width: 100%;
-
-  &::after {
-    content: "";
-    position: absolute;
-    top: 0;
-    right: 0;
-    bottom: 0;
-    left: 0;
-    border: 5px solid var(--color-white-with-transparency);
-    border-radius: 5px;
-    opacity: 0;
-    pointer-events: none;
-
-    :global(.animationsEnabled) & {
-      transition: opacity .1s;
-    }
-  }
-
-  &.talking::after {
-    opacity: 1;
-  }
-
-  .focused & {
-    width: 100%;
-    min-width: 100%;
-    max-width: 100%;
-    height: 100%;
-    min-height: 100%;
-    max-height: 100%;
-  }
-}
-
-.contentLoading {
-  width: var(--video-width);
-  min-width: var(--video-width);
-  height: calc(var(--video-width) / var(--video-ratio));
-  min-height: calc(var(--video-width) / var(--video-ratio));
-}
-
-.contentLoadingSwapLayout {
-  width: 100%;
-  height: 100%;
 }
 
 %media-area {
@@ -239,8 +101,6 @@
   font-size: 2.5rem;
   text-align: center;
   white-space: nowrap;
-  width: 100%;
-  height: 100%;
 
 
   &::after {

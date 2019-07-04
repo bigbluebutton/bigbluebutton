@@ -25,7 +25,7 @@ class ServerLoggerStream extends ServerStream {
 
     this.rec = rec;
     if (fullInfo.meetingId != null) {
-      this.rec.clientInfo = fullInfo;
+      this.rec.userInfo = fullInfo;
     }
     this.rec.clientBuild = Meteor.settings.public.app.html5ClientBuild;
     return super.write(this.rec);
@@ -39,7 +39,14 @@ class MeteorStream {
 
     this.rec = rec;
     if (fullInfo.meetingId != null) {
-      Meteor.call('logClient', nameFromLevel[this.rec.level], this.rec.msg, fullInfo);
+      Meteor.call(
+        'logClient',
+        nameFromLevel[this.rec.level],
+        this.rec.msg,
+        this.rec.logCode,
+        this.rec.extraInfo || {},
+        fullInfo,
+      );
     } else {
       Meteor.call('logClient', nameFromLevel[this.rec.level], this.rec.msg);
     }

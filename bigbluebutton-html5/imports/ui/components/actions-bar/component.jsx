@@ -34,6 +34,7 @@ class ActionsBar extends React.PureComponent {
       stopExternalVideoShare,
       screenshareDataSavingSetting,
       isCaptionsAvailable,
+      isPollingEnabled,
     } = this.props;
 
     const {
@@ -54,6 +55,7 @@ class ActionsBar extends React.PureComponent {
           <ActionsDropdown {...{
             isUserPresenter,
             isUserModerator,
+            isPollingEnabled,
             allowStartStopRecording,
             allowExternalVideo: enableExternalVideo,
             isRecording,
@@ -65,14 +67,24 @@ class ActionsBar extends React.PureComponent {
             stopExternalVideoShare,
           }}
           />
-          <QuickPollDropdown
-            {...{
-              currentSlidHasContent,
-              intl,
-              isUserPresenter,
-              parseCurrentSlideContent,
-            }}
-          />
+          {isPollingEnabled
+            ? (
+              <QuickPollDropdown
+                {...{
+                  currentSlidHasContent,
+                  intl,
+                  isUserPresenter,
+                  parseCurrentSlideContent,
+                }}
+              />
+            ) : null
+          }
+          {isCaptionsAvailable
+            ? (
+              <CaptionsButtonContainer {...{ intl }} />
+            )
+            : null
+          }
         </div>
         <div
           className={
@@ -98,12 +110,6 @@ class ActionsBar extends React.PureComponent {
             screenshareDataSavingSetting,
           }}
           />
-          {isCaptionsAvailable
-            ? (
-              <CaptionsButtonContainer {...{ intl }} />
-            )
-            : null
-        }
         </div>
         <div className={styles.right}>
           {isLayoutSwapped

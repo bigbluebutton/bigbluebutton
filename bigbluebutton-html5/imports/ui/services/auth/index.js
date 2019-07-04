@@ -135,6 +135,7 @@ class Auth {
       fullname: this.fullname,
       confname: this.confname,
       externUserID: this.externUserID,
+      uniqueClientSession: this.uniqueClientSession,
     };
   }
 
@@ -168,6 +169,7 @@ class Auth {
     this.fullname = null;
     this.externUserID = null;
     this.confname = null;
+    this.uniqueClientSession = null;
     return Promise.resolve(...args);
   }
 
@@ -193,7 +195,10 @@ class Auth {
 
     this.loggedIn = false;
     return this.validateAuthToken()
-      .then(() => { this.loggedIn = true; });
+      .then(() => {
+        this.loggedIn = true;
+        this.uniqueClientSession = `${this.sessionToken}-${Math.random().toString(36).substring(6)}`;
+      });
   }
 
   validateAuthToken() {
