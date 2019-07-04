@@ -31,20 +31,6 @@ class Tooltip extends Component {
     const expandedEl = tooltipTarget.parentElement.querySelector('[aria-expanded="true"]');
     const isTarget = expandedEl === tooltipTarget;
     if (expandedEl && !isTarget) return;
-
-    const findLabel = (node) => {
-      let rtn;
-      if (node) {
-        const { nodeName, lastChild, parentElement } = node;
-        if (nodeName.toLowerCase() === 'button') rtn = lastChild.innerText;
-        else rtn = findLabel(parentElement);
-      }
-      return rtn;
-    };
-    const label = findLabel(tooltipTarget);
-    if (label) tip.set({ content: label });
-    // if we are not able to get the text, the default content is used
-
     tip.show();
   }
 
