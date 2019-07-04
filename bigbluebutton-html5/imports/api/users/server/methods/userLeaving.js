@@ -3,6 +3,7 @@ import { check } from 'meteor/check';
 import RedisPubSub from '/imports/startup/server/redis';
 import Logger from '/imports/startup/server/logger';
 import Users from '/imports/api/users';
+import setConnectionStatus from '/imports/api/users/server/modifiers/setConnectionStatus';
 
 export default function userLeaving(credentials, userId, connectionId) {
   const REDIS_CONFIG = Meteor.settings.private.redis;
@@ -37,6 +38,6 @@ export default function userLeaving(credentials, userId, connectionId) {
   };
 
   Logger.info(`User '${userId}' is leaving meeting '${meetingId}'`);
-
+  setConnectionStatus(meetingId, userId, 'offline');
   return RedisPubSub.publishUserMessage(CHANNEL, EVENT_NAME, meetingId, requesterUserId, payload);
 }

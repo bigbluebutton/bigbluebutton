@@ -70,6 +70,7 @@ function users(credentials, isModerator = false) {
   const options = {
     fields: {
       authToken: false,
+      lastPing: false,
     },
   };
 
