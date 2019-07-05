@@ -1,7 +1,6 @@
 {
     "app.chat.submitLabel": "Enviar mensaje",
     "app.chat.inputLabel": "Entrada de mensaje para chat {0}",
-    "app.chat.inputPlaceholder": "Mensaje {0}",
     "app.chat.titlePublic": "Chat público",
     "app.chat.titlePrivate": "Chat privado con {0}",
     "app.chat.partnerDisconnected": "{0} ha abandonado la reunión",
@@ -177,6 +176,7 @@
     "app.lock-viewers.Layout": "Diseño",
     "app.videoPreview.cancelLabel": "Cancelar",
     "app.videoPreview.closeLabel": "Cerrar",
+    "app.video.cancel": "Cancelar",
     "app.meeting.endNotification.ok.label": "OK",
     "app.feedback.title": "Haz salido de la conferencia",
     "app.createBreakoutRoom.joinAudio": "Unirse al audio",

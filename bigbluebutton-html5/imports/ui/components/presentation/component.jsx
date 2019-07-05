@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import { TransitionGroup, CSSTransition } from 'react-transition-group';
 import WhiteboardOverlayContainer from '/imports/ui/components/whiteboard/whiteboard-overlay/container';
@@ -27,7 +27,7 @@ const intlMessages = defineMessages({
   },
 });
 
-class PresentationArea extends Component {
+class PresentationArea extends PureComponent {
   constructor() {
     super();
 
@@ -49,6 +49,15 @@ class PresentationArea extends Component {
     this.touchUpdate = this.touchUpdate.bind(this);
     this.pointUpdate = this.pointUpdate.bind(this);
     this.fitToWidthHandler = this.fitToWidthHandler.bind(this);
+  }
+
+  componentDidMount() {
+    // adding an event listener to scale the whiteboard on 'resize' events sent by chat/userlist etc
+    window.addEventListener('resize', () => {
+      setTimeout(this.handleResize.bind(this), 0);
+    });
+
+    this.getInitialPresentationSizes();
   }
 
   componentDidUpdate(prevProps, prevState) {
@@ -73,14 +82,6 @@ class PresentationArea extends Component {
     }
   }
 
-  componentDidMount() {
-    // adding an event listener to scale the whiteboard on 'resize' events sent by chat/userlist etc
-    window.addEventListener('resize', () => {
-      setTimeout(this.handleResize.bind(this), 0);
-    });
-
-    this.getInitialPresentationSizes();
-  }
 
   componentWillUnmount() {
     window.removeEventListener('resize', () => {

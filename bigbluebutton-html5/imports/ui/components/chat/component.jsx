@@ -40,6 +40,7 @@ const Chat = (props) => {
     intl,
     shortcuts,
     UnsentMessagesCollection,
+    isMeteorConnected,
   } = props;
 
   const HIDE_CHAT_AK = shortcuts.hidePrivateChat;
@@ -86,7 +87,7 @@ const Chat = (props) => {
                 accessKey={CLOSE_CHAT_AK}
               />
             )
-            : <ChatDropdown />
+            : <ChatDropdown isMeteorConnected={isMeteorConnected} />
         }
       </header>
       <MessageList
@@ -103,7 +104,7 @@ const Chat = (props) => {
       <MessageForm
         UnsentMessagesCollection={UnsentMessagesCollection}
         chatId={chatID}
-        disabled={isChatLocked}
+        disabled={isChatLocked || !isMeteorConnected}
         chatAreaId={ELEMENT_ID}
         chatTitle={title}
         chatName={chatName}
@@ -133,6 +134,7 @@ const propTypes = {
   lastReadMessageTime: PropTypes.number.isRequired,
   partnerIsLoggedOut: PropTypes.bool.isRequired,
   isChatLocked: PropTypes.bool.isRequired,
+  isMeteorConnected: PropTypes.bool.isRequired,
   minMessageLength: PropTypes.number.isRequired,
   maxMessageLength: PropTypes.number.isRequired,
   actions: PropTypes.shape({
@@ -148,6 +150,7 @@ const propTypes = {
 
 const defaultProps = {
   scrollPosition: 0,
+  shortcuts: [],
 };
 
 Chat.propTypes = propTypes;

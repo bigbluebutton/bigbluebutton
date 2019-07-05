@@ -1,16 +1,17 @@
 import { Meteor } from 'meteor/meteor';
 import { WebAppInternals } from 'meteor/webapp';
 import Langmap from 'langmap';
-import Users from '/imports/api/users';
 import fs from 'fs';
+import Users from '/imports/api/users';
 import './settings';
 import { lookup as lookupUserAgent } from 'useragent';
 import Logger from './logger';
 import Redis from './redis';
 import setMinBrowserVersions from './minBrowserVersion';
+import userLeaving from '/imports/api/users/server/methods/userLeaving';
 
 const parse = Npm.require('url').parse;
-
+const INTERVAL_TIME = 10000;
 const AVAILABLE_LOCALES = fs.readdirSync('assets/app/locales');
 
 Meteor.startup(() => {
@@ -42,6 +43,28 @@ Meteor.startup(() => {
   }
 
   setMinBrowserVersions();
+
+  Meteor.setInterval(() => {
+    const currentTime = Date.now();
+    Logger.info('Checking for inactive users');
+    const users = Users.find({
+      connectionStatus: 'online',
+      lastPing: {
+        $lt: (currentTime - INTERVAL_TIME), // get user who has not pinged in the last 10 seconds
+      },
+    }).fetch();
+    if (!users.length) return Logger.info('No inactive users');
+    Logger.info('Removing inactive users');
+    users.forEach((user) => {
+      const loginTimeDelta = currentTime - user.loginTime;
+      const lastPingDelta = currentTime - user.lastPing;
+      user.requesterUserId = user.userId;
+      return loginTimeDelta >= INTERVAL_TIME
+      && lastPingDelta >= INTERVAL_TIME
+      && userLeaving(user, user.userId, user.connectionId);
+    });
+    return Logger.info('All inactive user have been removed');
+  }, INTERVAL_TIME);
 
   Logger.warn(`SERVER STARTED.\nENV=${env},\nnodejs version=${process.version}\nCDN=${CDN_URL}\n`, APP_CONFIG);
 });

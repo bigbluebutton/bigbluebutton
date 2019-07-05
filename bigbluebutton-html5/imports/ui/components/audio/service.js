@@ -4,6 +4,8 @@ import AudioManager from '/imports/ui/services/audio-manager';
 import Meetings from '/imports/api/meetings';
 import mapUser from '/imports/ui/services/user/mapUser';
 
+const ROLE_MODERATOR = Meteor.settings.public.user.role_moderator;
+
 const init = (messages, intl) => {
   AudioManager.setAudioMessages(messages, intl);
   if (AudioManager.initialized) return;
@@ -54,6 +56,6 @@ export default {
   outputDeviceId: () => AudioManager.outputDeviceId,
   isEchoTest: () => AudioManager.isEchoTest,
   error: () => AudioManager.error,
-  isUserModerator: () => Users.findOne({ userId: Auth.userID }).moderator,
+  isUserModerator: () => Users.findOne({ userId: Auth.userID }).role === ROLE_MODERATOR,
   currentUser,
 };

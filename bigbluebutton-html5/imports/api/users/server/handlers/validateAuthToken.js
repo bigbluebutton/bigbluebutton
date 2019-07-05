@@ -1,7 +1,7 @@
 import { check } from 'meteor/check';
 import Logger from '/imports/startup/server/logger';
 import Users from '/imports/api/users';
-
+import setConnectionStatus from '/imports/api/users/server/modifiers/setConnectionStatus';
 import userJoin from '../methods/userJoin';
 
 const clearOtherSessions = (sessionUserId, current = false) => {
@@ -54,6 +54,7 @@ export default function handleValidateAuthToken({ body }, meetingId) {
       if (valid) {
         const sessionUserId = `${meetingId}-${userId}`;
         const currentConnectionId = User.connectionId ? User.connectionId : false;
+        setConnectionStatus(meetingId, userId);
         clearOtherSessions(sessionUserId, currentConnectionId);
       }
 
