@@ -65,7 +65,11 @@ recorded_done_file = "#{recording_dir}/status/recorded/#{meeting_id}.done"
 
 BigBlueButton.logger = Logger.new("#{log_dir}/events.log", 'daily')
 
-# Skip if is recorded and not archived yet
+# Be aware of this section! This is used as a synchronization between
+# rap-archive-worker and rap-events-worker for meetings that are recorded.
+# We want the archive step to finish to make sure that the events.xml
+# has already been written in raw directory before copying into the events
+# directory. (ralam July 5, 2019)
 if File.exist? recorded_done_file
   BigBlueButton.logger.info("Temporarily skipping #{meeting_id} for archive to finish")
   exit 0
@@ -75,6 +79,9 @@ target_dir = "#{events_dir}/#{meeting_id}"
 if not FileTest.directory?(target_dir)
   FileUtils.mkdir_p target_dir
   if File.exist? raw_events_xml
+    # This is a recorded meetings. Therefore, copy the events.xml
+    # from raw directory instead of collecting the events from redis.
+    # (ralam July 5, 2019)
     BigBlueButton.logger.info("Copying events from #{raw_events_xml}")
     events_xml = "#{events_dir}/#{meeting_id}/events.xml"
     FileUtils.cp(raw_events_xml, events_xml)
