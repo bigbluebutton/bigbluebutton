@@ -9,6 +9,7 @@ class Captions extends React.Component {
     super(props);
     this.state = { initial: true };
     this.text = '';
+    this.ariaText = '';
     this.timer = null;
     this.settings = CaptionsService.getCaptionsSettings();
 
@@ -27,6 +28,7 @@ class Captions extends React.Component {
     } = this.props;
 
     if (padId === nextProps.padId) {
+      if (this.text !== '') this.ariaText = this.text;
       if (revs === nextProps.revs && !nextState.clear) return false;
     }
     return true;
@@ -90,11 +92,30 @@ class Captions extends React.Component {
       color: fontColor,
     };
 
+    const visuallyHidden = {
+      position: 'absolute',
+      overflow: 'hidden',
+      clip: 'rect(0 0 0 0)',
+      height: '1px',
+      width: '1px',
+      margin: '-1px',
+      padding: '0',
+      border: '0',
+    };
+
     return (
-      <span
-        style={captionStyles}
-        dangerouslySetInnerHTML={{ __html: this.text }}
-      />
+      <div>
+        <div
+          aria-hidden
+          style={captionStyles}
+          dangerouslySetInnerHTML={{ __html: this.text }}
+        />
+        <div
+          style={visuallyHidden}
+          aria-live={this.text === '' && this.ariaText !== '' ? 'polite' : 'off'}
+          dangerouslySetInnerHTML={{ __html: this.ariaText }}
+        />
+      </div>
     );
   }
 }
