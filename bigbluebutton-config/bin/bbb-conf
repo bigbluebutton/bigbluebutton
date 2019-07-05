@@ -1475,7 +1475,7 @@ check_state() {
       echo "#"
       echo "# To temporarily correct, run the command "
       echo "#"
-      echo "#   sudo systemctl set-environment LANG=C.UTF-8"
+      echo "#   sudo systemctl set-environment LANG=en_US.UTF-8"
       echo "#"
       echo "# See http://docs.bigbluebutton.org/2.2/install.html#pre-installation-checks"
       echo "#"
