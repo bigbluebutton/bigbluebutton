@@ -68,7 +68,8 @@ class DeviceSelector extends Component {
 
   handleSelectChange(event) {
     const { value } = event.target;
-    const { onChange, devices } = this.props;
+    const { onChange } = this.props;
+    const { devices } = this.state;
     this.setState({ value }, () => {
       const selectedDevice = devices.find(d => d.deviceId === value);
       onChange(selectedDevice.deviceId, selectedDevice, event);
@@ -101,7 +102,7 @@ class DeviceSelector extends Component {
               </option>
             ))
             : (
-              (kind == 'audiooutput' && browser().name == 'safari')
+              (kind === 'audiooutput' && browser().name === 'safari')
                 ? <option value="not-found">Default</option>
                 : <option value="not-found">{`no ${kind} found`}</option>
             )
