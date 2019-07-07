@@ -259,7 +259,7 @@ class ApplicationMenu extends BaseMenu {
                   >
                     <option disabled>{intl.formatMessage(intlMessages.languageOptionLabel)}</option>
                     {availableLocales.map((locale, index) => (
-                      <option key={index} value={locale.locale}>
+                      <option key={index} value={locale.locale} lang={locale.locale}>
                         {locale.name}
                       </option>
                     ))}
