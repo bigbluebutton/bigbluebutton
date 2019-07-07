@@ -152,6 +152,14 @@ WebApp.connectHandlers.use('/feedback', (req, res) => {
       authToken,
     });
 
+    if (!user) {
+      Logger.error(`Feedback failed, user with id=${userId} wasn't found`);
+      res.setHeader('Content-Type', 'application/json');
+      res.writeHead(500);
+      res.end(JSON.stringify({ status: 'ok' }));
+      return;
+    }
+
     const feedback = {
       userName: user.name,
       ...body,
