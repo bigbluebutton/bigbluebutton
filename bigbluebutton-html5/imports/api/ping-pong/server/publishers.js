@@ -3,7 +3,11 @@ import Logger from '/imports/startup/server/logger';
 import _ from 'lodash';
 
 const COLLECTION_NAME = 'ping-pong';
-const POLL_INTERVAL = 15000;
+const INTERVAL_IN_SETTINGS = (Meteor.settings.public.pingPong.clearUsersInSeconds) * 1000;
+const INTERVAL_TIME = INTERVAL_IN_SETTINGS < 10000 ? 10000 : INTERVAL_IN_SETTINGS;
+const PONG_INTERVAL_IN_SETTINGS = (Meteor.settings.public.pingPong.pongTimeInSeconds) * 1000;
+const PONG_INTERVAL = PONG_INTERVAL_IN_SETTINGS >= INTERVAL_TIME
+  ? (INTERVAL_TIME / 2) : PONG_INTERVAL_IN_SETTINGS;
 
 function pingPong(credentials) {
   const { meetingId, requesterUserId } = credentials;
@@ -23,7 +27,7 @@ function pingPong(credentials) {
   };
   pongSender();
   this.ready();
-  const interval = Meteor.setInterval(() => pongSender(true), POLL_INTERVAL);
+  const interval = Meteor.setInterval(() => pongSender(true), PONG_INTERVAL);
 
   this.onStop(() => {
     Meteor.clearInterval(interval);

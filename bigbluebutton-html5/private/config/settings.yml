@@ -139,6 +139,9 @@ public:
     enableVideoMenu: true
     enableListenOnly: true
     autoShareWebcam: false
+  pingPong:
+    clearUsersInSeconds: 30
+    pongTimeInSeconds: 15
   allowOutsideCommands:
     toggleRecording: false
     toggleSelfVoice: false
