@@ -18,6 +18,7 @@ const propTypes = {
   normalizeEmojiName: PropTypes.func.isRequired,
   getScrollContainerRef: PropTypes.func.isRequired,
   toggleUserLock: PropTypes.func.isRequired,
+  isMeteorConnected: PropTypes.bool.isRequired,
 };
 
 const defaultProps = {
@@ -52,6 +53,7 @@ class UserListItem extends PureComponent {
       userInBreakout,
       breakoutSequence,
       meetignIsBreakout,
+      isMeteorConnected,
     } = this.props;
 
     const { meetingId, lockSettingsProps } = meeting;
@@ -85,6 +87,7 @@ class UserListItem extends PureComponent {
           userInBreakout,
           breakoutSequence,
           meetignIsBreakout,
+          isMeteorConnected,
         }}
       />
     );

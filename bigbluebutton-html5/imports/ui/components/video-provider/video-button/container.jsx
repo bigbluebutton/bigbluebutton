@@ -37,7 +37,7 @@ const JoinVideoOptionsContainer = (props) => {
 export default withModalMounter(injectIntl(withTracker(() => ({
   baseName: VideoButtonService.baseName,
   isSharingVideo: VideoButtonService.isSharingVideo(),
-  isDisabled: VideoButtonService.isDisabled(),
+  isDisabled: VideoButtonService.isDisabled() || !Meteor.status().connected,
   videoShareAllowed: VideoButtonService.videoShareAllowed(),
   isMobileNative: navigator.userAgent.toLowerCase().includes('bbbnative'),
   notify,

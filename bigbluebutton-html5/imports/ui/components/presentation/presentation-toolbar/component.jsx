@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import { defineMessages, injectIntl } from 'react-intl';
 import browser from 'browser-detect';
@@ -75,7 +75,7 @@ const intlMessages = defineMessages({
   },
 });
 
-class PresentationToolbar extends Component {
+class PresentationToolbar extends PureComponent {
   constructor(props) {
     super(props);
 
@@ -192,6 +192,7 @@ class PresentationToolbar extends Component {
       zoom,
       isFullscreen,
       fullscreenRef,
+      isMeteorConnected,
     } = this.props;
 
     const BROWSER_RESULTS = browser();
@@ -221,7 +222,7 @@ class PresentationToolbar extends Component {
               role="button"
               aria-label={prevSlideAriaLabel}
               aria-describedby={startOfSlides ? 'noPrevSlideDesc' : 'prevSlideDesc'}
-              disabled={startOfSlides}
+              disabled={startOfSlides || !isMeteorConnected}
               color="default"
               icon="left_arrow"
               size="md"
@@ -243,6 +244,7 @@ class PresentationToolbar extends Component {
                 aria-describedby="skipSlideDesc"
                 aria-live="polite"
                 aria-relevant="all"
+                disabled={!isMeteorConnected}
                 value={currentSlideNum}
                 onChange={this.handleSkipToSlideChange}
                 className={styles.skipSlideSelect}
@@ -254,7 +256,7 @@ class PresentationToolbar extends Component {
               role="button"
               aria-label={nextSlideAriaLabel}
               aria-describedby={endOfSlides ? 'noNextSlideDesc' : 'nextSlideDesc'}
-              disabled={endOfSlides}
+              disabled={endOfSlides || !isMeteorConnected }
               color="default"
               icon="right_arrow"
               size="md"
@@ -278,6 +280,7 @@ class PresentationToolbar extends Component {
                     maxBound={MAX_PERCENT}
                     step={STEP}
                     tooltipDistance={tooltipDistance}
+                    isMeteorConnected={isMeteorConnected}
                   />
                 )
                 : null
@@ -290,6 +293,7 @@ class PresentationToolbar extends Component {
                 : `${intl.formatMessage(intlMessages.presentationLabel)} ${intl.formatMessage(intlMessages.fitToWidth)}`
               }
               color="default"
+              disabled={!isMeteorConnected}
               icon="fit_to_width"
               size="md"
               circle={false}
@@ -341,6 +345,7 @@ PresentationToolbar.propTypes = {
   fullscreenRef: PropTypes.instanceOf(Element),
   isFullscreen: PropTypes.bool.isRequired,
   zoom: PropTypes.number.isRequired,
+  isMeteorConnected: PropTypes.bool.isRequired,
 };
 
 PresentationToolbar.defaultProps = {

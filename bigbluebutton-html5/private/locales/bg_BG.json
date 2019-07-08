@@ -1,7 +1,6 @@
 {
     "app.chat.submitLabel": "Изпрати",
     "app.chat.inputLabel": "Message input for chat {0}",
-    "app.chat.inputPlaceholder": "Message {0}",
     "app.chat.titlePublic": "Общ чат",
     "app.chat.titlePrivate": "Private Chat with {0}",
     "app.chat.partnerDisconnected": "{0} has left the meeting",
@@ -162,6 +161,7 @@
     "app.lock-viewers.Layout": "Layout",
     "app.videoPreview.cancelLabel": "Cancel",
     "app.videoPreview.closeLabel": "Close",
+    "app.video.cancel": "Cancel",
     "app.meeting.endNotification.ok.label": "OK",
     "app.feedback.title": "You have logged out of the conference",
     "app.createBreakoutRoom.joinAudio": "Join Audio",

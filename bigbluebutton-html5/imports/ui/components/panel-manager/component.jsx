@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import BreakoutRoomContainer from '/imports/ui/components/breakout-room/container';
 import UserListContainer from '/imports/ui/components/user-list/container';
@@ -68,7 +68,7 @@ const WAITING_MAX_WIDTH = 800;
 
 const dispatchResizeEvent = () => window.dispatchEvent(new Event('resize'));
 
-class PanelManager extends Component {
+class PanelManager extends PureComponent {
   constructor() {
     super();
 

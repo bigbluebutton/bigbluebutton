@@ -13,21 +13,19 @@ export default function sharedWebcam(meetingId, userId) {
 
   const modifier = {
     $set: {
-      meetingId,
-      userId,
       hasStream: true,
     },
   };
 
   const cb = (err, numChanged) => {
     if (err) {
-      return Logger.error(`Adding user to collection: ${err}`);
+      return Logger.error(`Error setting hasStream to true: ${err}`);
     }
 
     if (numChanged) {
-      return Logger.info(`Upserted user id=${userId} meeting=${meetingId}`);
+      return Logger.info(`Updated hasStream for user id=${userId} meeting=${meetingId}`);
     }
   };
 
-  return Users.upsert(selector, modifier, cb);
+  return Users.update(selector, modifier, cb);
 }

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { PureComponent } from 'react';
 import cx from 'classnames';
 import { styles } from './styles.scss';
 import DesktopShare from './desktop-share/component';
@@ -9,7 +9,7 @@ import JoinVideoOptionsContainer from '../video-provider/video-button/container'
 import CaptionsButtonContainer from '/imports/ui/components/actions-bar/captions/container';
 import PresentationOptionsContainer from './presentation-options/component';
 
-class ActionsBar extends React.PureComponent {
+class ActionsBar extends PureComponent {
   componentDidUpdate(prevProps) {
     const { isThereCurrentPresentation: prevIsThereCurrPresentation } = prevProps;
     const { isThereCurrentPresentation, getSwapLayout, toggleSwapLayout } = this.props;
@@ -51,6 +51,7 @@ class ActionsBar extends React.PureComponent {
       stopExternalVideoShare,
       screenshareDataSavingSetting,
       isCaptionsAvailable,
+      isMeteorConnected,
       isPollingEnabled,
       isThereCurrentPresentation,
     } = this.props;
@@ -83,6 +84,7 @@ class ActionsBar extends React.PureComponent {
             intl,
             isSharingVideo,
             stopExternalVideoShare,
+            isMeteorConnected,
           }}
           />
           {isPollingEnabled
@@ -125,6 +127,7 @@ class ActionsBar extends React.PureComponent {
             isUserPresenter,
             screenSharingCheck,
             screenShareEndAlert,
+            isMeteorConnected,
             screenshareDataSavingSetting,
           }}
           />

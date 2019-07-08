@@ -22,6 +22,10 @@ const intlMessages = defineMessages({
     id: 'app.captions.pad.ownership',
     description: 'Label for taking ownership of closed captions pad',
   },
+  takeOwnershipTooltip: {
+    id: 'app.captions.pad.ownershipTooltip',
+    description: 'Text for button for taking ownership of closed captions pad',
+  },
   interimResult: {
     id: 'app.captions.pad.interimResult',
     description: 'Title for speech recognition interim results',
@@ -221,11 +225,8 @@ class Pad extends PureComponent {
           {CaptionsService.canIOwnThisPad(ownerId)
             ? (
               <Button
-                icon="pen_tool"
-                size="sm"
-                ghost
-                color="dark"
-                hideLabel
+                color="primary"
+                tooltipLabel={intl.formatMessage(intlMessages.takeOwnershipTooltip, { 0: name })}
                 onClick={() => { CaptionsService.takeOwnership(locale); }}
                 aria-label={intl.formatMessage(intlMessages.takeOwnership)}
                 label={intl.formatMessage(intlMessages.takeOwnership)}
