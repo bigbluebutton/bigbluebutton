@@ -3,7 +3,7 @@ import Logger from '/imports/startup/server/logger';
 import _ from 'lodash';
 
 const COLLECTION_NAME = 'ping-pong';
-const POLL_INTERVAL = 5000;
+const POLL_INTERVAL = 15000;
 
 function pingPong(credentials) {
   const { meetingId, requesterUserId } = credentials;
