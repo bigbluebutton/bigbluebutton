@@ -1,4 +1,4 @@
-import React, { PureComponent } from 'react';
+import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { defineMessages, injectIntl } from 'react-intl';
 import PresentationUploaderContainer from '/imports/ui/components/presentation/presentation-uploader/container';
@@ -6,7 +6,6 @@ import { withModalMounter } from '/imports/ui/components/modal/service';
 import _ from 'lodash';
 import { Session } from 'meteor/session';
 import Button from '/imports/ui/components/button/component';
-import { findDOMNode } from 'react-dom';
 import LiveResult from './live-result/component';
 import { styles } from './styles.scss';
 
@@ -88,7 +87,7 @@ const intlMessages = defineMessages({
 const MAX_CUSTOM_FIELDS = Meteor.settings.public.poll.max_custom;
 const MAX_INPUT_CHARS = 45;
 
-class Poll extends PureComponent {
+class Poll extends Component {
   constructor(props) {
     super(props);
 
@@ -109,8 +108,11 @@ class Poll extends PureComponent {
   }
 
   componentDidMount() {
-    const hideBtn = findDOMNode(this.hideBtn);
-    if (hideBtn) hideBtn.focus();
+    const { props } = this.hideBtn;
+    const { className } = props;
+
+    const hideBtn = document.getElementsByClassName(`${className}`);
+    if (hideBtn[0]) hideBtn[0].focus();
   }
 
   componentDidUpdate() {
@@ -132,6 +134,7 @@ class Poll extends PureComponent {
     const option = event.target.value.replace(/\s{2,}/g, ' ').trim();
 
     this.inputEditor[index] = option === '' ? '' : option;
+
     this.setState({ customPollValues: this.inputEditor });
   }
 
@@ -153,10 +156,12 @@ class Poll extends PureComponent {
   }
 
   renderQuickPollBtns() {
-    const { isMeteorConnected, pollTypes, startPoll, intl } = this.props;
+    const {
+      isMeteorConnected, pollTypes, startPoll, intl,
+    } = this.props;
 
     const btns = pollTypes.map((type) => {
-      if (type === 'custom') return;
+      if (type === 'custom') return false;
 
       const label = intl.formatMessage(
         // regex removes the - to match the message id
