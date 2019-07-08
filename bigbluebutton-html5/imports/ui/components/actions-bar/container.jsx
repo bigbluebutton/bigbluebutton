@@ -5,16 +5,24 @@ import getFromUserSettings from '/imports/ui/services/users-settings';
 import Meetings from '/imports/api/meetings';
 import Auth from '/imports/ui/services/auth';
 import PresentationService from '/imports/ui/components/presentation/service';
+import Presentations from '/imports/api/presentations';
 import ActionsBar from './component';
 import Service from './service';
 import VideoService from '../video-provider/service';
 import ExternalVideoService from '/imports/ui/components/external-video-player/service';
 import CaptionsService from '/imports/ui/components/captions/service';
 import {
-  shareScreen, unshareScreen, isVideoBroadcasting, screenShareEndAlert, dataSavingSetting,
+  shareScreen,
+  unshareScreen,
+  isVideoBroadcasting,
+  screenShareEndAlert,
+  dataSavingSetting,
 } from '../screenshare/service';
 
-import MediaService, { getSwapLayout, shouldEnableSwapLayout } from '../media/service';
+import MediaService, {
+  getSwapLayout,
+  shouldEnableSwapLayout,
+} from '../media/service';
 
 const ActionsBarContainer = props => <ActionsBar {...props} />;
 
@@ -31,6 +39,11 @@ export default withTracker(() => {
         this.window.parent.postMessage({ response: 'recordingStopped' }, '*');
       }
     },
+  });
+
+  const getCurrentPresentation = meetingId => Presentations.findOne({
+    meetingId,
+    current: true,
   });
 
   return {
@@ -56,5 +69,7 @@ export default withTracker(() => {
     screenshareDataSavingSetting: dataSavingSetting(),
     isCaptionsAvailable: CaptionsService.isCaptionsAvailable(),
     isPollingEnabled: POLLING_ENABLED,
+    isThereCurrentPresentation: getCurrentPresentation(Auth.meetingID),
+    getSwapLayout,
   };
 })(injectIntl(ActionsBarContainer));

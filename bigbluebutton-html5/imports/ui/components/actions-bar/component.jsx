@@ -10,6 +10,23 @@ import CaptionsButtonContainer from '/imports/ui/components/actions-bar/captions
 import PresentationOptionsContainer from './presentation-options/component';
 
 class ActionsBar extends React.PureComponent {
+  componentDidUpdate(prevProps) {
+    const { isThereCurrentPresentation: prevIsThereCurrPresentation } = prevProps;
+    const { isThereCurrentPresentation, getSwapLayout, toggleSwapLayout } = this.props;
+
+    if (!isThereCurrentPresentation) {
+      if (!getSwapLayout()) {
+        toggleSwapLayout();
+      }
+    }
+
+    if (!prevIsThereCurrPresentation && isThereCurrentPresentation) {
+      if (getSwapLayout()) {
+        toggleSwapLayout();
+      }
+    }
+  }
+
   render() {
     const {
       isUserPresenter,
@@ -35,6 +52,7 @@ class ActionsBar extends React.PureComponent {
       screenshareDataSavingSetting,
       isCaptionsAvailable,
       isPollingEnabled,
+      isThereCurrentPresentation,
     } = this.props;
 
     const {
@@ -116,6 +134,7 @@ class ActionsBar extends React.PureComponent {
             ? (
               <PresentationOptionsContainer
                 toggleSwapLayout={toggleSwapLayout}
+                isThereCurrentPresentation={isThereCurrentPresentation}
               />
             )
             : null
