@@ -5,6 +5,7 @@ import cx from 'classnames';
 import _ from 'lodash';
 import { styles } from './styles';
 import VideoListItem from './video-list-item/component';
+import { withConsumer } from '../../media/webcam-draggable-overlay/context';
 
 const propTypes = {
   users: PropTypes.arrayOf(PropTypes.object).isRequired,
@@ -77,6 +78,14 @@ class VideoList extends Component {
   }
 
   componentDidMount() {
+    const { webcamDraggableDispatch } = this.props;
+    webcamDraggableDispatch(
+      {
+        type: 'setVideoListRef',
+        value: this.grid,
+      },
+    );
+
     this.handleCanvasResize();
     window.addEventListener('resize', this.handleCanvasResize, false);
   }
@@ -93,6 +102,7 @@ class VideoList extends Component {
     }
     const { focusedId } = this.state;
     const { width: canvasWidth, height: canvasHeight } = this.canvas.getBoundingClientRect();
+
     const gridGutter = parseInt(window.getComputedStyle(this.grid)
       .getPropertyValue('grid-row-gap'), 10);
     const hasFocusedItem = numItems > 2 && focusedId;
@@ -142,8 +152,6 @@ class VideoList extends Component {
       getStats,
       stopGettingStats,
       enableVideoStats,
-      cursor,
-      swapLayout,
     } = this.props;
     const { focusedId } = this.state;
 
@@ -167,9 +175,6 @@ class VideoList extends Component {
             [styles.videoListItem]: true,
             [styles.focused]: focusedId === user.id && users.length > 2,
           })}
-          style={{
-            cursor,
-          }}
         >
           <VideoListItem
             numOfUsers={users.length}
@@ -182,7 +187,6 @@ class VideoList extends Component {
             getStats={(videoRef, callback) => getStats(user.id, videoRef, callback)}
             stopGettingStats={() => stopGettingStats(user.id)}
             enableVideoStats={enableVideoStats}
-            swapLayout={swapLayout}
           />
         </div>
       );
@@ -231,4 +235,4 @@ class VideoList extends Component {
 
 VideoList.propTypes = propTypes;
 
-export default injectIntl(VideoList);
+export default injectIntl(withConsumer(VideoList));

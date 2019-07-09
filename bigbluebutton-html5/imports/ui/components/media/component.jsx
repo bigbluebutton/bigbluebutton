@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import cx from 'classnames';
-import WebcamDraggableOverlay from './webcam-draggable-overlay/component';
+import WebcamDraggable from './webcam-draggable-overlay/component';
 
 import { styles } from './styles';
 
@@ -70,6 +70,9 @@ export default class Media extends Component {
         id="container"
         className={cx(styles.container)}
         ref={this.refContainer}
+        style={{
+          overflow: 'hidden',
+        }}
       >
         <div
           className={!swapLayout ? contentClassName : overlayClassName}
@@ -79,10 +82,11 @@ export default class Media extends Component {
         >
           {children}
         </div>
-        <WebcamDraggableOverlay
+        <WebcamDraggable
           refMediaContainer={this.refContainer}
           swapLayout={swapLayout}
-          floatingOverlay={floatingOverlay}
+          singleWebcam={floatingOverlay}
+          usersVideoLenght={usersVideo.length}
           hideOverlay={hideOverlay}
           disableVideo={disableVideo}
           audioModalIsOpen={audioModalIsOpen}

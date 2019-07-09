@@ -266,6 +266,9 @@ class App extends Component {
         className={styles.media}
         aria-label={intl.formatMessage(intlMessages.mediaLabel)}
         aria-hidden={this.shouldAriaHide()}
+        style={{
+          overflow: 'hidden',
+        }}
       >
         {media}
         {this.renderCaptions()}
