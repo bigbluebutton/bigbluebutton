@@ -6,7 +6,7 @@ const COLLECTION_NAME = 'ping-pong';
 const INTERVAL_IN_SETTINGS = (Meteor.settings.public.pingPong.clearUsersInSeconds) * 1000;
 const INTERVAL_TIME = INTERVAL_IN_SETTINGS < 10000 ? 10000 : INTERVAL_IN_SETTINGS;
 const PONG_INTERVAL_IN_SETTINGS = (Meteor.settings.public.pingPong.pongTimeInSeconds) * 1000;
-const PONG_INTERVAL = PONG_INTERVAL_IN_SETTINGS >= INTERVAL_TIME
+const PONG_INTERVAL = PONG_INTERVAL_IN_SETTINGS >= (INTERVAL_TIME / 2)
   ? (INTERVAL_TIME / 2) : PONG_INTERVAL_IN_SETTINGS;
 
 function pingPong(credentials) {
