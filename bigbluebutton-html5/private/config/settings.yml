@@ -29,6 +29,7 @@ public:
         chatAudioAlerts: false
         chatPushAlerts: false
         fallbackLocale: en
+        overrideLocale: undefined
       audio:
         inputDeviceId: undefined
         outputDeviceId: undefined
