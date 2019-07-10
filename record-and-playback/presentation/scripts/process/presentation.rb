@@ -46,6 +46,7 @@ presentation_props['include_deskshare'] = false if presentation_props['include_d
 recording_dir = props['recording_dir']
 raw_archive_dir = "#{recording_dir}/raw/#{meeting_id}"
 log_dir = props['log_dir']
+captions_dir = File.join(props['captions_dir'], recording_id)
 
 target_dir = "#{recording_dir}/process/presentation/#{meeting_id}"
 if not FileTest.directory?(target_dir)
@@ -198,12 +199,29 @@ if not FileTest.directory?(target_dir)
       FileUtils.cp_r("#{pres_dir}/thumbnails", "#{target_pres_dir}/thumbnails")
     end
 
-    BigBlueButton.logger.info("Generating closed captions")
-    ret = BigBlueButton.exec_ret('utils/gen_webvtt', '-i', raw_archive_dir, '-o', target_dir)
-    if ret != 0
-      raise "Generating closed caption files failed"
+    # The recording scripts run the caption generation before the processing scripts, so we
+    # just copy the caption files into place and generate the index file here.
+    logger.info('Copying in caption files')
+    captions = \
+      begin
+        JSON.parse(IO.read(File.join(captions_dir, 'captions.json')))
+      rescue Errno::ENOENT
+        []
+      end
+    playback_captions = []
+    captions.each do |caption|
+      caption_filename = "#{caption['kind']}_#{caption['lang']}.vtt"
+      FileUtils.cp(File.join(captions_dir, caption_filename), target_dir)
+      playback_captions << {
+        'kind'       => caption['kind'],
+        'locale'     => caption['lang'],
+        'localeName' => caption['label'],
+      }
     end
-    captions = JSON.load(File.new("#{target_dir}/captions.json", 'r'))
+    logger.info('Saving updated playback captions list')
+    # Sort the list by label so the selection menu looks nice
+    playback_captions.sort { |a, b| a['localeName'] <=> b['localeName'] }
+    IO.write(File.join(target_dir, 'captions.json'), JSON.pretty_generate(playback_captions))
 
     if not presentation_text.empty?
       # Write presentation_text.json to file

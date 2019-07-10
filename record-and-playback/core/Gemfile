@@ -36,5 +36,5 @@ gem "rubyzip"
 gem "trollop", "2.1.3"
 
 group :test, optional: true do
-  gem "rubocop", "~> 0.71.0"
+  gem "rubocop", "~> 0.72.0"
 end
