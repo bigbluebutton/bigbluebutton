@@ -81,7 +81,8 @@ WebApp.connectHandlers.use('/check', (req, res) => {
 WebApp.connectHandlers.use('/locale', (req, res) => {
   const APP_CONFIG = Meteor.settings.public.app;
   const fallback = APP_CONFIG.defaultSettings.application.fallbackLocale;
-  const browserLocale = req.query.locale.split(/[-_]/g);
+  const override = APP_CONFIG.defaultSettings.application.overrideLocale;
+  const browserLocale = override ? override.split(/[-_]/g) : req.query.locale.split(/[-_]/g);
   const localeList = [fallback];
 
   const usableLocales = AVAILABLE_LOCALES
