@@ -42,6 +42,10 @@
   }
 }
 
+.toolbarContainer:hover{
+  z-index: 3;
+}
+
 .toolbarWrapper {
   width: 100%;
   display: flex;
@@ -102,7 +106,7 @@
   position: absolute;
   border-color: transparent;
   border-style: solid;
-  z-index: 100;
+  z-index: 2;
   border-radius: 0;
   border-width: 0.35em;
   bottom: var(--toolbar-item-triangle-padding);

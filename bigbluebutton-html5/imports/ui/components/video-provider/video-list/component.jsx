@@ -5,7 +5,7 @@ import cx from 'classnames';
 import _ from 'lodash';
 import { styles } from './styles';
 import VideoListItem from './video-list-item/component';
-import { withConsumer } from '../../media/webcam-draggable-overlay/context';
+import { withDraggableConsumer } from '../../media/webcam-draggable-overlay/context';
 
 const propTypes = {
   users: PropTypes.arrayOf(PropTypes.object).isRequired,
@@ -235,4 +235,4 @@ class VideoList extends Component {
 
 VideoList.propTypes = propTypes;
 
-export default injectIntl(withConsumer(VideoList));
+export default injectIntl(withDraggableConsumer(VideoList));

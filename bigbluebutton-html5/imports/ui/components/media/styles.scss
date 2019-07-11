@@ -16,6 +16,7 @@
   align-items: center;
   justify-content: center;
   flex-direction: column-reverse;
+  overflow: hidden;
 }
 
 .content {
@@ -72,12 +73,10 @@
   top: 0;
   left: 0;
 
-  @include mq($medium-up) {
-    z-index: 999;
-    position: absolute;
-    min-width: calc(var(--video-height) * var(--video-ratio));
-    min-height: var(--video-height);
-  }
+  z-index: 2;
+  position: absolute;
+  min-width: calc(var(--video-height) * var(--video-ratio));
+  min-height: var(--video-height);
 }
 
 .fit {

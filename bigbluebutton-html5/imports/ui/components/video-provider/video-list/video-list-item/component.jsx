@@ -16,7 +16,7 @@ import logger from '/imports/startup/client/logger';
 import VideoListItemStats from './video-list-item-stats/component';
 import FullscreenButtonContainer from '../../fullscreen-button/container';
 import { styles } from '../styles';
-import { withConsumer } from '../../../media/webcam-draggable-overlay/context';
+import { withDraggableConsumer } from '../../../media/webcam-draggable-overlay/context';
 
 const intlMessages = defineMessages({
   connectionStatsLabel: {
@@ -211,7 +211,7 @@ class VideoListItem extends Component {
   }
 }
 
-export default injectIntl(withConsumer(VideoListItem));
+export default injectIntl(withDraggableConsumer(VideoListItem));
 
 VideoListItem.defaultProps = {
   numOfUsers: 0,

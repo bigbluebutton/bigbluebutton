@@ -1,7 +1,7 @@
 import React, { Component, Fragment } from 'react';
 import Draggable from 'react-draggable';
 import cx from 'classnames';
-import * as _ from 'lodash';
+import _ from 'lodash';
 import browser from 'browser-detect';
 import { withDraggableContext } from './context';
 import VideoProviderContainer from '/imports/ui/components/video-provider/container';

@@ -70,9 +70,6 @@ export default class Media extends Component {
         id="container"
         className={cx(styles.container)}
         ref={this.refContainer}
-        style={{
-          overflow: 'hidden',
-        }}
       >
         <div
           className={!swapLayout ? contentClassName : overlayClassName}
