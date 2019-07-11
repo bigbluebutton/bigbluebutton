@@ -12,6 +12,14 @@ const intlMessages = defineMessages({
     id: 'app.audioDial.audioDialConfrenceText',
     description: 'audio settings back button label',
   },
+  tipIndicator: {
+    id: 'app.audioDial.tipIndicator',
+    description: 'Indicator for the tip message',
+  },
+  tipMessage: {
+    id: 'app.audioDial.tipMessage',
+    description: 'Tip message explaining how to mute/unmute yourself',
+  },
 });
 
 const propTypes = {
@@ -38,6 +46,14 @@ class AudioDial extends React.PureComponent {
           {intl.formatMessage(intlMessages.audioDialConfrenceText)}
         </div>
         <div className={styles.telvoice}>{telVoice}</div>
+        <div className={styles.tipBox}>
+          <span className={styles.tipIndicator}>
+            {intl.formatMessage(intlMessages.tipIndicator)}
+:
+          </span>
+          {' '}
+          {intl.formatMessage(intlMessages.tipMessage)}
+        </div>
       </span>
     );
   }
