@@ -406,6 +406,8 @@
     "app.audioModal.audioDialTitle": "Join using your phone",
     "app.audioDial.audioDialDescription": "Dial",
     "app.audioDial.audioDialConfrenceText": "and enter the conference PIN number:",
+    "app.audioDial.tipIndicator": "Tip",
+    "app.audioDial.tipMessage": "Press the '0' key on your phone to mute/unmute yourself.",
     "app.audioModal.connecting": "Connecting",
     "app.audioModal.connectingEchoTest": "Connecting to echo test",
     "app.audioManager.joinedAudio": "You have joined the audio conference",
