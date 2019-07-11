@@ -9,6 +9,7 @@ import Logger from './logger';
 import Redis from './redis';
 import setMinBrowserVersions from './minBrowserVersion';
 import userLeaving from '/imports/api/users/server/methods/userLeaving';
+import { check } from 'meteor/check';
 
 const parse = Npm.require('url').parse;
 const INTERVAL_TIME = 10000;
@@ -143,7 +144,17 @@ WebApp.connectHandlers.use('/feedback', (req, res) => {
       meetingId,
       userId,
       authToken,
+      userName: reqUserName,
+      comment,
+      rating,
     } = body;
+
+    check(meetingId, String);
+    check(userId, String);
+    check(authToken, String);
+    check(reqUserName, String);
+    check(comment, String);
+    check(rating, Number);
 
     const user = Users.findOne({
       meetingId,
@@ -154,23 +165,18 @@ WebApp.connectHandlers.use('/feedback', (req, res) => {
 
     if (!user) {
       Logger.error(`Feedback failed, user with id=${userId} wasn't found`);
-      res.setHeader('Content-Type', 'application/json');
-      res.writeHead(500);
-      res.end(JSON.stringify({ status: 'ok' }));
-      return;
     }
 
-    const feedback = {
-      userName: user.name,
-      ...body,
-    };
-    Logger.info('FEEDBACK LOG:', feedback);
-  }));
-
-  req.on('end', Meteor.bindEnvironment(() => {
     res.setHeader('Content-Type', 'application/json');
     res.writeHead(200);
     res.end(JSON.stringify({ status: 'ok' }));
+
+    body.userName = user ? user.name : `[unconfirmed] ${reqUserName}`;
+
+    const feedback = {
+      ...body,
+    };
+    Logger.info('FEEDBACK LOG:', feedback);
   }));
 });
 
