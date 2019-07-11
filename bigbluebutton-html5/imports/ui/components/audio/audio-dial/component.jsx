@@ -48,9 +48,8 @@ class AudioDial extends React.PureComponent {
         <div className={styles.telvoice}>{telVoice}</div>
         <div className={styles.tipBox}>
           <span className={styles.tipIndicator}>
-            {`${intl.formatMessage(intlMessages.tipIndicator)}:`}
+            {`${intl.formatMessage(intlMessages.tipIndicator)}: `}
           </span>
-          {' '}
           {intl.formatMessage(intlMessages.tipMessage)}
         </div>
       </span>
