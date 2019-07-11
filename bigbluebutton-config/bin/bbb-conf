@@ -61,6 +61,7 @@
 #   2019-02-08 GTR  Updates for 2.2 after extracting bbb-web to a standalone server application
 #   2019-03-14 FFD  Refactoring and cleanup for 2.2
 #   2019-05-14 FFD  Added more checks for configuration issues
+#   2019-07-08 GTR  Set IP for all recording formats
 
 #set -x
 #set -e
@@ -1871,18 +1872,25 @@ if [ -n "$HOST" ]; then
     fi
 
     echo -n "Assigning $HOST for playback of recordings: "
-    for metadata in $(find /var/bigbluebutton/published -name metadata.xml); do
+    for metadata in $(find /var/bigbluebutton/published /var/bigbluebutton/unpublished -name metadata.xml); do
         echo -n "."
         # Ensure we update both types of URLs
         sed -i "/<link>/{s/http:\/\/\([^\"\/]*\)\/playback\/$type\([^<]\)/http:\/\/$HOST\/playback\/$type\2/g}" $metadata
         sed -i "/<link>/{s/https:\/\/\([^\"\/]*\)\/playback\/$type\([^<]\)/https:\/\/$HOST\/playback\/$type\2/g}" $metadata
-    done
 
-    for metadata in $(find /var/bigbluebutton/unpublished -name metadata.xml); do
-        echo -n "."
-        # Ensure we update both types of URLs
         sed -i "/<link>/{s/http:\/\/\([^\"\/]*\)\/playback\/$type\([^<]\)/http:\/\/$HOST\/playback\/$type\2/g}" $metadata
         sed -i "/<link>/{s/https:\/\/\([^\"\/]*\)\/playback\/$type\([^<]\)/https:\/\/$HOST\/playback\/$type\2/g}" $metadata
+        sed -i "/<link>/{s/http:\/\/\([^\"\/]*\)\/podcast\/$type\([^<]\)/http:\/\/$HOST\/podcast\/$type\2/g}" $metadata
+        sed -i "/<link>/{s/https:\/\/\([^\"\/]*\)\/podcast\/$type\([^<]\)/https:\/\/$HOST\/podcast\/$type\2/g}" $metadata
+        sed -i "/<link>/{s/http:\/\/\([^\"\/]*\)\/notes\/$type\([^<]\)/http:\/\/$HOST\/notes\/$type\2/g}" $metadata
+        sed -i "/<link>/{s/https:\/\/\([^\"\/]*\)\/notes\/$type\([^<]\)/https:\/\/$HOST\/notes\/$type\2/g}" $metadata
+        sed -i "/<link>/{s/http:\/\/\([^\"\/]*\)\/recording\/$type\([^<]\)/htts:\/\/$HOST\/recording\/$type\2/g}" $metadata
+        sed -i "/<link>/{s/https:\/\/\([^\"\/]*\)\/recording\/$type\([^<]\)/https:\/\/$HOST\/recording\/$type\2/g}" $metadata
+
+        #
+        # Update thumbnail links
+        #
+        sed -i "s/<image width=\"\([0-9]*\)\" height=\"\([0-9]*\)\" alt=\"\([^\"]*\)\">\(http[s]*\):\/\/[^\/]*\/\(.*\)/<image width=\"\1\" height=\"\2\" alt=\"\3\">\4:\/\/$HOST\/\5/g" $metadata
     done
     echo
 
@@ -1912,13 +1920,6 @@ if [ -n "$HOST" ]; then
             chown bigbluebutton:bigbluebutton $KURENTO_CONFIG
         fi
     fi
-
-    #
-    # Update thumbnail links
-    #
-    find /var/bigbluebutton/published -name metadata.xml -exec \
-           sed -i "s/<image width=\"\([0-9]*\)\" height=\"\([0-9]*\)\" alt=\"\([^\"]*\)\">\(http[s]*\):\/\/[^\/]*\/\(.*\)/<image width=\"\1\" height=\"\2\" alt=\"\3\">\4:\/\/$HOST\/\5/g" \
-           '{}' \;
 
     echo "Restarting the BigBlueButton $BIGBLUEBUTTON_RELEASE ..."
     stop_bigbluebutton
