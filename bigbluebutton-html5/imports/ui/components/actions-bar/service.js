@@ -3,7 +3,7 @@ import Users from '/imports/api/users';
 import { makeCall } from '/imports/ui/services/api';
 import Meetings from '/imports/api/meetings';
 import Breakouts from '/imports/api/breakouts';
-import { getVideoId } from '/imports/ui/components/external-video-player/service';
+import { getVideoUrl } from '/imports/ui/components/external-video-player/service';
 
 const USER_CONFIG = Meteor.settings.public.user;
 const ROLE_MODERATOR = USER_CONFIG.role_moderator;
@@ -39,5 +39,5 @@ export default {
   getBreakouts,
   getUsersNotAssigned,
   takePresenterRole,
-  isSharingVideo: () => getVideoId(),
+  isSharingVideo: () => getVideoUrl(),
 };

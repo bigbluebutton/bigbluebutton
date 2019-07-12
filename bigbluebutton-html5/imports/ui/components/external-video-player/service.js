@@ -9,17 +9,18 @@ const YOUTUBE_REGEX = /(?:youtube\.com\/\S*(?:(?:\/e(?:mbed))?\/|watch\/?\?(?:\S
 
 const isUrlEmpty = url => !url || url.length === 0;
 
-const isUrlValid = url => !isUrlEmpty(url) && url.match(YOUTUBE_REGEX);
+const isUrlValid = url => true;
 
 const getUrlFromVideoId = id => (id ? `${YOUTUBE_PREFIX}${id}` : '');
 
 const videoIdFromUrl = (url) => {
-  const match = YOUTUBE_REGEX.exec(url);
-  return match ? match[1] : false;
+//  const match = YOUTUBE_REGEX.exec(url);
+//  return match ? match[1] : false;
+  return true;
 };
 
 const startWatching = (url) => {
-  const externalVideoUrl = videoIdFromUrl(url);
+  const externalVideoUrl = url;
   makeCall('startWatchingExternalVideo', { externalVideoUrl });
 };
 
@@ -39,7 +40,7 @@ const onMessage = (message, func) => {
   ExternalVideoStreamer.on(message, func);
 };
 
-const getVideoId = () => {
+const getVideoUrl = () => {
   const meetingId = Auth.meetingID;
   const meeting = Meetings.findOne({ meetingId });
 
@@ -49,7 +50,7 @@ const getVideoId = () => {
 export {
   sendMessage,
   onMessage,
-  getVideoId,
+  getVideoUrl,
   getUrlFromVideoId,
   isUrlValid,
   startWatching,

@@ -43,11 +43,11 @@ class ExternalVideoModal extends Component {
   constructor(props) {
     super(props);
 
-    const { videoId } = props;
+    const { videoUrl } = props;
 
     this.state = {
-      url: getUrlFromVideoId(videoId),
-      sharing: videoId,
+      url: videoUrl,
+      sharing: videoUrl,
     };
 
     this.startWatchingHandler = this.startWatchingHandler.bind(this);
