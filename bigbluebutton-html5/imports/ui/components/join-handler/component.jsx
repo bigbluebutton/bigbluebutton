@@ -60,6 +60,7 @@ class JoinHandler extends Component {
       this.numFetchTokenRetries += 1;
 
       setTimeout(() => this.fetchToken(), 200);
+      return;
     }
     const urlParams = new URLSearchParams(window.location.search);
     const sessionToken = urlParams.get('sessionToken');
