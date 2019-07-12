@@ -1,0 +1,10 @@
+[Unit]
+Description=BigBlueButton recording and playback events worker
+ConditionPathExistsGlob=/var/bigbluebutton/recording/status/ended/*.done
+
+[Service]
+Type=simple
+ExecStart=/usr/local/bigbluebutton/core/scripts/rap-events-worker.rb
+WorkingDirectory=/usr/local/bigbluebutton/core/scripts
+User=bigbluebutton
+Slice=bbb_record_core.slice
