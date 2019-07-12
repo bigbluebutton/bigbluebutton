@@ -44,7 +44,7 @@ class JoinHandler extends Component {
     if (!Meteor.status().connected) {
       if (this.numFetchTokenRetries > 9) {
         logger.error({
-          logCode: 'joinhandler_component_joinroutehandler_error',
+          logCode: 'joinhandler_component_fetchToken_not_connected',
           extraInfo: {
             numFetchTokenRetries: this.numFetchTokenRetries,
           },
