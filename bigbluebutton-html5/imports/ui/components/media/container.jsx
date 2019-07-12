@@ -138,9 +138,6 @@ export default withModalMounter(withTracker(() => {
     data.hideOverlay = true;
   }
 
-  if (data.isScreensharing) {
-    data.floatingOverlay = false;
-  }
   if (MediaService.shouldShowExternalVideo()) {
     data.children = (
       <ExternalVideoContainer
