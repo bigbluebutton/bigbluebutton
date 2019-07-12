@@ -33,7 +33,12 @@ class JoinHandler extends Component {
   }
 
   componentDidMount() {
+    this._isMounted = true;
     this.fetchToken();
+  }
+
+  componentWillUnmount() {
+    this._isMounted = false;
   }
 
   changeToJoin(bool) {
@@ -41,6 +46,8 @@ class JoinHandler extends Component {
   }
 
   async fetchToken() {
+    if (!this._isMounted) return;
+
     if (!Meteor.status().connected) {
       if (this.numFetchTokenRetries > 9) {
         logger.error({
