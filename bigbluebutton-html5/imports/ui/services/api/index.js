@@ -11,12 +11,12 @@ import { notify } from '/imports/ui/services/notification';
  * @return {Promise}
  */
 export function makeCall(name, ...args) {
-  if (Meteor.status().connected) {
-    check(name, String);
+  check(name, String);
 
-    const { credentials } = Auth;
+  const { credentials } = Auth;
 
-    return new Promise((resolve, reject) => {
+  return new Promise((resolve, reject) => {
+    if (Meteor.status().connected) {
       Meteor.call(name, credentials, ...args, (error, result) => {
         if (error) {
           reject(error);
@@ -24,9 +24,10 @@ export function makeCall(name, ...args) {
 
         resolve(result);
       });
-    });
-  }
-  return null;
+    } else {
+      reject(new Error('Meteor was not connected'));
+    }
+  });
 }
 
 /**
