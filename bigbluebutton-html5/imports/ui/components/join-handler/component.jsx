@@ -25,6 +25,7 @@ class JoinHandler extends Component {
     super(props);
     this.fetchToken = this.fetchToken.bind(this);
     this.changeToJoin = this.changeToJoin.bind(this);
+    this.numFetchTokenRetries = 0;
 
     this.state = {
       joined: false,
@@ -40,6 +41,19 @@ class JoinHandler extends Component {
   }
 
   async fetchToken() {
+    if (!Meteor.status().connected) {
+      if (this.numFetchTokenRetries > 9) {
+        logger.error({
+          logCode: 'joinhandler_component_joinroutehandler_error',
+          extraInfo: {
+            numFetchTokenRetries: this.numFetchTokenRetries,
+          },
+        }, 'Meteor was not connected, retry in a few moments');
+      }
+      this.numFetchTokenRetries += 1;
+
+      setTimeout(() => this.fetchToken(), 200);
+    }
     const urlParams = new URLSearchParams(window.location.search);
     const sessionToken = urlParams.get('sessionToken');
 
@@ -101,7 +115,6 @@ class JoinHandler extends Component {
       const {
         meetingID, internalUserID, customdata,
       } = resp;
-
 
       return new Promise((resolve) => {
         if (customdata.length) {
