@@ -9,7 +9,7 @@
 
 	<appender name="FILE"
 		class="ch.qos.logback.core.rolling.RollingFileAppender">
-		<File>logs/bbb-web.log</File>
+		<File>logs/bbb-lti.log</File>
 		<rollingPolicy
 			class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
 			<FileNamePattern>/var/log/bigbluebutton/bbb-lit.%d{yyyy-MM-dd}.log
