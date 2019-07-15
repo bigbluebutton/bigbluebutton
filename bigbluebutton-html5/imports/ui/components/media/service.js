@@ -34,7 +34,7 @@ function shouldShowScreenshare() {
 }
 
 function shouldShowExternalVideo() {
-  const enableExternalVideo = Meteor.settings.public.app.enableExternalVideo;
+  const { enabled: enableExternalVideo } = Meteor.settings.public.enableExternalVideo;
   return enableExternalVideo && getVideoId();
 }
 
