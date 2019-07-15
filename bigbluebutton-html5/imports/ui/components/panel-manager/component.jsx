@@ -124,12 +124,13 @@ class PanelManager extends PureComponent {
 
   renderUserListResizable() {
     const { userlistWidth } = this.state;
+    const { isRTL } = this.props;
 
     const resizableEnableOptions = {
       top: false,
-      right: true,
+      right: !isRTL,
       bottom: false,
-      left: false,
+      left: !!isRTL,
       topRight: false,
       bottomRight: false,
       bottomLeft: false,
@@ -172,12 +173,13 @@ class PanelManager extends PureComponent {
 
   renderChatResizable() {
     const { chatWidth } = this.state;
+    const { isRTL } = this.props;
 
     const resizableEnableOptions = {
       top: false,
-      right: true,
+      right: !isRTL,
       bottom: false,
-      left: false,
+      left: !!isRTL,
       topRight: false,
       bottomRight: false,
       bottomLeft: false,
@@ -220,12 +222,13 @@ class PanelManager extends PureComponent {
 
   renderNoteResizable() {
     const { noteWidth } = this.state;
+    const { isRTL } = this.props;
 
     const resizableEnableOptions = {
       top: false,
-      right: true,
+      right: !isRTL,
       bottom: false,
-      left: false,
+      left: !!isRTL,
       topRight: false,
       bottomRight: false,
       bottomLeft: false,
@@ -268,12 +271,13 @@ class PanelManager extends PureComponent {
 
   renderCaptionsResizable() {
     const { captionsWidth } = this.state;
+    const { isRTL } = this.props;
 
     const resizableEnableOptions = {
       top: false,
-      right: true,
+      right: !isRTL,
       bottom: false,
-      left: false,
+      left: !!isRTL,
       topRight: false,
       bottomRight: false,
       bottomLeft: false,
@@ -316,12 +320,13 @@ class PanelManager extends PureComponent {
 
   renderWaitingUsersPanelResizable() {
     const { waitingWidth } = this.state;
+    const { isRTL } = this.props;
 
     const resizableEnableOptions = {
       top: false,
-      right: true,
+      right: !isRTL,
       bottom: false,
-      left: false,
+      left: !!isRTL,
       topRight: false,
       bottomRight: false,
       bottomLeft: false,
@@ -366,12 +371,13 @@ class PanelManager extends PureComponent {
 
   renderPollResizable() {
     const { pollWidth } = this.state;
+    const { isRTL } = this.props;
 
     const resizableEnableOptions = {
       top: false,
-      right: true,
+      right: !isRTL,
       bottom: false,
-      left: false,
+      left: !!isRTL,
       topRight: false,
       bottomRight: false,
       bottomLeft: false,
