@@ -82,7 +82,7 @@ public:
       - critical
       - danger
       - warning
-  enableExternalVideo:
+  externalVideoPlayer:
     enabled: true
   networkMonitoring:
     enableNetworkMonitoring: false
