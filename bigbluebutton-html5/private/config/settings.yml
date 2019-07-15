@@ -76,7 +76,6 @@ public:
         descId: openStatus
     branding:
       displayBrandingArea: false
-    httpsConnection: false
     connectionTimeout: 60000
     showHelpButton: true
     enableExternalVideo: true
