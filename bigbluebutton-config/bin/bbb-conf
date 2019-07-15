@@ -454,6 +454,10 @@ display_bigbluebutton_status () {
         units="$units bbb-web"
     fi
 
+    if [ -f /lib/systemd/system/bbb-lti.service ]; then
+        units="$units bbb-lti"
+    fi
+
     line='——————————————————————►'
     for unit in $units; do
         status=$(systemctl is-active "$unit")
@@ -1271,16 +1275,6 @@ check_state() {
             echo "#"
             echo "# does not match the local IP address ($IP)."
             echo "# (This is OK if you've manually changed the values)"
-            echo
-        fi
-    fi
-
-    if [ -d ${LTI_DIR} ]; then
-        if test ${TOMCAT_DIR}/webapps/lti.war -nt ${LTI_DIR}; then
-            echo "# Error: The updated lti.war did not deploy.  To manually deploy:"
-            echo "#"
-            echo "#   $SUDO touch ${SERVLET_DIR}/lti.war"
-            echo "#"
             echo
         fi
     fi
