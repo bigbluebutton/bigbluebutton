@@ -4,20 +4,10 @@ import ExternalVideoStreamer from '/imports/api/external-videos';
 
 import { makeCall } from '/imports/ui/services/api';
 
-const YOUTUBE_PREFIX = 'https://youtube.com/watch?v=';
-const YOUTUBE_REGEX = /(?:youtube\.com\/\S*(?:(?:\/e(?:mbed))?\/|watch\/?\?(?:\S*?&?v\=))|youtu\.be\/)([a-zA-Z0-9_-]{6,11})/g;
+import ReactPlayer from 'react-player';
 
 const isUrlEmpty = url => !url || url.length === 0;
-
-const isUrlValid = url => true;
-
-const getUrlFromVideoId = id => (id ? `${YOUTUBE_PREFIX}${id}` : '');
-
-const videoIdFromUrl = (url) => {
-//  const match = YOUTUBE_REGEX.exec(url);
-//  return match ? match[1] : false;
-  return true;
-};
+const isUrlValid = url => ReactPlayer.canPlay(url);
 
 const startWatching = (url) => {
   const externalVideoUrl = url;
@@ -51,7 +41,6 @@ export {
   sendMessage,
   onMessage,
   getVideoUrl,
-  getUrlFromVideoId,
   isUrlValid,
   startWatching,
   stopWatching,

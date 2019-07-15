@@ -86,10 +86,10 @@ class ExternalVideoModal extends Component {
   }
 
   render() {
-    const { intl, videoId, closeModal } = this.props;
+    const { intl, videoUrl, closeModal } = this.props;
     const { url, sharing } = this.state;
 
-    const startDisabled = !isUrlValid(url) || (getUrlFromVideoId(videoId) === url);
+    const startDisabled = !isUrlValid(url);
 
     return (
       <Modal

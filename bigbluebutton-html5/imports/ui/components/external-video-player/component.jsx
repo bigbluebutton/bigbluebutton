@@ -4,7 +4,7 @@ import YouTube from 'react-youtube';
 import { sendMessage, onMessage } from './service';
 import logger from '/imports/startup/client/logger';
 
-import ReactPlayer from 'react-player'
+import ReactPlayer from 'react-player';
 
 const SYNC_INTERVAL_SECONDS = 2;
 
@@ -12,23 +12,28 @@ class VideoPlayer extends Component {
   constructor(props) {
     super(props);
 
+    const isPresenter = { props };
+
     this.player = null;
     this.syncInterval = null;
     this.state = {
       mutedByEchoTest: false,
+      playing: false,
     };
 
     this.opts = {
-      width: '100%',
-      height: '100%',
-      playerVars: {
-        autoplay: 1,
-        modestbranding: 1,
-        autohide: 1,
-        rel: 0,
-        ecver: 2,
-        controls: this.props.isPresenter ? 1 : 2,
+      controls: isPresenter,
+      youtube: {
+        playerVars: {
+          autoplay: 1,
+          modestbranding: 1,
+          autohide: 1,
+          rel: 0,
+          ecver: 2,
+          controls: this.props.isPresenter ? 1 : 2,
+        },
       },
+      preload: true,
     };
 
     this.keepSync = this.keepSync.bind(this);
@@ -155,8 +160,6 @@ class VideoPlayer extends Component {
 
     if (!isPresenter) {
       sendMessage('viewerJoined');
-    } else {
-      this.setState({playing: true});
     }
 
     this.handleResize();
@@ -183,9 +186,9 @@ class VideoPlayer extends Component {
   }
 
   render() {
-    const { videoId, videoUrl } = this.props;
+    const { videoUrl } = this.props;
     const { playing, mutedByEchoTest } = this.state;
-    const { opts, handleOnReady, handleStateChange } = this;
+    const { opts, commonOpts, handleOnReady, handleStateChange } = this;
 
     return (
       <div
@@ -195,9 +198,7 @@ class VideoPlayer extends Component {
       >
         <ReactPlayer
           url={videoUrl}
-          config={{
-            youtube: opts
-          }}
+          config={this.opts}
           muted={mutedByEchoTest}
           playing={playing}
           onReady={this.handleOnReady}
