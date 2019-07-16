@@ -23,6 +23,7 @@ public:
     enableLimitOfViewersInWebcam: false
     viewersInWebcam: 8
     ipv4FallbackDomain: ""
+    allowLogout: true
     defaultSettings:
       application:
         animations: true
