@@ -24,7 +24,6 @@ class JoinHandler extends Component {
   constructor(props) {
     super(props);
     this.fetchToken = this.fetchToken.bind(this);
-    this.changeToJoin = this.changeToJoin.bind(this);
     this.numFetchTokenRetries = 0;
 
     this.state = {
@@ -39,10 +38,6 @@ class JoinHandler extends Component {
 
   componentWillUnmount() {
     this._isMounted = false;
-  }
-
-  changeToJoin(bool) {
-    this.setState({ joined: bool });
   }
 
   async fetchToken() {
@@ -177,7 +172,7 @@ class JoinHandler extends Component {
         },
       }, 'User faced an error on main.joinRouteHandler.');
     }
-    this.changeToJoin(true);
+    this.setState({ joined: true });
   }
 
   render() {
