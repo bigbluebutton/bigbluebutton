@@ -58,7 +58,6 @@ class AuthenticatedHandler extends Component {
 
   constructor(props) {
     super(props);
-    this.changeState = this.changeState.bind(this);
     this.state = {
       authenticated: false,
     };
@@ -68,12 +67,8 @@ class AuthenticatedHandler extends Component {
     if (Session.get('codeError')) return this.changeState(true);
     AuthenticatedHandler.authenticatedRouteHandler((value, error) => {
       if (error) AuthenticatedHandler.setError(error);
-      this.changeState(true);
+      this.setState({ authenticated: true });
     });
-  }
-
-  changeState(state) {
-    this.setState({ authenticated: state });
   }
 
   render() {
