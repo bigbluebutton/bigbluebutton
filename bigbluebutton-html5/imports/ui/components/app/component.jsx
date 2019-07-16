@@ -206,13 +206,14 @@ class App extends Component {
 
   renderPanel() {
     const { enableResize } = this.state;
-    const { openPanel } = this.props;
+    const { openPanel, isRTL } = this.props;
 
     return (
       <PanelManager
         {...{
           openPanel,
           enableResize,
+          isRTL,
         }}
         shouldAriaHide={this.shouldAriaHide}
       />
