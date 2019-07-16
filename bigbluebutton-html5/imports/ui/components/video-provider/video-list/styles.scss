@@ -39,6 +39,9 @@
 
 .videoListItem {
   display: flex;
+  overflow: hidden;
+  width: 100%;
+  height: 100%;
 
   &.focused {
     grid-column: 1 / span 2;
@@ -50,7 +53,6 @@
   position: relative;
   display: flex;
   min-width: 100%;
-  height: 100%;
   border-radius: 5px;
 
   &::after {
@@ -81,6 +83,14 @@
   width: 100%;
   object-fit: contain;
   border-radius: 5px;
+}
+
+.cursorGrab{
+  cursor: grab;
+}
+
+.cursorGrabbing{
+  cursor: grabbing;
 }
 
 @keyframes spin {
@@ -129,6 +139,7 @@
 
 .media {
   @extend %media-area;
+  background-color: var(--color-gray);
 }
 
 .info {

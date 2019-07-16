@@ -16,6 +16,7 @@ import logger from '/imports/startup/client/logger';
 import VideoListItemStats from './video-list-item-stats/component';
 import FullscreenButtonContainer from '../../fullscreen-button/container';
 import { styles } from '../styles';
+import { withDraggableConsumer } from '../../../media/webcam-draggable-overlay/context';
 
 const intlMessages = defineMessages({
   connectionStatsLabel: {
@@ -40,7 +41,15 @@ class VideoListItem extends Component {
   }
 
   componentDidMount() {
-    const { onMount } = this.props;
+    const { onMount, webcamDraggableDispatch } = this.props;
+
+    webcamDraggableDispatch(
+      {
+        type: 'setVideoRef',
+        value: this.videoTag,
+      },
+    );
+
     onMount(this.videoTag);
 
     this.videoTag.addEventListener('loadeddata', () => this.setVideoIsReady());
@@ -130,7 +139,9 @@ class VideoListItem extends Component {
   render() {
     const { showStats, stats, videoIsReady } = this.state;
     const {
-      user, numOfUsers,
+      user,
+      numOfUsers,
+      webcamDraggableState,
     } = this.props;
     const availableActions = this.getAvailableActions();
     const enableVideoMenu = Meteor.settings.public.kurento.enableVideoMenu || false;
@@ -149,6 +160,8 @@ class VideoListItem extends Component {
           muted
           className={cx({
             [styles.media]: true,
+            [styles.cursorGrab]: !webcamDraggableState.dragging,
+            [styles.cursorGrabbing]: webcamDraggableState.dragging,
           })}
           ref={(ref) => { this.videoTag = ref; }}
           autoPlay
@@ -198,7 +211,7 @@ class VideoListItem extends Component {
   }
 }
 
-export default injectIntl(VideoListItem);
+export default injectIntl(withDraggableConsumer(VideoListItem));
 
 VideoListItem.defaultProps = {
   numOfUsers: 0,
