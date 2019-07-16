@@ -275,8 +275,8 @@ Kurento.prototype.onWSMessage = function (message) {
       this.onSuccess(parsedMessage.success);
       break;
     case 'webRTCAudioError':
-      this.onFail(parsedMessage);
-      break;
+    case 'error':
+      this.handleSFUError(parsedMessage);
     case 'pong':
       break;
     default:
@@ -293,29 +293,7 @@ Kurento.prototype.setRenderTag = function (tag) {
 
 Kurento.prototype.startResponse = function (message) {
   if (message.response !== 'accepted') {
-    const { code, reason } = message;
-    switch (message.type) {
-      case 'screenshare':
-        this.logger.error({
-          logCode: 'kurentoextension_screenshare_start_rejected',
-          extraInfo: { sfuResponse: message }
-        }, `SFU screenshare rejected by SFU with error ${ code, reason }`);
-
-        if (message.role === this.SEND_ROLE) {
-          kurentoManager.exitScreenShare();
-        } else if (message.role === this.RECV_ROLE) {
-          kurentoManager.exitVideo();
-        }
-        break;
-      case 'audio':
-        this.logger.error({
-          logCode: 'kurentoextension_listenonly_start_rejected',
-          extraInfo: { sfuResponse: message }
-        }, `SFU listen only rejected by SFU with error ${ code, reason }`);
-
-        kurentoManager.exitAudio();
-        break;
-    }
+    this.handleSFUError(message);
   } else {
     this.logger.info({
       logCode: 'kurentoextension_start_success',
@@ -323,6 +301,34 @@ Kurento.prototype.startResponse = function (message) {
     }, `Start request accepted for ${message.type}`);
     this.webRtcPeer.processAnswer(message.sdpAnswer);
   }
+};
+
+Kurento.prototype.handleSFUError = function (sfuResponse) {
+  const { type, code, reason, role } = sfuResponse;
+  switch (type) {
+    case 'screenshare':
+      this.logger.error({
+        logCode: 'kurentoextension_screenshare_start_rejected',
+        extraInfo: { sfuResponse }
+      }, `SFU screenshare rejected by SFU with error ${code} = ${reason}`);
+
+      if (role === this.SEND_ROLE) {
+        kurentoManager.exitScreenShare();
+      } else if (role === this.RECV_ROLE) {
+        kurentoManager.exitVideo();
+      }
+      break;
+    case 'audio':
+      this.logger.error({
+        logCode: 'kurentoextension_listenonly_start_rejected',
+        extraInfo: { sfuResponse }
+      }, `SFU listen only rejected by SFU with error ${code} = ${reason}`);
+
+      kurentoManager.exitAudio();
+      break;
+  }
+
+  this.onFail( { code, reason } );
 };
 
 Kurento.prototype.onOfferPresenter = function (error, offerSdp) {
