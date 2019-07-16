@@ -1,10 +1,11 @@
 import React, { Component } from 'react';
 import injectWbResizeEvent from '/imports/ui/components/presentation/resize-wrapper/component';
-import YouTube from 'react-youtube';
 import { sendMessage, onMessage } from './service';
 import logger from '/imports/startup/client/logger';
 
 import ReactPlayer from 'react-player';
+
+import { styles } from './styles';
 
 const SYNC_INTERVAL_SECONDS = 2;
 
@@ -51,7 +52,6 @@ class VideoPlayer extends Component {
 
     clearInterval(this.syncInterval);
     this.keepSync();
-
   }
 
   componentDidUpdate(prevProps) {
@@ -207,6 +207,7 @@ class VideoPlayer extends Component {
         ref={(ref) => { this.playerParent = ref; }}
       >
         <ReactPlayer
+          className={styles.videoPlayer}
           url={videoUrl}
           config={this.opts}
           muted={mutedByEchoTest}
