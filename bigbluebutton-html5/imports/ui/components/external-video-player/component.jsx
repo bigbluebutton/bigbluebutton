@@ -20,6 +20,7 @@ class VideoPlayer extends Component {
     this.state = {
       mutedByEchoTest: false,
       playing: false,
+      playbackRate: 1,
     };
 
     this.opts = {
@@ -100,13 +101,20 @@ class VideoPlayer extends Component {
     this.playerParent.style = styleStr;
   }
 
+  getCurrentPlaybackRate() {
+    const intPlayer = this.player.getInternalPlayer();
+
+    return (intPlayer.getPlaybackRate && intPlayer.getPlaybackRate()) || 1;
+  }
+
   keepSync() {
     const { isPresenter } = this.props;
 
     if (isPresenter) {
       this.syncInterval = setInterval(() => {
         const curTime = this.player.getCurrentTime();
-        const rate = this.player.playbackRate;
+        const rate = this.getCurrentPlaybackRate();
+
         sendMessage('playerUpdate', { rate, time: curTime, state: this.state.playing });
       }, SYNC_INTERVAL_SECONDS * 1000);
     } else {
@@ -138,8 +146,8 @@ class VideoPlayer extends Component {
           return;
         }
 
-        if (data.rate !== this.player.playbackRate) {
-          this.player.playbackRate = data.rate;
+        if (data.rate !== this.player.props.playbackRate) {
+          this.setState({playbackRate: data.rate});
           logger.debug({
             logCode: 'external_video_client_update_rate',
             extraInfo: {
@@ -197,7 +205,7 @@ class VideoPlayer extends Component {
 
   render() {
     const { videoUrl } = this.props;
-    const { playing, mutedByEchoTest } = this.state;
+    const { playing, playbackRate, mutedByEchoTest } = this.state;
     const { opts, commonOpts, handleOnReady, handleStateChange } = this;
 
     return (
@@ -212,6 +220,7 @@ class VideoPlayer extends Component {
           config={this.opts}
           muted={mutedByEchoTest}
           playing={playing}
+          playbackRate={playbackRate}
           onReady={this.handleOnReady}
           onPlay={this.handleOnPlay}
           onPause={this.handleOnPause}
