@@ -130,7 +130,7 @@ class WhiteboardToolbar extends Component {
     // - retrieve them and update toolbar values
     if (drawSettings) {
       this.setToolbarValues(drawSettings);
-    // no drawSettings in the sessionStorage - setting default values
+      // no drawSettings in the sessionStorage - setting default values
     } else {
       // setting default drawing settings if they haven't been set previously
       const {
@@ -280,12 +280,12 @@ class WhiteboardToolbar extends Component {
       }
       // 1st case a)
       this.colorListIconColor.beginElement();
-    // 2nd case
+      // 2nd case
     } else if (thicknessSelected.value !== prevState.thicknessSelected.value) {
       this.thicknessListIconRadius.beginElement();
-    // 3rd case
+      // 3rd case
     } else if (annotationSelected.value !== 'text'
-        && prevState.annotationSelected.value === 'text') {
+      && prevState.annotationSelected.value === 'text') {
       this.thicknessListIconRadius.beginElement();
       this.thicknessListIconColor.beginElement();
     }
@@ -439,7 +439,7 @@ class WhiteboardToolbar extends Component {
         <ToolbarMenuItem
           icon="hand"
           label={intl.formatMessage(intlMessages.toolbarItemPan)}
-          onItemClick={() => {}}
+          onItemClick={() => { }}
           className={styles.toolbarButton}
         />
       ) : (
@@ -707,10 +707,11 @@ class WhiteboardToolbar extends Component {
   }
 
   renderUndoItem() {
-    const { intl } = this.props;
+    const { intl, isMeteorConnected } = this.props;
 
     return (
       <ToolbarMenuItem
+        disabled={!isMeteorConnected}
         label={intl.formatMessage(intlMessages.toolbarUndoAnnotation)}
         icon="undo"
         onItemClick={this.handleUndo}
@@ -720,10 +721,11 @@ class WhiteboardToolbar extends Component {
   }
 
   renderClearAllItem() {
-    const { intl } = this.props;
+    const { intl, isMeteorConnected } = this.props;
 
     return (
       <ToolbarMenuItem
+        disabled={!isMeteorConnected}
         label={intl.formatMessage(intlMessages.toolbarClearAnnotations)}
         icon="delete"
         onItemClick={this.handleClearAll}
@@ -733,14 +735,15 @@ class WhiteboardToolbar extends Component {
   }
 
   renderMultiUserItem() {
-    const { intl, multiUser } = this.props;
+    const { intl, multiUser, isMeteorConnected } = this.props;
 
     return (
       <ToolbarMenuItem
+        disabled={!isMeteorConnected}
         label={multiUser
           ? intl.formatMessage(intlMessages.toolbarMultiUserOff)
           : intl.formatMessage(intlMessages.toolbarMultiUserOn)
-          }
+        }
         icon={multiUser ? 'multi_whiteboard' : 'whiteboard'}
         onItemClick={this.handleSwitchWhiteboardMode}
         className={styles.toolbarButton}

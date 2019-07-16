@@ -21,6 +21,7 @@ export default withModalMounter(withTracker(({ mountModal }) => {
 
     recordingStatus: recording,
     recordingTime: time,
+    isMeteorConnected: Meteor.status().connected,
 
   });
 })(RecordingContainer));

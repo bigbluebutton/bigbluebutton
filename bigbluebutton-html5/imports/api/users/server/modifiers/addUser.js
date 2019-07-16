@@ -8,7 +8,6 @@ import stringHash from 'string-hash';
 import flat from 'flat';
 
 import addVoiceUser from '/imports/api/voice-users/server/modifiers/addVoiceUser';
-import changeRole from '/imports/api/users/server/modifiers/changeRole';
 
 const COLOR_LIST = [
   '#7b1fa2', '#6a1b9a', '#4a148c', '#5e35b1', '#512da8', '#4527a0',
@@ -36,33 +35,13 @@ export default function addUser(meetingId, user) {
   });
 
   const userId = user.intId;
-  check(userId, String);
 
   const selector = {
     meetingId,
     userId,
   };
 
-  const USER_CONFIG = Meteor.settings.public.user;
-  const ROLE_PRESENTER = USER_CONFIG.role_presenter;
-  const ROLE_MODERATOR = USER_CONFIG.role_moderator;
-  const ROLE_VIEWER = USER_CONFIG.role_viewer;
-  const APP_CONFIG = Meteor.settings.public.app;
-  const ALLOW_HTML5_MODERATOR = APP_CONFIG.allowHTML5Moderator;
-
   const Meeting = Meetings.findOne({ meetingId });
-  // override moderator status of html5 client users, depending on a system flag
-  const dummyUser = Users.findOne(selector);
-  let userRole = user.role;
-
-  if (
-    dummyUser
-    && dummyUser.clientType === 'HTML5'
-    && userRole === ROLE_MODERATOR
-    && !ALLOW_HTML5_MODERATOR
-  ) {
-    userRole = ROLE_VIEWER;
-  }
 
   /* While the akka-apps dont generate a color we just pick one
     from a list based on the userId */
@@ -73,7 +52,6 @@ export default function addUser(meetingId, user) {
       {
         meetingId,
         connectionStatus: 'online',
-        roles: [ROLE_VIEWER.toLowerCase()],
         sortName: user.name.trim().toLowerCase(),
         color,
         breakoutProps: {
@@ -109,14 +87,6 @@ export default function addUser(meetingId, user) {
   const cb = (err, numChanged) => {
     if (err) {
       return Logger.error(`Adding user to collection: ${err}`);
-    }
-
-    if (user.presenter) {
-      changeRole(ROLE_PRESENTER, true, userId, meetingId);
-    }
-
-    if (userRole === ROLE_MODERATOR) {
-      changeRole(ROLE_MODERATOR, true, userId, meetingId);
     }
 
     const { insertedId } = numChanged;

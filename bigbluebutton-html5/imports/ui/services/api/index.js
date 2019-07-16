@@ -16,13 +16,17 @@ export function makeCall(name, ...args) {
   const { credentials } = Auth;
 
   return new Promise((resolve, reject) => {
-    Meteor.call(name, credentials, ...args, (error, result) => {
-      if (error) {
-        reject(error);
-      }
+    if (Meteor.status().connected) {
+      Meteor.call(name, credentials, ...args, (error, result) => {
+        if (error) {
+          reject(error);
+        }
 
-      resolve(result);
-    });
+        resolve(result);
+      });
+    } else {
+      reject(new Error('Meteor was not connected'));
+    }
   });
 }
 

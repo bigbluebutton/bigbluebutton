@@ -12,8 +12,8 @@ const deviceInfo = {
       isPhone: smallSide <= MAX_PHONE_SHORT_SIDE,
     };
   },
+  hasMediaDevices: !!navigator.mediaDevices,
 };
 
 
 export default deviceInfo;
-

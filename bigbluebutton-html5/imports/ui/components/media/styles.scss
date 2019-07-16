@@ -1,6 +1,14 @@
 @import "../../stylesheets/variables/_all";
 @import "../../stylesheets/variables/video";
 
+.cursorGrab{
+  cursor: grab;
+}
+
+.cursorGrabbing{
+  cursor: grabbing;
+}
+
 .container {
   order: 1;
   flex: 2;
@@ -8,6 +16,7 @@
   align-items: center;
   justify-content: center;
   flex-direction: column-reverse;
+  overflow: hidden;
 }
 
 .content {
@@ -16,35 +25,27 @@
   flex: 3;
   align-items: center;
   justify-content: center;
-  overflow: auto;
+  overflow: hidden;
   width: 100%;
   position: relative;
   order: 2;
 }
 
-.overlay {
+%overlay {
   display: flex;
-  width: 100%;
   border: 0;
-  margin-top: 10px;
-  margin-bottom: 10px;
   z-index: 2;
   align-items: center;
-  
-  min-height: calc(var(--video-width) / var(--video-ratio));
-}
-
-.overlayRelative{
+  max-height: var(--video-height);
+  min-height: var(--video-height);
+  overflow: hidden;
   position: relative;
+  margin-top: 10px;
+  margin-bottom: 10px;
 }
 
-.overlayAbsoluteSingle{
-  position: absolute;
-  height: calc(var(--video-width) / var(--video-ratio));
-}
-
-.overlayAbsoluteMult{
-  position: absolute;
+.overlay {
+  @extend %overlay;
 }
 
 .overlayToTop {
@@ -60,24 +61,34 @@
   position: absolute;
   overflow: hidden;
   clip: rect(0 0 0 0);
-  height: 1px; width: 1px;
-  margin: -1px; padding: 0; border: 0;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  border: 0;
 }
 
 .floatingOverlay {
-  margin: 10px;
+  @extend %overlay;
+  top: 0;
+  left: 0;
 
-  @include mq($medium-up) {
-    z-index: 999;
-    position: absolute;
-    bottom: 0;
-    right: 0;
-    width: var(--video-width);
-    min-width: var(--video-width);
-    max-width: var(--video-max-width);
-    height: calc(var(--video-width) / var(--video-ratio));
-    min-height: calc(var(--video-width) / var(--video-ratio));
-  }
+  z-index: 2;
+  position: absolute;
+  min-width: calc(var(--video-height) * var(--video-ratio));
+  min-height: var(--video-height);
+}
+
+.fit {
+  width: fit-content;
+  height: fit-content;
+  max-width: fit-content;
+}
+
+.full {
+  min-width: 100%;
+  width: 100%;
+  max-width: 100%;
 }
 
 .hide {
@@ -86,14 +97,6 @@
 
 .show {
   display: block;
-}
-
-.top {
-  top: 0;
-}
-
-.bottom {
-  bottom: 0;
 }
 
 .dragging {
@@ -108,17 +111,24 @@
   z-index: 9999;
 }
 
-.dropZoneTop {
+.dropZoneBgTop,
+.dropZoneBgBottom {
+  z-index: 99;
+  width: 100%;
+  height: 100%;
+}
+
+.dropZoneTop,
+.dropZoneBgTop {
   top: 0;
 }
 
-.dropZoneBottom {
+.dropZoneBottom,
+.dropZoneBgBottom {
   bottom: 0;
 }
 
-.dropZoneBg {
-  position: absolute;
-  z-index: 99;
-  width: 100%;
+.dropZoneTop:hover .dropZoneBgTop,
+.dropZoneBottom:hover .dropZoneBgBottom {
   background-color: rgba(255, 255, 255, .3);
 }

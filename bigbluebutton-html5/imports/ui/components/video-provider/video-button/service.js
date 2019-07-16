@@ -9,7 +9,7 @@ const baseName = Meteor.settings.public.app.cdn + Meteor.settings.public.app.bas
 const isSharingVideo = () => {
   const userId = Auth.userID;
   const user = Users.findOne({ userId });
-  return !!user.has_stream;
+  return !!user.hasStream;
 };
 
 const videoShareAllowed = () => Settings.dataSaving.viewParticipantsWebcams;

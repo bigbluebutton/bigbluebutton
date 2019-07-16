@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { PureComponent } from 'react';
 import RecordingContainer from '/imports/ui/components/recording/container';
 import humanizeSeconds from '/imports/utils/humanizeSeconds';
 import Tooltip from '/imports/ui/components/tooltip/component';
@@ -41,7 +41,7 @@ const defaultProps = {
   time: 0,
 };
 
-class RecordingIndicator extends React.PureComponent {
+class RecordingIndicator extends PureComponent {
   render() {
     const {
       record,

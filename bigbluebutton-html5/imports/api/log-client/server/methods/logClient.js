@@ -1,37 +1,30 @@
 import Logger from '/imports/startup/server/logger';
 import Users from '/imports/api/users';
 
-const logClient = function (type, log, fullInfo = {}) {
+const logClient = function (type, logDescription, logCode = 'was_not_provided', extraInfo = {}, userInfo = {}) {
   const SERVER_CONN_ID = this.connection.id;
   const User = Users.findOne({ connectionId: SERVER_CONN_ID });
-  const logContents = { fullInfo };
+  const logContents = {
+    logCode,
+    logDescription,
+    extraInfo,
+    userInfo,
+  };
 
   if (User) {
-    if ((fullInfo.credentials && User.meetingId === fullInfo.credentials.meetingId)
-      || ((fullInfo.meetingId && User.meetingId === fullInfo.meetingId))) {
-      logContents.validUser = 'valid';
+    if ((userInfo.credentials && User.meetingId === userInfo.credentials.meetingId)
+      || ((userInfo.meetingId && User.meetingId === userInfo.meetingId))) {
+      logContents.extraInfo.validUser = 'valid';
     } else {
-      logContents.validUser = 'invalid';
+      logContents.extraInfo.validUser = 'invalid';
     }
   } else {
-    logContents.validUser = 'notFound';
+    logContents.extraInfo.validUser = 'notFound';
   }
 
-  const topic = typeof logContents === 'Object' ? logContents.topic : null;
-
-  if (typeof log === 'string' || log instanceof String) {
-    Logger.log({
-      level: type,
-      message: `${topic || 'CLIENT'} LOG: ${log} `,
-      meta: logContents,
-    });
-  } else {
-    Logger.log({
-      level: type,
-      message: `${topic || 'CLIENT'} LOG: ${JSON.stringify(log)} `,
-      meta: logContents,
-    });
-  }
+  // If I don't pass message, logs will start with `undefined`
+  Logger.log({ message: JSON.stringify(logContents), level: type });
+  // Logger.log({ message: 'client->server', level: type, logContents });
 };
 
 export default logClient;

@@ -37,7 +37,11 @@ class Polling extends Component {
 
   render() {
     const {
-      intl, poll, handleVote, pollAnswerIds,
+      isMeteorConnected,
+      intl,
+      poll,
+      handleVote,
+      pollAnswerIds,
     } = this.props;
     const { stackOptions, answers } = poll;
     const pollAnswerStyles = {
@@ -76,6 +80,7 @@ class Polling extends Component {
                     title={label}
                   >
                     <Button
+                      disabled={!isMeteorConnected}
                       className={styles.pollingButton}
                       color="primary"
                       size="md"

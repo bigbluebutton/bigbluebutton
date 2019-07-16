@@ -13,6 +13,7 @@ export default function changeUserLock(meetingId, payload) {
   const { userId, locked, lockedBy } = payload;
 
   const selector = {
+    meetingId,
     userId,
   };
 
@@ -34,5 +35,5 @@ export default function changeUserLock(meetingId, payload) {
     return Logger.info(`User's userId=${userId} lock status was changed to: ${locked} by user userId=${lockedBy}`);
   };
 
-  return Users.upsert(selector, modifier, cb);
+  return Users.update(selector, modifier, cb);
 }

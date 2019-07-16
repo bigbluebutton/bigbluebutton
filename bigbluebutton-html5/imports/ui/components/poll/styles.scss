@@ -73,6 +73,11 @@
     margin-top: var(--sm-padding-y);
     margin-bottom: var(--sm-padding-y);
   }
+
+  > input::placeholder {
+    color: var(--color-text);
+    opacity: 1; /* Firefox */
+  }
 }
 
 .header {

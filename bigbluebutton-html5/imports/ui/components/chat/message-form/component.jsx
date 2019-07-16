@@ -31,6 +31,9 @@ const messages = defineMessages({
   errorMaxMessageLength: {
     id: 'app.chat.errorMaxMessageLength',
   },
+  errorServerDisconnected: {
+    id: 'app.chat.disconnected',
+  },
 });
 
 class MessageForm extends PureComponent {
@@ -48,6 +51,7 @@ class MessageForm extends PureComponent {
     this.handleMessageChange = this.handleMessageChange.bind(this);
     this.handleMessageKeyDown = this.handleMessageKeyDown.bind(this);
     this.handleSubmit = this.handleSubmit.bind(this);
+    this.setMessageHint = this.setMessageHint.bind(this);
   }
 
   componentDidMount() {
@@ -61,7 +65,7 @@ class MessageForm extends PureComponent {
   }
 
   componentDidUpdate(prevProps) {
-    const { chatId } = this.props;
+    const { chatId, disabled } = this.props;
     const { message } = this.state;
     const { mobile } = this.BROWSER_RESULTS;
 
@@ -73,6 +77,14 @@ class MessageForm extends PureComponent {
       this.updateUnsentMessagesCollection(prevProps.chatId, message);
       this.setMessageState();
     }
+
+    if (prevProps.disabled !== disabled && disabled) {
+      this.setMessageHint();
+    }
+
+    if (prevProps.disabled !== disabled && !disabled) {
+      this.setMessageHint();
+    }
   }
 
   componentWillUnmount() {
@@ -80,6 +92,14 @@ class MessageForm extends PureComponent {
     const { message } = this.state;
     this.updateUnsentMessagesCollection(chatId, message);
     this.setMessageState();
+  }
+
+  setMessageHint() {
+    const { disabled, intl } = this.props;
+    this.setState({
+      hasErrors: disabled,
+      error: intl.formatMessage(messages.errorServerDisconnected),
+    });
   }
 
   setMessageState() {

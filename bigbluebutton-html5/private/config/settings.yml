@@ -19,6 +19,9 @@ public:
     basename: "/html5client"
     askForFeedbackOnLogout: false
     allowUserLookup: false
+    enableNetworkInformation: false
+    enableLimitOfViewersInWebcam: false
+    viewersInWebcam: 8
     ipv4FallbackDomain: ""
     defaultSettings:
       application:
@@ -26,6 +29,7 @@ public:
         chatAudioAlerts: false
         chatPushAlerts: false
         fallbackLocale: en
+        overrideLocale: null
       audio:
         inputDeviceId: undefined
         outputDeviceId: undefined
@@ -72,8 +76,6 @@ public:
         descId: openStatus
     branding:
       displayBrandingArea: false
-    allowHTML5Moderator: true
-    httpsConnection: false
     connectionTimeout: 60000
     showHelpButton: true
     enableExternalVideo: true
@@ -141,9 +143,10 @@ public:
     toggleRecording: false
     toggleSelfVoice: false
   poll:
+    enabled: true
     max_custom: 5
   captions:
-    enabled: false
+    enabled: true
     enableDictation: false
     backgroundColor: "#000000"
     fontColor: "#FFFFFF"
@@ -230,7 +233,6 @@ public:
   user:
     role_moderator: MODERATOR
     role_viewer: VIEWER
-    role_presenter: PRESENTER
   whiteboard:
     annotations:
       status:

@@ -24,7 +24,7 @@ class JoinHandler extends Component {
   constructor(props) {
     super(props);
     this.fetchToken = this.fetchToken.bind(this);
-    this.changeToJoin = this.changeToJoin.bind(this);
+    this.numFetchTokenRetries = 0;
 
     this.state = {
       joined: false,
@@ -32,14 +32,31 @@ class JoinHandler extends Component {
   }
 
   componentDidMount() {
+    this._isMounted = true;
     this.fetchToken();
   }
 
-  changeToJoin(bool) {
-    this.setState({ joined: bool });
+  componentWillUnmount() {
+    this._isMounted = false;
   }
 
   async fetchToken() {
+    if (!this._isMounted) return;
+
+    if (!Meteor.status().connected) {
+      if (this.numFetchTokenRetries > 9) {
+        logger.error({
+          logCode: 'joinhandler_component_fetchToken_not_connected',
+          extraInfo: {
+            numFetchTokenRetries: this.numFetchTokenRetries,
+          },
+        }, 'Meteor was not connected, retry in a few moments');
+      }
+      this.numFetchTokenRetries += 1;
+
+      setTimeout(() => this.fetchToken(), 200);
+      return;
+    }
     const urlParams = new URLSearchParams(window.location.search);
     const sessionToken = urlParams.get('sessionToken');
 
@@ -66,7 +83,11 @@ class JoinHandler extends Component {
         location: window.location.href,
       };
 
-      logger.info({ logCode: 'joinhandler_component_clientinfo' }, clientInfo);
+      logger.info({
+        logCode: 'joinhandler_component_clientinfo',
+        extraInfo: { clientInfo },
+      },
+      'Log informatin about the client');
     };
 
     const setAuth = (resp) => {
@@ -97,7 +118,6 @@ class JoinHandler extends Component {
       const {
         meetingID, internalUserID, customdata,
       } = resp;
-
 
       return new Promise((resolve) => {
         if (customdata.length) {
@@ -135,13 +155,24 @@ class JoinHandler extends Component {
         Session.set('openPanel', '');
       }
 
-      logger.info({ logCode: 'joinhandler_component_joinroutehandler_success' }, `User successfully went through main.joinRouteHandler with [${JSON.stringify(response)}].`);
+      logger.info({
+        logCode: 'joinhandler_component_joinroutehandler_success',
+        extraInfo: {
+          response,
+        },
+      }, 'User successfully went through main.joinRouteHandler');
     } else {
       const e = new Error(response.message);
       if (!Session.get('codeError')) Session.set('errorMessageDescription', response.message);
-      logger.error({ logCode: 'joinhandler_component_joinroutehandler_error' }, `User faced [${e}] on main.joinRouteHandler. Error was:`, JSON.stringify(response));
+      logger.error({
+        logCode: 'joinhandler_component_joinroutehandler_error',
+        extraInfo: {
+          response,
+          error: e,
+        },
+      }, 'User faced an error on main.joinRouteHandler.');
     }
-    this.changeToJoin(true);
+    this.setState({ joined: true });
   }
 
   render() {

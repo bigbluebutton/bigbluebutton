@@ -16,7 +16,7 @@ const SUBSCRIPTIONS = [
   'users', 'meetings', 'polls', 'presentations', 'slides', 'captions',
   'voiceUsers', 'whiteboard-multi-user', 'screenshare', 'group-chat',
   'presentation-pods', 'users-settings', 'guestUser', 'users-infos', 'note',
-  'network-information',
+  'network-information', 'ping-pong',
 ];
 
 class Subscriptions extends React.Component {
@@ -41,9 +41,13 @@ export default withTracker(() => {
       subscriptionsReady: true,
     };
   }
+
   const subscriptionErrorHandler = {
     onError: (error) => {
-      logger.error({ logCode: 'startup_client_subscription_error' }, error);
+      logger.error({
+        logCode: 'startup_client_subscription_error',
+        extraInfo: { error },
+      }, 'Error while subscribing to collections');
       Session.set('codeError', error.error);
     },
   };

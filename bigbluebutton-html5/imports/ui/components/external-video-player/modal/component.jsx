@@ -4,7 +4,7 @@ import Modal from '/imports/ui/components/modal/simple/component';
 import Button from '/imports/ui/components/button/component';
 
 import { defineMessages, injectIntl } from 'react-intl';
-import { isUrlValid, getUrlFromVideoId } from '../service';
+import { isUrlValid } from '../service';
 
 import { styles } from './styles';
 
@@ -57,10 +57,17 @@ class ExternalVideoModal extends Component {
   }
 
   startWatchingHandler() {
-    const { startWatching, closeModal } = this.props;
+    const {
+      startWatching,
+      closeModal,
+      toggleLayout,
+      isSwapped,
+    } = this.props;
+
     const { url } = this.state;
 
     startWatching(url.trim());
+    if (isSwapped) toggleLayout();
     closeModal();
   }
 
