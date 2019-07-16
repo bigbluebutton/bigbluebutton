@@ -202,7 +202,7 @@ class SettingsDropdown extends PureComponent {
       />
     );
 
-    const renderLogoutOption = isMeteorConnected ? logoutOption : null;
+    const shouldRenderLogoutOption = (isMeteorConnected && allowLogoutSetting) ? logoutOption : null;
     const shouldRenderLogoutOption = allowLogoutSetting ? renderLogoutOption : null;
 
     return _.compact([
