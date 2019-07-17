@@ -43,6 +43,8 @@ const defaultProps = {
   isBreakoutRoom: false,
 };
 
+const CHAT_ENABLED = Meteor.settings.public.chat.enabled;
+
 class UserContent extends PureComponent {
   render() {
     const {
@@ -83,15 +85,18 @@ class UserContent extends PureComponent {
         className={styles.content}
         role="complementary"
       >
-        <UserMessages
-          {...{
-            isPublicChat,
-            activeChats,
-            compact,
-            intl,
-            roving,
-          }}
-        />
+        {CHAT_ENABLED
+          ? (<UserMessages
+            {...{
+              isPublicChat,
+              activeChats,
+              compact,
+              intl,
+              roving,
+            }}
+          />
+          ) : null
+        }
         {currentUser.isModerator
           ? (
             <UserCaptionsContainer

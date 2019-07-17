@@ -10,6 +10,7 @@ import AnnotationsLocal from '/imports/ui/components/whiteboard/service';
 import mapUser from '/imports/ui/services/user/mapUser';
 
 const CHAT_CONFIG = Meteor.settings.public.chat;
+const CHAT_ENABLED = CHAT_CONFIG.enabled;
 const PUBLIC_GROUP_CHAT_ID = CHAT_CONFIG.public_group_id;
 const PUBLIC_CHAT_TYPE = CHAT_CONFIG.type_public;
 const SUBSCRIPTIONS = [
@@ -52,29 +53,36 @@ export default withTracker(() => {
     },
   };
 
-  const subscriptionsHandlers = SUBSCRIPTIONS.map(name => Meteor.subscribe(
-    name,
-    credentials,
-    subscriptionErrorHandler,
-  ));
+  let subscriptionsHandlers = SUBSCRIPTIONS.map((name) => {
+    if (!CHAT_ENABLED && name.indexOf('chat') !== -1) return;
+    return Meteor.subscribe(
+      name,
+      credentials,
+      subscriptionErrorHandler,
+    );
+  });
 
   let groupChatMessageHandler = {};
   // let annotationsHandler = {};
 
-  const chats = GroupChat.find({
-    $or: [
-      {
-        meetingId,
-        access: PUBLIC_CHAT_TYPE,
-        chatId: { $ne: PUBLIC_GROUP_CHAT_ID },
-      },
-      { meetingId, users: { $all: [requesterUserId] } },
-    ],
-  }).fetch();
+  if (CHAT_ENABLED) {
+    const chats = GroupChat.find({
+      $or: [
+        {
+          meetingId,
+          access: PUBLIC_CHAT_TYPE,
+          chatId: { $ne: PUBLIC_GROUP_CHAT_ID },
+        },
+        { meetingId, users: { $all: [requesterUserId] } },
+      ],
+    }).fetch();
 
-  const chatIds = chats.map(chat => chat.chatId);
-  groupChatMessageHandler = Meteor.subscribe('group-chat-msg', credentials, chatIds, subscriptionErrorHandler);
-  subscriptionsHandlers.push(groupChatMessageHandler);
+    const chatIds = chats.map(chat => chat.chatId);
+
+    groupChatMessageHandler = Meteor.subscribe('group-chat-msg', credentials, chatIds, subscriptionErrorHandler);
+    subscriptionsHandlers.push(groupChatMessageHandler);
+  }
+
   const User = Users.findOne({ intId: requesterUserId });
 
   if (User) {
@@ -100,6 +108,7 @@ export default withTracker(() => {
     ...subscriptionErrorHandler,
   });
 
+  subscriptionsHandlers = subscriptionsHandlers.filter(obj => obj);
   const ready = subscriptionsHandlers.every(handler => handler.ready());
 
   return {
