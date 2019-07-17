@@ -186,7 +186,23 @@ class SettingsDropdown extends PureComponent {
 
     const allowedToEndMeeting = amIModerator && !isBreakoutRoom;
 
-    const { showHelpButton: helpButton, helpLink } = Meteor.settings.public.app;
+    const {
+      showHelpButton: helpButton,
+      helpLink,
+      allowLogout: allowLogoutSetting,
+    } = Meteor.settings.public.app;
+
+    const logoutOption = (
+      <DropdownListItem
+        key="list-item-logout"
+        icon="logout"
+        label={intl.formatMessage(intlMessages.leaveSessionLabel)}
+        description={intl.formatMessage(intlMessages.leaveSessionDesc)}
+        onClick={() => this.leaveSession()}
+      />
+    );
+
+    const shouldRenderLogoutOption = (isMeteorConnected && allowLogoutSetting) ? logoutOption : null;
 
     return _.compact([
       this.getFullscreenItem(),
@@ -233,14 +249,7 @@ class SettingsDropdown extends PureComponent {
         />
         )
         : null,
-      isMeteorConnected ? (
-        <DropdownListItem
-          key="list-item-logout"
-          icon="logout"
-          label={intl.formatMessage(intlMessages.leaveSessionLabel)}
-          description={intl.formatMessage(intlMessages.leaveSessionDesc)}
-          onClick={() => this.leaveSession()}
-        />) : null,
+      shouldRenderLogoutOption,
     ]);
   }
 
