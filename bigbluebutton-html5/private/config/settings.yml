@@ -79,11 +79,12 @@ public:
       displayBrandingArea: false
     connectionTimeout: 60000
     showHelpButton: true
-    enableExternalVideo: true
     effectiveConnection:
       - critical
       - danger
       - warning
+  externalVideoPlayer:
+    enabled: true
   networkMonitoring:
     enableNetworkMonitoring: false
     packetLostThreshold: 10

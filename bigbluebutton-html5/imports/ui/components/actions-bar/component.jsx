@@ -45,7 +45,7 @@ class ActionsBar extends PureComponent {
     } = recordSettingsList;
 
     const actionBarClasses = {};
-    const { enableExternalVideo } = Meteor.settings.public.app;
+    const { enabled: enableExternalVideo } = Meteor.settings.public.externalVideoPlayer;
 
     actionBarClasses[styles.centerWithActions] = isUserPresenter;
     actionBarClasses[styles.center] = true;
