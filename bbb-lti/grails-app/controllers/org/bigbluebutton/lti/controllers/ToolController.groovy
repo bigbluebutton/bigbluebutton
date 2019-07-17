@@ -27,9 +27,11 @@ import java.text.DateFormat
 */
 
 import java.text.SimpleDateFormat
-import java.util.*
 
 class ToolController {
+
+    def appName = "lti"
+
     private static final String CONTROLLER_NAME = 'ToolController'
     private static final String RESP_CODE_SUCCESS = 'SUCCESS'
     private static final String RESP_CODE_FAILED = 'FAILED'
@@ -59,7 +61,7 @@ class ToolController {
         // On post request proceed with the launch.
         def schemeHeader = request.getHeader("X-Forwarded-Proto")
         def scheme = schemeHeader == null ? ltiService.getScheme(request) : schemeHeader
-        def endPoint = scheme + "://" + ltiService.endPoint + "/" + grailsApplication.metadata['app.name'] + "/" + params.get("controller") + (params.get("format") != null ? "." + params.get("format") : "")
+        def endPoint = scheme + "://" + ltiService.endPoint + "/" + appName + "/" + params.get("controller") + (params.get("format") != null ? "." + params.get("format") : "")
         log.info "endPoint: " + endPoint
         ArrayList<String> missingParams = new ArrayList<String>()
 
@@ -362,7 +364,7 @@ class ToolController {
     }
 
     private String getCartridgeXML(){
-        def lti_endpoint = ltiService.retrieveBasicLtiEndpoint() + '/' + grailsApplication.metadata['app.name']
+        def lti_endpoint = ltiService.retrieveBasicLtiEndpoint() + '/' + appName
         def launch_url = 'http://' + lti_endpoint + '/tool'
         def secure_launch_url = 'https://' + lti_endpoint + '/tool'
         def icon = 'http://' + lti_endpoint + '/assets/icon.ico'
