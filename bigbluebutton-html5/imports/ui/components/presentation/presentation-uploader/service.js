@@ -131,7 +131,7 @@ const requestPresentationUploadToken = (
     }
 
     if (PresentationToken.failed) {
-      reject({ code: 401, message: 'requestPresentationUploadToken failed' });
+      reject({ code: 401, message: `requestPresentationUploadToken token ${PresentationToken} failed` });
     }
   });
 });
