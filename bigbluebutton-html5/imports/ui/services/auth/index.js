@@ -132,8 +132,6 @@ class Auth {
       sessionToken: this.sessionToken,
       meetingId: this.meetingID,
       requesterUserId: this.userID,
-      fullname: this.fullname,
-      confname: this.confname,
       externUserID: this.externUserID,
       uniqueClientSession: this.uniqueClientSession,
     };
