@@ -19,7 +19,7 @@ export default function setUsedToken(credentials, authzToken) {
       return;
     }
 
-    Logger.info(`Token: ${authzToken} have been setted as used in meeting=${meetingId}`);
+    Logger.info(`Token: ${authzToken} has been set as used in meeting=${meetingId}`);
   };
 
   return PresentationUploadToken.update({ authzToken }, payload, cb);
