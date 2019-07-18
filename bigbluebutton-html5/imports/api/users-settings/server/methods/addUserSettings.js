@@ -1,8 +1,8 @@
 import { check } from 'meteor/check';
 import addUserSetting from '/imports/api/users-settings/server/modifiers/addUserSetting';
+import Logger from '/imports/startup/server/logger';
 
 const handledHTML5Parameters = [
-  'html5recordingbot',
   // APP
   'autoJoin',
   'listenOnlyMode',
@@ -61,18 +61,9 @@ const newParametersToMongoProperty = {
   bbb_skip_check_audio: 'skipCheck',
 };
 
-const mongoPropertyToNewParameter = {
-  autoJoin: 'bbb_auto_join_audio',
-  autoShareWebcam: 'bbb_auto_share_webcam',
-  autoSwapLayout: 'bbb_auto_swap_layout',
-  customStyle: 'bbb_custom_style',
-  hidePresentation: 'bbb_hide_presentation',
-  listenOnlyMode: 'bbb_listen_only_mode',
-  outsideToggleRecording: 'bbb_outside_toggle_recording',
-  outsideToggleSelfVoice: 'bbb_outside_toggle_self_voice',
-  shortcuts: 'bbb_shortcuts',
-  skipCheck: 'bbb_skip_check_audio',
-};
+function getKeyByValue(value) {
+  return Object.keys(newParametersToMongoProperty).find(key => newParametersToMongoProperty[key] === value);
+}
 
 export default function addUserSettings(credentials, meetingId, userId, settings) {
   check(meetingId, String);
@@ -84,7 +75,7 @@ export default function addUserSettings(credentials, meetingId, userId, settings
       const key = Object.keys(item).shift();
       const keys = arr.map(i => Object.keys(i).shift());
       if (newParametersToMongoProperty[key]) return true;
-      return !keys.includes(mongoPropertyToNewParameter[key]);
+      return !keys.includes(getKeyByValue(key));
     })
     .reduce((acc, data, idx, arr) => {
       let key = Object.keys(data).shift();
@@ -103,7 +94,7 @@ export default function addUserSettings(credentials, meetingId, userId, settings
       try {
         value = JSON.parse(value);
       } catch (e) {
-        console.log('error', `Caught: ${e.message}`);
+        Logger.error(`Caught: ${e.message}`);
       }
 
       return { ...acc, [key]: value };
