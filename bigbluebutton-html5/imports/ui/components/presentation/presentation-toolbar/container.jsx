@@ -8,17 +8,8 @@ import PresentationToolbarService from './service';
 
 const PresentationToolbarContainer = (props) => {
   const {
-    currentSlideNum,
     userIsPresenter,
-    numberOfSlides,
-    actions,
-    zoom,
-    zoomChanger,
-    fitToWidthHandler,
     getSwapLayout,
-    isFullscreen,
-    fullscreenRef,
-    fitToWidth,
   } = props;
 
   if (userIsPresenter && !getSwapLayout) {
@@ -26,17 +17,7 @@ const PresentationToolbarContainer = (props) => {
 
     return (
       <PresentationToolbar
-        {...{
-          isFullscreen,
-          fullscreenRef,
-          currentSlideNum,
-          numberOfSlides,
-          actions,
-          zoom,
-          zoomChanger,
-          fitToWidthHandler,
-          fitToWidth,
-        }}
+        {...props}
       />
     );
   }
@@ -45,43 +26,29 @@ const PresentationToolbarContainer = (props) => {
 
 export default withTracker((params) => {
   const {
-    podId, presentationId, fitToWidth, fullscreenRef,
+    podId,
+    presentationId,
+    fitToWidth,
+    fullscreenRef,
+    zoom,
+    zoomChanger,
+    currentSlideNum,
+    fitToWidthHandler,
   } = params;
-  const data = PresentationToolbarService.getSlideData(podId, presentationId);
-
-  const {
-    numberOfSlides,
-  } = data;
 
   return {
     getSwapLayout: MediaService.getSwapLayout(),
-    fitToWidthHandler: params.fitToWidthHandler,
+    fitToWidthHandler,
     fitToWidth,
     fullscreenRef,
     userIsPresenter: PresentationService.isPresenter(podId),
-    numberOfSlides,
-    zoom: params.zoom,
-    zoomChanger: params.zoomChanger,
-    actions: {
-      nextSlideHandler: () => PresentationToolbarService.nextSlide(
-        params.currentSlideNum,
-        numberOfSlides,
-        podId,
-      ),
-      previousSlideHandler: () => PresentationToolbarService.previousSlide(
-        params.currentSlideNum,
-        podId,
-      ),
-      skipToSlideHandler: requestedSlideNum => PresentationToolbarService.skipToSlide(
-        requestedSlideNum,
-        podId,
-      ),
-      zoomSlideHandler: value => PresentationToolbarService.zoomSlide(
-        params.currentSlideNum,
-        podId,
-        value,
-      ),
-    },
+    numberOfSlides: PresentationToolbarService.getNumberOfSlides(podId, presentationId),
+    zoom,
+    zoomChanger,
+    currentSlideNum,
+    nextSlide: PresentationToolbarService.nextSlide,
+    previousSlide: PresentationToolbarService.previousSlide,
+    skipToSlide: PresentationToolbarService.skipToSlide,
   };
 })(PresentationToolbarContainer);
 
@@ -98,9 +65,7 @@ PresentationToolbarContainer.propTypes = {
   numberOfSlides: PropTypes.number.isRequired,
 
   // Actions required for the presenter toolbar
-  actions: PropTypes.shape({
-    nextSlideHandler: PropTypes.func.isRequired,
-    previousSlideHandler: PropTypes.func.isRequired,
-    skipToSlideHandler: PropTypes.func.isRequired,
-  }).isRequired,
+  nextSlide: PropTypes.func.isRequired,
+  previousSlide: PropTypes.func.isRequired,
+  skipToSlide: PropTypes.func.isRequired,
 };
