@@ -14,6 +14,7 @@ const propTypes = {
 
 const APP_CONFIG = Meteor.settings.public.app;
 const { showParticipantsOnLogin } = APP_CONFIG;
+const CHAT_ENABLED = Meteor.settings.public.chat.enabled;
 
 class JoinHandler extends Component {
   static setError(codeError) {
@@ -149,8 +150,11 @@ class JoinHandler extends Component {
       logUserInfo();
 
       if (showParticipantsOnLogin && !deviceInfo.type().isPhone) {
-        Session.set('openPanel', 'chat');
-        Session.set('idChatOpen', '');
+        Session.set('openPanel', 'userlist');
+        if (CHAT_ENABLED) {
+          Session.set('openPanel', 'chat');
+          Session.set('idChatOpen', '');
+        }
       } else {
         Session.set('openPanel', '');
       }

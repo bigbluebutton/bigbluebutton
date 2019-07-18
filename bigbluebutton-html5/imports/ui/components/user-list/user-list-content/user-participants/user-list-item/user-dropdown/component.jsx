@@ -112,6 +112,8 @@ const propTypes = {
   toggleUserLock: PropTypes.func.isRequired,
 };
 
+const CHAT_ENABLED = Meteor.settings.public.chat.enabled;
+
 class UserDropdown extends PureComponent {
   /**
    * Return true if the content fit on the screen, false otherwise.
@@ -276,7 +278,7 @@ class UserDropdown extends PureComponent {
       ));
     }
 
-    if (enablePrivateChat && isMeteorConnected) {
+    if (CHAT_ENABLED && enablePrivateChat && isMeteorConnected) {
       actions.push(this.makeDropdownItem(
         'activeChat',
         intl.formatMessage(messages.ChatLabel),

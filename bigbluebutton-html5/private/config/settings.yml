@@ -158,6 +158,7 @@ public:
     lines: 2
     time: 5000
   chat:
+    enabled: true
     min_message_length: 1
     max_message_length: 5000
     grouping_messages_window: 10000
