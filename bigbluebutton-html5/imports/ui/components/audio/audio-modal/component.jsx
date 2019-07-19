@@ -38,7 +38,7 @@ const propTypes = {
   joinFullAudioEchoTest: PropTypes.bool.isRequired,
   forceListenOnlyAttendee: PropTypes.bool.isRequired,
   audioLocked: PropTypes.bool.isRequired,
-  resolve: PropTypes.func.isRequired,
+  resolve: PropTypes.func,
   isMobileNative: PropTypes.bool.isRequired,
   isIOSChrome: PropTypes.bool.isRequired,
   isIEOrEdge: PropTypes.bool.isRequired,
@@ -49,6 +49,7 @@ const propTypes = {
 const defaultProps = {
   inputDeviceId: null,
   outputDeviceId: null,
+  resolve: null,
 };
 
 const intlMessages = defineMessages({
