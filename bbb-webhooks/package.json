@@ -10,16 +10,16 @@
   "dependencies": {
     "async": "2.6.1",
     "body-parser": "^1.9.2",
+    "config": "1.30.0",
     "express": "4.16.4",
-    "lodash": "4.17.11",
+    "js-yaml": "^3.13.1",
+    "lodash": "^4.17.15",
     "nock": "^10.0.4",
     "redis": "^2.8.0",
     "request": "2.88.0",
     "sha1": "1.1.1",
     "sinon": "^7.2.2",
-    "winston": "3.1.0",
-    "config": "1.30.0",
-    "js-yaml": "3.13.0"
+    "winston": "3.1.0"
   },
   "engines": {
     "node": "8.4.0"
