@@ -1,6 +1,6 @@
 {
   "name": "bbb-callbacks",
-  "version": "0.9.0",
+  "version": "2.2.0",
   "description": "A module for BigBlueButton for API callbacks",
   "keywords": [
     "bigbluebutton",
@@ -10,8 +10,10 @@
   "dependencies": {
     "async": "2.6.1",
     "body-parser": "^1.9.2",
+    "config": "1.30.0",
     "express": "4.16.4",
-    "lodash": "4.17.11",
+    "js-yaml": "^3.13.1",
+    "lodash": "^4.17.15",
     "nock": "^10.0.4",
     "redis": "^2.8.0",
     "request": "2.88.0",
