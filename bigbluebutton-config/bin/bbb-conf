@@ -114,7 +114,7 @@ FREESWITCH_EVENT_SOCKET=/opt/freeswitch/etc/freeswitch/autoload_configs/event_so
 RED5=red5
 RED5_DIR=/usr/share/$RED5
 
-LTI_DIR=$TOMCAT_DIR/webapps/lti
+LTI_DIR=/usr/share/bbb-lti
 
 if [ -f /usr/share/bbb-web/WEB-INF/classes/bigbluebutton.properties ]; then
     SERVLET_DIR=/usr/share/bbb-web
