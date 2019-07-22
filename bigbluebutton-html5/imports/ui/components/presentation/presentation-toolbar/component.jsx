@@ -8,7 +8,7 @@ import { HUNDRED_PERCENT, MAX_PERCENT, STEP } from '/imports/utils/slideCalcUtil
 import cx from 'classnames';
 import { styles } from './styles.scss';
 import ZoomTool from './zoom-tool/component';
-import FullscreenButtonContainer from '../../video-provider/fullscreen-button/container';
+import FullscreenButtonContainer from '../../fullscreen-button/container';
 import Tooltip from '/imports/ui/components/tooltip/component';
 import KEY_CODES from '/imports/utils/keyCodes';
 

@@ -14,7 +14,7 @@ import DropdownListItem from '/imports/ui/components/dropdown/list/item/componen
 import Icon from '/imports/ui/components/icon/component';
 import logger from '/imports/startup/client/logger';
 import VideoListItemStats from './video-list-item-stats/component';
-import FullscreenButtonContainer from '../../fullscreen-button/container';
+import FullscreenButtonContainer from '../../../fullscreen-button/container';
 import { styles } from '../styles';
 import { withDraggableConsumer } from '../../../media/webcam-draggable-overlay/context';
 

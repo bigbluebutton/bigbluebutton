@@ -2,7 +2,7 @@ import React from 'react';
 import { defineMessages, injectIntl, intlShape } from 'react-intl';
 import PropTypes from 'prop-types';
 import _ from 'lodash';
-import FullscreenButtonContainer from '../video-provider/fullscreen-button/container';
+import FullscreenButtonContainer from '../fullscreen-button/container';
 import { styles } from './styles';
 
 const intlMessages = defineMessages({

@@ -14,7 +14,7 @@ import { styles } from './styles.scss';
 import MediaService, { shouldEnableSwapLayout } from '../media/service';
 import PresentationCloseButton from './presentation-close-button/component';
 import DownloadPresentationButton from './download-presentation-button/component';
-import FullscreenButtonContainer from '../video-provider/fullscreen-button/container';
+import FullscreenButtonContainer from '../fullscreen-button/container';
 
 const intlMessages = defineMessages({
   presentationLabel: {
