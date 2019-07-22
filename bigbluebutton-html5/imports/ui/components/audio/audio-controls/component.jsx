@@ -44,7 +44,7 @@ class AudioControls extends PureComponent {
   componentDidMount() {
     const { processToggleMuteFromOutside } = this.props;
     if (Meteor.settings.public.allowOutsideCommands.toggleSelfVoice
-      || getFromUserSettings('outsideToggleSelfVoice', false)) {
+      || getFromUserSettings('bbb_outside_toggle_self_voice', false)) {
       window.addEventListener('message', processToggleMuteFromOutside);
     }
   }

@@ -81,7 +81,7 @@ let didMountAutoJoin = false;
 export default lockContextContainer(withModalMounter(injectIntl(withTracker(({ mountModal, intl, userLocks }) => {
   const APP_CONFIG = Meteor.settings.public.app;
   const KURENTO_CONFIG = Meteor.settings.public.kurento;
-  const autoJoin = getFromUserSettings('autoJoin', APP_CONFIG.autoJoin);
+  const autoJoin = getFromUserSettings('bbb_auto_join_audio', APP_CONFIG.autoJoin);
   const { userWebcam, userMic } = userLocks;
   const openAudioModal = () => new Promise((resolve) => {
     mountModal(<AudioModalContainer resolve={resolve} />);
@@ -142,7 +142,7 @@ export default lockContextContainer(withModalMounter(injectIntl(withTracker(({ m
       if (!autoJoin || didMountAutoJoin) return;
       Session.set('audioModalIsOpen', true);
       const enableVideo = getFromUserSettings('enableVideo', KURENTO_CONFIG.enableVideo);
-      const autoShareWebcam = getFromUserSettings('autoShareWebcam', KURENTO_CONFIG.autoShareWebcam);
+      const autoShareWebcam = getFromUserSettings('bbb_auto_share_webcam', KURENTO_CONFIG.autoShareWebcam);
       if (enableVideo && autoShareWebcam) {
         openAudioModal().then(() => { openVideoPreviewModal(); didMountAutoJoin = true; });
       } else {

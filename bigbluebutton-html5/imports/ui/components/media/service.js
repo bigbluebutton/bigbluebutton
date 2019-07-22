@@ -43,12 +43,12 @@ function shouldShowOverlay() {
 }
 
 const swapLayout = {
-  value: getFromUserSettings('autoSwapLayout', LAYOUT_CONFIG.autoSwapLayout),
+  value: getFromUserSettings('bbb_auto_swap_layout', LAYOUT_CONFIG.autoSwapLayout),
   tracker: new Tracker.Dependency(),
 };
 
 const setSwapLayout = () => {
-  swapLayout.value = getFromUserSettings('autoSwapLayout', LAYOUT_CONFIG.autoSwapLayout);
+  swapLayout.value = getFromUserSettings('bbb_auto_swap_layout', LAYOUT_CONFIG.autoSwapLayout);
   swapLayout.tracker.changed();
 };
 

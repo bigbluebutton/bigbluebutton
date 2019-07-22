@@ -98,7 +98,7 @@ export default injectIntl(withModalMounter(withTracker(({ intl, baseControls }) 
     captions: CaptionsService.isCaptionsActive() ? <CaptionsContainer /> : null,
     fontSize: getFontSize(),
     hasBreakoutRooms: getBreakoutRooms().length > 0,
-    customStyle: getFromUserSettings('customStyle', false),
+    customStyle: getFromUserSettings('bbb_custom_style', false),
     customStyleUrl: getFromUserSettings('customStyleUrl', false),
     openPanel: Session.get('openPanel'),
     UserInfo,

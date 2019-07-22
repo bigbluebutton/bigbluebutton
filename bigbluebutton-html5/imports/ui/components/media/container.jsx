@@ -105,7 +105,7 @@ class MediaContainer extends Component {
 export default withModalMounter(withTracker(() => {
   const { dataSaving } = Settings;
   const { viewParticipantsWebcams, viewScreenshare } = dataSaving;
-  const hidePresentation = getFromUserSettings('hidePresentation', LAYOUT_CONFIG.hidePresentation);
+  const hidePresentation = getFromUserSettings('bbb_hide_presentation', LAYOUT_CONFIG.hidePresentation);
   const data = {
     children: <DefaultContent />,
     audioModalIsOpen: Session.get('audioModalIsOpen'),

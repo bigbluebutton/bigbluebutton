@@ -4,7 +4,7 @@ import getFromUserSettings from '/imports/ui/services/users-settings';
 const BASE_SHORTCUTS = Meteor.settings.public.app.shortcuts;
 
 const withShortcutHelper = (WrappedComponent, param) => (props) => {
-  const ENABLED_SHORTCUTS = getFromUserSettings('shortcuts', null);
+  const ENABLED_SHORTCUTS = getFromUserSettings('bbb_shortcuts', null);
 
   let shortcuts = Object.values(BASE_SHORTCUTS);
 
