@@ -164,7 +164,7 @@ WebApp.connectHandlers.use('/feedback', (req, res) => {
     });
 
     if (!user) {
-      Logger.error(`Feedback failed, user with id=${userId} wasn't found`);
+      Logger.warn('Couldn\'t find user for feedback');
     }
 
     res.setHeader('Content-Type', 'application/json');
