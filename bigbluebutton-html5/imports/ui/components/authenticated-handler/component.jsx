@@ -2,18 +2,13 @@ import React, { Component } from 'react';
 import { Session } from 'meteor/session';
 import { log } from '/imports/ui/services/api';
 import Auth from '/imports/ui/services/auth';
-import LoadingScreen from '/imports/ui/components/loading-screen/component';
+import { withConsumer } from '/imports/ui/components/join-loading/context/context';
 
 const STATUS_CONNECTING = 'connecting';
 const CHAT_CONFIG = Meteor.settings.public.chat;
 const PUBLIC_CHAT_ID = CHAT_CONFIG.public_id;
 
 class AuthenticatedHandler extends Component {
-  static setError(codeError) {
-    Session.set('hasError', true);
-    if (codeError) Session.set('codeError', codeError);
-  }
-
   static shouldAuthenticate(status, lastStatus) {
     return lastStatus != null && lastStatus === STATUS_CONNECTING && status.connected;
   }
@@ -35,7 +30,33 @@ class AuthenticatedHandler extends Component {
     });
   }
 
-  static async authenticatedRouteHandler(callback) {
+  constructor(props) {
+    super(props);
+    this.setError = this.setError.bind(this);
+    this.authenticatedRouteHandler = this.authenticatedRouteHandler.bind(this);
+    this.state = {
+      authenticated: false,
+    };
+  }
+
+  componentDidMount() {
+    if (Session.get('codeError')) {
+      return this.setError(Session.get('codeError'));
+    }
+    return this.authenticatedRouteHandler((value, error) => {
+      if (error) return this.setError(error);
+      return this.setState({ authenticated: true });
+    });
+  }
+
+  setError(codeError) {
+    const { dispatch } = this.props;
+    Session.set('hasError', true);
+    dispatch('hasError');
+    if (codeError) Session.set('codeError', codeError);
+  }
+
+  async authenticatedRouteHandler(callback) {
     if (Auth.loggedIn) {
       callback();
     }
@@ -44,7 +65,7 @@ class AuthenticatedHandler extends Component {
 
     const setReason = (reason) => {
       log('error', reason);
-      AuthenticatedHandler.setError(reason.error);
+      this.setError(reason.error);
       callback();
     };
 
@@ -54,21 +75,6 @@ class AuthenticatedHandler extends Component {
     } catch (error) {
       setReason(error);
     }
-  }
-
-  constructor(props) {
-    super(props);
-    this.state = {
-      authenticated: false,
-    };
-  }
-
-  componentDidMount() {
-    if (Session.get('codeError')) return this.changeState(true);
-    AuthenticatedHandler.authenticatedRouteHandler((value, error) => {
-      if (error) AuthenticatedHandler.setError(error);
-      this.setState({ authenticated: true });
-    });
   }
 
   render() {
@@ -85,11 +91,9 @@ class AuthenticatedHandler extends Component {
     Session.set('isPollOpen', false);
     Session.set('breakoutRoomIsOpen', false);
 
-    return authenticated
-      ? children
-      : (<LoadingScreen />);
+    return authenticated && children;
   }
 }
 
 
-export default AuthenticatedHandler;
+export default withConsumer(AuthenticatedHandler);

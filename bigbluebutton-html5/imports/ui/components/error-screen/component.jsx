@@ -57,16 +57,16 @@ class ErrorScreen extends React.PureComponent {
       children,
     } = this.props;
 
+    const codeError = Session.get('codeError') || code;
     let formatedMessage = intl.formatMessage(intlMessages[defaultProps.code]);
 
-    if (code in intlMessages) {
-      formatedMessage = intl.formatMessage(intlMessages[code]);
+    if (codeError in intlMessages) {
+      formatedMessage = intl.formatMessage(intlMessages[codeError]);
     }
-
     return (
       <div className={styles.background}>
         <h1 className={styles.codeError}>
-          {code}
+          {codeError}
         </h1>
         <h1 className={styles.message}>
           {formatedMessage}
