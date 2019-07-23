@@ -26,6 +26,4 @@ const toggleFullScreen = (ref = null) => {
   }
 };
 
-export {
-  toggleFullScreen,
-};
+export default toggleFullScreen;

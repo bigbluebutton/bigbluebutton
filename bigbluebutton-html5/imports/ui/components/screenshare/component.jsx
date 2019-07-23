@@ -12,6 +12,8 @@ const intlMessages = defineMessages({
   },
 });
 
+const ALLOW_FULLSCREEN = Meteor.settings.public.app.allowFullscreen;
+
 class ScreenshareComponent extends React.Component {
   constructor() {
     super();
@@ -49,18 +51,17 @@ class ScreenshareComponent extends React.Component {
   }
 
   renderFullscreenButton() {
-    const { intl } = this.props;
-    const full = () => {
-      if (!this.videoTag) return;
-      this.videoTag.requestFullscreen();
-    };
+    const { intl, isFullscreen } = this.props;
+
+    if (!ALLOW_FULLSCREEN) return null;
 
     return (
       <FullscreenButtonContainer
-        handleFullscreen={full}
         key={_.uniqueId('fullscreenButton-')}
         elementName={intl.formatMessage(intlMessages.screenShareLabel)}
-        fullscreenRef={this.videoTag}
+        fullscreenRef={this.screenshareContainer}
+        isFullscreen={isFullscreen}
+        dark
       />
     );
   }
@@ -69,23 +70,32 @@ class ScreenshareComponent extends React.Component {
     const { loaded } = this.state;
 
     return (
-      [!loaded ? (
-        <div
-          key={_.uniqueId('screenshareArea-')}
-          className={styles.connecting}
-        />
-      ) : null,
-      this.renderFullscreenButton(),
+      [!loaded
+        ? (
+          <div
+            key={_.uniqueId('screenshareArea-')}
+            className={styles.connecting}
+          />
+        )
+        : null,
       (
-        <video
-          id="screenshareVideo"
-          key="screenshareVideo"
-          style={{ maxHeight: '100%', width: '100%' }}
-          autoPlay
-          playsInline
-          onLoadedData={this.onVideoLoad}
-          ref={(ref) => { this.videoTag = ref; }}
-        />
+        <div
+          className={styles.screenshareContainer}
+          key="screenshareContainer"
+          ref={(ref) => { this.screenshareContainer = ref; }}
+        >
+          {loaded && this.renderFullscreenButton()}
+          <video
+            id="screenshareVideo"
+            key="screenshareVideo"
+            style={{ maxHeight: '100%', width: '100%' }}
+            autoPlay
+            playsInline
+            onLoadedData={this.onVideoLoad}
+            ref={(ref) => { this.videoTag = ref; }}
+            muted
+          />
+        </div>
       )]
     );
   }
@@ -99,4 +109,9 @@ ScreenshareComponent.propTypes = {
   unshareScreen: PropTypes.func.isRequired,
   presenterScreenshareHasEnded: PropTypes.func.isRequired,
   presenterScreenshareHasStarted: PropTypes.func.isRequired,
+  isFullscreen: PropTypes.bool,
+};
+
+ScreenshareComponent.defaultProps = {
+  isFullscreen: false,
 };

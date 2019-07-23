@@ -31,12 +31,14 @@ const defaultProps = {
 const FullscreenButtonComponent = ({
   intl,
   dark,
+  bottom,
   elementName,
   tooltipDistance,
   className,
   fullscreenRef,
   handleToggleFullScreen,
   isIphone,
+  isFullscreen,
 }) => {
   if (isIphone) return null;
 
@@ -49,13 +51,15 @@ const FullscreenButtonComponent = ({
     [styles.wrapper]: true,
     [styles.dark]: dark,
     [styles.light]: !dark,
+    [styles.top]: !bottom,
+    [styles.bottom]: bottom,
   });
 
   return (
     <div className={wrapperClassName}>
       <Button
         color="default"
-        icon="fullscreen"
+        icon={!isFullscreen ? 'fullscreen' : 'exit_fullscreen'}
         size="sm"
         onClick={() => handleToggleFullScreen(fullscreenRef)}
         label={formattedLabel}

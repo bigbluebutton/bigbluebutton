@@ -9,15 +9,19 @@ const VideoProviderContainer = ({ children, ...props }) => {
   return (!users.length ? null : <VideoProvider {...props}>{children}</VideoProvider>);
 };
 
-export default withTracker(props => ({
-  cursor: props.cursor,
-  swapLayout: props.swapLayout,
-  mediaHeight: props.mediaHeight,
-  meetingId: VideoService.meetingId(),
-  users: VideoService.getAllUsersVideo(),
-  userId: VideoService.userId(),
-  sessionToken: VideoService.sessionToken(),
-  userName: VideoService.userName(),
-  enableVideoStats: getFromUserSettings('enableVideoStats', Meteor.settings.public.kurento.enableVideoStats),
-  voiceBridge: VideoService.voiceBridge(),
-}))(VideoProviderContainer);
+export default withTracker((props) => {
+  const isFullscreen = Session.get('isFullscreen');
+  return {
+    cursor: props.cursor,
+    swapLayout: props.swapLayout,
+    mediaHeight: props.mediaHeight,
+    meetingId: VideoService.meetingId(),
+    users: VideoService.getAllUsersVideo(),
+    userId: VideoService.userId(),
+    sessionToken: VideoService.sessionToken(),
+    userName: VideoService.userName(),
+    enableVideoStats: getFromUserSettings('enableVideoStats', Meteor.settings.public.kurento.enableVideoStats),
+    voiceBridge: VideoService.voiceBridge(),
+    isFullscreen,
+  };
+})(VideoProviderContainer);

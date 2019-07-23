@@ -27,6 +27,8 @@ const intlMessages = defineMessages({
   },
 });
 
+const ALLOW_FULLSCREEN = Meteor.settings.public.app.allowFullscreen;
+
 class PresentationArea extends PureComponent {
   constructor() {
     super();
@@ -45,6 +47,7 @@ class PresentationArea extends PureComponent {
     };
 
     this.getSvgRef = this.getSvgRef.bind(this);
+    this.setFitToWidth = this.setFitToWidth.bind(this);
     this.zoomChanger = this.zoomChanger.bind(this);
     this.touchUpdate = this.touchUpdate.bind(this);
     this.pointUpdate = this.pointUpdate.bind(this);
@@ -73,11 +76,10 @@ class PresentationArea extends PureComponent {
 
     if (prevState.fitToWidth) {
       // When presenter is changed or slide changed we reset fitToWidth
-      if ((prevProps.userIsPresenter && !this.props.userIsPresenter)
-          || (prevProps.currentSlide.id !== this.props.currentSlide.id)) {
-        this.setState({
-          fitToWidth: false,
-        });
+      const { userIsPresenter, currentSlide } = this.props;
+      if ((prevProps.userIsPresenter && !userIsPresenter)
+        || (prevProps.currentSlide.id !== currentSlide.id)) {
+        this.setFitToWidth(false);
       }
     }
   }
@@ -144,6 +146,10 @@ class PresentationArea extends PureComponent {
     }
   }
 
+  setFitToWidth(fitToWidth) {
+    this.setState({ fitToWidth });
+  }
+
   handleResize() {
     const presentationSizes = this.getPresentationSizesAvailable();
     if (Object.keys(presentationSizes).length > 0) {
@@ -159,7 +165,7 @@ class PresentationArea extends PureComponent {
     const { presentationHeight, presentationWidth, fitToWidth } = this.state;
     const { currentSlide } = this.props;
     const slideSizes = currentSlide
-    && currentSlide.calculatedData
+      && currentSlide.calculatedData
       ? currentSlide.calculatedData : {};
     const originalWidth = slideSizes.width;
     const originalHeight = slideSizes.height;
@@ -184,7 +190,7 @@ class PresentationArea extends PureComponent {
         } else {
           adjustedHeight = presentationHeight;
         }
-      // Slide has a landscape orientation
+        // Slide has a landscape orientation
       } else {
         adjustedHeight = (presentationWidth * originalHeight) / originalWidth;
         if (presentationHeight < adjustedHeight) {
@@ -383,7 +389,7 @@ class PresentationArea extends PureComponent {
       >
         {this.renderPresentationClose()}
         {this.renderPresentationDownload()}
-        {isFullscreen ? null : this.renderPresentationFullscreen()}
+        {this.renderPresentationFullscreen()}
         <TransitionGroup>
           <CSSTransition
             key={slideObj.id}
@@ -438,7 +444,10 @@ class PresentationArea extends PureComponent {
                   podId={podId}
                   whiteboardId={slideObj.id}
                   widthRatio={slideObj.widthRatio}
-                  physicalWidthRatio={this.checkFitToWidth() ? (presentationWidth / width) : (adjustedSizes.width / width)}
+                  physicalWidthRatio={this.checkFitToWidth()
+                    ? (presentationWidth / width)
+                    : (adjustedSizes.width / width)
+                  }
                   slideWidth={width}
                   slideHeight={height}
                 />
@@ -515,14 +524,18 @@ class PresentationArea extends PureComponent {
     const {
       intl,
       userIsPresenter,
+      isFullscreen,
     } = this.props;
-    if (userIsPresenter) return null;
+
+    if (userIsPresenter || !ALLOW_FULLSCREEN) return null;
 
     return (
       <FullscreenButtonContainer
         fullscreenRef={this.refPresentationContainer}
         elementName={intl.formatMessage(intlMessages.presentationLabel)}
+        isFullscreen={isFullscreen}
         dark
+        bottom
       />
     );
   }

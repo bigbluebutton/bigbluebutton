@@ -75,6 +75,8 @@ const intlMessages = defineMessages({
   },
 });
 
+const ALLOW_FULLSCREEN = Meteor.settings.public.app.allowFullscreen;
+
 class PresentationToolbar extends PureComponent {
   constructor(props) {
     super(props);
@@ -256,7 +258,7 @@ class PresentationToolbar extends PureComponent {
               role="button"
               aria-label={nextSlideAriaLabel}
               aria-describedby={endOfSlides ? 'noNextSlideDesc' : 'nextSlideDesc'}
-              disabled={endOfSlides || !isMeteorConnected }
+              disabled={endOfSlides || !isMeteorConnected}
               color="default"
               icon="right_arrow"
               size="md"
@@ -307,16 +309,17 @@ class PresentationToolbar extends PureComponent {
               tooltipDistance={tooltipDistance}
             />
             {
-              !isFullscreen
-              && (
-                <FullscreenButtonContainer
-                  fullscreenRef={fullscreenRef}
-                  elementName={intl.formatMessage(intlMessages.presentationLabel)}
-                  tooltipDistance={tooltipDistance}
-                  dark
-                  className={styles.presentationBtn}
-                />
-              )
+              ALLOW_FULLSCREEN
+                ? (
+                  <FullscreenButtonContainer
+                    fullscreenRef={fullscreenRef}
+                    isFullscreen={isFullscreen}
+                    elementName={intl.formatMessage(intlMessages.presentationLabel)}
+                    tooltipDistance={tooltipDistance}
+                    className={styles.presentationBtn}
+                  />
+                )
+                : null
             }
           </div>
         }

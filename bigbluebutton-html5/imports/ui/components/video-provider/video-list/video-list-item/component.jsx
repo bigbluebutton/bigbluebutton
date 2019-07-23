@@ -24,6 +24,8 @@ const intlMessages = defineMessages({
   },
 });
 
+const ALLOW_FULLSCREEN = Meteor.settings.public.app.allowFullscreen;
+
 class VideoListItem extends Component {
   constructor(props) {
     super(props);
@@ -127,11 +129,16 @@ class VideoListItem extends Component {
   }
 
   renderFullscreenButton() {
-    const { user } = this.props;
+    const { user, isFullscreen } = this.props;
+
+    if (!ALLOW_FULLSCREEN) return null;
+
     return (
       <FullscreenButtonContainer
-        fullscreenRef={this.videoTag}
+        fullscreenRef={this.videoContainer}
         elementName={user.name}
+        isFullscreen={isFullscreen}
+        dark
       />
     );
   }
@@ -155,18 +162,27 @@ class VideoListItem extends Component {
         [styles.talking]: user.isTalking,
       })}
       >
-        {!videoIsReady && <div className={styles.connecting} />}
-        <video
-          muted
-          className={cx({
-            [styles.media]: true,
-            [styles.cursorGrab]: !webcamDraggableState.dragging,
-            [styles.cursorGrabbing]: webcamDraggableState.dragging,
-          })}
-          ref={(ref) => { this.videoTag = ref; }}
-          autoPlay
-          playsInline
-        />
+        {
+          !videoIsReady
+          && <div className={styles.connecting} />
+        }
+        <div
+          className={styles.videoContainer}
+          ref={(ref) => { this.videoContainer = ref; }}
+        >
+          <video
+            muted
+            className={cx({
+              [styles.media]: true,
+              [styles.cursorGrab]: !webcamDraggableState.dragging,
+              [styles.cursorGrabbing]: webcamDraggableState.dragging,
+            })}
+            ref={(ref) => { this.videoTag = ref; }}
+            autoPlay
+            playsInline
+          />
+          {videoIsReady && this.renderFullscreenButton()}
+        </div>
         <div className={styles.info}>
           {enableVideoMenu && availableActions.length >= 3
             ? (
@@ -205,7 +221,6 @@ class VideoListItem extends Component {
             ? <VideoListItemStats toggleStats={this.toggleStats} stats={stats} />
             : null
         }
-        {videoIsReady && this.renderFullscreenButton()}
       </div>
     );
   }

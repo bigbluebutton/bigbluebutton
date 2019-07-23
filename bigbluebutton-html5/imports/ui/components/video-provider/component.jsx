@@ -1146,6 +1146,7 @@ class VideoProvider extends Component {
       users,
       enableVideoStats,
       mediaHeight,
+      isFullscreen,
     } = this.props;
     return (
       <VideoList
@@ -1155,6 +1156,7 @@ class VideoProvider extends Component {
         getStats={this.getStats}
         stopGettingStats={this.stopGettingStats}
         enableVideoStats={enableVideoStats}
+        isFullscreen={isFullscreen}
       />
     );
   }
