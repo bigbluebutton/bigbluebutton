@@ -131,6 +131,7 @@ class VideoProvider extends Component {
     if (Session.get('WebcamDeviceId')) {
       cameraProfile.constraints.deviceId = { exact: Session.get('WebcamDeviceId') };
     }
+
     return cameraProfile;
   }
 
@@ -154,7 +155,7 @@ class VideoProvider extends Component {
   static _processIceQueue(peer, cameraId) {
     while (peer.iceQueue.length) {
       const candidate = peer.iceQueue.shift();
-      VideoProvider.addCandidateToPeer(peer, candidate, cameraId);
+      this.addCandidateToPeer(peer, candidate, cameraId);
     }
   }
 
