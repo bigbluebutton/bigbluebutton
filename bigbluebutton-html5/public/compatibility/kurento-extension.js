@@ -246,7 +246,7 @@ Kurento.prototype.init = function () {
       this.logger.error({
         logCode: 'kurentoextension_websocket_error',
         extraInfo: { error }
-      }, `Error in the WebSocket connection to SFU, screenshare/listen only will drop due to ${error.message$}`);
+      }, 'Error in the WebSocket connection to SFU, screenshare/listen only will drop');
       self.onFail('Websocket connection error');
     };
     this.ws.onopen = function () {

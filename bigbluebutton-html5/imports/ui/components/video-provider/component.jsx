@@ -432,7 +432,7 @@ class VideoProvider extends Component {
     }
   }
 
-  addCandidateToPeer (peer, candidate, cameraId) {
+  addCandidateToPeer(peer, candidate, cameraId) {
     peer.addIceCandidate(candidate, (error) => {
       if (error) {
         // Just log the error. We can't be sure if a candidate failure on add is
@@ -476,7 +476,7 @@ class VideoProvider extends Component {
       }
     } else {
       logger.warn({ logCode: 'video_provider_addicecandidate_no_peer' },
-        `SFU ICE candidate for ${id} arrived after the peer was discarded, ignore it.`);
+        `SFU ICE candidate for ${cameraId} arrived after the peer was discarded, ignore it.`);
     }
   }
 
@@ -537,7 +537,7 @@ class VideoProvider extends Component {
     }
   }
 
-  getCameraProfile () {
+  getCameraProfile() {
     const profileId = Session.get('WebcamProfileId') || '';
     const cameraProfile = CAMERA_PROFILES.find(profile => profile.id === profileId)
       || CAMERA_PROFILES.find(profile => profile.default)
@@ -566,8 +566,8 @@ class VideoProvider extends Component {
       logger.error({
         logCode: 'video_provider_fetchstunturninfo_error',
         extraInfo: {
-          error
-        }
+          error,
+        },
       }, 'video-provider failed to fetch STUN/TURN info, using default');
     } finally {
       const { constraints, bitrate, id: profileId } = this.getCameraProfile();
@@ -623,7 +623,7 @@ class VideoProvider extends Component {
           };
 
           logger.info({
-            logCode: 'video_provider_sfu_request_start_camera' ,
+            logCode: 'video_provider_sfu_request_start_camera',
             extraInfo: {
               sfuRequest: message,
               cameraProfile: profileId,
@@ -655,7 +655,7 @@ class VideoProvider extends Component {
           logCode: 'video_provider_camera_share_timeout',
           extraInfo: {
             cameraId: id,
-          }
+          },
         }, `Camera SHARER has not succeeded in ${CAMERA_SHARE_FAILED_WAIT_TIME} for ${id}`);
         VideoProvider.notifyError(intl.formatMessage(intlClientErrors.mediaFlowTimeout));
         this.stopWebRTCPeer(id, false);
@@ -664,7 +664,7 @@ class VideoProvider extends Component {
         const oldReconnectTimer = this.restartTimer[id];
         const newReconnectTimer = Math.min(
           2 * oldReconnectTimer[id],
-          MAX_CAMERA_SHARE_FAILED_WAIT_TIME
+          MAX_CAMERA_SHARE_FAILED_WAIT_TIME,
         );
         this.restartTimer[id] = newReconnectTimer;
 
@@ -676,7 +676,7 @@ class VideoProvider extends Component {
           logCode: 'video_provider_camera_view_timeout',
           extraInfo: {
             cameraId: id,
-          }
+          },
         }, `Camera VIEWER has not succeeded in ${oldReconnectTimer} for ${id}. Reconnecting.`);
         this.stopWebRTCPeer(id, true);
         this.createWebRTCPeer(id, shareWebcam);
@@ -685,15 +685,13 @@ class VideoProvider extends Component {
   }
 
   _processIceQueue(peer, cameraId) {
-    const { intl } = this.props;
-
     while (peer.iceQueue.length) {
       const candidate = peer.iceQueue.shift();
       this.addCandidateToPeer(peer, candidate, cameraId);
     }
   }
 
-  _onWebRTCError (error, cameraId) {
+  _onWebRTCError(error, cameraId) {
     const { intl, userId } = this.props;
 
     // 2001 means MEDIA_SERVER_OFFLINE. It's a server-wide error.
@@ -718,8 +716,6 @@ class VideoProvider extends Component {
         cameraId,
       },
     }, `Camera peer creation failed for ${cameraId} due to ${error.message}`);
-
-
   }
 
   _getOnIceCandidateCallback(id, shareWebcam) {
@@ -741,7 +737,7 @@ class VideoProvider extends Component {
           extraInfo: {
             cameraId: id,
             reconnectTimer: newReconnectTimer,
-          }
+          },
         }, `Camera has a new reconnect timer of ${newReconnectTimer} ms for ${id}`);
         this.restartTimeout[id] = setTimeout(this._getWebRTCStartTimeout(id, shareWebcam),
           this.restartTimer[id]);
@@ -767,7 +763,7 @@ class VideoProvider extends Component {
     const peer = this.webRtcPeers[id];
 
     return () => {
-      const iceConnectionState = peer.peerConnection.iceConnectionState;
+      const { iceConnectionState } = peer.peerConnection;
       if (iceConnectionState === 'failed' || iceConnectionState === 'closed') {
         // prevent the same error from being detected multiple times
         peer.peerConnection.oniceconnectionstatechange = null;
