@@ -16,16 +16,24 @@ const propTypes = {
   intl: intlShape.isRequired,
   fullscreenRef: PropTypes.instanceOf(Element),
   dark: PropTypes.bool,
+  bottom: PropTypes.bool,
+  isIphone: PropTypes.bool,
+  isFullscreen: PropTypes.bool,
   elementName: PropTypes.string,
   className: PropTypes.string,
   handleToggleFullScreen: PropTypes.func.isRequired,
+  tooltipDistance: PropTypes.number,
 };
 
 const defaultProps = {
   dark: false,
+  bottom: false,
+  isIphone: false,
+  isFullscreen: false,
   elementName: '',
   className: '',
   fullscreenRef: null,
+  tooltipDistance: -1,
 };
 
 const FullscreenButtonComponent = ({

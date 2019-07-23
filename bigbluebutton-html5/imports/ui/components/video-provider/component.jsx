@@ -4,6 +4,7 @@ import { Session } from 'meteor/session';
 import { notify } from '/imports/ui/services/notification';
 import VisibilityEvent from '/imports/utils/visibilityEvent';
 import { fetchWebRTCMappedStunTurnServers } from '/imports/utils/fetchStunTurnServers';
+import PropTypes from 'prop-types';
 import ReconnectingWebSocket from 'reconnecting-websocket';
 import logger from '/imports/startup/client/logger';
 import browser from 'browser-detect';
@@ -109,7 +110,54 @@ const CAMERA_SHARE_FAILED_WAIT_TIME = 15000;
 const MAX_CAMERA_SHARE_FAILED_WAIT_TIME = 60000;
 const PING_INTERVAL = 15000;
 
+const propTypes = {
+  users: PropTypes.arrayOf(Array).isRequired,
+  userId: PropTypes.string.isRequired,
+  intl: PropTypes.objectOf(Object).isRequired,
+  enableVideoStats: PropTypes.bool.isRequired,
+  isFullscreen: PropTypes.bool,
+};
+
+const defaultProps = {
+  isFullscreen: false,
+};
+
 class VideoProvider extends Component {
+  static getCameraProfile() {
+    const profileId = Session.get('WebcamProfileId') || '';
+    const cameraProfile = CAMERA_PROFILES.find(profile => profile.id === profileId)
+      || CAMERA_PROFILES.find(profile => profile.default)
+      || CAMERA_PROFILES[0];
+    if (Session.get('WebcamDeviceId')) {
+      cameraProfile.constraints.deviceId = { exact: Session.get('WebcamDeviceId') };
+    }
+    return cameraProfile;
+  }
+
+  static addCandidateToPeer(peer, candidate, cameraId) {
+    peer.addIceCandidate(candidate, (error) => {
+      if (error) {
+        // Just log the error. We can't be sure if a candidate failure on add is
+        // fatal or not, so that's why we have a timeout set up for negotiations and
+        // listeners for ICE state transitioning to failures, so we won't act on it here
+        logger.error({
+          logCode: 'video_provider_addicecandidate_error',
+          extraInfo: {
+            error,
+            cameraId,
+          },
+        }, `Adding ICE candidate failed for ${cameraId} due to ${error.message}`);
+      }
+    });
+  }
+
+  static _processIceQueue(peer, cameraId) {
+    while (peer.iceQueue.length) {
+      const candidate = peer.iceQueue.shift();
+      VideoProvider.addCandidateToPeer(peer, candidate, cameraId);
+    }
+  }
+
   static notifyError(message) {
     notify(message, 'error', 'video');
   }
@@ -424,29 +472,12 @@ class VideoProvider extends Component {
         }
 
         peer.didSDPAnswered = true;
-        this._processIceQueue(peer, id);
+        VideoProvider._processIceQueue(peer, id);
       });
     } else {
       logger.warn({ logCode: 'video_provider_startresponse_no_peer' },
         `SFU start response for ${id} arrived after the peer was discarded, ignore it.`);
     }
-  }
-
-  addCandidateToPeer (peer, candidate, cameraId) {
-    peer.addIceCandidate(candidate, (error) => {
-      if (error) {
-        // Just log the error. We can't be sure if a candidate failure on add is
-        // fatal or not, so that's why we have a timeout set up for negotiations and
-        // listeners for ICE state transitioning to failures, so we won't act on it here
-        logger.error({
-          logCode: 'video_provider_addicecandidate_error',
-          extraInfo: {
-            error,
-            cameraId,
-          },
-        }, `Adding ICE candidate failed for ${cameraId} due to ${error.message}`);
-      }
-    });
   }
 
   handleIceCandidate(message) {
@@ -462,7 +493,7 @@ class VideoProvider extends Component {
 
     if (peer) {
       if (peer.didSDPAnswered) {
-        this.addCandidateToPeer(peer, candidate, cameraId);
+        VideoProvider.addCandidateToPeer(peer, candidate, cameraId);
       } else {
         // ICE candidates are queued until a SDP answer has been processed.
         // This was done due to a long term iOS/Safari quirk where it'd
@@ -476,7 +507,7 @@ class VideoProvider extends Component {
       }
     } else {
       logger.warn({ logCode: 'video_provider_addicecandidate_no_peer' },
-        `SFU ICE candidate for ${id} arrived after the peer was discarded, ignore it.`);
+        `SFU ICE candidate for ${cameraId} arrived after the peer was discarded, ignore it.`);
     }
   }
 
@@ -537,18 +568,6 @@ class VideoProvider extends Component {
     }
   }
 
-  getCameraProfile () {
-    const profileId = Session.get('WebcamProfileId') || '';
-    const cameraProfile = CAMERA_PROFILES.find(profile => profile.id === profileId)
-      || CAMERA_PROFILES.find(profile => profile.default)
-      || CAMERA_PROFILES[0];
-    if (Session.get('WebcamDeviceId')) {
-      cameraProfile.constraints.deviceId = { exact: Session.get('WebcamDeviceId') };
-    }
-
-    return cameraProfile;
-  }
-
   async createWebRTCPeer(id, shareWebcam) {
     const { meetingId, sessionToken, voiceBridge } = this.props;
     let iceServers = [];
@@ -566,11 +585,11 @@ class VideoProvider extends Component {
       logger.error({
         logCode: 'video_provider_fetchstunturninfo_error',
         extraInfo: {
-          error
-        }
+          error,
+        },
       }, 'video-provider failed to fetch STUN/TURN info, using default');
     } finally {
-      const { constraints, bitrate, id: profileId } = this.getCameraProfile();
+      const { constraints, bitrate, id: profileId } = VideoProvider.getCameraProfile();
       const peerOptions = {
         mediaConstraints: {
           audio: false,
@@ -623,7 +642,7 @@ class VideoProvider extends Component {
           };
 
           logger.info({
-            logCode: 'video_provider_sfu_request_start_camera' ,
+            logCode: 'video_provider_sfu_request_start_camera',
             extraInfo: {
               sfuRequest: message,
               cameraProfile: profileId,
@@ -631,7 +650,10 @@ class VideoProvider extends Component {
           }, `Camera offer generated. Sending start request to SFU for ${id}`);
 
           this.sendMessage(message);
+
+          return false;
         });
+        return false;
       });
       if (this.webRtcPeers[id].peerConnection) {
         this.webRtcPeers[id]
@@ -655,7 +677,7 @@ class VideoProvider extends Component {
           logCode: 'video_provider_camera_share_timeout',
           extraInfo: {
             cameraId: id,
-          }
+          },
         }, `Camera SHARER has not succeeded in ${CAMERA_SHARE_FAILED_WAIT_TIME} for ${id}`);
         VideoProvider.notifyError(intl.formatMessage(intlClientErrors.mediaFlowTimeout));
         this.stopWebRTCPeer(id, false);
@@ -664,7 +686,7 @@ class VideoProvider extends Component {
         const oldReconnectTimer = this.restartTimer[id];
         const newReconnectTimer = Math.min(
           2 * oldReconnectTimer[id],
-          MAX_CAMERA_SHARE_FAILED_WAIT_TIME
+          MAX_CAMERA_SHARE_FAILED_WAIT_TIME,
         );
         this.restartTimer[id] = newReconnectTimer;
 
@@ -676,7 +698,7 @@ class VideoProvider extends Component {
           logCode: 'video_provider_camera_view_timeout',
           extraInfo: {
             cameraId: id,
-          }
+          },
         }, `Camera VIEWER has not succeeded in ${oldReconnectTimer} for ${id}. Reconnecting.`);
         this.stopWebRTCPeer(id, true);
         this.createWebRTCPeer(id, shareWebcam);
@@ -684,16 +706,7 @@ class VideoProvider extends Component {
     };
   }
 
-  _processIceQueue(peer, cameraId) {
-    const { intl } = this.props;
-
-    while (peer.iceQueue.length) {
-      const candidate = peer.iceQueue.shift();
-      this.addCandidateToPeer(peer, candidate, cameraId);
-    }
-  }
-
-  _onWebRTCError (error, cameraId) {
+  _onWebRTCError(error, cameraId) {
     const { intl, userId } = this.props;
 
     // 2001 means MEDIA_SERVER_OFFLINE. It's a server-wide error.
@@ -718,8 +731,6 @@ class VideoProvider extends Component {
         cameraId,
       },
     }, `Camera peer creation failed for ${cameraId} due to ${error.message}`);
-
-
   }
 
   _getOnIceCandidateCallback(id, shareWebcam) {
@@ -741,7 +752,7 @@ class VideoProvider extends Component {
           extraInfo: {
             cameraId: id,
             reconnectTimer: newReconnectTimer,
-          }
+          },
         }, `Camera has a new reconnect timer of ${newReconnectTimer} ms for ${id}`);
         this.restartTimeout[id] = setTimeout(this._getWebRTCStartTimeout(id, shareWebcam),
           this.restartTimer[id]);
@@ -765,9 +776,10 @@ class VideoProvider extends Component {
   _getOnIceConnectionStateChangeCallback(id) {
     const { intl } = this.props;
     const peer = this.webRtcPeers[id];
+    const { peerConnection } = peer;
+    const { iceConnectionState } = peerConnection;
 
     return () => {
-      const iceConnectionState = peer.peerConnection.iceConnectionState;
       if (iceConnectionState === 'failed' || iceConnectionState === 'closed') {
         // prevent the same error from being detected multiple times
         peer.peerConnection.oniceconnectionstatechange = null;
@@ -1145,12 +1157,10 @@ class VideoProvider extends Component {
     const {
       users,
       enableVideoStats,
-      mediaHeight,
       isFullscreen,
     } = this.props;
     return (
       <VideoList
-        mediaHeight={mediaHeight}
         users={users}
         onMount={this.createVideoTag}
         getStats={this.getStats}
@@ -1161,5 +1171,8 @@ class VideoProvider extends Component {
     );
   }
 }
+
+VideoProvider.propTypes = propTypes;
+VideoProvider.defaultProps = defaultProps;
 
 export default injectIntl(VideoProvider);

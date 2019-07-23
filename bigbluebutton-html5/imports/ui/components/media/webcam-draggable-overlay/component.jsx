@@ -3,6 +3,7 @@ import Draggable from 'react-draggable';
 import cx from 'classnames';
 import _ from 'lodash';
 import browser from 'browser-detect';
+import PropTypes from 'prop-types';
 import { withDraggableContext } from './context';
 import VideoProviderContainer from '/imports/ui/components/video-provider/container';
 import { styles } from '../styles.scss';
@@ -10,6 +11,26 @@ import Storage from '../../../services/storage/session';
 
 const { webcamsDefaultPlacement } = Meteor.settings.public.layout;
 const BROWSER_ISMOBILE = browser().mobile;
+
+const propTypes = {
+  swapLayout: PropTypes.bool,
+  singleWebcam: PropTypes.bool,
+  hideOverlay: PropTypes.bool,
+  disableVideo: PropTypes.bool,
+  audioModalIsOpen: PropTypes.bool,
+  webcamDraggableState: PropTypes.objectOf(Object).isRequired,
+  webcamDraggableDispatch: PropTypes.func.isRequired,
+  refMediaContainer: PropTypes.shape({ current: PropTypes.instanceOf(Element) }),
+};
+
+const defaultProps = {
+  swapLayout: false,
+  singleWebcam: true,
+  hideOverlay: false,
+  disableVideo: false,
+  audioModalIsOpen: false,
+  refMediaContainer: null,
+};
 
 class WebcamDraggable extends Component {
   constructor(props) {
@@ -301,5 +322,8 @@ class WebcamDraggable extends Component {
     );
   }
 }
+
+WebcamDraggable.propTypes = propTypes;
+WebcamDraggable.defaultProps = defaultProps;
 
 export default withDraggableContext(WebcamDraggable);

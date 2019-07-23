@@ -14,7 +14,6 @@ export default withTracker((props) => {
   return {
     cursor: props.cursor,
     swapLayout: props.swapLayout,
-    mediaHeight: props.mediaHeight,
     meetingId: VideoService.meetingId(),
     users: VideoService.getAllUsersVideo(),
     userId: VideoService.userId(),

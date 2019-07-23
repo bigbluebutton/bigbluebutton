@@ -13,6 +13,13 @@ const propTypes = {
   getStats: PropTypes.func.isRequired,
   stopGettingStats: PropTypes.func.isRequired,
   enableVideoStats: PropTypes.bool.isRequired,
+  webcamDraggableDispatch: PropTypes.func.isRequired,
+  intl: PropTypes.objectOf(Object).isRequired,
+  isFullscreen: PropTypes.bool,
+};
+
+const defaultProps = {
+  isFullscreen: false,
 };
 
 const intlMessages = defineMessages({
@@ -236,5 +243,6 @@ class VideoList extends Component {
 }
 
 VideoList.propTypes = propTypes;
+VideoList.defaultProps = defaultProps;
 
 export default injectIntl(withDraggableConsumer(VideoList));

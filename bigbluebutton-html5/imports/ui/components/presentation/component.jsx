@@ -349,7 +349,7 @@ class PresentationArea extends PureComponent {
   // renders the whole presentation area
   renderPresentationArea() {
     const { presentationWidth } = this.state;
-    const { podId, currentSlide, isFullscreen } = this.props;
+    const { podId, currentSlide } = this.props;
     if (!this.isPresentationAccessible()) return null;
 
 
