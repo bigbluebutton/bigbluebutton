@@ -2,7 +2,7 @@ import React from 'react';
 import { withTracker } from 'meteor/react-meteor-data';
 import browser from 'browser-detect';
 import SettingsDropdown from './component';
-import { toggleFullScreen } from './service';
+import toggleFullScreen from './service';
 
 const SettingsDropdownContainer = props => (
   <SettingsDropdown {...props} />
