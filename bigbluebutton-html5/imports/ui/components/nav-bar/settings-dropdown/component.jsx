@@ -110,6 +110,8 @@ const defaultProps = {
   isBreakoutRoom: false,
 };
 
+const ALLOW_FULLSCREEN = Meteor.settings.public.app.allowFullscreen;
+
 class SettingsDropdown extends PureComponent {
   constructor(props) {
     super(props);
@@ -146,6 +148,8 @@ class SettingsDropdown extends PureComponent {
       handleToggleFullscreen,
     } = this.props;
 
+    if (noIOSFullscreen || !ALLOW_FULLSCREEN) return null;
+
     let fullscreenLabel = intl.formatMessage(intlMessages.fullscreenLabel);
     let fullscreenDesc = intl.formatMessage(intlMessages.fullscreenDesc);
     let fullscreenIcon = 'fullscreen';
@@ -155,8 +159,6 @@ class SettingsDropdown extends PureComponent {
       fullscreenDesc = intl.formatMessage(intlMessages.exitFullscreenDesc);
       fullscreenIcon = 'exit_fullscreen';
     }
-
-    if (noIOSFullscreen) return null;
 
     return (
       <DropdownListItem
@@ -202,7 +204,9 @@ class SettingsDropdown extends PureComponent {
       />
     );
 
-    const shouldRenderLogoutOption = (isMeteorConnected && allowLogoutSetting) ? logoutOption : null;
+    const shouldRenderLogoutOption = (isMeteorConnected && allowLogoutSetting)
+      ? logoutOption
+      : null;
 
     return _.compact([
       this.getFullscreenItem(),
