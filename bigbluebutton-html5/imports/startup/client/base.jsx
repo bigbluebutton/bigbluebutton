@@ -244,7 +244,7 @@ const BaseContainer = withTracker(() => {
     Session.set('codeError', '410');
   }
 
-  const approved = User && User.approved;
+  const approved = User && User.approved && User.guest;
   const ejected = User && User.ejected;
   let userSubscriptionHandler;
 
