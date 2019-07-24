@@ -219,7 +219,7 @@ const BaseContainer = withTracker(() => {
   let breakoutRoomSubscriptionHandler;
   let meetingModeratorSubscriptionHandler;
 
-  const options = {
+  const fields = {
     approved: 1,
     authed: 1,
     ejected: 1,
@@ -233,17 +233,19 @@ const BaseContainer = withTracker(() => {
     meetingId: 1,
     userId: 1,
   };
-  const User = Users.findOne({ intId: credentials.requesterUserId }, { fields: options });
-  const meeting = Meetings.findOne({ meetingId }, { fields: {
-    meetingEnded: 1,
-    }});
-  if (meeting) {
-    const { meetingEnded } = meeting;
-    if (meetingEnded) Session.set('codeError', '410');
+  const User = Users.findOne({ intId: credentials.requesterUserId }, { fields });
+  const meeting = Meetings.findOne({ meetingId }, {
+    fields: {
+      meetingEnded: 1,
+    },
+  });
+
+  if (meeting && meeting.meetingEnded) {
+    Session.set('codeError', '410');
   }
 
-  const approved = !!Users.findOne({ userId: Auth.userID, approved: true, guest: true }, { fields: options });
-  const ejected = Users.findOne({ userId: Auth.userID, ejected: true }, { fields: options });
+  const approved = User && User.approved;
+  const ejected = User && User.ejected;
   let userSubscriptionHandler;
 
 
@@ -268,7 +270,7 @@ const BaseContainer = withTracker(() => {
     },
   });
 
-  Meetings.find({ meetingId }, { fields: { recordProp: 1 }}).observe({
+  Meetings.find({ meetingId }, { fields: { recordProp: 1 } }).observe({
     changed: (newDocument, oldDocument) => {
       if (newDocument.recordProp) {
         if (!oldDocument.recordProp.recording && newDocument.recordProp.recording) {
