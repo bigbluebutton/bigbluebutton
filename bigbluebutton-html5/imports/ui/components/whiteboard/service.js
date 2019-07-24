@@ -187,7 +187,7 @@ WhiteboardMultiUser.find({ meetingId: Auth.meetingID }).observeChanges({
   changed: clearFakeAnnotations,
 });
 
-Users.find({ userId: Auth.userID }).observeChanges({
+Users.find({ userId: Auth.userID }, { fields: { presenter: 1 } }).observeChanges({
   changed(id, { presenter }) {
     if (presenter === false) clearFakeAnnotations();
   },
