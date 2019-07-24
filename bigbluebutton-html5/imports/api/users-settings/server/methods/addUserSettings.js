@@ -1,5 +1,6 @@
 import { check } from 'meteor/check';
 import addUserSetting from '/imports/api/users-settings/server/modifiers/addUserSetting';
+import logger from '/imports/startup/server/logger';
 
 const oldParameters = {
   autoJoin: 'bbb_auto_join_audio',
@@ -12,6 +13,17 @@ const oldParameters = {
   hidePresentation: 'bbb_hide_presentation',
   outsideToggleSelfVoice: 'bbb_outside_toggle_self_voice',
   outsideToggleRecording: 'bbb_outside_toggle_recording',
+  forceListenOnly: 'bbb_force_listen_only',
+  clientTitle: 'bbb_client_title',
+  askForFeedbackOnLogout: 'bbb_ask_for_feedback_on_logout',
+  displayBrandingArea: 'bbb_display_branding_area',
+  enableScreensharing: 'bbb_enable_screen_sharing',
+  enableVideo: 'bbb_enable_video',
+  enableVideoStats: 'bbb_enable_video_stats',
+  multiUserPenOnly: 'bbb_multi_user_pen_only',
+  presenterTools: 'bbb_presenter_tools',
+  multiUserTools: 'bbb_multi_user_tools',
+  customStyleUrl: 'bbb_custom_style_url',
 };
 
 const oldParametersKeys = Object.keys(oldParameters);
@@ -20,27 +32,26 @@ const currentParameters = [
   // APP
   'bbb_auto_join_audio',
   'bbb_listen_only_mode',
-  'forceListenOnly',
+  'bbb_force_listen_only',
   'bbb_skip_check_audio',
-  'clientTitle',
-  'lockOnJoin',
-  'askForFeedbackOnLogout',
+  'bbb_client_title',
+  'bbb_ask_for_feedback_on_logout',
   // BRANDING
-  'displayBrandingArea',
+  'bbb_display_branding_area',
   // SHORTCUTS
   'bbb_shortcuts',
   // KURENTO
-  'enableScreensharing',
-  'enableVideo',
-  'enableVideoStats',
+  'bbb_enable_screen_sharing',
+  'bbb_enable_video',
+  'bbb_enable_video_stats',
   'bbb_auto_share_webcam',
   // WHITEBOARD
-  'multiUserPenOnly',
-  'presenterTools',
-  'multiUserTools',
+  'bbb_multi_user_pen_only',
+  'bbb_presenter_tools',
+  'bbb_multi_user_tools',
   // SKINNING/THEMMING
   'bbb_custom_style',
-  'customStyleUrl',
+  'bbb_custom_style_url',
   // LAYOUT
   'bbb_auto_swap_layout',
   'bbb_hide_presentation',
@@ -57,7 +68,7 @@ export default function addUserSettings(credentials, meetingId, userId, settings
   let parameters = {};
   settings.forEach((el) => {
     const settingKey = Object.keys(el).shift();
-
+    console.log('---------------PARAMETER '+settingKey);
     if (currentParameters.includes(settingKey)) {
       if (!Object.keys(parameters).includes(settingKey)) {
         parameters = {
@@ -80,7 +91,10 @@ export default function addUserSettings(credentials, meetingId, userId, settings
           ...parameters,
         };
       }
+      return;
     }
+
+    logger.warn(`Parameter ${settingKey} not handled`);
   });
 
   const settingsAdded = [];

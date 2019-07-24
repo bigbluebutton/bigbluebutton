@@ -18,6 +18,6 @@ export default withTracker(props => ({
   userId: VideoService.userId(),
   sessionToken: VideoService.sessionToken(),
   userName: VideoService.userName(),
-  enableVideoStats: getFromUserSettings('enableVideoStats', Meteor.settings.public.kurento.enableVideoStats),
+  enableVideoStats: getFromUserSettings('bbb_enable_video_stats', Meteor.settings.public.kurento.enableVideoStats),
   voiceBridge: VideoService.voiceBridge(),
 }))(VideoProviderContainer);

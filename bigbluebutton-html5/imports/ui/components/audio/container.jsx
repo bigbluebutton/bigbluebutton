@@ -141,7 +141,7 @@ export default lockContextContainer(withModalMounter(injectIntl(withTracker(({ m
       Service.changeOutputDevice(document.querySelector('#remote-media').sinkId);
       if (!autoJoin || didMountAutoJoin) return;
       Session.set('audioModalIsOpen', true);
-      const enableVideo = getFromUserSettings('enableVideo', KURENTO_CONFIG.enableVideo);
+      const enableVideo = getFromUserSettings('bbb_enable_video', KURENTO_CONFIG.enableVideo);
       const autoShareWebcam = getFromUserSettings('bbb_auto_share_webcam', KURENTO_CONFIG.autoShareWebcam);
       if (enableVideo && autoShareWebcam) {
         openAudioModal().then(() => { openVideoPreviewModal(); didMountAutoJoin = true; });
