@@ -21,6 +21,7 @@ const propTypes = {
   webcamDraggableState: PropTypes.objectOf(Object).isRequired,
   webcamDraggableDispatch: PropTypes.func.isRequired,
   refMediaContainer: PropTypes.shape({ current: PropTypes.instanceOf(Element) }),
+  isFullscreen: PropTypes.bool,
 };
 
 const defaultProps = {
@@ -30,6 +31,7 @@ const defaultProps = {
   disableVideo: false,
   audioModalIsOpen: false,
   refMediaContainer: null,
+  isFullscreen: false,
 };
 
 class WebcamDraggable extends Component {
@@ -181,9 +183,10 @@ class WebcamDraggable extends Component {
       hideOverlay,
       disableVideo,
       audioModalIsOpen,
+      isFullscreen,
     } = this.props;
 
-    const { dragging, isFullscreen } = webcamDraggableState;
+    const { dragging } = webcamDraggableState;
     let placement = Storage.getItem('webcamPlacement');
     const lastPosition = Storage.getItem('webcamLastPosition') || { x: 0, y: 0 };
     let position = lastPosition;
@@ -251,14 +254,14 @@ class WebcamDraggable extends Component {
       [styles.dropZoneTop]: true,
       [styles.show]: dragging,
       [styles.hide]: !dragging,
-      [styles.cursorGrabbing]: dragging,
+      [styles.cursorGrabbing]: dragging && !isFullscreen,
     });
 
     const dropZoneBottomClassName = cx({
       [styles.dropZoneBottom]: true,
       [styles.show]: dragging,
       [styles.hide]: !dragging,
-      [styles.cursorGrabbing]: dragging,
+      [styles.cursorGrabbing]: dragging && !isFullscreen,
     });
 
     const dropZoneBgTopClassName = cx({

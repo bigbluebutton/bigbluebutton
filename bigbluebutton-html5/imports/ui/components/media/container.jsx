@@ -122,8 +122,12 @@ export default withModalMounter(withTracker(() => {
     data.children = <ScreenshareContainer />;
   }
 
+  const isFullscreen = Session.get('isFullscreen');
+  data.isFullscreen = isFullscreen;
+
   const usersVideo = VideoService.getAllUsersVideo();
   data.usersVideo = usersVideo;
+
   if (MediaService.shouldShowOverlay() && usersVideo.length && viewParticipantsWebcams) {
     data.floatingOverlay = usersVideo.length < 2;
     data.hideOverlay = usersVideo.length === 0;

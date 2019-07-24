@@ -149,6 +149,7 @@ class VideoListItem extends Component {
       user,
       numOfUsers,
       webcamDraggableState,
+      isFullscreen,
     } = this.props;
     const availableActions = this.getAvailableActions();
     const enableVideoMenu = Meteor.settings.public.kurento.enableVideoMenu || false;
@@ -174,8 +175,8 @@ class VideoListItem extends Component {
             muted
             className={cx({
               [styles.media]: true,
-              [styles.cursorGrab]: !webcamDraggableState.dragging,
-              [styles.cursorGrabbing]: webcamDraggableState.dragging,
+              [styles.cursorGrab]: !webcamDraggableState.dragging && !isFullscreen,
+              [styles.cursorGrabbing]: webcamDraggableState.dragging && !isFullscreen,
             })}
             ref={(ref) => { this.videoTag = ref; }}
             autoPlay

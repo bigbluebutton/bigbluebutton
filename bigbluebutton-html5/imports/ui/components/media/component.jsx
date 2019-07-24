@@ -65,6 +65,7 @@ export default class Media extends Component {
       children,
       audioModalIsOpen,
       usersVideo,
+      isFullscreen,
     } = this.props;
 
     const contentClassName = cx({
@@ -100,6 +101,7 @@ export default class Media extends Component {
           disableVideo={disableVideo}
           audioModalIsOpen={audioModalIsOpen}
           usersVideo={usersVideo}
+          isFullscreen={isFullscreen}
         />
       </div>
     );
