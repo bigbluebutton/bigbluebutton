@@ -136,7 +136,6 @@ export default class Cursor extends Component {
   // this function retrieves the text node, measures its BBox and sets the size for the outer box
   calculateCursorLabelBoxDimensions() {
     const {
-      cursorLabelBox,
       setLabelBoxDimensions,
     } = this.props;
 
@@ -144,7 +143,7 @@ export default class Cursor extends Component {
     let labelBoxHeight = 0;
     if (this.cursorLabelRef) {
       const { width, height } = this.cursorLabelRef.getBBox();
-      const { widthRatio, physicalWidthRatio } = this.props;
+      const { widthRatio, physicalWidthRatio, cursorLabelBox } = this.props;
       labelBoxWidth = Cursor.invertScale(width, widthRatio, physicalWidthRatio);
       labelBoxHeight = Cursor.invertScale(height, widthRatio, physicalWidthRatio);
 
@@ -162,6 +161,7 @@ export default class Cursor extends Component {
     const {
       cursorId,
       userName,
+      isRTL,
     } = this.props;
 
     const {
@@ -221,6 +221,7 @@ export default class Cursor extends Component {
                 fillOpacity="0.8"
                 fontSize={cursorLabelText.fontSize}
                 clipPath={`url(#${cursorId})`}
+                textAnchor={isRTL ? 'end' : 'start'}
               >
                 {userName}
               </text>
@@ -301,6 +302,9 @@ Cursor.propTypes = {
   // set proper width and height of the border box -> pass it down ->
   // catch in the 'componentWillReceiveProps' -> apply new values
   setLabelBoxDimensions: PropTypes.func.isRequired,
+
+  // Defines the direction the client text should be displayed
+  isRTL: PropTypes.bool.isRequired,
 };
 
 Cursor.defaultProps = {

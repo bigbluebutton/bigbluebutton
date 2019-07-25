@@ -57,11 +57,12 @@ class Settings {
 
   save() {
     Object.keys(this).forEach((k) => {
-      if (k === '_dataSaving') {
-        const { value: { viewParticipantsWebcams } } = this[k];
-
-        makeCall('userChangedSettings', 'viewParticipantsWebcams', viewParticipantsWebcams);
-      }
+      // if (k === '_dataSaving') {
+      //   const { value: { viewParticipantsWebcams } } = this[k];
+      //
+      //   makeCall('userChangedSettings', 'viewParticipantsWebcams', viewParticipantsWebcams);
+      // }
+      // TODO https://github.com/bigbluebutton/bigbluebutton/issue/7774
 
       Storage.setItem(`settings${k}`, this[k].value);
     });

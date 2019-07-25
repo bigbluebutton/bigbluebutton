@@ -85,10 +85,9 @@ class Base extends Component {
       meetingExist,
       animations,
       ejected,
-      meteorIsConnected,
+      isMeteorConnected,
       subscriptionsReady,
     } = this.props;
-
     const {
       loading,
       meetingExisted,
@@ -103,7 +102,7 @@ class Base extends Component {
     }
 
     // In case the meteor restart avoid error log
-    if (meteorIsConnected && (prevState.meetingExisted !== meetingExisted) && meetingExisted) {
+    if (isMeteorConnected && (prevState.meetingExisted !== meetingExisted) && meetingExisted) {
       this.setMeetingExisted(false);
     }
 
@@ -118,7 +117,7 @@ class Base extends Component {
     }
 
     // In case the meteor restart avoid error log
-    if (meteorIsConnected && (prevState.meetingExisted !== meetingExisted)) {
+    if (isMeteorConnected && (prevState.meetingExisted !== meetingExisted)) {
       this.setMeetingExisted(false);
     }
 
@@ -220,15 +219,33 @@ const BaseContainer = withTracker(() => {
   let breakoutRoomSubscriptionHandler;
   let meetingModeratorSubscriptionHandler;
 
-  const User = Users.findOne({ intId: credentials.requesterUserId });
-  const meeting = Meetings.findOne({ meetingId });
-  if (meeting) {
-    const { meetingEnded } = meeting;
-    if (meetingEnded) Session.set('codeError', '410');
+  const fields = {
+    approved: 1,
+    authed: 1,
+    ejected: 1,
+    color: 1,
+    effectiveConnectionType: 1,
+    extId: 1,
+    guest: 1,
+    intId: 1,
+    locked: 1,
+    loggedOut: 1,
+    meetingId: 1,
+    userId: 1,
+  };
+  const User = Users.findOne({ intId: credentials.requesterUserId }, { fields });
+  const meeting = Meetings.findOne({ meetingId }, {
+    fields: {
+      meetingEnded: 1,
+    },
+  });
+
+  if (meeting && meeting.meetingEnded) {
+    Session.set('codeError', '410');
   }
 
-  const approved = !!Users.findOne({ userId: Auth.userID, approved: true, guest: true });
-  const ejected = Users.findOne({ userId: Auth.userID, ejected: true });
+  const approved = User && User.approved && User.guest;
+  const ejected = User && User.ejected;
   let userSubscriptionHandler;
 
 
@@ -253,7 +270,7 @@ const BaseContainer = withTracker(() => {
     },
   });
 
-  Meetings.find({ meetingId }).observe({
+  Meetings.find({ meetingId }, { fields: { recordProp: 1 } }).observe({
     changed: (newDocument, oldDocument) => {
       if (newDocument.recordProp) {
         if (!oldDocument.recordProp.recording && newDocument.recordProp.recording) {
@@ -270,7 +287,7 @@ const BaseContainer = withTracker(() => {
         if (oldDocument.recordProp.recording && !newDocument.recordProp.recording) {
           notify(
             <FormattedMessage
-              id="app.notification.recordingStop"
+              id="app.notification.recordingPaused"
               description="Notification for when the recording stops"
             />,
             'error',
@@ -290,7 +307,7 @@ const BaseContainer = withTracker(() => {
     meetingModeratorSubscriptionHandler,
     animations,
     User,
-    meteorIsConnected: Meteor.status().connected,
+    isMeteorConnected: Meteor.status().connected,
     meetingExist: !!meeting,
     meetingHasEnded: !!meeting && meeting.meetingEnded,
     meetingIsBreakout: AppService.meetingIsBreakout(),

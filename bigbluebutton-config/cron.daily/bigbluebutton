@@ -53,7 +53,7 @@ done
 for app in recordings screenshare; do
 	app_dir=/var/kurento/$app
 	if [[ -d $app_dir ]]; then
-		find $app_dir -name "*.mkv" -mtime +$history -delete
+		find $app_dir -name "*.mkv" -o -name "*.webm" -mtime +$history -delete
 		find $app_dir -type d -empty -mtime +$history -exec rmdir '{}' +
 	fi
 done

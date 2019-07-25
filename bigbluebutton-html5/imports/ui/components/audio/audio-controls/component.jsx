@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import cx from 'classnames';
 import { defineMessages, intlShape, injectIntl } from 'react-intl';
@@ -40,7 +40,7 @@ const propTypes = {
   talking: PropTypes.bool.isRequired,
 };
 
-class AudioControls extends Component {
+class AudioControls extends PureComponent {
   componentDidMount() {
     const { processToggleMuteFromOutside } = this.props;
     if (Meteor.settings.public.allowOutsideCommands.toggleSelfVoice

@@ -118,10 +118,12 @@
   @include mq($medium-up) {
     flex: 0 15vw;
     order: 1;
+    height: 100vh;
   }
 
   @include mq($xlarge-up) {
     flex-basis: 10vw;
+    height: 100vh;
   }
 }
 
@@ -193,6 +195,7 @@
   flex-direction: row;
   position: relative;
   margin: 0 0 0 var(--panel-margin-right);
+  overflow: hidden;
 
   [dir="rtl"] & {
     margin: 0 var(--panel-margin-right) 0 0;

@@ -13,21 +13,19 @@ export default function unsharedWebcam(meetingId, userId) {
 
   const modifier = {
     $set: {
-      meetingId,
-      userId,
-      has_stream: false,
+      hasStream: false,
     },
   };
 
   const cb = (err, numChanged) => {
     if (err) {
-      return Logger.error(`Adding user to collection: ${err}`);
+      return Logger.error(`Error setting hasStream to false: ${err}`);
     }
 
     if (numChanged) {
-      return Logger.info(`Upserted user id=${userId} meeting=${meetingId}`);
+      return Logger.info(`Updated hasStream for user id=${userId} meeting=${meetingId}`);
     }
   };
 
-  return Users.upsert(selector, modifier, cb);
+  return Users.update(selector, modifier, cb);
 }

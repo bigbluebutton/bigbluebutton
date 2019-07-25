@@ -49,6 +49,7 @@ export default withTracker((params) => {
     nextSlide: PresentationToolbarService.nextSlide,
     previousSlide: PresentationToolbarService.previousSlide,
     skipToSlide: PresentationToolbarService.skipToSlide,
+    isMeteorConnected: Meteor.status().connected,
   };
 })(PresentationToolbarContainer);
 

@@ -88,9 +88,11 @@ export default injectIntl(withTracker(({ intl }) => {
     };
 
     const messagesBeforeWelcomeMsg = ChatService.reduceAndMapGroupMessages(
-      messages.filter(message => message.timestamp < time));
+      messages.filter(message => message.timestamp < time),
+    );
     const messagesAfterWelcomeMsg = ChatService.reduceAndMapGroupMessages(
-      messages.filter(message => message.timestamp >= time));
+      messages.filter(message => message.timestamp >= time),
+    );
 
     const messagesFormated = messagesBeforeWelcomeMsg
       .concat(welcomeMsg)
@@ -139,10 +141,11 @@ export default injectIntl(withTracker(({ intl }) => {
     };
   });
 
-
   const scrollPosition = ChatService.getScrollPosition(chatID);
   const hasUnreadMessages = ChatService.hasUnreadMessages(chatID);
   const lastReadMessageTime = ChatService.lastReadMessageTime(chatID);
+
+  const { connected: isMeteorConnected } = Meteor.status();
 
   return {
     chatID,
@@ -154,6 +157,7 @@ export default injectIntl(withTracker(({ intl }) => {
     partnerIsLoggedOut,
     isChatLocked,
     scrollPosition,
+    isMeteorConnected,
     minMessageLength: CHAT_CONFIG.min_message_length,
     maxMessageLength: CHAT_CONFIG.max_message_length,
     UnsentMessagesCollection: ChatService.UnsentMessagesCollection,

@@ -294,7 +294,10 @@ class PresentationUploader extends Component {
       })
       .catch((error) => {
         notify(intl.formatMessage(intlMessages.genericError), 'error');
-        logger.error({ logCode: 'presentationuploader_component_save_error' }, error);
+        logger.error({
+          logCode: 'presentationuploader_component_save_error',
+          extraInfo: { error },
+        }, 'Presentation uploader catch error on confirm');
 
         this.setState({
           disableActions: false,

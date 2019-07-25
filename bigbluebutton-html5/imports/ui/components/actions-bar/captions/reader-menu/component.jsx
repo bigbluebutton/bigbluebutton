@@ -12,13 +12,29 @@ const DEFAULT_KEY = -1;
 const DEFAULT_INDEX = 0;
 const FONT_FAMILIES = ['Arial', 'Calibri', 'Times New Roman', 'Sans-serif'];
 const FONT_SIZES = ['12px', '14px', '18px', '24px', '32px', '42px'];
+
+// Not using hex values to force the githubPicker UI to display color names on hover
 const COLORS = [
-  '#000000', '#7A7A7A',
-  '#FF0000', '#FF8800',
-  '#88FF00', '#FFFFFF',
-  '#00FFFF', '#0000FF',
-  '#8800FF', '#FF00FF',
+  'black', 'grey',
+  'red', 'orange',
+  'lime', 'white',
+  'cyan', 'blue',
+  'darkviolet', 'magenta',
 ];
+
+// Used to convert hex values to color names for screen reader aria labels
+const HEX_COLOR_NAMES = {
+  '#000000': 'Black',
+  '#7a7a7a': 'Grey',
+  '#ff0000': 'Red',
+  '#ff8800': 'Orange',
+  '#88ff00': 'Green',
+  '#ffffff': 'White',
+  '#00ffff': 'Cyan',
+  '#0000ff': 'Blue',
+  '#8800ff': 'Dark violet',
+  '#ff00ff': 'Magenta',
+};
 
 const intlMessages = defineMessages({
   closeLabel: {
@@ -61,6 +77,18 @@ const intlMessages = defineMessages({
     id: 'app.captions.menu.previewLabel',
     description: 'Preview area label',
   },
+  ariaSelectLang: {
+    id: 'app.captions.menu.ariaSelect',
+    description: 'Captions language select aria label',
+  },
+  captionsLabel: {
+    id: 'app.captions.label',
+    description: 'Used in font / size aria labels',
+  },
+  current: {
+    id: 'app.submenu.application.currentSize',
+    description: 'Used in text / background color aria labels',
+  },
 });
 
 const propTypes = {
@@ -84,8 +112,10 @@ class ReaderMenu extends PureComponent {
       fontSize,
     } = props.getCaptionsSettings();
 
+    const { ownedLocales } = this.props;
+
     this.state = {
-      locale: null,
+      locale: (ownedLocales && ownedLocales[0]) ? ownedLocales[0].locale : null,
       backgroundColor,
       fontColor,
       fontFamily,
@@ -186,6 +216,13 @@ class ReaderMenu extends PureComponent {
       locale,
     } = this.state;
 
+    const defaultLocale = locale || DEFAULT_VALUE;
+
+    const ariaTextColor = `${intl.formatMessage(intlMessages.fontColor)} ${intl.formatMessage(intlMessages.current, { 0: HEX_COLOR_NAMES[fontColor.toLowerCase()] })}`;
+    const ariaBackgroundColor = `${intl.formatMessage(intlMessages.backgroundColor)} ${intl.formatMessage(intlMessages.current, { 0: HEX_COLOR_NAMES[backgroundColor.toLowerCase()] })}`;
+    const ariaFont = `${intl.formatMessage(intlMessages.captionsLabel)} ${intl.formatMessage(intlMessages.fontFamily)}`;
+    const ariaSize = `${intl.formatMessage(intlMessages.captionsLabel)} ${intl.formatMessage(intlMessages.fontSize)}`;
+
     return (
       <Modal
         overlayClassName={styles.overlay}
@@ -197,34 +234,44 @@ class ReaderMenu extends PureComponent {
         <header className={styles.title}>
           {intl.formatMessage(intlMessages.title)}
         </header>
-        <div className={styles.selectLanguage}>
-          <select
-            className={styles.select}
-            onChange={this.handleLocaleChange}
-            defaultValue={DEFAULT_VALUE}
-          >
-            <option
-              disabled
-              key={DEFAULT_KEY}
-              value={DEFAULT_VALUE}
-            >
-              {intl.formatMessage(intlMessages.select)}
-            </option>
-            {ownedLocales.map(loc => (
-              <option
-                key={loc.locale}
-                value={loc.locale}
-              >
-                {loc.name}
-              </option>))}
-          </select>
-        </div>
         {!locale ? null : (
-          <div className={styles.content}>
+          <div>
             <div className={styles.col}>
               <div className={styles.row}>
-                <div className={styles.label}>{intl.formatMessage(intlMessages.fontColor)}</div>
+                <div aria-hidden className={styles.label}>
+                  {intl.formatMessage(intlMessages.ariaSelectLang)}
+                </div>
+                <select
+                  aria-label={intl.formatMessage(intlMessages.ariaSelectLang)}
+                  className={styles.select}
+                  onChange={this.handleLocaleChange}
+                  defaultValue={defaultLocale}
+                  lang={locale}
+                >
+                  <option
+                    disabled
+                    key={DEFAULT_KEY}
+                    value={DEFAULT_VALUE}
+                  >
+                    {intl.formatMessage(intlMessages.select)}
+                  </option>
+                  {ownedLocales.map(loc => (
+                    <option
+                      key={loc.locale}
+                      value={loc.locale}
+                      lang={loc.locale}
+                    >
+                      {loc.name}
+                    </option>))}
+                </select>
+              </div>
+
+              <div className={styles.row}>
+                <div aria-hidden className={styles.label}>
+                  {intl.formatMessage(intlMessages.fontColor)}
+                </div>
                 <div
+                  aria-label={ariaTextColor}
                   tabIndex={DEFAULT_INDEX}
                   className={styles.swatch}
                   onClick={this.handleColorPickerClick.bind(this, 'displayFontColorPicker')}
@@ -240,7 +287,6 @@ class ReaderMenu extends PureComponent {
                       />
                       <GithubPicker
                         onChange={this.handleColorChange.bind(this, 'fontColor')}
-                        color={fontColor}
                         colors={COLORS}
                         width="140px"
                         triangle="hide"
@@ -251,10 +297,11 @@ class ReaderMenu extends PureComponent {
               </div>
 
               <div className={styles.row}>
-                <div className={styles.label}>
+                <div aria-hidden className={styles.label}>
                   {intl.formatMessage(intlMessages.backgroundColor)}
                 </div>
                 <div
+                  aria-label={ariaBackgroundColor}
                   tabIndex={DEFAULT_INDEX}
                   className={styles.swatch}
                   onClick={this.handleColorPickerClick.bind(this, 'displayBackgroundColorPicker')}
@@ -270,7 +317,6 @@ class ReaderMenu extends PureComponent {
                       />
                       <GithubPicker
                         onChange={this.handleColorChange.bind(this, 'backgroundColor')}
-                        color={backgroundColor}
                         colors={COLORS}
                         width="140px"
                         triangle="hide"
@@ -281,8 +327,11 @@ class ReaderMenu extends PureComponent {
               </div>
 
               <div className={styles.row}>
-                <div className={styles.label}>{intl.formatMessage(intlMessages.fontFamily)}</div>
+                <div aria-hidden className={styles.label}>
+                  {intl.formatMessage(intlMessages.fontFamily)}
+                </div>
                 <select
+                  aria-label={ariaFont}
                   className={styles.select}
                   defaultValue={FONT_FAMILIES.indexOf(fontFamily)}
                   onChange={this.handleSelectChange.bind(this, 'fontFamily', FONT_FAMILIES)}
@@ -299,8 +348,11 @@ class ReaderMenu extends PureComponent {
               </div>
 
               <div className={styles.row}>
-                <div className={styles.label}>{intl.formatMessage(intlMessages.fontSize)}</div>
+                <div aria-hidden className={styles.label}>
+                  {intl.formatMessage(intlMessages.fontSize)}
+                </div>
                 <select
+                  aria-label={ariaSize}
                   className={styles.select}
                   defaultValue={FONT_SIZES.indexOf(fontSize)}
                   onChange={this.handleSelectChange.bind(this, 'fontSize', FONT_SIZES)}
@@ -318,7 +370,7 @@ class ReaderMenu extends PureComponent {
 
               <div className={styles.row}>
                 <div className={styles.label}>{intl.formatMessage(intlMessages.preview)}</div>
-                <span style={this.getPreviewStyle()}>AaBbCc</span>
+                <span aria-hidden style={this.getPreviewStyle()}>AaBbCc</span>
               </div>
             </div>
           </div>

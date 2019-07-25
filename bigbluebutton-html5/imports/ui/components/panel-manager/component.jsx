@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import BreakoutRoomContainer from '/imports/ui/components/breakout-room/container';
 import UserListContainer from '/imports/ui/components/user-list/container';
@@ -68,7 +68,7 @@ const WAITING_MAX_WIDTH = 800;
 
 const dispatchResizeEvent = () => window.dispatchEvent(new Event('resize'));
 
-class PanelManager extends Component {
+class PanelManager extends PureComponent {
   constructor() {
     super();
 
@@ -124,12 +124,13 @@ class PanelManager extends Component {
 
   renderUserListResizable() {
     const { userlistWidth } = this.state;
+    const { isRTL } = this.props;
 
     const resizableEnableOptions = {
       top: false,
-      right: true,
+      right: !isRTL,
       bottom: false,
-      left: false,
+      left: !!isRTL,
       topRight: false,
       bottomRight: false,
       bottomLeft: false,
@@ -172,12 +173,13 @@ class PanelManager extends Component {
 
   renderChatResizable() {
     const { chatWidth } = this.state;
+    const { isRTL } = this.props;
 
     const resizableEnableOptions = {
       top: false,
-      right: true,
+      right: !isRTL,
       bottom: false,
-      left: false,
+      left: !!isRTL,
       topRight: false,
       bottomRight: false,
       bottomLeft: false,
@@ -220,12 +222,13 @@ class PanelManager extends Component {
 
   renderNoteResizable() {
     const { noteWidth } = this.state;
+    const { isRTL } = this.props;
 
     const resizableEnableOptions = {
       top: false,
-      right: true,
+      right: !isRTL,
       bottom: false,
-      left: false,
+      left: !!isRTL,
       topRight: false,
       bottomRight: false,
       bottomLeft: false,
@@ -268,12 +271,13 @@ class PanelManager extends Component {
 
   renderCaptionsResizable() {
     const { captionsWidth } = this.state;
+    const { isRTL } = this.props;
 
     const resizableEnableOptions = {
       top: false,
-      right: true,
+      right: !isRTL,
       bottom: false,
-      left: false,
+      left: !!isRTL,
       topRight: false,
       bottomRight: false,
       bottomLeft: false,
@@ -316,12 +320,13 @@ class PanelManager extends Component {
 
   renderWaitingUsersPanelResizable() {
     const { waitingWidth } = this.state;
+    const { isRTL } = this.props;
 
     const resizableEnableOptions = {
       top: false,
-      right: true,
+      right: !isRTL,
       bottom: false,
-      left: false,
+      left: !!isRTL,
       topRight: false,
       bottomRight: false,
       bottomLeft: false,
@@ -366,12 +371,13 @@ class PanelManager extends Component {
 
   renderPollResizable() {
     const { pollWidth } = this.state;
+    const { isRTL } = this.props;
 
     const resizableEnableOptions = {
       top: false,
-      right: true,
+      right: !isRTL,
       bottom: false,
-      left: false,
+      left: !!isRTL,
       topRight: false,
       bottomRight: false,
       bottomLeft: false,

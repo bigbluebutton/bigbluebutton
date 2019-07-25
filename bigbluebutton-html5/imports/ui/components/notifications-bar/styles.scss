@@ -33,6 +33,17 @@
   border-color: $border;
 }
 
+.retryButton {
+  background-color: transparent;
+  border: none;
+  cursor: pointer;
+  text-decoration: underline;
+  display: inline;
+  margin: 0;
+  padding: 0;
+  color: var(--nb-primary-color);
+}
+
 .default {
   @include nb-variant(var(--nb-default-color), var(--nb-default-bg), var(--nb-default-border));
 }

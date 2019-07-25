@@ -8,27 +8,6 @@ const MEDIA = Meteor.settings.public.media;
 const MEDIA_TAG = MEDIA.mediaTag.replace(/#/g, '');
 const GLOBAL_AUDIO_PREFIX = 'GLOBAL_AUDIO_';
 
-const logFunc = (type, message, options) => {
-  const topic = options.topic || 'audio';
-
-  logger[type](`[${topic}] ${JSON.stringify(message)} options:${JSON.stringify(options)}`);
-};
-
-const modLogger = {
-  info(message, options = {}) {
-    if (message.id !== 'ping' && options.message && options.message.id !== 'ping') logFunc('info', message, options);
-  },
-  error(message, options = {}) {
-    logFunc('error', message, options);
-  },
-  debug(message, options = {}) {
-    logFunc('debug', message, options);
-  },
-  warn: (message, options = {}) => {
-    logFunc('warn', message, options);
-  },
-};
-
 export default class KurentoAudioBridge extends BaseAudioBridge {
   constructor(userData) {
     super();
@@ -63,15 +42,17 @@ export default class KurentoAudioBridge extends BaseAudioBridge {
       try {
         iceServers = await fetchWebRTCMappedStunTurnServers(this.user.sessionToken);
       } catch (error) {
-        logFunc('error', 'SFU audio bridge failed to fetch STUN/TURN info, using default');
+        logger.error({ logCode: 'sfuaudiobridge_stunturn_fetch_failed' },
+          'SFU audio bridge failed to fetch STUN/TURN info, using default servers');
       } finally {
-        logFunc('info', 'iceServers', iceServers);
+        logger.debug({ logCode: 'sfuaudiobridge_stunturn_fetch_sucess', extraInfo: { iceServers } },
+          'SFU audio bridge got STUN/TURN servers');
         const options = {
           wsUrl: Auth.authenticateURL(SFU_URL),
           userName: this.user.name,
           caleeName: `${GLOBAL_AUDIO_PREFIX}${this.voiceBridge}`,
           iceServers,
-          logger: modLogger,
+          logger,
           inputStream,
         };
 
@@ -83,7 +64,14 @@ export default class KurentoAudioBridge extends BaseAudioBridge {
             audioTag.pause();
             audioTag.srcObject = stream;
             audioTag.muted = false;
-            audioTag.play();
+            audioTag.play().catch((e) => {
+              const tagFailedEvent = new CustomEvent('mediaTagPlayFailed', { detail: { mediaTag: audioTag } });
+              window.dispatchEvent(tagFailedEvent);
+              logger.warn({
+                logCode: 'sfuaudiobridge_play_error',
+                extraInfo: { error: e },
+              }, 'Could not play audio tag, emit mediaTagPlayFailed event');
+            });
           }
           resolve(this.callback({ status: this.baseCallStates.started }));
         };
@@ -125,8 +113,9 @@ export default class KurentoAudioBridge extends BaseAudioBridge {
       try {
         await audioContext.setSinkId(value);
         this.media.outputDeviceId = value;
-      } catch (err) {
-        logger.error({ logCode: 'audio_kurento_changeoutputdevice_error' }, err);
+      } catch (error) {
+        logger.error({ logCode: 'sfuaudiobridge_changeoutputdevice_error', extraInfo: { error } },
+          'SFU audio bridge failed to fetch STUN/TURN info, using default');
         throw new Error(this.baseErrorCodes.MEDIA_ERROR);
       }
     }

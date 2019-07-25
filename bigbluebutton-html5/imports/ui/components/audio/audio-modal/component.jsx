@@ -37,11 +37,19 @@ const propTypes = {
   joinFullAudioImmediately: PropTypes.bool.isRequired,
   joinFullAudioEchoTest: PropTypes.bool.isRequired,
   forceListenOnlyAttendee: PropTypes.bool.isRequired,
+  audioLocked: PropTypes.bool.isRequired,
+  resolve: PropTypes.func,
+  isMobileNative: PropTypes.bool.isRequired,
+  isIOSChrome: PropTypes.bool.isRequired,
+  isIEOrEdge: PropTypes.bool.isRequired,
+  hasMediaDevices: PropTypes.bool.isRequired,
+  formattedTelVoice: PropTypes.string.isRequired,
 };
 
 const defaultProps = {
   inputDeviceId: null,
   outputDeviceId: null,
+  resolve: null,
 };
 
 const intlMessages = defineMessages({
@@ -341,12 +349,12 @@ class AudioModal extends Component {
     const {
       isEchoTest,
       intl,
-      isIOSChrome,
+      hasMediaDevices,
     } = this.props;
 
     const { content } = this.state;
 
-    if (isIOSChrome) {
+    if (!hasMediaDevices) {
       return (
         <div>
           <div className={styles.warning}>!</div>

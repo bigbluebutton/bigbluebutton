@@ -1,5 +1,5 @@
 import _ from 'lodash';
-import React, { Component } from 'react';
+import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import { defineMessages, intlShape } from 'react-intl';
 import Button from '/imports/ui/components/button/component';
@@ -13,8 +13,6 @@ import { withModalMounter } from '/imports/ui/components/modal/service';
 import withShortcutHelper from '/imports/ui/components/shortcut-help/service';
 import { styles } from '../styles';
 import ExternalVideoModal from '/imports/ui/components/external-video-player/modal/container';
-import CaptionsWriterMenu from '/imports/ui/components/captions/writer-menu/container';
-import CaptionsService from '/imports/ui/components/captions/service';
 
 const propTypes = {
   isUserPresenter: PropTypes.bool.isRequired,
@@ -40,14 +38,6 @@ const intlMessages = defineMessages({
     id: 'app.actionsBar.actionsDropdown.presentationDesc',
     description: 'adds context to upload presentation option',
   },
-  desktopShareLabel: {
-    id: 'app.actionsBar.actionsDropdown.desktopShareLabel',
-    description: 'Desktop Share option label',
-  },
-  stopDesktopShareLabel: {
-    id: 'app.actionsBar.actionsDropdown.stopDesktopShareLabel',
-    description: 'Stop Desktop Share option label',
-  },
   desktopShareDesc: {
     id: 'app.actionsBar.actionsDropdown.desktopShareDesc',
     description: 'adds context to desktop share option',
@@ -72,14 +62,6 @@ const intlMessages = defineMessages({
     id: 'app.actionsBar.actionsDropdown.takePresenterDesc',
     description: 'Description of take presenter role option',
   },
-  captionsLabel: {
-    id: 'app.actionsBar.actionsDropdown.captionsLabel',
-    description: 'Captions menu toggle label',
-  },
-  captionsDesc: {
-    id: 'app.actionsBar.actionsDropdown.captionsDesc',
-    description: 'Captions menu toggle description',
-  },
   startExternalVideoLabel: {
     id: 'app.actionsBar.actionsDropdown.shareExternalVideo',
     description: 'Start sharing external video button',
@@ -90,18 +72,16 @@ const intlMessages = defineMessages({
   },
 });
 
-class ActionsDropdown extends Component {
+class ActionsDropdown extends PureComponent {
   constructor(props) {
     super(props);
 
     this.presentationItemId = _.uniqueId('action-item-');
     this.pollId = _.uniqueId('action-item-');
-    this.captionsId = _.uniqueId('action-item-');
     this.takePresenterId = _.uniqueId('action-item-');
 
     this.handlePresentationClick = this.handlePresentationClick.bind(this);
     this.handleExternalVideoClick = this.handleExternalVideoClick.bind(this);
-    this.handleCaptionsClick = this.handleCaptionsClick.bind(this);
   }
 
   componentWillUpdate(nextProps) {
@@ -119,6 +99,7 @@ class ActionsDropdown extends Component {
       allowExternalVideo,
       handleTakePresenter,
       isSharingVideo,
+      isPollingEnabled,
       stopExternalVideoShare,
     } = this.props;
 
@@ -127,8 +108,6 @@ class ActionsDropdown extends Component {
       pollBtnDesc,
       presentationLabel,
       presentationDesc,
-      captionsLabel,
-      captionsDesc,
       takePresenter,
       takePresenterDesc,
     } = intlMessages;
@@ -138,7 +117,7 @@ class ActionsDropdown extends Component {
     } = intl;
 
     return _.compact([
-      (isUserPresenter
+      (isUserPresenter && isPollingEnabled
         ? (
           <DropdownListItem
             icon="polling"
@@ -154,7 +133,9 @@ class ActionsDropdown extends Component {
             }}
           />
         )
-        : (
+        : null),
+      (!isUserPresenter
+        ? (
           <DropdownListItem
             icon="presentation"
             label={formatMessage(takePresenter)}
@@ -162,18 +143,8 @@ class ActionsDropdown extends Component {
             key={this.takePresenterId}
             onClick={() => handleTakePresenter()}
           />
-        )),
-      (CaptionsService.isCaptionsEnabled()
-        ? (
-          <DropdownListItem
-            icon="closed_caption"
-            label={formatMessage(captionsLabel)}
-            description={formatMessage(captionsDesc)}
-            key={this.captionsId}
-            onClick={this.handleCaptionsClick}
-          />
-        ) : null
-      ),
+        )
+        : null),
       (isUserPresenter
         ? (
           <DropdownListItem
@@ -206,11 +177,6 @@ class ActionsDropdown extends Component {
     mountModal(<ExternalVideoModal />);
   }
 
-  handleCaptionsClick() {
-    const { mountModal } = this.props;
-    mountModal(<CaptionsWriterMenu />);
-  }
-
   handlePresentationClick() {
     const { mountModal } = this.props;
     mountModal(<PresentationUploaderContainer />);
@@ -222,11 +188,12 @@ class ActionsDropdown extends Component {
       isUserPresenter,
       isUserModerator,
       shortcuts: OPEN_ACTIONS_AK,
+      isMeteorConnected,
     } = this.props;
 
     const availableActions = this.getAvailableActions();
 
-    if ((!isUserPresenter && !isUserModerator) || availableActions.length === 0) return null;
+    if ((!isUserPresenter && !isUserModerator) || availableActions.length === 0 || !isMeteorConnected) return null;
 
     return (
       <Dropdown ref={(ref) => { this._dropdown = ref; }}>

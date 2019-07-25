@@ -10,6 +10,8 @@ const createPadURL = padId => `${BASE_URL}/createPad?apikey=${ETHERPAD.apikey}&p
 
 const getReadOnlyIdURL = padId => `${BASE_URL}/getReadOnlyID?apikey=${ETHERPAD.apikey}&padID=${padId}`;
 
+const appendTextURL = (padId, text) => `${BASE_URL}/appendText?apikey=${ETHERPAD.apikey}&padID=${padId}&text=${encodeURIComponent(text)}`;
+
 const generateNoteId = (meetingId) => {
   const noteId = hashFNV32a(meetingId, true);
   return noteId;
@@ -27,9 +29,7 @@ const getDataFromResponse = (data, key) => {
   return null;
 };
 
-const isNotePad = (padId) => {
-  return padId.search(TOKEN);
-};
+const isNotePad = padId => padId.search(TOKEN);
 
 const processForNotePadOnly = fn => (message, ...args) => {
   const { body } = message;
@@ -48,5 +48,6 @@ export {
   getReadOnlyIdURL,
   isEnabled,
   getDataFromResponse,
+  appendTextURL,
   processForNotePadOnly,
 };

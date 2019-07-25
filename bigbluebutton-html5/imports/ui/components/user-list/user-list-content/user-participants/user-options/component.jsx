@@ -11,6 +11,9 @@ import DropdownList from '/imports/ui/components/dropdown/list/component';
 import DropdownListItem from '/imports/ui/components/dropdown/list/item/component';
 import LockViewersContainer from '/imports/ui/components/lock-viewers/container';
 import BreakoutRoom from '/imports/ui/components/actions-bar/create-breakout-room/container';
+import CaptionsService from '/imports/ui/components/captions/service';
+import CaptionsWriterMenu from '/imports/ui/components/captions/writer-menu/container';
+import DropdownListSeparator from '/imports/ui/components/dropdown/list/separator/component';
 import { styles } from './styles';
 
 const propTypes = {
@@ -90,6 +93,14 @@ const intlMessages = defineMessages({
     id: 'app.actionsBar.actionsDropdown.saveUserNames',
     description: 'Save user name feature description',
   },
+  captionsLabel: {
+    id: 'app.actionsBar.actionsDropdown.captionsLabel',
+    description: 'Captions menu toggle label',
+  },
+  captionsDesc: {
+    id: 'app.actionsBar.actionsDropdown.captionsDesc',
+    description: 'Captions menu toggle description',
+  },
 });
 
 class UserOptions extends PureComponent {
@@ -106,10 +117,12 @@ class UserOptions extends PureComponent {
     this.lockId = _.uniqueId('list-item-');
     this.createBreakoutId = _.uniqueId('list-item-');
     this.saveUsersNameId = _.uniqueId('list-item-');
+    this.captionsId = _.uniqueId('list-item-');
 
     this.onActionsShow = this.onActionsShow.bind(this);
     this.onActionsHide = this.onActionsHide.bind(this);
     this.handleCreateBreakoutRoomClick = this.handleCreateBreakoutRoomClick.bind(this);
+    this.handleCaptionsClick = this.handleCaptionsClick.bind(this);
     this.onCreateBreakouts = this.onCreateBreakouts.bind(this);
     this.onInvitationUsers = this.onInvitationUsers.bind(this);
     this.renderMenuItems = this.renderMenuItems.bind(this);
@@ -167,6 +180,11 @@ class UserOptions extends PureComponent {
     );
   }
 
+  handleCaptionsClick() {
+    const { mountModal } = this.props;
+    mountModal(<CaptionsWriterMenu />);
+  }
+
   renderMenuItems() {
     const {
       intl,
@@ -181,34 +199,39 @@ class UserOptions extends PureComponent {
       getUsersNotAssigned,
       isUserModerator,
       users,
+      isMeteorConnected,
     } = this.props;
 
     const canCreateBreakout = isUserModerator
-    && !meetingIsBreakout
-    && !hasBreakoutRoom
-    && isBreakoutEnabled;
+      && !meetingIsBreakout
+      && !hasBreakoutRoom
+      && isBreakoutEnabled;
 
     const canInviteUsers = isUserModerator
-    && !meetingIsBreakout
-    && hasBreakoutRoom
-    && getUsersNotAssigned(users).length;
+      && !meetingIsBreakout
+      && hasBreakoutRoom
+      && getUsersNotAssigned(users).length;
 
     this.menuItems = _.compact([
-      (<DropdownListItem
-        key={this.clearStatusId}
-        icon="clear_status"
-        label={intl.formatMessage(intlMessages.clearAllLabel)}
-        description={intl.formatMessage(intlMessages.clearAllDesc)}
-        onClick={toggleStatus}
-      />),
-      (<DropdownListItem
-        key={this.muteAllId}
-        icon={isMeetingMuted ? 'unmute' : 'mute'}
-        label={intl.formatMessage(intlMessages[isMeetingMuted ? 'unmuteAllLabel' : 'muteAllLabel'])}
-        description={intl.formatMessage(intlMessages[isMeetingMuted ? 'unmuteAllDesc' : 'muteAllDesc'])}
-        onClick={toggleMuteAllUsers}
-      />),
-      (!isMeetingMuted ? (
+      (isMeteorConnected ? (
+        <DropdownListItem
+          key={this.clearStatusId}
+          icon="clear_status"
+          label={intl.formatMessage(intlMessages.clearAllLabel)}
+          description={intl.formatMessage(intlMessages.clearAllDesc)}
+          onClick={toggleStatus}
+        />) : null
+      ),
+      (isMeteorConnected ? (
+        <DropdownListItem
+          key={this.muteAllId}
+          icon={isMeetingMuted ? 'unmute' : 'mute'}
+          label={intl.formatMessage(intlMessages[isMeetingMuted ? 'unmuteAllLabel' : 'muteAllLabel'])}
+          description={intl.formatMessage(intlMessages[isMeetingMuted ? 'unmuteAllDesc' : 'muteAllDesc'])}
+          onClick={toggleMuteAllUsers}
+        />) : null
+      ),
+      (!isMeetingMuted && isMeteorConnected ? (
         <DropdownListItem
           key={this.muteId}
           icon="mute"
@@ -217,34 +240,6 @@ class UserOptions extends PureComponent {
           onClick={toggleMuteAllUsersExceptPresenter}
         />) : null
       ),
-      (<DropdownListItem
-        key={this.lockId}
-        icon="lock"
-        label={intl.formatMessage(intlMessages.lockViewersLabel)}
-        description={intl.formatMessage(intlMessages.lockViewersDesc)}
-        onClick={() => mountModal(<LockViewersContainer />)}
-      />),
-      (canCreateBreakout
-        ? (
-          <DropdownListItem
-            key={this.createBreakoutId}
-            icon="rooms"
-            label={intl.formatMessage(intlMessages.createBreakoutRoom)}
-            description={intl.formatMessage(intlMessages.createBreakoutRoomDesc)}
-            onClick={this.onCreateBreakouts}
-          />
-        ) : null
-      ),
-      (canInviteUsers
-        ? (
-          <DropdownListItem
-            icon="rooms"
-            label={intl.formatMessage(intlMessages.invitationItem)}
-            key={this.createBreakoutId}
-            onClick={this.onInvitationUsers}
-          />
-        )
-        : null),
       (isUserModerator
         ? (
           <DropdownListItem
@@ -252,6 +247,44 @@ class UserOptions extends PureComponent {
             label={intl.formatMessage(intlMessages.saveUserNames)}
             key={this.saveUsersNameId}
             onClick={this.onSaveUserNames}
+          />)
+        : null
+      ),
+      (isMeteorConnected ? (
+        <DropdownListItem
+          key={this.lockId}
+          icon="lock"
+          label={intl.formatMessage(intlMessages.lockViewersLabel)}
+          description={intl.formatMessage(intlMessages.lockViewersDesc)}
+          onClick={() => mountModal(<LockViewersContainer />)}
+        />) : null
+      ),
+      (isMeteorConnected ? <DropdownListSeparator key={_.uniqueId('list-separator-')} /> : null),
+      (canCreateBreakout && isMeteorConnected ? (
+        <DropdownListItem
+          key={this.createBreakoutId}
+          icon="rooms"
+          label={intl.formatMessage(intlMessages.createBreakoutRoom)}
+          description={intl.formatMessage(intlMessages.createBreakoutRoomDesc)}
+          onClick={this.onCreateBreakouts}
+        />) : null
+      ),
+      (canInviteUsers && isMeteorConnected ? (
+        <DropdownListItem
+          icon="rooms"
+          label={intl.formatMessage(intlMessages.invitationItem)}
+          key={this.createBreakoutId}
+          onClick={this.onInvitationUsers}
+        />) : null
+      ),
+      (isUserModerator && CaptionsService.isCaptionsEnabled() && isMeteorConnected
+        ? (
+          <DropdownListItem
+            icon="closed_caption"
+            label={intl.formatMessage(intlMessages.captionsLabel)}
+            description={intl.formatMessage(intlMessages.captionsDesc)}
+            key={this.captionsId}
+            onClick={this.handleCaptionsClick}
           />
         )
         : null),

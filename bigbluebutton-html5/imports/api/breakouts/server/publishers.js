@@ -3,6 +3,8 @@ import Breakouts from '/imports/api/breakouts';
 import Users from '/imports/api/users';
 import Logger from '/imports/startup/server/logger';
 
+const ROLE_MODERATOR = Meteor.settings.public.user.role_moderator;
+
 function breakouts(credentials, moderator = false) {
   const {
     meetingId,
@@ -12,7 +14,7 @@ function breakouts(credentials, moderator = false) {
 
   if (moderator) {
     const User = Users.findOne({ userId: requesterUserId });
-    if (!!User && User.moderator) {
+    if (!!User && User.role === ROLE_MODERATOR) {
       const presenterSelector = {
         $or: [
           { parentMeetingId: meetingId },

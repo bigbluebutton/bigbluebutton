@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { Fragment } from 'react';
 import cx from 'classnames';
 import Button from '/imports/ui/components/button/component';
 import Toggle from '/imports/ui/components/switch/component';
@@ -7,6 +7,7 @@ import BaseMenu from '../base/component';
 import { styles } from '../styles';
 
 const MIN_FONTSIZE = 0;
+const CHAT_ENABLED = Meteor.settings.public.chat.enabled;
 
 const intlMessages = defineMessages({
   applicationSectionTitle: {
@@ -48,10 +49,6 @@ const intlMessages = defineMessages({
   languageLabel: {
     id: 'app.submenu.application.languageLabel',
     description: 'displayed label for changing application locale',
-  },
-  ariaLanguageLabel: {
-    id: 'app.submenu.application.ariaLanguageLabel',
-    description: 'aria label for locale change section',
   },
   currentValue: {
     id: 'app.submenu.application.currentSize',
@@ -199,45 +196,50 @@ class ApplicationMenu extends BaseMenu {
             </div>
           </div>
 
-          <div className={styles.row}>
-            <div className={styles.col} aria-hidden="true">
-              <div className={styles.formElement}>
-                <label className={styles.label}>
-                  {intl.formatMessage(intlMessages.audioAlertLabel)}
-                </label>
+          {CHAT_ENABLED
+            ? (<Fragment>
+              <div className={styles.row}>
+                <div className={styles.col} aria-hidden="true">
+                  <div className={styles.formElement}>
+                    <label className={styles.label}>
+                      {intl.formatMessage(intlMessages.audioAlertLabel)}
+                    </label>
+                  </div>
+                </div>
+                <div className={styles.col}>
+                  <div className={cx(styles.formElement, styles.pullContentRight)}>
+                    <Toggle
+                      icons={false}
+                      defaultChecked={this.state.settings.chatAudioAlerts}
+                      onChange={() => this.handleToggle('chatAudioAlerts')}
+                      ariaLabel={intl.formatMessage(intlMessages.audioAlertLabel)}
+                    />
+                  </div>
+                </div>
               </div>
-            </div>
-            <div className={styles.col}>
-              <div className={cx(styles.formElement, styles.pullContentRight)}>
-                <Toggle
-                  icons={false}
-                  defaultChecked={this.state.settings.chatAudioAlerts}
-                  onChange={() => this.handleToggle('chatAudioAlerts')}
-                  ariaLabel={intl.formatMessage(intlMessages.audioAlertLabel)}
-                />
+              <div className={styles.row}>
+                <div className={styles.col} aria-hidden="true">
+                  <div className={styles.formElement}>
+                    <label className={styles.label}>
+                      {intl.formatMessage(intlMessages.pushAlertLabel)}
+                    </label>
+                  </div>
+                </div>
+                <div className={styles.col}>
+                  <div className={cx(styles.formElement, styles.pullContentRight)}>
+                    <Toggle
+                      icons={false}
+                      defaultChecked={this.state.settings.chatPushAlerts}
+                      onChange={() => this.handleToggle('chatPushAlerts')}
+                      ariaLabel={intl.formatMessage(intlMessages.pushAlertLabel)}
+                    />
+                  </div>
+                </div>
               </div>
-            </div>
-          </div>
+            </Fragment>
+            ) : null
+          }
 
-          <div className={styles.row}>
-            <div className={styles.col} aria-hidden="true">
-              <div className={styles.formElement}>
-                <label className={styles.label}>
-                  {intl.formatMessage(intlMessages.pushAlertLabel)}
-                </label>
-              </div>
-            </div>
-            <div className={styles.col}>
-              <div className={cx(styles.formElement, styles.pullContentRight)}>
-                <Toggle
-                  icons={false}
-                  defaultChecked={this.state.settings.chatPushAlerts}
-                  onChange={() => this.handleToggle('chatPushAlerts')}
-                  ariaLabel={intl.formatMessage(intlMessages.pushAlertLabel)}
-                />
-              </div>
-            </div>
-          </div>
 
           <div className={styles.row}>
             <div className={styles.col} aria-hidden="true">
@@ -245,7 +247,7 @@ class ApplicationMenu extends BaseMenu {
                 <label
                   className={styles.label}
                   htmlFor="langSelector"
-                  aria-label={intl.formatMessage(intlMessages.ariaLanguageLabel)}
+                  aria-label={intl.formatMessage(intlMessages.languageLabel)}
                 >
                   {intl.formatMessage(intlMessages.languageLabel)}
                 </label>
@@ -263,7 +265,7 @@ class ApplicationMenu extends BaseMenu {
                   >
                     <option disabled>{intl.formatMessage(intlMessages.languageOptionLabel)}</option>
                     {availableLocales.map((locale, index) => (
-                      <option key={index} value={locale.locale}>
+                      <option key={index} value={locale.locale} lang={locale.locale}>
                         {locale.name}
                       </option>
                     ))}

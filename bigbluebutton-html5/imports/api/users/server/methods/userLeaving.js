@@ -37,6 +37,5 @@ export default function userLeaving(credentials, userId, connectionId) {
   };
 
   Logger.info(`User '${userId}' is leaving meeting '${meetingId}'`);
-
   return RedisPubSub.publishUserMessage(CHANNEL, EVENT_NAME, meetingId, requesterUserId, payload);
 }

@@ -103,7 +103,7 @@
 .info {
   font-size: calc(var(--font-size-base) * .75);
   color: var(--color-gray-light);
-  text-align: right;
+  text-align: left;
   padding: var(--border-size) 0;
 
   [dir="rtl"] & {

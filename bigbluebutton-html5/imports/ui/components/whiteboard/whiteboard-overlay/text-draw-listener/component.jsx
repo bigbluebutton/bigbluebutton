@@ -124,12 +124,17 @@ export default class TextDrawListener extends Component {
       actions,
     } = this.props;
 
-    const textarea = document.getElementById(actions.getCurrentShapeId());
+    const { getCurrentShapeId } = actions;
 
-    if (document.activeElement === textarea) {
-      return true;
+    const textarea = document.getElementById(getCurrentShapeId());
+
+    if (textarea) {
+      if (document.activeElement === textarea) {
+        return true;
+      }
+      textarea.focus();
     }
-    textarea.focus();
+
     return false;
   }
 
@@ -237,7 +242,11 @@ export default class TextDrawListener extends Component {
       actions,
     } = this.props;
 
-    const transformedSvgPoint = actions.getTransformedSvgPoint(clientX, clientY);
+    const {
+      getTransformedSvgPoint,
+    } = actions;
+
+    const transformedSvgPoint = getTransformedSvgPoint(clientX, clientY);
 
     // saving initial X and Y coordinates for further displaying of the textarea
     this.initialX = transformedSvgPoint.x;
@@ -264,6 +273,10 @@ export default class TextDrawListener extends Component {
       return;
     }
 
+    const {
+      getCurrentShapeId,
+    } = actions;
+
     this.currentStatus = DRAW_END;
 
     this.handleDrawText(
@@ -271,7 +284,7 @@ export default class TextDrawListener extends Component {
       this.currentWidth,
       this.currentHeight,
       this.currentStatus,
-      actions.getCurrentShapeId(),
+      getCurrentShapeId(),
       drawSettings.textShapeValue,
     );
 
@@ -315,12 +328,16 @@ export default class TextDrawListener extends Component {
     const {
       actions,
     } = this.props;
+    const {
+      checkIfOutOfBounds,
+      getTransformedSvgPoint,
+    } = actions;
 
     // get the transformed svg coordinate
-    let transformedSvgPoint = actions.getTransformedSvgPoint(clientX, clientY);
+    let transformedSvgPoint = getTransformedSvgPoint(clientX, clientY);
 
     // check if it's out of bounds
-    transformedSvgPoint = actions.checkIfOutOfBounds(transformedSvgPoint);
+    transformedSvgPoint = checkIfOutOfBounds(transformedSvgPoint);
 
     // check if we need to use initial or new coordinates for the top left corner of the rectangle
     const x = transformedSvgPoint.x < this.initialX ? transformedSvgPoint.x : this.initialX;

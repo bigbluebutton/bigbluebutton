@@ -47,7 +47,7 @@ export {
   presenterScreenshareHasEnded,
   presenterScreenshareHasStarted,
   shareScreen,
-  unshareScreen,
   screenShareEndAlert,
+  unshareScreen,
   dataSavingSetting,
 };

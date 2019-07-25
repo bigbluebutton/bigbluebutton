@@ -16,13 +16,17 @@ export function makeCall(name, ...args) {
   const { credentials } = Auth;
 
   return new Promise((resolve, reject) => {
-    Meteor.call(name, credentials, ...args, (error, result) => {
-      if (error) {
-        reject(error);
-      }
+    if (Meteor.status().connected) {
+      Meteor.call(name, credentials, ...args, (error, result) => {
+        if (error) {
+          reject(error);
+        }
 
-      resolve(result);
-    });
+        resolve(result);
+      });
+    } else {
+      reject(new Error('Meteor was not connected'));
+    }
   });
 }
 
@@ -43,15 +47,7 @@ export function call(name, ...args) {
 
 export function log(type = 'error', message, ...args) {
   const { credentials } = Auth;
-  const userInfo = window.navigator;
-  const clientInfo = {
-    language: userInfo.language,
-    userAgent: userInfo.userAgent,
-    screenSize: { width: window.screen.width, height: window.screen.height },
-    windowSize: { width: window.innerWidth, height: window.innerHeight },
-    bbbVersion: Meteor.settings.public.app.bbbServerVersion,
-    location: window.location.href,
-  };
+
   const logContents = { ...args };
   const topic = logContents[0] ? logContents[0].topic : null;
 
@@ -59,7 +55,6 @@ export function log(type = 'error', message, ...args) {
   console.debug(`CLIENT LOG (${topic ? `${type.toUpperCase()}.${topic}` : type.toUpperCase()}): `, messageOrStack, ...args);
 
   Meteor.call('logClient', type, messageOrStack, {
-    clientInfo,
     credentials,
     ...args,
   });

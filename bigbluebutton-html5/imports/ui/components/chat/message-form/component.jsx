@@ -1,15 +1,29 @@
 import React, { PureComponent } from 'react';
-import { defineMessages, injectIntl } from 'react-intl';
+import { defineMessages, injectIntl, intlShape } from 'react-intl';
 import cx from 'classnames';
 import TextareaAutosize from 'react-autosize-textarea';
 import browser from 'browser-detect';
+import PropTypes from 'prop-types';
 import { styles } from './styles.scss';
 import Button from '../../button/component';
 
+
 const propTypes = {
+  intl: intlShape.isRequired,
+  chatId: PropTypes.string.isRequired,
+  disabled: PropTypes.bool.isRequired,
+  minMessageLength: PropTypes.number.isRequired,
+  maxMessageLength: PropTypes.number.isRequired,
+  chatTitle: PropTypes.string.isRequired,
+  chatName: PropTypes.string.isRequired,
+  className: PropTypes.string,
+  chatAreaId: PropTypes.string.isRequired,
+  handleSendMessage: PropTypes.func.isRequired,
+  UnsentMessagesCollection: PropTypes.object.isRequired,
 };
 
 const defaultProps = {
+  className: '',
 };
 
 const messages = defineMessages({
@@ -31,7 +45,12 @@ const messages = defineMessages({
   errorMaxMessageLength: {
     id: 'app.chat.errorMaxMessageLength',
   },
+  errorServerDisconnected: {
+    id: 'app.chat.disconnected',
+  },
 });
+
+const CHAT_ENABLED = Meteor.settings.public.chat.enabled;
 
 class MessageForm extends PureComponent {
   constructor(props) {
@@ -48,6 +67,7 @@ class MessageForm extends PureComponent {
     this.handleMessageChange = this.handleMessageChange.bind(this);
     this.handleMessageKeyDown = this.handleMessageKeyDown.bind(this);
     this.handleSubmit = this.handleSubmit.bind(this);
+    this.setMessageHint = this.setMessageHint.bind(this);
   }
 
   componentDidMount() {
@@ -56,22 +76,30 @@ class MessageForm extends PureComponent {
     this.setMessageState();
 
     if (!mobile) {
-      this.textarea.focus();
+      if (this.textarea) this.textarea.focus();
     }
   }
 
   componentDidUpdate(prevProps) {
-    const { chatId } = this.props;
+    const { chatId, disabled } = this.props;
     const { message } = this.state;
     const { mobile } = this.BROWSER_RESULTS;
 
     if (prevProps.chatId !== chatId && !mobile) {
-      this.textarea.focus();
+      if (this.textarea) this.textarea.focus();
     }
 
     if (prevProps.chatId !== chatId) {
       this.updateUnsentMessagesCollection(prevProps.chatId, message);
       this.setMessageState();
+    }
+
+    if (prevProps.disabled !== disabled && disabled) {
+      this.setMessageHint();
+    }
+
+    if (prevProps.disabled !== disabled && !disabled) {
+      this.setMessageHint();
     }
   }
 
@@ -80,6 +108,14 @@ class MessageForm extends PureComponent {
     const { message } = this.state;
     this.updateUnsentMessagesCollection(chatId, message);
     this.setMessageState();
+  }
+
+  setMessageHint() {
+    const { disabled, intl } = this.props;
+    this.setState({
+      hasErrors: disabled,
+      error: intl.formatMessage(messages.errorServerDisconnected),
+    });
   }
 
   setMessageState() {
@@ -179,7 +215,7 @@ class MessageForm extends PureComponent {
 
     const { hasErrors, error, message } = this.state;
 
-    return (
+    return CHAT_ENABLED ? (
       <form
         ref={(ref) => { this.form = ref; }}
         className={cx(className, styles.form)}
@@ -220,7 +256,7 @@ class MessageForm extends PureComponent {
           {hasErrors ? <span id="message-input-error">{error}</span> : null}
         </div>
       </form>
-    );
+    ) : null;
   }
 }
 

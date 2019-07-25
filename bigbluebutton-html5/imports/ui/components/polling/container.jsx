@@ -11,9 +11,12 @@ const propTypes = {
   pollExists: PropTypes.bool.isRequired,
 };
 
+const POLLING_ENABLED = Meteor.settings.public.poll.enabled;
+
 const PollingContainer = ({ pollExists, ...props }) => {
   const currentUser = Users.findOne({ userId: Auth.userID });
-  if (pollExists && !currentUser.presenter) {
+  const showPolling = pollExists && !currentUser.presenter && POLLING_ENABLED;
+  if (showPolling) {
     return (
       <PollingComponent {...props} />
     );
@@ -30,5 +33,6 @@ export default withTracker(() => {
     handleVote,
     poll,
     pollAnswerIds: Service.pollAnswerIds,
+    isMeteorConnected: Meteor.status().connected,
   });
 })(PollingContainer);

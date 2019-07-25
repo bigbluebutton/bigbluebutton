@@ -12,11 +12,12 @@ const UserListItemContainer = props => <UserListItem {...props} />;
 export default withTracker(({ userId }) => {
   const findUserInBreakout = Breakouts.findOne({ 'joinedUsers.userId': new RegExp(`^${userId}`) });
   const breakoutSequence = (findUserInBreakout || {}).sequence;
-  const Meeting = Meetings.findOne({ MeetingId: Auth.meetingID });
+  const Meeting = Meetings.findOne({ MeetingId: Auth.meetingID }, { fields: { meetingProp: 1 } });
   return {
     user: mapUser(Users.findOne({ userId })),
     userInBreakout: !!findUserInBreakout,
     breakoutSequence,
     meetignIsBreakout: Meeting && Meeting.meetingProp.isBreakout,
+    isMeteorConnected: Meteor.status().connected,
   };
 })(UserListItemContainer);

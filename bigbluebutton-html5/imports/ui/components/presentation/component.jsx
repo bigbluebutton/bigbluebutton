@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import WhiteboardOverlayContainer from '/imports/ui/components/whiteboard/whiteboard-overlay/container';
 import WhiteboardToolbarContainer from '/imports/ui/components/whiteboard/whiteboard-toolbar/container';
@@ -26,7 +26,7 @@ const intlMessages = defineMessages({
   },
 });
 
-class PresentationArea extends Component {
+class PresentationArea extends PureComponent {
   constructor() {
     super();
 
@@ -70,7 +70,6 @@ class PresentationArea extends Component {
     window.addEventListener('resize', () => {
       setTimeout(this.handleResize.bind(this), 0);
     });
-
     this.getInitialPresentationSizes();
   }
 

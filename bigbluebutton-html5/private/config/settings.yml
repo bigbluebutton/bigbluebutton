@@ -19,13 +19,18 @@ public:
     basename: "/html5client"
     askForFeedbackOnLogout: false
     allowUserLookup: false
+    enableNetworkInformation: false
+    enableLimitOfViewersInWebcam: false
+    viewersInWebcam: 8
     ipv4FallbackDomain: ""
+    allowLogout: true
     defaultSettings:
       application:
         animations: true
         chatAudioAlerts: false
         chatPushAlerts: false
         fallbackLocale: en
+        overrideLocale: null
       audio:
         inputDeviceId: undefined
         outputDeviceId: undefined
@@ -72,15 +77,14 @@ public:
         descId: openStatus
     branding:
       displayBrandingArea: false
-    allowHTML5Moderator: true
-    httpsConnection: false
     connectionTimeout: 60000
     showHelpButton: true
-    enableExternalVideo: true
     effectiveConnection:
       - critical
       - danger
       - warning
+  externalVideoPlayer:
+    enabled: true
   networkMonitoring:
     enableNetworkMonitoring: false
     packetLostThreshold: 10
@@ -141,9 +145,11 @@ public:
     toggleRecording: false
     toggleSelfVoice: false
   poll:
+    enabled: true
     max_custom: 5
   captions:
-    enabled: false
+    enabled: true
+    enableDictation: false
     backgroundColor: "#000000"
     fontColor: "#FFFFFF"
     fontFamily: Calibri
@@ -152,6 +158,7 @@ public:
     lines: 2
     time: 5000
   chat:
+    enabled: true
     min_message_length: 1
     max_message_length: 5000
     grouping_messages_window: 10000
@@ -230,7 +237,6 @@ public:
   user:
     role_moderator: MODERATOR
     role_viewer: VIEWER
-    role_presenter: PRESENTER
   whiteboard:
     annotations:
       status:
@@ -314,7 +320,7 @@ public:
   clientLog:
     server: { enabled: true, level: info }
     console: { enabled: true, level: debug }
-    external: { enabled: false, level: info, url: https://LOG_HOST/html5Log, method: POST, throttleInterval: 400 }
+    external: { enabled: false, level: info, url: https://LOG_HOST/html5Log, method: POST, throttleInterval: 400, flushOnClose: true }
 private:
   app:
     host: 127.0.0.1
@@ -351,6 +357,8 @@ private:
   minBrowserVersions:
     - browser: chrome
       version: 59
+    - browser: chromeMobileIOS
+      version: Infinity
     - browser: firefox
       version: 52
     - browser: firefoxMobile
@@ -359,11 +367,11 @@ private:
       version: 17
     - browser: ie
       version: Infinity
+    - browser: safari
+      version: [11, 1]
     - browser: mobileSafari
       version: [11, 1]
     - browser: opera
       version: 46
-    - browser: safari
-      version: [11, 1]
     - browser: electron
       version: [0, 36]
