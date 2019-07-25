@@ -64,7 +64,14 @@ export default class KurentoAudioBridge extends BaseAudioBridge {
             audioTag.pause();
             audioTag.srcObject = stream;
             audioTag.muted = false;
-            audioTag.play();
+            audioTag.play().catch((e) => {
+              const tagFailedEvent = new CustomEvent('mediaTagPlayFailed', { detail: { mediaTag: audioTag } });
+              window.dispatchEvent(tagFailedEvent);
+              logger.warn({
+                logCode: 'sfuaudiobridge_play_error',
+                extraInfo: { error: e },
+              }, 'Could not play audio tag, emit mediaTagPlayFailed event');
+            });
           }
           resolve(this.callback({ status: this.baseCallStates.started }));
         };
