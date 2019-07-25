@@ -58,16 +58,14 @@ class VideoListItem extends Component {
   componentDidUpdate() {
     const playElement = (elem) => {
       if (elem.paused) {
-        const p = elem.play();
-        if (p && (typeof Promise !== 'undefined') && (p instanceof Promise)) {
-          // Catch exception when playing video
-          p.catch((e) => {
-            logger.warn({
-              logCode: 'videolistitem_component_play_error',
-              extraInfo: { error: e },
-            }, 'Could not play video');
-          });
-        }
+        elem.play().catch((error) => {
+          const tagFailedEvent = new CustomEvent('mediaTagPlayFailed', { detail: { mediaTag: elem } });
+          window.dispatchEvent(tagFailedEvent);
+          logger.warn({
+            logCode: 'videolistitem_component_play_error',
+            extraInfo: { error },
+          }, 'Could not play video tag, emit mediaTagPlayFailed event');
+        });
       }
     };
 
