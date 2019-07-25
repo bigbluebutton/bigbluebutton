@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 import Auth from '/imports/ui/services/auth';
 import Service from '/imports/ui/components/actions-bar/service';
 import userListService from '/imports/ui/components/user-list/service';
+import logger from '/imports/startup/client/logger';
 import { defineMessages, injectIntl, intlShape } from 'react-intl';
 import { notify } from '/imports/ui/services/notification';
 import UserOptions from './component';
@@ -43,9 +44,38 @@ const UserOptionsContainer = withTracker((props) => {
     );
   };
 
+  const isMeetingMuteOnStart = () => {
+    const { voiceProp } = meeting;
+    const { muteOnStart } = voiceProp;
+    return muteOnStart;
+  };
+
+  const meetingMuteDisabledLog = () => logger.info({
+    logCode: 'useroptions_unmute_all',
+    extraInfo: { logType: 'moderator_action' },
+  }, 'moderator disabled meeting mute');
+
   return {
-    toggleMuteAllUsers: () => muteAllUsers(Auth.userID),
-    toggleMuteAllUsersExceptPresenter: () => muteAllExceptPresenter(Auth.userID),
+    toggleMuteAllUsers: () => {
+      muteAllUsers(Auth.userID);
+      if (isMeetingMuteOnStart()) {
+        return meetingMuteDisabledLog();
+      }
+      return logger.info({
+        logCode: 'useroptions_mute_all',
+        extraInfo: { logType: 'moderator_action' },
+      }, 'moderator enabled meeting mute, all users muted');
+    },
+    toggleMuteAllUsersExceptPresenter: () => {
+      muteAllExceptPresenter(Auth.userID);
+      if (isMeetingMuteOnStart()) {
+        return meetingMuteDisabledLog();
+      }
+      return logger.info({
+        logCode: 'useroptions_mute_all_except_presenter',
+        extraInfo: { logType: 'moderator_action' },
+      }, 'moderator enabled meeting mute, all users muted except presenter');
+    },
     toggleStatus,
     isMeetingMuted: meeting.voiceProp.muteOnStart,
     isUserPresenter: Service.isUserPresenter(),

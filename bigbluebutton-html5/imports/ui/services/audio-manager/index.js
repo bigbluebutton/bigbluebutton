@@ -1,5 +1,4 @@
 import { Tracker } from 'meteor/tracker';
-import { makeCall } from '/imports/ui/services/api';
 import KurentoBridge from '/imports/api/audio/client/bridge/kurento';
 import Auth from '/imports/ui/services/auth';
 import VoiceUsers from '/imports/api/voice-users';
@@ -138,11 +137,13 @@ class AudioManager {
           extension: ECHO_TEST_NUMBER,
           inputStream: this.inputStream,
         };
+        logger.info({ logCode: 'audiomanager_join_echotest', extraInfo: { logType: 'user_action' } }, 'User requested to join audio conference with mic');
         return this.bridge.joinAudio(callOptions, this.callStateCallback.bind(this));
       });
   }
 
-  async joinListenOnly(retries = 0) {
+  async joinListenOnly(r = 0) {
+    let retries = r;
     this.isListenOnly = true;
     this.isEchoTest = false;
 
@@ -180,6 +181,11 @@ class AudioManager {
     });
 
     const handleListenOnlyError = async (err) => {
+      const error = {
+        type: 'MEDIA_ERROR',
+        message: this.messages.error.MEDIA_ERROR,
+      };
+
       if (iceGatheringTimeout) {
         clearTimeout(iceGatheringTimeout);
       }
@@ -191,11 +197,11 @@ class AudioManager {
           retries,
         },
       }, 'Listen only error');
-      throw {
-        type: 'MEDIA_ERROR',
-        message: this.messages.error.MEDIA_ERROR,
-      };
+
+      throw error;
     };
+
+    logger.info({ logCode: 'audiomanager_join_listenonly', extraInfo: { logType: 'user_action' } }, 'user requested to connect to audio conference as listen only');
 
     return this.onAudioJoining()
       .then(() => Promise.race([
@@ -214,13 +220,16 @@ class AudioManager {
           }
 
           try {
-            await this.joinListenOnly(++retries);
+            retries += 1;
+            await this.joinListenOnly(retries);
           } catch (error) {
             return handleListenOnlyError(error);
           }
         } else {
-          handleListenOnlyError(err);
+          return handleListenOnlyError(err);
         }
+
+        return null;
       });
   }
 
@@ -245,10 +254,6 @@ class AudioManager {
   transferCall() {
     this.onTransferStart();
     return this.bridge.transferCall(this.onAudioJoin.bind(this));
-  }
-
-  toggleMuteMicrophone() {
-    makeCall('toggleSelfVoice');
   }
 
   onAudioJoin() {
@@ -362,9 +367,11 @@ class AudioManager {
       this.listenOnlyAudioContext.close();
     }
 
-    this.listenOnlyAudioContext = window.AudioContext
-      ? new window.AudioContext()
-      : new window.webkitAudioContext();
+    const { AudioContext, WebkitAudioContext } = window;
+
+    this.listenOnlyAudioContext = AudioContext
+      ? new AudioContext()
+      : new WebkitAudioContext();
 
     const dest = this.listenOnlyAudioContext.createMediaStreamDestination();
 
@@ -402,9 +409,11 @@ class AudioManager {
       return Promise.resolve(inputDevice);
     };
 
-    const handleChangeInputDeviceError = () => Promise.reject({
-      type: 'MEDIA_ERROR',
-      message: this.messages.error.MEDIA_ERROR,
+    const handleChangeInputDeviceError = () => new Promise((reject) => {
+      reject({
+        type: 'MEDIA_ERROR',
+        message: this.messages.error.MEDIA_ERROR,
+      });
     });
 
     if (!deviceId) {
