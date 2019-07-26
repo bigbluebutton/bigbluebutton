@@ -130,7 +130,7 @@ class SettingsDropdown extends PureComponent {
   }
 
   componentDidMount() {
-    document.addEventListener('fullscreenchange', () => this.onFullscreenChange());
+    document.documentElement.addEventListener('fullscreenchange', () => this.onFullscreenChange());
   }
 
   onActionsShow() {

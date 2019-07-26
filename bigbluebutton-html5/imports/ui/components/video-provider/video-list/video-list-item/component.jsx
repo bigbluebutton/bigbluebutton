@@ -36,6 +36,7 @@ class VideoListItem extends Component {
       showStats: false,
       stats: { video: {} },
       videoIsReady: false,
+      isFullscreen: false,
     };
 
     this.toggleStats = this.toggleStats.bind(this);
@@ -57,7 +58,7 @@ class VideoListItem extends Component {
     onMount(this.videoTag);
 
     this.videoTag.addEventListener('loadeddata', () => this.setVideoIsReady());
-    document.addEventListener('fullscreenchange', () => this.onFullscreenChange());
+    this.videoContainer.addEventListener('fullscreenchange', () => this.onFullscreenChange());
   }
 
   componentDidUpdate() {
@@ -85,12 +86,15 @@ class VideoListItem extends Component {
   }
 
   onFullscreenChange() {
-    const { webcamDraggableState, webcamDraggableDispatch } = this.props;
-    const isFullscreen = FullscreenService.isFullScreen(this.videoContainer);
-    if (webcamDraggableState.isFullscreen !== isFullscreen) {
+    const { webcamDraggableDispatch } = this.props;
+    const { isFullscreen } = this.state;
+    const serviceIsFullscreen = FullscreenService.isFullScreen(this.videoContainer);
+
+    if (isFullscreen !== serviceIsFullscreen) {
+      this.setState({ isFullscreen: serviceIsFullscreen });
       webcamDraggableDispatch(
         {
-          type: 'setIsFullscreen',
+          type: 'setIsCameraFullscreen',
           value: isFullscreen,
         },
       );
@@ -145,7 +149,8 @@ class VideoListItem extends Component {
   }
 
   renderFullscreenButton() {
-    const { user, webcamDraggableState } = this.props;
+    const { user } = this.props;
+    const { isFullscreen } = this.state;
 
     if (!ALLOW_FULLSCREEN) return null;
 
@@ -153,14 +158,19 @@ class VideoListItem extends Component {
       <FullscreenButtonContainer
         fullscreenRef={this.videoContainer}
         elementName={user.name}
-        isFullscreen={webcamDraggableState.isFullscreen}
+        isFullscreen={isFullscreen}
         dark
       />
     );
   }
 
   render() {
-    const { showStats, stats, videoIsReady } = this.state;
+    const {
+      showStats,
+      stats,
+      videoIsReady,
+      isFullscreen
+    } = this.state;
     const {
       user,
       numOfUsers,
@@ -191,9 +201,9 @@ class VideoListItem extends Component {
             className={cx({
               [styles.media]: true,
               [styles.cursorGrab]: !webcamDraggableState.dragging
-                && !webcamDraggableState.isFullscreen,
+                && !isFullscreen,
               [styles.cursorGrabbing]: webcamDraggableState.dragging
-                && !webcamDraggableState.isFullscreen,
+                && !isFullscreen,
             })}
             ref={(ref) => { this.videoTag = ref; }}
             autoPlay

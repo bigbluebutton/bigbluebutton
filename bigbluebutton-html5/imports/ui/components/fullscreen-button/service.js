@@ -49,4 +49,5 @@ const toggleFullScreen = (ref = null) => {
 export default {
   toggleFullScreen,
   isFullScreen,
+  getFullscreenElement,
 };

@@ -64,7 +64,7 @@ class PresentationArea extends PureComponent {
     });
 
     this.getInitialPresentationSizes();
-    document.addEventListener('fullscreenchange', () => this.onFullscreenChange());
+    this.refPresentationContainer.addEventListener('fullscreenchange', () => this.onFullscreenChange());
   }
 
   componentDidUpdate(prevProps, prevState) {

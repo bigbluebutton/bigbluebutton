@@ -21,7 +21,6 @@ const propTypes = {
   webcamDraggableState: PropTypes.objectOf(Object).isRequired,
   webcamDraggableDispatch: PropTypes.func.isRequired,
   refMediaContainer: PropTypes.shape({ current: PropTypes.instanceOf(Element) }),
-  isFullscreen: PropTypes.bool,
 };
 
 const defaultProps = {
@@ -31,7 +30,6 @@ const defaultProps = {
   disableVideo: false,
   audioModalIsOpen: false,
   refMediaContainer: null,
-  isFullscreen: false,
 };
 
 class WebcamDraggable extends Component {
@@ -44,6 +42,7 @@ class WebcamDraggable extends Component {
 
   componentDidMount() {
     window.addEventListener('resize', _.debounce(this.onResize.bind(this), 500));
+    document.addEventListener('fullscreenchange', () => this.forceUpdate());
   }
 
   componentDidUpdate(prevProps) {
@@ -183,10 +182,9 @@ class WebcamDraggable extends Component {
       hideOverlay,
       disableVideo,
       audioModalIsOpen,
-      isFullscreen,
     } = this.props;
 
-    const { dragging } = webcamDraggableState;
+    const { dragging, isFullscreen } = webcamDraggableState;
     let placement = Storage.getItem('webcamPlacement');
     const lastPosition = Storage.getItem('webcamLastPosition') || { x: 0, y: 0 };
     let position = lastPosition;
