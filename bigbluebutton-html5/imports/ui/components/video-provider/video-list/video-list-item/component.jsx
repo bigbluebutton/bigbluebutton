@@ -95,7 +95,7 @@ class VideoListItem extends Component {
       webcamDraggableDispatch(
         {
           type: 'setIsCameraFullscreen',
-          value: isFullscreen,
+          value: serviceIsFullscreen,
         },
       );
     }
@@ -169,7 +169,7 @@ class VideoListItem extends Component {
       showStats,
       stats,
       videoIsReady,
-      isFullscreen
+      isFullscreen,
     } = this.state;
     const {
       user,

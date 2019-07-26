@@ -184,7 +184,7 @@ class WebcamDraggable extends Component {
       audioModalIsOpen,
     } = this.props;
 
-    const { dragging, isFullscreen } = webcamDraggableState;
+    const { dragging, isCameraFullscreen } = webcamDraggableState;
     let placement = Storage.getItem('webcamPlacement');
     const lastPosition = Storage.getItem('webcamLastPosition') || { x: 0, y: 0 };
     let position = lastPosition;
@@ -203,7 +203,7 @@ class WebcamDraggable extends Component {
       };
     }
 
-    if (swapLayout || isFullscreen || BROWSER_ISMOBILE) {
+    if (swapLayout || isCameraFullscreen || BROWSER_ISMOBILE) {
       position = {
         x: 0,
         y: 0,
@@ -252,14 +252,14 @@ class WebcamDraggable extends Component {
       [styles.dropZoneTop]: true,
       [styles.show]: dragging,
       [styles.hide]: !dragging,
-      [styles.cursorGrabbing]: dragging && !isFullscreen,
+      [styles.cursorGrabbing]: dragging && !isCameraFullscreen,
     });
 
     const dropZoneBottomClassName = cx({
       [styles.dropZoneBottom]: true,
       [styles.show]: dragging,
       [styles.hide]: !dragging,
-      [styles.cursorGrabbing]: dragging && !isFullscreen,
+      [styles.cursorGrabbing]: dragging && !isCameraFullscreen,
     });
 
     const dropZoneBgTopClassName = cx({
@@ -287,7 +287,7 @@ class WebcamDraggable extends Component {
           onStart={this.handleWebcamDragStart}
           onStop={this.handleWebcamDragStop}
           onMouseDown={e => e.preventDefault()}
-          disabled={swapLayout || isFullscreen || BROWSER_ISMOBILE}
+          disabled={swapLayout || isCameraFullscreen || BROWSER_ISMOBILE}
           position={position}
         >
           <div
