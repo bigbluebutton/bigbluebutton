@@ -68,7 +68,7 @@ export default function addUserSettings(credentials, meetingId, userId, settings
   let parameters = {};
   settings.forEach((el) => {
     const settingKey = Object.keys(el).shift();
-    console.log('---------------PARAMETER '+settingKey);
+
     if (currentParameters.includes(settingKey)) {
       if (!Object.keys(parameters).includes(settingKey)) {
         parameters = {
