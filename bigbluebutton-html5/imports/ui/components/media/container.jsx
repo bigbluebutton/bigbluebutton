@@ -122,9 +122,6 @@ export default withModalMounter(withTracker(() => {
     data.children = <ScreenshareContainer />;
   }
 
-  const isFullscreen = Session.get('isFullscreen');
-  data.isFullscreen = isFullscreen;
-
   const usersVideo = VideoService.getAllUsersVideo();
   data.usersVideo = usersVideo;
 

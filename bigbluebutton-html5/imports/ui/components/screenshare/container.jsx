@@ -20,13 +20,11 @@ const ScreenshareContainer = (props) => {
 export default withTracker(() => {
   const user = Users.findOne({ userId: Auth.userID });
   const MappedUser = mapUser(user);
-  const isFullscreen = Session.get('isFullscreen');
   return {
     isPresenter: MappedUser.isPresenter,
     unshareScreen,
     isVideoBroadcasting,
     presenterScreenshareHasStarted,
     presenterScreenshareHasEnded,
-    isFullscreen,
   };
 })(ScreenshareContainer);

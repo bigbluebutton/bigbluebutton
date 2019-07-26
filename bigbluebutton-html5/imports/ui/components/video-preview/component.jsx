@@ -21,12 +21,13 @@ const propTypes = {
   joinVideo: PropTypes.func,
   resolve: PropTypes.func,
   hasMediaDevices: PropTypes.bool.isRequired,
-  webcamDeviceId: PropTypes.string.isRequired,
+  webcamDeviceId: PropTypes.string,
 };
 
 const defaultProps = {
   joinVideo: null,
   resolve: null,
+  webcamDeviceId: null,
 };
 
 const intlMessages = defineMessages({

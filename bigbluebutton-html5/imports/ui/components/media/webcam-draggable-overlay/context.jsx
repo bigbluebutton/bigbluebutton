@@ -24,6 +24,7 @@ const initialState = {
   dragging: false,
   videoRef: null,
   videoListRef: null,
+  isFullscreen: false,
 };
 
 const reducer = (state, action) => {
@@ -110,6 +111,12 @@ const reducer = (state, action) => {
       return {
         ...state,
         dragging: false,
+      };
+    }
+    case 'setIsFullscreen': {
+      return {
+        ...state,
+        isFullscreen: action.value,
       };
     }
     default: {

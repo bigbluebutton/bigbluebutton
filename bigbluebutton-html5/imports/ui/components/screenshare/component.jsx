@@ -2,6 +2,7 @@ import React from 'react';
 import { defineMessages, injectIntl, intlShape } from 'react-intl';
 import PropTypes from 'prop-types';
 import _ from 'lodash';
+import FullscreenService from '../fullscreen-button/service';
 import FullscreenButtonContainer from '../fullscreen-button/container';
 import { styles } from './styles';
 
@@ -19,14 +20,19 @@ class ScreenshareComponent extends React.Component {
     super();
     this.state = {
       loaded: false,
+      isFullscreen: false,
     };
 
     this.onVideoLoad = this.onVideoLoad.bind(this);
+    this.onFullscreenChange = this.onFullscreenChange.bind(this);
   }
 
   componentDidMount() {
     const { presenterScreenshareHasStarted } = this.props;
     presenterScreenshareHasStarted();
+
+    document.onfullscreenchange = () => this.onFullscreenChange();
+    document.addEventListener('fullscreenchange', () => this.onFullscreenChange());
   }
 
   componentWillReceiveProps(nextProps) {
@@ -50,8 +56,17 @@ class ScreenshareComponent extends React.Component {
     this.setState({ loaded: true });
   }
 
+  onFullscreenChange() {
+    const { isFullscreen } = this.state;
+    const newIsFullscreen = FullscreenService.isFullScreen(this.screenshareContainer);
+    if (isFullscreen !== newIsFullscreen) {
+      this.setState({ isFullscreen: newIsFullscreen });
+    }
+  }
+
   renderFullscreenButton() {
-    const { intl, isFullscreen } = this.props;
+    const { intl } = this.props;
+    const { isFullscreen } = this.state;
 
     if (!ALLOW_FULLSCREEN) return null;
 
@@ -109,9 +124,4 @@ ScreenshareComponent.propTypes = {
   unshareScreen: PropTypes.func.isRequired,
   presenterScreenshareHasEnded: PropTypes.func.isRequired,
   presenterScreenshareHasStarted: PropTypes.func.isRequired,
-  isFullscreen: PropTypes.bool,
-};
-
-ScreenshareComponent.defaultProps = {
-  isFullscreen: false,
 };

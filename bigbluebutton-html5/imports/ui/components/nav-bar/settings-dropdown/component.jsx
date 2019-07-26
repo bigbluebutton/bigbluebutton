@@ -16,6 +16,7 @@ import DropdownListItem from '/imports/ui/components/dropdown/list/item/componen
 import DropdownListSeparator from '/imports/ui/components/dropdown/list/separator/component';
 import ShortcutHelpComponent from '/imports/ui/components/shortcut-help/component';
 import withShortcutHelper from '/imports/ui/components/shortcut-help/service';
+import FullscreenService from '../../fullscreen-button/service';
 
 import { styles } from '../styles';
 
@@ -94,7 +95,6 @@ const propTypes = {
   intl: intlShape.isRequired,
   handleToggleFullscreen: PropTypes.func.isRequired,
   mountModal: PropTypes.func.isRequired,
-  isFullscreen: PropTypes.bool,
   noIOSFullscreen: PropTypes.bool,
   amIModerator: PropTypes.bool,
   shortcuts: PropTypes.string,
@@ -103,7 +103,6 @@ const propTypes = {
 };
 
 const defaultProps = {
-  isFullscreen: false,
   noIOSFullscreen: true,
   amIModerator: false,
   shortcuts: '',
@@ -118,6 +117,7 @@ class SettingsDropdown extends PureComponent {
 
     this.state = {
       isSettingOpen: false,
+      isFullscreen: false,
     };
 
     // Set the logout code to 680 because it's not a real code and can be matched on the other side
@@ -126,6 +126,11 @@ class SettingsDropdown extends PureComponent {
     this.onActionsShow = this.onActionsShow.bind(this);
     this.onActionsHide = this.onActionsHide.bind(this);
     this.leaveSession = this.leaveSession.bind(this);
+    this.onFullscreenChange = this.onFullscreenChange.bind(this);
+  }
+
+  componentDidMount() {
+    document.addEventListener('fullscreenchange', () => this.onFullscreenChange());
   }
 
   onActionsShow() {
@@ -140,13 +145,21 @@ class SettingsDropdown extends PureComponent {
     });
   }
 
+  onFullscreenChange() {
+    const { isFullscreen } = this.state;
+    const newIsFullscreen = FullscreenService.isFullScreen(document.documentElement);
+    if (isFullscreen !== newIsFullscreen) {
+      this.setState({ isFullscreen: newIsFullscreen });
+    }
+  }
+
   getFullscreenItem() {
     const {
       intl,
-      isFullscreen,
       noIOSFullscreen,
       handleToggleFullscreen,
     } = this.props;
+    const { isFullscreen } = this.state;
 
     if (noIOSFullscreen || !ALLOW_FULLSCREEN) return null;
 

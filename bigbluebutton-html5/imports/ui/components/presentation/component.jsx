@@ -14,6 +14,7 @@ import { styles } from './styles.scss';
 import MediaService, { shouldEnableSwapLayout } from '../media/service';
 import PresentationCloseButton from './presentation-close-button/component';
 import DownloadPresentationButton from './download-presentation-button/component';
+import FullscreenService from '../fullscreen-button/service';
 import FullscreenButtonContainer from '../fullscreen-button/container';
 
 const intlMessages = defineMessages({
@@ -44,6 +45,7 @@ class PresentationArea extends PureComponent {
         y: 0,
       },
       fitToWidth: false,
+      isFullscreen: false,
     };
 
     this.getSvgRef = this.getSvgRef.bind(this);
@@ -52,6 +54,7 @@ class PresentationArea extends PureComponent {
     this.touchUpdate = this.touchUpdate.bind(this);
     this.pointUpdate = this.pointUpdate.bind(this);
     this.fitToWidthHandler = this.fitToWidthHandler.bind(this);
+    this.onFullscreenChange = this.onFullscreenChange.bind(this);
   }
 
   componentDidMount() {
@@ -61,6 +64,7 @@ class PresentationArea extends PureComponent {
     });
 
     this.getInitialPresentationSizes();
+    document.addEventListener('fullscreenchange', () => this.onFullscreenChange());
   }
 
   componentDidUpdate(prevProps, prevState) {
@@ -89,6 +93,15 @@ class PresentationArea extends PureComponent {
     window.removeEventListener('resize', () => {
       setTimeout(this.handleResize.bind(this), 0);
     });
+  }
+
+  onFullscreenChange() {
+    const { isFullscreen } = this.state;
+    const newIsFullscreen = FullscreenService.isFullScreen(this.refPresentationContainer);
+    if (isFullscreen !== newIsFullscreen) {
+      this.setState({ isFullscreen: newIsFullscreen });
+      window.dispatchEvent(new Event('resize'));
+    }
   }
 
   // returns a ref to the svg element, which is required by a WhiteboardOverlay
@@ -271,7 +284,7 @@ class PresentationArea extends PureComponent {
   }
 
   renderPresentationClose() {
-    const { isFullscreen } = this.props;
+    const { isFullscreen } = this.state;
     if (!shouldEnableSwapLayout() || isFullscreen) {
       return null;
     }
@@ -464,10 +477,9 @@ class PresentationArea extends PureComponent {
     const {
       currentSlide,
       podId,
-      isFullscreen,
     } = this.props;
 
-    const { zoom, fitToWidth } = this.state;
+    const { zoom, fitToWidth, isFullscreen } = this.state;
 
     if (!currentSlide) {
       return null;
@@ -524,8 +536,8 @@ class PresentationArea extends PureComponent {
     const {
       intl,
       userIsPresenter,
-      isFullscreen,
     } = this.props;
+    const { isFullscreen } = this.state;
 
     if (userIsPresenter || !ALLOW_FULLSCREEN) return null;
 

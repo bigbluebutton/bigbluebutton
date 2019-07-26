@@ -10,7 +10,6 @@ const VideoProviderContainer = ({ children, ...props }) => {
 };
 
 export default withTracker((props) => {
-  const isFullscreen = Session.get('isFullscreen');
   return {
     cursor: props.cursor,
     swapLayout: props.swapLayout,
@@ -21,6 +20,5 @@ export default withTracker((props) => {
     userName: VideoService.userName(),
     enableVideoStats: getFromUserSettings('enableVideoStats', Meteor.settings.public.kurento.enableVideoStats),
     voiceBridge: VideoService.voiceBridge(),
-    isFullscreen,
   };
 })(VideoProviderContainer);

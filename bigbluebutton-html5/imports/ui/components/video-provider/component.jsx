@@ -115,11 +115,6 @@ const propTypes = {
   userId: PropTypes.string.isRequired,
   intl: PropTypes.objectOf(Object).isRequired,
   enableVideoStats: PropTypes.bool.isRequired,
-  isFullscreen: PropTypes.bool,
-};
-
-const defaultProps = {
-  isFullscreen: false,
 };
 
 class VideoProvider extends Component {
@@ -1158,7 +1153,6 @@ class VideoProvider extends Component {
     const {
       users,
       enableVideoStats,
-      isFullscreen,
     } = this.props;
     return (
       <VideoList
@@ -1167,13 +1161,11 @@ class VideoProvider extends Component {
         getStats={this.getStats}
         stopGettingStats={this.stopGettingStats}
         enableVideoStats={enableVideoStats}
-        isFullscreen={isFullscreen}
       />
     );
   }
 }
 
 VideoProvider.propTypes = propTypes;
-VideoProvider.defaultProps = defaultProps;
 
 export default injectIntl(VideoProvider);
