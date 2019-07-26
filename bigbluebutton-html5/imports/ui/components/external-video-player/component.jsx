@@ -3,11 +3,15 @@ import injectWbResizeEvent from '/imports/ui/components/presentation/resize-wrap
 import { sendMessage, onMessage } from './service';
 import logger from '/imports/startup/client/logger';
 
+import ArcPlayer from './custom-players/arc-player';
+
 import ReactPlayer from 'react-player';
 
 import { styles } from './styles';
 
 const SYNC_INTERVAL_SECONDS = 2;
+
+ReactPlayer.addCustomPlayer(ArcPlayer);
 
 class VideoPlayer extends Component {
   constructor(props) {
