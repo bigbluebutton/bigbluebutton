@@ -38,20 +38,22 @@ const init = (messages, intl) => {
 const currentUser = () => mapUser(Users.findOne({ intId: Auth.userID }));
 
 const toggleMuteMicrophone = () => {
-  makeCall('toggleSelfVoice');
-  const cvu = VoiceUsers.findOne({ meetingId: Auth.meetingID, intId: Auth.userID });
-  if (cvu) {
-    if (cvu.muted) {
-      logger.info({
-        logCode: 'audiomanager_unmute_audio',
-        extraInfo: { logType: 'user_action' },
-      }, 'microphone unmuted by user');
-    } else {
-      logger.info({
-        logCode: 'audiomanager_mute_audio',
-        extraInfo: { logType: 'user_action' },
-      }, 'microphone muted by user');
-    }
+  const userIsMuted = VoiceUsers.findOne({
+    meetingId: Auth.meetingID, intId: Auth.userID,
+  }, { fields: { muted: 1 } });
+
+  if (userIsMuted) {
+    logger.info({
+      logCode: 'audiomanager_unmute_audio',
+      extraInfo: { logType: 'user_action' },
+    }, 'microphone unmuted by user');
+    makeCall('toggleSelfVoice');
+  } else {
+    logger.info({
+      logCode: 'audiomanager_mute_audio',
+      extraInfo: { logType: 'user_action' },
+    }, 'microphone muted by user');
+    makeCall('toggleSelfVoice');
   }
 };
 

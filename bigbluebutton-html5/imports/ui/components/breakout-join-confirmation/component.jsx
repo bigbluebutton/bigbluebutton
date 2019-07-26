@@ -46,7 +46,7 @@ const propTypes = {
   mountModal: PropTypes.func.isRequired,
   breakoutURL: PropTypes.string.isRequired,
   isFreeJoin: PropTypes.bool.isRequired,
-  currentVoiceUser: PropTypes.objectOf(Object).isRequired,
+  voiceUserJoined: PropTypes.bool.isRequired,
   requestJoinURL: PropTypes.func.isRequired,
   breakouts: PropTypes.arrayOf(Object).isRequired,
   breakoutName: PropTypes.string.isRequired,
@@ -71,13 +71,13 @@ class BreakoutJoinConfirmation extends Component {
       mountModal,
       breakoutURL,
       isFreeJoin,
-      currentVoiceUser,
+      voiceUserJoined,
     } = this.props;
 
     const { selectValue } = this.state;
     const url = isFreeJoin ? getURL(selectValue) : breakoutURL;
 
-    if (currentVoiceUser && currentVoiceUser.joined) {
+    if (voiceUserJoined) {
       // leave main room's audio when joining a breakout room
       AudioService.exitAudio();
       logger.info({

@@ -2,9 +2,9 @@ import React from 'react';
 import { withTracker } from 'meteor/react-meteor-data';
 import Breakouts from '/imports/api/breakouts';
 import Auth from '/imports/ui/services/auth';
-import VoiceUsers from '/imports/api/voice-users/';
 import { makeCall } from '/imports/ui/services/api';
 import breakoutService from '/imports/ui/components/breakout-room/service';
+import AudioManager from '/imports/ui/services/audio-manager';
 import BreakoutJoinConfirmationComponent from './component';
 
 const BreakoutJoinConfirmationContrainer = props => (
@@ -35,8 +35,6 @@ export default withTracker(({ breakout, mountModal, breakoutName }) => {
     requestJoinURL(breakoutId);
   }
 
-  const currentVoiceUser = VoiceUsers.findOne({ meetingId: Auth.meetingID, intId: Auth.userID });
-
   return {
     isFreeJoin,
     mountModal,
@@ -45,6 +43,6 @@ export default withTracker(({ breakout, mountModal, breakoutName }) => {
     breakouts: breakoutService.getBreakouts(),
     requestJoinURL,
     getURL,
-    currentVoiceUser,
+    voiceUserJoined: AudioManager.isUsingAudio(),
   };
 })(BreakoutJoinConfirmationContrainer);
