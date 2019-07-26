@@ -367,11 +367,11 @@ class AudioManager {
       this.listenOnlyAudioContext.close();
     }
 
-    const { AudioContext, WebkitAudioContext } = window;
+    const { AudioContext, webkitAudioContext } = window;
 
     this.listenOnlyAudioContext = AudioContext
       ? new AudioContext()
-      : new WebkitAudioContext();
+      : new webkitAudioContext();
 
     const dest = this.listenOnlyAudioContext.createMediaStreamDestination();
 
