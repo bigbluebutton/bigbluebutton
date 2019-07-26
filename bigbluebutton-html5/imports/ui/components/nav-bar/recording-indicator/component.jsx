@@ -69,7 +69,8 @@ class RecordingIndicator extends React.PureComponent {
 
     let recordTitle = '';
     if (!recording) {
-      recordTitle = time > 0 ? intl.formatMessage(intlMessages.resumeTitle)
+      recordTitle = time > 0
+        ? intl.formatMessage(intlMessages.resumeTitle)
         : intl.formatMessage(intlMessages.startTitle);
     } else {
       recordTitle = intl.formatMessage(intlMessages.stopTitle);
@@ -82,35 +83,47 @@ class RecordingIndicator extends React.PureComponent {
 
     const showButton = amIModerator && allowStartStopRecording;
 
+    const recordMeetingButton = (
+      <div
+        aria-label={title}
+        className={recording ? styles.recordingControlON : styles.recordingControlOFF}
+        role="button"
+        tabIndex={0}
+        key="recording-toggle"
+        onClick={recordingToggle}
+        onKeyPress={recordingToggle}
+      >
+        <span
+          className={recording ? styles.recordingIndicatorON : styles.recordingIndicatorOFF}
+        />
+
+        <div className={styles.presentationTitle}>
+          {recording
+            ? (
+              <span className={styles.visuallyHidden}>
+                {`${intl.formatMessage(intlMessages.recordingAriaLabel)} ${humanizeSeconds(time)}`}
+              </span>
+            ) : null
+          }
+          {recording
+            ? <span aria-hidden>{humanizeSeconds(time)}</span> : <span>{recordTitle}</span>}
+        </div>
+      </div>
+    );
+
+    const recordMeetingButtonWithTooltip = (
+      <Tooltip title={intl.formatMessage(intlMessages.stopTitle)}>
+        {recordMeetingButton}
+      </Tooltip>
+    );
+
+    const buttonHasTooltip = recording ? recordMeetingButtonWithTooltip : recordMeetingButton;
+
     return (
       <div className={styles.recordingIndicator}>
-        {showButton ? (
-          <div
-            aria-label={title}
-            className={recording ? styles.recordingControlON : styles.recordingControlOFF}
-            role="button"
-            tabIndex={0}
-            key="recording-toggle"
-            onClick={recordingToggle}
-            onKeyPress={recordingToggle}
-          >
-            <span
-              className={recording ? styles.recordingIndicatorON : styles.recordingIndicatorOFF}
-            />
-
-            <div className={styles.presentationTitle}>
-              {recording
-                ? (
-                  <span className={styles.visuallyHidden}>
-                    {`${intl.formatMessage(intlMessages.recordingAriaLabel)} ${humanizeSeconds(time)}`}
-                  </span>
-                ) : null
-              }
-              {recording
-                ? <span aria-hidden>{humanizeSeconds(time)}</span> : <span>{recordTitle}</span>}
-            </div>
-          </div>
-        ) : null }
+        {showButton
+          ? buttonHasTooltip
+          : null }
 
         {showButton ? null : (
           <Tooltip
