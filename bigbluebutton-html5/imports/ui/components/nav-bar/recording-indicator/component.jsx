@@ -117,12 +117,12 @@ class RecordingIndicator extends React.PureComponent {
       </Tooltip>
     );
 
-    const buttonHasTooltip = recording ? recordMeetingButtonWithTooltip : recordMeetingButton;
+    const recordingButton = recording ? recordMeetingButtonWithTooltip : recordMeetingButton;
 
     return (
       <div className={styles.recordingIndicator}>
         {showButton
-          ? buttonHasTooltip
+          ? recordingButton
           : null }
 
         {showButton ? null : (
