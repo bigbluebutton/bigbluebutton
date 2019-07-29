@@ -3,6 +3,7 @@ import Draggable from 'react-draggable';
 import cx from 'classnames';
 import _ from 'lodash';
 import browser from 'browser-detect';
+import Resizable from 're-resizable';
 import { withDraggableContext } from './context';
 import VideoProviderContainer from '/imports/ui/components/video-provider/container';
 import { styles } from '../styles.scss';
@@ -10,6 +11,8 @@ import Storage from '../../../services/storage/session';
 
 const { webcamsDefaultPlacement } = Meteor.settings.public.layout;
 const BROWSER_ISMOBILE = browser().mobile;
+
+const dispatchResizeEvent = () => window.dispatchEvent(new Event('resize'));
 
 class WebcamDraggable extends Component {
   constructor(props) {
@@ -268,8 +271,22 @@ class WebcamDraggable extends Component {
           disabled={swapLayout || isFullscreen || BROWSER_ISMOBILE}
           position={position}
         >
-          <div
-            className={!swapLayout ? overlayClassName : contentClassName}
+          <Resizable
+            onResize={dispatchResizeEvent}
+            enable={{
+              top: !singleWebcam && placement === 'bottom',
+              right: false,
+              bottom: !singleWebcam && placement === 'top',
+              left: false,
+              topRight: false,
+              bottomRight: false,
+              bottomLeft: false,
+              topLeft: false,
+            }}
+            className={
+              !swapLayout
+                ? overlayClassName
+                : contentClassName}
             style={{
               marginLeft: singleWebcam
                 && !(placement === 'bottom' || placement === 'top')
@@ -281,12 +298,17 @@ class WebcamDraggable extends Component {
                 : 0,
             }}
           >
-            {!disableVideo && !audioModalIsOpen ? (
-              <VideoProviderContainer
-                swapLayout={swapLayout}
-              />
-            ) : null}
-          </div>
+            {
+              !disableVideo
+                && !audioModalIsOpen
+                ? (
+                  <VideoProviderContainer
+                    swapLayout={swapLayout}
+                  />
+                )
+                : null
+            }
+          </Resizable>
         </Draggable>
 
         <div
