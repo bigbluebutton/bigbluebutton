@@ -143,7 +143,6 @@ class JoinHandler extends Component {
 
     if (response.returncode !== 'FAILED') {
       await setAuth(response);
-      await setCustomData(response);
 
       setBannerProps(response);
       setLogoURL(response);
@@ -177,6 +176,7 @@ class JoinHandler extends Component {
       }, 'User faced an error on main.joinRouteHandler.');
     }
     this.setState({ joined: true });
+    await setCustomData(response);
   }
 
   render() {
