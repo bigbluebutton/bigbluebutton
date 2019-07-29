@@ -1,4 +1,4 @@
-import React from 'react';
+import { Component } from 'react';
 import { withTracker } from 'meteor/react-meteor-data';
 import Auth from '/imports/ui/services/auth';
 import logger from '/imports/startup/client/logger';
@@ -17,10 +17,10 @@ const SUBSCRIPTIONS = [
   'users', 'meetings', 'polls', 'presentations', 'slides', 'captions',
   'voiceUsers', 'whiteboard-multi-user', 'screenshare', 'group-chat',
   'presentation-pods', 'users-settings', 'guestUser', 'users-infos', 'note',
-  'network-information', 'ping-pong',
+  'network-information', 'ping-pong', 'local-settings',
 ];
 
-class Subscriptions extends React.Component {
+class Subscriptions extends Component {
   componentDidUpdate() {
     const { subscriptionsReady } = this.props;
     if (subscriptionsReady) {
