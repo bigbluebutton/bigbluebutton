@@ -22,7 +22,7 @@ const ActionsBarContainer = props => <ActionsBar {...props} />;
 export default withTracker(() => {
   const POLLING_ENABLED = Meteor.settings.public.poll.enabled;
 
-  Meetings.find({ meetingId: Auth.meetingID }).observeChanges({
+  Meetings.find({ meetingId: Auth.meetingID }, { fields: { recordProp: 1 } }).observeChanges({
     changed: (id, fields) => {
       if (fields.recordProp && fields.recordProp.recording) {
         this.window.parent.postMessage({ response: 'recordingStarted' }, '*');

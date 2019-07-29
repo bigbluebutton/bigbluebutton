@@ -77,7 +77,11 @@ export default class TextDrawListener extends Component {
   }
 
   componentDidUpdate(prevProps) {
-    const { drawSettings, actions } = this.props;
+    const {
+      drawSettings,
+      actions,
+    } = this.props;
+
     const prevDrawsettings = prevProps.drawSettings;
     const prevTextShapeValue = prevProps.drawSettings.textShapeValue;
 
@@ -116,8 +120,12 @@ export default class TextDrawListener extends Component {
   // returns true if textarea was focused
   // currently used only with iOS devices
   checkTextAreaFocus() {
-    const { actions } = this.props;
+    const {
+      actions,
+    } = this.props;
+
     const { getCurrentShapeId } = actions;
+
     const textarea = document.getElementById(getCurrentShapeId());
 
     if (textarea) {
@@ -131,7 +139,11 @@ export default class TextDrawListener extends Component {
   }
 
   handleTouchStart(event) {
-    const { isDrawing, isWritingText } = this.state;
+    const {
+      isDrawing,
+      isWritingText,
+    } = this.state;
+
     this.hasBeenTouchedRecently = true;
     setTimeout(() => { this.hasBeenTouchedRecently = false; }, 500);
     // to prevent default behavior (scrolling) on devices (in Safari), when you draw a text box
@@ -180,7 +192,11 @@ export default class TextDrawListener extends Component {
 
   // main mouse down handler
   handleMouseDown(event) {
-    const { isDrawing, isWritingText } = this.state;
+    const {
+      isDrawing,
+      isWritingText,
+    } = this.state;
+
     const isLeftClick = event.button === 0;
     const isRightClick = event.button === 2;
 
@@ -222,8 +238,13 @@ export default class TextDrawListener extends Component {
   }
 
   commonDrawStartHandler(clientX, clientY) {
-    const { actions } = this.props;
-    const { getTransformedSvgPoint } = actions;
+    const {
+      actions,
+    } = this.props;
+
+    const {
+      getTransformedSvgPoint,
+    } = actions;
 
     const transformedSvgPoint = getTransformedSvgPoint(clientX, clientY);
 
@@ -239,13 +260,23 @@ export default class TextDrawListener extends Component {
   }
 
   sendLastMessage() {
-    const { isWritingText } = this.state;
-    const { actions, drawSettings } = this.props;
+    const {
+      drawSettings,
+      actions,
+    } = this.props;
+
+    const {
+      isWritingText,
+    } = this.state;
+
     if (!isWritingText) {
       return;
     }
 
-    const { getCurrentShapeId } = actions;
+    const {
+      getCurrentShapeId,
+    } = actions;
+
     this.currentStatus = DRAW_END;
 
     this.handleDrawText(
@@ -261,7 +292,9 @@ export default class TextDrawListener extends Component {
   }
 
   resetState() {
-    const { actions } = this.props;
+    const {
+      actions,
+    } = this.props;
     // resetting the current drawing state
     window.removeEventListener('mouseup', this.handleMouseUp);
     window.removeEventListener('mousemove', this.handleMouseMove, true);
@@ -292,8 +325,13 @@ export default class TextDrawListener extends Component {
   }
 
   commonDrawMoveHandler(clientX, clientY) {
-    const { actions } = this.props;
-    const { checkIfOutOfBounds, getTransformedSvgPoint } = actions;
+    const {
+      actions,
+    } = this.props;
+    const {
+      checkIfOutOfBounds,
+      getTransformedSvgPoint,
+    } = actions;
 
     // get the transformed svg coordinate
     let transformedSvgPoint = getTransformedSvgPoint(clientX, clientY);
@@ -322,9 +360,20 @@ export default class TextDrawListener extends Component {
 
   commonDrawEndHandler() {
     const {
-      isDrawing, isWritingText, textBoxX, textBoxY, textBoxWidth, textBoxHeight,
+      actions,
+      slideWidth,
+      slideHeight,
+    } = this.props;
+
+    const {
+      isDrawing,
+      isWritingText,
+      textBoxX,
+      textBoxY,
+      textBoxWidth,
+      textBoxHeight,
     } = this.state;
-    const { slideWidth, slideHeight, actions } = this.props;
+
     // TODO - find if the size is large enough to display the text area
     if (!isDrawing && isWritingText) {
       return;
@@ -366,10 +415,21 @@ export default class TextDrawListener extends Component {
 
   handleDrawText(startPoint, width, height, status, id, text) {
     const {
-      whiteboardId, userId, actions, drawSettings,
+      whiteboardId,
+      userId,
+      actions,
+      drawSettings,
     } = this.props;
-    const { normalizeFont, sendAnnotation } = actions;
-    const { color, textFontSize } = drawSettings;
+
+    const {
+      normalizeFont,
+      sendAnnotation,
+    } = actions;
+
+    const {
+      color,
+      textFontSize,
+    } = drawSettings;
 
     const annotation = {
       id,
@@ -399,8 +459,16 @@ export default class TextDrawListener extends Component {
   }
 
   discardAnnotation() {
-    const { whiteboardId, actions } = this.props;
-    const { getCurrentShapeId, addAnnotationToDiscardedList, undoAnnotation } = actions;
+    const {
+      whiteboardId,
+      actions,
+    } = this.props;
+
+    const {
+      getCurrentShapeId,
+      addAnnotationToDiscardedList,
+      undoAnnotation,
+    } = actions;
 
     undoAnnotation(whiteboardId);
     addAnnotationToDiscardedList(getCurrentShapeId());
@@ -408,10 +476,20 @@ export default class TextDrawListener extends Component {
 
   render() {
     const {
-      isDrawing, isWritingText, textBoxX, textBoxY, textBoxWidth, textBoxHeight,
+      actions,
+    } = this.props;
+
+    const {
+      textBoxX,
+      textBoxY,
+      textBoxWidth,
+      textBoxHeight,
+      isWritingText,
+      isDrawing,
     } = this.state;
-    const { actions } = this.props;
+
     const { contextMenuHandler } = actions;
+
     const baseName = Meteor.settings.public.app.cdn + Meteor.settings.public.app.basename;
     const textDrawStyle = {
       width: '100%',

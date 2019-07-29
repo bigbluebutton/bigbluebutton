@@ -1,13 +1,11 @@
-import Users from '/imports/api/users';
 import Auth from '/imports/ui/services/auth';
 import { CursorStreamer } from '/imports/api/cursor';
 import { throttle } from 'lodash';
 
 const Cursor = new Mongo.Collection(null);
 
-function updateCursor(meetingId, userId, payload) {
+function updateCursor(userId, payload) {
   const selector = {
-    meetingId,
     userId,
     whiteboardId: payload.whiteboardId,
   };
@@ -15,7 +13,6 @@ function updateCursor(meetingId, userId, payload) {
   const modifier = {
     $set: {
       userId,
-      meetingId,
       ...payload,
     },
   };
@@ -23,10 +20,10 @@ function updateCursor(meetingId, userId, payload) {
   return Cursor.upsert(selector, modifier);
 }
 
-CursorStreamer.on('message', ({ meetingId, cursors }) => {
+CursorStreamer.on('message', ({ meetingID, cursors }) => {
   Object.keys(cursors).forEach((userId) => {
-    if (Auth.meetingID === meetingId && Auth.userID === userId) return;
-    updateCursor(meetingId, userId, cursors[userId]);
+    if (Auth.userID === userId) return;
+    updateCursor(userId, cursors[userId]);
   });
 });
 
@@ -38,7 +35,7 @@ export function publishCursorUpdate(payload) {
     payload,
   });
 
-  return updateCursor(Auth.meetingID, Auth.userID, payload);
+  return updateCursor(Auth.userID, payload);
 }
 
 export default Cursor;
