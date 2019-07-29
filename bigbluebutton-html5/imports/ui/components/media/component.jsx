@@ -87,6 +87,7 @@ export default class Media extends Component {
           className={!swapLayout ? contentClassName : overlayClassName}
           style={{
             maxHeight: usersVideo.length < 1 || floatingOverlay ? '100%' : '80%',
+            minHeight: '20%',
           }}
         >
           {children}

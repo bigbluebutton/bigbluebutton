@@ -4,6 +4,7 @@ import cx from 'classnames';
 import _ from 'lodash';
 import browser from 'browser-detect';
 import PropTypes from 'prop-types';
+import Resizable from 're-resizable';
 import { withDraggableContext } from './context';
 import VideoProviderContainer from '/imports/ui/components/video-provider/container';
 import { styles } from '../styles.scss';
@@ -31,6 +32,7 @@ const defaultProps = {
   audioModalIsOpen: false,
   refMediaContainer: null,
 };
+const dispatchResizeEvent = () => window.dispatchEvent(new Event('resize'));
 
 class WebcamDraggable extends Component {
   constructor(props) {
@@ -301,8 +303,22 @@ class WebcamDraggable extends Component {
           disabled={swapLayout || isCameraFullscreen || BROWSER_ISMOBILE}
           position={position}
         >
-          <div
-            className={!swapLayout ? overlayClassName : contentClassName}
+          <Resizable
+            onResize={dispatchResizeEvent}
+            enable={{
+              top: !singleWebcam && placement === 'bottom',
+              right: false,
+              bottom: !singleWebcam && placement === 'top',
+              left: false,
+              topRight: false,
+              bottomRight: false,
+              bottomLeft: false,
+              topLeft: false,
+            }}
+            className={
+              !swapLayout
+                ? overlayClassName
+                : contentClassName}
             style={{
               marginLeft: singleWebcam
                 && !(placement === 'bottom' || placement === 'top')
@@ -314,12 +330,17 @@ class WebcamDraggable extends Component {
                 : 0,
             }}
           >
-            {!disableVideo && !audioModalIsOpen ? (
-              <VideoProviderContainer
-                swapLayout={swapLayout}
-              />
-            ) : null}
-          </div>
+            {
+              !disableVideo
+                && !audioModalIsOpen
+                ? (
+                  <VideoProviderContainer
+                    swapLayout={swapLayout}
+                  />
+                )
+                : null
+            }
+          </Resizable>
         </Draggable>
 
         <div
