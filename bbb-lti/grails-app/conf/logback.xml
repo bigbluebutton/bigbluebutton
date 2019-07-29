@@ -12,7 +12,7 @@
 		<File>logs/bbb-lti.log</File>
 		<rollingPolicy
 			class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
-			<FileNamePattern>/var/log/bigbluebutton/bbb-lit.%d{yyyy-MM-dd}.log
+			<FileNamePattern>/var/log/bigbluebutton/bbb-lti.%d{yyyy-MM-dd}.log
 			</FileNamePattern>
 			<!-- keep 14 days worth of history -->
 			<MaxHistory>14</MaxHistory>
