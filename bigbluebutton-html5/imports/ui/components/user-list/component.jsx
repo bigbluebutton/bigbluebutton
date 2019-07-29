@@ -6,13 +6,13 @@ import { styles } from './styles.scss';
 import CustomLogo from './custom-logo/component';
 import UserContentContainer from './user-list-content/container';
 
+
 const propTypes = {
   activeChats: PropTypes.arrayOf(String).isRequired,
   compact: PropTypes.bool,
   intl: PropTypes.shape({
     formatMessage: PropTypes.func.isRequired,
   }).isRequired,
-  currentUser: PropTypes.shape({}).isRequired,
   CustomLogoUrl: PropTypes.string.isRequired,
   handleEmojiChange: PropTypes.func.isRequired,
   getUsersId: PropTypes.func.isRequired,
@@ -46,7 +46,6 @@ class UserList extends PureComponent {
       intl,
       activeChats,
       compact,
-      currentUser,
       isBreakoutRoom,
       setEmojiStatus,
       assignPresenter,
@@ -86,7 +85,6 @@ class UserList extends PureComponent {
             intl,
             activeChats,
             compact,
-            currentUser,
             isBreakoutRoom,
             setEmojiStatus,
             assignPresenter,

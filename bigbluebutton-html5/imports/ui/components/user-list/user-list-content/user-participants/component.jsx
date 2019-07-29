@@ -7,7 +7,7 @@ import { styles } from '/imports/ui/components/user-list/user-list-content/style
 import _ from 'lodash';
 import UserListItemContainer from './user-list-item/container';
 import UserOptionsContainer from './user-options/container';
-
+import debugRender from 'react-render-debugger';
 const propTypes = {
   compact: PropTypes.bool,
   intl: PropTypes.shape({
@@ -112,7 +112,6 @@ class UserParticipants extends Component {
     const {
       compact,
       isBreakoutRoom,
-      currentUser,
       meeting,
       getAvailableActions,
       normalizeEmojiName,
@@ -130,8 +129,10 @@ class UserParticipants extends Component {
       hasPrivateChatBetweenUsers,
       toggleUserLock,
       requestUserInformation,
+      user,
     } = this.props;
-
+    console.error(user);
+    
     let index = -1;
 
     return users.map(u => (
@@ -148,7 +149,6 @@ class UserParticipants extends Component {
         <div ref={(node) => { this.userRefs[index += 1] = node; }}>
           <UserListItemContainer
             {...{
-              currentUser,
               compact,
               isBreakoutRoom,
               meeting,
@@ -210,7 +210,7 @@ class UserParticipants extends Component {
                   {users.length}
                   )
                 </h2>
-                {currentUser.isModerator
+                {currentUser.moderator
                   ? (
                     <UserOptionsContainer {...{
                       users,
@@ -218,7 +218,6 @@ class UserParticipants extends Component {
                       muteAllExceptPresenter,
                       setEmojiStatus,
                       meeting,
-                      currentUser,
                     }}
                     />
                   ) : null
@@ -248,4 +247,4 @@ class UserParticipants extends Component {
 UserParticipants.propTypes = propTypes;
 UserParticipants.defaultProps = defaultProps;
 
-export default UserParticipants;
+export default debugRender(UserParticipants);

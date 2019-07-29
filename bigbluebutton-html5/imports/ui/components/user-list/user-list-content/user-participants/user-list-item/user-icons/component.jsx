@@ -15,7 +15,7 @@ const propTypes = {
     name: PropTypes.string.isRequired,
     isPresenter: PropTypes.bool.isRequired,
     isVoiceUser: PropTypes.bool.isRequired,
-    isModerator: PropTypes.bool.isRequired,
+    issModerator: PropTypes.bool.isRequired,
     image: PropTypes.string,
   }).isRequired,
 };

@@ -6,7 +6,8 @@ export default function changeRole(role, userId, meetingId, changedBy) {
     meetingId,
     userId,
   };
-
+  console.error('\n\n');
+  
   const modifier = {
     $set: {
       role,

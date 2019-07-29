@@ -8,7 +8,7 @@ import UserCaptionsContainer from './user-captions/container';
 import WaitingUsers from './waiting-users/component';
 import UserPolls from './user-polls/component';
 import BreakoutRoomItem from './breakout-room/component';
-
+import debugRender from 'react-render-debugger';
 const propTypes = {
   activeChats: PropTypes.arrayOf(String).isRequired,
   compact: PropTypes.bool,
@@ -46,6 +46,16 @@ const defaultProps = {
 const CHAT_ENABLED = Meteor.settings.public.chat.enabled;
 
 class UserContent extends PureComponent {
+
+  constructor(props) {
+    super(props);
+    this.renderCount = 0;
+    this.state = {
+      renderCount: 0,
+      renderLog: '',
+    };
+  }
+
   render() {
     const {
       compact,
@@ -97,7 +107,7 @@ class UserContent extends PureComponent {
           />
           ) : null
         }
-        {currentUser.isModerator
+        {currentUser.moderator
           ? (
             <UserCaptionsContainer
               {...{
@@ -111,7 +121,7 @@ class UserContent extends PureComponent {
             intl,
           }}
         />
-        {pendingUsers.length > 0 && currentUser.isModerator
+        {pendingUsers.length > 0 && currentUser.moderetor
           ? (
             <WaitingUsers
               {...{
@@ -122,13 +132,13 @@ class UserContent extends PureComponent {
           ) : null
         }
         <UserPolls
-          isPresenter={currentUser.isPresenter}
+          isPresenter={currentUser.presenter}
           {...{
             pollIsOpen,
             forcePollOpen,
           }}
         />
-        <BreakoutRoomItem isPresenter={currentUser.isPresenter} hasBreakoutRoom={hasBreakoutRoom} />
+        <BreakoutRoomItem isPresenter={currentUser.presenter} hasBreakoutRoom={hasBreakoutRoom} />
         <UserParticipantsContainer
           {...{
             compact,
@@ -164,4 +174,4 @@ class UserContent extends PureComponent {
 UserContent.propTypes = propTypes;
 UserContent.defaultProps = defaultProps;
 
-export default UserContent;
+export default debugRender(UserContent);

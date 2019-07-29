@@ -11,6 +11,8 @@ import DropdownList from '/imports/ui/components/dropdown/list/component';
 import DropdownListItem from '/imports/ui/components/dropdown/list/item/component';
 import DropdownListSeparator from '/imports/ui/components/dropdown/list/separator/component';
 import lockContextContainer from '/imports/ui/components/lock-viewers/context/container';
+import mapUser from '/imports/ui/services/user/mapUser';
+
 import _ from 'lodash';
 import { Session } from 'meteor/session';
 import { styles } from './styles';
@@ -519,8 +521,7 @@ class UserDropdown extends PureComponent {
     const actions = this.getUsersActions();
 
     const userItemContentsStyle = {};
-
-    const { isModerator } = currentUser;
+    const { moderator } = currentUser;
 
     userItemContentsStyle[styles.dropdown] = true;
     userItemContentsStyle[styles.userListItem] = !isActionsOpen;
@@ -565,7 +566,7 @@ class UserDropdown extends PureComponent {
           {<UserIcons
             {...{
               user,
-              isModerator,
+              isModerator: moderator,
             }}
           />}
         </div>

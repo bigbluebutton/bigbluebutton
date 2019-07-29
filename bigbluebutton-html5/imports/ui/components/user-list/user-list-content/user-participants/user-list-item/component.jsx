@@ -2,12 +2,7 @@ import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import { injectIntl } from 'react-intl';
 import UserDropdown from './user-dropdown/component';
-
 const propTypes = {
-  currentUser: PropTypes.shape({
-    id: PropTypes.string.isRequired,
-  }).isRequired,
-
   compact: PropTypes.bool.isRequired,
   intl: PropTypes.shape({
     formatMessage: PropTypes.func.isRequired,
@@ -63,8 +58,8 @@ class UserListItem extends PureComponent {
         {...{
           assignPresenter,
           compact,
-          currentUser,
           changeRole,
+          currentUser,
           getAvailableActions,
           getEmoji,
           getEmojiList,

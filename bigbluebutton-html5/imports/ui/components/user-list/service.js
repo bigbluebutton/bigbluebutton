@@ -192,7 +192,15 @@ const getUsers = () => {
     .sort(sortUsers);
 };
 
-const getUsersId = () => getUsers().map(u => u.id);
+const getUsersId = () => {
+  const a = Users
+    .find({
+      meetingId: Auth.meetingID,
+      connectionStatus: 'online',
+    }, { fields: { userId: 1 } })
+    .fetch();
+  return a.map(u => u.userId);
+};
 
 const hasBreakoutRoom = () => Breakouts.find({ parentMeetingId: Auth.meetingID }).count() > 0;
 
@@ -292,11 +300,14 @@ const areUsersUnmutable = () => {
 };
 
 const getAvailableActions = (currentUser, user, isBreakoutRoom) => {
+  console.error(currentUser);
+  console.warn(user);
+  
   const isDialInUser = isVoiceOnlyUser(user.id) || user.isPhoneUser;
+  const userIsCurrent = user.id === Auth.userID;
+  const hasAuthority = currentUser.moderator || user.isCurrent;
 
-  const hasAuthority = currentUser.isModerator || user.isCurrent;
-
-  const allowedToChatPrivately = !user.isCurrent && !isDialInUser;
+  const allowedToChatPrivately = !userIsCurrent && !isDialInUser;
 
   const allowedToMuteAudio = hasAuthority
     && user.isVoiceUser
@@ -314,27 +325,27 @@ const getAvailableActions = (currentUser, user, isBreakoutRoom) => {
     && !isDialInUser;
 
   // if currentUser is a moderator, allow removing other users
-  const allowedToRemove = currentUser.isModerator && !user.isCurrent && !isBreakoutRoom;
+  const allowedToRemove = currentUser.moderator && !userIsCurrent && !isBreakoutRoom;
 
-  const allowedToSetPresenter = currentUser.isModerator
+  const allowedToSetPresenter = currentUser.moderator
     && !user.isPresenter
     && !isDialInUser;
 
-  const allowedToPromote = currentUser.isModerator
-    && !user.isCurrent
-    && !user.isModerator
+  const allowedToPromote = currentUser.moderator
+    && !userIsCurrent
+    && !user.moderator
     && !isDialInUser
     && !isBreakoutRoom;
 
-  const allowedToDemote = currentUser.isModerator
-    && !user.isCurrent
+  const allowedToDemote = currentUser.moderator
+    && !userIsCurrent
     && user.isModerator
     && !isDialInUser
     && !isBreakoutRoom;
 
-  const allowedToChangeStatus = user.isCurrent;
+  const allowedToChangeStatus = userIsCurrent;
 
-  const allowedToChangeUserLockStatus = currentUser.isModerator
+  const allowedToChangeUserLockStatus = currentUser.moderator
     && !user.isModerator && isMeetingLocked(Auth.meetingID);
 
   return {

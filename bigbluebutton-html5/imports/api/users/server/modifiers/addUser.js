@@ -40,7 +40,6 @@ export default function addUser(meetingId, user) {
     meetingId,
     userId,
   };
-
   const Meeting = Meetings.findOne({ meetingId });
 
   /* While the akka-apps dont generate a color we just pick one
@@ -62,6 +61,7 @@ export default function addUser(meetingId, user) {
         inactivityCheck: false,
         responseDelay: 0,
         loggedOut: false,
+        moderator: user.role === 'MODERATOR',
       },
       flat(user),
     ),
