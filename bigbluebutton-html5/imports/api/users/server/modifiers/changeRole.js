@@ -11,7 +11,6 @@ export default function changeRole(role, userId, meetingId, changedBy) {
   const modifier = {
     $set: {
       role,
-      moderator: role === ROLE_MODERATOR,
     },
   };
 

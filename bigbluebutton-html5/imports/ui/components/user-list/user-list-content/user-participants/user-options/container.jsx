@@ -5,6 +5,8 @@ import Service from '/imports/ui/components/actions-bar/service';
 import userListService from '/imports/ui/components/user-list/service';
 import { defineMessages, injectIntl, intlShape } from 'react-intl';
 import { notify } from '/imports/ui/services/notification';
+import mapUser from '/imports/ui/services/user/mapUser';
+import Users from '/imports/api/users';
 import UserOptions from './component';
 
 const propTypes = {
@@ -13,9 +15,6 @@ const propTypes = {
   muteAllExceptPresenter: PropTypes.func.isRequired,
   setEmojiStatus: PropTypes.func.isRequired,
   meeting: PropTypes.shape({}).isRequired,
-  currentUser: PropTypes.shape({
-    isModerator: PropTypes.bool.isRequired,
-  }).isRequired,
   intl: intlShape.isRequired,
 };
 
@@ -42,7 +41,7 @@ const UserOptionsContainer = withTracker((props) => {
       intl.formatMessage(intlMessages.clearStatusMessage), 'info', 'clear_status',
     );
   };
-
+  const currentUser = Users.findOne({ userId: Auth.userID });
   return {
     toggleMuteAllUsers: () => muteAllUsers(Auth.userID),
     toggleMuteAllUsersExceptPresenter: () => muteAllExceptPresenter(Auth.userID),
@@ -58,6 +57,7 @@ const UserOptionsContainer = withTracker((props) => {
     users: Service.users(),
     userListService,
     isMeteorConnected: Meteor.status().connected,
+    currentUser: currentUser ? mapUser(currentUser) : {},
   };
 })(UserOptions);
 

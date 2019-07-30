@@ -112,7 +112,7 @@ const propTypes = {
   getScrollContainerRef: PropTypes.func.isRequired,
   toggleUserLock: PropTypes.func.isRequired,
 };
-
+const ROLE_MODERATOR = Meteor.settings.public.user.role_moderator;
 const CHAT_ENABLED = Meteor.settings.public.chat.enabled;
 
 class UserDropdown extends PureComponent {
@@ -520,7 +520,7 @@ class UserDropdown extends PureComponent {
     const actions = this.getUsersActions();
 
     const userItemContentsStyle = {};
-    const { moderator } = currentUser;
+    const { role } = currentUser;
 
     userItemContentsStyle[styles.dropdown] = true;
     userItemContentsStyle[styles.userListItem] = !isActionsOpen;
@@ -565,7 +565,7 @@ class UserDropdown extends PureComponent {
           {<UserIcons
             {...{
               user,
-              isModerator: moderator,
+              isModerator: role === ROLE_MODERATOR,
             }}
           />}
         </div>

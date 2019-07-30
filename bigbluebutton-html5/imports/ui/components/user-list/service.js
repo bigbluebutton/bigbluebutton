@@ -293,7 +293,7 @@ const areUsersUnmutable = () => {
 
 const getAvailableActions = (currentUser, user, isBreakoutRoom) => {
   const isDialInUser = isVoiceOnlyUser(user.id) || user.isPhoneUser;
-  const hasAuthority = currentUser.moderator || user.isCurrent;
+  const hasAuthority = currentUser.role === ROLE_MODERATOR || user.isCurrent;
 
   const allowedToChatPrivately = !user.isCurrent && !isDialInUser;
 
@@ -313,19 +313,19 @@ const getAvailableActions = (currentUser, user, isBreakoutRoom) => {
     && !isDialInUser;
 
   // if currentUser is a moderator, allow removing other users
-  const allowedToRemove = currentUser.moderator && !user.isCurrent && !isBreakoutRoom;
+  const allowedToRemove = currentUser.role === ROLE_MODERATOR && !user.isCurrent && !isBreakoutRoom;
 
-  const allowedToSetPresenter = currentUser.moderator
+  const allowedToSetPresenter = currentUser.role === ROLE_MODERATOR
     && !user.isPresenter
     && !isDialInUser;
 
-  const allowedToPromote = currentUser.moderator
+  const allowedToPromote = currentUser.role === ROLE_MODERATOR
     && !user.isCurrent
     && !user.isModerator
     && !isDialInUser
     && !isBreakoutRoom;
 
-  const allowedToDemote = currentUser.moderator
+  const allowedToDemote = currentUser.role === ROLE_MODERATOR
     && !user.isCurrent
     && user.isModerator
     && !isDialInUser
@@ -333,7 +333,7 @@ const getAvailableActions = (currentUser, user, isBreakoutRoom) => {
 
   const allowedToChangeStatus = user.isCurrent;
 
-  const allowedToChangeUserLockStatus = currentUser.moderator
+  const allowedToChangeUserLockStatus = currentUser.role === ROLE_MODERATOR
     && !user.isModerator && isMeetingLocked(Auth.meetingID);
 
   return {

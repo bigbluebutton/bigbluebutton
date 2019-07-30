@@ -56,6 +56,8 @@ const intlMessages = defineMessages({
   },
 });
 
+const ROLE_MODERATOR = Meteor.settings.public.user.role_moderator;
+
 class UserParticipants extends Component {
   constructor() {
     super();
@@ -208,7 +210,7 @@ class UserParticipants extends Component {
                   {users.length}
                   )
                 </h2>
-                {currentUser.moderator
+                {currentUser.role === ROLE_MODERATOR
                   ? (
                     <UserOptionsContainer {...{
                       users,

@@ -42,7 +42,7 @@ const defaultProps = {
   compact: false,
   isBreakoutRoom: false,
 };
-
+const ROLE_MODERATOR = Meteor.settings.public.user.role_moderator;
 const CHAT_ENABLED = Meteor.settings.public.chat.enabled;
 
 class UserContent extends PureComponent {
@@ -78,7 +78,8 @@ class UserContent extends PureComponent {
       pendingUsers,
       requestUserInformation,
     } = this.props;
-
+    console.error(currentUser);
+    
     return (
       <div
         data-test="userListContent"
@@ -97,7 +98,7 @@ class UserContent extends PureComponent {
           />
           ) : null
         }
-        {currentUser.moderator
+        {currentUser.role === ROLE_MODERATOR
           ? (
             <UserCaptionsContainer
               {...{
@@ -111,7 +112,7 @@ class UserContent extends PureComponent {
             intl,
           }}
         />
-        {pendingUsers.length > 0 && currentUser.moderetor
+        {pendingUsers.length > 0 && currentUser.role === ROLE_MODERATOR
           ? (
             <WaitingUsers
               {...{
