@@ -42,9 +42,7 @@ const UserOptionsContainer = withTracker((props) => {
       intl.formatMessage(intlMessages.clearStatusMessage), 'info', 'clear_status',
     );
   };
-<<<<<<< HEAD
   const currentUser = Users.findOne({ userId: Auth.userID });
-=======
 
   const isMeetingMuteOnStart = () => {
     const { voiceProp } = meeting;
@@ -57,7 +55,6 @@ const UserOptionsContainer = withTracker((props) => {
     extraInfo: { logType: 'moderator_action' },
   }, 'moderator disabled meeting mute');
 
->>>>>>> upstream/master
   return {
     toggleMuteAllUsers: () => {
       muteAllUsers(Auth.userID);
