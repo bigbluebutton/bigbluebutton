@@ -17,13 +17,6 @@ export default withTracker(({ userId }) => {
     user: mapUser(Users.findOne({ userId })),
     userInBreakout: !!findUserInBreakout,
     breakoutSequence,
-    currentUser: Users.findOne({ userId: Auth.userID }, {
-      fields: {
-        role: 1,
-        locked: 1,
-        userId: 1,
-      },
-    }),
     meetignIsBreakout: Meeting && Meeting.meetingProp.isBreakout,
     isMeteorConnected: Meteor.status().connected,
   };

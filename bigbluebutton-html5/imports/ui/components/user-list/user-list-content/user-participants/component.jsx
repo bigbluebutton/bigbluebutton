@@ -131,8 +131,10 @@ class UserParticipants extends Component {
       hasPrivateChatBetweenUsers,
       toggleUserLock,
       requestUserInformation,
+      currentUser,
     } = this.props;
-
+    console.error(currentUser);
+    
     let index = -1;
 
     return users.map(u => (
@@ -167,6 +169,7 @@ class UserParticipants extends Component {
               hasPrivateChatBetweenUsers,
               toggleUserLock,
               requestUserInformation,
+              currentUser,
             }}
             userId={u}
             getScrollContainerRef={this.getScrollContainerRef}
