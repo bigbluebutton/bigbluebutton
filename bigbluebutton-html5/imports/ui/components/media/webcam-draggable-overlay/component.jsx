@@ -38,11 +38,13 @@ class WebcamDraggable extends Component {
 
     this.handleWebcamDragStart = this.handleWebcamDragStart.bind(this);
     this.handleWebcamDragStop = this.handleWebcamDragStop.bind(this);
+    this.onFullscreenChange = this.onFullscreenChange.bind(this);
+    this.debouncedOnResize = _.debounce(this.onResize.bind(this), 500);
   }
 
   componentDidMount() {
-    window.addEventListener('resize', _.debounce(this.onResize.bind(this), 500));
-    document.addEventListener('fullscreenchange', () => this.forceUpdate());
+    window.addEventListener('resize', this.debouncedOnResize);
+    document.addEventListener('fullscreenchange', this.onFullscreenChange);
   }
 
   componentDidUpdate(prevProps) {
@@ -50,6 +52,15 @@ class WebcamDraggable extends Component {
     if (prevProps.swapLayout === true && swapLayout === false) {
       setTimeout(() => this.forceUpdate(), 500);
     }
+  }
+
+  componentWillUnmount() {
+    window.removeEventListener('resize', this.debouncedOnResize);
+    document.removeEventListener('fullscreenchange', this.onFullscreenChange);
+  }
+
+  onFullscreenChange() {
+    this.forceUpdate();
   }
 
   onResize() {

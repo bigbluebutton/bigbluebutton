@@ -31,8 +31,7 @@ class ScreenshareComponent extends React.Component {
     const { presenterScreenshareHasStarted } = this.props;
     presenterScreenshareHasStarted();
 
-    document.onfullscreenchange = () => this.onFullscreenChange();
-    this.screenshareContainer.addEventListener('fullscreenchange', () => this.onFullscreenChange());
+    this.screenshareContainer.addEventListener('fullscreenchange', this.onFullscreenChange);
   }
 
   componentWillReceiveProps(nextProps) {
@@ -50,6 +49,7 @@ class ScreenshareComponent extends React.Component {
     } = this.props;
     presenterScreenshareHasEnded();
     unshareScreen();
+    this.screenshareContainer.removeEventListener('fullscreenchange', this.onFullscreenChange);
   }
 
   onVideoLoad() {

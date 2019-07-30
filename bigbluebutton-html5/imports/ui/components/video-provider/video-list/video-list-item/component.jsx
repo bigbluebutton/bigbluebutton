@@ -57,8 +57,8 @@ class VideoListItem extends Component {
 
     onMount(this.videoTag);
 
-    this.videoTag.addEventListener('loadeddata', () => this.setVideoIsReady());
-    this.videoContainer.addEventListener('fullscreenchange', () => this.onFullscreenChange());
+    this.videoTag.addEventListener('loadeddata', this.setVideoIsReady);
+    this.videoContainer.addEventListener('fullscreenchange', this.onFullscreenChange);
   }
 
   componentDidUpdate() {
@@ -81,6 +81,11 @@ class VideoListItem extends Component {
     if (this.videoTag) {
       playElement(this.videoTag);
     }
+  }
+
+  componentWillUnmount() {
+    this.videoTag.removeEventListener('loadeddata', this.setVideoIsReady);
+    this.videoContainer.removeEventListener('fullscreenchange', this.onFullscreenChange);
   }
 
   onFullscreenChange() {

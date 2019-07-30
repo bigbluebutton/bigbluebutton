@@ -49,6 +49,7 @@ class PresentationArea extends PureComponent {
     this.panAndZoomChanger = this.panAndZoomChanger.bind(this);
     this.fitToWidthHandler = this.fitToWidthHandler.bind(this);
     this.onFullscreenChange = this.onFullscreenChange.bind(this);
+    this.onResize = () => setTimeout(this.handleResize.bind(this), 0);
   }
 
   static getDerivedStateFromProps(props, state) {
@@ -73,11 +74,9 @@ class PresentationArea extends PureComponent {
 
   componentDidMount() {
     // adding an event listener to scale the whiteboard on 'resize' events sent by chat/userlist etc
-    window.addEventListener('resize', () => {
-      setTimeout(this.handleResize.bind(this), 0);
-    });
+    window.addEventListener('resize', this.onResize);
     this.getInitialPresentationSizes();
-    this.refPresentationContainer.addEventListener('fullscreenchange', () => this.onFullscreenChange());
+    this.refPresentationContainer.addEventListener('fullscreenchange', this.onFullscreenChange);
   }
 
   componentDidUpdate(prevProps) {
@@ -93,9 +92,8 @@ class PresentationArea extends PureComponent {
   }
 
   componentWillUnmount() {
-    window.removeEventListener('resize', () => {
-      setTimeout(this.handleResize.bind(this), 0);
-    });
+    window.removeEventListener('resize', this.onResize);
+    this.refPresentationContainer.removeEventListener('fullscreenchange', this.onFullscreenChange);
   }
 
   onFullscreenChange() {
