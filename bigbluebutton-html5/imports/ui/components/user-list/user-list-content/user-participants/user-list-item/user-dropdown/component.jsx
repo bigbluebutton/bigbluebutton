@@ -237,11 +237,11 @@ class UserDropdown extends PureComponent {
 
     const { disablePrivateChat } = lockSettingsProps;
 
-    const enablePrivateChat = currentUser.isModerator
+    const enablePrivateChat = currentUser.role === ROLE_MODERATOR
       ? allowedToChatPrivately
       : allowedToChatPrivately
-      && (!(currentUser.isLocked && disablePrivateChat)
-        || hasPrivateChatBetweenUsers(currentUser, user)
+      && (!(currentUser.locked && disablePrivateChat)
+        || hasPrivateChatBetweenUsers(currentUser.userId, user.id)
         || user.isModerator) && isMeteorConnected;
 
     const { allowUserLookup } = Meteor.settings.public.app;
