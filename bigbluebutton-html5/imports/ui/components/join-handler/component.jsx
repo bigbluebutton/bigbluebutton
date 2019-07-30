@@ -148,6 +148,8 @@ class JoinHandler extends Component {
       setLogoURL(response);
       logUserInfo();
 
+      await setCustomData(response);
+
       if (showParticipantsOnLogin && !deviceInfo.type().isPhone) {
         Session.set('openPanel', 'userlist');
         if (CHAT_ENABLED) {
@@ -176,7 +178,6 @@ class JoinHandler extends Component {
       }, 'User faced an error on main.joinRouteHandler.');
     }
     this.setState({ joined: true });
-    await setCustomData(response);
   }
 
   render() {
