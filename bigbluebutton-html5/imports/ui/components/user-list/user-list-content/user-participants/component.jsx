@@ -133,8 +133,7 @@ class UserParticipants extends Component {
       requestUserInformation,
       currentUser,
     } = this.props;
-    console.error(currentUser);
-    
+
     let index = -1;
 
     return users.map(u => (
