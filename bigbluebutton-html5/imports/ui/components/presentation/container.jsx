@@ -4,6 +4,7 @@ import { getSwapLayout } from '/imports/ui/components/media/service';
 import { notify } from '/imports/ui/services/notification';
 import PresentationAreaService from './service';
 import PresentationArea from './component';
+import PresentationToolbarService from './presentation-toolbar/service';
 
 const PresentationAreaContainer = ({ presentationPodIds, mountPresentationArea, ...props }) => (
   mountPresentationArea && <PresentationArea {...props} />
@@ -24,5 +25,6 @@ export default withTracker(({ podId }) => {
     mountPresentationArea: !!currentSlide,
     currentPresentation: PresentationAreaService.getCurrentPresentation(podId),
     notify,
+    zoomSlide: PresentationToolbarService.zoomSlide,
   };
 })(PresentationAreaContainer);

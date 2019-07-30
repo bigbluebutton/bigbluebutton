@@ -11,6 +11,8 @@ import { EMOJI_STATUSES } from '/imports/utils/statuses';
 import { makeCall } from '/imports/ui/services/api';
 import _ from 'lodash';
 import KEY_CODES from '/imports/utils/keyCodes';
+import AudioService from '/imports/ui/components/audio/service';
+import logger from '/imports/startup/client/logger';
 
 const CHAT_CONFIG = Meteor.settings.public.chat;
 const PUBLIC_GROUP_CHAT_ID = CHAT_CONFIG.public_group_id;
@@ -381,9 +383,13 @@ const removeUser = (userId) => {
 
 const toggleVoice = (userId) => {
   if (userId === Auth.userID) {
-    makeCall('toggleSelfVoice');
+    AudioService.toggleMuteMicrophone();
   } else {
     makeCall('toggleVoice', userId);
+    logger.info({
+      logCode: 'usermenu_option_mute_audio',
+      extraInfo: { logType: 'moderator_action' },
+    }, 'moderator muted user microphone');
   }
 };
 

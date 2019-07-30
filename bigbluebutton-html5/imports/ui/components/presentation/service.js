@@ -143,9 +143,14 @@ const parseCurrentSlideContent = (yesValue, noValue, trueValue, falseValue) => {
 const isPresenter = (podId) => {
   // a main presenter in the meeting always owns a default pod
   if (podId === 'DEFAULT_PRESENTATION_POD') {
+    const options = {
+      filter: {
+        presenter: 1,
+      },
+    };
     const currentUser = Users.findOne({
       userId: Auth.userID,
-    });
+    }, options);
     return currentUser ? currentUser.presenter : false;
   }
 
