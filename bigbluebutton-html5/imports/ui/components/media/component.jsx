@@ -7,13 +7,25 @@ import { styles } from './styles';
 
 const propTypes = {
   children: PropTypes.element.isRequired,
+  usersVideo: PropTypes.arrayOf(Array),
   floatingOverlay: PropTypes.bool,
   hideOverlay: PropTypes.bool,
+  swapLayout: PropTypes.bool,
+  disableVideo: PropTypes.bool,
+  userWasInWebcam: PropTypes.bool,
+  audioModalIsOpen: PropTypes.bool,
+  joinVideo: PropTypes.func,
 };
 
 const defaultProps = {
+  usersVideo: [],
   floatingOverlay: false,
   hideOverlay: true,
+  swapLayout: false,
+  disableVideo: false,
+  userWasInWebcam: false,
+  audioModalIsOpen: false,
+  joinVideo: null,
 };
 
 

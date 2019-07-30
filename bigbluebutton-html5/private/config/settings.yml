@@ -24,6 +24,7 @@ public:
     viewersInWebcam: 8
     ipv4FallbackDomain: ""
     allowLogout: true
+    allowFullscreen: true
     defaultSettings:
       application:
         animations: true

@@ -14,7 +14,8 @@ import DropdownListItem from '/imports/ui/components/dropdown/list/item/componen
 import Icon from '/imports/ui/components/icon/component';
 import logger from '/imports/startup/client/logger';
 import VideoListItemStats from './video-list-item-stats/component';
-import FullscreenButtonContainer from '../../fullscreen-button/container';
+import FullscreenService from '../../../fullscreen-button/service';
+import FullscreenButtonContainer from '../../../fullscreen-button/container';
 import { styles } from '../styles';
 import { withDraggableConsumer } from '../../../media/webcam-draggable-overlay/context';
 
@@ -23,6 +24,8 @@ const intlMessages = defineMessages({
     id: 'app.video.stats.title',
   },
 });
+
+const ALLOW_FULLSCREEN = Meteor.settings.public.app.allowFullscreen;
 
 class VideoListItem extends Component {
   constructor(props) {
@@ -33,11 +36,13 @@ class VideoListItem extends Component {
       showStats: false,
       stats: { video: {} },
       videoIsReady: false,
+      isFullscreen: false,
     };
 
     this.toggleStats = this.toggleStats.bind(this);
     this.setStats = this.setStats.bind(this);
     this.setVideoIsReady = this.setVideoIsReady.bind(this);
+    this.onFullscreenChange = this.onFullscreenChange.bind(this);
   }
 
   componentDidMount() {
@@ -52,7 +57,8 @@ class VideoListItem extends Component {
 
     onMount(this.videoTag);
 
-    this.videoTag.addEventListener('loadeddata', () => this.setVideoIsReady());
+    this.videoTag.addEventListener('loadeddata', this.setVideoIsReady);
+    this.videoContainer.addEventListener('fullscreenchange', this.onFullscreenChange);
   }
 
   componentDidUpdate() {
@@ -74,6 +80,27 @@ class VideoListItem extends Component {
     // see https://bugs.chromium.org/p/chromium/issues/detail?id=382879
     if (this.videoTag) {
       playElement(this.videoTag);
+    }
+  }
+
+  componentWillUnmount() {
+    this.videoTag.removeEventListener('loadeddata', this.setVideoIsReady);
+    this.videoContainer.removeEventListener('fullscreenchange', this.onFullscreenChange);
+  }
+
+  onFullscreenChange() {
+    const { webcamDraggableDispatch } = this.props;
+    const { isFullscreen } = this.state;
+    const serviceIsFullscreen = FullscreenService.isFullScreen(this.videoContainer);
+
+    if (isFullscreen !== serviceIsFullscreen) {
+      this.setState({ isFullscreen: serviceIsFullscreen });
+      webcamDraggableDispatch(
+        {
+          type: 'setIsCameraFullscreen',
+          value: serviceIsFullscreen,
+        },
+      );
     }
   }
 
@@ -126,16 +153,27 @@ class VideoListItem extends Component {
 
   renderFullscreenButton() {
     const { user } = this.props;
+    const { isFullscreen } = this.state;
+
+    if (!ALLOW_FULLSCREEN) return null;
+
     return (
       <FullscreenButtonContainer
-        fullscreenRef={this.videoTag}
+        fullscreenRef={this.videoContainer}
         elementName={user.name}
+        isFullscreen={isFullscreen}
+        dark
       />
     );
   }
 
   render() {
-    const { showStats, stats, videoIsReady } = this.state;
+    const {
+      showStats,
+      stats,
+      videoIsReady,
+      isFullscreen,
+    } = this.state;
     const {
       user,
       numOfUsers,
@@ -153,18 +191,29 @@ class VideoListItem extends Component {
         [styles.talking]: user.isTalking,
       })}
       >
-        {!videoIsReady && <div className={styles.connecting} />}
-        <video
-          muted
-          className={cx({
-            [styles.media]: true,
-            [styles.cursorGrab]: !webcamDraggableState.dragging,
-            [styles.cursorGrabbing]: webcamDraggableState.dragging,
-          })}
-          ref={(ref) => { this.videoTag = ref; }}
-          autoPlay
-          playsInline
-        />
+        {
+          !videoIsReady
+          && <div className={styles.connecting} />
+        }
+        <div
+          className={styles.videoContainer}
+          ref={(ref) => { this.videoContainer = ref; }}
+        >
+          <video
+            muted
+            className={cx({
+              [styles.media]: true,
+              [styles.cursorGrab]: !webcamDraggableState.dragging
+                && !isFullscreen,
+              [styles.cursorGrabbing]: webcamDraggableState.dragging
+                && !isFullscreen,
+            })}
+            ref={(ref) => { this.videoTag = ref; }}
+            autoPlay
+            playsInline
+          />
+          {videoIsReady && this.renderFullscreenButton()}
+        </div>
         <div className={styles.info}>
           {enableVideoMenu && availableActions.length >= 3
             ? (
@@ -203,7 +252,6 @@ class VideoListItem extends Component {
             ? <VideoListItemStats toggleStats={this.toggleStats} stats={stats} />
             : null
         }
-        {videoIsReady && this.renderFullscreenButton()}
       </div>
     );
   }

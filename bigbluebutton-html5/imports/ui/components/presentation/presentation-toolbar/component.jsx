@@ -8,7 +8,7 @@ import { HUNDRED_PERCENT, MAX_PERCENT, STEP } from '/imports/utils/slideCalcUtil
 import cx from 'classnames';
 import { styles } from './styles.scss';
 import ZoomTool from './zoom-tool/component';
-import FullscreenButtonContainer from '../../video-provider/fullscreen-button/container';
+import FullscreenButtonContainer from '../../fullscreen-button/container';
 import Tooltip from '/imports/ui/components/tooltip/component';
 import KEY_CODES from '/imports/utils/keyCodes';
 
@@ -74,6 +74,8 @@ const intlMessages = defineMessages({
     description: 'presentation area element label',
   },
 });
+
+const ALLOW_FULLSCREEN = Meteor.settings.public.app.allowFullscreen;
 
 class PresentationToolbar extends PureComponent {
   constructor(props) {
@@ -318,16 +320,17 @@ class PresentationToolbar extends PureComponent {
               tooltipDistance={tooltipDistance}
             />
             {
-              !isFullscreen
-              && (
-                <FullscreenButtonContainer
-                  fullscreenRef={fullscreenRef}
-                  elementName={intl.formatMessage(intlMessages.presentationLabel)}
-                  tooltipDistance={tooltipDistance}
-                  dark
-                  className={styles.presentationBtn}
-                />
-              )
+              ALLOW_FULLSCREEN
+                ? (
+                  <FullscreenButtonContainer
+                    fullscreenRef={fullscreenRef}
+                    isFullscreen={isFullscreen}
+                    elementName={intl.formatMessage(intlMessages.presentationLabel)}
+                    tooltipDistance={tooltipDistance}
+                    className={styles.presentationBtn}
+                  />
+                )
+                : null
             }
           </div>
         }

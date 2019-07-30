@@ -13,7 +13,8 @@ import { styles } from './styles.scss';
 import MediaService, { shouldEnableSwapLayout } from '../media/service';
 import PresentationCloseButton from './presentation-close-button/component';
 import DownloadPresentationButton from './download-presentation-button/component';
-import FullscreenButtonContainer from '../video-provider/fullscreen-button/container';
+import FullscreenService from '../fullscreen-button/service';
+import FullscreenButtonContainer from '../fullscreen-button/container';
 
 const intlMessages = defineMessages({
   presentationLabel: {
@@ -26,6 +27,8 @@ const intlMessages = defineMessages({
   },
 });
 
+const ALLOW_FULLSCREEN = Meteor.settings.public.app.allowFullscreen;
+
 class PresentationArea extends PureComponent {
   constructor() {
     super();
@@ -36,13 +39,17 @@ class PresentationArea extends PureComponent {
       showSlide: false,
       zoom: 100,
       fitToWidth: false,
+      isFullscreen: false,
     };
 
     this.getSvgRef = this.getSvgRef.bind(this);
+    this.setFitToWidth = this.setFitToWidth.bind(this);
     this.zoomChanger = this.zoomChanger.bind(this);
     this.updateLocalPosition = this.updateLocalPosition.bind(this);
     this.panAndZoomChanger = this.panAndZoomChanger.bind(this);
     this.fitToWidthHandler = this.fitToWidthHandler.bind(this);
+    this.onFullscreenChange = this.onFullscreenChange.bind(this);
+    this.onResize = () => setTimeout(this.handleResize.bind(this), 0);
   }
 
   static getDerivedStateFromProps(props, state) {
@@ -67,10 +74,9 @@ class PresentationArea extends PureComponent {
 
   componentDidMount() {
     // adding an event listener to scale the whiteboard on 'resize' events sent by chat/userlist etc
-    window.addEventListener('resize', () => {
-      setTimeout(this.handleResize.bind(this), 0);
-    });
+    window.addEventListener('resize', this.onResize);
     this.getInitialPresentationSizes();
+    this.refPresentationContainer.addEventListener('fullscreenchange', this.onFullscreenChange);
   }
 
   componentDidUpdate(prevProps) {
@@ -86,9 +92,17 @@ class PresentationArea extends PureComponent {
   }
 
   componentWillUnmount() {
-    window.removeEventListener('resize', () => {
-      setTimeout(this.handleResize.bind(this), 0);
-    });
+    window.removeEventListener('resize', this.onResize);
+    this.refPresentationContainer.removeEventListener('fullscreenchange', this.onFullscreenChange);
+  }
+
+  onFullscreenChange() {
+    const { isFullscreen } = this.state;
+    const newIsFullscreen = FullscreenService.isFullScreen(this.refPresentationContainer);
+    if (isFullscreen !== newIsFullscreen) {
+      this.setState({ isFullscreen: newIsFullscreen });
+      window.dispatchEvent(new Event('resize'));
+    }
   }
 
   // returns a ref to the svg element, which is required by a WhiteboardOverlay
@@ -144,6 +158,10 @@ class PresentationArea extends PureComponent {
         showSlide: true,
       });
     }
+  }
+
+  setFitToWidth(fitToWidth) {
+    this.setState({ fitToWidth });
   }
 
   handleResize() {
@@ -262,7 +280,7 @@ class PresentationArea extends PureComponent {
   }
 
   renderPresentationClose() {
-    const { isFullscreen } = this.props;
+    const { isFullscreen } = this.state;
     if (!shouldEnableSwapLayout() || isFullscreen) {
       return null;
     }
@@ -340,7 +358,6 @@ class PresentationArea extends PureComponent {
     const {
       podId,
       currentSlide,
-      isFullscreen,
       userIsPresenter,
     } = this.props;
 
@@ -395,7 +412,7 @@ class PresentationArea extends PureComponent {
       >
         {this.renderPresentationClose()}
         {this.renderPresentationDownload()}
-        {isFullscreen ? null : this.renderPresentationFullscreen()}
+        {this.renderPresentationFullscreen()}
         <svg
           key={currentSlide.id}
           data-test="whiteboard"
@@ -450,10 +467,9 @@ class PresentationArea extends PureComponent {
     const {
       currentSlide,
       podId,
-      isFullscreen,
     } = this.props;
 
-    const { zoom, fitToWidth } = this.state;
+    const { zoom, fitToWidth, isFullscreen } = this.state;
 
     if (!currentSlide) {
       return null;
@@ -510,13 +526,17 @@ class PresentationArea extends PureComponent {
       intl,
       userIsPresenter,
     } = this.props;
-    if (userIsPresenter) return null;
+    const { isFullscreen } = this.state;
+
+    if (userIsPresenter || !ALLOW_FULLSCREEN) return null;
 
     return (
       <FullscreenButtonContainer
         fullscreenRef={this.refPresentationContainer}
         elementName={intl.formatMessage(intlMessages.presentationLabel)}
+        isFullscreen={isFullscreen}
         dark
+        bottom
       />
     );
   }

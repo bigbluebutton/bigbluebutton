@@ -16,6 +16,7 @@ import DropdownListItem from '/imports/ui/components/dropdown/list/item/componen
 import DropdownListSeparator from '/imports/ui/components/dropdown/list/separator/component';
 import ShortcutHelpComponent from '/imports/ui/components/shortcut-help/component';
 import withShortcutHelper from '/imports/ui/components/shortcut-help/service';
+import FullscreenService from '../../fullscreen-button/service';
 
 import { styles } from '../styles';
 
@@ -94,7 +95,6 @@ const propTypes = {
   intl: intlShape.isRequired,
   handleToggleFullscreen: PropTypes.func.isRequired,
   mountModal: PropTypes.func.isRequired,
-  isFullscreen: PropTypes.bool,
   noIOSFullscreen: PropTypes.bool,
   amIModerator: PropTypes.bool,
   shortcuts: PropTypes.string,
@@ -103,12 +103,13 @@ const propTypes = {
 };
 
 const defaultProps = {
-  isFullscreen: false,
   noIOSFullscreen: true,
   amIModerator: false,
   shortcuts: '',
   isBreakoutRoom: false,
 };
+
+const ALLOW_FULLSCREEN = Meteor.settings.public.app.allowFullscreen;
 
 class SettingsDropdown extends PureComponent {
   constructor(props) {
@@ -116,6 +117,7 @@ class SettingsDropdown extends PureComponent {
 
     this.state = {
       isSettingOpen: false,
+      isFullscreen: false,
     };
 
     // Set the logout code to 680 because it's not a real code and can be matched on the other side
@@ -124,6 +126,15 @@ class SettingsDropdown extends PureComponent {
     this.onActionsShow = this.onActionsShow.bind(this);
     this.onActionsHide = this.onActionsHide.bind(this);
     this.leaveSession = this.leaveSession.bind(this);
+    this.onFullscreenChange = this.onFullscreenChange.bind(this);
+  }
+
+  componentDidMount() {
+    document.documentElement.addEventListener('fullscreenchange', this.onFullscreenChange);
+  }
+
+  componentWillUnmount() {
+    document.documentElement.removeEventListener('fullscreenchange', this.onFullscreenChange);
   }
 
   onActionsShow() {
@@ -138,13 +149,23 @@ class SettingsDropdown extends PureComponent {
     });
   }
 
+  onFullscreenChange() {
+    const { isFullscreen } = this.state;
+    const newIsFullscreen = FullscreenService.isFullScreen(document.documentElement);
+    if (isFullscreen !== newIsFullscreen) {
+      this.setState({ isFullscreen: newIsFullscreen });
+    }
+  }
+
   getFullscreenItem() {
     const {
       intl,
-      isFullscreen,
       noIOSFullscreen,
       handleToggleFullscreen,
     } = this.props;
+    const { isFullscreen } = this.state;
+
+    if (noIOSFullscreen || !ALLOW_FULLSCREEN) return null;
 
     let fullscreenLabel = intl.formatMessage(intlMessages.fullscreenLabel);
     let fullscreenDesc = intl.formatMessage(intlMessages.fullscreenDesc);
@@ -155,8 +176,6 @@ class SettingsDropdown extends PureComponent {
       fullscreenDesc = intl.formatMessage(intlMessages.exitFullscreenDesc);
       fullscreenIcon = 'exit_fullscreen';
     }
-
-    if (noIOSFullscreen) return null;
 
     return (
       <DropdownListItem
@@ -202,7 +221,9 @@ class SettingsDropdown extends PureComponent {
       />
     );
 
-    const shouldRenderLogoutOption = (isMeteorConnected && allowLogoutSetting) ? logoutOption : null;
+    const shouldRenderLogoutOption = (isMeteorConnected && allowLogoutSetting)
+      ? logoutOption
+      : null;
 
     return _.compact([
       this.getFullscreenItem(),
