@@ -22,7 +22,6 @@ const defaultProps = {
 };
 
 class UserListItem extends PureComponent {
-
   render() {
     const {
       user,

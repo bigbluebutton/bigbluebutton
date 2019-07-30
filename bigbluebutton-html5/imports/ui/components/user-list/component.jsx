@@ -6,7 +6,6 @@ import { styles } from './styles.scss';
 import CustomLogo from './custom-logo/component';
 import UserContentContainer from './user-list-content/container';
 
-
 const propTypes = {
   activeChats: PropTypes.arrayOf(String).isRequired,
   compact: PropTypes.bool,

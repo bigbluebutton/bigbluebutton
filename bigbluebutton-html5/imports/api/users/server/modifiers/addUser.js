@@ -15,6 +15,8 @@ const COLOR_LIST = [
   '#0d47a1', '#0277bd', '#01579b',
 ];
 
+const ROLE_MODERATOR = Meteor.settings.public.user.role_moderator;
+
 export default function addUser(meetingId, user) {
   check(meetingId, String);
 
@@ -61,7 +63,7 @@ export default function addUser(meetingId, user) {
         inactivityCheck: false,
         responseDelay: 0,
         loggedOut: false,
-        moderator: user.role === 'MODERATOR',
+        moderator: user.role === ROLE_MODERATOR,
       },
       flat(user),
     ),

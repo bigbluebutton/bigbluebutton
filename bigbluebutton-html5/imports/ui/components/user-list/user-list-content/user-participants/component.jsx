@@ -87,10 +87,6 @@ class UserParticipants extends Component {
     }
   }
 
-  componentDidUpdate(){
-    console.count('utualizei');
-  }
-
   shouldComponentUpdate(nextProps, nextState) {
     const isPropsEqual = _.isEqual(this.props, nextProps);
     const isStateEqual = _.isEqual(this.state, nextState);
@@ -133,9 +129,7 @@ class UserParticipants extends Component {
       hasPrivateChatBetweenUsers,
       toggleUserLock,
       requestUserInformation,
-      user,
     } = this.props;
-    console.error(user);
 
     let index = -1;
 

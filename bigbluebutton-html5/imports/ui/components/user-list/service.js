@@ -192,9 +192,7 @@ const getUsers = () => {
     .sort(sortUsers);
 };
 
-const getUsersId = () => {
-  return getUsers().map(u => u.id);
-};
+const getUsersId = () => getUsers().map(u => u.id);
 
 const hasBreakoutRoom = () => Breakouts.find({ parentMeetingId: Auth.meetingID }).count() > 0;
 
@@ -295,10 +293,9 @@ const areUsersUnmutable = () => {
 
 const getAvailableActions = (currentUser, user, isBreakoutRoom) => {
   const isDialInUser = isVoiceOnlyUser(user.id) || user.isPhoneUser;
-  const userIsCurrent = user.id === Auth.userID;
   const hasAuthority = currentUser.moderator || user.isCurrent;
 
-  const allowedToChatPrivately = !userIsCurrent && !isDialInUser;
+  const allowedToChatPrivately = !user.isCurrent && !isDialInUser;
 
   const allowedToMuteAudio = hasAuthority
     && user.isVoiceUser
@@ -316,25 +313,25 @@ const getAvailableActions = (currentUser, user, isBreakoutRoom) => {
     && !isDialInUser;
 
   // if currentUser is a moderator, allow removing other users
-  const allowedToRemove = currentUser.moderator && !userIsCurrent && !isBreakoutRoom;
+  const allowedToRemove = currentUser.moderator && !user.isCurrent && !isBreakoutRoom;
 
   const allowedToSetPresenter = currentUser.moderator
     && !user.isPresenter
     && !isDialInUser;
 
   const allowedToPromote = currentUser.moderator
-    && !userIsCurrent
+    && !user.isCurrent
     && !user.isModerator
     && !isDialInUser
     && !isBreakoutRoom;
 
   const allowedToDemote = currentUser.moderator
-    && !userIsCurrent
+    && !user.isCurrent
     && user.isModerator
     && !isDialInUser
     && !isBreakoutRoom;
 
-  const allowedToChangeStatus = userIsCurrent;
+  const allowedToChangeStatus = user.isCurrent;
 
   const allowedToChangeUserLockStatus = currentUser.moderator
     && !user.isModerator && isMeetingLocked(Auth.meetingID);

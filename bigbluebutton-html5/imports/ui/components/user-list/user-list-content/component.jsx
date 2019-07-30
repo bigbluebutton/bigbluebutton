@@ -46,7 +46,6 @@ const defaultProps = {
 const CHAT_ENABLED = Meteor.settings.public.chat.enabled;
 
 class UserContent extends PureComponent {
-
   render() {
     const {
       compact,
