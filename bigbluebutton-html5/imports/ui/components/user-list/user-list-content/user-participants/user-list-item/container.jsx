@@ -6,7 +6,6 @@ import Meetings from '/imports/api/meetings';
 import Auth from '/imports/ui/services/auth';
 import mapUser from '/imports/ui/services/user/mapUser';
 import UserListItem from './component';
-import service from '/imports/ui/components/user-list/service';
 
 const UserListItemContainer = props => <UserListItem {...props} />;
 

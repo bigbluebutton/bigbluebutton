@@ -8,7 +8,7 @@ import UserCaptionsContainer from './user-captions/container';
 import WaitingUsers from './waiting-users/component';
 import UserPolls from './user-polls/component';
 import BreakoutRoomItem from './breakout-room/component';
-import debugRender from 'react-render-debugger';
+
 const propTypes = {
   activeChats: PropTypes.arrayOf(String).isRequired,
   compact: PropTypes.bool,
@@ -46,15 +46,6 @@ const defaultProps = {
 const CHAT_ENABLED = Meteor.settings.public.chat.enabled;
 
 class UserContent extends PureComponent {
-
-  constructor(props) {
-    super(props);
-    this.renderCount = 0;
-    this.state = {
-      renderCount: 0,
-      renderLog: '',
-    };
-  }
 
   render() {
     const {
@@ -174,4 +165,4 @@ class UserContent extends PureComponent {
 UserContent.propTypes = propTypes;
 UserContent.defaultProps = defaultProps;
 
-export default debugRender(UserContent);
+export default UserContent;

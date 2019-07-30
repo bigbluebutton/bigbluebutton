@@ -1,16 +1,18 @@
 import Logger from '/imports/startup/server/logger';
 import Users from '/imports/api/users';
 
+const ROLE_MODERATOR = Meteor.settings.public.user.role_moderator;
 export default function changeRole(role, userId, meetingId, changedBy) {
   const selector = {
     meetingId,
     userId,
   };
   console.error('\n\n');
-  
+
   const modifier = {
     $set: {
       role,
+      moderator: role === ROLE_MODERATOR,
     },
   };
 

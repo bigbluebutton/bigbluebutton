@@ -7,7 +7,7 @@ import { styles } from '/imports/ui/components/user-list/user-list-content/style
 import _ from 'lodash';
 import UserListItemContainer from './user-list-item/container';
 import UserOptionsContainer from './user-options/container';
-import debugRender from 'react-render-debugger';
+
 const propTypes = {
   compact: PropTypes.bool,
   intl: PropTypes.shape({
@@ -87,6 +87,10 @@ class UserParticipants extends Component {
     }
   }
 
+  componentDidUpdate(){
+    console.count('utualizei');
+  }
+
   shouldComponentUpdate(nextProps, nextState) {
     const isPropsEqual = _.isEqual(this.props, nextProps);
     const isStateEqual = _.isEqual(this.state, nextState);
@@ -132,7 +136,7 @@ class UserParticipants extends Component {
       user,
     } = this.props;
     console.error(user);
-    
+
     let index = -1;
 
     return users.map(u => (
@@ -247,4 +251,4 @@ class UserParticipants extends Component {
 UserParticipants.propTypes = propTypes;
 UserParticipants.defaultProps = defaultProps;
 
-export default debugRender(UserParticipants);
+export default UserParticipants;

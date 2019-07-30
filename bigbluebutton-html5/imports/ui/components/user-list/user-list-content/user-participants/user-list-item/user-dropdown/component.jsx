@@ -11,7 +11,6 @@ import DropdownList from '/imports/ui/components/dropdown/list/component';
 import DropdownListItem from '/imports/ui/components/dropdown/list/item/component';
 import DropdownListSeparator from '/imports/ui/components/dropdown/list/separator/component';
 import lockContextContainer from '/imports/ui/components/lock-viewers/context/container';
-import mapUser from '/imports/ui/services/user/mapUser';
 
 import _ from 'lodash';
 import { Session } from 'meteor/session';

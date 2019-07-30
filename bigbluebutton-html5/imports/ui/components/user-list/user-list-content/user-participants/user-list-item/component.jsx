@@ -2,6 +2,7 @@ import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import { injectIntl } from 'react-intl';
 import UserDropdown from './user-dropdown/component';
+
 const propTypes = {
   compact: PropTypes.bool.isRequired,
   intl: PropTypes.shape({
@@ -21,6 +22,7 @@ const defaultProps = {
 };
 
 class UserListItem extends PureComponent {
+
   render() {
     const {
       user,

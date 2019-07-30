@@ -193,13 +193,7 @@ const getUsers = () => {
 };
 
 const getUsersId = () => {
-  const a = Users
-    .find({
-      meetingId: Auth.meetingID,
-      connectionStatus: 'online',
-    }, { fields: { userId: 1 } })
-    .fetch();
-  return a.map(u => u.userId);
+  return getUsers().map(u => u.id);
 };
 
 const hasBreakoutRoom = () => Breakouts.find({ parentMeetingId: Auth.meetingID }).count() > 0;
@@ -300,9 +294,6 @@ const areUsersUnmutable = () => {
 };
 
 const getAvailableActions = (currentUser, user, isBreakoutRoom) => {
-  console.error(currentUser);
-  console.warn(user);
-  
   const isDialInUser = isVoiceOnlyUser(user.id) || user.isPhoneUser;
   const userIsCurrent = user.id === Auth.userID;
   const hasAuthority = currentUser.moderator || user.isCurrent;
@@ -333,7 +324,7 @@ const getAvailableActions = (currentUser, user, isBreakoutRoom) => {
 
   const allowedToPromote = currentUser.moderator
     && !userIsCurrent
-    && !user.moderator
+    && !user.isModerator
     && !isDialInUser
     && !isBreakoutRoom;
 
