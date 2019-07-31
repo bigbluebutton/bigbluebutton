@@ -458,11 +458,11 @@ const roving = (event, itemCount, changeState) => {
   }
 };
 
-const hasPrivateChatBetweenUsers = (sender, receiver) => GroupChat
-  .findOne({ users: { $all: [receiver.id, sender.id] } });
+const hasPrivateChatBetweenUsers = (senderId, receiverId) => GroupChat
+  .findOne({ users: { $all: [receiverId, senderId] } });
 
 const getGroupChatPrivate = (sender, receiver) => {
-  if (!hasPrivateChatBetweenUsers(sender, receiver)) {
+  if (!hasPrivateChatBetweenUsers(sender.userId, receiver.id)) {
     makeCall('createGroupChat', receiver);
   }
 };
