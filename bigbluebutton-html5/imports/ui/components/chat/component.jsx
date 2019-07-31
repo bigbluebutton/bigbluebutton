@@ -21,6 +21,18 @@ const intlMessages = defineMessages({
     id: 'app.chat.hideChatLabel',
     description: 'aria-label for hiding chat button',
   },
+  singularTyping: {
+    id: 'app.chat.singularTyping',
+    description: 'used to indicate when 1 user is typing',
+  },
+  pluralTyping: {
+    id: 'app.chat.pluralTyping',
+    description: 'used to indicate when multiple user are typing',
+  },
+  severalPeople: {
+    id: 'app.chat.severalPeople',
+    description: 'displayed when 4 or more users are typing',
+  },
 });
 
 const Chat = (props) => {
@@ -75,9 +87,9 @@ const Chat = (props) => {
 
     if (singleTyper) {
       if (names[0].length < 20) {
-        return `${names[0]} is typing`;
+        return `${names[0]} ${intl.formatMessage(intlMessages.singularTyping)}`;
       }
-      return (`${names[0].slice(0, 20)}... is typing`);
+      return (`${names[0].slice(0, 20)}... ${intl.formatMessage(intlMessages.singularTyping)}`);
     }
 
     if (multipleTypersShown) {
@@ -85,9 +97,9 @@ const Chat = (props) => {
         if (name.length < 15) return name;
         return `${name.slice(0, 15)}...`;
       });
-      return (`${formattedNames} are typing`);
+      return (`${formattedNames} ${intl.formatMessage(intlMessages.pluralTyping)}`);
     }
-    return ('Several people are typing');
+    return (`${intl.formatMessage(intlMessages.severalPeople)} ${intl.formatMessage(intlMessages.pluralTyping)}`);
   };
 
   return (
