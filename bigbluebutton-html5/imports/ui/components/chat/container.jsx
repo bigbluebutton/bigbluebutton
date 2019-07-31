@@ -3,6 +3,8 @@ import { defineMessages, injectIntl } from 'react-intl';
 import { withTracker } from 'meteor/react-meteor-data';
 import { Session } from 'meteor/session';
 import Auth from '/imports/ui/services/auth';
+import Users from '/imports/api/users';
+import { makeCall } from '/imports/ui/services/api';
 import Chat from './component';
 import ChatService from './service';
 
@@ -88,9 +90,11 @@ export default injectIntl(withTracker(({ intl }) => {
     };
 
     const messagesBeforeWelcomeMsg = ChatService.reduceAndMapGroupMessages(
-      messages.filter(message => message.timestamp < time));
+      messages.filter(message => message.timestamp < time),
+    );
     const messagesAfterWelcomeMsg = ChatService.reduceAndMapGroupMessages(
-      messages.filter(message => message.timestamp >= time));
+      messages.filter(message => message.timestamp >= time),
+    );
 
     const messagesFormated = messagesBeforeWelcomeMsg
       .concat(welcomeMsg)
@@ -145,7 +149,31 @@ export default injectIntl(withTracker(({ intl }) => {
 
   const { connected: isMeteorConnected } = Meteor.status();
 
+  const typingUsers = Users.find({
+    meetingId: Auth.meetingID,
+    isTyping: true,
+  }, {
+    fields: {
+      userId: 1,
+      isTypingTo: 1,
+      name: 1,
+    },
+  }).fetch();
+
+  const currentUser = Users.findOne({
+    meetingId: Auth.meetingID,
+    userId: Auth.userID,
+  }, {
+    fields: {
+      userId: 1,
+    },
+  });
+
   return {
+    startUserTyping: chatId => makeCall('startUserTyping', chatId),
+    stopUserTyping: () => makeCall('stopUserTyping'),
+    currentUser,
+    typingUsers,
     chatID,
     chatName,
     title,

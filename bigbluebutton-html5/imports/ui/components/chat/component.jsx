@@ -41,10 +41,54 @@ const Chat = (props) => {
     shortcuts,
     UnsentMessagesCollection,
     isMeteorConnected,
+    typingUsers,
+    currentUser,
+    startUserTyping,
+    stopUserTyping,
   } = props;
 
   const HIDE_CHAT_AK = shortcuts.hidePrivateChat;
   const CLOSE_CHAT_AK = shortcuts.closePrivateChat;
+
+  let names = [];
+  names = typingUsers.map((user) => {
+    const { userId } = currentUser;
+    const { userId: typingUserId, isTypingTo, name } = user;
+    if (userId === typingUserId) return null;
+    if (chatID !== isTypingTo) {
+      if (typingUserId === chatID) {
+        return userId !== isTypingTo
+          ? null : name;
+      }
+      return null;
+    }
+    return name;
+  });
+  names = names.filter(e => e);
+
+  const renderIsTypingString = () => {
+    const { length } = names;
+    const noTypers = length < 1;
+    const singleTyper = length === 1;
+    const multipleTypersShown = length > 1 && length <= 3;
+    if (noTypers) return null;
+
+    if (singleTyper) {
+      if (names[0].length < 20) {
+        return `${names[0]} is typing`;
+      }
+      return (`${names[0].slice(0, 20)}... is typing`);
+    }
+
+    if (multipleTypersShown) {
+      const formattedNames = names.map((name) => {
+        if (name.length < 15) return name;
+        return `${name.slice(0, 15)}...`;
+      });
+      return (`${formattedNames} are typing`);
+    }
+    return ('Several people are typing');
+  };
 
   return (
     <div
@@ -91,25 +135,32 @@ const Chat = (props) => {
         }
       </header>
       <MessageList
-        chatId={chatID}
-        messages={messages}
         id={ELEMENT_ID}
-        scrollPosition={scrollPosition}
-        hasUnreadMessages={hasUnreadMessages}
+        chatId={chatID}
         handleScrollUpdate={actions.handleScrollUpdate}
         handleReadMessage={actions.handleReadMessage}
-        lastReadMessageTime={lastReadMessageTime}
-        partnerIsLoggedOut={partnerIsLoggedOut}
+        {...{
+          partnerIsLoggedOut,
+          lastReadMessageTime,
+          hasUnreadMessages,
+          scrollPosition,
+          messages,
+        }}
       />
       <MessageForm
-        UnsentMessagesCollection={UnsentMessagesCollection}
+        {...{
+          UnsentMessagesCollection,
+          chatName,
+          minMessageLength,
+          maxMessageLength,
+          renderIsTypingString,
+          startUserTyping,
+          stopUserTyping,
+        }}
         chatId={chatID}
-        disabled={isChatLocked || !isMeteorConnected}
-        chatAreaId={ELEMENT_ID}
         chatTitle={title}
-        chatName={chatName}
-        minMessageLength={minMessageLength}
-        maxMessageLength={maxMessageLength}
+        chatAreaId={ELEMENT_ID}
+        disabled={isChatLocked || !isMeteorConnected}
         handleSendMessage={actions.handleSendMessage}
       />
     </div>
