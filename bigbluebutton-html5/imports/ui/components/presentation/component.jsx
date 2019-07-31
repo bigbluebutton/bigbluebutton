@@ -56,8 +56,12 @@ class PresentationArea extends PureComponent {
     const { prevProps } = state;
     const stateChange = { prevProps: props };
 
-    if (props.userIsPresenter && (!prevProps || !prevProps.userIsPresenter) && props.currentSlide) {
-      const potentialZoom = 100 * 100 / props.currentSlide.widthRatio;
+    if (props.userIsPresenter
+      && (!prevProps || !prevProps.userIsPresenter)
+      && props.currentSlide
+      && props.slidePosition) {
+      let potentialZoom = 100 / (props.slidePosition.viewBoxWidth / props.slidePosition.width);
+      potentialZoom = Math.max(HUNDRED_PERCENT, Math.min(MAX_PERCENT, potentialZoom));
       stateChange.zoom = potentialZoom;
     }
 
@@ -185,14 +189,15 @@ class PresentationArea extends PureComponent {
     const {
       userIsPresenter,
       currentSlide,
+      slidePosition,
     } = this.props;
 
-    if (!currentSlide || !currentSlide.calculatedData) {
+    if (!currentSlide || !slidePosition) {
       return { width: 0, height: 0 };
     }
 
-    const originalWidth = currentSlide.calculatedData.width;
-    const originalHeight = currentSlide.calculatedData.height;
+    const originalWidth = slidePosition.width;
+    const originalHeight = slidePosition.height;
     const viewBoxWidth = viewBoxDimensions.width;
     const viewBoxHeight = viewBoxDimensions.height;
 
@@ -255,9 +260,12 @@ class PresentationArea extends PureComponent {
   }
 
   isPresentationAccessible() {
-    const { currentSlide } = this.props;
-    // sometimes tomcat publishes the slide url, but the actual file is not accessible (why?)
-    return currentSlide && currentSlide.calculatedData;
+    const {
+      currentSlide,
+      slidePosition,
+    } = this.props;
+    // sometimes tomcat publishes the slide url, but the actual file is not accessible
+    return currentSlide && slidePosition;
   }
 
   updateLocalPosition(x, y, width, height, zoom) {
@@ -293,6 +301,7 @@ class PresentationArea extends PureComponent {
       multiUser,
       podId,
       currentSlide,
+      slidePosition,
     } = this.props;
 
     const {
@@ -308,7 +317,7 @@ class PresentationArea extends PureComponent {
     const {
       width,
       height,
-    } = slideObj.calculatedData;
+    } = slidePosition;
 
     return (
       <PresentationOverlayContainer
@@ -358,6 +367,7 @@ class PresentationArea extends PureComponent {
     const {
       podId,
       currentSlide,
+      slidePosition,
       userIsPresenter,
     } = this.props;
 
@@ -373,8 +383,11 @@ class PresentationArea extends PureComponent {
     const {
       width,
       height,
+    } = slidePosition;
+
+    const {
       imageUri,
-    } = currentSlide.calculatedData;
+    } = currentSlide;
 
     let viewBoxPosition;
 
@@ -385,8 +398,8 @@ class PresentationArea extends PureComponent {
       };
     } else {
       viewBoxPosition = {
-        x: currentSlide.calculatedData.x,
-        y: currentSlide.calculatedData.y,
+        x: slidePosition.x,
+        y: slidePosition.y,
       };
     }
 
@@ -545,7 +558,7 @@ class PresentationArea extends PureComponent {
     const {
       userIsPresenter,
       multiUser,
-      currentSlide,
+      slidePosition,
     } = this.props;
 
     const {
@@ -564,8 +577,8 @@ class PresentationArea extends PureComponent {
       };
     } else {
       viewBoxDimensions = {
-        width: currentSlide.calculatedData.viewBoxWidth,
-        height: currentSlide.calculatedData.viewBoxHeight,
+        width: slidePosition.viewBoxWidth,
+        height: slidePosition.viewBoxHeight,
       };
     }
 
@@ -646,21 +659,17 @@ PresentationArea.propTypes = {
   currentSlide: PropTypes.shape({
     presentationId: PropTypes.string.isRequired,
     current: PropTypes.bool.isRequired,
-    heightRatio: PropTypes.number.isRequired,
-    widthRatio: PropTypes.number.isRequired,
-    xOffset: PropTypes.number.isRequired,
-    yOffset: PropTypes.number.isRequired,
     num: PropTypes.number.isRequired,
     id: PropTypes.string.isRequired,
-    calculatedData: PropTypes.shape({
-      x: PropTypes.number.isRequired,
-      y: PropTypes.number.isRequired,
-      height: PropTypes.number.isRequired,
-      width: PropTypes.number.isRequired,
-      viewBoxWidth: PropTypes.number.isRequired,
-      viewBoxHeight: PropTypes.number.isRequired,
-      imageUri: PropTypes.string.isRequired,
-    }),
+    imageUri: PropTypes.string.isRequired,
+  }),
+  slidePosition: PropTypes.shape({
+    x: PropTypes.number.isRequired,
+    y: PropTypes.number.isRequired,
+    height: PropTypes.number.isRequired,
+    width: PropTypes.number.isRequired,
+    viewBoxWidth: PropTypes.number.isRequired,
+    viewBoxHeight: PropTypes.number.isRequired,
   }),
   // current multi-user status
   multiUser: PropTypes.bool.isRequired,
@@ -668,4 +677,5 @@ PresentationArea.propTypes = {
 
 PresentationArea.defaultProps = {
   currentSlide: undefined,
+  slidePosition: undefined,
 };
