@@ -88,9 +88,11 @@ export default injectIntl(withTracker(({ intl }) => {
     };
 
     const messagesBeforeWelcomeMsg = ChatService.reduceAndMapGroupMessages(
-      messages.filter(message => message.timestamp < time));
+      messages.filter(message => message.timestamp < time),
+    );
     const messagesAfterWelcomeMsg = ChatService.reduceAndMapGroupMessages(
-      messages.filter(message => message.timestamp >= time));
+      messages.filter(message => message.timestamp >= time),
+    );
 
     const messagesFormated = messagesBeforeWelcomeMsg
       .concat(welcomeMsg)

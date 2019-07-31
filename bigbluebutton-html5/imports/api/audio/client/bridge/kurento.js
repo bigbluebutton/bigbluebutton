@@ -46,7 +46,7 @@ export default class KurentoAudioBridge extends BaseAudioBridge {
           'SFU audio bridge failed to fetch STUN/TURN info, using default servers');
       } finally {
         logger.debug({ logCode: 'sfuaudiobridge_stunturn_fetch_sucess', extraInfo: { iceServers } },
-          "SFU audio bridge got STUN/TURN servers");
+          'SFU audio bridge got STUN/TURN servers');
         const options = {
           wsUrl: Auth.authenticateURL(SFU_URL),
           userName: this.user.name,
@@ -114,7 +114,7 @@ export default class KurentoAudioBridge extends BaseAudioBridge {
         await audioContext.setSinkId(value);
         this.media.outputDeviceId = value;
       } catch (error) {
-        logger.error({logCode: 'sfuaudiobridge_changeoutputdevice_error', extraInfo: { error }},
+        logger.error({ logCode: 'sfuaudiobridge_changeoutputdevice_error', extraInfo: { error } },
           'SFU audio bridge failed to fetch STUN/TURN info, using default');
         throw new Error(this.baseErrorCodes.MEDIA_ERROR);
       }

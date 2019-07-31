@@ -12,7 +12,8 @@
   left: auto;
   background-color: var(--color-transparent);
   cursor: pointer;
-  border: none !important;
+  border: 0;
+  border-radius: 5px;
 
   [dir="rtl"] & {
     right: auto;
@@ -28,7 +29,8 @@
 
   &,
   &:active,
-  &:hover {
+  &:hover,
+  &:focus {
     background-color: var(--color-transparent) !important;
     border: none !important;
 
@@ -40,19 +42,27 @@
 }
 
 .light {
-  top: 0;
+  background-color: var(--color-transparent);
 }
 
 .light .button i {
-  color: var(--color-white);
+  color: var(--color-black);
 }
 
 .dark {
-  bottom: 0;
+  background-color: rgba(0,0,0,.3);
 }
 
 .dark .button i {
-  color: var(--color-black);
+  color: var(--color-white);
+}
+
+.top{
+  top: 0;
+}
+
+.bottom{
+  bottom: 0;
 }
 
 .fullScreenButton {

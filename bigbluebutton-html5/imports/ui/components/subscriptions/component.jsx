@@ -14,7 +14,7 @@ const CHAT_ENABLED = CHAT_CONFIG.enabled;
 const PUBLIC_GROUP_CHAT_ID = CHAT_CONFIG.public_group_id;
 const PUBLIC_CHAT_TYPE = CHAT_CONFIG.type_public;
 const SUBSCRIPTIONS = [
-  'users', 'meetings', 'polls', 'presentations', 'slides', 'captions',
+  'users', 'meetings', 'polls', 'presentations', 'slides', 'slide-positions', 'captions',
   'voiceUsers', 'whiteboard-multi-user', 'screenshare', 'group-chat',
   'presentation-pods', 'users-settings', 'guestUser', 'users-infos', 'note',
   'network-information', 'ping-pong',
