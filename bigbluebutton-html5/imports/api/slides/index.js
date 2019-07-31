@@ -1,7 +1,7 @@
 import { Meteor } from 'meteor/meteor';
 
 const Slides = new Mongo.Collection('slides');
-const SlidePositions = new Mongo.Collection('slidePositions');
+const SlidePositions = new Mongo.Collection('slide-positions');
 
 if (Meteor.isServer) {
   // types of queries for the slides:
