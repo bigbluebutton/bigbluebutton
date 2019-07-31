@@ -28,24 +28,12 @@ export default withTracker((params) => {
   const {
     podId,
     presentationId,
-    fitToWidth,
-    fullscreenRef,
-    zoom,
-    zoomChanger,
-    currentSlideNum,
-    fitToWidthHandler,
   } = params;
 
   return {
     getSwapLayout: MediaService.getSwapLayout(),
-    fitToWidthHandler,
-    fitToWidth,
-    fullscreenRef,
     userIsPresenter: PresentationService.isPresenter(podId),
     numberOfSlides: PresentationToolbarService.getNumberOfSlides(podId, presentationId),
-    zoom,
-    zoomChanger,
-    currentSlideNum,
     nextSlide: PresentationToolbarService.nextSlide,
     previousSlide: PresentationToolbarService.previousSlide,
     skipToSlide: PresentationToolbarService.skipToSlide,

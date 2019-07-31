@@ -10,14 +10,11 @@ const PresentationOverlayContainer = ({ children, ...rest }) => (
   </PresentationOverlay>
 );
 
-export default withTracker(({ podId, currentSlideNum, slide }) => {
+export default withTracker(() => {
   const drawSettings = WhiteboardToolbarService.getCurrentDrawSettings();
   const tool = drawSettings ? drawSettings.whiteboardAnnotationTool : '';
 
   return {
-    slide,
-    podId,
-    currentSlideNum,
     annotationTool: tool,
   };
 })(PresentationOverlayContainer);

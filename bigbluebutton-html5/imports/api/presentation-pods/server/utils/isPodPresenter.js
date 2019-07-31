@@ -1,4 +1,4 @@
-import Slides from '/imports/api/slides';
+import { Slides } from '/imports/api/slides';
 import PresentationPods from '/imports/api/presentation-pods';
 
 export default function isPodPresenter(meetingId, whiteboardId, userId) {

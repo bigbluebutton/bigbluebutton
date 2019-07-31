@@ -13,8 +13,18 @@ const PresentationAreaContainer = ({ presentationPodIds, mountPresentationArea, 
 export default withTracker(({ podId }) => {
   const currentSlide = PresentationAreaService.getCurrentSlide(podId);
   const presentationIsDownloadable = PresentationAreaService.isPresentationDownloadable(podId);
+
+  let slidePosition = {};
+  if (currentSlide) {
+    const {
+      presentationId,
+      id: slideId,
+    } = currentSlide;
+    slidePosition = PresentationAreaService.getSlidePosition(podId, presentationId, slideId);
+  }
   return {
     currentSlide,
+    slidePosition,
     downloadPresentationUri: PresentationAreaService.downloadPresentationUri(podId),
     userIsPresenter: PresentationAreaService.isPresenter(podId) && !getSwapLayout(),
     multiUser: PresentationAreaService.getMultiUserStatus(currentSlide && currentSlide.id)
