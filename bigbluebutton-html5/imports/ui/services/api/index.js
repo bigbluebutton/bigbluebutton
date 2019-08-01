@@ -1,6 +1,24 @@
 import Auth from '/imports/ui/services/auth';
 import { check } from 'meteor/check';
 import { notify } from '/imports/ui/services/notification';
+import logger from '/imports/startup/client/logger';
+
+export function log(type = 'error', message, ...args) {
+  const logContents = { ...args };
+  const topic = logContents[0] ? logContents[0].topic : null;
+
+  const messageOrStack = message.stack || message.message || JSON.stringify(message);
+  console.debug(`CLIENT LOG (${topic ? `${type.toUpperCase()}.${topic}` : type.toUpperCase()}): `, messageOrStack, ...args);
+
+  logger[type]({
+    logCode: 'services_api_log',
+    extraInfo: {
+      message,
+      logContents,
+      attemptForUserInfo: Auth.fullInfo,
+    },
+  }, 'Client log from ui/services/api/index.js');
+}
 
 /**
  * Send the request to the server via Meteor.call and don't treat errors.
@@ -25,7 +43,9 @@ export function makeCall(name, ...args) {
         resolve(result);
       });
     } else {
-      reject(new Error('Meteor was not connected'));
+      const error = new Error('Meteor was not connected');
+      log('error', error);
+      reject(error);
     }
   });
 }
@@ -42,20 +62,5 @@ export function call(name, ...args) {
   return makeCall(name, ...args).catch((e) => {
     notify(`Ops! Error while executing ${name}`, 'error');
     throw e;
-  });
-}
-
-export function log(type = 'error', message, ...args) {
-  const { credentials } = Auth;
-
-  const logContents = { ...args };
-  const topic = logContents[0] ? logContents[0].topic : null;
-
-  const messageOrStack = message.stack || message.message || JSON.stringify(message);
-  console.debug(`CLIENT LOG (${topic ? `${type.toUpperCase()}.${topic}` : type.toUpperCase()}): `, messageOrStack, ...args);
-
-  Meteor.call('logClient', type, messageOrStack, {
-    credentials,
-    ...args,
   });
 }
