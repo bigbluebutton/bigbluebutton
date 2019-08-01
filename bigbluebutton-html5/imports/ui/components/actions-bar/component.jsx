@@ -12,15 +12,21 @@ import PresentationOptionsContainer from './presentation-options/component';
 class ActionsBar extends PureComponent {
   componentDidUpdate(prevProps) {
     const { isThereCurrentPresentation: prevIsThereCurrPresentation } = prevProps;
-    const { isThereCurrentPresentation, getSwapLayout, toggleSwapLayout } = this.props;
+    const {
+      isThereCurrentPresentation,
+      getSwapLayout,
+      toggleSwapLayout,
+      isSharingVideo,
+      isVideoBroadcasting,
+    } = this.props;
 
-    if (!isThereCurrentPresentation) {
+    if (!isThereCurrentPresentation && !isSharingVideo && !isVideoBroadcasting) {
       if (!getSwapLayout()) {
         toggleSwapLayout();
       }
     }
 
-    if (!prevIsThereCurrPresentation && isThereCurrentPresentation) {
+    if (!prevIsThereCurrPresentation && isThereCurrentPresentation && !isSharingVideo && !isVideoBroadcasting) {
       if (getSwapLayout()) {
         toggleSwapLayout();
       }
