@@ -165,9 +165,9 @@ class WebcamDraggable extends Component {
     const targetClassname = e.target.className;
     const { x, y } = position;
 
-    if (targetClassname.includes('Top')) {
+    if (targetClassname && targetClassname.includes('Top')) {
       webcamDraggableDispatch({ type: 'setplacementToTop' });
-    } else if (targetClassname.includes('Bottom')) {
+    } else if (targetClassname && targetClassname.includes('Bottom')) {
       webcamDraggableDispatch({ type: 'setplacementToBottom' });
     } else if (singleWebcam) {
       webcamDraggableDispatch(
