@@ -79,27 +79,29 @@ const Chat = (props) => {
   names = names.filter(e => e);
 
   const renderIsTypingString = () => {
-    const { length } = names;
-    const noTypers = length < 1;
-    const singleTyper = length === 1;
-    const multipleTypersShown = length > 1 && length <= 3;
-    if (noTypers) return null;
+    if (names) {
+      const { length } = names;
+      const noTypers = length < 1;
+      const singleTyper = length === 1;
+      const multipleTypersShown = length > 1 && length <= 3;
+      if (noTypers) return null;
 
-    if (singleTyper) {
-      if (names[0].length < 20) {
-        return `${names[0]} ${intl.formatMessage(intlMessages.singularTyping)}`;
+      if (singleTyper) {
+        if (names[0].length < 20) {
+          return ` ${names[0]} ${intl.formatMessage(intlMessages.singularTyping)}`;
+        }
+        return (` ${names[0].slice(0, 20)}... ${intl.formatMessage(intlMessages.singularTyping)}`);
       }
-      return (`${names[0].slice(0, 20)}... ${intl.formatMessage(intlMessages.singularTyping)}`);
-    }
 
-    if (multipleTypersShown) {
-      const formattedNames = names.map((name) => {
-        if (name.length < 15) return name;
-        return `${name.slice(0, 15)}...`;
-      });
-      return (`${formattedNames} ${intl.formatMessage(intlMessages.pluralTyping)}`);
+      if (multipleTypersShown) {
+        const formattedNames = names.map((name) => {
+          if (name.length < 15) return ` ${name}`;
+          return ` ${name.slice(0, 15)}...`;
+        });
+        return (`${formattedNames} ${intl.formatMessage(intlMessages.pluralTyping)}`);
+      }
+      return (` ${intl.formatMessage(intlMessages.severalPeople)} ${intl.formatMessage(intlMessages.pluralTyping)}`);
     }
-    return (`${intl.formatMessage(intlMessages.severalPeople)} ${intl.formatMessage(intlMessages.pluralTyping)}`);
   };
 
   return (
