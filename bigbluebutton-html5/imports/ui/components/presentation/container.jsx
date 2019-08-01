@@ -14,7 +14,7 @@ export default withTracker(({ podId }) => {
   const currentSlide = PresentationAreaService.getCurrentSlide(podId);
   const presentationIsDownloadable = PresentationAreaService.isPresentationDownloadable(podId);
 
-  let slidePosition = {};
+  let slidePosition;
   if (currentSlide) {
     const {
       presentationId,
