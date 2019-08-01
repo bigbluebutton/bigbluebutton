@@ -49,6 +49,7 @@ class JoinHandler extends Component {
         logger.error({
           logCode: 'joinhandler_component_fetchToken_not_connected',
           extraInfo: {
+            attemptForUserInfo: Auth.fullInfo,
             numFetchTokenRetries: this.numFetchTokenRetries,
           },
         }, 'Meteor was not connected, retry in a few moments');
