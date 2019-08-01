@@ -144,11 +144,12 @@ class JoinHandler extends Component {
 
     if (response.returncode !== 'FAILED') {
       await setAuth(response);
-      await setCustomData(response);
 
       setBannerProps(response);
       setLogoURL(response);
       logUserInfo();
+
+      await setCustomData(response);
 
       if (showParticipantsOnLogin && !deviceInfo.type().isPhone) {
         Session.set('openPanel', 'userlist');
