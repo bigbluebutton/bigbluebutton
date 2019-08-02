@@ -81,4 +81,6 @@ export default {
   error: () => AudioManager.error,
   isUserModerator: () => Users.findOne({ userId: Auth.userID }).role === ROLE_MODERATOR,
   currentUser,
+  autoplayBlocked: () => AudioManager.autoplayBlocked,
+  handleAllowAutoplay: () => AudioManager.handleAllowAutoplay(),
 };

@@ -65,7 +65,7 @@ class VideoListItem extends Component {
     const playElement = (elem) => {
       if (elem.paused) {
         elem.play().catch((error) => {
-          const tagFailedEvent = new CustomEvent('mediaTagPlayFailed', { detail: { mediaTag: elem } });
+          const tagFailedEvent = new CustomEvent('videoPlayFailed', { detail: { mediaTag: elem } });
           window.dispatchEvent(tagFailedEvent);
           logger.warn({
             logCode: 'videolistitem_component_play_error',

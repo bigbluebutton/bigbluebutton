@@ -19,6 +19,7 @@ const CALL_STATES = {
   ENDED: 'ended',
   FAILED: 'failed',
   RECONNECTING: 'reconnecting',
+  AUTOPLAY_BLOCKED: 'autoplayBlocked',
 };
 
 class AudioManager {
@@ -40,9 +41,12 @@ class AudioManager {
       error: null,
       outputDeviceId: null,
       muteHandle: null,
+      autoplayBlocked: false,
     });
 
     this.useKurento = Meteor.settings.public.kurento.enableListenOnly;
+    this.failedMediaElements = [];
+    this.handlePlayElementFailed = this.handlePlayElementFailed.bind(this);
   }
 
   init(userData) {
@@ -203,6 +207,8 @@ class AudioManager {
 
     logger.info({ logCode: 'audiomanager_join_listenonly', extraInfo: { logType: 'user_action' } }, 'user requested to connect to audio conference as listen only');
 
+    window.addEventListener('audioPlayFailed', this.handlePlayElementFailed);
+
     return this.onAudioJoining()
       .then(() => Promise.race([
         bridge.joinAudio(callOptions, this.callStateCallback.bind(this)),
@@ -299,6 +305,8 @@ class AudioManager {
     this.isConnecting = false;
     this.isHangingUp = false;
     this.isListenOnly = false;
+    this.autoplayBlocked = false;
+    this.failedMediaElements = [];
 
     if (this.inputStream) {
       window.defaultInputStream.forEach(track => track.stop());
@@ -314,6 +322,7 @@ class AudioManager {
     }
 
     window.parent.postMessage({ response: 'notInAudio' }, '*');
+    window.removeEventListener('audioPlayFailed', this.handlePlayElementFailed);
   }
 
   callStateCallback(response) {
@@ -323,6 +332,7 @@ class AudioManager {
         ENDED,
         FAILED,
         RECONNECTING,
+        AUTOPLAY_BLOCKED,
       } = CALL_STATES;
 
       const {
@@ -358,6 +368,10 @@ class AudioManager {
         logger.info({ logCode: 'audio_reconnecting' }, 'Attempting to reconnect audio');
         this.notify(this.intl.formatMessage(this.messages.info.RECONNECTING_AUDIO), true);
         this.playHangUpSound();
+      } else if (status === AUTOPLAY_BLOCKED) {
+        this.autoplayBlocked = true;
+        this.onAudioJoin();
+        resolve(AUTOPLAY_BLOCKED);
       }
     });
   }
@@ -467,6 +481,29 @@ class AudioManager {
       error ? 'error' : 'info',
       audioIcon,
     );
+  }
+
+  handleAllowAutoplay() {
+    window.removeEventListener('audioPlayFailed', this.handlePlayElementFailed);
+    while (this.failedMediaElements.length) {
+      const mediaElement = this.failedMediaElements.shift();
+      if (mediaElement) {
+        mediaElement.play().catch(() => {
+          // Ignore the error for now.
+        });
+      }
+    }
+    this.autoplayBlocked = false;
+  }
+
+  handlePlayElementFailed(e) {
+    const { mediaElement } = e.detail;
+
+    e.stopPropagation();
+    this.failedMediaElements.push(mediaElement);
+    if (!this.autoplayBlocked) {
+      this.autoplayBlocked = true;
+    }
   }
 }
 

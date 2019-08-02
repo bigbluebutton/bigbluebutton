@@ -1,4 +1,3 @@
-import Users from '/imports/api/users';
 import Auth from '/imports/ui/services/auth';
 import BridgeService from './service';
 import { fetchWebRTCMappedStunTurnServers } from '/imports/utils/fetchStunTurnServers';
@@ -18,8 +17,6 @@ const getUserId = () => Auth.userID;
 
 const getMeetingId = () => Auth.meetingID;
 
-const getUsername = () => Users.findOne({ userId: getUserId() }).name;
-
 const getSessionToken = () => Auth.sessionToken;
 
 export default class KurentoScreenshareBridge {
@@ -38,13 +35,33 @@ export default class KurentoScreenshareBridge {
         logger,
       };
 
+      const onSuccess = () => {
+        const { webRtcPeer } = window.kurentoManager.kurentoVideo;
+        if (webRtcPeer) {
+          const screenshareTag = document.getElementById(SCREENSHARE_VIDEO_TAG);
+          const stream = webRtcPeer.getRemoteStream();
+          screenshareTag.pause();
+          screenshareTag.srcObject = stream;
+          screenshareTag.muted = false;
+          screenshareTag.play().catch((e) => {
+            const tagFailedEvent = new CustomEvent('screensharePlayFailed',
+              { detail: { mediaElement: screenshareTag } });
+            window.dispatchEvent(tagFailedEvent);
+            logger.warn({
+              logCode: 'sfuscreenshareview_play_error',
+              extraInfo: { error: e },
+            }, 'Could not play screenshare viewer media tag, emit screensharePlayFailed');
+          });
+        }
+      };
+
       window.kurentoWatchVideo(
         SCREENSHARE_VIDEO_TAG,
         BridgeService.getConferenceBridge(),
         getUserId(),
         getMeetingId(),
         null,
-        null,
+        onSuccess,
         options,
       );
     }
