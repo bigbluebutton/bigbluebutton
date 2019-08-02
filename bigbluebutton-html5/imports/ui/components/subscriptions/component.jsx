@@ -17,7 +17,7 @@ const SUBSCRIPTIONS = [
   'users', 'meetings', 'polls', 'presentations', 'slides', 'captions',
   'voiceUsers', 'whiteboard-multi-user', 'screenshare', 'group-chat',
   'presentation-pods', 'users-settings', 'guestUser', 'users-infos', 'note',
-  'network-information', 'ping-pong',
+  'network-information', 'ping-pong', 'users-typing',
 ];
 
 class Subscriptions extends React.Component {

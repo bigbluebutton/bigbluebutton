@@ -1,6 +1,6 @@
 import { check } from 'meteor/check';
 import Logger from '/imports/startup/server/logger';
-import Users from '/imports/api/users';
+import { UsersTyping } from '/imports/api/group-chat-msg';
 
 export default function stopTyping(meetingId, userId) {
   check(meetingId, String);
@@ -9,22 +9,14 @@ export default function stopTyping(meetingId, userId) {
   const selector = {
     meetingId,
     userId,
-    isTyping: true,
-  };
-
-  const modifier = {
-    $set: {
-      isTyping: false,
-      isTypingTo: '',
-    },
   };
 
   const cb = (err) => {
     if (err) {
       return Logger.error(`Stop user=${userId} typing indicator error: ${err}`);
     }
-    return Logger.info(`Stopped user=${userId} typing indicator`);
+    return Logger.info(`Stopped typing indicator for user=${userId}`);
   };
 
-  return Users.update(selector, modifier, cb);
+  return UsersTyping.remove(selector, cb);
 }

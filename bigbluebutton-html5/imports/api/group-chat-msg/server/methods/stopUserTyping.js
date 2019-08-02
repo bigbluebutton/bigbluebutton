@@ -1,5 +1,5 @@
 import { check } from 'meteor/check';
-import Users from '/imports/api/users';
+import { UsersTyping } from '/imports/api/group-chat-msg';
 import stopTyping from '../modifiers/stopTyping';
 
 export default function stopUserTyping(credentials) {
@@ -8,16 +8,12 @@ export default function stopUserTyping(credentials) {
   check(meetingId, String);
   check(requesterUserId, String);
 
-  const user = Users.findOne({
-    userId: requesterUserId,
+  const userTyping = UsersTyping.findOne({
     meetingId,
-  }, {
-    fields: {
-      isTyping: 1,
-    },
+    userId: requesterUserId,
   });
 
-  if (user && user.isTyping) {
+  if (userTyping) {
     stopTyping(meetingId, requesterUserId);
   }
 }

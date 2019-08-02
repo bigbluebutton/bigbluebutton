@@ -54,7 +54,7 @@ const Chat = (props) => {
     UnsentMessagesCollection,
     isMeteorConnected,
     typingUsers,
-    currentUser,
+    currentUserId,
     startUserTyping,
     stopUserTyping,
   } = props;
@@ -63,13 +63,13 @@ const Chat = (props) => {
   const CLOSE_CHAT_AK = shortcuts.closePrivateChat;
 
   let names = [];
+
   names = typingUsers.map((user) => {
-    const { userId } = currentUser;
     const { userId: typingUserId, isTypingTo, name } = user;
-    if (userId === typingUserId) return null;
+    if (currentUserId === typingUserId) return null;
     if (chatID !== isTypingTo) {
       if (typingUserId === chatID) {
-        return userId !== isTypingTo
+        return currentUserId !== isTypingTo
           ? null : name;
       }
       return null;

@@ -1,6 +1,6 @@
 import Users from '/imports/api/users';
 import Meetings from '/imports/api/meetings';
-import GroupChatMsg from '/imports/api/group-chat-msg';
+import { GroupChatMsg } from '/imports/api/group-chat-msg';
 import GroupChat from '/imports/api/group-chat';
 import Auth from '/imports/ui/services/auth';
 import UnreadMessages from '/imports/ui/services/unread-messages';

@@ -4,6 +4,7 @@ import { withTracker } from 'meteor/react-meteor-data';
 import { Session } from 'meteor/session';
 import Auth from '/imports/ui/services/auth';
 import Users from '/imports/api/users';
+import { UsersTyping } from '/imports/api/group-chat-msg';
 import { makeCall } from '/imports/ui/services/api';
 import Chat from './component';
 import ChatService from './service';
@@ -149,15 +150,8 @@ export default injectIntl(withTracker(({ intl }) => {
 
   const { connected: isMeteorConnected } = Meteor.status();
 
-  const typingUsers = Users.find({
+  const typingUsers = UsersTyping.find({
     meetingId: Auth.meetingID,
-    isTyping: true,
-  }, {
-    fields: {
-      userId: 1,
-      isTypingTo: 1,
-      name: 1,
-    },
   }).fetch();
 
   const currentUser = Users.findOne({
@@ -172,7 +166,7 @@ export default injectIntl(withTracker(({ intl }) => {
   return {
     startUserTyping: chatId => makeCall('startUserTyping', chatId),
     stopUserTyping: () => makeCall('stopUserTyping'),
-    currentUser,
+    currentUserId: currentUser ? currentUser.userId : null,
     typingUsers,
     chatID,
     chatName,
