@@ -60,19 +60,30 @@ const currentParameters = [
   'bbb_outside_toggle_recording',
 ];
 
+function valueParser(val) {
+  try {
+    const parsedValue = JSON.parse(val.toLowerCase());
+    return parsedValue;
+  } catch (error) {
+    logger.error('Parameter value could not ber parsed');
+    return val;
+  }
+}
+
 export default function addUserSettings(credentials, meetingId, userId, settings) {
   check(meetingId, String);
   check(userId, String);
   check(settings, [Object]);
 
   let parameters = {};
+
   settings.forEach((el) => {
     const settingKey = Object.keys(el).shift();
 
     if (currentParameters.includes(settingKey)) {
       if (!Object.keys(parameters).includes(settingKey)) {
         parameters = {
-          [settingKey]: el[settingKey],
+          [settingKey]: valueParser(el[settingKey]),
           ...parameters,
         };
       } else {
@@ -83,11 +94,9 @@ export default function addUserSettings(credentials, meetingId, userId, settings
 
     if (oldParametersKeys.includes(settingKey)) {
       const matchingNewKey = oldParameters[settingKey];
-      const matchingNewKeyValue = el[settingKey];
-
       if (!Object.keys(parameters).includes(matchingNewKey)) {
         parameters = {
-          [matchingNewKey]: matchingNewKeyValue,
+          [matchingNewKey]: valueParser(el[settingKey]),
           ...parameters,
         };
       }

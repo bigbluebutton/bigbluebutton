@@ -5,18 +5,20 @@ const BASE_SHORTCUTS = Meteor.settings.public.app.shortcuts;
 
 const withShortcutHelper = (WrappedComponent, param) => (props) => {
   const ENABLED_SHORTCUTS = getFromUserSettings('bbb_shortcuts', null);
-
   let shortcuts = Object.values(BASE_SHORTCUTS);
 
   if (ENABLED_SHORTCUTS) {
-    shortcuts = Object.values(BASE_SHORTCUTS)
-      .filter(el => ENABLED_SHORTCUTS.includes(el.descId));
+    shortcuts = Object.values(BASE_SHORTCUTS).map((el) => {
+      const obj = { ...el };
+      obj.descIdLowerCase = obj.descId.toLowerCase();
+      return obj;
+    }).filter(el => ENABLED_SHORTCUTS.includes(el.descIdLowerCase));
   }
 
   if (param !== undefined) {
     if (!Array.isArray(param)) {
       shortcuts = shortcuts
-        .filter(el => el.descId === param)
+        .filter(el => el.descIdLowerCase === param.toLowerCase())
         .map(el => el.accesskey)
         .pop();
     } else {

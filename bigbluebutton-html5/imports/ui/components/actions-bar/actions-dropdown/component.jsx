@@ -19,10 +19,14 @@ const propTypes = {
   intl: intlShape.isRequired,
   mountModal: PropTypes.func.isRequired,
   isUserModerator: PropTypes.bool.isRequired,
-  shortcuts: PropTypes.string.isRequired,
+  shortcuts: PropTypes.string,
   handleTakePresenter: PropTypes.func.isRequired,
   allowExternalVideo: PropTypes.bool.isRequired,
   stopExternalVideoShare: PropTypes.func.isRequired,
+};
+
+const defaultProps = {
+  shortcuts: '',
 };
 
 const intlMessages = defineMessages({
@@ -221,5 +225,6 @@ class ActionsDropdown extends PureComponent {
 }
 
 ActionsDropdown.propTypes = propTypes;
+ActionsDropdown.defaultProps = defaultProps;
 
 export default withShortcutHelper(withModalMounter(ActionsDropdown), 'openActions');
