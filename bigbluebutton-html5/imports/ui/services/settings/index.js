@@ -7,7 +7,6 @@ const SETTINGS = [
   'audio',
   'video',
   'cc',
-  'participants',
   'dataSaving',
 ];
 
