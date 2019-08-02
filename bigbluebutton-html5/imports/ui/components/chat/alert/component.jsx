@@ -173,11 +173,18 @@ class ChatAlert extends PureComponent {
       pendingNotificationsByChat,
     } = this.state;
 
-    const shouldPlay = Object.keys(pendingNotificationsByChat).length > 0;
+    const notCurrentTabOrMinimized = document.hidden;
+
+    const shouldPlayChatAlert = notCurrentTabOrMinimized
+      || Object.keys(pendingNotificationsByChat).length > 0;
 
     return (
       <Fragment>
-        {!audioAlertDisabled ? <ChatAudioAlert play={shouldPlay} /> : null}
+        {
+          !audioAlertDisabled && notCurrentTabOrMinimized
+            ? <ChatAudioAlert play={shouldPlayChatAlert} />
+            : null
+        }
         {
           !pushAlertDisabled
             ? Object.keys(pendingNotificationsByChat)

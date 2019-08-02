@@ -179,7 +179,6 @@ class PresentationUploader extends Component {
       oldCurrentId: currentPres ? currentPres.id : -1,
       preventClosing: false,
       disableActions: false,
-      disableConfirm: false,
     };
 
     this.handleConfirm = this.handleConfirm.bind(this);
@@ -193,16 +192,6 @@ class PresentationUploader extends Component {
     this.deepMergeUpdateFileKey = this.deepMergeUpdateFileKey.bind(this);
 
     this.releaseActionsOnPresentationError = this.releaseActionsOnPresentationError.bind(this);
-  }
-
-  static getDerivedStateFromProps(props, state) {
-    const firstPres = props.presentations[0];
-    if (firstPres && firstPres.isCurrent && state.disableConfirm) {
-      return {
-        disableConfirm: !state.disableConfirm,
-      };
-    }
-    return null;
   }
 
   componentDidUpdate() {
@@ -414,7 +403,6 @@ class PresentationUploader extends Component {
 
     this.setState({
       presentations: presentationsUpdated,
-      disableConfirm: false,
     });
   }
 
@@ -428,7 +416,6 @@ class PresentationUploader extends Component {
       presentations: update(presentations, {
         $splice: [[toRemoveIndex, 1]],
       }),
-      disableConfirm: true,
     });
   }
 
@@ -691,7 +678,7 @@ class PresentationUploader extends Component {
   render() {
     const { intl } = this.props;
     const {
-      preventClosing, disableActions, presentations, disableConfirm,
+      preventClosing, disableActions, presentations,
     } = this.state;
 
     let awaitingConversion = false;
@@ -712,7 +699,6 @@ class PresentationUploader extends Component {
           callback: this.handleConfirm,
           label: confirmLabel,
           description: intl.formatMessage(intlMessages.confirmDesc),
-          disabled: disableConfirm,
         }}
         dismiss={{
           callback: this.handleDismiss,

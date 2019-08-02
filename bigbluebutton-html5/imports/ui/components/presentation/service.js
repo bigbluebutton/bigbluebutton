@@ -1,7 +1,7 @@
 import WhiteboardMultiUser from '/imports/api/whiteboard-multi-user/';
 import PresentationPods from '/imports/api/presentation-pods';
 import Presentations from '/imports/api/presentations';
-import Slides from '/imports/api/slides';
+import { Slides, SlidePositions } from '/imports/api/slides';
 import Users from '/imports/api/users';
 import Auth from '/imports/ui/services/auth';
 
@@ -52,6 +52,12 @@ const getCurrentSlide = (podId) => {
     },
   });
 };
+
+const getSlidePosition = (podId, presentationId, slideId) => SlidePositions.findOne({
+  podId,
+  presentationId,
+  id: slideId,
+});
 
 const currentSlidHasContent = () => {
   const currentSlide = getCurrentSlide('DEFAULT_PRESENTATION_POD');
@@ -173,6 +179,7 @@ const getMultiUserStatus = (whiteboardId) => {
 
 export default {
   getCurrentSlide,
+  getSlidePosition,
   isPresenter,
   isPresentationDownloadable,
   downloadPresentationUri,
