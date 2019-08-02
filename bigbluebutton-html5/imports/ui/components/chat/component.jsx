@@ -113,6 +113,7 @@ const Chat = (props) => {
         minMessageLength={minMessageLength}
         maxMessageLength={maxMessageLength}
         handleSendMessage={actions.handleSendMessage}
+        partnerIsLoggedOut={partnerIsLoggedOut}
       />
     </div>
   );

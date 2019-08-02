@@ -22,6 +22,7 @@ const propTypes = {
   UnsentMessagesCollection: PropTypes.object.isRequired,
   connected: PropTypes.bool.isRequired,
   locked: PropTypes.bool.isRequired,
+  partnerIsLoggedOut: PropTypes.bool.isRequired,
 };
 
 const defaultProps = {
@@ -87,7 +88,12 @@ class MessageForm extends PureComponent {
   }
 
   componentDidUpdate(prevProps) {
-    const { chatId, connected, locked } = this.props;
+    const {
+      chatId,
+      connected,
+      locked,
+      partnerIsLoggedOut,
+    } = this.props;
     const { message } = this.state;
     const { mobile } = this.BROWSER_RESULTS;
 
@@ -100,7 +106,11 @@ class MessageForm extends PureComponent {
       this.setMessageState();
     }
 
-    if (connected !== prevProps.connected || locked !== prevProps.locked) {
+    if (
+      connected !== prevProps.connected
+      || locked !== prevProps.locked
+      || partnerIsLoggedOut !== prevProps.partnerIsLoggedOut
+    ) {
       this.setMessageHint();
     }
   }
@@ -113,11 +123,29 @@ class MessageForm extends PureComponent {
   }
 
   setMessageHint() {
-    const { connected, disabled, intl } = this.props;
+    const {
+      connected,
+      disabled,
+      intl,
+      locked,
+      partnerIsLoggedOut,
+    } = this.props;
+
+    let chatDisabledHint = null;
+
+    if (disabled && !partnerIsLoggedOut) {
+      if (connected) {
+        if (locked) {
+          chatDisabledHint = messages.errorChatLocked;
+        }
+      } else {
+        chatDisabledHint = messages.errorServerDisconnected;
+      }
+    }
 
     this.setState({
       hasErrors: disabled,
-      error: intl.formatMessage((disabled && connected) ? messages.errorChatLocked : messages.errorServerDisconnected),
+      error: chatDisabledHint ? intl.formatMessage(chatDisabledHint) : null,
     });
   }
 
