@@ -78,12 +78,12 @@ export const startBandwidthMonitoring = () => {
     const usersOnline = Users.find({
       userId: { $ne: Auth.userID },
       connectionStatus: 'online',
-    }).map(user => user.userId);
+    }, { fields: { userId: 1 } }).map(user => user.userId);
 
     const usersWithViewWebcamsEnabled = LocalSettings.find({
       meetingId: Auth.meetingID,
       'settings.dataSaving.viewParticipantsWebcams': true,
-    }).map(user => user.userId);
+    }, { fields: { userId: 1 } }).map(user => user.userId);
 
     const usersWatchingWebcams = usersOnline.filter(
       user => usersWithViewWebcamsEnabled.includes(user),
