@@ -88,6 +88,7 @@ class VideoList extends Component {
     this.setOptimalGrid = this.setOptimalGrid.bind(this);
     this.handleAllowAutoplay = this.handleAllowAutoplay.bind(this);
     this.handlePlayElementFailed = this.handlePlayElementFailed.bind(this);
+    this.autoplayWasHandled = false;
   }
 
   componentDidMount() {
@@ -144,6 +145,7 @@ class VideoList extends Component {
   handleAllowAutoplay() {
     const { autoplayBlocked } = this.state;
 
+    this.autoplayWasHandled = true;
     window.removeEventListener('videoPlayFailed', this.handlePlayElementFailed);
     while (this.failedMediaElements.length) {
       const mediaElement = this.failedMediaElements.shift();
@@ -162,7 +164,7 @@ class VideoList extends Component {
 
     e.stopPropagation();
     this.failedMediaElements.push(mediaElement);
-    if (!autoplayBlocked) {
+    if (!autoplayBlocked && !this.autoplayWasHandled) {
       this.setState({ autoplayBlocked: true });
     }
   }

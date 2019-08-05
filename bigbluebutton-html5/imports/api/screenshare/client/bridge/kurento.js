@@ -40,17 +40,20 @@ export default class KurentoScreenshareBridge {
         if (webRtcPeer) {
           const screenshareTag = document.getElementById(SCREENSHARE_VIDEO_TAG);
           const stream = webRtcPeer.getRemoteStream();
+          screenshareTag.muted = true;
           screenshareTag.pause();
           screenshareTag.srcObject = stream;
-          screenshareTag.muted = false;
-          screenshareTag.play().catch((e) => {
-            const tagFailedEvent = new CustomEvent('screensharePlayFailed',
-              { detail: { mediaElement: screenshareTag } });
-            window.dispatchEvent(tagFailedEvent);
+          screenshareTag.play().catch((error) => {
+            // NotAllowedError equals autoplay issues, fire autoplay handling event
+            if (error.name === 'NotAllowedError') {
+              const tagFailedEvent = new CustomEvent('screensharePlayFailed',
+                { detail: { mediaElement: screenshareTag } });
+              window.dispatchEvent(tagFailedEvent);
+            }
             logger.warn({
-              logCode: 'sfuscreenshareview_play_error',
-              extraInfo: { error: e },
-            }, 'Could not play screenshare viewer media tag, emit screensharePlayFailed');
+              logCode: 'sfuscreenshareview_play_maybe_error',
+              extraInfo: { error },
+            }, `Screenshare viewer media play failed due to ${error.name}`);
           });
         }
       };
