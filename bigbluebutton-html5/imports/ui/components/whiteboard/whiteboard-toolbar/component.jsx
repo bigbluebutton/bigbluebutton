@@ -71,12 +71,19 @@ class WhiteboardToolbar extends Component {
   constructor(props) {
     super(props);
 
-    const { annotations } = this.props;
+    const { annotations, multiUser } = this.props;
 
     let annotationSelected = {
       icon: 'hand',
       value: 'hand',
     };
+
+    if (multiUser) {
+      annotationSelected = {
+        icon: 'pen_tool',
+        value: 'pencil',
+      };
+    }
 
     if (!annotations.some(el => el.value === annotationSelected.value) && annotations.length > 0) {
       annotationSelected = annotations[annotations.length - 1];
