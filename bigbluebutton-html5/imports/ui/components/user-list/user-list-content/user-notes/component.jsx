@@ -26,7 +26,7 @@ const intlMessages = defineMessages({
   unreadContent: {
     id: 'app.userList.notesListItem.unreadContent',
     description: 'Aria label for notes unread content',
-  }
+  },
 });
 
 class UserNotes extends Component {

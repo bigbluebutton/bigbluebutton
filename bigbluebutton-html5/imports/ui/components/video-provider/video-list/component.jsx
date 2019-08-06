@@ -13,6 +13,8 @@ const propTypes = {
   getStats: PropTypes.func.isRequired,
   stopGettingStats: PropTypes.func.isRequired,
   enableVideoStats: PropTypes.bool.isRequired,
+  webcamDraggableDispatch: PropTypes.func.isRequired,
+  intl: PropTypes.objectOf(Object).isRequired,
 };
 
 const intlMessages = defineMessages({

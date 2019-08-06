@@ -9,15 +9,13 @@ import {
 } from './service';
 import ScreenshareComponent from './component';
 
-class ScreenshareContainer extends React.Component {
-  render() {
-    if (this.props.isVideoBroadcasting()) {
-      return <ScreenshareComponent {...this.props} />;
-    }
-
-    return null;
+const ScreenshareContainer = (props) => {
+  const { isVideoBroadcasting: isVB } = props;
+  if (isVB()) {
+    return <ScreenshareComponent {...props} />;
   }
-}
+  return null;
+};
 
 export default withTracker(() => {
   const user = Users.findOne({ userId: Auth.userID });

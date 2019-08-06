@@ -407,16 +407,19 @@ class PanelManager extends PureComponent {
   render() {
     const { enableResize, openPanel } = this.props;
     if (openPanel === '') return null;
-
-    const panels = [this.renderUserList()];
-    const resizablePanels = [
-      this.renderUserListResizable(),
-      <div className={styles.userlistPad} key={this.padKey} />,
-    ];
+    const panels = [];
+    if (enableResize) {
+      panels.push(
+        this.renderUserListResizable(),
+        <div className={styles.userlistPad} key={this.padKey} />,
+      );
+    } else {
+      panels.push(this.renderUserList());
+    }
 
     if (openPanel === 'chat') {
       if (enableResize) {
-        resizablePanels.push(this.renderChatResizable());
+        panels.push(this.renderChatResizable());
       } else {
         panels.push(this.renderChat());
       }
@@ -424,7 +427,7 @@ class PanelManager extends PureComponent {
 
     if (openPanel === 'note') {
       if (enableResize) {
-        resizablePanels.push(this.renderNoteResizable());
+        panels.push(this.renderNoteResizable());
       } else {
         panels.push(this.renderNote());
       }
@@ -432,7 +435,7 @@ class PanelManager extends PureComponent {
 
     if (openPanel === 'captions') {
       if (enableResize) {
-        resizablePanels.push(this.renderCaptionsResizable());
+        panels.push(this.renderCaptionsResizable());
       } else {
         panels.push(this.renderCaptions());
       }
@@ -440,7 +443,7 @@ class PanelManager extends PureComponent {
 
     if (openPanel === 'poll') {
       if (enableResize) {
-        resizablePanels.push(this.renderPollResizable());
+        panels.push(this.renderPollResizable());
       } else {
         panels.push(this.renderPoll());
       }
@@ -448,7 +451,7 @@ class PanelManager extends PureComponent {
 
     if (openPanel === 'breakoutroom') {
       if (enableResize) {
-        resizablePanels.push(this.renderBreakoutRoom());
+        panels.push(this.renderBreakoutRoom());
       } else {
         panels.push(this.renderBreakoutRoom());
       }
@@ -456,15 +459,13 @@ class PanelManager extends PureComponent {
 
     if (openPanel === 'waitingUsersPanel') {
       if (enableResize) {
-        resizablePanels.push(this.renderWaitingUsersPanelResizable());
+        panels.push(this.renderWaitingUsersPanelResizable());
       } else {
         panels.push(this.renderWaitingUsersPanel());
       }
     }
 
-    return enableResize
-      ? resizablePanels
-      : panels;
+    return panels;
   }
 }
 

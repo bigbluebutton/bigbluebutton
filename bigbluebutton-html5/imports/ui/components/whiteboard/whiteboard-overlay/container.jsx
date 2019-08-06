@@ -6,7 +6,8 @@ import WhiteboardToolbarService from '../whiteboard-toolbar/service';
 import WhiteboardOverlay from './component';
 
 const WhiteboardOverlayContainer = (props) => {
-  if (Object.keys(props.drawSettings).length > 0) {
+  const { drawSettings } = props;
+  if (Object.keys(drawSettings).length > 0) {
     return (
       <WhiteboardOverlay {...props} />
     );
@@ -23,6 +24,7 @@ export default withTracker(() => ({
   resetTextShapeSession: WhiteboardOverlayService.resetTextShapeSession,
   drawSettings: WhiteboardOverlayService.getWhiteboardToolbarValues(),
   userId: WhiteboardOverlayService.getCurrentUserId(),
+  updateCursor: WhiteboardOverlayService.updateCursor,
 }))(WhiteboardOverlayContainer);
 
 

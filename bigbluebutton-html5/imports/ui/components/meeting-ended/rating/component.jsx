@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import _ from 'lodash';
-import { defineMessages, injectIntl } from 'react-intl';
+import { defineMessages, injectIntl, intlShape } from 'react-intl';
 import { styles } from './styles';
 
 const intlMessages = defineMessages({
@@ -15,6 +15,12 @@ const intlMessages = defineMessages({
   },
 });
 
+const propTypes = {
+  intl: intlShape.isRequired,
+  onRate: PropTypes.func.isRequired,
+  total: PropTypes.string.isRequired,
+};
+
 class Rating extends Component {
   constructor(props) {
     super(props);
@@ -27,7 +33,8 @@ class Rating extends Component {
   }
 
   clickStar(e) {
-    this.props.onRate(e);
+    const { onRate } = this.props;
+    onRate(e);
   }
 
   renderStars(num) {
@@ -54,9 +61,8 @@ class Rating extends Component {
                   <label
                     htmlFor={`${i + 1}star`}
                     key={_.uniqueId('star-')}
-                  >
-                    {`${i + 1} ${intl.formatMessage(intlMessages.starLabel)}`}
-                  </label>
+                    aria-label={`${i + 1} ${intl.formatMessage(intlMessages.starLabel)}`}
+                  />
                 ),
               ]).reverse()
           }
@@ -80,3 +86,5 @@ class Rating extends Component {
 }
 
 export default injectIntl(Rating);
+
+Rating.propTypes = propTypes;

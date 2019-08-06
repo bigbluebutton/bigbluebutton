@@ -7,13 +7,25 @@ import { styles } from './styles';
 
 const propTypes = {
   children: PropTypes.element.isRequired,
+  usersVideo: PropTypes.arrayOf(Array),
   floatingOverlay: PropTypes.bool,
   hideOverlay: PropTypes.bool,
+  swapLayout: PropTypes.bool,
+  disableVideo: PropTypes.bool,
+  userWasInWebcam: PropTypes.bool,
+  audioModalIsOpen: PropTypes.bool,
+  joinVideo: PropTypes.func,
 };
 
 const defaultProps = {
+  usersVideo: [],
   floatingOverlay: false,
   hideOverlay: true,
+  swapLayout: false,
+  disableVideo: false,
+  userWasInWebcam: false,
+  audioModalIsOpen: false,
+  joinVideo: null,
 };
 
 
@@ -41,7 +53,7 @@ export default class Media extends Component {
         window.addEventListener('keydown', flushFailedTags);
         window.addEventListener('touchstart', flushFailedTags);
       }
-    }
+    };
 
     const flushFailedTags = () => {
       window.removeEventListener('click', flushFailedTags);
@@ -52,14 +64,14 @@ export default class Media extends Component {
       while (this.failedTags.length) {
         const mediaTag = this.failedTags.shift();
         if (mediaTag) {
-          mediaTag.play().catch(e => {
+          mediaTag.play().catch((e) => {
             // Ignore the error for now.
           });
         }
-      };
+      }
 
       this.listeningToTagPlayFailed = false;
-    }
+    };
 
     // Monitor tag play failure events, probably due to autoplay. The callback
     // puts the failed tags in a queue which will be flushed on a user action
@@ -70,7 +82,7 @@ export default class Media extends Component {
     // a UI block/prompt.
     // If a tag fail to play again for some odd reason, the listeners will be
     // reattached (see this.listeningToTagPlayFailed) and flushFailedTags runs again
-    window.addEventListener("mediaTagPlayFailed", handleFailTagEvent);
+    window.addEventListener('mediaTagPlayFailed', handleFailTagEvent);
   }
 
   componentWillUpdate() {

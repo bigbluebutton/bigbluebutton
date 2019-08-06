@@ -49,6 +49,7 @@ class JoinHandler extends Component {
         logger.error({
           logCode: 'joinhandler_component_fetchToken_not_connected',
           extraInfo: {
+            attemptForUserInfo: Auth.fullInfo,
             numFetchTokenRetries: this.numFetchTokenRetries,
           },
         }, 'Meteor was not connected, retry in a few moments');
@@ -143,11 +144,12 @@ class JoinHandler extends Component {
 
     if (response.returncode !== 'FAILED') {
       await setAuth(response);
-      await setCustomData(response);
 
       setBannerProps(response);
       setLogoURL(response);
       logUserInfo();
+
+      await setCustomData(response);
 
       if (showParticipantsOnLogin && !deviceInfo.type().isPhone) {
         Session.set('openPanel', 'userlist');

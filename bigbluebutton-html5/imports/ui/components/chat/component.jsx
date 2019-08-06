@@ -175,7 +175,10 @@ const Chat = (props) => {
         chatTitle={title}
         chatAreaId={ELEMENT_ID}
         disabled={isChatLocked || !isMeteorConnected}
+        connected={isMeteorConnected}
+        locked={isChatLocked}
         handleSendMessage={actions.handleSendMessage}
+        partnerIsLoggedOut={partnerIsLoggedOut}
       />
     </div>
   );

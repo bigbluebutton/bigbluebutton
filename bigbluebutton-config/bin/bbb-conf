@@ -114,7 +114,7 @@ FREESWITCH_EVENT_SOCKET=/opt/freeswitch/etc/freeswitch/autoload_configs/event_so
 RED5=red5
 RED5_DIR=/usr/share/$RED5
 
-LTI_DIR=$TOMCAT_DIR/webapps/lti
+LTI_DIR=/usr/share/bbb-lti
 
 if [ -f /usr/share/bbb-web/WEB-INF/classes/bigbluebutton.properties ]; then
     SERVLET_DIR=/usr/share/bbb-web
@@ -620,6 +620,7 @@ if [[ $SECRET ]]; then
     if [ -f /usr/local/bigbluebutton/bbb-webhooks/config_local.coffee ]; then
         sed -i "s|\(^[ \t]*config.bbb.sharedSecret[ =]*\).*|\1\"$SECRET\"|g" /usr/local/bigbluebutton/bbb-webhooks/config_local.coffee
     fi
+
     if [ -f /usr/local/bigbluebutton/bbb-webhooks/config_local.js ]; then
         sed -i "s|\(^[ \t]*config.bbb.sharedSecret[ =]*\).*|\1\"$SECRET\"|g" /usr/local/bigbluebutton/bbb-webhooks/config_local.js
     fi
@@ -630,6 +631,10 @@ if [[ $SECRET ]]; then
 
     if [ -f /usr/share/bbb-apps-akka/conf/application.conf ]; then
         sed -i "s/sharedSecret[ ]*=[ ]*\"[^\"]*\"/sharedSecret=\"$SECRET\"/g" /usr/share/bbb-apps-akka/conf/application.conf
+    fi
+
+    if [ -f ${LTI_DIR}/WEB-INF/classes/lti-config.properties ]; then
+        sed -i "s/bigbluebuttonSalt=.*/bigbluebuttonSalt=$SECRET/g" ${LTI_DIR}/WEB-INF/classes/lti-config.properties
     fi
 
     echo
