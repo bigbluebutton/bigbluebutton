@@ -38,13 +38,6 @@ public:
       dataSaving:
         viewParticipantsWebcams: true
         viewScreenshare: true
-      participants:
-        muteAll: false
-        lockAll: false
-        microphone: false
-        publicChat: false
-        privateChat: false
-        layout: false
     shortcuts:
       openOptions:
         accesskey: O
