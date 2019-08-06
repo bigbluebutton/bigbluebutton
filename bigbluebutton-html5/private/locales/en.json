@@ -4,6 +4,7 @@
     "app.chat.errorMinMessageLength": "The message is {0} characters(s) too short",
     "app.chat.errorMaxMessageLength": "The message is {0} characters(s) too long",
     "app.chat.disconnected": "You are disconnected, messages can't be sent",
+    "app.chat.locked": "Chat is locked, messages can't be sent",
     "app.chat.inputLabel": "Message input for chat {0}",
     "app.chat.inputPlaceholder": "Send message to {0}",
     "app.chat.titlePublic": "Public Chat",

@@ -104,13 +104,16 @@ const Chat = (props) => {
       <MessageForm
         UnsentMessagesCollection={UnsentMessagesCollection}
         chatId={chatID}
-        disabled={isChatLocked || !isMeteorConnected}
+        connected={isMeteorConnected}
         chatAreaId={ELEMENT_ID}
         chatTitle={title}
         chatName={chatName}
+        disabled={isChatLocked || !isMeteorConnected}
+        locked={isChatLocked}
         minMessageLength={minMessageLength}
         maxMessageLength={maxMessageLength}
         handleSendMessage={actions.handleSendMessage}
+        partnerIsLoggedOut={partnerIsLoggedOut}
       />
     </div>
   );

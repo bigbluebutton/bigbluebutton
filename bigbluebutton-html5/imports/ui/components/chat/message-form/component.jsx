@@ -20,6 +20,9 @@ const propTypes = {
   chatAreaId: PropTypes.string.isRequired,
   handleSendMessage: PropTypes.func.isRequired,
   UnsentMessagesCollection: PropTypes.object.isRequired,
+  connected: PropTypes.bool.isRequired,
+  locked: PropTypes.bool.isRequired,
+  partnerIsLoggedOut: PropTypes.bool.isRequired,
 };
 
 const defaultProps = {
@@ -48,6 +51,9 @@ const messages = defineMessages({
   errorServerDisconnected: {
     id: 'app.chat.disconnected',
   },
+  errorChatLocked: {
+    id: 'app.chat.locked',
+  },
 });
 
 const CHAT_ENABLED = Meteor.settings.public.chat.enabled;
@@ -74,6 +80,7 @@ class MessageForm extends PureComponent {
     const { mobile } = this.BROWSER_RESULTS;
 
     this.setMessageState();
+    this.setMessageHint();
 
     if (!mobile) {
       if (this.textarea) this.textarea.focus();
@@ -81,7 +88,12 @@ class MessageForm extends PureComponent {
   }
 
   componentDidUpdate(prevProps) {
-    const { chatId, disabled } = this.props;
+    const {
+      chatId,
+      connected,
+      locked,
+      partnerIsLoggedOut,
+    } = this.props;
     const { message } = this.state;
     const { mobile } = this.BROWSER_RESULTS;
 
@@ -94,11 +106,11 @@ class MessageForm extends PureComponent {
       this.setMessageState();
     }
 
-    if (prevProps.disabled !== disabled && disabled) {
-      this.setMessageHint();
-    }
-
-    if (prevProps.disabled !== disabled && !disabled) {
+    if (
+      connected !== prevProps.connected
+      || locked !== prevProps.locked
+      || partnerIsLoggedOut !== prevProps.partnerIsLoggedOut
+    ) {
       this.setMessageHint();
     }
   }
@@ -111,10 +123,29 @@ class MessageForm extends PureComponent {
   }
 
   setMessageHint() {
-    const { disabled, intl } = this.props;
+    const {
+      connected,
+      disabled,
+      intl,
+      locked,
+      partnerIsLoggedOut,
+    } = this.props;
+
+    let chatDisabledHint = null;
+
+    if (disabled && !partnerIsLoggedOut) {
+      if (connected) {
+        if (locked) {
+          chatDisabledHint = messages.errorChatLocked;
+        }
+      } else {
+        chatDisabledHint = messages.errorServerDisconnected;
+      }
+    }
+
     this.setState({
       hasErrors: disabled,
-      error: intl.formatMessage(messages.errorServerDisconnected),
+      error: chatDisabledHint ? intl.formatMessage(chatDisabledHint) : null,
     });
   }
 
