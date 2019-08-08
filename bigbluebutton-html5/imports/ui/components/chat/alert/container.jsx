@@ -20,5 +20,6 @@ export default withTracker(() => {
     activeChats,
     publicUserId: Meteor.settings.public.chat.public_group_id,
     joinTimestamp: loginTime,
+    idChatOpen: Session.get('idChatOpen'),
   };
 })(memo(ChatAlertContainer));
