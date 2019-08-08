@@ -17,7 +17,6 @@ export default withTracker(() => ({
   audio: SettingsService.audio,
   dataSaving: SettingsService.dataSaving,
   application: SettingsService.application,
-  participants: SettingsService.participants,
   updateSettings,
   availableLocales: getAvailableLocales(),
   isModerator: getUserRoles() === 'MODERATOR',
