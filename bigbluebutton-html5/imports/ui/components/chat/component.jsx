@@ -1,4 +1,4 @@
-import React, { memo } from 'react';
+import React, { memo, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import { defineMessages, injectIntl } from 'react-intl';
 import injectWbResizeEvent from '/imports/ui/components/presentation/resize-wrapper/component';
@@ -6,8 +6,8 @@ import Button from '/imports/ui/components/button/component';
 import { Session } from 'meteor/session';
 import withShortcutHelper from '/imports/ui/components/shortcut-help/service';
 import { styles } from './styles.scss';
-import MessageForm from './message-form/component';
-import MessageList from './message-list/component';
+import MessageForm from './message-form/container';
+import MessageList from './message-list/container';
 import ChatDropdown from './chat-dropdown/component';
 
 const ELEMENT_ID = 'chat-messages';
@@ -22,24 +22,17 @@ const intlMessages = defineMessages({
     description: 'aria-label for hiding chat button',
   },
 });
-
 const Chat = (props) => {
   const {
     chatID,
     chatName,
     title,
     messages,
-    scrollPosition,
-    hasUnreadMessages,
-    lastReadMessageTime,
     partnerIsLoggedOut,
     isChatLocked,
-    minMessageLength,
-    maxMessageLength,
     actions,
     intl,
     shortcuts,
-    UnsentMessagesCollection,
     isMeteorConnected,
   } = props;
 
@@ -94,23 +87,17 @@ const Chat = (props) => {
         chatId={chatID}
         messages={messages}
         id={ELEMENT_ID}
-        scrollPosition={scrollPosition}
-        hasUnreadMessages={hasUnreadMessages}
-        handleScrollUpdate={actions.handleScrollUpdate}
-        handleReadMessage={actions.handleReadMessage}
-        lastReadMessageTime={lastReadMessageTime}
         partnerIsLoggedOut={partnerIsLoggedOut}
       />
       <MessageForm
-        UnsentMessagesCollection={UnsentMessagesCollection}
         chatId={chatID}
-        disabled={isChatLocked || !isMeteorConnected}
+        connected={isMeteorConnected}
         chatAreaId={ELEMENT_ID}
         chatTitle={title}
         chatName={chatName}
-        minMessageLength={minMessageLength}
-        maxMessageLength={maxMessageLength}
-        handleSendMessage={actions.handleSendMessage}
+        disabled={isChatLocked || !isMeteorConnected}
+        locked={isChatLocked}
+        partnerIsLoggedOut={partnerIsLoggedOut}
       />
     </div>
   );
@@ -128,20 +115,12 @@ const propTypes = {
     PropTypes.number,
     PropTypes.object,
   ])).isRequired).isRequired,
-  scrollPosition: PropTypes.number,
   shortcuts: PropTypes.objectOf(PropTypes.string),
-  hasUnreadMessages: PropTypes.bool.isRequired,
-  lastReadMessageTime: PropTypes.number.isRequired,
   partnerIsLoggedOut: PropTypes.bool.isRequired,
   isChatLocked: PropTypes.bool.isRequired,
   isMeteorConnected: PropTypes.bool.isRequired,
-  minMessageLength: PropTypes.number.isRequired,
-  maxMessageLength: PropTypes.number.isRequired,
   actions: PropTypes.shape({
     handleClosePrivateChat: PropTypes.func.isRequired,
-    handleReadMessage: PropTypes.func.isRequired,
-    handleScrollUpdate: PropTypes.func.isRequired,
-    handleSendMessage: PropTypes.func.isRequired,
   }).isRequired,
   intl: PropTypes.shape({
     formatMessage: PropTypes.func.isRequired,
@@ -149,7 +128,6 @@ const propTypes = {
 };
 
 const defaultProps = {
-  scrollPosition: 0,
   shortcuts: [],
 };
 

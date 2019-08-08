@@ -72,7 +72,6 @@ class MessageForm extends PureComponent {
 
   componentDidMount() {
     const { mobile } = this.BROWSER_RESULTS;
-
     this.setMessageState();
 
     if (!mobile) {
