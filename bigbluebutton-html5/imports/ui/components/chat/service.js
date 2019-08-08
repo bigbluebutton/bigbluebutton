@@ -21,7 +21,7 @@ const PUBLIC_CHAT_CLEAR = CHAT_CONFIG.system_messages_keys.chat_clear;
 
 const ROLE_MODERATOR = Meteor.settings.public.user.role_moderator;
 
-const CONNECTION_STATUS = 'online';
+const CONNECTION_STATUS_ONLINE = 'online';
 
 const ScrollCollection = new Mongo.Collection(null);
 
@@ -63,7 +63,7 @@ const mapGroupMessage = (message) => {
       color,
       isModerator: role === ROLE_MODERATOR,
       name,
-      isOnline: connectionStatus === CONNECTION_STATUS,
+      isOnline: connectionStatus === CONNECTION_STATUS_ONLINE,
     };
 
     mappedMessage.sender = mappedSender;
