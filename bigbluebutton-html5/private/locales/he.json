@@ -44,8 +44,6 @@
     "app.endMeeting.noLabel": "לא",
     "app.about.title": "אודות",
     "app.about.dismissLabel": "בטל",
-    "app.submenu.participants.lockPublicChatLabel": "צ'אט ציבורי",
-    "app.submenu.participants.lockPrivateChatLabel": "צ'אט פרטי",
     "app.settings.main.cancel.label": "בטל",
     "app.settings.main.save.label": "שמור",
     "app.switch.onLabel": "לא",
