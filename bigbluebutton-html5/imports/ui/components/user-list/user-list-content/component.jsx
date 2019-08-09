@@ -42,7 +42,7 @@ const defaultProps = {
   compact: false,
   isBreakoutRoom: false,
 };
-
+const ROLE_MODERATOR = Meteor.settings.public.user.role_moderator;
 const CHAT_ENABLED = Meteor.settings.public.chat.enabled;
 
 class UserContent extends PureComponent {
@@ -97,7 +97,7 @@ class UserContent extends PureComponent {
           />
           ) : null
         }
-        {currentUser.isModerator
+        {currentUser.role === ROLE_MODERATOR
           ? (
             <UserCaptionsContainer
               {...{
@@ -111,7 +111,7 @@ class UserContent extends PureComponent {
             intl,
           }}
         />
-        {pendingUsers.length > 0 && currentUser.isModerator
+        {pendingUsers.length > 0 && currentUser.role === ROLE_MODERATOR
           ? (
             <WaitingUsers
               {...{
@@ -122,13 +122,13 @@ class UserContent extends PureComponent {
           ) : null
         }
         <UserPolls
-          isPresenter={currentUser.isPresenter}
+          isPresenter={currentUser.presenter}
           {...{
             pollIsOpen,
             forcePollOpen,
           }}
         />
-        <BreakoutRoomItem isPresenter={currentUser.isPresenter} hasBreakoutRoom={hasBreakoutRoom} />
+        <BreakoutRoomItem isPresenter={currentUser.presenter} hasBreakoutRoom={hasBreakoutRoom} />
         <UserParticipantsContainer
           {...{
             compact,

@@ -8,7 +8,6 @@ import UserList from './component';
 
 const propTypes = {
   activeChats: PropTypes.arrayOf(String).isRequired,
-  currentUser: PropTypes.shape({}).isRequired,
   getUsersId: PropTypes.func.isRequired,
   isBreakoutRoom: PropTypes.bool.isRequired,
   getAvailableActions: PropTypes.func.isRequired,
@@ -35,7 +34,6 @@ UserListContainer.propTypes = propTypes;
 export default withTracker(({ chatID, compact }) => ({
   hasBreakoutRoom: Service.hasBreakoutRoom(),
   getUsersId: Service.getUsersId,
-  currentUser: Service.getCurrentUser(),
   activeChats: Service.getActiveChats(chatID),
   isBreakoutRoom: meetingIsBreakout(),
   getAvailableActions: Service.getAvailableActions,
