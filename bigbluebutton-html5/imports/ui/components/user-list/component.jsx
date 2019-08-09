@@ -12,7 +12,6 @@ const propTypes = {
   intl: PropTypes.shape({
     formatMessage: PropTypes.func.isRequired,
   }).isRequired,
-  currentUser: PropTypes.shape({}).isRequired,
   CustomLogoUrl: PropTypes.string.isRequired,
   handleEmojiChange: PropTypes.func.isRequired,
   isBreakoutRoom: PropTypes.bool,
@@ -45,7 +44,6 @@ class UserList extends PureComponent {
       intl,
       activeChats,
       compact,
-      currentUser,
       isBreakoutRoom,
       setEmojiStatus,
       assignPresenter,
@@ -84,7 +82,6 @@ class UserList extends PureComponent {
             intl,
             activeChats,
             compact,
-            currentUser,
             isBreakoutRoom,
             setEmojiStatus,
             assignPresenter,

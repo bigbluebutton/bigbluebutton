@@ -17,7 +17,7 @@ const SUBSCRIPTIONS = [
   'users', 'meetings', 'polls', 'presentations', 'slides', 'slide-positions', 'captions',
   'voiceUsers', 'whiteboard-multi-user', 'screenshare', 'group-chat',
   'presentation-pods', 'users-settings', 'guestUser', 'users-infos', 'note',
-  'network-information', 'ping-pong', 'local-settings',
+  'network-information', 'ping-pong', 'local-settings', 'users-typing',
 ];
 
 class Subscriptions extends Component {

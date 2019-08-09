@@ -3,12 +3,17 @@ import { defineMessages, injectIntl } from 'react-intl';
 import { withTracker } from 'meteor/react-meteor-data';
 import { Session } from 'meteor/session';
 import Auth from '/imports/ui/services/auth';
+import Users from '/imports/api/users';
+import { UsersTyping } from '/imports/api/group-chat-msg';
+import { makeCall } from '/imports/ui/services/api';
 import Chat from './component';
 import ChatService from './service';
 
 const CHAT_CONFIG = Meteor.settings.public.chat;
 const PUBLIC_CHAT_KEY = CHAT_CONFIG.public_id;
 const CHAT_CLEAR = CHAT_CONFIG.system_messages_keys.chat_clear;
+const ROLE_MODERATOR = Meteor.settings.public.user.role_moderator;
+const CONNECTION_STATUS = 'online';
 
 const intlMessages = defineMessages({
   [CHAT_CLEAR]: {
@@ -55,11 +60,11 @@ export default injectIntl(withTracker(({ intl }) => {
 
   if (chatID === PUBLIC_CHAT_KEY) {
     const { welcomeProp } = ChatService.getMeeting();
-    const user = ChatService.getUser(Auth.userID);
+    const currentUser = ChatService.getUser(Auth.userID);
 
     messages = ChatService.getPublicGroupMessages();
 
-    const time = user.loginTime;
+    const time = currentUser.loginTime;
     const welcomeId = `welcome-msg-${time}`;
 
     const welcomeMsg = {
@@ -96,18 +101,18 @@ export default injectIntl(withTracker(({ intl }) => {
 
     const messagesFormated = messagesBeforeWelcomeMsg
       .concat(welcomeMsg)
-      .concat(user.isModerator ? moderatorMsg : [])
+      .concat(currentUser.role === ROLE_MODERATOR ? moderatorMsg : [])
       .concat(messagesAfterWelcomeMsg);
 
     messages = messagesFormated.sort((a, b) => (a.time - b.time));
   } else {
     messages = ChatService.getPrivateGroupMessages();
 
-    const user = ChatService.getUser(chatID);
-    chatName = user.name;
-    systemMessageIntl = { 0: user.name };
+    const receiverUser = ChatService.getUser(chatID);
+    chatName = receiverUser.name;
+    systemMessageIntl = { 0: receiverUser.name };
     title = intl.formatMessage(intlMessages.titlePrivate, systemMessageIntl);
-    partnerIsLoggedOut = !user.isOnline;
+    partnerIsLoggedOut = !receiverUser.connectionStatus === CONNECTION_STATUS;
 
     if (partnerIsLoggedOut) {
       const time = Date.now();
@@ -141,37 +146,35 @@ export default injectIntl(withTracker(({ intl }) => {
     };
   });
 
-  const scrollPosition = ChatService.getScrollPosition(chatID);
-  const hasUnreadMessages = ChatService.hasUnreadMessages(chatID);
-  const lastReadMessageTime = ChatService.lastReadMessageTime(chatID);
-
   const { connected: isMeteorConnected } = Meteor.status();
 
+  const typingUsers = UsersTyping.find({
+    meetingId: Auth.meetingID,
+  }).fetch();
+
+  const currentUser = Users.findOne({
+    meetingId: Auth.meetingID,
+    userId: Auth.userID,
+  }, {
+    fields: {
+      userId: 1,
+    },
+  });
+
   return {
+    startUserTyping: chatId => makeCall('startUserTyping', chatId),
+    stopUserTyping: () => makeCall('stopUserTyping'),
+    currentUserId: currentUser ? currentUser.userId : null,
+    typingUsers,
     chatID,
     chatName,
     title,
     messages,
-    lastReadMessageTime,
-    hasUnreadMessages,
     partnerIsLoggedOut,
     isChatLocked,
-    scrollPosition,
     isMeteorConnected,
-    minMessageLength: CHAT_CONFIG.min_message_length,
-    maxMessageLength: CHAT_CONFIG.max_message_length,
-    UnsentMessagesCollection: ChatService.UnsentMessagesCollection,
     actions: {
-      handleClosePrivateChat: chatId => ChatService.closePrivateChat(chatId),
-
-      handleSendMessage: (message) => {
-        ChatService.updateScrollPosition(null);
-        return ChatService.sendGroupMessage(message);
-      },
-
-      handleScrollUpdate: position => ChatService.updateScrollPosition(position),
-
-      handleReadMessage: timestamp => ChatService.updateUnreadMessage(timestamp),
+      handleClosePrivateChat: ChatService.closePrivateChat,
     },
   };
 })(ChatContainer));

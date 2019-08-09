@@ -89,7 +89,7 @@ class WebcamDraggable extends Component {
     if (mediaContainer) {
       const mediaContainerRect = mediaContainer.getBoundingClientRect();
       const {
-        top, left, newWidth, newHeight,
+        top, left, width: newWidth, height: newHeight,
       } = mediaContainerRect;
 
       if ((mediaState.width === 0 || mediaState.height === 0) && (newWidth > 0 && newHeight > 0)) {
@@ -107,8 +107,8 @@ class WebcamDraggable extends Component {
       return {
         top,
         left,
-        newWidth,
-        newHeight,
+        width: newWidth,
+        height: newHeight,
       };
     }
     return false;

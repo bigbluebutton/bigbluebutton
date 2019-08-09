@@ -102,7 +102,7 @@
 
 .info {
   font-size: calc(var(--font-size-base) * .75);
-  color: var(--color-gray-light);
+  color: var(--color-gray-dark);
   text-align: left;
   padding: var(--border-size) 0;
 
@@ -112,5 +112,31 @@
 
   &:before {
     content: "\00a0"; // non-breaking space
+  }
+}
+
+
+.connectingAnimation {
+  margin: auto;
+  display: inline-block;
+  width: 1.5em;
+
+  &:after {
+    overflow: hidden;
+    display: inline-block;
+    vertical-align: bottom;
+    content: "\2026"; /* ascii code for the ellipsis character */
+    width: 0;
+    margin-left: 0.25em;
+
+    :global(.animationsEnabled) & {
+      animation: ellipsis steps(4, end) 900ms infinite;
+    }
+  }
+}
+
+@keyframes ellipsis {
+  to {
+    width: 1.5em;
   }
 }
