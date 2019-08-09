@@ -56,6 +56,8 @@ const intlMessages = defineMessages({
   },
 });
 
+const ROLE_MODERATOR = Meteor.settings.public.user.role_moderator;
+
 class UserParticipants extends Component {
   constructor() {
     super();
@@ -112,7 +114,6 @@ class UserParticipants extends Component {
     const {
       compact,
       isBreakoutRoom,
-      currentUser,
       meeting,
       getAvailableActions,
       normalizeEmojiName,
@@ -130,6 +131,7 @@ class UserParticipants extends Component {
       hasPrivateChatBetweenUsers,
       toggleUserLock,
       requestUserInformation,
+      currentUser,
     } = this.props;
 
     let index = -1;
@@ -148,7 +150,6 @@ class UserParticipants extends Component {
         <div ref={(node) => { this.userRefs[index += 1] = node; }}>
           <UserListItemContainer
             {...{
-              currentUser,
               compact,
               isBreakoutRoom,
               meeting,
@@ -167,6 +168,7 @@ class UserParticipants extends Component {
               hasPrivateChatBetweenUsers,
               toggleUserLock,
               requestUserInformation,
+              currentUser,
             }}
             userId={u}
             getScrollContainerRef={this.getScrollContainerRef}
@@ -210,7 +212,7 @@ class UserParticipants extends Component {
                   {users.length}
                   )
                 </h2>
-                {currentUser.isModerator
+                {currentUser.role === ROLE_MODERATOR
                   ? (
                     <UserOptionsContainer {...{
                       users,
@@ -218,7 +220,6 @@ class UserParticipants extends Component {
                       muteAllExceptPresenter,
                       setEmojiStatus,
                       meeting,
-                      currentUser,
                     }}
                     />
                   ) : null
