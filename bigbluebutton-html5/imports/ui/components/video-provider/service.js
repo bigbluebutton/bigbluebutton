@@ -3,8 +3,10 @@ import { makeCall } from '/imports/ui/services/api';
 import Auth from '/imports/ui/services/auth';
 import Meetings from '/imports/api/meetings/';
 import Users from '/imports/api/users/';
-import mapUser from '/imports/ui/services/user/mapUser';
 import UserListService from '/imports/ui/components/user-list/service';
+
+const ROLE_MODERATOR = Meteor.settings.public.user.role_moderator;
+const ROLE_VIEWER = Meteor.settings.public.user.role_viewer;
 
 class VideoService {
   constructor() {
@@ -70,40 +72,47 @@ class VideoService {
     makeCall('userUnshareWebcam', stream);
   }
 
-  getAllUsers() {
-    // Use the same function as the user-list to share the sorting/mapping
-    return UserListService.getUsers();
-  }
-
-  getAllUsersVideo() {
-    const userId = this.userId();
-    const isLocked = this.isLocked();
-    const currentUser = Users.findOne({ userId });
-    const currentUserIsModerator = mapUser(currentUser).isModerator;
+  getAllWebcamUsers() {
+    const webcamsLocked = this.webcamsLocked();
+    const webcamsOnlyForModerator = this.webcamsOnlyForModerator();
+    const currentUser = Users.findOne({ userId: Auth.userID });
+    const currentUserIsViewer = currentUser.role === ROLE_VIEWER;
     const sharedWebcam = this.isSharing;
 
-    const isSharingWebcam = user => user.isSharingWebcam || (sharedWebcam && user.isCurrent);
-    const isNotLocked = user => !(isLocked && user.isLocked);
+    let users = Users
+      .find({
+        meetingId: Auth.meetingID,
+        connectionStatus: 'online',
+        hasStream: true,
+        userId: { $ne: Auth.userID },
+      })
+      .fetch();
 
-    const isWebcamOnlyModerator = this.webcamOnlyModerator();
-    const allowedSeeViewersWebcams = !isWebcamOnlyModerator || currentUserIsModerator;
-    const webcamOnlyModerator = (user) => {
-      if (allowedSeeViewersWebcams) return true;
-      return user.isModerator || user.isCurrent;
-    };
+    const userIsNotLocked = user => user.role === ROLE_MODERATOR || !user.locked;
 
-    return this.getAllUsers()
-      .filter(isSharingWebcam)
-      .filter(isNotLocked)
-      .filter(webcamOnlyModerator);
+    if (webcamsLocked) {
+      users = users.filter(userIsNotLocked);
+    }
+
+    const userIsModerator = user => user.role === ROLE_MODERATOR;
+
+    if (webcamsOnlyForModerator && currentUserIsViewer) {
+      users = users.filter(userIsModerator);
+    }
+
+    if (sharedWebcam) {
+      users.unshift(currentUser);
+    }
+
+    return users.sort(UserListService.sortUsers);
   }
 
-  webcamOnlyModerator() {
+  webcamsOnlyForModerator() {
     const m = Meetings.findOne({ meetingId: Auth.meetingID }) || {};
     return m.usersProp ? m.usersProp.webcamsOnlyForModerator : false;
   }
 
-  isLocked() {
+  webcamsLocked() {
     const m = Meetings.findOne({ meetingId: Auth.meetingID }) || {};
     return m.lockSettingsProps ? m.lockSettingsProps.disableCam : false;
   }
@@ -145,9 +154,8 @@ export default {
   exitVideo: () => videoService.exitVideo(),
   exitingVideo: () => videoService.exitingVideo(),
   exitedVideo: () => videoService.exitedVideo(),
-  getAllUsers: () => videoService.getAllUsers(),
+  webcamsLocked: () => videoService.webcamsLocked(),
   webcamOnlyModerator: () => videoService.webcamOnlyModerator(),
-  isLocked: () => videoService.isLocked(),
   isSharing: () => videoService.isSharing,
   isConnected: () => videoService.isConnected,
   isWaitingResponse: () => videoService.isWaitingResponse,
@@ -156,10 +164,9 @@ export default {
   joinedVideo: () => videoService.joinedVideo(),
   sendUserShareWebcam: stream => videoService.sendUserShareWebcam(stream),
   sendUserUnshareWebcam: stream => videoService.sendUserUnshareWebcam(stream),
-  userId: () => videoService.userId(),
   userName: () => videoService.userName(),
   meetingId: () => videoService.meetingId(),
-  getAllUsersVideo: () => videoService.getAllUsersVideo(),
+  getAllWebcamUsers: () => videoService.getAllWebcamUsers(),
   sessionToken: () => videoService.sessionToken(),
   voiceBridge: () => videoService.voiceBridge(),
 };

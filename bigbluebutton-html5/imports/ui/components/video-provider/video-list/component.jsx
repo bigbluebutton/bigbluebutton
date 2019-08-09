@@ -4,7 +4,7 @@ import { defineMessages, injectIntl } from 'react-intl';
 import cx from 'classnames';
 import _ from 'lodash';
 import { styles } from './styles';
-import VideoListItem from './video-list-item/component';
+import VideoListItemContainer from './video-list-item/container';
 import { withDraggableConsumer } from '../../media/webcam-draggable-overlay/context';
 
 const propTypes = {
@@ -158,7 +158,7 @@ class VideoList extends Component {
     const { focusedId } = this.state;
 
     return users.map((user) => {
-      const isFocused = focusedId === user.id;
+      const isFocused = focusedId === user.userId;
       const isFocusedIntlKey = !isFocused ? 'focus' : 'unfocus';
       let actions = [];
 
@@ -166,28 +166,28 @@ class VideoList extends Component {
         actions = [{
           label: intl.formatMessage(intlMessages[`${isFocusedIntlKey}Label`]),
           description: intl.formatMessage(intlMessages[`${isFocusedIntlKey}Desc`]),
-          onClick: () => this.handleVideoFocus(user.id),
+          onClick: () => this.handleVideoFocus(user.userId),
         }];
       }
 
       return (
         <div
-          key={user.id}
+          key={user.userId}
           className={cx({
             [styles.videoListItem]: true,
-            [styles.focused]: focusedId === user.id && users.length > 2,
+            [styles.focused]: focusedId === user.userId && users.length > 2,
           })}
         >
-          <VideoListItem
+          <VideoListItemContainer
             numOfUsers={users.length}
             user={user}
             actions={actions}
             onMount={(videoRef) => {
               this.handleCanvasResize();
-              onMount(user.id, videoRef);
+              onMount(user.userId, videoRef);
             }}
-            getStats={(videoRef, callback) => getStats(user.id, videoRef, callback)}
-            stopGettingStats={() => stopGettingStats(user.id)}
+            getStats={(videoRef, callback) => getStats(user.userId, videoRef, callback)}
+            stopGettingStats={() => stopGettingStats(user.userId)}
             enableVideoStats={enableVideoStats}
           />
         </div>
