@@ -281,7 +281,7 @@ class MessageForm extends PureComponent {
             className={styles.input}
             id="message-input"
             innerRef={(ref) => { this.textarea = ref; return this.textarea; }}
-            placeholder={intl.formatMessage(messages.inputPlaceholder, { 0: chatName })}
+            placeholder={error === '' ? intl.formatMessage(messages.inputPlaceholder, { 0: chatName }) : error}
             aria-controls={chatAreaId}
             aria-label={intl.formatMessage(messages.inputLabel, { 0: chatTitle })}
             aria-invalid={hasErrors ? 'true' : 'false'}
@@ -308,12 +308,10 @@ class MessageForm extends PureComponent {
           />
         </div>
         <div className={styles.info}>
-          {hasErrors ? <span id="message-input-error">{error}</span> : (
-            <span>
-              <span>{renderIsTypingString()}</span>
-              {renderIsTypingString() ? <span className={styles.connectingAnimation} /> : null}
-            </span>
-          )}
+          <span>
+            <span>{renderIsTypingString()}</span>
+            {renderIsTypingString() ? <span className={styles.connectingAnimation} /> : null}
+          </span>
         </div>
       </form>
     ) : null;
