@@ -21,6 +21,18 @@ const intlMessages = defineMessages({
     id: 'app.chat.hideChatLabel',
     description: 'aria-label for hiding chat button',
   },
+  singularTyping: {
+    id: 'app.chat.singularTyping',
+    description: 'used to indicate when 1 user is typing',
+  },
+  pluralTyping: {
+    id: 'app.chat.pluralTyping',
+    description: 'used to indicate when multiple user are typing',
+  },
+  severalPeople: {
+    id: 'app.chat.severalPeople',
+    description: 'displayed when 4 or more users are typing',
+  },
 });
 const Chat = (props) => {
   const {
@@ -34,10 +46,61 @@ const Chat = (props) => {
     intl,
     shortcuts,
     isMeteorConnected,
+    typingUsers,
+    currentUserId,
+    startUserTyping,
+    stopUserTyping,
+    lastReadMessageTime,
+    hasUnreadMessages,
+    scrollPosition,
+    UnsentMessagesCollection,
+    minMessageLength,
+    maxMessageLength,
   } = props;
 
   const HIDE_CHAT_AK = shortcuts.hidePrivateChat;
   const CLOSE_CHAT_AK = shortcuts.closePrivateChat;
+
+  let names = [];
+
+  names = typingUsers.map((user) => {
+    const { userId: typingUserId, isTypingTo, name } = user;
+    if (currentUserId === typingUserId) return null;
+    if (chatID !== isTypingTo) {
+      if (typingUserId === chatID) {
+        return currentUserId !== isTypingTo
+          ? null : name;
+      }
+      return null;
+    }
+    return name;
+  }).filter(e => e);
+
+  const renderIsTypingString = () => {
+    if (names) {
+      const { length } = names;
+      const noTypers = length < 1;
+      const singleTyper = length === 1;
+      const multipleTypersShown = length > 1 && length <= 3;
+      if (noTypers) return null;
+
+      if (singleTyper) {
+        if (names[0].length < 20) {
+          return ` ${names[0]} ${intl.formatMessage(intlMessages.singularTyping)}`;
+        }
+        return (` ${names[0].slice(0, 20)}... ${intl.formatMessage(intlMessages.singularTyping)}`);
+      }
+
+      if (multipleTypersShown) {
+        const formattedNames = names.map((name) => {
+          if (name.length < 15) return ` ${name}`;
+          return ` ${name.slice(0, 15)}...`;
+        });
+        return (`${formattedNames} ${intl.formatMessage(intlMessages.pluralTyping)}`);
+      }
+      return (` ${intl.formatMessage(intlMessages.severalPeople)} ${intl.formatMessage(intlMessages.pluralTyping)}`);
+    }
+  };
 
   return (
     <div
@@ -84,19 +147,35 @@ const Chat = (props) => {
         }
       </header>
       <MessageList
-        chatId={chatID}
-        messages={messages}
         id={ELEMENT_ID}
-        partnerIsLoggedOut={partnerIsLoggedOut}
+        chatId={chatID}
+        handleScrollUpdate={actions.handleScrollUpdate}
+        handleReadMessage={actions.handleReadMessage}
+        {...{
+          partnerIsLoggedOut,
+          lastReadMessageTime,
+          hasUnreadMessages,
+          scrollPosition,
+          messages,
+        }}
       />
       <MessageForm
+        {...{
+          UnsentMessagesCollection,
+          chatName,
+          minMessageLength,
+          maxMessageLength,
+          renderIsTypingString,
+          startUserTyping,
+          stopUserTyping,
+        }}
         chatId={chatID}
-        connected={isMeteorConnected}
-        chatAreaId={ELEMENT_ID}
         chatTitle={title}
-        chatName={chatName}
+        chatAreaId={ELEMENT_ID}
         disabled={isChatLocked || !isMeteorConnected}
+        connected={isMeteorConnected}
         locked={isChatLocked}
+        handleSendMessage={actions.handleSendMessage}
         partnerIsLoggedOut={partnerIsLoggedOut}
       />
     </div>

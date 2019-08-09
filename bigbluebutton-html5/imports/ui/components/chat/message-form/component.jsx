@@ -7,7 +7,6 @@ import PropTypes from 'prop-types';
 import { styles } from './styles.scss';
 import Button from '../../button/component';
 
-
 const propTypes = {
   intl: intlShape.isRequired,
   chatId: PropTypes.string.isRequired,
@@ -57,6 +56,7 @@ const messages = defineMessages({
 });
 
 const CHAT_ENABLED = Meteor.settings.public.chat.enabled;
+const IS_TYPING_INTERVAL = 2500;
 
 class MessageForm extends PureComponent {
   constructor(props) {
@@ -177,12 +177,17 @@ class MessageForm extends PureComponent {
   }
 
   handleMessageChange(e) {
-    const { intl } = this.props;
+    const {
+      intl,
+      startUserTyping,
+      stopUserTyping,
+      minMessageLength,
+      maxMessageLength,
+      chatId,
+    } = this.props;
 
     const message = e.target.value;
     let error = '';
-
-    const { minMessageLength, maxMessageLength } = this.props;
 
     if (message.length < minMessageLength) {
       error = intl.formatMessage(
@@ -198,18 +203,30 @@ class MessageForm extends PureComponent {
       );
     }
 
+    const handleUserTyping = () => {
+      startUserTyping(chatId);
+      setTimeout(() => {
+        const { message: messageState } = this.state;
+        const userStoppedTyping = messageState === '' || message.length === messageState.length;
+        if (userStoppedTyping) stopUserTyping();
+      }, IS_TYPING_INTERVAL);
+    };
 
     this.setState({
       message,
       error,
-    });
+    }, handleUserTyping);
   }
 
   handleSubmit(e) {
     e.preventDefault();
 
     const {
-      disabled, minMessageLength, maxMessageLength, handleSendMessage,
+      disabled,
+      minMessageLength,
+      maxMessageLength,
+      handleSendMessage,
+      stopUserTyping,
     } = this.props;
     const { message } = this.state;
     let msg = message.trim();
@@ -234,13 +251,20 @@ class MessageForm extends PureComponent {
       this.setState({
         message: '',
         hasErrors: false,
-      })
+      }, stopUserTyping)
     );
   }
 
   render() {
     const {
-      intl, chatTitle, chatName, disabled, className, chatAreaId,
+      intl,
+      chatTitle,
+      chatName,
+      disabled,
+      className,
+      chatAreaId,
+      stopUserTyping,
+      renderIsTypingString,
     } = this.props;
 
     const { hasErrors, error, message } = this.state;
@@ -256,7 +280,7 @@ class MessageForm extends PureComponent {
             className={styles.input}
             id="message-input"
             innerRef={(ref) => { this.textarea = ref; return this.textarea; }}
-            placeholder={intl.formatMessage(messages.inputPlaceholder, { 0: chatName })}
+            placeholder={error === '' ? intl.formatMessage(messages.inputPlaceholder, { 0: chatName }) : error}
             aria-controls={chatAreaId}
             aria-label={intl.formatMessage(messages.inputLabel, { 0: chatTitle })}
             aria-invalid={hasErrors ? 'true' : 'false'}
@@ -279,11 +303,14 @@ class MessageForm extends PureComponent {
             label={intl.formatMessage(messages.submitLabel)}
             color="primary"
             icon="send"
-            onClick={() => null}
+            onClick={() => {}}
           />
         </div>
         <div className={styles.info}>
-          {hasErrors ? <span id="message-input-error">{error}</span> : null}
+          <span>
+            <span>{renderIsTypingString()}</span>
+            {renderIsTypingString() ? <span className={styles.connectingAnimation} /> : null}
+          </span>
         </div>
       </form>
     ) : null;

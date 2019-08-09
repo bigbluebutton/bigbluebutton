@@ -1,6 +1,6 @@
 import Users from '/imports/api/users';
 import GroupChat from '/imports/api/group-chat';
-import GroupChatMsg from '/imports/api/group-chat-msg';
+import { GroupChatMsg } from '/imports/api/group-chat-msg';
 import Breakouts from '/imports/api/breakouts/';
 import Meetings from '/imports/api/meetings';
 import Auth from '/imports/ui/services/auth';
