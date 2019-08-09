@@ -71,14 +71,14 @@ class WhiteboardToolbar extends Component {
   constructor(props) {
     super(props);
 
-    const { annotations, multiUser } = this.props;
+    const { annotations, multiUser, isPresenter } = this.props;
 
     let annotationSelected = {
       icon: 'hand',
       value: 'hand',
     };
 
-    if (multiUser) {
+    if (multiUser && !isPresenter) {
       annotationSelected = {
         icon: 'pen_tool',
         value: 'pencil',
@@ -130,19 +130,28 @@ class WhiteboardToolbar extends Component {
     this.panOff = this.panOff.bind(this);
   }
 
-  componentWillMount() {
-    const { actions } = this.props;
+  componentDidMount() {
+    const { actions, multiUser, isPresenter } = this.props;
     const drawSettings = actions.getCurrentDrawSettings();
+    const {
+      annotationSelected, thicknessSelected, colorSelected, fontSizeSelected,
+    } = this.state;
+
+    document.addEventListener('keydown', this.panOn);
+    document.addEventListener('keyup', this.panOff);
+
     // if there are saved drawSettings in the session storage
     // - retrieve them and update toolbar values
     if (drawSettings) {
+      if (multiUser && !isPresenter) {
+        drawSettings.whiteboardAnnotationTool = 'pencil';
+        this.handleAnnotationChange({ icon: 'pen_tool', value: 'pencil' });
+      }
+
       this.setToolbarValues(drawSettings);
       // no drawSettings in the sessionStorage - setting default values
     } else {
       // setting default drawing settings if they haven't been set previously
-      const {
-        annotationSelected, thicknessSelected, colorSelected, fontSizeSelected,
-      } = this.state;
       actions.setInitialWhiteboardToolbarValues(
         annotationSelected.value,
         thicknessSelected.value * 2,
@@ -154,13 +163,6 @@ class WhiteboardToolbar extends Component {
         },
       );
     }
-  }
-
-  componentDidMount() {
-    const { annotationSelected } = this.state;
-
-    document.addEventListener('keydown', this.panOn);
-    document.addEventListener('keyup', this.panOff);
 
     if (annotationSelected.value !== 'text') {
       // trigger initial animation on the thickness circle, otherwise it stays at 0
