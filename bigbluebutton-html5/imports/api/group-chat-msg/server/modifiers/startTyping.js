@@ -25,7 +25,7 @@ export default function startTyping(meetingId, userId, chatId) {
     if (err) {
       return Logger.error(`Typing indicator update error: ${err}`);
     }
-    return Logger.info(`Typing indicator update for userId={${userId}} chatId={${chatId}}`);
+    return Logger.debug(`Typing indicator update for userId={${userId}} chatId={${chatId}}`);
   };
 
   return UsersTyping.upsert(selector, mod, cb);

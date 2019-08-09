@@ -74,8 +74,7 @@ const Chat = (props) => {
       return null;
     }
     return name;
-  });
-  names = names.filter(e => e);
+  }).filter(e => e);
 
   const renderIsTypingString = () => {
     if (names) {
