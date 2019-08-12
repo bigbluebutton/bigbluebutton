@@ -15,10 +15,9 @@ const propTypes = {
   }).isRequired,
   currentUser: PropTypes.shape({}).isRequired,
   meeting: PropTypes.shape({}).isRequired,
-  users: PropTypes.arrayOf(PropTypes.string).isRequired,
+  users: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
   getGroupChatPrivate: PropTypes.func.isRequired,
   handleEmojiChange: PropTypes.func.isRequired,
-  getUsersId: PropTypes.func.isRequired,
   isBreakoutRoom: PropTypes.bool,
   setEmojiStatus: PropTypes.func.isRequired,
   assignPresenter: PropTypes.func.isRequired,
@@ -145,7 +144,7 @@ class UserParticipants extends Component {
         timeout={0}
         component="div"
         className={cx(styles.participantsList)}
-        key={u}
+        key={u.userId}
       >
         <div ref={(node) => { this.userRefs[index += 1] = node; }}>
           <UserListItemContainer
@@ -170,7 +169,7 @@ class UserParticipants extends Component {
               requestUserInformation,
               currentUser,
             }}
-            userId={u}
+            user={u}
             getScrollContainerRef={this.getScrollContainerRef}
           />
         </div>

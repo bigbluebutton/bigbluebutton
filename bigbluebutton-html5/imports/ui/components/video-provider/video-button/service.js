@@ -18,7 +18,7 @@ const isDisabled = () => {
   const isWaitingResponse = VideoService.isWaitingResponse();
   const isConnected = VideoService.isConnected();
 
-  const lockCam = VideoService.isLocked();
+  const lockCam = VideoService.webcamsLocked();
   const user = Users.findOne({ userId: Auth.userID });
   const userLocked = mapUser(user).isLocked;
 
