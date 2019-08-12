@@ -18,10 +18,13 @@ const propTypes = {
   className: PropTypes.string,
   chatAreaId: PropTypes.string.isRequired,
   handleSendMessage: PropTypes.func.isRequired,
-  UnsentMessagesCollection: PropTypes.object.isRequired,
+  UnsentMessagesCollection: PropTypes.objectOf(Object).isRequired,
   connected: PropTypes.bool.isRequired,
   locked: PropTypes.bool.isRequired,
   partnerIsLoggedOut: PropTypes.bool.isRequired,
+  renderIsTypingString: PropTypes.func.isRequired,
+  stopUserTyping: PropTypes.func.isRequired,
+  startUserTyping: PropTypes.func.isRequired,
 };
 
 const defaultProps = {
@@ -64,7 +67,7 @@ class MessageForm extends PureComponent {
 
     this.state = {
       message: '',
-      error: '',
+      error: null,
       hasErrors: false,
     };
 
@@ -180,21 +183,12 @@ class MessageForm extends PureComponent {
     const {
       intl,
       startUserTyping,
-      stopUserTyping,
-      minMessageLength,
       maxMessageLength,
       chatId,
     } = this.props;
 
     const message = e.target.value;
-    let error = '';
-
-    if (message.length < minMessageLength) {
-      error = intl.formatMessage(
-        messages.errorMinMessageLength,
-        { 0: minMessageLength - message.length },
-      );
-    }
+    let error = null;
 
     if (message.length > maxMessageLength) {
       error = intl.formatMessage(
@@ -208,7 +202,10 @@ class MessageForm extends PureComponent {
       setTimeout(() => {
         const { message: messageState } = this.state;
         const userStoppedTyping = messageState === '' || message.length === messageState.length;
-        if (userStoppedTyping) stopUserTyping();
+        if (userStoppedTyping) {
+          const { stopUserTyping } = this.props;
+          stopUserTyping();
+        }
       }, IS_TYPING_INTERVAL);
     };
 
@@ -222,6 +219,7 @@ class MessageForm extends PureComponent {
     e.preventDefault();
 
     const {
+      intl,
       disabled,
       minMessageLength,
       maxMessageLength,
@@ -231,10 +229,18 @@ class MessageForm extends PureComponent {
     const { message } = this.state;
     let msg = message.trim();
 
+    if (message.length < minMessageLength) {
+      this.setState({
+        hasErrors: true,
+        error: intl.formatMessage(
+          messages.errorMinMessageLength,
+          { 0: minMessageLength - message.length },
+        ),
+      });
+    }
 
     if (disabled
       || msg.length === 0
-      || msg.length < minMessageLength
       || msg.length > maxMessageLength) {
       this.setState({ hasErrors: true });
       return false;
@@ -263,7 +269,6 @@ class MessageForm extends PureComponent {
       disabled,
       className,
       chatAreaId,
-      stopUserTyping,
       renderIsTypingString,
     } = this.props;
 
@@ -280,7 +285,7 @@ class MessageForm extends PureComponent {
             className={styles.input}
             id="message-input"
             innerRef={(ref) => { this.textarea = ref; return this.textarea; }}
-            placeholder={error === '' ? intl.formatMessage(messages.inputPlaceholder, { 0: chatName }) : error}
+            placeholder={error || intl.formatMessage(messages.inputPlaceholder, { 0: chatName })}
             aria-controls={chatAreaId}
             aria-label={intl.formatMessage(messages.inputLabel, { 0: chatTitle })}
             aria-invalid={hasErrors ? 'true' : 'false'}
