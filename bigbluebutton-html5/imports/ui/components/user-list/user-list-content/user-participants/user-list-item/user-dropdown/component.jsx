@@ -113,6 +113,7 @@ const propTypes = {
 };
 
 const CHAT_ENABLED = Meteor.settings.public.chat.enabled;
+const noop = () => {};
 
 class UserDropdown extends PureComponent {
   /**
@@ -156,6 +157,7 @@ class UserDropdown extends PureComponent {
   }
 
   onActionsShow() {
+    Session.set('dropdownOpen', true);
     const { getScrollContainerRef } = this.props;
     const dropdown = this.getDropdownMenuParent();
     const scrollContainer = getScrollContainerRef();
@@ -192,6 +194,9 @@ class UserDropdown extends PureComponent {
     if (callback) {
       return callback;
     }
+
+    Session.set('dropdownOpen', false);
+    return noop;
   }
 
   getUsersActions() {
@@ -250,7 +255,12 @@ class UserDropdown extends PureComponent {
         actions.push(this.makeDropdownItem(
           'back',
           intl.formatMessage(messages.backTriggerLabel),
-          () => this.setState({ showNestedOptions: false, isActionsOpen: true }),
+          () => this.setState(
+            {
+              showNestedOptions: false,
+              isActionsOpen: true,
+            }, Session.set('dropdownOpen', true),
+          ),
           'left_arrow',
         ));
       }
@@ -272,7 +282,12 @@ class UserDropdown extends PureComponent {
       actions.push(this.makeDropdownItem(
         'setstatus',
         intl.formatMessage(messages.statusTriggerLabel),
-        () => this.setState({ showNestedOptions: true, isActionsOpen: true }),
+        () => this.setState(
+          {
+            showNestedOptions: true,
+            isActionsOpen: true,
+          }, Session.set('dropdownOpen', true),
+        ),
         'user',
         'right_arrow',
       ));
@@ -439,7 +454,8 @@ class UserDropdown extends PureComponent {
       );
 
       if (!isDropdownVisible) {
-        const offsetPageTop = (dropdownTrigger.offsetTop + dropdownTrigger.offsetHeight) - scrollContainer.scrollTop;
+        const { offsetTop, offsetHeight } = dropdownTrigger;
+        const offsetPageTop = (offsetTop + offsetHeight) - scrollContainer.scrollTop;
 
         nextState.dropdownOffset = window.innerHeight - offsetPageTop;
         nextState.dropdownDirection = 'bottom';

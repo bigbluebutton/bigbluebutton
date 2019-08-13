@@ -5,6 +5,7 @@ import PropTypes from 'prop-types';
 import cx from 'classnames';
 import { styles } from '/imports/ui/components/user-list/user-list-content/styles';
 import _ from 'lodash';
+import { findDOMNode } from 'react-dom';
 import UserListItemContainer from './user-list-item/container';
 import UserOptionsContainer from './user-options/container';
 
@@ -61,28 +62,23 @@ class UserParticipants extends Component {
     super();
 
     this.state = {
-      index: -1,
+      selectedUser: null,
     };
 
     this.userRefs = [];
-    this.selectedIndex = -1;
 
     this.getScrollContainerRef = this.getScrollContainerRef.bind(this);
-    this.focusUserItem = this.focusUserItem.bind(this);
+    this.rove = this.rove.bind(this);
     this.changeState = this.changeState.bind(this);
     this.getUsers = this.getUsers.bind(this);
   }
 
   componentDidMount() {
-    const { compact, roving, users } = this.props;
+    const { compact } = this.props;
     if (!compact) {
       this.refScrollContainer.addEventListener(
         'keydown',
-        event => roving(
-          event,
-          users.length,
-          this.changeState,
-        ),
+        this.rove,
       );
     }
   }
@@ -90,17 +86,15 @@ class UserParticipants extends Component {
   shouldComponentUpdate(nextProps, nextState) {
     const isPropsEqual = _.isEqual(this.props, nextProps);
     const isStateEqual = _.isEqual(this.state, nextState);
+
     return !isPropsEqual || !isStateEqual;
   }
 
-  componentDidUpdate(prevProps, prevState) {
-    const { index } = this.state;
-    if (index === -1) {
-      return;
-    }
+  componentDidUpdate() {
+    const { selectedUser } = this.state;
 
-    if (index !== prevState.index) {
-      this.focusUserItem(index);
+    if (selectedUser) {
+      selectedUser.firstChild.focus();
     }
   }
 
@@ -176,14 +170,15 @@ class UserParticipants extends Component {
     ));
   }
 
-  focusUserItem(index) {
-    if (!this.userRefs[index]) return;
-
-    this.userRefs[index].firstChild.focus();
+  rove(event) {
+    const { roving } = this.props;
+    const { selectedUser } = this.state;
+    const usersItemsRef = findDOMNode(this.refScrollItems);
+    roving(event, this.changeState, usersItemsRef, selectedUser);
   }
 
-  changeState(newIndex) {
-    this.setState({ index: newIndex });
+  changeState(ref) {
+    this.setState({ selectedUser: ref });
   }
 
   render() {
@@ -230,7 +225,6 @@ class UserParticipants extends Component {
         }
         <div
           className={styles.scrollableList}
-          role="list"
           tabIndex={0}
           ref={(ref) => { this.refScrollContainer = ref; }}
         >
