@@ -245,7 +245,7 @@ class VideoListItem extends Component {
               </div>
             )
           }
-          {voiceUser.muted ? <Icon className={styles.muted} iconName="unmute_filled" /> : null}
+          {voiceUser.muted && !voiceUser.listenOnly ? <Icon className={styles.muted} iconName="unmute_filled" /> : null}
           {voiceUser.listenOnly ? <Icon className={styles.voice} iconName="listen" /> : null}
         </div>
         {
