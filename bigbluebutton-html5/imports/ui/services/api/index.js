@@ -25,14 +25,20 @@ export function makeCall(name, ...args) {
         resolve(result);
       });
     } else {
-      reject(() => logger.warn({
-        logCode: 'servicesapiindex_makeCall',
-        extraInfo: {
-          attemptForUserInfo: Auth.fullInfo,
-          name,
-          ...args,
-        },
-      }, 'Connection to Meteor was interrupted.'));
+      const failureString = `Call to ${name} failed because Meteor is not connected`;
+      // We don't want to send a log message if the call that failed wasa log message.
+      // Without this you can get into an endless loop of failed logging.
+      if (name !== 'logClient') {
+        logger.warn({
+          logCode: 'servicesapiindex_makeCall',
+          extraInfo: {
+            attemptForUserInfo: Auth.fullInfo,
+            name,
+            ...args,
+          },
+        }, failureString);
+      }
+      reject(failureString);
     }
   });
 }
