@@ -127,11 +127,11 @@ class VideoListItem extends Component {
     return _.compact([
       <DropdownListTitle className={styles.hiddenDesktop} key="name">{user.name}</DropdownListTitle>,
       <DropdownListSeparator className={styles.hiddenDesktop} key="sep" />,
-      ...actions.map(action => (<DropdownListItem key={user.id} {...action} />)),
+      ...actions.map(action => (<DropdownListItem key={user.userId} {...action} />)),
       (enableVideoStats
         ? (
           <DropdownListItem
-            key={`list-item-stats-${user.id}`}
+            key={`list-item-stats-${user.userId}`}
             onClick={() => { this.toggleStats(); }}
             label={intl.formatMessage(intlMessages.connectionStatsLabel)}
           />
@@ -176,6 +176,7 @@ class VideoListItem extends Component {
     } = this.state;
     const {
       user,
+      voiceUser,
       numOfUsers,
       webcamDraggableState,
     } = this.props;
@@ -188,7 +189,7 @@ class VideoListItem extends Component {
     return (
       <div className={cx({
         [styles.content]: true,
-        [styles.talking]: user.isTalking,
+        [styles.talking]: voiceUser.talking,
       })}
       >
         {
@@ -244,8 +245,8 @@ class VideoListItem extends Component {
               </div>
             )
           }
-          {user.isMuted ? <Icon className={styles.muted} iconName="unmute_filled" /> : null}
-          {user.isListenOnly ? <Icon className={styles.voice} iconName="listen" /> : null}
+          {voiceUser.muted && !voiceUser.listenOnly ? <Icon className={styles.muted} iconName="unmute_filled" /> : null}
+          {voiceUser.listenOnly ? <Icon className={styles.voice} iconName="listen" /> : null}
         </div>
         {
           showStats

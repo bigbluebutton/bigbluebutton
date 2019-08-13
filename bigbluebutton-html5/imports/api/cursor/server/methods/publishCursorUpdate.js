@@ -21,10 +21,15 @@ export default function publishCursorUpdate(credentials, payload) {
     whiteboardId: String,
   });
 
-  const { whiteboardId } = payload;
+  const {
+    whiteboardId,
+    xPercent,
+    yPercent,
+  } = payload;
 
   const allowed = isPodPresenter(meetingId, whiteboardId, requesterUserId)
-    || getMultiUserStatus(meetingId, whiteboardId);
+    || getMultiUserStatus(meetingId, whiteboardId)
+    || (xPercent < 0 && yPercent < 0);
   if (!allowed) {
     throw new Meteor.Error('not-allowed', `User ${requesterUserId} is not allowed to move the cursor`);
   }

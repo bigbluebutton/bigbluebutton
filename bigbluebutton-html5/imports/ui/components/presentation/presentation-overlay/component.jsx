@@ -318,8 +318,12 @@ export default class PresentationOverlay extends Component {
     const currDiff = PresentationOverlay.calculateDistance(event.touches);
 
     if (currDiff > 0) {
-      const newZoom = zoom + (currDiff - this.prevDiff);
-
+      let newZoom = zoom + (currDiff - this.prevDiff);
+      if (newZoom <= HUNDRED_PERCENT) {
+        newZoom = HUNDRED_PERCENT;
+      } else if (newZoom >= MAX_PERCENT) {
+        newZoom = MAX_PERCENT;
+      }
       const svgPosition = this.getTransformedSvgPoint(touchCenterPoint.x, touchCenterPoint.y);
       this.doZoomCall(newZoom, svgPosition.x, svgPosition.y);
     }
