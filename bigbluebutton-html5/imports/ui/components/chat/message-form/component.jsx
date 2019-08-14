@@ -105,7 +105,12 @@ class MessageForm extends PureComponent {
 
     if (prevProps.chatId !== chatId) {
       this.updateUnsentMessagesCollection(prevProps.chatId, message);
-      this.setMessageState();
+      this.setState(
+        {
+          error: null,
+          hasErrors: false,
+        }, this.setMessageState(),
+      );
     }
 
     if (
