@@ -4,14 +4,15 @@ import Button from '/imports/ui/components/button/component';
 import { defineMessages, intlShape, injectIntl } from 'react-intl';
 import { styles } from './styles';
 
+
 const intlMessages = defineMessages({
   confirmLabel: {
-    id: 'app.audioModal.yes',
-    description: 'Hear yourself yes',
+    id: 'app.audioModal.playAudio',
+    description: 'Play audio prompt for autoplay',
   },
   confirmAriaLabel: {
-    id: 'app.audioModal.yes.arialabel',
-    description: 'provides better context for yes btn label',
+    id: 'app.audioModal.playAudio.arialabel',
+    description: 'Provides better context for play audio prompt btn label',
   },
 });
 
