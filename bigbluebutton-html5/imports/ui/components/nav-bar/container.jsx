@@ -20,11 +20,18 @@ const NavBarContainer = ({ children, ...props }) => (
   </NavBar>
 );
 
+
+const recordProps = {
+  allowStartStopRecording: false,
+  autoStartRecording: false,
+  record: false,
+  recording: false,
+};
+
 export default withTracker(() => {
   const CLIENT_TITLE = getFromUserSettings('clientTitle', PUBLIC_CONFIG.app.clientTitle);
 
   let meetingTitle;
-  let meetingRecorded;
   const meetingId = Auth.meetingID;
   const meetingObject = Meetings.findOne({
     meetingId,
@@ -32,7 +39,6 @@ export default withTracker(() => {
 
   if (meetingObject != null) {
     meetingTitle = meetingObject.meetingProp.name;
-    meetingRecorded = meetingObject.recordProp;
     document.title = `${CLIENT_TITLE} - ${meetingTitle}`;
   }
 
@@ -62,7 +68,23 @@ export default withTracker(() => {
   const openPanel = Session.get('openPanel');
   const isExpanded = openPanel !== '';
   const amIModerator = mapUser(currentUser).isModerator;
+  const isBreakoutRoom = meetingIsBreakout();
+  const hasUnreadMessages = checkUnreadMessages();
 
+  const toggleUserList = () => {
+    Session.set('isUserListOpen', !isExpanded);
+  };
+  const { recordProp } = meetingObject;
+  // const recordProps = {
+  //   allowStartStopRecording: recordProp && recordProp.allowStartStopRecording,
+  //   autoStartRecording: recordProp && recordProp.autoStartRecording,
+  //   record: recordProp && recordProp.record,
+  //   recording: recordProp && recordProp.recording,
+  // };
+  recordProps.allowStartStopRecording = recordProp && recordProp.allowStartStopRecording;
+  recordProps.autoStartRecording = recordProp && recordProp.autoStartRecording;
+  recordProps.record = recordProp && recordProp.record;
+  recordProps.recording = recordProp && recordProp.recording;
   return {
     amIModerator,
     isExpanded,
@@ -71,11 +93,9 @@ export default withTracker(() => {
     connectRecordingObserver,
     meetingId,
     presentationTitle: meetingTitle,
-    hasUnreadMessages: checkUnreadMessages(),
-    isBreakoutRoom: meetingIsBreakout(),
-    recordProps: meetingRecorded,
-    toggleUserList: () => {
-      Session.set('isUserListOpen', !isExpanded);
-    },
+    hasUnreadMessages,
+    isBreakoutRoom,
+    recordProps,
+    toggleUserList,
   };
 })(NavBarContainer);

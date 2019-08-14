@@ -31,6 +31,14 @@ const intlMessages = defineMessages({
     id: 'app.recording.resumeTitle',
     description: 'resume recording title',
   },
+  recordingIndicatorOn: {
+    id: 'app.navBar.recording.on',
+    description: 'label for indicator when the session is being recorded',
+  },
+  recordingIndicatorOff: {
+    id: 'app.navBar.recording.off',
+    description: 'label for indicator when the session is not being recorded',
+  },
 });
 
 const propTypes = {
@@ -38,7 +46,6 @@ const propTypes = {
   amIModerator: PropTypes.bool,
   record: PropTypes.bool,
   recording: PropTypes.bool,
-  title: PropTypes.string,
   mountModal: PropTypes.func.isRequired,
   time: PropTypes.number,
   allowStartStopRecording: PropTypes.bool.isRequired,
@@ -48,24 +55,57 @@ const defaultProps = {
   amIModerator: false,
   record: false,
   recording: false,
-  title: '',
   time: 0,
 };
 
 class RecordingIndicator extends PureComponent {
+  constructor(props) {
+    super(props);
+    this.state = {
+      time: (props.time ? props.time : 0),
+    };
+
+    this.incrementTime = this.incrementTime.bind(this);
+  }
+
+  componentDidUpdate() {
+    if (!this.props.recording) {
+      clearInterval(this.interval);
+      this.interval = null;
+    } else if (this.interval === null) {
+      this.interval = setInterval(this.incrementTime, 1000);
+    }
+  }
+
+  incrementTime() {
+    const { time: propTime } = this.props;
+    const { time } = this.state;
+
+    if (propTime > time) {
+      this.setState({ time: propTime + 1 });
+    } else {
+      this.setState({ time: time + 1 });
+    }
+  }
+
   render() {
     const {
       record,
-      title,
       recording,
       mountModal,
-      time,
       amIModerator,
       intl,
       allowStartStopRecording,
     } = this.props;
-
+    const { time } = this.state;
     if (!record) return null;
+
+    if (!this.interval) {
+      this.interval = setInterval(this.incrementTime, 1000);
+    }
+
+    const title = intl.formatMessage(recording ? intlMessages.recordingIndicatorOn
+      : intlMessages.recordingIndicatorOff);
 
     let recordTitle = '';
     if (!recording) {
@@ -123,7 +163,7 @@ class RecordingIndicator extends PureComponent {
       <div className={styles.recordingIndicator}>
         {showButton
           ? recordingButton
-          : null }
+          : null}
 
         {showButton ? null : (
           <Tooltip

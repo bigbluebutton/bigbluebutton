@@ -1,7 +1,6 @@
-import React, { PureComponent } from 'react';
+import React, { } from 'react';
 import PropTypes from 'prop-types';
 import { Session } from 'meteor/session';
-import _ from 'lodash';
 import cx from 'classnames';
 import { withModalMounter } from '/imports/ui/components/modal/service';
 import withShortcutHelper from '/imports/ui/components/shortcut-help/service';
@@ -11,6 +10,7 @@ import { styles } from './styles.scss';
 import Button from '../button/component';
 import RecordingIndicator from './recording-indicator/component';
 import SettingsDropdownContainer from './settings-dropdown/container';
+
 
 const intlMessages = defineMessages({
   toggleUserListLabel: {
@@ -24,18 +24,6 @@ const intlMessages = defineMessages({
   newMessages: {
     id: 'app.navBar.toggleUserList.newMessages',
     description: 'label for toggleUserList btn when showing red notification',
-  },
-  recordingSession: {
-    id: 'app.navBar.recording',
-    description: 'label for when the session is being recorded',
-  },
-  recordingIndicatorOn: {
-    id: 'app.navBar.recording.on',
-    description: 'label for indicator when the session is being recorded',
-  },
-  recordingIndicatorOff: {
-    id: 'app.navBar.recording.off',
-    description: 'label for indicator when the session is not being recorded',
   },
 });
 
@@ -61,7 +49,7 @@ const defaultProps = {
   shortcuts: '',
 };
 
-class NavBar extends PureComponent {
+class NavBar extends React.PureComponent {
   static handleToggleUserList() {
     Session.set(
       'openPanel',
@@ -70,17 +58,6 @@ class NavBar extends PureComponent {
         : 'userlist',
     );
     Session.set('idChatOpen', '');
-  }
-
-  constructor(props) {
-    super(props);
-
-    this.state = {
-      time: (props.recordProps.time ? props.recordProps.time : 0),
-      amIModerator: props.amIModerator,
-    };
-
-    this.incrementTime = this.incrementTime.bind(this);
   }
 
   componentDidMount() {
@@ -96,36 +73,13 @@ class NavBar extends PureComponent {
     }
   }
 
-  static getDerivedStateFromProps(nextProps) {
-    return { amIModerator: nextProps.amIModerator };
-  }
-
-  componentDidUpdate() {
-    const {
-      recordProps,
-    } = this.props;
-
-    if (!recordProps.recording) {
-      clearInterval(this.interval);
-      this.interval = null;
-    } else if (this.interval === null) {
-      this.interval = setInterval(this.incrementTime, 1000);
-    }
+  componentDidUpdate(prevProps) {
+    console.error('prev', { ...prevProps });
+    console.error('props', { ...this.props });
   }
 
   componentWillUnmount() {
     clearInterval(this.interval);
-  }
-
-  incrementTime() {
-    const { recordProps } = this.props;
-    const { time } = this.state;
-
-    if (recordProps.time > time) {
-      this.setState({ time: recordProps.time + 1 });
-    } else {
-      this.setState({ time: time + 1 });
-    }
   }
 
   render() {
@@ -138,14 +92,9 @@ class NavBar extends PureComponent {
       mountModal,
       isBreakoutRoom,
       presentationTitle,
+      amIModerator,
     } = this.props;
 
-    const recordingMessage = recordProps.recording ? 'recordingIndicatorOn' : 'recordingIndicatorOff';
-    const { time, amIModerator } = this.state;
-
-    if (!this.interval) {
-      this.interval = setInterval(this.incrementTime, 1000);
-    }
 
     const toggleBtnClasses = {};
     toggleBtnClasses[styles.btn] = true;
@@ -178,9 +127,7 @@ class NavBar extends PureComponent {
             : null}
           <RecordingIndicator
             {...recordProps}
-            title={intl.formatMessage(intlMessages[recordingMessage])}
             mountModal={mountModal}
-            time={time}
             amIModerator={amIModerator}
           />
         </div>
