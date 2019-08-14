@@ -150,6 +150,10 @@ export default injectIntl(withTracker(({ intl }) => {
 
   const typingUsers = UsersTyping.find({
     meetingId: Auth.meetingID,
+    $or: [
+      { isTypingTo: PUBLIC_CHAT_KEY },
+      { isTypingTo: Auth.userID },
+    ],
   }).fetch();
 
   const currentUser = Users.findOne({
