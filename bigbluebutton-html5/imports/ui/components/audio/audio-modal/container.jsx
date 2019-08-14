@@ -55,7 +55,23 @@ export default lockContextContainer(withModalMounter(withTracker(({ mountModal, 
         throw error;
       });
     },
-    joinListenOnly: () => Service.joinListenOnly().then(() => mountModal(null)),
+    joinListenOnly: () => {
+      const call = new Promise((resolve) => {
+        Service.joinListenOnly().then(() => {
+          // Autoplay block wasn't triggered. Close the modal. If autoplay was
+          // blocked, that'll be handled in the modal component when then
+          // prop transitions to a state where it was handled OR the user opts
+          // to close the modal.
+          if (!Service.autoplayBlocked()) {
+            mountModal(null);
+          }
+          resolve();
+        });
+      });
+      return call.catch((error) => {
+        throw error;
+      });
+    },
     leaveEchoTest: () => {
       if (!Service.isEchoTest()) {
         return Promise.resolve();
@@ -85,5 +101,7 @@ export default lockContextContainer(withModalMounter(withTracker(({ mountModal, 
     isMobileNative: navigator.userAgent.toLowerCase().includes('bbbnative'),
     isIEOrEdge: browser().name === 'edge' || browser().name === 'ie',
     hasMediaDevices: deviceInfo.hasMediaDevices,
+    autoplayBlocked: Service.autoplayBlocked(),
+    handleAllowAutoplay: () => Service.handleAllowAutoplay(),
   });
 })(AudioModalContainer)));

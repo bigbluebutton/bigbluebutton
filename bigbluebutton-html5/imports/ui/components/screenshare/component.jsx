@@ -5,11 +5,18 @@ import _ from 'lodash';
 import FullscreenService from '../fullscreen-button/service';
 import FullscreenButtonContainer from '../fullscreen-button/container';
 import { styles } from './styles';
+import AutoplayOverlay from '../media/autoplay-overlay/component';
 
 const intlMessages = defineMessages({
   screenShareLabel: {
     id: 'app.screenshare.screenShareLabel',
     description: 'screen share area element label',
+  },
+  autoplayBlockedDesc: {
+    id: 'app.media.screenshare.autoplayBlockedDesc',
+  },
+  autoplayAllowLabel: {
+    id: 'app.media.screenshare.autoplayAllowLabel',
   },
 });
 
@@ -21,10 +28,14 @@ class ScreenshareComponent extends React.Component {
     this.state = {
       loaded: false,
       isFullscreen: false,
+      autoplayBlocked: false,
     };
 
     this.onVideoLoad = this.onVideoLoad.bind(this);
     this.onFullscreenChange = this.onFullscreenChange.bind(this);
+    this.handleAllowAutoplay = this.handleAllowAutoplay.bind(this);
+    this.handlePlayElementFailed = this.handlePlayElementFailed.bind(this);
+    this.failedMediaElements = [];
   }
 
   componentDidMount() {
@@ -32,6 +43,7 @@ class ScreenshareComponent extends React.Component {
     presenterScreenshareHasStarted();
 
     this.screenshareContainer.addEventListener('fullscreenchange', this.onFullscreenChange);
+    window.addEventListener('screensharePlayFailed', this.handlePlayElementFailed);
   }
 
   componentWillReceiveProps(nextProps) {
@@ -50,6 +62,7 @@ class ScreenshareComponent extends React.Component {
     presenterScreenshareHasEnded();
     unshareScreen();
     this.screenshareContainer.removeEventListener('fullscreenchange', this.onFullscreenChange);
+    window.removeEventListener('screensharePlayFailed', this.handlePlayElementFailed);
   }
 
   onVideoLoad() {
@@ -61,6 +74,32 @@ class ScreenshareComponent extends React.Component {
     const newIsFullscreen = FullscreenService.isFullScreen(this.screenshareContainer);
     if (isFullscreen !== newIsFullscreen) {
       this.setState({ isFullscreen: newIsFullscreen });
+    }
+  }
+
+  handleAllowAutoplay() {
+    const { autoplayBlocked } = this.state;
+
+    window.removeEventListener('screensharePlayFailed', this.handlePlayElementFailed);
+    while (this.failedMediaElements.length) {
+      const mediaElement = this.failedMediaElements.shift();
+      if (mediaElement) {
+        mediaElement.play().catch(() => {
+          // Ignore the error for now.
+        });
+      }
+    }
+    if (autoplayBlocked) { this.setState({ autoplayBlocked: false }); }
+  }
+
+  handlePlayElementFailed(e) {
+    const { mediaElement } = e.detail;
+    const { autoplayBlocked } = this.state;
+
+    e.stopPropagation();
+    this.failedMediaElements.push(mediaElement);
+    if (!autoplayBlocked) {
+      this.setState({ autoplayBlocked: true });
     }
   }
 
@@ -82,7 +121,8 @@ class ScreenshareComponent extends React.Component {
   }
 
   render() {
-    const { loaded } = this.state;
+    const { loaded, autoplayBlocked } = this.state;
+    const { intl } = this.props;
 
     return (
       [!loaded
@@ -93,6 +133,16 @@ class ScreenshareComponent extends React.Component {
           />
         )
         : null,
+      !autoplayBlocked
+        ? null
+        : (
+          <AutoplayOverlay
+            key={_.uniqueId('screenshareAutoplayOverlay')}
+            autoplayBlockedDesc={intl.formatMessage(intlMessages.autoplayBlockedDesc)}
+            autoplayAllowLabel={intl.formatMessage(intlMessages.autoplayAllowLabel)}
+            handleAllowAutoplay={this.handleAllowAutoplay}
+          />
+        ),
       (
         <div
           className={styles.screenshareContainer}

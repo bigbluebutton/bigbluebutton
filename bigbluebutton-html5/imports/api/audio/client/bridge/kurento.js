@@ -69,13 +69,28 @@ export default class KurentoAudioBridge extends BaseAudioBridge {
             audioTag.pause();
             audioTag.srcObject = stream;
             audioTag.muted = false;
-            audioTag.play().catch((e) => {
-              const tagFailedEvent = new CustomEvent('mediaTagPlayFailed', { detail: { mediaTag: audioTag } });
-              window.dispatchEvent(tagFailedEvent);
-              logger.warn({
-                logCode: 'sfuaudiobridge_play_error',
-                extraInfo: { error: e },
-              }, 'Could not play audio tag, emit mediaTagPlayFailed event');
+            audioTag.play()
+              .then(() => {
+                resolve(this.callback({ status: this.baseCallStates.started }));
+              })
+              .catch((error) => {
+                // NotAllowedError equals autoplay issues, fire autoplay handling event
+                if (error.name === 'NotAllowedError') {
+                  const tagFailedEvent = new CustomEvent('audioPlayFailed', { detail: { mediaElement: audioTag } });
+                  window.dispatchEvent(tagFailedEvent);
+                }
+                logger.warn({
+                  logCode: 'sfuaudiobridge_play_maybe_error',
+                  extraInfo: { error },
+                }, `Listen only media play failed due to ${error.name}`);
+                resolve(this.callback({
+                  status: this.baseCallStates.autoplayBlocked,
+                }));
+              });
+          } else {
+            this.callback({
+              status: this.baseCallStates.failed,
+              error: this.baseErrorCodes.CONNECTION_ERROR,
             });
           }
 
@@ -83,9 +98,6 @@ export default class KurentoAudioBridge extends BaseAudioBridge {
             this.reconnectOngoing = false;
             clearTimeout(this.reconnectTimeout);
           }
-
-
-          resolve(this.callback({ status: this.baseCallStates.started }));
         };
 
         const onFail = (error) => {
@@ -95,7 +107,7 @@ export default class KurentoAudioBridge extends BaseAudioBridge {
             logger.error({
               logCode: 'sfuaudiobridge_listen_only_error_reconnect',
               extraInfo: { error },
-            }, `Listen only failed for an ongoing session, try to reconnect`);
+            }, 'Listen only failed for an ongoing session, try to reconnect');
             window.kurentoExitAudio();
             this.callback({ status: this.baseCallStates.reconnecting });
             this.reconnectOngoing = true;

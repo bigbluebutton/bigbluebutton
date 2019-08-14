@@ -1,0 +1,31 @@
+@import "/imports/ui/stylesheets/variables/_all";
+
+.autoplayOverlayContent {
+  text-align: center;
+  margin-top: 8px;
+}
+.title {
+  display: block;
+  font-size: var(--font-size-large);
+  text-align: center;
+}
+.label {
+  display: block;
+  font-size: var(--font-size-base);
+  text-align: center;
+  margin-bottom: 12px;
+}
+.autoplayOverlay {
+  display: flex;
+  justify-content: center;
+  flex-direction: column;
+  background: rgba(0, 0, 0, 1);
+  height: 100%;
+  width: 100%;
+  color: var(--color-white);
+  font-size: var(--font-size-large);
+  border-radius: 5px;
+  position: absolute;
+  z-index: 9999;
+  text-align: center;
+}

@@ -13,7 +13,7 @@ import AudioSettings from '../audio-settings/component';
 import EchoTest from '../echo-test/component';
 import Help from '../help/component';
 import AudioDial from '../audio-dial/component';
-
+import AudioAutoplayPrompt from '../autoplay/component';
 
 const propTypes = {
   intl: intlShape.isRequired,
@@ -44,6 +44,8 @@ const propTypes = {
   isIEOrEdge: PropTypes.bool.isRequired,
   hasMediaDevices: PropTypes.bool.isRequired,
   formattedTelVoice: PropTypes.string.isRequired,
+  autoplayBlocked: PropTypes.bool.isRequired,
+  handleAllowAutoplay: PropTypes.func.isRequired,
 };
 
 const defaultProps = {
@@ -109,6 +111,10 @@ const intlMessages = defineMessages({
     id: 'app.audioModal.ariaTitle',
     description: 'aria label for modal title',
   },
+  autoplayPromptTitle: {
+    id: 'app.audioModal.autoplayBlockedDesc',
+    description: 'Message for autoplay audio block',
+  },
 });
 
 class AudioModal extends Component {
@@ -145,7 +151,12 @@ class AudioModal extends Component {
         title: intlMessages.audioDialTitle,
         component: () => this.renderAudioDial(),
       },
+      autoplayBlocked: {
+        title: intlMessages.autoplayPromptTitle,
+        component: () => this.renderAutoplayOverlay(),
+      },
     };
+    this.failedMediaElements = [];
   }
 
   componentDidMount() {
@@ -166,6 +177,13 @@ class AudioModal extends Component {
 
     if (forceListenOnlyAttendee || audioLocked) {
       this.handleJoinListenOnly();
+    }
+  }
+
+  componentDidUpdate(prevProps) {
+    const { autoplayBlocked, closeModal } = this.props;
+    if (autoplayBlocked !== prevProps.autoplayBlocked) {
+      autoplayBlocked ? this.setState({ content: 'autoplayBlocked' }) : closeModal();
     }
   }
 
@@ -433,6 +451,15 @@ class AudioModal extends Component {
         formattedDialNum={formattedDialNum}
         telVoice={formattedTelVoice}
         handleBack={this.handleGoToAudioOptions}
+      />
+    );
+  }
+
+  renderAutoplayOverlay() {
+    const { handleAllowAutoplay } = this.props;
+    return (
+      <AudioAutoplayPrompt
+        handleAllowAutoplay={handleAllowAutoplay}
       />
     );
   }

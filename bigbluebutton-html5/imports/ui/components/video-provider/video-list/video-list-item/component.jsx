@@ -65,12 +65,15 @@ class VideoListItem extends Component {
     const playElement = (elem) => {
       if (elem.paused) {
         elem.play().catch((error) => {
-          const tagFailedEvent = new CustomEvent('mediaTagPlayFailed', { detail: { mediaTag: elem } });
-          window.dispatchEvent(tagFailedEvent);
+          // NotAllowedError equals autoplay issues, fire autoplay handling event
+          if (error.name === 'NotAllowedError') {
+            const tagFailedEvent = new CustomEvent('videoPlayFailed', { detail: { mediaTag: elem } });
+            window.dispatchEvent(tagFailedEvent);
+          }
           logger.warn({
-            logCode: 'videolistitem_component_play_error',
+            logCode: 'videolistitem_component_play_maybe_error',
             extraInfo: { error },
-          }, 'Could not play video tag, emit mediaTagPlayFailed event');
+          }, `Could not play video tag due to ${error.name}`);
         });
       }
     };

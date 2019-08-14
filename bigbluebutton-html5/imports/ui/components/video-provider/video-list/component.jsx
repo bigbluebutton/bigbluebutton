@@ -6,6 +6,7 @@ import _ from 'lodash';
 import { styles } from './styles';
 import VideoListItemContainer from './video-list-item/container';
 import { withDraggableConsumer } from '../../media/webcam-draggable-overlay/context';
+import AutoplayOverlay from '../../media/autoplay-overlay/component';
 
 const propTypes = {
   users: PropTypes.arrayOf(PropTypes.object).isRequired,
@@ -29,6 +30,12 @@ const intlMessages = defineMessages({
   },
   unfocusDesc: {
     id: 'app.videoDock.webcamUnfocusDesc',
+  },
+  autoplayBlockedDesc: {
+    id: 'app.videoDock.autoplayBlockedDesc',
+  },
+  autoplayAllowLabel: {
+    id: 'app.videoDock.autoplayAllowLabel',
   },
 });
 
@@ -66,17 +73,22 @@ class VideoList extends Component {
         rows: 1,
         filledArea: 0,
       },
+      autoplayBlocked: false,
     };
 
     this.ticking = false;
     this.grid = null;
     this.canvas = null;
+    this.failedMediaElements = [];
     this.handleCanvasResize = _.throttle(this.handleCanvasResize.bind(this), 66,
       {
         leading: true,
         trailing: true,
       });
     this.setOptimalGrid = this.setOptimalGrid.bind(this);
+    this.handleAllowAutoplay = this.handleAllowAutoplay.bind(this);
+    this.handlePlayElementFailed = this.handlePlayElementFailed.bind(this);
+    this.autoplayWasHandled = false;
   }
 
   componentDidMount() {
@@ -90,10 +102,12 @@ class VideoList extends Component {
 
     this.handleCanvasResize();
     window.addEventListener('resize', this.handleCanvasResize, false);
+    window.addEventListener('videoPlayFailed', this.handlePlayElementFailed);
   }
 
   componentWillUnmount() {
     window.removeEventListener('resize', this.handleCanvasResize, false);
+    window.removeEventListener('videoPlayFailed', this.handlePlayElementFailed);
   }
 
   setOptimalGrid() {
@@ -126,6 +140,33 @@ class VideoList extends Component {
     this.setState({
       optimalGrid,
     });
+  }
+
+  handleAllowAutoplay() {
+    const { autoplayBlocked } = this.state;
+
+    this.autoplayWasHandled = true;
+    window.removeEventListener('videoPlayFailed', this.handlePlayElementFailed);
+    while (this.failedMediaElements.length) {
+      const mediaElement = this.failedMediaElements.shift();
+      if (mediaElement) {
+        mediaElement.play().catch(() => {
+          // Ignore the error for now.
+        });
+      }
+    }
+    if (autoplayBlocked) { this.setState({ autoplayBlocked: false }); }
+  }
+
+  handlePlayElementFailed(e) {
+    const { mediaElement } = e.detail;
+    const { autoplayBlocked } = this.state;
+
+    e.stopPropagation();
+    this.failedMediaElements.push(mediaElement);
+    if (!autoplayBlocked && !this.autoplayWasHandled) {
+      this.setState({ autoplayBlocked: true });
+    }
   }
 
   handleVideoFocus(id) {
@@ -196,8 +237,8 @@ class VideoList extends Component {
   }
 
   render() {
-    const { users } = this.props;
-    const { optimalGrid } = this.state;
+    const { users, intl } = this.props;
+    const { optimalGrid, autoplayBlocked } = this.state;
 
     const canvasClassName = cx({
       [styles.videoCanvas]: true,
@@ -229,6 +270,13 @@ class VideoList extends Component {
           >
             {this.renderVideoList()}
           </div>
+        )}
+        { !autoplayBlocked ? null : (
+          <AutoplayOverlay
+            autoplayBlockedDesc={intl.formatMessage(intlMessages.autoplayBlockedDesc)}
+            autoplayAllowLabel={intl.formatMessage(intlMessages.autoplayAllowLabel)}
+            handleAllowAutoplay={this.handleAllowAutoplay}
+          />
         )}
       </div>
     );
