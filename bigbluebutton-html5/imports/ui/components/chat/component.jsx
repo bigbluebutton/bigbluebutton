@@ -64,16 +64,16 @@ const Chat = (props) => {
   let names = [];
 
   names = typingUsers.map((user) => {
+    const currentChatPartner = chatID;
     const { userId: typingUserId, isTypingTo, name } = user;
-    if (currentUserId === typingUserId) return null;
-    if (chatID !== isTypingTo) {
-      if (typingUserId === chatID) {
-        return currentUserId !== isTypingTo
-          ? null : name;
-      }
-      return null;
+    let userNameTyping = null;
+    userNameTyping = currentUserId !== typingUserId ? name : userNameTyping;
+    const isPrivateMsg = currentChatPartner !== isTypingTo;
+    if (isPrivateMsg) {
+      const isMsgParticipant = typingUserId === currentChatPartner && currentUserId === isTypingTo;
+      userNameTyping = isMsgParticipant ? name : null;
     }
-    return name;
+    return userNameTyping;
   }).filter(e => e);
 
   const renderIsTypingString = () => {
