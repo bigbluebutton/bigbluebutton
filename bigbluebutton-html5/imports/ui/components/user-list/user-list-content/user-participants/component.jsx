@@ -98,7 +98,8 @@ class UserParticipants extends Component {
     const { selectedUser } = this.state;
 
     if (selectedUser) {
-      selectedUser.firstChild.focus();
+      const { firstChild } = selectedUser;
+      if (firstChild) firstChild.focus();
     }
   }
 

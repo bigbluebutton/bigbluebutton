@@ -65,7 +65,8 @@ class UserMessages extends PureComponent {
     const { selectedChat } = this.state;
 
     if (selectedChat && selectedChat !== prevState.selectedChat) {
-      selectedChat.firstChild.focus();
+      const { firstChild } = selectedChat;
+      if (firstChild) firstChild.focus();
     }
   }
 

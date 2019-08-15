@@ -133,14 +133,18 @@ class Dropdown extends Component {
     }
 
     if (keepOpen && isOpen && !contentElement.contains(event.target)) {
-      triggerElement.parentElement.focus();
+      if (triggerElement) {
+        const { parentElement } = triggerElement;
+        if (parentElement) parentElement.focus();
+      }
       onHide();
       this.handleHide();
       return;
     }
 
     if (keepOpen && triggerElement) {
-      triggerElement.parentElement.focus();
+      const { parentElement } = triggerElement;
+      if (parentElement) parentElement.focus();
     }
   }
 
