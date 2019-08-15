@@ -69,7 +69,7 @@ if not FileTest.directory?(target_dir)
     metadata_xml = File.new("#{target_dir}/metadata.xml","w")
     metadata_xml.write(metaxml)
     metadata_xml.close
-    BigBlueButton.logger.info("Created inital metadata.xml")
+    BigBlueButton.logger.info("Created initial metadata.xml")
 
     BigBlueButton::AudioProcessor.process("#{raw_archive_dir}", "#{target_dir}/audio")
 
@@ -82,7 +82,6 @@ if not FileTest.directory?(target_dir)
     match = /.*-(\d+)$/.match(meeting_id)
     real_start_time = match[1]
     real_end_time = (real_start_time.to_i + (meeting_end.to_i - meeting_start.to_i)).to_s
-
 
     # Add start_time, end_time and meta to metadata.xml
     ## Load metadata.xml
