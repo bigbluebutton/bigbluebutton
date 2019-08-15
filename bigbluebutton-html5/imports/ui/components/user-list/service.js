@@ -396,7 +396,6 @@ const changeRole = (userId, role) => { makeCall('changeRole', userId, role); };
 
 const roving = (event, changeState, elementsList, element) => {
   this.selectedElement = element;
-
   const menuOpen = Session.get('dropdownOpen') || false;
 
   if (menuOpen) {

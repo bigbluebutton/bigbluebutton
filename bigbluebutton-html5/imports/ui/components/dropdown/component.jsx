@@ -120,14 +120,7 @@ class Dropdown extends Component {
     const { isOpen } = this.state;
     const triggerElement = findDOMNode(this.trigger);
     const contentElement = findDOMNode(this.content);
-
     if (!(triggerElement && contentElement)) return;
-    if (keepOpen === null) {
-      if (triggerElement.contains(event.target)) {
-        return;
-      }
-    }
-
     if (triggerElement && triggerElement.contains(event.target)) {
       if (keepOpen) {
         onHide();
@@ -149,12 +142,6 @@ class Dropdown extends Component {
     if (keepOpen && triggerElement) {
       triggerElement.parentElement.focus();
     }
-
-    if (keepOpen !== null) {
-      return;
-    }
-
-    this.handleHide();
   }
 
   handleToggle() {

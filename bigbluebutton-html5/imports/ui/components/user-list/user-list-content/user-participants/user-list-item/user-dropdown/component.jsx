@@ -114,7 +114,6 @@ const propTypes = {
 };
 const ROLE_MODERATOR = Meteor.settings.public.user.role_moderator;
 const CHAT_ENABLED = Meteor.settings.public.chat.enabled;
-const noop = () => {};
 
 class UserDropdown extends PureComponent {
   /**
@@ -154,6 +153,8 @@ class UserDropdown extends PureComponent {
   }
 
   componentDidUpdate() {
+    const { dropdownVisible } = this.props;
+    if (!dropdownVisible) document.activeElement.blur();
     this.checkDropdownDirection();
   }
 
@@ -196,8 +197,7 @@ class UserDropdown extends PureComponent {
       return callback;
     }
 
-    Session.set('dropdownOpen', false);
-    return noop;
+    return Session.set('dropdownOpen', false);
   }
 
   getUsersActions() {
