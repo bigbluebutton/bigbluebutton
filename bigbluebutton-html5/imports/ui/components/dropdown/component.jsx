@@ -146,6 +146,8 @@ class Dropdown extends Component {
       const { parentElement } = triggerElement;
       if (parentElement) parentElement.focus();
     }
+
+    if (!keepOpen) this.handleHide();
   }
 
   handleToggle() {
