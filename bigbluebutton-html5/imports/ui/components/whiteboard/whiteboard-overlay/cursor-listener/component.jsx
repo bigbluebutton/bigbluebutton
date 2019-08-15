@@ -8,8 +8,8 @@ const CURSOR_INTERVAL = 32;
 
 export default class CursorListener extends Component {
   static touchCenterPoint(touches) {
-    let totalX = 0; let
-      totalY = 0;
+    let totalX = 0;
+    let totalY = 0;
 
     for (let i = 0; i < touches.length; i += 1) {
       totalX += touches[i].clientX;
@@ -128,6 +128,12 @@ export default class CursorListener extends Component {
     this.checkCursor(-1, -1);
   }
 
+  clearTouchEvents() {
+    this.removeTouchListeners();
+    this.touchStarted = false;
+    this.checkCursor(-1, -1);
+  }
+
   handleTouchStart(event) {
     event.preventDefault();
 
@@ -153,20 +159,14 @@ export default class CursorListener extends Component {
   handleTouchEnd(event) {
     event.preventDefault();
 
-    if (event.touches.length === 1) {
-      this.removeTouchListeners();
-      this.touchStarted = false;
-      this.checkCursor(-1, -1);
-    }
+    this.clearTouchEvents();
   }
 
   handleTouchCancel(event) {
     event.preventDefault();
 
     if (event.touches.length === 0) {
-      this.removeTouchListeners();
-      this.touchStarted = false;
-      this.checkCursor(-1, -1);
+      this.clearTouchEvents();
     }
   }
 
