@@ -36,7 +36,6 @@ export default class CursorListener extends Component {
     this.handleTouchMove = this.handleTouchMove.bind(this);
     this.handleTouchEnd = this.handleTouchEnd.bind(this);
     this.handleTouchCancel = this.handleTouchCancel.bind(this);
-    this.clearTouchEvents = this.clearTouchEvents.bind(this);
 
     this.checkCursor = throttle(this.checkCursor, CURSOR_INTERVAL);
   }
@@ -129,12 +128,6 @@ export default class CursorListener extends Component {
     this.checkCursor(-1, -1);
   }
 
-  clearTouchEvents() {
-    this.removeTouchListeners();
-    this.touchStarted = false;
-    this.handleMouseLeave();
-  }
-
   handleTouchStart(event) {
     event.preventDefault();
 
@@ -160,14 +153,18 @@ export default class CursorListener extends Component {
   handleTouchEnd(event) {
     event.preventDefault();
 
-    this.clearTouchEvents();
+    this.removeTouchListeners();
+    this.touchStarted = false;
+    this.handleMouseLeave();
   }
 
   handleTouchCancel(event) {
     event.preventDefault();
 
     if (event.touches.length === 0) {
-      this.clearTouchEvents();
+      this.removeTouchListeners();
+      this.touchStarted = false;
+      this.handleMouseLeave();
     }
   }
 
