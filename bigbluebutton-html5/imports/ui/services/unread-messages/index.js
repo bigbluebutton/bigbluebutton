@@ -3,7 +3,7 @@ import { Tracker } from 'meteor/tracker';
 import Storage from '/imports/ui/services/storage/session';
 import Auth from '/imports/ui/services/auth';
 import GroupChat from '/imports/api/group-chat';
-import GroupChatMsg from '/imports/api/group-chat-msg';
+import { GroupChatMsg } from '/imports/api/group-chat-msg';
 
 const CHAT_CONFIG = Meteor.settings.public.chat;
 const STORAGE_KEY = CHAT_CONFIG.storage_key;

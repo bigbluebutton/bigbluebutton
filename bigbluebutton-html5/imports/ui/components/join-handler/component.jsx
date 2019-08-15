@@ -14,6 +14,7 @@ const propTypes = {
 
 const APP_CONFIG = Meteor.settings.public.app;
 const { showParticipantsOnLogin } = APP_CONFIG;
+const CHAT_ENABLED = Meteor.settings.public.chat.enabled;
 
 class JoinHandler extends Component {
   
@@ -49,10 +50,11 @@ class JoinHandler extends Component {
     if (!this._isMounted) return;
 
     if (!Meteor.status().connected) {
-      if (this.numFetchTokenRetries > 9) {
+      if (this.numFetchTokenRetries % 9) {
         logger.error({
           logCode: 'joinhandler_component_fetchToken_not_connected',
           extraInfo: {
+            attemptForUserInfo: Auth.fullInfo,
             numFetchTokenRetries: this.numFetchTokenRetries,
           },
         }, 'Meteor was not connected, retry in a few moments');
@@ -92,7 +94,7 @@ class JoinHandler extends Component {
         logCode: 'joinhandler_component_clientinfo',
         extraInfo: { clientInfo },
       },
-      'Log informatin about the client');
+      'Log information about the client');
     };
 
     const setAuth = (resp) => {
@@ -146,15 +148,19 @@ class JoinHandler extends Component {
     setLogoutURL(response);
     if (response.returncode !== 'FAILED') {
       await setAuth(response);
-      await setCustomData(response);
 
       setBannerProps(response);
       setLogoURL(response);
       logUserInfo();
 
+      await setCustomData(response);
+
       if (showParticipantsOnLogin && !deviceInfo.type().isPhone) {
-        Session.set('openPanel', 'chat');
-        Session.set('idChatOpen', '');
+        Session.set('openPanel', 'userlist');
+        if (CHAT_ENABLED) {
+          Session.set('openPanel', 'chat');
+          Session.set('idChatOpen', '');
+        }
       } else {
         Session.set('openPanel', '');
       }

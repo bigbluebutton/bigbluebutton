@@ -325,11 +325,20 @@ function WebRtcPeer(mode, options, callback) {
         const MAX_RETRIES = 5;
         let attempt = 0;
         const playVideo = () => {
-          if (!played && attempt < MAX_RETRIES) {
-            remoteVideo.play().catch(e => {
-                attempt++;
-                playVideo(remoteVideo);
-            }).then(() => { remoteVideo.muted = false; played = true; attempt = 0;});
+          if (!played) {
+            if (attempt < MAX_RETRIES) {
+              remoteVideo.play()
+                .then(() => { remoteVideo.muted = false; played = true; attempt = 0;})
+                .catch(e => {
+                  attempt++;
+                  setTimeout(() => {
+                    playVideo(remoteVideo);
+                  }, 500);
+                });
+            } else {
+              const tagFailedEvent = new CustomEvent('mediaTagPlayFailed', { detail: { mediaTag: remoteVideo } });
+              window.dispatchEvent(tagFailedEvent);
+            }
           }
         }
 

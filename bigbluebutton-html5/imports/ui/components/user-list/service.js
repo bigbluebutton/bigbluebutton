@@ -1,6 +1,6 @@
 import Users from '/imports/api/users';
 import GroupChat from '/imports/api/group-chat';
-import GroupChatMsg from '/imports/api/group-chat-msg';
+import { GroupChatMsg } from '/imports/api/group-chat-msg';
 import Breakouts from '/imports/api/breakouts/';
 import Meetings from '/imports/api/meetings';
 import Auth from '/imports/ui/services/auth';
@@ -11,10 +11,14 @@ import { EMOJI_STATUSES } from '/imports/utils/statuses';
 import { makeCall } from '/imports/ui/services/api';
 import _ from 'lodash';
 import KEY_CODES from '/imports/utils/keyCodes';
+import AudioService from '/imports/ui/components/audio/service';
+import logger from '/imports/startup/client/logger';
 
 const CHAT_CONFIG = Meteor.settings.public.chat;
 const PUBLIC_GROUP_CHAT_ID = CHAT_CONFIG.public_group_id;
 const ROLE_MODERATOR = Meteor.settings.public.user.role_moderator;
+
+const DIAL_IN_CLIENT_TYPE = 'dial-in-user';
 
 // session for closed chat list
 const CLOSED_CHAT_LIST_KEY = 'closedChatList';
@@ -40,13 +44,16 @@ export const setCustomLogoUrl = path => Storage.setItem(CUSTOM_LOGO_URL_KEY, pat
 const getCustomLogoUrl = () => Storage.getItem(CUSTOM_LOGO_URL_KEY);
 
 const sortUsersByName = (a, b) => {
-  if (a.name.toLowerCase() < b.name.toLowerCase()) {
+  const aName = a.name.toLowerCase();
+  const bName = b.name.toLowerCase();
+
+  if (aName < bName) {
     return -1;
-  } if (a.name.toLowerCase() > b.name.toLowerCase()) {
+  } if (aName > bName) {
     return 1;
-  } if (a.id.toLowerCase() > b.id.toLowerCase()) {
+  } if (a.userId > b.userId) {
     return -1;
-  } if (a.id.toLowerCase() < b.id.toLowerCase()) {
+  } if (a.userId < b.userId) {
     return 1;
   }
 
@@ -54,32 +61,26 @@ const sortUsersByName = (a, b) => {
 };
 
 const sortUsersByEmoji = (a, b) => {
-  const { status: statusA } = a.emoji;
-  const { status: statusB } = b.emoji;
-
-  const emojiA = statusA in EMOJI_STATUSES ? EMOJI_STATUSES[statusA] : statusA;
-  const emojiB = statusB in EMOJI_STATUSES ? EMOJI_STATUSES[statusB] : statusB;
-
-  if (emojiA && emojiB && (emojiA !== 'none' && emojiB !== 'none')) {
-    if (a.emoji.changedAt < b.emoji.changedAt) {
+  if (a.emoji && b.emoji && (a.emoji !== 'none' && b.emoji !== 'none')) {
+    if (a.emojiTime < b.emojiTime) {
       return -1;
-    } if (a.emoji.changedAt > b.emoji.changedAt) {
+    } if (a.emojiTime > b.emojiTime) {
       return 1;
     }
-  } if (emojiA && emojiA !== 'none') {
+  } if (a.emoji && a.emoji !== 'none') {
     return -1;
-  } if (emojiB && emojiB !== 'none') {
+  } if (b.emoji && b.emoji !== 'none') {
     return 1;
   }
   return 0;
 };
 
 const sortUsersByModerator = (a, b) => {
-  if (a.isModerator && b.isModerator) {
-    return sortUsersByEmoji(a, b);
-  } if (a.isModerator) {
+  if (a.role === ROLE_MODERATOR && b.role === ROLE_MODERATOR) {
+    return 0;
+  } if (a.role === ROLE_MODERATOR) {
     return -1;
-  } if (b.isModerator) {
+  } if (b.role === ROLE_MODERATOR) {
     return 1;
   }
 
@@ -87,11 +88,11 @@ const sortUsersByModerator = (a, b) => {
 };
 
 const sortUsersByPhoneUser = (a, b) => {
-  if (!a.isPhoneUser && !b.isPhoneUser) {
+  if (!a.clientType === DIAL_IN_CLIENT_TYPE && !b.clientType === DIAL_IN_CLIENT_TYPE) {
     return 0;
-  } if (!a.isPhoneUser) {
+  } if (!a.clientType === DIAL_IN_CLIENT_TYPE) {
     return -1;
-  } if (!b.isPhoneUser) {
+  } if (!b.clientType === DIAL_IN_CLIENT_TYPE) {
     return 1;
   }
 
@@ -100,9 +101,9 @@ const sortUsersByPhoneUser = (a, b) => {
 
 // current user's name is always on top
 const sortUsersByCurrent = (a, b) => {
-  if (a.isCurrent) {
+  if (a.userId === Auth.userID) {
     return -1;
-  } if (b.isCurrent) {
+  } if (b.userId === Auth.userID) {
     return 1;
   }
 
@@ -187,12 +188,8 @@ const getUsers = () => {
     }, userFindSorting)
     .fetch();
 
-  return users
-    .map(mapUser)
-    .sort(sortUsers);
+  return users.sort(sortUsers);
 };
-
-const getUsersId = () => getUsers().map(u => u.id);
 
 const hasBreakoutRoom = () => Breakouts.find({ parentMeetingId: Auth.meetingID }).count() > 0;
 
@@ -293,8 +290,7 @@ const areUsersUnmutable = () => {
 
 const getAvailableActions = (currentUser, user, isBreakoutRoom) => {
   const isDialInUser = isVoiceOnlyUser(user.id) || user.isPhoneUser;
-
-  const hasAuthority = currentUser.isModerator || user.isCurrent;
+  const hasAuthority = currentUser.role === ROLE_MODERATOR || user.isCurrent;
 
   const allowedToChatPrivately = !user.isCurrent && !isDialInUser;
 
@@ -314,19 +310,19 @@ const getAvailableActions = (currentUser, user, isBreakoutRoom) => {
     && !isDialInUser;
 
   // if currentUser is a moderator, allow removing other users
-  const allowedToRemove = currentUser.isModerator && !user.isCurrent && !isBreakoutRoom;
+  const allowedToRemove = currentUser.role === ROLE_MODERATOR && !user.isCurrent && !isBreakoutRoom;
 
-  const allowedToSetPresenter = currentUser.isModerator
+  const allowedToSetPresenter = currentUser.role === ROLE_MODERATOR
     && !user.isPresenter
     && !isDialInUser;
 
-  const allowedToPromote = currentUser.isModerator
+  const allowedToPromote = currentUser.role === ROLE_MODERATOR
     && !user.isCurrent
     && !user.isModerator
     && !isDialInUser
     && !isBreakoutRoom;
 
-  const allowedToDemote = currentUser.isModerator
+  const allowedToDemote = currentUser.role === ROLE_MODERATOR
     && !user.isCurrent
     && user.isModerator
     && !isDialInUser
@@ -334,7 +330,7 @@ const getAvailableActions = (currentUser, user, isBreakoutRoom) => {
 
   const allowedToChangeStatus = user.isCurrent;
 
-  const allowedToChangeUserLockStatus = currentUser.isModerator
+  const allowedToChangeUserLockStatus = currentUser.role === ROLE_MODERATOR
     && !user.isModerator && isMeetingLocked(Auth.meetingID);
 
   return {
@@ -382,9 +378,13 @@ const removeUser = (userId) => {
 
 const toggleVoice = (userId) => {
   if (userId === Auth.userID) {
-    makeCall('toggleSelfVoice');
+    AudioService.toggleMuteMicrophone();
   } else {
     makeCall('toggleVoice', userId);
+    logger.info({
+      logCode: 'usermenu_option_mute_audio',
+      extraInfo: { logType: 'moderator_action' },
+    }, 'moderator muted user microphone');
   }
 };
 
@@ -453,11 +453,11 @@ const roving = (event, itemCount, changeState) => {
   }
 };
 
-const hasPrivateChatBetweenUsers = (sender, receiver) => GroupChat
-  .findOne({ users: { $all: [receiver.id, sender.id] } });
+const hasPrivateChatBetweenUsers = (senderId, receiverId) => GroupChat
+  .findOne({ users: { $all: [receiverId, senderId] } });
 
 const getGroupChatPrivate = (sender, receiver) => {
-  if (!hasPrivateChatBetweenUsers(sender, receiver)) {
+  if (!hasPrivateChatBetweenUsers(sender.userId, receiver.id)) {
     makeCall('createGroupChat', receiver);
   }
 };
@@ -476,6 +476,7 @@ const requestUserInformation = (userId) => {
 };
 
 export default {
+  sortUsers,
   setEmojiStatus,
   assignPresenter,
   removeUser,
@@ -484,7 +485,6 @@ export default {
   muteAllExceptPresenter,
   changeRole,
   getUsers,
-  getUsersId,
   getActiveChats,
   getCurrentUser,
   getAvailableActions,

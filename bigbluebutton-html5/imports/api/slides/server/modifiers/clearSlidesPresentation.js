@@ -1,4 +1,4 @@
-import Slides from '/imports/api/slides';
+import { Slides, SlidePositions } from '/imports/api/slides';
 import Logger from '/imports/startup/server/logger';
 import { check } from 'meteor/check';
 import clearAnnotations from '/imports/api/annotations/server/modifiers/clearAnnotations';
@@ -23,6 +23,8 @@ export default function clearSlidesPresentation(meetingId, presentationId) {
 
     return Logger.info(`Removed Slides where presentationId=${presentationId}`);
   };
+
+  SlidePositions.remove(selector);
 
   return Slides.remove(selector, cb);
 }

@@ -86,6 +86,9 @@ const intlMessages = defineMessages({
   },
 });
 
+const CHAT_CONFIG = Meteor.settings.public.chat;
+const CHAT_ENABLED = CHAT_CONFIG.enabled;
+
 const ShortcutHelpComponent = (props) => {
   const { intl, shortcuts } = props;
   const { name } = browser();
@@ -109,12 +112,16 @@ const ShortcutHelpComponent = (props) => {
       break;
   }
 
-  const shortcutItems = shortcuts.map(shortcut => (
-    <tr key={_.uniqueId('hotkey-item-')}>
-      <td className={styles.keyCell}>{`${accessMod} + ${shortcut.accesskey}`}</td>
-      <td className={styles.descCell}>{intl.formatMessage(intlMessages[`${shortcut.descId}`])}</td>
-    </tr>
-  ));
+  const shortcutItems = shortcuts.map((shortcut) => {
+    if (!CHAT_ENABLED && shortcut.descId.indexOf('Chat') !== -1) return null;
+
+    return (
+      <tr key={_.uniqueId('hotkey-item-')}>
+        <td className={styles.keyCell}>{`${accessMod} + ${shortcut.accesskey}`}</td>
+        <td className={styles.descCell}>{intl.formatMessage(intlMessages[`${shortcut.descId}`])}</td>
+      </tr>
+    );
+  });
 
   shortcutItems.push((
     <tr key={_.uniqueId('hotkey-item-')}>

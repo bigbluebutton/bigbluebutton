@@ -122,8 +122,9 @@ export default withModalMounter(withTracker(() => {
     data.children = <ScreenshareContainer />;
   }
 
-  const usersVideo = VideoService.getAllUsersVideo();
+  const usersVideo = VideoService.getAllWebcamUsers();
   data.usersVideo = usersVideo;
+
   if (MediaService.shouldShowOverlay() && usersVideo.length && viewParticipantsWebcams) {
     data.floatingOverlay = usersVideo.length < 2;
     data.hideOverlay = usersVideo.length === 0;

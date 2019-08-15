@@ -3,7 +3,6 @@ import { check } from 'meteor/check';
 import Presentations from '/imports/api/presentations';
 import Logger from '/imports/startup/server/logger';
 import flat from 'flat';
-
 import addSlide from '/imports/api/slides/server/modifiers/addSlide';
 import setCurrentPresentation from './setCurrentPresentation';
 
@@ -18,17 +17,13 @@ const getSlideText = async (url) => {
 };
 
 const addSlides = (meetingId, podId, presentationId, slides) => {
-  const slidesAdded = [];
-
   slides.forEach(async (slide) => {
     const content = await getSlideText(slide.txtUri);
 
     Object.assign(slide, { content });
 
-    slidesAdded.push(addSlide(meetingId, podId, presentationId, slide));
+    addSlide(meetingId, podId, presentationId, slide);
   });
-
-  return slidesAdded;
 };
 
 export default function addPresentation(meetingId, podId, presentation) {

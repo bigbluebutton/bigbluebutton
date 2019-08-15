@@ -156,9 +156,7 @@ const amIModerator = () => {
   return mapUser(currentUser).isModerator;
 };
 
-const getSpeechRecognitionAPI = () => {
-  return window.SpeechRecognition || window.webkitSpeechRecognition;
-};
+const getSpeechRecognitionAPI = () => window.SpeechRecognition || window.webkitSpeechRecognition;
 
 const initSpeechRecognition = (locale) => {
   const SpeechRecognitionAPI = getSpeechRecognitionAPI();

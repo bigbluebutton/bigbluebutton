@@ -11,6 +11,7 @@ import DropdownList from '/imports/ui/components/dropdown/list/component';
 import DropdownListItem from '/imports/ui/components/dropdown/list/item/component';
 import DropdownListSeparator from '/imports/ui/components/dropdown/list/separator/component';
 import lockContextContainer from '/imports/ui/components/lock-viewers/context/container';
+
 import _ from 'lodash';
 import { Session } from 'meteor/session';
 import { styles } from './styles';
@@ -111,6 +112,8 @@ const propTypes = {
   getScrollContainerRef: PropTypes.func.isRequired,
   toggleUserLock: PropTypes.func.isRequired,
 };
+const ROLE_MODERATOR = Meteor.settings.public.user.role_moderator;
+const CHAT_ENABLED = Meteor.settings.public.chat.enabled;
 
 class UserDropdown extends PureComponent {
   /**
@@ -234,11 +237,11 @@ class UserDropdown extends PureComponent {
 
     const { disablePrivateChat } = lockSettingsProps;
 
-    const enablePrivateChat = currentUser.isModerator
+    const enablePrivateChat = currentUser.role === ROLE_MODERATOR
       ? allowedToChatPrivately
       : allowedToChatPrivately
-      && (!(currentUser.isLocked && disablePrivateChat)
-        || hasPrivateChatBetweenUsers(currentUser, user)
+      && (!(currentUser.locked && disablePrivateChat)
+        || hasPrivateChatBetweenUsers(currentUser.userId, user.id)
         || user.isModerator) && isMeteorConnected;
 
     const { allowUserLookup } = Meteor.settings.public.app;
@@ -276,7 +279,7 @@ class UserDropdown extends PureComponent {
       ));
     }
 
-    if (enablePrivateChat && isMeteorConnected) {
+    if (CHAT_ENABLED && enablePrivateChat && isMeteorConnected) {
       actions.push(this.makeDropdownItem(
         'activeChat',
         intl.formatMessage(messages.ChatLabel),
@@ -517,8 +520,7 @@ class UserDropdown extends PureComponent {
     const actions = this.getUsersActions();
 
     const userItemContentsStyle = {};
-
-    const { isModerator } = currentUser;
+    const { role } = currentUser;
 
     userItemContentsStyle[styles.dropdown] = true;
     userItemContentsStyle[styles.userListItem] = !isActionsOpen;
@@ -563,7 +565,7 @@ class UserDropdown extends PureComponent {
           {<UserIcons
             {...{
               user,
-              isModerator,
+              isModerator: role === ROLE_MODERATOR,
             }}
           />}
         </div>

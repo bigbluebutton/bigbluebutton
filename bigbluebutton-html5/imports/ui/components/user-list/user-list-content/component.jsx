@@ -31,7 +31,6 @@ const propTypes = {
   roving: PropTypes.func.isRequired,
   getGroupChatPrivate: PropTypes.func.isRequired,
   handleEmojiChange: PropTypes.func.isRequired,
-  getUsersId: PropTypes.func.isRequired,
   pollIsOpen: PropTypes.bool.isRequired,
   forcePollOpen: PropTypes.bool.isRequired,
   toggleUserLock: PropTypes.func.isRequired,
@@ -42,6 +41,8 @@ const defaultProps = {
   compact: false,
   isBreakoutRoom: false,
 };
+const ROLE_MODERATOR = Meteor.settings.public.user.role_moderator;
+const CHAT_ENABLED = Meteor.settings.public.chat.enabled;
 
 class UserContent extends PureComponent {
   render() {
@@ -70,7 +71,6 @@ class UserContent extends PureComponent {
       pollIsOpen,
       forcePollOpen,
       hasBreakoutRoom,
-      getUsersId,
       hasPrivateChatBetweenUsers,
       toggleUserLock,
       pendingUsers,
@@ -83,16 +83,19 @@ class UserContent extends PureComponent {
         className={styles.content}
         role="complementary"
       >
-        <UserMessages
-          {...{
-            isPublicChat,
-            activeChats,
-            compact,
-            intl,
-            roving,
-          }}
-        />
-        {currentUser.isModerator
+        {CHAT_ENABLED
+          ? (<UserMessages
+            {...{
+              isPublicChat,
+              activeChats,
+              compact,
+              intl,
+              roving,
+            }}
+          />
+          ) : null
+        }
+        {currentUser.role === ROLE_MODERATOR
           ? (
             <UserCaptionsContainer
               {...{
@@ -106,7 +109,7 @@ class UserContent extends PureComponent {
             intl,
           }}
         />
-        {pendingUsers.length > 0 && currentUser.isModerator
+        {pendingUsers.length > 0 && currentUser.role === ROLE_MODERATOR
           ? (
             <WaitingUsers
               {...{
@@ -117,13 +120,13 @@ class UserContent extends PureComponent {
           ) : null
         }
         <UserPolls
-          isPresenter={currentUser.isPresenter}
+          isPresenter={currentUser.presenter}
           {...{
             pollIsOpen,
             forcePollOpen,
           }}
         />
-        <BreakoutRoomItem isPresenter={currentUser.isPresenter} hasBreakoutRoom={hasBreakoutRoom} />
+        <BreakoutRoomItem isPresenter={currentUser.presenter} hasBreakoutRoom={hasBreakoutRoom} />
         <UserParticipantsContainer
           {...{
             compact,
@@ -145,7 +148,6 @@ class UserContent extends PureComponent {
             getEmojiList,
             getEmoji,
             getGroupChatPrivate,
-            getUsersId,
             hasPrivateChatBetweenUsers,
             toggleUserLock,
             requestUserInformation,

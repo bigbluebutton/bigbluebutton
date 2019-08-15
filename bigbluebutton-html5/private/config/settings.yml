@@ -24,6 +24,7 @@ public:
     viewersInWebcam: 8
     ipv4FallbackDomain: ""
     allowLogout: true
+    allowFullscreen: true
     defaultSettings:
       application:
         animations: true
@@ -37,13 +38,6 @@ public:
       dataSaving:
         viewParticipantsWebcams: true
         viewScreenshare: true
-      participants:
-        muteAll: false
-        lockAll: false
-        microphone: false
-        publicChat: false
-        privateChat: false
-        layout: false
     shortcuts:
       openOptions:
         accesskey: O
@@ -141,6 +135,9 @@ public:
     enableVideoMenu: true
     enableListenOnly: true
     autoShareWebcam: false
+  pingPong:
+    clearUsersInSeconds: 30
+    pongTimeInSeconds: 15
   allowOutsideCommands:
     toggleRecording: false
     toggleSelfVoice: false
@@ -158,6 +155,7 @@ public:
     lines: 2
     time: 5000
   chat:
+    enabled: true
     min_message_length: 1
     max_message_length: 5000
     grouping_messages_window: 10000
@@ -194,6 +192,7 @@ public:
     echoTestNumber: '9196'
   presentation:
     defaultPresentationFile: default.pdf
+    panZoomThrottle: 32
     uploadEndpoint: "/bigbluebutton/presentation/upload"
     uploadSizeMin: 0
     uploadSizeMax: 50000000

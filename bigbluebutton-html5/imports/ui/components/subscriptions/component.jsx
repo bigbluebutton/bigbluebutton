@@ -1,4 +1,4 @@
-import React from 'react';
+import { Component } from 'react';
 import { withTracker } from 'meteor/react-meteor-data';
 import Auth from '/imports/ui/services/auth';
 import logger from '/imports/startup/client/logger';
@@ -10,16 +10,17 @@ import AnnotationsLocal from '/imports/ui/components/whiteboard/service';
 import mapUser from '/imports/ui/services/user/mapUser';
 import { withConsumer } from '/imports/ui/components/join-loading/context/context';
 const CHAT_CONFIG = Meteor.settings.public.chat;
+const CHAT_ENABLED = CHAT_CONFIG.enabled;
 const PUBLIC_GROUP_CHAT_ID = CHAT_CONFIG.public_group_id;
 const PUBLIC_CHAT_TYPE = CHAT_CONFIG.type_public;
 const SUBSCRIPTIONS = [
-  'users', 'meetings', 'polls', 'presentations', 'slides', 'captions',
+  'users', 'meetings', 'polls', 'presentations', 'slides', 'slide-positions', 'captions',
   'voiceUsers', 'whiteboard-multi-user', 'screenshare', 'group-chat',
   'presentation-pods', 'users-settings', 'guestUser', 'users-infos', 'note',
-  'network-information', 'ping-pong',
+  'network-information', 'ping-pong', 'local-settings', 'users-typing',
 ];
 
-class Subscriptions extends React.Component {
+class Subscriptions extends Component {
   componentDidUpdate() {
     const { subscriptionsReady } = this.props;
     if (subscriptionsReady) {
@@ -53,29 +54,36 @@ export default withConsumer(withTracker(({ dispatch }) => {
     },
   };
 
-  const subscriptionsHandlers = SUBSCRIPTIONS.map(name => Meteor.subscribe(
-    name,
-    credentials,
-    subscriptionErrorHandler,
-  ));
+  let subscriptionsHandlers = SUBSCRIPTIONS.map((name) => {
+    if (!CHAT_ENABLED && name.indexOf('chat') !== -1) return;
+    return Meteor.subscribe(
+      name,
+      credentials,
+      subscriptionErrorHandler,
+    );
+  });
 
   let groupChatMessageHandler = {};
   // let annotationsHandler = {};
 
-  const chats = GroupChat.find({
-    $or: [
-      {
-        meetingId,
-        access: PUBLIC_CHAT_TYPE,
-        chatId: { $ne: PUBLIC_GROUP_CHAT_ID },
-      },
-      { meetingId, users: { $all: [requesterUserId] } },
-    ],
-  }).fetch();
+  if (CHAT_ENABLED) {
+    const chats = GroupChat.find({
+      $or: [
+        {
+          meetingId,
+          access: PUBLIC_CHAT_TYPE,
+          chatId: { $ne: PUBLIC_GROUP_CHAT_ID },
+        },
+        { meetingId, users: { $all: [requesterUserId] } },
+      ],
+    }).fetch();
 
-  const chatIds = chats.map(chat => chat.chatId);
-  groupChatMessageHandler = Meteor.subscribe('group-chat-msg', credentials, chatIds, subscriptionErrorHandler);
-  subscriptionsHandlers.push(groupChatMessageHandler);
+    const chatIds = chats.map(chat => chat.chatId);
+
+    groupChatMessageHandler = Meteor.subscribe('group-chat-msg', credentials, chatIds, subscriptionErrorHandler);
+    subscriptionsHandlers.push(groupChatMessageHandler);
+  }
+
   const User = Users.findOne({ intId: requesterUserId });
 
   if (User) {
@@ -101,6 +109,7 @@ export default withConsumer(withTracker(({ dispatch }) => {
     ...subscriptionErrorHandler,
   });
 
+  subscriptionsHandlers = subscriptionsHandlers.filter(obj => obj);
   const ready = subscriptionsHandlers.every(handler => handler.ready());
 
   return {

@@ -246,7 +246,7 @@ Kurento.prototype.init = function () {
       this.logger.error({
         logCode: 'kurentoextension_websocket_error',
         extraInfo: { error }
-      }, `Error in the WebSocket connection to SFU, screenshare/listen only will drop due to ${error.message$}`);
+      }, 'Error in the WebSocket connection to SFU, screenshare/listen only will drop');
       self.onFail('Websocket connection error');
     };
     this.ws.onopen = function () {
@@ -301,6 +301,11 @@ Kurento.prototype.startResponse = function (message) {
       extraInfo: { sfuResponse: message }
     }, `Start request accepted for ${message.type}`);
     this.webRtcPeer.processAnswer(message.sdpAnswer);
+    // audio calls gets their success callback in a subsequent step (@webRTCAudioSuccess)
+    // due to legacy messaging which I don't intend to break now - prlanzarin
+    if (message.type === 'screenshare') {
+      this.onSuccess()
+    }
   }
 };
 
@@ -470,7 +475,6 @@ Kurento.prototype.viewer = function () {
       mediaConstraints: {
         audio: false,
       },
-      remoteVideo: document.getElementById(this.renderTag),
       onicecandidate: (candidate) => {
         this.onIceCandidate(candidate, this.RECV_ROLE);
       },

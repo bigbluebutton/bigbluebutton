@@ -24,7 +24,12 @@ Meteor.startup(() => {
     if (!stack.includes(message)) {
       stack = `${message}\n${stack}`;
     }
-    logger.error({ logCode: 'startup_error', stackTrace: stack }, message);
+    logger.error({
+      logCode: 'startup_error',
+      extraInfo: {
+        stackTrace: stack,
+      },
+    }, message);
   });
 
   // TODO make this a Promise
