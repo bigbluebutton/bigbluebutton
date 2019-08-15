@@ -17,6 +17,7 @@ import logger from '/imports/startup/client/logger';
 const CHAT_CONFIG = Meteor.settings.public.chat;
 const PUBLIC_GROUP_CHAT_ID = CHAT_CONFIG.public_group_id;
 const ROLE_MODERATOR = Meteor.settings.public.user.role_moderator;
+const ROLE_VIEWER = Meteor.settings.public.user.role_viewer;
 
 const DIAL_IN_CLIENT_TYPE = 'dial-in-user';
 
@@ -181,12 +182,21 @@ const userFindSorting = {
 };
 
 const getUsers = () => {
-  const users = Users
+  let users = Users
     .find({
       meetingId: Auth.meetingID,
       connectionStatus: 'online',
     }, userFindSorting)
     .fetch();
+
+  const currentUser = Users.findOne({ userId: Auth.userID });
+  if (currentUser && currentUser.role === ROLE_VIEWER && currentUser.locked) {
+    const meeting = Meetings.findOne({ meetingId: Auth.meetingID });
+    if (meeting && meeting.lockSettingsProps && meeting.lockSettingsProps.hideUserList) {
+      const moderatorOrCurrentUser = u => u.role === ROLE_MODERATOR || u.userId === Auth.userID;
+      users = users.filter(moderatorOrCurrentUser);
+    }
+  }
 
   return users.sort(sortUsers);
 };
