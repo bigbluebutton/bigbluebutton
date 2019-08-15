@@ -15,3 +15,5 @@ layout:
       :y: 540
       :width: 240
       :height: 180
+formats:
+  - webm

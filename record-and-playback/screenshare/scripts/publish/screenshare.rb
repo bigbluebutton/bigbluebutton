@@ -67,8 +67,10 @@ logger.info "Copying files to publish directory"
 # Copy the index html file
 FileUtils.cp("#{process_dir}/index.html", "#{publish_dir}/index.html")
 
+formats = [{:extension => 'webm'}]
+
 # Copy over generated video files
-screenshare_props['formats'].each_with_index do |format, i|
+formats.each_with_index do |format, i|
   FileUtils.cp("#{process_dir}/screenshare-#{i}.#{format[:extension]}",
                "#{publish_dir}/screenshare-#{i}.#{format[:extension]}")
 end
