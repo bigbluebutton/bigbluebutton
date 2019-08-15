@@ -90,7 +90,7 @@ begin
   BigBlueButton::EDL::Video.dump(webcam_edl)
 
   # Deskshare
-  deskshare_edl = BigBlueButton::Events.create_deskshare_edl(raw_archive_dir)
+  deskshare_edl = BigBlueButton::Events.create_deskshare_edl(events, raw_archive_dir)
   logger.debug "Deskshare EDL:"
   BigBlueButton::EDL::Video.dump(deskshare_edl)
 
@@ -100,21 +100,22 @@ end
 logger.debug "Merged Video EDL:"
 BigBlueButton::EDL::Video.dump(video_edl)
 
+start_time = BigBlueButton::Events.first_event_timestamp(events)
+end_time = BigBlueButton::Events.last_event_timestamp(events)
+
 logger.info "Applying recording start/stop events to video"
-video_edl = BigBlueButton::Events.edl_match_recording_marks_video(
-                  video_edl, raw_archive_dir)
+video_edl = BigBlueButton::Events.edl_match_recording_marks_video(video_edl, events, start_time, end_time)
 logger.debug "Trimmed Video EDL:"
 BigBlueButton::EDL::Video.dump(video_edl)
 
 audio_edl = []
 logger.info "Generating audio events list"
-audio_edl = BigBlueButton::AudioEvents.create_audio_edl(raw_archive_dir)
+audio_edl = BigBlueButton::AudioEvents.create_audio_edl(events, raw_archive_dir)
 logger.debug "Audio EDL:"
 BigBlueButton::EDL::Audio.dump(audio_edl)
 
 logger.info "Applying recording start/stop events to audio"
-audio_edl = BigBlueButton::Events.edl_match_recording_marks_audio(
-                audio_edl, raw_archive_dir)
+audio_edl = BigBlueButton::Events.edl_match_recording_marks_audio(audio_edl, events, start_time, end_time)
 logger.debug "Trimmed Audio EDL:"
 BigBlueButton::EDL::Audio.dump(audio_edl)
 
@@ -136,14 +137,46 @@ else
   video = BigBlueButton::EDL::Video.render(video_edl, layout, "#{process_dir}/video")
 end
 
-logger.info "Encoding output files to #{screenshare_props['formats'].length} formats"
-screenshare_props['formats'].each_with_index do |format, i|
+formats = [
+    {
+        :mimetype => 'video/webm; codecs="vp9, opus"',
+        :extension => 'webm',
+        :parameters => [
+            ['-pass', '1',
+             # Video
+             '-c:v', 'libvpx-vp9',
+             '-crf', '32', '-b:v', '1024K', '-minrate', '512K', '-maxrate', '1485K',
+             '-quality', 'good', '-speed', '4', '-g', '240',
+             '-tile-columns', '2', '-threads', '8',
+             # Disable audio in first pass
+             '-an',
+             # Container
+             '-f', 'webm'],
+            [ '-pass', '2',
+              # Video
+              '-c:v', 'libvpx-vp9',
+              '-crf', '32', '-b:v', '1024K', '-minrate', '512K', '-maxrate', '1485K',
+              '-quality', 'good', '-speed', '2', '-g', '240',
+              '-tile-columns', '2', '-threads', '8',
+              # Audio
+              '-c:a', 'libopus',
+              '-b:a', '64K',
+              # Container
+              '-f', 'webm' ]
+        ],
+        :postprocess => [
+            [ 'mkclean', '--quiet', ':input', ':output' ]
+        ]
+    }
+]
+logger.info "Encoding output files to #{formats.length} formats"
+formats.each_with_index do |format, i|
   logger.info "  #{format[:mimetype]}"
   filename = "#{process_dir}/screenshare-#{i}.#{format[:extension]}"
   if File.exist?(filename)
     logger.warn "    Skipping encode ... File already exists"
   else
-    filename = BigBlueButton::EDL.encode(audio, video, format, "#{process_dir}/screenshare-#{i}", 0)
+    filename = BigBlueButton::EDL.encode(audio, video, format, "#{process_dir}/screenshare-#{i}")
   end
 end
 
@@ -165,7 +198,7 @@ File.open("#{process_dir}/index.html", 'w') do |index_html|
 end
 
 logger.info "Generating metadata xml"
-duration = BigBlueButton::Events.get_recording_length("#{raw_archive_dir}/events.xml")
+duration = BigBlueButton::Events.get_recording_length(events)
 metadata_xml = Nokogiri::XML::Builder.new do |xml|
   xml.recording {
     xml.id(meeting_id)
