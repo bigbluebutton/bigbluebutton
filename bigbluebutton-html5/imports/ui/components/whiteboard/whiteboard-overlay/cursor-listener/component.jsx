@@ -124,6 +124,10 @@ export default class CursorListener extends Component {
     this.checkCursor(event.clientX, event.clientY);
   }
 
+  handleMouseLeave() {
+    this.checkCursor(-1, -1);
+  }
+
   clearTouchEvents() {
     this.removeTouchListeners();
     this.touchStarted = false;
