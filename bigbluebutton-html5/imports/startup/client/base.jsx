@@ -3,7 +3,9 @@ import { withTracker } from 'meteor/react-meteor-data';
 import PropTypes from 'prop-types';
 import Auth from '/imports/ui/services/auth';
 import AppContainer from '/imports/ui/components/app/container';
+import ErrorScreen from '/imports/ui/components/error-screen/component';
 import MeetingEnded from '/imports/ui/components/meeting-ended/component';
+import LoadingScreen from '/imports/ui/components/loading-screen/component';
 import Settings from '/imports/ui/services/settings';
 import AudioManager from '/imports/ui/services/audio-manager';
 import logger from '/imports/startup/client/logger';
@@ -16,7 +18,6 @@ import Breakouts from '/imports/api/breakouts';
 import AudioService from '/imports/ui/components/audio/service';
 import { FormattedMessage } from 'react-intl';
 import { notify } from '/imports/ui/services/notification';
-import { withJoinLoadingConsumer } from '/imports/ui/components/join-loading/context/context';
 
 const HTML = document.getElementsByTagName('html')[0];
 
@@ -86,28 +87,11 @@ class Base extends Component {
       ejected,
       isMeteorConnected,
       subscriptionsReady,
-      codeError,
-      meetingHasEnded,
-      dispatch,
     } = this.props;
     const {
       loading,
       meetingExisted,
     } = this.state;
-
-    if (codeError && !meetingHasEnded) {
-      // 680 is set for the codeError when the user requests a logout
-      if (codeError !== '680') {
-        logger.error({ logCode: 'startup_client_usercouldnotlogin_error' }, `User could not log in HTML5, hit ${codeError}`);
-      }
-      Session.set('codeError', codeError);
-      return dispatch('hasError');
-    }
-
-    if (!(loading || !subscriptionsReady)
-      && !meetingHasEnded && meetingExist) {
-      dispatch('hideLoading');
-    }
 
     if (!prevProps.subscriptionsReady && subscriptionsReady) {
       logger.info({ logCode: 'startup_client_subscriptions_ready' }, 'Subscriptions are ready');
@@ -168,13 +152,20 @@ class Base extends Component {
   renderByState() {
     const { updateLoadingState } = this;
     const stateControls = { updateLoadingState };
+    const { loading } = this.state;
     const codeError = Session.get('codeError');
     const {
       ejected,
+      meetingExist,
       meetingHasEnded,
       meetingIsBreakout,
+      subscriptionsReady,
       User,
     } = this.props;
+
+    if ((loading || !subscriptionsReady) && !meetingHasEnded && meetingExist) {
+      return (<LoadingScreen>{loading}</LoadingScreen>);
+    }
 
     if (ejected && ejected.ejectedReason) {
       const { ejectedReason } = ejected;
@@ -188,6 +179,14 @@ class Base extends Component {
       AudioManager.exitAudio();
       return (<MeetingEnded code={codeError} />);
     }
+
+    if (codeError && !meetingHasEnded) {
+      // 680 is set for the codeError when the user requests a logout
+      if (codeError !== '680') {
+        logger.error({ logCode: 'startup_client_usercouldnotlogin_error' }, `User could not log in HTML5, hit ${codeError}`);
+      }
+      return (<ErrorScreen code={codeError} />);
+    }
     // this.props.annotationsHandler.stop();
     return (<AppContainer {...this.props} baseControls={stateControls} />);
   }
@@ -197,11 +196,15 @@ class Base extends Component {
     const { locale, meetingExist } = this.props;
     const stateControls = { updateLoadingState };
     const { meetingExisted } = this.state;
-    if ((!meetingExisted && !meetingExist && Auth.loggedIn)) return null;
+
     return (
-      <IntlStartup locale={locale} baseControls={stateControls}>
-        {this.renderByState()}
-      </IntlStartup>
+      (!meetingExisted && !meetingExist && Auth.loggedIn)
+        ? <LoadingScreen />
+        : (
+          <IntlStartup locale={locale} baseControls={stateControls}>
+            {this.renderByState()}
+          </IntlStartup>
+        )
     );
   }
 }
@@ -313,4 +316,4 @@ const BaseContainer = withTracker(() => {
   };
 })(Base);
 
-export default withJoinLoadingConsumer(BaseContainer);
+export default BaseContainer;
