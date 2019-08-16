@@ -8,7 +8,6 @@ import Annotations from '/imports/api/annotations';
 import AnnotationsTextService from '/imports/ui/components/whiteboard/annotations/text/service';
 import AnnotationsLocal from '/imports/ui/components/whiteboard/service';
 import mapUser from '/imports/ui/services/user/mapUser';
-import { withJoinLoadingConsumer } from '/imports/ui/components/join-loading/context/context';
 
 const CHAT_CONFIG = Meteor.settings.public.chat;
 const CHAT_ENABLED = CHAT_CONFIG.enabled;
@@ -35,7 +34,7 @@ class Subscriptions extends Component {
   }
 }
 
-export default withJoinLoadingConsumer(withTracker(({ dispatch }) => {
+export default withTracker(() => {
   const { credentials } = Auth;
   const { meetingId, requesterUserId } = credentials;
   if (Session.get('codeError')) {
@@ -51,7 +50,6 @@ export default withJoinLoadingConsumer(withTracker(({ dispatch }) => {
         extraInfo: { error },
       }, 'Error while subscribing to collections');
       Session.set('codeError', error.error);
-      dispatch('hasError');
     },
   };
 
@@ -117,4 +115,4 @@ export default withJoinLoadingConsumer(withTracker(({ dispatch }) => {
     subscriptionsReady: ready,
     subscriptionsHandlers,
   };
-})(Subscriptions));
+})(Subscriptions);
