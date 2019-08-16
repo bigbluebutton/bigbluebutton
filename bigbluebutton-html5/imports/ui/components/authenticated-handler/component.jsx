@@ -51,7 +51,6 @@ class AuthenticatedHandler extends Component {
 
   setError(codeError) {
     const { dispatch } = this.props;
-    Session.set('hasError', true);
     dispatch('hasError');
     if (codeError) Session.set('codeError', codeError);
   }

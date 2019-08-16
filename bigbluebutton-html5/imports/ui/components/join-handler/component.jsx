@@ -17,8 +17,6 @@ const { showParticipantsOnLogin } = APP_CONFIG;
 const CHAT_ENABLED = Meteor.settings.public.chat.enabled;
 
 class JoinHandler extends Component {
-  
-
   constructor(props) {
     super(props);
     this.fetchToken = this.fetchToken.bind(this);
@@ -41,7 +39,6 @@ class JoinHandler extends Component {
 
   setError(codeError) {
     const { dispatch } = this.props;
-    Session.set('hasError', true);
     if (codeError) Session.set('codeError', codeError);
     dispatch('hasError');
   }
