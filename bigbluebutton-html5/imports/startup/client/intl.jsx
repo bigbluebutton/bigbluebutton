@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { IntlProvider, addLocaleData } from 'react-intl';
 import Settings from '/imports/ui/services/settings';
-import LoadingScreen from '/imports/ui/components/loading-screen/component';
+import { withJoinLoadingConsumer } from '/imports/ui/components/join-loading/context/context';
 
 // currently supported locales.
 import ar from 'react-intl/locale-data/ar';
@@ -106,7 +106,7 @@ class IntlStartup extends Component {
 
   fetchLocalizedMessages(locale) {
     const url = `/html5client/locale?locale=${locale}`;
-
+    const { dispatch } = this.props;
     this.setState({ fetching: true }, () => {
       fetch(url)
         .then((response) => {
@@ -120,6 +120,7 @@ class IntlStartup extends Component {
           const dasherizedLocale = normalizedLocale.replace('_', '-');
           this.setState({ messages, fetching: false, normalizedLocale: dasherizedLocale }, () => {
             this.saveLocale(dasherizedLocale);
+            dispatch('hideLoading');
           });
         })
         .catch(() => {
@@ -146,7 +147,7 @@ class IntlStartup extends Component {
     const { fetching, normalizedLocale, messages } = this.state;
     const { children } = this.props;
 
-    return fetching ? <LoadingScreen /> : (
+    return !fetching && (
       <IntlProvider locale={normalizedLocale} messages={messages}>
         {children}
       </IntlProvider>
@@ -154,7 +155,7 @@ class IntlStartup extends Component {
   }
 }
 
-export default IntlStartup;
+export default withJoinLoadingConsumer(IntlStartup);
 
 IntlStartup.propTypes = propTypes;
 IntlStartup.defaultProps = defaultProps;
