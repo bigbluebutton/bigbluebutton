@@ -16,7 +16,7 @@ const JoinLoadComponent = (props) => {
         <ErrorScreen />
       </IntlProvider>
       )}
-      {children}
+      { !hasError && children}
     </Fragment>
   );
 };
