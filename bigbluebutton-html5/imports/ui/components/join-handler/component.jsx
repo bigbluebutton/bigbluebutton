@@ -6,7 +6,7 @@ import { setCustomLogoUrl } from '/imports/ui/components/user-list/service';
 import { makeCall } from '/imports/ui/services/api';
 import deviceInfo from '/imports/utils/deviceInfo';
 import logger from '/imports/startup/client/logger';
-import LoadingScreen from '/imports/ui/components/loading-screen/component';
+import { withJoinLoadingConsumer } from '/imports/ui/components/join-loading/context/context';
 
 const propTypes = {
   children: PropTypes.element.isRequired,
@@ -17,14 +17,10 @@ const { showParticipantsOnLogin } = APP_CONFIG;
 const CHAT_ENABLED = Meteor.settings.public.chat.enabled;
 
 class JoinHandler extends Component {
-  static setError(codeError) {
-    Session.set('hasError', true);
-    if (codeError) Session.set('codeError', codeError);
-  }
-
   constructor(props) {
     super(props);
     this.fetchToken = this.fetchToken.bind(this);
+    this.setError = this.setError.bind(this);
     this.numFetchTokenRetries = 0;
 
     this.state = {
@@ -39,6 +35,12 @@ class JoinHandler extends Component {
 
   componentWillUnmount() {
     this._isMounted = false;
+  }
+
+  setError(codeError) {
+    const { dispatch } = this.props;
+    if (codeError) Session.set('codeError', codeError);
+    dispatch('hasError');
   }
 
   async fetchToken() {
@@ -63,7 +65,7 @@ class JoinHandler extends Component {
     const sessionToken = urlParams.get('sessionToken');
 
     if (!sessionToken) {
-      JoinHandler.setError('400');
+      this.setError('400');
       Session.set('errorMessageDescription', 'Session token was not provided');
     }
 
@@ -141,7 +143,6 @@ class JoinHandler extends Component {
     const { response } = parseToJson;
 
     setLogoutURL(response);
-
     if (response.returncode !== 'FAILED') {
       await setAuth(response);
 
@@ -167,9 +168,11 @@ class JoinHandler extends Component {
           response,
         },
       }, 'User successfully went through main.joinRouteHandler');
+      this.setState({ joined: true });
     } else {
       const e = new Error(response.message);
       if (!Session.get('codeError')) Session.set('errorMessageDescription', response.message);
+      this.setError(401);
       logger.error({
         logCode: 'joinhandler_component_joinroutehandler_error',
         extraInfo: {
@@ -178,18 +181,15 @@ class JoinHandler extends Component {
         },
       }, 'User faced an error on main.joinRouteHandler.');
     }
-    this.setState({ joined: true });
   }
 
   render() {
     const { children } = this.props;
     const { joined } = this.state;
-    return joined
-      ? children
-      : (<LoadingScreen />);
+    return joined && children;
   }
 }
 
-export default JoinHandler;
+export default withJoinLoadingConsumer(JoinHandler);
 
 JoinHandler.propTypes = propTypes;
