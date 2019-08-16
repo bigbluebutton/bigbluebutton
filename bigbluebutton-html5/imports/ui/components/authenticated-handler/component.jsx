@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import { Session } from 'meteor/session';
 import logger from '/imports/startup/client/logger';
 import Auth from '/imports/ui/services/auth';
-import { withConsumer } from '/imports/ui/components/join-loading/context/context';
+import { withJoinLoadingConsumer } from '/imports/ui/components/join-loading/context/context';
 
 const STATUS_CONNECTING = 'connecting';
 const CHAT_CONFIG = Meteor.settings.public.chat;
@@ -101,4 +101,4 @@ class AuthenticatedHandler extends Component {
 }
 
 
-export default withConsumer(AuthenticatedHandler);
+export default withJoinLoadingConsumer(AuthenticatedHandler);

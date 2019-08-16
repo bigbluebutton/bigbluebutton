@@ -27,7 +27,7 @@ const initialState = {
   showLoading: true,
   hasError: false,
 };
-const withProvider = Component => (props) => {
+const JoinLoading = Component => (props) => {
   const [state, dispatch] = useReducer(reducer, initialState);
   const contextValue = {
     ...props,
@@ -49,15 +49,15 @@ const joinLoadingContextConsumer = Component => props => (
 );
 
 
-const withConsumer = Component => joinLoadingContextConsumer(Component);
+const withJoinLoadingConsumer = Component => joinLoadingContextConsumer(Component);
 
-const withJoinLoadingContext = Component => withProvider(withConsumer(Component));
+const withJoinLoadingContext = Component => JoinLoading(withJoinLoadingConsumer(Component));
 
 export {
   withJoinLoadingContext,
-  withConsumer,
+  withJoinLoadingConsumer,
   joinLoadingContextConsumer,
-  withProvider,
+  JoinLoading,
   reducer,
   initialState,
   JoinLoadingContext,

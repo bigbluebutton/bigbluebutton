@@ -8,7 +8,8 @@ import Annotations from '/imports/api/annotations';
 import AnnotationsTextService from '/imports/ui/components/whiteboard/annotations/text/service';
 import AnnotationsLocal from '/imports/ui/components/whiteboard/service';
 import mapUser from '/imports/ui/services/user/mapUser';
-import { withConsumer } from '/imports/ui/components/join-loading/context/context';
+import { withJoinLoadingConsumer } from '/imports/ui/components/join-loading/context/context';
+
 const CHAT_CONFIG = Meteor.settings.public.chat;
 const CHAT_ENABLED = CHAT_CONFIG.enabled;
 const PUBLIC_GROUP_CHAT_ID = CHAT_CONFIG.public_group_id;
@@ -34,7 +35,7 @@ class Subscriptions extends Component {
   }
 }
 
-export default withConsumer(withTracker(({ dispatch }) => {
+export default withJoinLoadingConsumer(withTracker(({ dispatch }) => {
   const { credentials } = Auth;
   const { meetingId, requesterUserId } = credentials;
   if (Session.get('codeError')) {

@@ -11,12 +11,11 @@ const JoinLoadComponent = (props) => {
   return (
     <Fragment>
       {(showLoading && !hasError) && (<LoadingScreen />)}
-      {hasError && (
-      <IntlProvider locale={locale}>
-        <ErrorScreen />
-      </IntlProvider>
-      )}
-      { !hasError && children}
+      {hasError ? (
+        <IntlProvider locale={locale}>
+          <ErrorScreen />
+        </IntlProvider>
+      ) : children}
     </Fragment>
   );
 };

@@ -6,7 +6,7 @@ import { setCustomLogoUrl } from '/imports/ui/components/user-list/service';
 import { makeCall } from '/imports/ui/services/api';
 import deviceInfo from '/imports/utils/deviceInfo';
 import logger from '/imports/startup/client/logger';
-import { withConsumer } from '/imports/ui/components/join-loading/context/context';
+import { withJoinLoadingConsumer } from '/imports/ui/components/join-loading/context/context';
 
 const propTypes = {
   children: PropTypes.element.isRequired,
@@ -193,6 +193,6 @@ class JoinHandler extends Component {
   }
 }
 
-export default withConsumer(JoinHandler);
+export default withJoinLoadingConsumer(JoinHandler);
 
 JoinHandler.propTypes = propTypes;
