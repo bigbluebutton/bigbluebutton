@@ -16,7 +16,7 @@ import Breakouts from '/imports/api/breakouts';
 import AudioService from '/imports/ui/components/audio/service';
 import { FormattedMessage } from 'react-intl';
 import { notify } from '/imports/ui/services/notification';
-import { withConsumer } from '/imports/ui/components/join-loading/context/context';
+import { withJoinLoadingConsumer } from '/imports/ui/components/join-loading/context/context';
 
 const HTML = document.getElementsByTagName('html')[0];
 
@@ -313,4 +313,4 @@ const BaseContainer = withTracker(() => {
   };
 })(Base);
 
-export default withConsumer(BaseContainer);
+export default withJoinLoadingConsumer(BaseContainer);

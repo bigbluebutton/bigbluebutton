@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { IntlProvider, addLocaleData } from 'react-intl';
 import Settings from '/imports/ui/services/settings';
-import { withConsumer } from '/imports/ui/components/join-loading/context/context';
+import { withJoinLoadingConsumer } from '/imports/ui/components/join-loading/context/context';
 
 // currently supported locales.
 import ar from 'react-intl/locale-data/ar';
@@ -155,7 +155,7 @@ class IntlStartup extends Component {
   }
 }
 
-export default withConsumer(IntlStartup);
+export default withJoinLoadingConsumer(IntlStartup);
 
 IntlStartup.propTypes = propTypes;
 IntlStartup.defaultProps = defaultProps;

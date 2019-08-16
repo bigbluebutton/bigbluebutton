@@ -6,7 +6,7 @@ import { setCustomLogoUrl } from '/imports/ui/components/user-list/service';
 import { makeCall } from '/imports/ui/services/api';
 import deviceInfo from '/imports/utils/deviceInfo';
 import logger from '/imports/startup/client/logger';
-import { withConsumer } from '/imports/ui/components/join-loading/context/context';
+import { withJoinLoadingConsumer } from '/imports/ui/components/join-loading/context/context';
 
 const propTypes = {
   children: PropTypes.element.isRequired,
@@ -17,8 +17,6 @@ const { showParticipantsOnLogin } = APP_CONFIG;
 const CHAT_ENABLED = Meteor.settings.public.chat.enabled;
 
 class JoinHandler extends Component {
-  
-
   constructor(props) {
     super(props);
     this.fetchToken = this.fetchToken.bind(this);
@@ -41,7 +39,6 @@ class JoinHandler extends Component {
 
   setError(codeError) {
     const { dispatch } = this.props;
-    Session.set('hasError', true);
     if (codeError) Session.set('codeError', codeError);
     dispatch('hasError');
   }
@@ -193,6 +190,6 @@ class JoinHandler extends Component {
   }
 }
 
-export default withConsumer(JoinHandler);
+export default withJoinLoadingConsumer(JoinHandler);
 
 JoinHandler.propTypes = propTypes;
