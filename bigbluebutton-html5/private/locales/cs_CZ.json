@@ -352,6 +352,7 @@
     "app.lock-viewers.microphoneLable": "Mikrofon",
     "app.lock-viewers.PublicChatLabel": "Veřejný chat",
     "app.lock-viewers.PrivateChatLable": "Soukromý chat",
+    "app.lock-viewers.userListLabel": "Seznam uživatelů",
     "app.lock-viewers.Layout": "Rozložení obrazovky",
     "app.recording.startTitle": "Zahájit nahrávání",
     "app.recording.startDescription": "(Můžete využít nahrávací tlačítko později pro pozastavení nahrávání.)",

@@ -409,6 +409,7 @@
     "app.lock-viewers.microphoneLable": "Micrófono",
     "app.lock-viewers.PublicChatLabel": "Chat público",
     "app.lock-viewers.PrivateChatLable": "Chat privado",
+    "app.lock-viewers.userListLabel": "Lista de usuarios",
     "app.lock-viewers.Layout": "Diseño de pantalla",
     "app.recording.startTitle": "Iniciar grabación",
     "app.recording.stopTitle": "Detener la grabación",

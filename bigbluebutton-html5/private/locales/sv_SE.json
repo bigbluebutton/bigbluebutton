@@ -484,6 +484,7 @@
     "app.lock-viewers.PublicChatLabel": "Publik chatt",
     "app.lock-viewers.PrivateChatLable": "Privat chatt",
     "app.lock-viewers.notesLabel": "Delade anteckningar",
+    "app.lock-viewers.userListLabel": "Användarlista",
     "app.lock-viewers.Layout": "Layout",
     "app.lock-viewers.ariaTitle": "Lås åhörarnas modal",
     "app.recording.startTitle": "Starta inspelningen",

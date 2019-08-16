@@ -469,6 +469,7 @@
     "app.lock-viewers.PublicChatLabel": "الدردشة العامة",
     "app.lock-viewers.PrivateChatLable": "دردشة خاصة",
     "app.lock-viewers.notesLabel": "ملاحظات مشتركة",
+    "app.lock-viewers.userListLabel": "قائمة المستخدمين",
     "app.lock-viewers.Layout": "مظهر",
     "app.lock-viewers.ariaTitle": "نافذة قفل المشاهدين",
     "app.recording.startTitle": "بدء التسجيل",

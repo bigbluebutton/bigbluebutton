@@ -493,6 +493,7 @@
     "app.lock-viewers.PublicChatLabel": "Txat publikoa",
     "app.lock-viewers.PrivateChatLable": "Txat pribatua",
     "app.lock-viewers.notesLabel": "Partekatutako oharrak",
+    "app.lock-viewers.userListLabel": "Erabiltzaileen zerrenda",
     "app.lock-viewers.Layout": "Diseinua",
     "app.lock-viewers.ariaTitle": "Blokeatu ikusleen modua",
     "app.recording.startTitle": "Hasi grabatzen",
