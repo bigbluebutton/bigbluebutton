@@ -24,6 +24,10 @@ const intlDisableMessages = defineMessages({
     id: 'app.userList.userOptions.disableNote',
     description: 'label to disable note notification',
   },
+  hideUserList: {
+    id: 'app.userList.userOptions.hideUserList',
+    description: 'label to hide user list notification',
+  },
   onlyModeratorWebcam: {
     id: 'app.userList.userOptions.webcamsOnlyForModerator',
     description: 'label to disable all webcams except for the moderators cam',
@@ -50,6 +54,10 @@ const intlEnableMessages = defineMessages({
   disableNote: {
     id: 'app.userList.userOptions.enableNote',
     description: 'label to enable note notification',
+  },
+  hideUserList: {
+    id: 'app.userList.userOptions.showUserList',
+    description: 'label to show user list notification',
   },
   onlyModeratorWebcam: {
     id: 'app.userList.userOptions.enableOnlyModeratorWebcam',
