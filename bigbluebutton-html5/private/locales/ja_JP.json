@@ -464,6 +464,7 @@
     "app.lock-viewers.PublicChatLabel": "グループチャット",
     "app.lock-viewers.PrivateChatLable": "非公開チャット",
     "app.lock-viewers.notesLabel": "共有メモ",
+    "app.lock-viewers.userListLabel": "ユーザーリスト",
     "app.lock-viewers.Layout": "レイアウト",
     "app.lock-viewers.ariaTitle": "ビューアーウィンドウをロック",
     "app.recording.startTitle": "録画開始",

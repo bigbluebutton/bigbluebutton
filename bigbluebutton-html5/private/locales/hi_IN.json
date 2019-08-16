@@ -415,6 +415,7 @@
     "app.lock-viewers.microphoneLable": "माइक्रोफ़ोन",
     "app.lock-viewers.PublicChatLabel": "सार्वजनिक बातचीत",
     "app.lock-viewers.PrivateChatLable": "गोपनीय बातचीत",
+    "app.lock-viewers.userListLabel": "उपयोगकर्ता सूची",
     "app.lock-viewers.Layout": "ख़ाका",
     "app.recording.startTitle": "रिकॉर्डिंग शुरू",
     "app.recording.stopTitle": "रिकॉर्डिंग रोके",

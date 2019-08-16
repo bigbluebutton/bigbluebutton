@@ -442,6 +442,7 @@
     "app.lock-viewers.PublicChatLabel": "Chat pubblica",
     "app.lock-viewers.PrivateChatLable": "Chat privata",
     "app.lock-viewers.notesLabel": "Note condivise",
+    "app.lock-viewers.userListLabel": "Lista utenti",
     "app.lock-viewers.Layout": "Disposizione",
     "app.lock-viewers.ariaTitle": "Finestra di dialogo di blocco utente",
     "app.recording.startTitle": "Avvia registrazione",

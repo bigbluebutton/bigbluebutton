@@ -493,6 +493,7 @@
     "app.lock-viewers.PublicChatLabel": "公共聊天",
     "app.lock-viewers.PrivateChatLable": "私聊",
     "app.lock-viewers.notesLabel": "共享的笔记",
+    "app.lock-viewers.userListLabel": "用户列表",
     "app.lock-viewers.Layout": "页面布局",
     "app.lock-viewers.ariaTitle": "锁定观众模式",
     "app.recording.startTitle": "开始录制",
