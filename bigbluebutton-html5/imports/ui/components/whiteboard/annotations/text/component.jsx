@@ -32,9 +32,10 @@ export default class TextDrawComponent extends Component {
 
   static getPresenterStyles(results) {
     const isFireFox = document.body.className.includes('firefox');
+    const isSarafi = document.body.className.includes('safari');
     const styles = {
       fontFamily: 'Arial',
-      border: `${isFireFox ? '2px' : '1px'} solid black`,
+      border: `${isFireFox || isSarafi ? '2px' : '1px'} solid black`,
       width: '100%',
       height: '100%',
       resize: 'none',
