@@ -489,6 +489,7 @@
     "app.lock-viewers.PublicChatLabel": "Общий чат",
     "app.lock-viewers.PrivateChatLable": "Приватный чат",
     "app.lock-viewers.notesLabel": "Общие заметки",
+    "app.lock-viewers.userListLabel": "Список пользователей",
     "app.lock-viewers.Layout": "Расположение окон",
     "app.lock-viewers.ariaTitle": "Окно блокировки участников",
     "app.recording.startTitle": "Включить запись",

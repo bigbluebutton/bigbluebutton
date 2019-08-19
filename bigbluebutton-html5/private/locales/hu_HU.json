@@ -484,6 +484,7 @@
     "app.lock-viewers.PublicChatLabel": "Nyilvános üzenetek",
     "app.lock-viewers.PrivateChatLable": "Privát üzenetek",
     "app.lock-viewers.notesLabel": "Megosztott jegyzetek",
+    "app.lock-viewers.userListLabel": "Felhasználók",
     "app.lock-viewers.Layout": "Elrendezés",
     "app.lock-viewers.ariaTitle": "Zárolt felhasználók ablaka",
     "app.recording.startTitle": "Felvétel indítása",

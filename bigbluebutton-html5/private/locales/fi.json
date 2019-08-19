@@ -477,6 +477,7 @@
     "app.lock-viewers.PublicChatLabel": "Julkinen chat",
     "app.lock-viewers.PrivateChatLable": "Yksityinen chat",
     "app.lock-viewers.notesLabel": "Jaetut muistiinpanot",
+    "app.lock-viewers.userListLabel": "Lista käyttäjistä",
     "app.lock-viewers.Layout": "Sommittelu",
     "app.recording.startTitle": "Aloita nauhoitus",
     "app.recording.stopTitle": "Tauota nauhoitus",

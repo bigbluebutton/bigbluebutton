@@ -484,6 +484,7 @@
     "app.lock-viewers.PublicChatLabel": "ជជែក​សាធារណៈ",
     "app.lock-viewers.PrivateChatLable": "ជជែក​ឯកជន",
     "app.lock-viewers.notesLabel": "កំណត់ត្រារួម",
+    "app.lock-viewers.userListLabel": "បញ្ជីអ្នកចូលរួម",
     "app.lock-viewers.Layout": "ទម្រង់",
     "app.lock-viewers.ariaTitle": "ផ្ទាំងបិទមុខងារសម្រាប់អ្នកមើល",
     "app.recording.startTitle": "ចាប់ផ្តើមថត",
