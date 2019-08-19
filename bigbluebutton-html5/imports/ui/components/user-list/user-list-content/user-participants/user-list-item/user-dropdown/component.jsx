@@ -272,7 +272,7 @@ class UserDropdown extends PureComponent {
       statuses.map(status => actions.push(this.makeDropdownItem(
         status,
         intl.formatMessage({ id: `app.actionsBar.emojiMenu.${status}Label` }),
-        () => { handleEmojiChange(status); this.resetMenuState(); },
+        () => { handleEmojiChange(user.id, status); this.resetMenuState(); },
         getEmojiList[status],
       )));
 
