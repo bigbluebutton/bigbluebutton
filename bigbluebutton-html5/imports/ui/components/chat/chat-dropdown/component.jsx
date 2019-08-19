@@ -32,6 +32,8 @@ const intlMessages = defineMessages({
   },
 });
 
+const ROLE_MODERATOR = Meteor.settings.public.user.role_moderator;
+
 class ChatDropdown extends PureComponent {
   constructor(props) {
     super(props);
@@ -72,7 +74,7 @@ class ChatDropdown extends PureComponent {
   }
 
   getAvailableActions() {
-    const { intl } = this.props;
+    const { intl, isMeteorConnected } = this.props;
 
     const clearIcon = 'delete';
     const saveIcon = 'download';
@@ -106,7 +108,7 @@ class ChatDropdown extends PureComponent {
         label={intl.formatMessage(intlMessages.copy)}
         key={this.actionsKey[1]}
       />,
-      user.isModerator ? (
+      user.role === ROLE_MODERATOR && isMeteorConnected ? (
         <DropdownListItem
           data-test="chatClear"
           icon={clearIcon}
@@ -120,12 +122,13 @@ class ChatDropdown extends PureComponent {
 
   render() {
     const { intl } = this.props;
+    const { isSettingOpen } = this.state;
 
     const availableActions = this.getAvailableActions();
 
     return (
       <Dropdown
-        isOpen={this.state.isSettingOpen}
+        isOpen={isSettingOpen}
         onShow={this.onActionsShow}
         onHide={this.onActionsHide}
       >

@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import BreakoutRoomContainer from '/imports/ui/components/breakout-room/container';
 import UserListContainer from '/imports/ui/components/user-list/container';
@@ -68,7 +68,7 @@ const WAITING_MAX_WIDTH = 800;
 
 const dispatchResizeEvent = () => window.dispatchEvent(new Event('resize'));
 
-class PanelManager extends Component {
+class PanelManager extends PureComponent {
   constructor() {
     super();
 
@@ -124,12 +124,13 @@ class PanelManager extends Component {
 
   renderUserListResizable() {
     const { userlistWidth } = this.state;
+    const { isRTL } = this.props;
 
     const resizableEnableOptions = {
       top: false,
-      right: true,
+      right: !isRTL,
       bottom: false,
-      left: false,
+      left: !!isRTL,
       topRight: false,
       bottomRight: false,
       bottomLeft: false,
@@ -172,12 +173,13 @@ class PanelManager extends Component {
 
   renderChatResizable() {
     const { chatWidth } = this.state;
+    const { isRTL } = this.props;
 
     const resizableEnableOptions = {
       top: false,
-      right: true,
+      right: !isRTL,
       bottom: false,
-      left: false,
+      left: !!isRTL,
       topRight: false,
       bottomRight: false,
       bottomLeft: false,
@@ -220,12 +222,13 @@ class PanelManager extends Component {
 
   renderNoteResizable() {
     const { noteWidth } = this.state;
+    const { isRTL } = this.props;
 
     const resizableEnableOptions = {
       top: false,
-      right: true,
+      right: !isRTL,
       bottom: false,
-      left: false,
+      left: !!isRTL,
       topRight: false,
       bottomRight: false,
       bottomLeft: false,
@@ -268,12 +271,13 @@ class PanelManager extends Component {
 
   renderCaptionsResizable() {
     const { captionsWidth } = this.state;
+    const { isRTL } = this.props;
 
     const resizableEnableOptions = {
       top: false,
-      right: true,
+      right: !isRTL,
       bottom: false,
-      left: false,
+      left: !!isRTL,
       topRight: false,
       bottomRight: false,
       bottomLeft: false,
@@ -316,12 +320,13 @@ class PanelManager extends Component {
 
   renderWaitingUsersPanelResizable() {
     const { waitingWidth } = this.state;
+    const { isRTL } = this.props;
 
     const resizableEnableOptions = {
       top: false,
-      right: true,
+      right: !isRTL,
       bottom: false,
-      left: false,
+      left: !!isRTL,
       topRight: false,
       bottomRight: false,
       bottomLeft: false,
@@ -366,12 +371,13 @@ class PanelManager extends Component {
 
   renderPollResizable() {
     const { pollWidth } = this.state;
+    const { isRTL } = this.props;
 
     const resizableEnableOptions = {
       top: false,
-      right: true,
+      right: !isRTL,
       bottom: false,
-      left: false,
+      left: !!isRTL,
       topRight: false,
       bottomRight: false,
       bottomLeft: false,
@@ -401,16 +407,19 @@ class PanelManager extends Component {
   render() {
     const { enableResize, openPanel } = this.props;
     if (openPanel === '') return null;
-
-    const panels = [this.renderUserList()];
-    const resizablePanels = [
-      this.renderUserListResizable(),
-      <div className={styles.userlistPad} key={this.padKey} />,
-    ];
+    const panels = [];
+    if (enableResize) {
+      panels.push(
+        this.renderUserListResizable(),
+        <div className={styles.userlistPad} key={this.padKey} />,
+      );
+    } else {
+      panels.push(this.renderUserList());
+    }
 
     if (openPanel === 'chat') {
       if (enableResize) {
-        resizablePanels.push(this.renderChatResizable());
+        panels.push(this.renderChatResizable());
       } else {
         panels.push(this.renderChat());
       }
@@ -418,7 +427,7 @@ class PanelManager extends Component {
 
     if (openPanel === 'note') {
       if (enableResize) {
-        resizablePanels.push(this.renderNoteResizable());
+        panels.push(this.renderNoteResizable());
       } else {
         panels.push(this.renderNote());
       }
@@ -426,7 +435,7 @@ class PanelManager extends Component {
 
     if (openPanel === 'captions') {
       if (enableResize) {
-        resizablePanels.push(this.renderCaptionsResizable());
+        panels.push(this.renderCaptionsResizable());
       } else {
         panels.push(this.renderCaptions());
       }
@@ -434,7 +443,7 @@ class PanelManager extends Component {
 
     if (openPanel === 'poll') {
       if (enableResize) {
-        resizablePanels.push(this.renderPollResizable());
+        panels.push(this.renderPollResizable());
       } else {
         panels.push(this.renderPoll());
       }
@@ -442,7 +451,7 @@ class PanelManager extends Component {
 
     if (openPanel === 'breakoutroom') {
       if (enableResize) {
-        resizablePanels.push(this.renderBreakoutRoom());
+        panels.push(this.renderBreakoutRoom());
       } else {
         panels.push(this.renderBreakoutRoom());
       }
@@ -450,15 +459,13 @@ class PanelManager extends Component {
 
     if (openPanel === 'waitingUsersPanel') {
       if (enableResize) {
-        resizablePanels.push(this.renderWaitingUsersPanelResizable());
+        panels.push(this.renderWaitingUsersPanelResizable());
       } else {
         panels.push(this.renderWaitingUsersPanel());
       }
     }
 
-    return enableResize
-      ? resizablePanels
-      : panels;
+    return panels;
   }
 }
 

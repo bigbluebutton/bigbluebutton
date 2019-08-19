@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { memo } from 'react';
 import PropTypes from 'prop-types';
 import { defineMessages, injectIntl, intlShape } from 'react-intl';
 import browser from 'browser-detect';
@@ -16,6 +16,7 @@ const propTypes = {
   isVideoBroadcasting: PropTypes.bool.isRequired,
   screenSharingCheck: PropTypes.bool.isRequired,
   screenShareEndAlert: PropTypes.func.isRequired,
+  isMeteorConnected: PropTypes.bool.isRequired,
   screenshareDataSavingSetting: PropTypes.bool.isRequired,
 };
 
@@ -62,6 +63,7 @@ const DesktopShare = ({
   isUserPresenter,
   screenSharingCheck,
   screenShareEndAlert,
+  isMeteorConnected,
   screenshareDataSavingSetting,
 }) => {
   const onFail = (error) => {
@@ -72,9 +74,17 @@ const DesktopShare = ({
         notify(intl.formatMessage(intlMessages.iceConnectionStateError), 'error', 'desktop');
         break;
       default:
-        logger.error({ logCode: 'desktopshare_default_error' }, error || 'Default error handler');
+        logger.error({
+          logCode: 'desktopshare_default_error',
+          extraInfo: {
+            maybeError: error || 'Default error handler',
+          },
+        }, 'Default error handler for screenshare');
     }
-    screenShareEndAlert();
+    // Don't trigger the screen share end alert if presenter click to cancel on screen share dialog
+    if (error && error.name !== 'NotAllowedError') {
+      screenShareEndAlert();
+    }
   };
 
   const screenshareLocked = screenshareDataSavingSetting
@@ -90,6 +100,7 @@ const DesktopShare = ({
     ? (
       <Button
         className={cx(styles.button, isVideoBroadcasting || styles.btn)}
+        disabled={!isMeteorConnected && !isVideoBroadcasting || !screenshareDataSavingSetting}
         icon={isVideoBroadcasting ? 'desktop' : 'desktop_off'}
         label={intl.formatMessage(vLabel)}
         description={intl.formatMessage(vDescr)}
@@ -100,11 +111,10 @@ const DesktopShare = ({
         size="lg"
         onClick={isVideoBroadcasting ? handleUnshareScreen : () => handleShareScreen(onFail)}
         id={isVideoBroadcasting ? 'unshare-screen-button' : 'share-screen-button'}
-        disabled={!screenshareDataSavingSetting}
       />
     )
     : null);
 };
 
 DesktopShare.propTypes = propTypes;
-export default injectIntl(DesktopShare);
+export default injectIntl(memo(DesktopShare));

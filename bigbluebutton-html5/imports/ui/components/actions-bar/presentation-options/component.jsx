@@ -21,13 +21,10 @@ const intlMessages = defineMessages({
   },
 });
 
-const shouldUnswapLayout = () => {
-  return MediaService.shouldShowScreenshare() || MediaService.shouldShowExternalVideo();
-}
+const shouldUnswapLayout = () => MediaService.shouldShowScreenshare() || MediaService.shouldShowExternalVideo();
 
-const PresentationOptionsContainer = ({ intl, toggleSwapLayout }) => {
+const PresentationOptionsContainer = ({ intl, toggleSwapLayout, isThereCurrentPresentation }) => {
   if (shouldUnswapLayout()) toggleSwapLayout();
-
   return (
     <Button
       className={styles.button}
@@ -40,9 +37,10 @@ const PresentationOptionsContainer = ({ intl, toggleSwapLayout }) => {
       size="lg"
       onClick={toggleSwapLayout}
       id="restore-presentation"
+      disabled={!isThereCurrentPresentation}
     />
   );
-}
+};
 
 PresentationOptionsContainer.propTypes = propTypes;
 export default injectIntl(PresentationOptionsContainer);

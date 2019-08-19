@@ -1,11 +1,10 @@
 import Users from '/imports/api/users';
 import Meetings from '/imports/api/meetings';
-import GroupChatMsg from '/imports/api/group-chat-msg';
+import { GroupChatMsg } from '/imports/api/group-chat-msg';
 import GroupChat from '/imports/api/group-chat';
 import Auth from '/imports/ui/services/auth';
 import UnreadMessages from '/imports/ui/services/unread-messages';
 import Storage from '/imports/ui/services/storage/session';
-import mapUser from '/imports/ui/services/user/mapUser';
 import { makeCall } from '/imports/ui/services/api';
 import _ from 'lodash';
 
@@ -22,6 +21,8 @@ const PUBLIC_CHAT_CLEAR = CHAT_CONFIG.system_messages_keys.chat_clear;
 
 const ROLE_MODERATOR = Meteor.settings.public.user.role_moderator;
 
+const CONNECTION_STATUS_ONLINE = 'online';
+
 const ScrollCollection = new Mongo.Collection(null);
 
 const UnsentMessagesCollection = new Mongo.Collection(null);
@@ -36,7 +37,7 @@ const getUser = (userId) => {
     return null;
   }
 
-  return mapUser(user);
+  return user;
 };
 
 const getMeeting = () => Meetings.findOne({});
@@ -51,19 +52,18 @@ const mapGroupMessage = (message) => {
 
   if (message.sender !== SYSTEM_CHAT_TYPE) {
     const sender = getUser(message.sender);
-
     const {
       color,
-      isModerator,
+      role,
       name,
-      isOnline,
+      connectionStatus,
     } = sender;
 
     const mappedSender = {
       color,
-      isModerator,
+      isModerator: role === ROLE_MODERATOR,
       name,
-      isOnline,
+      isOnline: connectionStatus === CONNECTION_STATUS_ONLINE,
     };
 
     mappedMessage.sender = mappedSender;
@@ -108,10 +108,10 @@ const getPublicGroupMessages = () => {
 
 const getPrivateGroupMessages = () => {
   const chatID = Session.get('idChatOpen');
-  const sender = getUser(Auth.userID);
+  const senderId = Auth.userID;
 
   const privateChat = GroupChat.findOne({
-    users: { $all: [chatID, sender.id] },
+    users: { $all: [chatID, senderId] },
     access: PRIVATE_CHAT_TYPE,
   });
 
@@ -137,7 +137,7 @@ const isChatLocked = (receiverID) => {
   const user = Users.findOne({ userId: Auth.userID });
 
   if (meeting.lockSettingsProps !== undefined) {
-    if (mapUser(user).isLocked) {
+    if (user.locked && user.role !== ROLE_MODERATOR) {
       if (isPublic) {
         return meeting.lockSettingsProps.disablePublicChat;
       }
@@ -171,10 +171,10 @@ const sendGroupMessage = (message) => {
 
   const sender = getUser(Auth.userID);
 
-  const receiver = !isPublicChat ? getUser(chatID) : { id: chatID };
+  const receiverId = { id: chatID };
 
   if (!isPublicChat) {
-    const privateChat = GroupChat.findOne({ users: { $all: [chatID, sender.id] } });
+    const privateChat = GroupChat.findOne({ users: { $all: [chatID, sender.userId] } });
 
     if (privateChat) {
       const { chatId: privateChatId } = privateChat;
@@ -185,9 +185,9 @@ const sendGroupMessage = (message) => {
 
   const payload = {
     color: '0',
-    correlationId: `${sender.id}-${Date.now()}`,
+    correlationId: `${sender.userId}-${Date.now()}`,
     sender: {
-      id: sender.id,
+      id: sender.userId,
       name: sender.name,
     },
     message,
@@ -196,8 +196,8 @@ const sendGroupMessage = (message) => {
   const currentClosedChats = Storage.getItem(CLOSED_CHAT_LIST_KEY);
 
   // Remove the chat that user send messages from the session.
-  if (_.indexOf(currentClosedChats, receiver.id) > -1) {
-    Storage.setItem(CLOSED_CHAT_LIST_KEY, _.without(currentClosedChats, receiver.id));
+  if (_.indexOf(currentClosedChats, receiverId.id) > -1) {
+    Storage.setItem(CLOSED_CHAT_LIST_KEY, _.without(currentClosedChats, receiverId.id));
   }
 
   return makeCall('sendGroupChatMsg', chatId, payload);

@@ -7,7 +7,6 @@ import removeUser from './methods/removeUser';
 import toggleUserLock from './methods/toggleUserLock';
 import setUserEffectiveConnectionType from './methods/setUserEffectiveConnectionType';
 import userActivitySign from './methods/userActivitySign';
-import userChangedSettings from './methods/userChangedSettings';
 import userLeftMeeting from './methods/userLeftMeeting';
 
 Meteor.methods({
@@ -19,6 +18,5 @@ Meteor.methods({
   toggleUserLock,
   setUserEffectiveConnectionType,
   userActivitySign,
-  userChangedSettings,
   userLeftMeeting,
 });

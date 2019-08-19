@@ -69,7 +69,7 @@ class MeetingMessageQueue {
     };
 
     const onError = (reason) => {
-      this.debug(`${eventName}: ${reason.stack ? reason.stack : reason}`);
+      Logger.error(`${eventName}: ${reason.stack ? reason.stack : reason}`);
       callNext();
     };
 
@@ -109,7 +109,7 @@ class RedisPubSub {
     const redisConf = Meteor.settings.private.redis;
     const { password, port } = redisConf;
 
-    if (!!password) {
+    if (password) {
       this.pub = Redis.createClient({ host, port, password });
       this.sub = Redis.createClient({ host, port, password });
       this.pub.auth(password);

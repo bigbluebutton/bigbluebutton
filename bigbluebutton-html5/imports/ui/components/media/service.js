@@ -34,7 +34,7 @@ function shouldShowScreenshare() {
 }
 
 function shouldShowExternalVideo() {
-  const enableExternalVideo = Meteor.settings.public.app.enableExternalVideo;
+  const { enabled: enableExternalVideo } = Meteor.settings.public.externalVideoPlayer;
   return enableExternalVideo && getVideoId();
 }
 
@@ -43,8 +43,13 @@ function shouldShowOverlay() {
 }
 
 const swapLayout = {
-  value: false,
+  value: getFromUserSettings('autoSwapLayout', LAYOUT_CONFIG.autoSwapLayout),
   tracker: new Tracker.Dependency(),
+};
+
+const setSwapLayout = () => {
+  swapLayout.value = getFromUserSettings('autoSwapLayout', LAYOUT_CONFIG.autoSwapLayout);
+  swapLayout.tracker.changed();
 };
 
 const toggleSwapLayout = () => {
@@ -54,7 +59,7 @@ const toggleSwapLayout = () => {
 
 export const shouldEnableSwapLayout = () => {
   const { viewParticipantsWebcams } = Settings.dataSaving;
-  const usersVideo = VideoService.getAllUsersVideo();
+  const usersVideo = VideoService.getAllWebcamUsers();
   const poll = PollingService.mapPolls();
 
   return usersVideo.length > 0 // prevent swap without any webcams
@@ -64,8 +69,7 @@ export const shouldEnableSwapLayout = () => {
 
 export const getSwapLayout = () => {
   swapLayout.tracker.depend();
-  const autoSwapLayout = getFromUserSettings('autoSwapLayout', LAYOUT_CONFIG.autoSwapLayout);
-  return autoSwapLayout || (swapLayout.value && shouldEnableSwapLayout());
+  return swapLayout.value;
 };
 
 export default {
@@ -79,4 +83,5 @@ export default {
   toggleSwapLayout,
   shouldEnableSwapLayout,
   getSwapLayout,
+  setSwapLayout,
 };

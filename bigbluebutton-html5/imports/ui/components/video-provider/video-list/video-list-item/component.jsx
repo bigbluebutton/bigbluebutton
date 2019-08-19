@@ -14,14 +14,18 @@ import DropdownListItem from '/imports/ui/components/dropdown/list/item/componen
 import Icon from '/imports/ui/components/icon/component';
 import logger from '/imports/startup/client/logger';
 import VideoListItemStats from './video-list-item-stats/component';
-import FullscreenButtonContainer from '../../fullscreen-button/container';
+import FullscreenService from '../../../fullscreen-button/service';
+import FullscreenButtonContainer from '../../../fullscreen-button/container';
 import { styles } from '../styles';
+import { withDraggableConsumer } from '../../../media/webcam-draggable-overlay/context';
 
 const intlMessages = defineMessages({
   connectionStatsLabel: {
     id: 'app.video.stats.title',
   },
 });
+
+const ALLOW_FULLSCREEN = Meteor.settings.public.app.allowFullscreen;
 
 class VideoListItem extends Component {
   constructor(props) {
@@ -32,33 +36,45 @@ class VideoListItem extends Component {
       showStats: false,
       stats: { video: {} },
       videoIsReady: false,
+      isFullscreen: false,
     };
 
     this.toggleStats = this.toggleStats.bind(this);
     this.setStats = this.setStats.bind(this);
     this.setVideoIsReady = this.setVideoIsReady.bind(this);
+    this.onFullscreenChange = this.onFullscreenChange.bind(this);
   }
 
   componentDidMount() {
-    const { onMount } = this.props;
+    const { onMount, webcamDraggableDispatch } = this.props;
+
+    webcamDraggableDispatch(
+      {
+        type: 'setVideoRef',
+        value: this.videoTag,
+      },
+    );
+
     onMount(this.videoTag);
 
-    this.videoTag.addEventListener('loadeddata', () => this.setVideoIsReady());
+    this.videoTag.addEventListener('loadeddata', this.setVideoIsReady);
+    this.videoContainer.addEventListener('fullscreenchange', this.onFullscreenChange);
   }
 
   componentDidUpdate() {
     const playElement = (elem) => {
       if (elem.paused) {
-        const p = elem.play();
-        if (p && (typeof Promise !== 'undefined') && (p instanceof Promise)) {
-          // Catch exception when playing video
-          p.catch((e) => {
-            logger.warn(
-              { logCode: 'videolistitem_component_play_error' },
-              `Could not play video: ${JSON.stringify(e)}`,
-            );
-          });
-        }
+        elem.play().catch((error) => {
+          // NotAllowedError equals autoplay issues, fire autoplay handling event
+          if (error.name === 'NotAllowedError') {
+            const tagFailedEvent = new CustomEvent('videoPlayFailed', { detail: { mediaTag: elem } });
+            window.dispatchEvent(tagFailedEvent);
+          }
+          logger.warn({
+            logCode: 'videolistitem_component_play_maybe_error',
+            extraInfo: { error },
+          }, `Could not play video tag due to ${error.name}`);
+        });
       }
     };
 
@@ -67,6 +83,27 @@ class VideoListItem extends Component {
     // see https://bugs.chromium.org/p/chromium/issues/detail?id=382879
     if (this.videoTag) {
       playElement(this.videoTag);
+    }
+  }
+
+  componentWillUnmount() {
+    this.videoTag.removeEventListener('loadeddata', this.setVideoIsReady);
+    this.videoContainer.removeEventListener('fullscreenchange', this.onFullscreenChange);
+  }
+
+  onFullscreenChange() {
+    const { webcamDraggableDispatch } = this.props;
+    const { isFullscreen } = this.state;
+    const serviceIsFullscreen = FullscreenService.isFullScreen(this.videoContainer);
+
+    if (isFullscreen !== serviceIsFullscreen) {
+      this.setState({ isFullscreen: serviceIsFullscreen });
+      webcamDraggableDispatch(
+        {
+          type: 'setIsCameraFullscreen',
+          value: serviceIsFullscreen,
+        },
+      );
     }
   }
 
@@ -93,11 +130,11 @@ class VideoListItem extends Component {
     return _.compact([
       <DropdownListTitle className={styles.hiddenDesktop} key="name">{user.name}</DropdownListTitle>,
       <DropdownListSeparator className={styles.hiddenDesktop} key="sep" />,
-      ...actions.map(action => (<DropdownListItem key={user.id} {...action} />)),
+      ...actions.map(action => (<DropdownListItem key={user.userId} {...action} />)),
       (enableVideoStats
         ? (
           <DropdownListItem
-            key={`list-item-stats-${user.id}`}
+            key={`list-item-stats-${user.userId}`}
             onClick={() => { this.toggleStats(); }}
             label={intl.formatMessage(intlMessages.connectionStatsLabel)}
           />
@@ -119,18 +156,32 @@ class VideoListItem extends Component {
 
   renderFullscreenButton() {
     const { user } = this.props;
+    const { isFullscreen } = this.state;
+
+    if (!ALLOW_FULLSCREEN) return null;
+
     return (
       <FullscreenButtonContainer
-        fullscreenRef={this.videoTag}
+        fullscreenRef={this.videoContainer}
         elementName={user.name}
+        isFullscreen={isFullscreen}
+        dark
       />
     );
   }
 
   render() {
-    const { showStats, stats, videoIsReady } = this.state;
     const {
-      user, numOfUsers, swapLayout, mediaHeight,
+      showStats,
+      stats,
+      videoIsReady,
+      isFullscreen,
+    } = this.state;
+    const {
+      user,
+      voiceUser,
+      numOfUsers,
+      webcamDraggableState,
     } = this.props;
     const availableActions = this.getAvailableActions();
     const enableVideoMenu = Meteor.settings.public.kurento.enableVideoMenu || false;
@@ -140,27 +191,33 @@ class VideoListItem extends Component {
 
     return (
       <div className={cx({
-        [styles.content]: !swapLayout,
-        [styles.contentSwapLayout]: swapLayout,
-        [styles.talking]: user.isTalking,
-        [styles.contentLoading]: !videoIsReady && !swapLayout,
-        [styles.contentLoadingSwapLayout]: !videoIsReady && swapLayout,
+        [styles.content]: true,
+        [styles.talking]: voiceUser.talking,
       })}
       >
-        {!videoIsReady && <div className={styles.connecting} />}
-        <video
-          style={{
-            maxHeight: mediaHeight - 20, // 20 is margin
-          }}
-          muted
-          className={cx({
-            [styles.media]: true,
-            [styles.contentLoading]: !videoIsReady,
-          })}
-          ref={(ref) => { this.videoTag = ref; }}
-          autoPlay
-          playsInline
-        />
+        {
+          !videoIsReady
+          && <div className={styles.connecting} />
+        }
+        <div
+          className={styles.videoContainer}
+          ref={(ref) => { this.videoContainer = ref; }}
+        >
+          <video
+            muted
+            className={cx({
+              [styles.media]: true,
+              [styles.cursorGrab]: !webcamDraggableState.dragging
+                && !isFullscreen,
+              [styles.cursorGrabbing]: webcamDraggableState.dragging
+                && !isFullscreen,
+            })}
+            ref={(ref) => { this.videoTag = ref; }}
+            autoPlay
+            playsInline
+          />
+          {videoIsReady && this.renderFullscreenButton()}
+        </div>
         <div className={styles.info}>
           {enableVideoMenu && availableActions.length >= 3
             ? (
@@ -191,21 +248,20 @@ class VideoListItem extends Component {
               </div>
             )
           }
-          {user.isMuted ? <Icon className={styles.muted} iconName="unmute_filled" /> : null}
-          {user.isListenOnly ? <Icon className={styles.voice} iconName="listen" /> : null}
+          {voiceUser.muted && !voiceUser.listenOnly ? <Icon className={styles.muted} iconName="unmute_filled" /> : null}
+          {voiceUser.listenOnly ? <Icon className={styles.voice} iconName="listen" /> : null}
         </div>
         {
           showStats
             ? <VideoListItemStats toggleStats={this.toggleStats} stats={stats} />
             : null
         }
-        {videoIsReady && this.renderFullscreenButton()}
       </div>
     );
   }
 }
 
-export default injectIntl(VideoListItem);
+export default injectIntl(withDraggableConsumer(VideoListItem));
 
 VideoListItem.defaultProps = {
   numOfUsers: 0,

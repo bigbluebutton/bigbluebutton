@@ -3,8 +3,11 @@ import PropTypes from 'prop-types';
 import Auth from '/imports/ui/services/auth';
 import Service from '/imports/ui/components/actions-bar/service';
 import userListService from '/imports/ui/components/user-list/service';
+import logger from '/imports/startup/client/logger';
 import { defineMessages, injectIntl, intlShape } from 'react-intl';
 import { notify } from '/imports/ui/services/notification';
+import mapUser from '/imports/ui/services/user/mapUser';
+import Users from '/imports/api/users';
 import UserOptions from './component';
 
 const propTypes = {
@@ -13,9 +16,6 @@ const propTypes = {
   muteAllExceptPresenter: PropTypes.func.isRequired,
   setEmojiStatus: PropTypes.func.isRequired,
   meeting: PropTypes.shape({}).isRequired,
-  currentUser: PropTypes.shape({
-    isModerator: PropTypes.bool.isRequired,
-  }).isRequired,
   intl: intlShape.isRequired,
 };
 
@@ -42,10 +42,40 @@ const UserOptionsContainer = withTracker((props) => {
       intl.formatMessage(intlMessages.clearStatusMessage), 'info', 'clear_status',
     );
   };
+  const currentUser = Users.findOne({ userId: Auth.userID });
+
+  const isMeetingMuteOnStart = () => {
+    const { voiceProp } = meeting;
+    const { muteOnStart } = voiceProp;
+    return muteOnStart;
+  };
+
+  const meetingMuteDisabledLog = () => logger.info({
+    logCode: 'useroptions_unmute_all',
+    extraInfo: { logType: 'moderator_action' },
+  }, 'moderator disabled meeting mute');
 
   return {
-    toggleMuteAllUsers: () => muteAllUsers(Auth.userID),
-    toggleMuteAllUsersExceptPresenter: () => muteAllExceptPresenter(Auth.userID),
+    toggleMuteAllUsers: () => {
+      muteAllUsers(Auth.userID);
+      if (isMeetingMuteOnStart()) {
+        return meetingMuteDisabledLog();
+      }
+      return logger.info({
+        logCode: 'useroptions_mute_all',
+        extraInfo: { logType: 'moderator_action' },
+      }, 'moderator enabled meeting mute, all users muted');
+    },
+    toggleMuteAllUsersExceptPresenter: () => {
+      muteAllExceptPresenter(Auth.userID);
+      if (isMeetingMuteOnStart()) {
+        return meetingMuteDisabledLog();
+      }
+      return logger.info({
+        logCode: 'useroptions_mute_all_except_presenter',
+        extraInfo: { logType: 'moderator_action' },
+      }, 'moderator enabled meeting mute, all users muted except presenter');
+    },
     toggleStatus,
     isMeetingMuted: meeting.voiceProp.muteOnStart,
     isUserPresenter: Service.isUserPresenter(),
@@ -57,6 +87,8 @@ const UserOptionsContainer = withTracker((props) => {
     isBreakoutRecordable: Service.isBreakoutRecordable(),
     users: Service.users(),
     userListService,
+    isMeteorConnected: Meteor.status().connected,
+    currentUser: currentUser ? mapUser(currentUser) : {},
   };
 })(UserOptions);
 

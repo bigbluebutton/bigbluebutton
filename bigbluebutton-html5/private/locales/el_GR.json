@@ -2,7 +2,6 @@
     "app.chat.submitLabel": "Αποστολή Μηνύματος",
     "app.chat.errorMinMessageLength": "Το μήνυμα είναι {0} χαρακτήρες(ας). Πολύ μικρό",
     "app.chat.errorMaxMessageLength": "Το μήνυμα είναι {0} χαρακτήρες(ας). Πολύ μεγάλο",
-    "app.chat.inputPlaceholder": "Μήνυμα {0}",
     "app.chat.titlePublic": "Δημόσια Συνομιλία",
     "app.chat.titlePrivate": "Ιδιωτική Συνομιλία με {0}",
     "app.chat.partnerDisconnected": "{0} έχει εγκαταλείψει τη συνάντηση",
@@ -49,7 +48,8 @@
     "app.settings.main.save.label": "Αποθήκευση",
     "app.breakoutJoinConfirmation.dismissLabel": "Ακύρωση",
     "app.error.500": "Ωχ, κάτι πήγε στραβά",
-    "app.videoPreview.cancelLabel": "Ακύρωση"
+    "app.videoPreview.cancelLabel": "Ακύρωση",
+    "app.video.cancel": "Ακύρωση"
 
 }
 

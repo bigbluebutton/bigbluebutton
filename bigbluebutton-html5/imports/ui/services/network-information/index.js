@@ -2,6 +2,7 @@ import NetworkInformation from '/imports/api/network-information';
 import { makeCall } from '/imports/ui/services/api';
 import Auth from '/imports/ui/services/auth';
 import Users from '/imports/api/users';
+import LocalSettings from '/imports/api/local-settings';
 import logger from '/imports/startup/client/logger';
 import _ from 'lodash';
 
@@ -74,11 +75,19 @@ export const startBandwidthMonitoring = () => {
       timestamp: { $lt: warningUpperBoundary },
     });
 
-    const usersWatchingWebcams = Users.find({
+    const usersOnline = Users.find({
       userId: { $ne: Auth.userID },
-      viewParticipantsWebcams: true,
       connectionStatus: 'online',
-    }).map(user => user.userId);
+    }, { fields: { userId: 1 } }).map(user => user.userId);
+
+    const usersWithViewWebcamsEnabled = LocalSettings.find({
+      meetingId: Auth.meetingID,
+      'settings.dataSaving.viewParticipantsWebcams': true,
+    }, { fields: { userId: 1 } }).map(user => user.userId);
+
+    const usersWatchingWebcams = usersOnline.filter(
+      user => usersWithViewWebcamsEnabled.includes(user),
+    );
 
     const warningZone = NetworkInformationLocal
       .find({
@@ -150,7 +159,12 @@ export const startBandwidthMonitoring = () => {
 
     if (lastEffectiveConnectionType
       && lastEffectiveConnectionType.effectiveConnectionType !== effectiveType) {
-      logger.info({ logCode: 'user_connection_instability' }, `User ${Auth.userID} effective connection is now ${effectiveType}`);
+      logger.info({
+        logCode: 'user_connection_instability',
+        extraInfo: {
+          effectiveType,
+        },
+      }, `User ${Auth.userID} effective connection is now ${effectiveType}`);
       makeCall('setUserEffectiveConnectionType', effectiveType);
     }
   }, 5000);

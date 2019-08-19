@@ -12,11 +12,9 @@ export default withModalMounter(withTracker(({ mountModal }) => ({
   closeModal() {
     mountModal(null);
   },
-
   toggleLockSettings(meeting) {
     makeCall('toggleLockSettings', meeting);
   },
-
   toggleWebcamsOnlyForModerator(meeting) {
     makeCall('toggleWebcamsOnlyForModerator', meeting);
   },

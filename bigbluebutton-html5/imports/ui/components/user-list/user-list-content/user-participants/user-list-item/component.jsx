@@ -4,10 +4,6 @@ import { injectIntl } from 'react-intl';
 import UserDropdown from './user-dropdown/component';
 
 const propTypes = {
-  currentUser: PropTypes.shape({
-    id: PropTypes.string.isRequired,
-  }).isRequired,
-
   compact: PropTypes.bool.isRequired,
   intl: PropTypes.shape({
     formatMessage: PropTypes.func.isRequired,
@@ -18,6 +14,7 @@ const propTypes = {
   normalizeEmojiName: PropTypes.func.isRequired,
   getScrollContainerRef: PropTypes.func.isRequired,
   toggleUserLock: PropTypes.func.isRequired,
+  isMeteorConnected: PropTypes.bool.isRequired,
 };
 
 const defaultProps = {
@@ -52,6 +49,7 @@ class UserListItem extends PureComponent {
       userInBreakout,
       breakoutSequence,
       meetignIsBreakout,
+      isMeteorConnected,
     } = this.props;
 
     const { meetingId, lockSettingsProps } = meeting;
@@ -61,8 +59,8 @@ class UserListItem extends PureComponent {
         {...{
           assignPresenter,
           compact,
-          currentUser,
           changeRole,
+          currentUser,
           getAvailableActions,
           getEmoji,
           getEmojiList,
@@ -85,6 +83,7 @@ class UserListItem extends PureComponent {
           userInBreakout,
           breakoutSequence,
           meetignIsBreakout,
+          isMeteorConnected,
         }}
       />
     );

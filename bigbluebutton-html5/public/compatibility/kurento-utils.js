@@ -127,6 +127,7 @@ function WebRtcPeer(mode, options, callback) {
     options = options || {};
     callback = (callback || noop).bind(this);
     var self = this;
+    const userAgent = window.navigator.userAgent.toLocaleLowerCase();
     var localVideo = options.localVideo;
     var remoteVideo = options.remoteVideo;
     var videoStream = options.videoStream;
@@ -195,7 +196,6 @@ function WebRtcPeer(mode, options, callback) {
         pc = new RTCPeerConnection(configuration);
 
         //Add Transceiver for Webview on IOS
-        const userAgent = window.navigator.userAgent.toLocaleLowerCase();
         if ((userAgent.indexOf('iphone') > -1 || userAgent.indexOf('ipad') > -1) && userAgent.indexOf('safari') == -1) {
             try {
                 pc.addTransceiver('video');
@@ -277,7 +277,6 @@ function WebRtcPeer(mode, options, callback) {
             callback(null, localDescription.sdp, self.processAnswer.bind(self));
         }
 
-        const userAgent = window.navigator.userAgent.toLocaleLowerCase();
         const isSafari = ((userAgent.indexOf('iphone') > -1 || userAgent.indexOf('ipad') > -1) || browser.name.toLowerCase() == 'safari');
 
         // Bind the SDP release to the gathering state on Safari-based envs
@@ -326,11 +325,20 @@ function WebRtcPeer(mode, options, callback) {
         const MAX_RETRIES = 5;
         let attempt = 0;
         const playVideo = () => {
-          if (!played && attempt < MAX_RETRIES) {
-            remoteVideo.play().catch(e => {
-                attempt++;
-                playVideo(remoteVideo);
-            }).then(() => { remoteVideo.muted = false; played = true; attempt = 0;});
+          if (!played) {
+            if (attempt < MAX_RETRIES) {
+              remoteVideo.play()
+                .then(() => { remoteVideo.muted = false; played = true; attempt = 0;})
+                .catch(e => {
+                  attempt++;
+                  setTimeout(() => {
+                    playVideo(remoteVideo);
+                  }, 500);
+                });
+            } else {
+              const tagFailedEvent = new CustomEvent('mediaTagPlayFailed', { detail: { mediaTag: remoteVideo } });
+              window.dispatchEvent(tagFailedEvent);
+            }
           }
         }
 

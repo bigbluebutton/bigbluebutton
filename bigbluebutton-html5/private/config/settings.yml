@@ -19,26 +19,25 @@ public:
     basename: "/html5client"
     askForFeedbackOnLogout: false
     allowUserLookup: false
+    enableNetworkInformation: false
+    enableLimitOfViewersInWebcam: false
+    viewersInWebcam: 8
     ipv4FallbackDomain: ""
+    allowLogout: true
+    allowFullscreen: true
     defaultSettings:
       application:
         animations: true
         chatAudioAlerts: false
         chatPushAlerts: false
         fallbackLocale: en
+        overrideLocale: null
       audio:
         inputDeviceId: undefined
         outputDeviceId: undefined
       dataSaving:
         viewParticipantsWebcams: true
         viewScreenshare: true
-      participants:
-        muteAll: false
-        lockAll: false
-        microphone: false
-        publicChat: false
-        privateChat: false
-        layout: false
     shortcuts:
       openOptions:
         accesskey: O
@@ -72,15 +71,14 @@ public:
         descId: openStatus
     branding:
       displayBrandingArea: false
-    allowHTML5Moderator: true
-    httpsConnection: false
     connectionTimeout: 60000
     showHelpButton: true
-    enableExternalVideo: true
     effectiveConnection:
       - critical
       - danger
       - warning
+  externalVideoPlayer:
+    enabled: true
   networkMonitoring:
     enableNetworkMonitoring: false
     packetLostThreshold: 10
@@ -137,13 +135,17 @@ public:
     enableVideoMenu: true
     enableListenOnly: true
     autoShareWebcam: false
+  pingPong:
+    clearUsersInSeconds: 30
+    pongTimeInSeconds: 15
   allowOutsideCommands:
     toggleRecording: false
     toggleSelfVoice: false
   poll:
+    enabled: true
     max_custom: 5
   captions:
-    enabled: false
+    enabled: true
     enableDictation: false
     backgroundColor: "#000000"
     fontColor: "#FFFFFF"
@@ -153,6 +155,7 @@ public:
     lines: 2
     time: 5000
   chat:
+    enabled: true
     min_message_length: 1
     max_message_length: 5000
     grouping_messages_window: 10000
@@ -189,6 +192,7 @@ public:
     echoTestNumber: '9196'
   presentation:
     defaultPresentationFile: default.pdf
+    panZoomThrottle: 32
     uploadEndpoint: "/bigbluebutton/presentation/upload"
     uploadSizeMin: 0
     uploadSizeMax: 50000000
@@ -230,7 +234,6 @@ public:
   user:
     role_moderator: MODERATOR
     role_viewer: VIEWER
-    role_presenter: PRESENTER
   whiteboard:
     annotations:
       status:

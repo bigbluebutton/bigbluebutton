@@ -762,6 +762,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 					ls.disablePrivChat = lsv.getDisablePrivateChat();
 					ls.disablePubChat = lsv.getDisablePublicChat();
 					ls.disableNote = lsv.getDisableNote();
+					ls.hideUserList = lsv.getHideUserList();
 					ls.lockedLayout = lsv.getLockedLayout();
 					ls.lockOnJoin = lsv.getLockOnJoin();
 					ls.lockOnJoinConfigurable = lsv.getLockOnJoinConfigurable();

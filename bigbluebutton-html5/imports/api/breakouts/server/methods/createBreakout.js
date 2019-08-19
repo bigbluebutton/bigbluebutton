@@ -1,7 +1,7 @@
 import { Meteor } from 'meteor/meteor';
 import { check } from 'meteor/check';
 import RedisPubSub from '/imports/startup/server/redis';
-import _ from 'lodash';
+import Logger from '/imports/startup/server/logger';
 
 export default function createBreakoutRoom(credentials, rooms, durationInMinutes, record = false) {
   const REDIS_CONFIG = Meteor.settings.private.redis;
@@ -18,7 +18,7 @@ export default function createBreakoutRoom(credentials, rooms, durationInMinutes
   check(requesterToken, String);
 
   const eventName = 'CreateBreakoutRoomsCmdMsg';
-
+  if (rooms.length > 8) return Logger.info(`Attempt to create breakout rooms with invalid number of rooms in meeting id=${meetingId}`);
   const payload = {
     record,
     durationInMinutes,

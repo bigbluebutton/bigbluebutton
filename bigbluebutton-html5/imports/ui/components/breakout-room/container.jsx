@@ -23,6 +23,7 @@ export default withTracker((props) => {
   } = Service;
   const breakoutRooms = findBreakouts();
   const isMicrophoneUser = AudioService.isConnected() && !AudioService.isListenOnly();
+  const isMeteorConnected = Meteor.status().connected;
 
   return {
     ...props,
@@ -38,5 +39,6 @@ export default withTracker((props) => {
     isModerator: isModerator(),
     closeBreakoutPanel,
     getUsersByBreakoutId,
+    isMeteorConnected,
   };
 })(BreakoutContainer);

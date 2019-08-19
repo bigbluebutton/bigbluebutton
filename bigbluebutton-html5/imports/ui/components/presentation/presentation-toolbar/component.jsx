@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import { defineMessages, injectIntl } from 'react-intl';
 import browser from 'browser-detect';
@@ -8,7 +8,7 @@ import { HUNDRED_PERCENT, MAX_PERCENT, STEP } from '/imports/utils/slideCalcUtil
 import cx from 'classnames';
 import { styles } from './styles.scss';
 import ZoomTool from './zoom-tool/component';
-import FullscreenButtonContainer from '../../video-provider/fullscreen-button/container';
+import FullscreenButtonContainer from '../../fullscreen-button/container';
 import Tooltip from '/imports/ui/components/tooltip/component';
 import KEY_CODES from '/imports/utils/keyCodes';
 
@@ -75,19 +75,18 @@ const intlMessages = defineMessages({
   },
 });
 
-class PresentationToolbar extends Component {
+const ALLOW_FULLSCREEN = Meteor.settings.public.app.allowFullscreen;
+
+class PresentationToolbar extends PureComponent {
   constructor(props) {
     super(props);
 
-    this.state = {
-      sliderValue: 100,
-    };
-    this.handleValuesChange = this.handleValuesChange.bind(this);
     this.handleSkipToSlideChange = this.handleSkipToSlideChange.bind(this);
     this.change = this.change.bind(this);
     this.renderAriaDescs = this.renderAriaDescs.bind(this);
     this.switchSlide = this.switchSlide.bind(this);
-    this.setInt = 0;
+    this.nextSlideHandler = this.nextSlideHandler.bind(this);
+    this.previousSlideHandler = this.previousSlideHandler.bind(this);
   }
 
   componentDidMount() {
@@ -101,30 +100,45 @@ class PresentationToolbar extends Component {
   switchSlide(event) {
     const { target, which } = event;
     const isBody = target.nodeName === 'BODY';
-    const { actions } = this.props;
 
     if (isBody) {
       if ([KEY_CODES.ARROW_LEFT].includes(which)) {
-        actions.previousSlideHandler();
+        this.previousSlideHandler();
       }
       if ([KEY_CODES.ARROW_RIGHT].includes(which)) {
-        actions.nextSlideHandler();
+        this.nextSlideHandler();
       }
     }
   }
 
   handleSkipToSlideChange(event) {
-    const { actions } = this.props;
+    const {
+      skipToSlide,
+      podId,
+    } = this.props;
     const requestedSlideNum = Number.parseInt(event.target.value, 10);
-    actions.skipToSlideHandler(requestedSlideNum);
+    skipToSlide(requestedSlideNum, podId);
   }
 
-  handleValuesChange(event) {
-    const { sliderValue } = this.state;
-    this.setState(
-      { sliderValue: event.target.value },
-      () => this.handleZoom(sliderValue),
-    );
+  nextSlideHandler() {
+    const {
+      nextSlide,
+      currentSlideNum,
+      numberOfSlides,
+      podId,
+    } = this.props;
+
+    nextSlide(currentSlideNum, numberOfSlides, podId);
+  }
+
+  previousSlideHandler() {
+    const {
+      previousSlide,
+      currentSlideNum,
+      podId,
+    } = this.props;
+
+    previousSlide(currentSlideNum, podId);
   }
 
   change(value) {
@@ -187,11 +201,11 @@ class PresentationToolbar extends Component {
       numberOfSlides,
       fitToWidthHandler,
       fitToWidth,
-      actions,
       intl,
       zoom,
       isFullscreen,
       fullscreenRef,
+      isMeteorConnected,
     } = this.props;
 
     const BROWSER_RESULTS = browser();
@@ -221,11 +235,11 @@ class PresentationToolbar extends Component {
               role="button"
               aria-label={prevSlideAriaLabel}
               aria-describedby={startOfSlides ? 'noPrevSlideDesc' : 'prevSlideDesc'}
-              disabled={startOfSlides}
+              disabled={startOfSlides || !isMeteorConnected}
               color="default"
               icon="left_arrow"
               size="md"
-              onClick={actions.previousSlideHandler}
+              onClick={this.previousSlideHandler}
               label={intl.formatMessage(intlMessages.previousSlideLabel)}
               hideLabel
               className={cx(styles.prevSlide, styles.presentationBtn)}
@@ -243,6 +257,7 @@ class PresentationToolbar extends Component {
                 aria-describedby="skipSlideDesc"
                 aria-live="polite"
                 aria-relevant="all"
+                disabled={!isMeteorConnected}
                 value={currentSlideNum}
                 onChange={this.handleSkipToSlideChange}
                 className={styles.skipSlideSelect}
@@ -254,11 +269,11 @@ class PresentationToolbar extends Component {
               role="button"
               aria-label={nextSlideAriaLabel}
               aria-describedby={endOfSlides ? 'noNextSlideDesc' : 'nextSlideDesc'}
-              disabled={endOfSlides}
+              disabled={endOfSlides || !isMeteorConnected}
               color="default"
               icon="right_arrow"
               size="md"
-              onClick={actions.nextSlideHandler}
+              onClick={this.nextSlideHandler}
               label={intl.formatMessage(intlMessages.nextSlideLabel)}
               hideLabel
               className={cx(styles.skipSlide, styles.presentationBtn)}
@@ -278,6 +293,7 @@ class PresentationToolbar extends Component {
                     maxBound={MAX_PERCENT}
                     step={STEP}
                     tooltipDistance={tooltipDistance}
+                    isMeteorConnected={isMeteorConnected}
                   />
                 )
                 : null
@@ -290,6 +306,7 @@ class PresentationToolbar extends Component {
                 : `${intl.formatMessage(intlMessages.presentationLabel)} ${intl.formatMessage(intlMessages.fitToWidth)}`
               }
               color="default"
+              disabled={!isMeteorConnected}
               icon="fit_to_width"
               size="md"
               circle={false}
@@ -303,16 +320,17 @@ class PresentationToolbar extends Component {
               tooltipDistance={tooltipDistance}
             />
             {
-              !isFullscreen
-              && (
-                <FullscreenButtonContainer
-                  fullscreenRef={fullscreenRef}
-                  elementName={intl.formatMessage(intlMessages.presentationLabel)}
-                  tooltipDistance={tooltipDistance}
-                  dark
-                  className={styles.presentationBtn}
-                />
-              )
+              ALLOW_FULLSCREEN
+                ? (
+                  <FullscreenButtonContainer
+                    fullscreenRef={fullscreenRef}
+                    isFullscreen={isFullscreen}
+                    elementName={intl.formatMessage(intlMessages.presentationLabel)}
+                    tooltipDistance={tooltipDistance}
+                    className={styles.presentationBtn}
+                  />
+                )
+                : null
             }
           </div>
         }
@@ -322,16 +340,16 @@ class PresentationToolbar extends Component {
 }
 
 PresentationToolbar.propTypes = {
+  // The Id for the current pod. Should always be default pod
+  podId: PropTypes.string.isRequired,
   // Number of current slide being displayed
   currentSlideNum: PropTypes.number.isRequired,
   // Total number of slides in this presentation
   numberOfSlides: PropTypes.number.isRequired,
   // Actions required for the presenter toolbar
-  actions: PropTypes.shape({
-    nextSlideHandler: PropTypes.func.isRequired,
-    previousSlideHandler: PropTypes.func.isRequired,
-    skipToSlideHandler: PropTypes.func.isRequired,
-  }).isRequired,
+  nextSlide: PropTypes.func.isRequired,
+  previousSlide: PropTypes.func.isRequired,
+  skipToSlide: PropTypes.func.isRequired,
   intl: PropTypes.shape({
     formatMessage: PropTypes.func.isRequired,
   }).isRequired,
@@ -341,6 +359,7 @@ PresentationToolbar.propTypes = {
   fullscreenRef: PropTypes.instanceOf(Element),
   isFullscreen: PropTypes.bool.isRequired,
   zoom: PropTypes.number.isRequired,
+  isMeteorConnected: PropTypes.bool.isRequired,
 };
 
 PresentationToolbar.defaultProps = {

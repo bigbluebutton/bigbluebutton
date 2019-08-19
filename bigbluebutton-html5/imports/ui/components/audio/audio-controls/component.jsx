@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import cx from 'classnames';
 import { defineMessages, intlShape, injectIntl } from 'react-intl';
@@ -40,7 +40,7 @@ const propTypes = {
   talking: PropTypes.bool.isRequired,
 };
 
-class AudioControls extends Component {
+class AudioControls extends PureComponent {
   componentDidMount() {
     const { processToggleMuteFromOutside } = this.props;
     if (Meteor.settings.public.allowOutsideCommands.toggleSelfVoice
@@ -62,7 +62,7 @@ class AudioControls extends Component {
       listenOnly,
       intl,
       shortcuts,
-      currentUser,
+      currentUserObj,
     } = this.props;
 
     let joinIcon = 'audio_off';
@@ -76,7 +76,7 @@ class AudioControls extends Component {
 
     return (
       <span className={styles.container}>
-        {showMute && currentUser.isVoiceUser
+        {showMute && currentUserObj.isVoiceUser
           ? (
             <Button
               className={cx(styles.button, !talking || styles.glow, !muted || styles.btn)}

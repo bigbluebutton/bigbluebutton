@@ -1,7 +1,6 @@
 {
     "app.home.greeting": "המפגש יתחיל בקרוב ...",
     "app.chat.submitLabel": "שלח הודעה",
-    "app.chat.inputPlaceholder": " {0} הודעות",
     "app.chat.titlePublic": "צ'אט ציבורי",
     "app.chat.titlePrivate": "צ'אט עם {0}",
     "app.chat.partnerDisconnected": "{0} עזב את המפגש",
@@ -45,8 +44,6 @@
     "app.endMeeting.noLabel": "לא",
     "app.about.title": "אודות",
     "app.about.dismissLabel": "בטל",
-    "app.submenu.participants.lockPublicChatLabel": "צ'אט ציבורי",
-    "app.submenu.participants.lockPrivateChatLabel": "צ'אט פרטי",
     "app.settings.main.cancel.label": "בטל",
     "app.settings.main.save.label": "שמור",
     "app.switch.onLabel": "לא",
@@ -56,7 +53,9 @@
     "app.audioModal.no": "לא",
     "app.lock-viewers.PublicChatLabel": "צ'אט ציבורי",
     "app.lock-viewers.PrivateChatLable": "צ'אט פרטי",
+    "app.lock-viewers.userListLabel": "משתתפים",
     "app.videoPreview.cancelLabel": "בטל",
+    "app.video.cancel": "בטל",
     "app.externalVideo.noteLabel": "הערה: הסרטון לא יופיע בהקלטה, מומלץ לשלוח הקישור גם בצ'אט "
 
 }

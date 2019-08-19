@@ -1,4 +1,3 @@
-const config = require("./config.js");
 const Logger = require("./logger.js");
 const IDMapping = require("./id_mapping.js");
 const UserMapping = require("./userMapping.js");

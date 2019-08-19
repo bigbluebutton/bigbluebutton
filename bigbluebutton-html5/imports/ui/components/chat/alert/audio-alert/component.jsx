@@ -1,11 +1,11 @@
-import React from 'react';
+import { Component } from 'react';
 import PropTypes from 'prop-types';
 
 const propTypes = {
   play: PropTypes.bool.isRequired,
 };
 
-class ChatAudioAlert extends React.Component {
+class ChatAudioAlert extends Component {
   constructor(props) {
     super(props);
     this.audio = new Audio(`${Meteor.settings.public.app.cdn + Meteor.settings.public.app.basename}/resources/sounds/notify.mp3`);

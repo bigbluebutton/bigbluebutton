@@ -1,20 +1,22 @@
 import { Meteor } from 'meteor/meteor';
 import { WebAppInternals } from 'meteor/webapp';
 import Langmap from 'langmap';
-import Users from '/imports/api/users';
 import fs from 'fs';
+import Users from '/imports/api/users';
 import './settings';
 import { lookup as lookupUserAgent } from 'useragent';
 import Logger from './logger';
 import Redis from './redis';
 import setMinBrowserVersions from './minBrowserVersion';
+import userLeaving from '/imports/api/users/server/methods/userLeaving';
 
 const parse = Npm.require('url').parse;
-
 const AVAILABLE_LOCALES = fs.readdirSync('assets/app/locales');
 
 Meteor.startup(() => {
   const APP_CONFIG = Meteor.settings.public.app;
+  const INTERVAL_IN_SETTINGS = (Meteor.settings.public.pingPong.clearUsersInSeconds) * 1000;
+  const INTERVAL_TIME = INTERVAL_IN_SETTINGS < 10000 ? 10000 : INTERVAL_IN_SETTINGS;
   const env = Meteor.isDevelopment ? 'development' : 'production';
   const CDN_URL = APP_CONFIG.cdn;
 
@@ -43,6 +45,29 @@ Meteor.startup(() => {
 
   setMinBrowserVersions();
 
+  Meteor.setInterval(() => {
+    const currentTime = Date.now();
+    Logger.info('Checking for inactive users');
+    const users = Users.find({
+      connectionStatus: 'online',
+      clientType: 'HTML5',
+      lastPing: {
+        $lt: (currentTime - INTERVAL_TIME), // get user who has not pinged in the last 10 seconds
+      },
+      loginTime: {
+        $lt: (currentTime - INTERVAL_TIME),
+      },
+    }).fetch();
+    if (!users.length) return Logger.info('No inactive users');
+    Logger.info('Removing inactive users');
+    users.forEach((user) => {
+      Logger.info(`Detected inactive user, userId:${user.userId}, meetingId:${user.meetingId}`);
+      user.requesterUserId = user.userId;
+      return userLeaving(user, user.userId, user.connectionId);
+    });
+    return Logger.info('All inactive user have been removed');
+  }, INTERVAL_TIME);
+
   Logger.warn(`SERVER STARTED.\nENV=${env},\nnodejs version=${process.version}\nCDN=${CDN_URL}\n`, APP_CONFIG);
 });
 
@@ -57,7 +82,8 @@ WebApp.connectHandlers.use('/check', (req, res) => {
 WebApp.connectHandlers.use('/locale', (req, res) => {
   const APP_CONFIG = Meteor.settings.public.app;
   const fallback = APP_CONFIG.defaultSettings.application.fallbackLocale;
-  const browserLocale = req.query.locale.split(/[-_]/g);
+  const override = APP_CONFIG.defaultSettings.application.overrideLocale;
+  const browserLocale = override ? override.split(/[-_]/g) : req.query.locale.split(/[-_]/g);
   const localeList = [fallback];
 
   const usableLocales = AVAILABLE_LOCALES
@@ -128,6 +154,14 @@ WebApp.connectHandlers.use('/feedback', (req, res) => {
       connectionStatus: 'offline',
       authToken,
     });
+
+    if (!user) {
+      Logger.error(`Feedback failed, user with id=${userId} wasn't found`);
+      res.setHeader('Content-Type', 'application/json');
+      res.writeHead(500);
+      res.end(JSON.stringify({ status: 'ok' }));
+      return;
+    }
 
     const feedback = {
       userName: user.name,

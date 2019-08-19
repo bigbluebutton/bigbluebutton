@@ -4,6 +4,7 @@ import PropTypes from 'prop-types';
 import { defineMessages } from 'react-intl';
 import cx from 'classnames';
 import { styles } from '/imports/ui/components/user-list/user-list-content/styles';
+import { findDOMNode } from 'react-dom';
 import ChatListItemContainer from '../../chat-list-item/container';
 
 const propTypes = {
@@ -41,38 +42,31 @@ class UserMessages extends PureComponent {
     super();
 
     this.state = {
-      index: -1,
+      selectedChat: null,
     };
 
     this.activeChatRefs = [];
-    this.selectedIndex = -1;
 
-    this.focusActiveChatItem = this.focusActiveChatItem.bind(this);
     this.changeState = this.changeState.bind(this);
+    this.rove = this.rove.bind(this);
   }
 
   componentDidMount() {
-    const { compact, roving, activeChats } = this.props;
+    const { compact } = this.props;
     if (!compact) {
       this._msgsList.addEventListener(
         'keydown',
-        event => roving(
-          event,
-          activeChats.length,
-          this.changeState,
-        ),
+        this.rove,
       );
     }
   }
 
   componentDidUpdate(prevProps, prevState) {
-    const { index } = this.state;
-    if (index === -1) {
-      return;
-    }
+    const { selectedChat } = this.state;
 
-    if (index !== prevState.index) {
-      this.focusActiveChatItem(index);
+    if (selectedChat && selectedChat !== prevState.selectedChat) {
+      const { firstChild } = selectedChat;
+      if (firstChild) firstChild.focus();
     }
   }
 
@@ -108,16 +102,15 @@ class UserMessages extends PureComponent {
     ));
   }
 
-  changeState(newIndex) {
-    this.setState({ index: newIndex });
+  changeState(ref) {
+    this.setState({ selectedChat: ref });
   }
 
-  focusActiveChatItem(index) {
-    if (!this.activeChatRefs[index]) {
-      return;
-    }
-
-    this.activeChatRefs[index].firstChild.focus();
+  rove(event) {
+    const { roving } = this.props;
+    const { selectedChat } = this.state;
+    const msgItemsRef = findDOMNode(this._msgItems);
+    roving(event, this.changeState, msgItemsRef, selectedChat);
   }
 
   render() {

@@ -10,6 +10,8 @@ import DropdownContent from '/imports/ui/components/dropdown/content/component';
 import DropdownList from '/imports/ui/components/dropdown/list/component';
 import DropdownListItem from '/imports/ui/components/dropdown/list/item/component';
 import DropdownListSeparator from '/imports/ui/components/dropdown/list/separator/component';
+import lockContextContainer from '/imports/ui/components/lock-viewers/context/container';
+
 import _ from 'lodash';
 import { Session } from 'meteor/session';
 import { styles } from './styles';
@@ -110,6 +112,8 @@ const propTypes = {
   getScrollContainerRef: PropTypes.func.isRequired,
   toggleUserLock: PropTypes.func.isRequired,
 };
+const ROLE_MODERATOR = Meteor.settings.public.user.role_moderator;
+const CHAT_ENABLED = Meteor.settings.public.chat.enabled;
 
 class UserDropdown extends PureComponent {
   /**
@@ -149,10 +153,13 @@ class UserDropdown extends PureComponent {
   }
 
   componentDidUpdate() {
+    const { dropdownVisible } = this.props;
+    if (!dropdownVisible) document.activeElement.blur();
     this.checkDropdownDirection();
   }
 
   onActionsShow() {
+    Session.set('dropdownOpen', true);
     const { getScrollContainerRef } = this.props;
     const dropdown = this.getDropdownMenuParent();
     const scrollContainer = getScrollContainerRef();
@@ -189,6 +196,8 @@ class UserDropdown extends PureComponent {
     if (callback) {
       return callback;
     }
+
+    return Session.set('dropdownOpen', false);
   }
 
   getUsersActions() {
@@ -210,8 +219,9 @@ class UserDropdown extends PureComponent {
       hasPrivateChatBetweenUsers,
       toggleUserLock,
       requestUserInformation,
+      isMeteorConnected,
+      userLocks,
     } = this.props;
-
     const { showNestedOptions } = this.state;
 
     const actionPermissions = getAvailableActions(currentUser, user, isBreakoutRoom);
@@ -232,21 +242,26 @@ class UserDropdown extends PureComponent {
 
     const { disablePrivateChat } = lockSettingsProps;
 
-    const enablePrivateChat = currentUser.isModerator
+    const enablePrivateChat = currentUser.role === ROLE_MODERATOR
       ? allowedToChatPrivately
       : allowedToChatPrivately
-      && (!(currentUser.isLocked && disablePrivateChat)
-        || hasPrivateChatBetweenUsers(currentUser, user)
-        || user.isModerator);
+      && (!(currentUser.locked && disablePrivateChat)
+        || hasPrivateChatBetweenUsers(currentUser.userId, user.id)
+        || user.isModerator) && isMeteorConnected;
 
     const { allowUserLookup } = Meteor.settings.public.app;
 
-    if (showNestedOptions) {
+    if (showNestedOptions && isMeteorConnected) {
       if (allowedToChangeStatus) {
         actions.push(this.makeDropdownItem(
           'back',
           intl.formatMessage(messages.backTriggerLabel),
-          () => this.setState({ showNestedOptions: false, isActionsOpen: true }),
+          () => this.setState(
+            {
+              showNestedOptions: false,
+              isActionsOpen: true,
+            }, Session.set('dropdownOpen', true),
+          ),
           'left_arrow',
         ));
       }
@@ -264,17 +279,22 @@ class UserDropdown extends PureComponent {
       return actions;
     }
 
-    if (allowedToChangeStatus) {
+    if (allowedToChangeStatus && isMeteorConnected) {
       actions.push(this.makeDropdownItem(
         'setstatus',
         intl.formatMessage(messages.statusTriggerLabel),
-        () => this.setState({ showNestedOptions: true, isActionsOpen: true }),
+        () => this.setState(
+          {
+            showNestedOptions: true,
+            isActionsOpen: true,
+          }, Session.set('dropdownOpen', true),
+        ),
         'user',
         'right_arrow',
       ));
     }
 
-    if (enablePrivateChat) {
+    if (CHAT_ENABLED && enablePrivateChat && isMeteorConnected) {
       actions.push(this.makeDropdownItem(
         'activeChat',
         intl.formatMessage(messages.ChatLabel),
@@ -287,7 +307,7 @@ class UserDropdown extends PureComponent {
       ));
     }
 
-    if (allowedToResetStatus && user.emoji.status !== 'none') {
+    if (allowedToResetStatus && user.emoji.status !== 'none' && isMeteorConnected) {
       actions.push(this.makeDropdownItem(
         'clearStatus',
         intl.formatMessage(messages.ClearStatusLabel),
@@ -296,7 +316,7 @@ class UserDropdown extends PureComponent {
       ));
     }
 
-    if (allowedToMuteAudio) {
+    if (allowedToMuteAudio && isMeteorConnected) {
       actions.push(this.makeDropdownItem(
         'mute',
         intl.formatMessage(messages.MuteUserAudioLabel),
@@ -305,7 +325,7 @@ class UserDropdown extends PureComponent {
       ));
     }
 
-    if (allowedToUnmuteAudio) {
+    if (allowedToUnmuteAudio && !userLocks.userMic && isMeteorConnected) {
       actions.push(this.makeDropdownItem(
         'unmute',
         intl.formatMessage(messages.UnmuteUserAudioLabel),
@@ -314,7 +334,7 @@ class UserDropdown extends PureComponent {
       ));
     }
 
-    if (allowedToSetPresenter) {
+    if (allowedToSetPresenter && isMeteorConnected) {
       actions.push(this.makeDropdownItem(
         'setPresenter',
         user.isCurrent
@@ -325,7 +345,7 @@ class UserDropdown extends PureComponent {
       ));
     }
 
-    if (allowedToRemove) {
+    if (allowedToRemove && isMeteorConnected) {
       actions.push(this.makeDropdownItem(
         'remove',
         intl.formatMessage(messages.RemoveUserLabel, { 0: user.name }),
@@ -334,7 +354,7 @@ class UserDropdown extends PureComponent {
       ));
     }
 
-    if (allowedToPromote) {
+    if (allowedToPromote && isMeteorConnected) {
       actions.push(this.makeDropdownItem(
         'promote',
         intl.formatMessage(messages.PromoteUserLabel),
@@ -343,7 +363,7 @@ class UserDropdown extends PureComponent {
       ));
     }
 
-    if (allowedToDemote) {
+    if (allowedToDemote && isMeteorConnected) {
       actions.push(this.makeDropdownItem(
         'demote',
         intl.formatMessage(messages.DemoteUserLabel),
@@ -352,7 +372,7 @@ class UserDropdown extends PureComponent {
       ));
     }
 
-    if (allowedToChangeUserLockStatus) {
+    if (allowedToChangeUserLockStatus && isMeteorConnected) {
       actions.push(this.makeDropdownItem(
         'unlockUser',
         user.isLocked ? intl.formatMessage(messages.UnlockUserLabel, { 0: user.name })
@@ -362,7 +382,7 @@ class UserDropdown extends PureComponent {
       ));
     }
 
-    if (allowUserLookup) {
+    if (allowUserLookup && isMeteorConnected) {
       actions.push(this.makeDropdownItem(
         'directoryLookup',
         intl.formatMessage(messages.DirectoryLookupLabel),
@@ -435,7 +455,8 @@ class UserDropdown extends PureComponent {
       );
 
       if (!isDropdownVisible) {
-        const offsetPageTop = (dropdownTrigger.offsetTop + dropdownTrigger.offsetHeight) - scrollContainer.scrollTop;
+        const { offsetTop, offsetHeight } = dropdownTrigger;
+        const offsetPageTop = (offsetTop + offsetHeight) - scrollContainer.scrollTop;
 
         nextState.dropdownOffset = window.innerHeight - offsetPageTop;
         nextState.dropdownDirection = 'bottom';
@@ -515,8 +536,7 @@ class UserDropdown extends PureComponent {
     const actions = this.getUsersActions();
 
     const userItemContentsStyle = {};
-
-    const { isModerator } = currentUser;
+    const { role } = currentUser;
 
     userItemContentsStyle[styles.dropdown] = true;
     userItemContentsStyle[styles.userListItem] = !isActionsOpen;
@@ -561,7 +581,7 @@ class UserDropdown extends PureComponent {
           {<UserIcons
             {...{
               user,
-              isModerator,
+              isModerator: role === ROLE_MODERATOR,
             }}
           />}
         </div>
@@ -607,4 +627,4 @@ class UserDropdown extends PureComponent {
 }
 
 UserDropdown.propTypes = propTypes;
-export default UserDropdown;
+export default lockContextContainer(UserDropdown);

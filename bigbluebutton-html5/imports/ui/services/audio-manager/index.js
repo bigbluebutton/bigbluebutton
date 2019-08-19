@@ -1,5 +1,4 @@
 import { Tracker } from 'meteor/tracker';
-import { makeCall } from '/imports/ui/services/api';
 import KurentoBridge from '/imports/api/audio/client/bridge/kurento';
 import Auth from '/imports/ui/services/auth';
 import VoiceUsers from '/imports/api/voice-users';
@@ -20,6 +19,7 @@ const CALL_STATES = {
   ENDED: 'ended',
   FAILED: 'failed',
   RECONNECTING: 'reconnecting',
+  AUTOPLAY_BLOCKED: 'autoplayBlocked',
 };
 
 class AudioManager {
@@ -41,9 +41,12 @@ class AudioManager {
       error: null,
       outputDeviceId: null,
       muteHandle: null,
+      autoplayBlocked: false,
     });
 
     this.useKurento = Meteor.settings.public.kurento.enableListenOnly;
+    this.failedMediaElements = [];
+    this.handlePlayElementFailed = this.handlePlayElementFailed.bind(this);
   }
 
   init(userData) {
@@ -138,11 +141,13 @@ class AudioManager {
           extension: ECHO_TEST_NUMBER,
           inputStream: this.inputStream,
         };
+        logger.info({ logCode: 'audiomanager_join_echotest', extraInfo: { logType: 'user_action' } }, 'User requested to join audio conference with mic');
         return this.bridge.joinAudio(callOptions, this.callStateCallback.bind(this));
       });
   }
 
-  async joinListenOnly(retries = 0) {
+  async joinListenOnly(r = 0) {
+    let retries = r;
     this.isListenOnly = true;
     this.isEchoTest = false;
 
@@ -180,16 +185,29 @@ class AudioManager {
     });
 
     const handleListenOnlyError = async (err) => {
+      const error = {
+        type: 'MEDIA_ERROR',
+        message: this.messages.error.MEDIA_ERROR,
+      };
+
       if (iceGatheringTimeout) {
         clearTimeout(iceGatheringTimeout);
       }
 
-      logger.error({ logCode: 'audiomanager_listenonly_error' }, `Listen only error:${JSON.stringify(err)} on try ${retries}`);
-      throw {
-        type: 'MEDIA_ERROR',
-        message: this.messages.error.MEDIA_ERROR,
-      };
+      logger.error({
+        logCode: 'audiomanager_listenonly_error',
+        extraInfo: {
+          error: err,
+          retries,
+        },
+      }, 'Listen only error');
+
+      throw error;
     };
+
+    logger.info({ logCode: 'audiomanager_join_listenonly', extraInfo: { logType: 'user_action' } }, 'user requested to connect to audio conference as listen only');
+
+    window.addEventListener('audioPlayFailed', this.handlePlayElementFailed);
 
     return this.onAudioJoining()
       .then(() => Promise.race([
@@ -208,13 +226,16 @@ class AudioManager {
           }
 
           try {
-            await this.joinListenOnly(++retries);
+            retries += 1;
+            await this.joinListenOnly(retries);
           } catch (error) {
             return handleListenOnlyError(error);
           }
         } else {
-          handleListenOnlyError(err);
+          return handleListenOnlyError(err);
         }
+
+        return null;
       });
   }
 
@@ -239,10 +260,6 @@ class AudioManager {
   transferCall() {
     this.onTransferStart();
     return this.bridge.transferCall(this.onAudioJoin.bind(this));
-  }
-
-  toggleMuteMicrophone() {
-    makeCall('toggleSelfVoice');
   }
 
   onAudioJoin() {
@@ -288,6 +305,8 @@ class AudioManager {
     this.isConnecting = false;
     this.isHangingUp = false;
     this.isListenOnly = false;
+    this.autoplayBlocked = false;
+    this.failedMediaElements = [];
 
     if (this.inputStream) {
       window.defaultInputStream.forEach(track => track.stop());
@@ -303,6 +322,7 @@ class AudioManager {
     }
 
     window.parent.postMessage({ response: 'notInAudio' }, '*');
+    window.removeEventListener('audioPlayFailed', this.handlePlayElementFailed);
   }
 
   callStateCallback(response) {
@@ -312,6 +332,7 @@ class AudioManager {
         ENDED,
         FAILED,
         RECONNECTING,
+        AUTOPLAY_BLOCKED,
       } = CALL_STATES;
 
       const {
@@ -331,7 +352,13 @@ class AudioManager {
         const errorKey = this.messages.error[error] || this.messages.error.GENERIC_ERROR;
         const errorMsg = this.intl.formatMessage(errorKey, { 0: bridgeError });
         this.error = !!error;
-        logger.error({ logCode: 'audio_failure', error, cause: bridgeError }, `Audio Error ${JSON.stringify(errorMsg)}`);
+        logger.error({
+          logCode: 'audio_failure',
+          extraInfo: {
+            error,
+            cause: bridgeError,
+          },
+        }, 'Audio Error');
         if (silenceNotifications !== true) {
           this.notify(errorMsg, true);
           this.exitAudio();
@@ -341,6 +368,10 @@ class AudioManager {
         logger.info({ logCode: 'audio_reconnecting' }, 'Attempting to reconnect audio');
         this.notify(this.intl.formatMessage(this.messages.info.RECONNECTING_AUDIO), true);
         this.playHangUpSound();
+      } else if (status === AUTOPLAY_BLOCKED) {
+        this.autoplayBlocked = true;
+        this.onAudioJoin();
+        resolve(AUTOPLAY_BLOCKED);
       }
     });
   }
@@ -350,9 +381,11 @@ class AudioManager {
       this.listenOnlyAudioContext.close();
     }
 
-    this.listenOnlyAudioContext = window.AudioContext
-      ? new window.AudioContext()
-      : new window.webkitAudioContext();
+    const { AudioContext, webkitAudioContext } = window;
+
+    this.listenOnlyAudioContext = AudioContext
+      ? new AudioContext()
+      : new webkitAudioContext();
 
     const dest = this.listenOnlyAudioContext.createMediaStreamDestination();
 
@@ -362,7 +395,10 @@ class AudioManager {
     audio.src = 'resources/sounds/silence.mp3';
 
     audio.play().catch((e) => {
-      logger.warn({ logCode: 'audiomanager_error_test_audio' }, 'Error on playing test audio:', e);
+      logger.warn({
+        logCode: 'audiomanager_error_test_audio',
+        extraInfo: { error: e },
+      }, 'Error on playing test audio');
     });
 
     return dest.stream;
@@ -387,9 +423,11 @@ class AudioManager {
       return Promise.resolve(inputDevice);
     };
 
-    const handleChangeInputDeviceError = () => Promise.reject({
-      type: 'MEDIA_ERROR',
-      message: this.messages.error.MEDIA_ERROR,
+    const handleChangeInputDeviceError = () => new Promise((reject) => {
+      reject({
+        type: 'MEDIA_ERROR',
+        message: this.messages.error.MEDIA_ERROR,
+      });
     });
 
     if (!deviceId) {
@@ -443,6 +481,29 @@ class AudioManager {
       error ? 'error' : 'info',
       audioIcon,
     );
+  }
+
+  handleAllowAutoplay() {
+    window.removeEventListener('audioPlayFailed', this.handlePlayElementFailed);
+    while (this.failedMediaElements.length) {
+      const mediaElement = this.failedMediaElements.shift();
+      if (mediaElement) {
+        mediaElement.play().catch(() => {
+          // Ignore the error for now.
+        });
+      }
+    }
+    this.autoplayBlocked = false;
+  }
+
+  handlePlayElementFailed(e) {
+    const { mediaElement } = e.detail;
+
+    e.stopPropagation();
+    this.failedMediaElements.push(mediaElement);
+    if (!this.autoplayBlocked) {
+      this.autoplayBlocked = true;
+    }
   }
 }
 

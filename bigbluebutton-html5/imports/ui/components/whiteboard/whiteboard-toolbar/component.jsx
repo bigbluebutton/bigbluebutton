@@ -71,12 +71,19 @@ class WhiteboardToolbar extends Component {
   constructor(props) {
     super(props);
 
-    const { annotations } = this.props;
+    const { annotations, multiUser, isPresenter } = this.props;
 
     let annotationSelected = {
       icon: 'hand',
       value: 'hand',
     };
+
+    if (multiUser && !isPresenter) {
+      annotationSelected = {
+        icon: 'pen_tool',
+        value: 'pencil',
+      };
+    }
 
     if (!annotations.some(el => el.value === annotationSelected.value) && annotations.length > 0) {
       annotationSelected = annotations[annotations.length - 1];
@@ -123,19 +130,28 @@ class WhiteboardToolbar extends Component {
     this.panOff = this.panOff.bind(this);
   }
 
-  componentWillMount() {
-    const { actions } = this.props;
+  componentDidMount() {
+    const { actions, multiUser, isPresenter } = this.props;
     const drawSettings = actions.getCurrentDrawSettings();
+    const {
+      annotationSelected, thicknessSelected, colorSelected, fontSizeSelected,
+    } = this.state;
+
+    document.addEventListener('keydown', this.panOn);
+    document.addEventListener('keyup', this.panOff);
+
     // if there are saved drawSettings in the session storage
     // - retrieve them and update toolbar values
     if (drawSettings) {
+      if (multiUser && !isPresenter) {
+        drawSettings.whiteboardAnnotationTool = 'pencil';
+        this.handleAnnotationChange({ icon: 'pen_tool', value: 'pencil' });
+      }
+
       this.setToolbarValues(drawSettings);
-    // no drawSettings in the sessionStorage - setting default values
+      // no drawSettings in the sessionStorage - setting default values
     } else {
       // setting default drawing settings if they haven't been set previously
-      const {
-        annotationSelected, thicknessSelected, colorSelected, fontSizeSelected,
-      } = this.state;
       actions.setInitialWhiteboardToolbarValues(
         annotationSelected.value,
         thicknessSelected.value * 2,
@@ -147,13 +163,6 @@ class WhiteboardToolbar extends Component {
         },
       );
     }
-  }
-
-  componentDidMount() {
-    const { annotationSelected } = this.state;
-
-    document.addEventListener('keydown', this.panOn);
-    document.addEventListener('keyup', this.panOff);
 
     if (annotationSelected.value !== 'text') {
       // trigger initial animation on the thickness circle, otherwise it stays at 0
@@ -280,12 +289,12 @@ class WhiteboardToolbar extends Component {
       }
       // 1st case a)
       this.colorListIconColor.beginElement();
-    // 2nd case
+      // 2nd case
     } else if (thicknessSelected.value !== prevState.thicknessSelected.value) {
       this.thicknessListIconRadius.beginElement();
-    // 3rd case
+      // 3rd case
     } else if (annotationSelected.value !== 'text'
-        && prevState.annotationSelected.value === 'text') {
+      && prevState.annotationSelected.value === 'text') {
       this.thicknessListIconRadius.beginElement();
       this.thicknessListIconColor.beginElement();
     }
@@ -439,7 +448,7 @@ class WhiteboardToolbar extends Component {
         <ToolbarMenuItem
           icon="hand"
           label={intl.formatMessage(intlMessages.toolbarItemPan)}
-          onItemClick={() => {}}
+          onItemClick={() => { }}
           className={styles.toolbarButton}
         />
       ) : (
@@ -707,10 +716,11 @@ class WhiteboardToolbar extends Component {
   }
 
   renderUndoItem() {
-    const { intl } = this.props;
+    const { intl, isMeteorConnected } = this.props;
 
     return (
       <ToolbarMenuItem
+        disabled={!isMeteorConnected}
         label={intl.formatMessage(intlMessages.toolbarUndoAnnotation)}
         icon="undo"
         onItemClick={this.handleUndo}
@@ -720,10 +730,11 @@ class WhiteboardToolbar extends Component {
   }
 
   renderClearAllItem() {
-    const { intl } = this.props;
+    const { intl, isMeteorConnected } = this.props;
 
     return (
       <ToolbarMenuItem
+        disabled={!isMeteorConnected}
         label={intl.formatMessage(intlMessages.toolbarClearAnnotations)}
         icon="delete"
         onItemClick={this.handleClearAll}
@@ -733,14 +744,15 @@ class WhiteboardToolbar extends Component {
   }
 
   renderMultiUserItem() {
-    const { intl, multiUser } = this.props;
+    const { intl, multiUser, isMeteorConnected } = this.props;
 
     return (
       <ToolbarMenuItem
+        disabled={!isMeteorConnected}
         label={multiUser
           ? intl.formatMessage(intlMessages.toolbarMultiUserOff)
           : intl.formatMessage(intlMessages.toolbarMultiUserOn)
-          }
+        }
         icon={multiUser ? 'multi_whiteboard' : 'whiteboard'}
         onItemClick={this.handleSwitchWhiteboardMode}
         className={styles.toolbarButton}

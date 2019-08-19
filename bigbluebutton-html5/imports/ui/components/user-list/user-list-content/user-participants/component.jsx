@@ -5,6 +5,7 @@ import PropTypes from 'prop-types';
 import cx from 'classnames';
 import { styles } from '/imports/ui/components/user-list/user-list-content/styles';
 import _ from 'lodash';
+import { findDOMNode } from 'react-dom';
 import UserListItemContainer from './user-list-item/container';
 import UserOptionsContainer from './user-options/container';
 
@@ -15,10 +16,9 @@ const propTypes = {
   }).isRequired,
   currentUser: PropTypes.shape({}).isRequired,
   meeting: PropTypes.shape({}).isRequired,
-  users: PropTypes.arrayOf(PropTypes.string).isRequired,
+  users: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
   getGroupChatPrivate: PropTypes.func.isRequired,
   handleEmojiChange: PropTypes.func.isRequired,
-  getUsersId: PropTypes.func.isRequired,
   isBreakoutRoom: PropTypes.bool,
   setEmojiStatus: PropTypes.func.isRequired,
   assignPresenter: PropTypes.func.isRequired,
@@ -56,35 +56,36 @@ const intlMessages = defineMessages({
   },
 });
 
+const ROLE_MODERATOR = Meteor.settings.public.user.role_moderator;
+
 class UserParticipants extends Component {
   constructor() {
     super();
 
     this.state = {
-      index: -1,
+      selectedUser: null,
     };
 
     this.userRefs = [];
-    this.selectedIndex = -1;
 
     this.getScrollContainerRef = this.getScrollContainerRef.bind(this);
-    this.focusUserItem = this.focusUserItem.bind(this);
+    this.rove = this.rove.bind(this);
     this.changeState = this.changeState.bind(this);
     this.getUsers = this.getUsers.bind(this);
   }
 
   componentDidMount() {
-    const { compact, roving, users } = this.props;
+    const { compact } = this.props;
     if (!compact) {
       this.refScrollContainer.addEventListener(
         'keydown',
-        event => roving(
-          event,
-          users.length,
-          this.changeState,
-        ),
+        this.rove,
       );
     }
+  }
+
+  componentWillUnmount() {
+    this.refScrollContainer.removeEventListener('keydown', this.rove);
   }
 
   shouldComponentUpdate(nextProps, nextState) {
@@ -93,14 +94,12 @@ class UserParticipants extends Component {
     return !isPropsEqual || !isStateEqual;
   }
 
-  componentDidUpdate(prevProps, prevState) {
-    const { index } = this.state;
-    if (index === -1) {
-      return;
-    }
+  componentDidUpdate() {
+    const { selectedUser } = this.state;
 
-    if (index !== prevState.index) {
-      this.focusUserItem(index);
+    if (selectedUser) {
+      const { firstChild } = selectedUser;
+      if (firstChild) firstChild.focus();
     }
   }
 
@@ -112,7 +111,6 @@ class UserParticipants extends Component {
     const {
       compact,
       isBreakoutRoom,
-      currentUser,
       meeting,
       getAvailableActions,
       normalizeEmojiName,
@@ -130,6 +128,7 @@ class UserParticipants extends Component {
       hasPrivateChatBetweenUsers,
       toggleUserLock,
       requestUserInformation,
+      currentUser,
     } = this.props;
 
     let index = -1;
@@ -143,12 +142,11 @@ class UserParticipants extends Component {
         timeout={0}
         component="div"
         className={cx(styles.participantsList)}
-        key={u}
+        key={u.userId}
       >
         <div ref={(node) => { this.userRefs[index += 1] = node; }}>
           <UserListItemContainer
             {...{
-              currentUser,
               compact,
               isBreakoutRoom,
               meeting,
@@ -167,8 +165,9 @@ class UserParticipants extends Component {
               hasPrivateChatBetweenUsers,
               toggleUserLock,
               requestUserInformation,
+              currentUser,
             }}
-            userId={u}
+            user={u}
             getScrollContainerRef={this.getScrollContainerRef}
           />
         </div>
@@ -176,14 +175,15 @@ class UserParticipants extends Component {
     ));
   }
 
-  focusUserItem(index) {
-    if (!this.userRefs[index]) return;
-
-    this.userRefs[index].firstChild.focus();
+  rove(event) {
+    const { roving } = this.props;
+    const { selectedUser } = this.state;
+    const usersItemsRef = findDOMNode(this.refScrollItems);
+    roving(event, this.changeState, usersItemsRef, selectedUser);
   }
 
-  changeState(newIndex) {
-    this.setState({ index: newIndex });
+  changeState(ref) {
+    this.setState({ selectedUser: ref });
   }
 
   render() {
@@ -210,7 +210,7 @@ class UserParticipants extends Component {
                   {users.length}
                   )
                 </h2>
-                {currentUser.isModerator
+                {currentUser.role === ROLE_MODERATOR
                   ? (
                     <UserOptionsContainer {...{
                       users,
@@ -218,7 +218,6 @@ class UserParticipants extends Component {
                       muteAllExceptPresenter,
                       setEmojiStatus,
                       meeting,
-                      currentUser,
                     }}
                     />
                   ) : null
@@ -230,7 +229,6 @@ class UserParticipants extends Component {
         }
         <div
           className={styles.scrollableList}
-          role="list"
           tabIndex={0}
           ref={(ref) => { this.refScrollContainer = ref; }}
         >

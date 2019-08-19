@@ -57,10 +57,17 @@ class ExternalVideoModal extends Component {
   }
 
   startWatchingHandler() {
-    const { startWatching, closeModal } = this.props;
+    const {
+      startWatching,
+      closeModal,
+      toggleLayout,
+      isSwapped,
+    } = this.props;
+
     const { url } = this.state;
 
     startWatching(url.trim());
+    if (isSwapped) toggleLayout();
     closeModal();
   }
 

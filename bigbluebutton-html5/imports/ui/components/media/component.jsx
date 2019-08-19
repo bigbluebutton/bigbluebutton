@@ -1,19 +1,31 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import cx from 'classnames';
-import WebcamDraggableOverlay from './webcam-draggable-overlay/component';
+import WebcamDraggable from './webcam-draggable-overlay/component';
 
 import { styles } from './styles';
 
 const propTypes = {
   children: PropTypes.element.isRequired,
+  usersVideo: PropTypes.arrayOf(Array),
   floatingOverlay: PropTypes.bool,
   hideOverlay: PropTypes.bool,
+  swapLayout: PropTypes.bool,
+  disableVideo: PropTypes.bool,
+  userWasInWebcam: PropTypes.bool,
+  audioModalIsOpen: PropTypes.bool,
+  joinVideo: PropTypes.func,
 };
 
 const defaultProps = {
+  usersVideo: [],
   floatingOverlay: false,
   hideOverlay: true,
+  swapLayout: false,
+  disableVideo: false,
+  userWasInWebcam: false,
+  audioModalIsOpen: false,
+  joinVideo: null,
 };
 
 
@@ -52,6 +64,7 @@ export default class Media extends Component {
       disableVideo,
       children,
       audioModalIsOpen,
+      usersVideo,
     } = this.props;
 
     const contentClassName = cx({
@@ -70,16 +83,23 @@ export default class Media extends Component {
         className={cx(styles.container)}
         ref={this.refContainer}
       >
-        <div className={!swapLayout ? contentClassName : overlayClassName}>
+        <div
+          className={!swapLayout ? contentClassName : overlayClassName}
+          style={{
+            maxHeight: usersVideo.length < 1 || floatingOverlay ? '100%' : '80%',
+          }}
+        >
           {children}
         </div>
-        <WebcamDraggableOverlay
+        <WebcamDraggable
           refMediaContainer={this.refContainer}
           swapLayout={swapLayout}
-          floatingOverlay={floatingOverlay}
+          singleWebcam={floatingOverlay}
+          usersVideoLenght={usersVideo.length}
           hideOverlay={hideOverlay}
           disableVideo={disableVideo}
           audioModalIsOpen={audioModalIsOpen}
+          usersVideo={usersVideo}
         />
       </div>
     );

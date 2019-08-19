@@ -1,5 +1,5 @@
 import { check } from 'meteor/check';
-import Slides from '/imports/api/slides';
+import { Slides } from '/imports/api/slides';
 import Logger from '/imports/startup/server/logger';
 
 export default function changeCurrentSlide(meetingId, podId, presentationId, slideId) {
