@@ -65,7 +65,9 @@ class Settings {
       userSettings[e] = this[e];
     });
 
-    makeCall('userChangedLocalSettings', userSettings);
+    setTimeout(() => {
+      makeCall('userChangedLocalSettings', userSettings);
+    }, 100);
   }
 }
 
