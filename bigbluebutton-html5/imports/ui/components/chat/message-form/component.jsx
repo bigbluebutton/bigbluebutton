@@ -59,7 +59,6 @@ const messages = defineMessages({
 });
 
 const CHAT_ENABLED = Meteor.settings.public.chat.enabled;
-const IS_TYPING_INTERVAL = 2500;
 
 class MessageForm extends PureComponent {
   constructor(props) {
@@ -204,14 +203,6 @@ class MessageForm extends PureComponent {
 
     const handleUserTyping = () => {
       startUserTyping(chatId);
-      setTimeout(() => {
-        const { message: messageState } = this.state;
-        const userStoppedTyping = messageState === '' || message.length === messageState.length;
-        if (userStoppedTyping) {
-          const { stopUserTyping } = this.props;
-          stopUserTyping();
-        }
-      }, IS_TYPING_INTERVAL);
     };
 
     this.setState({
