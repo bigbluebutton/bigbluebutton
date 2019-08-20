@@ -439,6 +439,7 @@
     "app.lock-viewers.microphoneLable": "Мікрофон",
     "app.lock-viewers.PublicChatLabel": "Публічний чат",
     "app.lock-viewers.PrivateChatLable": "Приватний чат",
+    "app.lock-viewers.userListLabel": "Список користувачів",
     "app.lock-viewers.Layout": "Розміщення вікон",
     "app.recording.startTitle": "Почати запис",
     "app.recording.startDescription": "(Ви зможете натиснути цю кнопку пізніше, щоб зробити паузу запису.)",

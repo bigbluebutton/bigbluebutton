@@ -483,6 +483,7 @@
     "app.lock-viewers.PublicChatLabel": "Bate-papo público",
     "app.lock-viewers.PrivateChatLable": "Bate-papo privado",
     "app.lock-viewers.notesLabel": "Notas compartilhadas",
+    "app.lock-viewers.userListLabel": "Lista de participantes",
     "app.lock-viewers.Layout": "Layout",
     "app.lock-viewers.ariaTitle": "Janela de restrição de participantes",
     "app.recording.startTitle": "Iniciar gravação",

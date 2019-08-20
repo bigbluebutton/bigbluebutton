@@ -487,6 +487,7 @@
     "app.lock-viewers.PublicChatLabel": "Discussion publique",
     "app.lock-viewers.PrivateChatLable": "Discussion privée",
     "app.lock-viewers.notesLabel": "Notes partagées",
+    "app.lock-viewers.userListLabel": "Liste d'utilisateur",
     "app.lock-viewers.Layout": "Disposition",
     "app.lock-viewers.ariaTitle": "Verrouille la fenêtre modale des participants",
     "app.recording.startTitle": "Commencer l'enregistrement",

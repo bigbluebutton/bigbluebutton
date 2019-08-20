@@ -442,6 +442,7 @@
     "app.lock-viewers.PublicChatLabel": "Cuộc trò chuyện công cộng",
     "app.lock-viewers.PrivateChatLable": "Cuộc trò chuyện riêng tư",
     "app.lock-viewers.notesLabel": "Chia sẻ ghi chú",
+    "app.lock-viewers.userListLabel": "Danh sách người dùng",
     "app.lock-viewers.Layout": "Layout",
     "app.lock-viewers.ariaTitle": "Khóa phương thức người xem",
     "app.recording.startTitle": "Bắt đầu ghi âm",

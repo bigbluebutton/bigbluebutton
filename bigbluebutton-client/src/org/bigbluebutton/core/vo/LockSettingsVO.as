@@ -27,6 +27,7 @@ package org.bigbluebutton.core.vo
     private var disablePublicChat:Boolean;
     private var disableNote:Boolean;
     private var lockedLayout:Boolean;
+    private var hideUserList:Boolean;
     private var lockOnJoin:Boolean;
     
     public function LockSettingsVO(pDisableCam:Boolean=false,
@@ -35,6 +36,7 @@ package org.bigbluebutton.core.vo
                                    pDisablePublicChat:Boolean=false,
                                    pDisableNote:Boolean=false,
                                    pLockLayout: Boolean=false,
+                                   pHideUserList:Boolean=false,
                                    pLockOnJoin:Boolean=false,
                                    pLockOnJoinConfigurable:Boolean=false)
     {
@@ -44,6 +46,7 @@ package org.bigbluebutton.core.vo
       this.disablePublicChat = pDisablePublicChat;
       this.disableNote = pDisableNote;
       this.lockedLayout = pLockLayout;
+      this.hideUserList = pHideUserList;
       this.lockOnJoin = pLockOnJoin;
       this.lockOnJoinConfigurable = pLockOnJoinConfigurable;
     }
@@ -56,6 +59,7 @@ package org.bigbluebutton.core.vo
           disablePublicChat: this.disablePublicChat,
           disableNote: this.disableNote,
           lockedLayout: this.lockedLayout,
+          hideUserList: this.hideUserList,
           lockOnJoin: this.lockOnJoin,
           lockOnJoinConfigurable:  this.lockOnJoinConfigurable
       };
@@ -85,6 +89,10 @@ package org.bigbluebutton.core.vo
     
     public function getLockedLayout():Boolean {
       return lockedLayout;
+    }
+    
+    public function getHideUserList():Boolean {
+      return hideUserList;
     }
     
     public function getLockOnJoin():Boolean {

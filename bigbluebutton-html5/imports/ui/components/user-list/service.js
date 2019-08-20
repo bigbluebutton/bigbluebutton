@@ -17,6 +17,7 @@ import logger from '/imports/startup/client/logger';
 const CHAT_CONFIG = Meteor.settings.public.chat;
 const PUBLIC_GROUP_CHAT_ID = CHAT_CONFIG.public_group_id;
 const ROLE_MODERATOR = Meteor.settings.public.user.role_moderator;
+const ROLE_VIEWER = Meteor.settings.public.user.role_viewer;
 
 const DIAL_IN_CLIENT_TYPE = 'dial-in-user';
 
@@ -181,12 +182,21 @@ const userFindSorting = {
 };
 
 const getUsers = () => {
-  const users = Users
+  let users = Users
     .find({
       meetingId: Auth.meetingID,
       connectionStatus: 'online',
     }, userFindSorting)
     .fetch();
+
+  const currentUser = Users.findOne({ userId: Auth.userID });
+  if (currentUser && currentUser.role === ROLE_VIEWER && currentUser.locked) {
+    const meeting = Meetings.findOne({ meetingId: Auth.meetingID });
+    if (meeting && meeting.lockSettingsProps && meeting.lockSettingsProps.hideUserList) {
+      const moderatorOrCurrentUser = u => u.role === ROLE_MODERATOR || u.userId === Auth.userID;
+      users = users.filter(moderatorOrCurrentUser);
+    }
+  }
 
   return users.sort(sortUsers);
 };
@@ -358,12 +368,12 @@ const normalizeEmojiName = emoji => (
   emoji in EMOJI_STATUSES ? EMOJI_STATUSES[emoji] : emoji
 );
 
-const setEmojiStatus = (data) => {
-  const statusAvailable = (Object.keys(EMOJI_STATUSES).includes(data));
+const setEmojiStatus = (userId, emoji) => {
+  const statusAvailable = (Object.keys(EMOJI_STATUSES).includes(emoji));
 
   return statusAvailable
-    ? makeCall('setEmojiStatus', Auth.userID, data)
-    : makeCall('setEmojiStatus', data, 'none');
+    ? makeCall('setEmojiStatus', Auth.userID, emoji)
+    : makeCall('setEmojiStatus', userId, 'none');
 };
 
 const assignPresenter = (userId) => { makeCall('assignPresenter', userId); };
@@ -394,8 +404,11 @@ const muteAllExceptPresenter = (userId) => { makeCall('muteAllExceptPresenter', 
 
 const changeRole = (userId, role) => { makeCall('changeRole', userId, role); };
 
-const roving = (event, itemCount, changeState) => {
-  if (document.activeElement.getAttribute('data-isopen') === 'true') {
+const roving = (event, changeState, elementsList, element) => {
+  this.selectedElement = element;
+  const menuOpen = Session.get('dropdownOpen') || false;
+
+  if (menuOpen) {
     const menuChildren = document.activeElement.getElementsByTagName('li');
 
     if ([KEY_CODES.ESCAPE, KEY_CODES.ARROW_LEFT].includes(event.keyCode)) {
@@ -418,34 +431,23 @@ const roving = (event, itemCount, changeState) => {
     return;
   }
 
-  if (this.selectedIndex === undefined) {
-    this.selectedIndex = -1;
-  }
-
   if ([KEY_CODES.ESCAPE, KEY_CODES.TAB].includes(event.keyCode)) {
     document.activeElement.blur();
-    this.selectedIndex = -1;
-    changeState(this.selectedIndex);
+    changeState(null);
   }
 
   if (event.keyCode === KEY_CODES.ARROW_DOWN) {
-    this.selectedIndex += 1;
-
-    if (this.selectedIndex === itemCount) {
-      this.selectedIndex = 0;
-    }
-
-    changeState(this.selectedIndex);
+    const firstElement = elementsList.firstChild;
+    let elRef = element ? element.nextSibling : firstElement;
+    elRef = elRef || firstElement;
+    changeState(elRef);
   }
 
   if (event.keyCode === KEY_CODES.ARROW_UP) {
-    this.selectedIndex -= 1;
-
-    if (this.selectedIndex < 0) {
-      this.selectedIndex = itemCount - 1;
-    }
-
-    changeState(this.selectedIndex);
+    const lastElement = elementsList.lastChild;
+    let elRef = element ? element.previousSibling : lastElement;
+    elRef = elRef || lastElement;
+    changeState(elRef);
   }
 
   if ([KEY_CODES.ARROW_RIGHT, KEY_CODES.SPACE, KEY_CODES.ENTER].includes(event.keyCode)) {

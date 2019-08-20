@@ -493,6 +493,7 @@
     "app.lock-viewers.PublicChatLabel": "گفتگوی عمومی",
     "app.lock-viewers.PrivateChatLable": "گفتگوی خصوصی",
     "app.lock-viewers.notesLabel": "یادداشت های اشتراکی",
+    "app.lock-viewers.userListLabel": "لیست کاربر",
     "app.lock-viewers.Layout": "چینش صفحه",
     "app.lock-viewers.ariaTitle": "قفل کردن کادر کاربران",
     "app.recording.startTitle": "شروع ضبط",
