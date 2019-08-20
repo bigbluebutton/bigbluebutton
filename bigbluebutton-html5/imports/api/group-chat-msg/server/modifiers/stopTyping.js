@@ -2,10 +2,10 @@ import { check } from 'meteor/check';
 import Logger from '/imports/startup/server/logger';
 import { UsersTyping } from '/imports/api/group-chat-msg';
 
-export default function stopTyping(meetingId, userId, sent = false) {
+export default function stopTyping(meetingId, userId, sendMsgInitiated = false) {
   check(meetingId, String);
   check(userId, String);
-  check(sent, Boolean);
+  check(sendMsgInitiated, Boolean);
 
   const selector = {
     meetingId,
@@ -13,7 +13,7 @@ export default function stopTyping(meetingId, userId, sent = false) {
   };
 
   const user = UsersTyping.findOne(selector);
-  const stillTyping = !sent && user && (new Date()) - user.time < 3000;
+  const stillTyping = !sendMsgInitiated && user && (new Date()) - user.time < 3000;
   if (stillTyping) return;
 
   const cb = (err) => {
