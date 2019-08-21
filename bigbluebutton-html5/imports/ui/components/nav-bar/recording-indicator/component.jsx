@@ -1,4 +1,4 @@
-import React, { PureComponent } from 'react';
+import React, { PureComponent, Fragment } from 'react';
 import RecordingContainer from '/imports/ui/components/recording/container';
 import humanizeSeconds from '/imports/utils/humanizeSeconds';
 import Tooltip from '/imports/ui/components/tooltip/component';
@@ -162,35 +162,40 @@ class RecordingIndicator extends PureComponent {
     const recordingButton = recording ? recordMeetingButtonWithTooltip : recordMeetingButton;
 
     return (
-      <div className={styles.recordingIndicator}>
-        {showButton
-          ? recordingButton
+      <Fragment>
+        {record
+          ? <span className={styles.presentationTitleSeparator} aria-hidden>|</span>
           : null}
+        <div className={styles.recordingIndicator}>
+          {showButton
+            ? recordingButton
+            : null}
 
-        {showButton ? null : (
-          <Tooltip
-            title={`${intl.formatMessage(recording
-              ? intlMessages.notificationRecordingStart
-              : intlMessages.notificationRecordingStop)}`}
-          >
-            <div
-              aria-label={`${intl.formatMessage(recording
+          {showButton ? null : (
+            <Tooltip
+              title={`${intl.formatMessage(recording
                 ? intlMessages.notificationRecordingStart
                 : intlMessages.notificationRecordingStop)}`}
-              className={styles.recordingStatusViewOnly}
             >
+              <div
+                aria-label={`${intl.formatMessage(recording
+                  ? intlMessages.notificationRecordingStart
+                  : intlMessages.notificationRecordingStop)}`}
+                className={styles.recordingStatusViewOnly}
+              >
 
-              <span
-                className={recording ? styles.recordingIndicatorON : styles.recordingIndicatorOFF}
-              />
+                <span
+                  className={recording ? styles.recordingIndicatorON : styles.recordingIndicatorOFF}
+                />
 
-              <div className={styles.presentationTitle}>
-                {recording ? humanizeSeconds(time) : null}
+                <div className={styles.presentationTitle}>
+                  {recording ? humanizeSeconds(time) : null}
+                </div>
               </div>
-            </div>
-          </Tooltip>
-        )}
-      </div>
+            </Tooltip>
+          )}
+        </div>
+      </Fragment>
     );
   }
 }

@@ -8,7 +8,7 @@ import getFromUserSettings from '/imports/ui/services/users-settings';
 import { defineMessages, injectIntl } from 'react-intl';
 import { styles } from './styles.scss';
 import Button from '../button/component';
-import RecordingIndicator from './recording-indicator/component';
+import RecordingIndicator from './recording-indicator/container';
 import SettingsDropdownContainer from './settings-dropdown/container';
 
 
@@ -77,11 +77,6 @@ class NavBar extends React.PureComponent {
       isBreakoutRoom,
       presentationTitle,
       amIModerator,
-      allowStartStopRecording,
-      autoStartRecording,
-      record,
-      recording,
-      time,
     } = this.props;
 
 
@@ -111,15 +106,8 @@ class NavBar extends React.PureComponent {
         </div>
         <div className={styles.center}>
           <h1 className={styles.presentationTitle}>{presentationTitle}</h1>
-          {record
-            ? <span className={styles.presentationTitleSeparator} aria-hidden>|</span>
-            : null}
+
           <RecordingIndicator
-            allowStartStopRecording={allowStartStopRecording}
-            autoStartRecording={autoStartRecording}
-            record={record}
-            recording={recording}
-            time={time}
             mountModal={mountModal}
             amIModerator={amIModerator}
           />
