@@ -19,7 +19,12 @@
 
 .chat {
   background-color: var(--color-white);
-  padding: var(--md-padding-x);
+  padding:
+    var(--md-padding-x)
+    var(--md-padding-y)
+    var(--md-padding-x)
+    var(--md-padding-x);
+
   display: flex;
   flex-grow: 1;
   flex-direction: column;
