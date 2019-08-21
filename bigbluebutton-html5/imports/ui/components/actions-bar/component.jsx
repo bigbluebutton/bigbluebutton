@@ -42,7 +42,6 @@ class ActionsBar extends PureComponent {
       handleUnshareScreen,
       isVideoBroadcasting,
       isUserModerator,
-      recordSettingsList,
       toggleRecording,
       screenSharingCheck,
       enableVideo,
@@ -62,12 +61,6 @@ class ActionsBar extends PureComponent {
       isThereCurrentPresentation,
     } = this.props;
 
-    const {
-      allowStartStopRecording,
-      recording: isRecording,
-      record,
-    } = recordSettingsList;
-
     const actionBarClasses = {};
     const { enabled: enableExternalVideo } = Meteor.settings.public.externalVideoPlayer;
 
@@ -81,10 +74,7 @@ class ActionsBar extends PureComponent {
             isUserPresenter,
             isUserModerator,
             isPollingEnabled,
-            allowStartStopRecording,
             allowExternalVideo: enableExternalVideo,
-            isRecording,
-            record,
             toggleRecording,
             handleTakePresenter,
             intl,

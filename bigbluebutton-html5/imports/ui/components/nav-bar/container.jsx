@@ -2,7 +2,7 @@ import React from 'react';
 import { Meteor } from 'meteor/meteor';
 import { withTracker } from 'meteor/react-meteor-data';
 import { Session } from 'meteor/session';
-import Meetings from '/imports/api/meetings';
+import Meetings, { RecordMeetings } from '/imports/api/meetings';
 import Users from '/imports/api/users';
 import Auth from '/imports/ui/services/auth';
 import { meetingIsBreakout } from '/imports/ui/components/app/service';
@@ -20,14 +20,6 @@ const NavBarContainer = ({ children, ...props }) => (
   </NavBar>
 );
 
-
-const recordProps = {
-  allowStartStopRecording: false,
-  autoStartRecording: false,
-  record: false,
-  recording: false,
-};
-
 export default withTracker(() => {
   const CLIENT_TITLE = getFromUserSettings('clientTitle', PUBLIC_CONFIG.app.clientTitle);
 
@@ -36,6 +28,7 @@ export default withTracker(() => {
   const meetingObject = Meetings.findOne({
     meetingId,
   });
+  const recordObeject = RecordMeetings.findOne({ meetingId });
 
   if (meetingObject != null) {
     meetingTitle = meetingObject.meetingProp.name;
@@ -50,13 +43,13 @@ export default withTracker(() => {
     return hasUnreadMessages;
   };
 
-  Meetings.find({ meetingId: Auth.meetingID }, { fields: { recordProp: 1 } }).observeChanges({
+  RecordMeetings.find({ meetingId: Auth.meetingID }, { fields: { recording: 1 } }).observeChanges({
     changed: (id, fields) => {
-      if (fields.recordProp && fields.recordProp.recording) {
+      if (fields && fields.recording) {
         this.window.parent.postMessage({ response: 'recordingStarted' }, '*');
       }
 
-      if (fields.recordProp && !fields.recordProp.recording) {
+      if (fields && !fields.recording) {
         this.window.parent.postMessage({ response: 'recordingStopped' }, '*');
       }
     },
@@ -74,17 +67,7 @@ export default withTracker(() => {
   const toggleUserList = () => {
     Session.set('isUserListOpen', !isExpanded);
   };
-  const { recordProp } = meetingObject;
-  // const recordProps = {
-  //   allowStartStopRecording: recordProp && recordProp.allowStartStopRecording,
-  //   autoStartRecording: recordProp && recordProp.autoStartRecording,
-  //   record: recordProp && recordProp.record,
-  //   recording: recordProp && recordProp.recording,
-  // };
-  recordProps.allowStartStopRecording = recordProp && recordProp.allowStartStopRecording;
-  recordProps.autoStartRecording = recordProp && recordProp.autoStartRecording;
-  recordProps.record = recordProp && recordProp.record;
-  recordProps.recording = recordProp && recordProp.recording;
+
   return {
     amIModerator,
     isExpanded,
@@ -95,7 +78,11 @@ export default withTracker(() => {
     presentationTitle: meetingTitle,
     hasUnreadMessages,
     isBreakoutRoom,
-    recordProps,
     toggleUserList,
+    allowStartStopRecording: !!(recordObeject && recordObeject.allowStartStopRecording),
+    autoStartRecording: recordObeject && recordObeject.autoStartRecording,
+    record: recordObeject && recordObeject.record,
+    recording: recordObeject && recordObeject.recording,
+    time: recordObeject && recordObeject.time,
   };
 })(NavBarContainer);

@@ -69,7 +69,8 @@ class RecordingIndicator extends PureComponent {
   }
 
   componentDidUpdate() {
-    if (!this.props.recording) {
+    const { recording } = this.props;
+    if (!recording) {
       clearInterval(this.interval);
       this.interval = null;
     } else if (this.interval === null) {
@@ -97,6 +98,7 @@ class RecordingIndicator extends PureComponent {
       intl,
       allowStartStopRecording,
     } = this.props;
+
     const { time } = this.state;
     if (!record) return null;
 

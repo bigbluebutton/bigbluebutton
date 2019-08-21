@@ -3,7 +3,6 @@ import { Meteor } from 'meteor/meteor';
 import { withTracker } from 'meteor/react-meteor-data';
 import { injectIntl } from 'react-intl';
 import getFromUserSettings from '/imports/ui/services/users-settings';
-import Meetings from '/imports/api/meetings';
 import Auth from '/imports/ui/services/auth';
 import PresentationService from '/imports/ui/components/presentation/service';
 import Presentations from '/imports/api/presentations';
@@ -30,18 +29,6 @@ const ActionsBarContainer = props => <ActionsBar {...props} />;
 export default withTracker(() => {
   const POLLING_ENABLED = Meteor.settings.public.poll.enabled;
 
-  Meetings.find({ meetingId: Auth.meetingID }, { fields: { recordProp: 1 } }).observeChanges({
-    changed: (id, fields) => {
-      if (fields.recordProp && fields.recordProp.recording) {
-        this.window.parent.postMessage({ response: 'recordingStarted' }, '*');
-      }
-
-      if (fields.recordProp && !fields.recordProp.recording) {
-        this.window.parent.postMessage({ response: 'recordingStopped' }, '*');
-      }
-    },
-  });
-
   const getCurrentPresentation = meetingId => Presentations.findOne({
     meetingId,
     current: true,
@@ -56,8 +43,6 @@ export default withTracker(() => {
     handleShareScreen: onFail => shareScreen(onFail),
     handleUnshareScreen: () => unshareScreen(),
     isVideoBroadcasting: isVideoBroadcasting(),
-    recordSettingsList: Service.recordSettingsList(),
-    toggleRecording: Service.toggleRecording,
     screenSharingCheck: getFromUserSettings('enableScreensharing', Meteor.settings.public.kurento.enableScreensharing),
     enableVideo: getFromUserSettings('enableVideo', Meteor.settings.public.kurento.enableVideo),
     isLayoutSwapped: getSwapLayout() && shouldEnableSwapLayout(),

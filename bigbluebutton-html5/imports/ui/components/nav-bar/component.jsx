@@ -30,22 +30,12 @@ const intlMessages = defineMessages({
 const propTypes = {
   presentationTitle: PropTypes.string,
   hasUnreadMessages: PropTypes.bool,
-  recordProps: PropTypes.shape({
-    time: PropTypes.number,
-    recording: PropTypes.bool,
-  }),
   shortcuts: PropTypes.string,
 };
 
 const defaultProps = {
   presentationTitle: 'Default Room Title',
   hasUnreadMessages: false,
-  recordProps: {
-    allowStartStopRecording: false,
-    autoStartRecording: false,
-    record: false,
-    recording: false,
-  },
   shortcuts: '',
 };
 
@@ -73,11 +63,6 @@ class NavBar extends React.PureComponent {
     }
   }
 
-  componentDidUpdate(prevProps) {
-    console.error('prev', { ...prevProps });
-    console.error('props', { ...this.props });
-  }
-
   componentWillUnmount() {
     clearInterval(this.interval);
   }
@@ -85,7 +70,6 @@ class NavBar extends React.PureComponent {
   render() {
     const {
       hasUnreadMessages,
-      recordProps,
       isExpanded,
       intl,
       shortcuts: TOGGLE_USERLIST_AK,
@@ -93,6 +77,11 @@ class NavBar extends React.PureComponent {
       isBreakoutRoom,
       presentationTitle,
       amIModerator,
+      allowStartStopRecording,
+      autoStartRecording,
+      record,
+      recording,
+      time,
     } = this.props;
 
 
@@ -122,11 +111,15 @@ class NavBar extends React.PureComponent {
         </div>
         <div className={styles.center}>
           <h1 className={styles.presentationTitle}>{presentationTitle}</h1>
-          {recordProps.record
+          {record
             ? <span className={styles.presentationTitleSeparator} aria-hidden>|</span>
             : null}
           <RecordingIndicator
-            {...recordProps}
+            allowStartStopRecording={allowStartStopRecording}
+            autoStartRecording={autoStartRecording}
+            record={record}
+            recording={recording}
+            time={time}
             mountModal={mountModal}
             amIModerator={amIModerator}
           />
