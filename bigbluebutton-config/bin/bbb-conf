@@ -219,7 +219,7 @@ check_file() {
 print_header() {
     if [ ! $HEADER ]; then
         echo
-        echo "** Potential problems described below **"
+        echo "# Potential problems described below"
         HEADER=1
     fi
 }
@@ -1910,10 +1910,10 @@ if [ -n "$HOST" ]; then
         yq w -i $HTML5_CONFIG public.note.url      "$PROTOCOL://$HOST/pad"
         chown meteor:meteor $HTML5_CONFIG
 
-        if [ -f $KURENTO_CONFIG ]; then
-            yq w -i $KURENTO_CONFIG kurento[0].url "ws://$HOST:8888/kurento"
-            chown bigbluebutton:bigbluebutton $KURENTO_CONFIG
-        fi
+        #if [ -f $KURENTO_CONFIG ]; then
+        #    yq w -i $KURENTO_CONFIG kurento[0].url "ws://$HOST:8888/kurento"
+        #    chown bigbluebutton:bigbluebutton $KURENTO_CONFIG
+        #fi
     fi
 
     echo "Restarting the BigBlueButton $BIGBLUEBUTTON_RELEASE ..."
