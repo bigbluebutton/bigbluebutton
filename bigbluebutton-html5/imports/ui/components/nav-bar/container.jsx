@@ -12,7 +12,7 @@ import Service from './service';
 import NavBar from './component';
 
 const PUBLIC_CONFIG = Meteor.settings.public;
-const ROLE_MODERATOR = Meteor.settings.public.user.role_moderator;
+const ROLE_MODERATOR = PUBLIC_CONFIG.user.role_moderator;
 const NavBarContainer = ({ children, ...props }) => (
   <NavBar {...props}>
     {children}

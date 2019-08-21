@@ -1,4 +1,4 @@
-import React, { } from 'react';
+import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import { Session } from 'meteor/session';
 import cx from 'classnames';
@@ -39,7 +39,7 @@ const defaultProps = {
   shortcuts: '',
 };
 
-class NavBar extends React.PureComponent {
+class NavBar extends PureComponent {
   static handleToggleUserList() {
     Session.set(
       'openPanel',

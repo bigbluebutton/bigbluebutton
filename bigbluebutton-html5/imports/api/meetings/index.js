@@ -8,6 +8,7 @@ if (Meteor.isServer) {
   // 1. meetingId
 
   Meetings._ensureIndex({ meetingId: 1 });
+  RecordMeetings._ensureIndex({ meetingId: 1 });
 }
 export { RecordMeetings };
 export default Meetings;
