@@ -4,6 +4,7 @@ import cx from 'classnames';
 import TextareaAutosize from 'react-autosize-textarea';
 import browser from 'browser-detect';
 import PropTypes from 'prop-types';
+import TypingIndicatorContainer from './typing-indicator/container';
 import { styles } from './styles.scss';
 import Button from '../../button/component';
 
@@ -90,7 +91,6 @@ class MessageForm extends PureComponent {
     this.handleMessageKeyDown = this.handleMessageKeyDown.bind(this);
     this.handleSubmit = this.handleSubmit.bind(this);
     this.setMessageHint = this.setMessageHint.bind(this);
-    this.renderIsTypingString = this.renderIsTypingString.bind(this);
   }
 
   componentDidMount() {
@@ -273,53 +273,6 @@ class MessageForm extends PureComponent {
     );
   }
 
-  renderIsTypingString() {
-    const {
-      intl, typingUsers, currentUserId, currentChatPartner,
-    } = this.props;
-    let names = [];
-
-    names = typingUsers.map((user) => {
-      const { userId: typingUserId, isTypingTo, name } = user;
-      let userNameTyping = null;
-      userNameTyping = currentUserId !== typingUserId ? name : userNameTyping;
-      const isPrivateMsg = currentChatPartner !== isTypingTo;
-      if (isPrivateMsg) {
-        const isMsgParticipant = typingUserId === currentChatPartner
-          && currentUserId === isTypingTo;
-
-        userNameTyping = isMsgParticipant ? name : null;
-      }
-      return userNameTyping;
-    }).filter(e => e);
-
-    if (names) {
-      const { length } = names;
-      const noTypers = length < 1;
-      const singleTyper = length === 1;
-      const multipleTypersShown = length > 1 && length <= 3;
-      if (noTypers) return null;
-
-      if (singleTyper) {
-        if (names[0].length < 20) {
-          return ` ${names[0]} ${intl.formatMessage(messages.singularTyping)}`;
-        }
-        return (` ${names[0].slice(0, 20)}... ${intl.formatMessage(messages.singularTyping)}`);
-      }
-
-      if (multipleTypersShown) {
-        const formattedNames = names.map((name) => {
-          if (name.length < 15) return ` ${name}`;
-          return ` ${name.slice(0, 15)}...`;
-        });
-        return (`${formattedNames} ${intl.formatMessage(messages.pluralTyping)}`);
-      }
-      return (` ${intl.formatMessage(messages.severalPeople)} ${intl.formatMessage(messages.pluralTyping)}`);
-    }
-
-    return null;
-  }
-
   render() {
     const {
       intl,
@@ -369,15 +322,7 @@ class MessageForm extends PureComponent {
             onClick={() => {}}
           />
         </div>
-        <div className={error ? styles.error : styles.info}>
-          <span>
-            <span>{error || this.renderIsTypingString()}</span>
-            {!error && this.renderIsTypingString()
-              ? <span className={styles.connectingAnimation} />
-              : null
-            }
-          </span>
-        </div>
+        <TypingIndicatorContainer {...{ error }} />
       </form>
     ) : null;
   }
