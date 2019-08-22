@@ -26,7 +26,7 @@ export default withTracker(() => {
   const meetingId = Auth.meetingID;
   const meetingObject = Meetings.findOne({
     meetingId,
-  });
+  }, { fields: { 'meetingProp.name': 1 } });
 
   if (meetingObject != null) {
     meetingTitle = meetingObject.meetingProp.name;
@@ -43,7 +43,7 @@ export default withTracker(() => {
 
   const currentUserId = Auth.userID;
   const { connectRecordingObserver, processOutsideToggleRecording } = Service;
-  const currentUser = Users.findOne({ userId: Auth.userID });
+  const currentUser = Users.findOne({ userId: Auth.userID }, { fields: { role: 1 } });
   const openPanel = Session.get('openPanel');
   const isExpanded = openPanel !== '';
   const amIModerator = currentUser.role === ROLE_MODERATOR;

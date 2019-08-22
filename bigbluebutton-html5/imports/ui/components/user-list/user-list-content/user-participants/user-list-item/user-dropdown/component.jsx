@@ -153,7 +153,6 @@ class UserDropdown extends PureComponent {
   }
 
   componentDidUpdate() {
-    const { dropdownVisible } = this.props;
     this.checkDropdownDirection();
   }
 

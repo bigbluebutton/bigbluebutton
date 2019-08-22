@@ -14,7 +14,7 @@ export default withTracker(() => {
 
   const currentPresentation = Presentations.findOne({
     current: true,
-  }) || {};
+  }, { fields: { podId: 1 } }) || {};
 
   const currentSlide = PresentationAreaService.getCurrentSlide(currentPresentation.podId);
 

@@ -40,7 +40,8 @@ const getUser = (userId) => {
   return user;
 };
 
-const getMeeting = () => Meetings.findOne({});
+const getWelcomeProp = () => Meetings.findOne({ meetingId: Auth.meetingID },
+  { fields: { welcomeProp: 1 } });
 
 const mapGroupMessage = (message) => {
   const mappedMessage = {
@@ -101,6 +102,7 @@ const reduceAndMapGroupMessages = messages => (messages
 
 const getPublicGroupMessages = () => {
   const publicGroupMessages = GroupChatMsg.find({
+    meetingId: Auth.meetingID,
     chatId: PUBLIC_GROUP_CHAT_ID,
   }, { sort: ['timestamp'] }).fetch();
   return publicGroupMessages;
@@ -111,9 +113,10 @@ const getPrivateGroupMessages = () => {
   const senderId = Auth.userID;
 
   const privateChat = GroupChat.findOne({
+    meetingId: Auth.meetingID,
     users: { $all: [chatID, senderId] },
     access: PRIVATE_CHAT_TYPE,
-  });
+  }, { fields: { chatId: 1 } });
 
   let messages = [];
 
@@ -123,6 +126,7 @@ const getPrivateGroupMessages = () => {
     } = privateChat;
 
     messages = GroupChatMsg.find({
+      meetingId: Auth.meetingID,
       chatId,
     }, { sort: ['timestamp'] }).fetch();
   }
@@ -133,15 +137,17 @@ const getPrivateGroupMessages = () => {
 const isChatLocked = (receiverID) => {
   const isPublic = receiverID === PUBLIC_CHAT_ID;
 
-  const meeting = Meetings.findOne({});
-  const user = Users.findOne({ userId: Auth.userID });
+  const meeting = Meetings.findOne({ meetingId: Auth.meetingID },
+    { fields: { 'lockSettingsProps.disablePublicChat': 1 } });
+  const user = Users.findOne({ meetingId: Auth.meetingID, userId: Auth.userID },
+    { fields: { locked: 1, role: 1 } });
 
   if (meeting.lockSettingsProps !== undefined) {
     if (user.locked && user.role !== ROLE_MODERATOR) {
       if (isPublic) {
         return meeting.lockSettingsProps.disablePublicChat;
       }
-      const receivingUser = Users.findOne({ userId: receiverID });
+      const receivingUser = Users.findOne({ userId: receiverID }, { fields: { role: 1 } });
       const receiverIsMod = receivingUser && receivingUser.role === ROLE_MODERATOR;
       return !receiverIsMod && meeting.lockSettingsProps.disablePrivateChat;
     }
@@ -174,7 +180,8 @@ const sendGroupMessage = (message) => {
   const receiverId = { id: chatID };
 
   if (!isPublicChat) {
-    const privateChat = GroupChat.findOne({ users: { $all: [chatID, sender.userId] } });
+    const privateChat = GroupChat.findOne({ users: { $all: [chatID, sender.userId] } },
+      { fields: { chatId: 1 } });
 
     if (privateChat) {
       const { chatId: privateChatId } = privateChat;
@@ -204,7 +211,8 @@ const sendGroupMessage = (message) => {
 };
 
 const getScrollPosition = (receiverID) => {
-  const scroll = ScrollCollection.findOne({ receiver: receiverID }) || { position: null };
+  const scroll = ScrollCollection.findOne({ receiver: receiverID },
+    { fields: { position: 1 } }) || { position: null };
   return scroll.position;
 };
 
@@ -253,7 +261,7 @@ const htmlDecode = (input) => {
 
 // Export the chat as [Hour:Min] user: message
 const exportChat = (messageList) => {
-  const { welcomeProp } = getMeeting();
+  const { welcomeProp } = getWelcomeProp();
   const { loginTime } = getUser(Auth.userID);
   const { welcomeMsg } = welcomeProp;
 
@@ -280,12 +288,12 @@ const exportChat = (messageList) => {
     if (message.type === SYSTEM_CHAT_TYPE) {
       return `${hourMin} ${message.message}`;
     }
-    const userName = message.sender === PUBLIC_CHAT_USER_ID ? '' : `${getUser(message.sender).name} :`;
+    const userName = message.sender === PUBLIC_CHAT_USER_ID
+      ? ''
+      : `${getUser(message.sender).name} :`;
     return `${hourMin} ${userName} ${htmlDecode(message.message)}`;
   }).join('\n');
 };
-
-const getUnreadMessagesFromChatId = chatId => UnreadMessages.getUnreadMessages(chatId);
 
 const getAllMessages = (chatID) => {
   const filter = {
@@ -294,7 +302,8 @@ const getAllMessages = (chatID) => {
   if (chatID === PUBLIC_GROUP_CHAT_ID) {
     filter.chatId = { $eq: chatID };
   } else {
-    const privateChat = GroupChat.findOne({ users: { $all: [chatID, Auth.userID] } });
+    const privateChat = GroupChat.findOne({ users: { $all: [chatID, Auth.userID] } },
+      { fields: { chatId: 1 } });
 
     filter.chatId = { $ne: PUBLIC_GROUP_CHAT_ID };
 
@@ -305,9 +314,6 @@ const getAllMessages = (chatID) => {
   const messages = GroupChatMsg.find(filter).fetch();
   return messages;
 };
-
-const getlastMessage = lastMessages => lastMessages.sort((a,
-  b) => a.timestamp - b.timestamp).pop();
 
 const maxTimestampReducer = (max, el) => ((el.timestamp > max) ? el.timestamp : max);
 
@@ -323,7 +329,7 @@ export default {
   getPublicGroupMessages,
   getPrivateGroupMessages,
   getUser,
-  getMeeting,
+  getWelcomeProp,
   getScrollPosition,
   hasUnreadMessages,
   lastReadMessageTime,
@@ -335,11 +341,7 @@ export default {
   removeFromClosedChatsSession,
   exportChat,
   clearPublicChatHistory,
-  getlastMessage,
-  getUnreadMessagesFromChatId,
-  getAllMessages,
   maxTimestampReducer,
-  maxNumberReducer,
   getLastMessageTimestampFromChatList,
   UnsentMessagesCollection,
 };

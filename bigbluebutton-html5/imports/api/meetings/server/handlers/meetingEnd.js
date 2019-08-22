@@ -6,7 +6,9 @@ import setConnectionStatus from '/imports/api/users/server/modifiers/setConnecti
 import Users from '/imports/api/users/';
 import Logger from '/imports/startup/server/logger';
 
-export default function handleMeetingEnd({ body }, meetingId) {
+export default function handleMeetingEnd({ body }) {
+  check(body, Object);
+  const { meetingId } = body;
   check(meetingId, String);
 
   const cb = (err, num, meetingType) => {
@@ -15,7 +17,7 @@ export default function handleMeetingEnd({ body }, meetingId) {
       return;
     }
     if (num) {
-      Users.find({ meetingId })
+      Users.find({ meetingId }, { fields: { meetingId: 1, userId: 1 } })
         .fetch().map(user => setConnectionStatus(user.meetingId, user.userId, 'offline'));
       Meteor.setTimeout(() => { meetingHasEnded(meetingId); }, 10000);
     }

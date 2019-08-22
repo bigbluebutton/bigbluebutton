@@ -7,10 +7,10 @@ import Users from '/imports/api/users';
 import Annotations from '/imports/api/annotations';
 import AnnotationsTextService from '/imports/ui/components/whiteboard/annotations/text/service';
 import AnnotationsLocal from '/imports/ui/components/whiteboard/service';
-import mapUser from '/imports/ui/services/user/mapUser';
 
 
 const CHAT_CONFIG = Meteor.settings.public.chat;
+const ROLE_MODERATOR = Meteor.settings.public.user.role_moderator;
 const CHAT_ENABLED = CHAT_CONFIG.enabled;
 const PUBLIC_GROUP_CHAT_ID = CHAT_CONFIG.public_group_id;
 const PUBLIC_CHAT_TYPE = CHAT_CONFIG.type_public;
@@ -90,10 +90,10 @@ export default withTracker(() => {
   const User = Users.findOne({ intId: requesterUserId });
 
   if (User) {
-    const mappedUser = mapUser(User);
-    Meteor.subscribe('users', credentials, mappedUser.isModerator, subscriptionErrorHandler);
-    Meteor.subscribe('breakouts', credentials, mappedUser.isModerator, subscriptionErrorHandler);
-    Meteor.subscribe('meetings', credentials, mappedUser.isModerator, subscriptionErrorHandler);
+    const userIsModerator = User.role === ROLE_MODERATOR;
+    Meteor.subscribe('users', credentials, userIsModerator, subscriptionErrorHandler);
+    Meteor.subscribe('breakouts', credentials, userIsModerator, subscriptionErrorHandler);
+    Meteor.subscribe('meetings', credentials, userIsModerator, subscriptionErrorHandler);
   }
 
   const annotationsHandler = Meteor.subscribe('annotations', credentials, {

@@ -6,7 +6,6 @@ import Meetings from '/imports/api/meetings';
 import Auth from '/imports/ui/services/auth';
 import UnreadMessages from '/imports/ui/services/unread-messages';
 import Storage from '/imports/ui/services/storage/session';
-import mapUser from '/imports/ui/services/user/mapUser';
 import { EMOJI_STATUSES } from '/imports/utils/statuses';
 import { makeCall } from '/imports/ui/services/api';
 import _ from 'lodash';
@@ -189,9 +188,9 @@ const getUsers = () => {
     }, userFindSorting)
     .fetch();
 
-  const currentUser = Users.findOne({ userId: Auth.userID });
+  const currentUser = Users.findOne({ userId: Auth.userID }, { fields: { role: 1, locked: 1 } });
   if (currentUser && currentUser.role === ROLE_VIEWER && currentUser.locked) {
-    const meeting = Meetings.findOne({ meetingId: Auth.meetingID });
+    const meeting = Meetings.findOne({ meetingId: Auth.meetingID }, { fields: { 'lockSettingsProps.hideUserList': 1 } });
     if (meeting && meeting.lockSettingsProps && meeting.lockSettingsProps.hideUserList) {
       const moderatorOrCurrentUser = u => u.role === ROLE_MODERATOR || u.userId === Auth.userID;
       users = users.filter(moderatorOrCurrentUser);
@@ -201,11 +200,12 @@ const getUsers = () => {
   return users.sort(sortUsers);
 };
 
-const hasBreakoutRoom = () => Breakouts.find({ parentMeetingId: Auth.meetingID }).count() > 0;
+const hasBreakoutRoom = () => Breakouts.find({ parentMeetingId: Auth.meetingID },
+  { fields: {} }).count() > 0;
 
 const getActiveChats = (chatID) => {
   const privateChat = GroupChat
-    .find({ users: { $all: [Auth.userID] } })
+    .find({ users: { $all: [Auth.userID] } }, { fields: { chatId: 1 } })
     .fetch()
     .map(chat => chat.chatId);
 
@@ -229,11 +229,10 @@ const getActiveChats = (chatID) => {
   activeChats = _.uniq(_.compact(activeChats));
 
   activeChats = Users
-    .find({ userId: { $in: activeChats } })
-    .map(mapUser)
+    .find({ userId: { $in: activeChats } }, { fields: { userId: 1 } })
     .map((op) => {
       const activeChat = op;
-      activeChat.unreadCounter = UnreadMessages.count(op.id);
+      activeChat.unreadCounter = UnreadMessages.count(op.userId);
       return activeChat;
     });
 
@@ -355,13 +354,6 @@ const getAvailableActions = (currentUser, user, isBreakoutRoom) => {
     allowedToChangeStatus,
     allowedToChangeUserLockStatus,
   };
-};
-
-const getCurrentUser = () => {
-  const currentUserId = Auth.userID;
-  const currentUser = Users.findOne({ userId: currentUserId });
-
-  return (currentUser) ? mapUser(currentUser) : null;
 };
 
 const normalizeEmojiName = emoji => (
@@ -488,7 +480,6 @@ export default {
   changeRole,
   getUsers,
   getActiveChats,
-  getCurrentUser,
   getAvailableActions,
   normalizeEmojiName,
   isMeetingLocked,

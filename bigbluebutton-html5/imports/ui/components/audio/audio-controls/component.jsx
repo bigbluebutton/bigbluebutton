@@ -62,7 +62,7 @@ class AudioControls extends PureComponent {
       listenOnly,
       intl,
       shortcuts,
-      currentUserObj,
+      isVoiceUser,
     } = this.props;
 
     let joinIcon = 'audio_off';
@@ -76,7 +76,7 @@ class AudioControls extends PureComponent {
 
     return (
       <span className={styles.container}>
-        {showMute && currentUserObj.isVoiceUser
+        {showMute && isVoiceUser
           ? (
             <Button
               className={cx(styles.button, !talking || styles.glow, !muted || styles.btn)}

@@ -169,7 +169,8 @@ class MessageForm extends PureComponent {
 
   setMessageState() {
     const { chatId, UnsentMessagesCollection } = this.props;
-    const unsentMessageByChat = UnsentMessagesCollection.findOne({ chatId });
+    const unsentMessageByChat = UnsentMessagesCollection.findOne({ chatId },
+      { fields: { message: 1 } });
     this.setState({ message: unsentMessageByChat ? unsentMessageByChat.message : '' });
   }
 

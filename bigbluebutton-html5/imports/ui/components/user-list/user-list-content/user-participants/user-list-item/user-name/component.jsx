@@ -71,13 +71,15 @@ const UserName = (props) => {
   }
 
   if (isMeetingLocked(meetingId) && user.isLocked) {
-    userNameSub.push(<span>
-      <Icon iconName="lock" />
-      {intl.formatMessage(messages.locked)}
-    </span>);
+    userNameSub.push(
+      <span>
+        <Icon iconName="lock" />
+        {intl.formatMessage(messages.locked)}
+      </span>,
+    );
   }
 
-  if (user.isGuest) {
+  if (user.isGuest) { // FIXME- isGuest is not defined
     userNameSub.push(intl.formatMessage(messages.guest));
   }
 
@@ -89,13 +91,17 @@ const UserName = (props) => {
       aria-expanded={isActionsOpen}
     >
       <span className={styles.userNameMain}>
-        {user.name} <i>{(user.isCurrent) ? `(${intl.formatMessage(messages.you)})` : ''}</i>
+        {user.name}
+        {' '}
+        <i>{(user.isCurrent) ? `(${intl.formatMessage(messages.you)})` : ''}</i>
       </span>
       {
-        userNameSub.length ?
-          <span className={styles.userNameSub}>
-            {userNameSub.reduce((prev, curr) => [prev, ' | ', curr])}
-          </span>
+        userNameSub.length
+          ? (
+            <span className={styles.userNameSub}>
+              {userNameSub.reduce((prev, curr) => [prev, ' | ', curr])}
+            </span>
+          )
           : null
       }
     </div>
