@@ -108,7 +108,7 @@ const propTypes = {
     formatMessage: PropTypes.func.isRequired,
   }).isRequired,
   normalizeEmojiName: PropTypes.func.isRequired,
-  isMeetingLocked: PropTypes.func.isRequired,
+  isThisMeetingLocked: PropTypes.bool.isRequired,
   getScrollContainerRef: PropTypes.func.isRequired,
   toggleUserLock: PropTypes.func.isRequired,
 };
@@ -219,10 +219,12 @@ class UserDropdown extends PureComponent {
       requestUserInformation,
       isMeteorConnected,
       userLocks,
+      isModerator,
+      isMe,
     } = this.props;
     const { showNestedOptions } = this.state;
 
-    const actionPermissions = getAvailableActions(currentUser, user, isBreakoutRoom);
+    const actionPermissions = getAvailableActions(user, isBreakoutRoom);
     const actions = [];
 
     const {
@@ -244,8 +246,8 @@ class UserDropdown extends PureComponent {
       ? allowedToChatPrivately
       : allowedToChatPrivately
       && (!(currentUser.locked && disablePrivateChat)
-        || hasPrivateChatBetweenUsers(currentUser.userId, user.id)
-        || user.isModerator) && isMeteorConnected;
+        || hasPrivateChatBetweenUsers(currentUser.userId, user.userId)
+        || isModerator(user.userId)) && isMeteorConnected;
 
     const { allowUserLookup } = Meteor.settings.public.app;
 
@@ -270,7 +272,7 @@ class UserDropdown extends PureComponent {
       statuses.map(status => actions.push(this.makeDropdownItem(
         status,
         intl.formatMessage({ id: `app.actionsBar.emojiMenu.${status}Label` }),
-        () => { handleEmojiChange(user.id, status); this.resetMenuState(); },
+        () => { handleEmojiChange(user.userId, status); this.resetMenuState(); },
         getEmojiList[status],
       )));
 
@@ -297,19 +299,19 @@ class UserDropdown extends PureComponent {
         'activeChat',
         intl.formatMessage(messages.ChatLabel),
         () => {
-          getGroupChatPrivate(currentUser, user);
+          getGroupChatPrivate(currentUser.userId, user);
           Session.set('openPanel', 'chat');
-          Session.set('idChatOpen', user.id);
+          Session.set('idChatOpen', user.userId);
         },
         'chat',
       ));
     }
 
-    if (allowedToResetStatus && user.emoji.status !== 'none' && isMeteorConnected) {
+    if (allowedToResetStatus && user.emoji !== 'none' && isMeteorConnected) {
       actions.push(this.makeDropdownItem(
         'clearStatus',
         intl.formatMessage(messages.ClearStatusLabel),
-        () => this.onActionsHide(setEmojiStatus(user.id, 'none')),
+        () => this.onActionsHide(setEmojiStatus(user.userId, 'none')),
         'clear_status',
       ));
     }
@@ -318,7 +320,7 @@ class UserDropdown extends PureComponent {
       actions.push(this.makeDropdownItem(
         'mute',
         intl.formatMessage(messages.MuteUserAudioLabel),
-        () => this.onActionsHide(toggleVoice(user.id)),
+        () => this.onActionsHide(toggleVoice(user.userId)),
         'mute',
       ));
     }
@@ -327,7 +329,7 @@ class UserDropdown extends PureComponent {
       actions.push(this.makeDropdownItem(
         'unmute',
         intl.formatMessage(messages.UnmuteUserAudioLabel),
-        () => this.onActionsHide(toggleVoice(user.id)),
+        () => this.onActionsHide(toggleVoice(user.userId)),
         'unmute',
       ));
     }
@@ -335,10 +337,10 @@ class UserDropdown extends PureComponent {
     if (allowedToSetPresenter && isMeteorConnected) {
       actions.push(this.makeDropdownItem(
         'setPresenter',
-        user.isCurrent
+        isMe(user.userId)
           ? intl.formatMessage(messages.takePresenterLabel)
           : intl.formatMessage(messages.makePresenterLabel),
-        () => this.onActionsHide(assignPresenter(user.id)),
+        () => this.onActionsHide(assignPresenter(user.userId)),
         'presentation',
       ));
     }
@@ -347,7 +349,7 @@ class UserDropdown extends PureComponent {
       actions.push(this.makeDropdownItem(
         'remove',
         intl.formatMessage(messages.RemoveUserLabel, { 0: user.name }),
-        () => this.onActionsHide(removeUser(user.id)),
+        () => this.onActionsHide(removeUser(user.userId)),
         'circle_close',
       ));
     }
@@ -356,7 +358,7 @@ class UserDropdown extends PureComponent {
       actions.push(this.makeDropdownItem(
         'promote',
         intl.formatMessage(messages.PromoteUserLabel),
-        () => this.onActionsHide(changeRole(user.id, 'MODERATOR')),
+        () => this.onActionsHide(changeRole(user.userId, 'MODERATOR')),
         'promote',
       ));
     }
@@ -365,18 +367,19 @@ class UserDropdown extends PureComponent {
       actions.push(this.makeDropdownItem(
         'demote',
         intl.formatMessage(messages.DemoteUserLabel),
-        () => this.onActionsHide(changeRole(user.id, 'VIEWER')),
+        () => this.onActionsHide(changeRole(user.userId, 'VIEWER')),
         'user',
       ));
     }
 
     if (allowedToChangeUserLockStatus && isMeteorConnected) {
+      const userLocked = user.locked && !isModerator(user.userId);
       actions.push(this.makeDropdownItem(
         'unlockUser',
-        user.isLocked ? intl.formatMessage(messages.UnlockUserLabel, { 0: user.name })
+        userLocked ? intl.formatMessage(messages.UnlockUserLabel, { 0: user.name })
           : intl.formatMessage(messages.LockUserLabel, { 0: user.name }),
-        () => this.onActionsHide(toggleUserLock(user.id, !user.isLocked)),
-        user.isLocked ? 'unlock' : 'lock',
+        () => this.onActionsHide(toggleUserLock(user.userId, !userLocked)),
+        userLocked ? 'unlock' : 'lock',
       ));
     }
 
@@ -384,7 +387,7 @@ class UserDropdown extends PureComponent {
       actions.push(this.makeDropdownItem(
         'directoryLookup',
         intl.formatMessage(messages.DirectoryLookupLabel),
-        () => this.onActionsHide(requestUserInformation(user.externalUserId)),
+        () => this.onActionsHide(requestUserInformation(user.extId)),
         'user',
       ));
     }
@@ -467,7 +470,7 @@ class UserDropdown extends PureComponent {
   /**
   * Check if the dropdown is visible and is opened by the user
   *
-  * @return True if is visible and opened by the user.
+  * @return True if is visible and opened by the user
   */
   isDropdownActivedByUser() {
     const { isActionsOpen, dropdownVisible } = this.state;
@@ -481,14 +484,16 @@ class UserDropdown extends PureComponent {
       user,
       userInBreakout,
       breakoutSequence,
-      meetignIsBreakout,
+      meetingIsBreakout,
+      isModerator,
+      getMyVoiceUser,
     } = this.props;
 
     const { clientType } = user;
     const isVoiceOnly = clientType === 'dial-in-user';
 
-    const iconUser = user.emoji.status !== 'none'
-      ? (<Icon iconName={normalizeEmojiName(user.emoji.status)} />)
+    const iconUser = user.emoji !== 'none'
+      ? (<Icon iconName={normalizeEmojiName(user.emoji)} />)
       : user.name.toLowerCase().slice(0, 2);
 
     const iconVoiceOnlyUser = (<Icon iconName="audio_on" />);
@@ -496,18 +501,18 @@ class UserDropdown extends PureComponent {
 
     return (
       <UserAvatar
-        moderator={user.isModerator}
-        presenter={user.isPresenter}
-        talking={user.isTalking}
-        muted={user.isMuted}
-        listenOnly={user.isListenOnly}
-        voice={user.isVoiceUser}
-        noVoice={!user.isVoiceUser}
+        moderator={isModerator(user.userId)}
+        presenter={user.presenter}
+        talking={getMyVoiceUser.isTalking}
+        muted={getMyVoiceUser.isMuted}
+        listenOnly={getMyVoiceUser.isListenOnly}
+        voice={getMyVoiceUser.isVoiceUser}
+        noVoice={!getMyVoiceUser.isVoiceUser}
         color={user.color}
       >
         {
         userInBreakout
-        && !meetignIsBreakout
+        && !meetingIsBreakout
           ? breakoutSequence : userIcon}
       </UserAvatar>
     );
@@ -519,8 +524,9 @@ class UserDropdown extends PureComponent {
       currentUser,
       user,
       intl,
-      isMeetingLocked,
-      meetingId,
+      isThisMeetingLocked,
+      isModerator,
+      isMe,
     } = this.props;
 
     const {
@@ -540,9 +546,9 @@ class UserDropdown extends PureComponent {
     userItemContentsStyle[styles.userListItem] = !isActionsOpen;
     userItemContentsStyle[styles.usertListItemWithMenu] = isActionsOpen;
 
-    const you = (user.isCurrent) ? intl.formatMessage(messages.you) : '';
+    const you = isMe(user.userId) ? intl.formatMessage(messages.you) : '';
 
-    const presenter = (user.isPresenter)
+    const presenter = (user.presenter)
       ? intl.formatMessage(messages.presenter)
       : '';
 
@@ -552,13 +558,13 @@ class UserDropdown extends PureComponent {
         0: user.name,
         1: presenter,
         2: you,
-        3: user.emoji.status,
+        3: user.emoji,
       },
     );
 
     const contents = (
       <div
-        data-test={user.isCurrent ? 'userListItemCurrent' : null}
+        data-test={isMe(user.userId) ? 'userListItemCurrent' : null}
         className={!actions.length ? styles.userListItem : null}
       >
         <div className={styles.userItemContents}>
@@ -570,10 +576,11 @@ class UserDropdown extends PureComponent {
               user,
               compact,
               intl,
-              meetingId,
-              isMeetingLocked,
+              isThisMeetingLocked,
               userAriaLabel,
               isActionsOpen,
+              isModerator,
+              isMe,
             }}
           />}
           {<UserIcons

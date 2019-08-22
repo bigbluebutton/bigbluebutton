@@ -10,7 +10,7 @@ const propTypes = {
   }).isRequired,
   isBreakoutRoom: PropTypes.bool,
   getAvailableActions: PropTypes.func.isRequired,
-  isMeetingLocked: PropTypes.func.isRequired,
+  isThisMeetingLocked: PropTypes.bool.isRequired,
   normalizeEmojiName: PropTypes.func.isRequired,
   getScrollContainerRef: PropTypes.func.isRequired,
   toggleUserLock: PropTypes.func.isRequired,
@@ -37,7 +37,7 @@ class UserListItem extends PureComponent {
       handleEmojiChange,
       intl,
       isBreakoutRoom,
-      isMeetingLocked,
+      isThisMeetingLocked,
       meeting,
       normalizeEmojiName,
       removeUser,
@@ -48,11 +48,14 @@ class UserListItem extends PureComponent {
       requestUserInformation,
       userInBreakout,
       breakoutSequence,
-      meetignIsBreakout,
+      meetingIsBreakout,
       isMeteorConnected,
+      isModerator,
+      isMe,
+      getMyVoiceUser,
     } = this.props;
 
-    const { meetingId, lockSettingsProps } = meeting;
+    const { lockSettingsProps } = meeting;
 
     const contents = (
       <UserDropdown
@@ -69,8 +72,7 @@ class UserListItem extends PureComponent {
           handleEmojiChange,
           intl,
           isBreakoutRoom,
-          isMeetingLocked,
-          meetingId,
+          isThisMeetingLocked,
           lockSettingsProps,
           normalizeEmojiName,
           removeUser,
@@ -82,8 +84,11 @@ class UserListItem extends PureComponent {
           requestUserInformation,
           userInBreakout,
           breakoutSequence,
-          meetignIsBreakout,
+          meetingIsBreakout,
           isMeteorConnected,
+          isModerator,
+          isMe,
+          getMyVoiceUser,
         }}
       />
     );

@@ -34,30 +34,28 @@ const messages = defineMessages({
 const propTypes = {
   user: PropTypes.shape({
     name: PropTypes.string.isRequired,
-    isPresenter: PropTypes.bool.isRequired,
-    isVoiceUser: PropTypes.bool.isRequired,
-    isModerator: PropTypes.bool.isRequired,
-    image: PropTypes.string,
   }).isRequired,
   compact: PropTypes.bool.isRequired,
+  isModerator: PropTypes.func.isRequired,
   intl: PropTypes.shape({
     formatMessage: PropTypes.func.isRequired,
   }).isRequired,
-  isMeetingLocked: PropTypes.func.isRequired,
+  isThisMeetingLocked: PropTypes.bool.isRequired,
+  isMe: PropTypes.func.isRequired,
   userAriaLabel: PropTypes.string.isRequired,
-  meetingId: PropTypes.string.isRequired,
   isActionsOpen: PropTypes.bool.isRequired,
 };
 
 const UserName = (props) => {
   const {
-    user,
     intl,
     compact,
-    isMeetingLocked,
-    meetingId,
+    isThisMeetingLocked,
     userAriaLabel,
     isActionsOpen,
+    isModerator,
+    isMe,
+    user,
   } = props;
 
   if (compact) {
@@ -70,7 +68,7 @@ const UserName = (props) => {
     return null;
   }
 
-  if (isMeetingLocked(meetingId) && user.isLocked) {
+  if (isThisMeetingLocked && user.locked && isModerator(user.userId)) {
     userNameSub.push(
       <span>
         <Icon iconName="lock" />
@@ -79,9 +77,9 @@ const UserName = (props) => {
     );
   }
 
-  if (user.isGuest) { // FIXME- isGuest is not defined
-    userNameSub.push(intl.formatMessage(messages.guest));
-  }
+  // if (user.isGuest) { // FIXME- isGuest is not defined
+  //   userNameSub.push(intl.formatMessage(messages.guest));
+  // }
 
   return (
     <div
@@ -93,7 +91,7 @@ const UserName = (props) => {
       <span className={styles.userNameMain}>
         {user.name}
         {' '}
-        <i>{(user.isCurrent) ? `(${intl.formatMessage(messages.you)})` : ''}</i>
+        <i>{(isMe(user.userId)) ? `(${intl.formatMessage(messages.you)})` : ''}</i>
       </span>
       {
         userNameSub.length

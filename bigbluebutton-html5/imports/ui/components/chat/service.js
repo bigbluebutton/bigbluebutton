@@ -173,20 +173,19 @@ const sendGroupMessage = (message) => {
   const chatID = Session.get('idChatOpen') || PUBLIC_CHAT_ID;
   const isPublicChat = chatID === PUBLIC_CHAT_ID;
 
-  let chatId = PUBLIC_GROUP_CHAT_ID;
+  let destinationChatId = PUBLIC_GROUP_CHAT_ID;
 
   const sender = getUser(Auth.userID);
 
   const receiverId = { id: chatID };
 
   if (!isPublicChat) {
-    const privateChat = GroupChat.findOne({ users: { $all: [chatID, sender.userId] } },
-      { fields: { chatId: 1 } });
+    const privateChat = GroupChat.findOne({ users: { $all: [chatID, sender.userId] } });
 
     if (privateChat) {
       const { chatId: privateChatId } = privateChat;
 
-      chatId = privateChatId;
+      destinationChatId = privateChatId;
     }
   }
 
@@ -207,7 +206,7 @@ const sendGroupMessage = (message) => {
     Storage.setItem(CLOSED_CHAT_LIST_KEY, _.without(currentClosedChats, receiverId.id));
   }
 
-  return makeCall('sendGroupChatMsg', chatId, payload);
+  return makeCall('sendGroupChatMsg', destinationChatId, payload);
 };
 
 const getScrollPosition = (receiverID) => {
