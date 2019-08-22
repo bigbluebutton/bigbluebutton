@@ -26,7 +26,7 @@ const intlMessages = defineMessages({
 
 const propTypes = {
   chat: PropTypes.shape({
-    id: PropTypes.string.isRequired,
+    userId: PropTypes.string.isRequired,
     name: PropTypes.string.isRequired,
     unreadCounter: PropTypes.number.isRequired,
   }).isRequired,

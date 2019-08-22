@@ -116,7 +116,7 @@ const getPrivateGroupMessages = () => {
     meetingId: Auth.meetingID,
     users: { $all: [chatID, senderId] },
     access: PRIVATE_CHAT_TYPE,
-  }, { fields: { chatId: 1 } });
+  });
 
   let messages = [];
 
@@ -301,8 +301,7 @@ const getAllMessages = (chatID) => {
   if (chatID === PUBLIC_GROUP_CHAT_ID) {
     filter.chatId = { $eq: chatID };
   } else {
-    const privateChat = GroupChat.findOne({ users: { $all: [chatID, Auth.userID] } },
-      { fields: { chatId: 1 } });
+    const privateChat = GroupChat.findOne({ users: { $all: [chatID, Auth.userID] } });
 
     filter.chatId = { $ne: PUBLIC_GROUP_CHAT_ID };
 

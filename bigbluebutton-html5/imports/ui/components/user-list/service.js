@@ -205,9 +205,15 @@ const getUsers = () => {
 const hasBreakoutRoom = () => Breakouts.find({ parentMeetingId: Auth.meetingID },
   { fields: {} }).count() > 0;
 
+const isMe = userId => userId === Auth.userID;
+const isUserModerator = (userId) => {
+  const u = Users.findOne({ userId }, { fields: { role: 1 } });
+  return u ? u.role === ROLE_MODERATOR : false;
+};
+
 const getActiveChats = (chatID) => {
   const privateChat = GroupChat
-    .find({ users: { $all: [Auth.userID] } }, { fields: { chatId: 1 } })
+    .find({ users: { $all: [Auth.userID] } })
     .fetch()
     .map(chat => chat.chatId);
 
@@ -231,11 +237,12 @@ const getActiveChats = (chatID) => {
   activeChats = _.uniq(_.compact(activeChats));
 
   activeChats = Users
-    .find({ userId: { $in: activeChats } }, { fields: { userId: 1, name: 1 } })
+    .find({ userId: { $in: activeChats } })
     .map((op) => {
       const activeChat = op;
       activeChat.unreadCounter = UnreadMessages.count(op.userId);
       activeChat.name = op.name;
+      activeChat.isModerator = isUserModerator(op.userId);
       return activeChat;
     });
 
@@ -298,12 +305,6 @@ const areUsersUnmutable = () => {
     return meeting.usersProp.allowModsToUnmuteUsers;
   }
   return false;
-};
-
-const isMe = userId => userId === Auth.userID;
-const isUserModerator = (userId) => {
-  const u = Users.findOne({ userId }, { fields: { role: 1 } });
-  return u ? u.role === ROLE_MODERATOR : false;
 };
 
 const curatedVoiceUser = (intId) => {
