@@ -217,6 +217,7 @@ class MessageForm extends PureComponent {
     }
 
     const handleUserTyping = () => {
+      if (error) return;
       startUserTyping(chatId);
     };
 
