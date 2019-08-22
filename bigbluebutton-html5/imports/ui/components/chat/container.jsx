@@ -112,7 +112,7 @@ export default injectIntl(withTracker(({ intl }) => {
     chatName = receiverUser.name;
     systemMessageIntl = { 0: receiverUser.name };
     title = intl.formatMessage(intlMessages.titlePrivate, systemMessageIntl);
-    partnerIsLoggedOut = !receiverUser.connectionStatus === CONNECTION_STATUS;
+    partnerIsLoggedOut = receiverUser.connectionStatus !== CONNECTION_STATUS;
 
     if (partnerIsLoggedOut) {
       const time = Date.now();
