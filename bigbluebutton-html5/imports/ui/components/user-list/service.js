@@ -160,7 +160,7 @@ const sortChatsByIcon = (a, b) => {
 };
 
 const isPublicChat = chat => (
-  chat.id === 'public'
+  chat.userId === 'public'
 );
 
 const sortChats = (a, b) => {
@@ -231,10 +231,11 @@ const getActiveChats = (chatID) => {
   activeChats = _.uniq(_.compact(activeChats));
 
   activeChats = Users
-    .find({ userId: { $in: activeChats } }, { fields: { userId: 1 } })
+    .find({ userId: { $in: activeChats } }, { fields: { userId: 1, name: 1 } })
     .map((op) => {
       const activeChat = op;
       activeChat.unreadCounter = UnreadMessages.count(op.userId);
+      activeChat.name = op.name;
       return activeChat;
     });
 
@@ -260,7 +261,7 @@ const getActiveChats = (chatID) => {
   activeChats = filteredChatList;
 
   activeChats.push({
-    id: 'public',
+    userId: 'public',
     name: 'Public Chat',
     icon: 'group_chat',
     unreadCounter: UnreadMessages.count(PUBLIC_GROUP_CHAT_ID),
@@ -300,8 +301,10 @@ const areUsersUnmutable = () => {
 };
 
 const isMe = userId => userId === Auth.userID;
-const isModerator = userId => Users.findOne({ userId },
-  { fields: { role: 1 } }).role === ROLE_MODERATOR;
+const isUserModerator = (userId) => {
+  const u = Users.findOne({ userId }, { fields: { role: 1 } });
+  return u ? u.role === ROLE_MODERATOR : false;
+};
 
 const curatedVoiceUser = (intId) => {
   const voiceUser = VoiceUsers.findOne({ intId });
@@ -316,7 +319,7 @@ const curatedVoiceUser = (intId) => {
 const getAvailableActions = (subjectUser, isBreakoutRoom) => {
   const isDialInUser = isVoiceOnlyUser(subjectUser.userId) || subjectUser.phone_user;
 
-  const hasAuthority = isModerator(Auth.userID) || isMe(subjectUser.userId);
+  const hasAuthority = isUserModerator(Auth.userID) || isMe(subjectUser.userId);
   const allowedToChatPrivately = !isMe(subjectUser.userId) && !isDialInUser;
   const voiceUser = curatedVoiceUser(subjectUser.userId);
   const allowedToMuteAudio = hasAuthority
@@ -335,30 +338,30 @@ const getAvailableActions = (subjectUser, isBreakoutRoom) => {
     && !isDialInUser;
 
   // if currentUser is a moderator, allow removing other users
-  const allowedToRemove = isModerator(Auth.userID)
+  const allowedToRemove = isUserModerator(Auth.userID)
     && !isMe(subjectUser.userId)
     && !isBreakoutRoom;
 
-  const allowedToSetPresenter = isModerator(Auth.userID)
+  const allowedToSetPresenter = isUserModerator(Auth.userID)
     && !subjectUser.presenter
     && !isDialInUser;
 
-  const allowedToPromote = isModerator(Auth.userID)
+  const allowedToPromote = isUserModerator(Auth.userID)
     && !isMe(subjectUser.userId)
-    && !isModerator(subjectUser.userId)
+    && !isUserModerator(subjectUser.userId)
     && !isDialInUser
     && !isBreakoutRoom;
 
-  const allowedToDemote = isModerator(Auth.userID)
+  const allowedToDemote = isUserModerator(Auth.userID)
     && !isMe(subjectUser.userId)
-    && isModerator(subjectUser.userId)
+    && isUserModerator(subjectUser.userId)
     && !isDialInUser
     && !isBreakoutRoom;
 
   const allowedToChangeStatus = isMe(subjectUser.userId);
 
-  const allowedToChangeUserLockStatus = isModerator(Auth.userID)
-    && !isModerator(subjectUser.userId) && isMeetingLocked(Auth.meetingID);
+  const allowedToChangeUserLockStatus = isUserModerator(Auth.userID)
+    && !isUserModerator(subjectUser.userId) && isMeetingLocked(Auth.meetingID);
 
   return {
     allowedToChatPrivately,
@@ -472,11 +475,6 @@ const getGroupChatPrivate = (senderUserId, receiver) => {
   if (!hasPrivateChatBetweenUsers(senderUserId, receiver.userId)) {
     makeCall('createGroupChat', receiver);
   }
-};
-
-const isUserModerator = (userId) => {
-  const u = Users.findOne({ userId });
-  return u ? u.role === ROLE_MODERATOR : false;
 };
 
 const toggleUserLock = (userId, lockStatus) => {

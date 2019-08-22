@@ -319,7 +319,7 @@ const maxTimestampReducer = (max, el) => ((el.timestamp > max) ? el.timestamp : 
 const maxNumberReducer = (max, el) => ((el > max) ? el : max);
 
 const getLastMessageTimestampFromChatList = activeChats => activeChats
-  .map(chat => ((chat.id === 'public') ? 'MAIN-PUBLIC-GROUP-CHAT' : chat.id))
+  .map(chat => ((chat.userId === 'public') ? 'MAIN-PUBLIC-GROUP-CHAT' : chat.userId))
   .map(chatId => getAllMessages(chatId).reduce(maxTimestampReducer, 0))
   .reduce(maxNumberReducer, 0);
 

@@ -36,7 +36,7 @@ export default withTracker(() => {
   const checkUnreadMessages = () => {
     const activeChats = userListService.getActiveChats();
     const hasUnreadMessages = activeChats
-      .filter(chat => chat.id !== Session.get('idChatOpen'))
+      .filter(chat => chat.userId !== Session.get('idChatOpen'))
       .some(chat => chat.unreadCounter > 0);
     return hasUnreadMessages;
   };
