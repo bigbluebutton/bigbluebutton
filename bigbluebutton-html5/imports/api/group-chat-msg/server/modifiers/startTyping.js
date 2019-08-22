@@ -25,6 +25,12 @@ export default function startTyping(meetingId, userId, chatId) {
     time: (new Date()),
   };
 
+  const typingUser = UsersTyping.findOne(selector);
+
+  if (typingUser) {
+    if (mod.time - typingUser.time <= 2900) return;
+  }
+
   const cb = (err) => {
     if (err) {
       return Logger.error(`Typing indicator update error: ${err}`);
