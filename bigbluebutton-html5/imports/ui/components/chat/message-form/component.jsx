@@ -25,9 +25,6 @@ const propTypes = {
   partnerIsLoggedOut: PropTypes.bool.isRequired,
   stopUserTyping: PropTypes.func.isRequired,
   startUserTyping: PropTypes.func.isRequired,
-  currentChatPartner: PropTypes.string.isRequired,
-  currentUserId: PropTypes.string.isRequired,
-  typingUsers: PropTypes.arrayOf(Object).isRequired,
 };
 
 const defaultProps = {

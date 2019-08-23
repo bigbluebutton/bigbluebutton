@@ -19,19 +19,20 @@ class TypingIndicatorContainer extends PureComponent {
 export default withTracker(() => {
   const idChatOpen = Session.get('idChatOpen');
 
-  let typingUsers = null;
-  if (idChatOpen === 'public') {
-    typingUsers = UsersTyping.find({
-      meetingId: Auth.meetingID,
-      isTypingTo: PUBLIC_CHAT_KEY,
-    }).fetch();
-  } else {
-    typingUsers = UsersTyping.find({
+  let selector = {
+    meetingId: Auth.meetingID,
+    isTypingTo: PUBLIC_CHAT_KEY,
+  };
+
+  if (idChatOpen !== PUBLIC_CHAT_KEY) {
+    selector = {
       meetingId: Auth.meetingID,
       isTypingTo: Auth.userID,
       userId: idChatOpen,
-    }).fetch();
+    };
   }
+
+  const typingUsers = UsersTyping.find(selector).fetch();
 
   const currentUser = Users.findOne({
     meetingId: Auth.meetingID,
