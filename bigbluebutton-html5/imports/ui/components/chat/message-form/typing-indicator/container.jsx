@@ -7,6 +7,7 @@ import TypingIndicator from './component';
 
 const CHAT_CONFIG = Meteor.settings.public.chat;
 const PUBLIC_CHAT_KEY = CHAT_CONFIG.public_id;
+const TYPING_INDICATOR_ENABLED = CHAT_CONFIG.typingIndicator.enabled;
 
 class TypingIndicatorContainer extends PureComponent {
   render() {
@@ -47,5 +48,6 @@ export default withTracker(() => {
     currentUserId: currentUser ? currentUser.userId : null,
     typingUsers,
     currentChatPartner: idChatOpen,
+    indicatorEnabled: TYPING_INDICATOR_ENABLED,
   };
 })(TypingIndicatorContainer);

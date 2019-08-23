@@ -39,8 +39,11 @@ class TypingIndicator extends PureComponent {
 
   renderIsTypingString() {
     const {
-      intl, typingUsers, currentUserId, currentChatPartner,
+      intl, typingUsers, currentUserId, currentChatPartner, indicatorEnabled,
     } = this.props;
+
+    if (!indicatorEnabled) return null;
+
     let names = [];
 
     names = typingUsers.map((user) => {
