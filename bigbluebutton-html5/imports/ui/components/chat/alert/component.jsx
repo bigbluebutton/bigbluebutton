@@ -204,7 +204,7 @@ class ChatAlert extends PureComponent {
                 const reducedMessage = Service
                   .reduceAndMapGroupMessages(pendingNotificationsByChat[chatId].slice(-5)).pop();
 
-                if (!reducedMessage) return null;
+                if (!reducedMessage || !reducedMessage.sender) return null;
 
                 const content = this
                   .createMessage(reducedMessage.sender.name, reducedMessage.content);
