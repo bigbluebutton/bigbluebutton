@@ -4,7 +4,7 @@ import Users from '/imports/api/users';
 import { UsersTyping } from '/imports/api/group-chat-msg';
 import stopTyping from './stopTyping';
 
-const TYPING_TIMEOUT = 3000;
+const TYPING_TIMEOUT = 5000;
 
 export default function startTyping(meetingId, userId, chatId) {
   check(meetingId, String);
@@ -24,6 +24,16 @@ export default function startTyping(meetingId, userId, chatId) {
     isTypingTo: chatId,
     time: (new Date()),
   };
+
+  const typingUser = UsersTyping.findOne(selector, {
+    fields: {
+      time: 1,
+    },
+  });
+
+  if (typingUser) {
+    if (mod.time - typingUser.time <= TYPING_TIMEOUT - 100) return;
+  }
 
   const cb = (err) => {
     if (err) {

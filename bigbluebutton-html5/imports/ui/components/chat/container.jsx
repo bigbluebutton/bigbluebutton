@@ -3,9 +3,6 @@ import { defineMessages, injectIntl } from 'react-intl';
 import { withTracker } from 'meteor/react-meteor-data';
 import { Session } from 'meteor/session';
 import Auth from '/imports/ui/services/auth';
-import Users from '/imports/api/users';
-import { UsersTyping } from '/imports/api/group-chat-msg';
-import { makeCall } from '/imports/ui/services/api';
 import Chat from './component';
 import ChatService from './service';
 
@@ -41,9 +38,10 @@ class ChatContainer extends PureComponent {
   }
 
   render() {
+    const { children } = this.props;
     return (
       <Chat {...this.props}>
-        {this.props.children}
+        {children}
       </Chat>
     );
   }
@@ -148,28 +146,7 @@ export default injectIntl(withTracker(({ intl }) => {
 
   const { connected: isMeteorConnected } = Meteor.status();
 
-  const typingUsers = UsersTyping.find({
-    meetingId: Auth.meetingID,
-    $or: [
-      { isTypingTo: PUBLIC_CHAT_KEY },
-      { isTypingTo: Auth.userID },
-    ],
-  }).fetch();
-
-  const currentUser = Users.findOne({
-    meetingId: Auth.meetingID,
-    userId: Auth.userID,
-  }, {
-    fields: {
-      userId: 1,
-    },
-  });
-
   return {
-    startUserTyping: chatId => makeCall('startUserTyping', chatId),
-    stopUserTyping: () => makeCall('stopUserTyping'),
-    currentUserId: currentUser ? currentUser.userId : null,
-    typingUsers,
     chatID,
     chatName,
     title,
