@@ -34,7 +34,7 @@ describe('Settings', () => {
     LandingPage.open();
     browser.setValue(LandingPage.usernameInputSelector, 'user');
     browser.setValue(LandingPage.meetingNameInputSelector, 'Demo Meeting Tests');
-    LandingPage.joinWithEnterKey();
+    LandingPage.joinWithButtonClick();
     closeAudioModal();
   });
 

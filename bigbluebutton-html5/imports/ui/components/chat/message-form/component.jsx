@@ -317,6 +317,7 @@ class MessageForm extends PureComponent {
             color="primary"
             icon="send"
             onClick={() => {}}
+            data-test="sendMessageButton"
           />
         </div>
         <TypingIndicatorContainer {...{ error }} />
