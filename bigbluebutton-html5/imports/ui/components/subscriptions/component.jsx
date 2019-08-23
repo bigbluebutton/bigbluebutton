@@ -56,8 +56,9 @@ export default withTracker(() => {
   };
 
   let subscriptionsHandlers = SUBSCRIPTIONS.map((name) => {
-    if (!CHAT_ENABLED && name.indexOf('chat') !== -1) return;
-    if (!TYPING_INDICATOR_ENABLED && name.indexOf('typing') !== -1) return;
+    if ((!TYPING_INDICATOR_ENABLED && name.indexOf('typing') !== -1)
+      || (!CHAT_ENABLED && name.indexOf('chat') !== -1)) return;
+
     return Meteor.subscribe(
       name,
       credentials,
