@@ -81,6 +81,29 @@ class RecordingIndicator extends PureComponent {
       document.activeElement.blur();
     };
 
+    const recordingIndicatorIcon = (
+      <span className={styles.recordingIndicatorIcon}>
+        <svg xmlns="http://www.w3.org/2000/svg" height="100%" version="1" viewBox="0 0 20 20">
+          <g stroke="#FFF" fill="#FFF" strokeLinecap="square">
+            <circle
+              fill="none"
+              strokeWidth="1"
+              r="9"
+              cx="10"
+              cy="10"
+            />
+            <circle
+              stroke={recording ? '#F00' : '#FFF'}
+              fill={recording ? '#F00' : '#FFF'}
+              r="4"
+              cx="10"
+              cy="10"
+            />
+          </g>
+        </svg>
+      </span>
+    );
+
     const showButton = amIModerator && allowStartStopRecording;
 
     const recordMeetingButton = (
@@ -93,9 +116,7 @@ class RecordingIndicator extends PureComponent {
         onClick={recordingToggle}
         onKeyPress={recordingToggle}
       >
-        <span
-          className={recording ? styles.recordingIndicatorON : styles.recordingIndicatorOFF}
-        />
+        {recordingIndicatorIcon}
 
         <div className={styles.presentationTitle}>
           {recording
@@ -137,14 +158,10 @@ class RecordingIndicator extends PureComponent {
                 : intlMessages.notificationRecordingStop)}`}
               className={styles.recordingStatusViewOnly}
             >
+              {recordingIndicatorIcon}
 
-              <span
-                className={recording ? styles.recordingIndicatorON : styles.recordingIndicatorOFF}
-              />
-
-              <div className={styles.presentationTitle}>
-                {recording ? humanizeSeconds(time) : null}
-              </div>
+              {recording
+                ? <div className={styles.presentationTitle}>{humanizeSeconds(time)}</div> : null}
             </div>
           </Tooltip>
         )}
