@@ -282,21 +282,23 @@ class WhiteboardToolbar extends Component {
      * 4. Trigger initial animation for the icons
     */
     // 1st case
-    if (colorSelected.value !== prevState.colorSelected.value) {
-      // 1st case b)
-      if (annotationSelected.value !== 'text') {
+    if (this.thicknessListIconRadius && this.thicknessListIconColor) {
+      if (colorSelected.value !== prevState.colorSelected.value) {
+        // 1st case b)
+        if (annotationSelected.value !== 'text') {
+          this.thicknessListIconColor.beginElement();
+        }
+        // 1st case a)
+        this.colorListIconColor.beginElement();
+        // 2nd case
+      } else if (thicknessSelected.value !== prevState.thicknessSelected.value) {
+        this.thicknessListIconRadius.beginElement();
+        // 3rd case
+      } else if (annotationSelected.value !== 'text'
+        && prevState.annotationSelected.value === 'text') {
+        this.thicknessListIconRadius.beginElement();
         this.thicknessListIconColor.beginElement();
       }
-      // 1st case a)
-      this.colorListIconColor.beginElement();
-      // 2nd case
-    } else if (thicknessSelected.value !== prevState.thicknessSelected.value) {
-      this.thicknessListIconRadius.beginElement();
-      // 3rd case
-    } else if (annotationSelected.value !== 'text'
-      && prevState.annotationSelected.value === 'text') {
-      this.thicknessListIconRadius.beginElement();
-      this.thicknessListIconColor.beginElement();
     }
     // 4th case, initial animation is triggered in componentDidMount
   }
