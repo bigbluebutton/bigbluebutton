@@ -14,6 +14,6 @@ export default function stopUserTyping(credentials) {
   });
 
   if (userTyping) {
-    stopTyping(meetingId, requesterUserId);
+    stopTyping(meetingId, requesterUserId, true);
   }
 }
