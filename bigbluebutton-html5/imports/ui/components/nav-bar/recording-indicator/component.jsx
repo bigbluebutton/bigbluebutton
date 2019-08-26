@@ -102,7 +102,7 @@ class RecordingIndicator extends PureComponent {
     const { time } = this.state;
     if (!record) return null;
 
-    if (!this.interval) {
+    if (!this.interval && recording) {
       this.interval = setInterval(this.incrementTime, 1000);
     }
 
