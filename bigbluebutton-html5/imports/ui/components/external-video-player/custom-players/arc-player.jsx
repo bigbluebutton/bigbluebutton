@@ -3,12 +3,12 @@ import React, { Component } from 'react'
 
 const MATCH_URL = new RegExp("https?:\/\/(\\w+)\.(instructuremedia.com)(\/embed)?\/([-abcdef0-9]+)");
 
-const SDK_URL = 'https://dev22.bigbluebutton.org/dist/instructure-media-1.0.0.js';
+const SDK_URL = 'https://files.instructuremedia.com/instructure-media-script/instructure-media-1.1.0.js';
 
 const EMBED_PATH = "/embed/";
 
-// Util function to load an external SDK
-// or return the SDK if it is already loaded
+// Util function to load an external SDK or return the SDK if it is already loaded
+// From https://github.com/CookPete/react-player/blob/master/src/utils.js
 const resolves = {}
 export function getSDK (url, sdkGlobal, sdkReady = null, isLoaded = () => true, fetchScript = loadScript) {
   if (window[sdkGlobal] && isLoaded(window[sdkGlobal])) {
@@ -34,7 +34,10 @@ export function getSDK (url, sdkGlobal, sdkReady = null, isLoaded = () => true, 
       }
     }
     fetchScript(url, err => {
-      if (err) reject(err)
+      if (err) {
+        reject(err);
+      }
+      window[sdkGlobal] = url;
       if (!sdkReady) {
         onLoaded(window[sdkGlobal])
       }
@@ -60,14 +63,12 @@ export class ArcPlayer extends Component {
   }
 
   load() {
-    console.log("LOAD THE BOIS");
     new Promise((resolve, reject) => {
       this.render();
       resolve();
     })
     .then(() => { return getSDK(SDK_URL, 'ArcPlayer') })
     .then(() => {
-      console.log(this.container);
       this.player = new InstructureMedia.Player('arcPlayerContainer', {
         height: '100%',
         width: '100%',
@@ -76,13 +77,15 @@ export class ArcPlayer extends Component {
           onStateChange: this.onStateChange,
         }
       });
+      this.player.playVideo();
     });
   }
 
   onStateChange(event) {
     console.log('js_api index.development.html onStateChange', event);
-
-    console.log(this.player);
+    this.player.getCurrentTime().then((t) => {
+      this.updateCurrentTime(t.data);
+    });
 
     if (event.data === "CUED") {
       this.props.onReady();
@@ -90,8 +93,10 @@ export class ArcPlayer extends Component {
       this.props.onPlay && this.props.onPlay();
     } else if (event.data === "PAUSED") {
       this.props.onPause && this.props.onPause();
+    } else if (event.data === "SEEKED") {
+      // TODO
     } else if (event.data === "SEEKING") {
-
+      // TODO
     }
   }
 
@@ -113,7 +118,6 @@ export class ArcPlayer extends Component {
 
   getEmbedUrl() {
     let url = this.getHostUrl() + EMBED_PATH + this.getVideoId();
-    console.log(url);
     return url;
   }
 
@@ -154,7 +158,6 @@ export class ArcPlayer extends Component {
   }
 
   getCurrentTime () {
-    //console.log("GET CURRENT TIME");
     return this.currentTime;
   }
 
