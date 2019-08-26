@@ -118,7 +118,6 @@ class ExternalVideoModal extends Component {
                 id="video-modal-input"
                 onChange={this.updateVideoUrlHandler}
                 name="video-modal-input"
-                value={url}
                 placeholder={intl.formatMessage(intlMessages.urlInput)}
                 disabled={sharing}
                 aria-describedby="exernal-video-note"
