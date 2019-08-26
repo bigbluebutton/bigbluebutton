@@ -11,7 +11,7 @@ import { styles } from './styles';
 const intlMessages = defineMessages({
   start: {
     id: 'app.externalVideo.start',
-    description: 'Share youtube video',
+    description: 'Share external video',
   },
   urlError: {
     id: 'app.externalVideo.urlError',
@@ -35,7 +35,7 @@ const intlMessages = defineMessages({
   },
   note: {
     id: 'app.externalVideo.noteLabel',
-    description: 'provides hint about Shared YouTube videos',
+    description: 'provides hint about Shared External videos',
   },
 });
 
@@ -121,10 +121,10 @@ class ExternalVideoModal extends Component {
                 value={url}
                 placeholder={intl.formatMessage(intlMessages.urlInput)}
                 disabled={sharing}
-                aria-describedby="youtube-note"
+                aria-describedby="exernal-video-note"
               />
             </label>
-            <div className={styles.youtubeNote} id="youtube-note">
+            <div className={styles.externalVideoNote} id="external-video-note">
               {intl.formatMessage(intlMessages.note)}
             </div>
           </div>
