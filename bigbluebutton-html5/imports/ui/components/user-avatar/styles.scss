@@ -137,6 +137,14 @@
   &:after {
     content: "";
     background-color: var(--color-off-white);
+    top: 1.375rem;
+    left: 1.375rem;
+    right: auto;
+
+    [dir="rtl"] & {
+      left: auto;
+      right: 1.375rem;
+    }
   }
 }
 
