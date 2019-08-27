@@ -3,7 +3,6 @@ import PropTypes from 'prop-types';
 import Button from '/imports/ui/components/button/component';
 import injectWbResizeEvent from '/imports/ui/components/presentation/resize-wrapper/component';
 import { defineMessages, injectIntl } from 'react-intl';
-import Tooltip from '/imports/ui/components/tooltip/component';
 import cx from 'classnames';
 import { styles } from './styles.scss';
 
@@ -75,22 +74,17 @@ class Polling extends Component {
                   key={pollAnswer.id}
                   className={styles.pollButtonWrapper}
                 >
-                  <Tooltip
-                    key={pollAnswer.id}
-                    title={label}
-                  >
-                    <Button
-                      disabled={!isMeteorConnected}
-                      className={styles.pollingButton}
-                      color="primary"
-                      size="md"
-                      label={label}
-                      key={pollAnswer.key}
-                      onClick={() => handleVote(poll.pollId, pollAnswer)}
-                      aria-labelledby={`pollAnswerLabel${pollAnswer.key}`}
-                      aria-describedby={`pollAnswerDesc${pollAnswer.key}`}
-                    />
-                  </Tooltip>
+                  <Button
+                    disabled={!isMeteorConnected}
+                    className={styles.pollingButton}
+                    color="primary"
+                    size="md"
+                    label={label}
+                    key={pollAnswer.key}
+                    onClick={() => handleVote(poll.pollId, pollAnswer)}
+                    aria-labelledby={`pollAnswerLabel${pollAnswer.key}`}
+                    aria-describedby={`pollAnswerDesc${pollAnswer.key}`}
+                  />
                   <div
                     className={styles.hidden}
                     id={`pollAnswerLabel${pollAnswer.key}`}
