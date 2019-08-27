@@ -204,14 +204,10 @@ class RecordingIndicator extends PureComponent {
                   : intlMessages.notificationRecordingStop)}`}
                 className={styles.recordingStatusViewOnly}
               >
+                {recordingIndicatorIcon}
 
-                <span
-                  className={recording ? styles.recordingIndicatorON : styles.recordingIndicatorOFF}
-                />
-
-                <div className={styles.presentationTitle}>
-                  {recording ? humanizeSeconds(time) : null}
-                </div>
+                {recording
+                  ? <div className={styles.presentationTitle}>{humanizeSeconds(time)}</div> : null}
               </div>
             </Tooltip>
           )}
