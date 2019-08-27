@@ -13,7 +13,7 @@ const loginWithoutAudio = function (username) {
   // login
   LandingPage.open();
   browser.setValue(LandingPage.usernameInputSelector, username);
-  LandingPage.joinWithEnterKey();
+  LandingPage.joinWithButtonClick();
 
   // close audio modal
   browser.waitForExist(ModalPage.modalCloseSelector, WAIT_TIME);

@@ -94,8 +94,10 @@ class UserParticipants extends Component {
     return !isPropsEqual || !isStateEqual;
   }
 
-  componentDidUpdate() {
+  componentDidUpdate(prevProps, prevState) {
     const { selectedUser } = this.state;
+
+    if (selectedUser === prevState.selectedUser) return;
 
     if (selectedUser) {
       const { firstChild } = selectedUser;

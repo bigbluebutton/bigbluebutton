@@ -1,6 +1,5 @@
 import { Meteor } from 'meteor/meteor';
 import { check } from 'meteor/check';
-import { UsersTyping } from '/imports/api/group-chat-msg';
 import RedisPubSub from '/imports/startup/server/redis';
 
 export default function startUserTyping(credentials, chatId) {
@@ -14,13 +13,6 @@ export default function startUserTyping(credentials, chatId) {
   check(meetingId, String);
   check(requesterUserId, String);
   check(chatId, String);
-
-  const userTyping = UsersTyping.findOne({
-    meetingId,
-    userId: requesterUserId,
-  });
-
-  if (userTyping) return;
 
   const payload = {
     chatId: chatId || PUBLIC_GROUP_CHAT_ID,

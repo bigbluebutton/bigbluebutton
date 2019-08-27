@@ -154,7 +154,6 @@ class UserDropdown extends PureComponent {
 
   componentDidUpdate() {
     const { dropdownVisible } = this.props;
-    if (!dropdownVisible) document.activeElement.blur();
     this.checkDropdownDirection();
   }
 

@@ -4,6 +4,7 @@ import cx from 'classnames';
 import TextareaAutosize from 'react-autosize-textarea';
 import browser from 'browser-detect';
 import PropTypes from 'prop-types';
+import TypingIndicatorContainer from './typing-indicator/container';
 import { styles } from './styles.scss';
 import Button from '../../button/component';
 
@@ -22,7 +23,6 @@ const propTypes = {
   connected: PropTypes.bool.isRequired,
   locked: PropTypes.bool.isRequired,
   partnerIsLoggedOut: PropTypes.bool.isRequired,
-  renderIsTypingString: PropTypes.func.isRequired,
   stopUserTyping: PropTypes.func.isRequired,
   startUserTyping: PropTypes.func.isRequired,
 };
@@ -56,10 +56,21 @@ const messages = defineMessages({
   errorChatLocked: {
     id: 'app.chat.locked',
   },
+  singularTyping: {
+    id: 'app.chat.singularTyping',
+    description: 'used to indicate when 1 user is typing',
+  },
+  pluralTyping: {
+    id: 'app.chat.pluralTyping',
+    description: 'used to indicate when multiple user are typing',
+  },
+  severalPeople: {
+    id: 'app.chat.severalPeople',
+    description: 'displayed when 4 or more users are typing',
+  },
 });
 
 const CHAT_ENABLED = Meteor.settings.public.chat.enabled;
-const IS_TYPING_INTERVAL = 2500;
 
 class MessageForm extends PureComponent {
   constructor(props) {
@@ -203,15 +214,8 @@ class MessageForm extends PureComponent {
     }
 
     const handleUserTyping = () => {
+      if (error) return;
       startUserTyping(chatId);
-      setTimeout(() => {
-        const { message: messageState } = this.state;
-        const userStoppedTyping = messageState === '' || message.length === messageState.length;
-        if (userStoppedTyping) {
-          const { stopUserTyping } = this.props;
-          stopUserTyping();
-        }
-      }, IS_TYPING_INTERVAL);
     };
 
     this.setState({
@@ -274,7 +278,6 @@ class MessageForm extends PureComponent {
       disabled,
       className,
       chatAreaId,
-      renderIsTypingString,
     } = this.props;
 
     const { hasErrors, error, message } = this.state;
@@ -314,14 +317,10 @@ class MessageForm extends PureComponent {
             color="primary"
             icon="send"
             onClick={() => {}}
+            data-test="sendMessageButton"
           />
         </div>
-        <div className={error ? styles.error : styles.info}>
-          <span>
-            <span>{error || renderIsTypingString()}</span>
-            {!error && renderIsTypingString() ? <span className={styles.connectingAnimation} /> : null}
-          </span>
-        </div>
+        <TypingIndicatorContainer {...{ error }} />
       </form>
     ) : null;
   }
