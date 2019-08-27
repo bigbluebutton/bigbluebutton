@@ -1147,6 +1147,7 @@ class VideoProvider extends Component {
   }
 
   render() {
+    const { swapLayout } = this.props;
     const { socketOpen } = this.state;
     if (!socketOpen) return null;
 
@@ -1161,6 +1162,7 @@ class VideoProvider extends Component {
         getStats={this.getStats}
         stopGettingStats={this.stopGettingStats}
         enableVideoStats={enableVideoStats}
+        swapLayout={swapLayout}
       />
     );
   }
