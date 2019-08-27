@@ -1,4 +1,4 @@
-import React from 'react';
+import { Component } from 'react';
 import { withTracker } from 'meteor/react-meteor-data';
 import Auth from '/imports/ui/services/auth';
 import logger from '/imports/startup/client/logger';
@@ -9,18 +9,20 @@ import AnnotationsTextService from '/imports/ui/components/whiteboard/annotation
 import AnnotationsLocal from '/imports/ui/components/whiteboard/service';
 import mapUser from '/imports/ui/services/user/mapUser';
 
+
 const CHAT_CONFIG = Meteor.settings.public.chat;
 const CHAT_ENABLED = CHAT_CONFIG.enabled;
 const PUBLIC_GROUP_CHAT_ID = CHAT_CONFIG.public_group_id;
 const PUBLIC_CHAT_TYPE = CHAT_CONFIG.type_public;
+const TYPING_INDICATOR_ENABLED = CHAT_CONFIG.typingIndicator.enabled;
 const SUBSCRIPTIONS = [
   'users', 'meetings', 'polls', 'presentations', 'slides', 'slide-positions', 'captions',
   'voiceUsers', 'whiteboard-multi-user', 'screenshare', 'group-chat',
   'presentation-pods', 'users-settings', 'guestUser', 'users-infos', 'note',
-  'network-information', 'ping-pong',
+  'network-information', 'ping-pong', 'local-settings', 'users-typing',
 ];
 
-class Subscriptions extends React.Component {
+class Subscriptions extends Component {
   componentDidUpdate() {
     const { subscriptionsReady } = this.props;
     if (subscriptionsReady) {
@@ -54,7 +56,9 @@ export default withTracker(() => {
   };
 
   let subscriptionsHandlers = SUBSCRIPTIONS.map((name) => {
-    if (!CHAT_ENABLED && name.indexOf('chat') !== -1) return;
+    if ((!TYPING_INDICATOR_ENABLED && name.indexOf('typing') !== -1)
+      || (!CHAT_ENABLED && name.indexOf('chat') !== -1)) return;
+
     return Meteor.subscribe(
       name,
       credentials,

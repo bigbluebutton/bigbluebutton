@@ -6,6 +6,8 @@ import userListService from '/imports/ui/components/user-list/service';
 import logger from '/imports/startup/client/logger';
 import { defineMessages, injectIntl, intlShape } from 'react-intl';
 import { notify } from '/imports/ui/services/notification';
+import mapUser from '/imports/ui/services/user/mapUser';
+import Users from '/imports/api/users';
 import UserOptions from './component';
 
 const propTypes = {
@@ -14,9 +16,6 @@ const propTypes = {
   muteAllExceptPresenter: PropTypes.func.isRequired,
   setEmojiStatus: PropTypes.func.isRequired,
   meeting: PropTypes.shape({}).isRequired,
-  currentUser: PropTypes.shape({
-    isModerator: PropTypes.bool.isRequired,
-  }).isRequired,
   intl: intlShape.isRequired,
 };
 
@@ -38,11 +37,12 @@ const UserOptionsContainer = withTracker((props) => {
   } = props;
 
   const toggleStatus = () => {
-    users.forEach(id => setEmojiStatus(id, 'none'));
+    users.forEach(user => setEmojiStatus(user.userId, 'none'));
     notify(
       intl.formatMessage(intlMessages.clearStatusMessage), 'info', 'clear_status',
     );
   };
+  const currentUser = Users.findOne({ userId: Auth.userID });
 
   const isMeetingMuteOnStart = () => {
     const { voiceProp } = meeting;
@@ -88,6 +88,7 @@ const UserOptionsContainer = withTracker((props) => {
     users: Service.users(),
     userListService,
     isMeteorConnected: Meteor.status().connected,
+    currentUser: currentUser ? mapUser(currentUser) : {},
   };
 })(UserOptions);
 

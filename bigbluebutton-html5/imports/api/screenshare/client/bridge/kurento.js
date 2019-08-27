@@ -1,4 +1,3 @@
-import Users from '/imports/api/users';
 import Auth from '/imports/ui/services/auth';
 import BridgeService from './service';
 import { fetchWebRTCMappedStunTurnServers } from '/imports/utils/fetchStunTurnServers';
@@ -18,8 +17,6 @@ const getUserId = () => Auth.userID;
 
 const getMeetingId = () => Auth.meetingID;
 
-const getUsername = () => Users.findOne({ userId: getUserId() }).name;
-
 const getSessionToken = () => Auth.sessionToken;
 
 export default class KurentoScreenshareBridge {
@@ -38,13 +35,36 @@ export default class KurentoScreenshareBridge {
         logger,
       };
 
+      const onSuccess = () => {
+        const { webRtcPeer } = window.kurentoManager.kurentoVideo;
+        if (webRtcPeer) {
+          const screenshareTag = document.getElementById(SCREENSHARE_VIDEO_TAG);
+          const stream = webRtcPeer.getRemoteStream();
+          screenshareTag.muted = true;
+          screenshareTag.pause();
+          screenshareTag.srcObject = stream;
+          screenshareTag.play().catch((error) => {
+            // NotAllowedError equals autoplay issues, fire autoplay handling event
+            if (error.name === 'NotAllowedError') {
+              const tagFailedEvent = new CustomEvent('screensharePlayFailed',
+                { detail: { mediaElement: screenshareTag } });
+              window.dispatchEvent(tagFailedEvent);
+            }
+            logger.warn({
+              logCode: 'sfuscreenshareview_play_maybe_error',
+              extraInfo: { error },
+            }, `Screenshare viewer media play failed due to ${error.name}`);
+          });
+        }
+      };
+
       window.kurentoWatchVideo(
         SCREENSHARE_VIDEO_TAG,
         BridgeService.getConferenceBridge(),
         getUserId(),
         getMeetingId(),
         null,
-        null,
+        onSuccess,
         options,
       );
     }

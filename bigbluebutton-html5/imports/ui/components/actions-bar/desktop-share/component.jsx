@@ -81,7 +81,10 @@ const DesktopShare = ({
           },
         }, 'Default error handler for screenshare');
     }
-    screenShareEndAlert();
+    // Don't trigger the screen share end alert if presenter click to cancel on screen share dialog
+    if (error && error.name !== 'NotAllowedError') {
+      screenShareEndAlert();
+    }
   };
 
   const screenshareLocked = screenshareDataSavingSetting

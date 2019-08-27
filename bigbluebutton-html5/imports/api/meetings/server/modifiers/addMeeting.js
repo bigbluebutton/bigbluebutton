@@ -79,6 +79,7 @@ export default function addMeeting(meeting) {
       disablePrivateChat: Boolean,
       disablePublicChat: Boolean,
       disableNote: Boolean,
+      hideUserList: Boolean,
       lockOnJoin: Boolean,
       lockOnJoinConfigurable: Boolean,
       lockedLayout: Boolean,

@@ -92,16 +92,16 @@ class WebcamDraggable extends Component {
     if (mediaContainer) {
       const mediaContainerRect = mediaContainer.getBoundingClientRect();
       const {
-        top, left, width, height,
+        top, left, width: newWidth, height: newHeight,
       } = mediaContainerRect;
 
-      if (mediaState.width === 0 || mediaState.height === 0) {
+      if ((mediaState.width === 0 || mediaState.height === 0) && (newWidth > 0 && newHeight > 0)) {
         webcamDraggableDispatch(
           {
             type: 'setMediaSize',
             value: {
-              width,
-              height,
+              newWidth,
+              newHeight,
             },
           },
         );
@@ -110,8 +110,8 @@ class WebcamDraggable extends Component {
       return {
         top,
         left,
-        width,
-        height,
+        width: newWidth,
+        height: newHeight,
       };
     }
     return false;
@@ -165,12 +165,12 @@ class WebcamDraggable extends Component {
 
   handleWebcamDragStop(e, position) {
     const { webcamDraggableDispatch, singleWebcam } = this.props;
-    const targetClassname = e.target.className;
+    const targetClassname = JSON.stringify(e.target.className);
     const { x, y } = position;
 
-    if (targetClassname.includes('Top')) {
+    if (targetClassname && targetClassname.includes('Top')) {
       webcamDraggableDispatch({ type: 'setplacementToTop' });
-    } else if (targetClassname.includes('Bottom')) {
+    } else if (targetClassname && targetClassname.includes('Bottom')) {
       webcamDraggableDispatch({ type: 'setplacementToBottom' });
     } else if (singleWebcam) {
       webcamDraggableDispatch(

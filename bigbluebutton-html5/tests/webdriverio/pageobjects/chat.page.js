@@ -16,7 +16,7 @@ class ChatPage extends Page {
 
   sendPublicChatMessage(message) {
     this.publicChatElement.setValue(message);
-    pageObject.pressEnter();
+    this.sendMessageButtonElement.click();
   }
 
   // ////////
@@ -73,6 +73,16 @@ class ChatPage extends Page {
 
   copyChat() {
     this.copyChatButtonElement.click();
+  }
+
+  // ////////
+
+  get sendMessageButtonSelector() {
+    return '[data-test=sendMessageButton]';
+  }
+
+  get sendMessageButtonElement() {
+    return $(this.sendMessageButtonSelector);
   }
 }
 

@@ -10,6 +10,29 @@ import CaptionsButtonContainer from '/imports/ui/components/actions-bar/captions
 import PresentationOptionsContainer from './presentation-options/component';
 
 class ActionsBar extends PureComponent {
+  componentDidUpdate(prevProps) {
+    const { isThereCurrentPresentation: prevIsThereCurrPresentation } = prevProps;
+    const {
+      isThereCurrentPresentation,
+      getSwapLayout,
+      toggleSwapLayout,
+      isSharingVideo,
+      isVideoBroadcasting,
+    } = this.props;
+
+    if (!isThereCurrentPresentation && !isSharingVideo && !isVideoBroadcasting) {
+      if (!getSwapLayout()) {
+        toggleSwapLayout();
+      }
+    }
+
+    if (!prevIsThereCurrPresentation && isThereCurrentPresentation && !isSharingVideo && !isVideoBroadcasting) {
+      if (getSwapLayout()) {
+        toggleSwapLayout();
+      }
+    }
+  }
+
   render() {
     const {
       isUserPresenter,
@@ -36,6 +59,7 @@ class ActionsBar extends PureComponent {
       isCaptionsAvailable,
       isMeteorConnected,
       isPollingEnabled,
+      isThereCurrentPresentation,
     } = this.props;
 
     const {
@@ -119,6 +143,7 @@ class ActionsBar extends PureComponent {
             ? (
               <PresentationOptionsContainer
                 toggleSwapLayout={toggleSwapLayout}
+                isThereCurrentPresentation={isThereCurrentPresentation}
               />
             )
             : null

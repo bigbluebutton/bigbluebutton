@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { Session } from 'meteor/session';
-import { log } from '/imports/ui/services/api';
+import logger from '/imports/startup/client/logger';
 import Auth from '/imports/ui/services/auth';
 import LoadingScreen from '/imports/ui/components/loading-screen/component';
 
@@ -43,7 +43,11 @@ class AuthenticatedHandler extends Component {
     AuthenticatedHandler.addReconnectObservable();
 
     const setReason = (reason) => {
-      log('error', reason);
+      logger.error({
+        logCode: 'authenticatedhandlercomponent_setreason',
+        extraInfo: { reason },
+      }, 'Encountered error while trying to authenticate');
+
       AuthenticatedHandler.setError(reason.error);
       callback();
     };

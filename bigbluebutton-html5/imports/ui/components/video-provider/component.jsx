@@ -244,7 +244,7 @@ class VideoProvider extends Component {
   }
 
   componentWillUpdate({ users, userId }) {
-    const usersSharingIds = users.map(u => u.id);
+    const usersSharingIds = users.map(u => u.userId);
     const usersConnected = Object.keys(this.webRtcPeers);
 
     const usersToConnect = usersSharingIds.filter(id => !usersConnected.includes(id));

@@ -575,10 +575,15 @@ class PresentationArea extends PureComponent {
         width: localPosition.width,
         height: localPosition.height,
       };
-    } else {
+    } else if (slidePosition) {
       viewBoxDimensions = {
         width: slidePosition.viewBoxWidth,
         height: slidePosition.viewBoxHeight,
+      };
+    } else {
+      viewBoxDimensions = {
+        width: 0,
+        height: 0,
       };
     }
 

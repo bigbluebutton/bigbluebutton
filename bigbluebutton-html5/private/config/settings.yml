@@ -38,13 +38,6 @@ public:
       dataSaving:
         viewParticipantsWebcams: true
         viewScreenshare: true
-      participants:
-        muteAll: false
-        lockAll: false
-        microphone: false
-        publicChat: false
-        privateChat: false
-        layout: false
     shortcuts:
       openOptions:
         accesskey: O
@@ -178,6 +171,8 @@ public:
     storage_key: UNREAD_CHATS
     system_messages_keys:
       chat_clear: PUBLIC_CHAT_CLEAR
+    typingIndicator:
+      enabled: true
   note:
     enabled: false
     url: ETHERPAD_HOST

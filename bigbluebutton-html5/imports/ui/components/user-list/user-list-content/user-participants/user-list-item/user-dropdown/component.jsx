@@ -11,6 +11,7 @@ import DropdownList from '/imports/ui/components/dropdown/list/component';
 import DropdownListItem from '/imports/ui/components/dropdown/list/item/component';
 import DropdownListSeparator from '/imports/ui/components/dropdown/list/separator/component';
 import lockContextContainer from '/imports/ui/components/lock-viewers/context/container';
+
 import _ from 'lodash';
 import { Session } from 'meteor/session';
 import { styles } from './styles';
@@ -111,7 +112,7 @@ const propTypes = {
   getScrollContainerRef: PropTypes.func.isRequired,
   toggleUserLock: PropTypes.func.isRequired,
 };
-
+const ROLE_MODERATOR = Meteor.settings.public.user.role_moderator;
 const CHAT_ENABLED = Meteor.settings.public.chat.enabled;
 
 class UserDropdown extends PureComponent {
@@ -152,10 +153,12 @@ class UserDropdown extends PureComponent {
   }
 
   componentDidUpdate() {
+    const { dropdownVisible } = this.props;
     this.checkDropdownDirection();
   }
 
   onActionsShow() {
+    Session.set('dropdownOpen', true);
     const { getScrollContainerRef } = this.props;
     const dropdown = this.getDropdownMenuParent();
     const scrollContainer = getScrollContainerRef();
@@ -192,6 +195,8 @@ class UserDropdown extends PureComponent {
     if (callback) {
       return callback;
     }
+
+    return Session.set('dropdownOpen', false);
   }
 
   getUsersActions() {
@@ -236,11 +241,11 @@ class UserDropdown extends PureComponent {
 
     const { disablePrivateChat } = lockSettingsProps;
 
-    const enablePrivateChat = currentUser.isModerator
+    const enablePrivateChat = currentUser.role === ROLE_MODERATOR
       ? allowedToChatPrivately
       : allowedToChatPrivately
-      && (!(currentUser.isLocked && disablePrivateChat)
-        || hasPrivateChatBetweenUsers(currentUser, user)
+      && (!(currentUser.locked && disablePrivateChat)
+        || hasPrivateChatBetweenUsers(currentUser.userId, user.id)
         || user.isModerator) && isMeteorConnected;
 
     const { allowUserLookup } = Meteor.settings.public.app;
@@ -250,7 +255,12 @@ class UserDropdown extends PureComponent {
         actions.push(this.makeDropdownItem(
           'back',
           intl.formatMessage(messages.backTriggerLabel),
-          () => this.setState({ showNestedOptions: false, isActionsOpen: true }),
+          () => this.setState(
+            {
+              showNestedOptions: false,
+              isActionsOpen: true,
+            }, Session.set('dropdownOpen', true),
+          ),
           'left_arrow',
         ));
       }
@@ -261,7 +271,7 @@ class UserDropdown extends PureComponent {
       statuses.map(status => actions.push(this.makeDropdownItem(
         status,
         intl.formatMessage({ id: `app.actionsBar.emojiMenu.${status}Label` }),
-        () => { handleEmojiChange(status); this.resetMenuState(); },
+        () => { handleEmojiChange(user.id, status); this.resetMenuState(); },
         getEmojiList[status],
       )));
 
@@ -272,7 +282,12 @@ class UserDropdown extends PureComponent {
       actions.push(this.makeDropdownItem(
         'setstatus',
         intl.formatMessage(messages.statusTriggerLabel),
-        () => this.setState({ showNestedOptions: true, isActionsOpen: true }),
+        () => this.setState(
+          {
+            showNestedOptions: true,
+            isActionsOpen: true,
+          }, Session.set('dropdownOpen', true),
+        ),
         'user',
         'right_arrow',
       ));
@@ -439,7 +454,8 @@ class UserDropdown extends PureComponent {
       );
 
       if (!isDropdownVisible) {
-        const offsetPageTop = (dropdownTrigger.offsetTop + dropdownTrigger.offsetHeight) - scrollContainer.scrollTop;
+        const { offsetTop, offsetHeight } = dropdownTrigger;
+        const offsetPageTop = (offsetTop + offsetHeight) - scrollContainer.scrollTop;
 
         nextState.dropdownOffset = window.innerHeight - offsetPageTop;
         nextState.dropdownDirection = 'bottom';
@@ -519,8 +535,7 @@ class UserDropdown extends PureComponent {
     const actions = this.getUsersActions();
 
     const userItemContentsStyle = {};
-
-    const { isModerator } = currentUser;
+    const { role } = currentUser;
 
     userItemContentsStyle[styles.dropdown] = true;
     userItemContentsStyle[styles.userListItem] = !isActionsOpen;
@@ -565,7 +580,7 @@ class UserDropdown extends PureComponent {
           {<UserIcons
             {...{
               user,
-              isModerator,
+              isModerator: role === ROLE_MODERATOR,
             }}
           />}
         </div>
