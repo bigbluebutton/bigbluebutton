@@ -15,8 +15,9 @@ class NoteContainer extends PureComponent {
 
 export default withTracker(() => {
   const isLocked = NoteService.isLocked();
-
+  const isRTL = document.documentElement.getAttribute('dir') === 'rtl';
   return {
     isLocked,
+    isRTL,
   };
 })(NoteContainer);
