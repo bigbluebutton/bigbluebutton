@@ -34,7 +34,7 @@ function shouldShowScreenshare() {
 }
 
 function shouldShowExternalVideo() {
-  const enableExternalVideo = Meteor.settings.public.app.enableExternalVideo;
+  const { enabled: enableExternalVideo } = Meteor.settings.public.externalVideoPlayer;
   return enableExternalVideo && getVideoUrl();
 }
 
@@ -59,7 +59,7 @@ const toggleSwapLayout = () => {
 
 export const shouldEnableSwapLayout = () => {
   const { viewParticipantsWebcams } = Settings.dataSaving;
-  const usersVideo = VideoService.getAllUsersVideo();
+  const usersVideo = VideoService.getAllWebcamUsers();
   const poll = PollingService.mapPolls();
 
   return usersVideo.length > 0 // prevent swap without any webcams

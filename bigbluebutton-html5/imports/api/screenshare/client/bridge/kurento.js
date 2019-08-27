@@ -1,4 +1,3 @@
-import Users from '/imports/api/users';
 import Auth from '/imports/ui/services/auth';
 import BridgeService from './service';
 import { fetchWebRTCMappedStunTurnServers } from '/imports/utils/fetchStunTurnServers';
@@ -18,33 +17,7 @@ const getUserId = () => Auth.userID;
 
 const getMeetingId = () => Auth.meetingID;
 
-const getUsername = () => Users.findOne({ userId: getUserId() }).name;
-
 const getSessionToken = () => Auth.sessionToken;
-
-const logFunc = (type, message, options) => {
-  const userId = getUserId();
-  const userName = getUsername();
-
-  const topic = options.topic || 'screenshare';
-
-  logger[type]({ obj: Object.assign(options, { userId, userName, topic }) }, `[${topic}] ${message}`);
-};
-
-const modLogger = {
-  info(message, options = {}) {
-    logFunc('info', message, options);
-  },
-  error(message, options = {}) {
-    logFunc('error', message, options);
-  },
-  debug(message, options = {}) {
-    logFunc('debug', message, options);
-  },
-  warn: (message, options = {}) => {
-    logFunc('warn', message, options);
-  },
-};
 
 export default class KurentoScreenshareBridge {
   async kurentoWatchVideo() {
@@ -53,12 +26,36 @@ export default class KurentoScreenshareBridge {
     try {
       iceServers = await fetchWebRTCMappedStunTurnServers(getSessionToken());
     } catch (error) {
-      logger.error({ logCode: 'kurentowatchvideo_fetchstunturninfo_error' }, 'Screenshare bridge failed to fetch STUN/TURN info, using default');
+      logger.error({ logCode: 'sfuviewscreen_fetchstunturninfo_error', extraInfo: { error } },
+        'Screenshare bridge failed to fetch STUN/TURN info, using default');
     } finally {
       const options = {
         wsUrl: Auth.authenticateURL(SFU_URL),
         iceServers,
-        logger: modLogger,
+        logger,
+      };
+
+      const onSuccess = () => {
+        const { webRtcPeer } = window.kurentoManager.kurentoVideo;
+        if (webRtcPeer) {
+          const screenshareTag = document.getElementById(SCREENSHARE_VIDEO_TAG);
+          const stream = webRtcPeer.getRemoteStream();
+          screenshareTag.muted = true;
+          screenshareTag.pause();
+          screenshareTag.srcObject = stream;
+          screenshareTag.play().catch((error) => {
+            // NotAllowedError equals autoplay issues, fire autoplay handling event
+            if (error.name === 'NotAllowedError') {
+              const tagFailedEvent = new CustomEvent('screensharePlayFailed',
+                { detail: { mediaElement: screenshareTag } });
+              window.dispatchEvent(tagFailedEvent);
+            }
+            logger.warn({
+              logCode: 'sfuscreenshareview_play_maybe_error',
+              extraInfo: { error },
+            }, `Screenshare viewer media play failed due to ${error.name}`);
+          });
+        }
       };
 
       window.kurentoWatchVideo(
@@ -67,7 +64,7 @@ export default class KurentoScreenshareBridge {
         getUserId(),
         getMeetingId(),
         null,
-        null,
+        onSuccess,
         options,
       );
     }
@@ -82,7 +79,8 @@ export default class KurentoScreenshareBridge {
     try {
       iceServers = await fetchWebRTCMappedStunTurnServers(getSessionToken());
     } catch (error) {
-      logger.error({ logCode: 'kurentosharescreen_fetchstunturninfo_error' }, 'Screenshare bridge failed to fetch STUN/TURN info, using default');
+      logger.error({ logCode: 'sfusharescreen_fetchstunturninfo_error' },
+        'Screenshare bridge failed to fetch STUN/TURN info, using default');
     } finally {
       const options = {
         wsUrl: Auth.authenticateURL(SFU_URL),
@@ -90,7 +88,7 @@ export default class KurentoScreenshareBridge {
         chromeScreenshareSources: CHROME_SCREENSHARE_SOURCES,
         firefoxScreenshareSource: FIREFOX_SCREENSHARE_SOURCE,
         iceServers,
-        logger: modLogger,
+        logger,
       };
       window.kurentoShareScreen(
         SCREENSHARE_VIDEO_TAG,

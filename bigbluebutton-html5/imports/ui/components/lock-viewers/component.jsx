@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { Fragment } from 'react';
 import { defineMessages, injectIntl } from 'react-intl';
 import Toggle from '/imports/ui/components/switch/component';
 import cx from 'classnames';
@@ -33,33 +33,39 @@ const intlMessages = defineMessages({
   },
   webcamLabel: {
     id: 'app.lock-viewers.webcamLabel',
-    description: 'description for close button',
+    description: 'label for webcam toggle',
   },
   otherViewersWebcamLabel: {
     id: 'app.lock-viewers.otherViewersWebcamLabel',
-    description: 'description for close button',
+    description: 'label for other viewers webcam toggle',
   },
   microphoneLable: {
     id: 'app.lock-viewers.microphoneLable',
-    description: 'description for close button',
+    description: 'label for microphone toggle',
   },
   publicChatLabel: {
     id: 'app.lock-viewers.PublicChatLabel',
-    description: 'description for close button',
+    description: 'label for public chat toggle',
   },
   privateChatLable: {
     id: 'app.lock-viewers.PrivateChatLable',
-    description: 'description for close button',
+    description: 'label for private chat toggle',
   },
   notesLabel: {
     id: 'app.lock-viewers.notesLabel',
-    description: 'description for close button',
+    description: 'label for shared notes toggle',
+  },
+  userListLabel: {
+    id: 'app.lock-viewers.userListLabel',
+    description: 'label for user list toggle',
   },
   ariaModalTitle: {
     id: 'app.lock-viewers.ariaTitle',
     description: 'aria label for modal title',
   },
 });
+
+const CHAT_ENABLED = Meteor.settings.public.chat.enabled;
 
 class LockViewersComponent extends React.PureComponent {
   render() {
@@ -159,75 +165,107 @@ class LockViewersComponent extends React.PureComponent {
                 </div>
               </div>
             </div>
-            <div className={styles.row}>
-              <div className={styles.col} aria-hidden="true">
-                <div className={styles.formElement}>
-                  <div className={styles.label}>
-                    {intl.formatMessage(intlMessages.publicChatLabel)}
+
+            {CHAT_ENABLED ? (
+              <Fragment>
+                <div className={styles.row}>
+                  <div className={styles.col} aria-hidden="true">
+                    <div className={styles.formElement}>
+                      <div className={styles.label}>
+                        {intl.formatMessage(intlMessages.publicChatLabel)}
+                      </div>
+                    </div>
                   </div>
-                </div>
-              </div>
-              <div className={styles.col}>
-                <div className={cx(styles.formElement, styles.pullContentRight)}>
-                  <Toggle
-                    icons={false}
-                    defaultChecked={meeting.lockSettingsProps.disablePublicChat}
-                    onChange={() => {
-                      meeting.lockSettingsProps.disablePublicChat = !meeting.lockSettingsProps.disablePublicChat;
-                      toggleLockSettings(meeting);
-                    }}
-                    ariaLabel={intl.formatMessage(intlMessages.publicChatLabel)}
-                  />
-                </div>
-              </div>
-            </div>
-            <div className={styles.row}>
-              <div className={styles.col} aria-hidden="true">
-                <div className={styles.formElement}>
-                  <div className={styles.label}>
-                    {intl.formatMessage(intlMessages.privateChatLable)}
-                  </div>
-                </div>
-              </div>
-              <div className={styles.col}>
-                <div className={cx(styles.formElement, styles.pullContentRight)}>
-                  <Toggle
-                    icons={false}
-                    defaultChecked={meeting.lockSettingsProps.disablePrivateChat}
-                    onChange={() => {
-                      meeting.lockSettingsProps.disablePrivateChat = !meeting.lockSettingsProps.disablePrivateChat;
-                      toggleLockSettings(meeting);
-                    }}
-                    ariaLabel={intl.formatMessage(intlMessages.privateChatLable)}
-                  />
-                </div>
-              </div>
-            </div>
-            { NoteService.isEnabled() ?
-              (<div className={styles.row}>
-                <div className={styles.col} aria-hidden="true">
-                  <div className={styles.formElement}>
-                    <div className={styles.label}>
-                      {intl.formatMessage(intlMessages.notesLabel)}
+                  <div className={styles.col}>
+                    <div className={cx(styles.formElement, styles.pullContentRight)}>
+                      <Toggle
+                        icons={false}
+                        defaultChecked={meeting.lockSettingsProps.disablePublicChat}
+                        onChange={() => {
+                          meeting.lockSettingsProps.disablePublicChat = !meeting.lockSettingsProps.disablePublicChat;
+                          toggleLockSettings(meeting);
+                        }}
+                        ariaLabel={intl.formatMessage(intlMessages.publicChatLabel)}
+                      />
                     </div>
                   </div>
                 </div>
-                <div className={styles.col}>
-                  <div className={cx(styles.formElement, styles.pullContentRight)}>
-                    <Toggle
-                      icons={false}
-                      defaultChecked={meeting.lockSettingsProps.disableNote}
-                      onChange={() => {
-                        meeting.lockSettingsProps.disableNote = !meeting.lockSettingsProps.disableNote;
-                        toggleLockSettings(meeting);
-                      }}
-                      ariaLabel={intl.formatMessage(intlMessages.notesLabel)}
-                    />
+                <div className={styles.row}>
+                  <div className={styles.col} aria-hidden="true">
+                    <div className={styles.formElement}>
+                      <div className={styles.label}>
+                        {intl.formatMessage(intlMessages.privateChatLable)}
+                      </div>
+                    </div>
+                  </div>
+                  <div className={styles.col}>
+                    <div className={cx(styles.formElement, styles.pullContentRight)}>
+                      <Toggle
+                        icons={false}
+                        defaultChecked={meeting.lockSettingsProps.disablePrivateChat}
+                        onChange={() => {
+                          meeting.lockSettingsProps.disablePrivateChat = !meeting.lockSettingsProps.disablePrivateChat;
+                          toggleLockSettings(meeting);
+                        }}
+                        ariaLabel={intl.formatMessage(intlMessages.privateChatLable)}
+                      />
+                    </div>
                   </div>
                 </div>
-              </div>)
+              </Fragment>
+            ) : null
+            }
+
+            { NoteService.isEnabled()
+              ? (
+                <div className={styles.row}>
+                  <div className={styles.col} aria-hidden="true">
+                    <div className={styles.formElement}>
+                      <div className={styles.label}>
+                        {intl.formatMessage(intlMessages.notesLabel)}
+                      </div>
+                    </div>
+                  </div>
+                  <div className={styles.col}>
+                    <div className={cx(styles.formElement, styles.pullContentRight)}>
+                      <Toggle
+                        icons={false}
+                        defaultChecked={meeting.lockSettingsProps.disableNote}
+                        onChange={() => {
+                          meeting.lockSettingsProps.disableNote = !meeting.lockSettingsProps.disableNote;
+                          toggleLockSettings(meeting);
+                        }}
+                        ariaLabel={intl.formatMessage(intlMessages.notesLabel)}
+                      />
+                    </div>
+                  </div>
+                </div>
+              )
               : null
             }
+
+            <div className={styles.row}>
+              <div className={styles.col} aria-hidden="true">
+                <div className={styles.formElement}>
+                  <div className={styles.label}>
+                    {intl.formatMessage(intlMessages.userListLabel)}
+                  </div>
+                </div>
+              </div>
+              <div className={styles.col}>
+                <div className={cx(styles.formElement, styles.pullContentRight)}>
+                  <Toggle
+                    icons={false}
+                    defaultChecked={meeting.lockSettingsProps.hideUserList}
+                    onChange={() => {
+                      meeting.lockSettingsProps.hideUserList = !meeting.lockSettingsProps.hideUserList;
+                      toggleLockSettings(meeting);
+                    }}
+                    ariaLabel={intl.formatMessage(intlMessages.userListLabel)}
+                  />
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </Modal>

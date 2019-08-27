@@ -3,6 +3,7 @@ import Draggable from 'react-draggable';
 import cx from 'classnames';
 import _ from 'lodash';
 import browser from 'browser-detect';
+import PropTypes from 'prop-types';
 import { withDraggableContext } from './context';
 import VideoProviderContainer from '/imports/ui/components/video-provider/container';
 import { styles } from '../styles.scss';
@@ -11,16 +12,39 @@ import Storage from '../../../services/storage/session';
 const { webcamsDefaultPlacement } = Meteor.settings.public.layout;
 const BROWSER_ISMOBILE = browser().mobile;
 
+const propTypes = {
+  swapLayout: PropTypes.bool,
+  singleWebcam: PropTypes.bool,
+  hideOverlay: PropTypes.bool,
+  disableVideo: PropTypes.bool,
+  audioModalIsOpen: PropTypes.bool,
+  webcamDraggableState: PropTypes.objectOf(Object).isRequired,
+  webcamDraggableDispatch: PropTypes.func.isRequired,
+  refMediaContainer: PropTypes.shape({ current: PropTypes.instanceOf(Element) }),
+};
+
+const defaultProps = {
+  swapLayout: false,
+  singleWebcam: true,
+  hideOverlay: false,
+  disableVideo: false,
+  audioModalIsOpen: false,
+  refMediaContainer: null,
+};
+
 class WebcamDraggable extends Component {
   constructor(props) {
     super(props);
 
     this.handleWebcamDragStart = this.handleWebcamDragStart.bind(this);
     this.handleWebcamDragStop = this.handleWebcamDragStop.bind(this);
+    this.onFullscreenChange = this.onFullscreenChange.bind(this);
+    this.debouncedOnResize = _.debounce(this.onResize.bind(this), 500);
   }
 
   componentDidMount() {
-    window.addEventListener('resize', _.debounce(this.onResize.bind(this), 500));
+    window.addEventListener('resize', this.debouncedOnResize);
+    document.addEventListener('fullscreenchange', this.onFullscreenChange);
   }
 
   componentDidUpdate(prevProps) {
@@ -28,6 +52,15 @@ class WebcamDraggable extends Component {
     if (prevProps.swapLayout === true && swapLayout === false) {
       setTimeout(() => this.forceUpdate(), 500);
     }
+  }
+
+  componentWillUnmount() {
+    window.removeEventListener('resize', this.debouncedOnResize);
+    document.removeEventListener('fullscreenchange', this.onFullscreenChange);
+  }
+
+  onFullscreenChange() {
+    this.forceUpdate();
   }
 
   onResize() {
@@ -56,16 +89,16 @@ class WebcamDraggable extends Component {
     if (mediaContainer) {
       const mediaContainerRect = mediaContainer.getBoundingClientRect();
       const {
-        top, left, width, height,
+        top, left, width: newWidth, height: newHeight,
       } = mediaContainerRect;
 
-      if (mediaState.width === 0 || mediaState.height === 0) {
+      if ((mediaState.width === 0 || mediaState.height === 0) && (newWidth > 0 && newHeight > 0)) {
         webcamDraggableDispatch(
           {
             type: 'setMediaSize',
             value: {
-              width,
-              height,
+              newWidth,
+              newHeight,
             },
           },
         );
@@ -74,8 +107,8 @@ class WebcamDraggable extends Component {
       return {
         top,
         left,
-        width,
-        height,
+        width: newWidth,
+        height: newHeight,
       };
     }
     return false;
@@ -129,12 +162,12 @@ class WebcamDraggable extends Component {
 
   handleWebcamDragStop(e, position) {
     const { webcamDraggableDispatch, singleWebcam } = this.props;
-    const targetClassname = e.target.className;
+    const targetClassname = JSON.stringify(e.target.className);
     const { x, y } = position;
 
-    if (targetClassname.includes('Top')) {
+    if (targetClassname && targetClassname.includes('Top')) {
       webcamDraggableDispatch({ type: 'setplacementToTop' });
-    } else if (targetClassname.includes('Bottom')) {
+    } else if (targetClassname && targetClassname.includes('Bottom')) {
       webcamDraggableDispatch({ type: 'setplacementToBottom' });
     } else if (singleWebcam) {
       webcamDraggableDispatch(
@@ -162,7 +195,7 @@ class WebcamDraggable extends Component {
       audioModalIsOpen,
     } = this.props;
 
-    const { dragging, isFullscreen } = webcamDraggableState;
+    const { dragging, isCameraFullscreen } = webcamDraggableState;
     let placement = Storage.getItem('webcamPlacement');
     const lastPosition = Storage.getItem('webcamLastPosition') || { x: 0, y: 0 };
     let position = lastPosition;
@@ -181,7 +214,7 @@ class WebcamDraggable extends Component {
       };
     }
 
-    if (swapLayout || isFullscreen || BROWSER_ISMOBILE) {
+    if (swapLayout || isCameraFullscreen || BROWSER_ISMOBILE) {
       position = {
         x: 0,
         y: 0,
@@ -230,14 +263,14 @@ class WebcamDraggable extends Component {
       [styles.dropZoneTop]: true,
       [styles.show]: dragging,
       [styles.hide]: !dragging,
-      [styles.cursorGrabbing]: dragging,
+      [styles.cursorGrabbing]: dragging && !isCameraFullscreen,
     });
 
     const dropZoneBottomClassName = cx({
       [styles.dropZoneBottom]: true,
       [styles.show]: dragging,
       [styles.hide]: !dragging,
-      [styles.cursorGrabbing]: dragging,
+      [styles.cursorGrabbing]: dragging && !isCameraFullscreen,
     });
 
     const dropZoneBgTopClassName = cx({
@@ -265,7 +298,7 @@ class WebcamDraggable extends Component {
           onStart={this.handleWebcamDragStart}
           onStop={this.handleWebcamDragStop}
           onMouseDown={e => e.preventDefault()}
-          disabled={swapLayout || isFullscreen || BROWSER_ISMOBILE}
+          disabled={swapLayout || isCameraFullscreen || BROWSER_ISMOBILE}
           position={position}
         >
           <div
@@ -301,5 +334,8 @@ class WebcamDraggable extends Component {
     );
   }
 }
+
+WebcamDraggable.propTypes = propTypes;
+WebcamDraggable.defaultProps = defaultProps;
 
 export default withDraggableContext(WebcamDraggable);

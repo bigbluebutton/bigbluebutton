@@ -17,6 +17,7 @@ export default class BaseAudioBridge {
       ended: 'ended',
       failed: 'failed',
       reconnecting: 'reconnecting',
+      autoplayBlocked: 'autoplayBlocked',
     };
   }
 

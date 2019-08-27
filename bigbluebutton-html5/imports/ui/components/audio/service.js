@@ -3,6 +3,9 @@ import Auth from '/imports/ui/services/auth';
 import AudioManager from '/imports/ui/services/audio-manager';
 import Meetings from '/imports/api/meetings';
 import mapUser from '/imports/ui/services/user/mapUser';
+import { makeCall } from '/imports/ui/services/api';
+import VoiceUsers from '/imports/api/voice-users';
+import logger from '/imports/startup/client/logger';
 
 const ROLE_MODERATOR = Meteor.settings.public.user.role_moderator;
 
@@ -34,6 +37,26 @@ const init = (messages, intl) => {
 
 const currentUser = () => mapUser(Users.findOne({ intId: Auth.userID }));
 
+const toggleMuteMicrophone = () => {
+  const userIsMuted = VoiceUsers.findOne({
+    meetingId: Auth.meetingID, intId: Auth.userID,
+  }, { fields: { muted: 1 } });
+
+  if (userIsMuted) {
+    logger.info({
+      logCode: 'audiomanager_unmute_audio',
+      extraInfo: { logType: 'user_action' },
+    }, 'microphone unmuted by user');
+    makeCall('toggleSelfVoice');
+  } else {
+    logger.info({
+      logCode: 'audiomanager_mute_audio',
+      extraInfo: { logType: 'user_action' },
+    }, 'microphone muted by user');
+    makeCall('toggleSelfVoice');
+  }
+};
+
 export default {
   init,
   exitAudio: () => AudioManager.exitAudio(),
@@ -41,7 +64,7 @@ export default {
   joinListenOnly: () => AudioManager.joinListenOnly(),
   joinMicrophone: () => AudioManager.joinMicrophone(),
   joinEchoTest: () => AudioManager.joinEchoTest(),
-  toggleMuteMicrophone: () => AudioManager.toggleMuteMicrophone(),
+  toggleMuteMicrophone,
   changeInputDevice: inputDeviceId => AudioManager.changeInputDevice(inputDeviceId),
   changeOutputDevice: outputDeviceId => AudioManager.changeOutputDevice(outputDeviceId),
   isConnected: () => AudioManager.isConnected,
@@ -58,4 +81,6 @@ export default {
   error: () => AudioManager.error,
   isUserModerator: () => Users.findOne({ userId: Auth.userID }).role === ROLE_MODERATOR,
   currentUser,
+  autoplayBlocked: () => AudioManager.autoplayBlocked,
+  handleAllowAutoplay: () => AudioManager.handleAllowAutoplay(),
 };

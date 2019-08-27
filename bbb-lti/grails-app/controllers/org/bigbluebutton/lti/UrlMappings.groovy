@@ -21,13 +21,13 @@ package org.bigbluebutton.lti
 class UrlMappings {
 
   static mappings = {
-    "/$controller/$action?/$id?(.$format)?" {
+    "/lti/$controller/$action?/$id?(.$format)?" {
       constraints {
         // apply constraints here
       }
     }
 
-    "/"(controller: "tool")
+    "/lti/"(controller: "tool")
     "500"(view: '/error')
   }
 }

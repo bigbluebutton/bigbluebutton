@@ -73,14 +73,6 @@ const propTypes = {
     fontSize: PropTypes.string,
     locale: PropTypes.string,
   }).isRequired,
-  participants: PropTypes.shape({
-    layout: PropTypes.bool,
-    lockAll: PropTypes.bool,
-    microphone: PropTypes.bool,
-    muteAll: PropTypes.bool,
-    privateChat: PropTypes.bool,
-    publicChat: PropTypes.bool,
-  }).isRequired,
   updateSettings: PropTypes.func.isRequired,
   availableLocales: PropTypes.objectOf(PropTypes.array).isRequired,
   mountModal: PropTypes.func.isRequired,
@@ -95,19 +87,17 @@ class Settings extends Component {
     super(props);
 
     const {
-      dataSaving, participants, application,
+      dataSaving, application,
     } = props;
 
     this.state = {
       current: {
         dataSaving: _.clone(dataSaving),
         application: _.clone(application),
-        participants: _.clone(participants),
       },
       saved: {
         dataSaving: _.clone(dataSaving),
         application: _.clone(application),
-        participants: _.clone(participants),
       },
       selectedTab: 0,
     };
@@ -202,14 +192,6 @@ class Settings extends Component {
             handleUpdateSettings={this.handleUpdateSettings}
           />
         </TabPanel>
-        {/* { isModerator ? */}
-        {/* <TabPanel className={styles.tabPanel}> */}
-        {/* <Participants */}
-        {/* settings={this.state.current.participants} */}
-        {/* handleUpdateSettings={this.handleUpdateSettings} */}
-        {/* /> */}
-        {/* </TabPanel> */}
-        {/* : null } */}
       </Tabs>
     );
   }

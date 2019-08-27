@@ -9,7 +9,6 @@ import org.bigbluebutton.api.ApiErrors
 import org.bigbluebutton.api.ApiParams
 import org.apache.commons.lang3.StringUtils
 import org.json.JSONArray
-import org.springframework.web.multipart.commons.CommonsMultipartFile
 import org.apache.commons.lang.LocaleUtils
 
 class RecordingController {
@@ -184,11 +183,7 @@ class RecordingController {
 
     def uploadedCaptionsFile = request.getFile('file')
     if (uploadedCaptionsFile && !uploadedCaptionsFile.empty) {
-      CommonsMultipartFile contentType = uploadedCaptionsFile.contentType
-      def fileContentType = null
-      if (contentType != null) {
-        fileContentType = contentType.getContentType()
-      }
+      def fileContentType = uploadedCaptionsFile.getContentType()
       log.debug("Captions content type: " + fileContentType)
       def origFilename = uploadedCaptionsFile.getOriginalFilename()
       def trackId = recordId + "-" + System.currentTimeMillis()

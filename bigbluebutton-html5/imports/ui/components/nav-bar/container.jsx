@@ -44,7 +44,7 @@ export default withTracker(() => {
     return hasUnreadMessages;
   };
 
-  Meetings.find({ meetingId: Auth.meetingID }).observeChanges({
+  Meetings.find({ meetingId: Auth.meetingID }, { fields: { recordProp: 1 } }).observeChanges({
     changed: (id, fields) => {
       if (fields.recordProp && fields.recordProp.recording) {
         this.window.parent.postMessage({ response: 'recordingStarted' }, '*');

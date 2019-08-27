@@ -1,7 +1,9 @@
 import React, { Component } from 'react';
-import { defineMessages, injectIntl } from 'react-intl';
+import { defineMessages, injectIntl, intlShape } from 'react-intl';
 import { withModalMounter } from '/imports/ui/components/modal/service';
 import Modal from '/imports/ui/components/modal/fullscreen/component';
+import logger from '/imports/startup/client/logger';
+import PropTypes from 'prop-types';
 import AudioService from '../audio/service';
 import VideoService from '../video-provider/service';
 import { styles } from './styles';
@@ -37,6 +39,19 @@ const intlMessages = defineMessages({
   },
 });
 
+const propTypes = {
+  intl: intlShape.isRequired,
+  breakout: PropTypes.objectOf(Object).isRequired,
+  getURL: PropTypes.func.isRequired,
+  mountModal: PropTypes.func.isRequired,
+  breakoutURL: PropTypes.string.isRequired,
+  isFreeJoin: PropTypes.bool.isRequired,
+  voiceUserJoined: PropTypes.bool.isRequired,
+  requestJoinURL: PropTypes.func.isRequired,
+  breakouts: PropTypes.arrayOf(Object).isRequired,
+  breakoutName: PropTypes.string.isRequired,
+};
+
 class BreakoutJoinConfirmation extends Component {
   constructor(props) {
     super(props);
@@ -56,10 +71,21 @@ class BreakoutJoinConfirmation extends Component {
       mountModal,
       breakoutURL,
       isFreeJoin,
+      voiceUserJoined,
     } = this.props;
-    const url = isFreeJoin ? getURL(this.state.selectValue) : breakoutURL;
-    // leave main room's audio when joining a breakout room
-    AudioService.exitAudio();
+
+    const { selectValue } = this.state;
+    const url = isFreeJoin ? getURL(selectValue) : breakoutURL;
+
+    if (voiceUserJoined) {
+      // leave main room's audio when joining a breakout room
+      AudioService.exitAudio();
+      logger.info({
+        logCode: 'breakoutjoinconfirmation_ended_audio',
+        extraInfo: { logType: 'user_action' },
+      }, 'joining breakout room closed audio in the main room');
+    }
+
     VideoService.exitVideo();
     window.open(url);
     mountModal(null);
@@ -67,21 +93,32 @@ class BreakoutJoinConfirmation extends Component {
 
   handleSelectChange(e) {
     const { value } = e.target;
+    const { requestJoinURL } = this.props;
     this.setState({ selectValue: value });
-    this.props.requestJoinURL(value);
+    requestJoinURL(value);
   }
 
   renderSelectMeeting() {
     const { breakouts, intl } = this.props;
+    const { selectValue } = this.state;
     return (
       <div className={styles.selectParent}>
         {`${intl.formatMessage(intlMessages.freeJoinMessage)}`}
         <select
           className={styles.select}
-          value={this.state.selectValue}
+          value={selectValue}
           onChange={this.handleSelectChange}
         >
-          {breakouts.map(({ name, breakoutId }) => (<option key={breakoutId} value={breakoutId}>{name}</option>))}
+          {
+            breakouts.map(({ name, breakoutId }) => (
+              <option
+                key={breakoutId}
+                value={breakoutId}
+              >
+                {name}
+              </option>
+            ))
+          }
         </select>
       </div>
     );
@@ -89,6 +126,7 @@ class BreakoutJoinConfirmation extends Component {
 
   render() {
     const { intl, breakoutName, isFreeJoin } = this.props;
+
     return (
       <Modal
         title={intl.formatMessage(intlMessages.title)}
@@ -110,3 +148,5 @@ class BreakoutJoinConfirmation extends Component {
 }
 
 export default withModalMounter(injectIntl(BreakoutJoinConfirmation));
+
+BreakoutJoinConfirmation.propTypes = propTypes;

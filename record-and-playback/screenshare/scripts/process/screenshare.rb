@@ -85,7 +85,7 @@ begin
   logger.info "Generating video events list"
 
   # Webcams
-  webcam_edl = BigBlueButton::Events.create_webcam_edl(raw_archive_dir)
+  webcam_edl = BigBlueButton::Events.create_webcam_edl(events, raw_archive_dir)
   logger.debug "Webcam EDL:"
   BigBlueButton::EDL::Video.dump(webcam_edl)
 

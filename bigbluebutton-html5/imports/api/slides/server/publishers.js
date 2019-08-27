@@ -1,4 +1,4 @@
-import Slides from '/imports/api/slides';
+import { Slides, SlidePositions } from '/imports/api/slides';
 import { Meteor } from 'meteor/meteor';
 import { check } from 'meteor/check';
 import Logger from '/imports/startup/server/logger';
@@ -21,3 +21,22 @@ function publish(...args) {
 }
 
 Meteor.publish('slides', publish);
+
+function slidePositions(credentials) {
+  const { meetingId, requesterUserId, requesterToken } = credentials;
+
+  check(meetingId, String);
+  check(requesterUserId, String);
+  check(requesterToken, String);
+
+  Logger.debug(`Publishing SlidePositions for ${meetingId} ${requesterUserId} ${requesterToken}`);
+
+  return SlidePositions.find({ meetingId });
+}
+
+function publishPositions(...args) {
+  const boundSlidePositions = slidePositions.bind(this);
+  return boundSlidePositions(...args);
+}
+
+Meteor.publish('slide-positions', publishPositions);

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { Fragment } from 'react';
 import cx from 'classnames';
 import Button from '/imports/ui/components/button/component';
 import Toggle from '/imports/ui/components/switch/component';
@@ -7,6 +7,7 @@ import BaseMenu from '../base/component';
 import { styles } from '../styles';
 
 const MIN_FONTSIZE = 0;
+const CHAT_ENABLED = Meteor.settings.public.chat.enabled;
 
 const intlMessages = defineMessages({
   applicationSectionTitle: {
@@ -195,45 +196,50 @@ class ApplicationMenu extends BaseMenu {
             </div>
           </div>
 
-          <div className={styles.row}>
-            <div className={styles.col} aria-hidden="true">
-              <div className={styles.formElement}>
-                <label className={styles.label}>
-                  {intl.formatMessage(intlMessages.audioAlertLabel)}
-                </label>
+          {CHAT_ENABLED
+            ? (<Fragment>
+              <div className={styles.row}>
+                <div className={styles.col} aria-hidden="true">
+                  <div className={styles.formElement}>
+                    <label className={styles.label}>
+                      {intl.formatMessage(intlMessages.audioAlertLabel)}
+                    </label>
+                  </div>
+                </div>
+                <div className={styles.col}>
+                  <div className={cx(styles.formElement, styles.pullContentRight)}>
+                    <Toggle
+                      icons={false}
+                      defaultChecked={this.state.settings.chatAudioAlerts}
+                      onChange={() => this.handleToggle('chatAudioAlerts')}
+                      ariaLabel={intl.formatMessage(intlMessages.audioAlertLabel)}
+                    />
+                  </div>
+                </div>
               </div>
-            </div>
-            <div className={styles.col}>
-              <div className={cx(styles.formElement, styles.pullContentRight)}>
-                <Toggle
-                  icons={false}
-                  defaultChecked={this.state.settings.chatAudioAlerts}
-                  onChange={() => this.handleToggle('chatAudioAlerts')}
-                  ariaLabel={intl.formatMessage(intlMessages.audioAlertLabel)}
-                />
+              <div className={styles.row}>
+                <div className={styles.col} aria-hidden="true">
+                  <div className={styles.formElement}>
+                    <label className={styles.label}>
+                      {intl.formatMessage(intlMessages.pushAlertLabel)}
+                    </label>
+                  </div>
+                </div>
+                <div className={styles.col}>
+                  <div className={cx(styles.formElement, styles.pullContentRight)}>
+                    <Toggle
+                      icons={false}
+                      defaultChecked={this.state.settings.chatPushAlerts}
+                      onChange={() => this.handleToggle('chatPushAlerts')}
+                      ariaLabel={intl.formatMessage(intlMessages.pushAlertLabel)}
+                    />
+                  </div>
+                </div>
               </div>
-            </div>
-          </div>
+            </Fragment>
+            ) : null
+          }
 
-          <div className={styles.row}>
-            <div className={styles.col} aria-hidden="true">
-              <div className={styles.formElement}>
-                <label className={styles.label}>
-                  {intl.formatMessage(intlMessages.pushAlertLabel)}
-                </label>
-              </div>
-            </div>
-            <div className={styles.col}>
-              <div className={cx(styles.formElement, styles.pullContentRight)}>
-                <Toggle
-                  icons={false}
-                  defaultChecked={this.state.settings.chatPushAlerts}
-                  onChange={() => this.handleToggle('chatPushAlerts')}
-                  ariaLabel={intl.formatMessage(intlMessages.pushAlertLabel)}
-                />
-              </div>
-            </div>
-          </div>
 
           <div className={styles.row}>
             <div className={styles.col} aria-hidden="true">

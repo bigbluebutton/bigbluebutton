@@ -16,27 +16,37 @@ const propTypes = {
   intl: intlShape.isRequired,
   fullscreenRef: PropTypes.instanceOf(Element),
   dark: PropTypes.bool,
+  bottom: PropTypes.bool,
+  isIphone: PropTypes.bool,
+  isFullscreen: PropTypes.bool,
   elementName: PropTypes.string,
   className: PropTypes.string,
   handleToggleFullScreen: PropTypes.func.isRequired,
+  tooltipDistance: PropTypes.number,
 };
 
 const defaultProps = {
   dark: false,
+  bottom: false,
+  isIphone: false,
+  isFullscreen: false,
   elementName: '',
   className: '',
   fullscreenRef: null,
+  tooltipDistance: -1,
 };
 
 const FullscreenButtonComponent = ({
   intl,
   dark,
+  bottom,
   elementName,
   tooltipDistance,
   className,
   fullscreenRef,
   handleToggleFullScreen,
   isIphone,
+  isFullscreen,
 }) => {
   if (isIphone) return null;
 
@@ -49,13 +59,15 @@ const FullscreenButtonComponent = ({
     [styles.wrapper]: true,
     [styles.dark]: dark,
     [styles.light]: !dark,
+    [styles.top]: !bottom,
+    [styles.bottom]: bottom,
   });
 
   return (
     <div className={wrapperClassName}>
       <Button
         color="default"
-        icon="fullscreen"
+        icon={!isFullscreen ? 'fullscreen' : 'exit_fullscreen'}
         size="sm"
         onClick={() => handleToggleFullScreen(fullscreenRef)}
         label={formattedLabel}

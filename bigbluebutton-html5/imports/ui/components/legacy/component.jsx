@@ -1,11 +1,69 @@
 import React, { Component } from 'react';
-import { IntlProvider, FormattedMessage } from 'react-intl';
+import { IntlProvider, FormattedMessage, addLocaleData } from 'react-intl';
 import browser from 'browser-detect';
 import './styles.css';
+
+
+// currently supported locales.
+import ar from 'react-intl/locale-data/ar';
+import bg from 'react-intl/locale-data/bg';
+import cs from 'react-intl/locale-data/cs';
+import de from 'react-intl/locale-data/de';
+import el from 'react-intl/locale-data/el';
+import en from 'react-intl/locale-data/en';
+import es from 'react-intl/locale-data/es';
+import eu from 'react-intl/locale-data/eu';
+import fa from 'react-intl/locale-data/fa';
+import fi from 'react-intl/locale-data/fi';
+import fr from 'react-intl/locale-data/fr';
+import he from 'react-intl/locale-data/he';
+import hi from 'react-intl/locale-data/hi';
+import hu from 'react-intl/locale-data/hu';
+import id from 'react-intl/locale-data/id';
+import it from 'react-intl/locale-data/it';
+import ja from 'react-intl/locale-data/ja';
+import km from 'react-intl/locale-data/km';
+import pl from 'react-intl/locale-data/pl';
+import pt from 'react-intl/locale-data/pt';
+import ru from 'react-intl/locale-data/ru';
+import sv from 'react-intl/locale-data/sv';
+import tr from 'react-intl/locale-data/tr';
+import uk from 'react-intl/locale-data/uk';
+import vi from 'react-intl/locale-data/vi';
+import zh from 'react-intl/locale-data/zh';
 
 // This class is the only component loaded on legacy (unsupported) browsers.
 // What is included here needs to be minimal and carefully considered because some
 // things can't be polyfilled.
+
+addLocaleData([
+  ...ar,
+  ...bg,
+  ...cs,
+  ...de,
+  ...el,
+  ...en,
+  ...es,
+  ...eu,
+  ...fa,
+  ...fi,
+  ...fr,
+  ...he,
+  ...hi,
+  ...hu,
+  ...id,
+  ...it,
+  ...ja,
+  ...km,
+  ...pl,
+  ...pt,
+  ...ru,
+  ...sv,
+  ...tr,
+  ...uk,
+  ...vi,
+  ...zh,
+]);
 
 const FETCHING = 'fetching';
 const FALLBACK = 'fallback';
