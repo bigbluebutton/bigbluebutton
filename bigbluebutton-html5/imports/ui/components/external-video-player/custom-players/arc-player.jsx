@@ -158,6 +158,10 @@ export class ArcPlayer extends Component {
   }
 
   getCurrentTime () {
+    this.player.getCurrentTime().then((t) => {
+      this.updateCurrentTime(t.data);
+    });
+
     return this.currentTime;
   }
 
