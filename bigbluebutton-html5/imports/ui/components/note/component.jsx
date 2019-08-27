@@ -36,6 +36,7 @@ const Note = (props) => {
   const {
     isLocked,
     intl,
+    isRTL,
   } = props;
 
   const url = isLocked ? NoteService.getReadOnlyURL() : NoteService.getNoteURL();
@@ -55,7 +56,7 @@ const Note = (props) => {
             }}
             aria-label={intl.formatMessage(intlMessages.hideNoteLabel)}
             label={intl.formatMessage(intlMessages.title)}
-            icon="left_arrow"
+            icon={isRTL ? "right_arrow" : "left_arrow"}
             className={styles.hideBtn}
           />
         </div>
