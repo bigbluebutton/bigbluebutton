@@ -147,14 +147,14 @@ class BreakoutRoom extends PureComponent {
         this.returnBackToMeeeting(breakoutId);
         return logger.debug({
           logCode: 'breakoutroom_return_main_audio',
-          extraInfo: { logType: 'moderator_action' },
+          extraInfo: { logType: 'user_action' },
         }, 'Returning to main audio (breakout room audio closed)');
       }
       : () => {
         this.transferUserToBreakoutRoom(breakoutId);
         return logger.debug({
-          logCode: 'breakoutroom_join_audio',
-          extraInfo: { logType: 'moderator_action' },
+          logCode: 'breakoutroom_join_audio_from_main_room',
+          extraInfo: { logType: 'user_action' },
         }, 'joining breakout room audio (main room audio closed)');
       };
     return (
@@ -166,7 +166,7 @@ class BreakoutRoom extends PureComponent {
             this.getBreakoutURL(breakoutId);
             logger.debug({
               logCode: 'breakoutroom_join',
-              extraInfo: { logType: 'moderator_action' },
+              extraInfo: { logType: 'user_action' },
             }, 'joining breakout room closed audio in the main room');
           }
           }
