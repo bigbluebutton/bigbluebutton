@@ -10,10 +10,9 @@ import getFromUserSettings from '/imports/ui/services/users-settings';
 import userListService from '../user-list/service';
 import Service from './service';
 import NavBar from './component';
-import mapUser from '../../services/user/mapUser';
 
 const PUBLIC_CONFIG = Meteor.settings.public;
-
+const ROLE_MODERATOR = PUBLIC_CONFIG.user.role_moderator;
 const NavBarContainer = ({ children, ...props }) => (
   <NavBar {...props}>
     {children}
@@ -24,7 +23,6 @@ export default withTracker(() => {
   const CLIENT_TITLE = getFromUserSettings('clientTitle', PUBLIC_CONFIG.app.clientTitle);
 
   let meetingTitle;
-  let meetingRecorded;
   const meetingId = Auth.meetingID;
   const meetingObject = Meetings.findOne({
     meetingId,
@@ -32,7 +30,6 @@ export default withTracker(() => {
 
   if (meetingObject != null) {
     meetingTitle = meetingObject.meetingProp.name;
-    meetingRecorded = meetingObject.recordProp;
     document.title = `${CLIENT_TITLE} - ${meetingTitle}`;
   }
 
@@ -44,24 +41,14 @@ export default withTracker(() => {
     return hasUnreadMessages;
   };
 
-  Meetings.find({ meetingId: Auth.meetingID }, { fields: { recordProp: 1 } }).observeChanges({
-    changed: (id, fields) => {
-      if (fields.recordProp && fields.recordProp.recording) {
-        this.window.parent.postMessage({ response: 'recordingStarted' }, '*');
-      }
-
-      if (fields.recordProp && !fields.recordProp.recording) {
-        this.window.parent.postMessage({ response: 'recordingStopped' }, '*');
-      }
-    },
-  });
-
   const currentUserId = Auth.userID;
   const { connectRecordingObserver, processOutsideToggleRecording } = Service;
   const currentUser = Users.findOne({ userId: Auth.userID });
   const openPanel = Session.get('openPanel');
   const isExpanded = openPanel !== '';
-  const amIModerator = mapUser(currentUser).isModerator;
+  const amIModerator = currentUser.role === ROLE_MODERATOR;
+  const isBreakoutRoom = meetingIsBreakout();
+  const hasUnreadMessages = checkUnreadMessages();
 
   return {
     amIModerator,
@@ -71,11 +58,7 @@ export default withTracker(() => {
     connectRecordingObserver,
     meetingId,
     presentationTitle: meetingTitle,
-    hasUnreadMessages: checkUnreadMessages(),
-    isBreakoutRoom: meetingIsBreakout(),
-    recordProps: meetingRecorded,
-    toggleUserList: () => {
-      Session.set('isUserListOpen', !isExpanded);
-    },
+    hasUnreadMessages,
+    isBreakoutRoom,
   };
 })(NavBarContainer);

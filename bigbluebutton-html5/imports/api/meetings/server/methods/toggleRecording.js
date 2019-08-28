@@ -2,7 +2,7 @@ import { check } from 'meteor/check';
 import Logger from '/imports/startup/server/logger';
 import { Meteor } from 'meteor/meteor';
 import RedisPubSub from '/imports/startup/server/redis';
-import Meetings from '/imports/api/meetings';
+import { RecordMeetings } from '/imports/api/meetings';
 import Users from '/imports/api/users';
 
 export default function toggleRecording(credentials) {
@@ -20,14 +20,14 @@ export default function toggleRecording(credentials) {
   let meetingRecorded;
   let allowedToRecord;
 
-  const meetingObject = Meetings.findOne({ meetingId });
+  const recordObject = RecordMeetings.findOne({ meetingId });
 
-  if (meetingObject != null) {
+  if (recordObject != null) {
     const {
       allowStartStopRecording,
       recording,
       record,
-    } = meetingObject.recordProp;
+    } = recordObject;
 
     meetingRecorded = recording;
     allowedToRecord = record && allowStartStopRecording;

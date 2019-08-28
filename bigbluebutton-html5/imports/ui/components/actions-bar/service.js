@@ -26,7 +26,6 @@ const takePresenterRole = () => makeCall('assignPresenter', Auth.userID);
 export default {
   isUserPresenter: () => Users.findOne({ userId: Auth.userID }).presenter,
   isUserModerator: () => Users.findOne({ userId: Auth.userID }).role === ROLE_MODERATOR,
-  recordSettingsList: () => Meetings.findOne({ meetingId: Auth.meetingID }).recordProp,
   meetingIsBreakout: () => Meetings.findOne({ meetingId: Auth.meetingID }).meetingProp.isBreakout,
   meetingName: () => Meetings.findOne({ meetingId: Auth.meetingID }).meetingProp.name,
   users: () => Users.find({ connectionStatus: 'online', meetingId: Auth.meetingID, clientType: { $ne: DIAL_IN_USER } }).fetch(),
