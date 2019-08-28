@@ -186,7 +186,7 @@ class Dropdown extends Component {
       dropdownHide: this.handleHide,
     });
 
-    const showCloseBtn = (isOpen && keepOpen) || (isOpen && keepOpen === null);
+    const showCloseBtn = (isOpen && keepOpen) || (isOpen && !keepOpen);
 
     return (
       <div

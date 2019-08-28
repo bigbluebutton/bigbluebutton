@@ -15,7 +15,6 @@ const parse = Npm.require('url').parse;
 const AVAILABLE_LOCALES = fs.readdirSync('assets/app/locales');
 
 Meteor.startup(() => {
-  
   const APP_CONFIG = Meteor.settings.public.app;
   const INTERVAL_IN_SETTINGS = (Meteor.settings.public.pingPong.clearUsersInSeconds) * 1000;
   const INTERVAL_TIME = INTERVAL_IN_SETTINGS < 10000 ? 10000 : INTERVAL_IN_SETTINGS;
