@@ -353,9 +353,13 @@ class BreakoutRoom extends PureComponent {
     const { users } = this.state;
 
     const idxUser = users.findIndex(user => user.userId === userId);
-    users[idxUser].room = room;
+
+    const usersCopy = [...users];
+
+    usersCopy[idxUser].room = room;
+
     this.setState({
-      users,
+      users: usersCopy,
       valid: this.getUserByRoom(0).length !== users.length,
     });
   }
