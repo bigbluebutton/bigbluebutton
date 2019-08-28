@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { PureComponent } from 'react';
 import { withTracker } from 'meteor/react-meteor-data';
 import { Session } from 'meteor/session';
 import { withModalMounter } from '/imports/ui/components/modal/service';
@@ -59,8 +59,7 @@ const intlMessages = defineMessages({
   },
 });
 
-
-class AudioContainer extends React.Component {
+class AudioContainer extends PureComponent {
   constructor(props) {
     super(props);
 
@@ -139,10 +138,15 @@ export default lockContextContainer(withModalMounter(injectIntl(withTracker(({ m
     init: () => {
       Service.init(messages, intl);
       Service.changeOutputDevice(document.querySelector('#remote-media').sinkId);
-      if (!autoJoin || didMountAutoJoin) return;
-      Session.set('audioModalIsOpen', true);
       const enableVideo = getFromUserSettings('enableVideo', KURENTO_CONFIG.enableVideo);
       const autoShareWebcam = getFromUserSettings('autoShareWebcam', KURENTO_CONFIG.autoShareWebcam);
+      if (!autoJoin || didMountAutoJoin) {
+        if (enableVideo && autoShareWebcam) {
+          openVideoPreviewModal();
+        }
+        return;
+      }
+      Session.set('audioModalIsOpen', true);
       if (enableVideo && autoShareWebcam) {
         openAudioModal().then(() => { openVideoPreviewModal(); didMountAutoJoin = true; });
       } else {
