@@ -80,7 +80,7 @@ if not FileTest.directory?(target_dir)
     metadata_xml = File.new("#{target_dir}/metadata.xml","w")
     metadata_xml.write(metaxml)
     metadata_xml.close
-    BigBlueButton.logger.info("Created initial metadata.xml")
+    BigBlueButton.logger.info("Created inital metadata.xml")
 
     FileUtils.cp(note_file, "#{target_dir}/notes.#{format}")
 

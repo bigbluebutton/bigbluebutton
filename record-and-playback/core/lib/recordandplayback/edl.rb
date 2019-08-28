@@ -83,7 +83,7 @@ module BigBlueButton
       s = timestamp / 1000
       ms = timestamp % 1000
       "%d.%03d" % [s, ms]
-    end
+    end    
 
   end
 end

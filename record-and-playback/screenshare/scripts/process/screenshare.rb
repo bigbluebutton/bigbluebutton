@@ -64,174 +64,141 @@ end
 
 begin
 
-  FileUtils.mkdir_p(process_dir)
+FileUtils.mkdir_p(process_dir)
 
-  logger.info "Reading basic recording information"
-  events = Nokogiri::XML(File.open("#{raw_archive_dir}/events.xml"))
-  initial_timestamp = nil
-  final_timestamp = nil
-  metadata = events.at_xpath('/recording/metadata')
-  meetingName = metadata['meetingName ']
-  begin
-    event = events.at_xpath('/recording/event[position()=1]')
-    initial_timestamp = event['timestamp'].to_i
-    event = events.at_xpath('/recording/event[position()=last()]')
-    final_timestamp = event['timestamp'].to_i
-  end
+logger.info "Reading basic recording information"
+events = Nokogiri::XML(File.open("#{raw_archive_dir}/events.xml"))
+initial_timestamp = nil
+final_timestamp = nil
+metadata = events.at_xpath('/recording/metadata')
+meetingName = metadata['meetingName']
+begin
+  event = events.at_xpath('/recording/event[position()=1]')
+  initial_timestamp = event['timestamp'].to_i
+  event = events.at_xpath('/recording/event[position()=last()]')
+  final_timestamp = event['timestamp'].to_i
+end
 
-  video_edl = []
-  begin
-    logger.info "Generating video events list"
+video_edl = []
+begin
+  logger.info "Generating video events list"
 
-    # Webcams
-    webcam_edl = BigBlueButton::Events.create_webcam_edl(events, raw_archive_dir)
-    logger.debug "Webcam EDL:"
-    BigBlueButton::EDL::Video.dump(webcam_edl)
+  # Webcams
+  webcam_edl = BigBlueButton::Events.create_webcam_edl(events, raw_archive_dir)
+  logger.debug "Webcam EDL:"
+  BigBlueButton::EDL::Video.dump(webcam_edl)
 
-    # Deskshare
-    deskshare_edl = BigBlueButton::Events.create_deskshare_edl(events, raw_archive_dir)
-    logger.debug "Deskshare EDL:"
-    BigBlueButton::EDL::Video.dump(deskshare_edl)
+  # Deskshare
+  deskshare_edl = BigBlueButton::Events.create_deskshare_edl(events, raw_archive_dir)
+  logger.debug "Deskshare EDL:"
+  BigBlueButton::EDL::Video.dump(deskshare_edl)
 
-    video_edl = BigBlueButton::EDL::Video.merge(webcam_edl, deskshare_edl)
-  end
+  video_edl = BigBlueButton::EDL::Video.merge(webcam_edl, deskshare_edl)
+end
 
-  logger.debug "Merged Video EDL:"
-  BigBlueButton::EDL::Video.dump(video_edl)
+logger.debug "Merged Video EDL:"
+BigBlueButton::EDL::Video.dump(video_edl)
 
-  start_time = BigBlueButton::Events.first_event_timestamp(events)
-  end_time = BigBlueButton::Events.last_event_timestamp(events)
+start_time = BigBlueButton::Events.first_event_timestamp(events)
+end_time = BigBlueButton::Events.last_event_timestamp(events)
 
-  logger.info "Applying recording start/stop events to video"
-  video_edl = BigBlueButton::Events.edl_match_recording_marks_video(video_edl, events, start_time, end_time)
-  logger.debug "Trimmed Video EDL:"
-  BigBlueButton::EDL::Video.dump(video_edl)
+logger.info "Applying recording start/stop events to video"
+video_edl = BigBlueButton::Events.edl_match_recording_marks_video(video_edl, events, start_time, end_time)
+logger.debug "Trimmed Video EDL:"
+BigBlueButton::EDL::Video.dump(video_edl)
 
-  audio_edl = []
-  logger.info "Generating audio events list"
-  audio_edl = BigBlueButton::AudioEvents.create_audio_edl(events, raw_archive_dir)
-  logger.debug "Audio EDL:"
-  BigBlueButton::EDL::Audio.dump(audio_edl)
+audio_edl = []
+logger.info "Generating audio events list"
+audio_edl = BigBlueButton::AudioEvents.create_audio_edl(events, raw_archive_dir)
+logger.debug "Audio EDL:"
+BigBlueButton::EDL::Audio.dump(audio_edl)
 
-  logger.info "Applying recording start/stop events to audio"
-  audio_edl = BigBlueButton::Events.edl_match_recording_marks_audio(audio_edl, events, start_time, end_time)
-  logger.debug "Trimmed Audio EDL:"
-  BigBlueButton::EDL::Audio.dump(audio_edl)
+logger.info "Applying recording start/stop events to audio"
+audio_edl = BigBlueButton::Events.edl_match_recording_marks_audio(audio_edl, events, start_time, end_time)
+logger.debug "Trimmed Audio EDL:"
+BigBlueButton::EDL::Audio.dump(audio_edl)
 
-  logger.info "Rendering audio"
-  audio = "#{process_dir}/audio.#{BigBlueButton::EDL::Audio::WF_EXT}"
-  if File.exist?(audio)
-    logger.warn "  Skipping rendering audio ... File already exists"
+logger.info "Rendering audio"
+audio = "#{process_dir}/audio.#{BigBlueButton::EDL::Audio::WF_EXT}"
+if File.exist?(audio)
+  logger.warn "  Skipping rendering audio ... File already exists"
+else
+  audio = BigBlueButton::EDL::Audio.render(audio_edl, "#{process_dir}/audio")
+end
+
+layout = screenshare_props['layout']
+
+logger.info "Rendering video"
+video = "#{process_dir}/video.#{BigBlueButton::EDL::Video::WF_EXT}"
+if File.exist?(video)
+  logger.warn "  Skipping rendering video ... File already exists"
+else
+  video = BigBlueButton::EDL::Video.render(video_edl, layout, "#{process_dir}/video")
+end
+
+logger.info "Encoding output files to #{screenshare_props['formats'].length} formats"
+screenshare_props['formats'].each_with_index do |format, i|
+  logger.info "  #{format[:mimetype]}"
+  filename = "#{process_dir}/screenshare-#{i}.#{format[:extension]}"
+  if File.exist?(filename)
+    logger.warn "    Skipping encode ... File already exists"
   else
-    audio = BigBlueButton::EDL::Audio.render(audio_edl, "#{process_dir}/audio")
+    filename = BigBlueButton::EDL.encode(audio, video, format, "#{process_dir}/screenshare-#{i}", 0)
   end
+end
 
-  layout = screenshare_props['layout']
-
-  logger.info "Rendering video"
-  video = "#{process_dir}/video.#{BigBlueButton::EDL::Video::WF_EXT}"
-  if File.exist?(video)
-    logger.warn "  Skipping rendering video ... File already exists"
-  else
-    video = BigBlueButton::EDL::Video.render(video_edl, layout, "#{process_dir}/video")
-  end
-
-  formats = [
-      {
-          :mimetype => 'video/webm; codecs="vp9, opus"',
-          :extension => 'webm',
-          :parameters => [
-              ['-pass', '1',
-               # Video
-               '-c:v', 'libvpx-vp9',
-               '-crf', '32', '-b:v', '1024K', '-minrate', '512K', '-maxrate', '1485K',
-               '-quality', 'good', '-speed', '4', '-g', '240',
-               '-tile-columns', '2', '-threads', '8',
-               # Disable audio in first pass
-               '-an',
-               # Container
-               '-f', 'webm'],
-              ['-pass', '2',
-               # Video
-               '-c:v', 'libvpx-vp9',
-               '-crf', '32', '-b:v', '1024K', '-minrate', '512K', '-maxrate', '1485K',
-               '-quality', 'good', '-speed', '2', '-g', '240',
-               '-tile-columns', '2', '-threads', '8',
-               # Audio
-               '-c:a', 'libopus',
-               '-b:a', '64K',
-               # Container
-               '-f', 'webm']
-          ],
-          :postprocess => [
-              ['mkclean', '--quiet', ':input', ':output']
-          ]
-      }
-  ]
-  logger.info "Encoding output files to #{formats.length} formats"
-  formats.each_with_index do |format, i|
-    logger.info "  #{format[:mimetype]}"
-    filename = "#{process_dir}/screenshare-#{i}.#{format[:extension]}"
-    if File.exist?(filename)
-      logger.warn "    Skipping encode ... File already exists"
-    else
-      filename = BigBlueButton::EDL.encode(audio, video, format, "#{process_dir}/screenshare-#{i}")
-    end
-  end
-
-  logger.info("Generating closed captions")
-  ret = BigBlueButton.exec_ret('utils/gen_webvtt', '-i', raw_archive_dir, '-o', process_dir)
-  if ret != 0
-    raise "Generating closed caption files failed"
-  end
-  # Keep this variable, it will be used inside the index.html.erb template file
-  captions = JSON.load(File.new("#{process_dir}/captions.json", 'r'))
+logger.info("Generating closed captions")
+ret = BigBlueButton.exec_ret('utils/gen_webvtt', '-i', raw_archive_dir, '-o', process_dir)
+if ret != 0
+  raise "Generating closed caption files failed"
+end
+captions = JSON.load(File.new("#{process_dir}/captions.json", 'r'))
 
 # Publishing support files
 
-  logger.info "Generating index page"
-  index_template = "#{playback_dir}/index.html.erb"
-  index_erb = ERB.new(File.read(index_template))
-  index_erb.filename = index_template
-  File.open("#{process_dir}/index.html", 'w') do |index_html|
-    index_html.write(index_erb.result)
-  end
+logger.info "Generating index page"
+index_template = "#{playback_dir}/index.html.erb"
+index_erb = ERB.new(File.read(index_template))
+index_erb.filename = index_template
+File.open("#{process_dir}/index.html", 'w') do |index_html|
+  index_html.write(index_erb.result)
+end
 
-  logger.info "Generating metadata xml"
-  duration = BigBlueButton::Events.get_recording_length(events)
-  metadata_xml = Nokogiri::XML::Builder.new do |xml|
-    xml.recording {
-      xml.id(meeting_id)
-      xml.state('available')
-      xml.published('true')
-      xml.start_time(start_real_time)
-      xml.end_time(start_real_time + final_timestamp - initial_timestamp)
-      xml.playback {
-        xml.format('screenshare')
-        xml.link("#{props['playback_protocol']}://#{props['playback_host']}/recording/screenshare/#{meeting_id}/")
-        xml.duration(duration)
-      }
-      xml.meta {
-        metadata.attributes.each do |k, v|
-          xml.method_missing(k, v)
-        end
-      }
+logger.info "Generating metadata xml"
+duration = BigBlueButton::Events.get_recording_length(events)
+metadata_xml = Nokogiri::XML::Builder.new do |xml|
+  xml.recording {
+    xml.id(meeting_id)
+    xml.state('available')
+    xml.published('true')
+    xml.start_time(start_real_time)
+    xml.end_time(start_real_time + final_timestamp - initial_timestamp)
+    xml.playback {
+      xml.format('screenshare')
+      xml.link("#{props['playback_protocol']}://#{props['playback_host']}/recording/screenshare/#{meeting_id}/")
+      xml.duration(duration)
     }
-  end
-  File.open("#{process_dir}/metadata.xml", 'w') do |metadata_file|
-    metadata_file.write(metadata_xml.to_xml)
-  end
+    xml.meta {
+      metadata.attributes.each do |k, v|
+        xml.method_missing(k, v)
+      end
+    }
+  }
+end
+File.open("#{process_dir}/metadata.xml", 'w') do |metadata_file|
+  metadata_file.write(metadata_xml.to_xml)
+end
 
-  logger.info "Copying css and js support files"
-  FileUtils.cp_r("#{playback_dir}/css", process_dir)
-  FileUtils.cp_r("#{playback_dir}/js", process_dir)
-  FileUtils.cp_r("#{playback_dir}/video-js", process_dir)
+logger.info "Copying css and js support files"
+FileUtils.cp_r("#{playback_dir}/css", process_dir)
+FileUtils.cp_r("#{playback_dir}/js", process_dir)
+FileUtils.cp_r("#{playback_dir}/video-js", process_dir)
 
-  logger.info "Processing successfully completed, writing done file"
+logger.info "Processing successfully completed, writing done file"
 
-  File.open(donefile, 'w') do |done|
-    done.write("Processed #{meeting_id}")
-  end
+File.open(donefile, 'w') do |done|
+  done.write("Processed #{meeting_id}")
+end
 
 rescue Exception => e
   warn e.message
