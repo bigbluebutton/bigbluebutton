@@ -195,6 +195,7 @@ class VideoList extends Component {
       getStats,
       stopGettingStats,
       enableVideoStats,
+      swapLayout,
     } = this.props;
     const { focusedId } = this.state;
 
@@ -230,6 +231,7 @@ class VideoList extends Component {
             getStats={(videoRef, callback) => getStats(user.userId, videoRef, callback)}
             stopGettingStats={() => stopGettingStats(user.userId)}
             enableVideoStats={enableVideoStats}
+            swapLayout={swapLayout}
           />
         </div>
       );
