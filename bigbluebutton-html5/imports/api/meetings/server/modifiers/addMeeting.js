@@ -3,7 +3,7 @@ import {
   check,
   Match,
 } from 'meteor/check';
-import Meetings from '/imports/api/meetings';
+import Meetings, { RecordMeetings } from '/imports/api/meetings';
 import Logger from '/imports/startup/server/logger';
 import createNote from '/imports/api/note/server/methods/createNote';
 import createCaptions from '/imports/api/captions/server/methods/createCaptions';
@@ -86,7 +86,12 @@ export default function addMeeting(meeting) {
     },
   });
 
-  const newMeeting = meeting;
+  const {
+    recordProp,
+    ...restProps
+  } = meeting;
+
+  const newMeeting = restProps;
 
   const selector = {
     meetingId,
@@ -144,6 +149,30 @@ export default function addMeeting(meeting) {
       Logger.info(`Upserted meeting id=${meetingId}`);
     }
   };
+
+  const cbRecord = (err, numChanged) => {
+    if (err) {
+      Logger.error(`Adding record prop to collection: ${err}`);
+      return;
+    }
+
+    const {
+      insertedId,
+    } = numChanged;
+
+    if (insertedId) {
+      Logger.info(`Added record prop id=${meetingId}`);
+    }
+
+    if (numChanged) {
+      Logger.info(`Upserted record prop id=${meetingId}`);
+    }
+  };
+
+  RecordMeetings.upsert(selector, {
+    meetingId,
+    ...recordProp,
+  }, cbRecord);
 
   return Meetings.upsert(selector, modifier, cb);
 }

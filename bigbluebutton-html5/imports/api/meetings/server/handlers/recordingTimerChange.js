@@ -1,5 +1,5 @@
 import { check } from 'meteor/check';
-import Meetings from '/imports/api/meetings';
+import { RecordMeetings } from '/imports/api/meetings';
 import Logger from '/imports/startup/server/logger';
 
 export default function handleRecordingStatusChange({ body }, meetingId) {
@@ -16,7 +16,7 @@ export default function handleRecordingStatusChange({ body }, meetingId) {
   };
 
   const modifier = {
-    $set: { 'recordProp.time': time },
+    $set: { time },
   };
 
   const cb = (err) => {
@@ -25,5 +25,5 @@ export default function handleRecordingStatusChange({ body }, meetingId) {
     }
   };
 
-  return Meetings.upsert(selector, modifier, cb);
+  return RecordMeetings.upsert(selector, modifier, cb);
 }
