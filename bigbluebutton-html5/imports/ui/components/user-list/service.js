@@ -300,7 +300,8 @@ const isMeetingLocked = (id) => {
 };
 
 const areUsersUnmutable = () => {
-  const meeting = Meetings.findOne({ meetingId: Auth.meetingID });
+  const meeting = Meetings.findOne({ meetingId: Auth.meetingID },
+    { fields: { 'usersProp.allowModsToUnmuteUsers': 1 } });
   if (meeting.usersProp) {
     return meeting.usersProp.allowModsToUnmuteUsers;
   }
@@ -509,7 +510,7 @@ export default {
   hasBreakoutRoom,
   isUserModerator,
   getEmojiList: () => EMOJI_STATUSES,
-  getEmoji: () => Users.findOne({ userId: Auth.userID }).emoji,
+  getEmoji: () => Users.findOne({ userId: Auth.userID }, { fields: { emoji: 1 } }).emoji,
   hasPrivateChatBetweenUsers,
   toggleUserLock,
   requestUserInformation,

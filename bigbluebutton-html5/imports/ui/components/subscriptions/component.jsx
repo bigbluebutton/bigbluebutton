@@ -87,7 +87,7 @@ export default withTracker(() => {
     subscriptionsHandlers.push(groupChatMessageHandler);
   }
 
-  const User = Users.findOne({ intId: requesterUserId });
+  const User = Users.findOne({ intId: requesterUserId }, { fields: { role: 1 } });
 
   if (User) {
     const userIsModerator = User.role === ROLE_MODERATOR;

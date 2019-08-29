@@ -116,13 +116,14 @@ class Poll extends Component {
   }
 
   componentDidUpdate() {
-    const { currentUser } = this.props;
+    const { amIPresenter } = this.props;
 
     if (Session.equals('resetPollPanel', true)) {
       this.handleBackClick();
     }
 
-    if (!currentUser.presenter) {
+    console.error(`amIPresenter `, amIPresenter)
+    if (!amIPresenter) {
       Session.set('openPanel', 'userlist');
       Session.set('forcePollOpen', false);
     }
@@ -239,11 +240,8 @@ class Poll extends Component {
     const {
       intl,
       isMeteorConnected,
-      publishPoll,
       stopPoll,
-      currentUser,
       currentPoll,
-      getUser,
       pollAnswerIds,
     } = this.props;
 
@@ -255,10 +253,7 @@ class Poll extends Component {
         <LiveResult
           {...{
             isMeteorConnected,
-            publishPoll,
             stopPoll,
-            currentUser,
-            getUser,
             currentPoll,
             pollAnswerIds,
           }}
@@ -332,10 +327,10 @@ class Poll extends Component {
       intl,
       stopPoll,
       currentPoll,
-      currentUser,
+      amIPresenter,
     } = this.props;
 
-    if (!currentUser.presenter) return null;
+    if (!amIPresenter) return null;
 
     return (
       <div>
@@ -383,10 +378,9 @@ Poll.propTypes = {
   intl: PropTypes.shape({
     formatMessage: PropTypes.func.isRequired,
   }).isRequired,
-  currentUser: PropTypes.instanceOf(Object).isRequired,
+  amIPresenter: PropTypes.bool.isRequired,
   pollTypes: PropTypes.instanceOf(Array).isRequired,
   startPoll: PropTypes.func.isRequired,
   startCustomPoll: PropTypes.func.isRequired,
   stopPoll: PropTypes.func.isRequired,
-  publishPoll: PropTypes.func.isRequired,
 };

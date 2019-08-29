@@ -15,7 +15,6 @@ const propTypes = {
     formatMessage: PropTypes.func.isRequired,
   }).isRequired,
   currentUser: PropTypes.shape({}).isRequired,
-  meeting: PropTypes.shape({}).isRequired,
   users: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
   getGroupChatPrivate: PropTypes.func.isRequired,
   handleEmojiChange: PropTypes.func.isRequired,
@@ -113,7 +112,6 @@ class UserParticipants extends Component {
     const {
       compact,
       isBreakoutRoom,
-      meeting,
       getAvailableActions,
       normalizeEmojiName,
       isMeetingLocked,
@@ -151,7 +149,6 @@ class UserParticipants extends Component {
             {...{
               compact,
               isBreakoutRoom,
-              meeting,
               getAvailableActions,
               normalizeEmojiName,
               isMeetingLocked,
@@ -195,7 +192,6 @@ class UserParticipants extends Component {
       compact,
       setEmojiStatus,
       muteAllUsers,
-      meeting,
       muteAllExceptPresenter,
       currentUser,
     } = this.props;
@@ -219,7 +215,6 @@ class UserParticipants extends Component {
                       muteAllUsers,
                       muteAllExceptPresenter,
                       setEmojiStatus,
-                      meeting,
                     }}
                     />
                   ) : null

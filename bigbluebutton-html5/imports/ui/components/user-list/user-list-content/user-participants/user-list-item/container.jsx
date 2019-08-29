@@ -12,7 +12,7 @@ export default withTracker(({ user }) => {
   const findUserInBreakout = Breakouts.findOne({ 'joinedUsers.userId': new RegExp(`^${user.userId}`) });
   const breakoutSequence = (findUserInBreakout || {}).sequence;
   const Meeting = Meetings.findOne({ meetingId: Auth.meetingID },
-    { fields: { 'meetingProp.isBreakout': 1 } });
+    { fields: { 'meetingProp.isBreakout': 1, lockSettingsProps: 1 } });
 
   const isMe = intId => intId === Auth.userID;
 
@@ -22,6 +22,7 @@ export default withTracker(({ user }) => {
     isMe,
     userInBreakout: !!findUserInBreakout,
     breakoutSequence,
+    lockSettingsProps: Meeting && Meeting.lockSettingsProps,
     meetingIsBreakout: Meeting && Meeting.meetingProp.isBreakout,
     isMeteorConnected: Meteor.status().connected,
     isThisMeetingLocked: UserListService.isMeetingLocked(Auth.meetingID),
