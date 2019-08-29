@@ -28,8 +28,6 @@ export default {
     { fields: { presenter: 1 } }).presenter,
   isUserModerator: () => Users.findOne({ userId: Auth.userID },
     { fields: { role: 1 } }).role === ROLE_MODERATOR,
-  meetingIsBreakout: () => Meetings.findOne({ meetingId: Auth.meetingID },
-    { fields: { 'meetingProp.isBreakout': 1 } }).meetingProp.isBreakout,
   meetingName: () => Meetings.findOne({ meetingId: Auth.meetingID },
     { fields: { 'meetingProp.name': 1 } }).meetingProp.name,
   users: () => Users.find({

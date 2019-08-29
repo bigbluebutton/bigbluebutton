@@ -18,7 +18,6 @@ const propTypes = {
   users: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
   getGroupChatPrivate: PropTypes.func.isRequired,
   handleEmojiChange: PropTypes.func.isRequired,
-  isBreakoutRoom: PropTypes.bool,
   setEmojiStatus: PropTypes.func.isRequired,
   assignPresenter: PropTypes.func.isRequired,
   removeUser: PropTypes.func.isRequired,
@@ -36,7 +35,6 @@ const propTypes = {
 
 const defaultProps = {
   compact: false,
-  isBreakoutRoom: false,
 };
 
 const listTransition = {
@@ -111,7 +109,6 @@ class UserParticipants extends Component {
   getUsers() {
     const {
       compact,
-      isBreakoutRoom,
       getAvailableActions,
       normalizeEmojiName,
       isMeetingLocked,
@@ -148,7 +145,6 @@ class UserParticipants extends Component {
           <UserListItemContainer
             {...{
               compact,
-              isBreakoutRoom,
               getAvailableActions,
               normalizeEmojiName,
               isMeetingLocked,

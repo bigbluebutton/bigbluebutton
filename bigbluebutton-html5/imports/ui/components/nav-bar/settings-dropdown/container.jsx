@@ -3,6 +3,7 @@ import { withTracker } from 'meteor/react-meteor-data';
 import browser from 'browser-detect';
 import SettingsDropdown from './component';
 import FullscreenService from '../../fullscreen-button/service';
+import { meetingIsBreakout } from '/imports/ui/components/app/service';
 
 const SettingsDropdownContainer = props => (
   <SettingsDropdown {...props} />
@@ -19,5 +20,6 @@ export default withTracker((props) => {
     handleToggleFullscreen,
     noIOSFullscreen,
     isMeteorConnected: Meteor.status().connected,
+    isBreakoutRoom: meetingIsBreakout(),
   };
 })(SettingsDropdownContainer);

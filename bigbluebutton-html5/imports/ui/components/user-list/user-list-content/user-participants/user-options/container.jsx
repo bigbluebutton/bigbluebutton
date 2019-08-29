@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 import Auth from '/imports/ui/services/auth';
 import Meetings from '/imports/api/meetings';
 import Service from '/imports/ui/components/actions-bar/service';
+import AppService from '/imports/ui/components/app/service';
 import userListService from '/imports/ui/components/user-list/service';
 import logger from '/imports/startup/client/logger';
 import { defineMessages, injectIntl, intlShape } from 'react-intl';
@@ -79,7 +80,7 @@ const UserOptionsContainer = withTracker((props) => {
     isMeetingMuted: meeting.voiceProp.muteOnStart,
     isUserPresenter: Service.isUserPresenter(),
     isUserModerator: Service.isUserModerator(),
-    meetingIsBreakout: Service.meetingIsBreakout(),
+    meetingIsBreakout: AppService.meetingIsBreakout(),
     getUsersNotAssigned: Service.getUsersNotAssigned,
     hasBreakoutRoom: Service.hasBreakoutRoom(),
     isBreakoutEnabled: Service.isBreakoutEnabled(),

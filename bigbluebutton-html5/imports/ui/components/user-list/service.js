@@ -13,6 +13,7 @@ import _ from 'lodash';
 import KEY_CODES from '/imports/utils/keyCodes';
 import AudioService from '/imports/ui/components/audio/service';
 import logger from '/imports/startup/client/logger';
+import { meetingIsBreakout } from '/imports/ui/components/app/service';
 
 const CHAT_CONFIG = Meteor.settings.public.chat;
 const PUBLIC_GROUP_CHAT_ID = CHAT_CONFIG.public_group_id;
@@ -318,7 +319,8 @@ const curatedVoiceUser = (intId) => {
   };
 };
 
-const getAvailableActions = (subjectUser, isBreakoutRoom) => {
+const getAvailableActions = (subjectUser) => {
+  const isBreakoutRoom = meetingIsBreakout();
   const isDialInUser = isVoiceOnlyUser(subjectUser.userId) || subjectUser.phone_user;
 
   const hasAuthority = isUserModerator(Auth.userID) || isMe(subjectUser.userId);

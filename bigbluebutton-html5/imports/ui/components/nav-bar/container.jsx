@@ -5,7 +5,6 @@ import { Session } from 'meteor/session';
 import Meetings from '/imports/api/meetings';
 import Users from '/imports/api/users';
 import Auth from '/imports/ui/services/auth';
-import { meetingIsBreakout } from '/imports/ui/components/app/service';
 import getFromUserSettings from '/imports/ui/services/users-settings';
 import userListService from '../user-list/service';
 import Service from './service';
@@ -47,7 +46,6 @@ export default withTracker(() => {
   const openPanel = Session.get('openPanel');
   const isExpanded = openPanel !== '';
   const amIModerator = currentUser.role === ROLE_MODERATOR;
-  const isBreakoutRoom = meetingIsBreakout();
   const hasUnreadMessages = checkUnreadMessages();
 
   return {
@@ -59,6 +57,5 @@ export default withTracker(() => {
     meetingId,
     presentationTitle: meetingTitle,
     hasUnreadMessages,
-    isBreakoutRoom,
   };
 })(NavBarContainer);

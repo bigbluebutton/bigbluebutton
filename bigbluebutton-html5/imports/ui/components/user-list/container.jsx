@@ -1,14 +1,12 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { withTracker } from 'meteor/react-meteor-data';
-import { meetingIsBreakout } from '/imports/ui/components/app/service';
 import getFromUserSettings from '/imports/ui/services/users-settings';
 import Service from './service';
 import UserList from './component';
 
 const propTypes = {
   activeChats: PropTypes.arrayOf(String).isRequired,
-  isBreakoutRoom: PropTypes.bool.isRequired,
   getAvailableActions: PropTypes.func.isRequired,
   normalizeEmojiName: PropTypes.func.isRequired,
   isMeetingLocked: PropTypes.func.isRequired,
@@ -33,7 +31,6 @@ UserListContainer.propTypes = propTypes;
 export default withTracker(({ chatID, compact }) => ({
   hasBreakoutRoom: Service.hasBreakoutRoom(),
   activeChats: Service.getActiveChats(chatID),
-  isBreakoutRoom: meetingIsBreakout(),
   getAvailableActions: Service.getAvailableActions,
   normalizeEmojiName: Service.normalizeEmojiName,
   isMeetingLocked: Service.isMeetingLocked,

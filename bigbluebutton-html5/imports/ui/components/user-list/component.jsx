@@ -14,7 +14,6 @@ const propTypes = {
   }).isRequired,
   CustomLogoUrl: PropTypes.string.isRequired,
   handleEmojiChange: PropTypes.func.isRequired,
-  isBreakoutRoom: PropTypes.bool,
   getAvailableActions: PropTypes.func.isRequired,
   normalizeEmojiName: PropTypes.func.isRequired,
   isMeetingLocked: PropTypes.func.isRequired,
@@ -35,7 +34,6 @@ const propTypes = {
 
 const defaultProps = {
   compact: false,
-  isBreakoutRoom: false,
 };
 
 class UserList extends PureComponent {
@@ -44,7 +42,6 @@ class UserList extends PureComponent {
       intl,
       activeChats,
       compact,
-      isBreakoutRoom,
       setEmojiStatus,
       assignPresenter,
       removeUser,
@@ -82,7 +79,6 @@ class UserList extends PureComponent {
             intl,
             activeChats,
             compact,
-            isBreakoutRoom,
             setEmojiStatus,
             assignPresenter,
             removeUser,

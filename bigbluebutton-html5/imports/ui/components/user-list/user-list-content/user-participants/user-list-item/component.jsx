@@ -8,17 +8,12 @@ const propTypes = {
   intl: PropTypes.shape({
     formatMessage: PropTypes.func.isRequired,
   }).isRequired,
-  isBreakoutRoom: PropTypes.bool,
   getAvailableActions: PropTypes.func.isRequired,
   isThisMeetingLocked: PropTypes.bool.isRequired,
   normalizeEmojiName: PropTypes.func.isRequired,
   getScrollContainerRef: PropTypes.func.isRequired,
   toggleUserLock: PropTypes.func.isRequired,
   isMeteorConnected: PropTypes.bool.isRequired,
-};
-
-const defaultProps = {
-  isBreakoutRoom: false,
 };
 
 class UserListItem extends PureComponent {
@@ -36,7 +31,6 @@ class UserListItem extends PureComponent {
       getScrollContainerRef,
       handleEmojiChange,
       intl,
-      isBreakoutRoom,
       isThisMeetingLocked,
       lockSettingsProps,
       normalizeEmojiName,
@@ -69,7 +63,6 @@ class UserListItem extends PureComponent {
           getScrollContainerRef,
           handleEmojiChange,
           intl,
-          isBreakoutRoom,
           isThisMeetingLocked,
           lockSettingsProps,
           normalizeEmojiName,
@@ -96,6 +89,5 @@ class UserListItem extends PureComponent {
 }
 
 UserListItem.propTypes = propTypes;
-UserListItem.defaultProps = defaultProps;
 
 export default injectIntl(UserListItem);

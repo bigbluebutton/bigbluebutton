@@ -16,7 +16,6 @@ const propTypes = {
     formatMessage: PropTypes.func.isRequired,
   }).isRequired,
   currentUser: PropTypes.shape({}).isRequired,
-  isBreakoutRoom: PropTypes.bool,
   getAvailableActions: PropTypes.func.isRequired,
   normalizeEmojiName: PropTypes.func.isRequired,
   isMeetingLocked: PropTypes.func.isRequired,
@@ -39,7 +38,6 @@ const propTypes = {
 
 const defaultProps = {
   compact: false,
-  isBreakoutRoom: false,
 };
 const ROLE_MODERATOR = Meteor.settings.public.user.role_moderator;
 const CHAT_ENABLED = Meteor.settings.public.chat.enabled;
@@ -50,7 +48,6 @@ class UserContent extends PureComponent {
       compact,
       intl,
       currentUser,
-      isBreakoutRoom,
       setEmojiStatus,
       assignPresenter,
       removeUser,
@@ -132,7 +129,6 @@ class UserContent extends PureComponent {
             compact,
             intl,
             currentUser,
-            isBreakoutRoom,
             setEmojiStatus,
             assignPresenter,
             removeUser,
