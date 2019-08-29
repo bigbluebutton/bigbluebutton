@@ -317,9 +317,8 @@ class AudioModal extends Component {
 
     const showMicrophone = forceListenOnlyAttendee || audioLocked;
 
-    const dialAudioLabel = isRTL
-      ? `🡸 ${intl.formatMessage(intlMessages.audioDialTitle)}`
-      : `${intl.formatMessage(intlMessages.audioDialTitle)} 🡺`;
+    const arrow = isRTL ? '🡸' : '🡺';
+    const dialAudioLabel = `${intl.formatMessage(intlMessages.audioDialTitle)} ${arrow}`;
 
     return (
       <div>
@@ -363,7 +362,7 @@ class AudioModal extends Component {
             }}
             ghost
           />
-          ) : null}
+        ) : null}
       </div>
     );
   }
