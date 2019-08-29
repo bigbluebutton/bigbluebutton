@@ -2,12 +2,12 @@ import React, { PureComponent } from 'react';
 import { defineMessages, injectIntl, intlShape } from 'react-intl';
 import browser from 'browser-detect';
 import PropTypes from 'prop-types';
+import cx from 'classnames';
+import _ from 'lodash';
 import { styles } from '../styles.scss';
 
 const propTypes = {
   intl: intlShape.isRequired,
-  currentChatPartner: PropTypes.string.isRequired,
-  currentUserId: PropTypes.string.isRequired,
   typingUsers: PropTypes.arrayOf(Object).isRequired,
 };
 
@@ -33,58 +33,78 @@ class TypingIndicator extends PureComponent {
 
     this.BROWSER_RESULTS = browser();
 
-    this.renderIsTypingString = this.renderIsTypingString.bind(this);
+    this.renderTypingElement = this.renderTypingElement.bind(this);
+    this.renderAnimation = this.renderAnimation.bind(this);
   }
 
+  renderAnimation(element = null, form) {
+    const { intl } = this.props;
 
-  renderIsTypingString() {
-    const {
-      intl, typingUsers, currentUserId, currentChatPartner, indicatorEnabled,
-    } = this.props;
-
-    if (!indicatorEnabled) return null;
-
-    let names = [];
-
-    names = typingUsers.map((user) => {
-      const { userId: typingUserId, isTypingTo, name } = user;
-      let userNameTyping = null;
-      userNameTyping = currentUserId !== typingUserId ? name : userNameTyping;
-      const isPrivateMsg = currentChatPartner !== isTypingTo;
-      if (isPrivateMsg) {
-        const isMsgParticipant = typingUserId === currentChatPartner
-          && currentUserId === isTypingTo;
-
-        userNameTyping = isMsgParticipant ? name : null;
-      }
-      return userNameTyping;
-    }).filter(e => e);
-
-    if (names) {
-      const { length } = names;
-      const noTypers = length < 1;
-      const singleTyper = length === 1;
-      const multipleTypersShown = length > 1 && length <= 3;
-      if (noTypers) return null;
-
-      if (singleTyper) {
-        if (names[0].length < 20) {
-          return ` ${names[0]} ${intl.formatMessage(messages.singularTyping)}`;
-        }
-        return (` ${names[0].slice(0, 20)}... ${intl.formatMessage(messages.singularTyping)}`);
-      }
-
-      if (multipleTypersShown) {
-        const formattedNames = names.map((name) => {
-          if (name.length < 15) return ` ${name}`;
-          return ` ${name.slice(0, 15)}...`;
-        });
-        return (`${formattedNames} ${intl.formatMessage(messages.pluralTyping)}`);
-      }
-      return (` ${intl.formatMessage(messages.severalPeople)} ${intl.formatMessage(messages.pluralTyping)}`);
+    if (!element) {
+      return (
+        <span className={styles.animWrapper} key="animWrapper">
+          {`${intl.formatMessage(messages.severalPeople)} ${intl.formatMessage(messages.pluralTyping)}`}
+          <span className={styles.connectingAnimation} />
+        </span>
+      );
     }
 
-    return null;
+    element.push(
+      (
+        <span className={styles.animWrapper} key="animWrapper">
+          &nbsp;
+          {
+            form === 'single'
+              ? `${intl.formatMessage(messages.singularTyping)}`
+              : `${intl.formatMessage(messages.pluralTyping)}`
+          }
+          <span className={styles.connectingAnimation} />
+        </span>
+      ),
+    );
+    return element;
+  }
+
+  renderTypingElement() {
+    const {
+      typingUsers, indicatorEnabled,
+    } = this.props;
+
+    if (!indicatorEnabled || !typingUsers) return null;
+
+    const { length } = typingUsers;
+    const isSingleTyper = length === 1;
+    const isCoupleTypers = length === 2;
+    const isFewTypers = length === 3;
+
+    const names = typingUsers.map((user, index) => {
+      const domElement = [];
+      const style = {};
+      style[styles.typingUser] = true;
+      style[styles.twoUsers] = isCoupleTypers;
+      style[styles.threeUsers] = isFewTypers;
+      domElement.push(<span key={_.uniqueId('typing-users-')} className={cx(style)}>{`${user.name}`}</span>);
+
+      if (isSingleTyper) return domElement;
+
+      const addComma = (isCoupleTypers || isFewTypers) && index !== (typingUsers.length - 1);
+
+      if (addComma) {
+        domElement.push(
+          <span key={_.uniqueId('spacer-comma-')}>
+            {','}
+            &nbsp;
+          </span>,
+        );
+      }
+
+      return domElement;
+    });
+
+    if (names.length === 0) return null;
+    if (isSingleTyper) return this.renderAnimation(names, 'single');
+    if (isCoupleTypers || isFewTypers) return this.renderAnimation(names);
+    return this.renderAnimation();
   }
 
   render() {
@@ -92,15 +112,14 @@ class TypingIndicator extends PureComponent {
       error,
     } = this.props;
 
+    const style = {};
+    style[styles.error] = !!error;
+    style[styles.info] = !error;
+    style[styles.spacer] = !!this.renderTypingElement();
+
     return (
-      <div className={error ? styles.error : styles.info}>
-        <span>
-          <span>{error || this.renderIsTypingString()}</span>
-          {!error && this.renderIsTypingString()
-            ? <span className={styles.connectingAnimation} />
-            : null
-            }
-        </span>
+      <div className={cx(style)}>
+        <span className={styles.typingIndicator}>{error || this.renderTypingElement()}</span>
       </div>
     );
   }

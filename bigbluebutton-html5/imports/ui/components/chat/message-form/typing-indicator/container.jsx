@@ -2,7 +2,6 @@ import React, { PureComponent } from 'react';
 import { withTracker } from 'meteor/react-meteor-data';
 import Auth from '/imports/ui/services/auth';
 import { UsersTyping } from '/imports/api/group-chat-msg';
-import Users from '/imports/api/users';
 import TypingIndicator from './component';
 
 const CHAT_CONFIG = Meteor.settings.public.chat;
@@ -23,6 +22,7 @@ export default withTracker(() => {
   let selector = {
     meetingId: Auth.meetingID,
     isTypingTo: PUBLIC_CHAT_KEY,
+    userId: { $ne: Auth.userID },
   };
 
   if (idChatOpen !== PUBLIC_CHAT_KEY) {
@@ -35,19 +35,8 @@ export default withTracker(() => {
 
   const typingUsers = UsersTyping.find(selector).fetch();
 
-  const currentUser = Users.findOne({
-    meetingId: Auth.meetingID,
-    userId: Auth.userID,
-  }, {
-    fields: {
-      userId: 1,
-    },
-  });
-
   return {
-    currentUserId: currentUser ? currentUser.userId : null,
     typingUsers,
-    currentChatPartner: idChatOpen,
     indicatorEnabled: TYPING_INDICATOR_ENABLED,
   };
 })(TypingIndicatorContainer);
