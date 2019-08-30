@@ -14,8 +14,7 @@ const generateRandomMeetingId = function () {
 const createMeeting = function () {
   const meetingId = generateRandomMeetingId();
   const query = `name=${meetingId}&meetingID=${meetingId}&attendeePW=ap`
-    + '&moderatorPW=mp&joinViaHtml5=true&record=false'
-    + '&allowStartStopRecording=true&autoStartRecording=false&welcome=Welcome';
+    + '&moderatorPW=mp&joinViaHtml5=true&welcome=Welcome';
   const checksum = sha1(`create${query}${process.env.TESTING_SECRET}`);
   const url = `${process.env.TESTING_SERVER}create?${query}&checksum=${checksum}`;
 
