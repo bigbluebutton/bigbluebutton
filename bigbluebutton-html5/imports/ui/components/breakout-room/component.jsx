@@ -181,7 +181,7 @@ class BreakoutRoom extends PureComponent {
     const {
       breakoutRooms,
       intl,
-      getUsersByBreakoutId,
+      getNumUsersByBreakoutId,
     } = this.props;
 
     const {
@@ -195,7 +195,7 @@ class BreakoutRoom extends PureComponent {
           {intl.formatMessage(intlMessages.breakoutRoom, breakout.sequence.toString())}
           <span className={styles.usersAssignedNumberLabel}>
             (
-            {getUsersByBreakoutId(breakout.breakoutId).count()}
+            {getNumUsersByBreakoutId(breakout.breakoutId)}
             )
           </span>
         </span>

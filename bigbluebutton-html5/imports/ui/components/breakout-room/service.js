@@ -65,10 +65,10 @@ const isModerator = () => {
   return User.role === ROLE_MODERATOR;
 };
 
-const getUsersByBreakoutId = breakoutId => Users.find({
+const getNumUsersByBreakoutId = breakoutId => Users.find({
   meetingId: breakoutId,
   connectionStatus: 'online',
-}, { fields: {} });
+}, { fields: {} }).count();
 
 const getBreakoutByUserId = userId => Breakouts.find({ 'users.userId': userId }).fetch();
 
@@ -104,7 +104,7 @@ export default {
   isPresenter,
   closeBreakoutPanel,
   isModerator,
-  getUsersByBreakoutId,
+  getNumUsersByBreakoutId,
   getBreakoutUserByUserId,
   getBreakoutByUser,
   getBreakouts,
