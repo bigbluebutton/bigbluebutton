@@ -6,6 +6,7 @@ import Settings from '/imports/ui/services/settings';
 import { Session } from 'meteor/session';
 
 const NOTE_CONFIG = Meteor.settings.public.note;
+const ROLE_MODERATOR = Meteor.settings.public.user.role_moderator;
 
 const getNoteId = () => {
   const note = Note.findOne({ meetingId: Auth.meetingID }, { fields: { noteId: 1 } });
@@ -42,7 +43,6 @@ const isLocked = () => {
   const meeting = Meetings.findOne({ meetingId: Auth.meetingID }, { fields: { 'lockSettingsProps.disableNote': 1 } });
   const user = Users.findOne({ userId: Auth.userID }, { fields: { locked: 1, role: 1 } });
 
-  const ROLE_MODERATOR = Meteor.settings.public.user.role_moderator;
   if (meeting.lockSettingsProps && user.locked && user.role !== ROLE_MODERATOR) {
     return meeting.lockSettingsProps.disableNote;
   }

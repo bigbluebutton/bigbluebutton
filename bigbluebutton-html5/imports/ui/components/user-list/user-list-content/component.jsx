@@ -39,7 +39,6 @@ const propTypes = {
 const defaultProps = {
   compact: false,
 };
-const ROLE_MODERATOR = Meteor.settings.public.user.role_moderator;
 const CHAT_ENABLED = Meteor.settings.public.chat.enabled;
 
 class UserContent extends PureComponent {
@@ -72,6 +71,7 @@ class UserContent extends PureComponent {
       toggleUserLock,
       pendingUsers,
       requestUserInformation,
+      isModerator,
     } = this.props;
 
     return (
@@ -92,7 +92,7 @@ class UserContent extends PureComponent {
           />
           ) : null
         }
-        {currentUser.role === ROLE_MODERATOR
+        {isModerator(currentUser.userId)
           ? (
             <UserCaptionsContainer
               {...{
@@ -106,7 +106,7 @@ class UserContent extends PureComponent {
             intl,
           }}
         />
-        {pendingUsers.length > 0 && currentUser.role === ROLE_MODERATOR
+        {pendingUsers.length > 0 && isModerator(currentUser.userId)
           ? (
             <WaitingUsers
               {...{
@@ -147,6 +147,7 @@ class UserContent extends PureComponent {
             hasPrivateChatBetweenUsers,
             toggleUserLock,
             requestUserInformation,
+            isModerator,
           }}
         />
       </div>

@@ -112,7 +112,6 @@ const propTypes = {
   getScrollContainerRef: PropTypes.func.isRequired,
   toggleUserLock: PropTypes.func.isRequired,
 };
-const ROLE_MODERATOR = Meteor.settings.public.user.role_moderator;
 const CHAT_ENABLED = Meteor.settings.public.chat.enabled;
 
 class UserDropdown extends PureComponent {
@@ -201,7 +200,7 @@ class UserDropdown extends PureComponent {
   getUsersActions() {
     const {
       intl,
-      currentUser,
+      currentUser, // TODO remove
       user,
       getAvailableActions,
       getGroupChatPrivate,
@@ -241,7 +240,7 @@ class UserDropdown extends PureComponent {
 
     const { disablePrivateChat } = lockSettingsProps;
 
-    const enablePrivateChat = currentUser.role === ROLE_MODERATOR
+    const enablePrivateChat = isModerator(currentUser.userId)
       ? allowedToChatPrivately
       : allowedToChatPrivately
       && (!(currentUser.locked && disablePrivateChat)
@@ -485,7 +484,7 @@ class UserDropdown extends PureComponent {
       breakoutSequence,
       meetingIsBreakout,
       isModerator,
-      getMyVoiceUser,
+      voiceUser,
     } = this.props;
 
     const { clientType } = user;
@@ -502,11 +501,11 @@ class UserDropdown extends PureComponent {
       <UserAvatar
         moderator={isModerator(user.userId)}
         presenter={user.presenter}
-        talking={getMyVoiceUser.isTalking}
-        muted={getMyVoiceUser.isMuted}
-        listenOnly={getMyVoiceUser.isListenOnly}
-        voice={getMyVoiceUser.isVoiceUser}
-        noVoice={!getMyVoiceUser.isVoiceUser}
+        talking={voiceUser.isTalking}
+        muted={voiceUser.isMuted}
+        listenOnly={voiceUser.isListenOnly}
+        voice={voiceUser.isVoiceUser}
+        noVoice={!voiceUser.isVoiceUser}
         color={user.color}
       >
         {
@@ -539,7 +538,6 @@ class UserDropdown extends PureComponent {
     const actions = this.getUsersActions();
 
     const userItemContentsStyle = {};
-    const { role } = currentUser;
 
     userItemContentsStyle[styles.dropdown] = true;
     userItemContentsStyle[styles.userListItem] = !isActionsOpen;
@@ -585,7 +583,7 @@ class UserDropdown extends PureComponent {
           {<UserIcons
             {...{
               user,
-              isModerator: role === ROLE_MODERATOR,
+              isModerator: isModerator(currentUser.userId),
             }}
           />}
         </div>

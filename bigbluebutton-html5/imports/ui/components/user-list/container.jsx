@@ -53,4 +53,5 @@ export default withTracker(({ chatID, compact }) => ({
   hasPrivateChatBetweenUsers: Service.hasPrivateChatBetweenUsers,
   toggleUserLock: Service.toggleUserLock,
   requestUserInformation: Service.requestUserInformation,
+  isModerator: Service.isUserModerator,
 }))(UserListContainer);

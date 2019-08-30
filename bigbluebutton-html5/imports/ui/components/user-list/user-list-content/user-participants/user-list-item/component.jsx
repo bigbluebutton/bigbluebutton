@@ -46,7 +46,7 @@ class UserListItem extends PureComponent {
       isMeteorConnected,
       isModerator,
       isMe,
-      getMyVoiceUser,
+      voiceUser,
     } = this.props;
 
     const contents = (
@@ -79,7 +79,7 @@ class UserListItem extends PureComponent {
           isMeteorConnected,
           isModerator,
           isMe,
-          getMyVoiceUser,
+          voiceUser,
         }}
       />
     );

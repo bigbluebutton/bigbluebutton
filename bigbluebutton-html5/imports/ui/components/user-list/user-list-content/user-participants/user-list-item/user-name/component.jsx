@@ -68,7 +68,7 @@ const UserName = (props) => {
     return null;
   }
 
-  if (isThisMeetingLocked && user.locked && isModerator(user.userId)) {
+  if (isThisMeetingLocked && user.locked && !isModerator(user.userId)) {
     userNameSub.push(
       <span>
         <Icon iconName="lock" />
@@ -77,9 +77,9 @@ const UserName = (props) => {
     );
   }
 
-  // if (user.isGuest) { // FIXME- isGuest is not defined
-  //   userNameSub.push(intl.formatMessage(messages.guest));
-  // }
+  if (user.guest) {
+    userNameSub.push(intl.formatMessage(messages.guest));
+  }
 
   return (
     <div

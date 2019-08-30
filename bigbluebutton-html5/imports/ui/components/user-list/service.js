@@ -510,6 +510,7 @@ export default {
   getCustomLogoUrl,
   getGroupChatPrivate,
   hasBreakoutRoom,
+  meetingIsBreakout,
   isUserModerator,
   getEmojiList: () => EMOJI_STATUSES,
   getEmoji: () => Users.findOne({ userId: Auth.userID }, { fields: { emoji: 1 } }).emoji,

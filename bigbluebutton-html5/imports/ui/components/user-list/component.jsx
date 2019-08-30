@@ -64,6 +64,7 @@ class UserList extends PureComponent {
       hasPrivateChatBetweenUsers,
       toggleUserLock,
       requestUserInformation,
+      isModerator,
     } = this.props;
 
     return (
@@ -99,6 +100,7 @@ class UserList extends PureComponent {
             hasPrivateChatBetweenUsers,
             toggleUserLock,
             requestUserInformation,
+            isModerator,
           }
           }
         />}

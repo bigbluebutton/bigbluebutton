@@ -68,6 +68,14 @@ const AppContainer = (props) => {
   );
 };
 
+const currentUserEmoji = currentUser => (currentUser ? {
+  status: currentUser.emoji,
+  changedAt: currentUser.emojiTime,
+} : {
+  status: 'none',
+  changedAt: null,
+});
+
 export default injectIntl(withModalMounter(withTracker(({ intl, baseControls }) => {
   const currentUser = Users.findOne({ userId: Auth.userID }, { fields: { approved: 1, emoji: 1 } });
   const currentMeeting = Meetings.findOne({ meetingId: Auth.meetingID },
@@ -94,14 +102,6 @@ export default injectIntl(withModalMounter(withTracker(({ intl, baseControls }) 
     requesterUserId: Auth.userID,
   }).fetch();
 
-  const currentUserEmoji = () => (currentUser ? {
-    status: currentUser.emoji,
-    changedAt: currentUser.emojiTime,
-  } : {
-    status: 'none',
-    changedAt: null,
-  });
-
   return {
     captions: CaptionsService.isCaptionsActive() ? <CaptionsContainer /> : null,
     fontSize: getFontSize(),
@@ -115,7 +115,7 @@ export default injectIntl(withModalMounter(withTracker(({ intl, baseControls }) 
     isPhone: deviceInfo.type().isPhone,
     isRTL: document.documentElement.getAttribute('dir') === 'rtl',
     meetingMuted: voiceProp.muteOnStart,
-    currentUserEmoji,
+    currentUserEmoji: currentUserEmoji(currentUser),
     hasPublishedPoll: publishedPoll,
     startBandwidthMonitoring,
     handleNetworkConnection: () => updateNavigatorConnection(navigator.connection),

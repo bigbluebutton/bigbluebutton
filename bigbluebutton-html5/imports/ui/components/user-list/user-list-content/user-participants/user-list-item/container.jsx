@@ -5,7 +5,6 @@ import Meetings from '/imports/api/meetings';
 import Auth from '/imports/ui/services/auth';
 import UserListItem from './component';
 import UserListService from '/imports/ui/components/user-list/service';
-import AppService from '/imports/ui/components/app/service';
 
 const UserListItemContainer = props => <UserListItem {...props} />;
 
@@ -19,14 +18,13 @@ export default withTracker(({ user }) => {
 
   return {
     user,
-    isModerator: UserListService.isUserModerator,
     isMe,
     userInBreakout: !!findUserInBreakout,
     breakoutSequence,
     lockSettingsProps: Meeting && Meeting.lockSettingsProps,
-    meetingIsBreakout: AppService.meetingIsBreakout(),
+    meetingIsBreakout: UserListService.meetingIsBreakout(),
     isMeteorConnected: Meteor.status().connected,
     isThisMeetingLocked: UserListService.isMeetingLocked(Auth.meetingID),
-    getMyVoiceUser: UserListService.curatedVoiceUser(Auth.userID),
+    voiceUser: UserListService.curatedVoiceUser(user.userId),
   };
 })(UserListItemContainer);
