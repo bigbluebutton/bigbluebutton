@@ -21,6 +21,7 @@ export default lockContextContainer(withModalMounter(withTracker(({ mountModal, 
   const skipCheck = getFromUserSettings('skipCheck', APP_CONFIG.skipCheck);
   const meeting = Meetings.findOne({ meetingId: Auth.meetingID });
   const invalidDialNumbers = ['0', '613-555-1212', '613-555-1234', '0000'];
+  const isRTL = document.documentElement.getAttribute('dir') === 'rtl';
   let formattedDialNum = '';
   let formattedTelVoice = '';
   let combinedDialInNum = '';
@@ -103,5 +104,6 @@ export default lockContextContainer(withModalMounter(withTracker(({ mountModal, 
     hasMediaDevices: deviceInfo.hasMediaDevices,
     autoplayBlocked: Service.autoplayBlocked(),
     handleAllowAutoplay: () => Service.handleAllowAutoplay(),
+    isRTL,
   });
 })(AudioModalContainer)));
