@@ -25,6 +25,11 @@ const intlMessages = defineMessages({
   },
 });
 
+const meetingMuteDisabledLog = () => logger.info({
+  logCode: 'useroptions_unmute_all',
+  extraInfo: { logType: 'moderator_action' },
+}, 'moderator disabled meeting mute');
+
 const UserOptionsContainer = withTracker((props) => {
   const {
     users,
@@ -37,7 +42,6 @@ const UserOptionsContainer = withTracker((props) => {
   const meeting = Meetings.findOne({ meetingId: Auth.meetingID }, { fields: { voiceProp: 1 } });
 
   const toggleStatus = () => {
-    // TODO here we only need userIDs, we can reduce weight
     users.forEach(user => setEmojiStatus(user.userId, 'none'));
     notify(
       intl.formatMessage(intlMessages.clearStatusMessage), 'info', 'clear_status',
@@ -49,11 +53,6 @@ const UserOptionsContainer = withTracker((props) => {
     const { muteOnStart } = voiceProp;
     return muteOnStart;
   };
-
-  const meetingMuteDisabledLog = () => logger.info({
-    logCode: 'useroptions_unmute_all',
-    extraInfo: { logType: 'moderator_action' },
-  }, 'moderator disabled meeting mute');
 
   return {
     toggleMuteAllUsers: () => {

@@ -122,7 +122,6 @@ class Poll extends Component {
       this.handleBackClick();
     }
 
-    console.error(`amIPresenter `, amIPresenter)
     if (!amIPresenter) {
       Session.set('openPanel', 'userlist');
       Session.set('forcePollOpen', false);

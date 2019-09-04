@@ -51,7 +51,7 @@ const pollAnswerIds = {
 };
 
 export default {
-  amIPresenter: () => Users.findOne({ userId: Auth.userID }, { fields: { presenter: 1 } }),
+  amIPresenter: () => Users.findOne({ userId: Auth.userID }, { fields: { presenter: 1 } }).presenter,
   pollTypes,
   stopPoll: () => makeCall('stopPoll', Auth.userId),
   currentPoll: () => Polls.findOne({ meetingId: Auth.meetingID }),

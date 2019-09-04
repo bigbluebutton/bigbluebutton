@@ -74,7 +74,6 @@ class NavBar extends PureComponent {
       intl,
       shortcuts: TOGGLE_USERLIST_AK,
       mountModal,
-      // isBreakoutRoom,
       presentationTitle,
       amIModerator,
     } = this.props;

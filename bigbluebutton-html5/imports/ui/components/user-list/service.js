@@ -243,7 +243,7 @@ const getActiveChats = (chatID) => {
       const activeChat = op;
       activeChat.unreadCounter = UnreadMessages.count(op.userId);
       activeChat.name = op.name;
-      activeChat.isModerator = isUserModerator(op.userId);
+      activeChat.isModerator = op.role === ROLE_MODERATOR;
       return activeChat;
     });
 
@@ -322,9 +322,12 @@ const curatedVoiceUser = (intId) => {
 const getAvailableActions = (subjectUser) => {
   const isBreakoutRoom = meetingIsBreakout();
   const isDialInUser = isVoiceOnlyUser(subjectUser.userId) || subjectUser.phone_user;
+  const amIModerator = isUserModerator(Auth.userID);
+  const amISubjectUser = isMe(subjectUser.userId);
+  const isSubjectUserModerator = isUserModerator(subjectUser.userId);
 
-  const hasAuthority = isUserModerator(Auth.userID) || isMe(subjectUser.userId);
-  const allowedToChatPrivately = !isMe(subjectUser.userId) && !isDialInUser;
+  const hasAuthority = amIModerator || amISubjectUser;
+  const allowedToChatPrivately = !amISubjectUser && !isDialInUser;
   const voiceUser = curatedVoiceUser(subjectUser.userId);
   const allowedToMuteAudio = hasAuthority
     && voiceUser.isVoiceUser
@@ -335,37 +338,38 @@ const getAvailableActions = (subjectUser) => {
     && voiceUser.isVoiceUser
     && !voiceUser.isListenOnly
     && voiceUser.isMuted
-    && (isMe(subjectUser.userId) || areUsersUnmutable());
+    && (amISubjectUser || areUsersUnmutable());
 
   const allowedToResetStatus = hasAuthority
     && subjectUser.emoji !== EMOJI_STATUSES.none
     && !isDialInUser;
 
   // if currentUser is a moderator, allow removing other users
-  const allowedToRemove = isUserModerator(Auth.userID)
-    && !isMe(subjectUser.userId)
+  const allowedToRemove = amIModerator
+    && !amISubjectUser
     && !isBreakoutRoom;
 
-  const allowedToSetPresenter = isUserModerator(Auth.userID)
+  const allowedToSetPresenter = amIModerator
     && !subjectUser.presenter
     && !isDialInUser;
 
-  const allowedToPromote = isUserModerator(Auth.userID)
-    && !isMe(subjectUser.userId)
-    && !isUserModerator(subjectUser.userId)
+  const allowedToPromote = amIModerator
+    && !amISubjectUser
+    && !isSubjectUserModerator
     && !isDialInUser
     && !isBreakoutRoom;
 
-  const allowedToDemote = isUserModerator(Auth.userID)
-    && !isMe(subjectUser.userId)
-    && isUserModerator(subjectUser.userId)
+  const allowedToDemote = amIModerator
+    && !amISubjectUser
+    && isSubjectUserModerator
     && !isDialInUser
     && !isBreakoutRoom;
 
-  const allowedToChangeStatus = isMe(subjectUser.userId);
+  const allowedToChangeStatus = amISubjectUser;
 
-  const allowedToChangeUserLockStatus = isUserModerator(Auth.userID)
-    && !isUserModerator(subjectUser.userId) && isMeetingLocked(Auth.meetingID);
+  const allowedToChangeUserLockStatus = amIModerator
+    && !isSubjectUserModerator
+    && isMeetingLocked(Auth.meetingID);
 
   return {
     allowedToChatPrivately,

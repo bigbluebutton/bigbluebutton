@@ -7,14 +7,13 @@ import UserListItem from './component';
 import UserListService from '/imports/ui/components/user-list/service';
 
 const UserListItemContainer = props => <UserListItem {...props} />;
+const isMe = intId => intId === Auth.userID;
 
 export default withTracker(({ user }) => {
   const findUserInBreakout = Breakouts.findOne({ 'joinedUsers.userId': new RegExp(`^${user.userId}`) });
   const breakoutSequence = (findUserInBreakout || {}).sequence;
   const Meeting = Meetings.findOne({ meetingId: Auth.meetingID },
     { fields: { lockSettingsProps: 1 } });
-
-  const isMe = intId => intId === Auth.userID;
 
   return {
     user,
