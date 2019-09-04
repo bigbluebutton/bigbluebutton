@@ -355,7 +355,7 @@ class AudioManager {
         logger.error({
           logCode: 'audio_failure',
           extraInfo: {
-            error,
+            errorCode: error,
             cause: bridgeError,
           },
         }, 'Audio Error');
