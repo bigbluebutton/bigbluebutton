@@ -80,7 +80,7 @@ class VideoService {
     const currentUser = Users.findOne({ userId: Auth.userID });
     const currentUserIsViewer = currentUser.role === ROLE_VIEWER;
     const sharedWebcam = this.isSharing;
-    const videoUsers = VideoUsers.find({ meetingId: Auth.meetingID, hasStream: true }).fetch();
+    const videoUsers = VideoUsers.find({ meetingId: Auth.meetingID, hasStream: true }, { fields: { userId: 1 } }).fetch();
 
     const videoUserIds = videoUsers.map(u => u.userId);
 
@@ -92,8 +92,16 @@ class VideoService {
           { userId: { $ne: Auth.userID } },
           { userId: { $in: videoUserIds } },
         ],
-      })
-      .fetch();
+      },
+      {
+        fields: {
+          name: 1,
+          userId: 1,
+          role: 1,
+          emoji: 1,
+          clientType: 1,
+        },
+      }).fetch();
 
     const userIsNotLocked = user => user.role === ROLE_MODERATOR || !user.locked;
 

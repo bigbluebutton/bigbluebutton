@@ -11,7 +11,8 @@ const ROLE_MODERATOR = USER_CONFIG.role_moderator;
 const ROLE_VIEWER = USER_CONFIG.role_viewer;
 
 export default withTracker(() => {
-  const videoUsers = VideoUsers.find({ meetingId: Auth.meetingID, hasStream: true }).fetch();
+  const videoUsers = VideoUsers.find({ meetingId: Auth.meetingID, hasStream: true },
+    { fields: { userId: 1 } }).fetch();
   const videoUsersIds = videoUsers.map(u => u.userId);
   return {
     viewersInWebcam: Users.find({
@@ -21,7 +22,7 @@ export default withTracker(() => {
       },
       role: ROLE_VIEWER,
       presenter: false,
-    }).count(),
+    }, { fields: {} }).count(),
     currentUserIsModerator: Users.findOne({ userId: Auth.userID }).role === ROLE_MODERATOR,
     lockSettings: Meetings.findOne({ meetingId: Auth.meetingID }).lockSettingsProps,
     webcamOnlyForModerator: Meetings.findOne({

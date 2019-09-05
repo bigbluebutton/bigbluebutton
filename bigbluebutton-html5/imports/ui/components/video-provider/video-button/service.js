@@ -9,7 +9,7 @@ const baseName = Meteor.settings.public.app.cdn + Meteor.settings.public.app.bas
 
 const isSharingVideo = () => {
   const userId = Auth.userID;
-  const VideoUser = VideoUsers.findOne({ userId, hasStream: true });
+  const VideoUser = VideoUsers.findOne({ userId, hasStream: true }, { fields: {} });
   return !!VideoUser;
 };
 
