@@ -17,7 +17,7 @@ const ScreenshareContainer = (props) => {
 };
 
 export default withTracker(() => {
-  const user = Users.findOne({ userId: Auth.userID });
+  const user = Users.findOne({ userId: Auth.userID }, { fields: { presenter: 1 } });
   return {
     isPresenter: user.presenter,
     unshareScreen,

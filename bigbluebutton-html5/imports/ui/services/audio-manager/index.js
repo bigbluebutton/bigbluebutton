@@ -268,7 +268,7 @@ class AudioManager {
 
     // listen to the VoiceUsers changes and update the flag
     if (!this.muteHandle) {
-      const query = VoiceUsers.find({ intId: Auth.userID });
+      const query = VoiceUsers.find({ intId: Auth.userID }, { fields: { muted: 1, talking: 1 } });
       this.muteHandle = query.observeChanges({
         changed: (id, fields) => {
           if (fields.muted !== undefined && fields.muted !== this.isMuted) {

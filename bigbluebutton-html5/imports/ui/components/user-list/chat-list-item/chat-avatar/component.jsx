@@ -11,14 +11,18 @@ const propTypes = {
 const defaultProps = {
 };
 
-const ChatAvatar = props => (
-  <UserAvatar
-    moderator={props.isModerator}
-    color={props.color}
-  >
-    {props.name.toLowerCase().slice(0, 2)}
-  </UserAvatar>
-);
+const ChatAvatar = (props) => {
+  const { color, name, isModerator } = props;
+  return (
+
+    <UserAvatar
+      moderator={isModerator}
+      color={color}
+    >
+      {name.toLowerCase().slice(0, 2)}
+    </UserAvatar>
+  );
+};
 
 ChatAvatar.propTypes = propTypes;
 ChatAvatar.defaultProps = defaultProps;

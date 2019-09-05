@@ -4,8 +4,9 @@ import { makeCall } from '/imports/ui/services/api';
 import Auth from '/imports/ui/services/auth';
 import { Session } from 'meteor/session';
 import Users from '/imports/api/users';
-import mapUser from '/imports/ui/services/user/mapUser';
 import fp from 'lodash/fp';
+
+const ROLE_MODERATOR = Meteor.settings.public.user.role_moderator;
 
 const findBreakouts = () => {
   const BreakoutRooms = Breakouts.find({
@@ -50,30 +51,28 @@ const transferToBreakout = (breakoutId) => {
       { 'breakoutProps.parentId': breakoutRoom.parentMeetingId },
       { 'meetingProp.isBreakout': true },
     ],
-  });
+  }, { fields: { meetingId: 1 } });
   transferUserToMeeting(Auth.meetingID, breakoutMeeting.meetingId);
 };
 
 const isPresenter = () => {
-  const User = Users.findOne({ intId: Auth.userID });
-  const mappedUser = mapUser(User);
-  return mappedUser.isPresenter;
+  const User = Users.findOne({ intId: Auth.userID }, { fields: { presenter: 1 } });
+  return User.presenter;
 };
 
 const isModerator = () => {
-  const User = Users.findOne({ intId: Auth.userID });
-  const mappedUser = mapUser(User);
-  return mappedUser.isModerator;
+  const User = Users.findOne({ intId: Auth.userID }, { fields: { role: 1 } });
+  return User.role === ROLE_MODERATOR;
 };
 
-const getUsersByBreakoutId = breakoutId => Users.find({
+const getNumUsersByBreakoutId = breakoutId => Users.find({
   meetingId: breakoutId,
   connectionStatus: 'online',
-});
+}, { fields: {} }).count();
 
 const getBreakoutByUserId = userId => Breakouts.find({ 'users.userId': userId }).fetch();
 
-const getBreakoutByUser = user => Breakouts.findOne({ users: user });
+const getBreakoutByUser = user => Breakouts.findOne({ users: user }, { fields: { breakoutId: 1 } });
 
 const getUsersFromBreakouts = breakoutsArray => breakoutsArray
   .map(breakout => breakout.users)
@@ -105,7 +104,7 @@ export default {
   isPresenter,
   closeBreakoutPanel,
   isModerator,
-  getUsersByBreakoutId,
+  getNumUsersByBreakoutId,
   getBreakoutUserByUserId,
   getBreakoutByUser,
   getBreakouts,

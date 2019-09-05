@@ -20,22 +20,25 @@ import CursorContainer from '../container';
 
 const CursorWrapperContainer = ({ presenterCursorId, multiUserCursorIds, ...rest }) => (
   <g>
-    {Object.keys(presenterCursorId).length > 0 ?
-      <CursorContainer
-        key={presenterCursorId._id}
-        presenter
-        cursorId={presenterCursorId._id}
-        {...rest}
-      />
-        : null }
+    {Object.keys(presenterCursorId).length > 0
+      ? (
+        <CursorContainer
+          key={presenterCursorId._id}
+          presenter
+          cursorId={presenterCursorId._id}
+          {...rest}
+        />
+      )
+      : null }
 
-    {multiUserCursorIds.map(cursorId =>
-      (<CursorContainer
+    {multiUserCursorIds.map(cursorId => (
+      <CursorContainer
         key={cursorId._id}
         cursorId={cursorId._id}
         presenter={false}
         {...rest}
-      />))}
+      />
+    ))}
   </g>
 );
 

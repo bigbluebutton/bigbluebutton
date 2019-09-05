@@ -14,7 +14,7 @@ const propTypes = {
 const POLLING_ENABLED = Meteor.settings.public.poll.enabled;
 
 const PollingContainer = ({ pollExists, ...props }) => {
-  const currentUser = Users.findOne({ userId: Auth.userID });
+  const currentUser = Users.findOne({ userId: Auth.userID }, { fields: { presenter: 1 } });
   const showPolling = pollExists && !currentUser.presenter && POLLING_ENABLED;
   if (showPolling) {
     return (

@@ -15,11 +15,9 @@ const propTypes = {
     formatMessage: PropTypes.func.isRequired,
   }).isRequired,
   currentUser: PropTypes.shape({}).isRequired,
-  meeting: PropTypes.shape({}).isRequired,
   users: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
   getGroupChatPrivate: PropTypes.func.isRequired,
   handleEmojiChange: PropTypes.func.isRequired,
-  isBreakoutRoom: PropTypes.bool,
   setEmojiStatus: PropTypes.func.isRequired,
   assignPresenter: PropTypes.func.isRequired,
   removeUser: PropTypes.func.isRequired,
@@ -37,7 +35,6 @@ const propTypes = {
 
 const defaultProps = {
   compact: false,
-  isBreakoutRoom: false,
 };
 
 const listTransition = {
@@ -55,8 +52,6 @@ const intlMessages = defineMessages({
     description: 'Title for the Header',
   },
 });
-
-const ROLE_MODERATOR = Meteor.settings.public.user.role_moderator;
 
 class UserParticipants extends Component {
   constructor() {
@@ -84,10 +79,6 @@ class UserParticipants extends Component {
     }
   }
 
-  componentWillUnmount() {
-    this.refScrollContainer.removeEventListener('keydown', this.rove);
-  }
-
   shouldComponentUpdate(nextProps, nextState) {
     const isPropsEqual = _.isEqual(this.props, nextProps);
     const isStateEqual = _.isEqual(this.state, nextState);
@@ -105,6 +96,10 @@ class UserParticipants extends Component {
     }
   }
 
+  componentWillUnmount() {
+    this.refScrollContainer.removeEventListener('keydown', this.rove);
+  }
+
   getScrollContainerRef() {
     return this.refScrollContainer;
   }
@@ -112,7 +107,6 @@ class UserParticipants extends Component {
   getUsers() {
     const {
       compact,
-      isBreakoutRoom,
       meeting,
       getAvailableActions,
       normalizeEmojiName,
@@ -131,6 +125,7 @@ class UserParticipants extends Component {
       toggleUserLock,
       requestUserInformation,
       currentUser,
+      isModerator,
     } = this.props;
 
     let index = -1;
@@ -150,7 +145,6 @@ class UserParticipants extends Component {
           <UserListItemContainer
             {...{
               compact,
-              isBreakoutRoom,
               meeting,
               getAvailableActions,
               normalizeEmojiName,
@@ -168,6 +162,7 @@ class UserParticipants extends Component {
               toggleUserLock,
               requestUserInformation,
               currentUser,
+              isModerator,
             }}
             user={u}
             getScrollContainerRef={this.getScrollContainerRef}
@@ -198,6 +193,7 @@ class UserParticipants extends Component {
       meeting,
       muteAllExceptPresenter,
       currentUser,
+      isModerator,
     } = this.props;
 
     return (
@@ -212,14 +208,13 @@ class UserParticipants extends Component {
                   {users.length}
                   )
                 </h2>
-                {currentUser.role === ROLE_MODERATOR
+                {isModerator(currentUser.userId)
                   ? (
                     <UserOptionsContainer {...{
                       users,
                       muteAllUsers,
                       muteAllExceptPresenter,
                       setEmojiStatus,
-                      meeting,
                     }}
                     />
                   ) : null

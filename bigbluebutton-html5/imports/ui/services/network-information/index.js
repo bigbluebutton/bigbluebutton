@@ -155,7 +155,8 @@ export const startBandwidthMonitoring = () => {
       }
     }
 
-    const lastEffectiveConnectionType = Users.findOne({ userId: Auth.userID });
+    const lastEffectiveConnectionType = Users.findOne({ userId: Auth.userID },
+      { fields: { effectiveConnectionType: 1 } });
 
     if (lastEffectiveConnectionType
       && lastEffectiveConnectionType.effectiveConnectionType !== effectiveType) {

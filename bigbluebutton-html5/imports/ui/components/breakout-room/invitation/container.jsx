@@ -8,11 +8,9 @@ const BreakoutRoomInvitationContainer = props => (
   <BreakoutRoomInvitation {...props} />
 );
 
-export default withTracker(() => {
-  return {
-    breakouts: BreakoutService.getBreakouts(),
-    getBreakoutByUser: BreakoutService.getBreakoutByUser,
-    currentBreakoutUser: BreakoutService.getBreakoutUserByUserId(Auth.userID),
-    getBreakoutByUserId: BreakoutService.getBreakoutByUserId,
-  };
-})(BreakoutRoomInvitationContainer);
+export default withTracker(() => ({
+  breakouts: BreakoutService.getBreakouts(),
+  getBreakoutByUser: BreakoutService.getBreakoutByUser,
+  currentBreakoutUser: BreakoutService.getBreakoutUserByUserId(Auth.userID),
+  getBreakoutByUserId: BreakoutService.getBreakoutByUserId,
+}))(BreakoutRoomInvitationContainer);

@@ -19,7 +19,7 @@ export default function createGroupChat(credentials, receiver) {
   const payload = {
     correlationId: `${requesterUserId}-${Date.now()}`,
     msg: [],
-    users: [receiver.id],
+    users: [receiver.userId],
     access: CHAT_ACCESS_PRIVATE,
     name: receiver.name,
   };

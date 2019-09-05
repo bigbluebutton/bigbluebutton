@@ -16,7 +16,6 @@ const propTypes = {
     formatMessage: PropTypes.func.isRequired,
   }).isRequired,
   currentUser: PropTypes.shape({}).isRequired,
-  isBreakoutRoom: PropTypes.bool,
   getAvailableActions: PropTypes.func.isRequired,
   normalizeEmojiName: PropTypes.func.isRequired,
   isMeetingLocked: PropTypes.func.isRequired,
@@ -39,9 +38,7 @@ const propTypes = {
 
 const defaultProps = {
   compact: false,
-  isBreakoutRoom: false,
 };
-const ROLE_MODERATOR = Meteor.settings.public.user.role_moderator;
 const CHAT_ENABLED = Meteor.settings.public.chat.enabled;
 
 class UserContent extends PureComponent {
@@ -50,7 +47,6 @@ class UserContent extends PureComponent {
       compact,
       intl,
       currentUser,
-      isBreakoutRoom,
       setEmojiStatus,
       assignPresenter,
       removeUser,
@@ -75,6 +71,7 @@ class UserContent extends PureComponent {
       toggleUserLock,
       pendingUsers,
       requestUserInformation,
+      isModerator,
     } = this.props;
 
     return (
@@ -95,7 +92,7 @@ class UserContent extends PureComponent {
           />
           ) : null
         }
-        {currentUser.role === ROLE_MODERATOR
+        {isModerator(currentUser.userId)
           ? (
             <UserCaptionsContainer
               {...{
@@ -109,7 +106,7 @@ class UserContent extends PureComponent {
             intl,
           }}
         />
-        {pendingUsers.length > 0 && currentUser.role === ROLE_MODERATOR
+        {pendingUsers.length > 0 && isModerator(currentUser.userId)
           ? (
             <WaitingUsers
               {...{
@@ -132,7 +129,6 @@ class UserContent extends PureComponent {
             compact,
             intl,
             currentUser,
-            isBreakoutRoom,
             setEmojiStatus,
             assignPresenter,
             removeUser,
@@ -151,6 +147,7 @@ class UserContent extends PureComponent {
             hasPrivateChatBetweenUsers,
             toggleUserLock,
             requestUserInformation,
+            isModerator,
           }}
         />
       </div>

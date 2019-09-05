@@ -65,7 +65,7 @@ const getMultiUserStatus = (whiteboardId) => {
 };
 
 const isPresenter = () => {
-  const currentUser = Users.findOne({ userId: Auth.userID });
+  const currentUser = Users.findOne({ userId: Auth.userID }, { fields: { presenter: 1 } });
   return currentUser ? currentUser.presenter : false;
 };
 
