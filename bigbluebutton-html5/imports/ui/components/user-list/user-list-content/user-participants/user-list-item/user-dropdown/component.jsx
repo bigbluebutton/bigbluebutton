@@ -202,6 +202,7 @@ class UserDropdown extends PureComponent {
       intl,
       currentUser, // TODO remove
       user,
+      voiceUser,
       getAvailableActions,
       getGroupChatPrivate,
       handleEmojiChange,
@@ -222,7 +223,7 @@ class UserDropdown extends PureComponent {
     } = this.props;
     const { showNestedOptions } = this.state;
 
-    const actionPermissions = getAvailableActions(user);
+    const actionPermissions = getAvailableActions(user, voiceUser);
     const actions = [];
 
     const {

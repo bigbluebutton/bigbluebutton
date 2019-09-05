@@ -319,25 +319,24 @@ const curatedVoiceUser = (intId) => {
   };
 };
 
-const getAvailableActions = (subjectUser) => {
+const getAvailableActions = (subjectUser, subjectVoiceUser) => {
   const isBreakoutRoom = meetingIsBreakout();
   const isDialInUser = isVoiceOnlyUser(subjectUser.userId) || subjectUser.phone_user;
   const amIModerator = isUserModerator(Auth.userID);
   const amISubjectUser = isMe(subjectUser.userId);
-  const isSubjectUserModerator = isUserModerator(subjectUser.userId);
+  const isSubjectUserModerator = subjectUser.role === ROLE_MODERATOR;
 
   const hasAuthority = amIModerator || amISubjectUser;
   const allowedToChatPrivately = !amISubjectUser && !isDialInUser;
-  const voiceUser = curatedVoiceUser(subjectUser.userId);
   const allowedToMuteAudio = hasAuthority
-    && voiceUser.isVoiceUser
-    && !voiceUser.isMuted
-    && !voiceUser.isListenOnly;
+    && subjectVoiceUser.isVoiceUser
+    && !subjectVoiceUser.isMuted
+    && !subjectVoiceUser.isListenOnly;
 
   const allowedToUnmuteAudio = hasAuthority
-    && voiceUser.isVoiceUser
-    && !voiceUser.isListenOnly
-    && voiceUser.isMuted
+    && subjectVoiceUser.isVoiceUser
+    && !subjectVoiceUser.isListenOnly
+    && subjectVoiceUser.isMuted
     && (amISubjectUser || areUsersUnmutable());
 
   const allowedToResetStatus = hasAuthority
