@@ -38,11 +38,11 @@ const init = (messages, intl) => {
 const currentUser = () => mapUser(Users.findOne({ intId: Auth.userID }));
 
 const toggleMuteMicrophone = () => {
-  const userIsMuted = VoiceUsers.findOne({
+  const user = VoiceUsers.findOne({
     meetingId: Auth.meetingID, intId: Auth.userID,
   }, { fields: { muted: 1 } });
 
-  if (userIsMuted) {
+  if (user.muted) {
     logger.info({
       logCode: 'audiomanager_unmute_audio',
       extraInfo: { logType: 'user_action' },
