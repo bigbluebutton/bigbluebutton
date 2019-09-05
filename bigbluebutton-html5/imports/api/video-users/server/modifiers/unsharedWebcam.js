@@ -1,8 +1,8 @@
 import Logger from '/imports/startup/server/logger';
-import Users from '/imports/api/users';
+import VideoUsers from '/imports/api/video-users';
 import { check } from 'meteor/check';
 
-export default function sharedWebcam(meetingId, userId) {
+export default function unsharedWebcam(meetingId, userId) {
   check(meetingId, String);
   check(userId, String);
 
@@ -13,13 +13,13 @@ export default function sharedWebcam(meetingId, userId) {
 
   const modifier = {
     $set: {
-      hasStream: true,
+      hasStream: false,
     },
   };
 
   const cb = (err, numChanged) => {
     if (err) {
-      return Logger.error(`Error setting hasStream to true: ${err}`);
+      return Logger.error(`Error setting hasStream to false: ${err}`);
     }
 
     if (numChanged) {
@@ -27,5 +27,5 @@ export default function sharedWebcam(meetingId, userId) {
     }
   };
 
-  return Users.update(selector, modifier, cb);
+  return VideoUsers.upsert(selector, modifier, cb);
 }

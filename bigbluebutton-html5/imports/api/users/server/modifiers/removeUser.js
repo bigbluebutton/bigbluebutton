@@ -1,5 +1,6 @@
 import { check } from 'meteor/check';
 import Users from '/imports/api/users';
+import VideoUsers from '/imports/api/video-users';
 import Logger from '/imports/startup/server/logger';
 import stopWatchingExternalVideo from '/imports/api/external-videos/server/methods/stopWatchingExternalVideo';
 import clearUserInfoForRequester from '/imports/api/users-infos/server/modifiers/clearUserInfoForRequester';
@@ -51,6 +52,6 @@ export default function removeUser(meetingId, userId) {
 
     return Logger.info(`Removed user id=${userId} meeting=${meetingId}`);
   };
-
+  VideoUsers.remove({ meetingId, userId });
   return Users.update(selector, modifier, cb);
 }
