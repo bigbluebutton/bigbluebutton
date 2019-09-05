@@ -139,9 +139,9 @@ const sortChatsByName = (a, b) => {
     return -1;
   } if (a.name.toLowerCase() > b.name.toLowerCase()) {
     return 1;
-  } if (a.id.toLowerCase() > b.id.toLowerCase()) {
+  } if (a.userId.toLowerCase() > b.userId.toLowerCase()) {
     return -1;
-  } if (a.id.toLowerCase() < b.id.toLowerCase()) {
+  } if (a.userId.toLowerCase() < b.userId.toLowerCase()) {
     return 1;
   }
 
@@ -253,15 +253,15 @@ const getActiveChats = (chatID) => {
   activeChats.forEach((op) => {
     // When a new private chat message is received, ensure the conversation view is restored.
     if (op.unreadCounter > 0) {
-      if (_.indexOf(currentClosedChats, op.id) > -1) {
-        Storage.setItem(CLOSED_CHAT_LIST_KEY, _.without(currentClosedChats, op.id));
+      if (_.indexOf(currentClosedChats, op.userId) > -1) {
+        Storage.setItem(CLOSED_CHAT_LIST_KEY, _.without(currentClosedChats, op.userId));
       }
     }
 
     // Compare activeChats with session and push it into filteredChatList
     // if one of the activeChat is not in session.
     // It will pass to activeChats.
-    if (_.indexOf(currentClosedChats, op.id) < 0) {
+    if (_.indexOf(currentClosedChats, op.userId) < 0) {
       filteredChatList.push(op);
     }
   });
