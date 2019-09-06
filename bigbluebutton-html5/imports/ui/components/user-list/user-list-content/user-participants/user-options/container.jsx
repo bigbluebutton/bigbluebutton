@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 import Auth from '/imports/ui/services/auth';
 import Meetings from '/imports/api/meetings';
 import ActionsBarService from '/imports/ui/components/actions-bar/service';
+import UserListService from '/imports/ui/components/user-list/service';
 import logger from '/imports/startup/client/logger';
 import { defineMessages, injectIntl, intlShape } from 'react-intl';
 import { notify } from '/imports/ui/services/notification';
@@ -10,8 +11,6 @@ import UserOptions from './component';
 
 const propTypes = {
   users: PropTypes.arrayOf(Object).isRequired,
-  muteAllUsers: PropTypes.func.isRequired,
-  muteAllExceptPresenter: PropTypes.func.isRequired,
   setEmojiStatus: PropTypes.func.isRequired,
   intl: intlShape.isRequired,
 };
@@ -32,8 +31,6 @@ const UserOptionsContainer = withTracker((props) => {
   const {
     users,
     setEmojiStatus,
-    muteAllExceptPresenter,
-    muteAllUsers,
     intl,
   } = props;
 
@@ -53,7 +50,7 @@ const UserOptionsContainer = withTracker((props) => {
 
   return {
     toggleMuteAllUsers: () => {
-      muteAllUsers(Auth.userID);
+      UserListService.muteAllUsers(Auth.userID);
       if (isMeetingMuteOnStart()) {
         return meetingMuteDisabledLog();
       }
@@ -63,7 +60,7 @@ const UserOptionsContainer = withTracker((props) => {
       }, 'moderator enabled meeting mute, all users muted');
     },
     toggleMuteAllUsersExceptPresenter: () => {
-      muteAllExceptPresenter(Auth.userID);
+      UserListService.muteAllExceptPresenter(Auth.userID);
       if (isMeetingMuteOnStart()) {
         return meetingMuteDisabledLog();
       }
@@ -76,7 +73,7 @@ const UserOptionsContainer = withTracker((props) => {
     isMeetingMuted: isMeetingMuteOnStart(),
     amIModerator: ActionsBarService.amIModerator(),
     getUsersNotAssigned: ActionsBarService.getUsersNotAssigned,
-    hasBreakoutRoom: ActionsBarService.hasBreakoutRoom(),
+    hasBreakoutRoom: UserListService.hasBreakoutRoom(),
     isBreakoutEnabled: ActionsBarService.isBreakoutEnabled(),
     isBreakoutRecordable: ActionsBarService.isBreakoutRecordable(),
     users: ActionsBarService.users(),

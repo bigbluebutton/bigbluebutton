@@ -35,8 +35,6 @@ export default {
     meetingId: Auth.meetingID,
     clientType: { $ne: DIAL_IN_USER },
   }).fetch(),
-  hasBreakoutRoom: () => Breakouts.find({ parentMeetingId: Auth.meetingID },
-    { fields: {} }).count() > 0,
   isBreakoutEnabled: () => Meetings.findOne({ meetingId: Auth.meetingID },
     { fields: { 'breakoutProps.enabled': 1 } }).breakoutProps.enabled,
   isBreakoutRecordable: () => Meetings.findOne({ meetingId: Auth.meetingID },

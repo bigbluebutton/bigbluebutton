@@ -206,7 +206,6 @@ class UserDropdown extends PureComponent {
       voiceUser,
       getAvailableActions,
       getGroupChatPrivate,
-      handleEmojiChange,
       getEmojiList,
       setEmojiStatus,
       assignPresenter,
@@ -273,7 +272,7 @@ class UserDropdown extends PureComponent {
       statuses.map(status => actions.push(this.makeDropdownItem(
         status,
         intl.formatMessage({ id: `app.actionsBar.emojiMenu.${status}Label` }),
-        () => { handleEmojiChange(user.userId, status); this.resetMenuState(); },
+        () => { setEmojiStatus(user.userId, status); this.resetMenuState(); },
         getEmojiList[status],
       )));
 
