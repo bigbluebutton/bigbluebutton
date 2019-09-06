@@ -8,6 +8,7 @@ import { notify } from '/imports/ui/services/notification';
 import browser from 'browser-detect';
 import iosWebviewAudioPolyfills from '../../../utils/ios-webview-audio-polyfills';
 import { tryGenerateIceCandidates } from '../../../utils/safari-webrtc';
+import playAndRetry from '/imports/utils/mediaElementPlayRetry';
 
 const MEDIA = Meteor.settings.public.media;
 const MEDIA_TAG = MEDIA.mediaTag;
@@ -485,11 +486,25 @@ class AudioManager {
 
   handleAllowAutoplay() {
     window.removeEventListener('audioPlayFailed', this.handlePlayElementFailed);
+
+    logger.info({
+      logCode: 'audiomanager_autoplay_allowed',
+    }, 'Listen only autoplay allowed by the user');
+
     while (this.failedMediaElements.length) {
       const mediaElement = this.failedMediaElements.shift();
       if (mediaElement) {
-        mediaElement.play().catch(() => {
-          // Ignore the error for now.
+        playAndRetry(mediaElement).then((played) => {
+          if (!played) {
+            logger.error({
+              logCode: 'audiomanager_autoplay_handling_failed',
+            }, 'Listen only autoplay handling failed to play media');
+          } else {
+            // logCode is listenonly_* to make it consistent with the other tag play log
+            logger.info({
+              logCode: 'listenonly_media_play_success',
+            }, 'Listen only media played successfully');
+          }
         });
       }
     }
@@ -502,6 +517,9 @@ class AudioManager {
     e.stopPropagation();
     this.failedMediaElements.push(mediaElement);
     if (!this.autoplayBlocked) {
+      logger.info({
+        logCode: 'audiomanager_autoplay_prompt',
+      }, 'Prompting user for action to play listen only media');
       this.autoplayBlocked = true;
     }
   }
