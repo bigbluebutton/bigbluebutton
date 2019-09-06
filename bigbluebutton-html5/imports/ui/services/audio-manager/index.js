@@ -423,12 +423,19 @@ class AudioManager {
       return Promise.resolve(inputDevice);
     };
 
-    const handleChangeInputDeviceError = () => new Promise((reject) => {
-      reject({
+    const handleChangeInputDeviceError = (error) => {
+      logger.error({
+        logCode: 'audiomanager_error_getting_device',
+        extraInfo: {
+          errorName: error.name,
+          errorMessage: error.message,
+        },
+      }, `Error getting microphone - {${error.name}: ${error.message}}`);
+      return Promise.reject({
         type: 'MEDIA_ERROR',
         message: this.messages.error.MEDIA_ERROR,
       });
-    });
+    };
 
     if (!deviceId) {
       return this.bridge.setDefaultInputDevice()
