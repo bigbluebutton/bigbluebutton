@@ -7,8 +7,7 @@ if (Meteor.isServer) {
   // 1. intId
   // 2. meetingId, intId
 
-  VideoUsers._ensureIndex({ userId: 1 });
-  VideoUsers._ensureIndex({ meetingId: 1, userId: 1 });
+  VideoUsers._ensureIndex({ meetingId: 1 });
 }
 
 export default VideoUsers;
