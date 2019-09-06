@@ -3,7 +3,7 @@ import { check } from 'meteor/check';
 import Logger from '/imports/startup/server/logger';
 import VideoUsers from '/imports/api/video-users';
 
-function polls(credentials) {
+function videoUsers(credentials) {
   const { meetingId, requesterUserId, requesterToken } = credentials;
 
   check(meetingId, String);
@@ -20,8 +20,8 @@ function polls(credentials) {
 }
 
 function publish(...args) {
-  const boundPolls = polls.bind(this);
-  return boundPolls(...args);
+  const boundVideoUsers = videoUsers.bind(this);
+  return boundVideoUsers(...args);
 }
 
 Meteor.publish('video-users', publish);
