@@ -243,11 +243,12 @@ Kurento.prototype.init = function () {
     };
     this.ws.onerror = (error) => {
       kurentoManager.exitScreenShare();
+      const { errorMessage, errorCode, errorReason } = this.normalizeError(error);
       this.logger.error({
         logCode: 'kurentoextension_websocket_error',
-        extraInfo: { errorMessage: error.name || error.message || 'Unknown error' }
+        extraInfo: { errorMessage, errorCode, errorReason },
       }, 'Error in the WebSocket connection to SFU, screenshare/listen only will drop');
-      self.onFail('Websocket connection error');
+      self.onFail({ errorMessage, errorCode, errorReason });
     };
     this.ws.onopen = function () {
       self.pingInterval = setInterval(self.ping.bind(self), self.PING_INTERVAL);
@@ -301,10 +302,11 @@ Kurento.prototype.processIceQueue = function () {
         // Just log the error. We can't be sure if a candidate failure on add is
         // fatal or not, so that's why we have a timeout set up for negotiations and
         // listeners for ICE state transitioning to failures, so we won't act on it here
+        const { errorMessage, errorCode, errorReason } = this.normalizeError(error);
         this.logger.error({
           logCode: 'kurentoextension_addicecandidate_error',
-          extraInfo: { errorMessage: error.name || error.message || 'Unknown error' },
-        }, `Adding ICE candidate failed due to ${error.message}`);
+          extraInfo: { errorMessage, errorCode, errorReason },
+        }, `Adding ICE candidate failed due to ${errorMessage}`);
       }
     });
   }
@@ -318,10 +320,11 @@ Kurento.prototype.handleIceCandidate = function (candidate) {
         // Just log the error. We can't be sure if a candidate failure on add is
         // fatal or not, so that's why we have a timeout set up for negotiations and
         // listeners for ICE state transitioning to failures, so we won't act on it here
+        const { errorMessage, errorCode, errorReason } = this.normalizeError(error);
         this.logger.error({
           logCode: 'kurentoextension_addicecandidate_error',
-          extraInfo: { errorMessage: error.name || error.message || 'Unknown error' },
-        }, `Adding ICE candidate failed due to ${error.message}`);
+          extraInfo: { errorMessage, errorCode, errorReason },
+        }, `Adding ICE candidate failed due to ${errorMessage}`);
       }
     });
   } else {
@@ -331,6 +334,14 @@ Kurento.prototype.handleIceCandidate = function (candidate) {
     // IT STILL HAPPENS - prlanzarin sept 2019
     peer.iceQueue.push(candidate);
   }
+}
+
+Kurento.prototype.normalizeError = function (error = {}) {
+  const errorMessage = error.message || error.name || error.reason || 'Unknown error';
+  const errorCode = error.code || 'Undefined code';
+  const errorReason = error.reason || error.id || 'Undefined reason';
+
+  return { errorMessage, errorCode, errorReason };
 }
 
 Kurento.prototype.startResponse = function (message) {
@@ -344,14 +355,13 @@ Kurento.prototype.startResponse = function (message) {
 
     this.webRtcPeer.processAnswer(message.sdpAnswer, (error) => {
       if (error) {
+        const { errorMessage, errorCode, errorReason } = this.normalizeError(error);
         this.logger.error({
           logCode: 'kurentoextension_peerconnection_processanswer_error',
-          extraInfo: {
-            errorMessage: error.name || error.message || 'Unknown error',
-          },
-        }, `Processing SDP answer from SFU for failed due to ${error.message}`);
+          extraInfo: { errorMessage, errorCode, errorReason },
+        }, `Processing SDP answer from SFU for failed due to ${errorMessage}`);
 
-        return this.onFail(error);
+        return this.onFail({ errorMessage, errorCode, errorReason });
       }
       // Mark the peer as negotiated and flush the ICE queue
       this.webRtcPeer.negotiated = true;
@@ -390,18 +400,19 @@ Kurento.prototype.handleSFUError = function (sfuResponse) {
       break;
   }
 
-  this.onFail( { code, reason } );
+  this.onFail({ errorMessage: reason, errorCode: code, errorReason: reason });
 };
 
 Kurento.prototype.onOfferPresenter = function (error, offerSdp) {
   const self = this;
 
   if (error) {
+    const { errorMessage, errorCode, errorReason } = this.normalizeError(error);
     this.logger.error({
       logCode: 'kurentoextension_screenshare_presenter_offer_failure',
-      extraInfo: { errorMessage: error.name || error.message || 'Unknown error' },
+      extraInfo: { errorMessage, errorCode, errorReason },
     }, `Failed to generate peer connection offer for screenshare presenter with error ${error.message}`);
-    this.onFail(error);
+    this.onFail({ errorMessage, errorCode, errorReason });
     return;
   }
 
@@ -461,11 +472,12 @@ Kurento.prototype.startScreensharing = function () {
 
   this.webRtcPeer = kurentoUtils.WebRtcPeer.WebRtcPeerSendonly(options, (error) => {
     if (error) {
+      const { errorMessage, errorCode, errorReason } = this.normalizeError(error);
       this.logger.error({
         logCode: 'kurentoextension_screenshare_peerconnection_create_error',
-        extraInfo: { errorMessage: error.name || error.message || 'Unknown error' },
+        extraInfo: { errorMessage, errorCode, errorReason },
       }, `WebRTC peer constructor for screenshare (presenter) failed due to ${error.message}`);
-      this.onFail(error);
+      this.onFail({ errorMessage, errorCode, errorReason });
       return kurentoManager.exitScreenShare();
     }
 
@@ -565,12 +577,13 @@ Kurento.prototype.viewer = function () {
 Kurento.prototype.onOfferViewer = function (error, offerSdp) {
   const self = this;
   if (error) {
+    const { errorMessage, errorCode, errorReason } = this.normalizeError(error);
     this.logger.error({
       logCode: 'kurentoextension_screenshare_viewer_offer_failure',
-      extraInfo: { errorMessage: error.name || error.message || 'Unknown error' },
+      extraInfo: { errorMessage, errorCode, errorReason },
     }, `Failed to generate peer connection offer for screenshare viewer with error ${error.message}`);
 
-    return this.onFail(error);
+    return this.onFail({ errorMessage, errorCode, errorReason });
   }
 
   const message = {
@@ -647,12 +660,13 @@ Kurento.prototype.onListenOnlyIceCandidate = function (candidate) {
 Kurento.prototype.onOfferListenOnly = function (error, offerSdp) {
   const self = this;
   if (error) {
+    const { errorMessage, errorCode, errorReason } = this.normalizeError(error);
     this.logger.error({
       logCode: 'kurentoextension_listenonly_offer_failure',
-      extraInfo: { errorMessage: error.name || error.message || 'Unknown error' },
+      extraInfo: { errorMessage, errorCode, errorReason },
     }, `Failed to generate peer connection offer for listen only with error ${error.message}`);
 
-    return this.onFail(error);
+    return this.onFail({ errorMessage, errorCode, errorReason });
   }
 
   const message = {
