@@ -323,7 +323,6 @@ export default {
   reduceAndMapGroupMessages,
   getPublicGroupMessages,
   getPrivateGroupMessages,
-  amIModerator: UserService.isUserModerator(Auth.userID),
   getUser,
   getWelcomeProp,
   getScrollPosition,

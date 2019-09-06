@@ -5,6 +5,7 @@ import { Session } from 'meteor/session';
 import Auth from '/imports/ui/services/auth';
 import Chat from './component';
 import ChatService from './service';
+import UserService from '../user-list/service';
 
 const CHAT_CONFIG = Meteor.settings.public.chat;
 const PUBLIC_CHAT_KEY = CHAT_CONFIG.public_id;
@@ -154,6 +155,7 @@ export default injectIntl(withTracker(({ intl }) => {
     partnerIsLoggedOut,
     isChatLocked,
     isMeteorConnected,
+    amIModerator: UserService.isUserModerator(Auth.userID),
     actions: {
       handleClosePrivateChat: ChatService.closePrivateChat,
     },
