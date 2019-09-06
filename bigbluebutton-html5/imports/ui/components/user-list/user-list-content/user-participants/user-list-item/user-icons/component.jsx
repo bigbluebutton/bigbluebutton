@@ -10,7 +10,7 @@ const SLOW_CONNECTIONS_TYPES = METEOR_SETTINGS_APP.effectiveConnection;
 const ENABLE_NETWORK_MONITORING = Meteor.settings.public.networkMonitoring.enableNetworkMonitoring;
 
 const propTypes = {
-  isModerator: PropTypes.bool.isRequired,
+  amIModerator: PropTypes.bool.isRequired,
   user: PropTypes.shape({
     // effectiveConnectionType: PropTypes.string.isRequired,
     userId: PropTypes.string.isRequired,
@@ -19,7 +19,7 @@ const propTypes = {
 
 const UserIcons = (props) => {
   const {
-    isModerator,
+    amIModerator,
     user: {
       effectiveConnectionType,
       userId,
@@ -28,7 +28,7 @@ const UserIcons = (props) => {
 
   const showNetworkInformation = ENABLE_NETWORK_MONITORING
     && SLOW_CONNECTIONS_TYPES.includes(effectiveConnectionType)
-    && (userId === Auth.userID || isModerator(Auth.userID));
+    && (userId === Auth.userID || amIModerator);
 
   return (
     <div className={styles.userIcons}>

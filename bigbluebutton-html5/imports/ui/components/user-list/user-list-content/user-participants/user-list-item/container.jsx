@@ -21,7 +21,6 @@ export default withTracker(({ user }) => {
     userInBreakout: !!findUserInBreakout,
     breakoutSequence,
     lockSettingsProps: Meeting && Meeting.lockSettingsProps,
-    meetingIsBreakout: UserListService.meetingIsBreakout(),
     isMeteorConnected: Meteor.status().connected,
     isThisMeetingLocked: UserListService.isMeetingLocked(Auth.meetingID),
     voiceUser: UserListService.curatedVoiceUser(user.userId),

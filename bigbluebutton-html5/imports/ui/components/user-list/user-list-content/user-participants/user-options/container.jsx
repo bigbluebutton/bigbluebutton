@@ -2,9 +2,7 @@ import { withTracker } from 'meteor/react-meteor-data';
 import PropTypes from 'prop-types';
 import Auth from '/imports/ui/services/auth';
 import Meetings from '/imports/api/meetings';
-import Service from '/imports/ui/components/actions-bar/service';
-import AppService from '/imports/ui/components/app/service';
-import userListService from '/imports/ui/components/user-list/service';
+import ActionsBarService from '/imports/ui/components/actions-bar/service';
 import logger from '/imports/startup/client/logger';
 import { defineMessages, injectIntl, intlShape } from 'react-intl';
 import { notify } from '/imports/ui/services/notification';
@@ -39,8 +37,6 @@ const UserOptionsContainer = withTracker((props) => {
     intl,
   } = props;
 
-  const meeting = Meetings.findOne({ meetingId: Auth.meetingID }, { fields: { voiceProp: 1 } });
-
   const toggleStatus = () => {
     users.forEach(user => setEmojiStatus(user.userId, 'none'));
     notify(
@@ -49,7 +45,8 @@ const UserOptionsContainer = withTracker((props) => {
   };
 
   const isMeetingMuteOnStart = () => {
-    const { voiceProp } = meeting;
+    const { voiceProp } = Meetings.findOne({ meetingId: Auth.meetingID },
+      { fields: { 'voiceProp.muteOnStart': 1 } });
     const { muteOnStart } = voiceProp;
     return muteOnStart;
   };
@@ -76,16 +73,13 @@ const UserOptionsContainer = withTracker((props) => {
       }, 'moderator enabled meeting mute, all users muted except presenter');
     },
     toggleStatus,
-    isMeetingMuted: meeting.voiceProp.muteOnStart,
-    isUserPresenter: Service.isUserPresenter(),
-    isUserModerator: Service.isUserModerator(),
-    meetingIsBreakout: AppService.meetingIsBreakout(),
-    getUsersNotAssigned: Service.getUsersNotAssigned,
-    hasBreakoutRoom: Service.hasBreakoutRoom(),
-    isBreakoutEnabled: Service.isBreakoutEnabled(),
-    isBreakoutRecordable: Service.isBreakoutRecordable(),
-    users: Service.users(),
-    userListService,
+    isMeetingMuted: isMeetingMuteOnStart(),
+    amIModerator: ActionsBarService.amIModerator(),
+    getUsersNotAssigned: ActionsBarService.getUsersNotAssigned,
+    hasBreakoutRoom: ActionsBarService.hasBreakoutRoom(),
+    isBreakoutEnabled: ActionsBarService.isBreakoutEnabled(),
+    isBreakoutRecordable: ActionsBarService.isBreakoutRecordable(),
+    users: ActionsBarService.users(),
     isMeteorConnected: Meteor.status().connected,
   };
 })(UserOptions);

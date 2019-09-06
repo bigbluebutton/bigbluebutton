@@ -53,6 +53,8 @@ const intlMessages = defineMessages({
   },
 });
 
+const ROLE_MODERATOR = Meteor.settings.public.user.role_moderator;
+
 class UserParticipants extends Component {
   constructor() {
     super();
@@ -107,7 +109,6 @@ class UserParticipants extends Component {
   getUsers() {
     const {
       compact,
-      meeting,
       getAvailableActions,
       normalizeEmojiName,
       isMeetingLocked,
@@ -125,7 +126,7 @@ class UserParticipants extends Component {
       toggleUserLock,
       requestUserInformation,
       currentUser,
-      isModerator,
+      meetingIsBreakout,
     } = this.props;
 
     let index = -1;
@@ -145,7 +146,6 @@ class UserParticipants extends Component {
           <UserListItemContainer
             {...{
               compact,
-              meeting,
               getAvailableActions,
               normalizeEmojiName,
               isMeetingLocked,
@@ -162,7 +162,7 @@ class UserParticipants extends Component {
               toggleUserLock,
               requestUserInformation,
               currentUser,
-              isModerator,
+              meetingIsBreakout,
             }}
             user={u}
             getScrollContainerRef={this.getScrollContainerRef}
@@ -190,10 +190,9 @@ class UserParticipants extends Component {
       compact,
       setEmojiStatus,
       muteAllUsers,
-      meeting,
       muteAllExceptPresenter,
       currentUser,
-      isModerator,
+      meetingIsBreakout,
     } = this.props;
 
     return (
@@ -208,13 +207,14 @@ class UserParticipants extends Component {
                   {users.length}
                   )
                 </h2>
-                {isModerator(currentUser.userId)
+                {currentUser.role === ROLE_MODERATOR
                   ? (
                     <UserOptionsContainer {...{
                       users,
                       muteAllUsers,
                       muteAllExceptPresenter,
                       setEmojiStatus,
+                      meetingIsBreakout,
                     }}
                     />
                   ) : null

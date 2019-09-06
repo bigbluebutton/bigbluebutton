@@ -13,7 +13,6 @@ import _ from 'lodash';
 import KEY_CODES from '/imports/utils/keyCodes';
 import AudioService from '/imports/ui/components/audio/service';
 import logger from '/imports/startup/client/logger';
-import { meetingIsBreakout } from '/imports/ui/components/app/service';
 
 const CHAT_CONFIG = Meteor.settings.public.chat;
 const PUBLIC_GROUP_CHAT_ID = CHAT_CONFIG.public_group_id;
@@ -207,10 +206,6 @@ const hasBreakoutRoom = () => Breakouts.find({ parentMeetingId: Auth.meetingID }
   { fields: {} }).count() > 0;
 
 const isMe = userId => userId === Auth.userID;
-const isUserModerator = (userId) => {
-  const u = Users.findOne({ userId }, { fields: { role: 1 } });
-  return u ? u.role === ROLE_MODERATOR : false;
-};
 
 const getActiveChats = (chatID) => {
   const privateChat = GroupChat
@@ -319,10 +314,8 @@ const curatedVoiceUser = (intId) => {
   };
 };
 
-const getAvailableActions = (subjectUser, subjectVoiceUser) => {
-  const isBreakoutRoom = meetingIsBreakout();
+const getAvailableActions = (amIModerator, isBreakoutRoom, subjectUser, subjectVoiceUser) => {
   const isDialInUser = isVoiceOnlyUser(subjectUser.userId) || subjectUser.phone_user;
-  const amIModerator = isUserModerator(Auth.userID);
   const amISubjectUser = isMe(subjectUser.userId);
   const isSubjectUserModerator = subjectUser.role === ROLE_MODERATOR;
 
@@ -492,6 +485,21 @@ const requestUserInformation = (userId) => {
   makeCall('requestUserInformation', userId);
 };
 
+export const getUserNamesLink = () => {
+  const mimeType = 'text/plain';
+  const userNamesObj = getUsers();
+  const userNameListString = userNamesObj
+    .map(u => u.name)
+    .join('\r\n');
+  const link = document.createElement('a');
+  link.setAttribute('download', `save-users-list-${Date.now()}.txt`);
+  link.setAttribute(
+    'href',
+    `data: ${mimeType} ;charset=utf-16,${encodeURIComponent(userNameListString)}`,
+  );
+  return link;
+};
+
 export default {
   sortUsers,
   setEmojiStatus,
@@ -509,12 +517,9 @@ export default {
   isMeetingLocked,
   isPublicChat,
   roving,
-  setCustomLogoUrl,
   getCustomLogoUrl,
   getGroupChatPrivate,
   hasBreakoutRoom,
-  meetingIsBreakout,
-  isUserModerator,
   getEmojiList: () => EMOJI_STATUSES,
   getEmoji: () => Users.findOne({ userId: Auth.userID }, { fields: { emoji: 1 } }).emoji,
   hasPrivateChatBetweenUsers,

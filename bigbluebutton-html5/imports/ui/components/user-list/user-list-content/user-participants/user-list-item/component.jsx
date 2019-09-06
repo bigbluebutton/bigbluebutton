@@ -44,7 +44,6 @@ class UserListItem extends PureComponent {
       breakoutSequence,
       meetingIsBreakout,
       isMeteorConnected,
-      isModerator,
       isMe,
       voiceUser,
     } = this.props;
@@ -77,7 +76,6 @@ class UserListItem extends PureComponent {
           breakoutSequence,
           meetingIsBreakout,
           isMeteorConnected,
-          isModerator,
           isMe,
           voiceUser,
         }}

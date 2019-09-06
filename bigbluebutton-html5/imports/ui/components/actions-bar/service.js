@@ -24,9 +24,9 @@ const getUsersNotAssigned = filterBreakoutUsers(currentBreakoutUsers);
 const takePresenterRole = () => makeCall('assignPresenter', Auth.userID);
 
 export default {
-  isUserPresenter: () => Users.findOne({ userId: Auth.userID },
+  amIPresenter: () => Users.findOne({ userId: Auth.userID },
     { fields: { presenter: 1 } }).presenter,
-  isUserModerator: () => Users.findOne({ userId: Auth.userID },
+  amIModerator: () => Users.findOne({ userId: Auth.userID },
     { fields: { role: 1 } }).role === ROLE_MODERATOR,
   meetingName: () => Meetings.findOne({ meetingId: Auth.meetingID },
     { fields: { 'meetingProp.name': 1 } }).meetingProp.name,
