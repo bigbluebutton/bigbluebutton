@@ -1,7 +1,7 @@
 import Auth from '/imports/ui/services/auth';
 import BridgeService from './service';
 import { fetchWebRTCMappedStunTurnServers } from '/imports/utils/fetchStunTurnServers';
-import { playAndRetry } from '/imports/utils/mediaElementPlayRetry';
+import playAndRetry from '/imports/utils/mediaElementPlayRetry';
 import logger from '/imports/startup/client/logger';
 
 const SFU_CONFIG = Meteor.settings.public.kurento;
