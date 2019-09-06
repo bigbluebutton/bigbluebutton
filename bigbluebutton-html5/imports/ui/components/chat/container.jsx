@@ -5,7 +5,6 @@ import { Session } from 'meteor/session';
 import Auth from '/imports/ui/services/auth';
 import Chat from './component';
 import ChatService from './service';
-import UserService from '../user-list/service';
 
 const CHAT_CONFIG = Meteor.settings.public.chat;
 const PUBLIC_CHAT_KEY = CHAT_CONFIG.public_id;
@@ -57,9 +56,11 @@ export default injectIntl(withTracker(({ intl }) => {
   let partnerIsLoggedOut = false;
   let systemMessageIntl = {};
 
+  const currentUser = ChatService.getUser(Auth.userID);
+  const amIModerator = currentUser.role === ROLE_MODERATOR;
+
   if (chatID === PUBLIC_CHAT_KEY) {
     const { welcomeProp } = ChatService.getWelcomeProp();
-    const currentUser = ChatService.getUser(Auth.userID);
 
     messages = ChatService.getPublicGroupMessages();
 
@@ -100,7 +101,7 @@ export default injectIntl(withTracker(({ intl }) => {
 
     const messagesFormated = messagesBeforeWelcomeMsg
       .concat(welcomeMsg)
-      .concat(currentUser.role === ROLE_MODERATOR ? moderatorMsg : [])
+      .concat(amIModerator ? moderatorMsg : [])
       .concat(messagesAfterWelcomeMsg);
 
     messages = messagesFormated.sort((a, b) => (a.time - b.time));
@@ -155,7 +156,7 @@ export default injectIntl(withTracker(({ intl }) => {
     partnerIsLoggedOut,
     isChatLocked,
     isMeteorConnected,
-    amIModerator: UserService.isUserModerator(Auth.userID),
+    amIModerator,
     actions: {
       handleClosePrivateChat: ChatService.closePrivateChat,
     },
