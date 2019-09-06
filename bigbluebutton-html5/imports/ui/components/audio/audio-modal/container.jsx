@@ -19,8 +19,9 @@ export default lockContextContainer(withModalMounter(withTracker(({ mountModal, 
   const listenOnlyMode = getFromUserSettings('listenOnlyMode', APP_CONFIG.listenOnlyMode);
   const forceListenOnly = getFromUserSettings('forceListenOnly', APP_CONFIG.forceListenOnly);
   const skipCheck = getFromUserSettings('skipCheck', APP_CONFIG.skipCheck);
-  const meeting = Meetings.findOne({ meetingId: Auth.meetingID });
+  const meeting = Meetings.findOne({ meetingId: Auth.meetingID }, { fields: { voiceProp: 1 } });
   const invalidDialNumbers = ['0', '613-555-1212', '613-555-1234', '0000'];
+  const isRTL = document.documentElement.getAttribute('dir') === 'rtl';
   let formattedDialNum = '';
   let formattedTelVoice = '';
   let combinedDialInNum = '';
@@ -103,5 +104,6 @@ export default lockContextContainer(withModalMounter(withTracker(({ mountModal, 
     hasMediaDevices: deviceInfo.hasMediaDevices,
     autoplayBlocked: Service.autoplayBlocked(),
     handleAllowAutoplay: () => Service.handleAllowAutoplay(),
+    isRTL,
   });
 })(AudioModalContainer)));

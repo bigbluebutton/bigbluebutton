@@ -123,17 +123,20 @@ class VideoService {
   }
 
   webcamsOnlyForModerator() {
-    const m = Meetings.findOne({ meetingId: Auth.meetingID }) || {};
+    const m = Meetings.findOne({ meetingId: Auth.meetingID },
+      { fields: { 'usersProp.webcamsOnlyForModerator': 1 } });
     return m.usersProp ? m.usersProp.webcamsOnlyForModerator : false;
   }
 
   webcamsLocked() {
-    const m = Meetings.findOne({ meetingId: Auth.meetingID }) || {};
+    const m = Meetings.findOne({ meetingId: Auth.meetingID },
+      { fields: { 'lockSettingsProps.disableCam': 1 } });
     return m.lockSettingsProps ? m.lockSettingsProps.disableCam : false;
   }
 
   hideUserList() {
-    const m = Meetings.findOne({ meetingId: Auth.meetingID }) || {};
+    const m = Meetings.findOne({ meetingId: Auth.meetingID },
+      { fields: { 'lockSettingsProps.hideUserList': 1 } });
     return m.lockSettingsProps ? m.lockSettingsProps.hideUserList : false;
   }
 
@@ -142,7 +145,7 @@ class VideoService {
   }
 
   userName() {
-    const currentUser = Users.findOne({ userId: Auth.userID });
+    const currentUser = Users.findOne({ userId: Auth.userID }, { fields: { name: 1 } });
     return currentUser.name;
   }
 
@@ -155,7 +158,8 @@ class VideoService {
   }
 
   voiceBridge() {
-    const m = Meetings.findOne({ meetingId: Auth.meetingID }) || {};
+    const m = Meetings.findOne({ meetingId: Auth.meetingID },
+      { fields: { 'voiceProp.voiceConf': 1 } });
     return m.voiceProp ? m.voiceProp.voiceConf : null;
   }
 

@@ -1,4 +1,5 @@
 import Users from '/imports/api/users';
+import VoiceUsers from '/imports/api/voice-users';
 import GroupChat from '/imports/api/group-chat';
 import { GroupChatMsg } from '/imports/api/group-chat-msg';
 import Breakouts from '/imports/api/breakouts/';
@@ -6,13 +7,13 @@ import Meetings from '/imports/api/meetings';
 import Auth from '/imports/ui/services/auth';
 import UnreadMessages from '/imports/ui/services/unread-messages';
 import Storage from '/imports/ui/services/storage/session';
-import mapUser from '/imports/ui/services/user/mapUser';
 import { EMOJI_STATUSES } from '/imports/utils/statuses';
 import { makeCall } from '/imports/ui/services/api';
 import _ from 'lodash';
 import KEY_CODES from '/imports/utils/keyCodes';
 import AudioService from '/imports/ui/components/audio/service';
 import logger from '/imports/startup/client/logger';
+import { meetingIsBreakout } from '/imports/ui/components/app/service';
 
 const CHAT_CONFIG = Meteor.settings.public.chat;
 const PUBLIC_GROUP_CHAT_ID = CHAT_CONFIG.public_group_id;
@@ -160,7 +161,7 @@ const sortChatsByIcon = (a, b) => {
 };
 
 const isPublicChat = chat => (
-  chat.id === 'public'
+  chat.userId === 'public'
 );
 
 const sortChats = (a, b) => {
@@ -189,9 +190,10 @@ const getUsers = () => {
     }, userFindSorting)
     .fetch();
 
-  const currentUser = Users.findOne({ userId: Auth.userID });
+  const currentUser = Users.findOne({ userId: Auth.userID }, { fields: { role: 1, locked: 1 } });
   if (currentUser && currentUser.role === ROLE_VIEWER && currentUser.locked) {
-    const meeting = Meetings.findOne({ meetingId: Auth.meetingID });
+    const meeting = Meetings.findOne({ meetingId: Auth.meetingID },
+      { fields: { 'lockSettingsProps.hideUserList': 1 } });
     if (meeting && meeting.lockSettingsProps && meeting.lockSettingsProps.hideUserList) {
       const moderatorOrCurrentUser = u => u.role === ROLE_MODERATOR || u.userId === Auth.userID;
       users = users.filter(moderatorOrCurrentUser);
@@ -201,7 +203,14 @@ const getUsers = () => {
   return users.sort(sortUsers);
 };
 
-const hasBreakoutRoom = () => Breakouts.find({ parentMeetingId: Auth.meetingID }).count() > 0;
+const hasBreakoutRoom = () => Breakouts.find({ parentMeetingId: Auth.meetingID },
+  { fields: {} }).count() > 0;
+
+const isMe = userId => userId === Auth.userID;
+const isUserModerator = (userId) => {
+  const u = Users.findOne({ userId }, { fields: { role: 1 } });
+  return u ? u.role === ROLE_MODERATOR : false;
+};
 
 const getActiveChats = (chatID) => {
   const privateChat = GroupChat
@@ -230,10 +239,11 @@ const getActiveChats = (chatID) => {
 
   activeChats = Users
     .find({ userId: { $in: activeChats } })
-    .map(mapUser)
     .map((op) => {
       const activeChat = op;
-      activeChat.unreadCounter = UnreadMessages.count(op.id);
+      activeChat.unreadCounter = UnreadMessages.count(op.userId);
+      activeChat.name = op.name;
+      activeChat.isModerator = op.role === ROLE_MODERATOR;
       return activeChat;
     });
 
@@ -259,7 +269,7 @@ const getActiveChats = (chatID) => {
   activeChats = filteredChatList;
 
   activeChats.push({
-    id: 'public',
+    userId: 'public',
     name: 'Public Chat',
     icon: 'group_chat',
     unreadCounter: UnreadMessages.count(PUBLIC_GROUP_CHAT_ID),
@@ -272,7 +282,7 @@ const getActiveChats = (chatID) => {
 const isVoiceOnlyUser = userId => userId.toString().startsWith('v_');
 
 const isMeetingLocked = (id) => {
-  const meeting = Meetings.findOne({ meetingId: id });
+  const meeting = Meetings.findOne({ meetingId: id }, { fields: { lockSettingsProps: 1 } });
   let isLocked = false;
 
   if (meeting.lockSettingsProps !== undefined) {
@@ -291,57 +301,75 @@ const isMeetingLocked = (id) => {
 };
 
 const areUsersUnmutable = () => {
-  const meeting = Meetings.findOne({ meetingId: Auth.meetingID });
+  const meeting = Meetings.findOne({ meetingId: Auth.meetingID },
+    { fields: { 'usersProp.allowModsToUnmuteUsers': 1 } });
   if (meeting.usersProp) {
     return meeting.usersProp.allowModsToUnmuteUsers;
   }
   return false;
 };
 
-const getAvailableActions = (currentUser, user, isBreakoutRoom) => {
-  const isDialInUser = isVoiceOnlyUser(user.id) || user.isPhoneUser;
-  const hasAuthority = currentUser.role === ROLE_MODERATOR || user.isCurrent;
+const curatedVoiceUser = (intId) => {
+  const voiceUser = VoiceUsers.findOne({ intId });
+  return {
+    isVoiceUser: voiceUser ? voiceUser.joined : false,
+    isMuted: voiceUser ? voiceUser.muted && !voiceUser.listenOnly : false,
+    isTalking: voiceUser ? voiceUser.talking && !voiceUser.muted : false,
+    isListenOnly: voiceUser ? voiceUser.listenOnly : false,
+  };
+};
 
-  const allowedToChatPrivately = !user.isCurrent && !isDialInUser;
+const getAvailableActions = (subjectUser) => {
+  const isBreakoutRoom = meetingIsBreakout();
+  const isDialInUser = isVoiceOnlyUser(subjectUser.userId) || subjectUser.phone_user;
+  const amIModerator = isUserModerator(Auth.userID);
+  const amISubjectUser = isMe(subjectUser.userId);
+  const isSubjectUserModerator = isUserModerator(subjectUser.userId);
 
+  const hasAuthority = amIModerator || amISubjectUser;
+  const allowedToChatPrivately = !amISubjectUser && !isDialInUser;
+  const voiceUser = curatedVoiceUser(subjectUser.userId);
   const allowedToMuteAudio = hasAuthority
-    && user.isVoiceUser
-    && !user.isMuted
-    && !user.isListenOnly;
+    && voiceUser.isVoiceUser
+    && !voiceUser.isMuted
+    && !voiceUser.isListenOnly;
 
   const allowedToUnmuteAudio = hasAuthority
-    && user.isVoiceUser
-    && !user.isListenOnly
-    && user.isMuted
-    && (user.isCurrent || areUsersUnmutable());
+    && voiceUser.isVoiceUser
+    && !voiceUser.isListenOnly
+    && voiceUser.isMuted
+    && (amISubjectUser || areUsersUnmutable());
 
   const allowedToResetStatus = hasAuthority
-    && user.emoji.status !== EMOJI_STATUSES.none
+    && subjectUser.emoji !== EMOJI_STATUSES.none
     && !isDialInUser;
 
   // if currentUser is a moderator, allow removing other users
-  const allowedToRemove = currentUser.role === ROLE_MODERATOR && !user.isCurrent && !isBreakoutRoom;
+  const allowedToRemove = amIModerator
+    && !amISubjectUser
+    && !isBreakoutRoom;
 
-  const allowedToSetPresenter = currentUser.role === ROLE_MODERATOR
-    && !user.isPresenter
+  const allowedToSetPresenter = amIModerator
+    && !subjectUser.presenter
     && !isDialInUser;
 
-  const allowedToPromote = currentUser.role === ROLE_MODERATOR
-    && !user.isCurrent
-    && !user.isModerator
+  const allowedToPromote = amIModerator
+    && !amISubjectUser
+    && !isSubjectUserModerator
     && !isDialInUser
     && !isBreakoutRoom;
 
-  const allowedToDemote = currentUser.role === ROLE_MODERATOR
-    && !user.isCurrent
-    && user.isModerator
+  const allowedToDemote = amIModerator
+    && !amISubjectUser
+    && isSubjectUserModerator
     && !isDialInUser
     && !isBreakoutRoom;
 
-  const allowedToChangeStatus = user.isCurrent;
+  const allowedToChangeStatus = amISubjectUser;
 
-  const allowedToChangeUserLockStatus = currentUser.role === ROLE_MODERATOR
-    && !user.isModerator && isMeetingLocked(Auth.meetingID);
+  const allowedToChangeUserLockStatus = amIModerator
+    && !isSubjectUserModerator
+    && isMeetingLocked(Auth.meetingID);
 
   return {
     allowedToChatPrivately,
@@ -355,13 +383,6 @@ const getAvailableActions = (currentUser, user, isBreakoutRoom) => {
     allowedToChangeStatus,
     allowedToChangeUserLockStatus,
   };
-};
-
-const getCurrentUser = () => {
-  const currentUserId = Auth.userID;
-  const currentUser = Users.findOne({ userId: currentUserId });
-
-  return (currentUser) ? mapUser(currentUser) : null;
 };
 
 const normalizeEmojiName = emoji => (
@@ -458,15 +479,10 @@ const roving = (event, changeState, elementsList, element) => {
 const hasPrivateChatBetweenUsers = (senderId, receiverId) => GroupChat
   .findOne({ users: { $all: [receiverId, senderId] } });
 
-const getGroupChatPrivate = (sender, receiver) => {
-  if (!hasPrivateChatBetweenUsers(sender.userId, receiver.id)) {
+const getGroupChatPrivate = (senderUserId, receiver) => {
+  if (!hasPrivateChatBetweenUsers(senderUserId, receiver.userId)) {
     makeCall('createGroupChat', receiver);
   }
-};
-
-const isUserModerator = (userId) => {
-  const u = Users.findOne({ userId });
-  return u ? u.role === ROLE_MODERATOR : false;
 };
 
 const toggleUserLock = (userId, lockStatus) => {
@@ -488,8 +504,8 @@ export default {
   changeRole,
   getUsers,
   getActiveChats,
-  getCurrentUser,
   getAvailableActions,
+  curatedVoiceUser,
   normalizeEmojiName,
   isMeetingLocked,
   isPublicChat,
@@ -498,9 +514,10 @@ export default {
   getCustomLogoUrl,
   getGroupChatPrivate,
   hasBreakoutRoom,
+  meetingIsBreakout,
   isUserModerator,
   getEmojiList: () => EMOJI_STATUSES,
-  getEmoji: () => Users.findOne({ userId: Auth.userID }).emoji,
+  getEmoji: () => Users.findOne({ userId: Auth.userID }, { fields: { emoji: 1 } }).emoji,
   hasPrivateChatBetweenUsers,
   toggleUserLock,
   requestUserInformation,

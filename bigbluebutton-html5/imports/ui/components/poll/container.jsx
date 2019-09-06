@@ -14,7 +14,7 @@ export default withTracker(() => {
 
   const currentPresentation = Presentations.findOne({
     current: true,
-  }) || {};
+  }, { fields: { podId: 1 } }) || {};
 
   const currentSlide = PresentationAreaService.getCurrentSlide(currentPresentation.podId);
 
@@ -24,14 +24,13 @@ export default withTracker(() => {
 
   return {
     currentSlide,
-    currentUser: Service.currentUser(),
+    amIPresenter: Service.amIPresenter(),
     pollTypes: Service.pollTypes,
     startPoll,
     startCustomPoll,
     stopPoll: Service.stopPoll,
     publishPoll: Service.publishPoll,
     currentPoll: Service.currentPoll(),
-    getUser: Service.getUser,
     resetPollPanel: Session.get('resetPollPanel') || false,
     pollAnswerIds: Service.pollAnswerIds,
     isMeteorConnected: Meteor.status().connected,

@@ -23,7 +23,7 @@ export default function addPoll(meetingId, requesterId, poll) {
     clientType: { $ne: 'dial-in-user' },
   };
 
-  const userIds = Users.find(userSelector)
+  const userIds = Users.find(userSelector, { fields: { userId: 1 } })
     .fetch()
     .map(user => user.userId);
 

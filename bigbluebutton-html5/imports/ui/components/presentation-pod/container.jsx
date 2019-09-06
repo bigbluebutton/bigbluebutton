@@ -21,14 +21,9 @@ const PresentationPodsContainer = ({ presentationPodIds, ...props }) => {
   return null;
 };
 
-export default withTracker(() => {
-  const presentationPodIds = PresentationPodService.getPresentationPodIds();
-  const data = {
-    presentationPodIds,
-  };
-
-  return data;
-})(PresentationPodsContainer);
+export default withTracker(() => ({
+  presentationPodIds: PresentationPodService.getPresentationPodIds()
+}))(PresentationPodsContainer);
 
 PresentationPodsContainer.propTypes = {
   presentationPodIds: PropTypes.arrayOf(PropTypes.shape({

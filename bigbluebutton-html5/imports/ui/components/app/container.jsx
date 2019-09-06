@@ -12,7 +12,6 @@ import getFromUserSettings from '/imports/ui/services/users-settings';
 import deviceInfo from '/imports/utils/deviceInfo';
 import UserInfos from '/imports/api/users-infos';
 import { startBandwidthMonitoring, updateNavigatorConnection } from '/imports/ui/services/network-information/index';
-import mapUser from '../../services/user/mapUser';
 
 import {
   getFontSize,
@@ -69,9 +68,18 @@ const AppContainer = (props) => {
   );
 };
 
+const currentUserEmoji = currentUser => (currentUser ? {
+  status: currentUser.emoji,
+  changedAt: currentUser.emojiTime,
+} : {
+  status: 'none',
+  changedAt: null,
+});
+
 export default injectIntl(withModalMounter(withTracker(({ intl, baseControls }) => {
-  const currentUser = Users.findOne({ userId: Auth.userID });
-  const currentMeeting = Meetings.findOne({ meetingId: Auth.meetingID });
+  const currentUser = Users.findOne({ userId: Auth.userID }, { fields: { approved: 1, emoji: 1 } });
+  const currentMeeting = Meetings.findOne({ meetingId: Auth.meetingID },
+    { fields: { publishedPoll: 1, voiceProp: 1 } });
   const { publishedPoll, voiceProp } = currentMeeting;
 
   if (!currentUser.approved) {
@@ -107,7 +115,7 @@ export default injectIntl(withModalMounter(withTracker(({ intl, baseControls }) 
     isPhone: deviceInfo.type().isPhone,
     isRTL: document.documentElement.getAttribute('dir') === 'rtl',
     meetingMuted: voiceProp.muteOnStart,
-    currentUserEmoji: mapUser(currentUser).emoji,
+    currentUserEmoji: currentUserEmoji(currentUser),
     hasPublishedPoll: publishedPoll,
     startBandwidthMonitoring,
     handleNetworkConnection: () => updateNavigatorConnection(navigator.connection),

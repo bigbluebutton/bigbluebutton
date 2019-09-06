@@ -1,8 +1,8 @@
-import React, { Component } from 'react';
+import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import PresentationAreaContainer from '../presentation/container';
 
-class PresentationPods extends Component {
+class PresentationPods extends PureComponent {
   render() {
     /*
       filtering/sorting presentation pods goes here

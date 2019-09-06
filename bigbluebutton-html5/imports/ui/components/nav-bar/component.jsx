@@ -74,7 +74,6 @@ class NavBar extends PureComponent {
       intl,
       shortcuts: TOGGLE_USERLIST_AK,
       mountModal,
-      isBreakoutRoom,
       presentationTitle,
       amIModerator,
     } = this.props;
@@ -113,7 +112,7 @@ class NavBar extends PureComponent {
           />
         </div>
         <div className={styles.right}>
-          <SettingsDropdownContainer amIModerator={amIModerator} isBreakoutRoom={isBreakoutRoom} />
+          <SettingsDropdownContainer amIModerator={amIModerator} />
         </div>
       </div>
     );

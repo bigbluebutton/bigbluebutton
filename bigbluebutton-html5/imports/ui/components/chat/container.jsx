@@ -57,7 +57,7 @@ export default injectIntl(withTracker(({ intl }) => {
   let systemMessageIntl = {};
 
   if (chatID === PUBLIC_CHAT_KEY) {
-    const { welcomeProp } = ChatService.getMeeting();
+    const { welcomeProp } = ChatService.getWelcomeProp();
     const currentUser = ChatService.getUser(Auth.userID);
 
     messages = ChatService.getPublicGroupMessages();
