@@ -1,7 +1,7 @@
 import Settings from '/imports/ui/services/settings';
 import Auth from '/imports/ui/services/auth';
 import Users from '/imports/api/users/';
-import VideoUsers from '/imports/api/video-users/';
+import VideoStreams from '/imports/api/video-streams/';
 import VideoService from '../service';
 
 const PUBLIC_SETTINGS = Meteor.settings.public;
@@ -10,8 +10,8 @@ const ROLE_MODERATOR = PUBLIC_SETTINGS.user.role_moderator;
 
 const isSharingVideo = () => {
   const userId = Auth.userID;
-  const VideoUser = VideoUsers.findOne({ userId, hasStream: true }, { fields: {} });
-  return !!VideoUser;
+  const videoStreams = VideoStreams.findOne({ userId }, { fields: {} });
+  return !!videoStreams;
 };
 
 const videoShareAllowed = () => Settings.dataSaving.viewParticipantsWebcams;

@@ -3,7 +3,7 @@ import { makeCall } from '/imports/ui/services/api';
 import Auth from '/imports/ui/services/auth';
 import Meetings from '/imports/api/meetings/';
 import Users from '/imports/api/users/';
-import VideoUsers from '/imports/api/video-users/';
+import VideoStreams from '/imports/api/video-streams/';
 import UserListService from '/imports/ui/components/user-list/service';
 
 const ROLE_MODERATOR = Meteor.settings.public.user.role_moderator;
@@ -80,9 +80,10 @@ class VideoService {
     const currentUser = Users.findOne({ userId: Auth.userID });
     const currentUserIsViewer = currentUser.role === ROLE_VIEWER;
     const sharedWebcam = this.isSharing;
-    const videoUsers = VideoUsers.find({ meetingId: Auth.meetingID, hasStream: true }, { fields: { userId: 1 } }).fetch();
+    const videoStreams = VideoStreams.find({ meetingId: Auth.meetingID },
+      { fields: { userId: 1 } }).fetch();
 
-    const videoUserIds = videoUsers.map(u => u.userId);
+    const videoUserIds = videoStreams.map(u => u.userId);
 
     let users = Users
       .find({

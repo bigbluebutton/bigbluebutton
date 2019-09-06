@@ -1,9 +1,9 @@
 import { Meteor } from 'meteor/meteor';
 import { check } from 'meteor/check';
 import Logger from '/imports/startup/server/logger';
-import VideoUsers from '/imports/api/video-users';
+import VideoStreams from '/imports/api/video-streams';
 
-function videoUsers(credentials) {
+function videoStreams(credentials) {
   const { meetingId, requesterUserId, requesterToken } = credentials;
 
   check(meetingId, String);
@@ -16,12 +16,12 @@ function videoUsers(credentials) {
     meetingId,
   };
 
-  return VideoUsers.find(selector);
+  return VideoStreams.find(selector);
 }
 
 function publish(...args) {
-  const boundVideoUsers = videoUsers.bind(this);
-  return boundVideoUsers(...args);
+  const boundVideoStreams = videoStreams.bind(this);
+  return boundVideoStreams(...args);
 }
 
-Meteor.publish('video-users', publish);
+Meteor.publish('video-streams', publish);

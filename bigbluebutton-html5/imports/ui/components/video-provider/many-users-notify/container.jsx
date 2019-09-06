@@ -2,7 +2,7 @@ import { withTracker } from 'meteor/react-meteor-data';
 import Meetings from '/imports/api/meetings/';
 import Auth from '/imports/ui/services/auth';
 import Users from '/imports/api/users/';
-import VideoUsers from '/imports/api/video-users';
+import VideoStreams from '/imports/api/video-streams';
 import LockViewersService from '/imports/ui/components/lock-viewers/service';
 import ManyUsersComponent from './component';
 
@@ -14,9 +14,9 @@ export default withTracker(() => {
   const meeting = Meetings.findOne({
     meetingId: Auth.meetingID,
   }, { fields: { 'usersProp.webcamsOnlyForModerator': 1, lockSettingsProps: 1 } });
-  const videoUsers = VideoUsers.find({ meetingId: Auth.meetingID, hasStream: true },
+  const videoStreams = VideoStreams.find({ meetingId: Auth.meetingID },
     { fields: { userId: 1 } }).fetch();
-  const videoUsersIds = videoUsers.map(u => u.userId);
+  const videoUsersIds = videoStreams.map(u => u.userId);
   return {
     viewersInWebcam: Users.find({
       meetingId: Auth.meetingID,
