@@ -13,7 +13,6 @@ import _ from 'lodash';
 import KEY_CODES from '/imports/utils/keyCodes';
 import AudioService from '/imports/ui/components/audio/service';
 import logger from '/imports/startup/client/logger';
-import { meetingIsBreakout } from '/imports/ui/components/app/service';
 
 const CHAT_CONFIG = Meteor.settings.public.chat;
 const PUBLIC_GROUP_CHAT_ID = CHAT_CONFIG.public_group_id;
@@ -139,9 +138,9 @@ const sortChatsByName = (a, b) => {
     return -1;
   } if (a.name.toLowerCase() > b.name.toLowerCase()) {
     return 1;
-  } if (a.id.toLowerCase() > b.id.toLowerCase()) {
+  } if (a.userId.toLowerCase() > b.userId.toLowerCase()) {
     return -1;
-  } if (a.id.toLowerCase() < b.id.toLowerCase()) {
+  } if (a.userId.toLowerCase() < b.userId.toLowerCase()) {
     return 1;
   }
 
@@ -207,10 +206,6 @@ const hasBreakoutRoom = () => Breakouts.find({ parentMeetingId: Auth.meetingID }
   { fields: {} }).count() > 0;
 
 const isMe = userId => userId === Auth.userID;
-const isUserModerator = (userId) => {
-  const u = Users.findOne({ userId }, { fields: { role: 1 } });
-  return u ? u.role === ROLE_MODERATOR : false;
-};
 
 const getActiveChats = (chatID) => {
   const privateChat = GroupChat
@@ -253,15 +248,15 @@ const getActiveChats = (chatID) => {
   activeChats.forEach((op) => {
     // When a new private chat message is received, ensure the conversation view is restored.
     if (op.unreadCounter > 0) {
-      if (_.indexOf(currentClosedChats, op.id) > -1) {
-        Storage.setItem(CLOSED_CHAT_LIST_KEY, _.without(currentClosedChats, op.id));
+      if (_.indexOf(currentClosedChats, op.userId) > -1) {
+        Storage.setItem(CLOSED_CHAT_LIST_KEY, _.without(currentClosedChats, op.userId));
       }
     }
 
     // Compare activeChats with session and push it into filteredChatList
     // if one of the activeChat is not in session.
     // It will pass to activeChats.
-    if (_.indexOf(currentClosedChats, op.id) < 0) {
+    if (_.indexOf(currentClosedChats, op.userId) < 0) {
       filteredChatList.push(op);
     }
   });
@@ -319,25 +314,22 @@ const curatedVoiceUser = (intId) => {
   };
 };
 
-const getAvailableActions = (subjectUser) => {
-  const isBreakoutRoom = meetingIsBreakout();
+const getAvailableActions = (amIModerator, isBreakoutRoom, subjectUser, subjectVoiceUser) => {
   const isDialInUser = isVoiceOnlyUser(subjectUser.userId) || subjectUser.phone_user;
-  const amIModerator = isUserModerator(Auth.userID);
   const amISubjectUser = isMe(subjectUser.userId);
-  const isSubjectUserModerator = isUserModerator(subjectUser.userId);
+  const isSubjectUserModerator = subjectUser.role === ROLE_MODERATOR;
 
   const hasAuthority = amIModerator || amISubjectUser;
   const allowedToChatPrivately = !amISubjectUser && !isDialInUser;
-  const voiceUser = curatedVoiceUser(subjectUser.userId);
   const allowedToMuteAudio = hasAuthority
-    && voiceUser.isVoiceUser
-    && !voiceUser.isMuted
-    && !voiceUser.isListenOnly;
+    && subjectVoiceUser.isVoiceUser
+    && !subjectVoiceUser.isMuted
+    && !subjectVoiceUser.isListenOnly;
 
   const allowedToUnmuteAudio = hasAuthority
-    && voiceUser.isVoiceUser
-    && !voiceUser.isListenOnly
-    && voiceUser.isMuted
+    && subjectVoiceUser.isVoiceUser
+    && !subjectVoiceUser.isListenOnly
+    && subjectVoiceUser.isMuted
     && (amISubjectUser || areUsersUnmutable());
 
   const allowedToResetStatus = hasAuthority
@@ -493,6 +485,21 @@ const requestUserInformation = (userId) => {
   makeCall('requestUserInformation', userId);
 };
 
+export const getUserNamesLink = () => {
+  const mimeType = 'text/plain';
+  const userNamesObj = getUsers();
+  const userNameListString = userNamesObj
+    .map(u => u.name)
+    .join('\r\n');
+  const link = document.createElement('a');
+  link.setAttribute('download', `save-users-list-${Date.now()}.txt`);
+  link.setAttribute(
+    'href',
+    `data: ${mimeType} ;charset=utf-16,${encodeURIComponent(userNameListString)}`,
+  );
+  return link;
+};
+
 export default {
   sortUsers,
   setEmojiStatus,
@@ -510,12 +517,9 @@ export default {
   isMeetingLocked,
   isPublicChat,
   roving,
-  setCustomLogoUrl,
   getCustomLogoUrl,
   getGroupChatPrivate,
   hasBreakoutRoom,
-  meetingIsBreakout,
-  isUserModerator,
   getEmojiList: () => EMOJI_STATUSES,
   getEmoji: () => Users.findOne({ userId: Auth.userID }, { fields: { emoji: 1 } }).emoji,
   hasPrivateChatBetweenUsers,

@@ -28,8 +28,8 @@ const ActionsBarContainer = props => <ActionsBar {...props} />;
 const POLLING_ENABLED = Meteor.settings.public.poll.enabled;
 
 export default withTracker(() => ({
-  isUserPresenter: Service.isUserPresenter(),
-  isUserModerator: Service.isUserModerator(),
+  amIPresenter: Service.amIPresenter(),
+  amIModerator: Service.amIModerator(),
   stopExternalVideoShare: ExternalVideoService.stopWatching,
   handleExitVideo: () => VideoService.exitVideo(),
   handleJoinVideo: () => VideoService.joinVideo(),

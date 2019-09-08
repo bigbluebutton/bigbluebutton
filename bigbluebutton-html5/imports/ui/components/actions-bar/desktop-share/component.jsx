@@ -10,7 +10,7 @@ import { styles } from '../styles';
 
 const propTypes = {
   intl: intlShape.isRequired,
-  isUserPresenter: PropTypes.bool.isRequired,
+  amIPresenter: PropTypes.bool.isRequired,
   handleShareScreen: PropTypes.func.isRequired,
   handleUnshareScreen: PropTypes.func.isRequired,
   isVideoBroadcasting: PropTypes.bool.isRequired,
@@ -60,7 +60,7 @@ const DesktopShare = ({
   handleShareScreen,
   handleUnshareScreen,
   isVideoBroadcasting,
-  isUserPresenter,
+  amIPresenter,
   screenSharingCheck,
   screenShareEndAlert,
   isMeteorConnected,
@@ -96,7 +96,7 @@ const DesktopShare = ({
   const vDescr = isVideoBroadcasting
     ? intlMessages.stopDesktopShareDesc : intlMessages.desktopShareDesc;
 
-  return (screenSharingCheck && !isMobileBrowser && isUserPresenter
+  return (screenSharingCheck && !isMobileBrowser && amIPresenter
     ? (
       <Button
         className={cx(styles.button, isVideoBroadcasting || styles.btn)}

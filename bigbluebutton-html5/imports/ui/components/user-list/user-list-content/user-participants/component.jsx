@@ -16,20 +16,8 @@ const propTypes = {
   }).isRequired,
   currentUser: PropTypes.shape({}).isRequired,
   users: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
-  getGroupChatPrivate: PropTypes.func.isRequired,
-  handleEmojiChange: PropTypes.func.isRequired,
   setEmojiStatus: PropTypes.func.isRequired,
-  assignPresenter: PropTypes.func.isRequired,
-  removeUser: PropTypes.func.isRequired,
-  toggleVoice: PropTypes.func.isRequired,
-  muteAllUsers: PropTypes.func.isRequired,
-  muteAllExceptPresenter: PropTypes.func.isRequired,
-  changeRole: PropTypes.func.isRequired,
-  getAvailableActions: PropTypes.func.isRequired,
-  normalizeEmojiName: PropTypes.func.isRequired,
-  isMeetingLocked: PropTypes.func.isRequired,
   roving: PropTypes.func.isRequired,
-  toggleUserLock: PropTypes.func.isRequired,
   requestUserInformation: PropTypes.func.isRequired,
 };
 
@@ -52,6 +40,8 @@ const intlMessages = defineMessages({
     description: 'Title for the Header',
   },
 });
+
+const ROLE_MODERATOR = Meteor.settings.public.user.role_moderator;
 
 class UserParticipants extends Component {
   constructor() {
@@ -107,25 +97,11 @@ class UserParticipants extends Component {
   getUsers() {
     const {
       compact,
-      meeting,
-      getAvailableActions,
-      normalizeEmojiName,
-      isMeetingLocked,
-      changeRole,
-      assignPresenter,
       setEmojiStatus,
-      removeUser,
-      toggleVoice,
-      getGroupChatPrivate,
-      handleEmojiChange,
-      getEmojiList,
-      getEmoji,
       users,
-      hasPrivateChatBetweenUsers,
-      toggleUserLock,
       requestUserInformation,
       currentUser,
-      isModerator,
+      meetingIsBreakout,
     } = this.props;
 
     let index = -1;
@@ -145,24 +121,10 @@ class UserParticipants extends Component {
           <UserListItemContainer
             {...{
               compact,
-              meeting,
-              getAvailableActions,
-              normalizeEmojiName,
-              isMeetingLocked,
-              handleEmojiChange,
-              getEmojiList,
-              getEmoji,
               setEmojiStatus,
-              assignPresenter,
-              removeUser,
-              toggleVoice,
-              changeRole,
-              getGroupChatPrivate,
-              hasPrivateChatBetweenUsers,
-              toggleUserLock,
               requestUserInformation,
               currentUser,
-              isModerator,
+              meetingIsBreakout,
             }}
             user={u}
             getScrollContainerRef={this.getScrollContainerRef}
@@ -189,11 +151,8 @@ class UserParticipants extends Component {
       users,
       compact,
       setEmojiStatus,
-      muteAllUsers,
-      meeting,
-      muteAllExceptPresenter,
       currentUser,
-      isModerator,
+      meetingIsBreakout,
     } = this.props;
 
     return (
@@ -208,13 +167,12 @@ class UserParticipants extends Component {
                   {users.length}
                   )
                 </h2>
-                {isModerator(currentUser.userId)
+                {currentUser.role === ROLE_MODERATOR
                   ? (
                     <UserOptionsContainer {...{
                       users,
-                      muteAllUsers,
-                      muteAllExceptPresenter,
                       setEmojiStatus,
+                      meetingIsBreakout,
                     }}
                     />
                   ) : null

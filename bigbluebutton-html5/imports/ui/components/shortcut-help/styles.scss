@@ -13,10 +13,6 @@
 
 .descCell {
   padding: 0 var(--jumbo-padding-x) !important 0 0;
-
-  [dir="rtl"] & {
-    padding: 0 0 0 var(--jumbo-padding-x) !important;
-  }
 }
 
 .keyCell,

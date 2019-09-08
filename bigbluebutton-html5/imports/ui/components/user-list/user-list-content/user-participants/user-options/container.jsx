@@ -2,9 +2,8 @@ import { withTracker } from 'meteor/react-meteor-data';
 import PropTypes from 'prop-types';
 import Auth from '/imports/ui/services/auth';
 import Meetings from '/imports/api/meetings';
-import Service from '/imports/ui/components/actions-bar/service';
-import AppService from '/imports/ui/components/app/service';
-import userListService from '/imports/ui/components/user-list/service';
+import ActionsBarService from '/imports/ui/components/actions-bar/service';
+import UserListService from '/imports/ui/components/user-list/service';
 import logger from '/imports/startup/client/logger';
 import { defineMessages, injectIntl, intlShape } from 'react-intl';
 import { notify } from '/imports/ui/services/notification';
@@ -12,8 +11,6 @@ import UserOptions from './component';
 
 const propTypes = {
   users: PropTypes.arrayOf(Object).isRequired,
-  muteAllUsers: PropTypes.func.isRequired,
-  muteAllExceptPresenter: PropTypes.func.isRequired,
   setEmojiStatus: PropTypes.func.isRequired,
   intl: intlShape.isRequired,
 };
@@ -34,12 +31,8 @@ const UserOptionsContainer = withTracker((props) => {
   const {
     users,
     setEmojiStatus,
-    muteAllExceptPresenter,
-    muteAllUsers,
     intl,
   } = props;
-
-  const meeting = Meetings.findOne({ meetingId: Auth.meetingID }, { fields: { voiceProp: 1 } });
 
   const toggleStatus = () => {
     users.forEach(user => setEmojiStatus(user.userId, 'none'));
@@ -49,14 +42,15 @@ const UserOptionsContainer = withTracker((props) => {
   };
 
   const isMeetingMuteOnStart = () => {
-    const { voiceProp } = meeting;
+    const { voiceProp } = Meetings.findOne({ meetingId: Auth.meetingID },
+      { fields: { 'voiceProp.muteOnStart': 1 } });
     const { muteOnStart } = voiceProp;
     return muteOnStart;
   };
 
   return {
     toggleMuteAllUsers: () => {
-      muteAllUsers(Auth.userID);
+      UserListService.muteAllUsers(Auth.userID);
       if (isMeetingMuteOnStart()) {
         return meetingMuteDisabledLog();
       }
@@ -66,7 +60,7 @@ const UserOptionsContainer = withTracker((props) => {
       }, 'moderator enabled meeting mute, all users muted');
     },
     toggleMuteAllUsersExceptPresenter: () => {
-      muteAllExceptPresenter(Auth.userID);
+      UserListService.muteAllExceptPresenter(Auth.userID);
       if (isMeetingMuteOnStart()) {
         return meetingMuteDisabledLog();
       }
@@ -76,16 +70,13 @@ const UserOptionsContainer = withTracker((props) => {
       }, 'moderator enabled meeting mute, all users muted except presenter');
     },
     toggleStatus,
-    isMeetingMuted: meeting.voiceProp.muteOnStart,
-    isUserPresenter: Service.isUserPresenter(),
-    isUserModerator: Service.isUserModerator(),
-    meetingIsBreakout: AppService.meetingIsBreakout(),
-    getUsersNotAssigned: Service.getUsersNotAssigned,
-    hasBreakoutRoom: Service.hasBreakoutRoom(),
-    isBreakoutEnabled: Service.isBreakoutEnabled(),
-    isBreakoutRecordable: Service.isBreakoutRecordable(),
-    users: Service.users(),
-    userListService,
+    isMeetingMuted: isMeetingMuteOnStart(),
+    amIModerator: ActionsBarService.amIModerator(),
+    getUsersNotAssigned: ActionsBarService.getUsersNotAssigned,
+    hasBreakoutRoom: UserListService.hasBreakoutRoom(),
+    isBreakoutEnabled: ActionsBarService.isBreakoutEnabled(),
+    isBreakoutRecordable: ActionsBarService.isBreakoutRecordable(),
+    users: ActionsBarService.users(),
     isMeteorConnected: Meteor.status().connected,
   };
 })(UserOptions);
