@@ -5,13 +5,13 @@ import fs from 'fs';
 import Users from '/imports/api/users';
 import './settings';
 import { lookup as lookupUserAgent } from 'useragent';
+import { check } from 'meteor/check';
+import memwatch from 'memwatch-next';
 import Logger from './logger';
 import Redis from './redis';
 import setMinBrowserVersions from './minBrowserVersion';
 import userLeaving from '/imports/api/users/server/methods/userLeaving';
-import { check } from 'meteor/check';
 
-const parse = Npm.require('url').parse;
 const AVAILABLE_LOCALES = fs.readdirSync('assets/app/locales');
 
 Meteor.startup(() => {
@@ -20,6 +20,19 @@ Meteor.startup(() => {
   const INTERVAL_TIME = INTERVAL_IN_SETTINGS < 10000 ? 10000 : INTERVAL_IN_SETTINGS;
   const env = Meteor.isDevelopment ? 'development' : 'production';
   const CDN_URL = APP_CONFIG.cdn;
+
+  const memoryMonitoringSettings = Meteor.settings.private.memoryMonitoring;
+  if (memoryMonitoringSettings.stat.enabled) {
+    memwatch.on('stats', (stats) => {
+      Logger.debug('memwatch stats', stats);
+    });
+  }
+
+  if (memoryMonitoringSettings.leak.enabled) {
+    memwatch.on('leak', (info) => {
+      Logger.debug('memwatch leak', info);
+    });
+  }
 
   if (CDN_URL.trim()) {
     // Add CDN
