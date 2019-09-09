@@ -12,7 +12,7 @@ import logger from '/imports/startup/client/logger';
 import Users from '/imports/api/users';
 import { Session } from 'meteor/session';
 import IntlStartup from './intl';
-import Meetings from '../../api/meetings';
+import Meetings, { RecordMeetings } from '../../api/meetings';
 import AppService from '/imports/ui/components/app/service';
 import Breakouts from '/imports/api/breakouts';
 import AudioService from '/imports/ui/components/audio/service';
@@ -270,10 +270,10 @@ const BaseContainer = withTracker(() => {
     },
   });
 
-  Meetings.find({ meetingId }, { fields: { recordProp: 1 } }).observe({
+  RecordMeetings.find({ meetingId }, { fields: { recording: 1 } }).observe({
     changed: (newDocument, oldDocument) => {
-      if (newDocument.recordProp) {
-        if (!oldDocument.recordProp.recording && newDocument.recordProp.recording) {
+      if (newDocument) {
+        if (!oldDocument.recording && newDocument.recording) {
           notify(
             <FormattedMessage
               id="app.notification.recordingStart"
@@ -284,7 +284,7 @@ const BaseContainer = withTracker(() => {
           );
         }
 
-        if (oldDocument.recordProp.recording && !newDocument.recordProp.recording) {
+        if (oldDocument.recording && !newDocument.recording) {
           notify(
             <FormattedMessage
               id="app.notification.recordingPaused"

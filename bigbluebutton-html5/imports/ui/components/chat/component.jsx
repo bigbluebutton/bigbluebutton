@@ -40,6 +40,7 @@ const Chat = (props) => {
     UnsentMessagesCollection,
     minMessageLength,
     maxMessageLength,
+    amIModerator,
   } = props;
 
   const HIDE_CHAT_AK = shortcuts.hidePrivateChat;
@@ -86,7 +87,7 @@ const Chat = (props) => {
                 accessKey={CLOSE_CHAT_AK}
               />
             )
-            : <ChatDropdown isMeteorConnected={isMeteorConnected} />
+            : <ChatDropdown isMeteorConnected={isMeteorConnected} amIModerator={amIModerator} />
         }
       </header>
       <MessageList

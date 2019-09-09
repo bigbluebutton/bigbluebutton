@@ -7,6 +7,8 @@ import { styles } from './styles';
 import VideoListItemContainer from './video-list-item/container';
 import { withDraggableConsumer } from '../../media/webcam-draggable-overlay/context';
 import AutoplayOverlay from '../../media/autoplay-overlay/component';
+import logger from '/imports/startup/client/logger';
+import playAndRetry from '/imports/utils/mediaElementPlayRetry';
 
 const propTypes = {
   users: PropTypes.arrayOf(PropTypes.object).isRequired,
@@ -145,14 +147,25 @@ class VideoList extends Component {
   handleAllowAutoplay() {
     const { autoplayBlocked } = this.state;
 
+    logger.info({
+      logCode: 'video_provider_autoplay_allowed',
+    }, 'Video media autoplay allowed by the user');
+
     this.autoplayWasHandled = true;
     window.removeEventListener('videoPlayFailed', this.handlePlayElementFailed);
     while (this.failedMediaElements.length) {
       const mediaElement = this.failedMediaElements.shift();
       if (mediaElement) {
-        mediaElement.play().catch(() => {
-          // Ignore the error for now.
-        });
+        const played = playAndRetry(mediaElement);
+        if (!played) {
+          logger.error({
+            logCode: 'video_provider_autoplay_handling_failed',
+          }, 'Video autoplay handling failed to play media');
+        } else {
+          logger.info({
+            logCode: 'video_provider_media_play_success',
+          }, 'Video media played successfully');
+        }
       }
     }
     if (autoplayBlocked) { this.setState({ autoplayBlocked: false }); }
@@ -165,6 +178,9 @@ class VideoList extends Component {
     e.stopPropagation();
     this.failedMediaElements.push(mediaElement);
     if (!autoplayBlocked && !this.autoplayWasHandled) {
+      logger.info({
+        logCode: 'video_provider_autoplay_prompt',
+      }, 'Prompting user for action to play video media');
       this.setState({ autoplayBlocked: true });
     }
   }
@@ -195,6 +211,7 @@ class VideoList extends Component {
       getStats,
       stopGettingStats,
       enableVideoStats,
+      swapLayout,
     } = this.props;
     const { focusedId } = this.state;
 
@@ -230,6 +247,7 @@ class VideoList extends Component {
             getStats={(videoRef, callback) => getStats(user.userId, videoRef, callback)}
             stopGettingStats={() => stopGettingStats(user.userId)}
             enableVideoStats={enableVideoStats}
+            swapLayout={swapLayout}
           />
         </div>
       );

@@ -503,7 +503,7 @@ class VideoPreview extends Component {
                 ? (
                   <select
                     id="setCam"
-                    value={webcamDeviceId}
+                    value={webcamDeviceId || ''}
                     className={styles.select}
                     onChange={this.handleSelectWebcam.bind(this)}
                   >
@@ -528,7 +528,7 @@ class VideoPreview extends Component {
                 ? (
                   <select
                     id="setQuality"
-                    value={selectedProfile}
+                    value={selectedProfile || ''}
                     className={styles.select}
                     onChange={this.handleSelectProfile.bind(this)}
                   >

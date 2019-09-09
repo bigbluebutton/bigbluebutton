@@ -130,7 +130,7 @@ export default injectIntl(withTracker(({ intl }) => {
   const { status, connected, retryTime } = Meteor.status();
   const data = {};
 
-  const user = Users.findOne({ userId: Auth.userID });
+  const user = Users.findOne({ userId: Auth.userID }, { fields: { effectiveConnectionType: 1 } });
 
   if (user) {
     const { effectiveConnectionType } = user;
@@ -198,7 +198,8 @@ export default injectIntl(withTracker(({ intl }) => {
     }
   }
 
-  const Meeting = Meetings.findOne({ meetingId: Auth.meetingID });
+  const Meeting = Meetings.findOne({ meetingId },
+    { fields: { durationProps: 1, 'meetingProp.isBreakout': 1 } });
 
   if (Meeting) {
     const { timeRemaining } = Meeting.durationProps;

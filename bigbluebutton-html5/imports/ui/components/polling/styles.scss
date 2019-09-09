@@ -36,12 +36,12 @@
   font-weight: 600;
   padding: var(--md-padding-y);
   background-color: var(--color-white);
-  bottom: var(--sm-padding-x);
-  right: var(--sm-padding-x);
+  bottom: var(--jumbo-padding-x);
+  right: var(--jumbo-padding-x);
 
-  @include mq($medium-only) {
-    bottom: var(--jumbo-padding-x);
-    right: calc(var(--jumbo-padding-x) / 2);
+  [dir="rtl"] & {
+    left: var(--jumbo-padding-x);
+    right: auto;
   }
 
   @include mq($hasPhoneDimentions) {
@@ -49,11 +49,10 @@
     right: auto;
     top: 50%;
     left: 50%;
-    margin:0 -50% 0 0;
     transform: translate(-50%, -50%);
 
     [dir="rtl"] & {
-      margin: 0 -50% 0 0;
+      left: 50%;
     }
   }
 }

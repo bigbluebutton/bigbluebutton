@@ -21,7 +21,8 @@ const getPresentationInfo = () => {
   };
 };
 
-const isUserPresenter = () => Users.findOne({ userId: Auth.userID }).presenter;
+const isUserPresenter = () => Users.findOne({ userId: Auth.userID },
+  { fields: { presenter: 1 } }).presenter;
 
 function shouldShowWhiteboard() {
   return true;

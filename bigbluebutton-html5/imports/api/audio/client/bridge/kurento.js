@@ -1,6 +1,7 @@
 import BaseAudioBridge from './base';
 import Auth from '/imports/ui/services/auth';
 import { fetchWebRTCMappedStunTurnServers } from '/imports/utils/fetchStunTurnServers';
+import playAndRetry from '/imports/utils/mediaElementPlayRetry';
 import logger from '/imports/startup/client/logger';
 
 const SFU_URL = Meteor.settings.public.kurento.wsUrl;
@@ -37,6 +38,14 @@ export default class KurentoAudioBridge extends BaseAudioBridge {
     this.hasSuccessfullyStarted = false;
   }
 
+  static normalizeError(error = {}) {
+    const errorMessage = error.message || error.name || error.reason || 'Unknown error';
+    const errorCode = error.code || 'Undefined code';
+    const errorReason = error.reason || error.id || 'Undefined reason';
+
+    return { errorMessage, errorCode, errorReason };
+  }
+
   joinAudio({ isListenOnly, inputStream }, callback) {
     return new Promise(async (resolve, reject) => {
       this.callback = callback;
@@ -59,34 +68,65 @@ export default class KurentoAudioBridge extends BaseAudioBridge {
           inputStream,
         };
 
+        const audioTag = document.getElementById(MEDIA_TAG);
+
+        const playElement = () => {
+          const mediaTagPlayed = () => {
+            logger.info({
+              logCode: 'listenonly_media_play_success',
+            }, 'Listen only media played successfully');
+            resolve(this.callback({ status: this.baseCallStates.started }));
+          };
+          if (audioTag.paused) {
+            // Tag isn't playing yet. Play it.
+            audioTag.play()
+              .then(mediaTagPlayed)
+              .catch((error) => {
+                // NotAllowedError equals autoplay issues, fire autoplay handling event.
+                // This will be handled in audio-manager.
+                if (error.name === 'NotAllowedError') {
+                  logger.error({
+                    logCode: 'listenonly_error_autoplay',
+                    extraInfo: { errorName: error.name },
+                  }, 'Listen only media play failed due to autoplay error');
+                  const tagFailedEvent = new CustomEvent('audioPlayFailed', { detail: { mediaElement: audioTag } });
+                  window.dispatchEvent(tagFailedEvent);
+                  resolve(this.callback({
+                    status: this.baseCallStates.autoplayBlocked,
+                  }));
+                } else {
+                  // Tag failed for reasons other than autoplay. Log the error and
+                  // try playing again a few times until it works or fails for good
+                  const played = playAndRetry(audioTag);
+                  if (!played) {
+                    logger.error({
+                      logCode: 'listenonly_error_media_play_failed',
+                      extraInfo: { errorName: error.name },
+                    }, `Listen only media play failed due to ${error.name}`);
+                  } else {
+                    mediaTagPlayed();
+                  }
+                }
+              });
+          } else {
+            // Media tag is already playing, so log a success. This is really a
+            // logging fallback for a case that shouldn't happen. But if it does
+            // (ie someone re-enables the autoPlay prop in the element), then it
+            // means the stream is playing properly and it'll be logged.
+            mediaTagPlayed();
+          }
+        };
+
         const onSuccess = () => {
           const { webRtcPeer } = window.kurentoManager.kurentoAudio;
 
           this.hasSuccessfullyStarted = true;
           if (webRtcPeer) {
-            const audioTag = document.getElementById(MEDIA_TAG);
             const stream = webRtcPeer.getRemoteStream();
             audioTag.pause();
             audioTag.srcObject = stream;
             audioTag.muted = false;
-            audioTag.play()
-              .then(() => {
-                resolve(this.callback({ status: this.baseCallStates.started }));
-              })
-              .catch((error) => {
-                // NotAllowedError equals autoplay issues, fire autoplay handling event
-                if (error.name === 'NotAllowedError') {
-                  const tagFailedEvent = new CustomEvent('audioPlayFailed', { detail: { mediaElement: audioTag } });
-                  window.dispatchEvent(tagFailedEvent);
-                }
-                logger.warn({
-                  logCode: 'sfuaudiobridge_play_maybe_error',
-                  extraInfo: { error },
-                }, `Listen only media play failed due to ${error.name}`);
-                resolve(this.callback({
-                  status: this.baseCallStates.autoplayBlocked,
-                }));
-              });
+            playElement();
           } else {
             this.callback({
               status: this.baseCallStates.failed,
@@ -101,12 +141,13 @@ export default class KurentoAudioBridge extends BaseAudioBridge {
         };
 
         const onFail = (error) => {
+          const { errorMessage, errorCode, errorReason } = KurentoAudioBridge.normalizeError(error);
           // Listen only connected successfully already and dropped mid-call.
           // Try to reconnect ONCE (binded to reconnectOngoing flag)
           if (this.hasSuccessfullyStarted && !this.reconnectOngoing) {
             logger.error({
-              logCode: 'sfuaudiobridge_listen_only_error_reconnect',
-              extraInfo: { error },
+              logCode: 'listenonly_error_try_to_reconnect',
+              extraInfo: { errorMessage, errorCode, errorReason },
             }, 'Listen only failed for an ongoing session, try to reconnect');
             window.kurentoExitAudio();
             this.callback({ status: this.baseCallStates.reconnecting });
@@ -135,26 +176,34 @@ export default class KurentoAudioBridge extends BaseAudioBridge {
           } else {
             // Already tried reconnecting once OR the user handn't succesfully
             // connected firsthand. Just finish the session and reject with error
+            if (!this.reconnectOngoing) {
+              logger.error({
+                logCode: 'listenonly_error_failed_to_connect',
+                extraInfo: { errorMessage, errorCode, errorReason },
+              }, `Listen only failed when trying to start due to ${errorMessage}`);
+            } else {
+              logger.error({
+                logCode: 'listenonly_error_reconnect_failed',
+                extraInfo: { errorMessage, errorCode, errorReason },
+              }, `Listen only failed when trying to reconnect due to ${errorMessage}`);
+            }
+
             this.reconnectOngoing = false;
             this.hasSuccessfullyStarted = false;
             window.kurentoExitAudio();
 
-            let reason = 'Undefined';
-            if (error) {
-              reason = error.reason || error.id || error;
-            }
             this.callback({
               status: this.baseCallStates.failed,
               error: this.baseErrorCodes.CONNECTION_ERROR,
-              bridgeError: reason,
+              bridgeError: errorReason,
             });
 
-            reject(reason);
+            reject(errorReason);
           }
         };
 
         if (!isListenOnly) {
-          return reject('Invalid bridge option');
+          return reject(new Error('Invalid bridge option'));
         }
 
         window.kurentoJoinAudio(

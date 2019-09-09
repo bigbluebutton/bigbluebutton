@@ -190,7 +190,7 @@ const uploadAndConvertPresentations = (
 const setPresentation = (presentationId, podId) => makeCall('setPresentation', presentationId, podId);
 
 const removePresentation = (presentationId, podId) => {
-  const hasPoll = Poll.find({}).fetch().length;
+  const hasPoll = Poll.find({}, { fields: {} }).count();
   if (hasPoll) makeCall('stopPoll');
   makeCall('removePresentation', presentationId, podId);
 };

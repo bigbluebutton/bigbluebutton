@@ -15,29 +15,14 @@ const propTypes = {
     formatMessage: PropTypes.func.isRequired,
   }).isRequired,
   currentUser: PropTypes.shape({}).isRequired,
-  meeting: PropTypes.shape({}).isRequired,
   users: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
-  getGroupChatPrivate: PropTypes.func.isRequired,
-  handleEmojiChange: PropTypes.func.isRequired,
-  isBreakoutRoom: PropTypes.bool,
   setEmojiStatus: PropTypes.func.isRequired,
-  assignPresenter: PropTypes.func.isRequired,
-  removeUser: PropTypes.func.isRequired,
-  toggleVoice: PropTypes.func.isRequired,
-  muteAllUsers: PropTypes.func.isRequired,
-  muteAllExceptPresenter: PropTypes.func.isRequired,
-  changeRole: PropTypes.func.isRequired,
-  getAvailableActions: PropTypes.func.isRequired,
-  normalizeEmojiName: PropTypes.func.isRequired,
-  isMeetingLocked: PropTypes.func.isRequired,
   roving: PropTypes.func.isRequired,
-  toggleUserLock: PropTypes.func.isRequired,
   requestUserInformation: PropTypes.func.isRequired,
 };
 
 const defaultProps = {
   compact: false,
-  isBreakoutRoom: false,
 };
 
 const listTransition = {
@@ -84,10 +69,6 @@ class UserParticipants extends Component {
     }
   }
 
-  componentWillUnmount() {
-    this.refScrollContainer.removeEventListener('keydown', this.rove);
-  }
-
   shouldComponentUpdate(nextProps, nextState) {
     const isPropsEqual = _.isEqual(this.props, nextProps);
     const isStateEqual = _.isEqual(this.state, nextState);
@@ -105,6 +86,10 @@ class UserParticipants extends Component {
     }
   }
 
+  componentWillUnmount() {
+    this.refScrollContainer.removeEventListener('keydown', this.rove);
+  }
+
   getScrollContainerRef() {
     return this.refScrollContainer;
   }
@@ -112,25 +97,11 @@ class UserParticipants extends Component {
   getUsers() {
     const {
       compact,
-      isBreakoutRoom,
-      meeting,
-      getAvailableActions,
-      normalizeEmojiName,
-      isMeetingLocked,
-      changeRole,
-      assignPresenter,
       setEmojiStatus,
-      removeUser,
-      toggleVoice,
-      getGroupChatPrivate,
-      handleEmojiChange,
-      getEmojiList,
-      getEmoji,
       users,
-      hasPrivateChatBetweenUsers,
-      toggleUserLock,
       requestUserInformation,
       currentUser,
+      meetingIsBreakout,
     } = this.props;
 
     let index = -1;
@@ -150,24 +121,10 @@ class UserParticipants extends Component {
           <UserListItemContainer
             {...{
               compact,
-              isBreakoutRoom,
-              meeting,
-              getAvailableActions,
-              normalizeEmojiName,
-              isMeetingLocked,
-              handleEmojiChange,
-              getEmojiList,
-              getEmoji,
               setEmojiStatus,
-              assignPresenter,
-              removeUser,
-              toggleVoice,
-              changeRole,
-              getGroupChatPrivate,
-              hasPrivateChatBetweenUsers,
-              toggleUserLock,
               requestUserInformation,
               currentUser,
+              meetingIsBreakout,
             }}
             user={u}
             getScrollContainerRef={this.getScrollContainerRef}
@@ -194,10 +151,8 @@ class UserParticipants extends Component {
       users,
       compact,
       setEmojiStatus,
-      muteAllUsers,
-      meeting,
-      muteAllExceptPresenter,
       currentUser,
+      meetingIsBreakout,
     } = this.props;
 
     return (
@@ -216,10 +171,8 @@ class UserParticipants extends Component {
                   ? (
                     <UserOptionsContainer {...{
                       users,
-                      muteAllUsers,
-                      muteAllExceptPresenter,
                       setEmojiStatus,
-                      meeting,
+                      meetingIsBreakout,
                     }}
                     />
                   ) : null

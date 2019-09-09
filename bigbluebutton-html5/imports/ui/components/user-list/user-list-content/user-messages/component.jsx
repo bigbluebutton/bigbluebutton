@@ -88,7 +88,7 @@ class UserMessages extends PureComponent {
         timeout={0}
         component="div"
         className={cx(styles.chatsList)}
-        key={chat.id}
+        key={chat.userId}
       >
         <div ref={(node) => { this.activeChatRefs[index += 1] = node; }}>
           <ChatListItemContainer
