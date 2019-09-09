@@ -511,8 +511,6 @@
     "app.recording.startTitle": "Aufzeichnung starten",
     "app.recording.stopTitle": "Aufzeichnung pausieren",
     "app.recording.resumeTitle": "Aufzeichnung fortsetzen",
-    "app.recording.startDescription": "(Sie können den Aufnahmeknopf erneut drücken, um die Aufzeichnung zu pausieren)",
-    "app.recording.stopDescription": "Sind Sie sicher, dass die die Aufnahme pausieren wollen? (Sie können die Aufnahme fortsetzen, in dem Sie auf den Aufnahmeknopf drücken)",
     "app.videoPreview.cameraLabel": "Kamera",
     "app.videoPreview.profileLabel": "Qualität",
     "app.videoPreview.cancelLabel": "Abbrechen",
