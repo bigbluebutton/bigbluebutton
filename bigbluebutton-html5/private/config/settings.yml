@@ -353,6 +353,11 @@ private:
     - DoLatencyTracerMsg
   serverLog:
     level: info
+  memoryMonitoring:
+    stat:
+      enabled: false
+    leak:
+      enabled: false
   minBrowserVersions:
     - browser: chrome
       version: 59
