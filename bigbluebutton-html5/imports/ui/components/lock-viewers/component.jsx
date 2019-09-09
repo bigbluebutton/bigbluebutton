@@ -1,10 +1,14 @@
-import React, { Fragment } from 'react';
+import React, { Fragment, PureComponent } from 'react';
 import { defineMessages, injectIntl } from 'react-intl';
-import Toggle from '/imports/ui/components/switch/component';
+import PropTypes from 'prop-types';
 import cx from 'classnames';
+import Toggle from '/imports/ui/components/switch/component';
 import Modal from '/imports/ui/components/modal/simple/component';
 import NoteService from '/imports/ui/components/note/service';
+import Button from '/imports/ui/components/button/component';
 import { styles } from './styles';
+
+const CHAT_ENABLED = Meteor.settings.public.chat.enabled;
 
 const intlMessages = defineMessages({
   lockViewersTitle: {
@@ -63,19 +67,67 @@ const intlMessages = defineMessages({
     id: 'app.lock-viewers.ariaTitle',
     description: 'aria label for modal title',
   },
+  buttonApply: {
+    id: 'app.lock-viewers.button.apply',
+    description: 'label for apply button',
+  },
+  buttonCancel: {
+    id: 'app.lock-viewers.button.cancel',
+    description: 'label for cancel button',
+  },
 });
 
-const CHAT_ENABLED = Meteor.settings.public.chat.enabled;
+const propTypes = {
+  closeModal: PropTypes.func.isRequired,
+  intl: PropTypes.shape({
+    formatMessage: PropTypes.func.isRequired,
+  }).isRequired,
+  meeting: PropTypes.object.isRequired,
+  updateLockSettings: PropTypes.func.isRequired,
+  updateWebcamsOnlyForModerator: PropTypes.func.isRequired,
+};
 
-class LockViewersComponent extends React.PureComponent {
+class LockViewersComponent extends PureComponent {
+  constructor(props) {
+    super(props);
+
+    const { meeting: { lockSettingsProps, usersProp } } = this.props;
+
+    this.state = {
+      lockSettingsProps,
+      usersProp,
+    };
+  }
+
+  toggleLockSettings(property) {
+    const { lockSettingsProps } = this.state;
+
+    lockSettingsProps[property] = !lockSettingsProps[property];
+
+    this.setState({
+      lockSettingsProps,
+    });
+  }
+
+  toggleUserProps(property) {
+    const { usersProp } = this.state;
+
+    usersProp[property] = !usersProp[property];
+
+    this.setState({
+      usersProp,
+    });
+  }
+
   render() {
     const {
       intl,
-      meeting,
       closeModal,
-      toggleLockSettings,
-      toggleWebcamsOnlyForModerator,
+      updateLockSettings,
+      updateWebcamsOnlyForModerator,
     } = this.props;
+
+    const { lockSettingsProps, usersProp } = this.state;
 
     return (
       <Modal
@@ -83,10 +135,11 @@ class LockViewersComponent extends React.PureComponent {
         className={styles.modal}
         onRequestClose={closeModal}
         hideBorder
+        shouldShowCloseButton={false}
         contentLabel={intl.formatMessage(intlMessages.ariaModalTitle)}
       >
 
-        <div className={styles.container}>
+        <div className={styles.containetoggleLockSettingsr}>
           <div className={styles.header}>
             <h2 className={styles.title}>{intl.formatMessage(intlMessages.lockViewersTitle)}</h2>
           </div>
@@ -111,10 +164,9 @@ class LockViewersComponent extends React.PureComponent {
                 <div className={cx(styles.formElement, styles.pullContentRight)}>
                   <Toggle
                     icons={false}
-                    defaultChecked={meeting.lockSettingsProps.disableCam}
+                    defaultChecked={lockSettingsProps.disableCam}
                     onChange={() => {
-                      meeting.lockSettingsProps.disableCam = !meeting.lockSettingsProps.disableCam;
-                      toggleLockSettings(meeting);
+                      this.toggleLockSettings('disableCam');
                     }}
                     ariaLabel={intl.formatMessage(intlMessages.webcamLabel)}
                   />
@@ -133,10 +185,9 @@ class LockViewersComponent extends React.PureComponent {
                 <div className={cx(styles.formElement, styles.pullContentRight)}>
                   <Toggle
                     icons={false}
-                    defaultChecked={meeting.usersProp.webcamsOnlyForModerator}
+                    defaultChecked={usersProp.webcamsOnlyForModerator}
                     onChange={() => {
-                      meeting.usersProp.webcamsOnlyForModerator = !meeting.usersProp.webcamsOnlyForModerator;
-                      toggleWebcamsOnlyForModerator(meeting);
+                      this.toggleUserProps('webcamsOnlyForModerator');
                     }}
                     ariaLabel={intl.formatMessage(intlMessages.otherViewersWebcamLabel)}
                   />
@@ -155,10 +206,9 @@ class LockViewersComponent extends React.PureComponent {
                 <div className={cx(styles.formElement, styles.pullContentRight)}>
                   <Toggle
                     icons={false}
-                    defaultChecked={meeting.lockSettingsProps.disableMic}
+                    defaultChecked={lockSettingsProps.disableMic}
                     onChange={() => {
-                      meeting.lockSettingsProps.disableMic = !meeting.lockSettingsProps.disableMic;
-                      toggleLockSettings(meeting);
+                      this.toggleLockSettings('disableMic');
                     }}
                     ariaLabel={intl.formatMessage(intlMessages.microphoneLable)}
                   />
@@ -180,10 +230,9 @@ class LockViewersComponent extends React.PureComponent {
                     <div className={cx(styles.formElement, styles.pullContentRight)}>
                       <Toggle
                         icons={false}
-                        defaultChecked={meeting.lockSettingsProps.disablePublicChat}
+                        defaultChecked={lockSettingsProps.disablePublicChat}
                         onChange={() => {
-                          meeting.lockSettingsProps.disablePublicChat = !meeting.lockSettingsProps.disablePublicChat;
-                          toggleLockSettings(meeting);
+                          this.toggleLockSettings('disablePublicChat');
                         }}
                         ariaLabel={intl.formatMessage(intlMessages.publicChatLabel)}
                       />
@@ -202,10 +251,9 @@ class LockViewersComponent extends React.PureComponent {
                     <div className={cx(styles.formElement, styles.pullContentRight)}>
                       <Toggle
                         icons={false}
-                        defaultChecked={meeting.lockSettingsProps.disablePrivateChat}
+                        defaultChecked={lockSettingsProps.disablePrivateChat}
                         onChange={() => {
-                          meeting.lockSettingsProps.disablePrivateChat = !meeting.lockSettingsProps.disablePrivateChat;
-                          toggleLockSettings(meeting);
+                          this.toggleLockSettings('disablePrivateChat');
                         }}
                         ariaLabel={intl.formatMessage(intlMessages.privateChatLable)}
                       />
@@ -215,8 +263,7 @@ class LockViewersComponent extends React.PureComponent {
               </Fragment>
             ) : null
             }
-
-            { NoteService.isEnabled()
+            {NoteService.isEnabled()
               ? (
                 <div className={styles.row}>
                   <div className={styles.col} aria-hidden="true">
@@ -230,10 +277,9 @@ class LockViewersComponent extends React.PureComponent {
                     <div className={cx(styles.formElement, styles.pullContentRight)}>
                       <Toggle
                         icons={false}
-                        defaultChecked={meeting.lockSettingsProps.disableNote}
+                        defaultChecked={lockSettingsProps.disableNote}
                         onChange={() => {
-                          meeting.lockSettingsProps.disableNote = !meeting.lockSettingsProps.disableNote;
-                          toggleLockSettings(meeting);
+                          this.toggleLockSettings('disableNote');
                         }}
                         ariaLabel={intl.formatMessage(intlMessages.notesLabel)}
                       />
@@ -243,7 +289,6 @@ class LockViewersComponent extends React.PureComponent {
               )
               : null
             }
-
             <div className={styles.row}>
               <div className={styles.col} aria-hidden="true">
                 <div className={styles.formElement}>
@@ -256,10 +301,9 @@ class LockViewersComponent extends React.PureComponent {
                 <div className={cx(styles.formElement, styles.pullContentRight)}>
                   <Toggle
                     icons={false}
-                    defaultChecked={meeting.lockSettingsProps.hideUserList}
+                    defaultChecked={lockSettingsProps.hideUserList}
                     onChange={() => {
-                      meeting.lockSettingsProps.hideUserList = !meeting.lockSettingsProps.hideUserList;
-                      toggleLockSettings(meeting);
+                      this.toggleLockSettings('hideUserList');
                     }}
                     ariaLabel={intl.formatMessage(intlMessages.userListLabel)}
                   />
@@ -268,9 +312,28 @@ class LockViewersComponent extends React.PureComponent {
             </div>
           </div>
         </div>
+        <div className={styles.footer}>
+          <div className={styles.actions}>
+            <Button
+              label={intl.formatMessage(intlMessages.buttonCancel)}
+              onClick={closeModal}
+            />
+            <Button
+              color="primary"
+              label={intl.formatMessage(intlMessages.buttonApply)}
+              onClick={() => {
+                updateLockSettings(lockSettingsProps);
+                updateWebcamsOnlyForModerator(usersProp.webcamsOnlyForModerator);
+                closeModal();
+              }}
+            />
+          </div>
+        </div>
       </Modal>
     );
   }
 }
+
+LockViewersComponent.propTypes = propTypes;
 
 export default injectIntl(LockViewersComponent);

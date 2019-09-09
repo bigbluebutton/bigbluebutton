@@ -2,7 +2,7 @@ import { Meteor } from 'meteor/meteor';
 import { check } from 'meteor/check';
 import RedisPubSub from '/imports/startup/server/redis';
 
-export default function toggleLockSettings(credentials, meeting) {
+export default function toggleLockSettings(credentials, lockSettingsProps) {
   const REDIS_CONFIG = Meteor.settings.private.redis;
   const CHANNEL = REDIS_CONFIG.channels.toAkkaApps;
   const EVENT_NAME = 'ChangeLockSettingsInMeetingCmdMsg';
@@ -11,7 +11,7 @@ export default function toggleLockSettings(credentials, meeting) {
 
   check(meetingId, String);
   check(requesterUserId, String);
-  check(meeting.lockSettingsProps, {
+  check(lockSettingsProps, {
     disableCam: Boolean,
     disableMic: Boolean,
     disablePrivateChat: Boolean,
@@ -24,16 +24,28 @@ export default function toggleLockSettings(credentials, meeting) {
     setBy: Match.Maybe(String),
   });
 
+  const {
+    disableCam,
+    disableMic,
+    disablePrivateChat: disablePrivChat,
+    disablePublicChat: disablePubChat,
+    disableNote,
+    hideUserList,
+    lockedLayout,
+    lockOnJoin,
+    lockOnJoinConfigurable,
+  } = lockSettingsProps;
+
   const payload = {
-    disableCam: meeting.lockSettingsProps.disableCam,
-    disableMic: meeting.lockSettingsProps.disableMic,
-    disablePrivChat: meeting.lockSettingsProps.disablePrivateChat,
-    disablePubChat: meeting.lockSettingsProps.disablePublicChat,
-    disableNote: meeting.lockSettingsProps.disableNote,
-    hideUserList: meeting.lockSettingsProps.hideUserList,
-    lockedLayout: meeting.lockSettingsProps.lockedLayout,
-    lockOnJoin: meeting.lockSettingsProps.lockOnJoin,
-    lockOnJoinConfigurable: meeting.lockSettingsProps.lockOnJoinConfigurable,
+    disableCam,
+    disableMic,
+    disablePrivChat,
+    disablePubChat,
+    disableNote,
+    hideUserList,
+    lockedLayout,
+    lockOnJoin,
+    lockOnJoinConfigurable,
     setBy: requesterUserId,
   };
 
