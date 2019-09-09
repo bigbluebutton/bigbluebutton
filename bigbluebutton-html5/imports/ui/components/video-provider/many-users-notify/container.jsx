@@ -28,7 +28,7 @@ export default withTracker(() => {
     }, { fields: {} }).count(),
     currentUserIsModerator: Users.findOne({ userId: Auth.userID },
       { fields: { role: 1 } }).role === ROLE_MODERATOR,
-    lockSettings: Meetings.findOne({ meetingId: Auth.meetingID }).lockSettingsProps,
+    lockSettings: meeting.lockSettingsProps,
     webcamOnlyForModerator: meeting.usersProp.webcamsOnlyForModerator,
     limitOfViewersInWebcam: Meteor.settings.public.app.viewersInWebcam,
     limitOfViewersInWebcamIsEnable: Meteor.settings.public.app.enableLimitOfViewersInWebcam,
