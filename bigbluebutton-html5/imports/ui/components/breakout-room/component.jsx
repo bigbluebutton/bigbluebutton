@@ -129,7 +129,7 @@ class BreakoutRoom extends PureComponent {
   renderUserActions(breakoutId, number) {
     const {
       isMicrophoneUser,
-      isModerator,
+      amIModerator,
       intl,
     } = this.props;
 
@@ -140,7 +140,7 @@ class BreakoutRoom extends PureComponent {
       waiting,
     } = this.state;
 
-    const moderatorJoinedAudio = isMicrophoneUser && isModerator;
+    const moderatorJoinedAudio = isMicrophoneUser && amIModerator;
     const disable = waiting && requestedBreakoutId !== breakoutId;
     const audioAction = joinedAudioOnly
       ? () => {
@@ -201,7 +201,7 @@ class BreakoutRoom extends PureComponent {
     const {
       breakoutRooms,
       intl,
-      getUsersByBreakoutId,
+      getNumUsersByBreakoutId,
     } = this.props;
 
     const {
@@ -215,7 +215,7 @@ class BreakoutRoom extends PureComponent {
           {intl.formatMessage(intlMessages.breakoutRoom, breakout.sequence.toString())}
           <span className={styles.usersAssignedNumberLabel}>
             (
-            {getUsersByBreakoutId(breakout.breakoutId).count()}
+            {getNumUsersByBreakoutId(breakout.breakoutId)}
             )
           </span>
         </span>
@@ -245,7 +245,7 @@ class BreakoutRoom extends PureComponent {
 
   render() {
     const {
-      isMeteorConnected, intl, endAllBreakouts, isModerator, closeBreakoutPanel,
+      isMeteorConnected, intl, endAllBreakouts, amIModerator, closeBreakoutPanel,
     } = this.props;
     return (
       <div className={styles.panel}>
@@ -259,7 +259,7 @@ class BreakoutRoom extends PureComponent {
         {this.renderBreakoutRooms()}
         {this.renderDuration()}
         {
-          isModerator
+          amIModerator
             ? (
               <Button
                 color="primary"

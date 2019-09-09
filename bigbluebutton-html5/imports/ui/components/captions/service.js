@@ -2,7 +2,6 @@ import _ from 'lodash';
 import Captions from '/imports/api/captions';
 import Users from '/imports/api/users';
 import Auth from '/imports/ui/services/auth';
-import mapUser from '/imports/ui/services/user/mapUser';
 import { makeCall } from '/imports/ui/services/api';
 import { Meteor } from 'meteor/meteor';
 import { Session } from 'meteor/session';
@@ -10,6 +9,7 @@ import { Session } from 'meteor/session';
 const CAPTIONS_CONFIG = Meteor.settings.public.captions;
 const CAPTIONS = '_captions_';
 const LINE_BREAK = '\n';
+const ROLE_MODERATOR = Meteor.settings.public.user.role_moderator;
 
 const getActiveCaptions = () => {
   const activeCaptions = Session.get('activeCaptions');
@@ -17,13 +17,10 @@ const getActiveCaptions = () => {
   return activeCaptions;
 };
 
-const getCaptions = (locale) => {
-  const captions = Captions.findOne({
-    meetingId: Auth.meetingID,
-    padId: { $regex: `${CAPTIONS}${locale}$` },
-  });
-  return captions;
-};
+const getCaptions = locale => Captions.findOne({
+  meetingId: Auth.meetingID,
+  padId: { $regex: `${CAPTIONS}${locale}$` },
+});
 
 const getCaptionsData = () => {
   const activeCaptions = getActiveCaptions();
@@ -45,22 +42,25 @@ const getCaptionsData = () => {
 const getAvailableLocales = () => {
   const { meetingID } = Auth;
   const locales = [];
-  Captions.find({ meetingId: meetingID }).forEach((caption) => {
-    if (caption.ownerId === '') {
-      locales.push(caption.locale);
-    }
-  });
+  Captions.find({ meetingId: meetingID },
+    { fields: { ownerId: 1, locale: 1 } })
+    .forEach((caption) => {
+      if (caption.ownerId === '') {
+        locales.push(caption.locale);
+      }
+    });
   return locales;
 };
 
 const getOwnedLocales = () => {
   const { meetingID } = Auth;
   const locales = [];
-  Captions.find({ meetingId: meetingID }).forEach((caption) => {
-    if (caption.ownerId !== '') {
-      locales.push(caption.locale);
-    }
-  });
+  Captions.find({ meetingId: meetingID }, { fields: { ownerId: 1, locale: 1 } })
+    .forEach((caption) => {
+      if (caption.ownerId !== '') {
+        locales.push(caption.locale);
+      }
+    });
   return locales;
 };
 
@@ -151,10 +151,8 @@ const formatCaptionsText = (text) => {
   return filteredText.join(LINE_BREAK);
 };
 
-const amIModerator = () => {
-  const currentUser = Users.findOne({ userId: Auth.userID });
-  return mapUser(currentUser).isModerator;
-};
+const amIModerator = () => Users.findOne({ userId: Auth.userID },
+  { fields: { role: 1 } }).role === ROLE_MODERATOR;
 
 const getSpeechRecognitionAPI = () => window.SpeechRecognition || window.webkitSpeechRecognition;
 

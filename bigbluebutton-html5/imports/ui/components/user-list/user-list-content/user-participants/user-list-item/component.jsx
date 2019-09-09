@@ -8,17 +8,12 @@ const propTypes = {
   intl: PropTypes.shape({
     formatMessage: PropTypes.func.isRequired,
   }).isRequired,
-  isBreakoutRoom: PropTypes.bool,
   getAvailableActions: PropTypes.func.isRequired,
-  isMeetingLocked: PropTypes.func.isRequired,
+  isThisMeetingLocked: PropTypes.bool.isRequired,
   normalizeEmojiName: PropTypes.func.isRequired,
   getScrollContainerRef: PropTypes.func.isRequired,
   toggleUserLock: PropTypes.func.isRequired,
   isMeteorConnected: PropTypes.bool.isRequired,
-};
-
-const defaultProps = {
-  isBreakoutRoom: false,
 };
 
 class UserListItem extends PureComponent {
@@ -34,11 +29,9 @@ class UserListItem extends PureComponent {
       getEmojiList,
       getGroupChatPrivate,
       getScrollContainerRef,
-      handleEmojiChange,
       intl,
-      isBreakoutRoom,
-      isMeetingLocked,
-      meeting,
+      isThisMeetingLocked,
+      lockSettingsProps,
       normalizeEmojiName,
       removeUser,
       setEmojiStatus,
@@ -48,11 +41,11 @@ class UserListItem extends PureComponent {
       requestUserInformation,
       userInBreakout,
       breakoutSequence,
-      meetignIsBreakout,
+      meetingIsBreakout,
       isMeteorConnected,
+      isMe,
+      voiceUser,
     } = this.props;
-
-    const { meetingId, lockSettingsProps } = meeting;
 
     const contents = (
       <UserDropdown
@@ -66,11 +59,8 @@ class UserListItem extends PureComponent {
           getEmojiList,
           getGroupChatPrivate,
           getScrollContainerRef,
-          handleEmojiChange,
           intl,
-          isBreakoutRoom,
-          isMeetingLocked,
-          meetingId,
+          isThisMeetingLocked,
           lockSettingsProps,
           normalizeEmojiName,
           removeUser,
@@ -82,8 +72,10 @@ class UserListItem extends PureComponent {
           requestUserInformation,
           userInBreakout,
           breakoutSequence,
-          meetignIsBreakout,
+          meetingIsBreakout,
           isMeteorConnected,
+          isMe,
+          voiceUser,
         }}
       />
     );
@@ -93,6 +85,5 @@ class UserListItem extends PureComponent {
 }
 
 UserListItem.propTypes = propTypes;
-UserListItem.defaultProps = defaultProps;
 
 export default injectIntl(UserListItem);

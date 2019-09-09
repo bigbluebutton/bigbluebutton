@@ -37,7 +37,7 @@ const intlMessages = defineMessages({
 const propTypes = {
   intl: intlShape.isRequired,
   parseCurrentSlideContent: PropTypes.func.isRequired,
-  isUserPresenter: PropTypes.bool.isRequired,
+  amIPresenter: PropTypes.bool.isRequired,
 };
 
 const handleClickQuickPoll = (slideId, poll) => {
@@ -88,7 +88,7 @@ const getAvailableQuickPolls = (slideId, parsedSlides) => {
 };
 
 const QuickPollDropdown = (props) => {
-  const { isUserPresenter, intl, parseCurrentSlideContent } = props;
+  const { amIPresenter, intl, parseCurrentSlideContent } = props;
   const parsedSlide = parseCurrentSlideContent(
     intl.formatMessage(intlMessages.yesOptionLabel),
     intl.formatMessage(intlMessages.noOptionLabel),
@@ -98,7 +98,7 @@ const QuickPollDropdown = (props) => {
 
   const { slideId, quickPollOptions } = parsedSlide;
 
-  return isUserPresenter && quickPollOptions && quickPollOptions.length ? (
+  return amIPresenter && quickPollOptions && quickPollOptions.length ? (
     <Dropdown>
       <DropdownTrigger tabIndex={0}>
         <Button

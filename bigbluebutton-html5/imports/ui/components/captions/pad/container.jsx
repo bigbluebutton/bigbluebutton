@@ -2,8 +2,8 @@ import React, { PureComponent } from 'react';
 import { withTracker } from 'meteor/react-meteor-data';
 import { Session } from 'meteor/session';
 import CaptionsService from '/imports/ui/components/captions/service';
-import PadService from './service';
 import Pad from './component';
+import Auth from '/imports/ui/services/auth';
 
 class PadContainer extends PureComponent {
   render() {
@@ -33,7 +33,7 @@ export default withTracker(() => {
     ownerId,
     padId,
     readOnlyPadId,
-    currentUserId: PadService.getCurrentUser().userId,
+    currentUserId: Auth.userID,
     amIModerator: CaptionsService.amIModerator(),
   };
 })(PadContainer);
