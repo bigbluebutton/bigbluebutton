@@ -1,6 +1,6 @@
 import { Meteor } from 'meteor/meteor';
 import { check } from 'meteor/check';
-import Meetings, { RecordMeetings, MeetingTimeRemaing } from '/imports/api/meetings';
+import Meetings, { RecordMeetings, MeetingTimeRemaining } from '/imports/api/meetings';
 import Users from '/imports/api/users';
 import Logger from '/imports/startup/server/logger';
 
@@ -68,7 +68,7 @@ function meetingTimeRemaining(credentials) {
   check(requesterUserId, String);
   check(requesterToken, String);
 
-  return MeetingTimeRemaing.find({ meetingId });
+  return MeetingTimeRemaining.find({ meetingId });
 }
 function timeRemainingPublish(...args) {
   const boundtimeRemaining = meetingTimeRemaining.bind(this);

@@ -1,5 +1,5 @@
 import { check } from 'meteor/check';
-import { MeetingTimeRemaing } from '/imports/api/meetings';
+import { MeetingTimeRemaining } from '/imports/api/meetings';
 import Logger from '/imports/startup/server/logger';
 
 export default function handleTimeRemainingUpdate({ body }, meetingId) {
@@ -26,5 +26,5 @@ export default function handleTimeRemainingUpdate({ body }, meetingId) {
     }
   };
 
-  return MeetingTimeRemaing.upsert(selector, modifier, cb);
+  return MeetingTimeRemaining.upsert(selector, modifier, cb);
 }
