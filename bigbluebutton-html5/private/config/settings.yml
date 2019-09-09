@@ -355,9 +355,9 @@ private:
     level: info
   memoryMonitoring:
     stat:
-      enabled: true
+      enabled: false
     leak:
-      enabled: true
+      enabled: false
   minBrowserVersions:
     - browser: chrome
       version: 59
