@@ -482,8 +482,6 @@
     "app.recording.startTitle": "Aloita nauhoitus",
     "app.recording.stopTitle": "Tauota nauhoitus",
     "app.recording.resumeTitle": "Jatka nauhoitusta",
-    "app.recording.startDescription": "(Voit painaa nauhoituspainiketta toisen kerran asettaaksesi nauhoituksen tauolle)",
-    "app.recording.stopDescription": "Oletko varma että haluta tauottaa nauhoituksen? (voit jatkaa nauhoitusta uudelleen painamalla nauhoita-painiketta uudelleen)",
     "app.videoPreview.cameraLabel": "Kamera",
     "app.videoPreview.profileLabel": "Laatu",
     "app.videoPreview.cancelLabel": "Peruuta",

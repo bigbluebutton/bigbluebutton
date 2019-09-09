@@ -420,8 +420,6 @@
     "app.recording.startTitle": "रिकॉर्डिंग शुरू",
     "app.recording.stopTitle": "रिकॉर्डिंग रोके",
     "app.recording.resumeTitle": "रिकॉर्डिंग फिर से शुरू करें",
-    "app.recording.startDescription": "(आप रिकॉर्डिंग को रोकने के लिए बाद में फिर से रिकॉर्ड बटन का चयन कर सकते हैं।)",
-    "app.recording.stopDescription": "क्या आप वाकई रिकॉर्डिंग को रोकना चाहते हैं? (आप फिर से रिकॉर्ड बटन का चयन करके फिर से शुरू कर सकते हैं।)",
     "app.videoPreview.cameraLabel": "कैमरा",
     "app.videoPreview.cancelLabel": "रद्द करना",
     "app.videoPreview.closeLabel": "बंद करे",
