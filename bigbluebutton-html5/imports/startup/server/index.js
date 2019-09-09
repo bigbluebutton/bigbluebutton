@@ -24,13 +24,13 @@ Meteor.startup(() => {
   const memoryMonitoringSettings = Meteor.settings.private.memoryMonitoring;
   if (memoryMonitoringSettings.stat.enabled) {
     memwatch.on('stats', (stats) => {
-      Logger.debug('memwatch stats', stats);
+      Logger.info('memwatch stats', stats);
     });
   }
 
   if (memoryMonitoringSettings.leak.enabled) {
     memwatch.on('leak', (info) => {
-      Logger.debug('memwatch leak', info);
+      Logger.info('memwatch leak', info);
     });
   }
 
