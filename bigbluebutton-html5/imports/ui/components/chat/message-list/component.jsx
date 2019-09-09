@@ -2,12 +2,29 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { defineMessages, injectIntl } from 'react-intl';
 import _ from 'lodash';
+import fastdom from 'fastdom';
 import Button from '/imports/ui/components/button/component';
 import { styles } from './styles';
 import MessageListItem from './message-list-item/component';
 
 const propTypes = {
   messages: PropTypes.arrayOf(PropTypes.object).isRequired,
+  scrollPosition: PropTypes.number,
+  chatId: PropTypes.string.isRequired,
+  hasUnreadMessages: PropTypes.bool.isRequired,
+  partnerIsLoggedOut: PropTypes.bool.isRequired,
+  handleScrollUpdate: PropTypes.func.isRequired,
+  intl: PropTypes.shape({
+    formatMessage: PropTypes.func.isRequired,
+  }).isRequired,
+  id: PropTypes.string.isRequired,
+  lastReadMessageTime: PropTypes.number,
+  handleReadMessage: PropTypes.func.isRequired,
+};
+
+const defaultProps = {
+  scrollPosition: null,
+  lastReadMessageTime: 0,
 };
 
 const intlMessages = defineMessages({
@@ -36,18 +53,26 @@ class MessageList extends Component {
 
 
   componentDidMount() {
+    const {
+      scrollPosition,
+    } = this.props;
+
     const { scrollArea } = this;
 
     this.setState({
-      scrollArea: this.scrollArea,
+      scrollArea,
     });
 
-    this.scrollTo(this.props.scrollPosition);
+    this.scrollTo(scrollPosition);
     scrollArea.addEventListener('scroll', this.handleScrollChange, false);
   }
 
   componentWillReceiveProps(nextProps) {
-    if (this.props.chatId !== nextProps.chatId) {
+    const {
+      chatId,
+    } = this.props;
+
+    if (chatId !== nextProps.chatId) {
       const { scrollArea } = this;
       this.handleScrollUpdate(scrollArea.scrollTop, scrollArea);
     }
@@ -60,7 +85,11 @@ class MessageList extends Component {
       partnerIsLoggedOut,
     } = this.props;
 
-    if (!this.state.scrollArea && nextState.scrollArea) return true;
+    const {
+      scrollArea,
+    } = this.state;
+
+    if (!scrollArea && nextState.scrollArea) return true;
 
     const switchingCorrespondent = chatId !== nextProps.chatId;
     const hasNewUnreadMessages = hasUnreadMessages !== nextProps.hasUnreadMessages;
@@ -78,7 +107,11 @@ class MessageList extends Component {
   }
 
   componentWillUpdate(nextProps) {
-    if (this.props.chatId !== nextProps.chatId) {
+    const {
+      chatId,
+    } = this.props;
+
+    if (chatId !== nextProps.chatId) {
       this.shouldScrollBottom = false;
       return;
     }
@@ -89,9 +122,9 @@ class MessageList extends Component {
 
     // Compare with <1 to account for the chance scrollArea.scrollTop is a float
     // value in some browsers.
-    this.shouldScrollBottom = position === scrollArea.scrollHeight
-      || (scrollArea.scrollHeight - position < 1)
-      || nextProps.scrollPosition === null;
+    this.shouldScrollBottom = nextProps.scrollPosition === null
+      || position === scrollArea.scrollHeight
+      || (scrollArea.scrollHeight - position < 1);
   }
 
   componentDidUpdate(prevProps) {
@@ -112,12 +145,16 @@ class MessageList extends Component {
   }
 
   handleScrollUpdate(position, target) {
+    const {
+      handleScrollUpdate,
+    } = this.props;
+
     if (position !== null && position + target.offsetHeight === target.scrollHeight) {
-      this.props.handleScrollUpdate(null);
+      handleScrollUpdate(null);
       return;
     }
 
-    this.props.handleScrollUpdate(position);
+    handleScrollUpdate(position);
   }
 
   handleScrollChange(e) {
@@ -138,11 +175,23 @@ class MessageList extends Component {
     const { scrollArea } = this;
 
     if (position === null) {
-      scrollArea.scrollTop = scrollArea.scrollHeight - scrollArea.clientHeight;
+      fastdom.measure(() => {
+        const {
+          scrollHeight,
+          clientHeight,
+        } = scrollArea;
+
+        fastdom.mutate(() => {
+          scrollArea.scrollTop = scrollHeight - clientHeight;
+        });
+      });
+
       return;
     }
 
-    scrollArea.scrollTop = position;
+    fastdom.mutate(() => {
+      scrollArea.scrollTop = position;
+    });
   }
 
   renderUnreadNotification() {
@@ -168,6 +217,11 @@ class MessageList extends Component {
     const {
       messages, intl, id, lastReadMessageTime, handleReadMessage,
     } = this.props;
+
+    const {
+      scrollArea,
+    } = this.state;
+
     const isEmpty = messages.length === 0;
     return (
       <div className={styles.messageListWrapper}>
@@ -190,7 +244,7 @@ class MessageList extends Component {
               time={message.time}
               chatAreaId={id}
               lastReadMessageTime={lastReadMessageTime}
-              scrollArea={this.state.scrollArea}
+              scrollArea={scrollArea}
             />
           ))}
         </div>
@@ -201,5 +255,6 @@ class MessageList extends Component {
 }
 
 MessageList.propTypes = propTypes;
+MessageList.defaultProps = defaultProps;
 
 export default injectIntl(MessageList);
