@@ -13,4 +13,5 @@ export default withModalMounter(withTracker(({ mountModal }) => ({
   meeting: Meetings.findOne({ meetingId: Auth.meetingID }),
   updateLockSettings,
   updateWebcamsOnlyForModerator,
+  showToggleLabel: false,
 }))(LockViewersContainer));

@@ -1,4 +1,4 @@
-import React, { Fragment, PureComponent } from 'react';
+import React, { Fragment, Component } from 'react';
 import { defineMessages, injectIntl } from 'react-intl';
 import PropTypes from 'prop-types';
 import cx from 'classnames';
@@ -75,6 +75,14 @@ const intlMessages = defineMessages({
     id: 'app.lock-viewers.button.cancel',
     description: 'label for cancel button',
   },
+  lockedLabel: {
+    id: 'app.lock-viewers.locked',
+    description: 'locked element label',
+  },
+  unlockedLabel: {
+    id: 'app.lock-viewers.unlocked',
+    description: 'unlocked element label',
+  },
 });
 
 const propTypes = {
@@ -83,11 +91,12 @@ const propTypes = {
     formatMessage: PropTypes.func.isRequired,
   }).isRequired,
   meeting: PropTypes.object.isRequired,
+  showToggleLabel: PropTypes.bool.isRequired,
   updateLockSettings: PropTypes.func.isRequired,
   updateWebcamsOnlyForModerator: PropTypes.func.isRequired,
 };
 
-class LockViewersComponent extends PureComponent {
+class LockViewersComponent extends Component {
   constructor(props) {
     super(props);
 
@@ -119,10 +128,23 @@ class LockViewersComponent extends PureComponent {
     });
   }
 
+  displayLockStatus(status) {
+    const { intl } = this.props;
+
+    return (
+      <span className={styles.toggleLabel}>
+        {status ? intl.formatMessage(intlMessages.lockedLabel)
+          : intl.formatMessage(intlMessages.unlockedLabel)
+        }
+      </span>
+    );
+  }
+
   render() {
     const {
-      intl,
       closeModal,
+      intl,
+      showToggleLabel,
       updateLockSettings,
       updateWebcamsOnlyForModerator,
     } = this.props;
@@ -162,6 +184,7 @@ class LockViewersComponent extends PureComponent {
               </div>
               <div className={styles.col}>
                 <div className={cx(styles.formElement, styles.pullContentRight)}>
+                  {this.displayLockStatus(lockSettingsProps.disableCam)}
                   <Toggle
                     icons={false}
                     defaultChecked={lockSettingsProps.disableCam}
@@ -169,6 +192,7 @@ class LockViewersComponent extends PureComponent {
                       this.toggleLockSettings('disableCam');
                     }}
                     ariaLabel={intl.formatMessage(intlMessages.webcamLabel)}
+                    showToggleLabel={showToggleLabel}
                   />
                 </div>
               </div>
@@ -183,6 +207,7 @@ class LockViewersComponent extends PureComponent {
               </div>
               <div className={styles.col}>
                 <div className={cx(styles.formElement, styles.pullContentRight)}>
+                  {this.displayLockStatus(usersProp.webcamsOnlyForModerator)}
                   <Toggle
                     icons={false}
                     defaultChecked={usersProp.webcamsOnlyForModerator}
@@ -190,6 +215,7 @@ class LockViewersComponent extends PureComponent {
                       this.toggleUserProps('webcamsOnlyForModerator');
                     }}
                     ariaLabel={intl.formatMessage(intlMessages.otherViewersWebcamLabel)}
+                    showToggleLabel={showToggleLabel}
                   />
                 </div>
               </div>
@@ -204,6 +230,7 @@ class LockViewersComponent extends PureComponent {
               </div>
               <div className={styles.col}>
                 <div className={cx(styles.formElement, styles.pullContentRight)}>
+                  {this.displayLockStatus(lockSettingsProps.disableMic)}
                   <Toggle
                     icons={false}
                     defaultChecked={lockSettingsProps.disableMic}
@@ -211,6 +238,7 @@ class LockViewersComponent extends PureComponent {
                       this.toggleLockSettings('disableMic');
                     }}
                     ariaLabel={intl.formatMessage(intlMessages.microphoneLable)}
+                    showToggleLabel={showToggleLabel}
                   />
                 </div>
               </div>
@@ -228,6 +256,7 @@ class LockViewersComponent extends PureComponent {
                   </div>
                   <div className={styles.col}>
                     <div className={cx(styles.formElement, styles.pullContentRight)}>
+                      {this.displayLockStatus(lockSettingsProps.disablePublicChat)}
                       <Toggle
                         icons={false}
                         defaultChecked={lockSettingsProps.disablePublicChat}
@@ -235,6 +264,7 @@ class LockViewersComponent extends PureComponent {
                           this.toggleLockSettings('disablePublicChat');
                         }}
                         ariaLabel={intl.formatMessage(intlMessages.publicChatLabel)}
+                        showToggleLabel={showToggleLabel}
                       />
                     </div>
                   </div>
@@ -249,6 +279,7 @@ class LockViewersComponent extends PureComponent {
                   </div>
                   <div className={styles.col}>
                     <div className={cx(styles.formElement, styles.pullContentRight)}>
+                      {this.displayLockStatus(lockSettingsProps.disablePrivateChat)}
                       <Toggle
                         icons={false}
                         defaultChecked={lockSettingsProps.disablePrivateChat}
@@ -256,6 +287,7 @@ class LockViewersComponent extends PureComponent {
                           this.toggleLockSettings('disablePrivateChat');
                         }}
                         ariaLabel={intl.formatMessage(intlMessages.privateChatLable)}
+                        showToggleLabel={showToggleLabel}
                       />
                     </div>
                   </div>
@@ -275,6 +307,7 @@ class LockViewersComponent extends PureComponent {
                   </div>
                   <div className={styles.col}>
                     <div className={cx(styles.formElement, styles.pullContentRight)}>
+                      {this.displayLockStatus(lockSettingsProps.disableNote)}
                       <Toggle
                         icons={false}
                         defaultChecked={lockSettingsProps.disableNote}
@@ -282,6 +315,7 @@ class LockViewersComponent extends PureComponent {
                           this.toggleLockSettings('disableNote');
                         }}
                         ariaLabel={intl.formatMessage(intlMessages.notesLabel)}
+                        showToggleLabel={showToggleLabel}
                       />
                     </div>
                   </div>
@@ -299,6 +333,7 @@ class LockViewersComponent extends PureComponent {
               </div>
               <div className={styles.col}>
                 <div className={cx(styles.formElement, styles.pullContentRight)}>
+                  {this.displayLockStatus(lockSettingsProps.hideUserList)}
                   <Toggle
                     icons={false}
                     defaultChecked={lockSettingsProps.hideUserList}
@@ -306,6 +341,7 @@ class LockViewersComponent extends PureComponent {
                       this.toggleLockSettings('hideUserList');
                     }}
                     ariaLabel={intl.formatMessage(intlMessages.userListLabel)}
+                    showToggleLabel={showToggleLabel}
                   />
                 </div>
               </div>
