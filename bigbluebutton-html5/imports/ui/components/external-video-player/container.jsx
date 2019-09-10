@@ -2,6 +2,7 @@ import React from 'react';
 import { defineMessages, injectIntl } from 'react-intl';
 import { withTracker } from 'meteor/react-meteor-data';
 import { Session } from 'meteor/session';
+import Service from './service';
 import ExternalVideo from './component';
 
 const intlMessages = defineMessages({
@@ -12,7 +13,7 @@ const intlMessages = defineMessages({
 });
 
 const ExternalVideoContainer = props => (
-  <ExternalVideo {...props}>
+  <ExternalVideo {...{...props, videoUrl: Service.getVideoUrl() } }>
     {props.children}
   </ExternalVideo>
 );
