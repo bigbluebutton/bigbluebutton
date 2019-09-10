@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import injectWbResizeEvent from '/imports/ui/components/presentation/resize-wrapper/component';
 import ReactPlayer from 'react-player';
-import { sendMessage, onMessage } from './service';
+import { sendMessage, onMessage, removeAllListeners } from './service';
 import logger from '/imports/startup/client/logger';
 
 import ArcPlayer from './custom-players/arc-player';
@@ -42,7 +42,8 @@ class VideoPlayer extends Component {
       preload: true,
     };
 
-    this.keepSync = this.keepSync.bind(this);
+    this.registerVideoListeners = this.registerVideoListeners.bind(this);
+    this.clearVideoListeners = this.clearVideoListeners.bind(this);
     this.handleResize = this.handleResize.bind(this);
     this.handleOnReady = this.handleOnReady.bind(this);
     this.handleOnPlay = this.handleOnPlay.bind(this);
@@ -50,14 +51,13 @@ class VideoPlayer extends Component {
     this.resizeListener = () => {
       setTimeout(this.handleResize, 0);
     };
-    this.keepSync();
   }
 
   componentDidMount() {
     window.addEventListener('resize', this.resizeListener);
 
     clearInterval(this.syncInterval);
-    // this.keepSync();
+    this.registerVideoListeners();
   }
 
   componentDidUpdate(prevProps) {
@@ -77,6 +77,7 @@ class VideoPlayer extends Component {
 
   componentWillUnmount() {
     window.removeEventListener('resize', this.resizeListener);
+    this.clearVideoListeners();
 
     clearInterval(this.syncInterval);
     this.player = null;
@@ -112,7 +113,13 @@ class VideoPlayer extends Component {
     this.playerParent.style = styleStr;
   }
 
-  keepSync() {
+  clearVideoListeners() {
+    removeAllListeners('play');
+    removeAllListeners('stop');
+    removeAllListeners('playerUpdate');
+  }
+
+  registerVideoListeners() {
     const { isPresenter } = this.props;
     const { playing } = this.state;
 

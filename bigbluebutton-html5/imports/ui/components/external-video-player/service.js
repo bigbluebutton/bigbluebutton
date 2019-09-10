@@ -29,6 +29,10 @@ const onMessage = (message, func) => {
   ExternalVideoStreamer.on(message, func);
 };
 
+const removeAllListeners = (eventType) => {
+  ExternalVideoStreamer.removeAllListeners(eventType);
+};
+
 const getVideoUrl = () => {
   const meetingId = Auth.meetingID;
   const meeting = Meetings.findOne({ meetingId }, { fields: { externalVideoUrl: 1 } });
@@ -39,6 +43,7 @@ const getVideoUrl = () => {
 export {
   sendMessage,
   onMessage,
+  removeAllListeners,
   getVideoUrl,
   isUrlValid,
   startWatching,
