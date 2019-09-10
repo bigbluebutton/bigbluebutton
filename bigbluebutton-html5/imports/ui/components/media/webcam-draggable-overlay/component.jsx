@@ -251,10 +251,8 @@ class WebcamDraggable extends Component {
       [styles.overlay]: true,
       [styles.hideOverlay]: hideOverlay,
       [styles.floatingOverlay]: (singleWebcam && placement === 'floating') || dragging,
-      [styles.fit]: singleWebcam && (placement === 'floating' || dragging),
-      [styles.full]: (singleWebcam && (placement === 'top' || placement === 'bottom')
-        && !dragging)
-        || !singleWebcam,
+      [styles.minWidth]: singleWebcam,
+      [styles.full]: !singleWebcam,
       [styles.overlayToTop]: (placement === 'floating' && !singleWebcam)
         || (placement === 'top' && !dragging),
       [styles.overlayToBottom]: placement === 'bottom' && !dragging,
@@ -306,15 +304,16 @@ class WebcamDraggable extends Component {
           <Resizable
             onResize={dispatchResizeEvent}
             enable={{
-              top: !singleWebcam && placement === 'bottom',
+              top: placement === 'bottom' && !singleWebcam,
               right: false,
-              bottom: !singleWebcam && placement === 'top',
+              bottom: placement === 'top' && !singleWebcam,
               left: false,
-              topRight: false,
-              bottomRight: false,
-              bottomLeft: false,
-              topLeft: false,
+              topRight: singleWebcam && !(placement === 'top'),
+              bottomRight: singleWebcam && !(placement === 'bottom'),
+              bottomLeft: singleWebcam && !(placement === 'bottom'),
+              topLeft: singleWebcam && !(placement === 'top'),
             }}
+            lockAspectRatio="true"
             className={
               !swapLayout
                 ? overlayClassName
