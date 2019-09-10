@@ -492,7 +492,7 @@ Kurento.prototype.startScreensharing = function () {
           logCode: 'kurentoextension_screenshare_presenter_ice_failed',
           extraInfo: { iceConnectionState }
         }, `WebRTC peer for screenshare presenter failed due to ICE transitioning to ${iceConnectionState}`);
-        this.onFail('ICE connection failed');
+        this.onFail({ message: 'iceConnectionStateError', code: 1108 });
       }
     }
   };
@@ -555,7 +555,7 @@ Kurento.prototype.viewer = function () {
             logCode: 'kurentoextension_screenshare_viewer_ice_failed',
             extraInfo: { iceConnectionState }
           }, `WebRTC peer for screenshare viewer failed due to ICE transitioning to ${iceConnectionState}`);
-          this.onFail('ICE connection failed');
+          this.onFail({ message: 'iceConnectionStateError', code: 1108 });
         }
       }
     };
