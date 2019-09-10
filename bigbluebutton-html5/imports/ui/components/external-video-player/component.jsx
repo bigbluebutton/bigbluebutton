@@ -1,11 +1,11 @@
 import React, { Component } from 'react';
 import injectWbResizeEvent from '/imports/ui/components/presentation/resize-wrapper/component';
+import ReactPlayer from 'react-player';
 import { sendMessage, onMessage } from './service';
 import logger from '/imports/startup/client/logger';
 
 import ArcPlayer from './custom-players/arc-player';
 
-import ReactPlayer from 'react-player';
 
 import { styles } from './styles';
 
@@ -17,7 +17,7 @@ class VideoPlayer extends Component {
   constructor(props) {
     super(props);
 
-    const isPresenter = { props };
+    const { isPresenter } = props;
 
     this.player = null;
     this.syncInterval = null;
@@ -36,7 +36,7 @@ class VideoPlayer extends Component {
           autohide: 1,
           rel: 0,
           ecver: 2,
-          controls: this.props.isPresenter ? 1 : 2,
+          controls: isPresenter ? 1 : 2,
         },
       },
       preload: true,
@@ -50,13 +50,14 @@ class VideoPlayer extends Component {
     this.resizeListener = () => {
       setTimeout(this.handleResize, 0);
     };
+    this.keepSync();
   }
 
   componentDidMount() {
     window.addEventListener('resize', this.resizeListener);
 
     clearInterval(this.syncInterval);
-    this.keepSync();
+    // this.keepSync();
   }
 
   componentDidUpdate(prevProps) {
@@ -81,6 +82,12 @@ class VideoPlayer extends Component {
     this.player = null;
   }
 
+  getCurrentPlaybackRate() {
+    const intPlayer = this.player.getInternalPlayer();
+
+    return (intPlayer && intPlayer.getPlaybackRate && intPlayer.getPlaybackRate()) || 1;
+  }
+
   handleResize() {
     if (!this.player || !this.playerParent) {
       return;
@@ -91,7 +98,7 @@ class VideoPlayer extends Component {
     const h = par.clientHeight;
     const idealW = h * 16 / 9;
 
-    let style = {}
+    const style = {};
     if (idealW > w) {
       style.width = w;
       style.height = w * 9 / 16;
@@ -100,36 +107,30 @@ class VideoPlayer extends Component {
       style.height = h;
     }
 
-    var styleStr = `width: ${style.width}px; height: ${style.height}px;`;
+    const styleStr = `width: ${style.width}px; height: ${style.height}px;`;
     this.player.wrapper.style = styleStr;
     this.playerParent.style = styleStr;
   }
 
-  getCurrentPlaybackRate() {
-    const intPlayer = this.player.getInternalPlayer();
-
-    return (intPlayer.getPlaybackRate && intPlayer.getPlaybackRate()) || 1;
-  }
-
   keepSync() {
     const { isPresenter } = this.props;
+    const { playing } = this.state;
 
     if (isPresenter) {
       this.syncInterval = setInterval(() => {
         const curTime = this.player.getCurrentTime();
         const rate = this.getCurrentPlaybackRate();
 
-        sendMessage('playerUpdate', { rate, time: curTime, state: this.state.playing });
+        sendMessage('playerUpdate', { rate, time: curTime, state: playing });
       }, SYNC_INTERVAL_SECONDS * 1000);
     } else {
-
       onMessage('play', ({ time }) => {
         if (!this.player) {
           return;
         }
 
         this.player.seekTo(time);
-        this.setState({playing: true});
+        this.setState({ playing: true });
 
         logger.debug({ logCode: 'external_video_client_play' }, 'Play external video');
       });
@@ -139,19 +140,18 @@ class VideoPlayer extends Component {
           return;
         }
         this.player.seekTo(time);
-        this.setState({playing: false});
+        this.setState({ playing: false });
 
         logger.debug({ logCode: 'external_video_client_stop' }, 'Stop external video');
       });
 
       onMessage('playerUpdate', (data) => {
-
         if (!this.player) {
           return;
         }
 
         if (data.rate !== this.player.props.playbackRate) {
-          this.setState({playbackRate: data.rate});
+          this.setState({ playbackRate: data.rate });
           logger.debug({
             logCode: 'external_video_client_update_rate',
             extraInfo: {
@@ -170,14 +170,14 @@ class VideoPlayer extends Component {
           }, 'Seek external video to:');
         }
 
-        if (this.state.playing !== data.state) {
-          this.setState({playing: data.state});
+        if (playing !== data.state) {
+          this.setState({ playing: data.state });
         }
       });
     }
   }
 
-  handleOnReady(event) {
+  handleOnReady() {
     const { isPresenter } = this.props;
 
     if (!isPresenter) {
@@ -194,7 +194,7 @@ class VideoPlayer extends Component {
     if (isPresenter) {
       sendMessage('play', { time: curTime });
     }
-    this.setState({playing: true});
+    this.setState({ playing: true });
   }
 
   handleOnPause() {
@@ -204,13 +204,12 @@ class VideoPlayer extends Component {
     if (isPresenter) {
       sendMessage('stop', { time: curTime });
     }
-    this.setState({playing: false});
+    this.setState({ playing: false });
   }
 
   render() {
     const { videoUrl } = this.props;
     const { playing, playbackRate, mutedByEchoTest } = this.state;
-    const { opts, commonOpts, handleOnReady, handleStateChange } = this;
 
     return (
       <div

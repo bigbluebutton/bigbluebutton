@@ -6,7 +6,6 @@ import { makeCall } from '/imports/ui/services/api';
 
 import ReactPlayer from 'react-player';
 
-const isUrlEmpty = url => !url || url.length === 0;
 const isUrlValid = url => ReactPlayer.canPlay(url);
 
 const startWatching = (url) => {
@@ -32,7 +31,7 @@ const onMessage = (message, func) => {
 
 const getVideoUrl = () => {
   const meetingId = Auth.meetingID;
-  const meeting = Meetings.findOne({ meetingId });
+  const meeting = Meetings.findOne({ meetingId }, { fields: { externalVideoUrl: 1 } });
 
   return meeting && meeting.externalVideoUrl;
 };

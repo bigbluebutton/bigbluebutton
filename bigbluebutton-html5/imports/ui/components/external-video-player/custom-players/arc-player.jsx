@@ -9,7 +9,7 @@ const EMBED_PATH = "/embed/";
 
 // Util function to load an external SDK or return the SDK if it is already loaded
 // From https://github.com/CookPete/react-player/blob/master/src/utils.js
-const resolves = {}
+const resolves = {};
 export function getSDK (url, sdkGlobal, sdkReady = null, isLoaded = () => true, fetchScript = loadScript) {
   if (window[sdkGlobal] && isLoaded(window[sdkGlobal])) {
     return Promise.resolve(window[sdkGlobal])
@@ -18,18 +18,18 @@ export function getSDK (url, sdkGlobal, sdkReady = null, isLoaded = () => true, 
     // If we are already loading the SDK, add the resolve
     // function to the existing array of resolve functions
     if (resolves[url]) {
-      resolves[url].push(resolve)
+      resolves[url].push(resolve);
       return
     }
-    resolves[url] = [resolve]
+    resolves[url] = [resolve];
     const onLoaded = sdk => {
       // When loaded, resolve all pending promises
       resolves[url].forEach(resolve => resolve(sdk))
-    }
+    };
     if (sdkReady) {
-      const previousOnReady = window[sdkReady]
+      const previousOnReady = window[sdkReady];
       window[sdkReady] = function () {
-        if (previousOnReady) previousOnReady()
+        if (previousOnReady) previousOnReady();
         onLoaded(window[sdkGlobal])
       }
     }
@@ -46,11 +46,11 @@ export function getSDK (url, sdkGlobal, sdkReady = null, isLoaded = () => true, 
 }
 
 export class ArcPlayer extends Component {
-  static displayName = 'ArcPlayer'
+  static displayName = 'ArcPlayer';
 
   static canPlay = url => {
     return MATCH_URL.test(url)
-  }
+  };
 
   constructor(props) {
     super(props);
@@ -82,7 +82,6 @@ export class ArcPlayer extends Component {
   }
 
   onStateChange(event) {
-    console.log('js_api index.development.html onStateChange', event);
     this.player.getCurrentTime().then((t) => {
       this.updateCurrentTime(t.data);
     });
@@ -174,7 +173,7 @@ export class ArcPlayer extends Component {
       height: '100%',
       overflow: 'hidden',
       backgroundColor: 'black'
-    }
+    };
     return (
       <div
         key={this.props.url}
