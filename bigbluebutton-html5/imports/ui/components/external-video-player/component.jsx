@@ -60,27 +60,18 @@ class VideoPlayer extends Component {
     this.registerVideoListeners();
   }
 
-  componentDidUpdate(prevProps) {
-    const { inEchoTest } = this.props;
-    const {
-      mutedByEchoTest,
-    } = this.state;
-
-    if (inEchoTest && !this.player.isMuted() && !mutedByEchoTest) {
-      this.setState({ mutedByEchoTest: true });
-    }
-
-    if (!inEchoTest && prevProps.inEchoTest && mutedByEchoTest) {
-      this.setState({ mutedByEchoTest: false });
-    }
-  }
-
   componentWillUnmount() {
     window.removeEventListener('resize', this.resizeListener);
     this.clearVideoListeners();
 
     clearInterval(this.syncInterval);
     this.player = null;
+  }
+
+  static getDerivedStateFromProps(props) {
+    const { inEchoTest } = props;
+
+    return { mutedByEchoTest: inEchoTest };
   }
 
   getCurrentPlaybackRate() {
