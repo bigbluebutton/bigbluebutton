@@ -55,12 +55,7 @@ const transferToBreakout = (breakoutId) => {
   transferUserToMeeting(Auth.meetingID, breakoutMeeting.meetingId);
 };
 
-const isPresenter = () => {
-  const User = Users.findOne({ intId: Auth.userID }, { fields: { presenter: 1 } });
-  return User.presenter;
-};
-
-const isModerator = () => {
+const amIModerator = () => {
   const User = Users.findOne({ intId: Auth.userID }, { fields: { role: 1 } });
   return User.role === ROLE_MODERATOR;
 };
@@ -101,9 +96,8 @@ export default {
   transferUserToMeeting,
   transferToBreakout,
   meetingId: () => Auth.meetingID,
-  isPresenter,
   closeBreakoutPanel,
-  isModerator,
+  amIModerator,
   getNumUsersByBreakoutId,
   getBreakoutUserByUserId,
   getBreakoutByUser,

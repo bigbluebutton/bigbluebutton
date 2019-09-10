@@ -21,7 +21,7 @@
     "app.chat.offline": "Offline",
     "app.chat.emptyLogLabel": "Chat log empty",
     "app.chat.clearPublicChatMessage": "The public chat history was cleared by a moderator",
-    "app.chat.severalPeople": "Several people",
+    "app.chat.severalPeople": "Multiple users",
     "app.chat.pluralTyping": "are typing",
     "app.chat.singularTyping": "is typing",
     "app.captions.label": "Captions",

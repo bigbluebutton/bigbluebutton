@@ -26,10 +26,12 @@ public class DelayedCommandSenderService {
   }
 
   public void stop() {
+    log.info("Stopping DelayedCommandSenderService.");
     processMessage = false;
   }
 
   public void start() {
+    log.info("Starting DelayedCommandSenderService.");
     try {
       processMessage = true;
 
@@ -38,6 +40,7 @@ public class DelayedCommandSenderService {
           while (processMessage) {
             try {
               DelayedCommand msg = receivedMessages.take();
+              log.info("Scheduling DelayedCommand.");
               if (listener != null) {
                 listener.runDelayedCommand(msg.conferenceCommand);
               }
@@ -54,6 +57,7 @@ public class DelayedCommandSenderService {
   }
 
   public void handleMessage(FreeswitchCommand command, long delayInMillis) {
+    log.info("Queueing DelayedCommand.");
     DelayedCommand dc = new DelayedCommand(command, delayInMillis);
     receivedMessages.add(dc);
   }

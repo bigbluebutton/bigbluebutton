@@ -113,6 +113,7 @@ const propTypes = {
   toggleUserLock: PropTypes.func.isRequired,
 };
 const CHAT_ENABLED = Meteor.settings.public.chat.enabled;
+const ROLE_MODERATOR = Meteor.settings.public.user.role_moderator;
 
 class UserDropdown extends PureComponent {
   /**
@@ -200,12 +201,11 @@ class UserDropdown extends PureComponent {
   getUsersActions() {
     const {
       intl,
-      currentUser, // TODO remove
+      currentUser,
       user,
       voiceUser,
       getAvailableActions,
       getGroupChatPrivate,
-      handleEmojiChange,
       getEmojiList,
       setEmojiStatus,
       assignPresenter,
@@ -218,12 +218,13 @@ class UserDropdown extends PureComponent {
       requestUserInformation,
       isMeteorConnected,
       userLocks,
-      isModerator,
       isMe,
+      meetingIsBreakout,
     } = this.props;
     const { showNestedOptions } = this.state;
 
-    const actionPermissions = getAvailableActions(user, voiceUser);
+    const amIModerator = currentUser.role === ROLE_MODERATOR;
+    const actionPermissions = getAvailableActions(amIModerator, meetingIsBreakout, user, voiceUser);
     const actions = [];
 
     const {
@@ -241,12 +242,12 @@ class UserDropdown extends PureComponent {
 
     const { disablePrivateChat } = lockSettingsProps;
 
-    const enablePrivateChat = isModerator(currentUser.userId)
+    const enablePrivateChat = currentUser.role === ROLE_MODERATOR
       ? allowedToChatPrivately
       : allowedToChatPrivately
       && (!(currentUser.locked && disablePrivateChat)
         || hasPrivateChatBetweenUsers(currentUser.userId, user.userId)
-        || isModerator(user.userId)) && isMeteorConnected;
+        || user.role === ROLE_MODERATOR) && isMeteorConnected;
 
     const { allowUserLookup } = Meteor.settings.public.app;
 
@@ -271,7 +272,7 @@ class UserDropdown extends PureComponent {
       statuses.map(status => actions.push(this.makeDropdownItem(
         status,
         intl.formatMessage({ id: `app.actionsBar.emojiMenu.${status}Label` }),
-        () => { handleEmojiChange(user.userId, status); this.resetMenuState(); },
+        () => { setEmojiStatus(user.userId, status); this.resetMenuState(); },
         getEmojiList[status],
       )));
 
@@ -372,7 +373,7 @@ class UserDropdown extends PureComponent {
     }
 
     if (allowedToChangeUserLockStatus && isMeteorConnected) {
-      const userLocked = user.locked && !isModerator(user.userId);
+      const userLocked = user.locked && user.role !== ROLE_MODERATOR;
       actions.push(this.makeDropdownItem(
         'unlockUser',
         userLocked ? intl.formatMessage(messages.UnlockUserLabel, { 0: user.name })
@@ -484,7 +485,6 @@ class UserDropdown extends PureComponent {
       userInBreakout,
       breakoutSequence,
       meetingIsBreakout,
-      isModerator,
       voiceUser,
     } = this.props;
 
@@ -500,7 +500,7 @@ class UserDropdown extends PureComponent {
 
     return (
       <UserAvatar
-        moderator={isModerator(user.userId)}
+        moderator={user.role === ROLE_MODERATOR}
         presenter={user.presenter}
         talking={voiceUser.isTalking}
         muted={voiceUser.isMuted}
@@ -524,7 +524,6 @@ class UserDropdown extends PureComponent {
       user,
       intl,
       isThisMeetingLocked,
-      isModerator,
       isMe,
     } = this.props;
 
@@ -577,14 +576,13 @@ class UserDropdown extends PureComponent {
               isThisMeetingLocked,
               userAriaLabel,
               isActionsOpen,
-              isModerator,
               isMe,
             }}
           />}
           {<UserIcons
             {...{
               user,
-              isModerator: isModerator(currentUser.userId),
+              amIModerator: currentUser.role === ROLE_MODERATOR,
             }}
           />}
         </div>

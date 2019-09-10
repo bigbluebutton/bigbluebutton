@@ -442,8 +442,6 @@
     "app.lock-viewers.userListLabel": "Список користувачів",
     "app.lock-viewers.Layout": "Розміщення вікон",
     "app.recording.startTitle": "Почати запис",
-    "app.recording.startDescription": "(Ви зможете натиснути цю кнопку пізніше, щоб зробити паузу запису.)",
-    "app.recording.stopDescription": "Ви впевнені що хочете зробити паузу запису?  (Ви зможете відновити запис, натиснувши кнопку запису знову.)",
     "app.videoPreview.cameraLabel": "Камера",
     "app.videoPreview.cancelLabel": "Відмінити",
     "app.videoPreview.closeLabel": "Закрити",

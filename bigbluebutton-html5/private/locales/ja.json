@@ -470,8 +470,6 @@
     "app.recording.startTitle": "録画開始",
     "app.recording.stopTitle": "録画一時停止",
     "app.recording.resumeTitle": "録画再開",
-    "app.recording.startDescription": "（後で録画ボタンをもう一度押すと、録音を一時停止できます。）",
-    "app.recording.stopDescription": "録画を一時停止しますか？（録画ボタンをもう一度押すと、録画を再開できます。）",
     "app.videoPreview.cameraLabel": "カメラ",
     "app.videoPreview.profileLabel": "品質",
     "app.videoPreview.cancelLabel": "キャンセル",

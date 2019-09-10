@@ -6,7 +6,6 @@ import Auth from '/imports/ui/services/auth';
 import UnreadMessages from '/imports/ui/services/unread-messages';
 import Storage from '/imports/ui/services/storage/session';
 import { makeCall } from '/imports/ui/services/api';
-import UserService from '/imports/ui/components/user-list/service';
 import _ from 'lodash';
 
 const CHAT_CONFIG = Meteor.settings.public.chat;
@@ -139,13 +138,16 @@ const isChatLocked = (receiverID) => {
     { fields: { 'lockSettingsProps.disablePublicChat': 1 } });
   const user = Users.findOne({ meetingId: Auth.meetingID, userId: Auth.userID },
     { fields: { locked: 1, role: 1 } });
+  const receiver = Users.findOne({ meetingId: Auth.meetingID, userId: receiverID },
+    { fields: { role: 1 } });
+  const isReceiverModerator = receiver && receiver.role === ROLE_MODERATOR;
 
   if (meeting.lockSettingsProps !== undefined) {
     if (user.locked && user.role !== ROLE_MODERATOR) {
       if (isPublic) {
         return meeting.lockSettingsProps.disablePublicChat;
       }
-      return !UserService.isUserModerator(receiverID)
+      return !isReceiverModerator
         && meeting.lockSettingsProps.disablePrivateChat;
     }
   }
@@ -323,7 +325,6 @@ export default {
   reduceAndMapGroupMessages,
   getPublicGroupMessages,
   getPrivateGroupMessages,
-  amIModerator: UserService.isUserModerator(Auth.userID),
   getUser,
   getWelcomeProp,
   getScrollPosition,

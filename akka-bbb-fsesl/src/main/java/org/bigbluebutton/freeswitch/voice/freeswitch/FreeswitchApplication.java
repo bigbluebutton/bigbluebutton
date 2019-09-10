@@ -60,6 +60,7 @@ public class FreeswitchApplication implements  IDelayedCommandListener{
   }
 
   public void runDelayedCommand(FreeswitchCommand command) {
+    log.info("Run DelayedCommand.");
     queueMessage(command);
   }
 

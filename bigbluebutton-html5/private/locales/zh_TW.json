@@ -503,8 +503,6 @@
     "app.recording.startTitle": "開始錄製",
     "app.recording.stopTitle": "暫停錄製",
     "app.recording.resumeTitle": "恢復錄製",
-    "app.recording.startDescription": "(暫停錄製後您可以再選取錄製鈕。)",
-    "app.recording.stopDescription": "您確定要暫停錄製嗎？ (您可以恢復錄製只要再選取一次錄製鈕。)",
     "app.videoPreview.cameraLabel": "攝影機",
     "app.videoPreview.profileLabel": "品質",
     "app.videoPreview.cancelLabel": "取消",

@@ -167,7 +167,7 @@ public class ESLEventListener implements IEslEventListener {
             VoiceConfRunningEvent pt = new VoiceConfRunningEvent(confName, false);
             conferenceEventListener.handleConferenceEvent(pt);
         } else {
-            System.out.println("Unknown conference Action [" + action + "]");
+            log.warn("Unknown conference Action [" + action + "]");
         }
     }
 
@@ -227,7 +227,7 @@ public class ESLEventListener implements IEslEventListener {
         } 
 
         else {
-            System.out.println("Processing UNKNOWN conference Action " + action + "]");
+            log.warn("Processing UNKNOWN conference Action " + action + "]");
         }
     }
 

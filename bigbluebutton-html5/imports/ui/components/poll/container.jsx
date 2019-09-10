@@ -5,7 +5,7 @@ import Auth from '/imports/ui/services/auth';
 import Presentations from '/imports/api/presentations';
 import PresentationAreaService from '/imports/ui/components/presentation/service';
 import Poll from '/imports/ui/components/poll/component';
-import Service from '/imports/ui/components/poll/service';
+import Service from './service';
 
 const PollContainer = ({ ...props }) => <Poll {...props} />;
 

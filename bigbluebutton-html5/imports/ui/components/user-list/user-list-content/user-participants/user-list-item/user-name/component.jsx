@@ -36,7 +36,6 @@ const propTypes = {
     name: PropTypes.string.isRequired,
   }).isRequired,
   compact: PropTypes.bool.isRequired,
-  isModerator: PropTypes.func.isRequired,
   intl: PropTypes.shape({
     formatMessage: PropTypes.func.isRequired,
   }).isRequired,
@@ -46,6 +45,8 @@ const propTypes = {
   isActionsOpen: PropTypes.bool.isRequired,
 };
 
+const ROLE_MODERATOR = Meteor.settings.public.user.role_moderator;
+
 const UserName = (props) => {
   const {
     intl,
@@ -53,7 +54,6 @@ const UserName = (props) => {
     isThisMeetingLocked,
     userAriaLabel,
     isActionsOpen,
-    isModerator,
     isMe,
     user,
   } = props;
@@ -68,7 +68,7 @@ const UserName = (props) => {
     return null;
   }
 
-  if (isThisMeetingLocked && user.locked && !isModerator(user.userId)) {
+  if (isThisMeetingLocked && user.locked && user.role !== ROLE_MODERATOR) {
     userNameSub.push(
       <span>
         <Icon iconName="lock" />

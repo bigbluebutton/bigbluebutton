@@ -4,7 +4,7 @@ import { withTracker } from 'meteor/react-meteor-data';
 import Users from '/imports/api/users';
 import Auth from '/imports/ui/services/auth';
 import PollingService from './service';
-import Service from '/imports/ui/components/poll/service';
+import PollService from '/imports/ui/components/poll/service';
 import PollingComponent from './component';
 
 const propTypes = {
@@ -32,7 +32,7 @@ export default withTracker(() => {
     pollExists,
     handleVote,
     poll,
-    pollAnswerIds: Service.pollAnswerIds,
+    pollAnswerIds: PollService.pollAnswerIds,
     isMeteorConnected: Meteor.status().connected,
   });
 })(PollingContainer);

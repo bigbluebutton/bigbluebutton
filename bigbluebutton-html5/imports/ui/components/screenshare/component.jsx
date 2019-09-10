@@ -6,6 +6,8 @@ import FullscreenService from '../fullscreen-button/service';
 import FullscreenButtonContainer from '../fullscreen-button/container';
 import { styles } from './styles';
 import AutoplayOverlay from '../media/autoplay-overlay/component';
+import logger from '/imports/startup/client/logger';
+import playAndRetry from '/imports/utils/mediaElementPlayRetry';
 
 const intlMessages = defineMessages({
   screenShareLabel: {
@@ -80,13 +82,24 @@ class ScreenshareComponent extends React.Component {
   handleAllowAutoplay() {
     const { autoplayBlocked } = this.state;
 
+    logger.info({
+      logCode: 'screenshare_autoplay_allowed',
+    }, 'Screenshare media autoplay allowed by the user');
+
     window.removeEventListener('screensharePlayFailed', this.handlePlayElementFailed);
     while (this.failedMediaElements.length) {
       const mediaElement = this.failedMediaElements.shift();
       if (mediaElement) {
-        mediaElement.play().catch(() => {
-          // Ignore the error for now.
-        });
+        const played = playAndRetry(mediaElement);
+        if (!played) {
+          logger.error({
+            logCode: 'screenshare_autoplay_handling_failed',
+          }, 'Screenshare autoplay handling failed to play media');
+        } else {
+          logger.info({
+            logCode: 'screenshare_viewer_media_play_success',
+          }, 'Screenshare viewer media played successfully');
+        }
       }
     }
     if (autoplayBlocked) { this.setState({ autoplayBlocked: false }); }
@@ -99,6 +112,10 @@ class ScreenshareComponent extends React.Component {
     e.stopPropagation();
     this.failedMediaElements.push(mediaElement);
     if (!autoplayBlocked) {
+      logger.info({
+        logCode: 'screenshare_autoplay_prompt',
+      }, 'Prompting user for action to play screenshare media');
+
       this.setState({ autoplayBlocked: true });
     }
   }
@@ -154,7 +171,6 @@ class ScreenshareComponent extends React.Component {
             id="screenshareVideo"
             key="screenshareVideo"
             style={{ maxHeight: '100%', width: '100%' }}
-            autoPlay
             playsInline
             onLoadedData={this.onVideoLoad}
             ref={(ref) => { this.videoTag = ref; }}
