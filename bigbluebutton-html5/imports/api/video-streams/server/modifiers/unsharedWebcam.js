@@ -1,5 +1,5 @@
 import Logger from '/imports/startup/server/logger';
-import Users from '/imports/api/users';
+import VideoStreams from '/imports/api/video-streams';
 import { check } from 'meteor/check';
 
 export default function unsharedWebcam(meetingId, userId) {
@@ -9,12 +9,6 @@ export default function unsharedWebcam(meetingId, userId) {
   const selector = {
     meetingId,
     userId,
-  };
-
-  const modifier = {
-    $set: {
-      hasStream: false,
-    },
   };
 
   const cb = (err, numChanged) => {
@@ -27,5 +21,5 @@ export default function unsharedWebcam(meetingId, userId) {
     }
   };
 
-  return Users.update(selector, modifier, cb);
+  return VideoStreams.remove(selector, cb);
 }
