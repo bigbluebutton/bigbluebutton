@@ -18,6 +18,8 @@ const getUserId = () => Auth.userID;
 
 const getMeetingId = () => Auth.meetingID;
 
+const getUsername = () => Auth.fullname;
+
 const getSessionToken = () => Auth.sessionToken;
 
 export default class KurentoScreenshareBridge {
