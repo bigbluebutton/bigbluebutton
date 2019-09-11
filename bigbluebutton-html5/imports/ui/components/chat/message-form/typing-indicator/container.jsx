@@ -3,6 +3,7 @@ import { withTracker } from 'meteor/react-meteor-data';
 import Auth from '/imports/ui/services/auth';
 import { UsersTyping } from '/imports/api/group-chat-msg';
 import Users from '/imports/api/users';
+import Meetings from '/imports/api/meetings';
 import TypingIndicator from './component';
 
 const CHAT_CONFIG = Meteor.settings.public.chat;
@@ -19,21 +20,21 @@ class TypingIndicatorContainer extends PureComponent {
 
 export default withTracker(() => {
   const idChatOpen = Session.get('idChatOpen');
+  const meeting = Meetings.findOne({ meetingId: Auth.meetingID }, {
+    fields: {
+      'lockSettingsProps.hideUserList': 1,
+    },
+  });
 
-  let selector = {
+  const selector = {
     meetingId: Auth.meetingID,
     isTypingTo: PUBLIC_CHAT_KEY,
   };
 
   if (idChatOpen !== PUBLIC_CHAT_KEY) {
-    selector = {
-      meetingId: Auth.meetingID,
-      isTypingTo: Auth.userID,
-      userId: idChatOpen,
-    };
+    selector.isTypingTo = Auth.userID;
+    selector.userId = idChatOpen;
   }
-
-  const typingUsers = UsersTyping.find(selector).fetch();
 
   const currentUser = Users.findOne({
     meetingId: Auth.meetingID,
@@ -41,8 +42,16 @@ export default withTracker(() => {
   }, {
     fields: {
       userId: 1,
+      role: 1,
     },
   });
+
+  if (meeting.lockSettingsProps.hideUserList && currentUser.role === 'VIEWER') {
+    selector.role = { $ne: 'VIEWER' };
+  }
+
+  const typingUsers = UsersTyping.find(selector).fetch();
+
 
   return {
     currentUserId: currentUser ? currentUser.userId : null,
