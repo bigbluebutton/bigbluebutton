@@ -112,14 +112,13 @@ class VideoPlayer extends Component {
 
   registerVideoListeners() {
     const { isPresenter } = this.props;
-    const { playing } = this.state;
 
     if (isPresenter) {
       this.syncInterval = setInterval(() => {
         const curTime = this.player.getCurrentTime();
         const rate = this.getCurrentPlaybackRate();
 
-        sendMessage('playerUpdate', { rate, time: curTime, state: playing });
+        sendMessage('playerUpdate', { rate, time: curTime, state: this.state.playing });
       }, SYNC_INTERVAL_SECONDS * 1000);
     } else {
       onMessage('play', ({ time }) => {
@@ -168,7 +167,7 @@ class VideoPlayer extends Component {
           }, 'Seek external video to:');
         }
 
-        if (playing !== data.state) {
+        if (this.state.playing !== data.state) {
           this.setState({ playing: data.state });
         }
       });
