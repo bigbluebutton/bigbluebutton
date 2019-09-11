@@ -7,9 +7,9 @@ export default () => (
   <TransitionGroup>
     <CSSTransition
       classNames={{
-          appear: styles.appear,
-          appearActive: styles.appearActive,
-        }}
+        appear: styles.appear,
+        appearActive: styles.appearActive,
+      }}
       appear
       enter={false}
       exit={false}

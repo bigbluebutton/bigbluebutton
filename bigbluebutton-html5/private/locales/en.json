@@ -1,5 +1,5 @@
 {
-    "app.home.greeting": "Your presentation will begin shortly ...",
+    "app.home.greeting": "No active presentation.",
     "app.chat.submitLabel": "Send message",
     "app.chat.errorMinMessageLength": "The message is {0} characters(s) too short",
     "app.chat.errorMaxMessageLength": "The message is {0} characters(s) too long",
