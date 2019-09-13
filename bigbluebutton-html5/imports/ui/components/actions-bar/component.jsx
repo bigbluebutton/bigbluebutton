@@ -20,20 +20,21 @@ class ActionsBar extends PureComponent {
       isVideoBroadcasting,
     } = this.props;
 
-    if (!isThereCurrentPresentation && !isSharingVideo && !isVideoBroadcasting) {
-      if (!getSwapLayout()) {
-        toggleSwapLayout();
-      }
-    }
+    //  TODO: THIS BREAKS AUTO SWAP BIGLY AND SHOULD BE FIXED IN MEDIA CONTAINER
+    //    if (!isThereCurrentPresentation && !isSharingVideo && !isVideoBroadcasting) {
+    //      if (!getSwapLayout()) {
+    //        toggleSwapLayout();
+    //      }
+    //    }
 
-    if (!prevIsThereCurrPresentation
-      && isThereCurrentPresentation
-      && !isSharingVideo
-      && !isVideoBroadcasting) {
-      if (getSwapLayout()) {
-        toggleSwapLayout();
-      }
-    }
+    //    if (!prevIsThereCurrPresentation
+    //      && isThereCurrentPresentation
+    //      && !isSharingVideo
+    //      && !isVideoBroadcasting) {
+    //      if (getSwapLayout()) {
+    //        toggleSwapLayout();
+    //      }
+    //    }
   }
 
   render() {
