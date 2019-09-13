@@ -22,10 +22,13 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
-
 import org.bigbluebutton.freeswitch.voice.events.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class FreeswitchConferenceEventListener implements ConferenceEventListener {
+  private static Logger log = LoggerFactory.getLogger(FreeswitchConferenceEventListener.class);
+
   private static final int SENDERTHREADS = 1;
   private static final Executor msgSenderExec = Executors.newFixedThreadPool(SENDERTHREADS);
   private static final Executor runExec = Executors.newFixedThreadPool(SENDERTHREADS);
@@ -43,7 +46,7 @@ public class FreeswitchConferenceEventListener implements ConferenceEventListene
       messages.offer(event, 5, TimeUnit.SECONDS);
     } catch (InterruptedException e) {
       // TODO Auto-generated catch block
-      e.printStackTrace();
+      log.error("Exception queueing message: ", e);
     }
   }
 
@@ -103,7 +106,7 @@ public class FreeswitchConferenceEventListener implements ConferenceEventListene
             sendMessageToBigBlueButton(message);
           } catch (InterruptedException e) {
             // TODO Auto-generated catch block
-            e.printStackTrace();
+            log.error("Exception taking message form queue: ", e);
           }
         }
       }
