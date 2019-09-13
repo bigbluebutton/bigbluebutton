@@ -66,10 +66,11 @@ public class FreeswitchApplication implements  IDelayedCommandListener{
 
   private void queueMessage(FreeswitchCommand command) {
     try {
+      log.info("Queue message: " + command.getCommand() + " " + command.getCommandArgs());
       messages.offer(command, 5, TimeUnit.SECONDS);
     } catch (InterruptedException e) {
       // TODO Auto-generated catch block
-      e.printStackTrace();
+      log.error("Exception queueing message: ", e);
     }
   }
 
@@ -94,7 +95,7 @@ public class FreeswitchApplication implements  IDelayedCommandListener{
             sendMessageToFreeswitch(message);
           } catch (InterruptedException e) {
             // TODO Auto-generated catch block
-            e.printStackTrace();
+            log.error("Exception taking message from queue: ", e);
           }
         }
       }
@@ -153,6 +154,7 @@ public class FreeswitchApplication implements  IDelayedCommandListener{
   private void sendMessageToFreeswitch(final FreeswitchCommand command) {
     Runnable task = new Runnable() {
       public void run() {
+        log.info("Sending message: " + command.getCommand() + " " + command.getCommandArgs());
         if (command instanceof GetAllUsersCommand) {
           GetAllUsersCommand cmd = (GetAllUsersCommand) command;
           manager.getUsers(cmd);
