@@ -328,11 +328,16 @@ stop_bigbluebutton () {
         BBB_WEB=bbb-web
     fi
 
+    if [ -f /usr/share/bbb-lti/WEB-INF/classes/lti-config.properties ]; then
+        BBB_LTI=bbb-lti
+    fi
+
+
     if [ -d $TOMCAT_DIR ]; then
       TOMCAT_SERVICE=$TOMCAT_USER
     fi
 
-    systemctl stop red5 $TOMCAT_SERVICE nginx freeswitch $REDIS_SERVICE bbb-apps-akka $BBB_TRANSCODE_AKKA bbb-fsesl-akka bbb-rap-archive-worker.service bbb-rap-process-worker.service bbb-rap-publish-worker.service bbb-rap-sanity-worker.service bbb-record-core.timer $HTML5 $WEBHOOKS $ETHERPAD $BBB_WEB
+    systemctl stop red5 $TOMCAT_SERVICE nginx freeswitch $REDIS_SERVICE bbb-apps-akka $BBB_TRANSCODE_AKKA bbb-fsesl-akka bbb-rap-archive-worker.service bbb-rap-process-worker.service bbb-rap-publish-worker.service bbb-rap-sanity-worker.service bbb-record-core.timer $HTML5 $WEBHOOKS $ETHERPAD $BBB_WEB $BBB_LTI
 }
 
 start_bigbluebutton () {
@@ -380,7 +385,12 @@ start_bigbluebutton () {
         BBB_WEB=bbb-web
     fi
 
-    systemctl start red5 $TOMCAT_SERVICE nginx freeswitch $REDIS_SERVICE bbb-apps-akka $BBB_TRANSCODE_AKKA bbb-fsesl-akka bbb-record-core.timer $HTML5 $WEBHOOKS $ETHERPAD $BBB_WEB
+    if [ -f /usr/share/bbb-lti/WEB-INF/classes/lti-config.properties ]; then
+        BBB_LTI=bbb-lti
+    fi
+
+    systemctl start red5 $TOMCAT_SERVICE nginx freeswitch $REDIS_SERVICE bbb-apps-akka $BBB_TRANSCODE_AKKA bbb-fsesl-akka bbb-record-core.timer $HTML5 $WEBHOOKS $ETHERPAD $BBB_WEB $BBB_LTI
+
     if [ -f /usr/lib/systemd/system/bbb-html5.service ]; then
         systemctl start mongod
         sleep 3
