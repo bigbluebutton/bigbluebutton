@@ -60,7 +60,6 @@ class ExternalVideoModal extends Component {
     const {
       startWatching,
       closeModal,
-      isSwapped,
     } = this.props;
 
     const { url } = this.state;

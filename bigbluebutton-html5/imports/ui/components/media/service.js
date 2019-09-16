@@ -62,10 +62,13 @@ export const shouldEnableSwapLayout = () => {
   const { viewParticipantsWebcams } = Settings.dataSaving;
   const usersVideo = VideoService.getAllWebcamUsers();
   const poll = PollingService.mapPolls();
+  const { current_presentation: hasPresentation } = getPresentationInfo();
 
   return usersVideo.length > 0 // prevent swap without any webcams
   && viewParticipantsWebcams // prevent swap when dataSaving for webcams is enabled
-  && !poll.pollExists; // prevent swap when there is a poll running
+  && !poll.pollExists // prevent swap when there is a poll running
+  && !shouldShowScreenshare() // and when there's screenshare
+  && !shouldShowExternalVideo() // or there's an external video
 };
 
 export const getSwapLayout = () => {
