@@ -15,6 +15,7 @@ import {
   newWebcamConnection,
   updateWebcamStats,
 } from '/imports/ui/services/network-information/index';
+
 import { tryGenerateIceCandidates } from '../../../utils/safari-webrtc';
 import Auth from '/imports/ui/services/auth';
 
@@ -255,7 +256,12 @@ class VideoProvider extends Component {
   }
 
   componentDidUpdate(prevProps) {
-    const { users } = this.props;
+    const {
+      users,
+      userIsLocked,
+      userHasStream,
+    } = this.props;
+    if (!prevProps.userIsLocked && userIsLocked && userHasStream) VideoService.exitVideo();
     if (users.length !== prevProps.users.length) window.dispatchEvent(new Event('videoListUsersChange'));
   }
 
