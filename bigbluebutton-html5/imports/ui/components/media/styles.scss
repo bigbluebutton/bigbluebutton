@@ -39,7 +39,6 @@
   min-height: var(--video-height);
   max-height: 100%;
   height: 100%;
-  overflow: hidden;
   position: relative !important;
   margin-top: 10px;
   margin-bottom: 10px;
@@ -80,13 +79,15 @@
   min-height: var(--video-height) !important;
 }
 
-.minWidth {
+.autoWidth {
   min-width: calc(var(--video-height) * var(--video-ratio)) !important;
+  max-width: 100%;
 }
 
 .full {
   width: 100% !important;
   min-width: 100% !important;
+  max-width: 100%;
 }
 
 .hide {
@@ -146,4 +147,13 @@
 
 .resizable{
   width: 100% !important;
+}
+
+
+span[class^=resizeWrapper]{
+  div{
+    height: 15px !important;
+    z-index: 1;
+    bottom: -10px !important;
+  }
 }

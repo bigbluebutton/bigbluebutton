@@ -43,6 +43,7 @@ class WebcamDraggable extends Component {
     this.handleWebcamDragStop = this.handleWebcamDragStop.bind(this);
     this.onFullscreenChange = this.onFullscreenChange.bind(this);
     this.debouncedOnResize = _.debounce(this.onResize.bind(this), 500);
+    this.onResizeStop = this.onResizeStop.bind(this);
   }
 
   componentDidMount() {
@@ -83,6 +84,28 @@ class WebcamDraggable extends Component {
         },
       );
     }
+    this.onResizeStop();
+  }
+
+  onResizeStop() {
+    const { webcamDraggableState, webcamDraggableDispatch } = this.props;
+    const { videoListRef } = webcamDraggableState;
+    if (videoListRef) {
+      const videoListRefRect = videoListRef.getBoundingClientRect();
+      const {
+        width, height,
+      } = videoListRefRect;
+      webcamDraggableDispatch(
+        {
+          type: 'setVideoListSize',
+          value: {
+            width,
+            height,
+          },
+        },
+      );
+    }
+    window.dispatchEvent(new Event('resize'));
   }
 
   getMediaBounds() {
@@ -198,7 +221,7 @@ class WebcamDraggable extends Component {
       audioModalIsOpen,
     } = this.props;
 
-    const { dragging, isCameraFullscreen } = webcamDraggableState;
+    const { dragging, isCameraFullscreen, videoListSize } = webcamDraggableState;
     let placement = Storage.getItem('webcamPlacement');
     const lastPosition = Storage.getItem('webcamLastPosition') || { x: 0, y: 0 };
     let position = lastPosition;
@@ -252,7 +275,7 @@ class WebcamDraggable extends Component {
       [styles.overlay]: true,
       [styles.hideOverlay]: hideOverlay,
       [styles.floatingOverlay]: (singleWebcam && placement === 'floating') || dragging,
-      [styles.minWidth]: singleWebcam,
+      [styles.autoWidth]: singleWebcam,
       [styles.full]: !singleWebcam,
       [styles.overlayToTop]: (placement === 'floating' && !singleWebcam)
         || (placement === 'top' && !dragging),
@@ -303,18 +326,30 @@ class WebcamDraggable extends Component {
           position={position}
         >
           <Resizable
+            size={
+              singleWebcam
+                ? {
+                  height: videoListSize.height,
+                  width: videoListSize.width,
+                }
+                : {
+                  height: videoListSize.height,
+                }
+            }
+            lockAspectRatio
+            handleWrapperClass="resizeWrapper"
             onResize={dispatchResizeEvent}
+            onResizeStop={this.onResizeStop}
             enable={{
-              top: placement === 'bottom' && !singleWebcam,
-              right: false,
-              bottom: placement === 'top' && !singleWebcam,
+              top: !(placement === 'top'),
+              bottom: !(placement === 'bottom'),
               left: false,
-              topRight: singleWebcam && !(placement === 'top'),
-              bottomRight: singleWebcam && !(placement === 'bottom'),
-              bottomLeft: singleWebcam && !(placement === 'bottom'),
-              topLeft: singleWebcam && !(placement === 'top'),
+              right: false,
+              topLeft: false,
+              topRight: false,
+              bottomLeft: false,
+              bottomRight: false,
             }}
-            lockAspectRatio="true"
             className={
               !swapLayout
                 ? overlayClassName
