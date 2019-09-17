@@ -5,6 +5,7 @@ import Button from '/imports/ui/components/button/component';
 import { Session } from 'meteor/session';
 import logger from '/imports/startup/client/logger';
 import { styles } from './styles';
+import UserListService from '/imports/ui/components/user-list/service';
 import BreakoutRoomContainer from './breakout-remaining-time/container';
 
 const intlMessages = defineMessages({
@@ -51,6 +52,18 @@ const intlMessages = defineMessages({
 });
 
 class BreakoutRoom extends PureComponent {
+  static sortById(a, b) {
+    if (a.id > b.userId) {
+      return 1;
+    }
+
+    if (a.id > b.userId) {
+      return -1;
+    }
+
+    return 0;
+  }
+
   constructor(props) {
     super(props);
     this.renderBreakoutRooms = this.renderBreakoutRooms.bind(this);
@@ -197,6 +210,7 @@ class BreakoutRoom extends PureComponent {
     );
   }
 
+
   renderBreakoutRooms() {
     const {
       breakoutRooms,
@@ -210,25 +224,41 @@ class BreakoutRoom extends PureComponent {
     } = this.state;
 
     const roomItems = breakoutRooms.map(breakout => (
-      <div className={styles.content} key={`breakoutRoomList-${breakout.breakoutId}`}>
-        <span aria-hidden>
-          {intl.formatMessage(intlMessages.breakoutRoom, breakout.sequence.toString())}
-          <span className={styles.usersAssignedNumberLabel}>
-            (
-            {getNumUsersByBreakoutId(breakout.breakoutId)}
-            )
+      <div className={styles.breakoutItems}>
+        <div className={styles.content} key={`breakoutRoomList-${breakout.breakoutId}`}>
+          <span aria-hidden>
+            {intl.formatMessage(intlMessages.breakoutRoom, breakout.sequence.toString())}
+            <span className={styles.usersAssignedNumberLabel}>
+              (
+              {getNumUsersByBreakoutId(breakout.breakoutId)}
+              )
+            </span>
           </span>
-        </span>
-        {waiting && requestedBreakoutId === breakout.breakoutId ? (
-          <span>
-            {intl.formatMessage(intlMessages.generatingURL)}
-            <span className={styles.connectingAnimation} />
-          </span>
-        ) : this.renderUserActions(breakout.breakoutId, breakout.sequence.toString())}
+          {waiting && requestedBreakoutId === breakout.breakoutId ? (
+            <span>
+              {intl.formatMessage(intlMessages.generatingURL)}
+              <span className={styles.connectingAnimation} />
+            </span>
+          ) : this.renderUserActions(breakout.breakoutId, breakout.sequence.toString())}
+        </div>
+        <div className={styles.joinedUserNames}>
+          {breakout.joinedUsers
+            .sort(BreakoutRoom.sortById)
+            .filter((value, idx, arr) => !(value.userId === (arr[idx + 1] || {}).userId))
+            .sort(UserListService.sortUsersByName)
+            .map(u => u.name)
+            .join(',')}
+        </div>
       </div>
     ));
 
-    return roomItems;
+    return (
+      <div className={styles.breakoutColumn}>
+        <div className={styles.breakoutscrollableList}>
+          {roomItems}
+        </div>
+      </div>
+    );
   }
 
   renderDuration() {
