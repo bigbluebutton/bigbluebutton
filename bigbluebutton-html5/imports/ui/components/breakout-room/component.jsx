@@ -201,6 +201,7 @@ class BreakoutRoom extends PureComponent {
                       : intl.formatMessage(intlMessages.breakoutJoinAudio)
                   }
                   className={styles.button}
+                  key={`join-audio-${breakoutId}`}
                   onClick={audioAction}
                 />
               ),
