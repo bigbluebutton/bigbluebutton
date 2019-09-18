@@ -65,7 +65,10 @@ const getNumUsersByBreakoutId = breakoutId => Users.find({
   connectionStatus: 'online',
 }, { fields: {} }).count();
 
-const getBreakoutByUserId = userId => Breakouts.find({ 'users.userId': userId }).fetch();
+const getBreakoutByUserId = userId => Breakouts.find(
+  { 'users.userId': userId },
+  { fields: { timeRemaining: 0 } },
+).fetch();
 
 const getBreakoutByUser = user => Breakouts.findOne({ users: user });
 
@@ -87,6 +90,15 @@ const getBreakoutUserByUserId = userId => fp.pipe(
 )(userId);
 
 const getBreakouts = () => Breakouts.find({}, { sort: { sequence: 1 } }).fetch();
+const getBreakoutsNoTime = () => Breakouts.find(
+  {},
+  {
+    sort: { sequence: 1 },
+    fields: { timeRemaining: 0 },
+  },
+).fetch();
+
+const getBreakoutUserIsIn = userId => Breakouts.findOne({ 'joinedUsers.userId': new RegExp(`^${userId}`) }, { fields: { sequence: 1 } });
 
 export default {
   findBreakouts,
@@ -102,5 +114,7 @@ export default {
   getBreakoutUserByUserId,
   getBreakoutByUser,
   getBreakouts,
+  getBreakoutsNoTime,
   getBreakoutByUserId,
+  getBreakoutUserIsIn,
 };
