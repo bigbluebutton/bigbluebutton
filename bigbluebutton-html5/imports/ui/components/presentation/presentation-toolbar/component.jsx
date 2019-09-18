@@ -102,17 +102,16 @@ class PresentationToolbar extends PureComponent {
     const isBody = target.nodeName === 'BODY';
 
     if (isBody) {
-      if ([KEY_CODES.ARROW_LEFT].includes(which)) {
-        this.previousSlideHandler();
-      }
-      if ([KEY_CODES.PAGE_DOWN].includes(which)) {
-        this.previousSlideHandler();
-      }
-      if ([KEY_CODES.ARROW_RIGHT].includes(which)) {
-        this.nextSlideHandler();
-      }
-      if ([KEY_CODES.PAGE_UP].includes(which)) {
-        this.nextSlideHandler();
+      switch (which) {
+        case KEY_CODES.ARROW_LEFT:
+        case KEY_CODES.PAGE_DOWN:
+          this.previousSlideHandler();
+          break;
+        case KEY_CODES.ARROW_RIGHT:
+        case KEY_CODES.PAGE_UP:
+          this.nextSlideHandler();
+          break;
+        default:
       }
     }
   }
