@@ -105,7 +105,13 @@ class PresentationToolbar extends PureComponent {
       if ([KEY_CODES.ARROW_LEFT].includes(which)) {
         this.previousSlideHandler();
       }
+      if ([KEY_CODES.PAGE_DOWN].includes(which)) {
+        this.previousSlideHandler();
+      }
       if ([KEY_CODES.ARROW_RIGHT].includes(which)) {
+        this.nextSlideHandler();
+      }
+      if ([KEY_CODES.PAGE_UP].includes(which)) {
         this.nextSlideHandler();
       }
     }
