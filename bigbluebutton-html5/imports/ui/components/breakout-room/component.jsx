@@ -53,11 +53,11 @@ const intlMessages = defineMessages({
 
 class BreakoutRoom extends PureComponent {
   static sortById(a, b) {
-    if (a.id > b.userId) {
+    if (a.userId > b.userId) {
       return 1;
     }
 
-    if (a.id > b.userId) {
+    if (a.userId < b.userId) {
       return -1;
     }
 
