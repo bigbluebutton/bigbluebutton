@@ -7,7 +7,7 @@
   --position-left-firefox: 22em;
   --position-top-chrome: 5.5em;
   --position-left-chrome: 18em;
-  --position-top-safari: 100px;
+  --position-top-safari: 150px;
   --position-left-safari-1280: 53em;
   --position-left-safari-1440: 58em;
   --position-left-safari-1680: 65em;
@@ -93,42 +93,10 @@
   }
   :global(.browser-safari) & {
     top: var(--position-top-safari);
-    @include mq($safari1280) {
-      left: var(--position-left-safari-1280);
-      right: auto;
-
-      [dir="rtl"] & {
-        left: auto;
-        right: var(--position-left-safari-1280);
-      }
-    }
-    @include mq($safari1440) {
-      left: var(--position-left-safari-1440);
-      right: auto;
-
-      [dir="rtl"] & {
-        right: var(--position-left-safari-1440);
-        left: auto;
-      }
-    }
-    @include mq($safari1680) {
-      left: var(--position-left-safari-1680);
-      right: auto;
-
-      [dir="rtl"] & {
-        right: var(--position-left-safari-1680);
-        left: auto;
-      }
-    }
-    @include mq($safari1920) {
-      left: var(--position-left-safari-1920);
-      right: auto;
-
-      [dir="rtl"] & {
-        right: var(--position-left-safari-1920);
-        left: auto;
-      }
-    }
+    left:0;
+    right:0;
+    margin-left: auto;
+    margin-right: auto;
   }
 }
 
@@ -152,9 +120,9 @@
 
 .hint {
   @include positionHint();
+  position: absolute;
   background: none;
   box-shadow: none;
-  position: absolute;
   color: #fff;
   font-size: 16px;
   font-weight: 400;
