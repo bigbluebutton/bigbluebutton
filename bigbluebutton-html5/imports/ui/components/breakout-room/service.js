@@ -88,6 +88,8 @@ const getBreakoutUserByUserId = userId => fp.pipe(
 
 const getBreakouts = () => Breakouts.find({}, { sort: { sequence: 1 } }).fetch();
 
+const isUserInBreakoutRoom = breakoutId => Breakouts.find({ breakoutId, 'joinedUsers.userId': new RegExp(`^${Auth.userID}`) }).count();
+
 export default {
   findBreakouts,
   endAllBreakouts,
@@ -103,4 +105,5 @@ export default {
   getBreakoutByUser,
   getBreakouts,
   getBreakoutByUserId,
+  isUserInBreakoutRoom,
 };

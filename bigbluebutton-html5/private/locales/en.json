@@ -630,6 +630,7 @@
     "app.createBreakoutRoom.join": "Join room",
     "app.createBreakoutRoom.joinAudio": "Join audio",
     "app.createBreakoutRoom.returnAudio": "Return audio",
+    "app.createBreakoutRoom.alreadyConnected": "Already in room",
     "app.createBreakoutRoom.confirm": "Create",
     "app.createBreakoutRoom.record": "Record",
     "app.createBreakoutRoom.numberOfRooms": "Number of rooms",
