@@ -21,11 +21,22 @@ Meteor.startup(() => {
   const INTERVAL_TIME = INTERVAL_IN_SETTINGS < 10000 ? 10000 : INTERVAL_IN_SETTINGS;
   const env = Meteor.isDevelopment ? 'development' : 'production';
   const CDN_URL = APP_CONFIG.cdn;
+  let heapDumpMbThreshold = 100;
 
   const memoryMonitoringSettings = Meteor.settings.private.memoryMonitoring;
   if (memoryMonitoringSettings.stat.enabled) {
     memwatch.on('stats', (stats) => {
-      Logger.info('memwatch stats', stats);
+      let heapDumpTriggered = false;
+
+      if (memoryMonitoringSettings.heapdump) {
+        heapDumpTriggered = (stats.current_base / 1048576) > heapDumpMbThreshold;
+      }
+      Logger.info('memwatch stats', { ...stats, heapDumpEnabled: memoryMonitoringSettings.heapdump.enabled, heapDumpTriggered });
+
+      if (heapDumpTriggered) {
+        heapdump.writeSnapshot(`./heapdump-stats-${Date.now()}.heapsnapshot`);
+        heapDumpMbThreshold += 100;
+      }
     });
   }
 
