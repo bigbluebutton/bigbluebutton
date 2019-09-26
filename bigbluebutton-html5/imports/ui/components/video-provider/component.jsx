@@ -124,6 +124,7 @@ class VideoProvider extends Component {
       || CAMERA_PROFILES.find(profile => profile.default)
       || CAMERA_PROFILES[0];
     if (Session.get('WebcamDeviceId')) {
+      cameraProfile.constraints = cameraProfile.constraints || {};
       cameraProfile.constraints.deviceId = { exact: Session.get('WebcamDeviceId') };
     }
 

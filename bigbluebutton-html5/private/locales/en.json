@@ -521,6 +521,7 @@
     "app.videoPreview.profileLabel": "Quality",
     "app.videoPreview.cancelLabel": "Cancel",
     "app.videoPreview.closeLabel": "Close",
+    "app.videoPreview.findingWebcamsLabel": "Finding webcams",
     "app.videoPreview.startSharingLabel": "Start sharing",
     "app.videoPreview.webcamOptionLabel": "Choose webcam",
     "app.videoPreview.webcamPreviewLabel": "Webcam preview",
