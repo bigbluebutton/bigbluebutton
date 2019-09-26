@@ -105,6 +105,7 @@ export default withModalMounter(withTracker(() => {
   const { dataSaving } = Settings;
   const { viewParticipantsWebcams, viewScreenshare } = dataSaving;
   const hidePresentation = getFromUserSettings('hidePresentation', LAYOUT_CONFIG.hidePresentation);
+  const { current_presentation: hasPresentation } = MediaService.getPresentationInfo();
   const data = {
     children: <DefaultContent />,
     audioModalIsOpen: Session.get('audioModalIsOpen'),
@@ -130,7 +131,7 @@ export default withModalMounter(withTracker(() => {
   }
 
   data.isScreensharing = MediaService.isVideoBroadcasting();
-  data.swapLayout = getSwapLayout() && shouldEnableSwapLayout();
+  data.swapLayout = (getSwapLayout() || !hasPresentation) && shouldEnableSwapLayout();
   data.disableVideo = !viewParticipantsWebcams;
 
   if (data.swapLayout) {
