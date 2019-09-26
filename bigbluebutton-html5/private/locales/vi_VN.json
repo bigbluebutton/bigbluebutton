@@ -448,8 +448,6 @@
     "app.recording.startTitle": "Bắt đầu ghi âm",
     "app.recording.stopTitle": "Tạm dừng ghi âm",
     "app.recording.resumeTitle": "Tiếp tục ghi âm",
-    "app.recording.startDescription": "(Bạn có thể chọn lại nút ghi âm sau để tạm dừng ghi âm.)",
-    "app.recording.stopDescription": "Bạn có chắc chắn muốn tạm dừng ghi âm? (Bạn có thể tiếp tục bằng cách chọn lại nút ghi.)",
     "app.videoPreview.cameraLabel": "Camera",
     "app.videoPreview.profileLabel": "Chất lượng",
     "app.videoPreview.cancelLabel": "Hủy",

@@ -1,5 +1,5 @@
 import { check } from 'meteor/check';
-import Meetings from '/imports/api/meetings';
+import { MeetingTimeRemaining } from '/imports/api/meetings';
 import Logger from '/imports/startup/server/logger';
 
 export default function handleTimeRemainingUpdate({ body }, meetingId) {
@@ -16,7 +16,7 @@ export default function handleTimeRemainingUpdate({ body }, meetingId) {
 
   const modifier = {
     $set: {
-      'durationProps.timeRemaining': timeLeftInSec,
+      timeRemaining: timeLeftInSec,
     },
   };
 
@@ -26,5 +26,5 @@ export default function handleTimeRemainingUpdate({ body }, meetingId) {
     }
   };
 
-  return Meetings.upsert(selector, modifier, cb);
+  return MeetingTimeRemaining.upsert(selector, modifier, cb);
 }

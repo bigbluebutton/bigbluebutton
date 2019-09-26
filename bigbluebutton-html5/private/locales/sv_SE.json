@@ -490,8 +490,6 @@
     "app.recording.startTitle": "Starta inspelningen",
     "app.recording.stopTitle": "Pausa inspelningen",
     "app.recording.resumeTitle": "Fortsätta inspelningen",
-    "app.recording.startDescription": "(Du kan välja inspelningsknappen igen senare för att pausa inspelningen.)",
-    "app.recording.stopDescription": "Är du säker på att du vill pausa inspelningen? (Du kan fortsätta genom att välja inspelningsknappen igen.)",
     "app.videoPreview.cameraLabel": "Kamera",
     "app.videoPreview.profileLabel": "Kvalitet",
     "app.videoPreview.cancelLabel": "Avbryt",

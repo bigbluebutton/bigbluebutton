@@ -54,6 +54,8 @@ public class ConnectionManager {
 	private final ConferenceEventListener conferenceEventListener;
 	private final ESLEventListener eslEventListener;
 
+	private long lastStatusCheck = 0L;
+
 	public ConnectionManager(ManagerConnection connManager,
 			ESLEventListener eventListener, ConferenceEventListener confListener) {
 		this.manager = connManager;
@@ -62,6 +64,7 @@ public class ConnectionManager {
 	}
 
 	private void connect() {
+		//log.info("Connecting to FS ESL");
 		try {
 			Client c = manager.getESLClient();
 			if (!c.canSend()) {
@@ -74,10 +77,18 @@ public class ConnectionManager {
 					c.cancelEventSubscriptions();
 					c.addEventListener(eslEventListener);
 					c.setEventSubscriptions("plain", "all");
-					c.addEventFilter(EVENT_NAME, "heartbeat");
+					//c.addEventFilter(EVENT_NAME, "heartbeat");
 					c.addEventFilter(EVENT_NAME, "custom");
 					c.addEventFilter(EVENT_NAME, "background_job");
 					subscribed = true;
+				} else {
+					// Let's check for status every minute.
+					Long now = System.currentTimeMillis();
+					if ((now - lastStatusCheck) > 60000) {
+						lastStatusCheck = now;
+						CheckFreeswitchStatusCommand fsStatusCmd = new CheckFreeswitchStatusCommand("foo", "bar");
+						checkFreeswitchStatus(fsStatusCmd);
+					}
 				}
 			}
 		} catch (InboundConnectionFailure e) {
@@ -125,6 +136,7 @@ public class ConnectionManager {
 	}
 
 	public void checkIfConfIsRunningCommand(CheckIfConfIsRunningCommand command) {
+		log.info("Sending CheckIfConfIsRunningCommand to FreeSWITCH");
     Client c = manager.getESLClient();
     if (c.canSend()) {
       EslMessage response = c.sendSyncApiCommand(command.getCommand(),
@@ -132,6 +144,15 @@ public class ConnectionManager {
       command.handleResponse(response, conferenceEventListener);
     }
   }
+
+	public void checkFreeswitchStatus(CheckFreeswitchStatusCommand ccrc) {
+		Client c = manager.getESLClient();
+		if (c.canSend()) {
+			EslMessage response = c.sendSyncApiCommand(ccrc.getCommand(),
+					ccrc.getCommandArgs());
+			ccrc.handleResponse(response, conferenceEventListener);
+		}
+	}
 
 	public void checkIfConferenceIsRecording(ConferenceCheckRecordCommand ccrc) {
 		Client c = manager.getESLClient();

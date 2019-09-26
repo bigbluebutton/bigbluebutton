@@ -39,12 +39,13 @@ export default class KurentoAudioBridge extends BaseAudioBridge {
   }
 
   static normalizeError(error = {}) {
-    const errorMessage = error.message || error.name || error.reason || 'Unknown error';
-    const errorCode = error.code || 'Undefined code';
+    const errorMessage = error.name || error.message || error.reason || 'Unknown error';
+    const errorCode = error.code || undefined;
     const errorReason = error.reason || error.id || 'Undefined reason';
 
     return { errorMessage, errorCode, errorReason };
   }
+
 
   joinAudio({ isListenOnly, inputStream }, callback) {
     return new Promise(async (resolve, reject) => {

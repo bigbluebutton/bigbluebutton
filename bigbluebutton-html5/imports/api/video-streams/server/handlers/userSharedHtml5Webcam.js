@@ -16,5 +16,5 @@ export default function handleUserSharedHtml5Webcam({ header, body }, meetingId)
 
   if (!isValidStream(stream)) return false;
 
-  return sharedWebcam(meetingId, userId);
+  return sharedWebcam(meetingId, userId, stream);
 }

@@ -67,7 +67,7 @@ const getNumUsersByBreakoutId = breakoutId => Users.find({
 
 const getBreakoutByUserId = userId => Breakouts.find({ 'users.userId': userId }).fetch();
 
-const getBreakoutByUser = user => Breakouts.findOne({ users: user }, { fields: { breakoutId: 1 } });
+const getBreakoutByUser = user => Breakouts.findOne({ users: user });
 
 const getUsersFromBreakouts = breakoutsArray => breakoutsArray
   .map(breakout => breakout.users)

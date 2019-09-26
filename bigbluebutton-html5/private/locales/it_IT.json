@@ -511,8 +511,6 @@
     "app.recording.startTitle": "Avvia registrazione",
     "app.recording.stopTitle": "Sospendi registrazione",
     "app.recording.resumeTitle": "Riprendi registrazione",
-    "app.recording.startDescription": "(puoi selezionare nuovamente il tasto di registrazione per mettere in pausa)",
-    "app.recording.stopDescription": "Si vuole sospendere la registrazione del Meeting? (è possibile riprendere la registrazione più tardi sempre con lo stesso tasto)",
     "app.videoPreview.cameraLabel": "Webcam",
     "app.videoPreview.profileLabel": "Qualità",
     "app.videoPreview.cancelLabel": "Annulla",

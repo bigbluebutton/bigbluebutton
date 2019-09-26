@@ -499,8 +499,6 @@
     "app.recording.startTitle": "Hasi grabatzen",
     "app.recording.stopTitle": "Pausarazi grabazioa",
     "app.recording.resumeTitle": "Jarraitu grabatzen",
-    "app.recording.startDescription": "(Erabili dezakezu grabatzeko botoia berriro grabazioa pausarazteko).",
-    "app.recording.stopDescription": "Ziur zaude grabazioa pausarazi nahi duzula?  (berrabiarazi dezakezu grabazioa grabatzeko botoia berriro sakatuta).",
     "app.videoPreview.cameraLabel": "Kamera",
     "app.videoPreview.profileLabel": "Kalitatea",
     "app.videoPreview.cancelLabel": "Utzi",
