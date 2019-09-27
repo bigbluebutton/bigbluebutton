@@ -501,6 +501,7 @@ export const getUserNamesLink = () => {
 };
 
 export default {
+  sortUsersByName,
   sortUsers,
   setEmojiStatus,
   assignPresenter,
