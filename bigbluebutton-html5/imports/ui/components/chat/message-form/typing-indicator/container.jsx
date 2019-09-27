@@ -7,6 +7,7 @@ import Meetings from '/imports/api/meetings';
 import TypingIndicator from './component';
 
 const CHAT_CONFIG = Meteor.settings.public.chat;
+const USER_CONFIG = Meteor.settings.public.user;
 const PUBLIC_CHAT_KEY = CHAT_CONFIG.public_id;
 const TYPING_INDICATOR_ENABLED = CHAT_CONFIG.typingIndicator.enabled;
 
@@ -46,8 +47,8 @@ export default withTracker(() => {
     },
   });
 
-  if (meeting.lockSettingsProps.hideUserList && currentUser.role === 'VIEWER') {
-    selector.role = { $ne: 'VIEWER' };
+  if (meeting.lockSettingsProps.hideUserList && currentUser.role === USER_CONFIG.role_viewer) {
+    selector.role = { $ne: USER_CONFIG.role_viewer };
   }
 
   const typingUsers = UsersTyping.find(selector).fetch();
