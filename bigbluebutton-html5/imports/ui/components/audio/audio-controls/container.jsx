@@ -42,7 +42,7 @@ const handleLeaveAudio = () => {
 };
 
 const {
-  currentUser,
+  isVoiceUser,
   isConnected,
   isListenOnly,
   isEchoTest,
@@ -62,7 +62,7 @@ export default lockContextContainer(withModalMounter(withTracker(({ mountModal, 
   listenOnly: isConnected() && isListenOnly(),
   disable: isConnecting() || isHangingUp() || !Meteor.status().connected,
   talking: isTalking() && !isMuted(),
-  currentUserObj: currentUser(),
+  isVoiceUser: isVoiceUser(),
   handleToggleMuteMicrophone: () => toggleMuteMicrophone(),
   handleJoinAudio: () => (isConnected() ? joinListenOnly() : mountModal(<AudioModalContainer />)),
   handleLeaveAudio,

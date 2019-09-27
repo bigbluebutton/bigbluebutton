@@ -10,40 +10,16 @@ import CaptionsButtonContainer from '/imports/ui/components/actions-bar/captions
 import PresentationOptionsContainer from './presentation-options/component';
 
 class ActionsBar extends PureComponent {
-  componentDidUpdate(prevProps) {
-    const { isThereCurrentPresentation: prevIsThereCurrPresentation } = prevProps;
-    const {
-      isThereCurrentPresentation,
-      getSwapLayout,
-      toggleSwapLayout,
-      isSharingVideo,
-      isVideoBroadcasting,
-    } = this.props;
-
-    if (!isThereCurrentPresentation && !isSharingVideo && !isVideoBroadcasting) {
-      if (!getSwapLayout()) {
-        toggleSwapLayout();
-      }
-    }
-
-    if (!prevIsThereCurrPresentation && isThereCurrentPresentation && !isSharingVideo && !isVideoBroadcasting) {
-      if (getSwapLayout()) {
-        toggleSwapLayout();
-      }
-    }
-  }
 
   render() {
     const {
-      isUserPresenter,
+      amIPresenter,
       handleExitVideo,
       handleJoinVideo,
       handleShareScreen,
       handleUnshareScreen,
       isVideoBroadcasting,
-      isUserModerator,
-      recordSettingsList,
-      toggleRecording,
+      amIModerator,
       screenSharingCheck,
       enableVideo,
       isLayoutSwapped,
@@ -60,32 +36,22 @@ class ActionsBar extends PureComponent {
       isMeteorConnected,
       isPollingEnabled,
       isThereCurrentPresentation,
+      allowExternalVideo,
     } = this.props;
 
-    const {
-      allowStartStopRecording,
-      recording: isRecording,
-      record,
-    } = recordSettingsList;
-
     const actionBarClasses = {};
-    const { enabled: enableExternalVideo } = Meteor.settings.public.externalVideoPlayer;
 
-    actionBarClasses[styles.centerWithActions] = isUserPresenter;
+    actionBarClasses[styles.centerWithActions] = amIPresenter;
     actionBarClasses[styles.center] = true;
 
     return (
       <div className={styles.actionsbar}>
         <div className={styles.left}>
           <ActionsDropdown {...{
-            isUserPresenter,
-            isUserModerator,
+            amIPresenter,
+            amIModerator,
             isPollingEnabled,
-            allowStartStopRecording,
-            allowExternalVideo: enableExternalVideo,
-            isRecording,
-            record,
-            toggleRecording,
+            allowExternalVideo,
             handleTakePresenter,
             intl,
             isSharingVideo,
@@ -99,7 +65,7 @@ class ActionsBar extends PureComponent {
                 {...{
                   currentSlidHasContent,
                   intl,
-                  isUserPresenter,
+                  amIPresenter,
                   parseCurrentSlideContent,
                 }}
               />
@@ -114,7 +80,7 @@ class ActionsBar extends PureComponent {
         </div>
         <div
           className={
-            isUserPresenter ? cx(styles.centerWithActions, actionBarClasses) : styles.center
+            amIPresenter ? cx(styles.centerWithActions, actionBarClasses) : styles.center
           }
         >
           <AudioControlsContainer />
@@ -130,7 +96,7 @@ class ActionsBar extends PureComponent {
             handleShareScreen,
             handleUnshareScreen,
             isVideoBroadcasting,
-            isUserPresenter,
+            amIPresenter,
             screenSharingCheck,
             screenShareEndAlert,
             isMeteorConnected,

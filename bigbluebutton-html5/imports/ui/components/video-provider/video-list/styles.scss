@@ -111,7 +111,6 @@
 .connecting {
   @extend %media-area;
   position: absolute;
-  background-color: var(--color-gray-darkest);
   color: var(--color-white-with-transparency);
   font-size: 2.5rem;
   text-align: center;
@@ -145,7 +144,7 @@
 
 .media {
   @extend %media-area;
-  background-color: var(--color-gray-darkest);
+  background-color: var(--color-gray);
 }
 
 .info {

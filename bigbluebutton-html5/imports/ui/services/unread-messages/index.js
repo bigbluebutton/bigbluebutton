@@ -12,7 +12,10 @@ const PUBLIC_GROUP_CHAT_ID = CHAT_CONFIG.public_group_id;
 class UnreadMessagesTracker {
   constructor() {
     this._tracker = new Tracker.Dependency();
-    this._unreadChats = { ...Storage.getItem('UNREAD_CHATS'), [PUBLIC_GROUP_CHAT_ID]: (new Date()).getTime() };
+    this._unreadChats = {
+      ...Storage.getItem('UNREAD_CHATS'),
+      [PUBLIC_GROUP_CHAT_ID]: (new Date()).getTime(),
+    };
     this.get = this.get.bind(this);
   }
 
@@ -42,7 +45,8 @@ class UnreadMessagesTracker {
     if (chatID === PUBLIC_GROUP_CHAT_ID) {
       filter.chatId = { $eq: chatID };
     } else {
-      const privateChat = GroupChat.findOne({ users: { $all: [chatID, Auth.userID] } });
+      const privateChat = GroupChat.findOne({ users: { $all: [chatID, Auth.userID] } },
+        { fields: { chatId: 1 } });
 
       filter.chatId = { $ne: PUBLIC_GROUP_CHAT_ID };
 

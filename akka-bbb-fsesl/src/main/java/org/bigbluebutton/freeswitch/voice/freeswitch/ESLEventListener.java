@@ -44,6 +44,7 @@ public class ESLEventListener implements IEslEventListener {
 
     @Override
     public void exceptionCaught(ExceptionEvent e) {
+        log.warn("Exception caught: ", e);
 //        setChanged();
 //        notifyObservers(e);
     }
@@ -167,7 +168,7 @@ public class ESLEventListener implements IEslEventListener {
             VoiceConfRunningEvent pt = new VoiceConfRunningEvent(confName, false);
             conferenceEventListener.handleConferenceEvent(pt);
         } else {
-            System.out.println("Unknown conference Action [" + action + "]");
+            log.warn("Unknown conference Action [" + action + "]");
         }
     }
 
@@ -227,7 +228,7 @@ public class ESLEventListener implements IEslEventListener {
         } 
 
         else {
-            System.out.println("Processing UNKNOWN conference Action " + action + "]");
+            log.warn("Processing UNKNOWN conference Action " + action + "]");
         }
     }
 
@@ -237,13 +238,14 @@ public class ESLEventListener implements IEslEventListener {
     
     @Override
     public void eventReceived(EslEvent event) {
-//        System.out.println("ESL Event Listener received event=[" + event.getEventName() + "]" +
-//                event.getEventHeaders().toString());
-//        if (event.getEventName().equals(FreeswitchHeartbeatMonitor.EVENT_HEARTBEAT)) {
+        //System.out.println("ESL Event Listener received event=[" + event.getEventName() + "]" +
+        //        event.getEventHeaders().toString());
+        if (event.getEventName().equals("heartbeat")) {
+            log.info("Received heartbeat from FreeSWITCH");
 ////           setChanged();
 //           notifyObservers(event);
 //           return; 
-//        }
+        }
     }
 
     private Integer getMemberIdFromEvent(EslEvent e) {

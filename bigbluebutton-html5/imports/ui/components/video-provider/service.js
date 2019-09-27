@@ -3,6 +3,7 @@ import { makeCall } from '/imports/ui/services/api';
 import Auth from '/imports/ui/services/auth';
 import Meetings from '/imports/api/meetings/';
 import Users from '/imports/api/users/';
+import VideoStreams from '/imports/api/video-streams/';
 import UserListService from '/imports/ui/components/user-list/service';
 
 const ROLE_MODERATOR = Meteor.settings.public.user.role_moderator;
@@ -79,15 +80,29 @@ class VideoService {
     const currentUser = Users.findOne({ userId: Auth.userID });
     const currentUserIsViewer = currentUser.role === ROLE_VIEWER;
     const sharedWebcam = this.isSharing;
+    const videoStreams = VideoStreams.find({ meetingId: Auth.meetingID },
+      { fields: { userId: 1 } }).fetch();
+
+    const videoUserIds = videoStreams.map(u => u.userId);
 
     let users = Users
       .find({
         meetingId: Auth.meetingID,
         connectionStatus: 'online',
-        hasStream: true,
-        userId: { $ne: Auth.userID },
-      })
-      .fetch();
+        $and: [
+          { userId: { $ne: Auth.userID } },
+          { userId: { $in: videoUserIds } },
+        ],
+      },
+      {
+        fields: {
+          name: 1,
+          userId: 1,
+          role: 1,
+          emoji: 1,
+          clientType: 1,
+        },
+      }).fetch();
 
     const userIsNotLocked = user => user.role === ROLE_MODERATOR || !user.locked;
 
@@ -109,17 +124,20 @@ class VideoService {
   }
 
   webcamsOnlyForModerator() {
-    const m = Meetings.findOne({ meetingId: Auth.meetingID }) || {};
+    const m = Meetings.findOne({ meetingId: Auth.meetingID },
+      { fields: { 'usersProp.webcamsOnlyForModerator': 1 } });
     return m.usersProp ? m.usersProp.webcamsOnlyForModerator : false;
   }
 
   webcamsLocked() {
-    const m = Meetings.findOne({ meetingId: Auth.meetingID }) || {};
+    const m = Meetings.findOne({ meetingId: Auth.meetingID },
+      { fields: { 'lockSettingsProps.disableCam': 1 } });
     return m.lockSettingsProps ? m.lockSettingsProps.disableCam : false;
   }
 
   hideUserList() {
-    const m = Meetings.findOne({ meetingId: Auth.meetingID }) || {};
+    const m = Meetings.findOne({ meetingId: Auth.meetingID },
+      { fields: { 'lockSettingsProps.hideUserList': 1 } });
     return m.lockSettingsProps ? m.lockSettingsProps.hideUserList : false;
   }
 
@@ -128,7 +146,7 @@ class VideoService {
   }
 
   userName() {
-    const currentUser = Users.findOne({ userId: Auth.userID });
+    const currentUser = Users.findOne({ userId: Auth.userID }, { fields: { name: 1 } });
     return currentUser.name;
   }
 
@@ -141,7 +159,8 @@ class VideoService {
   }
 
   voiceBridge() {
-    const m = Meetings.findOne({ meetingId: Auth.meetingID }) || {};
+    const m = Meetings.findOne({ meetingId: Auth.meetingID },
+      { fields: { 'voiceProp.voiceConf': 1 } });
     return m.voiceProp ? m.voiceProp.voiceConf : null;
   }
 

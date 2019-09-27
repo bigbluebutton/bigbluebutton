@@ -10,7 +10,7 @@ import { styles } from '../styles';
 
 const propTypes = {
   intl: intlShape.isRequired,
-  isUserPresenter: PropTypes.bool.isRequired,
+  amIPresenter: PropTypes.bool.isRequired,
   handleShareScreen: PropTypes.func.isRequired,
   handleUnshareScreen: PropTypes.func.isRequired,
   isVideoBroadcasting: PropTypes.bool.isRequired,
@@ -41,9 +41,61 @@ const intlMessages = defineMessages({
     id: 'app.actionsBar.actionsDropdown.stopDesktopShareDesc',
     description: 'adds context to stop desktop share option',
   },
-  iceConnectionStateError: {
+  genericError: {
+    id: 'app.screenshare.genericError',
+    description: 'error message for when screensharing fails with unknown error',
+  },
+  NotAllowedError: {
+    id: 'app.screenshare.notAllowed',
+    description: 'error message when screen access was not granted',
+  },
+  NotSupportedError: {
+    id: 'app.screenshare.notSupportedError',
+    description: 'error message when trying to share screen in unsafe environments',
+  },
+  NotReadableError: {
+    id: 'app.screenshare.notReadableError',
+    description: 'error message when the browser failed to capture the screen',
+  },
+  1108: {
     id: 'app.deskshare.iceConnectionStateError',
     description: 'Error message for ice connection state failure',
+  },
+  2000: {
+    id: 'app.sfu.mediaServerConnectionError2000',
+    description: 'Error message fired when the SFU cannot connect to the media server',
+  },
+  2001: {
+    id: 'app.sfu.mediaServerOffline2001',
+    description: 'error message when SFU is offline',
+  },
+  2002: {
+    id: 'app.sfu.mediaServerNoResources2002',
+    description: 'Error message fired when the media server lacks disk, CPU or FDs',
+  },
+  2003: {
+    id: 'app.sfu.mediaServerRequestTimeout2003',
+    description: 'Error message fired when requests are timing out due to lack of resources',
+  },
+  2021: {
+    id: 'app.sfu.serverIceGatheringFailed2021',
+    description: 'Error message fired when the server cannot enact ICE gathering',
+  },
+  2022: {
+    id: 'app.sfu.serverIceStateFailed2022',
+    description: 'Error message fired when the server endpoint transitioned to a FAILED ICE state',
+  },
+  2200: {
+    id: 'app.sfu.mediaGenericError2200',
+    description: 'Error message fired when the SFU component generated a generic error',
+  },
+  2202: {
+    id: 'app.sfu.invalidSdp2202',
+    description: 'Error message fired when the clients provides an invalid SDP',
+  },
+  2203: {
+    id: 'app.sfu.noAvailableCodec2203',
+    description: 'Error message fired when the server has no available codec for the client',
   },
 });
 
@@ -53,36 +105,40 @@ const isMobileBrowser = (BROWSER_RESULTS ? BROWSER_RESULTS.mobile : false)
     ? BROWSER_RESULTS.os.includes('Android') // mobile flag doesn't always work
     : false);
 
-const ICE_CONNECTION_FAILED = 'ICE connection failed';
-
 const DesktopShare = ({
   intl,
   handleShareScreen,
   handleUnshareScreen,
   isVideoBroadcasting,
-  isUserPresenter,
+  amIPresenter,
   screenSharingCheck,
   screenShareEndAlert,
   isMeteorConnected,
   screenshareDataSavingSetting,
 }) => {
-  const onFail = (error) => {
-    switch (error) {
-      case ICE_CONNECTION_FAILED:
-        kurentoExitScreenShare();
-        logger.error({ logCode: 'desktopshare_iceconnectionstate_error' }, 'ICE connection state error');
-        notify(intl.formatMessage(intlMessages.iceConnectionStateError), 'error', 'desktop');
-        break;
-      default:
-        logger.error({
-          logCode: 'desktopshare_default_error',
-          extraInfo: {
-            maybeError: error || 'Default error handler',
-          },
-        }, 'Default error handler for screenshare');
+  // This is the failure callback that will be passed to the /api/screenshare/kurento.js
+  // script on the presenter's call
+  const onFail = (normalizedError) => {
+    const { errorCode, errorMessage, errorReason } = normalizedError;
+    const error = errorCode || errorMessage || errorReason;
+    // We have a properly mapped error for this. Exit screenshare and show  a toast notification
+    if (intlMessages[error]) {
+      window.kurentoExitScreenShare();
+      notify(intl.formatMessage(intlMessages[error]), 'error', 'desktop');
+    } else {
+      // Unmapped error. Log it (so we can infer what's going on), close screenSharing
+      // session and display generic error message
+      logger.error({
+        logCode: 'screenshare_default_error',
+        extraInfo: {
+          errorCode, errorMessage, errorReason,
+        },
+      }, 'Default error handler for screenshare');
+      window.kurentoExitScreenShare();
+      notify(intl.formatMessage(intlMessages.genericError), 'error', 'desktop');
     }
     // Don't trigger the screen share end alert if presenter click to cancel on screen share dialog
-    if (error && error.name !== 'NotAllowedError') {
+    if (error !== 'NotAllowedError') {
       screenShareEndAlert();
     }
   };
@@ -96,11 +152,11 @@ const DesktopShare = ({
   const vDescr = isVideoBroadcasting
     ? intlMessages.stopDesktopShareDesc : intlMessages.desktopShareDesc;
 
-  return (screenSharingCheck && !isMobileBrowser && isUserPresenter
+  return (screenSharingCheck && !isMobileBrowser && amIPresenter
     ? (
       <Button
         className={cx(styles.button, isVideoBroadcasting || styles.btn)}
-        disabled={!isMeteorConnected && !isVideoBroadcasting || !screenshareDataSavingSetting}
+        disabled={(!isMeteorConnected && !isVideoBroadcasting) || !screenshareDataSavingSetting}
         icon={isVideoBroadcasting ? 'desktop' : 'desktop_off'}
         label={intl.formatMessage(vLabel)}
         description={intl.formatMessage(vDescr)}

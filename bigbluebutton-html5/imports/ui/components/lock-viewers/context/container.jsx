@@ -9,8 +9,9 @@ const ROLE_MODERATOR = Meteor.settings.public.user.role_moderator;
 
 const lockContextContainer = component => withTracker(() => {
   const lockSetting = new LockStruct();
-  const Meeting = Meetings.findOne({ meetingId: Auth.meetingID });
-  const User = Users.findOne({ userId: Auth.userID });
+  const Meeting = Meetings.findOne({ meetingId: Auth.meetingID },
+    { fields: { lockSettingsProps: 1 } });
+  const User = Users.findOne({ userId: Auth.userID }, { fields: { locked: 1, role: 1 } });
   const userIsLocked = User.locked && User.role !== ROLE_MODERATOR;
   const lockSettings = Meeting.lockSettingsProps;
 

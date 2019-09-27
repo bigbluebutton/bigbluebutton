@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import Service from '/imports/ui/components/poll/service';
+import PollService from '/imports/ui/components/poll/service';
 import { injectIntl } from 'react-intl';
 
 class PollDrawComponent extends Component {
@@ -122,7 +122,7 @@ class PollDrawComponent extends Component {
     const maxLineHeight = (innerHeight * 0.75) / textArray.length;
 
     const lineToMeasure = textArray[0];
-    const { pollAnswerIds } = Service;
+    const { pollAnswerIds } = PollService;
     const messageIndex = lineToMeasure[0].toLowerCase();
     if (pollAnswerIds[messageIndex]) {
       lineToMeasure[0] = intl.formatMessage(pollAnswerIds[messageIndex]);
@@ -293,7 +293,7 @@ class PollDrawComponent extends Component {
 
     const { annotation, intl } = this.props;
 
-    const { pollAnswerIds } = Service;
+    const { pollAnswerIds } = PollService;
 
     const isRTL = document.documentElement.getAttribute('dir') === 'rtl';
 

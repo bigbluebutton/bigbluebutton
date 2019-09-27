@@ -15,6 +15,7 @@ import clearUserInfo from '/imports/api/users-infos/server/modifiers/clearUserIn
 import clearNote from '/imports/api/note/server/modifiers/clearNote';
 import clearNetworkInformation from '/imports/api/network-information/server/modifiers/clearNetworkInformation';
 import clearLocalSettings from '/imports/api/local-settings/server/modifiers/clearLocalSettings';
+import clearRecordMeeting from './clearRecordMeeting';
 
 export default function meetingHasEnded(meetingId) {
   return Meetings.remove({ meetingId }, () => {
@@ -32,6 +33,7 @@ export default function meetingHasEnded(meetingId) {
     clearNote(meetingId);
     clearNetworkInformation(meetingId);
     clearLocalSettings(meetingId);
+    clearRecordMeeting(meetingId);
 
     return Logger.info(`Cleared Meetings with id ${meetingId}`);
   });

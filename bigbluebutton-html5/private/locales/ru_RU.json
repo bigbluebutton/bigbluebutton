@@ -495,8 +495,6 @@
     "app.recording.startTitle": "Включить запись",
     "app.recording.stopTitle": "Поставить запись на паузу",
     "app.recording.resumeTitle": "Возобновить запись",
-    "app.recording.startDescription": "(Чтобы снова приостановить запись, нажмите на кнопку записи еще раз)",
-    "app.recording.stopDescription": "Вы уверены, что хотите приостановить запись? (Вы можете возобносить запись, нажав на кнопку еще раз)",
     "app.videoPreview.cameraLabel": "Камера",
     "app.videoPreview.profileLabel": "Качество",
     "app.videoPreview.cancelLabel": "Отмена",

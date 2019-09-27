@@ -312,9 +312,13 @@ class AudioModal extends Component {
       audioLocked,
       isMobileNative,
       formattedDialNum,
+      isRTL,
     } = this.props;
 
     const showMicrophone = forceListenOnlyAttendee || audioLocked;
+
+    const arrow = isRTL ? '←' : '→';
+    const dialAudioLabel = `${intl.formatMessage(intlMessages.audioDialTitle)} ${arrow}`;
 
     return (
       <div>
@@ -348,7 +352,7 @@ class AudioModal extends Component {
         {formattedDialNum ? (
           <Button
             className={styles.audioDial}
-            label={`${intl.formatMessage(intlMessages.audioDialTitle)} ➔`}
+            label={dialAudioLabel}
             size="md"
             color="primary"
             onClick={() => {

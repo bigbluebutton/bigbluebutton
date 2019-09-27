@@ -125,9 +125,12 @@ class MeetingEnded extends React.PureComponent {
       return;
     }
 
+    const { fullname } = Auth.credentials;
+
     const message = {
       rating: selected,
       userId: Auth.userID,
+      userName: fullname,
       authToken: Auth.token,
       meetingId: Auth.meetingID,
       comment: MeetingEnded.getComment(),
