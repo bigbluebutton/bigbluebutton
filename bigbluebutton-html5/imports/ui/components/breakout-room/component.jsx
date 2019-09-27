@@ -22,31 +22,35 @@ const intlMessages = defineMessages({
   },
   breakoutRoom: {
     id: 'app.createBreakoutRoom.room',
-    description: 'breakout duration time',
+    description: 'breakout room',
   },
   breakoutJoin: {
     id: 'app.createBreakoutRoom.join',
-    description: 'breakout duration time',
+    description: 'label for join breakout room',
   },
   breakoutJoinAudio: {
     id: 'app.createBreakoutRoom.joinAudio',
-    description: 'breakout duration time',
+    description: 'label for option to transfer audio',
   },
   breakoutReturnAudio: {
     id: 'app.createBreakoutRoom.returnAudio',
-    description: 'breakout duration time',
+    description: 'label for option to return audio',
   },
   generatingURL: {
     id: 'app.createBreakoutRoom.generatingURL',
-    description: 'breakout duration time',
+    description: 'label for generating breakout room url',
   },
   generatedURL: {
     id: 'app.createBreakoutRoom.generatedURL',
-    description: 'breakout duration time',
+    description: 'label for generate breakout room url',
   },
   endAllBreakouts: {
     id: 'app.createBreakoutRoom.endAllBreakouts',
-    description: 'breakout duration time',
+    description: 'Button label to end all breakout rooms',
+  },
+  alreadyConnected: {
+    id: 'app.createBreakoutRoom.alreadyConnected',
+    description: 'label for the user that is already connected to breakout room',
   },
 });
 
@@ -131,6 +135,7 @@ class BreakoutRoom extends PureComponent {
       isMicrophoneUser,
       amIModerator,
       intl,
+      isUserInBreakoutRoom,
     } = this.props;
 
     const {
@@ -159,20 +164,29 @@ class BreakoutRoom extends PureComponent {
       };
     return (
       <div className={styles.breakoutActions}>
-        <Button
-          label={intl.formatMessage(intlMessages.breakoutJoin)}
-          aria-label={`${intl.formatMessage(intlMessages.breakoutJoin)} ${number}`}
-          onClick={() => {
-            this.getBreakoutURL(breakoutId);
-            logger.debug({
-              logCode: 'breakoutroom_join',
-              extraInfo: { logType: 'user_action' },
-            }, 'joining breakout room closed audio in the main room');
-          }
-          }
-          disabled={disable}
-          className={styles.joinButton}
-        />
+        {isUserInBreakoutRoom(breakoutId)
+          ? (
+            <span className={styles.alreadyConnected}>
+              {intl.formatMessage(intlMessages.alreadyConnected)}
+            </span>
+          )
+          : (
+            <Button
+              label={intl.formatMessage(intlMessages.breakoutJoin)}
+              aria-label={`${intl.formatMessage(intlMessages.breakoutJoin)} ${number}`}
+              onClick={() => {
+                this.getBreakoutURL(breakoutId);
+                logger.debug({
+                  logCode: 'breakoutroom_join',
+                  extraInfo: { logType: 'user_action' },
+                }, 'joining breakout room closed audio in the main room');
+              }
+              }
+              disabled={disable}
+              className={styles.joinButton}
+            />
+          )
+        }
         {
           moderatorJoinedAudio
             ? [
@@ -181,12 +195,13 @@ class BreakoutRoom extends PureComponent {
                 <Button
                   label={
                     moderatorJoinedAudio
-                    && stateBreakoutId === breakoutId
-                    && joinedAudioOnly
+                      && stateBreakoutId === breakoutId
+                      && joinedAudioOnly
                       ? intl.formatMessage(intlMessages.breakoutReturnAudio)
                       : intl.formatMessage(intlMessages.breakoutJoinAudio)
                   }
                   className={styles.button}
+                  key={`join-audio-${breakoutId}`}
                   onClick={audioAction}
                 />
               ),

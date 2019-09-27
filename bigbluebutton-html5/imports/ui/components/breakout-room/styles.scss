@@ -62,6 +62,11 @@
   & > button {
     padding: 0 0 0 .5rem;
   }
+  & > .alreadyConnected {
+    padding: 0 .5rem 0 0;
+    display: inline-block;
+    vertical-align: middle;
+  }
 }
 
 .joinButton,
