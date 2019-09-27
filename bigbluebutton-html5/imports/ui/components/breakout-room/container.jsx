@@ -18,7 +18,6 @@ export default withTracker((props) => {
     meetingId,
     amIModerator,
     closeBreakoutPanel,
-    getNumUsersByBreakoutId,
     isUserInBreakoutRoom,
   } = Service;
   const breakoutRooms = findBreakouts();
@@ -37,7 +36,6 @@ export default withTracker((props) => {
     meetingId: meetingId(),
     amIModerator: amIModerator(),
     closeBreakoutPanel,
-    getNumUsersByBreakoutId,
     isMeteorConnected,
     isUserInBreakoutRoom,
   };

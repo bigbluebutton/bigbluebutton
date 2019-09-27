@@ -155,7 +155,7 @@ class BreakoutRoom extends PureComponent {
     this.setState({ joinedAudioOnly: false, breakoutId });
   }
 
-  renderUserActions(breakoutId, number) {
+  renderUserActions(breakoutId, joinedUsers, number) {
     const {
       isMicrophoneUser,
       amIModerator,
@@ -189,7 +189,7 @@ class BreakoutRoom extends PureComponent {
       };
     return (
       <div className={styles.breakoutActions}>
-        {isUserInBreakoutRoom(breakoutId)
+        {isUserInBreakoutRoom(joinedUsers)
           ? (
             <span className={styles.alreadyConnected}>
               {intl.formatMessage(intlMessages.alreadyConnected)}
@@ -242,7 +242,6 @@ class BreakoutRoom extends PureComponent {
     const {
       breakoutRooms,
       intl,
-      getNumUsersByBreakoutId,
     } = this.props;
 
     const {
@@ -260,7 +259,7 @@ class BreakoutRoom extends PureComponent {
             {intl.formatMessage(intlMessages.breakoutRoom, breakout.sequence.toString())}
             <span className={styles.usersAssignedNumberLabel}>
               (
-              {getNumUsersByBreakoutId(breakout.breakoutId)}
+              {breakout.joinedUsers.length}
               )
             </span>
           </span>
@@ -269,7 +268,11 @@ class BreakoutRoom extends PureComponent {
               {intl.formatMessage(intlMessages.generatingURL)}
               <span className={styles.connectingAnimation} />
             </span>
-          ) : this.renderUserActions(breakout.breakoutId, breakout.sequence.toString())}
+          ) : this.renderUserActions(
+            breakout.breakoutId,
+            breakout.joinedUsers,
+            breakout.sequence.toString(),
+          )}
         </div>
         <div className={styles.joinedUserNames}>
           {breakout.joinedUsers

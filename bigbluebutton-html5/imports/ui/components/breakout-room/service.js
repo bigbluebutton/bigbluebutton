@@ -60,11 +60,6 @@ const amIModerator = () => {
   return User.role === ROLE_MODERATOR;
 };
 
-const getNumUsersByBreakoutId = breakoutId => Users.find({
-  meetingId: breakoutId,
-  connectionStatus: 'online',
-}, { fields: {} }).count();
-
 const getBreakoutByUserId = userId => Breakouts.find(
   { 'users.userId': userId },
   { fields: { timeRemaining: 0 } },
@@ -100,7 +95,11 @@ const getBreakoutsNoTime = () => Breakouts.find(
 
 const getBreakoutUserIsIn = userId => Breakouts.findOne({ 'joinedUsers.userId': new RegExp(`^${userId}`) }, { fields: { sequence: 1 } });
 
-const isUserInBreakoutRoom = breakoutId => Breakouts.find({ breakoutId, 'joinedUsers.userId': new RegExp(`^${Auth.userID}`) }).count();
+const isUserInBreakoutRoom = (joinedUsers) => {
+  const userId = Auth.userID;
+
+  return !!joinedUsers.find(user => user.userId.startsWith(userId));
+};
 
 export default {
   findBreakouts,
@@ -112,7 +111,6 @@ export default {
   meetingId: () => Auth.meetingID,
   closeBreakoutPanel,
   amIModerator,
-  getNumUsersByBreakoutId,
   getBreakoutUserByUserId,
   getBreakoutByUser,
   getBreakouts,
