@@ -23,7 +23,7 @@ export default withTracker(props => ({
     userId: Auth.userID,
     locked: true,
     role: { $ne: ROLE_MODERATOR },
-  }, { find: {} }) && VideoService.webcamsLocked(),
+  }, { fields: {} }) && VideoService.webcamsLocked(),
   userHasStream: !!VideoStreams.findOne({ userId: Auth.userID }, { fields: {} }),
   sessionToken: VideoService.sessionToken(),
   enableVideoStats: getFromUserSettings('enableVideoStats', Meteor.settings.public.kurento.enableVideoStats),
