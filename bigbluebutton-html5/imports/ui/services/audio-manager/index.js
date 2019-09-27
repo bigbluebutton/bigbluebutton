@@ -432,9 +432,19 @@ class AudioManager {
           errorMessage: error.message,
         },
       }, `Error getting microphone - {${error.name}: ${error.message}}`);
+
+      const disabledSysSetting = error.message.includes('Permission denied by system');
+      const isMac = navigator.platform.indexOf('Mac') != -1;
+      const noSSL = !window.location.protocol.includes('https');
+
+      let code = 1;
+      if (noSSL) code = 2;
+      if (isMac && disabledSysSetting) code = 3;
+
       return Promise.reject({
         type: 'MEDIA_ERROR',
         message: this.messages.error.MEDIA_ERROR,
+        code,
       });
     };
 

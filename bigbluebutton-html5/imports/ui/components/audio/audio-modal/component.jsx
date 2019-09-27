@@ -124,6 +124,7 @@ class AudioModal extends Component {
     this.state = {
       content: null,
       hasError: false,
+      errCode: null,
     };
 
     this.handleGoToAudioOptions = this.handleGoToAudioOptions.bind(this);
@@ -250,6 +251,7 @@ class AudioModal extends Component {
       if (err.type === 'MEDIA_ERROR') {
         this.setState({
           content: 'help',
+          errCode: err.code,
         });
       }
     });
@@ -441,9 +443,12 @@ class AudioModal extends Component {
   }
 
   renderHelp() {
+    const { errCode } = this.state;
+
     return (
       <Help
         handleBack={this.handleGoToAudioOptions}
+        errCode={errCode}
       />
     );
   }
