@@ -116,6 +116,8 @@ const propTypes = {
   userId: PropTypes.string.isRequired,
   intl: PropTypes.objectOf(Object).isRequired,
   enableVideoStats: PropTypes.bool.isRequired,
+  userIsLocked: PropTypes.bool.isRequired,
+  userHasStream: PropTypes.bool.isRequired,
 };
 
 class VideoProvider extends Component {

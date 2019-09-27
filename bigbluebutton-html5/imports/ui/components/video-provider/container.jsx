@@ -19,12 +19,12 @@ export default withTracker(props => ({
   meetingId: VideoService.meetingId(),
   users: VideoService.getAllWebcamUsers(),
   userId: Auth.userID,
-  userIsLocked: Users.findOne({
+  userIsLocked: !!Users.findOne({
     userId: Auth.userID,
     locked: true,
     role: { $ne: ROLE_MODERATOR },
-  }, { find: { locked: 1, role: 1 } }) && VideoService.webcamsLocked(),
-  userHasStream: VideoStreams.findOne({ userId: Auth.userID }, { fields: {} }),
+  }, { find: {} }) && VideoService.webcamsLocked(),
+  userHasStream: !!VideoStreams.findOne({ userId: Auth.userID }, { fields: {} }),
   sessionToken: VideoService.sessionToken(),
   enableVideoStats: getFromUserSettings('enableVideoStats', Meteor.settings.public.kurento.enableVideoStats),
   voiceBridge: VideoService.voiceBridge(),
