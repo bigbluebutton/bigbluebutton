@@ -71,10 +71,6 @@ class BreakoutRoom extends PureComponent {
       return -1;
     } if (aName > bName) {
       return 1;
-    } if (a.userId > b.userId) {
-      return -1;
-    } if (a.userId < b.userId) {
-      return 1;
     }
 
     return 0;
