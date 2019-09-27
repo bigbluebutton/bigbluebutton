@@ -52,8 +52,15 @@ task copyWebInf(type: Copy) {
   from("src/main/webapp")
 }
 
+// Task that creates the index file which lists all extra libs
+task copyViews(type: Copy) {
+  into("${project.buildDir}/resources/main/grails-app/views")
+  from("grails-app/views")
+}
+
 // make  processResources depends on copyWebInf task
 processResources.dependsOn copyWebInf
+copyWebInf.dependsOn copyViews
 
 repositories {
   jcenter()

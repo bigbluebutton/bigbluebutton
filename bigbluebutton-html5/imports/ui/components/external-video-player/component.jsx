@@ -68,6 +68,15 @@ class VideoPlayer extends Component {
     this.player = null;
   }
 
+  componentDidUpdate(prevProp, prevState) {
+    // Detect presenter change and redo the sync and listeners to reassign video to the new one
+    if (this.props.isPresenter !== prevProp.isPresenter) {
+      this.clearVideoListeners();
+      clearInterval(this.syncInterval);
+      this.registerVideoListeners();
+    }
+  }
+
   static getDerivedStateFromProps(props) {
     const { inEchoTest } = props;
 

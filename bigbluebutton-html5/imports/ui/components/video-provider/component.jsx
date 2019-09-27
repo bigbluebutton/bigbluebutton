@@ -15,6 +15,7 @@ import {
   newWebcamConnection,
   updateWebcamStats,
 } from '/imports/ui/services/network-information/index';
+
 import { tryGenerateIceCandidates } from '../../../utils/safari-webrtc';
 import Auth from '/imports/ui/services/auth';
 
@@ -115,6 +116,8 @@ const propTypes = {
   userId: PropTypes.string.isRequired,
   intl: PropTypes.objectOf(Object).isRequired,
   enableVideoStats: PropTypes.bool.isRequired,
+  userIsLocked: PropTypes.bool.isRequired,
+  userHasStream: PropTypes.bool.isRequired,
 };
 
 class VideoProvider extends Component {
@@ -124,6 +127,7 @@ class VideoProvider extends Component {
       || CAMERA_PROFILES.find(profile => profile.default)
       || CAMERA_PROFILES[0];
     if (Session.get('WebcamDeviceId')) {
+      cameraProfile.constraints = cameraProfile.constraints || {};
       cameraProfile.constraints.deviceId = { exact: Session.get('WebcamDeviceId') };
     }
 
@@ -255,7 +259,12 @@ class VideoProvider extends Component {
   }
 
   componentDidUpdate(prevProps) {
-    const { users } = this.props;
+    const {
+      users,
+      userIsLocked,
+      userHasStream,
+    } = this.props;
+    if (!prevProps.userIsLocked && userIsLocked && userHasStream) VideoService.exitVideo();
     if (users.length !== prevProps.users.length) window.dispatchEvent(new Event('videoListUsersChange'));
   }
 

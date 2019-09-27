@@ -100,6 +100,8 @@ const getBreakoutsNoTime = () => Breakouts.find(
 
 const getBreakoutUserIsIn = userId => Breakouts.findOne({ 'joinedUsers.userId': new RegExp(`^${userId}`) }, { fields: { sequence: 1 } });
 
+const isUserInBreakoutRoom = breakoutId => Breakouts.find({ breakoutId, 'joinedUsers.userId': new RegExp(`^${Auth.userID}`) }).count();
+
 export default {
   findBreakouts,
   endAllBreakouts,
@@ -117,4 +119,5 @@ export default {
   getBreakoutsNoTime,
   getBreakoutByUserId,
   getBreakoutUserIsIn,
+  isUserInBreakoutRoom,
 };
