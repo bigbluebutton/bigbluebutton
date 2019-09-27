@@ -19,6 +19,8 @@ import AudioService from '/imports/ui/components/audio/service';
 import { FormattedMessage } from 'react-intl';
 import { notify } from '/imports/ui/services/notification';
 
+const BREAKOUT_END_NOTIFY_DELAY = 50;
+
 const HTML = document.getElementsByTagName('html')[0];
 
 let breakoutNotified = false;
@@ -237,6 +239,7 @@ const BaseContainer = withTracker(() => {
   const meeting = Meetings.findOne({ meetingId }, {
     fields: {
       meetingEnded: 1,
+      meetingProp: 1,
     },
   });
 
@@ -248,22 +251,32 @@ const BaseContainer = withTracker(() => {
   const ejected = User && User.ejected;
   let userSubscriptionHandler;
 
-
-  Breakouts.find().observeChanges({
+  Breakouts.find({}, { fields: { _id: 1 } }).observeChanges({
     added() {
       breakoutNotified = false;
     },
     removed() {
-      if (!AudioService.isUsingAudio() && !breakoutNotified) {
-        if (meeting && !meeting.meetingEnded) {
-          notify(
-            <FormattedMessage
-              id="app.toast.breakoutRoomEnded"
-              description="message when the breakout room is ended"
-            />,
-            'info',
-            'rooms',
-          );
+      // Need to check the number of breakouts left because if a user's role changes to viewer
+      // then all but one room is removed. The data here isn't reactive so no need to filter
+      // the fields
+      const numBreakouts = Breakouts.find().count();
+      if (!AudioService.isUsingAudio() && !breakoutNotified && numBreakouts === 0) {
+        if (meeting && !meeting.meetingEnded && !meeting.meetingProp.isBreakout) {
+          // There's a race condition when reloading a tab where the collection gets cleared
+          // out and then refilled. The removal of the old data triggers the notification so
+          // instead wait a bit and check to see that records weren't added right after.
+          setTimeout(() => {
+            if (breakoutNotified) {
+              notify(
+                <FormattedMessage
+                  id="app.toast.breakoutRoomEnded"
+                  description="message when the breakout room is ended"
+                />,
+                'info',
+                'rooms',
+              );
+            }
+          }, BREAKOUT_END_NOTIFY_DELAY);
         }
         breakoutNotified = true;
       }
