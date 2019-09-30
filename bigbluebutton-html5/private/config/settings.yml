@@ -338,6 +338,8 @@ private:
       enabled: false
     leak:
       enabled: false
+    heapdump:
+      enabled: false
   minBrowserVersions:
     - browser: chrome
       version: 59
