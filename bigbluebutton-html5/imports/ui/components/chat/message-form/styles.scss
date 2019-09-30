@@ -122,28 +122,24 @@
   }
 }
 
-.typingUser {
+.coupleTyper,
+.singleTyper {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-  max-width: 100%;
 }
 
-.twoUsers {
-  max-width: 50%;
+.singleTyper {
+  max-width: 70%;
 }
 
-.threeUsers {
-  max-width: 33.3%;
+.coupleTyper {
+  max-width: 30%;
 }
 
 .typingIndicator {
   display: flex;
   flex-direction: row;
-}
-
-.animWrapper {
-  white-space: nowrap;
 }
 
 .error {
