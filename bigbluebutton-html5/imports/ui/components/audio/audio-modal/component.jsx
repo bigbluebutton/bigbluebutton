@@ -444,11 +444,17 @@ class AudioModal extends Component {
 
   renderHelp() {
     const { errCode } = this.state;
+    const { AudioError } = this.props;
+
+    const audioErr = {
+      ...AudioError,
+      code: errCode,
+    };
 
     return (
       <Help
         handleBack={this.handleGoToAudioOptions}
-        errCode={errCode}
+        audioErr={audioErr}
       />
     );
   }

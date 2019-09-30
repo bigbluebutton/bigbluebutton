@@ -27,18 +27,21 @@ class Help extends Component {
     const {
       intl,
       handleBack,
-      errCode,
+      audioErr,
     } = this.props;
+
+    const { code, MIC_ERROR } = audioErr;
 
     let helpMessage = null;
 
-    switch (errCode) {
-      case 2:
+    switch (code) {
+      case MIC_ERROR.NO_SSL:
         helpMessage = intl.formatMessage(intlMessages.noSSL);
         break;
-      case 3:
+      case MIC_ERROR.MAC_OS_BLOCK:
         helpMessage = intl.formatMessage(intlMessages.macNotAllowed);
         break;
+      case MIC_ERROR.NO_PERMISSION:
       default:
         helpMessage = intl.formatMessage(intlMessages.descriptionHelp);
         break;

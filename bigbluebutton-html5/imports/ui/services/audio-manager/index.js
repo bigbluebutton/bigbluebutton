@@ -6,9 +6,10 @@ import SIPBridge from '/imports/api/audio/client/bridge/sip';
 import logger from '/imports/startup/client/logger';
 import { notify } from '/imports/ui/services/notification';
 import browser from 'browser-detect';
+import playAndRetry from '/imports/utils/mediaElementPlayRetry';
 import iosWebviewAudioPolyfills from '../../../utils/ios-webview-audio-polyfills';
 import { tryGenerateIceCandidates } from '../../../utils/safari-webrtc';
-import playAndRetry from '/imports/utils/mediaElementPlayRetry';
+import AudioErrors from './error-codes';
 
 const MEDIA = Meteor.settings.public.media;
 const MEDIA_TAG = MEDIA.mediaTag;
@@ -433,13 +434,14 @@ class AudioManager {
         },
       }, `Error getting microphone - {${error.name}: ${error.message}}`);
 
+      const { MIC_ERROR } = AudioErrors;
       const disabledSysSetting = error.message.includes('Permission denied by system');
-      const isMac = navigator.platform.indexOf('Mac') != -1;
+      const isMac = navigator.platform.indexOf('Mac') !== -1;
       const noSSL = !window.location.protocol.includes('https');
 
-      let code = 1;
-      if (noSSL) code = 2;
-      if (isMac && disabledSysSetting) code = 3;
+      let code = MIC_ERROR.NO_PERMISSION;
+      if (noSSL) code = MIC_ERROR.NO_SSL;
+      if (isMac && disabledSysSetting) code = MIC_ERROR.MAC_OS_BLOCK;
 
       return Promise.reject({
         type: 'MEDIA_ERROR',
