@@ -161,7 +161,7 @@ class LockViewersComponent extends Component {
         contentLabel={intl.formatMessage(intlMessages.ariaModalTitle)}
       >
 
-        <div className={styles.containetoggleLockSettingsr}>
+        <div className={styles.container}>
           <div className={styles.header}>
             <h2 className={styles.title}>{intl.formatMessage(intlMessages.lockViewersTitle)}</h2>
           </div>

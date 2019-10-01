@@ -29,9 +29,7 @@
 }
 
 .container {
-  margin: var(--modal-margin);
-  margin-top: 0;
-  margin-bottom: var(--lg-padding-x);
+  margin: 0 var(--modal-margin) var(--lg-padding-x);
 }
 
 .subHeader {
@@ -136,7 +134,7 @@
 
 .footer {
   display: flex;
-  margin-top: var(--sm-padding-x);
+  margin: var(--sm-padding-x) var(--modal-margin) 0;
 }
 
 .actions {
