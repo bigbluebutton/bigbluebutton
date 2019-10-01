@@ -170,7 +170,7 @@ public class FreeswitchApplication implements  IDelayedCommandListener{
 
           CheckIfConfIsRunningCommand command = new CheckIfConfIsRunningCommand(cmd.getRoom(),
                   cmd.getRequesterId(),
-                  delayedCommandSenderService);
+                  delayedCommandSenderService, 0);
           delayedCommandSenderService.handleMessage(command, 5000);
         } else if (command instanceof TransferUserToMeetingCommand) {
           TransferUserToMeetingCommand cmd = (TransferUserToMeetingCommand) command;
