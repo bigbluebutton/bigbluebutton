@@ -20,6 +20,7 @@ package org.bigbluebutton.freeswitch.voice.freeswitch.actions;
 
 import org.apache.commons.lang3.StringUtils;
 import org.bigbluebutton.freeswitch.voice.events.ConferenceEventListener;
+import org.bigbluebutton.freeswitch.voice.freeswitch.DelayedCommandSenderService;
 import org.bigbluebutton.freeswitch.voice.freeswitch.response.ConferenceMember;
 import org.bigbluebutton.freeswitch.voice.freeswitch.response.XMLResponseConferenceListParser;
 import org.freeswitch.esl.client.transport.message.EslMessage;
@@ -36,9 +37,11 @@ import java.util.regex.Matcher;
 
 public class CheckIfConfIsRunningCommand extends FreeswitchCommand {
     private static Logger log = LoggerFactory.getLogger(CheckIfConfIsRunningCommand.class);
+    private DelayedCommandSenderService delayedCommandSenderService;
 
-    public CheckIfConfIsRunningCommand(String room, String requesterId) {
+    public CheckIfConfIsRunningCommand(String room, String requesterId, DelayedCommandSenderService delayedCommandSenderService) {
             super(room, requesterId);
+            this.delayedCommandSenderService = delayedCommandSenderService;
     }
     
     @Override
@@ -94,12 +97,24 @@ public class CheckIfConfIsRunningCommand extends FreeswitchCommand {
                         String uuid = member.getUUID();
                         log.info("WARNING! User possibly stuck in conference. uuid=" + uuid
                                 + ",caller=" + callerIdName + ",callerId=" + callerId + ",conf=" + room);
+
+                        // We have stubborn users that cannot be ejected from the voice conference.
+                        // This results in the voice conference hanging around for potentially a long time.
+                        // Force ejection by killing their uuid. (ralam Oct 1, 2019)
+                        ForceEjectUserCommand forceEjectUserCommand = new ForceEjectUserCommand(getRoom(),
+                                member.getId().toString(),
+                                member.getUUID());
+                        delayedCommandSenderService.handleMessage(forceEjectUserCommand, 5000L);
+
                     } else if ("recording_node".equals(member.getMemberType())) {
 
                     }
-
-
                 }
+                // Check again if the conference is still running after ejecting the users. (ralam Oct. 1, 2019)
+                CheckIfConfIsRunningCommand command = new CheckIfConfIsRunningCommand(getRoom(),
+                        getRequesterId(),
+                        delayedCommandSenderService);
+                delayedCommandSenderService.handleMessage(command, 10000);
             } else {
                 log.info("INFO! Successfully ejected all users from conference {}.", room);
             }

@@ -168,7 +168,9 @@ public class FreeswitchApplication implements  IDelayedCommandListener{
           EjectAllUsersCommand cmd = (EjectAllUsersCommand) command;
           manager.ejectAll(cmd);
 
-          CheckIfConfIsRunningCommand command = new CheckIfConfIsRunningCommand(cmd.getRoom(), cmd.getRequesterId());
+          CheckIfConfIsRunningCommand command = new CheckIfConfIsRunningCommand(cmd.getRoom(),
+                  cmd.getRequesterId(),
+                  delayedCommandSenderService);
           delayedCommandSenderService.handleMessage(command, 5000);
         } else if (command instanceof TransferUserToMeetingCommand) {
           TransferUserToMeetingCommand cmd = (TransferUserToMeetingCommand) command;
