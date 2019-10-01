@@ -437,10 +437,8 @@ class AudioManager {
       const { MIC_ERROR } = AudioErrors;
       const disabledSysSetting = error.message.includes('Permission denied by system');
       const isMac = navigator.platform.indexOf('Mac') !== -1;
-      const noSSL = !window.location.protocol.includes('https');
 
       let code = MIC_ERROR.NO_PERMISSION;
-      if (noSSL) code = MIC_ERROR.NO_SSL;
       if (isMac && disabledSysSetting) code = MIC_ERROR.MAC_OS_BLOCK;
 
       return Promise.reject({
