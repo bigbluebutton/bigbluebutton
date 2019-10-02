@@ -134,12 +134,18 @@
 }
 
 .coupleTyper {
-  max-width: 30%;
+  max-width: 25%;
 }
 
 .typingIndicator {
   display: flex;
   flex-direction: row;
+
+  > span {
+    display: flex;
+    flex-direction: row;
+    max-width: 100%;
+  }
 }
 
 .error {

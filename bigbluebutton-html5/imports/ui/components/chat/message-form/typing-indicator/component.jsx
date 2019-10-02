@@ -1,5 +1,7 @@
 import React, { PureComponent } from 'react';
-import { defineMessages, injectIntl, intlShape } from 'react-intl';
+import {
+  defineMessages, injectIntl, intlShape, FormattedMessage,
+} from 'react-intl';
 import browser from 'browser-detect';
 import PropTypes from 'prop-types';
 import cx from 'classnames';
@@ -12,20 +14,11 @@ const propTypes = {
 };
 
 const messages = defineMessages({
-  singularTyping: {
-    id: 'app.chat.singularTyping',
-    description: 'used to indicate when 1 user is typing',
-  },
-  pluralTyping: {
-    id: 'app.chat.pluralTyping',
-    description: 'used to indicate when multiple user are typing',
-  },
   severalPeople: {
-    id: 'app.chat.severalPeople',
+    id: 'app.chat.multi.typing',
     description: 'displayed when 4 or more users are typing',
   },
 });
-
 
 class TypingIndicator extends PureComponent {
   constructor(props) {
@@ -52,33 +45,45 @@ class TypingIndicator extends PureComponent {
 
     if (isSingleTyper) {
       const { name } = typingUsers[0];
-      element = [
-        (<span key="typing-name" className={styles.singleTyper}>
-          {`${name}`}
+      element = (
+        <FormattedMessage
+          id="app.chat.one.typing"
+          description="label used when one user is typing"
+          values={{
+            0: <span className={styles.singleTyper}>
+              {`${name}`}
 &nbsp;
-        </span>),
-        (<span key="typing-singular">{`${intl.formatMessage(messages.singularTyping)}`}</span>),
-      ];
+            </span>,
+          }}
+        />
+      );
     }
 
     if (isCoupleTyper) {
-      element = typingUsers.map(user => <span key={_.uniqueId('typing-name-')} className={styles.coupleTyper}>{`${user.name}`}</span>);
-      const comma = (
-        <span key="typing-comma">
-          {','}
+      const { name } = typingUsers[0];
+      const { name: name2 } = typingUsers[1];
+      element = (
+        <FormattedMessage
+          id="app.chat.two.typing"
+          description="label used when two users are typing"
+          values={{
+            0: <span className={styles.coupleTyper}>
+              {`${name}`}
 &nbsp;
-        </span>
+            </span>,
+            1: <span className={styles.coupleTyper}>
+              {`${name2}`}
+&nbsp;
+            </span>,
+          }}
+        />
       );
-      element.splice(1, 0, comma);
-      element.push(<span key="typing-plural">
-        {`${intl.formatMessage(messages.pluralTyping)}`}
-                   </span>);
     }
 
     if (isMuiltiTypers) {
       element = (
         <span>
-          {`${intl.formatMessage(messages.severalPeople)} ${intl.formatMessage(messages.pluralTyping)}`}
+          {`${intl.formatMessage(messages.severalPeople)}`}
         </span>
       );
     }
