@@ -30,6 +30,7 @@ export default withTracker(() => {
   const selector = {
     meetingId: Auth.meetingID,
     isTypingTo: PUBLIC_CHAT_KEY,
+    userId: { $ne: Auth.userID },
   };
 
   if (idChatOpen !== PUBLIC_CHAT_KEY) {
@@ -42,7 +43,6 @@ export default withTracker(() => {
     userId: Auth.userID,
   }, {
     fields: {
-      userId: 1,
       role: 1,
     },
   });
@@ -53,11 +53,8 @@ export default withTracker(() => {
 
   const typingUsers = UsersTyping.find(selector).fetch();
 
-
   return {
-    currentUserId: currentUser ? currentUser.userId : null,
     typingUsers,
-    currentChatPartner: idChatOpen,
     indicatorEnabled: TYPING_INDICATOR_ENABLED,
   };
 })(TypingIndicatorContainer);
