@@ -25,11 +25,18 @@ export default withTracker(() => {
   const meetingId = Auth.meetingID;
   const meetingObject = Meetings.findOne({
     meetingId,
-  }, { fields: { 'meetingProp.name': 1 } });
+  }, { fields: { 'meetingProp.name': 1, 'breakoutProps.sequence': 1 } });
 
   if (meetingObject != null) {
     meetingTitle = meetingObject.meetingProp.name;
-    document.title = `${CLIENT_TITLE} - ${meetingTitle}`;
+    let titleString = `${CLIENT_TITLE} - ${meetingTitle}`;
+    if (meetingObject.breakoutProps) {
+      const breakoutNum = meetingObject.breakoutProps.sequence;
+      if (breakoutNum > 0) {
+        titleString = `${breakoutNum} - ${titleString}`;
+      }
+    }
+    document.title = titleString;
   }
 
   const checkUnreadMessages = () => {
