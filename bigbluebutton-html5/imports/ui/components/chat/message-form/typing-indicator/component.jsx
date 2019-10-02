@@ -5,7 +5,6 @@ import {
 import browser from 'browser-detect';
 import PropTypes from 'prop-types';
 import cx from 'classnames';
-import _ from 'lodash';
 import { styles } from '../styles.scss';
 
 const propTypes = {
@@ -72,6 +71,7 @@ class TypingIndicator extends PureComponent {
 &nbsp;
             </span>,
             1: <span className={styles.coupleTyper}>
+&nbsp;
               {`${name2}`}
 &nbsp;
             </span>,
