@@ -82,6 +82,10 @@ export class ArcPlayer extends Component {
   }
 
   onStateChange(event) {
+    if (!this.player) {
+      return;
+    }
+
     this.player.getCurrentTime().then((t) => {
       this.updateCurrentTime(t.data);
     });
@@ -121,11 +125,15 @@ export class ArcPlayer extends Component {
   }
 
   play() {
-    this.player.playVideo();
+    if (this.player) {
+      this.player.playVideo();
+    }
   }
 
   pause() {
-    this.player.pauseVideo();
+    if (this.player) {
+      this.player.pauseVideo();
+    }
   }
 
   stop() {
@@ -133,7 +141,9 @@ export class ArcPlayer extends Component {
   }
 
   seekTo(seconds) {
-    this.player.seekTo(seconds);
+    if (this.player) {
+      this.player.seekTo(seconds);
+    }
   }
 
   setVolume(fraction) {
@@ -157,9 +167,11 @@ export class ArcPlayer extends Component {
   }
 
   getCurrentTime () {
-    this.player.getCurrentTime().then((t) => {
-      this.updateCurrentTime(t.data);
-    });
+    if (this.player) {
+      this.player.getCurrentTime().then((t) => {
+        this.updateCurrentTime(t.data);
+      });
+    }
 
     return this.currentTime;
   }
