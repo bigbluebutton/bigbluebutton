@@ -63,16 +63,24 @@
   flex-grow: 1;
   justify-content: space-between;
   margin-bottom: var(--md-padding-x);
+
+  & > :first-child {
+    margin:  0 var(--md-padding-x) 0 0;
+
+    [dir="rtl"] & {
+      margin: 0 0 0 var(--md-padding-x);
+    }
+  }
 }
 
 .col {
   display: flex;
   flex-grow: 1;
   flex-basis: 0;
-  margin: 0 var(--md-padding-x) 0 0;
+  margin: 0;
 
   [dir="rtl"] & {
-    margin: 0 0 0 var(--md-padding-x);
+    margin: 0;
   }
 }
 
@@ -139,25 +147,18 @@
 
 .actions {
   margin-left: auto;
-  margin-right: 3px;
-
+  margin-right: 0;
 
   [dir="rtl"] & {
     margin-right: auto;
     margin-left: 3px;
   }
-
-  :first-child {
-    margin-right: 3px;
-    margin-left: inherit;
-
-    [dir="rtl"] & {
-      margin-right: inherit;
-      margin-left: 3px;
-    }
-  }
 }
 
 .toggleLabel {
   margin-right: var(--sm-padding-x);
+
+  [dir="rtl"] & {
+    margin: 0 0 0 var(--sm-padding-x);
+  }
 }
