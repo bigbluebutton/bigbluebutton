@@ -1,14 +1,10 @@
 import { makeCall } from '/imports/ui/services/api';
-import Meetings from '/imports/api/meetings';
-import Auth from '/imports/ui/services/auth';
 
-const getCurrentMeeting = () => Meetings.findOne({ meetingId: Auth.meetingID });
+const updateLockSettings = lockProps => makeCall('toggleLockSettings', lockProps);
 
-const toggleLockSettings = () => makeCall('toggleLockSettings', getCurrentMeeting());
+const updateWebcamsOnlyForModerator = webcamsOnlyForModerator => makeCall('toggleWebcamsOnlyForModerator', webcamsOnlyForModerator);
 
-const toggleWebcamsOnlyForModerator = () => makeCall('toggleWebcamsOnlyForModerator', getCurrentMeeting());
-
-export default {
-  toggleLockSettings,
-  toggleWebcamsOnlyForModerator,
+export {
+  updateLockSettings,
+  updateWebcamsOnlyForModerator,
 };

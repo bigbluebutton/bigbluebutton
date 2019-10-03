@@ -1,6 +1,5 @@
 import React from 'react';
 import Toggle from 'react-toggle';
-import classNames from 'classnames';
 import cx from 'classnames';
 import { defineMessages, injectIntl } from 'react-intl';
 import { styles } from './styles';
@@ -16,6 +15,10 @@ const intlMessages = defineMessages({
   },
 });
 
+const defaultProps = {
+  showToggleLabel: true,
+};
+
 class Switch extends Toggle {
   render() {
     const {
@@ -26,10 +29,11 @@ class Switch extends Toggle {
       ariaDescribedBy,
       ariaLabel,
       ariaDesc,
+      showToggleLabel,
       ...inputProps
     } = this.props;
 
-    const classes = classNames('react-toggle', {
+    const classes = cx('react-toggle', {
       'react-toggle--checked': this.state.checked,
       'react-toggle--focus': this.state.hasFocus,
       'react-toggle--disabled': this.props.disabled,
@@ -45,10 +49,10 @@ class Switch extends Toggle {
       >
         <div className="react-toggle-track" aria-hidden="true">
           <div className="react-toggle-track-check">
-            {intl.formatMessage(intlMessages.on)}
+            {showToggleLabel ? intl.formatMessage(intlMessages.on) : null}
           </div>
           <div className="react-toggle-track-x">
-            {intl.formatMessage(intlMessages.off)}
+            {showToggleLabel ? intl.formatMessage(intlMessages.off) : null}
           </div>
         </div>
         <div className="react-toggle-thumb" />
@@ -69,5 +73,7 @@ class Switch extends Toggle {
     );
   }
 }
+
+Switch.defaultProps = defaultProps;
 
 export default injectIntl(Switch);

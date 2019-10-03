@@ -2,7 +2,7 @@ import { Meteor } from 'meteor/meteor';
 import { check } from 'meteor/check';
 import RedisPubSub from '/imports/startup/server/redis';
 
-export default function toggleWebcamsOnlyForModerator(credentials, meeting) {
+export default function toggleWebcamsOnlyForModerator(credentials, webcamsOnlyForModerator) {
   const REDIS_CONFIG = Meteor.settings.private.redis;
   const CHANNEL = REDIS_CONFIG.channels.toAkkaApps;
   const EVENT_NAME = 'UpdateWebcamsOnlyForModeratorCmdMsg';
@@ -11,10 +11,10 @@ export default function toggleWebcamsOnlyForModerator(credentials, meeting) {
 
   check(meetingId, String);
   check(requesterUserId, String);
-  check(meeting.usersProp.webcamsOnlyForModerator, Boolean);
+  check(webcamsOnlyForModerator, Boolean);
 
   const payload = {
-    webcamsOnlyForModerator: meeting.usersProp.webcamsOnlyForModerator,
+    webcamsOnlyForModerator,
     setBy: requesterUserId,
   };
 
