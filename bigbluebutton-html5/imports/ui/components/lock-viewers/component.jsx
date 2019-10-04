@@ -151,6 +151,8 @@ class LockViewersComponent extends Component {
 
     const { lockSettingsProps, usersProp } = this.state;
 
+    const invertColors = true;
+
     return (
       <Modal
         overlayClassName={styles.overlay}
@@ -193,6 +195,7 @@ class LockViewersComponent extends Component {
                     }}
                     ariaLabel={intl.formatMessage(intlMessages.webcamLabel)}
                     showToggleLabel={showToggleLabel}
+                    invertColors={invertColors}
                   />
                 </div>
               </div>
@@ -216,6 +219,7 @@ class LockViewersComponent extends Component {
                     }}
                     ariaLabel={intl.formatMessage(intlMessages.otherViewersWebcamLabel)}
                     showToggleLabel={showToggleLabel}
+                    invertColors={invertColors}
                   />
                 </div>
               </div>
@@ -239,6 +243,7 @@ class LockViewersComponent extends Component {
                     }}
                     ariaLabel={intl.formatMessage(intlMessages.microphoneLable)}
                     showToggleLabel={showToggleLabel}
+                    invertColors={invertColors}
                   />
                 </div>
               </div>
@@ -265,6 +270,7 @@ class LockViewersComponent extends Component {
                         }}
                         ariaLabel={intl.formatMessage(intlMessages.publicChatLabel)}
                         showToggleLabel={showToggleLabel}
+                        invertColors={invertColors}
                       />
                     </div>
                   </div>
@@ -288,6 +294,7 @@ class LockViewersComponent extends Component {
                         }}
                         ariaLabel={intl.formatMessage(intlMessages.privateChatLable)}
                         showToggleLabel={showToggleLabel}
+                        invertColors={invertColors}
                       />
                     </div>
                   </div>
@@ -316,6 +323,7 @@ class LockViewersComponent extends Component {
                         }}
                         ariaLabel={intl.formatMessage(intlMessages.notesLabel)}
                         showToggleLabel={showToggleLabel}
+                        invertColors={invertColors}
                       />
                     </div>
                   </div>
@@ -342,6 +350,7 @@ class LockViewersComponent extends Component {
                     }}
                     ariaLabel={intl.formatMessage(intlMessages.userListLabel)}
                     showToggleLabel={showToggleLabel}
+                    invertColors={invertColors}
                   />
                 </div>
               </div>

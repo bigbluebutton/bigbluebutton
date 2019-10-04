@@ -17,6 +17,7 @@ const intlMessages = defineMessages({
 
 const defaultProps = {
   showToggleLabel: true,
+  invertColors: false,
 };
 
 class Switch extends Toggle {
@@ -30,13 +31,20 @@ class Switch extends Toggle {
       ariaLabel,
       ariaDesc,
       showToggleLabel,
+      invertColors,
+      disabled,
       ...inputProps
     } = this.props;
 
+    const {
+      checked,
+      hasFocus,
+    } = this.state;
+
     const classes = cx('react-toggle', {
-      'react-toggle--checked': this.state.checked,
-      'react-toggle--focus': this.state.hasFocus,
-      'react-toggle--disabled': this.props.disabled,
+      'react-toggle--checked': checked,
+      'react-toggle--focus': hasFocus,
+      'react-toggle--disabled': disabled,
     }, className);
 
     return (
@@ -47,7 +55,12 @@ class Switch extends Toggle {
         onTouchMove={this.handleTouchMove}
         onTouchEnd={this.handleTouchEnd}
       >
-        <div className="react-toggle-track" aria-hidden="true">
+        <div
+          className={cx('react-toggle-track',
+            invertColors && styles.invertBackground,
+            checked && styles.checked)}
+          aria-hidden="true"
+        >
           <div className="react-toggle-track-check">
             {showToggleLabel ? intl.formatMessage(intlMessages.on) : null}
           </div>
@@ -65,6 +78,7 @@ class Switch extends Toggle {
           className="react-toggle-screenreader-only"
           type="checkbox"
           tabIndex="0"
+          disabled={disabled}
           aria-label={ariaLabel}
           aria-describedby={ariaDescribedBy}
         />
