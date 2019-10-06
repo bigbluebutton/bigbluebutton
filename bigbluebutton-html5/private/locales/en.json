@@ -514,7 +514,7 @@
     "app.lock-viewers.button.apply": "Apply",
     "app.lock-viewers.button.cancel": "Cancel",
     "app.lock-viewers.locked": "Locked",
-    "app.lock-viewers.unlocked": " ",
+    "app.lock-viewers.unlocked": "Unlocked",
     "app.recording.startTitle": "Start recording",
     "app.recording.stopTitle": "Pause recording",
     "app.recording.resumeTitle": "Resume recording",
