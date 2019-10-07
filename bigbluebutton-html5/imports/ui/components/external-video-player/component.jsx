@@ -56,6 +56,7 @@ class VideoPlayer extends Component {
     this.registerVideoListeners = this.registerVideoListeners.bind(this);
     this.autoPlayBlockDetected = this.autoPlayBlockDetected.bind(this);
     this.clearVideoListeners = this.clearVideoListeners.bind(this);
+    this.handleFirstPlay = this.handleFirstPlay.bind(this);
     this.handleResize = this.handleResize.bind(this);
     this.handleOnReady = this.handleOnReady.bind(this);
     this.handleOnPlay = this.handleOnPlay.bind(this);
@@ -98,6 +99,19 @@ class VideoPlayer extends Component {
 
   autoPlayBlockDetected() {
     this.setState({autoPlayBlocked: true});
+  }
+
+  handleFirstPlay() {
+    const isPresenter = this.props;
+
+    if (!this.state.hasPlayedBefore) {
+      this.setState({ hasPlayedBefore: true, autoPlayBlocked: false });
+      clearTimeout(this.autoPlayTimeout);
+
+      if (isPresenter) {
+        sendMessage('presenterReady');
+      }
+    }
   }
 
   getCurrentPlaybackRate() {
@@ -146,6 +160,13 @@ class VideoPlayer extends Component {
 
         sendMessage('playerUpdate', { rate, time: curTime, state: this.state.playing });
       }, SYNC_INTERVAL_SECONDS * 1000);
+
+      onMessage('viewerJoined', () => {
+        logger.debug({ logCode: 'external_video_viewer_joined' }, 'Viewer joined external video');
+        if (this.state.hasPlayedBefore) {
+          sendMessage('presenterReady');
+        }
+      });
     } else {
       onMessage('play', ({ time }) => {
         if (!this.player || !this.state.hasPlayedBefore) {
@@ -166,6 +187,14 @@ class VideoPlayer extends Component {
         this.setState({ playing: false });
 
         logger.debug({ logCode: 'external_video_client_stop' }, 'Stop external video');
+      });
+
+      onMessage('presenterReady', (data) => {
+        logger.debug({ logCode: 'external_video_presenter_ready' }, 'Presenter is ready to sync');
+
+        if (!this.state.hasPlayedBefore) {
+          this.setState({playing: true});
+        }
       });
 
       onMessage('playerUpdate', (data) => {
@@ -205,13 +234,13 @@ class VideoPlayer extends Component {
 
     if (!isPresenter) {
       sendMessage('viewerJoined');
+    } else {
+      this.setState({ playing: true });
     }
 
     this.handleResize();
 
     this.autoPlayTimeout = setTimeout(this.autoPlayBlockDetected, AUTO_PLAY_BLOCK_DETECTION_TIMEOUT_SECONDS * 1000);
-
-    this.setState({ playing: true });
   }
 
   handleOnPlay() {
@@ -223,10 +252,7 @@ class VideoPlayer extends Component {
     }
     this.setState({ playing: true });
 
-    if (!this.state.hasPlayedBefore) {
-      this.setState({ hasPlayedBefore: true, autoPlayBlocked: false });
-      clearTimeout(this.autoPlayTimeout);
-    }
+    this.handleFirstPlay();
   }
 
   handleOnPause() {
@@ -238,10 +264,7 @@ class VideoPlayer extends Component {
     }
     this.setState({ playing: false });
 
-    if (!this.state.hasPlayedBefore) {
-      this.setState({ hasPlayedBefore: true, autoPlayBlocked: false });
-      clearTimeout(this.autoPlayTimeout);
-    }
+    this.handleFirstPlay();
   }
 
   render() {
