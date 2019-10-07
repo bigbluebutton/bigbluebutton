@@ -1,15 +1,23 @@
 import React, { Component } from 'react';
 import injectWbResizeEvent from '/imports/ui/components/presentation/resize-wrapper/component';
+import { defineMessages, injectIntl } from 'react-intl';
 import ReactPlayer from 'react-player';
 import { sendMessage, onMessage, removeAllListeners } from './service';
 import logger from '/imports/startup/client/logger';
 
 import ArcPlayer from './custom-players/arc-player';
 
-
 import { styles } from './styles';
 
+const intlMessages = defineMessages({
+  autoPlayWarning: {
+    id: 'app.externalVideo.autoPlayWarning',
+    description: 'Shown when user needs to interact with player to make it work',
+  },
+});
+
 const SYNC_INTERVAL_SECONDS = 2;
+const AUTO_PLAY_BLOCK_DETECTION_TIMEOUT_SECONDS = 5;
 
 ReactPlayer.addCustomPlayer(ArcPlayer);
 
@@ -21,9 +29,12 @@ class VideoPlayer extends Component {
 
     this.player = null;
     this.syncInterval = null;
+    this.autoPlayTimeout = null;
     this.state = {
       mutedByEchoTest: false,
       playing: false,
+      hasPlayedBefore: false,
+      autoPlayBlocked: false,
       playbackRate: 1,
     };
 
@@ -43,6 +54,7 @@ class VideoPlayer extends Component {
     };
 
     this.registerVideoListeners = this.registerVideoListeners.bind(this);
+    this.autoPlayBlockDetected = this.autoPlayBlockDetected.bind(this);
     this.clearVideoListeners = this.clearVideoListeners.bind(this);
     this.handleResize = this.handleResize.bind(this);
     this.handleOnReady = this.handleOnReady.bind(this);
@@ -65,6 +77,7 @@ class VideoPlayer extends Component {
     this.clearVideoListeners();
 
     clearInterval(this.syncInterval);
+    clearTimeout(this.autoPlayTimeout);
     this.player = null;
   }
 
@@ -81,6 +94,10 @@ class VideoPlayer extends Component {
     const { inEchoTest } = props;
 
     return { mutedByEchoTest: inEchoTest };
+  }
+
+  autoPlayBlockDetected() {
+    this.setState({autoPlayBlocked: true});
   }
 
   getCurrentPlaybackRate() {
@@ -131,7 +148,7 @@ class VideoPlayer extends Component {
       }, SYNC_INTERVAL_SECONDS * 1000);
     } else {
       onMessage('play', ({ time }) => {
-        if (!this.player) {
+        if (!this.player || !this.state.hasPlayedBefore) {
           return;
         }
 
@@ -142,7 +159,7 @@ class VideoPlayer extends Component {
       });
 
       onMessage('stop', ({ time }) => {
-        if (!this.player) {
+        if (!this.player || !this.state.hasPlayedBefore) {
           return;
         }
         this.player.seekTo(time);
@@ -152,7 +169,7 @@ class VideoPlayer extends Component {
       });
 
       onMessage('playerUpdate', (data) => {
-        if (!this.player) {
+        if (!this.player || !this.state.hasPlayedBefore) {
           return;
         }
 
@@ -191,6 +208,10 @@ class VideoPlayer extends Component {
     }
 
     this.handleResize();
+
+    this.autoPlayTimeout = setTimeout(this.autoPlayBlockDetected, AUTO_PLAY_BLOCK_DETECTION_TIMEOUT_SECONDS * 1000);
+
+    this.setState({ playing: true });
   }
 
   handleOnPlay() {
@@ -201,6 +222,11 @@ class VideoPlayer extends Component {
       sendMessage('play', { time: curTime });
     }
     this.setState({ playing: true });
+
+    if (!this.state.hasPlayedBefore) {
+      this.setState({ hasPlayedBefore: true, autoPlayBlocked: false });
+      clearTimeout(this.autoPlayTimeout);
+    }
   }
 
   handleOnPause() {
@@ -211,11 +237,16 @@ class VideoPlayer extends Component {
       sendMessage('stop', { time: curTime });
     }
     this.setState({ playing: false });
+
+    if (!this.state.hasPlayedBefore) {
+      this.setState({ hasPlayedBefore: true, autoPlayBlocked: false });
+      clearTimeout(this.autoPlayTimeout);
+    }
   }
 
   render() {
-    const { videoUrl } = this.props;
-    const { playing, playbackRate, mutedByEchoTest } = this.state;
+    const { videoUrl, intl } = this.props;
+    const { playing, playbackRate, mutedByEchoTest, autoPlayBlocked } = this.state;
 
     return (
       <div
@@ -223,6 +254,12 @@ class VideoPlayer extends Component {
         data-test="videoPlayer"
         ref={(ref) => { this.playerParent = ref; }}
       >
+        {autoPlayBlocked ?
+          <p className={styles.autoPlayWarning}>
+            {intl.formatMessage(intlMessages.autoPlayWarning)}
+          </p>
+          : ''
+        }
         <ReactPlayer
           className={styles.videoPlayer}
           url={videoUrl}
@@ -240,4 +277,4 @@ class VideoPlayer extends Component {
   }
 }
 
-export default injectWbResizeEvent(VideoPlayer);
+export default injectIntl(injectWbResizeEvent(VideoPlayer));
