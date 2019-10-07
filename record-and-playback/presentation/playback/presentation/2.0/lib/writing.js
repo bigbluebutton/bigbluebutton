@@ -1017,6 +1017,7 @@ document.addEventListener('media-ready', function(event) {
   }
   if ((audioReady || (videoReady && captionsReady)) && deskshareReady) {
     logger.info("==All medias can be played");
+    setMediaSync();
     linkChatToMedia();
     document.dispatchEvent(new CustomEvent('playback-ready', {'detail': 'media'}));
   }

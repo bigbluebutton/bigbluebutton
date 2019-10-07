@@ -574,7 +574,6 @@ function checkLoadedMedia() {
 function checkLoadedDeskshare() {
   let deskshare = $('#deskshare-video')[0];
   if (isMediaReady(deskshare)) {
-    setMediaSync();
     document.dispatchEvent(new CustomEvent('media-ready', {'detail': 'deskshare'}));
   } else {
     setTimeout(checkLoadedDeskshare, 250);
