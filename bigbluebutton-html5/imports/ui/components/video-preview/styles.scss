@@ -59,9 +59,9 @@
   flex-direction: column;
   height: 100%;
   justify-content: center;
-  margin: 0 0.75rem 0 0.75rem;
+  margin: 0 0.5rem 0 0.5rem;
 
-  width: 45%;
+  width: 50%;
   @include mq($small-only) {
     width: 90%;
     height: unset;
@@ -116,9 +116,9 @@
 
 .preview {
   height: 100%;
+  width: 100%;
 
   @include mq($small-only) {
-    width: 100%;
     height: 10rem;
   }
 }
