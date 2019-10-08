@@ -28,7 +28,7 @@ Meteor.startup(() => {
     memwatch.on('stats', (stats) => {
       let heapDumpTriggered = false;
 
-      if (memoryMonitoringSettings.heapdump) {
+      if (memoryMonitoringSettings.heapdump.enabled) {
         heapDumpTriggered = (stats.current_base / 1048576) > heapDumpMbThreshold;
       }
       Logger.info('memwatch stats', { ...stats, heapDumpEnabled: memoryMonitoringSettings.heapdump.enabled, heapDumpTriggered });
