@@ -48,6 +48,7 @@
     "app.settings.main.save.label": "Αποθήκευση",
     "app.breakoutJoinConfirmation.dismissLabel": "Ακύρωση",
     "app.error.500": "Ωχ, κάτι πήγε στραβά",
+    "app.lock-viewers.button.cancel": "Ακύρωση",
     "app.videoPreview.cancelLabel": "Ακύρωση",
     "app.video.cancel": "Ακύρωση"
 
