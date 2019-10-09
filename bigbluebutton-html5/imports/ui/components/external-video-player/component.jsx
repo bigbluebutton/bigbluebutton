@@ -40,6 +40,16 @@ class VideoPlayer extends Component {
 
     this.opts = {
       controls: isPresenter,
+      file: {
+        attributes: {
+          controls: isPresenter,
+        },
+      },
+      dailymotion: {
+        params: {
+          controls: isPresenter,
+        },
+      },
       youtube: {
         playerVars: {
           autoplay: 1,
