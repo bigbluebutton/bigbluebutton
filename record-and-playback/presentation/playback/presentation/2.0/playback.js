@@ -383,6 +383,10 @@ function loadDeskshare() {
 };
 
 function setMediaSync() {
+  if (!hasDeskshare) {
+    return;
+  }
+
   // Master video
   primaryMedia = Popcorn("#video");
   // Slave videos
