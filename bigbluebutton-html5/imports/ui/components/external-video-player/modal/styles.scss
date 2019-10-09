@@ -133,7 +133,7 @@
 .urlError {
   color: red;
   padding: 1em;
-  
+
   :global(.animationsEnabled) & {
     transition: 1s;
   }
@@ -143,5 +143,6 @@
   color: var(--color-gray);
   font-size: var(--font-size-small);
   font-style: italic;
-  padding-top: var(--sm-padding-x);
+  padding-top: var(--sm-padding-y);
+  padding-bottom: var(--jumbo-padding-y);
 }
