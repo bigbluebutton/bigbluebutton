@@ -53,6 +53,7 @@
     "app.modal.close": "Zamknij",
     "app.dropdown.close": "Zamknij",
     "app.shortcut-help.closeLabel": "Zamknij",
+    "app.lock-viewers.button.cancel": "Anuluj",
     "app.videoPreview.cancelLabel": "Anuluj",
     "app.videoPreview.closeLabel": "Zamknij",
     "app.video.cancel": "Anuluj",
