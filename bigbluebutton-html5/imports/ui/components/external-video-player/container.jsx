@@ -8,7 +8,7 @@ const ExternalVideoContainer = props => (
   <ExternalVideo {...{ ...props }} />
 );
 
-export default withTracker(({ intl, isPresenter }) => {
+export default withTracker(({ isPresenter }) => {
   const inEchoTest = Session.get('inEchoTest');
   return {
     inEchoTest,
