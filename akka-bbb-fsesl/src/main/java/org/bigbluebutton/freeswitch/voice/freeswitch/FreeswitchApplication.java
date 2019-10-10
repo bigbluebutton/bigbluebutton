@@ -188,6 +188,8 @@ public class FreeswitchApplication implements  IDelayedCommandListener{
           manager.checkIfConferenceIsRecording((ConferenceCheckRecordCommand) command);
         } else if (command instanceof CheckIfConfIsRunningCommand) {
           manager.checkIfConfIsRunningCommand((CheckIfConfIsRunningCommand) command);
+        } else if (command instanceof ForceEjectUserCommand) {
+          manager.forceEjectUser((ForceEjectUserCommand) command);
         }
       }
     };

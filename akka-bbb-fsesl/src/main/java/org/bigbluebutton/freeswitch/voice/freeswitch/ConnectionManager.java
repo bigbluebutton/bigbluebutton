@@ -159,6 +159,15 @@ public class ConnectionManager {
 		}
 	}
 
+	public void forceEjectUser(ForceEjectUserCommand ccrc) {
+		Client c = manager.getESLClient();
+		if (c.canSend()) {
+			EslMessage response = c.sendSyncApiCommand(ccrc.getCommand(),
+					ccrc.getCommandArgs());
+			ccrc.handleResponse(response, conferenceEventListener);
+		}
+	}
+
 	public void checkIfConferenceIsRecording(ConferenceCheckRecordCommand ccrc) {
 		Client c = manager.getESLClient();
 		if (c.canSend()) {
