@@ -193,7 +193,7 @@
     "app.poll.quickPollInstruction": "Select an option below to start your poll.",
     "app.poll.customPollLabel": "Custom poll",
     "app.poll.startCustomLabel": "Start custom poll",
-    "app.poll.activePollInstruction": "Leave this window open to allow others to respond to the poll. Selecting 'Publish polling results' or navigating back will end the poll.",
+    "app.poll.activePollInstruction": "Leave this panel open to see live responses to your poll. When you are ready, select “Publish polling results” to publish the results and end the poll.",
     "app.poll.publishLabel": "Publish polling results",
     "app.poll.backLabel": "Back to polling options",
     "app.poll.closeLabel": "Close",
