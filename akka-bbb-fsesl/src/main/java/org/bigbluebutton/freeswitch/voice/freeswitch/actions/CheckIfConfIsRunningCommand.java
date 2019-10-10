@@ -45,7 +45,7 @@ public class CheckIfConfIsRunningCommand extends FreeswitchCommand {
                                        Integer forceEjectCount) {
             super(room, requesterId);
             this.delayedCommandSenderService = delayedCommandSenderService;
-            this.forceEjectCount = forceEjectCount;
+            this.forceEjectCount = forceEjectCount + 1;
     }
     
     @Override
@@ -90,7 +90,8 @@ public class CheckIfConfIsRunningCommand extends FreeswitchCommand {
             Integer numUsers =  confXML.getConferenceList().size();
             if (numUsers > 0) {
                 log.info("Check conference response: " + responseBody);
-                log.warn("WARNING! Failed to eject all users from conf={},numUsers={}.", room, numUsers);
+                log.warn("WARNING! Failed to eject all users from conf={},numUsers={},attempts={}.",
+                        room, numUsers, forceEjectCount);
                 if (forceEjectCount <= 5) {
                     for (ConferenceMember member : confXML.getConferenceList()) {
                         if ("caller".equals(member.getMemberType())) {
