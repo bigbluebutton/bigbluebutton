@@ -241,6 +241,10 @@ class VideoPlayer extends Component {
   handleOnReady() {
     const { isPresenter } = this.props;
 
+    if (this.state.hasPlayedBefore) {
+      return;
+    }
+
     if (!isPresenter) {
       sendMessage('viewerJoined');
     } else {
