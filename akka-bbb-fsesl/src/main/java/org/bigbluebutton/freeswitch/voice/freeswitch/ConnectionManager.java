@@ -61,6 +61,12 @@ public class ConnectionManager {
 		this.manager = connManager;
 		this.eslEventListener = eventListener;
 		this.conferenceEventListener = confListener;
+		// Set up listener here. Before it was inside connect()
+		// but on auto-reconnect, another listener is added
+		// increasing the number of listeners causing duplicate
+		// messages to akka-apps (ralam Oct 10, 2019)
+		Client c = manager.getESLClient();
+		c.addEventListener(eslEventListener);
 	}
 
 	private void connect() {
@@ -75,7 +81,6 @@ public class ConnectionManager {
 				if (!subscribed) {
 					log.info("Subscribing for ESL events.");
 					c.cancelEventSubscriptions();
-					c.addEventListener(eslEventListener);
 					c.setEventSubscriptions("plain", "all");
 					//c.addEventFilter(EVENT_NAME, "heartbeat");
 					c.addEventFilter(EVENT_NAME, "custom");
