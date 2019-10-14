@@ -82,8 +82,8 @@ class WebcamDraggable extends Component {
           },
         },
       );
+      this.onResizeStop();
     }
-    this.onResizeStop();
   }
 
   onResizeStop() {
