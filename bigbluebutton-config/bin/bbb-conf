@@ -1698,31 +1698,24 @@ if [ $DEBUG ]; then
         echo
     fi
 
-
     rm -rf /tmp/t
-    grep --directories=skip ERROR $RED5_DIR/log/* > /tmp/t
-    if [ -s /tmp/t ]; then
+    if [ -d /var/log/red5 ]; then
+      find /var/log/red5 -type f -exec grep -H ERROR  '{}' \; >> /tmp/t
+      if [ -s /tmp/t ]; then
         echo "   -- ERRORS found in $RED5_DIR/log/* -- "
         cat /tmp/t
         echo
+      fi
     fi
 
-
-    rm -rf /tmp/t
-    grep --directories=skip Exception $RED5_DIR/log/* > /tmp/t
-    if [ -s /tmp/t ]; then
-        echo "   -- Exceptions found in $RED5_DIR/log/* -- "
-        cat /tmp/t
-        echo
-    fi
-
-
-    rm -rf /tmp/t
-    $SUDO grep --directories=skip Exception $SERVLET_LOGS/* | grep -v CacheExceptionHandlerFactory > /tmp/t
-    if [ -s /tmp/t ]; then
+    if [ -d $SERVLET_LOGS ]; then
+      rm -rf /tmp/t
+      $SUDO grep --directories=skip Exception $SERVLET_LOGS/* | grep -v CacheExceptionHandlerFactory > /tmp/t
+      if [ -s /tmp/t ]; then
         echo "   -- Exceptions found in $SERVLET_LOGS/ -- "
         cat /tmp/t
         echo
+      fi
     fi
 
     rm -rf /tmp/t
