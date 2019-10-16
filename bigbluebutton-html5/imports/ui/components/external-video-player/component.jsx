@@ -111,9 +111,10 @@ class VideoPlayer extends Component {
   }
 
   handleFirstPlay() {
-    const isPresenter = this.props;
+    const { isPresenter } = this.props;
+    const { hasPlayedBefore } = this.state;
 
-    if (!this.state.hasPlayedBefore) {
+    if (!hasPlayedBefore) {
       this.setState({ hasPlayedBefore: true, autoPlayBlocked: false });
       clearTimeout(this.autoPlayTimeout);
 
@@ -164,21 +165,26 @@ class VideoPlayer extends Component {
 
     if (isPresenter) {
       this.syncInterval = setInterval(() => {
+        const { playing } = this.state;
         const curTime = this.player.getCurrentTime();
         const rate = this.getCurrentPlaybackRate();
 
-        sendMessage('playerUpdate', { rate, time: curTime, state: this.state.playing });
+        sendMessage('playerUpdate', { rate, time: curTime, state: playing });
       }, SYNC_INTERVAL_SECONDS * 1000);
 
       onMessage('viewerJoined', () => {
+        const { hasPlayedBefore } = this.state;
+
         logger.debug({ logCode: 'external_video_viewer_joined' }, 'Viewer joined external video');
-        if (this.state.hasPlayedBefore) {
+        if (hasPlayedBefore) {
           sendMessage('presenterReady');
         }
       });
     } else {
       onMessage('play', ({ time }) => {
-        if (!this.player || !this.state.hasPlayedBefore) {
+        const { hasPlayedBefore } = this.state;
+
+        if (!this.player || !hasPlayedBefore) {
           return;
         }
 
@@ -189,7 +195,9 @@ class VideoPlayer extends Component {
       });
 
       onMessage('stop', ({ time }) => {
-        if (!this.player || !this.state.hasPlayedBefore) {
+        const { hasPlayedBefore } = this.state;
+
+        if (!this.player || !hasPlayedBefore) {
           return;
         }
         this.player.seekTo(time);
@@ -199,15 +207,19 @@ class VideoPlayer extends Component {
       });
 
       onMessage('presenterReady', (data) => {
+        const { hasPlayedBefore } = this.state;
+
         logger.debug({ logCode: 'external_video_presenter_ready' }, 'Presenter is ready to sync');
 
-        if (!this.state.hasPlayedBefore) {
+        if (!hasPlayedBefore) {
           this.setState({playing: true});
         }
       });
 
       onMessage('playerUpdate', (data) => {
-        if (!this.player || !this.state.hasPlayedBefore) {
+        const { hasPlayedBefore, playing } = this.state;
+
+        if (!this.player || !hasPlayedBefore) {
           return;
         }
 
@@ -231,7 +243,7 @@ class VideoPlayer extends Component {
           }, 'Seek external video to:');
         }
 
-        if (this.state.playing !== data.state) {
+        if (playing !== data.state) {
           this.setState({ playing: data.state });
         }
       });
@@ -240,8 +252,9 @@ class VideoPlayer extends Component {
 
   handleOnReady() {
     const { isPresenter } = this.props;
+    const { hasPlayedBefore } = this.state;
 
-    if (this.state.hasPlayedBefore) {
+    if (hasPlayedBefore) {
       return;
     }
 
