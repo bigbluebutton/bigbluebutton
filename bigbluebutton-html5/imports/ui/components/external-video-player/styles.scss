@@ -16,13 +16,13 @@
 .autoPlayWarning {
   position: absolute;
   z-index: 100;
-  font-size: 2rem;
+  font-size: x-large;
   color: white;
-  text-align: center;
   width: 100%;
   background-color: rgba(6,23,42,0.5);
-  bottom: 35%;
+  bottom: 20%;
   vertical-align: middle;
   text-align: center;
+  pointer-events: none;
 
 }
