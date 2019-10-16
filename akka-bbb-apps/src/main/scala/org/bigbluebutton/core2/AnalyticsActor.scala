@@ -93,6 +93,7 @@ class AnalyticsActor extends Actor with ActorLogging {
 
       // Presentation
       case m: PresentationConversionCompletedSysPubMsg => logMessage(msg)
+      case m: PdfConversionInvalidErrorSysPubMsg => logMessage(msg)
       case m: SetCurrentPresentationPubMsg => logMessage(msg)
       case m: SetCurrentPresentationEvtMsg => logMessage(msg)
       case m: SetPresentationDownloadablePubMsg => logMessage(msg)

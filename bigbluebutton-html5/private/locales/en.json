@@ -178,6 +178,7 @@
     "app.presentationUploder.conversion.generatedSlides": "Slides generated ...",
     "app.presentationUploder.conversion.generatingSvg": "Generating SVG images ...",
     "app.presentationUploder.conversion.pageCountExceeded": "Ops, the page count exceeded the limit of 200 pages",
+    "app.presentationUploder.conversion.pdfHasBigPage": "We could not convert the PDF file, please try optimizing it",
     "app.presentationUploder.conversion.timeout": "Ops, the conversion took too long",
     "app.presentationUploder.isDownloadableLabel": "Do not allow presentation to be downloaded",
     "app.presentationUploder.isNotDownloadableLabel": "Allow presentation to be downloaded",

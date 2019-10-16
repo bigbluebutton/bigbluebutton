@@ -67,6 +67,14 @@ case class PresentationPageCountErrorSysPubMsg(
 case class PresentationPageCountErrorSysPubMsgBody(podId: String, messageKey: String, code: String, presentationId: String,
                                                    numberOfPages: Int, maxNumberPages: Int, presName: String)
 
+object PdfConversionInvalidErrorSysPubMsg { val NAME = "PdfConversionInvalidErrorSysPubMsg" }
+case class PdfConversionInvalidErrorSysPubMsg(
+    header: BbbClientMsgHeader,
+    body:   PdfConversionInvalidErrorSysPubMsgBody
+) extends StandardMsg
+case class PdfConversionInvalidErrorSysPubMsgBody(podId: String, messageKey: String, code: String, presentationId: String,
+                                                   bigPageNumber: Int, bigPageSize: Int, presName: String)
+                                                   
 object PresentationPageGeneratedSysPubMsg { val NAME = "PresentationPageGeneratedSysPubMsg" }
 case class PresentationPageGeneratedSysPubMsg(
     header: BbbClientMsgHeader,
