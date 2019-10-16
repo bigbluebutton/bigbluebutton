@@ -165,11 +165,14 @@ class VideoPlayer extends Component {
 
     if (isPresenter) {
       this.syncInterval = setInterval(() => {
-        const { playing } = this.state;
+        const { playing, hasPlayedBefore } = this.state;
         const curTime = this.player.getCurrentTime();
         const rate = this.getCurrentPlaybackRate();
 
-        sendMessage('playerUpdate', { rate, time: curTime, state: playing });
+        // Always pause video if presenter is has not started sharing, e.g., blocked by autoplay
+        const playingState = hasPlayedBefore ? playing : false;
+
+        sendMessage('playerUpdate', { rate, time: curTime, state: playingState });
       }, SYNC_INTERVAL_SECONDS * 1000);
 
       onMessage('viewerJoined', () => {
