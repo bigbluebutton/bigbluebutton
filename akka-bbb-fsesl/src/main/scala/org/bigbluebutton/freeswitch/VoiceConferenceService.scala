@@ -10,6 +10,18 @@ class VoiceConferenceService(sender: RedisPublisher) extends IVoiceConferenceSer
 
   val FROM_VOICE_CONF_SYSTEM_CHAN = "bigbluebutton:from-voice-conf:system"
 
+  def voiceConfRunningAndRecording(voiceConfId: String, isRunning: java.lang.Boolean, isRecording: java.lang.Boolean) {
+    val header = BbbCoreVoiceConfHeader(CheckRunningAndRecordingVoiceConfEvtMsg.NAME, voiceConfId)
+    val body = CheckRunningAndRecordingVoiceConfEvtMsgBody(voiceConfId, isRunning.booleanValue(), isRecording.booleanValue())
+    val envelope = BbbCoreEnvelope(CheckRunningAndRecordingVoiceConfEvtMsg.NAME, Map("voiceConf" -> voiceConfId))
+
+    val msg = new CheckRunningAndRecordingVoiceConfEvtMsg(header, body)
+    val msgEvent = BbbCommonEnvCoreMsg(envelope, msg)
+
+    val json = JsonUtil.toJson(msgEvent)
+    sender.publish(fromVoiceConfRedisChannel, json)
+  }
+
   def voiceConfRecordingStarted(voiceConfId: String, recordStream: String, recording: java.lang.Boolean, timestamp: String) {
     val header = BbbCoreVoiceConfHeader(RecordingStartedVoiceConfEvtMsg.NAME, voiceConfId)
     val body = RecordingStartedVoiceConfEvtMsgBody(voiceConfId, recordStream, recording.booleanValue(), timestamp)
@@ -24,7 +36,6 @@ class VoiceConferenceService(sender: RedisPublisher) extends IVoiceConferenceSer
   }
 
   def voiceConfRunning(voiceConfId: String, running: java.lang.Boolean): Unit = {
-    println("*************######## Conference voiceConfId=" + voiceConfId + " running=" + running)
     val header = BbbCoreVoiceConfHeader(VoiceConfRunningEvtMsg.NAME, voiceConfId)
     val body = VoiceConfRunningEvtMsgBody(voiceConfId, running.booleanValue())
     val envelope = BbbCoreEnvelope(VoiceConfRunningEvtMsg.NAME, Map("voiceConf" -> voiceConfId))

@@ -24,4 +24,6 @@ public interface IVoiceConferenceService {
 
   void deskShareRTMPBroadcastStopped(String room, String streamname, Integer videoWidth, Integer videoHeight, String timestamp);
 
+  void voiceConfRunningAndRecording(String room, Boolean isRunning, Boolean isRecording);
+
 }

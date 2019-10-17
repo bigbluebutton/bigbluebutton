@@ -60,7 +60,7 @@ public class CheckIfConfIsRunningCommand extends FreeswitchCommand {
 
         String firstLine = response.getBodyLines().get(0);
 
-        log.info("Check conference first line response: " + firstLine);
+        //log.info("Check conference first line response: " + firstLine);
         //E.g. Conference 85115 not found
         
         if(!firstLine.startsWith("<?xml")) {

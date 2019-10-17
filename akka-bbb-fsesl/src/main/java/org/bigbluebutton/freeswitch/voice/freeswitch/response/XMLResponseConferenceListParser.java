@@ -93,7 +93,6 @@ public class XMLResponseConferenceListParser extends DefaultHandler {
         tempVal = "";
         if(qName.equalsIgnoreCase("member")) {
             String memberType = attributes.getValue("type");
-            System.out.println("******************* Member Type = " + memberType);
 
             //create a new instance of ConferenceMember
             tempMember = new ConferenceMember();

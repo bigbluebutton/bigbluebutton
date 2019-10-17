@@ -254,6 +254,26 @@ case class TransferUserToVoiceConfSysMsg(
 case class TransferUserToVoiceConfSysMsgBody(fromVoiceConf: String, toVoiceConf: String, voiceUserId: String)
 
 /**
+ * Sent to FS to check if voice conference is running and recording.
+ */
+object CheckRunningAndRecordingToVoiceConfSysMsg { val NAME = "CheckRunningAndRecordingToVoiceConfSysMsg" }
+case class CheckRunningAndRecordingToVoiceConfSysMsg(
+    header: BbbCoreHeaderWithMeetingId,
+    body:   CheckRunningAndRecordingToVoiceConfSysMsgBody
+) extends BbbCoreMsg
+case class CheckRunningAndRecordingToVoiceConfSysMsgBody(voiceConf: String, meetingId: String)
+
+/**
+ * Received from FS to check if voice conference is running and recording.
+ */
+object CheckRunningAndRecordingVoiceConfEvtMsg { val NAME = "CheckRunningAndRecordingVoiceConfEvtMsg" }
+case class CheckRunningAndRecordingVoiceConfEvtMsg(
+    header: BbbCoreVoiceConfHeader,
+    body:   CheckRunningAndRecordingVoiceConfEvtMsgBody
+) extends VoiceStandardMsg
+case class CheckRunningAndRecordingVoiceConfEvtMsgBody(voiceConf: String, isRunning: Boolean, isRecording: Boolean)
+
+/**
  * Received from FS that user joined voice conference.
  */
 object UserJoinedVoiceConfEvtMsg { val NAME = "UserJoinedVoiceConfEvtMsg" }
