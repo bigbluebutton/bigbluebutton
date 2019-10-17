@@ -376,10 +376,12 @@ class MeetingActor(
       case m: UserConnectedToGlobalAudioMsg      => handleUserConnectedToGlobalAudioMsg(m)
       case m: UserDisconnectedFromGlobalAudioMsg => handleUserDisconnectedFromGlobalAudioMsg(m)
       case m: VoiceConfRunningEvtMsg             => handleVoiceConfRunningEvtMsg(m)
+      case m: CheckRunningAndRecordingVoiceConfEvtMsg =>
+        handleCheckRunningAndRecordingVoiceConfEvtMsg(m)
 
       // Layout
-      case m: GetCurrentLayoutReqMsg             => handleGetCurrentLayoutReqMsg(m)
-      case m: BroadcastLayoutMsg                 => handleBroadcastLayoutMsg(m)
+      case m: GetCurrentLayoutReqMsg => handleGetCurrentLayoutReqMsg(m)
+      case m: BroadcastLayoutMsg     => handleBroadcastLayoutMsg(m)
 
       // Lock Settings
       case m: ChangeLockSettingsInMeetingCmdMsg =>
@@ -532,10 +534,26 @@ class MeetingActor(
 
     sendRttTraceTest()
     setRecordingChapterBreak()
+    checkVoiceConfIsRunningAndRecording()
 
     processUserInactivityAudit()
     flagRegisteredUsersWhoHasNotJoined()
     checkIfNeetToEndMeetingWhenNoAuthedUsers(liveMeeting)
+  }
+
+  var lastVoiceRecordingAndRunningCheck = System.currentTimeMillis()
+  def checkVoiceConfIsRunningAndRecording(): Unit = {
+    val now = System.currentTimeMillis()
+    val elapsedTime = now - lastVoiceRecordingAndRunningCheck;
+    val timeToCheck = elapsedTime > 30000 // 30seconds
+    if (props.recordProp.record && timeToCheck) {
+      lastVoiceRecordingAndRunningCheck = now
+      val event = MsgBuilder.buildCheckRunningAndRecordingToVoiceConfSysMsg(
+        props.meetingProp.intId,
+        props.voiceProp.voiceConf
+      )
+      outGW.send(event)
+    }
   }
 
   var lastRecBreakSentOn = expiryTracker.startedOnInMs
@@ -705,6 +723,23 @@ class MeetingActor(
         )
         outGW.send(event)
       }
+    }
+  }
+
+  def handleCheckRunningAndRecordingVoiceConfEvtMsg(msg: CheckRunningAndRecordingVoiceConfEvtMsg): Unit = {
+    if (liveMeeting.props.recordProp.record &&
+      msg.body.isRunning &&
+      !msg.body.isRecording) {
+      // Voice conference is running but not recording. We should start recording.
+      // But first, see if we have recording streams and stop those.
+      VoiceApp.stopRecordingVoiceConference(liveMeeting, outGW)
+
+      // Let us start recording.
+      val meetingId = liveMeeting.props.meetingProp.intId
+      val recordFile = VoiceApp.genRecordPath(voiceConfRecordPath, meetingId, TimeUtil.timeNowInMs())
+      log.info("Forcing START RECORDING voice conf. meetingId=" + meetingId + " voice conf=" + liveMeeting.props.voiceProp.voiceConf)
+
+      VoiceApp.startRecordingVoiceConference(liveMeeting, outGW, recordFile)
     }
   }
 }

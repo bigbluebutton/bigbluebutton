@@ -103,12 +103,14 @@ public class FreeswitchApplication implements  IDelayedCommandListener{
     msgSenderExec.execute(sender);
   }
 
+  public void checkRunningAndRecording(String voiceConfId, String meetingId) {
+    ConferenceCheckRecordCommand ccrc = new ConferenceCheckRecordCommand(voiceConfId, meetingId);
+    queueMessage(ccrc);
+  }
+
   public void getAllUsers(String voiceConfId) {
     GetAllUsersCommand prc = new GetAllUsersCommand(voiceConfId, USER);
     queueMessage(prc);
-
-    ConferenceCheckRecordCommand ccrc = new ConferenceCheckRecordCommand(voiceConfId, USER);
-    queueMessage(ccrc);
   }
 
   public void muteUser(String voiceConfId, String voiceUserId, Boolean mute) {
