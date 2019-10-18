@@ -641,7 +641,12 @@ function loadData() {
   asyncRequest('GET', deskshareXML).then(function (response) {
     processDeskshareXML(response);
   }).catch(function(error) {
-    logger.error("==Couldn't load deskshare.xml", error);
+    if (error.status == 404) {
+      logger.warn("==Couldn't find deskshare.xml, assuming there's no deskshare");
+      document.dispatchEvent(new CustomEvent('data-ready', {'detail': 'deskshare-xml'}));
+    } else {
+      logger.error("==Couldn't load deskshare.xml", error);
+    }
   });
 };
 
