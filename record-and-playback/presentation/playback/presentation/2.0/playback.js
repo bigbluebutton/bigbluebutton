@@ -306,11 +306,20 @@ function loadVideo() {
     logger.info("==Processing captions.json");
     var captions = JSON.parse(response.responseText);
     for (var i = 0; i < captions.length; i++) {
+      var caption = captions[i];
+      var filename;
+      if (caption['kind']) {
+        filename = caption['kind'] + '_' + caption['locale'] + '.vtt';
+      } else {
+        // Backwards compat for old style captions index without "kind"
+        caption['kind'] = 'captions';
+        filename = 'caption_' + caption['locale'] + '.vtt';
+      }
       var track = document.createElement("track");
-      track.setAttribute('kind', 'captions');
-      track.setAttribute('label', captions[i]['localeName']);
-      track.setAttribute('srclang', captions[i]['locale']);
-      track.setAttribute('src', url + '/caption_' + captions[i]['locale'] + '.vtt');
+      track.setAttribute('kind', caption['kind']);
+      track.setAttribute('label', caption['localeName']);
+      track.setAttribute('srclang', caption['locale']);
+      track.setAttribute('src', url + '/' + filename);
       video.appendChild(track);
     }
     document.dispatchEvent(new CustomEvent('media-ready', {'detail': 'captions'}));

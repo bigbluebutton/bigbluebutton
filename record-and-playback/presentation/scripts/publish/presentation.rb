@@ -1228,7 +1228,7 @@ begin
         if File.exist?("#{$process_dir}/captions.json")
           BigBlueButton.logger.info("Copying caption files")
           FileUtils.cp("#{$process_dir}/captions.json", package_dir)
-          Dir.glob("#{$process_dir}/caption_*.vtt").each do |caption|
+          Dir.glob("#{$process_dir}/*.vtt").each do |caption|
             BigBlueButton.logger.debug(caption)
             FileUtils.cp(caption, package_dir)
           end

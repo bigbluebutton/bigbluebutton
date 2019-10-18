@@ -1,7 +1,5 @@
-# Set encoding to utf-8
-# encoding: UTF-8
+# frozen_string_literal: true
 
-#
 # BigBlueButton open source conferencing system - http://www.bigbluebutton.org/
 #
 # Copyright (c) 2019 BigBlueButton Inc. and by respective authors (see below).
@@ -21,83 +19,80 @@
 
 # For DEVELOPMENT
 # Allows us to run the script manually
-# require File.expand_path('../../../../core/lib/recordandplayback', __FILE__)
+# require File.expand_path('../../../core/lib/recordandplayback', __dir__)
 
 # For PRODUCTION
-require File.expand_path('../../../lib/recordandplayback', __FILE__)
+require File.expand_path('../../lib/recordandplayback', __dir__)
 
 require 'rubygems'
 require 'trollop'
 require 'yaml'
 require 'json'
 
-opts = Trollop::options do
-  opt :meeting_id, "Meeting id to archive", :type => String
+opts = Trollop.options do
+  opt :meeting_id, 'Meeting id to archive', type: String
 end
 
 meeting_id = opts[:meeting_id]
 
 # This script lives in scripts/archive/steps while properties.yaml lives in scripts/
-props = YAML::load(File.open('../../core/scripts/bigbluebutton.yml'))
+props = YAML.safe_load(File.open('../../core/scripts/bigbluebutton.yml'))
 
 recording_dir = props['recording_dir']
 raw_archive_dir = "#{recording_dir}/raw/#{meeting_id}"
-BigBlueButton.logger.info("Setting process dir")
-BigBlueButton.logger.info("setting captions dir")
-captions_dir = props['captions_dir']
-
+target_dir = "#{recording_dir}/process/captions/#{meeting_id}"
+captions_dir = "#{props['captions_dir']}/#{meeting_id}"
 log_dir = props['log_dir']
+logger = BigBlueButton.logger = Logger.new("#{log_dir}/captions.log")
 
-target_dir = "#{recording_dir}/process/presentation/#{meeting_id}"
+begin
+  # Clean up and re-create the work directory
+  FileUtils.rm_rf(target_dir)
+  FileUtils.mkdir_p(target_dir)
+  # And ensure the captions directory exists
+  FileUtils.mkdir_p(captions_dir)
 
-# Generate captions.json for API
-def create_api_captions_file(captions_meeting_dir)
-  BigBlueButton.logger.info("Generating closed captions for API")
+  logger.info("Generating closed captions for #{meeting_id}")
+  BigBlueButton.exec_ret('utils/gen_webvtt', '-i', raw_archive_dir, '-o', target_dir) \
+    || raise('Generating closed caption files failed')
 
-  captions = JSON.load(File.new("#{captions_meeting_dir}/captions_playback.json"))
-  captions_json = []
-  captions.each do |track|
-    caption = {}
-    caption[:kind] = :captions
-    caption[:label] = track['localeName']
-    caption[:lang] = track['locale']
-    caption[:source] = :live
-    captions_json << caption
-  end
+  logger.info('Merging captions with uploaded captions directory')
+  # Read the caption index files for any existing uploads and for the newly created captions
+  captions = \
+    begin
+      JSON.parse(IO.read("#{captions_dir}/captions.json"))
+    rescue StandardError
+      # No existing captions for this recording
+      []
+    end
+  new_captions = JSON.parse(IO.read("#{target_dir}/captions.json"))
 
-  File.open("#{captions_meeting_dir}/captions.json", "w") do |f|
-    f.write(captions_json.to_json)
-  end
-end
-
-if not FileTest.directory?(target_dir)
-
-  captions_meeting_dir = "#{captions_dir}/#{meeting_id}"
-
-  FileUtils.mkdir_p "#{log_dir}/presentation"
-  logger = Logger.new("#{log_dir}/presentation/process-#{meeting_id}.log", 'daily')
-  BigBlueButton.logger = logger
-  BigBlueButton.logger.info("Processing script captions.rb")
-  FileUtils.mkdir_p target_dir
-
-  begin
-    BigBlueButton.logger.info("Generating closed captions")
-    FileUtils.mkdir_p captions_meeting_dir
-    ret = BigBlueButton.exec_ret('utils/gen_webvtt', '-i', raw_archive_dir, '-o', captions_meeting_dir)
-    if ret != 0
-      raise "Generating closed caption files failed"
+  new_captions.each do |new_caption|
+    # Don't replace any captions captions with source != live (they might be edited, uploaded, better quality).
+    next if captions.any? do |caption|
+      caption['kind'] == new_caption['kind'] &&
+      caption['lang'] == new_caption['lang'] &&
+      caption['source'] != 'live'
     end
 
-    FileUtils.cp("#{captions_meeting_dir}/captions.json", "#{captions_meeting_dir}/captions_playback.json")
-    create_api_captions_file(captions_meeting_dir)
-    FileUtils.rm "#{captions_meeting_dir}/captions_playback.json"
+    logger.info("Adding #{new_caption['kind']} for #{new_caption['lang']}")
 
-  rescue Exception => e
-    BigBlueButton.logger.error(e.message)
-    e.backtrace.each do |traceline|
-      BigBlueButton.logger.error(traceline)
-    end
-    exit 1
+    # Remove any old matching caption from the list
+    captions.delete_if { |caption| caption['kind'] == new_caption['kind'] && caption['lang'] == new_caption['locale'] }
+    # Add the new caption file
+    FileUtils.copy_file("#{target_dir}/#{new_caption['kind']}_#{new_caption['lang']}.vtt", cpations_dir)
+    captions << new_caption
   end
 
+  # Write out the new captions index
+  IO.write("#{captions_dir}/captions.json", JSON.pretty_generate(captions))
+
+  # Clean up the working directory
+  FileUtils.rm_rf(target_dir)
+rescue StandardError => e
+  BigBlueButton.logger.error(e.message)
+  e.backtrace.each do |traceline|
+    BigBlueButton.logger.error(traceline)
+  end
+  exit 1
 end

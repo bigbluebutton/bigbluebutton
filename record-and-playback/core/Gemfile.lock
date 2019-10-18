@@ -8,7 +8,7 @@ GEM
     fastimage (2.1.5)
     ffi (1.11.1)
     fnv (0.2.0)
-    jaro_winkler (1.5.2)
+    jaro_winkler (1.5.3)
     java_properties (0.0.4)
     journald-logger (2.0.4)
       journald-native (~> 1.0)
@@ -29,7 +29,7 @@ GEM
     rb-inotify (0.10.0)
       ffi (~> 1.0)
     redis (4.1.2)
-    rubocop (0.71.0)
+    rubocop (0.72.0)
       jaro_winkler (~> 1.5.1)
       parallel (~> 1.10)
       parser (>= 2.6)
@@ -58,7 +58,7 @@ DEPENDENCIES
   open4
   rb-inotify
   redis
-  rubocop (~> 0.71.0)
+  rubocop (~> 0.72.0)
   rubyzip
   trollop (= 2.1.3)
 

@@ -307,8 +307,10 @@ class Caption:
     def caption_desc(self):
         locale = Locale(self.locale)
         return {
-                "locale": self.locale,
-                "localeName": locale.getDisplayName(locale)
+                "kind": "captions",
+                "label": locale.getDisplayName(locale),
+                "lang": self.locale,
+                "source": "live"
                 }
 
 
@@ -410,15 +412,16 @@ if __name__ == "__main__":
 
     logger.info("Generating caption data from recording events")
     captions = Caption.from_events(events)
-    for locale, caption in captions.items():
-        filename = os.path.join(outputdir, "caption_{}.vtt".format(locale))
-        logger.info("Writing captions for locale %s to %s", locale, filename)
+    caption_descs = []
+    for caption in captions.values():
+        desc = caption.caption_desc()
+        caption_descs.append(desc)
+        filename = os.path.join(outputdir, "{}_{}.vtt".format(desc['kind'], desc['lang']))
+        logger.info("Writing %s for locale %s to %s", desc['kind'], desc['lang'], filename)
         with open(filename, "wb") as f:
             caption.write_webvtt(f)
 
     filename = os.path.join(outputdir, "captions.json")
     logger.info("Writing captions index file to %s", filename)
-
-    caption_descs = [ caption.caption_desc() for caption in captions.values() ]
     with open(filename, "w") as f:
         json.dump(caption_descs, f)

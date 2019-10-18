@@ -50,15 +50,16 @@ end
 logger = Journald::Logger.new('caption/presentation')
 logger.tag(record_id: recording_id)
 
-captions_dir = props['captions_dir']
-publish_dir = presentation_props['publish_dir']
-
-unless captions_dir
+unless props['captions_dir']
   logger.error('captions_dir was not defined in bigbluebutton.yml')
   exit(1)
 end
 
-unless File.directory?(File.join(publish_dir, recording_id))
+recording_dir = props['recording_dir']
+captions_dir = File.join(props['captions_dir'], recording_id)
+publish_dir = File.join(presentation_props['publish_dir'], recording_id)
+
+unless File.directory?(publish_dir)
   logger.error('Published recording directory for this recording does not exist')
   exit(0)
 end
@@ -67,14 +68,12 @@ end
 
 begin
   logger.info('Loading recording playback captions list')
-  playback_captions_path = File.join(publish_dir, recording_id, 'captions.json')
-  playback_captions = File.open(playback_captions_path) do |json|
-    JSON.parse(json.read)
-  end
+  playback_captions_path = File.join(publish_dir, 'captions.json')
+  playback_captions = JSON.parse(IO.read(playback_captions_path))
 rescue Errno::ENOENT
   logger.info("Playback doesn't have a captions.json - old playback format version?")
   logger.info('Triggering recording reprocessing.')
-  archive_done_file = ''
+  archive_done_file = "#{recording_dir}/status/archived/#{recording_id}.done"
   File.open(archive_done_file, 'w') do |archive_done|
     archive_done.write('Reprocessing for captions')
   end
@@ -85,12 +84,13 @@ end
 # Captions index file
 begin
   logger.info('Loading captions index file')
-  captions_path = File.join(captions_dir, recording_id, 'captions.json')
+  captions_path = File.join(captions_dir, 'captions.json')
   captions = File.open(captions_path) do |json|
     JSON.parse(json.read)
   end
 rescue Errno::ENOENT
-  captions = []
+  logger.info('No captions index file found, nothing to do.')
+  exit(0)
 end
 
 # Copy the new caption files over the existing ones in the playback
@@ -100,27 +100,13 @@ captions.each do |caption|
   lang = caption['lang']
   label = caption['label']
 
-  # TODO: the presentation playback format needs to be updated to support
-  # kind != captions
-  next unless kind == 'captions'
-
   logger.info("Copying file for kind=#{kind} lang=#{lang}")
-  dest_kind = case kind
-              when 'captions' then 'caption'
-              else kind
-              end
-
-  FileUtils.cp(
-    File.join(captions_dir, recording_id, "#{kind}_#{lang}.vtt"),
-    File.join(publish_dir, recording_id, "#{dest_kind}_#{lang}.vtt")
-  )
+  FileUtils.cp(File.join(captions_dir, "#{kind}_#{lang}.vtt"), publish_dir)
 
   # Remove any existing matching tracks from the playback captions list...
   playback_captions.reject! do |playback_caption|
-    playback_caption['locale'] == lang && (
-      playback_caption['kind'] == kind ||
-      (playback_caption['kind'].nil? && kind == 'captions')
-    )
+    playback_caption['locale'] == lang &&
+      (playback_caption['kind'] == kind || (playback_caption['kind'].nil? && kind == 'captions'))
   end
   # ...and add the new one.
   playback_captions << {
@@ -130,11 +116,7 @@ captions.each do |caption|
   }
 end
 
-# Save the updated playback captions list
-
 logger.info('Saving updated playback captions list')
 # Sort the list by label so the selection menu looks nice
 playback_captions.sort { |a, b| a['localeName'] <=> b['localeName'] }
-File.open(playback_captions_path, 'w') do |json|
-  json.write(JSON.pretty_generate(playback_captions))
-end
+IO.write(playback_captions_path, JSON.pretty_generate(playback_captions))
