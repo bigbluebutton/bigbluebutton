@@ -19,8 +19,18 @@ class VoiceConferenceService(sender: RedisPublisher) extends IVoiceConferenceSer
       isRecording:   java.lang.Boolean,
       confRecording: java.util.List[ConfRecording]
   ) {
+    val recs: scala.collection.mutable.ListBuffer[ConfVoiceRecording] = new scala.collection.mutable.ListBuffer[ConfVoiceRecording]()
+    confRecording forEach { cr =>
+      recs += ConfVoiceRecording(cr.recordingPath, cr.recordingStartTime)
+    }
+
     val header = BbbCoreVoiceConfHeader(CheckRunningAndRecordingVoiceConfEvtMsg.NAME, voiceConfId)
-    val body = CheckRunningAndRecordingVoiceConfEvtMsgBody(voiceConfId, isRunning.booleanValue(), isRecording.booleanValue())
+    val body = CheckRunningAndRecordingVoiceConfEvtMsgBody(
+      voiceConfId,
+      isRunning.booleanValue(),
+      isRecording.booleanValue(),
+      recs.toVector
+    )
     val envelope = BbbCoreEnvelope(CheckRunningAndRecordingVoiceConfEvtMsg.NAME, Map("voiceConf" -> voiceConfId))
 
     val msg = new CheckRunningAndRecordingVoiceConfEvtMsg(header, body)

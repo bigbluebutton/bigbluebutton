@@ -22,6 +22,7 @@ import java.util.regex.Pattern;
 public class GetUsersStatusCommand extends FreeswitchCommand {
   private static Logger log = LoggerFactory.getLogger(GetUsersStatusCommand.class);
   private static final Pattern CALLERNAME_PATTERN = Pattern.compile("(.*)-bbbID-(.*)$");
+  private static final Pattern GLOBAL_AUDION_PATTERN = Pattern.compile("(GLOBAL_AUDIO)_(.*)$");
 
   public GetUsersStatusCommand(String room, String requesterId) {
     super(room, requesterId);
@@ -35,7 +36,7 @@ public class GetUsersStatusCommand extends FreeswitchCommand {
   public void handleResponse(EslMessage response, ConferenceEventListener eventListener) {
 
     String firstLine = response.getBodyLines().get(0);
-    log.info("GetUsersStatusCommand: Check conference first line response: " + firstLine);
+    //log.info("GetUsersStatusCommand: Check conference first line response: " + firstLine);
 
     if(!firstLine.startsWith("<?xml")) {
       log.info("Conference is not running {}.", room);
@@ -57,12 +58,11 @@ public class GetUsersStatusCommand extends FreeswitchCommand {
       responseBody = responseBody.trim().replaceFirst("^([\\W]+)<","<");
 
       ByteArrayInputStream bs = new ByteArrayInputStream(responseBody.getBytes());
-      System.out.println("***** Parsing Response !!!! *****");
       sp.parse(bs, confXML);
 
       Integer numUsers =  confXML.getConferenceList().size();
       if (numUsers > 0) {
-        log.info("Check user status response: " + responseBody);
+        //log.info("Check user status response: " + responseBody);
 
         List<ConfMember> confMembers = new ArrayList<ConfMember>();
         List<ConfRecording> confRecordings = new ArrayList<ConfRecording>();
@@ -74,30 +74,30 @@ public class GetUsersStatusCommand extends FreeswitchCommand {
             String voiceUserId = callerIdName;
             String uuid = member.getUUID();
 
-            Matcher matcher = CALLERNAME_PATTERN.matcher(callerIdName);
-            if (matcher.matches()) {
-              voiceUserId = matcher.group(1).trim();
-              callerIdName = matcher.group(2).trim();
+            Matcher gapMatcher = GLOBAL_AUDION_PATTERN.matcher(callerIdName);
+            // Ignore GLOBAL_AUDIO user.
+            if (!gapMatcher.matches()) {
+              Matcher matcher = CALLERNAME_PATTERN.matcher(callerIdName);
+              if (matcher.matches()) {
+                voiceUserId = matcher.group(1).trim();
+                callerIdName = matcher.group(2).trim();
+              }
+
+              log.info("Conf user. uuid=" + uuid
+                      + ",caller=" + callerIdName
+                      + ",callerId=" + callerId
+                      + ",conf=" + room
+                      + ",muted=" + member.getMuted()
+                      + ",talking=" + member.getSpeaking());
+
+              ConfMember confMember = new ConfMember(voiceUserId,
+                      member.getId().toString(),
+                      callerId, callerIdName,
+                      member.getMuted(),
+                      member.getSpeaking(),
+                      "none");
+              confMembers.add(confMember);
             }
-
-            log.info("Conf user. uuid=" + uuid
-                    + ",caller=" + callerIdName
-                    + ",callerId=" + callerId
-                    + ",conf=" + room
-                    + ",muted=" + member.getMuted()
-                    + ",talking=" + member.getSpeaking());
-
-            //VoiceUsersStatusEvent pj = new VoiceUsersStatusEvent(voiceUserId, member.getId().toString(), confXML.getConferenceRoom(),
-            //        callerId, callerIdName, member.getMuted(), member.getSpeaking(), "none");
-            //eventListener.handleConferenceEvent(pj);
-
-            ConfMember confMember = new ConfMember(voiceUserId,
-                    member.getId().toString(),
-                    callerId, callerIdName,
-                    member.getMuted(),
-                    member.getSpeaking(),
-                    "none");
-            confMembers.add(confMember);
           } else if ("recording_node".equals(member.getMemberType())) {
             ConfRecording confRecording = new ConfRecording(member.getRecordPath(), member.getRecordStartTime());
             confRecordings.add(confRecording);
