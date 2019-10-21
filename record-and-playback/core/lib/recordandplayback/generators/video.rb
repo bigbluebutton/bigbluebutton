@@ -68,7 +68,7 @@ module BigBlueButton
         :parameters => [
           [ '-c:v', 'libx264', '-crf', '23', '-b:v', '60M',
             '-threads', '2', '-preset', 'medium', '-cpu-used', '3',
-            '-c:a', 'libmp3lame', '-b:a', '48K',
+            '-c:a', 'aac', '-b:a', '48K',
             '-f', 'mp4' ]
         ]
       }
@@ -124,7 +124,7 @@ module BigBlueButton
         :parameters => [
           [ '-c:v', 'libx264', '-crf', '23', '-b:v', '60M',
             '-threads', '2', '-preset', 'medium', '-cpu-used', '3',
-            '-c:a', 'libmp3lame', '-b:a', '48K',
+            '-c:a', 'aac', '-b:a', '48K',
             '-f', 'mp4' ]
         ]
       }

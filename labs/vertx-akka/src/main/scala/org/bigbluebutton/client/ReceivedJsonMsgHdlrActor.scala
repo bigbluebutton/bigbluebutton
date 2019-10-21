@@ -13,18 +13,18 @@ object ReceivedJsonMsgHdlrActor {
 }
 
 class ReceivedJsonMsgHdlrActor(val connEventBus: InternalMessageBus)
-    extends Actor with ActorLogging with SystemConfiguration {
+  extends Actor with ActorLogging with SystemConfiguration {
 
   def receive = {
     case msg: JsonMsgFromAkkaApps => handleReceivedJsonMessage(msg)
 
-    case _ => // do nothing
+    case _                        => // do nothing
   }
 
   def handleReceivedJsonMessage(msg: JsonMsgFromAkkaApps): Unit = {
     //log.debug("****** Received JSON msg " + msg.data)
     JsonUtil.fromJson[BbbCommonEnvJsNodeMsg](msg.data) match {
-      case Success(m) => connEventBus.publish(MsgFromConnBusMsg(fromAkkaAppsChannel, MsgFromAkkaApps(m)))
+      case Success(m)  => connEventBus.publish(MsgFromConnBusMsg(fromAkkaAppsChannel, MsgFromAkkaApps(m)))
       case Failure(ex) => log.error("Failed to deserialize message " + ex)
     }
 
