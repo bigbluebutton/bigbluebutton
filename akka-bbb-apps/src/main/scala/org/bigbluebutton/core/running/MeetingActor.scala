@@ -763,5 +763,12 @@ class MeetingActor(
 
   def handleUserStatusVoiceConfEvtMsg(msg: UserStatusVoiceConfEvtMsg): Unit = {
     println("************* RECEIVED UserStatusVoiceConfEvtMsg *************")
+    msg.body.confUsers foreach { cm =>
+      println("user " + cm.callerIdName)
+    }
+
+    msg.body.confRecordings foreach { cr =>
+      println("rec = " + cr.recordPath)
+    }
   }
 }

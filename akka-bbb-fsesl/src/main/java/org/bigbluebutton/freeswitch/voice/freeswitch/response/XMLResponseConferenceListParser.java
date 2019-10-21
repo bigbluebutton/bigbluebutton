@@ -145,17 +145,28 @@ public class XMLResponseConferenceListParser extends DefaultHandler {
         }else if (qName.equalsIgnoreCase("caller_id_number")) {
             tempMember.setCallerId(tempVal);
         }else if (qName.equalsIgnoreCase("join_time")) {
-            try {
-                tempMember.setJoinTime(Integer.parseInt(tempVal));
-            } catch(NumberFormatException nfe) {
-                
+            if (tempMember.getMemberType().equalsIgnoreCase("caller")) {
+                try {
+                    tempMember.setJoinTime(Integer.parseInt(tempVal));
+                } catch(NumberFormatException nfe) {
+
+                }
+            } else if (tempMember.getMemberType().equalsIgnoreCase("recording_node")) {
+                try {
+                    tempMember.setRecordStartTime(Long.parseLong(tempVal));
+                } catch(NumberFormatException nfe) {
+
+                }
             }
+
         }else if (qName.equalsIgnoreCase("last_talking")) {
             try {
                 tempMember.setLastTalking(Integer.parseInt(tempVal));
             } catch(NumberFormatException nfe) {
                 
             }
+        } else if (qName.equalsIgnoreCase("record_path")) {
+            tempMember.setRecordPath(tempVal);
         }
     }
 }

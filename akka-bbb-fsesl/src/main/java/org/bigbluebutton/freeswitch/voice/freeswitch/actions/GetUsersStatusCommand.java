@@ -1,10 +1,7 @@
 package org.bigbluebutton.freeswitch.voice.freeswitch.actions;
 
 import org.apache.commons.lang3.StringUtils;
-import org.bigbluebutton.freeswitch.voice.events.ConferenceEventListener;
-import org.bigbluebutton.freeswitch.voice.events.VoiceConfRunningAndRecordingEvent;
-import org.bigbluebutton.freeswitch.voice.events.VoiceUserJoinedEvent;
-import org.bigbluebutton.freeswitch.voice.events.VoiceUserStatusEvent;
+import org.bigbluebutton.freeswitch.voice.events.*;
 import org.bigbluebutton.freeswitch.voice.freeswitch.response.ConferenceMember;
 import org.bigbluebutton.freeswitch.voice.freeswitch.response.XMLResponseConferenceListParser;
 import org.freeswitch.esl.client.transport.message.EslMessage;
@@ -17,6 +14,8 @@ import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -65,6 +64,9 @@ public class GetUsersStatusCommand extends FreeswitchCommand {
       if (numUsers > 0) {
         log.info("Check user status response: " + responseBody);
 
+        List<ConfMember> confMembers = new ArrayList<ConfMember>();
+        List<ConfRecording> confRecordings = new ArrayList<ConfRecording>();
+
         for (ConferenceMember member : confXML.getConferenceList()) {
           if ("caller".equals(member.getMemberType())) {
             String callerId = member.getCallerId();
@@ -85,19 +87,27 @@ public class GetUsersStatusCommand extends FreeswitchCommand {
                     + ",muted=" + member.getMuted()
                     + ",talking=" + member.getSpeaking());
 
-            VoiceUserStatusEvent pj = new VoiceUserStatusEvent(voiceUserId, member.getId().toString(), confXML.getConferenceRoom(),
-                    callerId, callerIdName, member.getMuted(), member.getSpeaking(), "none");
-            eventListener.handleConferenceEvent(pj);
-          } else if ("recording_node".equals(member.getMemberType())) {
+            //VoiceUsersStatusEvent pj = new VoiceUsersStatusEvent(voiceUserId, member.getId().toString(), confXML.getConferenceRoom(),
+            //        callerId, callerIdName, member.getMuted(), member.getSpeaking(), "none");
+            //eventListener.handleConferenceEvent(pj);
 
+            ConfMember confMember = new ConfMember(voiceUserId,
+                    member.getId().toString(),
+                    callerId, callerIdName,
+                    member.getMuted(),
+                    member.getSpeaking(),
+                    "none");
+            confMembers.add(confMember);
+          } else if ("recording_node".equals(member.getMemberType())) {
+            ConfRecording confRecording = new ConfRecording(member.getRecordPath(), member.getRecordStartTime());
+            confRecordings.add(confRecording);
           }
         }
+
+        VoiceUsersStatusEvent voiceUsersStatusEvent =
+                new VoiceUsersStatusEvent(getRoom(), confMembers, confRecordings);
+        eventListener.handleConferenceEvent(voiceUsersStatusEvent);
       }
-
-      //VoiceConfRunningAndRecordingEvent voiceConfRunningAndRecordingEvent =
-      //        new VoiceConfRunningAndRecordingEvent(getRoom(), running, recording);
-      //eventListener.handleConferenceEvent(voiceConfRunningAndRecordingEvent);
-
     }catch(SAXException se) {
       log.error("Cannot parse response. ", se);
     }catch(ParserConfigurationException pce) {

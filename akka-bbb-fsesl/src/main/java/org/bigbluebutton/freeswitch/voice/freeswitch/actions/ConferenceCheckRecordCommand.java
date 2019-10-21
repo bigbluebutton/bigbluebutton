@@ -1,6 +1,7 @@
 package org.bigbluebutton.freeswitch.voice.freeswitch.actions;
 
 import org.apache.commons.lang3.StringUtils;
+import org.bigbluebutton.freeswitch.voice.events.ConfRecording;
 import org.bigbluebutton.freeswitch.voice.events.ConferenceEventListener;
 import org.bigbluebutton.freeswitch.voice.events.VoiceConfRunningAndRecordingEvent;
 import org.bigbluebutton.freeswitch.voice.freeswitch.response.ConferenceMember;
@@ -15,7 +16,9 @@ import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 
 public class ConferenceCheckRecordCommand extends FreeswitchCommand {
   private static Logger log = LoggerFactory.getLogger(ConferenceCheckRecordCommand.class);
@@ -31,6 +34,7 @@ public class ConferenceCheckRecordCommand extends FreeswitchCommand {
   }
 
   public void handleResponse(EslMessage response, ConferenceEventListener eventListener) {
+    List<ConfRecording> confRecordings = new ArrayList<ConfRecording>();
 
     String firstLine = response.getBodyLines().get(0);
     //log.info("Check conference first line response: " + firstLine);
@@ -38,7 +42,7 @@ public class ConferenceCheckRecordCommand extends FreeswitchCommand {
     if(!firstLine.startsWith("<?xml")) {
       //log.info("Conference is not running and recording {}.", room);
       VoiceConfRunningAndRecordingEvent voiceConfRunningAndRecordingEvent =
-              new VoiceConfRunningAndRecordingEvent(getRoom(), false, false);
+              new VoiceConfRunningAndRecordingEvent(getRoom(), false, false, confRecordings);
       eventListener.handleConferenceEvent(voiceConfRunningAndRecordingEvent);
       return;
     }
@@ -63,6 +67,7 @@ public class ConferenceCheckRecordCommand extends FreeswitchCommand {
       ByteArrayInputStream bs = new ByteArrayInputStream(responseBody.getBytes());
       sp.parse(bs, confXML);
 
+
       Integer numUsers =  confXML.getConferenceList().size();
       if (numUsers > 0) {
         //log.info("Check conference response: " + responseBody);
@@ -75,12 +80,14 @@ public class ConferenceCheckRecordCommand extends FreeswitchCommand {
 
           } else if ("recording_node".equals(member.getMemberType())) {
             recording = true;
+            ConfRecording confRecording = new ConfRecording(member.getRecordPath(), member.getRecordStartTime());
+            confRecordings.add(confRecording);
           }
         }
       }
 
       VoiceConfRunningAndRecordingEvent voiceConfRunningAndRecordingEvent =
-              new VoiceConfRunningAndRecordingEvent(getRoom(), running, recording);
+              new VoiceConfRunningAndRecordingEvent(getRoom(), running, recording, confRecordings);
       eventListener.handleConferenceEvent(voiceConfRunningAndRecordingEvent);
 
     }catch(SAXException se) {

@@ -34,6 +34,10 @@ public class ConferenceMember {
     protected Integer lastTalking;
     protected String memberType;
 
+    // For recording
+    protected String recordPath;
+    protected Long recordStartTime;
+
     public Integer getId() {
         return memberId;
     }
@@ -96,5 +100,21 @@ public class ConferenceMember {
 
     public String getMemberType() {
         return memberType;
+    }
+
+    public void setRecordPath(String path) {
+        this.recordPath = path;
+    }
+
+    public String getRecordPath() {
+        return recordPath;
+    }
+
+    public void setRecordStartTime(Long recordStartTime) {
+        this.recordStartTime = recordStartTime;
+    }
+
+    public Long getRecordStartTime() {
+        return recordStartTime;
     }
 }
