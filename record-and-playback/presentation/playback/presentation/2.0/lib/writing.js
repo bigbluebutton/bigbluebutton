@@ -38,6 +38,7 @@ const mediasURL = [
 const deskshareWidth = 1280.0;
 const deskshareHeight = 720.0;
 const mobileTimeout = 10 * 1000; // 10 seconds
+const mediaCheckInterval = 250;
 var lastFrameTime = 0.0;
 var firstLoad = true;
 var meetingDuration;
@@ -292,7 +293,7 @@ function startLoadingBar() {
     // This is a hack to handle data from storage services
     function checkPlaybackLoaded() {
       if (firstLoad) {
-        setTimeout(checkPlaybackLoaded, 250);
+        setTimeout(checkPlaybackLoaded, mediaCheckInterval);
       } else {
         logger.info("==Loading done");
         onLoadComplete(true);
