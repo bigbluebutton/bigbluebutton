@@ -101,6 +101,10 @@ object RemovePresentationPodEvtMsg { val NAME = "RemovePresentationPodEvtMsg" }
 case class RemovePresentationPodEvtMsg(header: BbbClientMsgHeader, body: RemovePresentationPodEvtMsgBody) extends StandardMsg
 case class RemovePresentationPodEvtMsgBody(podId: String)
 
+object PdfConversionInvalidErrorEvtMsg { val NAME = "PdfConversionInvalidErrorEvtMsg" }
+case class PdfConversionInvalidErrorEvtMsg(header: BbbClientMsgHeader, body: PdfConversionInvalidErrorEvtMsgBody) extends StandardMsg
+case class PdfConversionInvalidErrorEvtMsgBody(podId: String, messageKey: String, code: String, presentationId: String, bigPageNumber: Int, bigPageSize: Int, presName: String)
+
 object PresentationUploadTokenPassRespMsg { val NAME = "PresentationUploadTokenPassRespMsg" }
 case class PresentationUploadTokenPassRespMsg(header: BbbClientMsgHeader, body: PresentationUploadTokenPassRespMsgBody) extends StandardMsg
 case class PresentationUploadTokenPassRespMsgBody(podId: String, authzToken: String, filename: String)

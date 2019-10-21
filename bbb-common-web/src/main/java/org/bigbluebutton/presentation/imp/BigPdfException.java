@@ -16,6 +16,7 @@
 * with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 *
 */
+
 package org.bigbluebutton.presentation.imp;
 
 @SuppressWarnings("serial")

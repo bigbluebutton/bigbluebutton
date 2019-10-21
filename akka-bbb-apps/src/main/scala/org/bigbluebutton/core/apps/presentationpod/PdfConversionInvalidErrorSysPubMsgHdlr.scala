@@ -18,14 +18,14 @@ trait PdfConversionInvalidErrorSysPubMsgHdlr {
         MessageTypes.BROADCAST_TO_MEETING,
         liveMeeting.props.meetingProp.intId, msg.header.userId
       )
-      val envelope = BbbCoreEnvelope(PdfConversionInvalidErrorSysPubMsg.NAME, routing)
+      val envelope = BbbCoreEnvelope(PdfConversionInvalidErrorEvtMsg.NAME, routing)
       val header = BbbClientMsgHeader(
-        PdfConversionInvalidErrorSysPubMsg.NAME,
+        PdfConversionInvalidErrorEvtMsg.NAME,
         liveMeeting.props.meetingProp.intId, msg.header.userId
       )
 
-      val body = PdfConversionInvalidErrorSysPubMsgBody(msg.body.podId, msg.body.messageKey, msg.body.code, msg.body.presentationId, msg.body.bigPageNumber, msg.body.bigPageSize, msg.body.presName)
-      val event = PdfConversionInvalidErrorSysPubMsg(header, body)
+      val body = PdfConversionInvalidErrorEvtMsgBody(msg.body.podId, msg.body.messageKey, msg.body.code, msg.body.presentationId, msg.body.bigPageNumber, msg.body.bigPageSize, msg.body.presName)
+      val event = PdfConversionInvalidErrorEvtMsg(header, body)
       val msgEvent = BbbCommonEnvCoreMsg(envelope, event)
       bus.outGW.send(msgEvent)
     }
