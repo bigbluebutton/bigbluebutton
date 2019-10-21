@@ -8,6 +8,9 @@ public interface IVoiceConferenceService {
   void userJoinedVoiceConf(String voiceConfId, String voiceUserId, String userId, String callerIdName,
                            String callerIdNum, Boolean muted, Boolean speaking, String avatarURL);
 
+  void voiceUserStatus(String voiceConfId, String voiceUserId, String userId, String callerIdName,
+                           String callerIdNum, Boolean muted, Boolean speaking, String avatarURL);
+
   void userLeftVoiceConf(String voiceConfId, String voiceUserId);
 
   void userLockedInVoiceConf(String voiceConfId, String voiceUserId, Boolean locked);

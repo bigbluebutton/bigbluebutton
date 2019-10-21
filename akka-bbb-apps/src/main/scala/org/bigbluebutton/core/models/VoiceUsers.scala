@@ -120,4 +120,4 @@ case class VoiceUserVO2x(intId: String, voiceUserId: String, callerName: String,
                          talking: Boolean, callingWith: String, listenOnly: Boolean)
 
 case class VoiceUserState(intId: String, voiceUserId: String, callingWith: String, callerName: String,
-                          callerNum: String, muted: Boolean, talking: Boolean, listenOnly: Boolean)
+                          callerNum: String, muted: Boolean, talking: Boolean, listenOnly: Boolean /**, calledInto: String**/ )

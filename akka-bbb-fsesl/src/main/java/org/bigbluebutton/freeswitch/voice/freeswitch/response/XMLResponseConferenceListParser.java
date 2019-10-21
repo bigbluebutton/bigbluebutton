@@ -89,11 +89,12 @@ public class XMLResponseConferenceListParser extends DefaultHandler {
     @Override
     public void startElement(String uri, String localName, String qName, Attributes attributes) throws SAXException {
         //reset
-        inFlags = false;
+        // Do not reset to false as the flags won't be processed. (ralam OCt 21, 2019)
+        //inFlags = false;
         tempVal = "";
+
         if(qName.equalsIgnoreCase("member")) {
             String memberType = attributes.getValue("type");
-
             //create a new instance of ConferenceMember
             tempMember = new ConferenceMember();
             tempMember.setMemberType(memberType);
@@ -156,6 +157,5 @@ public class XMLResponseConferenceListParser extends DefaultHandler {
                 
             }
         }
-
     }
 }

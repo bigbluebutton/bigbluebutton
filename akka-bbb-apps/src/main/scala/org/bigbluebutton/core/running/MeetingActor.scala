@@ -378,6 +378,8 @@ class MeetingActor(
       case m: VoiceConfRunningEvtMsg             => handleVoiceConfRunningEvtMsg(m)
       case m: CheckRunningAndRecordingVoiceConfEvtMsg =>
         handleCheckRunningAndRecordingVoiceConfEvtMsg(m)
+      case m: UserStatusVoiceConfEvtMsg =>
+        handleUserStatusVoiceConfEvtMsg(m)
 
       // Layout
       case m: GetCurrentLayoutReqMsg => handleGetCurrentLayoutReqMsg(m)
@@ -535,10 +537,26 @@ class MeetingActor(
     sendRttTraceTest()
     setRecordingChapterBreak()
     checkVoiceConfIsRunningAndRecording()
+    checkVoiceConfUsersStatus()
 
     processUserInactivityAudit()
     flagRegisteredUsersWhoHasNotJoined()
     checkIfNeetToEndMeetingWhenNoAuthedUsers(liveMeeting)
+  }
+
+  var lastcheckVoiceConfUsersStatus = System.currentTimeMillis()
+  def checkVoiceConfUsersStatus(): Unit = {
+    val now = System.currentTimeMillis()
+    val elapsedTime = now - lastcheckVoiceConfUsersStatus;
+    val timeToCheck = elapsedTime > 30000 // 30seconds
+    if (timeToCheck) {
+      lastcheckVoiceConfUsersStatus = now
+      val event = MsgBuilder.buildLastcheckVoiceConfUsersStatus(
+        props.meetingProp.intId,
+        props.voiceProp.voiceConf
+      )
+      outGW.send(event)
+    }
   }
 
   var lastVoiceRecordingAndRunningCheck = System.currentTimeMillis()
@@ -741,5 +759,9 @@ class MeetingActor(
 
       VoiceApp.startRecordingVoiceConference(liveMeeting, outGW, recordFile)
     }
+  }
+
+  def handleUserStatusVoiceConfEvtMsg(msg: UserStatusVoiceConfEvtMsg): Unit = {
+    println("************* RECEIVED UserStatusVoiceConfEvtMsg *************")
   }
 }

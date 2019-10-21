@@ -97,6 +97,10 @@ public class FreeswitchConferenceEventListener implements ConferenceEventListene
           }
 
           vcs.voiceConfRunningAndRecording(evt.getRoom(), evt.running, evt.recording);
+        } else if (event instanceof VoiceUserStatusEvent) {
+          VoiceUserStatusEvent evt = (VoiceUserStatusEvent) event;
+          vcs.voiceUserStatus(evt.getRoom(), evt.getVoiceUserId(), evt.getUserId(), evt.getCallerIdName(),
+                  evt.getCallerIdNum(), evt.getMuted(), evt.getSpeaking(), evt.getAvatarURL());
         }
 
       }
