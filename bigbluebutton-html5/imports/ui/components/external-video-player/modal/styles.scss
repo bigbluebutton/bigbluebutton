@@ -13,7 +13,7 @@
   display: flex;
   flex-direction: column;
   justify-content: center;
-  padding-bottom: 0;
+  padding: 0;
   margin-right: auto;
   margin-left: auto;
   width: 100%;
@@ -32,7 +32,7 @@
 .modal {
   @extend .modal;
   padding: 1.5rem;
-  min-height: 20rem;
+  min-height: 23rem;
 }
 
 .closeBtn {
@@ -132,8 +132,8 @@
 
 .urlError {
   color: red;
-  padding: 1em;
-  
+  padding: 1em 0 2.5em 0;
+
   :global(.animationsEnabled) & {
     transition: 1s;
   }
@@ -143,5 +143,5 @@
   color: var(--color-gray);
   font-size: var(--font-size-small);
   font-style: italic;
-  padding-top: var(--sm-padding-x);
+  padding-top: var(--sm-padding-y);
 }
