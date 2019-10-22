@@ -1,7 +1,6 @@
 import Meetings from '/imports/api/meetings';
 import Auth from '/imports/ui/services/auth';
-import ExternalVideoStreamer from '/imports/api/external-videos';
-
+import { getStreamer } from '/imports/api/external-videos';
 import { makeCall } from '/imports/ui/services/api';
 
 import ReactPlayer from 'react-player';
@@ -18,7 +17,9 @@ const stopWatching = () => {
 };
 
 const sendMessage = (event, data) => {
-  ExternalVideoStreamer.emit(event, {
+  const streamer = getStreamer(Auth.meetingID);
+
+  streamer.emit(event, {
     ...data,
     meetingId: Auth.meetingID,
     userId: Auth.userID,
@@ -26,11 +27,13 @@ const sendMessage = (event, data) => {
 };
 
 const onMessage = (message, func) => {
-  ExternalVideoStreamer.on(message, func);
+  const streamer = getStreamer(Auth.meetingID);
+  streamer.on(message, func);
 };
 
 const removeAllListeners = (eventType) => {
-  ExternalVideoStreamer.removeAllListeners(eventType);
+  const streamer = getStreamer(Auth.meetingID);
+  streamer.removeAllListeners(eventType);
 };
 
 const getVideoUrl = () => {
