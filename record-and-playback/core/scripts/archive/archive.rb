@@ -27,14 +27,16 @@ AUDIO_ARCHIVE_FORMAT = {
   extension: 'opus',
   # TODO: consider changing bitrate based on channels or sample rate - this is
   # overkill if freeswitch is configured in a mono or low quality profile
-  parameters: %w[-c:a libopus -b:a 128K -f ogg],
+  parameters: [
+    %w[-c:a libopus -b:a 128K -f ogg],
+  ]
 }.freeze
 
 def archive_events(meeting_id, redis_host, redis_port, redis_password, raw_archive_dir, break_timestamp)
   BigBlueButton.logger.info("Archiving events for #{meeting_id}")
   redis = BigBlueButton::RedisWrapper.new(redis_host, redis_port, redis_password)
   events_archiver = BigBlueButton::RedisEventsArchiver.new(redis)
-  events_archiver.store_events(meeting_id, File.join(raw_archive_dir, meeting_id, events.xml), break_timestamp) do |events|
+  events_archiver.store_events(meeting_id, File.join(raw_archive_dir, meeting_id, 'events.xml'), break_timestamp) do |events|
     # Adjust the audio filenames to match the audio archive format
     events.xpath('/recording/event[@module="VOICE"]/filename').each do |filename|
       if filename.content.end_with?('.wav')
@@ -84,7 +86,7 @@ def archive_audio(meeting_id, audio_dir, raw_archive_dir)
     return
   end
   audio_files.each do |audio_file|
-    output_basename = File.join(raw_archive_dir, meeting_id, audio, File.basename(audio_file, '.wav'))
+    output_basename = File.join(raw_archive_dir, meeting_id, 'audio', File.basename(audio_file, '.wav'))
     # Note that the encode method saves to a temp file then renames to the
     # final filename, making this safe for segmented recordings that are
     # concurrently being processed.
