@@ -1,5 +1,5 @@
 import { check } from 'meteor/check';
-import { AnnotationsStreamer } from '/imports/api/annotations';
+import AnnotationsStreamer from '/imports/api/annotations/server/streamer';
 import addAnnotation from '../modifiers/addAnnotation';
 
 const ANNOTATION_PROCCESS_INTERVAL = 60;
@@ -13,8 +13,8 @@ const proccess = () => {
     return;
   }
   annotationsRecieverIsRunning = true;
-  Object.keys(annotationsQueue).forEach(meetingId => {
-    AnnotationsStreamer.emit('added', { meetingId, annotations: annotationsQueue[meetingId] });
+  Object.keys(annotationsQueue).forEach((meetingId) => {
+    AnnotationsStreamer(meetingId).emit('added', { meetingId, annotations: annotationsQueue[meetingId] });
   });
   annotationsQueue = {};
 

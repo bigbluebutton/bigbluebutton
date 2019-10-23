@@ -6,8 +6,7 @@ import GroupChat from '/imports/api/group-chat';
 import Users from '/imports/api/users';
 import Annotations from '/imports/api/annotations';
 import AnnotationsTextService from '/imports/ui/components/whiteboard/annotations/text/service';
-import AnnotationsLocal from '/imports/ui/components/whiteboard/service';
-
+import AnnotationsLocal, { initAnnotationsStreamListener } from '/imports/ui/components/whiteboard/service';
 
 const CHAT_CONFIG = Meteor.settings.public.chat;
 const ROLE_MODERATOR = Meteor.settings.public.user.role_moderator;
@@ -98,6 +97,7 @@ export default withTracker(() => {
 
   const annotationsHandler = Meteor.subscribe('annotations', credentials, {
     onReady: () => {
+      initAnnotationsStreamListener();
       const activeTextShapeId = AnnotationsTextService.activeTextShapeId();
       AnnotationsLocal.remove({ id: { $ne: `${activeTextShapeId}-fake` } });
       Annotations.find({ id: { $ne: activeTextShapeId } }, { reactive: false }).forEach((a) => {
