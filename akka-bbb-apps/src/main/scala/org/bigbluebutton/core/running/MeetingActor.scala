@@ -745,12 +745,18 @@ class MeetingActor(
   }
 
   def handleCheckRunningAndRecordingVoiceConfEvtMsg(msg: CheckRunningAndRecordingVoiceConfEvtMsg): Unit = {
+    //msg.body.confRecordings foreach { cr =>
+    //  println("rec = " + cr.recordPath)
+    //}
+
     if (liveMeeting.props.recordProp.record &&
       msg.body.isRunning &&
       !msg.body.isRecording) {
       // Voice conference is running but not recording. We should start recording.
       // But first, see if we have recording streams and stop those.
       VoiceApp.stopRecordingVoiceConference(liveMeeting, outGW)
+      // Remove recording streams that have stopped so we should only have
+      // one active recording stream.
 
       // Let us start recording.
       val meetingId = liveMeeting.props.meetingProp.intId
@@ -761,14 +767,4 @@ class MeetingActor(
     }
   }
 
-  def handleUserStatusVoiceConfEvtMsg(msg: UserStatusVoiceConfEvtMsg): Unit = {
-    println("************* RECEIVED UserStatusVoiceConfEvtMsg *************")
-    msg.body.confUsers foreach { cm =>
-      println("user " + cm.callerIdName)
-    }
-
-    msg.body.confRecordings foreach { cr =>
-      println("rec = " + cr.recordPath)
-    }
-  }
 }

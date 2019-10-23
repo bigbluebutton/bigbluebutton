@@ -100,11 +100,15 @@ class VoiceUsers {
     }
   }
 
-  private def saveToCache(user: VoiceUserState): Unit = {
+  private def saveToCache(
+      user: VoiceUserState
+  ): Unit = {
     usersCache += user.intId -> user
   }
 
-  private def removeFromCache(intId: String): Option[VoiceUserState] = {
+  private def removeFromCache(
+      intId: String
+  ): Option[VoiceUserState] = {
     for {
       user <- usersCache.get(intId)
     } yield {
@@ -114,10 +118,32 @@ class VoiceUsers {
   }
 }
 
-case class VoiceUser2x(intId: String, voiceUserId: String)
-case class VoiceUserVO2x(intId: String, voiceUserId: String, callerName: String,
-                         callerNum: String, joined: Boolean, locked: Boolean, muted: Boolean,
-                         talking: Boolean, callingWith: String, listenOnly: Boolean)
+case class VoiceUser2x(
+    intId:       String,
+    voiceUserId: String
+)
+case class VoiceUserVO2x(
+    intId:       String,
+    voiceUserId: String,
+    callerName:  String,
+    callerNum:   String,
+    joined:      Boolean,
+    locked:      Boolean,
+    muted:       Boolean,
+    talking:     Boolean,
+    callingWith: String,
+    listenOnly:  Boolean
+)
 
-case class VoiceUserState(intId: String, voiceUserId: String, callingWith: String, callerName: String,
-                          callerNum: String, muted: Boolean, talking: Boolean, listenOnly: Boolean /**, calledInto: String**/ )
+case class VoiceUserState(
+    intId:              String,
+    voiceUserId:        String,
+    callingWith:        String,
+    callerName:         String,
+    callerNum:          String,
+    muted:              Boolean,
+    talking:            Boolean,
+    listenOnly:         Boolean,
+    calledInto:         String,
+    lastStatusUpdateOn: Long
+)

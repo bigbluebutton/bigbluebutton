@@ -30,8 +30,19 @@ trait UserConnectedToGlobalAudioMsgHdlr {
       user <- Users2x.findWithIntId(liveMeeting.users2x, msg.body.userId)
     } yield {
 
-      val vu = VoiceUserState(intId = user.intId, voiceUserId = user.intId, callingWith = "flash", callerName = user.name,
-        callerNum = user.name, muted = true, talking = false, listenOnly = true)
+      val vu = VoiceUserState(
+        intId = user.intId,
+        voiceUserId = user.intId,
+        callingWith = "flash",
+        callerName = user.name,
+        callerNum = user.name,
+        muted = true,
+        talking = false,
+        listenOnly = true,
+        "kms",
+        System.currentTimeMillis()
+      )
+
       VoiceUsers.add(liveMeeting.voiceUsers, vu)
 
       broadcastEvent(vu)
