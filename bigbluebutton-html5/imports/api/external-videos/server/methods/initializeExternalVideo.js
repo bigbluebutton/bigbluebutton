@@ -19,11 +19,11 @@ export default function initializeExternalVideo(credentials, options) {
 
   const streamName = `external-videos-${meetingId}`;
   if (!Meteor.StreamerCentral.instances[streamName]) {
-    streamer = new Meteor.Streamer(streamName);
+    const streamer = new Meteor.Streamer(streamName);
     streamer.allowRead('all');
     streamer.allowWrite('all');
     streamer.allowEmit(allowFromPresenter);
   } else {
     Logger.debug('External Video streamer is already created for ', streamName);
   }
-};
+}
