@@ -670,7 +670,7 @@ class MeetingActor(
     stopRecordingIfAutoStart2x(outGW, liveMeeting, state)
 
     if (liveMeeting.props.meetingProp.isBreakout) {
-      updateParentMeetingWithUsers()
+      BreakoutHdlrHelpers.updateParentMeetingWithUsers(liveMeeting, eventBus)
     }
 
     if (state.expiryTracker.userHasJoined &&

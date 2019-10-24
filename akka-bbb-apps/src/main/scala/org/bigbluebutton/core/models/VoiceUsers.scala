@@ -14,6 +14,8 @@ object VoiceUsers {
   def findAll(users: VoiceUsers): Vector[VoiceUserState] = users.toVector
 
   def findAllNonListenOnlyVoiceUsers(users: VoiceUsers): Vector[VoiceUserState] = users.toVector.filter(u => u.listenOnly == false)
+  def findAllFreeswitchCallers(users: VoiceUsers): Vector[VoiceUserState] = users.toVector.filter(u => u.calledInto == "freeswitch")
+  def findAllKurentoCallers(users: VoiceUsers): Vector[VoiceUserState] = users.toVector.filter(u => u.calledInto == "kms")
 
   def add(users: VoiceUsers, user: VoiceUserState): Unit = {
     users.save(user)
@@ -73,6 +75,12 @@ object VoiceUsers {
       users.save(vu)
       vu
     }
+  }
+
+  def setLastStatusUpdate(users: VoiceUsers, user: VoiceUserState): VoiceUserState = {
+    val vu = user.copy(lastStatusUpdateOn = System.currentTimeMillis())
+    users.save(vu)
+    vu
   }
 }
 

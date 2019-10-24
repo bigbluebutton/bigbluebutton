@@ -2,7 +2,6 @@ package org.bigbluebutton.endpoint.redis
 
 import scala.collection.immutable.StringOps
 import scala.collection.JavaConverters._
-import org.bigbluebutton.SystemConfiguration
 import org.bigbluebutton.common2.msgs._
 import org.bigbluebutton.common2.redis.{ RedisConfig, RedisStorageProvider }
 import org.bigbluebutton.core.apps.groupchats.GroupChatApp
