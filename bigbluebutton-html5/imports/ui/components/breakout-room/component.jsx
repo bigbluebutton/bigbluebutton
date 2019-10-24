@@ -161,6 +161,7 @@ class BreakoutRoom extends PureComponent {
       amIModerator,
       intl,
       isUserInBreakoutRoom,
+      exitAudio,
     } = this.props;
 
     const {
@@ -201,6 +202,7 @@ class BreakoutRoom extends PureComponent {
               aria-label={`${intl.formatMessage(intlMessages.breakoutJoin)} ${number}`}
               onClick={() => {
                 this.getBreakoutURL(breakoutId);
+                exitAudio();
                 logger.debug({
                   logCode: 'breakoutroom_join',
                   extraInfo: { logType: 'user_action' },
