@@ -1,14 +1,11 @@
-const streamers = {};
-
-
 export function removeAnnotationsStreamer(meetingId) {
-  delete streamers[meetingId];
+  delete Meteor.StreamerCentral.instances[`annotations-${meetingId}`];
 }
 
 export function addAnnotationsStreamer(meetingId) {
   const streamer = new Meteor.Streamer(`annotations-${meetingId}`, { retransmit: false });
 
-  streamer.allowRead(function a() {
+  streamer.allowRead(function allowRead() {
     if (!this.userId) return false;
 
     return this.userId && this.userId.includes(meetingId);
@@ -17,10 +14,8 @@ export function addAnnotationsStreamer(meetingId) {
   streamer.allowWrite(function allowWrite() {
     return false;
   });
-
-  streamers[meetingId] = streamer;
 }
 
 export default function get(meetingId) {
-  return streamers[meetingId];
+  return Meteor.StreamerCentral.instances[`annotations-${meetingId}`];
 }

@@ -93,11 +93,11 @@ export default withTracker(() => {
     Meteor.subscribe('users', credentials, userIsModerator, subscriptionErrorHandler);
     Meteor.subscribe('breakouts', credentials, userIsModerator, subscriptionErrorHandler);
     Meteor.subscribe('meetings', credentials, userIsModerator, subscriptionErrorHandler);
+    initAnnotationsStreamListener();
   }
 
   const annotationsHandler = Meteor.subscribe('annotations', credentials, {
     onReady: () => {
-      initAnnotationsStreamListener();
       const activeTextShapeId = AnnotationsTextService.activeTextShapeId();
       AnnotationsLocal.remove({ id: { $ne: `${activeTextShapeId}-fake` } });
       Annotations.find({ id: { $ne: activeTextShapeId } }, { reactive: false }).forEach((a) => {
