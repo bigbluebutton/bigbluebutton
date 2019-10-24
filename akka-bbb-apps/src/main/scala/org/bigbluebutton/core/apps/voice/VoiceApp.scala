@@ -95,45 +95,38 @@ object VoiceApp {
       eventBus:    InternalEventBus,
       users:       Vector[ConfVoiceUser]
   ): Unit = {
-    users foreach { u =>
+    users foreach { cvu =>
       VoiceUsers.findWithVoiceUserId(
         liveMeeting.voiceUsers,
-        u.voiceUserId
+        cvu.voiceUserId
       ) match {
           case Some(vu) =>
-            if (vu.muted != u.muted) {
+            if (vu.muted != cvu.muted) {
               handleUserMutedInVoiceConfEvtMsg(
                 liveMeeting,
                 outGW,
-                u.voiceUserId,
-                u.muted
+                cvu.voiceUserId,
+                cvu.muted
               )
+            } else {
+              // Update the user status to indicate they are still in the voice conference.
+              VoiceUsers.setLastStatusUpdate(liveMeeting.voiceUsers, vu)
             }
-
-            // Update the user status to indicate they are stll in the voice conference.
-            VoiceUsers.setLastStatusUpdate(liveMeeting.voiceUsers, vu)
           case None =>
             handleUserJoinedVoiceConfEvtMsg(
               liveMeeting,
               outGW,
               eventBus,
               liveMeeting.props.voiceProp.voiceConf,
-              u.intId,
-              u.voiceUserId,
-              u.callingWith,
-              u.callerIdName,
-              u.callerIdNum,
-              u.muted,
-              u.talking,
-              u.calledInto
+              cvu.intId,
+              cvu.voiceUserId,
+              cvu.callingWith,
+              cvu.callerIdName,
+              cvu.callerIdNum,
+              cvu.muted,
+              cvu.talking,
+              cvu.calledInto
             )
-
-            // Update this new users status time.
-            for {
-              vu <- VoiceUsers.findWithVoiceUserId(liveMeeting.voiceUsers, u.voiceUserId)
-            } yield {
-              VoiceUsers.setLastStatusUpdate(liveMeeting.voiceUsers, vu)
-            }
         }
     }
 

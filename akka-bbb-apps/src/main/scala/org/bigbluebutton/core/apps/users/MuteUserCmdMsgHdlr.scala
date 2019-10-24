@@ -32,17 +32,31 @@ trait MuteUserCmdMsgHdlr extends RightsManagementTrait {
 
       val permissions = MeetingStatus2x.getPermissions(liveMeeting.status)
       for {
-        requester <- Users2x.findWithIntId(liveMeeting.users2x, msg.header.userId)
-        u <- VoiceUsers.findWithIntId(liveMeeting.voiceUsers, msg.body.userId)
+        requester <- Users2x.findWithIntId(
+          liveMeeting.users2x,
+          msg.header.userId
+        )
+        u <- VoiceUsers.findWithIntId(
+          liveMeeting.voiceUsers,
+          msg.body.userId
+        )
       } yield {
-        if (requester.role != Roles.MODERATOR_ROLE && permissions.disableMic && requester.locked && u.muted &&
+
+        if (requester.role != Roles.MODERATOR_ROLE
+          && permissions.disableMic
+          && requester.locked
+          && u.muted &&
           msg.body.userId == msg.header.userId) {
           // unmuting self while not moderator and mic disabled. Do not allow.
         } else {
           if (u.muted != msg.body.mute) {
             log.info("Send mute user request. meetingId=" + meetingId + " userId=" + u.intId + " user=" + u)
-            val event = MsgBuilder.buildMuteUserInVoiceConfSysMsg(meetingId, voiceConf,
-              u.voiceUserId, msg.body.mute)
+            val event = MsgBuilder.buildMuteUserInVoiceConfSysMsg(
+              meetingId,
+              voiceConf,
+              u.voiceUserId,
+              msg.body.mute
+            )
             outGW.send(event)
           }
         }

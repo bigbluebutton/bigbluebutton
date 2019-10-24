@@ -17,6 +17,5 @@ trait UserStatusVoiceConfEvtMsgHdlr {
       eventBus,
       msg.body.confUsers
     )
-    
   }
 }

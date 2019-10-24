@@ -39,39 +39,19 @@ object VoiceUsers {
     } yield {
       val vu = u.modify(_.muted).setTo(muted)
         .modify(_.talking).setTo(false)
+        .modify(_.lastStatusUpdateOn).setTo(System.currentTimeMillis())
       users.save(vu)
       vu
     }
   }
 
-  def userTalking(users: VoiceUsers, voiceUserId: String, talkng: Boolean): Option[VoiceUserState] = {
+  def userTalking(users: VoiceUsers, voiceUserId: String, talking: Boolean): Option[VoiceUserState] = {
     for {
       u <- findWithVoiceUserId(users, voiceUserId)
     } yield {
       val vu = u.modify(_.muted).setTo(false)
-        .modify(_.talking).setTo(talkng)
-      users.save(vu)
-      vu
-    }
-  }
-
-  def joinedVoiceListenOnly(users: VoiceUsers, userId: String): Option[VoiceUserState] = {
-    for {
-      u <- findWIthIntId(users, userId)
-    } yield {
-      val vu = u.modify(_.muted).setTo(true)
-        .modify(_.talking).setTo(false)
-      users.save(vu)
-      vu
-    }
-  }
-
-  def leftVoiceListenOnly(users: VoiceUsers, userId: String): Option[VoiceUserState] = {
-    for {
-      u <- findWIthIntId(users, userId)
-    } yield {
-      val vu = u.modify(_.muted).setTo(false)
-        .modify(_.talking).setTo(false)
+        .modify(_.talking).setTo(talking)
+        .modify(_.lastStatusUpdateOn).setTo(System.currentTimeMillis())
       users.save(vu)
       vu
     }
