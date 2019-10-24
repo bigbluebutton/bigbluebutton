@@ -7,6 +7,7 @@ import Users from '/imports/api/users';
 import Annotations from '/imports/api/annotations';
 import AnnotationsTextService from '/imports/ui/components/whiteboard/annotations/text/service';
 import AnnotationsLocal from '/imports/ui/components/whiteboard/service';
+import { initCursorStreamListener } from '/imports/ui/components/cursor/service';
 
 
 const CHAT_CONFIG = Meteor.settings.public.chat;
@@ -94,6 +95,7 @@ export default withTracker(() => {
     Meteor.subscribe('users', credentials, userIsModerator, subscriptionErrorHandler);
     Meteor.subscribe('breakouts', credentials, userIsModerator, subscriptionErrorHandler);
     Meteor.subscribe('meetings', credentials, userIsModerator, subscriptionErrorHandler);
+    initCursorStreamListener();
   }
 
   const annotationsHandler = Meteor.subscribe('annotations', credentials, {
