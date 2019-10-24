@@ -16,7 +16,7 @@ const intlMessages = defineMessages({
   },
 });
 
-const SYNC_INTERVAL_SECONDS = 2;
+const SYNC_INTERVAL_SECONDS = 5;
 const AUTO_PLAY_BLOCK_DETECTION_TIMEOUT_SECONDS = 5;
 
 ReactPlayer.addCustomPlayer(ArcPlayer);
@@ -107,7 +107,7 @@ class VideoPlayer extends Component {
   }
 
   autoPlayBlockDetected() {
-    this.setState({autoPlayBlocked: true});
+    this.setState({ autoPlayBlocked: true });
   }
 
   handleFirstPlay() {
@@ -215,7 +215,7 @@ class VideoPlayer extends Component {
         logger.debug({ logCode: 'external_video_presenter_ready' }, 'Presenter is ready to sync');
 
         if (!hasPlayedBefore) {
-          this.setState({playing: true});
+          this.setState({ playing: true });
         }
       });
 
@@ -298,7 +298,9 @@ class VideoPlayer extends Component {
 
   render() {
     const { videoUrl, intl } = this.props;
-    const { playing, playbackRate, mutedByEchoTest, autoPlayBlocked } = this.state;
+    const {
+      playing, playbackRate, mutedByEchoTest, autoPlayBlocked,
+    } = this.state;
 
     return (
       <div
@@ -306,10 +308,12 @@ class VideoPlayer extends Component {
         data-test="videoPlayer"
         ref={(ref) => { this.playerParent = ref; }}
       >
-        {autoPlayBlocked ?
-          <p className={styles.autoPlayWarning}>
-            {intl.formatMessage(intlMessages.autoPlayWarning)}
-          </p>
+        {autoPlayBlocked
+          ? (
+            <p className={styles.autoPlayWarning}>
+              {intl.formatMessage(intlMessages.autoPlayWarning)}
+            </p>
+          )
           : ''
         }
         <ReactPlayer
