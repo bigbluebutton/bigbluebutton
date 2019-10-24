@@ -8,6 +8,7 @@ const DRAW_END = ANNOTATION_CONFIG.status.end;
 
 // maximum value of z-index to prevent other things from overlapping
 const MAX_Z_INDEX = (2 ** 31) - 1;
+const POINTS_TO_BUFFER = 5;
 
 export default class PencilDrawListener extends Component {
   constructor() {
@@ -92,7 +93,9 @@ export default class PencilDrawListener extends Component {
       this.points.push(transformedSvgPoint.x);
       this.points.push(transformedSvgPoint.y);
 
-      this.sendCoordinates();
+      if (this.points.length > POINTS_TO_BUFFER) {
+        this.sendCoordinates();
+      }
     }
   }
 
