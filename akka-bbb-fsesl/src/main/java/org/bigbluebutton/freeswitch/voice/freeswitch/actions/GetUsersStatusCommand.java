@@ -1,9 +1,7 @@
 package org.bigbluebutton.freeswitch.voice.freeswitch.actions;
 
 import org.apache.commons.lang3.StringUtils;
-import org.bigbluebutton.freeswitch.voice.events.ConfRecording;
-import org.bigbluebutton.freeswitch.voice.events.ConferenceEventListener;
-import org.bigbluebutton.freeswitch.voice.events.VoiceConfRunningAndRecordingEvent;
+import org.bigbluebutton.freeswitch.voice.events.*;
 import org.bigbluebutton.freeswitch.voice.freeswitch.response.ConferenceMember;
 import org.bigbluebutton.freeswitch.voice.freeswitch.response.XMLResponseConferenceListParser;
 import org.freeswitch.esl.client.transport.message.EslMessage;
@@ -17,33 +15,31 @@ import javax.xml.parsers.SAXParserFactory;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
-public class ConferenceCheckRecordCommand extends FreeswitchCommand {
-  private static Logger log = LoggerFactory.getLogger(ConferenceCheckRecordCommand.class);
+public class GetUsersStatusCommand extends FreeswitchCommand {
+  private static Logger log = LoggerFactory.getLogger(GetUsersStatusCommand.class);
+  private static final Pattern CALLERNAME_PATTERN = Pattern.compile("(.*)-bbbID-(.*)$");
+  private static final Pattern GLOBAL_AUDION_PATTERN = Pattern.compile("(GLOBAL_AUDIO)_(.*)$");
 
-  public ConferenceCheckRecordCommand(String room, String requesterId) {
+  public GetUsersStatusCommand(String room, String requesterId) {
     super(room, requesterId);
   }
 
   @Override
   public String getCommandArgs() {
-    //return room + " chkrecord";
     return getRoom() + SPACE + "xml_list";
   }
 
   public void handleResponse(EslMessage response, ConferenceEventListener eventListener) {
-    List<ConfRecording> confRecordings = new ArrayList<ConfRecording>();
 
     String firstLine = response.getBodyLines().get(0);
-    //log.info("Check conference first line response: " + firstLine);
+    //log.info("GetUsersStatusCommand: Check conference first line response: " + firstLine);
 
     if(!firstLine.startsWith("<?xml")) {
-      //log.info("Conference is not running and recording {}.", room);
-      VoiceConfRunningAndRecordingEvent voiceConfRunningAndRecordingEvent =
-              new VoiceConfRunningAndRecordingEvent(getRoom(), false, false, confRecordings);
-      eventListener.handleConferenceEvent(voiceConfRunningAndRecordingEvent);
+      log.info("Conference is not running {}.", room);
       return;
     }
 
@@ -51,9 +47,6 @@ public class ConferenceCheckRecordCommand extends FreeswitchCommand {
     //get a factory
     SAXParserFactory spf = SAXParserFactory.newInstance();
     try {
-
-      boolean running = false;
-      boolean recording = false;
 
       //get a new instance of parser
       SAXParser sp = spf.newSAXParser();
@@ -67,29 +60,54 @@ public class ConferenceCheckRecordCommand extends FreeswitchCommand {
       ByteArrayInputStream bs = new ByteArrayInputStream(responseBody.getBytes());
       sp.parse(bs, confXML);
 
-
       Integer numUsers =  confXML.getConferenceList().size();
       if (numUsers > 0) {
-        //log.info("Check conference response: " + responseBody);
-        running = true;
+        //log.info("Check user status response: " + responseBody);
+
+        List<ConfMember> confMembers = new ArrayList<ConfMember>();
+        List<ConfRecording> confRecordings = new ArrayList<ConfRecording>();
 
         for (ConferenceMember member : confXML.getConferenceList()) {
           if ("caller".equals(member.getMemberType())) {
-            // We don't need this. If there is at least one user in the conference,
-            // then it is running. (ralam Oct 16, 2019)
+            String callerId = member.getCallerId();
+            String callerIdName = member.getCallerIdName();
+            String voiceUserId = callerIdName;
+            String uuid = member.getUUID();
 
+            Matcher gapMatcher = GLOBAL_AUDION_PATTERN.matcher(callerIdName);
+            // Ignore GLOBAL_AUDIO user.
+            if (!gapMatcher.matches()) {
+              Matcher matcher = CALLERNAME_PATTERN.matcher(callerIdName);
+              if (matcher.matches()) {
+                voiceUserId = matcher.group(1).trim();
+                callerIdName = matcher.group(2).trim();
+              }
+
+              log.info("Conf user. uuid=" + uuid
+                      + ",caller=" + callerIdName
+                      + ",callerId=" + callerId
+                      + ",conf=" + room
+                      + ",muted=" + member.getMuted()
+                      + ",talking=" + member.getSpeaking());
+
+              ConfMember confMember = new ConfMember(voiceUserId,
+                      member.getId().toString(),
+                      callerId, callerIdName,
+                      member.getMuted(),
+                      member.getSpeaking(),
+                      "none");
+              confMembers.add(confMember);
+            }
           } else if ("recording_node".equals(member.getMemberType())) {
-            recording = true;
             ConfRecording confRecording = new ConfRecording(member.getRecordPath(), member.getRecordStartTime());
             confRecordings.add(confRecording);
           }
         }
+
+        VoiceUsersStatusEvent voiceUsersStatusEvent =
+                new VoiceUsersStatusEvent(getRoom(), confMembers, confRecordings);
+        eventListener.handleConferenceEvent(voiceUsersStatusEvent);
       }
-
-      VoiceConfRunningAndRecordingEvent voiceConfRunningAndRecordingEvent =
-              new VoiceConfRunningAndRecordingEvent(getRoom(), running, recording, confRecordings);
-      eventListener.handleConferenceEvent(voiceConfRunningAndRecordingEvent);
-
     }catch(SAXException se) {
       log.error("Cannot parse response. ", se);
     }catch(ParserConfigurationException pce) {

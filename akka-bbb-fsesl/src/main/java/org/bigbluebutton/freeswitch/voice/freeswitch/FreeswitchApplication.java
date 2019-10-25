@@ -103,6 +103,11 @@ public class FreeswitchApplication implements  IDelayedCommandListener{
     msgSenderExec.execute(sender);
   }
 
+  public void getUsersStatus(String voiceConfId, String meetingId) {
+    GetUsersStatusCommand ccrc = new GetUsersStatusCommand(voiceConfId, meetingId);
+    queueMessage(ccrc);
+  }
+
   public void checkRunningAndRecording(String voiceConfId, String meetingId) {
     ConferenceCheckRecordCommand ccrc = new ConferenceCheckRecordCommand(voiceConfId, meetingId);
     queueMessage(ccrc);
@@ -192,6 +197,8 @@ public class FreeswitchApplication implements  IDelayedCommandListener{
           manager.checkIfConfIsRunningCommand((CheckIfConfIsRunningCommand) command);
         } else if (command instanceof ForceEjectUserCommand) {
           manager.forceEjectUser((ForceEjectUserCommand) command);
+        } else if (command instanceof GetUsersStatusCommand) {
+          manager.getUsersStatus((GetUsersStatusCommand) command);
         }
       }
     };

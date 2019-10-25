@@ -150,6 +150,8 @@ class ReceivedJsonMsgHandlerActor(
         routeGenericMsg[IsMeetingMutedReqMsg](envelope, jsonNode)
       case CheckRunningAndRecordingVoiceConfEvtMsg.NAME =>
         routeVoiceMsg[CheckRunningAndRecordingVoiceConfEvtMsg](envelope, jsonNode)
+      case UserStatusVoiceConfEvtMsg.NAME =>
+        routeVoiceMsg[UserStatusVoiceConfEvtMsg](envelope, jsonNode)
 
       // Breakout rooms
       case BreakoutRoomsListMsg.NAME =>

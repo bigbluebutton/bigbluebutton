@@ -10,6 +10,9 @@ trait SendBreakoutUsersUpdateMsgHdlr {
 
   def handleSendBreakoutUsersUpdateInternalMsg(msg: SendBreakoutUsersAuditInternalMsg): Unit = {
 
-    updateParentMeetingWithUsers()
+    BreakoutHdlrHelpers.updateParentMeetingWithUsers(
+      liveMeeting,
+      eventBus
+    )
   }
 }

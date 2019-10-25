@@ -54,6 +54,8 @@ class RxJsonMsgHdlrActor(val fsApp: FreeswitchApplication) extends Actor with Ac
         routeDeskshareStartRtmpBroadcastVoiceConfMsg(envelope, jsonNode)
       case CheckRunningAndRecordingToVoiceConfSysMsg.NAME =>
         routeCheckRunningAndRecordingToVoiceConfSysMsg(envelope, jsonNode)
+      case GetUsersStatusToVoiceConfSysMsg.NAME =>
+        routeGetUsersStatusToVoiceConfSysMsg(envelope, jsonNode)
       case _ => // do nothing
     }
   }
