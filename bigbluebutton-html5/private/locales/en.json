@@ -254,6 +254,7 @@
     "app.navBar.recording": "This session is being recorded",
     "app.navBar.recording.on": "Recording",
     "app.navBar.recording.off": "Not recording",
+    "app.navBar.emptyAudioBrdige": "No active microphone. Share your microphone to add audio to this recording.",
     "app.leaveConfirmation.confirmLabel": "Leave",
     "app.leaveConfirmation.confirmDesc": "Logs you out of the meeting",
     "app.endMeeting.title": "End meeting",
