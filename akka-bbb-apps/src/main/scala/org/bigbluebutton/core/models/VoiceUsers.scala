@@ -14,6 +14,8 @@ object VoiceUsers {
   def findAll(users: VoiceUsers): Vector[VoiceUserState] = users.toVector
 
   def findAllNonListenOnlyVoiceUsers(users: VoiceUsers): Vector[VoiceUserState] = users.toVector.filter(u => u.listenOnly == false)
+  def findAllFreeswitchCallers(users: VoiceUsers): Vector[VoiceUserState] = users.toVector.filter(u => u.calledInto == "freeswitch")
+  def findAllKurentoCallers(users: VoiceUsers): Vector[VoiceUserState] = users.toVector.filter(u => u.calledInto == "kms")
 
   def add(users: VoiceUsers, user: VoiceUserState): Unit = {
     users.save(user)
@@ -37,42 +39,28 @@ object VoiceUsers {
     } yield {
       val vu = u.modify(_.muted).setTo(muted)
         .modify(_.talking).setTo(false)
+        .modify(_.lastStatusUpdateOn).setTo(System.currentTimeMillis())
       users.save(vu)
       vu
     }
   }
 
-  def userTalking(users: VoiceUsers, voiceUserId: String, talkng: Boolean): Option[VoiceUserState] = {
+  def userTalking(users: VoiceUsers, voiceUserId: String, talking: Boolean): Option[VoiceUserState] = {
     for {
       u <- findWithVoiceUserId(users, voiceUserId)
     } yield {
       val vu = u.modify(_.muted).setTo(false)
-        .modify(_.talking).setTo(talkng)
+        .modify(_.talking).setTo(talking)
+        .modify(_.lastStatusUpdateOn).setTo(System.currentTimeMillis())
       users.save(vu)
       vu
     }
   }
 
-  def joinedVoiceListenOnly(users: VoiceUsers, userId: String): Option[VoiceUserState] = {
-    for {
-      u <- findWIthIntId(users, userId)
-    } yield {
-      val vu = u.modify(_.muted).setTo(true)
-        .modify(_.talking).setTo(false)
-      users.save(vu)
-      vu
-    }
-  }
-
-  def leftVoiceListenOnly(users: VoiceUsers, userId: String): Option[VoiceUserState] = {
-    for {
-      u <- findWIthIntId(users, userId)
-    } yield {
-      val vu = u.modify(_.muted).setTo(false)
-        .modify(_.talking).setTo(false)
-      users.save(vu)
-      vu
-    }
+  def setLastStatusUpdate(users: VoiceUsers, user: VoiceUserState): VoiceUserState = {
+    val vu = user.copy(lastStatusUpdateOn = System.currentTimeMillis())
+    users.save(vu)
+    vu
   }
 }
 
@@ -100,11 +88,15 @@ class VoiceUsers {
     }
   }
 
-  private def saveToCache(user: VoiceUserState): Unit = {
+  private def saveToCache(
+      user: VoiceUserState
+  ): Unit = {
     usersCache += user.intId -> user
   }
 
-  private def removeFromCache(intId: String): Option[VoiceUserState] = {
+  private def removeFromCache(
+      intId: String
+  ): Option[VoiceUserState] = {
     for {
       user <- usersCache.get(intId)
     } yield {
@@ -114,10 +106,32 @@ class VoiceUsers {
   }
 }
 
-case class VoiceUser2x(intId: String, voiceUserId: String)
-case class VoiceUserVO2x(intId: String, voiceUserId: String, callerName: String,
-                         callerNum: String, joined: Boolean, locked: Boolean, muted: Boolean,
-                         talking: Boolean, callingWith: String, listenOnly: Boolean)
+case class VoiceUser2x(
+    intId:       String,
+    voiceUserId: String
+)
+case class VoiceUserVO2x(
+    intId:       String,
+    voiceUserId: String,
+    callerName:  String,
+    callerNum:   String,
+    joined:      Boolean,
+    locked:      Boolean,
+    muted:       Boolean,
+    talking:     Boolean,
+    callingWith: String,
+    listenOnly:  Boolean
+)
 
-case class VoiceUserState(intId: String, voiceUserId: String, callingWith: String, callerName: String,
-                          callerNum: String, muted: Boolean, talking: Boolean, listenOnly: Boolean)
+case class VoiceUserState(
+    intId:              String,
+    voiceUserId:        String,
+    callingWith:        String,
+    callerName:         String,
+    callerNum:          String,
+    muted:              Boolean,
+    talking:            Boolean,
+    listenOnly:         Boolean,
+    calledInto:         String,
+    lastStatusUpdateOn: Long
+)

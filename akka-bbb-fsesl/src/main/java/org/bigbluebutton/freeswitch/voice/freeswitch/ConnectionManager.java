@@ -131,6 +131,15 @@ public class ConnectionManager {
 		}
 	}
 
+	public void getUsersStatus(GetUsersStatusCommand prc) {
+		Client c = manager.getESLClient();
+		if (c.canSend()) {
+			EslMessage response = c.sendSyncApiCommand(prc.getCommand(),
+					prc.getCommandArgs());
+			prc.handleResponse(response, conferenceEventListener);
+		}
+	}
+
 	public void getUsers(GetAllUsersCommand prc) {
 		Client c = manager.getESLClient();
 		if (c.canSend()) {

@@ -17,15 +17,22 @@
  */
 package org.bigbluebutton.freeswitch.voice.events;
 
+import java.util.List;
+
 public class VoiceConfRunningAndRecordingEvent extends VoiceConferenceEvent {
 
   public final boolean running;
   public final boolean recording;
+  public final List<ConfRecording> confRecordings;
 
-  public VoiceConfRunningAndRecordingEvent(String room, boolean running, boolean recording) {
+  public VoiceConfRunningAndRecordingEvent(String room,
+                                           boolean running,
+                                           boolean recording,
+                                           List<ConfRecording> confRecordings) {
     super(room);
     this.running = running;
     this.recording = recording;
+    this.confRecordings = confRecordings;
   }
 
 }
