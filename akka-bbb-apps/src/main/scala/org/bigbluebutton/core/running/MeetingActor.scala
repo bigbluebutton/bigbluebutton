@@ -39,6 +39,8 @@ import org.bigbluebutton.core.apps.meeting.{ SyncGetMeetingInfoRespMsgHdlr, Vali
 import org.bigbluebutton.core.apps.users.ChangeLockSettingsInMeetingCmdMsgHdlr
 import org.bigbluebutton.core2.message.senders.{ MsgBuilder, Sender }
 
+import scala.concurrent.ExecutionContext.Implicits.global
+
 object MeetingActor {
   def props(
       props:       DefaultProps,
@@ -83,6 +85,9 @@ class MeetingActor(
   with ClientToServerLatencyTracerMsgHdlr
   with ValidateConnAuthTokenSysMsgHdlr
   with UserActivitySignCmdMsgHdlr {
+
+  object CheckVoiceRecordingInternalMsg
+  object SyncVoiceUserStatusInternalMsg
 
   override val supervisorStrategy = OneForOneStrategy(maxNrOfRetries = 10, withinTimeRange = 1 minute) {
     case e: Exception => {
@@ -185,7 +190,26 @@ class MeetingActor(
   //FakeTestData.createFakeUsers(liveMeeting)
   /** *****************************************************************/
 
+  context.system.scheduler.schedule(
+    5 seconds,
+    syncVoiceUsersStatusInterval seconds,
+    self,
+    SyncVoiceUserStatusInternalMsg
+  )
+
+  context.system.scheduler.schedule(
+    5 seconds,
+    checkVoiceRecordingInterval seconds,
+    self,
+    CheckVoiceRecordingInternalMsg
+  )
+
   def receive = {
+    case SyncVoiceUserStatusInternalMsg =>
+      checkVoiceConfUsersStatus()
+    case CheckVoiceRecordingInternalMsg =>
+      checkVoiceConfIsRunningAndRecording()
+
     //=============================
 
     // 2x messages
@@ -536,42 +560,26 @@ class MeetingActor(
 
     sendRttTraceTest()
     setRecordingChapterBreak()
-    checkVoiceConfIsRunningAndRecording()
-    checkVoiceConfUsersStatus()
 
     processUserInactivityAudit()
     flagRegisteredUsersWhoHasNotJoined()
     checkIfNeetToEndMeetingWhenNoAuthedUsers(liveMeeting)
   }
 
-  var lastcheckVoiceConfUsersStatus = System.currentTimeMillis()
   def checkVoiceConfUsersStatus(): Unit = {
-    val now = System.currentTimeMillis()
-    val elapsedTime = now - lastcheckVoiceConfUsersStatus;
-    val timeToCheck = elapsedTime > 30000 // 30seconds
-    if (timeToCheck) {
-      lastcheckVoiceConfUsersStatus = now
-      val event = MsgBuilder.buildLastcheckVoiceConfUsersStatus(
-        props.meetingProp.intId,
-        props.voiceProp.voiceConf
-      )
-      outGW.send(event)
-    }
+    val event = MsgBuilder.buildLastcheckVoiceConfUsersStatus(
+      props.meetingProp.intId,
+      props.voiceProp.voiceConf
+    )
+    outGW.send(event)
   }
 
-  var lastVoiceRecordingAndRunningCheck = System.currentTimeMillis()
   def checkVoiceConfIsRunningAndRecording(): Unit = {
-    val now = System.currentTimeMillis()
-    val elapsedTime = now - lastVoiceRecordingAndRunningCheck;
-    val timeToCheck = elapsedTime > 30000 // 30seconds
-    if (props.recordProp.record && timeToCheck) {
-      lastVoiceRecordingAndRunningCheck = now
-      val event = MsgBuilder.buildCheckRunningAndRecordingToVoiceConfSysMsg(
-        props.meetingProp.intId,
-        props.voiceProp.voiceConf
-      )
-      outGW.send(event)
-    }
+    val event = MsgBuilder.buildCheckRunningAndRecordingToVoiceConfSysMsg(
+      props.meetingProp.intId,
+      props.voiceProp.voiceConf
+    )
+    outGW.send(event)
   }
 
   var lastRecBreakSentOn = expiryTracker.startedOnInMs
