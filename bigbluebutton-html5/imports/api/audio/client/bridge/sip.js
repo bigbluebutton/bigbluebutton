@@ -11,19 +11,22 @@ const MEDIA_TAG = MEDIA.mediaTag;
 const CALL_TRANSFER_TIMEOUT = MEDIA.callTransferTimeout;
 const CALL_HANGUP_TIMEOUT = MEDIA.callHangupTimeout;
 const CALL_HANGUP_MAX_RETRIES = MEDIA.callHangupMaximumRetries;
+const RELAY_ONLY_ON_RECONNECT = MEDIA.relayOnlyOnReconnect;
 const IPV4_FALLBACK_DOMAIN = Meteor.settings.public.app.ipv4FallbackDomain;
 const ICE_NEGOTIATION_FAILED = ['iceConnectionFailed'];
 const CALL_CONNECT_TIMEOUT = 15000;
 const ICE_NEGOTIATION_TIMEOUT = 20000;
 
 class SIPSession {
-  constructor(user, userData, protocol, hostname, baseCallStates, baseErrorCodes) {
+  constructor(user, userData, protocol, hostname, 
+    baseCallStates, baseErrorCodes, reconnectAttempt) {
     this.user = user;
     this.userData = userData;
     this.protocol = protocol;
     this.hostname = hostname;
     this.baseCallStates = baseCallStates;
     this.baseErrorCodes = baseErrorCodes;
+    this.reconnectAttempt = reconnectAttempt;
   }
 
   static parseDTMF(message) {
@@ -216,6 +219,7 @@ class SIPSession {
         turnServers: turn,
         hackPlanBUnifiedPlanTranslation: isSafari,
         hackAddAudioTransceiver: isSafariWebview,
+        relayOnlyOnReconnect: this.reconnectAttempt && RELAY_ONLY_ON_RECONNECT,
       });
 
       const handleUserAgentConnection = () => {
@@ -479,7 +483,7 @@ export default class SIPBridge extends BaseAudioBridge {
       let { hostname } = this;
 
       this.activeSession = new SIPSession(this.user, this.userData, this.protocol,
-        hostname, this.baseCallStates, this.baseErrorCodes);
+        hostname, this.baseCallStates, this.baseErrorCodes, false);
 
       const callback = (message) => {
         if (message.status === this.baseCallStates.failed) {
@@ -503,7 +507,7 @@ export default class SIPBridge extends BaseAudioBridge {
           if (shouldTryReconnect) {
             const fallbackExtension = this.activeSession.inEchoTest ? extension : undefined;
             this.activeSession = new SIPSession(this.user, this.userData, this.protocol,
-              hostname, this.baseCallStates, this.baseErrorCodes);
+              hostname, this.baseCallStates, this.baseErrorCodes, true);
             this.activeSession.joinAudio({ isListenOnly, extension: fallbackExtension, inputStream }, callback)
               .then((value) => {
                 resolve(value);
