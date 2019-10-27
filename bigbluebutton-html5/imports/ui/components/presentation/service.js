@@ -83,7 +83,7 @@ const parseCurrentSlideContent = (yesValue, noValue, trueValue, falseValue) => {
   let optionsPoll = content.match(pollRegex) || [];
   if (optionsPoll) optionsPoll = optionsPoll.map(opt => `\r${opt[0]}.`);
 
-  const excludePatt = '(?<![1-6A-Fa-f].*)';
+  const excludePatt = '[^.)]';
   const ynPollString = `(${excludePatt}${yesValue}\\s*\\/\\s*${noValue})|(${excludePatt}${noValue}\\s*\\/\\s*${yesValue})`;
   const ynOptionsRegex = new RegExp(ynPollString, 'gi');
   const ynPoll = content.match(ynOptionsRegex) || [];
