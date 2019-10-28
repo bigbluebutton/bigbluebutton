@@ -77,20 +77,26 @@ def archive_notes(meeting_id, notes_endpoint, notes_formats, raw_archive_dir)
 end
 
 def archive_audio(meeting_id, audio_dir, raw_archive_dir)
-  BigBlueButton.logger.info("Archiving audio #{audio_dir}/#{meeting_id}-*.wav")
-  audio_dest_dir = "#{raw_archive_dir}/#{meeting_id}/audio"
+  BigBlueButton.logger.info("Archiving audio #{audio_dir}/#{meeting_id}-*.*")
+  audio_dest_dir = File.join(raw_archive_dir, meeting_id, 'audio')
   FileUtils.mkdir_p(audio_dest_dir)
-  audio_files = Dir.glob("#{audio_dir}/#{meeting_id}-*.wav")
+  audio_files = Dir.glob("#{audio_dir}/#{meeting_id}-*.*")
   if audio_files.empty?
     BigBlueButton.logger.warn("No audio found for #{meeting_id}")
     return
   end
   audio_files.each do |audio_file|
-    output_basename = File.join(raw_archive_dir, meeting_id, 'audio', File.basename(audio_file, '.wav'))
-    # Note that the encode method saves to a temp file then renames to the
-    # final filename, making this safe for segmented recordings that are
-    # concurrently being processed.
-    BigBlueButton::EDL.encode(audio_file, nil, AUDIO_ARCHIVE_FORMAT, output_basename)
+    # Recompress the audio only if freeswitch saved an uncompressed wav, otherwise copy
+    if audio_file.end_with?('.wav')
+      output_basename = File.join(audio_dest_dir, File.basename(audio_file, '.wav'))
+      # Note that the encode method saves to a temp file then renames to the
+      # final filename, making this safe for segmented recordings that are
+      # concurrently being processed.
+      BigBlueButton::EDL.encode(audio_file, nil, AUDIO_ARCHIVE_FORMAT, output_basename)
+    else
+      ret = BigBlueButton.exec_ret('rsync', '-stv', audio_file, audio_dest_dir)
+      BigBlueButton.logger.warn("Failed to archive #{audio_file}") if ret != 0
+    end
   end
 end
 
