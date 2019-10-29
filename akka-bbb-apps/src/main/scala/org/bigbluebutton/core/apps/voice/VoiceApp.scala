@@ -16,7 +16,7 @@ object VoiceApp {
       timestamp:       Long,
       recordAudioCode: String
   ): String = {
-    val validCodecs = Set("wav", "ogg")
+    val validCodecs = Set("wav", "ogg", "opus", "flac")
     val tmpFileExt = recordAudioCode.toLowerCase().stripPrefix(".")
     var fileExt = ".wav"
     if (validCodecs.contains(tmpFileExt)) {
