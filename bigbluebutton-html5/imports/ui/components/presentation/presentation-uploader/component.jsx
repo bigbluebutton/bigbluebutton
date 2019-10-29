@@ -132,6 +132,10 @@ const intlMessages = defineMessages({
     id: 'app.presentationUploder.conversion.pageCountExceeded',
     description: 'warns the user that the conversion failed because of the page count',
   },
+  PDF_HAS_BIG_PAGE: {
+    id: 'app.presentationUploder.conversion.pdfHasBigPage',
+    description: 'warns the user that the conversion failed because of the pdf page siz that exceeds the allowed limit',
+  },
   isDownloadable: {
     id: 'app.presentationUploder.isDownloadableLabel',
     description: 'presentation is available for downloading by all viewers',
