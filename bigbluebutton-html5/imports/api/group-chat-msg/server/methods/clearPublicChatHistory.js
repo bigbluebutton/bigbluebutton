@@ -9,7 +9,6 @@ export default function clearPublicChatHistory(credentials) {
   const CHAT_CONFIG = Meteor.settings.public.chat;
   const PUBLIC_GROUP_CHAT_ID = CHAT_CONFIG.public_group_id;
 
-
   const { meetingId, requesterUserId, requesterToken } = credentials;
 
   check(meetingId, String);

@@ -1,39 +1,98 @@
+@import "../../../stylesheets/variables/_all";
+
+:root {
+  --position-left-edge: 60%;
+  --position-bottom-edge: 5%;
+  --position-top-firefox: 8em;
+  --position-left-firefox: 22em;
+  --position-top-chrome: 5.5em;
+  --position-left-chrome: 18em;
+  --position-top-safari: 150px;
+  --arrow-top: -65px;
+  --arrow-left: -20px;
+  --arrow-top-edge: -2.5rem;
+  --arrow-left-edge: -21rem;
+  --rtl-hint-top: 15rem;
+}
+
 @mixin arrowIconStyle() {
   &:after {
-    top: -50px;
-    left: -20px;
+    top: var(--arrow-top);
+    left: var(--arrow-left);
+    right: auto;
     font-size: 20px;
-    animation: bounce calc(var(--enableAnimation) * 2s) infinite;
     display: block;
     font-family: 'bbb-icons';
     content: "\E906";
     position: relative;
+
+    [dir="rtl"] & {
+      left: auto;
+      right: var(--arrow-left);
+    }
+
+    :global(.animationsEnabled) & {
+      animation: bounce 2s infinite;
+    }
   }
 
   :global(.browser-edge) &:after {
-    top: -50px;
-    left: -15.5em;
+    top: var(--arrow-top-edge);
+    left: var(--arrow-left-edge);
+    right: auto;
     font-size: 20px;
-    animation: bounceRotate calc(var(--enableAnimation) * 2s) infinite;
+    :global(.animationsEnabled) & {
+      animation: bounceRotate 2s infinite;
+    }
+
+    [dir="rtl"] & {
+      left: auto;
+      right: var(--arrow-left-edge);
+    }
   }
+}
+
+@mixin useRTLPosition() {
+  right: none;
+  left: none;
+  top: var(--rtl-hint-top);
 }
 
 @mixin positionHint() {
   :global(.browser-edge) & {
-    left: 50%;
-    bottom: 10%;
+    left: var(--position-left-edge);
+    right: auto;
+    bottom: var(--position-bottom-edge);
+
+    [dir="rtl"] & {
+      left: auto;
+      right: var(--position-left-edge);
+    }
   }
   :global(.browser-firefox) & {
-    top: 210px;
-    left: 605px;
+    top: var(--position-top-firefox);
+    left: var(--position-left-firefox);
+    right: auto;
+
+    [dir="rtl"] & {
+      @include useRTLPosition();
+    }
   }
   :global(.browser-chrome) & {
-    top: 145px;
-    left: 380px;
+    top: var(--position-top-chrome);
+    left: var(--position-left-chrome);
+    right: auto;
+
+    [dir="rtl"] & {
+      @include useRTLPosition();
+    }
   }
   :global(.browser-safari) & {
-    top: 100px;
-    left: 100px;
+    top: var(--position-top-safari);
+    left:0;
+    right:0;
+    margin-left: auto;
+    margin-right: auto;
   }
 }
 
@@ -45,18 +104,31 @@
   left: 0;
   right: 0;
   background-color: rgba(0, 0, 0, .85);
-  animation: fade-in calc(var(--enableAnimation) * .5s) ease-in;
+
+  :global(.animationsEnabled) & {
+    animation: fade-in .5s ease-in;
+  }
+}
+
+.content {
+  color: var(--color-black);
 }
 
 .hint {
   @include positionHint();
-
   position: absolute;
+  background: none;
+  box-shadow: none;
   color: #fff;
   font-size: 16px;
   font-weight: 400;
+  padding: 0 0 0 var(--jumbo-padding-x);
   line-height: 18px;
-  width: 300px;
+  width: 340px;
+
+  [dir="rtl"] & {
+    padding: 0 var(--jumbo-padding-x) 0 0;
+  }
 
   small {
     display: block;

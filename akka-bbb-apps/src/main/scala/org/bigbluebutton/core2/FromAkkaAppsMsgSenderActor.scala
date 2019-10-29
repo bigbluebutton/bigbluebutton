@@ -11,7 +11,7 @@ object FromAkkaAppsMsgSenderActor {
 }
 
 class FromAkkaAppsMsgSenderActor(msgSender: MessageSender)
-    extends Actor with ActorLogging with SystemConfiguration {
+  extends Actor with ActorLogging with SystemConfiguration {
 
   def receive = {
     case msg: BbbCommonEnvCoreMsg => handleBbbCommonEnvCoreMsg(msg)
@@ -47,6 +47,10 @@ class FromAkkaAppsMsgSenderActor(msgSender: MessageSender)
       case StopRecordingVoiceConfSysMsg.NAME =>
         msgSender.send(toVoiceConfRedisChannel, json)
       case TransferUserToVoiceConfSysMsg.NAME =>
+        msgSender.send(toVoiceConfRedisChannel, json)
+      case CheckRunningAndRecordingToVoiceConfSysMsg.NAME =>
+        msgSender.send(toVoiceConfRedisChannel, json)
+      case GetUsersStatusToVoiceConfSysMsg.NAME =>
         msgSender.send(toVoiceConfRedisChannel, json)
 
       //==================================================================

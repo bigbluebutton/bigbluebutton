@@ -4,7 +4,7 @@
   --toolbar-margin: .8rem;
   --toolbar-box-shadow: 0 0 10px -2px rgba(0, 0, 0, .25);
   --toolbar-button-color: var(--btn-default-color);
-  --toolbar-button-bg: var(--btn-default-bg);  
+  --toolbar-button-bg: var(--btn-default-bg);
   --toolbar-button-width: 3rem;
   --toolbar-button-height: 3rem;
   --toolbar-button-font-size: 1.75rem;
@@ -14,23 +14,36 @@
   --toolbar-list-bg: #ddd;
   --toolbar-list-bg-focus: #c6c6c6;
   --toolbar-list-color: var(--color-gray);
+  --toolbar-item-outline-offset: -.19rem;
+  --toolbar-item-triangle-padding: 2px;
 }
 
 .toolbarContainer {
   display: flex;
   flex-direction: column;
   justify-content: center;
-  margin-right: var(--toolbar-margin);
+  margin: 0 var(--toolbar-margin) 0 0;
   position: absolute;
   top: 0;
   right: 0;
+  left: auto;
   bottom: 0;
   pointer-events: none;
+
+  [dir="rtl"] & {
+    margin: 0 0 0 var(--toolbar-margin);
+    right: auto;
+    left: 0;
+  }
 
   @include mq("#{$landscape} and (max-height:#{upper-bound($small-range)}), #{$small-only}") {
     transform: scale(.75);
     transform-origin: right;
   }
+}
+
+.toolbarContainer:hover{
+  z-index: 3;
 }
 
 .toolbarWrapper {
@@ -44,6 +57,7 @@
   pointer-events: all;
 
   .buttonWrapper > .toolbarButton {
+    outline-offset: var(--toolbar-item-outline-offset);
     border-bottom: var(--toolbar-button-border) solid var(--toolbar-button-border-color);
   }
 
@@ -53,6 +67,12 @@
 
     &.toolbarActive {
       border-top-left-radius: 0;
+      border-top-right-radius: var(--toolbar-button-border-radius);
+
+      [dir="rtl"] & {
+        border-top-left-radius: var(--toolbar-button-border-radius);
+        border-top-right-radius: 0;
+      }
     }
   }
 
@@ -63,6 +83,12 @@
 
     &.toolbarActive {
       border-bottom-left-radius: 0;
+      border-top-right-radius: var(--toolbar-button-border-radius);
+
+      [dir="rtl"] & {
+        border-bottom-left-radius: var(--toolbar-button-border-radius);
+        border-top-right-radius: 0;
+      }
     }
   }
 }
@@ -75,6 +101,28 @@
   position: relative;
 }
 
+.cornerTriangle::before {
+  content: '';
+  position: absolute;
+  border-color: transparent;
+  border-style: solid;
+  z-index: 2;
+  border-radius: 0;
+  border-width: 0.35em;
+  bottom: var(--toolbar-item-triangle-padding);
+  left: var(--toolbar-item-triangle-padding);
+  border-left-color: var(--toolbar-list-color);
+  border-bottom-color: var(--toolbar-list-color);
+
+  [dir="rtl"] & {
+    left: auto;
+    right: var(--toolbar-item-triangle-padding);
+
+    border-left-color: transparent;
+    border-right-color: var(--toolbar-list-color);
+  }
+}
+
 .toolbarButton {
   padding: 0;
   border: 0;
@@ -83,7 +131,7 @@
   display: flex;
   flex-direction: row;
   align-items: center !important;
-  justify-content: center !important;  
+  justify-content: center !important;
   position: relative;
   border-radius: 0;
   box-shadow: none !important;
@@ -119,12 +167,27 @@
   height: var(--toolbar-button-height);
   position: absolute;
   right: var(--toolbar-button-height);
+  left: auto;
   top: 0;
   box-shadow: var(--toolbar-box-shadow);
+
+  [dir="rtl"] & {
+    right: auto;
+    left: var(--toolbar-button-height);
+  }
 
   .buttonWrapper:first-child > .toolbarListButton {
     border-top-left-radius: var(--toolbar-button-border-radius);
     border-bottom-left-radius: var(--toolbar-button-border-radius);
+    border-top-right-radius: 0;
+    border-bottom-right-radius: 0;
+
+    [dir="rtl"] & {
+      border-top-left-radius: 0;
+      border-bottom-left-radius: 0;
+      border-top-right-radius: var(--toolbar-button-border-radius);
+      border-bottom-right-radius: var(--toolbar-button-border-radius);
+    }
   }
 }
 
@@ -140,6 +203,7 @@
   box-shadow: none;
   border-radius: 0;
   padding: initial;
+  outline-offset: var(--toolbar-item-outline-offset);
 
   &:hover,
   &:focus {

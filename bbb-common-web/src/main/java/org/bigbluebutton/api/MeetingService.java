@@ -314,8 +314,10 @@ public class MeetingService implements MessageListener {
             m.getGuestPolicy(), m.getWelcomeMessageTemplate(), m.getWelcomeMessage(), m.getModeratorOnlyMessage(),
             m.getDialNumber(), m.getMaxUsers(), m.getMaxInactivityTimeoutMinutes(), m.getWarnMinutesBeforeMax(),
             m.getMeetingExpireIfNoUserJoinedInMinutes(), m.getmeetingExpireWhenLastUserLeftInMinutes(),
-            m.getUserInactivityInspectTimerInMinutes(), m.getUserActivitySignResponseDelayInMinutes(),
-            m.getUserInactivityThresholdInMinutes(), m.getMuteOnStart(), keepEvents);
+            m.getUserInactivityInspectTimerInMinutes(), m.getUserInactivityThresholdInMinutes(),
+            m.getUserActivitySignResponseDelayInMinutes(), m.getMuteOnStart(), m.getAllowModsToUnmuteUsers(), keepEvents,
+            m.breakoutRoomsParams,
+            m.lockSettingsParams);
   }
 
   private String formatPrettyDate(Long timestamp) {
@@ -345,9 +347,12 @@ public class MeetingService implements MessageListener {
         String logStr = gson.toJson(logData);
         log.info(" --analytics-- data={}", logStr);
 
-        gw.ejectDuplicateUser(message.meetingID,
-                prevUser.getInternalUserId(), prevUser.getFullname(),
-                prevUser.getExternalUserId());
+        if (!m.allowDuplicateExtUserid) {
+          gw.ejectDuplicateUser(message.meetingID,
+                  prevUser.getInternalUserId(), prevUser.getFullname(),
+                  prevUser.getExternalUserId());
+        }
+
       }
 
     }
@@ -398,21 +403,48 @@ public class MeetingService implements MessageListener {
       return null;
   }
 
+  public Boolean validateTextTrackSingleUseToken(String recordId, String caption, String token) {
+    return recordingService.validateTextTrackSingleUseToken(recordId, caption, token);
+  }
+
   public String getRecordingTextTracks(String recordId) {
     return recordingService.getRecordingTextTracks(recordId);
   }
 
   public String putRecordingTextTrack(String recordId, String kind, String lang, File file, String label,
-          String origFilename, String trackId) {
+          String origFilename, String trackId, String contentType, String tempFilename) {
+
+    Map<String, Object> logData = new HashMap<>();
+    logData.put("recordId", recordId);
+    logData.put("kind", kind);
+    logData.put("lang", lang);
+    logData.put("label", label);
+    logData.put("origFilename", origFilename);
+    logData.put("contentType", contentType);
+    logData.put("tempFilename", tempFilename);
+    logData.put("logCode", "recording_captions_uploaded");
+    logData.put("description", "Captions for recording uploaded.");
+
+    Gson gson = new Gson();
+    String logStr = gson.toJson(logData);
+    log.info(" --analytics-- data={}", logStr);
 
       UploadedTrack track = new UploadedTrack(recordId, kind, lang, label, origFilename, file, trackId,
-              getCaptionTrackInboxDir());
+              getCaptionTrackInboxDir(), contentType, tempFilename);
       return recordingService.putRecordingTextTrack(track);
   }
 
   public String getCaptionTrackInboxDir() {
   	return recordingService.getCaptionTrackInboxDir();
-	}
+  }
+  
+  public String getCaptionsDir() {
+    return recordingService.getCaptionsDir();
+  }
+
+  public boolean isRecordingExist(String recordId) {
+    return recordingService.isRecordingExist(recordId);
+  }
 
   public String getRecordings2x(List<String> idList, List<String> states, Map<String, String> metadataFilters) {
     return recordingService.getRecordings2x(idList, states, metadataFilters);
@@ -474,18 +506,19 @@ public class MeetingService implements MessageListener {
     if (parentMeeting != null) {
 
       Map<String, String> params = new HashMap<>();
-      params.put("name", message.name);
-      params.put("meetingID", message.meetingId);
-      params.put("parentMeetingID", message.parentMeetingId);
-      params.put("isBreakout", "true");
-      params.put("sequence", message.sequence.toString());
-      params.put("freeJoin", message.freeJoin.toString());
-      params.put("attendeePW", message.viewerPassword);
-      params.put("moderatorPW", message.moderatorPassword);
-      params.put("voiceBridge", message.voiceConfId);
-      params.put("duration", message.durationInMinutes.toString());
-      params.put("record", message.record.toString());
-      params.put("welcome", getMeeting(message.parentMeetingId).getWelcomeMessageTemplate());
+      params.put(ApiParams.NAME, message.name);
+      params.put(ApiParams.MEETING_ID, message.meetingId);
+      params.put(ApiParams.PARENT_MEETING_ID, message.parentMeetingId);
+      params.put(ApiParams.IS_BREAKOUT, "true");
+      params.put(ApiParams.SEQUENCE, message.sequence.toString());
+      params.put(ApiParams.FREE_JOIN, message.freeJoin.toString());
+      params.put(ApiParams.ATTENDEE_PW, message.viewerPassword);
+      params.put(ApiParams.MODERATOR_PW, message.moderatorPassword);
+      params.put(ApiParams.DIAL_NUMBER, message.dialNumber);
+      params.put(ApiParams.VOICE_BRIDGE, message.voiceConfId);
+      params.put(ApiParams.DURATION, message.durationInMinutes.toString());
+      params.put(ApiParams.RECORD, message.record.toString());
+      params.put(ApiParams.WELCOME, getMeeting(message.parentMeetingId).getWelcomeMessageTemplate());
 
       Map<String, String> parentMeetingMetadata = parentMeeting.getMetadata();
 
@@ -544,6 +577,20 @@ public class MeetingService implements MessageListener {
       destroyMeeting(m.getInternalId());
       meetings.remove(m.getInternalId());
       removeUserSessions(m.getInternalId());
+
+      Map<String, Object> logData = new HashMap<>();
+      logData.put("meetingId", m.getInternalId());
+      logData.put("externalMeetingId", m.getExternalId());
+      logData.put("name", m.getName());
+      logData.put("duration", m.getDuration());
+      logData.put("record", m.isRecord());
+      logData.put("logCode", "meeting_removed_from_running");
+      logData.put("description", "Meeting removed from list of running meetings.");
+
+      Gson gson = new Gson();
+      String logStr = gson.toJson(logData);
+
+      log.info(" --analytics-- data={}", logStr);
     }
   }
 
@@ -675,12 +722,15 @@ public class MeetingService implements MessageListener {
             callbackUrl = new URIBuilder(new URI(callbackUrl))
                     .addParameter("recordingmarks", m.haveRecordingMarks() ? "true" : "false")
                     .addParameter("meetingID", m.getExternalId()).build().toURL().toString();
+            callbackUrlService.handleMessage(new MeetingEndedEvent(m.getInternalId(), m.getExternalId(), m.getName(), callbackUrl));
         } catch (MalformedURLException e) {
             log.error("Malformed URL in callback url=[{}]", callbackUrl, e);
         } catch (URISyntaxException e) {
             log.error("URI Syntax error in callback url=[{}]", callbackUrl, e);
+        } catch (Exception e) {
+          log.error("Error in callback url=[{}]", callbackUrl, e);
         }
-        callbackUrlService.handleMessage(new MeetingEndedEvent(m.getInternalId(), m.getExternalId(), m.getName(), callbackUrl));
+
       }
 
       processRemoveEndedMeeting(message);

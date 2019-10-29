@@ -1,92 +1,116 @@
 @import "/imports/ui/stylesheets/variables/_all";
+@import "/imports/ui/stylesheets/mixins/_indicators";
 
-.visuallyhidden {
-  position: absolute; 
-  overflow: hidden; 
-  clip: rect(0 0 0 0); 
-  height: 1px; width: 1px; 
-  margin: -1px; padding: 0; border: 0; 
+:root {
+  --whiteboard-toolbar-padding-sm: .3rem; 
+  --whiteboard-toolbar-padding: .5rem; 
+  --whiteboard-toolbar-margin: .5rem; 
 }
 
-.presentationToolbarWrapper,
-.presentationControls,
+.visuallyhidden {
+  position: absolute;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  height: 1px;
+  width: 1px;
+  margin: -1px;
+  padding: 0;
+  border: 0;
+}
+
+.presentationSlideControls {
+  justify-content: center;
+  padding-left: var(--whiteboard-toolbar-padding);
+  padding-right: var(--whiteboard-toolbar-padding);
+}
+
+.presentationBtn {
+  position: relative;
+}
+
+.presentationZoomControls {
+  justify-content: flex-end;
+  padding: 0 var(--whiteboard-toolbar-padding) 0 0;
+
+  [dir="rtl"] & {
+    padding: 0 0 0 var(--whiteboard-toolbar-padding);
+  }
+}
+
+.presentationSlideControls,
+.presentationZoomControls,
 .zoomWrapper {
-  order: 2;
   display: flex;
   flex-direction: row;
   align-items: center;
-  margin-left: .5rem;
-  margin-right: .5rem;
-  border-radius: var(--toolbar-button-border-radius);
+  border-radius: 0;
 }
 
-.presentationControls,
+.presentationSlideControls,
+.presentationZoomControls,
 .zoomWrapper {
-  box-shadow: 0 0 10px -2px rgba(0, 0, 0, .25);
-
-  span:first-of-type button,
-  button:first-of-type {
-    border-top-left-radius: 5px;
-    border-bottom-left-radius: 5px;
-    border-top-right-radius: 0;
-    border-bottom-right-radius: 0;
-  }
-
-  span:last-of-type button,
-  button:last-of-type {
-    border-top-left-radius: 0;
-    border-bottom-left-radius: 0;
-    border-top-right-radius: 5px;
-    border-bottom-right-radius: 5px;
-  }
-
-  span:last-of-type button[aria-labelledby~=fitWidthLabel],
-  button:last-of-type[aria-labelledby~=fitWidthLabel] {
-    border-top-left-radius: 5px;
-    border-bottom-left-radius: 5px;
-    border-top-right-radius: 5px;
-    border-bottom-right-radius: 5px;
+  button {
+    padding: var(--whiteboard-toolbar-padding);
   }
 }
 
 .presentationToolbarWrapper {
-  position: absolute;
-  bottom: .8rem;
+  position: relative;
   align-self: center;
-  justify-content: center;
   z-index: 1;
+  background-color: var(--color-off-white);
+  border-top: 1px solid var(--color-blue-lightest);
+  min-width: fit-content;
+  width: 100%;
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
 
-  @include mq("#{$landscape} and (max-height:#{upper-bound($small-range)}), #{$small-only}") {
-    transform: scale(.75);
-    transform-origin: bottom;
+  select {
+    &:-moz-focusring {
+      outline: none;
+    }
+
+    margin: 0 var(--whiteboard-toolbar-margin) 0 0;
+    padding: var(--whiteboard-toolbar-padding);
+    padding-left: var(--whiteboard-toolbar-padding-sm);
+
+    [dir="rtl"] & {
+      margin: 0 0 0 var(--whiteboard-toolbar-margin);
+      padding: var(--whiteboard-toolbar-padding);
+      padding-right: var(--whiteboard-toolbar-padding-sm);
+    }
+
+    option {
+      color: var(--toolbar-button-color);
+      background-color: var(--color-off-white);
+    }
   }
-
 
   button,
   select,
-  > div {
+  >div {
     color: var(--toolbar-button-color);
-    background-color: var(--toolbar-button-bg);
-    border-top: 0;
-    border-bottom: 0;
-    border-left: 0;
+    background-color: var(--color-off-white);
     border-radius: 0;
-    height: 2.25rem;
     box-shadow: none !important;
-    border: 0;    
+    border: 0;
+
+    &:focus {
+      background-color: var(--color-off-white);
+      border: 0;
+    }
   }
 
   i {
     color: var(--toolbar-button-color);
+    display: flex;
+    justify-content: center;
+    align-items: center;
   }
 }
 
 .zoomWrapper {
-  // border-radius: 0 5px 5px 0;
   justify-content: space-between;
-  // flex-direction: column;
-  width: 11.5%;
-  min-width: 175px;
   background-color: var(--toolbar-button-bg);
 }
 
@@ -94,24 +118,61 @@
   border-right: 0 !important;
 }
 
+.fitToWidth,
 .skipSlide,
 .prevSlide {
   border: none !important;
 
-  &[aria-disabled="true"] {
-    opacity: 1;
-    background-color: var(--toolbar-list-bg);
+  i {
+    font-size: 1rem;
+
+    [dir="rtl"] & {
+      -webkit-transform: scale(-1, 1);
+      -moz-transform: scale(-1, 1);
+      -ms-transform: scale(-1, 1);
+      -o-transform: scale(-1, 1);
+      transform: scale(-1, 1);
+    }
+  }
+}
+
+.fitToWidth {
+  margin-left: var(--whiteboard-toolbar-margin);
+  margin-right: var(--whiteboard-toolbar-margin);
+}
+
+.presentationZoomControls {
+  .fitToWidth,
+  .skipSlide,
+  .prevSlide {
+    i {
+      font-size: 1.2rem;
+    }
   }
 }
 
 .skipSlideSelect {
   padding: 0 var(--sm-padding-y);
-}
+  margin: var(--border-size);
+  margin-left: var(--whiteboard-toolbar-margin);
 
-.skipSlideSelect,
-.zoomPercentageDisplay {
-  border-left: var(--toolbar-button-border) solid var(--toolbar-button-border-color) !important;
-  border-right: var(--toolbar-button-border) solid var(--toolbar-button-border-color) !important;
+  [dir="rtl"] & {
+    margin: var(--border-size);
+    margin-right: var(--whiteboard-toolbar-margin);
+  }
+
+  &:-moz-focusring {
+    outline: none;
+  }
+  
+  &:hover {
+    @include highContrastOutline();
+  }
+
+  &:focus {
+    @include highContrastOutline();
+    outline-style: solid;
+  }
 }
 
 .zoomSlider {
@@ -123,19 +184,17 @@
 }
 
 .zoomPercentageDisplay {
-  width: 100%;
-  height: 2.25rem;
   text-align: center;
   color: black;
   display: flex;
   align-items: center;
   justify-content: center;
-  border-top: 0 !important;
-  border-bottom: 0 !important;
-  border-top-right-radius: 0 !important;
-  border-bottom-right-radius: 0 !important;
+  border: 0 !important;
+  font-weight: 200;
+  margin-left: var(--whiteboard-toolbar-margin);
+  margin-right: var(--whiteboard-toolbar-margin);
 
-  &:hover{
+  &:hover {
     opacity: .8;
   }
 }

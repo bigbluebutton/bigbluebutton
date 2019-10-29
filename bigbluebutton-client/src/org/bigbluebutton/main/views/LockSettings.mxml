@@ -41,7 +41,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			[Bindable] public var disableMic:Boolean = false;
 			[Bindable] public var disablePubChat:Boolean = false;
 			[Bindable] public var disablePrivChat:Boolean = false;
+			[Bindable] public var disableNote:Boolean = false;
 			[Bindable] public var lockedLayout:Boolean = false;
+			[Bindable] public var hideUserList:Boolean = false;
 			[Bindable] public var lockOnJoin:Boolean = false;
 			[Bindable] public var lockOnJoinConfigurable:Boolean = false;
 			  
@@ -53,7 +55,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
 			private function onSaveClicked():void {
 				var event:LockControlEvent = new LockControlEvent(LockControlEvent.SAVE_LOCK_SETTINGS);
-				var lockSettings:LockSettingsVO = new LockSettingsVO(chkDisableWebcam.selected, chkDisableMicrophone.selected, chkDisablePrivateChat.selected, chkDisablePublicChat.selected, chkDisableLayout.selected, chkLockOnJoin.selected, lockOnJoinConfigurable);
+				var lockSettings:LockSettingsVO = new LockSettingsVO(chkDisableWebcam.selected, chkDisableMicrophone.selected, chkDisablePrivateChat.selected, chkDisablePublicChat.selected, chkDisableNote.selected, chkDisableLayout.selected, hideUserList, chkLockOnJoin.selected, lockOnJoinConfigurable);
 				event.payload = lockSettings.toMap();
 				dispatchEvent(event);
 
@@ -143,6 +145,14 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
                 text="{ResourceUtil.getInstance().getString('bbb.lockSettings.privateChat')}" />
 			<mx:HBox width="30%" styleName="lockSettingsCheckboxColumn">
 				<mx:CheckBox id="chkDisablePrivateChat" selected="{disablePrivChat}"/>
+			</mx:HBox>
+		</mx:HBox>
+
+		<mx:HBox verticalAlign="top" width="100%">
+			<mx:Label width="70%" styleName="lockSettingsDefaultLabelStyle"
+					  text="{ResourceUtil.getInstance().getString('bbb.lockSettings.note')}" />
+			<mx:HBox width="30%" styleName="lockSettingsCheckboxColumn">
+				<mx:CheckBox id="chkDisableNote" selected="{disableNote}"/>
 			</mx:HBox>
 		</mx:HBox>
 

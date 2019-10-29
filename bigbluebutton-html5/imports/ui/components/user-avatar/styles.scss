@@ -16,14 +16,15 @@
 
 .avatar {
   position: relative;
-  width: 100%;
-  height: 0;
-  padding-bottom: 100%;
+  padding-bottom: 2rem;
   border-radius: 50%;
   text-align: center;
-  text-transform: capitalize;
-  transition: calc(var(--enableAnimation) * .3s) ease-in-out;
   font-size: .85rem;
+  border: 2px solid transparent;
+
+  :global(.animationsEnabled) & {
+    transition: .3s ease-in-out;
+  }
 
   &:after,
   &:before {
@@ -31,7 +32,10 @@
     position: absolute;
     width: 0;
     height: 0;
-    padding: .5rem;
+    padding-top: .5rem;
+    padding-right: 0;
+    padding-left: 0;
+    padding-bottom: 0;
     color: inherit;
     top: auto;
     left: auto;
@@ -42,7 +46,6 @@
     background-color: var(--user-indicator-voice-bg);
     color: var(--user-avatar-text);
     opacity: 0;
-    transition: calc(var(--enableAnimation) * .3s) ease-in-out;
     font-family: 'bbb-icons';
     font-size: .65rem;
     line-height: 0;
@@ -50,6 +53,17 @@
     vertical-align: middle;
     letter-spacing: -.65rem;
     z-index: 1;
+
+    [dir="rtl"] & {
+      left: var(--user-indicators-offset);
+      right: auto;
+      padding-right: .65rem;
+      padding-left: 0;
+    }
+
+    :global(.animationsEnabled) & {
+        transition: .3s ease-in-out;
+    }
   }
 }
 
@@ -61,23 +75,26 @@
   left: 0;
   background-color: var(--user-color);
   border-radius: inherit;
-  animation: pulse calc(var(--enableAnimation) * 1s) infinite ease-in;
+
+  :global(.animationsEnabled) & {
+    animation: pulse 1s infinite ease-in;
+  }
+
+  &::before {
+    :global(.animationsDisabled) & {
+      content: '';
+      position: absolute;
+      top: 0;
+      right: 0;
+      bottom: 0;
+      left: 0;
+      background-color: var(--user-color);
+      border-radius: inherit;
+      box-shadow: 0 0 0 4px var(--user-color);
+      opacity: .5;
+    }
+  }
 }
-
-
-[style~="--enableAnimation:0;"] .talking::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  right: 0;
-  bottom: 0;
-  left: 0;
-  background-color: var(--user-color);
-  border-radius: inherit;
-  box-shadow: 0px 0px 0px 4px var(--user-color);
-  opacity: .5;
-}
-
 
 @keyframes pulse {
   0% {
@@ -107,6 +124,27 @@
     background-color: var(--user-indicator-voice-bg);
     top: 1.375rem;
     left: 1.375rem;
+    right: auto;
+
+    [dir="rtl"] & {
+      left: auto;
+      right: 1.375rem;
+    }
+  }
+}
+
+.noVoice {
+  &:after {
+    content: "";
+    background-color: var(--color-off-white);
+    top: 1.375rem;
+    left: 1.375rem;
+    right: auto;
+
+    [dir="rtl"] & {
+      left: auto;
+      right: 1.375rem;
+    }
   }
 }
 
@@ -117,7 +155,6 @@
   }
 }
 
-
 .listenOnly {
   &:after {
     content: "\00a0\e90c\00a0";
@@ -126,7 +163,8 @@
 
 .listenOnly,
 .muted,
-.voice {
+.voice,
+.noVoice {
   @include indicatorStyles();
 }
 

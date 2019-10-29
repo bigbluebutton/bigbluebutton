@@ -38,18 +38,24 @@
   height: 18px;
   margin: 0 5px;
   background-color: var(--loader-bullet);
-
   border-radius: 100%;
   display: inline-block;
-  animation: sk-bouncedelay calc(var(--enableAnimation) * 1.4s) infinite ease-in-out both;
+
+  :global(.animationsEnabled) & {
+    animation: sk-bouncedelay 1.4s infinite ease-in-out both;
+  }
 }
 
 .spinner .bounce1 {
-  animation-delay: -0.32s;
+  :global(.animationsEnabled) & {
+    animation-delay: -0.32s;
+  }
 }
 
 .spinner .bounce2 {
-  animation-delay: -0.16s;
+  :global(.animationsEnabled) & {
+    animation-delay: -0.16s;
+  }
 }
 
 @keyframes sk-bouncedelay {

@@ -9,12 +9,19 @@
   position: relative;
   overflow-x: hidden;
   overflow-y: auto;
-  padding-left: var(--md-padding-x);
+  padding-left: var(--sm-padding-x);
   margin-left: calc(-1 * var(--md-padding-x));
   padding-right: var(--sm-padding-y);
-  margin-right: calc(-1 * var(--md-padding-x));
+  margin-right: calc(-1 * var(--md-padding-y));
   padding-bottom: var(--md-padding-x);
   margin-bottom: calc(-1 * var(--md-padding-x));
+
+  [dir="rtl"] & {
+    padding-right: var(--md-padding-x);
+    margin-right: calc(-1 * var(--md-padding-x));
+    padding-left: var(--md-padding-y);
+    margin-left: calc(-1 * var(--md-padding-x));
+  }
 }
 
 .messageList {
@@ -22,10 +29,16 @@
   flex-flow: column;
   flex-grow: 1;
   flex-shrink: 1;
-  margin-right: auto;
-  padding-right: var(--md-padding-x);
+  margin: 0 auto 0 0;
+  right: 0 var(--md-padding-x) 0 0;
   padding-top: 0;
   width: 100%;
+
+  [dir="rtl"] & {
+    margin: 0 0 0 auto;
+    padding: 0 0 0 var(--md-padding-x);
+  }
+
   &:after {
     content: "";
     display: block;

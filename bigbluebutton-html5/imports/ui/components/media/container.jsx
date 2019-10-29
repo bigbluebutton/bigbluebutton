@@ -3,17 +3,17 @@ import { withTracker } from 'meteor/react-meteor-data';
 import Settings from '/imports/ui/services/settings';
 import { defineMessages, injectIntl, intlShape } from 'react-intl';
 import PropTypes from 'prop-types';
+import { Session } from 'meteor/session';
 import { notify } from '/imports/ui/services/notification';
 import VideoService from '/imports/ui/components/video-provider/service';
 import getFromUserSettings from '/imports/ui/services/users-settings';
 import { withModalMounter } from '/imports/ui/components/modal/service';
 import Media from './component';
-import MediaService, { getSwapLayout } from './service';
+import MediaService, { getSwapLayout, shouldEnableSwapLayout } from './service';
 import PresentationPodsContainer from '../presentation-pod/container';
 import ScreenshareContainer from '../screenshare/container';
 import DefaultContent from '../presentation/default-content/component';
 import ExternalVideoContainer from '../external-video-player/container';
-import { getVideoId } from '../external-video-player/service';
 
 const LAYOUT_CONFIG = Meteor.settings.public.layout;
 const KURENTO_CONFIG = Meteor.settings.public.kurento;
@@ -104,10 +104,13 @@ class MediaContainer extends Component {
 export default withModalMounter(withTracker(() => {
   const { dataSaving } = Settings;
   const { viewParticipantsWebcams, viewScreenshare } = dataSaving;
-
   const hidePresentation = getFromUserSettings('hidePresentation', LAYOUT_CONFIG.hidePresentation);
+  const { current_presentation: hasPresentation } = MediaService.getPresentationInfo();
   const data = {
     children: <DefaultContent />,
+    audioModalIsOpen: Session.get('audioModalIsOpen'),
+    userWasInWebcam: Session.get('userWasInWebcam'),
+    joinVideo: VideoService.joinVideo,
   };
 
   if (MediaService.shouldShowWhiteboard() && !hidePresentation) {
@@ -119,14 +122,16 @@ export default withModalMounter(withTracker(() => {
     data.children = <ScreenshareContainer />;
   }
 
-  const usersVideo = VideoService.getAllUsersVideo();
+  const usersVideo = VideoService.getAllWebcamUsers();
+  data.usersVideo = usersVideo;
+
   if (MediaService.shouldShowOverlay() && usersVideo.length && viewParticipantsWebcams) {
     data.floatingOverlay = usersVideo.length < 2;
     data.hideOverlay = usersVideo.length === 0;
   }
 
   data.isScreensharing = MediaService.isVideoBroadcasting();
-  data.swapLayout = getSwapLayout();
+  data.swapLayout = (getSwapLayout() || !hasPresentation) && shouldEnableSwapLayout();
   data.disableVideo = !viewParticipantsWebcams;
 
   if (data.swapLayout) {
@@ -134,15 +139,10 @@ export default withModalMounter(withTracker(() => {
     data.hideOverlay = true;
   }
 
-  if (data.isScreensharing) {
-    data.floatingOverlay = false;
-  }
-
   if (MediaService.shouldShowExternalVideo()) {
     data.children = (
       <ExternalVideoContainer
         isPresenter={MediaService.isUserPresenter()}
-        videoId={getVideoId()}
       />
     );
   }

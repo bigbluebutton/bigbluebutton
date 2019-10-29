@@ -6,6 +6,8 @@ import Logger from '/imports/startup/server/logger';
 
 import userLeaving from './methods/userLeaving';
 
+const ROLE_MODERATOR = Meteor.settings.public.user.role_moderator;
+
 Meteor.publish('current-user', function currentUserPub(credentials) {
   const { meetingId, requesterUserId, requesterToken } = credentials;
 
@@ -57,20 +59,24 @@ function users(credentials, isModerator = false) {
   };
 
   if (isModerator) {
-    selector.$or.push({
-      'breakoutProps.isBreakoutUser': true,
-      'breakoutProps.parentId': meetingId,
-      connectionStatus: 'online',
-    });
+    const User = Users.findOne({ userId: requesterUserId });
+    if (!!User && User.role === ROLE_MODERATOR) {
+      selector.$or.push({
+        'breakoutProps.isBreakoutUser': true,
+        'breakoutProps.parentId': meetingId,
+        connectionStatus: 'online',
+      });
+    }
   }
 
   const options = {
     fields: {
       authToken: false,
+      lastPing: false,
     },
   };
 
-  Logger.info(`Publishing Users for ${meetingId} ${requesterUserId} ${requesterToken}`);
+  Logger.debug(`Publishing Users for ${meetingId} ${requesterUserId} ${requesterToken}`);
 
   return Users.find(selector, options);
 }

@@ -2,44 +2,70 @@ package org.bigbluebutton.api2.endpoint.redis
 
 import org.bigbluebutton.api2.SystemConfiguration
 import org.bigbluebutton.common2.bus._
-import org.bigbluebutton.common2.redis.{ RedisConfiguration, RedisSubscriber, RedisSubscriberProvider }
-
+import org.bigbluebutton.common2.redis.{ RedisConfig, RedisSubscriberProvider }
 import akka.actor.ActorSystem
 import akka.actor.Props
+
 import io.lettuce.core.pubsub.RedisPubSubListener
 
-object WebRedisSubscriberActor extends RedisSubscriber with RedisConfiguration {
+object WebRedisSubscriberActor {
 
-  val channels = Seq(fromAkkaAppsRedisChannel)
-  val patterns = Seq("bigbluebutton:from-bbb-apps:*")
-
-  def props(system: ActorSystem, jsonMsgBus: JsonMsgFromAkkaAppsBus, oldMessageEventBus: OldMessageEventBus): Props =
+  def props(
+      system:              ActorSystem,
+      jsonMsgBus:          JsonMsgFromAkkaAppsBus,
+      oldMessageEventBus:  OldMessageEventBus,
+      incomingJsonMsgBus:  IncomingJsonMessageBus,
+      redisConfig:         RedisConfig,
+      channelsToSubscribe: Seq[String],
+      patternsToSubscribe: Seq[String],
+      forwardMsgToChannel: String,
+      oldJsonChannel:      String
+  ): Props =
     Props(
       classOf[WebRedisSubscriberActor],
-      system, jsonMsgBus, oldMessageEventBus,
-      redisHost, redisPort,
-      channels, patterns).withDispatcher("akka.redis-subscriber-worker-dispatcher")
+      system,
+      jsonMsgBus,
+      oldMessageEventBus,
+      incomingJsonMsgBus,
+      redisConfig,
+      channelsToSubscribe,
+      patternsToSubscribe,
+      forwardMsgToChannel,
+      oldJsonChannel
+    ).withDispatcher("akka.redis-subscriber-worker-dispatcher")
 }
 
 class WebRedisSubscriberActor(
-  system:     ActorSystem,
-  jsonMsgBus: JsonMsgFromAkkaAppsBus, oldMessageEventBus: OldMessageEventBus, redisHost: String,
-  redisPort: Int,
-  channels:  Seq[String] = Nil, patterns: Seq[String] = Nil)
-  extends RedisSubscriberProvider(system, "BbbWebSub", channels, patterns, null) with SystemConfiguration {
+    system:              ActorSystem,
+    jsonMsgBus:          JsonMsgFromAkkaAppsBus,
+    oldMessageEventBus:  OldMessageEventBus,
+    incomingJsonMsgBus:  IncomingJsonMessageBus, // Not used. Just to satisfy RedisSubscriberProvider (ralam april 4, 2019)
+    redisConfig:         RedisConfig,
+    channelsToSubscribe: Seq[String],
+    patternsToSubscribe: Seq[String],
+    forwardMsgToChannel: String,
+    oldJsonChannel:      String
+) extends RedisSubscriberProvider(
+  system,
+  "BbbWebSub",
+  channelsToSubscribe,
+  patternsToSubscribe,
+  incomingJsonMsgBus, // Not used. Just to satisfy RedisSubscriberProvider (ralam april 4, 2019)
+  redisConfig
+) {
 
-  override def addListener(appChannel: String) {
+  override def addListener(forwardMsgToChannel: String) {
     connection.addListener(new RedisPubSubListener[String, String] {
       def message(channel: String, message: String): Unit = {
-        if (channels.contains(channel)) {
+        if (channelsToSubscribe.contains(channel)) {
           val receivedJsonMessage = new JsonMsgFromAkkaApps(channel, message)
-          jsonMsgBus.publish(JsonMsgFromAkkaAppsEvent(fromAkkaAppsJsonChannel, receivedJsonMessage))
+          jsonMsgBus.publish(JsonMsgFromAkkaAppsEvent(forwardMsgToChannel, receivedJsonMessage))
         }
       }
       def message(pattern: String, channel: String, message: String): Unit = {
         log.debug(s"RECEIVED:\n ${message} \n")
         val receivedJsonMessage = new OldReceivedJsonMessage(pattern, channel, message)
-        oldMessageEventBus.publish(OldIncomingJsonMessage(fromAkkaAppsOldJsonChannel, receivedJsonMessage))
+        oldMessageEventBus.publish(OldIncomingJsonMessage(oldJsonChannel, receivedJsonMessage))
       }
       def psubscribed(pattern: String, count: Long): Unit = { log.info("Subscribed to pattern {}", pattern) }
       def punsubscribed(pattern: String, count: Long): Unit = { log.info("Unsubscribed from pattern {}", pattern) }
@@ -48,6 +74,6 @@ class WebRedisSubscriberActor(
     })
   }
 
-  addListener(fromAkkaAppsJsonChannel)
+  addListener(forwardMsgToChannel)
   subscribe()
 }

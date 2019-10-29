@@ -283,12 +283,34 @@ function generateThumbnails() {
   }
 };
 
+function loadCaptions(video) {
+  asyncRequest('GET', captionsJSON).then(function (response) {
+    logger.info("==Processing captions.json");
+    var captions = JSON.parse(response.responseText);
+    const video = document.getElementById("video");
+    captions.forEach(function(caption) {
+      var track = document.createElement("track");
+      track.setAttribute('kind', 'captions');
+      track.setAttribute('label', caption['localeName']);
+      track.setAttribute('srclang', caption['locale']);
+      track.setAttribute('src', url + '/caption_' + caption['locale'] + '.vtt');
+      video.appendChild(track);
+    });
+    document.dispatchEvent(new CustomEvent('media-ready', {'detail': 'captions'}));
+  }, function (response) {
+    logger.info("==Video has no captions");
+    document.dispatchEvent(new CustomEvent('media-ready', {'detail': 'captions'}));
+  });
+};
+
 function loadVideo() {
   logger.info("==Loading video");
   var video = document.createElement("video");
   video.setAttribute('id','video');
   video.setAttribute('class','webcam');
   video.setAttribute('preload','auto');
+  video.setAttribute('playsinline',true);
+  video.setAttribute('crossorigin','anonymous');
 
   let webmsource = document.createElement("source");
   webmsource.setAttribute('src', url + '/video/webcams.webm');
@@ -302,24 +324,9 @@ function loadVideo() {
 
   video.setAttribute('data-timeline-sources', chatXML);
 
-  asyncRequest('GET', captionsJSON).then(function (response) {
-    logger.info("==Processing captions.json");
-    var captions = JSON.parse(response.responseText);
-    for (var i = 0; i < captions.length; i++) {
-      var track = document.createElement("track");
-      track.setAttribute('kind', 'captions');
-      track.setAttribute('label', captions[i]['localeName']);
-      track.setAttribute('srclang', captions[i]['locale']);
-      track.setAttribute('src', url + '/caption_' + captions[i]['locale'] + '.vtt');
-      video.appendChild(track);
-    }
-    document.dispatchEvent(new CustomEvent('media-ready', {'detail': 'captions'}));
-  }, function (response) {
-    logger.info("==Video has no captions");
-    document.dispatchEvent(new CustomEvent('media-ready', {'detail': 'captions'}));
-  });
-
   document.getElementById("video-area").appendChild(video);
+
+  loadCaptions();
 
   checkLoadedMedia();
 };
@@ -365,6 +372,7 @@ function loadDeskshare() {
   var deskshareVideo = document.createElement("video");
   deskshareVideo.setAttribute('id','deskshare-video');
   deskshareVideo.setAttribute('preload','auto');
+  deskshareVideo.setAttribute('playsinline',true);
 
   var webmsource = document.createElement("source");
   webmsource.setAttribute('src', url + '/deskshare/deskshare.webm');
@@ -383,6 +391,10 @@ function loadDeskshare() {
 };
 
 function setMediaSync() {
+  if (!hasDeskshare) {
+    return;
+  }
+
   // Master video
   primaryMedia = Popcorn("#video");
   // Slave videos
@@ -486,8 +498,9 @@ function forceMediaEvents() {
   // When the medias were loaded
   if (mediaReady) return;
   if (hasVideo) {
-    logger.debug("==Forcing video ready event");
+    logger.debug("==Forcing video/captions ready event");
     document.dispatchEvent(new CustomEvent('media-ready', {'detail': 'video'}));
+    document.dispatchEvent(new CustomEvent('media-ready', {'detail': 'captions'}));
   } else {
     logger.debug("==Forcing audio ready event");
     document.dispatchEvent(new CustomEvent('media-ready', {'detail': 'audio'}));
@@ -529,6 +542,16 @@ function loadPlayback() {
     loadAudio();
   }
 
+  // load up the acorn controls
+  logger.info("==Loading acorn media player");
+  $('#video').acornMediaPlayer({
+    theme: 'bigbluebutton',
+    volumeSlider: 'vertical'
+  });
+  $('#video').on("swap", function() {
+    swapVideoPresentation();
+  });
+
   if (hasDeskshare) {
     loadDeskshare();
   } else {
@@ -545,39 +568,26 @@ function isMediaReady(media) {
   return false;
 };
 
-function loadAcornControls() {
-  logger.info("==Loading acorn media player");
-  $('#video').acornMediaPlayer({
-    theme: 'bigbluebutton',
-    volumeSlider: 'vertical'
-  });
-  $('#video').on("swap", function() {
-    swapVideoPresentation();
-  });
-};
-
 function checkLoadedMedia() {
   // We use the video tag both for audio or video
   let media = $('#video')[0];
   if (isMediaReady(media)) {
-    loadAcornControls();
     if (hasVideo) {
       document.dispatchEvent(new CustomEvent('media-ready', {'detail': 'video'}));
     } else {
       document.dispatchEvent(new CustomEvent('media-ready', {'detail': 'audio'}));
     }
   } else {
-    setTimeout(checkLoadedMedia, 250);
+    setTimeout(checkLoadedMedia, mediaCheckInterval);
   }
 };
 
 function checkLoadedDeskshare() {
   let deskshare = $('#deskshare-video')[0];
   if (isMediaReady(deskshare)) {
-    setMediaSync();
     document.dispatchEvent(new CustomEvent('media-ready', {'detail': 'deskshare'}));
   } else {
-    setTimeout(checkLoadedDeskshare, 250);
+    setTimeout(checkLoadedDeskshare, mediaCheckInterval);
   }
 };
 

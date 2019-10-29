@@ -5,9 +5,9 @@ import injectWbResizeEvent from '/imports/ui/components/presentation/resize-wrap
 import Button from '/imports/ui/components/button/component';
 import { Session } from 'meteor/session';
 import withShortcutHelper from '/imports/ui/components/shortcut-help/service';
-import { styles } from './styles';
-import MessageForm from './message-form/component';
-import MessageList from './message-list/component';
+import { styles } from './styles.scss';
+import MessageForm from './message-form/container';
+import MessageList from './message-list/container';
 import ChatDropdown from './chat-dropdown/component';
 
 const ELEMENT_ID = 'chat-messages';
@@ -22,24 +22,25 @@ const intlMessages = defineMessages({
     description: 'aria-label for hiding chat button',
   },
 });
-
 const Chat = (props) => {
   const {
     chatID,
     chatName,
     title,
     messages,
-    scrollPosition,
-    hasUnreadMessages,
-    lastReadMessageTime,
     partnerIsLoggedOut,
     isChatLocked,
-    minMessageLength,
-    maxMessageLength,
     actions,
     intl,
     shortcuts,
+    isMeteorConnected,
+    lastReadMessageTime,
+    hasUnreadMessages,
+    scrollPosition,
     UnsentMessagesCollection,
+    minMessageLength,
+    maxMessageLength,
+    amIModerator,
   } = props;
 
   const HIDE_CHAT_AK = shortcuts.hidePrivateChat;
@@ -71,9 +72,10 @@ const Chat = (props) => {
           chatID !== 'public'
             ? (
               <Button
-                className={styles.closeBtn}
                 icon="close"
-                size="md"
+                size="sm"
+                ghost
+                color="dark"
                 hideLabel
                 onClick={() => {
                   actions.handleClosePrivateChat(chatID);
@@ -85,30 +87,37 @@ const Chat = (props) => {
                 accessKey={CLOSE_CHAT_AK}
               />
             )
-            : <ChatDropdown />
+            : <ChatDropdown isMeteorConnected={isMeteorConnected} amIModerator={amIModerator} />
         }
       </header>
       <MessageList
-        chatId={chatID}
-        messages={messages}
         id={ELEMENT_ID}
-        scrollPosition={scrollPosition}
-        hasUnreadMessages={hasUnreadMessages}
+        chatId={chatID}
         handleScrollUpdate={actions.handleScrollUpdate}
         handleReadMessage={actions.handleReadMessage}
-        lastReadMessageTime={lastReadMessageTime}
-        partnerIsLoggedOut={partnerIsLoggedOut}
+        {...{
+          partnerIsLoggedOut,
+          lastReadMessageTime,
+          hasUnreadMessages,
+          scrollPosition,
+          messages,
+        }}
       />
       <MessageForm
-        UnsentMessagesCollection={UnsentMessagesCollection}
+        {...{
+          UnsentMessagesCollection,
+          chatName,
+          minMessageLength,
+          maxMessageLength,
+        }}
         chatId={chatID}
-        disabled={isChatLocked}
-        chatAreaId={ELEMENT_ID}
         chatTitle={title}
-        chatName={chatName}
-        minMessageLength={minMessageLength}
-        maxMessageLength={maxMessageLength}
+        chatAreaId={ELEMENT_ID}
+        disabled={isChatLocked || !isMeteorConnected}
+        connected={isMeteorConnected}
+        locked={isChatLocked}
         handleSendMessage={actions.handleSendMessage}
+        partnerIsLoggedOut={partnerIsLoggedOut}
       />
     </div>
   );
@@ -126,19 +135,12 @@ const propTypes = {
     PropTypes.number,
     PropTypes.object,
   ])).isRequired).isRequired,
-  scrollPosition: PropTypes.number,
   shortcuts: PropTypes.objectOf(PropTypes.string),
-  hasUnreadMessages: PropTypes.bool.isRequired,
-  lastReadMessageTime: PropTypes.number.isRequired,
   partnerIsLoggedOut: PropTypes.bool.isRequired,
   isChatLocked: PropTypes.bool.isRequired,
-  minMessageLength: PropTypes.number.isRequired,
-  maxMessageLength: PropTypes.number.isRequired,
+  isMeteorConnected: PropTypes.bool.isRequired,
   actions: PropTypes.shape({
     handleClosePrivateChat: PropTypes.func.isRequired,
-    handleReadMessage: PropTypes.func.isRequired,
-    handleScrollUpdate: PropTypes.func.isRequired,
-    handleSendMessage: PropTypes.func.isRequired,
   }).isRequired,
   intl: PropTypes.shape({
     formatMessage: PropTypes.func.isRequired,
@@ -146,7 +148,7 @@ const propTypes = {
 };
 
 const defaultProps = {
-  scrollPosition: 0,
+  shortcuts: [],
 };
 
 Chat.propTypes = propTypes;

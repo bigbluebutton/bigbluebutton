@@ -1,6 +1,6 @@
 package org.bigbluebutton.common2.redis
 
-trait RedisSubscriber extends RedisConfiguration {
-  val channels: Seq[String]
-  val patterns: Seq[String]
+trait RedisSubscriber {
+  val channelsToSubscribe: Seq[String]
+  val patternsToSubscribe: Seq[String]
 }

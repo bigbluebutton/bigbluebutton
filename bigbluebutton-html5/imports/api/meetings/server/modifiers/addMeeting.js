@@ -1,7 +1,12 @@
 import flat from 'flat';
-import { check, Match } from 'meteor/check';
-import Meetings from '/imports/api/meetings';
+import {
+  check,
+  Match,
+} from 'meteor/check';
+import Meetings, { RecordMeetings } from '/imports/api/meetings';
 import Logger from '/imports/startup/server/logger';
+import createNote from '/imports/api/note/server/methods/createNote';
+import createCaptions from '/imports/api/captions/server/methods/createCaptions';
 
 export default function addMeeting(meeting) {
   const meetingId = meeting.meetingProp.intId;
@@ -13,6 +18,9 @@ export default function addMeeting(meeting) {
       freeJoin: Boolean,
       breakoutRooms: Array,
       parentId: String,
+      enabled: Boolean,
+      record: Boolean,
+      privateChatEnabled: Boolean,
     },
     meetingProp: {
       intId: String,
@@ -24,6 +32,7 @@ export default function addMeeting(meeting) {
       webcamsOnlyForModerator: Boolean,
       guestPolicy: String,
       maxUsers: Number,
+      allowModsToUnmuteUsers: Boolean,
     },
     durationProps: {
       createdTime: Number,
@@ -46,7 +55,7 @@ export default function addMeeting(meeting) {
     recordProp: Match.ObjectIncluding({
       allowStartStopRecording: Boolean,
       autoStartRecording: Boolean,
-      record: Boolean
+      record: Boolean,
     }),
     password: {
       viewerPass: String,
@@ -64,29 +73,58 @@ export default function addMeeting(meeting) {
       screenshareConf: String,
     },
     metadataProp: Object,
+    lockSettingsProps: {
+      disableCam: Boolean,
+      disableMic: Boolean,
+      disablePrivateChat: Boolean,
+      disablePublicChat: Boolean,
+      disableNote: Boolean,
+      hideUserList: Boolean,
+      lockOnJoin: Boolean,
+      lockOnJoinConfigurable: Boolean,
+      lockedLayout: Boolean,
+    },
   });
+
+  const {
+    recordProp,
+    ...restProps
+  } = meeting;
+
+  const newMeeting = restProps;
 
   const selector = {
     meetingId,
   };
 
-  const lockSettingsProp = {
-    disableCam: false,
-    disableMic: false,
-    disablePrivChat: false,
-    disablePubChat: false,
-    lockOnJoin: true,
-    lockOnJoinConfigurable: false,
-    lockedLayout: false,
-    setBy: 'temp',
-  };
+  newMeeting.lockSettingsProps = Object.assign(meeting.lockSettingsProps, { setBy: 'temp' });
+
+  const meetingEnded = false;
+
+  newMeeting.welcomeProp.welcomeMsg = newMeeting.welcomeProp.welcomeMsg.replace(
+    'href="event:',
+    'href="',
+  );
+
+  const insertBlankTarget = (s, i) => `${s.substr(0, i)} target="_blank"${s.substr(i)}`;
+  const linkWithoutTarget = new RegExp('<a href="(.*?)">', 'g');
+  linkWithoutTarget.test(newMeeting.welcomeProp.welcomeMsg);
+
+  if (linkWithoutTarget.lastIndex > 0) {
+    newMeeting.welcomeProp.welcomeMsg = insertBlankTarget(
+      newMeeting.welcomeProp.welcomeMsg,
+      linkWithoutTarget.lastIndex - 1,
+    );
+  }
 
   const modifier = {
-    $set: Object.assign(
-      { meetingId },
-      flat(meeting, { safe: true }),
-      { lockSettingsProp },
-    ),
+    $set: Object.assign({
+      meetingId,
+      meetingEnded,
+      publishedPoll: false,
+    }, flat(newMeeting, {
+      safe: true,
+    })),
   };
 
   const cb = (err, numChanged) => {
@@ -95,15 +133,46 @@ export default function addMeeting(meeting) {
       return;
     }
 
-    const { insertedId } = numChanged;
+    const {
+      insertedId,
+    } = numChanged;
+
     if (insertedId) {
       Logger.info(`Added meeting id=${meetingId}`);
+      // TODO: Here we call Etherpad API to create this meeting notes. Is there a
+      // better place we can run this post-creation routine?
+      createNote(meetingId);
+      createCaptions(meetingId);
     }
 
     if (numChanged) {
       Logger.info(`Upserted meeting id=${meetingId}`);
     }
   };
+
+  const cbRecord = (err, numChanged) => {
+    if (err) {
+      Logger.error(`Adding record prop to collection: ${err}`);
+      return;
+    }
+
+    const {
+      insertedId,
+    } = numChanged;
+
+    if (insertedId) {
+      Logger.info(`Added record prop id=${meetingId}`);
+    }
+
+    if (numChanged) {
+      Logger.info(`Upserted record prop id=${meetingId}`);
+    }
+  };
+
+  RecordMeetings.upsert(selector, {
+    meetingId,
+    ...recordProp,
+  }, cbRecord);
 
   return Meetings.upsert(selector, modifier, cb);
 }

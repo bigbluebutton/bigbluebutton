@@ -28,6 +28,10 @@ retrieveManaged := true
 Seq(Revolver.settings: _*)
 lazy val appsCommons = (project in file(".")).settings(name := "bbb-apps-common", libraryDependencies ++= Dependencies.runtime).settings(compileSettings)
 
+// See https://github.com/scala-ide/scalariform
+// Config file is in ./.scalariform.conf
+scalariformAutoformat := true
+
 //-----------
 // Packaging
 //

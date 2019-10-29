@@ -53,7 +53,7 @@ done
 for app in recordings screenshare; do
 	app_dir=/var/kurento/$app
 	if [[ -d $app_dir ]]; then
-		find $app_dir -name "*.mkv" -mtime +$history -delete
+		find $app_dir -name "*.mkv" -o -name "*.webm" -mtime +$history -delete
 		find $app_dir -type d -empty -mtime +$history -exec rmdir '{}' +
 	fi
 done
@@ -68,8 +68,10 @@ find /var/freeswitch/meetings/ -name "*.wav" -mtime +$history -delete
 #
 find /opt/freeswitch/var/log/freeswitch -type f -mtime +$log_history -delete
 find /var/log/red5 -type f -mtime +$log_history -delete
-find /var/log/tomcat7 -type f -mtime +$log_history -delete
+[[ -d /var/log/tomcat7 ]] && find /var/log/tomcat7 -type f -mtime +$log_history -delete
 find /var/log/bigbluebutton -type f -mtime +$log_history -delete
+find /var/log/bbb-webrtc-sfu -type f -mtime +$log_history -delete
+find /var/log/kurento-media-server -name "*.pid*.log" -type f -mtime +$log_history -delete
 
 #
 # Delete raw files of recordings without recording marks older than N days

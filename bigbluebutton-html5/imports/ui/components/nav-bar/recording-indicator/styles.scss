@@ -1,4 +1,5 @@
 @import "../../../stylesheets/variables/_all";
+@import '/imports/ui/stylesheets/mixins/_indicators';
 @import "../../../stylesheets/variables/typography";
 
 .visuallyHidden {
@@ -11,8 +12,7 @@
 
 %recordingControl {
   display: flex;
-  border-radius: 5%;
-  padding: 2px !important;
+  border-radius: 2em 2em;
 
   span {
     border: none;
@@ -21,24 +21,41 @@
     color: var(--color-white) !important;
   }
 
-  &:hover,
-  &:focus {
+  &:hover {
     color: var(--color-white) !important;
     cursor: pointer;
+  }
+
+  &:focus {
+    outline: none;
+    box-shadow: 0 0 0 var(--border-size) var(--color-primary);
   }
 }
 
 .recordingControlON {
   @extend %recordingControl;
 
+  padding: 5px;
   background-color: var(--color-primary);
-  border: 1px solid var(--color-primary);
+  border: var(--border-size-large) solid var(--color-primary);
+
+  &:focus {
+    background-clip: padding-box;
+    border: var(--border-size-large) solid transparent;
+  }
 }
 
 .recordingControlOFF {
   @extend %recordingControl;
 
-  border: 1px solid var(--color-white);
+  padding: 7px;
+  border: var(--border-size-small) solid var(--color-white);
+  
+  &:focus {
+    padding: 5px;
+    border: var(--border-size-large) solid var(--color-white);
+    box-shadow: none;
+  }
 }
 
 .presentationTitle {
@@ -49,14 +66,24 @@
   color: var(--color-white);
   font-size: var(--font-size-base);
   padding: 0;
-  margin: 0 0 0 var(--sm-padding-x);
+  margin-left: var(--sm-padding-x);
+  margin-right: 0;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
   max-width: 30vw;
 
+  [dir="rtl"]  & {
+    margin-left: 0;
+    margin-right: var(--sm-padding-x);
+  }
+
   > [class^="icon-bbb-"] {
     font-size: 75%;
+  }
+
+  span {
+    vertical-align: middle;
   }
 }
 
@@ -64,54 +91,27 @@
   display: flex;
 }
 
-%recordingIndicator {
-  border: 1px solid var(--color-white) !important;
-  border-radius: 50%;
-  span {
-    border: none;
-    box-shadow: none;
-    background-color: transparent !important;
-  }
-  position: relative;
-  display: inline-block;
-  padding: 0 !important;
+.recordingIndicatorIcon {
   width: var(--font-size-large);
   height: var(--font-size-large);
-  border-radius: 50%;
-  &:after {
-    content: '';
-    width: calc(var(--font-size-large) / 2);
-    height: calc(var(--font-size-large) / 2);
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    margin-top: calc((var(--font-size-large) / -4));
-    margin-left: calc((var(--font-size-large) / -4));
-    border-radius: 50%;
+  font-size: var(--font-size-base);
+}
+
+.recordingIndicator {
+  &:hover {
+    @include highContrastOutline();
+  }
+
+  &:active,
+  &:focus,
+  &:focus-within {
+    @include highContrastOutline();
+    outline-style: solid;
   }
 }
 
-.recordingIndicatorON {
-  @extend %recordingIndicator;
-  &:after {
-    background-color: var(--color-danger);
-  }
+.presentationTitleSeparator {
+  color: var(--color-gray);
+  font-size: var(--font-size-base);
+  margin: 0 1rem;
 }
-
-.recordingIndicatorOFF {
-  @extend %recordingIndicator;
-  &:after {
-    background-color: var(--color-white);
-  }
-}
-
-.isRecordingCircle {
-  border: 1px solid var(--color-white) !important;
-  border-radius: 50%;
-  span {
-    border: none;
-    box-shadow: none;
-    background-color: transparent !important;
-  }
-}
-

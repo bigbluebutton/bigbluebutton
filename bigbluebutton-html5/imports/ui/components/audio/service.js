@@ -2,7 +2,11 @@ import Users from '/imports/api/users';
 import Auth from '/imports/ui/services/auth';
 import AudioManager from '/imports/ui/services/audio-manager';
 import Meetings from '/imports/api/meetings';
-import mapUser from '/imports/ui/services/user/mapUser';
+import { makeCall } from '/imports/ui/services/api';
+import VoiceUsers from '/imports/api/voice-users';
+import logger from '/imports/startup/client/logger';
+
+const ROLE_MODERATOR = Meteor.settings.public.user.role_moderator;
 
 const init = (messages, intl) => {
   AudioManager.setAudioMessages(messages, intl);
@@ -10,9 +14,9 @@ const init = (messages, intl) => {
   const meetingId = Auth.meetingID;
   const userId = Auth.userID;
   const { sessionToken } = Auth;
-  const User = Users.findOne({ userId });
+  const User = Users.findOne({ userId }, { fields: { name: 1 } });
   const username = User.name;
-  const Meeting = Meetings.findOne({ meetingId: User.meetingId });
+  const Meeting = Meetings.findOne({ meetingId: Auth.meetingID }, { fields: { 'voiceProp.voiceConf': 1 } });
   const voiceBridge = Meeting.voiceProp.voiceConf;
 
   // FIX ME
@@ -30,15 +34,30 @@ const init = (messages, intl) => {
   AudioManager.init(userData);
 };
 
-const audioLocked = () => {
-  const userId = Auth.userID;
-  const User = mapUser(Users.findOne({ userId }));
+const isVoiceUser = () => {
+  const voiceUser = VoiceUsers.findOne({ intId: Auth.userID },
+    { fields: { joined: 1 } });
+  return voiceUser ? voiceUser.joined : false;
+};
 
-  const Meeting = Meetings.findOne({ meetingId: Auth.meetingID });
-  const lockSetting = Meeting.lockSettingsProp;
-  const audioLock = lockSetting ? lockSetting.disableMic : false;
+const toggleMuteMicrophone = () => {
+  const user = VoiceUsers.findOne({
+    meetingId: Auth.meetingID, intId: Auth.userID,
+  }, { fields: { muted: 1 } });
 
-  return audioLock && User.isLocked;
+  if (user.muted) {
+    logger.info({
+      logCode: 'audiomanager_unmute_audio',
+      extraInfo: { logType: 'user_action' },
+    }, 'microphone unmuted by user');
+    makeCall('toggleSelfVoice');
+  } else {
+    logger.info({
+      logCode: 'audiomanager_mute_audio',
+      extraInfo: { logType: 'user_action' },
+    }, 'microphone muted by user');
+    makeCall('toggleSelfVoice');
+  }
 };
 
 export default {
@@ -48,7 +67,7 @@ export default {
   joinListenOnly: () => AudioManager.joinListenOnly(),
   joinMicrophone: () => AudioManager.joinMicrophone(),
   joinEchoTest: () => AudioManager.joinEchoTest(),
-  toggleMuteMicrophone: () => AudioManager.toggleMuteMicrophone(),
+  toggleMuteMicrophone,
   changeInputDevice: inputDeviceId => AudioManager.changeInputDevice(inputDeviceId),
   changeOutputDevice: outputDeviceId => AudioManager.changeOutputDevice(outputDeviceId),
   isConnected: () => AudioManager.isConnected,
@@ -63,6 +82,9 @@ export default {
   outputDeviceId: () => AudioManager.outputDeviceId,
   isEchoTest: () => AudioManager.isEchoTest,
   error: () => AudioManager.error,
-  isUserModerator: () => Users.findOne({ userId: Auth.userID }).moderator,
-  audioLocked,
+  isUserModerator: () => Users.findOne({ userId: Auth.userID },
+    { fields: { role: 1 } }).role === ROLE_MODERATOR,
+  isVoiceUser,
+  autoplayBlocked: () => AudioManager.autoplayBlocked,
+  handleAllowAutoplay: () => AudioManager.handleAllowAutoplay(),
 };

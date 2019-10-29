@@ -34,6 +34,7 @@ trait TestFixtures {
   val dialNumber = "613-555-1234"
   val maxUsers = 25
   val muteOnStart = false
+  val allowModsToUnmuteUsers = false
   val keepEvents = false
   val guestPolicy = "ALWAYS_ASK"
   val metadata: collection.immutable.Map[String, String] = Map("foo" -> "bar", "bar" -> "baz", "baz" -> "foo")
@@ -52,7 +53,7 @@ trait TestFixtures {
     modOnlyMessage = modOnlyMessage)
   val voiceProp = VoiceProp(telVoice = voiceConfId, voiceConf = voiceConfId, dialNumber = dialNumber, muteOnStart = muteOnStart)
   val usersProp = UsersProp(maxUsers = maxUsers, webcamsOnlyForModerator = webcamsOnlyForModerator,
-    guestPolicy = guestPolicy)
+    guestPolicy = guestPolicy, allowModsToUnmuteUsers = allowModsToUnmuteUsers)
   val metadataProp = new MetadataProp(metadata)
   val screenshareProps = ScreenshareProps(screenshareConf = "FixMe!", red5ScreenshareIp = "fixMe!",
     red5ScreenshareApp = "fixMe!")

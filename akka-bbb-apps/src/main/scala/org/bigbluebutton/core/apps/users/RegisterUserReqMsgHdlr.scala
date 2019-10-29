@@ -37,11 +37,14 @@ trait RegisterUserReqMsgHdlr {
     outGW.send(event)
 
     def notifyModeratorsOfGuestWaiting(guests: Vector[GuestWaiting], users: Users2x, meetingId: String): Unit = {
-      val mods = Users2x.findAll(users).filter(p => p.role == Roles.MODERATOR_ROLE)
+      val mods = Users2x.findAll(users).filter(p => p.role == Roles.MODERATOR_ROLE && p.clientType == ClientType.FLASH)
       mods foreach { m =>
         val event = MsgBuilder.buildGuestsWaitingForApprovalEvtMsg(meetingId, m.intId, guests)
         outGW.send(event)
       }
+      // Meteor should only listen for this single message
+      val event = MsgBuilder.buildGuestsWaitingForApprovalEvtMsg(meetingId, "nodeJSapp", guests)
+      outGW.send(event)
     }
 
     def addGuestToWaitingForApproval(guest: GuestWaiting, guestsWaitingList: GuestsWaiting): Unit = {

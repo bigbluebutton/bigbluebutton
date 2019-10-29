@@ -1,19 +1,21 @@
 @import "/imports/ui/stylesheets/variables/_all";
 
 .actionsbar,
-.left,
 .center,
 .right {
   display: flex;
   flex-direction: row;
 }
 
-.left,
 .center,
 .right {
   flex: 1;
   justify-content: center;
+}
 
+.left,
+.center,
+.right {
   > * {
     margin: 0 var(--sm-padding-x);
 
@@ -24,10 +26,17 @@
 }
 
 .left {
-  position: absolute;
+  display: inherit;
+  flex: 0;
   @include mq($small-only) {
     bottom: var(--sm-padding-x);
     left: var(--sm-padding-x);
+    right: auto;
+
+    [dir="rtl"] & {
+      left: auto;
+      right: var(--sm-padding-x);
+    }
   }
 }
 
@@ -35,6 +44,12 @@
   position: absolute;
   bottom: var(--sm-padding-x);
   right: var(--sm-padding-x);
+  left: auto;
+
+  [dir="rtl"] & {
+    right: auto;
+    left: var(--sm-padding-x);
+  }
 }
 
 .centerWithActions {
@@ -44,10 +59,6 @@
 }
 
 .button {
-  &:focus {
-    outline: none !important;
-  }
-
   span:first-child {
     box-shadow: 0 2px 5px 0 rgb(0, 0, 0);
   }
@@ -55,14 +66,8 @@
 
 .btn {
   span {
-    border: none;
     box-shadow: none;
     background-color: transparent !important;
-    color: var(--color-white) !important;
-    border: 1.5px solid var(--color-white) !important;
-  }
-
-  span:hover {
-    border: 1.5px solid rgba(255,255,255, .5) !important;
+    border-color: var(--color-white) !important;
   }
 }

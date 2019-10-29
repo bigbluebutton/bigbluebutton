@@ -2,7 +2,7 @@ import React, { PureComponent } from 'react';
 import { injectIntl } from 'react-intl';
 import PropTypes from 'prop-types';
 import injectWbResizeEvent from '/imports/ui/components/presentation/resize-wrapper/component';
-import { styles } from './styles';
+import { styles } from './styles.scss';
 import CustomLogo from './custom-logo/component';
 import UserContentContainer from './user-list-content/container';
 
@@ -12,31 +12,16 @@ const propTypes = {
   intl: PropTypes.shape({
     formatMessage: PropTypes.func.isRequired,
   }).isRequired,
-  currentUser: PropTypes.shape({}).isRequired,
   CustomLogoUrl: PropTypes.string.isRequired,
-  handleEmojiChange: PropTypes.func.isRequired,
-  getUsersId: PropTypes.func.isRequired,
-  isBreakoutRoom: PropTypes.bool,
-  getAvailableActions: PropTypes.func.isRequired,
-  normalizeEmojiName: PropTypes.func.isRequired,
-  isMeetingLocked: PropTypes.func.isRequired,
   isPublicChat: PropTypes.func.isRequired,
   setEmojiStatus: PropTypes.func.isRequired,
-  assignPresenter: PropTypes.func.isRequired,
-  removeUser: PropTypes.func.isRequired,
-  toggleVoice: PropTypes.func.isRequired,
-  muteAllUsers: PropTypes.func.isRequired,
-  muteAllExceptPresenter: PropTypes.func.isRequired,
-  changeRole: PropTypes.func.isRequired,
   roving: PropTypes.func.isRequired,
-  getGroupChatPrivate: PropTypes.func.isRequired,
   showBranding: PropTypes.bool.isRequired,
-  toggleUserLock: PropTypes.func.isRequired,
+  requestUserInformation: PropTypes.func.isRequired,
 };
 
 const defaultProps = {
   compact: false,
-  isBreakoutRoom: false,
 };
 
 class UserList extends PureComponent {
@@ -45,30 +30,13 @@ class UserList extends PureComponent {
       intl,
       activeChats,
       compact,
-      currentUser,
-      isBreakoutRoom,
       setEmojiStatus,
-      assignPresenter,
-      removeUser,
-      toggleVoice,
-      muteAllUsers,
-      muteAllExceptPresenter,
-      changeRole,
-      getAvailableActions,
-      normalizeEmojiName,
-      isMeetingLocked,
       isPublicChat,
       roving,
       CustomLogoUrl,
-      getGroupChatPrivate,
-      handleEmojiChange,
-      getEmojiList,
-      getEmoji,
       showBranding,
       hasBreakoutRoom,
-      getUsersId,
-      hasPrivateChatBetweenUsers,
-      toggleUserLock,
+      requestUserInformation,
     } = this.props;
 
     return (
@@ -84,28 +52,11 @@ class UserList extends PureComponent {
             intl,
             activeChats,
             compact,
-            currentUser,
-            isBreakoutRoom,
             setEmojiStatus,
-            assignPresenter,
-            removeUser,
-            toggleVoice,
-            muteAllUsers,
-            muteAllExceptPresenter,
-            changeRole,
-            getAvailableActions,
-            normalizeEmojiName,
-            isMeetingLocked,
             isPublicChat,
             roving,
-            getGroupChatPrivate,
-            handleEmojiChange,
-            getEmojiList,
-            getEmoji,
             hasBreakoutRoom,
-            getUsersId,
-            hasPrivateChatBetweenUsers,
-            toggleUserLock,
+            requestUserInformation,
           }
           }
         />}

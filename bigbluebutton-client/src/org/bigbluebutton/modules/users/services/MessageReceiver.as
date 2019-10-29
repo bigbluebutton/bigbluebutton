@@ -22,9 +22,9 @@ package org.bigbluebutton.modules.users.services
   
   import flash.utils.setTimeout;
   
+  import mx.collections.ArrayCollection;
   import mx.controls.Alert;
   import mx.utils.ObjectUtil;
-  import mx.collections.ArrayCollection;
   
   import org.as3commons.logging.api.ILogger;
   import org.as3commons.logging.api.getClassLogger;
@@ -693,7 +693,9 @@ package org.bigbluebutton.modules.users.services
         body.disableMic as Boolean,
         body.disablePrivChat as Boolean,
         body.disablePubChat as Boolean,
+        body.disableNote as Boolean,
         body.lockedLayout as Boolean,
+        body.hideUserList as Boolean,
         body.lockOnJoin as Boolean,
         body.lockOnJoinConfigurable as Boolean);
       UsersUtil.setLockSettings(lockSettings);
@@ -708,7 +710,9 @@ package org.bigbluebutton.modules.users.services
         body.disableMic as Boolean,
         body.disablePrivChat as Boolean,
         body.disablePubChat as Boolean,
+        body.disableNote as Boolean,
         body.lockedLayout as Boolean,
+        body.hideUserList as Boolean,
         body.lockOnJoin as Boolean,
         body.lockOnJoinConfigurable as Boolean);
       UsersUtil.setLockSettings(lockSettings);

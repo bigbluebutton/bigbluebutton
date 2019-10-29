@@ -1,5 +1,5 @@
 import Presentations from '/imports/api/presentations';
-import Slides from '/imports/api/slides';
+import { Slides } from '/imports/api/slides';
 import { Meteor } from 'meteor/meteor';
 import { check } from 'meteor/check';
 import RedisPubSub from '/imports/startup/server/redis';

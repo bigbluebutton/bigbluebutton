@@ -8,7 +8,7 @@ import getFromUserSettings from '/imports/ui/services/users-settings';
 import logoutRouteHandler from '/imports/utils/logoutRouteHandler';
 import Rating from './rating/component';
 import { styles } from './styles';
-
+import logger from '/imports/startup/client/logger';
 
 const intlMessage = defineMessages({
   410: {
@@ -59,6 +59,26 @@ const intlMessage = defineMessages({
     id: 'app.feedback.sendFeedbackDesc',
     description: 'adds context to send feedback option',
   },
+  duplicate_user_in_meeting_eject_reason: {
+    id: 'app.meeting.logout.duplicateUserEjectReason',
+    description: 'message for duplicate users',
+  },
+  not_enough_permission_eject_reason: {
+    id: 'app.meeting.logout.permissionEjectReason',
+    description: 'message for whom was kicked by doing something without permission',
+  },
+  user_requested_eject_reason: {
+    id: 'app.meeting.logout.ejectedFromMeeting',
+    description: 'message when the user is removed by someone',
+  },
+  validate_token_failed_eject_reason: {
+    id: 'app.meeting.logout.validateTokenFailedEjectReason',
+    description: 'invalid auth token',
+  },
+  user_inactivity_eject_reason: {
+    id: 'app.meeting.logout.userInactivityEjectReason',
+    description: 'message for whom was kicked by inactivity',
+  },
 });
 
 const propTypes = {
@@ -105,9 +125,12 @@ class MeetingEnded extends React.PureComponent {
       return;
     }
 
+    const { fullname } = Auth.credentials;
+
     const message = {
       rating: selected,
       userId: Auth.userID,
+      userName: fullname,
       authToken: Auth.token,
       meetingId: Auth.meetingID,
       comment: MeetingEnded.getComment(),
@@ -121,13 +144,19 @@ class MeetingEnded extends React.PureComponent {
       },
     };
 
-    fetch(url, options)
-      .then(() => {
-        logoutRouteHandler();
-      })
-      .catch(() => {
-        logoutRouteHandler();
-      });
+    // client logger
+    logger.info({ logCode: 'feedback_functionality', extraInfo: { feedback: message } }, 'Feedback component');
+
+    const FEEDBACK_WAIT_TIME = 500;
+    setTimeout(() => {
+      fetch(url, options)
+        .then(() => {
+          logoutRouteHandler();
+        })
+        .catch(() => {
+          logoutRouteHandler();
+        });
+    }, FEEDBACK_WAIT_TIME);
   }
 
   render() {
@@ -137,11 +166,18 @@ class MeetingEnded extends React.PureComponent {
     } = this.state;
 
     const noRating = selected <= 0;
+
+    logger.info({ logCode: 'meeting_ended_code', extraInfo: { endedCode: code } }, 'Meeting ended component');
+
     return (
       <div className={styles.parent}>
         <div className={styles.modal}>
           <div className={styles.content}>
-            <h1 className={styles.title}>{intl.formatMessage(intlMessage[code])}</h1>
+            <h1 className={styles.title} data-test="meetingEndedModalTitle">
+              {
+                intl.formatMessage(intlMessage[code] || intlMessage[430])
+              }
+            </h1>
             <div className={styles.text}>
               {this.shouldShowFeedback
                 ? intl.formatMessage(intlMessage.subtitle)

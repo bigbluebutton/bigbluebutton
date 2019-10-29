@@ -4,18 +4,19 @@ import { defineMessages, injectIntl } from 'react-intl';
 import PropTypes from 'prop-types';
 import Auth from '/imports/ui/services/auth';
 import Users from '/imports/api/users';
-import mapUser from '/imports/ui/services/user/mapUser';
-import Breakouts from '/imports/api/breakouts';
 import Meetings from '/imports/api/meetings';
-
-import ClosedCaptionsContainer from '/imports/ui/components/closed-captions/container';
+import { notify } from '/imports/ui/services/notification';
+import CaptionsContainer from '/imports/ui/components/captions/container';
+import CaptionsService from '/imports/ui/components/captions/service';
 import getFromUserSettings from '/imports/ui/services/users-settings';
+import deviceInfo from '/imports/utils/deviceInfo';
+import UserInfos from '/imports/api/users-infos';
+import { startBandwidthMonitoring, updateNavigatorConnection } from '/imports/ui/services/network-information/index';
 
 import {
   getFontSize,
-  getCaptionsStatus,
-  meetingIsBreakout,
   getBreakoutRooms,
+  validIOSVersion,
 } from './service';
 
 import { withModalMounter } from '../modal/service';
@@ -67,18 +68,26 @@ const AppContainer = (props) => {
   );
 };
 
+const currentUserEmoji = currentUser => (currentUser ? {
+  status: currentUser.emoji,
+  changedAt: currentUser.emojiTime,
+} : {
+  status: 'none',
+  changedAt: null,
+});
+
 export default injectIntl(withModalMounter(withTracker(({ intl, baseControls }) => {
-  const currentUser = Users.findOne({ userId: Auth.userID });
-  const currentUserIsLocked = mapUser(currentUser).isLocked;
-  const meeting = Meetings.findOne({ meetingId: Auth.meetingID });
-  const isMeetingBreakout = meetingIsBreakout();
+  const currentUser = Users.findOne({ userId: Auth.userID }, { fields: { approved: 1, emoji: 1 } });
+  const currentMeeting = Meetings.findOne({ meetingId: Auth.meetingID },
+    { fields: { publishedPoll: 1, voiceProp: 1 } });
+  const { publishedPoll, voiceProp } = currentMeeting;
 
   if (!currentUser.approved) {
     baseControls.updateLoadingState(intl.formatMessage(intlMessages.waitingApprovalMessage));
   }
 
   // Check if user is removed out of the session
-  Users.find({ userId: Auth.userID }).observeChanges({
+  Users.find({ userId: Auth.userID }, { fields: { connectionId: 1, ejected: 1 } }).observeChanges({
     changed(id, fields) {
       const hasNewConnection = 'connectionId' in fields && (fields.connectionId !== Meteor.connection._lastSessionId);
 
@@ -88,34 +97,28 @@ export default injectIntl(withModalMounter(withTracker(({ intl, baseControls }) 
     },
   });
 
-  // forcefully log out when the meeting ends
-  Meetings.find({ meetingId: Auth.meetingID }).observeChanges({
-    removed() {
-      if (isMeetingBreakout) {
-        Auth.clearCredentials().then(window.close);
-      } else {
-        endMeeting('410');
-      }
-    },
-  });
-
-  // Close the window when the current breakout room ends
-  Breakouts.find({ breakoutId: Auth.meetingID }).observeChanges({
-    removed() {
-      Auth.clearCredentials().then(window.close);
-    },
-  });
+  const UserInfo = UserInfos.find({
+    meetingId: Auth.meetingID,
+    requesterUserId: Auth.userID,
+  }).fetch();
 
   return {
-    closedCaption: getCaptionsStatus() ? <ClosedCaptionsContainer /> : null,
+    captions: CaptionsService.isCaptionsActive() ? <CaptionsContainer /> : null,
     fontSize: getFontSize(),
     hasBreakoutRooms: getBreakoutRooms().length > 0,
     customStyle: getFromUserSettings('customStyle', false),
     customStyleUrl: getFromUserSettings('customStyleUrl', false),
-    breakoutRoomIsOpen: Session.equals('openPanel', 'breakoutroom'),
-    chatIsOpen: Session.equals('openPanel', 'chat'),
     openPanel: Session.get('openPanel'),
-    userListIsOpen: !Session.equals('openPanel', ''),
+    UserInfo,
+    notify,
+    validIOSVersion,
+    isPhone: deviceInfo.type().isPhone,
+    isRTL: document.documentElement.getAttribute('dir') === 'rtl',
+    meetingMuted: voiceProp.muteOnStart,
+    currentUserEmoji: currentUserEmoji(currentUser),
+    hasPublishedPoll: publishedPoll,
+    startBandwidthMonitoring,
+    handleNetworkConnection: () => updateNavigatorConnection(navigator.connection),
   };
 })(AppContainer)));
 

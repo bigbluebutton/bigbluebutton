@@ -20,18 +20,20 @@ import org.bigbluebutton.core2.message.senders.MsgBuilder
 
 object BigBlueButtonActor extends SystemConfiguration {
   def props(
-    system:    ActorSystem,
-    eventBus:  InternalEventBus,
-    bbbMsgBus: BbbMsgRouterEventBus,
-    outGW:     OutMessageGateway): Props =
+      system:    ActorSystem,
+      eventBus:  InternalEventBus,
+      bbbMsgBus: BbbMsgRouterEventBus,
+      outGW:     OutMessageGateway
+  ): Props =
     Props(classOf[BigBlueButtonActor], system, eventBus, bbbMsgBus, outGW)
 }
 
 class BigBlueButtonActor(
-  val system:   ActorSystem,
-  val eventBus: InternalEventBus, val bbbMsgBus: BbbMsgRouterEventBus,
-  val outGW: OutMessageGateway) extends Actor
-    with ActorLogging with SystemConfiguration {
+    val system:   ActorSystem,
+    val eventBus: InternalEventBus, val bbbMsgBus: BbbMsgRouterEventBus,
+    val outGW: OutMessageGateway
+) extends Actor
+  with ActorLogging with SystemConfiguration {
 
   implicit def executionContext = system.dispatcher
   implicit val timeout = Timeout(5 seconds)
@@ -119,7 +121,7 @@ class BigBlueButtonActor(
 
         val m = RunningMeeting(msg.body.props, outGW, eventBus)
 
-        /** Subscribe to meeting and voice events. **/
+        // Subscribe to meeting and voice events.
         eventBus.subscribe(m.actorRef, m.props.meetingProp.intId)
         eventBus.subscribe(m.actorRef, m.props.voiceProp.voiceConf)
         eventBus.subscribe(m.actorRef, m.props.screenshareProps.screenshareConf)
@@ -159,7 +161,7 @@ class BigBlueButtonActor(
       m <- RunningMeetings.findWithId(meetings, msg.meetingId)
       m2 <- RunningMeetings.remove(meetings, msg.meetingId)
     } yield {
-      /** Unsubscribe to meeting and voice events. **/
+      // Unsubscribe to meeting and voice events.
       eventBus.unsubscribe(m.actorRef, m.props.meetingProp.intId)
       eventBus.unsubscribe(m.actorRef, m.props.voiceProp.voiceConf)
       eventBus.unsubscribe(m.actorRef, m.props.screenshareProps.screenshareConf)

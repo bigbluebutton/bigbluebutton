@@ -2,7 +2,6 @@ import Logger from '/imports/startup/server/logger';
 import Meetings from '/imports/api/meetings';
 import { check } from 'meteor/check';
 
-
 export default function changeWebcamOnlyModerator(meetingId, payload) {
   check(meetingId, String);
   check(payload, {

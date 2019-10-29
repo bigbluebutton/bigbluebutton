@@ -9,26 +9,46 @@ import org.bigbluebutton.common2.redis.RedisPublisher
 
 import scala.concurrent.duration._
 import org.bigbluebutton.common2.redis.MessageSender
+import org.bigbluebutton.common2.redis.RedisConfig
 import org.bigbluebutton.api2.bus.MsgFromAkkaAppsEventBus
-import org.bigbluebutton.common2.bus.JsonMsgFromAkkaAppsBus
+import org.bigbluebutton.common2.bus.{ IncomingJsonMessageBus, JsonMsgFromAkkaAppsBus }
 
-class ClientGWApplication(val msgToClientGW: MsgToClientGW) extends SystemConfiguration {
+class ClientGWApplication(
+    val msgToClientGW: MsgToClientGW,
+    redisHost:         String,
+    redisPort:         Int,
+    redisPassword:     String,
+    redisExpireKey:    Int
+) extends SystemConfiguration {
 
   implicit val system = ActorSystem("bbb-apps-common")
   implicit val timeout = akka.util.Timeout(3 seconds)
 
   val log = Logging(system, getClass)
 
+  // Need to wrap redisPassword into Option as it may be
+  // null (ralam nov 29, 2018)
+  //val redisPass = Option(redisPassword)
+
+  val redisPass = if (redisPassword != "") Some(redisPassword) else None
+  val redisConfig = RedisConfig(redisHost, redisPort, redisPass, redisExpireKey)
+
   private val msgFromClientEventBus = new MsgFromClientEventBus
   private val msgFromAkkaAppsEventBus = new MsgFromAkkaAppsEventBus
   private val msgToRedisEventBus = new MsgToRedisEventBus
   private val msgToClientEventBus = new MsgToClientEventBus
 
-  private val redisPublisher = new RedisPublisher(system, "Red5AppsPub")
+  private val redisPublisher = new RedisPublisher(
+    system,
+    "Red5AppsPub",
+    redisConfig
+  )
+
   private val msgSender: MessageSender = new MessageSender(redisPublisher)
 
   private val meetingManagerActorRef = system.actorOf(
-    MeetingManagerActor.props(msgToRedisEventBus, msgToClientEventBus), "meetingManagerActor")
+    MeetingManagerActor.props(msgToRedisEventBus, msgToClientEventBus), "meetingManagerActor"
+  )
 
   msgFromAkkaAppsEventBus.subscribe(meetingManagerActorRef, fromAkkaAppsChannel)
   msgFromClientEventBus.subscribe(meetingManagerActorRef, fromClientChannel)
@@ -36,19 +56,37 @@ class ClientGWApplication(val msgToClientGW: MsgToClientGW) extends SystemConfig
   private val receivedJsonMsgBus = new JsonMsgFromAkkaAppsBus
 
   private val msgToRedisActor = system.actorOf(
-    MsgToRedisActor.props(msgSender), "msgToRedisActor")
+    MsgToRedisActor.props(msgSender), "msgToRedisActor"
+  )
 
   msgToRedisEventBus.subscribe(msgToRedisActor, toRedisChannel)
 
   private val msgToClientJsonActor = system.actorOf(
-    MsgToClientJsonActor.props(msgToClientGW), "msgToClientJsonActor")
+    MsgToClientJsonActor.props(msgToClientGW), "msgToClientJsonActor"
+  )
 
   msgToClientEventBus.subscribe(msgToClientJsonActor, toClientChannel)
 
-  private val appsRedisSubscriberActor = system.actorOf(Red5AppsRedisSubscriberActor.props(system, receivedJsonMsgBus), "appsRedisSubscriberActor")
+  val channelsToSubscribe = Seq(fromAkkaAppsRedisChannel, fromAkkaAppsWbRedisChannel, fromAkkaAppsChatRedisChannel, fromAkkaAppsPresRedisChannel, fromThirdPartyRedisChannel)
+  // Not used but needed by internal class (ralam april 4, 2019)
+  val incomingJsonMessageBus = new IncomingJsonMessageBus
+
+  private val appsRedisSubscriberActor = system.actorOf(
+    Red5AppsRedisSubscriberActor.props(
+      system,
+      receivedJsonMsgBus,
+      incomingJsonMessageBus,
+      redisConfig,
+      channelsToSubscribe,
+      Nil,
+      fromAkkaAppsJsonChannel
+    ),
+    "appsRedisSubscriberActor"
+  )
 
   private val receivedJsonMsgHdlrActor = system.actorOf(
-    ReceivedJsonMsgHdlrActor.props(msgFromAkkaAppsEventBus), "receivedJsonMsgHdlrActor")
+    ReceivedJsonMsgHdlrActor.props(msgFromAkkaAppsEventBus), "receivedJsonMsgHdlrActor"
+  )
 
   receivedJsonMsgBus.subscribe(receivedJsonMsgHdlrActor, fromAkkaAppsJsonChannel)
 

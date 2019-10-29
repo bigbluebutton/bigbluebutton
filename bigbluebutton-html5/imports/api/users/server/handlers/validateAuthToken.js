@@ -1,7 +1,6 @@
 import { check } from 'meteor/check';
 import Logger from '/imports/startup/server/logger';
 import Users from '/imports/api/users';
-
 import userJoin from '../methods/userJoin';
 
 const clearOtherSessions = (sessionUserId, current = false) => {
@@ -41,6 +40,7 @@ export default function handleValidateAuthToken({ body }, meetingId) {
       validated: valid,
       approved: !waitForApproval,
       loginTime: Date.now(),
+      inactivityCheck: false,
     },
   };
 

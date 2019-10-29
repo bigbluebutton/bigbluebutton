@@ -9,6 +9,8 @@ import ChatService from './service';
 const CHAT_CONFIG = Meteor.settings.public.chat;
 const PUBLIC_CHAT_KEY = CHAT_CONFIG.public_id;
 const CHAT_CLEAR = CHAT_CONFIG.system_messages_keys.chat_clear;
+const ROLE_MODERATOR = Meteor.settings.public.user.role_moderator;
+const CONNECTION_STATUS = 'online';
 
 const intlMessages = defineMessages({
   [CHAT_CLEAR]: {
@@ -36,9 +38,10 @@ class ChatContainer extends PureComponent {
   }
 
   render() {
+    const { children } = this.props;
     return (
       <Chat {...this.props}>
-        {this.props.children}
+        {children}
       </Chat>
     );
   }
@@ -53,13 +56,15 @@ export default injectIntl(withTracker(({ intl }) => {
   let partnerIsLoggedOut = false;
   let systemMessageIntl = {};
 
+  const currentUser = ChatService.getUser(Auth.userID);
+  const amIModerator = currentUser.role === ROLE_MODERATOR;
+
   if (chatID === PUBLIC_CHAT_KEY) {
-    const { welcomeProp } = ChatService.getMeeting();
-    const user = ChatService.getUser(Auth.userID);
+    const { welcomeProp } = ChatService.getWelcomeProp();
 
     messages = ChatService.getPublicGroupMessages();
 
-    const time = user.loginTime;
+    const time = currentUser.loginTime;
     const welcomeId = `welcome-msg-${time}`;
 
     const welcomeMsg = {
@@ -87,36 +92,27 @@ export default injectIntl(withTracker(({ intl }) => {
       sender: null,
     };
 
-    const messagesBeforeWelcomeMsg =
-      ChatService.reduceAndMapGroupMessages(messages.filter(message => message.timestamp < time));
-    const messagesAfterWelcomeMsg =
-      ChatService.reduceAndMapGroupMessages(messages.filter(message => message.timestamp >= time));
-
-    const clearMessage = messages.filter(message => message.message === 'PUBLIC_CHAT_CLEAR');
-
-    const hasClearMessage = clearMessage.length;
-
-    const showWelcomeMsg =
-      (hasClearMessage && clearMessage[0].timestamp < time) || !hasClearMessage;
-
-    const showModeratorMsg =
-      (user.isModerator)
-      && ((hasClearMessage && clearMessage[0].timestamp < moderatorTime) || !hasClearMessage);
+    const messagesBeforeWelcomeMsg = ChatService.reduceAndMapGroupMessages(
+      messages.filter(message => message.timestamp < time),
+    );
+    const messagesAfterWelcomeMsg = ChatService.reduceAndMapGroupMessages(
+      messages.filter(message => message.timestamp >= time),
+    );
 
     const messagesFormated = messagesBeforeWelcomeMsg
-      .concat(showWelcomeMsg ? welcomeMsg : [])
-      .concat(showModeratorMsg ? moderatorMsg : [])
+      .concat(welcomeMsg)
+      .concat(amIModerator ? moderatorMsg : [])
       .concat(messagesAfterWelcomeMsg);
 
     messages = messagesFormated.sort((a, b) => (a.time - b.time));
   } else {
     messages = ChatService.getPrivateGroupMessages();
 
-    const user = ChatService.getUser(chatID);
-    chatName = user.name;
-    systemMessageIntl = { 0: user.name };
+    const receiverUser = ChatService.getUser(chatID);
+    chatName = receiverUser.name;
+    systemMessageIntl = { 0: receiverUser.name };
     title = intl.formatMessage(intlMessages.titlePrivate, systemMessageIntl);
-    partnerIsLoggedOut = !user.isOnline;
+    partnerIsLoggedOut = receiverUser.connectionStatus !== CONNECTION_STATUS;
 
     if (partnerIsLoggedOut) {
       const time = Date.now();
@@ -144,41 +140,25 @@ export default injectIntl(withTracker(({ intl }) => {
       ...message,
       content: message.content.map(content => ({
         ...content,
-        text: content.text in intlMessages ?
-          `<b><i>${intl.formatMessage(intlMessages[content.text], systemMessageIntl)}</i></b>` : content.text,
+        text: content.text in intlMessages
+          ? `<b><i>${intl.formatMessage(intlMessages[content.text], systemMessageIntl)}</i></b>` : content.text,
       })),
     };
   });
 
-
-  const scrollPosition = ChatService.getScrollPosition(chatID);
-  const hasUnreadMessages = ChatService.hasUnreadMessages(chatID);
-  const lastReadMessageTime = ChatService.lastReadMessageTime(chatID);
+  const { connected: isMeteorConnected } = Meteor.status();
 
   return {
     chatID,
     chatName,
     title,
     messages,
-    lastReadMessageTime,
-    hasUnreadMessages,
     partnerIsLoggedOut,
     isChatLocked,
-    scrollPosition,
-    minMessageLength: CHAT_CONFIG.min_message_length,
-    maxMessageLength: CHAT_CONFIG.max_message_length,
-    UnsentMessagesCollection: ChatService.UnsentMessagesCollection,
+    isMeteorConnected,
+    amIModerator,
     actions: {
-      handleClosePrivateChat: chatId => ChatService.closePrivateChat(chatId),
-
-      handleSendMessage: (message) => {
-        ChatService.updateScrollPosition(null);
-        return ChatService.sendGroupMessage(message);
-      },
-
-      handleScrollUpdate: position => ChatService.updateScrollPosition(position),
-
-      handleReadMessage: timestamp => ChatService.updateUnreadMessage(timestamp),
+      handleClosePrivateChat: ChatService.closePrivateChat,
     },
   };
 })(ChatContainer));

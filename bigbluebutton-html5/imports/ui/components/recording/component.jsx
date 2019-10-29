@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import { defineMessages, injectIntl, intlShape } from 'react-intl';
 import Button from '/imports/ui/components/button/component';
@@ -13,6 +13,10 @@ const intlMessages = defineMessages({
   stopTitle: {
     id: 'app.recording.stopTitle',
     description: 'stop recording title',
+  },
+  resumeTitle: {
+    id: 'app.recording.resumeTitle',
+    description: 'resume recording title',
   },
   startDescription: {
     id: 'app.recording.startDescription',
@@ -36,24 +40,38 @@ const propTypes = {
   intl: intlShape.isRequired,
   closeModal: PropTypes.func.isRequired,
   toggleRecording: PropTypes.func.isRequired,
+  recordingTime: PropTypes.number,
   recordingStatus: PropTypes.bool,
   amIModerator: PropTypes.bool,
+  isMeteorConnected: PropTypes.bool.isRequired,
 };
 
 const defaultProps = {
+  recordingTime: -1,
   recordingStatus: false,
   amIModerator: false,
 };
 
-class RecordingComponent extends React.PureComponent {
+class RecordingComponent extends PureComponent {
   render() {
     const {
       intl,
       recordingStatus,
+      recordingTime,
       amIModerator,
       closeModal,
       toggleRecording,
+      isMeteorConnected,
     } = this.props;
+
+    let title;
+
+    if (!recordingStatus) {
+      title = recordingTime >= 0 ? intl.formatMessage(intlMessages.resumeTitle)
+        : intl.formatMessage(intlMessages.startTitle);
+    } else {
+      title = intl.formatMessage(intlMessages.stopTitle);
+    }
 
     if (!amIModerator) return null;
     return (
@@ -62,15 +80,12 @@ class RecordingComponent extends React.PureComponent {
         className={styles.modal}
         onRequestClose={closeModal}
         hideBorder
+        contentLabel={title}
       >
         <div className={styles.container}>
           <div className={styles.header}>
             <div className={styles.title}>
-              {
-                intl.formatMessage(!recordingStatus
-                  ? intlMessages.startTitle
-                  : intlMessages.stopTitle)
-              }
+              {title}
             </div>
           </div>
           <div className={styles.description}>
@@ -82,6 +97,7 @@ class RecordingComponent extends React.PureComponent {
             <Button
               color="primary"
               className={styles.button}
+              disabled={!isMeteorConnected}
               label={intl.formatMessage(intlMessages.yesLabel)}
               onClick={toggleRecording}
             />

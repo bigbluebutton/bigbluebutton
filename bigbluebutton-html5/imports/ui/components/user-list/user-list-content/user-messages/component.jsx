@@ -4,11 +4,11 @@ import PropTypes from 'prop-types';
 import { defineMessages } from 'react-intl';
 import cx from 'classnames';
 import { styles } from '/imports/ui/components/user-list/user-list-content/styles';
-import ChatListItem from '../../chat-list-item/component';
+import { findDOMNode } from 'react-dom';
+import ChatListItemContainer from '../../chat-list-item/container';
 
 const propTypes = {
   activeChats: PropTypes.arrayOf(String).isRequired,
-  activeChat: PropTypes.string,
   compact: PropTypes.bool,
   intl: PropTypes.shape({
     formatMessage: PropTypes.func.isRequired,
@@ -19,7 +19,6 @@ const propTypes = {
 
 const defaultProps = {
   compact: false,
-  activeChat: '',
 };
 
 const listTransition = {
@@ -43,45 +42,37 @@ class UserMessages extends PureComponent {
     super();
 
     this.state = {
-      index: -1,
+      selectedChat: null,
     };
 
     this.activeChatRefs = [];
-    this.selectedIndex = -1;
 
-    this.focusActiveChatItem = this.focusActiveChatItem.bind(this);
     this.changeState = this.changeState.bind(this);
+    this.rove = this.rove.bind(this);
   }
 
   componentDidMount() {
-    const { compact, roving, activeChats } = this.props;
+    const { compact } = this.props;
     if (!compact) {
       this._msgsList.addEventListener(
         'keydown',
-        event => roving(
-          event,
-          activeChats.length,
-          this.changeState,
-        ),
+        this.rove,
       );
     }
   }
 
   componentDidUpdate(prevProps, prevState) {
-    const { index } = this.state;
-    if (index === -1) {
-      return;
-    }
+    const { selectedChat } = this.state;
 
-    if (index !== prevState.index) {
-      this.focusActiveChatItem(index);
+    if (selectedChat && selectedChat !== prevState.selectedChat) {
+      const { firstChild } = selectedChat;
+      if (firstChild) firstChild.focus();
     }
   }
 
   getActiveChats() {
     const {
       activeChats,
-      activeChat,
       compact,
       isPublicChat,
     } = this.props;
@@ -97,13 +88,12 @@ class UserMessages extends PureComponent {
         timeout={0}
         component="div"
         className={cx(styles.chatsList)}
-        key={chat.id}
+        key={chat.userId}
       >
         <div ref={(node) => { this.activeChatRefs[index += 1] = node; }}>
-          <ChatListItem
+          <ChatListItemContainer
             isPublicChat={isPublicChat}
             compact={compact}
-            activeChat={activeChat}
             chat={chat}
             tabIndex={-1}
           />
@@ -112,16 +102,15 @@ class UserMessages extends PureComponent {
     ));
   }
 
-  changeState(newIndex) {
-    this.setState({ index: newIndex });
+  changeState(ref) {
+    this.setState({ selectedChat: ref });
   }
 
-  focusActiveChatItem(index) {
-    if (!this.activeChatRefs[index]) {
-      return;
-    }
-
-    this.activeChatRefs[index].firstChild.focus();
+  rove(event) {
+    const { roving } = this.props;
+    const { selectedChat } = this.state;
+    const msgItemsRef = findDOMNode(this._msgItems);
+    roving(event, this.changeState, msgItemsRef, selectedChat);
   }
 
   render() {

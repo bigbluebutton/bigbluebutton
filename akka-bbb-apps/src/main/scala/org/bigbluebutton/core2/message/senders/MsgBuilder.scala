@@ -289,6 +289,24 @@ object MsgBuilder {
     BbbCommonEnvCoreMsg(envelope, event)
   }
 
+  def buildLastcheckVoiceConfUsersStatus(meetingId: String, voiceConf: String): BbbCommonEnvCoreMsg = {
+    val routing = collection.immutable.HashMap("sender" -> "bbb-apps-akka")
+    val envelope = BbbCoreEnvelope(GetUsersStatusToVoiceConfSysMsg.NAME, routing)
+    val header = BbbCoreHeaderWithMeetingId(GetUsersStatusToVoiceConfSysMsg.NAME, meetingId)
+    val body = GetUsersStatusToVoiceConfSysMsgBody(voiceConf, meetingId)
+    val event = GetUsersStatusToVoiceConfSysMsg(header, body)
+    BbbCommonEnvCoreMsg(envelope, event)
+  }
+
+  def buildCheckRunningAndRecordingToVoiceConfSysMsg(meetingId: String, voiceConf: String): BbbCommonEnvCoreMsg = {
+    val routing = collection.immutable.HashMap("sender" -> "bbb-apps-akka")
+    val envelope = BbbCoreEnvelope(CheckRunningAndRecordingToVoiceConfSysMsg.NAME, routing)
+    val header = BbbCoreHeaderWithMeetingId(CheckRunningAndRecordingToVoiceConfSysMsg.NAME, meetingId)
+    val body = CheckRunningAndRecordingToVoiceConfSysMsgBody(voiceConf, meetingId)
+    val event = CheckRunningAndRecordingToVoiceConfSysMsg(header, body)
+    BbbCommonEnvCoreMsg(envelope, event)
+  }
+
   def buildStartRecordingVoiceConfSysMsg(meetingId: String, voiceConf: String, stream: String): BbbCommonEnvCoreMsg = {
     val routing = collection.immutable.HashMap("sender" -> "bbb-apps-akka")
     val envelope = BbbCoreEnvelope(StartRecordingVoiceConfSysMsg.NAME, routing)
@@ -315,6 +333,15 @@ object MsgBuilder {
     val body = CreateNewPresentationPodEvtMsgBody(currentPresenterId, podId)
     val event = CreateNewPresentationPodEvtMsg(header, body)
 
+    BbbCommonEnvCoreMsg(envelope, event)
+  }
+
+  def buildRegisteredUserJoinTimeoutMsg(meetingId: String, userId: String, name: String): BbbCommonEnvCoreMsg = {
+    val routing = collection.immutable.HashMap("sender" -> "bbb-apps-akka")
+    val envelope = BbbCoreEnvelope(RegisteredUserJoinTimeoutMsg.NAME, routing)
+    val header = BbbCoreHeaderWithMeetingId(RegisteredUserJoinTimeoutMsg.NAME, meetingId)
+    val body = RegisteredUserJoinTimeoutMsgBody(meetingId, userId, name)
+    val event = RegisteredUserJoinTimeoutMsg(header, body)
     BbbCommonEnvCoreMsg(envelope, event)
   }
 }

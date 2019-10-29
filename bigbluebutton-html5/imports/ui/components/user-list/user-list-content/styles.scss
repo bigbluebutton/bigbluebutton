@@ -1,6 +1,7 @@
 @import "/imports/ui/components/user-list/styles.scss";
 @import "/imports/ui/stylesheets/mixins/_scrollable";
 @import "/imports/ui/stylesheets/mixins/focus";
+@import "/imports/ui/stylesheets/mixins/_indicators";
 @import "/imports/ui/stylesheets/variables/_all";
 
 .content {
@@ -19,16 +20,28 @@
 .scrollableList {
   @include elementFocus(var(--list-item-bg-hover));
   @include scrollbox-vertical(var(--user-list-bg));
+  @include highContrastOutline();
+
+  &:focus-within,
+  &:focus {
+    outline-style: solid;
+  }
 
   &:active {
     box-shadow: none;
     border-radius: none;
   }
+
+  outline-width: 1px !important;
+  outline-color: transparent !important;
 }
 
 .list {
-  margin-left: var(--md-padding-y);
-  margin-bottom: 1px;
+  margin: 0 0 1px var(--md-padding-y);
+
+  [dir="rtl"] & {
+    margin: 0 var(--md-padding-y) 1px 0;
+  }
 }
 
 .smallTitle {
@@ -44,14 +57,9 @@
   border-top: 1px solid var(--color-gray-lighter);
 }
 
+.captionsList,
 .chatsList {
   @extend .lists;
   overflow: hidden;
   flex-shrink: 1;
-}
-
-.footer {
-  @include mq($small-only) {
-    margin: 4rem;
-  }
 }

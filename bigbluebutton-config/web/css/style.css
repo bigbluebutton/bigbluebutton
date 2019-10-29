@@ -63,6 +63,12 @@ input {
 	margin-bottom:20px;
 }
 
+.input-center{
+    margin: auto !important;
+    float:unset !important;
+    display:block !important;
+}
+
 .bbb-features i {
     display: block;
     float: left;

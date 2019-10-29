@@ -24,9 +24,12 @@ trait ChangeLockSettingsInMeetingCmdMsgHdlr extends RightsManagementTrait {
         disableMic = msg.body.disableMic,
         disablePrivChat = msg.body.disablePrivChat,
         disablePubChat = msg.body.disablePubChat,
+        disableNote = msg.body.disableNote,
+        hideUserList = msg.body.hideUserList,
         lockedLayout = msg.body.lockedLayout,
         lockOnJoin = msg.body.lockOnJoin,
-        lockOnJoinConfigurable = msg.body.lockOnJoinConfigurable)
+        lockOnJoinConfigurable = msg.body.lockOnJoinConfigurable
+      )
 
       if (!MeetingStatus2x.permissionsEqual(liveMeeting.status, settings) || !MeetingStatus2x.permisionsInitialized(liveMeeting.status)) {
         MeetingStatus2x.initializePermissions(liveMeeting.status)
@@ -36,23 +39,29 @@ trait ChangeLockSettingsInMeetingCmdMsgHdlr extends RightsManagementTrait {
         val routing = Routing.addMsgToClientRouting(
           MessageTypes.BROADCAST_TO_MEETING,
           props.meetingProp.intId,
-          msg.body.setBy)
+          msg.body.setBy
+        )
         val envelope = BbbCoreEnvelope(
           LockSettingsInMeetingChangedEvtMsg.NAME,
-          routing)
+          routing
+        )
         val body = LockSettingsInMeetingChangedEvtMsgBody(
           disableCam = settings.disableCam,
           disableMic = settings.disableMic,
           disablePrivChat = settings.disablePrivChat,
           disablePubChat = settings.disablePubChat,
+          disableNote = settings.disableNote,
+          hideUserList = settings.hideUserList,
           lockedLayout = settings.lockedLayout,
           lockOnJoin = settings.lockOnJoin,
           lockOnJoinConfigurable = settings.lockOnJoinConfigurable,
-          msg.body.setBy)
+          msg.body.setBy
+        )
         val header = BbbClientMsgHeader(
           LockSettingsInMeetingChangedEvtMsg.NAME,
           props.meetingProp.intId,
-          msg.body.setBy)
+          msg.body.setBy
+        )
 
         outGW.send(BbbCommonEnvCoreMsg(envelope, LockSettingsInMeetingChangedEvtMsg(header, body)))
       }

@@ -8,3 +8,13 @@
   color: var(--color-white);
   font-size: 2.5rem * 5;
 }
+
+.screenshareContainer{
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  position: relative;
+  width: 100%;
+  height: 100%;
+}

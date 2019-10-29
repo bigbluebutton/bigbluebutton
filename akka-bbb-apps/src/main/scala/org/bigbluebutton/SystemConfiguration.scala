@@ -1,10 +1,10 @@
 package org.bigbluebutton
 
 import scala.util.Try
+import com.typesafe.config.ConfigFactory
 
-import org.bigbluebutton.common2.redis.RedisConfiguration
-
-trait SystemConfiguration extends RedisConfiguration {
+trait SystemConfiguration {
+  val config = ConfigFactory.load()
 
   lazy val bbbWebHost = Try(config.getString("services.bbbWebHost")).getOrElse("localhost")
   lazy val bbbWebPort = Try(config.getInt("services.bbbWebPort")).getOrElse(8888)
@@ -18,6 +18,8 @@ trait SystemConfiguration extends RedisConfiguration {
 
   lazy val expireLastUserLeft = Try(config.getInt("expire.lastUserLeft")).getOrElse(60) // 1 minute
   lazy val expireNeverJoined = Try(config.getInt("expire.neverJoined")).getOrElse(5 * 60) // 5 minutes
+
+  lazy val maxRegUserToJoinTime = Try(config.getInt("expire.maxRegUserToJoin")).getOrElse(5 * 60) // 5 minutes
 
   lazy val analyticsChannel = Try(config.getString("eventBus.analyticsChannel")).getOrElse("analytics-channel")
   lazy val meetingManagerChannel = Try(config.getString("eventBus.meetingManagerChannel")).getOrElse("MeetingManagerChannel")
@@ -40,10 +42,37 @@ trait SystemConfiguration extends RedisConfiguration {
   lazy val applyPermissionCheck = Try(config.getBoolean("apps.checkPermissions")).getOrElse(false)
 
   lazy val voiceConfRecordPath = Try(config.getString("voiceConf.recordPath")).getOrElse("/var/freeswitch/meetings")
-  lazy val recordingChapterBreakLenghtInMinutes = Try(config.getInt("recording.chapterBreakLengthInMinutes")).getOrElse(180)
+  lazy val checkVoiceRecordingInterval = Try(config.getInt("voiceConf.checkRecordingInterval")).getOrElse(19)
+  lazy val syncVoiceUsersStatusInterval = Try(config.getInt("voiceConf.syncUserStatusInterval")).getOrElse(43)
+
+  lazy val recordingChapterBreakLengthInMinutes = Try(config.getInt("recording.chapterBreakLengthInMinutes")).getOrElse(0)
 
   lazy val endMeetingWhenNoMoreAuthedUsers = Try(config.getBoolean("apps.endMeetingWhenNoMoreAuthedUsers")).getOrElse(false)
   lazy val endMeetingWhenNoMoreAuthedUsersAfterMinutes = Try(config.getInt("apps.endMeetingWhenNoMoreAuthedUsersAfterMinutes")).getOrElse(2)
   lazy val multiUserWhiteboardDefault = Try(config.getBoolean("whiteboard.multiUserDefault")).getOrElse(false)
-}
 
+  // Redis server configuration
+  lazy val redisHost = Try(config.getString("redis.host")).getOrElse("127.0.0.1")
+  lazy val redisPort = Try(config.getInt("redis.port")).getOrElse(6379)
+  lazy val redisPassword = Try(config.getString("redis.password")).getOrElse("")
+  lazy val redisExpireKey = Try(config.getInt("redis.keyExpiry")).getOrElse(1209600)
+
+  // Redis channels
+  lazy val toAkkaAppsRedisChannel = Try(config.getString("redis.toAkkaAppsRedisChannel")).getOrElse("to-akka-apps-redis-channel")
+  lazy val fromAkkaAppsRedisChannel = Try(config.getString("redis.fromAkkaAppsRedisChannel")).getOrElse("from-akka-apps-redis-channel")
+
+  lazy val toVoiceConfRedisChannel = Try(config.getString("redis.toVoiceConfRedisChannel")).getOrElse("to-voice-conf-redis-channel")
+  lazy val fromVoiceConfRedisChannel = Try(config.getString("redis.fromVoiceConfRedisChannel")).getOrElse("from-voice-conf-redis-channel")
+
+  lazy val fromAkkaAppsWbRedisChannel = Try(config.getString("redis.fromAkkaAppsWbRedisChannel")).getOrElse("from-akka-apps-wb-redis-channel")
+  lazy val fromAkkaAppsChatRedisChannel = Try(config.getString("redis.fromAkkaAppsChatRedisChannel")).getOrElse("from-akka-apps-chat-redis-channel")
+  lazy val fromAkkaAppsPresRedisChannel = Try(config.getString("redis.fromAkkaAppsPresRedisChannel")).getOrElse("from-akka-apps-pres-redis-channel")
+
+  lazy val fromBbbWebRedisChannel = Try(config.getString("redis.fromBbbWebRedisChannel")).getOrElse("from-bbb-web-redis-channel")
+
+  lazy val toAkkaTranscodeRedisChannel = Try(config.getString("redis.toAkkaTranscodeRedisChannel")).getOrElse("bigbluebutton:to-bbb-transcode:system")
+  lazy val fromAkkaTranscodeRedisChannel = Try(config.getString("redis.fromAkkaTranscodeRedisChannel")).getOrElse("bigbluebutton:from-bbb-transcode:system")
+  lazy val toAkkaTranscodeJsonChannel = Try(config.getString("eventBus.toAkkaTranscodeJsonChannel")).getOrElse("to-akka-transcode-json-channel")
+  lazy val fromAkkaTranscodeJsonChannel = Try(config.getString("eventBus.fromAkkaTranscodeJsonChannel")).getOrElse("from-akka-transcode-json-channel")
+
+}

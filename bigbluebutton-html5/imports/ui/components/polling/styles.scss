@@ -3,7 +3,7 @@
 :root {
   --col-amount: 2;
   --max-btn-width: 9em;
-  --overlayIndex: 1015;
+  --overlayIndex: 9999;
   --overlayOpacity: 0.349;
   --pollIndex: 1016;
   --poll-width: 18rem;
@@ -24,7 +24,7 @@
 
 .pollingContainer {
   pointer-events:auto;
-  width: var(--poll-width);
+  min-width: var(--poll-width);
   position: absolute;
 
   z-index: var(--pollIndex);
@@ -36,16 +36,24 @@
   font-weight: 600;
   padding: var(--md-padding-y);
   background-color: var(--color-white);
-  bottom: var(--sm-padding-x);
-  right: var(--sm-padding-x);
+  bottom: var(--jumbo-padding-x);
+  right: var(--jumbo-padding-x);
+
+  [dir="rtl"] & {
+    left: var(--jumbo-padding-x);
+    right: auto;
+  }
 
   @include mq($hasPhoneDimentions) {
     bottom: auto;
     right: auto;
     top: 50%;
     left: 50%;
-    margin-right: -50%;
     transform: translate(-50%, -50%);
+
+    [dir="rtl"] & {
+      left: 50%;
+    }
   }
 }
 
@@ -54,29 +62,6 @@
   white-space: nowrap;
   padding-bottom: var(--md-padding-y);
   padding-top: var(--md-padding-y);
-}
-
-.pollingAnswers {
-  display: grid;
-  grid-template-columns: repeat(var(--col-amount), 1fr);
-
-  > pollButtonWrapper:nth-child(odd) {
-      grid-column: 1;
-  }
-
-  > pollButtonWrapper:nth-child(even) {
-      grid-column: var(--col-amount);
-  }
-
-  @include mq($hasPhoneDimentions) {
-    grid-template-columns: repeat(1, 1fr);
-
-    .pollButtonWrapper .button {
-      grid-column: 1;
-    }
-  }
-
-  z-index: 1;
 }
 
 .pollButtonWrapper {
@@ -95,6 +80,45 @@
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+}
+
+.pollingAnswers {
+  display: grid;
+  grid-template-columns: repeat(var(--col-amount), 1fr);
+
+  > pollButtonWrapper:nth-child(odd) {
+      grid-column: 1;
+  }
+
+  > pollButtonWrapper:nth-child(even) {
+      grid-column: var(--col-amount);
+  }
+
+  @include mq($hasPhoneDimentions) {
+    grid-template-columns: repeat(1, 1fr);
+
+    .pollButtonWrapper button {
+      grid-column: 1;
+    }
+  }
+
+  z-index: 1;
+}
+
+.stacked {
+  grid-template-columns: repeat(1, 1fr);
+
+  .pollButtonWrapper button {
+    max-width: none !important;
+  }
+}
+
+.removeColumns {
+  grid-template-columns: auto;
+}
+
+.autoWidth {
+  width: auto;
 }
 
 .hidden {

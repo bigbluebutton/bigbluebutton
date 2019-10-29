@@ -1,7 +1,6 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { FormattedTime } from 'react-intl';
-import cx from 'classnames';
+import { FormattedTime, defineMessages, injectIntl } from 'react-intl';
 import _ from 'lodash';
 
 import UserAvatar from '/imports/ui/components/user-avatar/component';
@@ -10,96 +9,57 @@ import Message from './message/component';
 import { styles } from './styles';
 
 const propTypes = {
-  user: PropTypes.object,
-  messages: PropTypes.array.isRequired,
+  user: PropTypes.shape({
+    color: PropTypes.string,
+    isModerator: PropTypes.bool,
+    isOnline: PropTypes.bool,
+    name: PropTypes.string,
+  }),
+  messages: PropTypes.arrayOf(Object).isRequired,
   time: PropTypes.number.isRequired,
+  intl: PropTypes.shape({
+    formatMessage: PropTypes.func.isRequired,
+  }).isRequired,
+  scrollArea: PropTypes.instanceOf(Element),
+  chatAreaId: PropTypes.string.isRequired,
+  handleReadMessage: PropTypes.func.isRequired,
+  lastReadMessageTime: PropTypes.number,
 };
 
 const defaultProps = {
+  user: null,
+  scrollArea: null,
+  lastReadMessageTime: 0,
 };
 
-const eventsToBeBound = [
-  'scroll',
-  'resize',
-];
+const intlMessages = defineMessages({
+  offline: {
+    id: 'app.chat.offline',
+    description: 'Offline',
+  },
+});
 
-const isElementInViewport = (el) => {
-  if (!el) return false;
-  const rect = el.getBoundingClientRect();
-  const prefetchHeight = 125;
-
-  return (rect.top >= -(prefetchHeight) || rect.bottom >= -(prefetchHeight));
-};
-
-export default class MessageListItem extends Component {
-  constructor(props) {
-    super(props);
-
-    this.state = {
-      pendingChanges: false,
-      preventRender: true,
-    };
-
-    this.handleMessageInViewport = _.debounce(this.handleMessageInViewport.bind(this), 50);
-  }
-
-  componentDidMount() {
-    const { scrollArea } = this.props;
-
-    if (scrollArea) {
-      eventsToBeBound.forEach(
-        (e) => { scrollArea.addEventListener(e, this.handleMessageInViewport, false); },
-      );
-    }
-    this.handleMessageInViewport();
-  }
-
-  componentWillReceiveProps(nextProps) {
-    const { messages, user } = this.props;
-    const { pendingChanges } = this.state;
-    if (pendingChanges) return;
-
-    const hasNewMessage = messages.length !== nextProps.messages.length;
-    const hasUserChanged = !_.isEqual(user, nextProps.user);
-
-    this.setState({ pendingChanges: hasNewMessage || hasUserChanged });
-  }
-
-  shouldComponentUpdate(nextProps, nextState) {
-    const { scrollArea } = this.props;
-    if (!scrollArea && nextProps.scrollArea) return true;
-    return !nextState.preventRender && nextState.pendingChanges;
-  }
-
-  componentDidUpdate(prevProps, prevState) {
+class MessageListItem extends Component {
+  shouldComponentUpdate(nextProps) {
     const {
-      preventRender,
-      pendingChanges,
-    } = this.state;
-    if (prevState.preventRender && !preventRender && pendingChanges) {
-      this.setPendingChanges(false);
-    }
-  }
+      scrollArea,
+      messages,
+      user,
+    } = this.props;
 
-  componentWillUnmount() {
-    const { scrollArea } = this.props;
+    const {
+      scrollArea: nextScrollArea,
+      messages: nextMessages,
+      user: nextUser,
+    } = nextProps;
 
-    if (scrollArea) {
-      eventsToBeBound.forEach(
-        (e) => { scrollArea.removeEventListener(e, this.handleMessageInViewport, false); },
-      );
-    }
-  }
+    if (!scrollArea && nextScrollArea) return true;
 
-  setPendingChanges(pendingChanges) {
-    this.setState({ pendingChanges });
-  }
+    const hasNewMessage = messages.length !== nextMessages.length;
+    const hasUserChanged = user && nextUser
+      && (user.isModerator !== nextUser.isModerator || user.isOnline !== nextUser.isOnline);
 
-  handleMessageInViewport() {
-    window.requestAnimationFrame(() => {
-      const node = this.item;
-      if (node) this.setState({ preventRender: !isElementInViewport(node) });
-    });
+    return hasNewMessage || hasUserChanged;
   }
 
   renderSystemMessage() {
@@ -110,21 +70,20 @@ export default class MessageListItem extends Component {
     } = this.props;
 
     return (
-      <div className={cx(styles.item, styles.systemMessage)}>
-        <div className={styles.content} ref={(ref) => { this.item = ref; }}>
-          <div className={styles.messages}>
-            {messages.map(message => (
+      <div className={styles.messages}>
+        {messages.map(message => (
+          message.text !== ''
+            ? (
               <Message
-                className={styles.message}
+                className={(message.id ? styles.systemMessage : null)}
                 key={_.uniqueId('id-')}
                 text={message.text}
                 time={message.time}
                 chatAreaId={chatAreaId}
                 handleReadMessage={handleReadMessage}
               />
-            ))}
-          </div>
-        </div>
+            ) : null
+        ))}
       </div>
     );
   }
@@ -138,9 +97,12 @@ export default class MessageListItem extends Component {
       lastReadMessageTime,
       handleReadMessage,
       scrollArea,
+      intl,
     } = this.props;
 
     const dateTime = new Date(time);
+
+    const regEx = /<a[^>]+>/i;
 
     if (!user) {
       return this.renderSystemMessage();
@@ -162,7 +124,13 @@ export default class MessageListItem extends Component {
             <div className={styles.meta}>
               <div className={user.isOnline ? styles.name : styles.logout}>
                 <span>{user.name}</span>
-                {user.isOnline ? null : <span className={styles.offline}>(offline)</span>}
+                {user.isOnline
+                  ? null
+                  : (
+                    <span className={styles.offline}>
+                      {`(${intl.formatMessage(intlMessages.offline)})`}
+                    </span>
+                  )}
               </div>
               <time className={styles.time} dateTime={dateTime}>
                 <FormattedTime value={dateTime} />
@@ -171,7 +139,7 @@ export default class MessageListItem extends Component {
             <div className={styles.messages}>
               {messages.map(message => (
                 <Message
-                  className={styles.message}
+                  className={(regEx.test(message.text) ? styles.hyperlink : styles.message)}
                   key={message.id}
                   text={message.text}
                   time={message.time}
@@ -191,3 +159,5 @@ export default class MessageListItem extends Component {
 
 MessageListItem.propTypes = propTypes;
 MessageListItem.defaultProps = defaultProps;
+
+export default injectIntl(MessageListItem);

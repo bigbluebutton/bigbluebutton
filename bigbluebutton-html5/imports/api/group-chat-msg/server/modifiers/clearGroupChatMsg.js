@@ -1,4 +1,4 @@
-import GroupChatMsg from '/imports/api/group-chat-msg';
+import { GroupChatMsg } from '/imports/api/group-chat-msg';
 import Logger from '/imports/startup/server/logger';
 import addGroupChatMsg from '/imports/api/group-chat-msg/server/modifiers/addGroupChatMsg';
 

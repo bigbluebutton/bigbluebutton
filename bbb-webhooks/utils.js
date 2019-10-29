@@ -1,7 +1,7 @@
 const sha1 = require("sha1");
 const url = require("url");
 
-const config = require("./config");
+const config = require("config");
 
 const Utils = exports;
 
@@ -45,7 +45,7 @@ Utils.queryFromUrl = function(fullUrl) {
 // * returns: `create`
 Utils.methodFromUrl = function(fullUrl) {
   const urlObj = url.parse(fullUrl, true);
-  return urlObj.pathname.substr((config.bbb.apiPath + "/").length);
+  return urlObj.pathname.substr((config.get("bbb.apiPath") + "/").length);
 };
 
 // Returns the IP address of the client that made a request `req`.

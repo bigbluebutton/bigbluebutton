@@ -652,7 +652,9 @@ package org.bigbluebutton.modules.users.services
           disableMic: newLockSettings.disableMic, 
           disablePrivChat: newLockSettings.disablePrivateChat,
           disablePubChat: newLockSettings.disablePublicChat, 
-          lockedLayout: newLockSettings.lockedLayout, 
+          disableNote: newLockSettings.disableNote,
+          lockedLayout: newLockSettings.lockedLayout,
+          hideUserList: newLockSettings.hideUserList,
           lockOnJoin: newLockSettings.lockOnJoin, 
           lockOnJoinConfigurable: newLockSettings.lockOnJoinConfigurable, 
           setBy: UsersUtil.getMyUserID()}

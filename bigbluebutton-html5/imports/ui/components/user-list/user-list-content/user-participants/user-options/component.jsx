@@ -10,8 +10,12 @@ import DropdownContent from '/imports/ui/components/dropdown/content/component';
 import DropdownList from '/imports/ui/components/dropdown/list/component';
 import DropdownListItem from '/imports/ui/components/dropdown/list/item/component';
 import LockViewersContainer from '/imports/ui/components/lock-viewers/container';
-import BreakoutRoom from '/imports/ui/components/actions-bar/create-breakout-room/component';
+import BreakoutRoom from '/imports/ui/components/actions-bar/create-breakout-room/container';
+import CaptionsService from '/imports/ui/components/captions/service';
+import CaptionsWriterMenu from '/imports/ui/components/captions/writer-menu/container';
+import DropdownListSeparator from '/imports/ui/components/dropdown/list/separator/component';
 import { styles } from './styles';
+import { getUserNamesLink } from '/imports/ui/components/user-list/service';
 
 const propTypes = {
   intl: PropTypes.shape({
@@ -23,10 +27,10 @@ const propTypes = {
   toggleStatus: PropTypes.func.isRequired,
   mountModal: PropTypes.func.isRequired,
   users: PropTypes.arrayOf(Object).isRequired,
-  meetingName: PropTypes.string.isRequired,
-  createBreakoutRoom: PropTypes.func.isRequired,
   meetingIsBreakout: PropTypes.bool.isRequired,
   hasBreakoutRoom: PropTypes.bool.isRequired,
+  isBreakoutEnabled: PropTypes.bool.isRequired,
+  isBreakoutRecordable: PropTypes.bool.isRequired,
 };
 
 const intlMessages = defineMessages({
@@ -86,6 +90,18 @@ const intlMessages = defineMessages({
     id: 'app.invitation.title',
     description: 'invitation to breakout title',
   },
+  saveUserNames: {
+    id: 'app.actionsBar.actionsDropdown.saveUserNames',
+    description: 'Save user name feature description',
+  },
+  captionsLabel: {
+    id: 'app.actionsBar.actionsDropdown.captionsLabel',
+    description: 'Captions menu toggle label',
+  },
+  captionsDesc: {
+    id: 'app.actionsBar.actionsDropdown.captionsDesc',
+    description: 'Captions menu toggle description',
+  },
 });
 
 class UserOptions extends PureComponent {
@@ -101,21 +117,22 @@ class UserOptions extends PureComponent {
     this.muteAllId = _.uniqueId('list-item-');
     this.lockId = _.uniqueId('list-item-');
     this.createBreakoutId = _.uniqueId('list-item-');
+    this.saveUsersNameId = _.uniqueId('list-item-');
+    this.captionsId = _.uniqueId('list-item-');
 
     this.onActionsShow = this.onActionsShow.bind(this);
     this.onActionsHide = this.onActionsHide.bind(this);
-    this.alterMenu = this.alterMenu.bind(this);
     this.handleCreateBreakoutRoomClick = this.handleCreateBreakoutRoomClick.bind(this);
+    this.handleCaptionsClick = this.handleCaptionsClick.bind(this);
     this.onCreateBreakouts = this.onCreateBreakouts.bind(this);
     this.onInvitationUsers = this.onInvitationUsers.bind(this);
     this.renderMenuItems = this.renderMenuItems.bind(this);
+    this.onSaveUserNames = this.onSaveUserNames.bind(this);
   }
 
-  componentDidUpdate(prevProps) {
-    const { isMeetingMuted } = this.props;
-    if (prevProps.isMeetingMuted !== isMeetingMuted) {
-      this.alterMenu();
-    }
+  onSaveUserNames() {
+    getUserNamesLink().dispatchEvent(new MouseEvent('click',
+      { bubbles: true, cancelable: true, view: window }));
   }
 
   onActionsShow() {
@@ -140,66 +157,23 @@ class UserOptions extends PureComponent {
 
   handleCreateBreakoutRoomClick(isInvitation) {
     const {
-      createBreakoutRoom,
       mountModal,
-      meetingName,
-      users,
-      getUsersNotAssigned,
-      getBreakouts,
-      sendInvitation,
+      isBreakoutRecordable,
     } = this.props;
 
     return mountModal(
       <BreakoutRoom
         {...{
-          createBreakoutRoom,
-          meetingName,
-          users,
-          getUsersNotAssigned,
+          isBreakoutRecordable,
           isInvitation,
-          getBreakouts,
-          sendInvitation,
         }}
       />,
     );
   }
 
-  alterMenu() {
-    const {
-      intl,
-      isMeetingMuted,
-      toggleMuteAllUsers,
-      toggleMuteAllUsersExceptPresenter,
-    } = this.props;
-
-    if (isMeetingMuted) {
-      const menuButton = (
-        <DropdownListItem
-          key={_.uniqueId('list-item-')}
-          icon="unmute"
-          label={intl.formatMessage(intlMessages.unmuteAllLabel)}
-          description={intl.formatMessage(intlMessages.unmuteAllDesc)}
-          onClick={toggleMuteAllUsers}
-        />
-      );
-      this.menuItems.splice(1, 2, menuButton);
-    } else {
-      const muteMeetingButtons = [(<DropdownListItem
-        key={_.uniqueId('list-item-')}
-        icon="mute"
-        label={intl.formatMessage(intlMessages.muteAllLabel)}
-        description={intl.formatMessage(intlMessages.muteAllDesc)}
-        onClick={toggleMuteAllUsers}
-      />), (<DropdownListItem
-        key={_.uniqueId('list-item-')}
-        icon="mute"
-        label={intl.formatMessage(intlMessages.muteAllExceptPresenterLabel)}
-        description={intl.formatMessage(intlMessages.muteAllExceptPresenterDesc)}
-        onClick={toggleMuteAllUsersExceptPresenter}
-      />)];
-
-      this.menuItems.splice(1, 1, muteMeetingButtons[0], muteMeetingButtons[1]);
-    }
+  handleCaptionsClick() {
+    const { mountModal } = this.props;
+    mountModal(<CaptionsWriterMenu />);
   }
 
   renderMenuItems() {
@@ -212,75 +186,100 @@ class UserOptions extends PureComponent {
       toggleMuteAllUsersExceptPresenter,
       meetingIsBreakout,
       hasBreakoutRoom,
+      isBreakoutEnabled,
       getUsersNotAssigned,
-      isUserModerator,
+      amIModerator,
       users,
+      isMeteorConnected,
     } = this.props;
 
-    const canCreateBreakout = isUserModerator
-    && !meetingIsBreakout
-    && !hasBreakoutRoom;
+    const canCreateBreakout = amIModerator
+      && !meetingIsBreakout
+      && !hasBreakoutRoom
+      && isBreakoutEnabled;
 
-    const canInviteUsers = isUserModerator
-    && !meetingIsBreakout
-    && hasBreakoutRoom
-    && getUsersNotAssigned(users).length;
+    const canInviteUsers = amIModerator
+      && !meetingIsBreakout
+      && hasBreakoutRoom
+      && getUsersNotAssigned(users).length;
 
     this.menuItems = _.compact([
-      (<DropdownListItem
-        key={this.clearStatusId}
-        icon="clear_status"
-        label={intl.formatMessage(intlMessages.clearAllLabel)}
-        description={intl.formatMessage(intlMessages.clearAllDesc)}
-        onClick={toggleStatus}
-      />),
-      (<DropdownListItem
-        key={this.muteAllId}
-        icon="mute"
-        label={intl.formatMessage(intlMessages.muteAllLabel)}
-        description={intl.formatMessage(intlMessages.muteAllDesc)}
-        onClick={toggleMuteAllUsers}
-      />),
-      (<DropdownListItem
-        key={this.muteId}
-        icon="mute"
-        label={intl.formatMessage(intlMessages.muteAllExceptPresenterLabel)}
-        description={intl.formatMessage(intlMessages.muteAllExceptPresenterDesc)}
-        onClick={toggleMuteAllUsersExceptPresenter}
-      />),
-      (<DropdownListItem
-        key={this.lockId}
-        icon="lock"
-        label={intl.formatMessage(intlMessages.lockViewersLabel)}
-        description={intl.formatMessage(intlMessages.lockViewersDesc)}
-        onClick={() => mountModal(<LockViewersContainer />)}
-      />),
-      (canCreateBreakout
-        ? (
-          <DropdownListItem
-            key={this.createBreakoutId}
-            icon="rooms"
-            label={intl.formatMessage(intlMessages.createBreakoutRoom)}
-            description={intl.formatMessage(intlMessages.createBreakoutRoomDesc)}
-            onClick={this.onCreateBreakouts}
-          />
-        ) : null
+      (isMeteorConnected ? (
+        <DropdownListItem
+          key={this.clearStatusId}
+          icon="clear_status"
+          label={intl.formatMessage(intlMessages.clearAllLabel)}
+          description={intl.formatMessage(intlMessages.clearAllDesc)}
+          onClick={toggleStatus}
+        />) : null
       ),
-      (canInviteUsers
+      (isMeteorConnected ? (
+        <DropdownListItem
+          key={this.muteAllId}
+          icon={isMeetingMuted ? 'unmute' : 'mute'}
+          label={intl.formatMessage(intlMessages[isMeetingMuted ? 'unmuteAllLabel' : 'muteAllLabel'])}
+          description={intl.formatMessage(intlMessages[isMeetingMuted ? 'unmuteAllDesc' : 'muteAllDesc'])}
+          onClick={toggleMuteAllUsers}
+        />) : null
+      ),
+      (!isMeetingMuted && isMeteorConnected ? (
+        <DropdownListItem
+          key={this.muteId}
+          icon="mute"
+          label={intl.formatMessage(intlMessages.muteAllExceptPresenterLabel)}
+          description={intl.formatMessage(intlMessages.muteAllExceptPresenterDesc)}
+          onClick={toggleMuteAllUsersExceptPresenter}
+        />) : null
+      ),
+      (amIModerator
         ? (
           <DropdownListItem
-            icon="rooms"
-            label={intl.formatMessage(intlMessages.invitationItem)}
-            key={this.createBreakoutId}
-            onClick={this.onInvitationUsers}
+            icon="download"
+            label={intl.formatMessage(intlMessages.saveUserNames)}
+            key={this.saveUsersNameId}
+            onClick={this.onSaveUserNames}
+          />)
+        : null
+      ),
+      (isMeteorConnected ? (
+        <DropdownListItem
+          key={this.lockId}
+          icon="lock"
+          label={intl.formatMessage(intlMessages.lockViewersLabel)}
+          description={intl.formatMessage(intlMessages.lockViewersDesc)}
+          onClick={() => mountModal(<LockViewersContainer />)}
+        />) : null
+      ),
+      (isMeteorConnected ? <DropdownListSeparator key={_.uniqueId('list-separator-')} /> : null),
+      (canCreateBreakout && isMeteorConnected ? (
+        <DropdownListItem
+          key={this.createBreakoutId}
+          icon="rooms"
+          label={intl.formatMessage(intlMessages.createBreakoutRoom)}
+          description={intl.formatMessage(intlMessages.createBreakoutRoomDesc)}
+          onClick={this.onCreateBreakouts}
+        />) : null
+      ),
+      (canInviteUsers && isMeteorConnected ? (
+        <DropdownListItem
+          icon="rooms"
+          label={intl.formatMessage(intlMessages.invitationItem)}
+          key={this.createBreakoutId}
+          onClick={this.onInvitationUsers}
+        />) : null
+      ),
+      (amIModerator && CaptionsService.isCaptionsEnabled() && isMeteorConnected
+        ? (
+          <DropdownListItem
+            icon="closed_caption"
+            label={intl.formatMessage(intlMessages.captionsLabel)}
+            description={intl.formatMessage(intlMessages.captionsDesc)}
+            key={this.captionsId}
+            onClick={this.handleCaptionsClick}
           />
         )
         : null),
     ]);
-
-    if (isMeetingMuted) {
-      this.alterMenu();
-    }
 
     return this.menuItems;
   }

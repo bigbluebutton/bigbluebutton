@@ -1,5 +1,6 @@
 @import "/imports/ui/components/user-list/styles.scss";
 @import "/imports/ui/stylesheets/variables/_all";
+@import '/imports/ui/stylesheets/mixins/_indicators';
 
 /* Animations
  * ==========
@@ -15,8 +16,11 @@
 .enterActive,
 .appearActive {
   opacity: 1;
-  transition: all calc(var(--enableAnimation) * 300ms);
   max-height: 10rem;
+
+  :global(.animationsEnabled) & {
+    transition: all 300ms;
+  }
 }
 
 .leave {
@@ -26,8 +30,11 @@
 
 .leaveActive {
   opacity: 0;
-  transition: all calc(var(--enableAnimation) * 500ms);
   max-height: 0rem;
+  
+  :global(.animationsEnabled) & {
+    transition: all 500ms;
+  }
 }
 
 // Text under username
@@ -41,8 +48,11 @@
 .subUserNameAppearActive {
   transform: translateY(0%);
   opacity: 1;
-  transition: all calc(var(--enableAnimation) * 500ms);
   max-height: 10rem;
+
+  :global(.animationsEnabled) & {
+    transition: all 500ms;
+  }
 }
 
 .subUserNameLeave {
@@ -52,8 +62,11 @@
 
 .subUserNameLeaveActive {
   opacity: 0;
-  transition: all calc(var(--enableAnimation) * 300ms);
   transform: translateY(-100%);
+
+  :global(.animationsEnabled) & {
+    transition: all 300ms;
+  }
 }
 
 .actionsHeader {
@@ -68,22 +81,27 @@
 .active {
   background-color: var(--list-item-bg-hover);
   box-shadow: inset 0 0 0 var(--border-size) var(--item-focus-border), inset 1px 0 0 1px var(--item-focus-border);
-  outline: none;
 }
 
 .usertListItemWithMenu {
+  @include highContrastOutline();
+  outline-style: solid;
   background-color: var(--list-item-bg-hover);
+
+  &:focus {
+    outline-style: solid;
+    outline-color: transparent !important;
+  }
 }
 
 .userListItem {
-
   @extend %list-item;
   flex-flow: column;
   flex-shrink: 0;
 }
 
 .userAvatar {
-  flex: 0 0 2.2rem;
+  flex: 0 0 2.25rem;
 }
 
 .userItemContents {
@@ -91,9 +109,11 @@
   display: flex;
   flex-flow: row;
 
-  padding-top: var(--lg-padding-y);
-  padding-bottom: var(--lg-padding-y);
-  padding-left: var(--lg-padding-y);
+  padding: var(--lg-padding-y) 0 var(--lg-padding-y) var(--lg-padding-y);
+
+  [dir="rtl"] & {
+    padding: var(--lg-padding-y) var(--lg-padding-y) var(--lg-padding-y) 0;
+  }
 }
 
 .dropdown {

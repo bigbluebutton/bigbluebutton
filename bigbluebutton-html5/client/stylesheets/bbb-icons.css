@@ -16,7 +16,7 @@
   font-weight: 400;
   line-height: 1;
   -webkit-font-smoothing: antialiased;
-  width: 1.28571429em;
+  width: 1em;
   text-align: center;
   vertical-align: middle;
 
@@ -278,4 +278,10 @@
 }
 .icon-bbb-download-off:before {
   content: "\e955";
+}
+.icon-bbb-popout_window:before {
+  content: "\e956";
+}
+.icon-bbb-closed_caption:before {
+  content: "\e957";
 }

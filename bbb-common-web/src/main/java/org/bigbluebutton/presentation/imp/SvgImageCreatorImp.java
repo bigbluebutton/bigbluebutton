@@ -5,10 +5,10 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.FilenameUtils;
 import org.bigbluebutton.presentation.SupportedFileTypes;
 import org.bigbluebutton.presentation.SvgImageCreator;
 import org.bigbluebutton.presentation.UploadedPresentation;
@@ -26,6 +26,7 @@ import com.zaxxer.nuprocess.NuProcessBuilder;
 public class SvgImageCreatorImp implements SvgImageCreator {
     private static Logger log = LoggerFactory.getLogger(SvgImageCreatorImp.class);
 
+    private SwfSlidesGenerationProgressNotifier notifier;
     private long imageTagThreshold;
     private long pathsThreshold;
     private String convTimeout = "7s";
@@ -55,7 +56,8 @@ public class SvgImageCreatorImp implements SvgImageCreator {
         String dest;
         int numSlides;
         boolean done = false;
-
+        int slidesCompleted = 0;
+        
         // Convert single image file
         if (SupportedFileTypes.isImageFile(pres.getFileType())) {
             numSlides = 1;
@@ -129,7 +131,7 @@ public class SvgImageCreatorImp implements SvgImageCreator {
                 log.warn(" --analytics-- data={}", logStr);
 
                 File tempPng = null;
-                String basePresentationame = FilenameUtils.getBaseName(pres.getName());
+                String basePresentationame = UUID.randomUUID().toString();
                 try {
                     tempPng = File.createTempFile(basePresentationame + "-" + i, ".png");
                 } catch (IOException ioException) {
@@ -194,6 +196,9 @@ public class SvgImageCreatorImp implements SvgImageCreator {
                     log.error("Interrupted Exception while adding SVG namespace {}", pres.getName(), e);
                 }
             }
+            
+            slidesCompleted++;
+            notifier.sendConversionUpdateMessage(slidesCompleted, pres);
 
         }
 
@@ -236,5 +241,10 @@ public class SvgImageCreatorImp implements SvgImageCreator {
 
     public void setPathsThreshold(long threshold) {
         pathsThreshold = threshold;
+    }
+    
+    public void setSwfSlidesGenerationProgressNotifier(
+        SwfSlidesGenerationProgressNotifier notifier) {
+      this.notifier = notifier;
     }
 }

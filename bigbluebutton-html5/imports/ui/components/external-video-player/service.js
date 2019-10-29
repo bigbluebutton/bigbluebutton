@@ -1,29 +1,14 @@
 import Meetings from '/imports/api/meetings';
 import Auth from '/imports/ui/services/auth';
-import ExternalVideoStreamer from '/imports/api/external-videos';
-
+import { getStreamer } from '/imports/api/external-videos';
 import { makeCall } from '/imports/ui/services/api';
 
-const YOUTUBE_PREFIX = 'https://youtube.com/watch?v=';
+import ReactPlayer from 'react-player';
 
-const isUrlEmpty = url => !url || url.length === 0;
-
-const isUrlValid = (url) => {
-  const regexp = RegExp('^(https?://)?(www.)?(youtube.com|youtu.?be)/.+$');
-  return !isUrlEmpty(url) && url.match(regexp);
-};
-
-const getUrlFromVideoId = id => (id ? `${YOUTUBE_PREFIX}${id}` : '');
-
-// https://stackoverflow.com/questions/3452546/how-do-i-get-the-youtube-video-id-from-a-url
-const videoIdFromUrl = (url) => {
-  const regExp = /.*(?:youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=)([^#\&\?]*).*/;
-  const match = url.match(regExp);
-  return (match && match[1].length == 11) ? match[1] : false;
-};
+const isUrlValid = url => ReactPlayer.canPlay(url);
 
 const startWatching = (url) => {
-  const externalVideoUrl = videoIdFromUrl(url);
+  const externalVideoUrl = url;
   makeCall('startWatchingExternalVideo', { externalVideoUrl });
 };
 
@@ -32,7 +17,9 @@ const stopWatching = () => {
 };
 
 const sendMessage = (event, data) => {
-  ExternalVideoStreamer.emit(event, {
+  const streamer = getStreamer(Auth.meetingID);
+
+  streamer.emit(event, {
     ...data,
     meetingId: Auth.meetingID,
     userId: Auth.userID,
@@ -40,12 +27,18 @@ const sendMessage = (event, data) => {
 };
 
 const onMessage = (message, func) => {
-  ExternalVideoStreamer.on(message, func);
+  const streamer = getStreamer(Auth.meetingID);
+  streamer.on(message, func);
 };
 
-const getVideoId = () => {
+const removeAllListeners = (eventType) => {
+  const streamer = getStreamer(Auth.meetingID);
+  streamer.removeAllListeners(eventType);
+};
+
+const getVideoUrl = () => {
   const meetingId = Auth.meetingID;
-  const meeting = Meetings.findOne({ meetingId });
+  const meeting = Meetings.findOne({ meetingId }, { fields: { externalVideoUrl: 1 } });
 
   return meeting && meeting.externalVideoUrl;
 };
@@ -53,8 +46,8 @@ const getVideoId = () => {
 export {
   sendMessage,
   onMessage,
-  getVideoId,
-  getUrlFromVideoId,
+  removeAllListeners,
+  getVideoUrl,
   isUrlValid,
   startWatching,
   stopWatching,

@@ -35,6 +35,7 @@ recording_dir = props['recording_dir']
 raw_archive_dir = "#{recording_dir}/raw"
 redis_host = props['redis_host']
 redis_port = props['redis_port']
+redis_password = props['redis_password']
 
 opts = Trollop::options do
   opt :meeting_id, "Meeting id to archive", type: :string
@@ -107,7 +108,7 @@ begin
     # Either this recording isn't segmented, or we are working on the last
     # segment, so go ahead and clean up all the redis data.
     logger.info("Deleting keys")
-    redis = BigBlueButton::RedisWrapper.new(redis_host, redis_port)
+    redis = BigBlueButton::RedisWrapper.new(redis_host, redis_port, redis_password)
     events_archiver = BigBlueButton::RedisEventsArchiver.new(redis)
     events_archiver.delete_events(meeting_id)
   end

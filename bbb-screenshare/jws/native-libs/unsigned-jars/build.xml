@@ -50,4 +50,13 @@
         alias="${cert.alias}" />
     </target>
 
+  <target name="sign-screenshare-jar" depends="get-alias-name">
+      <signjar jar="workdir/javacv-screenshare-0.0.1.jar"
+        storetype="pkcs12"
+        keystore="${cert.name}"
+        storepass="${cert.password}"
+        alias="${cert.alias}" />
+    </target>
+
+
 </project>

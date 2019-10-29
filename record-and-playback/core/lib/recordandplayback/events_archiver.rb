@@ -1,7 +1,5 @@
-# Set encoding to utf-8
-# encoding: UTF-8
+# frozen_string_literal: true
 
-#
 # BigBlueButton open source conferencing system - http://www.bigbluebutton.org/
 #
 # Copyright (c) 2017 BigBlueButton Inc. and by respective authors (see below).
@@ -18,8 +16,6 @@
 #
 # You should have received a copy of the GNU Lesser General Public License along
 # with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
-#
-
 
 require 'rubygems'
 require 'redis'
@@ -28,16 +24,20 @@ require 'yaml'
 require 'fileutils'
 
 module BigBlueButton  
-  $bbb_props = YAML::load(File.open('../../core/scripts/bigbluebutton.yml'))
+  $bbb_props = YAML::load(File.open(File.expand_path('../../../scripts/bigbluebutton.yml', __FILE__)))
   $recording_dir = $bbb_props['recording_dir']
   $raw_recording_dir = "#{$recording_dir}/raw"
 
   # Class to wrap Redis so we can mock
   # for testing
   class RedisWrapper
-    def initialize(host, port)
-      @host, @port = host, port
-      @redis = Redis.new(:host => @host, :port => @port)
+    def initialize(host, port, password)
+      @host, @port, @password = host, port, password
+      if password.nil?
+        @redis = Redis.new(:host => @host, :port => @port)
+      else
+        @redis = Redis.new(:host => @host, :port => @port, :password => @password)
+      end
     end
     
     def connect      
@@ -314,12 +314,10 @@ module BigBlueButton
               # The slidesInfo value is XML serialized info, just insert it
               # directly into the event
               event << v
-            elsif res[MODULE] == 'CHAT' and res[EVENTNAME] == 'PublicChatEvent' and k == 'message'
-              # Apply a cleanup that removes certain ranges of special
-              # characters from chat messages
-              event << events_doc.create_element(k, v.tr("\u0000-\u001f\u007f\u2028",''))
             else
-              event << events_doc.create_element(k, v)
+              # Apply a cleanup that removes certain ranges of special
+              # control characters from user-provided text
+              event << events_doc.create_element(k, v.tr("\x00-\x08\x0B\x0C\x0E-\x1F\x7F",''))
             end
           end
         end
@@ -346,6 +344,10 @@ module BigBlueButton
           break
         end
       end
+
+      # Optionally let the caller do some post-processing on the events before
+      # they're written
+      yield events_doc if block_given?
 
       # Write the events file. Write to a temp file then rename so other
       # scripts running concurrently don't see a partially written file.

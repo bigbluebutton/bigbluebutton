@@ -30,7 +30,11 @@
 .button {
   padding-right: var(--jumbo-padding-y);
   padding-left: var(--jumbo-padding-y);
-  margin-right: var(--sm-padding-x);
+  margin: 0 var(--sm-padding-x) 0 0;
+
+  [dir="rtl"] & {
+    margin: 0 0 0 var(--sm-padding-x);
+  }
 }
 
 .description {

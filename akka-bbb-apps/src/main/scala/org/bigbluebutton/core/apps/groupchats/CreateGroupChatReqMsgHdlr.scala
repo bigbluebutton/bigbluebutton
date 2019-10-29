@@ -26,7 +26,14 @@ trait CreateGroupChatReqMsgHdlr extends SystemConfiguration {
       if (user.role != Roles.MODERATOR_ROLE) {
         if (msg.body.access == GroupChatAccess.PRIVATE) {
           val permissions = MeetingStatus2x.getPermissions(liveMeeting.status)
-          chatLocked = user.locked && permissions.disablePrivChat
+          val modMembers = msg.body.users.filter(userId => Users2x.findWithIntId(liveMeeting.users2x, userId) match {
+            case Some(user) => user.role == Roles.MODERATOR_ROLE
+            case None       => false
+          })
+          // don't lock creation of private chats that involve a moderator
+          if (modMembers.length == 0) {
+            chatLocked = user.locked && permissions.disablePrivChat
+          }
         } else {
           chatLocked = true
         }

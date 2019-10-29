@@ -36,6 +36,7 @@ package org.bigbluebutton.core.model
     public var disableMyMic:Boolean = false;
     public var disableMyPrivateChat:Boolean = false;
     public var disableMyPublicChat:Boolean = false;
+    public var disableMyNote:Boolean = false;
     public var lockedLayout:Boolean = false;
     
     public var iAskedToLogout:Boolean;
@@ -108,6 +109,7 @@ package org.bigbluebutton.core.model
       disableMyMic = lockAppliesToMe && lockSettings.getDisableMic();
       disableMyPrivateChat = lockAppliesToMe && lockSettings.getDisablePrivateChat();
       disableMyPublicChat = lockAppliesToMe && lockSettings.getDisablePublicChat();
+      disableMyNote = lockAppliesToMe && lockSettings.getDisableNote();
       lockedLayout = lockAppliesToMe && lockSettings.getLockedLayout();
       
       var dispatcher:Dispatcher = new Dispatcher();

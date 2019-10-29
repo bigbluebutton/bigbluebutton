@@ -2,11 +2,13 @@ import { check } from 'meteor/check';
 import Logger from '/imports/startup/server/logger';
 import { Meteor } from 'meteor/meteor';
 import RedisPubSub from '/imports/startup/server/redis';
-import Meetings from '/imports/api/meetings';
+import { RecordMeetings } from '/imports/api/meetings';
+import Users from '/imports/api/users';
 
 export default function toggleRecording(credentials) {
   const REDIS_CONFIG = Meteor.settings.private.redis;
   const CHANNEL = REDIS_CONFIG.channels.toAkkaApps;
+  const ROLE_MODERATOR = Meteor.settings.public.user.role_moderator;
   const { meetingId, requesterUserId, requesterToken } = credentials;
 
   check(meetingId, String);
@@ -18,14 +20,14 @@ export default function toggleRecording(credentials) {
   let meetingRecorded;
   let allowedToRecord;
 
-  const meetingObject = Meetings.findOne({ meetingId });
+  const recordObject = RecordMeetings.findOne({ meetingId });
 
-  if (meetingObject != null) {
+  if (recordObject != null) {
     const {
       allowStartStopRecording,
       recording,
       record,
-    } = meetingObject.recordProp;
+    } = recordObject;
 
     meetingRecorded = recording;
     allowedToRecord = record && allowStartStopRecording;
@@ -36,7 +38,13 @@ export default function toggleRecording(credentials) {
     setBy: requesterUserId,
   };
 
-  if (allowedToRecord) {
+  const selector = {
+    meetingId,
+    userId: requesterUserId,
+  };
+  const user = Users.findOne(selector);
+
+  if (allowedToRecord && !!user && user.role === ROLE_MODERATOR) {
     Logger.info(`Setting the record parameter to ${!meetingRecorded} for ${meetingId} by ${requesterUserId}`);
     return RedisPubSub.publishUserMessage(CHANNEL, EVENT_NAME, meetingId, requesterUserId, payload);
   }

@@ -16,11 +16,13 @@ const propTypes = {
   position: PropTypes.oneOf(['bottom']),
   children: PropTypes.element.isRequired,
   className: PropTypes.string,
+  tooltipDistance: PropTypes.number,
 };
 
 const defaultProps = {
   position: 'bottom',
   className: null,
+  tooltipDistance: -1,
 };
 
 class Tooltip extends Component {
@@ -29,16 +31,6 @@ class Tooltip extends Component {
     const expandedEl = tooltipTarget.parentElement.querySelector('[aria-expanded="true"]');
     const isTarget = expandedEl === tooltipTarget;
     if (expandedEl && !isTarget) return;
-
-    const findLabel = (node) => {
-      const { nodeName, lastChild, parentElement } = node;
-      if (nodeName.toLowerCase() === 'button') return lastChild.innerText;
-      return findLabel(parentElement);
-    };
-    const label = findLabel(tooltipTarget);
-    if (label) tip.set({ content: label });
-    // if we are not able to get the text, the default content is used
-
     tip.show();
   }
 
@@ -49,67 +41,80 @@ class Tooltip extends Component {
     this.onShow = this.onShow.bind(this);
     this.onHide = this.onHide.bind(this);
     this.handleEscapeHide = this.handleEscapeHide.bind(this);
-
-    this.state = {
-      enableAnimation: Settings.application.animations,
-    };
   }
 
   componentDidMount() {
     const {
       position,
       title,
+      tooltipDistance,
     } = this.props;
-    const { enableAnimation } = this.state;
+
+    const { animations } = Settings.application;
+
+    let distance = 0;
+    if (tooltipDistance < 0) {
+      if (animations) distance = 10;
+      else distance = 20;
+    } else {
+      distance = tooltipDistance;
+    }
+
     const options = {
       placement: position,
       performance: true,
       content: title,
-      delay: enableAnimation ? ANIMATION_DELAY : [ANIMATION_DELAY[0], 0],
-      duration: enableAnimation ? ANIMATION_DURATION : 0,
+      delay: animations ? ANIMATION_DELAY : [ANIMATION_DELAY[0], 0],
+      duration: animations ? ANIMATION_DURATION : 0,
       onShow: this.onShow,
       onHide: this.onHide,
       wait: Tooltip.wait,
       touchHold: true,
       size: 'regular',
-      distance: enableAnimation ? 10 : 20,
+      distance,
       arrow: true,
       arrowType: 'sharp',
       aria: null,
-      animation: enableAnimation ? DEFAULT_ANIMATION : ANIMATION_NONE,
+      animation: animations ? DEFAULT_ANIMATION : ANIMATION_NONE,
     };
     this.tooltip = Tippy(`#${this.tippySelectorId}`, options);
   }
 
   componentDidUpdate() {
-    const { enableAnimation } = this.state;
     const { animations } = Settings.application;
+    const { title } = this.props;
+    const elements = document.querySelectorAll('[id^="tippy-"]');
 
-    if (animations !== enableAnimation) {
-      const elements = document.querySelectorAll('[id^="tippy-"]');
-      Array.from(elements).filter((e) => {
-        const instance = e._tippy;
+    Array.from(elements).filter((e) => {
+      const instance = e._tippy;
 
-        if (!instance) return false;
+      if (!instance) return false;
 
-        const animation = animations ? DEFAULT_ANIMATION : ANIMATION_NONE;
+      const animation = animations ? DEFAULT_ANIMATION : ANIMATION_NONE;
 
-        if (animation === instance.props.animation) return false;
+      if (animation === instance.props.animation) return false;
 
-        return true;
-      }).forEach((e) => {
-        const instance = e._tippy;
-        instance.set({
-          animation: animations
-            ? DEFAULT_ANIMATION : ANIMATION_NONE,
-          distance: animations ? 10 : 20,
-          delay: animations ? ANIMATION_DELAY : [ANIMATION_DELAY[0], 0],
-          duration: animations ? ANIMATION_DURATION : 0,
-        });
+      return true;
+    }).forEach((e) => {
+      const instance = e._tippy;
+      instance.set({
+        animation: animations
+          ? DEFAULT_ANIMATION : ANIMATION_NONE,
+        distance: animations ? 10 : 20,
+        delay: animations ? ANIMATION_DELAY : [ANIMATION_DELAY[0], 0],
+        duration: animations ? ANIMATION_DURATION : 0,
       });
 
-      this.setEnableAnimation(animations);
-    }
+      // adjusts the distance for tooltips on the presentation toolbar
+      Object.entries(instance.reference.classList).reduce((acc, [key]) => {
+        if (!instance.reference.classList[key].match(/(presentationBtn)/)) return false;
+        instance.set({ distance: animations ? 35 : 45 });
+        return true;
+      });
+    });
+
+    const elem = document.getElementById(this.tippySelectorId);
+    if (elem._tippy) elem._tippy.set({ content: title });
   }
 
   onShow() {
@@ -120,13 +125,13 @@ class Tooltip extends Component {
     document.removeEventListener('keyup', this.handleEscapeHide);
   }
 
-  setEnableAnimation(enableAnimation) {
-    this.setState({ enableAnimation });
-  }
-
   handleEscapeHide(e) {
-    if (e.keyCode !== ESCAPE) return;
-    this.tooltip.tooltips[0].hide();
+    if (this.tooltip
+      && e.keyCode === ESCAPE
+      && this.tooltip.tooltips
+      && this.tooltip.tooltips[0]) {
+      this.tooltip.tooltips[0].hide();
+    }
   }
 
   render() {
@@ -134,6 +139,7 @@ class Tooltip extends Component {
       children,
       className,
       title,
+      tooltipDistance,
       ...restProps
     } = this.props;
 

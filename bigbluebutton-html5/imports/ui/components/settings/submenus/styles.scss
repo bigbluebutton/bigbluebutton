@@ -1,4 +1,5 @@
 @import '/imports/ui/stylesheets/mixins/focus';
+@import '/imports/ui/stylesheets/mixins/_indicators';
 @import '/imports/ui/stylesheets/variables/_all';
 
 .title {
@@ -11,6 +12,7 @@
 
 .subtitle {
   font-size: 0.9rem;
+  margin-bottom: 1rem;
 }
 
 .form {
@@ -30,11 +32,15 @@
   display: flex;
   flex-grow: 1;
   flex-basis: 0;
-  margin-right: 1rem;
 
   &:last-child {
-    margin-right: 0;
-    padding-right: 0.1rem;
+    padding-right: 0;
+    padding-left: 1rem;
+
+    [dir="rtl"] & {
+      padding-right: 0.1rem;
+      padding-left: 0;
+    }
   }
 }
 
@@ -68,6 +74,15 @@
   width: 100%;
   height: 1.75rem;
   padding: 1px;
+
+  &:hover {
+    @include highContrastOutline();
+  }
+
+  &:focus {
+    @include highContrastOutline();
+    outline-style: solid;
+  }
 }
 
 .pullContentRight {
@@ -93,44 +108,9 @@
 }
 
 .spacedLeft {
-  margin-left: 1rem;
-}
+  margin: 0 0 0 1rem;
 
-.swatch {
-  @include elementFocus(var(--color-primary));
-
-  position: absolute;
-  float: right;
-  background: var(--color-white);
-  border-radius: var(--border-size);
-  border: var(--border-size) solid var(--color-gray-light);
-  display: inline-block;
-  cursor: pointer;
-}
-
-.swatchInner {
-  width: 3rem;
-  height: 1.1rem;
-  border-radius: var(--border-size);
-}
-
-.colorPickerOverlay {
-  position: fixed;
-  top: 0px;
-  right: 0px;
-  bottom: 0px;
-  left: 0px;
-}
-
-.colorPickerPopover {
-  position: absolute;
-  top: 2rem;
-  z-index: 1001;
-}
-
-.ccPreviewBox {
-  height: 100px;
-  padding: 5px;
-  border: 1px solid #f1f1f1;
-  overflow: auto;
+  [dir="rtl"] & {
+    margin: 0 1rem 0 0;
+  }
 }

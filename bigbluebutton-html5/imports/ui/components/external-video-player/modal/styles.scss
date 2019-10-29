@@ -1,5 +1,6 @@
 @import "/imports/ui/stylesheets/variables/_all";
 @import "/imports/ui/components/modal/simple/styles";
+@import "/imports/ui/stylesheets/mixins/focus";
 
 .header {
   margin: 0;
@@ -9,8 +10,10 @@
 }
 
 .content {
+  display: flex;
+  flex-direction: column;
   justify-content: center;
-  padding-bottom: 0;
+  padding: 0;
   margin-right: auto;
   margin-left: auto;
   width: 100%;
@@ -29,7 +32,7 @@
 .modal {
   @extend .modal;
   padding: 1.5rem;
-  min-height: 20rem;
+  min-height: 23rem;
 }
 
 .closeBtn {
@@ -66,6 +69,8 @@
 }
 
 .startBtn {
+  display: flex;
+  align-self: center;
   &:focus {
     outline: none !important;
   }
@@ -83,24 +88,6 @@
   background-color: var(--color-link) !important;
 }
 
-.stopBtn {
-  &:focus {
-    outline: none !important;
-  }
-
-  i{
-    color: red;
-  }
-
-  margin-left: 50%;
-  width: 40%;
-  display: block;
-  position: absolute;
-  bottom:   20px;
-  color: var(--color-white) !important;
-  background-color: red !important;
-}
-
 .title {
   text-align: center;
   font-weight: 400;
@@ -114,27 +101,28 @@
 }
 
 .videoUrl {
+  margin: 0 var(--border-size) 0 var(--border-size);
+
   label {
     display: block;
   }
 
   input {
+    @include inputFocus(var(--color-blue-light));
     display: block;
     margin: 10px 0 10px 0;
     padding: 0.4em;
-    background-color: #F1F8FF;
+    color: var(--color-text);
     line-height: 2rem;
     width: 100%;
     font-family: inherit;
     font-weight: inherit;
-    border: none;
-    border-radius: 0.4rem;
-    transition: box-shadow calc(var(--enableAnimation) * .2s);
-  }
+    border: 1px solid var(--color-gray-lighter);
+    border-radius: var(--border-radius);
 
-  input:focus {
-    outline: none;
-    box-shadow: 0.2rem 0.8rem 1.6rem 600;
+    :global(.animationsEnabled) & {
+      transition: box-shadow .2s;
+    }
   }
 
   span {
@@ -144,7 +132,16 @@
 
 .urlError {
   color: red;
-  padding: 1em;
-  transition: calc(var(--enableAnimation) * 1s);
+  padding: 1em 0 2.5em 0;
+
+  :global(.animationsEnabled) & {
+    transition: 1s;
+  }
 }
 
+.externalVideoNote {
+  color: var(--color-gray);
+  font-size: var(--font-size-small);
+  font-style: italic;
+  padding-top: var(--sm-padding-y);
+}

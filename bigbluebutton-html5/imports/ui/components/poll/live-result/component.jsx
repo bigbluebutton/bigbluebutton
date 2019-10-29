@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import _ from 'lodash';
 import { defineMessages, injectIntl } from 'react-intl';
@@ -23,11 +23,29 @@ const intlMessages = defineMessages({
     id: 'app.poll.backLabel',
     description: 'label for the return to poll options button',
   },
+  doneLabel: {
+    id: 'app.createBreakoutRoom.doneLabel',
+    description: 'label shown when all users have responded',
+  },
+  waitingLabel: {
+    id: 'app.poll.waitingLabel',
+    description: 'label shown while waiting for responses',
+  },
 });
 
-class LiveResult extends Component {
+const getResponseString = (obj) => {
+  const { children } = obj.props;
+  if (typeof children !== 'string') {
+    return getResponseString(children[1]);
+  }
+  return children;
+};
+
+class LiveResult extends PureComponent {
   static getDerivedStateFromProps(nextProps) {
-    const { currentPoll, getUser } = nextProps;
+    const {
+      currentPoll, intl, pollAnswerIds,
+    } = nextProps;
 
     if (!currentPoll) return null;
 
@@ -39,7 +57,7 @@ class LiveResult extends Component {
       ? [...users, ...responses.map(u => u.userId)]
       : [...users];
 
-    userAnswers = userAnswers.map(id => getUser(id))
+    userAnswers = userAnswers.map(id => Service.getUser(id))
       .filter(user => user.connectionStatus === 'online')
       .map((user) => {
         let answer = '-';
@@ -55,27 +73,51 @@ class LiveResult extends Component {
         };
       })
       .sort(Service.sortUsers)
-      .reduce((acc, user) => [
-        ...acc,
-        <div className={styles.item} key={_.uniqueId('stats-')}>{user.name}</div>,
-        <div className={styles.itemR} key={_.uniqueId('stats-')}>{user.answer}</div>,
-      ], []);
+      .reduce((acc, user) => {
+        const formattedMessageIndex = user.answer.toLowerCase();
+        return ([
+          ...acc,
+          (
+            <tr key={_.uniqueId('stats-')}>
+              <td className={styles.resultLeft}>{user.name}</td>
+              <td className={styles.resultRight}>
+                {
+                  pollAnswerIds[formattedMessageIndex]
+                    ? intl.formatMessage(pollAnswerIds[formattedMessageIndex])
+                    : user.answer
+                }
+              </td>
+            </tr>
+          ),
+        ]);
+      }, []);
 
     const pollStats = [];
 
     answers.map((obj) => {
+      const formattedMessageIndex = obj.key.toLowerCase();
       const pct = Math.round(obj.numVotes / numRespondents * 100);
+      const pctFotmatted = `${Number.isNaN(pct) ? 0 : pct}%`;
+
+      const calculatedWidth = {
+        width: pctFotmatted,
+      };
 
       return pollStats.push(
         <div className={styles.main} key={_.uniqueId('stats-')}>
           <div className={styles.left}>
-            {obj.key}
+            {
+              pollAnswerIds[formattedMessageIndex]
+                ? intl.formatMessage(pollAnswerIds[formattedMessageIndex])
+                : obj.key
+            }
           </div>
           <div className={styles.center}>
-            {obj.numVotes}
+            <div className={styles.barShade} style={calculatedWidth} />
+            <div className={styles.barVal}>{obj.numVotes || 0}</div>
           </div>
           <div className={styles.right}>
-            {`${Number.isNaN(pct) ? 0 : pct}%`}
+            {pctFotmatted}
           </div>
         </div>,
       );
@@ -98,21 +140,56 @@ class LiveResult extends Component {
 
   render() {
     const {
-      intl, publishPoll, stopPoll, handleBackClick, currentPoll,
+      isMeteorConnected,
+      intl,
+      stopPoll,
+      handleBackClick,
+      currentPoll,
     } = this.props;
 
     const { userAnswers, pollStats } = this.state;
+
+    let waiting;
+    let userCount = 0;
+    let respondedCount = 0;
+
+    if (userAnswers) {
+      userCount = userAnswers.length;
+      userAnswers.map((user) => {
+        const response = getResponseString(user);
+        if (response === '-') return user;
+        respondedCount += 1;
+        return user;
+      });
+
+      waiting = respondedCount !== userAnswers.length && currentPoll;
+    }
 
     return (
       <div>
         <div className={styles.stats}>
           {pollStats}
         </div>
+        <div className={styles.status}>
+          {waiting
+            ? (
+              <span>
+                {`${intl.formatMessage(intlMessages.waitingLabel, {
+                  0: respondedCount,
+                  1: userCount,
+                })} `}
+              </span>
+            )
+            : <span>{intl.formatMessage(intlMessages.doneLabel)}</span>}
+          {waiting
+            ? <span className={styles.connectingAnimation} /> : null}
+        </div>
         {currentPoll
           ? (
             <Button
+              disabled={!isMeteorConnected}
               onClick={() => {
-                publishPoll();
+                Service.publishPoll();
                 stopPoll();
               }}
               label={intl.formatMessage(intlMessages.publishLabel)}
@@ -121,6 +198,7 @@ class LiveResult extends Component {
             />
           ) : (
             <Button
+              disabled={!isMeteorConnected}
               onClick={() => {
                 handleBackClick();
               }}
@@ -130,15 +208,15 @@ class LiveResult extends Component {
             />
           )
         }
-        <div className={styles.container}>
-          <h3 className={styles.usersHeading}>
-            {intl.formatMessage(intlMessages.usersTitle)}
-          </h3>
-          <h3 className={styles.responseHeading}>
-            {intl.formatMessage(intlMessages.responsesTitle)}
-          </h3>
-          {userAnswers}
-        </div>
+        <table>
+          <tbody>
+            <tr>
+              <th className={styles.theading}>{intl.formatMessage(intlMessages.usersTitle)}</th>
+              <th className={styles.theading}>{intl.formatMessage(intlMessages.responsesTitle)}</th>
+            </tr>
+            {userAnswers}
+          </tbody>
+        </table>
       </div>
     );
   }

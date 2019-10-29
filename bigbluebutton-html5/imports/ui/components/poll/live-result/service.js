@@ -1,17 +1,28 @@
+import Users from '/imports/api/users';
+import { makeCall } from '/imports/ui/services/api';
+
 const sortUsers = (a, b) => {
   const sortByResponse = (a, b) => {
-    if (a.answer.toLowerCase() > b.answer.toLowerCase()) {
+    const DEFAULT_CHAR = '-';
+    const _a = a.answer.toLowerCase();
+    const _b = b.answer.toLowerCase();
+    const isDefault = (_a === DEFAULT_CHAR || _b === DEFAULT_CHAR);
+
+    if (_a < _b || isDefault) {
       return -1;
-    } else if (a.answer.toLowerCase() < b.answer.toLowerCase()) {
+    } if (_a > _b) {
       return 1;
     }
     return 0;
   };
 
   const sortByName = (a, b) => {
-    if (a.name.toLowerCase() < b.name.toLowerCase()) {
+    const _a = a.name.toLowerCase();
+    const _b = b.name.toLowerCase();
+
+    if (_a < _b) {
       return -1;
-    } else if (a.name.toLowerCase() > b.name.toLowerCase()) {
+    } if (_a > _b) {
       return 1;
     }
     return 0;
@@ -24,4 +35,6 @@ const sortUsers = (a, b) => {
 
 export default {
   sortUsers,
+  getUser: userId => Users.findOne({ userId }),
+  publishPoll: () => makeCall('publishPoll'),
 };

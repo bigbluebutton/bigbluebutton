@@ -1,0 +1,88 @@
+@import "/imports/ui/stylesheets/variables/_all";
+@import "/imports/ui/components/modal/simple/styles";
+@import "/imports/ui/stylesheets/mixins/focus";
+
+.header {
+  margin: 0;
+  padding: 0;
+  border: none;
+  line-height: 2rem;
+}
+
+.content {
+  align-items: center;
+  display: flex;
+  flex-direction: column;
+  padding: .3rem 0 0.5rem 0;
+}
+
+.captionsOptions {
+  margin-top: auto;
+  margin-bottom: auto;
+  display: flex;
+  justify-content: center;
+}
+
+.overlay {
+  @extend .overlay;
+}
+
+.modal {
+  @extend .modal;
+  padding: 1.5rem;
+  min-height: 20rem;
+}
+
+.select {
+  @include elementFocus(var(--color-primary));
+
+  background-color: var(--color-white);
+  border: var(--border-size) solid var(--color-white);
+  border-radius: var(--border-size);
+  border-bottom: 0.1rem solid var(--color-gray-lighter);
+  color: var(--color-gray-label);
+  width: 40%;
+  height: 1.75rem;
+  padding: 1px;
+
+  &:hover {
+    @include highContrastOutline();
+  }
+
+  &:focus {
+    @include highContrastOutline();
+    outline-style: solid;
+  }
+}
+
+.title {
+  text-align: center;
+  font-weight: 400;
+  font-size: 1.3rem;
+  color: var(--color-background);
+  white-space: normal;
+
+  @include mq($small-only) {
+    font-size: 1rem;
+    padding: 0 1rem;
+  }
+}
+
+.startBtn {
+  align-self: center;
+  margin: 0;
+  width: 40%;
+  display: block;
+  position: absolute;
+  bottom: 20px;
+  color: var(--color-white) !important;
+  background-color: var(--color-link) !important;
+
+  &:focus {
+    outline: none !important;
+  }
+
+  i {
+    color: #3c5764;
+  }
+}

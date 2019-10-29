@@ -2,26 +2,36 @@ package org.bigbluebutton.endpoint.redis
 
 import scala.collection.immutable.StringOps
 import scala.collection.JavaConverters._
-
-import org.bigbluebutton.SystemConfiguration
 import org.bigbluebutton.common2.msgs._
-import org.bigbluebutton.common2.redis.RedisStorageProvider
+import org.bigbluebutton.common2.redis.{ RedisConfig, RedisStorageProvider }
 import org.bigbluebutton.core.apps.groupchats.GroupChatApp
 import org.bigbluebutton.core.record.events._
-
 import akka.actor.Actor
 import akka.actor.ActorLogging
 import akka.actor.ActorSystem
 import akka.actor.Props
 
 object RedisRecorderActor {
-  def props(system: ActorSystem): Props = Props(classOf[RedisRecorderActor], system)
+  def props(
+      system:      ActorSystem,
+      redisConfig: RedisConfig
+  ): Props =
+    Props(
+      classOf[RedisRecorderActor],
+      system,
+      redisConfig
+    )
 }
 
-class RedisRecorderActor(system: ActorSystem)
-  extends RedisStorageProvider(system, "BbbAppsAkkaRecorder")
-  with SystemConfiguration
-  with Actor with ActorLogging {
+class RedisRecorderActor(
+    system:      ActorSystem,
+    redisConfig: RedisConfig
+)
+  extends RedisStorageProvider(
+    system,
+    "BbbAppsAkkaRecorder",
+    redisConfig
+  ) with Actor with ActorLogging {
 
   private def record(session: String, message: java.util.Map[java.lang.String, java.lang.String]): Unit = {
     redis.recordAndExpire(session, message)
@@ -87,7 +97,7 @@ class RedisRecorderActor(system: ActorSystem)
       case m: RecordingStatusChangedEvtMsg          => handleRecordingStatusChangedEvtMsg(m)
       case m: RecordStatusResetSysMsg               => handleRecordStatusResetSysMsg(m)
       case m: WebcamsOnlyForModeratorChangedEvtMsg  => handleWebcamsOnlyForModeratorChangedEvtMsg(m)
-      case m: EndAndKickAllSysMsg                   => handleEndAndKickAllSysMsg(m)
+      case m: MeetingEndingEvtMsg                   => handleEndAndKickAllSysMsg(m)
 
       // Recording
       case m: RecordingChapterBreakSysMsg           => handleRecordingChapterBreakSysMsg(m)
@@ -473,10 +483,10 @@ class RedisRecorderActor(system: ActorSystem)
     record(msg.header.meetingId, ev.toMap.asJava)
   }
 
-  private def handleEndAndKickAllSysMsg(msg: EndAndKickAllSysMsg): Unit = {
+  private def handleEndAndKickAllSysMsg(msg: MeetingEndingEvtMsg): Unit = {
     val ev = new EndAndKickAllRecordEvent()
     ev.setMeetingId(msg.header.meetingId)
-
+    ev.setReason(msg.body.reason)
     record(msg.header.meetingId, ev.toMap.asJava)
   }
 

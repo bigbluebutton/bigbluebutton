@@ -1,6 +1,5 @@
-import React from 'react';
+import React, { memo } from 'react';
 import PropTypes from 'prop-types';
-import _ from 'lodash';
 import cx from 'classnames';
 import Button from '/imports/ui/components/button/component';
 import { defineMessages, injectIntl, intlShape } from 'react-intl';
@@ -19,16 +18,22 @@ const intlMessages = defineMessages({
     id: 'app.video.videoButtonDesc',
     description: 'video button description',
   },
-  videoDisabled: {
-    id: 'app.video.videoDisabled',
+  videoLocked: {
+    id: 'app.video.videoLocked',
     description: 'video disabled label',
   },
+  iOSWarning: {
+    id: 'app.iOSWarning.label',
+    description: 'message indicating to upgrade ios version',
+  },
 });
-
 
 const propTypes = {
   intl: intlShape.isRequired,
   isSharingVideo: PropTypes.bool.isRequired,
+  isDisabled: PropTypes.bool.isRequired,
+  handleJoinVideo: PropTypes.func.isRequired,
+  handleCloseVideo: PropTypes.func.isRequired,
 };
 
 const JoinVideoButton = ({
@@ -37,21 +42,31 @@ const JoinVideoButton = ({
   isDisabled,
   handleJoinVideo,
   handleCloseVideo,
+  notify,
+  validIOSVersion,
 }) => {
+  const verifyIOS = () => {
+    if (!validIOSVersion()) {
+      return notify(
+        intl.formatMessage(intlMessages.iOSWarning),
+        'error',
+        'warning',
+      );
+    }
+    handleJoinVideo();
+  };
+
+  const sharingVideoLabel = isSharingVideo
+    ? intl.formatMessage(intlMessages.leaveVideo) : intl.formatMessage(intlMessages.joinVideo);
+
+  const disabledLabel = isDisabled
+    ? intl.formatMessage(intlMessages.videoLocked) : sharingVideoLabel;
 
   return (
     <Button
-      label={isDisabled ?
-        intl.formatMessage(intlMessages.videoDisabled)
-        :
-        (isSharingVideo ?
-          intl.formatMessage(intlMessages.leaveVideo)
-          :
-          intl.formatMessage(intlMessages.joinVideo)
-        )
-      }
-      className={cx(styles.button, isSharingVideo || styles.ghostButton)}
-      onClick={isSharingVideo ? handleCloseVideo : handleJoinVideo}
+      label={disabledLabel}
+      className={cx(styles.button, isSharingVideo || styles.btn)}
+      onClick={isSharingVideo ? handleCloseVideo : verifyIOS}
       hideLabel
       aria-label={intl.formatMessage(intlMessages.videoButtonDesc)}
       color={isSharingVideo ? 'primary' : 'default'}
@@ -63,5 +78,6 @@ const JoinVideoButton = ({
     />
   );
 };
+
 JoinVideoButton.propTypes = propTypes;
-export default injectIntl(JoinVideoButton);
+export default injectIntl(memo(JoinVideoButton));

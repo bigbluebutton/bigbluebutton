@@ -4,7 +4,6 @@
 @import "/imports/ui/stylesheets/variables/_all";
 @import "/imports/ui/stylesheets/variables/typography";
 
-
 .smallTitle {
   @extend .smallTitle;
   margin-bottom: var(--lg-padding-y);
@@ -27,6 +26,11 @@
   font-size: 175%;
   flex-shrink: 1;
   color: var(--user-icons-color);
+
+  [dir="rtl"] & {
+    text-align: left;
+    margin-right: var(--sm-padding-x) / 2;
+  }
 }
 
 .BreakoutRoomsText {
@@ -41,6 +45,11 @@
   text-align: left;
   padding-left: var(--lg-padding-y);
   text-overflow: ellipsis;
+
+  [dir="rtl"] & {
+    text-align: right;
+    padding-right: var(--lg-padding-y);
+  }
 }
 
 .BreakoutRoomsItem {
@@ -49,6 +58,11 @@
   padding-top: var(--lg-padding-y);
   padding-bottom: var(--lg-padding-y);
   padding-left: var(--lg-padding-y);
+
+  [dir="rtl"] & {
+    margin-right: var(--md-padding-y);
+    padding-right: var(--lg-padding-y);
+  }
 }
 
 .link {

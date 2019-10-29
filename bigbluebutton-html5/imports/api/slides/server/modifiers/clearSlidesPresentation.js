@@ -1,4 +1,4 @@
-import Slides from '/imports/api/slides';
+import { Slides, SlidePositions } from '/imports/api/slides';
 import Logger from '/imports/startup/server/logger';
 import { check } from 'meteor/check';
 import clearAnnotations from '/imports/api/annotations/server/modifiers/clearAnnotations';
@@ -12,7 +12,7 @@ export default function clearSlidesPresentation(meetingId, presentationId) {
     presentationId,
   };
 
-  const whiteboardIds = Slides.find(selector).map(row => row.id);
+  const whiteboardIds = Slides.find(selector, { fields: { id: 1 } }).map(row => row.id);
 
   const cb = (err) => {
     if (err) {
@@ -23,6 +23,8 @@ export default function clearSlidesPresentation(meetingId, presentationId) {
 
     return Logger.info(`Removed Slides where presentationId=${presentationId}`);
   };
+
+  SlidePositions.remove(selector);
 
   return Slides.remove(selector, cb);
 }

@@ -9,11 +9,13 @@ trait ScreenshareStoppedVoiceConfEvtMsgHdlr {
   this: ScreenshareApp2x =>
 
   def handle(
-    msg:         ScreenshareStoppedVoiceConfEvtMsg,
-    liveMeeting: LiveMeeting, bus: MessageBus): Unit = {
+      msg:         ScreenshareStoppedVoiceConfEvtMsg,
+      liveMeeting: LiveMeeting, bus: MessageBus
+  ): Unit = {
     handleScreenshareStoppedVoiceConfEvtMsg(
       msg.body.voiceConf,
-      msg.body.screenshareConf, liveMeeting, bus)
+      msg.body.screenshareConf, liveMeeting, bus
+    )
   }
 
   def handleScreenshareStoppedVoiceConfEvtMsg(voiceConf: String, screenshareConf: String,
@@ -24,7 +26,8 @@ trait ScreenshareStoppedVoiceConfEvtMsgHdlr {
       val envelope = BbbCoreEnvelope(ScreenshareStopRtmpBroadcastVoiceConfMsg.NAME, routing)
       val header = BbbCoreHeaderWithMeetingId(
         ScreenshareStopRtmpBroadcastVoiceConfMsg.NAME,
-        liveMeeting.props.meetingProp.intId)
+        liveMeeting.props.meetingProp.intId
+      )
 
       val body = ScreenshareStopRtmpBroadcastVoiceConfMsgBody(voiceConf, screenshareConf, url, timestamp)
       val event = ScreenshareStopRtmpBroadcastVoiceConfMsg(header, body)

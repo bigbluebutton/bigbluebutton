@@ -1,9 +1,12 @@
 import React from 'react';
 import { injectIntl, intlShape, defineMessages } from 'react-intl';
+import Modal from '/imports/ui/components/modal/simple/component';
+import PropTypes from 'prop-types';
 import { styles } from './styles';
 
 const propTypes = {
   intl: intlShape.isRequired,
+  closeModal: PropTypes.func.isRequired,
 };
 
 const intlMessages = defineMessages({
@@ -17,15 +20,20 @@ const intlMessages = defineMessages({
   },
 });
 
-const PermissionsOverlay = ({ intl }) => (
-  <div className={styles.overlay}>
-    <div className={styles.hint}>
+const PermissionsOverlay = ({ intl, closeModal }) => (
+  <Modal
+    overlayClassName={styles.overlay}
+    className={styles.hint}
+    onRequestClose={closeModal}
+    hideBorder
+  >
+    <div className={styles.content}>
       { intl.formatMessage(intlMessages.title) }
       <small>
         { intl.formatMessage(intlMessages.hint) }
       </small>
     </div>
-  </div>
+  </Modal>
 );
 
 PermissionsOverlay.propTypes = propTypes;

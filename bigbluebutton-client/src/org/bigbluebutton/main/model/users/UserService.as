@@ -107,7 +107,7 @@ package org.bigbluebutton.main.model.users
 		private function joinListener(success:Boolean, result: EnterApiResponse):void {
 			if (success) {
 
-        LiveMeeting.inst().me.id = result.intUserId
+        LiveMeeting.inst().me.id = result.intUserId;
         LiveMeeting.inst().me.name = result.username;
         LiveMeeting.inst().me.externalId = result.extUserId;
         LiveMeeting.inst().me.authToken = result.authToken;
@@ -140,6 +140,7 @@ package org.bigbluebutton.main.model.users
 		LiveMeeting.inst().meeting.bannerColor = result.bannerColor;
 		LiveMeeting.inst().meeting.bannerText = result.bannerText;
 
+        LiveMeeting.inst().meeting.allowModsToUnmuteUsers = result.allowModsToUnmuteUsers;
         LiveMeeting.inst().meeting.muteOnStart = result.muteOnStart;
 				LiveMeeting.inst().meetingStatus.isMeetingMuted = result.muteOnStart;
         LiveMeeting.inst().meeting.customLogo = result.customLogo;

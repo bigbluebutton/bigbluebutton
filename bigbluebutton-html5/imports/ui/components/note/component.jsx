@@ -4,6 +4,7 @@ import { Session } from 'meteor/session';
 import { defineMessages, injectIntl } from 'react-intl';
 import injectWbResizeEvent from '/imports/ui/components/presentation/resize-wrapper/component';
 import Button from '/imports/ui/components/button/component';
+import NoteService from './service';
 import { styles } from './styles';
 
 const intlMessages = defineMessages({
@@ -15,10 +16,14 @@ const intlMessages = defineMessages({
     id: 'app.note.title',
     description: 'Title for the shared notes',
   },
+  tipLabel: {
+    id: 'app.note.tipLabel',
+    description: 'Label for tip on how to escape iframe',
+  },
 });
 
 const propTypes = {
-  url: PropTypes.string.isRequired,
+  isLocked: PropTypes.bool.isRequired,
   intl: PropTypes.shape({
     formatMessage: PropTypes.func.isRequired,
   }).isRequired,
@@ -29,10 +34,12 @@ const defaultProps = {
 
 const Note = (props) => {
   const {
-    url,
+    isLocked,
     intl,
+    isRTL,
   } = props;
 
+  const url = isLocked ? NoteService.getReadOnlyURL() : NoteService.getNoteURL();
   return (
     <div
       data-test="note"
@@ -49,7 +56,7 @@ const Note = (props) => {
             }}
             aria-label={intl.formatMessage(intlMessages.hideNoteLabel)}
             label={intl.formatMessage(intlMessages.title)}
-            icon="left_arrow"
+            icon={isRTL ? "right_arrow" : "left_arrow"}
             className={styles.hideBtn}
           />
         </div>
@@ -57,7 +64,11 @@ const Note = (props) => {
       <iframe
         title="etherpad"
         src={url}
+        aria-describedby="sharedNotesEscapeHint"
       />
+      <span id="sharedNotesEscapeHint" className={styles.hint} aria-hidden>
+        {intl.formatMessage(intlMessages.tipLabel)}
+      </span>
     </div>
   );
 };

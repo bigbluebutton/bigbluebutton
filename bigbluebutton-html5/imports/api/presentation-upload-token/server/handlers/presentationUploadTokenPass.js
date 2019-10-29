@@ -27,6 +27,7 @@ export default function handlePresentationUploadTokenPass({ body, header }, meet
     filename,
     authzToken,
     failed: false,
+    used: false,
   };
 
   const cb = (err) => {

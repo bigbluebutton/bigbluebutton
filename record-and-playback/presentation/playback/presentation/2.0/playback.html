@@ -70,12 +70,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         </div>
 
         <div id="side-section" class="small-4 columns">
-          <h2 class="show-for-sr">Chat Messages</h2>
-          <input type="checkbox" name="exposechat" id="exposechat" value="exposechat" class="show-for-sr" checked="checked" />
-          <label for="exposechat" class="show-for-sr">Read chat messages</label>
-          <div id="chat-area">
-            <div id="chat" aria-live="polite" role="region" aria-label="Chat messages"></div>
-          </div>
           <div id="video-area" class="clearfix" role="region" aria-label="Video" title="Click to play or pause the playback" data-swap>
             <!--
                 <video id="webcam">You must use an HTML5 capable browser to view this page.
@@ -87,6 +81,12 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
                 <audio id="video">You must use an HTML5 capable browser to view this page.
                   This playback requires modern browser, please use FF, Safari, Chrome</audio>
                 -->
+          </div>
+          <h2 class="show-for-sr">Chat Messages</h2>
+          <input type="checkbox" name="exposechat" id="exposechat" value="exposechat" class="show-for-sr" checked="checked" />
+          <label for="exposechat" class="show-for-sr">Read chat messages</label>
+          <div id="chat-area">
+            <div id="chat" aria-live="polite" role="region" aria-label="Chat messages"></div>
           </div>
         </div>
       </div>

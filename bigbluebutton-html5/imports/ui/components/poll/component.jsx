@@ -1,6 +1,8 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { defineMessages, injectIntl } from 'react-intl';
+import PresentationUploaderContainer from '/imports/ui/components/presentation/presentation-uploader/container';
+import { withModalMounter } from '/imports/ui/components/modal/service';
 import _ from 'lodash';
 import { Session } from 'meteor/session';
 import Button from '/imports/ui/components/button/component';
@@ -48,6 +50,14 @@ const intlMessages = defineMessages({
     id: 'app.poll.customPlaceholder',
     description: 'custom poll input field placeholder text',
   },
+  noPresentationSelected: {
+    id: 'app.poll.noPresentationSelected',
+    description: 'no presentation label',
+  },
+  clickHereToSelect: {
+    id: 'app.poll.clickHereToSelect',
+    description: 'open uploader modal button label',
+  },
   tf: {
     id: 'app.poll.tf',
     description: 'label for true / false poll',
@@ -75,6 +85,7 @@ const intlMessages = defineMessages({
 });
 
 const MAX_CUSTOM_FIELDS = Meteor.settings.public.poll.max_custom;
+const MAX_INPUT_CHARS = 45;
 
 class Poll extends Component {
   constructor(props) {
@@ -96,26 +107,40 @@ class Poll extends Component {
     this.handleBackClick = this.handleBackClick.bind(this);
   }
 
-  componentDidUpdate() {
-    const { currentUser } = this.props;
+  componentDidMount() {
+    const { props } = this.hideBtn;
+    const { className } = props;
 
-    if (!currentUser.presenter) {
+    const hideBtn = document.getElementsByClassName(`${className}`);
+    if (hideBtn[0]) hideBtn[0].focus();
+  }
+
+  componentDidUpdate() {
+    const { amIPresenter } = this.props;
+
+    if (Session.equals('resetPollPanel', true)) {
+      this.handleBackClick();
+    }
+
+    if (!amIPresenter) {
       Session.set('openPanel', 'userlist');
       Session.set('forcePollOpen', false);
     }
   }
 
-
   handleInputChange(index, event) {
     // This regex will replace any instance of 2 or more consecutive white spaces
     // with a single white space character.
     const option = event.target.value.replace(/\s{2,}/g, ' ').trim();
+
     this.inputEditor[index] = option === '' ? '' : option;
+
     this.setState({ customPollValues: this.inputEditor });
   }
 
   handleBackClick() {
     const { stopPoll } = this.props;
+    Session.set('resetPollPanel', false);
 
     stopPoll();
     this.inputEditor = [];
@@ -127,17 +152,16 @@ class Poll extends Component {
 
   toggleCustomFields() {
     const { customPollReq } = this.state;
-
-    this.inputEditor = [];
-
     return this.setState({ customPollReq: !customPollReq });
   }
 
   renderQuickPollBtns() {
-    const { pollTypes, startPoll, intl } = this.props;
+    const {
+      isMeteorConnected, pollTypes, startPoll, intl,
+    } = this.props;
 
     const btns = pollTypes.map((type) => {
-      if (type === 'custom') return;
+      if (type === 'custom') return false;
 
       const label = intl.formatMessage(
         // regex removes the - to match the message id
@@ -146,11 +170,13 @@ class Poll extends Component {
 
       return (
         <Button
+          disabled={!isMeteorConnected}
           label={label}
           color="default"
           className={styles.pollBtn}
           key={_.uniqueId('quick-poll-')}
           onClick={() => {
+            Session.set('pollInitiated', true);
             this.setState({ isPolling: true }, () => startPoll(type));
           }}
         />);
@@ -161,20 +187,22 @@ class Poll extends Component {
 
   renderCustomView() {
     const { intl, startCustomPoll } = this.props;
-    const isDisabled = _.compact(this.inputEditor).length < 2;
+    const isDisabled = _.compact(this.inputEditor).length < 1;
 
     return (
       <div className={styles.customInputWrapper}>
         {this.renderInputFields()}
         <Button
           onClick={() => {
-            if (this.inputEditor.length > 1) {
+            if (this.inputEditor.length > 0) {
+              Session.set('pollInitiated', true);
               this.setState({ isPolling: true }, () => startCustomPoll('custom', _.compact(this.inputEditor)));
             }
           }}
           label={intl.formatMessage(intlMessages.startCustomLabel)}
           color="primary"
           aria-disabled={isDisabled}
+          disabled={isDisabled}
           className={styles.btn}
         />
       </div>
@@ -198,6 +226,7 @@ class Poll extends Component {
             className={styles.input}
             onChange={event => this.handleInputChange(id, event)}
             defaultValue={customPollValues[id]}
+            maxLength={MAX_INPUT_CHARS}
           />
         </div>
       );
@@ -208,7 +237,11 @@ class Poll extends Component {
 
   renderActivePollOptions() {
     const {
-      intl, publishPoll, stopPoll, currentUser, currentPoll, getUser,
+      intl,
+      isMeteorConnected,
+      stopPoll,
+      currentPoll,
+      pollAnswerIds,
     } = this.props;
 
     return (
@@ -218,11 +251,10 @@ class Poll extends Component {
         </div>
         <LiveResult
           {...{
-            publishPoll,
+            isMeteorConnected,
             stopPoll,
-            currentUser,
-            getUser,
             currentPoll,
+            pollAnswerIds,
           }}
           handleBackClick={this.handleBackClick}
         />
@@ -231,7 +263,7 @@ class Poll extends Component {
   }
 
   renderPollOptions() {
-    const { intl } = this.props;
+    const { isMeteorConnected, intl } = this.props;
     const { customPollReq } = this.state;
 
     return (
@@ -246,6 +278,7 @@ class Poll extends Component {
           {intl.formatMessage(intlMessages.customPollInstruction)}
         </div>
         <Button
+          disabled={!isMeteorConnected}
           className={styles.customBtn}
           color="default"
           onClick={this.toggleCustomFields}
@@ -257,19 +290,52 @@ class Poll extends Component {
     );
   }
 
-  render() {
+  renderNoSlidePanel() {
+    const { mountModal, intl } = this.props;
+    return (
+      <div className={styles.noSlidePanelContainer}>
+        <h4>{intl.formatMessage(intlMessages.noPresentationSelected)}</h4>
+        <Button
+          label={intl.formatMessage(intlMessages.clickHereToSelect)}
+          color="primary"
+          onClick={() => mountModal(<PresentationUploaderContainer />)}
+          className={styles.pollBtn}
+        />
+      </div>
+    );
+  }
+
+  renderPollPanel() {
+    const { isPolling } = this.state;
     const {
-      intl, stopPoll, currentPoll, currentUser,
+      currentPoll,
+      currentSlide,
     } = this.props;
 
-    const { isPolling } = this.state;
+    if (!currentSlide) return this.renderNoSlidePanel();
 
-    if (!currentUser.presenter) return null;
+    if (isPolling || (!isPolling && currentPoll)) {
+      return this.renderActivePollOptions();
+    }
+
+    return this.renderPollOptions();
+  }
+
+  render() {
+    const {
+      intl,
+      stopPoll,
+      currentPoll,
+      amIPresenter,
+    } = this.props;
+
+    if (!amIPresenter) return null;
 
     return (
       <div>
         <header className={styles.header}>
           <Button
+            ref={(node) => { this.hideBtn = node; }}
             tabIndex={0}
             label={intl.formatMessage(intlMessages.pollPaneTitle)}
             icon="left_arrow"
@@ -282,6 +348,7 @@ class Poll extends Component {
 
           <Button
             label={intl.formatMessage(intlMessages.closeLabel)}
+            aria-label={`${intl.formatMessage(intlMessages.closeLabel)} ${intl.formatMessage(intlMessages.pollPaneTitle)}`}
             onClick={() => {
               if (currentPoll) {
                 stopPoll();
@@ -297,24 +364,22 @@ class Poll extends Component {
 
         </header>
         {
-          (isPolling || (!isPolling && currentPoll))
-            ? this.renderActivePollOptions() : this.renderPollOptions()
+          this.renderPollPanel()
         }
       </div>
     );
   }
 }
 
-export default injectIntl(Poll);
+export default withModalMounter(injectIntl(Poll));
 
 Poll.propTypes = {
   intl: PropTypes.shape({
     formatMessage: PropTypes.func.isRequired,
   }).isRequired,
-  currentUser: PropTypes.instanceOf(Object).isRequired,
+  amIPresenter: PropTypes.bool.isRequired,
   pollTypes: PropTypes.instanceOf(Array).isRequired,
   startPoll: PropTypes.func.isRequired,
   startCustomPoll: PropTypes.func.isRequired,
   stopPoll: PropTypes.func.isRequired,
-  publishPoll: PropTypes.func.isRequired,
 };

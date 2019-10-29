@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import Button from '/imports/ui/components/button/component';
 import _ from 'lodash';
+import cx from 'classnames';
 import { styles } from '../styles';
 
 export default class ToolbarMenuItem extends Component {
@@ -69,24 +70,40 @@ export default class ToolbarMenuItem extends Component {
   }
 
   render() {
+    const {
+      disabled,
+      label,
+      icon,
+      customIcon,
+      onBlur,
+      className,
+      children,
+      showCornerTriangle,
+    } = this.props;
+
     return (
-      <div className={styles.buttonWrapper} hidden={this.props.disabled}>
+      <div
+        className={cx(styles.buttonWrapper, !showCornerTriangle || styles.cornerTriangle)}
+        hidden={disabled}
+      >
         <Button
           hideLabel
           role="button"
           color="default"
           size="md"
-          label={this.props.label}
-          icon={this.props.icon ? this.props.icon : null}
-          customIcon={this.props.customIcon ? this.props.customIcon : null}
+          label={label}
+          icon={icon || null}
+          customIcon={customIcon || null}
           onMouseDown={this.handleOnMouseDown}
           onMouseUp={this.handleOnMouseUp}
-          onBlur={this.props.onBlur}
-          className={this.props.className}
+          onKeyPress={this.handleOnMouseDown}
+          onKeyUp={this.handleOnMouseUp}
+          onBlur={onBlur}
+          className={className}
           setRef={this.setRef}
-          disabled={this.props.disabled}
+          disabled={disabled}
         />
-        {this.props.children}
+        {children}
       </div>
     );
   }
@@ -109,6 +126,8 @@ ToolbarMenuItem.propTypes = {
   customIcon: PropTypes.node,
   label: PropTypes.string.isRequired,
   className: PropTypes.string.isRequired,
+  disabled: PropTypes.bool,
+  showCornerTriangle: PropTypes.bool,
 };
 
 ToolbarMenuItem.defaultProps = {
@@ -117,4 +136,6 @@ ToolbarMenuItem.defaultProps = {
   customIcon: null,
   onBlur: null,
   children: null,
+  disabled: false,
+  showCornerTriangle: false,
 };

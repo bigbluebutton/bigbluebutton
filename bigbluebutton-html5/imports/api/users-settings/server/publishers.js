@@ -9,7 +9,7 @@ function userSettings(credentials) {
   check(meetingId, String);
   check(requesterUserId, String);
 
-  Logger.info(`Publishing user settings for user=${requesterUserId}`);
+  Logger.debug(`Publishing user settings for user=${requesterUserId}`);
 
   return UserSettings.find({ meetingId, userId: requesterUserId });
 }

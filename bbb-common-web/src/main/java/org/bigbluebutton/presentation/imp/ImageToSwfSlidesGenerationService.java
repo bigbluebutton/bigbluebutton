@@ -34,6 +34,7 @@ import org.bigbluebutton.presentation.FileTypeConstants;
 import org.bigbluebutton.presentation.ImageResizer;
 import org.bigbluebutton.presentation.ImageToSwfSlide;
 import org.bigbluebutton.presentation.PageConverter;
+import org.bigbluebutton.presentation.PngCreator;
 import org.bigbluebutton.presentation.SvgImageCreator;
 import org.bigbluebutton.presentation.TextFileCreator;
 import org.bigbluebutton.presentation.ThumbnailCreator;
@@ -52,10 +53,14 @@ public class ImageToSwfSlidesGenerationService {
 	private SvgImageCreator svgImageCreator;
 	private ThumbnailCreator thumbnailCreator;
 	private TextFileCreator textFileCreator;
+	private PngCreator pngCreator;
 	private ImageResizer imageResizer;
 	private Long maxImageSize;
 	private long MAX_CONVERSION_TIME = 5*60*1000L;
 	private String BLANK_SLIDE;
+	private boolean swfSlidesRequired;
+	private boolean svgImagesRequired;
+	private boolean generatePngs;
 	
 	public ImageToSwfSlidesGenerationService() {
 		int numThreads = Runtime.getRuntime().availableProcessors();
@@ -65,15 +70,24 @@ public class ImageToSwfSlidesGenerationService {
 	
 	public void generateSlides(UploadedPresentation pres) {
 		pres.setNumberOfPages(1); // There should be only one image to convert.
-		if (pres.getNumberOfPages() > 0) {
-			PageConverter pageConverter = determinePageConverter(pres);
-			convertImageToSwf(pres, pageConverter);
-		}
+		 if (swfSlidesRequired) {
+		   if (pres.getNumberOfPages() > 0) {
+	            PageConverter pageConverter = determinePageConverter(pres);
+	            convertImageToSwf(pres, pageConverter);
+	        }
+		 }
 		
 		/* adding accessibility */
 		createTextFiles(pres);
 		createThumbnails(pres);
-		createSvgImages(pres);
+		
+		if (svgImagesRequired) {
+		  createSvgImages(pres);
+		}
+		
+	    if (generatePngs) {
+           createPngImages(pres);
+        }
 		
 		notifier.sendConversionCompletedMessage(pres);
 	}
@@ -105,6 +119,10 @@ public class ImageToSwfSlidesGenerationService {
 		svgImageCreator.createSvgImages(pres);
 	}
 	
+   private void createPngImages(UploadedPresentation pres) {
+        pngCreator.createPng(pres);
+   }
+
 	private void convertImageToSwf(UploadedPresentation pres, PageConverter pageConverter) {
 		int numPages = pres.getNumberOfPages();
 		// A better implementation is described at the link below
@@ -178,7 +196,7 @@ public class ImageToSwfSlidesGenerationService {
 			});
 		}
 	}
-		
+
 	public void setJpgPageConverter(PageConverter converter) {
 		this.jpgToSwfConverter = converter;
 	}
@@ -194,12 +212,29 @@ public class ImageToSwfSlidesGenerationService {
 	public void setThumbnailCreator(ThumbnailCreator thumbnailCreator) {
 		this.thumbnailCreator = thumbnailCreator;
 	}
+
 	public void setTextFileCreator(TextFileCreator textFileCreator) {
 		this.textFileCreator = textFileCreator;
+	}
+
+	public void setPngCreator(PngCreator pngCreator) {
+	  this.pngCreator = pngCreator;
 	}
 	
 	public void setSvgImageCreator(SvgImageCreator svgImageCreator) {
 		this.svgImageCreator = svgImageCreator;
+	}
+	
+	public void setGeneratePngs(boolean generatePngs) {
+	  this.generatePngs = generatePngs;
+	}
+
+	public void setSwfSlidesRequired(boolean swf) {
+	  this.swfSlidesRequired = swf;
+	}
+
+	public void setSvgImagesRequired(boolean svg) {
+	  this.svgImagesRequired = svg;
 	}
 	
 	public void setMaxConversionTime(int minutes) {

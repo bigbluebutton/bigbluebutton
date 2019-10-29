@@ -10,21 +10,26 @@
 
 .title {
   left: var(--title-position-left);
+  right: auto;
   color: var(--color-gray-dark);
   font-weight: bold;
   font-size: var(--font-size-large);
   text-align: center;
+
+  [dir="rtl"] & {
+    left: auto;
+    right: var(--title-position-left);
+  }
 }
 
 .form {
   display: flex;
   flex-flow: column;
+  border-bottom: 1px solid var(--color-gray-lighter);
 }
 
 .container {
-  margin: var(--modal-margin);
-  margin-top: 0;
-  margin-bottom: var(--lg-padding-x);
+  margin: 0 var(--modal-margin) var(--lg-padding-x);
 }
 
 .subHeader {
@@ -58,13 +63,25 @@
   flex-grow: 1;
   justify-content: space-between;
   margin-bottom: var(--md-padding-x);
+
+  & > :first-child {
+    margin:  0 var(--md-padding-x) 0 0;
+
+    [dir="rtl"] & {
+      margin: 0 0 0 var(--md-padding-x);
+    }
+  }
 }
 
 .col {
   display: flex;
   flex-grow: 1;
   flex-basis: 0;
-  margin-right: var(--md-padding-x);
+  margin: 0;
+
+  [dir="rtl"] & {
+    margin: 0;
+  }
 }
 
 .label {
@@ -94,12 +111,18 @@
   position: relative;
   background-color: var(--color-white);
   left: var(--closeBtn-position-left);
+  right: auto;
   bottom: var(--closeBtn-position-left);
+
+  [dir="rtl"] & {
+    left: auto;
+    right: var(--closeBtn-position-left);
+  }
 
   i {
     color: var(--color-gray-light);
    }
-  
+
   &:focus,
   &:hover {
       background-color: var(--color-gray-lighter);
@@ -115,4 +138,27 @@
   border: none;
   line-height: var(--title-position-left);
   margin-bottom: var(--lg-padding-y);
+}
+
+.footer {
+  display: flex;
+  margin: var(--sm-padding-x) var(--modal-margin) 0;
+}
+
+.actions {
+  margin-left: auto;
+  margin-right: 0;
+
+  [dir="rtl"] & {
+    margin-right: auto;
+    margin-left: 3px;
+  }
+}
+
+.toggleLabel {
+  margin-right: var(--sm-padding-x);
+
+  [dir="rtl"] & {
+    margin: 0 0 0 var(--sm-padding-x);
+  }
 }

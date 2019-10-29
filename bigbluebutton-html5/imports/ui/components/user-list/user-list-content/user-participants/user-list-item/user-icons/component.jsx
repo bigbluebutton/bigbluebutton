@@ -1,41 +1,47 @@
-import React from 'react';
+import React, { memo } from 'react';
 import PropTypes from 'prop-types';
-import Icon from '/imports/ui/components/icon/component';
+import SlowConnection from '/imports/ui/components/slow-connection/component';
+import Auth from '/imports/ui/services/auth';
 import { styles } from './styles';
 
+const METEOR_SETTINGS_APP = Meteor.settings.public.app;
+
+const SLOW_CONNECTIONS_TYPES = METEOR_SETTINGS_APP.effectiveConnection;
+const ENABLE_NETWORK_MONITORING = Meteor.settings.public.networkMonitoring.enableNetworkMonitoring;
+
 const propTypes = {
+  amIModerator: PropTypes.bool.isRequired,
   user: PropTypes.shape({
-    name: PropTypes.string.isRequired,
-    isPresenter: PropTypes.bool.isRequired,
-    isVoiceUser: PropTypes.bool.isRequired,
-    isModerator: PropTypes.bool.isRequired,
-    image: PropTypes.string,
+    // effectiveConnectionType: PropTypes.string.isRequired,
+    userId: PropTypes.string.isRequired,
   }).isRequired,
-  compact: PropTypes.bool.isRequired,
 };
 
 const UserIcons = (props) => {
   const {
-    user,
-    compact,
+    amIModerator,
+    user: {
+      effectiveConnectionType,
+      userId,
+    },
   } = props;
 
-  if (compact || user.isSharingWebcam) {
-    return null;
-  }
+  const showNetworkInformation = ENABLE_NETWORK_MONITORING
+    && SLOW_CONNECTIONS_TYPES.includes(effectiveConnectionType)
+    && (userId === Auth.userID || amIModerator);
 
   return (
     <div className={styles.userIcons}>
       {
-        user.isSharingWebcam ?
+        showNetworkInformation ? (
           <span className={styles.userIconsContainer}>
-            <Icon iconName="video" />
+            <SlowConnection effectiveConnectionType={effectiveConnectionType} iconOnly />
           </span>
-          : null
+        ) : null
       }
     </div>
   );
 };
 
 UserIcons.propTypes = propTypes;
-export default UserIcons;
+export default memo(UserIcons);

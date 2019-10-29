@@ -3,18 +3,30 @@
 :root {
   --user-manage-menu-top : -0.5rem;
   --user-manage-menu-right : -0.75rem;
-  --user-manage-menu-width : 10rem;
+  --user-manage-menu-width : 12rem;
 }
 
 .dropdown {
   position: absolute;
   right: 0;
+  left: auto;
+
+  [dir="rtl"] & {
+    left: 0;
+    right: auto;
+  }
 }
 
 .dropdownContent {
   top: var(--user-manage-menu-top);
   right: var(--user-manage-menu-right);
+  left: auto;
   width: var(--user-manage-menu-width);
+
+  [dir="rtl"] & {
+    top: var(--user-manage-menu-top);
+    right: -1rem;
+  }
 
   @include mq($small-only) {
     width: 100vw;

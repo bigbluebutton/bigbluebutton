@@ -10,7 +10,7 @@ function presentationPods(credentials) {
   check(requesterUserId, String);
   check(requesterToken, String);
 
-  Logger.info(`Publishing presentation-pods for ${meetingId} ${requesterUserId} ${requesterToken}`);
+  Logger.debug(`Publishing presentation-pods for ${meetingId} ${requesterUserId} ${requesterToken}`);
 
   return PresentationPods.find({ meetingId });
 }
