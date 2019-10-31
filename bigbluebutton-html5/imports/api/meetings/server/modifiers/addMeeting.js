@@ -8,6 +8,7 @@ import Logger from '/imports/startup/server/logger';
 import createNote from '/imports/api/note/server/methods/createNote';
 import createCaptions from '/imports/api/captions/server/methods/createCaptions';
 import { addAnnotationsStreamer } from '/imports/api/annotations/server/streamer';
+import { addCursorStreamer } from '/imports/api/cursor/server/streamer';
 
 export default function addMeeting(meeting) {
   const meetingId = meeting.meetingProp.intId;
@@ -176,6 +177,7 @@ export default function addMeeting(meeting) {
   }, cbRecord);
 
   addAnnotationsStreamer(meetingId);
+  addCursorStreamer(meetingId);
 
   return Meetings.upsert(selector, modifier, cb);
 }
