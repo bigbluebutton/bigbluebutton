@@ -3,5 +3,6 @@ import userShareWebcam from './methods/userShareWebcam';
 import userUnshareWebcam from './methods/userUnshareWebcam';
 
 Meteor.methods({
-  userShareWebcam, userUnshareWebcam,
+  userShareWebcam,
+  userUnshareWebcam,
 });

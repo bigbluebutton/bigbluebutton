@@ -4,7 +4,7 @@ import React, { Fragment } from 'react';
 import { defineMessages, injectIntl } from 'react-intl';
 import _ from 'lodash';
 import Auth from '/imports/ui/services/auth';
-import Meetings from '/imports/api/meetings';
+import Meetings, { MeetingTimeRemaining } from '/imports/api/meetings';
 import Users from '/imports/api/users';
 import BreakoutRemainingTime from '/imports/ui/components/breakout-room/breakout-remaining-time/container';
 import SlowConnection from '/imports/ui/components/slow-connection/component';
@@ -198,18 +198,19 @@ export default injectIntl(withTracker(({ intl }) => {
     }
   }
 
+  const meetingTimeRemaining = MeetingTimeRemaining.findOne({ meetingId });
   const Meeting = Meetings.findOne({ meetingId },
-    { fields: { durationProps: 1, 'meetingProp.isBreakout': 1 } });
+    { fields: { 'meetingProp.isBreakout': 1 } });
 
-  if (Meeting) {
-    const { timeRemaining } = Meeting.durationProps;
+  if (meetingTimeRemaining && Meeting) {
+    const { timeRemaining } = meetingTimeRemaining;
     const { isBreakout } = Meeting.meetingProp;
     const underThirtyMin = timeRemaining && timeRemaining <= (30 * 60);
 
     if (underThirtyMin && !isBreakout) {
       data.message = (
         <BreakoutRemainingTime
-          breakoutRoom={Meeting.durationProps}
+          breakoutRoom={meetingTimeRemaining}
           messageDuration={intlMessages.meetingTimeRemaining}
           timeEndedMessage={intlMessages.meetingWillClose}
           alertMessageUnderOneMinute={

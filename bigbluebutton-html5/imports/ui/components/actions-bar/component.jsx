@@ -10,31 +10,6 @@ import CaptionsButtonContainer from '/imports/ui/components/actions-bar/captions
 import PresentationOptionsContainer from './presentation-options/component';
 
 class ActionsBar extends PureComponent {
-  componentDidUpdate(prevProps) {
-    const { isThereCurrentPresentation: prevIsThereCurrPresentation } = prevProps;
-    const {
-      isThereCurrentPresentation,
-      getSwapLayout,
-      toggleSwapLayout,
-      isSharingVideo,
-      isVideoBroadcasting,
-    } = this.props;
-
-    if (!isThereCurrentPresentation && !isSharingVideo && !isVideoBroadcasting) {
-      if (!getSwapLayout()) {
-        toggleSwapLayout();
-      }
-    }
-
-    if (!prevIsThereCurrPresentation
-      && isThereCurrentPresentation
-      && !isSharingVideo
-      && !isVideoBroadcasting) {
-      if (getSwapLayout()) {
-        toggleSwapLayout();
-      }
-    }
-  }
 
   render() {
     const {
@@ -61,10 +36,10 @@ class ActionsBar extends PureComponent {
       isMeteorConnected,
       isPollingEnabled,
       isThereCurrentPresentation,
+      allowExternalVideo,
     } = this.props;
 
     const actionBarClasses = {};
-    const { enabled: enableExternalVideo } = Meteor.settings.public.externalVideoPlayer;
 
     actionBarClasses[styles.centerWithActions] = amIPresenter;
     actionBarClasses[styles.center] = true;
@@ -76,7 +51,7 @@ class ActionsBar extends PureComponent {
             amIPresenter,
             amIModerator,
             isPollingEnabled,
-            allowExternalVideo: enableExternalVideo,
+            allowExternalVideo,
             handleTakePresenter,
             intl,
             isSharingVideo,

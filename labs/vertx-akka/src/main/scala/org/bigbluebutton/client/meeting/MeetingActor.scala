@@ -11,15 +11,15 @@ object MeetingActor {
 }
 
 class MeetingActor(val meetingId: String, connEventBus: InternalMessageBus)
-    extends Actor with ActorLogging
-    with SystemConfiguration {
+  extends Actor with ActorLogging
+  with SystemConfiguration {
 
   private val userMgr = new UsersManager
 
   def receive = {
-    case msg: ClientConnectedMsg => handleConnectMsg(msg)
+    case msg: ClientConnectedMsg    => handleConnectMsg(msg)
     case msg: ClientDisconnectedMsg => handleDisconnectMsg(msg)
-    case msg: MsgFromClientMsg => handleMsgFromClientMsg(msg)
+    case msg: MsgFromClientMsg      => handleMsgFromClientMsg(msg)
     case msg: BbbCommonEnvJsNodeMsg => handleBbbServerMsg(msg)
     // TODO: Should keep track of user lifecycle so we can remove when user leaves the meeting.
   }
@@ -69,9 +69,9 @@ class MeetingActor(val meetingId: String, connEventBus: InternalMessageBus)
   def handleServerMsg(msgType: String, msg: BbbCommonEnvJsNodeMsg): Unit = {
     //log.debug("**** MeetingActor handleServerMsg " + msg.envelope.name)
     msgType match {
-      case MessageTypes.DIRECT => handleDirectMessage(msg)
+      case MessageTypes.DIRECT               => handleDirectMessage(msg)
       case MessageTypes.BROADCAST_TO_MEETING => handleBroadcastMessage(msg)
-      case MessageTypes.SYSTEM => handleSystemMessage(msg)
+      case MessageTypes.SYSTEM               => handleSystemMessage(msg)
     }
   }
 

@@ -14,7 +14,6 @@ import PresentationPodsContainer from '../presentation-pod/container';
 import ScreenshareContainer from '../screenshare/container';
 import DefaultContent from '../presentation/default-content/component';
 import ExternalVideoContainer from '../external-video-player/container';
-import { getVideoId } from '../external-video-player/service';
 import Storage from '../../services/storage/session';
 
 const LAYOUT_CONFIG = Meteor.settings.public.layout;
@@ -107,6 +106,7 @@ export default withModalMounter(withTracker(() => {
   const { dataSaving } = Settings;
   const { viewParticipantsWebcams, viewScreenshare } = dataSaving;
   const hidePresentation = getFromUserSettings('hidePresentation', LAYOUT_CONFIG.hidePresentation);
+  const { current_presentation: hasPresentation } = MediaService.getPresentationInfo();
   const data = {
     children: <DefaultContent />,
     audioModalIsOpen: Session.get('audioModalIsOpen'),
@@ -132,7 +132,7 @@ export default withModalMounter(withTracker(() => {
   }
 
   data.isScreensharing = MediaService.isVideoBroadcasting();
-  data.swapLayout = getSwapLayout() && shouldEnableSwapLayout();
+  data.swapLayout = (getSwapLayout() || !hasPresentation) && shouldEnableSwapLayout();
   data.disableVideo = !viewParticipantsWebcams;
 
   if (data.swapLayout) {
@@ -144,7 +144,6 @@ export default withModalMounter(withTracker(() => {
     data.children = (
       <ExternalVideoContainer
         isPresenter={MediaService.isUserPresenter()}
-        videoId={getVideoId()}
       />
     );
   }

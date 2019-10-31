@@ -62,6 +62,7 @@
 #   2019-03-14 FFD  Refactoring and cleanup for 2.2
 #   2019-05-14 FFD  Added more checks for configuration issues
 #   2019-07-08 GTR  Set IP for all recording formats
+#   2019-10-31 GTR  Set IP and shared secret for bbb-webhooks
 
 #set -x
 #set -e
@@ -328,11 +329,16 @@ stop_bigbluebutton () {
         BBB_WEB=bbb-web
     fi
 
+    if [ -f /usr/share/bbb-lti/WEB-INF/classes/lti-config.properties ]; then
+        BBB_LTI=bbb-lti
+    fi
+
+
     if [ -d $TOMCAT_DIR ]; then
       TOMCAT_SERVICE=$TOMCAT_USER
     fi
 
-    systemctl stop red5 $TOMCAT_SERVICE nginx freeswitch $REDIS_SERVICE bbb-apps-akka $BBB_TRANSCODE_AKKA bbb-fsesl-akka bbb-rap-archive-worker.service bbb-rap-process-worker.service bbb-rap-publish-worker.service bbb-rap-sanity-worker.service bbb-record-core.timer $HTML5 $WEBHOOKS $ETHERPAD $BBB_WEB
+    systemctl stop red5 $TOMCAT_SERVICE nginx freeswitch $REDIS_SERVICE bbb-apps-akka $BBB_TRANSCODE_AKKA bbb-fsesl-akka bbb-rap-archive-worker.service bbb-rap-process-worker.service bbb-rap-publish-worker.service bbb-rap-sanity-worker.service bbb-record-core.timer $HTML5 $WEBHOOKS $ETHERPAD $BBB_WEB $BBB_LTI
 }
 
 start_bigbluebutton () {
@@ -380,7 +386,12 @@ start_bigbluebutton () {
         BBB_WEB=bbb-web
     fi
 
-    systemctl start red5 $TOMCAT_SERVICE nginx freeswitch $REDIS_SERVICE bbb-apps-akka $BBB_TRANSCODE_AKKA bbb-fsesl-akka bbb-record-core.timer $HTML5 $WEBHOOKS $ETHERPAD $BBB_WEB
+    if [ -f /usr/share/bbb-lti/WEB-INF/classes/lti-config.properties ]; then
+        BBB_LTI=bbb-lti
+    fi
+
+    systemctl start red5 $TOMCAT_SERVICE nginx freeswitch $REDIS_SERVICE bbb-apps-akka $BBB_TRANSCODE_AKKA bbb-fsesl-akka bbb-record-core.timer $HTML5 $WEBHOOKS $ETHERPAD $BBB_WEB $BBB_LTI
+
     if [ -f /usr/lib/systemd/system/bbb-html5.service ]; then
         systemctl start mongod
         sleep 3
@@ -448,6 +459,10 @@ display_bigbluebutton_status () {
 
     if [ -f /lib/systemd/system/bbb-web.service ]; then
         units="$units bbb-web"
+    fi
+
+    if [ -f /usr/lib/systemd/system/bbb-webhooks.service ]; then
+        units="$units bbb-webhooks"
     fi
 
     if [ -f /lib/systemd/system/bbb-lti.service ]; then
@@ -564,7 +579,7 @@ while [ $# -gt 0 ]; do
             echo "    Secret: $SECRET"
             echo
             echo "    Link to the API-Mate:"
-            echo "    http://mconf.github.io/api-mate/#server=$BBB_WEB_URL/bigbluebutton/&sharedSecret=$SECRET"
+            echo "    https://mconf.github.io/api-mate/#server=$BBB_WEB_URL/bigbluebutton/&sharedSecret=$SECRET"
             echo
             exit 0
         fi
@@ -575,7 +590,7 @@ while [ $# -gt 0 ]; do
     if [ "$1" = "--lti" -o "$1" = "-lti" ]; then
         if [ -z "$SECRET" ]; then
             if [ -f ${LTI_DIR}/WEB-INF/classes/lti-config.properties ]; then
-                LTI_URL='http://'$(cat ${LTI_DIR}/WEB-INF/classes/lti-config.properties | grep -v '#' | sed -n '/^ltiEndPoint/{s/^.*=//;p}')'/lti/tool'
+                LTI_URL="${PROTOCOL}://"$(cat ${LTI_DIR}/WEB-INF/classes/lti-config.properties | grep -v '#' | sed -n '/^ltiEndPoint/{s/^.*=//;p}')'/lti/tool'
                 CUSTOMER=$(cat ${LTI_DIR}/WEB-INF/classes/lti-config.properties | grep -v '#' | sed -n '/^ltiConsumer/{s/^.*=//;s/:.*//p}')
                 SECRET=$(cat ${LTI_DIR}/WEB-INF/classes/lti-config.properties | grep -v '#' | sed -n '/^ltiConsumer/{s/^[^:]*://;p}')
                 echo
@@ -617,12 +632,8 @@ if [[ $SECRET ]]; then
     need_root
     change_var_salt ${SERVLET_DIR}/WEB-INF/classes/bigbluebutton.properties securitySalt $SECRET
 
-    if [ -f /usr/local/bigbluebutton/bbb-webhooks/config_local.coffee ]; then
-        sed -i "s|\(^[ \t]*config.bbb.sharedSecret[ =]*\).*|\1\"$SECRET\"|g" /usr/local/bigbluebutton/bbb-webhooks/config_local.coffee
-    fi
-
-    if [ -f /usr/local/bigbluebutton/bbb-webhooks/config_local.js ]; then
-        sed -i "s|\(^[ \t]*config.bbb.sharedSecret[ =]*\).*|\1\"$SECRET\"|g" /usr/local/bigbluebutton/bbb-webhooks/config_local.js
+    if [ -f /usr/local/bigbluebutton/bbb-webhooks/config/default.yml ]; then
+        change_yml_value /usr/local/bigbluebutton/bbb-webhooks/config/default.yml sharedSecret $SECRET
     fi
 
     if [ -f /usr/local/bigbluebutton/bbb-webhooks/extra/post_catcher.js ]; then
@@ -764,14 +775,8 @@ check_configuration() {
     BBB_SECRET=$(cat ${SERVLET_DIR}/WEB-INF/classes/bigbluebutton.properties | grep -v '#' | tr -d '\r' | sed -n '/securitySalt/{s/.*=//;p}')
 
     if [ -f /usr/lib/systemd/system/bbb-webhooks.service ]; then
-        if [ -f /usr/local/bigbluebutton/bbb-webhooks/config_local.js ]; then
-            WEBHOOKS_SECRET=$(cat /usr/local/bigbluebutton/bbb-webhooks/config_local.js | grep '^[ \t]*config.bbb.sharedSecret[ =]*' | cut -d '"' -f2)
-            WEBHOOKS_CONF=/usr/local/bigbluebutton/bbb-webhooks/config_local.js
-        fi
-        if [ -f /usr/local/bigbluebutton/bbb-webhooks/config_local.coffee ]; then
-            WEBHOOKS_SECRET=$(cat /usr/local/bigbluebutton/bbb-webhooks/config_local.coffee | grep '^[ \t]*config.bbb.sharedSecret[ =]*' | cut -d '"' -f2)
-            WEBHOOKS_CONF=/usr/local/bigbluebutton/bbb-webhooks/config_local.coffee
-        fi
+        WEBHOOKS_CONF=/usr/local/bigbluebutton/bbb-webhooks/config/default.yml
+        WEBHOOKS_SECRET=$(yq r $WEBHOOKS_CONF bbb.sharedSecret)
 
         if [ "$BBB_SECRET" != "$WEBHOOKS_SECRET" ]; then
             echo "# Warning: Webhooks API Shared Secret mismatch: "
@@ -781,7 +786,7 @@ check_configuration() {
         fi
 
         WEBHOOKS_PROXY_PORT=$(cat /etc/bigbluebutton/nginx/webhooks.nginx | grep -v '#' | grep '^[ \t]*proxy_pass[ \t]*' | sed 's|.*http[s]\?://[^:]*:\([^;]*\);.*|\1|g')
-        WEBHOOKS_APP_PORT=$(cat $WEBHOOKS_CONF | grep config.server.port | sed "s/.*config.server.port[ =\"]*//g" | sed 's/[;\"]*//g')
+        WEBHOOKS_APP_PORT=$(yq r $WEBHOOKS_CONF server.port)
 
         if [ "$WEBHOOKS_PROXY_PORT" != "$WEBHOOKS_APP_PORT" ]; then
             echo "# Warning: Webhooks port mismatch: "
@@ -1325,7 +1330,7 @@ check_state() {
     fi
 
     if [ -f ${LTI_DIR}/WEB-INF/classes/lti-config.properties ]; then
-        LTI_URL='http://'$(cat ${LTI_DIR}/WEB-INF/classes/lti-config.properties | grep -v '#' | sed -n '/^ltiEndPoint/{s/^.*=//;p}')'/lti/tool'
+        LTI_URL="${PROTOCOL}://"$(cat ${LTI_DIR}/WEB-INF/classes/lti-config.properties | grep -v '#' | sed -n '/^ltiEndPoint/{s/^.*=//;p}')'/lti/tool'
         echo "# Warning: The IMS Learning Tools Integration (LTI) is accessible from:"
         echo "#"
         echo "#    $LTI_URL"
@@ -1407,7 +1412,7 @@ check_state() {
     if systemctl status freeswitch | grep -q SETSCHEDULER; then
         echo "# Error: FreeSWITCH failed to start with SETSCHEDULER error, see"
         echo "#"
-        echo "#   http://docs.bigbluebutton.org/install/install.html#freeswitch-fails-to-start-with-a-setscheduler-error"
+        echo "#   https://docs.bigbluebutton.org/install/install.html#freeswitch-fails-to-start-with-a-setscheduler-error"
         echo "#"
     fi
 
@@ -1416,7 +1421,7 @@ check_state() {
         echo "# Warning: found only $NCPU cores, whereas this server should have (at least) 4 CPU cores"
         echo "# to run BigBlueButton in production."
         echo "#"
-        echo "#   http://docs.bigbluebutton.org/install/install.html#minimum-server-requirements"
+        echo "#   https://docs.bigbluebutton.org/install/install.html#minimum-server-requirements"
         echo "#"
     fi
 
@@ -1473,7 +1478,7 @@ check_state() {
       echo "#"
       echo "#   sudo systemctl set-environment LANG=en_US.UTF-8"
       echo "#"
-      echo "# See http://docs.bigbluebutton.org/2.2/install.html#pre-installation-checks"
+      echo "# See https://docs.bigbluebutton.org/2.2/install.html#pre-installation-checks"
       echo "#"
     fi
 
@@ -1690,31 +1695,24 @@ if [ $DEBUG ]; then
         echo
     fi
 
-
     rm -rf /tmp/t
-    grep --directories=skip ERROR $RED5_DIR/log/* > /tmp/t
-    if [ -s /tmp/t ]; then
+    if [ -d /var/log/red5 ]; then
+      find /var/log/red5 -type f -exec grep -H ERROR  '{}' \; >> /tmp/t
+      if [ -s /tmp/t ]; then
         echo "   -- ERRORS found in $RED5_DIR/log/* -- "
         cat /tmp/t
         echo
+      fi
     fi
 
-
-    rm -rf /tmp/t
-    grep --directories=skip Exception $RED5_DIR/log/* > /tmp/t
-    if [ -s /tmp/t ]; then
-        echo "   -- Exceptions found in $RED5_DIR/log/* -- "
-        cat /tmp/t
-        echo
-    fi
-
-
-    rm -rf /tmp/t
-    $SUDO grep --directories=skip Exception $SERVLET_LOGS/* | grep -v CacheExceptionHandlerFactory > /tmp/t
-    if [ -s /tmp/t ]; then
+    if [ -d $SERVLET_LOGS ]; then
+      rm -rf /tmp/t
+      $SUDO grep --directories=skip Exception $SERVLET_LOGS/* | grep -v CacheExceptionHandlerFactory > /tmp/t
+      if [ -s /tmp/t ]; then
         echo "   -- Exceptions found in $SERVLET_LOGS/ -- "
         cat /tmp/t
         echo
+      fi
     fi
 
     rm -rf /tmp/t
@@ -1772,6 +1770,8 @@ fi
 
 # if asked to print the version that's all we do
 if [ -n "$HOST" ]; then
+    need_root
+
     #
     # Just use the IP for port test in /var/www/bigbluebutton/client/conf/config.xml
     #
@@ -1863,7 +1863,12 @@ if [ -n "$HOST" ]; then
 
     if [ -f /usr/local/bigbluebutton/core/scripts/bigbluebutton.yml ]; then
         echo "Assigning $HOST for record and playback in /usr/local/bigbluebutton/core/scripts/bigbluebutton.yml"
-        change_yml_value /usr/local/bigbluebutton/core/scripts/bigbluebutton.yml $redis_host playback_host $HOST
+        change_yml_value /usr/local/bigbluebutton/core/scripts/bigbluebutton.yml playback_host $HOST
+    fi
+
+    if [ -f /usr/local/bigbluebutton/bbb-webhooks/config/default.yml ]; then
+        echo "Assigning $HOST for webhooks in /usr/local/bigbluebutton/bbb-webhooks/config/default.yml"
+        change_yml_value /usr/local/bigbluebutton/bbb-webhooks/config/default.yml serverDomain $HOST
     fi
 
     echo -n "Assigning $HOST for playback of recordings: "

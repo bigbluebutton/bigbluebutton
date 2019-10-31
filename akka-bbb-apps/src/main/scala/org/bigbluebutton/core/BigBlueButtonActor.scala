@@ -121,7 +121,7 @@ class BigBlueButtonActor(
 
         val m = RunningMeeting(msg.body.props, outGW, eventBus)
 
-        /** Subscribe to meeting and voice events. **/
+        // Subscribe to meeting and voice events.
         eventBus.subscribe(m.actorRef, m.props.meetingProp.intId)
         eventBus.subscribe(m.actorRef, m.props.voiceProp.voiceConf)
         eventBus.subscribe(m.actorRef, m.props.screenshareProps.screenshareConf)
@@ -161,7 +161,7 @@ class BigBlueButtonActor(
       m <- RunningMeetings.findWithId(meetings, msg.meetingId)
       m2 <- RunningMeetings.remove(meetings, msg.meetingId)
     } yield {
-      /** Unsubscribe to meeting and voice events. **/
+      // Unsubscribe to meeting and voice events.
       eventBus.unsubscribe(m.actorRef, m.props.meetingProp.intId)
       eventBus.unsubscribe(m.actorRef, m.props.voiceProp.voiceConf)
       eventBus.unsubscribe(m.actorRef, m.props.screenshareProps.screenshareConf)

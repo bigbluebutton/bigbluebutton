@@ -39,6 +39,8 @@ import org.bigbluebutton.core.apps.meeting.{ SyncGetMeetingInfoRespMsgHdlr, Vali
 import org.bigbluebutton.core.apps.users.ChangeLockSettingsInMeetingCmdMsgHdlr
 import org.bigbluebutton.core2.message.senders.{ MsgBuilder, Sender }
 
+import scala.concurrent.ExecutionContext.Implicits.global
+
 object MeetingActor {
   def props(
       props:       DefaultProps,
@@ -83,6 +85,9 @@ class MeetingActor(
   with ClientToServerLatencyTracerMsgHdlr
   with ValidateConnAuthTokenSysMsgHdlr
   with UserActivitySignCmdMsgHdlr {
+
+  object CheckVoiceRecordingInternalMsg
+  object SyncVoiceUserStatusInternalMsg
 
   override val supervisorStrategy = OneForOneStrategy(maxNrOfRetries = 10, withinTimeRange = 1 minute) {
     case e: Exception => {
@@ -185,7 +190,26 @@ class MeetingActor(
   //FakeTestData.createFakeUsers(liveMeeting)
   /** *****************************************************************/
 
+  context.system.scheduler.schedule(
+    5 seconds,
+    syncVoiceUsersStatusInterval seconds,
+    self,
+    SyncVoiceUserStatusInternalMsg
+  )
+
+  context.system.scheduler.schedule(
+    5 seconds,
+    checkVoiceRecordingInterval seconds,
+    self,
+    CheckVoiceRecordingInternalMsg
+  )
+
   def receive = {
+    case SyncVoiceUserStatusInternalMsg =>
+      checkVoiceConfUsersStatus()
+    case CheckVoiceRecordingInternalMsg =>
+      checkVoiceConfIsRunningAndRecording()
+
     //=============================
 
     // 2x messages
@@ -376,10 +400,14 @@ class MeetingActor(
       case m: UserConnectedToGlobalAudioMsg      => handleUserConnectedToGlobalAudioMsg(m)
       case m: UserDisconnectedFromGlobalAudioMsg => handleUserDisconnectedFromGlobalAudioMsg(m)
       case m: VoiceConfRunningEvtMsg             => handleVoiceConfRunningEvtMsg(m)
+      case m: CheckRunningAndRecordingVoiceConfEvtMsg =>
+        handleCheckRunningAndRecordingVoiceConfEvtMsg(m)
+      case m: UserStatusVoiceConfEvtMsg =>
+        handleUserStatusVoiceConfEvtMsg(m)
 
       // Layout
-      case m: GetCurrentLayoutReqMsg             => handleGetCurrentLayoutReqMsg(m)
-      case m: BroadcastLayoutMsg                 => handleBroadcastLayoutMsg(m)
+      case m: GetCurrentLayoutReqMsg => handleGetCurrentLayoutReqMsg(m)
+      case m: BroadcastLayoutMsg     => handleBroadcastLayoutMsg(m)
 
       // Lock Settings
       case m: ChangeLockSettingsInMeetingCmdMsg =>
@@ -399,6 +427,7 @@ class MeetingActor(
       case m: GetAllPresentationPodsReqMsg             => state = presentationPodsApp.handle(m, state, liveMeeting, msgBus)
       case m: SetCurrentPresentationPubMsg             => state = presentationPodsApp.handle(m, state, liveMeeting, msgBus)
       case m: PresentationConversionCompletedSysPubMsg => state = presentationPodsApp.handle(m, state, liveMeeting, msgBus)
+      case m: PdfConversionInvalidErrorSysPubMsg       => state = presentationPodsApp.handle(m, state, liveMeeting, msgBus)
       case m: SetCurrentPagePubMsg                     => state = presentationPodsApp.handle(m, state, liveMeeting, msgBus)
       case m: SetPresenterInPodReqMsg                  => state = presentationPodsApp.handle(m, state, liveMeeting, msgBus)
       case m: RemovePresentationPubMsg                 => state = presentationPodsApp.handle(m, state, liveMeeting, msgBus)
@@ -538,6 +567,22 @@ class MeetingActor(
     checkIfNeetToEndMeetingWhenNoAuthedUsers(liveMeeting)
   }
 
+  def checkVoiceConfUsersStatus(): Unit = {
+    val event = MsgBuilder.buildLastcheckVoiceConfUsersStatus(
+      props.meetingProp.intId,
+      props.voiceProp.voiceConf
+    )
+    outGW.send(event)
+  }
+
+  def checkVoiceConfIsRunningAndRecording(): Unit = {
+    val event = MsgBuilder.buildCheckRunningAndRecordingToVoiceConfSysMsg(
+      props.meetingProp.intId,
+      props.voiceProp.voiceConf
+    )
+    outGW.send(event)
+  }
+
   var lastRecBreakSentOn = expiryTracker.startedOnInMs
 
   def setRecordingChapterBreak(): Unit = {
@@ -634,7 +679,7 @@ class MeetingActor(
     stopRecordingIfAutoStart2x(outGW, liveMeeting, state)
 
     if (liveMeeting.props.meetingProp.isBreakout) {
-      updateParentMeetingWithUsers()
+      BreakoutHdlrHelpers.updateParentMeetingWithUsers(liveMeeting, eventBus)
     }
 
     if (state.expiryTracker.userHasJoined &&
@@ -707,4 +752,28 @@ class MeetingActor(
       }
     }
   }
+
+  def handleCheckRunningAndRecordingVoiceConfEvtMsg(msg: CheckRunningAndRecordingVoiceConfEvtMsg): Unit = {
+    //msg.body.confRecordings foreach { cr =>
+    //  println("rec = " + cr.recordPath)
+    //}
+
+    if (liveMeeting.props.recordProp.record &&
+      msg.body.isRunning &&
+      !msg.body.isRecording) {
+      // Voice conference is running but not recording. We should start recording.
+      // But first, see if we have recording streams and stop those.
+      VoiceApp.stopRecordingVoiceConference(liveMeeting, outGW)
+      // Remove recording streams that have stopped so we should only have
+      // one active recording stream.
+
+      // Let us start recording.
+      val meetingId = liveMeeting.props.meetingProp.intId
+      val recordFile = VoiceApp.genRecordPath(voiceConfRecordPath, meetingId, TimeUtil.timeNowInMs())
+      log.info("Forcing START RECORDING voice conf. meetingId=" + meetingId + " voice conf=" + liveMeeting.props.voiceProp.voiceConf)
+
+      VoiceApp.startRecordingVoiceConference(liveMeeting, outGW, recordFile)
+    }
+  }
+
 }

@@ -8,6 +8,7 @@ import Meetings from '/imports/api/meetings';
 import Auth from '/imports/ui/services/auth';
 import deviceInfo from '/imports/utils/deviceInfo';
 import lockContextContainer from '/imports/ui/components/lock-viewers/context/container';
+import AudioError from '/imports/ui/services/audio-manager/error-codes';
 import Service from '../service';
 
 const AudioModalContainer = props => <AudioModal {...props} />;
@@ -16,7 +17,6 @@ const APP_CONFIG = Meteor.settings.public.app;
 
 const invalidDialNumbers = ['0', '613-555-1212', '613-555-1234', '0000'];
 const isRTL = document.documentElement.getAttribute('dir') === 'rtl';
-
 
 export default lockContextContainer(withModalMounter(withTracker(({ mountModal, userLocks }) => {
   const listenOnlyMode = getFromUserSettings('listenOnlyMode', APP_CONFIG.listenOnlyMode);
@@ -106,5 +106,6 @@ export default lockContextContainer(withModalMounter(withTracker(({ mountModal, 
     autoplayBlocked: Service.autoplayBlocked(),
     handleAllowAutoplay: () => Service.handleAllowAutoplay(),
     isRTL,
+    AudioError,
   });
 })(AudioModalContainer)));

@@ -51,5 +51,5 @@ export default withTracker(() => ({
   isPollingEnabled: POLLING_ENABLED,
   isThereCurrentPresentation: Presentations.findOne({ meetingId: Auth.meetingID, current: true },
     { fields: {} }),
-  getSwapLayout,
+  allowExternalVideo: Meteor.settings.public.externalVideoPlayer.enabled,
 }))(injectIntl(ActionsBarContainer));
