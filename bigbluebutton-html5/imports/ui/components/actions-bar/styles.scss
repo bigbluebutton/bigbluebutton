@@ -26,7 +26,7 @@
 }
 
 .left {
-  display: block;
+  display: inherit;
   flex: 0;
   @include mq($small-only) {
     bottom: var(--sm-padding-x);

@@ -128,7 +128,7 @@ class UserActor(
           val msgClient = msgFromClient.copy(header = newHeader)
 
           val routing = Routing.addMsgFromClientRouting(msgClient.header.meetingId, msgClient.header.userId)
-          val envelope = new BbbCoreEnvelope(msgClient.header.name, routing)
+          val envelope = new BbbCoreEnvelope(msgClient.header.name, routing, System.currentTimeMillis())
 
           if (msgClient.header.name == "ClientToServerLatencyTracerMsg") {
             log.info("-- trace -- " + msg.json)

@@ -271,7 +271,39 @@ case class CheckRunningAndRecordingVoiceConfEvtMsg(
     header: BbbCoreVoiceConfHeader,
     body:   CheckRunningAndRecordingVoiceConfEvtMsgBody
 ) extends VoiceStandardMsg
-case class CheckRunningAndRecordingVoiceConfEvtMsgBody(voiceConf: String, isRunning: Boolean, isRecording: Boolean)
+case class CheckRunningAndRecordingVoiceConfEvtMsgBody(
+    voiceConf:      String,
+    isRunning:      Boolean,
+    isRecording:    Boolean,
+    confRecordings: Vector[ConfVoiceRecording]
+)
+
+/**
+ * Sent to FS to get status of users in voice conference.
+ */
+object GetUsersStatusToVoiceConfSysMsg { val NAME = "GetUsersStatusToVoiceConfSysMsg" }
+case class GetUsersStatusToVoiceConfSysMsg(
+    header: BbbCoreHeaderWithMeetingId,
+    body:   GetUsersStatusToVoiceConfSysMsgBody
+) extends BbbCoreMsg
+case class GetUsersStatusToVoiceConfSysMsgBody(voiceConf: String, meetingId: String)
+
+/**
+ * Received from FS about user status voice conference.
+ */
+object UserStatusVoiceConfEvtMsg { val NAME = "UserStatusVoiceConfEvtMsg" }
+case class UserStatusVoiceConfEvtMsg(
+    header: BbbCoreVoiceConfHeader,
+    body:   UserStatusVoiceConfEvtMsgBody
+) extends VoiceStandardMsg
+case class UserStatusVoiceConfEvtMsgBody(voiceConf: String, confUsers: Vector[ConfVoiceUser],
+                                         confRecordings: Vector[ConfVoiceRecording])
+case class ConfVoiceUser(voiceUserId: String, intId: String,
+                         callerIdName: String, callerIdNum: String, muted: Boolean,
+                         talking: Boolean, callingWith: String,
+                         calledInto: String // freeswitch, kms
+                         )
+case class ConfVoiceRecording(recordPath: String, recordStartTime: Long)
 
 /**
  * Received from FS that user joined voice conference.

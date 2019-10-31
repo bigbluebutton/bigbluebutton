@@ -19,10 +19,13 @@
 
 package org.bigbluebutton.presentation.imp;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 import java.util.concurrent.Callable;
 import java.util.concurrent.CompletionService;
 import java.util.concurrent.ExecutionException;
@@ -37,6 +40,7 @@ import org.bigbluebutton.presentation.*;
 import org.bigbluebutton.presentation.ConversionUpdateMessage.MessageBuilder;
 import org.bigbluebutton.presentation.messages.DocPageCountExceeded;
 import org.bigbluebutton.presentation.messages.DocPageCountFailed;
+import org.bigbluebutton.presentation.messages.PdfConversionInvalid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -54,6 +58,9 @@ public class PdfToSwfSlidesGenerationService {
 
   private TextFileCreator textFileCreator;
   private SvgImageCreator svgImageCreator;
+  private long bigPdfSize;
+  private long maxBigPdfPageSize;
+  private PageExtractor pageExtractor;
   private long MAX_CONVERSION_TIME = 5 * 60 * 1000L * 1000L * 1000L;
   private String BLANK_SLIDE;
   private int MAX_SWF_FILE_SIZE;
@@ -68,6 +75,15 @@ public class PdfToSwfSlidesGenerationService {
     public void generateSlides(UploadedPresentation pres) {
         determineNumberOfPages(pres);
         if (pres.getNumberOfPages() > 0) {
+          if (pres.getUploadedFile().length() > bigPdfSize) {
+             try {
+                 hasBigPage(pres);
+               } catch (BigPdfException e) {
+                sendFailedToConvertBigPdfMessage(e, pres);
+                return;
+              }
+            }
+            
             // Only create SWF files if the configuration requires it
             if (swfSlidesRequired) {
                 convertPdfToSwf(pres);
@@ -98,6 +114,40 @@ public class PdfToSwfSlidesGenerationService {
     } catch (CountingPageException e) {
       sendFailedToCountPageMessage(e, pres);
     }
+    return false;
+  }
+  
+  private boolean hasBigPage(UploadedPresentation pres) throws BigPdfException {
+    long lastPageSize = 0;
+    int currentPage = 1;
+    String basePresentationame = UUID.randomUUID().toString();
+    if (pres.getNumberOfPages() > 1) {
+      while(currentPage < pres.getNumberOfPages()) {
+        File tempPage;
+        try {
+            tempPage = File.createTempFile(basePresentationame + "-" + currentPage, ".pdf");
+            pageExtractor.extractPage(pres.getUploadedFile(), tempPage, currentPage);
+            lastPageSize = tempPage.length();
+            // Delete the temporary file
+            tempPage.delete();
+          } catch (IOException e) {
+            e.printStackTrace();
+        }
+        
+        if (lastPageSize > maxBigPdfPageSize) {
+          throw new BigPdfException(BigPdfException.ExceptionType.PDF_HAS_BIG_PAGE, currentPage, lastPageSize);
+        }
+        
+        lastPageSize = 0;
+        currentPage++;
+      }
+    } else {
+      if ((int)pres.getUploadedFile().length() > bigPdfSize) {
+        throw new BigPdfException(BigPdfException.ExceptionType.PDF_HAS_BIG_PAGE, 1, pres.getUploadedFile().length());
+      }
+    }
+
+    
     return false;
   }
 
@@ -152,6 +202,34 @@ public class PdfToSwfSlidesGenerationService {
       notifier.sendDocConversionProgress(progress);
     }
 
+  }
+  
+  private void sendFailedToConvertBigPdfMessage(BigPdfException e, UploadedPresentation pres) {
+    MessageBuilder builder = new ConversionUpdateMessage.MessageBuilder(pres);
+
+    builder.messageKey(ConversionMessageConstants.PDF_HAS_BIG_PAGE);
+
+    Map<String, Object> logData = new HashMap<>();
+    logData.put("podId", pres.getPodId());
+    logData.put("meetingId", pres.getMeetingId());
+    logData.put("presId", pres.getId());
+    logData.put("filename", pres.getName());
+    logData.put("pdfSize", pres.getUploadedFile().length());
+    logData.put("bigPageNumber", e.getBigPageNumber());
+    logData.put("bigPageSize", e.getBigPageSize());
+    logData.put("logCode", "big_pdf_has_a_big_page");
+    logData.put("message", "The PDF contains a big page.");
+    Gson gson = new Gson();
+    String logStr = gson.toJson(logData);
+    log.error(" --analytics-- data={}", logStr, e);
+
+    PdfConversionInvalid progress = new PdfConversionInvalid(pres.getPodId(), pres.getMeetingId(),
+      pres.getId(), pres.getId(),
+      pres.getName(), "notUsedYet", "notUsedYet",
+      pres.isDownloadable(), e.getBigPageNumber(), (int)e.getBigPageSize(),
+      ConversionMessageConstants.PDF_HAS_BIG_PAGE);
+
+    notifier.sendDocConversionProgress(progress);
   }
 
   private void createThumbnails(UploadedPresentation pres) {
@@ -337,12 +415,24 @@ public class PdfToSwfSlidesGenerationService {
     this.generatePngs = generatePngs;
   }
 
-  public void setSwfSlidesRequired(boolean swf) {
-    this.swfSlidesRequired = swf;
+  public void setSwfSlidesRequired(boolean swfSlidesRequired) {
+    this.swfSlidesRequired = swfSlidesRequired;
   }
 
-  public void setSvgImagesRequired(boolean svg) {
-    this.svgImagesRequired = svg;
+  public void setBigPdfSize(long bigPdfSize) {
+    this.bigPdfSize = bigPdfSize;
+  }
+  
+  public void setMaxBigPdfPageSize(long maxBigPdfPageSize) {
+    this.maxBigPdfPageSize = maxBigPdfPageSize;
+  }
+  
+  public void setPageExtractor(PageExtractor extractor) {
+    this.pageExtractor = extractor;
+  }
+  
+  public void setSvgImagesRequired(boolean svgImagesRequired) {
+    this.svgImagesRequired = svgImagesRequired;
   }
 
   public void setThumbnailCreator(ThumbnailCreator thumbnailCreator) {

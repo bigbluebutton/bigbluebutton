@@ -56,7 +56,7 @@ public class FreeswitchConferenceEventListener implements ConferenceEventListene
         if (event instanceof VoiceUserJoinedEvent) {
           VoiceUserJoinedEvent evt = (VoiceUserJoinedEvent) event;
           vcs.userJoinedVoiceConf(evt.getRoom(), evt.getVoiceUserId(), evt.getUserId(), evt.getCallerIdName(),
-            evt.getCallerIdNum(), evt.getMuted(), evt.getSpeaking(), evt.getAvatarURL());
+            evt.getCallerIdNum(), evt.getMuted(), evt.getSpeaking(), evt.getCallingWith());
         } else if (event instanceof VoiceConfRunningEvent) {
           VoiceConfRunningEvent evt = (VoiceConfRunningEvent) event;
           vcs.voiceConfRunning(evt.getRoom(), evt.isRunning());
@@ -96,7 +96,10 @@ public class FreeswitchConferenceEventListener implements ConferenceEventListene
                     + ",rec=" + evt.recording);
           }
 
-          vcs.voiceConfRunningAndRecording(evt.getRoom(), evt.running, evt.recording);
+          vcs.voiceConfRunningAndRecording(evt.getRoom(), evt.running, evt.recording, evt.confRecordings);
+        } else if (event instanceof VoiceUsersStatusEvent) {
+          VoiceUsersStatusEvent evt = (VoiceUsersStatusEvent) event;
+          vcs.voiceUsersStatus(evt.getRoom(), evt.confMembers, evt.confRecordings);
         }
 
       }

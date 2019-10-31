@@ -124,6 +124,7 @@ class AudioModal extends Component {
     this.state = {
       content: null,
       hasError: false,
+      errCode: null,
     };
 
     this.handleGoToAudioOptions = this.handleGoToAudioOptions.bind(this);
@@ -231,6 +232,17 @@ class AudioModal extends Component {
   }
 
   handleGoToEchoTest() {
+    const { AudioError } = this.props;
+    const { MIC_ERROR } = AudioError;
+    const noSSL = !window.location.protocol.includes('https');
+
+    if (noSSL) {
+      return this.setState({
+        content: 'help',
+        errCode: MIC_ERROR.NO_SSL,
+      });
+    }
+
     const {
       inputDeviceId,
       outputDeviceId,
@@ -250,6 +262,7 @@ class AudioModal extends Component {
       if (err.type === 'MEDIA_ERROR') {
         this.setState({
           content: 'help',
+          errCode: err.code,
         });
       }
     });
@@ -371,12 +384,12 @@ class AudioModal extends Component {
     const {
       isEchoTest,
       intl,
-      hasMediaDevices,
+      isIOSChrome,
     } = this.props;
 
     const { content } = this.state;
 
-    if (!hasMediaDevices) {
+    if (isIOSChrome) {
       return (
         <div>
           <div className={styles.warning}>!</div>
@@ -387,6 +400,7 @@ class AudioModal extends Component {
           </div>
         </div>);
     }
+
     if (this.skipAudioOptions()) {
       return (
         <div className={styles.connecting} role="alert">
@@ -441,9 +455,18 @@ class AudioModal extends Component {
   }
 
   renderHelp() {
+    const { errCode } = this.state;
+    const { AudioError } = this.props;
+
+    const audioErr = {
+      ...AudioError,
+      code: errCode,
+    };
+
     return (
       <Help
         handleBack={this.handleGoToAudioOptions}
+        audioErr={audioErr}
       />
     );
   }
@@ -502,7 +525,6 @@ class AudioModal extends Component {
             </p>
           ) : null}
           {!this.skipAudioOptions()
-
             ? (
               <header
                 data-test="audioModalHeader"

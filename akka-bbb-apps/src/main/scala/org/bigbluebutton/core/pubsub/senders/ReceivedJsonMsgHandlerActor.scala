@@ -150,6 +150,8 @@ class ReceivedJsonMsgHandlerActor(
         routeGenericMsg[IsMeetingMutedReqMsg](envelope, jsonNode)
       case CheckRunningAndRecordingVoiceConfEvtMsg.NAME =>
         routeVoiceMsg[CheckRunningAndRecordingVoiceConfEvtMsg](envelope, jsonNode)
+      case UserStatusVoiceConfEvtMsg.NAME =>
+        routeVoiceMsg[UserStatusVoiceConfEvtMsg](envelope, jsonNode)
 
       // Breakout rooms
       case BreakoutRoomsListMsg.NAME =>
@@ -217,6 +219,8 @@ class ReceivedJsonMsgHandlerActor(
         routeGenericMsg[PresentationPageGeneratedSysPubMsg](envelope, jsonNode)
       case PresentationConversionCompletedSysPubMsg.NAME =>
         routeGenericMsg[PresentationConversionCompletedSysPubMsg](envelope, jsonNode)
+      case PdfConversionInvalidErrorSysPubMsg.NAME =>
+        routeGenericMsg[PdfConversionInvalidErrorSysPubMsg](envelope, jsonNode)
       case AssignPresenterReqMsg.NAME =>
         routeGenericMsg[AssignPresenterReqMsg](envelope, jsonNode)
 
