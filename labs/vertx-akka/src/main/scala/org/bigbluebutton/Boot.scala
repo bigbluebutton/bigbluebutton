@@ -24,13 +24,13 @@ object Boot extends App with SystemConfiguration {
   val authActor = system.actorOf(AuthService.props(vertxGW), "auth-actor")
 
   val akkaGW = new VertxToAkkaGateway(system, vertx, authActor, echoActor)
-  val vertxToAkkaBus = new VertxToAkkaBus(vertx, akkaGW)
+  //val vertxToAkkaBus = new VertxToAkkaBus(vertx, akkaGW)
   val connEventBus = new InternalMessageBus
   val connectionManager = new ConnectionManager(system, vertx, connEventBus)
-  val clientManager = new ClientManager(system, connEventBus)
+  //val clientManager = new ClientManager(system, connEventBus)
 
-  val msgToClientGW = new MsgToClientGW
-  val clientGW = new ClientGWApplication(system, msgToClientGW, connEventBus)
+  //val msgToClientGW = new MsgToClientGW
+  //val clientGW = new ClientGWApplication(system, msgToClientGW, connEventBus)
 
   val hello = new HelloWorld(vertx, akkaGW, connectionManager)
   hello.startup()

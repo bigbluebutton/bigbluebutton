@@ -19,8 +19,6 @@ public class AuthenticateVerticle extends AbstractVerticle {
 
     Router router = Router.router(vertx);
 
-    // We need cookies, sessions and request bodies
-    router.route().handler(CookieHandler.create());
     router.route().handler(BodyHandler.create());
     router.route().handler(SessionHandler.create(LocalSessionStore.create(vertx)));
 
@@ -49,6 +47,6 @@ public class AuthenticateVerticle extends AbstractVerticle {
     // Serve the non private static pages
     router.route().handler(StaticHandler.create());
 
-    vertx.createHttpServer().requestHandler(router::accept).listen(4000);
+    vertx.createHttpServer().requestHandler(router).listen(4000);
   }
 }

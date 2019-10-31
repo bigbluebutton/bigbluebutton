@@ -18,6 +18,7 @@ public class HelloWorld {
   }
   
   public void startup() {
+    System.out.println("Starting HelloWorld Verticle");
     // Create an HTTP server which simply returns "Hello World!" to each request.
     //Vertx.vertx().createHttpServer().requestHandler(req -> req.response().end("Hello World! from gradle.")).listen(3000);
   
