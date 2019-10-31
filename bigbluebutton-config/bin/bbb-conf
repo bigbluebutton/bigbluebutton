@@ -62,6 +62,7 @@
 #   2019-03-14 FFD  Refactoring and cleanup for 2.2
 #   2019-05-14 FFD  Added more checks for configuration issues
 #   2019-07-08 GTR  Set IP for all recording formats
+#   2019-10-31 GTR  Set IP and shared secret for bbb-webhooks
 
 #set -x
 #set -e
@@ -631,12 +632,8 @@ if [[ $SECRET ]]; then
     need_root
     change_var_salt ${SERVLET_DIR}/WEB-INF/classes/bigbluebutton.properties securitySalt $SECRET
 
-    if [ -f /usr/local/bigbluebutton/bbb-webhooks/config_local.coffee ]; then
-        sed -i "s|\(^[ \t]*config.bbb.sharedSecret[ =]*\).*|\1\"$SECRET\"|g" /usr/local/bigbluebutton/bbb-webhooks/config_local.coffee
-    fi
-
-    if [ -f /usr/local/bigbluebutton/bbb-webhooks/config_local.js ]; then
-        sed -i "s|\(^[ \t]*config.bbb.sharedSecret[ =]*\).*|\1\"$SECRET\"|g" /usr/local/bigbluebutton/bbb-webhooks/config_local.js
+    if [ -f /usr/local/bigbluebutton/bbb-webhooks/config/default.yml ]; then
+        change_yml_value /usr/local/bigbluebutton/bbb-webhooks/config/default.yml sharedSecret $SECRET
     fi
 
     if [ -f /usr/local/bigbluebutton/bbb-webhooks/extra/post_catcher.js ]; then
@@ -1866,7 +1863,12 @@ if [ -n "$HOST" ]; then
 
     if [ -f /usr/local/bigbluebutton/core/scripts/bigbluebutton.yml ]; then
         echo "Assigning $HOST for record and playback in /usr/local/bigbluebutton/core/scripts/bigbluebutton.yml"
-        change_yml_value /usr/local/bigbluebutton/core/scripts/bigbluebutton.yml $redis_host playback_host $HOST
+        change_yml_value /usr/local/bigbluebutton/core/scripts/bigbluebutton.yml playback_host $HOST
+    fi
+
+    if [ -f /usr/local/bigbluebutton/bbb-webhooks/config/default.yml ]; then
+        echo "Assigning $HOST for webhooks in /usr/local/bigbluebutton/bbb-webhooks/config/default.yml"
+        change_yml_value /usr/local/bigbluebutton/bbb-webhooks/config/default.yml serverDomain $HOST
     fi
 
     echo -n "Assigning $HOST for playback of recordings: "
