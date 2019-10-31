@@ -143,7 +143,7 @@ public class PrivateVerticle extends AbstractVerticle {
     //vertx.createHttpServer(new HttpServerOptions().setSsl(true).setKeyStoreOptions(
     //    new JksOptions().setPath("server-keystore.jks").setPassword("wibble")
     //  )).requestHandler(router::accept).listen(3001);
-    vertx.createHttpServer().requestHandler(router::accept).listen(3001);
+    vertx.createHttpServer().requestHandler(router).listen(3001);
 
     // Register to listen for messages coming IN to the server
     eb.consumer("chat.to.server").handler(message -> {

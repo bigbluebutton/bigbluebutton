@@ -25,8 +25,6 @@ public class AuthenticateVerticle extends AbstractVerticle {
     // Simple auth service which uses a properties file for user/role info
     AuthProvider authProvider = new MyAuthProvider(vertx);
 
-    // We need a user session handler too to make sure the user is stored in the session between requests
-    router.route().handler(UserSessionHandler.create(authProvider));
 
     // Any requests to URI starting '/private/' require login
     router.route("/private/*").handler(RedirectAuthHandler.create(authProvider, "/loginpage.html"));

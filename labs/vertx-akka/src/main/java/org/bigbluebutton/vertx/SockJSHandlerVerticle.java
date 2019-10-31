@@ -5,7 +5,6 @@ import io.vertx.core.eventbus.EventBus;
 import io.vertx.ext.bridge.BridgeEventType;
 import io.vertx.ext.web.Router;
 import io.vertx.ext.web.handler.BodyHandler;
-import io.vertx.ext.web.handler.CookieHandler;
 import io.vertx.ext.web.handler.SessionHandler;
 import io.vertx.ext.web.handler.StaticHandler;
 import io.vertx.ext.web.handler.sockjs.BridgeOptions;
@@ -88,17 +87,17 @@ public class SockJSHandlerVerticle extends AbstractVerticle {
         System.out.println("Message from: " + be.socket().webSession().id() + " \n   " + be.getRawMessage());
       }
 
-
-
      // System.out.println("USER=" + be.socket().webUser().principal());
       
       be.complete(true);
     });
 
     System.out.println("Setting up StaticHandler");
+    System.out.println("Working Directory = " +
+            System.getProperty("user.dir"));
 
     // Create a router endpoint for the static content.
-    router.route().handler(StaticHandler.create());
+    router.route().handler(StaticHandler.create("src/main/webapp/webroot"));
    
     // Start the web server and tell it to use the router to handle requests.
     //vertx.createHttpServer(new HttpServerOptions().setSsl(true).setKeyStoreOptions(
