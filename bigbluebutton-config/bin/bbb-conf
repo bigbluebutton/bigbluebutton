@@ -1773,6 +1773,8 @@ fi
 
 # if asked to print the version that's all we do
 if [ -n "$HOST" ]; then
+    need_root
+
     #
     # Just use the IP for port test in /var/www/bigbluebutton/client/conf/config.xml
     #
