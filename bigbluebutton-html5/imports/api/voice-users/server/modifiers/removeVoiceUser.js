@@ -23,6 +23,7 @@ export default function removeVoiceUser(meetingId, voiceUser) {
       talking: false,
       listenOnly: false,
       joined: false,
+      spoke: false,
     },
   };
 

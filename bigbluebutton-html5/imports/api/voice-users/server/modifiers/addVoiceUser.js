@@ -18,7 +18,7 @@ export default function addVoiceUser(meetingId, voiceUser) {
     joined: Boolean, // This is a HTML5 only param.
   });
 
-  const { intId } = voiceUser;
+  const { intId, talking } = voiceUser;
 
   const selector = {
     meetingId,
@@ -28,6 +28,7 @@ export default function addVoiceUser(meetingId, voiceUser) {
   const modifier = {
     $set: Object.assign(
       { meetingId },
+      { spoke: talking },
       flat(voiceUser),
     ),
   };
