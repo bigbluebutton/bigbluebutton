@@ -65,6 +65,7 @@ export default class Media extends Component {
       children,
       audioModalIsOpen,
       usersVideo,
+      webcamPlacement,
     } = this.props;
 
     const contentClassName = cx({
@@ -77,16 +78,21 @@ export default class Media extends Component {
       [styles.floatingOverlay]: floatingOverlay,
     });
 
+    const containerClassName = cx({
+      [styles.containerV]: webcamPlacement === 'top' || webcamPlacement === 'bottom' || webcamPlacement === 'floating',
+    });
+
     return (
       <div
         id="container"
-        className={cx(styles.container)}
+        className={containerClassName}
         ref={this.refContainer}
       >
         <div
           className={!swapLayout ? contentClassName : overlayClassName}
           style={{
             maxHeight: usersVideo.length < 1 || floatingOverlay ? '100%' : '80%',
+            minHeight: '20%',
           }}
         >
           {children}
