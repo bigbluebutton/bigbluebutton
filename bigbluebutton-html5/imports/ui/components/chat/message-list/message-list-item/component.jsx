@@ -70,21 +70,28 @@ class MessageListItem extends Component {
     } = this.props;
 
     return (
-      <div className={styles.messages}>
-        {messages.map(message => (
-          message.text !== ''
-            ? (
-              <Message
-                className={(message.id ? styles.systemMessage : null)}
-                key={_.uniqueId('id-')}
-                text={message.text}
-                time={message.time}
-                chatAreaId={chatAreaId}
-                handleReadMessage={handleReadMessage}
-              />
-            ) : null
-        ))}
+      <div className={styles.item}>
+        <div className={styles.wrapper} ref={(ref) => { this.item = ref; }}>
+          <div className={styles.messages}>
+            <span>
+              {messages.map(message => (
+                message.text !== ''
+                  ? (
+                    <Message
+                      className={(message.id ? styles.systemMessage : null)}
+                      key={_.uniqueId('id-')}
+                      text={message.text}
+                      time={message.time}
+                      chatAreaId={chatAreaId}
+                      handleReadMessage={handleReadMessage}
+                    />
+                  ) : null
+              ))}
+            </span>
+          </div>
+        </div>
       </div>
+
     );
   }
 
