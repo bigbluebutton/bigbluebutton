@@ -1,17 +1,17 @@
 /**
   This file contains the BigBlueButton client APIs that will allow 3rd-party applications
   to embed the Flash client and interact with it through Javascript.
-  
+
   HOW TO USE:
      Some APIs allow synchronous and asynchronous calls. When using asynchronous, the 3rd-party
      JS should register as listener for events listed at the bottom of this file. For synchronous,
      3rd-party JS should pass in a callback function when calling the API.
-  
-  For an example on how to use these APIs, see: 
-  
+
+  For an example on how to use these APIs, see:
+
     https://github.com/bigbluebutton/bigbluebutton/blob/master/bigbluebutton-client/resources/prod/lib/3rd-party.js
     https://github.com/bigbluebutton/bigbluebutton/blob/master/bigbluebutton-client/resources/prod/3rd-party.html
-  
+
 */
 
 (function(window, undefined) {
@@ -37,7 +37,7 @@
      * If you want to instead receive an event with the result, register a listener
      * for AM_I_SHARING_CAM_RESP (see below).
      *
-     */  
+     */
     BBB.amISharingWebcam = function(callback) {
       var swfObj = getSwfObj();
       if (swfObj) {
@@ -50,16 +50,16 @@
         }
       }
     }
-    
+
     /**
      * Query if another user is sharing her camera.
-     * 
+     *
      * Param:
      *   userID : the id of the user that may be sharing the camera
      *   callback: function if you want to be informed synchronously. Don't pass a function
      *             if you want to be informed through an event. You have to register for
      *             IS_USER_PUBLISHING_CAM_RESP (see below).
-     */  
+     */
     BBB.isUserSharingWebcam = function(userID, callback) {
       var swfObj = getSwfObj();
       if (swfObj) {
@@ -78,16 +78,16 @@
      *
      * Param:
      *   emojiStatus - [string]
-     * 
+     *
      */
     BBB.emojiStatus = function(emojiStatus) {
       var swfObj = getSwfObj();
       if (swfObj) {
         console.log("Request to change emoji status [" + emojiStatus + "]");
         swfObj.emojiStatusRequest(emojiStatus);
-      }    
+      }
     }
-        
+
     /**
      * Issue a switch presenter command.
      *
@@ -96,14 +96,14 @@
      *
      * 3rd-party JS must listen for SWITCHED_PRESENTER (see below) to get notified
      * of switch presenter events.
-     * 
+     *
      */
     BBB.switchPresenter = function(newPresenterUserID) {
       var swfObj = getSwfObj();
       if (swfObj) {
         console.log("Request to switch presenter to [" + newPresenterUserID + "]");
         swfObj.switchPresenterRequest(newPresenterUserID);
-      }    
+      }
     }
 
     /**
@@ -140,26 +140,26 @@
         }
       }
     }
-    
+
     /**
      * Eject a user.
      *
      * Params:
      *    userID - userID of the user you want to eject.
-     */    
+     */
     BBB.ejectUser = function(userID) {
       var swfObj = getSwfObj();
       if (swfObj) {
         swfObj.ejectUserRequest(userID);
       }
     }
-    
+
     /**
      * Query who is presenter.
      *
      * Params:
      *    callback - function that gets executed for the response.
-     */    
+     */
     BBB.getPresenterUserID = function(callback) {
       var swfObj = getSwfObj();
       if (swfObj) {
@@ -168,7 +168,7 @@
         }
       }
     }
-            
+
     /**
      * Query the current user's role.
      * Params:
@@ -203,7 +203,7 @@
         }
       }
     }
- 
+
     /**
      * Query the current user's role.
      * Params:
@@ -222,13 +222,13 @@
         }
       }
     }
-       
+
     /**
      * Query the meeting id.
      *
      * Params:
      *    callback - function that gets executed for the response.
-     */ 
+     */
     BBB.getMeetingID = function(callback) {
       var swfObj = getSwfObj();
       if (swfObj) {
@@ -248,10 +248,10 @@
         }
       }
     }
-    
+
     /**
      * Join the voice conference.
-     */  
+     */
     BBB.joinVoiceConference = function() {
       var swfObj = getSwfObj();
       if (swfObj) {
@@ -259,10 +259,10 @@
         swfObj.joinVoiceRequest();
       }
     }
-    
+
     /**
      * Leave the voice conference.
-     */  
+     */
     BBB.leaveVoiceConference = function() {
       var swfObj = getSwfObj();
       if (swfObj) {
@@ -270,13 +270,13 @@
         swfObj.leaveVoiceRequest();
       }
     }
-    
+
     /**
      * Share user's webcam.
-     * 
+     *
      * Params:
      *   publishInClient : (DO NOT USE - Unimplemented)
-     */    
+     */
     BBB.shareVideoCamera = function(publishInClient) {
       var swfObj = getSwfObj();
       if (swfObj) {
@@ -284,71 +284,71 @@
           swfObj.shareVideoCamera(publishInClient);
         } else {
           swfObj.shareVideoCamera();
-        }        
+        }
       }
     }
 
     /**
      * Stop share user's webcam.
-     * 
-     */    
+     *
+     */
     BBB.stopSharingCamera = function() {
       var swfObj = getSwfObj();
       if (swfObj) {
         swfObj.stopShareCameraRequest();
-      }    
+      }
     }
 
     /**
      * Mute the current user.
-     * 
-     */      
+     *
+     */
     BBB.muteMe = function() {
       var swfObj = getSwfObj();
       if (swfObj) {
-        swfObj.muteMeRequest(); 
+        swfObj.muteMeRequest();
       }
     }
 
     /**
      * Unmute the current user.
-     * 
-     */        
+     *
+     */
     BBB.unmuteMe = function() {
       var swfObj = getSwfObj();
       if (swfObj) {
-        swfObj.unmuteMeRequest(); 
+        swfObj.unmuteMeRequest();
       }
     }
 
     /**
      * Mute all the users.
-     * 
-     */       
+     *
+     */
     BBB.muteAll = function() {
       var swfObj = getSwfObj();
       if (swfObj) {
-        swfObj.muteAllUsersRequest(); 
+        swfObj.muteAllUsersRequest();
       }
     }
 
     /**
      * Unmute all the users.
-     * 
-     */      
+     *
+     */
     BBB.unmuteAll = function() {
       var swfObj = getSwfObj();
       if (swfObj) {
-        swfObj.unmuteAllUsersRequest(); 
+        swfObj.unmuteAllUsersRequest();
       }
     }
-    
+
     /**
      * Switch to a new layout.
      *
      * Param:
      *  newLayout : name of the layout as defined in layout.xml (found in /var/www/bigbluebutton/client/conf/layout.xml)
-     * 
+     *
      */
     BBB.switchLayout = function(newLayout) {
       var swfObj = getSwfObj();
@@ -362,7 +362,7 @@
      *
      * Locking the layout means that users will have the same layout with the moderator that issued the lock command.
      * Other users won't be able to move or resize the different windows.
-     */    
+     */
     BBB.lockLayout = function(lock) {
       var swfObj = getSwfObj();
       if (swfObj) {
@@ -376,14 +376,14 @@
     *  fontColor  - the color of the font to display the message
     *  localeLang - the 2-char locale code (e.g. en) for the sender
     *  message    - the message to send
-    */    
+    */
     BBB.sendPublicChatMessage = function(fontColor, localeLang, message) {
       var swfObj = getSwfObj();
       if (swfObj) {
         swfObj.sendPublicChatRequest(fontColor, localeLang, message);
-      }    
+      }
     }
-    
+
     /**
     * Request to send a private chat
     *  fromUserID - the external user id for the sender
@@ -391,50 +391,50 @@
     *  localeLang - the 2-char locale code (e.g. en) for the sender
     *  message    - the message to send
     *  toUserID   - the external user id of the receiver
-    */    
+    */
     BBB.sendPrivateChatMessage = function(fontColor, localeLang, message, toUserID) {
       var swfObj = getSwfObj();
       if (swfObj) {
         swfObj.sendPrivateChatRequest(fontColor, localeLang, message, toUserID);
-      }    
+      }
     }
 
     /**
     * Request to display a presentation.
     *  presentationID - the presentation to display
-    */     
+    */
     BBB.displayPresentation = function(presentationID) {
       var swfObj = getSwfObj();
       if (swfObj) {
         swfObj.displayPresentationRequest(presentationID);
-      }     
+      }
     }
-    
+
    /**
     * Query the list of uploaded presentations.
-    */     
+    */
     BBB.queryListOfPresentations = function() {
       var swfObj = getSwfObj();
       if (swfObj) {
         swfObj.queryListsOfPresentationsRequest();
-      }     
+      }
     }
 
     /**
     * Request to delete a presentation.
     *  presentationID - the presentation to delete
-    */      
+    */
     BBB.deletePresentation = function(presentationID) {
       var swfObj = getSwfObj();
       if (swfObj) {
         swfObj.deletePresentationRequest(presentationID);
-      }     
+      }
     }
 
     /**
      *
      */
-     
+
     BBB.webRTCCallSucceeded = function() {
       // do nothing on this callback
     }
@@ -445,14 +445,14 @@
         swfObj.webRTCCallStarted(inEchoTest);
       }
     }
-    
+
     BBB.webRTCCallConnecting = function(inEchoTest) {
       var swfObj = getSwfObj();
       if (swfObj) {
         swfObj.webRTCCallConnecting(inEchoTest);
       }
     }
-     
+
     BBB.webRTCCallEnded = function(inEchoTest) {
       var swfObj = getSwfObj();
       if (swfObj) {
@@ -473,7 +473,7 @@
         swfObj.webRTCCallWaitingForICE(inEchoTest);
       }
     }
-    
+
     BBB.webRTCCallTransferring = function(inEchoTest) {
       var swfObj = getSwfObj();
       if (swfObj) {
@@ -501,7 +501,7 @@
         swfObj.webRTCMediaSuccess();
       }
     }
-    
+
     BBB.webRTCMediaFail = function() {
       var swfObj = getSwfObj();
       if (swfObj) {
@@ -515,14 +515,14 @@
         swfObj.webRTCMonitorUpdate(result);
       }
     }
-    
+
     BBB.onMessageFromDS = function(data) {
       var swfObj = getSwfObj();
       if (swfObj) {
         swfObj.onMessageFromDS(data);
       }
     }
-    
+
     BBB.connectedToVertx = function() {
       var swfObj = getSwfObj();
       if (swfObj) {
@@ -535,12 +535,12 @@
     BBB.isSwfClientReady = function() {
       return swfReady;
     }
-        
+
     /* ***********************************************************************************
      *       Broadcasting of events to 3rd-party apps.
      *************************************************************************************/
-    
-    /** Stores the 3rd-party app event listeners ***/ 
+
+    /** Stores the 3rd-party app event listeners ***/
     var listeners = {};
 
     /**
@@ -549,7 +549,7 @@
     BBB.listen = function(eventName, handler) {
         if (typeof listeners[eventName] === 'undefined')
             listeners[eventName] = [];
-        
+
         listeners[eventName].push(handler);
     };
 
@@ -559,7 +559,7 @@
     BBB.unlisten = function(eventName, handler) {
         if (!listeners[eventName])
             return;
-        
+
         for (var i = 0; i < listeners[eventName].length; i++) {
             if (listeners[eventName][i] === handler) {
                 listeners[eventName].splice(i, 1);
@@ -574,12 +574,12 @@
      */
     function broadcast(bbbEvent) {
         if (!listeners[bbbEvent.eventName]) {
-            console.log("No listeners for [" + bbbEvent.eventName + "]");        
+            console.log("No listeners for [" + bbbEvent.eventName + "]");
             return;
         }
-        
+
         for (var i = 0; i < listeners[bbbEvent.eventName].length; i++) {
-            console.log("Notifying listeners for [" + bbbEvent.eventName + "]"); 
+            console.log("Notifying listeners for [" + bbbEvent.eventName + "]");
             listeners[bbbEvent.eventName][i](bbbEvent);
         }
     };
@@ -595,13 +595,13 @@
      *
      * =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
      * NOTE! NOTE! NOTE! NOTE! NOTE! NOTE! NOTE! NOTE! NOTE! NOTE! NOTE! NOTE! NOTE! NOTE!
-     * =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=     
+     * =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
      */
     BBB.handleFlashClientBroadcastEvent = function (bbbEvent) {
       console.log("Received [" + bbbEvent.eventName + "]");
       broadcast(bbbEvent);
     }
-  
+
   /**
     BBB.loginToDeepstream = function(meetingId) {
         console.log("***** LOGGING TO DS " + meetingId)
@@ -612,31 +612,33 @@
           })
     }
     **/
-/**    
-    const eb = new vertx.EventBus("http://192.168.216.128:3001/eventbus");
+
+    const eb = new vertx.EventBus("http://192.168.93.128:3001/eventbus");
     eb.onopen = function () {
       console.log("FOOOO!!!!!");
     };
-        
+
     var token = null;
-        
+
     BBB.sendAuthToken = function(data) {
-    token = data;
+      token = data;
+      console.log("************** Connecting to Vertx! " + token);
       eb.registerHandler("to-client-" + data, function (msg) {
-      	//console.log("From server: " + JSON.stringify(msg) + "\n");
+      	console.log("*********** From server: " + JSON.stringify(msg) + "\n");
         BBB.onMessageFromDS(msg);
       });
-      
+      console.log("************ Connected to Vertx!");
       BBB.connectedToVertx();
     }
-      
+
     BBB.sendToDeepstream = function(data) {
- //   trace("SENDING " + data);
-   // 	var json = JSON.parse(data);
+      //var json = JSON.parse(data);
+      console.log("**************** SENDING " + data);
+
       eb.send("to-server", data);
     };
-**/    
-    
+
+
     // Flag to indicate that the SWF file has been loaded and ready to handle calls.
     var swfReady = false;
 
@@ -658,20 +660,20 @@
      *
      * =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
      * NOTE! NOTE! NOTE! NOTE! NOTE! NOTE! NOTE! NOTE! NOTE! NOTE! NOTE! NOTE! NOTE! NOTE!
-     * =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=     
-     */    
+     * =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+     */
     BBB.swfClientIsReady = function () {
       console.log("BigBlueButton SWF is ready.");
       swfReady = true;
     }
-    
+
    /* ********************************************************************* */
 
     BBB.init =  function(callback) {
       callback;
     }
-    
-     
+
+
     /************************************************
      * EVENT NAME CONSTANTS
      *
@@ -703,12 +705,12 @@
     var START_PRIVATE_CHAT          = "StartPrivateChatEvent";
     var GET_MY_USER_INFO_REP        = "GetMyUserInfoResponse";
     var IS_USER_PUBLISHING_CAM_RESP  = "IsUserPublishingCamResponse";
-    
+
     /*conversion events*/
     var OFFICE_DOC_CONVERSION_SUCCESS = "OfficeDocConversionSuccess";
     var OFFICE_DOC_CONVERSION_FAILED = "OfficeDocConversionFailed";
     var SUPPORTED_DOCUMENT = "SupportedDocument";
-    var UNSUPPORTED_DOCUMENT = "UnsupportedDocument";    
+    var UNSUPPORTED_DOCUMENT = "UnsupportedDocument";
     var PAGE_COUNT_FAILED = "PageCountFailed";
     var THUMBNAILS_UPDATE = "ThumbnailsUpdate";
     var PAGE_COUNT_EXCEEDED = "PageCountExceeded";

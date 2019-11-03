@@ -76,8 +76,8 @@ public class SockJSHandlerVerticle extends AbstractVerticle {
       } else if (be.type() == BridgeEventType.RECEIVE) {
         System.out.println("Msg to Client: " + be.socket().webSession().id() + " \n   " + be.getRawMessage());
       } else if (be.type() == BridgeEventType.SEND) {
-        //System.out.println("Msg from Client: " + be.socket().webSession().id() + " \n   " + be.getRawMessage());
-        //String body = be.getRawMessage().getJsonObject("body").encode();
+        System.out.println("Msg from Client: " + be.socket().webSession().id() + " \n   " + be.getRawMessage());
+        String body = be.getRawMessage().getJsonObject("body").encode();
         gw.onMessageReceived(be.socket().webSession().id(), be.getRawMessage().getJsonObject("body"));
       } else if (be.type() == BridgeEventType.REGISTER) {
         System.out.println("Socket REGISTER for: " + be.socket().webSession().id() + " \n   " + be.getRawMessage());
@@ -103,10 +103,7 @@ public class SockJSHandlerVerticle extends AbstractVerticle {
     //vertx.createHttpServer(new HttpServerOptions().setSsl(true).setKeyStoreOptions(
     //    new JksOptions().setPath("server-keystore.jks").setPassword("wibble")
     //  )).requestHandler(router::accept).listen(3001);
-    vertx.createHttpServer().requestHandler(router).listen(3001, "192.168.211.128", res -> {
-      if (res.failed())
-        res.cause().printStackTrace();
-    });
+    vertx.createHttpServer().requestHandler(router).listen(3001);
 
     // Register to listen for messages coming IN to the server
     //eb.consumer("to.server").handler(message -> {
