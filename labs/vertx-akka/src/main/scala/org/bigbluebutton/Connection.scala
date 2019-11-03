@@ -54,15 +54,15 @@ class ConnectionActor(connId: String, vertx: Vertx, connEventBus: InternalMessag
           vertx.eventBus().publish("to-client-" + conn.token, response)
         }
       } else {
-        //println("************ FORWARDING TO CLIENT ACTOR *****************************")
+        println("************ FORWARDING TO CLIENT ACTOR *****************************")
         connInfo foreach { conn =>
-          //println("************ FORWARDING TO CLIENT ACTOR " + "clientActor-" + conn.connId + " *****************************")
+          println("************ FORWARDING TO CLIENT ACTOR " + "clientActor-" + conn.connId + " *****************************")
           connEventBus.publish(MsgFromConnBusMsg("clientActor-" + conn.connId, MsgFromConnMsg(conn, m.msg.encode())))
         }
       }
 
     case m: MsgToConnMsg =>
-      //println("MsgToConnMsg " + m.json)
+      println("MsgToConnMsg " + m.json)
       connInfo foreach { conn =>
         val jsonObject = new JsonObject(m.json)
         vertx.eventBus().publish("to-client-" + conn.token, jsonObject)
@@ -118,7 +118,7 @@ class ConnectionActor(connId: String, vertx: Vertx, connEventBus: InternalMessag
 
 class MyConnHandler(actorRef: ActorRef) extends Handler[Message[JsonObject]] {
   def handle(message: Message[JsonObject]) = {
-    //println("My Handler " + message.body())
+    println("My Handler " + message.body())
     actorRef ! (MsgFoo(message.body()))
   }
 }

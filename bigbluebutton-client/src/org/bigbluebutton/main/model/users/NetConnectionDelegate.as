@@ -463,11 +463,11 @@ package org.bigbluebutton.main.model.users
 
 
 				public function connect():void {
-					//if (useRTMP) {
+					if (useRTMP) {
 						connectRTMP();
-					//} else {
+					} else {
 						connectToVertx(LiveMeeting.inst().me.authToken);
-					//}
+					}
 				}
 
 				private function connectMessage():void {
