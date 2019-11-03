@@ -123,12 +123,12 @@ class JoinHandler extends Component {
     const setAuth = (resp) => {
       const {
         meetingID, internalUserID, authToken, logoutUrl,
-        fullname, externUserID, confname,
+        fullname, externUserID, confname, role,
       } = resp;
       return new Promise((resolve) => {
         Auth.set(
           meetingID, internalUserID, authToken, logoutUrl,
-          sessionToken, fullname, externUserID, confname,
+          sessionToken, fullname, externUserID, confname, role,
         );
         resolve(resp);
       });

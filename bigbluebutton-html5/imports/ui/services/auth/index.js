@@ -30,6 +30,7 @@ class Auth {
     this._confname = Storage.getItem('confname');
     this._externUserID = Storage.getItem('externUserID');
     this._fullname = Storage.getItem('fullname');
+    this._role = Storage.setRole('role');
   }
 
   get meetingID() {
@@ -114,6 +115,15 @@ class Auth {
     this._loggedIn.tracker.changed();
   }
 
+  get role() {
+    return this._role;
+  }
+
+  set role(role) {
+    this._role = role;
+    Storage.setItem('role', this._role);
+  }
+
   get credentials() {
     return {
       meetingId: this.meetingID,
@@ -136,6 +146,7 @@ class Auth {
       confname: this.confname,
       externUserID: this.externUserID,
       uniqueClientSession: this.uniqueClientSession,
+      role: this.role,
     };
   }
 
@@ -148,6 +159,7 @@ class Auth {
     fullname,
     externUserID,
     confname,
+    role,
   ) {
     this.meetingID = meetingId;
     this.userID = requesterUserId;
@@ -157,6 +169,7 @@ class Auth {
     this.fullname = fullname;
     this.externUserID = externUserID;
     this.confname = confname;
+    this.role = role;
   }
 
   clearCredentials(...args) {
