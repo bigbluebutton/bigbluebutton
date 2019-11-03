@@ -91,7 +91,7 @@ package org.bigbluebutton.main.model.users
             _netConnection.addEventListener( SecurityErrorEvent.SECURITY_ERROR, netSecurityError );
             _netConnection.addEventListener( IOErrorEvent.IO_ERROR, netIOError );
 			_applicationOptions = Options.getOptions(ApplicationOptions) as ApplicationOptions;
-		useRTMP = false; //_applicationOptions.msgBusRed5;
+            useRTMP = false; //_applicationOptions.msgBusRed5;
         }
 
 
