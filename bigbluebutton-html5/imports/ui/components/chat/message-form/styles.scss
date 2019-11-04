@@ -127,6 +127,8 @@
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+  font-weight: bold;
+  font-size: var(--font-size-smaller);
 }
 
 .singleTyper {
@@ -145,6 +147,7 @@
     display: flex;
     flex-direction: row;
     width: 100%;
+    line-height: var(--font-size-md);
   }
 }
 
