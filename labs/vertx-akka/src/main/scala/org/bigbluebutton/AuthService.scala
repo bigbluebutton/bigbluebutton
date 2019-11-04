@@ -12,7 +12,7 @@ object AuthService {
 }
 
 class AuthService(gw: AkkaToVertxGateway)
-    extends Actor with ActorLogging {
+  extends Actor with ActorLogging {
 
   def receive = {
     case msg: String => {

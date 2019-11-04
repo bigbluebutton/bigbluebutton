@@ -14,8 +14,8 @@ import io.vertx.core.eventbus.Message
 import akka.actor.ActorSystem
 
 class VertxToAkkaGateway(system: ActorSystem, vertx: Vertx,
-    authService: ActorRef,
-    echoService: ActorRef) extends IAkkaToVertxGateway {
+                         authService: ActorRef,
+                         echoService: ActorRef) extends IAkkaToVertxGateway {
   implicit def executionContext = system.dispatcher
 
   val consumer: MessageConsumer[String] = vertx.eventBus().consumer("foofoofoo")

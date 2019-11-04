@@ -20,16 +20,17 @@ const propTypes = {
   intl: PropTypes.shape({
     formatMessage: PropTypes.func.isRequired,
   }).isRequired,
+  scrollArea: PropTypes.instanceOf(Element),
+  chatAreaId: PropTypes.string.isRequired,
+  handleReadMessage: PropTypes.func.isRequired,
+  lastReadMessageTime: PropTypes.number,
 };
 
 const defaultProps = {
   user: null,
+  scrollArea: null,
+  lastReadMessageTime: 0,
 };
-
-const eventsToBeBound = [
-  'scroll',
-  'resize',
-];
 
 const intlMessages = defineMessages({
   offline: {
@@ -38,83 +39,27 @@ const intlMessages = defineMessages({
   },
 });
 
-const isElementInViewport = (el) => {
-  if (!el) return false;
-  const rect = el.getBoundingClientRect();
-  const prefetchHeight = 125;
-
-  return (rect.top >= -(prefetchHeight) || rect.bottom >= -(prefetchHeight));
-};
-
 class MessageListItem extends Component {
-  constructor(props) {
-    super(props);
-
-    this.state = {
-      pendingChanges: false,
-      preventRender: true,
-    };
-
-    this.handleMessageInViewport = _.debounce(this.handleMessageInViewport.bind(this), 50);
-  }
-
-  componentDidMount() {
-    const { scrollArea } = this.props;
-
-    if (scrollArea) {
-      eventsToBeBound.forEach(
-        (e) => { scrollArea.addEventListener(e, this.handleMessageInViewport, false); },
-      );
-    }
-    this.handleMessageInViewport();
-  }
-
-  componentWillReceiveProps(nextProps) {
-    const { messages, user } = this.props;
-    const { pendingChanges } = this.state;
-    if (pendingChanges) return;
-
-    const hasNewMessage = messages.length !== nextProps.messages.length;
-    const hasUserChanged = !_.isEqual(user, nextProps.user);
-
-    this.setState({ pendingChanges: hasNewMessage || hasUserChanged });
-  }
-
-  shouldComponentUpdate(nextProps, nextState) {
-    const { scrollArea } = this.props;
-    if (!scrollArea && nextProps.scrollArea) return true;
-    return !nextState.preventRender && nextState.pendingChanges;
-  }
-
-  componentDidUpdate(prevProps, prevState) {
+  shouldComponentUpdate(nextProps) {
     const {
-      preventRender,
-      pendingChanges,
-    } = this.state;
-    if (prevState.preventRender && !preventRender && pendingChanges) {
-      this.setPendingChanges(false);
-    }
-  }
+      scrollArea,
+      messages,
+      user,
+    } = this.props;
 
-  componentWillUnmount() {
-    const { scrollArea } = this.props;
+    const {
+      scrollArea: nextScrollArea,
+      messages: nextMessages,
+      user: nextUser,
+    } = nextProps;
 
-    if (scrollArea) {
-      eventsToBeBound.forEach(
-        (e) => { scrollArea.removeEventListener(e, this.handleMessageInViewport, false); },
-      );
-    }
-  }
+    if (!scrollArea && nextScrollArea) return true;
 
-  setPendingChanges(pendingChanges) {
-    this.setState({ pendingChanges });
-  }
+    const hasNewMessage = messages.length !== nextMessages.length;
+    const hasUserChanged = user && nextUser
+      && (user.isModerator !== nextUser.isModerator || user.isOnline !== nextUser.isOnline);
 
-  handleMessageInViewport() {
-    window.requestAnimationFrame(() => {
-      const node = this.item;
-      if (node) this.setState({ preventRender: !isElementInViewport(node) });
-    });
+    return hasNewMessage || hasUserChanged;
   }
 
   renderSystemMessage() {

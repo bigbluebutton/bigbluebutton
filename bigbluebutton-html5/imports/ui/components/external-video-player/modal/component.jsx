@@ -4,14 +4,14 @@ import Modal from '/imports/ui/components/modal/simple/component';
 import Button from '/imports/ui/components/button/component';
 
 import { defineMessages, injectIntl } from 'react-intl';
-import { isUrlValid, getUrlFromVideoId } from '../service';
+import { isUrlValid } from '../service';
 
 import { styles } from './styles';
 
 const intlMessages = defineMessages({
   start: {
     id: 'app.externalVideo.start',
-    description: 'Share youtube video',
+    description: 'Share external video',
   },
   urlError: {
     id: 'app.externalVideo.urlError',
@@ -35,7 +35,7 @@ const intlMessages = defineMessages({
   },
   note: {
     id: 'app.externalVideo.noteLabel',
-    description: 'provides hint about Shared YouTube videos',
+    description: 'provides hint about Shared External videos',
   },
 });
 
@@ -43,11 +43,11 @@ class ExternalVideoModal extends Component {
   constructor(props) {
     super(props);
 
-    const { videoId } = props;
+    const { videoUrl } = props;
 
     this.state = {
-      url: getUrlFromVideoId(videoId),
-      sharing: videoId,
+      url: videoUrl,
+      sharing: videoUrl,
     };
 
     this.startWatchingHandler = this.startWatchingHandler.bind(this);
@@ -60,14 +60,11 @@ class ExternalVideoModal extends Component {
     const {
       startWatching,
       closeModal,
-      toggleLayout,
-      isSwapped,
     } = this.props;
 
     const { url } = this.state;
 
     startWatching(url.trim());
-    if (isSwapped) toggleLayout();
     closeModal();
   }
 
@@ -93,10 +90,10 @@ class ExternalVideoModal extends Component {
   }
 
   render() {
-    const { intl, videoId, closeModal } = this.props;
+    const { intl, closeModal } = this.props;
     const { url, sharing } = this.state;
 
-    const startDisabled = !isUrlValid(url) || (getUrlFromVideoId(videoId) === url);
+    const startDisabled = !isUrlValid(url);
 
     return (
       <Modal
@@ -118,13 +115,12 @@ class ExternalVideoModal extends Component {
                 id="video-modal-input"
                 onChange={this.updateVideoUrlHandler}
                 name="video-modal-input"
-                value={url}
                 placeholder={intl.formatMessage(intlMessages.urlInput)}
                 disabled={sharing}
-                aria-describedby="youtube-note"
+                aria-describedby="exernal-video-note"
               />
             </label>
-            <div className={styles.youtubeNote} id="youtube-note">
+            <div className={styles.externalVideoNote} id="external-video-note">
               {intl.formatMessage(intlMessages.note)}
             </div>
           </div>

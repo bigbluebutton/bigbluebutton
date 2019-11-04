@@ -65,6 +65,22 @@ class BreakoutJoinConfirmation extends Component {
     this.handleSelectChange = this.handleSelectChange.bind(this);
   }
 
+  componentDidMount() {
+    const {
+      isFreeJoin,
+      requestJoinURL,
+      getURL,
+    } = this.props;
+
+    const {
+      selectValue,
+    } = this.state;
+
+    if (isFreeJoin && !getURL(selectValue)) {
+      requestJoinURL(selectValue);
+    }
+  }
+
   handleJoinBreakoutConfirmation() {
     const {
       getURL,
@@ -93,9 +109,15 @@ class BreakoutJoinConfirmation extends Component {
 
   handleSelectChange(e) {
     const { value } = e.target;
-    const { requestJoinURL } = this.props;
+    const {
+      requestJoinURL,
+      getURL,
+    } = this.props;
+
     this.setState({ selectValue: value });
-    requestJoinURL(value);
+    if (!getURL(value)) {
+      requestJoinURL(value);
+    }
   }
 
   renderSelectMeeting() {

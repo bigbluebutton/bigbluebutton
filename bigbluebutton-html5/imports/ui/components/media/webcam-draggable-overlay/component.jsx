@@ -3,7 +3,6 @@ import Draggable from 'react-draggable';
 import cx from 'classnames';
 import _ from 'lodash';
 import browser from 'browser-detect';
-import Resizable from 're-resizable';
 import PropTypes from 'prop-types';
 import { withDraggableContext } from './context';
 import VideoProviderContainer from '/imports/ui/components/video-provider/container';
@@ -33,8 +32,6 @@ const defaultProps = {
   refMediaContainer: null,
 };
 
-const dispatchResizeEvent = () => window.dispatchEvent(new Event('resize'));
-
 class WebcamDraggable extends Component {
   constructor(props) {
     super(props);
@@ -43,7 +40,6 @@ class WebcamDraggable extends Component {
     this.handleWebcamDragStop = this.handleWebcamDragStop.bind(this);
     this.onFullscreenChange = this.onFullscreenChange.bind(this);
     this.debouncedOnResize = _.debounce(this.onResize.bind(this), 500);
-    this.onResizeStop = this.onResizeStop.bind(this);
   }
 
   componentDidMount() {
@@ -83,29 +79,7 @@ class WebcamDraggable extends Component {
           },
         },
       );
-      this.onResizeStop();
     }
-  }
-
-  onResizeStop() {
-    const { webcamDraggableState, webcamDraggableDispatch } = this.props;
-    const { videoListRef } = webcamDraggableState;
-    if (videoListRef) {
-      const videoListRefRect = videoListRef.getBoundingClientRect();
-      const {
-        width, height,
-      } = videoListRefRect;
-      webcamDraggableDispatch(
-        {
-          type: 'setVideoListSize',
-          value: {
-            width,
-            height,
-          },
-        },
-      );
-    }
-    window.dispatchEvent(new Event('resize'));
   }
 
   getMediaBounds() {
@@ -221,7 +195,7 @@ class WebcamDraggable extends Component {
       audioModalIsOpen,
     } = this.props;
 
-    const { dragging, isCameraFullscreen, videoListSize } = webcamDraggableState;
+    const { dragging, isCameraFullscreen } = webcamDraggableState;
     let placement = Storage.getItem('webcamPlacement');
     const lastPosition = Storage.getItem('webcamLastPosition') || { x: 0, y: 0 };
     let position = lastPosition;
@@ -277,7 +251,11 @@ class WebcamDraggable extends Component {
       [styles.hideOverlay]: hideOverlay,
       [styles.floatingOverlay]: (singleWebcam && placement === 'floating') || dragging,
       [styles.autoWidth]: singleWebcam,
-      [styles.full]: !singleWebcam || swapLayout,
+      [styles.fit]: singleWebcam && (placement === 'floating' || dragging),
+      [styles.full]: (singleWebcam && (placement === 'top' || placement === 'bottom')
+        && !dragging)
+        || !singleWebcam
+        || swapLayout,
       [styles.overlayToTop]: (placement === 'floating' && !singleWebcam)
         || (placement === 'top' && !dragging),
       [styles.overlayToBottom]: placement === 'bottom' && !dragging,
@@ -326,35 +304,8 @@ class WebcamDraggable extends Component {
           disabled={swapLayout || isCameraFullscreen || BROWSER_ISMOBILE}
           position={position}
         >
-          <Resizable
-            size={
-              singleWebcam
-                ? {
-                  height: videoListSize.height,
-                  width: videoListSize.width,
-                }
-                : {
-                  height: videoListSize.height,
-                }
-            }
-            lockAspectRatio
-            handleWrapperClass="resizeWrapper"
-            onResize={dispatchResizeEvent}
-            onResizeStop={this.onResizeStop}
-            enable={{
-              top: !(placement === 'top'),
-              bottom: !(placement === 'bottom'),
-              left: false,
-              right: false,
-              topLeft: false,
-              topRight: false,
-              bottomLeft: false,
-              bottomRight: false,
-            }}
-            className={
-              !swapLayout
-                ? overlayClassName
-                : contentClassName}
+          <div
+            className={!swapLayout ? overlayClassName : contentClassName}
             style={{
               marginLeft: singleWebcam
                 && !(placement === 'bottom' || placement === 'top')
@@ -366,17 +317,12 @@ class WebcamDraggable extends Component {
                 : 0,
             }}
           >
-            {
-              !disableVideo
-                && !audioModalIsOpen
-                ? (
-                  <VideoProviderContainer
-                    swapLayout={swapLayout}
-                  />
-                )
-                : null
-            }
-          </Resizable>
+            {!disableVideo && !audioModalIsOpen ? (
+              <VideoProviderContainer
+                swapLayout={swapLayout}
+              />
+            ) : null}
+          </div>
         </Draggable>
 
         <div

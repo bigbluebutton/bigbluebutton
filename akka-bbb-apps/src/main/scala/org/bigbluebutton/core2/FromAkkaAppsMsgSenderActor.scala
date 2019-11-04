@@ -48,6 +48,10 @@ class FromAkkaAppsMsgSenderActor(msgSender: MessageSender)
         msgSender.send(toVoiceConfRedisChannel, json)
       case TransferUserToVoiceConfSysMsg.NAME =>
         msgSender.send(toVoiceConfRedisChannel, json)
+      case CheckRunningAndRecordingToVoiceConfSysMsg.NAME =>
+        msgSender.send(toVoiceConfRedisChannel, json)
+      case GetUsersStatusToVoiceConfSysMsg.NAME =>
+        msgSender.send(toVoiceConfRedisChannel, json)
 
       //==================================================================
       // Send chat, presentation, and whiteboard in different channels so as not to

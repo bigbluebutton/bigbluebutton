@@ -1,8 +1,13 @@
 @import "/imports/ui/stylesheets/variables/_all";
 
+:root {
+  --help-err-height: 10rem;
+}
+
 .help {
   display: flex;
   flex-flow: column;
+  height: var(--help-err-height);
 }
 
 .text {
@@ -22,7 +27,7 @@
   }
 
   @include mq($small-only) {
-    margin-right: auto;
+    margin-right: none;
     margin-left: inherit;
 
     [dir="rtl"] & {

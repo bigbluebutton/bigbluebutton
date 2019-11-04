@@ -132,6 +132,10 @@ const intlMessages = defineMessages({
     id: 'app.presentationUploder.conversion.pageCountExceeded',
     description: 'warns the user that the conversion failed because of the page count',
   },
+  PDF_HAS_BIG_PAGE: {
+    id: 'app.presentationUploder.conversion.pdfHasBigPage',
+    description: 'warns the user that the conversion failed because of the pdf page siz that exceeds the allowed limit',
+  },
   isDownloadable: {
     id: 'app.presentationUploder.isDownloadableLabel',
     description: 'presentation is available for downloading by all viewers',
@@ -246,7 +250,7 @@ class PresentationUploader extends Component {
 
   handleConfirm() {
     const { mountModal, intl, handleSave } = this.props;
-    const { presentations, oldCurrentId } = this.state;
+    const { disableActions, presentations, oldCurrentId } = this.state;
     const presentationsToSave = presentations
       .filter(p => !p.upload.error && !p.conversion.error);
 
@@ -256,43 +260,46 @@ class PresentationUploader extends Component {
       presentations: presentationsToSave,
     });
 
-    return handleSave(presentationsToSave)
-      .then(() => {
-        const hasError = presentations.some(p => p.upload.error || p.conversion.error);
-        if (!hasError) {
+    if (!disableActions) {
+      return handleSave(presentationsToSave)
+        .then(() => {
+          const hasError = presentations.some(p => p.upload.error || p.conversion.error);
+          if (!hasError) {
+            this.setState({
+              disableActions: false,
+              preventClosing: false,
+            });
+
+            mountModal(null);
+            return;
+          }
+
+          // if there's error we don't want to close the modal
           this.setState({
             disableActions: false,
-            preventClosing: false,
+            preventClosing: true,
+          }, () => {
+            // if the selected current has error we revert back to the old one
+            const newCurrent = presentations.find(p => p.isCurrent);
+            if (newCurrent.upload.error || newCurrent.conversion.error) {
+              this.handleCurrentChange(oldCurrentId);
+            }
           });
+        })
+        .catch((error) => {
+          notify(intl.formatMessage(intlMessages.genericError), 'error');
+          logger.error({
+            logCode: 'presentationuploader_component_save_error',
+            extraInfo: { error },
+          }, 'Presentation uploader catch error on confirm');
 
-          mountModal(null);
-          return;
-        }
-
-        // if there's error we don't want to close the modal
-        this.setState({
-          disableActions: false,
-          preventClosing: true,
-        }, () => {
-          // if the selected current has error we revert back to the old one
-          const newCurrent = presentations.find(p => p.isCurrent);
-          if (newCurrent.upload.error || newCurrent.conversion.error) {
-            this.handleCurrentChange(oldCurrentId);
-          }
+          this.setState({
+            disableActions: false,
+            preventClosing: true,
+          });
         });
-      })
-      .catch((error) => {
-        notify(intl.formatMessage(intlMessages.genericError), 'error');
-        logger.error({
-          logCode: 'presentationuploader_component_save_error',
-          extraInfo: { error },
-        }, 'Presentation uploader catch error on confirm');
-
-        this.setState({
-          disableActions: false,
-          preventClosing: true,
-        });
-      });
+    }
+    return null;
   }
 
   handleDismiss() {
@@ -467,7 +474,7 @@ class PresentationUploader extends Component {
             </tr>
           </thead>
           <tbody>
-            { presentationsSorted.map(item => this.renderPresentationItem(item))}
+            {presentationsSorted.map(item => this.renderPresentationItem(item))}
           </tbody>
         </table>
       </div>
@@ -565,7 +572,7 @@ class PresentationUploader extends Component {
         <td className={styles.tableItemStatus} colSpan={hasError ? 2 : 0}>
           {this.renderPresentationItemStatus(item)}
         </td>
-        { hasError ? null : (
+        {hasError ? null : (
           <td className={styles.tableItemActions}>
             <Button
               className={isDownloadableStyle}
@@ -584,7 +591,7 @@ class PresentationUploader extends Component {
               keyValue={item.id}
               onChange={this.handleCurrentChange}
             />
-            { hideRemove ? null : (
+            {hideRemove ? null : (
               <Button
                 disabled={disableActions}
                 className={cx(styles.itemAction, styles.itemActionRemove)}
@@ -628,7 +635,7 @@ class PresentationUploader extends Component {
         <Icon className={styles.dropzoneIcon} iconName="upload" />
         <p className={styles.dropzoneMessage}>
           {intl.formatMessage(intlMessages.dropzoneImagesLabel)}
-&nbsp;
+          &nbsp;
           <span className={styles.dropzoneLink}>
             {intl.formatMessage(intlMessages.browseImagesLabel)}
           </span>
@@ -666,7 +673,7 @@ class PresentationUploader extends Component {
         <Icon className={styles.dropzoneIcon} iconName="upload" />
         <p className={styles.dropzoneMessage}>
           {intl.formatMessage(intlMessages.dropzoneLabel)}
-&nbsp;
+          &nbsp;
           <span className={styles.dropzoneLink}>
             {intl.formatMessage(intlMessages.browseFilesLabel)}
           </span>
@@ -699,6 +706,7 @@ class PresentationUploader extends Component {
           callback: this.handleConfirm,
           label: confirmLabel,
           description: intl.formatMessage(intlMessages.confirmDesc),
+          disabled: disableActions,
         }}
         dismiss={{
           callback: this.handleDismiss,

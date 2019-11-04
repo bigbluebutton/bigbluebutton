@@ -2,16 +2,17 @@ import { Meteor } from 'meteor/meteor';
 import { WebAppInternals } from 'meteor/webapp';
 import Langmap from 'langmap';
 import fs from 'fs';
+import heapdump from 'heapdump';
 import Users from '/imports/api/users';
 import './settings';
 import { lookup as lookupUserAgent } from 'useragent';
+import { check } from 'meteor/check';
+import memwatch from 'memwatch-next';
 import Logger from './logger';
 import Redis from './redis';
 import setMinBrowserVersions from './minBrowserVersion';
 import userLeaving from '/imports/api/users/server/methods/userLeaving';
-import { check } from 'meteor/check';
 
-const parse = Npm.require('url').parse;
 const AVAILABLE_LOCALES = fs.readdirSync('assets/app/locales');
 
 Meteor.startup(() => {
@@ -20,6 +21,30 @@ Meteor.startup(() => {
   const INTERVAL_TIME = INTERVAL_IN_SETTINGS < 10000 ? 10000 : INTERVAL_IN_SETTINGS;
   const env = Meteor.isDevelopment ? 'development' : 'production';
   const CDN_URL = APP_CONFIG.cdn;
+  let heapDumpMbThreshold = 100;
+
+  const memoryMonitoringSettings = Meteor.settings.private.memoryMonitoring;
+  if (memoryMonitoringSettings.stat.enabled) {
+    memwatch.on('stats', (stats) => {
+      let heapDumpTriggered = false;
+
+      if (memoryMonitoringSettings.heapdump.enabled) {
+        heapDumpTriggered = (stats.current_base / 1048576) > heapDumpMbThreshold;
+      }
+      Logger.info('memwatch stats', { ...stats, heapDumpEnabled: memoryMonitoringSettings.heapdump.enabled, heapDumpTriggered });
+
+      if (heapDumpTriggered) {
+        heapdump.writeSnapshot(`./heapdump-stats-${Date.now()}.heapsnapshot`);
+        heapDumpMbThreshold += 100;
+      }
+    });
+  }
+
+  if (memoryMonitoringSettings.leak.enabled) {
+    memwatch.on('leak', (info) => {
+      Logger.info('memwatch leak', info);
+    });
+  }
 
   if (CDN_URL.trim()) {
     // Add CDN

@@ -22,34 +22,48 @@ const getSessionToken = () => Auth.sessionToken;
 
 export default class KurentoScreenshareBridge {
   static normalizeError(error = {}) {
-    const errorMessage = error.message || error.name || error.reason || 'Unknown error';
-    const errorCode = error.code || 'Undefined code';
+    const errorMessage = error.name || error.message || error.reason || 'Unknown error';
+    const errorCode = error.code || undefined;
     const errorReason = error.reason || error.id || 'Undefined reason';
 
     return { errorMessage, errorCode, errorReason };
   }
 
-  static handlePresenterFailure(error) {
+  static handlePresenterFailure(error, started = false) {
     const normalizedError = KurentoScreenshareBridge.normalizeError(error);
-    logger.error({
-      logCode: 'screenshare_presenter_error_failed_to_connect',
-      extraInfo: { ...normalizedError },
-    }, `Screenshare presenter failed when trying to start due to ${normalizedError.errorMessage}`);
+    if (!started) {
+      logger.error({
+        logCode: 'screenshare_presenter_error_failed_to_connect',
+        extraInfo: { ...normalizedError },
+      }, `Screenshare presenter failed when trying to start due to ${normalizedError.errorMessage}`);
+    } else {
+      logger.error({
+        logCode: 'screenshare_presenter_error_failed_after_success',
+        extraInfo: { ...normalizedError },
+      }, `Screenshare presenter failed during working session due to ${normalizedError.errorMessage}`);
+    }
     return normalizedError;
   }
 
-  static handleViewerFailure(error) {
+  static handleViewerFailure(error, started = false) {
     const normalizedError = KurentoScreenshareBridge.normalizeError(error);
-    logger.error({
-      logCode: 'screenshare_viewer_error_failed_to_connect',
-      extraInfo: { ...normalizedError },
-    }, `Screenshare viewer failed when trying to start due to ${normalizedError.errorMessage}`);
-
+    if (!started) {
+      logger.error({
+        logCode: 'screenshare_viewer_error_failed_to_connect',
+        extraInfo: { ...normalizedError },
+      }, `Screenshare viewer failed when trying to start due to ${normalizedError.errorMessage}`);
+    } else {
+      logger.error({
+        logCode: 'screenshare_viewer_error_failed_after_success',
+        extraInfo: { ...normalizedError },
+      }, `Screenshare viewer failed during working session due to ${normalizedError.errorMessage}`);
+    }
     return normalizedError;
   }
 
   async kurentoWatchVideo() {
     let iceServers = [];
+    let started = false;
 
     try {
       iceServers = await fetchWebRTCMappedStunTurnServers(getSessionToken());
@@ -110,13 +124,14 @@ export default class KurentoScreenshareBridge {
       };
 
       const onFail = (error) => {
-        KurentoScreenshareBridge.handleViewerFailure(error);
+        KurentoScreenshareBridge.handleViewerFailure(error, started);
       };
 
       // Callback for the kurento-extension.js script. It's called when the whole
       // negotiation with SFU is successful. This will load the stream into the
       // screenshare media element and play it manually.
       const onSuccess = () => {
+        started = true;
         const { webRtcPeer } = window.kurentoManager.kurentoVideo;
         if (webRtcPeer) {
           const stream = webRtcPeer.getRemoteStream();
@@ -160,12 +175,15 @@ export default class KurentoScreenshareBridge {
         logger,
       };
 
+      let started = false;
+
       const failureCallback = (error) => {
-        const normalizedError = KurentoScreenshareBridge.handlePresenterFailure(error);
+        const normalizedError = KurentoScreenshareBridge.handlePresenterFailure(error, started);
         onFail(normalizedError);
       };
 
       const successCallback = () => {
+        started = true;
         logger.info({
           logCode: 'screenshare_presenter_start_success',
         }, 'Screenshare presenter started succesfully');

@@ -89,12 +89,12 @@ public class XMLResponseConferenceListParser extends DefaultHandler {
     @Override
     public void startElement(String uri, String localName, String qName, Attributes attributes) throws SAXException {
         //reset
-        inFlags = false;
+        // Do not reset to false as the flags won't be processed. (ralam OCt 21, 2019)
+        //inFlags = false;
         tempVal = "";
+
         if(qName.equalsIgnoreCase("member")) {
             String memberType = attributes.getValue("type");
-            System.out.println("******************* Member Type = " + memberType);
-
             //create a new instance of ConferenceMember
             tempMember = new ConferenceMember();
             tempMember.setMemberType(memberType);
@@ -145,18 +145,28 @@ public class XMLResponseConferenceListParser extends DefaultHandler {
         }else if (qName.equalsIgnoreCase("caller_id_number")) {
             tempMember.setCallerId(tempVal);
         }else if (qName.equalsIgnoreCase("join_time")) {
-            try {
-                tempMember.setJoinTime(Integer.parseInt(tempVal));
-            } catch(NumberFormatException nfe) {
-                
+            if (tempMember.getMemberType().equalsIgnoreCase("caller")) {
+                try {
+                    tempMember.setJoinTime(Integer.parseInt(tempVal));
+                } catch(NumberFormatException nfe) {
+
+                }
+            } else if (tempMember.getMemberType().equalsIgnoreCase("recording_node")) {
+                try {
+                    tempMember.setRecordStartTime(Long.parseLong(tempVal));
+                } catch(NumberFormatException nfe) {
+
+                }
             }
+
         }else if (qName.equalsIgnoreCase("last_talking")) {
             try {
                 tempMember.setLastTalking(Integer.parseInt(tempVal));
             } catch(NumberFormatException nfe) {
                 
             }
+        } else if (qName.equalsIgnoreCase("record_path")) {
+            tempMember.setRecordPath(tempVal);
         }
-
     }
 }

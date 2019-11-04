@@ -10,15 +10,15 @@ object MeetingManagerActor {
 }
 
 class MeetingManagerActor(connEventBus: InternalMessageBus)
-    extends Actor with ActorLogging {
+  extends Actor with ActorLogging {
 
   private val meetingMgr = new MeetingManager
 
   def receive = {
-    case msg: ClientConnectedMsg => handleConnectMsg(msg)
+    case msg: ClientConnectedMsg    => handleConnectMsg(msg)
     case msg: ClientDisconnectedMsg => handleDisconnectMsg(msg)
-    case msg: MsgFromClientMsg => handleMsgFromClientMsg(msg)
-    case msg: MsgFromAkkaApps => handleBbbServerMsg(msg)
+    case msg: MsgFromClientMsg      => handleMsgFromClientMsg(msg)
+    case msg: MsgFromAkkaApps       => handleBbbServerMsg(msg)
     // TODO we should monitor meeting lifecycle so we can remove when meeting ends.
   }
 
@@ -67,9 +67,9 @@ class MeetingManagerActor(connEventBus: InternalMessageBus)
   def handleServerMsg(msgType: String, msg: BbbCommonEnvJsNodeMsg): Unit = {
     //log.debug("**** MeetingManagerActor handleServerMsg " + msg.envelope.name)
     msgType match {
-      case MessageTypes.DIRECT => handleDirectMessage(msg)
+      case MessageTypes.DIRECT               => handleDirectMessage(msg)
       case MessageTypes.BROADCAST_TO_MEETING => handleBroadcastMessage(msg)
-      case MessageTypes.SYSTEM => handleSystemMessage(msg)
+      case MessageTypes.SYSTEM               => handleSystemMessage(msg)
     }
   }
 
@@ -78,7 +78,7 @@ class MeetingManagerActor(connEventBus: InternalMessageBus)
       case Some(meetingId2) => //log.debug("**** MeetingManagerActor forwardToMeeting. Found " + meetingId2)
         MeetingManager.findWithMeetingId(meetingMgr, meetingId2) match {
           case Some(meetingId2) => //log.debug("**** MeetingManagerActor forwardToMeeting. Found " + meetingId2.meetingId)
-          case None => //log.debug("**** MeetingManagerActor forwardToMeeting. Could not find meetingId")
+          case None             => //log.debug("**** MeetingManagerActor forwardToMeeting. Could not find meetingId")
         }
       case None => log.debug("**** MeetingManagerActor forwardToMeeting. Could not find meetingId")
     }

@@ -46,7 +46,6 @@ screenshare_props = YAML::load(File.open(File.expand_path('../../screenshare.yml
 recording_dir = props['recording_dir']
 playback_dir = screenshare_props['playback_dir']
 process_dir = "#{recording_dir}/process/screenshare/#{meeting_id}"
-publish_dir = "#{screenshare_props['publish_dir']}/#{meeting_id}"
 raw_archive_dir = "#{recording_dir}/raw/#{meeting_id}"
 donefile = "#{recording_dir}/status/processed/#{meeting_id}-screenshare.done"
 log_file = "#{props['log_dir']}/screenshare/process-#{meeting_id}.log"
@@ -90,7 +89,7 @@ begin
   BigBlueButton::EDL::Video.dump(webcam_edl)
 
   # Deskshare
-  deskshare_edl = BigBlueButton::Events.create_deskshare_edl(raw_archive_dir)
+  deskshare_edl = BigBlueButton::Events.create_deskshare_edl(events, raw_archive_dir)
   logger.debug "Deskshare EDL:"
   BigBlueButton::EDL::Video.dump(deskshare_edl)
 
@@ -100,21 +99,22 @@ end
 logger.debug "Merged Video EDL:"
 BigBlueButton::EDL::Video.dump(video_edl)
 
+start_time = BigBlueButton::Events.first_event_timestamp(events)
+end_time = BigBlueButton::Events.last_event_timestamp(events)
+
 logger.info "Applying recording start/stop events to video"
-video_edl = BigBlueButton::Events.edl_match_recording_marks_video(
-                  video_edl, raw_archive_dir)
+video_edl = BigBlueButton::Events.edl_match_recording_marks_video(video_edl, events, start_time, end_time)
 logger.debug "Trimmed Video EDL:"
 BigBlueButton::EDL::Video.dump(video_edl)
 
 audio_edl = []
 logger.info "Generating audio events list"
-audio_edl = BigBlueButton::AudioEvents.create_audio_edl(raw_archive_dir)
+audio_edl = BigBlueButton::AudioEvents.create_audio_edl(events, raw_archive_dir)
 logger.debug "Audio EDL:"
 BigBlueButton::EDL::Audio.dump(audio_edl)
 
 logger.info "Applying recording start/stop events to audio"
-audio_edl = BigBlueButton::Events.edl_match_recording_marks_audio(
-                audio_edl, raw_archive_dir)
+audio_edl = BigBlueButton::Events.edl_match_recording_marks_audio(audio_edl, events, start_time, end_time)
 logger.debug "Trimmed Audio EDL:"
 BigBlueButton::EDL::Audio.dump(audio_edl)
 
@@ -165,7 +165,7 @@ File.open("#{process_dir}/index.html", 'w') do |index_html|
 end
 
 logger.info "Generating metadata xml"
-duration = BigBlueButton::Events.get_recording_length("#{raw_archive_dir}/events.xml")
+duration = BigBlueButton::Events.get_recording_length(events)
 metadata_xml = Nokogiri::XML::Builder.new do |xml|
   xml.recording {
     xml.id(meeting_id)

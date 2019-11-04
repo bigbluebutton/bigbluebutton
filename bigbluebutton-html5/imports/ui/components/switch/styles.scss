@@ -11,3 +11,10 @@
         outline-style: solid;
     }
 }
+
+.invertBackground {
+    background-color: #008081 !important;
+    &.checked {
+        background-color: #DF2721 !important;
+    }
+}

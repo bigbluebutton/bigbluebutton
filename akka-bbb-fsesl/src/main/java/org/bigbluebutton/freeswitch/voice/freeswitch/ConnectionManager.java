@@ -54,14 +54,23 @@ public class ConnectionManager {
 	private final ConferenceEventListener conferenceEventListener;
 	private final ESLEventListener eslEventListener;
 
+	private long lastStatusCheck = 0L;
+
 	public ConnectionManager(ManagerConnection connManager,
 			ESLEventListener eventListener, ConferenceEventListener confListener) {
 		this.manager = connManager;
 		this.eslEventListener = eventListener;
 		this.conferenceEventListener = confListener;
+		// Set up listener here. Before it was inside connect()
+		// but on auto-reconnect, another listener is added
+		// increasing the number of listeners causing duplicate
+		// messages to akka-apps (ralam Oct 10, 2019)
+		Client c = manager.getESLClient();
+		c.addEventListener(eslEventListener);
 	}
 
 	private void connect() {
+		//log.info("Connecting to FS ESL");
 		try {
 			Client c = manager.getESLClient();
 			if (!c.canSend()) {
@@ -72,12 +81,19 @@ public class ConnectionManager {
 				if (!subscribed) {
 					log.info("Subscribing for ESL events.");
 					c.cancelEventSubscriptions();
-					c.addEventListener(eslEventListener);
 					c.setEventSubscriptions("plain", "all");
-					c.addEventFilter(EVENT_NAME, "heartbeat");
+					//c.addEventFilter(EVENT_NAME, "heartbeat");
 					c.addEventFilter(EVENT_NAME, "custom");
 					c.addEventFilter(EVENT_NAME, "background_job");
 					subscribed = true;
+				} else {
+					// Let's check for status every minute.
+					Long now = System.currentTimeMillis();
+					if ((now - lastStatusCheck) > 60000) {
+						lastStatusCheck = now;
+						CheckFreeswitchStatusCommand fsStatusCmd = new CheckFreeswitchStatusCommand("foo", "bar");
+						checkFreeswitchStatus(fsStatusCmd);
+					}
 				}
 			}
 		} catch (InboundConnectionFailure e) {
@@ -115,6 +131,15 @@ public class ConnectionManager {
 		}
 	}
 
+	public void getUsersStatus(GetUsersStatusCommand prc) {
+		Client c = manager.getESLClient();
+		if (c.canSend()) {
+			EslMessage response = c.sendSyncApiCommand(prc.getCommand(),
+					prc.getCommandArgs());
+			prc.handleResponse(response, conferenceEventListener);
+		}
+	}
+
 	public void getUsers(GetAllUsersCommand prc) {
 		Client c = manager.getESLClient();
 		if (c.canSend()) {
@@ -125,6 +150,7 @@ public class ConnectionManager {
 	}
 
 	public void checkIfConfIsRunningCommand(CheckIfConfIsRunningCommand command) {
+		log.info("Sending CheckIfConfIsRunningCommand to FreeSWITCH");
     Client c = manager.getESLClient();
     if (c.canSend()) {
       EslMessage response = c.sendSyncApiCommand(command.getCommand(),
@@ -132,6 +158,24 @@ public class ConnectionManager {
       command.handleResponse(response, conferenceEventListener);
     }
   }
+
+	public void checkFreeswitchStatus(CheckFreeswitchStatusCommand ccrc) {
+		Client c = manager.getESLClient();
+		if (c.canSend()) {
+			EslMessage response = c.sendSyncApiCommand(ccrc.getCommand(),
+					ccrc.getCommandArgs());
+			ccrc.handleResponse(response, conferenceEventListener);
+		}
+	}
+
+	public void forceEjectUser(ForceEjectUserCommand ccrc) {
+		Client c = manager.getESLClient();
+		if (c.canSend()) {
+			EslMessage response = c.sendSyncApiCommand(ccrc.getCommand(),
+					ccrc.getCommandArgs());
+			ccrc.handleResponse(response, conferenceEventListener);
+		}
+	}
 
 	public void checkIfConferenceIsRecording(ConferenceCheckRecordCommand ccrc) {
 		Client c = manager.getESLClient();

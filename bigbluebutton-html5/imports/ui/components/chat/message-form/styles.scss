@@ -116,6 +116,38 @@
   }
 }
 
+.spacer {
+  &:before {
+    content: none;
+  }
+}
+
+.coupleTyper,
+.singleTyper {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.singleTyper {
+  max-width: 70%;
+}
+
+.coupleTyper {
+  max-width: 25%;
+}
+
+.typingIndicator {
+  display: flex;
+  flex-direction: row;
+
+  > span {
+    display: flex;
+    flex-direction: row;
+    width: 100%;
+  }
+}
+
 .error {
   color: var(--color-danger);
 }

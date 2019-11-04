@@ -16,6 +16,7 @@ const makeEnvelope = (channel, eventName, header, body, routing) => {
         sender: 'bbb-apps-akka',
         // sender: 'html5-server', // TODO
       },
+      timestamp: Date.now(),
     },
     core: {
       header,
