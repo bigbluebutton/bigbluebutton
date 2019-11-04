@@ -278,8 +278,7 @@ class WebcamDraggable extends Component {
 
     const contentClassName = cx({
       [styles.content]: true,
-      [styles.fullWidth]: swapLayout,
-      [styles.fullHeight]: swapLayout,
+      [styles.full]: !singleWebcam || swapLayout,
     });
 
     const overlayClassName = cx({
@@ -287,7 +286,7 @@ class WebcamDraggable extends Component {
       [styles.hideOverlay]: hideOverlay,
       [styles.floatingOverlay]: (singleWebcam && placement === 'floating') || dragging,
       [styles.autoWidth]: singleWebcam,
-      [styles.full]: !singleWebcam,
+      [styles.full]: !singleWebcam || swapLayout,
       [styles.overlayToTop]: (placement === 'floating' && !singleWebcam)
         || (placement === 'top' && !dragging),
       [styles.overlayToBottom]: placement === 'bottom' && !dragging,

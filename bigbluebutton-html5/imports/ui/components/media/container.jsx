@@ -131,6 +131,8 @@ export default withModalMounter(withTracker(() => {
     data.hideOverlay = usersVideo.length === 0;
   }
 
+  data.singleWebcam = (usersVideo.length < 2);
+
   data.isScreensharing = MediaService.isVideoBroadcasting();
   data.swapLayout = (getSwapLayout() || !hasPresentation) && shouldEnableSwapLayout();
   data.disableVideo = !viewParticipantsWebcams;
