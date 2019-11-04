@@ -2,13 +2,14 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import cx from 'classnames';
 import WebcamDraggable from './webcam-draggable-overlay/component';
+import Storage from '../../services/storage/session';
 
 import { styles } from './styles';
 
 const propTypes = {
   children: PropTypes.element.isRequired,
   usersVideo: PropTypes.arrayOf(Array),
-  floatingOverlay: PropTypes.bool,
+  singleWebcam: PropTypes.bool.isRequired,
   hideOverlay: PropTypes.bool,
   swapLayout: PropTypes.bool,
   disableVideo: PropTypes.bool,
@@ -19,7 +20,6 @@ const propTypes = {
 
 const defaultProps = {
   usersVideo: [],
-  floatingOverlay: false,
   hideOverlay: true,
   swapLayout: false,
   disableVideo: false,
@@ -59,7 +59,7 @@ export default class Media extends Component {
   render() {
     const {
       swapLayout,
-      floatingOverlay,
+      singleWebcam,
       hideOverlay,
       disableVideo,
       children,
@@ -74,7 +74,7 @@ export default class Media extends Component {
     const overlayClassName = cx({
       [styles.overlay]: true,
       [styles.hideOverlay]: hideOverlay,
-      [styles.floatingOverlay]: floatingOverlay,
+      [styles.floatingOverlay]: (Storage.getItem('webcamPlacement') === 'floating'),
     });
 
     return (
@@ -86,7 +86,7 @@ export default class Media extends Component {
         <div
           className={!swapLayout ? contentClassName : overlayClassName}
           style={{
-            maxHeight: usersVideo.length < 1 || floatingOverlay ? '100%' : '80%',
+            maxHeight: usersVideo.length < 1 || (Storage.getItem('webcamPlacement') === 'floating') ? '100%' : '80%',
             minHeight: '20%',
           }}
         >
@@ -95,7 +95,7 @@ export default class Media extends Component {
         <WebcamDraggable
           refMediaContainer={this.refContainer}
           swapLayout={swapLayout}
-          singleWebcam={floatingOverlay}
+          singleWebcam={singleWebcam}
           usersVideoLenght={usersVideo.length}
           hideOverlay={hideOverlay}
           disableVideo={disableVideo}
