@@ -114,7 +114,6 @@
     "app.poll.quickPollInstruction": "Vyberte možnost níže a zahajte svou anketu",
     "app.poll.customPollLabel": "Vlastní anketa",
     "app.poll.startCustomLabel": "Zahájit vlastní anketu",
-    "app.poll.activePollInstruction": "Ponechte toto okno otevření, abyste ostatním umožnili hlasovat. Volbou „Publikovat výsledky ankety“ nebo navigací zpět anketu ukončíte.",
     "app.poll.publishLabel": "Publikovat výsledky ankety",
     "app.poll.backLabel": "Zpět na možnosti ankety",
     "app.poll.closeLabel": "Zavřít",
@@ -465,7 +464,6 @@
     "app.createBreakoutRoom.addParticipantLabel": "+ Přidat posluchače",
     "app.createBreakoutRoom.freeJoin": "Dovolit posluchačům, aby si sami vybrali, do které vedlejší místnosti se připojí",
     "app.createBreakoutRoom.leastOneWarnBreakout": "Do vedlejší místnosti musíte přiřadit alespoň jednoho posluchače",
-    "app.createBreakoutRoom.modalDesc": "Proveďte kroky níže k vytvoření vedlejších místností. Rozdělte posluchače do jednotlivých místností",
     "app.externalVideo.start": "Sdílet nové video",
     "app.externalVideo.close": "Zavřít"
 

@@ -139,7 +139,6 @@
     "app.poll.quickPollInstruction": "Selecciona una de las siguientes opciones para iniciar tu encuesta. ",
     "app.poll.customPollLabel": "Encuesta personalizada",
     "app.poll.startCustomLabel": "Iniciar encuesta personalizada",
-    "app.poll.activePollInstruction": "Deja esta ventana abierta para permitir que otros respondan a la encuesta. Al seleccionar 'Publicar resultados de encuesta' o navegar hacia atrás se cierra la encuesta.",
     "app.poll.publishLabel": "Publicar resultados de encuesta",
     "app.poll.backLabel": "Regresar a las opciones de la encuesta",
     "app.poll.closeLabel": "Cerrar",
@@ -525,7 +524,6 @@
     "app.createBreakoutRoom.addParticipantLabel": "+ Agregar participante",
     "app.createBreakoutRoom.freeJoin": "Permitir a los usuarios seleccionar el grupo de trabajo a ingresar",
     "app.createBreakoutRoom.leastOneWarnBreakout": "Debes agregar almenos un usuario a cada grupo de trabajo.",
-    "app.createBreakoutRoom.modalDesc": "Completa los siguientes pasos para crear grupos de trabajo en tu sesión y poder agregar participantes",
     "app.externalVideo.start": "Compartir un nuevo video",
     "app.externalVideo.close": "Cerrar"
 
