@@ -55,7 +55,7 @@ class WebcamDraggable extends Component {
     const { placement } = webcamDraggableState;
     const { webcamDraggableState: prevWebcamDraggableState } = prevProps;
     const { placement: prevPlacement } = prevWebcamDraggableState;
-    if (prevProps.swapLayout === true && swapLayout === false) {
+    if (prevProps.swapLayout !== swapLayout) {
       setTimeout(() => this.forceUpdate(), 500);
     }
 
@@ -278,7 +278,7 @@ class WebcamDraggable extends Component {
 
     const contentClassName = cx({
       [styles.content]: true,
-      [styles.full]: !singleWebcam || swapLayout,
+      [styles.fullWidth]: !singleWebcam || swapLayout,
     });
 
     const overlayClassName = cx({
@@ -286,7 +286,11 @@ class WebcamDraggable extends Component {
       [styles.hideOverlay]: hideOverlay,
       [styles.floatingOverlay]: (singleWebcam && placement === 'floating') || dragging,
       [styles.autoWidth]: singleWebcam,
-      [styles.full]: !singleWebcam || swapLayout,
+      [styles.fullWidth]: (singleWebcam
+        && (placement === 'top' || placement === 'bottom')
+        && !dragging)
+        || !singleWebcam
+        || swapLayout,
       [styles.overlayToTop]: (placement === 'floating' && !singleWebcam)
         || (placement === 'top' && !dragging),
       [styles.overlayToBottom]: placement === 'bottom' && !dragging,
@@ -351,8 +355,8 @@ class WebcamDraggable extends Component {
             onResize={dispatchResizeEvent}
             onResizeStop={this.onResizeStop}
             enable={{
-              top: !(placement === 'top'),
-              bottom: !(placement === 'bottom'),
+              top: !(placement === 'top') && !swapLayout,
+              bottom: !(placement === 'bottom') && !swapLayout,
               left: false,
               right: false,
               topLeft: false,

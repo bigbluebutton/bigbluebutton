@@ -2,7 +2,6 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import cx from 'classnames';
 import WebcamDraggable from './webcam-draggable-overlay/component';
-import Storage from '../../services/storage/session';
 
 import { styles } from './styles';
 
@@ -16,6 +15,7 @@ const propTypes = {
   userWasInWebcam: PropTypes.bool,
   audioModalIsOpen: PropTypes.bool,
   joinVideo: PropTypes.func,
+  webcamPlacement: PropTypes.string,
 };
 
 const defaultProps = {
@@ -26,6 +26,7 @@ const defaultProps = {
   userWasInWebcam: false,
   audioModalIsOpen: false,
   joinVideo: null,
+  webcamPlacement: 'top',
 };
 
 
@@ -75,23 +76,19 @@ export default class Media extends Component {
     const overlayClassName = cx({
       [styles.overlay]: true,
       [styles.hideOverlay]: hideOverlay,
-      [styles.floatingOverlay]: (Storage.getItem('webcamPlacement') === 'floating'),
-    });
-
-    const containerClassName = cx({
-      [styles.containerV]: webcamPlacement === 'top' || webcamPlacement === 'bottom' || webcamPlacement === 'floating',
+      [styles.floatingOverlay]: (webcamPlacement === 'floating'),
     });
 
     return (
       <div
         id="container"
-        className={containerClassName}
+        className={cx(styles.container)}
         ref={this.refContainer}
       >
         <div
           className={!swapLayout ? contentClassName : overlayClassName}
           style={{
-            maxHeight: usersVideo.length < 1 || (Storage.getItem('webcamPlacement') === 'floating') ? '100%' : '80%',
+            maxHeight: usersVideo.length < 1 || (webcamPlacement === 'floating') ? '100%' : '80%',
             minHeight: '20%',
           }}
         >
