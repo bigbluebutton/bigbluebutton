@@ -23,20 +23,16 @@ export default function updateVoiceUser(meetingId, voiceUser) {
     intId,
   };
 
-  let modifier = {
+  const modifier = {
     $set: Object.assign(
-      { meetingId },
       flat(voiceUser),
     ),
   };
 
   if (voiceUser.talking) {
-    modifier = {
-      $set: Object.assign(
-        { meetingId, spoke: true, endTime: null },
-        flat(voiceUser),
-      ),
-    };
+    modifier.$set.spoke = true;
+    modifier.$set.startTime = new Date().getTime();
+    modifier.$set.endTime = null;
   }
 
   const cb = (err) => {
@@ -54,27 +50,17 @@ export default function updateVoiceUser(meetingId, voiceUser) {
           endTime: 1,
         },
       });
-      const mod = {
-        $set: Object.assign(
-          { meetingId, spoke: false },
-          flat(voiceUser),
-        ),
-      };
 
       if (user) {
         const { endTime } = user;
         const stillTalking = ((new Date().getTime() - endTime) < TALKING_TIMEOUT);
         if (!endTime || stillTalking) return;
-        VoiceUsers.update(selector, mod, cb);
+        modifier.$set.spoke = false;
+        VoiceUsers.update(selector, modifier, cb);
       }
     }, TALKING_TIMEOUT);
 
-    modifier = {
-      $set: Object.assign(
-        { meetingId, endTime: new Date().getTime() },
-        flat(voiceUser),
-      ),
-    };
+    modifier.$set.endTime = new Date().getTime();
   }
 
   return VoiceUsers.update(selector, modifier, cb);

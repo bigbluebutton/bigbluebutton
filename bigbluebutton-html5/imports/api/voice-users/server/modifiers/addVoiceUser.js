@@ -1,6 +1,7 @@
 import { check } from 'meteor/check';
 import Logger from '/imports/startup/server/logger';
 import VoiceUsers from '/imports/api/voice-users';
+import Users from '/imports/api/users';
 import flat from 'flat';
 
 export default function addVoiceUser(meetingId, voiceUser) {
@@ -25,10 +26,16 @@ export default function addVoiceUser(meetingId, voiceUser) {
     intId,
   };
 
+  const user = Users.findOne({ meetingId, userId: intId }, {
+    fields: {
+      color: 1,
+    },
+  });
+
   const modifier = {
     $set: Object.assign(
-      { meetingId },
       { spoke: talking },
+      { color: user.color },
       flat(voiceUser),
     ),
   };
