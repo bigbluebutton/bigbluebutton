@@ -1,11 +1,15 @@
 @import "../../stylesheets/variables/_all";
 @import "../../stylesheets/variables/video";
 
-.cursorGrab{
+$content-order: 2;
+$before-content-order: 1;
+$after-content-order: 3;
+
+.cursorGrab {
   cursor: grab;
 }
 
-.cursorGrabbing{
+.cursorGrabbing {
   cursor: grabbing;
 }
 
@@ -15,7 +19,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  flex-direction: column-reverse;
+  flex-direction: column;
   overflow: hidden;
 }
 
@@ -28,7 +32,7 @@
   overflow: hidden;
   width: 100%;
   position: relative;
-  order: 2;
+  order: $content-order;
 }
 
 %overlay {
@@ -49,11 +53,11 @@
 }
 
 .overlayToTop {
-  order: 3 !important;
+  order: $before-content-order !important;
 }
 
 .overlayToBottom {
-  order: 1 !important;
+  order: $after-content-order !important;
 }
 
 .hideOverlay {
@@ -145,13 +149,13 @@
   bottom: 0;
 }
 
-.resizable{
+.resizable {
   width: 100% !important;
 }
 
 
-span[class^=resizeWrapper]{
-  div{
+span[class^=resizeWrapper] {
+  div {
     height: 15px !important;
     z-index: 1;
     bottom: -10px !important;

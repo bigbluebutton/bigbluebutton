@@ -139,6 +139,8 @@ export default withModalMounter(withTracker(() => {
     data.hideOverlay = true;
   }
 
+  data.singleWebcam = (usersVideo.length < 2);
+
   if (MediaService.shouldShowExternalVideo()) {
     data.children = (
       <ExternalVideoContainer
