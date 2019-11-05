@@ -19,11 +19,17 @@ export default function addVoiceUser(meetingId, voiceUser) {
     joined: Boolean, // This is a HTML5 only param.
   });
 
-  const { intId, talking } = voiceUser;
+  const { intId } = voiceUser;
 
   const selector = {
     meetingId,
     intId,
+  };
+
+  const modifier = {
+    $set: Object.assign(
+      flat(voiceUser),
+    ),
   };
 
   const user = Users.findOne({ meetingId, userId: intId }, {
@@ -32,13 +38,7 @@ export default function addVoiceUser(meetingId, voiceUser) {
     },
   });
 
-  const modifier = {
-    $set: Object.assign(
-      { spoke: talking },
-      { color: user.color },
-      flat(voiceUser),
-    ),
-  };
+  if (user) modifier.$set.color = user.color;
 
   const cb = (err) => {
     if (err) {

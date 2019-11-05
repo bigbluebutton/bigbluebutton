@@ -2,7 +2,7 @@
 @import "../../../stylesheets/variables/typography";
 
 :root {
-  --spoke-padding-right: 1.35rem;
+  --spoke-padding-right: 1.3rem;
   --spoke-opacity: .75;
   --talker-margin-xsm: .25rem;
   --talker-margin-sm: .5rem;
@@ -11,28 +11,25 @@
   --talker-border-radius: 2rem;
 }
 
-.isTalkingWrapper {
-  display: flex;
-  flex-direction: row;
-  position: absolute;
-  left: var(--md-padding-x);
-  top: 3.5rem;
-}
-
-.speaking {
-  display: flex;
-  flex-direction: row;
-  flex-wrap: wrap;
-}
-
+.isTalkingWrapper,
+.speaking,
+.talker,
 .spoke {
   display: flex;
   flex-direction: row;
 }
 
+.isTalkingWrapper {
+  position: absolute;
+  left: var(--md-padding-x);
+  top: 3.7rem;
+}
+
+.speaking {
+  flex-wrap: wrap;
+}
+
 .talker {
-  display: flex;
-  flex-direction: row;
   color: white;
   font-weight: var(--talker-font-weight);
   border-radius: var(--talker-border-radius) var(--talker-border-radius);
@@ -59,5 +56,12 @@
 
 .spoke{
   padding-right: var(--spoke-padding-right);
-  opacity: var(--spoke-opacity);
+	animation-name: fade-out;
+	animation-fill-mode: both;
+  animation-duration: 3s;
+}
+
+@keyframes fade-out {
+  0% { opacity: 1; }
+  100% { opacity: 0; }
 }
