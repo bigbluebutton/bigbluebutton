@@ -158,7 +158,6 @@
     "app.poll.quickPollInstruction": "Оберіть опцію нижче, щоб почати опитування.",
     "app.poll.customPollLabel": "Своє опитування",
     "app.poll.startCustomLabel": "Розпочати своє опитування",
-    "app.poll.activePollInstruction": "Залишіть це вікно відкритим, щоб дозволити іншим відповідати на опитування. Вибір 'Опублікувати результати опитування', чи повернення назад закінчить опитування.",
     "app.poll.publishLabel": "Опублікувати результати опитування",
     "app.poll.backLabel": "Назад до параметрів опитування",
     "app.poll.closeLabel": "Закрити",
@@ -553,7 +552,6 @@
     "app.createBreakoutRoom.addParticipantLabel": "+ Додати учасника",
     "app.createBreakoutRoom.freeJoin": "Дозволити користувачам обирати кімнату самостійно",
     "app.createBreakoutRoom.leastOneWarnBreakout": "Щонайменш один користувач повинен бути в кімнаті.",
-    "app.createBreakoutRoom.modalDesc": "Завершіть кроки нижче, щоб створити кімнати учасників у вашій сесії, і додати туди користувачів.",
     "app.externalVideo.start": "Поділитись новим відео",
     "app.externalVideo.close": "Закрити"
 
