@@ -280,6 +280,7 @@
     "app.submenu.application.animationsLabel": "Animations",
     "app.submenu.application.audioAlertLabel": "Audio Alerts for Chat",
     "app.submenu.application.pushAlertLabel": "Popup Alerts for Chat",
+    "app.submenu.application.userJoinAudioAlertLabel": "Audio Alerts for User Join",
     "app.submenu.application.fontSizeControlLabel": "Font size",
     "app.submenu.application.increaseFontBtnLabel": "Increase application font size",
     "app.submenu.application.decreaseFontBtnLabel": "Decrease application font size",

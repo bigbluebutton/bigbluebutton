@@ -311,6 +311,17 @@ const BaseContainer = withTracker(() => {
     },
   });
 
+  Users.find({}, { fields: { validated: 1 } }).observe({
+    changed: (newDocument, oldDocument) => {
+      if (Settings.application.userJoinAudioAlerts
+        && !oldDocument.validated
+        && newDocument.validated) {
+        const audio = new Audio(`${Meteor.settings.public.app.cdn + Meteor.settings.public.app.basename}/resources/sounds/userJoin.mp3`);
+        audio.play();
+      }
+    },
+  });
+
   return {
     approved,
     ejected,

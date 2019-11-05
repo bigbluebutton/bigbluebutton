@@ -26,6 +26,10 @@ const intlMessages = defineMessages({
     id: 'app.submenu.application.pushAlertLabel',
     description: 'push notifiation label',
   },
+  userJoinAudioAlertLabel: {
+    id: 'app.submenu.application.userJoinAudioAlertLabel',
+    description: 'audio notification when a user joins',
+  },
   fontSizeControlLabel: {
     id: 'app.submenu.application.fontSizeControlLabel',
     description: 'label for font size ontrol',
@@ -240,6 +244,25 @@ class ApplicationMenu extends BaseMenu {
             ) : null
           }
 
+          <div className={styles.row}>
+            <div className={styles.col} aria-hidden="true">
+              <div className={styles.formElement}>
+                <label className={styles.label}>
+                  {intl.formatMessage(intlMessages.userJoinAudioAlertLabel)}
+                </label>
+              </div>
+            </div>
+            <div className={styles.col}>
+              <div className={cx(styles.formElement, styles.pullContentRight)}>
+                <Toggle
+                  icons={false}
+                  defaultChecked={this.state.settings.userJoinAudioAlerts}
+                  onChange={() => this.handleToggle('userJoinAudioAlerts')}
+                  ariaLabel={intl.formatMessage(intlMessages.userJoinAudioAlertLabel)}
+                />
+              </div>
+            </div>
+          </div>
 
           <div className={styles.row}>
             <div className={styles.col} aria-hidden="true">
