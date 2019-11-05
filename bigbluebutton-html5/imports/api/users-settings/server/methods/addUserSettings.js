@@ -8,7 +8,6 @@ export default function addUserSettings(credentials, meetingId, userId, settings
 
   const customData = settings.reduce((acc, data) => {
     const key = Object.keys(data).shift();
-
     const handledHTML5Parameters = [
       'html5recordingbot',
       // APP
@@ -28,6 +27,7 @@ export default function addUserSettings(credentials, meetingId, userId, settings
       'enableVideo',
       'enableVideoStats',
       'autoShareWebcam',
+      'bbb_preferred_camera_profile',
       // WHITEBOARD
       'multiUserPenOnly',
       'presenterTools',
@@ -42,6 +42,7 @@ export default function addUserSettings(credentials, meetingId, userId, settings
       'outsideToggleSelfVoice',
       'outsideToggleRecording',
     ];
+
     if (!handledHTML5Parameters.includes(key)) {
       return acc;
     }
