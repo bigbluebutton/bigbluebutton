@@ -3,48 +3,48 @@ import addUserSetting from '/imports/api/users-settings/server/modifiers/addUser
 import logger from '/imports/startup/server/logger';
 
 const oldParameters = {
-  autoJoin: 'bbb_auto_join_audio',
-  listenOnlyMode: 'bbb_listen_only_mode',
-  skipCheck: 'bbb_skip_check_audio',
-  shortcuts: 'bbb_shortcuts',
-  autoShareWebcam: 'bbb_auto_share_webcam',
-  customStyle: 'bbb_custom_style',
-  autoSwapLayout: 'bbb_auto_swap_layout',
-  hidePresentation: 'bbb_hide_presentation',
-  outsideToggleSelfVoice: 'bbb_outside_toggle_self_voice',
-  outsideToggleRecording: 'bbb_outside_toggle_recording',
-  forceListenOnly: 'bbb_force_listen_only',
-  clientTitle: 'bbb_client_title',
   askForFeedbackOnLogout: 'bbb_ask_for_feedback_on_logout',
+  autoJoin: 'bbb_auto_join_audio',
+  autoShareWebcam: 'bbb_auto_share_webcam',
+  autoSwapLayout: 'bbb_auto_swap_layout',
+  clientTitle: 'bbb_client_title',
+  customStyle: 'bbb_custom_style',
+  customStyleUrl: 'bbb_custom_style_url',
   displayBrandingArea: 'bbb_display_branding_area',
   enableScreensharing: 'bbb_enable_screen_sharing',
   enableVideo: 'bbb_enable_video',
   enableVideoStats: 'bbb_enable_video_stats',
+  forceListenOnly: 'bbb_force_listen_only',
+  hidePresentation: 'bbb_hide_presentation',
+  listenOnlyMode: 'bbb_listen_only_mode',
   multiUserPenOnly: 'bbb_multi_user_pen_only',
-  presenterTools: 'bbb_presenter_tools',
   multiUserTools: 'bbb_multi_user_tools',
-  customStyleUrl: 'bbb_custom_style_url',
+  outsideToggleRecording: 'bbb_outside_toggle_recording',
+  outsideToggleSelfVoice: 'bbb_outside_toggle_self_voice',
+  presenterTools: 'bbb_presenter_tools',
+  shortcuts: 'bbb_shortcuts',
+  skipCheck: 'bbb_skip_check_audio',
 };
 
 const oldParametersKeys = Object.keys(oldParameters);
 
 const currentParameters = [
   // APP
-  'bbb_auto_join_audio',
-  'bbb_listen_only_mode',
-  'bbb_force_listen_only',
-  'bbb_skip_check_audio',
-  'bbb_client_title',
   'bbb_ask_for_feedback_on_logout',
+  'bbb_auto_join_audio',
+  'bbb_client_title',
+  'bbb_force_listen_only',
+  'bbb_listen_only_mode',
+  'bbb_skip_check_audio',
   // BRANDING
   'bbb_display_branding_area',
   // SHORTCUTS
   'bbb_shortcuts',
   // KURENTO
+  'bbb_auto_share_webcam',
   'bbb_enable_screen_sharing',
   'bbb_enable_video',
   'bbb_enable_video_stats',
-  'bbb_auto_share_webcam',
   // WHITEBOARD
   'bbb_multi_user_pen_only',
   'bbb_presenter_tools',
