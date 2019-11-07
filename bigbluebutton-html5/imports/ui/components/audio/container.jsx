@@ -105,7 +105,7 @@ const messages = {
 };
 
 export default lockContextContainer(withModalMounter(injectIntl(withTracker(({ mountModal, intl, userLocks }) => {
-  const autoJoin = getFromUserSettings('autoJoin', APP_CONFIG.autoJoin);
+  const autoJoin = getFromUserSettings('bbb_auto_join_audio', APP_CONFIG.autoJoin);
   const { userWebcam, userMic } = userLocks;
   const openAudioModal = () => new Promise((resolve) => {
     mountModal(<AudioModalContainer resolve={resolve} />);
@@ -139,8 +139,8 @@ export default lockContextContainer(withModalMounter(injectIntl(withTracker(({ m
     init: () => {
       Service.init(messages, intl);
       Service.changeOutputDevice(document.querySelector('#remote-media').sinkId);
-      const enableVideo = getFromUserSettings('enableVideo', KURENTO_CONFIG.enableVideo);
-      const autoShareWebcam = getFromUserSettings('autoShareWebcam', KURENTO_CONFIG.autoShareWebcam);
+      const enableVideo = getFromUserSettings('bbb_enable_video', KURENTO_CONFIG.enableVideo);
+      const autoShareWebcam = getFromUserSettings('bbb_auto_share_webcam', KURENTO_CONFIG.autoShareWebcam);
       if (!autoJoin || didMountAutoJoin) {
         if (enableVideo && autoShareWebcam) {
           openVideoPreviewModal();

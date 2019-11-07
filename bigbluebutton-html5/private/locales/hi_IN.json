@@ -139,7 +139,6 @@
     "app.poll.quickPollInstruction": "अपना मतदान शुरू करने के लिए नीचे एक विकल्प चुनें।",
     "app.poll.customPollLabel": "कस्टम पोल",
     "app.poll.startCustomLabel": "कस्टम पोल शुरू करें",
-    "app.poll.activePollInstruction": "इस विंडो को खुला छोड़ दें ताकि दूसरे लोग पोल पर प्रतिक्रिया कर सकें। Back पब्लिश पोलिंग रिजल्ट्स ’का चयन करने या वापस नेविगेट करने से पोल खत्म हो जाएगा।",
     "app.poll.publishLabel": "मतदान के परिणाम प्रकाशित करें",
     "app.poll.backLabel": "वापस मतदान के विकल्प पर",
     "app.poll.closeLabel": "बंद करे",
@@ -531,7 +530,6 @@
     "app.createBreakoutRoom.addParticipantLabel": "+ भागीदार जोड़ें",
     "app.createBreakoutRoom.freeJoin": "उपयोगकर्ताओं को शामिल होने के लिए एक ब्रेकआउट रूम चुनने की अनुमति दें",
     "app.createBreakoutRoom.leastOneWarnBreakout": "आपको ब्रेकआउट रूम में कम से कम एक उपयोगकर्ता रखना होगा।",
-    "app.createBreakoutRoom.modalDesc": "अपने सत्र में कमरे बनाने के लिए नीचे दिए गए चरणों को पूरा करें, प्रतिभागियों को एक कमरे में जोड़ें।",
     "app.externalVideo.start": "एक नया वीडियो साझा करें",
     "app.externalVideo.close": "बंद करे",
     "app.iOSWarning.label": "कृपया iOS 12.2 या उच्चतर में अपग्रेड करें"

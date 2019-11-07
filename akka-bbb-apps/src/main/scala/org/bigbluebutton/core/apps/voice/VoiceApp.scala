@@ -10,11 +10,24 @@ import org.bigbluebutton.core2.message.senders.MsgBuilder
 
 object VoiceApp {
 
-  def genRecordPath(recordDir: String, meetingId: String, timestamp: Long): String = {
+  def genRecordPath(
+      recordDir:       String,
+      meetingId:       String,
+      timestamp:       Long,
+      recordAudioCode: String
+  ): String = {
+    val validCodecs = Set("wav", "ogg", "opus", "flac")
+    val tmpFileExt = recordAudioCode.toLowerCase().stripPrefix(".")
+    var fileExt = ".wav"
+    if (validCodecs.contains(tmpFileExt)) {
+      fileExt = ".".concat(tmpFileExt)
+    }
+
+    val recordFilename = meetingId.concat("-").concat(timestamp.toString).concat(fileExt)
     if (recordDir.endsWith("/")) {
-      recordDir.concat(meetingId).concat("-").concat(timestamp.toString).concat(".wav")
+      recordDir.concat(recordFilename)
     } else {
-      recordDir.concat("/").concat(meetingId).concat("-").concat(timestamp.toString).concat(".wav")
+      recordDir.concat("/").concat(recordFilename)
     }
   }
 
