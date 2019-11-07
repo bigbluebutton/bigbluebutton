@@ -42,6 +42,7 @@ const currentParameters = [
   'bbb_shortcuts',
   // KURENTO
   'bbb_auto_share_webcam',
+  'bbb_preferred_camera_profile',
   'bbb_enable_screen_sharing',
   'bbb_enable_video',
   'bbb_enable_video_stats',

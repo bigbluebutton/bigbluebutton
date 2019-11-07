@@ -345,7 +345,10 @@ class VideoPreview extends Component {
   }
 
   displayInitialPreview(deviceId) {
-    const { changeWebcam } = this.props;
+    const {
+      changeWebcam,
+      userParameterProfile,
+    } = this.props;
     const availableProfiles = CAMERA_PROFILES;
 
     this.setState({
@@ -356,7 +359,8 @@ class VideoPreview extends Component {
     changeWebcam(deviceId);
 
     if (availableProfiles.length > 0) {
-      const defaultProfile = availableProfiles.find(profile => profile.default)
+      const defaultProfile = availableProfiles.find(profile => profile.id === userParameterProfile)
+        || availableProfiles.find(profile => profile.default)
         || availableProfiles[0];
       this.displayPreview(deviceId, defaultProfile);
     }
