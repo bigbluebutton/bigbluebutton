@@ -25,6 +25,12 @@ export default withTracker(({ chatID, compact }) => ({
   roving: Service.roving,
   CustomLogoUrl: Service.getCustomLogoUrl(),
   compact,
-  showBranding: getFromUserSettings('displayBrandingArea', Meteor.settings.public.app.branding.displayBrandingArea),
+  getGroupChatPrivate: Service.getGroupChatPrivate,
+  handleEmojiChange: Service.setEmojiStatus,
+  getEmojiList: Service.getEmojiList(),
+  getEmoji: Service.getEmoji(),
+  showBranding: getFromUserSettings('bbb_display_branding_area', Meteor.settings.public.app.branding.displayBrandingArea),
+  hasPrivateChatBetweenUsers: Service.hasPrivateChatBetweenUsers,
+  toggleUserLock: Service.toggleUserLock,
   requestUserInformation: Service.requestUserInformation,
 }))(UserListContainer);
