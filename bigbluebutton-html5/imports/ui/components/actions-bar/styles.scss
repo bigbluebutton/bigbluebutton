@@ -1,5 +1,9 @@
 @import "/imports/ui/stylesheets/variables/_all";
 
+:root {
+  --mobile-swap-offset: 3.5rem;
+}
+
 .actionsbar,
 .center,
 .right {
@@ -55,6 +59,12 @@
 .centerWithActions {
   @include mq($xsmall-only) {
     justify-content: flex-end;
+  }
+}
+
+.mobileLayoutSwapped {
+  @include mq($xsmall-only) {
+    padding-right: var(--mobile-swap-offset);
   }
 }
 
