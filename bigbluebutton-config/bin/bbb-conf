@@ -63,6 +63,7 @@
 #   2019-05-14 FFD  Added more checks for configuration issues
 #   2019-07-08 GTR  Set IP for all recording formats
 #   2019-10-31 GTR  Set IP and shared secret for bbb-webhooks
+#   2019-11-09 GTR  Keep HTML5 client logs permissions when cleaning logs
 
 #set -x
 #set -e
@@ -1988,7 +1989,20 @@ if [ $CLEAN ]; then
         rm -rf $SERVLET_LOGS/*
     fi
 
+    # Check if we are storing HTML5 logs in the server
+    HTML5_SERVER_LOG=0
+    if [[ -f /var/log/nginx/html5-client.log ]]; then
+        HTML5_SERVER_LOG=1
+    fi
+
     rm -rf /var/log/nginx/*
+
+    # Revert HTML5 client logs to their original permissions
+    if [ $HTML5_SERVER_LOG ]; then
+        touch /var/log/nginx/html5-client.log
+        chown www-data:adm /var/log/nginx/html5-client.log
+        chmod 640 /var/log/nginx/html5-client.log
+    fi
 
     #if [ $DISTRO == "ubuntu" ]; then
     #  mv /var/log/syslog /tmp/syslog.$$
