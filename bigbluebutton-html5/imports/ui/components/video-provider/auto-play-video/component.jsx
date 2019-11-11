@@ -15,11 +15,6 @@ class AutoPlayVideo extends Component {
       skipVideoPreviewParameter,
       autoShareWebcam,
     } = this.props;
-    console.error(
-      skipVideoPreviewSettings,
-      skipVideoPreviewParameter,
-      autoShareWebcam,
-    );
 
     if (autoShareWebcam && (skipVideoPreviewSettings || skipVideoPreviewParameter)) {
       this.setDefaultVideoDevice();
@@ -29,7 +24,7 @@ class AutoPlayVideo extends Component {
   }
 
   setDefaultVideoDevice() {
-    console.error('entrou aqui');
+
 
     const { webcamDeviceId, hasMediaDevices } = this.props;
     if (hasMediaDevices) {
