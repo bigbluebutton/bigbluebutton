@@ -30,7 +30,7 @@ class AutoPlayVideo extends Component {
 
   setDefaultVideoDevice() {
     console.error('entrou aqui');
-    
+
     const { webcamDeviceId, hasMediaDevices } = this.props;
     if (hasMediaDevices) {
       try {
@@ -104,21 +104,21 @@ class AutoPlayVideo extends Component {
               },
             }, 'Error getting initial device');
           });
-        } catch (error) {
-          logger.warn({
-            logCode: 'video_preview_grabbing_error',
-            extraInfo: {
-              errorName: error.name,
-              errorMessage: error.message,
-            },
-          }, 'Error grabbing initial video stream');
-        }
+      } catch (error) {
+        logger.warn({
+          logCode: 'video_preview_grabbing_error',
+          extraInfo: {
+            errorName: error.name,
+            errorMessage: error.message,
+          },
+        }, 'Error grabbing initial video stream');
       }
     }
-    
-    render() {
-      return null;
-    }
   }
-  
-  export default AutoPlayVideo;
+
+  render() {
+    return null;
+  }
+}
+
+export default AutoPlayVideo;
