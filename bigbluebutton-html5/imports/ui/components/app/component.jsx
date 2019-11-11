@@ -323,7 +323,6 @@ class App extends Component {
     const {
       customStyle, customStyleUrl, openPanel,
     } = this.props;
-
     return (
       <main className={styles.main}>
         {this.renderActivityCheck()}

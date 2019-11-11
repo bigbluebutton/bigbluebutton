@@ -57,7 +57,7 @@ class NavBar extends PureComponent {
     } = this.props;
 
     if (Meteor.settings.public.allowOutsideCommands.toggleRecording
-      || getFromUserSettings('outsideToggleRecording', false)) {
+      || getFromUserSettings('bbb_outside_toggle_recording', false)) {
       connectRecordingObserver();
       window.addEventListener('message', processOutsideToggleRecording);
     }

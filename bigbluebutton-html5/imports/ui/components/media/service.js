@@ -30,7 +30,7 @@ function shouldShowWhiteboard() {
 
 function shouldShowScreenshare() {
   const { viewScreenshare } = Settings.dataSaving;
-  const enableScreensharing = getFromUserSettings('enableScreensharing', KURENTO_CONFIG.enableScreensharing);
+  const enableScreensharing = getFromUserSettings('bbb_enable_screen_sharing', KURENTO_CONFIG.enableScreensharing);
   return enableScreensharing && viewScreenshare && isVideoBroadcasting();
 }
 
@@ -40,16 +40,16 @@ function shouldShowExternalVideo() {
 }
 
 function shouldShowOverlay() {
-  return getFromUserSettings('enableVideo', KURENTO_CONFIG.enableVideo);
+  return getFromUserSettings('bbb_enable_video', KURENTO_CONFIG.enableVideo);
 }
 
 const swapLayout = {
-  value: getFromUserSettings('autoSwapLayout', LAYOUT_CONFIG.autoSwapLayout),
+  value: getFromUserSettings('bbb_auto_swap_layout', LAYOUT_CONFIG.autoSwapLayout),
   tracker: new Tracker.Dependency(),
 };
 
 const setSwapLayout = () => {
-  swapLayout.value = getFromUserSettings('autoSwapLayout', LAYOUT_CONFIG.autoSwapLayout);
+  swapLayout.value = getFromUserSettings('bbb_auto_swap_layout', LAYOUT_CONFIG.autoSwapLayout);
   swapLayout.tracker.changed();
 };
 

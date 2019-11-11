@@ -1,22 +1,31 @@
 @import "../../stylesheets/variables/_all";
 @import "../../stylesheets/variables/video";
 
-.cursorGrab{
+$content-order: 2;
+$before-content-order: 1;
+$after-content-order: 3;
+
+.cursorGrab {
   cursor: grab;
 }
 
-.cursorGrabbing{
+.cursorGrabbing {
   cursor: grabbing;
 }
 
-.container {
+%container {
   order: 1;
   flex: 2;
   display: flex;
   align-items: center;
   justify-content: center;
-  flex-direction: column-reverse;
+  flex-direction: column;
   overflow: hidden;
+}
+
+.container {
+  @extend %container;
+  flex-direction: column;
 }
 
 .content {
@@ -28,7 +37,7 @@
   overflow: hidden;
   width: 100%;
   position: relative;
-  order: 2;
+  order: $content-order;
 }
 
 %overlay {
@@ -36,10 +45,10 @@
   border: 0;
   z-index: 2;
   align-items: center;
-  max-height: var(--video-height);
   min-height: var(--video-height);
-  overflow: hidden;
-  position: relative;
+  max-height: 100%;
+  height: 100%;
+  position: relative !important;
   margin-top: 10px;
   margin-bottom: 10px;
 }
@@ -49,23 +58,23 @@
 }
 
 .overlayToTop {
-  order: 3;
+  order: $before-content-order !important;
 }
 
 .overlayToBottom {
-  order: 1;
+  order: $after-content-order !important;
 }
 
 .hideOverlay {
-  visibility: hidden;
-  position: absolute;
-  overflow: hidden;
-  clip: rect(0 0 0 0);
-  width: 1px;
-  height: 1px;
-  margin: -1px;
-  padding: 0;
-  border: 0;
+  visibility: hidden !important;
+  position: absolute !important;
+  overflow: hidden !important;
+  clip: rect(0 0 0 0) !important;
+  width: 1px !important;
+  height: 1px !important;
+  margin: -1px !important;
+  padding: 0 !important;
+  border: 0 !important;
 }
 
 .floatingOverlay {
@@ -74,20 +83,19 @@
   left: 0;
 
   z-index: 2;
-  position: absolute;
-  min-width: calc(var(--video-height) * var(--video-ratio));
-  min-height: var(--video-height);
+  position: absolute !important;
+  min-width: calc(var(--video-height) * var(--video-ratio)) !important;
+  min-height: var(--video-height) !important;
 }
 
-.fit {
-  width: fit-content;
-  height: fit-content;
-  max-width: fit-content;
+.autoWidth {
+  min-width: calc(var(--video-height) * var(--video-ratio)) !important;
+  max-width: 100%;
 }
 
-.full {
-  min-width: 100%;
-  width: 100%;
+.fullWidth {
+  width: 100% !important;
+  min-width: 100% !important;
   max-width: 100%;
 }
 
@@ -100,35 +108,70 @@
 }
 
 .dragging {
-  opacity: .5;
+  opacity: .5 !important;
 }
 
-.dropZoneTop,
-.dropZoneBottom {
+%dropZone {
   border: 1px dashed var(--color-gray-light);
   position: absolute;
-  width: 100%;
   z-index: 9999;
 }
 
-.dropZoneBgTop,
-.dropZoneBgBottom {
+%dropZoneTopBottom {
+  @extend %dropZone;
+  width: 100%;
+
+  &:hover {
+    background-color: rgba(255, 255, 255, .3);
+  }
+}
+
+%dropZoneBg {
   z-index: 99;
   width: 100%;
   height: 100%;
 }
 
-.dropZoneTop,
-.dropZoneBgTop {
+%dropZoneBgTopBottom {
+  z-index: 99;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(255, 255, 255, .3);
+
+  &:hover {
+    background-color: rgba(255, 255, 255, .3);
+  }
+}
+
+.dropZoneTop {
+  @extend %dropZoneTopBottom;
   top: 0;
 }
 
-.dropZoneBottom,
-.dropZoneBgBottom {
+.dropZoneBottom {
+  @extend %dropZoneTopBottom;
   bottom: 0;
 }
 
-.dropZoneTop:hover .dropZoneBgTop,
-.dropZoneBottom:hover .dropZoneBgBottom {
-  background-color: rgba(255, 255, 255, .3);
+.dropZoneBgTop {
+  @extend %dropZoneBg;
+  top: 0;
+}
+
+.dropZoneBgBottom {
+  @extend %dropZoneBg;
+  bottom: 0;
+}
+
+.resizable {
+  width: 100% !important;
+}
+
+
+span[class^=resizeWrapper] {
+  div {
+    height: 15px !important;
+    z-index: 1;
+    bottom: -10px !important;
+  }
 }

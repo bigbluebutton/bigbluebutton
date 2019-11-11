@@ -9,6 +9,10 @@ const initialState = {
     width: 0,
     height: 0,
   },
+  videoListSize: {
+    width: 0,
+    height: 0,
+  },
   initialRef: {
     x: 0,
     y: 0,
@@ -51,6 +55,15 @@ const reducer = (state, action) => {
       return {
         ...state,
         mediaSize: {
+          width: action.value.width,
+          height: action.value.height,
+        },
+      };
+    }
+    case 'setVideoListSize': {
+      return {
+        ...state,
+        videoListSize: {
           width: action.value.width,
           height: action.value.height,
         },

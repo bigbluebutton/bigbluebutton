@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/bash 
 #
 # BlueButton open source conferencing system - http://www.bigbluebutton.org/
 #
@@ -63,6 +63,7 @@
 #   2019-05-14 FFD  Added more checks for configuration issues
 #   2019-07-08 GTR  Set IP for all recording formats
 #   2019-10-31 GTR  Set IP and shared secret for bbb-webhooks
+#   2019-11-09 GTR  Keep HTML5 client logs permissions when cleaning logs
 
 #set -x
 #set -e
@@ -147,23 +148,6 @@ SIP_NGINX_IP=$(cat $SIP_CONFIG |  grep -v '#' | sed -n '/proxy_pass/{s/.*proxy_p
 NCPU=$(nproc --all)
 
 BBB_USER=bigbluebutton
-
-if [ ! -f /usr/share/red5/webapps/bigbluebutton/WEB-INF/red5-web.xml ]; then
-    echo "#"
-    echo "# BigBlueButton does not appear to be installed.  Could not locate:"
-    echo "#"
-    echo "#    /usr/share/red5/webapps/bigbluebutton/WEB-INF/red5-web.xml"
-    exit 1
-fi
-
-if [ ! -f /var/www/bigbluebutton/client/conf/config.xml ]; then
-    echo "#"
-    echo "# BigBlueButton does not appear to be installed.  Could not"
-    echo "# locate:"
-    echo "#"
-    echo "# /var/www/bigbluebutton/client/conf/config.xml"
-    exit 1
-fi
 
 #
 # We're going to give ^bigbluebutton.web.logoutURL a default value (if undefined) so bbb-conf does not give a warning
@@ -333,12 +317,15 @@ stop_bigbluebutton () {
         BBB_LTI=bbb-lti
     fi
 
+    if [ -f /usr/share/red5/red5-server.jar ]; then
+	BBB_RED5="red5"
+    fi
 
     if [ -d $TOMCAT_DIR ]; then
       TOMCAT_SERVICE=$TOMCAT_USER
     fi
 
-    systemctl stop red5 $TOMCAT_SERVICE nginx freeswitch $REDIS_SERVICE bbb-apps-akka $BBB_TRANSCODE_AKKA bbb-fsesl-akka bbb-rap-archive-worker.service bbb-rap-process-worker.service bbb-rap-publish-worker.service bbb-rap-sanity-worker.service bbb-record-core.timer $HTML5 $WEBHOOKS $ETHERPAD $BBB_WEB $BBB_LTI
+    systemctl stop $BBB_RED5 $TOMCAT_SERVICE nginx freeswitch $REDIS_SERVICE bbb-apps-akka $BBB_TRANSCODE_AKKA bbb-fsesl-akka bbb-rap-archive-worker.service bbb-rap-process-worker.service bbb-rap-publish-worker.service bbb-rap-sanity-worker.service bbb-record-core.timer $HTML5 $WEBHOOKS $ETHERPAD $BBB_WEB $BBB_LTI
 }
 
 start_bigbluebutton () {
@@ -390,7 +377,12 @@ start_bigbluebutton () {
         BBB_LTI=bbb-lti
     fi
 
-    systemctl start red5 $TOMCAT_SERVICE nginx freeswitch $REDIS_SERVICE bbb-apps-akka $BBB_TRANSCODE_AKKA bbb-fsesl-akka bbb-record-core.timer $HTML5 $WEBHOOKS $ETHERPAD $BBB_WEB $BBB_LTI
+    if [ -f /usr/share/red5/red5-server.jar ]; then
+        BBB_RED5="red5"
+    fi
+
+
+    systemctl start $BBB_RED5 $TOMCAT_SERVICE nginx freeswitch $REDIS_SERVICE bbb-apps-akka $BBB_TRANSCODE_AKKA bbb-fsesl-akka bbb-record-core.timer $HTML5 $WEBHOOKS $ETHERPAD $BBB_WEB $BBB_LTI
 
     if [ -f /usr/lib/systemd/system/bbb-html5.service ]; then
         systemctl start mongod
@@ -401,8 +393,9 @@ start_bigbluebutton () {
     #
     # Look for Starting up context to be recently added to the log files
     #
-    COUNT=0
-    while [ $COUNT -lt 20 ]; do
+    if [ -f /usr/share/red5/red5-server.jar ]; then
+      COUNT=0
+      while [ $COUNT -lt 20 ]; do
         let COUNT=COUNT+1
         if [ -f $RED5_DIR/log/sip.log ] && [ -f $RED5_DIR/log/bigbluebutton.log ] && [ -f $RED5_DIR/log/red5.log ] && [ -f $RED5_DIR/log/video.log ] && [ -f $RED5_DIR/log/screenshare-slf.log ]; then
             let COUNT=20
@@ -410,14 +403,14 @@ start_bigbluebutton () {
             echo -n "."
             sleep 1
         fi
-    done
+      done
 
 
      #
      # All the log files exist, now check for the text "Starting up context"
      #
-     COUNT=0
-     while [ $COUNT -lt 20 ]; do
+      COUNT=0
+      while [ $COUNT -lt 20 ]; do
          let COUNT=COUNT+1
          if [ -f $RED5_DIR/log/video.log ]; then
              if ! cat $RED5_DIR/log/video.log | tail -n100 | grep -q "Starting up context"; then
@@ -427,11 +420,12 @@ start_bigbluebutton () {
                  let COUNT=20
             fi
          fi
-     done
+      done
 
-     echo
-     BBB_APPS="sip video bigbluebutton screenshare-slf"
-     for bbb_app in $BBB_APPS ; do
+      if [ -f /usr/share/red5/red5-server.jar ]; then
+       echo
+       BBB_APPS="sip video bigbluebutton screenshare-slf"
+       for bbb_app in $BBB_APPS ; do
         if [ -a $RED5_DIR/log/$bbb_app.log ]; then
             if ! grep -q "Starting up context" $RED5_DIR/log/$bbb_app.log; then
                 echo "#    $bbb_app may not have started properly"
@@ -439,7 +433,9 @@ start_bigbluebutton () {
         else
             echo "#    $RED5_DIR/log/$bbb_app.log not found"
         fi
-     done
+       done
+      fi
+     fi
 }
 
 display_bigbluebutton_status () {
@@ -1041,9 +1037,10 @@ check_state() {
     # Checking red5 apps log
     #
 
-    # Give the files a chance to be created (in case we got started with a clean)
-    COUNT=0
-    while [ $COUNT -lt 20 ]; do
+    if [ -f /usr/share/red5/red5-server.jar ]; then
+      # Give the files a chance to be created (in case we got started with a clean)
+      COUNT=0
+      while [ $COUNT -lt 20 ]; do
         let COUNT=COUNT+1
         if [ -f $RED5_DIR/log/sip.log ] && [ -f $RED5_DIR/log/bigbluebutton.log ] && [ -f $RED5_DIR/log/red5.log ] && [ -f $RED5_DIR/log/video.log ] && [ -f $RED5_DIR/log/screenshare-slf.log ]; then
             let COUNT=20
@@ -1051,24 +1048,25 @@ check_state() {
             echo -n "."
             sleep 1
         fi
-    done
+      done
 
-    RED5_LOG_FILES="bigbluebutton red5 sip video screenshare-slf"
-    AVAIL_RED5_LOG=""
-    UNAVAIL_RED5_LOG=""
-    for file in $RED5_LOG_FILES ; do
+      RED5_LOG_FILES="bigbluebutton red5 sip video screenshare-slf"
+      AVAIL_RED5_LOG=""
+      UNAVAIL_RED5_LOG=""
+      for file in $RED5_LOG_FILES ; do
         if [ ! -f $RED5_DIR/log/$file.log ]; then
             UNAVAIL_RED5_LOG="${UNAVAIL_RED5_LOG} $file.log"
         else
             AVAIL_RED5_LOG="${AVAIL_RED5_LOG} $file.log"
         fi
-    done
+      done
 
-    if [ "$UNAVAIL_RED5_LOG" != "" ]; then
+      if [ "$UNAVAIL_RED5_LOG" != "" ]; then
         echo "# Error: Red5 log files not found"
         echo
         echo "# Unavailable red5 logs ($RED5_DIR/log): $UNAVAIL_RED5_LOG"
         echo
+      fi
     fi
 
     #
@@ -1775,33 +1773,35 @@ if [ -n "$HOST" ]; then
     #
     # Just use the IP for port test in /var/www/bigbluebutton/client/conf/config.xml
     #
-    echo "Assigning $HOST for testing for firewall in /var/www/bigbluebutton/client/conf/config.xml"
-    $SUDO sed -i "s/porttest host=\(\"[^\"]*\"\)/porttest host=\"$PROTOCOL_RTMP:\/\/$HOST\"/g" /var/www/bigbluebutton/client/conf/config.xml
+    if [ -f /var/www/bigbluebutton/client/conf/config.xml ]; then
+      echo "Assigning $HOST for testing for firewall in /var/www/bigbluebutton/client/conf/config.xml"
+      $SUDO sed -i "s/porttest host=\(\"[^\"]*\"\)/porttest host=\"$PROTOCOL_RTMP:\/\/$HOST\"/g" /var/www/bigbluebutton/client/conf/config.xml
 
-    echo "Assigning $HOST for rtmp:// in /var/www/bigbluebutton/client/conf/config.xml"
-    $SUDO sed -i "s/rtmp[s]*:\/\/\([^\"\/]*\)\([\"\/]\)/$PROTOCOL_RTMP:\/\/$HOST\2/g" /var/www/bigbluebutton/client/conf/config.xml
+      echo "Assigning $HOST for rtmp:// in /var/www/bigbluebutton/client/conf/config.xml"
+      $SUDO sed -i "s/rtmp[s]*:\/\/\([^\"\/]*\)\([\"\/]\)/$PROTOCOL_RTMP:\/\/$HOST\2/g" /var/www/bigbluebutton/client/conf/config.xml
 
-    echo "Assigning $HOST for servername in /etc/nginx/sites-available/bigbluebutton"
-    $SUDO sed -i "s/server_name  .*/server_name  $HOST;/g" /etc/nginx/sites-available/bigbluebutton
+      echo "Assigning $HOST for servername in /etc/nginx/sites-available/bigbluebutton"
+      $SUDO sed -i "s/server_name  .*/server_name  $HOST;/g" /etc/nginx/sites-available/bigbluebutton
+  
+      #
+      # Update configuration for BigBlueButton client (and preserve hostname for chromeExtensionLink if exists)
+      #
 
-    #
-    # Update configuration for BigBlueButton client (and preserve hostname for chromeExtensionLink if exists)
-    #
+      # Extract the chrome store URL before updating config.xml. We will be able to restore it.
+      chromeExtensionLinkURL=$(cat /var/www/bigbluebutton/client/conf/config.xml | sed -n '/chromeExtensionLink/{s/.*https*:\/\///;s/\/.*//;p}')
 
-    # Extract the chrome store URL before updating config.xml. We will be able to restore it.
-    chromeExtensionLinkURL=$(cat /var/www/bigbluebutton/client/conf/config.xml | sed -n '/chromeExtensionLink/{s/.*https*:\/\///;s/\/.*//;p}')
+      echo "Assigning $HOST for http[s]:// in /var/www/bigbluebutton/client/conf/config.xml"
+      $SUDO sed -i "s/http[s]*:\/\/\([^\"\/]*\)\([\"\/]\)/$PROTOCOL:\/\/$HOST\2/g" \
+        /var/www/bigbluebutton/client/conf/config.xml
 
-    echo "Assigning $HOST for http[s]:// in /var/www/bigbluebutton/client/conf/config.xml"
-    $SUDO sed -i "s/http[s]*:\/\/\([^\"\/]*\)\([\"\/]\)/$PROTOCOL:\/\/$HOST\2/g" \
-    /var/www/bigbluebutton/client/conf/config.xml
-
-    if ! echo "$chromeExtensionLinkURL" | grep -q '""'; then
+      if ! echo "$chromeExtensionLinkURL" | grep -q '""'; then
         $SUDO sed -i "s/chromeExtensionLink=\"https:\/\/[^\/]*/chromeExtensionLink=\"https:\/\/$chromeExtensionLinkURL/g" \
         /var/www/bigbluebutton/client/conf/config.xml
-    fi
+      fi
 
-    echo "Assigning $HOST for publishURI in /var/www/bigbluebutton/client/conf/config.xml"
-    $SUDO sed -i "s/publishURI=\"[^\"]*\"/publishURI=\"$HOST\"/" /var/www/bigbluebutton/client/conf/config.xml
+      echo "Assigning $HOST for publishURI in /var/www/bigbluebutton/client/conf/config.xml"
+      $SUDO sed -i "s/publishURI=\"[^\"]*\"/publishURI=\"$HOST\"/" /var/www/bigbluebutton/client/conf/config.xml
+    fi 
 
     #
     # Update configuration for BigBlueButton web app
@@ -1814,9 +1814,11 @@ if [ -n "$HOST" ]; then
     $SUDO sed -i "s/screenshareRtmpServer=.*/screenshareRtmpServer=$HOST/g" \
             ${SERVLET_DIR}/WEB-INF/classes/bigbluebutton.properties
 
-    change_var_value /usr/share/red5/webapps/screenshare/WEB-INF/screenshare.properties streamBaseUrl rtmp://$HOST/screenshare
-    change_var_value /usr/share/red5/webapps/screenshare/WEB-INF/screenshare.properties jnlpUrl $PROTOCOL://$HOST/screenshare
-    change_var_value /usr/share/red5/webapps/screenshare/WEB-INF/screenshare.properties jnlpFile $PROTOCOL://$HOST/screenshare/screenshare.jnlp
+    if [ -f /usr/share/red5/webapps/screenshare/WEB-INF/screenshare.properties ]; then
+      change_var_value /usr/share/red5/webapps/screenshare/WEB-INF/screenshare.properties streamBaseUrl rtmp://$HOST/screenshare
+      change_var_value /usr/share/red5/webapps/screenshare/WEB-INF/screenshare.properties jnlpUrl $PROTOCOL://$HOST/screenshare
+      change_var_value /usr/share/red5/webapps/screenshare/WEB-INF/screenshare.properties jnlpFile $PROTOCOL://$HOST/screenshare/screenshare.jnlp
+    fi
 
     if ! grep -q server_names_hash_bucket_size /etc/nginx/nginx.conf; then
         $SUDO sed -i "s/gzip  on;/gzip  on;\n    server_names_hash_bucket_size  64;/g" /etc/nginx/nginx.conf
@@ -1988,7 +1990,20 @@ if [ $CLEAN ]; then
         rm -rf $SERVLET_LOGS/*
     fi
 
+    # Check if we are storing HTML5 logs in the server
+    HTML5_SERVER_LOG=0
+    if [[ -f /var/log/nginx/html5-client.log ]]; then
+        HTML5_SERVER_LOG=1
+    fi
+
     rm -rf /var/log/nginx/*
+
+    # Revert HTML5 client logs to their original permissions
+    if [ $HTML5_SERVER_LOG ]; then
+        touch /var/log/nginx/html5-client.log
+        chown www-data:adm /var/log/nginx/html5-client.log
+        chmod 640 /var/log/nginx/html5-client.log
+    fi
 
     #if [ $DISTRO == "ubuntu" ]; then
     #  mv /var/log/syslog /tmp/syslog.$$
