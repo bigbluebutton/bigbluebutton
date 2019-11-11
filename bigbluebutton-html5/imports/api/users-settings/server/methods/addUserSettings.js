@@ -28,6 +28,7 @@ export default function addUserSettings(credentials, meetingId, userId, settings
       'enableVideo',
       'enableVideoStats',
       'autoShareWebcam',
+      'bbb_skip_video_preview',
       // WHITEBOARD
       'multiUserPenOnly',
       'presenterTools',
