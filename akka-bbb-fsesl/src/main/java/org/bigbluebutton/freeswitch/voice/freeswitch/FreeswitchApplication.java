@@ -103,12 +103,19 @@ public class FreeswitchApplication implements  IDelayedCommandListener{
     msgSenderExec.execute(sender);
   }
 
+  public void getUsersStatus(String voiceConfId, String meetingId) {
+    GetUsersStatusCommand ccrc = new GetUsersStatusCommand(voiceConfId, meetingId);
+    queueMessage(ccrc);
+  }
+
+  public void checkRunningAndRecording(String voiceConfId, String meetingId) {
+    ConferenceCheckRecordCommand ccrc = new ConferenceCheckRecordCommand(voiceConfId, meetingId);
+    queueMessage(ccrc);
+  }
+
   public void getAllUsers(String voiceConfId) {
     GetAllUsersCommand prc = new GetAllUsersCommand(voiceConfId, USER);
     queueMessage(prc);
-
-    ConferenceCheckRecordCommand ccrc = new ConferenceCheckRecordCommand(voiceConfId, USER);
-    queueMessage(ccrc);
   }
 
   public void muteUser(String voiceConfId, String voiceUserId, Boolean mute) {
@@ -168,7 +175,9 @@ public class FreeswitchApplication implements  IDelayedCommandListener{
           EjectAllUsersCommand cmd = (EjectAllUsersCommand) command;
           manager.ejectAll(cmd);
 
-          CheckIfConfIsRunningCommand command = new CheckIfConfIsRunningCommand(cmd.getRoom(), cmd.getRequesterId());
+          CheckIfConfIsRunningCommand command = new CheckIfConfIsRunningCommand(cmd.getRoom(),
+                  cmd.getRequesterId(),
+                  delayedCommandSenderService, 0);
           delayedCommandSenderService.handleMessage(command, 5000);
         } else if (command instanceof TransferUserToMeetingCommand) {
           TransferUserToMeetingCommand cmd = (TransferUserToMeetingCommand) command;
@@ -186,6 +195,10 @@ public class FreeswitchApplication implements  IDelayedCommandListener{
           manager.checkIfConferenceIsRecording((ConferenceCheckRecordCommand) command);
         } else if (command instanceof CheckIfConfIsRunningCommand) {
           manager.checkIfConfIsRunningCommand((CheckIfConfIsRunningCommand) command);
+        } else if (command instanceof ForceEjectUserCommand) {
+          manager.forceEjectUser((ForceEjectUserCommand) command);
+        } else if (command instanceof GetUsersStatusCommand) {
+          manager.getUsersStatus((GetUsersStatusCommand) command);
         }
       }
     };

@@ -11,7 +11,7 @@ object MsgToAkkaAppsToJsonActor {
 
 }
 class MsgToAkkaAppsToJsonActor(connEventBus: InternalMessageBus)
-    extends Actor with ActorLogging with SystemConfiguration {
+  extends Actor with ActorLogging with SystemConfiguration {
 
   def receive = {
     case msg: MsgToAkkaApps => handle(msg)

@@ -1,7 +1,5 @@
-# Set encoding to utf-8
-# encoding: UTF-8
+# frozen_string_literal: true
 
-#
 # BigBlueButton open source conferencing system - http://www.bigbluebutton.org/
 #
 # Copyright (c) 2017 BigBlueButton Inc. and by respective authors (see below).
@@ -18,8 +16,6 @@
 #
 # You should have received a copy of the GNU Lesser General Public License along
 # with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
-#
-
 
 require 'rubygems'
 require 'redis'
@@ -348,6 +344,10 @@ module BigBlueButton
           break
         end
       end
+
+      # Optionally let the caller do some post-processing on the events before
+      # they're written
+      yield events_doc if block_given?
 
       # Write the events file. Write to a temp file then rename so other
       # scripts running concurrently don't see a partially written file.

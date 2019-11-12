@@ -4,10 +4,10 @@ import org.bigbluebutton.common2.msgs.UserJoinMeetingReqMsg
 import org.bigbluebutton.core.apps.breakout.BreakoutHdlrHelpers
 import org.bigbluebutton.core.models.{ Users2x, VoiceUsers }
 import org.bigbluebutton.core.domain.MeetingState2x
-import org.bigbluebutton.core.running.{ BaseMeetingActor, HandlerHelpers, LiveMeeting, OutMsgRouter }
+import org.bigbluebutton.core.running.{ HandlerHelpers, LiveMeeting, MeetingActor, OutMsgRouter }
 
-trait UserJoinMeetingReqMsgHdlr extends HandlerHelpers with BreakoutHdlrHelpers {
-  this: BaseMeetingActor =>
+trait UserJoinMeetingReqMsgHdlr extends HandlerHelpers {
+  this: MeetingActor =>
 
   val liveMeeting: LiveMeeting
   val outGW: OutMsgRouter
@@ -27,7 +27,7 @@ trait UserJoinMeetingReqMsgHdlr extends HandlerHelpers with BreakoutHdlrHelpers 
         val newState = userJoinMeeting(outGW, msg.body.authToken, msg.body.clientType, liveMeeting, state)
 
         if (liveMeeting.props.meetingProp.isBreakout) {
-          updateParentMeetingWithUsers()
+          BreakoutHdlrHelpers.updateParentMeetingWithUsers(liveMeeting, eventBus)
         }
 
         // fresh user joined (not due to reconnection). Clear (pop) the cached voice user

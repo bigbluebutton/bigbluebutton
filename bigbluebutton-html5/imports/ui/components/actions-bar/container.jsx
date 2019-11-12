@@ -36,8 +36,8 @@ export default withTracker(() => ({
   handleShareScreen: onFail => shareScreen(onFail),
   handleUnshareScreen: () => unshareScreen(),
   isVideoBroadcasting: isVideoBroadcasting(),
-  screenSharingCheck: getFromUserSettings('enableScreensharing', Meteor.settings.public.kurento.enableScreensharing),
-  enableVideo: getFromUserSettings('enableVideo', Meteor.settings.public.kurento.enableVideo),
+  screenSharingCheck: getFromUserSettings('bbb_enable_screen_sharing', Meteor.settings.public.kurento.enableScreensharing),
+  enableVideo: getFromUserSettings('bbb_enable_video', Meteor.settings.public.kurento.enableVideo),
   isLayoutSwapped: getSwapLayout() && shouldEnableSwapLayout(),
   toggleSwapLayout: MediaService.toggleSwapLayout,
   handleTakePresenter: Service.takePresenterRole,
@@ -51,5 +51,5 @@ export default withTracker(() => ({
   isPollingEnabled: POLLING_ENABLED,
   isThereCurrentPresentation: Presentations.findOne({ meetingId: Auth.meetingID, current: true },
     { fields: {} }),
-  getSwapLayout,
+  allowExternalVideo: Meteor.settings.public.externalVideoPlayer.enabled,
 }))(injectIntl(ActionsBarContainer));

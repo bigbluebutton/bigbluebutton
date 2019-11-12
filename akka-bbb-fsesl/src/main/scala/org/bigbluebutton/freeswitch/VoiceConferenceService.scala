@@ -1,16 +1,51 @@
 package org.bigbluebutton.freeswitch
 
+import scala.collection.JavaConverters._
 import org.bigbluebutton.SystemConfiguration
+import org.bigbluebutton.common2.msgs
 import org.bigbluebutton.freeswitch.voice.IVoiceConferenceService
 import org.bigbluebutton.common2.msgs._
 import org.bigbluebutton.common2.util.JsonUtil
 import org.bigbluebutton.common2.redis.RedisPublisher
+import org.bigbluebutton.freeswitch.voice.events.{ ConfMember, ConfRecording }
 
 class VoiceConferenceService(sender: RedisPublisher) extends IVoiceConferenceService with SystemConfiguration {
 
   val FROM_VOICE_CONF_SYSTEM_CHAN = "bigbluebutton:from-voice-conf:system"
 
-  def voiceConfRecordingStarted(voiceConfId: String, recordStream: String, recording: java.lang.Boolean, timestamp: String) {
+  def voiceConfRunningAndRecording(
+      voiceConfId:   String,
+      isRunning:     java.lang.Boolean,
+      isRecording:   java.lang.Boolean,
+      confRecording: java.util.List[ConfRecording]
+  ) {
+    val recs: scala.collection.mutable.ListBuffer[ConfVoiceRecording] = new scala.collection.mutable.ListBuffer[ConfVoiceRecording]()
+    confRecording forEach { cr =>
+      recs += ConfVoiceRecording(cr.recordingPath, cr.recordingStartTime)
+    }
+
+    val header = BbbCoreVoiceConfHeader(CheckRunningAndRecordingVoiceConfEvtMsg.NAME, voiceConfId)
+    val body = CheckRunningAndRecordingVoiceConfEvtMsgBody(
+      voiceConfId,
+      isRunning.booleanValue(),
+      isRecording.booleanValue(),
+      recs.toVector
+    )
+    val envelope = BbbCoreEnvelope(CheckRunningAndRecordingVoiceConfEvtMsg.NAME, Map("voiceConf" -> voiceConfId))
+
+    val msg = new CheckRunningAndRecordingVoiceConfEvtMsg(header, body)
+    val msgEvent = BbbCommonEnvCoreMsg(envelope, msg)
+
+    val json = JsonUtil.toJson(msgEvent)
+    sender.publish(fromVoiceConfRedisChannel, json)
+  }
+
+  def voiceConfRecordingStarted(
+      voiceConfId:  String,
+      recordStream: String,
+      recording:    java.lang.Boolean,
+      timestamp:    String
+  ) {
     val header = BbbCoreVoiceConfHeader(RecordingStartedVoiceConfEvtMsg.NAME, voiceConfId)
     val body = RecordingStartedVoiceConfEvtMsgBody(voiceConfId, recordStream, recording.booleanValue(), timestamp)
     val envelope = BbbCoreEnvelope(RecordingStartedVoiceConfEvtMsg.NAME, Map("voiceConf" -> voiceConfId))
@@ -23,8 +58,10 @@ class VoiceConferenceService(sender: RedisPublisher) extends IVoiceConferenceSer
 
   }
 
-  def voiceConfRunning(voiceConfId: String, running: java.lang.Boolean): Unit = {
-    println("*************######## Conference voiceConfId=" + voiceConfId + " running=" + running)
+  def voiceConfRunning(
+      voiceConfId: String,
+      running:     java.lang.Boolean
+  ): Unit = {
     val header = BbbCoreVoiceConfHeader(VoiceConfRunningEvtMsg.NAME, voiceConfId)
     val body = VoiceConfRunningEvtMsgBody(voiceConfId, running.booleanValue())
     val envelope = BbbCoreEnvelope(VoiceConfRunningEvtMsg.NAME, Map("voiceConf" -> voiceConfId))
@@ -36,12 +73,56 @@ class VoiceConferenceService(sender: RedisPublisher) extends IVoiceConferenceSer
     sender.publish(fromVoiceConfRedisChannel, json)
   }
 
-  def userJoinedVoiceConf(voiceConfId: String, voiceUserId: String, userId: String, callerIdName: String,
-                          callerIdNum: String, muted: java.lang.Boolean, talking: java.lang.Boolean, avatarURL: String) {
+  def voiceUsersStatus(
+      voiceConfId:   String,
+      confMembers:   java.util.List[ConfMember],
+      confRecording: java.util.List[ConfRecording]
+  ) {
+    val users: scala.collection.mutable.ListBuffer[ConfVoiceUser] = new scala.collection.mutable.ListBuffer[ConfVoiceUser]()
+    confMembers forEach { cm =>
+      users += ConfVoiceUser(
+        cm.voiceUserId,
+        cm.userId,
+        cm.callerIdName,
+        cm.callerIdNum,
+        cm.muted,
+        cm.speaking,
+        cm.callingWith,
+        "freeswitch"
+      )
+    }
+
+    val recs: scala.collection.mutable.ListBuffer[ConfVoiceRecording] = new scala.collection.mutable.ListBuffer[ConfVoiceRecording]()
+    confRecording forEach { cr =>
+      recs += ConfVoiceRecording(cr.recordingPath, cr.recordingStartTime)
+    }
+
+    val header = BbbCoreVoiceConfHeader(UserStatusVoiceConfEvtMsg.NAME, voiceConfId)
+    val body = UserStatusVoiceConfEvtMsgBody(voiceConfId, users.toVector, recs.toVector)
+    val envelope = BbbCoreEnvelope(UserStatusVoiceConfEvtMsg.NAME, Map("voiceConf" -> voiceConfId))
+
+    val msg = new UserStatusVoiceConfEvtMsg(header, body)
+    val msgEvent = BbbCommonEnvCoreMsg(envelope, msg)
+
+    val json = JsonUtil.toJson(msgEvent)
+    sender.publish(fromVoiceConfRedisChannel, json)
+
+  }
+
+  def userJoinedVoiceConf(
+      voiceConfId:  String,
+      voiceUserId:  String,
+      userId:       String,
+      callerIdName: String,
+      callerIdNum:  String,
+      muted:        java.lang.Boolean,
+      talking:      java.lang.Boolean,
+      callingWith:  String
+  ) {
 
     val header = BbbCoreVoiceConfHeader(UserJoinedVoiceConfEvtMsg.NAME, voiceConfId)
     val body = UserJoinedVoiceConfEvtMsgBody(voiceConfId, voiceUserId, userId, callerIdName, callerIdNum,
-      muted.booleanValue(), talking.booleanValue(), avatarURL)
+      muted.booleanValue(), talking.booleanValue(), callingWith)
     val envelope = BbbCoreEnvelope(UserJoinedVoiceConfEvtMsg.NAME, Map("voiceConf" -> voiceConfId))
 
     val msg = new UserJoinedVoiceConfEvtMsg(header, body)
@@ -52,7 +133,10 @@ class VoiceConferenceService(sender: RedisPublisher) extends IVoiceConferenceSer
 
   }
 
-  def userLeftVoiceConf(voiceConfId: String, voiceUserId: String) {
+  def userLeftVoiceConf(
+      voiceConfId: String,
+      voiceUserId: String
+  ) {
 
     val header = BbbCoreVoiceConfHeader(UserLeftVoiceConfEvtMsg.NAME, voiceConfId)
     val body = UserLeftVoiceConfEvtMsgBody(voiceConfId, voiceUserId)
@@ -66,11 +150,19 @@ class VoiceConferenceService(sender: RedisPublisher) extends IVoiceConferenceSer
 
   }
 
-  def userLockedInVoiceConf(voiceConfId: String, voiceUserId: String, locked: java.lang.Boolean) {
+  def userLockedInVoiceConf(
+      voiceConfId: String,
+      voiceUserId: String,
+      locked:      java.lang.Boolean
+  ) {
 
   }
 
-  def userMutedInVoiceConf(voiceConfId: String, voiceUserId: String, muted: java.lang.Boolean) {
+  def userMutedInVoiceConf(
+      voiceConfId: String,
+      voiceUserId: String,
+      muted:       java.lang.Boolean
+  ) {
 
     val header = BbbCoreVoiceConfHeader(UserMutedInVoiceConfEvtMsg.NAME, voiceConfId)
     val body = UserMutedInVoiceConfEvtMsgBody(voiceConfId, voiceUserId, muted.booleanValue())
@@ -84,7 +176,11 @@ class VoiceConferenceService(sender: RedisPublisher) extends IVoiceConferenceSer
 
   }
 
-  def userTalkingInVoiceConf(voiceConfId: String, voiceUserId: String, talking: java.lang.Boolean) {
+  def userTalkingInVoiceConf(
+      voiceConfId: String,
+      voiceUserId: String,
+      talking:     java.lang.Boolean
+  ) {
 
     val header = BbbCoreVoiceConfHeader(UserTalkingInVoiceConfEvtMsg.NAME, voiceConfId)
     val body = UserTalkingInVoiceConfEvtMsgBody(voiceConfId, voiceUserId, talking.booleanValue())
@@ -98,7 +194,11 @@ class VoiceConferenceService(sender: RedisPublisher) extends IVoiceConferenceSer
 
   }
 
-  def deskShareStarted(voiceConfId: String, callerIdNum: String, callerIdName: String) {
+  def deskShareStarted(
+      voiceConfId:  String,
+      callerIdNum:  String,
+      callerIdName: String
+  ) {
 
     val header = BbbCoreVoiceConfHeader(ScreenshareStartedVoiceConfEvtMsg.NAME, voiceConfId)
     val body = ScreenshareStartedVoiceConfEvtMsgBody(voiceConf = voiceConfId, screenshareConf = voiceConfId,
@@ -112,7 +212,11 @@ class VoiceConferenceService(sender: RedisPublisher) extends IVoiceConferenceSer
     sender.publish(fromVoiceConfRedisChannel, json)
   }
 
-  def deskShareEnded(voiceConfId: String, callerIdNum: String, callerIdName: String) {
+  def deskShareEnded(
+      voiceConfId:  String,
+      callerIdNum:  String,
+      callerIdName: String
+  ) {
 
     val header = BbbCoreVoiceConfHeader(ScreenshareStoppedVoiceConfEvtMsg.NAME, voiceConfId)
     val body = ScreenshareStoppedVoiceConfEvtMsgBody(voiceConf = voiceConfId, screenshareConf = voiceConfId,
@@ -126,7 +230,13 @@ class VoiceConferenceService(sender: RedisPublisher) extends IVoiceConferenceSer
     sender.publish(fromVoiceConfRedisChannel, json)
   }
 
-  def deskShareRTMPBroadcastStarted(voiceConfId: String, streamname: String, vw: java.lang.Integer, vh: java.lang.Integer, timestamp: String) {
+  def deskShareRTMPBroadcastStarted(
+      voiceConfId: String,
+      streamname:  String,
+      vw:          java.lang.Integer,
+      vh:          java.lang.Integer,
+      timestamp:   String
+  ) {
 
     val header = BbbCoreVoiceConfHeader(ScreenshareRtmpBroadcastStartedVoiceConfEvtMsg.NAME, voiceConfId)
     val body = ScreenshareRtmpBroadcastStartedVoiceConfEvtMsgBody(voiceConf = voiceConfId, screenshareConf = voiceConfId,
@@ -142,7 +252,13 @@ class VoiceConferenceService(sender: RedisPublisher) extends IVoiceConferenceSer
 
   }
 
-  def deskShareRTMPBroadcastStopped(voiceConfId: String, streamname: String, vw: java.lang.Integer, vh: java.lang.Integer, timestamp: String) {
+  def deskShareRTMPBroadcastStopped(
+      voiceConfId: String,
+      streamname:  String,
+      vw:          java.lang.Integer,
+      vh:          java.lang.Integer,
+      timestamp:   String
+  ) {
 
     val header = BbbCoreVoiceConfHeader(ScreenshareRtmpBroadcastStoppedVoiceConfEvtMsg.NAME, voiceConfId)
     val body = ScreenshareRtmpBroadcastStoppedVoiceConfEvtMsgBody(voiceConf = voiceConfId, screenshareConf = voiceConfId,

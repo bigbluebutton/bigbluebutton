@@ -9,6 +9,7 @@ class PresentationPodHdlrs(implicit val context: ActorContext)
   with GetAllPresentationPodsReqMsgHdlr
   with SetCurrentPresentationPubMsgHdlr
   with PresentationConversionCompletedSysPubMsgHdlr
+  with PdfConversionInvalidErrorSysPubMsgHdlr
   with SetCurrentPagePubMsgHdlr
   with SetPresenterInPodReqMsgHdlr
   with RemovePresentationPubMsgHdlr

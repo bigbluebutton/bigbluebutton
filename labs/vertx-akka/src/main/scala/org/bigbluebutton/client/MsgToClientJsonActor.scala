@@ -13,9 +13,9 @@ object MsgToClientJsonActor {
 class MsgToClientJsonActor(msgToClientGW: MsgToClientGW) extends Actor with ActorLogging {
 
   def receive = {
-    case msg: BroadcastMsgToMeeting => handleBroadcastMsg(msg)
-    case msg: DirectMsgToClient => handleDirectMsg(msg)
-    case msg: DisconnectClientMsg => handleDisconnectClientMsg(msg)
+    case msg: BroadcastMsgToMeeting          => handleBroadcastMsg(msg)
+    case msg: DirectMsgToClient              => handleDirectMsg(msg)
+    case msg: DisconnectClientMsg            => handleDisconnectClientMsg(msg)
     case msg: DisconnectAllMeetingClientsMsg => handleDisconnectAllMeetingClientsMsg(msg)
   }
 

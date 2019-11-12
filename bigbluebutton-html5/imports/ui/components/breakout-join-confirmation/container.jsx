@@ -31,9 +31,6 @@ export default withTracker(({ breakout, mountModal, breakoutName }) => {
   const isFreeJoin = breakout.freeJoin;
   const { breakoutId } = breakout;
   const url = getURL(breakoutId);
-  if (isFreeJoin && !url) {
-    requestJoinURL(breakoutId);
-  }
 
   return {
     isFreeJoin,

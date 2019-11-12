@@ -223,8 +223,7 @@
 				if(!acorn.$self.prop('paused')) {
 					acorn.$self.trigger('pause');
 				} else {
-					//acorn.$self.trigger('play');
-					acorn.$self[0].play();
+					acorn.$self.trigger('play');
 				}
 				
 				// We return false to stop the followup click event on tablets

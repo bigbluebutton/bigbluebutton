@@ -4,7 +4,7 @@
 @import "/imports/ui/components/user-list/user-list-content/styles";
 
 .panel {
-  @include scrollbox-vertical(var(--user-list-bg));
+  @include scrollbox-vertical();
   background-color: #fff;
   padding: var(--md-padding-x);
   display: flex;
@@ -64,6 +64,11 @@
   color: var(--color-primary);
   & > button {
     padding: 0 0 0 .5rem;
+  }
+  & > .alreadyConnected {
+    padding: 0 .5rem 0 0;
+    display: inline-block;
+    vertical-align: middle;
   }
 }
 

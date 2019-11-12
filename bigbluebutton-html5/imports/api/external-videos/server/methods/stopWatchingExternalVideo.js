@@ -14,6 +14,9 @@ export default function stopWatchingExternalVideo(credentials) {
   check(meetingId, String);
   check(requesterUserId, String);
 
+  const meeting = Meetings.findOne({ meetingId });
+  if (!meeting || meeting.externalVideoUrl === null) return;
+
   Meetings.update({ meetingId }, { $set: { externalVideoUrl: null } });
   const payload = {};
 

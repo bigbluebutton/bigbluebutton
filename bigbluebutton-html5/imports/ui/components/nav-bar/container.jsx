@@ -19,17 +19,24 @@ const NavBarContainer = ({ children, ...props }) => (
 );
 
 export default withTracker(() => {
-  const CLIENT_TITLE = getFromUserSettings('clientTitle', PUBLIC_CONFIG.app.clientTitle);
+  const CLIENT_TITLE = getFromUserSettings('bbb_client_title', PUBLIC_CONFIG.app.clientTitle);
 
   let meetingTitle;
   const meetingId = Auth.meetingID;
   const meetingObject = Meetings.findOne({
     meetingId,
-  }, { fields: { 'meetingProp.name': 1 } });
+  }, { fields: { 'meetingProp.name': 1, 'breakoutProps.sequence': 1 } });
 
   if (meetingObject != null) {
     meetingTitle = meetingObject.meetingProp.name;
-    document.title = `${CLIENT_TITLE} - ${meetingTitle}`;
+    let titleString = `${CLIENT_TITLE} - ${meetingTitle}`;
+    if (meetingObject.breakoutProps) {
+      const breakoutNum = meetingObject.breakoutProps.sequence;
+      if (breakoutNum > 0) {
+        titleString = `${breakoutNum} - ${titleString}`;
+      }
+    }
+    document.title = titleString;
   }
 
   const checkUnreadMessages = () => {

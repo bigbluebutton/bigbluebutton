@@ -104,6 +104,7 @@ const isMobileBrowser = (BROWSER_RESULTS ? BROWSER_RESULTS.mobile : false)
   || (BROWSER_RESULTS && BROWSER_RESULTS.os
     ? BROWSER_RESULTS.os.includes('Android') // mobile flag doesn't always work
     : false);
+const isSafari = BROWSER_RESULTS.name === 'safari';
 
 const DesktopShare = ({
   intl,
@@ -152,7 +153,12 @@ const DesktopShare = ({
   const vDescr = isVideoBroadcasting
     ? intlMessages.stopDesktopShareDesc : intlMessages.desktopShareDesc;
 
-  return (screenSharingCheck && !isMobileBrowser && amIPresenter
+  const shouldAllowScreensharing = screenSharingCheck
+    && !isMobileBrowser
+    && amIPresenter
+    && !isSafari;
+
+  return (shouldAllowScreensharing
     ? (
       <Button
         className={cx(styles.button, isVideoBroadcasting || styles.btn)}
