@@ -65,6 +65,11 @@
 .mobileLayoutSwapped {
   @include mq($xsmall-only) {
     padding-right: var(--mobile-swap-offset);
+
+    [dir="rtl"] & {
+      padding-right: 0;
+      padding-left: var(--mobile-swap-offset);
+    }
   }
 }
 
