@@ -311,13 +311,27 @@ const BaseContainer = withTracker(() => {
     },
   });
 
-  Users.find({}, { fields: { validated: 1 } }).observe({
-    changed: (newDocument, oldDocument) => {
-      if (Settings.application.userJoinAudioAlerts
-        && !oldDocument.validated
-        && newDocument.validated) {
-        const audio = new Audio(`${Meteor.settings.public.app.cdn + Meteor.settings.public.app.basename}/resources/sounds/userJoin.mp3`);
-        audio.play();
+  Users.find({}, { fields: { validated: 1, name: 1 } }).observe({
+    changed: (newDocument) => {
+      if (newDocument.validated && newDocument.name) {
+        if (Settings.application.userJoinAudioAlerts) {
+          const audio = new Audio(`${Meteor.settings.public.app.cdn + Meteor.settings.public.app.basename}/resources/sounds/userJoin.mp3`);
+          audio.play();
+        }
+
+        if (Settings.application.userJoinPushAlerts) {
+          notify(
+            <FormattedMessage
+              id="app.notification.userJoinPushAlert"
+              description="Notification for a user joins the meeting"
+              values={{
+                0: newDocument.name,
+              }}
+            />,
+            'info',
+            'user',
+          );
+        }
       }
     },
   });
