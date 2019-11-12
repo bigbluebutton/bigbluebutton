@@ -23,10 +23,13 @@ export default function updateVoiceUser(meetingId, voiceUser) {
 
   const modifier = {
     $set: Object.assign(
-      { meetingId },
       flat(voiceUser),
     ),
   };
+
+  if (voiceUser.talking) {
+    modifier.$set.startTime = new Date().getTime();
+  }
 
   const cb = (err) => {
     if (err) {

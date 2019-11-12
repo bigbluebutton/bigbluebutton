@@ -1,0 +1,67 @@
+@import "../../../stylesheets/variables/_all";
+@import "../../../stylesheets/variables/typography";
+
+:root {
+  --spoke-padding-right: 1.3rem;
+  --spoke-opacity: .75;
+  --talker-margin-xsm: .25rem;
+  --talker-margin-sm: .5rem;
+  --talker-max-width: 10rem;
+  --talker-font-weight: 400;
+  --talker-border-radius: 2rem;
+}
+
+.isTalkingWrapper,
+.speaking,
+.talker,
+.spoke {
+  display: flex;
+  flex-direction: row;
+}
+
+.isTalkingWrapper {
+  position: absolute;
+  left: var(--md-padding-x);
+  top: 3.7rem;
+}
+
+.speaking {
+  flex-wrap: wrap;
+}
+
+.talker {
+  color: white;
+  font-weight: var(--talker-font-weight);
+  border-radius: var(--talker-border-radius) var(--talker-border-radius);
+  font-size: var(--font-size-base);
+  padding-left: var(--talker-margin-sm);
+  padding-right: var(--sm-padding-y);
+  margin-right: var(--talker-margin-sm);
+  margin-bottom: var(--talker-margin-xsm);
+
+  > span {
+    max-width: var(--talker-max-width);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  i {
+    position: relative;
+    top: var(--border-size-large);
+    margin-left: var(--border-size);
+    font-size: var(--font-size-small);
+  }
+}
+
+.spoke{
+  padding-right: var(--spoke-padding-right);
+	animation-name: fade-out;
+	animation-fill-mode: both;
+  animation-duration: 3s;
+}
+
+@keyframes fade-out {
+  0% { opacity: 1; }
+  100% { opacity: 0; }
+}
