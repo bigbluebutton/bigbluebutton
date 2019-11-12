@@ -96,38 +96,18 @@ public:
       - id: low
         name: Low quality
         default: false
-        constraints:
-          width:
-            max: 160
-          height:
-            max: 120
         bitrate: 100
       - id: medium
         name: Medium quality
         default: true
-        constraints:
-          width:
-            max: 320
-          height:
-            max: 240
         bitrate: 200
       - id: high
         name: High quality
         default: false
-        constraints:
-          width:
-            max: 640
-          height:
-            max: 480
         bitrate: 500
       - id: hd
         name: High definition
         default: false
-        constraints:
-          width:
-            max: 1280
-          height:
-            max: 960
         bitrate: 800
     enableScreensharing: true
     enableVideo: true
@@ -192,6 +172,7 @@ public:
     callHangupTimeout: 2000
     callHangupMaximumRetries: 10
     echoTestNumber: '9196'
+    relayOnlyOnReconnect: false
   presentation:
     defaultPresentationFile: default.pdf
     panZoomThrottle: 32
@@ -357,6 +338,8 @@ private:
     stat:
       enabled: false
     leak:
+      enabled: false
+    heapdump:
       enabled: false
   minBrowserVersions:
     - browser: chrome

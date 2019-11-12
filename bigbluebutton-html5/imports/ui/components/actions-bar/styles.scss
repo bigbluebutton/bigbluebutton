@@ -1,19 +1,21 @@
 @import "/imports/ui/stylesheets/variables/_all";
 
 .actionsbar,
-.left,
 .center,
 .right {
   display: flex;
   flex-direction: row;
 }
 
-.left,
 .center,
 .right {
   flex: 1;
   justify-content: center;
+}
 
+.left,
+.center,
+.right {
   > * {
     margin: 0 var(--sm-padding-x);
 
@@ -24,7 +26,8 @@
 }
 
 .left {
-  position: absolute;
+  display: inherit;
+  flex: 0;
   @include mq($small-only) {
     bottom: var(--sm-padding-x);
     left: var(--sm-padding-x);

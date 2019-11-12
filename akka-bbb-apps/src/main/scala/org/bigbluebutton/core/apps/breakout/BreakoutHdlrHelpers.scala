@@ -8,12 +8,15 @@ import org.bigbluebutton.core.domain.{ BreakoutUser, BreakoutVoiceUser }
 import org.bigbluebutton.core.models.{ Users2x, VoiceUsers }
 import org.bigbluebutton.core.running.{ LiveMeeting, OutMsgRouter }
 
-trait BreakoutHdlrHelpers extends SystemConfiguration {
-  val liveMeeting: LiveMeeting
-  val outGW: OutMsgRouter
-  val eventBus: InternalEventBus
-
-  def sendJoinURL(userId: String, externalMeetingId: String, roomSequence: String, breakoutId: String) {
+object BreakoutHdlrHelpers extends SystemConfiguration {
+  def sendJoinURL(
+      liveMeeting:       LiveMeeting,
+      outGW:             OutMsgRouter,
+      userId:            String,
+      externalMeetingId: String,
+      roomSequence:      String,
+      breakoutId:        String
+  ) {
     for {
       user <- Users2x.findWithIntId(liveMeeting.users2x, userId)
       apiCall = "join"
@@ -28,13 +31,27 @@ trait BreakoutHdlrHelpers extends SystemConfiguration {
       redirectToHtml5JoinURL = BreakoutRoomsUtil.createJoinURL(bbbWebAPI, apiCall, redirectToHtml5BaseString,
         BreakoutRoomsUtil.calculateChecksum(apiCall, redirectToHtml5BaseString, bbbWebSharedSecret))
     } yield {
-      sendJoinURLMsg(liveMeeting.props.meetingProp.intId, breakoutId, externalMeetingId,
-        userId, redirectJoinURL, redirectToHtml5JoinURL)
+      sendJoinURLMsg(
+        outGW,
+        liveMeeting.props.meetingProp.intId,
+        breakoutId,
+        externalMeetingId,
+        userId,
+        redirectJoinURL,
+        redirectToHtml5JoinURL
+      )
     }
   }
 
-  def sendJoinURLMsg(meetingId: String, breakoutId: String, externalId: String,
-                     userId: String, redirectJoinURL: String, redirectToHtml5JoinURL: String): Unit = {
+  def sendJoinURLMsg(
+      outGW:                  OutMsgRouter,
+      meetingId:              String,
+      breakoutId:             String,
+      externalId:             String,
+      userId:                 String,
+      redirectJoinURL:        String,
+      redirectToHtml5JoinURL: String
+  ): Unit = {
     def build(meetingId: String, breakoutId: String,
               userId: String, redirectJoinURL: String, redirectToHtml5JoinURL: String): BbbCommonEnvCoreMsg = {
       val routing = Routing.addMsgToClientRouting(MessageTypes.DIRECT, meetingId, userId)
@@ -52,7 +69,10 @@ trait BreakoutHdlrHelpers extends SystemConfiguration {
 
   }
 
-  def updateParentMeetingWithUsers(): Unit = {
+  def updateParentMeetingWithUsers(
+      liveMeeting: LiveMeeting,
+      eventBus:    InternalEventBus
+  ): Unit = {
 
     val users = Users2x.findAll(liveMeeting.users2x)
     val breakoutUsers = users map { u => new BreakoutUser(u.extId, u.name) }

@@ -51,12 +51,10 @@
     "app.breakoutJoinConfirmation.dismissLabel": "בטל",
     "app.audioModal.yes": "כן",
     "app.audioModal.no": "לא",
-    "app.lock-viewers.PublicChatLabel": "צ'אט ציבורי",
-    "app.lock-viewers.PrivateChatLable": "צ'אט פרטי",
-    "app.lock-viewers.userListLabel": "משתתפים",
+    "app.lock-viewers.button.cancel": "בטל",
+    "app.lock-viewers.locked": "נעול",
     "app.videoPreview.cancelLabel": "בטל",
-    "app.video.cancel": "בטל",
-    "app.externalVideo.noteLabel": "הערה: הסרטון לא יופיע בהקלטה, מומלץ לשלוח הקישור גם בצ'אט "
+    "app.video.cancel": "בטל"
 
 }
 

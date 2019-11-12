@@ -22,6 +22,7 @@ export default function startTyping(meetingId, userId, chatId) {
     userId,
     name: user.name,
     isTypingTo: chatId,
+    role: user.role,
     time: (new Date()),
   };
 

@@ -175,6 +175,7 @@
   background-color: var(--color-white);
   @include mq($small-only) {
     width: auto;
+    height: auto;
   }
 }
 

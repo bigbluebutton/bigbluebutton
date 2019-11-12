@@ -9569,6 +9569,7 @@ UA.prototype.loadConfig = function(configuration) {
       hackStripTcp: false,
       hackPlanBUnifiedPlanTranslation: false,
       hackAddAudioTransceiver: false,
+      relayOnlyOnReconnect: false,
 
       contactTransport: 'ws',
       forceRport: false,
@@ -9962,6 +9963,12 @@ UA.prototype.getConfigurationCheck = function () {
       contactTransport: function(contactTransport) {
         if (typeof contactTransport === 'string') {
           return contactTransport;
+        }
+      },
+
+      relayOnlyOnReconnect: function(relayOnlyOnReconnect) {
+        if (typeof relayOnlyOnReconnect === 'boolean') {
+          return relayOnlyOnReconnect;
         }
       },
 
@@ -11475,6 +11482,10 @@ MediaHandler.prototype = Object.create(SIP.MediaHandler.prototype, {
       iceServers: servers,
       sdpSemantics:'plan-b'
     };
+
+    if (config.relayOnlyOnReconnect) {
+      connConfig.iceTransportPolicy = 'relay';
+    }
 
     if (config.rtcpMuxPolicy) {
       connConfig.rtcpMuxPolicy = config.rtcpMuxPolicy;

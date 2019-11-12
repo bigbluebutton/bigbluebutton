@@ -1,6 +1,6 @@
 import React from 'react';
 import { withTracker } from 'meteor/react-meteor-data';
-import Breakouts from '/imports/api/breakouts';
+import BreakoutService from '/imports/ui/components/breakout-room/service';
 import Meetings from '/imports/api/meetings';
 import Auth from '/imports/ui/services/auth';
 import UserListItem from './component';
@@ -10,7 +10,7 @@ const UserListItemContainer = props => <UserListItem {...props} />;
 const isMe = intId => intId === Auth.userID;
 
 export default withTracker(({ user }) => {
-  const findUserInBreakout = Breakouts.findOne({ 'joinedUsers.userId': new RegExp(`^${user.userId}`) });
+  const findUserInBreakout = BreakoutService.getBreakoutUserIsIn(user.userId);
   const breakoutSequence = (findUserInBreakout || {}).sequence;
   const Meeting = Meetings.findOne({ meetingId: Auth.meetingID },
     { fields: { lockSettingsProps: 1 } });

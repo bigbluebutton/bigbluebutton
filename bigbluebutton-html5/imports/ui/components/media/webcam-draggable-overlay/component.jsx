@@ -3,8 +3,8 @@ import Draggable from 'react-draggable';
 import cx from 'classnames';
 import _ from 'lodash';
 import browser from 'browser-detect';
-import Resizable from 're-resizable';
 import PropTypes from 'prop-types';
+import Resizable from 're-resizable';
 import { withDraggableContext } from './context';
 import VideoProviderContainer from '/imports/ui/components/video-provider/container';
 import { styles } from '../styles.scss';
@@ -32,7 +32,6 @@ const defaultProps = {
   audioModalIsOpen: false,
   refMediaContainer: null,
 };
-
 const dispatchResizeEvent = () => window.dispatchEvent(new Event('resize'));
 
 class WebcamDraggable extends Component {
@@ -52,9 +51,17 @@ class WebcamDraggable extends Component {
   }
 
   componentDidUpdate(prevProps) {
-    const { swapLayout } = this.props;
-    if (prevProps.swapLayout === true && swapLayout === false) {
+    const { swapLayout, webcamDraggableState } = this.props;
+    const { placement } = webcamDraggableState;
+    const { webcamDraggableState: prevWebcamDraggableState } = prevProps;
+    const { placement: prevPlacement } = prevWebcamDraggableState;
+    if (prevProps.swapLayout !== swapLayout) {
       setTimeout(() => this.forceUpdate(), 500);
+    }
+
+    if (prevPlacement !== placement) {
+      setTimeout(() => this.forceUpdate(), 200);
+      setTimeout(() => window.dispatchEvent(new Event('resize')), 400);
     }
   }
 
@@ -83,8 +90,8 @@ class WebcamDraggable extends Component {
           },
         },
       );
+      this.onResizeStop();
     }
-    this.onResizeStop();
   }
 
   onResizeStop() {
@@ -191,21 +198,23 @@ class WebcamDraggable extends Component {
     const targetClassname = JSON.stringify(e.target.className);
     const { x, y } = position;
 
-    if (targetClassname && targetClassname.includes('Top')) {
-      webcamDraggableDispatch({ type: 'setplacementToTop' });
-    } else if (targetClassname && targetClassname.includes('Bottom')) {
-      webcamDraggableDispatch({ type: 'setplacementToBottom' });
-    } else if (singleWebcam) {
-      webcamDraggableDispatch(
-        {
-          type: 'setLastPosition',
-          value: {
-            x,
-            y,
+    if (targetClassname) {
+      if (targetClassname.includes('Top')) {
+        webcamDraggableDispatch({ type: 'setplacementToTop' });
+      } else if (targetClassname.includes('Bottom')) {
+        webcamDraggableDispatch({ type: 'setplacementToBottom' });
+      } else if (singleWebcam) {
+        webcamDraggableDispatch(
+          {
+            type: 'setLastPosition',
+            value: {
+              x,
+              y,
+            },
           },
-        },
-      );
-      webcamDraggableDispatch({ type: 'setplacementToFloating' });
+        );
+        webcamDraggableDispatch({ type: 'setplacementToFloating' });
+      }
     }
     webcamDraggableDispatch({ type: 'dragEnd' });
     window.dispatchEvent(new Event('resize'));
@@ -269,6 +278,7 @@ class WebcamDraggable extends Component {
 
     const contentClassName = cx({
       [styles.content]: true,
+      [styles.fullWidth]: !singleWebcam || swapLayout,
     });
 
     const overlayClassName = cx({
@@ -276,7 +286,11 @@ class WebcamDraggable extends Component {
       [styles.hideOverlay]: hideOverlay,
       [styles.floatingOverlay]: (singleWebcam && placement === 'floating') || dragging,
       [styles.autoWidth]: singleWebcam,
-      [styles.full]: !singleWebcam,
+      [styles.fullWidth]: (singleWebcam
+        && (placement === 'top' || placement === 'bottom')
+        && !dragging)
+        || !singleWebcam
+        || swapLayout,
       [styles.overlayToTop]: (placement === 'floating' && !singleWebcam)
         || (placement === 'top' && !dragging),
       [styles.overlayToBottom]: placement === 'bottom' && !dragging,
@@ -341,8 +355,8 @@ class WebcamDraggable extends Component {
             onResize={dispatchResizeEvent}
             onResizeStop={this.onResizeStop}
             enable={{
-              top: !(placement === 'top'),
-              bottom: !(placement === 'bottom'),
+              top: !(placement === 'top') && !swapLayout,
+              bottom: !(placement === 'bottom') && !swapLayout,
               left: false,
               right: false,
               topLeft: false,

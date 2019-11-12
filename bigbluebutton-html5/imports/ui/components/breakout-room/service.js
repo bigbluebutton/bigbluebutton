@@ -60,12 +60,10 @@ const amIModerator = () => {
   return User.role === ROLE_MODERATOR;
 };
 
-const getNumUsersByBreakoutId = breakoutId => Users.find({
-  meetingId: breakoutId,
-  connectionStatus: 'online',
-}, { fields: {} }).count();
-
-const getBreakoutByUserId = userId => Breakouts.find({ 'users.userId': userId }).fetch();
+const getBreakoutByUserId = userId => Breakouts.find(
+  { 'users.userId': userId },
+  { fields: { timeRemaining: 0 } },
+).fetch();
 
 const getBreakoutByUser = user => Breakouts.findOne({ users: user });
 
@@ -87,6 +85,21 @@ const getBreakoutUserByUserId = userId => fp.pipe(
 )(userId);
 
 const getBreakouts = () => Breakouts.find({}, { sort: { sequence: 1 } }).fetch();
+const getBreakoutsNoTime = () => Breakouts.find(
+  {},
+  {
+    sort: { sequence: 1 },
+    fields: { timeRemaining: 0 },
+  },
+).fetch();
+
+const getBreakoutUserIsIn = userId => Breakouts.findOne({ 'joinedUsers.userId': new RegExp(`^${userId}`) }, { fields: { sequence: 1 } });
+
+const isUserInBreakoutRoom = (joinedUsers) => {
+  const userId = Auth.userID;
+
+  return !!joinedUsers.find(user => user.userId.startsWith(userId));
+};
 
 export default {
   findBreakouts,
@@ -98,9 +111,11 @@ export default {
   meetingId: () => Auth.meetingID,
   closeBreakoutPanel,
   amIModerator,
-  getNumUsersByBreakoutId,
   getBreakoutUserByUserId,
   getBreakoutByUser,
   getBreakouts,
+  getBreakoutsNoTime,
   getBreakoutByUserId,
+  getBreakoutUserIsIn,
+  isUserInBreakoutRoom,
 };

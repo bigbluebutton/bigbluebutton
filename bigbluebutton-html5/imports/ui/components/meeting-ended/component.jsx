@@ -9,6 +9,7 @@ import logoutRouteHandler from '/imports/utils/logoutRouteHandler';
 import Rating from './rating/component';
 import { styles } from './styles';
 import logger from '/imports/startup/client/logger';
+import Users from '/imports/api/users';
 
 const intlMessage = defineMessages({
   410: {
@@ -100,9 +101,15 @@ class MeetingEnded extends React.PureComponent {
     this.state = {
       selected: 0,
     };
+
+    const user = Users.findOne({ userId: Auth.userID });
+    if (user) {
+      this.localUserRole = user.role;
+    }
+
     this.setSelectedStar = this.setSelectedStar.bind(this);
     this.sendFeedback = this.sendFeedback.bind(this);
-    this.shouldShowFeedback = getFromUserSettings('askForFeedbackOnLogout', Meteor.settings.public.app.askForFeedbackOnLogout);
+    this.shouldShowFeedback = getFromUserSettings('bbb_ask_for_feedback_on_logout', Meteor.settings.public.app.askForFeedbackOnLogout);
   }
 
   componentDidMount() {
@@ -134,6 +141,7 @@ class MeetingEnded extends React.PureComponent {
       authToken: Auth.token,
       meetingId: Auth.meetingID,
       comment: MeetingEnded.getComment(),
+      userRole: this.localUserRole,
     };
     const url = '/html5client/feedback';
     const options = {

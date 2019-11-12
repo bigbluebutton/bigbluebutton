@@ -1,6 +1,5 @@
-# Set encoding to utf-8
-# encoding: UTF-8
-#
+# frozen_string_literal: true
+
 # BigBlueButton open source conferencing system - http://www.bigbluebutton.org/
 #
 # Copyright (c) 2017 BigBlueButton Inc. and by respective authors (see below).
@@ -17,8 +16,6 @@
 #
 # You should have received a copy of the GNU Lesser General Public License along
 # with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
-#
-
 
 require '../lib/recordandplayback'
 require 'logger'
@@ -26,17 +23,27 @@ require 'trollop'
 require 'yaml'
 require 'fnv'
 
+AUDIO_ARCHIVE_FORMAT = {
+  extension: 'opus',
+  # TODO: consider changing bitrate based on channels or sample rate - this is
+  # overkill if freeswitch is configured in a mono or low quality profile
+  parameters: [
+    %w[-c:a libopus -b:a 128K -f ogg],
+  ]
+}.freeze
+
 def archive_events(meeting_id, redis_host, redis_port, redis_password, raw_archive_dir, break_timestamp)
   BigBlueButton.logger.info("Archiving events for #{meeting_id}")
-  #begin
-    redis = BigBlueButton::RedisWrapper.new(redis_host, redis_port, redis_password)
-    events_archiver = BigBlueButton::RedisEventsArchiver.new redis    
-    events = events_archiver.store_events(meeting_id,
-                          "#{raw_archive_dir}/#{meeting_id}/events.xml",
-                          break_timestamp)
-  #rescue => e
-  #  BigBlueButton.logger.warn("Failed to archive events for #{meeting_id}. " + e.to_s)
-  #end
+  redis = BigBlueButton::RedisWrapper.new(redis_host, redis_port, redis_password)
+  events_archiver = BigBlueButton::RedisEventsArchiver.new(redis)
+  events_archiver.store_events(meeting_id, File.join(raw_archive_dir, meeting_id, 'events.xml'), break_timestamp) do |events|
+    # Adjust the audio filenames to match the audio archive format
+    events.xpath('/recording/event[@module="VOICE"]/filename').each do |filename|
+      if filename.content.end_with?('.wav')
+        filename.content = "#{File.basename(filename.content, '.wav')}.#{AUDIO_ARCHIVE_FORMAT[:extension]}"
+      end
+    end
+  end
 end
 
 def archive_notes(meeting_id, notes_endpoint, notes_formats, raw_archive_dir)
@@ -70,18 +77,26 @@ def archive_notes(meeting_id, notes_endpoint, notes_formats, raw_archive_dir)
 end
 
 def archive_audio(meeting_id, audio_dir, raw_archive_dir)
-  BigBlueButton.logger.info("Archiving audio #{audio_dir}/#{meeting_id}-*.wav")
-  audio_dest_dir = "#{raw_archive_dir}/#{meeting_id}/audio"
+  BigBlueButton.logger.info("Archiving audio #{audio_dir}/#{meeting_id}-*.*")
+  audio_dest_dir = File.join(raw_archive_dir, meeting_id, 'audio')
   FileUtils.mkdir_p(audio_dest_dir)
-  audio_files = Dir.glob("#{audio_dir}/#{meeting_id}-*.wav")
+  audio_files = Dir.glob("#{audio_dir}/#{meeting_id}-*.*")
   if audio_files.empty?
     BigBlueButton.logger.warn("No audio found for #{meeting_id}")
     return
   end
-  ret = BigBlueButton.exec_ret('rsync', '-rstv', *audio_files,
-          "#{raw_archive_dir}/#{meeting_id}/audio/")
-  if ret != 0
-    BigBlueButton.logger.warn("Failed to archive audio for #{meeting_id}")
+  audio_files.each do |audio_file|
+    # Recompress the audio only if freeswitch saved an uncompressed wav, otherwise copy
+    if audio_file.end_with?('.wav')
+      output_basename = File.join(audio_dest_dir, File.basename(audio_file, '.wav'))
+      # Note that the encode method saves to a temp file then renames to the
+      # final filename, making this safe for segmented recordings that are
+      # concurrently being processed.
+      BigBlueButton::EDL.encode(audio_file, nil, AUDIO_ARCHIVE_FORMAT, output_basename)
+    else
+      ret = BigBlueButton.exec_ret('rsync', '-stv', audio_file, audio_dest_dir)
+      BigBlueButton.logger.warn("Failed to archive #{audio_file}") if ret != 0
+    end
   end
 end
 

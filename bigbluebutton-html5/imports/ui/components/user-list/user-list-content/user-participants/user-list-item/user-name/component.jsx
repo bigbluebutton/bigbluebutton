@@ -89,8 +89,10 @@ const UserName = (props) => {
       aria-expanded={isActionsOpen}
     >
       <span className={styles.userNameMain}>
-        {user.name}
-        {' '}
+        <span>
+          {user.name}
+&nbsp;
+        </span>
         <i>{(isMe(user.userId)) ? `(${intl.formatMessage(messages.you)})` : ''}</i>
       </span>
       {

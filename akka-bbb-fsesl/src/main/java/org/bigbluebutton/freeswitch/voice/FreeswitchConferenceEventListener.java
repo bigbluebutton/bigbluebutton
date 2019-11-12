@@ -56,7 +56,7 @@ public class FreeswitchConferenceEventListener implements ConferenceEventListene
         if (event instanceof VoiceUserJoinedEvent) {
           VoiceUserJoinedEvent evt = (VoiceUserJoinedEvent) event;
           vcs.userJoinedVoiceConf(evt.getRoom(), evt.getVoiceUserId(), evt.getUserId(), evt.getCallerIdName(),
-            evt.getCallerIdNum(), evt.getMuted(), evt.getSpeaking(), evt.getAvatarURL());
+            evt.getCallerIdNum(), evt.getMuted(), evt.getSpeaking(), evt.getCallingWith());
         } else if (event instanceof VoiceConfRunningEvent) {
           VoiceConfRunningEvent evt = (VoiceConfRunningEvent) event;
           vcs.voiceConfRunning(evt.getRoom(), evt.isRunning());
@@ -88,7 +88,20 @@ public class FreeswitchConferenceEventListener implements ConferenceEventListene
             vcs.deskShareRTMPBroadcastStopped(evt.getRoom(), evt.getBroadcastingStreamUrl(),
               evt.getVideoWidth(), evt.getVideoHeight(), evt.getTimestamp());
           }
+        } else if (event instanceof VoiceConfRunningAndRecordingEvent) {
+          VoiceConfRunningAndRecordingEvent evt = (VoiceConfRunningAndRecordingEvent) event;
+          if (evt.running && ! evt.recording) {
+            log.warn("Voice conf running but not recording. conf=" + evt.getRoom()
+                    + ",running=" + evt.running
+                    + ",rec=" + evt.recording);
+          }
+
+          vcs.voiceConfRunningAndRecording(evt.getRoom(), evt.running, evt.recording, evt.confRecordings);
+        } else if (event instanceof VoiceUsersStatusEvent) {
+          VoiceUsersStatusEvent evt = (VoiceUsersStatusEvent) event;
+          vcs.voiceUsersStatus(evt.getRoom(), evt.confMembers, evt.confRecordings);
         }
+
       }
     };
 
