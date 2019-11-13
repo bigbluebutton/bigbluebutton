@@ -115,7 +115,7 @@ class NavBar extends PureComponent {
         <div className={styles.right}>
           <SettingsDropdownContainer amIModerator={amIModerator} />
         </div>
-        <TalkingIndicatorContainer />
+        <TalkingIndicatorContainer amIModerator={amIModerator} />
       </div>
     );
   }

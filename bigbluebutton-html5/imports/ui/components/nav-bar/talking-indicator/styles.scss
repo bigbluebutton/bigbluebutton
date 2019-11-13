@@ -58,3 +58,11 @@
   padding-right: var(--spoke-padding-right);
   opacity: .5;
 }
+
+.unmuted {
+  cursor: pointer;
+}
+
+.muted {
+  cursor: default;
+}

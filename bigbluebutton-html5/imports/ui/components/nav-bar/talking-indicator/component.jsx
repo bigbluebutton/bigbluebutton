@@ -6,18 +6,22 @@ import { styles } from './styles';
 
 class TalkingIndicator extends PureComponent {
   render() {
-    const { talkers } = this.props;
+    const { talkers, muteUser, amIModerator } = this.props;
     if (!talkers) return null;
 
     const talkingUserElements = Object.keys(talkers).map((name) => {
       const {
         talking,
         color,
+        voiceUserId,
+        muted,
       } = talkers[`${name}`];
 
       const style = {
         [styles.talker]: true,
         [styles.spoke]: !talking,
+        [styles.muted]: muted,
+        [styles.unmuted]: !muted && amIModerator,
       };
 
       return (
@@ -27,6 +31,11 @@ class TalkingIndicator extends PureComponent {
           style={{
             backgroundColor: color,
           }}
+          role="button"
+          tabIndex={0}
+          onClick={amIModerator ? () => {
+            muteUser(voiceUserId);
+          } : null}
         >
           <span>{`${name}`}</span>
           {talking ? <Icon iconName="unmute" /> : null}
