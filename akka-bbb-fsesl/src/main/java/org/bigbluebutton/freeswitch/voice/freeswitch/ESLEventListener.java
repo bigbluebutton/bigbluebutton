@@ -51,6 +51,7 @@ public class ESLEventListener implements IEslEventListener {
 
     private static final Pattern GLOBAL_AUDION_PATTERN = Pattern.compile("(GLOBAL_AUDIO)_(.*)$");
     private static final Pattern CALLERNAME_PATTERN = Pattern.compile("(.*)-bbbID-(.*)$");
+    private static final Pattern CALLERNAME_WITH_SESS_INFO_PATTERN = Pattern.compile("^(.*)_(\\d+)-bbbID-(.*)$");
     
     @Override
     public void conferenceEventJoin(String uniqueId, String confName, int confSize, EslEvent event) {
@@ -77,7 +78,11 @@ public class ESLEventListener implements IEslEventListener {
             conferenceEventListener.handleConferenceEvent(dsStart);
         } else {
             Matcher matcher = CALLERNAME_PATTERN.matcher(callerIdName);
-            if (matcher.matches()) {
+            Matcher callWithSess = CALLERNAME_WITH_SESS_INFO_PATTERN.matcher(callerIdName);
+            if (callWithSess.matches()) {
+                voiceUserId = callWithSess.group(1).trim();
+                callerIdName = callWithSess.group(3).trim();
+            } else if (matcher.matches()) {
                 voiceUserId = matcher.group(1).trim();
                 callerIdName = matcher.group(2).trim();
             } else {
