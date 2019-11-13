@@ -30,8 +30,8 @@ public:
         animations: true
         chatAudioAlerts: false
         chatPushAlerts: false
-        userJoinAudioAlerts: true
-        userJoinPushAlerts: true
+        userJoinAudioAlerts: false
+        userJoinPushAlerts: false
         fallbackLocale: en
         overrideLocale: null
       audio:
