@@ -17,7 +17,7 @@ const TalkingIndicatorContainer = (props) => {
 export default withTracker(() => {
   const talkers = {};
   const meetingId = Auth.meetingID;
-  const usersTalking = VoiceUsers.find({ meetingId, joined: true }, {
+  const usersTalking = VoiceUsers.find({ meetingId, joined: true, spoke: true }, {
     fields: {
       callerName: 1,
       talking: 1,

@@ -56,12 +56,5 @@
 
 .spoke{
   padding-right: var(--spoke-padding-right);
-	animation-name: fade-out;
-	animation-fill-mode: both;
-  animation-duration: 3s;
-}
-
-@keyframes fade-out {
-  0% { opacity: 1; }
-  100% { opacity: 0; }
+  opacity: .5;
 }
