@@ -1,4 +1,7 @@
+import Logger from '/imports/startup/server/logger';
+
 export function removeAnnotationsStreamer(meetingId) {
+  Logger.info(`Removing Annotations streamer object for meeting ${meetingId}`);
   delete Meteor.StreamerCentral.instances[`annotations-${meetingId}`];
 }
 

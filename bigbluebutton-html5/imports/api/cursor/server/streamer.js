@@ -1,6 +1,8 @@
+import Logger from '/imports/startup/server/logger';
 import publishCursorUpdate from './methods/publishCursorUpdate';
 
 export function removeCursorStreamer(meetingId) {
+  Logger.info(`Removing Cursor streamer object for meeting ${meetingId}`);
   delete Meteor.StreamerCentral.instances[`cursor-${meetingId}`];
 }
 
