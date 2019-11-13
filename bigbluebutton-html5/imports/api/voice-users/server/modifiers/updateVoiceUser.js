@@ -31,7 +31,7 @@ export default function updateVoiceUser(meetingId, voiceUser) {
 
   if (voiceUser.talking) {
     modifier.$set.spoke = true;
-    modifier.$set.startTime = new Date().getTime();
+    modifier.$set.startTime = Date.now();
     modifier.$set.endTime = null;
   }
 
@@ -54,14 +54,14 @@ export default function updateVoiceUser(meetingId, voiceUser) {
 
       if (user) {
         const { endTime, talking } = user;
-        const spokeDelay = ((new Date().getTime() - endTime) < TALKING_TIMEOUT);
+        const spokeDelay = ((Date.now() - endTime) < TALKING_TIMEOUT);
         if (talking || spokeDelay) return;
         modifier.$set.spoke = false;
         VoiceUsers.update(selector, modifier, cb);
       }
     }, TALKING_TIMEOUT);
 
-    modifier.$set.endTime = new Date().getTime();
+    modifier.$set.endTime = Date.now();
   }
 
   return VoiceUsers.update(selector, modifier, cb);
