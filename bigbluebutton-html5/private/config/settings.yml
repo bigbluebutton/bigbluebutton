@@ -31,6 +31,8 @@ public:
         animations: true
         chatAudioAlerts: false
         chatPushAlerts: false
+        userJoinAudioAlerts: false
+        userJoinPushAlerts: false
         fallbackLocale: en
         overrideLocale: null
       audio:

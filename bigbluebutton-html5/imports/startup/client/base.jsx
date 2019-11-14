@@ -215,8 +215,19 @@ Base.propTypes = propTypes;
 Base.defaultProps = defaultProps;
 
 const BaseContainer = withTracker(() => {
-  const { locale, animations } = Settings.application;
-  const { credentials, loggedIn } = Auth;
+  const {
+    locale,
+    animations,
+    userJoinAudioAlerts,
+    userJoinPushAlerts,
+  } = Settings.application;
+
+  const {
+    credentials,
+    loggedIn,
+    userID: localUserId,
+  } = Auth;
+
   const { meetingId } = credentials;
   let breakoutRoomSubscriptionHandler;
   let meetingModeratorSubscriptionHandler;
@@ -310,6 +321,33 @@ const BaseContainer = withTracker(() => {
       }
     },
   });
+
+  if (userJoinAudioAlerts || userJoinPushAlerts) {
+    Users.find({}, { fields: { validated: 1, name: 1, userId: 1 } }).observe({
+      changed: (newDocument) => {
+        if (newDocument.validated && newDocument.name && newDocument.userId !== localUserId) {
+          if (userJoinAudioAlerts) {
+            const audio = new Audio(`${Meteor.settings.public.app.cdn + Meteor.settings.public.app.basename}/resources/sounds/userJoin.mp3`);
+            audio.play();
+          }
+
+          if (userJoinPushAlerts) {
+            notify(
+              <FormattedMessage
+                id="app.notification.userJoinPushAlert"
+                description="Notification for a user joins the meeting"
+                values={{
+                  0: newDocument.name,
+                }}
+              />,
+              'info',
+              'user',
+            );
+          }
+        }
+      },
+    });
+  }
 
   return {
     approved,
