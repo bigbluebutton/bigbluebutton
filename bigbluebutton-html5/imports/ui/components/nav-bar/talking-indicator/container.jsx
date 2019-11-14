@@ -7,7 +7,6 @@ import { makeCall } from '/imports/ui/services/api';
 
 const APP_CONFIG = Meteor.settings.public.app;
 const { enableTalkingIndicator } = APP_CONFIG;
-const MAX_PREV_SPEAKERS = 3;
 
 const TalkingIndicatorContainer = (props) => {
   if (!enableTalkingIndicator) return null;
@@ -28,15 +27,12 @@ export default withTracker(() => {
     },
   }).fetch();
 
-  let prevUserCount = 0;
-
   if (usersTalking) {
     for (let i = 0; i < usersTalking.length; i += 1) {
       const {
         callerName, talking, color, voiceUserId, muted,
       } = usersTalking[i];
-      if (prevUserCount === MAX_PREV_SPEAKERS && !talking) continue;
-      if (!talking) prevUserCount += 1;
+
       talkers[`${callerName}`] = {
         color,
         talking,

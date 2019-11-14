@@ -9,6 +9,7 @@
   --talker-max-width: 10rem;
   --talker-font-weight: 400;
   --talker-border-radius: 2rem;
+  --max-speaker-height: 1.5rem;
 }
 
 .isTalkingWrapper,
@@ -20,9 +21,9 @@
 }
 
 .isTalkingWrapper {
-  position: absolute;
-  left: var(--md-padding-x);
-  top: 3.7rem;
+  position: relative;
+  margin-top: var(--talker-margin-sm);
+  overflow: hidden;
 
   [dir="rtl"]  & {
     left: none;
@@ -32,6 +33,7 @@
 
 .speaking {
   flex-wrap: wrap;
+  max-height: var(--max-speaker-height);
 }
 
 .talker {

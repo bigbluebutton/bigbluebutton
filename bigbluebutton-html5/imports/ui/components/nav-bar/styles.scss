@@ -2,6 +2,13 @@
 
 .navbar {
   display: flex;
+  flex-direction: column;
+  height: var(--jumbo-padding-x);
+}
+
+.top,
+.bottom {
+  display: flex;
   flex-direction: row;
 }
 
