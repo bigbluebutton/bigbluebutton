@@ -16,7 +16,7 @@ import {
   updateWebcamStats,
 } from '/imports/ui/services/network-information/index';
 
-import { tryGenerateIceCandidates } from '../../../utils/safari-webrtc';
+import { tryGenerateIceCandidates } from '/imports/utils/safari-webrtc';
 import Auth from '/imports/ui/services/auth';
 
 import VideoService from './service';
@@ -583,9 +583,9 @@ class VideoProvider extends Component {
           extraInfo: {
             errorName: error.name,
             errorMessage: error.message,
-          }
+          },
         }, `Forced gUM to release additional ICE candidates failed due to ${error.name}.`);
-      };
+      }
     }
 
     try {

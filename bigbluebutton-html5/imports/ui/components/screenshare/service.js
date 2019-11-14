@@ -2,7 +2,7 @@ import Screenshare from '/imports/api/screenshare';
 import KurentoBridge from '/imports/api/screenshare/client/bridge';
 import Settings from '/imports/ui/services/settings';
 import logger from '/imports/startup/client/logger';
-import { tryGenerateIceCandidates } from '../../../utils/safari-webrtc';
+import { tryGenerateIceCandidates } from '/imports/utils/safari-webrtc';
 
 // when the meeting information has been updated check to see if it was
 // screensharing. If it has changed either trigger a call to receive video
@@ -33,13 +33,13 @@ const presenterScreenshareHasStarted = () => {
   // useful ICE candidates on recvonly/no-gUM peers
   tryGenerateIceCandidates().then(() => {
     KurentoBridge.kurentoWatchVideo();
-  }).catch(error => {
+  }).catch((error) => {
     logger.error({
       logCode: 'screenshare_no_valid_candidate_gum_failure',
       extraInfo: {
         errorName: error.name,
         errorMessage: error.message,
-      }
+      },
     }, `Forced gUM to release additional ICE candidates failed due to ${error.name}.`);
     // The fallback gUM failed. Try it anyways and hope for the best.
     KurentoBridge.kurentoWatchVideo();

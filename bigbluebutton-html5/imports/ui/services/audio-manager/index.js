@@ -7,8 +7,8 @@ import logger from '/imports/startup/client/logger';
 import { notify } from '/imports/ui/services/notification';
 import browser from 'browser-detect';
 import playAndRetry from '/imports/utils/mediaElementPlayRetry';
-import iosWebviewAudioPolyfills from '../../../utils/ios-webview-audio-polyfills';
-import { tryGenerateIceCandidates } from '../../../utils/safari-webrtc';
+import iosWebviewAudioPolyfills from '/imports/utils/ios-webview-audio-polyfills';
+import { tryGenerateIceCandidates } from '/imports/utils/safari-webrtc';
 import AudioErrors from './error-codes';
 
 const MEDIA = Meteor.settings.public.media;
@@ -173,7 +173,7 @@ class AudioManager {
         extraInfo: {
           errorName: error.name,
           errorMessage: error.message,
-        }
+        },
       }, `Forced gUM to release additional ICE candidates failed due to ${error.name}.`);
     }
 
