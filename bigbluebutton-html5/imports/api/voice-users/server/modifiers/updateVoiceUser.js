@@ -2,10 +2,9 @@ import { Match, check } from 'meteor/check';
 import Logger from '/imports/startup/server/logger';
 import VoiceUsers from '/imports/api/voice-users';
 import flat from 'flat';
+import { spokeTimeoutHandles, clearSpokeTimeout } from '/imports/api/common/server/helpers';
 
 const TALKING_TIMEOUT = 3000;
-
-export const timeoutHandles = {};
 
 export default function updateVoiceUser(meetingId, voiceUser) {
   check(meetingId, String);
@@ -35,11 +34,7 @@ export default function updateVoiceUser(meetingId, voiceUser) {
     modifier.$set.spoke = true;
     modifier.$set.startTime = Date.now();
     modifier.$set.endTime = null;
-
-    if (timeoutHandles[`${meetingId}-${intId}`]) {
-      Meteor.clearTimeout(timeoutHandles[`${meetingId}-${intId}`]);
-      delete timeoutHandles[`${meetingId}-${intId}`];
-    }
+    clearSpokeTimeout(meetingId, intId);
   }
 
   const cb = (err) => {
@@ -68,7 +63,7 @@ export default function updateVoiceUser(meetingId, voiceUser) {
       }
     }, TALKING_TIMEOUT);
 
-    timeoutHandles[`${meetingId}-${intId}`] = timeoutHandle;
+    spokeTimeoutHandles[`${meetingId}-${intId}`] = timeoutHandle;
     modifier.$set.endTime = Date.now();
   }
 
