@@ -7,8 +7,8 @@ import logger from '/imports/startup/client/logger';
 import { notify } from '/imports/ui/services/notification';
 import browser from 'browser-detect';
 import playAndRetry from '/imports/utils/mediaElementPlayRetry';
-import iosWebviewAudioPolyfills from '../../../utils/ios-webview-audio-polyfills';
-import { tryGenerateIceCandidates } from '../../../utils/safari-webrtc';
+import iosWebviewAudioPolyfills from '/imports/utils/ios-webview-audio-polyfills';
+import { tryGenerateIceCandidates } from '/imports/utils/safari-webrtc';
 import AudioErrors from './error-codes';
 
 const MEDIA = Meteor.settings.public.media;
@@ -163,14 +163,18 @@ class AudioManager {
       inputStream: this.createListenOnlyStream(),
     };
 
-    // Webkit ICE restrictions demand a capture device permission to release
-    // host candidates
-    if (name === 'safari') {
-      try {
-        await tryGenerateIceCandidates();
-      } catch (e) {
-        this.notify(this.intl.formatMessage(this.messages.error.ICE_NEGOTIATION_FAILED));
-      }
+    // WebRTC restrictions may need a capture device permission to release
+    // useful ICE candidates on recvonly/no-gUM peers
+    try {
+      await tryGenerateIceCandidates();
+    } catch (error) {
+      logger.error({
+        logCode: 'listenonly_no_valid_candidate_gum_failure',
+        extraInfo: {
+          errorName: error.name,
+          errorMessage: error.message,
+        },
+      }, `Forced gUM to release additional ICE candidates failed due to ${error.name}.`);
     }
 
     // Call polyfills for webrtc client if navigator is "iOS Webview"

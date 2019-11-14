@@ -16,7 +16,7 @@ import {
   updateWebcamStats,
 } from '/imports/ui/services/network-information/index';
 
-import { tryGenerateIceCandidates } from '../../../utils/safari-webrtc';
+import { tryGenerateIceCandidates } from '/imports/utils/safari-webrtc';
 import Auth from '/imports/ui/services/auth';
 
 import VideoService from './service';
@@ -209,7 +209,6 @@ class VideoProvider extends Component {
   }
 
   componentDidMount() {
-    this.checkIceConnectivity();
     document.addEventListener('joinVideo', this.shareWebcam); // TODO find a better way to do this
     document.addEventListener('exitVideo', this.unshareWebcam);
     this.ws.onmessage = this.onWsMessage;
@@ -371,17 +370,6 @@ class VideoProvider extends Component {
     } else if (hasRemoteStream) {
       this.monitorTrackStart(peer.peerConnection,
         peer.peerConnection.getRemoteStreams()[0].getVideoTracks()[0], false, callback);
-    }
-  }
-
-  checkIceConnectivity() {
-    // Webkit ICE restrictions demand a capture device permission to release
-    // host candidates
-    if (browser().name === 'safari') {
-      const { intl } = this.props;
-      tryGenerateIceCandidates().catch(() => {
-        VideoProvider.notifyError(intl.formatMessage(intlSFUErrors[2021]));
-      });
     }
   }
 
@@ -583,6 +571,22 @@ class VideoProvider extends Component {
     }
 
     this.webRtcPeers[id] = {};
+
+    // WebRTC restrictions may need a capture device permission to release
+    // useful ICE candidates on recvonly/no-gUM peers
+    if (!shareWebcam) {
+      try {
+        await tryGenerateIceCandidates();
+      } catch (error) {
+        logger.error({
+          logCode: 'video_provider_no_valid_candidate_gum_failure',
+          extraInfo: {
+            errorName: error.name,
+            errorMessage: error.message,
+          },
+        }, `Forced gUM to release additional ICE candidates failed due to ${error.name}.`);
+      }
+    }
 
     try {
       iceServers = await fetchWebRTCMappedStunTurnServers(sessionToken);
