@@ -23,6 +23,11 @@
   position: absolute;
   left: var(--md-padding-x);
   top: 3.7rem;
+
+  [dir="rtl"]  & {
+    left: none;
+    right: var(--md-padding-x);
+  }
 }
 
 .speaking {
