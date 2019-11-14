@@ -22,12 +22,16 @@ const LOG_CONFIG = Meteor.settings.public.clientLog || { console: { enabled: tru
 class ServerLoggerStream extends ServerStream {
   write(rec) {
     const { fullInfo } = Auth;
+    const { logTag } = Meteor.settings.public.app;
 
     this.rec = rec;
     if (fullInfo.meetingId != null) {
       this.rec.userInfo = fullInfo;
     }
     this.rec.clientBuild = Meteor.settings.public.app.html5ClientBuild;
+    if (logTag) {
+      this.rec.logTag = logTag;
+    }
     return super.write(this.rec);
   }
 }

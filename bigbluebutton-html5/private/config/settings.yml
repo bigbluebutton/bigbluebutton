@@ -16,6 +16,7 @@ public:
     helpLink: https://bigbluebutton.org/html5/
     lockOnJoin: true
     cdn: ""
+    logTag: ""
     basename: "/html5client"
     askForFeedbackOnLogout: false
     allowUserLookup: false
