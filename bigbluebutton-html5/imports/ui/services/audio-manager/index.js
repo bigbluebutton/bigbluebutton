@@ -163,14 +163,18 @@ class AudioManager {
       inputStream: this.createListenOnlyStream(),
     };
 
-    // Webkit ICE restrictions demand a capture device permission to release
-    // host candidates
-    if (name === 'safari') {
-      try {
-        await tryGenerateIceCandidates();
-      } catch (e) {
-        this.notify(this.intl.formatMessage(this.messages.error.ICE_NEGOTIATION_FAILED));
-      }
+    // WebRTC restrictions may need a capture device permission to release
+    // useful ICE candidates on recvonly/no-gUM peers
+    try {
+      await tryGenerateIceCandidates();
+    } catch (error) {
+      logger.error({
+        logCode: 'listenonly_no_valid_candidate_gum_failure',
+        extraInfo: {
+          errorName: error.name,
+          errorMessage: error.message,
+        }
+      }, `Forced gUM to release additional ICE candidates failed due to ${error.name}.`);
     }
 
     // Call polyfills for webrtc client if navigator is "iOS Webview"

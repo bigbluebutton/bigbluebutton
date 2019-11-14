@@ -1,6 +1,7 @@
 import { fetchWebRTCMappedStunTurnServers } from '/imports/utils/fetchStunTurnServers';
 import Auth from '/imports/ui/services/auth';
 import { Session } from 'meteor/session';
+import logger from '/imports/startup/client/logger';
 
 const defaultIceServersList = [
   { urls: 'stun:stun.l.google.com:19302' },
@@ -39,16 +40,15 @@ export function canGenerateIceCandidates() {
     }
 
     getIceServersList().catch((e) => {
-      reject();
+      reject(e);
     }).then((iceServersReceived) => {
       const pc = new RTCPeerConnection({ iceServers: iceServersReceived });
       let countIceCandidates = 0;
 
       try { pc.addTransceiver('audio'); } catch (e) { }
-
       pc.onicecandidate = function (e) {
         if (countIceCandidates) return;
-        if (e.candidate) {
+        if (e.candidate && e.candidate.candidate.indexOf('.local') === -1) {
           countIceCandidates++;
           Session.set('canGenerateIceCandidates', true);
           resolve();
@@ -56,7 +56,10 @@ export function canGenerateIceCandidates() {
       };
 
       pc.onicegatheringstatechange = function (e) {
-        if (e.currentTarget.iceGatheringState == 'complete' && countIceCandidates == 0) reject();
+        if (e.currentTarget.iceGatheringState === 'complete' && countIceCandidates === 0) {
+          logger.warn({ logCode: 'no_valid_candidate' }, 'No useful ICE candidate found. Will request gUM permission.');
+          reject();
+        }
       };
 
       setTimeout(() => {
@@ -70,19 +73,31 @@ export function canGenerateIceCandidates() {
   });
 }
 
+/*
+ * Try to generate candidates for a recvonly RTCPeerConnection without
+ * a gUM permission and check if there are any candidates generated other than
+ * a mDNS host candidate. If there aren't, forcefully request gUM permission
+ * for mic (best chance of a gUM working is mic) to try and make the browser
+ * generate at least srflx candidates.
+ * This is a workaround due to a behaviour some browsers display (mainly Safari)
+ * where they won't generate srflx or relay candidates if no gUM permission is
+ * given. Since our media servers aren't able to make it work by prflx
+ * candidates, we need to do this.
+ */
 export function tryGenerateIceCandidates() {
   return new Promise((resolve, reject) => {
-    canGenerateIceCandidates().then((ok) => {
+    canGenerateIceCandidates().then(() => {
       resolve();
-    }).catch((e) => {
-      navigator.mediaDevices.getUserMedia({ audio: true, video: false }).then((stream) => {
-        canGenerateIceCandidates().then((ok) => {
+    }).catch(() => {
+      navigator.mediaDevices.getUserMedia({ audio: true, video: false }).then(() => {
+        logger.info({ logCode: 'no_valid_candidate_gum_success' }, 'Forced gUM to release additional ICE candidates succeeded.');
+        canGenerateIceCandidates().then(() => {
           resolve();
-        }).catch((e) => {
-          reject();
+        }).catch((error) => {
+          reject(error);
         });
-      }).catch((e) => {
-        reject();
+      }).catch((error) => {
+        reject(error);
       });
     });
   });
