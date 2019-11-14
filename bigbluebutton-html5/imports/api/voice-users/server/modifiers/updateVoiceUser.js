@@ -5,6 +5,8 @@ import flat from 'flat';
 
 const TALKING_TIMEOUT = 3000;
 
+export const timeoutHandles = {};
+
 export default function updateVoiceUser(meetingId, voiceUser) {
   check(meetingId, String);
   check(voiceUser, {
@@ -33,6 +35,11 @@ export default function updateVoiceUser(meetingId, voiceUser) {
     modifier.$set.spoke = true;
     modifier.$set.startTime = Date.now();
     modifier.$set.endTime = null;
+
+    if (timeoutHandles[`${meetingId}-${intId}`]) {
+      Meteor.clearTimeout(timeoutHandles[`${meetingId}-${intId}`]);
+      delete timeoutHandles[`${meetingId}-${intId}`];
+    }
   }
 
   const cb = (err) => {
@@ -44,7 +51,7 @@ export default function updateVoiceUser(meetingId, voiceUser) {
   };
 
   if (!voiceUser.talking) {
-    Meteor.setTimeout(() => {
+    const timeoutHandle = Meteor.setTimeout(() => {
       const user = VoiceUsers.findOne({ meetingId, intId }, {
         fields: {
           endTime: 1,
@@ -61,6 +68,7 @@ export default function updateVoiceUser(meetingId, voiceUser) {
       }
     }, TALKING_TIMEOUT);
 
+    timeoutHandles[`${meetingId}-${intId}`] = timeoutHandle;
     modifier.$set.endTime = Date.now();
   }
 

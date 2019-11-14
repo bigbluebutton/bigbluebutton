@@ -1,6 +1,7 @@
 import { check } from 'meteor/check';
 import Logger from '/imports/startup/server/logger';
 import VoiceUsers from '/imports/api/voice-users';
+import { timeoutHandles } from './updateVoiceUser';
 
 export default function removeVoiceUser(meetingId, voiceUser) {
   check(meetingId, String);
@@ -26,6 +27,11 @@ export default function removeVoiceUser(meetingId, voiceUser) {
       spoke: false,
     },
   };
+
+  if (timeoutHandles[`${meetingId}-${intId}`]) {
+    Meteor.clearTimeout(timeoutHandles[`${meetingId}-${intId}`]);
+    delete timeoutHandles[`${meetingId}-${intId}`];
+  }
 
   const cb = (err) => {
     if (err) {
