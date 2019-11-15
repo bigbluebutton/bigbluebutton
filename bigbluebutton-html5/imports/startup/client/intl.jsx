@@ -23,10 +23,14 @@ import id from 'react-intl/locale-data/id';
 import it from 'react-intl/locale-data/it';
 import ja from 'react-intl/locale-data/ja';
 import km from 'react-intl/locale-data/km';
+import ko from 'react-intl/locale-data/ko';
+import nl from 'react-intl/locale-data/nl';
 import pl from 'react-intl/locale-data/pl';
 import pt from 'react-intl/locale-data/pt';
 import ro from 'react-intl/locale-data/ro';
 import ru from 'react-intl/locale-data/ru';
+import sk from 'react-intl/locale-data/sk';
+import sr from 'react-intl/locale-data/sr';
 import sv from 'react-intl/locale-data/sv';
 import tr from 'react-intl/locale-data/tr';
 import uk from 'react-intl/locale-data/uk';
@@ -53,10 +57,14 @@ addLocaleData([
   ...it,
   ...ja,
   ...km,
+  ...ko,
+  ...nl,
   ...pl,
   ...pt,
   ...ro,
   ...ru,
+  ...sk,
+  ...sr,
   ...sv,
   ...tr,
   ...uk,
