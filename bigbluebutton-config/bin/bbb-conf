@@ -1607,8 +1607,8 @@ if [ $CHECK ]; then
     if [ -f $KURENTO_CONFIG ]; then
         echo
         echo "$KURENTO_CONFIG (Kurento SFU)"
-        echo "                        kurento.ip: $(yq r $KURENTO_CONFIG kurento[0].ip)"
-        echo "                       kurento.url: $(yq r $KURENTO_CONFIG kurento[0].url)"
+        echo "                        kurento.ip: $(yq r $KURENTO_CONFIG kurento.ip)"
+        echo "                       kurento.url: $(yq r $KURENTO_CONFIG kurento.url)"
         echo "                    localIpAddress: $(yq r $KURENTO_CONFIG localIpAddress)"
         echo "               recordScreenSharing: $(yq r $KURENTO_CONFIG recordScreenSharing)"
         echo "                     recordWebcams: $(yq r $KURENTO_CONFIG recordWebcams)"
