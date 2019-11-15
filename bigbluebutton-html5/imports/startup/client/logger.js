@@ -20,17 +20,24 @@ const LOG_CONFIG = Meteor.settings.public.clientLog || { console: { enabled: tru
 
 // Custom stream that logs to an end-point
 class ServerLoggerStream extends ServerStream {
+  constructor(params) {
+    super(params);
+
+    if (params.logTag) {
+      this.logTagString = params.logTag;
+    }
+  }
+
   write(rec) {
     const { fullInfo } = Auth;
-    const { logTag } = Meteor.settings.public.app;
 
     this.rec = rec;
     if (fullInfo.meetingId != null) {
       this.rec.userInfo = fullInfo;
     }
     this.rec.clientBuild = Meteor.settings.public.app.html5ClientBuild;
-    if (logTag) {
-      this.rec.logTag = logTag;
+    if (this.logTagString) {
+      this.rec.logTag = this.logTagString;
     }
     return super.write(this.rec);
   }
