@@ -16,9 +16,22 @@ const IPV4_FALLBACK_DOMAIN = Meteor.settings.public.app.ipv4FallbackDomain;
 const ICE_NEGOTIATION_FAILED = ['iceConnectionFailed'];
 const CALL_CONNECT_TIMEOUT = 15000;
 const ICE_NEGOTIATION_TIMEOUT = 20000;
+const AUDIO_SESSION_NUM_KEY = 'AudioSessionNumber';
+
+
+const getAudioSessionNumber = () => {
+  let currItem = parseInt(sessionStorage.getItem(AUDIO_SESSION_NUM_KEY), 10);
+  if (!currItem) {
+    currItem = 0;
+  }
+
+  currItem += 1;
+  sessionStorage.setItem(AUDIO_SESSION_NUM_KEY, currItem);
+  return currItem;
+};
 
 class SIPSession {
-  constructor(user, userData, protocol, hostname, 
+  constructor(user, userData, protocol, hostname,
     baseCallStates, baseErrorCodes, reconnectAttempt) {
     this.user = user;
     this.userData = userData;
@@ -83,7 +96,7 @@ class SIPSession {
     } = this.user;
 
     const callerIdName = [
-      userId,
+      `${userId}_${getAudioSessionNumber()}`,
       'bbbID',
       isListenOnly ? `LISTENONLY-${name}` : name,
     ].join('-').replace(/"/g, "'");
