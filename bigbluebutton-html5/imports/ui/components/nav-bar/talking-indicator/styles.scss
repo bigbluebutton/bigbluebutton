@@ -1,5 +1,6 @@
 @import "../../../stylesheets/variables/_all";
 @import "../../../stylesheets/variables/typography";
+@import "../../../stylesheets/mixins/_indicators";
 
 :root {
   --spoke-padding-right: 1.3rem;
@@ -10,6 +11,10 @@
   --talker-font-weight: 400;
   --talker-border-radius: 2rem;
   --max-speaker-height: 1.5rem;
+}
+
+.hidden {
+  display: none;
 }
 
 .isTalkingWrapper,
@@ -37,6 +42,7 @@
 }
 
 .talker {
+  @include highContrastOutline();
   color: white;
   font-weight: var(--talker-font-weight);
   border-radius: var(--talker-border-radius) var(--talker-border-radius);
