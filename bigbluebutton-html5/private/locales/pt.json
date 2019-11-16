@@ -132,7 +132,6 @@
     "app.presentationUploder.genericError": "Ops, ocorreu um erro",
     "app.presentationUploder.rejectedError": "O(s) ficheiro(s) selecionados foram rejeitados.\nVerifique por favor os tipos de ficheiro.",
     "app.presentationUploder.upload.progress": "A carregar ({0}%)",
-    "app.presentationUploder.upload.413": "O ficheiro é demasiado grande. Foi atingido o limite de 200 páginas",
     "app.presentationUploder.conversion.conversionProcessingSlides": "A processar a página {0} de {1}",
     "app.presentationUploder.conversion.genericConversionStatus": "A converter o ficheiro ...",
     "app.presentationUploder.conversion.generatingThumbnail": "A gerar miniaturas ...",
