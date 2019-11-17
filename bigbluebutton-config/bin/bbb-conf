@@ -101,7 +101,12 @@ if [ -f /etc/centos-release ]; then
     REDIS_SERVICE=redis.service
 else
     . /etc/lsb-release    # Get value for DISTRIB_ID
-    TOMCAT_USER=tomcat7
+    if [ "$DISTRIB_CODENAME" == "bionic" ]; then
+      TOMCAT_USER=tomcat8
+    fi
+    if [ "$DISTRIB_CODENAME" == "xenial" ]; then
+      TOMCAT_USER=tomcat7
+    fi
     TOMCAT_DIR=/var/lib/$TOMCAT_USER
     SERVLET_LOGS=$TOMCAT_DIR/logs
     REDIS_SERVICE=redis-server
