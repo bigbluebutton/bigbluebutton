@@ -65,6 +65,7 @@ export default function addUser(meetingId, userData) {
         connectionStatus: 'online',
         sortName: user.name.trim().toLowerCase(),
         color,
+        mobile: false,
         breakoutProps: {
           isBreakoutUser: Meeting.meetingProp.isBreakout,
           parentId: Meeting.breakoutProps.parentId,
