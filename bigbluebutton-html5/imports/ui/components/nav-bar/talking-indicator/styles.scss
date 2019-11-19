@@ -1,14 +1,19 @@
 @import "../../../stylesheets/variables/_all";
 @import "../../../stylesheets/variables/typography";
+@import "../../../stylesheets/mixins/_indicators";
 
 :root {
-  --spoke-padding-right: 1.3rem;
-  --spoke-opacity: .75;
-  --talker-margin-xsm: .25rem;
+  --spoke-opacity: .5;
   --talker-margin-sm: .5rem;
   --talker-max-width: 10rem;
   --talker-font-weight: 400;
   --talker-border-radius: 2rem;
+  --max-speaker-height: 1.5rem;
+  --icon-offset: 1.1rem;
+}
+
+.hidden {
+  display: none;
 }
 
 .isTalkingWrapper,
@@ -20,24 +25,26 @@
 }
 
 .isTalkingWrapper {
-  position: absolute;
-  left: var(--md-padding-x);
-  top: 3.7rem;
+  position: relative;
+  margin-top: var(--talker-margin-sm);
+  overflow: hidden;
 }
 
 .speaking {
   flex-wrap: wrap;
+  max-height: var(--max-speaker-height);
 }
 
 .talker {
+  @include highContrastOutline();
   color: white;
   font-weight: var(--talker-font-weight);
   border-radius: var(--talker-border-radius) var(--talker-border-radius);
   font-size: var(--font-size-base);
-  padding-left: var(--talker-margin-sm);
-  padding-right: var(--sm-padding-y);
-  margin-right: var(--talker-margin-sm);
-  margin-bottom: var(--talker-margin-xsm);
+  padding-left: var(--border-radius);
+  padding-right: var(--border-radius);
+  margin-left: var(--border-radius);
+  margin-right: var(--border-radius);
 
   > span {
     max-width: var(--talker-max-width);
@@ -49,19 +56,24 @@
   i {
     position: relative;
     top: var(--border-size-large);
-    margin-left: var(--border-size);
     font-size: var(--font-size-small);
   }
 }
 
-.spoke{
-  padding-right: var(--spoke-padding-right);
-	animation-name: fade-out;
-	animation-fill-mode: both;
-  animation-duration: 3s;
+.spoke {
+  opacity: var(--spoke-opacity);
+  padding-right: var(--icon-offset);
+
+  [dir="rtl"]  & {
+    padding-left: var(--icon-offset);
+    padding-right: var(--border-radius);
+  }
+ }
+
+.unmuted {
+  cursor: pointer;
 }
 
-@keyframes fade-out {
-  0% { opacity: 1; }
-  100% { opacity: 0; }
+.muted {
+  cursor: default;
 }
