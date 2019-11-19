@@ -67,6 +67,7 @@
     "app.userList.byModerator": "by (Moderator)",
     "app.userList.label": "User list",
     "app.userList.toggleCompactView.label": "Toggle compact view mode",
+    "app.userList.mobile": "Mobile",
     "app.userList.guest": "Guest",
     "app.userList.menuTitleContext": "Available options",
     "app.userList.chatListItem.unreadSingular": "{0} New Message",

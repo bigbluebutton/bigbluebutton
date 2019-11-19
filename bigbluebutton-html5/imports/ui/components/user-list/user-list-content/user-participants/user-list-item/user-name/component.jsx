@@ -17,6 +17,10 @@ const messages = defineMessages({
     id: 'app.userList.locked',
     description: 'Text for identifying locked user',
   },
+  mobile: {
+    id: 'app.userList.mobile',
+    description: 'Text for identifying mobile user',
+  },
   guest: {
     id: 'app.userList.guest',
     description: 'Text for identifying guest user',
@@ -75,6 +79,10 @@ const UserName = (props) => {
         {intl.formatMessage(messages.locked)}
       </span>,
     );
+  }
+
+  if (user.mobile) {
+    userNameSub.push(intl.formatMessage(messages.mobile));
   }
 
   if (user.guest) {
