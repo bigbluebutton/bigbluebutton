@@ -402,7 +402,7 @@ class VideoPreview extends Component {
       previewError: undefined,
     });
     changeProfile(profile.id);
-    if (skipVideoPreview) this.handleStartSharing();
+    if (skipVideoPreview) return this.handleStartSharing();
 
     this.doGUM(deviceId, profile).then((stream) => {
       if (!this._isMounted) return;
