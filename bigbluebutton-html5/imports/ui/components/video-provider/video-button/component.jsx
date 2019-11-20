@@ -44,8 +44,6 @@ const JoinVideoButton = ({
   handleCloseVideo,
   notify,
   validIOSVersion,
-  skipVideoPreviewSettings,
-  skipVideoPreviewParameter,
 }) => {
   const verifyIOS = () => {
     if (!validIOSVersion()) {
@@ -54,9 +52,6 @@ const JoinVideoButton = ({
         'error',
         'warning',
       );
-    }
-    if (skipVideoPreviewSettings || skipVideoPreviewParameter) {
-      return window.dispatchEvent(new Event('bbb-auto-play-video'));
     }
     handleJoinVideo();
   };

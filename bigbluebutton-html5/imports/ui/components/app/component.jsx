@@ -18,7 +18,6 @@ import ChatAlertContainer from '../chat/alert/container';
 import BannerBarContainer from '/imports/ui/components/banner-bar/container';
 import WaitingNotifierContainer from '/imports/ui/components/waiting-users/alert/container';
 import LockNotifier from '/imports/ui/components/lock-viewers/notify/container';
-import AutoPlayVideoContainer from '/imports/ui/components/video-provider/auto-play-video/container';
 import PingPongContainer from '/imports/ui/components/ping-pong/container';
 
 import MediaService from '/imports/ui/components/media/service';
@@ -348,7 +347,6 @@ class App extends Component {
         <LockNotifier />
         <PingPongContainer />
         <ManyWebcamsNotifier />
-        <AutoPlayVideoContainer />
         {customStyleUrl ? <link rel="stylesheet" type="text/css" href={customStyleUrl} /> : null}
         {customStyle ? <link rel="stylesheet" type="text/css" href={`data:text/css;charset=UTF-8,${encodeURIComponent(customStyle)}`} /> : null}
       </main>

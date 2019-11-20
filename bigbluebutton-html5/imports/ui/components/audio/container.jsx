@@ -14,7 +14,6 @@ import AudioModalContainer from './audio-modal/container';
 
 const APP_CONFIG = Meteor.settings.public.app;
 const KURENTO_CONFIG = Meteor.settings.public.kurento;
-const SKIP_VIDEO_PREVIEW = KURENTO_CONFIG.skipVideoPreview;
 
 const intlMessages = defineMessages({
   joinedAudio: {
@@ -106,8 +105,6 @@ const messages = {
 };
 
 export default lockContextContainer(withModalMounter(injectIntl(withTracker(({ mountModal, intl, userLocks }) => {
-  const skipVideoPreviewParameter = getFromUserSettings('bbb_skip_video_preview', false);
-
   const autoJoin = getFromUserSettings('bbb_auto_join_audio', APP_CONFIG.autoJoin);
   const { userWebcam, userMic } = userLocks;
   const openAudioModal = () => new Promise((resolve) => {
@@ -146,16 +143,14 @@ export default lockContextContainer(withModalMounter(injectIntl(withTracker(({ m
       const autoShareWebcam = getFromUserSettings('bbb_auto_share_webcam', KURENTO_CONFIG.autoShareWebcam);
       if (!autoJoin || didMountAutoJoin) {
         if (enableVideo
-            && autoShareWebcam
-            && !(skipVideoPreviewParameter || SKIP_VIDEO_PREVIEW)) {
+            && autoShareWebcam) {
           openVideoPreviewModal();
         }
         return;
       }
       Session.set('audioModalIsOpen', true);
       if (enableVideo
-        && autoShareWebcam
-        && !(skipVideoPreviewParameter || SKIP_VIDEO_PREVIEW)) {
+        && autoShareWebcam) {
         openAudioModal().then(() => { openVideoPreviewModal(); didMountAutoJoin = true; });
       } else {
         openAudioModal();
