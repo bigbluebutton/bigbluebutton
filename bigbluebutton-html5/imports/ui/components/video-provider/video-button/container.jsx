@@ -11,7 +11,6 @@ import {
   validIOSVersion,
 } from '/imports/ui/components/app/service';
 
-
 const JoinVideoOptionsContainer = (props) => {
   const {
     isSharingVideo,

@@ -142,15 +142,13 @@ export default lockContextContainer(withModalMounter(injectIntl(withTracker(({ m
       const enableVideo = getFromUserSettings('bbb_enable_video', KURENTO_CONFIG.enableVideo);
       const autoShareWebcam = getFromUserSettings('bbb_auto_share_webcam', KURENTO_CONFIG.autoShareWebcam);
       if (!autoJoin || didMountAutoJoin) {
-        if (enableVideo
-            && autoShareWebcam) {
+        if (enableVideo && autoShareWebcam) {
           openVideoPreviewModal();
         }
         return;
       }
       Session.set('audioModalIsOpen', true);
-      if (enableVideo
-        && autoShareWebcam) {
+      if (enableVideo && autoShareWebcam) {
         openAudioModal().then(() => { openVideoPreviewModal(); didMountAutoJoin = true; });
       } else {
         openAudioModal();
