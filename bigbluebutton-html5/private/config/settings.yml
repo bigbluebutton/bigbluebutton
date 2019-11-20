@@ -116,7 +116,6 @@ public:
     enableListenOnly: true
     autoShareWebcam: false
     skipVideoPreview: false
-    skipVideoPreviewTimer: 1000
   pingPong:
     clearUsersInSeconds: 30
     pongTimeInSeconds: 15

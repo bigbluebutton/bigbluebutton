@@ -191,7 +191,11 @@ class VideoPreview extends Component {
   }
 
   componentDidMount() {
-    const { webcamDeviceId, hasMediaDevices } = this.props;
+    const {
+      webcamDeviceId,
+      hasMediaDevices,
+      skipVideoPreview,
+    } = this.props;
 
     this._isMounted = true;
 
@@ -246,9 +250,11 @@ class VideoPreview extends Component {
                 });
                 this.displayInitialPreview(initialDeviceId);
               }
-              this.setState({
-                viewState: VIEW_STATES.found,
-              });
+              if (!skipVideoPreview) {
+                this.setState({
+                  viewState: VIEW_STATES.found,
+                });
+              }
             }).catch((error) => {
               logger.warn({
                 logCode: 'video_preview_enumerate_error',
@@ -388,7 +394,6 @@ class VideoPreview extends Component {
     const {
       changeProfile,
       skipVideoPreview,
-      skipVideoPreviewTimer,
     } = this.props;
 
     this.setState({
@@ -397,6 +402,7 @@ class VideoPreview extends Component {
       previewError: undefined,
     });
     changeProfile(profile.id);
+    if (skipVideoPreview) this.handleStartSharing();
 
     this.doGUM(deviceId, profile).then((stream) => {
       if (!this._isMounted) return;
@@ -407,7 +413,6 @@ class VideoPreview extends Component {
       this.video.srcObject = stream;
       this.deviceStream = stream;
 
-      if (skipVideoPreview) setTimeout(this.handleStartSharing, skipVideoPreviewTimer);
     }).catch((error) => {
       logger.warn({
         logCode: 'video_preview_do_gum_preview_error',
