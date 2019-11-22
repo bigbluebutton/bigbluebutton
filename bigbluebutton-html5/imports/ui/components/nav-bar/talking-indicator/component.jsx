@@ -2,7 +2,7 @@ import React, { PureComponent } from 'react';
 import cx from 'classnames';
 import _ from 'lodash';
 import { defineMessages, injectIntl } from 'react-intl';
-import Icon from '../../icon/component';
+import Button from '/imports/ui/components/button/component';
 import { styles } from './styles';
 
 const intlMessages = defineMessages({
@@ -28,7 +28,7 @@ class TalkingIndicator extends PureComponent {
   }
 
   render() {
-    const { intl, talkers, amIModerator } = this.props;
+    const { intl, talkers } = this.props;
     if (!talkers) return null;
 
     const talkingUserElements = Object.keys(talkers).map((name) => {
@@ -43,33 +43,39 @@ class TalkingIndicator extends PureComponent {
         [styles.talker]: true,
         [styles.spoke]: !talking,
         [styles.muted]: muted,
-        [styles.unmuted]: !muted && amIModerator,
       };
 
-      const ariaLabel = talking ? intl.formatMessage(intlMessages.isTalking, {
-        0: name,
-      }) : intl.formatMessage(intlMessages.wasTalking, {
+      const ariaLabel = intl.formatMessage(talking
+        ? intlMessages.isTalking : intlMessages.wasTalking, {
         0: name,
       });
 
+      let icon = talking ? 'unmute' : 'blank';
+      icon = muted ? 'mute' : icon;
+
       return (
-        <div
+        <Button
           key={_.uniqueId(`${name}-`)}
-          role="button"
-          tabIndex={0}
           className={cx(style)}
+          onClick={() => this.handleMuteUser(voiceUserId)}
+          label={name}
           aria-label={ariaLabel}
           aria-describedby={talking ? 'description' : null}
+          color="primary"
+          icon={icon}
+          size="sm"
           style={{
             backgroundColor: color,
+            border: `solid 2px ${color}`,
           }}
-          onClick={() => this.handleMuteUser(voiceUserId)}
-          onKeyPress={() => this.handleMuteUser(voiceUserId)}
         >
-          <span>{`${name}`}</span>
-          {talking ? <Icon iconName="unmute" /> : null}
-          {talking ? <div id="description" className={styles.hidden}>{`${intl.formatMessage(intlMessages.ariaMuteDesc)}`}</div> : null}
-        </div>
+          {talking ? (
+            <div id="description" className={styles.hidden}>
+              {`${intl.formatMessage(intlMessages.ariaMuteDesc)}`}
+            </div>
+          ) : null
+          }
+        </Button>
       );
     });
 
