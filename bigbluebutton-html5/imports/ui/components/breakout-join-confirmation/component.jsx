@@ -5,7 +5,7 @@ import Modal from '/imports/ui/components/modal/fullscreen/component';
 import logger from '/imports/startup/client/logger';
 import PropTypes from 'prop-types';
 import AudioService from '../audio/service';
-import VideoService from '../video-provider/service';
+import VideoService from '../multiple-video-provider/service';
 import { styles } from './styles';
 
 const intlMessages = defineMessages({

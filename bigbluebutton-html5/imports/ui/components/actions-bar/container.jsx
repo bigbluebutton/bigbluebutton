@@ -8,7 +8,7 @@ import PresentationService from '/imports/ui/components/presentation/service';
 import Presentations from '/imports/api/presentations';
 import ActionsBar from './component';
 import Service from './service';
-import VideoService from '../video-provider/service';
+import VideoService from '../multiple-video-provider/service';
 import ExternalVideoService from '/imports/ui/components/external-video-player/service';
 import CaptionsService from '/imports/ui/components/captions/service';
 import {
