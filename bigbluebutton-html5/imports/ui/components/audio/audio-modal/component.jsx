@@ -206,6 +206,7 @@ class AudioModal extends Component {
     this.setState({
       content: null,
       hasError: true,
+      disableActions: false,
     });
   }
 
@@ -249,20 +250,29 @@ class AudioModal extends Component {
       joinEchoTest,
     } = this.props;
 
+    const {
+      disableActions,
+    } = this.state;
+
+    if (disableActions) return;
+
     this.setState({
       hasError: false,
+      disableActions: true,
     });
 
     return joinEchoTest().then(() => {
-      console.log(inputDeviceId, outputDeviceId);
+      //console.log(inputDeviceId, outputDeviceId);
       this.setState({
         content: 'echoTest',
+        disableActions: false,
       });
     }).catch((err) => {
       if (err.type === 'MEDIA_ERROR') {
         this.setState({
           content: 'help',
           errCode: err.code,
+          disableActions: false,
         });
       }
     });
@@ -273,7 +283,21 @@ class AudioModal extends Component {
       joinListenOnly,
     } = this.props;
 
-    return joinListenOnly().catch((err) => {
+    const {
+      disableActions,
+    } = this.state;
+
+    if (disableActions) return;
+
+    this.setState({
+      disableActions: true,
+    });
+
+    return joinListenOnly().then(() => {
+      this.setState({
+        disableActions: false,
+      });
+    }).catch((err) => {
       if (err.type === 'MEDIA_ERROR') {
         this.setState({
           content: 'help',
@@ -287,11 +311,22 @@ class AudioModal extends Component {
       joinMicrophone,
     } = this.props;
 
+    const {
+      disableActions,
+    } = this.state;
+
+    if (disableActions) return;
+
     this.setState({
       hasError: false,
+      disableActions: true,
     });
 
-    joinMicrophone().catch(this.handleGoToAudioOptions);
+    joinMicrophone().then(() => {
+      this.setState({
+        disableActions: false,
+      });
+    }).catch(this.handleGoToAudioOptions);
   }
 
   skipAudioOptions() {
