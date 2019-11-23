@@ -5,11 +5,12 @@
 :root {
   --spoke-opacity: .5;
   --talker-margin-sm: .5rem;
+  --talker-padding-lg: .75rem;
+  --talker-padding-xl: 1.62rem;
+  --talker-padding-xsm: .13rem;
   --talker-max-width: 10rem;
   --talker-font-weight: 400;
   --talker-border-radius: 2rem;
-  --max-speaker-height: 1.5rem;
-  --icon-offset: 1.1rem;
 }
 
 .hidden {
@@ -32,7 +33,7 @@
 
 .speaking {
   flex-wrap: wrap;
-  max-height: var(--max-speaker-height);
+  max-height: var(--talker-padding-xl);
 }
 
 .talker {
@@ -41,8 +42,7 @@
   font-weight: var(--talker-font-weight);
   border-radius: var(--talker-border-radius) var(--talker-border-radius);
   font-size: var(--font-size-base);
-  padding-left: var(--border-radius);
-  padding-right: var(--border-radius);
+  padding: var(--talker-padding-xsm) var(--talker-padding-lg) var(--talker-padding-xsm) var(--talker-padding-lg);
   margin-left: var(--border-radius);
   margin-right: var(--border-radius);
 
@@ -51,6 +51,11 @@
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
+    margin-right: var(--talker-margin-sm);
+    [dir="rtl"]  & {
+      margin-right: 0;
+      margin-left: var(--talker-margin-sm);
+    }
   }
 
   i {
@@ -62,11 +67,11 @@
 
 .spoke {
   opacity: var(--spoke-opacity);
-  padding-right: var(--icon-offset);
+  padding-right: var(--talker-padding-xl);
 
   [dir="rtl"]  & {
-    padding-left: var(--icon-offset);
-    padding-right: var(--border-radius);
+    padding-left: var(--talker-padding-xl);
+    padding-right: var(--talker-padding-lg)
   }
  }
 
