@@ -613,6 +613,7 @@
     }
     **/
 
+/**
     const eb = new vertx.EventBus("http://192.168.93.128:3001/eventbus");
     eb.onopen = function () {
       console.log("FOOOO!!!!!");
@@ -637,7 +638,7 @@
 
       eb.send("to-server", data);
     };
-
+**/
 
     // Flag to indicate that the SWF file has been loaded and ready to handle calls.
     var swfReady = false;

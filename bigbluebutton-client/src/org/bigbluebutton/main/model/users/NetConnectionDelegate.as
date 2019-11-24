@@ -91,7 +91,7 @@ package org.bigbluebutton.main.model.users
             _netConnection.addEventListener( SecurityErrorEvent.SECURITY_ERROR, netSecurityError );
             _netConnection.addEventListener( IOErrorEvent.IO_ERROR, netIOError );
 			_applicationOptions = Options.getOptions(ApplicationOptions) as ApplicationOptions;
-            useRTMP = false; //_applicationOptions.msgBusRed5;
+            useRTMP = _applicationOptions.msgBusRed5;
         }
 
 
@@ -289,8 +289,8 @@ package org.bigbluebutton.main.model.users
 				private function sendMessageToRed5(onSuccess:Function, onFailure:Function, json:Object):void {
 					var service: String = "onMessageFromClient";
 
-                    var jsonstr:String = JSON.stringify(json);
-                    LOGGER.info("SENDING TO RED5: " + jsonstr);
+                    //var jsonstr:String = JSON.stringify(json);
+                    //LOGGER.info("SENDING TO RED5: " + jsonstr);
 
 					var responder:Responder =   new Responder(
 						function(result:Object):void { // On successful result
@@ -488,7 +488,7 @@ package org.bigbluebutton.main.model.users
 				}
 
 				public function onMessageFromDS(msg: Object): void {
-					LOGGER.info("*** From DS: " + JSON.stringify(msg));
+					//LOGGER.info("*** From DS: " + JSON.stringify(msg));
 					var header: Object = msg.header as Object;
 
 					var name:String = header.name as String;
@@ -509,8 +509,8 @@ package org.bigbluebutton.main.model.users
 
 				private function sendToVertx(json:Object):void {
 					if (ExternalInterface.available) {
-                        var jsonstr:String = JSON.stringify(json);
-						LOGGER.info("SENDING TO VERTX: " + jsonstr);
+                        //var jsonstr:String = JSON.stringify(json);
+						//LOGGER.info("SENDING TO VERTX: " + jsonstr);
 
 						ExternalInterface.call("BBB.sendToDeepstream", json);
 					}
