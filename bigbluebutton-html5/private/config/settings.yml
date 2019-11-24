@@ -21,6 +21,7 @@ public:
     allowUserLookup: false
     enableNetworkInformation: false
     enableLimitOfViewersInWebcam: false
+    enableTalkingIndicator: true
     viewersInWebcam: 8
     ipv4FallbackDomain: ""
     allowLogout: true
@@ -30,6 +31,8 @@ public:
         animations: true
         chatAudioAlerts: false
         chatPushAlerts: false
+        userJoinAudioAlerts: false
+        userJoinPushAlerts: false
         fallbackLocale: en
         overrideLocale: null
       audio:
@@ -115,6 +118,7 @@ public:
     enableVideoMenu: true
     enableListenOnly: true
     autoShareWebcam: false
+    skipVideoPreview: false
   pingPong:
     clearUsersInSeconds: 30
     pongTimeInSeconds: 15
@@ -300,7 +304,7 @@ public:
   clientLog:
     server: { enabled: true, level: info }
     console: { enabled: true, level: debug }
-    external: { enabled: false, level: info, url: https://LOG_HOST/html5Log, method: POST, throttleInterval: 400, flushOnClose: true }
+    external: { enabled: false, level: info, url: https://LOG_HOST/html5Log, method: POST, throttleInterval: 400, flushOnClose: true, logTag: "" }
 private:
   app:
     host: 127.0.0.1

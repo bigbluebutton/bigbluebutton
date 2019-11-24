@@ -600,7 +600,12 @@ class MeetingActor(
       VoiceApp.stopRecordingVoiceConference(liveMeeting, outGW)
 
       val meetingId = liveMeeting.props.meetingProp.intId
-      val recordFile = VoiceApp.genRecordPath(voiceConfRecordPath, meetingId, now)
+      val recordFile = VoiceApp.genRecordPath(
+        voiceConfRecordPath,
+        meetingId,
+        now,
+        voiceConfRecordCodec
+      )
       VoiceApp.startRecordingVoiceConference(liveMeeting, outGW, recordFile)
     }
   }
@@ -769,7 +774,12 @@ class MeetingActor(
 
       // Let us start recording.
       val meetingId = liveMeeting.props.meetingProp.intId
-      val recordFile = VoiceApp.genRecordPath(voiceConfRecordPath, meetingId, TimeUtil.timeNowInMs())
+      val recordFile = VoiceApp.genRecordPath(
+        voiceConfRecordPath,
+        meetingId,
+        TimeUtil.timeNowInMs(),
+        voiceConfRecordCodec
+      )
       log.info("Forcing START RECORDING voice conf. meetingId=" + meetingId + " voice conf=" + liveMeeting.props.voiceProp.voiceConf)
 
       VoiceApp.startRecordingVoiceConference(liveMeeting, outGW, recordFile)

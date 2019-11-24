@@ -166,6 +166,9 @@ end
 
 logger.info "Generating metadata xml"
 duration = BigBlueButton::Events.get_recording_length(events)
+meeting_xml = events.at_xpath('/recording/meeting')
+breakout_xml = events.at_xpath('/recording/breakout')
+breakout_rooms_xml = events.at_xpath('/recording/breakoutRooms')
 metadata_xml = Nokogiri::XML::Builder.new do |xml|
   xml.recording {
     xml.id(meeting_id)
@@ -173,6 +176,9 @@ metadata_xml = Nokogiri::XML::Builder.new do |xml|
     xml.published('true')
     xml.start_time(start_real_time)
     xml.end_time(start_real_time + final_timestamp - initial_timestamp)
+    xml << meeting_xml.to_xml unless meeting_xml.nil?
+    xml << breakout_xml.to_xml unless breakout_xml.nil?
+    xml << breakout_rooms_xml.to_xml unless breakout_rooms_xml.nil?
     xml.playback {
       xml.format('screenshare')
       xml.link("#{props['playback_protocol']}://#{props['playback_host']}/recording/screenshare/#{meeting_id}/")

@@ -39,6 +39,10 @@ const intlMessages = defineMessages({
     id: 'app.navBar.recording.off',
     description: 'label for indicator when the session is not being recorded',
   },
+  emptyAudioBrdige: {
+    id: 'app.navBar.emptyAudioBrdige',
+    description: 'message for notification when recording starts with no users in audio bridge',
+  },
 });
 
 const propTypes = {
@@ -97,6 +101,8 @@ class RecordingIndicator extends PureComponent {
       amIModerator,
       intl,
       allowStartStopRecording,
+      notify,
+      micUser,
     } = this.props;
 
     const { time } = this.state;
@@ -119,6 +125,9 @@ class RecordingIndicator extends PureComponent {
     }
 
     const recordingToggle = () => {
+      if (!micUser) {
+        notify(intl.formatMessage(intlMessages.emptyAudioBrdige), 'error', 'warning');
+      }
       mountModal(<RecordingContainer amIModerator={amIModerator} />);
       document.activeElement.blur();
     };

@@ -319,7 +319,7 @@ fi
 if [ $REBUILDALL ]; then
 	echo "Rebuilding all recordings"
 	for recording in $(dir $BASE/raw); do
-		mark_for_rebuild $recording
+		[[ ! -e $STATUS/archived/$recording.norecord ]] && mark_for_rebuild $recording
 	done
 fi 
 

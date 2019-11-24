@@ -17,6 +17,11 @@
   color: var(--color-gray-dark);
   background-color: var(--color-off-white);
 
+  [dir="rtl"]  & {
+    padding-right: var(--lg-padding-y);
+    padding-left: none;
+  }
+
   > i {
     display: flex;
     font-size: 175%;
@@ -34,6 +39,11 @@
     text-align: left;
     padding-left: var(--lg-padding-y);
     text-overflow: ellipsis;
+
+    [dir="rtl"]  & {
+      text-align: right;
+      padding-right: var(--md-padding-x);
+    }
   }
 
   &:active {

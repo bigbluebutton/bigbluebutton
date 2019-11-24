@@ -121,7 +121,6 @@
     "app.presentation.presentationToolbar.fitToWidth": "Підігнати по ширині",
     "app.presentation.presentationToolbar.goToSlide": "Слайд {0}",
     "app.presentationUploder.title": "Презентація",
-    "app.presentationUploder.message": "Як ведучий ви маєте можливість завантажувати будь-який офісний документ або PDF-файл. Для найкращих результатів ми рекомендуємо PDF-файл. Переконайтеся, що вибрано презентацію за допомогою прапорця праворуч.",
     "app.presentationUploder.uploadLabel": "Завантажити",
     "app.presentationUploder.confirmLabel": "Підтвердити",
     "app.presentationUploder.confirmDesc": "Зберегти зміни та розпочати презентацію",
@@ -136,7 +135,6 @@
     "app.presentationUploder.genericError": "Ой, щось пішло не так",
     "app.presentationUploder.rejectedError": "Вибрані файл(и) відхилено. Перевірте тип файлу(iв).",
     "app.presentationUploder.upload.progress": "Завантаження ({0}%)",
-    "app.presentationUploder.upload.413": "Файл завеликий, не більше 200 сторінок",
     "app.presentationUploder.conversion.conversionProcessingSlides": "Обробка сторінки {0} з {1}",
     "app.presentationUploder.conversion.genericConversionStatus": "Файл конвертується...",
     "app.presentationUploder.conversion.generatingThumbnail": "Генерування мініатюр...",
@@ -158,7 +156,6 @@
     "app.poll.quickPollInstruction": "Оберіть опцію нижче, щоб почати опитування.",
     "app.poll.customPollLabel": "Своє опитування",
     "app.poll.startCustomLabel": "Розпочати своє опитування",
-    "app.poll.activePollInstruction": "Залишіть це вікно відкритим, щоб дозволити іншим відповідати на опитування. Вибір 'Опублікувати результати опитування', чи повернення назад закінчить опитування.",
     "app.poll.publishLabel": "Опублікувати результати опитування",
     "app.poll.backLabel": "Назад до параметрів опитування",
     "app.poll.closeLabel": "Закрити",
@@ -553,7 +550,6 @@
     "app.createBreakoutRoom.addParticipantLabel": "+ Додати учасника",
     "app.createBreakoutRoom.freeJoin": "Дозволити користувачам обирати кімнату самостійно",
     "app.createBreakoutRoom.leastOneWarnBreakout": "Щонайменш один користувач повинен бути в кімнаті.",
-    "app.createBreakoutRoom.modalDesc": "Завершіть кроки нижче, щоб створити кімнати учасників у вашій сесії, і додати туди користувачів.",
     "app.externalVideo.start": "Поділитись новим відео",
     "app.externalVideo.close": "Закрити"
 
