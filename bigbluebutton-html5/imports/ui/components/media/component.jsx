@@ -69,6 +69,9 @@ export default class Media extends Component {
       webcamPlacement,
     } = this.props;
 
+    console.log('Storage.getItemwebcamPlacement', webcamPlacement);
+
+
     const contentClassName = cx({
       [styles.content]: true,
     });
@@ -79,17 +82,36 @@ export default class Media extends Component {
       [styles.floatingOverlay]: (webcamPlacement === 'floating'),
     });
 
+    const containerClassName = cx({
+      [styles.containerV]: webcamPlacement === 'top' || webcamPlacement === 'bottom' || webcamPlacement === 'floating',
+      [styles.containerH]: webcamPlacement === 'left' || webcamPlacement === 'right',
+    });
+
     return (
       <div
         id="container"
-        className={cx(styles.container)}
+        className={containerClassName}
         ref={this.refContainer}
       >
         <div
           className={!swapLayout ? contentClassName : overlayClassName}
           style={{
-            maxHeight: usersVideo.length < 1 || (webcamPlacement === 'floating') ? '100%' : '80%',
+            maxHeight: (
+              webcamPlacement === 'left'
+              || webcamPlacement === 'right'
+              || webcamPlacement === 'floating'
+            )
+              ? '100%'
+              : '80%',
             minHeight: '20%',
+            maxWidth: (
+              webcamPlacement === 'top'
+              || webcamPlacement === 'bottom'
+              || webcamPlacement === 'floating'
+            )
+              ? '100%'
+              : '80%',
+            minWidth: '20%',
           }}
         >
           {children}

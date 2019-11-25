@@ -39,10 +39,22 @@ const reducer = (state, action) => {
         placement: 'top',
       };
     }
+    case 'setplacementToRight': {
+      return {
+        ...state,
+        placement: 'right',
+      };
+    }
     case 'setplacementToBottom': {
       return {
         ...state,
         placement: 'bottom',
+      };
+    }
+    case 'setplacementToLeft': {
+      return {
+        ...state,
+        placement: 'left',
       };
     }
     case 'setplacementToFloating': {
