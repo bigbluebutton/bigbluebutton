@@ -70,7 +70,7 @@ const intlSFUErrors = defineMessages({
 const propTypes = {
   users: PropTypes.arrayOf(Array).isRequired,
   intl: PropTypes.objectOf(Object).isRequired,
-  userIsLocked: PropTypes.bool.isRequired,
+  isUserLocked: PropTypes.bool.isRequired,
   swapLayout: PropTypes.bool.isRequired,
 };
 
@@ -100,8 +100,7 @@ class VideoProvider extends Component {
     this.onWsClose = this.onWsClose.bind(this);
     this.onWsMessage = this.onWsMessage.bind(this);
 
-    this.unshareWebcam = this.unshareWebcam.bind(this);
-    this.shareWebcam = this.shareWebcam.bind(this);
+    this.onBeforeUnload = this.onBeforeUnload.bind(this);
 
     this.pauseViewers = this.pauseViewers.bind(this);
     this.unpauseViewers = this.unpauseViewers.bind(this);
@@ -116,10 +115,9 @@ class VideoProvider extends Component {
   }
 
   componentDidMount() {
-    document.addEventListener('joinVideo', this.shareWebcam);
-    document.addEventListener('exitVideo', this.unshareWebcam);
     this.ws.onmessage = this.onWsMessage;
-    window.addEventListener('beforeunload', this.unshareWebcam);
+
+    window.addEventListener('beforeunload', this.onBeforeUnload);
 
     this.visibility.onVisible(this.unpauseViewers);
     this.visibility.onHidden(this.pauseViewers);
@@ -139,28 +137,23 @@ class VideoProvider extends Component {
   }
 
   componentDidUpdate(prevProps) {
-    const { userIsLocked } = this.props;
-    if (!prevProps.userIsLocked && userIsLocked) VideoService.userGotLocked();
+    const { isUserLocked } = this.props;
+    if (!prevProps.isUserLocked && isUserLocked) VideoService.lockUser();
   }
 
   componentWillUnmount() {
-    document.removeEventListener('joinVideo', this.shareWebcam);
-    document.removeEventListener('exitVideo', this.unshareWebcam);
-
     this.ws.onmessage = null;
     this.ws.onopen = null;
     this.ws.onclose = null;
 
     window.removeEventListener('online', this.openWs);
     window.removeEventListener('offline', this.onWsClose);
-    window.removeEventListener('beforeunload', this.unshareWebcam);
+
+    window.removeEventListener('beforeunload', this.onBeforeUnload);
 
     this.visibility.removeEventListeners();
 
-    // Unshare user webcam
-    if (VideoService.sharingWebcam()) {
-      this.unshareWebcam();
-    }
+    VideoService.exitVideo();
 
     Object.keys(this.webRtcPeers).forEach((cameraId) => {
       this.stopWebRTCPeer(cameraId);
@@ -209,9 +202,7 @@ class VideoProvider extends Component {
 
     clearInterval(this.pingInterval);
 
-    if (VideoService.sharingWebcam()) {
-      this.unshareWebcam();
-    }
+    VideoService.exitVideo();
 
     this.setState({ socketOpen: false });
   }
@@ -229,6 +220,14 @@ class VideoProvider extends Component {
     this.pingInterval = setInterval(this.ping.bind(this), PING_INTERVAL);
 
     this.setState({ socketOpen: true });
+  }
+
+  onBeforeUnload() {
+    logger.info({
+      logCode: 'video_provider_unsharewebcam',
+    }, 'Sending unshare webcam notification to meteor');
+    VideoService.sendUserUnshareWebcam(this.info.userId);
+    VideoService.exitedVideo();
   }
 
   sendPauseStream(cameraId, role, state) {
@@ -380,7 +379,7 @@ class VideoProvider extends Component {
     }
 
     if (isLocal) {
-      this.unshareWebcam();
+      VideoService.exitVideo();
     }
 
     const role = isLocal ? 'share' : 'viewer';
@@ -479,7 +478,6 @@ class VideoProvider extends Component {
       let WebRtcPeerObj;
       if (isLocal) {
         WebRtcPeerObj = window.kurentoUtils.WebRtcPeer.WebRtcPeerSendonly;
-        this.shareWebcam();
       } else {
         WebRtcPeerObj = window.kurentoUtils.WebRtcPeer.WebRtcPeerRecvonly;
       }
@@ -791,26 +789,11 @@ class VideoProvider extends Component {
     }, `SFU returned error for camera ${cameraId}. Code: ${code}, reason: ${reason}`);
 
     if (VideoService.isLocalStream(cameraId)) {
-      this.unshareWebcam();
+      VideoService.exitVideo();
       VideoService.notify(intl.formatMessage(intlSFUErrors[code] || intlSFUErrors[2200]));
     } else {
       this.stopWebRTCPeer(cameraId);
     }
-  }
-
-  shareWebcam() {
-    if (this.connectedToMediaServer()) {
-      logger.info({ logCode: 'video_provider_sharewebcam' }, 'Sharing webcam');
-      VideoService.joiningVideo();
-    }
-  }
-
-  unshareWebcam() {
-    logger.info({
-      logCode: 'video_provider_unsharewebcam',
-    }, 'Sending unshare webcam notification to meteor');
-    VideoService.sendUserUnshareWebcam(this.info.userId);
-    VideoService.exitedVideo();
   }
 
   render() {

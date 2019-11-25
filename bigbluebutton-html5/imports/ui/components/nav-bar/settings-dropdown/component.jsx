@@ -189,8 +189,6 @@ class SettingsDropdown extends PureComponent {
   }
 
   leaveSession() {
-    document.dispatchEvent(new Event('exitVideo'));
-
     makeCall('userLeftMeeting');
     // we don't check askForFeedbackOnLogout here,
     // it is checked in meeting-ended component

@@ -21,9 +21,8 @@ const isNotLocked = user => isModerator(user) || !user.locked;
 class VideoService {
   constructor() {
     this.defineProperties({
-      isSharing: false,
+      isConnecting: false,
       isConnected: false,
-      isWaitingResponse: false,
     });
   }
 
@@ -49,35 +48,31 @@ class VideoService {
   }
 
   joinVideo() {
-    this.isSharing = true;
-    const joinVideoEvent = new Event('joinVideo');
-    document.dispatchEvent(joinVideoEvent);
-  }
-
-  joiningVideo() {
-    this.isWaitingResponse = true;
+    this.isConnecting = true;
   }
 
   joinedVideo() {
-    this.isSharing = false;
-    this.isWaitingResponse = false;
+    this.isConnecting = false;
     this.isConnected = true;
   }
 
   exitVideo() {
-    const exitVideoEvent = new Event('exitVideo');
-    document.dispatchEvent(exitVideoEvent);
+    if (this.sharingWebcam()) {
+      logger.info({
+        logCode: 'video_provider_unsharewebcam',
+      }, 'Sending unshare webcam notification to meteor');
+      this.sendUserUnshareWebcam(Auth.userID);
+      this.exitedVideo();
+    }
   }
 
   exitedVideo() {
-    this.isSharing = false;
-    this.isWaitingResponse = false;
+    this.isConnecting = false;
     this.isConnected = false;
   }
 
   sharingWebcam() {
-    // TODO: Check if waiting response is needed here
-    return this.isSharing || this.isConnected;
+    return this.isConnecting || this.isConnected;
   }
 
   sendUserShareWebcam(cameraId) {
@@ -121,7 +116,7 @@ class VideoService {
       },
     }).fetch();
 
-    if (this.isSharing || this.isConnected) {
+    if (this.sharingWebcam()) {
       users.push(localUser);
     }
 
@@ -173,7 +168,7 @@ class VideoService {
     };
   }
 
-  userIsLocked() {
+  isUserLocked() {
     return !!Users.findOne({
       userId: Auth.userID,
       locked: true,
@@ -181,18 +176,10 @@ class VideoService {
     }, { fields: {} }) && this.disableCam();
   }
 
-  userGotLocked() {
+  lockUser() {
     if (this.isConnected) {
       this.exitVideo();
     }
-  }
-
-  isConnected() {
-    return this.isConnected;
-  }
-
-  isWaitingResponse() {
-    return this.isWaitingResponse;
   }
 
   isLocalStream(cameraId) {
@@ -246,12 +233,12 @@ class VideoService {
 
   isDisabled() {
     const disableCam = this.disableCam();
-    const userLocked = this.userIsLocked();
+    const userLocked = this.isUserLocked();
     const isLocked = (disableCam && userLocked);
 
-    const isConnecting = this.isWaitingResponse || (!this.hasVideoStream() && this.sharingWebcam());
+    const isConnecting = !this.hasVideoStream() && this.sharingWebcam();
 
-    const viewParticipantsWebcams = Settings.dataSaving.viewParticipantsWebcams;
+    const { viewParticipantsWebcams } = Settings.dataSaving;
 
     return isLocked || isConnecting || !viewParticipantsWebcams;
   }
@@ -264,14 +251,13 @@ export default {
   exitedVideo: () => videoService.exitedVideo(),
   disableCam: () => videoService.disableCam(),
   joinVideo: () => videoService.joinVideo(),
-  joiningVideo: () => videoService.joiningVideo(),
   joinedVideo: () => videoService.joinedVideo(),
   sendUserShareWebcam: cameraId => videoService.sendUserShareWebcam(cameraId),
   sendUserUnshareWebcam: cameraId => videoService.sendUserUnshareWebcam(cameraId),
   getAllWebcamUsers: () => videoService.getAllWebcamUsers(),
   getInfo: () => videoService.getInfo(),
-  userIsLocked: () => videoService.userIsLocked(),
-  userGotLocked: () => videoService.userGotLocked(),
+  isUserLocked: () => videoService.isUserLocked(),
+  lockUser: () => videoService.lockUser(),
   getAuthenticatedURL: () => videoService.getAuthenticatedURL(),
   isLocalStream: cameraId => videoService.isLocalStream(cameraId),
   hasVideoStream: () => videoService.hasVideoStream(),

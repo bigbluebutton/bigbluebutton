@@ -11,5 +11,5 @@ const VideoProviderContainer = ({ children, ...props }) => {
 export default withTracker(props => ({
   swapLayout: props.swapLayout,
   users: VideoService.getAllWebcamUsers(),
-  userIsLocked: VideoService.userIsLocked(),
+  isUserLocked: VideoService.isUserLocked(),
 }))(VideoProviderContainer);
