@@ -28,7 +28,7 @@ class TalkingIndicator extends PureComponent {
   }
 
   render() {
-    const { intl, talkers } = this.props;
+    const { intl, talkers, openPanel } = this.props;
     if (!talkers) return null;
 
     const talkingUserElements = Object.keys(talkers).map((name) => {
@@ -43,6 +43,7 @@ class TalkingIndicator extends PureComponent {
         [styles.talker]: true,
         [styles.spoke]: !talking,
         [styles.muted]: muted,
+        [styles.mobileHide]: openPanel !== '',
       };
 
       const ariaLabel = intl.formatMessage(talking

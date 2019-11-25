@@ -100,3 +100,9 @@
     background-color: var(--color-danger);
   }
 }
+
+.mobileHide {
+  @include mq($small-only) {
+    visibility: hidden;
+  }
+}

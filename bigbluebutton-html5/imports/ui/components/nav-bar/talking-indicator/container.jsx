@@ -56,5 +56,6 @@ export default withTracker(() => {
   return {
     talkers,
     muteUser,
+    openPanel: Session.get('openPanel'),
   };
 })(TalkingIndicatorContainer);

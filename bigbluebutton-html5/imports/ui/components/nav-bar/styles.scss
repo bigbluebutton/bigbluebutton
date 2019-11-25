@@ -8,11 +8,9 @@
   display: flex;
   flex-direction: column;
   height: var(--jumbo-padding-x);
-
-  @include mq($medium-only) {
-    :global(.browser-safari) & {
-      height: var(--safari-mobile-nav-height);
-    }
+  
+  :global(.browser-safari) & {
+    height: var(--safari-mobile-nav-height);
   }
 }
 
