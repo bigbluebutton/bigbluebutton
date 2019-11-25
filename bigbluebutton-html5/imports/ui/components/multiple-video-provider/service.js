@@ -96,12 +96,16 @@ class VideoService {
   getAllWebcamUsers() {
     const localUser = Users.findOne(
       { userId: Auth.userID },
-      { fields: { name: 1, userId: 1, role: 1, locked: 1 } }
+      {
+        fields: {
+          name: 1, userId: 1, role: 1, locked: 1,
+        },
+      },
     );
 
     const videoUsers = VideoStreams.find(
       { meetingId: Auth.meetingID },
-      { fields: { userId: 1 } }
+      { fields: { userId: 1 } },
     ).fetch().map(u => u.userId);
 
     let users = Users.find({
@@ -111,7 +115,11 @@ class VideoService {
         { userId: { $ne: localUser.userId } },
         { userId: { $in: videoUsers } },
       ],
-    }, { fields: { name: 1, userId: 1, role: 1, locked: 1, } }).fetch();
+    }, {
+      fields: {
+        name: 1, userId: 1, role: 1, locked: 1,
+      },
+    }).fetch();
 
     if (this.isSharing || this.isConnected) {
       users.push(localUser);
@@ -125,9 +133,7 @@ class VideoService {
       users = users.filter(isModerator);
     }
 
-    return users.map(u => {
-      return { userId: u.userId, name: u.name };
-    }).sort(UserListService.sortUsersByName);
+    return users.map(u => ({ userId: u.userId, name: u.name })).sort(UserListService.sortUsersByName);
   }
 
   hasVideoStream() {
@@ -164,7 +170,7 @@ class VideoService {
       meetingId: Auth.meetingID,
       sessionToken: Auth.sessionToken,
       voiceBridge,
-    }
+    };
   }
 
   userIsLocked() {
@@ -248,7 +254,7 @@ class VideoService {
     const viewParticipantsWebcams = Settings.dataSaving.viewParticipantsWebcams;
 
     return isLocked || isConnecting || !viewParticipantsWebcams;
-  };
+  }
 }
 
 const videoService = new VideoService();
@@ -277,5 +283,3 @@ export default {
   processIceQueue: (peer, cameraId) => videoService.processIceQueue(peer, cameraId),
   notify: message => notify(message, 'error', 'video'),
 };
-
-

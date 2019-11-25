@@ -132,7 +132,7 @@ class VideoProvider extends Component {
     const usersToConnect = usersSharingIds.filter(id => !usersConnected.includes(id));
     const usersToDisconnect = usersConnected.filter(id => !usersSharingIds.includes(id));
 
-    usersToConnect.forEach(cameraId => {
+    usersToConnect.forEach((cameraId) => {
       this.createWebRTCPeer(cameraId, VideoService.isLocalStream(cameraId));
     });
     usersToDisconnect.forEach(cameraId => this.stopWebRTCPeer(cameraId));
@@ -204,7 +204,7 @@ class VideoProvider extends Component {
 
   onWsClose() {
     logger.debug({
-      logCode: 'video_provider_onwsclose'
+      logCode: 'video_provider_onwsclose',
     }, 'Multiple video provider websocket connection closed.');
 
     clearInterval(this.pingInterval);
@@ -218,7 +218,7 @@ class VideoProvider extends Component {
 
   onWsOpen() {
     logger.debug({
-      logCode: 'video_provider_onwsopen'
+      logCode: 'video_provider_onwsopen',
     }, 'Multiple video provider websocket connection opened.');
 
     // Resend queued messages that happened when socket was not connected
@@ -243,7 +243,7 @@ class VideoProvider extends Component {
 
   pauseViewers() {
     logger.debug({
-      logCode: 'video_provider_pause_viewers'
+      logCode: 'video_provider_pause_viewers',
     }, 'Calling pause in viewer streams');
 
     Object.keys(this.webRtcPeers).forEach((cameraId) => {
@@ -257,12 +257,12 @@ class VideoProvider extends Component {
 
   unpauseViewers() {
     logger.debug({
-      logCode: 'video_provider_unpause_viewers'
+      logCode: 'video_provider_unpause_viewers',
     }, 'Calling un-pause in viewer streams');
 
     Object.keys(this.webRtcPeers).forEach((cameraId) => {
       const peer = this.webRtcPeers[cameraId];
-      const peerStarted = peer && peer.started
+      const peerStarted = peer && peer.started;
       if (!VideoService.isLocalStream(cameraId) && peerStarted) {
         this.sendPauseStream(cameraId, 'viewer', false);
       }
@@ -331,7 +331,7 @@ class VideoProvider extends Component {
       });
     } else {
       logger.warn({
-        logCode: 'video_provider_startresponse_no_peer'
+        logCode: 'video_provider_startresponse_no_peer',
       }, `SFU start response for ${cameraId} arrived after the peer was discarded, ignore it.`);
     }
   }
@@ -363,7 +363,7 @@ class VideoProvider extends Component {
       }
     } else {
       logger.warn({
-        logCode: 'video_provider_addicecandidate_no_peer'
+        logCode: 'video_provider_addicecandidate_no_peer',
       }, `SFU ICE candidate for ${cameraId} arrived after the peer was discarded, ignore it.`);
     }
   }
@@ -375,7 +375,7 @@ class VideoProvider extends Component {
     // we stop listening to prevent this from being treated as an error
     const peer = this.webRtcPeers[cameraId];
     if (peer && peer.peerConnection) {
-      const conn = peer.peerConnection
+      const conn = peer.peerConnection;
       conn.oniceconnectionstatechange = null;
     }
 
@@ -386,7 +386,7 @@ class VideoProvider extends Component {
     const role = isLocal ? 'share' : 'viewer';
 
     logger.info({
-      logCode: 'video_provider_stopping_webcam_sfu'
+      logCode: 'video_provider_stopping_webcam_sfu',
     }, `Sending stop request to SFU. Camera: ${cameraId}, role ${role} and flag restarting ${restarting}`);
     this.sendMessage({
       id: 'stop',
@@ -413,7 +413,7 @@ class VideoProvider extends Component {
     const peer = this.webRtcPeers[cameraId];
     if (peer) {
       logger.info({
-        logCode: 'video_provider_destroywebrtcpeer'
+        logCode: 'video_provider_destroywebrtcpeer',
       }, `Disposing WebRTC peer ${cameraId}`);
       if (typeof peer.dispose === 'function') {
         peer.dispose();
@@ -421,7 +421,7 @@ class VideoProvider extends Component {
       delete this.webRtcPeers[cameraId];
     } else {
       logger.warn({
-        logCode: 'video_provider_destroywebrtcpeer_no_peer'
+        logCode: 'video_provider_destroywebrtcpeer_no_peer',
       }, `Peer ${cameraId} was already disposed (glare), ignore it.`);
     }
   }
@@ -628,7 +628,7 @@ class VideoProvider extends Component {
         }, `Camera has a new reconnect timer of ${newReconnectTimer} ms for ${cameraId}`);
         this.restartTimeout[cameraId] = setTimeout(
           this._getWebRTCStartTimeout(cameraId, isLocal),
-          this.restartTimer[cameraId]
+          this.restartTimer[cameraId],
         );
       }
 
@@ -670,19 +670,18 @@ class VideoProvider extends Component {
           VideoService.notify(intl.formatMessage(intlClientErrors.iceConnectionStateError));
         }
       };
-    } else {
-      return () => {
-        logger.error({
-          logCode: 'video_provider_ice_connection_failed_state',
-          extraInfo: {
-            cameraId,
-            iceConnectionState: undefined,
-          },
-        }, `Missing peer at ICE connection state transition for ${cameraId}`);
-
-        this.stopWebRTCPeer(cameraId);
-      };
     }
+    return () => {
+      logger.error({
+        logCode: 'video_provider_ice_connection_failed_state',
+        extraInfo: {
+          cameraId,
+          iceConnectionState: undefined,
+        },
+      }, `Missing peer at ICE connection state transition for ${cameraId}`);
+
+      this.stopWebRTCPeer(cameraId);
+    };
   }
 
   attachVideoStream(cameraId) {
@@ -808,7 +807,7 @@ class VideoProvider extends Component {
 
   unshareWebcam() {
     logger.info({
-      logCode: 'video_provider_unsharewebcam'
+      logCode: 'video_provider_unsharewebcam',
     }, 'Sending unshare webcam notification to meteor');
     VideoService.sendUserUnshareWebcam(this.info.userId);
     VideoService.exitedVideo();
