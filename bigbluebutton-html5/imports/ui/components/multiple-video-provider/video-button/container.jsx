@@ -3,9 +3,8 @@ import { withTracker } from 'meteor/react-meteor-data';
 import { injectIntl } from 'react-intl';
 import { withModalMounter } from '/imports/ui/components/modal/service';
 import VideoPreviewContainer from '/imports/ui/components/video-preview/container';
-import { notify } from '/imports/ui/services/notification';
 import JoinVideoButton from './component';
-import VideoButtonService from './service';
+import VideoService from '../service';
 
 import {
   validIOSVersion,
@@ -13,11 +12,10 @@ import {
 
 const JoinVideoOptionsContainer = (props) => {
   const {
-    isSharingVideo,
+    hasVideoStream,
     isDisabled,
     handleJoinVideo,
     handleCloseVideo,
-    baseName,
     intl,
     mountModal,
     isMobileNative,
@@ -28,18 +26,15 @@ const JoinVideoOptionsContainer = (props) => {
 
   return !isMobileNative && (
   <JoinVideoButton {...{
-    handleJoinVideo: mountPreview, handleCloseVideo, isSharingVideo, isDisabled, ...restProps,
+    handleJoinVideo: mountPreview, handleCloseVideo, hasVideoStream, isDisabled, ...restProps,
   }}
   />
   );
 };
 
 export default withModalMounter(injectIntl(withTracker(() => ({
-  baseName: VideoButtonService.baseName,
-  isSharingVideo: VideoButtonService.isSharingVideo(),
-  isDisabled: VideoButtonService.isDisabled() || !Meteor.status().connected,
-  videoShareAllowed: VideoButtonService.videoShareAllowed(),
+  hasVideoStream: VideoService.hasVideoStream(),
+  isDisabled: VideoService.isDisabled() || !Meteor.status().connected,
   isMobileNative: navigator.userAgent.toLowerCase().includes('bbbnative'),
-  notify,
   validIOSVersion,
 }))(JoinVideoOptionsContainer)));

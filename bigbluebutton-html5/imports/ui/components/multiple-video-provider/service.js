@@ -1,10 +1,16 @@
 import { Tracker } from 'meteor/tracker';
+import { Session } from 'meteor/session';
 import { makeCall } from '/imports/ui/services/api';
+import { notify } from '/imports/ui/services/notification';
+import Settings from '/imports/ui/services/settings';
 import Auth from '/imports/ui/services/auth';
 import Meetings from '/imports/api/meetings';
 import Users from '/imports/api/users';
 import VideoStreams from '/imports/api/video-streams';
 import UserListService from '/imports/ui/components/user-list/service';
+import logger from '/imports/startup/client/logger';
+
+const CAMERA_PROFILES = Meteor.settings.public.kurento.cameraProfiles;
 
 const SFU_URL = Meteor.settings.public.kurento.wsUrl;
 const ROLE_MODERATOR = Meteor.settings.public.user.role_moderator;
@@ -69,11 +75,17 @@ class VideoService {
     this.isConnected = false;
   }
 
+  sharingWebcam() {
+    // TODO: Check if waiting response is needed here
+    return this.isSharing || this.isConnected;
+  }
+
   sendUserShareWebcam(cameraId) {
     makeCall('userShareWebcam', cameraId);
   }
 
   sendUserUnshareWebcam(cameraId) {
+    Session.set('userWasInWebcam', true);
     makeCall('userUnshareWebcam', cameraId);
   }
 
@@ -116,6 +128,12 @@ class VideoService {
     return users.map(u => {
       return { userId: u.userId, name: u.name };
     }).sort(UserListService.sortUsersByName);
+  }
+
+  hasVideoStream() {
+    const videoStreams = VideoStreams.findOne({ userId: Auth.userID },
+      { fields: {} });
+    return !!videoStreams;
   }
 
   webcamsOnlyForModerator() {
@@ -181,6 +199,56 @@ class VideoService {
       this.joinedVideo();
     }
   }
+
+  getCameraProfile() {
+    const profileId = Session.get('WebcamProfileId') || '';
+    const cameraProfile = CAMERA_PROFILES.find(profile => profile.id === profileId)
+      || CAMERA_PROFILES.find(profile => profile.default)
+      || CAMERA_PROFILES[0];
+    if (Session.get('WebcamDeviceId')) {
+      cameraProfile.constraints = cameraProfile.constraints || {};
+      cameraProfile.constraints.deviceId = { exact: Session.get('WebcamDeviceId') };
+    }
+
+    return cameraProfile;
+  }
+
+  addCandidateToPeer(peer, candidate, cameraId) {
+    peer.addIceCandidate(candidate, (error) => {
+      if (error) {
+        // Just log the error. We can't be sure if a candidate failure on add is
+        // fatal or not, so that's why we have a timeout set up for negotiations
+        // and listeners for ICE state transitioning to failures, so we won't
+        // act on it here
+        logger.error({
+          logCode: 'video_provider_addicecandidate_error',
+          extraInfo: {
+            cameraId,
+            error,
+          },
+        }, `Adding ICE candidate failed for ${cameraId} due to ${error.message}`);
+      }
+    });
+  }
+
+  processIceQueue(peer, cameraId) {
+    while (peer.iceQueue.length) {
+      const candidate = peer.iceQueue.shift();
+      this.addCandidateToPeer(peer, candidate, cameraId);
+    }
+  }
+
+  isDisabled() {
+    const disableCam = this.disableCam();
+    const userLocked = this.userIsLocked();
+    const isLocked = (disableCam && userLocked);
+
+    const isConnecting = this.isWaitingResponse || (!this.hasVideoStream() && this.sharingWebcam());
+
+    const viewParticipantsWebcams = Settings.dataSaving.viewParticipantsWebcams;
+
+    return isLocked || isConnecting || !viewParticipantsWebcams;
+  };
 }
 
 const videoService = new VideoService();
@@ -189,8 +257,6 @@ export default {
   exitVideo: () => videoService.exitVideo(),
   exitedVideo: () => videoService.exitedVideo(),
   disableCam: () => videoService.disableCam(),
-  isConnected: () => videoService.isConnected,
-  isWaitingResponse: () => videoService.isWaitingResponse,
   joinVideo: () => videoService.joinVideo(),
   joiningVideo: () => videoService.joiningVideo(),
   joinedVideo: () => videoService.joinedVideo(),
@@ -202,5 +268,14 @@ export default {
   userGotLocked: () => videoService.userGotLocked(),
   getAuthenticatedURL: () => videoService.getAuthenticatedURL(),
   isLocalStream: cameraId => videoService.isLocalStream(cameraId),
+  hasVideoStream: () => videoService.hasVideoStream(),
+  sharingWebcam: () => videoService.sharingWebcam(),
+  isDisabled: () => videoService.isDisabled(),
   playStart: cameraId => videoService.playStart(cameraId),
+  getCameraProfile: () => videoService.getCameraProfile(),
+  addCandidateToPeer: (peer, candidate, cameraId) => videoService.addCandidateToPeer(peer, candidate, cameraId),
+  processIceQueue: (peer, cameraId) => videoService.processIceQueue(peer, cameraId),
+  notify: message => notify(message, 'error', 'video'),
 };
+
+

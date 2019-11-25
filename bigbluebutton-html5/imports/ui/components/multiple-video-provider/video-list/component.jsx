@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import { defineMessages, injectIntl } from 'react-intl';
 import cx from 'classnames';
 import _ from 'lodash';
-import { styles } from './styles';
+import { styles } from '/imports/ui/components/video-provider/video-list/styles';
 import VideoListItemContainer from './video-list-item/container';
 import { withDraggableConsumer } from '../../media/webcam-draggable-overlay/context';
 import AutoplayOverlay from '../../media/autoplay-overlay/component';

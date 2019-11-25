@@ -14,7 +14,7 @@ import Icon from '/imports/ui/components/icon/component';
 import logger from '/imports/startup/client/logger';
 import FullscreenService from '/imports/ui/components/fullscreen-button/service';
 import FullscreenButtonContainer from '/imports/ui/components/fullscreen-button/container';
-import { styles } from '../styles';
+import { styles } from '/imports/ui/components/video-provider/video-list/styles';
 import { withDraggableConsumer } from '/imports/ui/components/media/webcam-draggable-overlay/context';
 
 const ALLOW_FULLSCREEN = Meteor.settings.public.app.allowFullscreen;
