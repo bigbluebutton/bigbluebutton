@@ -5,7 +5,6 @@ import VoiceUsers from '/imports/api/voice-users';
 import SIPBridge from '/imports/api/audio/client/bridge/sip';
 import logger from '/imports/startup/client/logger';
 import { notify } from '/imports/ui/services/notification';
-import browser from 'browser-detect';
 import playAndRetry from '/imports/utils/mediaElementPlayRetry';
 import iosWebviewAudioPolyfills from '/imports/utils/ios-webview-audio-polyfills';
 import { tryGenerateIceCandidates } from '/imports/utils/safari-webrtc';
@@ -153,7 +152,6 @@ class AudioManager {
     this.isListenOnly = true;
     this.isEchoTest = false;
 
-    const { name } = browser();
     // The kurento bridge isn't a full audio bridge yet, so we have to differ it
     const bridge = this.useKurento ? this.listenOnlyBridge : this.bridge;
 
@@ -221,12 +219,22 @@ class AudioManager {
         iceGatheringTimeout,
       ]))
       .catch(async (err) => {
+        handleListenOnlyError(err);
         if (retries < MAX_LISTEN_ONLY_RETRIES) {
           // Fallback to SIP.js listen only in case of failure
           if (this.useKurento) {
             // Exit previous SFU session and clean audio tag state
             window.kurentoExitAudio();
             this.useKurento = false;
+            logger.info({
+              logCode: 'audiomanager_listenonly_fallback',
+              extraInfo: {
+                logType: 'fallback',
+                errorName: err.name,
+                errorMsg: err.message,
+                err,
+              },
+            }, 'falling back to FreeSWITCH listenOnly');
             const audio = document.querySelector(MEDIA_TAG);
             audio.muted = false;
           }
@@ -237,8 +245,6 @@ class AudioManager {
           } catch (error) {
             return handleListenOnlyError(error);
           }
-        } else {
-          return handleListenOnlyError(err);
         }
 
         return null;
