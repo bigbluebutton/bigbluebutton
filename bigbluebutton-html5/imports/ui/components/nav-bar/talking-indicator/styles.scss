@@ -32,11 +32,20 @@
 }
 
 .speaking {
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
+  overflow-x: auto;
+  overflow-y: hidden;
   max-height: var(--talker-padding-xl);
 }
 
+.speaking::-webkit-scrollbar {
+  width: 0px;
+  height: 0px;
+  background: transparent;
+}
+
 .talker {
+  flex: 0 0 auto;
   @include highContrastOutline();
   color: white;
   font-weight: var(--talker-font-weight);
@@ -45,40 +54,64 @@
   padding: var(--talker-padding-xsm) var(--talker-padding-lg) var(--talker-padding-xsm) var(--talker-padding-lg);
   margin-left: var(--border-radius);
   margin-right: var(--border-radius);
+  height: var(--talker-height);
+  box-shadow: none !important;
+  
+  i,
+  span {
+    position: relative;
+    bottom: var(--bottom-offset);
+  }
 
-  > span {
-    max-width: var(--talker-max-width);
+  span {
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
-    margin-right: var(--talker-margin-sm);
+    margin: 0 0 0 0 !important;
+    max-width: var(--talker-max-width);
+
     [dir="rtl"]  & {
-      margin-right: 0;
       margin-left: var(--talker-margin-sm);
     }
   }
 
   i {
-    position: relative;
-    top: var(--border-size-large);
     font-size: var(--font-size-small);
+    width: 1rem;
+    height: 1rem;
+    background-color: var(--color-success);
+    border-radius: 50%;
+    position: relative;
+    right: var(--talker-margin-sm);
+
+    [dir="rtl"]  & {
+      right: calc(var(--talker-margin-sm) * -1);
+    }
+  }
+
+  span:hover {
+    opacity: 1;
   }
 }
 
 .spoke {
   opacity: var(--spoke-opacity);
-  padding-right: var(--talker-padding-xl);
 
   [dir="rtl"]  & {
-    padding-left: var(--talker-padding-xl);
     padding-right: var(--talker-padding-lg)
   }
  }
 
-.unmuted {
-  cursor: pointer;
-}
-
 .muted {
   cursor: default;
+  
+  i {
+    background-color: var(--color-danger);
+  }
+}
+
+.mobileHide {
+  @include mq($small-only) {
+    visibility: hidden;
+  }
 }
