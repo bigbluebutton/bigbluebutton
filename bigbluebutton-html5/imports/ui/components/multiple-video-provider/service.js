@@ -51,7 +51,6 @@ class VideoService {
   }
 
   joinedVideo() {
-    this.isConnecting = false;
     this.isConnected = true;
   }
 
@@ -126,16 +125,20 @@ class VideoService {
       },
     ).fetch();
 
-    if (this.sharingWebcam()) {
+    if (this.isConnecting) {
       const deviceId = this.getCurrentDeviceId();
       if (deviceId) {
         const stream = this.buildStreamName(localUser.userId, deviceId);
         if (!this.hasStream(streams, stream)) {
+          // This is how a new camera is shared and included in the VideoStream
+          // collection
           streams.push({
             stream,
             userId: localUser.userId,
             name: localUser.name,
           });
+        } else {
+          this.isConnecting = false;
         }
       }
     }
@@ -154,10 +157,9 @@ class VideoService {
   getCurrentDeviceId() {
     const deviceId = Session.get('WebcamDeviceId');
     if (deviceId) {
-      // Encode to avoid invalid file system naming characters
-      return encodeURI(deviceId);
+      return deviceId;
     }
-    logger.warn({
+    logger.error({
       logCode: 'video_provider_missing_deviceid',
     }, 'Could not retrieve a valid deviceId');
     return null;
