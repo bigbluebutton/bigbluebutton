@@ -31,13 +31,14 @@ class TalkingIndicator extends PureComponent {
     const { intl, talkers, openPanel } = this.props;
     if (!talkers) return null;
 
-    const talkingUserElements = Object.keys(talkers).map((name) => {
+    const talkingUserElements = Object.keys(talkers).map((id) => {
       const {
         talking,
         color,
         voiceUserId,
         muted,
-      } = talkers[`${name}`];
+        callerName,
+      } = talkers[`${id}`];
 
       const style = {
         [styles.talker]: true,
@@ -48,7 +49,7 @@ class TalkingIndicator extends PureComponent {
 
       const ariaLabel = intl.formatMessage(talking
         ? intlMessages.isTalking : intlMessages.wasTalking, {
-        0: name,
+        0: callerName,
       });
 
       let icon = talking ? 'unmute' : 'blank';
@@ -56,10 +57,10 @@ class TalkingIndicator extends PureComponent {
 
       return (
         <Button
-          key={_.uniqueId(`${name}-`)}
+          key={_.uniqueId(`${callerName}-`)}
           className={cx(style)}
           onClick={() => this.handleMuteUser(voiceUserId)}
-          label={name}
+          label={callerName}
           aria-label={ariaLabel}
           aria-describedby={talking ? 'description' : null}
           color="primary"

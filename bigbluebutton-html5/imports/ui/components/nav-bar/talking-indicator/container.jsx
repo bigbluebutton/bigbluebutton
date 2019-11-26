@@ -25,20 +25,22 @@ export default withTracker(() => {
       startTime: 1,
       voiceUserId: 1,
       muted: 1,
+      intId: 1,
     },
   }).fetch().sort(Service.sortVoiceUsers);
 
   if (usersTalking) {
     for (let i = 0; i < usersTalking.length; i += 1) {
       const {
-        callerName, talking, color, voiceUserId, muted,
+        callerName, talking, color, voiceUserId, muted, intId,
       } = usersTalking[i];
 
-      talkers[`${callerName}`] = {
+      talkers[`${intId}`] = {
         color,
         talking,
         voiceUserId,
         muted,
+        callerName,
       };
     }
   }
