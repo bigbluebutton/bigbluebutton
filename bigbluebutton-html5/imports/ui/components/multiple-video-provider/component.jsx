@@ -68,7 +68,7 @@ const intlSFUErrors = defineMessages({
 });
 
 const propTypes = {
-  users: PropTypes.arrayOf(Array).isRequired,
+  streams: PropTypes.arrayOf(Array).isRequired,
   intl: PropTypes.objectOf(Object).isRequired,
   isUserLocked: PropTypes.bool.isRequired,
   swapLayout: PropTypes.bool.isRequired,
@@ -104,17 +104,17 @@ class VideoProvider extends Component {
 
     this.pauseViewers = this.pauseViewers.bind(this);
     this.unpauseViewers = this.unpauseViewers.bind(this);
+
+    this.updateStreams = this.updateStreams.bind(this);
   }
 
-  componentWillMount() {
+  componentDidMount() {
     this.ws.onopen = this.onWsOpen;
     this.ws.onclose = this.onWsClose;
 
     window.addEventListener('online', this.openWs);
     window.addEventListener('offline', this.onWsClose);
-  }
 
-  componentDidMount() {
     this.ws.onmessage = this.onWsMessage;
 
     window.addEventListener('beforeunload', this.onBeforeUnload);
@@ -123,21 +123,11 @@ class VideoProvider extends Component {
     this.visibility.onHidden(this.pauseViewers);
   }
 
-  componentWillUpdate({ users }) {
-    const usersSharingIds = users.map(u => u.userId);
-    const usersConnected = Object.keys(this.webRtcPeers);
-
-    const usersToConnect = usersSharingIds.filter(id => !usersConnected.includes(id));
-    const usersToDisconnect = usersConnected.filter(id => !usersSharingIds.includes(id));
-
-    usersToConnect.forEach((cameraId) => {
-      this.createWebRTCPeer(cameraId, VideoService.isLocalStream(cameraId));
-    });
-    usersToDisconnect.forEach(cameraId => this.stopWebRTCPeer(cameraId));
-  }
-
   componentDidUpdate(prevProps) {
-    const { isUserLocked } = this.props;
+    const { isUserLocked, streams } = this.props;
+
+    this.updateStreams(streams);
+
     if (!prevProps.isUserLocked && isUserLocked) VideoService.lockUser();
   }
 
@@ -223,11 +213,21 @@ class VideoProvider extends Component {
   }
 
   onBeforeUnload() {
-    logger.info({
-      logCode: 'video_provider_unsharewebcam',
-    }, 'Sending unshare webcam notification to meteor');
-    VideoService.sendUserUnshareWebcam(this.info.userId);
-    VideoService.exitedVideo();
+    VideoService.onBeforeUnload();
+  }
+
+  updateStreams(streams) {
+    const streamsCameraIds = streams.map(s => s.cameraId);
+    const streamsConnected = Object.keys(this.webRtcPeers);
+
+    const streamsToConnect = streamsCameraIds.filter(cameraId => !streamsConnected.includes(cameraId));
+    const streamsToDisconnect = streamsConnected.filter(cameraId => !streamsCameraIds.includes(cameraId));
+
+    streamsToConnect.forEach((cameraId) => {
+      const isLocal = VideoService.isLocalStream(cameraId);
+      this.createWebRTCPeer(cameraId, isLocal);
+    });
+    streamsToDisconnect.forEach(cameraId => this.stopWebRTCPeer(cameraId));
   }
 
   sendPauseStream(cameraId, role, state) {
@@ -248,7 +248,8 @@ class VideoProvider extends Component {
     Object.keys(this.webRtcPeers).forEach((cameraId) => {
       const peer = this.webRtcPeers[cameraId];
       const peerStarted = peer && peer.started;
-      if (!VideoService.isLocalStream(cameraId) && peerStarted) {
+      const isLocal = VideoService.isLocalStream(cameraId);
+      if (!isLocal && peerStarted) {
         this.sendPauseStream(cameraId, 'viewer', true);
       }
     });
@@ -262,7 +263,8 @@ class VideoProvider extends Component {
     Object.keys(this.webRtcPeers).forEach((cameraId) => {
       const peer = this.webRtcPeers[cameraId];
       const peerStarted = peer && peer.started;
-      if (!VideoService.isLocalStream(cameraId) && peerStarted) {
+      const isLocal = VideoService.isLocalStream(cameraId);
+      if (!isLocal && peerStarted) {
         this.sendPauseStream(cameraId, 'viewer', false);
       }
     });
@@ -379,10 +381,10 @@ class VideoProvider extends Component {
     }
 
     if (isLocal) {
-      VideoService.exitVideo();
+      VideoService.stopStream(cameraId);
     }
 
-    const role = isLocal ? 'share' : 'viewer';
+    const role = VideoService.getRole(isLocal);
 
     logger.info({
       logCode: 'video_provider_stopping_webcam_sfu',
@@ -505,7 +507,7 @@ class VideoProvider extends Component {
             id: 'start',
             type: 'video',
             cameraId,
-            role: isLocal ? 'share' : 'viewer',
+            role: VideoService.getRole(isLocal),
             sdpOffer: offerSdp,
             meetingId: this.info.meetingId,
             voiceBridge: this.info.voiceBridge,
@@ -542,7 +544,7 @@ class VideoProvider extends Component {
 
     return () => {
       // Peer that timed out is a sharer/publisher
-      if (VideoService.isLocalStream(cameraId)) {
+      if (isLocal) {
         logger.error({
           logCode: 'video_provider_camera_share_timeout',
           extraInfo: { cameraId },
@@ -579,12 +581,13 @@ class VideoProvider extends Component {
   _onWebRTCError(error, cameraId) {
     const { intl } = this.props;
 
+    const isLocal = VideoService.isLocalStream(cameraId);
     // 2001 means MEDIA_SERVER_OFFLINE. It's a server-wide error.
     // We only display it to a sharer/publisher instance to avoid popping up
     // redundant toasts.
     // If the client only has viewer instances, the WS will close unexpectedly
     // and an error will be shown there for them.
-    if (error === 2001 && !VideoService.isLocalStream(cameraId)) {
+    if (error === 2001 && !isLocal) {
       return;
     }
 
@@ -638,7 +641,7 @@ class VideoProvider extends Component {
         id: 'onIceCandidate',
         type: 'video',
         cameraId,
-        role: isLocal ? 'share' : 'viewer',
+        role: VideoService.getRole(isLocal),
         candidate,
       };
       this.sendMessage(message);
@@ -788,8 +791,9 @@ class VideoProvider extends Component {
       },
     }, `SFU returned error for camera ${cameraId}. Code: ${code}, reason: ${reason}`);
 
-    if (VideoService.isLocalStream(cameraId)) {
-      VideoService.exitVideo();
+    const isLocal = VideoService.isLocalStream(cameraId);
+    if (isLocal) {
+      VideoService.stopStream(cameraId);
       VideoService.notify(intl.formatMessage(intlSFUErrors[code] || intlSFUErrors[2200]));
     } else {
       this.stopWebRTCPeer(cameraId);
@@ -802,11 +806,11 @@ class VideoProvider extends Component {
     if (!socketOpen) return null;
 
     const {
-      users,
+      streams,
     } = this.props;
     return (
       <VideoList
-        users={users}
+        streams={streams}
         onMount={this.createVideoTag}
         swapLayout={swapLayout}
       />

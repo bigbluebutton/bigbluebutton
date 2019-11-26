@@ -104,18 +104,19 @@ class VideoListItem extends Component {
   getAvailableActions() {
     const {
       actions,
-      user,
+      cameraId,
+      name,
     } = this.props;
 
     return _.compact([
-      <DropdownListTitle className={styles.hiddenDesktop} key="name">{user.name}</DropdownListTitle>,
+      <DropdownListTitle className={styles.hiddenDesktop} key="name">{name}</DropdownListTitle>,
       <DropdownListSeparator className={styles.hiddenDesktop} key="sep" />,
-      ...actions.map(action => (<DropdownListItem key={user.userId} {...action} />)),
+      ...actions.map(action => (<DropdownListItem key={cameraId} {...action} />)),
     ]);
   }
 
   renderFullscreenButton() {
-    const { user } = this.props;
+    const { name } = this.props;
     const { isFullscreen } = this.state;
 
     if (!ALLOW_FULLSCREEN) return null;
@@ -123,7 +124,7 @@ class VideoListItem extends Component {
     return (
       <FullscreenButtonContainer
         fullscreenRef={this.videoContainer}
-        elementName={user.name}
+        elementName={name}
         isFullscreen={isFullscreen}
         dark
       />
@@ -136,9 +137,9 @@ class VideoListItem extends Component {
       isFullscreen,
     } = this.state;
     const {
-      user,
+      name,
       voiceUser,
-      numOfUsers,
+      numOfStreams,
       webcamDraggableState,
       swapLayout,
     } = this.props;
@@ -182,7 +183,7 @@ class VideoListItem extends Component {
             ? (
               <Dropdown className={isFirefox ? styles.dropdownFireFox : styles.dropdown}>
                 <DropdownTrigger className={styles.dropdownTrigger}>
-                  <span>{user.name}</span>
+                  <span>{name}</span>
                 </DropdownTrigger>
                 <DropdownContent placement="top left" className={styles.dropdownContent}>
                   <DropdownList className={styles.dropdownList}>
@@ -197,10 +198,10 @@ class VideoListItem extends Component {
               >
                 <span className={cx({
                   [styles.userName]: true,
-                  [styles.noMenu]: numOfUsers < 3,
+                  [styles.noMenu]: numOfStreams < 3,
                 })}
                 >
-                  {user.name}
+                  {name}
                 </span>
               </div>
             )
@@ -216,16 +217,12 @@ class VideoListItem extends Component {
 export default withDraggableConsumer(VideoListItem);
 
 VideoListItem.defaultProps = {
-  numOfUsers: 0,
+  numOfStreams: 0,
 };
 
 VideoListItem.propTypes = {
   actions: PropTypes.arrayOf(PropTypes.object).isRequired,
-  user: PropTypes.objectOf(PropTypes.oneOfType([
-    PropTypes.bool,
-    PropTypes.number,
-    PropTypes.object,
-    PropTypes.string,
-  ])).isRequired,
-  numOfUsers: PropTypes.number,
+  cameraId: PropTypes.string.isRequired,
+  name: PropTypes.string.isRequired,
+  numOfStreams: PropTypes.number,
 };

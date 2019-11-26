@@ -6,10 +6,6 @@ import VideoPreviewContainer from '/imports/ui/components/video-preview/containe
 import JoinVideoButton from './component';
 import VideoService from '../service';
 
-import {
-  validIOSVersion,
-} from '/imports/ui/components/app/service';
-
 const JoinVideoOptionsContainer = (props) => {
   const {
     hasVideoStream,
@@ -18,23 +14,20 @@ const JoinVideoOptionsContainer = (props) => {
     handleCloseVideo,
     intl,
     mountModal,
-    isMobileNative,
     ...restProps
   } = props;
 
   const mountPreview = () => { mountModal(<VideoPreviewContainer />); };
 
-  return !isMobileNative && (
-  <JoinVideoButton {...{
-    handleJoinVideo: mountPreview, handleCloseVideo, hasVideoStream, isDisabled, ...restProps,
-  }}
-  />
+  return (
+    <JoinVideoButton {...{
+      handleJoinVideo: mountPreview, handleCloseVideo, hasVideoStream, isDisabled, ...restProps,
+    }}
+    />
   );
 };
 
 export default withModalMounter(injectIntl(withTracker(() => ({
   hasVideoStream: VideoService.hasVideoStream(),
   isDisabled: VideoService.isDisabled() || !Meteor.status().connected,
-  isMobileNative: navigator.userAgent.toLowerCase().includes('bbbnative'),
-  validIOSVersion,
 }))(JoinVideoOptionsContainer)));

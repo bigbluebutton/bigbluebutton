@@ -5,6 +5,7 @@ import Button from '/imports/ui/components/button/component';
 import VideoService from '../service';
 import { defineMessages, injectIntl, intlShape } from 'react-intl';
 import { styles } from '/imports/ui/components/video-provider/video-button/styles';
+import { validIOSVersion } from '/imports/ui/components/app/service';
 
 const intlMessages = defineMessages({
   joinVideo: {
@@ -35,7 +36,6 @@ const propTypes = {
   isDisabled: PropTypes.bool.isRequired,
   handleJoinVideo: PropTypes.func.isRequired,
   handleCloseVideo: PropTypes.func.isRequired,
-  validIOSVersion: PropTypes.func.isRequired,
 };
 
 const JoinVideoButton = ({
@@ -44,13 +44,16 @@ const JoinVideoButton = ({
   isDisabled,
   handleJoinVideo,
   handleCloseVideo,
-  validIOSVersion,
 }) => {
-  const verifyIOS = () => {
-    if (!validIOSVersion()) {
-      return VideoService.notify(intl.formatMessage(intlMessages.iOSWarning));
+  const handleOnClick = () => {
+    if (hasVideoStream) {
+      handleCloseVideo();
+    } else {
+      if (!validIOSVersion()) {
+        return VideoService.notify(intl.formatMessage(intlMessages.iOSWarning));
+      }
+      handleJoinVideo();
     }
-    handleJoinVideo();
   };
 
   const sharingVideoLabel = hasVideoStream
@@ -63,7 +66,7 @@ const JoinVideoButton = ({
     <Button
       label={disabledLabel}
       className={cx(styles.button, hasVideoStream || styles.btn)}
-      onClick={hasVideoStream ? handleCloseVideo : verifyIOS}
+      onClick={handleOnClick}
       hideLabel
       aria-label={intl.formatMessage(intlMessages.videoButtonDesc)}
       color={hasVideoStream ? 'primary' : 'default'}

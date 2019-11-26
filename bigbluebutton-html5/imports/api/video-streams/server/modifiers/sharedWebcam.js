@@ -1,7 +1,10 @@
 import Logger from '/imports/startup/server/logger';
 import VideoStreams from '/imports/api/video-streams';
 import { check } from 'meteor/check';
-import { getDeviceId } from '/imports/api/video-streams/server/helpers';
+import {
+  getDeviceId,
+  getUserName,
+} from '/imports/api/video-streams/server/helpers';
 
 export default function sharedWebcam(meetingId, userId, stream) {
   check(meetingId, String);
@@ -9,6 +12,7 @@ export default function sharedWebcam(meetingId, userId, stream) {
   check(stream, String);
 
   const deviceId = getDeviceId(stream);
+  const name = getUserName(userId);
 
   const selector = {
     meetingId,
@@ -19,6 +23,7 @@ export default function sharedWebcam(meetingId, userId, stream) {
   const modifier = {
     $set: {
       stream,
+      name,
     },
   };
 
