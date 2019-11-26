@@ -32,11 +32,20 @@
 }
 
 .speaking {
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
+  overflow-x: auto;
+  overflow-y: hidden;
   max-height: var(--talker-padding-xl);
 }
 
+.speaking::-webkit-scrollbar {
+  width: 0px;
+  height: 0px;
+  background: transparent;
+}
+
 .talker {
+  flex: 0 0 auto;
   @include highContrastOutline();
   color: white;
   font-weight: var(--talker-font-weight);
