@@ -110,7 +110,6 @@ export default withModalMounter(withTracker(() => {
   const data = {
     children: <DefaultContent />,
     audioModalIsOpen: Session.get('audioModalIsOpen'),
-    userWasInWebcam: Session.get('userWasInWebcam'),
     joinVideo: VideoService.joinVideo,
   };
 

@@ -98,7 +98,6 @@ class VideoService {
   }
 
   sendUserUnshareWebcam(cameraId) {
-    Session.set('userWasInWebcam', true);
     makeCall('userUnshareWebcam', cameraId);
   }
 

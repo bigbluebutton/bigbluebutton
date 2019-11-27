@@ -12,9 +12,7 @@ const propTypes = {
   hideOverlay: PropTypes.bool,
   swapLayout: PropTypes.bool,
   disableVideo: PropTypes.bool,
-  userWasInWebcam: PropTypes.bool,
   audioModalIsOpen: PropTypes.bool,
-  joinVideo: PropTypes.func,
   webcamPlacement: PropTypes.string,
 };
 
@@ -23,9 +21,7 @@ const defaultProps = {
   hideOverlay: true,
   swapLayout: false,
   disableVideo: false,
-  userWasInWebcam: false,
   audioModalIsOpen: false,
-  joinVideo: null,
   webcamPlacement: 'top',
 };
 
@@ -38,23 +34,6 @@ export default class Media extends Component {
 
   componentWillUpdate() {
     window.dispatchEvent(new Event('resize'));
-  }
-
-  componentDidUpdate(prevProps) {
-    const {
-      userWasInWebcam,
-      audioModalIsOpen,
-      joinVideo,
-    } = this.props;
-
-    const {
-      audioModalIsOpen: oldAudioModalIsOpen,
-    } = prevProps;
-
-    if ((!audioModalIsOpen && oldAudioModalIsOpen) && userWasInWebcam) {
-      Session.set('userWasInWebcam', false);
-      joinVideo();
-    }
   }
 
   render() {

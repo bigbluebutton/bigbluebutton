@@ -285,7 +285,6 @@ class VideoProvider extends Component {
     // Unshare user webcam
     if (this.sharedWebcam) {
       this.unshareWebcam();
-      Session.set('userWasInWebcam', true);
     }
 
     Object.keys(this.webRtcPeers).forEach((id) => {
