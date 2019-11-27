@@ -55,7 +55,7 @@ class VideoService {
   }
 
   exitVideo() {
-    if (this.sharingWebcam()) {
+    if (this.isConnected) {
       logger.info({
         logCode: 'video_provider_unsharewebcam',
       }, `Sending unshare all ${Auth.userID} webcams notification to meteor`);
@@ -89,10 +89,6 @@ class VideoService {
     }
   }
 
-  sharingWebcam() {
-    return this.isConnecting || this.isConnected;
-  }
-
   sendUserShareWebcam(cameraId) {
     makeCall('userShareWebcam', cameraId);
   }
@@ -106,15 +102,6 @@ class VideoService {
   }
 
   getVideoStreams() {
-    const localUser = Users.findOne(
-      { userId: Auth.userID },
-      {
-        fields: {
-          name: 1, userId: 1,
-        },
-      },
-    );
-
     const streams = VideoStreams.find(
       { meetingId: Auth.meetingID },
       {
@@ -124,29 +111,38 @@ class VideoService {
       },
     ).fetch();
 
-    if (this.isConnecting) {
-      const deviceId = this.getCurrentDeviceId();
-      if (deviceId) {
-        const stream = this.buildStreamName(localUser.userId, deviceId);
-        if (!this.hasStream(streams, stream)) {
-          // This is how a new camera is shared and included in the VideoStream
-          // collection
-          streams.push({
-            stream,
-            userId: localUser.userId,
-            name: localUser.name,
-          });
-        } else {
-          this.isConnecting = false;
-        }
-      }
-    }
+    const connectingStream = this.getConnectingStream(streams);
+
+    if (connectingStream) streams.push(connectingStream);
 
     return streams.map(vs => ({
       cameraId: vs.stream,
       userId: vs.userId,
       name: vs.name,
     })).sort(UserListService.sortUsersByName);
+  }
+
+  getConnectingStream(streams) {
+    let connectingStream;
+
+    if (this.isConnecting) {
+      const deviceId = this.getCurrentDeviceId();
+      if (deviceId) {
+        const stream = this.buildStreamName(Auth.userID, deviceId);
+        if (!this.hasStream(streams, stream)) {
+          connectingStream = {
+            stream,
+            userId: Auth.userID,
+            name: Auth.fullname,
+          };
+        } else {
+          // Connecting stream is already stored at database
+          this.isConnecting = false;
+        }
+      }
+    }
+
+    return connectingStream;
   }
 
   buildStreamName(userId, deviceId) {
@@ -275,10 +271,9 @@ class VideoService {
 
   isDisabled() {
     const isLocked = this.disableCam() && this.isUserLocked();
-    const isConnecting = !this.hasVideoStream() && this.sharingWebcam();
     const { viewParticipantsWebcams } = Settings.dataSaving;
 
-    return isLocked || isConnecting || !viewParticipantsWebcams;
+    return isLocked || this.isConnecting || !viewParticipantsWebcams;
   }
 
   getRole(isLocal) {
