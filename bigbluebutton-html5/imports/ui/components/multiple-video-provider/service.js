@@ -46,7 +46,8 @@ class VideoService {
     });
   }
 
-  joinVideo() {
+  joinVideo(deviceId) {
+    this.deviceId = deviceId;
     this.isConnecting = true;
   }
 
@@ -73,6 +74,7 @@ class VideoService {
 
   exitedVideo() {
     this.isConnecting = false;
+    this.deviceId = null;
     this.isConnected = false;
   }
 
@@ -85,6 +87,7 @@ class VideoService {
     ).fetch().length;
     this.sendUserUnshareWebcam(cameraId);
     if (streams < 2) {
+      // If the user had less than 2 streams, set as a full disconnection
       this.exitedVideo();
     }
   }
@@ -126,10 +129,9 @@ class VideoService {
     let connectingStream;
 
     if (this.isConnecting) {
-      const deviceId = this.getCurrentDeviceId();
-      if (deviceId) {
-        const stream = this.buildStreamName(Auth.userID, deviceId);
-        if (!this.hasStream(streams, stream)) {
+      if (this.deviceId) {
+        const stream = this.buildStreamName(Auth.userID, this.deviceId);
+        if (!this.hasStream(streams, stream) && !this.isUserLocked()) {
           connectingStream = {
             stream,
             userId: Auth.userID,
@@ -137,8 +139,13 @@ class VideoService {
           };
         } else {
           // Connecting stream is already stored at database
+          this.deviceId = null;
           this.isConnecting = false;
         }
+      } else {
+        logger.error({
+          logCode: 'video_provider_missing_deviceid',
+        }, 'Could not retrieve a valid deviceId');
       }
     }
 
@@ -149,17 +156,6 @@ class VideoService {
     return `${userId}${TOKEN}${deviceId}`;
   }
 
-  getCurrentDeviceId() {
-    const deviceId = Session.get('WebcamDeviceId');
-    if (deviceId) {
-      return deviceId;
-    }
-    logger.error({
-      logCode: 'video_provider_missing_deviceid',
-    }, 'Could not retrieve a valid deviceId');
-    return null;
-  }
-
   hasVideoStream() {
     const videoStreams = VideoStreams.findOne({ userId: Auth.userID },
       { fields: {} });
@@ -168,12 +164,6 @@ class VideoService {
 
   hasStream(streams, stream) {
     return streams.find(s => s.stream === stream);
-  }
-
-  webcamsOnlyForModerator() {
-    const m = Meetings.findOne({ meetingId: Auth.meetingID },
-      { fields: { 'usersProp.webcamsOnlyForModerator': 1 } });
-    return m.usersProp ? m.usersProp.webcamsOnlyForModerator : false;
   }
 
   disableCam() {
@@ -270,10 +260,9 @@ class VideoService {
   }
 
   isDisabled() {
-    const isLocked = this.disableCam() && this.isUserLocked();
     const { viewParticipantsWebcams } = Settings.dataSaving;
 
-    return isLocked || this.isConnecting || !viewParticipantsWebcams;
+    return this.isUserLocked() || this.isConnecting || !viewParticipantsWebcams;
   }
 
   getRole(isLocal) {
@@ -285,7 +274,7 @@ const videoService = new VideoService();
 
 export default {
   exitVideo: () => videoService.exitVideo(),
-  joinVideo: () => videoService.joinVideo(),
+  joinVideo: deviceId => videoService.joinVideo(deviceId),
   stopStream: cameraId => videoService.stopStream(cameraId),
   getVideoStreams: () => videoService.getVideoStreams(),
   getInfo: () => videoService.getInfo(),

@@ -110,7 +110,6 @@ export default withModalMounter(withTracker(() => {
   const data = {
     children: <DefaultContent />,
     audioModalIsOpen: Session.get('audioModalIsOpen'),
-    joinVideo: VideoService.joinVideo,
   };
 
   if (MediaService.shouldShowWhiteboard() && !hidePresentation) {

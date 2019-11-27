@@ -24,14 +24,12 @@ const propTypes = {
   startSharing: PropTypes.func.isRequired,
   changeWebcam: PropTypes.func.isRequired,
   changeProfile: PropTypes.func.isRequired,
-  joinVideo: PropTypes.func,
   resolve: PropTypes.func,
   hasMediaDevices: PropTypes.bool.isRequired,
   webcamDeviceId: PropTypes.string,
 };
 
 const defaultProps = {
-  joinVideo: null,
   resolve: null,
   webcamDeviceId: null,
 };
@@ -168,7 +166,6 @@ class VideoPreview extends Component {
       webcamDeviceId,
     } = props;
 
-    this.handleJoinVideo = this.handleJoinVideo.bind(this);
     this.handleProceed = this.handleProceed.bind(this);
     this.handleStartSharing = this.handleStartSharing.bind(this);
     this.handleSelectWebcam = this.handleSelectWebcam.bind(this);
@@ -340,8 +337,9 @@ class VideoPreview extends Component {
 
   handleStartSharing() {
     const { resolve, startSharing } = this.props;
+    const { webcamDeviceId } = this.state;
     this.stopTracks();
-    startSharing();
+    startSharing(webcamDeviceId);
     if (resolve) resolve();
   }
 
@@ -423,14 +421,6 @@ class VideoPreview extends Component {
       }, 'Error displaying final selection.');
       this.setState({ previewError: VideoPreview.handleGUMError(error) });
     });
-  }
-
-  handleJoinVideo() {
-    const {
-      joinVideo,
-    } = this.props;
-
-    joinVideo();
   }
 
   supportWarning() {

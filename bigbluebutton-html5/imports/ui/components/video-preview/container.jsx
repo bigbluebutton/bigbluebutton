@@ -14,9 +14,9 @@ const SKIP_VIDEO_PREVIEW = KURENTO_CONFIG.skipVideoPreview;
 const VideoPreviewContainer = props => <VideoPreview {...props} />;
 
 export default withModalMounter(withTracker(({ mountModal, fromInterface }) => ({
-  startSharing: () => {
+  startSharing: deviceId => {
     mountModal(null);
-    VideoService.joinVideo();
+    VideoService.joinVideo(deviceId);
   },
   closeModal: () => mountModal(null),
   changeWebcam: deviceId => Service.changeWebcam(deviceId),
