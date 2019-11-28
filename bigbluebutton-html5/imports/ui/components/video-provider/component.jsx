@@ -210,13 +210,19 @@ class VideoProvider extends Component {
     const streamsCameraIds = streams.map(s => s.cameraId);
     const streamsConnected = Object.keys(this.webRtcPeers);
 
-    const streamsToConnect = streamsCameraIds.filter(cameraId => !streamsConnected.includes(cameraId));
-    const streamsToDisconnect = streamsConnected.filter(cameraId => !streamsCameraIds.includes(cameraId));
+    const streamsToConnect = streamsCameraIds.filter(cameraId => {
+      return !streamsConnected.includes(cameraId);
+    });
+
+    const streamsToDisconnect = streamsConnected.filter(cameraId => {
+      return !streamsCameraIds.includes(cameraId);
+    });
 
     streamsToConnect.forEach((cameraId) => {
       const isLocal = VideoService.isLocalStream(cameraId);
       this.createWebRTCPeer(cameraId, isLocal);
     });
+
     streamsToDisconnect.forEach(cameraId => this.stopWebRTCPeer(cameraId));
   }
 
@@ -340,7 +346,7 @@ class VideoProvider extends Component {
     }
 
     if (isLocal) {
-      VideoService.stopStream(cameraId);
+      VideoService.stopVideo(cameraId);
     }
 
     const role = VideoService.getRole(isLocal);
@@ -514,7 +520,7 @@ class VideoProvider extends Component {
         }, `Camera SHARER has not succeeded in ${CAMERA_SHARE_FAILED_WAIT_TIME} for ${cameraId}`);
 
         VideoService.notify(intl.formatMessage(intlClientErrors.mediaFlowTimeout));
-        this.stopWebRTCPeer(cameraId, false);
+        this.stopWebRTCPeer(cameraId);
       } else {
         // Create new reconnect interval time
         const oldReconnectTimer = this.restartTimer[cameraId];
@@ -799,7 +805,7 @@ class VideoProvider extends Component {
     if (isLocal) {
       // The publisher instance received an error from the server. There's no reconnect,
       // stop it.
-      VideoService.stopStream(cameraId);
+      VideoService.stopVideo(cameraId);
       VideoService.notify(intl.formatMessage(intlSFUErrors[code] || intlSFUErrors[2200]));
     } else {
       this.stopWebRTCPeer(cameraId, true);

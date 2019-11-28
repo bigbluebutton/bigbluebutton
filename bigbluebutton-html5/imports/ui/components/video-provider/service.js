@@ -78,7 +78,7 @@ class VideoService {
     this.isConnected = false;
   }
 
-  stopStream(cameraId) {
+  stopVideo(cameraId) {
     const streams = VideoStreams.find(
       {
         meetingId: Auth.meetingID,
@@ -90,6 +90,17 @@ class VideoService {
       // If the user had less than 2 streams, set as a full disconnection
       this.exitedVideo();
     }
+  }
+
+  getSharedDevices() {
+    const devices = VideoStreams.find(
+      {
+        meetingId: Auth.meetingID,
+        userId: Auth.userID,
+      }, { fields: { deviceId: 1 } },
+    ).fetch().map(vs => vs.deviceId);
+
+    return devices;
   }
 
   sendUserShareWebcam(cameraId) {
@@ -275,7 +286,7 @@ const videoService = new VideoService();
 export default {
   exitVideo: () => videoService.exitVideo(),
   joinVideo: deviceId => videoService.joinVideo(deviceId),
-  stopStream: cameraId => videoService.stopStream(cameraId),
+  stopVideo: cameraId => videoService.stopVideo(cameraId),
   getVideoStreams: () => videoService.getVideoStreams(),
   getInfo: () => videoService.getInfo(),
   isUserLocked: () => videoService.isUserLocked(),
@@ -289,6 +300,7 @@ export default {
   addCandidateToPeer: (peer, candidate, cameraId) => videoService.addCandidateToPeer(peer, candidate, cameraId),
   processInboundIceQueue: (peer, cameraId) => videoService.processInboundIceQueue(peer, cameraId),
   getRole: isLocal => videoService.getRole(isLocal),
+  getSharedDevices: () => videoService.getSharedDevices(),
   onBeforeUnload: () => videoService.onBeforeUnload(),
   notify: message => notify(message, 'error', 'video'),
 };

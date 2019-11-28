@@ -27,6 +27,7 @@ const propTypes = {
   resolve: PropTypes.func,
   hasMediaDevices: PropTypes.bool.isRequired,
   webcamDeviceId: PropTypes.string,
+  sharedDevices: PropTypes.arrayOf(PropTypes.string),
 };
 
 const defaultProps = {
@@ -168,6 +169,7 @@ class VideoPreview extends Component {
 
     this.handleProceed = this.handleProceed.bind(this);
     this.handleStartSharing = this.handleStartSharing.bind(this);
+    this.handleStopSharing = this.handleStopSharing.bind(this);
     this.handleSelectWebcam = this.handleSelectWebcam.bind(this);
     this.handleSelectProfile = this.handleSelectProfile.bind(this);
 
@@ -192,6 +194,7 @@ class VideoPreview extends Component {
       webcamDeviceId,
       hasMediaDevices,
       skipVideoPreview,
+      sharedDevices,
     } = this.props;
 
     this._isMounted = true;
@@ -222,7 +225,8 @@ class VideoPreview extends Component {
 
               // set webcam
               devices.forEach((device) => {
-                if (device.kind === 'videoinput') {
+                const shared = sharedDevices.includes(device.deviceId);
+                if (device.kind === 'videoinput' && !shared) {
                   webcams.push(device);
                   if (!initialDeviceId
                   || (webcamDeviceId && webcamDeviceId === device.deviceId)
@@ -340,6 +344,14 @@ class VideoPreview extends Component {
     const { webcamDeviceId } = this.state;
     this.stopTracks();
     startSharing(webcamDeviceId);
+    if (resolve) resolve();
+  }
+
+  handleStopSharing(event) {
+    const { resolve, stopSharing } = this.props;
+    const { target } = event;
+    this.stopTracks();
+    stopSharing(target.value);
     if (resolve) resolve();
   }
 
@@ -509,6 +521,42 @@ class VideoPreview extends Component {
     );
   }
 
+  renderSharedDeviceSelectors() {
+    const {
+      intl,
+      sharedDevices,
+    } = this.props;
+
+    if (sharedDevices && sharedDevices.length == 0) return null;
+
+    return (
+      <div className={styles.col}>
+        <label className={styles.label} htmlFor="stopCam">
+          Stop Camera
+        </label>
+          <select
+            id="stopCam"
+            value={'default'}
+            className={styles.select}
+            onChange={this.handleStopSharing}
+          >
+            <option
+              disabled
+              key={-1}
+              value={'default'}
+            >
+              Shared Cameras
+            </option>
+            {sharedDevices.map(deviceId => (
+              <option key={deviceId} value={deviceId}>
+                {deviceId}
+              </option>
+            ))}
+          </select>
+      </div>
+    );
+  }
+
   renderContent() {
     const {
       intl,
@@ -561,6 +609,7 @@ class VideoPreview extends Component {
             }
             </div>
             {this.renderDeviceSelectors()}
+            {this.renderSharedDeviceSelectors()}
           </div>
         );
     }

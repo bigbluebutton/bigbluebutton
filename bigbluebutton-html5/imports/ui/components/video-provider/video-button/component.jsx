@@ -12,10 +12,6 @@ const intlMessages = defineMessages({
     id: 'app.video.joinVideo',
     description: 'Join video button label',
   },
-  leaveVideo: {
-    id: 'app.video.leaveVideo',
-    description: 'Leave video button label',
-  },
   videoButtonDesc: {
     id: 'app.video.videoButtonDesc',
     description: 'video button description',
@@ -35,7 +31,6 @@ const propTypes = {
   hasVideoStream: PropTypes.bool.isRequired,
   isDisabled: PropTypes.bool.isRequired,
   handleJoinVideo: PropTypes.func.isRequired,
-  handleCloseVideo: PropTypes.func.isRequired,
 };
 
 const JoinVideoButton = ({
@@ -43,21 +38,15 @@ const JoinVideoButton = ({
   hasVideoStream,
   isDisabled,
   handleJoinVideo,
-  handleCloseVideo,
 }) => {
   const handleOnClick = () => {
-    if (hasVideoStream) {
-      handleCloseVideo();
-    } else {
-      if (!validIOSVersion()) {
-        return VideoService.notify(intl.formatMessage(intlMessages.iOSWarning));
-      }
-      handleJoinVideo();
+    if (!validIOSVersion()) {
+      return VideoService.notify(intl.formatMessage(intlMessages.iOSWarning));
     }
+    handleJoinVideo();
   };
 
-  const sharingVideoLabel = hasVideoStream
-    ? intl.formatMessage(intlMessages.leaveVideo) : intl.formatMessage(intlMessages.joinVideo);
+  const sharingVideoLabel = intl.formatMessage(intlMessages.joinVideo);
 
   const disabledLabel = isDisabled
     ? intl.formatMessage(intlMessages.videoLocked) : sharingVideoLabel;

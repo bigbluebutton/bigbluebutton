@@ -6,6 +6,7 @@ import getFromUserSettings from '/imports/ui/services/users-settings';
 import Service from './service';
 import VideoPreview from './component';
 import VideoService from '../video-provider/service';
+import Auth from '/imports/ui/services/auth';
 
 const KURENTO_CONFIG = Meteor.settings.public.kurento;
 const CAMERA_PROFILES = KURENTO_CONFIG.cameraProfiles;
@@ -18,6 +19,11 @@ export default withModalMounter(withTracker(({ mountModal, fromInterface }) => (
     mountModal(null);
     VideoService.joinVideo(deviceId);
   },
+  stopSharing: deviceId => {
+    mountModal(null);
+    VideoService.stopVideo(`${Auth.userID}_${deviceId}`);
+  },
+  sharedDevices: VideoService.getSharedDevices(),
   closeModal: () => mountModal(null),
   changeWebcam: deviceId => Service.changeWebcam(deviceId),
   webcamDeviceId: Service.webcamDeviceId(),

@@ -11,7 +11,6 @@ const JoinVideoOptionsContainer = (props) => {
     hasVideoStream,
     isDisabled,
     handleJoinVideo,
-    handleCloseVideo,
     intl,
     mountModal,
     ...restProps
@@ -21,7 +20,7 @@ const JoinVideoOptionsContainer = (props) => {
 
   return (
     <JoinVideoButton {...{
-      handleJoinVideo: mountPreview, handleCloseVideo, hasVideoStream, isDisabled, ...restProps,
+      handleJoinVideo: mountPreview, hasVideoStream, isDisabled, ...restProps,
     }}
     />
   );
