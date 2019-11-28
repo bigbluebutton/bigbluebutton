@@ -151,9 +151,9 @@ class VideoProvider extends Component {
     });
   }
 
-  static _processIceQueue(peer, cameraId) {
-    while (peer.iceQueue.length) {
-      const candidate = peer.iceQueue.shift();
+  static _processInboundIceQueue(peer, cameraId) {
+    while (peer.inboundIceQueue.length) {
+      const candidate = peer.inboundIceQueue.shift();
       this.addCandidateToPeer(peer, candidate, cameraId);
     }
   }
@@ -179,6 +179,7 @@ class VideoProvider extends Component {
     this.restartTimeout = {};
     this.restartTimer = {};
     this.webRtcPeers = {};
+    this.outboundIceQueues = {};
     this.monitoredTracks = {};
     this.videoTags = {};
     this.sharedWebcam = false;
@@ -438,8 +439,16 @@ class VideoProvider extends Component {
     return this.ws.readyState === WebSocket.OPEN;
   }
 
+  processOutboundIceQueue(peer, role, cameraId) {
+    const queue = this.outboundIceQueues[cameraId];
+    while (queue && queue.length) {
+      const candidate = queue.shift();
+      this.sendIceCandidateToSFU(peer, role, candidate, cameraId);
+    }
+  }
+
   startResponse(message) {
-    const id = message.cameraId;
+    const { cameraId: id, role } = message;
     const peer = this.webRtcPeers[id];
 
     logger.info({
@@ -460,12 +469,12 @@ class VideoProvider extends Component {
               cameraId: id,
             },
           }, `Processing SDP answer from SFU for ${id} failed due to ${error.message}`);
-
           return;
         }
 
         peer.didSDPAnswered = true;
-        VideoProvider._processIceQueue(peer, id);
+        this.processOutboundIceQueue(peer, role, id);
+        VideoProvider._processInboundIceQueue(peer, id);
       });
     } else {
       logger.warn({ logCode: 'video_provider_startresponse_no_peer' },
@@ -493,10 +502,10 @@ class VideoProvider extends Component {
         // fail if candidates were added before the offer/answer cycle was completed.
         // Dunno if that still happens, but it works even if it slows the ICE checks
         // a bit  - prlanzarin july 2019
-        if (peer.iceQueue == null) {
-          peer.iceQueue = [];
+        if (peer.inboundIceQueue == null) {
+          peer.inboundIceQueue = [];
         }
-        peer.iceQueue.push(candidate);
+        peer.inboundIceQueue.push(candidate);
       }
     } else {
       logger.warn({ logCode: 'video_provider_addicecandidate_no_peer' },
@@ -507,11 +516,12 @@ class VideoProvider extends Component {
   stopWebRTCPeer(id, restarting = false) {
     const { userId } = this.props;
     const shareWebcam = id === userId;
+    const peer = this.webRtcPeers[id];
 
     // in this case, 'closed' state is not caused by an error;
     // we stop listening to prevent this from being treated as an error
-    if (this.webRtcPeers[id] && this.webRtcPeers[id].peerConnection) {
-      this.webRtcPeers[id].peerConnection.oniceconnectionstatechange = null;
+    if (peer && peer.peerConnection) {
+      peer.peerConnection.oniceconnectionstatechange = null;
     }
 
     if (shareWebcam) {
@@ -550,6 +560,7 @@ class VideoProvider extends Component {
       if (typeof webRtcPeer.dispose === 'function') {
         webRtcPeer.dispose();
       }
+      delete this.outboundIceQueues[id];
       delete this.webRtcPeers[id];
       if (ENABLE_NETWORK_MONITORING) {
         deleteWebcamConnection(id);
@@ -564,6 +575,7 @@ class VideoProvider extends Component {
   async createWebRTCPeer(id, shareWebcam) {
     const { meetingId, sessionToken, voiceBridge } = this.props;
     let iceServers = [];
+    const role = shareWebcam ? 'share' : 'viewer';
 
     // Check if the peer is already being processed
     if (this.webRtcPeers[id]) {
@@ -599,6 +611,7 @@ class VideoProvider extends Component {
       }, 'video-provider failed to fetch STUN/TURN info, using default');
     } finally {
       const { constraints, bitrate, id: profileId } = VideoProvider.getCameraProfile();
+      this.outboundIceQueues[id] = [];
       const peerOptions = {
         mediaConstraints: {
           audio: false,
@@ -622,12 +635,11 @@ class VideoProvider extends Component {
 
       this.webRtcPeers[id] = new WebRtcPeerObj(peerOptions, (error) => {
         const peer = this.webRtcPeers[id];
-
         peer.started = false;
         peer.attached = false;
         peer.didSDPAnswered = false;
-        if (peer.iceQueue == null) {
-          peer.iceQueue = [];
+        if (peer.inboundIceQueue == null) {
+          peer.inboundIceQueue = [];
         }
 
         if (error) {
@@ -641,7 +653,7 @@ class VideoProvider extends Component {
 
           const message = {
             type: 'video',
-            role: shareWebcam ? 'share' : 'viewer',
+            role,
             id: 'start',
             sdpOffer: offerSdp,
             cameraId: id,
@@ -744,6 +756,7 @@ class VideoProvider extends Component {
 
   _getOnIceCandidateCallback(id, shareWebcam) {
     const peer = this.webRtcPeers[id];
+    const role = shareWebcam? 'share' : 'viewer';
 
     return (candidate) => {
       // Setup a timeout only when ice first is generated and if the peer wasn't
@@ -767,19 +780,32 @@ class VideoProvider extends Component {
           this.restartTimer[id]);
       }
 
-      logger.debug({
-        logCode: 'video_provider_client_candidate',
-        extraInfo: { candidate },
-      }, `video-provider client-side candidate generated for ${id}: ${JSON.stringify(candidate)}`);
-      const message = {
-        type: 'video',
-        role: shareWebcam ? 'share' : 'viewer',
-        id: 'onIceCandidate',
-        candidate,
-        cameraId: id,
-      };
-      this.sendMessage(message);
+      if (peer && !peer.didSDPAnswered) {
+        logger.debug({
+          logCode: 'video_provider_client_candidate',
+          extraInfo: { candidate },
+        }, `video-provider client-side candidate queued for ${id}`);
+        this.outboundIceQueues[id].push(candidate);
+        return;
+      }
+
+      this.sendIceCandidateToSFU(peer, role, candidate, id);
     };
+  }
+
+  sendIceCandidateToSFU(peer, role, candidate, cameraId) {
+    logger.debug({
+      logCode: 'video_provider_client_candidate',
+      extraInfo: { candidate },
+    }, `video-provider client-side candidate generated for ${cameraId}: ${JSON.stringify(candidate)}`);
+    const message = {
+      type: 'video',
+      role,
+      id: 'onIceCandidate',
+      candidate,
+      cameraId,
+    };
+    this.sendMessage(message);
   }
 
   _getOnIceConnectionStateChangeCallback(id) {
