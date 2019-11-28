@@ -5,7 +5,7 @@ import deviceInfo from '/imports/utils/deviceInfo';
 import getFromUserSettings from '/imports/ui/services/users-settings';
 import Service from './service';
 import VideoPreview from './component';
-import VideoService from '../multiple-video-provider/service';
+import VideoService from '../video-provider/service';
 
 const KURENTO_CONFIG = Meteor.settings.public.kurento;
 const CAMERA_PROFILES = KURENTO_CONFIG.cameraProfiles;

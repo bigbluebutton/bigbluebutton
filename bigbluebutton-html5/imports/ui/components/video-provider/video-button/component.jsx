@@ -2,8 +2,10 @@ import React, { memo } from 'react';
 import PropTypes from 'prop-types';
 import cx from 'classnames';
 import Button from '/imports/ui/components/button/component';
+import VideoService from '../service';
 import { defineMessages, injectIntl, intlShape } from 'react-intl';
 import { styles } from './styles';
+import { validIOSVersion } from '/imports/ui/components/app/service';
 
 const intlMessages = defineMessages({
   joinVideo: {
@@ -30,7 +32,7 @@ const intlMessages = defineMessages({
 
 const propTypes = {
   intl: intlShape.isRequired,
-  isSharingVideo: PropTypes.bool.isRequired,
+  hasVideoStream: PropTypes.bool.isRequired,
   isDisabled: PropTypes.bool.isRequired,
   handleJoinVideo: PropTypes.func.isRequired,
   handleCloseVideo: PropTypes.func.isRequired,
@@ -38,25 +40,23 @@ const propTypes = {
 
 const JoinVideoButton = ({
   intl,
-  isSharingVideo,
+  hasVideoStream,
   isDisabled,
   handleJoinVideo,
   handleCloseVideo,
-  notify,
-  validIOSVersion,
 }) => {
-  const verifyIOS = () => {
-    if (!validIOSVersion()) {
-      return notify(
-        intl.formatMessage(intlMessages.iOSWarning),
-        'error',
-        'warning',
-      );
+  const handleOnClick = () => {
+    if (hasVideoStream) {
+      handleCloseVideo();
+    } else {
+      if (!validIOSVersion()) {
+        return VideoService.notify(intl.formatMessage(intlMessages.iOSWarning));
+      }
+      handleJoinVideo();
     }
-    handleJoinVideo();
   };
 
-  const sharingVideoLabel = isSharingVideo
+  const sharingVideoLabel = hasVideoStream
     ? intl.formatMessage(intlMessages.leaveVideo) : intl.formatMessage(intlMessages.joinVideo);
 
   const disabledLabel = isDisabled
@@ -65,13 +65,13 @@ const JoinVideoButton = ({
   return (
     <Button
       label={disabledLabel}
-      className={cx(styles.button, isSharingVideo || styles.btn)}
-      onClick={isSharingVideo ? handleCloseVideo : verifyIOS}
+      className={cx(styles.button, hasVideoStream || styles.btn)}
+      onClick={handleOnClick}
       hideLabel
       aria-label={intl.formatMessage(intlMessages.videoButtonDesc)}
-      color={isSharingVideo ? 'primary' : 'default'}
-      icon={isSharingVideo ? 'video' : 'video_off'}
-      ghost={!isSharingVideo}
+      color={hasVideoStream ? 'primary' : 'default'}
+      icon={hasVideoStream ? 'video' : 'video_off'}
+      ghost={!hasVideoStream}
       size="lg"
       circle
       disabled={isDisabled}

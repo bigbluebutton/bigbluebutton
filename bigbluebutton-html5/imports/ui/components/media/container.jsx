@@ -5,7 +5,7 @@ import { defineMessages, injectIntl, intlShape } from 'react-intl';
 import PropTypes from 'prop-types';
 import { Session } from 'meteor/session';
 import { notify } from '/imports/ui/services/notification';
-import VideoService from '/imports/ui/components/multiple-video-provider/service';
+import VideoService from '/imports/ui/components/video-provider/service';
 import getFromUserSettings from '/imports/ui/services/users-settings';
 import { withModalMounter } from '/imports/ui/components/modal/service';
 import Media from './component';

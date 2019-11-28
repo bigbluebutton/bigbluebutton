@@ -6,7 +6,7 @@ import browser from 'browser-detect';
 import PropTypes from 'prop-types';
 import Resizable from 're-resizable';
 import { withDraggableContext } from './context';
-import VideoProviderContainer from '/imports/ui/components/multiple-video-provider/container';
+import VideoProviderContainer from '/imports/ui/components/video-provider/container';
 import { styles } from '../styles.scss';
 import Storage from '../../../services/storage/session';
 

@@ -1,20 +1,27 @@
 import { Tracker } from 'meteor/tracker';
-import { makeCall } from '/imports/ui/services/api';
+import { Session } from 'meteor/session';
+import Settings from '/imports/ui/services/settings';
 import Auth from '/imports/ui/services/auth';
-import Meetings from '/imports/api/meetings/';
-import Users from '/imports/api/users/';
-import VideoStreams from '/imports/api/video-streams/';
+import Meetings from '/imports/api/meetings';
+import Users from '/imports/api/users';
+import VideoStreams from '/imports/api/video-streams';
 import UserListService from '/imports/ui/components/user-list/service';
+import { makeCall } from '/imports/ui/services/api';
+import { notify } from '/imports/ui/services/notification';
+import logger from '/imports/startup/client/logger';
 
+const CAMERA_PROFILES = Meteor.settings.public.kurento.cameraProfiles;
+
+const SFU_URL = Meteor.settings.public.kurento.wsUrl;
 const ROLE_MODERATOR = Meteor.settings.public.user.role_moderator;
-const ROLE_VIEWER = Meteor.settings.public.user.role_viewer;
+
+const TOKEN = '_';
 
 class VideoService {
   constructor() {
     this.defineProperties({
-      isSharing: false,
+      isConnecting: false,
       isConnected: false,
-      isWaitingResponse: false,
     });
   }
 
@@ -39,97 +46,127 @@ class VideoService {
     });
   }
 
-  joinVideo() {
-    this.isSharing = true;
-    const joinVideoEvent = new Event('joinVideo');
-    document.dispatchEvent(joinVideoEvent);
-  }
-
-  joiningVideo() {
-    this.isWaitingResponse = true;
+  joinVideo(deviceId) {
+    this.deviceId = deviceId;
+    this.isConnecting = true;
   }
 
   joinedVideo() {
-    this.isWaitingResponse = false;
     this.isConnected = true;
   }
 
   exitVideo() {
-    const exitVideoEvent = new Event('exitVideo');
-    document.dispatchEvent(exitVideoEvent);
+    if (this.isConnected) {
+      logger.info({
+        logCode: 'video_provider_unsharewebcam',
+      }, `Sending unshare all ${Auth.userID} webcams notification to meteor`);
+      const streams = VideoStreams.find(
+        {
+          meetingId: Auth.meetingID,
+          userId: Auth.userID,
+        }, { fields: { stream: 1 } },
+      ).fetch();
+
+      streams.forEach(s => this.sendUserUnshareWebcam(s.stream));
+      this.exitedVideo();
+    }
   }
 
   exitedVideo() {
-    this.isSharing = false;
-    this.isWaitingResponse = false;
+    this.isConnecting = false;
+    this.deviceId = null;
     this.isConnected = false;
   }
 
-  sendUserShareWebcam(stream) {
-    makeCall('userShareWebcam', stream);
-  }
-
-  sendUserUnshareWebcam(stream) {
-    makeCall('userUnshareWebcam', stream);
-  }
-
-  getAllWebcamUsers() {
-    const webcamsLocked = this.webcamsLocked();
-    const webcamsOnlyForModerator = this.webcamsOnlyForModerator();
-    const hideUserList = this.hideUserList();
-    const currentUser = Users.findOne({ userId: Auth.userID });
-    const currentUserIsViewer = currentUser.role === ROLE_VIEWER;
-    const sharedWebcam = this.isSharing;
-    const videoStreams = VideoStreams.find({ meetingId: Auth.meetingID },
-      { fields: { userId: 1 } }).fetch();
-
-    const videoUserIds = videoStreams.map(u => u.userId);
-
-    let users = Users
-      .find({
+  stopStream(cameraId) {
+    const streams = VideoStreams.find(
+      {
         meetingId: Auth.meetingID,
-        connectionStatus: 'online',
-        $and: [
-          { userId: { $ne: Auth.userID } },
-          { userId: { $in: videoUserIds } },
-        ],
-      },
+        userId: Auth.userID,
+      }, { fields: { stream: 1 } },
+    ).fetch().length;
+    this.sendUserUnshareWebcam(cameraId);
+    if (streams < 2) {
+      // If the user had less than 2 streams, set as a full disconnection
+      this.exitedVideo();
+    }
+  }
+
+  sendUserShareWebcam(cameraId) {
+    makeCall('userShareWebcam', cameraId);
+  }
+
+  sendUserUnshareWebcam(cameraId) {
+    makeCall('userUnshareWebcam', cameraId);
+  }
+
+  getAuthenticatedURL() {
+    return Auth.authenticateURL(SFU_URL);
+  }
+
+  getVideoStreams() {
+    const streams = VideoStreams.find(
+      { meetingId: Auth.meetingID },
       {
         fields: {
-          name: 1,
-          userId: 1,
-          role: 1,
-          emoji: 1,
-          clientType: 1,
+          userId: 1, stream: 1, name: 1,
         },
-      }).fetch();
+      },
+    ).fetch();
 
-    const userIsNotLocked = user => user.role === ROLE_MODERATOR || !user.locked;
+    const connectingStream = this.getConnectingStream(streams);
 
-    if (webcamsLocked) {
-      users = users.filter(userIsNotLocked);
-    }
+    if (connectingStream) streams.push(connectingStream);
 
-    const userIsModerator = user => user.role === ROLE_MODERATOR;
-
-    if ((webcamsOnlyForModerator || hideUserList) && currentUserIsViewer) {
-      users = users.filter(userIsModerator);
-    }
-
-    if (sharedWebcam) {
-      users.unshift(currentUser);
-    }
-
-    return users.sort(UserListService.sortUsers);
+    return streams.map(vs => ({
+      cameraId: vs.stream,
+      userId: vs.userId,
+      name: vs.name,
+    })).sort(UserListService.sortUsersByName);
   }
 
-  webcamsOnlyForModerator() {
-    const m = Meetings.findOne({ meetingId: Auth.meetingID },
-      { fields: { 'usersProp.webcamsOnlyForModerator': 1 } });
-    return m.usersProp ? m.usersProp.webcamsOnlyForModerator : false;
+  getConnectingStream(streams) {
+    let connectingStream;
+
+    if (this.isConnecting) {
+      if (this.deviceId) {
+        const stream = this.buildStreamName(Auth.userID, this.deviceId);
+        if (!this.hasStream(streams, stream) && !this.isUserLocked()) {
+          connectingStream = {
+            stream,
+            userId: Auth.userID,
+            name: Auth.fullname,
+          };
+        } else {
+          // Connecting stream is already stored at database
+          this.deviceId = null;
+          this.isConnecting = false;
+        }
+      } else {
+        logger.error({
+          logCode: 'video_provider_missing_deviceid',
+        }, 'Could not retrieve a valid deviceId');
+      }
+    }
+
+    return connectingStream;
   }
 
-  webcamsLocked() {
+  buildStreamName(userId, deviceId) {
+    return `${userId}${TOKEN}${deviceId}`;
+  }
+
+  hasVideoStream() {
+    const videoStreams = VideoStreams.findOne({ userId: Auth.userID },
+      { fields: {} });
+    return !!videoStreams;
+  }
+
+  hasStream(streams, stream) {
+    return streams.find(s => s.stream === stream);
+  }
+
+  disableCam() {
     const m = Meetings.findOne({ meetingId: Auth.meetingID },
       { fields: { 'lockSettingsProps.disableCam': 1 } });
     return m.lockSettingsProps ? m.lockSettingsProps.disableCam : false;
@@ -141,30 +178,95 @@ class VideoService {
     return m.lockSettingsProps ? m.lockSettingsProps.hideUserList : false;
   }
 
-  userId() {
-    return Auth.userID;
-  }
-
-  meetingId() {
-    return Auth.meetingID;
-  }
-
-  sessionToken() {
-    return Auth.sessionToken;
-  }
-
-  voiceBridge() {
+  getInfo() {
     const m = Meetings.findOne({ meetingId: Auth.meetingID },
       { fields: { 'voiceProp.voiceConf': 1 } });
-    return m.voiceProp ? m.voiceProp.voiceConf : null;
+    const voiceBridge = m.voiceProp ? m.voiceProp.voiceConf : null;
+    return {
+      userId: Auth.userID,
+      userName: Auth.fullname,
+      meetingId: Auth.meetingID,
+      sessionToken: Auth.sessionToken,
+      voiceBridge,
+    };
   }
 
-  isConnected() {
-    return this.isConnected;
+  isUserLocked() {
+    return !!Users.findOne({
+      userId: Auth.userID,
+      locked: true,
+      role: { $ne: ROLE_MODERATOR },
+    }, { fields: {} }) && this.disableCam();
   }
 
-  isWaitingResponse() {
-    return this.isWaitingResponse;
+  lockUser() {
+    if (this.isConnected) {
+      this.exitVideo();
+    }
+  }
+
+  isLocalStream(cameraId) {
+    return cameraId.startsWith(Auth.userID);
+  }
+
+  playStart(cameraId) {
+    if (this.isLocalStream(cameraId)) {
+      this.sendUserShareWebcam(cameraId);
+      this.joinedVideo();
+    }
+  }
+
+  getCameraProfile() {
+    const profileId = Session.get('WebcamProfileId') || '';
+    const cameraProfile = CAMERA_PROFILES.find(profile => profile.id === profileId)
+      || CAMERA_PROFILES.find(profile => profile.default)
+      || CAMERA_PROFILES[0];
+    const deviceId = Session.get('WebcamDeviceId');
+    if (deviceId) {
+      cameraProfile.constraints = cameraProfile.constraints || {};
+      cameraProfile.constraints.deviceId = { exact: deviceId };
+    }
+
+    return cameraProfile;
+  }
+
+  addCandidateToPeer(peer, candidate, cameraId) {
+    peer.addIceCandidate(candidate, (error) => {
+      if (error) {
+        // Just log the error. We can't be sure if a candidate failure on add is
+        // fatal or not, so that's why we have a timeout set up for negotiations
+        // and listeners for ICE state transitioning to failures, so we won't
+        // act on it here
+        logger.error({
+          logCode: 'video_provider_addicecandidate_error',
+          extraInfo: {
+            cameraId,
+            error,
+          },
+        }, `Adding ICE candidate failed for ${cameraId} due to ${error.message}`);
+      }
+    });
+  }
+
+  processInboundIceQueue(peer, cameraId) {
+    while (peer.inboundIceQueue.length) {
+      const candidate = peer.inboundIceQueue.shift();
+      this.addCandidateToPeer(peer, candidate, cameraId);
+    }
+  }
+
+  onBeforeUnload() {
+    this.exitVideo();
+  }
+
+  isDisabled() {
+    const { viewParticipantsWebcams } = Settings.dataSaving;
+
+    return this.isUserLocked() || this.isConnecting || !viewParticipantsWebcams;
+  }
+
+  getRole(isLocal) {
+    return isLocal ? 'share' : 'viewer';
   }
 }
 
@@ -172,20 +274,21 @@ const videoService = new VideoService();
 
 export default {
   exitVideo: () => videoService.exitVideo(),
-  exitingVideo: () => videoService.exitingVideo(),
-  exitedVideo: () => videoService.exitedVideo(),
-  webcamsLocked: () => videoService.webcamsLocked(),
-  webcamOnlyModerator: () => videoService.webcamOnlyModerator(),
-  isSharing: () => videoService.isSharing,
-  isConnected: () => videoService.isConnected,
-  isWaitingResponse: () => videoService.isWaitingResponse,
-  joinVideo: () => videoService.joinVideo(),
-  joiningVideo: () => videoService.joiningVideo(),
-  joinedVideo: () => videoService.joinedVideo(),
-  sendUserShareWebcam: stream => videoService.sendUserShareWebcam(stream),
-  sendUserUnshareWebcam: stream => videoService.sendUserUnshareWebcam(stream),
-  meetingId: () => videoService.meetingId(),
-  getAllWebcamUsers: () => videoService.getAllWebcamUsers(),
-  sessionToken: () => videoService.sessionToken(),
-  voiceBridge: () => videoService.voiceBridge(),
+  joinVideo: deviceId => videoService.joinVideo(deviceId),
+  stopStream: cameraId => videoService.stopStream(cameraId),
+  getVideoStreams: () => videoService.getVideoStreams(),
+  getInfo: () => videoService.getInfo(),
+  isUserLocked: () => videoService.isUserLocked(),
+  lockUser: () => videoService.lockUser(),
+  getAuthenticatedURL: () => videoService.getAuthenticatedURL(),
+  isLocalStream: cameraId => videoService.isLocalStream(cameraId),
+  hasVideoStream: () => videoService.hasVideoStream(),
+  isDisabled: () => videoService.isDisabled(),
+  playStart: cameraId => videoService.playStart(cameraId),
+  getCameraProfile: () => videoService.getCameraProfile(),
+  addCandidateToPeer: (peer, candidate, cameraId) => videoService.addCandidateToPeer(peer, candidate, cameraId),
+  processInboundIceQueue: (peer, cameraId) => videoService.processInboundIceQueue(peer, cameraId),
+  getRole: isLocal => videoService.getRole(isLocal),
+  onBeforeUnload: () => videoService.onBeforeUnload(),
+  notify: message => notify(message, 'error', 'video'),
 };
