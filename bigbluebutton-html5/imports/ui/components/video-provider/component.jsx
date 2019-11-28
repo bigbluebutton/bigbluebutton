@@ -1,5 +1,4 @@
 import React, { Component } from 'react';
-import VisibilityEvent from '/imports/utils/visibilityEvent';
 import PropTypes from 'prop-types';
 import ReconnectingWebSocket from 'reconnecting-websocket';
 import VideoService from './service';
@@ -88,8 +87,6 @@ class VideoProvider extends Component {
     this.ws = new ReconnectingWebSocket(VideoService.getAuthenticatedURL());
     this.wsQueue = [];
 
-    this.visibility = new VisibilityEvent();
-
     this.restartTimeout = {};
     this.restartTimer = {};
     this.webRtcPeers = {};
@@ -102,9 +99,6 @@ class VideoProvider extends Component {
     this.onWsMessage = this.onWsMessage.bind(this);
 
     this.onBeforeUnload = this.onBeforeUnload.bind(this);
-
-    this.pauseViewers = this.pauseViewers.bind(this);
-    this.unpauseViewers = this.unpauseViewers.bind(this);
 
     this.updateStreams = this.updateStreams.bind(this);
   }
@@ -119,9 +113,6 @@ class VideoProvider extends Component {
     this.ws.onmessage = this.onWsMessage;
 
     window.addEventListener('beforeunload', this.onBeforeUnload);
-
-    this.visibility.onVisible(this.unpauseViewers);
-    this.visibility.onHidden(this.pauseViewers);
   }
 
   componentDidUpdate(prevProps) {
@@ -141,8 +132,6 @@ class VideoProvider extends Component {
     window.removeEventListener('offline', this.onWsClose);
 
     window.removeEventListener('beforeunload', this.onBeforeUnload);
-
-    this.visibility.removeEventListeners();
 
     VideoService.exitVideo();
 
@@ -229,46 +218,6 @@ class VideoProvider extends Component {
       this.createWebRTCPeer(cameraId, isLocal);
     });
     streamsToDisconnect.forEach(cameraId => this.stopWebRTCPeer(cameraId));
-  }
-
-  sendPauseStream(cameraId, role, state) {
-    this.sendMessage({
-      id: 'pause',
-      type: 'video',
-      cameraId,
-      role,
-      state,
-    });
-  }
-
-  pauseViewers() {
-    logger.debug({
-      logCode: 'video_provider_pause_viewers',
-    }, 'Calling pause in viewer streams');
-
-    Object.keys(this.webRtcPeers).forEach((cameraId) => {
-      const peer = this.webRtcPeers[cameraId];
-      const peerStarted = peer && peer.started;
-      const isLocal = VideoService.isLocalStream(cameraId);
-      if (!isLocal && peerStarted) {
-        this.sendPauseStream(cameraId, 'viewer', true);
-      }
-    });
-  }
-
-  unpauseViewers() {
-    logger.debug({
-      logCode: 'video_provider_unpause_viewers',
-    }, 'Calling un-pause in viewer streams');
-
-    Object.keys(this.webRtcPeers).forEach((cameraId) => {
-      const peer = this.webRtcPeers[cameraId];
-      const peerStarted = peer && peer.started;
-      const isLocal = VideoService.isLocalStream(cameraId);
-      if (!isLocal && peerStarted) {
-        this.sendPauseStream(cameraId, 'viewer', false);
-      }
-    });
   }
 
   ping() {
