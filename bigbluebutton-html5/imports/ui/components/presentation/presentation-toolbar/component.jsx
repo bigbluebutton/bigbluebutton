@@ -104,11 +104,11 @@ class PresentationToolbar extends PureComponent {
     if (isBody) {
       switch (which) {
         case KEY_CODES.ARROW_LEFT:
-        case KEY_CODES.PAGE_DOWN:
+        case KEY_CODES.PAGE_UP:
           this.previousSlideHandler();
           break;
         case KEY_CODES.ARROW_RIGHT:
-        case KEY_CODES.PAGE_UP:
+        case KEY_CODES.PAGE_DOWN:
           this.nextSlideHandler();
           break;
         default:

@@ -370,7 +370,7 @@ class AudioManager {
             errorCode: error,
             cause: bridgeError,
           },
-        }, 'Audio Error');
+        }, `errorCode=${error}, cause=${bridgeError}`);
         if (silenceNotifications !== true) {
           this.notify(errorMsg, true);
           this.exitAudio();

@@ -4,7 +4,7 @@ import VoiceUsers from '/imports/api/voice-users';
 import flat from 'flat';
 import { spokeTimeoutHandles, clearSpokeTimeout } from '/imports/api/common/server/helpers';
 
-const TALKING_TIMEOUT = 3000;
+const TALKING_TIMEOUT = 6000;
 
 export default function updateVoiceUser(meetingId, voiceUser) {
   check(meetingId, String);
@@ -31,8 +31,14 @@ export default function updateVoiceUser(meetingId, voiceUser) {
   };
 
   if (voiceUser.talking) {
+    const user = VoiceUsers.findOne({ meetingId, intId }, {
+      fields: {
+        startTime: 1,
+      },
+    });
+
+    if (user && !user.startTime) modifier.$set.startTime = Date.now();
     modifier.$set.spoke = true;
-    modifier.$set.startTime = Date.now();
     modifier.$set.endTime = null;
     clearSpokeTimeout(meetingId, intId);
   }
@@ -59,6 +65,7 @@ export default function updateVoiceUser(meetingId, voiceUser) {
         const spokeDelay = ((Date.now() - endTime) < TALKING_TIMEOUT);
         if (talking || spokeDelay) return;
         modifier.$set.spoke = false;
+        modifier.$set.startTime = null;
         VoiceUsers.update(selector, modifier, cb);
       }
     }, TALKING_TIMEOUT);
