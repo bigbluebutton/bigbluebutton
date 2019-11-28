@@ -70,7 +70,8 @@ find /opt/freeswitch/var/log/freeswitch -type f -mtime +$log_history -delete
 find /var/log/red5 -type f -mtime +$log_history -delete
 [[ -d /var/log/tomcat7 ]] && find /var/log/tomcat7 -type f -mtime +$log_history -delete
 find /var/log/bigbluebutton -type f -mtime +$log_history -delete
-find /var/log/kurento-media-server -type f -mtime +$log_history -delete
+find /var/log/bbb-webrtc-sfu -type f -mtime +$log_history -delete
+find /var/log/kurento-media-server -name "*.pid*.log" -type f -mtime +$log_history -delete
 
 #
 # Delete raw files of recordings without recording marks older than N days

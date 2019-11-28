@@ -1,7 +1,7 @@
 import WhiteboardMultiUser from '/imports/api/whiteboard-multi-user/';
 import PresentationPods from '/imports/api/presentation-pods';
 import Presentations from '/imports/api/presentations';
-import Slides from '/imports/api/slides';
+import { Slides, SlidePositions } from '/imports/api/slides';
 import Users from '/imports/api/users';
 import Auth from '/imports/ui/services/auth';
 
@@ -53,6 +53,12 @@ const getCurrentSlide = (podId) => {
   });
 };
 
+const getSlidePosition = (podId, presentationId, slideId) => SlidePositions.findOne({
+  podId,
+  presentationId,
+  id: slideId,
+});
+
 const currentSlidHasContent = () => {
   const currentSlide = getCurrentSlide('DEFAULT_PRESENTATION_POD');
   if (!currentSlide) return false;
@@ -73,14 +79,16 @@ const parseCurrentSlideContent = (yesValue, noValue, trueValue, falseValue) => {
     content,
   } = currentSlide;
 
-  const pollRegex = /\n[^\s][.)]/g;
-  const optionsPoll = content.match(pollRegex) || [];
+  const pollRegex = /[1-6A-Fa-f][.)].*/g;
+  let optionsPoll = content.match(pollRegex) || [];
+  if (optionsPoll) optionsPoll = optionsPoll.map(opt => `\r${opt[0]}.`);
 
-  const ynPollString = `(${yesValue}\\s*\\/\\s*${noValue})|(${noValue}\\s*\\/\\s*${yesValue})`;
+  const excludePatt = '[^.)]';
+  const ynPollString = `(${excludePatt}${yesValue}\\s*\\/\\s*${noValue})|(${excludePatt}${noValue}\\s*\\/\\s*${yesValue})`;
   const ynOptionsRegex = new RegExp(ynPollString, 'gi');
   const ynPoll = content.match(ynOptionsRegex) || [];
 
-  const tfPollString = `(${trueValue}\\s*\\/\\s*${falseValue})|(${falseValue}\\s*\\/\\s*${trueValue})`;
+  const tfPollString = `(${excludePatt}${trueValue}\\s*\\/\\s*${falseValue})|(${excludePatt}${falseValue}\\s*\\/\\s*${trueValue})`;
   const tgOptionsRegex = new RegExp(tfPollString, 'gi');
   const tfPoll = content.match(tgOptionsRegex) || [];
 
@@ -143,9 +151,14 @@ const parseCurrentSlideContent = (yesValue, noValue, trueValue, falseValue) => {
 const isPresenter = (podId) => {
   // a main presenter in the meeting always owns a default pod
   if (podId === 'DEFAULT_PRESENTATION_POD') {
+    const options = {
+      filter: {
+        presenter: 1,
+      },
+    };
     const currentUser = Users.findOne({
       userId: Auth.userID,
-    });
+    }, options);
     return currentUser ? currentUser.presenter : false;
   }
 
@@ -168,6 +181,7 @@ const getMultiUserStatus = (whiteboardId) => {
 
 export default {
   getCurrentSlide,
+  getSlidePosition,
   isPresenter,
   isPresentationDownloadable,
   downloadPresentationUri,

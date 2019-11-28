@@ -57,8 +57,10 @@
     line-height: 2;
     text-align: left;
     padding-left: var(--lg-padding-y);
-    padding-right: 0;
+    padding-right: var(--sm-padding-y);
     text-overflow: ellipsis;
+    white-space: nowrap;
+    overflow: hidden;
 
     [dir="rtl"] & {
       text-align: right;

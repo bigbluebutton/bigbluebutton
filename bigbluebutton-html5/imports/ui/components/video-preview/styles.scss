@@ -58,26 +58,34 @@
   display: flex;
   flex-direction: column;
   height: 100%;
-  margin: 0 1.5rem 0 0;
   justify-content: center;
+  margin: 0 0.5rem 0 0.5rem;
 
-  [dir="rtl"] & {
-    margin: 0 0 0 1.5rem;
-  }
-
-  //width: 50%;
+  width: 50%;
   @include mq($small-only) {
-    width: 100%;
+    width: 90%;
     height: unset;
   }
 }
 
+.videoCol {
+  @extend .col;
+  align-items: center;
+}
+
 .content {
   display: flex;
-  flex: 3;
+  height: 14rem;
+  max-height: 40vh;
+  justify-content: center;
+  align-items: center;
 
   @include mq($small-only) {
     flex-direction: column;
+    height: unset;
+    margin: 0;
+    min-height: 12rem;
+    max-height: unset;
   }
 }
 
@@ -107,10 +115,11 @@
 }
 
 .preview {
-  width: 12rem;
-  height: 9rem;
+  height: 100%;
+  width: 100%;
+
   @include mq($small-only) {
-    width: 100%;
+    height: 10rem;
   }
 }
 
@@ -143,4 +152,29 @@
   border-radius: 0.25rem;
   margin: var(--line-height-computed);
   text-align: center;
+}
+
+.fetchingAnimation {
+  margin: auto;
+  display: inline-block;
+  width: 1.5em;
+
+  &:after {
+    overflow: hidden;
+    display: inline-block;
+    vertical-align: bottom;
+    content: "\2026"; /* ascii code for the ellipsis character */
+    width: 0;
+    margin-left: 0.25em;
+
+    :global(.animationsEnabled) & {
+      animation: ellipsis steps(4, end) 900ms infinite;
+    }
+  }
+}
+
+@keyframes ellipsis {
+  to {
+    width: 1.5em;
+  }
 }

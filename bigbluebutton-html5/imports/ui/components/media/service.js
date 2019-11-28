@@ -1,6 +1,6 @@
 import Presentations from '/imports/api/presentations';
 import { isVideoBroadcasting } from '/imports/ui/components/screenshare/service';
-import { getVideoId } from '/imports/ui/components/external-video-player/service';
+import { getVideoUrl } from '/imports/ui/components/external-video-player/service';
 import Auth from '/imports/ui/services/auth';
 import Users from '/imports/api/users';
 import Settings from '/imports/ui/services/settings';
@@ -21,7 +21,8 @@ const getPresentationInfo = () => {
   };
 };
 
-const isUserPresenter = () => Users.findOne({ userId: Auth.userID }).presenter;
+const isUserPresenter = () => Users.findOne({ userId: Auth.userID },
+  { fields: { presenter: 1 } }).presenter;
 
 function shouldShowWhiteboard() {
   return true;
@@ -29,26 +30,26 @@ function shouldShowWhiteboard() {
 
 function shouldShowScreenshare() {
   const { viewScreenshare } = Settings.dataSaving;
-  const enableScreensharing = getFromUserSettings('enableScreensharing', KURENTO_CONFIG.enableScreensharing);
+  const enableScreensharing = getFromUserSettings('bbb_enable_screen_sharing', KURENTO_CONFIG.enableScreensharing);
   return enableScreensharing && viewScreenshare && isVideoBroadcasting();
 }
 
 function shouldShowExternalVideo() {
   const { enabled: enableExternalVideo } = Meteor.settings.public.externalVideoPlayer;
-  return enableExternalVideo && getVideoId();
+  return enableExternalVideo && getVideoUrl();
 }
 
 function shouldShowOverlay() {
-  return getFromUserSettings('enableVideo', KURENTO_CONFIG.enableVideo);
+  return getFromUserSettings('bbb_enable_video', KURENTO_CONFIG.enableVideo);
 }
 
 const swapLayout = {
-  value: getFromUserSettings('autoSwapLayout', LAYOUT_CONFIG.autoSwapLayout),
+  value: getFromUserSettings('bbb_auto_swap_layout', LAYOUT_CONFIG.autoSwapLayout),
   tracker: new Tracker.Dependency(),
 };
 
 const setSwapLayout = () => {
-  swapLayout.value = getFromUserSettings('autoSwapLayout', LAYOUT_CONFIG.autoSwapLayout);
+  swapLayout.value = getFromUserSettings('bbb_auto_swap_layout', LAYOUT_CONFIG.autoSwapLayout);
   swapLayout.tracker.changed();
 };
 
@@ -57,15 +58,7 @@ const toggleSwapLayout = () => {
   swapLayout.tracker.changed();
 };
 
-export const shouldEnableSwapLayout = () => {
-  const { viewParticipantsWebcams } = Settings.dataSaving;
-  const usersVideo = VideoService.getAllUsersVideo();
-  const poll = PollingService.mapPolls();
-
-  return usersVideo.length > 0 // prevent swap without any webcams
-  && viewParticipantsWebcams // prevent swap when dataSaving for webcams is enabled
-  && !poll.pollExists; // prevent swap when there is a poll running
-};
+export const shouldEnableSwapLayout = () => !shouldShowScreenshare() && !shouldShowExternalVideo();
 
 export const getSwapLayout = () => {
   swapLayout.tracker.depend();

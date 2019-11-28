@@ -91,56 +91,10 @@
   display: flex;
 }
 
-%recordingIndicator {
-  border: var(--border-size-small) solid var(--color-white) !important;
-  border-radius: 50%;
-  span {
-    border: none;
-    box-shadow: none;
-    background-color: transparent !important;
-  }
-  position: relative;
-  display: inline-block;
-  padding: 0 !important;
+.recordingIndicatorIcon {
   width: var(--font-size-large);
   height: var(--font-size-large);
-  border-radius: 50%;
-  &:after {
-    content: '';
-    width: calc(var(--font-size-large) / 2);
-    height: calc(var(--font-size-large) / 2);
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    margin-top: calc((var(--font-size-large) / -4));
-    margin-left: calc((var(--font-size-large) / -4));
-    border-radius: 50%;
-  }
-}
-
-.recordingIndicatorON {
-  @extend %recordingIndicator;
-  &:after {
-    border: var(--border-size) solid transparent;
-    background-color: var(--color-danger);
-  }
-}
-
-.recordingIndicatorOFF {
-  @extend %recordingIndicator;
-  &:after {
-    background-color: var(--color-white);
-  }
-}
-
-.isRecordingCircle {
-  border: var(--border-size-small) solid var(--color-white) !important;
-  border-radius: 50%;
-  span {
-    border: none;
-    box-shadow: none;
-    background-color: transparent !important;
-  }
+  font-size: var(--font-size-base);
 }
 
 .recordingIndicator {
@@ -154,4 +108,10 @@
     @include highContrastOutline();
     outline-style: solid;
   }
+}
+
+.presentationTitleSeparator {
+  color: var(--color-gray);
+  font-size: var(--font-size-base);
+  margin: 0 1rem;
 }

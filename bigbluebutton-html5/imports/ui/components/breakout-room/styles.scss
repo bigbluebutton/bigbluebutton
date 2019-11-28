@@ -1,14 +1,18 @@
 @import "/imports/ui/stylesheets/variables/_all";
+@import "/imports/ui/stylesheets/mixins/_scrollable";
+@import "/imports/ui/components/user-list/styles";
+@import "/imports/ui/components/user-list/user-list-content/styles";
 
 .panel {
+  @include scrollbox-vertical();
   background-color: #fff;
   padding: var(--md-padding-x);
   display: flex;
   flex-grow: 1;
   flex-direction: column;
   overflow: hidden;
-  height: 100vh;
-}
+  height: 100%;
+ }
 
 .link {
   text-decoration: none;
@@ -27,7 +31,7 @@
   margin: 0 auto 2rem 0;
   padding-left: 0;
   padding-right: inherit;
-
+  background: none !important;
   [dir="rtl"] & {
     margin: 0 0 2rem auto;
     padding-left: inherit;
@@ -52,7 +56,6 @@
   display: flex;
   flex-direction: row;
   justify-content: space-between;
-  margin-bottom: 1rem;
   font-weight: bold;
 }
 
@@ -61,6 +64,11 @@
   color: var(--color-primary);
   & > button {
     padding: 0 0 0 .5rem;
+  }
+  & > .alreadyConnected {
+    padding: 0 .5rem 0 0;
+    display: inline-block;
+    vertical-align: middle;
   }
 }
 
@@ -141,4 +149,23 @@
   [dir="rtl"] & {
     margin: 0 .25em 0 0;
   }
+}
+.breakoutItems {
+  margin-bottom: 1rem;
+}
+
+.joinedUserNames {
+  overflow-wrap: break-word;
+  white-space: pre-line;
+  margin-left: 1rem;
+  font-size: var(--font-size-small);
+}
+
+.breakoutColumn {
+  @extend .userListColumn;
+}
+
+.breakoutScrollableList {
+  @extend .scrollableList;
+  background: none;
 }

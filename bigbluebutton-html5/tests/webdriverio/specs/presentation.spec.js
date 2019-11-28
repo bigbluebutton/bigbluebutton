@@ -8,10 +8,7 @@ const WAIT_TIME = 10000;
 const checkFullscreen = () => document.fullscreen;
 
 const loginWithoutAudio = function (username) {
-  // login
-  LandingPage.open();
-  browser.setValue(LandingPage.usernameInputSelector, username);
-  LandingPage.joinWithEnterKey();
+  LandingPage.joinClient(username);
 
   // close audio modal
   browser.waitForExist(ModalPage.modalCloseSelector, WAIT_TIME);
@@ -26,7 +23,7 @@ describe('Presentation', () => {
 
   it('should be able to enter fullscreen',
     () => {
-      const username = 'presentationUser1';
+      const username = 'presentationUser';
       loginWithoutAudio(username);
 
       browser.waitForExist(ChatPage.publicChatSelector, WAIT_TIME);

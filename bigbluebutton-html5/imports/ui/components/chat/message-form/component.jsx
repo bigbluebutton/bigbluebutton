@@ -4,9 +4,9 @@ import cx from 'classnames';
 import TextareaAutosize from 'react-autosize-textarea';
 import browser from 'browser-detect';
 import PropTypes from 'prop-types';
+import TypingIndicatorContainer from './typing-indicator/container';
 import { styles } from './styles.scss';
 import Button from '../../button/component';
-
 
 const propTypes = {
   intl: intlShape.isRequired,
@@ -19,7 +19,12 @@ const propTypes = {
   className: PropTypes.string,
   chatAreaId: PropTypes.string.isRequired,
   handleSendMessage: PropTypes.func.isRequired,
-  UnsentMessagesCollection: PropTypes.object.isRequired,
+  UnsentMessagesCollection: PropTypes.objectOf(Object).isRequired,
+  connected: PropTypes.bool.isRequired,
+  locked: PropTypes.bool.isRequired,
+  partnerIsLoggedOut: PropTypes.bool.isRequired,
+  stopUserTyping: PropTypes.func.isRequired,
+  startUserTyping: PropTypes.func.isRequired,
 };
 
 const defaultProps = {
@@ -48,6 +53,21 @@ const messages = defineMessages({
   errorServerDisconnected: {
     id: 'app.chat.disconnected',
   },
+  errorChatLocked: {
+    id: 'app.chat.locked',
+  },
+  singularTyping: {
+    id: 'app.chat.singularTyping',
+    description: 'used to indicate when 1 user is typing',
+  },
+  pluralTyping: {
+    id: 'app.chat.pluralTyping',
+    description: 'used to indicate when multiple user are typing',
+  },
+  severalPeople: {
+    id: 'app.chat.severalPeople',
+    description: 'displayed when 4 or more users are typing',
+  },
 });
 
 const CHAT_ENABLED = Meteor.settings.public.chat.enabled;
@@ -58,7 +78,7 @@ class MessageForm extends PureComponent {
 
     this.state = {
       message: '',
-      error: '',
+      error: null,
       hasErrors: false,
     };
 
@@ -72,8 +92,8 @@ class MessageForm extends PureComponent {
 
   componentDidMount() {
     const { mobile } = this.BROWSER_RESULTS;
-
     this.setMessageState();
+    this.setMessageHint();
 
     if (!mobile) {
       if (this.textarea) this.textarea.focus();
@@ -81,7 +101,12 @@ class MessageForm extends PureComponent {
   }
 
   componentDidUpdate(prevProps) {
-    const { chatId, disabled } = this.props;
+    const {
+      chatId,
+      connected,
+      locked,
+      partnerIsLoggedOut,
+    } = this.props;
     const { message } = this.state;
     const { mobile } = this.BROWSER_RESULTS;
 
@@ -91,14 +116,19 @@ class MessageForm extends PureComponent {
 
     if (prevProps.chatId !== chatId) {
       this.updateUnsentMessagesCollection(prevProps.chatId, message);
-      this.setMessageState();
+      this.setState(
+        {
+          error: null,
+          hasErrors: false,
+        }, this.setMessageState(),
+      );
     }
 
-    if (prevProps.disabled !== disabled && disabled) {
-      this.setMessageHint();
-    }
-
-    if (prevProps.disabled !== disabled && !disabled) {
+    if (
+      connected !== prevProps.connected
+      || locked !== prevProps.locked
+      || partnerIsLoggedOut !== prevProps.partnerIsLoggedOut
+    ) {
       this.setMessageHint();
     }
   }
@@ -111,16 +141,36 @@ class MessageForm extends PureComponent {
   }
 
   setMessageHint() {
-    const { disabled, intl } = this.props;
+    const {
+      connected,
+      disabled,
+      intl,
+      locked,
+      partnerIsLoggedOut,
+    } = this.props;
+
+    let chatDisabledHint = null;
+
+    if (disabled && !partnerIsLoggedOut) {
+      if (connected) {
+        if (locked) {
+          chatDisabledHint = messages.errorChatLocked;
+        }
+      } else {
+        chatDisabledHint = messages.errorServerDisconnected;
+      }
+    }
+
     this.setState({
       hasErrors: disabled,
-      error: intl.formatMessage(messages.errorServerDisconnected),
+      error: chatDisabledHint ? intl.formatMessage(chatDisabledHint) : null,
     });
   }
 
   setMessageState() {
     const { chatId, UnsentMessagesCollection } = this.props;
-    const unsentMessageByChat = UnsentMessagesCollection.findOne({ chatId });
+    const unsentMessageByChat = UnsentMessagesCollection.findOne({ chatId },
+      { fields: { message: 1 } });
     this.setState({ message: unsentMessageByChat ? unsentMessageByChat.message : '' });
   }
 
@@ -147,19 +197,15 @@ class MessageForm extends PureComponent {
   }
 
   handleMessageChange(e) {
-    const { intl } = this.props;
+    const {
+      intl,
+      startUserTyping,
+      maxMessageLength,
+      chatId,
+    } = this.props;
 
     const message = e.target.value;
-    let error = '';
-
-    const { minMessageLength, maxMessageLength } = this.props;
-
-    if (message.length < minMessageLength) {
-      error = intl.formatMessage(
-        messages.errorMinMessageLength,
-        { 0: minMessageLength - message.length },
-      );
-    }
+    let error = null;
 
     if (message.length > maxMessageLength) {
       error = intl.formatMessage(
@@ -168,26 +214,43 @@ class MessageForm extends PureComponent {
       );
     }
 
+    const handleUserTyping = () => {
+      if (error) return;
+      startUserTyping(chatId);
+    };
 
     this.setState({
       message,
       error,
-    });
+    }, handleUserTyping);
   }
 
   handleSubmit(e) {
     e.preventDefault();
 
     const {
-      disabled, minMessageLength, maxMessageLength, handleSendMessage,
+      intl,
+      disabled,
+      minMessageLength,
+      maxMessageLength,
+      handleSendMessage,
+      stopUserTyping,
     } = this.props;
     const { message } = this.state;
     let msg = message.trim();
 
+    if (message.length < minMessageLength) {
+      this.setState({
+        hasErrors: true,
+        error: intl.formatMessage(
+          messages.errorMinMessageLength,
+          { 0: minMessageLength - message.length },
+        ),
+      });
+    }
 
     if (disabled
       || msg.length === 0
-      || msg.length < minMessageLength
       || msg.length > maxMessageLength) {
       this.setState({ hasErrors: true });
       return false;
@@ -204,13 +267,18 @@ class MessageForm extends PureComponent {
       this.setState({
         message: '',
         hasErrors: false,
-      })
+      }, stopUserTyping)
     );
   }
 
   render() {
     const {
-      intl, chatTitle, chatName, disabled, className, chatAreaId,
+      intl,
+      chatTitle,
+      chatName,
+      disabled,
+      className,
+      chatAreaId,
     } = this.props;
 
     const { hasErrors, error, message } = this.state;
@@ -249,12 +317,11 @@ class MessageForm extends PureComponent {
             label={intl.formatMessage(messages.submitLabel)}
             color="primary"
             icon="send"
-            onClick={() => null}
+            onClick={() => {}}
+            data-test="sendMessageButton"
           />
         </div>
-        <div className={styles.info}>
-          {hasErrors ? <span id="message-input-error">{error}</span> : null}
-        </div>
+        <TypingIndicatorContainer {...{ error }} />
       </form>
     ) : null;
   }

@@ -65,12 +65,12 @@ const getMultiUserStatus = (whiteboardId) => {
 };
 
 const isPresenter = () => {
-  const currentUser = Users.findOne({ userId: Auth.userID });
+  const currentUser = Users.findOne({ userId: Auth.userID }, { fields: { presenter: 1 } });
   return currentUser ? currentUser.presenter : false;
 };
 
 const filterAnnotationList = () => {
-  const multiUserPenOnly = getFromUserSettings('multiUserPenOnly', WHITEBOARD_TOOLBAR.multiUserPenOnly);
+  const multiUserPenOnly = getFromUserSettings('bbb_multi_user_pen_only', WHITEBOARD_TOOLBAR.multiUserPenOnly);
 
   let filteredAnnotationList = WHITEBOARD_TOOLBAR.tools;
 
@@ -81,13 +81,13 @@ const filterAnnotationList = () => {
     }];
   }
 
-  const presenterTools = getFromUserSettings('presenterTools', WHITEBOARD_TOOLBAR.presenterTools);
+  const presenterTools = getFromUserSettings('bbb_presenter_tools', WHITEBOARD_TOOLBAR.presenterTools);
   if (isPresenter() && Array.isArray(presenterTools)) {
     filteredAnnotationList = WHITEBOARD_TOOLBAR.tools.filter(el =>
       presenterTools.includes(el.value));
   }
 
-  const multiUserTools = getFromUserSettings('multiUserTools', WHITEBOARD_TOOLBAR.multiUserTools);
+  const multiUserTools = getFromUserSettings('bbb_multi_user_tools', WHITEBOARD_TOOLBAR.multiUserTools);
   if (!isPresenter() && !multiUserPenOnly && Array.isArray(multiUserTools)) {
     filteredAnnotationList = WHITEBOARD_TOOLBAR.tools.filter(el =>
       multiUserTools.includes(el.value));

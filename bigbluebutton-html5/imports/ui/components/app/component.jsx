@@ -19,7 +19,6 @@ import BannerBarContainer from '/imports/ui/components/banner-bar/container';
 import WaitingNotifierContainer from '/imports/ui/components/waiting-users/alert/container';
 import LockNotifier from '/imports/ui/components/lock-viewers/notify/container';
 import PingPongContainer from '/imports/ui/components/ping-pong/container';
-
 import MediaService from '/imports/ui/components/media/service';
 import ManyWebcamsNotifier from '/imports/ui/components/video-provider/many-users-notify/container';
 import { styles } from './styles';
@@ -322,7 +321,6 @@ class App extends Component {
     const {
       customStyle, customStyleUrl, openPanel,
     } = this.props;
-
     return (
       <main className={styles.main}>
         {this.renderActivityCheck()}

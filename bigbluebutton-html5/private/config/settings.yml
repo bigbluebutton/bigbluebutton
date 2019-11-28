@@ -21,14 +21,18 @@ public:
     allowUserLookup: false
     enableNetworkInformation: false
     enableLimitOfViewersInWebcam: false
+    enableTalkingIndicator: true
     viewersInWebcam: 8
     ipv4FallbackDomain: ""
     allowLogout: true
+    allowFullscreen: true
     defaultSettings:
       application:
         animations: true
         chatAudioAlerts: false
         chatPushAlerts: false
+        userJoinAudioAlerts: false
+        userJoinPushAlerts: false
         fallbackLocale: en
         overrideLocale: null
       audio:
@@ -37,13 +41,6 @@ public:
       dataSaving:
         viewParticipantsWebcams: true
         viewScreenshare: true
-      participants:
-        muteAll: false
-        lockAll: false
-        microphone: false
-        publicChat: false
-        privateChat: false
-        layout: false
     shortcuts:
       openOptions:
         accesskey: O
@@ -102,38 +99,18 @@ public:
       - id: low
         name: Low quality
         default: false
-        constraints:
-          width:
-            max: 160
-          height:
-            max: 120
         bitrate: 100
       - id: medium
         name: Medium quality
         default: true
-        constraints:
-          width:
-            max: 320
-          height:
-            max: 240
         bitrate: 200
       - id: high
         name: High quality
         default: false
-        constraints:
-          width:
-            max: 640
-          height:
-            max: 480
         bitrate: 500
       - id: hd
         name: High definition
         default: false
-        constraints:
-          width:
-            max: 1280
-          height:
-            max: 960
         bitrate: 800
     enableScreensharing: true
     enableVideo: true
@@ -141,6 +118,10 @@ public:
     enableVideoMenu: true
     enableListenOnly: true
     autoShareWebcam: false
+    skipVideoPreview: false
+  pingPong:
+    clearUsersInSeconds: 30
+    pongTimeInSeconds: 15
   allowOutsideCommands:
     toggleRecording: false
     toggleSelfVoice: false
@@ -174,6 +155,8 @@ public:
     storage_key: UNREAD_CHATS
     system_messages_keys:
       chat_clear: PUBLIC_CHAT_CLEAR
+    typingIndicator:
+      enabled: true
   note:
     enabled: false
     url: ETHERPAD_HOST
@@ -193,8 +176,10 @@ public:
     callHangupTimeout: 2000
     callHangupMaximumRetries: 10
     echoTestNumber: '9196'
+    relayOnlyOnReconnect: false
   presentation:
     defaultPresentationFile: default.pdf
+    panZoomThrottle: 32
     uploadEndpoint: "/bigbluebutton/presentation/upload"
     uploadSizeMin: 0
     uploadSizeMax: 50000000
@@ -319,7 +304,7 @@ public:
   clientLog:
     server: { enabled: true, level: info }
     console: { enabled: true, level: debug }
-    external: { enabled: false, level: info, url: https://LOG_HOST/html5Log, method: POST, throttleInterval: 400, flushOnClose: true }
+    external: { enabled: false, level: info, url: https://LOG_HOST/html5Log, method: POST, throttleInterval: 400, flushOnClose: true, logTag: "" }
 private:
   app:
     host: 127.0.0.1
@@ -353,6 +338,13 @@ private:
     - DoLatencyTracerMsg
   serverLog:
     level: info
+  memoryMonitoring:
+    stat:
+      enabled: false
+    leak:
+      enabled: false
+    heapdump:
+      enabled: false
   minBrowserVersions:
     - browser: chrome
       version: 59

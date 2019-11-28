@@ -12,12 +12,14 @@ import logger from '/imports/startup/client/logger';
 import Users from '/imports/api/users';
 import { Session } from 'meteor/session';
 import IntlStartup from './intl';
-import Meetings from '../../api/meetings';
+import Meetings, { RecordMeetings } from '../../api/meetings';
 import AppService from '/imports/ui/components/app/service';
 import Breakouts from '/imports/api/breakouts';
 import AudioService from '/imports/ui/components/audio/service';
 import { FormattedMessage } from 'react-intl';
 import { notify } from '/imports/ui/services/notification';
+
+const BREAKOUT_END_NOTIFY_DELAY = 50;
 
 const HTML = document.getElementsByTagName('html')[0];
 
@@ -213,49 +215,89 @@ Base.propTypes = propTypes;
 Base.defaultProps = defaultProps;
 
 const BaseContainer = withTracker(() => {
-  const { locale, animations } = Settings.application;
-  const { credentials, loggedIn } = Auth;
+  const {
+    locale,
+    animations,
+    userJoinAudioAlerts,
+    userJoinPushAlerts,
+  } = Settings.application;
+
+  const {
+    credentials,
+    loggedIn,
+    userID: localUserId,
+  } = Auth;
+
   const { meetingId } = credentials;
   let breakoutRoomSubscriptionHandler;
   let meetingModeratorSubscriptionHandler;
 
-  const User = Users.findOne({ intId: credentials.requesterUserId });
-  const meeting = Meetings.findOne({ meetingId });
-  if (meeting) {
-    const { meetingEnded } = meeting;
-    if (meetingEnded) Session.set('codeError', '410');
+  const fields = {
+    approved: 1,
+    authed: 1,
+    ejected: 1,
+    color: 1,
+    effectiveConnectionType: 1,
+    extId: 1,
+    guest: 1,
+    intId: 1,
+    locked: 1,
+    loggedOut: 1,
+    meetingId: 1,
+    userId: 1,
+  };
+  const User = Users.findOne({ intId: credentials.requesterUserId }, { fields });
+  const meeting = Meetings.findOne({ meetingId }, {
+    fields: {
+      meetingEnded: 1,
+      meetingProp: 1,
+    },
+  });
+
+  if (meeting && meeting.meetingEnded) {
+    Session.set('codeError', '410');
   }
 
-  const approved = !!Users.findOne({ userId: Auth.userID, approved: true, guest: true });
-  const ejected = Users.findOne({ userId: Auth.userID, ejected: true });
+  const approved = User && User.approved && User.guest;
+  const ejected = User && User.ejected;
   let userSubscriptionHandler;
 
-
-  Breakouts.find().observeChanges({
+  Breakouts.find({}, { fields: { _id: 1 } }).observeChanges({
     added() {
       breakoutNotified = false;
     },
     removed() {
-      if (!AudioService.isUsingAudio() && !breakoutNotified) {
-        if (meeting && !meeting.meetingEnded) {
-          notify(
-            <FormattedMessage
-              id="app.toast.breakoutRoomEnded"
-              description="message when the breakout room is ended"
-            />,
-            'info',
-            'rooms',
-          );
+      // Need to check the number of breakouts left because if a user's role changes to viewer
+      // then all but one room is removed. The data here isn't reactive so no need to filter
+      // the fields
+      const numBreakouts = Breakouts.find().count();
+      if (!AudioService.isUsingAudio() && !breakoutNotified && numBreakouts === 0) {
+        if (meeting && !meeting.meetingEnded && !meeting.meetingProp.isBreakout) {
+          // There's a race condition when reloading a tab where the collection gets cleared
+          // out and then refilled. The removal of the old data triggers the notification so
+          // instead wait a bit and check to see that records weren't added right after.
+          setTimeout(() => {
+            if (breakoutNotified) {
+              notify(
+                <FormattedMessage
+                  id="app.toast.breakoutRoomEnded"
+                  description="message when the breakout room is ended"
+                />,
+                'info',
+                'rooms',
+              );
+            }
+          }, BREAKOUT_END_NOTIFY_DELAY);
         }
         breakoutNotified = true;
       }
     },
   });
 
-  Meetings.find({ meetingId }).observe({
+  RecordMeetings.find({ meetingId }, { fields: { recording: 1 } }).observe({
     changed: (newDocument, oldDocument) => {
-      if (newDocument.recordProp) {
-        if (!oldDocument.recordProp.recording && newDocument.recordProp.recording) {
+      if (newDocument) {
+        if (!oldDocument.recording && newDocument.recording) {
           notify(
             <FormattedMessage
               id="app.notification.recordingStart"
@@ -266,7 +308,7 @@ const BaseContainer = withTracker(() => {
           );
         }
 
-        if (oldDocument.recordProp.recording && !newDocument.recordProp.recording) {
+        if (oldDocument.recording && !newDocument.recording) {
           notify(
             <FormattedMessage
               id="app.notification.recordingPaused"
@@ -279,6 +321,33 @@ const BaseContainer = withTracker(() => {
       }
     },
   });
+
+  if (userJoinAudioAlerts || userJoinPushAlerts) {
+    Users.find({}, { fields: { validated: 1, name: 1, userId: 1 } }).observe({
+      changed: (newDocument) => {
+        if (newDocument.validated && newDocument.name && newDocument.userId !== localUserId) {
+          if (userJoinAudioAlerts) {
+            const audio = new Audio(`${Meteor.settings.public.app.cdn + Meteor.settings.public.app.basename}/resources/sounds/userJoin.mp3`);
+            audio.play();
+          }
+
+          if (userJoinPushAlerts) {
+            notify(
+              <FormattedMessage
+                id="app.notification.userJoinPushAlert"
+                description="Notification for a user joins the meeting"
+                values={{
+                  0: newDocument.name,
+                }}
+              />,
+              'info',
+              'user',
+            );
+          }
+        }
+      },
+    });
+  }
 
   return {
     approved,

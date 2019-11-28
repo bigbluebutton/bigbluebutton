@@ -4,6 +4,7 @@ import { withModalMounter } from '/imports/ui/components/modal/service';
 import AudioManager from '/imports/ui/services/audio-manager';
 import { makeCall } from '/imports/ui/services/api';
 import lockContextContainer from '/imports/ui/components/lock-viewers/context/container';
+import logger from '/imports/startup/client/logger';
 import AudioControls from './component';
 import AudioModalContainer from '../audio-modal/container';
 import Service from '../service';
@@ -32,16 +33,37 @@ const processToggleMuteFromOutside = (e) => {
   }
 };
 
+const handleLeaveAudio = () => {
+  Service.exitAudio();
+  logger.info({
+    logCode: 'audiocontrols_leave_audio',
+    extraInfo: { logType: 'user_action' },
+  }, 'audio connection closed by user');
+};
+
+const {
+  isVoiceUser,
+  isConnected,
+  isListenOnly,
+  isEchoTest,
+  isMuted,
+  isConnecting,
+  isHangingUp,
+  isTalking,
+  toggleMuteMicrophone,
+  joinListenOnly,
+} = Service;
+
 export default lockContextContainer(withModalMounter(withTracker(({ mountModal, userLocks }) => ({
   processToggleMuteFromOutside: arg => processToggleMuteFromOutside(arg),
-  showMute: Service.isConnected() && !Service.isListenOnly() && !Service.isEchoTest() && !userLocks.userMic,
-  muted: Service.isConnected() && !Service.isListenOnly() && Service.isMuted(),
-  inAudio: Service.isConnected() && !Service.isEchoTest(),
-  listenOnly: Service.isConnected() && Service.isListenOnly(),
-  disable: Service.isConnecting() || Service.isHangingUp() || !Meteor.status().connected,
-  talking: Service.isTalking() && !Service.isMuted(),
-  currentUser: Service.currentUser(),
-  handleToggleMuteMicrophone: () => Service.toggleMuteMicrophone(),
-  handleJoinAudio: () => (Service.isConnected() ? Service.joinListenOnly() : mountModal(<AudioModalContainer />)),
-  handleLeaveAudio: () => Service.exitAudio(),
+  showMute: isConnected() && !isListenOnly() && !isEchoTest() && !userLocks.userMic,
+  muted: isConnected() && !isListenOnly() && isMuted(),
+  inAudio: isConnected() && !isEchoTest(),
+  listenOnly: isConnected() && isListenOnly(),
+  disable: isConnecting() || isHangingUp() || !Meteor.status().connected,
+  talking: isTalking() && !isMuted(),
+  isVoiceUser: isVoiceUser(),
+  handleToggleMuteMicrophone: () => toggleMuteMicrophone(),
+  handleJoinAudio: () => (isConnected() ? joinListenOnly() : mountModal(<AudioModalContainer />)),
+  handleLeaveAudio,
 }))(AudioControlsContainer)));

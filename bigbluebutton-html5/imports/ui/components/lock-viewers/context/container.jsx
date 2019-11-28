@@ -1,19 +1,18 @@
-import React from 'react';
 import { withTracker } from 'meteor/react-meteor-data';
 import Meetings from '/imports/api/meetings';
 import Users from '/imports/api/users';
 import Auth from '/imports/ui/services/auth';
-import mapUser from '/imports/ui/services/user/mapUser';
 import { LockStruct } from './context';
 import { withLockContext } from './withContext';
 
+const ROLE_MODERATOR = Meteor.settings.public.user.role_moderator;
 
 const lockContextContainer = component => withTracker(() => {
   const lockSetting = new LockStruct();
-  const Meeting = Meetings.findOne({ meetingId: Auth.meetingID });
-  const User = Users.findOne({ userId: Auth.userID });
-  const mappedUser = mapUser(User);
-  const userIsLocked = mappedUser.isLocked;
+  const Meeting = Meetings.findOne({ meetingId: Auth.meetingID },
+    { fields: { lockSettingsProps: 1 } });
+  const User = Users.findOne({ userId: Auth.userID }, { fields: { locked: 1, role: 1 } });
+  const userIsLocked = User.locked && User.role !== ROLE_MODERATOR;
   const lockSettings = Meeting.lockSettingsProps;
 
   lockSetting.isLocked = userIsLocked;

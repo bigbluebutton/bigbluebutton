@@ -1,6 +1,11 @@
 @import "../../../stylesheets/variables/_all";
 @import "/imports/ui/stylesheets/mixins/_indicators";
 
+:root {
+  --popout-rtl-left: -0.5rem;
+  --modal-title-fw: 400;
+}
+
 .modal {
   @include highContrastOutline();
   outline-style: solid;
@@ -38,7 +43,7 @@
   @extend %text-elipsis;
   flex: 1;
   margin: 0;
-  font-weight: 400;
+  font-weight: var(--modal-title-fw);
 }
 
 %btn {
@@ -52,8 +57,13 @@
 
 .popout {
   > i {
-    bottom: 2px;
-    left: .75rem;
+    bottom: var(--border-size);
+    left: var(--sm-padding-x);
+
+    [dir="rtl"] & {
+      left: var(--popout-rtl-left);
+      transform: rotateY(180deg);
+    }
   }
 }
 

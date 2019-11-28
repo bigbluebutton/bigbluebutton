@@ -44,7 +44,7 @@ class AudioControls extends PureComponent {
   componentDidMount() {
     const { processToggleMuteFromOutside } = this.props;
     if (Meteor.settings.public.allowOutsideCommands.toggleSelfVoice
-      || getFromUserSettings('outsideToggleSelfVoice', false)) {
+      || getFromUserSettings('bbb_outside_toggle_self_voice', false)) {
       window.addEventListener('message', processToggleMuteFromOutside);
     }
   }
@@ -62,7 +62,7 @@ class AudioControls extends PureComponent {
       listenOnly,
       intl,
       shortcuts,
-      currentUser,
+      isVoiceUser,
     } = this.props;
 
     let joinIcon = 'audio_off';
@@ -76,7 +76,7 @@ class AudioControls extends PureComponent {
 
     return (
       <span className={styles.container}>
-        {showMute && currentUser.isVoiceUser
+        {showMute && isVoiceUser
           ? (
             <Button
               className={cx(styles.button, !talking || styles.glow, !muted || styles.btn)}

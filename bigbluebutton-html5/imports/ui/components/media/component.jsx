@@ -7,13 +7,26 @@ import { styles } from './styles';
 
 const propTypes = {
   children: PropTypes.element.isRequired,
-  floatingOverlay: PropTypes.bool,
+  usersVideo: PropTypes.arrayOf(Array),
+  singleWebcam: PropTypes.bool.isRequired,
   hideOverlay: PropTypes.bool,
+  swapLayout: PropTypes.bool,
+  disableVideo: PropTypes.bool,
+  userWasInWebcam: PropTypes.bool,
+  audioModalIsOpen: PropTypes.bool,
+  joinVideo: PropTypes.func,
+  webcamPlacement: PropTypes.string,
 };
 
 const defaultProps = {
-  floatingOverlay: false,
+  usersVideo: [],
   hideOverlay: true,
+  swapLayout: false,
+  disableVideo: false,
+  userWasInWebcam: false,
+  audioModalIsOpen: false,
+  joinVideo: null,
+  webcamPlacement: 'top',
 };
 
 
@@ -47,12 +60,13 @@ export default class Media extends Component {
   render() {
     const {
       swapLayout,
-      floatingOverlay,
+      singleWebcam,
       hideOverlay,
       disableVideo,
       children,
       audioModalIsOpen,
       usersVideo,
+      webcamPlacement,
     } = this.props;
 
     const contentClassName = cx({
@@ -62,7 +76,7 @@ export default class Media extends Component {
     const overlayClassName = cx({
       [styles.overlay]: true,
       [styles.hideOverlay]: hideOverlay,
-      [styles.floatingOverlay]: floatingOverlay,
+      [styles.floatingOverlay]: (webcamPlacement === 'floating'),
     });
 
     return (
@@ -74,7 +88,8 @@ export default class Media extends Component {
         <div
           className={!swapLayout ? contentClassName : overlayClassName}
           style={{
-            maxHeight: usersVideo.length < 1 || floatingOverlay ? '100%' : '80%',
+            maxHeight: usersVideo.length < 1 || (webcamPlacement === 'floating') ? '100%' : '80%',
+            minHeight: '20%',
           }}
         >
           {children}
@@ -82,7 +97,7 @@ export default class Media extends Component {
         <WebcamDraggable
           refMediaContainer={this.refContainer}
           swapLayout={swapLayout}
-          singleWebcam={floatingOverlay}
+          singleWebcam={singleWebcam}
           usersVideoLenght={usersVideo.length}
           hideOverlay={hideOverlay}
           disableVideo={disableVideo}

@@ -4,8 +4,11 @@ import { defineMessages, injectIntl } from 'react-intl';
 import cx from 'classnames';
 import _ from 'lodash';
 import { styles } from './styles';
-import VideoListItem from './video-list-item/component';
+import VideoListItemContainer from './video-list-item/container';
 import { withDraggableConsumer } from '../../media/webcam-draggable-overlay/context';
+import AutoplayOverlay from '../../media/autoplay-overlay/component';
+import logger from '/imports/startup/client/logger';
+import playAndRetry from '/imports/utils/mediaElementPlayRetry';
 
 const propTypes = {
   users: PropTypes.arrayOf(PropTypes.object).isRequired,
@@ -13,6 +16,8 @@ const propTypes = {
   getStats: PropTypes.func.isRequired,
   stopGettingStats: PropTypes.func.isRequired,
   enableVideoStats: PropTypes.bool.isRequired,
+  webcamDraggableDispatch: PropTypes.func.isRequired,
+  intl: PropTypes.objectOf(Object).isRequired,
 };
 
 const intlMessages = defineMessages({
@@ -27,6 +32,12 @@ const intlMessages = defineMessages({
   },
   unfocusDesc: {
     id: 'app.videoDock.webcamUnfocusDesc',
+  },
+  autoplayBlockedDesc: {
+    id: 'app.videoDock.autoplayBlockedDesc',
+  },
+  autoplayAllowLabel: {
+    id: 'app.videoDock.autoplayAllowLabel',
   },
 });
 
@@ -64,17 +75,22 @@ class VideoList extends Component {
         rows: 1,
         filledArea: 0,
       },
+      autoplayBlocked: false,
     };
 
     this.ticking = false;
     this.grid = null;
     this.canvas = null;
+    this.failedMediaElements = [];
     this.handleCanvasResize = _.throttle(this.handleCanvasResize.bind(this), 66,
       {
         leading: true,
         trailing: true,
       });
     this.setOptimalGrid = this.setOptimalGrid.bind(this);
+    this.handleAllowAutoplay = this.handleAllowAutoplay.bind(this);
+    this.handlePlayElementFailed = this.handlePlayElementFailed.bind(this);
+    this.autoplayWasHandled = false;
   }
 
   componentDidMount() {
@@ -88,10 +104,12 @@ class VideoList extends Component {
 
     this.handleCanvasResize();
     window.addEventListener('resize', this.handleCanvasResize, false);
+    window.addEventListener('videoPlayFailed', this.handlePlayElementFailed);
   }
 
   componentWillUnmount() {
     window.removeEventListener('resize', this.handleCanvasResize, false);
+    window.removeEventListener('videoPlayFailed', this.handlePlayElementFailed);
   }
 
   setOptimalGrid() {
@@ -126,6 +144,47 @@ class VideoList extends Component {
     });
   }
 
+  handleAllowAutoplay() {
+    const { autoplayBlocked } = this.state;
+
+    logger.info({
+      logCode: 'video_provider_autoplay_allowed',
+    }, 'Video media autoplay allowed by the user');
+
+    this.autoplayWasHandled = true;
+    window.removeEventListener('videoPlayFailed', this.handlePlayElementFailed);
+    while (this.failedMediaElements.length) {
+      const mediaElement = this.failedMediaElements.shift();
+      if (mediaElement) {
+        const played = playAndRetry(mediaElement);
+        if (!played) {
+          logger.error({
+            logCode: 'video_provider_autoplay_handling_failed',
+          }, 'Video autoplay handling failed to play media');
+        } else {
+          logger.info({
+            logCode: 'video_provider_media_play_success',
+          }, 'Video media played successfully');
+        }
+      }
+    }
+    if (autoplayBlocked) { this.setState({ autoplayBlocked: false }); }
+  }
+
+  handlePlayElementFailed(e) {
+    const { mediaElement } = e.detail;
+    const { autoplayBlocked } = this.state;
+
+    e.stopPropagation();
+    this.failedMediaElements.push(mediaElement);
+    if (!autoplayBlocked && !this.autoplayWasHandled) {
+      logger.info({
+        logCode: 'video_provider_autoplay_prompt',
+      }, 'Prompting user for action to play video media');
+      this.setState({ autoplayBlocked: true });
+    }
+  }
+
   handleVideoFocus(id) {
     const { focusedId } = this.state;
     this.setState({
@@ -152,11 +211,12 @@ class VideoList extends Component {
       getStats,
       stopGettingStats,
       enableVideoStats,
+      swapLayout,
     } = this.props;
     const { focusedId } = this.state;
 
     return users.map((user) => {
-      const isFocused = focusedId === user.id;
+      const isFocused = focusedId === user.userId;
       const isFocusedIntlKey = !isFocused ? 'focus' : 'unfocus';
       let actions = [];
 
@@ -164,29 +224,30 @@ class VideoList extends Component {
         actions = [{
           label: intl.formatMessage(intlMessages[`${isFocusedIntlKey}Label`]),
           description: intl.formatMessage(intlMessages[`${isFocusedIntlKey}Desc`]),
-          onClick: () => this.handleVideoFocus(user.id),
+          onClick: () => this.handleVideoFocus(user.userId),
         }];
       }
 
       return (
         <div
-          key={user.id}
+          key={user.userId}
           className={cx({
             [styles.videoListItem]: true,
-            [styles.focused]: focusedId === user.id && users.length > 2,
+            [styles.focused]: focusedId === user.userId && users.length > 2,
           })}
         >
-          <VideoListItem
+          <VideoListItemContainer
             numOfUsers={users.length}
             user={user}
             actions={actions}
             onMount={(videoRef) => {
               this.handleCanvasResize();
-              onMount(user.id, videoRef);
+              onMount(user.userId, videoRef);
             }}
-            getStats={(videoRef, callback) => getStats(user.id, videoRef, callback)}
-            stopGettingStats={() => stopGettingStats(user.id)}
+            getStats={(videoRef, callback) => getStats(user.userId, videoRef, callback)}
+            stopGettingStats={() => stopGettingStats(user.userId)}
             enableVideoStats={enableVideoStats}
+            swapLayout={swapLayout}
           />
         </div>
       );
@@ -194,8 +255,8 @@ class VideoList extends Component {
   }
 
   render() {
-    const { users } = this.props;
-    const { optimalGrid } = this.state;
+    const { users, intl } = this.props;
+    const { optimalGrid, autoplayBlocked } = this.state;
 
     const canvasClassName = cx({
       [styles.videoCanvas]: true,
@@ -227,6 +288,13 @@ class VideoList extends Component {
           >
             {this.renderVideoList()}
           </div>
+        )}
+        { !autoplayBlocked ? null : (
+          <AutoplayOverlay
+            autoplayBlockedDesc={intl.formatMessage(intlMessages.autoplayBlockedDesc)}
+            autoplayAllowLabel={intl.formatMessage(intlMessages.autoplayAllowLabel)}
+            handleAllowAutoplay={this.handleAllowAutoplay}
+          />
         )}
       </div>
     );

@@ -24,7 +24,7 @@ const JoinVideoOptionsContainer = (props) => {
     ...restProps
   } = props;
 
-  const mountPreview = () => { mountModal(<VideoPreviewContainer />); };
+  const mountPreview = () => { mountModal(<VideoPreviewContainer fromInterface />); };
 
   return !isMobileNative && (
   <JoinVideoButton {...{

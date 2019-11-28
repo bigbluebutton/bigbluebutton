@@ -69,7 +69,7 @@ class LockViewersNotifyComponent extends Component {
     notify(
       (
         <React.Fragment>
-          <p>{intl.formatMessage(intlMessages.suggestLockTitle)}</p>
+          <p className={styles.info}>{intl.formatMessage(intlMessages.suggestLockTitle)}</p>
           <div className={styles.buttonWrapper}>
             <Button
               label={intl.formatMessage(intlMessages.enable)}
@@ -85,7 +85,7 @@ class LockViewersNotifyComponent extends Component {
               className={styles.button}
             />
           </div>
-          <p>{intl.formatMessage(intlMessages.suggestLockReason)}</p>
+          <p className={styles.info}>{intl.formatMessage(intlMessages.suggestLockReason)}</p>
         </React.Fragment>
       ),
       'info',

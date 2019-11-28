@@ -5,15 +5,13 @@ import { Session } from 'meteor/session';
 import Meetings from '/imports/api/meetings';
 import Users from '/imports/api/users';
 import Auth from '/imports/ui/services/auth';
-import { meetingIsBreakout } from '/imports/ui/components/app/service';
 import getFromUserSettings from '/imports/ui/services/users-settings';
 import userListService from '../user-list/service';
 import Service from './service';
 import NavBar from './component';
-import mapUser from '../../services/user/mapUser';
 
 const PUBLIC_CONFIG = Meteor.settings.public;
-
+const ROLE_MODERATOR = PUBLIC_CONFIG.user.role_moderator;
 const NavBarContainer = ({ children, ...props }) => (
   <NavBar {...props}>
     {children}
@@ -21,61 +19,49 @@ const NavBarContainer = ({ children, ...props }) => (
 );
 
 export default withTracker(() => {
-  const CLIENT_TITLE = getFromUserSettings('clientTitle', PUBLIC_CONFIG.app.clientTitle);
+  const CLIENT_TITLE = getFromUserSettings('bbb_client_title', PUBLIC_CONFIG.app.clientTitle);
 
   let meetingTitle;
-  let meetingRecorded;
   const meetingId = Auth.meetingID;
   const meetingObject = Meetings.findOne({
     meetingId,
-  });
+  }, { fields: { 'meetingProp.name': 1, 'breakoutProps.sequence': 1 } });
 
   if (meetingObject != null) {
     meetingTitle = meetingObject.meetingProp.name;
-    meetingRecorded = meetingObject.recordProp;
-    document.title = `${CLIENT_TITLE} - ${meetingTitle}`;
+    let titleString = `${CLIENT_TITLE} - ${meetingTitle}`;
+    if (meetingObject.breakoutProps) {
+      const breakoutNum = meetingObject.breakoutProps.sequence;
+      if (breakoutNum > 0) {
+        titleString = `${breakoutNum} - ${titleString}`;
+      }
+    }
+    document.title = titleString;
   }
 
   const checkUnreadMessages = () => {
     const activeChats = userListService.getActiveChats();
     const hasUnreadMessages = activeChats
-      .filter(chat => chat.id !== Session.get('idChatOpen'))
+      .filter(chat => chat.userId !== Session.get('idChatOpen'))
       .some(chat => chat.unreadCounter > 0);
     return hasUnreadMessages;
   };
 
-  Meetings.find({ meetingId: Auth.meetingID }).observeChanges({
-    changed: (id, fields) => {
-      if (fields.recordProp && fields.recordProp.recording) {
-        this.window.parent.postMessage({ response: 'recordingStarted' }, '*');
-      }
-
-      if (fields.recordProp && !fields.recordProp.recording) {
-        this.window.parent.postMessage({ response: 'recordingStopped' }, '*');
-      }
-    },
-  });
-
-  const currentUserId = Auth.userID;
   const { connectRecordingObserver, processOutsideToggleRecording } = Service;
-  const currentUser = Users.findOne({ userId: Auth.userID });
+  const currentUser = Users.findOne({ userId: Auth.userID }, { fields: { role: 1 } });
   const openPanel = Session.get('openPanel');
   const isExpanded = openPanel !== '';
-  const amIModerator = mapUser(currentUser).isModerator;
+  const amIModerator = currentUser.role === ROLE_MODERATOR;
+  const hasUnreadMessages = checkUnreadMessages();
 
   return {
     amIModerator,
     isExpanded,
-    currentUserId,
+    currentUserId: Auth.userID,
     processOutsideToggleRecording,
     connectRecordingObserver,
     meetingId,
     presentationTitle: meetingTitle,
-    hasUnreadMessages: checkUnreadMessages(),
-    isBreakoutRoom: meetingIsBreakout(),
-    recordProps: meetingRecorded,
-    toggleUserList: () => {
-      Session.set('isUserListOpen', !isExpanded);
-    },
+    hasUnreadMessages,
   };
 })(NavBarContainer);

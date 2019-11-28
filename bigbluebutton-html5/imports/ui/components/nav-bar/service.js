@@ -1,6 +1,6 @@
 import Auth from '/imports/ui/services/auth';
 import { makeCall } from '/imports/ui/services/api';
-import Meetings from '/imports/api/meetings';
+import RecordMeetings from '/imports/api/meetings';
 
 const processOutsideToggleRecording = (e) => {
   switch (e.data) {
@@ -9,7 +9,7 @@ const processOutsideToggleRecording = (e) => {
       break;
     }
     case 'c_recording_status': {
-      const recordingState = Meetings.findOne({ meetingId: Auth.meetingID }).recordProp.recording;
+      const recordingState = (RecordMeetings.findOne({ meetingId: Auth.meetingID })).recording;
       const recordingMessage = recordingState ? 'recordingStarted' : 'recordingStopped';
       this.window.parent.postMessage({ response: recordingMessage }, '*');
       break;

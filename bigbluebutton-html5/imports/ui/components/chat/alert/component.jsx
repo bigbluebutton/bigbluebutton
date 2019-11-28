@@ -1,7 +1,6 @@
-import React, { PureComponent, Fragment } from 'react';
+import React, { Fragment, PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import { defineMessages, injectIntl } from 'react-intl';
-import { Session } from 'meteor/session';
 import _ from 'lodash';
 import UnreadMessages from '/imports/ui/services/unread-messages';
 import ChatAudioAlert from './audio-alert/component';
@@ -14,6 +13,7 @@ const propTypes = {
   activeChats: PropTypes.arrayOf(PropTypes.object).isRequired,
   audioAlertDisabled: PropTypes.bool.isRequired,
   joinTimestamp: PropTypes.number.isRequired,
+  idChatOpen: PropTypes.string.isRequired,
 };
 
 const intlMessages = defineMessages({
@@ -41,8 +41,11 @@ const ALERT_DURATION = 4000; // 4 seconds
 class ChatAlert extends PureComponent {
   constructor(props) {
     super(props);
+
+    const { joinTimestamp } = props;
+
     this.state = {
-      alertEnabledTimestamp: props.joinTimestamp,
+      alertEnabledTimestamp: joinTimestamp,
       lastAlertTimestampByChat: {},
       pendingNotificationsByChat: {},
     };
@@ -50,9 +53,10 @@ class ChatAlert extends PureComponent {
 
   componentDidUpdate(prevProps) {
     const {
-      pushAlertDisabled,
       activeChats,
+      idChatOpen,
       joinTimestamp,
+      pushAlertDisabled,
     } = this.props;
 
     const {
@@ -60,6 +64,7 @@ class ChatAlert extends PureComponent {
       lastAlertTimestampByChat,
       pendingNotificationsByChat,
     } = this.state;
+
     // Avoid alerting messages received before enabling alerts
     if (prevProps.pushAlertDisabled && !pushAlertDisabled) {
       const newAlertEnabledTimestamp = Service.getLastMessageTimestampFromChatList(activeChats);
@@ -67,15 +72,14 @@ class ChatAlert extends PureComponent {
       return;
     }
 
-
     // Keep track of messages that was not alerted yet
     const unalertedMessagesByChatId = {};
 
     activeChats
-      .filter(chat => chat.id !== Session.get('idChatOpen'))
+      .filter(chat => chat.userId !== idChatOpen)
       .filter(chat => chat.unreadCounter > 0)
       .forEach((chat) => {
-        const chatId = (chat.id === 'public') ? 'MAIN-PUBLIC-GROUP-CHAT' : chat.id;
+        const chatId = (chat.userId === 'public') ? 'MAIN-PUBLIC-GROUP-CHAT' : chat.userId;
         const thisChatUnreadMessages = UnreadMessages.getUnreadMessages(chatId);
 
         unalertedMessagesByChatId[chatId] = thisChatUnreadMessages.filter((msg) => {
@@ -102,6 +106,10 @@ class ChatAlert extends PureComponent {
       .filter(chatId => lastUnalertedMessageTimestampByChat[chatId]
         > ((lastAlertTimestampByChat[chatId] || 0) + ALERT_INTERVAL)
         && !(chatId in pendingNotificationsByChat));
+
+    if (idChatOpen !== prevProps.idChatOpen) {
+      this.setChatMessagesState({}, { ...lastAlertTimestampByChat });
+    }
 
     if (!chatsWithPendingAlerts.length) return;
 
@@ -166,18 +174,28 @@ class ChatAlert extends PureComponent {
   render() {
     const {
       audioAlertDisabled,
+      idChatOpen,
       pushAlertDisabled,
       intl,
     } = this.props;
+
     const {
       pendingNotificationsByChat,
     } = this.state;
 
-    const shouldPlay = Object.keys(pendingNotificationsByChat).length > 0;
+    const notCurrentTabOrMinimized = document.hidden;
+    const hasPendingNotifications = Object.keys(pendingNotificationsByChat).length > 0;
+
+    const shouldPlayChatAlert = notCurrentTabOrMinimized
+      || (hasPendingNotifications && !idChatOpen);
 
     return (
       <Fragment>
-        {!audioAlertDisabled ? <ChatAudioAlert play={shouldPlay} /> : null}
+        {
+          !audioAlertDisabled || (!audioAlertDisabled && notCurrentTabOrMinimized)
+            ? <ChatAudioAlert play={shouldPlayChatAlert} />
+            : null
+        }
         {
           !pushAlertDisabled
             ? Object.keys(pendingNotificationsByChat)
@@ -186,7 +204,7 @@ class ChatAlert extends PureComponent {
                 const reducedMessage = Service
                   .reduceAndMapGroupMessages(pendingNotificationsByChat[chatId].slice(-5)).pop();
 
-                if (!reducedMessage) return null;
+                if (!reducedMessage || !reducedMessage.sender) return null;
 
                 const content = this
                   .createMessage(reducedMessage.sender.name, reducedMessage.content);

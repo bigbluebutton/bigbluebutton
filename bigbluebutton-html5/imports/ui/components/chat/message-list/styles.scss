@@ -9,17 +9,17 @@
   position: relative;
   overflow-x: hidden;
   overflow-y: auto;
-  padding-left: var(--md-padding-x);
+  padding-left: var(--sm-padding-x);
   margin-left: calc(-1 * var(--md-padding-x));
   padding-right: var(--sm-padding-y);
-  margin-right: calc(-1 * var(--md-padding-x));
+  margin-right: calc(-1 * var(--md-padding-y));
   padding-bottom: var(--md-padding-x);
   margin-bottom: calc(-1 * var(--md-padding-x));
 
   [dir="rtl"] & {
     padding-right: var(--md-padding-x);
     margin-right: calc(-1 * var(--md-padding-x));
-    padding-left: var(--sm-padding-y);
+    padding-left: var(--md-padding-y);
     margin-left: calc(-1 * var(--md-padding-x));
   }
 }

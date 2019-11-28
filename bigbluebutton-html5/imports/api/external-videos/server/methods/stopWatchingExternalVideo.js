@@ -14,10 +14,13 @@ export default function stopWatchingExternalVideo(credentials) {
   check(meetingId, String);
   check(requesterUserId, String);
 
+  const meeting = Meetings.findOne({ meetingId });
+  if (!meeting || meeting.externalVideoUrl === null) return;
+
   Meetings.update({ meetingId }, { $set: { externalVideoUrl: null } });
   const payload = {};
 
-  Logger.info(`User id=${requesterUserId} stopped sharing a youtube video for meeting=${meetingId}`);
+  Logger.info(`User id=${requesterUserId} stopped sharing an external video for meeting=${meetingId}`);
 
   RedisPubSub.publishUserMessage(CHANNEL, EVENT_NAME, meetingId, requesterUserId, payload);
 }

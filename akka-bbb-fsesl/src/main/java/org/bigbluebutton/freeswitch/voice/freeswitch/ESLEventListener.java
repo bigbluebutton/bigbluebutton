@@ -44,12 +44,14 @@ public class ESLEventListener implements IEslEventListener {
 
     @Override
     public void exceptionCaught(ExceptionEvent e) {
+        log.warn("Exception caught: ", e);
 //        setChanged();
 //        notifyObservers(e);
     }
 
     private static final Pattern GLOBAL_AUDION_PATTERN = Pattern.compile("(GLOBAL_AUDIO)_(.*)$");
     private static final Pattern CALLERNAME_PATTERN = Pattern.compile("(.*)-bbbID-(.*)$");
+    private static final Pattern CALLERNAME_WITH_SESS_INFO_PATTERN = Pattern.compile("^(.*)_(\\d+)-bbbID-(.*)$");
     
     @Override
     public void conferenceEventJoin(String uniqueId, String confName, int confSize, EslEvent event) {
@@ -76,7 +78,11 @@ public class ESLEventListener implements IEslEventListener {
             conferenceEventListener.handleConferenceEvent(dsStart);
         } else {
             Matcher matcher = CALLERNAME_PATTERN.matcher(callerIdName);
-            if (matcher.matches()) {
+            Matcher callWithSess = CALLERNAME_WITH_SESS_INFO_PATTERN.matcher(callerIdName);
+            if (callWithSess.matches()) {
+                voiceUserId = callWithSess.group(1).trim();
+                callerIdName = callWithSess.group(3).trim();
+            } else if (matcher.matches()) {
                 voiceUserId = matcher.group(1).trim();
                 callerIdName = matcher.group(2).trim();
             } else {
@@ -167,7 +173,7 @@ public class ESLEventListener implements IEslEventListener {
             VoiceConfRunningEvent pt = new VoiceConfRunningEvent(confName, false);
             conferenceEventListener.handleConferenceEvent(pt);
         } else {
-            System.out.println("Unknown conference Action [" + action + "]");
+            log.warn("Unknown conference Action [" + action + "]");
         }
     }
 
@@ -227,7 +233,7 @@ public class ESLEventListener implements IEslEventListener {
         } 
 
         else {
-            System.out.println("Processing UNKNOWN conference Action " + action + "]");
+            log.warn("Processing UNKNOWN conference Action " + action + "]");
         }
     }
 
@@ -237,13 +243,14 @@ public class ESLEventListener implements IEslEventListener {
     
     @Override
     public void eventReceived(EslEvent event) {
-//        System.out.println("ESL Event Listener received event=[" + event.getEventName() + "]" +
-//                event.getEventHeaders().toString());
-//        if (event.getEventName().equals(FreeswitchHeartbeatMonitor.EVENT_HEARTBEAT)) {
+        //System.out.println("ESL Event Listener received event=[" + event.getEventName() + "]" +
+        //        event.getEventHeaders().toString());
+        if (event.getEventName().equals("heartbeat")) {
+            log.info("Received heartbeat from FreeSWITCH");
 ////           setChanged();
 //           notifyObservers(event);
 //           return; 
-//        }
+        }
     }
 
     private Integer getMemberIdFromEvent(EslEvent e) {

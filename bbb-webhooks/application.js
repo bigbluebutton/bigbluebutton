@@ -1,4 +1,4 @@
-const config = require("./config.js");
+const config = require('config');
 const Hook = require("./hook.js");
 const IDMapping = require("./id_mapping.js");
 const WebHooks = require("./web_hooks.js");
@@ -13,12 +13,6 @@ const async = require("async");
 module.exports = class Application {
 
   constructor() {
-    const options = {
-      host : process.env.REDIS_HOST || config.redis.host,
-      port : process.env.REDIS_PORT || config.redis.port
-    };
-    config.redis.pubSubClient = redis.createClient(options);
-    config.redis.client = redis.createClient(options);
     this.webHooks = new WebHooks();
     this.webServer = new WebServer();
   }
@@ -28,7 +22,7 @@ module.exports = class Application {
       UserMapping.initialize(() => {
         IDMapping.initialize(()=> {
           async.parallel([
-            (callback) => { this.webServer.start(config.server.port, callback) },
+            (callback) => { this.webServer.start(config.get("server.port"), callback) },
             (callback) => { this.webServer.createPermanents(callback) },
             (callback) => { this.webHooks.start(callback) }
           ], (err,results) => {
@@ -38,5 +32,19 @@ module.exports = class Application {
         });
       });
     });
+  }
+
+  static redisPubSubClient() {
+    if (!Application._redisPubSubClient) {
+      Application._redisPubSubClient = redis.createClient( { host: config.get("redis.host"), port: config.get("redis.port") } );
+    }
+    return Application._redisPubSubClient;
+  }
+
+  static redisClient() {
+    if (!Application._redisClient) {
+      Application._redisClient = redis.createClient( { host: config.get("redis.host"), port: config.get("redis.port") } );
+    }
+    return Application._redisClient;
   }
 };

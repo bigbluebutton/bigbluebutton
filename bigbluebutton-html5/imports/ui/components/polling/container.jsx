@@ -4,7 +4,7 @@ import { withTracker } from 'meteor/react-meteor-data';
 import Users from '/imports/api/users';
 import Auth from '/imports/ui/services/auth';
 import PollingService from './service';
-import Service from '/imports/ui/components/poll/service';
+import PollService from '/imports/ui/components/poll/service';
 import PollingComponent from './component';
 
 const propTypes = {
@@ -14,7 +14,7 @@ const propTypes = {
 const POLLING_ENABLED = Meteor.settings.public.poll.enabled;
 
 const PollingContainer = ({ pollExists, ...props }) => {
-  const currentUser = Users.findOne({ userId: Auth.userID });
+  const currentUser = Users.findOne({ userId: Auth.userID }, { fields: { presenter: 1 } });
   const showPolling = pollExists && !currentUser.presenter && POLLING_ENABLED;
   if (showPolling) {
     return (
@@ -32,7 +32,7 @@ export default withTracker(() => {
     pollExists,
     handleVote,
     poll,
-    pollAnswerIds: Service.pollAnswerIds,
+    pollAnswerIds: PollService.pollAnswerIds,
     isMeteorConnected: Meteor.status().connected,
   });
 })(PollingContainer);

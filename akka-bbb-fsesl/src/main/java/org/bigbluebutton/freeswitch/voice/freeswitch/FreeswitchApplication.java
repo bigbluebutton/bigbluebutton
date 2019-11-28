@@ -60,15 +60,17 @@ public class FreeswitchApplication implements  IDelayedCommandListener{
   }
 
   public void runDelayedCommand(FreeswitchCommand command) {
+    log.info("Run DelayedCommand.");
     queueMessage(command);
   }
 
   private void queueMessage(FreeswitchCommand command) {
     try {
+      log.info("Queue message: " + command.getCommand() + " " + command.getCommandArgs());
       messages.offer(command, 5, TimeUnit.SECONDS);
     } catch (InterruptedException e) {
       // TODO Auto-generated catch block
-      e.printStackTrace();
+      log.error("Exception queueing message: ", e);
     }
   }
 
@@ -93,7 +95,7 @@ public class FreeswitchApplication implements  IDelayedCommandListener{
             sendMessageToFreeswitch(message);
           } catch (InterruptedException e) {
             // TODO Auto-generated catch block
-            e.printStackTrace();
+            log.error("Exception taking message from queue: ", e);
           }
         }
       }
@@ -101,12 +103,19 @@ public class FreeswitchApplication implements  IDelayedCommandListener{
     msgSenderExec.execute(sender);
   }
 
+  public void getUsersStatus(String voiceConfId, String meetingId) {
+    GetUsersStatusCommand ccrc = new GetUsersStatusCommand(voiceConfId, meetingId);
+    queueMessage(ccrc);
+  }
+
+  public void checkRunningAndRecording(String voiceConfId, String meetingId) {
+    ConferenceCheckRecordCommand ccrc = new ConferenceCheckRecordCommand(voiceConfId, meetingId);
+    queueMessage(ccrc);
+  }
+
   public void getAllUsers(String voiceConfId) {
     GetAllUsersCommand prc = new GetAllUsersCommand(voiceConfId, USER);
     queueMessage(prc);
-
-    ConferenceCheckRecordCommand ccrc = new ConferenceCheckRecordCommand(voiceConfId, USER);
-    queueMessage(ccrc);
   }
 
   public void muteUser(String voiceConfId, String voiceUserId, Boolean mute) {
@@ -152,6 +161,7 @@ public class FreeswitchApplication implements  IDelayedCommandListener{
   private void sendMessageToFreeswitch(final FreeswitchCommand command) {
     Runnable task = new Runnable() {
       public void run() {
+        log.info("Sending message: " + command.getCommand() + " " + command.getCommandArgs());
         if (command instanceof GetAllUsersCommand) {
           GetAllUsersCommand cmd = (GetAllUsersCommand) command;
           manager.getUsers(cmd);
@@ -165,7 +175,9 @@ public class FreeswitchApplication implements  IDelayedCommandListener{
           EjectAllUsersCommand cmd = (EjectAllUsersCommand) command;
           manager.ejectAll(cmd);
 
-          CheckIfConfIsRunningCommand command = new CheckIfConfIsRunningCommand(cmd.getRoom(), cmd.getRequesterId());
+          CheckIfConfIsRunningCommand command = new CheckIfConfIsRunningCommand(cmd.getRoom(),
+                  cmd.getRequesterId(),
+                  delayedCommandSenderService, 0);
           delayedCommandSenderService.handleMessage(command, 5000);
         } else if (command instanceof TransferUserToMeetingCommand) {
           TransferUserToMeetingCommand cmd = (TransferUserToMeetingCommand) command;
@@ -183,6 +195,10 @@ public class FreeswitchApplication implements  IDelayedCommandListener{
           manager.checkIfConferenceIsRecording((ConferenceCheckRecordCommand) command);
         } else if (command instanceof CheckIfConfIsRunningCommand) {
           manager.checkIfConfIsRunningCommand((CheckIfConfIsRunningCommand) command);
+        } else if (command instanceof ForceEjectUserCommand) {
+          manager.forceEjectUser((ForceEjectUserCommand) command);
+        } else if (command instanceof GetUsersStatusCommand) {
+          manager.getUsersStatus((GetUsersStatusCommand) command);
         }
       }
     };

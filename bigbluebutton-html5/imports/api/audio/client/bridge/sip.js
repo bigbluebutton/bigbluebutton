@@ -11,19 +11,35 @@ const MEDIA_TAG = MEDIA.mediaTag;
 const CALL_TRANSFER_TIMEOUT = MEDIA.callTransferTimeout;
 const CALL_HANGUP_TIMEOUT = MEDIA.callHangupTimeout;
 const CALL_HANGUP_MAX_RETRIES = MEDIA.callHangupMaximumRetries;
+const RELAY_ONLY_ON_RECONNECT = MEDIA.relayOnlyOnReconnect;
 const IPV4_FALLBACK_DOMAIN = Meteor.settings.public.app.ipv4FallbackDomain;
 const ICE_NEGOTIATION_FAILED = ['iceConnectionFailed'];
-const CALL_CONNECT_TIMEOUT = 15000;
+const CALL_CONNECT_TIMEOUT = 20000;
 const ICE_NEGOTIATION_TIMEOUT = 20000;
+const AUDIO_SESSION_NUM_KEY = 'AudioSessionNumber';
+
+
+const getAudioSessionNumber = () => {
+  let currItem = parseInt(sessionStorage.getItem(AUDIO_SESSION_NUM_KEY), 10);
+  if (!currItem) {
+    currItem = 0;
+  }
+
+  currItem += 1;
+  sessionStorage.setItem(AUDIO_SESSION_NUM_KEY, currItem);
+  return currItem;
+};
 
 class SIPSession {
-  constructor(user, userData, protocol, hostname, baseCallStates, baseErrorCodes) {
+  constructor(user, userData, protocol, hostname,
+    baseCallStates, baseErrorCodes, reconnectAttempt) {
     this.user = user;
     this.userData = userData;
     this.protocol = protocol;
     this.hostname = hostname;
     this.baseCallStates = baseCallStates;
     this.baseErrorCodes = baseErrorCodes;
+    this.reconnectAttempt = reconnectAttempt;
   }
 
   static parseDTMF(message) {
@@ -80,7 +96,7 @@ class SIPSession {
     } = this.user;
 
     const callerIdName = [
-      userId,
+      `${userId}_${getAudioSessionNumber()}`,
       'bbbID',
       isListenOnly ? `LISTENONLY-${name}` : name,
     ].join('-').replace(/"/g, "'");
@@ -106,6 +122,9 @@ class SIPSession {
           error: 1008,
           bridgeError: 'Timeout on call transfer',
         });
+
+        this.exitAudio();
+
         reject(this.baseErrorCodes.REQUEST_TIMEOUT);
       }, CALL_TRANSFER_TIMEOUT);
 
@@ -216,6 +235,7 @@ class SIPSession {
         turnServers: turn,
         hackPlanBUnifiedPlanTranslation: isSafari,
         hackAddAudioTransceiver: isSafariWebview,
+        relayOnlyOnReconnect: this.reconnectAttempt && RELAY_ONLY_ON_RECONNECT,
       });
 
       const handleUserAgentConnection = () => {
@@ -321,6 +341,8 @@ class SIPSession {
           error: 1006,
           bridgeError: `Call timed out on start after ${CALL_CONNECT_TIMEOUT / 1000}s`,
         });
+
+        this.exitAudio();
       }, CALL_CONNECT_TIMEOUT);
 
       let iceNegotiationTimeout;
@@ -338,6 +360,8 @@ class SIPSession {
               error: 1010,
               bridgeError: `ICE negotiation timeout after ${ICE_NEGOTIATION_TIMEOUT / 1000}s`,
             });
+
+            this.exitAudio();
           }, ICE_NEGOTIATION_TIMEOUT);
         }
       };
@@ -479,7 +503,7 @@ export default class SIPBridge extends BaseAudioBridge {
       let { hostname } = this;
 
       this.activeSession = new SIPSession(this.user, this.userData, this.protocol,
-        hostname, this.baseCallStates, this.baseErrorCodes);
+        hostname, this.baseCallStates, this.baseErrorCodes, false);
 
       const callback = (message) => {
         if (message.status === this.baseCallStates.failed) {
@@ -503,7 +527,7 @@ export default class SIPBridge extends BaseAudioBridge {
           if (shouldTryReconnect) {
             const fallbackExtension = this.activeSession.inEchoTest ? extension : undefined;
             this.activeSession = new SIPSession(this.user, this.userData, this.protocol,
-              hostname, this.baseCallStates, this.baseErrorCodes);
+              hostname, this.baseCallStates, this.baseErrorCodes, true);
             this.activeSession.joinAudio({ isListenOnly, extension: fallbackExtension, inputStream }, callback)
               .then((value) => {
                 resolve(value);

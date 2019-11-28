@@ -170,8 +170,6 @@ class BreakoutRoom extends PureComponent {
       numberOfRoomsIsValid: true,
     };
 
-    this.breakoutFormId = _.uniqueId('breakout-form-');
-    this.freeJoinId = _.uniqueId('free-join-check-');
     this.btnLevelId = _.uniqueId('btn-set-level-');
   }
 
@@ -308,7 +306,7 @@ class BreakoutRoom extends PureComponent {
   }
 
   setFreeJoin(e) {
-    this.setState({ freeJoin: e.target.checked });
+    this.setState({ freeJoin: e.target.checked, valid: true });
   }
 
   setRecord(e) {
@@ -353,9 +351,13 @@ class BreakoutRoom extends PureComponent {
     const { users } = this.state;
 
     const idxUser = users.findIndex(user => user.userId === userId);
-    users[idxUser].room = room;
+
+    const usersCopy = [...users];
+
+    usersCopy[idxUser].room = room;
+
     this.setState({
-      users,
+      users: usersCopy,
       valid: this.getUserByRoom(0).length !== users.length,
     });
   }
@@ -451,8 +453,8 @@ class BreakoutRoom extends PureComponent {
     if (isInvitation) return null;
 
     return (
-      <React.Fragment>
-        <div className={styles.breakoutSettings} key={this.breakoutFormId}>
+      <React.Fragment key="breakout-form">
+        <div className={styles.breakoutSettings}>
           <div>
             <p
               className={cx(styles.labelText, !numberOfRoomsIsValid
@@ -569,8 +571,8 @@ class BreakoutRoom extends PureComponent {
       record,
     } = this.state;
     return (
-      <div className={styles.checkBoxesContainer}>
-        <label htmlFor="freeJoinCheckbox" className={styles.freeJoinLabel} key={this.freeJoinId}>
+      <div className={styles.checkBoxesContainer} key="breakout-checkboxes">
+        <label htmlFor="freeJoinCheckbox" className={styles.freeJoinLabel} key="free-join-breakouts">
           <input
             type="checkbox"
             id="freeJoinCheckbox"
@@ -583,7 +585,7 @@ class BreakoutRoom extends PureComponent {
         </label>
         {
           isBreakoutRecordable ? (
-            <label htmlFor="recordBreakoutCheckbox" className={styles.freeJoinLabel} key={this.freeJoinId}>
+            <label htmlFor="recordBreakoutCheckbox" className={styles.freeJoinLabel} key="record-breakouts">
               <input
                 id="recordBreakoutCheckbox"
                 type="checkbox"

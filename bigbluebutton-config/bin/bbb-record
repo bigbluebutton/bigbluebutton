@@ -36,6 +36,8 @@
 #   2016-10-17 GTR  Stricter rule for detection of recording directories names
 #   2017-04-28 FFD  Updated references to systemd processing units
 #   2019-05-13 GTR  Delete caption files
+#   2019-08-30 GTR  Count SVG slides fallaback
+
 
 #set -e
 #set -x
@@ -317,7 +319,7 @@ fi
 if [ $REBUILDALL ]; then
 	echo "Rebuilding all recordings"
 	for recording in $(dir $BASE/raw); do
-		mark_for_rebuild $recording
+		[[ ! -e $STATUS/archived/$recording.norecord ]] && mark_for_rebuild $recording
 	done
 fi 
 
@@ -560,9 +562,17 @@ for meeting in $(cat $tmp_file | sort -t - -k 2 -r| uniq); do
 	#
 	# Number of slides
 	if [ -d /var/bigbluebutton/$meeting/$meeting ]; then
-		printf "%7s" $(find /var/bigbluebutton/$meeting/$meeting -name "*.swf" | wc -l)
-        else
-		printf "%7s" $(find /var/bigbluebutton/recording/raw/$meeting -name "*.swf" | wc -l)
+		SLIDES_COUNT=$(find /var/bigbluebutton/$meeting/$meeting -name "*.swf" | wc -l)
+		if [ $SLIDES_COUNT -eq 0 ]; then
+			SLIDES_COUNT=$(find /var/bigbluebutton/$meeting/$meeting -name "*.svg" | wc -l)
+		fi
+		printf "%7s" $SLIDES_COUNT
+	else
+		SLIDES_COUNT=$(find /var/bigbluebutton/recording/raw/$meeting -name "*.swf" | wc -l)
+		if [ $SLIDES_COUNT -eq 0 ]; then
+			SLIDES_COUNT=$(find /var/bigbluebutton/recording/raw/$meeting -name "*.svg" | wc -l)
+		fi
+		printf "%7s" $SLIDES_COUNT
 	fi
 
 

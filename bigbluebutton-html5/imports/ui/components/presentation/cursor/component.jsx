@@ -3,11 +3,11 @@ import PropTypes from 'prop-types';
 
 export default class Cursor extends Component {
   static scale(attribute, widthRatio, physicalWidthRatio) {
-    return ((attribute * widthRatio) / 100) / physicalWidthRatio;
+    return (attribute * widthRatio) / physicalWidthRatio;
   }
 
   static invertScale(attribute, widthRatio, physicalWidthRatio) {
-    return ((attribute * physicalWidthRatio) * 100) / widthRatio;
+    return (attribute * physicalWidthRatio) / widthRatio;
   }
 
   static getCursorCoordinates(cursorX, cursorY, slideWidth, slideHeight) {
@@ -41,7 +41,7 @@ export default class Cursor extends Component {
   static getScaledSizes(props) {
     // TODO: This might need to change for the use case of fit-to-width portrait
     //       slides in non-presenter view. Some elements are still shrinking.
-    const scaleFactor = props.widthRatio / 100 / props.physicalWidthRatio;
+    const scaleFactor = props.widthRatio / props.physicalWidthRatio;
 
     return {
       // Adjust the radius of the cursor according to zoom
@@ -67,7 +67,12 @@ export default class Cursor extends Component {
 
   componentWillMount() {
     const {
-      cursorX, cursorY, slideWidth, slideHeight, presenter, isMultiUser,
+      cursorX,
+      cursorY,
+      slideWidth,
+      slideHeight,
+      presenter,
+      isMultiUser,
     } = this.props;
 
     // setting the initial cursor info
@@ -130,7 +135,10 @@ export default class Cursor extends Component {
 
   // this function retrieves the text node, measures its BBox and sets the size for the outer box
   calculateCursorLabelBoxDimensions() {
-    const { setLabelBoxDimensions } = this.props;
+    const {
+      setLabelBoxDimensions,
+    } = this.props;
+
     let labelBoxWidth = 0;
     let labelBoxHeight = 0;
     if (this.cursorLabelRef) {
@@ -151,15 +159,27 @@ export default class Cursor extends Component {
 
   render() {
     const {
+      cursorId,
+      userName,
+      isRTL,
+    } = this.props;
+
+    const {
       cursorCoordinate,
       fill,
     } = this;
 
-    const { cursorId, userName, isRTL } = this.props;
+    const {
+      cursorLabelBox,
+      cursorLabelText,
+      finalRadius,
+    } = this.scaledSizes;
 
-    const { cursorLabelBox, cursorLabelText, finalRadius } = this.scaledSizes;
+    const {
+      x,
+      y,
+    } = cursorCoordinate;
 
-    const { x, y } = cursorCoordinate;
     const boxX = x + cursorLabelBox.xOffset;
     const boxY = y + cursorLabelBox.yOffset;
 

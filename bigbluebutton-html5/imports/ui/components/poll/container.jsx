@@ -5,7 +5,7 @@ import Auth from '/imports/ui/services/auth';
 import Presentations from '/imports/api/presentations';
 import PresentationAreaService from '/imports/ui/components/presentation/service';
 import Poll from '/imports/ui/components/poll/component';
-import Service from '/imports/ui/components/poll/service';
+import Service from './service';
 
 const PollContainer = ({ ...props }) => <Poll {...props} />;
 
@@ -14,7 +14,7 @@ export default withTracker(() => {
 
   const currentPresentation = Presentations.findOne({
     current: true,
-  }) || {};
+  }, { fields: { podId: 1 } }) || {};
 
   const currentSlide = PresentationAreaService.getCurrentSlide(currentPresentation.podId);
 
@@ -24,14 +24,13 @@ export default withTracker(() => {
 
   return {
     currentSlide,
-    currentUser: Service.currentUser(),
+    amIPresenter: Service.amIPresenter(),
     pollTypes: Service.pollTypes,
     startPoll,
     startCustomPoll,
     stopPoll: Service.stopPoll,
     publishPoll: Service.publishPoll,
     currentPoll: Service.currentPoll(),
-    getUser: Service.getUser,
     resetPollPanel: Session.get('resetPollPanel') || false,
     pollAnswerIds: Service.pollAnswerIds,
     isMeteorConnected: Meteor.status().connected,

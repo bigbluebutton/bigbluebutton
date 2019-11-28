@@ -3,7 +3,7 @@ import { Tracker } from 'meteor/tracker';
 import Storage from '/imports/ui/services/storage/session';
 import Auth from '/imports/ui/services/auth';
 import GroupChat from '/imports/api/group-chat';
-import GroupChatMsg from '/imports/api/group-chat-msg';
+import { GroupChatMsg } from '/imports/api/group-chat-msg';
 
 const CHAT_CONFIG = Meteor.settings.public.chat;
 const STORAGE_KEY = CHAT_CONFIG.storage_key;
@@ -12,7 +12,10 @@ const PUBLIC_GROUP_CHAT_ID = CHAT_CONFIG.public_group_id;
 class UnreadMessagesTracker {
   constructor() {
     this._tracker = new Tracker.Dependency();
-    this._unreadChats = { ...Storage.getItem('UNREAD_CHATS'), [PUBLIC_GROUP_CHAT_ID]: (new Date()).getTime() };
+    this._unreadChats = {
+      ...Storage.getItem('UNREAD_CHATS'),
+      [PUBLIC_GROUP_CHAT_ID]: (new Date()).getTime(),
+    };
     this.get = this.get.bind(this);
   }
 
@@ -42,7 +45,8 @@ class UnreadMessagesTracker {
     if (chatID === PUBLIC_GROUP_CHAT_ID) {
       filter.chatId = { $eq: chatID };
     } else {
-      const privateChat = GroupChat.findOne({ users: { $all: [chatID, Auth.userID] } });
+      const privateChat = GroupChat.findOne({ users: { $all: [chatID, Auth.userID] } },
+        { fields: { chatId: 1 } });
 
       filter.chatId = { $ne: PUBLIC_GROUP_CHAT_ID };
 

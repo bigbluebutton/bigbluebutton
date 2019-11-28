@@ -9569,6 +9569,7 @@ UA.prototype.loadConfig = function(configuration) {
       hackStripTcp: false,
       hackPlanBUnifiedPlanTranslation: false,
       hackAddAudioTransceiver: false,
+      relayOnlyOnReconnect: false,
 
       contactTransport: 'ws',
       forceRport: false,
@@ -9962,6 +9963,12 @@ UA.prototype.getConfigurationCheck = function () {
       contactTransport: function(contactTransport) {
         if (typeof contactTransport === 'string') {
           return contactTransport;
+        }
+      },
+
+      relayOnlyOnReconnect: function(relayOnlyOnReconnect) {
+        if (typeof relayOnlyOnReconnect === 'boolean') {
+          return relayOnlyOnReconnect;
         }
       },
 
@@ -11476,6 +11483,10 @@ MediaHandler.prototype = Object.create(SIP.MediaHandler.prototype, {
       sdpSemantics:'plan-b'
     };
 
+    if (config.relayOnlyOnReconnect) {
+      connConfig.iceTransportPolicy = 'relay';
+    }
+
     if (config.rtcpMuxPolicy) {
       connConfig.rtcpMuxPolicy = config.rtcpMuxPolicy;
     }
@@ -11744,15 +11755,51 @@ MediaStreamManager.render = function render (streams, elements) {
   }
 
   function ensureMediaPlaying (mediaElement) {
-    var interval = 100;
-    mediaElement.ensurePlayingIntervalId = SIP.Timers.setInterval(function () {
-      if (mediaElement.paused && mediaElement.srcObject) {
-        mediaElement.play();
-      }
-      else {
-        SIP.Timers.clearInterval(mediaElement.ensurePlayingIntervalId);
-      }
-    }, interval);
+    let startPlayPromise = mediaElement.play();
+
+    if (startPlayPromise !== undefined) {
+      startPlayPromise.then(() => {
+        // Start whatever you need to do only after playback
+        // has begun.
+      }).catch(error => {
+        if (error.name === "NotAllowedError") {
+          var savedStyle = document.getElementById("app").style;
+          document.getElementById("app").style = "display: none";
+          document.body.style = "display: flex; align-items: center; width: 100%; justify-content: center";
+          var promptDiv = document.createElement("DIV");
+          promptDiv.style = "font-size: 1.5rem; display: flex; align-items: center; flex-direction: column; margin: 0.25rem";
+          var promptLabel = document.createElement("DIV");
+          promptLabel.innerHTML = "We need your approval to play the audio";
+          promptLabel.style = "color: var(--color-off-white); margin: 0.25rem";
+          promptDiv.appendChild(promptLabel);
+          var playButton = document.createElement("BUTTON");
+          playButton.innerHTML = "Play";
+          playButton.style = "background-color: var(--color-primary); color: var(--color-off-white); border-radius: 4px; border: none; padding: 4px 8px; margin: 0.25rem;";
+          playButton.onclick = () => {
+            mediaElement.play();
+            document.body.style = undefined;
+            document.getElementById("app").style = savedStyle;
+            document.body.removeChild(promptDiv);
+            window.dispatchEvent(new Event('resize'));
+          }
+          promptDiv.appendChild(playButton);
+          document.body.appendChild(promptDiv)
+        } else {
+          // Handle a load or playback error
+        }
+      });
+    } else {
+      var interval = 100;
+      mediaElement.ensurePlayingIntervalId = SIP.Timers.setInterval(function () {
+        if (mediaElement.paused && mediaElement.srcObject) {
+          mediaElement.play();
+        }
+        else {
+          SIP.Timers.clearInterval(mediaElement.ensurePlayingIntervalId);
+        }
+      }, interval);
+    }
+
   }
 
   function attachAndPlay (elements, stream, index) {

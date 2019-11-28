@@ -8,7 +8,7 @@ import { HUNDRED_PERCENT, MAX_PERCENT, STEP } from '/imports/utils/slideCalcUtil
 import cx from 'classnames';
 import { styles } from './styles.scss';
 import ZoomTool from './zoom-tool/component';
-import FullscreenButtonContainer from '../../video-provider/fullscreen-button/container';
+import FullscreenButtonContainer from '../../fullscreen-button/container';
 import Tooltip from '/imports/ui/components/tooltip/component';
 import KEY_CODES from '/imports/utils/keyCodes';
 
@@ -75,19 +75,18 @@ const intlMessages = defineMessages({
   },
 });
 
+const ALLOW_FULLSCREEN = Meteor.settings.public.app.allowFullscreen;
+
 class PresentationToolbar extends PureComponent {
   constructor(props) {
     super(props);
 
-    this.state = {
-      sliderValue: 100,
-    };
-    this.handleValuesChange = this.handleValuesChange.bind(this);
     this.handleSkipToSlideChange = this.handleSkipToSlideChange.bind(this);
     this.change = this.change.bind(this);
     this.renderAriaDescs = this.renderAriaDescs.bind(this);
     this.switchSlide = this.switchSlide.bind(this);
-    this.setInt = 0;
+    this.nextSlideHandler = this.nextSlideHandler.bind(this);
+    this.previousSlideHandler = this.previousSlideHandler.bind(this);
   }
 
   componentDidMount() {
@@ -101,30 +100,50 @@ class PresentationToolbar extends PureComponent {
   switchSlide(event) {
     const { target, which } = event;
     const isBody = target.nodeName === 'BODY';
-    const { actions } = this.props;
 
     if (isBody) {
-      if ([KEY_CODES.ARROW_LEFT].includes(which)) {
-        actions.previousSlideHandler();
-      }
-      if ([KEY_CODES.ARROW_RIGHT].includes(which)) {
-        actions.nextSlideHandler();
+      switch (which) {
+        case KEY_CODES.ARROW_LEFT:
+        case KEY_CODES.PAGE_UP:
+          this.previousSlideHandler();
+          break;
+        case KEY_CODES.ARROW_RIGHT:
+        case KEY_CODES.PAGE_DOWN:
+          this.nextSlideHandler();
+          break;
+        default:
       }
     }
   }
 
   handleSkipToSlideChange(event) {
-    const { actions } = this.props;
+    const {
+      skipToSlide,
+      podId,
+    } = this.props;
     const requestedSlideNum = Number.parseInt(event.target.value, 10);
-    actions.skipToSlideHandler(requestedSlideNum);
+    skipToSlide(requestedSlideNum, podId);
   }
 
-  handleValuesChange(event) {
-    const { sliderValue } = this.state;
-    this.setState(
-      { sliderValue: event.target.value },
-      () => this.handleZoom(sliderValue),
-    );
+  nextSlideHandler() {
+    const {
+      nextSlide,
+      currentSlideNum,
+      numberOfSlides,
+      podId,
+    } = this.props;
+
+    nextSlide(currentSlideNum, numberOfSlides, podId);
+  }
+
+  previousSlideHandler() {
+    const {
+      previousSlide,
+      currentSlideNum,
+      podId,
+    } = this.props;
+
+    previousSlide(currentSlideNum, podId);
   }
 
   change(value) {
@@ -187,7 +206,6 @@ class PresentationToolbar extends PureComponent {
       numberOfSlides,
       fitToWidthHandler,
       fitToWidth,
-      actions,
       intl,
       zoom,
       isFullscreen,
@@ -226,7 +244,7 @@ class PresentationToolbar extends PureComponent {
               color="default"
               icon="left_arrow"
               size="md"
-              onClick={actions.previousSlideHandler}
+              onClick={this.previousSlideHandler}
               label={intl.formatMessage(intlMessages.previousSlideLabel)}
               hideLabel
               className={cx(styles.prevSlide, styles.presentationBtn)}
@@ -256,11 +274,11 @@ class PresentationToolbar extends PureComponent {
               role="button"
               aria-label={nextSlideAriaLabel}
               aria-describedby={endOfSlides ? 'noNextSlideDesc' : 'nextSlideDesc'}
-              disabled={endOfSlides || !isMeteorConnected }
+              disabled={endOfSlides || !isMeteorConnected}
               color="default"
               icon="right_arrow"
               size="md"
-              onClick={actions.nextSlideHandler}
+              onClick={this.nextSlideHandler}
               label={intl.formatMessage(intlMessages.nextSlideLabel)}
               hideLabel
               className={cx(styles.skipSlide, styles.presentationBtn)}
@@ -307,16 +325,17 @@ class PresentationToolbar extends PureComponent {
               tooltipDistance={tooltipDistance}
             />
             {
-              !isFullscreen
-              && (
-                <FullscreenButtonContainer
-                  fullscreenRef={fullscreenRef}
-                  elementName={intl.formatMessage(intlMessages.presentationLabel)}
-                  tooltipDistance={tooltipDistance}
-                  dark
-                  className={styles.presentationBtn}
-                />
-              )
+              ALLOW_FULLSCREEN
+                ? (
+                  <FullscreenButtonContainer
+                    fullscreenRef={fullscreenRef}
+                    isFullscreen={isFullscreen}
+                    elementName={intl.formatMessage(intlMessages.presentationLabel)}
+                    tooltipDistance={tooltipDistance}
+                    className={styles.presentationBtn}
+                  />
+                )
+                : null
             }
           </div>
         }
@@ -326,16 +345,16 @@ class PresentationToolbar extends PureComponent {
 }
 
 PresentationToolbar.propTypes = {
+  // The Id for the current pod. Should always be default pod
+  podId: PropTypes.string.isRequired,
   // Number of current slide being displayed
   currentSlideNum: PropTypes.number.isRequired,
   // Total number of slides in this presentation
   numberOfSlides: PropTypes.number.isRequired,
   // Actions required for the presenter toolbar
-  actions: PropTypes.shape({
-    nextSlideHandler: PropTypes.func.isRequired,
-    previousSlideHandler: PropTypes.func.isRequired,
-    skipToSlideHandler: PropTypes.func.isRequired,
-  }).isRequired,
+  nextSlide: PropTypes.func.isRequired,
+  previousSlide: PropTypes.func.isRequired,
+  skipToSlide: PropTypes.func.isRequired,
   intl: PropTypes.shape({
     formatMessage: PropTypes.func.isRequired,
   }).isRequired,

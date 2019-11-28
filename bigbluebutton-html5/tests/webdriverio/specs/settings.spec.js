@@ -6,6 +6,9 @@ const ModalPage = require('../pageobjects/modal.page');
 const SettingsPage = require('../pageobjects/settings.page');
 const Utils = require('../utils');
 
+const WAIT_TIME = 10000;
+let errorsCounter = 0;
+
 const openSettingsDropdown = function () {
   browser.waitForExist(SettingsPage.openSettingsDropdownSelector, WAIT_TIME);
   SettingsPage.openSettingsDropdown();
@@ -21,9 +24,6 @@ const openSettingsModal = function () {
   SettingsPage.clickSettingsButton();
 };
 
-const WAIT_TIME = 10000;
-let errorsCounter = 0;
-
 describe('Settings', () => {
   beforeAll(() => {
     Utils.configureViewport();
@@ -31,10 +31,7 @@ describe('Settings', () => {
   });
 
   beforeEach(() => {
-    LandingPage.open();
-    browser.setValue(LandingPage.usernameInputSelector, 'user');
-    browser.setValue(LandingPage.meetingNameInputSelector, 'Demo Meeting Tests');
-    LandingPage.joinWithEnterKey();
+    LandingPage.joinClient('settingsUser');
     closeAudioModal();
   });
 

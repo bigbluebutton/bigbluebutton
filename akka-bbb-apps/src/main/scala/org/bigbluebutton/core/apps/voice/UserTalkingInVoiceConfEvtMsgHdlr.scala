@@ -32,9 +32,9 @@ trait UserTalkingInVoiceConfEvtMsgHdlr {
     }
 
     for {
-      mutedUser <- VoiceUsers.userTalking(liveMeeting.voiceUsers, msg.body.voiceUserId, msg.body.talking)
+      talkingUser <- VoiceUsers.userTalking(liveMeeting.voiceUsers, msg.body.voiceUserId, msg.body.talking)
     } yield {
-      broadcastEvent(mutedUser)
+      broadcastEvent(talkingUser)
     }
   }
 }

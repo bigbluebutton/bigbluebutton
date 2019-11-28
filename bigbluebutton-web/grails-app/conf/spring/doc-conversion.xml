@@ -96,9 +96,12 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         <property name="pngCreator" ref="pngCreator"/>
         <property name="textFileCreator" ref="textFileCreator"/>
         <property name="svgImageCreator" ref="svgImageCreator"/>
+        <property name="pageExtractor" ref="pageExtractor"/>
         <property name="blankSlide" value="${BLANK_SLIDE}"/>
         <property name="maxSwfFileSize" value="${MAX_SWF_FILE_SIZE}"/>
         <property name="maxConversionTime" value="${maxConversionTime}"/>
+        <property name="bigPdfSize" value="${bigPdfSize}"/>
+        <property name="maxBigPdfPageSize" value="${maxBigPdfPageSize}"/>
         <property name="swfSlidesGenerationProgressNotifier" ref="swfSlidesGenerationProgressNotifier"/>
         <property name="swfSlidesRequired" value="${swfSlidesRequired}"/>
         <property name="svgImagesRequired" value="${svgImagesRequired}"/>

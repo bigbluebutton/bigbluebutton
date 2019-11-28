@@ -1,4 +1,4 @@
-import React from 'react';
+import { Component } from 'react';
 import { withTracker } from 'meteor/react-meteor-data';
 import Auth from '/imports/ui/services/auth';
 import logger from '/imports/startup/client/logger';
@@ -6,21 +6,24 @@ import GroupChat from '/imports/api/group-chat';
 import Users from '/imports/api/users';
 import Annotations from '/imports/api/annotations';
 import AnnotationsTextService from '/imports/ui/components/whiteboard/annotations/text/service';
-import AnnotationsLocal from '/imports/ui/components/whiteboard/service';
-import mapUser from '/imports/ui/services/user/mapUser';
+import AnnotationsLocal, { initAnnotationsStreamListener } from '/imports/ui/components/whiteboard/service';
+import { initCursorStreamListener } from '/imports/ui/components/cursor/service';
+
 
 const CHAT_CONFIG = Meteor.settings.public.chat;
+const ROLE_MODERATOR = Meteor.settings.public.user.role_moderator;
 const CHAT_ENABLED = CHAT_CONFIG.enabled;
 const PUBLIC_GROUP_CHAT_ID = CHAT_CONFIG.public_group_id;
 const PUBLIC_CHAT_TYPE = CHAT_CONFIG.type_public;
+const TYPING_INDICATOR_ENABLED = CHAT_CONFIG.typingIndicator.enabled;
 const SUBSCRIPTIONS = [
-  'users', 'meetings', 'polls', 'presentations', 'slides', 'captions',
+  'users', 'meetings', 'polls', 'presentations', 'slides', 'slide-positions', 'captions',
   'voiceUsers', 'whiteboard-multi-user', 'screenshare', 'group-chat',
-  'presentation-pods', 'users-settings', 'guestUser', 'users-infos', 'note',
-  'network-information', 'ping-pong',
+  'presentation-pods', 'users-settings', 'guestUser', 'users-infos', 'note', 'meeting-time-remaining',
+  'network-information', 'ping-pong', 'local-settings', 'users-typing', 'record-meetings', 'video-streams',
 ];
 
-class Subscriptions extends React.Component {
+class Subscriptions extends Component {
   componentDidUpdate() {
     const { subscriptionsReady } = this.props;
     if (subscriptionsReady) {
@@ -54,7 +57,9 @@ export default withTracker(() => {
   };
 
   let subscriptionsHandlers = SUBSCRIPTIONS.map((name) => {
-    if (!CHAT_ENABLED && name.indexOf('chat') !== -1) return;
+    if ((!TYPING_INDICATOR_ENABLED && name.indexOf('typing') !== -1)
+      || (!CHAT_ENABLED && name.indexOf('chat') !== -1)) return;
+
     return Meteor.subscribe(
       name,
       credentials,
@@ -83,13 +88,15 @@ export default withTracker(() => {
     subscriptionsHandlers.push(groupChatMessageHandler);
   }
 
-  const User = Users.findOne({ intId: requesterUserId });
+  const User = Users.findOne({ intId: requesterUserId }, { fields: { role: 1 } });
 
   if (User) {
-    const mappedUser = mapUser(User);
-    Meteor.subscribe('users', credentials, mappedUser.isModerator, subscriptionErrorHandler);
-    Meteor.subscribe('breakouts', credentials, mappedUser.isModerator, subscriptionErrorHandler);
-    Meteor.subscribe('meetings', credentials, mappedUser.isModerator, subscriptionErrorHandler);
+    const userIsModerator = User.role === ROLE_MODERATOR;
+    Meteor.subscribe('users', credentials, userIsModerator, subscriptionErrorHandler);
+    Meteor.subscribe('breakouts', credentials, userIsModerator, subscriptionErrorHandler);
+    Meteor.subscribe('meetings', credentials, userIsModerator, subscriptionErrorHandler);
+    initAnnotationsStreamListener();
+    initCursorStreamListener();
   }
 
   const annotationsHandler = Meteor.subscribe('annotations', credentials, {

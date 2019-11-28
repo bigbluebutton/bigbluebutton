@@ -1,6 +1,5 @@
 package org.bigbluebutton.core.models
 
-import org.bigbluebutton.common2.domain.UserVO
 import com.softwaremill.quicklens._
 
 object RegisteredUsers {

@@ -9,6 +9,10 @@ const initialState = {
     width: 0,
     height: 0,
   },
+  videoListSize: {
+    width: 0,
+    height: 0,
+  },
   initialRef: {
     x: 0,
     y: 0,
@@ -24,7 +28,7 @@ const initialState = {
   dragging: false,
   videoRef: null,
   videoListRef: null,
-  isFullscreen: false,
+  isCameraFullscreen: false,
 };
 
 const reducer = (state, action) => {
@@ -51,6 +55,15 @@ const reducer = (state, action) => {
       return {
         ...state,
         mediaSize: {
+          width: action.value.width,
+          height: action.value.height,
+        },
+      };
+    }
+    case 'setVideoListSize': {
+      return {
+        ...state,
+        videoListSize: {
           width: action.value.width,
           height: action.value.height,
         },
@@ -113,16 +126,10 @@ const reducer = (state, action) => {
         dragging: false,
       };
     }
-    case 'onFullscreen': {
+    case 'setIsCameraFullscreen': {
       return {
         ...state,
-        isFullscreen: true,
-      };
-    }
-    case 'offFullscreen': {
-      return {
-        ...state,
-        isFullscreen: false,
+        isCameraFullscreen: action.value,
       };
     }
     default: {

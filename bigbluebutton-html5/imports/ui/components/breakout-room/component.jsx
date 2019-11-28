@@ -3,6 +3,7 @@ import { defineMessages, injectIntl } from 'react-intl';
 import _ from 'lodash';
 import Button from '/imports/ui/components/button/component';
 import { Session } from 'meteor/session';
+import logger from '/imports/startup/client/logger';
 import { styles } from './styles';
 import BreakoutRoomContainer from './breakout-remaining-time/container';
 
@@ -21,35 +22,64 @@ const intlMessages = defineMessages({
   },
   breakoutRoom: {
     id: 'app.createBreakoutRoom.room',
-    description: 'breakout duration time',
+    description: 'breakout room',
   },
   breakoutJoin: {
     id: 'app.createBreakoutRoom.join',
-    description: 'breakout duration time',
+    description: 'label for join breakout room',
   },
   breakoutJoinAudio: {
     id: 'app.createBreakoutRoom.joinAudio',
-    description: 'breakout duration time',
+    description: 'label for option to transfer audio',
   },
   breakoutReturnAudio: {
     id: 'app.createBreakoutRoom.returnAudio',
-    description: 'breakout duration time',
+    description: 'label for option to return audio',
   },
   generatingURL: {
     id: 'app.createBreakoutRoom.generatingURL',
-    description: 'breakout duration time',
+    description: 'label for generating breakout room url',
   },
   generatedURL: {
     id: 'app.createBreakoutRoom.generatedURL',
-    description: 'breakout duration time',
+    description: 'label for generate breakout room url',
   },
   endAllBreakouts: {
     id: 'app.createBreakoutRoom.endAllBreakouts',
-    description: 'breakout duration time',
+    description: 'Button label to end all breakout rooms',
+  },
+  alreadyConnected: {
+    id: 'app.createBreakoutRoom.alreadyConnected',
+    description: 'label for the user that is already connected to breakout room',
   },
 });
 
 class BreakoutRoom extends PureComponent {
+  static sortById(a, b) {
+    if (a.userId > b.userId) {
+      return 1;
+    }
+
+    if (a.userId < b.userId) {
+      return -1;
+    }
+
+    return 0;
+  }
+
+  static sortUsersByName(a, b) {
+    const aName = a.name.toLowerCase();
+    const bName = b.name.toLowerCase();
+
+    if (aName < bName) {
+      return -1;
+    } if (aName > bName) {
+      return 1;
+    }
+
+    return 0;
+  }
+
   constructor(props) {
     super(props);
     this.renderBreakoutRooms = this.renderBreakoutRooms.bind(this);
@@ -125,11 +155,13 @@ class BreakoutRoom extends PureComponent {
     this.setState({ joinedAudioOnly: false, breakoutId });
   }
 
-  renderUserActions(breakoutId, number) {
+  renderUserActions(breakoutId, joinedUsers, number) {
     const {
       isMicrophoneUser,
-      isModerator,
+      amIModerator,
       intl,
+      isUserInBreakoutRoom,
+      exitAudio,
     } = this.props;
 
     const {
@@ -139,20 +171,49 @@ class BreakoutRoom extends PureComponent {
       waiting,
     } = this.state;
 
-    const moderatorJoinedAudio = isMicrophoneUser && isModerator;
+    const moderatorJoinedAudio = isMicrophoneUser && amIModerator;
     const disable = waiting && requestedBreakoutId !== breakoutId;
     const audioAction = joinedAudioOnly
-      ? () => this.returnBackToMeeeting(breakoutId)
-      : () => this.transferUserToBreakoutRoom(breakoutId);
+      ? () => {
+        this.returnBackToMeeeting(breakoutId);
+        return logger.debug({
+          logCode: 'breakoutroom_return_main_audio',
+          extraInfo: { logType: 'user_action' },
+        }, 'Returning to main audio (breakout room audio closed)');
+      }
+      : () => {
+        this.transferUserToBreakoutRoom(breakoutId);
+        return logger.debug({
+          logCode: 'breakoutroom_join_audio_from_main_room',
+          extraInfo: { logType: 'user_action' },
+        }, 'joining breakout room audio (main room audio closed)');
+      };
     return (
       <div className={styles.breakoutActions}>
-        <Button
-          label={intl.formatMessage(intlMessages.breakoutJoin)}
-          aria-label={`${intl.formatMessage(intlMessages.breakoutJoin)} ${number}`}
-          onClick={() => this.getBreakoutURL(breakoutId)}
-          disabled={disable}
-          className={styles.joinButton}
-        />
+        {isUserInBreakoutRoom(joinedUsers)
+          ? (
+            <span className={styles.alreadyConnected}>
+              {intl.formatMessage(intlMessages.alreadyConnected)}
+            </span>
+          )
+          : (
+            <Button
+              label={intl.formatMessage(intlMessages.breakoutJoin)}
+              aria-label={`${intl.formatMessage(intlMessages.breakoutJoin)} ${number}`}
+              onClick={() => {
+                this.getBreakoutURL(breakoutId);
+                exitAudio();
+                logger.debug({
+                  logCode: 'breakoutroom_join',
+                  extraInfo: { logType: 'user_action' },
+                }, 'joining breakout room closed audio in the main room');
+              }
+              }
+              disabled={disable}
+              className={styles.joinButton}
+            />
+          )
+        }
         {
           moderatorJoinedAudio
             ? [
@@ -161,12 +222,13 @@ class BreakoutRoom extends PureComponent {
                 <Button
                   label={
                     moderatorJoinedAudio
-                    && stateBreakoutId === breakoutId
-                    && joinedAudioOnly
+                      && stateBreakoutId === breakoutId
+                      && joinedAudioOnly
                       ? intl.formatMessage(intlMessages.breakoutReturnAudio)
                       : intl.formatMessage(intlMessages.breakoutJoinAudio)
                   }
                   className={styles.button}
+                  key={`join-audio-${breakoutId}`}
                   onClick={audioAction}
                 />
               ),
@@ -177,11 +239,11 @@ class BreakoutRoom extends PureComponent {
     );
   }
 
+
   renderBreakoutRooms() {
     const {
       breakoutRooms,
       intl,
-      getUsersByBreakoutId,
     } = this.props;
 
     const {
@@ -190,25 +252,48 @@ class BreakoutRoom extends PureComponent {
     } = this.state;
 
     const roomItems = breakoutRooms.map(breakout => (
-      <div className={styles.content} key={`breakoutRoomList-${breakout.breakoutId}`}>
-        <span aria-hidden>
-          {intl.formatMessage(intlMessages.breakoutRoom, breakout.sequence.toString())}
-          <span className={styles.usersAssignedNumberLabel}>
-            (
-            {getUsersByBreakoutId(breakout.breakoutId).count()}
-            )
+      <div
+        className={styles.breakoutItems}
+        key={`breakoutRoomItems-${breakout.breakoutId}`}
+      >
+        <div className={styles.content} key={`breakoutRoomList-${breakout.breakoutId}`}>
+          <span aria-hidden>
+            {intl.formatMessage(intlMessages.breakoutRoom, breakout.sequence.toString())}
+            <span className={styles.usersAssignedNumberLabel}>
+              (
+              {breakout.joinedUsers.length}
+              )
+            </span>
           </span>
-        </span>
-        {waiting && requestedBreakoutId === breakout.breakoutId ? (
-          <span>
-            {intl.formatMessage(intlMessages.generatingURL)}
-            <span className={styles.connectingAnimation} />
-          </span>
-        ) : this.renderUserActions(breakout.breakoutId, breakout.sequence.toString())}
+          {waiting && requestedBreakoutId === breakout.breakoutId ? (
+            <span>
+              {intl.formatMessage(intlMessages.generatingURL)}
+              <span className={styles.connectingAnimation} />
+            </span>
+          ) : this.renderUserActions(
+            breakout.breakoutId,
+            breakout.joinedUsers,
+            breakout.sequence.toString(),
+          )}
+        </div>
+        <div className={styles.joinedUserNames}>
+          {breakout.joinedUsers
+            .sort(BreakoutRoom.sortById)
+            .filter((value, idx, arr) => !(value.userId === (arr[idx + 1] || {}).userId))
+            .sort(BreakoutRoom.sortUsersByName)
+            .map(u => u.name)
+            .join(', ')}
+        </div>
       </div>
     ));
 
-    return roomItems;
+    return (
+      <div className={styles.breakoutColumn}>
+        <div className={styles.breakoutScrollableList}>
+          {roomItems}
+        </div>
+      </div>
+    );
   }
 
   renderDuration() {
@@ -225,7 +310,7 @@ class BreakoutRoom extends PureComponent {
 
   render() {
     const {
-      isMeteorConnected, intl, endAllBreakouts, isModerator, closeBreakoutPanel,
+      isMeteorConnected, intl, endAllBreakouts, amIModerator, closeBreakoutPanel,
     } = this.props;
     return (
       <div className={styles.panel}>
@@ -239,7 +324,7 @@ class BreakoutRoom extends PureComponent {
         {this.renderBreakoutRooms()}
         {this.renderDuration()}
         {
-          isModerator
+          amIModerator
             ? (
               <Button
                 color="primary"

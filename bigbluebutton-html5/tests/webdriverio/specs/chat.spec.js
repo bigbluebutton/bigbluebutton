@@ -10,10 +10,7 @@ const WAIT_TIME = 10000;
 const message = 'Hello';
 
 const loginWithoutAudio = function (username) {
-  // login
-  LandingPage.open();
-  browser.setValue(LandingPage.usernameInputSelector, username);
-  LandingPage.joinWithEnterKey();
+  LandingPage.joinClient(username);
 
   // close audio modal
   browser.waitForExist(ModalPage.modalCloseSelector, WAIT_TIME);

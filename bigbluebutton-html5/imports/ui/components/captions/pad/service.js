@@ -9,14 +9,9 @@ const getLang = () => {
   return locale ? locale.toLowerCase() : '';
 };
 
-const getCurrentUser = () => {
-  const User = Users.findOne({ userId: Auth.userID });
-  return User;
-};
-
 const getPadParams = () => {
   const { config } = NOTE_CONFIG;
-  const User = getCurrentUser();
+  const User = Users.findOne({ userId: Auth.userID }, { fields: { name: 1, color: 1 } });
   config.userName = User.name;
   config.userColor = User.color;
   config.lang = getLang();
@@ -43,5 +38,4 @@ const getPadURL = (padId, readOnlyPadId, ownerId) => {
 
 export default {
   getPadURL,
-  getCurrentUser,
 };

@@ -1,6 +1,6 @@
 import { Meteor } from 'meteor/meteor';
 import { check } from 'meteor/check';
-import Meetings from '/imports/api/meetings';
+import Meetings, { RecordMeetings, MeetingTimeRemaining } from '/imports/api/meetings';
 import Users from '/imports/api/users';
 import Logger from '/imports/startup/server/logger';
 
@@ -46,3 +46,33 @@ function publish(...args) {
 }
 
 Meteor.publish('meetings', publish);
+
+function recordMeetings(credentials) {
+  const { meetingId, requesterUserId, requesterToken } = credentials;
+  check(meetingId, String);
+  check(requesterUserId, String);
+  check(requesterToken, String);
+
+  return RecordMeetings.find({ meetingId });
+}
+function recordPublish(...args) {
+  const boundRecordMeetings = recordMeetings.bind(this);
+  return boundRecordMeetings(...args);
+}
+
+Meteor.publish('record-meetings', recordPublish);
+
+function meetingTimeRemaining(credentials) {
+  const { meetingId, requesterUserId, requesterToken } = credentials;
+  check(meetingId, String);
+  check(requesterUserId, String);
+  check(requesterToken, String);
+
+  return MeetingTimeRemaining.find({ meetingId });
+}
+function timeRemainingPublish(...args) {
+  const boundtimeRemaining = meetingTimeRemaining.bind(this);
+  return boundtimeRemaining(...args);
+}
+
+Meteor.publish('meeting-time-remaining', timeRemainingPublish);

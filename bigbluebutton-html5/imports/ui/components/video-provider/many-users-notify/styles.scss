@@ -1,9 +1,6 @@
 @import '/imports/ui/components/breakout-room/styles';
 @import "/imports/ui/stylesheets/variables/_all";
 
-p {
-  margin: 0;
-}
 .buttonWrapper,
 .button,
 .joinButton {
@@ -19,4 +16,8 @@ p {
 
 .button {
   @extend .button;
+}
+
+.info {
+  margin: 0;
 }

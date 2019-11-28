@@ -3,10 +3,10 @@
 // events, but only the first time they happen.
 
 const redis = require("redis");
-const config = require('../config.js');
+const config = require('config');
 var target_meeting = null;
 var events_printed = [];
-var subscriber = redis.createClient(process.env.REDIS_PORT || config.redis.port, process.env.REDIS_HOST || config.redis.host);
+var subscriber = redis.createClient(config.get(redis.port), config.get(redis.host));
 
 subscriber.on("psubscribe", function(channel, count) {
   console.log("subscribed to " + channel);
@@ -30,8 +30,8 @@ subscriber.on("pmessage", function(pattern, channel, message) {
   }
 });
 
-for (let k in config.hooks.channels) {
-  const channel = config.hooks.channels[k];
+for (i = 0; i < config.get(hooks.channels); ++i) {
+  const channel = config.get(hooks.channels)[i];
   subscriber.psubscribe(channel);
 }
 

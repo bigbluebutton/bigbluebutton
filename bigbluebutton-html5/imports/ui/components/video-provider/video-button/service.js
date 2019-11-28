@@ -1,15 +1,17 @@
 import Settings from '/imports/ui/services/settings';
-import mapUser from '/imports/ui/services/user/mapUser';
 import Auth from '/imports/ui/services/auth';
 import Users from '/imports/api/users/';
+import VideoStreams from '/imports/api/video-streams/';
 import VideoService from '../service';
 
-const baseName = Meteor.settings.public.app.cdn + Meteor.settings.public.app.basename;
+const PUBLIC_SETTINGS = Meteor.settings.public;
+const baseName = PUBLIC_SETTINGS.app.cdn + PUBLIC_SETTINGS.app.basename;
+const ROLE_MODERATOR = PUBLIC_SETTINGS.user.role_moderator;
 
 const isSharingVideo = () => {
   const userId = Auth.userID;
-  const user = Users.findOne({ userId });
-  return !!user.hasStream;
+  const videoStreams = VideoStreams.findOne({ userId }, { fields: {} });
+  return !!videoStreams;
 };
 
 const videoShareAllowed = () => Settings.dataSaving.viewParticipantsWebcams;
@@ -18,9 +20,9 @@ const isDisabled = () => {
   const isWaitingResponse = VideoService.isWaitingResponse();
   const isConnected = VideoService.isConnected();
 
-  const lockCam = VideoService.isLocked();
-  const user = Users.findOne({ userId: Auth.userID });
-  const userLocked = mapUser(user).isLocked;
+  const lockCam = VideoService.webcamsLocked();
+  const user = Users.findOne({ userId: Auth.userID }, { fields: { locked: 1, role: 1 } });
+  const userLocked = user.locked && user.role !== ROLE_MODERATOR;
 
   const isConnecting = (!isSharingVideo && isConnected);
 
