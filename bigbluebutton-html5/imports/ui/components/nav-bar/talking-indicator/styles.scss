@@ -56,6 +56,10 @@
   margin-right: var(--border-radius);
   height: var(--talker-height);
   box-shadow: none !important;
+
+  @include mq($phone-landscape) {
+    height: 1rem;
+  }
   
   i,
   span {
@@ -70,6 +74,10 @@
     margin: 0 0 0 0 !important;
     max-width: var(--talker-max-width);
 
+    @include mq($phone-landscape) {
+      font-size: .575rem !important;
+    }
+
     [dir="rtl"]  & {
       margin-left: var(--talker-margin-sm);
     }
@@ -83,6 +91,12 @@
     border-radius: 50%;
     position: relative;
     right: var(--talker-margin-sm);
+
+    @include mq($phone-landscape) {
+      height: .5rem;
+      width: .5rem;
+      font-size: .575rem;
+    }
 
     [dir="rtl"]  & {
       right: calc(var(--talker-margin-sm) * -1);
