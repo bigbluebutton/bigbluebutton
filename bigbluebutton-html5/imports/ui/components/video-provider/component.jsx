@@ -504,6 +504,7 @@ class VideoProvider extends Component {
       if (peer && peer.peerConnection) {
         const conn = peer.peerConnection;
         conn.oniceconnectionstatechange = this._getOnIceConnectionStateChangeCallback(cameraId, isLocal);
+        VideoService.monitor(conn);
       }
     }
   }

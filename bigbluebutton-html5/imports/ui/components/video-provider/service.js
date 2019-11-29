@@ -8,12 +8,14 @@ import VideoStreams from '/imports/api/video-streams';
 import UserListService from '/imports/ui/components/user-list/service';
 import { makeCall } from '/imports/ui/services/api';
 import { notify } from '/imports/ui/services/notification';
+import { monitorVideoConnection } from '/imports/utils/stats';
 import logger from '/imports/startup/client/logger';
 
 const CAMERA_PROFILES = Meteor.settings.public.kurento.cameraProfiles;
 
 const SFU_URL = Meteor.settings.public.kurento.wsUrl;
 const ROLE_MODERATOR = Meteor.settings.public.user.role_moderator;
+const ENABLE_NETWORK_MONITORING = Meteor.settings.public.networkMonitoring.enableNetworkMonitoring;
 
 const TOKEN = '_';
 
@@ -279,6 +281,10 @@ class VideoService {
   getRole(isLocal) {
     return isLocal ? 'share' : 'viewer';
   }
+
+  monitor(conn) {
+    if (ENABLE_NETWORK_MONITORING) monitorVideoConnection(conn);
+  }
 }
 
 const videoService = new VideoService();
@@ -301,6 +307,7 @@ export default {
   processInboundIceQueue: (peer, cameraId) => videoService.processInboundIceQueue(peer, cameraId),
   getRole: isLocal => videoService.getRole(isLocal),
   getSharedDevices: () => videoService.getSharedDevices(),
+  monitor: conn => videoService.monitor(conn),
   onBeforeUnload: () => videoService.onBeforeUnload(),
   notify: message => notify(message, 'error', 'video'),
 };
