@@ -3,20 +3,25 @@ import logger from '/imports/startup/client/logger';
 STATS_LENGTH = 5;
 STATS_INTERVAL = 2000;
 
+const stop = callback => {
+  logger.info(
+    {
+      logCode: 'stats_stop_monitor'
+    },
+    'Lost peer connection. Stopping monitor'
+  );
+  callback(clearResult());
+  return;
+};
+
 const collect = (conn, callback) => {
   let stats = [];
 
   const monitor = (conn, stats) => {
-    if (!conn) {
-      callback(clearResult());
-      return;
-    }
+    if (!conn) return stop(callback);
 
     conn.getStats().then(results => {
-      if (!results) {
-        callback(clearResult());
-        return;
-      }
+      if (!results) return stop(callback);
 
       let inboundRTP;
       let remoteInboundRTP;
@@ -89,7 +94,19 @@ const buildResult = (interval) => {
 };
 
 const clearResult = () => {
-  return { loss: 0 };
+  return {
+    packets: {
+      received: 0,
+      lost: 0
+    },
+    bytes: {
+      received: 0
+    },
+    jitter: 0,
+    rate: 0,
+    loss: 0,
+    MOS: 0
+  };
 };
 
 const diff = (single, first, last) => Math.abs((single ? 0 : last) - first);
