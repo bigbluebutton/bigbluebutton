@@ -308,16 +308,15 @@ class WebcamDraggable extends Component {
     const overlayClassName = cx({
       [styles.overlay]: true,
       [styles.hideOverlay]: hideOverlay,
-      [styles.floatingOverlay]: (singleWebcam && placement === 'floating') || dragging,
-      [styles.autoWidth]: singleWebcam,
-      [styles.fullWidth]: (singleWebcam
-        && (placement === 'top' || placement === 'bottom')
-        && !dragging)
-        || !singleWebcam
+      [styles.floatingOverlay]: dragging,
+      // [styles.autoWidth]: singleWebcam,
+      [styles.fullWidth]: (
+        (placement === 'top' || placement === 'bottom')
+        && !(placement === 'left' || placement === 'right')
+      )
         || swapLayout,
-      [styles.fullHeight]: !singleWebcam && (placement === 'right' || placement === 'left'),
-      [styles.overlayToTop]: (!singleWebcam && placement === 'floating')
-        || (placement === 'top' && !dragging),
+      [styles.fullHeight]: placement === 'right' || placement === 'left',
+      [styles.overlayToTop]: placement === 'top' && !dragging,
       [styles.overlayToRight]: placement === 'right' && !dragging,
       [styles.overlayToBottom]: placement === 'bottom' && !dragging,
       [styles.overlayToLeft]: placement === 'left' && !dragging,
@@ -329,13 +328,13 @@ class WebcamDraggable extends Component {
         )
         && layout === 'vertical'
       )
-      || (
-        (
-          placement === 'top'
-          || placement === 'bottom'
-        )
-        && layout === 'horizontal'
-      ),
+        || (
+          (
+            placement === 'top'
+            || placement === 'bottom'
+          )
+          && layout === 'horizontal'
+        ),
     });
 
     const dropZoneTopClassName = cx({
