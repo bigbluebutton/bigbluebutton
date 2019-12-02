@@ -5,7 +5,6 @@ import VoiceUsers from '/imports/api/voice-users';
 import SIPBridge from '/imports/api/audio/client/bridge/sip';
 import logger from '/imports/startup/client/logger';
 import { notify } from '/imports/ui/services/notification';
-import browser from 'browser-detect';
 import playAndRetry from '/imports/utils/mediaElementPlayRetry';
 import iosWebviewAudioPolyfills from '/imports/utils/ios-webview-audio-polyfills';
 import { tryGenerateIceCandidates } from '/imports/utils/safari-webrtc';
@@ -153,7 +152,6 @@ class AudioManager {
     this.isListenOnly = true;
     this.isEchoTest = false;
 
-    const { name } = browser();
     // The kurento bridge isn't a full audio bridge yet, so we have to differ it
     const bridge = this.useKurento ? this.listenOnlyBridge : this.bridge;
 
@@ -200,18 +198,26 @@ class AudioManager {
         clearTimeout(iceGatheringTimeout);
       }
 
+      let errString;
+      if (typeof err === 'string' || err instanceof String) {
+        errString = err;
+      } else {
+        errString = err.type ? err.type : JSON.stringify(err);
+      }
+
       logger.error({
         logCode: 'audiomanager_listenonly_error',
         extraInfo: {
           error: err,
           retries,
         },
-      }, 'Listen only error');
+      }, `Listen only error, error:${errString}`);
 
       throw error;
     };
 
-    logger.info({ logCode: 'audiomanager_join_listenonly', extraInfo: { logType: 'user_action' } }, 'user requested to connect to audio conference as listen only');
+    logger.info({ logCode: 'audiomanager_join_listenonly', extraInfo: { logType: 'user_action' } },
+      'user requested to connect to audio conference as listen only');
 
     window.addEventListener('audioPlayFailed', this.handlePlayElementFailed);
 
