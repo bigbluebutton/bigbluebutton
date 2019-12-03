@@ -35,8 +35,8 @@ object Dependencies {
 
     val googleGson = "com.google.code.gson" % "gson" % Versions.gson
     val jacksonModule = "com.fasterxml.jackson.module" %% "jackson-module-scala" % Versions.jackson
-    val sl4jSimple = "org.slf4j" % "slf4j-simple" % Versions.sl4j % "runtime"
-    val sl4jApi = "org.slf4j" % "slf4j-api" % Versions.sl4j % "runtime"
+    val sl4jSimple = "org.slf4j" % "slf4j-simple" % Versions.sl4j
+    val sl4jApi = "org.slf4j" % "slf4j-api" % Versions.sl4j
     val apachePool2 = "org.apache.commons" % "commons-pool2" % Versions.pool
     val commonCodec = "commons-codec" % "commons-codec" % Versions.codec
     val lettuceCore = "io.lettuce" % "lettuce-core" % Versions.lettuce

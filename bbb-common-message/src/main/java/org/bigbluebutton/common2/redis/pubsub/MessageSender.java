@@ -19,7 +19,7 @@ import io.lettuce.core.pubsub.StatefulRedisPubSubConnection;
 import io.lettuce.core.support.ConnectionPoolSupport;
 
 public class MessageSender extends RedisAwareCommunicator {
-  private static Logger log = LoggerFactory.getLogger(MessageSender.class);
+    private final Logger log = LoggerFactory.getLogger(MessageSender.class);
 
     GenericObjectPool<StatefulRedisPubSubConnection<String, String>> connectionPool;
 

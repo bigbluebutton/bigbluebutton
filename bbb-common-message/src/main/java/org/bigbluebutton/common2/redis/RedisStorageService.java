@@ -34,7 +34,7 @@ import io.lettuce.core.api.sync.RedisCommands;
 
 public class RedisStorageService extends RedisAwareCommunicator {
 
-    private static Logger log = LoggerFactory.getLogger(RedisStorageService.class);
+    private final Logger log = LoggerFactory.getLogger(RedisStorageService.class);
 
     StatefulRedisConnection<String, String> connection;
 

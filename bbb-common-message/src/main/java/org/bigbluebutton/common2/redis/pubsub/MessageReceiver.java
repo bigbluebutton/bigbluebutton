@@ -18,7 +18,7 @@ import io.lettuce.core.pubsub.api.async.RedisPubSubAsyncCommands;
 import io.lettuce.core.support.ConnectionPoolSupport;
 
 public class MessageReceiver extends RedisAwareCommunicator {
-  private static Logger log = LoggerFactory.getLogger(MessageReceiver.class);
+    private final Logger log = LoggerFactory.getLogger(MessageReceiver.class);
 
     private ReceivedMessageHandler handler;
 
