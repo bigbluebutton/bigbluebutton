@@ -145,9 +145,22 @@ class BigBlueButtonActor(
   }
 
   private def handleGetAllMeetingsReqMsg(msg: GetAllMeetingsReqMsg): Unit = {
-    RunningMeetings.meetings(meetings).foreach(m => {
-      m.actorRef ! msg
-    })
+    val liveMeetings = RunningMeetings.meetings(meetings)
+    if (liveMeetings.size == 0) {
+      val routing = collection.immutable.HashMap("sender" -> "bbb-apps-akka")
+      val envelope = BbbCoreEnvelope(GetAllMeetingsRepMsg.NAME, routing)
+      val header = BbbCoreBaseHeader(GetAllMeetingsRepMsg.NAME)
+
+      val body = GetAllMeetingsRepMsgBody(Vector())
+      val event = GetAllMeetingsRepMsg(header, body)
+      val msgEvent = BbbCommonEnvCoreMsg(envelope, event)
+      outGW.send(msgEvent)
+    } else {
+      RunningMeetings.meetings(meetings).foreach(m => {
+        m.actorRef ! msg
+      })
+    }
+
   }
 
   private def handleCheckAlivePingSysMsg(msg: CheckAlivePingSysMsg): Unit = {

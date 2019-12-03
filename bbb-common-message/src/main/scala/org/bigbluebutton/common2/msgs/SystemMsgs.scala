@@ -37,6 +37,13 @@ case class GetAllMeetingsReqMsg(
 ) extends BbbCoreMsg
 case class GetAllMeetingsReqMsgBody(requesterId: String)
 
+object GetAllMeetingsRepMsg { val NAME = "GetAllMeetingsRepMsg" }
+case class GetAllMeetingsRepMsg(
+    header: BbbCoreBaseHeader,
+    body:   GetAllMeetingsRepMsgBody
+) extends BbbCoreMsg
+case class GetAllMeetingsRepMsgBody(meetings: Vector[String])
+
 object PubSubPingSysReqMsg { val NAME = "PubSubPingSysReqMsg" }
 case class PubSubPingSysReqMsg(
     header: BbbCoreBaseHeader,
