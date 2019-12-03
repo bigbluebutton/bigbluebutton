@@ -53,7 +53,7 @@ mongo@1.8.0-beta190.4
 mongo-decimal@0.1.1
 mongo-dev-server@1.1.0
 mongo-id@1.0.7
-nathantreid:css-modules@3.1.4
+nathantreid:css-modules@4.1.0
 npm-mongo@3.3.0-beta190.4
 ordered-dict@1.1.0
 promise@0.11.2
