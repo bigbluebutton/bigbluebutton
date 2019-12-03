@@ -41,7 +41,14 @@ export default class KurentoAudioBridge extends BaseAudioBridge {
   static normalizeError(error = {}) {
     const errorMessage = error.name || error.message || error.reason || 'Unknown error';
     const errorCode = error.code || undefined;
-    const errorReason = error.reason || error.id || 'Undefined reason';
+    let errorReason = error.reason || error.id || 'Undefined reason';
+
+    // HOPEFULLY TEMPORARY
+    // The errors are often just strings so replace the errorReason if that's the case
+    if (typeof error === 'string') {
+      errorReason = error;
+    }
+    // END OF HOPEFULLY TEMPORARY
 
     return { errorMessage, errorCode, errorReason };
   }
@@ -132,6 +139,7 @@ export default class KurentoAudioBridge extends BaseAudioBridge {
             this.callback({
               status: this.baseCallStates.failed,
               error: this.baseErrorCodes.CONNECTION_ERROR,
+              bridgeError: 'No WebRTC Peer',
             });
           }
 
@@ -143,13 +151,14 @@ export default class KurentoAudioBridge extends BaseAudioBridge {
 
         const onFail = (error) => {
           const { errorMessage, errorCode, errorReason } = KurentoAudioBridge.normalizeError(error);
+
           // Listen only connected successfully already and dropped mid-call.
           // Try to reconnect ONCE (binded to reconnectOngoing flag)
           if (this.hasSuccessfullyStarted && !this.reconnectOngoing) {
             logger.error({
               logCode: 'listenonly_error_try_to_reconnect',
               extraInfo: { errorMessage, errorCode, errorReason },
-            }, 'Listen only failed for an ongoing session, try to reconnect');
+            }, `Listen only failed for an ongoing session, try to reconnect. - reason: ${errorReason}`);
             window.kurentoExitAudio();
             this.callback({ status: this.baseCallStates.reconnecting });
             this.reconnectOngoing = true;
@@ -160,6 +169,7 @@ export default class KurentoAudioBridge extends BaseAudioBridge {
               this.callback({
                 status: this.baseCallStates.failed,
                 error: this.baseErrorCodes.CONNECTION_ERROR,
+                bridgeError: 'Reconnect Timeout',
               });
               this.reconnectOngoing = false;
               this.hasSuccessfullyStarted = false;
@@ -181,12 +191,12 @@ export default class KurentoAudioBridge extends BaseAudioBridge {
               logger.error({
                 logCode: 'listenonly_error_failed_to_connect',
                 extraInfo: { errorMessage, errorCode, errorReason },
-              }, `Listen only failed when trying to start due to ${errorMessage}`);
+              }, `Listen only failed when trying to start due to ${errorReason}`);
             } else {
               logger.error({
                 logCode: 'listenonly_error_reconnect_failed',
                 extraInfo: { errorMessage, errorCode, errorReason },
-              }, `Listen only failed when trying to reconnect due to ${errorMessage}`);
+              }, `Listen only failed when trying to reconnect due to ${errorReason}`);
             }
 
             this.reconnectOngoing = false;
