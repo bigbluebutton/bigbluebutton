@@ -22,6 +22,7 @@ package org.bigbluebutton.common2.redis;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.apache.commons.codec.digest.DigestUtils;
 import io.lettuce.core.api.sync.BaseRedisCommands;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -31,11 +32,10 @@ import io.lettuce.core.RedisClient;
 import io.lettuce.core.RedisURI;
 import io.lettuce.core.api.StatefulRedisConnection;
 import io.lettuce.core.api.sync.RedisCommands;
-import org.apache.commons.codec.digest.DigestUtils;
 
 public class RedisStorageService extends RedisAwareCommunicator {
 
-    private static Logger log = LoggerFactory.getLogger(RedisStorageService.class);
+    private final Logger log = LoggerFactory.getLogger(RedisStorageService.class);
 
     StatefulRedisConnection<String, String> connection;
 

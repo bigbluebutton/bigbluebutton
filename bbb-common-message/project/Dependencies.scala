@@ -7,62 +7,62 @@ object Dependencies {
 
   object Versions {
     // Scala
-    val scala = "2.12.8"
-    val junit = "4.12"
-    val junitInterface = "0.11"
-    val scalactic = "3.0.3"
+    val scala = "2.13.4"
+    val junit = "5.7.0"
+    val scalactic = "3.2.3"
 
     // Libraries
-    val akkaVersion = "2.5.19"
-    val gson = "2.8.5"
-    val jackson = "2.9.7"
-    val sl4j = "1.7.25"
-    val red5 = "1.0.10-M9"
-    val pool = "2.8.0"
+    val akkaVersion = "2.6.10"
+    val gson = "2.8.6"
+    val jackson = "2.12.1"
+    val sl4j = "1.7.30"
+    val pool = "2.9.0"
+    val codec = "1.15"
 
     // Redis
-    val lettuce = "5.1.3.RELEASE"
+    val lettuce = "6.0.1.RELEASE"
 
     // Test
-    val scalaTest = "3.0.5"
+    val scalaTest = "3.2.3"
   }
 
   object Compile {
     val scalaLibrary = "org.scala-lang" % "scala-library" % Versions.scala
     val scalaCompiler = "org.scala-lang" % "scala-compiler" % Versions.scala
 
-    val akkaActor = "com.typesafe.akka" % "akka-actor_2.12" % Versions.akkaVersion
+    val akkaActor = "com.typesafe.akka" % "akka-actor_2.13" % Versions.akkaVersion
+    val akkaSl4fj = "com.typesafe.akka" % "akka-slf4j_2.13" % Versions.akkaVersion % "runtime"
 
     val googleGson = "com.google.code.gson" % "gson" % Versions.gson
     val jacksonModule = "com.fasterxml.jackson.module" %% "jackson-module-scala" % Versions.jackson
-    val sl4jApi = "org.slf4j" % "slf4j-api" % Versions.sl4j % "runtime"
-    val red5 = "org.red5" % "red5-server-common" % Versions.red5
+    val sl4jSimple = "org.slf4j" % "slf4j-simple" % Versions.sl4j
+    val sl4jApi = "org.slf4j" % "slf4j-api" % Versions.sl4j
     val apachePool2 = "org.apache.commons" % "commons-pool2" % Versions.pool
-
+    val commonCodec = "commons-codec" % "commons-codec" % Versions.codec
     val lettuceCore = "io.lettuce" % "lettuce-core" % Versions.lettuce
   }
 
   object Test {
     val scalaTest = "org.scalatest" %% "scalatest" % Versions.scalaTest % "test"
-    val junit = "junit" % "junit" % Versions.junit % "test"
-    val junitInteface = "com.novocode" % "junit-interface" % Versions.junitInterface % "test"
-    val scalactic = "org.scalactic" % "scalactic_2.12" % Versions.scalactic % "test"
+    val junit = "org.junit.jupiter" % "junit-jupiter-api" % Versions.junit % "test"
+    val scalactic = "org.scalactic" %% "scalactic" % Versions.scalactic % "test"
   }
 
   val testing = Seq(
     Test.scalaTest,
     Test.junit,
-    Test.junitInteface,
     Test.scalactic)
 
   val runtime = Seq(
     Compile.scalaLibrary,
     Compile.scalaCompiler,
     Compile.akkaActor,
+    Compile.akkaSl4fj,
     Compile.googleGson,
     Compile.jacksonModule,
+    Compile.sl4jSimple,
     Compile.sl4jApi,
-    Compile.red5,
     Compile.apachePool2,
+    Compile.commonCodec,
     Compile.lettuceCore) ++ testing
 }

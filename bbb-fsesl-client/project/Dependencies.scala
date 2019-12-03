@@ -7,14 +7,14 @@ object Dependencies {
 
   object Versions {
     // Scala
-    val scala = "2.12.8"
+    val scala = "2.13.4"
 
     // Libraries
     val netty = "3.2.10.Final"
     val logback = "1.2.3"
 
     // Test
-    val junit = "4.12"
+    val junit = "5.7.0"
   }
 
   object Compile {
@@ -26,7 +26,7 @@ object Dependencies {
   }
 
   object Test {
-    val junit = "junit" % "junit" % Versions.junit % "test"
+    val junit = "org.junit.jupiter" % "junit-jupiter-api" % Versions.junit % "test"
   }
 
   val testing = Seq(

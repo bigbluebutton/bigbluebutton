@@ -5,8 +5,8 @@ import java.util.concurrent.Executors;
 
 import org.apache.commons.pool2.impl.GenericObjectPool;
 import org.bigbluebutton.common2.redis.RedisAwareCommunicator;
-import org.red5.logging.Red5LoggerFactory;
 import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import io.lettuce.core.ClientOptions;
 import io.lettuce.core.RedisClient;
@@ -18,7 +18,7 @@ import io.lettuce.core.pubsub.api.async.RedisPubSubAsyncCommands;
 import io.lettuce.core.support.ConnectionPoolSupport;
 
 public class MessageReceiver extends RedisAwareCommunicator {
-    private static Logger log = Red5LoggerFactory.getLogger(MessageReceiver.class, "video");
+    private final Logger log = LoggerFactory.getLogger(MessageReceiver.class);
 
     private ReceivedMessageHandler handler;
 
@@ -28,7 +28,7 @@ public class MessageReceiver extends RedisAwareCommunicator {
 
     private volatile boolean receiveMessage = false;
 
-    private final String FROM_BBB_APPS_PATTERN = "from-akka-apps-redis-channel";
+    private final static String FROM_BBB_APPS_PATTERN = "from-akka-apps-redis-channel";
 
     public void start() {
         log.info("Ready to receive messages from Redis pubsub.");
@@ -48,6 +48,8 @@ public class MessageReceiver extends RedisAwareCommunicator {
                 createPoolingConfig());
 
         Runnable messageReceiver = new Runnable() {
+            private RedisFuture<Void> future;
+
             public void run() {
                 if (receiveMessage) {
                     try (StatefulRedisPubSubConnection<String, String> connection = connectionPool.borrowObject()) {
@@ -55,7 +57,7 @@ public class MessageReceiver extends RedisAwareCommunicator {
                             connection.addListener(new MessageListener());
 
                             RedisPubSubAsyncCommands<String, String> async = connection.async();
-                            RedisFuture<Void> future = async.subscribe(FROM_BBB_APPS_PATTERN);
+                            future = async.subscribe(FROM_BBB_APPS_PATTERN);
                         }
                     } catch (Exception e) {
                         log.error("Error resubscribing to channels: ", e);
@@ -87,7 +89,7 @@ public class MessageReceiver extends RedisAwareCommunicator {
 
         @Override
         public void message(String pattern, String channel, String message) {
-            log.debug("RECEIVED onPMessage" + channel + " message=\n" + message);
+            log.debug("RECEIVED onPMessage {} message=\n{}", channel, message);
             Runnable task = new Runnable() {
                 public void run() {
                     handler.handleMessage(pattern, channel, message);
@@ -99,22 +101,22 @@ public class MessageReceiver extends RedisAwareCommunicator {
 
         @Override
         public void subscribed(String channel, long count) {
-            log.debug("Subscribed to the channel: " + channel);
+            log.debug("Subscribed to the channel: {}", channel);
         }
 
         @Override
         public void psubscribed(String pattern, long count) {
-            log.debug("Subscribed to the pattern: " + pattern);
+            log.debug("Subscribed to the pattern: {}", pattern);
         }
 
         @Override
         public void unsubscribed(String channel, long count) {
-            log.debug("Unsubscribed from the channel: " + channel);
+            log.debug("Unsubscribed from the channel: {}", channel);
         }
 
         @Override
         public void punsubscribed(String pattern, long count) {
-            log.debug("Unsubscribed from the pattern: " + pattern);
+            log.debug("Unsubscribed from the pattern: {}", pattern);
         }
     }
 
