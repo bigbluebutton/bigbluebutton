@@ -75,7 +75,7 @@
     "redis": "~2.8.0",
     "sdp-transform": "2.7.0",
     "string-hash": "~1.1.3",
-    "tippy.js": "^3.4.1",
+    "tippy.js": "^5.1.1",
     "useragent": "^2.3.0",
     "winston": "^3.2.1",
     "yaml": "^1.6.0"
