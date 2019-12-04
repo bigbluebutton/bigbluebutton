@@ -27,22 +27,26 @@ module BigBlueButton
 
       def perform
         super do
-          @logger.info("Running publish worker for #{@meeting_id}/#{@format_name}")
+          @logger.info("Running publish worker for #{@full_id}:#{@format_name}")
 
           publish_script = File.expand_path("../../publish/#{@format_name}.rb", __FILE__)
-          if File.exists?(publish_script)
+          if File.exist?(publish_script)
             @publisher.put_publish_started(@format_name, @meeting_id)
 
             # If the publish directory exists, the script does nothing
-            FileUtils.rm_rf("#{@recording_dir}/publish/#{@format_name}/#{@meeting_id}")
-            self.remove_status_files
+            FileUtils.rm_rf("#{@recording_dir}/publish/#{@format_name}/#{@full_id}")
+            remove_status_files
 
             # For legacy reasons, the meeting ID passed to the publish script contains
             # the playback format name.
-            ret, step_time = self.run_script(publish_script, "-m", "#{@meeting_id}-#{@format_name}")
+            if @break_timestamp.nil?
+              ret, step_time = run_script(script, '-m', "#{@meeting_id}-#{@format_name}")
+            else
+              ret, step_time = run_script(script, '-m', "#{@meeting_id}-#{@format_name}", '-b', @break_timestamp)
+            end
             step_succeeded = (
-              ret == 0 &&
-              File.exists?(@published_done) && !File.exists?(@published_fail)
+              ret.zero? &&
+              File.exist?(@published_done) && !File.exist?(@published_fail)
             )
 
             props = BigBlueButton.read_props
@@ -54,18 +58,18 @@ module BigBlueButton
             raw_size = {}
             start_time = {}
             end_time = {}
-            metadata_xml_path = "#{published_dir}/#{@format_name}/#{@meeting_id}/metadata.xml"
-            if File.exists? metadata_xml_path
+            metadata_xml_path = "#{published_dir}/#{@format_name}/#{@full_id}/metadata.xml"
+            if File.exist?(metadata_xml_path)
               begin
                 doc = Hash.from_xml(File.open(metadata_xml_path))
-                playback = doc[:recording][:playback] if !doc[:recording][:playback].nil?
-                metadata = doc[:recording][:meta] if !doc[:recording][:meta].nil?
-                download = doc[:recording][:download] if !doc[:recording][:download].nil?
-                raw_size = doc[:recording][:raw_size] if !doc[:recording][:raw_size].nil?
-                start_time = doc[:recording][:start_time] if !doc[:recording][:start_time].nil?
-                end_time = doc[:recording][:end_time] if !doc[:recording][:end_time].nil?
+                playback = doc[:recording][:playback] unless doc[:recording][:playback].nil?
+                metadata = doc[:recording][:meta] unless doc[:recording][:meta].nil?
+                download = doc[:recording][:download] unless doc[:recording][:download].nil?
+                raw_size = doc[:recording][:raw_size] unless doc[:recording][:raw_size].nil?
+                start_time = doc[:recording][:start_time] unless doc[:recording][:start_time].nil?
+                end_time = doc[:recording][:end_time] unless doc[:recording][:end_time].nil?
               rescue Exception => e
-                BigBlueButton.logger.warn "An exception occurred while loading the extra information for the publish event"
+                BigBlueButton.logger.warn 'An exception occurred while loading the extra information for the publish event'
                 BigBlueButton.logger.warn e.message
                 e.backtrace.each do |traceline|
                   BigBlueButton.logger.warn traceline
@@ -77,14 +81,14 @@ module BigBlueButton
 
             @publisher.put_publish_ended(
               @format_name, @meeting_id, {
-                "success" => step_succeeded,
-                "step_time" => step_time,
-                "playback" => playback,
-                "metadata" => metadata,
-                "download" => download,
-                "raw_size" => raw_size,
-                "start_time" => start_time,
-                "end_time" => end_time
+                'success': step_succeeded,
+                'step_time': step_time,
+                'playback': playback,
+                'metadata': metadata,
+                'download': download,
+                'raw_size': raw_size,
+                'start_time': start_time,
+                'end_time': end_time,
               })
           else
             @logger.warn("Processed recording found for #{@meeting_id}/#{@format_name}, but no publish script exists")
@@ -92,13 +96,13 @@ module BigBlueButton
           end
 
           if step_succeeded
-            @logger.info("Publish format succeeded for #{@meeting_id}/#{@format_name}")
-            FileUtils.rm_rf("#{@recording_dir}/process/#{@format_name}/#{@meeting_id}")
-            FileUtils.rm_rf("#{@recording_dir}/publish/#{@format_name}/#{@meeting_id}")
+            @logger.info("Publish format succeeded for #{@full_id}:#{@format_name}")
+            FileUtils.rm_rf("#{@recording_dir}/process/#{@format_name}/#{@full_id}")
+            FileUtils.rm_rf("#{@recording_dir}/publish/#{@format_name}/#{@full_id}")
 
-            self.run_post_scripts(@post_scripts_path)
+            run_post_scripts(@post_scripts_path)
           else
-            @logger.info("Publish format failed for #{@meeting_id}/#{@format_name}")
+            @logger.info("Publish format failed for #{@full_id}:#{@format_name}")
             FileUtils.touch(@published_fail)
           end
 
@@ -113,8 +117,8 @@ module BigBlueButton
 
       def initialize(opts)
         super(opts)
-        @step_name = "publish"
-        @format_name = opts["format_name"]
+        @step_name = 'publish'
+        @format_name = opts['format_name']
         @post_scripts_path = File.expand_path('../../post_publish', __FILE__)
         @published_done = "#{@recording_dir}/status/published/#{@meeting_id}-#{@format_name}.done"
         @published_fail = "#{@recording_dir}/status/published/#{@meeting_id}-#{@format_name}.fail"

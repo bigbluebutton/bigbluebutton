@@ -18,15 +18,6 @@ trait UserBroadcastCamStopMsgHdlr {
     }
   }
 
-  def handleUserBroadcastCamStopMsg(userId: String): Unit = {
-    for {
-      uvo <- Webcams.findWebcamsForUser(liveMeeting.webcams, userId)
-      _ <- Webcams.removeWebcamBroadcastStream(liveMeeting.webcams, uvo.streamId)
-    } yield {
-      broadcastUserBroadcastCamStoppedEvtMsg(uvo.streamId, userId)
-    }
-  }
-
   def broadcastUserBroadcastCamStoppedEvtMsg(streamId: String, userId: String): Unit = {
     val routing = Routing.addMsgToClientRouting(MessageTypes.BROADCAST_TO_MEETING, props.meetingProp.intId, userId)
     val envelope = BbbCoreEnvelope(UserBroadcastCamStoppedEvtMsg.NAME, routing)

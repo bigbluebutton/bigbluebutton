@@ -1,19 +1,16 @@
-import React, { Component } from 'react';
+import React, { PureComponent } from 'react';
 import { defineMessages, injectIntl } from 'react-intl';
-import cx from 'classnames';
 import { withModalMounter } from '/imports/ui/components/modal/service';
 import Clipboard from 'clipboard';
 import _ from 'lodash';
-import Button from '/imports/ui/components/button/component';
 import Dropdown from '/imports/ui/components/dropdown/component';
 import DropdownTrigger from '/imports/ui/components/dropdown/trigger/component';
 import DropdownContent from '/imports/ui/components/dropdown/content/component';
 import DropdownList from '/imports/ui/components/dropdown/list/component';
 import DropdownListItem from '/imports/ui/components/dropdown/list/item/component';
-import Auth from '/imports/ui/services/auth';
-import Acl from '/imports/startup/acl';
-import ChatService from './../service';
-import styles from './styles';
+import Button from '/imports/ui/components/button/component';
+
+import ChatService from '../service';
 
 const intlMessages = defineMessages({
   clear: {
@@ -34,7 +31,7 @@ const intlMessages = defineMessages({
   },
 });
 
-class ChatDropdown extends Component {
+class ChatDropdown extends PureComponent {
   constructor(props) {
     super(props);
 
@@ -44,11 +41,16 @@ class ChatDropdown extends Component {
 
     this.onActionsShow = this.onActionsShow.bind(this);
     this.onActionsHide = this.onActionsHide.bind(this);
+    this.actionsKey = [
+      _.uniqueId('action-item-'),
+      _.uniqueId('action-item-'),
+      _.uniqueId('action-item-'),
+    ];
   }
 
   componentDidMount() {
     this.clipboard = new Clipboard('#clipboardButton', {
-      text: () => ChatService.exportChat(ChatService.getPublicMessages()),
+      text: () => ChatService.exportChat(ChatService.getPublicGroupMessages()),
     });
   }
 
@@ -69,71 +71,78 @@ class ChatDropdown extends Component {
   }
 
   getAvailableActions() {
-    const { intl } = this.props;
+    const { intl, isMeteorConnected, amIModerator } = this.props;
 
     const clearIcon = 'delete';
-    const saveIcon = 'save_notes';
+    const saveIcon = 'download';
     const copyIcon = 'copy';
 
     return _.compact([
-      (<DropdownListItem
+      <DropdownListItem
+        data-test="chatSave"
         icon={saveIcon}
         label={intl.formatMessage(intlMessages.save)}
-        key={_.uniqueId('action-item-')}
+        key={this.actionsKey[0]}
         onClick={() => {
           const link = document.createElement('a');
           const mimeType = 'text/plain';
 
           link.setAttribute('download', `public-chat-${Date.now()}.txt`);
-          link.setAttribute('href', `data: ${mimeType} ;charset=utf-8,
-            ${encodeURIComponent(ChatService.exportChat(ChatService.getPublicMessages()))}`);
-          link.click();
+          link.setAttribute(
+            'href',
+            `data: ${mimeType} ;charset=utf-8,
+            ${encodeURIComponent(ChatService.exportChat(ChatService.getPublicGroupMessages()))}`,
+          );
+          link.dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true, view: window }));
         }}
-      />),
-      (<DropdownListItem
+      />,
+      <DropdownListItem
+        data-test="chatCopy"
         icon={copyIcon}
         id="clipboardButton"
         label={intl.formatMessage(intlMessages.copy)}
-        key={_.uniqueId('action-item-')}
-      />),
-      (Acl.can('methods.clearPublicChatHistory', Auth.credentials) ?
+        key={this.actionsKey[1]}
+      />,
+      amIModerator && isMeteorConnected ? (
         <DropdownListItem
+          data-test="chatClear"
           icon={clearIcon}
           label={intl.formatMessage(intlMessages.clear)}
-          key={_.uniqueId('action-item-')}
+          key={this.actionsKey[2]}
           onClick={ChatService.clearPublicChatHistory}
         />
-        : null),
+      ) : null,
     ]);
   }
 
   render() {
     const { intl } = this.props;
+    const { isSettingOpen } = this.state;
 
     const availableActions = this.getAvailableActions();
 
     return (
       <Dropdown
-        isOpen={this.state.isSettingOpen}
+        isOpen={isSettingOpen}
         onShow={this.onActionsShow}
         onHide={this.onActionsHide}
       >
         <DropdownTrigger tabIndex={0}>
           <Button
-            label={intl.formatMessage(intlMessages.options)}
+            data-test="chatDropdownTrigger"
             icon="more"
+            size="sm"
+            ghost
             circle
             hideLabel
-            className={cx(styles.btn, styles.btnSettings)}
-            // FIXME: Without onClick react proptypes keep warning
-            // even after the DropdownTrigger inject an onClick handler
+            color="dark"
+            label={intl.formatMessage(intlMessages.options)}
+            aria-label={intl.formatMessage(intlMessages.options)}
             onClick={() => null}
           />
         </DropdownTrigger>
         <DropdownContent placement="bottom right">
-          <DropdownList>
-            {availableActions}
-          </DropdownList>
+          <DropdownList>{availableActions}</DropdownList>
         </DropdownContent>
       </Dropdown>
     );

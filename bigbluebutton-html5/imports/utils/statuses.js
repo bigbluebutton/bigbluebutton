@@ -1,24 +1,14 @@
-const EMOJI_STATUSES = {
-  away: 'away',
-  raiseHand: 'raiseHand',
-  neutral: 'neutral',
+export const EMOJI_STATUSES = {
+  // name: icon
+  away: 'time',
+  raiseHand: 'hand',
+  neutral: 'undecided',
   confused: 'confused',
   sad: 'sad',
   happy: 'happy',
   applause: 'applause',
-  thumbsUp: 'thumbsUp',
-  thumbsDown: 'thumbsDown',
-  none: 'none',
-};
-
-const EMOJI_NORMALIZE = {
-  agree: 'thumbs_up',
-  disagree: 'thumbs_down',
   thumbsUp: 'thumbs_up',
   thumbsDown: 'thumbs_down',
-  raiseHand: 'hand',
-  away: 'time',
-  neutral: 'undecided',
 };
 
-export { EMOJI_STATUSES, EMOJI_NORMALIZE };
+export default { EMOJI_STATUSES };

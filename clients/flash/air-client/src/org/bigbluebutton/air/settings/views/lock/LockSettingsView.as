@@ -1,12 +1,11 @@
 package org.bigbluebutton.air.settings.views.lock {
 	
+	import org.bigbluebutton.air.common.views.NoTabView;
+	import org.bigbluebutton.air.main.views.TopToolbarBase;
+	import org.bigbluebutton.air.settings.views.TopToolbarSubSettings;
+	
 	import spark.components.Scroller;
 	import spark.layouts.VerticalLayout;
-	
-	import org.bigbluebutton.air.common.views.NoTabView;
-	import org.bigbluebutton.air.main.views.TopToolbarAIR;
-	import org.bigbluebutton.air.settings.views.TopToolbarSubSettings;
-	import org.bigbluebutton.lib.settings.views.lock.LockSettingsViewBase;
 	
 	public class LockSettingsView extends NoTabView {
 		private var _lockSettingsView:LockSettingsViewBase;
@@ -29,7 +28,7 @@ package org.bigbluebutton.air.settings.views.lock {
 			addElement(scroller);
 		}
 		
-		override protected function createToolbar():TopToolbarAIR {
+		override protected function createToolbar():TopToolbarBase {
 			return new TopToolbarSubSettings();
 		}
 	}

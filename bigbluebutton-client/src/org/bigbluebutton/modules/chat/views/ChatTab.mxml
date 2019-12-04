@@ -1,0 +1,770 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<!--
+
+BigBlueButton open source conferencing system - http://www.bigbluebutton.org/
+
+Copyright (c) 2012 BigBlueButton Inc. and by respective authors (see below).
+
+This program is free software; you can redistribute it and/or modify it under the
+terms of the GNU Lesser General Public License as published by the Free Software
+Foundation; either version 3.0 of the License, or (at your option) any later
+version.
+
+BigBlueButton is distributed in the hope that it will be useful, but WITHOUT ANY
+WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
+PARTICULAR PURPOSE. See the GNU Lesser General Public License for more details.
+
+You should have received a copy of the GNU Lesser General Public License along
+with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
+
+-->
+
+<mx:VBox xmlns:mx="library://ns.adobe.com/flex/mx" 
+         xmlns:fx="http://ns.adobe.com/mxml/2009"
+         xmlns:mate="http://mate.asfusion.com/"
+         xmlns:common="org.bigbluebutton.common.*"
+         xmlns:chat="org.bigbluebutton.modules.chat.views.*"
+         implements="org.bigbluebutton.modules.chat.views.IChatTab"
+         width="100%" height="100%"
+         click="setMessageRead()" verticalScrollPolicy="off"
+         verticalGap="0"
+         creationComplete="onCreationComplete()">
+  
+  <fx:Declarations>
+    <mate:Listener type="{ChatOptionsEvent.CHANGE_FONT_SIZE}" method="changeFontSize" />
+    <mate:Listener type="{PrivateChatMessageEvent.PRIVATE_CHAT_MESSAGE_EVENT}" method="handlePrivateChatMessageEvent"/>
+    <mate:Listener type="{PublicChatMessageEvent.PUBLIC_CHAT_MESSAGE_EVENT}" method="handlePublicChatMessageEvent"/>
+    <mate:Listener type="{ChatHistoryEvent.RECEIVED_HISTORY}" method="handleReceivedChatHistoryEvent" />
+    <mate:Listener type="{ClearPublicChatEvent.CLEAR_PUBLIC_CHAT_EVENT}" method="handleClearPublicChatBoxMessages"/>
+    <mate:Listener type="{ShortcutEvent.FOCUS_CHAT_INPUT}" method="focusChatInput" />
+    <mate:Listener type="{UserLeftEvent.LEFT}" method="handleUserLeftEvent"/>
+    <mate:Listener type="{UserJoinedEvent.JOINED}" method="handleUserJoinedEvent"/>
+    <mate:Listener type="{ShortcutEvent.FOCUS_CHAT_BOX}" method="focusChatBox" />
+    <mate:Listener type="{ShortcutEvent.CHANGE_FONT_COLOUR}" method="focusColourPicker" />
+    <mate:Listener type="{ShortcutEvent.SEND_MESSAGE}" method="remoteSendMessage" />
+    <mate:Listener type="{BBBEvent.RECONNECT_DISCONNECTED_EVENT}" receive="refreshChat(event)"/>
+    <mate:Listener type="{LockControlEvent.CHANGED_LOCK_SETTINGS}" method="lockSettingsChanged" />
+    <mate:Listener type="{UserStatusChangedEvent.USER_STATUS_CHANGED}" method="refreshRole" />
+    <mate:Listener type="{UserTypingEvent.USER_TYPING_MESSAGE}" method="handleUserTyping" />
+  </fx:Declarations>
+  
+  <fx:Script>
+    <![CDATA[
+		import com.asfusion.mate.events.Dispatcher;
+		
+		import flash.events.TextEvent;
+		
+		import mx.binding.utils.BindingUtils;
+		import mx.events.ScrollEvent;
+		
+		import flashx.textLayout.formats.Direction;
+		
+		import org.as3commons.lang.DictionaryUtils;
+		import org.as3commons.lang.StringUtils;
+		import org.as3commons.logging.api.ILogger;
+		import org.as3commons.logging.api.getClassLogger;
+		import org.bigbluebutton.common.Role;
+		import org.bigbluebutton.core.Options;
+		import org.bigbluebutton.core.UsersUtil;
+		import org.bigbluebutton.core.events.LockControlEvent;
+		import org.bigbluebutton.core.events.UserStatusChangedEvent;
+		import org.bigbluebutton.core.model.LiveMeeting;
+		import org.bigbluebutton.core.model.users.User2x;
+		import org.bigbluebutton.main.events.BBBEvent;
+		import org.bigbluebutton.main.events.ShortcutEvent;
+		import org.bigbluebutton.main.events.UserJoinedEvent;
+		import org.bigbluebutton.main.events.UserLeftEvent;
+		import org.bigbluebutton.modules.chat.ChatUtil;
+		import org.bigbluebutton.modules.chat.events.ChatEvent;
+		import org.bigbluebutton.modules.chat.events.ChatHistoryEvent;
+		import org.bigbluebutton.modules.chat.events.ChatOptionsEvent;
+		import org.bigbluebutton.modules.chat.events.ClearPublicChatEvent;
+		import org.bigbluebutton.modules.chat.events.PrivateChatMessageEvent;
+		import org.bigbluebutton.modules.chat.events.PublicChatMessageEvent;
+		import org.bigbluebutton.modules.chat.events.SendGroupChatMessageEvent;
+		import org.bigbluebutton.modules.chat.events.UserTypingEvent;
+		import org.bigbluebutton.modules.chat.model.ChatConversation;
+		import org.bigbluebutton.modules.chat.model.ChatModel;
+		import org.bigbluebutton.modules.chat.model.ChatOptions;
+		import org.bigbluebutton.modules.chat.model.GroupChat;
+		import org.bigbluebutton.modules.chat.vo.ChatMessageVO;
+		import org.bigbluebutton.modules.chat.vo.GroupChatUser;
+		import org.bigbluebutton.modules.polling.events.StartCustomPollEvent;
+		import org.bigbluebutton.util.i18n.ResourceUtil;
+		
+      private static const LOGGER:ILogger = getClassLogger(ChatTab);
+      
+      public var publicChat:Boolean = false;
+      public var chatWithUsername:String
+      public var chatId: String = null;
+      public var parentWindowId:String = null;
+      public var read:Boolean = true;
+      public var userHasLeft:Boolean = false;
+      
+      private var globalDispatcher:Dispatcher = new Dispatcher();
+      [Bindable] public var colorPickerColours:Array = ['0x000000', '0x7A7A7A' ,'0xFF0000', '0xFF8800',
+        '0x88FF00', '0x00FF88', '0x00FFFF', '0x0088FF', '0x0000FF', '0x8800FF', '0xFF00FF'];
+      
+      [Bindable]
+      private var backgroundColor:uint = 0x000000;
+      private var lastSenderId:String = "";
+      private var lastTime:String = "";
+      
+      [Bindable]
+      public var chatMessages: ChatConversation;
+      
+      private var lastCount:Number = 0;			
+	  private var historyTimer:Timer;
+      private var scrollTimer:Timer;
+      private var typingSenderTimer:Timer;
+      private var typingIndicatorTimer:Timer;
+	  private var typingIndicatorThreshold:int = 20 * 1000; // Invalidate typing messages after 20 seconds
+      private var typingEventSent:Boolean;
+	  private var typingUsersInfo : Dictionary = new Dictionary(true);
+      private var currentMessage:int;
+      private var latestMessage:int; 
+      
+      public var focus:Boolean = false;
+      private var keyCombos:Object;
+      
+      private var navToFirst:Boolean = false;
+      private var navToLatest:Boolean = false;
+      private var spacerNeeded:Boolean = false;
+      private var indicatorNeeded:Boolean = false
+      private var repeat:Boolean = false;
+      
+      [Bindable]
+      private var chatListHeight:Number = 100;
+      
+      [Bindable] public var chatOptions:ChatOptions;
+      
+      private var shiftPressed:Boolean = false;
+      private var ctrlPressed:Boolean = false;
+      		
+      private function onCreationComplete():void {
+        chatOptions = Options.getOptions(ChatOptions) as ChatOptions;
+        bindToHeightToDetermineHeightOfMessageList();
+        
+        addContextMenuItems();
+        scrollTimer = new Timer(750, 1);
+        scrollTimer.addEventListener(TimerEvent.TIMER, onScrollTimer);
+		
+		typingSenderTimer = new Timer(2000, 1);
+		typingSenderTimer.addEventListener(TimerEvent.TIMER, onTypingSenderTimer);
+		
+		typingIndicatorTimer = new Timer(2000, 1);
+		typingSenderTimer.addEventListener(TimerEvent.TIMER_COMPLETE, onTypingIndicatorTimer);
+		typingSenderTimer.start();
+		
+        // Initialize the indicator for the position in the message history, 
+        // and add the listener for message history navigation
+        currentMessage = -1;
+        latestMessage = -1;
+        
+        // Listen for locale changing
+        ResourceUtil.getInstance().addEventListener(Event.CHANGE, localeChanged); 	
+        
+        // Listen for the ENTER key to send the message.
+        txtMsgArea.addEventListener(TextEvent.TEXT_INPUT, handleTextInput);
+        txtMsgArea.addEventListener(KeyboardEvent.KEY_DOWN, handleMsgAreaKeyDown);
+        
+        // Listen for the navigable keys to avoid moving and resizing the chat box while text selection
+        txtMsgArea.addEventListener(KeyboardEvent.KEY_DOWN, checkNavigableButtonDown);
+        txtMsgArea.addEventListener(KeyboardEvent.KEY_UP, checkNavigableButtonUp);
+        chatMessagesList.addEventListener(KeyboardEvent.KEY_DOWN, checkNavigableButtonDown);
+        chatMessagesList.addEventListener(KeyboardEvent.KEY_UP, checkNavigableButtonUp);
+        
+        this.addEventListener(FocusEvent.FOCUS_OUT, releaseNavigableButton);
+        
+        queryForChatHistory();
+        
+        if (chatMessagesList.accessibilityProperties != null) {
+          chatMessagesList.accessibilityProperties.description = ResourceUtil.getInstance().getString('bbb.accessibility.chat.initialDescription');
+        }
+       
+        applyLockSettings();
+        
+//        chatToolbar.registerListeners(chatMessagesList);
+        
+        chatMessagesList.addEventListener(ChatEvent.RESIZE_CHAT_TOOLBAR, adjustToolbarWidthAccordingToScrollBar);
+		updateStyles();
+      }
+      
+      
+      private function checkNavigableButtonDown(e:KeyboardEvent):void {
+        if (e.shiftKey && !shiftPressed) {
+          shiftPressed = true;
+          parentDocument.handleDraggableStatus(false);
+        }
+        if (e.ctrlKey && !ctrlPressed) {
+          ctrlPressed = true;
+          parentDocument.handleResizableStatus(false);
+        }
+      }
+      
+      private function checkNavigableButtonUp(e:KeyboardEvent):void {
+        if (!e.shiftKey && shiftPressed) {
+          shiftPressed = false;
+          parentDocument.handleDraggableStatus(true);
+        }
+        if (!e.ctrlKey && ctrlPressed) {
+          ctrlPressed = false;
+          parentDocument.handleResizableStatus(true);
+        }
+      }
+      
+      private function releaseNavigableButton(focus:FocusEvent):void {
+        if (shiftPressed) {
+          shiftPressed = false;
+          parentDocument.handleDraggableStatus(true);
+        }
+        if (ctrlPressed) {
+          ctrlPressed = false;
+          parentDocument.handleResizableStatus(true);
+        }
+      }
+      
+      private function focusChatBox(e:ShortcutEvent):void{
+        focusManager.setFocus(chatMessagesList);
+      }
+      
+      private function focusColourPicker(e:ShortcutEvent):void{
+        focusManager.setFocus(cmpColorPicker);
+      }
+      
+      private function remoteSendMessage(e:ShortcutEvent):void{
+        sendMessages();
+      }
+      
+      private function bindToHeightToDetermineHeightOfMessageList():void {
+        // Need to bind to the height for this container to be able to calculate the height
+        // of the chat message list and text area containers. If we do just percentages,
+        // the text area won't get displayed especially when switching layouts (ralam Oct 18, 2012)
+        BindingUtils.bindSetter(handleChangeHeight, this, "height");
+      }
+      
+      private function handleChangeHeight(newHeight:Number):void {
+        // The height for this chat box has changed. Calculate the height of the components accordingly.
+        chatListHeight = newHeight - chatCtrlBar.height;
+      }
+      
+      private function queryForChatHistory():void {
+        // Setup timer to trigger querying for public chat history.
+        // We have to do this to get the UI settled down. Otherwise, the text area won't show up.
+        // (ralam Oct 17, 2012)
+        historyTimer = new Timer(5000, 1);
+        historyTimer.addEventListener(TimerEvent.TIMER, loadChatHistory);
+        historyTimer.start();
+      }
+      
+      private function loadChatHistory(event:TimerEvent):void {
+				displayChatHistory();
+      }
+		
+		private function displayChatHistory():void {
+			var chat:GroupChat = LiveMeeting.inst().chats.getGroupChat(chatId);
+			if (chat != null) {
+				chatMessages.processChatHistory(chat.messages.source);
+				scrollToEndOfMessage("no-scroll");
+			}
+		}
+			
+      private function handleUserLeftEvent(event:UserLeftEvent):void {
+        var gc: GroupChat = LiveMeeting.inst().chats.findChatWithUser(event.userID);
+        if (gc != null && gc.id == chatId) {
+          addMessageAndScrollToEnd(createUserHasLeftMessage(), event.userID);
+          txtMsgArea.enabled = false;
+        }
+		if (DictionaryUtils.containsKey(typingUsersInfo, event.userID)) {
+			delete typingUsersInfo[event.userID];
+		}
+      }
+	  
+	  private function refreshChat(e:BBBEvent):void {
+		  if (e.payload.type == "BIGBLUEBUTTON_CONNECTION") {
+			  displayChatHistory();
+		  }
+	  }
+
+      
+      private function handleUserJoinedEvent(event:UserJoinedEvent):void {
+        var gc: GroupChat = LiveMeeting.inst().chats.findChatWithUser(event.userID);
+        if (gc != null && gc.id == chatId) {
+          addMessageAndScrollToEnd(createUserHasJoinedMessage(), event.userID);
+          txtMsgArea.enabled = true;
+        }
+      }
+      
+      private var SPACE:String = " ";
+      private function createUserHasLeftMessage():ChatMessageVO {
+        var msg:ChatMessageVO = new ChatMessageVO();
+        msg.fromUserId = ChatModel.USER_LEFT_MSG;
+        msg.fromUsername = ChatModel.SPACE;
+        msg.fromColor = "0";
+        msg.fromTime = new Date().getTime();
+        msg.message = "<b><i>"+ResourceUtil.getInstance().getString('bbb.chat.private.userLeft')+"</b></i>";
+        
+        return msg;
+      }
+      
+      private function createUserHasJoinedMessage():ChatMessageVO {
+        var msg:ChatMessageVO = new ChatMessageVO();
+        msg.fromUserId = ChatModel.USER_JOINED_MSG;
+        msg.fromUsername = ChatModel.SPACE;
+        msg.fromColor = "0";
+        msg.fromTime = new Date().getTime();
+        msg.message = "<b><i>"+ResourceUtil.getInstance().getString('bbb.chat.private.userJoined')+"</b></i>";
+        
+        return msg;
+      }
+      
+      public function focusToTextMessageArea():void {
+        txtMsgArea.setFocus();
+        txtMsgArea.drawFocus(true);
+      }
+      
+      private function handlePublicChatMessageEvent(event:PublicChatMessageEvent):void {
+        if (chatId == event.chatId && chatMessages != null) {
+		  if (DictionaryUtils.containsKey(typingUsersInfo, event.msg.fromUserId)) {
+			  delete typingUsersInfo[event.msg.fromUserId];
+			  if (typingIndicatorTimer.running) {
+				  typingIndicatorTimer.stop();
+			  }
+			  displayTypingUsers();
+		  }
+          addMessageAndScrollToEnd(event.msg, event.msg.fromUserId);
+        }
+      }
+      
+      private function handleReceivedChatHistoryEvent(event:ChatHistoryEvent):void {
+        if (chatId == event.chatId) {
+			displayChatHistory();
+			scrollToEndOfMessage("no-scroll");
+        }
+      }
+      
+			
+      private function adjustToolbarWidthAccordingToScrollBar(e:ChatEvent):void{
+        invalidateDisplayList();
+        validateNow();
+      }
+      
+      private function handlePrivateChatMessageEvent(event:PrivateChatMessageEvent):void {
+        if (chatId == event.chatId) {
+         // addMessageAndScrollToEnd(event.msg, event.msg.fromUserId);
+        }        
+      }
+      
+     public function handleFirstPrivateMessage(event:PrivateChatMessageEvent):void {
+        handlePrivateChatMessageEvent(event);
+      }
+      
+      public function addMessageAndScrollToEnd(message:ChatMessageVO, userId:String):void {
+        // Have to check if the vScroll is max before adding the new message
+        var vScrollMax:Boolean = chatMessagesList.verticalScrollAtMax;
+        chatMessages.newChatMessage(message);
+        scrollToEndOfMessage(userId, vScrollMax);
+      }
+      
+      public function scrollToEndOfMessage(userID:String, precheckedVScroll:Boolean=false):void {
+        /**
+         * Trigger to force the scrollbar to show the last message.
+         */	
+		// @todo : scroll if
+		//			1 - I am the send of the last message
+		//			2 - If the scroll bar is at the bottom most
+		  if (UsersUtil.isMe(userID) || precheckedVScroll || (chatMessagesList.verticalScrollAtMax)) {
+	        if (scrollTimer != null) scrollTimer.start();
+		  } else if (!scrollTimer.running) {
+			  unreadMessagesBar.visible = unreadMessagesBar.includeInLayout = true;
+		  }
+      }
+      
+      
+      /**
+       * Magic sauce to force scrollbar to the bottom message. This took a lot
+       * of trial and error. If you change this, make sure you know what you are
+       * doing as I don't know why it works, but it does. (ralam Nov 3, 2010)
+       * 
+       * New and improved scrollToBottom implemented (capilkey Dec 4, 2014)
+       */
+      private function scrollToBottom():void {
+        chatMessagesList.scrollToBottom();
+		unreadMessagesBar.visible = unreadMessagesBar.includeInLayout = false;
+      }
+      
+      private function onScrollTimer(event:TimerEvent):void {
+        scrollToBottom();
+      }
+	
+	  private function onTypingSenderTimer(event:TimerEvent):void {
+		  typingEventSent = false;
+	  }
+		
+	  private function onTypingIndicatorTimer(event:TimerEvent):void {
+		  displayTypingUsers();
+	  }
+      
+      public function setMessageUnread():void{
+        this.read = false;
+        backgroundColor = 0xFFFF00;
+      }
+      
+      public function setMessageRead():void{
+        this.read = true;
+        backgroundColor = 0x000000;
+      }
+      
+      private function onLinkClick(e:TextEvent):void {
+        var url:URLRequest = new URLRequest(e.text);
+        navigateToURL(url, '_blank');
+      }
+      
+      private function changeFontSize(e:ChatOptionsEvent):void {
+        this.setStyle("fontSize", e.fontSize);
+      }
+      
+      private function copyAllText():void{
+        var groupChat: GroupChat = LiveMeeting.inst().chats.getGroupChat(chatId);
+        if (groupChat != null) {
+          System.setClipboard(groupChat.getAllMessageAsString());
+        }
+      }
+      
+      public function getChatId():String {
+        return chatId;
+      }
+      
+      private function addContextMenuItems():void {
+        var contextMenu:ContextMenu = new ContextMenu();
+        contextMenu.hideBuiltInItems();
+        
+        var copyAllButton:ContextMenuItem = new ContextMenuItem(ResourceUtil.getInstance().getString("bbb.chat.contextmenu.copyalltext"));
+        copyAllButton.addEventListener(ContextMenuEvent.MENU_ITEM_SELECT, menuItemHandler);
+        contextMenu.customItems.push(copyAllButton);
+        
+        this.contextMenu = contextMenu;
+      }
+      
+      private function menuItemHandler(e:ContextMenuEvent):void{
+        if (e.target.caption == ResourceUtil.getInstance().getString("bbb.chat.contextmenu.copyalltext")){
+          var groupChat: GroupChat = LiveMeeting.inst().chats.getGroupChat(chatId);
+          if (groupChat != null) {
+            System.setClipboard(groupChat.getAllMessageAsString());
+          }
+        }
+      }
+      
+      public function getLatestMessage():int{
+        return latestMessage;
+      }
+      
+      public function getCurrentMessage():int{
+        return currentMessage;
+      }
+      
+      private function localeChanged(e:Event):void {
+        var modifier:String = ExternalInterface.call("determineModifier");
+        
+        addContextMenuItems();
+		
+		updateStyles();
+      }
+		
+	  private function updateStyles():void {
+		  var styleNameExt : String = "";
+		  if (ResourceUtil.getInstance().isRTLEnabled() && 
+        ResourceUtil.getInstance().getCurrentLanguageDirection() == Direction.RTL) {
+			  styleNameExt = "RTL";
+		  }
+		  
+		  sendBtn.styleName = "chatControlBarSendButtonStyle" + styleNameExt;
+	  }
+      
+      private function sendStartCustomPollEvent(answers:Array):void {
+        var dispatcher:Dispatcher = new Dispatcher();
+        dispatchEvent(new StartCustomPollEvent("Custom", answers));				
+      }
+      
+      private function sendPublicChatMessage(message:String):void {
+        //var pollRegex:RegExp = /^@poll\s+?((?:[^,]+?\s*?,\s*?)*?[^,]+?)\s*?$/;
+        var pollRegex:RegExp = /^@poll\s+?(.+)\s*?$/;
+        var matchedArray:Array = message.match(pollRegex);
+        
+        if (UsersUtil.amIPresenter() && pollRegex.test(message)) {
+          var tmpAnswers: Array = matchedArray[1].split(",");
+          var answers:Array = new Array();
+          for (var i:int = 0; i < tmpAnswers.length; i++) {
+            var t:String = tmpAnswers[i] as String;
+            answers.push(StringUtils.trim(t));
+          }
+          sendStartCustomPollEvent(answers);
+        } else {
+          var cm:ChatMessageVO = processChatMessage(message);
+          if (cm != null) {
+             var publicEvent:SendGroupChatMessageEvent = new SendGroupChatMessageEvent(chatId, cm);
+             globalDispatcher.dispatchEvent(publicEvent);
+          }
+        }
+      }
+
+      private function processChatMessage(message:String):ChatMessageVO {
+        var sanitizedMessage:String = ExternalInterface.call('parseURLs', (ChatUtil.cleanup(message)));
+        if (sanitizedMessage == null || sanitizedMessage.length < 1) {
+          return null;
+        }
+        
+        var cm:ChatMessageVO = new ChatMessageVO();
+        cm.fromUserId = UsersUtil.getMyUserID();
+        cm.fromUsername = UsersUtil.getMyUsername();
+        // get the color value from ColorPicker
+        cm.fromColor = cmpColorPicker.selectedColor.toString();
+        
+        // Get the current UTC time and the timezone for this sender.
+        // The receiver will have to convert this to local time.
+        var now:Date = new Date();
+        cm.fromTime = now.valueOf();
+        
+        //cm.message = ChatUtil.parseURLs(ChatUtil.cleanup(message));
+        cm.message = sanitizedMessage;
+        
+        return cm;
+      }
+      
+      private function handleTextInput(e:TextEvent):void {
+        if ((e.text.length == 1) && (e.text.charCodeAt(0) == 10) /*ENTER-KEY*/ && messageCanBeSent) {
+          sendMessages();
+		  e.preventDefault();
+        } else {
+			sendUserTyping();
+		}
+      }
+      
+      private function handleMsgAreaKeyDown(e:KeyboardEvent):void {
+        if ((e.shiftKey || e.ctrlKey) && e.keyCode == Keyboard.ENTER) {
+          txtMsgArea.text += "\n";
+          txtMsgArea.setSelection(txtMsgArea.text.length, txtMsgArea.text.length);
+        }
+      }
+      
+      private function handleTextAreaKeyDownEvent(e:KeyboardEvent):void {
+        // stops window moving when trying to navigate the text box
+        if (e.keyCode == Keyboard.LEFT || e.keyCode == Keyboard.RIGHT) {
+          e.stopPropagation();
+        }
+      }
+      
+      private function sendMessages():void {
+        if(!sendBtn.enabled) {
+          txtMsgArea.text = StringUtils.trim(txtMsgArea.text);
+          return;
+        }
+        
+        // Trim the message. This will trim the '/n' char so we don't send a message when the
+        // user just hits the enter key
+        var msgToSend:String = StringUtils.trim(txtMsgArea.text);
+        
+        if (!StringUtils.isBlank(msgToSend)){
+            sendPublicChatMessage(msgToSend);
+        }
+        txtMsgArea.text = "";
+        txtMsgArea.validateNow();
+        txtMsgArea.setSelection(0, 0);
+      }
+		
+	  private function sendUserTyping():void {
+		  if (!typingEventSent) {
+			  typingEventSent = true;
+			  typingSenderTimer.start();
+			  globalDispatcher.dispatchEvent(new UserTypingEvent(UserTypingEvent.USER_TYPING_EVENT, chatId, UsersUtil.getMyUserID()));
+		  }
+	  }
+      
+      private function showMessageTooLong(messageLength : int):void {
+        msgTooLongLabel.toolTip = ResourceUtil.getInstance().getString('bbb.chat.chatMessage.tooLong', [(messageLength - chatOptions.maxMessageLength).toString()]);
+        msgTooLongLabel.text = "-" + (messageLength - chatOptions.maxMessageLength).toString();
+        msgTooLongLabel.visible = true;
+        // The case where lock settings are set
+        if (txtMsgArea.enabled) {
+          sendBtn.enabled = false;
+        }
+      }
+      
+      private function hideMessageTooLong():void {
+        msgTooLongLabel.visible = false;
+        // The case where lock settings are set
+        if (txtMsgArea.enabled) {
+          sendBtn.enabled = true;
+        }
+      }
+      
+      private function focusChatInput(e:ShortcutEvent):void{
+        txtMsgArea.setFocus();
+      }
+      
+      private function lockSettingsChanged(e:Event):void {
+        applyLockSettings();
+      }
+      
+      private function applyLockSettings():void {
+		if (publicChat) {
+          txtMsgArea.enabled = sendBtn.enabled = !LiveMeeting.inst().me.disableMyPublicChat;
+        } else {
+          var chattingWithMod:Boolean = false;
+          var gc:GroupChat = LiveMeeting.inst().chats.getGroupChat(chatId);
+          for (var i:int = 0; i < gc.users.length; i++) {
+            var chatUser:GroupChatUser = gc.users[i] as GroupChatUser;
+            if (chatUser.id != UsersUtil.getMyUserID()) {
+              var user:User2x = UsersUtil.getUser(chatUser.id);
+              if (user && user.role == Role.MODERATOR) {
+                chattingWithMod = true;
+              }
+            }
+          }
+          txtMsgArea.enabled = sendBtn.enabled = !LiveMeeting.inst().me.disableMyPrivateChat || chattingWithMod;
+        }
+      }
+      
+      private function refreshRole(e:Event):void {
+        applyLockSettings();
+      }
+      
+      private function get messageCanBeSent() : Boolean {
+        return StringUtils.trim(txtMsgArea.text).length <= chatOptions.maxMessageLength;
+      }
+
+	  protected function chatMessagesList_scrollHandler(event:ScrollEvent):void {
+		if (chatMessagesList.verticalScrollAtMax) {
+		  unreadMessagesBar.visible = unreadMessagesBar.includeInLayout = false;
+		}
+	  }
+	
+      protected function txtMsgAreaChangeHandler(event:Event):void
+      {
+        if (!messageCanBeSent) {
+          showMessageTooLong(StringUtils.trim(txtMsgArea.text).length);
+        }
+        else {
+          hideMessageTooLong();
+        }
+      }
+      
+      private function handleClearPublicChatBoxMessages(event:ClearPublicChatEvent):void {
+        if (event.chatId == chatId) {
+          chatMessages.clearPublicChat();
+          invalidateDisplayList();
+          validateNow();
+        }
+      }
+		
+	  private function handleUserTyping(event:UserTypingEvent):void {
+		  // If not the concerned chat, we jsut ignore it
+		  if (event.chatId == chatId) {
+			  if (!DictionaryUtils.containsKey(typingUsersInfo, event.userId)) {
+				  typingUsersInfo[event.userId] = {userName: UsersUtil.getUserName(event.userId), lastUpdate : new Date().time}
+			  } else {
+				  typingUsersInfo[event.userId]["lastUpdate"] = new Date().time;
+			  }
+		  }
+	  }
+		
+	  private function displayTypingUsers():void {
+		  var userIds : Array = DictionaryUtils.getKeys(typingUsersInfo);
+		  if (userIds.length > 0) {
+			  var usernames : Array = [];
+			  for (var i : int = 0; i < userIds.length; i++) {
+				  var userId : String = userIds[i];
+				  if (new Date().time < typingUsersInfo[userId]["lastUpdate"] + typingIndicatorThreshold) {
+					  usernames.push(typingUsersInfo[userId]["userName"]);
+				  } else {
+					  delete typingUsersInfo[userId];
+				  }
+			  }
+			  if (usernames.length > 4) {
+				  showTypingIndicator(ResourceUtil.getInstance().getString('bbb.chat.usersTyping.multiple'));
+			  } else if (usernames.length > 1) {
+				  showTypingIndicator(ResourceUtil.getInstance().getString('bbb.chat.usersTyping.many', [usernames.splice(usernames.length-1,1).join(", "), usernames.pop()]));
+			  } else if (usernames.length == 1) {
+				  showTypingIndicator(ResourceUtil.getInstance().getString('bbb.chat.usersTyping.one', [usernames[0]]));
+			  } else {
+				  hideTypingIndicator();
+			  }
+		  } else {
+			  hideTypingIndicator();
+		  }
+		  typingSenderTimer.start();
+	  }
+		
+	  private function showTypingIndicator(message:String) : void {
+		  userTypingLabel.text = message;
+		  userTypingLabel.visible = true;
+	  }
+		
+	  private function hideTypingIndicator():void {
+		  userTypingLabel.text = "";
+		  userTypingLabel.visible = false;
+	  }
+      
+      override protected function updateDisplayList(unscaledWidth:Number, unscaledHeight:Number):void {
+        super.updateDisplayList(unscaledWidth, unscaledHeight);
+        
+        // Force validation before evaluation of toolbar width
+        validateNow();
+      }
+		
+	]]>
+    
+  </fx:Script>
+  
+  <fx:Declarations>
+    <common:TabIndexer id="tabIndexer" tabIndices="{[chatMessagesList, txtMsgArea, sendBtn, cmpColorPicker]}"/>
+	  
+	<mx:DropShadowFilter id="unreadMessagesBoxShadow" distance="3" angle="-90" alpha=".25" blurX="3" blurY="3" />
+  </fx:Declarations>
+  
+  <mx:VBox width="100%" height="{chatListHeight}" verticalScrollPolicy="off">
+    <mx:Canvas id="chatMessagesCanvas" width="100%" height="{chatListHeight}" horizontalScrollPolicy="off" verticalScrollPolicy="off">
+      <chat:AdvancedList width="100%" height="{chatListHeight}" id="chatMessagesList" selectable="true" variableRowHeight="true" 
+                         itemRenderer="org.bigbluebutton.modules.chat.views.ChatMessageRenderer" 
+                         verticalScrollPolicy="on" horizontalScrollPolicy="off" wordWrap="true"
+                         dataProvider="{chatMessages.messages}"
+                         styleName="chatMessageListStyle"
+						 scroll="chatMessagesList_scrollHandler(event)"
+                         accessibilityName="{ResourceUtil.getInstance().getString('bbb.chat.messageList')}" />
+		<mx:Canvas id="unreadMessagesBar" visible="false" includeInLayout="false" filters="{[unreadMessagesBoxShadow]}"
+				   width="100%" bottom="0" styleName="unreadMessagesBar" click="scrollToBottom()">
+			<mx:Text width="{unreadMessagesBar.width - 32}" verticalCenter="0" horizontalCenter="0"
+					 styleName="unreadMessagesBarText" text="{ResourceUtil.getInstance().getString('bbb.chat.unreadMessages')}"/> 
+		</mx:Canvas>
+    </mx:Canvas>
+  </mx:VBox>
+  <mx:HBox id="chatCtrlBar" width="100%" height="80" styleName="chatControlBarStyle"
+		   verticalScrollPolicy="off" horizontalScrollPolicy="off">
+    <mx:VBox width="100%" height="100%" verticalScrollPolicy="off" horizontalScrollPolicy="off" verticalGap="0" paddingBottom="0">
+	  <mx:Canvas width="100%" height="100%" verticalScrollPolicy="off" horizontalScrollPolicy="off">
+	      <!-- There is a restrict in this textArea to avoid a known issue where a \u007F, which is the delete character, would be seen written in some browsers as an invalid character -->
+	      <mx:TextArea id="txtMsgArea" width="100%" height="100%" restrict="^\u007F"
+	                   styleName="chatControlBarTextMsgStyle"
+	                   change="txtMsgAreaChangeHandler(event)"
+	                   toolTip="{ResourceUtil.getInstance().getString('bbb.accessibility.chat.chatwindow.input')}"
+	                   accessibilityName="{ResourceUtil.getInstance().getString('bbb.chat.input.accessibilityName')}" />
+	      <mx:Label id="msgTooLongLabel" styleName="msgTooLongLabel" bottom="-2" right="8" visible="false"/>
+	  </mx:Canvas>
+	  <mx:Label id="userTypingLabel" styleName="userTypingLabel" truncateToFit="true"
+			    visible="false" width="100%" />	
+    </mx:VBox>
+    <mx:VBox verticalScrollPolicy="off" verticalAlign="top" height="100%" paddingTop="6">
+      <mx:Button id="sendBtn"
+                 styleName="chatControlBarSendButtonStyle"
+                 width="40" height="40"
+                 toolTip="{ResourceUtil.getInstance().getString('bbb.chat.sendBtn.toolTip')}"
+                 click="sendMessages()"
+                 accessibilityName="{ResourceUtil.getInstance().getString('bbb.chat.sendBtn.accessibilityName')}"/>
+      <mx:ColorPicker id="cmpColorPicker" showTextField="false" width="100%" visible="{chatOptions.colorPickerIsVisible}"
+                      includeInLayout="{chatOptions.colorPickerIsVisible}" 
+                      toolTip="{ResourceUtil.getInstance().getString('bbb.chat.cmpColorPicker.toolTip')}" 
+                      selectedColor="0x000000" dataProvider="{colorPickerColours}" swatchPanelStyleName="chatColorPickerStyle"/>
+    </mx:VBox>
+  </mx:HBox>
+</mx:VBox>

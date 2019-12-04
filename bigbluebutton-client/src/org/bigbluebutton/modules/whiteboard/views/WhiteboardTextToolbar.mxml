@@ -20,12 +20,15 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
 -->
 
-<mx:HBox xmlns="flexlib.containers.*" xmlns:mx="library://ns.adobe.com/flex/mx" xmlns:fx="http://ns.adobe.com/mxml/2009"
-	xmlns:mate="http://mate.asfusion.com/" visible="false"
-	xmlns:views="org.bigbluebutton.modules.whiteboard.views.*">
+<mx:HBox xmlns="flexlib.containers.*"
+		 xmlns:mx="library://ns.adobe.com/flex/mx"
+		 xmlns:fx="http://ns.adobe.com/mxml/2009"
+		 xmlns:mate="http://mate.asfusion.com/"
+		 xmlns:views="org.bigbluebutton.modules.whiteboard.views.*"
+		 implements="org.bigbluebutton.modules.whiteboard.views.IWhiteboardToolbar"
+		 visible="false">
 	
 	<fx:Declarations>
-		<mate:Listener type="{MadePresenterEvent.SWITCH_TO_VIEWER_MODE}" method="viewerMode" />
 		<mate:Listener type="{WhiteboardButtonEvent.DISABLE_WHITEBOARD}" method="disableTextToolbar" />
 		<mate:Listener type="{StopWhiteboardModuleEvent.STOP_HIGHLIGHTER_MODULE_EVENT}" method="closeToolbar" />
 	</fx:Declarations>
@@ -38,7 +41,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			
 			import org.as3commons.logging.api.ILogger;
 			import org.as3commons.logging.api.getClassLogger;
-			import org.bigbluebutton.main.events.MadePresenterEvent;
 			import org.bigbluebutton.modules.whiteboard.business.shapes.TextObject;
 			import org.bigbluebutton.modules.whiteboard.events.StopWhiteboardModuleEvent;
 			import org.bigbluebutton.modules.whiteboard.events.WhiteboardButtonEvent;
@@ -85,11 +87,13 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				this.textColor = color;
 				currentlySelectedTextObject.applyNewFormat(textColor, textSize);
 			}
-						
-			private function viewerMode(e:MadePresenterEvent):void{
-				disableTextToolbar();
+
+			public function presenterChange(amIPresenter:Boolean):void{
+				if (!amIPresenter) {
+					disableTextToolbar();
+				}
 			}
-			
+
 			private function enableTextToolbar():void{
 				this.visible = true;
 				callLater(repositionToolbarByWindow);
@@ -108,8 +112,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}
 			
 			private function closeMenus() : void {
-				ctextpik.close();
-				textSizeMenu.close();
+				if (ctextpik) ctextpik.close();
+				if (textSizeMenu) textSizeMenu.close();
 			}
 			
 			public function syncPropsWith(tobj:TextObject):void {

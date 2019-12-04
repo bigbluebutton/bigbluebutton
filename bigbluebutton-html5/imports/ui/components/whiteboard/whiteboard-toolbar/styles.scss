@@ -1,31 +1,49 @@
 @import "../../../stylesheets/variables/_all";
 
-$toolbar-left-margin: 6px;
-$toolbar-button-width: 3.5rem;
-$toolbar-button-height: 3.5rem;
-$toolbar-container-width: calc(#{$toolbar-button-width} + 1rem);
-$toolbar-button-margin-top: 1px;
-$toolbar-button-margin-bottom: 1px;
-
-/**********************************************************************************/
-/* if you want to add/remove a new button to the annotation/color/thickness lists */
-/* just change the number below and the corresponding list will change its size   */
-/* to fit another button                                                          */
-/**********************************************************************************/
-$number-of-annotation-list-buttons: 7;
-$number-of-thickness-list-buttons: 7;
-$number-of-fontsize-list-buttons: 6;
-$number-of-color-list-buttons: 12;
-$number-of-vertical-main-toolbar-buttons: 5;
+:root {
+  --toolbar-margin: .8rem;
+  --toolbar-box-shadow: 0 0 10px -2px rgba(0, 0, 0, .25);
+  --toolbar-button-color: var(--btn-default-color);
+  --toolbar-button-bg: var(--btn-default-bg);
+  --toolbar-button-width: 3rem;
+  --toolbar-button-height: 3rem;
+  --toolbar-button-font-size: 1.75rem;
+  --toolbar-button-border: 1px;
+  --toolbar-button-border-radius: 5px;
+  --toolbar-button-border-color: var(--color-gray-lighter);
+  --toolbar-list-bg: #ddd;
+  --toolbar-list-bg-focus: #c6c6c6;
+  --toolbar-list-color: var(--color-gray);
+  --toolbar-item-outline-offset: -.19rem;
+  --toolbar-item-triangle-padding: 2px;
+}
 
 .toolbarContainer {
-  order: 2;
   display: flex;
   flex-direction: column;
   justify-content: center;
-  height: 100%;
-  width: $toolbar-container-width;
-  margin-left: $toolbar-left-margin;
+  margin: 0 var(--toolbar-margin) 0 0;
+  position: absolute;
+  top: 0;
+  right: 0;
+  left: auto;
+  bottom: 0;
+  pointer-events: none;
+
+  [dir="rtl"] & {
+    margin: 0 0 0 var(--toolbar-margin);
+    right: auto;
+    left: 0;
+  }
+
+  @include mq("#{$landscape} and (max-height:#{upper-bound($small-range)}), #{$small-only}") {
+    transform: scale(.75);
+    transform-origin: right;
+  }
+}
+
+.toolbarContainer:hover{
+  z-index: 3;
 }
 
 .toolbarWrapper {
@@ -34,15 +52,75 @@ $number-of-vertical-main-toolbar-buttons: 5;
   flex-direction: column;
   align-items: center;
   justify-content: center;
+  box-shadow: var(--toolbar-box-shadow);
+  border-radius: var(--toolbar-button-border-radius);
+  pointer-events: all;
+
+  .buttonWrapper > .toolbarButton {
+    outline-offset: var(--toolbar-item-outline-offset);
+    border-bottom: var(--toolbar-button-border) solid var(--toolbar-button-border-color);
+  }
+
+  .buttonWrapper:first-child > .toolbarButton {
+    border-top-left-radius: var(--toolbar-button-border-radius);
+    border-top-right-radius: var(--toolbar-button-border-radius);
+
+    &.toolbarActive {
+      border-top-left-radius: 0;
+      border-top-right-radius: var(--toolbar-button-border-radius);
+
+      [dir="rtl"] & {
+        border-top-left-radius: var(--toolbar-button-border-radius);
+        border-top-right-radius: 0;
+      }
+    }
+  }
+
+  .buttonWrapper:last-child > .toolbarButton {
+    border-bottom: 0;
+    border-bottom-left-radius: var(--toolbar-button-border-radius);
+    border-bottom-right-radius: var(--toolbar-button-border-radius);
+
+    &.toolbarActive {
+      border-bottom-left-radius: 0;
+      border-top-right-radius: var(--toolbar-button-border-radius);
+
+      [dir="rtl"] & {
+        border-bottom-left-radius: var(--toolbar-button-border-radius);
+        border-top-right-radius: 0;
+      }
+    }
+  }
 }
 
 .buttonWrapper {
-  width: $toolbar-button-width;
-  min-width: $toolbar-button-width;
-  height: $toolbar-button-height;
-  min-height: $toolbar-button-height;
-  margin-top: $toolbar-button-margin-top;
-  margin-bottom: $toolbar-button-margin-bottom;
+  width: var(--toolbar-button-width);
+  min-width: var(--toolbar-button-width);
+  height: var(--toolbar-button-height);
+  min-height: var(--toolbar-button-height);
+  position: relative;
+}
+
+.cornerTriangle::before {
+  content: '';
+  position: absolute;
+  border-color: transparent;
+  border-style: solid;
+  z-index: 2;
+  border-radius: 0;
+  border-width: 0.35em;
+  bottom: var(--toolbar-item-triangle-padding);
+  left: var(--toolbar-item-triangle-padding);
+  border-left-color: var(--toolbar-list-color);
+  border-bottom-color: var(--toolbar-list-color);
+
+  [dir="rtl"] & {
+    left: auto;
+    right: var(--toolbar-item-triangle-padding);
+
+    border-left-color: transparent;
+    border-right-color: var(--toolbar-list-color);
+  }
 }
 
 .toolbarButton {
@@ -54,11 +132,30 @@ $number-of-vertical-main-toolbar-buttons: 5;
   flex-direction: row;
   align-items: center !important;
   justify-content: center !important;
-  font-size: 2.2rem;
-  border-radius: 0.1rem;
   position: relative;
+  border-radius: 0;
+  box-shadow: none !important;
+  z-index: 1;
+  font-size: var(--toolbar-button-font-size);
+  color: var(--toolbar-button-color);
+  background-color: var(--toolbar-button-bg);
+  border-color: var(--toolbar-button-border-color);
+
+  &:focus,
+  &:hover {
+    border: 0;
+  }
+
   i {
-    color: $color-gray;
+    color: var(--toolbar-button-color);
+  }
+
+  &.toolbarActive {
+    background-color: var(--toolbar-list-bg);
+
+    i {
+      color: var(--toolbar-list-color);
+    }
   }
 }
 
@@ -67,80 +164,84 @@ $number-of-vertical-main-toolbar-buttons: 5;
   flex-direction: row;
   align-items: center;
   justify-content: center;
-  position: relative;
-  height: $toolbar-button-height;
-  bottom: $toolbar-button-height;
-  background-color: black;
-  opacity: 0.9;
+  height: var(--toolbar-button-height);
+  position: absolute;
+  right: var(--toolbar-button-height);
+  left: auto;
+  top: 0;
+  box-shadow: var(--toolbar-box-shadow);
+
+  [dir="rtl"] & {
+    right: auto;
+    left: var(--toolbar-button-height);
+  }
+
+  .buttonWrapper:first-child > .toolbarListButton {
+    border-top-left-radius: var(--toolbar-button-border-radius);
+    border-bottom-left-radius: var(--toolbar-button-border-radius);
+    border-top-right-radius: 0;
+    border-bottom-right-radius: 0;
+
+    [dir="rtl"] & {
+      border-top-left-radius: 0;
+      border-bottom-left-radius: 0;
+      border-top-right-radius: var(--toolbar-button-border-radius);
+      border-bottom-right-radius: var(--toolbar-button-border-radius);
+    }
+  }
 }
 
 .toolbarListButton {
-  width: $toolbar-button-width;
-  height: $toolbar-button-height;
+  width: var(--toolbar-button-width);
+  height: var(--toolbar-button-height);
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 2.2rem;
-  background-color: $color-gray-dark;
-  border: 0px;
-  border-radius: 0px;
-  // border-radius: 0.1rem;
-  &:hover {
-    background-color: $color-gray-light;
-  }
-  i {
-    color: $color-white;
-  }
-}
-
-.fontSizeListButton {
+  font-size: var(--toolbar-button-font-size);
+  background-color: var(--toolbar-list-bg);
+  border: 0 !important;
+  box-shadow: none;
+  border-radius: 0;
   padding: initial;
+  outline-offset: var(--toolbar-item-outline-offset);
+
+  &:hover,
+  &:focus {
+    background-color: #bbb;
+  }
+
+  i {
+    color: var(--toolbar-list-color);
+  }
+
+  svg {
+    fill: var(--toolbar-list-color);
+  }
 }
 
 .selectedListButton {
-  background-color: $color-gray-light;
+  background-color: var(--toolbar-list-color) !important;
+
+  i {
+    color: var(--toolbar-list-bg-focus) !important;
+  }
+
+  svg {
+    fill: var(--toolbar-list-bg-focus);
+  }
 }
 
 .customSvgIcon {
   position: absolute;
-  width: $toolbar-button-width;
-  height: $toolbar-button-height;
+  width: var(--toolbar-button-width);
+  height: var(--toolbar-button-height);
 }
 
 .textThickness {
-  font-family: "Arial";
+  font-family: Arial, sans-serif;
   font-weight: normal;
-  text-shadow: -1px 0 black, 0 1px black, 1px 0 black, 0 -1px black;
+  text-shadow: -1px 0 var(--toolbar-list-bg-focus), 0 1px var(--toolbar-list-bg-focus), 1px 0 var(--toolbar-list-bg-focus), 0 -1px var(--toolbar-list-bg-focus);
   margin: auto;
-  color: $color-white;
-
-  //color transiton should match color transition for the svg Color and Thickness icons in the component.jsx
-  transition: color 0.4s, font-size 0.3s;
+  color: var(--toolbar-list-color);
 }
 
-.annotationList {
-  width: calc(#{$number-of-annotation-list-buttons} * #{$toolbar-button-width});
-  right: calc(#{$number-of-annotation-list-buttons} * #{$toolbar-button-width} + (#{$toolbar-container-width} - #{$toolbar-button-width} ) / 2 + #{$toolbar-left-margin});
-}
-
-.thicknessList {
-  width: calc(#{$number-of-thickness-list-buttons} * #{$toolbar-button-width});
-  right: calc(#{$number-of-thickness-list-buttons} * #{$toolbar-button-width} + (#{$toolbar-container-width} - #{$toolbar-button-width} ) / 2 + #{$toolbar-left-margin});
-}
-
-.fontSizeList {
-  width: calc(#{$number-of-fontsize-list-buttons} * #{$toolbar-button-width});
-  right: calc(#{$number-of-fontsize-list-buttons} * #{$toolbar-button-width} + (#{$toolbar-container-width} - #{$toolbar-button-width} ) / 2 + #{$toolbar-left-margin});
-}
-
-.colorList {
-  width: calc(#{$number-of-color-list-buttons} * #{$toolbar-button-width});
-  right: calc(#{$number-of-color-list-buttons} * #{$toolbar-button-width} + (#{$toolbar-container-width} - #{$toolbar-button-width} ) / 2 + #{$toolbar-left-margin});
-}
-
-//Undo and Clear All buttons shouldn't be active
-.notActive {
-  &:focus {
-    background-color: $color-white;
-  }
-}

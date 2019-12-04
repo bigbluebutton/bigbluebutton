@@ -1,0 +1,216 @@
+@import "/imports/ui/stylesheets/variables/_all";
+@import "/imports/ui/stylesheets/mixins/focus";
+@import "/imports/ui/stylesheets/mixins/_indicators";
+
+:root {
+    --poll-column-amount: 2;
+    --poll-blue: #1A73D4;
+    --poll-header-offset: -0.875rem;
+}
+
+.closeBtn {
+    position: relative;
+	> i {
+        color: var(--color-text);
+	}
+}
+
+.btn {
+    margin-top: var(--sm-padding-y);
+    margin-bottom: var(--sm-padding-y);
+}
+
+.hideBtn {
+    position: relative;
+    background-color: var(--color-white);
+    display: block;
+    margin: var(--border-size-large);
+    margin-bottom: var(--border-size);
+    padding-left: 0;
+    padding-right: inherit;
+
+    [dir="rtl"] & {
+      padding-left: inherit;
+      padding-right: 0;
+    }
+
+    > i {
+        color: var(--color-gray-dark);
+        font-size: smaller;
+
+        [dir="rtl"] & {
+            -webkit-transform: scale(-1, 1);
+            -moz-transform: scale(-1, 1);
+            -ms-transform: scale(-1, 1);
+            -o-transform: scale(-1, 1);
+            transform: scale(-1, 1);
+        }
+    }
+
+    &:hover {
+        background-color: var(--color-white);
+    }
+  }
+
+.customBtn {
+    width: 100%;
+}
+
+.customInputWrapper {
+  width: 100%;
+  margin-top: var(--md-padding-y);
+  
+  > Button {
+    width: 100%;
+    margin-top: var(--sm-padding-y);
+    margin-bottom: var(--sm-padding-y);
+  }
+}
+
+.pollInput {
+  > input {
+    width: 100%;
+    margin-top: var(--sm-padding-y);
+    margin-bottom: var(--sm-padding-y);
+  }
+
+  > input::placeholder {
+    color: var(--color-text);
+    opacity: 1; /* Firefox */
+  }
+}
+
+.header {
+    position: relative;
+    top: var(--poll-header-offset);
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: var(--md-padding-y);
+}
+
+.instructions {
+    margin-top: var(--lg-padding-x);
+    margin-bottom: var(--lg-padding-x);
+    color: var(--color-text);
+}
+
+.grid {
+    display: grid;
+    grid-template-columns: repeat(var(--poll-column-amount), 1fr);
+
+    > pollBtn:nth-child(odd) {
+        grid-column: 1;
+    }
+
+    > pollBtn:nth-child(even) {
+        grid-column: var(--poll-column-amount);
+    }
+}
+
+.pollBtn:nth-child(even) {
+    margin-right: inherit;
+    margin-left: var(--sm-padding-y);
+
+    [dir="rtl"] & {
+        margin-right: var(--sm-padding-y);
+        margin-left: inherit;
+    }
+}
+
+.pollBtn:nth-child(odd) {
+    margin-right: var(--sm-padding-y);
+    margin-left: inherit;
+
+    [dir="rtl"] & {
+        margin-right: inherit;
+        margin-left: var(--sm-padding-y);
+    }
+}
+
+.customBtn:hover,
+.pollBtn:hover {
+    box-shadow: 0 0 0 1px var(--poll-blue);
+    background-color: var(--color-white);
+    color: var(--poll-blue);
+
+    > span {
+        color: var(--poll-blue);
+        opacity: 1;
+    }
+}
+
+.customBtn,
+.pollBtn {
+    margin-top: var(--sm-padding-y);
+    margin-bottom: var(--sm-padding-y);
+    background-color: var(--color-white);
+    box-shadow: 0 0 0 1px var(--color-gray);
+    color: var(--color-gray);
+
+    > span {
+        color: var(--color-gray);
+    }
+
+    > span:hover {
+        color: var(--poll-blue);
+        opacity: 1;
+    }
+}
+
+.customBtn:active,
+.pollBtn:active {
+    &:focus {
+        box-shadow: 0 0 0 1px var(--poll-blue);
+    }
+
+    background-color: var(--color-white);
+    box-shadow: 0 0 0 1px var(--poll-blue);
+
+    > span {
+        color: var(--poll-blue);
+    }
+}
+
+.customBtn:focus,
+.pollBtn:focus {
+    background-color: var(--color-white);
+    box-shadow: 0 0 0 1px var(--poll-blue);
+
+    > span {
+        color: var(--poll-blue);
+    }
+}
+
+.input {
+    @include inputFocus(var(--color-blue-light));
+ 
+    &:hover,
+    &:focus {
+        @include highContrastOutline();
+    }
+
+    &:focus {
+        outline-style: solid !important;
+    }
+    
+    margin: 0;
+    color: var(--color-text);
+    background: var(--color-white);
+    font-size: var(--font-size-small);
+    border: 1px solid var(--color-gray-lighter);
+    border-radius: var(--border-radius);
+    padding: .3rem * 1 .3rem * 0.25;
+    padding-left: var(--lg-padding-y);
+
+    [dir="rtl"] & {
+    	padding: .3rem * 1 .3rem * 0.25;
+        padding-right:var(--lg-padding-y);
+    }
+}
+
+.noSlidePanelContainer {
+    color: var(--color-gray-drak);
+    text-align: center;
+}

@@ -35,15 +35,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
                 
                 dispatchEvent(event);
             }
-            
-            public function setTool(gType:String, toolType:String):void {
-                if(gType == WhiteboardConstants.TYPE_CLEAR) {
-                    this.selected = true;
-                } else {
-                    this.selected = false;
-                } 					
-            }
-
 		]]>
 	</fx:Script>
 </mx:Button>

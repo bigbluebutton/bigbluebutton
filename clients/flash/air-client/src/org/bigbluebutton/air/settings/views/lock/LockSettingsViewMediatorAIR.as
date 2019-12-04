@@ -2,9 +2,8 @@ package org.bigbluebutton.air.settings.views.lock {
 	
 	import flash.events.MouseEvent;
 	
+	import org.bigbluebutton.air.main.commands.SaveLockSettingsSignal;
 	import org.bigbluebutton.air.main.models.IUISession;
-	import org.bigbluebutton.lib.main.commands.SaveLockSettingsSignal;
-	import org.bigbluebutton.lib.settings.views.lock.LockSettingsViewMediatorBase;
 	
 	public class LockSettingsViewMediatorAIR extends LockSettingsViewMediatorBase {
 		
@@ -29,8 +28,8 @@ package org.bigbluebutton.air.settings.views.lock {
 			newLockSettings.disablePrivateChat = !view.privateChatCheckbox.selected;
 			newLockSettings.disablePublicChat = !view.publicChatCheckbox.selected;
 			newLockSettings.lockedLayout = !view.layoutCheckbox.selected;
-			newLockSettings.lockOnJoin = userSession.lockSettings.lockOnJoin;
-			newLockSettings.lockOnJoinConfigurable = userSession.lockSettings.lockOnJoinConfigurable;
+			newLockSettings.lockOnJoin = meetingData.meetingStatus.lockSettings.lockOnJoin;
+			newLockSettings.lockOnJoinConfigurable = meetingData.meetingStatus.lockSettings.lockOnJoinConfigurable;
 			saveLockSettingsSignal.dispatch(newLockSettings);
 			userUISession.popPage();
 		}

@@ -1,8 +1,5 @@
 package org.bigbluebutton.presentation.messages;
 
-
-import org.bigbluebutton.api.messaging.messages.IMessage;
-
 public class OfficeDocConversionProgress implements IDocConversionMsg {
   public final String podId;
   public final String meetingId;

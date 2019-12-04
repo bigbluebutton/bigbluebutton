@@ -40,6 +40,8 @@ package org.bigbluebutton.main.model.users {
     
     public var users:ArrayCollection;
     
+	public var freeJoin : Boolean;
+	
     public var invitedRecently : Boolean;
     
     // Can be one of three following values self, none, other
@@ -61,6 +63,15 @@ package org.bigbluebutton.main.model.users {
       removeUser(user.id);
       users.addItem(user);
     }
+	
+	public function hasUserWithId(userId:String) : Boolean {
+		for (var i : int = 0; i < users.length; i++) {
+			if (BreakoutUser(users.getItemAt(i)).id.indexOf(userId) > -1 ) {
+				return true;
+			}
+		}
+		return false;
+	}
     
     public function removeUser(id: String): void {
       for (var i: int = 0; i < users.length; i++) {

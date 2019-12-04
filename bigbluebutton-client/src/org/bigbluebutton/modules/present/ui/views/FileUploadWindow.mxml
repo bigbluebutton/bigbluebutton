@@ -24,7 +24,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				xmlns:fx="http://ns.adobe.com/mxml/2009"
 				xmlns:mate="http://mate.asfusion.com/"
 				xmlns:common="org.bigbluebutton.common.*"
-				xmlns:s="library://ns.adobe.com/flex/spark"
                 width="580"
 				verticalScrollPolicy="off"
 				horizontalScrollPolicy="off"
@@ -50,49 +49,51 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		<mate:Listener type="{ConversionPageCountError.PAGE_COUNT_ERROR}" method="handlePageCountFailed"/>
 		<mate:Listener type="{ConversionPageCountMaxed.PAGE_COUNT_MAXED}" method="handlePageCountExceeded"/>
 		<mate:Listener type="{RemovePresentationEvent.PRESENTATION_REMOVED_EVENT}" method="handlePresentationRemoved" />	
+		<mate:Listener type="{PresentationDownloadableChangedEvent.PRESENTATION_DOWNLOADABLE_CHANGED_EVENT}" method="handlePresentationDownloadableChangedEvent" />
 	</fx:Declarations>
   <fx:Script>
     <![CDATA[
-		import flash.utils.setTimeout;
-		
-		import mx.collections.ArrayCollection;
-		import mx.controls.listClasses.IListItemRenderer;
-		import mx.core.mx_internal;
-		import mx.events.FlexEvent;
-		import mx.events.ListEvent;
-		import mx.utils.StringUtil;
-		
-		import flashx.textLayout.formats.Direction;
-		
-		import org.as3commons.lang.StringUtils;
-		import org.as3commons.logging.api.ILogger;
-		import org.as3commons.logging.api.getClassLogger;
-		import org.bigbluebutton.core.Options;
-		import org.bigbluebutton.core.UsersUtil;
-		import org.bigbluebutton.modules.present.commands.ChangePresentationCommand;
-		import org.bigbluebutton.modules.present.commands.UploadFileCommand;
-		import org.bigbluebutton.modules.present.events.ConversionCompletedEvent;
-		import org.bigbluebutton.modules.present.events.ConversionPageCountError;
-		import org.bigbluebutton.modules.present.events.ConversionPageCountMaxed;
-		import org.bigbluebutton.modules.present.events.ConversionSupportedDocEvent;
-		import org.bigbluebutton.modules.present.events.ConversionUnsupportedDocEvent;
-		import org.bigbluebutton.modules.present.events.ConversionUpdateEvent;
-		import org.bigbluebutton.modules.present.events.CreatingThumbnailsEvent;
-		import org.bigbluebutton.modules.present.events.OfficeDocConvertFailedEvent;
-		import org.bigbluebutton.modules.present.events.OfficeDocConvertInvalidEvent;
-		import org.bigbluebutton.modules.present.events.OfficeDocConvertSuccessEvent;
-		import org.bigbluebutton.modules.present.events.PresentationRollEvent;
-		import org.bigbluebutton.modules.present.events.RemovePresentationEvent;
-		import org.bigbluebutton.modules.present.events.UploadCompletedEvent;
-		import org.bigbluebutton.modules.present.events.UploadEvent;
-		import org.bigbluebutton.modules.present.events.UploadIoErrorEvent;
-		import org.bigbluebutton.modules.present.events.UploadProgressEvent;
-		import org.bigbluebutton.modules.present.events.UploadSecurityErrorEvent;
-		import org.bigbluebutton.modules.present.model.PresentOptions;
-		import org.bigbluebutton.modules.present.model.Presentation;
-		import org.bigbluebutton.modules.present.model.PresentationModel;
-		import org.bigbluebutton.modules.present.model.PresentationPodManager;
-		import org.bigbluebutton.util.i18n.ResourceUtil;
+			import flash.utils.setTimeout;
+			
+			import mx.collections.ArrayCollection;
+			import mx.core.mx_internal;
+			import mx.events.FlexEvent;
+			import mx.managers.PopUpManager;
+			import mx.utils.StringUtil;
+			
+			import flashx.textLayout.formats.Direction;
+			
+			import org.as3commons.lang.StringUtils;
+			import org.as3commons.logging.api.ILogger;
+			import org.as3commons.logging.api.getClassLogger;
+			import org.bigbluebutton.core.Options;
+			import org.bigbluebutton.core.UsersUtil;
+			import org.bigbluebutton.modules.present.commands.ChangePresentationCommand;
+			import org.bigbluebutton.modules.present.commands.UploadFileCommand;
+			import org.bigbluebutton.modules.present.events.ConversionCompletedEvent;
+			import org.bigbluebutton.modules.present.events.ConversionPageCountError;
+			import org.bigbluebutton.modules.present.events.ConversionPageCountMaxed;
+			import org.bigbluebutton.modules.present.events.ConversionSupportedDocEvent;
+			import org.bigbluebutton.modules.present.events.ConversionUnsupportedDocEvent;
+			import org.bigbluebutton.modules.present.events.ConversionUpdateEvent;
+			import org.bigbluebutton.modules.present.events.CreatingThumbnailsEvent;
+			import org.bigbluebutton.modules.present.events.OfficeDocConvertFailedEvent;
+			import org.bigbluebutton.modules.present.events.OfficeDocConvertInvalidEvent;
+			import org.bigbluebutton.modules.present.events.OfficeDocConvertSuccessEvent;
+			import org.bigbluebutton.modules.present.events.PresentationDownloadableChangedEvent;
+			import org.bigbluebutton.modules.present.events.RemovePresentationEvent;
+			import org.bigbluebutton.modules.present.events.UploadCompletedEvent;
+			import org.bigbluebutton.modules.present.events.UploadEvent;
+			import org.bigbluebutton.modules.present.events.UploadIoErrorEvent;
+			import org.bigbluebutton.modules.present.events.UploadProgressEvent;
+			import org.bigbluebutton.modules.present.events.UploadSecurityErrorEvent;
+			import org.bigbluebutton.modules.present.model.PresentOptions;
+			import org.bigbluebutton.modules.present.model.Presentation;
+			import org.bigbluebutton.modules.present.model.PresentationPodManager;
+			import org.bigbluebutton.modules.present.ui.views.models.UploadedPresentation;
+			import org.bigbluebutton.util.browser.BrowserCheck;
+			import org.bigbluebutton.util.i18n.ResourceUtil;
+
 		
 		use namespace mx_internal;
       
@@ -100,7 +101,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
 		[Bindable] private var presentationNamesAC:ArrayCollection;
 		[Bindable] public var maxFileSize:Number;
-		[Bindable] public var podId:String;
+		[Bindable] private var _podId:String;
 
 		private var dispatcher:Dispatcher;
 
@@ -111,24 +112,55 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       private var fileToUpload:FileReference = new FileReference();
       [Bindable] private var presentOptions:PresentOptions;
 		
-      override public function move(x:Number, y:Number):void{
-        return;
-      }
-
 		protected function onCreationComplete(event:FlexEvent):void
 		{
 			dispatcher = new Dispatcher();
 			updateStyles();
+			resourcesChanged();
+			// For an unknown reason this popup cannot be centred directly using PopUpUtil
+			PopUpManager.centerPopUp(this);
+			
+			// All of the code around the "firefox60" state is just a temporary stop gap to mitigate a regression 
+			// in file uploading in Firefox 60+
+			if (presentOptions.disableFirefoxF60Upload && Capabilities.os.indexOf("Windows") != -1 &&
+				BrowserCheck.isFirefox() && BrowserCheck.browserFullVersion == "60.0" && BrowserCheck.isWin64()) {
+				currentState = "firefox60";
+			}
 		}
 
-		public function setPodId(_podId: String): void {
-			podId = _podId;
-			presentationNamesAC = PresentationPodManager.getInstance().getPod(podId).getPresentations(); // GOOD
+		public function setPodId(podId: String): void {
+			_podId = podId ;
+
+			refreshPresentationsList();
 			if (presentationNamesAC.length <= 0) {
 				selectFile();
 			}
 		}
 
+		private function refreshPresentationsList():void {
+			presentationNamesAC = new ArrayCollection();
+			var presNames: ArrayCollection = PresentationPodManager.getInstance().getPod(_podId).getPresentations();
+			
+			for (var i:int =0; i<presNames.length; i++) {
+				var pres: Presentation = presNames.getItemAt(i) as Presentation;
+				var uploadedPresentation: UploadedPresentation = new UploadedPresentation();
+				uploadedPresentation.podId = _podId;
+				uploadedPresentation.presId = pres.id;
+				uploadedPresentation.presName = pres.name;
+				uploadedPresentation.downloadable = pres.downloadable;
+				uploadedPresentation.presCurrent = pres.current;
+				presentationNamesAC.addItem(uploadedPresentation);
+			}
+		}
+			
+		private function handlePresentationDownloadableChangedEvent(event: PresentationDownloadableChangedEvent): void {
+			if (_podId == event.podId) {
+				refreshPresentationsList();
+				resourcesChanged();
+			}
+			
+		}
+			
 		private function updateStyles() : void {
 			var styleNameExt : String = "";
 			if (ResourceUtil.getInstance().isRTLEnabled() && ResourceUtil.getInstance().getCurrentLanguageDirection() == Direction.RTL) {
@@ -195,6 +227,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
         progressReportBox.visible = true;
         progressBar.visible = true;
+		progressBarLabel.visible = true;
         
         disableClosing();
         
@@ -206,8 +239,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
           // This should be configurable to match what's allowed in nginx. (ralam feb 23, 2010) 
             var logData:Object = UsersUtil.initLogData();
             logData.tags = ["presentation"];
-            logData.message = "File exceeds max limit."; 
+            logData.logCode = "presentation_upload_exceeds_max_limit"; 
             logData.fileSizeBytes = fileSize;
+						logData.filename = fileToUpload.name;
             logData.maxFileSizeBytes = maxFileSizeBytes;
             LOGGER.error(JSON.stringify(logData));
                 
@@ -224,7 +258,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
           uploadCmd.filename = presentationName;
           uploadCmd.file = fileToUpload;
           uploadCmd.isDownloadable = isDownloadable;
-          uploadCmd.podId = podId;
+          uploadCmd.podId = _podId;
 
           globalDispatch.dispatchEvent(uploadCmd);
           letUserDownload.visible = false;
@@ -254,7 +288,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         var logData:Object = UsersUtil.initLogData();
         logData.tags = ["presentation-conversion"];
         logData.filename = fileToUpload.name;
-        logData.message = "Presentation conversion failed";
+        logData.logCode = "presentation_conversion_failed";
         LOGGER.warn(JSON.stringify(logData));
 
         enableClosing();
@@ -265,7 +299,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         var logData:Object = UsersUtil.initLogData();
         logData.tags = ["presentation-conversion"];
         logData.filename = fileToUpload.name;
-        logData.message = "Presentation conversion invalid";
+        logData.logCode = "presentation_conversion_invalid";
         LOGGER.warn(JSON.stringify(logData));
 
         enableClosing();
@@ -279,7 +313,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       }
 
       private function handleSupportedDocument(e:ConversionSupportedDocEvent):void {
-        LOGGER.debug("handleSupportedDocument");
+
 		buildProgressLabel(ResourceUtil.getInstance().getString('bbb.presentation.document.supported'));
         progressBar.setProgress(0, 100);
         progressBar.validateNow();
@@ -296,7 +330,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       }
 
       private function handlePageCountExceeded(e:ConversionPageCountMaxed):void {
-		LOGGER.debug("handlePageCountExceeded");
+
         enableClosing();
         var message:String = " Maximum supported is " + e.maxPages;
         displayAlert(ResourceUtil.getInstance().getString('bbb.presentation.error.convert.maxnbpagereach'), message);
@@ -327,13 +361,13 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       }
 		
 	  private function buildProgressLabel(value:String) : void {
-		  progressBar.label = ResourceUtil.getInstance().getString('bbb.fileupload.progBarLbl') + " " + value;
+		  progressBarLabel.text = ResourceUtil.getInstance().getString('bbb.fileupload.progBarLbl') + " " + value;
 	  }
 
       private function handleConversionCompleted(e:ConversionCompletedEvent):void{
         enableClosing();
 		globalDispatch.dispatchEvent(new ChangePresentationCommand(e.podId, e.presId));
-        globalDispatch.dispatchEvent(new UploadEvent(UploadEvent.CLOSE_UPLOAD_WINDOW));
+        globalDispatch.dispatchEvent(new UploadEvent(UploadEvent.CLOSE_UPLOAD_WINDOW, e.podId));
       }
 
 		private function disableClosing():void {
@@ -347,35 +381,21 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
 		private function handlePresentationRemoved(e:RemovePresentationEvent):void {
 			for(var i:int = 0; i < presentationNamesAC.length; i++) {
-				if(e.presentationName == presentationNamesAC.getItemAt(i).id) {
+				if(e.presentationName == presentationNamesAC.getItemAt(i).presId && e.podId == _podId) {
 					presentationNamesAC.removeItemAt(i);
 					return;
 				}
 			}
 		}
 		
-		private function onItemRollOver(event:ListEvent):void {
-			var item:IListItemRenderer = event.itemRenderer;
-			var presentation:Presentation = item.data as Presentation;
-			var rollEvent:PresentationRollEvent = new PresentationRollEvent(PresentationRollEvent.PRESENTATION_ROLL_OVER, presentation.id);
-			dispatcher.dispatchEvent(rollEvent);
-		}
-		
-		private function onItemRollOut(event:ListEvent):void {
-			var item:IListItemRenderer = event.itemRenderer;
-			var presentation:Presentation = item.data as Presentation;
-			var rollEvent:PresentationRollEvent = new PresentationRollEvent(PresentationRollEvent.PRESENTATION_ROLL_OUT, presentation.id);
-			dispatcher.dispatchEvent(rollEvent);
-		}
-		
 		private function onCancelClicked():void {
-			globalDispatch.dispatchEvent(new UploadEvent(UploadEvent.CLOSE_UPLOAD_WINDOW));
+			globalDispatch.dispatchEvent(new UploadEvent(UploadEvent.CLOSE_UPLOAD_WINDOW, _podId));
 		}
 		
 		private function retryButtonClikcHandler(event:MouseEvent):void {
-			globalDispatch.dispatchEvent(new UploadEvent(UploadEvent.CLOSE_UPLOAD_WINDOW))
+			globalDispatch.dispatchEvent(new UploadEvent(UploadEvent.CLOSE_UPLOAD_WINDOW, _podId));
 			setTimeout(function():void {
-				globalDispatch.dispatchEvent(new UploadEvent(UploadEvent.OPEN_UPLOAD_WINDOW))
+				globalDispatch.dispatchEvent(new UploadEvent(UploadEvent.OPEN_UPLOAD_WINDOW, _podId));
 			}, 100);
 		}
 	]]>
@@ -383,11 +403,11 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
   </fx:Script>
 	
 	<mx:states>
-		<s:State name="normal" />
-		<s:State name="uploading" />
-		<s:State name="error" />
+		<mx:State name="normal" />
+		<mx:State name="uploading" />
+		<mx:State name="error" />
+		<mx:State name="firefox60" />
 	</mx:states>
-	
 
   <mx:VBox width="100%" height="100%" verticalAlign="top" horizontalAlign="center" top="15">
     <common:AdvancedLabel text="{ResourceUtil.getInstance().getString('bbb.fileupload.title')}"
@@ -395,7 +415,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 						  maxWidth="550" />
 
 	<mx:Box width="100%" height="100%" paddingLeft="5" paddingRight="5" includeIn="normal">
-	  <mx:Box width="100%" height="100%" verticalAlign="middle" horizontalAlign="center" styleName="presentationUploadFileFormatHintBoxStyle">
+	  <mx:Box width="100%" height="100%" styleName="presentationUploadFileFormatHintBoxStyle">
 		  <mx:Text width="100%" id="fileFormatHintLbl" textAlign="center" text="{ResourceUtil.getInstance().getString('bbb.fileupload.fileFormatHint')}" styleName="presentationUploadFileFormatHintTextStyle"/>
 		</mx:Box>
 	</mx:Box>
@@ -411,25 +431,34 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
                  enabled="false"/>
     </mx:HBox>
 
-    <mx:CheckBox id="letUserDownload" label="{ResourceUtil.getInstance().getString('bbb.fileupload.letUserDownload')}" selected="false" excludeFrom="error"
+    <mx:CheckBox id="letUserDownload" label="{ResourceUtil.getInstance().getString('bbb.fileupload.letUserDownload')}" selected="false" excludeFrom="error, firefox60"
 				 toolTip="{ResourceUtil.getInstance().getString('bbb.fileupload.letUserDownload.tooltip')}"
 				 paddingLeft="5" paddingTop="5" visible="{presentOptions.enableDownload}" includeInLayout="{presentOptions.enableDownload}"/>
 	  
-    <mx:HBox id="progressReportBox" width="100%" paddingLeft="10" paddingRight="10" paddingTop="5" paddingBottom="5" verticalAlign="middle"
-			 includeInLayout="true" visible="false" excludeFrom="error">
-      <mx:ProgressBar id="progressBar" mode="manual" label="{ResourceUtil.getInstance().getString('bbb.fileupload.progBarLbl')}"
-                      styleName="presentationUploadProgressBar" labelPlacement="top" width="100%" visible="false"/>
-    </mx:HBox>
+    <mx:VBox id="progressReportBox" width="100%" paddingLeft="10" paddingRight="10" paddingTop="5" paddingBottom="5" verticalAlign="middle"
+			 includeInLayout="true" visible="false" excludeFrom="error, firefox60">
+	  <mx:Text id="progressBarLabel" styleName="presentationUploadProgressBarLabel"
+			   visible="{progressBar.visible}" width="100%" text="{ResourceUtil.getInstance().getString('bbb.fileupload.progBarLbl')}" />
+      <mx:ProgressBar id="progressBar" mode="manual"
+                      styleName="presentationUploadProgressBar" width="100%" visible="false"/>
+    </mx:VBox>
 	
 	<mx:VBox id="errorBox" paddingTop="5" paddingBottom="5" width="100%" horizontalAlign="center" includeIn="error">
-		<s:Label id="progressErrorLbl" styleName="progressErrorLblStyle" width="540"/>
+		<mx:Text id="progressErrorLbl" styleName="progressErrorLblStyle" width="540"/>
 		<mx:Button id="retryButton" styleName="retryUploadButton"
 				  label="{ResourceUtil.getInstance().getString('bbb.fileupload.retry')}" click="retryButtonClikcHandler(event)"/>
 	</mx:VBox>
 
+	  <!-- ** Temporary warning due to file upload regression in Firefox 60+ ** -->
+	  <mx:Box width="100%" height="100%" paddingLeft="5" paddingRight="5" includeIn="firefox60">
+		  <mx:Box width="100%" height="100%" styleName="presentationUploadFileFormatHintBoxStyle">
+			  <mx:Text width="100%" id="firefox60WarnLbl" textAlign="center" text="{ResourceUtil.getInstance().getString('bbb.fileupload.firefox60Warning.temp')}" styleName="presentationUploadFileFormatHintTextStyle"/>
+		  </mx:Box>
+	  </mx:Box>
+	  <!-- ******************************************************************** -->
+	  
     <mx:List id="uploadedFilesList" rowCount="{presentationNamesAC.length > 3 ? Math.min(6, presentationNamesAC.length) : 3}" width="100%" styleName="presentationFilesList"
              itemRenderer="org.bigbluebutton.modules.present.ui.views.UploadedPresentationRenderer"
-		     itemRollOver="onItemRollOver(event)" itemRollOut="onItemRollOut(event)"
 			 allowMultipleSelection="false" dragEnabled="false" dataProvider="{presentationNamesAC}">
     </mx:List>
   </mx:VBox>

@@ -48,11 +48,6 @@ package org.bigbluebutton.clientcheck.service
 			ExternalInterface.call('BBBClientCheck.cookieEnabled');
 		}
 
-		public function requestJavaEnabled():void
-		{
-			ExternalInterface.call('BBBClientCheck.javaEnabled');
-		}
-
 		public function requestLanguage():void
 		{
 			ExternalInterface.call('BBBClientCheck.language');

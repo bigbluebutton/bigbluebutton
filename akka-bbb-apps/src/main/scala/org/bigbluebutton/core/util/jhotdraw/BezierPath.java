@@ -1329,7 +1329,6 @@ public class BezierPath extends ArrayList<BezierPath.Node>
     public void setWindingRule(int newValue) {
         if (newValue != windingRule) {
             invalidatePath();
-            int oldValue = windingRule;
             this.windingRule = newValue;
         }
     }

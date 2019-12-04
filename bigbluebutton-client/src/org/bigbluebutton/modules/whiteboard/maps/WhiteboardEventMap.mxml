@@ -29,7 +29,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       import org.bigbluebutton.core.events.PerformRttTraceEvent;
       import org.bigbluebutton.main.events.BBBEvent;
       import org.bigbluebutton.modules.present.events.PresentationEvent;
-      import org.bigbluebutton.modules.whiteboard.commands.GetWhiteboardAccessCommand;
       import org.bigbluebutton.modules.whiteboard.commands.GetWhiteboardShapesCommand;
       import org.bigbluebutton.modules.whiteboard.events.RequestNewCanvasEvent;
       import org.bigbluebutton.modules.whiteboard.events.StartWhiteboardModuleEvent;
@@ -47,16 +46,10 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		<EventHandlers type="{WhiteboardAccessEvent.MODIFY_WHITEBOARD_ACCESS}" >
 			<MethodInvoker generator="{WhiteboardService}" method="modifyAccess" arguments="{event}" />
 		</EventHandlers>
-		
-		<EventHandlers type="{GetWhiteboardAccessCommand.GET_ACCESS}" >
-			<MethodInvoker generator="{WhiteboardService}" method="getWhiteboardAccess"/>
-		</EventHandlers>
     
     <EventHandlers type="{PerformRttTraceEvent.PERFORM_RTT_TRACE}" >
       <MethodInvoker generator="{WhiteboardService}" method="handlePerformRttTraceEvent"/>
     </EventHandlers>
-    
-    
 			
 		<EventHandlers type="{PresentationEvent.PRESENTATION_LOADED}" >
 			<MethodInvoker generator="{WhiteboardService}" method="setActivePresentation" arguments="{event}" />

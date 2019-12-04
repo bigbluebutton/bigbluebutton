@@ -421,13 +421,13 @@ public class ResourceCatalog {
                             err.getMessage());
             return;
         } catch (Throwable t) {
-          log.warn("servlet.log.warning.xml.reading", versionRes.getPath(), t);
+          System.out.println("servlet.log.warning.xml.reading=" + versionRes.getPath() + "\n" + t);
             return;
         }
 
         // Check that root element is a <jnlp> tag
         if (!root.getName().equals("jnlp-versions")) {
-          log.warn("servlet.log.warning.xml.missing-jnlp", versionRes.getPath());
+          System.out.println("servlet.log.warning.xml.missing-jnlp=" + versionRes.getPath());
             return;
         }
 

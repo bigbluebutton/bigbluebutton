@@ -85,13 +85,13 @@ public class JnlpDownloadServlet extends HttpServlet {
 
     // Parse HTTP request
     DownloadRequest dreq = new DownloadRequest(getServletContext(), request);
-    if (log.isInfoEnabled()) {
-      log.info("servlet.log.info.request",   requestStr);
-      log.info("servlet.log.info.useragent", request.getHeader("User-Agent"));
-    }
-    if (log.isDebugEnabled()) {
-      log.debug(dreq.toString());
-    }
+//    if (log.isInfoEnabled()) {
+//      log.info("servlet.log.info.request",   requestStr);
+//      log.info("servlet.log.info.useragent", request.getHeader("User-Agent"));
+//    }
+//    if (log.isDebugEnabled()) {
+//      log.debug(dreq.toString());
+//    }
 
     long ifModifiedSince = request.getDateHeader("If-Modified-Since");
 
@@ -143,12 +143,12 @@ public class JnlpDownloadServlet extends HttpServlet {
       dres.sendRespond(response);
 
     } catch(ErrorResponseException ere) {
-      if (log.isInfoEnabled()) {
-        log.info("servlet.log.info.badrequest", requestStr);
-      }
-      if (log.isDebugEnabled()) {
-        log.debug("Response: "+ ere.toString());
-      }
+//      if (log.isInfoEnabled()) {
+//        log.info("servlet.log.info.badrequest", requestStr);
+//      }
+//      if (log.isDebugEnabled()) {
+//        log.debug("Response: "+ ere.toString());
+//      }
       // Return response from exception
       ere.getDownloadResponse().sendRespond(response);
     } catch(Throwable e) {

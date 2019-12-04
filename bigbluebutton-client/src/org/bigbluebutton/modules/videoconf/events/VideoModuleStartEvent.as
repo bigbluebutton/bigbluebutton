@@ -24,8 +24,6 @@ package org.bigbluebutton.modules.videoconf.events
   {
     public static const START:String = "video module start event";
     
-    public var uri:String;
-    
     public function VideoModuleStartEvent(type:String, bubbles:Boolean=true, cancelable:Boolean=false)
     {
       super(type, bubbles, cancelable);

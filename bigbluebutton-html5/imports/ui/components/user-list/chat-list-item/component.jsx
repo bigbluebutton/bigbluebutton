@@ -1,9 +1,10 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { withRouter, Link } from 'react-router';
 import cx from 'classnames';
 import { defineMessages, injectIntl } from 'react-intl';
-import styles from './styles';
+import { Session } from 'meteor/session';
+import withShortcutHelper from '/imports/ui/components/shortcut-help/service';
+import { styles } from './styles';
 import ChatAvatar from './chat-avatar/component';
 import ChatIcon from './chat-icon/component';
 import ChatUnreadCounter from './chat-unread-messages/component';
@@ -23,80 +24,103 @@ const intlMessages = defineMessages({
   },
 });
 
-const CHAT_CONFIG = Meteor.settings.public.chat;
-const PRIVATE_CHAT_PATH = CHAT_CONFIG.path_route;
-
 const propTypes = {
   chat: PropTypes.shape({
-    id: PropTypes.string.isRequired,
+    userId: PropTypes.string.isRequired,
     name: PropTypes.string.isRequired,
     unreadCounter: PropTypes.number.isRequired,
   }).isRequired,
-  openChat: PropTypes.string,
+  activeChatId: PropTypes.string.isRequired,
   compact: PropTypes.bool.isRequired,
   intl: PropTypes.shape({
     formatMessage: PropTypes.func.isRequired,
   }).isRequired,
   tabIndex: PropTypes.number.isRequired,
   isPublicChat: PropTypes.func.isRequired,
+  chatPanelOpen: PropTypes.bool.isRequired,
+  shortcuts: PropTypes.string,
 };
 
 const defaultProps = {
-  openChat: '',
+  shortcuts: '',
+};
+
+const handleClickToggleChat = (id) => {
+  Session.set(
+    'openPanel',
+    Session.get('openPanel') === 'chat' && Session.get('idChatOpen') === id
+      ? 'userlist' : 'chat',
+  );
+  if (Session.equals('openPanel', 'chat')) {
+    Session.set('idChatOpen', id);
+  } else {
+    Session.set('idChatOpen', '');
+  }
 };
 
 const ChatListItem = (props) => {
   const {
     chat,
-    openChat,
+    activeChatId,
     compact,
     intl,
     tabIndex,
     isPublicChat,
-    } = props;
+    shortcuts: TOGGLE_CHAT_PUB_AK,
+    chatPanelOpen,
+  } = props;
 
-  const linkPath = [PRIVATE_CHAT_PATH, chat.id].join('');
-  const isCurrentChat = chat.id === openChat;
-
+  const isCurrentChat = chat.userId === activeChatId && chatPanelOpen;
   const linkClasses = {};
   linkClasses[styles.active] = isCurrentChat;
 
   return (
-    <Link
-      to={linkPath}
-      className={cx(styles.chatListItem, linkClasses)}
+    <div
+      data-test="chatButton"
       role="button"
+      className={cx(styles.chatListItem, linkClasses)}
       aria-expanded={isCurrentChat}
       tabIndex={tabIndex}
+      accessKey={isPublicChat(chat) ? TOGGLE_CHAT_PUB_AK : null}
+      onClick={() => handleClickToggleChat(chat.userId)}
+      id="chat-toggle-button"
+      aria-label={isPublicChat(chat) ? intl.formatMessage(intlMessages.titlePublic) : chat.name}
     >
+
       <div className={styles.chatListItemLink}>
         <div className={styles.chatIcon}>
-          {chat.icon ?
-            <ChatIcon icon={chat.icon} />
-            :
-            <ChatAvatar
-              isModerator={chat.isModerator}
-              color={chat.color}
-              name={chat.name.toLowerCase().slice(0, 2)}
-            />}
+          {chat.icon
+            ? <ChatIcon icon={chat.icon} />
+            : (
+              <ChatAvatar
+                isModerator={chat.isModerator}
+                color={chat.color}
+                name={chat.name.toLowerCase().slice(0, 2)}
+              />
+            )}
         </div>
         <div className={styles.chatName}>
-          {!compact ?
-            <span className={styles.chatNameMain}>
-              {isPublicChat(chat) ? intl.formatMessage(intlMessages.titlePublic) : chat.name}
-            </span> : null}
+          {!compact
+            ? (
+              <span className={styles.chatNameMain}>
+                {isPublicChat(chat)
+                  ? intl.formatMessage(intlMessages.titlePublic) : chat.name}
+              </span>
+            ) : null}
         </div>
-        {(chat.unreadCounter > 0) ?
-          <ChatUnreadCounter
-            counter={chat.unreadCounter}
-          />
+        {(chat.unreadCounter > 0)
+          ? (
+            <ChatUnreadCounter
+              counter={chat.unreadCounter}
+            />
+          )
           : null}
       </div>
-    </Link>
+    </div>
   );
 };
 
 ChatListItem.propTypes = propTypes;
 ChatListItem.defaultProps = defaultProps;
 
-export default withRouter(injectIntl(ChatListItem));
+export default withShortcutHelper(injectIntl(ChatListItem), 'togglePublicChat');

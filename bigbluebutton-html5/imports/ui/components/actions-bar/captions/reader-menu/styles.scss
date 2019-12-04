@@ -1,0 +1,112 @@
+@import "/imports/ui/stylesheets/variables/_all";
+@import "/imports/ui/components/modal/simple/styles";
+@import "/imports/ui/stylesheets/mixins/focus";
+
+.header {
+  display: flex;
+  border: none;
+}
+
+.footer {
+  display: flex;
+}
+
+.title {
+  display: block;
+  color: var(--color-background);
+  font-size: 1.4rem;
+  text-align: center;
+}
+
+.actions {
+  margin-left: auto;
+  margin-right: 3px;
+
+
+  [dir="rtl"] & {
+    margin-right: auto;
+    margin-left: 3px;
+  }
+
+  :first-child {
+    margin-right: 3px;
+    margin-left: inherit;
+
+    [dir="rtl"] & {
+      margin-right: inherit;
+      margin-left: 3px;
+    }
+  }
+}
+.modal {
+  @extend .modal;
+  padding: 1rem;
+}
+
+.col {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  margin: 0 1.5rem 0 0;
+  justify-content: center;
+
+  [dir="rtl"] & {
+    margin: 0 0 0 1.5rem;
+  }
+
+  @include mq($small-only) {
+    width: 100%;
+    height: unset;
+  }
+}
+
+.select {
+  background-color: var(--color-white);
+  border-radius: 0.3rem;
+  color: var(--color-gray-label);
+  height: 1.6rem;
+  margin-top: 0.4rem;
+  width: 50%;
+}
+
+.label {
+  flex: 1 0 0;
+}
+
+
+.colorPickerOverlay {
+  position: fixed;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+}
+
+.colorPickerPopover {
+  position: absolute;
+  z-index: 1001;
+}
+
+.swatch {
+  flex: 1 0 0;
+  @include elementFocus(var(--color-primary));
+  border-radius: var(--border-size);
+  border: var(--border-size) solid var(--color-gray-light);
+  display: inline-block;
+  vertical-align: middle;
+  cursor: pointer;
+}
+
+.swatchInner {
+  width: auto;
+  height: 1.1rem;
+  border-radius: var(--border-size);
+}
+
+.row {
+  display: flex;
+  justify-content: space-between;
+  padding: .2rem 0 .2rem 0;
+}
+
+

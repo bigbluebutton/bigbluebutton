@@ -1,0 +1,87 @@
+<#ftl output_format="XML" auto_esc=true>
+<#compress>
+<response>
+  <#-- Where code is a 'SUCCESS' or 'FAILED' String -->
+  <returncode>${returnCode}</returncode>
+  <#list meetingDetailsList>
+  <meetings>
+    <#items as meetingDetail>
+      <#assign meeting = meetingDetail.getMeeting()>
+      <meeting>
+        <meetingName>${meeting.getName()}</meetingName>
+        <meetingID>${meeting.getExternalId()}</meetingID>
+        <internalMeetingID>${meeting.getInternalId()}</internalMeetingID>
+        <createTime>${meeting.getCreateTime()?c}</createTime>
+        <createDate>${meetingDetail.getCreatedOn()}</createDate>
+        <voiceBridge>${meeting.getTelVoice()}</voiceBridge>
+        <dialNumber>${meeting.getDialNumber()}</dialNumber>
+        <attendeePW>${meeting.getViewerPassword()}</attendeePW>
+        <moderatorPW>${meeting.getModeratorPassword()}</moderatorPW>
+        <running>${meeting.isRunning()?c}</running>
+        <duration>${meeting.getDuration()?c}</duration>
+        <hasUserJoined>${meeting.hasUserJoined()?c}</hasUserJoined>
+        <recording>${meeting.isRecord()?c}</recording>
+        <hasBeenForciblyEnded>${meeting.isForciblyEnded()?c}</hasBeenForciblyEnded>
+        <startTime>${meeting.getStartTime()?c}</startTime>
+        <endTime>${meeting.getEndTime()?c}</endTime>
+        <participantCount>${meeting.getNumUsers()}</participantCount>
+        <listenerCount>${meeting.getNumListenOnly()}</listenerCount>
+        <voiceParticipantCount>${meeting.getNumVoiceJoined()}</voiceParticipantCount>
+        <videoCount>${meeting.getNumVideos()}</videoCount>
+        <maxUsers>${meeting.getMaxUsers()}</maxUsers>
+        <moderatorCount>${meeting.getNumModerators()}</moderatorCount>
+        <attendees>
+        <#list meetingDetail.meeting.getUsers() as att>
+          <attendee>
+              <userID>${att.getExternalUserId()}</userID>
+              <fullName>${att.getFullname()}</fullName>
+              <role>${att.getRole()}</role>
+              <isPresenter>${att.isPresenter()?c}</isPresenter>
+              <isListeningOnly>${att.isListeningOnly()?c}</isListeningOnly>
+              <hasJoinedVoice>${att.isVoiceJoined()?c}</hasJoinedVoice>
+              <hasVideo>${att.hasVideo()?c}</hasVideo>
+              <clientType>${att.getClientType()}</clientType>
+              <#if meeting.getUserCustomData(att.getExternalUserId())??>
+                  <#assign ucd = meetingDetail.meeting.getUserCustomData(att.getExternalUserId())>
+                  <customdata>
+                      <#list ucd?keys as prop>
+                          <${prop}>${ucd[prop]}</${prop}>
+                      </#list>
+                  </customdata>
+              </#if>
+          </attendee>
+        </#list>
+        </attendees>
+	    <metadata>
+	    <#list meeting.getMetadata() as name, value>
+	       <#if value??>
+	         <${name}>${value}</${name}>
+	       </#if>
+	    </#list>
+	    </metadata>
+
+        <isBreakout>${meetingDetail.meeting.isBreakout()?c}</isBreakout>
+
+        <#if meetingDetail.meeting.isBreakout()>
+           <parentMeetingID>${meetingDetail.meeting.getParentMeetingId()}</parentMeetingID>
+           <sequence>${meetingDetail.meeting.getSequence()}</sequence>
+           <freeJoin>${meetingDetail.meeting.isFreeJoin()?c}</freeJoin>
+        </#if>
+
+        <#list meetingDetail.meeting.getBreakoutRooms()>
+           <breakoutRooms>
+           <#items as room>
+              <breakout>${room}</breakout>
+           </#items>
+           </breakoutRooms>
+        </#list>
+      </meeting>
+    </#items>
+  </meetings>
+  <#else>
+  <meetings/>
+  <messageKey>${msgKey}</messageKey>
+  <message>${msg}</message>
+  </#list>
+</response>
+</#compress>

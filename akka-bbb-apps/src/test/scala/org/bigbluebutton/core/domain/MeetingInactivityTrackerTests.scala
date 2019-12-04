@@ -1,7 +1,6 @@
 package org.bigbluebutton.core.domain
 
 import org.bigbluebutton.core.UnitSpec
-import org.bigbluebutton.core.running.MeetingExpiryTrackerHelper
 import org.bigbluebutton.core.util.TimeUtil
 
 class MeetingInactivityTrackerTests extends UnitSpec {

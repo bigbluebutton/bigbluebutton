@@ -1,0 +1,35 @@
+<html>
+<head>
+  <title></title>
+  <script src="https://code.jquery.com/jquery-1.11.2.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/sockjs/0.3.4/sockjs.min.js"></script>
+  <script src="vertxbus.js"></script>
+</head>
+
+<style>
+  .news {
+    font-size: 20pt;
+  }
+</style>
+
+<body>
+
+<div class="news">Latest news: </div><br>
+<div id="status" class="news"></div>
+
+<script>
+ 
+  var eb = new vertx.EventBus("http://192.168.23.33:3000/eventbus");
+
+  eb.onopen = function() {
+    eb.registerHandler("news-feed", function(msg) {  
+      var str = "<code>" + msg + "</code><br>";
+      $('#status').prepend(str);
+    })    
+  }        
+
+
+</script>
+
+</body>
+</html>

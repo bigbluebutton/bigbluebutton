@@ -28,6 +28,8 @@ package org.bigbluebutton.main.events
 		public static const MODERATOR_DENIED_ME:String = "MODERATOR_DENIED_ME";
 		public static const CONFIRM_LOGOUT:String = "CONFIRM_LOGOUT";
 		public static const REFOCUS_CONFIRM:String = "REFOCUS_CONFIRM";
+		public static const SIGN_OUT:String = "SIGN_OUT";
+		public static const LOGOUT_ON_STOP_RECORDING:String = "LOGOUT_ON_STOP_RECORDING";
 		
     public var userID:String;
     

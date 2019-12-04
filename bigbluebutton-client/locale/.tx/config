@@ -1,0 +1,10 @@
+[main]
+host = https://www.transifex.com
+
+[bigbluebutton.bbbresourcesproperties]
+file_filter = <lang>/bbbResources.properties
+minimum_perc = 0
+source_file = en_US/bbbResources.properties
+source_lang = en
+type = UNICODEPROPERTIES
+

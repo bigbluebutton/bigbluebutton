@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+
+BigBlueButton open source conferencing system - http://www.bigbluebutton.org/
+
+Copyright (c) 2012 BigBlueButton Inc. and by respective authors (see below).
+
+This program is free software; you can redistribute it and/or modify it under the
+terms of the GNU Lesser General Public License as published by the Free Software
+Foundation; either version 3.0 of the License, or (at your option) any later
+version.
+
+BigBlueButton is distributed in the hope that it will be useful, but WITHOUT ANY
+WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
+PARTICULAR PURPOSE. See the GNU Lesser General Public License for more details.
+
+You should have received a copy of the GNU Lesser General Public License along
+with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
+
+-->
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:util="http://www.springframework.org/schema/util"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans
+			http://www.springframework.org/schema/beans/spring-beans-2.5.xsd
+			http://www.springframework.org/schema/util 
+			http://www.springframework.org/schema/util/spring-util-2.0.xsd
+			">
+
+	<bean id="meetingMessageHandler" class="org.bigbluebutton.red5.pubsub.MeetingMessageHandler">
+		<property name="meetingManager" ref="meetingManager"/>
+		<property name="connInvokerService" ref="connInvokerService"/>
+	</bean>
+
+	<bean id="receivedMessageHandler" class="org.bigbluebutton.common2.redis.pubsub.ReceivedMessageHandler"
+		  init-method="start" destroy-method="stop">
+	</bean>
+
+	<bean id="redisStorageService"
+		class="org.bigbluebutton.common2.redis.RedisStorageService"
+		init-method="start" destroy-method="stop">
+		<property name="host" value="${redis.host}" />
+		<property name="port" value="${redis.port}" />
+		<property name="password" value="${redis.password:}" />
+		<property name="expireKey" value="${redis.keyExpiry}" />
+		<property name="clientName" value="BbbRed5VideoStore" />
+	</bean>
+	
+	<bean id="messageReceiver" class="org.bigbluebutton.common2.redis.pubsub.MessageReceiver"
+		  init-method="start" destroy-method="stop">
+		<property name="host" value="${redis.host}" />
+		<property name="port" value="${redis.port}" />
+		<property name="password" value="${redis.password}" />
+		<property name="clientName" value="BbbRed5VideoReceiver" />
+		<property name="messageHandler" ref="receivedMessageHandler"/>
+	</bean>
+
+    <bean id="redisSender" class="org.bigbluebutton.common2.redis.pubsub.MessageSender" 
+                    init-method="start" destroy-method="stop">
+		<property name="host" value="${redis.host}" />
+		<property name="port" value="${redis.port}" />
+		<property name="password" value="${redis.password:}" />
+		<property name="clientName" value="BbbRed5VideoSender" />
+    </bean>
+    
+    <bean id="redisPublisher" class="org.bigbluebutton.red5.pubsub.MessagePublisher">
+        <property name="messageSender" ref="redisSender"/>
+    </bean>
+    
+	<bean id="messageDistributor" class="org.bigbluebutton.common2.redis.pubsub.MessageDistributor">
+		<property name="messageHandler" ref="receivedMessageHandler"/>
+		<property name="messageListeners">
+			<set>
+				<ref bean="meetingMessageHandler" />
+			</set>
+		</property>
+	</bean>
+    
+</beans>

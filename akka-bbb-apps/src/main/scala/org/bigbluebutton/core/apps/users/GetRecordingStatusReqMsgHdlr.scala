@@ -12,10 +12,10 @@ trait GetRecordingStatusReqMsgHdlr {
 
   def handleGetRecordingStatusReqMsg(msg: GetRecordingStatusReqMsg) {
 
-    def buildGetRecordingStatusRespMsg(meetingId: String, userId: String, recording: Boolean): BbbCommonEnvCoreMsg = {
+    def buildGetRecordingStatusRespMsg(meetingId: String, userId: String, recorded: Boolean, recording: Boolean): BbbCommonEnvCoreMsg = {
       val routing = Routing.addMsgToClientRouting(MessageTypes.DIRECT, meetingId, userId)
       val envelope = BbbCoreEnvelope(GetRecordingStatusRespMsg.NAME, routing)
-      val body = GetRecordingStatusRespMsgBody(recording, userId)
+      val body = GetRecordingStatusRespMsgBody(recorded, recording, userId)
       val header = BbbClientMsgHeader(GetRecordingStatusRespMsg.NAME, meetingId, userId)
       val event = GetRecordingStatusRespMsg(header, body)
 
@@ -23,7 +23,7 @@ trait GetRecordingStatusReqMsgHdlr {
     }
 
     val event = buildGetRecordingStatusRespMsg(liveMeeting.props.meetingProp.intId, msg.body.requestedBy,
-      MeetingStatus2x.isRecording(liveMeeting.status))
+      liveMeeting.props.recordProp.record, MeetingStatus2x.isRecording(liveMeeting.status))
     outGW.send(event)
   }
 }

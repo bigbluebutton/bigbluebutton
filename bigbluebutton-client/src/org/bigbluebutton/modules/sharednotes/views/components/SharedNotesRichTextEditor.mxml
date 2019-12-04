@@ -194,7 +194,7 @@
  @playerversion AIR 1.1
  @productversion Flex 3
  -->
- <mx:Panel xmlns:mx="library://ns.adobe.com/flex/mx" xmlns:fx="http://ns.adobe.com/mxml/2009" xmlns="*" minWidth="220" minHeight="200" width="325" height="300">
+ <mx:Panel xmlns:mx="library://ns.adobe.com/flex/mx" xmlns:fx="http://ns.adobe.com/mxml/2009"  xmlns:common="org.bigbluebutton.common.*" xmlns="*" minWidth="220" minHeight="200" width="325" height="300">
     <fx:Metadata>
         <![CDATA[
         /**
@@ -283,23 +283,23 @@
 
     <fx:Script>
     <![CDATA[
-
-    import flash.events.Event;
-    import flash.events.FocusEvent;
-    import flash.events.KeyboardEvent;
-    import flash.events.MouseEvent;
-    import flash.events.TextEvent;
-    import flash.text.TextFormat;
-    
-    import mx.collections.ArrayCollection;
-    import mx.controls.textClasses.TextRange;
-    import mx.core.IUITextField;
-    import mx.core.UITextFormat;
-    import mx.core.mx_internal;
-    
-    import org.as3commons.logging.api.ILogger;
-    import org.as3commons.logging.api.getClassLogger;
-    import org.bigbluebutton.modules.sharednotes.util.DiffPatch;
+		import flash.events.Event;
+		import flash.events.FocusEvent;
+		import flash.events.KeyboardEvent;
+		import flash.events.MouseEvent;
+		import flash.events.TextEvent;
+		import flash.text.TextFormat;
+		
+		import mx.collections.ArrayCollection;
+		import mx.controls.textClasses.TextRange;
+		import mx.core.IUITextField;
+		import mx.core.UITextFormat;
+		import mx.core.mx_internal;
+		
+		import org.as3commons.lang.StringUtils;
+		import org.as3commons.logging.api.ILogger;
+		import org.as3commons.logging.api.getClassLogger;
+		import org.bigbluebutton.modules.sharednotes.util.DiffPatch;
     use namespace mx_internal;
 
     private static const LOGGER:ILogger = getClassLogger(SharedNotesRichTextEditor);
@@ -902,7 +902,7 @@
                 if (carIndex < textArea.getTextField().length)
                 {
                     var tfNext:TextFormat=textArea.getTextField().getTextFormat(carIndex, carIndex + 1);
-                    if (!tfNext.url || tfNext.url == "")
+                    if (StringUtils.isEmpty(tfNext.url))
                         tf.url = tf.target = "";
                 }
                 else
@@ -938,7 +938,7 @@
         if (!previousTextFormat || previousTextFormat.bullet != tf.bullet)
             bulletButton.selected = tf.bullet;
         if (!previousTextFormat || previousTextFormat.url != tf.url)
-            linkTextInput.text = (tf.url == "" || tf.url == null) ? defaultLinkProtocol : tf.url;
+            linkTextInput.text = (StringUtils.isEmpty(tf.url)) ? defaultLinkProtocol : tf.url;
 
         if (textArea.getTextField().defaultTextFormat != tf)
             textArea.getTextField().defaultTextFormat = tf;
@@ -948,7 +948,7 @@
         lastCaretIndex = textArea.getTextField().caretIndex;
         invalidateToolBarFlag = false;
     }
-    private function setComboSelection(combo:ComboBox,val:String):void
+    private function setComboSelection(combo:ComboBox2,val:String):void
     {
         var length:uint = combo.dataProvider.length;
 
@@ -1287,13 +1287,13 @@
         <mx:ToolBar id="toolbar"
                 width="100%"
                 horizontalGap="7">
-            <mx:ComboBox id="fontFamilyCombo"
+            <common:ComboBox2 id="fontFamilyCombo"
                 editable="true"
                 creationComplete="getTextStyles();lastCaretIndex = -1;"
                 dataProvider = "{fontFamilyArray}"
                 close="setTextStyles('font');"
                 enter="setTextStyles('font');"/>
-            <mx:ComboBox id="fontSizeCombo"
+            <common:ComboBox2 id="fontSizeCombo"
                 editable="true"
                 paddingLeft="2" paddingRight="2"
                 dataProvider = "{fontSizeArray}"

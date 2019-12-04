@@ -223,8 +223,7 @@
 				if(!acorn.$self.prop('paused')) {
 					acorn.$self.trigger('pause');
 				} else {
-					//acorn.$self.trigger('play');
-					acorn.$self[0].play();
+					acorn.$self.trigger('play');
 				}
 				
 				// We return false to stop the followup click event on tablets
@@ -318,9 +317,7 @@
 			 * Pauses the media during seek and changes the "currentTime" to the slider's value
 			 */
 			var startSeek = function(e, ui) {					
-				if(!acorn.$self.attr('paused')) {
-					wasPlaying = true;
-				}
+				acorn.$playBtn.prop('disabled', true);
 				acorn.$self.trigger('pause');
 				seeking = true;
 				
@@ -343,14 +340,11 @@
 			 * and updates ARIA attributes
 			 */
 			var endSeek = function(e, ui) {
-				if(wasPlaying) {
-					acorn.$self.trigger('play');
-					wasPlaying = false;
-				}
 				seeking = false;			
 				var sliderUI = $(ui.handle);
 				sliderUI.attr("aria-valuenow", parseInt(ui.value, 10));
 				sliderUI.attr("aria-valuetext", ariaTimeFormat(ui.value));
+				acorn.$playBtn.prop('disabled', false);
 			};
 			
 			/*

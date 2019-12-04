@@ -11,11 +11,8 @@ package org.bigbluebutton.air.video.views.videochat {
 	
 	import org.bigbluebutton.air.common.PageEnum;
 	import org.bigbluebutton.air.main.models.IUISession;
-	import org.bigbluebutton.lib.main.models.IUserSession;
-	import org.bigbluebutton.lib.user.models.User;
-	import org.bigbluebutton.lib.user.models.UserList;
-	import org.bigbluebutton.lib.video.models.UserStreamName;
-	import org.bigbluebutton.lib.video.models.VideoProfile;
+	import org.bigbluebutton.air.main.models.IUserSession;
+	import org.bigbluebutton.air.video.models.VideoProfile;
 	
 	import robotlegs.bender.bundles.mvcs.Mediator;
 	

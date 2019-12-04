@@ -1,55 +1,110 @@
 @import "/imports/ui/stylesheets/variables/palette";
+@import "/imports/ui/stylesheets/variables/general";
+@import "/imports/ui/stylesheets/mixins/_indicators";
 
 /* Variables
  * ==========
  */
-$user-avatar-border: $color-gray-light;
-$user-avatar-text: $color-white;
-$user-indicators-offset: -.15rem;
-$user-indicator-presenter-bg: $color-primary;
-$user-indicator-voice-bg: $color-success;
-$user-indicator-muted-bg: $color-danger;
-$user-list-bg: #F3F6F9;
+:root {
+  --user-avatar-border: var(--color-gray-light);
+  --user-avatar-text: var(--color-white);
+  --user-indicator-voice-bg: var(--color-success);
+  --user-indicator-muted-bg: var(--color-danger);
+  --user-list-bg: var(--color-off-white);
+  --user-color: currentColor; //picks the current color reference in the class
+}
 
 .avatar {
   position: relative;
-  width: 100%;
-  height: 0;
-  padding-bottom: 100%;
+  padding-bottom: 2rem;
   border-radius: 50%;
   text-align: center;
-  text-transform: capitalize;
-  transition: .3s ease-in-out;
-  font-size: 1rem;
+  font-size: .85rem;
+  border: 2px solid transparent;
 
-  &:after, &:before {
+  :global(.animationsEnabled) & {
+    transition: .3s ease-in-out;
+  }
+
+  &:after,
+  &:before {
     content: "";
     position: absolute;
     width: 0;
     height: 0;
-    padding: .5rem;
+    padding-top: .5rem;
+    padding-right: 0;
+    padding-left: 0;
+    padding-bottom: 0;
     color: inherit;
     top: auto;
     left: auto;
-    bottom: $user-indicators-offset / 2;
-    right: $user-indicators-offset;
-    border: 1.25px solid $user-list-bg;
+    bottom: var(--user-indicators-offset);
+    right: var(--user-indicators-offset);
+    border: 1.5px solid var(--user-list-bg);
     border-radius: 50%;
-    background-color: $user-indicator-voice-bg;
-    color: $user-avatar-text;
+    background-color: var(--user-indicator-voice-bg);
+    color: var(--user-avatar-text);
     opacity: 0;
-    transition: .3s ease-in-out;
     font-family: 'bbb-icons';
     font-size: .65rem;
     line-height: 0;
     text-align: center;
     vertical-align: middle;
     letter-spacing: -.65rem;
+    z-index: 1;
+
+    [dir="rtl"] & {
+      left: var(--user-indicators-offset);
+      right: auto;
+      padding-right: .65rem;
+      padding-left: 0;
+    }
+
+    :global(.animationsEnabled) & {
+        transition: .3s ease-in-out;
+    }
   }
 }
 
 .talking {
-  box-shadow: 0 0 0 1px $user-list-bg, 0 0 0 3px;
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  background-color: var(--user-color);
+  border-radius: inherit;
+
+  :global(.animationsEnabled) & {
+    animation: pulse 1s infinite ease-in;
+  }
+
+  &::before {
+    :global(.animationsDisabled) & {
+      content: '';
+      position: absolute;
+      top: 0;
+      right: 0;
+      bottom: 0;
+      left: 0;
+      background-color: var(--user-color);
+      border-radius: inherit;
+      box-shadow: 0 0 0 4px var(--user-color);
+      opacity: .5;
+    }
+  }
+}
+
+@keyframes pulse {
+  0% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(1.5);
+  }
 }
 
 .moderator {
@@ -59,42 +114,62 @@ $user-list-bg: #F3F6F9;
 .presenter {
   &:before {
     content: "\00a0\e90b\00a0";
-    opacity: 1;
-    top: $user-indicators-offset / 2;
-    left: $user-indicators-offset;
-    bottom: auto;
-    right: auto;
-    border-radius: 5px;
-    background-color: $user-indicator-presenter-bg;
-    padding: .425rem;
   }
+  @include presenterIndicator();
 }
 
 .voice {
   &:after {
     content: "\00a0\e931\00a0";
-    background-color: $user-indicator-voice-bg;
-    opacity: 1;
+    background-color: var(--user-indicator-voice-bg);
+    top: 1.375rem;
+    left: 1.375rem;
+    right: auto;
+
+    [dir="rtl"] & {
+      left: auto;
+      right: 1.375rem;
+    }
+  }
+}
+
+.noVoice {
+  &:after {
+    content: "";
+    background-color: var(--color-off-white);
+    top: 1.375rem;
+    left: 1.375rem;
+    right: auto;
+
+    [dir="rtl"] & {
+      left: auto;
+      right: 1.375rem;
+    }
   }
 }
 
 .muted {
   &:after {
     content: "\00a0\e932\00a0";
-    background-color: $user-indicator-muted-bg;
-    opacity: 1;
+    background-color: var(--user-indicator-muted-bg);
   }
 }
 
 .listenOnly {
   &:after {
     content: "\00a0\e90c\00a0";
-    opacity: 1;
   }
 }
 
+.listenOnly,
+.muted,
+.voice,
+.noVoice {
+  @include indicatorStyles();
+}
+
 .content {
-  color: $user-avatar-text;
+  color: var(--user-avatar-text);
   top: 50%;
   position: absolute;
   text-align: center;
@@ -103,7 +178,8 @@ $user-list-bg: #F3F6F9;
   font-size: 110%;
   text-transform: capitalize;
 
-  &, & > * {
+  &,
+  & > * {
     line-height: 0; // to keep centralized vertically
   }
 }

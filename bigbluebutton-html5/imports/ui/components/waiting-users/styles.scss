@@ -1,0 +1,172 @@
+@import "/imports/ui/stylesheets/mixins/focus";
+@import "/imports/ui/stylesheets/variables/_all";
+
+.panel {
+  background-color: #fff;
+  padding: var(--md-padding-x);
+  display: flex;
+  flex-grow: 1;
+  flex-direction: column;
+  overflow: hidden;
+  height: 100vh;
+}
+
+.header {
+  display: flex;
+  flex-direction: row;
+  align-items: left;
+  flex-shrink: 0;
+
+  a {
+    @include elementFocus(var(--color-primary));
+    padding: 0 0 var(--sm-padding-y) var(--sm-padding-y);
+    text-decoration: none;
+    display: block;
+
+    [dir="rtl"] & {
+      padding: 0 var(--sm-padding-y) var(--sm-padding-y) 0;
+    }
+  }
+
+  [class^="icon-bbb-"],
+  [class*=" icon-bbb-"] {
+    font-size: 85%;
+  }
+}
+
+.title {
+  @extend %text-elipsis;
+  flex: 1;
+
+  & > button, button:hover {
+    margin-top: 0;
+    padding-top: 0;
+    border-top: 0;
+  }
+}
+
+.hideBtn {
+  position: relative;
+  background-color: var(--color-white);
+  display: block;
+  margin: 4px;
+  margin-bottom: 2px;
+  padding-left: 0;
+  padding-right: inherit;
+
+  [dir="rtl"] & {
+    padding-left: inherit;
+    padding-right: 0;
+  }
+
+  > i {
+    color: black;
+  }
+
+  &:hover {
+    background-color: var(--color-white);
+  }
+}
+
+.customBtn {
+  width: 100%;
+  padding: .75rem;
+  margin: .3rem 0;
+  font-weight: 400;
+  font-size: var(--font-size-base);
+}
+
+.mainTitle {
+  color: var(--color-gray);
+}
+
+.userAvatar {
+  width: 2rem;
+  margin: .5rem;
+}
+
+.listItem {
+  display: flex;
+  flex-flow: row;
+  flex-direction: row;
+  align-items: center; 
+  justify-content: space-between;
+  border-radius: 5px;
+  cursor: pointer;
+  :global(.animationsEnabled) & {
+    transition: all .3s;
+  }
+
+  &:first-child {
+    margin-top: 0;
+  }
+
+  &:focus {
+    background-color: var(--list-item-bg-hover);
+    box-shadow: inset 0 0 0 var(--border-size) var(--item-focus-border), inset 1px 0 0 1px var(--item-focus-border);
+    outline: none;
+  }
+
+  &:hover {
+    background-color: var(--list-item-bg-hover);
+  }
+  flex-shrink: 0;
+}
+
+.buttonContainer {
+  display: flex;
+  justify-self: flex-end;
+  align-items: center;
+  color: var(--color-primary);
+  & > button {
+    padding: 0 .25rem 0 .25rem;
+  }
+}
+
+.userContentContainer {
+  display: flex;
+  align-items: center;
+  width: 64%;
+  flex-direction: row;
+}
+
+.button {
+  font-weight: 400;
+  
+  &:focus {
+    background-color: var(--list-item-bg-hover) !important;
+    box-shadow: inset 0 0 0 var(--border-size) var(--item-focus-border), inset 1px 0 0 1px var(--item-focus-border) ;
+    outline: none;
+  }
+
+  &:hover {
+    background-color: var(--list-item-bg-hover) !important;
+  }
+}
+
+.userName {
+  min-width: 0;
+  display: inline-block;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  width: 100%;
+}
+
+.rememberContainer {
+  margin: 1rem 1rem;
+  height: 2rem;
+  display: flex;
+  align-items: center;
+  & > label {
+    height: fit-content;
+    padding: 0;
+    margin: 0;
+    margin-left: .7rem;
+
+    [dir="rtl"] & {
+      margin: 0;
+      margin-right: .7rem;
+    }
+  }
+}

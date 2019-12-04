@@ -1,0 +1,59 @@
+@import "/imports/ui/stylesheets/variables/palette";
+@import "/imports/ui/stylesheets/variables/general";
+
+@mixin presenterIndicator() {
+  &:before {
+    opacity: 1;
+    top: var(--user-indicators-offset);
+    left: var(--user-indicators-offset);
+    bottom: auto;
+    right: auto;
+    border-radius: 5px;
+    background-color: var(--color-primary);
+
+    [dir="rtl"] & {
+      left: auto;
+      right: var(--user-indicators-offset);
+      letter-spacing: -.33rem;
+    }
+  }
+
+  :global(.browser-chrome) &:before,
+  :global(.browser-firefox) &:before {
+    padding: .45rem;
+  }
+
+  :global(.browser-edge) &:before {
+    padding-top: var(--indicator-padding-top);
+    padding-left: var(--indicator-padding-left);
+    padding-right: var(--indicator-padding-right);
+    padding-bottom: var(--indicator-padding-bottom);
+
+    [dir="rtl"] & {
+      padding-right: var(--indicator-padding-left);
+      padding-left: var(--indicator-padding-right);
+    }
+  }
+}
+
+@mixin indicatorStyles() {
+  &:after {
+    opacity: 1;
+    width: 1.2rem;
+    height: 1.2rem;
+  }
+
+  :global(.browser-edge) &:after {
+    padding-top: var(--indicator-padding-top);
+    padding-left: var(--indicator-padding-left);
+    padding-right: var(--indicator-padding-right);
+    padding-bottom: var(--indicator-padding-bottom);
+  }
+}
+
+@mixin highContrastOutline() {
+  /* Visible in Windows high-contrast themes */
+  outline: transparent;
+  outline-style: dotted;
+  outline-width: 2px;
+}

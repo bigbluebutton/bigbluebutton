@@ -14,8 +14,8 @@ package org.bigbluebutton.core.model
     internal var welcomeMessage:String;
     internal var modOnlyMessage:String;
     internal var allowStartStopRecording: Boolean;
-	internal var webcamsOnlyForModerator: Boolean;
     internal var metadata: Object;
+    internal var allowModsToUnmuteUsers: Boolean;
 	internal var muteOnStart:Boolean;
     
     public function MeetingBuilder(id: String, name: String) {
@@ -58,11 +58,6 @@ package org.bigbluebutton.core.model
       return this;
     }
 	
-	public function withWebcamsOnlyForModerator(value: Boolean):MeetingBuilder {
-		webcamsOnlyForModerator = value;
-		return this;
-	}
-    
     public function withDefaultLayout(value: String):MeetingBuilder {
       defaultLayout = value;
       return this;
@@ -80,6 +75,11 @@ package org.bigbluebutton.core.model
     
     public function withMetadata(value: Object):MeetingBuilder {
       metadata = value;
+      return this;
+    }
+
+    public function withAllowModsToUnmuteUsers(value: Boolean):MeetingBuilder {
+      allowModsToUnmuteUsers = value;
       return this;
     }
 	

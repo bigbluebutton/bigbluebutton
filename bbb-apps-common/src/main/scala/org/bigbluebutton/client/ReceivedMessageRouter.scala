@@ -1,6 +1,6 @@
 package org.bigbluebutton.client
 
-import org.bigbluebutton.client.bus.{MsgFromAkkaApps, MsgFromAkkaAppsEventBus}
+import org.bigbluebutton.api2.bus.{ MsgFromAkkaApps, MsgFromAkkaAppsEventBus }
 
 trait ReceivedMessageRouter {
   val msgFromAkkaAppsEventBus: MsgFromAkkaAppsEventBus

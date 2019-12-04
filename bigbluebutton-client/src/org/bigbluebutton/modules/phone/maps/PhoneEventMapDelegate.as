@@ -54,7 +54,7 @@ package org.bigbluebutton.modules.phone.maps {
 				// main application.		   	
 				var eventMute:ToolbarButtonEvent = new ToolbarButtonEvent(ToolbarButtonEvent.ADD);
 				eventMute.button = muteMeButton;
-				eventMute.module = "Microphone";
+				eventMute.module = "MuteMicrophone";
 				globalDispatcher.dispatchEvent(eventMute);
 				buttonOpen = true
 				

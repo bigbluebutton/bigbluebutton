@@ -30,6 +30,7 @@ package org.bigbluebutton.modules.videoconf.maps
   import org.as3commons.logging.api.ILogger;
   import org.as3commons.logging.api.getClassLogger;
   import org.bigbluebutton.common.Media;
+  import org.bigbluebutton.common.Role;
   import org.bigbluebutton.common.events.CloseWindowEvent;
   import org.bigbluebutton.common.events.OpenWindowEvent;
   import org.bigbluebutton.common.events.ToolbarButtonEvent;
@@ -47,6 +48,7 @@ package org.bigbluebutton.modules.videoconf.maps
   import org.bigbluebutton.main.events.UserLeftEvent;
   import org.bigbluebutton.main.model.users.events.BroadcastStartedEvent;
   import org.bigbluebutton.main.model.users.events.BroadcastStoppedEvent;
+  import org.bigbluebutton.main.model.users.events.StreamStartedEvent;
   import org.bigbluebutton.main.model.users.events.StreamStoppedEvent;
   import org.bigbluebutton.modules.videoconf.business.VideoProxy;
   import org.bigbluebutton.modules.videoconf.events.ClosePublishWindowEvent;
@@ -66,7 +68,6 @@ package org.bigbluebutton.modules.videoconf.maps
     private static var PERMISSION_DENIED_ERROR:String = "PermissionDeniedError";
 
     private var options:VideoConfOptions;
-    private var uri:String;
 
     private var button:ToolbarPopupButton = new ToolbarPopupButton();
     private var proxy:VideoProxy;
@@ -98,9 +99,8 @@ package org.bigbluebutton.modules.videoconf.maps
       return UsersUtil.getMyUsername();
     }
 
-    public function start(uri:String):void {
+    public function start():void {
       LOGGER.debug("VideoEventMapDelegate:: [{0}] Video Module Started.", [me]);
-      this.uri = uri;
 
       _videoDock = new VideoDock();
       var windowEvent:OpenWindowEvent = new OpenWindowEvent(OpenWindowEvent.OPEN_WINDOW_EVENT);
@@ -113,12 +113,41 @@ package org.bigbluebutton.modules.videoconf.maps
     public function addStaticComponent(component:IUIComponent):void {
       _graphics.addStaticComponent(component);
     }
+	
+	public function userRoleChanged():void {
+		webcamsOnlyForModeratorChanged(UsersUtil.amIModerator())
+	}
+	
+	public function webcamsOnlyForModeratorChanged(promotedToModerator : Boolean = false):void {
+		if (!UsersUtil.amIModerator() || promotedToModerator) {
+			var webcamsOnlyForModerator:Boolean = LiveMeeting.inst().meeting.webcamsOnlyForModerator;
+			for (var i:int = 0; i < UsersUtil.getUsers().length; i++) {
+				var user : User2x = User2x(UsersUtil.getUsers()[i]);
+				if (user.role != Role.MODERATOR) {
+					var streamNames:Array = LiveMeeting.inst().webcams.getStreamIdsForUser(user.intId);
+					if (webcamsOnlyForModerator && !UsersUtil.isMe(user.intId) && !promotedToModerator) {
+						for (var j:int = 0; j < streamNames.length; j++) {
+							_dispatcher.dispatchEvent(new StreamStoppedEvent(user.intId, streamNames[j]));
+						}
+					} else {
+						_dispatcher.dispatchEvent(new StreamStartedEvent(user.intId, user.name, streamNames[j]));
+					}
+				}
+			}
+		}
+	}
 
     public function viewCamera(userID:String):void {
       LOGGER.debug("VideoEventMapDelegate:: [{0}] viewCamera. ready = [{1}]", [me, _ready]);
 
       if (!_ready) return;
-      if (! UsersUtil.isMe(userID)) {
+	  var webcamsOnlyForModerator:Boolean = LiveMeeting.inst().meeting.webcamsOnlyForModerator;
+	  var user : User2x = LiveMeeting.inst().users.getUser(userID);
+	  var iAmModerator : Boolean = UsersUtil.amIModerator();
+	  var userIsModerator : Boolean = (user != null && user.role == Role.MODERATOR);
+      if (! UsersUtil.isMe(userID) && 
+		  (!webcamsOnlyForModerator || (webcamsOnlyForModerator && (iAmModerator || userIsModerator)))
+	  ) {
         openViewWindowFor(userID);
       }
     }
@@ -171,7 +200,7 @@ package org.bigbluebutton.modules.videoconf.maps
       } else {
         var dp:Object = [];
         for(var i:int = 0; i < Media.availableCameras; i++) {
-          dp.push({label: Media.getCameraName(i), status: button.OFF_STATE});
+          dp.push({label: Media.getCameraName(i), status: ToolbarPopupButton.OFF_STATE});
         }
         button.enabled = false;
         var shareCameraRequestEvent:ShareCameraRequestEvent = new ShareCameraRequestEvent();
@@ -237,7 +266,7 @@ package org.bigbluebutton.modules.videoconf.maps
           closeWindow(userID);
         }
         LOGGER.debug("VideoEventMapDelegate:: [{0}] openWebcamWindowFor:: View user's = [{1}] webcam.", [me, userID]);
-        openViewWindowFor(userID);
+		viewCamera(userID);
       } else {
         if (UsersUtil.isMe(userID) && options.autoStart) {
           LOGGER.debug("VideoEventMapDelegate:: [{0}] openWebcamWindowFor:: It's ME and AutoStart. Start publishing.", [me]);
@@ -303,7 +332,7 @@ package org.bigbluebutton.modules.videoconf.maps
     }
 
     public function connectToVideoApp():void {
-      proxy = new VideoProxy(uri);
+      proxy = new VideoProxy();
       proxy.reconnectWhenDisconnected(true);
       proxy.connect();
     }
@@ -327,7 +356,7 @@ package org.bigbluebutton.modules.videoconf.maps
       }
 
       if (proxy.videoOptions.showButton) {
-       button.callLater(button.publishingStatus, [button.START_PUBLISHING]);
+       button.callLater(button.publishingStatus, [ToolbarPopupButton.START_PUBLISHING]);
       }
     }
 
@@ -357,7 +386,7 @@ package org.bigbluebutton.modules.videoconf.maps
 
         if (proxy.videoOptions.showButton) {
           //Make toolbar button enabled again
-          button.publishingStatus(button.STOP_PUBLISHING, camId);
+          button.publishingStatus(ToolbarPopupButton.STOP_PUBLISHING, camId);
         }
       } else {
         closePublishWindow();
@@ -376,7 +405,7 @@ package org.bigbluebutton.modules.videoconf.maps
 
     public function handleClosePublishWindowEvent(event:ClosePublishWindowEvent):void {
       LOGGER.debug("Closing publish window");
-      if (_myCamSettings.length > 0 || _chromeWebcamPermissionDenied) {
+      if (_myCamSettings.length > 0 || _chromeWebcamPermissionDenied || options.skipCamSettingsCheck) {
         stopBroadcasting();
       }
     }

@@ -3,11 +3,10 @@ package org.bigbluebutton.core.apps.voice
 import org.bigbluebutton.common2.msgs._
 import org.bigbluebutton.core.apps.breakout.BreakoutHdlrHelpers
 import org.bigbluebutton.core.models.{ VoiceUserState, VoiceUsers }
-import org.bigbluebutton.core.running.{ BaseMeetingActor, LiveMeeting, MeetingActor, OutMsgRouter }
-import org.bigbluebutton.core2.MeetingStatus2x
+import org.bigbluebutton.core.running.{ LiveMeeting, MeetingActor, OutMsgRouter }
 
-trait UserLeftVoiceConfEvtMsgHdlr extends BreakoutHdlrHelpers {
-  this: BaseMeetingActor =>
+trait UserLeftVoiceConfEvtMsgHdlr {
+  this: MeetingActor =>
 
   val liveMeeting: LiveMeeting
   val outGW: OutMsgRouter
@@ -35,32 +34,7 @@ trait UserLeftVoiceConfEvtMsgHdlr extends BreakoutHdlrHelpers {
     }
 
     if (liveMeeting.props.meetingProp.isBreakout) {
-      updateParentMeetingWithUsers()
+      BreakoutHdlrHelpers.updateParentMeetingWithUsers(liveMeeting, eventBus)
     }
-
-    stopRecordingVoiceConference()
-  }
-
-  def stopRecordingVoiceConference() {
-    if (VoiceUsers.findAllNonListenOnlyVoiceUsers(liveMeeting.voiceUsers).length == 0 &&
-      liveMeeting.props.recordProp.record &&
-      MeetingStatus2x.isVoiceRecording(liveMeeting.status)) {
-      MeetingStatus2x.stopRecordingVoice(liveMeeting.status)
-
-      val event = buildStopRecordingVoiceConfSysMsg(
-        liveMeeting.props.meetingProp.intId,
-        liveMeeting.props.voiceProp.voiceConf, MeetingStatus2x.getVoiceRecordingFilename(liveMeeting.status)
-      )
-      outGW.send(event)
-    }
-  }
-
-  def buildStopRecordingVoiceConfSysMsg(meetingId: String, voiceConf: String, stream: String): BbbCommonEnvCoreMsg = {
-    val routing = collection.immutable.HashMap("sender" -> "bbb-apps-akka")
-    val envelope = BbbCoreEnvelope(StopRecordingVoiceConfSysMsg.NAME, routing)
-    val header = BbbCoreHeaderWithMeetingId(StopRecordingVoiceConfSysMsg.NAME, meetingId)
-    val body = StopRecordingVoiceConfSysMsgBody(voiceConf, meetingId, stream)
-    val event = StopRecordingVoiceConfSysMsg(header, body)
-    BbbCommonEnvCoreMsg(envelope, event)
   }
 }

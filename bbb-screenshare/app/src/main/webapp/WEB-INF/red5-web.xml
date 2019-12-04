@@ -35,6 +35,22 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
     </property>
   </bean>
   
+  <bean id="screenShareApplication" class="org.bigbluebutton.app.screenshare.ScreenShareApplication">
+    <constructor-arg index="0" ref="messageBus"/>
+    <constructor-arg index="1" value="${jnlpFile}"/>
+    <constructor-arg index="2" value="${streamBaseUrl}"/>
+    <constructor-arg index="3" value="${redis.host}"/>
+    <constructor-arg index="4" value="${redis.port}"/>
+    <constructor-arg index="5" value="${redis.password}"/>
+    <constructor-arg index="6" value="${redis.keyExpiry}"/>
+  </bean>
+  
+  <bean id="connectionInvokerService" class="org.bigbluebutton.app.screenshare.red5.ConnectionInvokerService"
+        init-method="start" destroy-method="stop">
+  </bean>
+  
+  <bean id="meetingManager" class="org.bigbluebutton.app.screenshare.MeetingManager"/>
+  
   <bean id="web.context" class="org.red5.server.Context" autowire="byType"/>
   
   <bean id="web.scope" class="org.red5.server.scope.WebScope" init-method="register">
@@ -48,20 +64,20 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
   
   <bean id="web.handler" class="org.bigbluebutton.app.screenshare.red5.Red5AppAdapter">
     <property name="streamBaseUrl" value="${streamBaseUrl}"/>
-    <property name="eventRecordingService" ref="eventRecordingService"/>
+    <property name="redisStorageService" ref="redisStorageService"/>
     <property name="recordingDirectory" value="${recordingDirectory}"/>
+    <property name="application" ref="screenShareApplication"/>
+    <property name="messageSender" ref="connectionInvokerService"/>
+    <property name="meetingManager" ref="meetingManager"/>
+  </bean>
+
+  <bean id="red5AppHandler" class="org.bigbluebutton.app.screenshare.red5.Red5AppHandler">
     <property name="application" ref="screenShareApplication"/>
     <property name="messageSender" ref="connectionInvokerService"/>
   </bean>
   
   <bean id="screenshare.service" class="org.bigbluebutton.app.screenshare.red5.Red5AppService">
     <property name="appHandler" ref="red5AppHandler"/>
-    <property name="red5RedisSender" ref="red5RedisSender"/>
-  </bean>
-
-  <bean id="red5AppHandler" class="org.bigbluebutton.app.screenshare.red5.Red5AppHandler">
-    <property name="application" ref="screenShareApplication"/>
-    <property name="messageSender" ref="connectionInvokerService"/>
   </bean>
 
   <!-- The IoHandler implementation -->
@@ -69,14 +85,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
     <property name="application" ref="screenShareApplication"/>
   </bean>
 
-  <bean id="screenShareApplication" class="org.bigbluebutton.app.screenshare.ScreenShareApplication">
-    <constructor-arg index="0" ref="messageBus"/>
-    <constructor-arg index="1" value="${jnlpFile}"/>
-    <constructor-arg index="2" value="${streamBaseUrl}"/>
-  </bean>
-
   <bean id="eventListenerImp" class="org.bigbluebutton.app.screenshare.red5.EventListenerImp">
     <property name="messageSender" ref="connectionInvokerService"/>
+    <property name="meetingManager" ref="meetingManager"/>
   </bean>
 
   <bean id="jnlpConfigurator" class="org.bigbluebutton.app.screenshare.server.servlet.JnlpConfigurator">
@@ -96,25 +107,5 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       </property>
   </bean>
 
-  <bean id="connectionInvokerService" class="org.bigbluebutton.app.screenshare.red5.ConnectionInvokerService"
-        init-method="start" destroy-method="stop">
-  </bean>
-
-  <bean id="eventRecordingService" class="org.bigbluebutton.app.screenshare.EventRecordingService">
-    <constructor-arg index="0" value="${redis.host}"/>
-    <constructor-arg index="1" value="${redis.port}"/>
-  </bean>
-
-  <bean id="redisRecorder" class="org.bigbluebutton.app.screenshare.server.recorder.EventRecorder">
-    <constructor-arg index="0" value="${redis.host}"/>
-    <constructor-arg index="1" value="${redis.port}"/>
-  </bean>
-
-    <bean id="redisPubSubMessageHandler"
-          class="org.bigbluebutton.app.screenshare.messaging.redis.RedisPubSubMessageHandler">
-        <property name="appHandler" ref="red5AppHandler"/>
-    </bean>
-
-  <import resource="bbb-redis-pool.xml"/>
-  <import resource="bbb-red5-redis-pubsub.xml"/>
+   <import resource="bbb-redis-messaging.xml"/>
 </beans>

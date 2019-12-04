@@ -26,6 +26,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			import mx.events.FlexEvent;
 			
 			import org.bigbluebutton.core.events.LockControlEvent;
+			import org.bigbluebutton.core.events.SetWebcamsOnlyForModeratorEvent;
 			import org.bigbluebutton.core.events.TokenValidEvent;
 			import org.bigbluebutton.core.events.TokenValidReconnectEvent;
 			import org.bigbluebutton.core.events.VoiceConfEvent;
@@ -42,8 +43,10 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			import org.bigbluebutton.main.model.users.events.ChangeRoleEvent;
 			import org.bigbluebutton.main.model.users.events.EmojiStatusEvent;
 			import org.bigbluebutton.main.model.users.events.KickUserEvent;
+			import org.bigbluebutton.main.model.users.events.LookUpUserEvent;
 			import org.bigbluebutton.main.model.users.events.RoleChangeEvent;
-			<!--TODO: Move guest events to user events? -->
+			
+			// TODO: Move guest events to user events?
 
 
 		]]>
@@ -105,13 +108,25 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	    <MethodInvoker generator="{UserService}" method="kickUser" arguments="{event}" />
 	  </EventHandlers>
 	  
+	  <EventHandlers type="{LookUpUserEvent.LOOK_UP_USER}" >
+	    <MethodInvoker generator="{UserService}" method="lookUpUser" arguments="{event}" />
+	  </EventHandlers>
+
 	  <EventHandlers type="{BBBEvent.CHANGE_RECORDING_STATUS}">
 	    <MethodInvoker generator="{UserService}" method="changeRecordingStatus" arguments="{event}" />
 	  </EventHandlers>
-	  
+
+		<EventHandlers type="{BBBEvent.RECORD_AND_CLEAR_PREVIOUS_MARKERS}">
+			<MethodInvoker generator="{UserService}" method="recordAndClearPreviousMarkers" arguments="{event}" />
+		</EventHandlers>
+
 	  <EventHandlers type="{BBBEvent.ACTIVITY_RESPONSE_EVENT}">
 	    <MethodInvoker generator="{UserService}" method="activityResponse" />
 	  </EventHandlers>
+		
+		<EventHandlers type="{BBBEvent.USER_ACTIVITY_SIGN_RESPONSE_EVENT}">
+			<MethodInvoker generator="{UserService}" method="userActivitySignResponse" />
+		</EventHandlers>
 
     <EventHandlers type="{TokenValidEvent.TOKEN_VALID_EVENT}" >
       <MethodInvoker generator="{UserService}" method="tokenValidEventHandler" arguments="{event}" />
@@ -168,6 +183,10 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	  
 	  <EventHandlers type="{LockControlEvent.SAVE_LOCK_SETTINGS}" >
 	    <MethodInvoker generator="{UserService}" method="saveLockSettings" arguments="{event}" />
+	  </EventHandlers>
+		
+	  <EventHandlers type="{SetWebcamsOnlyForModeratorEvent.UPDATE_WEBCAMS_ONLY_FOR_MODERATOR}" >
+	    <MethodInvoker generator="{UserService}" method="updateWebcamsOnlyForModerator" arguments="{event}" />
 	  </EventHandlers>
 	  
 	  <EventHandlers type="{RoleChangeEvent.ASSIGN_PRESENTER}">

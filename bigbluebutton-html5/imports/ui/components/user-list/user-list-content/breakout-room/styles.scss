@@ -1,0 +1,70 @@
+@import "/imports/ui/components/user-list/styles.scss";
+@import "/imports/ui/stylesheets/mixins/_scrollable";
+@import "/imports/ui/stylesheets/mixins/focus";
+@import "/imports/ui/stylesheets/variables/_all";
+@import "/imports/ui/stylesheets/variables/typography";
+
+.smallTitle {
+  @extend .smallTitle;
+  margin-bottom: var(--lg-padding-y);
+  margin-top: var(--sm-padding-x);
+}
+
+.BreakoutRoomsContents {
+  flex-grow: 0;
+  display: flex;
+  flex-flow: row;
+  align-items: center;
+}
+
+.BreakoutRoomsIcon {
+  display: flex;
+  flex-flow: row;
+  justify-content: space-between;
+  margin-left: var(--sm-padding-x) / 2;
+  text-align: right;
+  font-size: 175%;
+  flex-shrink: 1;
+  color: var(--user-icons-color);
+
+  [dir="rtl"] & {
+    text-align: left;
+    margin-right: var(--sm-padding-x) / 2;
+  }
+}
+
+.BreakoutRoomsText {
+  @extend %flex-column;
+  @extend %no-margin;
+  @extend %text-elipsis;
+  font-weight: 400;
+  font-size: var(--font-size-small);
+  color: var(--color-gray-dark);
+  flex-grow: 1;
+  line-height: 2;
+  text-align: left;
+  padding-left: var(--lg-padding-y);
+  text-overflow: ellipsis;
+
+  [dir="rtl"] & {
+    text-align: right;
+    padding-right: var(--lg-padding-y);
+  }
+}
+
+.BreakoutRoomsItem {
+  @extend %list-item;
+  margin-left: var(--md-padding-y);
+  padding-top: var(--lg-padding-y);
+  padding-bottom: var(--lg-padding-y);
+  padding-left: var(--lg-padding-y);
+
+  [dir="rtl"] & {
+    margin-right: var(--md-padding-y);
+    padding-right: var(--lg-padding-y);
+  }
+}
+
+.link {
+  text-decoration: none;
+}

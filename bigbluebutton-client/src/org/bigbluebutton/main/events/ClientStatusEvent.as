@@ -26,6 +26,7 @@ package org.bigbluebutton.main.events
 		public static const SUCCESS_MESSAGE_EVENT:String = "SUCCESS_MESSAGE_EVENT";
 		public static const WARNING_MESSAGE_EVENT:String = "WARNING_MESSAGE_EVENT";
 		public static const FAIL_MESSAGE_EVENT:String = "FAIL_MESSAGE_EVENT";
+		public static const GLOBAL_EXCEPTION:String = "GLOBAL_EXCEPTION";
 		
 		public var title:String;
 		public var message:String;

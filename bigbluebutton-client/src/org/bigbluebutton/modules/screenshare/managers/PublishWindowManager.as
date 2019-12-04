@@ -46,11 +46,11 @@ package org.bigbluebutton.modules.screenshare.managers {
             if (shareWindow != null) shareWindow.stopSharing();
         }
         
-        public function startSharing(uri:String, room:String, tunnel:Boolean):void {
+        public function startSharing():void {
             LOGGER.debug("DS:PublishWindowManager::opening desk share window");
             if (shareWindow == null) {
               shareWindow = new ScreensharePublishWindow();
-              shareWindow.initWindow(service.getConnection(), uri, room, tunnel);
+              shareWindow.initWindow(service.getConnection());
               shareWindow.visible = true;
               openWindow(shareWindow);
             }

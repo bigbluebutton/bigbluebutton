@@ -9,7 +9,8 @@ package org.bigbluebutton.modules.chat.model
   
   import org.bigbluebutton.modules.chat.ChatUtil;
   import org.bigbluebutton.modules.chat.events.ChatHistoryEvent;
-  import org.bigbluebutton.modules.chat.events.PublicChatMessageEvent;
+  import org.bigbluebutton.modules.chat.events.ClearPublicChatEvent;
+  import org.bigbluebutton.modules.chat.events.NewGroupChatMessageEvent;
   import org.bigbluebutton.modules.chat.vo.ChatMessageVO;
   import org.bigbluebutton.modules.chat.vo.GroupChatUser;
   import org.bigbluebutton.util.i18n.ResourceUtil;
@@ -28,7 +29,8 @@ package org.bigbluebutton.modules.chat.model
     
     private var _dispatcher:Dispatcher = new Dispatcher();
     
-    public function GroupChat(id: String, name: String, access: String,
+    public function GroupChat(id: String,
+                              name: String, access: String,
                               createdBy: GroupChatUser, 
                               users: ArrayCollection, 
                               msg: ArrayCollection) {
@@ -43,11 +45,21 @@ package org.bigbluebutton.modules.chat.model
     public function get id():String {
       return _id;
     }
-    
+       
     public function get name(): String {
       return _name;
     }
     
+    public function isChattingWith(userId: String): Boolean {
+      for (var i:int = 0; i < _users.length; i++) {
+        var user:GroupChatUser = _users[i] as GroupChatUser;
+        if (user.id == userId) {
+          return true;
+        }        
+      }
+      return false;
+    }
+      
     public function getNameAsUsers(exceptUserId:String):String {
       if (users.length == 0) return _name;
       
@@ -80,18 +92,19 @@ package org.bigbluebutton.modules.chat.model
     
     public function addMessage(msg:ChatMessageVO):void {
       _messages.addItem(msg);
-      var pcEvent:PublicChatMessageEvent = new PublicChatMessageEvent(_id, msg);
+      var pcEvent:NewGroupChatMessageEvent = new NewGroupChatMessageEvent(_id, msg);
       _dispatcher.dispatchEvent(pcEvent);
     }
     
     public function addMessageHistory(messageVOs:Array):void {
-      if (messageVOs.length > 0) {        
+      if (messageVOs.length > 0) { 
+        _messages = new ArrayCollection();
         for (var i:int = 0; i < messageVOs.length; i++) {
           var newCM: ChatMessageVO = messageVOs[i] as ChatMessageVO
           _messages.addItemAt(newCM, i);
         }
       }
-      
+			
       var chEvent:ChatHistoryEvent = new ChatHistoryEvent(ChatHistoryEvent.RECEIVED_HISTORY);
       chEvent.chatId = id;
       _dispatcher.dispatchEvent(chEvent);
@@ -107,7 +120,8 @@ package org.bigbluebutton.modules.chat.model
       var allText:String = "";
       var returnStr:String = (Capabilities.os.indexOf("Windows") >= 0 ? "\r\n" : "\n");
       for (var i:int = 0; i < messages.length; i++){
-        var item:ChatMessage = messages.getItemAt(i) as ChatMessage;
+        var chatVO: ChatMessageVO = messages.getItemAt(i) as ChatMessageVO
+        var item:ChatMessage = convertChatMessage(chatVO);
         if (StringUtil.trim(item.name) != "") {
           allText += item.name + "\t";
         }
@@ -127,9 +141,29 @@ package org.bigbluebutton.modules.chat.model
       messages.removeAll();
       messages.addItem(cm);
       
-      var welcomeEvent:ChatHistoryEvent = new ChatHistoryEvent(ChatHistoryEvent.RECEIVED_HISTORY);
-      welcomeEvent.chatId = id;
-      _dispatcher.dispatchEvent(welcomeEvent);
+      var clearChatEvent:ClearPublicChatEvent = new ClearPublicChatEvent(_id);
+      _dispatcher.dispatchEvent(clearChatEvent);
+    }
+    
+    private function convertChatMessage(msgVO:ChatMessageVO):ChatMessage {
+      var cm:ChatMessage = new ChatMessage();
+      
+      cm.lastSenderId = "";
+      cm.lastTime = "";
+      
+      cm.senderId = msgVO.fromUserId;
+      
+      cm.text = msgVO.message;
+      
+      cm.name = msgVO.fromUsername;
+      cm.senderColor = uint(msgVO.fromColor);
+      
+      // Welcome message will skip time
+      if (msgVO.fromTime != -1) {
+        cm.fromTime = msgVO.fromTime;
+        cm.time = convertTimeNumberToString(msgVO.fromTime);
+      }
+      return cm
     }
   }
 }

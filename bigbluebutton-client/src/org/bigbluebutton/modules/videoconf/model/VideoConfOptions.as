@@ -18,10 +18,12 @@
  */
 package org.bigbluebutton.modules.videoconf.model {
 	import org.bigbluebutton.core.Options;
-	import org.bigbluebutton.main.api.JSAPI;
+	import org.bigbluebutton.util.browser.BrowserCheck;
 
 	public class VideoConfOptions extends Options {
-		public var uri:String = "rtmp://localhost/video";
+		public var uri:String = "";
+
+		public var videoProfilesConfig:String = "";
 
 		[Bindable]
 		public var autoStart:Boolean = false;
@@ -58,10 +60,8 @@ package org.bigbluebutton.modules.videoconf.model {
 		}
 
 		override protected function handleExtraData():void {
-			var browserInfo:Array = JSAPI.getInstance().getBrowserInfo();
-
 			// If we are using Puffin browser
-			if (browserInfo[0] == "Puffin" && String(browserInfo[2]).substr(0, 3) < "4.6") {
+			if (BrowserCheck.isPuffinBelow46()) {
 				showButton = false;
 			}
 		}

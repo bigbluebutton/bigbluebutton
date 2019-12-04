@@ -1,86 +1,123 @@
-import React from 'react';
+import React, { Component } from 'react';
+import PropTypes from 'prop-types';
 import Button from '/imports/ui/components/button/component';
-import styles from './styles.scss';
+import injectWbResizeEvent from '/imports/ui/components/presentation/resize-wrapper/component';
 import { defineMessages, injectIntl } from 'react-intl';
+import cx from 'classnames';
+import { styles } from './styles.scss';
 
 const intlMessages = defineMessages({
   pollingTitleLabel: {
     id: 'app.polling.pollingTitle',
-    description: 'Title label for polling options',
+  },
+  pollAnswerLabel: {
+    id: 'app.polling.pollAnswerLabel',
+  },
+  pollAnswerDesc: {
+    id: 'app.polling.pollAnswerDesc',
   },
 });
 
-class PollingComponent extends React.Component {
+class Polling extends Component {
   constructor(props) {
     super(props);
+
+    this.play = this.play.bind(this);
   }
 
   componentDidMount() {
-    // to let the whiteboard know that the presentation area's size has changed
-    window.dispatchEvent(new Event('resize'));
+    this.play();
   }
 
-  componentWillUnmount() {
-    // to let the whiteboard know that the presentation area's size has changed
-    window.dispatchEvent(new Event('resize'));
-  }
-
-  getStyles() {
-    const number = this.props.poll.answers.length + 1;
-    const buttonStyle =
-      {
-        width: `calc(75%/ ${number} )`,
-        marginLeft: `calc(25%/${number * 2})`,
-        marginRight: `calc(25%/${number * 2})`,
-      };
-
-    return buttonStyle;
+  play() {
+    this.alert = new Audio(`${Meteor.settings.public.app.cdn + Meteor.settings.public.app.basename}/resources/sounds/Poll.mp3`);
+    this.alert.play();
   }
 
   render() {
-    const poll = this.props.poll;
-    const calculatedStyles = this.getStyles();
-    const { intl } = this.props;
+    const {
+      isMeteorConnected,
+      intl,
+      poll,
+      handleVote,
+      pollAnswerIds,
+    } = this.props;
+    const { stackOptions, answers } = poll;
+    const pollAnswerStyles = {
+      [styles.pollingAnswers]: true,
+      [styles.removeColumns]: answers.length === 1,
+      [styles.stacked]: stackOptions,
+    };
 
     return (
-      <div className={styles.pollingContainer}>
-        <div className={styles.pollingTitle}>
-          <p>
+      <div className={styles.overlay}>
+        <div
+          className={cx({
+            [styles.pollingContainer]: true,
+            [styles.autoWidth]: stackOptions,
+          })}
+          role="alert"
+        >
+          <div className={styles.pollingTitle}>
             {intl.formatMessage(intlMessages.pollingTitleLabel)}
-          </p>
+          </div>
+          <div className={cx(pollAnswerStyles)}>
+            {poll.answers.map((pollAnswer) => {
+              const formattedMessageIndex = pollAnswer.key.toLowerCase();
+              let label = pollAnswer.key;
+              if (pollAnswerIds[formattedMessageIndex]) {
+                label = intl.formatMessage(pollAnswerIds[formattedMessageIndex]);
+              }
+
+              return (
+                <div
+                  key={pollAnswer.id}
+                  className={styles.pollButtonWrapper}
+                >
+                  <Button
+                    disabled={!isMeteorConnected}
+                    className={styles.pollingButton}
+                    color="primary"
+                    size="md"
+                    label={label}
+                    key={pollAnswer.key}
+                    onClick={() => handleVote(poll.pollId, pollAnswer)}
+                    aria-labelledby={`pollAnswerLabel${pollAnswer.key}`}
+                    aria-describedby={`pollAnswerDesc${pollAnswer.key}`}
+                  />
+                  <div
+                    className={styles.hidden}
+                    id={`pollAnswerLabel${pollAnswer.key}`}
+                  >
+                    {intl.formatMessage(intlMessages.pollAnswerLabel, { 0: label })}
+                  </div>
+                  <div
+                    className={styles.hidden}
+                    id={`pollAnswerDesc${pollAnswer.key}`}
+                  >
+                    {intl.formatMessage(intlMessages.pollAnswerDesc, { 0: label })}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
         </div>
-        {poll.answers.map((pollAnswer, index) =>
-          (<div
-            key={index}
-            style={calculatedStyles}
-            className={styles.pollButtonWrapper}
-          >
-            <Button
-              className={styles.pollingButton}
-              label={pollAnswer.key}
-              size="lg"
-              color="primary"
-              onClick={() => this.props.handleVote(poll.pollId, pollAnswer)}
-              aria-labelledby={`pollAnswerLabel${pollAnswer.key}`}
-              aria-describedby={`pollAnswerDesc${pollAnswer.key}`}
-            />
-            <div
-              className={styles.hidden}
-              id={`pollAnswerLabel${pollAnswer.key}`}
-            >
-              {`Poll answer ${pollAnswer.key}`}
-            </div>
-            <div
-              className={styles.hidden}
-              id={`pollAnswerDesc${pollAnswer.key}`}
-            >
-              {`Select this option to vote for ${pollAnswer.key}`}
-            </div>
-          </div>),
-        )}
-      </div>
-    );
+      </div>);
   }
 }
 
-export default injectIntl(PollingComponent);
+export default injectIntl(injectWbResizeEvent(Polling));
+
+Polling.propTypes = {
+  intl: PropTypes.shape({
+    formatMessage: PropTypes.func.isRequired,
+  }).isRequired,
+  handleVote: PropTypes.func.isRequired,
+  poll: PropTypes.shape({
+    pollId: PropTypes.string.isRequired,
+    answers: PropTypes.arrayOf(PropTypes.shape({
+      id: PropTypes.number.isRequired,
+      key: PropTypes.string.isRequired,
+    }).isRequired).isRequired,
+  }).isRequired,
+};

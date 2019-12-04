@@ -33,6 +33,8 @@ class LtiService {
     def mode = "simple"
     def restrictedAccess = "true"
     def recordedByDefault = "false"
+    def canvasPlacements = ""
+    def canvasPlacementName = "BigBlueButton"
 
     Map<String, String> consumerMap
 
@@ -46,42 +48,37 @@ class LtiService {
 
     private Map<String, String> getConsumer(consumerId) {
         Map<String, String> consumer = null
-
-        if( this.consumerMap.containsKey(consumerId) ){
+        if (this.consumerMap.containsKey(consumerId)) {
             consumer = new HashMap<String, String>()
             consumer.put("key", consumerId);
             consumer.put("secret",  this.consumerMap.get(consumerId))
         }
-
         return consumer
     }
 
-    private void initConsumerMap(){
+    private void initConsumerMap() {
         this.consumerMap = new HashMap<String, String>()
         String[] consumers = this.consumers.split(",")
-        //for( int i=0; i < consumers.length; i++){
-        if ( consumers.length > 0 ){
+        if ( consumers.length > 0 ) {
             int i = 0;
             String[] consumer = consumers[i].split(":")
             if( consumer.length == 2 ){
                 this.consumerMap.put(consumer[0], consumer[1])
             }
         }
-
     }
 
-    public String sign(String sharedSecret, String data) throws Exception
-    {
+    public String sign(String sharedSecret, String data)
+        throws Exception {
         Mac mac = setKey(sharedSecret)
-
         // Signed String must be BASE64 encoded.
         byte[] signBytes = mac.doFinal(data.getBytes("UTF8"));
         String signature = encodeBase64(signBytes);
         return signature;
     }
 
-    private Mac setKey(String sharedSecret) throws Exception
-    {
+    private Mac setKey(String sharedSecret)
+        throws Exception {
         Mac mac = Mac.getInstance("HmacSHA1");
         byte[] keyBytes = sharedSecret.getBytes("UTF8");
         SecretKeySpec signingKey = new SecretKeySpec(keyBytes, "HmacSHA1");
@@ -110,7 +107,6 @@ class LtiService {
 
     def boolean isSSLEnabled(String query) {
         def ssl_enabled = false
-
         log.debug("Pinging SSL connection")
         try {
             // open connection
@@ -122,14 +118,12 @@ class LtiService {
             httpConnection.setRequestMethod("HEAD")
             httpConnection.setConnectTimeout(5000)
             httpConnection.connect()
-
             int responseCode = httpConnection.getResponseCode()
             if (responseCode == HttpURLConnection.HTTP_OK) {
                 ssl_enabled = true
             } else {
                 log.debug("HTTPERROR: Message=" + "BBB server responded with HTTP status code " + responseCode)
             }
-
         } catch(IOException e) {
             log.debug("IOException: Message=" + e.getMessage())
         } catch(IllegalArgumentException e) {
@@ -148,4 +142,13 @@ class LtiService {
     def boolean allRecordedByDefault() {
         return Boolean.parseBoolean(this.recordedByDefault);
     }
+
+    def String getScheme(request) {
+        return request.isSecure() ? "https" : "http"
+    }
+
+    def String[] getCanvasPlacements() {
+        return this.canvasPlacements
+    }
 }
+

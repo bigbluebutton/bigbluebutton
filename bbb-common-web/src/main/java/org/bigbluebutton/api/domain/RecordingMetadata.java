@@ -1,8 +1,8 @@
 package org.bigbluebutton.api.domain;
 
+import java.util.Map;
 
 import org.bigbluebutton.api2.domain.RecMeta;
-import java.util.Map;
 
 public class RecordingMetadata {
 

@@ -26,26 +26,35 @@ module BigBlueButton
 
       def perform
         super do
-          @logger.info("Running sanity worker for #{@meeting_id}")
+          @logger.info("Running sanity worker for #{@full_id}")
           @publisher.put_sanity_started(@meeting_id)
 
-          self.remove_status_files
+          remove_status_files
 
           script = File.expand_path('../../sanity/sanity.rb', __FILE__)
-          ret, step_time = self.run_script(script, "-m", @meeting_id)
-          step_succeeded = (ret == 0 && File.exists?(@sanity_done))
+          if @break_timestamp.nil?
+            ret, step_time = run_script(script, '-m', @meeting_id)
+          else
+            ret, step_time = run_script(script, '-m', @meeting_id, '-b', @break_timestamp)
+          end
+          step_succeeded = (ret.zero? && File.exist?(@sanity_done))
 
           @publisher.put_sanity_ended(
             @meeting_id, {
-              "success" => step_succeeded,
-              "step_time" => step_time
+              success: step_succeeded,
+              step_time: step_time,
             })
 
           if step_succeeded
-            @logger.info("Successfully sanity checked #{@meeting_id}")
-            self.run_post_scripts(@post_scripts_path)
+            @logger.info("Successfully sanity checked #{@full_id}")
+            run_post_scripts(@post_scripts_path)
+
+            # TODO: temporary, move to its own worker
+            # Generate captions
+            ret = BigBlueButton.exec_ret('ruby', 'utils/captions.rb', '-m', meeting_id)
+            BigBlueButton.logger.warn("Failed to generate caption files #{ret}") if ret != 0
           else
-            @logger.error("Sanity check failed on #{@meeting_id}")
+            @logger.error("Sanity check failed on #{@full_id}")
             FileUtils.touch(@sanity_fail)
           end
 
@@ -60,12 +69,11 @@ module BigBlueButton
 
       def initialize(opts)
         super(opts)
-        @step_name = "sanity"
+        @step_name = 'sanity'
         @post_scripts_path = File.expand_path('../../post_archive', __FILE__)
         @sanity_fail = "#{@recording_dir}/status/sanity/#{@meeting_id}.fail"
         @sanity_done = "#{@recording_dir}/status/sanity/#{@meeting_id}.done"
       end
-
     end
   end
 end

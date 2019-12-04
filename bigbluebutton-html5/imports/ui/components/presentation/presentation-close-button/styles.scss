@@ -1,0 +1,14 @@
+
+.button {
+  z-index: 1;
+  position: absolute;
+  top: 0;
+  right: 0;
+  left: auto;
+  cursor: pointer;
+
+  [dir="rtl"] & {
+    right: auto;
+    left :0;
+  }
+}

@@ -31,7 +31,7 @@ module BigBlueButton
       @queue = 'rap:base'
 
       def self.perform(*args)
-        worker = self.new(*args)
+        worker = new(*args)
         worker.perform
 
         # remove all workers that are not working anymore,
@@ -44,8 +44,7 @@ module BigBlueButton
         success = yield
         @logger.info("Ended worker #{@step_name} for #{@meeting_id} with result #{success}")
 
-        self.schedule_next_step if success && !@single_step
-
+        schedule_next_step if success && !@single_step
       rescue Exception => e
         @logger.error(e.message)
         e.backtrace.each do |traceline|
@@ -55,28 +54,28 @@ module BigBlueButton
       end
 
       def run_post_scripts(post_scripts_path)
-        glob = File.join(post_scripts_path, "*.rb")
+        glob = File.join(post_scripts_path, '*.rb')
         Dir.glob(glob).sort.each do |post_script|
-          match = /([^\/]*).rb$/.match(post_script)
+          match = %r{([^/]*).rb$}.match(post_script)
           post_type = match[1]
           @logger.info("Running post #{@step_name} script #{post_type}")
 
           post_started_method(post_type, @meeting_id)
 
           if @format_name.nil?
-            ret, step_time = self.run_script(post_script, "-m", @meeting_id)
+            ret, step_time = run_script(post_script, '-m', @meeting_id)
           else
-            ret, step_time = self.run_script(post_script, "-m", @meeting_id, "-f", @format_name)
+            ret, step_time = run_script(post_script, '-m', @meeting_id, '-f', @format_name)
           end
-          step_succeeded = (ret == 0)
+          step_succeeded = ret.zero?
 
           post_ended_method(
             post_type, @meeting_id, {
-              "success" => step_succeeded,
-              "step_time" => step_time
+              success: step_succeeded,
+              step_time: step_time,
             })
 
-          if not step_succeeded
+          unless step_succeeded
             @logger.warn("Post #{@step_name} script #{post_script}/#{post_type} failed")
           end
         end
@@ -84,7 +83,7 @@ module BigBlueButton
 
       def run_script(script, *args)
         step_start_time = BigBlueButton.monotonic_clock
-        ret = BigBlueButton.exec_ret("ruby", script, *args)
+        ret = BigBlueButton.exec_ret('ruby', script, *args)
         step_stop_time = BigBlueButton.monotonic_clock
         step_time = step_stop_time - step_start_time
         [ret, step_time]
@@ -92,22 +91,22 @@ module BigBlueButton
 
       def post_started_method(*args)
         case @step_name
-        when "archive"
+        when 'archive'
           @publisher.put_post_archive_started(*args)
-        when "process"
+        when 'process'
           @publisher.put_post_process_started(*args)
-        when "publish"
+        when 'publish'
           @publisher.put_post_publish_started(*args)
         end
       end
 
       def post_ended_method(*args)
         case @step_name
-        when "archive"
+        when 'archive'
           @publisher.put_post_archive_ended(*args)
-        when "process"
+        when 'process'
           @publisher.put_post_process_ended(*args)
-        when "publish"
+        when 'publish'
           @publisher.put_post_publish_ended(*args)
         end
       end
@@ -116,8 +115,8 @@ module BigBlueButton
         @logger.info("Scheduling next step for #{@step_name}")
 
         opts = {
-          "meeting_id": @meeting_id,
-          "single_step": false
+          'meeting_id': @meeting_id,
+          'single_step': false,
         }
 
         # get the steps from the properties files
@@ -126,16 +125,16 @@ module BigBlueButton
 
         # get the target format only if it's a hash
         # e.g. { presentation: "publish:presentation", video: "publish:video" }
-        next_step = next_step[@format_name] if next_step && next_step.kind_of?(Hash)
+        next_step = next_step[@format_name] if next_step && next_step.is_a?(Hash)
         # make it always an array e.g. [ "process:presentation" ]
-        next_step = [next_step] if next_step && !next_step.kind_of?(Array)
+        next_step = [next_step] if next_step && !next_step.is_a?(Array)
 
         if next_step.nil?
           @logger.info("No next step for #{@step_name}, will not schedule anything")
         else
           next_step.each do |step|
-            step_name, step_format = step.split(":") # e.g. "process:presentation"
-            opts["format_name"] = step_format unless step_format.nil?
+            step_name, step_format = step.split(':') # e.g. 'process:presentation'
+            opts['format_name'] = step_format unless step_format.nil?
 
             @logger.info("Enqueueing #{step_name} worker with #{opts.inspect}")
             ::Resque.enqueue(Object.const_get("BigBlueButton::Resque::#{step_name.capitalize}Worker"), opts)
@@ -150,10 +149,16 @@ module BigBlueButton
         @publisher = BigBlueButton.redis_publisher
         @log_dir = props['log_dir']
         @recording_dir = props['recording_dir']
-        @meeting_id = opts["meeting_id"]
-        @single_step = opts["single_step"] || false
+        @meeting_id = opts['meeting_id']
+        @break_timestamp = opts['break_timestamp']
+        @single_step = opts['single_step'] || false
         @step_name = nil
         @format_name = nil
+        @full_id = if @break_timestamp.nil?
+                     @meeting_id
+                   else
+                     "#{@meeting_id}-#{break_timestamp}"
+                   end
 
         @logger = Logger.new("#{@log_dir}/bbb-rap-worker.log")
         @logger.level = Logger::INFO

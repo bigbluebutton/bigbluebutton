@@ -1,78 +1,64 @@
-import React, { Component } from 'react';
+import React, { PureComponent } from 'react';
 import { injectIntl } from 'react-intl';
 import PropTypes from 'prop-types';
-import { withRouter } from 'react-router';
-import styles from './styles';
-import UserListHeader from './user-list-header/component';
-import UserContent from './user-list-content/component';
+import injectWbResizeEvent from '/imports/ui/components/presentation/resize-wrapper/component';
+import { styles } from './styles.scss';
+import CustomLogo from './custom-logo/component';
+import UserContentContainer from './user-list-content/container';
 
 const propTypes = {
-  openChats: PropTypes.arrayOf(String).isRequired,
-  users: PropTypes.arrayOf(Object).isRequired,
+  activeChats: PropTypes.arrayOf(String).isRequired,
   compact: PropTypes.bool,
   intl: PropTypes.shape({
     formatMessage: PropTypes.func.isRequired,
   }).isRequired,
-  currentUser: PropTypes.shape({}).isRequired,
-  meeting: PropTypes.shape({}),
-  isBreakoutRoom: PropTypes.bool,
-  getAvailableActions: PropTypes.func.isRequired,
-  normalizeEmojiName: PropTypes.func.isRequired,
-  isMeetingLocked: PropTypes.func.isRequired,
+  CustomLogoUrl: PropTypes.string.isRequired,
   isPublicChat: PropTypes.func.isRequired,
   setEmojiStatus: PropTypes.func.isRequired,
-  assignPresenter: PropTypes.func.isRequired,
-  kickUser: PropTypes.func.isRequired,
-  toggleVoice: PropTypes.func.isRequired,
-  changeRole: PropTypes.func.isRequired,
+  roving: PropTypes.func.isRequired,
+  showBranding: PropTypes.bool.isRequired,
+  requestUserInformation: PropTypes.func.isRequired,
 };
 
 const defaultProps = {
   compact: false,
-  isBreakoutRoom: false,
-  // This one is kinda tricky, meteor takes sometime to fetch the data and passing down
-  // So the first time its create, the meeting comes as null, sending an error to the client.
-  meeting: {},
 };
 
-class UserList extends Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-      compact: this.props.compact,
-    };
-
-    this.handleToggleCompactView = this.handleToggleCompactView.bind(this);
-  }
-
-  handleToggleCompactView() {
-    this.setState({ compact: !this.state.compact });
-  }
-
+class UserList extends PureComponent {
   render() {
+    const {
+      intl,
+      activeChats,
+      compact,
+      setEmojiStatus,
+      isPublicChat,
+      roving,
+      CustomLogoUrl,
+      showBranding,
+      hasBreakoutRoom,
+      requestUserInformation,
+    } = this.props;
+
     return (
       <div className={styles.userList}>
-        <UserListHeader
-          intl={this.props.intl}
-          compact={this.state.compact}
-        />
-        {<UserContent
-          intl={this.props.intl}
-          openChats={this.props.openChats}
-          users={this.props.users}
-          compact={this.props.compact}
-          currentUser={this.props.currentUser}
-          isBreakoutRoom={this.props.isBreakoutRoom}
-          setEmojiStatus={this.props.setEmojiStatus}
-          assignPresenter={this.props.assignPresenter}
-          kickUser={this.props.kickUser}
-          toggleVoice={this.props.toggleVoice}
-          changeRole={this.props.changeRole}
-          meeting={this.props.meeting}
-          getAvailableActions={this.props.getAvailableActions}
-          normalizeEmojiName={this.props.normalizeEmojiName}
-          isMeetingLocked={this.props.isMeetingLocked}
-          isPublicChat={this.props.isPublicChat}
+        {
+          showBranding
+            && !compact
+            && CustomLogoUrl
+            ? <CustomLogo CustomLogoUrl={CustomLogoUrl} /> : null
+        }
+        {<UserContentContainer
+          {...{
+            intl,
+            activeChats,
+            compact,
+            setEmojiStatus,
+            isPublicChat,
+            roving,
+            hasBreakoutRoom,
+            requestUserInformation,
+          }
+          }
         />}
       </div>
     );
@@ -82,4 +68,4 @@ class UserList extends Component {
 UserList.propTypes = propTypes;
 UserList.defaultProps = defaultProps;
 
-export default withRouter(injectIntl(UserList));
+export default injectWbResizeEvent(injectIntl(UserList));

@@ -90,26 +90,28 @@ package org.bigbluebutton.core.model
             }
 
             var logData:Object = UsersUtil.initLogData();
-            logData.videoProfile = this.toString();
+            logData.videoProfile = vidProfileInfo();
             logData.tags = ["video"];
-            logData.message = "Loaded new video profile.";
+            logData.logCode = "loaded_video_profile";
             LOGGER.info(JSON.stringify(logData));
         }
 
-        public function toString():String {
-            return "VideoProfile [ "
-                + "id: " + this.id + ", "
-                + "default: " + this.defaultProfile + ", "
-                + "name: " + this.name + ", "
-                + "width: " + this.width + ", "
-                + "height: " + this.height + ", "
-                + "keyFrameInterval: " + this.keyFrameInterval + ", "
-                + "modeFps: " + this.modeFps + ", "
-                + "qualityBandwidth: " + this.qualityBandwidth + ", "
-                + "qualityPicture: " + this.qualityPicture + ", "
-                + "enableH264: " + this.enableH264 + ", "
-                + "h264Level: " + this.h264Level + ", "
-                + "h264Profile: " + this.h264Profile + " ]";
+        public function vidProfileInfo():Object {
+					var vinf:Object = new Object();
+					vinf.id = this.id;
+					vinf.defaultProfile = this.defaultProfile;
+					vinf.name = this.name;
+					vinf.width = this.width;
+					vinf.height = this.height;
+					vinf.keyFrameInterval = this.keyFrameInterval;
+					vinf.modeFps = this.modeFps;
+					vinf.qualityBandwidth = this.qualityBandwidth;
+					vinf.qualityPicture =  this.qualityPicture;
+					vinf.enableH264 = this.enableH264;
+					vinf.h264Level = this.h264Level;
+					vinf.h264Profile = this.h264Profile;
+					
+          return vinf;
         }
 
         private static function nextId():int {

@@ -48,8 +48,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		
 		<EventHandlers type="{StartLayoutModuleEvent.START_LAYOUT_MODULE_EVENT}">        
 			<ObjectBuilder generator="{LayoutService}"  />
-	   		<MethodInvoker generator="{LayoutEventMapDelegate}" method="startModule" arguments="{event.attributes}" />
-	   		<MethodInvoker generator="{LayoutManager}" method="loadServerLayouts" arguments="{event.attributes.layoutConfig}" />
+	   		<MethodInvoker generator="{LayoutEventMapDelegate}" method="startModule"/>
+	   		<MethodInvoker generator="{LayoutManager}" method="loadServerLayouts" />
 	    </EventHandlers>
 	    
 		<EventHandlers type="{ViewInitializedEvent.VIEW_INITIALIZED_EVENT}">

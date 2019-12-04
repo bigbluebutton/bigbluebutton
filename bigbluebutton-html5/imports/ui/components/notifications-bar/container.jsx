@@ -1,12 +1,16 @@
 import { Meteor } from 'meteor/meteor';
-import { createContainer } from 'meteor/react-meteor-data';
-import React from 'react';
+import { withTracker } from 'meteor/react-meteor-data';
+import React, { Fragment } from 'react';
 import { defineMessages, injectIntl } from 'react-intl';
 import _ from 'lodash';
 import Auth from '/imports/ui/services/auth';
-import { humanizeSeconds } from '/imports/utils/humanizeSeconds';
-import NavBarService from '../nav-bar/service';
+import Meetings, { MeetingTimeRemaining } from '/imports/api/meetings';
+import Users from '/imports/api/users';
+import BreakoutRemainingTime from '/imports/ui/components/breakout-room/breakout-remaining-time/container';
+import SlowConnection from '/imports/ui/components/slow-connection/component';
+import { styles } from './styles.scss';
 
+import breakoutService from '/imports/ui/components/breakout-room/service';
 import NotificationsBar from './component';
 
 // disconnected and trying to open a new connection
@@ -17,6 +21,13 @@ const STATUS_FAILED = 'failed';
 
 // failed to connect and waiting to try to reconnect
 const STATUS_WAITING = 'waiting';
+
+const METEOR_SETTINGS_APP = Meteor.settings.public.app;
+
+const SLOW_CONNECTIONS_TYPES = METEOR_SETTINGS_APP.effectiveConnection;
+const ENABLE_NETWORK_MONITORING = Meteor.settings.public.networkMonitoring.enableNetworkMonitoring;
+
+const HELP_LINK = METEOR_SETTINGS_APP.helpLink;
 
 const intlMessages = defineMessages({
   failedMessage: {
@@ -31,6 +42,10 @@ const intlMessages = defineMessages({
     id: 'app.waitingMessage',
     description: 'Notification message for disconnection with reconnection counter',
   },
+  retryNow: {
+    id: 'app.retryNow',
+    description: 'Retry now text for reconnection counter',
+  },
   breakoutTimeRemaining: {
     id: 'app.breakoutTimeRemainingMessage',
     description: 'Message that tells how much time is remaining for the breakout room',
@@ -43,14 +58,38 @@ const intlMessages = defineMessages({
     id: 'app.calculatingBreakoutTimeRemaining',
     description: 'Message that tells that the remaining time is being calculated',
   },
+  meetingTimeRemaining: {
+    id: 'app.meeting.meetingTimeRemaining',
+    description: 'Message that tells how much time is remaining for the meeting',
+  },
+  meetingWillClose: {
+    id: 'app.meeting.meetingTimeHasEnded',
+    description: 'Message that tells time has ended and meeting will close',
+  },
+  alertMeetingEndsUnderOneMinute: {
+    id: 'app.meeting.alertMeetingEndsUnderOneMinute',
+    description: 'Alert that tells that the meeting end under a minute',
+  },
+  alertBreakoutEndsUnderOneMinute: {
+    id: 'app.meeting.alertBreakoutEndsUnderOneMinute',
+    description: 'Alert that tells that the breakout end under a minute',
+  },
+  slowEffectiveConnectionDetected: {
+    id: 'app.network.connection.effective.slow',
+    description: 'Alert for detected slow connections',
+  },
+  slowEffectiveConnectionHelpLink: {
+    id: 'app.network.connection.effective.slow.help',
+    description: 'Help link for slow connections',
+  },
 });
 
 const NotificationsBarContainer = (props) => {
-  if (_.isEmpty(props.message)) {
+  const { message, color } = props;
+  if (_.isEmpty(message)) {
     return null;
   }
 
-  const { message, color } = props;
 
   return (
     <NotificationsBar color={color}>
@@ -60,43 +99,18 @@ const NotificationsBarContainer = (props) => {
 };
 
 let retrySeconds = 0;
-let timeRemaining = 0;
 const retrySecondsDep = new Tracker.Dependency();
-const timeRemainingDep = new Tracker.Dependency();
 let retryInterval = null;
-let timeRemainingInterval = null;
 
 const getRetrySeconds = () => {
   retrySecondsDep.depend();
   return retrySeconds;
 };
 
-const getTimeRemaining = () => {
-  timeRemainingDep.depend();
-  return timeRemaining;
-};
-
 const setRetrySeconds = (sec = 0) => {
   if (sec !== retrySeconds) {
     retrySeconds = sec;
     retrySecondsDep.changed();
-  }
-};
-
-const changeDocumentTitle = (sec) => {
-  if (sec >= 0) {
-    const affix = `(${humanizeSeconds(sec)}`;
-    const splitTitle = document.title.split(') ');
-    const title = splitTitle[1] || splitTitle[0];
-    document.title = [affix, title].join(') ');
-  }
-};
-
-const setTimeRemaining = (sec = 0) => {
-  if (sec !== timeRemaining) {
-    timeRemaining = sec;
-    changeDocumentTitle(sec);
-    timeRemainingDep.changed();
   }
 };
 
@@ -108,9 +122,29 @@ const startCounter = (sec, set, get, interval) => {
   }, 1000);
 };
 
-export default injectIntl(createContainer(({ intl }) => {
+const reconnect = () => {
+  Meteor.reconnect();
+};
+
+export default injectIntl(withTracker(({ intl }) => {
   const { status, connected, retryTime } = Meteor.status();
   const data = {};
+
+  const user = Users.findOne({ userId: Auth.userID }, { fields: { effectiveConnectionType: 1 } });
+
+  if (user) {
+    const { effectiveConnectionType } = user;
+    if (ENABLE_NETWORK_MONITORING && SLOW_CONNECTIONS_TYPES.includes(effectiveConnectionType)) {
+      data.message = (
+        <SlowConnection effectiveConnectionType={effectiveConnectionType}>
+          {intl.formatMessage(intlMessages.slowEffectiveConnectionDetected)}
+          <a href={HELP_LINK} target="_blank" rel="noopener noreferrer">
+            {intl.formatMessage(intlMessages.slowEffectiveConnectionHelpLink)}
+          </a>
+        </SlowConnection>
+      );
+    }
+  }
 
   if (!connected) {
     data.color = 'primary';
@@ -127,9 +161,13 @@ export default injectIntl(createContainer(({ intl }) => {
       case STATUS_WAITING: {
         const sec = Math.round((retryTime - (new Date()).getTime()) / 1000);
         retryInterval = startCounter(sec, setRetrySeconds, getRetrySeconds, retryInterval);
-        data.message = intl.formatMessage(
-          intlMessages.waitingMessage,
-          { 0: getRetrySeconds() },
+        data.message = (
+          <Fragment>
+            {intl.formatMessage(intlMessages.waitingMessage, { 0: getRetrySeconds() })}
+            <button className={styles.retryButton} type="button" onClick={reconnect}>
+              {intl.formatMessage(intlMessages.retryNow)}
+            </button>
+          </Fragment>
         );
         break;
       }
@@ -141,41 +179,49 @@ export default injectIntl(createContainer(({ intl }) => {
   }
 
   const meetingId = Auth.meetingID;
-  const breakouts = NavBarService.getBreakouts();
+  const breakouts = breakoutService.getBreakouts();
 
   if (breakouts.length > 0) {
     const currentBreakout = breakouts.find(b => b.breakoutId === meetingId);
 
     if (currentBreakout) {
-      const roomRemainingTime = currentBreakout.timeRemaining;
-
-      if (!timeRemainingInterval && roomRemainingTime) {
-        timeRemainingInterval = startCounter(roomRemainingTime,
-                                             setTimeRemaining,
-                                             getTimeRemaining,
-                                             timeRemainingInterval);
-      }
-    } else if (timeRemainingInterval) {
-      clearInterval(timeRemainingInterval);
-    }
-
-    timeRemaining = getTimeRemaining();
-
-    if (timeRemaining) {
-      if (timeRemaining > 0) {
-        data.message = intl.formatMessage(
-          intlMessages.breakoutTimeRemaining,
-          { 0: humanizeSeconds(timeRemaining) },
-        );
-      } else {
-        clearInterval(timeRemainingInterval);
-        data.message = intl.formatMessage(intlMessages.breakoutWillClose);
-      }
-    } else if (!timeRemaining && currentBreakout) {
-      data.message = intl.formatMessage(intlMessages.calculatingBreakoutTimeRemaining);
+      data.message = (
+        <BreakoutRemainingTime
+          breakoutRoom={currentBreakout}
+          messageDuration={intlMessages.breakoutTimeRemaining}
+          timeEndedMessage={intlMessages.breakoutWillClose}
+          alertMessageUnderOneMinute={
+            intl.formatMessage(intlMessages.alertBreakoutEndsUnderOneMinute)
+          }
+        />
+      );
     }
   }
 
+  const meetingTimeRemaining = MeetingTimeRemaining.findOne({ meetingId });
+  const Meeting = Meetings.findOne({ meetingId },
+    { fields: { 'meetingProp.isBreakout': 1 } });
+
+  if (meetingTimeRemaining && Meeting) {
+    const { timeRemaining } = meetingTimeRemaining;
+    const { isBreakout } = Meeting.meetingProp;
+    const underThirtyMin = timeRemaining && timeRemaining <= (30 * 60);
+
+    if (underThirtyMin && !isBreakout) {
+      data.message = (
+        <BreakoutRemainingTime
+          breakoutRoom={meetingTimeRemaining}
+          messageDuration={intlMessages.meetingTimeRemaining}
+          timeEndedMessage={intlMessages.meetingWillClose}
+          alertMessageUnderOneMinute={
+            intl.formatMessage(intlMessages.alertMeetingEndsUnderOneMinute)
+          }
+        />
+      );
+    }
+  }
+
+  data.alert = true;
   data.color = 'primary';
   return data;
-}, NotificationsBarContainer));
+})(NotificationsBarContainer));

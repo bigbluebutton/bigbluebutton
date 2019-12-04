@@ -37,8 +37,8 @@ public class Recording {
 	private String endTime;
 	private String numParticipants;
 	private String rawSize;
-	private Map<String, String> metadata = new TreeMap<String, String>();
-	private List<Playback> playbacks=new ArrayList<Playback>();
+	private Map<String, String> metadata = new TreeMap<>();
+	private List<Playback> playbacks=new ArrayList<>();
 	
 	//TODO: 
 	private String state;
@@ -73,11 +73,11 @@ public class Recording {
 	}
 	
 	public String getState() {
-	    String state = this.state;
-	    if ( state == null || state.equals("") || state.equals("available") ) {
-	        state = isPublished()? STATE_PUBLISHED: STATE_UNPUBLISHED;
+	    String currentState = this.state;
+	    if ( currentState == null || "".equals(currentState) || "available".equals(currentState) ) {
+	        currentState = isPublished()? STATE_PUBLISHED: STATE_UNPUBLISHED;
 	    }
-		return state;
+		return currentState;
 	}
 	
 	public void setState(String state) {

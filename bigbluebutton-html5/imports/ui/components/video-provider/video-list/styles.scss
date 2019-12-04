@@ -1,0 +1,273 @@
+@import "/imports/ui/stylesheets/variables/_all";
+@import "/imports/ui/stylesheets/variables/video";
+
+:root {
+  --color-white-with-transparency: #ffffff40;
+}
+
+.videoCanvas {
+  --cam-dropdown-width: 70%;
+  --audio-indicator-width: 1.12rem;
+  --audio-indicator-fs: 75%;
+  position: absolute;
+  width: 100%;
+  min-height: var(--video-height);
+  height: 100%;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.videoList {
+  display: grid;
+  border-radius: 5px;
+
+  grid-auto-flow: dense;
+  grid-gap: 5px;
+
+  align-items: center;
+  justify-content: center;
+
+  @include mq($medium-up) {
+    grid-gap: 10px;
+  }
+}
+
+.videoListItem {
+  display: flex;
+  overflow: hidden;
+  width: 100%;
+  max-height: 100%;
+
+  &.focused {
+    grid-column: 1 / span 2;
+    grid-row: 1 / span 2;
+  }
+}
+
+.content {
+  position: relative;
+  display: flex;
+  min-width: 100%;
+  border-radius: 5px;
+
+  &::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    border: 5px solid var(--color-white-with-transparency);
+    border-radius: 5px;
+    opacity: 0;
+    pointer-events: none;
+
+    :global(.animationsEnabled) & {
+      transition: opacity .1s;
+    }
+  }
+
+  &.talking::after {
+    opacity: 1;
+  }
+}
+
+%media-area {
+  position: relative;
+  height: 100%;
+  width: 100%;
+  object-fit: contain;
+  border-radius: 5px;
+}
+
+.cursorGrab{
+  cursor: grab;
+}
+
+.cursorGrabbing{
+  cursor: grabbing;
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+
+  to {
+    transform: rotate(-360deg);
+  }
+}
+
+.videoContainer{
+  width: 100%;
+  height: 100%;
+}
+
+.connecting {
+  @extend %media-area;
+  position: absolute;
+  color: var(--color-white-with-transparency);
+  font-size: 2.5rem;
+  text-align: center;
+  white-space: nowrap;
+  z-index: 1;
+
+
+  &::after {
+    content: '';
+    display: inline-block;
+    height: 100%;
+    vertical-align: middle;
+    margin: 0 -0.25em 0 0;
+
+    [dir="rtl"] & {
+      margin: 0 0 0 -0.25em
+    }
+  }
+
+  &::before {
+    content: "\e949";
+    /* ascii code for the ellipsis character */
+    font-family: 'bbb-icons' !important;
+    display: inline-block;
+
+    :global(.animationsEnabled) & {
+      animation: spin 4s infinite linear;
+    }
+  }
+}
+
+.media {
+  @extend %media-area;
+  background-color: var(--color-gray);
+}
+
+.info {
+  position: absolute;
+  display: flex;
+  bottom: 5px;
+  left: 5px;
+  right: 5px;
+  justify-content: center;
+  align-items: center;
+  height: 1.25rem;
+  z-index: 2;
+}
+
+.dropdown,
+.dropdownFireFox {
+  flex: 1;
+  display: flex;
+  outline: none !important;
+  width: var(--cam-dropdown-width);
+
+  @include mq($medium-up) {
+    >[aria-expanded] {
+      padding: .25rem;
+    }
+  }
+}
+
+.dropdownFireFox {
+  max-width: 100%;
+}
+
+.dropdownTrigger,
+.userName {
+  @extend %text-elipsis;
+  position: relative;
+  background-color: var(--color-black);
+  opacity: .5;
+  color: var(--color-white);
+  font-size: 80%;
+  border-radius: 15px;
+  padding: 0 1rem 0 .5rem !important;
+}
+
+.noMenu {
+  padding: 0 .5rem 0 .5rem !important;
+}
+
+.dropdownTrigger {
+  cursor: pointer;
+
+  &::after {
+    content: "\203a";
+    position: absolute;
+    transform: rotate(90deg);
+    top: 45%;
+    width: 0;
+    line-height: 0;
+    right: .45rem;
+  }
+}
+
+.dropdownContent {
+  min-width: 8.5rem;
+
+  [dir="rtl"] & {
+    right: 2rem;
+  }
+}
+
+.dropdownList {
+  @include mq($medium-up) {
+    font-size: .86rem;
+  }
+}
+
+.hiddenDesktop {
+  display: none;
+
+  @include mq($small-only) {
+    display: block;
+  }
+}
+
+.muted,
+.voice {
+  display: inline-block;
+  width: var(--audio-indicator-width);
+  height: var(--audio-indicator-width);
+  min-width: var(--audio-indicator-width);
+  min-height: var(--audio-indicator-width);
+  color: var(--color-white);
+  border-radius: 50%;
+
+  &::before {
+    font-size: var(--audio-indicator-fs);
+  }
+}
+
+.webRTCStats {
+  background: rgba(0, 0, 0, 0.85);
+  padding: 15px;
+  height: 100%;
+  color: var(--color-white);
+  font-size: var(--font-size-small);
+  border-radius: 5px;
+  position: absolute;
+  z-index: 1;
+  width: 100%;
+}
+
+.statsCloseButton {
+  float: right;
+}
+
+.statsCloseButton:hover {
+  cursor: pointer;
+}
+
+.muted {
+  background-color: var(--color-danger);
+}
+
+.voice {
+  background-color: var(--color-success);
+}

@@ -1,8 +1,6 @@
 @import "/imports/ui/stylesheets/variables/_all";
 @import "/imports/ui/stylesheets/mixins/_scrollable";
 
-$padding: $md-padding-x;
-
 .messageListWrapper {
   display: flex;
   flex-flow: column;
@@ -11,10 +9,19 @@ $padding: $md-padding-x;
   position: relative;
   overflow-x: hidden;
   overflow-y: auto;
-  padding-right: $padding;
-  padding-bottom: $padding;
-  margin-right: -$padding;
-  margin-bottom: -$padding;
+  padding-left: var(--sm-padding-x);
+  margin-left: calc(-1 * var(--md-padding-x));
+  padding-right: var(--sm-padding-y);
+  margin-right: calc(-1 * var(--md-padding-y));
+  padding-bottom: var(--md-padding-x);
+  margin-bottom: calc(-1 * var(--md-padding-x));
+
+  [dir="rtl"] & {
+    padding-right: var(--md-padding-x);
+    margin-right: calc(-1 * var(--md-padding-x));
+    padding-left: var(--md-padding-y);
+    margin-left: calc(-1 * var(--md-padding-x));
+  }
 }
 
 .messageList {
@@ -22,17 +29,27 @@ $padding: $md-padding-x;
   flex-flow: column;
   flex-grow: 1;
   flex-shrink: 1;
-  margin-right: -$padding;
-  padding-right: $padding;
+  margin: 0 auto 0 0;
+  right: 0 var(--md-padding-x) 0 0;
   padding-top: 0;
-  padding-bottom: $padding;
+  width: 100%;
+
+  [dir="rtl"] & {
+    margin: 0 0 0 auto;
+    padding: 0 0 0 var(--md-padding-x);
+  }
+
+  &:after {
+    content: "";
+    display: block;
+    height: var(--md-padding-x);
+  }
 }
 
 .unreadButton {
-  flex-grow: 0;
   flex-shrink: 0;
-  border-radius: 0;
+  width: 100%;
   text-transform: uppercase;
-  margin-bottom: .5rem;
+  margin-bottom: .25rem;
   @extend %text-elipsis;
 }

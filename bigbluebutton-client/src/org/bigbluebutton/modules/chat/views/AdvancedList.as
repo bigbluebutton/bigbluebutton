@@ -19,9 +19,12 @@
 package org.bigbluebutton.modules.chat.views
 {
   import flash.display.Sprite;
+  import flash.events.Event;
   
   import mx.controls.List;
   import mx.controls.listClasses.IListItemRenderer;
+  import mx.events.CollectionEvent;
+  import mx.events.CollectionEventKind;
   
   import org.as3commons.logging.api.ILogger;
   import org.as3commons.logging.api.getClassLogger;
@@ -30,11 +33,6 @@ package org.bigbluebutton.modules.chat.views
   {
 	private static const LOGGER:ILogger = getClassLogger(AdvancedList);      
 	  
-    public function AdvancedList()
-    {
-      super();
-    }
-	
 	override protected function drawHighlightIndicator(indicator:Sprite, x:Number, y:Number, width:Number, height:Number, color:uint, itemRenderer:IListItemRenderer):void {
 		//intentionally empty to not show on hover
 	}
@@ -52,7 +50,7 @@ package org.bigbluebutton.modules.chat.views
       // You have to use a loop because after you change the scroll position the scrollbar will reevaluate its size and the max value will likely change.
       var count:int = 0;
       while (count++ < 10){
-        if (verticalScrollPosition == maxVerticalScrollPosition) break;
+        if (verticalScrollAtMax) break;
         
         //You shouldnt need to invalidate these anymore
         //invalidateSize();
@@ -67,5 +65,23 @@ package org.bigbluebutton.modules.chat.views
         verticalScrollPosition = maxVerticalScrollPosition;
       }
     }
+	
+	public function get verticalScrollAtMax():Boolean {
+		return verticalScrollPosition == maxVerticalScrollPosition;
+	}
+	
+	override protected function collectionChangeHandler(event:Event):void {
+		var previousVScroll:Number = verticalScrollPosition;
+		
+		super.collectionChangeHandler(event);
+		
+		if (event is CollectionEvent) {
+			var cEvent:CollectionEvent = CollectionEvent(event);
+			
+			if (cEvent.kind == CollectionEventKind.REFRESH) {
+				verticalScrollPosition = previousVScroll;
+			}
+		}
+	}
   }
 }

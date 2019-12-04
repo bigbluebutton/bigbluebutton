@@ -23,7 +23,6 @@ package org.bigbluebutton.modules.whiteboard.managers
 	import org.as3commons.logging.api.ILogger;
 	import org.as3commons.logging.api.getClassLogger;
 	import org.bigbluebutton.core.model.LiveMeeting;
-	import org.bigbluebutton.modules.whiteboard.commands.GetWhiteboardAccessCommand;
 	import org.bigbluebutton.modules.whiteboard.events.RequestNewCanvasEvent;
 	import org.bigbluebutton.modules.whiteboard.views.WhiteboardCanvas;
 	
@@ -33,9 +32,7 @@ package org.bigbluebutton.modules.whiteboard.managers
     
 		public function handleStartModuleEvent():void {
             
-			var dispatcher:Dispatcher = new Dispatcher();
-			dispatcher.dispatchEvent(new GetWhiteboardAccessCommand());
-		}
+			var dispatcher:Dispatcher = new Dispatcher();		}
 		
 		public function handleRequestNewCanvas(e:RequestNewCanvasEvent):void {
 			var whiteboardCanvas:WhiteboardCanvas = new WhiteboardCanvas(LiveMeeting.inst().whiteboardModel);

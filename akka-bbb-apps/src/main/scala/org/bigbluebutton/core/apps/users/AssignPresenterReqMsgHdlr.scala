@@ -1,28 +1,43 @@
 package org.bigbluebutton.core.apps.users
 
 import org.bigbluebutton.common2.msgs._
-import org.bigbluebutton.core.models.{ UserState, Users2x }
+import org.bigbluebutton.core.apps.presentationpod.SetPresenterInPodActionHandler
+import org.bigbluebutton.core.models.{ PresentationPod, UserState, Users2x }
 import org.bigbluebutton.core.running.{ LiveMeeting, OutMsgRouter }
+import org.bigbluebutton.core.apps.{ PermissionCheck, RightsManagementTrait }
+import org.bigbluebutton.core.domain.MeetingState2x
 
-trait AssignPresenterReqMsgHdlr {
+trait AssignPresenterReqMsgHdlr extends RightsManagementTrait {
   this: UsersApp =>
 
   val liveMeeting: LiveMeeting
   val outGW: OutMsgRouter
 
-  def handleAssignPresenterReqMsg(msg: AssignPresenterReqMsg) {
+  def handleAssignPresenterReqMsg(msg: AssignPresenterReqMsg, state: MeetingState2x): MeetingState2x = {
+    AssignPresenterActionHandler.handleAction(liveMeeting, outGW, msg.body.assignedBy, msg.body.newPresenterId)
 
+    // Change presenter of default presentation pod
+    SetPresenterInPodActionHandler.handleAction(state, liveMeeting, outGW,
+      msg.header.userId, PresentationPod.DEFAULT_PRESENTATION_POD,
+      msg.body.newPresenterId)
+  }
+
+}
+
+object AssignPresenterActionHandler extends RightsManagementTrait {
+
+  def handleAction(liveMeeting: LiveMeeting, outGW: OutMsgRouter, assignedBy: String, newPresenterId: String): Unit = {
     def broadcastOldPresenterChange(oldPres: UserState): Unit = {
       // unassign old presenter
       val routingUnassign = Routing.addMsgToClientRouting(
         MessageTypes.BROADCAST_TO_MEETING,
-        this.liveMeeting.props.meetingProp.intId, oldPres.intId
+        liveMeeting.props.meetingProp.intId, oldPres.intId
       )
       val envelopeUnassign = BbbCoreEnvelope(PresenterUnassignedEvtMsg.NAME, routingUnassign)
-      val headerUnassign = BbbClientMsgHeader(PresenterUnassignedEvtMsg.NAME, this.liveMeeting.props.meetingProp.intId,
+      val headerUnassign = BbbClientMsgHeader(PresenterUnassignedEvtMsg.NAME, liveMeeting.props.meetingProp.intId,
         oldPres.intId)
 
-      val bodyUnassign = PresenterUnassignedEvtMsgBody(oldPres.intId, oldPres.name, msg.body.assignedBy)
+      val bodyUnassign = PresenterUnassignedEvtMsgBody(oldPres.intId, oldPres.name, assignedBy)
       val eventUnassign = PresenterUnassignedEvtMsg(headerUnassign, bodyUnassign)
       val msgEventUnassign = BbbCommonEnvCoreMsg(envelopeUnassign, eventUnassign)
       outGW.send(msgEventUnassign)
@@ -32,31 +47,36 @@ trait AssignPresenterReqMsgHdlr {
       // set new presenter
       val routingAssign = Routing.addMsgToClientRouting(
         MessageTypes.BROADCAST_TO_MEETING,
-        this.liveMeeting.props.meetingProp.intId, newPres.intId
+        liveMeeting.props.meetingProp.intId, newPres.intId
       )
       val envelopeAssign = BbbCoreEnvelope(PresenterAssignedEvtMsg.NAME, routingAssign)
-      val headerAssign = BbbClientMsgHeader(PresenterAssignedEvtMsg.NAME, this.liveMeeting.props.meetingProp.intId,
+      val headerAssign = BbbClientMsgHeader(PresenterAssignedEvtMsg.NAME, liveMeeting.props.meetingProp.intId,
         newPres.intId)
 
-      val bodyAssign = PresenterAssignedEvtMsgBody(newPres.intId, newPres.name, msg.body.assignedBy)
+      val bodyAssign = PresenterAssignedEvtMsgBody(newPres.intId, newPres.name, assignedBy)
       val eventAssign = PresenterAssignedEvtMsg(headerAssign, bodyAssign)
       val msgEventAssign = BbbCommonEnvCoreMsg(envelopeAssign, eventAssign)
       outGW.send(msgEventAssign)
     }
 
-    for {
-      oldPres <- Users2x.findPresenter(this.liveMeeting.users2x)
-    } yield {
-      Users2x.makeNotPresenter(this.liveMeeting.users2x, oldPres.intId)
-      broadcastOldPresenterChange(oldPres)
-    }
+    if (permissionFailed(PermissionCheck.MOD_LEVEL, PermissionCheck.VIEWER_LEVEL, liveMeeting.users2x, assignedBy)) {
+      val meetingId = liveMeeting.props.meetingProp.intId
+      val reason = "No permission to change presenter in meeting."
+      PermissionCheck.ejectUserForFailedPermission(meetingId, assignedBy, reason, outGW, liveMeeting)
+    } else {
+      for {
+        oldPres <- Users2x.findPresenter(liveMeeting.users2x)
+      } yield {
+        Users2x.makeNotPresenter(liveMeeting.users2x, oldPres.intId)
+        broadcastOldPresenterChange(oldPres)
+      }
 
-    for {
-      newPres <- Users2x.findWithIntId(liveMeeting.users2x, msg.body.newPresenterId)
-    } yield {
-      Users2x.makePresenter(this.liveMeeting.users2x, newPres.intId)
-      broadcastNewPresenterChange(newPres)
+      for {
+        newPres <- Users2x.findWithIntId(liveMeeting.users2x, newPresenterId)
+      } yield {
+        Users2x.makePresenter(liveMeeting.users2x, newPres.intId)
+        broadcastNewPresenterChange(newPres)
+      }
     }
   }
-
 }

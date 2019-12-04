@@ -4,9 +4,13 @@
   @extend %flex-column;
   min-width: 0;
   flex-grow: 1;
-  margin-left: $sm-padding-x;
+  margin: 0 0 0 var(--sm-padding-x);
   justify-content: center;
   font-size: 0.95rem;
+
+  [dir="rtl"]  & {
+    margin: 0 var(--sm-padding-x) 0 0;
+  }
 }
 
 .userNameMain {
@@ -15,16 +19,27 @@
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-  transition: all 0.3s;
   font-weight: 400;
-  color: $color-gray-dark;
+  color: var(--color-gray-dark);
+  display: flex;
+  flex-direction: row;
+
+  > span {
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    overflow: hidden;
+  }
+
+  :global(.animationsEnabled) & {
+    transition: all .3s;
+  }
 }
 
 .userNameSub {
   @extend %no-margin;
   font-size: 0.75rem;
   font-weight: 200;
-  color: $color-gray;
+  color: var(--color-gray);
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -34,5 +49,3 @@
     font-size: 75%;
   }
 }
-
-

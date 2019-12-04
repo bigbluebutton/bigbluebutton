@@ -72,8 +72,11 @@ class Caption:
 
             if i < len(self.timestamps) and timestamp > self.timestamps[i]:
                 timestamp = self._del_timestamps[i]
-                if timestamp is None and i > 0:
-                    timestamp = self.timestamps[i-1]
+                if timestamp is None:
+                    if i > 0:
+                        timestamp = self.timestamps[i-1]
+                    else:
+                        timestamp = self.timestamps[i]
                 logger.debug("Out of order timestamps, using ts: %d", timestamp)
 
         self._del_timestamps[i:j] = [del_timestamp] * len(text)

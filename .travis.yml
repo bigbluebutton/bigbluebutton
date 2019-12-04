@@ -1,0 +1,35 @@
+dist: trusty
+
+language: node_js
+
+env:
+  - JOB_TYPE=linter
+  # - JOB_TYPE=acceptance_tests
+
+node_js:
+- "8"
+
+jobs:
+  allow_failures:
+  - env: JOB_TYPE=linter
+  include:
+  - stage: "Linter"
+    name: "ESLint"
+    env: JOB_TYPE=linter
+  - stage: "Tests"
+    name: "Acceptance Tests"
+    env: JOB_TYPE=acceptance_tests
+
+if: type = pull_request
+
+env:
+  global:
+    - BBB_SERVER_URL=http://localhost/bigbluebutton/api
+
+script:
+  - travis_wait 30 bash ./build_script.sh $JOB_TYPE
+
+after_script:
+  - docker stop $docker
+  - docker rm $docker
+  - docker rmi b2

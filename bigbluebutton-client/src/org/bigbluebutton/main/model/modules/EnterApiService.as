@@ -12,9 +12,9 @@ package org.bigbluebutton.main.model.modules
   
   import org.as3commons.logging.api.ILogger;
   import org.as3commons.logging.api.getClassLogger;
-  import org.as3commons.logging.util.jsonXify;
   import org.bigbluebutton.core.UsersUtil;
   import org.bigbluebutton.main.events.MeetingNotFoundEvent;
+  import org.bigbluebutton.util.i18n.ResourceUtil;
   
   public class EnterApiService
   {
@@ -33,7 +33,6 @@ package org.bigbluebutton.main.model.modules
     
     public function load(url:String):void {
       var date:Date = new Date();
-      LOGGER.debug("load {0}", [url]);
       request = new URLRequest(url);
       request.method = URLRequestMethod.GET;		
       
@@ -52,24 +51,28 @@ package org.bigbluebutton.main.model.modules
     }
     
     private function ioErrorHandler(event:IOErrorEvent):void {
-      LOGGER.error("ioErrorHandler: {0}", [event]);
+			var logData:Object = UsersUtil.initLogData();
+			logData.uri = request.url;
+			logData.logCode = "enter_api_io_error";
+			LOGGER.info(JSON.stringify(logData));
       if (_resultListener != null) _resultListener(false, null);
     }
     
     private function handleComplete(e:Event):void {			
       var result:Object = JSON.parse(e.target.data);
-      LOGGER.debug("Enter response = {0}", [jsonXify(result)]);
+      LOGGER.debug("Enter response = {0}", [JSON.stringify(result)]);
       
-        var logData:Object = UsersUtil.initLogData
+        var logData:Object = UsersUtil.initLogData();
         
       var returncode:String = result.response.returncode;
       if (returncode == 'FAILED') {
         logData.tags = ["initialization"];
-        logData.message = "Enter API call failed.";
+				logData.uri = request.url;
+				logData.logCode = "enter_api_call_failed";
         LOGGER.info(JSON.stringify(logData));
 
         var dispatcher:Dispatcher = new Dispatcher();
-        dispatcher.dispatchEvent(new MeetingNotFoundEvent(result.response.logoutURL));			
+        dispatcher.dispatchEvent(new MeetingNotFoundEvent(ResourceUtil.getInstance().getString('bbb.mainshell.enterAPIFailed')));
       } else if (returncode == 'SUCCESS') {
 
           
@@ -81,7 +84,8 @@ package org.bigbluebutton.main.model.modules
         
         logData.response = response;
         logData.tags = ["initialization"];
-        logData.message = "Enter API call succeeded.";
+				logData.uri = request.url;
+				logData.logCode = "enter_api_call_succeeded";
         LOGGER.info(JSON.stringify(logData));
          
         if (_resultListener != null) _resultListener(true, response);

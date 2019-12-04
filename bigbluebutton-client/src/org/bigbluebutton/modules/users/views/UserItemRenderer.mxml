@@ -20,15 +20,16 @@
   $Id: $
 -->
 
-<mx:Box xmlns:mx="library://ns.adobe.com/flex/mx"
-		xmlns:fx="http://ns.adobe.com/mxml/2009"
-		styleName="{data.breakoutRooms.length > 0 ? 'itemRendererDisabled' : 'itemRendererDefault'}"
-		width="100%"
-		verticalScrollPolicy="off"
-		horizontalScrollPolicy="off">
+<mx:Canvas xmlns:mx="library://ns.adobe.com/flex/mx"
+		   xmlns:fx="http://ns.adobe.com/mxml/2009"
+		   styleName="{data.breakoutRooms.length > 0 ? 'itemRendererDisabled' : 'itemRendererDefault'}"
+		   width="100%"
+		   verticalScrollPolicy="off"
+		   horizontalScrollPolicy="off">
 
 	<mx:Label id="nameLabel"
 			  width="100%"
+			  verticalCenter="0"
 			  text="{data.name}"
 			  toolTip="{data.name}" />
-</mx:Box>
+</mx:Canvas>

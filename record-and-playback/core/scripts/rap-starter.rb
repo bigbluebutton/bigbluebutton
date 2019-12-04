@@ -14,7 +14,7 @@
 # ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
 # FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public License for more
 # details.
-#
+# 
 # You should have received a copy of the GNU Lesser General Public License
 # along with BigBlueButton.  If not, see <http://www.gnu.org/licenses/>.
 
@@ -25,25 +25,32 @@ require 'yaml'
 require 'fileutils'
 require 'resque'
 
-# Number of seconds to delay archiving (red5 race condition workaround)
-ARCHIVE_DELAY_SECONDS = 120
-
 def archive_recorded_meetings(props)
   recording_dir = props['recording_dir']
   recorded_done_files = Dir.glob("#{recording_dir}/status/recorded/*.done")
 
   FileUtils.mkdir_p("#{recording_dir}/status/archived")
   recorded_done_files.each do |recorded_done|
-    match = /([^\/]*).done$/.match(recorded_done)
-    meeting_id = match[1]
+    recorded_done_base = File.basename(recorded_done, '.done')
+    meeting_id = nil
+    break_timestamp = nil
 
-    if File.mtime(recorded_done) + ARCHIVE_DELAY_SECONDS > Time.now
-      BigBlueButton.logger.info("Temporarily skipping #{meeting_id} for Red5 race workaround")
+    if match = /^([0-9a-f]+-[0-9]+)$/.match(recorded_done_base)
+      meeting_id = match[1]
+    elsif match = /^([0-9a-f]+-[0-9]+)-([0-9]+)$/.match(recorded_done_base)
+      meeting_id = match[1]
+      break_timestamp = match[2]
+    else
+      BigBlueButton.logger.warn("Recording done file for #{recorded_done_base} has invalid format")
       next
     end
 
-    BigBlueButton.logger.info("Enqueuing job to archive #{meeting_id}")
-    Resque.enqueue(BigBlueButton::Resque::ArchiveWorker, { "meeting_id": meeting_id })
+    attrs = {
+      'meeting_id': meeting_id,
+      'break_timestamp': break_timestamp,
+    }
+    BigBlueButton.logger.info("Enqueuing job to archive #{attrs.inspect}")
+    Resque.enqueue(BigBlueButton::Resque::ArchiveWorker, attrs)
 
     FileUtils.rm_f(recorded_done)
   end
@@ -61,11 +68,11 @@ begin
   redis_port = props['redis_workers_port'] || props['redis_port']
   Resque.redis = "#{redis_host}:#{redis_port}"
 
-  BigBlueButton.logger.debug("Running rap-trigger...")
+  BigBlueButton.logger.debug('Running rap-trigger...')
 
   archive_recorded_meetings(props)
 
-  BigBlueButton.logger.debug("rap-trigger done")
+  BigBlueButton.logger.debug('rap-trigger done')
 
 rescue Exception => e
   BigBlueButton.logger.error(e.message)

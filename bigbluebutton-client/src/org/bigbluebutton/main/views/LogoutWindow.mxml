@@ -22,26 +22,26 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 <mx:TitleWindow xmlns:mx="library://ns.adobe.com/flex/mx"
 		  xmlns:fx="http://ns.adobe.com/mxml/2009"
           xmlns:mate="http://mate.asfusion.com/"
+		  xmlns:common="org.bigbluebutton.common.*"
+		  implements="org.bigbluebutton.common.IKeyboardClose"
 		  verticalScrollPolicy="off"
           horizontalScrollPolicy="off"
-          horizontalAlign="center"
           showCloseButton="false"
           creationComplete="onCreationComplete()"
-          minWidth="350"
-          title="{ResourceUtil.getInstance().getString('bbb.logout.confirm.title')}">
+		  layout="vertical"
+          minWidth="400">
 
   <fx:Script>
     <![CDATA[
-      import com.asfusion.mate.events.Dispatcher;
-      
-      import mx.managers.PopUpManager;
-      
-      import org.as3commons.logging.api.ILogger;
-      import org.as3commons.logging.api.getClassLogger;
-      import org.bigbluebutton.core.UsersUtil;
-      import org.bigbluebutton.main.events.BBBEvent;
-      import org.bigbluebutton.main.events.LogoutEvent;
-      import org.bigbluebutton.util.i18n.ResourceUtil;
+		import com.asfusion.mate.events.Dispatcher;
+		
+		import org.as3commons.logging.api.ILogger;
+		import org.as3commons.logging.api.getClassLogger;
+		import org.bigbluebutton.core.PopUpUtil;
+		import org.bigbluebutton.core.UsersUtil;
+		import org.bigbluebutton.main.events.BBBEvent;
+		import org.bigbluebutton.main.events.LogoutEvent;
+		import org.bigbluebutton.util.i18n.ResourceUtil;
 
       private static const LOGGER:ILogger = getClassLogger(LogoutWindow);
       
@@ -69,19 +69,22 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       }
 
       private function close():void {
-        PopUpManager.removePopUp(this);
+		PopUpUtil.unlockPosition(this);
+        PopUpUtil.removePopUp(this);
       }
     ]]>
   </fx:Script>
 
-  <mx:VBox width="100%" height="100%">
+	<common:AdvancedLabel text="{ResourceUtil.getInstance().getString('bbb.logout.confirm.title')}"
+						  styleName="titleWindowStyle"
+						  width="{this.width - 40}" />
+	
     <mx:Box width="100%" height="100%" horizontalAlign="center" verticalAlign="middle">
       <mx:Text text="{ResourceUtil.getInstance().getString('bbb.logout.confirm.message')}" />
     </mx:Box>
     <mx:HBox width="100%" horizontalAlign="center">
-      <mx:Button id="confimButton" height="22" label="{ResourceUtil.getInstance().getString('bbb.logout.confirm.yes')}" click="confirmButtonClickHandler()" />
-      <mx:Button id="cancelButton" height="22" label="{ResourceUtil.getInstance().getString('bbb.logout.confirm.no')}" click="cancelButtonClickHandler()" />
-      <mx:Button id="endMeetingButton" height="22" label="{ResourceUtil.getInstance().getString('bbb.logout.confirm.endMeeting')}" click="endMeetingClickHandler()" />
+      <mx:Button id="confimButton" styleName="mainActionButton" label="{ResourceUtil.getInstance().getString('bbb.logout.confirm.yes')}" click="confirmButtonClickHandler()" />
+      <mx:Button id="endMeetingButton" label="{ResourceUtil.getInstance().getString('bbb.logout.confirm.endMeeting')}" click="endMeetingClickHandler()" />
+      <mx:Button id="cancelButton" label="{ResourceUtil.getInstance().getString('bbb.logout.confirm.no')}" click="cancelButtonClickHandler()" />
    </mx:HBox>
-  </mx:VBox>
 </mx:TitleWindow>

@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+
+BigBlueButton open source conferencing system - http://www.bigbluebutton.org/
+
+Copyright (c) 2018 BigBlueButton Inc. and by respective authors (see below).
+
+This program is free software; you can redistribute it and/or modify it under the
+terms of the GNU Lesser General Public License as published by the Free Software
+Foundation; either version 3.0 of the License, or (at your option) any later
+version.
+
+BigBlueButton is distributed in the hope that it will be useful, but WITHOUT ANY
+WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
+PARTICULAR PURPOSE. See the GNU Lesser General Public License for more details.
+
+You should have received a copy of the GNU Lesser General Public License along
+with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
+
+-->
+<mx:TitleWindow xmlns:mx="library://ns.adobe.com/flex/mx" 
+				xmlns:fx="http://ns.adobe.com/mxml/2009"
+				xmlns:mate="http://mate.asfusion.com/"
+				xmlns:common="org.bigbluebutton.common.*"
+				xmlns:views="org.bigbluebutton.main.views.*"
+				implements="org.bigbluebutton.common.IKeyboardClose"
+				show="this.setFocus()"
+				layout="absolute"
+				width="350"
+				verticalScrollPolicy="off"
+				horizontalScrollPolicy="off"
+				showCloseButton="false">
+	
+	<fx:Script>
+		<![CDATA[
+			import mx.collections.ArrayCollection;
+			
+			import org.bigbluebutton.core.PopUpUtil;
+			import org.bigbluebutton.util.i18n.ResourceUtil;
+			
+			[Bindable]
+			private var _userInfo:ArrayCollection = new ArrayCollection();
+			
+			public function setUserInfo(userInfo:Array):void {
+				trace("setting user info");
+				for each (var item:Object in userInfo) {
+					trace("checking item");
+					for(var id:String in item) {
+						trace("item key: " + id + ", value: " + item[id]);
+						_userInfo.addItem({"property": id, "value": item[id]});
+					}
+				}
+			}
+			
+			private function onCancelClicked():void {
+				PopUpUtil.removePopUp(this);
+			}
+		]]>
+	</fx:Script>
+	
+	<mx:VBox width="100%" height="100%" paddingBottom="10" paddingLeft="10" paddingRight="10" paddingTop="10" horizontalAlign="center">
+		<common:AdvancedLabel id="windowTitle"
+							  text="{ResourceUtil.getInstance().getString('bbb.userLookupWindow.title')}"
+							  styleName="titleWindowStyle"
+							  maxWidth="{this.width - 40}" />
+		<views:BBBDataGrid id="infoGrid" dataProvider="{_userInfo}" editable="false" sortableColumns="false"
+						   dragEnabled="false" width="100%" draggableColumns="false" styleName="pollVotesDataGridStyle"
+						   showHeaders="false"
+						   accessibilityName="{ResourceUtil.getInstance().getString('bbb.userLookupWindow.grid.accessibilityName')}" >
+			<views:columns>
+				<mx:DataGridColumn dataField="property" editable="false" sortable="false" width="110"/>
+				<mx:DataGridColumn dataField="value" editable="false" sortable="false" >
+					<mx:itemRenderer>
+						<fx:Component>
+							<mx:DataGridItemRenderer selectable="true" />
+						</fx:Component>
+					</mx:itemRenderer>
+				</mx:DataGridColumn>
+			</views:columns>
+		</views:BBBDataGrid>
+		<mx:HBox width="100%" horizontalAlign="right">
+			<mx:Button id="closeButton" click="onCancelClicked()" label="{ResourceUtil.getInstance().getString('bbb.userLookupWindow.closeButton.label')}"
+					   accessibilityName="{ResourceUtil.getInstance().getString('bbb.userLookupWindow.closeButton.accessibilityName')}" />
+		</mx:HBox>
+	</mx:VBox>
+	
+</mx:TitleWindow>

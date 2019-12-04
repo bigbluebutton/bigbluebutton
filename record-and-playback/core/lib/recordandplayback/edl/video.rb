@@ -171,6 +171,7 @@ module BigBlueButton
         videoinfo = {}
 
         corrupt_videos = Set.new
+        remux_flv_videos = Set.new
 
         BigBlueButton.logger.info "Pre-processing EDL"
         for i in 0...(edl.length - 1)
@@ -189,17 +190,55 @@ module BigBlueButton
         videoinfo.keys.each do |videofile|
           BigBlueButton.logger.debug "  #{videofile}"
           info = video_info(videofile)
-          BigBlueButton.logger.debug "    width: #{info[:width]}, height: #{info[:height]}, duration: #{info[:duration]}"
           if !info[:video]
             BigBlueButton.logger.warn "    This video file is corrupt! It will be removed from the output."
             corrupt_videos << videofile
           else
+            BigBlueButton.logger.debug "    width: #{info[:width]}, height: #{info[:height]}, duration: #{info[:duration]}, start_time: #{info[:start_time]}"
             if info[:video][:deskshare_timestamp_bug]
               BigBlueButton.logger.debug("    has early 1.1 deskshare timestamp bug")
+            elsif info[:format][:format_name] == 'flv' and info[:start_time] > 1
+              BigBlueButton.logger.debug("    has large start time, needs remuxing")
+              remux_flv_videos << videofile
             end
           end
 
           videoinfo[videofile] = info
+        end
+
+        if remux_flv_videos.length > 0
+          BigBlueButton.logger.info("Remuxing flv files with large start time")
+          remux_flv_videos.each do |videofile|
+            BigBlueButton.logger.info("  #{File.basename(videofile)}")
+            newvideofile = File.join(File.dirname(output_basename), File.basename(videofile))
+
+            if !File.exist?(newvideofile)
+              ffmpeg_cmd = [*FFMPEG]
+              ffmpeg_cmd += ['-i', videofile, '-c', 'copy', newvideofile]
+
+              exitstatus = BigBlueButton.exec_ret(*ffmpeg_cmd)
+              raise "ffmpeg failed, exit code #{exitstatus}" if exitstatus != 0
+            end
+
+            info = video_info(newvideofile)
+            if !info[:video]
+              BigBlueButton.logger.warn("    Result of remux is corrupt, not using it.")
+              next
+            end
+            BigBlueButton.logger.debug "    width: #{info[:width]}, height: #{info[:height]}, duration: #{info[:duration]}, start_time: #{info[:start_time]}"
+            videoinfo[newvideofile] = info
+
+            # Update the filename in the EDL
+            edl.each do |event|
+              event[:areas].each do |area, videos|
+                videos.each do |video|
+                  if video[:filename] == videofile
+                    video[:filename] = newvideofile
+                  end
+                end
+              end
+            end
+          end
         end
 
         if corrupt_videos.length > 0
@@ -249,13 +288,22 @@ module BigBlueButton
           info[:width] = info[:video][:width].to_i
           info[:height] = info[:video][:height].to_i
 
+          # Check for corrupt/undecodable video streams
+          return {} if info[:video][:pix_fmt].nil?
           return {} if info[:width] == 0 or info[:height] == 0
-          return {} if info[:video][:display_aspect_ratio] == '0:0'
 
-          info[:aspect_ratio] = Rational(*(info[:video][:display_aspect_ratio].split(':')))
-          if info[:aspect_ratio] == 0
-            info[:aspect_ratio] = Rational(info[:width], info[:height])
+          info[:sample_aspect_ratio] = Rational(1, 1)
+          if !info[:video][:sample_aspect_ratio].nil? and
+              info[:video][:sample_aspect_ratio] != 'N/A'
+            aspect_x, aspect_y = info[:video][:sample_aspect_ratio].split(':')
+            aspect_x = aspect_x.to_i
+            aspect_y = aspect_y.to_i
+            if aspect_x != 0 and aspect_y != 0
+              info[:sample_aspect_ratio] = Rational(aspect_x, aspect_y)
+            end
           end
+
+          info[:aspect_ratio] = Rational(info[:width], info[:height]) * info[:sample_aspect_ratio]
 
           if info[:format][:format_name] == 'flv' and info[:video][:codec_name] == 'h264'
             info[:video][:deskshare_timestamp_bug] = self.check_deskshare_timestamp_bug(filename)
@@ -263,6 +311,14 @@ module BigBlueButton
 
           # Convert the duration to milliseconds
           info[:duration] = (info[:format][:duration].to_r * 1000).to_i
+
+          # Red5 writes video files with the first frame often having a pts
+          # much greater than 0.
+          # We can compensate for this during decoding if we know the
+          # timestamp offset, which ffprobe handily finds. Convert the units
+          # to ms.
+          info[:start_time] = (info[:format][:start_time].to_r * 1000).to_i
+          info[:video][:start_time] = (info[:video][:start_time].to_r * 1000).to_i
 
           return info
         end
@@ -345,8 +401,8 @@ module BigBlueButton
 
             tmp_total_area = 0
             area.each do |video|
-              video_width = videoinfo[video[:filename]][:width]
-              video_height = videoinfo[video[:filename]][:height]
+              video_width = videoinfo[video[:filename]][:aspect_ratio].numerator
+              video_height = videoinfo[video[:filename]][:aspect_ratio].denominator
               scale_width, scale_height = aspect_scale(video_width, video_height, tmp_tile_width, tmp_tile_height)
               tmp_total_area += scale_width * scale_height
             end
@@ -368,10 +424,11 @@ module BigBlueButton
           ffmpeg_filter << "[#{layout_area[:name]}_in];"
 
           area.each do |video|
+            this_videoinfo = videoinfo[video[:filename]]
             BigBlueButton.logger.debug "    tile location (#{tile_x}, #{tile_y})"
-            video_width = videoinfo[video[:filename]][:width]
-            video_height = videoinfo[video[:filename]][:height]
-            BigBlueButton.logger.debug "      original size: #{video_width}x#{video_height}"
+            video_width = this_videoinfo[:aspect_ratio].numerator
+            video_height = this_videoinfo[:aspect_ratio].denominator
+            BigBlueButton.logger.debug "      original aspect: #{video_width}x#{video_height}"
 
             scale_width, scale_height = aspect_scale(video_width, video_height, tile_width, tile_height)
             BigBlueButton.logger.debug "      scaled size: #{scale_width}x#{scale_height}"
@@ -379,11 +436,13 @@ module BigBlueButton
             offset_x, offset_y = pad_offset(scale_width, scale_height, tile_width, tile_height)
             BigBlueButton.logger.debug "      offset: left: #{offset_x}, top: #{offset_y}"
 
-            BigBlueButton.logger.debug "      start timestamp: #{video[:timestamp]}"
-            BigBlueButton.logger.debug("      codec: #{videoinfo[video[:filename]][:video][:codec_name].inspect}")
-            BigBlueButton.logger.debug("      duration: #{videoinfo[video[:filename]][:duration]}, original duration: #{video[:original_duration]}")
+            BigBlueButton.logger.debug("      start timestamp: #{video[:timestamp]}")
+            seek_offset = this_videoinfo[:start_time]
+            BigBlueButton.logger.debug("      seek offset: #{seek_offset}")
+            BigBlueButton.logger.debug("      codec: #{this_videoinfo[:video][:codec_name].inspect}")
+            BigBlueButton.logger.debug("      duration: #{this_videoinfo[:duration]}, original duration: #{video[:original_duration]}")
 
-            if videoinfo[video[:filename]][:video][:codec_name] == "flashsv2"
+            if this_videoinfo[:video][:codec_name] == "flashsv2"
               # Desktop sharing videos in flashsv2 do not have regular
               # keyframes, so seeking in them doesn't really work.
               # To make processing more reliable, always decode them from the
@@ -392,8 +451,8 @@ module BigBlueButton
             else
               # Webcam videos are variable, low fps; it might be that there's
               # no frame until some time after the seek point. Start decoding
-              # 30s before the desired point to avoid this issue.
-              seek = video[:timestamp] - 30000
+              # 10s before the desired point to avoid this issue.
+              seek = video[:timestamp] - 10000
               seek = 0 if seek < 0
             end
 
@@ -403,8 +462,8 @@ module BigBlueButton
             # actually be...) and scale the video length.
             scale = nil
             if !video[:original_duration].nil? and
-                  videoinfo[video[:filename]][:video][:deskshare_timestamp_bug]
-              scale = video[:original_duration].to_f / videoinfo[video[:filename]][:duration]
+                  this_videoinfo[:video][:deskshare_timestamp_bug]
+              scale = video[:original_duration].to_f / this_videoinfo[:duration]
               # Rather than attempt to recalculate seek...
               seek = 0
               BigBlueButton.logger.debug("      Early 1.1 deskshare timestamp bug: scaling video length by #{scale}")
@@ -412,14 +471,38 @@ module BigBlueButton
 
             pad_name = "#{layout_area[:name]}_x#{tile_x}_y#{tile_y}"
 
+            # Apply the video start time offset to seek to the correct point.
+            # Only actually apply the offset if we're already seeking so we
+            # don't start seeking in a file where we've overridden the seek
+            # behaviour.
+            if seek > 0
+              seek = seek + seek_offset
+            end
             ffmpeg_filter << "movie=#{video[:filename]}:sp=#{ms_to_s(seek)}"
+            # Scale the video length for the deskshare timestamp workaround
             if !scale.nil?
               ffmpeg_filter << ",setpts=PTS*#{scale}"
             end
+            # Subtract away the offset from the timestamps, so the trimming
+            # in the fps filter is accurate
+            ffmpeg_filter << ",setpts=PTS-#{ms_to_s(seek_offset)}/TB"
+            # fps filter fills in frames up to the desired start point, and
+            # cuts the video there
             ffmpeg_filter << ",fps=#{FFMPEG_WF_FRAMERATE}:start_time=#{ms_to_s(video[:timestamp])}"
-            ffmpeg_filter << ",setpts=PTS-STARTPTS,scale=#{scale_width}:#{scale_height}"
+            # Reset the timestamps to start at 0 so that everything is synced
+            # for the video tiling, and scale to the desired size.
+            ffmpeg_filter << ",setpts=PTS-STARTPTS,scale=#{scale_width}:#{scale_height},setsar=1"
+            # And finally, pad the video to the desired aspect ratio
             ffmpeg_filter << ",pad=w=#{tile_width}:h=#{tile_height}:x=#{offset_x}:y=#{offset_y}:color=white"
-            ffmpeg_filter << "[#{pad_name}];"
+            ffmpeg_filter << "[#{pad_name}_movie];"
+
+            # In case the video was shorter than expected, we might have to pad
+            # it to length. do that by concatenating a video generated by the
+            # color filter. (It would be nice to repeat the last frame instead,
+            # but there's no easy way to do that.)
+            ffmpeg_filter << "color=c=white:s=#{tile_width}x#{tile_height}:r=#{FFMPEG_WF_FRAMERATE}"
+            ffmpeg_filter << "[#{pad_name}_pad];"
+            ffmpeg_filter << "[#{pad_name}_movie][#{pad_name}_pad]concat=n=2:v=1:a=0[#{pad_name}];"
 
             tile_x += 1
             if tile_x >= tiles_h
@@ -428,6 +511,7 @@ module BigBlueButton
             end
           end
 
+          # Create the video rows
           remaining = video_count
           (0...tiles_v).each do |tile_y|
             this_tiles_h = [tiles_h, remaining].min
@@ -443,6 +527,7 @@ module BigBlueButton
             ffmpeg_filter << "[#{layout_area[:name]}_y#{tile_y}];"
           end
 
+          # Stack the video rows
           (0...tiles_v).each do |tile_y|
             ffmpeg_filter << "[#{layout_area[:name]}_y#{tile_y}]"
           end

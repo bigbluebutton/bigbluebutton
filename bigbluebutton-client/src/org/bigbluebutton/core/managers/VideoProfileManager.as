@@ -23,36 +23,29 @@ package org.bigbluebutton.core.managers
     import flash.net.URLLoader;
     import flash.net.URLRequest;
     
-    import mx.core.FlexGlobals;
-    import mx.utils.URLUtil;
-    
     import org.as3commons.logging.api.ILogger;
     import org.as3commons.logging.api.getClassLogger;
+    import org.bigbluebutton.core.Options;
     import org.bigbluebutton.core.model.VideoProfile;
+    import org.bigbluebutton.modules.videoconf.model.VideoConfOptions;
     
     public class VideoProfileManager extends EventDispatcher {
 		private static const LOGGER:ILogger = getClassLogger(VideoProfileManager);      
 
-        public static const PROFILES_XML:String = "client/conf/profiles.xml";
         public static const DEFAULT_FALLBACK_LOCALE:String = "en_US";
         private var _profiles:Array = new Array();
                 
         public function loadProfiles():void {
+			var options : VideoConfOptions = Options.getOptions(VideoConfOptions) as VideoConfOptions;
+			
             var urlLoader:URLLoader = new URLLoader();
             urlLoader.addEventListener(Event.COMPLETE, handleComplete);
             var date:Date = new Date();
-            var localeReqURL:String = buildRequestURL() + "?a=" + date.time;
+            var localeReqURL:String = options.videoProfilesConfig + "?a=" + date.time;
             LOGGER.debug("VideoProfileManager::loadProfiles [{0}]", [localeReqURL]);
             urlLoader.load(new URLRequest(localeReqURL));
         }       
         
-        private function buildRequestURL():String {
-            var swfURL:String = FlexGlobals.topLevelApplication.url;
-            var protocol:String = URLUtil.getProtocol(swfURL);
-            var serverName:String = URLUtil.getServerNameWithPort(swfURL);
-            return protocol + "://" + serverName + "/" + PROFILES_XML;
-        }
-    
         private function handleComplete(e:Event):void{
             LOGGER.debug("VideoProfileManager::handleComplete [{0}]", [new XML(e.target.data)]);
       

@@ -10,9 +10,11 @@ import Text from '../annotations/text/container';
 import Triangle from '../annotations/triangle/component';
 import Pencil from '../annotations/pencil/component';
 
-export default class AnnotationFactory extends Component {
+const ANNOTATION_CONFIG = Meteor.settings.public.whiteboard.annotations;
+const DRAW_END = ANNOTATION_CONFIG.status.end;
 
-  static renderStaticAnnotation(annotationInfo, slideWidth, slideHeight, drawObject) {
+export default class AnnotationFactory extends Component {
+  static renderStaticAnnotation(annotationInfo, slideWidth, slideHeight, drawObject, whiteboardId) {
     return (
       <StaticAnnotation
         key={annotationInfo._id}
@@ -20,11 +22,12 @@ export default class AnnotationFactory extends Component {
         drawObject={drawObject}
         slideWidth={slideWidth}
         slideHeight={slideHeight}
+        whiteboardId={whiteboardId}
       />
     );
   }
 
-  static renderReactiveAnnotation(annotationInfo, slideWidth, slideHeight, drawObject) {
+  static renderReactiveAnnotation(annotationInfo, slideWidth, slideHeight, drawObject, whiteboardId) {
     return (
       <ReactiveAnnotationContainer
         key={annotationInfo._id}
@@ -32,6 +35,7 @@ export default class AnnotationFactory extends Component {
         drawObject={drawObject}
         slideWidth={slideWidth}
         slideHeight={slideHeight}
+        whiteboardId={whiteboardId}
       />
     );
   }
@@ -44,35 +48,39 @@ export default class AnnotationFactory extends Component {
   renderAnnotation(annotationInfo) {
     const drawObject = this.props.annotationSelector[annotationInfo.annotationType];
 
-    if (annotationInfo.status === 'DRAW_END') {
+    if (annotationInfo.status === DRAW_END) {
       return AnnotationFactory.renderStaticAnnotation(
-          annotationInfo,
-          this.props.slideWidth,
-          this.props.slideHeight,
-          drawObject,
-        );
+        annotationInfo,
+        this.props.slideWidth,
+        this.props.slideHeight,
+        drawObject,
+        this.props.whiteboardId,
+      );
     }
     return AnnotationFactory.renderReactiveAnnotation(
-          annotationInfo,
-          this.props.slideWidth,
-          this.props.slideHeight,
-          drawObject,
-        );
+      annotationInfo,
+      this.props.slideWidth,
+      this.props.slideHeight,
+      drawObject,
+      this.props.whiteboardId,
+    );
   }
 
   render() {
     const { annotationsInfo } = this.props;
+
     return (
       <g>
-        {annotationsInfo ?
-          annotationsInfo.map(annotationInfo => this.renderAnnotation(annotationInfo))
-        : null }
+        {annotationsInfo
+          ? annotationsInfo.map(annotationInfo => this.renderAnnotation(annotationInfo))
+          : null }
       </g>
     );
   }
 }
 
 AnnotationFactory.propTypes = {
+  whiteboardId: PropTypes.string.isRequired,
   // initial width and height of the slide are required
   // to calculate the coordinates for each annotation
   slideWidth: PropTypes.number.isRequired,

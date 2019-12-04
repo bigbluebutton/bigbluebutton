@@ -1,0 +1,23 @@
+server {
+     listen   80;
+     server_name  192.168.23.33;
+
+     access_log  /var/log/nginx/vertx-akka.access.log;
+
+        # Vertx-Akka landing page.
+        location / {
+          root   /var/www/vertx-akka;
+          index  index.html index.htm;
+          expires 1m;
+        }
+
+        #error_page  404  /404.html;
+
+        # Redirect server error pages to the static page /50x.html
+        #
+        error_page   500 502 503 504  /50x.html;
+        location = /50x.html {
+                root   /var/www/nginx-default;
+        }
+}
+

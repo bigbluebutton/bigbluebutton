@@ -13,18 +13,14 @@ package org.bigbluebutton.air.presentation.views {
 	import mx.managers.PopUpManager;
 	import mx.resources.ResourceManager;
 	
-	import spark.events.PopUpEvent;
-	
+	import org.bigbluebutton.air.main.commands.GoToSlideSignal;
 	import org.bigbluebutton.air.main.models.IUISession;
 	import org.bigbluebutton.air.presentation.views.selectwebcam.SelectStreamPopUp;
-	import org.bigbluebutton.lib.main.commands.GoToSlideSignal;
-	import org.bigbluebutton.lib.presentation.views.PresentationMediatorBase;
-	import org.bigbluebutton.lib.user.models.User;
-	import org.bigbluebutton.lib.user.models.UserList;
-	import org.bigbluebutton.lib.video.models.UserStreamName;
-	import org.bigbluebutton.lib.video.models.VideoProfile;
+	import org.bigbluebutton.air.video.models.VideoProfile;
 	
 	import robotlegs.bender.extensions.mediatorMap.api.IMediatorMap;
+	
+	import spark.events.PopUpEvent;
 	
 	public class PresentationViewMediator extends PresentationMediatorBase {
 		

@@ -31,9 +31,15 @@ package org.bigbluebutton.air.main.models {
 			return _loadingChangeSignal;
 		}
 		
-		public function setLoading(val:Boolean, message:String):void {
+		public function setLoading(val:Boolean, message:String = ""):void {
 			_loading = val;
 			_loadingMessage = message;
+			try {
+				var jsonMsg:Object = JSON.parse(_loadingMessage);
+				_loadingMessage = jsonMsg[0].message;
+			} catch (e:Error) {
+				// Swallow : message is not in JSON format
+			}
 			_loadingChangeSignal.dispatch(_loading, _loadingMessage);
 		}
 		

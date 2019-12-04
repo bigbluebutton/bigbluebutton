@@ -25,7 +25,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		xmlns:mate="http://mate.asfusion.com/"
 		dataProvider="{ResourceUtil.getInstance().locales}"
 		change="changeLanguage()"
-		labelField="name"
+		labelField="native"
 		rowCount="15" width="120" height="22">
 
 	<fx:Declarations>
@@ -42,7 +42,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}
 
 			private function changeLanguage():void {
-				ResourceUtil.getInstance().setPreferredLocale(selectedItem);
+				ResourceUtil.getInstance().setPreferredLocale(selectedItem.code);
 			}
 		]]>
 	</fx:Script>

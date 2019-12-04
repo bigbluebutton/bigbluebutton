@@ -6,12 +6,12 @@ package org.bigbluebutton.modules.present.events {
         public static const PRESENTATION_NEW_POD_CREATED:String = "NewPresentationPodCreated";
 
         public var podId:String;
-        public var ownerId:String;
+        public var presenterId:String;
 
-        public function NewPresentationPodCreated(_podId:String, _ownerId:String) {
+        public function NewPresentationPodCreated(podId:String, presenterId:String) {
             super(PRESENTATION_NEW_POD_CREATED, true, false);
-            this.podId = _podId;
-            this.ownerId = _ownerId;
+            this.podId = podId;
+            this.presenterId = presenterId;
         }
     }
 }

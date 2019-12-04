@@ -1,0 +1,171 @@
+@import "/imports/ui/stylesheets/variables/_all";
+@import "/imports/ui/stylesheets/mixins/_scrollable";
+@import "/imports/ui/components/user-list/styles";
+@import "/imports/ui/components/user-list/user-list-content/styles";
+
+.panel {
+  @include scrollbox-vertical();
+  background-color: #fff;
+  padding: var(--md-padding-x);
+  display: flex;
+  flex-grow: 1;
+  flex-direction: column;
+  overflow: hidden;
+  height: 100%;
+ }
+
+.link {
+  text-decoration: none;
+}
+
+.breakoutActions
+.content,
+.header {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+}
+
+.header {
+  position: relative;
+  margin: 0 auto 2rem 0;
+  padding-left: 0;
+  padding-right: inherit;
+  background: none !important;
+  [dir="rtl"] & {
+    margin: 0 0 2rem auto;
+    padding-left: inherit;
+    padding-right: 0;
+  }
+  
+  > i  {
+    color: var(--color-gray-dark);
+
+    [dir="rtl"] & {
+      -webkit-transform: scale(-1, 1);
+      -moz-transform: scale(-1, 1);
+      -ms-transform: scale(-1, 1);
+      -o-transform: scale(-1, 1);
+      transform: scale(-1, 1);
+    }
+  }
+}
+
+.content {
+  font-size: var(--font-size-small);
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  font-weight: bold;
+}
+
+.breakoutActions {
+  font-weight: var(--headings-font-weight);
+  color: var(--color-primary);
+  & > button {
+    padding: 0 0 0 .5rem;
+  }
+  & > .alreadyConnected {
+    padding: 0 .5rem 0 0;
+    display: inline-block;
+    vertical-align: middle;
+  }
+}
+
+.joinButton,
+.button {
+  flex: 0 1 48%;
+  color: var(--color-primary);
+  margin: 0;
+  font-weight: inherit;
+}
+
+.joinButton {
+  padding: 0 .5rem 0 .5rem !important;
+}
+
+.endButton {
+  padding: .5rem;
+  font-weight: var(--headings-font-weight) !important;
+  border-radius: .2rem;
+  font-size: var(--font-size-small);  
+}
+
+.overlayContainer {
+  position: fixed;
+  top: 0; 
+  left: 0;
+  right: auto;
+  z-index: 100;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100%;
+  width: 100%;
+  color: var(--color-gray);
+
+  [dir="rtl"] & {
+    left: auto;
+    right: 0;
+  }
+}
+
+.connectingAnimation{
+  &:after {
+    overflow: hidden;
+    display: inline-block;
+    vertical-align: bottom;
+    content: "\2026"; /* ascii code for the ellipsis character */
+    width: 0;
+    margin: 0 1.25em 0 0;
+
+    [dir="rtl"] & {
+      margin: 0 0 0 1.25em;
+    }
+
+    :global(.animationsEnabled) & {
+      animation: ellipsis steps(4,end) 900ms infinite;
+    }
+  }
+}
+
+@keyframes ellipsis {
+  to {
+    width: 1.25em;
+    margin-right: 0;
+    margin-left: 0;
+  }
+}
+
+.duration {
+  display: flex;
+  align-self: center;
+  margin: .5rem 0 .5rem 0;
+}
+
+.usersAssignedNumberLabel {
+  margin: 0 0 0 .25rem;
+
+  [dir="rtl"] & {
+    margin: 0 .25em 0 0;
+  }
+}
+.breakoutItems {
+  margin-bottom: 1rem;
+}
+
+.joinedUserNames {
+  overflow-wrap: break-word;
+  white-space: pre-line;
+  margin-left: 1rem;
+  font-size: var(--font-size-small);
+}
+
+.breakoutColumn {
+  @extend .userListColumn;
+}
+
+.breakoutScrollableList {
+  @extend .scrollableList;
+  background: none;
+}

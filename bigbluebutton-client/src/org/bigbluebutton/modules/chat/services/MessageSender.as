@@ -43,7 +43,7 @@ package org.bigbluebutton.modules.chat.services
         header: {name: "GetGroupChatsReqMsg", 
           meetingId: UsersUtil.getInternalMeetingID(), 
             userId: UsersUtil.getMyUserID()},
-        body: {requesterId: UsersUtil.getMyUserID()}
+        body: {}
       };
       
       var _nc:ConnectionManager = BBB.initConnectionManager();
@@ -53,17 +53,17 @@ package org.bigbluebutton.modules.chat.services
         function(status:String):void { // status - On error occurred
           LOGGER.error(status);
         },
-        JSON.stringify(message)
+        message
       );
     }
     
     public function getGroupChatMsgHistory(chatId: String):void {
-      trace("SENDING CHAT HISTORY REQUEST FOR CHAT ID = " + chatId);
+	  LOGGER.debug("Sending chat history request fro chat ID = " + chatId);
       var message:Object = {
         header: {name: "GetGroupChatMsgsReqMsg", 
           meetingId: UsersUtil.getInternalMeetingID(), 
             userId: UsersUtil.getMyUserID()},
-        body: {requesterId: UsersUtil.getMyUserID(), chatId: chatId}
+        body: {chatId: chatId}
       };
       
       var _nc:ConnectionManager = BBB.initConnectionManager();
@@ -73,7 +73,7 @@ package org.bigbluebutton.modules.chat.services
         function(status:String):void { // status - On error occurred
           LOGGER.error(status);
         },
-        JSON.stringify(message)
+        message
       );
     }
     
@@ -82,11 +82,9 @@ package org.bigbluebutton.modules.chat.services
       var sender: GroupChatUser = new GroupChatUser(UsersUtil.getMyUserID(), 
         UsersUtil.getMyUsername());
       var corrId: String = ChatUtil.genCorrelationId();
-      var font: String = "arial"; 
-      var fontSize: Number = 10;
       
       var msgFromUser: GroupChatMsgFromUser = new GroupChatMsgFromUser(corrId,
-        sender, font, fontSize, cm.fromColor, cm.message);
+        sender, cm.fromColor, cm.message);
       
       var message:Object = {
         header: {name: "SendGroupChatMessageMsg", meetingId: UsersUtil.getInternalMeetingID(), 
@@ -101,21 +99,41 @@ package org.bigbluebutton.modules.chat.services
         function(status:String):void { // status - On error occurred
           LOGGER.error(status);
         },
-        JSON.stringify(message)
+        message
       );
     }
-    
-    public function sendPrivateMessage(cm:ChatMessageVO):void {
-      LOGGER.debug("Sending [chat.sendPrivateMessage] to server.");
-      LOGGER.debug("Sending fromUserID [{0}] to toUserID [{1}]", [cm.fromUserId, cm.toUserId]);
- //     sendPublicMessage(cm);
-    }
+	
+	public function userTyping(chatId:String):void {
+		LOGGER.debug("Sending [chat.UserTypingMsg] to server.");
+		var message:Object = {
+			header: {name: "UserTypingPubMsg", 
+				meetingId: UsersUtil.getInternalMeetingID(),
+				   userId: UsersUtil.getMyUserID()},
+			body: {chatId: chatId}
+		};
+		
+		var _nc:ConnectionManager = BBB.initConnectionManager();
+		_nc.sendMessage2x(
+			function(result:String):void { // On successful result
+			},
+			function(status:String):void { // status - On error occurred
+				LOGGER.error(status);
+			},
+			message
+		);
+	}
 
     public function clearPublicChatMessages():void {
       LOGGER.debug("Sending [chat.clearPublicChatMessages] to server.");
+      
+      // Only clear main public vhat for now.
+      var chatId: String = ChatModel.MAIN_PUBLIC_CHAT;
+      
       var message:Object = {
-        header: {name: "ClearPublicChatHistoryPubMsg", meetingId: UsersUtil.getInternalMeetingID(), userId: UsersUtil.getMyUserID()},
-        body: {}
+        header: {name: "ClearPublicChatHistoryPubMsg", 
+          meetingId: UsersUtil.getInternalMeetingID(), 
+            userId: UsersUtil.getMyUserID()},
+        body: {chatId: chatId}
       };
       
       var _nc:ConnectionManager = BBB.initConnectionManager();
@@ -125,7 +143,7 @@ package org.bigbluebutton.modules.chat.services
         function(status:String):void { // status - On error occurred
           LOGGER.error(status);
         },
-        JSON.stringify(message)
+        message
       );
     }
     
@@ -144,8 +162,7 @@ package org.bigbluebutton.modules.chat.services
       var message:Object = {
         header: {name: "CreateGroupChatReqMsg", meetingId: UsersUtil.getInternalMeetingID(), 
           userId: myUserId},
-        body: {correlationId: corrId, requesterId: myUserId,
-          name: name, access: access, users: users, msg: msg}
+        body: {correlationId: corrId, name: name, access: access, users: users, msg: msg}
       };
       
       var _nc:ConnectionManager = BBB.initConnectionManager();
@@ -155,7 +172,7 @@ package org.bigbluebutton.modules.chat.services
         function(status:String):void { // status - On error occurred
           LOGGER.error(status);
         },
-        JSON.stringify(message)
+        message
       );
     }
   }

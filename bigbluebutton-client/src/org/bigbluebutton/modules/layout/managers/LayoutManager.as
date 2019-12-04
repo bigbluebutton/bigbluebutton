@@ -23,16 +23,17 @@ package org.bigbluebutton.modules.layout.managers
   import flash.display.DisplayObject;
   import flash.events.Event;
   import flash.events.EventDispatcher;
+  import flash.events.IOErrorEvent;
   import flash.events.TimerEvent;
   import flash.net.FileReference;
   import flash.utils.Timer;
+  import flash.utils.setTimeout;
   
   import mx.controls.Alert;
   import mx.core.FlexGlobals;
   import mx.events.CloseEvent;
   import mx.events.EffectEvent;
   import mx.events.ResizeEvent;
-  import mx.managers.PopUpManager;
   
   import flexlib.mdi.containers.MDICanvas;
   import flexlib.mdi.containers.MDIWindow;
@@ -41,10 +42,14 @@ package org.bigbluebutton.modules.layout.managers
   import org.as3commons.logging.api.ILogger;
   import org.as3commons.logging.api.getClassLogger;
   import org.bigbluebutton.common.CustomMdiWindow;
+  import org.bigbluebutton.common.toaster.Toaster;
+  import org.bigbluebutton.common.toaster.message.ToastType;
   import org.bigbluebutton.core.Options;
+  import org.bigbluebutton.core.PopUpUtil;
   import org.bigbluebutton.core.UsersUtil;
   import org.bigbluebutton.core.events.SwitchedLayoutEvent;
   import org.bigbluebutton.core.model.LiveMeeting;
+  import org.bigbluebutton.main.events.BBBEvent;
   import org.bigbluebutton.main.model.options.LayoutOptions;
   import org.bigbluebutton.modules.layout.events.LayoutEvent;
   import org.bigbluebutton.modules.layout.events.LayoutFromRemoteEvent;
@@ -56,6 +61,7 @@ package org.bigbluebutton.modules.layout.managers
   import org.bigbluebutton.modules.layout.model.LayoutDefinition;
   import org.bigbluebutton.modules.layout.model.LayoutLoader;
   import org.bigbluebutton.modules.layout.model.LayoutModel;
+  import org.bigbluebutton.modules.layout.model.LayoutModuleOptions;
   import org.bigbluebutton.modules.layout.views.CustomLayoutNameWindow;
   import org.bigbluebutton.util.i18n.ResourceUtil;
 
@@ -85,7 +91,7 @@ package org.bigbluebutton.modules.layout.managers
         applyLayout(currentLayout);
       });
     }
-    
+	
     /**
      *  There's a race condition when the layouts combo doesn't get populated 
      *  with the server's layouts definition. The problem is that sometimes 
@@ -93,8 +99,9 @@ package org.bigbluebutton.modules.layout.managers
      *  combo is created first. We use two booleans to sync it and only dispatch 
      *  the layouts to populate the list when both are created.
      */
-		public function loadServerLayouts(layoutUrl:String):void {
-			//trace(LOG + " loading server layouts from " + layoutUrl);
+		public function loadServerLayouts():void {
+			var options : LayoutModuleOptions = Options.getOptions(LayoutModuleOptions) as LayoutModuleOptions;
+			
 			var loader:LayoutLoader = new LayoutLoader();
 			loader.addEventListener(LayoutsLoadedEvent.LAYOUTS_LOADED_EVENT, function(e:LayoutsLoadedEvent):void {
 				if (e.success) {
@@ -103,19 +110,18 @@ package org.bigbluebutton.modules.layout.managers
 					broadcastLayouts();
 					_serverLayoutsLoaded = true;
 
-					//trace(LOG + " layouts loaded successfully");
 				} else {
-					LOGGER.debug("layouts not loaded ({0})", [e.error.message]);
+					LOGGER.warn("layouts not loaded ({0})", [e.error.message]);
 				}
 			});
-			loader.loadFromUrl(layoutUrl);
+			loader.loadFromUrl(options.layoutConfig);
 		}
 
-    private function broadcastLayouts():void {
-      var layoutsReady:LayoutsReadyEvent = new LayoutsReadyEvent();
-      _globalDispatcher.dispatchEvent(layoutsReady);
-    }
-		
+		private function broadcastLayouts():void {
+			var layoutsReady:LayoutsReadyEvent = new LayoutsReadyEvent();
+			_globalDispatcher.dispatchEvent(layoutsReady);
+		}
+
 		public function saveLayoutsToFile():void {
 			if (!_currentLayout.currentLayout) {
 				var alertSaveCurrentLayToFile:Alert = Alert.show(ResourceUtil.getInstance().getString('bbb.layout.addCurrentToFileWindow.text'),
@@ -129,9 +135,8 @@ package org.bigbluebutton.modules.layout.managers
 		public function alertSaveCurrentLayoutFile(e:CloseEvent):void {
 				// Check to see if the YES button was pressed.
 				if (e.detail==Alert.YES) {
-					var layoutNameWindow:CustomLayoutNameWindow = PopUpManager.createPopUp(FlexGlobals.topLevelApplication as DisplayObject, CustomLayoutNameWindow, true) as CustomLayoutNameWindow;
+					var layoutNameWindow:CustomLayoutNameWindow = PopUpUtil.createModalPopUp(FlexGlobals.topLevelApplication as DisplayObject, CustomLayoutNameWindow, true) as CustomLayoutNameWindow;
 					layoutNameWindow.savingForFileDownload = true;
-					PopUpManager.centerPopUp(layoutNameWindow);
 				} else if (e.detail==Alert.NO){
 					saveLayoutsWindow();
 				}
@@ -141,6 +146,11 @@ package org.bigbluebutton.modules.layout.managers
 			var _fileRef:FileReference = new FileReference();
 			_fileRef.addEventListener(Event.COMPLETE, function(e:Event):void {
 				Alert.show(ResourceUtil.getInstance().getString('bbb.layout.save.complete'), "", Alert.OK, _canvas);
+				//Toaster.toast(ResourceUtil.getInstance().getString('bbb.layout.save.complete'), ToastType.SUCCESS);
+			});
+			_fileRef.addEventListener(IOErrorEvent.IO_ERROR, function(e:Event):void {
+				Alert.show(ResourceUtil.getInstance().getString('bbb.layout.save.ioerror'), "", Alert.OK, _canvas);
+				//Toaster.toast(ResourceUtil.getInstance().getString('bbb.layout.save.ioerror'), ToastType.ERROR);
 			});
 			_fileRef.save(_layoutModel.toString(), "layouts.xml");
 		}
@@ -153,8 +163,10 @@ package org.bigbluebutton.modules.layout.managers
 					applyLayout(_layoutModel.getDefaultLayout());
 					broadcastLayouts();
 					Alert.show(ResourceUtil.getInstance().getString('bbb.layout.load.complete'), "", Alert.OK, _canvas);
+					//Toaster.toast(ResourceUtil.getInstance().getString('bbb.layout.load.complete'), ToastType.SUCCESS);
 				} else
 					Alert.show(ResourceUtil.getInstance().getString('bbb.layout.load.failed'), "", Alert.OK, _canvas);
+					//Toaster.toast(ResourceUtil.getInstance().getString('bbb.layout.load.failed'), ToastType.ERROR);
 			});
 			loader.loadFromLocalFile();
 		}
@@ -259,7 +271,7 @@ package org.bigbluebutton.modules.layout.managers
       var logData:Object = UsersUtil.initLogData();
       logData.reason = "Layout changed.";
       logData.tags = ["layout"];
-      logData.message = "The layout was changed.";
+      logData.logCode = "layout_changed";
       logData.oldLayout = _currentLayout.name;
       logData.newLayout = newLayout.name;
       LOGGER.info(JSON.stringify(logData));
@@ -316,6 +328,7 @@ package org.bigbluebutton.modules.layout.managers
 			_globalDispatcher.dispatchEvent(e);
 
 			Alert.show(ResourceUtil.getInstance().getString('bbb.layout.sync'), "", Alert.OK, _canvas);
+			//Toaster.toast(ResourceUtil.getInstance().getString('bbb.layout.sync'), ToastType.SUCCESS);
 		}
 		
 		private function sendLayoutUpdate(layout:LayoutDefinition):void {
@@ -387,16 +400,16 @@ package org.bigbluebutton.modules.layout.managers
 		}
 		
 		private function checkPermissionsOverWindow(window:MDIWindow):void {
-			if (UsersUtil.amIModerator()) return;
-			if (window != null && !LayoutDefinition.ignoreWindow(window)) {
+			if (!UsersUtil.amIModerator() && window != null && !LayoutDefinition.ignoreWindow(window)) {
 				(window as CustomMdiWindow).unlocked = !_locked;
 			}
 		}
 
 		private function checkPermissionsOverAllWindows():void {
-			if (UsersUtil.amIModerator()) return;
-			for each (var window:MDIWindow in _canvas.windowManager.windowList) {
-				checkPermissionsOverWindow(window);
+			if (!UsersUtil.amIModerator() && _canvas && _canvas.windowManager) {
+				for each (var window:MDIWindow in _canvas.windowManager.windowList) {
+					checkPermissionsOverWindow(window);
+				}
 			}
 		}
 

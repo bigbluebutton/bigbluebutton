@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<!--
+
+BigBlueButton open source conferencing system - http://www.bigbluebutton.org/
+
+Copyright (c) 2015 BigBlueButton Inc. and by respective authors (see below).
+
+This program is free software; you can redistribute it and/or modify it under the
+terms of the GNU Lesser General Public License as published by the Free Software
+Foundation; either version 3.0 of the License, or (at your option) any later
+version.
+
+BigBlueButton is distributed in the hope that it will be useful, but WITHOUT ANY
+WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
+PARTICULAR PURPOSE. See the GNU Lesser General Public License for more details.
+
+You should have received a copy of the GNU Lesser General Public License along
+with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
+
+-->
+
+<mx:TitleWindow xmlns:mx="library://ns.adobe.com/flex/mx"
+				xmlns:fx="http://ns.adobe.com/mxml/2009"
+				xmlns:mate="http://mate.asfusion.com/"
+				xmlns:common="org.bigbluebutton.common.*"
+				verticalScrollPolicy="off"
+				horizontalScrollPolicy="off"
+				horizontalAlign="center"
+				minWidth="500"
+				styleName="inactivityWarningTextStyle"
+				creationComplete="onCreationComplete()">
+
+	<fx:Script>
+	<![CDATA[
+		import com.asfusion.mate.events.Dispatcher;
+		
+		import mx.managers.PopUpManager;
+		
+		import org.as3commons.logging.api.ILogger;
+		import org.as3commons.logging.api.getClassLogger;
+		import org.bigbluebutton.main.events.BBBEvent;
+		import org.bigbluebutton.util.i18n.ResourceUtil;
+
+		private static const LOGGER:ILogger = getClassLogger(InactivityWarningWindow);
+
+		public var duration:Number = 0;
+		private var tickTimer:Timer;
+
+		[Bindable]
+		private var cancelButtonLabel:String = ResourceUtil.getInstance().getString('bbb.inactivityWarning.cancel');
+
+		private function onCreationComplete():void {
+			tickTimer = new Timer(1000, 0);
+			tickTimer.addEventListener(TimerEvent.TIMER, tick);
+
+			cancelButton.width = cancelButton.measureText(genCancelButtonLabel(duration)).width
+					+ cancelButton.getStyle("paddingRight")
+					+ cancelButton.getStyle("paddingLeft")
+					+ 8; // 8 is magic number
+
+			tickTimer.start();
+			cancelButton.label = ResourceUtil.getInstance().getString('bbb.inactivityWarning.cancel');
+			cancelButton.visible = true;
+		}
+
+		private function tick(e:TimerEvent):void {
+			if (duration > 0) {
+				warningMessage.text = genCancelButtonLabel(duration);
+				duration--;
+			} else {
+				tickTimer.stop();
+				cancelButton.visible = false;
+				cancelButton.includeInLayout = false;
+				warningMessage.text = ResourceUtil.getInstance().getString('bbb.userInactive.message');
+				PopUpManager.removePopUp(this);
+			}
+		}
+
+		private function genCancelButtonLabel(timeLeft:Number):String {
+			return ResourceUtil.getInstance().getString('bbb.userInactivity.message') + " (" + timeLeft.toString() + ")";
+		}
+
+		private function cancelButtonClicked():void {
+			var dispatcher:Dispatcher = new Dispatcher();
+			var bbbEvent:BBBEvent = new BBBEvent(BBBEvent.USER_ACTIVITY_SIGN_RESPONSE_EVENT);
+			dispatcher.dispatchEvent(bbbEvent);
+			tickTimer.stop();
+			PopUpManager.removePopUp(this);
+		}
+	]]>
+	</fx:Script>
+	<mx:VBox width="100%" height="100%"  paddingBottom="5" paddingLeft="5" paddingRight="5" paddingTop="5" horizontalAlign="center" verticalAlign="middle">
+		<common:AdvancedLabel text="{ResourceUtil.getInstance().getString('bbb.userInactivity.title')}"
+							  styleName="titleWindowStyle"
+							  width="{this.width - 40}" />
+		<mx:Text id="warningMessage" selectable="false" text="{ResourceUtil.getInstance().getString('bbb.userInactivity.message')}"/>
+		<mx:Button id="cancelButton" click="cancelButtonClicked()" visible="false" styleName="mainActionButton"/>
+	</mx:VBox>
+</mx:TitleWindow>

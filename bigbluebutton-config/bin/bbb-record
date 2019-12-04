@@ -35,6 +35,9 @@
 #   2016-07-02 FFD  Updates for 1.1-beta
 #   2016-10-17 GTR  Stricter rule for detection of recording directories names
 #   2017-04-28 FFD  Updated references to systemd processing units
+#   2019-05-13 GTR  Delete caption files
+#   2019-08-30 GTR  Count SVG slides fallaback
+
 
 #set -e
 #set -x
@@ -43,9 +46,7 @@ BASE=/var/bigbluebutton/recording
 STATUS=$BASE/status
 source /etc/bigbluebutton/bigbluebutton-release
 
-SERVLET_CONTAINER=tomcat7
-SERVLET_DIR=/var/lib/$SERVLET_CONTAINER/webapps
-BBB_WEB=$(cat ${SERVLET_DIR}/bigbluebutton/WEB-INF/classes/bigbluebutton.properties | sed -n '/^bigbluebutton.web.serverURL/{s/.*\///;p}')
+BBB_WEB=$(cat /usr/share/bbb-web/WEB-INF/classes/bigbluebutton.properties | sed -n '/^bigbluebutton.web.serverURL/{s/.*\///;p}')
 
 RECORDING_DIR=$(cat /usr/local/bigbluebutton/core/scripts/bigbluebutton.yml | sed -n '/\(recording_dir\)/{s/.*recording_dir:[ ]*//;s/;//;p}')
 PUBLISHED_DIR=$(cat /usr/local/bigbluebutton/core/scripts/bigbluebutton.yml | sed -n '/\(published_dir\)/{s/.*published_dir:[ ]*//;s/;//;p}')
@@ -319,7 +320,7 @@ fi
 if [ $REBUILDALL ]; then
 	echo "Rebuilding all recordings"
 	for recording in $(dir $BASE/raw); do
-		mark_for_rebuild $recording
+		[[ ! -e $STATUS/archived/$recording.norecord ]] && mark_for_rebuild $recording
 	done
 fi 
 
@@ -356,6 +357,7 @@ if [ $DELETE ]; then
   echo "deleting: $MEETING_ID"
   # Remove the status files first to avoid issues with concurrent
   # recording processing
+  rm -f /var/bigbluebutton/recording/status/ended/$MEETING_ID*
   rm -f /var/bigbluebutton/recording/status/recorded/$MEETING_ID*
   rm -f /var/bigbluebutton/recording/status/archived/$MEETING_ID*
   rm -f /var/bigbluebutton/recording/status/sanity/$MEETING_ID*
@@ -373,6 +375,10 @@ if [ $DELETE ]; then
 
     rm -rf /var/log/bigbluebutton/$type/*$MEETING_ID*
   done
+
+  rm -rf /var/bigbluebutton/captions/$MEETING_ID*
+  rm -f /var/bigbluebutton/inbox/$MEETING_ID*.json
+  rm -f /var/bigbluebutton/inbox/$MEETING_ID*.txt
 
   rm -rf /var/bigbluebutton/recording/raw/$MEETING_ID*
 
@@ -404,7 +410,9 @@ if [ $DELETEALL ]; then
   done
 
   rm -rf /var/bigbluebutton/recording/raw/*
-  
+
+  rm -f /var/bigbluebutton/captions/inbox/*
+
   find /usr/share/red5/webapps/video/streams -name "*.flv" -exec rm '{}' \;
   find /usr/share/red5/webapps/video-broadcast/streams -name "*.flv" -exec rm '{}' \;
   rm -f /var/bigbluebutton/screenshare/*.flv
@@ -413,6 +421,7 @@ if [ $DELETEALL ]; then
   for meeting in $(ls /var/bigbluebutton | grep "^[0-9a-f]\{40\}-[[:digit:]]\{13\}$"); do
     echo "deleting: $meeting"
     rm -rf /var/bigbluebutton/$meeting
+    rm -rf /var/bigbluebutton/captions/$meeting
   done
 fi
 
@@ -554,9 +563,17 @@ for meeting in $(cat $tmp_file | sort -t - -k 2 -r| uniq); do
 	#
 	# Number of slides
 	if [ -d /var/bigbluebutton/$meeting/$meeting ]; then
-		printf "%7s" $(find /var/bigbluebutton/$meeting/$meeting -name "*.swf" | wc -l)
-        else
-		printf "%7s" $(find /var/bigbluebutton/recording/raw/$meeting -name "*.swf" | wc -l)
+		SLIDES_COUNT=$(find /var/bigbluebutton/$meeting/$meeting -name "*.swf" | wc -l)
+		if [ $SLIDES_COUNT -eq 0 ]; then
+			SLIDES_COUNT=$(find /var/bigbluebutton/$meeting/$meeting -name "*.svg" | wc -l)
+		fi
+		printf "%7s" $SLIDES_COUNT
+	else
+		SLIDES_COUNT=$(find /var/bigbluebutton/recording/raw/$meeting -name "*.swf" | wc -l)
+		if [ $SLIDES_COUNT -eq 0 ]; then
+			SLIDES_COUNT=$(find /var/bigbluebutton/recording/raw/$meeting -name "*.svg" | wc -l)
+		fi
+		printf "%7s" $SLIDES_COUNT
 	fi
 
 
@@ -717,10 +734,11 @@ if [ $CHECK ]; then
 	#set -x
         for type in $TYPES; do
 		for recording in $(find $BASE/publish/$type -name metadata.xml); do
-			url_playback=$(cat $recording | grep "<link>" | sed 's/[ ]*<link>http:\/\/\([^\"\/]*\)[^>]*>/\1/g')
-			if [ "$BBB_WEB" != "$url_playback" ]; then
+			url_playback_http=$(cat $recording | grep "<link>" | sed 's/[ ]*<link>http:\/\/\([^\"\/]*\)[^>]*>/\1/g')
+			url_playback_https=$(cat $recording | grep "<link>" | sed 's/[ ]*<link>https:\/\/\([^\"\/]*\)[^>]*>/\1/g')
+			if [ "$BBB_WEB" != "$url_playback_http" ] && [ "$BBB_WEB" != "$url_playback_https" ]; then
                                 echo
-                                echo "# The hostname in <link> .. </link> ($url_playback)"
+                                echo "# The hostname in <link> .. </link> ($url_playback_http)"
                                 echo "#     $recording"
                                 echo "# do not match the hostname for bigbluebutton.web.serverURL ($BBB_WEB)"
                                 echo "#     /usr/share/red5/webapps/bigbluebutton/WEB-INF/bigbluebutton.properties"
@@ -728,10 +746,11 @@ if [ $CHECK ]; then
 			fi
 		done
 		for recording in $(find /var/bigbluebutton/published/$type -name metadata.xml); do
-			url_playback=$(cat $recording | grep "<link>" | sed 's/[ ]*<link>http:\/\/\([^\"\/]*\)[^>]*>/\1/g')
-			if [ "$BBB_WEB" != "$url_playback" ]; then
+			url_playback_http=$(cat $recording | grep "<link>" | sed 's/[ ]*<link>http:\/\/\([^\"\/]*\)[^>]*>/\1/g')
+			url_playback_https=$(cat $recording | grep "<link>" | sed 's/[ ]*<link>https:\/\/\([^\"\/]*\)[^>]*>/\1/g')
+			if [ "$BBB_WEB" != "$url_playback_http" ] && [ "$BBB_WEB" != "$url_playback_https" ]; then
                                 echo
-                                echo "# The hostname in <link> .. </link> ($url_playback)"
+                                echo "# The hostname in <link> .. </link> ($url_playback_http)"
                                 echo "#     $recording"
                                 echo "# do not match the hostname for bigbluebutton.web.serverURL ($BBB_WEB)"
                                 echo "#     /usr/share/red5/webapps/bigbluebutton/WEB-INF/bigbluebutton.properties"

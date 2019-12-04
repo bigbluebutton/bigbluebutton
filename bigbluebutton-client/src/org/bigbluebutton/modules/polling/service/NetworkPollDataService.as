@@ -33,9 +33,9 @@ package org.bigbluebutton.modules.polling.service
       sender.votePoll(pollId, answerId);
     }
     
-    public function showPollResult(pollId:String, show:Boolean):void
+    public function showPollResult(pollId:String):void
     {
-      sender.showPollResult(pollId, show);
+      sender.showPollResult(pollId);
     }
   }
 }

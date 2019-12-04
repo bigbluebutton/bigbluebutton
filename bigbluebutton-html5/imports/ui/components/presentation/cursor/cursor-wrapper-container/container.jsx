@@ -1,7 +1,7 @@
 /*
   The purpose of this wrapper is to fetch an array of active cursor iDs only
   and map them to the CursorContainer.
-  The reason for this is that Meteor tracks only the properties defined inside createContainer
+  The reason for this is that Meteor tracks only the properties defined inside withTracker
   and if we fetch the whole array of Cursors right away (let's say in the multi-user mode),
   then the whole array would be re-rendered every time one of the Cursors is changed.
 
@@ -13,45 +13,48 @@
 
 import React from 'react';
 import PropTypes from 'prop-types';
-import { createContainer } from 'meteor/react-meteor-data';
+import { withTracker } from 'meteor/react-meteor-data';
 import CursorWrapperService from './service';
 import CursorContainer from '../container';
 
 
 const CursorWrapperContainer = ({ presenterCursorId, multiUserCursorIds, ...rest }) => (
   <g>
-    {Object.keys(presenterCursorId).length > 0 ?
+    {Object.keys(presenterCursorId).length > 0
+      ? (
+        <CursorContainer
+          key={presenterCursorId._id}
+          presenter
+          cursorId={presenterCursorId._id}
+          {...rest}
+        />
+      )
+      : null }
+
+    {multiUserCursorIds.map(cursorId => (
       <CursorContainer
-        key={presenterCursorId._id}
-        presenter
-        cursorId={presenterCursorId._id}
+        key={cursorId._id}
+        cursorId={cursorId._id}
+        presenter={false}
         {...rest}
       />
-        : null }
-
-    {multiUserCursorIds.length > 0 ?
-          multiUserCursorIds.map(cursorId =>
-            (<CursorContainer
-              key={cursorId._id}
-              cursorId={cursorId._id}
-              presenter={false}
-              {...rest}
-            />),
-          )
-        : null }
+    ))}
   </g>
 );
 
-export default createContainer(() => {
-  const { presenterCursorId, multiUserCursorIds } = CursorWrapperService.getCurrentCursorIds();
-  const isMultiUser = CursorWrapperService.getMultiUserStatus();
+export default withTracker((params) => {
+  const { podId, whiteboardId } = params;
+  const cursorIds = CursorWrapperService.getCurrentCursorIds(podId, whiteboardId);
+  const { presenterCursorId, multiUserCursorIds } = cursorIds;
+
+  const isMultiUser = CursorWrapperService.getMultiUserStatus(whiteboardId);
 
   return {
     presenterCursorId,
     multiUserCursorIds,
     isMultiUser,
   };
-}, CursorWrapperContainer);
+})(CursorWrapperContainer);
 
 
 CursorWrapperContainer.propTypes = {

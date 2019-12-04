@@ -19,23 +19,20 @@
 package org.bigbluebutton.red5;
 
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Map;
-import java.util.Set;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import org.bigbluebutton.client.IClientInGW;
 import org.bigbluebutton.client.ConnInfo;
 import org.bigbluebutton.red5.client.messaging.ConnectionInvokerService;
-import org.bigbluebutton.red5.pubsub.MessagePublisher;
 import org.red5.logging.Red5LoggerFactory;
-import org.red5.server.adapter.IApplication;
 import org.red5.server.adapter.MultiThreadedApplicationAdapter;
 import org.red5.server.api.IClient;
 import org.red5.server.api.IConnection;
 import org.red5.server.api.Red5;
 import org.red5.server.api.scope.IScope;
+import org.red5.server.api.stream.IBroadcastStream;
 import org.slf4j.Logger;
 
 import com.google.gson.Gson;
@@ -44,11 +41,9 @@ public class BigBlueButtonApplication extends MultiThreadedApplicationAdapter {
 	private static Logger log = Red5LoggerFactory.getLogger(BigBlueButtonApplication.class, "bigbluebutton");
 
 	private ConnectionInvokerService connInvokerService;
-	private MessagePublisher red5InGW;
 	private IClientInGW clientInGW;
 	private Integer maxMessageLength = 1024;
 
-	private final String APP = "BBB";
 	private final String CONN = "RED5-";
 	
 	@Override
@@ -137,6 +132,14 @@ public class BigBlueButtonApplication extends MultiThreadedApplicationAdapter {
     	
 	@Override
 	public boolean roomConnect(IConnection connection, Object[] params) {
+
+		final int REQUIRED_PARAMS = 11;
+
+		if(params.length != REQUIRED_PARAMS) {
+			log.error("Invalid number of parameters. Provided parameters={}. Required parameters={}", params.length, REQUIRED_PARAMS);
+			return false;
+		}
+
 		String username = ((String) params[0]).toString();
 		String role = ((String) params[1]).toString();
 		String room = ((String)params[2]).toString();
@@ -160,6 +163,7 @@ public class BigBlueButtonApplication extends MultiThreadedApplicationAdapter {
 		}
 
 		String authToken = ((String) params[9]).toString();
+		String clientConnId = ((String) params[10]).toString();
 
 		String userId = internalUserID;
 		String sessionId = Red5.getConnectionLocal().getSessionId();
@@ -171,7 +175,8 @@ public class BigBlueButtonApplication extends MultiThreadedApplicationAdapter {
 		connection.setAttribute("INTERNAL_USER_ID", internalUserID);
 		connection.setAttribute("USER_SESSION_ID", sessionId);
 		connection.setAttribute("TIMESTAMP", System.currentTimeMillis());
-        
+        connection.setAttribute("CLIENT_CONN_ID", clientConnId);
+
 	    String meetingId = bbbSession.getRoom();
 
 	    String userFullname = bbbSession.getUsername();
@@ -185,6 +190,7 @@ public class BigBlueButtonApplication extends MultiThreadedApplicationAdapter {
 		logData.put("meetingId", meetingId);
 		logData.put("connType", connType);
 		logData.put("connId", connId);
+		logData.put("clientConnId", clientConnId);
 		logData.put("clientId", clientId);
 		logData.put("remoteAddress", remoteHost + ":" + remotePort);
 		logData.put("userId", userId);
@@ -235,11 +241,13 @@ public class BigBlueButtonApplication extends MultiThreadedApplicationAdapter {
 	    String connId = Red5.getConnectionLocal().getSessionId();
 		String clientId = Red5.getConnectionLocal().getClient().getId();
         String sessionId =  CONN + userId;
-	    	    
+	    String clientConnId = conn.getAttribute("CLIENT_CONN_ID").toString();
+
 	    Map<String, Object> logData = new HashMap<String, Object>();
 	    logData.put("meetingId", meetingId);
 	    logData.put("connType", connType);
 	    logData.put("connId", connId);
+        logData.put("clientConnId", clientConnId);
 		logData.put("clientId", clientId);
 		logData.put("remoteAddress", remoteHost + ":" + remotePort);
 	    logData.put("sessionId", sessionId);
@@ -258,6 +266,33 @@ public class BigBlueButtonApplication extends MultiThreadedApplicationAdapter {
 
 		super.roomDisconnect(conn);
 	}
+
+	@Override
+	public void streamBroadcastStart(IBroadcastStream stream) {
+		IConnection conn = Red5.getConnectionLocal();
+		String contextName = stream.getScope().getName();
+
+		/**
+		 * There shouldn't be any broadcast stream in this scope.
+		 */
+
+		String connType = getConnectionType(Red5.getConnectionLocal().getType());
+		String connId = Red5.getConnectionLocal().getSessionId();
+		Map<String, Object> logData = new HashMap<String, Object>();
+		logData.put("connType", connType);
+		logData.put("connId", connId);
+		logData.put("stream", stream.getPublishedName());
+		logData.put("context", contextName);
+		logData.put("event", "unauth_publish_stream_bbb_apps");
+		logData.put("description", "Publishing stream in app context.");
+
+		Gson gson = new Gson();
+		String logStr =  gson.toJson(logData);
+		log.error(logStr);
+		conn.close();
+
+	}
+
 
 	public void onMessageFromClient(String json) {
 		//System.out.println("onMessageFromClient \n" + json);
@@ -280,17 +315,9 @@ public class BigBlueButtonApplication extends MultiThreadedApplicationAdapter {
 		String token = bbbSession.getAuthToken();
 		return new ConnInfo(meetingId, userId, token, connId, sessionId);
 	}
-	
-	private BigBlueButtonSession getBbbSession() {
-		return (BigBlueButtonSession) Red5.getConnectionLocal().getAttribute(Constants.SESSION);
-	}
 
 	public void setConnInvokerService(ConnectionInvokerService connInvokerService) {
 		this.connInvokerService = connInvokerService;
-	}
-	
-	public void setRed5Publisher(MessagePublisher red5InGW) {
-		this.red5InGW = red5InGW;
 	}
 
 	public void setClientInGW(IClientInGW clientInGW) {

@@ -36,11 +36,13 @@ package org.bigbluebutton.core.model
     public var disableMyMic:Boolean = false;
     public var disableMyPrivateChat:Boolean = false;
     public var disableMyPublicChat:Boolean = false;
+    public var disableMyNote:Boolean = false;
     public var lockedLayout:Boolean = false;
     
     public var iAskedToLogout:Boolean;
-    public var ejectedFromMeeting:Boolean = false;
-    
+    private var _ejectedFromMeeting:Boolean = false;
+    private var _reasonCode: String = "";
+
     public var locked: Boolean = false;
     public var inVoiceConf: Boolean = false;
     public var muted: Boolean = false;
@@ -51,7 +53,8 @@ package org.bigbluebutton.core.model
     public var authTokenValid: Boolean = false;
     public var waitingForApproval: Boolean;
     
-    
+	public var breakoutEjectFromAudio : Boolean = false;
+	
     private var _role:String =  "viewer";   
     public function get role():String {
       return _role.toUpperCase();
@@ -61,6 +64,18 @@ package org.bigbluebutton.core.model
       _role = value;
     }
     
+    public function ejectedFromMeeting(reasonCode: String): void {
+      _ejectedFromMeeting = true;
+      _reasonCode = reasonCode;
+    }
+   
+    public function hasBeenEjected(): Boolean {
+      return _ejectedFromMeeting;
+    }
+
+    public function getEjectReasonCode(): String {
+      return _reasonCode;
+    }
 
     private var _myCamSettings:ArrayCollection = new ArrayCollection(); 
     public function addCameraSettings(camSettings: CameraSettingsVO): void {
@@ -83,7 +98,7 @@ package org.bigbluebutton.core.model
     public function myCamSettings():ArrayCollection {
       return _myCamSettings;
     }
-    
+	
     public function applyLockSettings():void {
       var lockSettings:LockSettingsVO = UsersUtil.getLockSettings();
       var amNotModerator:Boolean = !UsersUtil.amIModerator();
@@ -94,6 +109,7 @@ package org.bigbluebutton.core.model
       disableMyMic = lockAppliesToMe && lockSettings.getDisableMic();
       disableMyPrivateChat = lockAppliesToMe && lockSettings.getDisablePrivateChat();
       disableMyPublicChat = lockAppliesToMe && lockSettings.getDisablePublicChat();
+      disableMyNote = lockAppliesToMe && lockSettings.getDisableNote();
       lockedLayout = lockAppliesToMe && lockSettings.getLockedLayout();
       
       var dispatcher:Dispatcher = new Dispatcher();

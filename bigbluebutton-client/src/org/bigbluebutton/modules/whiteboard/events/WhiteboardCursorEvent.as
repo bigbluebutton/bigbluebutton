@@ -26,6 +26,7 @@ package org.bigbluebutton.modules.whiteboard.events {
 		public var xPercent:Number;
 		public var yPercent:Number;
 		public var userId:String;
+		public var whiteboardId:String;
 		
 		public function WhiteboardCursorEvent(type:String) {
 			super(type, true, false);

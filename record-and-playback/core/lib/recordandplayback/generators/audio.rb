@@ -28,15 +28,12 @@ require 'builder'
 module BigBlueButton
   class AudioEvents
 
-    def self.create_audio_edl(archive_dir)
+    def self.create_audio_edl(events, archive_dir)
       audio_edl = []
       audio_dir = "#{archive_dir}/audio"
-      events = Nokogiri::XML(File.open("#{archive_dir}/events.xml"))
 
-      event = events.at_xpath('/recording/event[position()=1]')
-      initial_timestamp = event['timestamp'].to_i
-      event = events.at_xpath('/recording/event[position()=last()]')
-      final_timestamp = event['timestamp'].to_i
+      initial_timestamp = BigBlueButton::Events.first_event_timestamp(events)
+      final_timestamp = BigBlueButton::Events.last_event_timestamp(events)
 
       # Initially start with silence
       audio_edl << {

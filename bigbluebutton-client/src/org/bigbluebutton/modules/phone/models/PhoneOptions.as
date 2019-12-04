@@ -22,7 +22,7 @@ package org.bigbluebutton.modules.phone.models {
 	public class PhoneOptions extends Options {
 		static public var firstAudioJoin:Boolean = true;
 
-		public var uri:String = "unknown";
+		public var uri:String = "";
 
 		[Bindable]
 		public var showButton:Boolean = true;

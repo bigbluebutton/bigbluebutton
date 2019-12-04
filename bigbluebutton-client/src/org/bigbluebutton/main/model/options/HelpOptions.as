@@ -22,7 +22,7 @@ package org.bigbluebutton.main.model.options {
 	public class HelpOptions extends Options {
 
 		[Bindable]
-		public var url:String = "";
+		public var url:String = "http://www.bigbluebutton.org/content/videos";
 
 		public function HelpOptions() {
 			name = "help";

@@ -1,0 +1,53 @@
+@import "/imports/ui/stylesheets/variables/_all";
+
+:root {
+  --user-manage-menu-top : -0.5rem;
+  --user-manage-menu-right : -0.75rem;
+  --user-manage-menu-width : 12rem;
+}
+
+.dropdown {
+  position: absolute;
+  right: 0;
+  left: auto;
+
+  [dir="rtl"] & {
+    left: 0;
+    right: auto;
+  }
+}
+
+.dropdownContent {
+  top: var(--user-manage-menu-top);
+  right: var(--user-manage-menu-right);
+  left: auto;
+  width: var(--user-manage-menu-width);
+
+  [dir="rtl"] & {
+    top: var(--user-manage-menu-top);
+    right: -1rem;
+  }
+
+  @include mq($small-only) {
+    width: 100vw;
+  }
+}
+
+.optionsButton{
+  border-radius: 50%;
+  display: block;
+  padding: 0;
+
+  i {
+    width: auto;
+    font-size: var(--font-size-base) !important;
+    color: var(--color-gray-dark) !important;
+    background-color: transparent !important;
+  }
+
+  &:hover,
+  &:focus {
+    background-color: var(--color-off-white) !important;
+  }
+}
+

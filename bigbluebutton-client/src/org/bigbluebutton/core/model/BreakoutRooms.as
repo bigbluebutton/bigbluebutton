@@ -17,6 +17,8 @@ package org.bigbluebutton.core.model
     private var _breakoutRooms:ArrayCollection = new ArrayCollection();
     
     private var _breakoutRoomsReady:Boolean = false;
+	
+	private var _joinRequestedByUser:Boolean = false;
     
     public function set breakoutRoomsReady(value: Boolean): void {
       _breakoutRoomsReady = value;
@@ -30,6 +32,14 @@ package org.bigbluebutton.core.model
     public function get breakoutRooms():ArrayCollection {
       return _breakoutRooms;
     }
+	
+	public function get joinRequestedByUser():Boolean {
+		return _joinRequestedByUser;
+	}
+	
+	public function set joinRequestedByUser(value:Boolean):void {
+		_joinRequestedByUser = value;
+	}
     
     public function removeBreakoutRoom(breakoutMeetingId:String):void {
       var room:Object = getBreakoutRoomIndex(breakoutMeetingId);
@@ -173,5 +183,15 @@ package org.bigbluebutton.core.model
       
       dispatcher.dispatchEvent(new BreakoutRoomsListUpdatedEvent());
     }
+    
+	public function haveFreeJoinRooms():Boolean {
+		for (var i:int = 0; i < _breakoutRooms.length; i++) {
+			var br:BreakoutRoom = BreakoutRoom(_breakoutRooms.getItemAt(i));
+			if (br.freeJoin) {
+				return true;
+			}
+		}
+		return false;
+	}
   }
 }

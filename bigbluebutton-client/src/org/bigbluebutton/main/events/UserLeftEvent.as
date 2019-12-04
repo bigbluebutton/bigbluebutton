@@ -19,8 +19,6 @@
 package org.bigbluebutton.main.events
 {
 	import flash.events.Event;
-	
-	import org.bigbluebutton.main.model.User;
 
 	public class UserLeftEvent extends Event
 	{

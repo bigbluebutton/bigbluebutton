@@ -1,17 +1,19 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { createContainer } from 'meteor/react-meteor-data';
+import { withTracker } from 'meteor/react-meteor-data';
 import ReactiveAnnotationService from './service';
 import ReactiveAnnotation from './component';
 
-const ReactiveAnnotationContainer = ({ ...props }) => {
-  if (props.annotation) {
+const ReactiveAnnotationContainer = (props) => {
+  const { annotation, drawObject } = props;
+  if (annotation && drawObject) {
     return (
       <ReactiveAnnotation
         annotation={props.annotation}
         slideWidth={props.slideWidth}
         slideHeight={props.slideHeight}
         drawObject={props.drawObject}
+        whiteboardId={props.whiteboardId}
       />
     );
   }
@@ -19,16 +21,17 @@ const ReactiveAnnotationContainer = ({ ...props }) => {
   return null;
 };
 
-export default createContainer((params) => {
+export default withTracker((params) => {
   const { shapeId } = params;
   const annotation = ReactiveAnnotationService.getAnnotationById(shapeId);
 
   return {
     annotation,
   };
-}, ReactiveAnnotationContainer);
+})(ReactiveAnnotationContainer);
 
 ReactiveAnnotationContainer.propTypes = {
+  whiteboardId: PropTypes.string.isRequired,
   annotation: PropTypes.objectOf(PropTypes.oneOfType([
     PropTypes.string,
     PropTypes.number,

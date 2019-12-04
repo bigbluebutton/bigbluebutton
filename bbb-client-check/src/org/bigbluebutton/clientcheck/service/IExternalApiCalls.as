@@ -27,7 +27,6 @@ package org.bigbluebutton.clientcheck.service
 		function requestScreenSize():void;
 		function requestIsPepperFlash():void;
 		function requestCookiesEnabled():void;
-		function requestJavaEnabled():void;
 		function requestLanguage():void;
 		function requestIsWebRTCSupported():void;
 		function requestWebRTCEchoAndSocketTest():void;

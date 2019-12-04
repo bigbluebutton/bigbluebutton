@@ -25,27 +25,29 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
           xmlns:fx="http://ns.adobe.com/mxml/2009">
   <fx:Script>
     <![CDATA[
-      import mx.events.FlexEvent;
-      
-      import org.bigbluebutton.core.EventConstants;
-      import org.bigbluebutton.main.events.BBBEvent;
-      import org.bigbluebutton.modules.chat.events.ChatCopyEvent;
-      import org.bigbluebutton.modules.chat.events.ChatHistoryEvent;
-      import org.bigbluebutton.modules.chat.events.ChatSaveEvent;
-      import org.bigbluebutton.modules.chat.events.ChatToolbarButtonEvent;
-      import org.bigbluebutton.modules.chat.events.CreateGroupChatReqEvent;
-      import org.bigbluebutton.modules.chat.events.GetWelcomeMessageEvent;
-      import org.bigbluebutton.modules.chat.events.GroupChatCreatedEvent;
-      import org.bigbluebutton.modules.chat.events.ReceivedGroupChatsEvent;
-      import org.bigbluebutton.modules.chat.events.SendGroupChatMessageEvent;
-      import org.bigbluebutton.modules.chat.events.SendPrivateChatMessageEvent;
-      import org.bigbluebutton.modules.chat.events.StartChatModuleEvent;
-      import org.bigbluebutton.modules.chat.events.StopChatModuleEvent;
-      import org.bigbluebutton.modules.chat.services.ChatCopy;
-      import org.bigbluebutton.modules.chat.services.ChatMessageService;
-      import org.bigbluebutton.modules.chat.services.ChatSaver;
-      import org.bigbluebutton.modules.chat.services.MessageReceiver;
-      import org.bigbluebutton.modules.chat.services.MessageSender;
+		import mx.events.FlexEvent;
+		
+		import org.bigbluebutton.core.EventConstants;
+		import org.bigbluebutton.main.events.BBBEvent;
+		import org.bigbluebutton.modules.chat.events.ChatCopyEvent;
+		import org.bigbluebutton.modules.chat.events.ChatHistoryEvent;
+		import org.bigbluebutton.modules.chat.events.ChatSaveEvent;
+		import org.bigbluebutton.modules.chat.events.ChatToolbarButtonEvent;
+		import org.bigbluebutton.modules.chat.events.CreateGroupChatReqEvent;
+		import org.bigbluebutton.modules.chat.events.GroupChatBoxClosedEvent;
+		import org.bigbluebutton.modules.chat.events.GroupChatCreatedEvent;
+		import org.bigbluebutton.modules.chat.events.NewGroupChatMessageEvent;
+		import org.bigbluebutton.modules.chat.events.OpenChatBoxEvent;
+		import org.bigbluebutton.modules.chat.events.ReceivedGroupChatsEvent;
+		import org.bigbluebutton.modules.chat.events.SendGroupChatMessageEvent;
+		import org.bigbluebutton.modules.chat.events.StartChatModuleEvent;
+		import org.bigbluebutton.modules.chat.events.StopChatModuleEvent;
+		import org.bigbluebutton.modules.chat.events.UserTypingEvent;
+		import org.bigbluebutton.modules.chat.services.ChatCopy;
+		import org.bigbluebutton.modules.chat.services.ChatMessageService;
+		import org.bigbluebutton.modules.chat.services.ChatSaver;
+		import org.bigbluebutton.modules.chat.services.MessageReceiver;
+		import org.bigbluebutton.modules.chat.services.MessageSender;
     ]]>
   </fx:Script>
   <fx:Declarations>
@@ -59,8 +61,16 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
     </EventHandlers>
     
     <EventHandlers type="{ReceivedGroupChatsEvent.RECEIVED_GROUPCHATS_EVENT}">
-      <MethodInvoker generator="{ChatEventMapDelegate}" method="handleReceivedGroupChatsEvent" />  
-      <MethodInvoker generator="{ChatMessageService}" method="handleReceivedGroupChatsEvent" />  
+      <MethodInvoker generator="{ChatEventMapDelegate}" method="handleReceivedGroupChatsEvent"/>
+      <MethodInvoker generator="{ChatMessageService}" method="handleReceivedGroupChatsEvent"/>
+    </EventHandlers>
+    
+    <EventHandlers type="{GroupChatBoxClosedEvent.CHATBOX_CLOSED_EVENT}">
+      <MethodInvoker generator="{ChatEventMapDelegate}" method="chatBoxClosed" arguments="{event}"/>  
+    </EventHandlers>
+    
+    <EventHandlers type="{NewGroupChatMessageEvent.NEW_GROUP_CHAT_MSG_RECEIVED}">
+      <MethodInvoker generator="{ChatEventMapDelegate}" method="handleNewGroupChatMessageEvent" arguments="{event}"/>  
     </EventHandlers>
     
     <EventHandlers type="{GroupChatCreatedEvent.GROUP_CHAT_CREATED_EVENT}">
@@ -68,40 +78,37 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
     </EventHandlers>
     
     <EventHandlers type="{StopChatModuleEvent.STOP_CHAT_MODULE_EVENT}">        
-      <MethodInvoker generator="{ChatEventMapDelegate}" method="closeChatWindow" />
+      <MethodInvoker generator="{ChatEventMapDelegate}" method="closeChatWindows" />
     </EventHandlers>
+    
+    <EventHandlers type="{OpenChatBoxEvent.OPEN_CHATBOX_EVENT}" >
+      <MethodInvoker generator="{ChatEventMapDelegate}" method="handleOpenChatBoxEvent" arguments="{event}"/>
+    </EventHandlers>  
+    
     
     <EventHandlers type="{EventConstants.SEND_PUBLIC_CHAT_REQ}">        
       <MethodInvoker generator="{ChatMessageService}" method="sendPublicMessageFromApi" arguments="{event.message}"/>		
-    </EventHandlers>
-    
-    <EventHandlers type="{EventConstants.SEND_PRIVATE_CHAT_REQ}">        
-      <MethodInvoker generator="{ChatMessageService}" method="sendPrivateMessageFromApi" arguments="{event.message}"/>		
     </EventHandlers>
     
     <EventHandlers type="{SendGroupChatMessageEvent.SEND_GROUP_CHAT_MESSAGE_EVENT}">        
       <MethodInvoker generator="{ChatMessageService}" method="sendPublicMessage" arguments="{event}"/>		
     </EventHandlers>
     
-    <EventHandlers type="{SendPrivateChatMessageEvent.SEND_PRIVATE_CHAT_MESSAGE_EVENT}">        
-      <MethodInvoker generator="{ChatMessageService}" method="sendPrivateMessage" arguments="{event.chatMessage}"/>		
+    <EventHandlers type="{UserTypingEvent.USER_TYPING_EVENT}">        
+      <MethodInvoker generator="{ChatMessageService}" method="handleUserTypingMessage" arguments="{event}"/>		
     </EventHandlers>
     
     <EventHandlers type="{ChatHistoryEvent.REQUEST_HISTORY}" >
       <MethodInvoker generator="{ChatMessageService}" method="getGroupChatHistoryMessages" 
                      arguments="{event.chatId}"/>
     </EventHandlers>    
-    
-    <EventHandlers type="{GetWelcomeMessageEvent.GET_WELCOME_MESSAGE}" >
-      <MethodInvoker generator="{ChatMessageService}" method="sendWelcomeMessage" arguments="{event.chatId}"/>
-    </EventHandlers>
-    
+        
     <EventHandlers type="{CreateGroupChatReqEvent.CREATE_GROUP_CHAT_REQ_EVENT}" >
       <MethodInvoker generator="{ChatMessageService}" method="handleCreateGCReqEvent" arguments="{event}"/>
     </EventHandlers>    
-    
+
     <EventHandlers type="{BBBEvent.RECONNECT_BIGBLUEBUTTON_SUCCEEDED_EVENT}" >
-      <EventAnnouncer generator="{ChatHistoryEvent}" type="{ChatHistoryEvent.REQUEST_HISTORY}"/>
+      <MethodInvoker generator="{ChatMessageService}" method="getGroupChats" />
     </EventHandlers>
     
     <EventHandlers type="{ChatSaveEvent.SAVE_CHAT_EVENT}">

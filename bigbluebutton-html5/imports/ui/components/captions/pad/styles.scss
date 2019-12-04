@@ -1,0 +1,106 @@
+@import "/imports/ui/stylesheets/mixins/focus";
+@import "/imports/ui/stylesheets/variables/_all";
+
+:root {
+  --speech-results-width: 22.3rem;
+}
+
+.processing {
+  margin-top: var(--lg-padding-y);
+  margin-bottom: var(--lg-padding-y);
+  min-height: var(--jumbo-padding-x);
+  width: var(--speech-results-width);
+  border: solid var(--border-size-small) var(--color-gray);
+}
+
+.interimTitle {
+  margin-top: var(--lg-padding-y);
+}
+
+.pad {
+  background-color: var(--color-white);
+  padding: var(--md-padding-x);
+  display: flex;
+  flex-grow: 1;
+  flex-direction: column;
+  justify-content: space-around;
+  overflow: hidden;
+  height: 100vh;
+  transform: translateZ(0);
+}
+
+.header {
+  display: flex;
+  flex-direction: row;
+  align-items: left;
+  flex-shrink: 0;
+
+  a {
+    @include elementFocus(var(--color-primary));
+    padding-bottom: var(--sm-padding-y);
+    padding-left: var(--sm-padding-y);
+    text-decoration: none;
+    display: block;
+  }
+
+  [class^="icon-bbb-"],
+  [class*=" icon-bbb-"] {
+    font-size: 85%;
+  }
+}
+
+.title {
+  @extend %text-elipsis;
+  flex: 1;
+
+  & > button, button:hover {
+    margin-top: 0;
+    padding-top: 0;
+    border-top: 0;
+  }
+}
+
+.hideBtn {
+  position: relative;
+  background-color: var(--color-white);
+  display: block;
+  margin: 4px;
+  margin-bottom: 2px;
+  padding-left: 0px;
+
+  > i {
+    color: black;
+  }
+
+  &:hover {
+    background-color: var(--color-white);
+  }
+}
+
+.hint {
+  visibility: hidden;
+  position: absolute;
+
+  @media (pointer: none) {
+    visibility: visible;
+    position: relative;
+    color: var(--color-gray);
+    font-size: var(--font-size-small);
+    font-style: italic;
+    padding-top: var(--sm-padding-x);
+    padding-left: var(--lg-padding-y);
+    text-align: left;
+  }
+}
+
+iframe {
+  display: flex;
+  flex-flow: column;
+  flex-grow: 1;
+  flex-shrink: 1;
+  position: relative;
+  overflow-x: hidden;
+  overflow-y: auto;
+  border-style: none;
+  border-bottom: 1px solid var(--color-gray-lightest);
+}

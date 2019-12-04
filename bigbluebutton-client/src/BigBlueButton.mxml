@@ -19,9 +19,11 @@ You should have received a copy of the GNU Lesser General Public License along
 with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
 -->
-<mx:Application xmlns:mx="library://ns.adobe.com/flex/mx"
+<BigBlueButtonApplication xmlns:mx="library://ns.adobe.com/flex/mx"
 				xmlns:fx="http://ns.adobe.com/mxml/2009"
 				xmlns:views="*"
+				xmlns="org.bigbluebutton.core.*"
+				xmlns:logging="org.bigbluebutton.common.logging.*"
 				pageTitle="BigBlueButton" 
 				layout="absolute"
 				preinitialize="init()"
@@ -34,15 +36,27 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
 	<fx:Style source="../branding/default/style/css/V2Theme.css" />
 
+	<fx:Metadata> 
+		[ResourceBundle("bbbResources")] 
+	</fx:Metadata>
+
 	<fx:Script>
 		<![CDATA[
-			import org.bigbluebutton.common.LogUtil;
+			import org.bigbluebutton.common.logging.LogUtil;
 
 			private function init():void {
 				LogUtil.initLogging(true);
 			}
 		]]>
 	</fx:Script>
+	
+	<fx:Declarations>
+		<logging:GlobalExceptionHandler preventDefault="true">
+			<logging:LogHandlerAction/>
+			<logging:DisplayWarningAction />
+		</logging:GlobalExceptionHandler>	
+	</fx:Declarations>
+	
   <views:BigBlueButtonMainContainer id="bbbShell"/>
 
-</mx:Application>
+</BigBlueButtonApplication>

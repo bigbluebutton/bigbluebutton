@@ -44,7 +44,7 @@ package org.bigbluebutton.modules.sharednotes.services {
       _nc.sendMessage2x(
         onSuccessDebugger,
         onErrorDebugger,
-        JSON.stringify(message)
+        message
       );
     }
 
@@ -58,7 +58,7 @@ package org.bigbluebutton.modules.sharednotes.services {
       _nc.sendMessage2x(
         onSuccessDebugger,
         onErrorDebugger,
-        JSON.stringify(message)
+        message
       );
     }
 
@@ -72,7 +72,7 @@ package org.bigbluebutton.modules.sharednotes.services {
       _nc.sendMessage2x(
         onSuccessDebugger,
         onErrorDebugger,
-        JSON.stringify(message)
+        message
       );
     }
 
@@ -86,7 +86,7 @@ package org.bigbluebutton.modules.sharednotes.services {
       _nc.sendMessage2x(
         onSuccessDebugger,
         onErrorDebugger,
-        JSON.stringify(message)
+        message
       );
     }
 
@@ -100,7 +100,7 @@ package org.bigbluebutton.modules.sharednotes.services {
       _nc.sendMessage2x(
         onSuccessDebugger,
         onErrorDebugger,
-        JSON.stringify(message)
+        message
       );
     }
 
@@ -114,7 +114,7 @@ package org.bigbluebutton.modules.sharednotes.services {
       _nc.sendMessage2x(
         onSuccessDebugger,
         onErrorDebugger,
-        JSON.stringify(message)
+        message
       );
     }
   }

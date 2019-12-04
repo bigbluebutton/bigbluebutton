@@ -129,7 +129,7 @@ if not FileTest.directory?(target_dir)
     end
 
     participants = recording.at_xpath("participants")
-    participants.content = BigBlueButton::Events.get_num_participants("#{target_dir}/events.xml")
+    participants.content = BigBlueButton::Events.get_num_participants(@doc)
 
     ## Remove empty meta
     metadata.search('//recording/meta').each do |meta|
@@ -179,7 +179,7 @@ if not FileTest.directory?(target_dir)
           text = {}
           1.upto(num_pages) do |page|
             BigBlueButton::Presentation.extract_png_page_from_pdf(
-              page, pres_pdf, "#{target_pres_dir}/slide-#{page}.png", '1600x1200')
+              page, pres_pdf, "#{target_pres_dir}/slide-#{page}.png", '1600x1600')
             if File.exist?("#{pres_dir}/textfiles/slide-#{page}.txt") then
               t = File.read("#{pres_dir}/textfiles/slide-#{page}.txt", encoding: 'UTF-8')
               text["slide-#{page}"] = t.encode('UTF-8', invalid: :replace)
@@ -191,7 +191,7 @@ if not FileTest.directory?(target_dir)
       else
         ext = File.extname("#{images[0]}")
         BigBlueButton::Presentation.convert_image_to_png(
-          images[0], "#{target_pres_dir}/slide-1.png", '1600x1200')
+          images[0], "#{target_pres_dir}/slide-1.png", '1600x1600')
       end
 
       # Copy thumbnails from raw files
@@ -228,13 +228,13 @@ if not FileTest.directory?(target_dir)
       end
 
       processed_audio_file = BigBlueButton::AudioProcessor.get_processed_audio_file("#{temp_dir}/#{meeting_id}", "#{target_dir}/audio")
-      BigBlueButton.process_webcam_videos(target_dir, temp_dir, meeting_id, webcam_width, webcam_height, presentation_props['audio_offset'], processed_audio_file)
+      BigBlueButton.process_webcam_videos(target_dir, temp_dir, meeting_id, webcam_width, webcam_height, presentation_props['audio_offset'], processed_audio_file, presentation_props['video_formats'])
     end
 
     if !Dir["#{raw_archive_dir}/deskshare/*"].empty? and presentation_props['include_deskshare']
       deskshare_width = presentation_props['deskshare_output_width']
       deskshare_height = presentation_props['deskshare_output_height']
-      BigBlueButton.process_deskshare_videos(target_dir, temp_dir, meeting_id, deskshare_width, deskshare_height)
+      BigBlueButton.process_deskshare_videos(target_dir, temp_dir, meeting_id, deskshare_width, deskshare_height, presentation_props['video_formats'])
     end
 
     process_done = File.new("#{recording_dir}/status/processed/#{meeting_id}-presentation.done", "w")

@@ -40,7 +40,7 @@ package org.bigbluebutton.modules.polling.service
         function(status:String):void { // status - On error occurred
           LOGGER.error(status);
         },
-        JSON.stringify(message)
+        message
       );
     }
 
@@ -57,7 +57,7 @@ package org.bigbluebutton.modules.polling.service
         function(status:String):void { // status - On error occurred
           LOGGER.error(status);
         },
-        JSON.stringify(message)
+        message
       );
     }
     
@@ -75,7 +75,7 @@ package org.bigbluebutton.modules.polling.service
         function(status:String):void { // status - On error occurred
           LOGGER.error(status);
         },
-        JSON.stringify(message)
+        message
       );
     }
     
@@ -94,15 +94,12 @@ package org.bigbluebutton.modules.polling.service
         function(status:String):void { // status - On error occurred
           LOGGER.error(status);
         },
-        JSON.stringify(message)
+        message
       );
     }
     
-    public function showPollResult(pollId:String, show:Boolean):void {
+    public function showPollResult(pollId:String):void {
       var messageName:String = "ShowPollResultReqMsg";
-      if (!show) {
-        messageName = "HidePollResultReqMsg";
-      }
 
       var message:Object = {
         header: {name: messageName, meetingId: UsersUtil.getInternalMeetingID(), userId: UsersUtil.getMyUserID()},
@@ -116,7 +113,7 @@ package org.bigbluebutton.modules.polling.service
         function(status:String):void { // status - On error occurred
           LOGGER.error(status);
         },
-        JSON.stringify(message)
+        message
       );
     }
   }

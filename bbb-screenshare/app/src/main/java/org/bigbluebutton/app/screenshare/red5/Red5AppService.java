@@ -3,19 +3,18 @@ package org.bigbluebutton.app.screenshare.red5;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.TimeUnit;
-import org.bigbluebutton.app.screenshare.messaging.redis.MessageSender;
+
 import org.red5.logging.Red5LoggerFactory;
 import org.red5.server.api.IConnection;
 import org.red5.server.api.Red5;
 import org.slf4j.Logger;
+
 import com.google.gson.Gson;
 
 public class Red5AppService {
   private static Logger log = Red5LoggerFactory.getLogger(Red5AppService.class, "screenshare");
   
   private Red5AppHandler handler;
-  private MessageSender red5RedisSender;
 
   /**
    * Called from the client to pass us the userId.
@@ -27,6 +26,7 @@ public class Red5AppService {
   public void setUserId(Map<String, Object> msg) {
     String meetingId = Red5.getConnectionLocal().getScope().getName();
     String userId = (String) msg.get("userId");
+    String clientConnId = (String) msg.get("clientConnId");
 
     String connType = getConnectionType(Red5.getConnectionLocal().getType());
     String sessionId = Red5.getConnectionLocal().getSessionId();
@@ -39,13 +39,18 @@ public class Red5AppService {
     Set<IConnection> conns = Red5.getConnectionLocal().getScope().getClientConnections();
     for (IConnection conn : conns) {
       String connUserId = (String) conn.getAttribute("USERID");
+      String oldClientConnId = (String) conn.getAttribute("CLIENT_CONN_ID");
       String connSessionId = conn.getSessionId();
-      if (connUserId != null && connUserId.equals(userId) && !connSessionId.equals(sessionId)) {
+      if (oldClientConnId != null && connUserId != null && connUserId.equals(userId) && !connSessionId.equals(sessionId)) {
         conn.removeAttribute("USERID");
+        conn.removeAttribute("CLIENT_CONN_ID");
+
         Map<String, Object> logData = new HashMap<String, Object>();
         logData.put("meetingId", meetingId);
         logData.put("userId", userId);
         logData.put("oldConnId", connSessionId);
+          logData.put("oldClientConnId", oldClientConnId);
+          logData.put("newClientConnId", clientConnId);
         logData.put("newConnId", sessionId);
         logData.put("event", "removing_defunct_connection");
         logData.put("description", "Removing defunct connection BBB Screenshare.");
@@ -60,6 +65,7 @@ public class Red5AppService {
 
     Red5.getConnectionLocal().setAttribute("MEETING_ID", meetingId);
     Red5.getConnectionLocal().setAttribute("USERID", userId);
+      Red5.getConnectionLocal().setAttribute("CLIENT_CONN_ID", clientConnId);
 
     handler.userConnected(meetingId, userId);
 
@@ -68,6 +74,7 @@ public class Red5AppService {
     logData.put("userId", userId);
     logData.put("connType", connType);
     logData.put("connId", sessionId);
+      logData.put("clientConnId", clientConnId);
     logData.put("event", "user_joining_bbb_screenshare");
     logData.put("description", "User joining BBB Screenshare.");
 
@@ -157,23 +164,22 @@ public class Red5AppService {
   public void screenShareClientPongMessage(Map<String, Object> msg) {
     String meetingId = Red5.getConnectionLocal().getScope().getName();
     String streamId = (String) msg.get("streamId");
-    Double timestamp = (Double) msg.get("timestamp");
+    Double timestamp;
+    if (msg.get("timestamp") instanceof Integer) {
+      Integer tempTimestamp = (Integer) msg.get("timestamp");
+      timestamp = tempTimestamp.doubleValue();
+    } else {
+      timestamp = (Double) msg.get("timestamp");
+    }
+
     String userId = (String) Red5.getConnectionLocal().getAttribute("USERID");
 
-    //log.debug("Received screenShareClientPongMessage for meeting=[{}]", meetingId);
+    log.debug("Received screenShareClientPongMessage for meeting=[{}]", meetingId);
 
     handler.screenShareClientPongMessage(meetingId, userId, streamId, timestamp.longValue());
   }
 
-  private Long genTimestamp() {
-    return TimeUnit.NANOSECONDS.toMillis(System.nanoTime());
-  }
-
   public void setAppHandler(Red5AppHandler handler) {
     this.handler = handler;
-  }
-
-  public void setRed5RedisSender(MessageSender red5RedisSender) {
-      this.red5RedisSender = red5RedisSender;
   }
 }

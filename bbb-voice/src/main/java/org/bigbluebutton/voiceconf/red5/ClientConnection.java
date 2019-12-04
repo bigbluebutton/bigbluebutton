@@ -27,7 +27,7 @@ private static Logger log = Red5LoggerFactory.getLogger(ClientConnection.class, 
 	
 	private final IServiceCapableConnection connection;
 	private final String connId;
-	private final String userid;
+	public final String userid;
 	private final String username;
 	
 	public ClientConnection(String connId, String userid, String username, IServiceCapableConnection connection) {
@@ -36,7 +36,7 @@ private static Logger log = Red5LoggerFactory.getLogger(ClientConnection.class, 
 		this.userid = userid;
 		this.username = username;
 	}
-	
+
 	public String getConnId() {
 		return connId;
 	}

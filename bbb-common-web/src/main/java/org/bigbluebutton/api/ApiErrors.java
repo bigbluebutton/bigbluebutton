@@ -73,7 +73,7 @@ public class ApiErrors {
 	}
 
 	public boolean hasErrors() {
-		return errors.size() > 0;
+		return !errors.isEmpty();
 	}
 
 	public ArrayList<String[]> getErrors() {

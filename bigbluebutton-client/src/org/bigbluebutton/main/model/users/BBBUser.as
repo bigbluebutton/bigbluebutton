@@ -23,6 +23,7 @@ package org.bigbluebutton.main.model.users
   import flash.events.Event;
   
   import org.as3commons.lang.ArrayUtils;
+  import org.as3commons.lang.StringUtils;
   import org.as3commons.logging.api.ILogger;
   import org.as3commons.logging.api.getClassLogger;
   import org.bigbluebutton.common.Role;
@@ -58,6 +59,7 @@ package org.bigbluebutton.main.model.users
     [Bindable] public var disableMyMic:Boolean = false;
     [Bindable] public var disableMyPrivateChat:Boolean = false;
     [Bindable] public var disableMyPublicChat:Boolean = false;
+    [Bindable] public var disableMyNote:Boolean = false;
     [Bindable] public var lockedLayout:Boolean = false;
     [Bindable] public var avatarURL:String="";
     
@@ -156,7 +158,7 @@ package org.bigbluebutton.main.model.users
     
     [Bindable("emojiStatusChange")]
     public function get hasEmojiStatus():Boolean {
-      return _emojiStatus != null && _emojiStatus != "none" && _emojiStatus != "null";
+      return !StringUtils.isEmpty(_emojiStatus) && _emojiStatus != "none" && _emojiStatus != "null";
     }
     
     private var _role:String = Role.VIEWER;
@@ -253,6 +255,7 @@ package org.bigbluebutton.main.model.users
       if (presenter)
         isPresenter=ResourceUtil.getInstance().getString('bbb.users.usersGrid.statusItemRenderer.presIcon.toolTip');
       if (hasEmojiStatus)
+		// @fixme : need adding tooltip string for emoji
         hasEmoji = ResourceUtil.getInstance().getString('bbb.users.usersGrid.statusItemRenderer.'+ emojiStatus +'.toolTip');
       
       status = showingWebcam + isPresenter + hasEmoji;
@@ -388,6 +391,7 @@ package org.bigbluebutton.main.model.users
       n.disableMyMic = user.disableMyMic;
       n.disableMyPrivateChat = user.disableMyPrivateChat;
       n.disableMyPublicChat = user.disableMyPublicChat;
+      n.disableMyNote = user.disableMyNote;
       n.breakoutRooms = user.breakoutRooms.concat(); // concatenate an array with nothing to deliver a new array.
       n.guest = user.guest;
       return n;		
@@ -408,6 +412,7 @@ package org.bigbluebutton.main.model.users
       disableMyMic = lockAppliesToMe && lockSettings.getDisableMic();
       disableMyPrivateChat = lockAppliesToMe && lockSettings.getDisablePrivateChat();
       disableMyPublicChat = lockAppliesToMe && lockSettings.getDisablePublicChat();
+      disableMyNote = lockAppliesToMe && lockSettings.getDisableNote();
       lockedLayout = lockAppliesToMe && lockSettings.getLockedLayout();
       
       var dispatcher:Dispatcher = new Dispatcher();

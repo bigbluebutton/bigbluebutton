@@ -1,8 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <mx:HBox xmlns:mx="library://ns.adobe.com/flex/mx"
 		 xmlns:fx="http://ns.adobe.com/mxml/2009"
-		 width="90%"
-		 verticalAlign="middle">
+		 width="90%">
 	<fx:Script>
 		<![CDATA[
 			import com.asfusion.mate.events.Dispatcher;
@@ -14,7 +13,8 @@
 
 			private function downloadPresentation():void {
 				var downloadEvent:DownloadEvent = new DownloadEvent(DownloadEvent.DOWNLOAD_PRESENTATION);
-				downloadEvent.fileNameToDownload = data.id as String;
+				downloadEvent.presId = data.id as String;
+				downloadEvent.presFilename = data.name as String;
 				globalDispatch.dispatchEvent(downloadEvent);
 			}
 		]]>

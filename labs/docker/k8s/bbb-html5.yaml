@@ -1,0 +1,91 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  labels:
+    app: bbb-html5
+    version: latest
+  name: bbb-html5
+  namespace: bigbluebutton
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: bbb-html5
+      version: latest
+  strategy:
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 1
+    type: RollingUpdate
+  template:
+    metadata:
+      labels:
+        app: bbb-html5
+        version: latest
+      name: bbb-html5
+    spec:
+      containers:
+      - env:
+        - name: MONGO_URL
+          value: mongodb://mongo:27017/
+        - name: MONGO_DB
+          value: bbbhtml5
+        - name: METEOR_SETTINGS_MODIFIER
+          value: ".public.kurento.wsUrl = \"wss://bigbluebutton.rocket.chat/bbb-webrtc-sfu\" | .public.kurento.enableVideo = true | .public.kurento.enableScreensharing = true | .public.kurento.enableVideoStats = true | .public.kurento.enableListenOnly = true"
+        - name: REDIS_HOST
+          value: redis
+        - name: ROOT_URL
+          value: http://127.0.0.1/html5client
+        image: fcecagno/bigbluebutton:bbb-html5
+        imagePullPolicy: Always
+        name: bbb-html5
+        ports:
+        - containerPort: 3000
+          protocol: TCP
+      restartPolicy: Always
+      terminationGracePeriodSeconds: 30
+      nodeSelector:
+        role: 'bigbluebutton'
+      tolerations:
+      - key: role
+        operator: Equal
+        value: 'bigbluebutton'
+        effect: NoSchedule
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: bbb-html5
+  namespace: bigbluebutton
+  annotations:
+    traefik.backend.circuitbreaker: "NetworkErrorRatio() > 0.5"
+spec:
+  ports:
+  - name: http
+    targetPort: 3000
+    port: 3000
+  selector:
+    app: bbb-html5
+
+---
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: bbb-html5
+  namespace: bigbluebutton
+  annotations:
+    kubernetes.io/ingress.class: "traefik"
+spec:
+  rules:
+  - host: bigbluebutton.rocket.chat
+    http:
+      paths:
+      - path: /html5client
+        backend:
+          serviceName: bbb-html5
+          servicePort: 3000
+      - path: /_timesync
+        backend:
+          serviceName: bbb-html5
+          servicePort: 3000

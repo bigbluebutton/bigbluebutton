@@ -1,0 +1,246 @@
+@import "../../stylesheets/variables/_all";
+
+:root {
+  --toast-default-color: var(--color-white);
+  --toast-default-bg: var(--color-gray);
+
+  --toast-info-color: var(--color-white);
+  --toast-info-bg: var(--color-primary);
+
+  --toast-success-color: var(--color-white);
+  --toast-success-bg: var(--color-success);
+
+  --toast-error-color: var(--color-white);
+  --toast-error-bg: var(--color-danger);
+
+  --toast-warning-color: var(--color-white);
+  --toast-warning-bg: var(--color-warning);
+
+  --background: var(--color-white);
+  --background-active: #eee;
+
+  --toast-offset: 4.5rem;
+  --toast-offset-sm: .325rem;
+  --toast-mobile-width: 75%;
+
+  --toast-max-width: 20rem !important;
+  --toast-body-max-width: 17.75rem !important;
+  --toast-container-max-width: 23rem !important;
+  --toast-container-min-width: var(--toast-max-width);
+
+  --toast-icon-md: 2rem;
+  --toast-icon-sm: 1.2rem;
+}
+
+@mixin notification-variant($icon-color, $icon-bg) {
+  display: flex;
+
+  > .icon {
+    color: $icon-color;
+    background-color: $icon-bg;
+  }
+}
+
+.toastContainer {
+  display: flex;
+  flex-direction: column;
+}
+
+.smallToastContainer {
+  background-color: inherit;
+}
+
+.icon {
+  align-self: flex-start;
+  margin: 0 var(--sm-padding-x) auto 0;
+  width: var(--toast-icon-md);
+  height: var(--toast-icon-md);
+  border-radius: 50%;
+  position: relative;
+  flex-shrink: 0;
+
+  [dir="rtl"]  & {
+    margin: 0 0 auto var(--sm-padding-x);
+  }
+
+  > i {
+    line-height: 0;
+    color: inherit;
+    position: absolute;
+    top: 50%;
+    width: 100%;
+  }
+}
+
+.smallIcon {
+  width: var(--toast-icon-sm);
+  height: var(--toast-icon-sm);
+  > i {
+    font-size: 70%;
+  }
+}
+
+.separator {
+  position: relative;
+  width: 100%;
+  height: var(--border-size-small);
+  background-color: var(--color-gray-lighter);
+  margin-top: calc(var(--line-height-computed) * .5);
+  margin-bottom: calc(var(--line-height-computed) * .5);
+}
+
+.message {
+  margin-top: auto;
+  margin-bottom: auto;
+  font-size: var(--font-size-small);
+  max-height: 15vh;
+  overflow: auto;
+}
+
+.smallMessage {
+  font-size: 80%;
+}
+
+.default {
+  @include notification-variant(var(--toast-default-color), var(--toast-default-bg));
+}
+
+.info {
+  @include notification-variant(var(--toast-info-color), var(--toast-info-bg));
+}
+
+.success {
+  @include notification-variant(var(--toast-success-color), var(--toast-success-bg));
+}
+
+.error {
+  @include notification-variant(var(--toast-error-color), var(--toast-error-bg));
+}
+
+.warning {
+  @include notification-variant(var(--toast-warning-color), var(--toast-warning-bg));
+}
+
+.container {
+  z-index: 9998;
+  position: fixed;
+  padding: var(--sm-padding-y);
+  min-width: var(--toast-container-min-width);
+  max-width: var(--toast-container-max-width);
+  box-sizing: border-box;
+  right: var(--jumbo-padding-y);
+  left: auto;
+  top: var(--toast-offset);
+  max-height: 75vh;
+  overflow: hidden;
+
+  [dir="rtl"] & {
+    right: auto;
+    left: var(--jumbo-padding-y);
+  }
+
+  @include mq($small-only) {
+    width: var(--toast-mobile-width);
+  }
+}
+
+.toast {
+  position: relative;
+  margin-bottom: var(--sm-padding-x);
+  padding: var(--md-padding-x);
+  border-radius: var(--border-radius);
+  box-shadow: 0 var(--border-size-small) 10px 0 rgba(0, 0, 0, 0.1), 0 var(--border-size) 15px 0 rgba(0, 0, 0, 0.05);
+  display: flex;
+  justify-content: space-between;
+  cursor: pointer;
+  color: var(--color-text);
+  background-color: var(--background);
+  animation-duration: 0.75s;
+  animation-fill-mode: both;
+  max-width: var(--toast-max-width);
+
+  &:hover,
+  &:focus {
+    background-color: var(--background-active);
+  }
+}
+
+.body {
+  margin: auto auto;
+  flex: 1;
+  background-color: inherit;
+  max-width: var(--toast-body-max-width);
+}
+
+.close {
+  background: transparent;
+  outline: none;
+  border: none;
+  cursor: pointer;
+  opacity: .5;
+  font-size: var(--font-size-smallest);
+  color: var(--color-gray-dark);
+  line-height: 0;
+  position: relative;
+  font-size: 70%;
+  left: var(--toast-offset-sm);
+  
+  [dir="rtl"] & {
+    left: auto;
+    right: var(--toast-offset-sm);
+  }
+
+  :global(.animationsEnabled) & {
+    transition: .3s ease;
+  }
+
+  &:before {
+    margin: inherit inherit inherit -.4rem;
+
+    [dir="rtl"] & {
+      margin: inherit -.4rem inherit inherit;
+    }
+  }
+
+  &:hover,
+  &:focus {
+    opacity: 1;
+  }
+
+  @include mq($small-only) {
+    position: relative;
+    font-size: var(--font-size-smaller);
+    left: auto;
+  }
+}
+
+@keyframes track-progress {
+  0% {
+    width: 100%;
+  }
+  100% {
+    width: 0;
+  }
+}
+.backgroundColorInherit {
+  position: relative;
+}
+
+.progress {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: auto;
+  width: 0;
+  height: 5px;
+  z-index: 9999;
+  animation: track-progress linear 1;
+  background-color: var(--color-gray-lighter);
+  border-radius: var(--border-radius);
+
+  
+  [dir="rtl"] & {
+    left: auto;
+    right: 0;
+  }
+}

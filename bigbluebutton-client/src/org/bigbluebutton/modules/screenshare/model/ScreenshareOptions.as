@@ -22,25 +22,31 @@ package org.bigbluebutton.modules.screenshare.model {
 	public class ScreenshareOptions extends Options {
 
 		[Bindable]
+		public var uri: String = "";
+
+		[Bindable]
 		public var showButton:Boolean = true;
 
 		[Bindable]
 		public var baseTabIndex:int = 201;
 
 		[Bindable]
-		public var tryWebRTCFirst:Boolean = false;
-
-		[Bindable]
-		public var tryKurentoWebRTC:Boolean = false;
+		public var offerWebRTC:Boolean = false;
 
 		[Bindable]
 		public var enablePause:Boolean = true;
 
 		[Bindable]
-		public var chromeExtensionLink:String = "";
+		public var shareRegionDefault:Boolean = false;
+		
+		[Bindable]
+		public var chromeExtensionLink:String = "LINK";
 
 		[Bindable]
-		public var chromeExtensionKey:String = "";
+		public var chromeExtensionKey:String = "KEY";
+		
+		[Bindable]
+		public var chromeWin10Help:String = "";
 
 		[Bindable]
 		public var help:String = "";

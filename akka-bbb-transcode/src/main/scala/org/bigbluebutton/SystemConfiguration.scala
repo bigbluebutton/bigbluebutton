@@ -1,15 +1,16 @@
 package org.bigbluebutton
 
-import com.typesafe.config.ConfigFactory
 import scala.util.Try
+import com.typesafe.config.ConfigFactory
 
 trait SystemConfiguration {
-
   val config = ConfigFactory.load()
 
+  // Redis server configuration
   lazy val redisHost = Try(config.getString("redis.host")).getOrElse("127.0.0.1")
   lazy val redisPort = Try(config.getInt("redis.port")).getOrElse(6379)
   lazy val redisPassword = Try(config.getString("redis.password")).getOrElse("")
+  lazy val redisExpireKey = Try(config.getInt("redis.keyExpiry")).getOrElse(1209600)
 
   lazy val _ffmpegPath = Try(config.getString("transcoder.ffmpeg-path")).getOrElse("/usr/local/bin/ffmpeg")
   lazy val _ffprobePath = Try(config.getString("transcoder.ffprobe-path")).getOrElse("/usr/local/bin/ffprobe")

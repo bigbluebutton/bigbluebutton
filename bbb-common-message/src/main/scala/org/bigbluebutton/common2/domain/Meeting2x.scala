@@ -2,32 +2,62 @@ package org.bigbluebutton.common2.domain
 
 case class ConfigProps(defaultConfigToken: String, config: String)
 
-case class DurationProps(duration: Int, createdTime: Long, createdDate: String,  maxInactivityTimeoutMinutes: Int,
-warnMinutesBeforeMax:     Int, meetingExpireIfNoUserJoinedInMinutes: Int,
-                         meetingExpireWhenLastUserLeftInMinutes: Int)
+case class DurationProps(duration: Int, createdTime: Long, createdDate: String,
+                         maxInactivityTimeoutMinutes: Int, warnMinutesBeforeMax: Int,
+                         meetingExpireIfNoUserJoinedInMinutes: Int, meetingExpireWhenLastUserLeftInMinutes: Int,
+                         userInactivityInspectTimerInMinutes: Int, userInactivityThresholdInMinutes: Int, userActivitySignResponseDelayInMinutes: Int)
 
 case class MeetingProp(name: String, extId: String, intId: String, isBreakout: Boolean)
 
-case class BreakoutProps(parentId: String, sequence: Int, breakoutRooms: Vector[String])
+case class BreakoutProps(
+    parentId:           String,
+    sequence:           Int,
+    freeJoin:           Boolean,
+    breakoutRooms:      Vector[String],
+    enabled:            Boolean,
+    record:             Boolean,
+    privateChatEnabled: Boolean
+)
 
 case class PasswordProp(moderatorPass: String, viewerPass: String)
 
-case class RecordProp(record: Boolean, autoStartRecording: Boolean, allowStartStopRecording: Boolean)
+case class RecordProp(record: Boolean, autoStartRecording: Boolean, allowStartStopRecording: Boolean, keepEvents: Boolean)
 
 case class WelcomeProp(welcomeMsgTemplate: String, welcomeMsg: String, modOnlyMessage: String)
 
-case class VoiceProp(telVoice: String, voiceConf: String, dialNumber: String)
+case class VoiceProp(telVoice: String, voiceConf: String, dialNumber: String, muteOnStart: Boolean)
 
-case class UsersProp(maxUsers: Int, webcamsOnlyForModerator: Boolean, guestPolicy: String)
+case class UsersProp(maxUsers: Int, webcamsOnlyForModerator: Boolean, guestPolicy: String, allowModsToUnmuteUsers: Boolean)
 
 case class MetadataProp(metadata: collection.immutable.Map[String, String])
 
 case class ScreenshareProps(screenshareConf: String, red5ScreenshareIp: String, red5ScreenshareApp: String)
 
-case class DefaultProps(meetingProp: MeetingProp, breakoutProps: BreakoutProps,
-                        durationProps: DurationProps, password: PasswordProp,
-                        recordProp: RecordProp, welcomeProp: WelcomeProp, voiceProp: VoiceProp,
-                        usersProp: UsersProp, metadataProp: MetadataProp, screenshareProps: ScreenshareProps)
+case class LockSettingsProps(
+    disableCam:             Boolean,
+    disableMic:             Boolean,
+    disablePrivateChat:     Boolean,
+    disablePublicChat:      Boolean,
+    disableNote:            Boolean,
+    hideUserList:           Boolean,
+    lockedLayout:           Boolean,
+    lockOnJoin:             Boolean,
+    lockOnJoinConfigurable: Boolean
+)
+
+case class DefaultProps(
+    meetingProp:       MeetingProp,
+    breakoutProps:     BreakoutProps,
+    durationProps:     DurationProps,
+    password:          PasswordProp,
+    recordProp:        RecordProp,
+    welcomeProp:       WelcomeProp,
+    voiceProp:         VoiceProp,
+    usersProp:         UsersProp,
+    metadataProp:      MetadataProp,
+    screenshareProps:  ScreenshareProps,
+    lockSettingsProps: LockSettingsProps
+)
 
 case class StartEndTimeStatus(startTime: Long, endTime: Long)
 case class RecordingStatus(isRecording: Boolean)

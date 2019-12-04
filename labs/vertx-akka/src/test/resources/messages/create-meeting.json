@@ -1,0 +1,49 @@
+	{
+	    "header": {
+	        "destination": {
+	            "to": "apps_channel"
+	        },
+	        "reply": {
+	            "to": "apps_channel",
+	            "correlation_id": "abc"
+	        },
+	        "name": "create_meeting_request",
+	        "timestamp": "2013-12-23T08:50Z",
+	        "source": "web-api"
+	    },
+	    "payload": {
+	        "meeting_descriptor": {
+	            "name": "English 101",
+	            "external_id": "english_101",
+	            "record": true,
+	            "welcome_message": "Welcome to English 101",
+	            "logout_url": "http://www.bigbluebutton.org",
+	            "avatar_url": "http://www.gravatar.com/bigbluebutton",
+	            "max_users": 20,
+	            "duration": {
+	                "length": 120,
+	                "allow_extend": false,
+	                "max": 240
+	            },
+	            "voice_conference": {
+	                "pin": 123456,
+	                "number": 85115
+	            },
+	            "phone_numbers": [
+	                {
+	                    "number": "613-520-7600",
+	                    "description": "Ottawa"
+	                },
+	                {
+	                    "number": "1-888-555-7890",
+	                    "description": "NA Toll-Free"
+	                }
+	            ],
+	            "metadata": {
+	                "customer_id": "acme-customer",
+	                "customer_name": "ACME"
+	            }
+	        }
+	    }
+	}   
+

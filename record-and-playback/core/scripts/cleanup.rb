@@ -81,21 +81,3 @@ end
 
 cleanProcessedFiles(PUBLISHED_DIR)
 cleanProcessedFiles(UNPUBLISHED_DIR)
-
-#def clean_presentation_dependents(recording_dir)
-#  # clean workspace so the formats that depend on the presentation format to be
-#  # published will run
-#  [ "presentation_export" ].each do |dependent_format|
-#    presentation_published_done_files = Dir.glob("#{recording_dir}/status/published/*-presentation.done")
-#    presentation_published_done_files.each do |published_done|
-#      match = /([^\/]*)-([^\/-]*).done$/.match(published_done)
-#      meeting_id = match[1]
-#      process_type = match[2]
-#      processed_fail = "#{recording_dir}/status/processed/#{meeting_id}-#{dependent_format}.fail"
-#      if File.exists? processed_fail
-#        BigBlueButton.logger.info "Removing #{processed_fail} so #{dependent_format} can execute in the next run of rap-worker"
-#        FileUtils.rm processed_fail
-#      end
-#    end
-#  end
-#end

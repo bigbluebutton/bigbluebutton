@@ -38,6 +38,9 @@ package org.bigbluebutton.main.model.options {
 
 		[Bindable]
 		public var uri:String = "";
+		
+		[Bindable]
+		public var reportErrorsInUI:Boolean = false;
 
 		public function LoggingOptions() {
 			name = "logging";

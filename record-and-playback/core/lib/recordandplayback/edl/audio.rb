@@ -92,40 +92,53 @@ module BigBlueButton
           audio = entry[:audio]
           duration = entry[:next_timestamp] - entry[:timestamp]
 
-          if audio
+          # Check for and handle audio files with mismatched lengths (generated
+          # by buggy versions of freeswitch in old BigBlueButton
+          if audio and entry[:original_duration] and
+               (audioinfo[audio[:filename]][:duration].to_f / entry[:original_duration]) < 0.997 and
+               ((entry[:original_duration] - audioinfo[audio[:filename]][:duration]).to_f /
+                      entry[:original_duration]).abs < 0.05
+            speed = audioinfo[audio[:filename]][:duration].to_f / entry[:original_duration]
             BigBlueButton.logger.info "  Using input #{audio[:filename]}"
 
+            BigBlueButton.logger.warn "  Audio file length mismatch, adjusting speed to #{speed}"
+
+            # Have to calculate the start point after the atempo filter in this case,
+            # since it can affect the audio start time.
+            # Also reset the pts to start at 0, so the duration trim works correctly.
             filter = "[#{input_index}] "
-
-            if entry[:original_duration] and
-                 (audioinfo[audio[:filename]][:duration].to_f / entry[:original_duration]) < 0.999 and
-                 ((entry[:original_duration] - audioinfo[audio[:filename]][:duration]).to_f /
-                        entry[:original_duration]).abs < 0.05
-              speed = audioinfo[audio[:filename]][:duration].to_f / entry[:original_duration]
-              BigBlueButton.logger.warn "  Audio file length mismatch, adjusting speed to #{speed}"
-
-              # Have to calculate the start point after the atempo filter in this case,
-              # since it can affect the audio start time.
-              # Also reset the pts to start at 0, so the duration trim works correctly.
-              filter << "atempo=#{speed},atrim=start=#{ms_to_s(audio[:timestamp])},"
-              filter << "asetpts=PTS-STARTPTS,"
-
-              ffmpeg_inputs << {
-                :filename => audio[:filename],
-                :seek => 0
-              }
-            else
-              ffmpeg_inputs << {
-                :filename => audio[:filename],
-                :seek => audio[:timestamp]
-              }
-            end
-
+            filter << "atempo=#{speed},atrim=start=#{ms_to_s(audio[:timestamp])},"
+            filter << "asetpts=PTS-STARTPTS,"
             filter << "#{FFMPEG_AFORMAT},apad,atrim=end=#{ms_to_s(duration)} [out#{output_index}]"
             ffmpeg_filters << filter
 
+            ffmpeg_inputs << {
+              :filename => audio[:filename],
+              :seek => 0
+            }
+
             input_index += 1
             output_index += 1
+
+            # Normal audio input handling. Skip this input and generate silence
+            # if the seekpoint is past the end of the audio, which can happen
+            # if events are slightly misaligned and you get unlucky with a
+            # start/stop or chapter break.
+          elsif audio and audio[:timestamp] < audioinfo[audio[:filename]][:duration]
+            BigBlueButton.logger.info "  Using input #{audio[:filename]}"
+
+            filter = "[#{input_index}] "
+            filter << "#{FFMPEG_AFORMAT},apad,atrim=end=#{ms_to_s(duration)} [out#{output_index}]"
+            ffmpeg_filters << filter
+
+            ffmpeg_inputs << {
+              :filename => audio[:filename],
+              :seek => audio[:timestamp]
+            }
+
+            input_index += 1
+            output_index += 1
+
           else
             BigBlueButton.logger.info "  Generating silence"
 

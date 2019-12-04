@@ -23,8 +23,5 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class Pdf2PngPageConverterHandler extends AbstractCommandHandler {
-
-  private static Logger log = LoggerFactory
-      .getLogger(Pdf2PngPageConverterHandler.class);
-
+    private static Logger log = LoggerFactory.getLogger(Pdf2PngPageConverterHandler.class);
 }

@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import _ from 'lodash';
 import cx from 'classnames';
 import Icon from '/imports/ui/components/icon/component';
-import styles from '../styles';
+import { styles } from '../styles';
 
 const propTypes = {
   icon: PropTypes.string,
@@ -26,17 +26,20 @@ export default class DropdownListItem extends Component {
   }
 
   renderDefault() {
-    const { icon, label } = this.props;
+    const { icon, label, iconRight } = this.props;
 
     return [
       (icon ? <Icon iconName={icon} key="icon" className={styles.itemIcon} /> : null),
       (<span className={styles.itemLabel} key="label">{label}</span>),
+      (iconRight ? <Icon iconName={iconRight} key="iconRight" className={styles.iconRight} /> : null),
     ];
   }
 
   render() {
-    const { id, label, description, children, injectRef, tabIndex, onClick, onKeyDown,
-      className, style } = this.props;
+    const {
+      id, label, description, children, injectRef, tabIndex, onClick, onKeyDown,
+      className, style,
+    } = this.props;
 
     return (
       <li
@@ -50,6 +53,7 @@ export default class DropdownListItem extends Component {
         className={cx(styles.item, className)}
         style={style}
         role="menuitem"
+        data-test={this.props['data-test']}
       >
         {
           children || this.renderDefault()

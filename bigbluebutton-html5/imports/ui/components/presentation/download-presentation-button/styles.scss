@@ -1,0 +1,49 @@
+@import '/imports/ui/stylesheets/variables/_all';
+
+:root {
+  ::-webkit-media-controls {
+    display:none !important;
+  }
+}
+
+.wrapper {
+  position: absolute;
+  left: 0;
+  right: auto;
+  background-color: var(--color-transparent);
+  cursor: pointer;
+  border: none !important;
+
+  [dir="rtl"] & {
+    left: auto;
+    right: 0;
+  }
+}
+
+.button {
+  span, span:active, span:hover {
+    background-color: var(--color-transparent) !important;
+    border: none !important;
+    i {
+      border: none !important;
+      background-color: var(--color-transparent) !important;
+      font-weight: bold !important;
+    }
+  }
+}
+
+.light {
+  top: 0;
+}
+
+.light .button span i {
+  color: var(--color-white);
+}
+
+.dark {
+  bottom: 0;
+}
+
+.dark .button span i {
+  color: var(--color-black);
+}

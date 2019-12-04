@@ -1,6 +1,6 @@
 package org.bigbluebutton.core.model.int
 {
-	class MeetingInt
+	internal class MeetingInt
 	{
 		var name:String;
 		var internalId:String;
@@ -14,7 +14,6 @@ package org.bigbluebutton.core.model.int
 		var welcomeMessage:String;
 		var modOnlyMessage:String;
 		var allowStartStopRecording:Boolean;
-		var webcamsOnlyForModerator:Boolean;
 		var metadata:Object = null;
 		
 		function MeetingInt()

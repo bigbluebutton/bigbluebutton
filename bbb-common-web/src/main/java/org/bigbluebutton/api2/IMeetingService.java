@@ -1,11 +1,15 @@
 package org.bigbluebutton.api2;
 
-import org.bigbluebutton.api.domain.Meeting;
-import org.bigbluebutton.api.domain.UserSession;
-import org.bigbluebutton.api.messaging.messages.*;
-
 import java.util.Collection;
 import java.util.Map;
+
+import org.bigbluebutton.api.domain.Meeting;
+import org.bigbluebutton.api.domain.UserSession;
+import org.bigbluebutton.api.messaging.messages.UserJoinedVoice;
+import org.bigbluebutton.api.messaging.messages.UserLeftVoice;
+import org.bigbluebutton.api.messaging.messages.UserListeningOnly;
+import org.bigbluebutton.api.messaging.messages.UserSharedWebcam;
+import org.bigbluebutton.api.messaging.messages.UserUnsharedWebcam;
 
 public interface IMeetingService {
   void addUserSession(String token, UserSession user);

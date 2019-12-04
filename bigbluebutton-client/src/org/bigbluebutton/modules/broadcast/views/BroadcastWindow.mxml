@@ -119,6 +119,10 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			public function getPrefferedPosition():String {	
 				return options.position;
 			}
+			
+			public function getName():String {
+				return "BroadcastWindow";
+			}
             
       private function onResize():void {
         if (curStream != null && createComplete) {

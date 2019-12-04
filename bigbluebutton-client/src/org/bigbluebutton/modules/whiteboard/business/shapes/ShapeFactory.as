@@ -22,7 +22,6 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
   
   import org.bigbluebutton.modules.whiteboard.models.Annotation;
   import org.bigbluebutton.modules.whiteboard.models.AnnotationType;
-  import org.bigbluebutton.modules.whiteboard.models.WhiteboardModel;
   
   /**
    * The ShapeFactory receives DrawObjects and converts them to Flash Shapes which can then be displayed

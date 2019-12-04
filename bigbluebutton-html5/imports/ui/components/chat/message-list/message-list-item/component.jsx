@@ -1,120 +1,89 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { FormattedTime } from 'react-intl';
-import cx from 'classnames';
+import { FormattedTime, defineMessages, injectIntl } from 'react-intl';
 import _ from 'lodash';
 
 import UserAvatar from '/imports/ui/components/user-avatar/component';
 import Message from './message/component';
 
-import styles from './styles';
+import { styles } from './styles';
 
 const propTypes = {
-  user: PropTypes.object,
-  messages: PropTypes.array.isRequired,
+  user: PropTypes.shape({
+    color: PropTypes.string,
+    isModerator: PropTypes.bool,
+    isOnline: PropTypes.bool,
+    name: PropTypes.string,
+  }),
+  messages: PropTypes.arrayOf(Object).isRequired,
   time: PropTypes.number.isRequired,
+  intl: PropTypes.shape({
+    formatMessage: PropTypes.func.isRequired,
+  }).isRequired,
+  scrollArea: PropTypes.instanceOf(Element),
+  chatAreaId: PropTypes.string.isRequired,
+  handleReadMessage: PropTypes.func.isRequired,
+  lastReadMessageTime: PropTypes.number,
 };
 
 const defaultProps = {
+  user: null,
+  scrollArea: null,
+  lastReadMessageTime: 0,
 };
 
-const eventsToBeBound = [
-  'scroll',
-  'resize',
-];
+const intlMessages = defineMessages({
+  offline: {
+    id: 'app.chat.offline',
+    description: 'Offline',
+  },
+});
 
-const isElementInViewport = (el) => {
-  const rect = el.getBoundingClientRect();
-  const clientHeight = window.innerHeight || document.documentElement.clientHeight;
-  const prefetchHeight = 125;
+class MessageListItem extends Component {
+  shouldComponentUpdate(nextProps) {
+    const {
+      scrollArea,
+      messages,
+      user,
+    } = this.props;
 
-  return (
-    rect.top >= -(prefetchHeight) &&
-    rect.bottom <= clientHeight + prefetchHeight
-  );
-};
+    const {
+      scrollArea: nextScrollArea,
+      messages: nextMessages,
+      user: nextUser,
+    } = nextProps;
 
-export default class MessageListItem extends Component {
-  constructor(props) {
-    super(props);
+    if (!scrollArea && nextScrollArea) return true;
 
-    this.state = {
-      pendingChanges: false,
-      preventRender: true,
-    };
+    const hasNewMessage = messages.length !== nextMessages.length;
+    const hasUserChanged = user && nextUser
+      && (user.isModerator !== nextUser.isModerator || user.isOnline !== nextUser.isOnline);
 
-    this.handleMessageInViewport = _.debounce(this.handleMessageInViewport.bind(this), 50);
-  }
-
-  handleMessageInViewport() {
-    window.requestAnimationFrame(() => {
-      const node = this.item;
-      this.setState({ preventRender: !isElementInViewport(node) });
-    });
-  }
-
-  componentDidMount() {
-    const { scrollArea } = this.props;
-
-    if (scrollArea) {
-      eventsToBeBound.forEach(
-        (e) => { scrollArea.addEventListener(e, this.handleMessageInViewport, false); },
-      );
-    }
-
-    this.handleMessageInViewport();
-  }
-
-  componentWillUnmount() {
-    const { scrollArea } = this.props;
-
-    if (scrollArea) {
-      eventsToBeBound.forEach(
-        (e) => { scrollArea.removeEventListener(e, this.handleMessageInViewport, false); },
-      );
-    }
-  }
-
-  componentDidUpdate(prevProps, prevState) {
-    if (prevState.preventRender && !this.state.preventRender && this.state.pendingChanges) {
-      this.setState({ pendingChanges: false });
-    }
-  }
-
-  componentWillReceiveProps(nextProps) {
-    if (this.state.pendingChanges) return;
-
-    const hasNewMessage = this.props.messages.length !== nextProps.messages.length;
-    const hasUserChanged = !_.isEqual(this.props.user, nextProps.user);
-
-    this.setState({ pendingChanges: hasNewMessage || hasUserChanged });
-  }
-
-  shouldComponentUpdate(nextProps, nextState) {
-    return !nextState.preventRender && nextState.pendingChanges;
+    return hasNewMessage || hasUserChanged;
   }
 
   renderSystemMessage() {
     const {
       messages,
+      chatAreaId,
+      handleReadMessage,
     } = this.props;
 
     return (
-      <div className={cx(styles.item, styles.systemMessage)}>
-        <div className={styles.content} ref={(ref) => { this.item = ref; }}>
-          <div className={styles.messages}>
-            {messages.map((message, i) => (
+      <div className={styles.messages}>
+        {messages.map(message => (
+          message.text !== ''
+            ? (
               <Message
-                className={styles.message}
-                key={i}
+                className={(message.id ? styles.systemMessage : null)}
+                key={_.uniqueId('id-')}
                 text={message.text}
                 time={message.time}
-                chatAreaId={this.props.chatAreaId}
-                handleReadMessage={this.props.handleReadMessage}
+                chatAreaId={chatAreaId}
+                handleReadMessage={handleReadMessage}
               />
-            ))}
-          </div>
-        </div>
+            ) : null
+        ))}
       </div>
     );
   }
@@ -124,9 +93,16 @@ export default class MessageListItem extends Component {
       user,
       messages,
       time,
+      chatAreaId,
+      lastReadMessageTime,
+      handleReadMessage,
+      scrollArea,
+      intl,
     } = this.props;
 
     const dateTime = new Date(time);
+
+    const regEx = /<a[^>]+>/i;
 
     if (!user) {
       return this.renderSystemMessage();
@@ -148,7 +124,13 @@ export default class MessageListItem extends Component {
             <div className={styles.meta}>
               <div className={user.isOnline ? styles.name : styles.logout}>
                 <span>{user.name}</span>
-                {user.isOnline ? null : <span className={styles.offline}>(offline)</span>}
+                {user.isOnline
+                  ? null
+                  : (
+                    <span className={styles.offline}>
+                      {`(${intl.formatMessage(intlMessages.offline)})`}
+                    </span>
+                  )}
               </div>
               <time className={styles.time} dateTime={dateTime}>
                 <FormattedTime value={dateTime} />
@@ -157,14 +139,14 @@ export default class MessageListItem extends Component {
             <div className={styles.messages}>
               {messages.map(message => (
                 <Message
-                  className={styles.message}
+                  className={(regEx.test(message.text) ? styles.hyperlink : styles.message)}
                   key={message.id}
                   text={message.text}
                   time={message.time}
-                  chatAreaId={this.props.chatAreaId}
-                  lastReadMessageTime={this.props.lastReadMessageTime}
-                  handleReadMessage={this.props.handleReadMessage}
-                  scrollArea={this.props.scrollArea}
+                  chatAreaId={chatAreaId}
+                  lastReadMessageTime={lastReadMessageTime}
+                  handleReadMessage={handleReadMessage}
+                  scrollArea={scrollArea}
                 />
               ))}
             </div>
@@ -177,3 +159,5 @@ export default class MessageListItem extends Component {
 
 MessageListItem.propTypes = propTypes;
 MessageListItem.defaultProps = defaultProps;
+
+export default injectIntl(MessageListItem);

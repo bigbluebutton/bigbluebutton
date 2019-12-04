@@ -34,13 +34,6 @@ package org.bigbluebutton.core.model
 			buildModuleDescriptors();
 		}
 
-		public function get locale():Object {
-			var v:Object = new Object();
-			v.version = config.localeversion;
-			v.suppressWarning = config.localeversion.@suppressWarning;
-			return v;
-		}
-			
 		public function get version():String {
 			return config.version;
 		}

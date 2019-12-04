@@ -1,0 +1,344 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+
+BigBlueButton open source conferencing system - http://www.bigbluebutton.org/
+
+Copyright (c) 2018 BigBlueButton Inc. and by respective authors (see below).
+
+This program is free software; you can redistribute it and/or modify it under the
+terms of the GNU Lesser General Public License as published by the Free Software
+Foundation; either version 3.0 of the License, or (at your option) any later
+version.
+
+BigBlueButton is distributed in the hope that it will be useful, but WITHOUT ANY
+WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
+PARTICULAR PURPOSE. See the GNU Lesser General Public License for more details.
+
+You should have received a copy of the GNU Lesser General Public License along
+with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
+
+-->
+<mx:Canvas xmlns:mx="library://ns.adobe.com/flex/mx"
+		   xmlns:fx="http://ns.adobe.com/mxml/2009"
+		   implements="org.bigbluebutton.common.toaster.container.IToastContainer"
+		   horizontalScrollPolicy="off"
+		   verticalScrollPolicy="off"
+		   height="100%">
+	<fx:Metadata>
+		[Event(name="onToastAdded", type="org.bigbluebutton.common.toaster.event.ToastEvent")]
+		[Event(name="onToastRemoved", type="org.bigbluebutton.common.toaster.event.ToastEvent")]
+	</fx:Metadata>
+	<fx:Script>
+		<![CDATA[
+			import mx.core.FlexGlobals;
+			import mx.core.UIComponent;
+			import mx.effects.Effect;
+			import mx.events.EffectEvent;
+			import mx.events.FlexEvent;
+			import mx.events.ResizeEvent;
+			
+			import org.bigbluebutton.common.toaster.effects.IToasterEffectDescriptor;
+			import org.bigbluebutton.common.toaster.effects.ToasterEffectDescriptorBase;
+			import org.bigbluebutton.common.toaster.event.ToastEvent;
+			import org.bigbluebutton.common.toaster.event.ToasterEvent;
+			import org.bigbluebutton.common.toaster.message.IToastMessage;
+
+			private const YOFFSET:int = 12;
+
+			private const XOFFSET:int = -12;
+
+			private const DISPLAY_TIME:int = 5000;
+
+			/**
+			 * Parent component for coordinate calculation
+			 */
+			private var _toastContainerParent:UIComponent = FlexGlobals.topLevelApplication as UIComponent;
+
+			public function get toastContainerParent():UIComponent {
+				return _toastContainerParent;
+			}
+
+			public function set toastContainerParent(value:UIComponent):void {
+				if (value != _toastContainerParent) {
+					if (_toastContainerParent) {
+						removeResizeListeners(_toastContainerParent);
+					}
+					_toastContainerParent = value;
+					addResizeListeners(value);
+				}
+			}
+
+			/**
+			 * Tells the container wether to use a global positionning or a local one
+			 */
+			private var _useLocalPosition:Boolean = false;
+
+			public function get useLocalPosition():Boolean {
+				return _useLocalPosition;
+			}
+
+			public function set useLocalPosition(value:Boolean):void {
+				_useLocalPosition = value;
+			}
+
+			/**
+			 *  list of IToastMessage components
+			 */
+			private var _messages:Array = [];
+
+			/**
+			 *  list of queued IToastMessage components to display
+			 */
+			private var _messagesQueue:Array = [];
+
+			/**
+			 *  effects given to the toastmessages
+			 */
+			private var _effectDescriptor:IToasterEffectDescriptor = new ToasterEffectDescriptorBase();
+
+			public function set effectDescriptor(value:IToasterEffectDescriptor):void {
+				_effectDescriptor = value;
+			}
+
+			////////////////////////////////////////////////////////////////////////////
+			/**
+			 *  Add a toast message
+			 */
+			public function addToastMessage(toastMessage:IToastMessage):void {
+				if (_messages.indexOf(toastMessage) != -1) {
+					trace("ToastMessage aleady added to the container");
+					return;
+				}
+				// add to the display list
+				// keep it in local memory
+				_messagesQueue.push(toastMessage);
+				showNextToast();
+			}
+
+			private function showNextToast():void {
+				// Show only one notification at once
+				if (_messagesQueue.length > 0 && numChildren == 0) {
+					var container:ToastContainerBase = this;
+					var toastMessage:IToastMessage = _messagesQueue.shift();
+					toastMessage.addEventListener(FlexEvent.CREATION_COMPLETE, function(event:FlexEvent):void {
+						_messages.push(toastMessage);
+						// setting the parent reference on the message
+						toastMessage.container = container;
+						// mark it
+						toastMessage.markedForAddition = true;
+						// play the associated effect
+						var addedEffect:Effect = _effectDescriptor.getAddedEffect(toastMessage);
+						addedEffect.addEventListener(EffectEvent.EFFECT_END, onAddedEffectEnd);
+						addedEffect.play();
+						// inform everyone
+						dispatchEvent(new ToastEvent(ToastEvent.ON_TOAST_ADDED));
+						// move the message to the top of the stack
+						moveToStackTop(toastMessage);
+					});
+					addToastToStage(toastMessage);
+				}
+			}
+
+			private function addToastToStage(toastMessage:IToastMessage):void {
+				addChildAt(toastMessage as DisplayObject, 0);
+				toastMessage.addEventListener(ToasterEvent.CLOSE, toasterCloseHandler)
+				toastMessage.addEventListener(ToasterEvent.MOUSE_OVER, toasterMouseOverHandler)
+				toastMessage.addEventListener(ToasterEvent.MOUSE_OUT, toasterMouseOutHandler)
+				toastMessage.displayTime = DISPLAY_TIME;
+				// Toaster.playSound();
+			}
+
+			private function onAddedEffectEnd(event:EffectEvent):void {
+				(event.effectInstance as IEventDispatcher).removeEventListener(EffectEvent.EFFECT_END, onAddedEffectEnd);
+				var toastMessageTarget:IToastMessage = event.effectInstance.target as IToastMessage
+				toastMessageTarget.markedForAddition = false;
+			}
+
+			////////////////////////////////////////////////////////////////////////////
+			/**
+			 * Move a toast message
+			 */
+			private function moveToStackTop(toastMessage:IToastMessage):void {
+				var globalPosition:Point = _useLocalPosition ? _toastContainerParent.localToGlobal(new Point()) : new Point();
+				var totalHeightValue:int = getTotalToastHeightValue(toastMessage);
+				var moveFromPoint:Point = new Point();
+				var moveToPoint:Point = new Point();
+
+				moveFromPoint.y = globalPosition.y + totalHeightValue - toastMessage.height;
+				moveToPoint.y = globalPosition.y + totalHeightValue + YOFFSET;
+
+				x = globalPosition.x + _toastContainerParent.width - toastMessage.width + XOFFSET;
+
+				var moveEffect:Effect = _effectDescriptor.getMoveToStackTopEffect(toastMessage, moveFromPoint, moveToPoint);
+				moveEffect.play();
+			}
+
+			/**
+			 * get the highest y value so far (top of the stack)
+			 */
+			public function getTotalToastHeightValue(toastMessage:IToastMessage = null):int {
+				var max:Number = 0;
+				var nbItems:int = 0;
+				var hasElementMarkedForDeletion:Boolean = false;
+				for each (var toastMessageMemory:IToastMessage in _messages) {
+					if (toastMessageMemory.markedForDeletion) {
+						hasElementMarkedForDeletion = true;
+						continue;
+					}
+					max += toastMessageMemory.height;
+					nbItems++;
+				}
+				if (toastMessage) {
+					max -= toastMessage.height;
+				}
+				return max;
+			}
+
+			/////////////////////////////////////////////////////////////////////////////////
+			/**
+			 * Close a toast message
+			 */
+			public function closeToastMessage(toastMessage:IToastMessage):void {
+				toastMessage.displayTime = 0;
+				toastMessage.removeEventListener(ToasterEvent.CLOSE, toasterCloseHandler)
+				toastMessage.removeEventListener(ToasterEvent.MOUSE_OVER, toasterMouseOverHandler)
+				toastMessage.removeEventListener(ToasterEvent.MOUSE_OUT, toasterMouseOutHandler)
+
+				var idx:int = _messages.indexOf(toastMessage);
+				if (idx == -1) {
+					trace("Impossible to close the toast message: not referenced by the container");
+					return;
+				}
+				var moveToPoint:Point = new Point();
+				moveToPoint.y = toastMessage.y;
+
+				var removeEffect:Effect = _effectDescriptor.getRemovedEffect(toastMessage, moveToPoint);
+				toastMessage.markedForDeletion = true;
+				removeEffect.addEventListener(EffectEvent.EFFECT_END, onCloseEffectEnd);
+				removeEffect.play();
+			}
+
+			/**
+			 *  called at the end of the effect
+			 */
+			private function onCloseEffectEnd(event:EffectEvent):void {
+				(event.effectInstance as IEventDispatcher).removeEventListener(EffectEvent.EFFECT_END, onCloseEffectEnd);
+				var toastMessageTarget:IToastMessage = event.effectInstance.target as IToastMessage
+				var idx:int = _messages.indexOf(toastMessageTarget);
+				if (idx == -1) {
+					trace("Impossible to close the toast message: not referenced by the container");
+					return;
+				}
+				dispatchEvent(new ToastEvent(ToastEvent.ON_TOAST_REMOVED));
+				// move all the rest of the stack
+				moveMessagesToStackBottom();
+				_messages.splice(idx, 1);
+				removeChild(toastMessageTarget as DisplayObject);
+				showNextToast();
+			}
+
+			private function getPreviousMessagesHeight(toastMessage:IToastMessage):int {
+				var heightUnder:int = 0;
+				for each (var memToastMessage:IToastMessage in _messages) {
+					if (memToastMessage == toastMessage) {
+						return heightUnder;
+					}
+					if (memToastMessage.markedForDeletion) {
+						heightUnder += memToastMessage.height;
+					}
+				}
+				return heightUnder;
+			}
+
+			/////////////////////////////////////////////////////////////////////////////////
+			/**
+			 * Handle toast message event
+			 */
+			private function toasterCloseHandler(e:ToasterEvent):void {
+				closeToastMessage(e.currentTarget as IToastMessage);
+			}
+
+			private function toasterMouseOverHandler(e:ToasterEvent):void {
+				IToastMessage(e.currentTarget).pauseDisplay();
+			}
+
+			private function toasterMouseOutHandler(e:ToasterEvent):void {
+				IToastMessage(e.currentTarget).resumeDisplay();
+			}
+
+			////////////////////////////////////////////////////////////////////////////////
+			/**
+			 * RE ORDER THE MESSAGES
+			 */
+			private function moveMessagesToStackBottom():void {
+
+				for each (var toastMessage:IToastMessage in _messages) {
+					if (toastMessage.markedForAddition) {
+						continue;
+					}
+					var heightDiff:int = getPreviousMessagesHeight(toastMessage);
+					heightDiff = heightDiff > 0 ? heightDiff : -heightDiff;
+					var moveToPoint:Point = new Point();
+					moveToPoint.y = toastMessage.y + heightDiff;
+
+					var moveEffect:Effect = _effectDescriptor.getMoveToStackBottomEffect(toastMessage, moveToPoint);
+					moveEffect.play();
+				}
+			}
+
+			////////////////////////////////////////////////////////////////////////////////
+			/**
+			 * PARENT RESIZING
+			 */
+			private function addResizeListeners(uiComp:UIComponent):void {
+				uiComp.addEventListener(ResizeEvent.RESIZE, onParentResize);
+			}
+
+			private function removeResizeListeners(uiComp:UIComponent):void {
+				uiComp.removeEventListener(ResizeEvent.RESIZE, onParentResize);
+			}
+
+			private function onParentResize(event:ResizeEvent):void {
+				var target:UIComponent = event.target as UIComponent;
+				if (!target) {
+					return;
+				}
+				var wDiff:Number = event.oldWidth - target.width;
+				var hDiff:Number = event.oldHeight - target.measuredHeight;
+				// calculate X Offset depending on the position
+				var containerXOffset:Number = 0;
+				containerXOffset = wDiff / 2;
+
+				if (containerXOffset != 0) {
+					//if (position == ToasterPosition.BOTTOM_RIGHT) {
+					// rien
+					//} else {
+					x -= containerXOffset;
+						//}
+				}
+				// calculate Y Offset depending on the position
+				var containerYOffset:Number = 0;
+
+				if (containerYOffset != 0) {
+					y -= containerYOffset;
+				}
+				// setting correct width
+				var maxMessageWidth:Number = Number.POSITIVE_INFINITY;
+				var changeWidth:Boolean = false;
+				for each (var toastMessage:IToastMessage in _messages) {
+					toastMessage.y -= hDiff;
+
+					if (toastMessage.width < maxWidth) {
+						maxMessageWidth = toastMessage.width;
+						changeWidth = true;
+					}
+				}
+
+				// set the container width to the maximum width of the messages
+				if (changeWidth) {
+					width = maxMessageWidth;
+				}
+			}
+		]]>
+	</fx:Script>
+</mx:Canvas>

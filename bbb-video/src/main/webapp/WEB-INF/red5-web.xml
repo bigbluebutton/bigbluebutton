@@ -21,8 +21,10 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 <beans xmlns="http://www.springframework.org/schema/beans"
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
        xmlns:lang="http://www.springframework.org/schema/lang"
-       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd
-                           http://www.springframework.org/schema/lang http://www.springframework.org/schema/lang/spring-lang-2.0.xsd">
+       xsi:schemaLocation="http://www.springframework.org/schema/beans 
+                           http://www.springframework.org/schema/beans/spring-beans-2.0.xsd
+                           http://www.springframework.org/schema/lang 
+                           http://www.springframework.org/schema/lang/spring-lang-2.0.xsd">
 
 	<bean id="placeholderConfig" class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
 	    <property name="locations">
@@ -32,6 +34,11 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	    	</list>
 	    </property>
 	</bean>
+	
+	<bean id="meetingManager" class="org.bigbluebutton.app.video.MeetingManager"/>
+	
+	<bean id="connInvokerService" class="org.bigbluebutton.app.video.ConnectionInvokerService"
+		  init-method="start" destroy-method="stop"/>
 
 	<bean id="web.context" class="org.red5.server.Context"
 		autowire="byType" />
@@ -44,27 +51,15 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		<property name="contextPath" value="${webapp.contextPath}" />
 		<property name="virtualHosts" value="${webapp.virtualHosts}" />
 	</bean>
-
+	
 	<bean id="web.handler" class="org.bigbluebutton.app.video.VideoApplication">
 	   <property name="packetTimeout" value="10000"/>
-		<property name="eventRecordingService" ref="redisRecorder"/>
+		<property name="eventRecordingService" ref="redisStorageService"/>
 		<property name="messagePublisher" ref="redisPublisher"/>
+		<property name="meetingManager" ref="meetingManager"/>
+		<property name="connInvokerService" ref="connInvokerService"/>
 	</bean>
+	
+	<import resource="bbb-redis-messaging.xml"/>
 
-    <bean id="redisPublisher" class="org.bigbluebutton.red5.pubsub.MessagePublisher">
-        <property name="messageSender" ref="redisSender"/>
-    </bean>
-    
-	<bean id="redisRecorder" class="org.bigbluebutton.app.video.EventRecordingService">
-        <constructor-arg index="0" value="${redis.host}"/>
-        <constructor-arg index="1" value="${redis.port}"/>
-        <constructor-arg index="2" value="${redis.keyExpiry}"/>
-    </bean>	
-    
-    <bean id="redisSender" class="org.bigbluebutton.red5.pubsub.MessageSender" 
-                    init-method="start" destroy-method="stop">
-      <property name="redisPool"> <ref bean="redisPool"/></property>
-    </bean>
-    
-    <import resource="bbb-redis-pool.xml"/>
 </beans>

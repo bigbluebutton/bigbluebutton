@@ -54,6 +54,9 @@ package org.bigbluebutton.main.model.options {
 		[Bindable]
 		public var showNetworkMonitor:Boolean = false;
 
+		[Bindable]
+		public var askForFeedbackOnLogout:Boolean = false;
+
 		public var defaultLayout:String = "Default";
 
 		public function LayoutOptions() {

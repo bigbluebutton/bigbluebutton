@@ -2,21 +2,18 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 
 export default class Cursor extends Component {
-
-  static scale(attribute, propsObj) {
-    const { widthRatio, physicalWidthRatio } = propsObj;
-    return ((attribute * widthRatio) / 100) / physicalWidthRatio;
+  static scale(attribute, widthRatio, physicalWidthRatio) {
+    return (attribute * widthRatio) / physicalWidthRatio;
   }
 
-  static invertScale(attribute, propsObj) {
-    const { widthRatio, physicalWidthRatio } = propsObj;
-    return ((attribute * physicalWidthRatio) * 100) / widthRatio;
+  static invertScale(attribute, widthRatio, physicalWidthRatio) {
+    return (attribute * physicalWidthRatio) / widthRatio;
   }
 
-  static getCursorCoordinates(props) {
+  static getCursorCoordinates(cursorX, cursorY, slideWidth, slideHeight) {
     // main cursor x and y coordinates
-    const x = (props.cursorX / 100) * props.slideWidth;
-    const y = (props.cursorY / 100) * props.slideHeight;
+    const x = (cursorX / 100) * slideWidth;
+    const y = (cursorY / 100) * slideHeight;
 
     return {
       x,
@@ -24,9 +21,7 @@ export default class Cursor extends Component {
     };
   }
 
-  static getFillAndLabel(props) {
-    const { presenter, isMultiUser } = props;
-
+  static getFillAndLabel(presenter, isMultiUser) {
     const obj = {
       fill: 'green',
       displayLabel: false,
@@ -44,7 +39,9 @@ export default class Cursor extends Component {
   }
 
   static getScaledSizes(props) {
-    const scaleFactor = props.widthRatio / 100 / props.physicalWidthRatio;
+    // TODO: This might need to change for the use case of fit-to-width portrait
+    //       slides in non-presenter view. Some elements are still shrinking.
+    const scaleFactor = props.widthRatio / props.physicalWidthRatio;
 
     return {
       // Adjust the radius of the cursor according to zoom
@@ -69,15 +66,27 @@ export default class Cursor extends Component {
   }
 
   componentWillMount() {
-    const cursorCoordinate = Cursor.getCursorCoordinates(this.props);
-    const { fill, displayLabel } = Cursor.getFillAndLabel(this.props);
-    const _scaledSizes = Cursor.getScaledSizes(this.props);
+    const {
+      cursorX,
+      cursorY,
+      slideWidth,
+      slideHeight,
+      presenter,
+      isMultiUser,
+    } = this.props;
 
     // setting the initial cursor info
-    this.cursorCoordinate = cursorCoordinate;
+    this.scaledSizes = Cursor.getScaledSizes(this.props);
+    this.cursorCoordinate = Cursor.getCursorCoordinates(
+      cursorX,
+      cursorY,
+      slideWidth,
+      slideHeight,
+    );
+
+    const { fill, displayLabel } = Cursor.getFillAndLabel(presenter, isMultiUser);
     this.fill = fill;
     this.displayLabel = displayLabel;
-    this.scaledSizes = _scaledSizes;
   }
 
   componentDidMount() {
@@ -98,57 +107,79 @@ export default class Cursor extends Component {
     } = this.props;
 
     if (presenter !== nextProps.presenter || isMultiUser !== nextProps.isMultiUser) {
-      const { fill, displayLabel } = Cursor.getFillAndLabel(nextProps);
+      const { fill, displayLabel } = Cursor.getFillAndLabel(
+        nextProps.presenter,
+        nextProps.isMultiUser,
+      );
       this.displayLabel = displayLabel;
       this.fill = fill;
     }
 
-    if ((widthRatio !== nextProps.widthRatio ||
-          physicalWidthRatio !== nextProps.physicalWidthRatio)
-      ||
-        (labelBoxWidth !== nextProps.labelBoxWidth ||
-          labelBoxHeight !== nextProps.labelBoxHeight)) {
-      const _scaledSizes = Cursor.getScaledSizes(nextProps);
-      this.scaledSizes = _scaledSizes;
+    if ((widthRatio !== nextProps.widthRatio
+          || physicalWidthRatio !== nextProps.physicalWidthRatio)
+      || (labelBoxWidth !== nextProps.labelBoxWidth
+          || labelBoxHeight !== nextProps.labelBoxHeight)) {
+      this.scaledSizes = Cursor.getScaledSizes(nextProps);
     }
 
     if (cursorX !== nextProps.cursorX || cursorY !== nextProps.cursorY) {
-      const cursorCoordinate = Cursor.getCursorCoordinates(nextProps);
+      const cursorCoordinate = Cursor.getCursorCoordinates(
+        nextProps.cursorX,
+        nextProps.cursorY,
+        nextProps.slideWidth,
+        nextProps.slideHeight,
+      );
       this.cursorCoordinate = cursorCoordinate;
     }
   }
 
   // this function retrieves the text node, measures its BBox and sets the size for the outer box
   calculateCursorLabelBoxDimensions() {
+    const {
+      setLabelBoxDimensions,
+    } = this.props;
+
     let labelBoxWidth = 0;
     let labelBoxHeight = 0;
-
     if (this.cursorLabelRef) {
       const { width, height } = this.cursorLabelRef.getBBox();
-
-      labelBoxWidth = Cursor.invertScale(width, this.props);
-      labelBoxHeight = Cursor.invertScale(height, this.props);
+      const { widthRatio, physicalWidthRatio, cursorLabelBox } = this.props;
+      labelBoxWidth = Cursor.invertScale(width, widthRatio, physicalWidthRatio);
+      labelBoxHeight = Cursor.invertScale(height, widthRatio, physicalWidthRatio);
 
       // if the width of the text node is bigger than the maxSize - set the width to maxWidth
-      if (labelBoxWidth > this.props.cursorLabelBox.maxWidth) {
-        labelBoxWidth = this.props.cursorLabelBox.maxWidth;
+      if (labelBoxWidth > cursorLabelBox.maxWidth) {
+        labelBoxWidth = cursorLabelBox.maxWidth;
       }
     }
 
     // updating labelBoxWidth and labelBoxHeight in the container, which then passes it down here
-    this.props.setLabelBoxDimensions(labelBoxWidth, labelBoxHeight);
+    setLabelBoxDimensions(labelBoxWidth, labelBoxHeight);
   }
 
   render() {
+    const {
+      cursorId,
+      userName,
+      isRTL,
+    } = this.props;
+
     const {
       cursorCoordinate,
       fill,
     } = this;
 
-    const { cursorLabelBox, cursorLabelText, finalRadius } = this.scaledSizes;
+    const {
+      cursorLabelBox,
+      cursorLabelText,
+      finalRadius,
+    } = this.scaledSizes;
 
-    const x = cursorCoordinate.x;
-    const y = cursorCoordinate.y;
+    const {
+      x,
+      y,
+    } = cursorCoordinate;
+
     const boxX = x + cursorLabelBox.xOffset;
     const boxY = y + cursorLabelBox.yOffset;
 
@@ -164,44 +195,47 @@ export default class Cursor extends Component {
           fill={fill}
           fillOpacity="0.6"
         />
-        {this.displayLabel ?
-          <g>
-            <rect
-              fill="white"
-              fillOpacity="0.8"
-              x={boxX}
-              y={boxY}
-              width={cursorLabelBox.width}
-              height={cursorLabelBox.height}
-              strokeWidth={cursorLabelBox.strokeWidth}
-              stroke={fill}
-              strokeOpacity="0.8"
-            />
-            <text
-              ref={(ref) => { this.cursorLabelRef = ref; }}
-              x={x}
-              y={y}
-              dy={cursorLabelText.textDY}
-              dx={cursorLabelText.textDX}
-              fontFamily="Arial"
-              fontWeight="600"
-              fill={fill}
-              fillOpacity="0.8"
-              fontSize={cursorLabelText.fontSize}
-              clipPath={`url(#${this.props.cursorId})`}
-            >
-              {this.props.userName}
-            </text>
-            <clipPath id={this.props.cursorId}>
+        {this.displayLabel
+          ? (
+            <g>
               <rect
+                fill="white"
+                fillOpacity="0.8"
                 x={boxX}
                 y={boxY}
                 width={cursorLabelBox.width}
                 height={cursorLabelBox.height}
+                strokeWidth={cursorLabelBox.strokeWidth}
+                stroke={fill}
+                strokeOpacity="0.8"
               />
-            </clipPath>
-          </g>
-        : null }
+              <text
+                ref={(ref) => { this.cursorLabelRef = ref; }}
+                x={x}
+                y={y}
+                dy={cursorLabelText.textDY}
+                dx={cursorLabelText.textDX}
+                fontFamily="Arial"
+                fontWeight="600"
+                fill={fill}
+                fillOpacity="0.8"
+                fontSize={cursorLabelText.fontSize}
+                clipPath={`url(#${cursorId})`}
+                textAnchor={isRTL ? 'end' : 'start'}
+              >
+                {userName}
+              </text>
+              <clipPath id={cursorId}>
+                <rect
+                  x={boxX}
+                  y={boxY}
+                  width={cursorLabelBox.width}
+                  height={cursorLabelBox.height}
+                />
+              </clipPath>
+            </g>
+          )
+          : null }
       </g>
     );
   }
@@ -235,11 +269,16 @@ Cursor.propTypes = {
   // Slide physical size to original size ratio
   physicalWidthRatio: PropTypes.number.isRequired,
 
+  // Slide width (svg)
+  slideWidth: PropTypes.number.isRequired,
+  // Slide height (svg)
+  slideHeight: PropTypes.number.isRequired,
+
   /**
    * Defines the cursor radius (not scaled)
    * @defaultValue 5
    */
-  radius: PropTypes.number.isRequired,
+  radius: PropTypes.number,
 
   cursorLabelBox: PropTypes.shape({
     labelBoxStrokeWidth: PropTypes.number.isRequired,
@@ -263,11 +302,13 @@ Cursor.propTypes = {
   // set proper width and height of the border box -> pass it down ->
   // catch in the 'componentWillReceiveProps' -> apply new values
   setLabelBoxDimensions: PropTypes.func.isRequired,
+
+  // Defines the direction the client text should be displayed
+  isRTL: PropTypes.bool.isRequired,
 };
 
 Cursor.defaultProps = {
   radius: 5,
-
   cursorLabelText: {
     // text Y shift (10 points down)
     textDY: 10,

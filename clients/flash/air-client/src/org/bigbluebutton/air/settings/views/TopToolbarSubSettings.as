@@ -1,7 +1,7 @@
 package org.bigbluebutton.air.settings.views {
-	import org.bigbluebutton.air.main.views.TopToolbarAIR;
+	import org.bigbluebutton.air.main.views.TopToolbarBase;
 	
-	public class TopToolbarSubSettings extends TopToolbarAIR {
+	public class TopToolbarSubSettings extends TopToolbarBase {
 		public function TopToolbarSubSettings() {
 			super();
 			
@@ -9,10 +9,5 @@ package org.bigbluebutton.air.settings.views {
 			rightButton.styleName = "saveButton topRightButton";
 			rightButton.label = "SAVE";
 		}
-		
-		override protected function updateDisplayList(w:Number, h:Number):void {
-			super.updateDisplayList(w, h);
-		}
-	
 	}
 }

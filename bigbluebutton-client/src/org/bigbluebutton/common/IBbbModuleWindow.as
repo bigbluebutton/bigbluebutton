@@ -37,5 +37,10 @@ package org.bigbluebutton.common
 		 * 
 		 */		
 		function getPrefferedPosition():String;
+		
+		/**
+		 * Returns an indentifier to be used by the LayoutModule to position the window.
+		 */
+		function getName():String;
 	}
 }

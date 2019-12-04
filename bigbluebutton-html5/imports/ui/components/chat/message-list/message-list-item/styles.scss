@@ -1,8 +1,13 @@
 @import "/imports/ui/stylesheets/variables/_all";
 
+:root {
+  --systemMessage-background-color: #F9FBFC;
+  --systemMessage-border-color: #C5CDD4;
+}
+
 .item {
-  font-size: $font-size-base * .90;
-  margin-bottom: $line-height-computed;
+  font-size: var(--font-size-base);
+  margin-bottom: var(--line-height-computed);
 
   &:last-child {
     margin-bottom: 0 !important;
@@ -13,24 +18,32 @@
   display: flex;
   flex-flow: row;
   flex: 1;
+  position: relative;
+  margin:var(--border-size) 0 0 var(--border-size);
+
+  [dir="rtl"] & {
+    margin: var(--border-size) var(--border-size) 0 0;
+  }
 }
 
 .systemMessage {
-  .item + &,
-  & + .item {
-    margin-bottom: $line-height-computed * 1.5;
-  }
-
-  .message {
-    color: $color-heading;
-  }
+  background: var(--systemMessage-background-color);
+  border: 1px solid var(--systemMessage-border-color);
+  border-radius: var(--border-radius);
+  font-weight: var(--btn-font-weight);
+  padding: var(--font-size-base);
+  margin-bottom: var(--line-height-computed);
 }
 
 .avatarWrapper {
-  flex-basis: 1.65rem;
+  flex-basis: 2.25rem;
   flex-shrink: 0;
   flex-grow: 0;
-  margin-right: $line-height-computed / 2;
+  margin: 0 calc(var(--line-height-computed) / 2) 0 0;
+
+  [dir="rtl"] & {
+    margin: 0 0 0 calc(var(--line-height-computed) / 2);
+  }
 }
 
 .avatar {
@@ -41,7 +54,8 @@
   flex: 1;
   display: flex;
   flex-flow: column;
-  overflow: hidden;
+  overflow-x: hidden;
+  width: calc(100% - 1.7rem);
 }
 
 .meta {
@@ -55,36 +69,42 @@
   }
 }
 
-.name {
-  display: flex;
-  min-width: 0;
-  font-weight: 600;
-  color: $color-heading;
-
-  > span {
-    @extend %text-elipsis;
-  }
-}
-
+.name,
 .logout {
   display: flex;
   min-width: 0;
   font-weight: 600;
-  color: $color-gray-light;
-  text-transform: capitalize;
-  font-style: italic;
+  position: relative;
 
-  > span {
+  :first-child {
     @extend %text-elipsis;
   }
 }
 
+.name {
+  color: var(--color-heading);
+}
+
+.logout {
+  text-transform: capitalize;
+  font-style: italic;
+
+  & > span {
+    text-align: right;
+    padding: 0 .1rem 0 0;
+
+    [dir="rtl"] & {
+      text-align: left;
+      padding: 0 0 0 .1rem;
+    }
+  }
+}
+
 .offline {
-  color: $color-gray-light;
+  color: var(--color-gray-light);
   font-weight: 100;
   text-transform: lowercase;
   font-style: italic;
-  margin-left: .25rem;
   font-size: 90%;
   line-height: 1;
   align-self: center;
@@ -94,10 +114,14 @@
   flex-shrink: 0;
   flex-grow: 0;
   flex-basis: 3.5rem;
-  color: $color-gray-light;
+  color: var(--color-gray-light);
   text-transform: uppercase;
   font-size: 75%;
-  margin-left: $line-height-computed / 2;
+  margin: 0 0 0 calc(var(--line-height-computed) / 2);
+
+  [dir="rtl"] & {
+    margin: 0 calc(var(--line-height-computed) / 2) 0 0;
+  }
 
   > span {
     vertical-align: sub;
@@ -106,14 +130,20 @@
 
 .messages {
   > .message:first-child {
-    margin-top: $line-height-computed / 4;
+    margin-top: calc(var(--line-height-computed) / 4);
   }
 }
 
-.message {
+.message, .hyperlink {
   flex: 1;
-  margin-top: $line-height-computed / 3;
+  margin-top: calc(var(--line-height-computed) / 3);
   margin-bottom: 0;
-  color: $color-text;
+  color: var(--color-text);
   word-wrap: break-word;
+}
+
+.hyperlink {
+  a {
+    color: var(--color-primary);
+  }
 }

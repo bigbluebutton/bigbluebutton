@@ -1,22 +1,13 @@
-import React, { Component } from 'react';
-import PropTypes from 'prop-types';
-import { createContainer } from 'meteor/react-meteor-data';
+import React from 'react';
+import { withTracker } from 'meteor/react-meteor-data';
 
 import AboutComponent from './component';
 
-class AboutContainer extends Component {
-  constructor(props) {
-    super(props);
-  }
-
-  render() {
-    return (
-      <AboutComponent {...this.props}>
-        {this.props.children}
-      </AboutComponent>
-    );
-  }
-}
+const AboutContainer = props => (
+  <AboutComponent {...props}>
+    {props.children}
+  </AboutComponent>
+);
 
 const getClientBuildInfo = function () {
   return {
@@ -25,4 +16,4 @@ const getClientBuildInfo = function () {
   };
 };
 
-export default createContainer(() => getClientBuildInfo(), AboutContainer);
+export default withTracker(() => getClientBuildInfo())(AboutContainer);

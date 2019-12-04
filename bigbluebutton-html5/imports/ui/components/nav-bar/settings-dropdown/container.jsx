@@ -1,62 +1,26 @@
-import React, { Component } from 'react';
+import React from 'react';
+import { withTracker } from 'meteor/react-meteor-data';
+import browser from 'browser-detect';
 import SettingsDropdown from './component';
-import Service from './service';
+import FullscreenService from '../../fullscreen-button/service';
+import { meetingIsBreakout } from '/imports/ui/components/app/service';
 
-export default class SettingsDropdownContainer extends Component {
-  constructor(props) {
-    super(props);
+const BROWSER_RESULTS = browser();
+const isSafari = BROWSER_RESULTS.name === 'safari';
+const isIphone = navigator.userAgent.match(/iPhone/i);
+const noIOSFullscreen = (isSafari && BROWSER_RESULTS.versionNumber < 12) || isIphone;
 
-    this.state = {
-      isFullScreen: false,
-    };
+const SettingsDropdownContainer = props => (
+  <SettingsDropdown {...props} />
+);
 
-    this.handleFullscreenChange = this.handleFullscreenChange.bind(this);
-  }
-
-  componentDidMount() {
-    const fullscreenChangedEvents = [
-      'fullscreenchange',
-      'webkitfullscreenchange',
-      'mozfullscreenchange',
-      'MSFullscreenChange',
-    ];
-
-    fullscreenChangedEvents.forEach(event =>
-      document.addEventListener(event, this.handleFullscreenChange));
-  }
-
-  componentWillUnmount() {
-    const fullscreenChangedEvents = [
-      'fullscreenchange',
-      'webkitfullscreenchange',
-      'mozfullscreenchange',
-      'MSFullscreenChange',
-    ];
-
-    fullscreenChangedEvents.forEach(event =>
-      document.removeEventListener(event, this.fullScreenToggleCallback));
-  }
-
-  handleFullscreenChange() {
-    if (document.fullscreenElement
-      || document.webkitFullscreenElement
-      || document.mozFullScreenElement
-      || document.msFullscreenElement) {
-      this.setState({ isFullScreen: true });
-    } else {
-      this.setState({ isFullScreen: false });
-    }
-  }
-
-  render() {
-    const handleToggleFullscreen = Service.toggleFullScreen;
-    const isFullScreen = this.state.isFullScreen;
-
-    return (
-      <SettingsDropdown
-        handleToggleFullscreen={handleToggleFullscreen}
-        isFullScreen={isFullScreen}
-      />
-    );
-  }
-}
+export default withTracker((props) => {
+  const handleToggleFullscreen = () => FullscreenService.toggleFullScreen();
+  return {
+    amIModerator: props.amIModerator,
+    handleToggleFullscreen,
+    noIOSFullscreen,
+    isMeteorConnected: Meteor.status().connected,
+    isBreakoutRoom: meetingIsBreakout(),
+  };
+})(SettingsDropdownContainer);

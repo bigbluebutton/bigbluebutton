@@ -36,7 +36,7 @@ import org.red5.server.api.stream.IBroadcastStream;
  * @author Richard Alam
  *
  */
-public class SipPeer implements SipRegisterAgentListener {
+public class SipPeer implements SipRegisterAgentListener, ForceHangupGlobalAudioUsersListener {
     private static Logger log = Red5LoggerFactory.getLogger(SipPeer.class, "sip");
 
     private ClientConnectionManager clientConnManager;
@@ -130,6 +130,7 @@ public class SipPeer implements SipRegisterAgentListener {
     	SipPeerProfile callerProfile = SipPeerProfile.copy(registeredProfile);
     	CallAgent ca = new CallAgent(this.clientRtpIp, sipProvider, callerProfile, audioconfProvider, clientId, messagingService);
     	ca.setClientConnectionManager(clientConnManager);
+    	ca.setForceHangupGlobalAudioUsersListener(this);
     	ca.setCallStreamFactory(callStreamFactory);
     	callManager.add(ca);
 
@@ -148,7 +149,7 @@ public class SipPeer implements SipRegisterAgentListener {
        sipProvider.halt();
 	}
 
-    public void hangup(String clientId) {
+    public void hangup(String clientId, boolean notifyApps) {
         log.debug( "SIPUser hangup" );
 
         CallAgent ca = callManager.remove(clientId);
@@ -159,8 +160,12 @@ public class SipPeer implements SipRegisterAgentListener {
                 String destination = ca.getDestination();
                 ListenOnlyUser lou = GlobalCall.removeUser(clientId, destination);
                 if (lou != null) {
-                	log.info("User has disconnected from global audio, user [{}] voiceConf {}", lou.callerIdName, lou.voiceConf);
-                	messagingService.userDisconnectedFromGlobalAudio(lou.voiceConf, lou.callerIdName);
+                  log.info("User has disconnected from global audio, user [{}] voiceConf {}", lou.callerIdName, lou.voiceConf);
+                  if (notifyApps) {
+                    messagingService.userDisconnectedFromGlobalAudio(lou.voiceConf, lou.callerIdName);
+                  } else {
+                    log.info("Do not send a user disconnected from global audio. user [{}] voiceConf {}", lou.callerIdName, lou.voiceConf);
+                  }
                 }
                 ca.hangup();
 
@@ -225,6 +230,15 @@ public class SipPeer implements SipRegisterAgentListener {
 		log.info("Successfully unregistered with Sip Server");
 		registered = false;
 	}
+
+  public void forceHangupGlobalAudioUsers(String voiceConf) {
+      Collection<ListenOnlyUser> listenOnlyUsers = GlobalCall.getAllListenOnlyUsers(voiceConf);
+    Iterator iter = listenOnlyUsers.iterator();
+    while (iter.hasNext()) {
+      ListenOnlyUser listenOnlyUser = (ListenOnlyUser) iter.next();
+      hangup(listenOnlyUser.clientId, true);
+    }
+  }
 	
 	public void setCallStreamFactory(CallStreamFactory csf) {
 		callStreamFactory = csf;

@@ -43,7 +43,6 @@ package org.bigbluebutton.clientcheck.command
 			externalApiCalls.requestIsPepperFlash();
 			externalApiCalls.requestLanguage();
 			externalApiCalls.requestCookiesEnabled();
-			externalApiCalls.requestJavaEnabled();
 			externalApiCalls.requestIsWebRTCSupported();
 			externalApiCalls.requestWebRTCEchoAndSocketTest();
 

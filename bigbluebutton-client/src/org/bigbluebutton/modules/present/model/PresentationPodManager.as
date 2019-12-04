@@ -1,19 +1,16 @@
 package org.bigbluebutton.modules.present.model {
+    import com.asfusion.mate.events.Dispatcher;
+    
+    import flash.events.Event;
+    
     import mx.collections.ArrayCollection;
-
+    
     import org.as3commons.logging.api.ILogger;
     import org.as3commons.logging.api.getClassLogger;
-    import org.bigbluebutton.modules.present.services.messages.PageChangeVO;
-    import org.bigbluebutton.modules.present.services.messages.PresentationPodVO;
-    import org.bigbluebutton.modules.present.model.PresentationModel;
-    import org.bigbluebutton.modules.present.events.RequestNewPresentationPodEvent;
-    import com.asfusion.mate.events.Dispatcher;
-    import org.bigbluebutton.core.UsersUtil;
-
-
+    import org.bigbluebutton.core.EventConstants;
     import org.bigbluebutton.modules.present.events.NewPresentationPodCreated;
-    import org.bigbluebutton.modules.present.events.PresentationPodRemoved;
-    import org.bigbluebutton.modules.present.events.RequestPresentationInfoPodEvent;
+    import org.bigbluebutton.modules.present.services.PresentationService;
+    import org.bigbluebutton.modules.present.services.messages.PresentationPodVO;
 
     
     public class PresentationPodManager {
@@ -23,7 +20,9 @@ package org.bigbluebutton.modules.present.model {
     
         private var _presentationPods: ArrayCollection = new ArrayCollection();
         private var globalDispatcher:Dispatcher;
+        private var presentationService: PresentationService;
 
+        public static const DEFAULT_POD_ID:String = "DEFAULT_PRESENTATION_POD";
 
         /**
          * This class is a singleton. Please initialize it using the getInstance() method.
@@ -34,11 +33,6 @@ package org.bigbluebutton.modules.present.model {
                 throw new Error("There can only be 1 PresentationPodManager instance");
             }
             globalDispatcher = new Dispatcher();
-
-            initialize();
-        }
-    
-        private function initialize():void {
         }
     
         /**
@@ -52,14 +46,11 @@ package org.bigbluebutton.modules.present.model {
             return instance;
         }
         
-        public function requestDefaultPresentationPod(): void {
-            var event:RequestNewPresentationPodEvent = new RequestNewPresentationPodEvent(RequestNewPresentationPodEvent.REQUEST_NEW_PRES_POD);
-            event.requesterId = UsersUtil.getMyUserID();
-            globalDispatcher.dispatchEvent(event);
+        public function setPresentationService(service: PresentationService): void {
+            this.presentationService = service;
         }
         
         public function getPod(podId: String): PresentationModel {
-            var resultingPod: PresentationModel = null;
             for (var i:int = 0; i < _presentationPods.length; i++) {
                 var pod: PresentationModel = _presentationPods.getItemAt(i) as PresentationModel;
 
@@ -67,10 +58,39 @@ package org.bigbluebutton.modules.present.model {
                     return pod;
                 }
             }
-            return resultingPod;
+            return null;
+		}
+
+		public function getPodSequence(podId:String):int {
+			var sequence : int = 1;
+			if (podId != DEFAULT_POD_ID) {
+				for (var i:int = 1; i < _presentationPods.length; i++) {
+					var pod:PresentationModel = _presentationPods.getItemAt(i) as PresentationModel;
+
+					if (pod.getPodId() == podId) {
+						sequence = i + 1;
+						break;
+					}
+				}
+			}
+			return sequence;
+		}
+
+        public function getDefaultPresentationPod(): PresentationModel {
+            var pod: PresentationModel = getPod(DEFAULT_POD_ID);
+            return pod;
+        }
+        
+        public function getAllPodIds():Array {
+            var podIds:Array = [];
+            for (var i:int = 0; i < _presentationPods.length; i++) {
+                var pod: PresentationModel = _presentationPods.getItemAt(i) as PresentationModel;
+                podIds.push(pod.getPodId())
+            }
+            return podIds;
         }
 
-        public function handleAddPresentationPod(podId: String, ownerId: String): void {
+        public function handleAddPresentationPod(podId: String): void {
             for (var i:int = 0; i < _presentationPods.length; i++) {
                 var pod: PresentationModel = _presentationPods.getItemAt(i) as PresentationModel;
                 if (pod.getPodId() == podId) {
@@ -78,53 +98,34 @@ package org.bigbluebutton.modules.present.model {
                 }
             }
 
-            var newPod: PresentationModel = new PresentationModel(podId, ownerId);
+            var newPod: PresentationModel = new PresentationModel(podId);
             _presentationPods.addItem(newPod);
+			globalDispatcher.dispatchEvent(new Event(EventConstants.PRESENTATION_PODS_COUNT_UPDATE));
         }
         
-        public function handlePresentationPodRemoved(podId: String, ownerId: String): void {
-
+        public function handlePresentationPodRemoved(podId: String): void {
             for (var i:int = 0; i < _presentationPods.length; i++) {
                 var pod: PresentationModel = _presentationPods.getItemAt(i) as PresentationModel;
 
                 if (pod.getPodId() == podId) {
                     _presentationPods.removeItemAt(i);
+					globalDispatcher.dispatchEvent(new Event(EventConstants.PRESENTATION_PODS_COUNT_UPDATE));
                     return;
                 }
             }
-            
         }
-        
-        public function requestAllPodsPresentationInfo(): void {
-            for (var i:int = 0; i < _presentationPods.length; i++) {
-                var pod: PresentationModel = _presentationPods.getItemAt(i) as PresentationModel;
 
-                var event:RequestPresentationInfoPodEvent = new RequestPresentationInfoPodEvent(RequestPresentationInfoPodEvent.REQUEST_PRES_INFO);
-                event.podId = pod.getPodId();
-                globalDispatcher.dispatchEvent(event);
-            }
-        }
-        
         public function handleGetAllPodsResp(podsAC: ArrayCollection): void {
-            // flush pod manager and add these pods instead
-
-            for (var i:int = 0; i < _presentationPods.length; i++) {
-                var oldPod: PresentationModel = _presentationPods.getItemAt(i) as PresentationModel;
-                globalDispatcher.dispatchEvent(new PresentationPodRemoved(oldPod.getPodId(), oldPod.getOwnerId()));
-            }
-
             for (var j:int = 0; j < podsAC.length; j++) {
                 var podVO: PresentationPodVO = podsAC.getItemAt(j) as PresentationPodVO;
-                var newPod: PresentationModel = new PresentationModel(podVO.id, podVO.ownerId);
 
-                globalDispatcher.dispatchEvent(new NewPresentationPodCreated(newPod.getPodId(), newPod.getOwnerId()));
-            }
+                globalDispatcher.dispatchEvent(new NewPresentationPodCreated(podVO.id, podVO.currentPresenter));
 
-            if (podsAC.length == 0) { // If there are no pods, request the creation of a default one
-                requestDefaultPresentationPod();
+                var presentationsToAdd:ArrayCollection = podVO.getPresentations();
+                presentationService.addPresentations(podVO.id, presentationsToAdd);
             }
         }
-    
+
     }
 }
 

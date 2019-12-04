@@ -50,7 +50,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
 	<bean id="web.handler" class="org.bigbluebutton.app.videobroadcast.VideoApplication">
 		<property name="packetTimeout" value="10000"/>
-		<property name="recordVideoStream" value="true"/>
+		<property name="recordVideoStream" value="false"/>
 		<property name="eventRecordingService" ref="redisRecorder"/>
 	</bean>
 

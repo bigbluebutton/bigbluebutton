@@ -1,17 +1,21 @@
 package org.bigbluebutton.modules.polling.service
 {
   import com.asfusion.mate.events.Dispatcher;
+  
   import flash.accessibility.Accessibility;
+  
+  import org.as3commons.lang.StringUtils;
   import org.as3commons.logging.api.ILogger;
   import org.as3commons.logging.api.getClassLogger;
   import org.bigbluebutton.core.model.LiveMeeting;
-  import org.bigbluebutton.modules.chat.model.ChatConversation;
   import org.bigbluebutton.modules.chat.model.ChatModel;
+  import org.bigbluebutton.modules.chat.model.GroupChat;
   import org.bigbluebutton.modules.chat.vo.ChatMessageVO;
   import org.bigbluebutton.modules.polling.events.PollShowResultEvent;
   import org.bigbluebutton.modules.polling.events.PollStartedEvent;
   import org.bigbluebutton.modules.polling.events.PollStoppedEvent;
-  import org.bigbluebutton.modules.polling.events.PollVotedEvent;
+  import org.bigbluebutton.modules.polling.events.PollUpdatedEvent;
+  import org.bigbluebutton.modules.polling.events.PollVoteReceivedEvent;
   import org.bigbluebutton.modules.polling.model.PollingModel;
   import org.bigbluebutton.modules.polling.model.SimpleAnswer;
   import org.bigbluebutton.modules.polling.model.SimpleAnswerResult;
@@ -41,10 +45,11 @@ package org.bigbluebutton.modules.polling.service
         ans.push(new SimpleAnswer(Number(String(a.id)), a.key));
       }
 
-      model.setCurrentPoll(new SimplePoll(pollId, ans));
-      dispatcher.dispatchEvent(new PollStartedEvent(new SimplePoll(pollId, ans)));
+      var simplePollInstance:SimplePoll = new SimplePoll(pollId, ans);
+      model.setCurrentPoll(simplePollInstance);
+      dispatcher.dispatchEvent(new PollStartedEvent(simplePollInstance));
     }
-    
+
     public function handlePollStoppedMesage(msg:Object):void {
       dispatcher.dispatchEvent(new PollStoppedEvent());
     }
@@ -76,7 +81,7 @@ package org.bigbluebutton.modules.polling.service
         for (var k:int = 0; k < answers.length; k++) {
           var localizedKey: String = ResourceUtil.getInstance().getString('bbb.polling.answer.'+answers[k].key);
 
-          if (localizedKey == null || localizedKey == "" || localizedKey == "undefined") {
+          if (StringUtils.isEmpty(localizedKey) || localizedKey == "undefined") {
             localizedKey = answers[k].key;
           }
           accessibleAnswers += ResourceUtil.getInstance().getString("bbb.polling.results.accessible.answer", [localizedKey, answers[k].numVotes]) + "<br />";
@@ -87,18 +92,16 @@ package org.bigbluebutton.modules.polling.service
         pollResultMessage.fromUsername = ResourceUtil.getInstance().getString("bbb.chat.chatMessage.systemMessage");
         pollResultMessage.fromColor = "86187";
         pollResultMessage.fromTime = new Date().getTime();
-        pollResultMessage.fromTimezoneOffset = new Date().getTimezoneOffset();
-        pollResultMessage.toUserId = ResourceUtil.getInstance().getString("bbb.chat.chatMessage.systemMessage");
-        pollResultMessage.toUsername = ResourceUtil.getInstance().getString("bbb.chat.chatMessage.systemMessage");
         pollResultMessage.message = accessibleAnswers;
 
-        var pubChat: ChatConversation = LiveMeeting.inst().chats.getChatConversation(ChatModel.MAIN_PUBLIC_CHAT);
-        pubChat.newChatMessage(pollResultMessage);
-        
+        var groupChat: GroupChat = LiveMeeting.inst().chats.getGroupChat(ChatModel.MAIN_PUBLIC_CHAT);
+        if (groupChat != null) {
+          groupChat.addMessage(pollResultMessage);
+        }
       }
     }
     
-    public function handlePollUserVotedMessage(msg:Object):void {
+    public function handlePollUpdatedMessage(msg:Object):void {
       var pollId:String = msg.body.pollId;
       var poll:Object = msg.body.poll;
       var answers:Array = poll.answers as Array;
@@ -112,7 +115,15 @@ package org.bigbluebutton.modules.polling.service
       var numRespondents:Number = poll.numRespondents;
       var numResponders:Number = poll.numResponders;
 
-      dispatcher.dispatchEvent(new PollVotedEvent(new SimplePollResult(pollId, ans, numRespondents, numResponders)));
+      dispatcher.dispatchEvent(new PollUpdatedEvent(new SimplePollResult(pollId, ans, numRespondents, numResponders)));
+    }
+    
+    public function handleUserRespondedToPollRespMsg(msg:Object):void {
+      var pollId:String = msg.body.pollId;
+      var userId:String = msg.body.userId;
+      var answerId:int = msg.body.answerId;
+      
+      dispatcher.dispatchEvent(new PollVoteReceivedEvent(pollId, userId, answerId));
     }
   }
 }

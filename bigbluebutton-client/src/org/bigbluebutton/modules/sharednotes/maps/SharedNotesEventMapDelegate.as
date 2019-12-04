@@ -57,7 +57,7 @@ package org.bigbluebutton.modules.sharednotes.maps
 				LOGGER.debug("NoteId:" + id +":"+e.document[id] + ":" + e.type);
 				if (id != window.noteId && !windows.hasOwnProperty(id)) {
 					createAdditionalNotes(id, "");
-					windows[id].addRemoteDocument(e.document, e.isNotesLimit);
+					SharedNotesWindow(windows[id]).addRemoteDocument(e.document, e.isNotesLimit);
 				}
 			}
 

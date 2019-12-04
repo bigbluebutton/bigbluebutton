@@ -23,7 +23,6 @@ class BigBlueButtonActorTestsSpec extends TestKit(ActorSystem(
   // Setup dependencies
   val bbbMsgBus = new BbbMsgRouterEventBus
   val eventBus = new InMsgBusGW(new IncomingEventBusImp())
-  val outgoingEventBus = new OutgoingEventBus
   val outBus2 = new OutEventBus2
   val recordBus = new RecordingEventBus
 

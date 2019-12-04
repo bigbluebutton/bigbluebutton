@@ -1,33 +1,117 @@
 @import "../../../stylesheets/variables/_all";
+@import '/imports/ui/stylesheets/mixins/_indicators';
+@import "../../../stylesheets/variables/typography";
 
-.indicator {
-  position: relative;
-  display: inline-block;
-  width: $font-size-base;
-  height: $font-size-base;
-  border-radius: 50%;
-  border: 1px solid $color-white;
-  margin-left: $line-height-computed;
+.visuallyHidden {
+  position: absolute;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  height: 1px; width: 1px;
+  margin: -1px; padding: 0; border: 0;
+}
 
-  &:before {
-    content: '';
-    position: absolute;
-    left: calc( -1px - #{($line-height-computed / 2)});
-    width: 1px;
-    height: 100%;
-    background-color: $color-white;
+%recordingControl {
+  display: flex;
+  border-radius: 2em 2em;
+
+  span {
+    border: none;
+    box-shadow: none;
+    background-color: transparent !important;
+    color: var(--color-white) !important;
   }
 
-  &:after {
-    content: '';
-    width: $font-size-base / 2;
-    height: $font-size-base / 2;
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    margin-top: -($font-size-base / 4);
-    margin-left: -($font-size-base / 4);
-    border-radius: 50%;
-    background-color: $color-danger;
+  &:hover {
+    color: var(--color-white) !important;
+    cursor: pointer;
   }
+
+  &:focus {
+    outline: none;
+    box-shadow: 0 0 0 var(--border-size) var(--color-primary);
+  }
+}
+
+.recordingControlON {
+  @extend %recordingControl;
+
+  padding: 5px;
+  background-color: var(--color-primary);
+  border: var(--border-size-large) solid var(--color-primary);
+
+  &:focus {
+    background-clip: padding-box;
+    border: var(--border-size-large) solid transparent;
+  }
+}
+
+.recordingControlOFF {
+  @extend %recordingControl;
+
+  padding: 7px;
+  border: var(--border-size-small) solid var(--color-white);
+  
+  &:focus {
+    padding: 5px;
+    border: var(--border-size-large) solid var(--color-white);
+    box-shadow: none;
+  }
+}
+
+.presentationTitle {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  font-weight: 200;
+  color: var(--color-white);
+  font-size: var(--font-size-base);
+  padding: 0;
+  margin-left: var(--sm-padding-x);
+  margin-right: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 30vw;
+
+  [dir="rtl"]  & {
+    margin-left: 0;
+    margin-right: var(--sm-padding-x);
+  }
+
+  > [class^="icon-bbb-"] {
+    font-size: 75%;
+  }
+
+  span {
+    vertical-align: middle;
+  }
+}
+
+.recordingStatusViewOnly {
+  display: flex;
+}
+
+.recordingIndicatorIcon {
+  width: var(--font-size-large);
+  height: var(--font-size-large);
+  font-size: var(--font-size-base);
+}
+
+.recordingIndicator {
+  &:hover {
+    @include highContrastOutline();
+  }
+
+  &:active,
+  &:focus,
+  &:focus-within {
+    @include highContrastOutline();
+    outline-style: solid;
+  }
+}
+
+.presentationTitleSeparator {
+  color: var(--color-gray);
+  font-size: var(--font-size-base);
+  margin: 0 1rem;
 }

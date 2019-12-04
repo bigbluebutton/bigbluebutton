@@ -1,0 +1,31 @@
+@import "/imports/ui/stylesheets/variables/_all";
+
+.shortcutTable,
+.keyCell,
+.descCell,
+.tableTitle {
+  border: var(--border-size) solid var(--color-gray-lighter);
+}
+
+.keyCell {
+  text-align: center;
+}
+
+.descCell {
+  padding: 0 var(--jumbo-padding-x) !important 0 0;
+}
+
+.keyCell,
+.descCell {
+  padding: var(--sm-padding-x);
+  margin: auto;
+}
+
+.shortcutTable {
+  border-collapse: collapse;
+  margin: auto;
+}
+
+.tableTitle {
+  padding: var(--sm-padding-x);
+}

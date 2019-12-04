@@ -75,10 +75,10 @@ public final class SipPeerManager {
     	}
     }
     
-    public void hangup(String peerId, String clientId) throws PeerNotFoundException {
+    public void hangup(String peerId, String clientId, boolean notifyApps) throws PeerNotFoundException {
     	SipPeer sipPeer = sipPeers.get(peerId);
     	if (sipPeer == null) throw new PeerNotFoundException("Can't find sip peer " + peerId);
-    	sipPeer.hangup(clientId);
+    	sipPeer.hangup(clientId, notifyApps);
     }
 
     

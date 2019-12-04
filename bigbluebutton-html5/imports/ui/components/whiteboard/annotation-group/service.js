@@ -1,4 +1,4 @@
-import Annotations from '/imports/api/2.0/annotations';
+import Annotations from '/imports/ui/components/whiteboard/service';
 
 const getCurrentAnnotationsInfo = (whiteboardId) => {
   if (!whiteboardId) {
@@ -8,8 +8,10 @@ const getCurrentAnnotationsInfo = (whiteboardId) => {
   return Annotations.find(
     {
       whiteboardId,
+      // annotationType: { $ne: 'pencil_base' },
     },
     {
+      sort: { position: 1 },
       fields: { status: 1, _id: 1, annotationType: 1 },
     },
   ).fetch();

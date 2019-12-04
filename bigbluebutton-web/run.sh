@@ -1,2 +1,2 @@
-grails -Dserver.port=8888 run-war
-
+#!/usr/bin/env bash
+grails prod run-app --port 8090

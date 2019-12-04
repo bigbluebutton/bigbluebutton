@@ -1,15 +1,20 @@
-import React, { Component } from 'react';
+import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import _ from 'lodash';
+import fastdom from 'fastdom';
 
 const propTypes = {
   text: PropTypes.string.isRequired,
   time: PropTypes.number.isRequired,
-  unread: PropTypes.bool.isRequired,
+  lastReadMessageTime: PropTypes.number,
+  handleReadMessage: PropTypes.func.isRequired,
+  scrollArea: PropTypes.instanceOf(Element),
+  className: PropTypes.string.isRequired,
 };
 
 const defaultProps = {
-  unread: true,
+  lastReadMessageTime: 0,
+  scrollArea: undefined,
 };
 
 const eventsToBeBound = [
@@ -18,17 +23,18 @@ const eventsToBeBound = [
 ];
 
 const isElementInViewport = (el) => {
+  if (!el) return false;
   const rect = el.getBoundingClientRect();
 
   return (
-    rect.top >= 0 &&
-    rect.left >= 0 &&
-    rect.bottom <= (window.innerHeight || document.documentElement.clientHeight) &&
-    rect.right <= (window.innerWidth || document.documentElement.clientWidth)
+    rect.top >= 0
+    && rect.left >= 0
+    && rect.bottom <= (window.innerHeight || document.documentElement.clientHeight)
+    && rect.right <= (window.innerWidth || document.documentElement.clientWidth)
   );
 };
 
-export default class MessageListItem extends Component {
+export default class MessageListItem extends PureComponent {
   constructor(props) {
     super(props);
 
@@ -37,17 +43,54 @@ export default class MessageListItem extends Component {
     this.handleMessageInViewport = _.debounce(this.handleMessageInViewport.bind(this), 50);
   }
 
-  handleMessageInViewport(e) {
+  componentDidMount() {
+    this.listenToUnreadMessages();
+  }
+
+  componentDidUpdate() {
+    this.listenToUnreadMessages();
+  }
+
+  componentWillUnmount() {
+    // This was added 3 years ago, but never worked. Leaving it around in case someone returns
+    // and decides it needs to be fixed like the one in listenToUnreadMessages()
+    // if (!lastReadMessageTime > time) {
+    //  return;
+    // }
+
+    this.removeScrollListeners();
+  }
+
+  addScrollListeners() {
+    const {
+      scrollArea,
+    } = this.props;
+
+    if (scrollArea) {
+      eventsToBeBound.forEach(
+        e => scrollArea.addEventListener(e, this.handleMessageInViewport),
+      );
+    }
+  }
+
+  handleMessageInViewport() {
     if (!this.ticking) {
-      window.requestAnimationFrame(() => {
+      fastdom.measure(() => {
         const node = this.text;
-        const { scrollArea } = this.props;
+        const {
+          handleReadMessage,
+          time,
+          lastReadMessageTime,
+        } = this.props;
+
+        if (lastReadMessageTime > time) {
+          this.removeScrollListeners();
+          return;
+        }
 
         if (isElementInViewport(node)) {
-          this.props.handleReadMessage(this.props.time);
-          eventsToBeBound.forEach(
-            e => scrollArea.removeEventListener(e, this.handleMessageInViewport),
-          );
+          handleReadMessage(time);
+          this.removeScrollListeners();
         }
 
         this.ticking = false;
@@ -57,52 +100,65 @@ export default class MessageListItem extends Component {
     this.ticking = true;
   }
 
-  componentDidMount() {
-    if (!this.props.lastReadMessageTime > this.props.time) {
+  removeScrollListeners() {
+    const {
+      scrollArea,
+    } = this.props;
+
+    if (scrollArea) {
+      eventsToBeBound.forEach(
+        e => scrollArea.removeEventListener(e, this.handleMessageInViewport),
+      );
+    }
+  }
+
+  // depending on whether the message is in viewport or not,
+  // either read it or attach a listener
+  listenToUnreadMessages() {
+    const {
+      handleReadMessage,
+      time,
+      lastReadMessageTime,
+    } = this.props;
+
+    if (lastReadMessageTime > time) {
       return;
     }
 
     const node = this.text;
-    const { scrollArea } = this.props;
 
-    if (isElementInViewport(node)) {
-      this.props.handleReadMessage(this.props.time);
-    } else if (scrollArea) {
-      eventsToBeBound.forEach(
-          (e) => { scrollArea.addEventListener(e, this.handleMessageInViewport, false); },
-        );
-    }
-  }
+    fastdom.measure(() => {
+      const {
+        lastReadMessageTime: updatedLastReadMessageTime,
+      } = this.props;
+      // this function is called after so we need to get the updated lastReadMessageTime
 
-  componentWillUnmount() {
-    if (!this.props.lastReadMessageTime > this.props.time) {
-      return;
-    }
+      if (updatedLastReadMessageTime > time) {
+        return;
+      }
 
-    const { scrollArea } = this.props;
-
-    if (scrollArea) {
-      eventsToBeBound.forEach(
-        (e) => { scrollArea.removeEventListener(e, this.handleMessageInViewport, false); },
-      );
-    }
+      if (isElementInViewport(node)) { // no need to listen, the message is already in viewport
+        handleReadMessage(time);
+      } else {
+        this.addScrollListeners();
+      }
+    });
   }
 
   render() {
     const {
       text,
-      time,
+      className,
     } = this.props;
 
     return (
       <p
         ref={(ref) => { this.text = ref; }}
         dangerouslySetInnerHTML={{ __html: text }}
-        className={this.props.className}
+        className={className}
       />
     );
   }
-
 }
 
 MessageListItem.propTypes = propTypes;

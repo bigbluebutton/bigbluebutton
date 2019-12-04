@@ -19,7 +19,7 @@
 
 package org.bigbluebutton.modules.whiteboard.views {
 	public interface IWhiteboardReceiver {
-		function receiveToolbars(wt:WhiteboardToolbar, wtt:WhiteboardTextToolbar):void;
-		function receiveCanvas(wc:WhiteboardCanvas):void;
+		function receiveToolbars(wt:IWhiteboardToolbar, wtt:IWhiteboardToolbar):void;
+		function receiveCanvas(wc:IWhiteboardOverlay):void;
 	}
 }

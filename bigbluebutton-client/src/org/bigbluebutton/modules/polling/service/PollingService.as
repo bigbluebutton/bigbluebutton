@@ -29,6 +29,7 @@ package org.bigbluebutton.modules.polling.service
 	import org.bigbluebutton.modules.polling.model.SimplePoll;
 	import org.bigbluebutton.modules.present.model.Presentation;
 	import org.bigbluebutton.modules.present.model.PresentationModel;
+	import org.bigbluebutton.modules.present.model.PresentationPodManager;
 
 	public class PollingService
 	{	
@@ -54,15 +55,19 @@ package org.bigbluebutton.modules.polling.service
 			
 
     private function generatePollId():String {
-//      var curPres:Presentation = PresentationModel.getInstance().getCurrentPresentation();
-//      if (curPres != null) {
-//        var date:Date = new Date();
-//
-//        var pollId:String;
-//        pollId = curPres.id + "/" + curPres.getCurrentPage().num + "/" + date.time;
-//
-//        return pollId;
-//      }
+      var presentationModel: PresentationModel = PresentationPodManager.getInstance().getDefaultPresentationPod();
+      if (presentationModel == null) {
+        return null;
+      }
+      var curPres:Presentation = presentationModel.getCurrentPresentation();
+      if (curPres != null) {
+        var date:Date = new Date();
+
+        var pollId:String;
+        pollId = curPres.id + "/" + curPres.getCurrentPage().num + "/" + date.time;
+
+        return pollId;
+      }
       
       return null;
     }
@@ -91,7 +96,7 @@ package org.bigbluebutton.modules.polling.service
     
     public function handleShowPollResultEvent(event:ShowPollResultEvent):void {
       var curPoll:SimplePoll = model.getCurrentPoll();
-      dataService.showPollResult(curPoll.id, event.show);
+      dataService.showPollResult(curPoll.id);
     }
     
 

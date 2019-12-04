@@ -13,29 +13,28 @@ package org.bigbluebutton.modules.present.services
   import org.bigbluebutton.modules.present.events.UploadEvent;
   import org.bigbluebutton.modules.present.model.Page;
   import org.bigbluebutton.modules.present.model.Presentation;
-  import org.bigbluebutton.modules.present.model.PresentationModel;
   import org.bigbluebutton.modules.present.model.PresentationPodManager;
   import org.bigbluebutton.modules.present.services.messages.PageVO;
   import org.bigbluebutton.modules.present.services.messages.PresentationVO;
   import org.bigbluebutton.modules.present.services.messaging.MessageReceiver;
-  import org.bigbluebutton.modules.present.services.messaging.MessageSender;
 
   public class PresentationService
   {
 	private static const LOGGER:ILogger = getClassLogger(PresentationService);      
     private static const NUM_PRELOAD:uint = 3;
     private var podManager: PresentationPodManager;
-    private var sender:MessageSender;
     private var receiver:MessageReceiver;
     private var dispatcher:Dispatcher;
     
     public function PresentationService() {
       podManager = PresentationPodManager.getInstance();
+      podManager.setPresentationService(this);
       receiver = new MessageReceiver(this);
       dispatcher = new Dispatcher();
     }
     
     public function pageChanged(podId: String, pageId:String):void {
+        podManager.getPod(podId).printPresentations("PresentationService::pageChanged bef");
       var np: Page = podManager.getPod(podId).getPage(pageId);
       if (np != null) {        
         var oldPage: Page = podManager.getPod(podId).getCurrentPage();
@@ -44,21 +43,24 @@ package org.bigbluebutton.modules.present.services
         np.current = true;
 //        trace(LOG + "Sending page changed event. page [" + np.id + "] oldpage current=[" + oldPage.current + "] newPage current=[" + np.current + "]");  
         var changePageCommand: ChangePageCommand = new ChangePageCommand(podId, np.id, NUM_PRELOAD);
-        dispatcher.dispatchEvent(changePageCommand);          
+        dispatcher.dispatchEvent(changePageCommand);
+          podManager.getPod(podId).printPresentations("PresentationService::pageChanged aft");
       }       
     }
-    
-    public function pageMoved(pageId:String, xOffset:Number, yOffset:Number, widthRatio:Number, heightRatio:Number):void {
-//      var np: Page = model.getPage(pageId);
-//      if (np != null) {
-//        np.xOffset = xOffset;
-//        np.yOffset = yOffset;
-//        np.widthRatio = widthRatio;
-//        np.heightRatio = heightRatio;
-////        trace(LOG + "Sending page moved event. page [" + np.id + "] current=[" + np.current + "]");
-//        var event: PageChangedEvent = new PageChangedEvent(np.id);
-//        dispatcher.dispatchEvent(event);           
-//      }       
+
+    public function pageMoved(podId: String, pageId:String, xOffset:Number, yOffset:Number,
+                              widthRatio:Number, heightRatio:Number):void {
+
+      var np: Page = podManager.getPod(podId).getPage(pageId);
+      if (np != null) {
+        np.xOffset = xOffset;
+        np.yOffset = yOffset;
+        np.widthRatio = widthRatio;
+        np.heightRatio = heightRatio;
+//        trace(LOG + "Sending page moved event. page [" + np.id + "] current=[" + np.current + "]");
+        var event: PageChangedEvent = new PageChangedEvent(podId, np.id);
+        dispatcher.dispatchEvent(event);
+      }
     }
     
     private function copyPageVOToPage(p: PageVO):Page {
@@ -83,7 +85,7 @@ package org.bigbluebutton.modules.present.services
       LOGGER.debug("Added new presentation [{0}]", [presentation.id]);
       
       if (presentation.current) {
-        LOGGER.debug("Making presentation [{0}] current [{1}]", [presentation.id, presentation.current]); 
+        LOGGER.debug("Making presentation [{0}] current [{1}]", [presentation.id, presentation.current]);
         var event: PresentationChangedEvent = new PresentationChangedEvent(podId, pres.id);
         dispatcher.dispatchEvent(event);
         
@@ -121,11 +123,14 @@ package org.bigbluebutton.modules.present.services
         LOGGER.debug("No previous active presentation.");
       }
 
+      podManager.getPod(podId).printPresentations("PresentationService::changeCurrentPresentation bef");
       var newPres:Presentation = podManager.getPod(podId).getPresentation(presentationId);
       if (newPres != null) {
         LOGGER.debug("Making presentation [{0}] the  active presentation.", [presentationId]);
         newPres.current = true;
 
+
+        podManager.getPod(podId).printPresentations("PresentationService::changeCurrentPresentation aft");
 
         var event: PresentationChangedEvent = new PresentationChangedEvent(podId, presentationId);
         dispatcher.dispatchEvent(event);
@@ -136,29 +141,38 @@ package org.bigbluebutton.modules.present.services
           dispatcher.dispatchEvent(changePageCommand);
         }
       } else {
-        LOGGER.debug("Could not find presentation to make current. id="+presentationId);
+        LOGGER.warn("Could not find presentation to make current. id="+presentationId);
       }
     }
+	
+	public function setPresentationDownloadable(podId: String, presentationId:String, downloadable:Boolean):void {
+		var presentation:Presentation = podManager.getPod(podId).getPresentation(presentationId);
+		if (presentation) {
+			presentation.downloadable = downloadable;
+		} else {
+			LOGGER.warn("Could not find presentation to set downloadable. id="+presentationId);
+		}
+	}
     
-    public function removeAllPresentations():void {
-//      model.removeAllPresentations();
+    public function removeAllPresentations(podId: String):void {
+      podManager.getPod(podId).removeAllPresentations();
     }
     
-	public function removePresentation(presentationID:String):void {
-//		var removedEvent:RemovePresentationEvent = new RemovePresentationEvent(RemovePresentationEvent.PRESENTATION_REMOVED_EVENT);
-//		removedEvent.presentationName = presentationID;
-//		dispatcher.dispatchEvent(removedEvent);
-//		
-//		var currPresentation:Presentation = model.getCurrentPresentation();
-//		
-//		if(currPresentation && presentationID == currPresentation.id) {
-//			var uploadEvent:UploadEvent = new UploadEvent(UploadEvent.CLEAR_PRESENTATION);
-//			dispatcher.dispatchEvent(uploadEvent);
-//		}
-//		
-//		model.removePresentation(presentationID);
-//		var updateEvent:RemovePresentationEvent = new RemovePresentationEvent(RemovePresentationEvent.UPDATE_DOWNLOADABLE_FILES_EVENT);
-//		dispatcher.dispatchEvent(updateEvent); // this event will trigger the disabling of the download button.
+	public function presentationWasRemoved(podId: String, presentationID:String):void {
+		var removedEvent:RemovePresentationEvent = new RemovePresentationEvent(RemovePresentationEvent.PRESENTATION_REMOVED_EVENT, podId);
+		removedEvent.presentationName = presentationID;
+		dispatcher.dispatchEvent(removedEvent);
+
+		var currPresentation:Presentation = podManager.getPod(podId).getCurrentPresentation();
+
+		if(currPresentation && presentationID == currPresentation.id) {
+			var uploadEvent:UploadEvent = new UploadEvent(UploadEvent.CLEAR_PRESENTATION, podId);
+			dispatcher.dispatchEvent(uploadEvent);
+		}
+
+		podManager.getPod(podId).removePresentation(presentationID);
+		var updateEvent:RemovePresentationEvent = new RemovePresentationEvent(RemovePresentationEvent.UPDATE_DOWNLOADABLE_FILES_EVENT, podId);
+		dispatcher.dispatchEvent(updateEvent); // this event will trigger the disabling of the download button.
 	}
   }
 }

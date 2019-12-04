@@ -1,26 +1,26 @@
 /**
-* BigBlueButton open source conferencing system - http://www.bigbluebutton.org/
-* 
-* Copyright (c) 2016 BigBlueButton Inc. and by respective authors (see below).
-*
-* This program is free software; you can redistribute it and/or modify it under the
-* terms of the GNU Lesser General Public License as published by the Free Software
-* Foundation; either version 3.0 of the License, or (at your option) any later
-* version.
-* 
-* BigBlueButton is distributed in the hope that it will be useful, but WITHOUT ANY
-* WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
-* PARTICULAR PURPOSE. See the GNU Lesser General Public License for more details.
-*
-* You should have received a copy of the GNU Lesser General Public License along
-* with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
-*
-*/
+ * BigBlueButton open source conferencing system - http://www.bigbluebutton.org/
+ *
+ * Copyright (c) 2016 BigBlueButton Inc. and by respective authors (see below).
+ *
+ * This program is free software; you can redistribute it and/or modify it under the
+ * terms of the GNU Lesser General Public License as published by the Free Software
+ * Foundation; either version 3.0 of the License, or (at your option) any later
+ * version.
+ *
+ * BigBlueButton is distributed in the hope that it will be useful, but WITHOUT ANY
+ * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
+ * PARTICULAR PURPOSE. See the GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License along
+ * with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
+ *
+ */
 package org.bigbluebutton.app.screenshare.server.sessions
 
-import akka.actor.{Actor, ActorLogging, Props}
+import akka.actor.{ Actor, ActorLogging, Props }
 import org.bigbluebutton.app.screenshare.StreamInfo
-import org.bigbluebutton.app.screenshare.server.sessions.Session.{KeepAliveTimeout, SessionAuditMessage}
+import org.bigbluebutton.app.screenshare.server.sessions.Session.{ KeepAliveTimeout, SessionAuditMessage }
 import org.bigbluebutton.app.screenshare.server.util.TimeUtil
 import org.bigbluebutton.app.screenshare.server.sessions.messages._
 import org.bigbluebutton.app.screenshare.events._
@@ -29,7 +29,7 @@ import scala.concurrent.duration._
 
 object Session {
   def props(parent: Screenshare, bus: IEventsMessageBus, meetingId: String, streamId: String, token: String,
-            recorded: Boolean, userId: String): Props = Props(classOf[Session], parent, bus, meetingId,
+    recorded: Boolean, userId: String): Props = Props(classOf[Session], parent, bus, meetingId,
     streamId, token, recorded, userId)
 
   case object StartSession
@@ -38,16 +38,16 @@ object Session {
   case class KeepAliveTimeout(streamId: String, stopSharing: Boolean)
 }
 
-class Session(parent: Screenshare,
-              bus: IEventsMessageBus,
-              val meetingId: String,
-              val streamId: String,
-              val token: String,
-              val recorded: Boolean,
-              val userId: String) extends Actor with ActorLogging {
+class Session(
+  parent: Screenshare,
+  bus: IEventsMessageBus,
+  val meetingId: String,
+  val streamId: String,
+  val token: String,
+  val recorded: Boolean,
+  val userId: String) extends Actor with ActorLogging {
 
   log.info("Creating of new Session streamId=[" + streamId + "]")
-
 
   private var width: Option[Int] = None
   private var height: Option[Int] = None
@@ -60,7 +60,7 @@ class Session(parent: Screenshare,
   private val LAST_STATUS_UPDATE_TIMEOUT = 20
   private var lastStatusUpdate = 0L
 
-  private var sessionStartedTimestamp:Long = TimeUtil.currentMonoTimeInSeconds()
+  private var sessionStartedTimestamp: Long = TimeUtil.currentMonoTimeInSeconds()
   private val SESSION_START_TIMEOUT = 60
 
   // The last time we received a pong response from the client.
@@ -90,7 +90,7 @@ class Session(parent: Screenshare,
     case msg: UserDisconnected => handleUserDisconnected(msg)
     case msg: ScreenShareInfoRequest => handleScreenShareInfoRequest(msg)
     case SessionAuditMessage => handleSessionAuditMessage()
-    case msg: ClientPongMessage           => handleClientPongMessage(msg)
+    case msg: ClientPongMessage => handleClientPongMessage(msg)
     case m: Any => log.warning("Session: Unknown message [%s]", m)
   }
 
@@ -143,7 +143,6 @@ class Session(parent: Screenshare,
     streamUrl = None
     bus.send(new ScreenShareStoppedEvent(meetingId, streamId, "NORMAL"))
   }
-
 
   private def handleSharingStartedMessage(msg: SharingStartedMessage) {
     if (log.isDebugEnabled) {

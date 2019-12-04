@@ -2,8 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { defineMessages } from 'react-intl';
 import Icon from '/imports/ui/components/icon/component';
-import styles from './styles';
-
+import { styles } from './styles';
 
 const messages = defineMessages({
   presenter: {
@@ -31,29 +30,32 @@ const messages = defineMessages({
     description: 'aria label for each user in the userlist',
   },
 });
+
 const propTypes = {
   user: PropTypes.shape({
     name: PropTypes.string.isRequired,
-    isPresenter: PropTypes.bool.isRequired,
-    isVoiceUser: PropTypes.bool.isRequired,
-    isModerator: PropTypes.bool.isRequired,
-    image: PropTypes.string,
   }).isRequired,
   compact: PropTypes.bool.isRequired,
   intl: PropTypes.shape({
     formatMessage: PropTypes.func.isRequired,
   }).isRequired,
-  meeting: PropTypes.shape({}).isRequired,
-  isMeetingLocked: PropTypes.func.isRequired,
+  isThisMeetingLocked: PropTypes.bool.isRequired,
+  isMe: PropTypes.func.isRequired,
+  userAriaLabel: PropTypes.string.isRequired,
+  isActionsOpen: PropTypes.bool.isRequired,
 };
+
+const ROLE_MODERATOR = Meteor.settings.public.user.role_moderator;
 
 const UserName = (props) => {
   const {
-    user,
     intl,
     compact,
-    isMeetingLocked,
-    meeting,
+    isThisMeetingLocked,
+    userAriaLabel,
+    isActionsOpen,
+    isMe,
+    user,
   } = props;
 
   if (compact) {
@@ -66,29 +68,41 @@ const UserName = (props) => {
     return null;
   }
 
-  if (isMeetingLocked(meeting.meetingId) && user.isLocked) {
-    userNameSub.push(<span>
-      <Icon iconName="lock" />
-      {intl.formatMessage(messages.locked)}
-    </span>);
+  if (isThisMeetingLocked && user.locked && user.role !== ROLE_MODERATOR) {
+    userNameSub.push(
+      <span>
+        <Icon iconName="lock" />
+        {intl.formatMessage(messages.locked)}
+      </span>,
+    );
   }
 
-  if (user.isGuest) {
+  if (user.guest) {
     userNameSub.push(intl.formatMessage(messages.guest));
   }
 
-
   return (
-    <div className={styles.userName}>
+    <div
+      className={styles.userName}
+      role="button"
+      aria-label={userAriaLabel}
+      aria-expanded={isActionsOpen}
+    >
       <span className={styles.userNameMain}>
-        {user.name} <i>{(user.isCurrent) ? `(${intl.formatMessage(messages.you)})` : ''}</i>
+        <span>
+          {user.name}
+&nbsp;
+        </span>
+        <i>{(isMe(user.userId)) ? `(${intl.formatMessage(messages.you)})` : ''}</i>
       </span>
       {
-        userNameSub.length ?
-          <span className={styles.userNameSub}>
-            {userNameSub.reduce((prev, curr) => [prev, ' | ', curr])}
-          </span>
-        : null
+        userNameSub.length
+          ? (
+            <span className={styles.userNameSub}>
+              {userNameSub.reduce((prev, curr) => [prev, ' | ', curr])}
+            </span>
+          )
+          : null
       }
     </div>
   );

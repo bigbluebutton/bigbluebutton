@@ -21,15 +21,12 @@ package org.bigbluebutton.modules.present.events
 {
 
 import flash.events.Event;
-import flash.net.FileReference;
 
     public class RequestNewPresentationPodEvent extends Event {
         public static const REQUEST_NEW_PRES_POD:String = "REQUEST_NEW_PRES_POD";
 
-        public var requesterId: String;
-
-        public function RequestNewPresentationPodEvent(type:String) {
-            super(type, true, false);
+        public function RequestNewPresentationPodEvent() {
+            super(REQUEST_NEW_PRES_POD, true, false);
         }
 
     }

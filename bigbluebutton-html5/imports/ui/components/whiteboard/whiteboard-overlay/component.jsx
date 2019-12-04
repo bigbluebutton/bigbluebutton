@@ -3,10 +3,9 @@ import PropTypes from 'prop-types';
 import ShapeDrawListener from './shape-draw-listener/component';
 import TextDrawListener from './text-draw-listener/component';
 import PencilDrawListener from './pencil-draw-listener/component';
-import PanZoomDrawListener from './pan-zoom-draw-listener/component';
+import CursorListener from './cursor-listener/component';
 
 export default class WhiteboardOverlay extends Component {
-
   // a function to transform a screen point to svg point
   // accepts and returns a point of type SvgPoint and an svg object
   static coordinateTransform(screenPoint, someSvgObject) {
@@ -48,11 +47,15 @@ export default class WhiteboardOverlay extends Component {
 
   // this function receives an event from the mouse event attached to the window
   // it transforms the coordinate to the main svg coordinate system
-  getTransformedSvgPoint(event) {
-    const svgObject = this.props.getSvgRef();
+  getTransformedSvgPoint(clientX, clientY) {
+    const {
+      getSvgRef,
+    } = this.props;
+
+    const svgObject = getSvgRef();
     const svgPoint = svgObject.createSVGPoint();
-    svgPoint.x = event.clientX;
-    svgPoint.y = event.clientY;
+    svgPoint.x = clientX;
+    svgPoint.y = clientY;
     const transformedSvgPoint = WhiteboardOverlay.coordinateTransform(svgPoint, svgObject);
 
     return transformedSvgPoint;
@@ -60,34 +63,55 @@ export default class WhiteboardOverlay extends Component {
 
   // receives an svg coordinate and changes the values to percentages of the slide's width/height
   svgCoordinateToPercentages(svgPoint) {
+    const {
+      slideWidth,
+      slideHeight,
+    } = this.props;
+
     const point = {
-      x: (svgPoint.x / this.props.slideWidth) * 100,
-      y: (svgPoint.y / this.props.slideHeight) * 100,
+      x: (svgPoint.x / slideWidth) * 100,
+      y: (svgPoint.y / slideHeight) * 100,
     };
 
     return point;
   }
 
   normalizeThickness(thickness) {
-    return (thickness * 100) / this.props.physicalSlideWidth;
+    const {
+      physicalSlideWidth,
+    } = this.props;
+
+    return (thickness * 100) / physicalSlideWidth;
   }
 
   normalizeFont(fontSize) {
-    return (fontSize * 100) / this.props.physicalSlideHeight;
+    const {
+      physicalSlideHeight,
+    } = this.props;
+
+    return (fontSize * 100) / physicalSlideHeight;
   }
 
   generateNewShapeId() {
+    const {
+      userId,
+    } = this.props;
+
     this.count = this.count + 1;
-    this.currentShapeId = `${this.props.userId}-${this.count}-${new Date().getTime()}`;
+    this.currentShapeId = `${userId}-${this.count}-${new Date().getTime()}`;
     return this.currentShapeId;
   }
 
   // this function receives a transformed svg coordinate and checks if it's not out of bounds
   checkIfOutOfBounds(point) {
-    const { viewBoxX, viewBoxY, viewBoxWidth, viewBoxHeight } = this.props;
+    const {
+      viewBoxX,
+      viewBoxY,
+      viewBoxWidth,
+      viewBoxHeight,
+    } = this.props;
 
-    let x = point.x;
-    let y = point.y;
+    let { x, y } = point;
 
     // set this flag to true if either x or y are out of bounds
     let shouldUnselect = false;
@@ -119,15 +143,68 @@ export default class WhiteboardOverlay extends Component {
     };
   }
 
-  render() {
-    const { drawSettings,
+  renderDrawListener(actions) {
+    const {
+      drawSettings,
       userId,
+      whiteboardId,
+      physicalSlideWidth,
+      physicalSlideHeight,
+      slideWidth,
+      slideHeight,
+    } = this.props;
+
+    const { tool } = drawSettings;
+
+    if (tool === 'triangle' || tool === 'rectangle' || tool === 'ellipse' || tool === 'line') {
+      return (
+        <ShapeDrawListener
+          userId={userId}
+          actions={actions}
+          drawSettings={drawSettings}
+          whiteboardId={whiteboardId}
+        />
+      );
+    } if (tool === 'pencil') {
+      return (
+        <PencilDrawListener
+          userId={userId}
+          whiteboardId={whiteboardId}
+          drawSettings={drawSettings}
+          actions={actions}
+          physicalSlideWidth={physicalSlideWidth}
+          physicalSlideHeight={physicalSlideHeight}
+        />
+      );
+    } if (tool === 'text') {
+      return (
+        <TextDrawListener
+          userId={userId}
+          whiteboardId={whiteboardId}
+          drawSettings={drawSettings}
+          actions={actions}
+          slideWidth={slideWidth}
+          slideHeight={slideHeight}
+        />
+      );
+    }
+    return (
+      <span />
+    );
+  }
+
+  render() {
+    const {
       whiteboardId,
       sendAnnotation,
       resetTextShapeSession,
       setTextShapeActiveId,
+      contextMenuHandler,
+      addAnnotationToDiscardedList,
+      undoAnnotation,
+      updateCursor,
     } = this.props;
-    const { tool } = drawSettings;
+
     const actions = {
       getTransformedSvgPoint: this.getTransformedSvgPoint,
       checkIfOutOfBounds: this.checkIfOutOfBounds,
@@ -139,46 +216,19 @@ export default class WhiteboardOverlay extends Component {
       sendAnnotation,
       resetTextShapeSession,
       setTextShapeActiveId,
+      contextMenuHandler,
+      addAnnotationToDiscardedList,
+      undoAnnotation,
     };
 
-    if (tool === 'triangle' || tool === 'rectangle' || tool === 'ellipse' || tool === 'line') {
-      return (
-        <ShapeDrawListener
-          userId={userId}
-          actions={actions}
-          drawSettings={drawSettings}
-          whiteboardId={whiteboardId}
-        />
-      );
-    } else if (tool === 'pencil') {
-      return (
-        <PencilDrawListener
-          userId={userId}
-          whiteboardId={whiteboardId}
-          drawSettings={drawSettings}
-          actions={actions}
-          physicalSlideWidth={this.props.physicalSlideWidth}
-          physicalSlideHeight={this.props.physicalSlideHeight}
-        />
-      );
-    } else if (tool === 'text') {
-      return (
-        <TextDrawListener
-          userId={userId}
-          whiteboardId={whiteboardId}
-          drawSettings={drawSettings}
-          actions={actions}
-          slideWidth={this.props.slideWidth}
-          slideHeight={this.props.slideHeight}
-        />
-      );
-    } else if (tool === 'hand') {
-      return (
-        <PanZoomDrawListener {...this.props} />
-      );
-    }
     return (
-      <span />
+      <CursorListener
+        whiteboardId={whiteboardId}
+        actions={actions}
+        updateCursor={updateCursor}
+      >
+        {this.renderDrawListener(actions)}
+      </CursorListener>
     );
   }
 }
@@ -215,7 +265,7 @@ WhiteboardOverlay.propTypes = {
     // Annotation thickness (not normalized)
     thickness: PropTypes.number.isRequired,
     // The name of the tool currently selected
-    tool: PropTypes.string.isRequired,
+    tool: PropTypes.string,
     // Font size for the text shape
     textFontSize: PropTypes.number.isRequired,
     // Text shape value
@@ -225,4 +275,6 @@ WhiteboardOverlay.propTypes = {
   resetTextShapeSession: PropTypes.func.isRequired,
   // Defines a function that sets a session value for the current active text shape
   setTextShapeActiveId: PropTypes.func.isRequired,
+  // Defines a handler to publish cursor position to the server
+  updateCursor: PropTypes.func.isRequired,
 };

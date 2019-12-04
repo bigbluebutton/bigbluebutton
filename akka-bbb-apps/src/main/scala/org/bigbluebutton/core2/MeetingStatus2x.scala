@@ -2,23 +2,25 @@ package org.bigbluebutton.core2
 
 import java.util.concurrent.TimeUnit
 
-import org.bigbluebutton.core.MeetingExtensionProp
-import org.bigbluebutton.core.api.{ Permissions, Presenter }
+import org.bigbluebutton.core.util.TimeUtil
+
+case class Permissions(
+    disableCam:             Boolean = false,
+    disableMic:             Boolean = false,
+    disablePrivChat:        Boolean = false,
+    disablePubChat:         Boolean = false,
+    disableNote:            Boolean = false,
+    hideUserList:           Boolean = false,
+    lockedLayout:           Boolean = false,
+    lockOnJoin:             Boolean = true,
+    lockOnJoinConfigurable: Boolean = false
+)
+
+case class MeetingExtensionProp(maxExtensions: Int = 2, numExtensions: Int = 0, extendByMinutes: Int = 20,
+                                sendNotice: Boolean = true, sent15MinNotice: Boolean = false,
+                                sent10MinNotice: Boolean = false, sent5MinNotice: Boolean = false)
 
 object MeetingStatus2x {
-  def startRecordingVoice(status: MeetingStatus2x): Boolean = {
-    status.recordingVoice = true
-    status.recordingVoice
-  }
-
-  def stopRecordingVoice(status: MeetingStatus2x): Boolean = {
-    status.recordingVoice = false
-    status.recordingVoice
-  }
-
-  def isVoiceRecording(status: MeetingStatus2x): Boolean = {
-    status.recordingVoice
-  }
 
   def isExtensionAllowed(status: MeetingStatus2x): Boolean = status.extension.numExtensions < status.extension.maxExtensions
   def incNumExtension(status: MeetingStatus2x): Int = {
@@ -39,15 +41,68 @@ object MeetingStatus2x {
   def recordingStarted(status: MeetingStatus2x) = status.recording = true
   def recordingStopped(status: MeetingStatus2x) = status.recording = false
   def isRecording(status: MeetingStatus2x): Boolean = status.recording
-  def setVoiceRecordingFilename(status: MeetingStatus2x, path: String) = status.voiceRecordingFilename = path
-  def getVoiceRecordingFilename(status: MeetingStatus2x): String = status.voiceRecordingFilename
+
+  def authUserHadJoined(status: MeetingStatus2x) = status.authedUserHasJoined = true
+  def hasAuthedUserJoined(status: MeetingStatus2x): Boolean = status.authedUserHasJoined
+
+  def setLastAuthedUserLeftOn(status: MeetingStatus2x) = status.lastAuthedUserLeftOn = TimeUtil.timeNowInMs()
+  def getLastAuthedUserLeftOn(status: MeetingStatus2x): Long = status.lastAuthedUserLeftOn
+  def resetLastAuthedUserLeftOn(status: MeetingStatus2x) = status.lastAuthedUserLeftOn = 0L
+
+  def isVoiceRecording(status: MeetingStatus2x): Boolean = {
+    status.voiceRecordings.values.find(s => s.recording) match {
+      case Some(rec) => true
+      case None      => false
+    }
+  }
+
+  def voiceRecordingStart(status2x: MeetingStatus2x, stream: String): VoiceRecordingStream = {
+    val vrs = new VoiceRecordingStream(stream, recording = false, createdOn = System.currentTimeMillis, ackedOn = None, stoppedOn = None)
+    status2x.voiceRecordings += vrs.stream -> vrs
+    vrs
+  }
+
+  def voiceRecordingStarted(status2x: MeetingStatus2x, stream: String): Option[VoiceRecordingStream] = {
+    val vrs = for {
+      recStream <- status2x.voiceRecordings.values find (s => s.stream == stream)
+    } yield {
+      val rs = recStream.copy(recording = true, ackedOn = Some(System.currentTimeMillis))
+      status2x.voiceRecordings += rs.stream -> rs
+      rs
+    }
+
+    vrs
+  }
+
+  def voiceRecordingStopped(status2x: MeetingStatus2x, stream: String): Option[VoiceRecordingStream] = {
+    val vrs = for {
+      recStream <- status2x.voiceRecordings.values find (s => s.stream == stream)
+    } yield {
+      val rs = recStream.copy(recording = false, stoppedOn = Some(System.currentTimeMillis))
+      status2x.voiceRecordings += rs.stream -> rs
+      rs
+    }
+
+    vrs
+  }
+
+  def getVoiceRecordingStreams(status2x: MeetingStatus2x): Vector[VoiceRecordingStream] = {
+    status2x.voiceRecordings.values.filter(s => s.recording).toVector
+  }
+
+  def setWebcamsOnlyForModerator(status: MeetingStatus2x, value: Boolean) = status.webcamsOnlyForModerator = value
+  def webcamsOnlyForModeratorEnabled(status: MeetingStatus2x): Boolean = status.webcamsOnlyForModerator
   def permisionsInitialized(status: MeetingStatus2x): Boolean = status.permissionsInited
   def initializePermissions(status: MeetingStatus2x) = status.permissionsInited = true
   def audioSettingsInitialized(status: MeetingStatus2x): Boolean = status.audioSettingsInited
   def initializeAudioSettings(status: MeetingStatus2x) = status.audioSettingsInited = true
   def permissionsEqual(status: MeetingStatus2x, other: Permissions): Boolean = status.permissions == other
   def getPermissions(status: MeetingStatus2x): Permissions = status.permissions
-  def setPermissions(status: MeetingStatus2x, p: Permissions) = status.permissions = p
+  def setPermissions(status: MeetingStatus2x, p: Permissions) = {
+    status.permissions = p
+    status.permissionsChangedOn = System.currentTimeMillis()
+  }
+  def getPermissionsChangedOn(status: MeetingStatus2x): Long = status.permissionsChangedOn
   def meetingHasEnded(status: MeetingStatus2x) = status.meetingEnded = true
   def hasMeetingEnded(status: MeetingStatus2x): Boolean = status.meetingEnded
   def timeNowInMinutes(status: MeetingStatus2x): Long = TimeUnit.NANOSECONDS.toMinutes(System.nanoTime())
@@ -56,64 +111,24 @@ object MeetingStatus2x {
 }
 
 class MeetingStatus2x {
+  private var voiceRecordings: collection.immutable.HashMap[String, VoiceRecordingStream] =
+    new collection.immutable.HashMap[String, VoiceRecordingStream]
 
-  private var recordingVoice = false
   private var audioSettingsInited = false
   private var permissionsInited = false
+  private var permissionsChangedOn: Long = System.currentTimeMillis()
   private var permissions = new Permissions()
   private var recording = false
 
-  private var muted = false
   private var meetingEnded = false
   private var meetingMuted = false
 
-  private var voiceRecordingFilename: String = ""
-
   private var extension = new MeetingExtensionProp
 
-  private def startRecordingVoice() {
-    recordingVoice = true
-  }
+  private var webcamsOnlyForModerator = false
 
-  private def stopRecordingVoice() {
-    recordingVoice = false
-  }
-
-  private def isVoiceRecording: Boolean = {
-    recordingVoice
-  }
-
-  private def isExtensionAllowed(): Boolean = extension.numExtensions < extension.maxExtensions
-  private def incNumExtension(): Int = {
-    if (extension.numExtensions < extension.maxExtensions) {
-      extension = extension.copy(numExtensions = extension.numExtensions + 1); extension.numExtensions
-    }
-    extension.numExtensions
-  }
-
-  private def notice15MinutesSent() = extension = extension.copy(sent15MinNotice = true)
-  private def notice10MinutesSent() = extension = extension.copy(sent10MinNotice = true)
-  private def notice5MinutesSent() = extension = extension.copy(sent5MinNotice = true)
-
-  private def getMeetingExtensionProp(): MeetingExtensionProp = extension
-  private def muteMeeting() = meetingMuted = true
-  private def unmuteMeeting() = meetingMuted = false
-  private def isMeetingMuted(): Boolean = meetingMuted
-  private def recordingStarted() = recording = true
-  private def recordingStopped() = recording = false
-  private def isRecording(): Boolean = recording
-
-  private def setVoiceRecordingFilename(path: String) = voiceRecordingFilename = path
-  private def getVoiceRecordingFilename(): String = voiceRecordingFilename
-  private def permisionsInitialized(): Boolean = permissionsInited
-  private def initializePermissions() = permissionsInited = true
-  private def audioSettingsInitialized(): Boolean = audioSettingsInited
-  private def initializeAudioSettings() = audioSettingsInited = true
-  private def permissionsEqual(other: Permissions): Boolean = permissions == other
-  private def lockLayout(lock: Boolean) = permissions = permissions.copy(lockedLayout = lock)
-  private def getPermissions(): Permissions = permissions
-  private def setPermissions(p: Permissions) = permissions = p
-  private def meetingHasEnded() = meetingEnded = true
-  private def hasMeetingEnded(): Boolean = meetingEnded
-
+  private var authedUserHasJoined = false
+  private var lastAuthedUserLeftOn = 0L
 }
+
+case class VoiceRecordingStream(stream: String, recording: Boolean, createdOn: Long, ackedOn: Option[Long], stoppedOn: Option[Long])

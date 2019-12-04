@@ -1,0 +1,149 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+
+  Licensed to the Apache Software Foundation (ASF) under one or more
+  contributor license agreements.  See the NOTICE file distributed with
+  this work for additional information regarding copyright ownership.
+  The ASF licenses this file to You under the Apache License, Version 2.0
+  (the "License"); you may not use this file except in compliance with
+  the License.  You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+
+-->
+
+
+<!--- The default skin class for a Spark SkinnablePopUpContainer container.  
+
+    @see spark.components.SkinnablePopUpContainer
+    
+    @langversion 3.0
+    @playerversion Flash 10
+    @playerversion AIR 2.5
+    @productversion Flex 4.5
+-->
+<s:Skin xmlns:fx="http://ns.adobe.com/mxml/2009" xmlns:s="library://ns.adobe.com/flex/spark" 
+        xmlns:fb="http://ns.adobe.com/flashbuilder/2009"
+		minWidth="131" minHeight="30" alpha.disabled="0.5">
+	<fx:Metadata>[HostComponent("org.bigbluebutton.air.main.views.MobilePopUp")]</fx:Metadata>
+    
+    <fx:Script fb:purpose="styling">
+        <![CDATA[         
+			import spark.components.Application;
+            /**
+             *  @private
+             */
+            override protected function updateDisplayList(unscaledWidth:Number, unscaledHeight:Number) : void
+            {
+                // Push backgroundColor and backgroundAlpha directly.
+                // Handle undefined backgroundColor by hiding the background object.
+                if (isNaN(getStyle("backgroundColor")))
+                {
+                    background.visible = false;
+                }
+                else
+                {
+                    background.visible = true;
+					
+					background.bottomLeftRadiusX = getStyle("cornerRadius");
+					background.bottomRightRadiusX = getStyle("cornerRadius");
+					background.topLeftRadiusX = getStyle("cornerRadius");
+					background.topRightRadiusX = getStyle("cornerRadius");
+					
+                    bgFill.color = getStyle("backgroundColor");
+                    bgFill.alpha = getStyle("backgroundAlpha");
+                }
+                
+				separator.visible = separator.includeInLayout = controlBarGroup.numElements > 0;
+				
+                super.updateDisplayList(unscaledWidth, unscaledHeight);
+            }
+        ]]>        
+    </fx:Script>
+    
+    <s:states>
+        <s:State name="normal"/>
+        <s:State name="disabled"/>
+        <s:State name="closed" stateGroups="closedGroup"/>
+        <s:State name="disabledAndClosed" stateGroups="closedGroup"/>
+    </s:states>
+    
+    <!-- Transitions for open and close -->
+    <s:transitions>
+        <s:Transition fromState="closed" toState="normal" autoReverse="true">
+            <s:Fade duration="150" target="{chrome}"/>
+        </s:Transition>
+
+        <s:Transition fromState="disabledAndClosed" toState="disabled" autoReverse="true">
+            <s:Fade duration="150" target="{chrome}"/>
+        </s:Transition>
+        
+        <s:Transition fromState="normal" toState="closed" autoReverse="true">
+            <s:Fade duration="150" target="{chrome}"/>
+        </s:Transition>
+
+        <s:Transition fromState="disabled" toState="disabledAndClosed" autoReverse="true">
+            <s:Fade duration="150" target="{chrome}"/>
+        </s:Transition>
+    </s:transitions>
+        
+	<!--- Defines the appearance of the SkinnablePopUpContainer class's background. -->
+	<s:Rect id="background" left="0" right="0" top="0" bottom="0">
+		<s:fill>
+			<!--- @private -->
+			<s:SolidColor id="bgFill" color="#FFFFFF" alpha="0.9"/>
+		</s:fill>
+	</s:Rect>
+	
+    <!--- Defines the background and content group used by this skin. -->
+    <s:Group id="chrome" left="0" right="0" top="0" bottom="0" visible.closedGroup="false">
+
+		<s:layout>
+			<s:VerticalLayout gap="5" paddingTop="5" horizontalAlign="center"/>
+		</s:layout>
+		
+		<s:Label id="titleDisplay" maxDisplayedLines="0" left="10" right="10"
+				 minHeight="30" verticalAlign="middle"
+				 textAlign="center" fontWeight="bold"/>
+
+		<s:Label id="textDisplay" maxDisplayedLines="0"
+				 left="10" right="10" maxWidth="{Application(parentApplication).width * 0.8}" textAlign="center"
+				 paddingLeft="10" paddingRight="10" paddingBottom="10"/>
+		
+        <!--
+        Note: Setting the minimum size to 0 here so that changes to the host component's
+        size will not be thwarted by this skin part's minimum size.   This is a compromise,
+        more about it here: http://bugs.adobe.com/jira/browse/SDK-21143
+        -->
+		<s:Scroller width="100%" height="100%" id="scroller">
+			<!--- @copy spark.components.SkinnableContainer#contentGroup -->
+			<s:Group id="contentGroup" width="100%" height="100%" minWidth="0" minHeight="0">
+				<s:layout>
+					<s:BasicLayout/>
+				</s:layout>
+			</s:Group>
+		</s:Scroller>
+		
+		<s:VGroup gap="0" width="100%">
+			<s:Line width="100%" id="separator">
+				<s:stroke>
+					<s:SolidColorStroke color="{getStyle('separatorColor')}" weight="1"/>
+				</s:stroke>
+			</s:Line>
+			<s:Group id="controlBarGroup" width="100%">
+				<s:layout>
+					<s:HorizontalLayout paddingLeft="0" paddingRight="0" paddingTop="0"
+										paddingBottom="0" gap="0" horizontalAlign="center"/>
+				</s:layout>
+				
+			</s:Group>
+		</s:VGroup>
+    </s:Group>
+    
+</s:Skin>

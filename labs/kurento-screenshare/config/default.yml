@@ -1,8 +1,0 @@
-kurentoUrl: "KURENTOURL"
-kurentoIp: "KURENTOIP"
-localIpAddress: "HOST"
-acceptSelfSignedCertificate: false
-redisHost : "127.0.0.1"
-redisPort : "6379"
-minVideoPort: 30000
-maxVideoPort: 33000

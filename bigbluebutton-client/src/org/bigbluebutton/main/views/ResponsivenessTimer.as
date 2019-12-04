@@ -2,6 +2,7 @@ package org.bigbluebutton.main.views
 {
   import flash.events.TimerEvent;
   import flash.utils.Timer;
+  
   import org.as3commons.logging.api.ILogger;
   import org.as3commons.logging.api.getClassLogger;
   import org.bigbluebutton.core.UsersUtil;
@@ -41,7 +42,7 @@ package org.bigbluebutton.main.views
         var logData:Object = UsersUtil.initLogData();
         logData.tags = ["responsiveness"];
         logData.freezeSec = timeDiff / 1000; 
-        logData.message = "Flash client unresponsive.";
+        logData.logCode = "flash_client_unresponsive";
         LOGGER.info(JSON.stringify(logData));
       }
       

@@ -1,0 +1,17 @@
+@import "/imports/ui/stylesheets/variables/_all";
+
+.separator {
+  height: 1px;
+  background-color: var(--color-gray-lighter);
+  margin-top: calc(var(--line-height-computed) * .5);
+  margin-bottom: calc(var(--line-height-computed) * .5);
+}
+
+.branding {
+  padding: 0 var(--sm-padding-x);
+  width: 100%;
+  & > img {
+    max-height: 2rem;
+    max-width: 100%;
+  }
+}

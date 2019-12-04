@@ -14,4 +14,3 @@ cp build/libs/ffmpeg-windows-x86_64-0.0.1.jar ../../unsigned-jars/ffmpeg-win-x86
 ant sign-jar
 cp build/libs/ffmpeg-windows-x86_64-0.0.1.jar ../../../../app/jws/lib/ffmpeg-win-x86_64-svc2.jar
 rm -rf src
-

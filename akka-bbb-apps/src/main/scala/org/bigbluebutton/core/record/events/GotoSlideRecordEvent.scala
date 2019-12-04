@@ -24,6 +24,10 @@ class GotoSlideRecordEvent extends AbstractPresentationRecordEvent {
 
   setEvent("GotoSlideEvent")
 
+  def setPresentationName(name: String) {
+    eventMap.put(PRES_NAME, name)
+  }
+
   def setSlide(slide: Integer) {
     /*
      * Subtract 1 from the page number to be zero-based to be
@@ -38,6 +42,7 @@ class GotoSlideRecordEvent extends AbstractPresentationRecordEvent {
 }
 
 object GotoSlideRecordEvent {
+  protected final val PRES_NAME = "presentationName"
   protected final val SLIDE = "slide"
   protected final val ID = "id"
 }

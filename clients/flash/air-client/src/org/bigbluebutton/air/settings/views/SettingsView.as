@@ -1,11 +1,10 @@
 package org.bigbluebutton.air.settings.views {
+	import org.bigbluebutton.air.common.views.NoTabView;
+	import org.bigbluebutton.air.main.views.TopToolbarBase;
+	
 	import spark.components.Scroller;
 	import spark.layouts.HorizontalAlign;
 	import spark.layouts.VerticalLayout;
-	
-	import org.bigbluebutton.air.common.views.NoTabView;
-	import org.bigbluebutton.air.main.views.TopToolbarAIR;
-	import org.bigbluebutton.lib.settings.views.SettingsViewBase;
 	
 	public class SettingsView extends NoTabView {
 		private var _settingsView:SettingsViewBase;
@@ -29,7 +28,7 @@ package org.bigbluebutton.air.settings.views {
 			addElement(scroller);
 		}
 		
-		override protected function createToolbar():TopToolbarAIR {
+		override protected function createToolbar():TopToolbarBase {
 			return new TopToolbarSettings();
 		}
 	}

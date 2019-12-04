@@ -39,6 +39,7 @@ import org.red5.server.messaging.OOBControlMessage;
 import org.red5.server.messaging.PipeConnectionEvent;
 import org.red5.server.net.rtmp.event.IRTMPEvent;
 import org.red5.server.net.rtmp.event.Notify;
+import org.red5.server.stream.AbstractStream;
 import org.red5.server.stream.message.RTMPMessage;
 import org.slf4j.Logger;
 import org.red5.server.api.stream.IStreamPacket;;
@@ -54,7 +55,11 @@ public class AudioBroadcastStream implements IBroadcastStream, IProvider, IPipeC
 	// Codec handling stuff for frame dropping
 	private StreamCodecInfo streamCodecInfo;
 	private Long creationTime;
-  
+	/**
+	 * Timestamp the stream was started.
+	 */
+	private Long startTime;
+
 	public AudioBroadcastStream(String name) {
 		publishedStreamName = name;
 		livePipe = null;
@@ -137,6 +142,8 @@ public class AudioBroadcastStream implements IBroadcastStream, IProvider, IPipeC
 
 	public void start() {
 		log.debug("Starting AudioBroadcastStream()");
+		creationTime = System.currentTimeMillis();
+		startTime = creationTime;
 	}
 
 	public void stop() {
@@ -146,6 +153,7 @@ public class AudioBroadcastStream implements IBroadcastStream, IProvider, IPipeC
 	public void onOOBControlMessage(IMessageComponent source, IPipe pipe, OOBControlMessage oobCtrlMsg) {
 		log.trace("onOOBControlMessage");
 	}
+
 
 	public void onPipeConnectionEvent(PipeConnectionEvent event) {
 		log.trace("onPipeConnectionEvent(event:{})", event);
@@ -204,5 +212,9 @@ public class AudioBroadcastStream implements IBroadcastStream, IProvider, IPipeC
 
 	public long getCreationTime() {
 		return creationTime != null ? creationTime : 0L;
+	}
+
+	public long getStartTime() {
+		return startTime != null ? startTime : 0L;
 	}
 }

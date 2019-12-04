@@ -1,9 +1,9 @@
-import React, { Component } from 'react';
-import BaseMenu from '../base/component';
-import styles from '../styles.scss';
-import { defineMessages, injectIntl } from 'react-intl';
+import React from 'react';
 import Toggle from '/imports/ui/components/switch/component';
 import cx from 'classnames';
+import { defineMessages, injectIntl } from 'react-intl';
+import BaseMenu from '../base/component';
+import { styles } from '../styles';
 
 const intlMessages = defineMessages({
   videoSectionTitle: {
@@ -58,10 +58,11 @@ class VideoMenu extends BaseMenu {
                 className={styles.formElement}
                 aria-label={intl.formatMessage(intlMessages.videoSourceLabel)}
               >
-                <label className={cx(styles.label, styles.labelSmall)}>
+                <label htmlFor="videoSourceSelect" className={cx(styles.label, styles.labelSmall)}>
                   {intl.formatMessage(intlMessages.videoSourceLabel)}
                 </label>
                 <select
+                  id="videoSourceSelect"
                   defaultValue="-1"
                   className={styles.select}
                 >
@@ -76,10 +77,11 @@ class VideoMenu extends BaseMenu {
                 className={styles.formElement}
                 aria-label={intl.formatMessage(intlMessages.videoQualityLabel)}
               >
-                <label className={cx(styles.label, styles.labelSmall)}>
+                <label htmlFor="videoSelectQuality" className={cx(styles.label, styles.labelSmall)}>
                   {intl.formatMessage(intlMessages.videoQualityLabel)}
                 </label>
                 <select
+                  id="videoSelectQuality"
                   defaultValue="-1"
                   className={styles.select}
                 >
@@ -93,9 +95,9 @@ class VideoMenu extends BaseMenu {
           <div className={styles.row}>
             <div className={styles.col}>
               <div className={styles.formElement}>
-                <label className={styles.label}>
+                <div className={styles.label}>
                   {intl.formatMessage(intlMessages.participantsCamLabel)}
-                </label>
+                </div>
               </div>
             </div>
             <div className={styles.col}>

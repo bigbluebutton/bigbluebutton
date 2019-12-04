@@ -2,15 +2,17 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import AnnotationFactory from '../annotation-factory/component';
 
-const AnnotationGroup = ({ ...props }) => (
+const AnnotationGroup = props => (
   <AnnotationFactory
     annotationsInfo={props.annotationsInfo}
     slideWidth={props.slideWidth}
     slideHeight={props.slideHeight}
+    whiteboardId={props.whiteboardId}
   />
 );
 
 AnnotationGroup.propTypes = {
+  whiteboardId: PropTypes.string.isRequired,
   // initial width and height of the slide are required
   // to calculate the coordinates for each annotation
   slideWidth: PropTypes.number.isRequired,

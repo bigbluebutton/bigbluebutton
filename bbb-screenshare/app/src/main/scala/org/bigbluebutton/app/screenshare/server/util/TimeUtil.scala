@@ -4,11 +4,11 @@ import java.util.concurrent.TimeUnit
 
 object TimeUtil {
 
-  def generateTimestamp():Long = {
+  def generateTimestamp(): Long = {
     TimeUnit.NANOSECONDS.toMillis(System.nanoTime())
   }
- 
-  def getCurrentMonoTime():Long = {
+
+  def getCurrentMonoTime(): Long = {
     TimeUnit.NANOSECONDS.toMillis(System.nanoTime())
   }
 
@@ -20,7 +20,7 @@ object TimeUtil {
     millisToSeconds(getCurrentMonoTime())
   }
 
-  def getCurrentTime():Long = {
+  def getCurrentTime(): Long = {
     System.currentTimeMillis();
   }
 }

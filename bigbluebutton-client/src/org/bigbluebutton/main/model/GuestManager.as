@@ -30,7 +30,7 @@ package org.bigbluebutton.main.model
 		private var guest:Guest;
 		private var dispatcher:Dispatcher;
 
-		function GuestManager() {
+		public function GuestManager() {
 			this.dispatcher = new Dispatcher();
 			this.guest = new Guest();
 		}

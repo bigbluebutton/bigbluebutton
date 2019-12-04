@@ -1,0 +1,6 @@
+@import "../../stylesheets/variables/_all";
+
+:root {
+  --video-height: calc((100vh - calc(var(--navbar-height) + var(--actionsbar-height))) * 0.2);
+  --video-ratio: calc(4 / 3);
+}

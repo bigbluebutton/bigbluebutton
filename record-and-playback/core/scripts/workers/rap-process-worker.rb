@@ -26,47 +26,50 @@ module BigBlueButton
 
       def perform
         super do
-          @logger.info("Running process worker for #{@meeting_id}/#{@format_name}")
+          @logger.info("Running process worker for #{@full_id}:#{@format_name}")
 
           script = File.expand_path("../../process/#{@format_name}.rb", __FILE__)
-          if File.exists?(script)
-            @publisher.put_publish_started(@publish_type, @meeting_id)
-
-            self.remove_status_files
+          if File.exist?(script)
+            remove_status_files
 
             @publisher.put_process_started(@format_name, @meeting_id)
 
             # If the process directory exists, the script does nothing
-            FileUtils.rm_rf("#{@recording_dir}/process/#{@format_name}/#{@meeting_id}")
+            FileUtils.rm_rf("#{@recording_dir}/process/#{@format_name}/#{@full_id}")
 
-            ret, step_time = self.run_script(script, "-m", @meeting_id)
+            if @break_timestamp.nil?
+              ret, step_time = run_script(script, '-m', @meeting_id)
+            else
+              ret, step_time = run_script(script, '-m', @meeting_id, '-b', @break_timestamp)
+            end
+
             step_succeeded = (
-              ret == 0 &&
-              File.exists?(@processed_done) && !File.exists?(@processed_fail)
+              ret.zero? &&
+              File.exist?(@processed_done) && !File.exist?(@processed_fail)
             )
 
             @publisher.put_process_ended(
               @format_name, @meeting_id, {
-                "success" => step_succeeded,
-                "step_time" => step_time
+                success: step_succeeded,
+                step_time: step_time,
               })
 
             if step_succeeded
-              @logger.info("Process format succeeded for #{@meeting_id}/#{@format_name}")
+              @logger.info("Process format succeeded for #{@full_id}:#{@format_name}")
               @logger.info("Process took #{step_time}ms")
 
-              FileUtils.mkdir_p("#{@recording_dir}/process/#{@format_name}/#{@meeting_id}")
-              IO.write("#{@recording_dir}/process/#{@format_name}/#{@meeting_id}/processing_time", step_time)
+              FileUtils.mkdir_p("#{@recording_dir}/process/#{@format_name}/#{@full_id}")
+              IO.write("#{@recording_dir}/process/#{@format_name}/#{@full_id}/processing_time", step_time)
 
-              self.run_post_scripts(@post_scripts_path)
+              run_post_scripts(@post_scripts_path)
             else
-              @logger.info("Process format failed for #{@meeting_id}/#{@format_name}")
+              @logger.info("Process format failed for #{@full_id}:#{@format_name}")
               @logger.info("Process took #{step_time}ms")
               FileUtils.touch(@processed_fail)
             end
 
           else
-            @logger.warn("Processed recording found for #{@meeting_id}/#{@format_name}, but no process script exists")
+            @logger.warn("Processed recording found for #{@full_id}:#{@format_name}, but no process script exists")
             step_succeeded = true
           end
 
@@ -81,8 +84,8 @@ module BigBlueButton
 
       def initialize(opts)
         super(opts)
-        @step_name = "process"
-        @format_name = opts["format_name"]
+        @step_name = 'process'
+        @format_name = opts['format_name']
         @post_scripts_path = File.expand_path('../../post_process', __FILE__)
         @processed_done = "#{@recording_dir}/status/processed/#{@meeting_id}-#{@format_name}.done"
         @processed_fail = "#{@recording_dir}/status/processed/#{@meeting_id}-#{@format_name}.fail"

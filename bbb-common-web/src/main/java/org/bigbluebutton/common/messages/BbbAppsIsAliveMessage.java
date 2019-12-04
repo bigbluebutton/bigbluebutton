@@ -21,7 +21,7 @@ public class BbbAppsIsAliveMessage {
 	}
 
 	public String toJson() {
-		HashMap<String, Object> payload = new HashMap<String, Object>();
+		HashMap<String, Object> payload = new HashMap<>();
 		payload.put(TIMESTAMP, timestamp);
 		payload.put(STARTED_ON, timestamp);
 		

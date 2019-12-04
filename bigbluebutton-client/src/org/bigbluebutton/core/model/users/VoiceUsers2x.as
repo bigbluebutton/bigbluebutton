@@ -7,8 +7,18 @@ package org.bigbluebutton.core.model.users
     
     private var _users:ArrayCollection = new ArrayCollection();
     
-    public function add(user: VoiceUser2x):void {
-      _users.addItem(user);
+    public function getVoiceUsers(): ArrayCollection {
+      return new ArrayCollection(_users.toArray());
+    }
+    
+    public function add(nuser: VoiceUser2x):void {
+      var index:int = getIndex(nuser.intId);
+      if (index != -1) {
+        // replace this user with the new user
+        _users.setItemAt(nuser, index);
+      } else {
+        _users.addItem(nuser);
+      }
     }
     
     public function remove(userId: String):VoiceUser2x {
@@ -59,7 +69,7 @@ package org.bigbluebutton.core.model.users
       
       return -1;
     }
-       
+    
     public function getVoiceOnlyUsers():Array {
       var temp: Array = new Array();
       for (var i:int = 0; i < _users.length; i++) {

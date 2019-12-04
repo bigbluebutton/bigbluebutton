@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:ItemRenderer xmlns:fx="http://ns.adobe.com/mxml/2009"
+				xmlns:s="library://ns.adobe.com/flex/spark"
+				xmlns:mx="library://ns.adobe.com/flex/mx"
+				autoDrawBackground="true"
+				width="100%">
+
+	<fx:Script>
+		<![CDATA[
+			override protected function updateDisplayList(unscaledWidth:Number, unscaledHeight:Number):void {
+				super.updateDisplayList(unscaledWidth, unscaledHeight);
+				
+				labelField.setStyle('paddingTop', getStyle('padding'));
+				labelField.setStyle('paddingBottom', getStyle('padding'));
+				labelField.setStyle('paddingLeft', getStyle('padding'));
+				labelField.setStyle('fontSize', getStyle('fontSize'));
+			}
+			
+			override public function set data(value:Object):void {
+				super.data = value;
+				
+				if (value != null) {
+					labelField.text = value.name;
+				} else {
+					labelField.text = "";
+				}
+			}
+		]]>
+	</fx:Script>
+
+	<s:Label id="labelField"
+			 width="100%" />
+
+</s:ItemRenderer>

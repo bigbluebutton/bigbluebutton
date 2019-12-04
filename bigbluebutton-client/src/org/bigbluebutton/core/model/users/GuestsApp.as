@@ -11,9 +11,27 @@ package org.bigbluebutton.core.model.users
     private var _guests:ArrayCollection = new ArrayCollection();
     
     public function getGuests(): Array {
-      return new ArrayCollection(_guests.toArray()).toArray();
+      var guests: Array = new Array();
+      for (var i:int = 0; i < _guests.length; i++) {
+        var user:GuestWaiting = _guests.getItemAt(i) as GuestWaiting;
+        if (user.guest) {
+          guests.push(user);
+        }
+      }
+      return guests;
     }
-    
+
+    public function getAuthenticatedGuests(): Array {
+      var guests: Array = new Array();
+      for (var i:int = 0; i < _guests.length; i++) {
+        var user:GuestWaiting = _guests.getItemAt(i) as GuestWaiting;
+        if (user.authenticated) {
+           guests.push(user);
+        }
+      }
+      return guests;
+    }
+
     public function add(user: GuestWaiting):void {
       _guests.addItem(user);
     }

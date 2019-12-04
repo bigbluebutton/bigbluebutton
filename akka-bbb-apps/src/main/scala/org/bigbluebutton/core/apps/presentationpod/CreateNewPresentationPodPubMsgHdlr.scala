@@ -1,40 +1,43 @@
 package org.bigbluebutton.core.apps.presentationpod
 
 import org.bigbluebutton.common2.msgs._
+import org.bigbluebutton.core.apps.{ PermissionCheck, RightsManagementTrait }
 import org.bigbluebutton.core.bus.MessageBus
 import org.bigbluebutton.core.domain.MeetingState2x
+import org.bigbluebutton.core.models.PresentationPod
 import org.bigbluebutton.core.running.LiveMeeting
+import org.bigbluebutton.core2.message.senders.MsgBuilder
 
-trait CreateNewPresentationPodPubMsgHdlr {
+trait CreateNewPresentationPodPubMsgHdlr extends RightsManagementTrait {
   this: PresentationPodHdlrs =>
 
   def handle(msg: CreateNewPresentationPodPubMsg, state: MeetingState2x,
              liveMeeting: LiveMeeting, bus: MessageBus): MeetingState2x = {
 
-    def buildCreateNewPresentationPodEvtMsg(meetingId: String, ownerId: String, podId: String): BbbCommonEnvCoreMsg = {
-      val routing = Routing.addMsgToClientRouting(MessageTypes.BROADCAST_TO_MEETING, meetingId, ownerId)
-      val envelope = BbbCoreEnvelope(CreateNewPresentationPodEvtMsg.NAME, routing)
-      val header = BbbClientMsgHeader(CreateNewPresentationPodEvtMsg.NAME, meetingId, ownerId)
+    if (permissionFailed(
+      PermissionCheck.MOD_LEVEL,
+      PermissionCheck.VIEWER_LEVEL, liveMeeting.users2x, msg.header.userId
+    )) {
+      val meetingId = liveMeeting.props.meetingProp.intId
+      val reason = "No permission to create new presentation pod."
+      PermissionCheck.ejectUserForFailedPermission(meetingId, msg.header.userId, reason, bus.outGW, liveMeeting)
+      state
+    } else {
 
-      val body = CreateNewPresentationPodEvtMsgBody(ownerId, podId)
-      val event = CreateNewPresentationPodEvtMsg(header, body)
+      val resultPod: PresentationPod = PresentationPodsApp.createPresentationPod(msg.header.userId)
 
-      BbbCommonEnvCoreMsg(envelope, event)
+      val respMsg = MsgBuilder.buildCreateNewPresentationPodEvtMsg(
+        liveMeeting.props.meetingProp.intId,
+        resultPod.currentPresenter,
+        resultPod.id,
+        msg.header.userId
+      )
+      bus.outGW.send(respMsg)
+
+      val pods = state.presentationPodManager.addPod(resultPod)
+
+      state.update(pods)
     }
-
-    val ownerId = msg.body.ownerId
-    val pod = PresentationPodsApp.createPresentationPod(ownerId)
-    val respMsg = buildCreateNewPresentationPodEvtMsg(
-      liveMeeting.props.meetingProp.intId,
-      ownerId, pod.id
-    )
-    bus.outGW.send(respMsg)
-
-    val pods = state.presentationPodManager.addPod(pod)
-
-    log.warning("_____ pres pod add, after:" + pods.getNumberOfPods())
-
-    state.update(pods)
 
   }
 }

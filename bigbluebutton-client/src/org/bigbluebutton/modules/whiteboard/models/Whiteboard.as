@@ -8,6 +8,7 @@ package org.bigbluebutton.modules.whiteboard.models
     private var _historyLoaded:Boolean = false;
     private var _annotations:ArrayCollection = new ArrayCollection();
     private var _annotationsMap:Object = new Object();
+    private var _multiUser:Boolean = false;
     
     public function Whiteboard(id:String) {
       _id = id;
@@ -23,6 +24,14 @@ package org.bigbluebutton.modules.whiteboard.models
     
     public function set historyLoaded(v:Boolean):void {
       _historyLoaded = v;
+    }
+    
+    public function get multiUser():Boolean {
+      return _multiUser;
+    }
+    
+    public function set multiUser(v:Boolean):void {
+      _multiUser = v;
     }
     
     public function addAnnotation(annotation:Annotation):void {

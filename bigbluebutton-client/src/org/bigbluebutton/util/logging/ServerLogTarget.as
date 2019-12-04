@@ -24,7 +24,6 @@ package org.bigbluebutton.util.logging
 	import flash.net.URLLoader;
 	import flash.net.URLRequest;
 	import flash.net.URLRequestMethod;
-	import flash.net.URLVariables;
 	import flash.utils.Timer;
 
 	import org.as3commons.lang.ArrayUtils;
@@ -79,7 +78,7 @@ package org.bigbluebutton.util.logging
 		{
 			var userId:String = UsersUtil.getMyUserID();
 			var meetingId:String = UsersUtil.getInternalMeetingID();
-			name = userId + " " + meetingId + " " + name;
+			name = userId + " " + meetingId; // + " " + name;
 			var formattedMessage:String=_formatter.format(name, shortName, level, timeStamp, message, parameters, person);
 
 			// check if contains info from config field

@@ -2,9 +2,10 @@ package org.bigbluebutton.core.apps.sharednotes
 
 import org.bigbluebutton.common2.msgs._
 import org.bigbluebutton.core.bus.MessageBus
-import org.bigbluebutton.core.running.{ LiveMeeting }
+import org.bigbluebutton.core.running.LiveMeeting
+import org.bigbluebutton.core.apps.{ PermissionCheck, RightsManagementTrait }
 
-trait DestroySharedNoteReqMsgHdlr {
+trait DestroySharedNoteReqMsgHdlr extends RightsManagementTrait {
   this: SharedNotesApp2x =>
 
   def handle(msg: DestroySharedNoteReqMsg, liveMeeting: LiveMeeting, bus: MessageBus): Unit = {
@@ -20,7 +21,13 @@ trait DestroySharedNoteReqMsgHdlr {
       bus.outGW.send(msgEvent)
     }
 
-    val isNotesLimit = liveMeeting.notesModel.destroyNote(msg.body.noteId)
-    broadcastEvent(msg, isNotesLimit)
+    if (permissionFailed(PermissionCheck.MOD_LEVEL, PermissionCheck.VIEWER_LEVEL, liveMeeting.users2x, msg.header.userId)) {
+      val meetingId = liveMeeting.props.meetingProp.intId
+      val reason = "No permission to destory shared note."
+      PermissionCheck.ejectUserForFailedPermission(meetingId, msg.header.userId, reason, bus.outGW, liveMeeting)
+    } else {
+      val isNotesLimit = liveMeeting.notesModel.destroyNote(msg.body.noteId)
+      broadcastEvent(msg, isNotesLimit)
+    }
   }
 }

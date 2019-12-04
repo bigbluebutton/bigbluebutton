@@ -101,7 +101,7 @@ You must have the BigBlueButton mobile client installed on your device for this 
 
 <%
 	} else if (joinURL.startsWith("https://")) {
-		joinURL = joinURL.replace("https", "bigbluebutton");
+		joinURL = joinURL.replace("https", "bigbluebuttons");
 %>
 
 <script language="javascript" type="text/javascript">

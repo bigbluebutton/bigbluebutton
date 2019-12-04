@@ -1,8 +1,8 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { createContainer } from 'meteor/react-meteor-data';
-import PresentationOverlayService from './service';
+import { withTracker } from 'meteor/react-meteor-data';
 import PresentationOverlay from './component';
+import WhiteboardToolbarService from '../../whiteboard/whiteboard-toolbar/service';
 
 const PresentationOverlayContainer = ({ children, ...rest }) => (
   <PresentationOverlay {...rest}>
@@ -10,9 +10,14 @@ const PresentationOverlayContainer = ({ children, ...rest }) => (
   </PresentationOverlay>
 );
 
-export default createContainer(() => ({
-  updateCursor: PresentationOverlayService.updateCursor,
-}), PresentationOverlayContainer);
+export default withTracker(() => {
+  const drawSettings = WhiteboardToolbarService.getCurrentDrawSettings();
+  const tool = drawSettings ? drawSettings.whiteboardAnnotationTool : '';
+
+  return {
+    annotationTool: tool,
+  };
+})(PresentationOverlayContainer);
 
 PresentationOverlayContainer.propTypes = {
   children: PropTypes.node,

@@ -20,22 +20,24 @@ case class GroupChats(chats: collection.immutable.Map[String, GroupChat]) {
   def findAllPublicChats(): Vector[GroupChat] = chats.values.toVector filter (c => c.access == GroupChatAccess.PUBLIC)
   def findAllPrivateChatsForUser(id: String) = chats.values.toVector filter (c =>
     c.access == GroupChatAccess.PRIVATE && c.isUserMemberOf(id))
+  def getAllGroupChatsInMeeting(): Vector[GroupChat] = chats.values.toVector
 }
 
 case class GroupChat(id: String, name: String, access: String, createdBy: GroupChatUser,
                      users: Vector[GroupChatUser],
                      msgs:  Vector[GroupChatMessage]) {
+  def findMsgWithId(id: String): Option[GroupChatMessage] = msgs.find(m => m.id == id)
   def add(user: GroupChatUser): GroupChat = copy(users = users :+ user)
   def remove(userId: String): GroupChat = copy(users = users.filterNot(u => u.id == userId))
   def add(msg: GroupChatMessage): GroupChat = copy(msgs = msgs :+ msg)
   def delete(msgId: String): GroupChat = copy(msgs = msgs.filterNot(m => m.id == msgId))
   def update(msg: GroupChatMessage): GroupChat = add(msg)
-  def isUserMemberOf(userId: String): Boolean = users.contains(userId)
+  def isUserMemberOf(userId: String): Boolean = users.find(p => p.id == userId).isDefined
+  def clearMessages(): GroupChat = copy(msgs = Vector())
 }
 
 case class GroupChatMessage(id: String, timestamp: Long, correlationId: String, createdOn: Long,
-                            updatedOn: Long, sender: GroupChatUser,
-                            font: String, size: Int, color: String, message: String)
+                            updatedOn: Long, sender: GroupChatUser, color: String, message: String)
 
 case class GroupChatWindow(windowId: String, chatIds: Vector[String], keepOpen: Boolean, openedBy: String) {
 

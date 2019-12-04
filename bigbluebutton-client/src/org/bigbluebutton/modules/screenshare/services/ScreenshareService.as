@@ -18,8 +18,6 @@
  */
 package org.bigbluebutton.modules.screenshare.services {
     import com.asfusion.mate.events.Dispatcher;
-    
-    import flash.net.NetConnection;
     import org.as3commons.logging.api.ILogger;
     import org.as3commons.logging.api.getClassLogger;
     import org.bigbluebutton.core.UsersUtil;
@@ -39,9 +37,7 @@ package org.bigbluebutton.modules.screenshare.services {
         
         private var module:ScreenshareModule;
         private var dispatcher:Dispatcher;
-        
-        private var uri:String;
-        private var room:String;
+
         private var sender:MessageSender;
         private var receiver:MessageReceiver;
         
@@ -52,19 +48,13 @@ package org.bigbluebutton.modules.screenshare.services {
         public function handleStartModuleEvent(module:ScreenshareModule):void {
             LOGGER.debug("Screenshare Module starting");
             this.module = module;
-            connect(module.uri, module.getRoom());
+            connect();
         }
         
-        public function connect(uri:String, room:String):void {
-            this.uri = uri;
-            this.room = room;
-            LOGGER.debug("Screenshare Service connecting to " + uri);
-            conn = new Connection(room);
-            
+        public function connect():void {
+            conn = new Connection();
             sender = new MessageSender(conn);
             receiver = new MessageReceiver(conn);
-            
-            conn.setURI(uri);
             conn.connect();
         }
         
@@ -73,12 +63,14 @@ package org.bigbluebutton.modules.screenshare.services {
         }
         
         public function disconnect():void {
-            conn.disconnect();
+            if (conn) conn.disconnect();
         }
         
         public function checkIfPresenterIsSharingScreen():void {
             LOGGER.debug("check if presenter is sharing screen");
             sender.isScreenSharing(UsersUtil.getInternalMeetingID());
+						// Send a query if webrtc screenshare is being used. (ralam may 17, 2017);
+						sender.queryForScreenshare();
         }
         
         public function requestShareToken():void {

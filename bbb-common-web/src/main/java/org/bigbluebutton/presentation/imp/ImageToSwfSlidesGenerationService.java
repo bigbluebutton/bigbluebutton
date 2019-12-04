@@ -19,6 +19,7 @@
 
 package org.bigbluebutton.presentation.imp;
 
+import java.text.DecimalFormat;
 import java.util.concurrent.Callable;
 import java.util.concurrent.CompletionService;
 import java.util.concurrent.ExecutionException;
@@ -28,8 +29,12 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
-import org.bigbluebutton.presentation.PageConverter;
+
+import org.bigbluebutton.presentation.FileTypeConstants;
+import org.bigbluebutton.presentation.ImageResizer;
 import org.bigbluebutton.presentation.ImageToSwfSlide;
+import org.bigbluebutton.presentation.PageConverter;
+import org.bigbluebutton.presentation.PngCreator;
 import org.bigbluebutton.presentation.SvgImageCreator;
 import org.bigbluebutton.presentation.TextFileCreator;
 import org.bigbluebutton.presentation.ThumbnailCreator;
@@ -48,8 +53,14 @@ public class ImageToSwfSlidesGenerationService {
 	private SvgImageCreator svgImageCreator;
 	private ThumbnailCreator thumbnailCreator;
 	private TextFileCreator textFileCreator;
-	private long MAX_CONVERSION_TIME = 5*60*1000;
+	private PngCreator pngCreator;
+	private ImageResizer imageResizer;
+	private Long maxImageSize;
+	private long MAX_CONVERSION_TIME = 5*60*1000L;
 	private String BLANK_SLIDE;
+	private boolean swfSlidesRequired;
+	private boolean svgImagesRequired;
+	private boolean generatePngs;
 	
 	public ImageToSwfSlidesGenerationService() {
 		int numThreads = Runtime.getRuntime().availableProcessors();
@@ -59,22 +70,31 @@ public class ImageToSwfSlidesGenerationService {
 	
 	public void generateSlides(UploadedPresentation pres) {
 		pres.setNumberOfPages(1); // There should be only one image to convert.
-		if (pres.getNumberOfPages() > 0) {
-			PageConverter pageConverter = determinePageConverter(pres);
-			convertImageToSwf(pres, pageConverter);
-		}
+		 if (swfSlidesRequired) {
+		   if (pres.getNumberOfPages() > 0) {
+	            PageConverter pageConverter = determinePageConverter(pres);
+	            convertImageToSwf(pres, pageConverter);
+	        }
+		 }
 		
 		/* adding accessibility */
 		createTextFiles(pres);
 		createThumbnails(pres);
-		createSvgImages(pres);
+		
+		if (svgImagesRequired) {
+		  createSvgImages(pres);
+		}
+		
+	    if (generatePngs) {
+           createPngImages(pres);
+        }
 		
 		notifier.sendConversionCompletedMessage(pres);
 	}
 	
 	private PageConverter determinePageConverter(UploadedPresentation pres) {
 		String fileType = pres.getFileType().toUpperCase();
-		if (("JPEG".equals(fileType)) || ("JPG".equals(fileType))) {
+		if ((FileTypeConstants.JPEG.equalsIgnoreCase(fileType)) || (FileTypeConstants.JPG.equalsIgnoreCase(fileType))) {
 			return jpgToSwfConverter;
 		}
 		
@@ -99,11 +119,27 @@ public class ImageToSwfSlidesGenerationService {
 		svgImageCreator.createSvgImages(pres);
 	}
 	
+   private void createPngImages(UploadedPresentation pres) {
+        pngCreator.createPng(pres);
+   }
+
 	private void convertImageToSwf(UploadedPresentation pres, PageConverter pageConverter) {
-		int numPages = pres.getNumberOfPages();				
+		int numPages = pres.getNumberOfPages();
+		// A better implementation is described at the link below
+		// https://stackoverflow.com/questions/4513648/how-to-estimate-the-size-of-jpeg-image-which-will-be-scaled-down
+		if (pres.getUploadedFile().length() > maxImageSize) {
+	        DecimalFormat percentFormat= new DecimalFormat("#.##%");
+	        // Resize the image and overwrite it
+            resizeImage(pres, percentFormat
+                    .format(Double.valueOf(maxImageSize) / Double.valueOf(pres.getUploadedFile().length())));
+		}
 		ImageToSwfSlide[] slides = setupSlides(pres, numPages, pageConverter);
 		generateSlides(slides);		
 		handleSlideGenerationResult(pres, slides);		
+	}
+	
+	private void resizeImage(UploadedPresentation pres, String ratio) {
+	    imageResizer.resize(pres, ratio);
 	}
 	
 	private void handleSlideGenerationResult(UploadedPresentation pres, ImageToSwfSlide[] slides) {
@@ -118,14 +154,14 @@ public class ImageToSwfSlidesGenerationService {
 				future = completionService.take();
 				slide = future.get(timeLeft, TimeUnit.MILLISECONDS);
 			} catch (InterruptedException e) {
-				log.error("InterruptedException while creating slide " + pres.getName());
+				log.error("InterruptedException while creating slide {}", pres.getName(), e);
 			} catch (ExecutionException e) {
-				log.error("ExecutionException while creating slide " + pres.getName());
+				log.error("ExecutionException while creating slide {}", pres.getName(), e);
 			} catch (TimeoutException e) {
-				log.error("TimeoutException while converting " + pres.getName());				
+				log.error("TimeoutException while converting {}", pres.getName(), e);
 			} finally {
 				if ((slide != null) && (! slide.isDone())){
-					log.warn("Creating blank slide for " + slide.getPageNumber());
+					log.warn("Creating blank slide for {}", slide.getPageNumber());
 					future.cancel(true);
 					slide.generateBlankSlide();
 				}
@@ -160,7 +196,7 @@ public class ImageToSwfSlidesGenerationService {
 			});
 		}
 	}
-		
+
 	public void setJpgPageConverter(PageConverter converter) {
 		this.jpgToSwfConverter = converter;
 	}
@@ -176,19 +212,44 @@ public class ImageToSwfSlidesGenerationService {
 	public void setThumbnailCreator(ThumbnailCreator thumbnailCreator) {
 		this.thumbnailCreator = thumbnailCreator;
 	}
+
 	public void setTextFileCreator(TextFileCreator textFileCreator) {
 		this.textFileCreator = textFileCreator;
+	}
+
+	public void setPngCreator(PngCreator pngCreator) {
+	  this.pngCreator = pngCreator;
 	}
 	
 	public void setSvgImageCreator(SvgImageCreator svgImageCreator) {
 		this.svgImageCreator = svgImageCreator;
 	}
 	
+	public void setGeneratePngs(boolean generatePngs) {
+	  this.generatePngs = generatePngs;
+	}
+
+	public void setSwfSlidesRequired(boolean swf) {
+	  this.swfSlidesRequired = swf;
+	}
+
+	public void setSvgImagesRequired(boolean svg) {
+	  this.svgImagesRequired = svg;
+	}
+	
 	public void setMaxConversionTime(int minutes) {
-		MAX_CONVERSION_TIME = minutes * 60 * 1000;
+		MAX_CONVERSION_TIME = minutes * 60 * 1000L;
 	}
 	
 	public void setSwfSlidesGenerationProgressNotifier(SwfSlidesGenerationProgressNotifier notifier) {
 		this.notifier = notifier;
+	}
+	
+	public void setImageResizer(ImageResizer imageResizer) {
+	    this.imageResizer = imageResizer;
+	}
+	
+	public void setMaxImageSize(Long maxImageSize) {
+	    this.maxImageSize = maxImageSize;
 	}
 }

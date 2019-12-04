@@ -25,13 +25,14 @@
 	xmlns:mate="http://mate.asfusion.com/"
 	verticalScrollPolicy="off" horizontalScrollPolicy="off"
 	creationComplete="onCreationComplete()" > 
-	
+
 	<fx:Declarations>
 		<mate:Listener type="{UsersRollEvent.USER_ROLL_OVER}" method="onRollOver" />
 		<mate:Listener type="{UsersRollEvent.USER_ROLL_OUT}" method="onRollOut" />
 		<mate:Listener type="{ChangeMyRole.CHANGE_MY_ROLE_EVENT}" method="onChangeMyRole"/>
+		<mate:Listener type="{BBBEvent.CHANGE_WEBCAMS_ONLY_FOR_MODERATOR}" method="onChangeWebcamsOnlyForModerator"/>
 	</fx:Declarations>
-	
+
 	<fx:Script>
 		<![CDATA[
 			import flash.filters.BitmapFilterQuality;
@@ -47,19 +48,29 @@
 			import org.bigbluebutton.core.UsersUtil;
 			import org.bigbluebutton.core.events.LockControlEvent;
 			import org.bigbluebutton.core.events.VoiceConfEvent;
+			import org.bigbluebutton.core.model.LiveMeeting;
+			import org.bigbluebutton.core.model.users.User2x;
 			import org.bigbluebutton.core.vo.LockSettingsVO;
+			import org.bigbluebutton.main.events.BBBEvent;
 			import org.bigbluebutton.main.model.users.events.ChangeMyRole;
 			import org.bigbluebutton.main.model.users.events.ChangeRoleEvent;
 			import org.bigbluebutton.main.model.users.events.KickUserEvent;
+			import org.bigbluebutton.main.model.users.events.LookUpUserEvent;
 			import org.bigbluebutton.modules.users.events.UsersRollEvent;
 			import org.bigbluebutton.modules.users.events.ViewCameraEvent;
 			import org.bigbluebutton.modules.users.model.UsersOptions;
 			import org.bigbluebutton.util.i18n.ResourceUtil;
 			
-			private var moderator:Boolean = false;
 			[Bindable]
 			private var rolledOver:Boolean = false;
 			
+			[Bindable]
+			private var webcamsOnlyForModerator:Boolean;
+
+			private var allowModsToUnmuteUsers:Boolean = false;
+			
+			private var moderator:Boolean = false;
+
 			private var rolledOverMute:Boolean = false;
 			private var rolledOverLock:Boolean = false;
 			
@@ -67,55 +78,74 @@
 			private var lockRolled:Boolean = false;
 			
 			private var options:UsersOptions;
-			private var myMenu:Menu = null;
-			
-      private function onCreationComplete():void{
-        refreshRole(UsersUtil.amIModerator());
-        
-        this.addEventListener(FlexEvent.DATA_CHANGE, dataChangeHandler);
-        
-        BindingUtils.bindSetter(updateButtons, listenOnlyInd, "visible");
-        BindingUtils.bindSetter(updateButtons, voiceJoinedInd, "visible");
-        BindingUtils.bindSetter(updateButtons, muteInd, "visible");
-        BindingUtils.bindSetter(updateButtons, userLockedInd, "visible");
-        BindingUtils.bindSetter(updateButtons, hasStreamInd, "visible");
-        BindingUtils.bindSetter(updateButtons, viewingStreamInd, "visible");
-        
-        options = Options.getOptions(UsersOptions) as UsersOptions;
-      }
+			private var actionsMenu:Menu = null;
+
+			private function onCreationComplete():void {
+				options = Options.getOptions(UsersOptions) as UsersOptions;
+
+				refreshRole(UsersUtil.amIModerator());
+
+				this.addEventListener(FlexEvent.DATA_CHANGE, dataChangeHandler);
+
+				BindingUtils.bindSetter(updateButtons, listenOnlyInd, "visible");
+				BindingUtils.bindSetter(updateButtons, voiceJoinedInd, "visible");
+				BindingUtils.bindSetter(updateButtons, muteInd, "visible");
+				BindingUtils.bindSetter(updateButtons, userLockedInd, "visible");
+				BindingUtils.bindSetter(updateButtons, hasStreamInd, "visible");
+				BindingUtils.bindSetter(updateButtons, viewingStreamInd, "visible");
+
+				allowModsToUnmuteUsers = LiveMeeting.inst().meeting.allowModsToUnmuteUsers;
+			}
+
+			override public function set data(value:Object):void {
+				//reset rolledOver when the data changes because onRollOut wont be called if the row moves
+				if (data == null || value == null || data.userId != value.userId) {
+					rolledOver = false;
+				}
+				
+				super.data = value;
+			}
 			
 			private function dataChangeHandler(e:Event):void {
-				//rest rolledOver when the data changes because onRollOut wont be called if the row moves
 				if (data != null) {
 					updateButtons();
+					validateNow();
 				}
 			}
 			
 			private function onRollOver(e:UsersRollEvent):void{
-				if ((moderator || UsersUtil.isMe(e.userID)) && (e.userID == data.userId)) {
+				if (!rolledOver && e.userID == data.userId) {
 					rolledOver = true;
 					updateButtons();
 				}
 			}
 			
 			private function onRollOut(e:UsersRollEvent):void{
-				if ((moderator || UsersUtil.isMe(e.userID)) && rolledOver) {
+				if (rolledOver) {
 					rolledOver = false;
 					updateButtons();
 				}
 			}
 
 			private function onChangeMyRole(e:ChangeMyRole):void {
-				rolledOver = false;
+				refreshRole(e.role == Role.MODERATOR);
 				updateButtons();
 				// close the menu if it was opened
-				if (myMenu) myMenu.hide();
+				closeActionsMenu();
+			}
+			
+			private function onChangeWebcamsOnlyForModerator(e:BBBEvent):void {
+				webcamsOnlyForModerator = LiveMeeting.inst().meeting.webcamsOnlyForModerator;
 
-				refreshRole(e.role == Role.MODERATOR);
+				if (data != null) {
+					updateButtons();
+				}
 			}
 
 			private function refreshRole(amIModerator:Boolean):void {
-				lockBtn.enabled = settingsBtn.enabled = moderator = amIModerator;
+				moderator = amIModerator;
+				lockBtn.enabled = moderator;
+				settingsBtn.enabled = moderator || options.allowUserLookup;
 			}
 			
 			private function muteMouseOverHandler():void {
@@ -143,6 +173,9 @@
    			}	
 			
 			private function kickUser():void{
+				if (!data.me && !UsersUtil.amIModerator())
+					return;
+				
 				if (data.role == Role.VOICE_ONLY ) {
 					var e:VoiceConfEvent = new VoiceConfEvent(VoiceConfEvent.EJECT_USER);
 					e.userid = data.userId;
@@ -152,14 +185,26 @@
 				}
 			}
 			
+			private function lookUpUser():void {
+				if (options.allowUserLookup) {
+					dispatchEvent(new LookUpUserEvent(data.userId));
+				}
+			}
+
 			private function toggleMuteState():void {
+				if (!data.me && !UsersUtil.amIModerator())
+					return;
+				
 				var e:VoiceConfEvent = new VoiceConfEvent(VoiceConfEvent.MUTE_USER);
 				e.userid = data.userId;
-				e.mute = !data.muted;
+				e.mute = (data.me || allowModsToUnmuteUsers) ? !data.muted : true;
 				dispatchEvent(e);
 			}
 			
 			public function toggleLockState():void {
+				if (!data.me && !UsersUtil.amIModerator())
+					return;
+				
 				var e:LockControlEvent;
 				
 				if(data.locked) {
@@ -171,54 +216,63 @@
 				e.internalUserID = data.userId;
 				dispatchEvent(e);
 			}
-			
+
 			private function updateButtons(voiceMuted:Boolean = false):void {
 				// reset the mute image filter so the talking indicator doesn't stick
 				muteImg.filters = null;
-				
+
 				var ls:LockSettingsVO = UsersUtil.getLockSettings();
+				var amIMod:Boolean = UsersUtil.amIModerator();
 				
 				if (data != null) {
-					settingsBtn.visible = rolledOver && !data.me && !UsersUtil.isBreakout();
-					
+					settingsBtn.visible = rolledOver && !UsersUtil.isBreakout() && ((amIMod && !data.me) || options.allowUserLookup);
+
 					if (!data.inVoiceConf) {
-							muteImg.visible = false;
-							muteImg.includeInLayout = false;
-							muteBtn.visible = false;
-							muteBtn.includeInLayout = true;
+						muteImg.visible = false;
+						muteImg.includeInLayout = false;
+						muteBtn.visible = false;
+						muteBtn.includeInLayout = true;
 					} else {
-            if (data.listenOnly) {
-              muteImg.source = getStyle("iconSound");
-              muteImg.visible = true;
-              muteImg.includeInLayout = true;
-              muteBtn.visible = false;
-              muteBtn.includeInLayout = false;             
-            } else if (data.locked && ls.getDisableMic()) {
+						if (data.listenOnly) {
 							muteImg.visible = true;
 							muteImg.includeInLayout = true;
 							muteBtn.visible = false;
 							muteBtn.includeInLayout = false;
+						} else if (!amIMod && data.locked && ls.getDisableMic()) {
+							muteImg.visible = true;
+							muteImg.includeInLayout = true;
+							muteBtn.visible = false;
+							muteBtn.includeInLayout = false;
+
+							if (data.talking && !rolledOver) {
+								muteImg.filters = [new GlowFilter(getStyle("glowFilterColor"), 1, 6, 6, 2, BitmapFilterQuality.HIGH, false, false)];
+							} else {
+								muteImg.filters = [];
+							}
 						} else {
-							muteImg.visible = !rolledOver;
-							muteImg.includeInLayout = !rolledOver;
-							muteBtn.visible = rolledOver;
-							muteBtn.includeInLayout = rolledOver;
+							// moderators can only unmute users when allowModsToUnmuteUsers is set on create
+							var unmute:Boolean = allowModsToUnmuteUsers && amIMod;
+							var showMuteBtn:Boolean = rolledOver && (data.me || (amIMod && (!data.muted || unmute)));
+							muteImg.visible = !showMuteBtn;
+							muteImg.includeInLayout = !showMuteBtn;
+							muteBtn.visible = showMuteBtn;
+							muteBtn.includeInLayout = showMuteBtn;
 							muteBtn.enabled = true;
 
-							if(data.talking && !rolledOver){
+							if (data.talking && !showMuteBtn) {
 								muteImg.filters = [new GlowFilter(getStyle("glowFilterColor"), 1, 6, 6, 2, BitmapFilterQuality.HIGH, false, false)];
-							}else{
+							} else {
 								muteImg.filters = [];
 							}
 						}
 					}
-					
-					if (data.role == Role.MODERATOR){
+
+					if (data.role == Role.MODERATOR) {
 						lockImg.visible = false;
 						lockImg.includeInLayout = true;
 						lockBtn.visible = false;
 						lockBtn.includeInLayout = false;
-					} else if(moderator && ls.isAnythingLocked()) {
+					} else if (moderator && ls.isAnythingLocked()) {
 						lockImg.visible = !rolledOver;
 						lockImg.includeInLayout = !rolledOver;
 						lockBtn.visible = rolledOver;
@@ -230,51 +284,64 @@
 						lockBtn.visible = false;
 						lockBtn.includeInLayout = false;
 					}
-					
+
 					if (data.hasStream) {
-						// if it's myself or if I'm watching all the streams from the given user, then don't activate the button
-						if (data.me || data.isViewingAllStreams()) {
-							webcamImg.visible = true;
-							webcamImg.includeInLayout = true;
-							webcamBtn.visible = false;
-							webcamBtn.includeInLayout = false;
-						} else {
-							webcamImg.visible = false;
-							webcamImg.includeInLayout = false;
-							webcamBtn.visible = true;
-							webcamBtn.includeInLayout = true;
+						if (!webcamsOnlyForModerator || UsersUtil.amIModerator()) {
+							// if it's myself or if I'm watching all the streams from the given user, then don't activate the button
+							if (data.me || data.isViewingAllStreams()) {
+								webcamImg.visible = webcamImg.includeInLayout = true;
+								webcamBtn.visible = webcamBtn.includeInLayout= false;
+							} else {
+								webcamImg.visible = webcamImg.includeInLayout = false;
+								webcamBtn.visible = webcamBtn.includeInLayout = true;
+							}
+						}
+						else {
+							if (data.me || data.isViewingAllStreams() && data.role == Role.MODERATOR) {
+								webcamImg.visible = webcamImg.includeInLayout = true;
+								webcamBtn.visible = webcamBtn.includeInLayout= false;
+							} else if (data.role != Role.MODERATOR) {
+								webcamImg.visible = false;
+								webcamImg.includeInLayout = true;
+								webcamBtn.visible = webcamBtn.includeInLayout = false;
+							}
+							else {
+								webcamImg.visible = webcamImg.includeInLayout = false;
+								webcamBtn.visible = webcamBtn.includeInLayout = true;
+							}
 						}
 					} else {
 						webcamImg.visible = false;
 						webcamImg.includeInLayout = true;
-						webcamBtn.visible = false;
-						webcamBtn.includeInLayout = false;
+						webcamBtn.visible = webcamBtn.includeInLayout = false;
 					}
 
-					if (!rolledOver) {
+					if (muteImg.visible) {
 						if (data.inVoiceConf) {
-              if (data.listenOnly) {
-                muteImg.source = getStyle("iconSound");
-              } else if (data.muted) {
-                muteImg.source = getStyle("iconAudioMuted");
-              } else {
-                muteImg.source = getStyle("iconAudio");
-              }
+							if (data.listenOnly) {
+								muteImg.source = getStyle("iconSound");
+							} else if (data.muted) {
+								muteImg.source = getStyle("iconAudioMuted");
+							} else {
+								muteImg.source = getStyle("iconAudio");
+							}
 						}
-						
-						
-						if ( data.locked && !data.presenter && ls.isAnythingLocked() ) {
-							lockImg.source = getStyle("iconLock");
-						}
-						else {
-							lockImg.source = null;
-						}
-					} else {
+					}
+
+					if (data.locked && !data.presenter && ls.isAnythingLocked() || (!data.presenter && webcamsOnlyForModerator)) {
 						if (data.muted == rolledOverMute)
 							muteBtn.setStyle("icon", getStyle("iconAudio"));
 						else
 							muteBtn.setStyle("icon", getStyle("iconAudioMuted"));
-						
+					}
+					
+					if (lockImg.visible) {
+						if (data.locked && !data.presenter && ls.isAnythingLocked()) {
+							lockImg.source = getStyle("iconLock");
+						} else {
+							lockImg.source = null;
+						}
+					} else {
 						if (data.locked == rolledOverLock)
 							lockBtn.setStyle("icon", getStyle("iconUnlock"));
 						else
@@ -298,52 +365,66 @@
 
 			private function openSettings():void {
 				if (data != null) {
-					var myMenuData:Array = [];
+					var actionsMenuData:Array = [];
 
-					if (data.role != Role.VOICE_ONLY) {
-						if (data.role == Role.MODERATOR) {
-							myMenuData.push({
-								label: ResourceUtil.getInstance().getString('bbb.users.usersGrid.mediaItemRenderer.demoteUser',[data.name]),
-								icon: getStyle('iconDemote'),
-								callback: demoteUser
-							});
-						} else {
-							myMenuData.push({
-								label: ResourceUtil.getInstance().getString('bbb.users.usersGrid.mediaItemRenderer.promoteUser',[data.name]),
-								icon: getStyle('iconPromote'),
-								callback: promoteUser
+					if (moderator && !data.me) {
+						if (data.role != Role.VOICE_ONLY) {
+							if (data.role == Role.MODERATOR) {
+								actionsMenuData.push({
+									label: ResourceUtil.getInstance().getString('bbb.users.usersGrid.mediaItemRenderer.demoteUser',[data.name]),
+									icon: getStyle('iconDemote'),
+									callback: demoteUser
+								});
+							} else if (!data.guest && data.role == Role.VIEWER){
+								actionsMenuData.push({
+									label: ResourceUtil.getInstance().getString('bbb.users.usersGrid.mediaItemRenderer.promoteUser',[data.name]),
+									icon: getStyle('iconPromote'),
+									callback: promoteUser
+								});
+							}
+						}
+	
+						if (options.allowKickUser) {
+							actionsMenuData.push({
+								label: ResourceUtil.getInstance().getString('bbb.users.usersGrid.mediaItemRenderer.kickUser',[data.name]),
+								icon: getStyle('iconEject'),
+								callback: kickUser
 							});
 						}
 					}
-
-					if (options.allowKickUser) {
-						myMenuData.push({
-							label: ResourceUtil.getInstance().getString('bbb.users.usersGrid.mediaItemRenderer.kickUser',[data.name]),
-							icon: getStyle('iconEject'),
-							callback: kickUser
+					
+					if (options.allowUserLookup) {
+						actionsMenuData.push({
+							label: ResourceUtil.getInstance().getString('bbb.users.usersGrid.mediaItemRenderer.userLookup'),
+							icon: getStyle('iconUserLookUp'),
+							callback: lookUpUser
 						});
 					}
 
 					// make sure the previous menu is closed before opening a new one
 					// This could be improved to include a flag that tells if the menu is open,
 					// but it would require an extra listener for the MenuCloseEvent.
-					if (myMenu) myMenu.hide();
+					closeActionsMenu();
 
-					myMenu = Menu.createMenu(null, myMenuData, true);
-					myMenu.variableRowHeight = true;
+					actionsMenu = Menu.createMenu(null, actionsMenuData, true);
+					actionsMenu.variableRowHeight = true;
 
 					var settingsBtnPos:Point = settingsBtn.localToGlobal(new Point(0,0));
 
-					var myMenuPos:Point = new Point();
-					myMenuPos.x = settingsBtnPos.x + settingsBtn.width;
-					myMenuPos.y = settingsBtnPos.y;
+					var actionsMenuPos:Point = new Point();
+					actionsMenuPos.x = settingsBtnPos.x + settingsBtn.width;
+					actionsMenuPos.y = settingsBtnPos.y;
 
-					myMenu.addEventListener(MenuEvent.ITEM_CLICK, menuClickHandler);
-					myMenu.show(myMenuPos.x, myMenuPos.y);
-					myMenu.setFocus();
+					actionsMenu.addEventListener(MenuEvent.ITEM_CLICK, menuClickHandler);
+					actionsMenu.show(actionsMenuPos.x, actionsMenuPos.y);
+					actionsMenu.setFocus();
 				}
 			}
 
+			private function closeActionsMenu():void{
+				if (actionsMenu) actionsMenu.hide();
+			}
+			
 			private function menuClickHandler(e:MenuEvent):void {
 				e.item.callback();
 			}

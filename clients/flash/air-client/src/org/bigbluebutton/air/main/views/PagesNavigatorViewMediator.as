@@ -29,7 +29,6 @@ package org.bigbluebutton.air.main.views {
 		override public function initialize():void {
 			NativeApplication.nativeApplication.addEventListener(KeyboardEvent.KEY_DOWN, onKeyDown, false, 0, true);
 			uiSession.pageChangedSignal.add(changePage);
-			uiSession.pushPage(PageEnum.MAIN);
 		}
 		
 		private function onKeyDown(event:KeyboardEvent):void {
@@ -43,8 +42,12 @@ package org.bigbluebutton.air.main.views {
 		}
 		
 		protected function changePage(pageName:String, pageRemoved:Boolean = false, animation:int = TransitionAnimationEnum.APPEAR, transition:ViewTransitionBase = null):void {
+			
+			if (pageName == null) {
+				trace("**** pageName == null");
+			}
 			//@fixme pageName is sometimes null, it should never happen
-			trace("PagesNavigatorViewMediator request change page to: " + pageName);
+			trace("***** PagesNavigatorViewMediator request change page to: " + pageName);
 			switch (animation) {
 				case TransitionAnimationEnum.APPEAR:  {
 					var appear:CrossFadeViewTransition = new CrossFadeViewTransition;
@@ -79,6 +82,7 @@ package org.bigbluebutton.air.main.views {
 			} else if (pageRemoved) {
 				view.popView(transition);
 			} else if (pageName != null && pageName != "") {
+				trace("SWITCHING PAGE to " + pageName);
 				view.pushView(PageEnum.getClassfromName(pageName), null, null, transition);
 			}
 		}

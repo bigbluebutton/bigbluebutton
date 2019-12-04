@@ -25,7 +25,7 @@ import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
-
+import java.util.Iterator;
 import org.freeswitch.esl.client.IEslEventListener;
 import org.freeswitch.esl.client.internal.IEslProtocolListener;
 import org.freeswitch.esl.client.transport.CommandResponse;
@@ -461,18 +461,36 @@ public class Client
                                     String eventFunc = eventHeaders.get("Event-Calling-Function");
                                     String uniqueId = eventHeaders.get("Caller-Unique-ID");
                                     String confName = eventHeaders.get("Conference-Name");
+                                    String eventAction = eventHeaders.get("Action");
                                     int confSize = Integer.parseInt(eventHeaders.get("Conference-Size"));
+/**
+                                    StringBuilder sb = new StringBuilder("");
+                                    sb.append("\n");
+                                    for (Iterator it = eventHeaders.entrySet().iterator(); it.hasNext(); ) {
+                                        Map.Entry entry = (Map.Entry)it.next();
+                                        sb.append(entry.getKey());
+                                        sb.append(" => '");
+                                        sb.append(entry.getValue());
+                                        sb.append("'\n");
+                                    }
 
-                                    //FIXME: all by Action eventHeader really.... maybe?
-                                    // But this way we filter whole sections of Action events
-                                    if (eventFunc == null) {
+                                    System.out.println("##### Received Event for " + confName);
+                                    System.out.println("##### " + sb.toString());
+**/
+                                    if (eventFunc == null || eventAction == null) {
                                         //Noop...
+                                    } else if (eventAction.equals("conference-create")) {
+                                        listener.conferenceEventAction(uniqueId, confName, confSize, eventAction, event);
+                                        return;
+                                    } else if (eventAction.equals("conference-destroy")) {
+                                        listener.conferenceEventAction(uniqueId, confName, confSize, eventAction, event);
+                                        return;
                                     } else if (eventFunc.equals("conference_thread_run")) {
-                                    	System.out.println("##### Client conference_thread_run");
+                                        System.out.println("##### Client conference_thread_run");
                                         listener.conferenceEventThreadRun(uniqueId, confName, confSize, event);
                                         return;
                                     } else if (eventFunc.equals("member_add_file_data")) {
-                                    	System.out.println("##### Client member_add_file_data");
+                                        System.out.println("##### Client member_add_file_data");
                                         listener.conferenceEventPlayFile(uniqueId, confName, confSize, event);
                                         return;
                                     } else if (eventFunc.equals("conf_api_sub_transfer") || eventFunc.equals("conference_api_sub_transfer")) {
@@ -480,11 +498,11 @@ public class Client
                                         listener.conferenceEventTransfer(uniqueId, confName, confSize, event);
                                         return;
                                     } else if (eventFunc.equals("conference_add_member") || eventFunc.equals("conference_member_add")) {
-                                    	System.out.println("##### Client conference_add_member");
+                                        System.out.println("##### Client conference_add_member");
                                         listener.conferenceEventJoin(uniqueId, confName, confSize, event);
                                         return;
                                     } else if (eventFunc.equals("conference_del_member") || eventFunc.equals("conference_member_del")) {
-                                    	System.out.println("##### Client conference_del_member");
+                                        System.out.println("##### Client conference_del_member");
                                         listener.conferenceEventLeave(uniqueId, confName, confSize, event);
                                         return;
                                     } else if (eventFunc.equals("conf_api_sub_mute") || eventFunc.equals("conference_api_sub_mute")) {
@@ -494,19 +512,20 @@ public class Client
                                         listener.conferenceEventUnMute(uniqueId, confName, confSize, event);
                                         return;
                                     } else if (eventFunc.equals("conference_record_thread_run")) {
-                                    	System.out.println("##### Client conference_record_thread_run");
+                                        System.out.println("##### Client conference_record_thread_run");
                                         listener.conferenceEventRecord(uniqueId, confName, confSize, event);
                                         return;
                                     } else if (eventFunc.equals("conference_loop_input")) {
-                                        listener.conferenceEventAction(uniqueId, confName, confSize, eventHeaders.get("Action"), event);
+                                        listener.conferenceEventAction(uniqueId, confName, confSize, eventAction, event);
                                         return;
                                     } else if (eventFunc.equals("stop_talking_handler")) {
-                                        listener.conferenceEventAction(uniqueId, confName, confSize, eventHeaders.get("Action"), event);
+                                        listener.conferenceEventAction(uniqueId, confName, confSize, eventAction, event);
                                         return;
-                                    } else {
-                        /*              StringBuilder sb = new StringBuilder("");
+                                    }  else {
+                                        /**
+                                      StringBuilder sb = new StringBuilder("");
                                         sb.append("\n");
-                                        for (Iterator it=eventHeaders.entrySet().iterator(); it.hasNext(); ) {
+                                        for (Iterator it = eventHeaders.entrySet().iterator(); it.hasNext(); ) {
                                             Map.Entry entry = (Map.Entry)it.next();
                                             sb.append(entry.getKey());
                                             sb.append(" => '");
@@ -514,11 +533,11 @@ public class Client
                                             sb.append("'\n");
                                         }
                                         log.info ("Unknown Conference Event [{}] [{}]", confName, sb.toString());
-                         */
+                                        System.out.println("##### unhandled Event for " + confName);
+                                        System.out.println("##### " + sb.toString());
+                                         **/
                                     }
                                 }
-
-
                                 listener.eventReceived( event );
                             } catch ( Throwable t ) {
                                 log.error( "Error caught notifying listener of event [" + event + ']', t );

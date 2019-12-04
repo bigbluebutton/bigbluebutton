@@ -3,17 +3,16 @@ import PropTypes from 'prop-types';
 import AnnotationHelpers from '../helpers';
 
 export default class PencilDrawComponent extends Component {
-
   static getInitialCoordinates(annotation, slideWidth, slideHeight) {
     const { points } = annotation;
     let i = 2;
     let path = '';
     if (points && points.length >= 2) {
       path = `M${(points[0] / 100) * slideWidth
-        }, ${(points[1] / 100) * slideHeight}`;
+      }, ${(points[1] / 100) * slideHeight}`;
       while (i < points.length) {
         path = `${path} L${(points[i] / 100) * slideWidth
-          }, ${(points[i + 1] / 100) * slideHeight}`;
+        }, ${(points[i + 1] / 100) * slideHeight}`;
         i += 2;
       }
     }
@@ -29,7 +28,7 @@ export default class PencilDrawComponent extends Component {
     let j;
     for (i = 0, j = 0; i < commands.length; i += 1) {
       switch (commands[i]) {
-          // MOVE_TO - consumes 1 pair of values
+        // MOVE_TO - consumes 1 pair of values
         case 1:
           path = `${path} M${(points[j] / 100) * slideWidth} ${(points[j + 1] / 100) * slideHeight}`;
           j += 2;
@@ -45,8 +44,8 @@ export default class PencilDrawComponent extends Component {
           // 1st pair is a control point, second is a coordinate
         case 3:
           path = `${path} Q${(points[j] / 100) * slideWidth}, ${
-              (points[j + 1] / 100) * slideHeight}, ${(points[j + 2] / 100) * slideWidth}, ${
-              (points[j + 3] / 100) * slideHeight}`;
+            (points[j + 1] / 100) * slideHeight}, ${(points[j + 2] / 100) * slideWidth}, ${
+            (points[j + 3] / 100) * slideHeight}`;
           j += 4;
           break;
 
@@ -54,9 +53,9 @@ export default class PencilDrawComponent extends Component {
           // 1st and 2nd are control points, 3rd is an end coordinate
         case 4:
           path = `${path} C${(points[j] / 100) * slideWidth}, ${
-              (points[j + 1] / 100) * slideHeight}, ${(points[j + 2] / 100) * slideWidth}, ${
-              (points[j + 3] / 100) * slideHeight}, ${(points[j + 4] / 100) * slideWidth}, ${
-              (points[j + 5] / 100) * slideHeight}`;
+            (points[j + 1] / 100) * slideHeight}, ${(points[j + 2] / 100) * slideWidth}, ${
+            (points[j + 3] / 100) * slideHeight}, ${(points[j + 4] / 100) * slideWidth}, ${
+            (points[j + 5] / 100) * slideHeight}`;
           j += 6;
           break;
 
@@ -97,6 +96,11 @@ export default class PencilDrawComponent extends Component {
   }
 
   getCoordinates(annotation, slideWidth, slideHeight) {
+    if ((!annotation || annotation.points.length === 0)
+        || (annotation.status === 'DRAW_END' && !annotation.commands)) {
+      return undefined;
+    }
+
     let data;
     // Final message, display smoothes coordinates
     if (annotation.status === 'DRAW_END') {
@@ -124,7 +128,7 @@ export default class PencilDrawComponent extends Component {
 
     while (i < points.length) {
       path = `${path} L${(points[i] / 100) * slideWidth
-        }, ${(points[i + 1] / 100) * slideHeight}`;
+      }, ${(points[i + 1] / 100) * slideHeight}`;
       i += 2;
     }
     path = this.path + path;

@@ -24,7 +24,6 @@ package org.bigbluebutton.clientcheck.model
 	import org.bigbluebutton.clientcheck.model.test.DownloadBandwidthTest;
 	import org.bigbluebutton.clientcheck.model.test.FlashVersionTest;
 	import org.bigbluebutton.clientcheck.model.test.IsPepperFlashTest;
-	import org.bigbluebutton.clientcheck.model.test.JavaEnabledTest;
 	import org.bigbluebutton.clientcheck.model.test.LanguageTest;
 	import org.bigbluebutton.clientcheck.model.test.PingTest;
 	import org.bigbluebutton.clientcheck.model.test.ScreenSizeTest;
@@ -42,7 +41,6 @@ package org.bigbluebutton.clientcheck.model
 		private var _flashVersion:FlashVersionTest=new FlashVersionTest;
 		private var _isPepperFlash:IsPepperFlashTest=new IsPepperFlashTest;
 		private var _cookieEnabled:CookieEnabledTest=new CookieEnabledTest;
-		private var _javaEnabled:JavaEnabledTest=new JavaEnabledTest;
 		private var _language:LanguageTest=new LanguageTest;
 		private var _isWebRTCSupported:WebRTCSupportedTest=new WebRTCSupportedTest;
 		private var _webRTCEchoTest:WebRTCEchoTest=new WebRTCEchoTest;
@@ -86,11 +84,6 @@ package org.bigbluebutton.clientcheck.model
 		public function get cookieEnabled():CookieEnabledTest
 		{
 			return _cookieEnabled;
-		}
-
-		public function get javaEnabled():JavaEnabledTest
-		{
-			return _javaEnabled;
 		}
 
 		public function get language():LanguageTest

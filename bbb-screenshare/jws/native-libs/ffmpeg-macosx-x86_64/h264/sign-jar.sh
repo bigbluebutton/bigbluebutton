@@ -13,4 +13,3 @@ cp build/libs/ffmpeg-macosx-x86_64-0.0.1.jar ../../unsigned-jars/ffmpeg-macosx-x
 ant sign-jar
 cp build/libs/ffmpeg-macosx-x86_64-0.0.1.jar ../../../../app/jws/lib/ffmpeg-macosx-x86_64-h264.jar
 rm -rf src
-

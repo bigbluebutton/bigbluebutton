@@ -24,10 +24,7 @@
 	xmlns:fx="http://ns.adobe.com/mxml/2009"
 	xmlns:mate="http://mate.asfusion.com/"
 	creationComplete="onCreationComplete()"
-	verticalScrollPolicy="off" horizontalScrollPolicy="off"
-	verticalAlign="middle"
-	horizontalGap="8"
-	horizontalAlign="center">
+	verticalScrollPolicy="off" horizontalScrollPolicy="off">
 	
 	<fx:Declarations>
 		<mate:Listener type="{UsersRollEvent.USER_ROLL_OVER}" method="onRollOver" />
@@ -87,6 +84,15 @@
   				validateNow();
   			}
   			
+			override public function set data(value:Object):void {
+				//reset rolledOver when the data changes because onRollOut wont be called if the row moves
+				if (data == null || value == null || data.userId != value.userId) {
+					rolledOver = false;
+				}
+				
+				super.data = value;
+			}
+			
   			private function dataChangeHandler(e:Event):void {
   				if (data != null) {
   					updateButtons(); //reassess data state on change
@@ -183,12 +189,15 @@
 			}
 
   			private function roleBtnClicked():void {
-                if (!data.presenter) {
-    				var e:RoleChangeEvent = new RoleChangeEvent(RoleChangeEvent.ASSIGN_PRESENTER);
-    				e.userid = data.userId;
-    				e.username = data.name;
-    				dispatchEvent(e);
-                }
+				if (!data.me && !UsersUtil.amIModerator())
+					return;
+				
+				if (!data.presenter) {
+					var e:RoleChangeEvent = new RoleChangeEvent(RoleChangeEvent.ASSIGN_PRESENTER);
+					e.userid = data.userId;
+					e.username = data.name;
+					dispatchEvent(e);
+				}
         	}
 
 			private function emojiBtnClicked():void {

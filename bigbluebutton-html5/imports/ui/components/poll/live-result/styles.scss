@@ -1,0 +1,165 @@
+@import "/imports/ui/stylesheets/variables/_all";
+
+:root {
+  --poll-stats-border-color: #d4d9df;
+  --poll-stats-option-width: 4em;
+  --poll-stats-element-width: 17%;
+  
+  --poll-sm-margin: 0.3125rem;
+  --poll-user-line-height: 1.75rem;
+  --poll-result-width: 15rem;
+}
+
+.btn {
+  width: 100%;
+  margin-top: var(--sm-padding-y);
+  margin-bottom: var(--sm-padding-y);
+}
+
+.main {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.center {
+  position: relative;
+  flex: 1 1 auto;
+  border-left: 1px solid var(--color-gray-lighter);
+  border-right : none;
+  width: 100%;
+  height: 100%;
+
+  [dir="rtl"] & {
+    border-left: none;
+    border-right: 1px solid var(--color-gray-lighter);
+  }
+}
+
+.left {
+  font-weight: bold;
+  max-width: var(--poll-result-width);
+  min-width: var(--poll-stats-element-width);
+  word-wrap: break-word;
+}
+
+.right {
+  text-align: right;
+  max-width: var(--poll-stats-element-width);
+  min-width: var(--poll-stats-element-width);
+
+  [dir="rtl"] & {
+    text-align: left;
+  }
+}
+
+.left,
+.right,
+.center {
+  padding: var(--sm-padding-y);
+  margin-top: var(--poll-sm-margin);
+  margin-bottom: var(--poll-sm-margin);
+  color: var(--color-text);
+}
+
+.left,
+.right {
+  flex: 0 0 auto;
+  position: relative;
+}
+
+.container,
+.stats {
+  margin-bottom: var(--sm-padding-x);
+}
+
+.stats {
+  display: flex;
+  flex-direction: column;
+  border: 1px solid var(--poll-stats-border-color);
+  border-radius: var(--border-size-large);
+  padding: var(--md-padding-x);
+
+  > div {
+    display: flex;
+    flex-direction: row;
+
+    > div:nth-child(even) {
+      position: relative;
+      height: 75%;
+      width: 50%;
+      text-align: center;
+    }
+
+  }
+}
+
+.barShade {
+  background-color: var(--color-gray-lighter);
+  height: 100%;
+  min-height: 100%;
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  right: 0;
+}
+
+.barVal {
+  position: inherit;
+}
+
+.theading {
+  text-align: left;
+
+  [dir="rtl"] & {
+    text-align: right;
+  }
+}
+
+.resultLeft {
+  padding: 0 .5rem 0 0;
+  border-bottom: 1px solid var(--color-gray-lightest);
+
+  [dir="rtl"] & {
+    padding: 0 0 0 .5rem;
+  }
+}
+
+.resultRight,
+.resultLeft {
+  padding-bottom: .25rem;
+  word-break: break-all;
+}
+
+.status {
+  margin-top: .5rem;
+  margin-bottom: .5rem;
+}
+
+.connectingAnimation {
+  &:after {
+    overflow: hidden;
+    display: inline-block;
+    vertical-align: bottom;
+    content: "\2026"; /* ascii code for the ellipsis character */
+    width: 0;
+    margin: 0 1.25em 0 0;
+
+    [dir="rtl"] & {
+      margin: 0 0 0 1.25em;
+    }
+
+    :global(.animationsEnabled) & {
+      animation: ellipsis steps(4,end) 900ms infinite;
+    }
+  }
+}
+
+@keyframes ellipsis {
+  to {
+    width: 1.25em;
+    margin-right: 0;
+    margin-left: 0;
+  }
+}

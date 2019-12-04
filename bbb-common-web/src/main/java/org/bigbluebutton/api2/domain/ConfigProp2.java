@@ -1,9 +1,9 @@
 package org.bigbluebutton.api2.domain;
 
 
-import org.bigbluebutton.api.domain.Config;
-
 import java.util.Map;
+
+import org.bigbluebutton.api.domain.Config;
 
 public class ConfigProp2 {
     public final String defaultConfigToken;

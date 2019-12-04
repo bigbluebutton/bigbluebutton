@@ -24,6 +24,7 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.io.FilenameUtils;
@@ -40,16 +41,15 @@ import com.zaxxer.nuprocess.NuProcess;
 import com.zaxxer.nuprocess.NuProcessBuilder;
 
 public class Pdf2SwfPageConverter implements PageConverter {
-  private static Logger log = LoggerFactory
-      .getLogger(Pdf2SwfPageConverter.class);
+    private static Logger log = LoggerFactory.getLogger(Pdf2SwfPageConverter.class);
 
-  private String SWFTOOLS_DIR;
-  private String fontsDir;
-  private long placementsThreshold;
-  private long defineTextThreshold;
-  private long imageTagThreshold;
-  private String convTimeout = "7s";
-  private int WAIT_FOR_SEC = 7;
+    private String SWFTOOLS_DIR;
+    private String fontsDir;
+    private long placementsThreshold;
+    private long defineTextThreshold;
+    private long imageTagThreshold;
+    private String convTimeout = "7s";
+    private int WAIT_FOR_SEC = 7;
 
   public boolean convert(File presentation, File output, int page,
       UploadedPresentation pres) {
@@ -63,8 +63,8 @@ public class Pdf2SwfPageConverter implements PageConverter {
     // feature like the pipe
     NuProcessBuilder pb = new NuProcessBuilder(Arrays.asList("timeout",
         convTimeout, "/bin/sh", "-c",
-        SWFTOOLS_DIR + File.separator + "pdf2swf" + " -vv " + AVM2SWF + " -F "
-            + fontsDir + " -p " + String.valueOf(page) + " " + source + " -o "
+        SWFTOOLS_DIR + File.separatorChar + "pdf2swf" + " -vv " + AVM2SWF + " -F "
+            + fontsDir + " -p " + Integer.toString(page) + " " + source + " -o "
             + dest
             + " | egrep  'shape id|Updating font|Drawing' | sed 's/  / /g' | cut -d' ' -f 1-3  | sort | uniq -cw 15"));
 
@@ -77,7 +77,7 @@ public class Pdf2SwfPageConverter implements PageConverter {
     try {
       process.waitFor(WAIT_FOR_SEC, TimeUnit.SECONDS);
     } catch (InterruptedException e) {
-      log.error(e.getMessage());
+      log.error("InterruptedException while creating SWF {}", pres.getName(), e);
     }
 
     long pdf2SwfEnd = System.currentTimeMillis();
@@ -105,7 +105,7 @@ public class Pdf2SwfPageConverter implements PageConverter {
         destFile.delete();
       }
 
-      Map<String, Object> logData = new HashMap<String, Object>();
+      Map<String, Object> logData = new HashMap<>();
       logData.put("meetingId", pres.getMeetingId());
       logData.put("presId", pres.getId());
       logData.put("filename", pres.getName());
@@ -115,29 +115,30 @@ public class Pdf2SwfPageConverter implements PageConverter {
       logData.put("numObjectTags", pHandler.numberOfPlacements());
       logData.put("numTextTags", pHandler.numberOfTextTags());
       logData.put("numImageTags", pHandler.numberOfImageTags());
-      logData.put("message", "Potential problem with generated SWF");
+      logData.put("logCode", "problem_with_generated_swf");
       Gson gson = new Gson();
       String logStr = gson.toJson(logData);
 
-      log.warn("-- analytics -- " + logStr);
+      log.warn(" --analytics-- data={}", logStr);
 
       File tempPng = null;
-      String basePresentationame = FilenameUtils.getBaseName(presentation.getName());
+      String basePresentationame = UUID.randomUUID().toString();
       try {
         tempPng = File.createTempFile(basePresentationame + "-" + page, ".png");
       } catch (IOException ioException) {
         // We should never fall into this if the server is correctly configured
-        logData = new HashMap<String, Object>();
+        logData = new HashMap<>();
         logData.put("meetingId", pres.getMeetingId());
         logData.put("presId", pres.getId());
         logData.put("filename", pres.getName());
-        logData.put("message", "Unable to create temporary files");
+        logData.put("logCode", "failed_to_create_temp_file");
+        logData.put("message", "Unable to create temporary files for pdf to swf.");
         gson = new Gson();
         logStr = gson.toJson(logData);
-        log.error("-- analytics -- " + logStr);
+        log.error(" --analytics-- data={}", logStr, ioException);
       }
 
-      long pdfStart = System.currentTimeMillis();
+      // long pdfStart = System.currentTimeMillis();
 
       // Step 1: Convert a PDF page to PNG using a raw pdftocairo
       NuProcessBuilder pbPng = new NuProcessBuilder(
@@ -153,27 +154,27 @@ public class Pdf2SwfPageConverter implements PageConverter {
       try {
         processPng.waitFor(WAIT_FOR_SEC, TimeUnit.SECONDS);
       } catch (InterruptedException e) {
-        log.error(e.getMessage());
+        log.error("InterruptedException while creating temporary PNG {}", pres.getName(), e);
       }
 
       //long pdfEnd = System.currentTimeMillis();
       //log.debug("pdftocairo conversion duration: {} sec", (pdfEnd - pdfStart) / 1000);
 
-      long png2swfStart = System.currentTimeMillis();
+      // long png2swfStart = System.currentTimeMillis();
 
       // Step 2: Convert a PNG image to SWF
       // We need to update the file path as pdftocairo adds "-page.png"
       source = tempPng.getAbsolutePath();
       NuProcessBuilder pbSwf = new NuProcessBuilder(
           Arrays.asList("timeout", convTimeout,
-              SWFTOOLS_DIR + File.separator + "png2swf", "-o", dest, source));
+              SWFTOOLS_DIR + File.separatorChar + "png2swf", "-o", dest, source));
       Png2SwfPageConverterHandler pSwfHandler = new Png2SwfPageConverterHandler();
       pbSwf.setProcessListener(pSwfHandler);
       NuProcess processSwf = pbSwf.start();
       try {
         processSwf.waitFor(WAIT_FOR_SEC, TimeUnit.SECONDS);
       } catch (InterruptedException e) {
-        log.error(e.getMessage());
+          log.error("InterruptedException while creating SWF {}", pres.getName(), e);
       }
 
       //long png2swfEnd = System.currentTimeMillis();
@@ -187,51 +188,53 @@ public class Pdf2SwfPageConverter implements PageConverter {
 
       long convertEnd = System.currentTimeMillis();
 
-      logData = new HashMap<String, Object>();
+      logData = new HashMap<>();
       logData.put("meetingId", pres.getMeetingId());
       logData.put("presId", pres.getId());
       logData.put("filename", pres.getName());
       logData.put("page", page);
       logData.put("conversionTime(sec)", (convertEnd - convertStart) / 1000);
-      logData.put("message", "Problem page conversion overall duration.");
+      logData.put("logCode", "conversion_took_too_long");
+      logData.put("message", "PDF to SWF conversion took a long time.");
       logStr = gson.toJson(logData);
-      log.info("-- analytics -- " + logStr);
+      log.info(" --analytics-- data={}", logStr);
 
       if (doneSwf && destFile.exists()) {
         return true;
       } else {
-        logData = new HashMap<String, Object>();
+        logData = new HashMap<>();
         logData.put("meetingId", pres.getMeetingId());
         logData.put("presId", pres.getId());
         logData.put("filename", pres.getName());
         logData.put("page", page);
         logData.put("conversionTime(sec)", (convertEnd - convertStart) / 1000);
+        logData.put("logCode", "pdf2swf_conversion_failed");
         logData.put("message", "Failed to convert: " + destFile + " does not exist.");
         logStr = gson.toJson(logData);
-        log.warn("-- analytics -- " + logStr);
+        log.warn(" --analytics-- data={}", logStr);
 
         return false;
       }
     }
   }
 
-  public void setSwfToolsDir(String dir) {
-    SWFTOOLS_DIR = dir;
-  }
+    public void setSwfToolsDir(String dir) {
+        SWFTOOLS_DIR = dir;
+    }
 
-  public void setFontsDir(String dir) {
-    fontsDir = dir;
-  }
+    public void setFontsDir(String dir) {
+        fontsDir = dir;
+    }
 
-  public void setPlacementsThreshold(long threshold) {
-    placementsThreshold = threshold;
-  }
+    public void setPlacementsThreshold(long threshold) {
+        placementsThreshold = threshold;
+    }
 
-  public void setDefineTextThreshold(long threshold) {
-    defineTextThreshold = threshold;
-  }
+    public void setDefineTextThreshold(long threshold) {
+        defineTextThreshold = threshold;
+    }
 
-  public void setImageTagThreshold(long threshold) {
-    imageTagThreshold = threshold;
-  }
+    public void setImageTagThreshold(long threshold) {
+        imageTagThreshold = threshold;
+    }
 }

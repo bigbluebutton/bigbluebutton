@@ -41,6 +41,7 @@ package org.bigbluebutton.modules.users.views.model
     [Bindable] public var userId:String = "UNKNOWN USER";
     [Bindable] public var name:String = "";  
     [Bindable] public var guest:Boolean = false;
+    [Bindable] public var authed:Boolean = false;
     [Bindable] public var locked: Boolean = false;
 
     [Bindable] public var callingWith: String = "";

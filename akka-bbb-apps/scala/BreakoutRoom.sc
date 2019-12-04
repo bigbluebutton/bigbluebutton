@@ -17,7 +17,7 @@ object BreakoutRoom {
                                                   //| pter=com.google.gson.Gso
                                                   //| Output exceeds cutoff limit.
 
-  val string = "{\"payload\":{\"redirectJoinUrl\":\"alink\",\"breakoutMeetingId\":\"4455e780b6f62cd5fcf09367aef62d9bc5108375-1479728671031\",\"noRedirectJoinUrl\":\"http://bbb.riadvice.com/bigbluebutton/api/join?fullName\u003dOpera\u0026isBreakout\u003dtrue\u0026meetingID\u003d4455e780b6f62cd5fcf09367aef62d9bc5108375-1479728671031\u0026password\u003dmp\u0026redirect\u003dfalse\u0026userID\u003d6pt0vfeaxdze_1-1\u0026checksum\u003d51c4a1398b88170c25f1a71521bca604e784ab23\",\"parentMeetingId\":\"183f0bf3a0982a127bdb8161e0c44eb696b3e75c-1479728593178\",\"userId\":\"6pt0vfeaxdze_1\"},\"header\":{\"name\":\"BreakoutRoomJoinURL\",\"version\":\"0.0.1\",\"current_time\":1479728673586,\"timestamp\":8549632}}"
+  val string = "{\"payload\":{\"redirectJoinUrl\":\"alink\",\"breakoutMeetingId\":\"4455e780b6f62cd5fcf09367aef62d9bc5108375-1479728671031\",\"redirectToHtml5JoinUrl\":\"http://bbb.riadvice.com/bigbluebutton/api/join?fullName\u003dOpera\u0026isBreakout\u003dtrue\u0026meetingID\u003d4455e780b6f62cd5fcf09367aef62d9bc5108375-1479728671031\u0026password\u003dmp\u0026redirect\u003dfalse\u0026userID\u003d6pt0vfeaxdze_1-1\u0026checksum\u003d51c4a1398b88170c25f1a71521bca604e784ab23\",\"parentMeetingId\":\"183f0bf3a0982a127bdb8161e0c44eb696b3e75c-1479728593178\",\"userId\":\"6pt0vfeaxdze_1\"},\"header\":{\"name\":\"BreakoutRoomJoinURL\",\"version\":\"0.0.1\",\"current_time\":1479728673586,\"timestamp\":8549632}}"
                                                   //> string  : String = {"payload":{"redirectJoinUrl":"alink","breakoutMeetingId"
                                                   //| :"4455e780b6f62cd5fcf09367aef62d9bc5108375-1479728671031","noRedirectJoinUrl
                                                   //| ":"http://bbb.riadvice.com/bigbluebutton/api/join?fullName=Opera&isBreakout=
@@ -35,5 +35,5 @@ object BreakoutRoom {
   println(brjum.payload.parentMeetingId)          //> 183f0bf3a0982a127bdb8161e0c44eb696b3e75c-1479728593178
   println(brjum.payload.breakoutMeetingId)        //> 4455e780b6f62cd5fcf09367aef62d9bc5108375-1479728671031
   println(brjum.payload.redirectJoinURL)          //> null
-  println(brjum.payload.noRedirectJoinURL)        //> null
+  println(brjum.payload.redirectToHtml5JoinURL)        //> null
 }

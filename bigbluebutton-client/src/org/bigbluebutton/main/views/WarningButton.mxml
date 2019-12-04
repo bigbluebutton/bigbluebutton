@@ -32,6 +32,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		<mate:Listener type="{ClientStatusEvent.SUCCESS_MESSAGE_EVENT}" method="handleSuccessMessageEvent" />
 		<mate:Listener type="{ClientStatusEvent.WARNING_MESSAGE_EVENT}" method="handleWarningMessageEvent" />
 		<mate:Listener type="{ClientStatusEvent.FAIL_MESSAGE_EVENT}" method="handleFailMessageEvent" />
+		<mate:Listener type="{ClientStatusEvent.GLOBAL_EXCEPTION}" method="handleGlobalExceptionEvent" />
 	</fx:Declarations>
 	
 	<fx:Script>
@@ -47,6 +48,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			import org.as3commons.logging.api.ILogger;
 			import org.as3commons.logging.api.getClassLogger;
 			import org.bigbluebutton.core.PopUpUtil;
+			import org.bigbluebutton.main.events.BBBEvent;
 			import org.bigbluebutton.main.events.ClientStatusEvent;
 			import org.bigbluebutton.util.i18n.ResourceUtil;
 			
@@ -76,6 +78,10 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				handleMessageEvent("fail", e);
 			}
 			
+			private function handleGlobalExceptionEvent(e:ClientStatusEvent):void {
+				handleMessageEvent("error", e);
+			}
+			
 			private function handleMessageEvent(type:String, e:ClientStatusEvent):void {
 				var index:Number = getMessageIndex(type, e.title, e.message);
 				var obj:Object;
@@ -87,6 +93,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 						type: type,
 						title: e.title,
 						message: e.message,
+						logCode: e.logCode,
 						occurrences: 1
 					};
 				}
@@ -98,12 +105,14 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				messages.push(obj);
 				showNotification();
 
-				var logData:Object = {};
-				logData.type = "ClientNotification";
-				logData.logCode = e.logCode;
-				logData.message = e.message;
-				logData.title = e.title;
-				LOGGER.warn(JSON.stringify(logData));
+				if (type != "error") {
+					var logData:Object = {};
+					logData.type = "ClientNotification";
+					logData.logCode = e.logCode;
+					logData.message = e.message;
+					logData.title = e.title;
+					LOGGER.warn(JSON.stringify(logData));
+				}
 			}
 			
 			private function showNotification():void {

@@ -7,7 +7,10 @@
 
 .enterActive {
   opacity: 1;
-  transition: opacity 400ms ease-in;
+
+  :global(.animationsEnabled) & {
+    transition: opacity 400ms ease-in;
+  }
 }
 
 .appear {
@@ -16,7 +19,10 @@
 
 .appearActive {
   opacity: 1;
-  transition: opacity 400ms ease-in;
+
+  :global(.animationsEnabled) & {
+    transition: opacity 400ms ease-in;
+  }
 }
 
 .presentationArea {
@@ -25,8 +31,8 @@
   flex-direction: row;
   align-items: center;
   justify-content: center;
-  height: calc(100% - 1px);
-  width:100%;
+  height: 100%;
+  width: 100%;
   overflow: hidden;
   position: relative;
 }
@@ -34,8 +40,24 @@
 .whiteboardSizeAvailable {
   position: absolute;
   height: 100%;
-  width: calc(100% - #{$toolbar-container-width});
+  width: 100%;
   z-index: -1;
+}
+
+.svgContainer{
+  width: 100%;
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+}
+
+.presentationToolbar{
+  display: flex;
+  overflow-x: auto;
+  order: 2;
+  position: absolute;
+  bottom: 0;
 }
 
 .svgStyles {
@@ -58,6 +80,17 @@
 .presentationContainer {
   display: flex;
   flex-direction: column;
-  height: 100%;
-  width: 100%;
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+}
+
+.visuallyHidden {
+  position: absolute;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  height: 1px; width: 1px;
+  margin: -1px; padding: 0; border: 0;
 }

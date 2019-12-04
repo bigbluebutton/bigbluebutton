@@ -20,16 +20,17 @@ package org.bigbluebutton.modules.layout.model {
 	import flash.geom.Rectangle;
 	import flash.utils.getQualifiedClassName;
 	
+	import flexlib.mdi.containers.MDICanvas;
+	import flexlib.mdi.containers.MDIWindow;
+	
 	import mx.effects.Move;
 	import mx.effects.Parallel;
 	import mx.effects.Resize;
 	import mx.events.EffectEvent;
 	
-	import flexlib.mdi.containers.MDICanvas;
-	import flexlib.mdi.containers.MDIWindow;
-	
 	import org.as3commons.logging.api.ILogger;
 	import org.as3commons.logging.api.getClassLogger;
+	import org.bigbluebutton.common.IBbbModuleWindow;
 	import org.bigbluebutton.modules.layout.managers.OrderManager;
 
 	public class WindowLayout {
@@ -139,7 +140,6 @@ package org.bigbluebutton.modules.layout.model {
 			var newX:int = Math.floor(this.x * canvas.width);
 			var newY:int = Math.floor(this.y * canvas.height);
 			var newWindowRect:Rectangle = new Rectangle(newX, newY, newWidth, newHeight);
-			var type:String = getType(window);
 
 			window.visible = !this.hidden;
 
@@ -229,8 +229,8 @@ package org.bigbluebutton.modules.layout.model {
 		}
 		
 		static public function getType(obj:Object):String {
-			if (obj.hasOwnProperty("windowName")) {
-				return obj.windowName;
+			if (obj is IBbbModuleWindow) {
+				return (obj as IBbbModuleWindow).getName();
 			} else {
 				var qualifiedClass:String = String(getQualifiedClassName(obj));
 				var pattern:RegExp = /(\w+)::(\w+)/g;

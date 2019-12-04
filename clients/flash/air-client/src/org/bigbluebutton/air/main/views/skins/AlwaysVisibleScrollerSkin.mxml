@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+
+  Licensed to the Apache Software Foundation (ASF) under one or more
+  contributor license agreements.  See the NOTICE file distributed with
+  this work for additional information regarding copyright ownership.
+  The ASF licenses this file to You under the Apache License, Version 2.0
+  (the "License"); you may not use this file except in compliance with
+  the License.  You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+
+-->
+
+
+<!--
+
+Scroller unconditionally sets its skin's layout to private layout
+implementation that handles the scroll policies.  Scroller skins can
+only provide replacement scrollbars.  The skin's layout and
+constraints or dimensions set on skin parts will not be honored.  To
+gain more control over the layout of a viewport and its scrollbars,
+instead of using Scroller, add them to a Group and use the ScrollBar component's
+viewport property to link them together.
+
+http://flexponential.com/2011/07/30/controlling-scroll-bar-visibility-in-a-mobile-scroller/
+ 
+-->
+
+<!--- The default skin class for the Spark Scroller component. 
+
+     @see spark.components.Scroller
+    
+      @langversion 3.0
+      @playerversion Flash 10
+      @playerversion AIR 1.5
+      @productversion Flex 4
+-->
+<s:SparkSkin xmlns:fx="http://ns.adobe.com/mxml/2009" xmlns:s="library://ns.adobe.com/flex/spark" xmlns:skins="org.bigbluebutton.air.main.views.skins.*">
+
+    <fx:Metadata>
+    <![CDATA[ 
+        /** 
+         * @copy spark.skins.spark.ApplicationSkin#hostComponent
+         */
+        [HostComponent("spark.components.Scroller")]
+    ]]>
+    </fx:Metadata> 
+        
+    <fx:Script>
+    <![CDATA[    
+        /**
+         *  @private
+         */
+        override public function beginHighlightBitmapCapture() : Boolean
+        {
+            var needUpdate:Boolean = super.beginHighlightBitmapCapture();
+            
+            // Draw an opaque rect that fill our entire skin. Our background
+            // is transparent, but we don't want focus/error skins to
+            // poke through.  This is safe to do since we don't have any 
+            // graphic elements as direct children.
+            graphics.beginFill(0);
+            graphics.drawRect(0, 0, width, height);
+            graphics.endFill();
+
+            return needUpdate;
+        }
+        
+        /**
+         *  @private
+         */
+        override public function endHighlightBitmapCapture() : Boolean
+        {
+            var needUpdate:Boolean = super.endHighlightBitmapCapture();
+            
+            // Clear the rect we drew in beginBitmapCapture();
+            graphics.clear();
+
+            return needUpdate;
+        }
+    ]]>
+    </fx:Script>
+    
+    <fx:Declarations>
+        <!---  A vertical scrollbar that lets you control the portion of data that is displayed 
+        when there is too much data to fit vertically in a display area.
+        The Scroller determines whether the vertical ScrollBar is visible. -->
+        <fx:Component id="verticalScrollBarFactory">
+            <skins:AlwaysVisibleVScrollBar visible="true" />
+        </fx:Component>
+        
+        <!---  A horizontal scrollbar that lets you control the portion of data that is displayed 
+        when there is too much data to fit horizontally in a display area.
+        The Scroller determines whether the horizontal ScrollBar is visible. -->
+        <fx:Component  id="horizontalScrollBarFactory">
+            <skins:AlwaysVisibleHScrollBar visible="true" />
+        </fx:Component> 
+
+    </fx:Declarations>
+
+</s:SparkSkin>

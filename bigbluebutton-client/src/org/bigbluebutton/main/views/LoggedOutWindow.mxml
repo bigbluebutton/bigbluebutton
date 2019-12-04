@@ -20,10 +20,18 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
 -->
 
-<mx:TitleWindow xmlns:mx="library://ns.adobe.com/flex/mx" xmlns:fx="http://ns.adobe.com/mxml/2009"
-    title="{ResourceUtil.getInstance().getString('bbb.logout.title')}" showCloseButton="false" creationComplete="init()"
-    verticalScrollPolicy="off" horizontalScrollPolicy="off"
-    x="168" y="86" layout="vertical" width="400" horizontalAlign="center">
+<mx:TitleWindow xmlns:mx="library://ns.adobe.com/flex/mx"
+				xmlns:fx="http://ns.adobe.com/mxml/2009"
+				xmlns:views="org.bigbluebutton.main.views.*"
+				showCloseButton="false"
+				creationComplete="init()"
+				resize="resizeHandler(event)"
+				verticalScrollPolicy="off"
+				horizontalScrollPolicy="off"
+				layout="vertical"
+				y="86"
+				width.logout="400"
+				width.feedback="600">
 	<fx:Script>
 		<![CDATA[
 			import com.asfusion.mate.events.Dispatcher;
@@ -32,30 +40,52 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			import flash.net.URLRequest;
 			import flash.net.URLRequestMethod;
 			
+			import mx.events.ResizeEvent;
+			import mx.managers.PopUpManager;
+			
 			import org.as3commons.logging.api.ILogger;
 			import org.as3commons.logging.api.getClassLogger;
 			import org.bigbluebutton.core.BBB;
+			import org.bigbluebutton.core.Options;
 			import org.bigbluebutton.core.PopUpUtil;
 			import org.bigbluebutton.core.UsersUtil;
 			import org.bigbluebutton.main.events.ExitApplicationEvent;
+			import org.bigbluebutton.main.events.InvalidAuthTokenEvent;
+			import org.bigbluebutton.main.events.MeetingNotFoundEvent;
+			import org.bigbluebutton.main.model.options.LayoutOptions;
 			import org.bigbluebutton.main.model.users.events.ConnectionFailedEvent;
 			import org.bigbluebutton.util.i18n.ResourceUtil;
-			
+
 			private static const LOGGER:ILogger = getClassLogger(LoggedOutWindow);
 
 			[Bindable]
 			private var message:String;
 
 			private var urlLoader:URLLoader;
-
+			private var logoutReason:String;
+			
 			private function init():void {
 				addEventListener(Event.CLOSE, onUserLoggedOutWindowClose);
 			}
 
 			private function callSignOut():void {
+				if (currentState == "feedback" && starRating.rating > 0) {
+					var logData:Object = new Object();
+					logData.username = UsersUtil.getMyUsername();
+					logData.userId = UsersUtil.getMyUserID();
+					logData.meetingId = UsersUtil.getInternalMeetingID();
+					logData.rating = starRating.rating;
+					logData.comment = feedbackMsg.text;
+					logData.reason = logoutReason;
+					logData.extUserId = UsersUtil.getMyExternalUserID();
+					logData.role = UsersUtil.getMyRole();
+					logData.logCode = "user_feedback";
+					LOGGER.info(JSON.stringify(logData));
+				}
+
 				var logoutURL:String = BBB.getSignoutURL();
 				var request:URLRequest = new URLRequest(logoutURL);
-				LOGGER.debug("Log out url: " + logoutURL);
+				
 				request.method = URLRequestMethod.GET;
 				urlLoader = new URLLoader();
 				// If the redirect value is set to false handleComplete will be triggered
@@ -77,23 +107,29 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			private function handleRedirectError(e:IOErrorEvent):void {
 				var logData:Object = UsersUtil.initLogData();
 				logData.tags = ["logout"];
-				logData.message = "Log out redirection returned with error.";
+				logData.logCode = "logout_redirect_returned_error";
 				LOGGER.error(JSON.stringify(logData));
 				PopUpUtil.removePopUp(this);
 				exitApplication();
 			}
 
 			private function onUserLoggedOutWindowClose(e:Event):void {
-				LOGGER.debug("Closing UserLoggedOutWindow");
 				PopUpUtil.removePopUp(this);
 			}
 
 			public function setReason(reason:String):void {
+				logoutReason = reason;
+				
 				var logData:Object = UsersUtil.initLogData();
 				logData.tags = ["connection"];
-				logData.message = "User logged out.";
+				logData.logCode = "user_logged_out_reason_display";
 				logData.reason = reason;
 				LOGGER.info(JSON.stringify(logData));
+
+				var layoutOptions:LayoutOptions = Options.getOptions(LayoutOptions) as LayoutOptions;
+				if (layoutOptions.askForFeedbackOnLogout && !UsersUtil.isBreakout()) {
+					currentState = "feedback";
+				}
 
 				switch (reason) {
 					case ConnectionFailedEvent.APP_SHUTDOWN:
@@ -118,20 +154,85 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 						message = ResourceUtil.getInstance().getString('bbb.logout.unknown');
 						break;
 					case ConnectionFailedEvent.USER_EJECTED_FROM_MEETING:
-						message = ResourceUtil.getInstance().getString('bbb.logout.ejectedFromMeeting');
+						var reasonCode: String = UsersUtil.getEjectReason();
+						if (reasonCode == "duplicate_user_in_meeting_eject_reason") {
+							message = ResourceUtil.getInstance().getString('bbb.logout.duplicateUserEjectReason');
+						} else if (reasonCode == "not_enough_permission_eject_reason") {
+							message = ResourceUtil.getInstance().getString('bbb.logout.permissionEjectReason');
+						} else if (reasonCode == "user_requested_eject_reason") {
+							message = ResourceUtil.getInstance().getString('bbb.logout.ejectedFromMeeting');
+						} else if (reasonCode == "validate_token_failed_eject_reason") {
+							message = ResourceUtil.getInstance().getString('bbb.logout.validateTokenFailedEjectReason');
+						} else if (reasonCode == "user_inactivity_eject_reason") {
+							message = ResourceUtil.getInstance().getString('bbb.logout.userInactivityEjectReason');
+						}
 						break;
 					case ConnectionFailedEvent.USER_LOGGED_OUT:
 						message = ResourceUtil.getInstance().getString('bbb.logout.usercommand');
 						break;
+					case MeetingNotFoundEvent.MEETING_NOT_FOUND:
+						message = ResourceUtil.getInstance().getString('bbb.mainshell.meetingNotFound');
+						break; 
+					case InvalidAuthTokenEvent.INVALID_AUTH_TOKEN:
+						message = ResourceUtil.getInstance().getString('bbb.mainshell.invalidAuthToken')
+						break;  
+					default:
+						message = reason;
 				}
 				if (message && UsersUtil.isBreakout()) {
-					message += "\n" + ResourceUtil.getInstance().getString('bbb.logour.breakoutRoomClose');
+					message += "\n" + ResourceUtil.getInstance().getString('bbb.logout.breakoutRoomClose');
 				}
+			}
+
+			protected function resizeHandler(event:ResizeEvent):void {
+				PopUpManager.centerPopUp(this);
 			}
 		]]>
 	</fx:Script>
-	<mx:VBox width="100%" height="100%" horizontalAlign="center">
-		<mx:Text text="{message}" textAlign="center"/>
-		<mx:Button id="okBtn" label="{ResourceUtil.getInstance().getString('bbb.logout.button.label')}" click="callSignOut()"/>
+
+	<mx:states>
+		<mx:State name="logout" />
+		<mx:State name="feedback" />
+	</mx:states>
+	<mx:VBox width="100%"
+			 height="100%"
+			 styleName="loggedOutContainer"
+			 horizontalAlign="center">
+		<mx:Text text="{message}"
+				 styleName.logout="logoutTitleWindowStyle"
+				 styleName.feedback="logoutTitle" />
+		<mx:VBox id="titleBox"
+				 includeIn="feedback"
+				 styleName="logoutRatingBox">
+			<mx:HRule width="550"
+					  height="30"
+					  styleName="logoutRule" />
+			<mx:Label text="{ResourceUtil.getInstance().getString('bbb.logout.feedback.label')}"
+					  styleName="logoutSubTitle" />
+			<views:StarRating id="starRating" />
+			<mx:VBox width="350"
+					 verticalAlign="middle"
+					 horizontalAlign="center"
+					 visible="{starRating.rating > 0}"
+					 includeInLayout="{starRating.rating > 0}"
+					 styleName="logoutFeedbackHintBoxStyle">
+				<mx:Text width="100%"
+						 textAlign="center"
+						 selectable="false"
+						 text="{ResourceUtil.getInstance().getString('bbb.logout.feedback.hint')}"
+						 styleName="logoutFeedbackHint" />
+				<mx:TextArea id="feedbackMsg"
+							 maxChars="512"
+							 width="100%"
+							 height="90" />
+			</mx:VBox>
+			<mx:HRule width="550"
+					  height="30"
+					  styleName="logoutRule" />
+		</mx:VBox>
+		<mx:Button id="okBtn"
+				   styleName="mainActionButton"
+				   label="{ResourceUtil.getInstance().getString('bbb.logout.button.label')}"
+				   click="callSignOut()" />
 	</mx:VBox>
-</mx:TitleWindow> 
+</mx:TitleWindow>

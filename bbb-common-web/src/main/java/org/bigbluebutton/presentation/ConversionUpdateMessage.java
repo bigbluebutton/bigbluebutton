@@ -92,7 +92,7 @@ public class ConversionUpdateMessage {
 			
 			for (int i = 1; i <= pres.getNumberOfPages(); i++) {
 				Map<String, String> page = new HashMap<String, String>();
-				page.put("num", new Integer(i).toString());
+				page.put("num", Integer.toString(i));
 				page.put("thumb", basePresUrl + "/thumbnail/" + i);
 				page.put("swf", basePresUrl + "/slide/" + i);
 				page.put("text", basePresUrl + "/textfiles/" + i);

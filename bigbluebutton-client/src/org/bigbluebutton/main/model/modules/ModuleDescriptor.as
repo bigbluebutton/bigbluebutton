@@ -38,7 +38,7 @@ package org.bigbluebutton.main.model.modules
 		private static const LOGGER:ILogger = getClassLogger(ModuleDescriptor);      
 
 		private var _attributes:Object;
-		private var _loader:BigBlueButtonModuleLoader;
+		private var _loader:ModuleLoader;
 		private var _module:IBigBlueButtonModule;
 		private var _loaded:Boolean = false;
 		private var _connected:Boolean = false;
@@ -53,7 +53,7 @@ package org.bigbluebutton.main.model.modules
 		{
 			unresolvedDependancies = new ArrayCollection();
 			_attributes = new Object();
-			_loader = new BigBlueButtonModuleLoader();
+			_loader = new ModuleLoader();
 			
 			parseAttributes(attributes);			
 		}
@@ -136,7 +136,8 @@ package org.bigbluebutton.main.model.modules
 			var logData:Object = UsersUtil.initLogData();
 			logData.module = getName();
 			logData.tags = ["loading"];
-			logData.message = "Error loading module ".concat(e.errorText);
+			logData.error = e.errorText;
+			logData.logCode = "error_loading_module";
 			LOGGER.error(JSON.stringify(logData));
 		}
 		
@@ -167,16 +168,16 @@ package org.bigbluebutton.main.model.modules
 				unresolvedDependancies.addItem(dependancies[i]);
 			}
 		}
-		
-		public function loadConfigAttributes(protocol:String):void{
-      var intMeetingId: String = LiveMeeting.inst().meeting.internalId;
-      var userName: String = LiveMeeting.inst().me.name;
-      var role: String = LiveMeeting.inst().me.role;
-      var intUserId: String = LiveMeeting.inst().me.id;
-      var voiceConf: String = LiveMeeting.inst().meeting.voiceConf;
-      var welcome: String = LiveMeeting.inst().me.welcome;
-      var extUserId: String = LiveMeeting.inst().me.externalId;
- 
+
+		public function loadConfigAttributes(protocol:String):void {
+			var intMeetingId:String = LiveMeeting.inst().meeting.internalId;
+			var userName:String = LiveMeeting.inst().me.name;
+			var role:String = LiveMeeting.inst().me.role;
+			var intUserId:String = LiveMeeting.inst().me.id;
+			var voiceConf:String = LiveMeeting.inst().meeting.voiceConf;
+			var welcome:String = LiveMeeting.inst().me.welcome;
+			var extUserId:String = LiveMeeting.inst().me.externalId;
+
 			addAttribute("conference", intMeetingId);
 			addAttribute("username", userName);
 			addAttribute("userrole", role);

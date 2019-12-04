@@ -14,6 +14,8 @@ case class StopShareRequestMessage(meetingId: String, streamId: String)
 
 case class StreamStartedMessage(meetingId: String, streamId: String, url: String)
 
+case class AuthorizeBroadcastStreamMessage(meetingId: String, streamId: String, connId: String, scope: String)
+
 case class StreamStoppedMessage(meetingId: String, streamId: String)
 
 case class SharingStartedMessage(meetingId: String, streamId: String, width: Int, height: Int)
@@ -32,8 +34,8 @@ case class UpdateShareStatus(meetingId: String, streamId: String, sequence: Int)
 
 case class IsScreenSharing(meetingId: String, userId: String)
 
-case class IsScreenSharingReply(sharing: Boolean, streamId: String, 
-                                  width: Int, height: Int, url: String)
+case class IsScreenSharingReply(sharing: Boolean, streamId: String,
+  width: Int, height: Int, url: String)
 
 case class ScreenShareInfoRequest(meetingId: String, token: String)
 
@@ -48,3 +50,5 @@ case class MeetingEnded(meetingId: String)
 case class MeetingCreated(meetingId: String, record: Boolean)
 
 case class ClientPongMessage(meetingId: String, userId: String, streamId: String, timestamp: Long)
+
+case class RecordingChapterBreak(meetingId: String, timestamp: Long)

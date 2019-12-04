@@ -4,6 +4,7 @@
 		 verticalScrollPolicy="off" horizontalScrollPolicy="off" verticalAlign="middle">
 	<fx:Script>
 		<![CDATA[
+			import org.bigbluebutton.util.i18n.ResourceUtil;
 			override public function set data(value:Object):void {
 				super.data = value;
 				
@@ -19,6 +20,10 @@
 					case "fail":
 						typeImg.source = getStyle("iconFail");
 						break
+					case "error":
+						typeImg.source = getStyle("iconFail");
+						copyButton.visible = copyButton.includeInLayout = true;
+						break
 				}
 				titleLbl.text = value.title;
 				if (value.occurrences > 1) {
@@ -29,12 +34,23 @@
 				
 				validateNow();
 			}
+			
+			protected function copyButton_clickHandler(event:MouseEvent):void{
+				System.setClipboard(data.logCode);
+			}
+			
 		]]>
 	</fx:Script>
 	<mx:Image id="typeImg" width="34" height="34" />
 	<mx:VBox width="100%" verticalGap="0">
 		<mx:Label id="titleLbl" width="100%" styleName="statusTitleStyle"/>
 		<mx:Text id="messageTxt" width="100%" styleName="statusMessageStyle"/>
+		<mx:Button id="copyButton" styleName="statusCopyStyle"
+				   label="{ResourceUtil.getInstance().getString('bbb.error.catch.copy')}"
+				   accessibilityName="{ResourceUtil.getInstance().getString('bbb.error.catch.copy.accessibilityName')}"
+				   toolTip="{ResourceUtil.getInstance().getString('bbb.error.catch.copy.accessibilityName')}"
+				   visible="false" includeInLayout="false"
+				   click="copyButton_clickHandler(event)" />	
 	</mx:VBox>
 	<mx:VBox height="100%" verticalAlign="bottom">
 		<mx:Label id="timeLbl" width="100%" styleName="statusTimeStyle"/>

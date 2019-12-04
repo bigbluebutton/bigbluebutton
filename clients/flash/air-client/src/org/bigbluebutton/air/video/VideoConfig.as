@@ -1,7 +1,11 @@
 package org.bigbluebutton.air.video {
 	
 	import org.bigbluebutton.air.video.commands.ShareCameraCommand;
-	import org.bigbluebutton.lib.video.commands.ShareCameraSignal;
+	import org.bigbluebutton.air.video.commands.ShareCameraSignal;
+	import org.bigbluebutton.air.video.commands.StopShareCameraCommand;
+	import org.bigbluebutton.air.video.commands.StopShareCameraSignal;
+	import org.bigbluebutton.air.video.views.WebcamDock;
+	import org.bigbluebutton.air.video.views.WebcamDockMediator;
 	
 	import robotlegs.bender.extensions.mediatorMap.api.IMediatorMap;
 	import robotlegs.bender.extensions.signalCommandMap.api.ISignalCommandMap;
@@ -24,14 +28,12 @@ package org.bigbluebutton.air.video {
 		 * Maps view mediators to views.
 		 */
 		private function mediators():void {
-			//mediatorMap.map(IVideoButton).toMediator(VideoButtonMediator);
-			//mediatorMap.map(IVideoChatView).toMediator(VideoChatViewMediator);
-			//mediatorMap.map(ISwapCameraButton).toMediator(SwapCameraMediator);
+			mediatorMap.map(WebcamDock).toMediator(WebcamDockMediator);
 		}
 		
 		private function signals():void {
 			signalCommandMap.map(ShareCameraSignal).toCommand(ShareCameraCommand);
-			//signalCommandMap.map(CameraQualitySignal).toCommand(CameraQualityCommand);
+			signalCommandMap.map(StopShareCameraSignal).toCommand(StopShareCameraCommand);
 		}
 	}
 }

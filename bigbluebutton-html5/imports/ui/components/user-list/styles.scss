@@ -1,31 +1,34 @@
 @import "/imports/ui/stylesheets/variables/_all";
 @import "/imports/ui/stylesheets/mixins/_scrollable";
+@import "/imports/ui/stylesheets/mixins/_indicators";
 
 /* Variables
  * ==========
  */
 
-$unread-messages-bg: $color-danger;
+// TODO: would be better to have those variables scoped and not global
+:root {
+  --unread-messages-bg: var(--color-danger);
+  --user-list-text: var(--color-gray);
+  --user-list-bg: var(--color-off-white);
 
-$user-list-bg: #F3F6F9;
-$user-list-text: $color-gray;
+  --user-thumbnail-border: var(--color-gray-light);
+  --user-thumbnail-text: var(--user-thumbnail-border);
 
-$list-item-bg-hover: darken($user-list-bg, 7%);
+  --voice-user-bg: var(--color-success);
+  --voice-user-text: var(--color-white);
 
-$user-thumbnail-border: $color-gray-light;
-$user-thumbnail-text: $user-thumbnail-border;
+  --moderator-text: var(--color-white);
+  --moderator-bg: var(--color-primary);
 
-$voice-user-bg: $color-success;
-$voice-user-text: $color-white;
+  --sub-name-color: var(--color-gray-light);
 
-$moderator-text: $color-white;
-$moderator-bg: $color-primary;
+  --user-icons-color: var(--color-gray-light);
+  --user-icons-color-hover: var(--color-gray);
 
-$sub-name-color: $color-gray-light;
-
-$user-icons-color: $color-gray-light;
-$user-icons-color-hover: $color-gray;
-
+  --list-item-bg-hover: #dce4ed;
+  --item-focus-border: var(--color-blue-lighter);
+}
 
 /* classes for extending
  * ==========
@@ -42,25 +45,34 @@ $user-icons-color-hover: $color-gray;
 %list-item {
   display: flex;
   flex-flow: row;
-  padding-left: $sm-padding-x / 2;
-  margin-left: $sm-padding-x / 2;
-  padding-right: $sm-padding-x;
-  padding-top: $sm-padding-y;
-  padding-bottom: $sm-padding-y;
-  margin-top: $sm-padding-y * 2;
-  transition: all 0.3s;
   border-top-left-radius: 5px;
   border-bottom-left-radius: 5px;
+  border-top-right-radius: 0;
+  border-bottom-right-radius: 0;
   cursor: pointer;
 
-  &:hover,
-  &:focus {
-    background-color: $list-item-bg-hover;
-    outline: none;
+  [dir="rtl"] & {
+    border-top-left-radius: 0;
+    border-bottom-left-radius: 0;
+    border-top-right-radius: 5px;
+    border-bottom-right-radius: 5px;
   }
 
   &:first-child {
     margin-top: 0;
+  }
+
+  &:hover {
+    @include highContrastOutline();
+    background-color: var(--list-item-bg-hover);
+  }
+
+  &:active,
+  &:focus {
+    @include highContrastOutline();
+    outline-style: solid;
+    background-color: var(--list-item-bg-hover);
+    box-shadow: inset 0 0 0 var(--border-size) var(--item-focus-border), inset 1px 0 0 1px var(--item-focus-border);
   }
 }
 
@@ -71,16 +83,26 @@ $user-icons-color-hover: $color-gray;
 .userList {
   @extend %flex-column;
   justify-content: flex-start;
-  background-color: $user-list-bg;
-  color: $user-list-text;
-  height: 100vh;
+  background-color: var(--user-list-bg);
+  color: var(--user-list-text);
+  height: 100%;
+  padding-top: var(--md-padding-x);
 }
 
 .lists {
   @extend %flex-column;
   @extend %no-margin;
   padding: 0;
+  padding-top: var(--border-size);
   outline: none;
+}
+
+.participantsList {
+  padding: 0 0 var(--border-size) var(--border-size);
+
+  [dir="rtl"] & {
+    padding: 0 var(--border-size) var(--border-size) 0;
+  }
 }
 
 .participantsList,
@@ -90,16 +112,8 @@ $user-icons-color-hover: $color-gray;
   flex-shrink: 1;
 }
 
-.smallTitle {
-  font-size: 0.85rem;
-  font-weight: 600;
-  text-transform: uppercase;
-  padding: 0 $sm-padding-x;
-  margin: 0 0 ($lg-padding-x / 2) 0;
-  color: $color-gray-light;
-}
-
-.participants, .messages {
+.participants,
+.messages {
   flex-grow: 0;
   display: flex;
   flex-flow: column;
@@ -107,7 +121,7 @@ $user-icons-color-hover: $color-gray;
 }
 
 .messages {
-  margin-bottom: $lg-padding-x;
+  max-height: 30vh;
 }
 
 .participants {
@@ -116,15 +130,35 @@ $user-icons-color-hover: $color-gray;
   flex-shrink: 1;
   overflow-x: hidden;
   overflow-y: auto;
+  margin-top: (var(--lg-padding-x) / 2);
 }
 
-.enter, .appear {
+.smallTitle {
+  font-size: 0.85rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  padding: 0 var(--sm-padding-x);
+  margin: 0 0 (var(--lg-padding-x) / 2) 0;
+  color: var(--color-gray);
+}
+
+.userListColumn {
+  @extend %flex-column;
+  min-height: 0;
+}
+
+.enter,
+.appear {
   opacity: 0.01;
 }
 
-.enterActive, .appearActive {
+.enterActive,
+.appearActive {
   opacity: 1;
-  transition: all 600ms;
+  
+  :global(.animationsEnabled) & {
+    transition: all 600ms;
+  }
 }
 
 .leave {
@@ -133,5 +167,8 @@ $user-icons-color-hover: $color-gray;
 
 .leaveActive {
   opacity: 0;
-  transition: all 600ms;
+
+  :global(.animationsEnabled) & {
+    transition: all 600ms;
+  }
 }

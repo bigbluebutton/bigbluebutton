@@ -1,0 +1,79 @@
+@import '/imports/ui/stylesheets/variables/_all';
+
+:root {
+  ::-webkit-media-controls {
+    display: none !important;
+  }
+}
+
+.wrapper {
+  position: absolute;
+  right: 0;
+  left: auto;
+  background-color: var(--color-transparent);
+  cursor: pointer;
+  border: 0;
+  border-radius: 5px;
+  z-index: 2;
+
+  [dir="rtl"] & {
+    right: auto;
+    left :0;
+  }
+
+  [class*="presentationZoomControls"] & {
+    position: relative !important;
+  }
+}
+
+.button {
+
+  &,
+  &:active,
+  &:hover,
+  &:focus {
+    background-color: var(--color-transparent) !important;
+    border: none !important;
+
+    i {
+      border: none !important;
+      background-color: var(--color-transparent) !important;
+    }
+  }
+}
+
+.light {
+  background-color: var(--color-transparent);
+}
+
+.light .button i {
+  color: var(--color-black);
+}
+
+.dark {
+  background-color: rgba(0,0,0,.3);
+}
+
+.dark .button i {
+  color: var(--color-white);
+}
+
+.top{
+  top: 0;
+}
+
+.bottom{
+  bottom: 0;
+}
+
+.fullScreenButton {
+  padding: 5px;
+
+  &:hover {
+    border: 0;
+  }
+
+  i {
+    font-size: 1rem;
+  }
+}

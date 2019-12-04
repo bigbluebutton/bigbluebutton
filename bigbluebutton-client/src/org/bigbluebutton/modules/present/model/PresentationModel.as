@@ -5,52 +5,45 @@ package org.bigbluebutton.modules.present.model
   import org.as3commons.logging.api.ILogger;
   import org.as3commons.logging.api.getClassLogger;
   import org.bigbluebutton.modules.present.services.messages.PageChangeVO;
+  import org.bigbluebutton.main.api.JSLog;
   
   public class PresentationModel
   {
 	private static const LOGGER:ILogger = getClassLogger(PresentationModel);      
-    
-//    private static var instance:PresentationModel = null;
-    
+
     private var _presentations:ArrayCollection = new ArrayCollection();
-    private var _podId: String = ""; // TODO make this private
-    private var _ownerId: String = "";
-    
-    /**
-     * This class is a singleton. Please initialize it using the getInstance() method.
-     * 
-     */		
-    public function PresentationModel(podId: String, ownerId: String) {
-      
-      initialize(podId, ownerId);
+    private var _podId: String = "";
+
+    public function PresentationModel(podId: String) {
+		_podId = podId;
     }
     
-    private function initialize(podId: String, ownerId: String):void {
-        _podId = podId;
-        _ownerId = ownerId;
+    private function whichPageIsCurrent(presId: String): String {
+        var result: String = "[";
+        var pres:Presentation = getPresentation(presId);
+        if (pres == null) {
+        } else {
+            var curPage: Page =  pres.getCurrentPage();
+            result = result + curPage.num;
+        }
+        return result + "]";
     }
     
-//    /**
-//     * Return the single instance of the PresentationModel class
-//     */
-    public static function getInstance():PresentationModel{
-//      if (instance == null){
-//        instance = new PresentationModel();
-//      }
-//      return instance;
-        return null;
+    public function printPresentations(calledFrom: String): void {
+      for (var i:int = 0; i < _presentations.length; i++) {
+        var pres: Presentation = _presentations.getItemAt(i) as Presentation;
+        JSLog.warn("2001  " + calledFrom +"   " + i + "  " + pres.name  + "  " + pres.id + " " + pres.current.toString() + "   " + whichPageIsCurrent(pres.id)  , {}); 
+      }  
     }
     
     public function getPodId(): String {
-        return _podId;
-    }
-
-    public function getOwnerId(): String {
-        return _ownerId;
+        return this._podId;
     }
 
     public function addPresentation(p: Presentation):void {
+        printPresentations("PresentationModel::addPresentation bef total=" + _presentations.length);
       _presentations.addItem(p);
+        printPresentations("PresentationModel::addPresentation aft total=" + _presentations.length);
     }
     
     public function removePresentation(presId:String):Presentation {
@@ -205,5 +198,3 @@ package org.bigbluebutton.modules.present.model
     }
   }
 }
-
-class SingletonEnforcer{}

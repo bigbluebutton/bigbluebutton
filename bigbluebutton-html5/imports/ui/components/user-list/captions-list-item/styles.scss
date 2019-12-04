@@ -1,0 +1,53 @@
+@import "/imports/ui/stylesheets/variables/_all";
+@import "/imports/ui/components/user-list/styles.scss";
+
+.captionsListItem {
+  @extend %list-item;
+  align-items: center;
+  cursor: pointer;
+  display: flex;
+  flex-flow: row;
+  flex-grow: 0;
+  flex-shrink: 0;
+  padding-top: var(--lg-padding-y);
+  padding-bottom: var(--lg-padding-y);
+  padding-left: var(--lg-padding-y);
+  text-decoration: none;
+  width: 100%;
+  color: var(--color-gray-dark);
+  background-color: var(--color-off-white);
+
+  [dir="rtl"]  & {
+    padding-right: var(--lg-padding-y);
+    padding-left: none;
+  }
+
+  > i {
+    display: flex;
+    font-size: 175%;
+    color: var(--color-gray-light);
+    flex: 0 0 2.2rem;
+  }
+
+  > span {
+    font-weight: 400;
+    font-size: var(--font-size-small);
+    color: var(--color-gray-dark);
+    position: relative;
+    flex-grow: 1;
+    line-height: 2;
+    text-align: left;
+    padding-left: var(--lg-padding-y);
+    text-overflow: ellipsis;
+
+    [dir="rtl"]  & {
+      text-align: right;
+      padding-right: var(--md-padding-x);
+    }
+  }
+
+  &:active {
+    background-color: var(--list-item-bg-hover);
+    box-shadow: inset 0 0 0 var(--border-size) var(--item-focus-border), inset 1px 0 0 1px var(--item-focus-border);
+  }
+}

@@ -30,7 +30,7 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
 		}
 		
 		override protected function makeGraphic():void {
-			if (status == AnnotationStatus.DRAW_END && (_ao.points.length > 2)) {
+			if (status == AnnotationStatus.DRAW_END && _ao.points.length > 2 && _ao.commands) {
 				drawFinishedLine();
 			} else {
 				drawSimpleLine();

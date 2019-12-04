@@ -24,24 +24,6 @@ package org.bigbluebutton.skins {
 
 		//--------------------------------------------------------------------------
 		//
-		//  Constructor
-		//
-		//--------------------------------------------------------------------------
-
-		/**
-		 *  Constructor.
-		 *
-		 *  @langversion 3.0
-		 *  @playerversion Flash 9
-		 *  @playerversion AIR 1.1
-		 *  @productversion Flex 3
-		 */
-		public function ButtonSkin() {
-			super();
-		}
-
-		//--------------------------------------------------------------------------
-		//
 		//  Overridden properties
 		//
 		//--------------------------------------------------------------------------
@@ -124,7 +106,7 @@ package org.bigbluebutton.skins {
 					drawRoundRect(0, 0, w, h, cr, borderColorSelectedUp, 1);
 
 					// button fill
-					drawRoundRect(1, 1, w - 2, h - 2, cr1, fillColorSelectedUp, 1);
+					drawRoundRect(borderThickness, borderThickness, w - (borderThickness * 2), h - (borderThickness * 2), cr1, fillColorSelectedUp, 1);
 					break;
 				}
 
@@ -133,7 +115,7 @@ package org.bigbluebutton.skins {
 					drawRoundRect(0, 0, w, h, cr, borderColorSelectedOver, 1);
 
 					// button fill
-					drawRoundRect(1, 1, w - 2, h - 2, cr1, fillColorSelectedOver, 1);
+					drawRoundRect(borderThickness, borderThickness, w - (borderThickness * 2), h - (borderThickness * 2), cr1, fillColorSelectedOver, 1);
 					break;
 				}
 
@@ -142,7 +124,7 @@ package org.bigbluebutton.skins {
 					drawRoundRect(0, 0, w, h, cr, borderColorSelectedDown, 1);
 
 					// button fill
-					drawRoundRect(1, 1, w - 2, h - 2, cr1, fillColorSelectedDown, 1);
+					drawRoundRect(borderThickness, borderThickness, w - (borderThickness * 2), h - (borderThickness * 2), cr1, fillColorSelectedDown, 1);
 					break;
 				}
 
@@ -151,7 +133,7 @@ package org.bigbluebutton.skins {
 					drawRoundRect(0, 0, w, h, cr, borderColorSelectedDisabled, 1);
 
 					// button fill
-					drawRoundRect(1, 1, w - 2, h - 2, cr1, fillColorSelectedDisabled, 1);
+					drawRoundRect(borderThickness, borderThickness, w - (borderThickness * 2), h - (borderThickness * 2), cr1, fillColorSelectedDisabled, 1);
 					break;
 				}
 

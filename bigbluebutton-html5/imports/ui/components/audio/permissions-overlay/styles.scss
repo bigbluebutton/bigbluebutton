@@ -1,0 +1,224 @@
+@import "../../../stylesheets/variables/_all";
+
+:root {
+  --position-left-edge: 60%;
+  --position-bottom-edge: 5%;
+  --position-top-firefox: 8em;
+  --position-left-firefox: 22em;
+  --position-top-chrome: 5.5em;
+  --position-left-chrome: 18em;
+  --position-top-safari: 150px;
+  --arrow-top: -65px;
+  --arrow-left: -20px;
+  --arrow-top-edge: -2.5rem;
+  --arrow-left-edge: -21rem;
+  --rtl-hint-top: 15rem;
+}
+
+@mixin arrowIconStyle() {
+  &:after {
+    top: var(--arrow-top);
+    left: var(--arrow-left);
+    right: auto;
+    font-size: 20px;
+    display: block;
+    font-family: 'bbb-icons';
+    content: "\E906";
+    position: relative;
+
+    [dir="rtl"] & {
+      left: auto;
+      right: var(--arrow-left);
+    }
+
+    :global(.animationsEnabled) & {
+      animation: bounce 2s infinite;
+    }
+  }
+
+  :global(.browser-edge) &:after {
+    top: var(--arrow-top-edge);
+    left: var(--arrow-left-edge);
+    right: auto;
+    font-size: 20px;
+    :global(.animationsEnabled) & {
+      animation: bounceRotate 2s infinite;
+    }
+
+    [dir="rtl"] & {
+      left: auto;
+      right: var(--arrow-left-edge);
+    }
+  }
+}
+
+@mixin useRTLPosition() {
+  right: none;
+  left: none;
+  top: var(--rtl-hint-top);
+}
+
+@mixin positionHint() {
+  :global(.browser-edge) & {
+    left: var(--position-left-edge);
+    right: auto;
+    bottom: var(--position-bottom-edge);
+
+    [dir="rtl"] & {
+      left: auto;
+      right: var(--position-left-edge);
+    }
+  }
+  :global(.browser-firefox) & {
+    top: var(--position-top-firefox);
+    left: var(--position-left-firefox);
+    right: auto;
+
+    [dir="rtl"] & {
+      @include useRTLPosition();
+    }
+  }
+  :global(.browser-chrome) & {
+    top: var(--position-top-chrome);
+    left: var(--position-left-chrome);
+    right: auto;
+
+    [dir="rtl"] & {
+      @include useRTLPosition();
+    }
+  }
+  :global(.browser-safari) & {
+    top: var(--position-top-safari);
+    left:0;
+    right:0;
+    margin-left: auto;
+    margin-right: auto;
+  }
+}
+
+.overlay {
+  position: fixed;
+  z-index: 1002;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background-color: rgba(0, 0, 0, .85);
+
+  :global(.animationsEnabled) & {
+    animation: fade-in .5s ease-in;
+  }
+}
+
+.content {
+  color: var(--color-black);
+}
+
+.hint {
+  @include positionHint();
+  position: absolute;
+  background: none;
+  box-shadow: none;
+  color: #fff;
+  font-size: 16px;
+  font-weight: 400;
+  padding: 0 0 0 var(--jumbo-padding-x);
+  line-height: 18px;
+  width: 340px;
+
+  [dir="rtl"] & {
+    padding: 0 var(--jumbo-padding-x) 0 0;
+  }
+
+  small {
+    display: block;
+    font-size: 12px;
+    line-height: 14px;
+    margin-top: 3px;
+    opacity: .6;
+  }
+
+  @include arrowIconStyle();
+}
+
+@-webkit-keyframes bounce {
+  0%,
+  20%,
+  50%,
+  80%,
+  100% {
+    -webkit-transform: translateY(0);
+    transform: translateY(0);
+  }
+  40% {
+    -webkit-transform: translateY(10px);
+    transform: translateY(10px);
+  }
+  60% {
+    -webkit-transform: translateY(5px);
+    transform: translateY(5px);
+  }
+}
+
+@-moz-keyframes bounce {
+  0%,
+  20%,
+  50%,
+  80%,
+  100% {
+    transform: translateY(0);
+  }
+  40% {
+    transform: translateY(10px);
+  }
+  60% {
+    transform: translateY(5px);
+  }
+}
+
+@keyframes bounce {
+  0%,
+  20%,
+  50%,
+  80%,
+  100% {
+    -ms-transform: translateY(0);
+    transform: translateY(0);
+  }
+  40% {
+    -ms-transform: translateY(10px);
+    transform: translateY(10px);
+  }
+  60% {
+    -ms-transform: translateY(5px);
+    transform: translateY(5px);
+  }
+}
+
+@keyframes bounceRotate {
+  0%,
+  20%,
+  50%,
+  80%,
+  100% {
+    -ms-transform: translateY(0) rotate(180deg);
+    transform: translateY(0) rotate(180deg);
+  }
+  40% {
+    -ms-transform: translateY(10px) rotate(180deg);
+    transform: translateY(10px) rotate(180deg);
+  }
+  60% {
+    -ms-transform: translateY(5px) rotate(180deg);
+    transform: translateY(5px) rotate(180deg);
+  }
+}
+
+@keyframes fade-in {
+  0% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+  }
+}

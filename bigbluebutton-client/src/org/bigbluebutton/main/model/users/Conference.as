@@ -394,7 +394,7 @@ package org.bigbluebutton.main.model.users {
         var p:Object = getUserIndex(userID);
         if (p != null) {
           var u:BBBUser = p.participant as BBBUser;
-          if(u.avatarURL == null || u.avatarURL == ""){
+          if(StringUtils.isEmpty(u.avatarURL)){
             return LiveMeeting.inst().me.avatarURL;
           }
           return u.avatarURL;

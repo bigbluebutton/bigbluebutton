@@ -29,7 +29,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		<param-name>webAppRootKey</param-name>
 		<param-value>/video</param-value>
 	</context-param>
-		
 
     <listener>
         <listener-class>org.red5.logging.ContextLoggingListener</listener-class>

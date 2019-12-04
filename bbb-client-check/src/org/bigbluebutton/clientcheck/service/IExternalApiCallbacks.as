@@ -26,7 +26,6 @@ package org.bigbluebutton.clientcheck.service
 		function cookieEnabledCallbackHandler(value:String):void;
 		function isPepperFlashCallbackHandler(value:String):void;
 		function languageCallbackHandler(value:String):void;
-		function javaEnabledCallbackHandler(value:Object):void;
 		function screenSizeCallbackHandler(value:String):void;
 		function isWebRTCSupportedCallbackHandler(value:String):void;
 		function webRTCEchoTestCallbackHandler(success:Boolean, result:String):void;

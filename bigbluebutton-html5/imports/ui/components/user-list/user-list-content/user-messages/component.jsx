@@ -1,25 +1,24 @@
-import React, { Component } from 'react';
-import CSSTransitionGroup from 'react-transition-group/CSSTransitionGroup';
+import React, { PureComponent } from 'react';
+import { TransitionGroup, CSSTransition } from 'react-transition-group';
 import PropTypes from 'prop-types';
 import { defineMessages } from 'react-intl';
 import cx from 'classnames';
-import styles from './styles';
-import ChatListItem from './../../chat-list-item/component';
+import { styles } from '/imports/ui/components/user-list/user-list-content/styles';
+import { findDOMNode } from 'react-dom';
+import ChatListItemContainer from '../../chat-list-item/container';
 
 const propTypes = {
-  openChats: PropTypes.arrayOf(String).isRequired,
-  openChat: PropTypes.string,
+  activeChats: PropTypes.arrayOf(String).isRequired,
   compact: PropTypes.bool,
   intl: PropTypes.shape({
     formatMessage: PropTypes.func.isRequired,
   }).isRequired,
-  rovingIndex: PropTypes.func.isRequired,
   isPublicChat: PropTypes.func.isRequired,
+  roving: PropTypes.func.isRequired,
 };
 
 const defaultProps = {
   compact: false,
-  openChat: '',
 };
 
 const listTransition = {
@@ -32,84 +31,104 @@ const listTransition = {
 };
 
 const intlMessages = defineMessages({
-  usersTitle: {
-    id: 'app.userList.usersTitle',
-    description: 'Title for the Header',
-  },
   messagesTitle: {
     id: 'app.userList.messagesTitle',
     description: 'Title for the messages list',
   },
-  participantsTitle: {
-    id: 'app.userList.participantsTitle',
-    description: 'Title for the Users list',
-  },
-  toggleCompactView: {
-    id: 'app.userList.toggleCompactView.label',
-    description: 'Toggle user list view mode',
-  },
-  ChatLabel: {
-    id: 'app.userList.menu.chat.label',
-    description: 'Save the changes and close the settings menu',
-  },
-  ClearStatusLabel: {
-    id: 'app.userList.menu.clearStatus.label',
-    description: 'Clear the emoji status of this user',
-  },
-  MakePresenterLabel: {
-    id: 'app.userList.menu.makePresenter.label',
-    description: 'Set this user to be the presenter in this meeting',
-  },
-  KickUserLabel: {
-    id: 'app.userList.menu.kickUser.label',
-    description: 'Forcefully remove this user from the meeting',
-  },
-  MuteUserAudioLabel: {
-    id: 'app.userList.menu.muteUserAudio.label',
-    description: 'Forcefully mute this user',
-  },
-  UnmuteUserAudioLabel: {
-    id: 'app.userList.menu.unmuteUserAudio.label',
-    description: 'Forcefully unmute this user',
-  },
-  PromoteUserLabel: {
-    id: 'app.userList.menu.promoteUser.label',
-    description: 'Forcefully promote this viewer to a moderator',
-  },
-  DemoteUserLabel: {
-    id: 'app.userList.menu.demoteUser.label',
-    description: 'Forcefully demote this moderator to a viewer',
-  },
 });
 
-class UserMessages extends Component {
+class UserMessages extends PureComponent {
+  constructor() {
+    super();
+
+    this.state = {
+      selectedChat: null,
+    };
+
+    this.activeChatRefs = [];
+
+    this.changeState = this.changeState.bind(this);
+    this.rove = this.rove.bind(this);
+  }
 
   componentDidMount() {
-    if (!this.props.compact) {
-      this._msgsList.addEventListener('keydown',
-        event => this.props.rovingIndex(event,
-          this._msgsList,
-          this._msgItems,
-          this.props.openChats.length));
+    const { compact } = this.props;
+    if (!compact) {
+      this._msgsList.addEventListener(
+        'keydown',
+        this.rove,
+      );
     }
+  }
+
+  componentDidUpdate(prevProps, prevState) {
+    const { selectedChat } = this.state;
+
+    if (selectedChat && selectedChat !== prevState.selectedChat) {
+      const { firstChild } = selectedChat;
+      if (firstChild) firstChild.focus();
+    }
+  }
+
+  getActiveChats() {
+    const {
+      activeChats,
+      compact,
+      isPublicChat,
+    } = this.props;
+
+    let index = -1;
+
+    return activeChats.map(chat => (
+      <CSSTransition
+        classNames={listTransition}
+        appear
+        enter
+        exit={false}
+        timeout={0}
+        component="div"
+        className={cx(styles.chatsList)}
+        key={chat.userId}
+      >
+        <div ref={(node) => { this.activeChatRefs[index += 1] = node; }}>
+          <ChatListItemContainer
+            isPublicChat={isPublicChat}
+            compact={compact}
+            chat={chat}
+            tabIndex={-1}
+          />
+        </div>
+      </CSSTransition>
+    ));
+  }
+
+  changeState(ref) {
+    this.setState({ selectedChat: ref });
+  }
+
+  rove(event) {
+    const { roving } = this.props;
+    const { selectedChat } = this.state;
+    const msgItemsRef = findDOMNode(this._msgItems);
+    roving(event, this.changeState, msgItemsRef, selectedChat);
   }
 
   render() {
     const {
-      openChats,
-      openChat,
       intl,
       compact,
-      isPublicChat,
     } = this.props;
 
     return (
       <div className={styles.messages}>
         {
-          !compact ?
-            <div className={styles.smallTitle} role="banner">
+          !compact ? (
+            <h2 className={styles.smallTitle}>
               {intl.formatMessage(intlMessages.messagesTitle)}
-            </div> : <hr className={styles.separator} />
+            </h2>
+          ) : (
+            <hr className={styles.separator} />
+          )
         }
         <div
           role="tabpanel"
@@ -117,30 +136,11 @@ class UserMessages extends Component {
           className={styles.scrollableList}
           ref={(ref) => { this._msgsList = ref; }}
         >
-          <CSSTransitionGroup
-            transitionName={listTransition}
-            transitionAppear
-            transitionEnter
-            transitionLeave={false}
-            transitionAppearTimeout={0}
-            transitionEnterTimeout={0}
-            transitionLeaveTimeout={0}
-            component="div"
-            className={cx(styles.chatsList, styles.scrollableList)}
-          >
-            <div ref={(ref) => { this._msgItems = ref; }}>
-              {openChats.map(chat => (
-                <ChatListItem
-                  isPublicChat={isPublicChat}
-                  compact={compact}
-                  key={chat.id}
-                  openChat={openChat}
-                  chat={chat}
-                  tabIndex={-1}
-                />
-              ))}
-            </div>
-          </CSSTransitionGroup>
+          <div className={styles.list}>
+            <TransitionGroup ref={(ref) => { this._msgItems = ref; }}>
+              {this.getActiveChats()}
+            </TransitionGroup>
+          </div>
         </div>
       </div>
     );

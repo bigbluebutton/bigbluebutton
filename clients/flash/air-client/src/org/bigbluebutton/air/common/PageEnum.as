@@ -3,6 +3,8 @@ package org.bigbluebutton.air.common {
 	import flash.utils.Dictionary;
 	
 	import org.bigbluebutton.air.chat.views.ChatRoomView;
+	import org.bigbluebutton.air.main.views.DisconnectView;
+	import org.bigbluebutton.air.main.views.ExitView;
 	import org.bigbluebutton.air.main.views.MainView;
 	import org.bigbluebutton.air.participants.views.ParticipantsView;
 	import org.bigbluebutton.air.settings.views.SettingsView;
@@ -10,9 +12,14 @@ package org.bigbluebutton.air.common {
 	import org.bigbluebutton.air.settings.views.camera.CameraSettingsView;
 	import org.bigbluebutton.air.settings.views.chat.ChatSettingsView;
 	import org.bigbluebutton.air.settings.views.lock.LockSettingsView;
+	import org.bigbluebutton.air.user.views.UserDetailsView;
+	import org.bigbluebutton.air.voice.views.EchoTestView;
+	import org.bigbluebutton.air.voice.views.JoinAudioView;
 	
 	public class PageEnum {
 		public static const MAIN:String = "main";
+		
+		public static const AUDIO:String = "audio";
 		
 		public static const PROFILE:String = "profile";
 		
@@ -38,6 +45,8 @@ package org.bigbluebutton.air.common {
 		
 		public static const SETTINGS:String = "Settings";
 		
+		public static const ECHOTEST:String = "EchoTest";
+		
 		public static const APPLICATION_SETTINGS:String = "ApplicationSettings";
 		
 		/**
@@ -51,19 +60,20 @@ package org.bigbluebutton.air.common {
 				dic[PARTICIPANTS] = ParticipantsView;
 				dic[CHAT] = ChatRoomView;
 				dic[SETTINGS] = SettingsView;
+				dic[ECHOTEST] = EchoTestView;
 				dic[AUDIOSETTINGS] = AudioSettingsView;
 				dic[CAMERASETTINGS] = CameraSettingsView;
 				dic[CHATSETTINGS] = ChatSettingsView;
 				dic[LOCKSETTINGS] = LockSettingsView;
 				//		dic[PROFILE] = ProfileView;
-				//		dic[USER_DETAILS] = UserDetailsView;
+				dic[USER_DETAILS] = UserDetailsView;
 				//		dic[VIDEO_CHAT] = VideoChatView;
 				//		dic[CHATROOMS] = ChatRoomsView;
-				//		dic[PARTICIPANTS] = ParticipantsView;
 				//		dic[SELECT_PARTICIPANT] = SelectParticipantView;
-				//		dic[DISCONNECT] = DisconnectPageView;
+				dic[AUDIO] = JoinAudioView;
+				dic[DISCONNECT] = DisconnectView;
 				//		dic[DESKSHARE] = DeskshareView;
-				//		dic[EXIT] = ExitPageView;
+				dic[EXIT] = ExitView;
 				dicInitiated = true;
 			}
 		}

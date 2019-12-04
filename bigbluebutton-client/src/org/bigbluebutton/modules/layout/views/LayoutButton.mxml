@@ -21,12 +21,150 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 <mx:Button xmlns:mx="library://ns.adobe.com/flex/mx" 
 		   xmlns:fx="http://ns.adobe.com/mxml/2009"
 		   xmlns:mate="http://mate.asfusion.com/"
+			 creationComplete="onCreationComplete()"
 		   width="{BUTTON_SIZE}"
-		   height="{BUTTON_SIZE}">
+		   height="{BUTTON_SIZE}"
+		   click="onClick()">
+	
+	<fx:Declarations>
+		<mate:Listener type="{LocaleChangeEvent.LOCALE_CHANGED}" method="localeChanged" />
+	</fx:Declarations>
 	
 	<fx:Script>
 		<![CDATA[
+			import com.asfusion.mate.events.Dispatcher;
+			
+			import mx.collections.ArrayCollection;
+			import mx.controls.Menu;
+			import mx.core.FlexGlobals;
+			import mx.events.MenuEvent;
+			
+			import flashx.textLayout.formats.Direction;
+			
+			import org.bigbluebutton.common.events.LocaleChangeEvent;
+			import org.bigbluebutton.core.PopUpUtil;
+			import org.bigbluebutton.core.UsersUtil;
+			import org.bigbluebutton.modules.layout.events.LayoutEvent;
+			import org.bigbluebutton.util.i18n.ResourceUtil;
+			
 			static public const BUTTON_SIZE:int = 30;
+			
+			private var amIModerator:Boolean = false;
+			private var enableEdit:Boolean = false;
+			private var isRTL:Boolean = false;
+			
+			private var layoutMenu:Menu;
+			private var layoutMenuData:ArrayCollection = new ArrayCollection();
+			
+			private var dispatcher:Dispatcher = new Dispatcher();
+			
+			protected function onCreationComplete():void {
+				refreshRole(UsersUtil.amIModerator());
+			}
+			
+			public function enableEditOptions(editable:Boolean):void {
+				enableEdit = editable;
+				refreshIcon();
+			}
+			
+			public function refreshRole(amIModerator:Boolean):void {
+				this.amIModerator = amIModerator;
+				visible = includeInLayout = enabled = amIModerator;
+				if (layoutMenu != null && layoutMenu.visible) {
+					layoutMenu.hide();
+				}
+			}
+			
+			private function refreshIcon():void {
+				if (enableEdit) {
+					styleName = "gearLayoutButtonStyle";
+				} else if (isRTL) {
+					styleName = "broadcastLayoutButtonStyleRTL";
+				} else {
+					styleName = "broadcastLayoutButtonStyle";
+				}
+			}
+			
+			private function onClick():void {
+				if (!enableEdit) {
+					dispatchBroadcastEvent();
+				} else {
+					// create and open the menu
+					if (!layoutMenu) {
+						setMenuData();
+						layoutMenu = Menu.createMenu(null, layoutMenuData, true);
+						layoutMenu.addEventListener(MenuEvent.ITEM_CLICK, menuClickHandler);
+						layoutMenu.addEventListener(MenuEvent.MENU_SHOW, menuShowHandler);
+						
+						layoutMenu.show()
+					} else if (layoutMenu.visible) {
+						layoutMenu.hide()
+					} else {
+						layoutMenu.show()
+					}
+				}
+			}
+			
+			private function setMenuData():void {
+				layoutMenuData.removeAll();
+				
+				// add all four entries with label and icon
+				//pollMenuData.push({label: resourceUtil.getString("bbb.polling.customPollOption.label")});
+				layoutMenuData.addItem({label: ResourceUtil.getInstance().getString('bbb.layout.broadcastButton.toolTip')});
+				layoutMenuData.addItem({label: ResourceUtil.getInstance().getString('bbb.layout.saveButton.toolTip')});
+				layoutMenuData.addItem({label: ResourceUtil.getInstance().getString('bbb.layout.loadButton.toolTip')});
+				layoutMenuData.addItem({label: ResourceUtil.getInstance().getString('bbb.layout.addButton.toolTip')});
+			}
+			
+			private function menuShowHandler(e:MenuEvent):void {
+				layoutMenu.setFocus();
+				var menuXY:Point = localToGlobal(new Point(0, 0 - layoutMenu.height - 2));
+				menuXY.x = Math.min(menuXY.x, stage.stageWidth - layoutMenu.width - 2);
+				layoutMenu.x = menuXY.x;
+				layoutMenu.y = menuXY.y;
+			}
+			
+			private function menuClickHandler(e:MenuEvent):void {
+				if(layoutMenuData[e.index] != undefined) {
+					// start the requested poll
+					switch (e.index) {
+						case 0: // Broadcast
+							dispatchBroadcastEvent();
+							break;
+						case 1: // Save
+							dispatchSaveEvent();
+							break;
+						case 2: // Load
+							dispatchLoadEvent();
+							break;
+						case 3: // Add
+							promptCustomLayoutName();
+							break;
+					}
+				}
+			}
+			
+			private function localeChanged(event:LocaleChangeEvent) : void {
+				isRTL = ResourceUtil.getInstance().isRTLEnabled() && ResourceUtil.getInstance().getCurrentLanguageDirection() == Direction.RTL;
+				setMenuData();
+				refreshIcon();
+			}
+			
+			private function dispatchBroadcastEvent():void {
+				dispatcher.dispatchEvent(new LayoutEvent(LayoutEvent.BROADCAST_LAYOUT_EVENT));
+			}
+			
+			private function dispatchSaveEvent():void {
+				dispatcher.dispatchEvent(new LayoutEvent(LayoutEvent.SAVE_LAYOUTS_EVENT));
+			}
+			
+			private function dispatchLoadEvent():void {
+				dispatcher.dispatchEvent(new LayoutEvent(LayoutEvent.LOAD_LAYOUTS_EVENT));
+			}
+			
+			private function promptCustomLayoutName():void {
+				PopUpUtil.createModalPopUp(FlexGlobals.topLevelApplication as DisplayObject, CustomLayoutNameWindow, true);
+			}
 		]]>
 	</fx:Script>
 </mx:Button>

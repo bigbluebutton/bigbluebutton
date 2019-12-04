@@ -26,10 +26,13 @@ package org.bigbluebutton.main.model
   import flash.system.LoaderContext;
   
   import mx.controls.Image;
+  
+  import org.as3commons.logging.api.ILogger;
+  import org.as3commons.logging.api.getClassLogger;
 
   public class ImageLoader
   {
-    private static const LOG:String = "Main::ImageLoader - ";
+	private static const LOGGER:ILogger = getClassLogger(ImageLoader);
 
     private var _src:String;
     private var _callback:Function;
@@ -42,7 +45,7 @@ package org.bigbluebutton.main.model
     }
 
     private function loadBitmap():void {
-      trace(LOG + "loadBitmap");
+      LOGGER.debug("loadBitmap");
       var backgroundLoader:Loader = new Loader();
       backgroundLoader.contentLoaderInfo.addEventListener(Event.COMPLETE, onBitmapLoaded, false, 0, true);
       backgroundLoader.contentLoaderInfo.addEventListener(IOErrorEvent.IO_ERROR, onBitmapIoError);
@@ -53,23 +56,23 @@ package org.bigbluebutton.main.model
     }
 
     private function onBitmapIoError(e:IOErrorEvent):void {
-      trace(LOG + "onBitmapIoError: " + e.toString());
+	  LOGGER.error("onBitmapIoError: " + e.toString());
     }
 
     private function onBitmapLoaded(e:Event):void {
-      trace(LOG + "onBitmapLoaded");
+      LOGGER.debug("onBitmapLoaded");
       try {
         var backgroundBitmap:Bitmap = Bitmap(e.target.content);
         backgroundBitmap.smoothing = true;
         _callback(backgroundBitmap, backgroundBitmap.width, backgroundBitmap.height);
       } catch(error:Error) {
-        trace(LOG + "onBitmapLoaded error: " + error.toString());
+        LOGGER.error("onBitmapLoaded error: " + error.toString());
         loadImage();
       }
     }
 
     private function loadImage():void {
-      trace(LOG + "loadImage");
+      LOGGER.debug("loadImage");
       var image:Image = new Image();
       image.addEventListener(Event.COMPLETE, onImageLoaded);
       image.addEventListener(IOErrorEvent.IO_ERROR, onImageIoError);
@@ -77,12 +80,12 @@ package org.bigbluebutton.main.model
     }
 
     private function onImageLoaded(e:Event):void {
-      trace(LOG + "onImageLoaded");
+      LOGGER.debug("onImageLoaded");
       _callback(e.currentTarget, e.currentTarget.contentWidth, e.currentTarget.contentHeight);
     }
 
     private function onImageIoError(e:IOErrorEvent):void {
-      trace(LOG + "onImageIoError: " + e.toString());
+      LOGGER.error("onImageIoError: " + e.toString());
     }
   }
 }

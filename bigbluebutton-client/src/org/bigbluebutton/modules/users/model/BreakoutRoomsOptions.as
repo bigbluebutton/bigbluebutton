@@ -27,6 +27,9 @@ package org.bigbluebutton.modules.users.model {
 		[Bindable]
 		public var record:Boolean = true;
 
+		[Bindable]
+		public var privateChateEnabled:Boolean = true;
+
 		public function BreakoutRoomsOptions() {
 			name = "breakoutRooms";
 		}

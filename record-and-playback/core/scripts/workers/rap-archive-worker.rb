@@ -26,32 +26,37 @@ module BigBlueButton
 
       def perform
         super do
-          @logger.info("Running archive worker for #{@meeting_id}")
+          @logger.info("Running archive worker for #{@full_id}")
           @publisher.put_archive_started(@meeting_id)
 
-          self.remove_status_files
+          remove_status_files
 
           script = File.expand_path('../../archive/archive.rb', __FILE__)
-          ret, step_time = self.run_script(script, "-m", @meeting_id)
+          if @break_timestamp.nil?
+            ret, step_time = run_script(script, '-m', @meeting_id)
+          else
+            ret, step_time = run_script(script, '-m', @meeting_id, '-b', @break_timestamp)
+          end
+
           step_succeeded = (
-            ret == 0 &&
-            (File.exists?(@archived_done) || File.exists?(@archived_norecord)) &&
-            !File.exists?(@archived_fail)
+            ret.zero? &&
+            (File.exist?(@archived_done) || File.exist?(@archived_norecord)) &&
+            !File.exist?(@archived_fail)
           )
 
           @publisher.put_archive_ended(
             @meeting_id, {
-              "success" => step_succeeded,
-              "step_time" => step_time
+              success: step_succeeded,
+              step_time: step_time,
             })
 
           if step_succeeded
-            @logger.info("Successfully archived #{@meeting_id}")
+            @logger.info("Successfully archived #{@full_id}")
           else
-            @logger.error("Failed to archive #{@meeting_id}")
+            @logger.error("Failed to archive #{@full_id}")
             FileUtils.touch(@archived_fail)
           end
-          @logger.debug("Finished archive worker for #{@meeting_id}")
+          @logger.debug("Finished archive worker for #{@full_id}")
 
           step_succeeded
         end
@@ -65,12 +70,11 @@ module BigBlueButton
 
       def initialize(opts)
         super(opts)
-        @step_name = "archive"
+        @step_name = 'archive'
         @archived_fail = "#{@recording_dir}/status/archived/#{@meeting_id}.fail"
         @archived_done = "#{@recording_dir}/status/archived/#{@meeting_id}.done"
         @archived_norecord = "#{@recording_dir}/status/archived/#{@meeting_id}.norecord"
       end
-
     end
   end
 end

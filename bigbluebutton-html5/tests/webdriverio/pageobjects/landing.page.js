@@ -1,23 +1,40 @@
-'use strict';
 
-let Page = require('./page');
-let pageObject = new Page();
-let chai = require('chai');
+const chai = require('chai');
+const sha1 = require('sha1');
+const Page = require('./page');
+
+const pageObject = new Page();
+
+const WAIT_TIME = 10000;
+
+const generateRandomMeetingId = function () {
+  return `random-${Math.floor(1000000 + 9000000 * Math.random())}`;
+};
+
+const createMeeting = function () {
+  const meetingId = generateRandomMeetingId();
+  const query = `name=${meetingId}&meetingID=${meetingId}&attendeePW=ap`
+    + '&moderatorPW=mp&joinViaHtml5=true&welcome=Welcome';
+  const checksum = sha1(`create${query}${process.env.TESTING_SECRET}`);
+  const url = `${process.env.TESTING_SERVER}create?${query}&checksum=${checksum}`;
+
+  browser.url(url);
+  browser.waitForExist('body', WAIT_TIME);
+  chai.expect($('body').getText()).to.include('<returncode>SUCCESS</returncode>');
+
+  return meetingId;
+};
 
 class LandingPage extends Page {
-  open() {
-    super.open('demo/demoHTML5.jsp');
+  get meetingNameInputSelector() {
+    return 'input[name=meetingname]';
   }
 
-  get title() {
-    return 'Join Meeting via HTML5 Client';
+  get meetingNameInputElement() {
+    return $(this.meetingNameInputSelector);
   }
 
-  get url() {
-    return `${browser.baseUrl}/demo/demoHTML5.jsp`;
-  }
-
-  // Username input field on the HTML5 client's landing page:
+  // ////////
 
   get usernameInputSelector() {
     return 'input[name=username]';
@@ -27,7 +44,17 @@ class LandingPage extends Page {
     return $(this.usernameInputSelector);
   }
 
-  // Submit button on the HTML5 client's landing page:
+  // ////////
+
+  joinWithButtonClick() {
+    this.joinButtonElement.click();
+  }
+
+  joinWithEnterKey() {
+    pageObject.pressEnter();
+  }
+
+  // ////////
 
   get joinButtonSelector() {
     return 'input[type=submit]';
@@ -37,34 +64,22 @@ class LandingPage extends Page {
     return $(this.joinButtonSelector);
   }
 
-  // Home page:
+  // ////////
 
-  get loadedHomePageSelector() {
-    return '#app';
+  joinMeeting(meetingId, fullName) {
+    const query = `fullName=${fullName}&joinViaHtml5=true`
+      + `&meetingID=${meetingId}&password=mp`;
+    const checksum = sha1(`join${query}${process.env.TESTING_SECRET}`);
+    const url = `${process.env.TESTING_SERVER}join?${query}&checksum=${checksum}`;
+    browser.url(url);
   }
 
-  get loadedHomePageElement() {
-    return $('#app');
-  }
+  // ////////
 
-  //////////
-
-  joinWithButtonClick() {
-    this.joinButtonElement.click();
-  }
-
-  joinWithEnterKey() {
-    pageObject.pressEnter();
+  joinClient(fullName) {
+    const meetingId = createMeeting();
+    this.joinMeeting(meetingId, fullName);
   }
 }
 
-// To use in the future tests that will require login
-browser.addCommand('loginToClient', function (page) {
-  page.open();
-  page.username.waitForExist();
-  page.username.setValue('Maxim');
-  page.joinWithButtonClick();
-});
-
 module.exports = new LandingPage();
-

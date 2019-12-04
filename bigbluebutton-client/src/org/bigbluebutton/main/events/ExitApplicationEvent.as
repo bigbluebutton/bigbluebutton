@@ -21,7 +21,8 @@ package org.bigbluebutton.main.events {
 
     public class ExitApplicationEvent extends Event {
 
-        public static const EXIT_APPLICATION:String = "EXIT_APPLICATION";
+		public static const CLOSE_APPLICATION:String = "CLOSE_APPLICATION";
+        public static const EXIT_APPLICATION:String  = "EXIT_APPLICATION";
 
         public function ExitApplicationEvent(type:String, bubbles:Boolean = true, cancelable:Boolean = false) {
             super(type, bubbles, cancelable);
