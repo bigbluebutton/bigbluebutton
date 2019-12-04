@@ -95,6 +95,7 @@ export default withTracker(() => {
     Meteor.subscribe('users', credentials, userIsModerator, subscriptionErrorHandler);
     Meteor.subscribe('breakouts', credentials, userIsModerator, subscriptionErrorHandler);
     Meteor.subscribe('meetings', credentials, userIsModerator, subscriptionErrorHandler);
+    logger.debug({ logCode: 'startup_client_subscription_init_streamers', extraInfo: { role: User.role } }, 'Calling init streamers functions');
     initAnnotationsStreamListener();
     initCursorStreamListener();
   }

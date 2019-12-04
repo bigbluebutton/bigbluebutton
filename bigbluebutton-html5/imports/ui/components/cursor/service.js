@@ -1,5 +1,6 @@
 import Auth from '/imports/ui/services/auth';
 import { throttle } from 'lodash';
+import logger from '/imports/startup/client/logger';
 
 const Cursor = new Mongo.Collection(null);
 let cursorStreamListener = null;
@@ -34,8 +35,16 @@ export function publishCursorUpdate(payload) {
 }
 
 export function initCursorStreamListener() {
+  logger.debug({
+    logCode: 'init_cursor_stream_listener',
+  }, 'initCursorStreamListener called');
+
   if (!cursorStreamListener) {
     cursorStreamListener = new Meteor.Streamer(`cursor-${Auth.meetingID}`, { retransmit: false });
+
+    logger.debug({
+      logCode: 'init_cursor_stream_listener',
+    }, 'initCursorStreamListener called');
 
     cursorStreamListener.on('message', ({ cursors }) => {
       Object.keys(cursors).forEach((userId) => {
