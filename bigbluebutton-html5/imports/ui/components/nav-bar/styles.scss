@@ -2,6 +2,7 @@
 
 :root {
   --mobile-nav-height: 5rem;
+  --mobile-margin-top: .25rem;
 }
 
 .navbar {
@@ -18,7 +19,7 @@
 
 .bottom {
   @include mq($phone-landscape) {
-    margin-top: .25rem;
+    margin-top: var(--mobile-margin-top);
   }
 }
 

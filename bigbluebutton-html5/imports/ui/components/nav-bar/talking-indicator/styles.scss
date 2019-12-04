@@ -75,7 +75,7 @@
     max-width: var(--talker-max-width);
 
     @include mq($phone-landscape) {
-      font-size: .575rem !important;
+      font-size: var(--font-size-xs);
     }
 
     [dir="rtl"]  & {
@@ -93,9 +93,9 @@
     right: var(--talker-margin-sm);
 
     @include mq($phone-landscape) {
-      height: .5rem;
-      width: .5rem;
-      font-size: .575rem;
+      height: var(--talker-margin-sm);
+      width: var(--talker-margin-sm);
+      font-size: var(--font-size-xs);
     }
 
     [dir="rtl"]  & {
