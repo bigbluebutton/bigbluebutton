@@ -56,17 +56,16 @@ module BigBlueButton
 
             if step_succeeded
               @logger.info("Process format succeeded for #{@full_id}:#{@format_name}")
-              @logger.info("Process took #{step_time}ms")
 
               FileUtils.mkdir_p("#{@recording_dir}/process/#{@format_name}/#{@full_id}")
               IO.write("#{@recording_dir}/process/#{@format_name}/#{@full_id}/processing_time", step_time)
 
               run_post_scripts(@post_scripts_path)
             else
-              @logger.info("Process format failed for #{@full_id}:#{@format_name}")
-              @logger.info("Process took #{step_time}ms")
+              @logger.error("Process format failed for #{@full_id}:#{@format_name}")
               FileUtils.touch(@processed_fail)
             end
+            @logger.info("Process took #{step_time}ms")
 
           else
             @logger.warn("Processed recording found for #{@full_id}:#{@format_name}, but no process script exists")

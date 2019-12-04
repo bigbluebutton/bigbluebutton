@@ -137,7 +137,8 @@ module BigBlueButton
             opts['format_name'] = step_format unless step_format.nil?
 
             @logger.info("Enqueueing #{step_name} worker with #{opts.inspect}")
-            ::Resque.enqueue(Object.const_get("BigBlueButton::Resque::#{step_name.capitalize}Worker"), opts)
+            klass = Object.const_get("BigBlueButton::Resque::#{step_name.capitalize}Worker")
+            ::Resque.enqueue(klass, opts)
           end
         end
       end

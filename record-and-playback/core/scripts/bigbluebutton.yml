@@ -25,7 +25,9 @@ redis_port: 6379
 # sequence of recording steps
 steps:
   archive: "sanity"
-  sanity: "process:presentation"
+  sanity:
+    - "captions"
+    - "process:presentation"
   process:
     presentation: "publish:presentation"
 

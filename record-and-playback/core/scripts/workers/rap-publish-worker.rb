@@ -102,7 +102,7 @@ module BigBlueButton
 
             run_post_scripts(@post_scripts_path)
           else
-            @logger.info("Publish format failed for #{@full_id}:#{@format_name}")
+            @logger.error("Publish format failed for #{@full_id}:#{@format_name}")
             FileUtils.touch(@published_fail)
           end
 

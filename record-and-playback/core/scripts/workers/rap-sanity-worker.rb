@@ -48,11 +48,6 @@ module BigBlueButton
           if step_succeeded
             @logger.info("Successfully sanity checked #{@full_id}")
             run_post_scripts(@post_scripts_path)
-
-            # TODO: temporary, move to its own worker
-            # Generate captions
-            ret = BigBlueButton.exec_ret('ruby', 'utils/captions.rb', '-m', meeting_id)
-            BigBlueButton.logger.warn("Failed to generate caption files #{ret}") if ret != 0
           else
             @logger.error("Sanity check failed on #{@full_id}")
             FileUtils.touch(@sanity_fail)
