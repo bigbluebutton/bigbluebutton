@@ -25,6 +25,7 @@ const proccess = () => {
 
     Meteor.setTimeout(proccess, CURSOR_PROCCESS_INTERVAL);
   } catch (error) {
+    Logger.error(`Error while trying to send cursor streamer data. ${error}`);
     cursorReceiverIsRunning = false;
   }
 };
