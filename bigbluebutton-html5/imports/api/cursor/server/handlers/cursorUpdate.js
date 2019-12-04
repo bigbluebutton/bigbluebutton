@@ -2,6 +2,9 @@ import { check } from 'meteor/check';
 import CursorStreamer from '/imports/api/cursor/server/streamer';
 import Logger from '/imports/startup/server/logger';
 
+
+const { streamerLog } = Meteor.settings.private.serverLog;
+
 const CURSOR_PROCCESS_INTERVAL = 30;
 
 let cursorQueue = {};
@@ -37,7 +40,10 @@ export default function handleCursorUpdate({ header, body }, meetingId) {
     cursorQueue[meetingId] = {};
   }
 
-  Logger.debug('CursorUpdate process', { cursorReceiverIsRunning });
+  if (streamerLog) {
+    Logger.debug(`CursorUpdate process for meeting ${meetingId} is running: ${cursorReceiverIsRunning}`);
+  }
+
   // overwrite since we dont care about the other positions
   cursorQueue[meetingId][userId] = body;
   if (!cursorReceiverIsRunning) proccess();
