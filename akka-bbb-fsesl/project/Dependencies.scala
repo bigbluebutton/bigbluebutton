@@ -7,26 +7,25 @@ object Dependencies {
 
   object Versions {
     // Scala
-    val scala = "2.12.8"
-    val junitInterface = "0.11"
-    val scalactic = "3.0.3"
+    val scala = "2.12.10"
+    val junit = "5.6.0-M1"
+    val scalactic = "3.1.0"
 
     // Libraries
-    val akkaVersion = "2.5.19"
+    val akkaVersion = "2.6.0"
     val logback = "1.2.3"
 
     // Apache Commons
-    val lang = "3.8.1"
-    val codec = "1.11"
+    val lang = "3.9"
+    val codec = "1.13"
 
     // BigBlueButton
     val bbbCommons = "0.0.20-SNAPSHOT"
     val bbbFsesl = "0.0.7-SNAPSHOT"
 
     // Test
-    val scalaTest = "3.0.5"
-    val akkaTestKit = "2.5.18"
-    val junit = "4.12"
+    val scalaTest = "3.1.0"
+    val akkaTestKit = "2.6.0"
   }
 
   object Compile {
@@ -48,7 +47,7 @@ object Dependencies {
 
   object Test {
     val scalaTest = "org.scalatest" %% "scalatest" % Versions.scalaTest % "test"
-    val junit = "junit" % "junit" % Versions.junit % "test"
+    val junit = "org.junit.jupiter" % "junit-jupiter-api" % Versions.junit % "test"
     val scalactic = "org.scalactic" % "scalactic_2.12" % Versions.scalactic % "test"
     val akkaTestKit = "com.typesafe.akka" %% "akka-testkit" % Versions.akkaTestKit % "test"
   }
