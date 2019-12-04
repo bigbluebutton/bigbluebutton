@@ -18,8 +18,6 @@ export function addCursorStreamer(meetingId) {
   });
 
   streamer.allowWrite(function allowWrite() {
-    Logger.debug(`Cursor streamer called allowWrite for user ${this.userId} in meeting ${meetingId}`);
-
     return this.userId && this.userId.includes(meetingId);
   });
 
