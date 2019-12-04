@@ -20,13 +20,14 @@ val compileSettings = Seq(
   )
 )
 
+resolvers += Resolver.sonatypeRepo("releases")
+
 // We want to have our jar files in lib_managed dir.
 // This way we'll have the right path when we import
 // into eclipse.
 retrieveManaged := true
 
 testOptions in Test += Tests.Argument(TestFrameworks.Specs2, "html", "console", "junitxml")
-
 testOptions in Test += Tests.Argument(TestFrameworks.ScalaTest, "-h", "target/scalatest-reports")
 
 Seq(Revolver.settings: _*)
