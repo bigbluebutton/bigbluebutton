@@ -54,16 +54,14 @@ public abstract class RedisAwareCommunicator {
     }
 
     protected void connectionStatusHandler(Event event, Logger log) {
-        //System.out.println("******** RedisAwareCommunicator - " + event);
-
         if (event instanceof ConnectedEvent) {
-            log.info("Connected to redis. clientName="+ clientName);
+            log.info("Connected to redis. clientName={}", clientName);
         } else if (event instanceof ConnectionActivatedEvent) {
-            log.info("Connected to redis activated. clientName="+ clientName);
+            log.info("Connected to redis activated. clientName={}", clientName);
         } else if (event instanceof DisconnectedEvent) {
-            log.info("Disconnected from redis. clientName="+ clientName);
+            log.info("Disconnected from redis. clientName={}", clientName);
         } else if (event instanceof ConnectionDeactivatedEvent) {
-            log.info("Connected to redis deactivated. clientName="+ clientName);
+            log.info("Connected to redis deactivated. clientName={}", clientName);
         }
     }
 

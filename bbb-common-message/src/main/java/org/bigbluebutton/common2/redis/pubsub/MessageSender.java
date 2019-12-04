@@ -67,7 +67,7 @@ public class MessageSender extends RedisAwareCommunicator {
             };
             msgSenderExec.execute(messageSender);
         } catch (Exception e) {
-            log.error("Error subscribing to channels: " + e.getMessage());
+            log.error("Error subscribing to channels: {}", e.getMessage());
         }
 
     }
@@ -79,10 +79,12 @@ public class MessageSender extends RedisAwareCommunicator {
 
     private void publish(final String channel, final String message) {
         Runnable task = new Runnable() {
+            private RedisFuture<Long> future;
+
             public void run() {
                 try (StatefulRedisPubSubConnection<String, String> connection = connectionPool.borrowObject()) {
                     RedisAsyncCommands<String, String> async = connection.async();
-                    RedisFuture<Long> future = async.publish(channel, message);
+                    future = async.publish(channel, message);
                 } catch (Exception e) {
                     log.warn("Cannot publish to redis", e);
                 }
