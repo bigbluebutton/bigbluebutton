@@ -27,7 +27,6 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
-import org.apache.commons.io.FilenameUtils;
 import org.bigbluebutton.presentation.PageConverter;
 import org.bigbluebutton.presentation.UploadedPresentation;
 import org.bigbluebutton.presentation.handlers.Pdf2PngPageConverterHandler;
