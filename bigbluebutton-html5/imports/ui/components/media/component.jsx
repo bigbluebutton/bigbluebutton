@@ -2,7 +2,6 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import cx from 'classnames';
 import WebcamDraggable from './webcam-draggable-overlay/component';
-
 import { styles } from './styles';
 
 const propTypes = {
@@ -68,9 +67,6 @@ export default class Media extends Component {
       usersVideo,
       webcamPlacement,
     } = this.props;
-
-    console.log('Storage.getItemwebcamPlacement', webcamPlacement);
-
 
     const contentClassName = cx({
       [styles.content]: true,

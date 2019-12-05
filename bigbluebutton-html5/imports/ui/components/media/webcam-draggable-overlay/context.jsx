@@ -25,6 +25,7 @@ const initialState = {
     x: 0,
     y: 0,
   },
+  optimalGrid: {},
   dragging: false,
   videoRef: null,
   videoListRef: null,
@@ -124,6 +125,12 @@ const reducer = (state, action) => {
       return {
         ...state,
         videoListRef: action.value,
+      };
+    }
+    case 'setOptimalGrid': {
+      return {
+        ...state,
+        optimalGrid: action.value,
       };
     }
     case 'dragStart': {

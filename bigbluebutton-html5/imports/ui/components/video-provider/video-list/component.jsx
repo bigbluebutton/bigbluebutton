@@ -113,7 +113,7 @@ class VideoList extends Component {
   }
 
   setOptimalGrid() {
-    const { users } = this.props;
+    const { users, webcamDraggableDispatch } = this.props;
     let numItems = users.length;
     if (numItems < 1 || !this.canvas || !this.grid) {
       return;
@@ -139,6 +139,12 @@ class VideoList extends Component {
         const betterThanCurrent = testGrid.filledArea > currentGrid.filledArea;
         return focusedConstraint && betterThanCurrent ? testGrid : currentGrid;
       }, { filledArea: 0 });
+    webcamDraggableDispatch(
+      {
+        type: 'setOptimalGrid',
+        value: optimalGrid,
+      },
+    );
     this.setState({
       optimalGrid,
     });

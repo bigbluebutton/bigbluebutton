@@ -1,5 +1,6 @@
 @import "../../stylesheets/variables/_all";
 @import "../../stylesheets/variables/video";
+@import "../video-provider/video-list/styles";
 
 $content-order: 2;
 $before-content-order: 1;
@@ -74,11 +75,19 @@ $after-content-order: 3;
   order: $after-content-order !important;
 }
 
+%overlayToRL {
+  min-width: 20%;
+  margin-left: 10px !important;
+  margin-right: 10px !important;
+}
+
 .overlayToRight {
+  @extend %overlayToRL;
   order: 2 !important;
 }
 
 .overlayToLeft {
+  @extend %overlayToRL;
   order: 0 !important;
 }
 
@@ -112,6 +121,10 @@ $after-content-order: 3;
 .autoWidth {
   min-width: calc(var(--video-height) * var(--video-ratio)) !important;
   max-width: 100%;
+
+  .videoCanvas{
+    position: relative;
+  }
 }
 
 .fullWidth {
@@ -153,16 +166,15 @@ $after-content-order: 3;
   z-index: 99;
   width: 100%;
   height: 100%;
+  &:hover {
+    background-color: rgba(255, 255, 255, .3);
+  }
 }
 
 %dropZoneBgTopBottom {
   z-index: 99;
   width: 100%;
   height: 100%;
-
-  &:hover {
-    background-color: rgba(255, 255, 255, .3);
-  }
 }
 
 .dropZoneTop {
@@ -205,13 +217,35 @@ $after-content-order: 3;
   right: 0;
 }
 
-.resizable {
+%resizableTopBottom {
   width: 100% !important;
+  &:hover{
+    background-color: rgba(255, 255, 255, .3);
+  }
 }
 
-span[class^=resizeWrapper] {
+%resizableLeftRight {
+  height: 100% !important;
+  &:hover{
+    background-color: rgba(255, 255, 255, .3);
+  }
+}
+
+.overlayToTop span[class^=resizeWrapper],
+.overlayToBottom span[class^=resizeWrapper] {
   div {
+    @extend %resizableTopBottom;
     height: 15px !important;
+    z-index: 1;
+    bottom: -10px !important;
+  }
+}
+
+.overlayToLeft span[class^=resizeWrapper],
+.overlayToRight span[class^=resizeWrapper] {
+  div {
+    @extend %resizableLeftRight;
+    width: 15px !important;
     z-index: 1;
     bottom: -10px !important;
   }
