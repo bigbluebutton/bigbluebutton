@@ -14,7 +14,7 @@
 # ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
 # FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public License for more
 # details.
-# 
+#
 # You should have received a copy of the GNU Lesser General Public License
 # along with BigBlueButton.  If not, see <http://www.gnu.org/licenses/>.
 
@@ -24,36 +24,29 @@ require 'rubygems'
 require 'yaml'
 require 'fileutils'
 require 'resque'
+require 'rb-inotify'
 
-def archive_recorded_meetings(props)
-  recording_dir = props['recording_dir']
-  recorded_done_files = Dir.glob("#{recording_dir}/status/recorded/*.done")
-
+def archive_recorded_meetings(done_file)
   FileUtils.mkdir_p("#{recording_dir}/status/archived")
-  recorded_done_files.each do |recorded_done|
-    recorded_done_base = File.basename(recorded_done, '.done')
-    meeting_id = nil
-    break_timestamp = nil
+  meeting_id = nil
+  break_timestamp = nil
 
-    if match = /^([0-9a-f]+-[0-9]+)$/.match(recorded_done_base)
-      meeting_id = match[1]
-    elsif match = /^([0-9a-f]+-[0-9]+)-([0-9]+)$/.match(recorded_done_base)
-      meeting_id = match[1]
-      break_timestamp = match[2]
-    else
-      BigBlueButton.logger.warn("Recording done file for #{recorded_done_base} has invalid format")
-      next
-    end
-
-    attrs = {
-      'meeting_id': meeting_id,
-      'break_timestamp': break_timestamp,
-    }
-    BigBlueButton.logger.info("Enqueuing job to archive #{attrs.inspect}")
-    Resque.enqueue(BigBlueButton::Resque::ArchiveWorker, attrs)
-
-    FileUtils.rm_f(recorded_done)
+  if match = /^([0-9a-f]+-[0-9]+)$/.match(done_file)
+    meeting_id = match[1]
+  elsif match = /^([0-9a-f]+-[0-9]+)-([0-9]+)$/.match(done_file)
+    meeting_id = match[1]
+    break_timestamp = match[2]
+  else
+    BigBlueButton.logger.warn("Recording done file for #{done_file} has invalid format")
+    return
   end
+
+  attrs = {
+    'meeting_id': meeting_id,
+    'break_timestamp': break_timestamp,
+  }
+  BigBlueButton.logger.info("Enqueuing job to archive #{attrs.inspect}")
+  Resque.enqueue(BigBlueButton::Resque::ArchiveWorker, attrs)
 end
 
 begin
@@ -68,12 +61,23 @@ begin
   redis_port = props['redis_workers_port'] || props['redis_port']
   Resque.redis = "#{redis_host}:#{redis_port}"
 
-  BigBlueButton.logger.debug('Running rap-trigger...')
+  logger.debug('Running rap-trigger...')
 
-  archive_recorded_meetings(props)
+  recording_dir = props['recording_dir']
+  watch_dir = "#{recording_dir}/status/recorded/"
+  logger.info("Setting up inotify watch on #{watch_dir}")
+  notifier = INotify::Notifier.new
+  notifier.watch(watch_dir, :moved_to, :create) do |event|
+    next unless event.name.end_with?('.done')
 
-  BigBlueButton.logger.debug('rap-trigger done')
+    id = File.basename(event.name, '.done')
+    logger.info "Detected recording #{id}, starting the processing"
+    archive_recorded_meetings(id)
+    FileUtils.rm_f(event.absolute_name)
+  end
 
+  logger.info('Waiting for new recordings...')
+  notifier.run
 rescue Exception => e
   BigBlueButton.logger.error(e.message)
   e.backtrace.each do |traceline|
