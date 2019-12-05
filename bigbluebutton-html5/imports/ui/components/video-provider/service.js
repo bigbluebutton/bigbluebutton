@@ -145,11 +145,6 @@ class VideoService {
     return Auth.userID;
   }
 
-  userName() {
-    const currentUser = Users.findOne({ userId: Auth.userID }, { fields: { name: 1 } });
-    return currentUser.name;
-  }
-
   meetingId() {
     return Auth.meetingID;
   }
@@ -189,7 +184,6 @@ export default {
   joinedVideo: () => videoService.joinedVideo(),
   sendUserShareWebcam: stream => videoService.sendUserShareWebcam(stream),
   sendUserUnshareWebcam: stream => videoService.sendUserUnshareWebcam(stream),
-  userName: () => videoService.userName(),
   meetingId: () => videoService.meetingId(),
   getAllWebcamUsers: () => videoService.getAllWebcamUsers(),
   sessionToken: () => videoService.sessionToken(),

@@ -221,6 +221,7 @@ class MeetingActor(
 
     case m: EjectDuplicateUserReqMsg          => usersApp.handleEjectDuplicateUserReqMsg(m)
     case m: GetAllMeetingsReqMsg              => handleGetAllMeetingsReqMsg(m)
+    case m: GetRunningMeetingStateReqMsg      => handleGetRunningMeetingStateReqMsg(m)
     case m: ValidateConnAuthTokenSysMsg       => handleValidateConnAuthTokenSysMsg(m)
 
     // Meeting
@@ -493,7 +494,11 @@ class MeetingActor(
     }
   }
 
-  def handleGetAllMeetingsReqMsg(msg: GetAllMeetingsReqMsg): Unit = {
+  def handleGetRunningMeetingStateReqMsg(msg: GetRunningMeetingStateReqMsg): Unit = {
+    processGetRunningMeetingStateReqMsg()
+  }
+
+  def processGetRunningMeetingStateReqMsg(): Unit = {
     // sync all meetings
     handleSyncGetMeetingInfoRespMsg(liveMeeting.props)
 
@@ -513,7 +518,10 @@ class MeetingActor(
     handleSyncGetLockSettingsMsg(state, liveMeeting, msgBus)
 
     // TODO send all screen sharing info
+  }
 
+  def handleGetAllMeetingsReqMsg(msg: GetAllMeetingsReqMsg): Unit = {
+    processGetRunningMeetingStateReqMsg()
   }
 
   def handlePresenterChange(msg: AssignPresenterReqMsg, state: MeetingState2x): MeetingState2x = {
