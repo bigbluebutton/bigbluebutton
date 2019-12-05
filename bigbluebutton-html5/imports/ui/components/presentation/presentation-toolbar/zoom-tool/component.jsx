@@ -145,7 +145,6 @@ class ZoomTool extends PureComponent {
       minBound,
       maxBound,
       intl,
-      tooltipDistance,
       isMeteorConnected,
       step,
     } = this.props;
@@ -181,7 +180,6 @@ class ZoomTool extends PureComponent {
               onClick={() => { }}
               disabled={(zoomValue <= minBound) || !isMeteorConnected}
               className={cx(styles.prevSlide, styles.presentationBtn)}
-              tooltipDistance={tooltipDistance}
               hideLabel
             />
             <div id="zoomOutDescription" hidden>{intl.formatMessage(intlMessages.zoomOutDesc)}</div>
@@ -199,7 +197,6 @@ class ZoomTool extends PureComponent {
               onClick={() => this.resetZoom()}
               label={intl.formatMessage(intlMessages.resetZoomLabel)}
               className={cx(styles.zoomPercentageDisplay, styles.presentationBtn)}
-              tooltipDistance={tooltipDistance}
               hideLabel
             />
             <div id="resetZoomDescription" hidden>
@@ -223,7 +220,6 @@ class ZoomTool extends PureComponent {
               onClick={() => { }}
               disabled={(zoomValue >= maxBound) || !isMeteorConnected}
               className={cx(styles.skipSlide, styles.presentationBtn)}
-              tooltipDistance={tooltipDistance}
               hideLabel
             />
             <div id="zoomInDescription" hidden>{intl.formatMessage(intlMessages.zoomInDesc)}</div>
@@ -242,7 +238,6 @@ const propTypes = {
   maxBound: PropTypes.number.isRequired,
   step: PropTypes.number.isRequired,
   isMeteorConnected: PropTypes.bool.isRequired,
-  tooltipDistance: PropTypes.number.isRequired,
 };
 
 ZoomTool.propTypes = propTypes;

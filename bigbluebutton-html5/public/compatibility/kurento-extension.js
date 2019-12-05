@@ -415,6 +415,7 @@ Kurento.prototype.onOfferPresenter = function (error, offerSdp) {
     sdpOffer: offerSdp,
     vh: this.height,
     vw: this.width,
+    userName: self.userName,
   };
 
   this.logger.info({
@@ -581,6 +582,7 @@ Kurento.prototype.onOfferViewer = function (error, offerSdp) {
     voiceBridge: self.voiceBridge,
     callerName: self.userId,
     sdpOffer: offerSdp,
+    userName: self.userName,
   };
 
   this.logger.info({

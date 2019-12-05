@@ -31,6 +31,8 @@ class AnalyticsActor extends Actor with ActorLogging {
 
     msg.core match {
       case m: GetAllMeetingsReqMsg                           => logMessage(msg)
+      case m: GetRunningMeetingsRespMsg                      => logMessage(msg)
+      case m: GetRunningMeetingsReqMsg                       => logMessage(msg)
 
       case m: RegisterUserReqMsg                             => logMessage(msg)
       case m: RegisteredUserJoinTimeoutMsg                   => logMessage(msg)

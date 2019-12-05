@@ -1,6 +1,9 @@
 import Meetings from '/imports/api/meetings';
 import Logger from '/imports/startup/server/logger';
 
+import { removeAnnotationsStreamer } from '/imports/api/annotations/server/streamer';
+import { removeCursorStreamer } from '/imports/api/cursor/server/streamer';
+
 import clearUsers from '/imports/api/users/server/modifiers/clearUsers';
 import clearUsersSettings from '/imports/api/users-settings/server/modifiers/clearUsersSettings';
 import clearGroupChat from '/imports/api/group-chat/server/modifiers/clearGroupChat';
@@ -18,6 +21,9 @@ import clearLocalSettings from '/imports/api/local-settings/server/modifiers/cle
 import clearRecordMeeting from './clearRecordMeeting';
 
 export default function meetingHasEnded(meetingId) {
+  removeAnnotationsStreamer(meetingId);
+  removeCursorStreamer(meetingId);
+
   return Meetings.remove({ meetingId }, () => {
     clearCaptions(meetingId);
     clearGroupChat(meetingId);

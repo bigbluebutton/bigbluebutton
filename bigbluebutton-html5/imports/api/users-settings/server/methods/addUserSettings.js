@@ -46,6 +46,7 @@ const currentParameters = [
   'bbb_enable_screen_sharing',
   'bbb_enable_video',
   'bbb_enable_video_stats',
+  'bbb_skip_video_preview',
   // WHITEBOARD
   'bbb_multi_user_pen_only',
   'bbb_presenter_tools',

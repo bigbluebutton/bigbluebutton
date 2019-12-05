@@ -1,6 +1,21 @@
 @import "../../stylesheets/variables/_all";
 
+:root {
+  --safari-mobile-nav-height: 5rem;
+}
+
 .navbar {
+  display: flex;
+  flex-direction: column;
+  height: var(--jumbo-padding-x);
+  
+  :global(.browser-safari) & {
+    height: var(--safari-mobile-nav-height);
+  }
+}
+
+.top,
+.bottom {
   display: flex;
   flex-direction: row;
 }
@@ -14,7 +29,6 @@
   align-items: center;
 }
 
-.left,
 .right {
   flex: 0;
 }

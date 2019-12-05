@@ -1,5 +1,5 @@
 import { check } from 'meteor/check';
-import { CursorStreamer } from '/imports/api/cursor';
+import CursorStreamer from '/imports/api/cursor/server/streamer';
 
 const CURSOR_PROCCESS_INTERVAL = 30;
 
@@ -12,9 +12,9 @@ const proccess = () => {
     return;
   }
   cursorRecieverIsRunning = true;
-  
-  Object.keys(cursorQueue).forEach(meetingId => {
-    CursorStreamer.emit('message', { meetingId, cursors: cursorQueue[meetingId] });
+
+  Object.keys(cursorQueue).forEach((meetingId) => {
+    CursorStreamer(meetingId).emit('message', { meetingId, cursors: cursorQueue[meetingId] });
   });
   cursorQueue = {};
 
@@ -28,7 +28,7 @@ export default function handleCursorUpdate({ header, body }, meetingId) {
   check(meetingId, String);
   check(userId, String);
 
-  if(!cursorQueue.hasOwnProperty(meetingId)) {
+  if (!cursorQueue.hasOwnProperty(meetingId)) {
     cursorQueue[meetingId] = {};
   }
   // overwrite since we dont care about the other positions

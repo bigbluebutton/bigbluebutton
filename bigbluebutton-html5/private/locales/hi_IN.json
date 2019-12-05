@@ -119,7 +119,6 @@
     "app.presentationUploder.currentBadge": "वर्तमान",
     "app.presentationUploder.genericError": "ओह! कुछ गलत हो गया है",
     "app.presentationUploder.upload.progress": "अपलोड करना ({0}%)",
-    "app.presentationUploder.upload.413": "फ़ाइल बहुत बड़ी है, अधिकतम 200 पृष्ठ पहुंच गए हैं",
     "app.presentationUploder.conversion.conversionProcessingSlides": "प्रोसेसिंग पेज {0} का {1}",
     "app.presentationUploder.conversion.genericConversionStatus": "फ़ाइल परिवर्तित कर रहा है ...",
     "app.presentationUploder.conversion.generatingThumbnail": "थंबनेल बनाए जा रहे हैं ...",

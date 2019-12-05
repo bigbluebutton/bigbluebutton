@@ -102,11 +102,16 @@ class PresentationToolbar extends PureComponent {
     const isBody = target.nodeName === 'BODY';
 
     if (isBody) {
-      if ([KEY_CODES.ARROW_LEFT].includes(which)) {
-        this.previousSlideHandler();
-      }
-      if ([KEY_CODES.ARROW_RIGHT].includes(which)) {
-        this.nextSlideHandler();
+      switch (which) {
+        case KEY_CODES.ARROW_LEFT:
+        case KEY_CODES.PAGE_UP:
+          this.previousSlideHandler();
+          break;
+        case KEY_CODES.ARROW_RIGHT:
+        case KEY_CODES.PAGE_DOWN:
+          this.nextSlideHandler();
+          break;
+        default:
       }
     }
   }
@@ -212,8 +217,6 @@ class PresentationToolbar extends PureComponent {
     const isMobileBrowser = BROWSER_RESULTS.mobile
       || BROWSER_RESULTS.os.includes('Android');
 
-    const tooltipDistance = 35;
-
     const startOfSlides = !(currentSlideNum > 1);
     const endOfSlides = !(currentSlideNum < numberOfSlides);
 
@@ -243,11 +246,9 @@ class PresentationToolbar extends PureComponent {
               label={intl.formatMessage(intlMessages.previousSlideLabel)}
               hideLabel
               className={cx(styles.prevSlide, styles.presentationBtn)}
-              tooltipDistance={tooltipDistance}
             />
 
             <Tooltip
-              tooltipDistance={tooltipDistance}
               title={intl.formatMessage(intlMessages.selectLabel)}
               className={styles.presentationBtn}
             >
@@ -277,7 +278,6 @@ class PresentationToolbar extends PureComponent {
               label={intl.formatMessage(intlMessages.nextSlideLabel)}
               hideLabel
               className={cx(styles.skipSlide, styles.presentationBtn)}
-              tooltipDistance={tooltipDistance}
             />
           </div>
         }
@@ -292,7 +292,6 @@ class PresentationToolbar extends PureComponent {
                     minBound={HUNDRED_PERCENT}
                     maxBound={MAX_PERCENT}
                     step={STEP}
-                    tooltipDistance={tooltipDistance}
                     isMeteorConnected={isMeteorConnected}
                   />
                 )
@@ -317,7 +316,6 @@ class PresentationToolbar extends PureComponent {
               }
               hideLabel
               className={cx(styles.fitToWidth, styles.presentationBtn)}
-              tooltipDistance={tooltipDistance}
             />
             {
               ALLOW_FULLSCREEN
@@ -326,7 +324,6 @@ class PresentationToolbar extends PureComponent {
                     fullscreenRef={fullscreenRef}
                     isFullscreen={isFullscreen}
                     elementName={intl.formatMessage(intlMessages.presentationLabel)}
-                    tooltipDistance={tooltipDistance}
                     className={styles.presentationBtn}
                   />
                 )
