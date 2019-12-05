@@ -147,10 +147,10 @@ class WebcamDraggable extends Component {
         top, left, width, height,
       } = videoListRefRect;
       return {
-        top: top - 10, // 10 = margin
+        top, // 10 = margin
         left, // 10 = margin
         width, // 20 = margin
-        height: height + 20, // 20 = margin
+        height, // 20 = margin
       };
     }
     return false;
@@ -191,31 +191,30 @@ class WebcamDraggable extends Component {
         webcamDraggableDispatch({ type: 'setplacementToTop' });
       } else if (targetClassname.includes('Right')) {
         webcamDraggableDispatch({ type: 'setplacementToRight' });
-        webcamDraggableDispatch(
-          {
-            type: 'setLastPosition',
-            value: {
-              x: 0,
-              y: 0,
-            },
-          },
-        );
+        // webcamDraggableDispatch(
+        //   {
+        //     type: 'setLastPosition',
+        //     value: {
+        //       x: 0,
+        //       y: 0,
+        //     },
+        //   },
+        // );
       } else if (targetClassname.includes('Bottom')) {
         webcamDraggableDispatch({ type: 'setplacementToBottom' });
       } else if (targetClassname.includes('Left')) {
         webcamDraggableDispatch({ type: 'setplacementToLeft' });
-        webcamDraggableDispatch(
-          {
-            type: 'setLastPosition',
-            value: {
-              x: 0,
-              y: 0,
-            },
-          },
-        );
+        // webcamDraggableDispatch(
+        //   {
+        //     type: 'setLastPosition',
+        //     value: {
+        //       x: 0,
+        //       y: 0,
+        //     },
+        //   },
+        // );
       }
     }
-    this.handleWebcamDragStart();
     webcamDraggableDispatch({ type: 'dragEnd' });
     window.dispatchEvent(new Event('resize'));
   }
