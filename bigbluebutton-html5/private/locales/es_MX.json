@@ -119,7 +119,6 @@
     "app.presentationUploder.currentBadge": "Acual",
     "app.presentationUploder.genericError": "Ups, algo salio mal",
     "app.presentationUploder.upload.progress": "Cargando ({0}%)",
-    "app.presentationUploder.upload.413": "Archivo demasiado grande pasa el máximo de 200 páginas.",
     "app.presentationUploder.conversion.conversionProcessingSlides": "Procesando página {0} de {1}",
     "app.presentationUploder.conversion.genericConversionStatus": "Convirtiendo archivos ...",
     "app.presentationUploder.conversion.generatingThumbnail": "Generando miniaturas ...",

@@ -18,6 +18,8 @@ const getUserId = () => Auth.userID;
 
 const getMeetingId = () => Auth.meetingID;
 
+const getUsername = () => Auth.fullname;
+
 const getSessionToken = () => Auth.sessionToken;
 
 export default class KurentoScreenshareBridge {
@@ -75,6 +77,7 @@ export default class KurentoScreenshareBridge {
         wsUrl: Auth.authenticateURL(SFU_URL),
         iceServers,
         logger,
+        userName: getUsername(),
       };
 
       const screenshareTag = document.getElementById(SCREENSHARE_VIDEO_TAG);
@@ -173,6 +176,7 @@ export default class KurentoScreenshareBridge {
         firefoxScreenshareSource: FIREFOX_SCREENSHARE_SOURCE,
         iceServers,
         logger,
+        userName: getUsername(),
       };
 
       let started = false;

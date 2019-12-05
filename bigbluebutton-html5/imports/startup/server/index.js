@@ -2,12 +2,10 @@ import { Meteor } from 'meteor/meteor';
 import { WebAppInternals } from 'meteor/webapp';
 import Langmap from 'langmap';
 import fs from 'fs';
-import heapdump from 'heapdump';
 import Users from '/imports/api/users';
 import './settings';
 import { lookup as lookupUserAgent } from 'useragent';
 import { check } from 'meteor/check';
-import memwatch from 'memwatch-next';
 import Logger from './logger';
 import Redis from './redis';
 import setMinBrowserVersions from './minBrowserVersion';
@@ -21,7 +19,11 @@ Meteor.startup(() => {
   const INTERVAL_TIME = INTERVAL_IN_SETTINGS < 10000 ? 10000 : INTERVAL_IN_SETTINGS;
   const env = Meteor.isDevelopment ? 'development' : 'production';
   const CDN_URL = APP_CONFIG.cdn;
-  let heapDumpMbThreshold = 100;
+
+  // Commenting out in BBB 2.3 as node12 does not allow for `memwatch`.
+  // We are looking for alternatives
+
+  /* let heapDumpMbThreshold = 100;
 
   const memoryMonitoringSettings = Meteor.settings.private.memoryMonitoring;
   if (memoryMonitoringSettings.stat.enabled) {
@@ -44,7 +46,7 @@ Meteor.startup(() => {
     memwatch.on('leak', (info) => {
       Logger.info('memwatch leak', info);
     });
-  }
+  } */
 
   if (CDN_URL.trim()) {
     // Add CDN

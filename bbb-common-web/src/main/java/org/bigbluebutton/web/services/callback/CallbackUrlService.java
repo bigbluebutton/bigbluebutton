@@ -194,11 +194,11 @@ public class CallbackUrlService {
 	}
 
 	private boolean fetchCallbackUrl(final String callbackUrl) {
-		String finalUrl = followRedirect(callbackUrl, 0, callbackUrl);
-
-		log.info("Calling callback url {}", finalUrl);
-
-		if (finalUrl == null) return false;
+		// Do not handle redirects as we must expect that the passed
+		// in callback url on meeting create must be working.
+		//String finalUrl = followRedirect(callbackUrl, 0, callbackUrl);
+		//log.info("Calling callback url {}", finalUrl);
+		//if (finalUrl == null) return false;
 
 		boolean success = false;
 
@@ -206,7 +206,7 @@ public class CallbackUrlService {
 		try {
 			httpclient.start();
 
-			HttpGet request = new HttpGet(finalUrl);
+			HttpGet request = new HttpGet(callbackUrl);
 
 			Future<HttpResponse> future = httpclient.execute(request, null);
 			HttpResponse response = future.get();

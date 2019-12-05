@@ -5,16 +5,16 @@ import VoiceUsers from '/imports/api/voice-users';
 import SIPBridge from '/imports/api/audio/client/bridge/sip';
 import logger from '/imports/startup/client/logger';
 import { notify } from '/imports/ui/services/notification';
-import browser from 'browser-detect';
 import playAndRetry from '/imports/utils/mediaElementPlayRetry';
-import iosWebviewAudioPolyfills from '../../../utils/ios-webview-audio-polyfills';
-import { tryGenerateIceCandidates } from '../../../utils/safari-webrtc';
+import iosWebviewAudioPolyfills from '/imports/utils/ios-webview-audio-polyfills';
+import { tryGenerateIceCandidates } from '/imports/utils/safari-webrtc';
 import AudioErrors from './error-codes';
 
 const MEDIA = Meteor.settings.public.media;
 const MEDIA_TAG = MEDIA.mediaTag;
 const ECHO_TEST_NUMBER = MEDIA.echoTestNumber;
 const MAX_LISTEN_ONLY_RETRIES = 1;
+const LISTEN_ONLY_CALL_TIMEOUT_MS = 15000;
 
 const CALL_STATES = {
   STARTED: 'started',
@@ -153,7 +153,6 @@ class AudioManager {
     this.isListenOnly = true;
     this.isEchoTest = false;
 
-    const { name } = browser();
     // The kurento bridge isn't a full audio bridge yet, so we have to differ it
     const bridge = this.useKurento ? this.listenOnlyBridge : this.bridge;
 
@@ -163,14 +162,18 @@ class AudioManager {
       inputStream: this.createListenOnlyStream(),
     };
 
-    // Webkit ICE restrictions demand a capture device permission to release
-    // host candidates
-    if (name === 'safari') {
-      try {
-        await tryGenerateIceCandidates();
-      } catch (e) {
-        this.notify(this.intl.formatMessage(this.messages.error.ICE_NEGOTIATION_FAILED));
-      }
+    // WebRTC restrictions may need a capture device permission to release
+    // useful ICE candidates on recvonly/no-gUM peers
+    try {
+      await tryGenerateIceCandidates();
+    } catch (error) {
+      logger.error({
+        logCode: 'listenonly_no_valid_candidate_gum_failure',
+        extraInfo: {
+          errorName: error.name,
+          errorMessage: error.message,
+        },
+      }, `Forced gUM to release additional ICE candidates failed due to ${error.name}.`);
     }
 
     // Call polyfills for webrtc client if navigator is "iOS Webview"
@@ -181,30 +184,36 @@ class AudioManager {
     }
 
     // We need this until we upgrade to SIP 9x. See #4690
-    const iceGatheringErr = 'ICE_TIMEOUT';
+    const listenOnlyCallTimeoutErr = this.useKurento ? 'KURENTO_CALL_TIMEOUT' : 'SIP_CALL_TIMEOUT';
+
     const iceGatheringTimeout = new Promise((resolve, reject) => {
-      setTimeout(reject, 12000, iceGatheringErr);
+      setTimeout(reject, LISTEN_ONLY_CALL_TIMEOUT_MS, listenOnlyCallTimeoutErr);
     });
 
-    const handleListenOnlyError = async (err) => {
-      const error = {
-        type: 'MEDIA_ERROR',
-        message: this.messages.error.MEDIA_ERROR,
-      };
+    const exitKurentoAudio = () => {
+      if (this.useKurento) {
+        window.kurentoExitAudio();
+        const audio = document.querySelector(MEDIA_TAG);
+        audio.muted = false;
+      }
+    };
 
+    const handleListenOnlyError = (err) => {
       if (iceGatheringTimeout) {
         clearTimeout(iceGatheringTimeout);
       }
 
+      const errorReason = (typeof err === 'string' ? err : undefined) || err.errorReason || err.errorMessage;
+      const bridgeInUse = (this.useKurento ? 'Kurento' : 'SIP');
+
       logger.error({
         logCode: 'audiomanager_listenonly_error',
         extraInfo: {
-          error: err,
+          errorReason,
+          audioBridge: bridgeInUse,
           retries,
         },
-      }, 'Listen only error');
-
-      throw error;
+      }, `Listen only error - ${err} - bridge: ${bridgeInUse}`);
     };
 
     logger.info({ logCode: 'audiomanager_join_listenonly', extraInfo: { logType: 'user_action' } }, 'user requested to connect to audio conference as listen only');
@@ -217,24 +226,28 @@ class AudioManager {
         iceGatheringTimeout,
       ]))
       .catch(async (err) => {
+        handleListenOnlyError(err);
+
         if (retries < MAX_LISTEN_ONLY_RETRIES) {
           // Fallback to SIP.js listen only in case of failure
           if (this.useKurento) {
-            // Exit previous SFU session and clean audio tag state
-            window.kurentoExitAudio();
+            exitKurentoAudio();
+
             this.useKurento = false;
-            const audio = document.querySelector(MEDIA_TAG);
-            audio.muted = false;
+
+            const errorReason = (typeof err === 'string' ? err : undefined) || err.errorReason || err.errorMessage;
+
+            logger.info({
+              logCode: 'audiomanager_listenonly_fallback',
+              extraInfo: {
+                logType: 'fallback',
+                errorReason,
+              },
+            }, `Falling back to FreeSWITCH listenOnly - cause: ${errorReason}`);
           }
 
-          try {
-            retries += 1;
-            await this.joinListenOnly(retries);
-          } catch (error) {
-            return handleListenOnlyError(error);
-          }
-        } else {
-          return handleListenOnlyError(err);
+          retries += 1;
+          this.joinListenOnly(retries);
         }
 
         return null;
@@ -306,7 +319,6 @@ class AudioManager {
     this.isConnected = false;
     this.isConnecting = false;
     this.isHangingUp = false;
-    this.isListenOnly = false;
     this.autoplayBlocked = false;
     this.failedMediaElements = [];
 
@@ -360,7 +372,7 @@ class AudioManager {
             errorCode: error,
             cause: bridgeError,
           },
-        }, 'Audio Error');
+        }, `Audio error - errorCode=${error}, cause=${bridgeError}`);
         if (silenceNotifications !== true) {
           this.notify(errorMsg, true);
           this.exitAudio();

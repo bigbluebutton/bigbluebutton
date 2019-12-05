@@ -1,6 +1,7 @@
 import { check } from 'meteor/check';
 import Logger from '/imports/startup/server/logger';
 import VoiceUsers from '/imports/api/voice-users';
+import { clearSpokeTimeout } from '/imports/api/common/server/helpers';
 
 export default function removeVoiceUser(meetingId, voiceUser) {
   check(meetingId, String);
@@ -23,8 +24,11 @@ export default function removeVoiceUser(meetingId, voiceUser) {
       talking: false,
       listenOnly: false,
       joined: false,
+      spoke: false,
     },
   };
+
+  clearSpokeTimeout(meetingId, intId);
 
   const cb = (err) => {
     if (err) {

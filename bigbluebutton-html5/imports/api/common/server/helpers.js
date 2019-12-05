@@ -4,6 +4,14 @@ import Users from '/imports/api/users';
 const MSG_DIRECT_TYPE = 'DIRECT';
 const NODE_USER = 'nodeJSapp';
 
+export const spokeTimeoutHandles = {};
+export const clearSpokeTimeout = (meetingId, userId) => {
+  if (spokeTimeoutHandles[`${meetingId}-${userId}`]) {
+    Meteor.clearTimeout(spokeTimeoutHandles[`${meetingId}-${userId}`]);
+    delete spokeTimeoutHandles[`${meetingId}-${userId}`];
+  }
+};
+
 export const indexOf = [].indexOf || function (item) {
   for (let i = 0, l = this.length; i < l; i += 1) {
     if (i in this && this[i] === item) {

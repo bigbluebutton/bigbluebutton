@@ -7,11 +7,13 @@ import Service from './service';
 import VideoPreview from './component';
 import VideoService from '../video-provider/service';
 
-const CAMERA_PROFILES = Meteor.settings.public.kurento.cameraProfiles;
+const KURENTO_CONFIG = Meteor.settings.public.kurento;
+const CAMERA_PROFILES = KURENTO_CONFIG.cameraProfiles;
+const SKIP_VIDEO_PREVIEW = KURENTO_CONFIG.skipVideoPreview;
 
 const VideoPreviewContainer = props => <VideoPreview {...props} />;
 
-export default withModalMounter(withTracker(({ mountModal }) => ({
+export default withModalMounter(withTracker(({ mountModal, fromInterface }) => ({
   startSharing: () => {
     mountModal(null);
     VideoService.joinVideo();
@@ -22,4 +24,5 @@ export default withModalMounter(withTracker(({ mountModal }) => ({
   changeProfile: profileId => Service.changeProfile(profileId),
   hasMediaDevices: deviceInfo.hasMediaDevices,
   userParameterProfile: getFromUserSettings('bbb_preferred_camera_profile', (CAMERA_PROFILES.filter(i => i.default) || {}).id),
+  skipVideoPreview: (getFromUserSettings('bbb_skip_video_preview', false) || SKIP_VIDEO_PREVIEW) && !fromInterface,
 }))(VideoPreviewContainer));
