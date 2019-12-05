@@ -47,6 +47,7 @@
     "heapdump": "^0.3.15",
     "history": "~4.7.2",
     "immutability-helper": "~2.8.1",
+    "jssha": "^2.3.1",
     "langmap": "0.0.16",
     "lodash": "^4.17.15",
     "makeup-screenreader-trap": "0.0.5",

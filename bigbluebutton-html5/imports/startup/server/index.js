@@ -7,9 +7,11 @@ import Users from '/imports/api/users';
 import './settings';
 import { lookup as lookupUserAgent } from 'useragent';
 import { check } from 'meteor/check';
+import { exec } from 'child_process';
 import memwatch from 'memwatch-next';
-import Logger from './logger';
+import Logger, { logTransports } from './logger';
 import Redis from './redis';
+import Jssha from 'jssha';
 import setMinBrowserVersions from './minBrowserVersion';
 import userLeaving from '/imports/api/users/server/methods/userLeaving';
 
@@ -220,6 +222,64 @@ WebApp.connectHandlers.use('/useragent', (req, res) => {
   // res.setHeader('Content-Type', 'application/json');
   res.writeHead(200);
   res.end(response);
+});
+
+
+WebApp.connectHandlers.use('/setLogLevel', (req, res) => {
+  let secretKeyBBBConf = null;
+  exec('bbb-conf --secret', (err, stdout, stderr) => {
+    const lines = stdout.split(/\r\n|\r|\n/);
+    const secretKeyLine = lines.filter(value => value.toLowerCase().includes('secret: '))[0];
+    const secretKey = secretKeyLine.replace('Secret: ', '').trim();
+    secretKeyBBBConf = secretKey;
+  });
+
+  const { query } = req;
+  const { level: paramLevel, checksum: paramCheckSum } = query;
+
+  const shaObject = new Jssha('SHA-256', 'TEXT');
+  shaObject.update(`${secretKeyBBBConf}${paramLevel}`);
+  const checksum = shaObject.getHash('HEX');
+
+  const avaibleLevels = [
+    'error',
+    'warn',
+    'info',
+    'http',
+    'verbose',
+    'debug',
+    'silly',
+  ];
+  let response = {};
+  if (checksum !== paramCheckSum) {
+    response = {
+      error: 'The checksum is wrong',
+    };
+    Logger.error(`The checksum is wrong, the expected checksum is ${checksum}`);
+    res.setHeader('Content-Type', 'application/json');
+    res.writeHead(403);
+    res.end(JSON.stringify(response));
+    return;
+  }
+
+
+  if (avaibleLevels.includes(paramLevel.toLowerCase())) {
+    logTransports.console.level = paramLevel;
+    response = {
+      settedLevel: paramLevel,
+    };
+    res.setHeader('Content-Type', 'application/json');
+    res.writeHead(200);
+  } else {
+    response = {
+      error: 'Level not accepted, please verify trace levels',
+      levels: avaibleLevels,
+    };
+
+    res.setHeader('Content-Type', 'application/json');
+    res.writeHead(406);
+  }
+  res.end(JSON.stringify(response));
 });
 
 export const eventEmitter = Redis.emitter;
