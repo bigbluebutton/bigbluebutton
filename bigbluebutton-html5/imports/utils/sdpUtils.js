@@ -185,17 +185,21 @@ const analyzeSdp = (sdp) => {
   // candidate types
   logger.info({
     logCode: 'sdp_utils_candidate_types',
-    foundV4Candidate: v4Info.found,
-    foundV4PublicCandidate: v4Info.public,
-    foundV6Candidate: v6Info.found,
+    extraInfo: {
+      foundV4Candidate: v4Info.found,
+      foundV4PublicCandidate: v4Info.public,
+      foundV6Candidate: v6Info.found,
+    },
   }, `Found candidates ${v4Info.found ? 'with' : 'without'} type v4 (public? ${v4Info.public}) and ${v6Info.found ? 'with' : 'without'} type v6`);
 
   // server reflexive
   if (srflxInfo.found) {
     logger.info({
       logCode: 'sdp_utils_server_reflexive_found',
-      candidateType: srflxInfo.type,
-      canddiatePublic: srflxInfo.public,
+      extraInfo: {
+        candidateType: srflxInfo.type,
+        canddiatePublic: srflxInfo.public,
+      },
     }, 'Found a server reflexive candidate');
   } else {
     logger.info({
@@ -207,8 +211,10 @@ const analyzeSdp = (sdp) => {
   if (prflxInfo.found) {
     logger.info({
       logCode: 'sdp_utils_peer_reflexive_found',
-      candidateType: prflxInfo.type,
-      canddiatePublic: prflxInfo.public,
+      extraInfo: {
+        candidateType: prflxInfo.type,
+        canddiatePublic: prflxInfo.public,
+      },
     }, 'Found a peer reflexive candidate');
   } else {
     logger.info({
@@ -220,8 +226,10 @@ const analyzeSdp = (sdp) => {
   if (relayInfo.found) {
     logger.info({
       logCode: 'sdp_utils_relay_found',
-      candidateType: relayInfo.type,
-      canddiatePublic: relayInfo.public,
+      extraInfo: {
+        candidateType: relayInfo.type,
+        canddiatePublic: relayInfo.public,
+      },
     }, 'Found a relay candidate');
   } else {
     logger.info({
