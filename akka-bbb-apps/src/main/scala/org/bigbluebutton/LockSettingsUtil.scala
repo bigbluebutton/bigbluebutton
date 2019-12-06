@@ -58,10 +58,12 @@ object LockSettingsUtil {
           }
         }
       }
+    } else {
+      enforceListenOnlyUserIsMuted(intUserId, liveMeeting, outGW)
     }
   }
 
-  def enforceListenOnlyUserIsMuted(intUserId: String, liveMeeting: LiveMeeting, outGW: OutMsgRouter): Unit = {
+  private def enforceListenOnlyUserIsMuted(intUserId: String, liveMeeting: LiveMeeting, outGW: OutMsgRouter): Unit = {
     val voiceUser = VoiceUsers.findWithIntId(liveMeeting.voiceUsers, intUserId)
     voiceUser.foreach { vu =>
       // Make sure that listen only user is muted. (ralam dec 6, 2019

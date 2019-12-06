@@ -35,8 +35,8 @@ trait UserTalkingInVoiceConfEvtMsgHdlr {
     for {
       talkingUser <- VoiceUsers.userTalking(liveMeeting.voiceUsers, msg.body.voiceUserId, msg.body.talking)
     } yield {
-      // Make sure listen only users cannot talk (ralam dec 6, 2019)
-      LockSettingsUtil.enforceListenOnlyUserIsMuted(
+      // Make sure lock settings are in effect (ralam dec 6, 2019)
+      LockSettingsUtil.enforceLockSettingsForVoiceUser(
         talkingUser.intId,
         liveMeeting,
         outGW

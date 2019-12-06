@@ -94,9 +94,9 @@ object VoiceApp {
     for {
       mutedUser <- VoiceUsers.userMuted(liveMeeting.voiceUsers, voiceUserId, muted)
     } yield {
-      if (!muted && mutedUser.listenOnly) {
-        // Make sure listen only users cannot talk (ralam dec 6, 2019)
-        LockSettingsUtil.enforceListenOnlyUserIsMuted(
+      if (!muted) {
+        // Make sure lock settings are in effect (ralam dec 6, 2019)
+        LockSettingsUtil.enforceLockSettingsForVoiceUser(
           mutedUser.intId,
           liveMeeting,
           outGW
@@ -261,7 +261,8 @@ object VoiceApp {
       outGW.send(event)
     }
 
-    LockSettingsUtil.enforceListenOnlyUserIsMuted(
+    // Make sure lock settings are in effect. (ralam dec 6, 2019)
+    LockSettingsUtil.enforceLockSettingsForVoiceUser(
       intId,
       liveMeeting,
       outGW
