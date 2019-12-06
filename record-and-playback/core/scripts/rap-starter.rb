@@ -88,7 +88,11 @@ begin
   end
 
   logger.info('Waiting for new recordings...')
+  Signal.trap('INT') { raise :sigint }
+  Signal.trap('TERM') { raise :sigint }
   notifier.run
+rescue :signint
+  notifier.stop
 rescue Exception => e
   BigBlueButton.logger.error(e.message)
   e.backtrace.each do |traceline|
