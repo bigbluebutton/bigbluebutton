@@ -94,12 +94,21 @@ object VoiceApp {
     for {
       mutedUser <- VoiceUsers.userMuted(liveMeeting.voiceUsers, voiceUserId, muted)
     } yield {
-      broadcastUserMutedVoiceEvtMsg(
-        liveMeeting.props.meetingProp.intId,
-        mutedUser,
-        liveMeeting.props.voiceProp.voiceConf,
-        outGW
-      )
+      if (!muted && mutedUser.listenOnly) {
+        // Make sure listen only users cannot talk (ralam dec 6, 2019)
+        LockSettingsUtil.enforceListenOnlyUserIsMuted(
+          mutedUser.intId,
+          liveMeeting,
+          outGW
+        )
+      } else {
+        broadcastUserMutedVoiceEvtMsg(
+          liveMeeting.props.meetingProp.intId,
+          mutedUser,
+          liveMeeting.props.voiceProp.voiceConf,
+          outGW
+        )
+      }
     }
   }
 
