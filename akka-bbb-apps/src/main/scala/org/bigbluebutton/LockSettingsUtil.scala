@@ -22,7 +22,7 @@ object LockSettingsUtil {
   private def applyMutingOfUsers(disableMic: Boolean, liveMeeting: LiveMeeting, outGW: OutMsgRouter): Unit = {
     VoiceUsers.findAll(liveMeeting.voiceUsers) foreach { vu =>
       Users2x.findWithIntId(liveMeeting.users2x, vu.intId).foreach { user =>
-        if (user.role == Roles.VIEWER_ROLE && !vu.listenOnly && !user.locked) {
+        if (user.role == Roles.VIEWER_ROLE && !vu.listenOnly && user.locked) {
           // Apply lock setting to users who are not listen only. (ralam dec 6, 2019)
           muteUserInVoiceConf(liveMeeting, outGW, vu, disableMic)
         }
@@ -44,7 +44,7 @@ object LockSettingsUtil {
     val permissions = MeetingStatus2x.getPermissions(liveMeeting.status)
     if (permissions.disableMic) {
       Users2x.findWithIntId(liveMeeting.users2x, voiceUser.intId).foreach { user =>
-        if (user.role == Roles.VIEWER_ROLE) {
+        if (user.role == Roles.VIEWER_ROLE && user.locked) {
           // Make sure that user is muted when lock settings has mic disabled. (ralam dec 6, 2019
           if (!voiceUser.muted) {
             muteUserInVoiceConf(liveMeeting, outGW, voiceUser, true)
