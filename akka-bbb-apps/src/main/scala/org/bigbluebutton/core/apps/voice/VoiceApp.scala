@@ -97,18 +97,19 @@ object VoiceApp {
       if (!muted) {
         // Make sure lock settings are in effect (ralam dec 6, 2019)
         LockSettingsUtil.enforceLockSettingsForVoiceUser(
-          mutedUser.intId,
+          mutedUser,
           liveMeeting,
           outGW
         )
-      } else {
-        broadcastUserMutedVoiceEvtMsg(
-          liveMeeting.props.meetingProp.intId,
-          mutedUser,
-          liveMeeting.props.voiceProp.voiceConf,
-          outGW
-        )
       }
+
+      broadcastUserMutedVoiceEvtMsg(
+        liveMeeting.props.meetingProp.intId,
+        mutedUser,
+        liveMeeting.props.voiceProp.voiceConf,
+        outGW
+      )
+
     }
   }
 
@@ -170,6 +171,20 @@ object VoiceApp {
     }
   }
 
+  private def checkAndEjectOldDuplicateVoiceConfUser(
+      userid:      String,
+      liveMeeting: LiveMeeting,
+      outGW:       OutMsgRouter
+  ): Unit = {
+    for {
+      u <- VoiceUsers.findWithIntId(liveMeeting.voiceUsers, userid)
+      oldU <- VoiceUsers.removeWithIntId(liveMeeting.voiceUsers, userid)
+    } yield {
+      val event = MsgBuilder.buildEjectUserFromVoiceConfSysMsg(liveMeeting.props.meetingProp.intId, liveMeeting.props.voiceProp.voiceConf, oldU.voiceUserId)
+      outGW.send(event)
+    }
+  }
+
   def handleUserJoinedVoiceConfEvtMsg(
       liveMeeting:  LiveMeeting,
       outGW:        OutMsgRouter,
@@ -224,6 +239,8 @@ object VoiceApp {
       outGW.send(msgEvent)
     }
 
+    checkAndEjectOldDuplicateVoiceConfUser(intId, liveMeeting, outGW)
+
     val isListenOnly = if (callerIdName.startsWith("LISTENONLY")) true else false
 
     val voiceUserState = VoiceUserState(
@@ -263,12 +280,11 @@ object VoiceApp {
 
     // Make sure lock settings are in effect. (ralam dec 6, 2019)
     LockSettingsUtil.enforceLockSettingsForVoiceUser(
-      intId,
+      voiceUserState,
       liveMeeting,
       outGW
     )
 
-    LockSettingsUtil.enforceLockSettingsForVoiceUser(intId, liveMeeting, outGW)
   }
 
   def handleUserLeftVoiceConfEvtMsg(

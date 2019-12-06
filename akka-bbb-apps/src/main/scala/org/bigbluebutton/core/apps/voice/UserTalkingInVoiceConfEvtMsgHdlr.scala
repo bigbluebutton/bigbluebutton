@@ -37,7 +37,7 @@ trait UserTalkingInVoiceConfEvtMsgHdlr {
     } yield {
       // Make sure lock settings are in effect (ralam dec 6, 2019)
       LockSettingsUtil.enforceLockSettingsForVoiceUser(
-        talkingUser.intId,
+        talkingUser,
         liveMeeting,
         outGW
       )
