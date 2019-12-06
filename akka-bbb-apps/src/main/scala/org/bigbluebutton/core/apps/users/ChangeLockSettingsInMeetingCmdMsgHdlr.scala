@@ -1,5 +1,6 @@
 package org.bigbluebutton.core.apps.users
 
+import org.bigbluebutton.LockSettingsUtil
 import org.bigbluebutton.common2.msgs._
 import org.bigbluebutton.core.apps.{ PermissionCheck, RightsManagementTrait }
 import org.bigbluebutton.core.running.OutMsgRouter
@@ -35,6 +36,8 @@ trait ChangeLockSettingsInMeetingCmdMsgHdlr extends RightsManagementTrait {
         MeetingStatus2x.initializePermissions(liveMeeting.status)
 
         MeetingStatus2x.setPermissions(liveMeeting.status, settings)
+
+        LockSettingsUtil.enforceLockSettingsForVoice(liveMeeting, outGW)
 
         val routing = Routing.addMsgToClientRouting(
           MessageTypes.BROADCAST_TO_MEETING,
