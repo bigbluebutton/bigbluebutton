@@ -1,5 +1,10 @@
 import { Meteor } from 'meteor/meteor';
-import { createLogger, format, transports } from 'winston';
+import {
+  createLogger,
+  format,
+  transports,
+  config,
+} from 'winston';
 
 const LOG_CONFIG = Meteor.settings.private.serverLog || {};
 const { level } = LOG_CONFIG;
@@ -13,6 +18,8 @@ export const logTransports = {
     level,
   }),
 };
+
+export const avaibleLevels = Object.keys(config.syslog.levels);
 
 const Logger = createLogger({
   format: format.combine(
