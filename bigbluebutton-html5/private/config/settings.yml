@@ -41,6 +41,9 @@ public:
       dataSaving:
         viewParticipantsWebcams: true
         viewScreenshare: true
+      webRTCStats:
+        logging: true
+        interval: 200
     shortcuts:
       openOptions:
         accesskey: O

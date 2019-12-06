@@ -7,6 +7,7 @@ import {
 } from '/imports/utils/sdpUtils';
 
 const MEDIA = Meteor.settings.public.media;
+const WEBRTCSTATS = Meteor.settings.public.app.defaultSettings.webRTCStats;
 const MEDIA_TAG = MEDIA.mediaTag;
 const CALL_TRANSFER_TIMEOUT = MEDIA.callTransferTimeout;
 const CALL_HANGUP_TIMEOUT = MEDIA.callHangupTimeout;
@@ -324,7 +325,21 @@ class SIPSession {
       if (browser().name === 'edge') {
         connectionCompletedEvents = ['iceConnectionCompleted'];
       }
-
+      //getStats() API
+      const getWebRTCStats = (peer) => { 
+        (async () => {
+          const report = await peer.getStats();
+          let allRtcStats = new Array();
+          for (let item of report.values())                          
+            allRtcStats.push(item);
+          let result = {};                           
+          result['enabled']= this.webrtcConnected;
+          result['timer']=  Date.now();
+          result['rtcStats']= allRtcStats;
+          logger.info({ logCode: 'webRTCStats' }, JSON.stringify(result));                       
+        })();
+      
+      };
       const checkIfCallReady = () => {
         if (iceCompleted && fsReady) {
           this.webrtcConnected = true;
@@ -385,7 +400,11 @@ class SIPSession {
         iceCompleted = true;
 
         checkIfCallReady();
-      };
+        if (WEBRTCSTATS) {
+            setInterval(() => { getWebRTCStats(peer);},
+            WEBRTCSTATS.interval);
+          }
+        };
       connectionCompletedEvents.forEach(e => mediaHandler.on(e, handleConnectionCompleted));
 
       const handleSessionTerminated = (message, cause) => {
