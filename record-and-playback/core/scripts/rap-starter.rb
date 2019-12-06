@@ -26,6 +26,9 @@ require 'fileutils'
 require 'resque'
 require 'rb-inotify'
 
+class StopSignalException < StandardError
+end
+
 def archive_recorded_meetings(recording_dir, done_file)
   FileUtils.mkdir_p("#{recording_dir}/status/archived")
   meeting_id = nil
@@ -53,15 +56,11 @@ begin
   props = BigBlueButton.read_props
   log_dir = props['log_dir']
 
-  logger = Logger.new("#{log_dir}/bbb-rap-worker.log")
-  logger.level = Logger::INFO
-  BigBlueButton.logger = logger
-
   redis_host = props['redis_workers_host'] || props['redis_host']
   redis_port = props['redis_workers_port'] || props['redis_port']
   Resque.redis = "#{redis_host}:#{redis_port}"
 
-  logger.debug('Running rap-trigger...')
+  BigBlueButton.logger.debug('Running rap-trigger...')
 
   recording_dir = props['recording_dir']
   watch_dir = "#{recording_dir}/status/recorded/"
@@ -70,28 +69,28 @@ begin
   done_files = Dir.glob("#{watch_dir}*.done")
   done_files.each do |file|
     id = File.basename(file, '.done')
-    logger.info "Detected recording #{id}, starting the processing"
+    BigBlueButton.logger.info "Detected recording #{id}, starting the processing"
     archive_recorded_meetings(recording_dir, id)
     FileUtils.rm_f(file)
   end
 
   # Listen the directory for when new files are created
-  logger.info("Setting up inotify watch on #{watch_dir}")
+  BigBlueButton.logger.info("Setting up inotify watch on #{watch_dir}")
   notifier = INotify::Notifier.new
   notifier.watch(watch_dir, :moved_to, :create) do |event|
     next unless event.name.end_with?('.done')
 
     id = File.basename(event.name, '.done')
-    logger.info "Detected recording #{id}, starting the processing"
+    BigBlueButton.logger.info "Detected recording #{id}, starting the processing"
     archive_recorded_meetings(recording_dir, id)
     FileUtils.rm_f(event.absolute_name)
   end
 
-  logger.info('Waiting for new recordings...')
-  Signal.trap('INT') { raise :sigint }
-  Signal.trap('TERM') { raise :sigint }
+  BigBlueButton.logger.info('Waiting for new recordings...')
+  Signal.trap('INT') { raise StopSignalException.new }
+  Signal.trap('TERM') { raise StopSignalException.new }
   notifier.run
-rescue :signint
+rescue StopSignalException
   notifier.stop
 rescue Exception => e
   BigBlueButton.logger.error(e.message)

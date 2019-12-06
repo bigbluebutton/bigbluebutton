@@ -36,6 +36,7 @@ require 'logger'
 require 'find'
 require 'rubygems'
 require 'net/http'
+require 'journald/logger'
 
 module BigBlueButton
   class MissingDirectoryException < RuntimeError
@@ -82,7 +83,8 @@ module BigBlueButton
   # @return [Logger]
   def self.logger
     return @logger if @logger
-    logger = Logger.new(STDOUT)
+
+    logger = Journald::Logger.new('bbb-rap')
     logger.level = Logger::INFO
     @logger = logger
   end

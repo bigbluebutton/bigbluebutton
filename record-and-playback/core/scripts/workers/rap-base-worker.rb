@@ -165,10 +165,8 @@ module BigBlueButton
                      "#{@meeting_id}-#{break_timestamp}"
                    end
 
-        @logger = Logger.new("#{@log_dir}/bbb-rap-worker.log")
-        @logger.level = Logger::INFO
-
-        ::Resque.logger = Logger.new("#{@log_dir}/bbb-rap-worker.log")
+        @logger = BigBlueButton.logger
+        ::Resque.logger = @logger
         ::Resque.logger.level = Logger::INFO
       end
     end
