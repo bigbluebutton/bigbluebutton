@@ -37,7 +37,7 @@ trait ChangeLockSettingsInMeetingCmdMsgHdlr extends RightsManagementTrait {
 
         MeetingStatus2x.setPermissions(liveMeeting.status, settings)
 
-        LockSettingsUtil.enforceLockSettingsForVoice(liveMeeting, outGW)
+        LockSettingsUtil.enforceLockSettingsForAllVoiceUsers(liveMeeting, outGW)
 
         val routing = Routing.addMsgToClientRouting(
           MessageTypes.BROADCAST_TO_MEETING,
