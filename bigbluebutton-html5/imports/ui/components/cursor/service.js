@@ -35,8 +35,9 @@ export function publishCursorUpdate(payload) {
 }
 
 export function initCursorStreamListener() {
-  logger.debug({
+  logger.info({
     logCode: 'init_cursor_stream_listener',
+    extraInfo: { meetingId: Auth.meetingID, userId: Auth.userID },
   }, 'initCursorStreamListener called');
 
   if (!cursorStreamListener) {
