@@ -1,11 +1,11 @@
 package org.bigbluebutton.core.apps.voice
 
 import org.bigbluebutton.LockSettingsUtil
-import org.bigbluebutton.common2.msgs.{BbbClientMsgHeader, BbbCommonEnvCoreMsg, BbbCoreEnvelope, ConfVoiceUser, MessageTypes, Routing, UserJoinedVoiceConfToClientEvtMsg, UserJoinedVoiceConfToClientEvtMsgBody, UserLeftVoiceConfToClientEvtMsg, UserLeftVoiceConfToClientEvtMsgBody, UserMutedVoiceEvtMsg, UserMutedVoiceEvtMsgBody}
+import org.bigbluebutton.common2.msgs.{ BbbClientMsgHeader, BbbCommonEnvCoreMsg, BbbCoreEnvelope, ConfVoiceUser, MessageTypes, Routing, UserJoinedVoiceConfToClientEvtMsg, UserJoinedVoiceConfToClientEvtMsgBody, UserLeftVoiceConfToClientEvtMsg, UserLeftVoiceConfToClientEvtMsgBody, UserMutedVoiceEvtMsg, UserMutedVoiceEvtMsgBody }
 import org.bigbluebutton.core.apps.breakout.BreakoutHdlrHelpers
 import org.bigbluebutton.core.bus.InternalEventBus
-import org.bigbluebutton.core.models.{VoiceUserState, VoiceUsers}
-import org.bigbluebutton.core.running.{LiveMeeting, OutMsgRouter}
+import org.bigbluebutton.core.models.{ VoiceUserState, VoiceUsers }
+import org.bigbluebutton.core.running.{ LiveMeeting, OutMsgRouter }
 import org.bigbluebutton.core2.MeetingStatus2x
 import org.bigbluebutton.core2.message.senders.MsgBuilder
 
@@ -252,9 +252,11 @@ object VoiceApp {
       outGW.send(event)
     }
 
-    LockSettingsUtil.enforceListenOnlyUserIsMuted(intId,
+    LockSettingsUtil.enforceListenOnlyUserIsMuted(
+      intId,
       liveMeeting,
-      outGW)
+      outGW
+    )
 
     LockSettingsUtil.enforceLockSettingsForVoiceUser(intId, liveMeeting, outGW)
   }
