@@ -44,7 +44,11 @@ module BigBlueButton
         success = yield
         @logger.info("Ended worker #{@step_name} for #{@meeting_id} with result #{success}")
 
-        schedule_next_step if success && !@single_step
+        if success
+          schedule_next_step unless @single_step
+        else
+          raise "Worker #{@step_name} for #{@meeting_id} failed with result #{success}"
+        end
       rescue Exception => e
         @logger.error(e.message)
         e.backtrace.each do |traceline|
