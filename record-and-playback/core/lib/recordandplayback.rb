@@ -249,6 +249,7 @@ module BigBlueButton
     props = BigBlueButton.read_props
     redis_host = props['redis_host']
     redis_port = props['redis_port']
-    BigBlueButton.redis_publisher = BigBlueButton::RedisWrapper.new(redis_host, redis_port)
+    redis_password = props['redis_password']
+    BigBlueButton.redis_publisher = BigBlueButton::RedisWrapper.new(redis_host, redis_port, redis_password)
   end
 end

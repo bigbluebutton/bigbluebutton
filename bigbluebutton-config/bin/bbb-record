@@ -78,8 +78,10 @@ mark_for_rebuild() {
 		rm -rf /var/bigbluebutton/deleted/$type/$MEETING_ID
 	done
 
-	# Restart processing at the 'sanity' step
-	redis-cli rpush resque:queue:rap:sanity "{\"class\":\"BigBlueButton::Resque::SanityWorker\",\"args\":[{\"meeting_id\":\"$MEETING_ID\"}]}"
+	# touch the file so rap-starter starts the process
+	touch $STATUS/recorded/$MEETING_ID.done
+	# In the future it could simply schedule a job on resque
+	# redis-cli rpush resque:queue:rap:sanity "{\"class\":\"BigBlueButton::Resque::SanityWorker\",\"args\":[{\"meeting_id\":\"$MEETING_ID\"}]}"
 }
 
 mark_for_republish() { 

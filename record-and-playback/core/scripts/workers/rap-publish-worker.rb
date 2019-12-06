@@ -29,8 +29,8 @@ module BigBlueButton
         super do
           @logger.info("Running publish worker for #{@full_id}:#{@format_name}")
 
-          publish_script = File.expand_path("../../publish/#{@format_name}.rb", __FILE__)
-          if File.exist?(publish_script)
+          script = File.expand_path("../../publish/#{@format_name}.rb", __FILE__)
+          if File.exist?(script)
             @publisher.put_publish_started(@format_name, @meeting_id)
 
             # If the publish directory exists, the script does nothing
