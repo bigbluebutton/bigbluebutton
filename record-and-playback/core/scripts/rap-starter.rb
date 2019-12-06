@@ -26,7 +26,7 @@ require 'fileutils'
 require 'resque'
 require 'rb-inotify'
 
-def archive_recorded_meetings(done_file)
+def archive_recorded_meetings(recording_dir, done_file)
   FileUtils.mkdir_p("#{recording_dir}/status/archived")
   meeting_id = nil
   break_timestamp = nil
@@ -65,6 +65,17 @@ begin
 
   recording_dir = props['recording_dir']
   watch_dir = "#{recording_dir}/status/recorded/"
+
+  # start the process for all .done files already there
+  done_files = Dir.glob("#{watch_dir}*.done")
+  done_files.each do |file|
+    id = File.basename(file, '.done')
+    logger.info "Detected recording #{id}, starting the processing"
+    archive_recorded_meetings(recording_dir, id)
+    FileUtils.rm_f(file)
+  end
+
+  # Listen the directory for when new files are created
   logger.info("Setting up inotify watch on #{watch_dir}")
   notifier = INotify::Notifier.new
   notifier.watch(watch_dir, :moved_to, :create) do |event|
@@ -72,7 +83,7 @@ begin
 
     id = File.basename(event.name, '.done')
     logger.info "Detected recording #{id}, starting the processing"
-    archive_recorded_meetings(id)
+    archive_recorded_meetings(recording_dir, id)
     FileUtils.rm_f(event.absolute_name)
   end
 
