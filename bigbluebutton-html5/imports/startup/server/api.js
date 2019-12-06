@@ -13,35 +13,40 @@ const AVAILABLE_LOCALES = fs.readdirSync('assets/app/locales');
 
 let secretKey = null;
 
-const getSecretKeyFromServer = () => {
+const getSecretKeyFromServer = async () => {
   if (secretKey) return secretKey;
-  exec('bbb-conf --secret', (err, stdout) => {
-    if (err) {
-      Logger.error("Error: Wasn't possible get the secret key");
-    }
+  const secretKeyServer = await new Promise((resolve, reject) => {
+    exec('bbb-conf --secret', (err, stdout) => {
+      if (err) {
+        Logger.error("Error: Wasn't possible get the secret key");
+        return reject(err);
+      }
 
-    const lines = stdout.split(/\r\n|\r|\n/);
-    const secretKeyLine = lines.filter(value => value.toLowerCase().includes('secret: '))[0];
-    const secretKeyServer = secretKeyLine.replace('Secret: ', '').trim();
-    secretKey = secretKeyServer;
+      const lines = stdout.split(/\r\n|\r|\n/);
+      const secretKeyLine = lines.filter(value => value.toLowerCase().includes('secret: '))[0];
+      const secretKeyString = secretKeyLine.replace('Secret: ', '').trim();
+      return resolve(secretKeyString);
+    });
   });
-
+  secretKey = secretKeyServer;
   return secretKey;
 };
 
-const generatechecksum = (...args) => {
+const generatechecksum = async (...args) => {
   const argumentString = args.reduce((acc, cv) => acc + cv, '');
   const shaObject = new Jssha('SHA-256', 'TEXT');
-  const serverSecretKey = getSecretKeyFromServer();
+  const serverSecretKey = await getSecretKeyFromServer();
+  Logger.info(`${serverSecretKey}-${argumentString}`);
   shaObject.update(`${serverSecretKey}${argumentString}`);
-  return shaObject.getHash('HEX');
+  const generatedKey = shaObject.getHash('HEX');
+  return generatedKey;
 };
 
-WebApp.connectHandlers.use('/setLogLevel', (req, res) => {
+WebApp.connectHandlers.use('/setLogLevel', async (req, res) => {
   const { query } = req;
   const { level: paramLevel, checksum: paramCheckSum } = query;
 
-  const checksum = generatechecksum(paramLevel);
+  const checksum = await generatechecksum(paramLevel);
 
   let response = {};
 
