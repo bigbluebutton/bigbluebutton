@@ -35,9 +35,14 @@ trait ChangeLockSettingsInMeetingCmdMsgHdlr extends RightsManagementTrait {
       if (!MeetingStatus2x.permissionsEqual(liveMeeting.status, settings) || !MeetingStatus2x.permisionsInitialized(liveMeeting.status)) {
         MeetingStatus2x.initializePermissions(liveMeeting.status)
 
+        val oldPermissions = MeetingStatus2x.getPermissions(liveMeeting.status)
+
         MeetingStatus2x.setPermissions(liveMeeting.status, settings)
 
-        LockSettingsUtil.enforceLockSettingsForAllVoiceUsers(liveMeeting, outGW)
+        if (!oldPermissions.disableMic && settings.disableMic) {
+          // Apply lock settings when disableMic from false to true.
+          LockSettingsUtil.enforceLockSettingsForAllVoiceUsers(liveMeeting, outGW)
+        }
 
         val routing = Routing.addMsgToClientRouting(
           MessageTypes.BROADCAST_TO_MEETING,
