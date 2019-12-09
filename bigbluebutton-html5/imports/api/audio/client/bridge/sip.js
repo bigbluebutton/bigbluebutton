@@ -330,15 +330,18 @@ class SIPSession {
         (async () => {
           const report = await peer.getStats();
           let allRtcStats = new Array();
-          for (let item of report.values())                          
+          for (let item of report.values()) 
             allRtcStats.push(item);
-          let result = {};                           
-          result['enabled']= this.webrtcConnected;
-          result['timer']=  Date.now();
-          result['rtcStats']= allRtcStats;
-          logger.info({ logCode: 'webRTCStats' }, JSON.stringify(result));                       
-        })();
-      
+            const result = {
+            enabled: this.webrtcConnected,
+            timer: Date.now(),
+            rtcStats: allRtcStats
+          } 
+          logger.info({
+            logCode: 'sip_js_webrtc_stats',
+            extraInfo: { logType: 'moderator_action'}
+          }, result ); 
+        })();       
       };
       const checkIfCallReady = () => {
         if (iceCompleted && fsReady) {
@@ -400,7 +403,7 @@ class SIPSession {
         iceCompleted = true;
 
         checkIfCallReady();
-        if (WEBRTCSTATS) {
+        if (WEBRTCSTATS.logging) {
             setInterval(() => { getWebRTCStats(peer);},
             WEBRTCSTATS.interval);
           }
