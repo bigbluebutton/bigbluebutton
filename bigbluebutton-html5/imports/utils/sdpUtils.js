@@ -198,7 +198,7 @@ const analyzeSdp = (sdp) => {
       logCode: 'sdp_utils_server_reflexive_found',
       extraInfo: {
         candidateType: srflxInfo.type,
-        canddiatePublic: srflxInfo.public,
+        candidatePublic: srflxInfo.public,
       },
     }, 'Found a server reflexive candidate');
   } else {
@@ -213,7 +213,7 @@ const analyzeSdp = (sdp) => {
       logCode: 'sdp_utils_peer_reflexive_found',
       extraInfo: {
         candidateType: prflxInfo.type,
-        canddiatePublic: prflxInfo.public,
+        candidatePublic: prflxInfo.public,
       },
     }, 'Found a peer reflexive candidate');
   } else {
@@ -228,7 +228,7 @@ const analyzeSdp = (sdp) => {
       logCode: 'sdp_utils_relay_found',
       extraInfo: {
         candidateType: relayInfo.type,
-        canddiatePublic: relayInfo.public,
+        candidatePublic: relayInfo.public,
       },
     }, 'Found a relay candidate');
   } else {
