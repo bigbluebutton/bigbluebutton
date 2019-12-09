@@ -42,6 +42,7 @@ $xxlarge-up: "#{$screen} and (min-width:#{lower-bound($xxlarge-range)})";
 $xxlarge-only: "#{$screen} and (min-width:#{lower-bound($xxlarge-range)}) and (max-width:#{upper-bound($xxlarge-range)})";
 
 $hasPhoneDimentions: "#{$screen} and (max-height: 479px), #{$screen} and (max-width: 479px)";
+$phone-landscape: "#{$screen} and (max-width: 480px) and (orientation: landscape)";
 
 //Breakpoints used for permissions-overlay as relative units are not scalling properly on safari
 $safari1280: "#{$screen} and (max-height: 1280px), #{$screen} and (max-width: 800px)";
@@ -59,6 +60,7 @@ $breakpoints: (
   'large': $large-only,
   'xlarge': $xlarge-only,
   'xxlarge': $xxlarge-only,
+  'phoneLandscape': $phone-landscape,
 );
 
 @mixin mq($media) {
