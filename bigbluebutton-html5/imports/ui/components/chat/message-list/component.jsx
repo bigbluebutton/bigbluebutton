@@ -42,6 +42,17 @@ const intlMessages = defineMessages({
 });
 
 class MessageList extends Component {
+  static getDerivedStateFromProps(props, state) {
+    const { messages: propMessages } = props;
+    const { messages: stateMessages } = state;
+
+    if (propMessages.length !== 3 && propMessages.length < stateMessages.length) return null;
+
+    return {
+      messages: propMessages,
+    };
+  }
+
   constructor(props) {
     super(props);
     this.cache = new CellMeasurerCache({
@@ -63,6 +74,7 @@ class MessageList extends Component {
       shouldScrollToBottom: true,
       shouldScrollToPosition: false,
       scrollPosition: 0,
+      messages: [],
     };
 
     this.listRef = null;
@@ -114,11 +126,10 @@ class MessageList extends Component {
     return false;
   }
 
-  componentDidUpdate(prevProps) {
+  componentDidUpdate(prevProps, prevState) {
     const {
       scrollPosition,
       chatId,
-      messages,
     } = this.props;
     const {
       scrollPosition: prevScrollPosition,
@@ -129,8 +140,9 @@ class MessageList extends Component {
       shouldScrollToPosition,
       scrollPosition: scrollPositionState,
       shouldScrollToBottom,
+      messages,
     } = this.state;
-
+    const { messages: prevMessages } = prevState;
     const compareChatId = prevProps.chatId !== chatId;
 
     if (compareChatId) {
@@ -153,6 +165,11 @@ class MessageList extends Component {
 
     if (shouldScrollToPosition && scrollArea.scrollTop === scrollPositionState) {
       this.setState({ shouldScrollToPosition: false });
+    }
+
+    if (prevMessages.length < messages.length) {
+      this.resizeRow(prevMessages.length - 1);
+      // messages.forEach((i, idx) => this.resizeRow(idx));
     }
   }
 
@@ -288,7 +305,6 @@ class MessageList extends Component {
 
   render() {
     const {
-      messages,
       intl,
       id,
     } = this.props;
@@ -297,6 +313,7 @@ class MessageList extends Component {
       shouldScrollToBottom,
       shouldScrollToPosition,
       scrollPosition,
+      messages,
     } = this.state;
 
     const isEmpty = messages.length === 0;
@@ -334,7 +351,7 @@ class MessageList extends Component {
                 rowCount={messages.length}
                 height={height}
                 width={width}
-                overscanRowCount={2}
+                overscanRowCount={15}
                 deferredMeasurementCache={this.cache}
                 onScroll={this.handleScrollChange}
                 scrollToIndex={shouldScrollToBottom ? messages.length - 1 : undefined}
