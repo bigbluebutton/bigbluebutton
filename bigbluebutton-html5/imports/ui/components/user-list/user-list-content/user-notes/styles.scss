@@ -7,16 +7,18 @@
   font-weight: 600;
   text-transform: uppercase;
   padding: 0 var(--sm-padding-x);
-  margin-bottom: var(--lg-padding-y);
   margin-top: var(--sm-padding-x);
 }
 
 .scrollableList {
   margin: 0 0 0 var(--md-padding-y);
-
+  
   [dir="rtl"] & {
     margin: 0 var(--md-padding-y) 0 0;
   }
+
+  padding-top: var(--border-size);
+  margin-bottom: var(--sm-padding-y);
 }
 
 .noteLink {
