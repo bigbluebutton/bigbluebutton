@@ -1,23 +1,26 @@
 @import "../../stylesheets/variables/_all";
 
 :root {
-  --safari-mobile-nav-height: 5rem;
+  --mobile-nav-height: 5rem;
+  --mobile-margin-top: .25rem;
 }
 
 .navbar {
   display: flex;
   flex-direction: column;
-  height: var(--jumbo-padding-x);
-  
-  :global(.browser-safari) & {
-    height: var(--safari-mobile-nav-height);
-  }
+  height:var(--mobile-nav-height);
 }
 
 .top,
 .bottom {
   display: flex;
   flex-direction: row;
+}
+
+.bottom {
+  @include mq($phone-landscape) {
+    margin-top: var(--mobile-margin-top);
+  }
 }
 
 .left,

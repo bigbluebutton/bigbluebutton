@@ -3,7 +3,7 @@ import BaseAudioBridge from './base';
 import logger from '/imports/startup/client/logger';
 import { fetchStunTurnServers } from '/imports/utils/fetchStunTurnServers';
 import {
-  isUnifiedPlan, toUnifiedPlan, toPlanB, stripMDnsCandidates,
+  isUnifiedPlan, toUnifiedPlan, toPlanB, stripMDnsCandidates, analyzeSdp,
 } from '/imports/utils/sdpUtils';
 
 const MEDIA = Meteor.settings.public.media;
@@ -221,6 +221,13 @@ class SIPSession {
         logger.debug({ logCode: 'sip_js_different_host_name' }, 'Different host name. need to kill');
       }
 
+      const localSdpCallback = (sdp) => {
+        // For now we just need to call the utils function to parse and log the different pieces.
+        // In the future we're going to want to be tracking whether there were TURN candidates
+        // and IPv4 candidates to make informed decisions about what to do on fallbacks/reconnects.
+        analyzeSdp(sdp);
+      };
+
       let userAgentConnected = false;
 
       this.userAgent = new window.SIP.UA({
@@ -236,6 +243,7 @@ class SIPSession {
         hackPlanBUnifiedPlanTranslation: isSafari,
         hackAddAudioTransceiver: isSafariWebview,
         relayOnlyOnReconnect: this.reconnectAttempt && RELAY_ONLY_ON_RECONNECT,
+        localSdpCallback,
       });
 
       const handleUserAgentConnection = () => {
