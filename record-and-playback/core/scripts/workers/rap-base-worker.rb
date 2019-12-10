@@ -125,11 +125,10 @@ module BigBlueButton
 
         # get the steps from the properties files
         props = BigBlueButton.read_props
-        next_step = props['steps'][@step_name]
 
-        # get the target format only if it's a hash
-        # e.g. { presentation: "publish:presentation", video: "publish:video" }
-        next_step = next_step[@format_name] if next_step && next_step.is_a?(Hash)
+        next_step = props['steps']["#{@step_name}:#{@format_name}"]
+        next_step = props['steps'][@step_name] if next_step.nil?
+
         # make it always an array e.g. [ "process:presentation" ]
         next_step = [next_step] if next_step && !next_step.is_a?(Array)
 
