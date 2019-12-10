@@ -266,7 +266,7 @@ class VideoProvider extends Component {
   }
 
   startResponse(message) {
-    const { cameraId } = message;
+    const { cameraId, role } = message;
     const peer = this.webRtcPeers[cameraId];
 
     logger.info({
@@ -688,11 +688,10 @@ class VideoProvider extends Component {
         },
       }, `Missing peer at ICE connection state transition for ${cameraId}`);
 
-        // isLocal as the second argument means it will only try to reconnect if
-        // it's a viewer instance (see stopWebRTCPeer restarting argument)
-        this.stopWebRTCPeer(cameraId, !isLocal);
-        VideoService.notify(intl.formatMessage(intlClientErrors.iceConnectionStateError));
-      }
+      // isLocal as the second argument means it will only try to reconnect if
+      // it's a viewer instance (see stopWebRTCPeer restarting argument)
+      this.stopWebRTCPeer(cameraId, !isLocal);
+      VideoService.notify(intl.formatMessage(intlClientErrors.iceConnectionStateError));
     };
   }
 
