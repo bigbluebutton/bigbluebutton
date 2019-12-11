@@ -269,8 +269,6 @@ class ReceivedJsonMsgHandlerActor(
       // Meeting
       case EndMeetingSysCmdMsg.NAME =>
         routeGenericMsg[EndMeetingSysCmdMsg](envelope, jsonNode)
-      case MeetingActivityResponseCmdMsg.NAME =>
-        routeGenericMsg[MeetingActivityResponseCmdMsg](envelope, jsonNode)
       case LogoutAndEndMeetingCmdMsg.NAME =>
         routeGenericMsg[LogoutAndEndMeetingCmdMsg](envelope, jsonNode)
       case SetRecordingStatusCmdMsg.NAME =>

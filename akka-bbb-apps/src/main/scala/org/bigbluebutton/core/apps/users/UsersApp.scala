@@ -127,7 +127,6 @@ class UsersApp(
   with ChangeUserRoleCmdMsgHdlr
   with SyncGetUsersMeetingRespMsgHdlr
   with LogoutAndEndMeetingCmdMsgHdlr
-  with MeetingActivityResponseCmdMsgHdlr
   with SetRecordingStatusCmdMsgHdlr
   with RecordAndClearPreviousMarkersCmdMsgHdlr
   with SendRecordingTimerInternalMsgHdlr

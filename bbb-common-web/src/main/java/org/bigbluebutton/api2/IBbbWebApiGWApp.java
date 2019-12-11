@@ -21,7 +21,6 @@ public interface IBbbWebApiGWApp {
                      String createDate, Boolean isBreakout, Integer sequence, Boolean freejoin, Map<String, String> metadata,
                      String guestPolicy, String welcomeMsgTemplate, String welcomeMsg, String modOnlyMessage,
                      String dialNumber, Integer maxUsers,
-                     Integer maxInactivityTimeoutMinutes, Integer warnMinutesBeforeMax,
                      Integer meetingExpireIfNoUserJoinedInMinutes,
                      Integer meetingExpireWhenLastUserLeftInMinutes,
                      Integer userInactivityInspectTimerInMinutes,

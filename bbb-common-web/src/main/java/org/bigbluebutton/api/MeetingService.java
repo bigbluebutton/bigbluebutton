@@ -312,7 +312,7 @@ public class MeetingService implements MessageListener {
             m.getWebcamsOnlyForModerator(), m.getModeratorPassword(), m.getViewerPassword(), m.getCreateTime(),
             formatPrettyDate(m.getCreateTime()), m.isBreakout(), m.getSequence(), m.isFreeJoin(), m.getMetadata(),
             m.getGuestPolicy(), m.getWelcomeMessageTemplate(), m.getWelcomeMessage(), m.getModeratorOnlyMessage(),
-            m.getDialNumber(), m.getMaxUsers(), m.getMaxInactivityTimeoutMinutes(), m.getWarnMinutesBeforeMax(),
+            m.getDialNumber(), m.getMaxUsers(),
             m.getMeetingExpireIfNoUserJoinedInMinutes(), m.getmeetingExpireWhenLastUserLeftInMinutes(),
             m.getUserInactivityInspectTimerInMinutes(), m.getUserInactivityThresholdInMinutes(),
             m.getUserActivitySignResponseDelayInMinutes(), m.getMuteOnStart(), m.getAllowModsToUnmuteUsers(), keepEvents,

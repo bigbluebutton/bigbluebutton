@@ -40,8 +40,6 @@ export default function addMeeting(meeting) {
       createdTime: Number,
       duration: Number,
       createdDate: String,
-      maxInactivityTimeoutMinutes: Number,
-      warnMinutesBeforeMax: Number,
       meetingExpireIfNoUserJoinedInMinutes: Number,
       meetingExpireWhenLastUserLeftInMinutes: Number,
       userInactivityInspectTimerInMinutes: Number,

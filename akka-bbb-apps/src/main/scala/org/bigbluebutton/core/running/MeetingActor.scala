@@ -123,14 +123,6 @@ class MeetingActor(
 
   object ExpiryTrackerHelper extends MeetingExpiryTrackerHelper
 
-  val inactivityTracker = new MeetingInactivityTracker(
-    TimeUtil.minutesToMillis(props.durationProps.maxInactivityTimeoutMinutes),
-    TimeUtil.minutesToMillis(props.durationProps.warnMinutesBeforeMax),
-    lastActivityTimestampInMs = TimeUtil.timeNowInMs(),
-    warningSent = false,
-    warningSentOnTimestampInMs = 0L
-  )
-
   val expiryTracker = new MeetingExpiryTracker(
     startedOnInMs = TimeUtil.timeNowInMs(),
     userHasJoined = false,
@@ -150,7 +142,6 @@ class MeetingActor(
     new GroupChats(Map.empty),
     new PresentationPodManager(Map.empty),
     None,
-    inactivityTracker,
     expiryTracker,
     recordingTracker
   )
@@ -270,11 +261,6 @@ class MeetingActor(
 
   }
 
-  private def updateInactivityTracker(state: MeetingState2x): MeetingState2x = {
-    val tracker = state.inactivityTracker.updateLastActivityTimestamp(TimeUtil.timeNowInMs())
-    state.update(tracker)
-  }
-
   private def updateVoiceUserLastActivity(userId: String) {
     for {
       vu <- VoiceUsers.findWithVoiceUserId(liveMeeting.voiceUsers, userId)
@@ -317,9 +303,6 @@ class MeetingActor(
       case m: UserBroadcastCamStartMsg            => handleUserBroadcastCamStartMsg(m)
       case m: UserBroadcastCamStopMsg             => handleUserBroadcastCamStopMsg(m)
       case m: UserJoinedVoiceConfEvtMsg           => handleUserJoinedVoiceConfEvtMsg(m)
-      case m: MeetingActivityResponseCmdMsg =>
-        state = usersApp.handleMeetingActivityResponseCmdMsg(m, state)
-        state = updateInactivityTracker(state)
       case m: LogoutAndEndMeetingCmdMsg => usersApp.handleLogoutAndEndMeetingCmdMsg(m, state)
       case m: SetRecordingStatusCmdMsg =>
         state = usersApp.handleSetRecordingStatusCmdMsg(m, state)
@@ -381,7 +364,6 @@ class MeetingActor(
       case m: UserLeftVoiceConfEvtMsg         => handleUserLeftVoiceConfEvtMsg(m)
       case m: UserMutedInVoiceConfEvtMsg      => handleUserMutedInVoiceConfEvtMsg(m)
       case m: UserTalkingInVoiceConfEvtMsg =>
-        state = updateInactivityTracker(state)
         updateVoiceUserLastActivity(m.body.voiceUserId)
         handleUserTalkingInVoiceConfEvtMsg(m)
 
@@ -552,12 +534,9 @@ class MeetingActor(
   def handleMonitorNumberOfUsers(msg: MonitorNumberOfUsersInternalMsg) {
     state = removeUsersWithExpiredUserLeftFlag(liveMeeting, state)
 
-    val (newState, expireReason) = ExpiryTrackerHelper.processMeetingInactivityAudit(outGW, eventBus, liveMeeting, state)
+    val (newState, expireReason) = ExpiryTrackerHelper.processMeetingExpiryAudit(outGW, eventBus, liveMeeting, state)
     state = newState
     expireReason foreach (reason => log.info("Meeting {} expired with reason {}", props.meetingProp.intId, reason))
-    val (newState2, expireReason2) = ExpiryTrackerHelper.processMeetingExpiryAudit(outGW, eventBus, liveMeeting, state)
-    state = newState2
-    expireReason2 foreach (reason => log.info("Meeting {} expired with reason {}", props.meetingProp.intId, reason))
 
     sendRttTraceTest()
     setRecordingChapterBreak()

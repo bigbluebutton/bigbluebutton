@@ -81,8 +81,6 @@ public class Meeting {
 	private Boolean muteOnStart = false;
 	private Boolean allowModsToUnmuteUsers = false;
 
-	private Integer maxInactivityTimeoutMinutes = 120;
-	private Integer warnMinutesBeforeMax = 5;
 	private Integer meetingExpireIfNoUserJoinedInMinutes = 5;
 	private Integer meetingExpireWhenLastUserLeftInMinutes = 1;
 	private Integer userInactivityInspectTimerInMinutes = 120;
@@ -515,22 +513,6 @@ public class Meeting {
 	
 	public void addUserCustomData(String userID, Map<String, String> data) {
 		userCustomData.put(userID, data);
-	}
-
-	public void setMaxInactivityTimeoutMinutes(Integer value) {
-		maxInactivityTimeoutMinutes = value;
-	}
-
-	public void setWarnMinutesBeforeMax(Integer value) {
-		warnMinutesBeforeMax = value;
-	}
-
-	public Integer getMaxInactivityTimeoutMinutes() {
-		return maxInactivityTimeoutMinutes;
-	}
-
-	public Integer getWarnMinutesBeforeMax() {
-		return warnMinutesBeforeMax;
 	}
 
 	public void setMeetingExpireWhenLastUserLeftInMinutes(Integer value) {

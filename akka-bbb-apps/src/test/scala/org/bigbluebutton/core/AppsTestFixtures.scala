@@ -18,8 +18,6 @@ trait AppsTestFixtures {
   val muteOnStart = true
   val deskshareConfId = "85115-DESKSHARE"
   val durationInMinutes = 10
-  val maxInactivityTimeoutMinutes = 120
-  val warnMinutesBeforeMax = 30
   val meetingExpireIfNoUserJoinedInMinutes = 5
   val meetingExpireWhenLastUserLeftInMinutes = 10
   val userInactivityInspectTimerInMinutes = 60
@@ -50,7 +48,7 @@ trait AppsTestFixtures {
 
   val meetingProp = MeetingProp(name = meetingName, extId = externalMeetingId, intId = meetingId,
     isBreakout = isBreakout.booleanValue())
-  val durationProps = DurationProps(duration = durationInMinutes, createdTime = createTime, createdDate = createDate, maxInactivityTimeoutMinutes = maxInactivityTimeoutMinutes, warnMinutesBeforeMax = warnMinutesBeforeMax,
+  val durationProps = DurationProps(duration = durationInMinutes, createdTime = createTime, createdDate = createDate,
     meetingExpireIfNoUserJoinedInMinutes = meetingExpireIfNoUserJoinedInMinutes, meetingExpireWhenLastUserLeftInMinutes = meetingExpireWhenLastUserLeftInMinutes,
     userInactivityInspectTimerInMinutes = userInactivityInspectTimerInMinutes, userInactivityThresholdInMinutes = userInactivityInspectTimerInMinutes, userActivitySignResponseDelayInMinutes = userActivitySignResponseDelayInMinutes)
   val password = PasswordProp(moderatorPass = moderatorPassword, viewerPass = viewerPassword)

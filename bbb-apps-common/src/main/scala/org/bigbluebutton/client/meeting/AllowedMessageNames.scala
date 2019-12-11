@@ -22,7 +22,6 @@ object AllowedMessageNames {
     UserBroadcastCamStopMsg.NAME,
     LogoutAndEndMeetingCmdMsg.NAME,
     GetRecordingStatusReqMsg.NAME,
-    MeetingActivityResponseCmdMsg.NAME,
     SetRecordingStatusCmdMsg.NAME,
     EjectUserFromMeetingCmdMsg.NAME,
     IsMeetingMutedReqMsg.NAME,
