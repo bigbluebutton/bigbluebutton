@@ -19,7 +19,6 @@ import org.bigbluebutton.core.apps.chat.ChatApp2x
 import org.bigbluebutton.core.apps.screenshare.ScreenshareApp2x
 import org.bigbluebutton.core.apps.presentation.PresentationApp2x
 import org.bigbluebutton.core.apps.users.UsersApp2x
-import org.bigbluebutton.core.apps.sharednotes.SharedNotesApp2x
 import org.bigbluebutton.core.apps.whiteboard.WhiteboardApp2x
 import org.bigbluebutton.core.bus._
 import org.bigbluebutton.core.models._
@@ -113,7 +112,6 @@ class MeetingActor(
   val presentationApp2x = new PresentationApp2x
   val screenshareApp2x = new ScreenshareApp2x
   val captionApp2x = new CaptionApp2x
-  val sharedNotesApp2x = new SharedNotesApp2x
   val chatApp2x = new ChatApp2x
   val usersApp = new UsersApp(liveMeeting, outGW, eventBus)
   val groupChatApp = new GroupChatHdlrs
@@ -424,14 +422,6 @@ class MeetingActor(
       case m: EditCaptionHistoryPubMsg                 => captionApp2x.handle(m, liveMeeting, msgBus)
       case m: UpdateCaptionOwnerPubMsg                 => captionApp2x.handle(m, liveMeeting, msgBus)
       case m: SendCaptionHistoryReqMsg                 => captionApp2x.handle(m, liveMeeting, msgBus)
-
-      // SharedNotes
-      case m: GetSharedNotesPubMsg                     => sharedNotesApp2x.handle(m, liveMeeting, msgBus)
-      case m: SyncSharedNotePubMsg                     => sharedNotesApp2x.handle(m, liveMeeting, msgBus)
-      case m: ClearSharedNotePubMsg                    => sharedNotesApp2x.handle(m, liveMeeting, msgBus)
-      case m: UpdateSharedNoteReqMsg                   => sharedNotesApp2x.handle(m, liveMeeting, msgBus)
-      case m: CreateSharedNoteReqMsg                   => sharedNotesApp2x.handle(m, liveMeeting, msgBus)
-      case m: DestroySharedNoteReqMsg                  => sharedNotesApp2x.handle(m, liveMeeting, msgBus)
 
       // Guests
       case m: GetGuestsWaitingApprovalReqMsg           => handleGetGuestsWaitingApprovalReqMsg(m)

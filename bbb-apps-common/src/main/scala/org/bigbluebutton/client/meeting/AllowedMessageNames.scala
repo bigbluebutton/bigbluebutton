@@ -87,14 +87,6 @@ object AllowedMessageNames {
     UpdateCaptionOwnerPubMsg.NAME,
     EditCaptionHistoryPubMsg.NAME,
 
-    // Shared Notes Messages
-    GetSharedNotesPubMsg.NAME,
-    CreateSharedNoteReqMsg.NAME,
-    DestroySharedNoteReqMsg.NAME,
-    UpdateSharedNoteReqMsg.NAME,
-    SyncSharedNotePubMsg.NAME,
-    ClearSharedNotePubMsg.NAME,
-
     // Layout Messages
     GetCurrentLayoutReqMsg.NAME,
     BroadcastLayoutMsg.NAME,
