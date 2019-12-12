@@ -277,14 +277,9 @@ class MeetingActor(
 
   private def handleBbbCommonEnvCoreMsg(msg: BbbCommonEnvCoreMsg): Unit = {
     msg.core match {
-      case m: ClientToServerLatencyTracerMsg => handleMessageThatDoesNotAffectsInactivity(msg)
-      case _                                 => handleMessageThatAffectsInactivity(msg)
-    }
-  }
-
-  private def handleMessageThatDoesNotAffectsInactivity(msg: BbbCommonEnvCoreMsg): Unit = {
-    msg.core match {
-      case m: ClientToServerLatencyTracerMsg => handleClientToServerLatencyTracerMsg(m)
+      case m: ClientToServerLatencyTracerMsg          => handleClientToServerLatencyTracerMsg(m)
+      case m: CheckRunningAndRecordingVoiceConfEvtMsg => handleCheckRunningAndRecordingVoiceConfEvtMsg(m)
+      case _                                          => handleMessageThatAffectsInactivity(msg)
     }
   }
 
@@ -380,8 +375,6 @@ class MeetingActor(
       case m: UserConnectedToGlobalAudioMsg      => handleUserConnectedToGlobalAudioMsg(m)
       case m: UserDisconnectedFromGlobalAudioMsg => handleUserDisconnectedFromGlobalAudioMsg(m)
       case m: VoiceConfRunningEvtMsg             => handleVoiceConfRunningEvtMsg(m)
-      case m: CheckRunningAndRecordingVoiceConfEvtMsg =>
-        handleCheckRunningAndRecordingVoiceConfEvtMsg(m)
       case m: UserStatusVoiceConfEvtMsg =>
         handleUserStatusVoiceConfEvtMsg(m)
 
