@@ -64,7 +64,6 @@
   i,
   span {
     position: relative;
-    bottom: var(--bottom-offset);
   }
 
   span {
@@ -73,6 +72,7 @@
     white-space: nowrap;
     margin: 0 0 0 0 !important;
     max-width: var(--talker-max-width);
+    bottom: var(--bottom-offset);
 
     @include mq($phone-landscape) {
       font-size: var(--font-size-xs);
@@ -84,9 +84,10 @@
   }
 
   i {
-    font-size: var(--font-size-small);
+    font-size: var(--font-size-smaller);
     width: 1rem;
     height: 1rem;
+    line-height: 1rem;
     background-color: var(--color-success);
     border-radius: 50%;
     position: relative;
