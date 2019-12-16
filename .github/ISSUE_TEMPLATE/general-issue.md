@@ -1,8 +1,8 @@
 ---
-name: HTML5 Issue
-about: Template for creating HTML5 Issue
+name: General Issue
+about: Template for a general BBB issue
 title: ''
-labels: HTML5 Client
+labels: ''
 assignees: ''
 
 ---

@@ -1,8 +1,8 @@
 ---
-name: HTML5 Issue
-about: Template for creating HTML5 Issue
+name: Recording Issue
+about: Template for creating a recording issue
 title: ''
-labels: HTML5 Client
+labels: Recording
 assignees: ''
 
 ---
