@@ -1233,7 +1233,7 @@ check_state() {
     COUNT=0
     while [ $COUNT -lt 80 ]; do
         let COUNT=COUNT+1
-        timeout 1s wget -qO- $PROTOCOL://$BBB_WEB/bigbluebutton/api | grep -q SUCCESS > /dev/null
+        timeout 1s curl -sS $PROTOCOL://$BBB_WEB/bigbluebutton/api | grep -q SUCCESS
         if [ $? -eq 0 ]; then
             let COUNT=80
         else
@@ -1243,7 +1243,7 @@ check_state() {
     done
     echo
 
-    if ! wget $PROTOCOL://$BBB_WEB/bigbluebutton/api -O - --quiet | grep -q SUCCESS; then
+    if ! curl -sS $PROTOCOL://$BBB_WEB/bigbluebutton/api | grep -q SUCCESS; then
         echo "# Error: Could not connect to the configured hostname/IP address"
         echo "#"
         echo "#    $PROTOCOL://$BBB_WEB/"
@@ -1378,7 +1378,7 @@ check_state() {
     BBB_WEB=$(cat ${SERVLET_DIR}/WEB-INF/classes/bigbluebutton.properties | grep -v '#' | sed -n '/^bigbluebutton.web.serverURL/{s/.*=//;p}')
     DEFAULT_PDF=$(cat ${SERVLET_DIR}/WEB-INF/classes/bigbluebutton.properties | grep -v '#' | sed -n '/^beans.presentationService.defaultUploadedPresentation/{s/.*=//;p}')
     if echo $DEFAULT_PDF | grep -q "bigbluebutton.web.serverURL"; then
-        if ! echo "$BBB_WEB$(echo $DEFAULT_PDF | sed 's/${bigbluebutton.web.serverURL}//g')" | xargs wget -q -O /dev/null; then
+        if ! echo "$BBB_WEB$(echo $DEFAULT_PDF | sed 's/${bigbluebutton.web.serverURL}//g')" | xargs curl -sS >/dev/null; then
             echo "# Error: Unable to reach default URL for presentation:"
             echo "#"
             echo "#    $BBB_WEB$(echo $DEFAULT_PDF | sed 's/${bigbluebutton.web.serverURL}//g')"
@@ -1387,7 +1387,7 @@ check_state() {
             echo "#   ${SERVLET_DIR}/WEB-INF/classes/bigbluebutton.properties"
         fi
     else
-        if ! echo "$DEFAULT_PDF" | xargs wget -q -O /dev/null; then
+        if ! echo "$DEFAULT_PDF" | xargs curl -sS >/dev/null; then
             echo "# Error: Unable to reach default URL for presentation"
             echo "#"
             echo "#    $DEFAULT_PDF"
