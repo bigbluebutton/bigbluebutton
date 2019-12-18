@@ -9,9 +9,12 @@ import UserListService from '/imports/ui/components/user-list/service';
 import { makeCall } from '/imports/ui/services/api';
 import { notify } from '/imports/ui/services/notification';
 import { monitorVideoConnection } from '/imports/utils/stats';
+import getFromUserSettings from '/imports/ui/services/users-settings';
 import logger from '/imports/startup/client/logger';
 
 const CAMERA_PROFILES = Meteor.settings.public.kurento.cameraProfiles;
+const MULTIPLE_CAMERAS = Meteor.settings.public.app.enableMultipleCameras;
+const SKIP_VIDEO_PREVIEW = Meteor.settings.public.kurento.skipVideoPreview;
 
 const SFU_URL = Meteor.settings.public.kurento.wsUrl;
 const ROLE_MODERATOR = Meteor.settings.public.user.role_moderator;
@@ -25,6 +28,11 @@ class VideoService {
       isConnecting: false,
       isConnected: false,
     });
+    this.skipVideoPreview = getFromUserSettings('bbb_skip_video_preview', false) || SKIP_VIDEO_PREVIEW;
+    this.userParameterProfile = getFromUserSettings(
+      'bbb_preferred_camera_profile',
+      (CAMERA_PROFILES.filter(i => i.default) || {}).id
+    );
   }
 
   defineProperties(obj) {
@@ -204,6 +212,17 @@ class VideoService {
     };
   }
 
+  getMyStream(deviceId) {
+    const videoStream = VideoStreams.findOne(
+      {
+        meetingId: Auth.meetingID,
+        userId: Auth.userID,
+        deviceId: deviceId
+      }, { fields: { stream: 1 } }
+    );
+    return videoStream ? videoStream.stream : null;
+  }
+
   isUserLocked() {
     return !!Users.findOne({
       userId: Auth.userID,
@@ -282,6 +301,19 @@ class VideoService {
     return isLocal ? 'share' : 'viewer';
   }
 
+  getSkipVideoPreview(fromInterface) {
+    return this.skipVideoPreview && !fromInterface;
+  }
+
+  getUserParameterProfile() {
+    return this.userParameterProfile;
+  }
+
+  isMultipleCamerasEnabled() {
+    // Multiple cameras shouldn't be enabled with video preview skipping
+    return MULTIPLE_CAMERAS && !this.skipVideoPreview;
+  }
+
   monitor(conn) {
     if (ENABLE_NETWORK_MONITORING) monitorVideoConnection(conn);
   }
@@ -295,6 +327,7 @@ export default {
   stopVideo: cameraId => videoService.stopVideo(cameraId),
   getVideoStreams: () => videoService.getVideoStreams(),
   getInfo: () => videoService.getInfo(),
+  getMyStream: deviceId => videoService.getMyStream(deviceId),
   isUserLocked: () => videoService.isUserLocked(),
   lockUser: () => videoService.lockUser(),
   getAuthenticatedURL: () => videoService.getAuthenticatedURL(),
@@ -307,6 +340,9 @@ export default {
   processInboundIceQueue: (peer, cameraId) => videoService.processInboundIceQueue(peer, cameraId),
   getRole: isLocal => videoService.getRole(isLocal),
   getSharedDevices: () => videoService.getSharedDevices(),
+  getSkipVideoPreview: fromInterface => videoService.getSkipVideoPreview(fromInterface),
+  getUserParameterProfile: () => videoService.getUserParameterProfile(),
+  isMultipleCamerasEnabled: () => videoService.isMultipleCamerasEnabled(),
   monitor: conn => videoService.monitor(conn),
   onBeforeUnload: () => videoService.onBeforeUnload(),
   notify: message => notify(message, 'error', 'video'),

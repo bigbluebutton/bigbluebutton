@@ -7,6 +7,7 @@ import Button from '/imports/ui/components/button/component';
 // import { notify } from '/imports/ui/services/notification';
 import logger from '/imports/startup/client/logger';
 import Modal from '/imports/ui/components/modal/simple/component';
+import VideoService from '../video-provider/service';
 import browser from 'browser-detect';
 import { styles } from './styles';
 
@@ -62,7 +63,15 @@ const intlMessages = defineMessages({
   },
   startSharingLabel: {
     id: 'app.videoPreview.startSharingLabel',
-    description: 'Start Sharing button label',
+    description: 'Start sharing button label',
+  },
+  stopSharingLabel: {
+    id: 'app.videoPreview.stopSharingLabel',
+    description: 'Stop sharing button label',
+  },
+  sharedCameraLabel: {
+    id: 'app.videoPreview.sharedCameraLabel',
+    description: 'Already Shared camera label',
   },
   findingWebcamsLabel: {
     id: 'app.videoPreview.findingWebcamsLabel',
@@ -187,6 +196,8 @@ class VideoPreview extends Component {
       deviceError: null,
       previewError: null,
     };
+
+    this.userParameterProfile = VideoService.getUserParameterProfile();
   }
 
   componentDidMount() {
@@ -225,8 +236,7 @@ class VideoPreview extends Component {
 
               // set webcam
               devices.forEach((device) => {
-                const shared = sharedDevices.includes(device.deviceId);
-                if (device.kind === 'videoinput' && !shared) {
+                if (device.kind === 'videoinput') {
                   webcams.push(device);
                   if (!initialDeviceId
                   || (webcamDeviceId && webcamDeviceId === device.deviceId)
@@ -347,11 +357,11 @@ class VideoPreview extends Component {
     if (resolve) resolve();
   }
 
-  handleStopSharing(event) {
+  handleStopSharing() {
     const { resolve, stopSharing } = this.props;
-    const { target } = event;
+    const { webcamDeviceId } = this.state;
     this.stopTracks();
-    stopSharing(target.value);
+    stopSharing(webcamDeviceId);
     if (resolve) resolve();
   }
 
@@ -363,10 +373,7 @@ class VideoPreview extends Component {
   }
 
   displayInitialPreview(deviceId) {
-    const {
-      changeWebcam,
-      userParameterProfile,
-    } = this.props;
+    const { changeWebcam } = this.props;
     const availableProfiles = CAMERA_PROFILES;
 
     this.setState({
@@ -377,7 +384,7 @@ class VideoPreview extends Component {
     changeWebcam(deviceId);
 
     if (availableProfiles.length > 0) {
-      const defaultProfile = availableProfiles.find(profile => profile.id === userParameterProfile)
+      const defaultProfile = availableProfiles.find(profile => profile.id === this.userParameterProfile)
         || availableProfiles.find(profile => profile.default)
         || availableProfiles[0];
       this.displayPreview(deviceId, defaultProfile);
@@ -453,7 +460,8 @@ class VideoPreview extends Component {
   renderDeviceSelectors() {
     const {
       intl,
-      skipVideoPreview
+      skipVideoPreview,
+      sharedDevices
     } = this.props;
 
     const {
@@ -463,96 +471,71 @@ class VideoPreview extends Component {
       selectedProfile,
     } = this.state;
 
+    const shared = sharedDevices.includes(webcamDeviceId);
+
     return (
       <div className={styles.col}>
         <label className={styles.label} htmlFor="setCam">
           {intl.formatMessage(intlMessages.cameraLabel)}
         </label>
-        {
-          availableWebcams && availableWebcams.length > 0
-            ? (
-              <select
-                id="setCam"
-                value={webcamDeviceId || ''}
-                className={styles.select}
-                onChange={this.handleSelectWebcam}
-                disabled={skipVideoPreview}
-              >
-                {availableWebcams.map(webcam => (
-                  <option key={webcam.deviceId} value={webcam.deviceId}>
-                    {webcam.label}
-                  </option>
-                ))}
-              </select>
-            )
-            : (
-              <span>
-                {intl.formatMessage(intlMessages.webcamNotFoundLabel)}
-              </span>
-            )
-        }
-        <label className={styles.label} htmlFor="setQuality">
-          {intl.formatMessage(intlMessages.qualityLabel)}
-        </label>
-        {
-          availableProfiles && availableProfiles.length > 0
-            ? (
-              <select
-                id="setQuality"
-                value={selectedProfile || ''}
-                className={styles.select}
-                onChange={this.handleSelectProfile}
-                disabled={skipVideoPreview}
-              >
-                {availableProfiles.map(profile => (
-                  <option key={profile.id} value={profile.id}>
-                    {profile.name}
-                  </option>
-                ))}
-              </select>
-            )
-            : (
-              <span>
-                {intl.formatMessage(intlMessages.profileNotFoundLabel)}
-              </span>
-            )
-        }
-      </div>
-    );
-  }
-
-  renderSharedDeviceSelectors() {
-    const {
-      intl,
-      sharedDevices,
-    } = this.props;
-
-    if (sharedDevices && sharedDevices.length == 0) return null;
-
-    return (
-      <div className={styles.col}>
-        <label className={styles.label} htmlFor="stopCam">
-          Stop Camera
-        </label>
-          <select
-            id="stopCam"
-            value={'default'}
-            className={styles.select}
-            onChange={this.handleStopSharing}
-          >
-            <option
-              disabled
-              key={-1}
-              value={'default'}
+        { availableWebcams && availableWebcams.length > 0
+          ? (
+            <select
+              id="setCam"
+              value={webcamDeviceId || ''}
+              className={styles.select}
+              onChange={this.handleSelectWebcam}
+              disabled={skipVideoPreview}
             >
-              Shared Cameras
-            </option>
-            {sharedDevices.map(deviceId => (
-              <option key={deviceId} value={deviceId}>
-                {deviceId}
-              </option>
-            ))}
-          </select>
+              {availableWebcams.map(webcam => (
+                <option key={webcam.deviceId} value={webcam.deviceId}>
+                  {webcam.label}
+                </option>
+              ))}
+            </select>
+          )
+          : (
+            <span>
+              {intl.formatMessage(intlMessages.webcamNotFoundLabel)}
+            </span>
+          )
+        }
+        { shared
+           ? (
+             <span className={styles.label}>
+               {intl.formatMessage(intlMessages.sharedCameraLabel)}
+             </span>
+           )
+           : (
+             <span>
+               <label className={styles.label} htmlFor="setQuality">
+                 {intl.formatMessage(intlMessages.qualityLabel)}
+               </label>
+               { availableProfiles && availableProfiles.length > 0
+                 ? (
+                   <select
+                     id="setQuality"
+                     value={selectedProfile || ''}
+                     className={styles.select}
+                     onChange={this.handleSelectProfile}
+                     disabled={skipVideoPreview}
+                   >
+                     {availableProfiles.map(profile => (
+                       <option key={profile.id} value={profile.id}>
+                         {profile.name}
+                       </option>
+                     ))}
+                   </select>
+                 )
+                 : (
+                   <span>
+                     {intl.formatMessage(intlMessages.profileNotFoundLabel)}
+                   </span>
+                 )
+               }
+            </span>
+          )
+        }
       </div>
     );
   }
@@ -609,7 +592,6 @@ class VideoPreview extends Component {
             }
             </div>
             {this.renderDeviceSelectors()}
-            {this.renderSharedDeviceSelectors()}
           </div>
         );
     }
@@ -619,14 +601,19 @@ class VideoPreview extends Component {
     const {
       intl,
       skipVideoPreview,
+      sharedDevices,
     } = this.props;
 
     const {
       isStartSharingDisabled,
+      webcamDeviceId,
       deviceError,
       previewError,
     } = this.state;
     const shouldDisableButtons = skipVideoPreview && !(deviceError || previewError);
+
+    const shared = sharedDevices.includes(webcamDeviceId);
+
     return (
       <div>
         {browser().name === 'edge' || browser().name === 'ie' ? (
@@ -655,9 +642,9 @@ class VideoPreview extends Component {
               disabled={shouldDisableButtons}
             />
             <Button
-              color="primary"
-              label={intl.formatMessage(intlMessages.startSharingLabel)}
-              onClick={this.handleStartSharing}
+              color={shared ? "danger" : "primary"}
+              label={intl.formatMessage(shared ? intlMessages.stopSharingLabel : intlMessages.startSharingLabel)}
+              onClick={shared ? this.handleStopSharing : this.handleStartSharing}
               disabled={isStartSharingDisabled || isStartSharingDisabled === null || shouldDisableButtons}
             />
           </div>

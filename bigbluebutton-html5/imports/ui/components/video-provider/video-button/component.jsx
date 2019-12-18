@@ -12,6 +12,10 @@ const intlMessages = defineMessages({
     id: 'app.video.joinVideo',
     description: 'Join video button label',
   },
+  leaveVideo: {
+    id: 'app.video.leaveVideo',
+    description: 'Leave video button label',
+  },
   videoButtonDesc: {
     id: 'app.video.videoButtonDesc',
     description: 'video button description',
@@ -30,30 +34,36 @@ const propTypes = {
   intl: intlShape.isRequired,
   hasVideoStream: PropTypes.bool.isRequired,
   isDisabled: PropTypes.bool.isRequired,
-  handleJoinVideo: PropTypes.func.isRequired,
+  mountVideoPreview: PropTypes.func.isRequired,
 };
 
 const JoinVideoButton = ({
   intl,
   hasVideoStream,
   isDisabled,
-  handleJoinVideo,
+  mountVideoPreview,
 }) => {
+  const exitVideo = () => hasVideoStream && !VideoService.isMultipleCamerasEnabled();
+
   const handleOnClick = () => {
     if (!validIOSVersion()) {
       return VideoService.notify(intl.formatMessage(intlMessages.iOSWarning));
     }
-    handleJoinVideo();
+
+    if (exitVideo()) {
+      VideoService.exitVideo();
+    } else {
+      mountVideoPreview();
+    }
   };
 
-  const sharingVideoLabel = intl.formatMessage(intlMessages.joinVideo);
-
-  const disabledLabel = isDisabled
-    ? intl.formatMessage(intlMessages.videoLocked) : sharingVideoLabel;
+  const label = exitVideo() ?
+    intl.formatMessage(intlMessages.leaveVideo) :
+    intl.formatMessage(intlMessages.joinVideo);
 
   return (
     <Button
-      label={disabledLabel}
+      label={isDisabled ? intl.formatMessage(intlMessages.videoLocked) : label}
       className={cx(styles.button, hasVideoStream || styles.btn)}
       onClick={handleOnClick}
       hideLabel
@@ -69,4 +79,5 @@ const JoinVideoButton = ({
 };
 
 JoinVideoButton.propTypes = propTypes;
+
 export default injectIntl(memo(JoinVideoButton));

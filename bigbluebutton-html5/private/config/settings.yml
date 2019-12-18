@@ -21,6 +21,7 @@ public:
     allowUserLookup: false
     enableNetworkInformation: false
     enableLimitOfViewersInWebcam: false
+    enableMultipleCameras: false
     enableTalkingIndicator: true
     viewersInWebcam: 8
     ipv4FallbackDomain: ""
