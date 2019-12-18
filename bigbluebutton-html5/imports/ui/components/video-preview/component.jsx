@@ -23,9 +23,11 @@ const propTypes = {
   intl: intlShape.isRequired,
   closeModal: PropTypes.func.isRequired,
   startSharing: PropTypes.func.isRequired,
+  stopSharing: PropTypes.func.isRequired,
   changeWebcam: PropTypes.func.isRequired,
   changeProfile: PropTypes.func.isRequired,
   resolve: PropTypes.func,
+  skipVideoPreview: PropTypes.bool.isRequired,
   hasMediaDevices: PropTypes.bool.isRequired,
   webcamDeviceId: PropTypes.string,
   sharedDevices: PropTypes.arrayOf(PropTypes.string),
@@ -34,6 +36,7 @@ const propTypes = {
 const defaultProps = {
   resolve: null,
   webcamDeviceId: null,
+  sharedDevices: [],
 };
 
 const intlMessages = defineMessages({
@@ -205,7 +208,6 @@ class VideoPreview extends Component {
       webcamDeviceId,
       hasMediaDevices,
       skipVideoPreview,
-      sharedDevices,
     } = this.props;
 
     this._isMounted = true;
