@@ -1,7 +1,7 @@
 import logger from '/imports/startup/client/logger';
 
-STATS_LENGTH = 5;
-STATS_INTERVAL = 2000;
+const STATS_LENGTH = 5;
+const STATS_INTERVAL = 2000;
 
 const stop = callback => {
   logger.info(
