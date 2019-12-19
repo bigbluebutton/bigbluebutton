@@ -3,7 +3,12 @@ import BaseAudioBridge from './base';
 import logger from '/imports/startup/client/logger';
 import { fetchStunTurnServers } from '/imports/utils/fetchStunTurnServers';
 import {
-  isUnifiedPlan, toUnifiedPlan, toPlanB, stripMDnsCandidates, analyzeSdp,
+  isUnifiedPlan,
+  toUnifiedPlan,
+  toPlanB,
+  stripMDnsCandidates,
+  analyzeSdp,
+  logSelectedCandidate,
 } from '/imports/utils/sdpUtils';
 
 const MEDIA = Meteor.settings.public.media;
@@ -228,6 +233,13 @@ class SIPSession {
         analyzeSdp(sdp);
       };
 
+      const remoteSdpCallback = (sdp) => {
+        // We have have to find the candidate that FS sends back to us to determine if the client
+        // is connecting with IPv4 or IPv6
+        const sdpInfo = analyzeSdp(sdp, false);
+        this.protocolIsIpv6 = sdpInfo.v6Info.found;
+      };
+
       let userAgentConnected = false;
 
       this.userAgent = new window.SIP.UA({
@@ -244,6 +256,7 @@ class SIPSession {
         hackAddAudioTransceiver: isSafariWebview,
         relayOnlyOnReconnect: this.reconnectAttempt && RELAY_ONLY_ON_RECONNECT,
         localSdpCallback,
+        remoteSdpCallback,
       });
 
       const handleUserAgentConnection = () => {
@@ -391,6 +404,8 @@ class SIPSession {
         clearTimeout(iceNegotiationTimeout);
         connectionCompletedEvents.forEach(e => mediaHandler.off(e, handleConnectionCompleted));
         iceCompleted = true;
+
+        logSelectedCandidate(peer, this.protocolIsIpv6);
 
         checkIfCallReady();
       };
