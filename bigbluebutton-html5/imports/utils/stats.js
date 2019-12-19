@@ -123,7 +123,7 @@ const calculateInterval = (stats) => {
     bytes: {
       received: diff(single, first.bytes.received, last.bytes.received)
     },
-    jitter: diff(single, first.jitter, last.jitter)
+    jitter: Math.max.apply(Math, stats.map(s => s.jitter))
   };
 };
 
