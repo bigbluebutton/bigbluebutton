@@ -398,7 +398,7 @@ def svg_render_shape_poll(g, slide, shape)
     g.puts('set yrange [0:*]')
     g.puts('unset border')
     g.puts('unset ytics')
-    xtics = result.map{ |r| "#{r['key'].gsub('%', '%%').inspect} #{r['id']}" }.join(', ')
+    xtics = result.map{ |r| "#{r['key'].gsub(/[`<|@{}^_]/, '').gsub('%', '%%').inspect} #{r['id']}" }.join(', ')
     g.puts("set xtics rotate by 90 scale 0 right (#{xtics})")
     if num_responders > 0
       x2tics = result.map{ |r| "\"#{(r['num_votes'].to_f / num_responders * 100).to_i}%%\" #{r['id']}" }.join(', ')
