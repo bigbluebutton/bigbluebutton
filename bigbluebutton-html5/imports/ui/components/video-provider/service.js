@@ -41,7 +41,10 @@ class VideoService {
     this.numberOfDevices = 0;
 
     this.updateNumberOfDevices = this.updateNumberOfDevices.bind(this);
-    navigator.mediaDevices.ondevicechange = (event) => this.updateNumberOfDevices();
+    // Safari doesn't support ondevicechange
+    if (!this.isSafari) {
+      navigator.mediaDevices.ondevicechange = (event) => this.updateNumberOfDevices();
+    }
     this.updateNumberOfDevices();
   }
 
