@@ -238,7 +238,9 @@ class VideoPreview extends Component {
 
               // set webcam
               devices.forEach((device) => {
-                if (device.kind === 'videoinput') {
+                // Avoid duplicated devices
+                const found = webcams.find(d => d.deviceId === device.deviceId);
+                if (device.kind === 'videoinput' && !found) {
                   webcams.push(device);
                   if (!initialDeviceId
                   || (webcamDeviceId && webcamDeviceId === device.deviceId)

@@ -9,6 +9,7 @@ import UserListService from '/imports/ui/components/user-list/service';
 import { makeCall } from '/imports/ui/services/api';
 import { notify } from '/imports/ui/services/notification';
 import { monitorVideoConnection } from '/imports/utils/stats';
+import browser from 'browser-detect';
 import getFromUserSettings from '/imports/ui/services/users-settings';
 import logger from '/imports/startup/client/logger';
 
@@ -33,6 +34,15 @@ class VideoService {
       'bbb_preferred_camera_profile',
       (CAMERA_PROFILES.filter(i => i.default) || {}).id
     );
+    const BROWSER_RESULTS = browser();
+    this.isMobile = BROWSER_RESULTS.mobile || BROWSER_RESULTS.os.includes('Android');
+    this.isSafari = BROWSER_RESULTS.name === 'safari';
+
+    this.numberOfDevices = 0;
+
+    this.updateNumberOfDevices = this.updateNumberOfDevices.bind(this);
+    navigator.mediaDevices.ondevicechange = (event) => this.updateNumberOfDevices();
+    this.updateNumberOfDevices();
   }
 
   defineProperties(obj) {
@@ -53,6 +63,18 @@ class VideoService {
           return this[privateKey].value;
         },
       });
+    });
+  }
+
+  updateNumberOfDevices() {
+    navigator.mediaDevices.enumerateDevices().then(devices => {
+      const deviceIds = [];
+      devices.forEach(d => {
+        if (d.kind === 'videoinput' && !deviceIds.includes(d.deviceId)) {
+          deviceIds.push(d.deviceId);
+        }
+      });
+      this.numberOfDevices = deviceIds.length;
     });
   }
 
@@ -311,7 +333,13 @@ class VideoService {
 
   isMultipleCamerasEnabled() {
     // Multiple cameras shouldn't be enabled with video preview skipping
-    return MULTIPLE_CAMERAS && !this.skipVideoPreview;
+    // Mobile shouldn't be able to share more than one camera at the same time
+    // Safari needs to implement devicechange event for safe device control
+    return MULTIPLE_CAMERAS &&
+      !this.skipVideoPreview &&
+      !this.isMobile &&
+      !this.isSafari &&
+      this.numberOfDevices > 1;
   }
 
   monitor(conn) {
