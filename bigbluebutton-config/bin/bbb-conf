@@ -1698,6 +1698,7 @@ if [ $ZIP ]; then
     tar rf  $TMP_LOG_FILE /var/log/mongodb              > /dev/null 2>&1
     tar rf  $TMP_LOG_FILE /var/log/redis                > /dev/null 2>&1
     tar rf  $TMP_LOG_FILE /var/log/nginx/error.log      > /dev/null 2>&1
+    tar rfh $TMP_LOG_FILE /opt/freeswitch/var/log/freeswitch/ > /dev/null 2>&1
 
     if [ -f /var/log/nginx/html5-client.log ]; then
         tar rf $TMP_LOG_FILE /var/log/nginx/html5-client.log* > /dev/null 2>&1
