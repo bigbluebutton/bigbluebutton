@@ -69,7 +69,7 @@ dependencies {
   compile "org.grails.plugins:gsp"
   //--- BigBlueButton Dependencies Start - Transitive dependencies have to be re-defined below
   compile "org.bigbluebutton:bbb-common-message_2.12:0.0.20-SNAPSHOT"
-  compile "org.bigbluebutton:bbb-common-web:0.0.3-SNAPSHOT"
+  compile "org.bigbluebutton:bbb-common-web:0.0.20-SNAPSHOT"
   compile "io.lettuce:lettuce-core:5.1.3.RELEASE"
   compile "org.reactivestreams:reactive-streams:1.0.2"
   compile "io.projectreactor:reactor-core:3.2.3.RELEASE"
