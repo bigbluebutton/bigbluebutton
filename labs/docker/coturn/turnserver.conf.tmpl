@@ -1,14 +1,36 @@
 listening-port={{ .Env.PORT }}
-min-port=49152
-max-port=65535
-fingerprint
-lt-cred-mech
-realm={{ .Env.SERVER_DOMAIN }}
-external-ip={{ .Env.EXTERNAL_IP }}
+tls-listening-port={{ .Env.TURN_PORT }}
 
-{{ if isTrue .Env.ENABLE_REST_API }}
+# Fingerprints in TURN messages are required for WebRTC
+fingerprint
+
+# The long-term credential mechanism is required for WebRTC
+lt-cred-mech
+
 use-auth-secret
-static-auth-secret={{ .Env.SECRET }}
-{{ else }}
-user={{ .Env.LT_USER }}:{{ .Env.LT_SECRET }}
-{{ end }}
+static-auth-secret={{ .Env.TURN_SECRET }}
+
+# If the realm value is unspecified, it defaults to the TURN server hostname.
+# You probably want to configure it to a domain name that you control to
+# improve log output. There is no functional impact.
+realm={{ .Env.TURN_DOMAIN }}
+
+# Configure TLS support.
+# Adjust these paths to match the locations of your certificate files
+cert=/etc/letsencrypt/live/ssl/fullchain.pem
+pkey=/etc/letsencrypt/live/ssl/privkey.pem
+# Limit the allowed ciphers to improve security
+# Based on https://hynek.me/articles/hardening-your-web-servers-ssl-ciphers/
+cipher-list="ECDH+AESGCM:ECDH+CHACHA20:DH+AESGCM:ECDH+AES256:DH+AES256:ECDH+AES128:DH+AES:RSA+AESGCM:RSA+AES:!aNULL:!MD5:!DSS"
+
+# Enable longer DH TLS key to improve security
+dh2066
+
+# All WebRTC-compatible web browsers support TLS 1.2 or later, so disable
+# older protocols
+no-tlsv1
+no-tlsv1_1
+
+# Log to a single filename (rather than new log files each startup). You'll
+# want to install a logrotate configuration (see below)
+log-file=/var/log/coturn.log

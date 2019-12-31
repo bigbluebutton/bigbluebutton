@@ -1,0 +1,119 @@
+<profile name="external">
+  <!-- http://wiki.freeswitch.org/wiki/Sofia_Configuration_Files -->
+  <!-- This profile is only for outbound registrations to providers -->
+  <gateways>
+    <X-PRE-PROCESS cmd="include" data="external/*.xml"/>
+  </gateways>
+
+  <aliases>
+    <!--
+        <alias name="outbound"/>
+        <alias name="nat"/>
+    -->
+  </aliases>
+
+  <domains>
+    <domain name="all" alias="false" parse="true"/>
+  </domains>
+
+  <settings>
+    <param name="debug" value="0"/>
+    <!-- If you want FreeSWITCH to shutdown if this profile fails to load, uncomment the next line. -->
+    <!-- <param name="shutdown-on-fail" value="true"/> -->
+    <param name="sip-trace" value="no"/>
+    <param name="sip-capture" value="no"/>
+    <param name="rfc2833-pt" value="101"/>
+    <!-- RFC 5626 : Send reg-id and sip.instance -->
+    <!--<param name="enable-rfc-5626" value="true"/> -->
+    <param name="sip-port" value="$${external_sip_port}"/>
+    <param name="dialplan" value="XML"/>
+    <param name="context" value="public"/>
+    <param name="dtmf-duration" value="2000"/>
+    <param name="inbound-codec-prefs" value="$${global_codec_prefs}"/>
+    <param name="outbound-codec-prefs" value="$${outbound_codec_prefs}"/>
+    <param name="hold-music" value="$${hold_music}"/>
+    <param name="rtp-timer-name" value="soft"/>
+    <!--<param name="enable-100rel" value="true"/>-->
+    <!--<param name="disable-srv503" value="true"/>-->
+    <!-- This could be set to "passive" -->
+    <param name="local-network-acl" value="localnet.auto"/>
+    <param name="manage-presence" value="false"/>
+
+
+    <!-- Added for Microsoft Edge browser -->
+    <param name="apply-candidate-acl" value="localnet.auto"/>
+    <param name="apply-candidate-acl" value="wan_v4.auto"/>
+    <param name="apply-candidate-acl" value="rfc1918.auto"/>
+    <param name="apply-candidate-acl" value="any_v4.auto"/>
+
+    <!-- used to share presence info across sofia profiles
+         manage-presence needs to be set to passive on this profile
+         if you want it to behave as if it were the internal profile
+         for presence.
+    -->
+    <!-- Name of the db to use for this profile -->
+    <!--<param name="dbname" value="share_presence"/>-->
+    <!--<param name="presence-hosts" value="$${domain}"/>-->
+    <!--<param name="force-register-domain" value="$${domain}"/>-->
+    <!--all inbound reg will stored in the db using this domain -->
+    <!--<param name="force-register-db-domain" value="$${domain}"/>-->
+    <!-- ************************************************* -->
+
+    <!--<param name="aggressive-nat-detection" value="true"/>-->
+    <param name="inbound-codec-negotiation" value="generous"/>
+    <param name="nonce-ttl" value="60"/>
+    <param name="auth-calls" value="false"/>
+    <param name="inbound-late-negotiation" value="true"/>
+    <param name="inbound-zrtp-passthru" value="true"/> <!-- (also enables late negotiation) -->
+    <!--
+        DO NOT USE HOSTNAMES, ONLY IP ADDRESSES IN THESE SETTINGS!
+    <param name="rtp-ip" value="$${local_ip_v4}"/>
+    <param name="sip-ip" value="$${local_ip_v4}"/>
+    <param name="ext-rtp-ip" value="auto-nat"/>
+    <param name="ext-sip-ip" value="auto-nat"/>
+    -->
+
+    <param name="rtp-ip" value="$${local_ip_v4}"/>
+    <param name="sip-ip" value="$${local_ip_v4}"/>
+    <param name="ext-rtp-ip" value="$${local_ip_v4}"/>
+    <param name="ext-sip-ip" value="$${local_ip_v4}"/>
+
+    <param name="rtp-timeout-sec" value="300"/>
+    <param name="rtp-hold-timeout-sec" value="1800"/>
+    <param name="enable-3pcc" value="proxy"/>
+
+    <!-- TLS: disabled by default, set to "true" to enable -->
+    <param name="tls" value="$${external_ssl_enable}"/>
+    <!-- Set to true to not bind on the normal sip-port but only on the TLS port -->
+    <param name="tls-only" value="false"/>
+    <!-- additional bind parameters for TLS -->
+    <param name="tls-bind-params" value="transport=tls"/>
+    <!-- Port to listen on for TLS requests. (5081 will be used if unspecified) -->
+    <param name="tls-sip-port" value="$${external_tls_port}"/>
+    <!-- Location of the agent.pem and cafile.pem ssl certificates (needed for TLS server) -->
+    <!--<param name="tls-cert-dir" value=""/>-->
+    <!-- Optionally set the passphrase password used by openSSL to encrypt/decrypt TLS private key files -->
+    <param name="tls-passphrase" value=""/>
+    <!-- Verify the date on TLS certificates -->
+    <param name="tls-verify-date" value="true"/>
+    <!-- TLS verify policy, when registering/inviting gateways with other servers (outbound) or handling inbound registration/invite requests how should we verify their certificate -->
+    <!-- set to 'in' to only verify incoming connections, 'out' to only verify outgoing connections, 'all' to verify all connections, also 'in_subjects', 'out_subjects' and 'all_subjects' for subject validation. Multiple policies can be split with a '|' pipe -->
+    <param name="tls-verify-policy" value="none"/>
+    <!-- Certificate max verify depth to use for validating peer TLS certificates when the verify policy is not none -->
+    <param name="tls-verify-depth" value="2"/>
+    <!-- If the tls-verify-policy is set to subjects_all or subjects_in this sets which subjects are allowed, multiple subjects can be split with a '|' pipe -->
+    <param name="tls-verify-in-subjects" value=""/>
+    <!-- TLS version ("sslv23" (default), "tlsv1"). NOTE: Phones may not work with TLSv1 -->
+    <param name="tls-version" value="$${sip_tls_version}"/>
+    <param name="ws-binding"  value=":5066"/>
+    <param name="wss-binding"  value=":7443"/>
+
+    <!-- enable rtcp on every channel also can be done per leg basis with rtcp_audio_interval_msec variable set to passthru to pass it across a call-->
+    <param name="rtcp-audio-interval-msec" value="5000"/>
+    <param name="rtcp-video-interval-msec" value="5000"/>
+
+    <!-- Cut down in the join time -->
+    <param name="dtmf-type" value="info"/>
+    <param name="liberal-dtmf" value="true"/>
+  </settings>
+</profile>
