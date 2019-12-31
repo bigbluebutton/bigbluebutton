@@ -152,33 +152,26 @@ docker build -t bbb-lti .
 
 ## Setup
 
-#### Export your configuration as environment variables
-NOTE: replace the example SERVER_DOMAIN's value with your own FQDN
+#### Create environment variables
+
+Inside the docker folder create a file called ".env". In this file include the following variables:
+
 ```
-export SERVER_DOMAIN=docker.bigbluebutton.org
-export EXTERNAL_IP=$(dig +short $SERVER_DOMAIN | grep '^[0-9]*\.[0-9]*\.[0-9]*\.[0-9]*$' | head -n 1)
-export SHARED_SECRET=`openssl rand -hex 16`
-export COTURN_REST_SECRET=`openssl rand -hex 16`
-export SECRET_KEY_BASE=`openssl rand -hex 64`
-export SCREENSHARE_EXTENSION_KEY=akgoaoikmbmhcopjgakkcepdgdgkjfbc
-export SCREENSHARE_EXTENSION_LINK=https://chrome.google.com/webstore/detail/bigbluebutton-screenshare/akgoaoikmbmhcopjgakkcepdgdgkjfbc
-export TAG_PREFIX=
-export TAG_SUFFIX=
+TURN_DOMAIN=<turn domain>
+TURN_PORT=8443
+TURN_SECRET=41eac2b93d3e224ffcffa5c2ae189026
+SERVER_DOMAIN=<server domain>
+SHARED_SECRET=330a8b08c3b4c61533e1d0c5ce1ac88f
+EXTERNAL_IP=127.0.0.1
+SCREENSHARE_EXTENSION_KEY=akgoaoikmbmhcopjgakkcepdgdgkjfbc
+SCREENSHARE_EXTENSION_LINK=https://chrome.google.com/webstore/detail/bigbluebutton-screenshare/akgoaoikmbmhcopjgakkcepdgdgkjfbc
 ```
 
-#### Create a volume for the SSL certs
-```
-docker volume create docker_ssl-conf	
-```	
+#### SSL files
 
-#### Generate SSL certs	
-```	
-docker run --rm -p 80:80 -v docker_ssl-conf:/etc/letsencrypt -it certbot/certbot certonly --non-interactive --register-unsafely-without-email --agree-tos --expand --domain $SERVER_DOMAIN --standalone	
+Inside bbb-nginx folder, create a folder called ssl and put all the necessary files needed for setting a secure connection.
+Inside coturn folder, create a folder called ssl and put all the necessary files needed for setting a secure connection.
 
-# certificate path: docker_ssl-conf/live/$SERVER_DOMAIN/fullchain.pem	
-# key path: docker_ssl-conf/live/$SERVER_DOMAIN/privkey.pem	
-```
-NOTE: If running on AWS, you won't be able to use the default Public DNS for your SERVER_DOMAIN as Let's Encrypt doesn't allow generating SSL certs from any *.amazonaws.com domain. Alternatively, you can create a PTR record that goes from a non-AWS FQDN to the AWS FQDN.
 
 #### Create a volume for the static files (optional)
 ```

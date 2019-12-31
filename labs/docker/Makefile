@@ -42,13 +42,13 @@ image:
 	fi
 
 release:
-	make image DIR=$(BUILD_DIR_BASE)/labs/docker/sbt IMAGE_NAME=sbt IMAGE_TAG=0.13.8 BUILD_IMAGE=1
-	make image DIR=$(BUILD_DIR_BASE)/bbb-common-message IMAGE_NAME=bbb-common-message BUILD_ARGS="--build-arg COMMON_VERSION=0.0.1-SNAPSHOT" BUILD_IMAGE=1
-	make image DIR=$(BUILD_DIR_BASE)/bbb-common-web IMAGE_NAME=bbb-common-web BUILD_ARGS="--build-arg COMMON_VERSION=0.0.1-SNAPSHOT" BUILD_IMAGE=1
-	make image DIR=$(BUILD_DIR_BASE)/bbb-fsesl-client IMAGE_NAME=bbb-fsesl-client BUILD_ARGS="--build-arg COMMON_VERSION=0.0.1-SNAPSHOT" BUILD_IMAGE=1
-	make image DIR=$(BUILD_DIR_BASE)/akka-bbb-apps IMAGE_NAME=bbb-apps-akka BUILD_ARGS="--build-arg COMMON_VERSION=0.0.1-SNAPSHOT"
-	make image DIR=$(BUILD_DIR_BASE)/akka-bbb-fsesl IMAGE_NAME=bbb-fsesl-akka BUILD_ARGS="--build-arg COMMON_VERSION=0.0.1-SNAPSHOT"
-	make image DIR=$(BUILD_DIR_BASE)/bigbluebutton-web IMAGE_NAME=bbb-web BUILD_ARGS="--build-arg COMMON_VERSION=0.0.1-SNAPSHOT"
+	make image DIR=$(BUILD_DIR_BASE)/labs/docker/sbt IMAGE_NAME=sbt IMAGE_TAG=1.2.8 BUILD_IMAGE=1
+	make image DIR=$(BUILD_DIR_BASE)/bbb-common-message IMAGE_NAME=bbb-common-message BUILD_ARGS="--build-arg COMMON_VERSION=0.0.20-SNAPSHOT" BUILD_IMAGE=1
+	make image DIR=$(BUILD_DIR_BASE)/bbb-common-web IMAGE_NAME=bbb-common-web BUILD_ARGS="--build-arg COMMON_VERSION=0.0.20-SNAPSHOT" BUILD_IMAGE=1
+	make image DIR=$(BUILD_DIR_BASE)/bbb-fsesl-client IMAGE_NAME=bbb-fsesl-client BUILD_ARGS="--build-arg COMMON_VERSION=0.0.20-SNAPSHOT" BUILD_IMAGE=1
+	make image DIR=$(BUILD_DIR_BASE)/akka-bbb-apps IMAGE_NAME=bbb-apps-akka BUILD_ARGS="--build-arg COMMON_VERSION=0.0.20-SNAPSHOT"
+	make image DIR=$(BUILD_DIR_BASE)/akka-bbb-fsesl IMAGE_NAME=bbb-fsesl-akka BUILD_ARGS="--build-arg COMMON_VERSION=0.0.20-SNAPSHOT"
+	make image DIR=$(BUILD_DIR_BASE)/bigbluebutton-web IMAGE_NAME=bbb-web BUILD_ARGS="--build-arg COMMON_VERSION=0.0.20-SNAPSHOT"
 	make image DIR=$(BUILD_DIR_BASE)/bigbluebutton-html5 IMAGE_NAME=bbb-html5
 	make image DIR=$(BUILD_DIR_BASE)/labs/bbb-webrtc-sfu IMAGE_NAME=bbb-webrtc-sfu
 	make image DIR=$(BUILD_DIR_BASE)/bbb-webhooks IMAGE_NAME=bbb-webhooks
