@@ -1,6 +1,6 @@
 FROM bbb-common-message AS builder
 
-ARG COMMON_VERSION=0.0.1-SNAPSHOT
+ARG COMMON_VERSION=0.0.20-SNAPSHOT
 
 COPY . /source
 
@@ -17,8 +17,16 @@ RUN cd /source \
 # FROM ubuntu:16.04
 FROM openjdk:8-jre-slim-stretch
 
+RUN mkdir -p /usr/share/man/man1
+
+RUN apt-get update \
+    && apt-get install --no-install-recommends -y \
+    openjdk-8-jre-headless \
+    ca-certificates-java \
+    && rm -rf /var/lib/apt/lists/*
+
 COPY --from=builder /source/target/*.deb /root/
 
 RUN dpkg -i /root/*.deb
 
-CMD ["/usr/share/bbb-apps-akka/bin/bbb-apps-akka"]
+CMD cd /usr/share/bbb-apps-akka/ && bbb-apps-akka

@@ -37,5 +37,7 @@ ENV RTP_MAX_PORT=32768
 
 HEALTHCHECK --start-period=15s --interval=30s --timeout=3s --retries=1 CMD /healthchecker.sh
 
+EXPOSE 8888
+
 ENTRYPOINT ["docker-entrypoint.sh"]
 CMD ["/usr/bin/kurento-media-server"]

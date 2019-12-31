@@ -1,4 +1,4 @@
-FROM sbt:0.13.8
+FROM sbt:1.2.8
 
 ARG COMMON_VERSION
 

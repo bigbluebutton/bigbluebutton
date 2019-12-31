@@ -1,6 +1,6 @@
 FROM bbb-fsesl-client AS builder
 
-ARG COMMON_VERSION=0.0.1-SNAPSHOT
+ARG COMMON_VERSION=0.0.20-SNAPSHOT
 
 COPY . /source
 
@@ -17,10 +17,18 @@ RUN cd /source \
 
 FROM openjdk:8-jre-slim-stretch
 
+RUN mkdir -p /usr/share/man/man1
+
+RUN apt-get update \
+    && apt-get install --no-install-recommends -y \
+    openjdk-8-jre-headless \
+    ca-certificates-java \
+    && rm -rf /var/lib/apt/lists/*
+
 COPY --from=builder /source/target/*.deb /root/
 
 RUN dpkg -i /root/*.deb
 
 COPY wait-for-it.sh /usr/local/bin/
 
-CMD ["/usr/share/bbb-fsesl-akka/bin/bbb-fsesl-akka"]
+CMD cd /usr/share/bbb-fsesl-akka/ && bbb-fsesl-akka

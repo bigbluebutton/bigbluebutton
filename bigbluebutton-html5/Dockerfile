@@ -35,4 +35,6 @@ ENV MONGO_URL=mongodb://mongo:27017/html5client \
 
 EXPOSE 3000
 
-CMD ["docker-entrypoint.sh"]
+ENTRYPOINT ["docker-entrypoint.sh"]
+
+CMD "npm start"
