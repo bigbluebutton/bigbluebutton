@@ -1,0 +1,9 @@
+location /ws {
+    proxy_pass https://upstreamFS;
+    proxy_http_version 1.1;
+    proxy_set_header Upgrade $http_upgrade;
+    proxy_read_timeout 6h;
+    proxy_send_timeout 6h;
+    client_body_timeout 6h;
+    send_timeout 6h;
+}

@@ -1,0 +1,31 @@
+server {
+        server_name docker.bigbluebutton.com;
+        listen   80;
+        listen [::]:80;
+
+        listen 443 ssl;
+        listen [::]:443 ssl;
+
+        ssl_certificate /etc/ssl/fullchain.pem;
+        ssl_certificate_key /etc/ssl/privkey.pem;
+        ssl_session_cache shared:SSL:10m;
+        ssl_session_timeout 10m;
+        ssl_protocols TLSv1 TLSv1.1 TLSv1.2;
+        ssl_ciphers "ECDH+AESGCM:DH+AESGCM:ECDH+AES256:DH+AES256:ECDH+AES128:DH+AES:ECDH+3DES:DH+3DES:RSA+AESGCM:RSA+AES:RSA+3DES:!aNULL:!MD5:!DSS:!AES256";
+        ssl_prefer_server_ciphers on;
+        
+        access_log  /var/log/nginx/bigbluebutton.access.log;
+
+        # Include specific rules for record and playback
+        include /etc/bigbluebutton/nginx/*.nginx;
+
+
+        #error_page  404  /404.html;
+
+        # Redirect server error pages to the static page /50x.html
+        #
+        error_page   500 502 503 504  /50x.html;
+        location = /50x.html {
+                root   /var/www/nginx-default;
+        }
+}
