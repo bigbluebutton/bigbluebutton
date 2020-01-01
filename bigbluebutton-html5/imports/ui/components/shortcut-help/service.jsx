@@ -18,7 +18,7 @@ const withShortcutHelper = (WrappedComponent, param) => (props) => {
   if (param !== undefined) {
     if (!Array.isArray(param)) {
       shortcuts = shortcuts
-        .filter(el => el.descIdLowerCase === param.toLowerCase())
+        .filter(el => el.descId.toLowerCase() === param.toLowerCase())
         .map(el => el.accesskey)
         .pop();
     } else {
