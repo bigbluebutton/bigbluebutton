@@ -178,6 +178,7 @@ public:
     echoTestNumber: '9196'
     relayOnlyOnReconnect: false
   presentation:
+    allowDownloadable: true
     defaultPresentationFile: default.pdf
     panZoomThrottle: 32
     uploadEndpoint: "/bigbluebutton/presentation/upload"
