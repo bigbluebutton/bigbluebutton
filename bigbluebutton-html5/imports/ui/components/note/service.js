@@ -67,6 +67,31 @@ const getRevs = () => {
   return note ? note.revs : 0;
 };
 
+const setLastRevs = (revs) => {
+  const lastRevs = getLastRevs();
+
+  if (revs !== 0 && revs > lastRevs) {
+    Session.set('noteLastRevs', revs);
+  }
+};
+
+const getLastRevs = () => {
+  const lastRevs = Session.get('noteLastRevs');
+
+  if (!lastRevs) return -1;
+  return lastRevs;
+};
+
+const hasUnreadNotes = () => {
+  const opened = isPanelOpened();
+  if (opened) return false;
+
+  const revs = getRevs();
+  const lastRevs = getLastRevs();
+
+  return (revs !== 0 && revs > lastRevs);
+}
+
 const isEnabled = () => {
   const note = Note.findOne({ meetingId: Auth.meetingID });
   return NOTE_CONFIG.enabled && note;
@@ -81,4 +106,7 @@ export default {
   isEnabled,
   isPanelOpened,
   getRevs,
+  setLastRevs,
+  getLastRevs,
+  hasUnreadNotes
 };
