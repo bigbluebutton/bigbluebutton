@@ -54,6 +54,9 @@ class ReceivedJsonMsgHandlerActor(
       case CheckAlivePingSysMsg.NAME =>
         route[CheckAlivePingSysMsg](meetingManagerChannel, envelope, jsonNode)
 
+      case GetRunningMeetingsReqMsg.NAME =>
+        route[GetRunningMeetingsReqMsg](meetingManagerChannel, envelope, jsonNode)
+
       case CreateMeetingReqMsg.NAME =>
         route[CreateMeetingReqMsg](meetingManagerChannel, envelope, jsonNode)
       case ValidateAuthTokenReqMsg.NAME =>
