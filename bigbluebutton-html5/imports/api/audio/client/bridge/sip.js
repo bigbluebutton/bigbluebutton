@@ -153,19 +153,24 @@ class SIPSession {
     return new Promise((resolve, reject) => {
       let hangupRetries = 0;
       let hangup = false;
-      const { mediaHandler } = this.currentSession;
 
       this.userRequestedHangup = true;
-      // Removing termination events to avoid triggering an error
-      ICE_NEGOTIATION_FAILED.forEach(e => mediaHandler.off(e));
+
+      if (this.currentSession) {
+        const { mediaHandler } = this.currentSession;
+
+        // Removing termination events to avoid triggering an error
+        ICE_NEGOTIATION_FAILED.forEach(e => mediaHandler.off(e));
+      }
       const tryHangup = () => {
-        if (this.currentSession.endTime) {
+        if ((this.currentSession && this.currentSession.endTime)
+          || (this.userAgent && this.userAgent.status === SIP.UA.C.STATUS_USER_CLOSED)) {
           hangup = true;
           return resolve();
         }
 
-        this.currentSession.bye();
-        this.userAgent.stop();
+        if (this.currentSession) this.currentSession.bye();
+        if (this.userAgent) this.userAgent.stop();
 
         hangupRetries += 1;
 
@@ -184,10 +189,12 @@ class SIPSession {
         }, CALL_HANGUP_TIMEOUT);
       };
 
-      this.currentSession.on('bye', () => {
-        hangup = true;
-        resolve();
-      });
+      if (this.currentSession) {
+        this.currentSession.on('bye', () => {
+          hangup = true;
+          resolve();
+        });
+      }
 
       return tryHangup();
     });
@@ -195,6 +202,8 @@ class SIPSession {
 
   createUserAgent({ stun, turn }) {
     return new Promise((resolve, reject) => {
+      if (this.userRequestedHangup === true) reject();
+
       const {
         hostname,
         protocol,
@@ -268,7 +277,6 @@ class SIPSession {
         if (this.userAgent) {
           this.userAgent.removeAllListeners();
           this.userAgent.stop();
-          this.userAgent = null;
         }
 
         let error;
@@ -300,6 +308,8 @@ class SIPSession {
   }
 
   inviteUserAgent(userAgent) {
+    if (this.userRequestedHangup === true) Promise.reject();
+
     const {
       hostname,
     } = this;
@@ -330,7 +340,9 @@ class SIPSession {
   }
 
   setupEventHandlers(currentSession) {
-    return new Promise((resolve) => {
+    return new Promise((resolve, reject) => {
+      if (this.userRequestedHangup === true) reject();
+
       const { mediaHandler } = currentSession;
 
       let iceCompleted = false;
@@ -347,6 +359,11 @@ class SIPSession {
       }
 
       const checkIfCallReady = () => {
+        if (this.userRequestedHangup === true) {
+          this.exitAudio();
+          resolve();
+        }
+
         if (iceCompleted && fsReady) {
           this.webrtcConnected = true;
           this.callback({ status: this.baseCallStates.started });

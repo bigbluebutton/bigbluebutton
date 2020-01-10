@@ -169,10 +169,9 @@ class Base extends Component {
       return (<LoadingScreen>{loading}</LoadingScreen>);
     }
 
-    if (ejected && ejected.ejectedReason) {
-      const { ejectedReason } = ejected;
+    if (ejected) {
       AudioManager.exitAudio();
-      return (<MeetingEnded code={ejectedReason} />);
+      return (<MeetingEnded code="403" />);
     }
 
     if (meetingHasEnded && meetingIsBreakout) window.close();
