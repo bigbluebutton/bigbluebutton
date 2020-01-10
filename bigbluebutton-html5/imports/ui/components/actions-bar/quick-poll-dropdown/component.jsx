@@ -88,7 +88,9 @@ const getAvailableQuickPolls = (slideId, parsedSlides) => {
 };
 
 const QuickPollDropdown = (props) => {
-  const { amIPresenter, intl, parseCurrentSlideContent } = props;
+  const {
+    amIPresenter, intl, parseCurrentSlideContent,
+  } = props;
   const parsedSlide = parseCurrentSlideContent(
     intl.formatMessage(intlMessages.yesOptionLabel),
     intl.formatMessage(intlMessages.noOptionLabel),
@@ -97,25 +99,29 @@ const QuickPollDropdown = (props) => {
   );
 
   const { slideId, quickPollOptions } = parsedSlide;
+  const quickPolls = getAvailableQuickPolls(slideId, quickPollOptions);
+
+  let quickPollLabel = '';
+  if (quickPolls.length > 0) {
+    const { props: pollProps } = quickPolls[0];
+    quickPollLabel = pollProps.label;
+  }
 
   return amIPresenter && quickPollOptions && quickPollOptions.length ? (
     <Dropdown>
       <DropdownTrigger tabIndex={0}>
         <Button
           aria-label={intl.formatMessage(intlMessages.quickPollLabel)}
-          circle
-          className={styles.button}
-          color="primary"
-          hideLabel
-          icon="polling"
-          label={intl.formatMessage(intlMessages.quickPollLabel)}
+          className={styles.quickPollBtn}
+          label={quickPollLabel}
+          tooltipLabel={intl.formatMessage(intlMessages.quickPollLabel)}
           onClick={() => null}
           size="lg"
         />
       </DropdownTrigger>
       <DropdownContent placement="top left">
         <DropdownList>
-          {getAvailableQuickPolls(slideId, quickPollOptions)}
+          {quickPolls}
         </DropdownList>
       </DropdownContent>
     </Dropdown>

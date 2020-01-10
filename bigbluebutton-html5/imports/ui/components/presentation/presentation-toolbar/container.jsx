@@ -3,8 +3,11 @@ import PropTypes from 'prop-types';
 import { withTracker } from 'meteor/react-meteor-data';
 import PresentationService from '/imports/ui/components/presentation/service';
 import MediaService from '/imports/ui/components/media/service';
+import Service from '/imports/ui/components/actions-bar/service';
 import PresentationToolbar from './component';
 import PresentationToolbarService from './service';
+
+const POLLING_ENABLED = Meteor.settings.public.poll.enabled;
 
 const PresentationToolbarContainer = (props) => {
   const {
@@ -31,6 +34,7 @@ export default withTracker((params) => {
   } = params;
 
   return {
+    amIPresenter: Service.amIPresenter(),
     layoutSwapped: MediaService.getSwapLayout() && MediaService.shouldEnableSwapLayout(),
     userIsPresenter: PresentationService.isPresenter(podId),
     numberOfSlides: PresentationToolbarService.getNumberOfSlides(podId, presentationId),
@@ -38,6 +42,9 @@ export default withTracker((params) => {
     previousSlide: PresentationToolbarService.previousSlide,
     skipToSlide: PresentationToolbarService.skipToSlide,
     isMeteorConnected: Meteor.status().connected,
+    isPollingEnabled: POLLING_ENABLED,
+    currentSlidHasContent: PresentationService.currentSlidHasContent(),
+    parseCurrentSlideContent: PresentationService.parseCurrentSlideContent,
   };
 })(PresentationToolbarContainer);
 

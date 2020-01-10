@@ -73,9 +73,24 @@
   }
 }
 
-.button {
+.quickPollBtn {
+  padding-left: 0;
+  padding-right: 0;
+  margin-left: .25rem;
   span:first-child {
-    box-shadow: 0 2px 5px 0 rgb(0, 0, 0);
+    border: .1rem solid var(--toolbar-button-color);
+    border-radius: 2px;
+    color: var(--toolbar-button-color);
+    font-size: small;
+    font-weight: 500;
+    padding: 0.25rem;
+    position: relative;
+    top: 1px;
+    //right: 1rem;
+  }
+
+  span:first-child:hover {
+    opacity: 1 !important;
   }
 }
 

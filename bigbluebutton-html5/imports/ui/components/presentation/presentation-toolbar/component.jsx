@@ -10,6 +10,7 @@ import { styles } from './styles.scss';
 import ZoomTool from './zoom-tool/component';
 import FullscreenButtonContainer from '../../fullscreen-button/container';
 import Tooltip from '/imports/ui/components/tooltip/component';
+import QuickPollDropdown from '/imports/ui/components/actions-bar/quick-poll-dropdown/component';
 import KEY_CODES from '/imports/utils/keyCodes';
 
 const intlMessages = defineMessages({
@@ -211,6 +212,10 @@ class PresentationToolbar extends PureComponent {
       isFullscreen,
       fullscreenRef,
       isMeteorConnected,
+      isPollingEnabled,
+      amIPresenter,
+      currentSlidHasContent,
+      parseCurrentSlideContent,
     } = this.props;
 
     const BROWSER_RESULTS = browser();
@@ -231,7 +236,23 @@ class PresentationToolbar extends PureComponent {
     return (
       <div id="presentationToolbarWrapper" className={styles.presentationToolbarWrapper}>
         {this.renderAriaDescs()}
-        {<div />}
+        {
+          <div>
+            {isPollingEnabled
+              ? (
+                <QuickPollDropdown
+                  {...{
+                    currentSlidHasContent,
+                    intl,
+                    amIPresenter,
+                    parseCurrentSlideContent,
+
+                  }}
+                />
+              ) : null
+          }
+          </div>
+        }
         {
           <div className={styles.presentationSlideControls}>
             <Button
