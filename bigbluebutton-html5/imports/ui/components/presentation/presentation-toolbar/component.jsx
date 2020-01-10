@@ -216,6 +216,8 @@ class PresentationToolbar extends PureComponent {
       amIPresenter,
       currentSlidHasContent,
       parseCurrentSlideContent,
+      startPoll,
+      currentSlide,
     } = this.props;
 
     const BROWSER_RESULTS = browser();
@@ -246,7 +248,8 @@ class PresentationToolbar extends PureComponent {
                     intl,
                     amIPresenter,
                     parseCurrentSlideContent,
-
+                    startPoll,
+                    currentSlide,
                   }}
                 />
               ) : null

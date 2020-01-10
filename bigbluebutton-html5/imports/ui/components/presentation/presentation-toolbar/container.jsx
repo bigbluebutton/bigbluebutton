@@ -4,6 +4,8 @@ import { withTracker } from 'meteor/react-meteor-data';
 import PresentationService from '/imports/ui/components/presentation/service';
 import MediaService from '/imports/ui/components/media/service';
 import Service from '/imports/ui/components/actions-bar/service';
+import Presentations from '/imports/api/presentations';
+import { makeCall } from '/imports/ui/services/api';
 import PresentationToolbar from './component';
 import PresentationToolbarService from './service';
 
@@ -31,7 +33,15 @@ export default withTracker((params) => {
   const {
     podId,
     presentationId,
+    currentSlide,
   } = params;
+
+  const startPoll = (type, id) => {
+    Session.set('openPanel', 'poll');
+    Session.set('forcePollOpen', true);
+
+    makeCall('startPoll', type, id);
+  };
 
   return {
     amIPresenter: Service.amIPresenter(),
@@ -45,6 +55,7 @@ export default withTracker((params) => {
     isPollingEnabled: POLLING_ENABLED,
     currentSlidHasContent: PresentationService.currentSlidHasContent(),
     parseCurrentSlideContent: PresentationService.parseCurrentSlideContent,
+    startPoll,
   };
 })(PresentationToolbarContainer);
 

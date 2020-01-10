@@ -494,6 +494,7 @@ class PresentationArea extends PureComponent {
           fitToWidth,
           zoom,
           podId,
+          currentSlide,
         }}
         isFullscreen={isFullscreen}
         fullscreenRef={this.refPresentationContainer}
