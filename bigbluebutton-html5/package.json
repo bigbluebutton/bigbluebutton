@@ -58,6 +58,7 @@
     "react": "^16.12.0",
     "react-autosize-textarea": "^5.0.1",
     "react-color": "^2.17.3",
+    "react-device-detect": "^1.11.14",
     "react-dom": "^16.12.0",
     "react-draggable": "^3.3.2",
     "react-dropzone": "^7.0.1",

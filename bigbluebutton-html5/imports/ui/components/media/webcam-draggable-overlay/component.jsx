@@ -2,16 +2,16 @@ import React, { Component, Fragment } from 'react';
 import Draggable from 'react-draggable';
 import cx from 'classnames';
 import _ from 'lodash';
-import browser from 'browser-detect';
 import PropTypes from 'prop-types';
 import Resizable from 're-resizable';
+import { isMobile, isIPad13 } from 'react-device-detect';
 import { withDraggableContext } from './context';
 import VideoProviderContainer from '/imports/ui/components/video-provider/container';
 import { styles } from '../styles.scss';
 import Storage from '../../../services/storage/session';
 
 const { webcamsDefaultPlacement } = Meteor.settings.public.layout;
-const BROWSER_ISMOBILE = browser().mobile;
+const BROWSER_ISMOBILE = isMobile || isIPad13;
 
 const propTypes = {
   swapLayout: PropTypes.bool,
