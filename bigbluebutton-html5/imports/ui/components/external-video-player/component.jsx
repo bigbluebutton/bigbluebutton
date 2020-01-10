@@ -74,21 +74,33 @@ class VideoPlayer extends Component {
     this.resizeListener = () => {
       setTimeout(this.handleResize, 0);
     };
+    this.onBeforeUnload = this.onBeforeUnload.bind(this);
   }
 
   componentDidMount() {
     window.addEventListener('resize', this.resizeListener);
+    window.addEventListener('beforeunload', this.onBeforeUnload);
 
     clearInterval(this.syncInterval);
     this.registerVideoListeners();
   }
 
+  onBeforeUnload() {
+    const { isPresenter } = this.props;
+
+    if (isPresenter) {
+      sendMessage('stop');
+    }
+  }
+
   componentWillUnmount() {
     window.removeEventListener('resize', this.resizeListener);
+    window.removeEventListener('beforeunload', this.onBeforeUnload);
     this.clearVideoListeners();
 
     clearInterval(this.syncInterval);
     clearTimeout(this.autoPlayTimeout);
+
     this.player = null;
   }
 
