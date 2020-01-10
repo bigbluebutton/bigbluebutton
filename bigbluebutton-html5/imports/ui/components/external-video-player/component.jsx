@@ -34,6 +34,7 @@ class VideoPlayer extends Component {
       mutedByEchoTest: false,
       playing: false,
       hasPlayedBefore: false,
+      playerIsReady: false,
       autoPlayBlocked: false,
       playbackRate: 1,
     };
@@ -158,6 +159,7 @@ class VideoPlayer extends Component {
     removeAllListeners('play');
     removeAllListeners('stop');
     removeAllListeners('playerUpdate');
+    removeAllListeners('presenterReady');
   }
 
   registerVideoListeners() {
@@ -175,14 +177,6 @@ class VideoPlayer extends Component {
         sendMessage('playerUpdate', { rate, time: curTime, state: playingState });
       }, SYNC_INTERVAL_SECONDS * 1000);
 
-      onMessage('viewerJoined', () => {
-        const { hasPlayedBefore } = this.state;
-
-        logger.debug({ logCode: 'external_video_viewer_joined' }, 'Viewer joined external video');
-        if (hasPlayedBefore) {
-          sendMessage('presenterReady');
-        }
-      });
     } else {
       onMessage('play', ({ time }) => {
         const { hasPlayedBefore } = this.state;
@@ -255,17 +249,17 @@ class VideoPlayer extends Component {
 
   handleOnReady() {
     const { isPresenter } = this.props;
-    const { hasPlayedBefore } = this.state;
+    const { hasPlayedBefore, playerIsReady } = this.state;
 
-    if (hasPlayedBefore) {
+    if (hasPlayedBefore || playerIsReady) {
       return;
     }
 
-    if (!isPresenter) {
-      sendMessage('viewerJoined');
-    } else {
+    if (isPresenter) {
       this.setState({ playing: true });
     }
+
+    this.setState({ playerIsReady: true });
 
     this.handleResize();
 

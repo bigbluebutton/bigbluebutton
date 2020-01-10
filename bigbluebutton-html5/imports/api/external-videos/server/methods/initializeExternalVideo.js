@@ -4,8 +4,6 @@ import Users from '/imports/api/users';
 import Logger from '/imports/startup/server/logger';
 
 const allowFromPresenter = (eventName, { userId }) => {
-  if (eventName === 'viewerJoined') return true;
-
   const user = Users.findOne({ userId });
   const ret = user && user.presenter;
 
