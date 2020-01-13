@@ -9972,6 +9972,12 @@ UA.prototype.getConfigurationCheck = function () {
         }
       },
 
+      localSdpCallback: function(localSdpCallback) {
+        if (typeof localSdpCallback === 'function') {
+          return localSdpCallback;
+        }
+      },
+
       forceRport: function(forceRport) {
         if (typeof forceRport === 'boolean') {
           return forceRport;
@@ -11647,6 +11653,12 @@ MediaHandler.prototype = Object.create(SIP.MediaHandler.prototype, {
 
         if (self.session.ua.configuration.hackStripTcp) {
           sdpWrapper.sdp = sdpWrapper.sdp.replace(/^a=candidate:\d+ \d+ tcp .*?\r\n/img, "");
+        }
+        
+        // Ensure that this block is after all other SDP manipulations
+        var localSdpCallback = self.session.ua.configuration.localSdpCallback;
+        if (localSdpCallback && typeof localSdpCallback === 'function') {
+          localSdpCallback(sdpWrapper.sdp);
         }
 
         self.ready = true;

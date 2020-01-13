@@ -1,8 +1,8 @@
 ---
-name: HTML5 Issue
-about: Template for creating HTML5 Issue
+name: Core Issue
+about: Template for creating an issue with bbb-web, akka-apps, or other server component
 title: ''
-labels: HTML5 Client
+labels: ''
 assignees: ''
 
 ---

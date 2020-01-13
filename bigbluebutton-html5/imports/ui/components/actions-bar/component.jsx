@@ -10,12 +10,9 @@ import CaptionsButtonContainer from '/imports/ui/components/actions-bar/captions
 import PresentationOptionsContainer from './presentation-options/component';
 
 class ActionsBar extends PureComponent {
-
   render() {
     const {
       amIPresenter,
-      handleExitVideo,
-      handleJoinVideo,
       handleShareScreen,
       handleUnshareScreen,
       isVideoBroadcasting,
@@ -43,6 +40,7 @@ class ActionsBar extends PureComponent {
 
     actionBarClasses[styles.centerWithActions] = amIPresenter;
     actionBarClasses[styles.center] = true;
+    actionBarClasses[styles.mobileLayoutSwapped] = isLayoutSwapped && amIPresenter;
 
     return (
       <div className={styles.actionsbar}>
@@ -78,18 +76,11 @@ class ActionsBar extends PureComponent {
             : null
           }
         </div>
-        <div
-          className={
-            amIPresenter ? cx(styles.centerWithActions, actionBarClasses) : styles.center
-          }
-        >
+        <div className={cx(actionBarClasses)}>
           <AudioControlsContainer />
           {enableVideo
             ? (
-              <JoinVideoOptionsContainer
-                handleJoinVideo={handleJoinVideo}
-                handleCloseVideo={handleExitVideo}
-              />
+              <JoinVideoOptionsContainer />
             )
             : null}
           <DesktopShare {...{

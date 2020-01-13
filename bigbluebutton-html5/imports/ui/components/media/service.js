@@ -4,7 +4,6 @@ import { getVideoUrl } from '/imports/ui/components/external-video-player/servic
 import Auth from '/imports/ui/services/auth';
 import Users from '/imports/api/users';
 import Settings from '/imports/ui/services/settings';
-import VideoService from '/imports/ui/components/video-provider/service';
 import PollingService from '/imports/ui/components/polling/service';
 import getFromUserSettings from '/imports/ui/services/users-settings';
 

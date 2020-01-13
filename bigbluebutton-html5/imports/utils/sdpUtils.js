@@ -65,6 +65,184 @@ const stripMDnsCandidates = (sdp) => {
   return transform.write(parsedSDP);
 };
 
+const analyzeSdp = (sdp) => {
+  // For now we just need to parse and log the different pieces. In the future we're going to want
+  // to be tracking whether there were TURN candidates and IPv4 candidates to make informed
+  // decisions about what to do on fallbacks/reconnects.
+  const parsedSDP = transform.parse(sdp);
+
+  const v4Info = {
+    found: false,
+    public: false,
+  };
+
+  const v6Info = {
+    found: false,
+    public: false,
+  };
+
+  const srflxInfo = {
+    found: false,
+    type: 'not found',
+    public: false,
+  };
+
+  const prflxInfo = {
+    found: false,
+    type: 'not found',
+    public: false,
+  };
+
+  const relayInfo = {
+    found: false,
+    type: 'not found',
+    public: false,
+  };
+
+  const isPublicIpv4 = (ip) => {
+    const ipParts = ip.split('.');
+    switch (ipParts[0]) {
+      case 10:
+      case 127:
+        return false;
+      case 172:
+        return ipParts[1] <= 16 || ipParts[1] > 32;
+      case 192:
+        return ipParts[1] !== 168;
+      default:
+        return true;
+    }
+  };
+
+  const parseIP = (ip) => {
+    if (ip.indexOf(':') !== -1) return { type: 'v6', public: true };
+    if (ip.indexOf('.local') !== -1) return { type: 'mdns', public: false };
+    if (ip.indexOf('.')) return { type: 'v4', public: isPublicIpv4(ip) };
+    return { type: 'unknown', public: false };
+  };
+
+  // Things to parse:
+  // Are there any IPv4/IPv6
+  // Is there a server reflexive candidate? (srflx) is a public or private IP
+  // Is there a relay (TURN) candidate
+  parsedSDP.media.forEach((media) => {
+    if (media.candidates) {
+      // console.log("**** Found candidates ****")
+      media.candidates.forEach((candidate) => {
+        // console.log(candidate)
+        const ipInfo = parseIP(candidate.ip);
+        switch (ipInfo.type) {
+          case 'v4':
+            v4Info.found = true;
+            v4Info.public = v4Info.public || ipInfo.public;
+            break;
+          case 'v6':
+            v6Info.found = true;
+            v6Info.public = v6Info.public || ipInfo.public;
+            break;
+        }
+
+        switch (candidate.type) {
+          case 'srflx':
+            srflxInfo.found = true;
+
+            if (srflxInfo.type === 'not found') {
+              srflxInfo.type = ipInfo.type;
+            } else if (srflxInfo.type !== ipInfo.type) {
+              srflxInfo.type = 'both';
+            }
+
+            srflxInfo.public = srflxInfo.public || ipInfo.public;
+            break;
+          case 'prflx':
+            prflxInfo.found = true;
+
+            if (prflxInfo.type === 'not found') {
+              prflxInfo.type = ipInfo.type;
+            } else if (prflxInfo.type !== ipInfo.type) {
+              prflxInfo.type = 'both';
+            }
+
+            prflxInfo.public = prflxInfo.public || ipInfo.public;
+            break;
+          case 'relay':
+            relayInfo.found = true;
+
+            if (relayInfo.type === 'not found') {
+              relayInfo.type = ipInfo.type;
+            } else if (relayInfo.type !== ipInfo.type) {
+              relayInfo.type = 'both';
+            }
+
+            relayInfo.public = relayInfo.public || ipInfo.public;
+            break;
+        }
+      });
+      // console.log("**** End of candidates ****")
+    }
+  });
+
+  // candidate types
+  logger.info({
+    logCode: 'sdp_utils_candidate_types',
+    extraInfo: {
+      foundV4Candidate: v4Info.found,
+      foundV4PublicCandidate: v4Info.public,
+      foundV6Candidate: v6Info.found,
+    },
+  }, `Found candidates ${v4Info.found ? 'with' : 'without'} type v4 (public? ${v4Info.public}) and ${v6Info.found ? 'with' : 'without'} type v6`);
+
+  // server reflexive
+  if (srflxInfo.found) {
+    logger.info({
+      logCode: 'sdp_utils_server_reflexive_found',
+      extraInfo: {
+        candidateType: srflxInfo.type,
+        candidatePublic: srflxInfo.public,
+      },
+    }, 'Found a server reflexive candidate');
+  } else {
+    logger.info({
+      logCode: 'sdp_utils_no_server_reflexive',
+    }, 'No server reflexive candidate found');
+  }
+
+  // peer reflexive
+  if (prflxInfo.found) {
+    logger.info({
+      logCode: 'sdp_utils_peer_reflexive_found',
+      extraInfo: {
+        candidateType: prflxInfo.type,
+        candidatePublic: prflxInfo.public,
+      },
+    }, 'Found a peer reflexive candidate');
+  } else {
+    logger.info({
+      logCode: 'sdp_utils_no_peer_reflexive',
+    }, 'No peer reflexive candidate found');
+  }
+
+  // relay
+  if (relayInfo.found) {
+    logger.info({
+      logCode: 'sdp_utils_relay_found',
+      extraInfo: {
+        candidateType: relayInfo.type,
+        candidatePublic: relayInfo.public,
+      },
+    }, 'Found a relay candidate');
+  } else {
+    logger.info({
+      logCode: 'sdp_utils_no_relay',
+    }, 'No relay candidate found');
+  }
+};
+
 export {
-  interop, isUnifiedPlan, toPlanB, toUnifiedPlan, stripMDnsCandidates,
+  interop,
+  isUnifiedPlan,
+  toPlanB,
+  toUnifiedPlan,
+  stripMDnsCandidates,
+  analyzeSdp,
 };

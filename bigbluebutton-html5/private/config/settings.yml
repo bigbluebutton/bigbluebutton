@@ -21,6 +21,7 @@ public:
     allowUserLookup: false
     enableNetworkInformation: false
     enableLimitOfViewersInWebcam: false
+    enableMultipleCameras: false
     enableTalkingIndicator: true
     viewersInWebcam: 8
     ipv4FallbackDomain: ""
@@ -114,7 +115,6 @@ public:
         bitrate: 800
     enableScreensharing: true
     enableVideo: true
-    enableVideoStats: false
     enableVideoMenu: true
     enableListenOnly: true
     autoShareWebcam: false
@@ -338,6 +338,7 @@ private:
     - DoLatencyTracerMsg
   serverLog:
     level: info
+    streamerLog: false
   memoryMonitoring:
     stat:
       enabled: false

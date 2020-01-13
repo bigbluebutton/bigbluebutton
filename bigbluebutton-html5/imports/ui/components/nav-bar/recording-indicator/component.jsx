@@ -125,7 +125,7 @@ class RecordingIndicator extends PureComponent {
     }
 
     const recordingToggle = () => {
-      if (!micUser) {
+      if (!micUser && !recording) {
         notify(intl.formatMessage(intlMessages.emptyAudioBrdige), 'error', 'warning');
       }
       mountModal(<RecordingContainer amIModerator={amIModerator} />);
