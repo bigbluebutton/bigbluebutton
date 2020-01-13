@@ -81,7 +81,7 @@
 }
 
 .userAvatar {
-  width: 2rem;
+  min-width: 2.25rem;
   margin: .5rem;
 }
 
@@ -150,7 +150,6 @@
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  width: 100%;
 }
 
 .rememberContainer {
