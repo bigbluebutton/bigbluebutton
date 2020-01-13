@@ -108,9 +108,11 @@ export function initAnnotationsStreamListener() {
 
   const startStreamHandlersPromise = new Promise((resolve) => {
     const checkStreamHandlersInterval = setInterval(() => {
-      const streamHandlersSize = JSON.parse(JSON.stringify((Meteor.StreamerCentral.instances[`annotations-${Auth.meetingID}`].handlers)));
+      const streamHandlersSize = Object.values(Meteor.StreamerCentral.instances[`annotations-${Auth.meetingID}`].handlers)
+        .filter(el => el != undefined)
+        .length;
 
-      if (!Object.keys(streamHandlersSize).length) {
+      if (!streamHandlersSize) {
         resolve(clearInterval(checkStreamHandlersInterval));
       }
     }, 250);
