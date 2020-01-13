@@ -43,6 +43,7 @@ class WebcamDraggable extends Component {
     this.onResizeStop = this.onResizeStop.bind(this);
     this.onResizeStart = this.onResizeStart.bind(this);
     this.setPlacementPercent = this.setPlacementPercent.bind(this);
+    this.recalculateAreaSize = this.recalculateAreaSize.bind(this);
 
     this.state = {
       resizing: false,
@@ -53,6 +54,7 @@ class WebcamDraggable extends Component {
   componentDidMount() {
     window.addEventListener('resize', this.debouncedOnResize);
     document.addEventListener('fullscreenchange', this.onFullscreenChange);
+    window.addEventListener('orientationchange', () => setTimeout(this.recalculateAreaSize, 500));
   }
 
   componentDidUpdate(prevProps) {
@@ -187,6 +189,11 @@ class WebcamDraggable extends Component {
     return false;
   }
 
+  recalculateAreaSize() {
+    this.onResizeStart();
+    this.onResizeStop();
+  }
+
   calculatePosition() {
     const { top: mediaTop, left: mediaLeft } = this.getMediaBounds();
     const { top: webcamsListTop, left: webcamsListLeft } = this.getWebcamsListBounds();
@@ -230,6 +237,7 @@ class WebcamDraggable extends Component {
     }
     webcamDraggableDispatch({ type: 'dragEnd' });
     window.dispatchEvent(new Event('resize'));
+    setTimeout(this.recalculateAreaSize, 500);
   }
 
   render() {
