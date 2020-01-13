@@ -478,6 +478,8 @@
     "app.userList.guest.pendingGuestUsers": "{0} Pending Guest Users",
     "app.userList.guest.pendingGuestAlert": "Has joined the session and is waiting for your approval.",
     "app.userList.guest.rememberChoice": "Remember choice",
+    "app.userList.guest.acceptLabel": "Accept",
+    "app.userList.guest.denyLabel": "Deny",
     "app.user-info.title": "Directory Lookup",
     "app.toast.breakoutRoomEnded": "The breakout room ended.  Please rejoin in the audio.",
     "app.toast.chat.public": "New Public Chat message",
