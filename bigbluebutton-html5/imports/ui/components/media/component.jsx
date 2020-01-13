@@ -1,8 +1,11 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import cx from 'classnames';
+import { isMobile, isIPad13 } from 'react-device-detect';
 import WebcamDraggable from './webcam-draggable-overlay/component';
 import { styles } from './styles';
+
+const BROWSER_ISMOBILE = isMobile || isIPad13;
 
 const propTypes = {
   children: PropTypes.element.isRequired,
@@ -78,7 +81,7 @@ export default class Media extends Component {
             )
               ? '100%'
               : '80%',
-            minHeight: '20%',
+            minHeight: BROWSER_ISMOBILE && window.innerWidth > window.innerHeight ? '50%' : '20%',
             maxWidth: (
               webcamPlacement === 'top'
               || webcamPlacement === 'bottom'
