@@ -244,26 +244,6 @@
   }
 }
 
-.webRTCStats {
-  background: rgba(0, 0, 0, 0.85);
-  padding: 15px;
-  height: 100%;
-  color: var(--color-white);
-  font-size: var(--font-size-small);
-  border-radius: 5px;
-  position: absolute;
-  z-index: 1;
-  width: 100%;
-}
-
-.statsCloseButton {
-  float: right;
-}
-
-.statsCloseButton:hover {
-  cursor: pointer;
-}
-
 .muted {
   background-color: var(--color-danger);
 }
