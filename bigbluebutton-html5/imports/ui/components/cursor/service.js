@@ -40,9 +40,24 @@ export function initCursorStreamListener() {
     extraInfo: { meetingId: Auth.meetingID, userId: Auth.userID },
   }, 'initCursorStreamListener called');
 
-  if (!cursorStreamListener) {
-    cursorStreamListener = new Meteor.Streamer(`cursor-${Auth.meetingID}`, { retransmit: false });
+  /**
+  * We create a promise to add the handlers after a ddp subscription stop.
+  * The problem was caused because we add handlers to stream before the onStop event happens,
+  * which set the handlers to undefined.
+  */
+  cursorStreamListener = new Meteor.Streamer(`cursor-${Auth.meetingID}`, { retransmit: false });
 
+  const startStreamHandlersPromise = new Promise((resolve) => {
+    const checkStreamHandlersInterval = setInterval(() => {
+      const streamHandlersSize = JSON.parse(JSON.stringify((Meteor.StreamerCentral.instances[`cursor-${Auth.meetingID}`].handlers)));
+
+      if (!Object.keys(streamHandlersSize).length) {
+        resolve(clearInterval(checkStreamHandlersInterval));
+      }
+    }, 250);
+  });
+
+  startStreamHandlersPromise.then(() => {
     logger.debug({
       logCode: 'init_cursor_stream_listener',
     }, 'initCursorStreamListener called');
@@ -53,7 +68,7 @@ export function initCursorStreamListener() {
         updateCursor(userId, cursors[userId]);
       });
     });
-  }
+  });
 }
 
 export default Cursor;
