@@ -74,19 +74,17 @@
 }
 
 .quickPollBtn {
-  padding-left: 0;
-  padding-right: 0;
-  margin-left: .25rem;
+  padding: var(--whiteboard-toolbar-padding);
+
   span:first-child {
-    border: .1rem solid var(--toolbar-button-color);
-    border-radius: 2px;
+    border: 1px solid var(--toolbar-button-color);
+    border-radius: var(--border-size-large);
     color: var(--toolbar-button-color);
     font-size: small;
-    font-weight: 500;
-    padding: 0.25rem;
-    position: relative;
-    top: 1px;
-    //right: 1rem;
+    font-weight: var(--headings-font-weight);
+    opacity: 1;
+    padding-right: var(--border-size-large);
+    padding-left: var(--border-size-large);
   }
 
   span:first-child:hover {
