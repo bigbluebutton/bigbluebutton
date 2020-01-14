@@ -376,7 +376,7 @@ def svg_render_shape_poll(g, slide, shape)
   # Save the poll json to a temp file
   IO.write(json_file, result)
   # Render the poll svg
-  ret = BigBlueButton.exec_ret('utils/gen_poll_svg', '-i', json_file, '-w', "#{width}", '-h', "#{height}", '-n', "#{num_responders}", '-o', svg_file)
+  ret = BigBlueButton.exec_ret('utils/gen_poll_svg', '-i', json_file, '-w', "#{width.round}", '-h', "#{height.round}", '-n', "#{num_responders}", '-o', svg_file)
   raise "Failed to generate poll svg" if ret != 0
 
   # Poll image
