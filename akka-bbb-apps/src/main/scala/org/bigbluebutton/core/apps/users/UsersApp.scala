@@ -21,6 +21,18 @@ object UsersApp {
     outGW.send(msgEvent)
   }
 
+  def guestWaitingLeft(liveMeeting: LiveMeeting, userId: String, outGW: OutMsgRouter): Unit = {
+    for {
+      u <- RegisteredUsers.findWithUserId(userId, liveMeeting.registeredUsers)
+    } yield {
+
+      RegisteredUsers.remove(u.id, liveMeeting.registeredUsers)
+
+      val event = MsgBuilder.buildGuestWaitingLeftEvtMsg(liveMeeting.props.meetingProp.intId, u.id)
+      outGW.send(event)
+    }
+  }
+
   def approveOrRejectGuest(liveMeeting: LiveMeeting, outGW: OutMsgRouter,
                            guest: GuestApprovedVO, approvedBy: String): Unit = {
     for {

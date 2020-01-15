@@ -55,6 +55,15 @@ object MsgBuilder {
     BbbCommonEnvCoreMsg(envelope, req)
   }
 
+  def buildGuestWaitingLeftMsg(meetingId: String, userId: String): BbbCommonEnvCoreMsg = {
+    val routing = collection.immutable.HashMap("sender" -> "bbb-web")
+    val envelope = BbbCoreEnvelope(GuestWaitingLeftMsg.NAME, routing)
+    val header = BbbClientMsgHeader(GuestWaitingLeftMsg.NAME, meetingId, "not-used")
+    val body = GuestWaitingLeftMsgBody(userId)
+    val req = GuestWaitingLeftMsg(header, body)
+    BbbCommonEnvCoreMsg(envelope, req)
+  }
+
   def buildCheckAlivePingSysMsg(system: String, timestamp: Long): BbbCommonEnvCoreMsg = {
     val routing = collection.immutable.HashMap("sender" -> "bbb-web")
     val envelope = BbbCoreEnvelope(CheckAlivePingSysMsg.NAME, routing)

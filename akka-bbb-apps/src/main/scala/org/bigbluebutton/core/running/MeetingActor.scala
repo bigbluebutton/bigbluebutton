@@ -456,6 +456,7 @@ class MeetingActor(
       case m: GetGuestsWaitingApprovalReqMsg           => handleGetGuestsWaitingApprovalReqMsg(m)
       case m: SetGuestPolicyCmdMsg                     => handleSetGuestPolicyMsg(m)
       case m: GuestsWaitingApprovedMsg                 => handleGuestsWaitingApprovedMsg(m)
+      case m: GuestWaitingLeftMsg                      => handleGuestWaitingLeftMsg(m)
       case m: GetGuestPolicyReqMsg                     => handleGetGuestPolicyReqMsg(m)
 
       // Chat

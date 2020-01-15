@@ -1316,6 +1316,7 @@ class ApiController {
 
 
       if (guestWaitStatus.equals(GuestPolicy.WAIT)) {
+        meetingService.guestIsWaiting(userSession.meetingID, userSession.internalUserId);
         clientURL = paramsProcessorUtil.getDefaultGuestWaitURL();
         destUrl = clientURL + "?sessionToken=" + sessionToken
         log.debug("GuestPolicy.WAIT - destUrl = " + destUrl)

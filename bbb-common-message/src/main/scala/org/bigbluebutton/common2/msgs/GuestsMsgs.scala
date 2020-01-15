@@ -64,6 +64,26 @@ case class GuestApprovedEvtMsg(
 case class GuestApprovedEvtMsgBody(status: String, approvedBy: String)
 
 /**
+ * Message from bbb-web when it detects a guest stopped polling for his status.
+ */
+object GuestWaitingLeftMsg { val NAME = "GuestWaitingLeftMsg" }
+case class GuestWaitingLeftMsg(
+    header: BbbClientMsgHeader,
+    body:   GuestWaitingLeftMsgBody
+) extends StandardMsg
+case class GuestWaitingLeftMsgBody(userId: String)
+
+/**
+ * Message sent to all clients that a guest left the waiting page.
+ */
+object GuestWaitingLeftEvtMsg { val NAME = "GuestWaitingLeftEvtMsg" }
+case class GuestWaitingLeftEvtMsg(
+    header: BbbClientMsgHeader,
+    body:   GuestWaitingLeftEvtMsgBody
+) extends BbbCoreMsg
+case class GuestWaitingLeftEvtMsgBody(userId: String)
+
+/**
  * Message from user to set the guest policy.
  */
 object SetGuestPolicyCmdMsg { val NAME = "SetGuestPolicyCmdMsg" }
