@@ -6,6 +6,8 @@ import Storage from '/imports/ui/services/storage/session';
 import Users from '/imports/api/users';
 import logger from '/imports/startup/client/logger';
 import { makeCall } from '/imports/ui/services/api';
+import { initAnnotationsStreamListener } from '/imports/ui/components/whiteboard/service';
+import { initCursorStreamListener } from '/imports/ui/components/cursor/service';
 
 const CONNECTION_TIMEOUT = Meteor.settings.public.app.connectionTimeout;
 
@@ -220,7 +222,7 @@ class Auth {
 
         const selector = { meetingId: this.meetingID, userId: this.userID };
         const fields = {
-          intId: 1, ejected: 1, validated: 1, connectionStatus: 1,
+          intId: 1, ejected: 1, validated: 1, connectionStatus: 1, userId: 1,
         };
         const User = Users.findOne(selector, { fields });
         // Skip in case the user is not in the collection yet or is a dummy user
@@ -239,6 +241,9 @@ class Auth {
         }
 
         if (User.validated === true && User.connectionStatus === 'online') {
+          logger.info({ logCode: 'auth_service_init_streamers', extraInfo: { userId: User.userId } }, 'Calling init streamers functions');
+          initCursorStreamListener();
+          initAnnotationsStreamListener();
           computation.stop();
           clearTimeout(validationTimeout);
           // setTimeout to prevent race-conditions with subscription

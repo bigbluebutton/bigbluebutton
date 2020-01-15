@@ -99,9 +99,26 @@ function handleRemovedAnnotation({
 }
 
 export function initAnnotationsStreamListener() {
-  if (!annotationsStreamListener) {
-    annotationsStreamListener = new Meteor.Streamer(`annotations-${Auth.meetingID}`, { retransmit: false });
+  /**
+   * We create a promise to add the handlers after a ddp subscription stop.
+   * The problem was caused because we add handlers to stream before the onStop event happens,
+   * which set the handlers to undefined.
+   */
+  annotationsStreamListener = new Meteor.Streamer(`annotations-${Auth.meetingID}`, { retransmit: false });
 
+  const startStreamHandlersPromise = new Promise((resolve) => {
+    const checkStreamHandlersInterval = setInterval(() => {
+      const streamHandlersSize = Object.values(Meteor.StreamerCentral.instances[`annotations-${Auth.meetingID}`].handlers)
+        .filter(el => el != undefined)
+        .length;
+
+      if (!streamHandlersSize) {
+        resolve(clearInterval(checkStreamHandlersInterval));
+      }
+    }, 250);
+  });
+
+  startStreamHandlersPromise.then(() => {
     annotationsStreamListener.on('removed', handleRemovedAnnotation);
 
     annotationsStreamListener.on('added', ({ annotations }) => {
@@ -110,7 +127,7 @@ export function initAnnotationsStreamListener() {
         .filter(({ annotation }) => !discardedList.includes(annotation.id))
         .forEach(annotation => handleAddedAnnotation(annotation));
     });
-  }
+  });
 }
 
 function increaseBrightness(realHex, percent) {
