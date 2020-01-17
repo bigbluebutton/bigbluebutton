@@ -21,7 +21,7 @@
 
 performance_start = Time.now
 
-require '../../core/lib/recordandplayback'
+require File.expand_path('../../../lib/recordandplayback', __FILE__)
 require 'rubygems'
 require 'trollop'
 require 'yaml'
@@ -30,7 +30,7 @@ require 'fastimage' # require fastimage to get the image size of the slides (gem
 
 
 # This script lives in scripts/archive/steps while properties.yaml lives in scripts/
-bbb_props = YAML::load(File.open('../../core/scripts/bigbluebutton.yml'))
+bbb_props = BigBlueButton.read_props
 $presentation_props = YAML::load(File.open('presentation.yml'))
 
 # There's a couple of places where stuff is mysteriously divided or multiplied
