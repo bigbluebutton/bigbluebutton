@@ -1,16 +1,15 @@
-import React, { Component, Fragment } from 'react';
+import React, { PureComponent, Fragment } from 'react';
 import Draggable from 'react-draggable';
 import cx from 'classnames';
 import _ from 'lodash';
 import PropTypes from 'prop-types';
 import Resizable from 're-resizable';
 import { isMobile, isIPad13 } from 'react-device-detect';
-import { withDraggableContext } from './context';
+import { withDraggableConsumer } from './context';
 import VideoProviderContainer from '/imports/ui/components/video-provider/container';
 import { styles } from '../styles.scss';
 import Storage from '../../../services/storage/session';
 
-const { webcamsDefaultPlacement } = Meteor.settings.public.layout;
 const BROWSER_ISMOBILE = isMobile || isIPad13;
 
 const propTypes = {
@@ -32,7 +31,7 @@ const defaultProps = {
 };
 const dispatchResizeEvent = () => window.dispatchEvent(new Event('resize'));
 
-class WebcamDraggable extends Component {
+class WebcamDraggable extends PureComponent {
   constructor(props) {
     super(props);
 
@@ -58,16 +57,33 @@ class WebcamDraggable extends Component {
   }
 
   componentDidUpdate(prevProps) {
-    const { swapLayout, webcamDraggableState } = this.props;
-    const { placement } = webcamDraggableState;
+    const { swapLayout, webcamDraggableState, webcamDraggableDispatch } = this.props;
+    const {
+      placement: statePlacement,
+      orientation,
+      lastPlacementLandscape,
+      lastPlacementPortrait,
+    } = webcamDraggableState;
     const { webcamDraggableState: prevWebcamDraggableState } = prevProps;
-    const { placement: prevPlacement } = prevWebcamDraggableState;
+    const { placement: prevPlacement, orientation: prevOrientation } = prevWebcamDraggableState;
     if (prevProps.swapLayout !== swapLayout) {
       setTimeout(() => this.forceUpdate(), 500);
     }
-    if (prevPlacement !== placement) {
+    if (prevPlacement !== statePlacement) {
       setTimeout(() => this.forceUpdate(), 200);
       setTimeout(() => window.dispatchEvent(new Event('resize')), 500);
+    }
+
+    if (prevOrientation !== orientation) {
+      const storagePlacement = Storage.getItem('webcamPlacement');
+      if ((prevOrientation == null || prevOrientation === 'portrait') && orientation === 'landscape') {
+        if (storagePlacement !== lastPlacementLandscape && lastPlacementLandscape === 'top') webcamDraggableDispatch({ type: 'setplacementToTop' });
+        if (storagePlacement !== lastPlacementLandscape && lastPlacementLandscape === 'bottom') webcamDraggableDispatch({ type: 'setplacementToBottom' });
+      }
+      if ((prevOrientation == null || prevOrientation === 'landscape') && orientation === 'portrait') {
+        if (storagePlacement !== lastPlacementPortrait && lastPlacementPortrait === 'left') webcamDraggableDispatch({ type: 'setplacementToLeft' });
+        if (storagePlacement !== lastPlacementPortrait && lastPlacementPortrait === 'right') webcamDraggableDispatch({ type: 'setplacementToRight' });
+      }
     }
   }
 
@@ -227,12 +243,16 @@ class WebcamDraggable extends Component {
     if (targetClassname) {
       if (targetClassname.includes('Top')) {
         webcamDraggableDispatch({ type: 'setplacementToTop' });
+        webcamDraggableDispatch({ type: 'setLastPlacementLandscapeToTop' });
       } else if (targetClassname.includes('Right')) {
         webcamDraggableDispatch({ type: 'setplacementToRight' });
+        webcamDraggableDispatch({ type: 'setLastPlacementPortraitToRight' });
       } else if (targetClassname.includes('Bottom')) {
         webcamDraggableDispatch({ type: 'setplacementToBottom' });
+        webcamDraggableDispatch({ type: 'setLastPlacementLandscapeToBottom' });
       } else if (targetClassname.includes('Left')) {
         webcamDraggableDispatch({ type: 'setplacementToLeft' });
+        webcamDraggableDispatch({ type: 'setLastPlacementPortraitToLeft' });
       }
     }
     webcamDraggableDispatch({ type: 'dragEnd' });
@@ -261,12 +281,12 @@ class WebcamDraggable extends Component {
       videoListSize,
       optimalGrid,
     } = webcamDraggableState;
-    let placement = Storage.getItem('webcamPlacement');
+
+    const placement = Storage.getItem('webcamPlacement');
+
     const lastPosition = Storage.getItem('webcamLastPosition') || { x: 0, y: 0 };
+
     let position = lastPosition;
-    if (!placement) {
-      placement = webcamsDefaultPlacement;
-    }
 
     if (dragging) {
       position = webcamDraggableState.tempPosition;
@@ -537,4 +557,4 @@ class WebcamDraggable extends Component {
 WebcamDraggable.propTypes = propTypes;
 WebcamDraggable.defaultProps = defaultProps;
 
-export default withDraggableContext(WebcamDraggable);
+export default withDraggableConsumer(WebcamDraggable);
