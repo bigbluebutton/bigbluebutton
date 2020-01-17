@@ -11,12 +11,12 @@ import AudioManager from '/imports/ui/services/audio-manager';
 import logger from '/imports/startup/client/logger';
 import Users from '/imports/api/users';
 import { Session } from 'meteor/session';
+import { FormattedMessage } from 'react-intl';
 import IntlStartup from './intl';
 import Meetings, { RecordMeetings } from '../../api/meetings';
 import AppService from '/imports/ui/components/app/service';
 import Breakouts from '/imports/api/breakouts';
 import AudioService from '/imports/ui/components/audio/service';
-import { FormattedMessage } from 'react-intl';
 import { notify } from '/imports/ui/services/notification';
 
 const BREAKOUT_END_NOTIFY_DELAY = 50;
