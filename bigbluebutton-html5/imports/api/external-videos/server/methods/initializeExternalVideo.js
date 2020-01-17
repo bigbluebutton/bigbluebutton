@@ -14,7 +14,7 @@ const allowFromPresenter = (eventName, message) => {
   const user = Users.findOne({ userId });
   const ret = user && user.presenter;
 
-  Logger.debug(`ExternalVideo Streamer auth userid: ${userId}, event: ${eventName}, suc: ${ret}, time: ${time}, rate: ${rate}, state: ${state}`);
+  Logger.info(`ExternalVideo Streamer auth userid: ${userId}, meetingId: ${user.meetingId}, event: ${eventName}, suc: ${ret}, time: ${time}, rate: ${rate}, state: ${state}`);
 
   return ret;
 };
