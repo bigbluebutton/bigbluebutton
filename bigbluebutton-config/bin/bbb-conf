@@ -716,19 +716,6 @@ check_configuration() {
         fi
     done
 
-    #
-    # Check that the supporting applications are installed
-    
-    if [ -f /usr/share/red5/red5-server.jar ]; then
-      VARFolder=$(cat $SERVLET_DIR/WEB-INF/classes/bigbluebutton.properties | grep swfToolsDir | cut -d= -f2)
-      files="pdf2swf jpeg2swf png2swf"
-      for file in $files; do
-      if [ ! -x $VARFolder/$file ]; then
-        echo "# $file is not installed in $VARFolder"
-      fi
-      done
-    fi
-
     VARFolder=$(cat $SERVLET_DIR/WEB-INF/classes/bigbluebutton.properties | grep imageMagickDir | cut -d= -f2)
     if [ ! -x $VARFolder/convert ]; then
         echo "# ImageMagick's convert is not installed in $VARFolder"
