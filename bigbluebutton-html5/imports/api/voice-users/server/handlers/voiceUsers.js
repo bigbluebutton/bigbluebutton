@@ -4,12 +4,12 @@ import addDialInUser from '/imports/api/users/server/modifiers/addDialInUser';
 import removeVoiceUser from '../modifiers/removeVoiceUser';
 import updateVoiceUser from '../modifiers/updateVoiceUser';
 import addVoiceUser from '../modifiers/addVoiceUser';
-
+import { resyncResolver } from '/imports/api/common/server/helpers';
+import { dependencies } from '/imports/startup/server/meteorSyncComfirmation';
 
 export default function handleVoiceUsers({ header, body }) {
   const { voiceUsers } = body;
   const { meetingId } = header;
-
   const meeting = Meetings.findOne({ meetingId }, { fields: { 'voiceProp.voiceConf': 1 } });
   const usersIds = voiceUsers.map(m => m.intId);
 
@@ -59,6 +59,6 @@ export default function handleVoiceUsers({ header, body }) {
     voiceUserId: user.voiceUserId,
     intId: user.intId,
   }));
-
+  resyncResolver(meetingId, dependencies.VOICE_USERS);
   return voiceUsersUpdated;
 }

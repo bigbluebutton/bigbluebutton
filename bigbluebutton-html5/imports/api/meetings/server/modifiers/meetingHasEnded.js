@@ -18,29 +18,36 @@ import clearUserInfo from '/imports/api/users-infos/server/modifiers/clearUserIn
 import clearNote from '/imports/api/note/server/modifiers/clearNote';
 import clearNetworkInformation from '/imports/api/network-information/server/modifiers/clearNetworkInformation';
 import clearLocalSettings from '/imports/api/local-settings/server/modifiers/clearLocalSettings';
+import clearScreenshare from '/imports/api/screenshare/server/modifiers/clearScreenshare';
+import clearWhiteboardMultiUser from '/imports/api/whiteboard-multi-user/server/modifiers/clearWhiteboardMultiUser';
 import clearRecordMeeting from './clearRecordMeeting';
+
+export const clearAllMeetingData = (meetingId) => {
+  clearCaptions(meetingId);
+  clearGroupChat(meetingId);
+  clearPresentationPods(meetingId);
+  clearBreakouts(meetingId);
+  clearPolls(meetingId);
+  clearAnnotations(meetingId);
+  clearSlides(meetingId);
+  clearUsers(meetingId);
+  clearUsersSettings(meetingId);
+  clearVoiceUsers(meetingId);
+  clearUserInfo(meetingId);
+  clearNote(meetingId);
+  clearNetworkInformation(meetingId);
+  clearLocalSettings(meetingId);
+  clearRecordMeeting(meetingId);
+  clearScreenshare(meetingId);
+  clearWhiteboardMultiUser(meetingId);
+
+  return Logger.info(`Cleared Meetings with id ${meetingId}`);
+};
+
 
 export default function meetingHasEnded(meetingId) {
   removeAnnotationsStreamer(meetingId);
   removeCursorStreamer(meetingId);
 
-  return Meetings.remove({ meetingId }, () => {
-    clearCaptions(meetingId);
-    clearGroupChat(meetingId);
-    clearPresentationPods(meetingId);
-    clearBreakouts(meetingId);
-    clearPolls(meetingId);
-    clearAnnotations(meetingId);
-    clearSlides(meetingId);
-    clearUsers(meetingId);
-    clearUsersSettings(meetingId);
-    clearVoiceUsers(meetingId);
-    clearUserInfo(meetingId);
-    clearNote(meetingId);
-    clearNetworkInformation(meetingId);
-    clearLocalSettings(meetingId);
-    clearRecordMeeting(meetingId);
-
-    return Logger.info(`Cleared Meetings with id ${meetingId}`);
-  });
+  return Meetings.remove({ meetingId }, () => clearAllMeetingData(meetingId));
 }

@@ -1,17 +1,17 @@
 import Logger from '/imports/startup/server/logger';
 import Screenshare from '/imports/api/screenshare';
 
-export default function clearScreenshare(meetingId, screenshareConf) {
+export default function clearScreenshare(meetingId) {
   const cb = (err) => {
     if (err) {
-      return Logger.error(`removing screenshare to collection: ${err}`);
+      return Logger.error(`Clearing screenshare to collection: ${err}`);
     }
 
-    return Logger.info(`removed screenshare meetingId=${meetingId} id=${screenshareConf}`);
+    return Logger.info(`Cleared screenshare meetingId=${meetingId}`);
   };
 
-  if (meetingId && screenshareConf) {
-    return Screenshare.remove({ meetingId, 'screenshare.screenshareConf': screenshareConf }, cb);
+  if (meetingId) {
+    return Screenshare.remove({ meetingId }, cb);
   }
   return Screenshare.remove({}, cb);
 }

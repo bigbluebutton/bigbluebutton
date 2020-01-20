@@ -9,6 +9,8 @@ import createNote from '/imports/api/note/server/methods/createNote';
 import createCaptions from '/imports/api/captions/server/methods/createCaptions';
 import { addAnnotationsStreamer } from '/imports/api/annotations/server/streamer';
 import { addCursorStreamer } from '/imports/api/cursor/server/streamer';
+import { resyncResolver } from '/imports/api/common/server/helpers';
+import { dependencies } from '/imports/startup/server/meteorSyncComfirmation';
 
 export default function addMeeting(meeting) {
   const meetingId = meeting.meetingProp.intId;
@@ -164,10 +166,12 @@ export default function addMeeting(meeting) {
 
     if (insertedId) {
       Logger.info(`Added record prop id=${meetingId}`);
+      resyncResolver(meetingId, dependencies.MEETING);
     }
 
     if (numChanged) {
       Logger.info(`Upserted record prop id=${meetingId}`);
+      resyncResolver(meetingId, dependencies.MEETING);
     }
   };
 

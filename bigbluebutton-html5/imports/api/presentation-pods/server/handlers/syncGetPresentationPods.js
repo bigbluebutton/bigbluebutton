@@ -2,11 +2,12 @@ import { check } from 'meteor/check';
 import PresentationPods from '/imports/api/presentation-pods';
 import removePresentationPod from '../modifiers/removePresentationPod';
 import addPresentationPod from '../modifiers/addPresentationPod';
+import { resyncResolver } from '/imports/api/common/server/helpers';
+import { dependencies } from '/imports/startup/server/meteorSyncComfirmation';
 
 export default function handleSyncGetPresentationPods({ body }, meetingId) {
   check(body, Object);
   check(meetingId, String);
-
   const { pods } = body;
   check(pods, Array);
 
@@ -29,4 +30,5 @@ export default function handleSyncGetPresentationPods({ body }, meetingId) {
     } = pod;
     addPresentationPod(meetingId, { podId, currentPresenterId }, presentations);
   });
+  resyncResolver(meetingId, dependencies.PRESENTATION_PODS);
 }

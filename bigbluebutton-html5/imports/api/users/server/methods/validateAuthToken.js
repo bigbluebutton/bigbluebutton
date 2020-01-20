@@ -5,12 +5,13 @@ import Logger from '/imports/startup/server/logger';
 import Users from '/imports/api/users';
 import createDummyUser from '../modifiers/createDummyUser';
 import setConnectionIdAndAuthToken from '../modifiers/setConnectionIdAndAuthToken';
+import MeteorSyncConfirmation, { serverSynced } from '/imports/startup/server/meteorSyncComfirmation';
 
-export default function validateAuthToken(credentials) {
+export default async function validateAuthToken(credentials) {
   const REDIS_CONFIG = Meteor.settings.private.redis;
   const CHANNEL = REDIS_CONFIG.channels.toAkkaApps;
   const EVENT_NAME = 'ValidateAuthTokenReqMsg';
-
+  await serverSynced;
   const { meetingId, requesterUserId, requesterToken } = credentials;
 
   check(meetingId, String);
@@ -25,7 +26,7 @@ export default function validateAuthToken(credentials) {
     userId: requesterUserId,
   });
 
-  if (!User) {
+  if (!User && MeteorSyncConfirmation.isSynced()) {
     createDummyUser(meetingId, requesterUserId, requesterToken);
   }
 

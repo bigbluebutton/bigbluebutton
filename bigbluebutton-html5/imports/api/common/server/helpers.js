@@ -1,8 +1,24 @@
 import WhiteboardMultiUser from '/imports/api/whiteboard-multi-user/';
 import Users from '/imports/api/users';
+import MeteorSyncConfirmation from '/imports/startup/server/meteorSyncComfirmation';
+import Logger from '/imports/startup/server/logger';
 
 const MSG_DIRECT_TYPE = 'DIRECT';
 const NODE_USER = 'nodeJSapp';
+
+
+export const resyncResolver = (meetingId, dependence) => {
+  if (MeteorSyncConfirmation.isSynced()) return null;
+  const solved = MeteorSyncConfirmation.meetingResolve(meetingId, dependence);
+  if (solved) {
+    Logger.info(`${dependence} synced id=${meetingId}`);
+  } else {
+    Logger.info(`${dependence} not synced id=${meetingId}`);
+  }
+
+  return solved;
+};
+
 
 export const spokeTimeoutHandles = {};
 export const clearSpokeTimeout = (meetingId, userId) => {
