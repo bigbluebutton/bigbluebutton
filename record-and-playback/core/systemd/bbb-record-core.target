@@ -1,4 +1,0 @@
-[Unit]
-Description=BigBlueButton recording & playback processing
-Wants=bbb-rap-events-worker.service
-StopWhenUnneeded=true

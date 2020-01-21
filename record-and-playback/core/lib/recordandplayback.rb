@@ -19,9 +19,7 @@
 # with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 #
 
-
-path = File.expand_path(File.join(File.dirname(__FILE__), '../lib'))
-$LOAD_PATH << path
+require_relative 'boot'
 
 require 'recordandplayback/events_archiver'
 require 'recordandplayback/generators/events'

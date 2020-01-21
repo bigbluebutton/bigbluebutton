@@ -1,6 +1,6 @@
-# encoding: utf-8
+# frozen_string_literal: true
 
-# Copyright ⓒ 2017 BigBlueButton Inc. and by respective authors.
+# Copyright © 2019 BigBlueButton Inc. and by respective authors.
 #
 # This file is part of BigBlueButton open source conferencing system.
 #
@@ -17,9 +17,5 @@
 # You should have received a copy of the GNU Lesser General Public License
 # along with BigBlueButton.  If not, see <http://www.gnu.org/licenses/>.
 
-require File.expand_path('../rap-base-worker.rb', __FILE__)
-require File.expand_path('../rap-archive-worker.rb', __FILE__)
-require File.expand_path('../rap-sanity-worker.rb', __FILE__)
-require File.expand_path('../rap-process-worker.rb', __FILE__)
-require File.expand_path('../rap-publish-worker.rb', __FILE__)
-require File.expand_path('../rap-captions-worker.rb', __FILE__)
+# Set up the load path for requiring recordandplayback modules
+$LOAD_PATH.unshift(__dir__) unless $LOAD_PATH.include?(__dir__)

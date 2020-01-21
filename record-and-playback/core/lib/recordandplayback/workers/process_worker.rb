@@ -1,6 +1,6 @@
-# encoding: utf-8
+# frozen_string_literal: true
 
-# Copyright ⓒ 2017 BigBlueButton Inc. and by respective authors.
+# Copyright © 2017 BigBlueButton Inc. and by respective authors.
 #
 # This file is part of BigBlueButton open source conferencing system.
 #
@@ -16,8 +16,6 @@
 #
 # You should have received a copy of the GNU Lesser General Public License
 # along with BigBlueButton.  If not, see <http://www.gnu.org/licenses/>.
-
-require File.expand_path('../workers', __FILE__)
 
 module BigBlueButton
   module Resque
@@ -48,11 +46,7 @@ module BigBlueButton
               File.exist?(@processed_done) && !File.exist?(@processed_fail)
             )
 
-            @publisher.put_process_ended(
-              @format_name, @meeting_id, {
-                success: step_succeeded,
-                step_time: step_time,
-              })
+            @publisher.put_process_ended(@format_name, @meeting_id, success: step_succeeded, step_time: step_time)
 
             if step_succeeded
               @logger.info("Process format succeeded for #{@full_id}:#{@format_name}")
@@ -85,11 +79,10 @@ module BigBlueButton
         super(opts)
         @step_name = 'process'
         @format_name = opts['format_name']
-        @post_scripts_path = File.expand_path('../../post_process', __FILE__)
+        @post_scripts_path = File.expand_path('../post_process', __dir__)
         @processed_done = "#{@recording_dir}/status/processed/#{@meeting_id}-#{@format_name}.done"
         @processed_fail = "#{@recording_dir}/status/processed/#{@meeting_id}-#{@format_name}.fail"
       end
-
     end
   end
 end

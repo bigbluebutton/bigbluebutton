@@ -1,6 +1,6 @@
-# encoding: utf-8
+# frozen_string_literal: true
 
-# Copyright ⓒ 2017 BigBlueButton Inc. and by respective authors.
+# Copyright © 2017 BigBlueButton Inc. and by respective authors.
 #
 # This file is part of BigBlueButton open source conferencing system.
 #
@@ -17,8 +17,6 @@
 # You should have received a copy of the GNU Lesser General Public License
 # along with BigBlueButton.  If not, see <http://www.gnu.org/licenses/>.
 
-require File.expand_path('../workers', __FILE__)
-
 module BigBlueButton
   module Resque
     class SanityWorker < BaseWorker
@@ -31,7 +29,7 @@ module BigBlueButton
 
           remove_status_files
 
-          script = File.expand_path('../../sanity/sanity.rb', __FILE__)
+          script = File.expand_path('../sanity/sanity.rb', __dir__)
           if @break_timestamp.nil?
             ret, step_time = run_script(script, '-m', @meeting_id)
           else
@@ -39,11 +37,7 @@ module BigBlueButton
           end
           step_succeeded = (ret.zero? && File.exist?(@sanity_done))
 
-          @publisher.put_sanity_ended(
-            @meeting_id, {
-              success: step_succeeded,
-              step_time: step_time,
-            })
+          @publisher.put_sanity_ended(@meeting_id, success: step_succeeded, step_time: step_time)
 
           if step_succeeded
             @logger.info("Successfully sanity checked #{@full_id}")
@@ -65,7 +59,7 @@ module BigBlueButton
       def initialize(opts)
         super(opts)
         @step_name = 'sanity'
-        @post_scripts_path = File.expand_path('../../post_archive', __FILE__)
+        @post_scripts_path = File.expand_path('../post_archive', __dir__)
         @sanity_fail = "#{@recording_dir}/status/sanity/#{@meeting_id}.fail"
         @sanity_done = "#{@recording_dir}/status/sanity/#{@meeting_id}.done"
       end
