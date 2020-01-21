@@ -440,7 +440,7 @@ class PresentationArea extends PureComponent {
     };
 
     const svgViewBox = `${viewBoxPosition.x} ${viewBoxPosition.y} `
-      + `${viewBoxDimensions.width} ${viewBoxDimensions.height}`;
+      + `${viewBoxDimensions.width} ${Number.isNaN(viewBoxDimensions.height) ? 0 : viewBoxDimensions.height}`;
 
     return (
       <div
