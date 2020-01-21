@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import cx from 'classnames';
 import { HEXToINTColor, INTToHEXColor } from '/imports/utils/hexInt';
 import { defineMessages, injectIntl, intlShape } from 'react-intl';
-import browser from 'browser-detect';
+import { isEdge } from 'react-device-detect';
 import { noop } from 'lodash';
 import KEY_CODES from '/imports/utils/keyCodes';
 import injectWbResizeEvent from '/imports/ui/components/presentation/resize-wrapper/component';
@@ -64,7 +64,6 @@ const intlMessages = defineMessages({
   },
 });
 
-const isEdge = browser().name === 'edge';
 const runExceptInEdge = fn => (isEdge ? noop : fn);
 
 class WhiteboardToolbar extends Component {

@@ -1,7 +1,11 @@
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import { defineMessages, injectIntl } from 'react-intl';
-import browser from 'browser-detect';
+import {
+  isMobile,
+  isIPad13,
+  isAndroid,
+} from 'react-device-detect';
 import injectWbResizeEvent from '/imports/ui/components/presentation/resize-wrapper/component';
 import Button from '/imports/ui/components/button/component';
 import { HUNDRED_PERCENT, MAX_PERCENT, STEP } from '/imports/utils/slideCalcUtils';
@@ -213,9 +217,7 @@ class PresentationToolbar extends PureComponent {
       isMeteorConnected,
     } = this.props;
 
-    const BROWSER_RESULTS = browser();
-    const isMobileBrowser = BROWSER_RESULTS.mobile
-      || BROWSER_RESULTS.os.includes('Android');
+    const isMobileBrowser = isMobile || isAndroid || isIPad13;
 
     const startOfSlides = !(currentSlideNum > 1);
     const endOfSlides = !(currentSlideNum < numberOfSlides);

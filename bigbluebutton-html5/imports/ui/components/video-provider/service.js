@@ -9,7 +9,12 @@ import UserListService from '/imports/ui/components/user-list/service';
 import { makeCall } from '/imports/ui/services/api';
 import { notify } from '/imports/ui/services/notification';
 import { monitorVideoConnection } from '/imports/utils/stats';
-import browser from 'browser-detect';
+import {
+  isSafari,
+  isMobile,
+  isIPad13,
+  isAndroid,
+} from 'react-device-detect';
 import getFromUserSettings from '/imports/ui/services/users-settings';
 import logger from '/imports/startup/client/logger';
 
@@ -32,18 +37,17 @@ class VideoService {
     this.skipVideoPreview = getFromUserSettings('bbb_skip_video_preview', false) || SKIP_VIDEO_PREVIEW;
     this.userParameterProfile = getFromUserSettings(
       'bbb_preferred_camera_profile',
-      (CAMERA_PROFILES.filter(i => i.default) || {}).id
+      (CAMERA_PROFILES.filter(i => i.default) || {}).id,
     );
-    const BROWSER_RESULTS = browser();
-    this.isMobile = BROWSER_RESULTS.mobile || BROWSER_RESULTS.os.includes('Android');
-    this.isSafari = BROWSER_RESULTS.name === 'safari';
+    this.isMobile = isMobile || isAndroid || isIPad13;
+    this.isSafari = isSafari;
 
     this.numberOfDevices = 0;
 
     this.updateNumberOfDevices = this.updateNumberOfDevices.bind(this);
     // Safari doesn't support ondevicechange
     if (!this.isSafari) {
-      navigator.mediaDevices.ondevicechange = (event) => this.updateNumberOfDevices();
+      navigator.mediaDevices.ondevicechange = () => this.updateNumberOfDevices();
     }
     this.updateNumberOfDevices();
   }
@@ -70,9 +74,9 @@ class VideoService {
   }
 
   updateNumberOfDevices() {
-    navigator.mediaDevices.enumerateDevices().then(devices => {
+    navigator.mediaDevices.enumerateDevices().then((devices) => {
       const deviceIds = [];
-      devices.forEach(d => {
+      devices.forEach((d) => {
         if (d.kind === 'videoinput' && !deviceIds.includes(d.deviceId)) {
           deviceIds.push(d.deviceId);
         }

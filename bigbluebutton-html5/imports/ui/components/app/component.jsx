@@ -3,7 +3,14 @@ import PropTypes from 'prop-types';
 import { throttle } from 'lodash';
 import { defineMessages, injectIntl, intlShape } from 'react-intl';
 import Modal from 'react-modal';
-import browser from 'browser-detect';
+import {
+  osName,
+  isBrowser,
+  browserName,
+  isMobile,
+  isIPad13,
+  isAndroid,
+} from 'react-device-detect';
 import PanelManager from '/imports/ui/components/panel-manager/component';
 import PollingContainer from '/imports/ui/components/polling/container';
 import logger from '/imports/startup/client/logger';
@@ -111,8 +118,7 @@ class App extends Component {
     const {
       locale, notify, intl, validIOSVersion, startBandwidthMonitoring, handleNetworkConnection,
     } = this.props;
-    const BROWSER_RESULTS = browser();
-    const isMobileBrowser = BROWSER_RESULTS.mobile || BROWSER_RESULTS.os.includes('Android');
+    const isMobileBrowser = isMobile || isIPad13 || isAndroid;
 
     MediaService.setSwapLayout();
     Modal.setAppElement('#app');
@@ -120,11 +126,11 @@ class App extends Component {
     document.getElementsByTagName('html')[0].style.fontSize = isMobileBrowser ? MOBILE_FONT_SIZE : DESKTOP_FONT_SIZE;
 
     const body = document.getElementsByTagName('body')[0];
-    if (BROWSER_RESULTS && BROWSER_RESULTS.name) {
-      body.classList.add(`browser-${BROWSER_RESULTS.name}`);
+    if (isBrowser && browserName) {
+      body.classList.add(`browser-${browserName}`);
     }
-    if (BROWSER_RESULTS && BROWSER_RESULTS.os) {
-      body.classList.add(`os-${BROWSER_RESULTS.os.split(' ').shift().toLowerCase()}`);
+    if (isBrowser && osName) {
+      body.classList.add(`os-${osName}`);
     }
 
     if (!validIOSVersion()) {

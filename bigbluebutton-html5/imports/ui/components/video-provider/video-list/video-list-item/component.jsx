@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import browser from 'browser-detect';
+import { isFirefox } from 'react-device-detect';
 import { Meteor } from 'meteor/meteor';
 import PropTypes from 'prop-types';
 import cx from 'classnames';
@@ -145,9 +145,6 @@ class VideoListItem extends Component {
     } = this.props;
     const availableActions = this.getAvailableActions();
     const enableVideoMenu = Meteor.settings.public.kurento.enableVideoMenu || false;
-
-    const result = browser();
-    const isFirefox = (result && result.name) ? result.name.includes('firefox') : false;
 
     return (
       <div className={cx({

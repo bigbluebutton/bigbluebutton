@@ -2,7 +2,7 @@ import React, { PureComponent } from 'react';
 import { defineMessages, injectIntl, intlShape } from 'react-intl';
 import cx from 'classnames';
 import TextareaAutosize from 'react-autosize-textarea';
-import browser from 'browser-detect';
+import { isMobile } from 'react-device-detect';
 import PropTypes from 'prop-types';
 import TypingIndicatorContainer from './typing-indicator/container';
 import { styles } from './styles.scss';
@@ -82,20 +82,18 @@ class MessageForm extends PureComponent {
       hasErrors: false,
     };
 
-    this.BROWSER_RESULTS = browser();
-
     this.handleMessageChange = this.handleMessageChange.bind(this);
     this.handleMessageKeyDown = this.handleMessageKeyDown.bind(this);
     this.handleSubmit = this.handleSubmit.bind(this);
     this.setMessageHint = this.setMessageHint.bind(this);
+    this.setError = this.setError.bind(this);
   }
 
   componentDidMount() {
-    const { mobile } = this.BROWSER_RESULTS;
     this.setMessageState();
     this.setMessageHint();
 
-    if (!mobile) {
+    if (!isMobile) {
       if (this.textarea) this.textarea.focus();
     }
   }
@@ -108,20 +106,14 @@ class MessageForm extends PureComponent {
       partnerIsLoggedOut,
     } = this.props;
     const { message } = this.state;
-    const { mobile } = this.BROWSER_RESULTS;
 
-    if (prevProps.chatId !== chatId && !mobile) {
+    if (prevProps.chatId !== chatId && !isMobile) {
       if (this.textarea) this.textarea.focus();
     }
 
     if (prevProps.chatId !== chatId) {
       this.updateUnsentMessagesCollection(prevProps.chatId, message);
-      this.setState(
-        {
-          error: null,
-          hasErrors: false,
-        }, this.setMessageState(),
-      );
+      this.setError(null, false);
     }
 
     if (
@@ -172,6 +164,15 @@ class MessageForm extends PureComponent {
     const unsentMessageByChat = UnsentMessagesCollection.findOne({ chatId },
       { fields: { message: 1 } });
     this.setState({ message: unsentMessageByChat ? unsentMessageByChat.message : '' });
+  }
+
+  setError(error, hasErrors) {
+    this.setState(
+      {
+        error,
+        hasErrors,
+      }, this.setMessageState(),
+    );
   }
 
   updateUnsentMessagesCollection(chatId, message) {

@@ -1,14 +1,16 @@
 import React from 'react';
 import { withTracker } from 'meteor/react-meteor-data';
-import browser from 'browser-detect';
+import {
+  isSafari,
+  browserVersion,
+  isIPhone13,
+} from 'react-device-detect';
 import SettingsDropdown from './component';
 import FullscreenService from '../../fullscreen-button/service';
 import { meetingIsBreakout } from '/imports/ui/components/app/service';
 
-const BROWSER_RESULTS = browser();
-const isSafari = BROWSER_RESULTS.name === 'safari';
 const isIphone = navigator.userAgent.match(/iPhone/i);
-const noIOSFullscreen = (isSafari && BROWSER_RESULTS.versionNumber < 12) || isIphone;
+const noIOSFullscreen = (isSafari && browserVersion < 12) || (isIphone || isIPhone13);
 
 const SettingsDropdownContainer = props => (
   <SettingsDropdown {...props} />

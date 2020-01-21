@@ -1,7 +1,7 @@
 import React from 'react';
 import { withTracker } from 'meteor/react-meteor-data';
 import { withModalMounter } from '/imports/ui/components/modal/service';
-import browser from 'browser-detect';
+import { browserName, isIE, isEdge } from 'react-device-detect';
 import getFromUserSettings from '/imports/ui/services/users-settings';
 import AudioModal from './component';
 import Meetings from '/imports/api/meetings';
@@ -46,9 +46,7 @@ export default lockContextContainer(withModalMounter(withTracker(({ mountModal, 
         } else {
           resolve(Service.transferCall());
         }
-        reject(() => {
-          Service.exitAudio();
-        });
+        reject(Service.exitAudio);
       });
 
       return call.then(() => {
@@ -99,9 +97,9 @@ export default lockContextContainer(withModalMounter(withTracker(({ mountModal, 
     joinFullAudioImmediately: !listenOnlyMode && skipCheck,
     joinFullAudioEchoTest: !listenOnlyMode && !skipCheck,
     forceListenOnlyAttendee: listenOnlyMode && forceListenOnly && !Service.isUserModerator(),
-    isIOSChrome: browser().name === 'crios',
+    isIOSChrome: browserName.toLowerCase() === 'crios',
     isMobileNative: navigator.userAgent.toLowerCase().includes('bbbnative'),
-    isIEOrEdge: browser().name === 'edge' || browser().name === 'ie',
+    isIEOrEdge: isIE || isEdge,
     hasMediaDevices: deviceInfo.hasMediaDevices,
     autoplayBlocked: Service.autoplayBlocked(),
     handleAllowAutoplay: () => Service.handleAllowAutoplay(),

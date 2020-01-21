@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { defineMessages, injectIntl, intlShape } from 'react-intl';
-import browser from 'browser-detect';
+import { browserName } from 'react-device-detect';
 import Modal from '/imports/ui/components/modal/simple/component';
 import _ from 'lodash';
 import { styles } from './styles';
@@ -91,11 +91,10 @@ const CHAT_ENABLED = CHAT_CONFIG.enabled;
 
 const ShortcutHelpComponent = (props) => {
   const { intl, shortcuts } = props;
-  const { name } = browser();
 
   let accessMod = null;
 
-  switch (name) {
+  switch (browserName.toLowerCase()) {
     case 'chrome':
     case 'edge':
       accessMod = 'Alt';

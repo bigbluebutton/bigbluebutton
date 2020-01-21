@@ -7,8 +7,8 @@ import Button from '/imports/ui/components/button/component';
 // import { notify } from '/imports/ui/services/notification';
 import logger from '/imports/startup/client/logger';
 import Modal from '/imports/ui/components/modal/simple/component';
+import { isEdge, isIE } from 'react-device-detect';
 import VideoService from '../video-provider/service';
-import browser from 'browser-detect';
 import { styles } from './styles';
 
 const CAMERA_PROFILES = Meteor.settings.public.kurento.cameraProfiles;
@@ -243,8 +243,8 @@ class VideoPreview extends Component {
                 if (device.kind === 'videoinput' && !found) {
                   webcams.push(device);
                   if (!initialDeviceId
-                  || (webcamDeviceId && webcamDeviceId === device.deviceId)
-                  || device.deviceId === firstAllowedDeviceId) {
+                    || (webcamDeviceId && webcamDeviceId === device.deviceId)
+                    || device.deviceId === firstAllowedDeviceId) {
                     initialDeviceId = device.deviceId;
                   }
                 }
@@ -388,7 +388,8 @@ class VideoPreview extends Component {
     changeWebcam(deviceId);
 
     if (availableProfiles.length > 0) {
-      const defaultProfile = availableProfiles.find(profile => profile.id === this.userParameterProfile)
+      const defaultProfile = availableProfiles
+        .find(profile => profile.id === this.userParameterProfile)
         || availableProfiles.find(profile => profile.default)
         || availableProfiles[0];
       this.displayPreview(deviceId, defaultProfile);
@@ -433,7 +434,6 @@ class VideoPreview extends Component {
       });
       this.video.srcObject = stream;
       this.deviceStream = stream;
-
     }).catch((error) => {
       logger.warn({
         logCode: 'video_preview_do_gum_preview_error',
@@ -444,6 +444,7 @@ class VideoPreview extends Component {
       }, 'Error displaying final selection.');
       this.setState({ previewError: VideoPreview.handleGUMError(error) });
     });
+    return true;
   }
 
   supportWarning() {
@@ -465,7 +466,7 @@ class VideoPreview extends Component {
     const {
       intl,
       skipVideoPreview,
-      sharedDevices
+      sharedDevices,
     } = this.props;
 
     const {
@@ -482,7 +483,7 @@ class VideoPreview extends Component {
         <label className={styles.label} htmlFor="setCam">
           {intl.formatMessage(intlMessages.cameraLabel)}
         </label>
-        { availableWebcams && availableWebcams.length > 0
+        {availableWebcams && availableWebcams.length > 0
           ? (
             <select
               id="setCam"
@@ -504,39 +505,39 @@ class VideoPreview extends Component {
             </span>
           )
         }
-        { shared
-           ? (
-             <span className={styles.label}>
-               {intl.formatMessage(intlMessages.sharedCameraLabel)}
-             </span>
-           )
-           : (
-             <span>
-               <label className={styles.label} htmlFor="setQuality">
-                 {intl.formatMessage(intlMessages.qualityLabel)}
-               </label>
-               { availableProfiles && availableProfiles.length > 0
-                 ? (
-                   <select
-                     id="setQuality"
-                     value={selectedProfile || ''}
-                     className={styles.select}
-                     onChange={this.handleSelectProfile}
-                     disabled={skipVideoPreview}
-                   >
-                     {availableProfiles.map(profile => (
-                       <option key={profile.id} value={profile.id}>
-                         {profile.name}
-                       </option>
-                     ))}
-                   </select>
-                 )
-                 : (
-                   <span>
-                     {intl.formatMessage(intlMessages.profileNotFoundLabel)}
-                   </span>
-                 )
-               }
+        {shared
+          ? (
+            <span className={styles.label}>
+              {intl.formatMessage(intlMessages.sharedCameraLabel)}
+            </span>
+          )
+          : (
+            <span>
+              <label className={styles.label} htmlFor="setQuality">
+                {intl.formatMessage(intlMessages.qualityLabel)}
+              </label>
+              {availableProfiles && availableProfiles.length > 0
+                ? (
+                  <select
+                    id="setQuality"
+                    value={selectedProfile || ''}
+                    className={styles.select}
+                    onChange={this.handleSelectProfile}
+                    disabled={skipVideoPreview}
+                  >
+                    {availableProfiles.map(profile => (
+                      <option key={profile.id} value={profile.id}>
+                        {profile.name}
+                      </option>
+                    ))}
+                  </select>
+                )
+                : (
+                  <span>
+                    {intl.formatMessage(intlMessages.profileNotFoundLabel)}
+                  </span>
+                )
+              }
             </span>
           )
         }
@@ -568,32 +569,32 @@ class VideoPreview extends Component {
           </div>
         );
       case VIEW_STATES.error:
-          return (
-            <div className={styles.content}>
-              <div className={styles.videoCol}><div>{deviceError}</div></div>
-            </div>
-          );
+        return (
+          <div className={styles.content}>
+            <div className={styles.videoCol}><div>{deviceError}</div></div>
+          </div>
+        );
       case VIEW_STATES.found:
       default:
         return (
           <div className={styles.content}>
             <div className={styles.videoCol}>
               {
-              previewError
-                ? (
-                  <div>{previewError}</div>
-                )
-                : (
-                  <video
-                    id="preview"
-                    className={styles.preview}
-                    ref={(ref) => { this.video = ref; }}
-                    autoPlay
-                    playsInline
-                    muted
-                  />
-                )
-            }
+                previewError
+                  ? (
+                    <div>{previewError}</div>
+                  )
+                  : (
+                    <video
+                      id="preview"
+                      className={styles.preview}
+                      ref={(ref) => { this.video = ref; }}
+                      autoPlay
+                      playsInline
+                      muted
+                    />
+                  )
+              }
             </div>
             {this.renderDeviceSelectors()}
           </div>
@@ -620,7 +621,7 @@ class VideoPreview extends Component {
 
     return (
       <div>
-        {browser().name === 'edge' || browser().name === 'ie' ? (
+        {isEdge || isIE ? (
           <p className={styles.browserWarning}>
             <FormattedMessage
               id="app.audioModal.unsupportedBrowserLabel"
@@ -646,10 +647,18 @@ class VideoPreview extends Component {
               disabled={shouldDisableButtons}
             />
             <Button
-              color={shared ? "danger" : "primary"}
-              label={intl.formatMessage(shared ? intlMessages.stopSharingLabel : intlMessages.startSharingLabel)}
+              color={shared ? 'danger' : 'primary'}
+              label={
+                intl.formatMessage(shared
+                  ? intlMessages.stopSharingLabel
+                  : intlMessages.startSharingLabel)
+              }
               onClick={shared ? this.handleStopSharing : this.handleStartSharing}
-              disabled={isStartSharingDisabled || isStartSharingDisabled === null || shouldDisableButtons}
+              disabled={
+                isStartSharingDisabled
+                  || isStartSharingDisabled === null
+                  || shouldDisableButtons
+              }
             />
           </div>
         </div>

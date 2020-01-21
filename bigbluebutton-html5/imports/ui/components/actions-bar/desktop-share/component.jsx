@@ -1,7 +1,12 @@
 import React, { memo } from 'react';
 import PropTypes from 'prop-types';
 import { defineMessages, injectIntl, intlShape } from 'react-intl';
-import browser from 'browser-detect';
+import {
+  isMobile,
+  isIPad13,
+  isAndroid,
+  isSafari,
+} from 'react-device-detect';
 import Button from '/imports/ui/components/button/component';
 import logger from '/imports/startup/client/logger';
 import { notify } from '/imports/ui/services/notification';
@@ -99,12 +104,7 @@ const intlMessages = defineMessages({
   },
 });
 
-const BROWSER_RESULTS = browser();
-const isMobileBrowser = (BROWSER_RESULTS ? BROWSER_RESULTS.mobile : false)
-  || (BROWSER_RESULTS && BROWSER_RESULTS.os
-    ? BROWSER_RESULTS.os.includes('Android') // mobile flag doesn't always work
-    : false);
-const isSafari = BROWSER_RESULTS.name === 'safari';
+const isMobileBrowser = isMobile || isIPad13 || isAndroid;
 
 const DesktopShare = ({
   intl,

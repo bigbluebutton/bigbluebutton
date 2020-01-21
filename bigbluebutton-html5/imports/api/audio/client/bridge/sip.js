@@ -1,4 +1,4 @@
-import browser from 'browser-detect';
+import { isSafari } from 'react-device-detect';
 import BaseAudioBridge from './base';
 import logger from '/imports/startup/client/logger';
 import { fetchStunTurnServers } from '/imports/utils/fetchStunTurnServers';
@@ -177,6 +177,7 @@ class SIPSession {
           if (!hangup) return tryHangup();
           return resolve();
         }, CALL_HANGUP_TIMEOUT);
+        return false;
       };
 
       this.currentSession.on('bye', () => {
@@ -208,7 +209,6 @@ class SIPSession {
 
       // Second UA check to get all Safari browsers to enable Unified Plan <-> PlanB
       // translation
-      const isSafari = browser().name === 'safari';
 
       logger.debug({ logCode: 'sip_js_creating_user_agent' }, 'Creating the user agent');
 
@@ -375,7 +375,7 @@ class SIPSession {
       };
       currentSession.on('accepted', handleSessionAccepted);
 
-      const handleSessionProgress = (update) => {
+      const handleSessionProgress = () => {
         logger.info({ logCode: 'sip_js_session_progress' }, 'Audio call session progress update');
         clearTimeout(callTimeout);
         currentSession.off('progress', handleSessionProgress);
@@ -444,7 +444,7 @@ class SIPSession {
       };
       ICE_NEGOTIATION_FAILED.forEach(e => mediaHandler.on(e, handleIceNegotiationFailed));
 
-      const handleIceConnectionTerminated = (peer) => {
+      const handleIceConnectionTerminated = () => {
         ['iceConnectionClosed'].forEach(e => mediaHandler.off(e, handleIceConnectionTerminated));
         if (!this.userRequestedHangup) {
           logger.error({ logCode: 'sipjs_ice_closed' }, 'ICE connection closed');
@@ -514,7 +514,8 @@ export default class SIPBridge extends BaseAudioBridge {
         hostname, this.baseCallStates, this.baseErrorCodes, false);
 
       const callback = (message) => {
-        if (message.status === this.baseCallStates.failed) {
+        const msg = message;
+        if (msg.status === this.baseCallStates.failed) {
           let shouldTryReconnect = false;
 
           // Try and get the call to clean up and end on an error
@@ -522,11 +523,11 @@ export default class SIPBridge extends BaseAudioBridge {
 
           if (this.activeSession.webrtcConnected) {
             // webrtc was able to connect so just try again
-            message.silenceNotifications = true;
+            msg.silenceNotifications = true;
             callback({ status: this.baseCallStates.reconnecting });
             shouldTryReconnect = true;
           } else if (hasFallbackDomain === true && hostname !== IPV4_FALLBACK_DOMAIN) {
-            message.silenceNotifications = true;
+            msg.silenceNotifications = true;
             logger.info({ logCode: 'sip_js_attempt_ipv4_fallback' }, 'Attempting to fallback to IPv4 domain for audio');
             hostname = IPV4_FALLBACK_DOMAIN;
             shouldTryReconnect = true;
@@ -536,7 +537,11 @@ export default class SIPBridge extends BaseAudioBridge {
             const fallbackExtension = this.activeSession.inEchoTest ? extension : undefined;
             this.activeSession = new SIPSession(this.user, this.userData, this.protocol,
               hostname, this.baseCallStates, this.baseErrorCodes, true);
-            this.activeSession.joinAudio({ isListenOnly, extension: fallbackExtension, inputStream }, callback)
+            this.activeSession.joinAudio({
+              isListenOnly,
+              extension: fallbackExtension,
+              inputStream,
+            }, callback)
               .then((value) => {
                 resolve(value);
               }).catch((reason) => {
@@ -545,7 +550,7 @@ export default class SIPBridge extends BaseAudioBridge {
           }
         }
 
-        return managerCallback(message);
+        return managerCallback(msg);
       };
 
       this.activeSession.joinAudio({ isListenOnly, extension, inputStream }, callback)

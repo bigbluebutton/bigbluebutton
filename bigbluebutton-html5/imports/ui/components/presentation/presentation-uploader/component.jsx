@@ -6,7 +6,11 @@ import update from 'immutability-helper';
 import cx from 'classnames';
 import _ from 'lodash';
 import logger from '/imports/startup/client/logger';
-import browser from 'browser-detect';
+import {
+  isMobile,
+  isIPad13,
+  isAndroid,
+} from 'react-device-detect';
 
 import { notify } from '/imports/ui/services/notification';
 import ModalFullscreen from '/imports/ui/components/modal/fullscreen/component';
@@ -166,11 +170,7 @@ const intlMessages = defineMessages({
   },
 });
 
-const BROWSER_RESULTS = browser();
-const isMobileBrowser = (BROWSER_RESULTS ? BROWSER_RESULTS.mobile : false)
-  || (BROWSER_RESULTS && BROWSER_RESULTS.os
-    ? BROWSER_RESULTS.os.includes('Android') // mobile flag doesn't always work
-    : false);
+const isMobileBrowser = isMobile || isAndroid || isIPad13;
 
 class PresentationUploader extends Component {
   constructor(props) {

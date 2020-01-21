@@ -3,7 +3,7 @@ import _ from 'lodash';
 import PropTypes from 'prop-types';
 import cx from 'classnames';
 import logger from '/imports/startup/client/logger';
-import browser from 'browser-detect';
+import { isSafari } from 'react-device-detect';
 import { styles } from '../audio-modal/styles';
 
 const propTypes = {
@@ -24,6 +24,7 @@ class DeviceSelector extends Component {
     super(props);
 
     this.handleSelectChange = this.handleSelectChange.bind(this);
+    this.renderOptions = this.renderOptions.bind(this);
 
     this.state = {
       value: props.value,
@@ -56,7 +57,7 @@ class DeviceSelector extends Component {
     navigator.mediaDevices
       .enumerateDevices()
       .then(handleEnumerateDevicesSuccess)
-      .catch((err) => {
+      .catch(() => {
         logger.error({
           logCode: 'audiodeviceselector_component_enumeratedevices_error',
           extraInfo: {
@@ -76,6 +77,25 @@ class DeviceSelector extends Component {
     });
   }
 
+  renderOptions() {
+    const { kind } = this.props;
+    const { options } = this.state;
+    if (options.length) {
+      return options.map(option => (
+        <option
+          key={option.key}
+          value={option.value}
+        >
+          {option.label}
+        </option>
+      ));
+    }
+    if (kind === 'audiooutput' && isSafari) {
+      return <option value="not-found">Default</option>;
+    }
+    return <option value="not-found">{`no ${kind} found`}</option>;
+  }
+
   render() {
     const {
       kind, className, ...props
@@ -91,22 +111,7 @@ class DeviceSelector extends Component {
         disabled={!options.length}
         className={cx(styles.select, className)}
       >
-        {
-          options.length
-            ? options.map(option => (
-              <option
-                key={option.key}
-                value={option.value}
-              >
-                {option.label}
-              </option>
-            ))
-            : (
-              (kind === 'audiooutput' && browser().name === 'safari')
-                ? <option value="not-found">Default</option>
-                : <option value="not-found">{`no ${kind} found`}</option>
-            )
-        }
+        {this.renderOptions()}
       </select>
     );
   }
