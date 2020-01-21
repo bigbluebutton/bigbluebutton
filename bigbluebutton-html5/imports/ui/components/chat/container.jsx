@@ -9,6 +9,7 @@ import ChatService from './service';
 const CHAT_CONFIG = Meteor.settings.public.chat;
 const PUBLIC_CHAT_KEY = CHAT_CONFIG.public_id;
 const CHAT_CLEAR = CHAT_CONFIG.system_messages_keys.chat_clear;
+const SYSTEM_CHAT_TYPE = CHAT_CONFIG.type_system;
 const ROLE_MODERATOR = Meteor.settings.public.user.role_moderator;
 const CONNECTION_STATUS = 'online';
 
@@ -78,30 +79,33 @@ export default injectIntl(withTracker(({ intl }) => {
       sender: null,
     };
 
-    const moderatorTime = time + 1;
-    const moderatorId = `moderator-msg-${moderatorTime}`;
+    let moderatorMsg;
+    if (amIModerator && welcomeProp.modOnlyMessage) {
+      const moderatorTime = time + 1;
+      const moderatorId = `moderator-msg-${moderatorTime}`;
 
-    const moderatorMsg = {
-      id: moderatorId,
-      content: [{
+      moderatorMsg = {
         id: moderatorId,
-        text: welcomeProp.modOnlyMessage,
+        content: [{
+          id: moderatorId,
+          text: welcomeProp.modOnlyMessage,
+          time: moderatorTime,
+        }],
         time: moderatorTime,
-      }],
-      time: moderatorTime,
-      sender: null,
-    };
+        sender: null,
+      };
+    }
 
-    const messagesBeforeWelcomeMsg = ChatService.reduceAndMapGroupMessages(
+    const messagesBeforeWelcomeMsg = ChatService.reduceAndDontMapGroupMessages(
       messages.filter(message => message.timestamp < time),
     );
-    const messagesAfterWelcomeMsg = ChatService.reduceAndMapGroupMessages(
+    const messagesAfterWelcomeMsg = ChatService.reduceAndDontMapGroupMessages(
       messages.filter(message => message.timestamp >= time),
     );
 
     const messagesFormated = messagesBeforeWelcomeMsg
       .concat(welcomeMsg)
-      .concat(amIModerator ? moderatorMsg : [])
+      .concat(moderatorMsg || [])
       .concat(messagesAfterWelcomeMsg);
 
     messages = messagesFormated.sort((a, b) => (a.time - b.time));
@@ -134,7 +138,7 @@ export default injectIntl(withTracker(({ intl }) => {
   }
 
   messages = messages.map((message) => {
-    if (message.sender) return message;
+    if (message.sender && message.sender !== SYSTEM_CHAT_TYPE) return message;
 
     return {
       ...message,

@@ -8,14 +8,13 @@ import {
   List, AutoSizer, CellMeasurer, CellMeasurerCache,
 } from 'react-virtualized';
 import { styles } from './styles';
-import MessageListItem from './message-list-item/component';
+import MessageListItemContainer from './message-list-item/container';
 
 const propTypes = {
   messages: PropTypes.arrayOf(PropTypes.object).isRequired,
   scrollPosition: PropTypes.number,
   chatId: PropTypes.string.isRequired,
   hasUnreadMessages: PropTypes.bool.isRequired,
-  partnerIsLoggedOut: PropTypes.bool.isRequired,
   handleScrollUpdate: PropTypes.func.isRequired,
   intl: PropTypes.shape({
     formatMessage: PropTypes.func.isRequired,
@@ -42,22 +41,11 @@ const intlMessages = defineMessages({
 });
 
 class MessageList extends Component {
-  static getDerivedStateFromProps(props, state) {
-    const { messages: propMessages } = props;
-    const { messages: stateMessages } = state;
-
-    if (propMessages.length !== 3 && propMessages.length < stateMessages.length) return null;
-
-    return {
-      messages: propMessages,
-    };
-  }
-
   constructor(props) {
     super(props);
     this.cache = new CellMeasurerCache({
       fixedWidth: true,
-      minWidth: 75,
+      minHeight: 18,
     });
 
     this.shouldScrollBottom = false;
@@ -74,10 +62,11 @@ class MessageList extends Component {
       shouldScrollToBottom: true,
       shouldScrollToPosition: false,
       scrollPosition: 0,
-      messages: [],
     };
 
     this.listRef = null;
+
+    this.lastWidth = 0;
   }
 
   componentDidMount() {
@@ -87,52 +76,16 @@ class MessageList extends Component {
     this.scrollTo(scrollPosition);
   }
 
-  componentWillReceiveProps(nextProps) {
-    const {
-      chatId,
-    } = this.props;
-
-    if (chatId !== nextProps.chatId) {
-      const { scrollArea } = this.state;
-      this.handleScrollUpdate(scrollArea.scrollTop, scrollArea);
-    }
-  }
-
-  shouldComponentUpdate(nextProps, nextState) {
-    const {
-      chatId,
-      hasUnreadMessages,
-      partnerIsLoggedOut,
-    } = this.props;
-
-    const {
-      scrollArea,
-    } = this.state;
-
-    if (!scrollArea && nextState.scrollArea) return true;
-
-    const switchingCorrespondent = chatId !== nextProps.chatId;
-    const hasNewUnreadMessages = hasUnreadMessages !== nextProps.hasUnreadMessages;
-
-    // check if the messages include <user has left the meeting>
-    const lastMessage = nextProps.messages[nextProps.messages.length - 1];
-    if (lastMessage) {
-      const userLeftIsDisplayed = lastMessage.id.includes('partner-disconnected');
-      if (!(partnerIsLoggedOut && userLeftIsDisplayed)) return true;
-    }
-
-    if (switchingCorrespondent || hasNewUnreadMessages) return true;
-
-    return false;
-  }
-
-  componentDidUpdate(prevProps, prevState) {
+  componentDidUpdate(prevProps) {
     const {
       scrollPosition,
       chatId,
+      messages,
     } = this.props;
     const {
       scrollPosition: prevScrollPosition,
+      messages: prevMessages,
+      chatId: prevChatId,
     } = prevProps;
 
     const {
@@ -140,27 +93,28 @@ class MessageList extends Component {
       shouldScrollToPosition,
       scrollPosition: scrollPositionState,
       shouldScrollToBottom,
-      messages,
     } = this.state;
-    const { messages: prevMessages } = prevState;
-    const compareChatId = prevProps.chatId !== chatId;
 
-    if (compareChatId) {
+    if (prevChatId !== chatId) {
+      this.cache.clearAll();
       setTimeout(() => this.scrollTo(scrollPosition), 300);
+    } else if (prevMessages && messages) {
+      if (prevMessages.length > messages.length) {
+        // the chat has been cleared
+        this.cache.clearAll();
+      } else {
+        prevMessages.forEach((prevMessage, index) => {
+          const newMessage = messages[index];
+          if (newMessage.content.length > prevMessage.content.length
+              || newMessage.id !== prevMessage.id) {
+            this.resizeRow(index);
+          }
+        });
+      }
     }
 
     if (!shouldScrollToBottom && !scrollPosition && prevScrollPosition) {
       this.scrollToBottom();
-    }
-
-    const prevLength = prevProps.messages && !!prevProps.messages.length
-      && prevProps.messages[prevProps.messages.length - 1].content.length;
-
-    const currentLength = messages && !!messages.length
-      && messages[messages.length - 1].content.length;
-
-    if (!compareChatId && (prevLength !== currentLength && currentLength > prevLength)) {
-      this.resizeRow(messages.length - 1);
     }
 
     if (shouldScrollToPosition && scrollArea.scrollTop === scrollPositionState) {
@@ -168,7 +122,7 @@ class MessageList extends Component {
     }
 
     if (prevMessages.length < messages.length) {
-      this.resizeRow(prevMessages.length - 1);
+      // this.resizeRow(prevMessages.length - 1);
       // messages.forEach((i, idx) => this.resizeRow(idx));
     }
   }
@@ -217,7 +171,7 @@ class MessageList extends Component {
     this.cache.clear(idx);
     if (this.listRef) {
       this.listRef.recomputeRowHeights(idx);
-      this.listRef.forceUpdate();
+      //    this.listRef.forceUpdate();
     }
   }
 
@@ -242,6 +196,7 @@ class MessageList extends Component {
     } = this.props;
     const { scrollArea } = this.state;
     const message = messages[index];
+
     return (
       <CellMeasurer
         key={key}
@@ -250,28 +205,21 @@ class MessageList extends Component {
         parent={parent}
         rowIndex={index}
       >
-        {
-          ({ measure }) => (
-            <span
-              style={style}
-              onLoad={measure}
-              key={key}
-            >
-              <MessageListItem
-                style={style}
-                handleReadMessage={handleReadMessage}
-                key={message.id}
-                messages={message.content}
-                user={message.sender}
-                time={message.time}
-                chatAreaId={id}
-                lastReadMessageTime={lastReadMessageTime}
-                deferredMeasurementCache={this.cache}
-                scrollArea={scrollArea}
-              />
-            </span>
-          )
-        }
+        <span
+          style={style}
+          key={key}
+        >
+          <MessageListItemContainer
+            style={style}
+            handleReadMessage={handleReadMessage}
+            key={key}
+            message={message}
+            messageId={message.id}
+            chatAreaId={id}
+            lastReadMessageTime={lastReadMessageTime}
+            scrollArea={scrollArea}
+          />
+        </span>
       </CellMeasurer>
     );
   }
@@ -294,6 +242,7 @@ class MessageList extends Component {
           className={styles.unreadButton}
           color="primary"
           size="sm"
+          key="unread-messages"
           label={intl.formatMessage(intlMessages.moreMessages)}
           onClick={this.scrollToBottom}
         />
@@ -305,39 +254,28 @@ class MessageList extends Component {
 
   render() {
     const {
-      intl,
-      id,
+      messages,
     } = this.props;
     const {
       scrollArea,
       shouldScrollToBottom,
       shouldScrollToPosition,
       scrollPosition,
-      messages,
     } = this.state;
 
-    const isEmpty = messages.length === 0;
     return (
-      <div className={styles.messageListWrapper}>
-        <div
-          style={
-            {
-              height: '100%',
-              width: '100%',
+      [<div className={styles.messageListWrapper} key="chat-list">
+        <AutoSizer>
+          {({ height, width }) => {
+            if (width !== this.lastWidth) {
+              this.lastWidth = width;
+              this.cache.clearAll();
             }
-          }
-          role="log"
-          id={id}
-          aria-live="polite"
-          aria-atomic="false"
-          aria-relevant="additions"
-          aria-label={isEmpty ? intl.formatMessage(intlMessages.emptyLogLabel) : ''}
-        >
-          <AutoSizer>
-            {({ height, width }) => (
+
+            return (
               <List
                 ref={(ref) => {
-                  if (ref != null) {
+                  if (ref !== null) {
                     this.listRef = ref;
 
                     if (!scrollArea) {
@@ -351,7 +289,7 @@ class MessageList extends Component {
                 rowCount={messages.length}
                 height={height}
                 width={width}
-                overscanRowCount={15}
+                overscanRowCount={5}
                 deferredMeasurementCache={this.cache}
                 onScroll={this.handleScrollChange}
                 scrollToIndex={shouldScrollToBottom ? messages.length - 1 : undefined}
@@ -360,13 +298,13 @@ class MessageList extends Component {
                     && (scrollArea && scrollArea.scrollHeight >= scrollPosition)
                       ? scrollPosition : undefined
                   }
-                scrollToAlignment="start"
+                scrollToAlignment="end"
               />
-            )}
-          </AutoSizer>
-        </div>
-        {this.renderUnreadNotification()}
-      </div>
+            );
+          }}
+        </AutoSizer>
+      </div>,
+      this.renderUnreadNotification()]
     );
   }
 }
