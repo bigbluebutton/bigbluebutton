@@ -44,13 +44,16 @@ class MeteorSyncComfirmation {
   }
 
   setPromises(meetingsRunning) {
-    if (!meetingsRunning.length) return this.synced = true;
+    if (!meetingsRunning.length) {
+      syncResolver();
+      return this.synced = true;
+    }
 
     this.promises = meetingsRunning.map(this.setMeetingResolver);
     Promise.all(this.promises)
       .then(() => {
         this.synced = true;
-        setTimeout(() => syncResolver(), 5000);
+        syncResolver();
       });
   }
 
