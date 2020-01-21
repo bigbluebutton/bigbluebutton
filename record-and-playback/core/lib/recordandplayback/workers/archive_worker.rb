@@ -65,9 +65,9 @@ module BigBlueButton
       def initialize(opts)
         super(opts)
         @step_name = 'archive'
-        @archived_fail = "#{@recording_dir}/status/archived/#{@meeting_id}.fail"
-        @archived_done = "#{@recording_dir}/status/archived/#{@meeting_id}.done"
-        @archived_norecord = "#{@recording_dir}/status/archived/#{@meeting_id}.norecord"
+        @archived_fail = "#{@recording_dir}/status/archived/#{@full_id}.fail"
+        @archived_done = "#{@recording_dir}/status/archived/#{@full_id}.done"
+        @archived_norecord = "#{@recording_dir}/status/archived/#{@full_id}.norecord"
       end
     end
   end

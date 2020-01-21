@@ -80,8 +80,8 @@ module BigBlueButton
         @step_name = 'process'
         @format_name = opts['format_name']
         @post_scripts_path = File.expand_path('../post_process', __dir__)
-        @processed_done = "#{@recording_dir}/status/processed/#{@meeting_id}-#{@format_name}.done"
-        @processed_fail = "#{@recording_dir}/status/processed/#{@meeting_id}-#{@format_name}.fail"
+        @processed_done = "#{@recording_dir}/status/processed/#{@full_id}-#{@format_name}.done"
+        @processed_fail = "#{@recording_dir}/status/processed/#{@full_id}-#{@format_name}.fail"
       end
     end
   end

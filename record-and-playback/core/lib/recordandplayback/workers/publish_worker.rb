@@ -118,8 +118,8 @@ module BigBlueButton
         @step_name = 'publish'
         @format_name = opts['format_name']
         @post_scripts_path = File.expand_path('../post_publish', __dir__)
-        @published_done = "#{@recording_dir}/status/published/#{@meeting_id}-#{@format_name}.done"
-        @published_fail = "#{@recording_dir}/status/published/#{@meeting_id}-#{@format_name}.fail"
+        @published_done = "#{@recording_dir}/status/published/#{@full_id}-#{@format_name}.done"
+        @published_fail = "#{@recording_dir}/status/published/#{@full_id}-#{@format_name}.fail"
       end
     end
   end
