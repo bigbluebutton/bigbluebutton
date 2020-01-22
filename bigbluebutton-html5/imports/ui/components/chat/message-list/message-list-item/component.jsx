@@ -97,7 +97,7 @@ class MessageListItem extends Component {
     );
   }
 
-  renderMessageItem(messages) {
+  renderMessageItem() {
     const {
       user,
       time,
@@ -106,7 +106,10 @@ class MessageListItem extends Component {
       handleReadMessage,
       scrollArea,
       intl,
+      chats,
     } = this.props;
+
+    if (chats.length < 1) return null;
 
     const dateTime = new Date(time);
 
@@ -141,7 +144,7 @@ class MessageListItem extends Component {
               </time>
             </div>
             <div className={styles.messages}>
-              {messages.map(message => (
+              {chats.map(message => (
                 <Message
                   className={(regEx.test(message.text) ? styles.hyperlink : styles.message)}
                   key={message.id}
@@ -160,30 +163,33 @@ class MessageListItem extends Component {
     );
   }
 
-  renderPollItem(pollMessage) {
+  renderPollItem() {
     const {
       user,
       time,
       intl,
+      polls,
     } = this.props;
+
+    if (polls.length < 1) return null;
 
     const dateTime = new Date(time);
 
     let pollText = [];
     const pollElement = [];
 
-    pollMessage.forEach((msg) => {
-      pollText = msg.text.split('<br/>');
+    polls.forEach((poll) => {
+      pollText = poll.text.split('<br/>');
       pollElement.push(pollText.map(o => <div key={_.uniqueId('chat-poll-result-')}>{o}</div>));
 
-      if (pollMessage.length > 1) {
+      if (polls.length > 1) {
         pollElement.push(
           <div key={_.uniqueId('chat-poll-separator-')} className={styles.divider} />,
         );
       }
     });
 
-    return pollMessage ? (
+    return polls ? (
       <div className={styles.item} key={_.uniqueId('message-poll-item-')}>
         <div className={styles.wrapper} ref={(ref) => { this.item = ref; }}>
           <div className={styles.avatarWrapper}>
@@ -205,7 +211,7 @@ class MessageListItem extends Component {
               </time>
             </div>
             <div className={styles.messages}>
-              {pollMessage[0] ? (
+              {polls[0] ? (
                 <div>
                   {
                   pollElement
@@ -222,33 +228,17 @@ class MessageListItem extends Component {
   render() {
     const {
       user,
-      messages,
     } = this.props;
 
     if (!user) {
       return this.renderSystemMessage();
     }
 
-    const chatMessages = [];
-    const pollMessage = [];
-
-    if (messages.length > 0) {
-      messages.forEach((message) => {
-        if (message.text.includes('<br/>')) {
-          pollMessage.push(message);
-        } else {
-          chatMessages.push(message);
-        }
-      });
-    }
-
-    const hasPublishedPoll = pollMessage.length > 0;
-
     return (
       <div className={styles.item}>
         {[
-          hasPublishedPoll ? this.renderPollItem(pollMessage) : null,
-          chatMessages.length > 0 ? this.renderMessageItem(chatMessages) : null,
+          this.renderPollItem(),
+          this.renderMessageItem(),
         ]}
       </div>
     );
