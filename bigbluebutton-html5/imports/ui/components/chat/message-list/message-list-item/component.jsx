@@ -45,21 +45,24 @@ class MessageListItem extends Component {
       scrollArea,
       messages,
       user,
+      messageId,
     } = this.props;
 
     const {
       scrollArea: nextScrollArea,
       messages: nextMessages,
       user: nextUser,
+      messageId: nextMessageId,
     } = nextProps;
 
     if (!scrollArea && nextScrollArea) return true;
 
     const hasNewMessage = messages.length !== nextMessages.length;
+    const hasIdChanged = messageId !== nextMessageId;
     const hasUserChanged = user && nextUser
       && (user.isModerator !== nextUser.isModerator || user.isOnline !== nextUser.isOnline);
 
-    return hasNewMessage || hasUserChanged;
+    return hasNewMessage || hasIdChanged || hasUserChanged;
   }
 
   renderSystemMessage() {
@@ -70,20 +73,22 @@ class MessageListItem extends Component {
     } = this.props;
 
     return (
-      <div className={styles.messages}>
-        {messages.map(message => (
-          message.text !== ''
-            ? (
-              <Message
-                className={(message.id ? styles.systemMessage : null)}
-                key={_.uniqueId('id-')}
-                text={message.text}
-                time={message.time}
-                chatAreaId={chatAreaId}
-                handleReadMessage={handleReadMessage}
-              />
-            ) : null
-        ))}
+      <div className={styles.item}>
+        <div className={styles.messages}>
+          {messages.map(message => (
+            message.text !== ''
+              ? (
+                <Message
+                  className={(message.id ? styles.systemMessage : styles.systemMessageNoBorder)}
+                  key={message.id ? message.id : _.uniqueId('id-')}
+                  text={message.text}
+                  time={message.time}
+                  chatAreaId={chatAreaId}
+                  handleReadMessage={handleReadMessage}
+                />
+              ) : null
+          ))}
+        </div>
       </div>
     );
   }
@@ -110,7 +115,7 @@ class MessageListItem extends Component {
 
     return (
       <div className={styles.item}>
-        <div className={styles.wrapper} ref={(ref) => { this.item = ref; }}>
+        <div className={styles.wrapper}>
           <div className={styles.avatarWrapper}>
             <UserAvatar
               className={styles.avatar}
