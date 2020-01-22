@@ -116,8 +116,8 @@ class WebcamDraggable extends PureComponent {
           },
         },
       );
+      setTimeout(() => window.dispatchEvent(new Event('resize')), 300);
     }
-    setTimeout(() => window.dispatchEvent(new Event('resize')), 300);
   }
 
   onResize() {
