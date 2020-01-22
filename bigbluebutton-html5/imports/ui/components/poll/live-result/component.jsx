@@ -145,6 +145,7 @@ class LiveResult extends PureComponent {
       stopPoll,
       handleBackClick,
       currentPoll,
+      sendGroupMessage,
     } = this.props;
 
     const { userAnswers, pollStats } = this.state;
@@ -190,6 +191,13 @@ class LiveResult extends PureComponent {
               disabled={!isMeteorConnected}
               onClick={() => {
                 Service.publishPoll();
+                const { answers } = currentPoll;
+                let resultString = '\n';
+                answers.forEach((item) => {
+                  resultString += `${item.key}: ${item.numVotes || 0}\n`;
+                });
+
+                sendGroupMessage(resultString);
                 stopPoll();
               }}
               label={intl.formatMessage(intlMessages.publishLabel)}
@@ -237,7 +245,6 @@ LiveResult.propTypes = {
       users: PropTypes.arrayOf(PropTypes.string),
     }),
   ]),
-  publishPoll: PropTypes.func.isRequired,
   stopPoll: PropTypes.func.isRequired,
   handleBackClick: PropTypes.func.isRequired,
 };

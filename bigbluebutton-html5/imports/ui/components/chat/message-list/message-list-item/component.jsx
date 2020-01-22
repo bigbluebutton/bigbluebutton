@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { FormattedTime, defineMessages, injectIntl } from 'react-intl';
 import _ from 'lodash';
-
+import Icon from '/imports/ui/components/icon/component';
 import UserAvatar from '/imports/ui/components/user-avatar/component';
 import Message from './message/component';
 
@@ -36,6 +36,10 @@ const intlMessages = defineMessages({
   offline: {
     id: 'app.chat.offline',
     description: 'Offline',
+  },
+  pollResult: {
+    id: 'app.chat.pollResult',
+    description: 'used in place of user name who published poll to chat',
   },
 });
 
@@ -88,10 +92,9 @@ class MessageListItem extends Component {
     );
   }
 
-  render() {
+  renderMessageItem(messages) {
     const {
       user,
-      messages,
       time,
       chatAreaId,
       lastReadMessageTime,
@@ -104,12 +107,8 @@ class MessageListItem extends Component {
 
     const regEx = /<a[^>]+>/i;
 
-    if (!user) {
-      return this.renderSystemMessage();
-    }
-
     return (
-      <div className={styles.item}>
+      <div className={styles.item} key={_.uniqueId('message-list-item-')}>
         <div className={styles.wrapper} ref={(ref) => { this.item = ref; }}>
           <div className={styles.avatarWrapper}>
             <UserAvatar
@@ -152,6 +151,100 @@ class MessageListItem extends Component {
             </div>
           </div>
         </div>
+      </div>
+    );
+  }
+
+  renderPollItem(pollMessage) {
+    const {
+      user,
+      time,
+      intl,
+    } = this.props;
+
+    const dateTime = new Date(time);
+
+    let pollText = [];
+    const pollElement = [];
+
+    pollMessage.forEach((msg) => {
+      pollText = msg.text.split('<br/>');
+      pollElement.push(pollText.map(o => <div key={_.uniqueId('chat-poll-result-')}>{o}</div>));
+
+      if (pollMessage.length > 1) {
+        pollElement.push(
+          <div key={_.uniqueId('chat-poll-separator-')} className={styles.divider} />,
+        );
+      }
+    });
+
+    return pollMessage ? (
+      <div className={styles.item} key={_.uniqueId('message-poll-item-')}>
+        <div className={styles.wrapper} ref={(ref) => { this.item = ref; }}>
+          <div className={styles.avatarWrapper}>
+            <UserAvatar
+              className={styles.avatar}
+              color={user.color}
+              moderator={user.isModerator}
+            >
+              {<Icon className={styles.isPoll} iconName="polling" />}
+            </UserAvatar>
+          </div>
+          <div className={styles.content}>
+            <div className={styles.meta}>
+              <div className={styles.name}>
+                <span>{intl.formatMessage(intlMessages.pollResult)}</span>
+              </div>
+              <time className={styles.time} dateTime={dateTime}>
+                <FormattedTime value={dateTime} />
+              </time>
+            </div>
+            <div className={styles.messages}>
+              {pollMessage[0] ? (
+                <div>
+                  {
+                  pollElement
+                }
+                </div>
+              ) : null}
+            </div>
+          </div>
+        </div>
+      </div>
+    ) : null;
+  }
+
+  render() {
+    const {
+      user,
+      messages,
+    } = this.props;
+
+    if (!user) {
+      return this.renderSystemMessage();
+    }
+
+    const chatMessages = [];
+    const pollMessage = [];
+
+    if (messages.length > 0) {
+      messages.forEach((message) => {
+        if (message.text.includes('<br/>')) {
+          pollMessage.push(message);
+        } else {
+          chatMessages.push(message);
+        }
+      });
+    }
+
+    const hasPublishedPoll = pollMessage.length > 0;
+
+    return (
+      <div className={styles.item}>
+        {[
+          hasPublishedPoll ? this.renderPollItem(pollMessage) : null,
+          chatMessages.length > 0 ? this.renderMessageItem(chatMessages) : null,
+        ]}
       </div>
     );
   }

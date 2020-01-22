@@ -147,3 +147,15 @@
     color: var(--color-primary);
   }
 }
+
+.divider {
+  position: relative;
+  height: 1px;
+  width: 80%;
+  margin-right: auto;
+  border-bottom: solid 1px var(--color-gray-light);
+}
+
+.isPoll {
+  bottom: var(--border-size-large);
+}
