@@ -1,9 +1,11 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import cx from 'classnames';
+import { isMobile, isIPad13 } from 'react-device-detect';
 import WebcamDraggable from './webcam-draggable-overlay/component';
-
 import { styles } from './styles';
+
+const BROWSER_ISMOBILE = isMobile || isIPad13;
 
 const propTypes = {
   children: PropTypes.element.isRequired,
@@ -12,9 +14,7 @@ const propTypes = {
   hideOverlay: PropTypes.bool,
   swapLayout: PropTypes.bool,
   disableVideo: PropTypes.bool,
-  userWasInWebcam: PropTypes.bool,
   audioModalIsOpen: PropTypes.bool,
-  joinVideo: PropTypes.func,
   webcamPlacement: PropTypes.string,
 };
 
@@ -23,9 +23,7 @@ const defaultProps = {
   hideOverlay: true,
   swapLayout: false,
   disableVideo: false,
-  userWasInWebcam: false,
   audioModalIsOpen: false,
-  joinVideo: null,
   webcamPlacement: 'top',
 };
 
@@ -38,23 +36,6 @@ export default class Media extends Component {
 
   componentWillUpdate() {
     window.dispatchEvent(new Event('resize'));
-  }
-
-  componentDidUpdate(prevProps) {
-    const {
-      userWasInWebcam,
-      audioModalIsOpen,
-      joinVideo,
-    } = this.props;
-
-    const {
-      audioModalIsOpen: oldAudioModalIsOpen,
-    } = prevProps;
-
-    if ((!audioModalIsOpen && oldAudioModalIsOpen) && userWasInWebcam) {
-      Session.set('userWasInWebcam', false);
-      joinVideo();
-    }
   }
 
   render() {
@@ -79,17 +60,36 @@ export default class Media extends Component {
       [styles.floatingOverlay]: (webcamPlacement === 'floating'),
     });
 
+    const containerClassName = cx({
+      [styles.containerV]: webcamPlacement === 'top' || webcamPlacement === 'bottom' || webcamPlacement === 'floating',
+      [styles.containerH]: webcamPlacement === 'left' || webcamPlacement === 'right',
+    });
+
     return (
       <div
         id="container"
-        className={cx(styles.container)}
+        className={containerClassName}
         ref={this.refContainer}
       >
         <div
           className={!swapLayout ? contentClassName : overlayClassName}
           style={{
-            maxHeight: usersVideo.length < 1 || (webcamPlacement === 'floating') ? '100%' : '80%',
-            minHeight: '20%',
+            maxHeight: (
+              webcamPlacement === 'left'
+              || webcamPlacement === 'right'
+              || webcamPlacement === 'floating'
+            )
+              ? '100%'
+              : '80%',
+            minHeight: BROWSER_ISMOBILE && window.innerWidth > window.innerHeight ? '50%' : '20%',
+            maxWidth: (
+              webcamPlacement === 'top'
+              || webcamPlacement === 'bottom'
+              || webcamPlacement === 'floating'
+            )
+              ? '100%'
+              : '80%',
+            minWidth: '20%',
           }}
         >
           {children}

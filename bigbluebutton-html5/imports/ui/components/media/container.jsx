@@ -110,8 +110,6 @@ export default withModalMounter(withTracker(() => {
   const data = {
     children: <DefaultContent />,
     audioModalIsOpen: Session.get('audioModalIsOpen'),
-    userWasInWebcam: Session.get('userWasInWebcam'),
-    joinVideo: VideoService.joinVideo,
   };
 
   if (MediaService.shouldShowWhiteboard() && !hidePresentation) {
@@ -123,7 +121,7 @@ export default withModalMounter(withTracker(() => {
     data.children = <ScreenshareContainer />;
   }
 
-  const usersVideo = VideoService.getAllWebcamUsers();
+  const usersVideo = VideoService.getVideoStreams();
   data.usersVideo = usersVideo;
 
   if (MediaService.shouldShowOverlay() && usersVideo.length && viewParticipantsWebcams) {

@@ -78,31 +78,34 @@ mark_for_rebuild() {
 		rm -rf /var/bigbluebutton/deleted/$type/$MEETING_ID
 	done
 
-	# Restart processing at the 'archived' step
-	touch $STATUS/archived/$MEETING_ID.done
+	# touch the file so rap-starter starts the process
+	touch $STATUS/recorded/$MEETING_ID.done
+	# In the future it could simply schedule a job on resque
+	# redis-cli rpush resque:queue:rap:sanity "{\"class\":\"BigBlueButton::Resque::SanityWorker\",\"args\":[{\"meeting_id\":\"$MEETING_ID\"}]}"
 }
 
 mark_for_republish() { 
 	MEETING_ID=$1
 	echo "Marking for republish $MEETING_ID"
-	if [[ ! -d $BASE/process/$MEETING_ID ]]; then
-		echo "Processed files for $MEETING_ID do not exist, can't republish"
-		echo "Try rebuilding the recording instead."
-		exit 1
-	fi
 
-	# Clear out the publish done files
-	rm -vf $STATUS/published/$MEETING_ID*
-
-	# Remove the existing 'published' recording files
 	for type in $TYPES; do
+		if [[ ! -d $BASE/process/$type/$MEETING_ID ]]; then
+			echo "Processed files for $MEETING_ID ($type) do not exist, can't republish"
+			echo "Try rebuilding the recording instead."
+			continue
+		fi
+
+		# Clear out the publish done files
+		rm -vf $STATUS/published/$MEETING_ID*
+
+		# Remove the existing 'published' recording files
 		rm -rf /var/bigbluebutton/published/$type/$MEETING_ID
 		rm -rf /var/bigbluebutton/unpublished/$type/$MEETING_ID
 		rm -rf /var/bigbluebutton/deleted/$type/$MEETING_ID
-	done
 
-	# Restart processing at the 'processed' step
-	touch $STATUS/processed/$MEETING_ID.done
+		# Restart processing at the 'publish' step
+		redis-cli rpush resque:queue:rap:publish "{\"class\":\"BigBlueButton::Resque::PublishWorker\",\"args\":[{\"meeting_id\":\"$MEETING_ID\",\"format_name\":\"$type\"}]}"
+	done
 }
 
 need_root() {
@@ -627,7 +630,7 @@ done
 	echo "--"
 	systemctl --all --no-pager list-timers bbb-record-core.timer
 	echo "--"
-	systemctl --no-pager status bbb-rap-archive-worker.service bbb-rap-sanity-worker.service bbb-rap-process-worker.service bbb-rap-publish-worker.service
+	systemctl --no-pager status bbb-rap-starter.service bbb-rap-resque-worker.service
 	echo "--"
 
 	if tail -n 20 /var/log/bigbluebutton/bbb-web.log | grep -q "is recorded. Process it."; then

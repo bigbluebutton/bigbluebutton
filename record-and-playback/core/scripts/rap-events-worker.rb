@@ -1,5 +1,5 @@
 #!/usr/bin/ruby
-# encoding: UTF-8
+# encoding: utf-8
 
 # Copyright ⓒ 2017 BigBlueButton Inc. and by respective authors.
 #
@@ -24,18 +24,18 @@ require 'yaml'
 require 'fileutils'
 
 def run_post_events_script(meeting_id)
-  Dir.glob("post_events/*.rb").sort.each do |post_event_script|
-    match = /([^\/]*).rb$/.match(post_event_script)
+  Dir.glob('post_events/*.rb').sort.each do |post_event_script|
+    match = %r{([^/]*).rb$}.match(post_event_script)
     post_type = match[1]
     BigBlueButton.logger.info("Running post event script #{post_type}")
 
-    step_start_time = BigBlueButton.monotonic_clock
-    ret = BigBlueButton.exec_ret("ruby", post_event_script, "-m", meeting_id)
-    step_stop_time = BigBlueButton.monotonic_clock
-    step_time = step_stop_time - step_start_time
-    step_succeeded = (ret == 0)
+    # step_start_time = BigBlueButton.monotonic_clock
+    ret = BigBlueButton.exec_ret('ruby', post_event_script, '-m', meeting_id)
+    # step_stop_time = BigBlueButton.monotonic_clock
+    # step_time = step_stop_time - step_start_time
+    step_succeeded = ret.zero?
 
-    if not step_succeeded
+    unless step_succeeded
       BigBlueButton.logger.warn("Post event script #{post_event_script} failed")
     end
   end
@@ -45,7 +45,7 @@ def keep_meeting_events(recording_dir, ended_done_file)
   ended_done_base = File.basename(ended_done_file, '.done')
   meeting_id = nil
   break_timestamp = nil
-  
+
   if match = /^([0-9a-f]+-[0-9]+)$/.match(ended_done_base)
     meeting_id = match[1]
   elsif match = /^([0-9a-f]+-[0-9]+)-([0-9]+)$/.match(ended_done_base)
@@ -55,21 +55,20 @@ def keep_meeting_events(recording_dir, ended_done_file)
     BigBlueButton.logger.warn("Ended done file for #{ended_done_base} has invalid format")
   end
 
-  if meeting_id != nil
-    if !break_timestamp.nil?
-      ret = BigBlueButton.exec_ret("ruby", "events/events.rb", "-m", meeting_id, '-b', break_timestamp)
-    else
-      ret = BigBlueButton.exec_ret("ruby", "events/events.rb", "-m", meeting_id)
+  return if meeting_id.nil?
 
-      # Need to only run post events scripts after meeting ends not during
-      # segments. 
-      run_post_events_script(meeting_id)
-    end
+  if !break_timestamp.nil?
+    BigBlueButton.exec_ret('ruby', 'events/events.rb', '-m', meeting_id, '-b', break_timestamp)
+  else
+    BigBlueButton.exec_ret('ruby', 'events/events.rb', '-m', meeting_id)
+
+    # Need to only run post events scripts after meeting ends not during segments.
+    run_post_events_script(meeting_id)
   end
 end
 
 begin
-  props = YAML::load(File.open('bigbluebutton.yml'))
+  props = YAML.safe_load(File.open('bigbluebutton.yml'))
   redis_host = props['redis_host']
   redis_port = props['redis_port']
   redis_password = props['redis_password']
@@ -77,21 +76,18 @@ begin
 
   log_dir = props['log_dir']
   recording_dir = props['recording_dir']
-  raw_archive_dir = "#{recording_dir}/raw"
-  events_dir = props['events_dir']
 
   logger = Logger.new("#{log_dir}/bbb-rap-worker.log")
-  #logger = Logger.new(STDOUT)
+  # logger = Logger.new(STDOUT)
   logger.level = Logger::INFO
   BigBlueButton.logger = logger
 
-  BigBlueButton.logger.info("Running rap-events-worker...")
+  BigBlueButton.logger.info('Running rap-events-worker...')
   ended_done_files = Dir.glob("#{recording_dir}/status/ended/*.done")
   ended_done_files.each do |ended_done|
-    ended_done_base = File.basename(ended_done, '.done')
     keep_meeting_events(recording_dir, ended_done)
   end
-  BigBlueButton.logger.debug("rap-events-worker done")
+  BigBlueButton.logger.debug('rap-events-worker done')
 
 rescue Exception => e
   BigBlueButton.logger.error(e.message)

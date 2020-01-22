@@ -15,6 +15,7 @@ import PresentationCloseButton from './presentation-close-button/component';
 import DownloadPresentationButton from './download-presentation-button/component';
 import FullscreenService from '../fullscreen-button/service';
 import FullscreenButtonContainer from '../fullscreen-button/container';
+import { withDraggableContext, withDraggableConsumer } from '../media/webcam-draggable-overlay/context';
 
 const intlMessages = defineMessages({
   presentationLabel: {
@@ -81,10 +82,25 @@ class PresentationArea extends PureComponent {
     window.addEventListener('resize', this.onResize);
     this.getInitialPresentationSizes();
     this.refPresentationContainer.addEventListener('fullscreenchange', this.onFullscreenChange);
+
+    const { slidePosition, webcamDraggableDispatch } = this.props;
+    const { width: currWidth, height: currHeight } = slidePosition;
+    if (currWidth > currHeight || currWidth === currHeight) {
+      webcamDraggableDispatch({ type: 'setOrientationToLandscape' });
+    }
+    if (currHeight > currWidth) {
+      webcamDraggableDispatch({ type: 'setOrientationToPortrait' });
+    }
   }
 
   componentDidUpdate(prevProps) {
-    const { currentPresentation, notify, intl } = this.props;
+    const {
+      currentPresentation,
+      notify,
+      intl,
+      slidePosition,
+      webcamDraggableDispatch,
+    } = this.props;
 
     if (prevProps.currentPresentation.name !== currentPresentation.name) {
       notify(
@@ -92,6 +108,18 @@ class PresentationArea extends PureComponent {
         'info',
         'presentation',
       );
+    }
+
+    const { width: prevWidth, height: prevHeight } = prevProps.slidePosition;
+    const { width: currWidth, height: currHeight } = slidePosition;
+
+    if (prevWidth !== currWidth || prevHeight !== currHeight) {
+      if (currWidth > currHeight || currWidth === currHeight) {
+        webcamDraggableDispatch({ type: 'setOrientationToLandscape' });
+      }
+      if (currHeight > currWidth) {
+        webcamDraggableDispatch({ type: 'setOrientationToPortrait' });
+      }
     }
   }
 
@@ -412,7 +440,7 @@ class PresentationArea extends PureComponent {
     };
 
     const svgViewBox = `${viewBoxPosition.x} ${viewBoxPosition.y} `
-      + `${viewBoxDimensions.width} ${viewBoxDimensions.height}`;
+      + `${viewBoxDimensions.width} ${Number.isNaN(viewBoxDimensions.height) ? 0 : viewBoxDimensions.height}`;
 
     return (
       <div
@@ -654,7 +682,7 @@ class PresentationArea extends PureComponent {
   }
 }
 
-export default injectIntl(PresentationArea);
+export default injectIntl(withDraggableConsumer(PresentationArea));
 
 PresentationArea.propTypes = {
   intl: intlShape.isRequired,

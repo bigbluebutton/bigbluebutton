@@ -521,7 +521,7 @@ class PresentationUploader extends Component {
 
   renderPresentationItem(item) {
     const { disableActions, oldCurrentId } = this.state;
-    const { intl } = this.props;
+    const { intl, allowDownloadable } = this.props;
 
     const isActualCurrent = item.id === oldCurrentId;
     const isUploading = !item.upload.done && item.upload.progress > 0;
@@ -535,6 +535,10 @@ class PresentationUploader extends Component {
       [styles.tableItemConverting]: isConverting,
       [styles.tableItemError]: hasError,
       [styles.tableItemAnimated]: isProcessing,
+    };
+
+    const itemActions = {
+      [styles.notDownloadable]: !allowDownloadable,
     };
 
     const hideRemove = this.isDefault(item);
@@ -573,16 +577,19 @@ class PresentationUploader extends Component {
           {this.renderPresentationItemStatus(item)}
         </td>
         {hasError ? null : (
-          <td className={styles.tableItemActions}>
-            <Button
-              className={isDownloadableStyle}
-              label={formattedDownloadableLabel}
-              aria-label={formattedDownloadableAriaLabel}
-              hideLabel
-              size="sm"
-              icon={item.isDownloadable ? 'download' : 'download-off'}
-              onClick={() => this.toggleDownloadable(item)}
-            />
+          <td className={cx(styles.tableItemActions, itemActions)}>
+            {allowDownloadable ? (
+              <Button
+                className={isDownloadableStyle}
+                label={formattedDownloadableLabel}
+                aria-label={formattedDownloadableAriaLabel}
+                hideLabel
+                size="sm"
+                icon={item.isDownloadable ? 'download' : 'download-off'}
+                onClick={() => this.toggleDownloadable(item)}
+              />
+            ) : null
+            }
             <Checkbox
               ariaLabel={`${intl.formatMessage(intlMessages.setAsCurrentPresentation)} ${item.filename}`}
               checked={item.isCurrent}

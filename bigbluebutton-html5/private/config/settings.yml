@@ -21,6 +21,7 @@ public:
     allowUserLookup: false
     enableNetworkInformation: false
     enableLimitOfViewersInWebcam: false
+    enableMultipleCameras: false
     enableTalkingIndicator: true
     viewersInWebcam: 8
     ipv4FallbackDomain: ""
@@ -114,7 +115,6 @@ public:
         bitrate: 800
     enableScreensharing: true
     enableVideo: true
-    enableVideoStats: false
     enableVideoMenu: true
     enableListenOnly: true
     autoShareWebcam: false
@@ -178,6 +178,7 @@ public:
     echoTestNumber: '9196'
     relayOnlyOnReconnect: false
   presentation:
+    allowDownloadable: true
     defaultPresentationFile: default.pdf
     panZoomThrottle: 32
     uploadEndpoint: "/bigbluebutton/presentation/upload"
