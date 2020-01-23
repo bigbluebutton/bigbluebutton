@@ -165,3 +165,7 @@
 .isPoll {
   bottom: var(--border-size-large);
 }
+
+.pollLine {
+  overflow-wrap: break-word;
+}
