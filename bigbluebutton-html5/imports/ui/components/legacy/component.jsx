@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { IntlProvider, FormattedMessage, addLocaleData } from 'react-intl';
-import browser from 'browser-detect';
+import { browserName } from 'react-device-detect';
 import './styles.css';
 
 
@@ -101,8 +101,8 @@ export default class Legacy extends Component {
 
   render() {
     const { messages, normalizedLocale, viewState } = this.state;
-    const isSupportedBrowser = supportedBrowsers.includes(browser().name);
-    const isChromeIos = browser().name === 'crios';
+    const isSupportedBrowser = supportedBrowsers.includes(browserName);
+    const isChromeIos = browserName === 'crios';
 
     let messageId = isSupportedBrowser ? 'app.legacy.upgradeBrowser' : 'app.legacy.unsupportedBrowser';
     if (isChromeIos) messageId = 'app.legacy.criosBrowser';
