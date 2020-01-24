@@ -368,3 +368,6 @@ private:
       version: 46
     - browser: electron
       version: [0, 36]
+    - browser: YandexBrowser
+      version: 19
+      
