@@ -169,3 +169,12 @@
 .pollLine {
   overflow-wrap: break-word;
 }
+
+.pollWrapper {
+  border: solid 1px var(--color-gray-lighter);
+  border-radius: 3px;
+  padding: .25rem;
+  padding-left: 1rem;
+  margin-top: .25rem;
+  background: var(--systemMessage-background-color);
+}

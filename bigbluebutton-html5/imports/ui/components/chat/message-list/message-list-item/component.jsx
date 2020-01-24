@@ -181,12 +181,6 @@ class MessageListItem extends Component {
     polls.forEach((poll) => {
       pollText = poll.text.split('<br/>');
       pollElement.push(pollText.map(o => <div key={_.uniqueId('chat-poll-result-')} className={styles.pollLine}>{o}</div>));
-
-      if (polls.length > 1) {
-        pollElement.push(
-          <div key={_.uniqueId('chat-poll-separator-')} className={styles.divider} />,
-        );
-      }
     });
 
     return polls ? (
@@ -212,7 +206,7 @@ class MessageListItem extends Component {
             </div>
             <div className={styles.messages}>
               {polls[0] ? (
-                <div>
+                <div className={styles.pollWrapper} style={{ borderLeft: `3px ${user.color} solid` }}>
                   {
                   pollElement
                 }

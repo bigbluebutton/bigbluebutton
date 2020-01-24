@@ -191,10 +191,14 @@ class LiveResult extends PureComponent {
               disabled={!isMeteorConnected}
               onClick={() => {
                 Service.publishPoll();
-                const { answers } = currentPoll;
+                const { answers, numRespondents } = currentPoll;
+
                 let resultString = '\n';
                 answers.forEach((item) => {
-                  resultString += `${item.key}: ${item.numVotes || 0}\n`;
+                  const pct = Math.round(item.numVotes / numRespondents * 100);
+                  const pctFotmatted = `${Number.isNaN(pct) ? 0 : pct}%`;
+
+                  resultString += `${item.key}: ${item.numVotes || 0} | ${pctFotmatted}\n`;
                 });
 
                 sendGroupMessage(resultString);
