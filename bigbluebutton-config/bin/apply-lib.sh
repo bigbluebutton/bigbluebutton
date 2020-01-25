@@ -1,13 +1,12 @@
-#!/bin/bash -e
-
-# This is a library of functions for apply-config.sh, which, if created, will be automatically called by
-# bbb-conf when you run
+# This is a library of functions for 
 #
-#   bbb-conf --restart
-#   bbb-conf --seitp ...
+#  /etc/bigbluebutton/bbb-conf/apply-config.sh
 #
-# The purpose of apply-config.sh is to make it easy to apply for your BigBlueButton server that get applied
-# before BigBlueButton starts
+# which (if exists) will be run by `bbb-conf --setip` and `bbb-conf --restart` before restarting
+# BigBlueButton.
+#
+# The purpose of apply-config.sh is to make it easy for you apply defaults to BigBlueButton server that get applied after
+# each package update (since the last step in doing an upate is to run `bbb-conf --setip`.
 #
 
 
@@ -33,7 +32,9 @@ if [ -f $SERVLET_DIR/WEB-INF/classes/bigbluebutton.properties ]; then
 fi
 
 HOST=$(cat $SERVLET_DIR/WEB-INF/classes/bigbluebutton.properties | grep -v '#' | sed -n '/^bigbluebutton.web.serverURL/{s/.*\///;p}')
+
 HTML5_CONFIG=/usr/share/meteor/bundle/programs/server/assets/app/config/settings.yml
+BBB_WEB_CONFIG=$SERVLET_DIR/WEB-INF/classes/bigbluebutton.properties
 
 
 #
@@ -72,19 +73,8 @@ HERE
   #   tail -f /var/log/nginx/html5-client.log | sed -u 's/\\x22/"/g' | sed -u 's/\\x5C//g'
 }
 
-#
-# Enable HTML5 as default
-#
-setHTML5ClientAsDefault() {
-  echo "  - Make HTML5 the default client in /usr/share/bbb-web/WEB-INF/classes/bigbluebutton.properties"
 
-  sed -i 's/^attendeesJoinViaHTML5Client=.*/attendeesJoinViaHTML5Client=true/'   /usr/share/bbb-web/WEB-INF/classes/bigbluebutton.properties
-  sed -i 's/^moderatorsJoinViaHTML5Client=.*/moderatorsJoinViaHTML5Client=true/' /usr/share/bbb-web/WEB-INF/classes/bigbluebutton.properties
-}
-
-
-#
-# Enable firewall rules to open only 
+# Enable firewall rules to lock down access to server
 #
 enableUFWRules() {
   echo "  - Enable Firewall and opening 22/tcp, 80/tcp, 443/tcp and 16384:32768/udp"
@@ -93,19 +83,11 @@ enableUFWRules() {
     apt-get install -y ufw
   fi
 
-  #  Add 1935 if Flash client is enabled
-  if [[ "$(cat $SERVLET_DIR/WEB-INF/classes/bigbluebutton.properties | sed -n '/^attendeesJoinViaHTML5Client/{s/.*=//;p}')" == "true" &&
-        "$(cat $SERVLET_DIR/WEB-INF/classes/bigbluebutton.properties | sed -n '/^moderatorsJoinViaHTML5Client/{s/.*=//;p}')" == "true" ]]; then
-    ufw deny 1935/tcp
-  else
-    ufw allow 1935/tcp
-  fi
   ufw allow OpenSSH
   ufw allow "Nginx Full"
   ufw allow 16384:32768/udp
   ufw --force enable
 }
-
 
 
 notCalled() {
@@ -128,7 +110,6 @@ source /etc/bigbluebutton/bbb-conf/apply-lib.sh
 # Available configuration options
 
 #enableHTML5ClientLog
-#setHTML5ClientAsDefault
 #enableUFWRules
 
 HERE
