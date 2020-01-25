@@ -41,6 +41,10 @@ const intlMessages = defineMessages({
     id: 'app.chat.pollResult',
     description: 'used in place of user name who published poll to chat',
   },
+  legendTitle: {
+    id: 'app.polling.pollingTitle',
+    description: 'heading for chat poll legend',
+  },
 });
 
 class MessageListItem extends Component {
@@ -169,6 +173,7 @@ class MessageListItem extends Component {
       time,
       intl,
       polls,
+      isDefaultPoll,
     } = this.props;
 
     if (polls.length < 1) return null;
@@ -177,11 +182,41 @@ class MessageListItem extends Component {
 
     let pollText = [];
     const pollElement = [];
+    const legendElements = [
+      (<div
+        className={styles.optionsTitle}
+        key={_.uniqueId('chat-poll-options-')}
+      >
+        {intl.formatMessage(intlMessages.legendTitle)}
+      </div>),
+    ];
 
+    let isDefault = true;
     polls.forEach((poll) => {
+      isDefault = isDefaultPoll(poll.text);
       pollText = poll.text.split('<br/>');
-      pollElement.push(pollText.map(o => <div key={_.uniqueId('chat-poll-result-')} className={styles.pollLine}>{o}</div>));
+      pollElement.push(pollText.map((p, index) => {
+        if (!isDefault) {
+          legendElements.push(
+            <div key={_.uniqueId('chat-poll-legend-')} className={styles.pollLegend}>
+              <span>{`${index + 1}: `}</span>
+              <span className={styles.pollOption}>{p.split(':')[0]}</span>
+            </div>,
+          );
+        }
+
+        return (
+          <div key={_.uniqueId('chat-poll-result-')} className={styles.pollLine}>
+            {!isDefault ? p.replace(p.split(':')[0], index + 1) : p}
+          </div>
+        );
+      }));
     });
+
+    if (!isDefault) {
+      pollElement.push(<div key={_.uniqueId('chat-poll-separator-')} className={styles.divider} />);
+      pollElement.push(legendElements);
+    }
 
     return polls ? (
       <div className={styles.item} key={_.uniqueId('message-poll-item-')}>

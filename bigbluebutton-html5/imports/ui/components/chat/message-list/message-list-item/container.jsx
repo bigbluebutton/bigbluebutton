@@ -34,5 +34,15 @@ export default withTracker(({ message }) => {
     time: mappedMessage.time,
     chats,
     polls,
+    isDefaultPoll: (pollText) => {
+      const pollValue = pollText.replace(/<br\/>|[ :|%\n\d+]/g, '');
+      switch (pollValue) {
+        case 'A': case 'AB': case 'ABC': case 'ABCD':
+        case 'ABCDE': case 'YesNo': case 'TrueFalse':
+          return true;
+        default:
+          return false;
+      }
+    },
   };
 })(MessageListItemContainer);
