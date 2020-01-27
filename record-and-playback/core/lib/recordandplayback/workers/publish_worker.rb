@@ -1,6 +1,6 @@
-# encoding: utf-8
+# frozen_string_literal: true
 
-# Copyright ⓒ 2017 BigBlueButton Inc. and by respective authors.
+# Copyright © 2017 BigBlueButton Inc. and by respective authors.
 #
 # This file is part of BigBlueButton open source conferencing system.
 #
@@ -17,7 +17,6 @@
 # You should have received a copy of the GNU Lesser General Public License
 # along with BigBlueButton.  If not, see <http://www.gnu.org/licenses/>.
 
-require File.expand_path('../workers', __FILE__)
 require 'custom_hash'
 
 module BigBlueButton
@@ -49,8 +48,7 @@ module BigBlueButton
               File.exist?(@published_done) && !File.exist?(@published_fail)
             )
 
-            props = BigBlueButton.read_props
-            published_dir = props['published_dir']
+            published_dir = @props['published_dir']
 
             playback = {}
             metadata = {}
@@ -68,7 +66,7 @@ module BigBlueButton
                 raw_size = doc[:recording][:raw_size] unless doc[:recording][:raw_size].nil?
                 start_time = doc[:recording][:start_time] unless doc[:recording][:start_time].nil?
                 end_time = doc[:recording][:end_time] unless doc[:recording][:end_time].nil?
-              rescue Exception => e
+              rescue StandardError => e
                 BigBlueButton.logger.warn 'An exception occurred while loading the extra information for the publish event'
                 BigBlueButton.logger.warn e.message
                 e.backtrace.each do |traceline|
@@ -80,16 +78,16 @@ module BigBlueButton
             end
 
             @publisher.put_publish_ended(
-              @format_name, @meeting_id, {
-                'success': step_succeeded,
-                'step_time': step_time,
-                'playback': playback,
-                'metadata': metadata,
-                'download': download,
-                'raw_size': raw_size,
-                'start_time': start_time,
-                'end_time': end_time,
-              })
+              @format_name, @meeting_id,
+              'success': step_succeeded,
+              'step_time': step_time,
+              'playback': playback,
+              'metadata': metadata,
+              'download': download,
+              'raw_size': raw_size,
+              'start_time': start_time,
+              'end_time': end_time
+            )
           else
             @logger.warn("Processed recording found for #{@meeting_id}/#{@format_name}, but no publish script exists")
             step_succeeded = true
@@ -119,11 +117,10 @@ module BigBlueButton
         super(opts)
         @step_name = 'publish'
         @format_name = opts['format_name']
-        @post_scripts_path = File.expand_path('../../post_publish', __FILE__)
-        @published_done = "#{@recording_dir}/status/published/#{@meeting_id}-#{@format_name}.done"
-        @published_fail = "#{@recording_dir}/status/published/#{@meeting_id}-#{@format_name}.fail"
+        @post_scripts_path = File.expand_path('../post_publish', __dir__)
+        @published_done = "#{@recording_dir}/status/published/#{@full_id}-#{@format_name}.done"
+        @published_fail = "#{@recording_dir}/status/published/#{@full_id}-#{@format_name}.fail"
       end
-
     end
   end
 end

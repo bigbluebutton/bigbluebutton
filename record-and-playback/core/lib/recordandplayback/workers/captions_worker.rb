@@ -1,6 +1,6 @@
-# encoding: utf-8
+# frozen_string_literal: true
 
-# Copyright ⓒ 2017 BigBlueButton Inc. and by respective authors.
+# Copyright © 2017 BigBlueButton Inc. and by respective authors.
 #
 # This file is part of BigBlueButton open source conferencing system.
 #
@@ -16,8 +16,6 @@
 #
 # You should have received a copy of the GNU Lesser General Public License
 # along with BigBlueButton.  If not, see <http://www.gnu.org/licenses/>.
-
-require File.expand_path('../workers', __FILE__)
 
 module BigBlueButton
   module Resque

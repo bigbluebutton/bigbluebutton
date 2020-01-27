@@ -1,6 +1,6 @@
-# encoding: utf-8
+# frozen_string_literal: true
 
-# Copyright ⓒ 2017 BigBlueButton Inc. and by respective authors.
+# Copyright © 2017 BigBlueButton Inc. and by respective authors.
 #
 # This file is part of BigBlueButton open source conferencing system.
 #
@@ -17,57 +17,57 @@
 # You should have received a copy of the GNU Lesser General Public License
 # along with BigBlueButton.  If not, see <http://www.gnu.org/licenses/>.
 
-require File.expand_path('../workers', __FILE__)
-
 module BigBlueButton
   module Resque
-    class SanityWorker < BaseWorker
-      @queue = 'rap:sanity'
+    class ArchiveWorker < BaseWorker
+      @queue = 'rap:archive'
 
       def perform
         super do
-          @logger.info("Running sanity worker for #{@full_id}")
-          @publisher.put_sanity_started(@meeting_id)
+          @logger.info("Running archive worker for #{@full_id}")
+          @publisher.put_archive_started(@meeting_id)
 
           remove_status_files
 
-          script = File.expand_path('../../sanity/sanity.rb', __FILE__)
+          script = File.expand_path('../archive/archive.rb', __dir__)
           if @break_timestamp.nil?
             ret, step_time = run_script(script, '-m', @meeting_id)
           else
             ret, step_time = run_script(script, '-m', @meeting_id, '-b', @break_timestamp)
           end
-          step_succeeded = (ret.zero? && File.exist?(@sanity_done))
 
-          @publisher.put_sanity_ended(
-            @meeting_id, {
-              success: step_succeeded,
-              step_time: step_time,
-            })
+          step_succeeded = (
+            ret.zero? &&
+            (File.exist?(@archived_done) || File.exist?(@archived_norecord)) &&
+            !File.exist?(@archived_fail)
+          )
+
+          @publisher.put_archive_ended(@meeting_id, success: step_succeeded, step_time: step_time)
 
           if step_succeeded
-            @logger.info("Successfully sanity checked #{@full_id}")
-            run_post_scripts(@post_scripts_path)
+            @logger.info("Successfully archived #{@full_id}")
           else
-            @logger.error("Sanity check failed on #{@full_id}")
-            FileUtils.touch(@sanity_fail)
+            @logger.error("Failed to archive #{@full_id}")
+            FileUtils.touch(@archived_fail)
           end
+          @logger.debug("Finished archive worker for #{@full_id}")
 
           step_succeeded
         end
       end
 
       def remove_status_files
-        FileUtils.rm_f(@sanity_done)
-        FileUtils.rm_f(@sanity_fail)
+        FileUtils.rm_f(@archived_done)
+        FileUtils.rm_f(@archived_norecord)
+        FileUtils.rm_f(@archived_fail)
       end
 
       def initialize(opts)
         super(opts)
-        @step_name = 'sanity'
-        @post_scripts_path = File.expand_path('../../post_archive', __FILE__)
-        @sanity_fail = "#{@recording_dir}/status/sanity/#{@meeting_id}.fail"
-        @sanity_done = "#{@recording_dir}/status/sanity/#{@meeting_id}.done"
+        @step_name = 'archive'
+        @archived_fail = "#{@recording_dir}/status/archived/#{@full_id}.fail"
+        @archived_done = "#{@recording_dir}/status/archived/#{@full_id}.done"
+        @archived_norecord = "#{@recording_dir}/status/archived/#{@full_id}.norecord"
       end
     end
   end
