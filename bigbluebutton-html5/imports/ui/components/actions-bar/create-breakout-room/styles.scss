@@ -160,13 +160,13 @@ input[type="number"]::-webkit-outer-spin-button, input[type="number"]::-webkit-i
 }
 
 .roomUserItem {
-  width: 11rem;
   margin: 0;
   padding: .25rem 0 .25rem .25rem;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
   cursor: pointer;
+  border-bottom: solid .5px var(--color-gray-lighter);
 
   [dir="rtl"] & {
     padding: .25rem .25rem .25rem 0;
@@ -343,4 +343,24 @@ input[type="number"]::-webkit-outer-spin-button, input[type="number"]::-webkit-i
 
 .errorBorder {
   border-color: var(--color-danger) !important;
+}
+
+.disableItem {
+  cursor: not-allowed;
+  color: var(--color-gray-lighter);
+}
+
+.lockIcon {
+  float: right;
+  margin-right: 1rem;
+  @include mq($small-only) {
+    margin-left: .5rem;
+    margin-right: auto;
+    float: left;
+  }
+  &:after {
+    font-family: 'bbb-icons';
+    content: "\E926";
+    color: var(--color-gray-light);
+  }
 }

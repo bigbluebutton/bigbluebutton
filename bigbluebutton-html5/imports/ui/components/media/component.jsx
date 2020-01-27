@@ -74,21 +74,29 @@ export default class Media extends Component {
         <div
           className={!swapLayout ? contentClassName : overlayClassName}
           style={{
-            maxHeight: (
-              webcamPlacement === 'left'
-              || webcamPlacement === 'right'
-              || webcamPlacement === 'floating'
+            maxHeight: usersVideo.length > 0
+            && (
+              webcamPlacement !== 'left'
+              || webcamPlacement !== 'right'
             )
-              ? '100%'
-              : '80%',
-            minHeight: BROWSER_ISMOBILE && window.innerWidth > window.innerHeight ? '50%' : '20%',
-            maxWidth: (
+            && (
               webcamPlacement === 'top'
               || webcamPlacement === 'bottom'
-              || webcamPlacement === 'floating'
             )
-              ? '100%'
-              : '80%',
+              ? '80%'
+              : '100%',
+            minHeight: BROWSER_ISMOBILE && window.innerWidth > window.innerHeight ? '50%' : '20%',
+            maxWidth: usersVideo.length > 0
+            && (
+              webcamPlacement !== 'top'
+              || webcamPlacement !== 'bottom'
+            )
+            && (
+              webcamPlacement === 'left'
+              || webcamPlacement === 'right'
+            )
+              ? '80%'
+              : '100%',
             minWidth: '20%',
           }}
         >
