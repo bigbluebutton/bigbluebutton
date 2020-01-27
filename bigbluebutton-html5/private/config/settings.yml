@@ -169,6 +169,7 @@ public:
   layout:
     autoSwapLayout: false
     hidePresentation: false
+    webcamsDefaultPlacement: "top"
   media:
     stunTurnServersFetchAddress: "/bigbluebutton/api/stuns"
     mediaTag: "#remote-media"

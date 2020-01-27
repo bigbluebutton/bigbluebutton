@@ -6,7 +6,7 @@ const { webcamsDefaultPlacement } = Meteor.settings.public.layout;
 export const WebcamDraggableContext = createContext();
 
 const initialState = {
-  placement: webcamsDefaultPlacement,
+  placement: webcamsDefaultPlacement || 'top',
   lastPlacementLandscape: 'top',
   lastPlacementPortrait: 'left',
   orientation: null,
