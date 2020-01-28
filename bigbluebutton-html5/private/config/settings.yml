@@ -358,7 +358,7 @@ private:
     - browser: firefoxMobile
       version: 68
     - browser: edge
-      version: 72
+      version: 79
     - browser: ie
       version: Infinity
     - browser: safari
