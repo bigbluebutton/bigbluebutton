@@ -86,7 +86,7 @@ public:
     enableNetworkMonitoring: false
     packetLostThreshold: 10
   kurento:
-    wsUrl: HOST
+    wsUrl:  ws://10.0.2.15/bbb-webrtc-sfu
     chromeDefaultExtensionKey: akgoaoikmbmhcopjgakkcepdgdgkjfbc
     chromeDefaultExtensionLink: https://chrome.google.com/webstore/detail/bigbluebutton-screenshare/akgoaoikmbmhcopjgakkcepdgdgkjfbc
     chromeExtensionKey: KEY
