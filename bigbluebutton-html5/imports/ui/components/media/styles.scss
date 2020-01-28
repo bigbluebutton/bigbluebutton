@@ -95,6 +95,7 @@ $after-content-order: 3;
   order: 2 !important;
 }
 
+// used to fully hide the presentation area when minimized
 .hideOverlay {
   visibility: hidden !important;
   position: absolute !important;
