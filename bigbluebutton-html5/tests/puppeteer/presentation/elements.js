@@ -1,8 +1,8 @@
 exports.presentationToolbarWrapper = '#presentationToolbarWrapper';
-exports.nextSlide = 'button[aria-label="Next slide"]';
-exports.prevSlide = 'button[aria-label="Previous slide"]';
+exports.nextSlide = '[data-test="nextSlide"]';
+exports.prevSlide = '[data-test="prevSlide"]';
 exports.fileUpload = 'input[type="file"]';
-exports.start = 'button[aria-label="Start"]';
+exports.upload = 'button[aria-label="Upload "]';
 exports.cancel = 'button[aria-label="Cancel]';
 exports.uploadPresentation = '[data-test="uploadPresentation"]';
-exports.skipSlide = '#skipSlide';
+exports.skipSlide = '[data-test="skipSlide"]';
