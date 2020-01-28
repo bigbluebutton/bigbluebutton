@@ -178,6 +178,22 @@ public:
     callHangupMaximumRetries: 10
     echoTestNumber: '9196'
     relayOnlyOnReconnect: false
+  stats:
+    enabled: false
+    interval: 2000
+    length: 5
+    jitter:
+      - 10
+      - 20
+      - 30
+    loss:
+      - 0.05
+      - 0.1
+      - 0.2
+    level:
+      - warning
+      - danger
+      - critical
   presentation:
     allowDownloadable: true
     defaultPresentationFile: default.pdf

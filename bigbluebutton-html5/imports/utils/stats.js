@@ -1,7 +1,9 @@
 import logger from '/imports/startup/client/logger';
 
-const STATS_LENGTH = 5;
-const STATS_INTERVAL = 2000;
+const STATS = Meteor.settings.public.stats;
+
+const STATS_LENGTH = STATS.length;
+const STATS_INTERVAL = STATS.interval;
 
 const stop = callback => {
   logger.info(
