@@ -156,6 +156,7 @@ export default class MessageListItem extends PureComponent {
         ref={(ref) => { this.text = ref; }}
         dangerouslySetInnerHTML={{ __html: text }}
         className={className}
+        data-test="chatMessageText"
       />
     );
   }
