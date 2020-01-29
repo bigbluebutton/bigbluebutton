@@ -182,6 +182,7 @@ public:
     enabled: false
     interval: 2000
     length: 5
+    log: false
     jitter:
       - 10
       - 20
