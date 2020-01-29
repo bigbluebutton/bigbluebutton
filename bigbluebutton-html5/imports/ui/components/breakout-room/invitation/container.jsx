@@ -18,4 +18,5 @@ export default withTracker(() => ({
   getBreakoutByUser: BreakoutService.getBreakoutByUser,
   currentBreakoutUser: BreakoutService.getBreakoutUserByUserId(Auth.userID),
   breakoutUserIsIn: BreakoutService.getBreakoutUserIsIn(Auth.userID),
+  amIModerator: BreakoutService.amIModerator(),
 }))(BreakoutRoomInvitationContainer);

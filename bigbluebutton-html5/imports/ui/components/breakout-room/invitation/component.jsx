@@ -60,6 +60,7 @@ class BreakoutRoomInvitation extends Component {
       currentBreakoutUser,
       getBreakoutByUser,
       breakoutUserIsIn,
+      amIModerator,
     } = this.props;
 
     const {
@@ -72,7 +73,7 @@ class BreakoutRoomInvitation extends Component {
       closeBreakoutJoinConfirmation(mountModal);
     }
 
-    if (hasBreakouts && !breakoutUserIsIn) {
+    if (hasBreakouts && !breakoutUserIsIn && !amIModerator) {
       // Have to check for freeJoin breakouts first because currentBreakoutUser will
       // populate after a room has been joined
       const freeJoinBreakout = breakouts.find(breakout => breakout.freeJoin);
