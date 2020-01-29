@@ -10,7 +10,7 @@ import { styles } from './styles.scss';
 import ZoomTool from './zoom-tool/component';
 import FullscreenButtonContainer from '../../fullscreen-button/container';
 import Tooltip from '/imports/ui/components/tooltip/component';
-import QuickPollDropdown from '/imports/ui/components/actions-bar/quick-poll-dropdown/component';
+import QuickPollDropdownContainer from '/imports/ui/components/actions-bar/quick-poll-dropdown/container';
 import KEY_CODES from '/imports/utils/keyCodes';
 
 const intlMessages = defineMessages({
@@ -242,7 +242,7 @@ class PresentationToolbar extends PureComponent {
           <div>
             {isPollingEnabled
               ? (
-                <QuickPollDropdown
+                <QuickPollDropdownContainer
                   {...{
                     currentSlidHasContent,
                     intl,

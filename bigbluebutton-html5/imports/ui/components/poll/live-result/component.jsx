@@ -189,6 +189,7 @@ class LiveResult extends PureComponent {
             <Button
               disabled={!isMeteorConnected}
               onClick={() => {
+                Session.set('pollInitiated', false);
                 Service.publishPoll();
                 stopPoll();
               }}

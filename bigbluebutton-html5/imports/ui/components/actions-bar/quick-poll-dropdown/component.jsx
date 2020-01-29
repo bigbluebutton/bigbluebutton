@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { defineMessages, intlShape } from 'react-intl';
 import _ from 'lodash';
@@ -44,6 +44,7 @@ const handleClickQuickPoll = (slideId, poll) => {
   const { type } = poll;
   Session.set('openPanel', 'poll');
   Session.set('forcePollOpen', true);
+  Session.set('pollInitiated', true);
 
   makeCall('startPoll', type, slideId);
 };
@@ -87,71 +88,91 @@ const getAvailableQuickPolls = (slideId, parsedSlides) => {
   });
 };
 
-const QuickPollDropdown = (props) => {
-  const {
-    amIPresenter, intl, parseCurrentSlideContent, startPoll, currentSlide,
-  } = props;
-  const parsedSlide = parseCurrentSlideContent(
-    intl.formatMessage(intlMessages.yesOptionLabel),
-    intl.formatMessage(intlMessages.noOptionLabel),
-    intl.formatMessage(intlMessages.trueOptionLabel),
-    intl.formatMessage(intlMessages.falseOptionLabel),
-  );
+class QuickPollDropdown extends Component {
+  render() {
+    const {
+      amIPresenter,
+      intl,
+      parseCurrentSlideContent,
+      startPoll,
+      currentSlide,
+      activePoll,
+    } = this.props;
 
-  const { slideId, quickPollOptions } = parsedSlide;
-  const quickPolls = getAvailableQuickPolls(slideId, quickPollOptions);
+    const parsedSlide = parseCurrentSlideContent(
+      intl.formatMessage(intlMessages.yesOptionLabel),
+      intl.formatMessage(intlMessages.noOptionLabel),
+      intl.formatMessage(intlMessages.trueOptionLabel),
+      intl.formatMessage(intlMessages.falseOptionLabel),
+    );
 
-  if (quickPollOptions.length === 0) return null;
+    const { slideId, quickPollOptions } = parsedSlide;
+    const quickPolls = getAvailableQuickPolls(slideId, quickPollOptions);
 
-  let quickPollLabel = '';
-  if (quickPolls.length > 0) {
-    const { props: pollProps } = quickPolls[0];
-    quickPollLabel = pollProps.label;
-  }
+    if (quickPollOptions.length === 0) return null;
 
-  let singlePollType = null;
-  if (quickPolls.length === 1 && quickPollOptions.length) {
-    const { type } = quickPollOptions[0];
-    singlePollType = type;
-  }
+    let quickPollLabel = '';
+    if (quickPolls.length > 0) {
+      const { props: pollProps } = quickPolls[0];
+      quickPollLabel = pollProps.label;
+    }
 
-  const btn = (
-    <Button
-      aria-label={intl.formatMessage(intlMessages.quickPollLabel)}
-      className={styles.quickPollBtn}
-      label={quickPollLabel}
-      tooltipLabel={intl.formatMessage(intlMessages.quickPollLabel)}
-      onClick={() => startPoll(singlePollType, currentSlide.id)}
-      size="lg"
-    />
-  );
+    let singlePollType = null;
+    if (quickPolls.length === 1 && quickPollOptions.length) {
+      const { type } = quickPollOptions[0];
+      singlePollType = type;
+    }
 
-  const usePollDropdown = quickPollOptions && quickPollOptions.length && quickPolls.length > 1;
-  let dropdown = null;
+    let btn = (
+      <Button
+        aria-label={intl.formatMessage(intlMessages.quickPollLabel)}
+        className={styles.quickPollBtn}
+        label={quickPollLabel}
+        tooltipLabel={intl.formatMessage(intlMessages.quickPollLabel)}
+        onClick={() => startPoll(singlePollType, currentSlide.id)}
+        size="lg"
+        disabled={!!activePoll}
+      />
+    );
 
-  if (usePollDropdown) {
-    btn.props.onClick = null;
+    const usePollDropdown = quickPollOptions && quickPollOptions.length && quickPolls.length > 1;
+    let dropdown = null;
 
-    dropdown = (
-      <Dropdown>
-        <DropdownTrigger tabIndex={0}>
-          {btn}
-        </DropdownTrigger>
-        <DropdownContent placement="top left">
-          <DropdownList>
-            {quickPolls}
-          </DropdownList>
-        </DropdownContent>
-      </Dropdown>
+    if (usePollDropdown) {
+      btn = (
+        <Button
+          aria-label={intl.formatMessage(intlMessages.quickPollLabel)}
+          className={styles.quickPollBtn}
+          label={quickPollLabel}
+          tooltipLabel={intl.formatMessage(intlMessages.quickPollLabel)}
+          onClick={() => null}
+          size="lg"
+          disabled={!!activePoll}
+        />
+      );
+
+      dropdown = (
+        <Dropdown>
+          <DropdownTrigger tabIndex={0}>
+            {btn}
+          </DropdownTrigger>
+          <DropdownContent placement="top left">
+            <DropdownList>
+              {quickPolls}
+            </DropdownList>
+          </DropdownContent>
+        </Dropdown>
+      );
+    }
+
+    return amIPresenter && usePollDropdown ? (
+      dropdown
+    ) : (
+      btn
     );
   }
+}
 
-  return amIPresenter && usePollDropdown ? (
-    dropdown
-  ) : (
-    btn
-  );
-};
 
 QuickPollDropdown.propTypes = propTypes;
 

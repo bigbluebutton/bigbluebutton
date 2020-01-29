@@ -4,7 +4,6 @@ import { withTracker } from 'meteor/react-meteor-data';
 import PresentationService from '/imports/ui/components/presentation/service';
 import MediaService from '/imports/ui/components/media/service';
 import Service from '/imports/ui/components/actions-bar/service';
-import Presentations from '/imports/api/presentations';
 import { makeCall } from '/imports/ui/services/api';
 import PresentationToolbar from './component';
 import PresentationToolbarService from './service';
@@ -33,7 +32,6 @@ export default withTracker((params) => {
   const {
     podId,
     presentationId,
-    currentSlide,
   } = params;
 
   const startPoll = (type, id) => {
