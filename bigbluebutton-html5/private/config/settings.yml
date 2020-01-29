@@ -88,7 +88,7 @@ public:
     packetLostThreshold: 10
   kurento:
     wsUrl: HOST
-    chromeDefaultExtensionKey: fhgnhnjcnkmgmbpebmpankimbdfifdkj
+    chromeDefaultExtensionKey: akgoaoikmbmhcopjgakkcepdgdgkjfbc
     chromeDefaultExtensionLink: https://chrome.google.com/webstore/detail/bigbluebutton-screenshare/akgoaoikmbmhcopjgakkcepdgdgkjfbc
     chromeExtensionKey: KEY
     chromeExtensionLink: LINK
