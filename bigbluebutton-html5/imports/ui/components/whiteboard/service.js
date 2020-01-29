@@ -3,7 +3,8 @@ import Auth from '/imports/ui/services/auth';
 import WhiteboardMultiUser from '/imports/api/whiteboard-multi-user/';
 import addAnnotationQuery from '/imports/api/annotations/addAnnotation';
 import logger from '/imports/startup/client/logger';
-import { makeCall } from '/imports/ui/services/api';
+import { whiteboardCall } from '/imports/ui/services/api';
+import { whiteboardConnection } from '/imports/ui/components/app/service';
 import { isEqual } from 'lodash';
 
 const Annotations = new Mongo.Collection(null);
@@ -100,7 +101,9 @@ function handleRemovedAnnotation({
 
 export function initAnnotationsStreamListener() {
   if (!annotationsStreamListener) {
-    annotationsStreamListener = new Meteor.Streamer(`annotations-${Auth.meetingID}`, { retransmit: false });
+    annotationsStreamListener = new Meteor.Streamer(`annotations-${Auth.meetingID}`, { ddpConnection: whiteboardConnection });
+
+    whiteboardCall('authenticateWhiteboardConnection');
 
     annotationsStreamListener.on('removed', handleRemovedAnnotation);
 
@@ -154,8 +157,7 @@ const proccessAnnotationsQueue = async () => {
 
   const annotations = annotationsQueue.splice(0, queueSize);
 
-  // console.log('annotationQueue.length', annotationsQueue, annotationsQueue.length);
-  await makeCall('sendBulkAnnotations', annotations.filter(({ id }) => !discardedList.includes(id)));
+  await whiteboardCall('sendBulkAnnotations', annotations.filter(({ id }) => !discardedList.includes(id)));
 
   // ask tiago
   const delayPerc = Math.min(annotationsMaxDelayQueueSize, queueSize) / annotationsMaxDelayQueueSize;

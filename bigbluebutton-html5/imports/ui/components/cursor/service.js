@@ -1,4 +1,5 @@
 import Auth from '/imports/ui/services/auth';
+import { whiteboardConnection } from '/imports/ui/components/app/service';
 import { throttle } from 'lodash';
 import logger from '/imports/startup/client/logger';
 
@@ -40,7 +41,7 @@ export function initCursorStreamListener() {
   }, 'initCursorStreamListener called');
 
   if (!cursorStreamListener) {
-    cursorStreamListener = new Meteor.Streamer(`cursor-${Auth.meetingID}`, { retransmit: false });
+    cursorStreamListener = new Meteor.Streamer(`cursor-${Auth.meetingID}`, { ddpConnection: whiteboardConnection });
 
     logger.debug({
       logCode: 'init_cursor_stream_listener',

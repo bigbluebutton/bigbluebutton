@@ -27,9 +27,12 @@ const validIOSVersion = () => {
   return true;
 };
 
+const whiteboardConnection = DDP.connect('https://bbb001.bbbvm.imdt.com.br/html5client-wb');
+
 export {
   getFontSize,
   meetingIsBreakout,
   getBreakoutRooms,
   validIOSVersion,
+  whiteboardConnection,
 };
