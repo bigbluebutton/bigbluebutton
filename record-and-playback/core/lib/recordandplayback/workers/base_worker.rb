@@ -1,7 +1,6 @@
-#!/usr/bin/ruby
-# encoding: utf-8
+# frozen_string_literal: true
 
-# Copyright ⓒ 2017 BigBlueButton Inc. and by respective authors.
+# Copyright © 2017 BigBlueButton Inc. and by respective authors.
 #
 # This file is part of BigBlueButton open source conferencing system.
 #
@@ -18,8 +17,7 @@
 # You should have received a copy of the GNU Lesser General Public License
 # along with BigBlueButton.  If not, see <http://www.gnu.org/licenses/>.
 
-require File.expand_path('../../../lib/recordandplayback', __FILE__)
-require File.expand_path('../workers', __FILE__)
+require 'recordandplayback'
 require 'rubygems'
 require 'yaml'
 require 'fileutils'
@@ -44,12 +42,10 @@ module BigBlueButton
         success = yield
         @logger.info("Ended worker #{@step_name} for #{@meeting_id} with result #{success}")
 
-        if success
-          schedule_next_step unless @single_step
-        else
-          raise "Worker #{@step_name} for #{@meeting_id} failed with result #{success}"
-        end
-      rescue Exception => e
+        raise "Worker #{@step_name} for #{@meeting_id} failed with result #{success}" unless success
+
+        schedule_next_step unless @single_step
+      rescue StandardError => e
         @logger.error(e.message)
         e.backtrace.each do |traceline|
           @logger.error(traceline)
@@ -62,8 +58,8 @@ module BigBlueButton
         Dir.glob(glob).sort.each do |post_script|
           match = %r{([^/]*).rb$}.match(post_script)
           post_type = match[1]
-          @logger.info("Running post #{@step_name} script #{post_type}")
 
+          @logger.info("Running post #{@step_name} script #{post_type}")
           post_started_method(post_type, @meeting_id)
 
           if @format_name.nil?
@@ -73,15 +69,8 @@ module BigBlueButton
           end
           step_succeeded = ret.zero?
 
-          post_ended_method(
-            post_type, @meeting_id, {
-              success: step_succeeded,
-              step_time: step_time,
-            })
-
-          unless step_succeeded
-            @logger.warn("Post #{@step_name} script #{post_script}/#{post_type} failed")
-          end
+          @logger.warn("Post #{@step_name} script #{post_script}/#{post_type} failed") unless step_succeeded
+          post_ended_method(post_type, @meeting_id, success: step_succeeded, step_time: step_time)
         end
       end
 
@@ -147,12 +136,12 @@ module BigBlueButton
       end
 
       def initialize(opts)
-        props = BigBlueButton.read_props
+        @props = BigBlueButton.read_props
         BigBlueButton.create_redis_publisher
 
         @publisher = BigBlueButton.redis_publisher
-        @log_dir = props['log_dir']
-        @recording_dir = props['recording_dir']
+        @log_dir = @props['log_dir']
+        @recording_dir = @props['recording_dir']
         @meeting_id = opts['meeting_id']
         @break_timestamp = opts['break_timestamp']
         @single_step = opts['single_step'] || false

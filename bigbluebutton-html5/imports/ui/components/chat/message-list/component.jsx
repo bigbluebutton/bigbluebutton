@@ -264,7 +264,7 @@ class MessageList extends Component {
     } = this.state;
 
     return (
-      [<div className={styles.messageListWrapper} key="chat-list">
+      [<div className={styles.messageListWrapper} key="chat-list" data-test="chatMessages">
         <AutoSizer>
           {({ height, width }) => {
             if (width !== this.lastWidth) {

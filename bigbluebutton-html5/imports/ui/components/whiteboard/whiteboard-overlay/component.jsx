@@ -10,6 +10,7 @@ export default class WhiteboardOverlay extends Component {
   // accepts and returns a point of type SvgPoint and an svg object
   static coordinateTransform(screenPoint, someSvgObject) {
     const CTM = someSvgObject.getScreenCTM();
+    if (!CTM) return {};
     return screenPoint.matrixTransform(CTM.inverse());
   }
 
