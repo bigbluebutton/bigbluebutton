@@ -183,6 +183,13 @@ public class Meeting {
 	    return users;
 	}
 
+	public void guestIsWaiting(String userId) {
+		RegisteredUser ruser = registeredUsers.get(userId);
+		if (ruser != null) {
+			ruser.updateGuestWaitedOn();
+		}
+	}
+
 	public void setGuestStatusWithId(String userId, String guestStatus) {
     	User user = getUserById(userId);
     	if (user != null) {

@@ -28,6 +28,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
 
     <bean id="registeredUserCleanupTimerTask" class="org.bigbluebutton.web.services.RegisteredUserCleanupTimerTask"/>
+    <bean id="waitingGuestCleanupTimerTask" class="org.bigbluebutton.web.services.WaitingGuestCleanupTimerTask"/>
 
     <bean id="keepAliveService" class="org.bigbluebutton.web.services.KeepAliveService"
           init-method="start" destroy-method="stop">
@@ -42,6 +43,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         <property name="paramsProcessorUtil" ref="paramsProcessorUtil"/>
         <property name="stunTurnService" ref="stunTurnService"/>
         <property name="registeredUserCleanupTimerTask" ref="registeredUserCleanupTimerTask"/>
+        <property name="waitingGuestCleanupTimerTask" ref="waitingGuestCleanupTimerTask"/>
         <property name="gw" ref="bbbWebApiGWApp"/>
         <property name="callbackUrlService" ref="callbackUrlService"/>
         <property name="keepEvents" value="${keepEvents}"/>
