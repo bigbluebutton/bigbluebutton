@@ -798,10 +798,9 @@ class VideoProvider extends Component {
   }
 
   _getOnIceCandidateCallback(id, shareWebcam) {
-    const peer = this.webRtcPeers[id];
-    const role = shareWebcam ? 'share' : 'viewer';
-
     return (candidate) => {
+      const peer = this.webRtcPeers[id];
+      const role = shareWebcam ? 'share' : 'viewer';
       // Setup a timeout only when the first candidate is generated and if the peer wasn't
       // marked as started already (which is done on handlePlayStart after
       // it was verified that media could circle through the server)
