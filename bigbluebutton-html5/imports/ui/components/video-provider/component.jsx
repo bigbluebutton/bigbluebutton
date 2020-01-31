@@ -618,10 +618,9 @@ class VideoProvider extends Component {
   }
 
   _getOnIceCandidateCallback(cameraId, isLocal) {
-    const peer = this.webRtcPeers[cameraId];
-    const role = VideoService.getRole(isLocal);
-
     return (candidate) => {
+      const peer = this.webRtcPeers[cameraId];
+      const role = VideoService.getRole(isLocal);
       // Setup a timeout only when the first candidate is generated and if the peer wasn't
       // marked as started already (which is done on handlePlayStart after
       // it was verified that media could circle through the server)
