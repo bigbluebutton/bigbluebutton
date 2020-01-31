@@ -3,7 +3,6 @@ public:
     mobileFontSize: 16px
     desktopFontSize: 14px
     audioChatNotification: false
-    showParticipantsOnLogin: true
     autoJoin: true
     listenOnlyMode: true
     forceListenOnly: false
