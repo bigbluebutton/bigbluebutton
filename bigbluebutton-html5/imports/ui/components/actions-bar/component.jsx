@@ -46,7 +46,29 @@ class ActionsBar extends PureComponent {
 
     return (
       <div className={styles.actionsbar}>
-        <div className={styles.left}>
+
+        <div className={cx(actionBarClasses)}>
+          <AudioControlsContainer />
+          {enableVideo
+            ? (
+              <JoinVideoOptionsContainer
+                handleJoinVideo={handleJoinVideo}
+                handleCloseVideo={handleExitVideo}
+              />
+            )
+            : null}
+          <DesktopShare {...{
+            handleShareScreen,
+            handleUnshareScreen,
+            isVideoBroadcasting,
+            amIPresenter,
+            screenSharingCheck,
+            screenShareEndAlert,
+            isMeteorConnected,
+            screenshareDataSavingSetting,
+          }}
+          />
+
           <ActionsDropdown {...{
             amIPresenter,
             amIModerator,
@@ -77,28 +99,6 @@ class ActionsBar extends PureComponent {
             )
             : null
           }
-        </div>
-        <div className={cx(actionBarClasses)}>
-          <AudioControlsContainer />
-          {enableVideo
-            ? (
-              <JoinVideoOptionsContainer
-                handleJoinVideo={handleJoinVideo}
-                handleCloseVideo={handleExitVideo}
-              />
-            )
-            : null}
-          <DesktopShare {...{
-            handleShareScreen,
-            handleUnshareScreen,
-            isVideoBroadcasting,
-            amIPresenter,
-            screenSharingCheck,
-            screenShareEndAlert,
-            isMeteorConnected,
-            screenshareDataSavingSetting,
-          }}
-          />
         </div>
         <div className={styles.right}>
           {isLayoutSwapped
