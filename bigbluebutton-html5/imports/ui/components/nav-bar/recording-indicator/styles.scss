@@ -18,7 +18,7 @@
     border: none;
     box-shadow: none;
     background-color: transparent !important;
-    color: var(--color-white) !important;
+    color: #5594D4 !important;
   }
 
   &:hover {
@@ -49,7 +49,7 @@
   @extend %recordingControl;
 
   padding: 7px;
-  border: var(--border-size-small) solid var(--color-white);
+  border: var(--border-size-small) solid #5594D4;
   
   &:focus {
     padding: 5px;
@@ -62,8 +62,9 @@
   display: flex;
   flex-direction: column;
   justify-content: center;
-  font-weight: 200;
-  color: var(--color-white);
+  font-weight: 500;
+  font-family: Montserrat;
+  color: #5594D4 !important;
   font-size: var(--font-size-base);
   padding: 0;
   margin-left: var(--sm-padding-x);
@@ -95,6 +96,7 @@
   width: var(--font-size-large);
   height: var(--font-size-large);
   font-size: var(--font-size-base);
+  color:#5594D4;
 }
 
 .recordingIndicator {

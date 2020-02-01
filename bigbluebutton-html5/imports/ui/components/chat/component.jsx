@@ -66,6 +66,7 @@ const Chat = (props) => {
             label={title}
             icon="left_arrow"
             className={styles.hideBtn}
+            color="primary"
           />
         </div>
         {
