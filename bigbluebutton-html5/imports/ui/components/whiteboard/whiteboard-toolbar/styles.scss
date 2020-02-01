@@ -133,11 +133,11 @@
   align-items: center !important;
   justify-content: center !important;
   position: relative;
-  border-radius: 0;
+  border-radius: 50%;
   box-shadow: none !important;
   z-index: 1;
   font-size: var(--toolbar-button-font-size);
-  color: var(--toolbar-button-color);
+  color: #5594D4;
   background-color: var(--toolbar-button-bg);
   border-color: var(--toolbar-button-border-color);
 
@@ -147,7 +147,7 @@
   }
 
   i {
-    color: var(--toolbar-button-color);
+    color: #5594D4;
   }
 
   &.toolbarActive {

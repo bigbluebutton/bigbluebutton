@@ -16,11 +16,13 @@
 .userNameMain {
   @extend %no-margin;
   font-size: 0.9rem;
+  font-family: Muli;
+  font-style: normal;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-  font-weight: 400;
-  color: var(--color-gray-dark);
+  font-weight: normal;
+  color: #82B3E3;
   display: flex;
   flex-direction: row;
 

@@ -41,7 +41,7 @@
   i {
     width: auto;
     font-size: var(--font-size-base) !important;
-    color: var(--color-gray-dark) !important;
+    color: #008DB1 !important;
     background-color: transparent !important;
   }
 
@@ -51,3 +51,6 @@
   }
 }
 
+.costomSettingsColor {
+  color:#008DB1 !important;
+}

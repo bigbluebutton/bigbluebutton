@@ -83,7 +83,7 @@
 .userList {
   @extend %flex-column;
   justify-content: flex-start;
-  background-color: var(--user-list-bg);
+  background-color: #03213F;
   color: var(--user-list-text);
   height: 100%;
   padding-top: var(--md-padding-x);
@@ -135,11 +135,15 @@
 
 .smallTitle {
   font-size: 0.85rem;
+  font-family: Montserrat;
+  font-style: normal;
+  font-size: 10px;
+  line-height: 12px;
   font-weight: 600;
   text-transform: uppercase;
   padding: 0 var(--sm-padding-x);
   margin: 0 0 (var(--lg-padding-x) / 2) 0;
-  color: var(--color-gray);
+  color: #006CD8;
 }
 
 .userListColumn {
