@@ -31,7 +31,9 @@
     white-space: nowrap;
     overflow: hidden;
   }
-
+  > i {
+    font-style: normal;
+  }
   :global(.animationsEnabled) & {
     transition: all .3s;
   }
