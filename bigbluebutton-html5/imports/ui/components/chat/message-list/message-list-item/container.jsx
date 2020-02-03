@@ -13,10 +13,36 @@ class MessageListItemContainer extends PureComponent {
 
 export default withTracker(({ message }) => {
   const mappedMessage = ChatService.mapGroupMessage(message);
+  const messages = mappedMessage.content;
+
+  const chats = [];
+  const polls = [];
+
+  if (messages.length > 0) {
+    messages.forEach((m) => {
+      if (m.text.includes('<br/>')) {
+        polls.push(m);
+      } else {
+        chats.push(m);
+      }
+    });
+  }
 
   return {
-    messages: mappedMessage.content,
+    messages,
     user: mappedMessage.sender,
     time: mappedMessage.time,
+    chats,
+    polls,
+    isDefaultPoll: (pollText) => {
+      const pollValue = pollText.replace(/<br\/>|[ :|%\n\d+]/g, '');
+      switch (pollValue) {
+        case 'A': case 'AB': case 'ABC': case 'ABCD':
+        case 'ABCDE': case 'YesNo': case 'TrueFalse':
+          return true;
+        default:
+          return false;
+      }
+    },
   };
 })(MessageListItemContainer);
