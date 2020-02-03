@@ -20,6 +20,7 @@ const propTypes = {
   webcamDraggableState: PropTypes.objectOf(Object).isRequired,
   webcamDraggableDispatch: PropTypes.func.isRequired,
   refMediaContainer: PropTypes.shape({ current: PropTypes.instanceOf(Element) }),
+  usersVideoLenght: PropTypes.number.isRequired,
 };
 
 const defaultProps = {
@@ -51,13 +52,19 @@ class WebcamDraggable extends PureComponent {
   }
 
   componentDidMount() {
+    dispatchResizeEvent();
     window.addEventListener('resize', this.debouncedOnResize);
     document.addEventListener('fullscreenchange', this.onFullscreenChange);
     window.addEventListener('orientationchange', () => setTimeout(this.recalculateAreaSize, 500));
   }
 
   componentDidUpdate(prevProps) {
-    const { swapLayout, webcamDraggableState, webcamDraggableDispatch } = this.props;
+    const {
+      swapLayout,
+      webcamDraggableState,
+      webcamDraggableDispatch,
+      usersVideoLenght,
+    } = this.props;
     const {
       placement: statePlacement,
       orientation,
@@ -72,6 +79,10 @@ class WebcamDraggable extends PureComponent {
     if (prevPlacement !== statePlacement) {
       setTimeout(() => this.forceUpdate(), 200);
       setTimeout(() => window.dispatchEvent(new Event('resize')), 500);
+    }
+
+    if (prevProps.usersVideoLenght !== usersVideoLenght) {
+      dispatchResizeEvent();
     }
 
     if (prevOrientation !== orientation) {
@@ -90,6 +101,7 @@ class WebcamDraggable extends PureComponent {
   componentWillUnmount() {
     window.removeEventListener('resize', this.debouncedOnResize);
     document.removeEventListener('fullscreenchange', this.onFullscreenChange);
+    dispatchResizeEvent();
   }
 
   onFullscreenChange() {
