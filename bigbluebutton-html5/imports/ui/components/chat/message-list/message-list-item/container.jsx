@@ -20,7 +20,8 @@ export default withTracker(({ message }) => {
 
   if (messages.length > 0) {
     messages.forEach((m) => {
-      if (m.text.includes('<br/>')) {
+      if (m.text.includes('bbb-published-poll-<br/>')) {
+        m.text = m.text.replace(/^bbb-published-poll-<br\/>/g, '');
         polls.push(m);
       } else {
         chats.push(m);

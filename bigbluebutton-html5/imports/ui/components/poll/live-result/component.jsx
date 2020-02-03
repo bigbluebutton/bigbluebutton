@@ -193,7 +193,7 @@ class LiveResult extends PureComponent {
                 Service.publishPoll();
                 const { answers, numRespondents } = currentPoll;
 
-                let resultString = '\n';
+                let resultString = 'bbb-published-poll-\n';
                 answers.forEach((item) => {
                   const pct = Math.round(item.numVotes / numRespondents * 100);
                   const pctFotmatted = `${Number.isNaN(pct) ? 0 : pct}%`;
