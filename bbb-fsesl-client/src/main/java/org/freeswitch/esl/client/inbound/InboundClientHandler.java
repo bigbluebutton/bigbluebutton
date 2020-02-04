@@ -23,6 +23,7 @@ import org.freeswitch.esl.client.transport.message.EslHeaders.Value;
 import org.freeswitch.esl.client.transport.message.EslMessage;
 import org.jboss.netty.channel.ChannelHandlerContext;
 import org.jboss.netty.handler.execution.ExecutionHandler;
+import org.jboss.netty.channel.ExceptionEvent;
 
 /**
  * End users of the inbound {@link Client} should not need to use this class. 
@@ -82,5 +83,15 @@ public class InboundClientHandler extends AbstractEslClientHandler
         log.debug( "Received disconnection notice" );
         listener.disconnected();
     }
-    
+
+    @Override
+    public void exceptionCaught(ChannelHandlerContext ctx, ExceptionEvent e) throws Exception
+    {
+        if ("WAIT_FOR_ESL_RESPONSE_TIMEOUT".equals(e.getCause().getMessage())) {
+            throw new RuntimeException("WAIT_FOR_ESL_RESPONSE_TIMEOUT");
+        } else {
+            log.warn(e.getCause().getMessage());
+        }
+
+    }
 }
