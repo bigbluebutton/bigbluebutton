@@ -9,6 +9,7 @@ import createNote from '/imports/api/note/server/methods/createNote';
 import createCaptions from '/imports/api/captions/server/methods/createCaptions';
 import { addAnnotationsStreamer } from '/imports/api/annotations/server/streamer';
 import { addCursorStreamer } from '/imports/api/cursor/server/streamer';
+import RedisPubSub from '/imports/startup/server/redis';
 
 export default function addMeeting(meeting) {
   const meetingId = meeting.meetingProp.intId;
@@ -149,6 +150,11 @@ export default function addMeeting(meeting) {
 
     if (numChanged) {
       Logger.info(`Upserted meeting id=${meetingId}`);
+    }
+
+    if (process.env.METEOR_ROLE === 'whiteboard') {
+      Logger.info(`Subscribing to from-akka-apps-wb-redis-channel-${meetingId}`);
+      RedisPubSub.meetingWhiteboardSubscribe(`from-akka-apps-wb-redis-channel-${meetingId}`);
     }
   };
 

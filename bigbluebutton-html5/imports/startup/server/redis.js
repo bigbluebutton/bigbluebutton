@@ -145,10 +145,18 @@ class RedisPubSub {
         this.sub.psubscribe('from-akka-apps-wb-redis-channel');
         break;
       default:
+        channelsToSubscribe.forEach((channel) => {
+          this.sub.psubscribe(channel);
+        });
         break;
     }
 
     this.debug(`Subscribed to '${channelsToSubscribe}'`);
+  }
+
+  meetingWhiteboardSubscribe(channel) {
+    this.sub.on('pmessage', Meteor.bindEnvironment(this.handleMessage));
+    this.sub.psubscribe(channel);
   }
 
   updateConfig(config) {

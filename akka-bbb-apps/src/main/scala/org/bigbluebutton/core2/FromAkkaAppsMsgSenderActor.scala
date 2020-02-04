@@ -59,9 +59,11 @@ class FromAkkaAppsMsgSenderActor(msgSender: MessageSender)
 
       // Whiteboard
       case SendWhiteboardAnnotationEvtMsg.NAME =>
-        msgSender.send(fromAkkaAppsWbRedisChannel, json)
+        val whiteboardMeetingChannel = fromAkkaAppsWbRedisChannel + "-" + msg.envelope.routing("meetingId")
+        msgSender.send(whiteboardMeetingChannel, json)
       case SendCursorPositionEvtMsg.NAME =>
-        msgSender.send(fromAkkaAppsWbRedisChannel, json)
+        val cursorMeetingChannel = fromAkkaAppsWbRedisChannel + "-" + msg.envelope.routing("meetingId")
+        msgSender.send(cursorMeetingChannel, json)
       case ClearWhiteboardEvtMsg.NAME =>
         msgSender.send(fromAkkaAppsWbRedisChannel, json)
       case UndoWhiteboardEvtMsg.NAME =>
