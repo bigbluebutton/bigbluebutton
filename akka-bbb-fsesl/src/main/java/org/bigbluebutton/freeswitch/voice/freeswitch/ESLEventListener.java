@@ -1,6 +1,7 @@
 package org.bigbluebutton.freeswitch.voice.freeswitch;
 
 
+import java.util.Iterator;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
@@ -52,6 +53,8 @@ public class ESLEventListener implements IEslEventListener {
     private static final Pattern GLOBAL_AUDION_PATTERN = Pattern.compile("(GLOBAL_AUDIO)_(.*)$");
     private static final Pattern CALLERNAME_PATTERN = Pattern.compile("(.*)-bbbID-(.*)$");
     private static final Pattern CALLERNAME_WITH_SESS_INFO_PATTERN = Pattern.compile("^(.*)_(\\d+)-bbbID-(.*)$");
+    private static final Pattern CALLERNAME_LISTENONLY_PATTERN = Pattern.compile("^(.*)_(\\d+)-bbbID-LISTENONLY-(.*)$");
+    private static final Pattern ECHO_TEST_DEST_PATTERN = Pattern.compile("^9196(\\d+)$");
     
     @Override
     public void conferenceEventJoin(String uniqueId, String confName, int confSize, EslEvent event) {
@@ -92,6 +95,22 @@ public class ESLEventListener implements IEslEventListener {
                 voiceUserId = "v_" + memberId.toString();
             }
 
+            String coreuuid = headers.get("Core-UUID");
+            String clientSession = "0";
+            String callState = "IN_CONFERENCE";
+            String origCallerIdName = headers.get("Caller-Caller-ID-Name");
+            String origCallerDestNumber = headers.get("Caller-Destination-Number");
+            VoiceCallStateEvent csEvent = new VoiceCallStateEvent(
+                    confName,
+                    coreuuid,
+                    clientSession,
+                    voiceUserId,
+                    callerIdName,
+                    callState,
+                    origCallerIdName,
+                    origCallerDestNumber);
+            conferenceEventListener.handleConferenceEvent(csEvent);
+
             String callerUUID = this.getMemberUUIDFromEvent(event);
             log.info("Caller joined: conf=" + confName +
                     ",uuid=" + callerUUID +
@@ -111,6 +130,8 @@ public class ESLEventListener implements IEslEventListener {
                     speaking,
                     "none");
             conferenceEventListener.handleConferenceEvent(pj);
+
+
         }
     }
 
@@ -243,13 +264,187 @@ public class ESLEventListener implements IEslEventListener {
     
     @Override
     public void eventReceived(EslEvent event) {
-        //System.out.println("ESL Event Listener received event=[" + event.getEventName() + "]" +
-        //        event.getEventHeaders().toString());
-        if (event.getEventName().equals("heartbeat")) {
-            log.info("Received heartbeat from FreeSWITCH");
-////           setChanged();
-//           notifyObservers(event);
-//           return; 
+//        System.out.println("*********** ESL Event Listener received event=[" + event.getEventName() + "]" +
+//                event.getEventHeaders().toString());
+
+        /**
+        Map<String, String> eventHeaders1 = event.getEventHeaders();
+         StringBuilder sb = new StringBuilder("");
+         sb.append("\n");
+         for (Iterator it = eventHeaders1.entrySet().iterator(); it.hasNext(); ) {
+         Map.Entry entry = (Map.Entry)it.next();
+         sb.append(entry.getKey());
+         sb.append(" => '");
+         sb.append(entry.getValue());
+         sb.append("'\n");
+         }
+
+         System.out.println("##### ===>>> " + sb.toString());
+         System.out.println("<<<=== #####");
+        **/
+
+        if (event.getEventName().equals("HEARTBEAT")) {
+            //log.info("Received heartbeat from FreeSWITCH");
+        } else if (event.getEventName().equals( "CHANNEL_EXECUTE" )) {
+            Map<String, String> eventHeaders = event.getEventHeaders();
+
+            String application = (eventHeaders.get("Application") == null) ? "" : eventHeaders.get("Application");
+            String channelCallState = (eventHeaders.get("Channel-Call-State") == null) ? "" : eventHeaders.get("Channel-Call-State");
+            String varvBridge = (eventHeaders.get("variable_vbridge") == null) ? "" : eventHeaders.get("variable_vbridge");
+
+            if ("echo".equalsIgnoreCase(application) && !varvBridge.isEmpty()) {
+                String origCallerIdName = eventHeaders.get("Caller-Caller-ID-Name");
+                String origCallerDestNumber = eventHeaders.get("Caller-Destination-Number");
+                String coreuuid = eventHeaders.get("Core-UUID");
+
+                //System.out.println("******** uuid=" + coreuuid + " " + origCallerIdName + " is in echo test " + origCallerDestNumber + " vbridge=" + varvBridge);
+
+                String voiceUserId = "";
+                String callerName = origCallerIdName;
+                String clientSession = "0";
+                String callState = "IN_ECHO_TEST";
+
+                Matcher callerListenOnly = CALLERNAME_LISTENONLY_PATTERN.matcher(origCallerIdName);
+                Matcher callWithSess = CALLERNAME_WITH_SESS_INFO_PATTERN.matcher(origCallerIdName);
+                if (callWithSess.matches()) {
+                    voiceUserId = callWithSess.group(1).trim();
+                    clientSession = callWithSess.group(2).trim();
+                    callerName = callWithSess.group(3).trim();
+                } else if (callerListenOnly.matches()) {
+                    voiceUserId = callerListenOnly.group(1).trim();
+                    clientSession = callWithSess.group(2).trim();
+                    callerName = callerListenOnly.group(3).trim();
+                }
+
+                VoiceCallStateEvent csEvent = new VoiceCallStateEvent(varvBridge,
+                        coreuuid,
+                        clientSession,
+                        voiceUserId,
+                        callerName,
+                        callState,
+                        origCallerIdName,
+                        origCallerDestNumber);
+                conferenceEventListener.handleConferenceEvent(csEvent);
+
+            } else if ("RINGING".equalsIgnoreCase(channelCallState) && !varvBridge.isEmpty()) {
+                String origCallerIdName = eventHeaders.get("Caller-Caller-ID-Name");
+                String origCallerDestNumber = eventHeaders.get("Caller-Destination-Number");
+                String coreuuid = eventHeaders.get("Core-UUID");
+                //System.out.println("******** uuid=" + coreuuid + " " + origCallerIdName + " is in ringing " + origCallerDestNumber + " vbridge=" + varvBridge);
+
+                String voiceUserId = "";
+                String callerName = origCallerIdName;
+                String clientSession = "0";
+                String callState = "CALL_STARTED";
+
+                Matcher callerListenOnly = CALLERNAME_LISTENONLY_PATTERN.matcher(origCallerIdName);
+                Matcher callWithSess = CALLERNAME_WITH_SESS_INFO_PATTERN.matcher(origCallerIdName);
+                if (callWithSess.matches()) {
+                    voiceUserId = callWithSess.group(1).trim();
+                    clientSession = callWithSess.group(2).trim();
+                    callerName = callWithSess.group(3).trim();
+                } else if (callerListenOnly.matches()) {
+                    voiceUserId = callerListenOnly.group(1).trim();
+                    clientSession = callWithSess.group(2).trim();
+                    callerName = callerListenOnly.group(3).trim();
+                }
+
+                VoiceCallStateEvent csEvent = new VoiceCallStateEvent(varvBridge,
+                        coreuuid,
+                        clientSession,
+                        voiceUserId,
+                        callerName,
+                        callState,
+                        origCallerIdName,
+                        origCallerDestNumber);
+                conferenceEventListener.handleConferenceEvent(csEvent);
+            }
+        } else if (event.getEventName().equalsIgnoreCase("CHANNEL_STATE")) {
+            Map<String, String> eventHeaders = event.getEventHeaders();
+            String channelCallState = (eventHeaders.get("Channel-Call-State") == null) ? "" : eventHeaders.get("Channel-Call-State");
+            String channelState = (eventHeaders.get("Channel-State") == null) ? "" : eventHeaders.get("Channel-State");
+
+            if ("HANGUP".equalsIgnoreCase(channelCallState) && "CS_DESTROY".equalsIgnoreCase(channelState)) {
+                String origCallerIdName = eventHeaders.get("Caller-Caller-ID-Name");
+                String origCallerDestNumber = eventHeaders.get("Caller-Destination-Number");
+                String coreuuid = eventHeaders.get("Core-UUID");
+                //System.out.println("******** uuid=" + coreuuid + " " + origCallerIdName + " is hanging up " + origCallerDestNumber);
+
+                String voiceUserId = "";
+                String callerName = origCallerIdName;
+                String clientSession = "0";
+                String callState = "CALL_ENDED";
+
+                Matcher callerListenOnly = CALLERNAME_LISTENONLY_PATTERN.matcher(origCallerIdName);
+                Matcher callWithSess = CALLERNAME_WITH_SESS_INFO_PATTERN.matcher(origCallerIdName);
+                if (callWithSess.matches()) {
+                    voiceUserId = callWithSess.group(1).trim();
+                    clientSession = callWithSess.group(2).trim();
+                    callerName = callWithSess.group(3).trim();
+                } else if (callerListenOnly.matches()) {
+                    voiceUserId = callerListenOnly.group(1).trim();
+                    clientSession = callWithSess.group(2).trim();
+                    callerName = callerListenOnly.group(3).trim();
+                }
+
+                String conf = origCallerDestNumber;
+                Matcher callerDestNumberMatcher = ECHO_TEST_DEST_PATTERN.matcher(origCallerDestNumber);
+                if (callerDestNumberMatcher.matches()) {
+                    conf = callerDestNumberMatcher.group(1).trim();
+                }
+
+                VoiceCallStateEvent csEvent = new VoiceCallStateEvent(conf,
+                        coreuuid,
+                        clientSession,
+                        voiceUserId,
+                        callerName,
+                        callState,
+                        origCallerIdName,
+                        origCallerDestNumber
+                        );
+                conferenceEventListener.handleConferenceEvent(csEvent);
+
+            } else if ("RINGING".equalsIgnoreCase(channelCallState) && "CS_EXECUTE".equalsIgnoreCase(channelState)) {
+                String origCallerIdName = eventHeaders.get("Caller-Caller-ID-Name");
+                String origCallerDestNumber = eventHeaders.get("Caller-Destination-Number");
+                String coreuuid = eventHeaders.get("Core-UUID");
+                //System.out.println("******** uuid=" + coreuuid + " " + origCallerIdName + " is ringing " + origCallerDestNumber);
+
+                String voiceUserId = "";
+                String callerName = origCallerIdName;
+                String clientSession = "0";
+                String callState = "CALL_STARTED";
+
+                Matcher callerListenOnly = CALLERNAME_LISTENONLY_PATTERN.matcher(origCallerIdName);
+                Matcher callWithSess = CALLERNAME_WITH_SESS_INFO_PATTERN.matcher(origCallerIdName);
+                if (callWithSess.matches()) {
+                    voiceUserId = callWithSess.group(1).trim();
+                    clientSession = callWithSess.group(2).trim();
+                    callerName = callWithSess.group(3).trim();
+                } else if (callerListenOnly.matches()) {
+                    voiceUserId = callerListenOnly.group(1).trim();
+                    clientSession = callWithSess.group(2).trim();
+                    callerName = callerListenOnly.group(3).trim();
+                }
+
+                String conf = origCallerDestNumber;
+                Matcher callerDestNumberMatcher = ECHO_TEST_DEST_PATTERN.matcher(origCallerDestNumber);
+                if (callerDestNumberMatcher.matches()) {
+                    conf = callerDestNumberMatcher.group(1).trim();
+                }
+
+                VoiceCallStateEvent csEvent = new VoiceCallStateEvent(conf,
+                        coreuuid,
+                        clientSession,
+                        voiceUserId,
+                        callerName,
+                        callState,
+                        origCallerIdName,
+                        origCallerDestNumber
+                        );
+                conferenceEventListener.handleConferenceEvent(csEvent);
+            }
+
         }
     }
 

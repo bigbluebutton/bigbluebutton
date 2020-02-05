@@ -273,4 +273,41 @@ class VoiceConferenceService(sender: RedisPublisher) extends IVoiceConferenceSer
     sender.publish(fromVoiceConfRedisChannel, json)
   }
 
+  def voiceCallStateEvent(
+      conf:             String,
+      callSession:      String,
+      clientSession:    String,
+      userId:           String,
+      callerName:       String,
+      callState:        String,
+      origCallerIdName: String,
+      origCalledDest:   String
+  ): Unit = {
+    val header = BbbCoreVoiceConfHeader(VoiceConfCallStateEvtMsg.NAME, conf)
+    val body = VoiceConfCallStateEvtMsgBody(
+      voiceConf = conf,
+      callSession = callSession,
+      clientSession = clientSession,
+      userId = userId,
+      callerName = callerName,
+      callState = callState,
+      origCallerIdName = origCallerIdName,
+      origCalledDest = origCalledDest
+    )
+    val envelope = BbbCoreEnvelope(VoiceConfCallStateEvtMsg.NAME, Map("voiceConf" -> conf))
+
+    val msg = new VoiceConfCallStateEvtMsg(header, body)
+    val msgEvent = BbbCommonEnvCoreMsg(envelope, msg)
+
+    val json = JsonUtil.toJson(msgEvent)
+    sender.publish(fromVoiceConfRedisChannel, json)
+  }
+
+  def freeswitchStatusReplyEvent(json: String): Unit = {
+    // Placeholder so we can add a /healthz check endpoint to
+    // monitor akka-fsesl (ralam feb 5, 2020)
+    //println("***** >>>>")
+    //println(json)
+    //println("<<<< *****")
+  }
 }

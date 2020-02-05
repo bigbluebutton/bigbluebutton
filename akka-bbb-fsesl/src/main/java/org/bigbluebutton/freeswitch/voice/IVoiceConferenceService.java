@@ -65,4 +65,14 @@ public interface IVoiceConferenceService {
                                     Boolean isRecording,
                                     java.util.List<ConfRecording> confRecording);
 
+  void voiceCallStateEvent(String conf,
+                           String callSession,
+                           String clientSession,
+                           String userId,
+                           String callerName,
+                           String callState,
+                           String origCallerIdName,
+                           String origCalledDest);
+
+  void freeswitchStatusReplyEvent(String json);
 }
