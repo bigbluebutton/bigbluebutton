@@ -75,7 +75,9 @@
 
 .button {
   span:first-child {
-    box-shadow: 0 2px 5px 0 rgb(0, 0, 0);
+    // box-shadow: 0 2px 5px 0 rgb(0, 0, 0);
+    box-shadow: none;
+    border: 0.5px solid #5594d4;
   }
 }
 
@@ -83,6 +85,7 @@
   span {
     box-shadow: none;
     background-color: transparent !important;
-    border-color: var(--color-white) !important;
+    // border-color: var(--color-white) !important;
+    border: 0.5px solid #5594d4;
   }
 }
