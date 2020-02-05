@@ -74,8 +74,8 @@ class WhiteboardToolbar extends Component {
     const { annotations, multiUser, isPresenter } = this.props;
 
     let annotationSelected = {
-      icon: 'hand',
-      value: 'hand',
+      icon: 'Toi_Pointer',
+      value: 'Toi_Pointer',
     };
 
     if (multiUser && !isPresenter) {
@@ -233,7 +233,7 @@ class WhiteboardToolbar extends Component {
     const { target, which } = event;
     const isBody = target.nodeName === 'BODY';
 
-    if (annotationSelected.value === 'hand' || !isBody) return;
+    if (annotationSelected.value === 'Toi_Pointer' || !isBody) return;
 
     const { annotations } = this.props;
 
@@ -448,7 +448,7 @@ class WhiteboardToolbar extends Component {
     return panMode
       ? (
         <ToolbarMenuItem
-          icon="hand"
+          icon="Toi_Pointer"
           label={intl.formatMessage(intlMessages.toolbarItemPan)}
           onItemClick={() => { }}
           className={styles.toolbarButton}
@@ -544,7 +544,7 @@ class WhiteboardToolbar extends Component {
       thicknessSelected,
     } = this.state;
 
-    const isDisabled = annotationSelected.value === 'hand' || !annotations.length;
+    const isDisabled = annotationSelected.value === 'Toi_Pointer' || !annotations.length;
     return (
       <ToolbarMenuItem
         disabled={isDisabled}
@@ -646,7 +646,7 @@ class WhiteboardToolbar extends Component {
       colorSelected,
     } = this.state;
 
-    const isDisabled = annotationSelected.value === 'hand' || !annotations.length;
+    const isDisabled = annotationSelected.value === 'Toi_Pointer' || !annotations.length;
     return (
       <ToolbarMenuItem
         disabled={isDisabled}
@@ -724,7 +724,7 @@ class WhiteboardToolbar extends Component {
       <ToolbarMenuItem
         disabled={!isMeteorConnected}
         label={intl.formatMessage(intlMessages.toolbarUndoAnnotation)}
-        icon="undo"
+        icon="Toi_Undo"
         onItemClick={this.handleUndo}
         className={styles.toolbarButton}
       />
@@ -738,7 +738,7 @@ class WhiteboardToolbar extends Component {
       <ToolbarMenuItem
         disabled={!isMeteorConnected}
         label={intl.formatMessage(intlMessages.toolbarClearAnnotations)}
-        icon="delete"
+        icon="Toi_Delete"
         onItemClick={this.handleClearAll}
         className={styles.toolbarButton}
       />
@@ -755,7 +755,7 @@ class WhiteboardToolbar extends Component {
           ? intl.formatMessage(intlMessages.toolbarMultiUserOff)
           : intl.formatMessage(intlMessages.toolbarMultiUserOn)
         }
-        icon={multiUser ? 'multi_whiteboard' : 'whiteboard'}
+        icon={multiUser ? 'Toi_Multiuser_Whiteboard_30' : 'whiteboard'}
         onItemClick={this.handleSwitchWhiteboardMode}
         className={styles.toolbarButton}
       />

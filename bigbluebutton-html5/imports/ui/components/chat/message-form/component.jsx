@@ -1,7 +1,6 @@
 import React, { PureComponent } from 'react';
 import { defineMessages, injectIntl, intlShape } from 'react-intl';
 import cx from 'classnames';
-import TextareaAutosize from 'react-autosize-textarea';
 import browser from 'browser-detect';
 import PropTypes from 'prop-types';
 import TypingIndicatorContainer from './typing-indicator/container';
@@ -290,7 +289,8 @@ class MessageForm extends PureComponent {
         onSubmit={this.handleSubmit}
       >
         <div className={styles.wrapper}>
-          <TextareaAutosize
+          {/* <TextareaAutosize */}
+          <input
             className={styles.input}
             id="message-input"
             innerRef={(ref) => { this.textarea = ref; return this.textarea; }}
@@ -315,7 +315,7 @@ class MessageForm extends PureComponent {
             type="submit"
             disabled={disabled}
             label={intl.formatMessage(messages.submitLabel)}
-            color="primary"
+            color=""
             icon="send"
             onClick={() => {}}
             data-test="sendMessageButton"

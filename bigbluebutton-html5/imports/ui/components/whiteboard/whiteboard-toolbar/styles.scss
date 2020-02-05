@@ -48,11 +48,13 @@
 
 .toolbarWrapper {
   width: 100%;
-  display: flex;
-  flex-direction: column;
+  // display: flex;
+  // flex-direction: column;
+  display: grid;
+  grid-row-gap: 8px;
   align-items: center;
   justify-content: center;
-  box-shadow: var(--toolbar-box-shadow);
+  // box-shadow: var(--toolbar-box-shadow);
   border-radius: var(--toolbar-button-border-radius);
   pointer-events: all;
 
@@ -61,36 +63,36 @@
     border-bottom: var(--toolbar-button-border) solid var(--toolbar-button-border-color);
   }
 
-  .buttonWrapper:first-child > .toolbarButton {
-    border-top-left-radius: var(--toolbar-button-border-radius);
-    border-top-right-radius: var(--toolbar-button-border-radius);
+  // .buttonWrapper:first-child > .toolbarButton {
+  //   border-top-left-radius: var(--toolbar-button-border-radius);
+  //   border-top-right-radius: var(--toolbar-button-border-radius);
 
-    &.toolbarActive {
-      border-top-left-radius: 0;
-      border-top-right-radius: var(--toolbar-button-border-radius);
+  //   &.toolbarActive {
+  //     border-top-left-radius: 0;
+  //     border-top-right-radius: var(--toolbar-button-border-radius);
 
-      [dir="rtl"] & {
-        border-top-left-radius: var(--toolbar-button-border-radius);
-        border-top-right-radius: 0;
-      }
-    }
-  }
+  //     [dir="rtl"] & {
+  //       border-top-left-radius: var(--toolbar-button-border-radius);
+  //       border-top-right-radius: 0;
+  //     }
+  //   }
+  // }
 
-  .buttonWrapper:last-child > .toolbarButton {
-    border-bottom: 0;
-    border-bottom-left-radius: var(--toolbar-button-border-radius);
-    border-bottom-right-radius: var(--toolbar-button-border-radius);
+  // .buttonWrapper:last-child > .toolbarButton {
+  //   border-bottom: 0;
+  //   border-bottom-left-radius: var(--toolbar-button-border-radius);
+  //   border-bottom-right-radius: var(--toolbar-button-border-radius);
 
-    &.toolbarActive {
-      border-bottom-left-radius: 0;
-      border-top-right-radius: var(--toolbar-button-border-radius);
+  //   &.toolbarActive {
+  //     border-bottom-left-radius: 0;
+  //     border-top-right-radius: var(--toolbar-button-border-radius);
 
-      [dir="rtl"] & {
-        border-bottom-left-radius: var(--toolbar-button-border-radius);
-        border-top-right-radius: 0;
-      }
-    }
-  }
+  //     [dir="rtl"] & {
+  //       border-bottom-left-radius: var(--toolbar-button-border-radius);
+  //       border-top-right-radius: 0;
+  //     }
+  //   }
+  // }
 }
 
 .buttonWrapper {
@@ -101,31 +103,31 @@
   position: relative;
 }
 
-.cornerTriangle::before {
-  content: '';
-  position: absolute;
-  border-color: transparent;
-  border-style: solid;
-  z-index: 2;
-  border-radius: 0;
-  border-width: 0.35em;
-  bottom: var(--toolbar-item-triangle-padding);
-  left: var(--toolbar-item-triangle-padding);
-  border-left-color: var(--toolbar-list-color);
-  border-bottom-color: var(--toolbar-list-color);
+// .cornerTriangle::before {
+//   content: '';
+//   position: absolute;
+//   border-color: transparent;
+//   border-style: solid;
+//   z-index: 2;
+//   border-radius: 0;
+//   border-width: 0.35em;
+//   bottom: var(--toolbar-item-triangle-padding);
+//   left: var(--toolbar-item-triangle-padding);
+//   border-left-color: var(--toolbar-list-color);
+//   border-bottom-color: var(--toolbar-list-color);
 
-  [dir="rtl"] & {
-    left: auto;
-    right: var(--toolbar-item-triangle-padding);
+//   [dir="rtl"] & {
+//     left: auto;
+//     right: var(--toolbar-item-triangle-padding);
 
-    border-left-color: transparent;
-    border-right-color: var(--toolbar-list-color);
-  }
-}
+//     border-left-color: transparent;
+//     border-right-color: var(--toolbar-list-color);
+//   }
+// }
 
 .toolbarButton {
   padding: 0;
-  border: 0;
+  border: 0.5px solid #5594D4;
   width: 100%;
   height: 100%;
   display: flex;
@@ -137,9 +139,10 @@
   box-shadow: none !important;
   z-index: 1;
   font-size: var(--toolbar-button-font-size);
-  color: #5594D4;
-  background-color: var(--toolbar-button-bg);
-  border-color: var(--toolbar-button-border-color);
+  // color: #5594D4;
+  // background-color: var(--toolbar-button-bg);
+  background: transparent;
+  // border-color: var(--toolbar-button-border-color);
 
   &:focus,
   &:hover {
@@ -169,7 +172,7 @@
   right: var(--toolbar-button-height);
   left: auto;
   top: 0;
-  box-shadow: var(--toolbar-box-shadow);
+  // box-shadow: var(--toolbar-box-shadow);
 
   [dir="rtl"] & {
     right: auto;
