@@ -19,11 +19,66 @@
   width: 1em;
   text-align: center;
   vertical-align: middle;
+  color: #5594d4;
 
   /* Better Font Rendering =========== */
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
+
+/*===================================== ICOMOON================================== */
+@font-face {
+  font-family: 'icomoon';
+  src:  url('/fonts/icomoon/icomoon.woff?emeeku') format('woff');
+  font-weight: normal;
+  font-style: normal;
+  font-display: block;
+}
+
+[class^="icon-bbb-Toi"], [class*=" icon-bbb-Toi"] {
+  
+  font-family: 'icomoon' !important;
+  speak: none;
+  font-style: normal;
+  font-weight: normal;
+  font-variant: normal;
+  text-transform: none;
+  line-height: 1;
+
+  
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-shadow: none;
+}
+
+.icon-bbb-Toi_Multiuser_Whiteboard_30:before {
+  content: "\e900";
+  color: #5594d4;
+}
+.icon-bbb-Toi_Undo:before {
+  content: "\e901";
+  color: #5594d4;
+}
+.icon-bbb-Toi_More:before {
+  content: "\e902";
+  color: #5594d4;
+  text-shadow: 1px 1px 1px rgba(9, 5, 231, 0.3);
+}
+.icon-bbb-Toi_Delete:before {
+  content: "\e903";
+  color: #5594d4;
+}
+.icon-bbb-Toi_Pointer:before {
+  content: "\e904";
+  color: #5594d4;
+}
+
+
+/* ================================================================= */
+
+
+
+
 
 .icon-bbb-mute:before {
   content: "\e932";
@@ -164,9 +219,9 @@
 .icon-bbb-time:before {
   content: "\e908";
 }
-.icon-bbb-hand:before {
+/* .icon-bbb-hand:before {
   content: "\e90f";
-}
+} */
 .icon-bbb-undecided:before {
   content: "\e907";
 }
@@ -190,6 +245,9 @@
 }
 .icon-bbb-send:before {
   content: "\e934";
+  color: #5594d4;
+  fill-opacity: inherit;
+  text-shadow: 1px 1px 1px rgb(2, 1, 66);
 }
 .icon-bbb-about:before {
   content: "\e933";
