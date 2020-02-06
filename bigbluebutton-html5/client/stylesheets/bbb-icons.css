@@ -21,6 +21,7 @@
   vertical-align: middle;
   color: #5594d4;
 
+
   /* Better Font Rendering =========== */
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
@@ -44,7 +45,7 @@
   font-variant: normal;
   text-transform: none;
   line-height: 1;
-
+  color: #5594d4;
   
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
@@ -52,25 +53,20 @@
 }
 
 .icon-bbb-Toi_Multiuser_Whiteboard_30:before {
-  content: "\e900";
-  color: #5594d4;
+  content: "\e900";  
 }
 .icon-bbb-Toi_Undo:before {
   content: "\e901";
-  color: #5594d4;
 }
 .icon-bbb-Toi_More:before {
   content: "\e902";
-  color: #5594d4;
-  text-shadow: 1px 1px 1px rgba(9, 5, 231, 0.3);
 }
 .icon-bbb-Toi_Delete:before {
   content: "\e903";
-  color: #5594d4;
 }
 .icon-bbb-Toi_Pointer:before {
   content: "\e904";
-  color: #5594d4;
+
 }
 
 
