@@ -72,11 +72,19 @@ const isEnabled = () => {
   return NOTE_CONFIG.enabled && note;
 };
 
+const toggleNotePanel = () => {
+  Session.set(
+    'openPanel',
+    isPanelOpened() ? 'userlist' : 'note'
+  );
+};
+
 const isPanelOpened = () => Session.get('openPanel') === 'note';
 
 export default {
   getNoteURL,
   getReadOnlyURL,
+  toggleNotePanel,
   isLocked,
   isEnabled,
   isPanelOpened,
