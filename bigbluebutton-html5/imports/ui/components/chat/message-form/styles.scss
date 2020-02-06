@@ -104,9 +104,9 @@
 .input {
   width: 100%;
   // border: 3px solid #00B4CC;
-  padding: 5px;
-  height: 43px;
-  border-radius: 5px 0 0 5px;
+  padding:  0.3em;
+  height:  2.7rem;
+  border-radius:  0.3em 0 0  0.3em;
   outline: none;
   border: 1px ;
   border-right: none;
@@ -119,16 +119,17 @@
 }
 
 .sendButton {
-  width: 40px;
-  height: 43px;
+  width: 2em;
+  height:  2.7rem;
   border: 1px ;
   border-left: none;
   background: #dbe5ee;
   text-align: center;
   // color: #fff;
-  border-radius: 0 5px 5px 0;
+  border-radius: 0  0.3em  0.3em 0;
   cursor: pointer;
-  font-size: 20px;
+  font-size: 1.25em;
+  margin-right: 0.4em;
 }
 
 .error,
