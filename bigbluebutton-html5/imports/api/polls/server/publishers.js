@@ -1,10 +1,13 @@
 import { Meteor } from 'meteor/meteor';
-import { check } from 'meteor/check';
 import Logger from '/imports/startup/server/logger';
 import Polls from '/imports/api/polls';
+import { extractCredentials } from '/imports/api/common/server/helpers';
 
-Meteor.publish('current-poll', (meetingId) => {
-  check(meetingId, String);
+Meteor.publish('current-poll', () => {
+  if (!this.userId) {
+    return Polls.find({ meetingId: '' });
+  }
+  const { meetingId } = extractCredentials(this.userId);
 
   const selector = {
     meetingId,
@@ -16,14 +19,14 @@ Meteor.publish('current-poll', (meetingId) => {
 });
 
 
-function polls(credentials) {
-  const { meetingId, requesterUserId, requesterToken } = credentials;
+function polls() {
+  if (!this.userId) {
+    return Polls.find({ meetingId: '' });
+  }
 
-  check(meetingId, String);
-  check(requesterUserId, String);
-  check(requesterToken, String);
+  const { meetingId, requesterUserId } = extractCredentials(this.userId);
 
-  Logger.debug(`Publishing polls =${meetingId} ${requesterUserId} ${requesterToken}`);
+  Logger.debug(`Publishing polls =${meetingId} ${requesterUserId}`);
 
   const selector = {
     meetingId,

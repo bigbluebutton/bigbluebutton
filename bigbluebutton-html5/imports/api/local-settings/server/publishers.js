@@ -1,13 +1,13 @@
 import { Meteor } from 'meteor/meteor';
-import { check } from 'meteor/check';
 import LocalSettings from '/imports/api/local-settings';
 import Logger from '/imports/startup/server/logger';
+import { extractCredentials } from '/imports/api/common/server/helpers';
 
-function localSettings(credentials) {
-  const { meetingId, requesterUserId } = credentials;
-
-  check(meetingId, String);
-  check(requesterUserId, String);
+function localSettings() {
+  if (!this.userId) {
+    return LocalSettings.find({ meetingId: '' });
+  }
+  const { meetingId, requesterUserId } = extractCredentials(this.userId);
 
   Logger.debug(`Publishing local settings for user=${requesterUserId}`);
 

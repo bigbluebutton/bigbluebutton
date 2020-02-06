@@ -180,13 +180,16 @@ class Auth {
       return Promise.resolve();
     }
 
+
     return new Promise((resolve) => {
       resolve(this._logoutURL);
     });
   }
 
   authenticate(force) {
-    if (this.loggedIn && !force) return Promise.resolve();
+    if (this.loggedIn && !force) {
+      return Promise.resolve();
+    }
 
     if (!(this.meetingID && this.userID && this.token)) {
       return Promise.reject({
@@ -205,7 +208,7 @@ class Auth {
 
   validateAuthToken() {
     return new Promise((resolve, reject) => {
-      Meteor.connection.setUserId(`${this.meetingID}-${this.userID}`);
+      // Meteor.connection.setUserId(`${this.meetingID}-${this.userID}`); // TODO__ WHY?!?
       let computation = null;
 
       const validationTimeout = setTimeout(() => {
@@ -218,7 +221,8 @@ class Auth {
 
       Tracker.autorun((c) => {
         computation = c;
-        Meteor.subscribe('current-user', this.credentials);
+        makeCall('validateAuthToken', this.meetingID, this.userID, this.token);
+        Meteor.subscribe('current-user');
 
         const selector = { meetingId: this.meetingID, userId: this.userID };
         const fields = {
@@ -228,7 +232,8 @@ class Auth {
         // Skip in case the user is not in the collection yet or is a dummy user
         if (!User || !('intId' in User)) {
           logger.info({ logCode: 'auth_service_resend_validateauthtoken' }, 're-send validateAuthToken for delayed authentication');
-          makeCall('validateAuthToken');
+          makeCall('validateAuthToken', this.meetingID, this.userID, this.token);
+
           return;
         }
 
@@ -250,7 +255,6 @@ class Auth {
           setTimeout(() => resolve(true), 100);
         }
       });
-      makeCall('validateAuthToken');
     });
   }
 

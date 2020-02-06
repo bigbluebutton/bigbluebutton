@@ -83,7 +83,7 @@ export default withTracker(() => {
 
     const chatIds = chats.map(chat => chat.chatId);
 
-    groupChatMessageHandler = Meteor.subscribe('group-chat-msg', credentials, chatIds, subscriptionErrorHandler);
+    groupChatMessageHandler = Meteor.subscribe('group-chat-msg', chatIds, subscriptionErrorHandler);
     subscriptionsHandlers.push(groupChatMessageHandler);
   }
 
@@ -91,12 +91,12 @@ export default withTracker(() => {
 
   if (User) {
     const userIsModerator = User.role === ROLE_MODERATOR;
-    Meteor.subscribe('users', credentials, userIsModerator, subscriptionErrorHandler);
-    Meteor.subscribe('breakouts', credentials, userIsModerator, subscriptionErrorHandler);
-    Meteor.subscribe('meetings', credentials, userIsModerator, subscriptionErrorHandler);
+    Meteor.subscribe('users', userIsModerator, subscriptionErrorHandler);
+    Meteor.subscribe('breakouts', userIsModerator, subscriptionErrorHandler);
+    Meteor.subscribe('meetings', userIsModerator, subscriptionErrorHandler);
   }
 
-  const annotationsHandler = Meteor.subscribe('annotations', credentials, {
+  const annotationsHandler = Meteor.subscribe('annotations', {
     onReady: () => {
       const activeTextShapeId = AnnotationsTextService.activeTextShapeId();
       AnnotationsLocal.remove({ id: { $ne: `${activeTextShapeId}-fake` } });

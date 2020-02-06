@@ -1,7 +1,7 @@
 import { check } from 'meteor/check';
 import Logger from '/imports/startup/server/logger';
 import Users from '/imports/api/users';
-import userJoin from '../methods/userJoin';
+import userJoin from './userJoin';
 
 const clearOtherSessions = (sessionUserId, current = false) => {
   const serverSessions = Meteor.server.sessions;

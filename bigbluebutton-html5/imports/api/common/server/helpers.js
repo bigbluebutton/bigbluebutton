@@ -75,3 +75,10 @@ export const hashFNV32a = (str, asString, seed) => {
   return hval >>> 0;
 };
 /* eslint-enable */
+
+export const extractCredentials = (credentials) => {
+  const credentialsArray = credentials.split('--');
+  const meetingId = credentialsArray[0];
+  const requesterUserId = credentialsArray[1];
+  return { meetingId, requesterUserId };
+};

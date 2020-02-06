@@ -26,7 +26,7 @@ export function addCursorStreamer(meetingId) {
   });
 
   streamer.on('publish', (message) => {
-    publishCursorUpdate(message.credentials, message.payload);
+    publishCursorUpdate(meetingId, message.userId, message.payload);
   });
 }
 
