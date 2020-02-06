@@ -86,7 +86,7 @@ public:
     enableNetworkMonitoring: false
     packetLostThreshold: 10
   kurento:
-    wsUrl: HOST
+    wsUrl: wss://bbb.pipitacademy.com/bbb-webrtc-sfu
     chromeDefaultExtensionKey: akgoaoikmbmhcopjgakkcepdgdgkjfbc
     chromeDefaultExtensionLink: https://chrome.google.com/webstore/detail/bigbluebutton-screenshare/akgoaoikmbmhcopjgakkcepdgdgkjfbc
     chromeExtensionKey: KEY
@@ -158,8 +158,8 @@ public:
     typingIndicator:
       enabled: true
   note:
-    enabled: false
-    url: ETHERPAD_HOST
+    enabled: true
+    url: https://bbb.pipitacademy.com/pad
     config:
       showLineNumbers: false
       showChat: false
@@ -283,8 +283,8 @@ public:
         value: rectangle
       - icon: pen_tool
         value: pencil
-      - icon: hand
-        value: hand
+      - icon: Toi_Pointer
+        value: Toi_Pointer
       presenterTools:
       - text
       - line
@@ -292,7 +292,7 @@ public:
       - triangle
       - rectangle
       - pencil
-      - hand
+      - Toi_Pointer
       multiUserTools:
       - text
       - line
@@ -300,7 +300,7 @@ public:
       - triangle
       - rectangle
       - pencil
-      - hand
+      - Toi_Pointer
   clientLog:
     server: { enabled: true, level: info }
     console: { enabled: true, level: debug }
