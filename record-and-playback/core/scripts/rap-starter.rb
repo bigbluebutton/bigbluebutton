@@ -73,7 +73,7 @@ def archive_recorded_meetings(recording_dir, done_file)
 
   BigBlueButton.logger.info("Enqueuing job to archive #{attrs.inspect}")
   Resque.enqueue(BigBlueButton::Resque::ArchiveWorker, attrs)
-  FileUtils.rm_f(recorded_done_file)
+  FileUtils.rm_f(done_file)
 end
 
 begin

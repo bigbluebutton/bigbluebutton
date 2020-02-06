@@ -26,7 +26,8 @@ module BigBlueButton
         super do
           @logger.info("Running captions worker for #{@full_id}")
 
-          ret, = run_script('utils/captions.rb', '-m', @meeting_id)
+          script = File.join(BigBlueButton.rap_scripts_path, 'utils', 'captions.rb')
+          ret, = run_script(script, '-m', @meeting_id)
 
           if ret.zero?
             @logger.info("Succeeded generating captions for #{@full_id}")

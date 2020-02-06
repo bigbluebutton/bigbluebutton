@@ -68,7 +68,7 @@ module BigBlueButton
         super(opts)
         @step_name = 'events'
         @events_dir = @props['events_dir']
-        @post_scripts_path = File.expand_path('../post_events', __dir__)
+        @post_scripts_path = File.join(BigBlueButton.rap_scripts_path, 'post_events')
         @ended_done = "#{@recording_dir}/status/ended/#{@full_id}.done"
       end
     end
