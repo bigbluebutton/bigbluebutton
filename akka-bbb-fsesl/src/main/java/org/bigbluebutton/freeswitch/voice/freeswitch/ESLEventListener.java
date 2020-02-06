@@ -80,10 +80,17 @@ public class ESLEventListener implements IEslEventListener {
             ScreenshareStartedEvent dsStart = new ScreenshareStartedEvent(confName, callerId, callerIdName);
             conferenceEventListener.handleConferenceEvent(dsStart);
         } else {
+            String coreuuid = headers.get("Core-UUID");
+            String callState = "IN_CONFERENCE";
+            String origCallerIdName = headers.get("Caller-Caller-ID-Name");
+            String origCallerDestNumber = headers.get("Caller-Destination-Number");
+            String clientSession = "0";
+
             Matcher matcher = CALLERNAME_PATTERN.matcher(callerIdName);
             Matcher callWithSess = CALLERNAME_WITH_SESS_INFO_PATTERN.matcher(callerIdName);
             if (callWithSess.matches()) {
                 voiceUserId = callWithSess.group(1).trim();
+                clientSession = callWithSess.group(2).trim();
                 callerIdName = callWithSess.group(3).trim();
             } else if (matcher.matches()) {
                 voiceUserId = matcher.group(1).trim();
@@ -95,11 +102,6 @@ public class ESLEventListener implements IEslEventListener {
                 voiceUserId = "v_" + memberId.toString();
             }
 
-            String coreuuid = headers.get("Core-UUID");
-            String clientSession = "0";
-            String callState = "IN_CONFERENCE";
-            String origCallerIdName = headers.get("Caller-Caller-ID-Name");
-            String origCallerDestNumber = headers.get("Caller-Destination-Number");
             VoiceCallStateEvent csEvent = new VoiceCallStateEvent(
                     confName,
                     coreuuid,

@@ -29,7 +29,7 @@ trait VoiceConfCallStateEvtMsgHdlr {
     val body = VoiceCallStateEvtMsgBody(
       meetingId = liveMeeting.props.meetingProp.intId,
       voiceConf = msg.body.voiceConf,
-      clientSession = msg.body.callSession,
+      clientSession = msg.body.clientSession,
       userId = msg.body.userId,
       callerName = msg.body.callerName,
       callState = msg.body.callState
