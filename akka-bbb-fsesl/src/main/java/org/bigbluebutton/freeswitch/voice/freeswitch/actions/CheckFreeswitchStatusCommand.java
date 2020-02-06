@@ -11,12 +11,16 @@ import org.slf4j.LoggerFactory;
 public class CheckFreeswitchStatusCommand extends FreeswitchCommand {
     private static Logger log = LoggerFactory.getLogger(CheckFreeswitchStatusCommand.class);
 
+    private long sendCommandTimestamp = 0L;
+    private long receivedResponsTimestatmp = 0L;
+
     public CheckFreeswitchStatusCommand(String room, String requesterId) {
         super(room, requesterId);
     }
 
     @Override
     public String getCommand() {
+        sendCommandTimestamp = System.currentTimeMillis();
         return "status";
     }
 
@@ -27,10 +31,13 @@ public class CheckFreeswitchStatusCommand extends FreeswitchCommand {
     }
 
     public void handleResponse(EslMessage response, ConferenceEventListener eventListener) {
+        receivedResponsTimestatmp = System.currentTimeMillis();
         Gson gson = new Gson();
         log.info(gson.toJson(response.getBodyLines()));
         FreeswitchStatusReplyEvent statusEvent = new FreeswitchStatusReplyEvent(
-                gson.toJson(response.getBodyLines()));
+                sendCommandTimestamp,
+                gson.toJson(response.getBodyLines()),
+                receivedResponsTimestatmp);
         eventListener.handleConferenceEvent(statusEvent);
     }
 

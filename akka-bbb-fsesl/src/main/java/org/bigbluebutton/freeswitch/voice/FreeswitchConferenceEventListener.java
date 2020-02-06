@@ -112,7 +112,12 @@ public class FreeswitchConferenceEventListener implements ConferenceEventListene
                   evt.origCalledDest);
         } else if (event instanceof FreeswitchStatusReplyEvent) {
           FreeswitchStatusReplyEvent evt = (FreeswitchStatusReplyEvent) event;
-          vcs.freeswitchStatusReplyEvent(evt.jsonResponse);
+          vcs.freeswitchStatusReplyEvent(evt.sendCommandTimestamp,
+                  evt.jsonResponse,
+                  evt.receivedResponsTimestatmp);
+        } else if (event instanceof FreeswitchHeartbeatEvent) {
+          FreeswitchHeartbeatEvent hbearEvt = (FreeswitchHeartbeatEvent) event;
+          vcs.freeswitchHeartbeatEvent(hbearEvt.healthStatusJson);
         }
 
       }

@@ -89,7 +89,7 @@ public class ConnectionManager {
 								" Response: [" + response.getReplyText() + "]");
 					}
 
-					//c.addEventFilter(EVENT_NAME, "HEARTBEAT");
+					c.addEventFilter(EVENT_NAME, "HEARTBEAT");
 					//c.addEventFilter(EVENT_NAME, "custom");
 					//c.addEventFilter(EVENT_NAME, "background_job");
 					c.addEventFilter(EVENT_NAME, "CHANNEL_EXECUTE");

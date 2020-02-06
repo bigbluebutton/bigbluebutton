@@ -74,5 +74,9 @@ public interface IVoiceConferenceService {
                            String origCallerIdName,
                            String origCalledDest);
 
-  void freeswitchStatusReplyEvent(String json);
+  void freeswitchStatusReplyEvent(Long sendCommandTimestamp,
+                                  String json,
+                                  Long receivedResponsTimestatmp);
+
+  void freeswitchHeartbeatEvent(String json);
 }
