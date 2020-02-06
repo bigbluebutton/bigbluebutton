@@ -29,7 +29,7 @@ module BigBlueButton
 
           remove_status_files
 
-          script = File.expand_path('../archive/archive.rb', __dir__)
+          script = File.join(BigBlueButton.rap_scripts_path, 'archive', 'archive.rb')
           if @break_timestamp.nil?
             ret, step_time = run_script(script, '-m', @meeting_id)
           else

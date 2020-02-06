@@ -239,9 +239,18 @@ module BigBlueButton
     BigBlueButton.record_id_to_timestamp(File.basename(r, ".done"))
   end
 
+  def self.rap_core_path
+    File.expand_path('../../', __FILE__)
+  end
+
+  def self.rap_scripts_path
+    File.join(BigBlueButton.rap_core_path, 'scripts')
+  end
+
   def self.read_props
     return @props if @props
-    filepath = File.expand_path('../../scripts/bigbluebutton.yml', __FILE__)
+
+    filepath = File.join(BigBlueButton.rap_scripts_path, 'bigbluebutton.yml')
     @props = YAML::load(File.open(filepath))
   end
 
