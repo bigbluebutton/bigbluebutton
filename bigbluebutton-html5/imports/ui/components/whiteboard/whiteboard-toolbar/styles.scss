@@ -11,8 +11,8 @@
   --toolbar-button-border: 1px;
   --toolbar-button-border-radius: 5px;
   --toolbar-button-border-color: var(--color-gray-lighter);
-  --toolbar-list-bg: #ddd;
-  --toolbar-list-bg-focus: #c6c6c6;
+  --toolbar-list-bg: #e0f0ff;
+  --toolbar-list-bg-focus: #5594d4;
   --toolbar-list-color: var(--color-gray);
   --toolbar-item-outline-offset: -.19rem;
   --toolbar-item-triangle-padding: 2px;
@@ -54,13 +54,7 @@
   justify-content: center;
   border-radius: var(--toolbar-button-border-radius);
   pointer-events: all;
-
-  .buttonWrapper > .toolbarButton {
-    outline-offset: var(--toolbar-item-outline-offset);
-    border-bottom: var(--toolbar-button-border) solid var(--toolbar-button-border-color);
-  }
 }
-
 .buttonWrapper {
   width: var(--toolbar-button-width);
   min-width: var(--toolbar-button-width);
@@ -85,10 +79,6 @@
   z-index: 1;
   font-size: var(--toolbar-button-font-size);
 
-  &:focus,
-  &:hover {
-    border: 0;
-  }
 
   i {
     color: var(--toolbar-button-color);
@@ -98,7 +88,7 @@
     background-color: var(--toolbar-list-bg);
 
     i {
-      color: var(--toolbar-list-color);
+      color: var(--toolbar-button-color);
     }
   }
 }
@@ -132,6 +122,19 @@
       border-bottom-right-radius: var(--toolbar-button-border-radius);
     }
   }
+  .buttonWrapper:last-child > .toolbarListButton {
+    border-top-right-radius: var(--toolbar-button-border-radius);
+    border-bottom-right-radius: var(--toolbar-button-border-radius);
+    border-top-left-radius: 0;
+    border-bottom-left-radius: 0;
+
+    [dir="rtl"] & {
+      border-top-right-radius: 0;
+      border-bottom-right-radius: 0;
+      border-top-left-radius: var(--toolbar-button-border-radius);
+      border-bottom-left-radius: var(--toolbar-button-border-radius);
+    }
+  }
 }
 
 .toolbarListButton {
@@ -150,20 +153,20 @@
 
   &:hover,
   &:focus {
-    background-color: #bbb;
+    background-color: #bbd7f1;
   }
 
-  i {
-    color: var(--toolbar-list-color);
-  }
+  // i {
+  //   color: var(--toolbar-button-color);
+  // }
 
-  svg {
-    fill: var(--toolbar-list-color);
-  }
+  // svg {
+  //   fill: var(--toolbar-button-color);
+  // }
 }
 
 .selectedListButton {
-  background-color: var(--toolbar-list-color) !important;
+  background-color: #bbd7f1 !important;
 
   i {
     color: var(--toolbar-list-bg-focus) !important;
