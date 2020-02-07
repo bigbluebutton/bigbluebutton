@@ -142,15 +142,15 @@
   }
 }
 
-.messages {
-  > .message:first-child {
-    margin-top: calc(var(--line-height-computed) / 4);
-    color:#03213F;
-    font-family: Montserrat;
-    font-style: normal;
-    font-weight: normal;
-  }
-}
+// .messages {
+//   > .message:first-child {
+//     margin-top: calc(var(--line-height-computed) / 4);
+//     color:#03213F;
+//     font-family: Montserrat;
+//     font-style: normal;
+//     font-weight: normal;
+//   }
+// }
 
 .message, .hyperlink {
   flex: 1;
