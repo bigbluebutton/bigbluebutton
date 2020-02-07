@@ -4,12 +4,10 @@ import PresentationUploadToken from '/imports/api/presentation-upload-token';
 import Logger from '/imports/startup/server/logger';
 import { extractCredentials } from '/imports/api/common/server/helpers';
 
-Meteor.publish('presentation-upload-token', (podId, filename) => {
+function presentationUploadToken(podId, filename) {
   if (!this.userId) {
     return PresentationUploadToken.find({ meetingId: '' });
   }
-
-  // TODO--we need to resubscribe when we have this.userId
   const { meetingId, requesterUserId } = extractCredentials(this.userId);
   check(podId, String);
   check(filename, String);
@@ -24,4 +22,11 @@ Meteor.publish('presentation-upload-token', (podId, filename) => {
   Logger.debug(`Publishing PresentationUploadToken for ${meetingId} ${requesterUserId}`);
 
   return PresentationUploadToken.find(selector);
-});
+}
+
+function publish(...args) {
+  const boundPresentationUploadToken = presentationUploadToken.bind(this);
+  return boundPresentationUploadToken(...args);
+}
+
+Meteor.publish('presentation-upload-token', publish);

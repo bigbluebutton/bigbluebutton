@@ -208,7 +208,6 @@ class Auth {
 
   validateAuthToken() {
     return new Promise((resolve, reject) => {
-      // Meteor.connection.setUserId(`${this.meetingID}-${this.userID}`); // TODO__ WHY?!?
       let computation = null;
 
       const validationTimeout = setTimeout(() => {
