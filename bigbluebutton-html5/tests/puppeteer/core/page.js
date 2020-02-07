@@ -25,9 +25,9 @@ class Page {
     await this.setDownloadBehavior(`${this.parentDir}/downloads`);
 
     this.meetingId = await helper.createMeeting(params);
-    const joinURL = helper.getJoinURL(this.meetingId, params, true);
+    this.joinURL = helper.getJoinURL(this.meetingId, params, true);
 
-    await this.page.goto(joinURL);
+    await this.page.goto(this.joinURL);
     await this.waitForSelector(e.audioDialog);
     await this.click(e.closeAudio, true);
   }
