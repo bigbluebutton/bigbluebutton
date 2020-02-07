@@ -139,7 +139,7 @@ class ScreenshareComponent extends React.Component {
 
   render() {
     const { loaded, autoplayBlocked } = this.state;
-    const { intl } = this.props;
+    const { intl, isPresenter } = this.props;
 
     return (
       [!loaded
@@ -167,15 +167,21 @@ class ScreenshareComponent extends React.Component {
           ref={(ref) => { this.screenshareContainer = ref; }}
         >
           {loaded && this.renderFullscreenButton()}
-          <video
-            id="screenshareVideo"
-            key="screenshareVideo"
-            style={{ maxHeight: '100%', width: '100%' }}
-            playsInline
-            onLoadedData={this.onVideoLoad}
-            ref={(ref) => { this.videoTag = ref; }}
-            muted
-          />
+          {isPresenter
+
+            ? <h1>Your screen is being shared</h1>
+            : (
+              <video
+                id="screenshareVideo"
+                key="screenshareVideo"
+                style={{ maxHeight: '100%', width: '100%' }}
+                playsInline
+                onLoadedData={this.onVideoLoad}
+                ref={(ref) => { this.videoTag = ref; }}
+                muted
+              />
+            )
+          }
         </div>
       )]
     );
