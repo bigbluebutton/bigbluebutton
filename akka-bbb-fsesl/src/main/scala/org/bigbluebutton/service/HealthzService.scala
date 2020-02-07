@@ -13,6 +13,10 @@ case class ToFSStatus(status: String)
 case class FromFsStatus(status: String)
 case object GetHealthStatus
 
+object HealthzService {
+  def apply() (implicit context: ActorContext) = new HealthzService()
+}
+
 class HealthzService() (implicit val context: ActorContext, system: ActorSystem) {
   implicit def executionContext = system.dispatcher
 
