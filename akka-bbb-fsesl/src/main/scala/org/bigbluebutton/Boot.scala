@@ -8,10 +8,15 @@ import org.bigbluebutton.freeswitch.voice.FreeswitchConferenceEventListener
 import org.bigbluebutton.freeswitch.voice.freeswitch.{ ConnectionManager, ESLEventListener, FreeswitchApplication }
 import org.freeswitch.esl.client.manager.DefaultManagerConnection
 import akka.actor.ActorSystem
+import akka.stream.ActorMaterializer
+import akka.http.scaladsl.Http
+import scala.concurrent.ExecutionContext
 
-object Boot extends App with SystemConfiguration {
+object Boot extends App with SystemConfiguration with WebApi {
 
-  implicit val system = ActorSystem("bigbluebutton-fsesl-system")
+  override implicit val system = ActorSystem("bigbluebutton-fsesl-system")
+  override implicit val executor: ExecutionContext = system.dispatcher
+  override implicit val materializer: ActorMaterializer = ActorMaterializer()
 
   val redisPass = if (redisPassword != "") Some(redisPassword) else None
   val redisConfig = RedisConfig(redisHost, redisPort, redisPass, redisExpireKey)
@@ -54,4 +59,16 @@ object Boot extends App with SystemConfiguration {
     ),
     "redis-subscriber"
   )
+
+  val apiService = new ApiService()
+
+  val bindingFuture = Http().bindAndHandle(apiService.routes, httpHost, httpPort)
+
+  println(s"Server online at $httpHost:$httpPort/\nPress RETURN to stop...")
+  /*
+  bindingFuture
+    .flatMap(_.unbind()) // trigger unbinding from the port
+    .onComplete(_ => system.terminate()) // and shutdown when done
+
+ */
 }
