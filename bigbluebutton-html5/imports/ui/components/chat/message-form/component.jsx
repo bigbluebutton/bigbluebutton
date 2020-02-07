@@ -315,7 +315,6 @@ class MessageForm extends PureComponent {
             type="submit"
             disabled={disabled}
             label={intl.formatMessage(messages.submitLabel)}
-            color=""
             icon="send"
             onClick={() => {}}
             data-test="sendMessageButton"

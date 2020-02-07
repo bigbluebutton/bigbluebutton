@@ -78,12 +78,11 @@ export default class ToolbarMenuItem extends Component {
       onBlur,
       className,
       children,
-      showCornerTriangle,
     } = this.props;
 
     return (
       <div
-        className={cx(styles.buttonWrapper, !showCornerTriangle || styles.cornerTriangle)}
+        className={cx(styles.buttonWrapper)}
         hidden={disabled}
       >
         <Button
@@ -127,7 +126,6 @@ ToolbarMenuItem.propTypes = {
   label: PropTypes.string.isRequired,
   className: PropTypes.string.isRequired,
   disabled: PropTypes.bool,
-  showCornerTriangle: PropTypes.bool,
 };
 
 ToolbarMenuItem.defaultProps = {
@@ -137,5 +135,4 @@ ToolbarMenuItem.defaultProps = {
   onBlur: null,
   children: null,
   disabled: false,
-  showCornerTriangle: false,
 };
