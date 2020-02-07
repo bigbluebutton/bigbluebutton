@@ -119,7 +119,7 @@ public:
     autoShareWebcam: false
     skipVideoPreview: false
   pingPong:
-    clearUsersInSeconds: 30
+    clearUsersInSeconds: 180
     pongTimeInSeconds: 15
   allowOutsideCommands:
     toggleRecording: false
