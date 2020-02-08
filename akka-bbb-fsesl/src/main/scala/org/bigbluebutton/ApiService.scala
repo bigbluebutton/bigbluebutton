@@ -15,11 +15,14 @@ class ApiService(healthz: HealthzService)(implicit executor: ExecutionContext, a
   def routes =
     path("healthz") {
       get {
-        val res = healthz.getHealthz()
-
-        val gson = new Gson()
-        val response = new HealthzResponse(res.toFS, res.fromFS)
-        complete(StatusCodes.OK, HttpEntity(ContentTypes.`application/json`, gson.toJson(response)))
+        onSuccess(healthz.getHealthz()) {
+          case res =>
+            val gson = new Gson()
+            val response = new HealthzResponse(res.toFS, res.fromFS)
+            complete(StatusCodes.OK, HttpEntity(ContentTypes.`application/json`, gson.toJson(response)))
+          case _ =>
+            complete(StatusCodes.ServiceUnavailable)
+        }
       }
     }
 }

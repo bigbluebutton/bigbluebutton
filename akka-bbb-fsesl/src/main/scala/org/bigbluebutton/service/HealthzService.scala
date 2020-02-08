@@ -21,16 +21,15 @@ object HealthzService {
 
 class HealthzService(system: ActorSystem) {
   implicit def executionContext = system.dispatcher
-  implicit val timeout: Timeout = 5.seconds
+  implicit val timeout: Timeout = 2.seconds
 
   val actorRef = system.actorOf(HealthzActor.props())
 
-  def getHealthz(): HealthzResponse = {
+  def getHealthz(): Future[HealthzResponse] = {
     println("GETTING HEALTH")
-    var toRes = ""
 
     val future = actorRef.ask(GetHealthStatus).mapTo[HealthzResponse]
-    val result2 = Await.result(future, 1 second)
+    //val result2 = Await.result(future, 1 second)
     /**
      * future onComplete {
      * case Success(result) =>
@@ -44,7 +43,7 @@ class HealthzService(system: ActorSystem) {
      * }
      */
     println("************** GOT HERE !!!!!!!!")
-    result2
+    future
   }
 
   def setFreeswitchHeartbeat(json: String): Unit = {
