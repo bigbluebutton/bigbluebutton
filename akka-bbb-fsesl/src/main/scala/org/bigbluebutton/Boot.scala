@@ -1,11 +1,11 @@
 package org.bigbluebutton
 
 import org.bigbluebutton.common2.bus.IncomingJsonMessageBus
-import org.bigbluebutton.common2.redis.{RedisConfig, RedisPublisher}
+import org.bigbluebutton.common2.redis.{ RedisConfig, RedisPublisher }
 import org.bigbluebutton.endpoint.redis.FSESLRedisSubscriberActor
-import org.bigbluebutton.freeswitch.{RxJsonMsgHdlrActor, VoiceConferenceService}
+import org.bigbluebutton.freeswitch.{ RxJsonMsgHdlrActor, VoiceConferenceService }
 import org.bigbluebutton.freeswitch.voice.FreeswitchConferenceEventListener
-import org.bigbluebutton.freeswitch.voice.freeswitch.{ConnectionManager, ESLEventListener, FreeswitchApplication}
+import org.bigbluebutton.freeswitch.voice.freeswitch.{ ConnectionManager, ESLEventListener, FreeswitchApplication }
 import org.freeswitch.esl.client.manager.DefaultManagerConnection
 import akka.actor.ActorSystem
 import akka.stream.ActorMaterializer
@@ -31,7 +31,9 @@ object Boot extends App with SystemConfiguration with WebApi {
 
   val eslConnection = new DefaultManagerConnection(eslHost, eslPort, eslPassword)
 
-  val voiceConfService = new VoiceConferenceService(redisPublisher)
+  val healthz = HealthzService(system)
+
+  val voiceConfService = new VoiceConferenceService(healthz, redisPublisher)
 
   val fsConfEventListener = new FreeswitchConferenceEventListener(voiceConfService)
   fsConfEventListener.start()
@@ -62,7 +64,6 @@ object Boot extends App with SystemConfiguration with WebApi {
     "redis-subscriber"
   )
 
-  val healthz = HealthzService()(system.)
   val apiService = new ApiService(healthz)
 
   val bindingFuture = Http().bindAndHandle(apiService.routes, httpHost, httpPort)

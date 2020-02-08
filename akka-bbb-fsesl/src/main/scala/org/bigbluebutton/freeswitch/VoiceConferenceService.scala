@@ -5,9 +5,12 @@ import org.bigbluebutton.freeswitch.voice.IVoiceConferenceService
 import org.bigbluebutton.common2.msgs._
 import org.bigbluebutton.common2.util.JsonUtil
 import org.bigbluebutton.common2.redis.RedisPublisher
-import org.bigbluebutton.freeswitch.voice.events.{ ConfMember, ConfRecording }
+import org.bigbluebutton.freeswitch.voice.events.{ConfMember, ConfRecording}
+import org.bigbluebutton.service.HealthzService
 
-class VoiceConferenceService(sender: RedisPublisher) extends IVoiceConferenceService with SystemConfiguration {
+class VoiceConferenceService(healthz: HealthzService,
+                              sender: RedisPublisher,
+                            ) extends IVoiceConferenceService with SystemConfiguration {
 
   val FROM_VOICE_CONF_SYSTEM_CHAN = "bigbluebutton:from-voice-conf:system"
 
@@ -311,11 +314,13 @@ class VoiceConferenceService(sender: RedisPublisher) extends IVoiceConferenceSer
     //println("***** >>>> " + sendCommandTimestamp)
     //println(json)
     //println("<<<< ***** " + receivedResponsTimestatmp)
+    healthz.setFreeswitchStatus(json)
   }
 
   def freeswitchHeartbeatEvent(json: String): Unit = {
     //println("***** >>>> ")
     //println(json)
     //println("<<<< ***** ")
+    healthz.setFreeswitchHeartbeat(json)
   }
 }
