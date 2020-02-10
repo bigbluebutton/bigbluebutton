@@ -4,11 +4,12 @@ const params = require('../params');
 const e = require('./elements');
 
 class Page {
-  constructor(name) {
+  constructor(name, _page) {
     this.name = name;
     this.screenshotIndex = 0;
     this.meetingId;
     this.parentDir = this.getParentDir(__dirname);
+    this._page = _page;
   }
 
   getParentDir(dir) {
@@ -21,7 +22,6 @@ class Page {
   async init(args) {
     this.browser = await puppeteer.launch(args);
     this.page = await this.browser.newPage();
-
     await this.setDownloadBehavior(`${this.parentDir}/downloads`);
 
     this.meetingId = await helper.createMeeting(params);

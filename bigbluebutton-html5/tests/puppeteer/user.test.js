@@ -17,13 +17,13 @@ describe('User', () => {
     expect(response).toBe(true);
   });
 
-  test('Check presence', async () => {
+  test('Multi user presence check', async () => {
     const test = new MultiUsers();
     let response;
     try {
       await test.init(Page.getArgs());
-      await test.joinExtraUser(MultiUsers.getArgs());
-      response = await test.test();
+      await test.initilize(MultiUsers.getArgs());
+      response = await test.checkForOtherUser();
     } catch (err) {
       console.log(err);
     } finally {

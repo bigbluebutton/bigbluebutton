@@ -5,22 +5,30 @@ const helper = require('../core/helper');
 
 class MultiUsers extends Page {
   constructor() {
-    super('multi-users', 'params2');
+    super('multi-users', 'paramsExtraUser');
   }
 
-  async joinExtraUser(args) {
-    this.params2 = { fullName: 'User2' };
-    this.params = { ...params, ...this.params2 };
-    this.context = await this.browser.createIncognitoBrowserContext(args);
-    this.page = await this.context.newPage();
+  // Join BigBlueButton meeting as User2
+  async initilize(args) {
+    const paramsExtraUser = { fullName: 'User2' };
+    this.params = { ...params, ...paramsExtraUser };
+    this.ctx = await this.browser.createIncognitoBrowserContext(args);
+    const page = await this.ctx.newPage();
     const joinURL = helper.getJoinURL(this.meetingId, this.params, true);
-    await this.page.goto(joinURL);
+    await page.goto(joinURL);
   }
 
-  async test() {
+  // Run the test for the page
+  async checkForOtherUser() {
     await this.page.waitForSelector(ule.userListItem);
     const foundUser = await this.page.$$(async () => await document.querySelectorAll(`${ule.userListItem}:not([aria-label="You"])`).length > 0);
     return foundUser !== false;
+  }
+
+  // Close all Pages
+  async close() {
+    const pages = await Promise.all([1, 2].map(() => this.browser, this.ctx));
+    await Promise.all(pages.map(p => p.close()));
   }
 }
 
