@@ -82,6 +82,9 @@ class VideoPlayer extends Component {
     window.addEventListener('beforeunload', this.onBeforeUnload);
 
     clearInterval(this.syncInterval);
+    clearTimeout(this.autoPlayTimeout);
+
+    this.clearVideoListeners();
     this.registerVideoListeners();
   }
 
@@ -96,6 +99,7 @@ class VideoPlayer extends Component {
   componentWillUnmount() {
     window.removeEventListener('resize', this.resizeListener);
     window.removeEventListener('beforeunload', this.onBeforeUnload);
+
     this.clearVideoListeners();
 
     clearInterval(this.syncInterval);
@@ -108,9 +112,25 @@ class VideoPlayer extends Component {
     // Detect presenter change and redo the sync and listeners to reassign video to the new one
     if (this.props.isPresenter !== prevProp.isPresenter) {
       this.clearVideoListeners();
+
       clearInterval(this.syncInterval);
+      clearTimeout(this.autoPlayTimeout);
+
       this.registerVideoListeners();
     }
+  }
+
+  shouldComponentUpdate(nextProps, nextState) {
+    const { isPresenter } = this.props;
+    const { playing } = this.state;
+
+    // If user is presenter we don't re-render playing state changes
+    // Because he's in control of the play/pause status
+    if (nextProps.isPresenter && isPresenter && nextState.playing !== playing) {
+      return false;
+    }
+
+    return true;
   }
 
   static getDerivedStateFromProps(props) {
@@ -280,9 +300,11 @@ class VideoPlayer extends Component {
 
   handleOnPlay() {
     const { isPresenter } = this.props;
-    const curTime = this.player.getCurrentTime();
+    const { playing } = this.state;
 
-    if (isPresenter) {
+    const curTime = this.player && this.player.getCurrentTime();
+
+    if (isPresenter && !playing) {
       sendMessage('play', { time: curTime });
     }
     this.setState({ playing: true });
@@ -292,9 +314,11 @@ class VideoPlayer extends Component {
 
   handleOnPause() {
     const { isPresenter } = this.props;
-    const curTime = this.player.getCurrentTime();
+    const { playing } = this.state;
 
-    if (isPresenter) {
+    const curTime = this.player && this.player.getCurrentTime();
+
+    if (isPresenter && playing) {
       sendMessage('stop', { time: curTime });
     }
     this.setState({ playing: false });
