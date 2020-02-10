@@ -35,9 +35,9 @@
 .recordingControlON {
   @extend %recordingControl;
 
-  padding: 5px;
+  padding: 3px;
   background-color: var(--color-primary);
-  border: var(--border-size-large) solid var(--color-primary);
+  border: 0.5px solid var(--color-primary);
 
   &:focus {
     background-clip: padding-box;
@@ -48,8 +48,8 @@
 .recordingControlOFF {
   @extend %recordingControl;
 
-  padding: 7px;
-  border: var(--border-size-small) solid #5594D4;
+  padding: 3px;
+  border: 0.5px solid #5594D4;
   
   &:focus {
     padding: 5px;
@@ -113,7 +113,5 @@
 }
 
 .presentationTitleSeparator {
-  color: var(--color-gray);
-  font-size: var(--font-size-base);
-  margin: 0 1rem;
+  margin: 0 0.5rem;
 }
