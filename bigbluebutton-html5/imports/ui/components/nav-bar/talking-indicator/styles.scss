@@ -47,7 +47,7 @@
 .talker {
   flex: 0 0 auto;
   @include highContrastOutline();
-  color: white;
+  color: #5594d4;
   font-weight: var(--talker-font-weight);
   border-radius: var(--talker-border-radius) var(--talker-border-radius);
   font-size: var(--font-size-base);
@@ -87,7 +87,7 @@
     font-size: var(--font-size-small);
     width: 1rem;
     height: 1rem;
-    background-color: var(--color-success);
+    color: var(--color-success);
     border-radius: 50%;
     position: relative;
     right: var(--talker-margin-sm);
@@ -120,7 +120,7 @@
   cursor: default;
   
   i {
-    background-color: var(--color-danger);
+    color: var(--color-danger);
   }
 }
 

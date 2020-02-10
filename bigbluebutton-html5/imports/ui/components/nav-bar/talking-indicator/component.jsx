@@ -52,8 +52,8 @@ class TalkingIndicator extends PureComponent {
         0: callerName,
       });
 
-      let icon = talking ? 'unmute' : 'blank';
-      icon = muted ? 'mute' : icon;
+      let icon = talking ? 'unmute_filled' : 'blank';
+      icon = muted ? 'mute_filled' : icon;
 
       return (
         <Button
@@ -63,13 +63,9 @@ class TalkingIndicator extends PureComponent {
           label={callerName}
           aria-label={ariaLabel}
           aria-describedby={talking ? 'description' : null}
-          color="primary"
+          color="default"
           icon={icon}
           size="sm"
-          style={{
-            backgroundColor: color,
-            border: `solid 2px ${color}`,
-          }}
         >
           {talking ? (
             <div id="description" className={styles.hidden}>

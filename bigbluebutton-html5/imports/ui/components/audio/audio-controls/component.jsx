@@ -68,7 +68,7 @@ class AudioControls extends PureComponent {
     let joinIcon = 'audio_off';
     if (inAudio) {
       if (listenOnly) {
-        joinIcon = 'listen';
+        joinIcon = 'listen_filled';
       } else {
         joinIcon = 'audio_on';
       }
@@ -87,7 +87,7 @@ class AudioControls extends PureComponent {
                 : intl.formatMessage(intlMessages.muteAudio)}
               aria-label={muted ? intl.formatMessage(intlMessages.unmuteAudio)
                 : intl.formatMessage(intlMessages.muteAudio)}
-              color={!muted ? 'primary' : 'default'}
+              color="default"
               ghost={muted}
               icon={muted ? 'mute' : 'unmute'}
               size="lg"
@@ -104,7 +104,7 @@ class AudioControls extends PureComponent {
             : intl.formatMessage(intlMessages.joinAudio)}
           label={inAudio ? intl.formatMessage(intlMessages.leaveAudio)
             : intl.formatMessage(intlMessages.joinAudio)}
-          color={inAudio ? 'primary' : 'default'}
+          color="default"
           ghost={!inAudio}
           icon={joinIcon}
           size="lg"
