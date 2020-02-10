@@ -22,7 +22,7 @@ describe('User', () => {
     let response;
     try {
       await test.init(Page.getArgs());
-      await test.joinExtraUser();
+      await test.joinExtraUser(MultiUsers.getArgs());
       response = await test.test();
     } catch (err) {
       console.log(err);

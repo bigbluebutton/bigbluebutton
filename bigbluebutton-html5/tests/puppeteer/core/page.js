@@ -4,8 +4,9 @@ const params = require('../params');
 const e = require('./elements');
 
 class Page {
-  constructor(name) {
+  constructor(name, params2) {
     this.name = name;
+    this.params2 = params2;
     this.screenshotIndex = 0;
     this.meetingId;
     this.parentDir = this.getParentDir(__dirname);
@@ -25,9 +26,9 @@ class Page {
     await this.setDownloadBehavior(`${this.parentDir}/downloads`);
 
     this.meetingId = await helper.createMeeting(params);
-    this.joinURL = helper.getJoinURL(this.meetingId, params, true);
+    const joinURL = helper.getJoinURL(this.meetingId, params, true);
 
-    await this.page.goto(this.joinURL);
+    await this.page.goto(joinURL);
     await this.waitForSelector(e.audioDialog);
     await this.click(e.closeAudio, true);
   }

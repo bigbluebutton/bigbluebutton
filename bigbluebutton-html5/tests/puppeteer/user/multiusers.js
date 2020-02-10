@@ -1,15 +1,20 @@
 const Page = require('../core/page');
 const ule = require('./elements');
+const params = require('../params');
+const helper = require('../core/helper');
 
 class MultiUsers extends Page {
   constructor() {
-    super('multi-users');
+    super('multi-users', 'params2');
   }
 
   async joinExtraUser(args) {
+    this.params2 = { fullName: 'User2' };
+    this.params = { ...params, ...this.params2 };
     this.context = await this.browser.createIncognitoBrowserContext(args);
     this.page = await this.context.newPage();
-    await this.page.goto(this.joinURL);
+    const joinURL = helper.getJoinURL(this.meetingId, this.params, true);
+    await this.page.goto(joinURL);
   }
 
   async test() {
