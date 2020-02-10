@@ -30,11 +30,11 @@ class VideoPlayer extends Component {
     this.player = null;
     this.syncInterval = null;
     this.autoPlayTimeout = null;
+    this.hasPlayedBefore = false;
+    this.playerIsReady = false;
     this.state = {
       mutedByEchoTest: false,
       playing: false,
-      hasPlayedBefore: false,
-      playerIsReady: false,
       autoPlayBlocked: false,
       playbackRate: 1,
     };
@@ -145,10 +145,12 @@ class VideoPlayer extends Component {
 
   handleFirstPlay() {
     const { isPresenter } = this.props;
-    const { hasPlayedBefore } = this.state;
+    const { hasPlayedBefore } = this;
 
     if (!hasPlayedBefore) {
-      this.setState({ hasPlayedBefore: true, autoPlayBlocked: false });
+      this.hasPlayedBefore = true;
+      this.setState({ autoPlayBlocked: false });
+
       clearTimeout(this.autoPlayTimeout);
 
       if (isPresenter) {
@@ -199,44 +201,44 @@ class VideoPlayer extends Component {
 
     if (isPresenter) {
       this.syncInterval = setInterval(() => {
-        const { playing, hasPlayedBefore } = this.state;
+        const { playing } = this.state;
         const curTime = this.player.getCurrentTime();
         const rate = this.getCurrentPlaybackRate();
 
         // Always pause video if presenter is has not started sharing, e.g., blocked by autoplay
-        const playingState = hasPlayedBefore ? playing : false;
+        const playingState = this.hasPlayedBefore ? playing : false;
 
         sendMessage('playerUpdate', { rate, time: curTime, state: playingState });
       }, SYNC_INTERVAL_SECONDS * 1000);
 
     } else {
       onMessage('play', ({ time }) => {
-        const { hasPlayedBefore } = this.state;
+        const { hasPlayedBefore, player } = this;
 
-        if (!this.player || !hasPlayedBefore) {
+        if (!player || !hasPlayedBefore) {
           return;
         }
 
-        this.player.seekTo(time);
+        player.seekTo(time);
         this.setState({ playing: true });
 
         logger.debug({ logCode: 'external_video_client_play' }, 'Play external video');
       });
 
       onMessage('stop', ({ time }) => {
-        const { hasPlayedBefore } = this.state;
+        const { hasPlayedBefore, player } = this;
 
-        if (!this.player || !hasPlayedBefore) {
+        if (!player || !hasPlayedBefore) {
           return;
         }
-        this.player.seekTo(time);
+        player.seekTo(time);
         this.setState({ playing: false });
 
         logger.debug({ logCode: 'external_video_client_stop' }, 'Stop external video');
       });
 
       onMessage('presenterReady', (data) => {
-        const { hasPlayedBefore } = this.state;
+        const { hasPlayedBefore } = this;
 
         logger.debug({ logCode: 'external_video_presenter_ready' }, 'Presenter is ready to sync');
 
@@ -246,13 +248,14 @@ class VideoPlayer extends Component {
       });
 
       onMessage('playerUpdate', (data) => {
-        const { hasPlayedBefore, playing } = this.state;
+        const { hasPlayedBefore, player } = this;
+        const { playing } = this.state;
 
-        if (!this.player || !hasPlayedBefore) {
+        if (!player || !hasPlayedBefore) {
           return;
         }
 
-        if (data.rate !== this.player.props.playbackRate) {
+        if (data.rate !== player.props.playbackRate) {
           this.setState({ playbackRate: data.rate });
           logger.debug({
             logCode: 'external_video_client_update_rate',
@@ -262,8 +265,8 @@ class VideoPlayer extends Component {
           }, 'Change external video playback rate.');
         }
 
-        if (Math.abs(this.player.getCurrentTime() - data.time) > SYNC_INTERVAL_SECONDS) {
-          this.player.seekTo(data.time, true);
+        if (Math.abs(player.getCurrentTime() - data.time) > SYNC_INTERVAL_SECONDS) {
+          player.seekTo(data.time, true);
           logger.debug({
             logCode: 'external_video_client_update_seek',
             extraInfo: {
@@ -281,7 +284,7 @@ class VideoPlayer extends Component {
 
   handleOnReady() {
     const { isPresenter } = this.props;
-    const { hasPlayedBefore, playerIsReady } = this.state;
+    const { hasPlayedBefore, playerIsReady } = this;
 
     if (hasPlayedBefore || playerIsReady) {
       return;
@@ -291,7 +294,7 @@ class VideoPlayer extends Component {
       this.setState({ playing: true });
     }
 
-    this.setState({ playerIsReady: true });
+    this.playerIsReady = true;
 
     this.handleResize();
 
