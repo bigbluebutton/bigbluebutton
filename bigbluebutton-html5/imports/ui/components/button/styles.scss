@@ -214,7 +214,7 @@
     color: $color;
     background-color: $background;
     background-clip: padding-box;
-    box-shadow: 0 0 0 var(--border-size) $border;
+    box-shadow: 0 0 0 var(--border-size) $background;
   }
 
   &:hover,
@@ -234,15 +234,9 @@
   &:focus,
   .buttonWrapper:focus & {
     color: $color;
-    background-color: $variant;
+    background-color: $color;
     background-clip: padding-box;
     box-shadow: 0 0 0 var(--border-size-large) $color;
-  }
-
-  &:hover,
-  .buttonWrapper:hover & {
-    color: $color;
-    background-color: $variant;
   }
 }
 

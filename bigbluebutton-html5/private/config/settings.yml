@@ -283,8 +283,8 @@ public:
         value: rectangle
       - icon: pen_tool
         value: pencil
-      - icon: Toi_Pointer
-        value: Toi_Pointer
+      - icon: hand
+        value: hand
       presenterTools:
       - text
       - line
@@ -292,7 +292,7 @@ public:
       - triangle
       - rectangle
       - pencil
-      - Toi_Pointer
+      - hand
       multiUserTools:
       - text
       - line
@@ -300,7 +300,7 @@ public:
       - triangle
       - rectangle
       - pencil
-      - Toi_Pointer
+      - hand
   clientLog:
     server: { enabled: true, level: info }
     console: { enabled: true, level: debug }

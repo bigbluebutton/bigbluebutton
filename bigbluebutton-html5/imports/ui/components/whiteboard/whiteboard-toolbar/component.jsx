@@ -74,8 +74,8 @@ class WhiteboardToolbar extends Component {
     const { annotations, multiUser, isPresenter } = this.props;
 
     let annotationSelected = {
-      icon: 'Toi_Pointer',
-      value: 'Toi_Pointer',
+      icon: 'hand',
+      value: 'hand',
     };
 
     if (multiUser && !isPresenter) {
@@ -233,7 +233,7 @@ class WhiteboardToolbar extends Component {
     const { target, which } = event;
     const isBody = target.nodeName === 'BODY';
 
-    if (annotationSelected.value === 'Toi_Pointer' || !isBody) return;
+    if (annotationSelected.value === 'hand' || !isBody) return;
 
     const { annotations } = this.props;
 
@@ -448,7 +448,7 @@ class WhiteboardToolbar extends Component {
     return panMode
       ? (
         <ToolbarMenuItem
-          icon="Toi_Pointer"
+          icon="hand"
           label={intl.formatMessage(intlMessages.toolbarItemPan)}
           onItemClick={() => { }}
           className={styles.toolbarButton}
@@ -462,7 +462,7 @@ class WhiteboardToolbar extends Component {
           objectToReturn="annotationList"
           onBlur={this.closeSubMenu}
           className={cx(styles.toolbarButton, currentSubmenuOpen === 'annotationList' ? styles.toolbarActive : null)}
-           
+
         >
           {currentSubmenuOpen === 'annotationList' && annotations.length > 1
             ? (
@@ -494,7 +494,7 @@ class WhiteboardToolbar extends Component {
         objectToReturn="fontSizeList"
         onBlur={this.closeSubMenu}
         className={cx(styles.toolbarButton, currentSubmenuOpen === 'fontSizeList' ? styles.toolbarActive : null)}
-         
+
       >
         {currentSubmenuOpen === 'fontSizeList'
           ? (
@@ -544,7 +544,7 @@ class WhiteboardToolbar extends Component {
       thicknessSelected,
     } = this.state;
 
-    const isDisabled = annotationSelected.value === 'Toi_Pointer' || !annotations.length;
+    const isDisabled = annotationSelected.value === 'hand' || !annotations.length;
     return (
       <ToolbarMenuItem
         disabled={isDisabled}
@@ -556,7 +556,7 @@ class WhiteboardToolbar extends Component {
         onBlur={this.closeSubMenu}
         className={cx(styles.toolbarButton, currentSubmenuOpen === 'thicknessList' ? styles.toolbarActive : null)}
         customIcon={this.renderThicknessItemIcon()}
-         
+
       >
         {currentSubmenuOpen === 'thicknessList'
           ? (
@@ -646,7 +646,7 @@ class WhiteboardToolbar extends Component {
       colorSelected,
     } = this.state;
 
-    const isDisabled = annotationSelected.value === 'Toi_Pointer' || !annotations.length;
+    const isDisabled = annotationSelected.value === 'hand' || !annotations.length;
     return (
       <ToolbarMenuItem
         disabled={isDisabled}
@@ -658,7 +658,7 @@ class WhiteboardToolbar extends Component {
         onBlur={this.closeSubMenu}
         className={cx(styles.toolbarButton, currentSubmenuOpen === 'colorList' ? styles.toolbarActive : null)}
         customIcon={this.renderColorItemIcon()}
-         
+
       >
         {currentSubmenuOpen === 'colorList'
           ? (
@@ -724,7 +724,7 @@ class WhiteboardToolbar extends Component {
       <ToolbarMenuItem
         disabled={!isMeteorConnected}
         label={intl.formatMessage(intlMessages.toolbarUndoAnnotation)}
-        icon="Toi_Undo"
+        icon="undo"
         onItemClick={this.handleUndo}
         className={styles.toolbarButton}
       />
@@ -738,7 +738,7 @@ class WhiteboardToolbar extends Component {
       <ToolbarMenuItem
         disabled={!isMeteorConnected}
         label={intl.formatMessage(intlMessages.toolbarClearAnnotations)}
-        icon="Toi_Delete"
+        icon="delete"
         onItemClick={this.handleClearAll}
         className={styles.toolbarButton}
       />
@@ -755,7 +755,7 @@ class WhiteboardToolbar extends Component {
           ? intl.formatMessage(intlMessages.toolbarMultiUserOff)
           : intl.formatMessage(intlMessages.toolbarMultiUserOn)
         }
-        icon={multiUser ? 'Toi_Multiuser_Whiteboard_30' : 'whiteboard'}
+        icon={multiUser ? 'multi_whiteboard' : 'whiteboard'}
         onItemClick={this.handleSwitchWhiteboardMode}
         className={styles.toolbarButton}
       />

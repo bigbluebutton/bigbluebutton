@@ -135,7 +135,7 @@ class ChatDropdown extends PureComponent {
             ghost
             circle
             hideLabel
-            color="primary"
+            color="default"
             label={intl.formatMessage(intlMessages.options)}
             aria-label={intl.formatMessage(intlMessages.options)}
             onClick={() => null}
