@@ -87,6 +87,7 @@ class PresentationArea extends PureComponent {
     const { currentPresentation, notify, intl } = this.props;
 
     if (prevProps.currentPresentation.name !== currentPresentation.name) {
+      Session.set('currentPresID', currentPresentation.id);
       notify(
         `${intl.formatMessage(intlMessages.changeNotification)} ${currentPresentation.name}`,
         'info',

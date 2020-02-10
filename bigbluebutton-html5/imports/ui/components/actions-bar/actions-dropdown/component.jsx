@@ -8,7 +8,6 @@ import DropdownTrigger from '/imports/ui/components/dropdown/trigger/component';
 import DropdownContent from '/imports/ui/components/dropdown/content/component';
 import DropdownList from '/imports/ui/components/dropdown/list/component';
 import DropdownListItem from '/imports/ui/components/dropdown/list/item/component';
-import PresentationUploaderContainer from '/imports/ui/components/presentation/presentation-uploader/container';
 import { withModalMounter } from '/imports/ui/components/modal/service';
 import withShortcutHelper from '/imports/ui/components/shortcut-help/service';
 import { styles } from '../styles';
@@ -182,8 +181,7 @@ class ActionsDropdown extends PureComponent {
   }
 
   handlePresentationClick() {
-    const { mountModal } = this.props;
-    mountModal(<PresentationUploaderContainer />);
+    Session.set('uploadReq', true);
   }
 
   render() {
