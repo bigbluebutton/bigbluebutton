@@ -5,6 +5,7 @@
   --whiteboard-toolbar-padding-sm: .3rem; 
   --whiteboard-toolbar-padding: .5rem; 
   --whiteboard-toolbar-margin: .5rem; 
+  --presentation-toolbar-color: #93abc2;
 }
 
 .visuallyhidden {
@@ -81,7 +82,7 @@
     }
 
     option {
-      color: var(--toolbar-button-color);
+      color: var(--presentation-toolbar-color);
       background-color: var(--color-off-white);
     }
   }
@@ -89,7 +90,7 @@
   button,
   select,
   >div {
-    color: var(--toolbar-button-color);
+    color: var(--presentation-toolbar-color);
     background-color: var(--color-off-white);
     border-radius: 0;
     box-shadow: none !important;
@@ -102,7 +103,7 @@
   }
 
   i {
-    color: var(--toolbar-button-color);
+    color: var(--presentation-toolbar-color);
     display: flex;
     justify-content: center;
     align-items: center;
