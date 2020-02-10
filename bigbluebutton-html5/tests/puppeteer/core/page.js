@@ -4,9 +4,8 @@ const params = require('../params');
 const e = require('./elements');
 
 class Page {
-  constructor(name, params2) {
+  constructor(name) {
     this.name = name;
-    this.params2 = params2;
     this.screenshotIndex = 0;
     this.meetingId;
     this.parentDir = this.getParentDir(__dirname);
