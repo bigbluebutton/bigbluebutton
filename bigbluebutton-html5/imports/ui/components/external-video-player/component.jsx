@@ -75,6 +75,8 @@ class VideoPlayer extends Component {
     this.handleOnPlay = this.handleOnPlay.bind(this);
     this.handleOnPause = this.handleOnPause.bind(this);
     this.sendSyncMessage = this.sendSyncMessage.bind(this);
+    this.getCurrentPlaybackRate = this.getCurrentPlaybackRate.bind(this);
+    this.setPlaybackRate = this.setPlaybackRate.bind(this);
     this.resizeListener = () => {
       setTimeout(this.handleResize, 0);
     };
@@ -178,6 +180,15 @@ class VideoPlayer extends Component {
     return (intPlayer && intPlayer.getPlaybackRate && intPlayer.getPlaybackRate()) || 1;
   }
 
+  setPlaybackRate(rate) {
+    const intPlayer = this.player.getInternalPlayer();
+
+    this.setState({ playbackRate: rate });
+    if (intPlayer && intPlayer.setPlaybackRate) {
+      intPlayer.setPlaybackRate(rate);
+    }
+  }
+
   handleResize() {
     if (!this.player || !this.playerParent) {
       return;
@@ -268,8 +279,8 @@ class VideoPlayer extends Component {
           return;
         }
 
-        if (data.rate !== player.props.playbackRate) {
-          this.setState({ playbackRate: data.rate });
+        if (data.rate !== this.getCurrentPlaybackRate()) {
+          this.setPlaybackRate(data.rate);
           logger.debug({
             logCode: 'external_video_client_update_rate',
             extraInfo: {
