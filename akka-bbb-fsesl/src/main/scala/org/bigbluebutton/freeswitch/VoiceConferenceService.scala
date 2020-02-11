@@ -7,6 +7,7 @@ import org.bigbluebutton.common2.util.JsonUtil
 import org.bigbluebutton.common2.redis.RedisPublisher
 import org.bigbluebutton.freeswitch.voice.events.{ConfMember, ConfRecording}
 import org.bigbluebutton.service.HealthzService
+import scala.collection.JavaConverters._
 
 class VoiceConferenceService(healthz: HealthzService,
                               sender: RedisPublisher,
@@ -306,7 +307,7 @@ class VoiceConferenceService(healthz: HealthzService,
 
   def freeswitchStatusReplyEvent(
       sendCommandTimestamp:      java.lang.Long,
-      json:                      String,
+      status:                      java.util.List[String],
       receivedResponsTimestatmp: java.lang.Long
   ): Unit = {
     // Placeholder so we can add a /healthz check endpoint to
@@ -314,13 +315,15 @@ class VoiceConferenceService(healthz: HealthzService,
     //println("***** >>>> " + sendCommandTimestamp)
     //println(json)
     //println("<<<< ***** " + receivedResponsTimestatmp)
-    healthz.setFreeswitchStatus(json)
+    val seq = status.asScala.toIndexedSeq.toVector
+    println(seq)
+    healthz.setFreeswitchStatus(seq)
   }
 
-  def freeswitchHeartbeatEvent(json: String): Unit = {
+  def freeswitchHeartbeatEvent(heartbeat: java.util.Map[String, String]): Unit = {
     //println("***** >>>> ")
     //println(json)
     //println("<<<< ***** ")
-    healthz.setFreeswitchHeartbeat(json)
+    healthz.setFreeswitchHeartbeat(heartbeat.asScala.toMap)
   }
 }

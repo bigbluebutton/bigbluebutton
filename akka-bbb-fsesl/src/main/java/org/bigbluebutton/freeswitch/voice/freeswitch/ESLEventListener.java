@@ -290,8 +290,8 @@ public class ESLEventListener implements IEslEventListener {
         if (event.getEventName().equals("HEARTBEAT")) {
             Gson gson = new Gson();
             String json = gson.toJson(event.getEventHeaders());
-            log.info(json);
-            FreeswitchHeartbeatEvent hbeatEvent = new FreeswitchHeartbeatEvent(json);
+            //log.info(json);
+            FreeswitchHeartbeatEvent hbeatEvent = new FreeswitchHeartbeatEvent(event.getEventHeaders());
             conferenceEventListener.handleConferenceEvent(hbeatEvent);
 
         } else if (event.getEventName().equals( "CHANNEL_EXECUTE" )) {

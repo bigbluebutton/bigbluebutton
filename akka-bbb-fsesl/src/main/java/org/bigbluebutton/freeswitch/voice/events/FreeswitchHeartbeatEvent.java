@@ -1,11 +1,13 @@
 package org.bigbluebutton.freeswitch.voice.events;
 
+import java.util.Map;
+
 public class FreeswitchHeartbeatEvent extends VoiceConferenceEvent {
 
-    public final String healthStatusJson;
+    public final Map<String, String> heartbeat;
 
-    public FreeswitchHeartbeatEvent(String healthStatusJson) {
+    public FreeswitchHeartbeatEvent(Map<String, String> heartbeat) {
         super("unused");
-        this.healthStatusJson = healthStatusJson;
+        this.heartbeat = heartbeat;
     }
 }

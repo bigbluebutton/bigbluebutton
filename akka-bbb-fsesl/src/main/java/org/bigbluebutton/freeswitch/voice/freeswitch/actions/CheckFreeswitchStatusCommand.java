@@ -36,7 +36,7 @@ public class CheckFreeswitchStatusCommand extends FreeswitchCommand {
         log.info(gson.toJson(response.getBodyLines()));
         FreeswitchStatusReplyEvent statusEvent = new FreeswitchStatusReplyEvent(
                 sendCommandTimestamp,
-                gson.toJson(response.getBodyLines()),
+                response.getBodyLines(),
                 receivedResponsTimestatmp);
         eventListener.handleConferenceEvent(statusEvent);
     }

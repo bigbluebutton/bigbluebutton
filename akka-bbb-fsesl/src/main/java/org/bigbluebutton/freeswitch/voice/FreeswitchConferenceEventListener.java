@@ -26,6 +26,7 @@ import org.bigbluebutton.freeswitch.voice.events.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+
 public class FreeswitchConferenceEventListener implements ConferenceEventListener {
   private static Logger log = LoggerFactory.getLogger(FreeswitchConferenceEventListener.class);
 
@@ -113,11 +114,11 @@ public class FreeswitchConferenceEventListener implements ConferenceEventListene
         } else if (event instanceof FreeswitchStatusReplyEvent) {
           FreeswitchStatusReplyEvent evt = (FreeswitchStatusReplyEvent) event;
           vcs.freeswitchStatusReplyEvent(evt.sendCommandTimestamp,
-                  evt.jsonResponse,
+                  evt.status,
                   evt.receivedResponsTimestatmp);
         } else if (event instanceof FreeswitchHeartbeatEvent) {
           FreeswitchHeartbeatEvent hbearEvt = (FreeswitchHeartbeatEvent) event;
-          vcs.freeswitchHeartbeatEvent(hbearEvt.healthStatusJson);
+          vcs.freeswitchHeartbeatEvent(hbearEvt.heartbeat);
         }
 
       }

@@ -4,15 +4,14 @@ import akka.actor.{ Actor, ActorContext, ActorLogging, Props }
 import akka.actor.ActorSystem
 import akka.pattern.ask
 import akka.util.Timeout
+import com.google.gson.Gson
 
 import scala.concurrent.duration._
-import scala.util.Success
-import scala.util.Failure
-import scala.concurrent.{ Await, Future }
+import scala.concurrent.{ Future }
 
-case class HealthzResponse(toFS: String, fromFS: String)
-case class ToFSStatus(status: String)
-case class FromFsStatus(status: String)
+case class HealthzResponse(toFS: Array[String], fromFS: Map[String, String])
+case class ToFSStatus(status: Vector[String])
+case class FromFsStatus(status: Map[String, String])
 case object GetHealthStatus
 
 object HealthzService {
@@ -46,11 +45,11 @@ class HealthzService(system: ActorSystem) {
     future
   }
 
-  def setFreeswitchHeartbeat(json: String): Unit = {
+  def setFreeswitchHeartbeat(json: Map[String, String]): Unit = {
     actorRef ! FromFsStatus(json)
   }
 
-  def setFreeswitchStatus(json: String): Unit = {
+  def setFreeswitchStatus(json: Vector[String]): Unit = {
     actorRef ! ToFSStatus(json)
   }
 }
@@ -62,24 +61,27 @@ object HealthzActor {
 class HealthzActor extends Actor
   with ActorLogging {
 
-  var heartbeat = ""
+  var heartbeat: Map[String, String] = Map.empty
   var lastHeartbeatTimestamp: Long = System.currentTimeMillis()
 
-  var fsStatus = ""
+  var fsStatus: Vector[String] = Vector.empty
   var lastFsStatus: Long = System.currentTimeMillis()
 
   def receive = {
     case msg: ToFSStatus =>
-      println(msg)
+      val gson = new Gson()
+      println("ToFSStatus => " + gson.toJson(msg.status.toArray))
       fsStatus = msg.status
       lastFsStatus = System.currentTimeMillis()
     case msg: FromFsStatus =>
-      println(msg)
+      println("FromFsStatus => " + msg)
+      val gson = new Gson()
       heartbeat = msg.status
       lastHeartbeatTimestamp = System.currentTimeMillis()
     case GetHealthStatus =>
       println("GetHealthStatus")
-      sender ! HealthzResponse(fsStatus, heartbeat)
+      println("GetHealthStatus => " + heartbeat)
+      sender ! HealthzResponse(fsStatus.toArray, heartbeat)
     case _ => println("that was unexpected")
   }
 }
