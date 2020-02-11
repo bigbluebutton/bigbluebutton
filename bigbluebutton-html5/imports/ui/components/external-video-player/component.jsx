@@ -76,6 +76,7 @@ class VideoPlayer extends Component {
     this.handleOnPause = this.handleOnPause.bind(this);
     this.sendSyncMessage = this.sendSyncMessage.bind(this);
     this.getCurrentPlaybackRate = this.getCurrentPlaybackRate.bind(this);
+    this.getCurrentTime = this.getCurrentTime.bind(this);
     this.setPlaybackRate = this.setPlaybackRate.bind(this);
     this.resizeListener = () => {
       setTimeout(this.handleResize, 0);
@@ -174,14 +175,20 @@ class VideoPlayer extends Component {
     }
   }
 
+  getCurrentTime() {
+    if (this.player && this.player.getCurrentTime) {
+      return this.player.getCurrentTime();
+    }
+  }
+
   getCurrentPlaybackRate() {
-    const intPlayer = this.player.getInternalPlayer();
+    const intPlayer = this.player && this.player.getInternalPlayer();
 
     return (intPlayer && intPlayer.getPlaybackRate && intPlayer.getPlaybackRate()) || 1;
   }
 
   setPlaybackRate(rate) {
-    const intPlayer = this.player.getInternalPlayer();
+    const intPlayer = this.player && this.player.getInternalPlayer();
 
     this.setState({ playbackRate: rate });
     if (intPlayer && intPlayer.setPlaybackRate) {
@@ -226,7 +233,7 @@ class VideoPlayer extends Component {
     if (isPresenter) {
       this.syncInterval = setInterval(() => {
         const { playing } = this.state;
-        const curTime = this.player.getCurrentTime();
+        const curTime = this.getCurrentTime();
         const rate = this.getCurrentPlaybackRate();
 
         // Always pause video if presenter is has not started sharing, e.g., blocked by autoplay
@@ -289,7 +296,7 @@ class VideoPlayer extends Component {
           }, 'Change external video playback rate.');
         }
 
-        if (Math.abs(player.getCurrentTime() - data.time) > SYNC_INTERVAL_SECONDS) {
+        if (Math.abs(this.getCurrentTime() - data.time) > SYNC_INTERVAL_SECONDS) {
           player.seekTo(data.time, true);
           logger.debug({
             logCode: 'external_video_client_update_seek',
@@ -329,7 +336,7 @@ class VideoPlayer extends Component {
     const { isPresenter } = this.props;
     const { playing } = this.state;
 
-    const curTime = this.player && this.player.getCurrentTime();
+    const curTime = this.getCurrentTime();
 
     if (isPresenter && !playing) {
       this.sendSyncMessage('play', { time: curTime });
@@ -343,7 +350,7 @@ class VideoPlayer extends Component {
     const { isPresenter } = this.props;
     const { playing } = this.state;
 
-    const curTime = this.player && this.player.getCurrentTime();
+    const curTime = this.getCurrentTime();
 
     if (isPresenter && playing) {
       this.sendSyncMessage('stop', { time: curTime });
