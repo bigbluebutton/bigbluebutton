@@ -107,6 +107,8 @@ public class ConnectionManager {
 			}
 		} catch (InboundConnectionFailure e) {
 			log.error("Failed to connect to ESL");
+		} catch(Exception e) {
+			log.error(e.getMessage());
 		}
 	}
 
