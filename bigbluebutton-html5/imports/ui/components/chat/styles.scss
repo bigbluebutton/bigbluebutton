@@ -54,11 +54,18 @@
 
 .hideBtn {
   position: relative;
-  background-color: #CCD5DE;
+   background-color: #CCD5DE;
+  
   color:#0059B1 !important;
   font-family: Muli;
+
   font-style: normal;
   font-weight: normal;
+
+  font-size: var(--font-size-12px);
+  line-height: var(--font-size-15px);
+  text-transform: capitalize; 
+
   display: block;
   margin: var(--border-size-large);
   margin-bottom: var(--border-size);

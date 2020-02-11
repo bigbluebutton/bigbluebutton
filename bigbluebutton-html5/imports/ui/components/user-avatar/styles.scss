@@ -1,6 +1,8 @@
 @import "/imports/ui/stylesheets/variables/palette";
 @import "/imports/ui/stylesheets/variables/general";
 @import "/imports/ui/stylesheets/mixins/_indicators";
+@import "/imports/ui/stylesheets/variables/typography";
+
 
 /* Variables
  * ==========
@@ -19,7 +21,15 @@
   padding-bottom: 2rem;
   border-radius: 50%;
   text-align: center;
-  font-size: .85rem;
+
+  font-family: Montserrat;
+  font-style: normal;
+  font-weight: 500;
+  font-size: var(--font-size-13px);
+  line-height: var(--font-size-16px);
+  text-transform: capitalize;
+  color: #EEEEEE;
+
   border: 2px solid transparent;
 
   :global(.animationsEnabled) & {
@@ -175,9 +185,7 @@
   text-align: center;
   left: 0;
   right: 0;
-  font-size: 110%;
-  text-transform: capitalize;
-
+  
   &,
   & > * {
     line-height: 0; // to keep centralized vertically

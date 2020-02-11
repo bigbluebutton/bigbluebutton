@@ -36,8 +36,7 @@
   @extend %recordingControl;
 
   padding: 3px;
-  background-color: var(--color-primary);
-  border: 0.5px solid var(--color-primary);
+  border: 0.5px solid #5594D4;
 
   &:focus {
     background-clip: padding-box;
@@ -62,12 +61,16 @@
   display: flex;
   flex-direction: column;
   justify-content: center;
-  font-weight: 500;
+
   font-family: Montserrat;
+  font-style: normal;
+  font-weight: 500;
+  font-size: var(--font-size-13px);
+  line-height: var(--font-size-16px);
   color: #5594D4 !important;
-  font-size: var(--font-size-base);
+  
   padding: 0;
-  margin-left: var(--sm-padding-x);
+  margin-left: var(--vsm-padding-x);
   margin-right: 0;
   white-space: nowrap;
   overflow: hidden;
@@ -80,7 +83,7 @@
   }
 
   > [class^="icon-bbb-"] {
-    font-size: 75%;
+    font-size: 100%;
   }
 
   span {
