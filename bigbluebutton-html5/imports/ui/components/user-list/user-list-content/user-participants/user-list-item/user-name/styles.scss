@@ -1,4 +1,5 @@
 @import "/imports/ui/components/user-list/styles.scss";
+@import "/imports/ui/stylesheets/variables/typography";
 
 .userName {
   @extend %flex-column;
@@ -15,14 +16,18 @@
 
 .userNameMain {
   @extend %no-margin;
-  font-size: 0.9rem;
   font-family: Muli;
   font-style: normal;
+  font-weight: normal;
+  font-size: var(--font-size-12px);
+  line-height: var(--font-size-15px);
+  text-transform: capitalize;
+  color: #82B3E3;
+  
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-  font-weight: normal;
-  color: #82B3E3;
+
   display: flex;
   flex-direction: row;
 
