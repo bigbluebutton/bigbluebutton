@@ -56,6 +56,10 @@
   vertical-align: middle;
   cursor: pointer;
   user-select: none;
+  border: 0.5px solid #5594d4;
+  i{
+    color: #5594d4;
+  }
 
   &:-moz-focusring {
     outline: none;

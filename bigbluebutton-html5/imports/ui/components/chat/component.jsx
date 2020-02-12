@@ -66,7 +66,7 @@ const Chat = (props) => {
             label={title}
             icon="left_arrow"
             className={styles.hideBtn}
-            color="primary"
+            color="default"
           />
         </div>
         {
@@ -76,7 +76,7 @@ const Chat = (props) => {
                 icon="close"
                 size="sm"
                 ghost
-                color="dark"
+                color="default"
                 hideLabel
                 onClick={() => {
                   actions.handleClosePrivateChat(chatID);

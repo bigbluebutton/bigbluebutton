@@ -66,20 +66,24 @@ class AudioControls extends PureComponent {
     } = this.props;
 
     let joinIcon = 'audio_off';
+    let endCall = false;
     if (inAudio) {
       if (listenOnly) {
         joinIcon = 'listen_filled';
       } else {
         joinIcon = 'audio_on';
+        endCall=true;
       }
     }
+    let muteState='';
+    let audioIcon='';
 
     return (
       <span className={styles.container}>
         {showMute && isVoiceUser
           ? (
             <Button
-              className={cx(styles.button, !talking || styles.glow, !muted || styles.btn)}
+              className={cx(styles.button, !talking, muteState=muted ? styles.muteBtn : styles.unmuteBtn || styles.glow, !muted || styles.btn)}
               onClick={handleToggleMuteMicrophone}
               disabled={disable}
               hideLabel
@@ -96,7 +100,7 @@ class AudioControls extends PureComponent {
             />
           ) : null}
         <Button
-          className={cx(styles.button, inAudio || styles.btn)}
+          className={cx(styles.button, inAudio, audioIcon = endCall ? styles.endingCall : null)}
           onClick={inAudio ? handleLeaveAudio : handleJoinAudio}
           disabled={disable}
           hideLabel
