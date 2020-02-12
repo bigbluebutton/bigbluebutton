@@ -1,4 +1,5 @@
 @import "/imports/ui/stylesheets/variables/_all";
+@import "/imports/ui/stylesheets/variables/typography";
 
 :root {
   --systemMessage-background-color: #F9FBFC;
@@ -81,8 +82,10 @@
     font-family: Muli;
     font-style: normal;
     font-weight: normal;
-    font-size: 10px;
-    line-height: 13px;
+    font-size: var(--font-size-10px);
+    line-height:var(--font-size-13px);
+    text-transform: capitalize;
+    align-self: center;
   }
   :first-child {
     @extend %text-elipsis;
@@ -109,12 +112,14 @@
 }
 
 .offline {
-  color: var(--color-gray-light);
-  font-weight: 100;
-  text-transform: lowercase;
+  
+  color: #1A5577;
+  font-family: Muli;
   font-style: italic;
-  font-size: 90%;
-  line-height: 1;
+  font-weight: 100;
+  font-size: var(--font-size-17px);
+  line-height:var(--font-size-13px);
+  text-transform: lowercase;
   align-self: center;
 }
 
@@ -126,11 +131,12 @@
   font-family: Muli;
   font-style: normal;
   font-weight: normal;
-  // font-size: 10px;
-  // line-height: 13px;
-  // text-align: right;
-  text-transform: uppercase;
-  font-size: 75%;
+  font-size: var(--font-size-10px);
+  line-height: var(--font-size-13px);
+  text-align: right;
+  text-transform: capitalize;
+  //text-transform: uppercase;
+  // font-size: 75%;
   margin: 0 0 0 calc(var(--line-height-computed) / 2);
   align-self: right;
   [dir="rtl"] & {
@@ -142,15 +148,15 @@
   }
 }
 
-// .messages {
-//   > .message:first-child {
-//     margin-top: calc(var(--line-height-computed) / 4);
-//     color:#03213F;
-//     font-family: Montserrat;
-//     font-style: normal;
-//     font-weight: normal;
-//   }
-// }
+.messages {   
+    font-family: Montserrat;
+    font-style: normal;
+    font-weight: normal;
+    font-size: var(--font-size-14px);
+    line-height: var(--font-size-17px);
+    text-transform: capitalize;
+    color: #03213F;
+}
 
 .message, .hyperlink {
   flex: 1;

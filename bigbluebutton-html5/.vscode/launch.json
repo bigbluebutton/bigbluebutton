@@ -1,0 +1,25 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "type": "chrome",
+            "request": "launch",
+            "name": "Meteor: launchBrowser",
+            "url": "https://bbb.pipitacademy.com",
+            "webRoot": "${workspaceFolder}"
+        },
+        {
+            "type": "node",
+            "request": "attach",
+            "name": "Meteor: attach",
+            "port": 9229,
+            "timeout": 30000
+        }
+    ],
+    "compounds": [
+        {
+            "name": "Meteor: All",
+            "configurations": ["Meteor: attach", "Meteor: Chrome"]
+        }
+    ]
+}
