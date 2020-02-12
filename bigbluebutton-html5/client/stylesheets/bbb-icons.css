@@ -58,7 +58,7 @@
 
   content: "\e932";
 
-  color: #dd6161;
+  /* color: #dd6161; */
 
 	}
 
@@ -66,7 +66,6 @@
 
   content: "\e931";
   
-  color: #64a959;
 
 	}
 
@@ -200,15 +199,12 @@
 
     content: "\e902";
 
-    color: #5594d4;
-
   }
 
 	.icon-bbb-more:before {
 
 	content: "\e902";
-
-  color: #5594d4;
+	color: #0059b1;
 	display: inline-block;
 
 	transform: rotate(90deg);
@@ -326,7 +322,6 @@
 	.icon-bbb-audio_on:before {
 
   content: "\e91a";
-  color: #dd6161;
 
 	}
 
@@ -426,8 +421,6 @@
 .icon-bbb-unmute_filled:before {
   
   content: "\e938";
-  
-  color: #64a959;
 
 	}
 

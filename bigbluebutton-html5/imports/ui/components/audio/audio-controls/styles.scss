@@ -34,6 +34,39 @@
   }
 }
 
+.muteBtn{
+  i{
+    color: #dd6161 !important;
+  }
+  &.button {
+    span {
+      border: 0.5px solid #dd6161;
+    }
+  }
+}
+
+.unmuteBtn{
+  i{
+    color: #64a959 !important;
+  }
+  &.button {
+    span {
+      border: 0.5px solid #64a959;
+    }
+  }
+}
+
+.endingCall{
+  i{
+    color: #dd6161 !important;
+  }
+  &.button {
+    span {
+      border: 0.5px solid #dd6161 !important;
+    }
+  }
+
+}
 .glow {
   border-radius: 50%;
   
