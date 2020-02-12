@@ -1,34 +1,42 @@
 const Page = require('../core/page');
-const ule = require('./elements');
 const params = require('../params');
-const helper = require('../core/helper');
+const ule = require('./elements');
 
-class MultiUsers extends Page {
+class MultiUsers {
   constructor() {
-    super('multi-users', 'paramsExtraUser');
+    this.page1 = new Page();
+    this.page2 = new Page();
   }
 
-  // Join BigBlueButton meeting as User2
-  async initilize(args) {
+  // Join BigBlueButton meeting
+  async init(args, meetingId) {
+    // Adding User2 username to params.js
     const paramsExtraUser = { fullName: 'User2' };
     this.params = { ...params, ...paramsExtraUser };
-    this.ctx = await this.browser.createIncognitoBrowserContext(args);
-    const page = await this.ctx.newPage();
-    const joinURL = helper.getJoinURL(this.meetingId, this.params, true);
-    await page.goto(joinURL);
+
+    await this.page1.init(args, meetingId, params);
+    await this.page2.init(args, this.page1.meetingId, this.params);
   }
 
   // Run the test for the page
   async checkForOtherUser() {
-    await this.page.waitForSelector(ule.userListItem);
-    const foundUser = await this.page.$$(async () => await document.querySelectorAll(`${ule.userListItem}:not([aria-label="You"])`).length > 0);
-    return foundUser !== false;
+    const firstCheck = await this.page1.page.evaluate(() => document.querySelectorAll('[data-test="userListItem"]').length > 0);
+    const secondCheck = await this.page2.page.evaluate(() => document.querySelectorAll('[data-test="userListItem"]').length > 0);
+    return {
+      firstCheck,
+      secondCheck,
+    };
+  }
+
+  async test() {
+    const checks = await this.checkForOtherUser(this.page1, this.page2);
+    return checks.firstCheck !== false && checks.secondCheck !== false;
   }
 
   // Close all Pages
   async close() {
-    const pages = await Promise.all([1, 2].map(() => this.browser, this.ctx));
-    await Promise.all(pages.map(p => p.close()));
+    await this.page1.close();
+    await this.page2.close();
   }
 }
 

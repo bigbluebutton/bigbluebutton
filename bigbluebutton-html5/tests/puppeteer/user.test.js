@@ -7,7 +7,7 @@ describe('User', () => {
     const test = new Status();
     let response;
     try {
-      await test.init(Page.getArgs());
+      await test.init();
       response = await test.test();
     } catch (e) {
       console.log(e);
@@ -22,8 +22,7 @@ describe('User', () => {
     let response;
     try {
       await test.init(Page.getArgs());
-      await test.initilize(MultiUsers.getArgs());
-      response = await test.checkForOtherUser();
+      response = await test.test();
     } catch (err) {
       console.log(err);
     } finally {

@@ -4,12 +4,11 @@ const params = require('../params');
 const e = require('./elements');
 
 class Page {
-  constructor(name, _page) {
+  constructor(name) {
     this.name = name;
     this.screenshotIndex = 0;
     this.meetingId;
     this.parentDir = this.getParentDir(__dirname);
-    this._page = _page;
   }
 
   getParentDir(dir) {
@@ -19,13 +18,14 @@ class Page {
   }
 
   // Join BigBlueButton meeting
-  async init(args) {
+  async init(args, meetingId, newParams) {
     this.browser = await puppeteer.launch(args);
     this.page = await this.browser.newPage();
-    await this.setDownloadBehavior(`${this.parentDir}/downloads`);
 
-    this.meetingId = await helper.createMeeting(params);
-    const joinURL = helper.getJoinURL(this.meetingId, params, true);
+    await this.setDownloadBehavior(`${this.parentDir}/downloads`);
+    this.meetingId = await helper.createMeeting(params, meetingId);
+
+    const joinURL = helper.getJoinURL(this.meetingId, newParams || params, true);
 
     await this.page.goto(joinURL);
     await this.waitForSelector(e.audioDialog);
