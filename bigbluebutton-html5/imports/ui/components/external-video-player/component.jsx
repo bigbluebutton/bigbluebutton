@@ -314,15 +314,10 @@ class VideoPlayer extends Component {
   }
 
   handleOnReady() {
-    const { isPresenter } = this.props;
     const { hasPlayedBefore, playerIsReady } = this;
 
     if (hasPlayedBefore || playerIsReady) {
       return;
-    }
-
-    if (isPresenter) {
-      this.setState({ playing: true });
     }
 
     this.playerIsReady = true;
