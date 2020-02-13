@@ -152,6 +152,8 @@ class ReceivedJsonMsgHandlerActor(
         routeVoiceMsg[CheckRunningAndRecordingVoiceConfEvtMsg](envelope, jsonNode)
       case UserStatusVoiceConfEvtMsg.NAME =>
         routeVoiceMsg[UserStatusVoiceConfEvtMsg](envelope, jsonNode)
+      case VoiceConfCallStateEvtMsg.NAME =>
+        routeVoiceMsg[VoiceConfCallStateEvtMsg](envelope, jsonNode)
 
       // Breakout rooms
       case BreakoutRoomsListMsg.NAME =>
