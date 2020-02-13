@@ -21,7 +21,7 @@ describe('User', () => {
     const test = new MultiUsers();
     let response;
     try {
-      await test.init(Page.getArgs());
+      await test.init();
       response = await test.test();
     } catch (err) {
       console.log(err);

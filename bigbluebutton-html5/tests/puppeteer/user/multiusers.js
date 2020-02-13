@@ -1,6 +1,5 @@
 const Page = require('../core/page');
 const params = require('../params');
-const ule = require('./elements');
 
 class MultiUsers {
   constructor() {
@@ -9,13 +8,9 @@ class MultiUsers {
   }
 
   // Join BigBlueButton meeting
-  async init(args, meetingId) {
-    // Adding User2 username to params.js
-    const paramsExtraUser = { fullName: 'User2' };
-    this.params = { ...params, ...paramsExtraUser };
-
-    await this.page1.init(args, meetingId, params);
-    await this.page2.init(args, this.page1.meetingId, this.params);
+  async init(meetingId) {
+    await this.page1.init(Page.getArgs(), meetingId, params);
+    await this.page2.init(Page.getArgs(), this.page1.meetingId, { ...params, fullName: 'User2' });
   }
 
   // Run the test for the page
