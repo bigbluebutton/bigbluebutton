@@ -1,18 +1,27 @@
 package org.bigbluebutton.service
 
+import java.text.SimpleDateFormat
+
 import akka.actor.{ Actor, ActorContext, ActorLogging, Props }
 import akka.actor.ActorSystem
-import akka.pattern.ask
+import akka.pattern.{ AskTimeoutException, ask }
 import akka.util.Timeout
 import com.google.gson.Gson
 
 import scala.concurrent.duration._
-import scala.concurrent.{ Future }
+import scala.concurrent.Future
 
-case class HealthzResponse(toFS: Array[String], fromFS: Map[String, String])
-case class ToFSStatus(status: Vector[String])
-case class FromFsStatus(status: Map[String, String])
-case object GetHealthStatus
+sealed trait HealthMessage
+
+case class FreeswitchStatusMessage(status: Vector[String]) extends HealthMessage
+case class FreeswitchHeartbeatMessage(status: Map[String, String]) extends HealthMessage
+case class GetHealthResponseMessage(isHealthy: Boolean) extends HealthMessage
+case object GetHealthMessage extends HealthMessage
+case object GetFreeswitchStatusMessage extends HealthMessage
+case class GetFreeswitchStatusResponseMessage(status: Array[String], heartbeat: Map[String, String]) extends HealthMessage
+
+case class FreeswitchStatus(lastUpdateOn: Long, lastUpdateOnHuman: String, status: Vector[String])
+case class FreeswitchHeartbeat(lastUpdateOn: Long, lastUpdateOnHuman: String, heartbeat: Map[String, String])
 
 object HealthzService {
   def apply(system: ActorSystem) = new HealthzService(system)
@@ -24,33 +33,26 @@ class HealthzService(system: ActorSystem) {
 
   val actorRef = system.actorOf(HealthzActor.props())
 
-  def getHealthz(): Future[HealthzResponse] = {
-    println("GETTING HEALTH")
+  def getHealthz(): Future[GetHealthResponseMessage] = {
+    val future = actorRef.ask(GetHealthMessage).mapTo[GetHealthResponseMessage]
+    future.recover {
+      case e: AskTimeoutException => GetHealthResponseMessage(isHealthy = false)
+    }
+  }
 
-    val future = actorRef.ask(GetHealthStatus).mapTo[HealthzResponse]
-    //val result2 = Await.result(future, 1 second)
-    /**
-     * future onComplete {
-     * case Success(result) =>
-     * println("SUCCESS")
-     * result.foreach { x =>
-     * toRes = "Success"
-     * }
-     * case Failure(failure) =>
-     * println("FAILED")
-     * toRes = "failed"
-     * }
-     */
-    println("************** GOT HERE !!!!!!!!")
-    future
+  def getFreeswitchStatus(): Future[GetFreeswitchStatusResponseMessage] = {
+    val future = actorRef.ask(GetFreeswitchStatusMessage).mapTo[GetFreeswitchStatusResponseMessage]
+    future.recover {
+      case e: AskTimeoutException => GetFreeswitchStatusResponseMessage(Vector.empty.toArray, Map.empty)
+    }
   }
 
   def setFreeswitchHeartbeat(json: Map[String, String]): Unit = {
-    actorRef ! FromFsStatus(json)
+    actorRef ! FreeswitchHeartbeatMessage(json)
   }
 
   def setFreeswitchStatus(json: Vector[String]): Unit = {
-    actorRef ! ToFSStatus(json)
+    actorRef ! FreeswitchStatusMessage(json)
   }
 }
 
@@ -61,27 +63,32 @@ object HealthzActor {
 class HealthzActor extends Actor
   with ActorLogging {
 
-  var heartbeat: Map[String, String] = Map.empty
-  var lastHeartbeatTimestamp: Long = System.currentTimeMillis()
+  val sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSX")
+  val now = System.currentTimeMillis()
+  var heartbeat = FreeswitchHeartbeat(now, sdf.format(now), Map.empty)
+  var status = FreeswitchStatus(now, sdf.format(now), Vector.empty)
 
-  var fsStatus: Vector[String] = Vector.empty
-  var lastFsStatus: Long = System.currentTimeMillis()
+  val twoMins = 2 * 60 * 1000
 
   def receive = {
-    case msg: ToFSStatus =>
+    case msg: FreeswitchStatusMessage =>
       val gson = new Gson()
-      println("ToFSStatus => " + gson.toJson(msg.status.toArray))
-      fsStatus = msg.status
-      lastFsStatus = System.currentTimeMillis()
-    case msg: FromFsStatus =>
-      println("FromFsStatus => " + msg)
-      val gson = new Gson()
-      heartbeat = msg.status
-      lastHeartbeatTimestamp = System.currentTimeMillis()
-    case GetHealthStatus =>
-      println("GetHealthStatus")
-      println("GetHealthStatus => " + heartbeat)
-      sender ! HealthzResponse(fsStatus.toArray, heartbeat)
+      val now = System.currentTimeMillis()
+      status = FreeswitchStatus(now, sdf.format(now), msg.status)
+    case msg: FreeswitchHeartbeatMessage =>
+      val now = System.currentTimeMillis()
+      heartbeat = FreeswitchHeartbeat(now, sdf.format(now), msg.status)
+    case GetHealthMessage =>
+      val now = System.currentTimeMillis()
+      if ((now - heartbeat.lastUpdateOn < twoMins) &&
+        (now - status.lastUpdateOn < twoMins)) {
+        sender ! GetHealthResponseMessage(isHealthy = true)
+      } else {
+        sender ! GetHealthResponseMessage(isHealthy = false)
+      }
+    case GetFreeswitchStatusMessage =>
+      sender ! GetFreeswitchStatusResponseMessage(status.status.toArray, heartbeat.heartbeat)
+
     case _ => println("that was unexpected")
   }
 }

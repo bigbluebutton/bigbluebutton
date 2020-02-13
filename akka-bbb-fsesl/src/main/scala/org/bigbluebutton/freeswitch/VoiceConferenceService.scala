@@ -310,13 +310,10 @@ class VoiceConferenceService(healthz: HealthzService,
       status:                      java.util.List[String],
       receivedResponsTimestatmp: java.lang.Long
   ): Unit = {
-    // Placeholder so we can add a /healthz check endpoint to
-    // monitor akka-fsesl (ralam feb 5, 2020)
     //println("***** >>>> " + sendCommandTimestamp)
     //println(json)
     //println("<<<< ***** " + receivedResponsTimestatmp)
-    val seq = status.asScala.toIndexedSeq.toVector
-    println(seq)
+    val seq = status.asScala.toVector
     healthz.setFreeswitchStatus(seq)
   }
 

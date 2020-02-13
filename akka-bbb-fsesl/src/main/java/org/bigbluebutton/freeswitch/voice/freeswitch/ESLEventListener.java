@@ -291,7 +291,15 @@ public class ESLEventListener implements IEslEventListener {
             Gson gson = new Gson();
             String json = gson.toJson(event.getEventHeaders());
             //log.info(json);
-            FreeswitchHeartbeatEvent hbeatEvent = new FreeswitchHeartbeatEvent(event.getEventHeaders());
+
+            Map<String, String> headers = event.getEventHeaders();
+
+            Map<String, String> hb = new HashMap<String, String>();
+            hb.put("timestamp", headers.get("Event-Date-Timestamp"));
+            hb.put("version", headers.get("FreeSWITCH-Version"));
+            hb.put("uptime", headers.get("Up-Time"));
+
+            FreeswitchHeartbeatEvent hbeatEvent = new FreeswitchHeartbeatEvent(hb);
             conferenceEventListener.handleConferenceEvent(hbeatEvent);
 
         } else if (event.getEventName().equals( "CHANNEL_EXECUTE" )) {
