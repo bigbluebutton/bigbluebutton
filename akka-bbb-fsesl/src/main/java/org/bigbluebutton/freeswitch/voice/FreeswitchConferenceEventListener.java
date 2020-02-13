@@ -115,7 +115,7 @@ public class FreeswitchConferenceEventListener implements ConferenceEventListene
           FreeswitchStatusReplyEvent evt = (FreeswitchStatusReplyEvent) event;
           vcs.freeswitchStatusReplyEvent(evt.sendCommandTimestamp,
                   evt.status,
-                  evt.receivedResponsTimestatmp);
+                  evt.receivedResponseTimestamp);
         } else if (event instanceof FreeswitchHeartbeatEvent) {
           FreeswitchHeartbeatEvent hbearEvt = (FreeswitchHeartbeatEvent) event;
           vcs.freeswitchHeartbeatEvent(hbearEvt.heartbeat);

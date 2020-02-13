@@ -6,14 +6,14 @@ public class FreeswitchStatusReplyEvent extends VoiceConferenceEvent {
 
     public final List<String> status;
     public Long sendCommandTimestamp;
-    public Long receivedResponsTimestatmp;
+    public Long receivedResponseTimestamp;
 
     public FreeswitchStatusReplyEvent(Long sendCommandTimestamp,
                                       List<String> status,
-                                      Long receivedResponsTimestatmp) {
+                                      Long receivedResponseTimestamp) {
         super("unused");
         this.status = status;
         this.sendCommandTimestamp = sendCommandTimestamp;
-        this.receivedResponsTimestatmp = receivedResponsTimestatmp;
+        this.receivedResponseTimestamp = receivedResponseTimestamp;
     }
 }

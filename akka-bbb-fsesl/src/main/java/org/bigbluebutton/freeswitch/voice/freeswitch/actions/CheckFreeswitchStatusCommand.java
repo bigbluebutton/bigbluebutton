@@ -12,7 +12,6 @@ public class CheckFreeswitchStatusCommand extends FreeswitchCommand {
     private static Logger log = LoggerFactory.getLogger(CheckFreeswitchStatusCommand.class);
 
     private long sendCommandTimestamp = 0L;
-    private long receivedResponsTimestatmp = 0L;
 
     public CheckFreeswitchStatusCommand(String room, String requesterId) {
         super(room, requesterId);
@@ -31,13 +30,12 @@ public class CheckFreeswitchStatusCommand extends FreeswitchCommand {
     }
 
     public void handleResponse(EslMessage response, ConferenceEventListener eventListener) {
-        receivedResponsTimestatmp = System.currentTimeMillis();
         Gson gson = new Gson();
         log.info(gson.toJson(response.getBodyLines()));
         FreeswitchStatusReplyEvent statusEvent = new FreeswitchStatusReplyEvent(
                 sendCommandTimestamp,
                 response.getBodyLines(),
-                receivedResponsTimestatmp);
+                System.currentTimeMillis());
         eventListener.handleConferenceEvent(statusEvent);
     }
 
