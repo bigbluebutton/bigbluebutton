@@ -21,6 +21,7 @@ public:
     allowUserLookup: false
     enableNetworkInformation: false
     enableLimitOfViewersInWebcam: false
+    enableMultipleCameras: false
     enableTalkingIndicator: true
     viewersInWebcam: 8
     ipv4FallbackDomain: ""
@@ -114,7 +115,6 @@ public:
         bitrate: 800
     enableScreensharing: true
     enableVideo: true
-    enableVideoStats: false
     enableVideoMenu: true
     enableListenOnly: true
     autoShareWebcam: false
@@ -169,6 +169,7 @@ public:
   layout:
     autoSwapLayout: false
     hidePresentation: false
+    webcamsDefaultPlacement: "top"
   media:
     stunTurnServersFetchAddress: "/bigbluebutton/api/stuns"
     mediaTag: "#remote-media"
@@ -178,6 +179,7 @@ public:
     echoTestNumber: '9196'
     relayOnlyOnReconnect: false
   presentation:
+    allowDownloadable: true
     defaultPresentationFile: default.pdf
     panZoomThrottle: 32
     uploadEndpoint: "/bigbluebutton/presentation/upload"
@@ -348,22 +350,25 @@ private:
       enabled: false
   minBrowserVersions:
     - browser: chrome
-      version: 59
+      version: 72
     - browser: chromeMobileIOS
       version: Infinity
     - browser: firefox
-      version: 52
+      version: 63
     - browser: firefoxMobile
-      version: 52
+      version: 68
     - browser: edge
-      version: 17
+      version: 79
     - browser: ie
       version: Infinity
     - browser: safari
-      version: [11, 1]
+      version: [12, 1]
     - browser: mobileSafari
-      version: [11, 1]
+      version: [12, 1]
     - browser: opera
-      version: 46
+      version: 50
     - browser: electron
       version: [0, 36]
+    - browser: YandexBrowser
+      version: 19
+      

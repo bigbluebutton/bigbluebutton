@@ -11,13 +11,11 @@ import logger from '/imports/startup/client/logger';
 import playAndRetry from '/imports/utils/mediaElementPlayRetry';
 
 const propTypes = {
-  users: PropTypes.arrayOf(PropTypes.object).isRequired,
+  streams: PropTypes.arrayOf(PropTypes.object).isRequired,
   onMount: PropTypes.func.isRequired,
-  getStats: PropTypes.func.isRequired,
-  stopGettingStats: PropTypes.func.isRequired,
-  enableVideoStats: PropTypes.bool.isRequired,
   webcamDraggableDispatch: PropTypes.func.isRequired,
   intl: PropTypes.objectOf(Object).isRequired,
+  swapLayout: PropTypes.bool.isRequired,
 };
 
 const intlMessages = defineMessages({
@@ -113,8 +111,8 @@ class VideoList extends Component {
   }
 
   setOptimalGrid() {
-    const { users } = this.props;
-    let numItems = users.length;
+    const { streams, webcamDraggableDispatch } = this.props;
+    let numItems = streams.length;
     if (numItems < 1 || !this.canvas || !this.grid) {
       return;
     }
@@ -139,6 +137,12 @@ class VideoList extends Component {
         const betterThanCurrent = testGrid.filledArea > currentGrid.filledArea;
         return focusedConstraint && betterThanCurrent ? testGrid : currentGrid;
       }, { filledArea: 0 });
+    webcamDraggableDispatch(
+      {
+        type: 'setOptimalGrid',
+        value: optimalGrid,
+      },
+    );
     this.setState({
       optimalGrid,
     });
@@ -206,47 +210,45 @@ class VideoList extends Component {
   renderVideoList() {
     const {
       intl,
-      users,
+      streams,
       onMount,
-      getStats,
-      stopGettingStats,
-      enableVideoStats,
       swapLayout,
     } = this.props;
     const { focusedId } = this.state;
 
-    return users.map((user) => {
-      const isFocused = focusedId === user.userId;
+    const numOfStreams = streams.length;
+    return streams.map((stream) => {
+      const { cameraId, userId, name } = stream;
+      const isFocused = focusedId === cameraId;
       const isFocusedIntlKey = !isFocused ? 'focus' : 'unfocus';
       let actions = [];
 
-      if (users.length > 2) {
+      if (numOfStreams > 2) {
         actions = [{
           label: intl.formatMessage(intlMessages[`${isFocusedIntlKey}Label`]),
           description: intl.formatMessage(intlMessages[`${isFocusedIntlKey}Desc`]),
-          onClick: () => this.handleVideoFocus(user.userId),
+          onClick: () => this.handleVideoFocus(cameraId),
         }];
       }
 
       return (
         <div
-          key={user.userId}
+          key={cameraId}
           className={cx({
             [styles.videoListItem]: true,
-            [styles.focused]: focusedId === user.userId && users.length > 2,
+            [styles.focused]: focusedId === cameraId && numOfStreams > 2,
           })}
         >
           <VideoListItemContainer
-            numOfUsers={users.length}
-            user={user}
+            numOfStreams={numOfStreams}
+            cameraId={cameraId}
+            userId={userId}
+            name={name}
             actions={actions}
             onMount={(videoRef) => {
               this.handleCanvasResize();
-              onMount(user.userId, videoRef);
+              onMount(cameraId, videoRef);
             }}
-            getStats={(videoRef, callback) => getStats(user.userId, videoRef, callback)}
-            stopGettingStats={() => stopGettingStats(user.userId)}
-            enableVideoStats={enableVideoStats}
             swapLayout={swapLayout}
           />
         </div>
@@ -255,7 +257,7 @@ class VideoList extends Component {
   }
 
   render() {
-    const { users, intl } = this.props;
+    const { streams, intl } = this.props;
     const { optimalGrid, autoplayBlocked } = this.state;
 
     const canvasClassName = cx({
@@ -273,7 +275,7 @@ class VideoList extends Component {
         }}
         className={canvasClassName}
       >
-        {!users.length ? null : (
+        {!streams.length ? null : (
           <div
             ref={(ref) => {
               this.grid = ref;

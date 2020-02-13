@@ -227,7 +227,7 @@ module BigBlueButton
     end
 
     def store_events(meeting_id, events_file, break_timestamp)
-      version = YAML::load(File.open('../../core/scripts/bigbluebutton.yml'))["bbb_version"]
+      version = BigBlueButton.read_props["bbb_version"]
 
       if File.exist?(events_file)
         io = File.open(events_file, 'rb')

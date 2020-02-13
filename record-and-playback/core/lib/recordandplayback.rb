@@ -19,9 +19,7 @@
 # with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 #
 
-
-path = File.expand_path(File.join(File.dirname(__FILE__), '../lib'))
-$LOAD_PATH << path
+require_relative 'boot'
 
 require 'recordandplayback/events_archiver'
 require 'recordandplayback/generators/events'
@@ -36,6 +34,7 @@ require 'logger'
 require 'find'
 require 'rubygems'
 require 'net/http'
+require 'journald/logger'
 
 module BigBlueButton
   class MissingDirectoryException < RuntimeError
@@ -82,7 +81,8 @@ module BigBlueButton
   # @return [Logger]
   def self.logger
     return @logger if @logger
-    logger = Logger.new(STDOUT)
+
+    logger = Journald::Logger.new('bbb-rap')
     logger.level = Logger::INFO
     @logger = logger
   end
@@ -237,5 +237,28 @@ module BigBlueButton
 
   def self.done_to_timestamp(r)
     BigBlueButton.record_id_to_timestamp(File.basename(r, ".done"))
+  end
+
+  def self.rap_core_path
+    File.expand_path('../../', __FILE__)
+  end
+
+  def self.rap_scripts_path
+    File.join(BigBlueButton.rap_core_path, 'scripts')
+  end
+
+  def self.read_props
+    return @props if @props
+
+    filepath = File.join(BigBlueButton.rap_scripts_path, 'bigbluebutton.yml')
+    @props = YAML::load(File.open(filepath))
+  end
+
+  def self.create_redis_publisher
+    props = BigBlueButton.read_props
+    redis_host = props['redis_host']
+    redis_port = props['redis_port']
+    redis_password = props['redis_password']
+    BigBlueButton.redis_publisher = BigBlueButton::RedisWrapper.new(redis_host, redis_port, redis_password)
   end
 end

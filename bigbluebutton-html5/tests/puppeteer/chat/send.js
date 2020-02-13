@@ -12,20 +12,24 @@ class Send extends Page {
   async test() {
     await util.openChat(this);
 
-    // Must be:
-    // []
-    const chat0 = await util.getTestElements(this);
+    // const chat0 = await util.getTestElements(this);
 
+    // 0 messages
+    const chat0 = await this.page.$$(`${e.chatUserMessage} ${e.chatMessageText}`);
+
+    // send a message
     await this.type(e.chatBox, e.message);
     await this.click(e.sendButton);
     await this.screenshot(true);
 
-    // Must be:
-    // [{ "name": "User1\nXX:XX XM", "message": "Hello world!" }]
-    const chat1 = await util.getTestElements(this);
+    // const chat1 = await util.getTestElements(this);
 
-    const response = chat0.length == 0
-      && chat1[0].message == e.message;
+    // 1 message
+    const chat1 = await this.page.$$(`${e.chatUserMessage} ${e.chatMessageText}`);
+
+    expect(await chat1[0].evaluate(n => n.innerText)).toBe(e.message);
+
+    const response = chat0.length === 0 && chat1.length === 1;
 
     return response;
   }

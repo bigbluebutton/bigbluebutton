@@ -186,7 +186,7 @@ public class PresentationUrlDownloadService {
         HttpURLConnection conn;
         try {
             conn = (HttpURLConnection) presUrl.openConnection();
-            conn.setReadTimeout(5000);
+            conn.setReadTimeout(60000);
             conn.addRequestProperty("Accept-Language", "en-US,en;q=0.8");
             conn.addRequestProperty("User-Agent", "Mozilla");
 

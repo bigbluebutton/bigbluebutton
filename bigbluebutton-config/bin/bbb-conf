@@ -330,7 +330,7 @@ stop_bigbluebutton () {
       TOMCAT_SERVICE=$TOMCAT_USER
     fi
 
-    systemctl stop $BBB_RED5 $TOMCAT_SERVICE nginx freeswitch $REDIS_SERVICE bbb-apps-akka $BBB_TRANSCODE_AKKA bbb-fsesl-akka bbb-rap-archive-worker.service bbb-rap-process-worker.service bbb-rap-publish-worker.service bbb-rap-sanity-worker.service bbb-record-core.timer $HTML5 $WEBHOOKS $ETHERPAD $BBB_WEB $BBB_LTI
+    systemctl stop $BBB_RED5 $TOMCAT_SERVICE nginx freeswitch $REDIS_SERVICE bbb-apps-akka $BBB_TRANSCODE_AKKA bbb-fsesl-akka bbb-rap-resque-worker.service bbb-rap-starter.service bbb-rap-caption-inbox.service $HTML5 $WEBHOOKS $ETHERPAD $BBB_WEB $BBB_LTI
 }
 
 start_bigbluebutton () {
@@ -387,7 +387,7 @@ start_bigbluebutton () {
     fi
 
 
-    systemctl start $BBB_RED5 $TOMCAT_SERVICE nginx freeswitch $REDIS_SERVICE bbb-apps-akka $BBB_TRANSCODE_AKKA bbb-fsesl-akka bbb-record-core.timer $HTML5 $WEBHOOKS $ETHERPAD $BBB_WEB $BBB_LTI
+    systemctl start $BBB_RED5 $TOMCAT_SERVICE nginx freeswitch $REDIS_SERVICE bbb-apps-akka $BBB_TRANSCODE_AKKA bbb-fsesl-akka bbb-rap-resque-worker bbb-rap-starter.service bbb-rap-caption-inbox.service $HTML5 $WEBHOOKS $ETHERPAD $BBB_WEB $BBB_LTI
 
     if [ -f /usr/lib/systemd/system/bbb-html5.service ]; then
         systemctl start mongod
@@ -2006,6 +2006,7 @@ if [ $CLEAN ]; then
     # Clean out the log files for record and playback
     #
     rm -f /var/log/bigbluebutton/bbb-rap-worker.log*
+    rm -f /var/log/bigbluebutton/bbb-rap-resque.log*
     rm -f /var/log/bigbluebutton/archive.log*
     if [ -d /var/log/bigbluebutton/html5 ]; then
         rm -f /var/log/bigbluebutton/html5/*

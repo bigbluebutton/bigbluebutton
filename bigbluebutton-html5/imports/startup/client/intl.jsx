@@ -95,6 +95,10 @@ class IntlStartup extends Component {
       fetching: false,
     };
 
+    if (RTL_LANGUAGES.includes(props.locale)) {
+      document.body.parentNode.setAttribute('dir', 'rtl');
+    }
+
     this.fetchLocalizedMessages = this.fetchLocalizedMessages.bind(this);
   }
 

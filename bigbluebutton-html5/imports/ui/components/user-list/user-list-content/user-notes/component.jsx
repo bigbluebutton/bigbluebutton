@@ -41,7 +41,9 @@ class UserNotes extends Component {
   componentDidMount() {
     const { revs } = this.props;
 
-    if (revs !== 0) this.setState({ unread: true });
+    const lastRevs = NoteService.getLastRevs();
+
+    if (revs !== 0 && revs > lastRevs) this.setState({ unread: true });
   }
 
   componentDidUpdate(prevProps) {

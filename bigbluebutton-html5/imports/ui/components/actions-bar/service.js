@@ -42,6 +42,9 @@ export default {
   toggleRecording: () => makeCall('toggleRecording'),
   createBreakoutRoom: (numberOfRooms, durationInMinutes, record = false) => makeCall('createBreakoutRoom', numberOfRooms, durationInMinutes, record),
   sendInvitation: (breakoutId, userId) => makeCall('requestJoinURL', { breakoutId, userId }),
+  breakoutJoinedUsers: () => Breakouts.find({
+    joinedUsers: { $exists: true },
+  }, { fields: { joinedUsers: 1, breakoutId: 1, sequence: 1 }, sort: { sequence: 1 } }).fetch(),
   getBreakouts,
   getUsersNotAssigned,
   takePresenterRole,

@@ -2,6 +2,8 @@ import { check } from 'meteor/check';
 
 const ANNOTATION_TYPE_TEXT = 'text';
 const ANNOTATION_TYPE_PENCIL = 'pencil';
+const DEFAULT_TEXT_WIDTH = 30;
+const DEFAULT_TEXT_HEIGHT = 20;
 
 // line, triangle, ellipse, rectangle
 function handleCommonAnnotation(meetingId, whiteboardId, userId, annotation) {
@@ -38,6 +40,21 @@ function handleTextUpdate(meetingId, whiteboardId, userId, annotation) {
   const {
     id, status, annotationType, annotationInfo, wbId, position,
   } = annotation;
+
+  const { textBoxWidth, textBoxHeight } = annotationInfo;
+  const useDefaultSize = textBoxWidth === 0 && textBoxHeight === 0;
+
+  if (useDefaultSize) {
+    annotationInfo.textBoxWidth = DEFAULT_TEXT_WIDTH;
+    annotationInfo.textBoxHeight = DEFAULT_TEXT_HEIGHT;
+
+    if (100 - annotationInfo.x < DEFAULT_TEXT_WIDTH) {
+      annotationInfo.textBoxWidth = 100 - annotationInfo.x;
+    }
+    if (100 - annotationInfo.y < DEFAULT_TEXT_HEIGHT) {
+      annotationInfo.textBoxHeight = 100 - annotationInfo.y;
+    }
+  }
 
   const selector = {
     meetingId,

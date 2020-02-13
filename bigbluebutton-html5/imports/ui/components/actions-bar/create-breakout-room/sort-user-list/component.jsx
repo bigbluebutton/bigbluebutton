@@ -35,15 +35,19 @@ class SortUsers extends Component {
     this.setUsers = this.setUsers.bind(this);
     this.renderUserItem = this.renderUserItem.bind(this);
     this.onChage = this.onChage.bind(this);
+    this.renderJoinedUserItem = this.renderJoinedUserItem.bind(this);
 
     this.state = {
       users: [],
+      joinedUsers: [],
     };
   }
 
   componentDidMount() {
-    const { users } = this.props;
+    const { users, breakoutJoinedUsers } = this.props;
+
     this.setUsers(users);
+    this.setJoinedUsers(breakoutJoinedUsers);
   }
 
   onChage(userId, room) {
@@ -62,6 +66,11 @@ class SortUsers extends Component {
 
   setUsers(users) {
     this.setState({ users: users.sort((a, b) => a.room - b.room) });
+  }
+
+  setJoinedUsers(users) {
+    if (!users) return;
+    this.setState({ joinedUsers: users.sort((a, b) => a.sequence - b.sequence) });
   }
 
   renderUserItem() {
@@ -93,6 +102,24 @@ class SortUsers extends Component {
         </div>));
   }
 
+  renderJoinedUserItem() {
+    const { joinedUsers } = this.state;
+    if (!joinedUsers.length) return null;
+
+    return joinedUsers
+      .map(b => b.joinedUsers.map(u => ({ ...u, room: b.sequence })))
+      .flat()
+      .map(user => (
+        <div className={styles.selectUserContainer}>
+          <span className={styles.lockIcon} />
+          <span className={styles.textName}>
+            {user.name}
+            {`\t[${user.room}]`}
+          </span>
+        </div>));
+  }
+
+
   render() {
     const {
       intl,
@@ -114,6 +141,7 @@ class SortUsers extends Component {
           />
         </header>
         {this.renderUserItem()}
+        {this.renderJoinedUserItem()}
       </div>
     );
   }

@@ -13,8 +13,6 @@ class ActionsBar extends PureComponent {
   render() {
     const {
       amIPresenter,
-      handleExitVideo,
-      handleJoinVideo,
       handleShareScreen,
       handleUnshareScreen,
       isVideoBroadcasting,
@@ -36,6 +34,9 @@ class ActionsBar extends PureComponent {
       isPollingEnabled,
       isThereCurrentPresentation,
       allowExternalVideo,
+      presentations,
+      setPresentation,
+      podIds,
     } = this.props;
 
     const actionBarClasses = {};
@@ -57,6 +58,9 @@ class ActionsBar extends PureComponent {
             isSharingVideo,
             stopExternalVideoShare,
             isMeteorConnected,
+            presentations,
+            setPresentation,
+            podIds,
           }}
           />
           {isPollingEnabled
@@ -82,10 +86,7 @@ class ActionsBar extends PureComponent {
           <AudioControlsContainer />
           {enableVideo
             ? (
-              <JoinVideoOptionsContainer
-                handleJoinVideo={handleJoinVideo}
-                handleCloseVideo={handleExitVideo}
-              />
+              <JoinVideoOptionsContainer />
             )
             : null}
           <DesktopShare {...{

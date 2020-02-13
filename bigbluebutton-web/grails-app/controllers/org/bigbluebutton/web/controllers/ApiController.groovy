@@ -430,10 +430,6 @@ class ApiController {
       us.avatarURL = meeting.defaultAvatarURL
     }
 
-    // Register user into the meeting.
-    meetingService.registerUser(us.meetingID, us.internalUserId, us.fullname, us.role, us.externUserID,
-        us.authToken, us.avatarURL, us.guest, us.authed, guestStatusVal)
-
     // Validate if the maxParticipants limit has been reached based on registeredUsers. If so, complain.
     // when maxUsers is set to 0, the validation is ignored
     int maxUsers = meeting.getMaxUsers();
@@ -447,6 +443,10 @@ class ApiController {
       respondWithErrors(errors, REDIRECT_RESPONSE);
       return;
     }
+
+    // Register user into the meeting.
+    meetingService.registerUser(us.meetingID, us.internalUserId, us.fullname, us.role, us.externUserID,
+        us.authToken, us.avatarURL, us.guest, us.authed, guestStatusVal)
 
     //Identify which of these to logs should be used. sessionToken or user-token
     log.info("Session sessionToken for " + us.fullname + " [" + session[sessionToken] + "]")
@@ -1316,6 +1316,7 @@ class ApiController {
 
 
       if (guestWaitStatus.equals(GuestPolicy.WAIT)) {
+        meetingService.guestIsWaiting(userSession.meetingID, userSession.internalUserId);
         clientURL = paramsProcessorUtil.getDefaultGuestWaitURL();
         destUrl = clientURL + "?sessionToken=" + sessionToken
         log.debug("GuestPolicy.WAIT - destUrl = " + destUrl)
