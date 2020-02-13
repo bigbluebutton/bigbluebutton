@@ -2,7 +2,7 @@
 @import "/imports/ui/stylesheets/variables/typography";
 
 :root {
-  --systemMessage-background-color: #F9FBFC;
+  --systemMessage-background-color: #e2e8ee;
   --systemMessage-border-color: #C5CDD4;
 }
 
@@ -31,6 +31,10 @@
   background: var(--systemMessage-background-color);
   border: 1px solid var(--systemMessage-border-color);
   border-radius: var(--border-radius);
+  font-family: Muli;
+  font-size: var(--font-size-10px);
+  color: #30213f;
+  line-height: var(--font-size-13px);
   font-weight: var(--btn-font-weight);
   padding: var(--font-size-base);
   margin-bottom: var(--line-height-computed);

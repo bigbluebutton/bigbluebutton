@@ -15,7 +15,6 @@
   text-decoration: none;
   width: 100%;
   color: var(--color-gray-dark);
-  background-color: var(--color-off-white);
 
   [dir="rtl"]  & {
     padding-right: var(--lg-padding-y);
@@ -25,14 +24,15 @@
   > i {
     display: flex;
     font-size: 175%;
-    color: var(--color-gray-light);
+    color: #82b3e3;
     flex: 0 0 2.2rem;
   }
 
   > span {
+    font-family: Muli;
     font-weight: 400;
     font-size: var(--font-size-small);
-    color: var(--color-gray-dark);
+    color: #82b3e3;
     position: relative;
     flex-grow: 1;
     line-height: 2;
@@ -48,6 +48,5 @@
 
   &:active {
     background-color: var(--list-item-bg-hover);
-    box-shadow: inset 0 0 0 var(--border-size) var(--item-focus-border), inset 1px 0 0 1px var(--item-focus-border);
   }
 }
