@@ -1,15 +1,17 @@
 package org.bigbluebutton.freeswitch
 
-import scala.collection.JavaConverters._
 import org.bigbluebutton.SystemConfiguration
-import org.bigbluebutton.common2.msgs
 import org.bigbluebutton.freeswitch.voice.IVoiceConferenceService
 import org.bigbluebutton.common2.msgs._
 import org.bigbluebutton.common2.util.JsonUtil
 import org.bigbluebutton.common2.redis.RedisPublisher
-import org.bigbluebutton.freeswitch.voice.events.{ ConfMember, ConfRecording }
+import org.bigbluebutton.freeswitch.voice.events.{ConfMember, ConfRecording}
+import org.bigbluebutton.service.HealthzService
+import scala.collection.JavaConverters._
 
-class VoiceConferenceService(sender: RedisPublisher) extends IVoiceConferenceService with SystemConfiguration {
+class VoiceConferenceService(healthz: HealthzService,
+                              sender: RedisPublisher,
+                            ) extends IVoiceConferenceService with SystemConfiguration {
 
   val FROM_VOICE_CONF_SYSTEM_CHAN = "bigbluebutton:from-voice-conf:system"
 
@@ -303,11 +305,22 @@ class VoiceConferenceService(sender: RedisPublisher) extends IVoiceConferenceSer
     sender.publish(fromVoiceConfRedisChannel, json)
   }
 
-  def freeswitchStatusReplyEvent(json: String): Unit = {
-    // Placeholder so we can add a /healthz check endpoint to
-    // monitor akka-fsesl (ralam feb 5, 2020)
-    //println("***** >>>>")
+  def freeswitchStatusReplyEvent(
+      sendCommandTimestamp:      java.lang.Long,
+      status:                      java.util.List[String],
+      receivedResponseTimestamp: java.lang.Long
+  ): Unit = {
+    //println("***** >>>> " + sendCommandTimestamp)
     //println(json)
-    //println("<<<< *****")
+    //println("<<<< ***** " + receivedResponsTimestatmp)
+    val seq = status.asScala.toVector
+    healthz.setFreeswitchStatus(seq)
+  }
+
+  def freeswitchHeartbeatEvent(heartbeat: java.util.Map[String, String]): Unit = {
+    //println("***** >>>> ")
+    //println(json)
+    //println("<<<< ***** ")
+    healthz.setFreeswitchHeartbeat(heartbeat.asScala.toMap)
   }
 }

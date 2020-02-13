@@ -1,12 +1,14 @@
 package org.bigbluebutton.freeswitch.voice.freeswitch;
 
 
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import com.google.gson.Gson;
 import org.bigbluebutton.freeswitch.voice.events.*;
 import org.bigbluebutton.freeswitch.voice.events.ScreenshareStartedEvent;
 import org.freeswitch.esl.client.IEslEventListener;
@@ -286,7 +288,21 @@ public class ESLEventListener implements IEslEventListener {
         **/
 
         if (event.getEventName().equals("HEARTBEAT")) {
-            //log.info("Received heartbeat from FreeSWITCH");
+            Gson gson = new Gson();
+            String json = gson.toJson(event.getEventHeaders());
+            //log.info(json);
+
+            log.info("Received Heartbeat from Freeswitch.");
+            Map<String, String> headers = event.getEventHeaders();
+
+            Map<String, String> hb = new HashMap<String, String>();
+            hb.put("timestamp", headers.get("Event-Date-Timestamp"));
+            hb.put("version", headers.get("FreeSWITCH-Version"));
+            hb.put("uptime", headers.get("Up-Time"));
+
+            FreeswitchHeartbeatEvent hbeatEvent = new FreeswitchHeartbeatEvent(hb);
+            conferenceEventListener.handleConferenceEvent(hbeatEvent);
+
         } else if (event.getEventName().equals( "CHANNEL_EXECUTE" )) {
             Map<String, String> eventHeaders = event.getEventHeaders();
 
