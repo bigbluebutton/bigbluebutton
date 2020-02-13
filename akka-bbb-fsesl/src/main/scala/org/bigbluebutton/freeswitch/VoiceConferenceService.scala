@@ -308,7 +308,7 @@ class VoiceConferenceService(healthz: HealthzService,
   def freeswitchStatusReplyEvent(
       sendCommandTimestamp:      java.lang.Long,
       status:                      java.util.List[String],
-      receivedResponsTimestatmp: java.lang.Long
+      receivedResponseTimestamp: java.lang.Long
   ): Unit = {
     //println("***** >>>> " + sendCommandTimestamp)
     //println(json)

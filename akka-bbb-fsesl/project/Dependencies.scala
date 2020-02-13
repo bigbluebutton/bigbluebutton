@@ -42,8 +42,6 @@ object Dependencies {
     // https://mvnrepository.com/artifact/com.typesafe.akka/akka-http-spray-json
     val akkaHttpSprayJson = "com.typesafe.akka" %% "akka-http-spray-json" % Versions.akkaHttpVersion
 
-   // val akkaHttpSprayJson = "com.typesafe.akka" % "akka-http-spray-json" % Versions.akkaHttpVersion
-
     val logback = "ch.qos.logback" % "logback-classic" % Versions.logback
     val commonsCodec = "commons-codec" % "commons-codec" % Versions.codec
 

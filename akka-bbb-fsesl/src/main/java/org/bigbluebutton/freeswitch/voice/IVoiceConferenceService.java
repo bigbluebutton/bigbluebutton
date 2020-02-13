@@ -79,7 +79,7 @@ public interface IVoiceConferenceService {
 
   void freeswitchStatusReplyEvent(Long sendCommandTimestamp,
                                   List<String> status,
-                                  Long receivedResponsTimestatmp);
+                                  Long receivedResponseTimestamp);
 
   void freeswitchHeartbeatEvent(Map<String, String> heartbeat);
 }
