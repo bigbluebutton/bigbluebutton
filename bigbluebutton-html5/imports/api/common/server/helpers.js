@@ -65,6 +65,7 @@ export const hashFNV32a = (str, asString, seed) => {
 /* eslint-enable */
 
 export const extractCredentials = (credentials) => {
+  if (!credentials) return {};
   const credentialsArray = credentials.split('--');
   const meetingId = credentialsArray[0];
   const requesterUserId = credentialsArray[1];
