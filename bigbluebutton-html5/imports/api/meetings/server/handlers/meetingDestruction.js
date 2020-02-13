@@ -10,7 +10,7 @@ export default function handleMeetingDestruction({ body }) {
   const { meetingId } = body;
   check(meetingId, String);
 
-  destroyExternalVideo();
+  destroyExternalVideo(meetingId);
   removeAnnotationsStreamer(meetingId);
   removeCursorStreamer(meetingId);
 
