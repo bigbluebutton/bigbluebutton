@@ -292,6 +292,7 @@ public class ESLEventListener implements IEslEventListener {
             String json = gson.toJson(event.getEventHeaders());
             //log.info(json);
 
+            log.info("Received Heartbeat from Freeswitch.");
             Map<String, String> headers = event.getEventHeaders();
 
             Map<String, String> hb = new HashMap<String, String>();

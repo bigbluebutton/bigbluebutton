@@ -68,11 +68,4 @@ object Boot extends App with SystemConfiguration with WebApi {
 
   val bindingFuture = Http().bindAndHandle(apiService.routes, httpHost, httpPort)
 
-  println(s"Server online at $httpHost:$httpPort/\nPress RETURN to stop...")
-  /*
-  bindingFuture
-    .flatMap(_.unbind()) // trigger unbinding from the port
-    .onComplete(_ => system.terminate()) // and shutdown when done
-
- */
 }

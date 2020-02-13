@@ -2,11 +2,10 @@ package org.bigbluebutton.service
 
 import java.text.SimpleDateFormat
 
-import akka.actor.{ Actor, ActorContext, ActorLogging, Props }
+import akka.actor.{ Actor, ActorLogging, Props }
 import akka.actor.ActorSystem
 import akka.pattern.{ AskTimeoutException, ask }
 import akka.util.Timeout
-import com.google.gson.Gson
 
 import scala.concurrent.duration._
 import scala.concurrent.Future
@@ -72,7 +71,6 @@ class HealthzActor extends Actor
 
   def receive = {
     case msg: FreeswitchStatusMessage =>
-      val gson = new Gson()
       val now = System.currentTimeMillis()
       status = FreeswitchStatus(now, sdf.format(now), msg.status)
     case msg: FreeswitchHeartbeatMessage =>
