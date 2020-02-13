@@ -9,11 +9,14 @@ import { extractCredentials } from '/imports/api/common/server/helpers';
 
 const ROLE_MODERATOR = Meteor.settings.public.user.role_moderator;
 
-Meteor.publish('current-user', function currentUserPub() {
+function currentUser() {
   if (!this.userId) {
     return Users.find({ meetingId: '' });
   }
   const { meetingId, requesterUserId } = extractCredentials(this.userId);
+
+  check(meetingId, String);
+  check(requesterUserId, String);
 
   const connectionId = this.connection.id;
   const onCloseConnection = Meteor.bindEnvironment(() => {
@@ -25,9 +28,6 @@ Meteor.publish('current-user', function currentUserPub() {
   });
 
   this._session.socket.on('close', _.debounce(onCloseConnection, 100));
-
-  check(meetingId, String);
-  check(requesterUserId, String);
 
   const selector = {
     meetingId,
@@ -42,7 +42,14 @@ Meteor.publish('current-user', function currentUserPub() {
   };
 
   return Users.find(selector, options);
-});
+}
+
+function publishCurrentUser(...args) {
+  const boundUsers = currentUser.bind(this);
+  return boundUsers(...args);
+}
+
+Meteor.publish('current-user', publishCurrentUser);
 
 function users(isModerator = false) {
   if (!this.userId) {

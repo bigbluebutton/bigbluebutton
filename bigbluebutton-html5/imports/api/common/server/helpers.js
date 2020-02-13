@@ -1,4 +1,3 @@
-import WhiteboardMultiUser from '/imports/api/whiteboard-multi-user/';
 import Users from '/imports/api/users';
 
 const MSG_DIRECT_TYPE = 'DIRECT';
@@ -37,17 +36,6 @@ export const processForHTML5ServerOnly = fn => (message, ...args) => {
   const shouldSkip = user && msgType === MSG_DIRECT_TYPE && userId !== NODE_USER && user.clientType !== 'HTML5';
   if (shouldSkip) return () => { };
   return fn(message, ...args);
-};
-
-
-export const getMultiUserStatus = (meetingId, whiteboardId) => {
-  const data = WhiteboardMultiUser.findOne({ meetingId, whiteboardId });
-
-  if (data) {
-    return data.multiUser;
-  }
-
-  return false;
 };
 
 /**

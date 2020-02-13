@@ -4,7 +4,7 @@ import RedisPubSub from '/imports/startup/server/redis';
 import Logger from '/imports/startup/server/logger';
 import Users from '/imports/api/users';
 
-export default function userLeaving(meetingId, requesterUserId, userId, connectionId) {
+export default function userLeaving(meetingId, userId, connectionId) {
   const REDIS_CONFIG = Meteor.settings.private.redis;
   const CHANNEL = REDIS_CONFIG.channels.toAkkaApps;
   const EVENT_NAME = 'UserLeaveReqMsg';
@@ -33,5 +33,5 @@ export default function userLeaving(meetingId, requesterUserId, userId, connecti
   };
 
   Logger.info(`User '${userId}' is leaving meeting '${meetingId}'`);
-  return RedisPubSub.publishUserMessage(CHANNEL, EVENT_NAME, meetingId, requesterUserId, payload);
+  return RedisPubSub.publishUserMessage(CHANNEL, EVENT_NAME, meetingId, userId, payload);
 }

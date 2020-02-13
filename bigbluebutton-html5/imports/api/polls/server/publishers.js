@@ -3,7 +3,7 @@ import Logger from '/imports/startup/server/logger';
 import Polls from '/imports/api/polls';
 import { extractCredentials } from '/imports/api/common/server/helpers';
 
-Meteor.publish('current-poll', () => {
+function currentPoll() {
   if (!this.userId) {
     return Polls.find({ meetingId: '' });
   }
@@ -16,7 +16,14 @@ Meteor.publish('current-poll', () => {
   Logger.debug(`Publishing poll for meeting=${meetingId}`);
 
   return Polls.find(selector);
-});
+}
+
+function publishCurrentPoll(...args) {
+  const boundPolls = currentPoll.bind(this);
+  return boundPolls(...args);
+}
+
+Meteor.publish('current-poll', publishCurrentPoll);
 
 
 function polls() {
