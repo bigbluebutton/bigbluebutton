@@ -716,7 +716,7 @@ public class MeetingService implements MessageListener {
 
       String endCallbackUrl = "endCallbackUrl".toLowerCase();
       Map<String, String> metadata = m.getMetadata();
-      if (metadata.containsKey(endCallbackUrl)) {
+      if (!m.isBreakout() && metadata.containsKey(endCallbackUrl)) {
         String callbackUrl = metadata.get(endCallbackUrl);
         try {
             callbackUrl = new URIBuilder(new URI(callbackUrl))
