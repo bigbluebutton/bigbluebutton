@@ -34,6 +34,7 @@ import ru from 'react-intl/locale-data/ru';
 import sk from 'react-intl/locale-data/sk';
 import sr from 'react-intl/locale-data/sr';
 import sv from 'react-intl/locale-data/sv';
+import th from 'react-intl/locale-data/th';
 import tr from 'react-intl/locale-data/tr';
 import uk from 'react-intl/locale-data/uk';
 import vi from 'react-intl/locale-data/vi';
@@ -70,6 +71,7 @@ addLocaleData([
   ...sk,
   ...sr,
   ...sv,
+  ...th,
   ...tr,
   ...uk,
   ...vi,
