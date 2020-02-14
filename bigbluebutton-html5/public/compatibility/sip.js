@@ -6640,7 +6640,6 @@ InviteClientContext.prototype = {
             }
             this.hasAnswer = true;
             this.dialog.pracked.push(response.getHeader('rseq'));
-
             this.mediaHandler.setDescription(response)
             .then(
               function onSuccess () {
@@ -6678,7 +6677,6 @@ InviteClientContext.prototype = {
             var earlyMedia = earlyDialog.mediaHandler;
 
             earlyDialog.pracked.push(response.getHeader('rseq'));
-
             earlyMedia.setDescription(response)
             .then(earlyMedia.getDescription.bind(earlyMedia, session.mediaHint))
             .then(function onSuccess(description) {
@@ -9978,6 +9976,12 @@ UA.prototype.getConfigurationCheck = function () {
         }
       },
 
+      remoteSdpCallback: function(remoteSdpCallback) {
+        if (typeof remoteSdpCallback === 'function') {
+          return remoteSdpCallback;
+        }
+      },
+
       forceRport: function(forceRport) {
         if (typeof forceRport === 'boolean') {
           return forceRport;
@@ -11238,12 +11242,19 @@ MediaHandler.prototype = Object.create(SIP.MediaHandler.prototype, {
     };
 
     // If the SDP translation hack is enabled and we're setting the answer, convert it
-    if (rawDescription.type === 'answer' &&
-      self.session.ua.configuration.hackPlanBUnifiedPlanTranslation) {
-      const localDescription = this.peerConnection.localDescription;
-      // Check is the localDescription is indeed unified plan before converting
-      if (window.isUnifiedPlan(localDescription.sdp)) {
-        rawDescription = window.toUnifiedPlan(rawDescription);
+    if (rawDescription.type === 'answer') {
+      if (self.session.ua.configuration.hackPlanBUnifiedPlanTranslation) {
+        const localDescription = this.peerConnection.localDescription;
+        // Check is the localDescription is indeed unified plan before converting
+        if (window.isUnifiedPlan(localDescription.sdp)) {
+          rawDescription = window.toUnifiedPlan(rawDescription);
+        }
+      }
+
+      // Ensure that this block is after all other SDP manipulations
+      var remoteSdpCallback = self.session.ua.configuration.remoteSdpCallback;
+      if (remoteSdpCallback && typeof remoteSdpCallback === 'function') {
+        remoteSdpCallback(rawDescription.sdp);
       }
     }
 

@@ -3,7 +3,6 @@ public:
     mobileFontSize: 16px
     desktopFontSize: 14px
     audioChatNotification: false
-    showParticipantsOnLogin: true
     autoJoin: true
     listenOnlyMode: true
     forceListenOnly: false
@@ -120,7 +119,7 @@ public:
     autoShareWebcam: false
     skipVideoPreview: false
   pingPong:
-    clearUsersInSeconds: 30
+    clearUsersInSeconds: 180
     pongTimeInSeconds: 15
   allowOutsideCommands:
     toggleRecording: false

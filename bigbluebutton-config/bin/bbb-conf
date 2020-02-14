@@ -716,19 +716,6 @@ check_configuration() {
         fi
     done
 
-    #
-    # Check that the supporting applications are installed
-    
-    if [ -f /usr/share/red5/red5-server.jar ]; then
-      VARFolder=$(cat $SERVLET_DIR/WEB-INF/classes/bigbluebutton.properties | grep swfToolsDir | cut -d= -f2)
-      files="pdf2swf jpeg2swf png2swf"
-      for file in $files; do
-      if [ ! -x $VARFolder/$file ]; then
-        echo "# $file is not installed in $VARFolder"
-      fi
-      done
-    fi
-
     VARFolder=$(cat $SERVLET_DIR/WEB-INF/classes/bigbluebutton.properties | grep imageMagickDir | cut -d= -f2)
     if [ ! -x $VARFolder/convert ]; then
         echo "# ImageMagick's convert is not installed in $VARFolder"
@@ -1696,9 +1683,16 @@ if [ $ZIP ]; then
     tar rf  $TMP_LOG_FILE /var/log/bbb-webrtc-sfu         > /dev/null 2>&1
     tar rf  $TMP_LOG_FILE /var/log/kurento-media-server > /dev/null 2>&1
     tar rf  $TMP_LOG_FILE /var/log/mongodb              > /dev/null 2>&1
+    tar rf  $TMP_LOG_FILE /var/log/redis                > /dev/null 2>&1
     tar rf  $TMP_LOG_FILE /var/log/nginx/error.log      > /dev/null 2>&1
-    if [ $DISTRIB_ID == "ubuntu" ]; then
-        tar rf $TMP_LOG_FILE /var/log/syslog        > /dev/null 2>&1
+    tar rfh $TMP_LOG_FILE /opt/freeswitch/var/log/freeswitch/ > /dev/null 2>&1
+
+    if [ -f /var/log/nginx/html5-client.log ]; then
+        tar rf $TMP_LOG_FILE /var/log/nginx/html5-client.log* > /dev/null 2>&1
+    fi
+
+    if [ -f /var/log/syslog ]; then
+        tar rf $TMP_LOG_FILE /var/log/syslog* > /dev/null 2>&1
     fi
 
     tar tf $TMP_LOG_FILE

@@ -65,7 +65,31 @@ const stripMDnsCandidates = (sdp) => {
   return transform.write(parsedSDP);
 };
 
-const analyzeSdp = (sdp) => {
+const isPublicIpv4 = (ip) => {
+  const ipParts = ip.split('.');
+  switch (ipParts[0]) {
+    case 10:
+    case 127:
+      return false;
+    case 172:
+      return ipParts[1] <= 16 || ipParts[1] > 32;
+    case 192:
+      return ipParts[1] !== 168;
+    default:
+      return true;
+  }
+};
+
+const parseIP = (ip) => {
+  if (ip && typeof ip === 'string') {
+    if (ip.indexOf(':') !== -1) return { type: 'v6', public: true };
+    if (ip.indexOf('.local') !== -1) return { type: 'mdns', public: false };
+    if (ip.indexOf('.')) return { type: 'v4', public: isPublicIpv4(ip) };
+  }
+  return { type: 'unknown', public: false };
+};
+
+const analyzeSdp = (sdp, sendLogs = true) => {
   // For now we just need to parse and log the different pieces. In the future we're going to want
   // to be tracking whether there were TURN candidates and IPv4 candidates to make informed
   // decisions about what to do on fallbacks/reconnects.
@@ -97,28 +121,6 @@ const analyzeSdp = (sdp) => {
     found: false,
     type: 'not found',
     public: false,
-  };
-
-  const isPublicIpv4 = (ip) => {
-    const ipParts = ip.split('.');
-    switch (ipParts[0]) {
-      case 10:
-      case 127:
-        return false;
-      case 172:
-        return ipParts[1] <= 16 || ipParts[1] > 32;
-      case 192:
-        return ipParts[1] !== 168;
-      default:
-        return true;
-    }
-  };
-
-  const parseIP = (ip) => {
-    if (ip.indexOf(':') !== -1) return { type: 'v6', public: true };
-    if (ip.indexOf('.local') !== -1) return { type: 'mdns', public: false };
-    if (ip.indexOf('.')) return { type: 'v4', public: isPublicIpv4(ip) };
-    return { type: 'unknown', public: false };
   };
 
   // Things to parse:
@@ -183,59 +185,118 @@ const analyzeSdp = (sdp) => {
   });
 
   // candidate types
-  logger.info({
-    logCode: 'sdp_utils_candidate_types',
-    extraInfo: {
-      foundV4Candidate: v4Info.found,
-      foundV4PublicCandidate: v4Info.public,
-      foundV6Candidate: v6Info.found,
-    },
-  }, `Found candidates ${v4Info.found ? 'with' : 'without'} type v4 (public? ${v4Info.public}) and ${v6Info.found ? 'with' : 'without'} type v6`);
-
-  // server reflexive
-  if (srflxInfo.found) {
+  if (sendLogs) {
     logger.info({
-      logCode: 'sdp_utils_server_reflexive_found',
+      logCode: 'sdp_utils_candidate_types',
       extraInfo: {
-        candidateType: srflxInfo.type,
-        candidatePublic: srflxInfo.public,
+        foundV4Candidate: v4Info.found,
+        foundV4PublicCandidate: v4Info.public,
+        foundV6Candidate: v6Info.found,
       },
-    }, 'Found a server reflexive candidate');
-  } else {
-    logger.info({
-      logCode: 'sdp_utils_no_server_reflexive',
-    }, 'No server reflexive candidate found');
-  }
+    }, `Found candidates ${v4Info.found ? 'with' : 'without'} type v4 (public? ${v4Info.public}) and ${v6Info.found ? 'with' : 'without'} type v6`);
 
-  // peer reflexive
-  if (prflxInfo.found) {
-    logger.info({
-      logCode: 'sdp_utils_peer_reflexive_found',
-      extraInfo: {
-        candidateType: prflxInfo.type,
-        candidatePublic: prflxInfo.public,
-      },
-    }, 'Found a peer reflexive candidate');
-  } else {
-    logger.info({
-      logCode: 'sdp_utils_no_peer_reflexive',
-    }, 'No peer reflexive candidate found');
-  }
+    // server reflexive
+    if (srflxInfo.found) {
+      logger.info({
+        logCode: 'sdp_utils_server_reflexive_found',
+        extraInfo: {
+          candidateType: srflxInfo.type,
+          candidatePublic: srflxInfo.public,
+        },
+      }, 'Found a server reflexive candidate');
+    } else {
+      logger.info({
+        logCode: 'sdp_utils_no_server_reflexive',
+      }, 'No server reflexive candidate found');
+    }
 
-  // relay
-  if (relayInfo.found) {
-    logger.info({
-      logCode: 'sdp_utils_relay_found',
-      extraInfo: {
-        candidateType: relayInfo.type,
-        candidatePublic: relayInfo.public,
-      },
-    }, 'Found a relay candidate');
-  } else {
-    logger.info({
-      logCode: 'sdp_utils_no_relay',
-    }, 'No relay candidate found');
+    // peer reflexive
+    if (prflxInfo.found) {
+      logger.info({
+        logCode: 'sdp_utils_peer_reflexive_found',
+        extraInfo: {
+          candidateType: prflxInfo.type,
+          candidatePublic: prflxInfo.public,
+        },
+      }, 'Found a peer reflexive candidate');
+    } else {
+      logger.info({
+        logCode: 'sdp_utils_no_peer_reflexive',
+      }, 'No peer reflexive candidate found');
+    }
+
+    // relay
+    if (relayInfo.found) {
+      logger.info({
+        logCode: 'sdp_utils_relay_found',
+        extraInfo: {
+          candidateType: relayInfo.type,
+          candidatePublic: relayInfo.public,
+        },
+      }, 'Found a relay candidate');
+    } else {
+      logger.info({
+        logCode: 'sdp_utils_no_relay',
+      }, 'No relay candidate found');
+    }
   }
+  return {
+    v4Info,
+    v6Info,
+    srflxInfo,
+    prflxInfo,
+    relayInfo,
+  };
+};
+
+// We grab the protocol type from the answer SDP because Safari stats don't contain the
+// candidate IP addresses
+const logSelectedCandidate = async (peer, isIpv6) => {
+  peer.getStats().then((report) => {
+    let localCandidate;
+
+    const values = Array.from(report.values());
+    const candidatePair = values.find(item => item.type === 'candidate-pair' && (item.selected || item.state === 'succeeded'));
+    if (candidatePair) {
+      localCandidate = values.find(item => item.id === candidatePair.localCandidateId);
+    }
+
+    const ipType = isIpv6 ? 'v6' : 'v4';
+    if (candidatePair) {
+      if (localCandidate) {
+        // console.log(localCandidate);
+        // Safari doesn't include the IP address in the candidate info so we can't rely on this
+        // const candidateIp = localCandidate.ip || localCandidate.address;
+        // const ipInfo = parseIP(candidateIp);
+
+        logger.info({
+          logCode: 'sip_js_candidate_selected',
+          extraInfo: {
+            candidateType: localCandidate.candidateType,
+            candidateProtocol: localCandidate.protocol,
+            ipType,
+            networkType: localCandidate.networkType,
+          },
+        }, `ICE Candidate selected - type: ${localCandidate.candidateType}, protocol: ${localCandidate.protocol}, ipProtocol: ${ipType}`);
+      } else {
+        logger.info({
+          logCode: 'sip_js_lcandidate_not_found',
+          extraInfo: {
+            ipType,
+          },
+        }, `ICE Candidate selected, but could not find local candidate - ipProtocol: ${ipType}`);
+      }
+    } else {
+      logger.info({
+        logCode: 'sip_js_candidate_pair_not_found',
+        extraInfo: {
+          ipType,
+        },
+      }, `ICE Candidate selected, but could not find pair - ipProtocol: ${ipType}`);
+    }
+
+    // TODO return the data back
+  });
 };
 
 export {
@@ -245,4 +306,5 @@ export {
   toUnifiedPlan,
   stripMDnsCandidates,
   analyzeSdp,
+  logSelectedCandidate,
 };
