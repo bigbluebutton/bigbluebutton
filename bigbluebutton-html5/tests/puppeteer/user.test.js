@@ -29,5 +29,5 @@ describe('User', () => {
       await test.close();
     }
     expect(response).toBe(true);
-  }, 30000);
+  });
 });
