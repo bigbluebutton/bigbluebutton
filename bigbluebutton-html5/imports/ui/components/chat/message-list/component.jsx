@@ -55,6 +55,7 @@ class MessageList extends Component {
     this.handleScrollUpdate = _.debounce(this.handleScrollUpdate.bind(this), 150);
     this.rowRender = this.rowRender.bind(this);
     this.resizeRow = this.resizeRow.bind(this);
+    this.systemMessagesResized = {};
 
     this.scrollToBottom = this.scrollToBottom.bind(this);
     this.state = {
@@ -186,7 +187,10 @@ class MessageList extends Component {
   }
 
   rowRender({
-    index, parent, style, key,
+    index,
+    parent,
+    style,
+    key,
   }) {
     const {
       messages,
@@ -196,6 +200,13 @@ class MessageList extends Component {
     } = this.props;
     const { scrollArea } = this.state;
     const message = messages[index];
+
+    // it's to get an accurate size of the welcome message because it changes after initial render
+
+    if (message.sender === null && !this.systemMessagesResized[index]) {
+      setTimeout(() => this.resizeRow(index), 500);
+      this.systemMessagesResized[index] = true;
+    }
 
     return (
       <CellMeasurer
