@@ -64,8 +64,8 @@ class UserNotes extends Component {
     if (unread) {
       notification = (
         <div
-          className={styles.unreadContent}
-          aria-label={intl.formatMessage(intlMessages.unreadMessages)}
+          className={styles.unreadMessages}
+          aria-label={intl.formatMessage(intlMessages.unreadContent)}
         >
           <div className={styles.unreadMessagesText} aria-hidden="true">
             ···
