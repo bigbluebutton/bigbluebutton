@@ -95,6 +95,8 @@ class AnalyticsActor extends Actor with ActorLogging {
       // Voice
       case m: UserMutedVoiceEvtMsg =>
         logMessage(msg)
+      case m: VoiceConfCallStateEvtMsg => logMessage(msg)
+      case m: VoiceCallStateEvtMsg => logMessage(msg)
 
       // Breakout
       case m: BreakoutRoomEndedEvtMsg => logMessage(msg)

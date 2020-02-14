@@ -3,13 +3,18 @@ import { check } from 'meteor/check';
 import Users from '/imports/api/users';
 import Logger from '/imports/startup/server/logger';
 
-const allowFromPresenter = (eventName, { userId }) => {
-  if (eventName === 'viewerJoined') return true;
+const allowFromPresenter = (eventName, message) => {
+  const {
+    userId,
+    time,
+    rate,
+    state,
+  } = message;
 
   const user = Users.findOne({ userId });
   const ret = user && user.presenter;
 
-  Logger.debug('ExternalVideo Streamer auth userid:', userId, ' event: ', eventName, ' suc: ', ret);
+  Logger.info(`ExternalVideo Streamer auth userid: ${userId}, meetingId: ${user.meetingId}, event: ${eventName}, suc: ${ret}, time: ${time}, rate: ${rate}, state: ${state}`);
 
   return ret;
 };
@@ -26,6 +31,6 @@ export default function initializeExternalVideo(credentials) {
     streamer.allowWrite('all');
     streamer.allowEmit(allowFromPresenter);
   } else {
-    Logger.debug('External Video streamer is already created for ', streamName);
+    Logger.debug(`External Video streamer is already created for ${streamName}`);
   }
 }

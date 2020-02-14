@@ -109,7 +109,8 @@ module.exports = class CallbackEmitter extends EventEmitter {
 
     const responseFailed = (response) => {
         var statusCode = (response != null ? response.statusCode : undefined)
-        return !((statusCode >= 200) && (statusCode < 300))
+        // consider 401 as success, because the callback worked but was denied by the recipient
+        return !((statusCode >= 200 && statusCode < 300) || statusCode == 401)
     };
 
     request(requestOptions, function(error, response, body) {

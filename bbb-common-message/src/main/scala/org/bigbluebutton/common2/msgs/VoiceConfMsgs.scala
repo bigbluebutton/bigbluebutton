@@ -434,3 +434,39 @@ case class UserDisconnectedFromGlobalAudioMsgBody(userId: String, name: String)
 object SyncGetVoiceUsersRespMsg { val NAME = "SyncGetVoiceUsersRespMsg" }
 case class SyncGetVoiceUsersRespMsg(header: BbbClientMsgHeader, body: SyncGetVoiceUsersRespMsgBody) extends BbbCoreMsg
 case class SyncGetVoiceUsersRespMsgBody(voiceUsers: Vector[VoiceConfUser])
+
+/**
+ * Received from FS call state events.
+ */
+object VoiceConfCallStateEvtMsg { val NAME = "VoiceConfCallStateEvtMsg" }
+case class VoiceConfCallStateEvtMsg(
+    header: BbbCoreVoiceConfHeader,
+    body:   VoiceConfCallStateEvtMsgBody
+) extends VoiceStandardMsg
+case class VoiceConfCallStateEvtMsgBody(
+    voiceConf:        String,
+    callSession:      String,
+    clientSession:    String,
+    userId:           String,
+    callerName:       String,
+    callState:        String,
+    origCallerIdName: String,
+    origCalledDest:   String
+)
+
+/**
+ * Sent to interested parties call state events.
+ */
+object VoiceCallStateEvtMsg { val NAME = "VoiceCallStateEvtMsg" }
+case class VoiceCallStateEvtMsg(
+    header: BbbClientMsgHeader,
+    body:   VoiceCallStateEvtMsgBody
+) extends BbbCoreMsg
+case class VoiceCallStateEvtMsgBody(
+    meetingId:     String,
+    voiceConf:     String,
+    clientSession: String,
+    userId:        String,
+    callerName:    String,
+    callState:     String
+)
