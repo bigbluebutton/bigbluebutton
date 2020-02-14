@@ -15,11 +15,17 @@ const stop = callback => {
   return;
 };
 
+const isConnected = conn => {
+  if (conn && conn.connectionState === 'connected') return true;
+
+  return false;
+};
+
 const collect = (conn, callback) => {
   let stats = [];
 
   const monitor = (conn, stats, iteration) => {
-    if (!conn) return stop(callback);
+    if (!isConnected(conn)) return stop(callback);
 
     conn.getStats().then(results => {
       if (!results) return stop(callback);
