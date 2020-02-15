@@ -95,6 +95,8 @@ public class OfficeToPdfConversionService {
         Gson gson = new Gson();
         String logStr = gson.toJson(logData);
         log.warn(" --analytics-- data={}", logStr);
+        pres.setConversionStatus(ConversionMessageConstants.OFFICE_DOC_CONVERSION_FAILED_KEY);
+        return pres;
       }
     }
     return pres;
