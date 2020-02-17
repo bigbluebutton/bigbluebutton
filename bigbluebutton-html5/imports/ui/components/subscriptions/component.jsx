@@ -6,8 +6,7 @@ import GroupChat from '/imports/api/group-chat';
 import Users from '/imports/api/users';
 import Annotations from '/imports/api/annotations';
 import AnnotationsTextService from '/imports/ui/components/whiteboard/annotations/text/service';
-import AnnotationsLocal, { initAnnotationsStreamListener } from '/imports/ui/components/whiteboard/service';
-import { initCursorStreamListener } from '/imports/ui/components/cursor/service';
+import AnnotationsLocal from '/imports/ui/components/whiteboard/service';
 
 
 const CHAT_CONFIG = Meteor.settings.public.chat;
@@ -95,9 +94,6 @@ export default withTracker(() => {
     Meteor.subscribe('users', credentials, userIsModerator, subscriptionErrorHandler);
     Meteor.subscribe('breakouts', credentials, userIsModerator, subscriptionErrorHandler);
     Meteor.subscribe('meetings', credentials, userIsModerator, subscriptionErrorHandler);
-    logger.debug({ logCode: 'startup_client_subscription_init_streamers', extraInfo: { role: User.role } }, 'Calling init streamers functions');
-    initAnnotationsStreamListener();
-    initCursorStreamListener();
   }
 
   const annotationsHandler = Meteor.subscribe('annotations', credentials, {

@@ -85,6 +85,8 @@ class ReceivedJsonMsgHandlerActor(
         routeGenericMsg[GetGuestsWaitingApprovalReqMsg](envelope, jsonNode)
       case GuestsWaitingApprovedMsg.NAME =>
         routeGenericMsg[GuestsWaitingApprovedMsg](envelope, jsonNode)
+      case GuestWaitingLeftMsg.NAME =>
+        routeGenericMsg[GuestWaitingLeftMsg](envelope, jsonNode)
       case SetGuestPolicyCmdMsg.NAME =>
         routeGenericMsg[SetGuestPolicyCmdMsg](envelope, jsonNode)
       case GetGuestPolicyReqMsg.NAME =>
@@ -155,6 +157,8 @@ class ReceivedJsonMsgHandlerActor(
         routeVoiceMsg[CheckRunningAndRecordingVoiceConfEvtMsg](envelope, jsonNode)
       case UserStatusVoiceConfEvtMsg.NAME =>
         routeVoiceMsg[UserStatusVoiceConfEvtMsg](envelope, jsonNode)
+      case VoiceConfCallStateEvtMsg.NAME =>
+        routeVoiceMsg[VoiceConfCallStateEvtMsg](envelope, jsonNode)
 
       // Breakout rooms
       case BreakoutRoomsListMsg.NAME =>

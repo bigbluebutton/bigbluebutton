@@ -385,6 +385,7 @@ class MeetingActor(
         state = updateInactivityTracker(state)
         updateVoiceUserLastActivity(m.body.voiceUserId)
         handleUserTalkingInVoiceConfEvtMsg(m)
+      case m: VoiceConfCallStateEvtMsg        => handleVoiceConfCallStateEvtMsg(m)
 
       case m: RecordingStartedVoiceConfEvtMsg => handleRecordingStartedVoiceConfEvtMsg(m)
       case m: MuteUserCmdMsg =>
@@ -456,6 +457,7 @@ class MeetingActor(
       case m: GetGuestsWaitingApprovalReqMsg           => handleGetGuestsWaitingApprovalReqMsg(m)
       case m: SetGuestPolicyCmdMsg                     => handleSetGuestPolicyMsg(m)
       case m: GuestsWaitingApprovedMsg                 => handleGuestsWaitingApprovedMsg(m)
+      case m: GuestWaitingLeftMsg                      => handleGuestWaitingLeftMsg(m)
       case m: GetGuestPolicyReqMsg                     => handleGetGuestPolicyReqMsg(m)
 
       // Chat

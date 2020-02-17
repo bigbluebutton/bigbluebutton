@@ -52,7 +52,7 @@ class Page {
 
   // Get the default arguments for creating a page
   static getArgs() {
-    return { headless: true, args: ['--no-sandbox', '--use-fake-ui-for-media-stream'] };
+    return { headless: false, args: ['--no-sandbox', '--use-fake-ui-for-media-stream'] };
   }
 
   // Returns a Promise that resolves when an element does not exist/is removed from the DOM

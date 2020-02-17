@@ -8,6 +8,7 @@ import LoadingScreen from '/imports/ui/components/loading-screen/component';
 import ar from 'react-intl/locale-data/ar';
 import bg from 'react-intl/locale-data/bg';
 import cs from 'react-intl/locale-data/cs';
+import da from 'react-intl/locale-data/da';
 import de from 'react-intl/locale-data/de';
 import el from 'react-intl/locale-data/el';
 import en from 'react-intl/locale-data/en';
@@ -16,6 +17,7 @@ import eu from 'react-intl/locale-data/eu';
 import fa from 'react-intl/locale-data/fa';
 import fi from 'react-intl/locale-data/fi';
 import fr from 'react-intl/locale-data/fr';
+import gl from 'react-intl/locale-data/gl';
 import he from 'react-intl/locale-data/he';
 import hi from 'react-intl/locale-data/hi';
 import hu from 'react-intl/locale-data/hu';
@@ -32,6 +34,7 @@ import ru from 'react-intl/locale-data/ru';
 import sk from 'react-intl/locale-data/sk';
 import sr from 'react-intl/locale-data/sr';
 import sv from 'react-intl/locale-data/sv';
+import th from 'react-intl/locale-data/th';
 import tr from 'react-intl/locale-data/tr';
 import uk from 'react-intl/locale-data/uk';
 import vi from 'react-intl/locale-data/vi';
@@ -42,6 +45,7 @@ addLocaleData([
   ...ar,
   ...bg,
   ...cs,
+  ...da,
   ...de,
   ...el,
   ...en,
@@ -50,6 +54,7 @@ addLocaleData([
   ...fa,
   ...fi,
   ...fr,
+  ...gl,
   ...he,
   ...hi,
   ...hu,
@@ -66,6 +71,7 @@ addLocaleData([
   ...sk,
   ...sr,
   ...sv,
+  ...th,
   ...tr,
   ...uk,
   ...vi,
@@ -94,6 +100,10 @@ class IntlStartup extends Component {
       normalizedLocale: null,
       fetching: false,
     };
+
+    if (RTL_LANGUAGES.includes(props.locale)) {
+      document.body.parentNode.setAttribute('dir', 'rtl');
+    }
 
     this.fetchLocalizedMessages = this.fetchLocalizedMessages.bind(this);
   }

@@ -4,6 +4,7 @@ import cx from 'classnames';
 import TextareaAutosize from 'react-autosize-textarea';
 import browser from 'browser-detect';
 import PropTypes from 'prop-types';
+import _ from 'lodash';
 import TypingIndicatorContainer from './typing-indicator/container';
 import { styles } from './styles.scss';
 import Button from '../../button/component';
@@ -88,6 +89,7 @@ class MessageForm extends PureComponent {
     this.handleMessageKeyDown = this.handleMessageKeyDown.bind(this);
     this.handleSubmit = this.handleSubmit.bind(this);
     this.setMessageHint = this.setMessageHint.bind(this);
+    this.handleUserTyping = _.throttle(this.handleUserTyping.bind(this), 2000, { trailing: false });
   }
 
   componentDidMount() {
@@ -196,12 +198,16 @@ class MessageForm extends PureComponent {
     }
   }
 
+  handleUserTyping(error) {
+    const { startUserTyping, chatId } = this.props;
+    if (error) return;
+    startUserTyping(chatId);
+  }
+
   handleMessageChange(e) {
     const {
       intl,
-      startUserTyping,
       maxMessageLength,
-      chatId,
     } = this.props;
 
     const message = e.target.value;
@@ -214,15 +220,10 @@ class MessageForm extends PureComponent {
       );
     }
 
-    const handleUserTyping = () => {
-      if (error) return;
-      startUserTyping(chatId);
-    };
-
     this.setState({
       message,
       error,
-    }, handleUserTyping);
+    }, this.handleUserTyping(error));
   }
 
   handleSubmit(e) {

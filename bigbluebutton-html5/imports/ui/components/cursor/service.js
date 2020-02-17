@@ -36,13 +36,27 @@ export function publishCursorUpdate(payload) {
 }
 
 export function initCursorStreamListener() {
-  logger.debug({
+  logger.info({
     logCode: 'init_cursor_stream_listener',
+    extraInfo: { meetingId: Auth.meetingID, userId: Auth.userID },
   }, 'initCursorStreamListener called');
 
   if (!cursorStreamListener) {
     cursorStreamListener = new Meteor.Streamer(`cursor-${Auth.meetingID}`, { ddpConnection: whiteboardConnection });
 
+  const startStreamHandlersPromise = new Promise((resolve) => {
+    const checkStreamHandlersInterval = setInterval(() => {
+      const streamHandlersSize = Object.values(Meteor.StreamerCentral.instances[`cursor-${Auth.meetingID}`].handlers)
+        .filter(el => el != undefined)
+        .length;
+
+      if (!streamHandlersSize) {
+        resolve(clearInterval(checkStreamHandlersInterval));
+      }
+    }, 250);
+  });
+
+  startStreamHandlersPromise.then(() => {
     logger.debug({
       logCode: 'init_cursor_stream_listener',
     }, 'initCursorStreamListener called');
@@ -53,7 +67,7 @@ export function initCursorStreamListener() {
         updateCursor(userId, cursors[userId]);
       });
     });
-  }
+  });
 }
 
 export default Cursor;

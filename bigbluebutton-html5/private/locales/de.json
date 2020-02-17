@@ -194,7 +194,7 @@
     "app.poll.quickPollInstruction": "Wählen Sie eine der unten stehenden Optionen, um die Umfrage zu starten.",
     "app.poll.customPollLabel": "Benutzerdefinierte Umfrage...",
     "app.poll.startCustomLabel": "Benutzerdefinierte Umfrage starten",
-    "app.poll.activePollInstruction": "Lassen Sie dieses Fenster offen, um auf die Antworten der Teilnehmer zu warten. Sobald Sie auf Veröffentlichen der Ergebnisse klicken, werden die Ergebnisse angezeigt und die Umfrage beendet.",
+    "app.poll.activePollInstruction": "Lassen Sie dieses Fenster offen, um auf die Antworten der Teilnehmer zu warten. Sobald Sie auf \"Umfrageergebnisse veröffentlichen\" klicken, werden die Ergebnisse angezeigt und die Umfrage beendet.",
     "app.poll.publishLabel": "Umfrageergebnisse veröffentlichen",
     "app.poll.backLabel": "Zurück zu den Umfrageoptionen",
     "app.poll.closeLabel": "Schließen",

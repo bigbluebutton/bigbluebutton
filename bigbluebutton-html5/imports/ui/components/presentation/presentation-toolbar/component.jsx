@@ -246,6 +246,7 @@ class PresentationToolbar extends PureComponent {
               label={intl.formatMessage(intlMessages.previousSlideLabel)}
               hideLabel
               className={cx(styles.prevSlide, styles.presentationBtn)}
+              data-test="prevSlide"
             />
 
             <Tooltip
@@ -262,6 +263,7 @@ class PresentationToolbar extends PureComponent {
                 value={currentSlideNum}
                 onChange={this.handleSkipToSlideChange}
                 className={styles.skipSlideSelect}
+                data-test="skipSlide"
               >
                 {this.renderSkipSlideOpts(numberOfSlides)}
               </select>
@@ -278,6 +280,7 @@ class PresentationToolbar extends PureComponent {
               label={intl.formatMessage(intlMessages.nextSlideLabel)}
               hideLabel
               className={cx(styles.skipSlide, styles.presentationBtn)}
+              data-test="nextSlide"
             />
           </div>
         }
