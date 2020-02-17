@@ -139,8 +139,6 @@
   line-height: var(--font-size-13px);
   text-align: right;
   text-transform: capitalize;
-  //text-transform: uppercase;
-  // font-size: 75%;
   margin: 0 0 0 calc(var(--line-height-computed) / 2);
   align-self: right;
   [dir="rtl"] & {
@@ -158,7 +156,6 @@
     font-weight: normal;
     font-size: var(--font-size-14px);
     line-height: var(--font-size-17px);
-    text-transform: capitalize;
     color: #03213F;
 }
 
