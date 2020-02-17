@@ -1,6 +1,5 @@
 require('dotenv').config();
 const puppeteer = require('puppeteer');
-const path = require('path');
 const fs = require('fs');
 const helper = require('./helper');
 const params = require('../params');
@@ -34,8 +33,12 @@ class Page {
     await this.page.goto(joinURL);
     await this.waitForSelector(e.audioDialog);
     await this.click(e.closeAudio, true);
-
-    if (process.env.BBB_COLLECT_METRICS) await this.getMetrics(effectiveParams.fullName);
+    const checkForGetMetrics = async () => {
+      if (process.env.BBB_COLLECT_METRICS === 'true') {
+        await this.getMetrics(effectiveParams.fullName);
+      }
+    };
+    await checkForGetMetrics();
   }
 
   async setDownloadBehavior(downloadPath) {
@@ -138,22 +141,20 @@ class Page {
 
   async getMetrics(username) {
     const metrics = {};
-    const dir = `${process.env.HOME || process.env.HOMEPATH || process.env.USERPROFILE}` + `${process.env.METRICS_FOLDER}`;
-    console.log(dir);
+    const dir = process.env.METRICS_FOLDER;
     if (!fs.existsSync(dir)) {
       fs.mkdirSync(dir);
     }
-
     const metric = await this.page.metrics();
     metrics[`metricObj-${username}`] = metric;
-    setInterval(() => {
+    const createFile = () => {
       try {
-        fs.appendFileSync(path.join(`${dir}/metrics-${username}.json`), JSON.stringify(metrics));
-        console.log(username);
+        fs.appendFileSync((`${dir}/metrics-${username}.json`), `${JSON.stringify(metrics)}\n`);
       } catch (error) {
         console.log(error);
       }
-    }, process.env.METRICS_INTERVAL_SECONDS);
+    };
+    createFile();
   }
 }
 
