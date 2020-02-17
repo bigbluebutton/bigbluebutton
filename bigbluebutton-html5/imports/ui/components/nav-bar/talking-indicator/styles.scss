@@ -9,7 +9,7 @@
   --talker-padding-xl: 1.62rem;
   --talker-padding-xsm: .13rem;
   --talker-max-width: 10rem;
-  --talker-font-weight: 400;
+  --talker-font-weight: 500;
   --talker-border-radius: 2rem;
 }
 
@@ -48,13 +48,14 @@
   flex: 0 0 auto;
   @include highContrastOutline();
   color: #5594d4;
+  font-family: Montserrat;
   font-weight: var(--talker-font-weight);
   border-radius: var(--talker-border-radius) var(--talker-border-radius);
-  font-size: var(--font-size-base);
+  font-size: var(--font-size-12px);
   padding: var(--talker-padding-xsm) var(--talker-padding-lg) var(--talker-padding-xsm) var(--talker-padding-lg);
   margin-left: var(--border-radius);
   margin-right: var(--border-radius);
-  height: var(--talker-height);
+  // height: var(--font-size-17px);
   box-shadow: none !important;
 
   @include mq($phone-landscape) {
