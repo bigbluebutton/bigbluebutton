@@ -24,7 +24,7 @@ class MultiUsers {
   }
 
   async test() {
-    const checks = await this.checkForOtherUser(this.page1, this.page2);
+    const checks = await this.checkForOtherUser();
     return checks.firstCheck !== false && checks.secondCheck !== false;
   }
 
