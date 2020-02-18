@@ -237,7 +237,6 @@ LiveResult.propTypes = {
       users: PropTypes.arrayOf(PropTypes.string),
     }),
   ]),
-  publishPoll: PropTypes.func.isRequired,
   stopPoll: PropTypes.func.isRequired,
   handleBackClick: PropTypes.func.isRequired,
 };

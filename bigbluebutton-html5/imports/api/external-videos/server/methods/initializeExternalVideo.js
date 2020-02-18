@@ -1,5 +1,5 @@
 import { Meteor } from 'meteor/meteor';
-import { check } from 'meteor/check';
+import { extractCredentials } from '/imports/api/common/server/helpers';
 import Users from '/imports/api/users';
 import Logger from '/imports/startup/server/logger';
 
@@ -19,10 +19,8 @@ const allowFromPresenter = (eventName, message) => {
   return ret;
 };
 
-export default function initializeExternalVideo(credentials) {
-  const { meetingId } = credentials;
-
-  check(meetingId, String);
+export default function initializeExternalVideo() {
+  const { meetingId } = extractCredentials(this.userId);
 
   const streamName = `external-videos-${meetingId}`;
   if (!Meteor.StreamerCentral.instances[streamName]) {
