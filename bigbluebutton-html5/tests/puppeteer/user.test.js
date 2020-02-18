@@ -7,7 +7,7 @@ describe('User', () => {
     const test = new Status();
     let response;
     try {
-      await test.init();
+      await test.init(Page.getArgs());
       response = await test.test();
     } catch (e) {
       console.log(e);
