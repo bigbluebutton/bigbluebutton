@@ -21,21 +21,21 @@ class Page {
 
   // Join BigBlueButton meeting
   async init(args, meetingId, newParams) {
-    const effectiveParams = newParams || params;
+    this.effectiveParams = newParams || params;
     this.browser = await puppeteer.launch(args);
-    this.page = await this.browser.newPage({ context: `bbb-${effectiveParams.fullName}` });
+    this.page = await this.browser.newPage({ context: `bbb-${this.effectiveParams.fullName}` });
 
     await this.setDownloadBehavior(`${this.parentDir}/downloads`);
     this.meetingId = await helper.createMeeting(params, meetingId);
 
-    const joinURL = helper.getJoinURL(this.meetingId, effectiveParams, true);
+    const joinURL = helper.getJoinURL(this.meetingId, this.effectiveParams, true);
 
     await this.page.goto(joinURL);
     await this.waitForSelector(e.audioDialog);
     await this.click(e.closeAudio, true);
     const checkForGetMetrics = async () => {
       if (process.env.BBB_COLLECT_METRICS === 'true') {
-        await this.getMetrics(effectiveParams.fullName);
+        await this.getMetrics();
       }
     };
     await checkForGetMetrics();
@@ -150,7 +150,7 @@ class Page {
     metricsObj[`metricObj-${this.effectiveParams.fullName}`] = metric;
     const createFile = () => {
       try {
-        fs.appendFileSync((`${dir}/metrics-${this.effectiveParams.fullName}-${currentTimestamp}.json`), `${JSON.stringify(metricsObj)}\n`);
+        fs.appendFileSync(`${dir}/metrics-${this.effectiveParams.fullName}-${currentTimestamp}.json`, `${JSON.stringify(metricsObj)}\n`);
       } catch (error) {
         console.log(error);
       }
