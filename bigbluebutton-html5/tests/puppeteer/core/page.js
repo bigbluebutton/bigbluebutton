@@ -139,17 +139,30 @@ class Page {
     await this.page.waitForSelector(element, { timeout: 0 });
   }
 
+<<<<<<< HEAD
   async getMetrics(username) {
     const metrics = {};
+=======
+  async getMetrics() {
+    const metricsObj = {};
+>>>>>>> ee594eb1a9... adds getMetrics() after checkForOtherUser and adds fixes and currentTimestamp to the metrics fileName
     const dir = process.env.METRICS_FOLDER;
+    const currentTimestamp = new Date();
     if (!fs.existsSync(dir)) {
       fs.mkdirSync(dir);
     }
     const metric = await this.page.metrics();
+<<<<<<< HEAD
     metrics[`metricObj-${username}`] = metric;
     const createFile = () => {
       try {
         fs.appendFileSync((`${dir}/metrics-${username}.json`), `${JSON.stringify(metrics)}\n`);
+=======
+    metricsObj[`metricObj-${this.effectiveParams.fullName}`] = metric;
+    const createFile = () => {
+      try {
+        fs.appendFileSync((`${dir}/metrics-${this.effectiveParams.fullName}-${currentTimestamp}.json`), `${JSON.stringify(metricsObj)}\n`);
+>>>>>>> ee594eb1a9... adds getMetrics() after checkForOtherUser and adds fixes and currentTimestamp to the metrics fileName
       } catch (error) {
         console.log(error);
       }
