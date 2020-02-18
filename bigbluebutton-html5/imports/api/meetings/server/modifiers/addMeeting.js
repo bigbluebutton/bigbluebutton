@@ -89,6 +89,16 @@ export default function addMeeting(meeting) {
     },
   });
 
+  if (process.env.METEOR_ROLE === 'whiteboard') {
+    addAnnotationsStreamer(meetingId);
+    addCursorStreamer(meetingId);
+
+    Logger.info(`Subscribing to from-akka-apps-wb-redis-channel-${meetingId}`);
+    RedisPubSub.meetingWhiteboardSubscribe(`from-akka-apps-wb-redis-channel-${meetingId}`);
+
+    return;
+  }
+
   const {
     recordProp,
     ...restProps
@@ -151,11 +161,6 @@ export default function addMeeting(meeting) {
     if (numChanged) {
       Logger.info(`Upserted meeting id=${meetingId}`);
     }
-
-    if (process.env.METEOR_ROLE === 'whiteboard') {
-      Logger.info(`Subscribing to from-akka-apps-wb-redis-channel-${meetingId}`);
-      RedisPubSub.meetingWhiteboardSubscribe(`from-akka-apps-wb-redis-channel-${meetingId}`);
-    }
   };
 
   const cbRecord = (err, numChanged) => {
@@ -181,9 +186,6 @@ export default function addMeeting(meeting) {
     meetingId,
     ...recordProp,
   }, cbRecord);
-
-  addAnnotationsStreamer(meetingId);
-  addCursorStreamer(meetingId);
 
   return Meetings.upsert(selector, modifier, cb);
 }

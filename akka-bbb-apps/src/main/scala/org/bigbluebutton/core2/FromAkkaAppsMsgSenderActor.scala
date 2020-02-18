@@ -23,11 +23,23 @@ class FromAkkaAppsMsgSenderActor(msgSender: MessageSender)
 
     msg.envelope.name match {
       case SyncGetPresentationPodsRespMsg.NAME => msgSender.send(toHTML5RedisChannel, json)
-      case SyncGetMeetingInfoRespMsg.NAME      => msgSender.send(toHTML5RedisChannel, json)
-      case SyncGetUsersMeetingRespMsg.NAME     => msgSender.send(toHTML5RedisChannel, json)
-      case SyncGetGroupChatsRespMsg.NAME       => msgSender.send(toHTML5RedisChannel, json)
-      case SyncGetGroupChatMsgsRespMsg.NAME    => msgSender.send(toHTML5RedisChannel, json)
-      case SyncGetVoiceUsersRespMsg.NAME       => msgSender.send(toHTML5RedisChannel, json)
+      case SyncGetMeetingInfoRespMsg.NAME =>
+        msgSender.send(toHTML5RedisChannel, json)
+        msgSender.send("from-akka-apps-wb-redis-channel-sync", json)
+      case SyncGetUsersMeetingRespMsg.NAME  => msgSender.send(toHTML5RedisChannel, json)
+      case SyncGetGroupChatsRespMsg.NAME    => msgSender.send(toHTML5RedisChannel, json)
+      case SyncGetGroupChatMsgsRespMsg.NAME => msgSender.send(toHTML5RedisChannel, json)
+      case SyncGetVoiceUsersRespMsg.NAME    => msgSender.send(toHTML5RedisChannel, json)
+
+      case MeetingCreatedEvtMsg.NAME =>
+        msgSender.send(fromAkkaAppsRedisChannel, json)
+        msgSender.send("from-akka-apps-wb-redis-channel-sync", json)
+      case MeetingEndingEvtMsg.NAME =>
+        msgSender.send(fromAkkaAppsRedisChannel, json)
+        msgSender.send("from-akka-apps-wb-redis-channel-sync", json)
+      case MeetingDestroyedEvtMsg.NAME =>
+        msgSender.send(fromAkkaAppsRedisChannel, json)
+        msgSender.send("from-akka-apps-wb-redis-channel-sync", json)
 
       // Sent to FreeSWITCH
       case ScreenshareStartRtmpBroadcastVoiceConfMsg.NAME =>
@@ -65,9 +77,11 @@ class FromAkkaAppsMsgSenderActor(msgSender: MessageSender)
         val cursorMeetingChannel = fromAkkaAppsWbRedisChannel + "-" + msg.envelope.routing("meetingId")
         msgSender.send(cursorMeetingChannel, json)
       case ClearWhiteboardEvtMsg.NAME =>
-        msgSender.send(fromAkkaAppsWbRedisChannel, json)
+        val whiteboardMeetingChannel = fromAkkaAppsWbRedisChannel + "-" + msg.envelope.routing("meetingId")
+        msgSender.send(whiteboardMeetingChannel, json)
       case UndoWhiteboardEvtMsg.NAME =>
-        msgSender.send(fromAkkaAppsWbRedisChannel, json)
+        val whiteboardMeetingChannel = fromAkkaAppsWbRedisChannel + "-" + msg.envelope.routing("meetingId")
+        msgSender.send(whiteboardMeetingChannel, json)
 
       // Chat
       case SendPublicMessageEvtMsg.NAME =>

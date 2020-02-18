@@ -11,8 +11,11 @@ export default function handleMeetingDestruction({ body }) {
   check(meetingId, String);
 
   destroyExternalVideo(meetingId);
-  removeAnnotationsStreamer(meetingId);
-  removeCursorStreamer(meetingId);
+
+  if (process.env.METEOR_ROLE === 'whiteboard') {
+    removeAnnotationsStreamer(meetingId);
+    removeCursorStreamer(meetingId);
+  }
 
   return RedisPubSub.destroyMeetingQueue(meetingId);
 }

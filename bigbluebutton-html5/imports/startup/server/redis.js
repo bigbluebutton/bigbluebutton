@@ -141,8 +141,7 @@ class RedisPubSub {
         });
         break;
       case 'whiteboard':
-        this.sub.psubscribe('to-html5-redis-channel');
-        this.sub.psubscribe('from-akka-apps-wb-redis-channel');
+        this.sub.psubscribe('from-akka-apps-wb-redis-channel-sync');
         break;
       default:
         channelsToSubscribe.forEach((channel) => {
@@ -155,7 +154,6 @@ class RedisPubSub {
   }
 
   meetingWhiteboardSubscribe(channel) {
-    this.sub.on('pmessage', Meteor.bindEnvironment(this.handleMessage));
     this.sub.psubscribe(channel);
   }
 
