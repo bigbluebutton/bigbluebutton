@@ -26,6 +26,7 @@ import org.bigbluebutton.api2.IBbbWebApiGWApp;
 import org.bigbluebutton.presentation.imp.ImageToSwfSlidesGenerationService;
 import org.bigbluebutton.presentation.imp.OfficeToPdfConversionService;
 import org.bigbluebutton.presentation.imp.PdfToSwfSlidesGenerationService;
+import org.bigbluebutton.presentation.messages.DocConversionStarted;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -40,21 +41,46 @@ public class DocumentConversionServiceImp implements DocumentConversionService {
   private PdfToSwfSlidesGenerationService pdfToSwfSlidesGenerationService;
   private ImageToSwfSlidesGenerationService imageToSwfSlidesGenerationService;
 
+  private void sendDocConversionStartedProgress(UploadedPresentation pres) {
+      DocConversionStarted progress = new DocConversionStarted(
+              pres.getPodId(),
+                pres.getMeetingId(),
+                pres.getId(),
+                pres.getName(),
+              pres.getAuthzToken(),
+              pres.isDownloadable(),
+                pres.isDownloadable());
+        gw.sendDocConversionMsg(progress);
+    }
+
   public void processDocument(UploadedPresentation pres) {
     SupportedDocumentFilter sdf = new SupportedDocumentFilter(gw);
 
-    Map<String, Object> logData = new HashMap<String, Object>();
-    logData.put("podId", pres.getPodId());
-    logData.put("meetingId", pres.getMeetingId());
-    logData.put("presId", pres.getId());
-    logData.put("filename", pres.getName());
-    logData.put("current", pres.isCurrent());
-    logData.put("logCode", "presentation_conversion_start");
-    logData.put("message", "Start presentation conversion.");
 
-    Gson gson = new Gson();
-    String logStr = gson.toJson(logData);
-    log.info(" --analytics-- data={}", logStr);
+
+    if (! pres.isConversionStarted()) {
+        Map<String, Object> logData = new HashMap<String, Object>();
+
+        logData.put("podId", pres.getPodId());
+        logData.put("meetingId", pres.getMeetingId());
+        logData.put("presId", pres.getId());
+        logData.put("filename", pres.getName());
+        logData.put("current", pres.isCurrent());
+        logData.put("authzToken", pres.getAuthzToken());
+        logData.put("logCode", "presentation_conversion_start");
+        logData.put("message", "Start presentation conversion.");
+
+        Gson gson = new Gson();
+        String logStr = gson.toJson(logData);
+        log.info(" --analytics-- data={}", logStr);
+
+        pres.startConversion();
+        sendDocConversionStartedProgress(pres);
+    }
+
+
+
+
 
     if (sdf.isSupported(pres)) {
       String fileType = pres.getFileType();
@@ -79,6 +105,7 @@ public class DocumentConversionServiceImp implements DocumentConversionService {
       } else if (SupportedFileTypes.isImageFile(fileType)) {
         imageToSwfSlidesGenerationService.generateSlides(pres);
       } else {
+          Map<String, Object> logData = new HashMap<String, Object>();
           logData = new HashMap<String, Object>();
           logData.put("podId", pres.getPodId());
           logData.put("meetingId", pres.getMeetingId());
@@ -87,12 +114,14 @@ public class DocumentConversionServiceImp implements DocumentConversionService {
           logData.put("current", pres.isCurrent());
           logData.put("logCode", "supported_file_not_handled");
           logData.put("message", "Supported file not handled.");
-          gson = new Gson();
-          logStr = gson.toJson(logData);
+
+          Gson gson = new Gson();
+          String logStr = gson.toJson(logData);
           log.warn(" --analytics-- data={}", logStr);
       }
 
     } else {
+        Map<String, Object> logData = new HashMap<String, Object>();
         logData = new HashMap<String, Object>();
         logData.put("podId", pres.getPodId());
         logData.put("meetingId", pres.getMeetingId());
@@ -101,11 +130,13 @@ public class DocumentConversionServiceImp implements DocumentConversionService {
         logData.put("current", pres.isCurrent());
         logData.put("logCode", "unsupported_file_format");
         logData.put("message", "Unsupported file format");
-        gson = new Gson();
-        logStr = gson.toJson(logData);
+
+        Gson gson = new Gson();
+        String logStr = gson.toJson(logData);
         log.error(" --analytics-- data={}", logStr);
     }
 
+    Map<String, Object> logData = new HashMap<String, Object>();
     logData = new HashMap<String, Object>();
     logData.put("podId", pres.getPodId());
     logData.put("meetingId", pres.getMeetingId());
@@ -114,8 +145,9 @@ public class DocumentConversionServiceImp implements DocumentConversionService {
     logData.put("current", pres.isCurrent());
     logData.put("logCode", "presentation_conversion_end");
     logData.put("message", "End presentation conversion.");
-    gson = new Gson();
-    logStr = gson.toJson(logData);
+
+    Gson gson = new Gson();
+    String logStr = gson.toJson(logData);
     log.info(" --analytics-- data={}", logStr);
   }
 

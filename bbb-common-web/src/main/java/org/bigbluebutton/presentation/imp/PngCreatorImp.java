@@ -52,16 +52,25 @@ public class PngCreatorImp implements PngCreator {
 		cleanDirectory(pngDir);
 
 		try {
+			long start = System.currentTimeMillis();
 			success = generatePngs(pngDir, pres);
+			long end = System.currentTimeMillis();
+			System.out.println("*** GENERATE PNG " + (end - start));
 		} catch (InterruptedException e) {
 			log.warn("Interrupted Exception while generating png.");
 			success = false;
 		}
 
+		long start = System.currentTimeMillis();
 		// Create blank thumbnails for pages that failed to generate a thumbnail.
 		createBlankPngs(pngDir, pres.getNumberOfPages());
+		long end = System.currentTimeMillis();
+		System.out.println("*** GENERATE BLANK PNG " + (end - start));
 
+		start = System.currentTimeMillis();
 		renamePng(pngDir);
+		end = System.currentTimeMillis();
+		System.out.println("*** RENAME PNG " + (end - start));
 
 		return success;
 	}
@@ -73,6 +82,8 @@ public class PngCreatorImp implements PngCreator {
 		String COMMAND = "";
 		dest = pngsDir.getAbsolutePath() + File.separator + TEMP_PNG_NAME;
 		COMMAND = "pdftocairo -png -scale-to " + slideWidth + " " + source + " " + dest;
+
+		System.out.println("********* CREATING PNGs " + COMMAND);
 
 		boolean done = new ExternalProcessExecutor().exec(COMMAND, 60000);
 

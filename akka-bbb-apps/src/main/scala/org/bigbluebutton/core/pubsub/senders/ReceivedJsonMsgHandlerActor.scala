@@ -219,6 +219,10 @@ class ReceivedJsonMsgHandlerActor(
         routeGenericMsg[PresentationPageCountErrorSysPubMsg](envelope, jsonNode)
       case PresentationPageGeneratedSysPubMsg.NAME =>
         routeGenericMsg[PresentationPageGeneratedSysPubMsg](envelope, jsonNode)
+      case PresentationPageConvertedSysMsg.NAME =>
+        routeGenericMsg[PresentationPageConvertedSysMsg](envelope, jsonNode)
+      case PresentationConversionStartedSysMsg.NAME =>
+        routeGenericMsg[PresentationConversionStartedSysMsg](envelope, jsonNode)
       case PresentationConversionCompletedSysPubMsg.NAME =>
         routeGenericMsg[PresentationConversionCompletedSysPubMsg](envelope, jsonNode)
       case PdfConversionInvalidErrorSysPubMsg.NAME =>

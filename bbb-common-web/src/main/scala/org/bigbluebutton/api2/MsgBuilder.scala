@@ -64,10 +64,48 @@ object MsgBuilder {
     BbbCommonEnvCoreMsg(envelope, req)
   }
 
+  def generatePresentationPage(presId: String, numPages: Int, presBaseUrl: String, page: Int): PageVO = {
+    val id = presId + "/" + page
+    val current = if (page == 1) true else false
+    val thumbnail = presBaseUrl + "/thumbnail/" + page
+    val swfUri = presBaseUrl + "/slide/" + page
+
+    val txtUri = presBaseUrl + "/textfiles/" + page
+    val svgUri = presBaseUrl + "/svg/" + page
+
+    PageVO(id = id, num = page, thumbUri = thumbnail, swfUri = swfUri,
+      txtUri = txtUri, svgUri = svgUri,
+      current = current)
+  }
+
+  def buildPresentationPageConvertedSysMsg(msg: DocPageGeneratedProgress): BbbCommonEnvCoreMsg = {
+    val routing = collection.immutable.HashMap("sender" -> "bbb-web")
+    val envelope = BbbCoreEnvelope(PresentationPageConvertedSysMsg.NAME, routing)
+    val header = BbbClientMsgHeader(PresentationPageConvertedSysMsg.NAME, msg.meetingId, msg.authzToken)
+
+    val page = generatePresentationPage(msg.presId, msg.numPages.intValue(), msg.presBaseUrl, msg.page.intValue())
+
+    println("Converted page " + page)
+
+    val body = PresentationPageConvertedSysMsgBody(
+      podId = msg.podId,
+      messageKey = msg.key,
+      code = msg.key,
+      presentationId = msg.presId,
+      numberOfPages = msg.numPages.intValue(),
+      pagesCompleted = msg.pagesCompleted.intValue(),
+      presName = msg.filename,
+      page
+    )
+    val req = PresentationPageConvertedSysMsg(header, body)
+    BbbCommonEnvCoreMsg(envelope, req)
+  }
+
   def buildPresentationPageGeneratedPubMsg(msg: DocPageGeneratedProgress): BbbCommonEnvCoreMsg = {
     val routing = collection.immutable.HashMap("sender" -> "bbb-web")
     val envelope = BbbCoreEnvelope(PresentationPageGeneratedSysPubMsg.NAME, routing)
     val header = BbbClientMsgHeader(PresentationPageGeneratedSysPubMsg.NAME, msg.meetingId, msg.authzToken)
+
     val body = PresentationPageGeneratedSysPubMsgBody(podId = msg.podId, messageKey = msg.key,
       code = msg.key, presentationId = msg.presId, numberOfPages = msg.numPages.intValue(),
       pagesCompleted = msg.pagesCompleted.intValue(), presName = msg.filename)
@@ -143,7 +181,7 @@ object MsgBuilder {
     BbbCommonEnvCoreMsg(envelope, req)
   }
 
-  def buildPdfConversionInvalidErrorSysPubMsg(msg: PdfConversionInvalid): BbbCommonEnvCoreMsg ={
+  def buildPdfConversionInvalidErrorSysPubMsg(msg: PdfConversionInvalid): BbbCommonEnvCoreMsg = {
     val routing = collection.immutable.HashMap("sender" -> "bbb-web")
     val envelope = BbbCoreEnvelope(PdfConversionInvalidErrorSysPubMsg.NAME, routing)
     val header = BbbClientMsgHeader(PdfConversionInvalidErrorSysPubMsg.NAME, msg.meetingId, msg.authzToken)
@@ -153,7 +191,23 @@ object MsgBuilder {
     val req = PdfConversionInvalidErrorSysPubMsg(header, body)
     BbbCommonEnvCoreMsg(envelope, req)
   }
-  
+
+  def buildPresentationConversionStartedSysMsg(msg: DocConversionStarted): BbbCommonEnvCoreMsg = {
+    val routing = collection.immutable.HashMap("sender" -> "bbb-web")
+    val envelope = BbbCoreEnvelope(PresentationConversionStartedSysMsg.NAME, routing)
+    val header = BbbClientMsgHeader(PresentationConversionStartedSysMsg.NAME, msg.meetingId, msg.authzToken)
+
+    val body = PresentationConversionStartedSysMsgBody(
+      podId = msg.podId,
+      presentationId = msg.presId,
+      current = msg.current,
+      presName = msg.filename,
+      downloadable = msg.downloadable
+    )
+    val req = PresentationConversionStartedSysMsg(header, body)
+    BbbCommonEnvCoreMsg(envelope, req)
+  }
+
   def buildPublishedRecordingSysMsg(msg: PublishedRecordingMessage): BbbCommonEnvCoreMsg = {
     val routing = collection.immutable.HashMap("sender" -> "bbb-web")
     val envelope = BbbCoreEnvelope(PublishedRecordingSysMsg.NAME, routing)

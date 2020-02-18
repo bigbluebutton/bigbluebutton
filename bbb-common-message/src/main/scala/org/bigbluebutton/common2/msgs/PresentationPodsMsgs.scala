@@ -1,6 +1,6 @@
 package org.bigbluebutton.common2.msgs
 
-import org.bigbluebutton.common2.domain.{ PresentationPodVO, PresentationVO }
+import org.bigbluebutton.common2.domain.{ PageVO, PresentationPodVO, PresentationVO }
 
 // ------------ client to akka-apps ------------
 object CreateNewPresentationPodPubMsg { val NAME = "CreateNewPresentationPodPubMsg" }
@@ -73,8 +73,8 @@ case class PdfConversionInvalidErrorSysPubMsg(
     body:   PdfConversionInvalidErrorSysPubMsgBody
 ) extends StandardMsg
 case class PdfConversionInvalidErrorSysPubMsgBody(podId: String, messageKey: String, code: String, presentationId: String,
-                                                   bigPageNumber: Int, bigPageSize: Int, presName: String)
-                                                   
+                                                  bigPageNumber: Int, bigPageSize: Int, presName: String)
+
 object PresentationPageGeneratedSysPubMsg { val NAME = "PresentationPageGeneratedSysPubMsg" }
 case class PresentationPageGeneratedSysPubMsg(
     header: BbbClientMsgHeader,
@@ -90,6 +90,47 @@ case class PresentationConversionCompletedSysPubMsg(
 ) extends StandardMsg
 case class PresentationConversionCompletedSysPubMsgBody(podId: String, messageKey: String, code: String,
                                                         presentation: PresentationVO)
+
+object PresentationPageConvertedSysMsg { val NAME = "PresentationPageConvertedSysMsg" }
+case class PresentationPageConvertedSysMsg(
+    header: BbbClientMsgHeader,
+    body:   PresentationPageConvertedSysMsgBody
+) extends StandardMsg
+case class PresentationPageConvertedSysMsgBody(
+    podId:          String,
+    messageKey:     String,
+    code:           String,
+    presentationId: String,
+    numberOfPages:  Int,
+    pagesCompleted: Int,
+    presName:       String,
+    page:           PageVO
+)
+
+object PresentationConversionStartedSysMsg { val NAME = "PresentationConversionStartedSysMsg" }
+case class PresentationConversionStartedSysMsg(
+    header: BbbClientMsgHeader,
+    body:   PresentationConversionStartedSysMsgBody
+) extends StandardMsg
+case class PresentationConversionStartedSysMsgBody(
+    podId:          String,
+    presentationId: String,
+    current:        Boolean,
+    presName:       String,
+    downloadable:   Boolean
+)
+
+object PresentationConversionEndedSysMsg { val NAME = "PresentationConversionEndedSysMsg" }
+case class PresentationConversionEndedSysMsg(
+    header: BbbClientMsgHeader,
+    body:   PresentationConversionEndedSysMsgBody
+) extends StandardMsg
+case class PresentationConversionEndedSysMsgBody(
+    podId:          String,
+    presentationId: String,
+    presName:       String
+)
+
 // ------------ bbb-common-web to akka-apps ------------
 
 // ------------ akka-apps to client ------------
@@ -124,6 +165,22 @@ case class PresentationPageCountErrorEvtMsgBody(podId: String, messageKey: Strin
 object PresentationPageGeneratedEvtMsg { val NAME = "PresentationPageGeneratedEvtMsg" }
 case class PresentationPageGeneratedEvtMsg(header: BbbClientMsgHeader, body: PresentationPageGeneratedEvtMsgBody) extends BbbCoreMsg
 case class PresentationPageGeneratedEvtMsgBody(podId: String, messageKey: String, code: String, presentationId: String, numberOfPages: Int, pagesCompleted: Int, presName: String)
+
+object PresentationPageConvertedEventMsg { val NAME = "PresentationPageConvertedEventMsg" }
+case class PresentationPageConvertedEventMsg(
+    header: BbbClientMsgHeader,
+    body:   PresentationPageConvertedEventMsgBody
+) extends BbbCoreMsg
+case class PresentationPageConvertedEventMsgBody(
+    podId:          String,
+    messageKey:     String,
+    code:           String,
+    presentationId: String,
+    numberOfPages:  Int,
+    pagesCompleted: Int,
+    presName:       String,
+    page:           PageVO
+)
 
 object PresentationConversionCompletedEvtMsg { val NAME = "PresentationConversionCompletedEvtMsg" }
 case class PresentationConversionCompletedEvtMsg(header: BbbClientMsgHeader, body: PresentationConversionCompletedEvtMsgBody) extends BbbCoreMsg

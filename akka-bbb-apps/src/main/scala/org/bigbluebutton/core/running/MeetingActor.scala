@@ -438,6 +438,7 @@ class MeetingActor(
       case m: PresentationPageCountErrorSysPubMsg      => state = presentationPodsApp.handle(m, state, liveMeeting, msgBus)
       case m: PresentationUploadTokenReqMsg            => state = presentationPodsApp.handle(m, state, liveMeeting, msgBus)
       case m: ResizeAndMovePagePubMsg                  => state = presentationPodsApp.handle(m, state, liveMeeting, msgBus)
+      case m: PresentationPageConvertedSysMsg          => state = presentationPodsApp.handle(m, state, liveMeeting, msgBus)
 
       // Caption
       case m: EditCaptionHistoryPubMsg                 => captionApp2x.handle(m, liveMeeting, msgBus)

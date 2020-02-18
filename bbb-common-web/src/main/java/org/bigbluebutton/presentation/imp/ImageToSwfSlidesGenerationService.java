@@ -166,8 +166,8 @@ public class ImageToSwfSlidesGenerationService {
 					slide.generateBlankSlide();
 				}
 			}
-			slideGenerated++;	
-			notifier.sendConversionUpdateMessage(slideGenerated, pres);
+			slideGenerated++;
+			notifier.sendConversionUpdateMessage(slideGenerated, pres, slide.getPageNumber());
 		}
 	}
 	

@@ -83,21 +83,27 @@ public class PdfToSwfSlidesGenerationService {
                 return;
               }
             }
-            
+
+            System.out.println("****** CREATING SWFs");
             // Only create SWF files if the configuration requires it
             if (swfSlidesRequired) {
-                convertPdfToSwf(pres);
+               convertPdfToSwf(pres);
             }
 
+            System.out.println("****** CREATING THM");
             /* adding accessibility */
             createThumbnails(pres);
+
+            System.out.println("****** CREATING TXTs");
             createTextFiles(pres);
 
+            System.out.println("****** CREATING SVGs");
             // only create SVG images if the configuration requires it
             if (svgImagesRequired) {
                 createSvgImages(pres);
             }
 
+          System.out.println("****** CREATING PNGs");
             // only create PNG images if the configuration requires it
             if (generatePngs) {
                 createPngImages(pres);
@@ -284,7 +290,7 @@ public class PdfToSwfSlidesGenerationService {
         long timeLeft = endNanos - System.nanoTime();
         PdfToSwfSlide s = f.get(timeLeft, TimeUnit.NANOSECONDS);
         slidesCompleted++;
-        notifier.sendConversionUpdateMessage(slidesCompleted, pres);
+        notifier.sendConversionUpdateMessage(slidesCompleted, pres, s.getPageNumber());
       } catch (ExecutionException e) {
         Map<String, Object> logData = new HashMap<>();
         logData.put("podId", pres.getPodId());
@@ -360,7 +366,7 @@ public class PdfToSwfSlidesGenerationService {
         String logStr = gson.toJson(logData);
         log.warn(" --analytics-- data={}", logStr);
 
-        notifier.sendConversionUpdateMessage(slidesCompleted++, pres);
+        notifier.sendConversionUpdateMessage(slidesCompleted++, pres, slide.getPageNumber());
       }
     }
 

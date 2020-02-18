@@ -85,6 +85,8 @@ public class SvgImageCreatorImp implements SvgImageCreator {
 
         // Continue image processing
         for (int i = 1; i <= numSlides; i++) {
+            System.out.println("******** CREATING SVG page " + i);
+
             File destsvg = new File(imagePresentationDir.getAbsolutePath() + File.separatorChar + "slide" + i + ".svg");
 
             NuProcessBuilder convertPdfToSvg = createConversionProcess("-svg", i, source, destsvg.getAbsolutePath(),
@@ -198,7 +200,7 @@ public class SvgImageCreatorImp implements SvgImageCreator {
             }
             
             slidesCompleted++;
-            notifier.sendConversionUpdateMessage(slidesCompleted, pres);
+            notifier.sendConversionUpdateMessage(slidesCompleted, pres, i);
 
         }
 
