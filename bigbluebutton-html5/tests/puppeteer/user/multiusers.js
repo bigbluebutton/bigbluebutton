@@ -1,5 +1,6 @@
 const Page = require('../core/page');
 const params = require('../params');
+const util = require('../chat/util');
 
 class MultiUsers {
   constructor() {
@@ -21,6 +22,21 @@ class MultiUsers {
       firstCheck,
       secondCheck,
     };
+  }
+
+  async multiUsersPublicChat() {
+    await util.sendPublicChatMessage(this.page1, this.page2);
+    const responsePublicMessage = await util.checkForPublicMessageReception(this.page1, this.page2);
+    const checkPublicChat = responsePublicMessage == true;
+    return checkPublicChat == true;
+  }
+
+  async multiUsersPrivateChat() {
+    await util.openPrivateChatMessage(this.page1, this.page2);
+    await util.sendPrivateChatMessage(this.page1, this.page2);
+    const responsePrivateMessage = await util.checkForPrivateMessageReception(this.page1, this.page2);
+    const checkPrivateChat = responsePrivateMessage == true;
+    return checkPrivateChat == true;
   }
 
   async test() {
