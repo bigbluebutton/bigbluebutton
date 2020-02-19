@@ -49,42 +49,45 @@ public class ThumbnailCreatorImp implements ThumbnailCreator {
   private String BLANK_THUMBNAIL;
 
   @Override
-  public boolean createThumbnails(UploadedPresentation pres) {
+  public boolean createThumbnail(UploadedPresentation pres, int page) {
     boolean success = false;
     File thumbsDir = determineThumbnailDirectory(pres.getUploadedFile());
 
     if (!thumbsDir.exists())
       thumbsDir.mkdir();
 
-    cleanDirectory(thumbsDir);
 
     try {
-      success = generateThumbnails(thumbsDir, pres);
+      success = generateThumbnail(thumbsDir, pres, page);
     } catch (InterruptedException e) {
       log.error("Interrupted Exception while generating thumbnails {}", pres.getName(), e);
       success = false;
     }
 
     // Create blank thumbnails for pages that failed to generate a thumbnail.
-    createBlankThumbnails(thumbsDir, pres.getNumberOfPages());
+    createBlankThumbnail(thumbsDir, page);
 
-    renameThumbnails(thumbsDir);
+    //renameThumbnails(thumbsDir);
 
     return success;
   }
 
-  private boolean generateThumbnails(File thumbsDir, UploadedPresentation pres)
+  private boolean generateThumbnail(File thumbsDir, UploadedPresentation pres, int page)
       throws InterruptedException {
     String source = pres.getUploadedFile().getAbsolutePath();
     String dest;
     String COMMAND = "";
-    dest = thumbsDir.getAbsolutePath() + File.separatorChar + TEMP_THUMB_NAME;
+
     if (SupportedFileTypes.isImageFile(pres.getFileType())) {
+      dest = thumbsDir.getAbsolutePath() + File.separatorChar + "thumb-" + page + ".png";
       COMMAND = IMAGEMAGICK_DIR + File.separatorChar + "convert -thumbnail 150x150 "
-          + source + " " + dest + ".png";
+          + source + " " + dest;
     } else {
-      COMMAND = "pdftocairo -png -scale-to 150 " + source + " " + dest;
+      dest = thumbsDir.getAbsolutePath() + File.separatorChar + "thumb"; // the "-x.png" is appended automagically
+      COMMAND = "pdftocairo -png -scale-to 150 " + " -f " + page + " -l " + page + " " + source + " " + dest;
     }
+
+    System.out.println(COMMAND);
 
     boolean done = new ExternalProcessExecutor().exec(COMMAND, 60000);
 
@@ -95,6 +98,7 @@ public class ThumbnailCreatorImp implements ThumbnailCreator {
       logData.put("meetingId", pres.getMeetingId());
       logData.put("presId", pres.getId());
       logData.put("filename", pres.getName());
+      logData.put("page", page);
       logData.put("logCode", "create_thumbnails_failed");
       logData.put("message", "Failed to create thumbnails.");
 
@@ -147,18 +151,13 @@ public class ThumbnailCreatorImp implements ThumbnailCreator {
     }
   }
 
-  private void createBlankThumbnails(File thumbsDir, int pageCount) {
+  private void createBlankThumbnail(File thumbsDir, int page) {
     File[] thumbs = thumbsDir.listFiles();
 
-    if (thumbs.length != pageCount) {
-      for (int i = 0; i < pageCount; i++) {
-        File thumb = new File(thumbsDir.getAbsolutePath() + File.separatorChar
-            + TEMP_THUMB_NAME + "-" + i + ".png");
-        if (!thumb.exists()) {
-          log.info("Copying blank thumbnail for slide {}", i);
-          copyBlankThumbnail(thumb);
-        }
-      }
+    File thumb = new File(thumbsDir.getAbsolutePath() + File.separatorChar + "thumb-" + page + ".png");
+    if (!thumb.exists()) {
+      log.info("Copying blank thumbnail for slide {}", page);
+      copyBlankThumbnail(thumb);
     }
   }
 

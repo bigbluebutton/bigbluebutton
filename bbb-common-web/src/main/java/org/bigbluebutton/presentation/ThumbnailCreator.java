@@ -20,5 +20,5 @@
 package org.bigbluebutton.presentation;
 
 public interface ThumbnailCreator {
-	public boolean createThumbnails(UploadedPresentation pres);
+	public boolean createThumbnail(UploadedPresentation pres, int page);
 }

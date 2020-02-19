@@ -56,8 +56,6 @@ public class DocumentConversionServiceImp implements DocumentConversionService {
   public void processDocument(UploadedPresentation pres) {
     SupportedDocumentFilter sdf = new SupportedDocumentFilter(gw);
 
-
-
     if (! pres.isConversionStarted()) {
         Map<String, Object> logData = new HashMap<String, Object>();
 
@@ -77,10 +75,6 @@ public class DocumentConversionServiceImp implements DocumentConversionService {
         pres.startConversion();
         sendDocConversionStartedProgress(pres);
     }
-
-
-
-
 
     if (sdf.isSupported(pres)) {
       String fileType = pres.getFileType();

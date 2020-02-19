@@ -19,16 +19,22 @@
 package org.bigbluebutton.presentation.imp;
 
 import com.google.gson.Gson;
+import com.zaxxer.nuprocess.NuProcess;
+import com.zaxxer.nuprocess.NuProcessBuilder;
 import org.apache.commons.io.FileUtils;
 import org.bigbluebutton.presentation.PngCreator;
+import org.bigbluebutton.presentation.SupportedFileTypes;
 import org.bigbluebutton.presentation.UploadedPresentation;
+import org.bigbluebutton.presentation.handlers.Png2SvgConversionHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -39,21 +45,21 @@ public class PngCreatorImp implements PngCreator {
 
 	private String BLANK_PNG;
 	private int slideWidth = 800;
+	private String convTimeout = "7s";
+	private int WAIT_FOR_SEC = 7;
 
 	private static final String TEMP_PNG_NAME = "temp-png";
 
-	public boolean createPng(UploadedPresentation pres) {
+	public boolean createPng(UploadedPresentation pres, int page) {
 		boolean success = false;
 		File pngDir = determinePngDirectory(pres.getUploadedFile());
 
 		if (!pngDir.exists())
 			pngDir.mkdir();
 
-		cleanDirectory(pngDir);
-
 		try {
 			long start = System.currentTimeMillis();
-			success = generatePngs(pngDir, pres);
+			success = generatePng(pngDir, pres, page);
 			long end = System.currentTimeMillis();
 			System.out.println("*** GENERATE PNG " + (end - start));
 		} catch (InterruptedException e) {
@@ -63,25 +69,49 @@ public class PngCreatorImp implements PngCreator {
 
 		long start = System.currentTimeMillis();
 		// Create blank thumbnails for pages that failed to generate a thumbnail.
-		createBlankPngs(pngDir, pres.getNumberOfPages());
+		createBlankPngs(pngDir, page);
 		long end = System.currentTimeMillis();
 		System.out.println("*** GENERATE BLANK PNG " + (end - start));
 
-		start = System.currentTimeMillis();
-		renamePng(pngDir);
-		end = System.currentTimeMillis();
-		System.out.println("*** RENAME PNG " + (end - start));
+		//start = System.currentTimeMillis();
+		//renamePng(pngDir);
+		//end = System.currentTimeMillis();
+		//System.out.println("*** RENAME PNG " + (end - start));
 
 		return success;
 	}
 
-	private boolean generatePngs(File pngsDir, UploadedPresentation pres)
+	private boolean generatePng(File pngsDir, UploadedPresentation pres, int page)
 					throws InterruptedException {
 		String source = pres.getUploadedFile().getAbsolutePath();
 		String dest;
+
+		if (SupportedFileTypes.isImageFile(pres.getFileType())) {
+			// Need to create a PDF as intermediate step.
+			// Convert single image file
+			dest = pngsDir.getAbsolutePath() + File.separator + "slide-1.pdf";
+
+			NuProcessBuilder convertImgToSvg = new NuProcessBuilder(
+					Arrays.asList("timeout", convTimeout, "convert", source, "-auto-orient", dest));
+
+			Png2SvgConversionHandler pHandler = new Png2SvgConversionHandler();
+			convertImgToSvg.setProcessListener(pHandler);
+
+			NuProcess process = convertImgToSvg.start();
+			try {
+				process.waitFor(WAIT_FOR_SEC, TimeUnit.SECONDS);
+			} catch (InterruptedException e) {
+				log.error("InterruptedException while converting to PDF {}", dest, e);
+				return false;
+			}
+
+			// Use the intermediate PDF file as source
+			source = dest;
+		}
+
 		String COMMAND = "";
-		dest = pngsDir.getAbsolutePath() + File.separator + TEMP_PNG_NAME;
-		COMMAND = "pdftocairo -png -scale-to " + slideWidth + " " + source + " " + dest;
+		dest = pngsDir.getAbsolutePath() + File.separator + "slide"; // the "-x.png" is appended automagically
+		COMMAND = "pdftocairo -png -scale-to " + slideWidth + " -f " + page + " -l " + page + " " + source + " " + dest;
 
 		System.out.println("********* CREATING PNGs " + COMMAND);
 
@@ -145,17 +175,11 @@ public class PngCreatorImp implements PngCreator {
 		}
 	}
 
-	private void createBlankPngs(File pngsDir, int pageCount) {
-		File[] pngs = pngsDir.listFiles();
-
-		if (pngs.length != pageCount) {
-			for (int i = 0; i < pageCount; i++) {
-				File png = new File(pngsDir.getAbsolutePath() + File.separator + TEMP_PNG_NAME + "-" + i + ".png");
-				if (!png.exists()) {
-					log.info("Copying blank png for slide {}", i);
-					copyBlankPng(png);
-				}
-			}
+	private void createBlankPngs(File pngsDir, int page) {
+		File png = new File(pngsDir.getAbsolutePath() + File.separator + "slide-" + page + ".png");
+		if (!png.exists()) {
+			log.info("Copying blank png for slide {}", page);
+			copyBlankPng(png);
 		}
 	}
 
@@ -163,7 +187,7 @@ public class PngCreatorImp implements PngCreator {
 		try {
 			FileUtils.copyFile(new File(BLANK_PNG), png);
 		} catch (IOException e) {
-			log.error("IOException while copying blank thumbnail.");
+			log.error("IOException while copying blank png.");
 		}
 	}
 

@@ -19,5 +19,5 @@
 package org.bigbluebutton.presentation;
 
 public interface PngCreator {
-	public boolean createPng(UploadedPresentation pres);
+	public boolean createPng(UploadedPresentation pres, int page);
 }
