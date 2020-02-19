@@ -1,4 +1,6 @@
+require('dotenv').config();
 const puppeteer = require('puppeteer');
+const fs = require('fs');
 const helper = require('./helper');
 const params = require('../params');
 const e = require('./elements');
@@ -18,18 +20,25 @@ class Page {
   }
 
   // Join BigBlueButton meeting
-  async init(args) {
+  async init(args, meetingId, newParams) {
+    this.effectiveParams = newParams || params;
     this.browser = await puppeteer.launch(args);
-    this.page = await this.browser.newPage();
+    this.page = await this.browser.newPage({ context: `bbb-${this.effectiveParams.fullName}` });
 
     await this.setDownloadBehavior(`${this.parentDir}/downloads`);
+    this.meetingId = await helper.createMeeting(params, meetingId);
 
-    this.meetingId = await helper.createMeeting(params);
-    const joinURL = helper.getJoinURL(this.meetingId, params, true);
+    const joinURL = helper.getJoinURL(this.meetingId, this.effectiveParams, true);
 
     await this.page.goto(joinURL);
     await this.waitForSelector(e.audioDialog);
     await this.click(e.closeAudio, true);
+    const checkForGetMetrics = async () => {
+      if (process.env.BBB_COLLECT_METRICS === 'true') {
+        await this.getMetrics();
+      }
+    };
+    await checkForGetMetrics();
   }
 
   async setDownloadBehavior(downloadPath) {
@@ -128,6 +137,25 @@ class Page {
 
   async waitForSelector(element) {
     await this.page.waitForSelector(element, { timeout: 0 });
+  }
+
+  async getMetrics() {
+    const metricsObj = {};
+    const dir = process.env.METRICS_FOLDER;
+    const currentTimestamp = new Date();
+    if (!fs.existsSync(dir)) {
+      fs.mkdirSync(dir);
+    }
+    const metric = await this.page.metrics();
+    metricsObj[`metricObj-${this.effectiveParams.fullName}`] = metric;
+    const createFile = () => {
+      try {
+        fs.appendFileSync(`${dir}/metrics-${this.effectiveParams.fullName}-${currentTimestamp}.json`, `${JSON.stringify(metricsObj)}\n`);
+      } catch (error) {
+        console.log(error);
+      }
+    };
+    createFile();
   }
 }
 

@@ -561,7 +561,7 @@ class UserDropdown extends PureComponent {
 
     const contents = (
       <div
-        data-test={isMe(user.userId) ? 'userListItemCurrent' : null}
+        data-test={isMe(user.userId) ? 'userListItemCurrent' : 'userListItem'}
         className={!actions.length ? styles.userListItem : null}
       >
         <div className={styles.userItemContents}>
