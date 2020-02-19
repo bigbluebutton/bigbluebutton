@@ -41,40 +41,12 @@ public class DocumentConversionServiceImp implements DocumentConversionService {
   private PdfToSwfSlidesGenerationService pdfToSwfSlidesGenerationService;
   private ImageToSwfSlidesGenerationService imageToSwfSlidesGenerationService;
 
-  private void sendDocConversionStartedProgress(UploadedPresentation pres) {
-      DocConversionStarted progress = new DocConversionStarted(
-              pres.getPodId(),
-                pres.getMeetingId(),
-                pres.getId(),
-                pres.getName(),
-              pres.getAuthzToken(),
-              pres.isDownloadable(),
-                pres.isDownloadable());
-        gw.sendDocConversionMsg(progress);
-    }
+
 
   public void processDocument(UploadedPresentation pres) {
     SupportedDocumentFilter sdf = new SupportedDocumentFilter(gw);
 
-    if (! pres.isConversionStarted()) {
-        Map<String, Object> logData = new HashMap<String, Object>();
 
-        logData.put("podId", pres.getPodId());
-        logData.put("meetingId", pres.getMeetingId());
-        logData.put("presId", pres.getId());
-        logData.put("filename", pres.getName());
-        logData.put("current", pres.isCurrent());
-        logData.put("authzToken", pres.getAuthzToken());
-        logData.put("logCode", "presentation_conversion_start");
-        logData.put("message", "Start presentation conversion.");
-
-        Gson gson = new Gson();
-        String logStr = gson.toJson(logData);
-        log.info(" --analytics-- data={}", logStr);
-
-        pres.startConversion();
-        sendDocConversionStartedProgress(pres);
-    }
 
     if (sdf.isSupported(pres)) {
       String fileType = pres.getFileType();
@@ -95,9 +67,9 @@ public class DocumentConversionServiceImp implements DocumentConversionService {
           ocsf.sendProgress(pres);
         }
       } else if (SupportedFileTypes.isPdfFile(fileType)) {
-        pdfToSwfSlidesGenerationService.generateSlides(pres);
+          pdfToSwfSlidesGenerationService.generateSlides(pres);
       } else if (SupportedFileTypes.isImageFile(fileType)) {
-        imageToSwfSlidesGenerationService.generateSlides(pres);
+          imageToSwfSlidesGenerationService.generateSlides(pres);
       } else {
           Map<String, Object> logData = new HashMap<String, Object>();
           logData = new HashMap<String, Object>();

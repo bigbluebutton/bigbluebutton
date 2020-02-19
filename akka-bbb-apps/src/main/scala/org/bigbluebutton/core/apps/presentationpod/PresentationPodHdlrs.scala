@@ -21,7 +21,8 @@ class PresentationPodHdlrs(implicit val context: ActorContext)
   with ResizeAndMovePagePubMsgHdlr
   with SyncGetPresentationPodsMsgHdlr
   with RemovePresentationPodPubMsgHdlr
-  with PresentationPageConvertedSysMsgHdlr {
+  with PresentationPageConvertedSysMsgHdlr
+  with PresentationConversionStartedSysMsgHdlr {
 
   val log = Logging(context.system, getClass)
 }

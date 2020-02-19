@@ -18,8 +18,19 @@ object PresentationPodFactory {
   }
 }
 
+case class PresentationPage(
+    id:          String,
+    num:         Int,
+    urls:        Map[String, String],
+    current:     Boolean             = false,
+    xOffset:     Double              = 0,
+    yOffset:     Double              = 0,
+    widthRatio:  Double              = 100D,
+    heightRatio: Double              = 100D
+)
+
 case class PresentationInPod(id: String, name: String, current: Boolean = false,
-                             pages: scala.collection.immutable.Map[String, PageVO], downloadable: Boolean) {
+                             pages: scala.collection.immutable.Map[String, PresentationPage], downloadable: Boolean) {
 
   def makePageCurrent(pres: PresentationInPod, pageId: String): Option[PresentationInPod] = {
     pres.pages.get(pageId) match {
@@ -33,7 +44,7 @@ case class PresentationInPod(id: String, name: String, current: Boolean = false,
     }
   }
 
-  def getCurrentPage(pres: PresentationInPod): Option[PageVO] = {
+  def getCurrentPage(pres: PresentationInPod): Option[PresentationPage] = {
     pres.pages.values find (p => p.current)
   }
 
@@ -129,7 +140,7 @@ case class PresentationPod(id: String, currentPresenter: String,
 
   def resizePage(presentationId: String, pageId: String,
                  xOffset: Double, yOffset: Double, widthRatio: Double,
-                 heightRatio: Double): Option[(PresentationPod, PageVO)] = {
+                 heightRatio: Double): Option[(PresentationPod, PresentationPage)] = {
     // Force coordinate that are out-of-bounds inside valid values
     // 0.25D is 400% zoom
     // 100D-checkedWidth is the maximum the page can be moved over

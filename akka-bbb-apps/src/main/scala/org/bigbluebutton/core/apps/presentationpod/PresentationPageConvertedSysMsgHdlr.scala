@@ -1,5 +1,6 @@
 package org.bigbluebutton.core.apps.presentationpod
 
+import org.bigbluebutton.common2.domain.PresentationPageVO
 import org.bigbluebutton.common2.msgs._
 import org.bigbluebutton.core.bus.MessageBus
 import org.bigbluebutton.core.domain.MeetingState2x
@@ -22,6 +23,13 @@ trait PresentationPageConvertedSysMsgHdlr {
         liveMeeting.props.meetingProp.intId, msg.header.userId
       )
 
+      val page = PresentationPageVO(
+        id = msg.body.page.id,
+        num = msg.body.page.num,
+        urls = msg.body.page.urls,
+        current = msg.body.page.current
+      )
+
       val body = PresentationPageConvertedEventMsgBody(
         msg.body.podId,
         msg.body.messageKey,
@@ -30,7 +38,7 @@ trait PresentationPageConvertedSysMsgHdlr {
         msg.body.numberOfPages,
         msg.body.pagesCompleted,
         msg.body.presName,
-        msg.body.page
+        page
       )
       val event = PresentationPageConvertedEventMsg(header, body)
       val msgEvent = BbbCommonEnvCoreMsg(envelope, event)

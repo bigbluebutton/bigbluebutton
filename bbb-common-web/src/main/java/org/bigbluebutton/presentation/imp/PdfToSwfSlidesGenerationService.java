@@ -38,6 +38,7 @@ import java.util.concurrent.TimeoutException;
 
 import org.bigbluebutton.presentation.*;
 import org.bigbluebutton.presentation.ConversionUpdateMessage.MessageBuilder;
+import org.bigbluebutton.presentation.messages.DocConversionStarted;
 import org.bigbluebutton.presentation.messages.DocPageCountExceeded;
 import org.bigbluebutton.presentation.messages.DocPageCountFailed;
 import org.bigbluebutton.presentation.messages.PdfConversionInvalid;
@@ -72,8 +73,42 @@ public class PdfToSwfSlidesGenerationService {
     executor = Executors.newFixedThreadPool(numConversionThreads);
   }
 
+  private void sendDocConversionStartedProgress(UploadedPresentation pres) {
+    if (! pres.isConversionStarted()) {
+      Map<String, Object> logData = new HashMap<String, Object>();
+
+      logData.put("podId", pres.getPodId());
+      logData.put("meetingId", pres.getMeetingId());
+      logData.put("presId", pres.getId());
+      logData.put("filename", pres.getName());
+      logData.put("current", pres.isCurrent());
+      logData.put("authzToken", pres.getAuthzToken());
+      logData.put("logCode", "presentation_conversion_start");
+      logData.put("message", "Start presentation conversion.");
+
+      Gson gson = new Gson();
+      String logStr = gson.toJson(logData);
+      log.info(" --analytics-- data={}", logStr);
+
+      pres.startConversion();
+      DocConversionStarted progress = new DocConversionStarted(
+              pres.getPodId(),
+              pres.getMeetingId(),
+              pres.getId(),
+              pres.getName(),
+              pres.getAuthzToken(),
+              pres.isDownloadable(),
+              pres.isDownloadable(),
+              pres.getNumberOfPages());
+      notifier.sendDocConversionProgress(progress);
+    }
+  }
+
     public void generateSlides(UploadedPresentation pres) {
         determineNumberOfPages(pres);
+
+      sendDocConversionStartedProgress(pres);
+
         if (pres.getNumberOfPages() > 0) {
           if (pres.getUploadedFile().length() > bigPdfSize) {
              try {

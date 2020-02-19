@@ -54,7 +54,7 @@ public class SwfSlidesGenerationProgressNotifier {
             ConversionMessageConstants.GENERATED_SLIDE_KEY,
             pres.getNumberOfPages(),
             slidesCompleted,
-            pres.getBaseUrl(),
+            generateBasePresUrl(pres),
             pageGenerated,
             (pageGenerated == 1));
     messagingService.sendDocConversionMsg(progress);

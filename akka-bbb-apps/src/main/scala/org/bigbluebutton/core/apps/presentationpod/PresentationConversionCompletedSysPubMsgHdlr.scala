@@ -4,8 +4,8 @@ import org.bigbluebutton.common2.msgs._
 import org.bigbluebutton.core.bus.MessageBus
 import org.bigbluebutton.core.domain.MeetingState2x
 import org.bigbluebutton.core.running.LiveMeeting
-import org.bigbluebutton.common2.domain.{ PageVO }
-import org.bigbluebutton.core.models.PresentationInPod
+import org.bigbluebutton.common2.domain.PageVO
+import org.bigbluebutton.core.models.{ PresentationInPod, PresentationPage }
 
 trait PresentationConversionCompletedSysPubMsgHdlr {
 
@@ -18,16 +18,19 @@ trait PresentationConversionCompletedSysPubMsgHdlr {
 
     val meetingId = liveMeeting.props.meetingProp.intId
 
-    val pages = new collection.mutable.HashMap[String, PageVO]
+    val pages = new collection.mutable.HashMap[String, PresentationPage]
 
     msg.body.presentation.pages.foreach { p =>
-      val page = PageVO(p.id, p.num, p.thumbUri, p.swfUri, p.txtUri, p.svgUri, p.current, p.xOffset, p.yOffset,
+      val urls = Map("swf" -> p.swfUri, "thumb" -> p.thumbUri, "text" -> p.txtUri, "svg" -> p.svgUri, "png" -> "")
+
+      val page = PresentationPage(p.id, p.num, urls, p.current, p.xOffset, p.yOffset,
         p.widthRatio, p.heightRatio)
       pages += page.id -> page
     }
 
     val downloadable = msg.body.presentation.downloadable
     val presentationId = msg.body.presentation.id
+
     val pres = new PresentationInPod(presentationId, msg.body.presentation.name, msg.body.presentation.current,
       pages.toMap, downloadable)
     val presVO = PresentationPodsApp.translatePresentationToPresentationVO(pres)

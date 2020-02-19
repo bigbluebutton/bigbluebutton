@@ -1,6 +1,6 @@
 package org.bigbluebutton.common2.msgs
 
-import org.bigbluebutton.common2.domain.{ PageVO, PresentationPodVO, PresentationVO }
+import org.bigbluebutton.common2.domain.{ PageVO, PresentationPageConvertedVO, PresentationPageVO, PresentationPodVO, PresentationVO }
 
 // ------------ client to akka-apps ------------
 object CreateNewPresentationPodPubMsg { val NAME = "CreateNewPresentationPodPubMsg" }
@@ -104,7 +104,7 @@ case class PresentationPageConvertedSysMsgBody(
     numberOfPages:  Int,
     pagesCompleted: Int,
     presName:       String,
-    page:           PageVO
+    page:           PresentationPageConvertedVO
 )
 
 object PresentationConversionStartedSysMsg { val NAME = "PresentationConversionStartedSysMsg" }
@@ -117,7 +117,9 @@ case class PresentationConversionStartedSysMsgBody(
     presentationId: String,
     current:        Boolean,
     presName:       String,
-    downloadable:   Boolean
+    downloadable:   Boolean,
+    numPages:       Int,
+    authzToken:     String
 )
 
 object PresentationConversionEndedSysMsg { val NAME = "PresentationConversionEndedSysMsg" }
@@ -179,7 +181,7 @@ case class PresentationPageConvertedEventMsgBody(
     numberOfPages:  Int,
     pagesCompleted: Int,
     presName:       String,
-    page:           PageVO
+    page:           PresentationPageVO
 )
 
 object PresentationConversionCompletedEvtMsg { val NAME = "PresentationConversionCompletedEvtMsg" }

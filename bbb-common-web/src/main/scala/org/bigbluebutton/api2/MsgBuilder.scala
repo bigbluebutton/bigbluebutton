@@ -2,7 +2,7 @@ package org.bigbluebutton.api2
 
 import org.bigbluebutton.api.messaging.converters.messages._
 import org.bigbluebutton.api2.meeting.RegisterUser
-import org.bigbluebutton.common2.domain.{ DefaultProps, PageVO, PresentationVO }
+import org.bigbluebutton.common2.domain.{ DefaultProps, PageVO, PresentationPageConvertedVO, PresentationVO }
 import org.bigbluebutton.common2.msgs._
 import org.bigbluebutton.presentation.messages._
 
@@ -64,18 +64,24 @@ object MsgBuilder {
     BbbCommonEnvCoreMsg(envelope, req)
   }
 
-  def generatePresentationPage(presId: String, numPages: Int, presBaseUrl: String, page: Int): PageVO = {
+  def generatePresentationPage(presId: String, numPages: Int, presBaseUrl: String, page: Int): PresentationPageConvertedVO = {
     val id = presId + "/" + page
     val current = if (page == 1) true else false
-    val thumbnail = presBaseUrl + "/thumbnail/" + page
-    val swfUri = presBaseUrl + "/slide/" + page
+    val thumbUrl = presBaseUrl + "/thumbnail/" + page
+    val swfUrl = presBaseUrl + "/slide/" + page
 
-    val txtUri = presBaseUrl + "/textfiles/" + page
-    val svgUri = presBaseUrl + "/svg/" + page
+    val txtUrl = presBaseUrl + "/textfiles/" + page
+    val svgUrl = presBaseUrl + "/svg/" + page
+    val pngUrl = presBaseUrl + "/png/" + page
 
-    PageVO(id = id, num = page, thumbUri = thumbnail, swfUri = swfUri,
-      txtUri = txtUri, svgUri = svgUri,
-      current = current)
+    val urls = Map("swf" -> swfUrl, "thumb" -> thumbUrl, "text" -> txtUrl, "svg" -> svgUrl, "png" -> pngUrl)
+
+    PresentationPageConvertedVO(
+      id = id,
+      num = page,
+      urls = urls,
+      current = current
+    )
   }
 
   def buildPresentationPageConvertedSysMsg(msg: DocPageGeneratedProgress): BbbCommonEnvCoreMsg = {
@@ -202,7 +208,9 @@ object MsgBuilder {
       presentationId = msg.presId,
       current = msg.current,
       presName = msg.filename,
-      downloadable = msg.downloadable
+      downloadable = msg.downloadable,
+      authzToken = msg.authzToken,
+      numPages = msg.numPages
     )
     val req = PresentationConversionStartedSysMsg(header, body)
     BbbCommonEnvCoreMsg(envelope, req)

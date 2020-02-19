@@ -8,6 +8,7 @@ public class DocConversionStarted implements IDocConversionMsg {
     public final String authzToken;
     public final Boolean downloadable;
     public final Boolean current;
+    public final Integer numPages;
 
     public DocConversionStarted(String podId,
                                 String meetingId,
@@ -15,7 +16,8 @@ public class DocConversionStarted implements IDocConversionMsg {
                                 String filename,
                                 String authzToken,
                                 Boolean downloadable,
-                                Boolean current) {
+                                Boolean current,
+                                Integer numPages) {
         this.podId = podId;
         this.meetingId = meetingId;
         this.presId = presId;
@@ -23,5 +25,6 @@ public class DocConversionStarted implements IDocConversionMsg {
         this.authzToken = authzToken;
         this.downloadable = downloadable;
         this.current = current;
+        this.numPages = numPages;
     }
 }
