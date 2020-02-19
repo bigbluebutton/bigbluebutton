@@ -11,10 +11,10 @@ async function openChat(test) {
 
 async function sendPublicChatMessage(page1, page2) {
   // send a public message
-  await page1.page.type(e.chatBox, e.publicMessage1);
+  await page1.page.type(e.publicChat, e.publicMessage1);
   await page1.page.click(e.sendButton);
   await page1.page.screenshot(true);
-  await page2.page.type(e.chatBox, e.publicMessage2);
+  await page2.page.type(e.publicChat, e.publicMessage2);
   await page2.page.click(e.sendButton);
   await page2.page.screenshot(true);
 }
@@ -41,10 +41,10 @@ async function sendPrivateChatMessage(page1, page2) {
   await page1.page.$$('[aria-label="Hide Private Chat with User2]');
   await page2.page.$$('[aria-label="Hide Private Chat with User1]');
 
-  await page1.page.type(e.chatBox, e.message1);
+  await page1.page.type(e.privateChat, e.message1);
   await page1.page.click(e.sendButton);
   await page1.page.screenshot(true);
-  await page2.page.type(e.chatBox, e.message2);
+  await page2.page.type(e.privateChat, e.message2);
   await page2.page.click(e.sendButton);
   await page2.page.screenshot(true);
 }
