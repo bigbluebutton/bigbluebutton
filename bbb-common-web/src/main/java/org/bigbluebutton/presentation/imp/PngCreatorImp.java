@@ -68,8 +68,9 @@ public class PngCreatorImp implements PngCreator {
 		}
 
 		long start = System.currentTimeMillis();
+		renamePng(pngDir, page);
 		// Create blank thumbnails for pages that failed to generate a thumbnail.
-		createBlankPngs(pngDir, page);
+		createBlankPng(pngDir, page);
 		long end = System.currentTimeMillis();
 		System.out.println("*** GENERATE BLANK PNG " + (end - start));
 
@@ -110,7 +111,7 @@ public class PngCreatorImp implements PngCreator {
 		}
 
 		String COMMAND = "";
-		dest = pngsDir.getAbsolutePath() + File.separator + "slide"; // the "-x.png" is appended automagically
+		dest = pngsDir.getAbsolutePath() + File.separator + TEMP_PNG_NAME; // the "-x.png" is appended automagically
 		COMMAND = "pdftocairo -png -scale-to " + slideWidth + " -f " + page + " -l " + page + " " + source + " " + dest;
 
 		System.out.println("********* CREATING PNGs " + COMMAND);
@@ -139,7 +140,7 @@ public class PngCreatorImp implements PngCreator {
 		return new File(presentationFile.getParent() + File.separatorChar + "pngs");
 	}
 
-	private void renamePng(File dir) {
+	private void renamePng(File dir, int page) {
 		/*
 		 * If more than 1 file, filename like 'temp-png-X.png' else filename is
 		 * 'temp-png.png'
@@ -159,10 +160,13 @@ public class PngCreatorImp implements PngCreator {
 					// 3. .png
 					// We are interested in the second match.
 					int pageNum = Integer.parseInt(matcher.group(2).trim());
-					String newFilename = "slide-" + (pageNum) + ".png";
-					File renamedFile = new File(
-									dir.getAbsolutePath() + File.separator + newFilename);
-					files[i].renameTo(renamedFile);
+					if (pageNum == page) {
+						String newFilename = "slide-" + (page) + ".png";
+						File renamedFile = new File(
+								dir.getAbsolutePath() + File.separator + newFilename);
+						files[i].renameTo(renamedFile);
+					}
+
 				}
 			}
 		} else if (dir.list().length == 1) {
@@ -175,7 +179,7 @@ public class PngCreatorImp implements PngCreator {
 		}
 	}
 
-	private void createBlankPngs(File pngsDir, int page) {
+	private void createBlankPng(File pngsDir, int page) {
 		File png = new File(pngsDir.getAbsolutePath() + File.separator + "slide-" + page + ".png");
 		if (!png.exists()) {
 			log.info("Copying blank png for slide {}", page);

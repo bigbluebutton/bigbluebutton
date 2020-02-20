@@ -56,7 +56,6 @@ public class ThumbnailCreatorImp implements ThumbnailCreator {
     if (!thumbsDir.exists())
       thumbsDir.mkdir();
 
-
     try {
       success = generateThumbnail(thumbsDir, pres, page);
     } catch (InterruptedException e) {
@@ -64,10 +63,12 @@ public class ThumbnailCreatorImp implements ThumbnailCreator {
       success = false;
     }
 
+    renameThumbnails(thumbsDir, page);
+
     // Create blank thumbnails for pages that failed to generate a thumbnail.
     createBlankThumbnail(thumbsDir, page);
 
-    //renameThumbnails(thumbsDir);
+
 
     return success;
   }
@@ -83,7 +84,7 @@ public class ThumbnailCreatorImp implements ThumbnailCreator {
       COMMAND = IMAGEMAGICK_DIR + File.separatorChar + "convert -thumbnail 150x150 "
           + source + " " + dest;
     } else {
-      dest = thumbsDir.getAbsolutePath() + File.separatorChar + "thumb"; // the "-x.png" is appended automagically
+      dest = thumbsDir.getAbsolutePath() + File.separatorChar + TEMP_THUMB_NAME; // the "-x.png" is appended automagically
       COMMAND = "pdftocairo -png -scale-to 150 " + " -f " + page + " -l " + page + " " + source + " " + dest;
     }
 
@@ -115,7 +116,7 @@ public class ThumbnailCreatorImp implements ThumbnailCreator {
         presentationFile.getParent() + File.separatorChar + "thumbnails");
   }
 
-  private void renameThumbnails(File dir) {
+  private void renameThumbnails(File dir, int page) {
     /*
      * If more than 1 file, filename like 'temp-thumb-X.png' else filename is
      * 'temp-thumb.png'
@@ -135,10 +136,12 @@ public class ThumbnailCreatorImp implements ThumbnailCreator {
           // 3. .png
           // We are interested in the second match.
           int pageNum = Integer.valueOf(matcher.group(2).trim()).intValue();
-          String newFilename = "thumb-" + (pageNum) + ".png";
-          File renamedFile = new File(
-              dir.getAbsolutePath() + File.separatorChar + newFilename);
-          file.renameTo(renamedFile);
+          if (pageNum == page) {
+            String newFilename = "thumb-" + (page) + ".png";
+            File renamedFile = new File(
+                    dir.getAbsolutePath() + File.separatorChar + newFilename);
+            file.renameTo(renamedFile);
+          }
         }
       }
     } else if (dir.list().length == 1) {
