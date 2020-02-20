@@ -41,7 +41,7 @@ import java.util.regex.Pattern;
 public class PngCreatorImp implements PngCreator {
 	private static Logger log = LoggerFactory.getLogger(PngCreatorImp.class);
 
-	private static final Pattern PAGE_NUMBER_PATTERN = Pattern.compile("(.+-png)-([0-9]+)(.png)");
+	private static final Pattern PAGE_NUMBER_PATTERN = Pattern.compile("(.+-png)-([0-9]+)-([0-9]+)(.png)");
 
 	private String BLANK_PNG;
 	private int slideWidth = 800;
@@ -111,7 +111,7 @@ public class PngCreatorImp implements PngCreator {
 		}
 
 		String COMMAND = "";
-		dest = pngsDir.getAbsolutePath() + File.separator + TEMP_PNG_NAME; // the "-x.png" is appended automagically
+		dest = pngsDir.getAbsolutePath() + File.separator + TEMP_PNG_NAME + "-" + page; // the "-x.png" is appended automagically
 		COMMAND = "pdftocairo -png -scale-to " + slideWidth + " -f " + page + " -l " + page + " " + source + " " + dest;
 
 		System.out.println("********* CREATING PNGs " + COMMAND);
@@ -149,6 +149,9 @@ public class PngCreatorImp implements PngCreator {
 			File[] files = dir.listFiles();
 			Matcher matcher;
 			for (int i = 0; i < files.length; i++) {
+
+				System.out.println("*** PPNG file " + files[i].getAbsolutePath());
+
 				matcher = PAGE_NUMBER_PATTERN.matcher(files[i].getAbsolutePath());
 				if (matcher.matches()) {
 					// Path should be something like
@@ -172,6 +175,7 @@ public class PngCreatorImp implements PngCreator {
 		} else if (dir.list().length == 1) {
 			File oldFilename = new File(
 							dir.getAbsolutePath() + File.separator + dir.list()[0]);
+			System.out.println("*** PPNG file " + oldFilename.getAbsolutePath());
 			String newFilename = "slide-1.png";
 			File renamedFile = new File(
 							oldFilename.getParent() + File.separator + newFilename);
