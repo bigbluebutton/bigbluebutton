@@ -106,9 +106,15 @@ class AnalyticsActor extends Actor with ActorLogging {
       case m: SetCurrentPresentationEvtMsg => logMessage(msg)
       case m: SetPresentationDownloadablePubMsg => logMessage(msg)
       case m: SetPresentationDownloadableEvtMsg => logMessage(msg)
-      case m: PresentationPageConvertedSysMsg => logMessage(msg)
-      case m: PresentationPageConvertedEventMsg => logMessage(msg)
+      //case m: PresentationPageConvertedSysMsg => logMessage(msg)
+      //case m: PresentationPageConvertedEventMsg => logMessage(msg)
       case m: PresentationConversionStartedSysMsg => logMessage(msg)
+      case m: PresentationConversionCompletedEvtMsg => logMessage(msg)
+      case m: GetAllPresentationPodsReqMsg => logMessage(msg)
+      case m: PresentationPageGeneratedSysPubMsg => logMessage(msg)
+      case m: PresentationPageGeneratedEvtMsg => logMessage(msg)
+      case m: ResizeAndMovePagePubMsg => logMessage(msg)
+      case m: ResizeAndMovePageEvtMsg => logMessage(msg)
 
       // Group Chats
       case m: SendGroupChatMessageMsg => logMessage(msg)

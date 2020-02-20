@@ -50,11 +50,11 @@ object PresentationPodsApp {
           swfUri = page.urls.getOrElse("swf", ""),
           txtUri = page.urls.getOrElse("text", ""),
           svgUri = page.urls.getOrElse("svg", ""),
-          current = false,
-          xOffset = 0,
-          yOffset = 0,
-          widthRatio = 100D,
-          heightRatio = 100D
+          current = page.current,
+          xOffset = page.xOffset,
+          yOffset = page.yOffset,
+          widthRatio = page.widthRatio,
+          heightRatio = page.heightRatio
         )
       }
 
@@ -83,11 +83,11 @@ object PresentationPodsApp {
         swfUri = page.urls.getOrElse("swf", ""),
         txtUri = page.urls.getOrElse("text", ""),
         svgUri = page.urls.getOrElse("svg", ""),
-        current = false,
-        xOffset = 0,
-        yOffset = 0,
-        widthRatio = 100D,
-        heightRatio = 100D
+        current = page.current,
+        xOffset = page.xOffset,
+        yOffset = page.yOffset,
+        widthRatio = page.widthRatio,
+        heightRatio = page.heightRatio
       )
     }
     PresentationVO(pres.id, pres.name, pres.current, pages.toVector, pres.downloadable)
