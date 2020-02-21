@@ -5,12 +5,17 @@ class MultiUsers {
   constructor() {
     this.page1 = new Page();
     this.page2 = new Page();
+    this.page3 = new Page();
   }
 
   // Join BigBlueButton meeting
   async init(meetingId) {
     await this.page1.init(Page.getArgs(), meetingId, params);
     await this.page2.init(Page.getArgs(), this.page1.meetingId, { ...params, fullName: 'User2' });
+  }
+
+  async connectAsViewer() {
+    await this.page3.init(Page.getArgs(), meetingId, { ...params, fullName: 'Viewer1', moderatorPW: '' });
   }
 
   // Run the test for the page

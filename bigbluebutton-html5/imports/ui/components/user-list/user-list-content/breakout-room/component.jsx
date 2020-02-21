@@ -34,6 +34,7 @@ const BreakoutRoomItem = ({
           role="button"
           tabIndex={0}
           onClick={toggleBreakoutPanel}
+          data-test="breakoutRoomsItem"
           className={styles.BreakoutRoomsItem}
           aria-label={intl.formatMessage(intlMessages.breakoutTitle)}
         >

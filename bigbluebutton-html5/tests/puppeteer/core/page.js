@@ -22,13 +22,14 @@ class Page {
   // Join BigBlueButton meeting
   async init(args, meetingId, newParams) {
     this.effectiveParams = newParams || params;
+    const isModerator = !!this.effectiveParams.moderatorPW;
     this.browser = await puppeteer.launch(args);
     this.page = await this.browser.newPage({ context: `bbb-${this.effectiveParams.fullName}` });
 
     await this.setDownloadBehavior(`${this.parentDir}/downloads`);
     this.meetingId = await helper.createMeeting(params, meetingId);
 
-    const joinURL = helper.getJoinURL(this.meetingId, this.effectiveParams, true);
+    const joinURL = helper.getJoinURL(this.meetingId, this.effectiveParams, isModerator);
 
     await this.page.goto(joinURL);
     await this.waitForSelector(e.audioDialog);
