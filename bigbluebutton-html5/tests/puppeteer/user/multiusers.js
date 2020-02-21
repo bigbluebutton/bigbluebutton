@@ -14,10 +14,6 @@ class MultiUsers {
     await this.page2.init(Page.getArgs(), this.page1.meetingId, { ...params, fullName: 'User2' });
   }
 
-  async connectAsViewer() {
-    await this.page3.init(Page.getArgs(), meetingId, { ...params, fullName: 'Viewer1', moderatorPW: '' });
-  }
-
   // Run the test for the page
   async checkForOtherUser() {
     const firstCheck = await this.page1.page.evaluate(() => document.querySelectorAll('[data-test="userListItem"]').length > 0);

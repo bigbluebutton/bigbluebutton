@@ -6,6 +6,7 @@ describe('Breakoutrooms', () => {
     let response;
     try {
       await test.init();
+      await test.create();
       await test.join();
       response = await test.test();
     } catch (e) {
