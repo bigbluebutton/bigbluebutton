@@ -46,7 +46,6 @@
 .title {
   @extend %text-elipsis;
   flex: 1;
-  // color:#0059B1 !important;
   & > button, button:hover {
     max-width: var(--toast-content-width);
   }
@@ -54,7 +53,6 @@
 
 .hideBtn {
   position: relative;
-   background-color: #CCD5DE;
   
   color:#0059B1 !important;
   font-family: Muli;
