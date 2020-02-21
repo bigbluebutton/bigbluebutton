@@ -22,7 +22,7 @@ class Page {
   // Join BigBlueButton meeting
   async init(args, meetingId, newParams) {
     this.effectiveParams = newParams || params;
-    const isModerator = !!this.effectiveParams.moderatorPW;
+    const isModerator = this.effectiveParams.moderatorPW;
     this.browser = await puppeteer.launch(args);
     this.page = await this.browser.newPage({ context: `bbb-${this.effectiveParams.fullName}` });
 
