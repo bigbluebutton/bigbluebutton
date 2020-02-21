@@ -31,7 +31,6 @@ export default class DropdownListItem extends Component {
     return [
       (icon ? <Icon iconName={icon} key="icon" className={styles.itemIcon} /> : null),
       (<span className={styles.itemLabel} key="label">{label}</span>),
-      (iconRight ? <Icon iconName={iconRight} key="iconRight" className={styles.iconRight} /> : null),
     ];
   }
 
