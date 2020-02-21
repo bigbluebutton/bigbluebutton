@@ -68,9 +68,11 @@ public class PdfToSwfSlidesGenerationService {
   private boolean swfSlidesRequired;
   private boolean svgImagesRequired;
   private boolean generatePngs;
+  private CompletionService<PageToConvert> completionService;
 
   public PdfToSwfSlidesGenerationService(int numConversionThreads) {
-    executor = Executors.newFixedThreadPool(numConversionThreads);
+    executor = Executors.newFixedThreadPool(5);
+    completionService = new ExecutorCompletionService<PageToConvert>(executor);
   }
 
   private void sendDocConversionStartedProgress(UploadedPresentation pres) {
@@ -105,52 +107,70 @@ public class PdfToSwfSlidesGenerationService {
   }
 
     public void generateSlides(UploadedPresentation pres) {
-        determineNumberOfPages(pres);
-
+      determineNumberOfPages(pres);
       sendDocConversionStartedProgress(pres);
 
-        if (pres.getNumberOfPages() > 0) {
-          if (pres.getUploadedFile().length() > bigPdfSize) {
-             try {
-                 hasBigPage(pres);
-               } catch (BigPdfException e) {
-                sendFailedToConvertBigPdfMessage(e, pres);
-                return;
-              }
-            }
+      List<PageToConvert> pagesToConvert = new ArrayList<PageToConvert>();
 
-          for (int page = 1; page <= pres.getNumberOfPages(); page++) {
-            System.out.println("****** CREATING SWFs");
-            // Only create SWF files if the configuration requires it
-            if (swfSlidesRequired) {
-              convertPdfToSwf(pres, page);
-            }
+      for (int page = 1; page <= pres.getNumberOfPages(); page++) {
+        File pageFile = extractPage(pres, page);
+        PageToConvert pageToConvert = new PageToConvert(
+          pres,
+          page,
+          pageFile,
+          swfSlidesRequired,
+          svgImagesRequired,
+          generatePngs,
+          textFileCreator,
+          svgImageCreator,
+          thumbnailCreator,
+          pngCreator,
+          pdfToSwfConverter,
+          notifier,
+          BLANK_SLIDE,
+          MAX_SWF_FILE_SIZE
+        );
+        pagesToConvert.add(pageToConvert);
+      }
 
-            System.out.println("****** CREATING THM page=" + page);
-            /* adding accessibility */
-            createThumbnails(pres, page);
+      List<Future<PageToConvert>> convertFutures = new ArrayList<Future<PageToConvert>>(pres.getNumberOfPages());
 
-            System.out.println("****** CREATING TXTs page=" + page);
-            createTextFiles(pres, page);
-
-            System.out.println("****** CREATING SVGs page=" + page);
-            // only create SVG images if the configuration requires it
-            if (svgImagesRequired) {
-              createSvgImages(pres, page);
-            }
-
-            System.out.println("****** CREATING PNGs page=" + page);
-            // only create PNG images if the configuration requires it
-            if (generatePngs) {
-              createPngImages(pres, page);
-            }
-
-            notifier.sendConversionUpdateMessage(page, pres, page);
+      for (final PageToConvert pageToConvert : pagesToConvert) {
+        Callable<PageToConvert> c = new Callable<PageToConvert>() {
+          public PageToConvert call() {
+            return pageToConvert.convert();
           }
+        };
 
+        Future<PageToConvert> f = executor.submit(c);
+        convertFutures.add(f);
+      }
 
-            notifier.sendConversionCompletedMessage(pres);
+      int pagesCompleted = 0;
+
+      for (Future<PageToConvert> f : convertFutures) {
+        long endNanos = System.nanoTime() + MAX_CONVERSION_TIME;
+        try {
+          // Only wait for the remaining time budget
+          long timeLeft = endNanos - System.nanoTime();
+          PageToConvert s = f.get(timeLeft, TimeUnit.NANOSECONDS);
+          pagesCompleted++;
+          notifier.sendConversionUpdateMessage(pagesCompleted, pres, s.getPageNumber());
+        } catch (ExecutionException e) {
+
+        } catch (InterruptedException e) {
+          Thread.currentThread().interrupt();
+        } catch (TimeoutException e) {
+          f.cancel(true);
         }
+      }
+
+      notifier.sendConversionCompletedMessage(pres);
+
+      // Clean up temporary pdf files.
+      for (final PageToConvert pageToConvert : pagesToConvert) {
+        pageToConvert.getPageFile().delete();
+      }
     }
 
   private boolean determineNumberOfPages(UploadedPresentation pres) {
@@ -162,40 +182,19 @@ public class PdfToSwfSlidesGenerationService {
     }
     return false;
   }
-  
-  private boolean hasBigPage(UploadedPresentation pres) throws BigPdfException {
-    long lastPageSize = 0;
-    int currentPage = 1;
-    String basePresentationame = UUID.randomUUID().toString();
-    if (pres.getNumberOfPages() > 1) {
-      while(currentPage < pres.getNumberOfPages()) {
-        File tempPage;
-        try {
-            tempPage = File.createTempFile(basePresentationame + "-" + currentPage, ".pdf");
-            pageExtractor.extractPage(pres.getUploadedFile(), tempPage, currentPage);
-            lastPageSize = tempPage.length();
-            // Delete the temporary file
-            tempPage.delete();
-          } catch (IOException e) {
-            e.printStackTrace();
-        }
-        
-        if (lastPageSize > maxBigPdfPageSize) {
-          throw new BigPdfException(BigPdfException.ExceptionType.PDF_HAS_BIG_PAGE, currentPage, lastPageSize);
-        }
-        
-        lastPageSize = 0;
-        currentPage++;
-      }
-    } else {
-      if ((int)pres.getUploadedFile().length() > bigPdfSize) {
-        throw new BigPdfException(BigPdfException.ExceptionType.PDF_HAS_BIG_PAGE, 1, pres.getUploadedFile().length());
-      }
-    }
 
-    
-    return false;
+  private File extractPage(UploadedPresentation pres, int page) {
+    String presDir = pres.getUploadedFile().getParent();
+
+    File tempPage = new File(presDir + "/page" + "-" + page + ".pdf");
+    System.out.println("******** Extracting page " + tempPage.getAbsolutePath());
+    pageExtractor.extractPage(pres.getUploadedFile(), tempPage, page);
+
+    // Delete the temporary file
+    //tempPage.delete();
+    return tempPage;
   }
+  
 
   private void sendFailedToCountPageMessage(CountingPageException e, UploadedPresentation pres) {
     MessageBuilder builder = new ConversionUpdateMessage.MessageBuilder(pres);
@@ -249,183 +248,7 @@ public class PdfToSwfSlidesGenerationService {
     }
 
   }
-  
-  private void sendFailedToConvertBigPdfMessage(BigPdfException e, UploadedPresentation pres) {
-    MessageBuilder builder = new ConversionUpdateMessage.MessageBuilder(pres);
 
-    builder.messageKey(ConversionMessageConstants.PDF_HAS_BIG_PAGE);
-
-    Map<String, Object> logData = new HashMap<>();
-    logData.put("podId", pres.getPodId());
-    logData.put("meetingId", pres.getMeetingId());
-    logData.put("presId", pres.getId());
-    logData.put("filename", pres.getName());
-    logData.put("pdfSize", pres.getUploadedFile().length());
-    logData.put("bigPageNumber", e.getBigPageNumber());
-    logData.put("bigPageSize", e.getBigPageSize());
-    logData.put("logCode", "big_pdf_has_a_big_page");
-    logData.put("message", "The PDF contains a big page.");
-    Gson gson = new Gson();
-    String logStr = gson.toJson(logData);
-    log.error(" --analytics-- data={}", logStr, e);
-
-    PdfConversionInvalid progress = new PdfConversionInvalid(pres.getPodId(), pres.getMeetingId(),
-      pres.getId(), pres.getId(),
-      pres.getName(), "notUsedYet", "notUsedYet",
-      pres.isDownloadable(), e.getBigPageNumber(), (int)e.getBigPageSize(),
-      ConversionMessageConstants.PDF_HAS_BIG_PAGE);
-
-    notifier.sendDocConversionProgress(progress);
-  }
-
-  private void createThumbnails(UploadedPresentation pres, int page) {
-    notifier.sendCreatingThumbnailsUpdateMessage(pres);
-    thumbnailCreator.createThumbnail(pres, page);
-  }
-
-  private void createTextFiles(UploadedPresentation pres, int page) {
-    notifier.sendCreatingTextFilesUpdateMessage(pres);
-    textFileCreator.createTextFile(pres, page);
-  }
-
-  private void createSvgImages(UploadedPresentation pres, int page) {
-    notifier.sendCreatingSvgImagesUpdateMessage(pres);
-    svgImageCreator.createSvgImage(pres, page);
-  }
-
-	private void createPngImages(UploadedPresentation pres, int page) {
-		pngCreator.createPng(pres, page);
-	}
-
-  private void convertPdfToSwf(UploadedPresentation pres, int page) {
-    int numPages = pres.getNumberOfPages();
-    PdfToSwfSlide slide = setupSlide(pres, page);
-
-    CompletionService<PdfToSwfSlide> completionService = new ExecutorCompletionService<PdfToSwfSlide>(executor);
-
-    generateSlides(pres, slide, completionService);
-  }
-
-  private void generateSlides(UploadedPresentation pres,
-      PdfToSwfSlide slide,
-      CompletionService<PdfToSwfSlide> completionService) {
-
-    long presConvStart = System.currentTimeMillis();
-
-    long pageConvStart = System.currentTimeMillis();
-
-    Callable<PdfToSwfSlide> c = new Callable<PdfToSwfSlide>() {
-      public PdfToSwfSlide call() {
-        return slide.createSlide();
-      }
-    };
-
-    Future<PdfToSwfSlide> f = executor.submit(c);
-    long endNanos = System.nanoTime() + MAX_CONVERSION_TIME;
-
-    try {
-      // Only wait for the remaining time budget
-      long timeLeft = endNanos - System.nanoTime();
-      PdfToSwfSlide s = f.get(timeLeft, TimeUnit.NANOSECONDS);
-    } catch (ExecutionException e) {
-      Map<String, Object> logData = new HashMap<>();
-      logData.put("podId", pres.getPodId());
-      logData.put("meetingId", pres.getMeetingId());
-      logData.put("presId", pres.getId());
-      logData.put("filename", pres.getName());
-      logData.put("page", slide.getPageNumber());
-      logData.put("logCode", "page_conversion_failed");
-      logData.put("message", "ExecutionException while converting page.");
-      Gson gson = new Gson();
-      String logStr = gson.toJson(logData);
-      log.error(" --analytics-- data={}", logStr, e);
-    } catch (InterruptedException e) {
-      Map<String, Object> logData = new HashMap<>();
-      logData.put("podId", pres.getPodId());
-      logData.put("meetingId", pres.getMeetingId());
-      logData.put("presId", pres.getId());
-      logData.put("filename", pres.getName());
-      logData.put("page", slide.getPageNumber());
-      logData.put("logCode", "page_conversion_failed");
-      logData.put("message", "InterruptedException while converting page");
-      Gson gson = new Gson();
-      String logStr = gson.toJson(logData);
-      log.error(" --analytics-- data={}", logStr, e);
-
-      Thread.currentThread().interrupt();
-    } catch (TimeoutException e) {
-      Map<String, Object> logData = new HashMap<>();
-      logData.put("podId", pres.getPodId());
-      logData.put("meetingId", pres.getMeetingId());
-      logData.put("presId", pres.getId());
-      logData.put("filename", pres.getName());
-      logData.put("page", slide.getPageNumber());
-      logData.put("logCode", "page_conversion_failed");
-      logData.put("message", "TimeoutException while converting page");
-      Gson gson = new Gson();
-      String logStr = gson.toJson(logData);
-      log.error(" --analytics-- data={}", logStr, e);
-
-      f.cancel(true);
-    }
-
-      long pageConvEnd = System.currentTimeMillis();
-      Map<String, Object> logData = new HashMap<>();
-      logData.put("podId", pres.getPodId());
-      logData.put("meetingId", pres.getMeetingId());
-      logData.put("presId", pres.getId());
-      logData.put("filename", pres.getName());
-      logData.put("page", slide.getPageNumber());
-      logData.put("conversionTime(sec)", (pageConvEnd - pageConvStart) / 1000);
-      logData.put("logCode", "page_conversion_duration");
-      logData.put("message", "Page conversion duration(sec)");
-      Gson gson = new Gson();
-      String logStr = gson.toJson(logData);
-      log.info(" --analytics-- data={}", logStr);
-
-
-      if (!slide.isDone()) {
-
-        slide.generateBlankSlide();
-
-        logData.clear();
-        logData.put("podId", pres.getPodId());
-        logData.put("meetingId", pres.getMeetingId());
-        logData.put("presId", pres.getId());
-        logData.put("filename", pres.getName());
-        logData.put("page", slide.getPageNumber());
-        logData.put("logCode", "create_blank_slide");
-        logData.put("message", "Creating blank slide");
-
-        logStr = gson.toJson(logData);
-        log.warn(" --analytics-- data={}", logStr);
-      }
-
-    long presConvEnd = System.currentTimeMillis();
-
-    logData.clear();
-
-    logData.put("podId", pres.getPodId());
-    logData.put("meetingId", pres.getMeetingId());
-    logData.put("presId", pres.getId());
-    logData.put("filename", pres.getName());
-    logData.put("conversionTime(sec)", (presConvEnd - presConvStart) / 1000);
-    logData.put("logCode", "presentation_conversion_duration");
-    logData.put("message", "Presentation conversion duration (sec)");
-
-    logStr = gson.toJson(logData);
-    log.info(" --analytics-- data={}", logStr);
-
-  }
-
-  private PdfToSwfSlide setupSlide(UploadedPresentation pres, int page) {
-    PdfToSwfSlide slide = new PdfToSwfSlide(pres, page);
-    slide.setBlankSlide(BLANK_SLIDE);
-    slide.setMaxSwfFileSize(MAX_SWF_FILE_SIZE);
-    slide.setPageConverter(pdfToSwfConverter);
-
-    return slide;
-  }
 
   public void setCounterService(PageCounterService counterService) {
     this.counterService = counterService;

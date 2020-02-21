@@ -41,17 +41,17 @@ public class PdfToSwfSlide {
 
   private volatile boolean done = false;
   private File slide;
+  private File pageFile;
 
-  public PdfToSwfSlide(UploadedPresentation pres, int page) {
+  public PdfToSwfSlide(UploadedPresentation pres, int page, File pageFile) {
     this.pres = pres;
     this.page = page;
+    this.pageFile = pageFile;
   }
 
   public PdfToSwfSlide createSlide() {
-    File presentationFile = pres.getUploadedFile();
-    slide = new File(presentationFile.getParent() + File.separatorChar
-        + "slide-" + page + ".swf");
-    pdfToSwfConverter.convert(presentationFile, slide, page, pres);
+    slide = new File(pageFile.getParent() + File.separatorChar + "slide-" + page + ".swf");
+    pdfToSwfConverter.convert(pageFile, slide, page, pres);
 
     // If all fails, generate a blank slide.
     if (!slide.exists()) {
