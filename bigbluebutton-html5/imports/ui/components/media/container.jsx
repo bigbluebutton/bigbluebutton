@@ -16,6 +16,8 @@ import DefaultContent from '../presentation/default-content/component';
 import ExternalVideoContainer from '../external-video-player/container';
 import Storage from '../../services/storage/session';
 import { withDraggableConsumer } from './webcam-draggable-overlay/context';
+import Presentations from '/imports/api/presentations';
+
 
 const LAYOUT_CONFIG = Meteor.settings.public.layout;
 const KURENTO_CONFIG = Meteor.settings.public.kurento;
@@ -150,6 +152,9 @@ export default withDraggableConsumer(withModalMounter(withTracker(() => {
   }
 
   data.webcamPlacement = Storage.getItem('webcamPlacement');
+
+
+  data.storageAutoArrange = Storage.getItem('autoArrange');
 
   MediaContainer.propTypes = propTypes;
   return data;

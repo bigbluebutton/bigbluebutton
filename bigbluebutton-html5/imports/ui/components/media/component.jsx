@@ -44,6 +44,7 @@ export default class Media extends Component {
       audioModalIsOpen,
       usersVideo,
       webcamDraggableState,
+      storageAutoArrange,
     } = this.props;
 
     const { placement } = webcamDraggableState;
@@ -115,6 +116,7 @@ export default class Media extends Component {
                 disableVideo={disableVideo}
                 audioModalIsOpen={audioModalIsOpen}
                 usersVideo={usersVideo}
+                storageAutoArrange={storageAutoArrange}
               />
             )
             : null

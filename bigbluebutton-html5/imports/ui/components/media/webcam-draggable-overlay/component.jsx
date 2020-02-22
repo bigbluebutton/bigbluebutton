@@ -49,6 +49,8 @@ class WebcamDraggable extends PureComponent {
       resizing: false,
       placementPercent: 0,
     };
+
+    this.overlayRef = React.createRef();
   }
 
   componentDidMount() {
@@ -70,9 +72,11 @@ class WebcamDraggable extends PureComponent {
       orientation,
       lastPlacementLandscape,
       lastPlacementPortrait,
+      presentationSize,
     } = webcamDraggableState;
     const { webcamDraggableState: prevWebcamDraggableState } = prevProps;
     const { placement: prevPlacement, orientation: prevOrientation } = prevWebcamDraggableState;
+
     if (prevProps.swapLayout !== swapLayout) {
       setTimeout(() => this.forceUpdate(), 500);
     }
@@ -95,6 +99,10 @@ class WebcamDraggable extends PureComponent {
         if (storagePlacement !== lastPlacementPortrait && lastPlacementPortrait === 'left') webcamDraggableDispatch({ type: 'setplacementToLeft' });
         if (storagePlacement !== lastPlacementPortrait && lastPlacementPortrait === 'right') webcamDraggableDispatch({ type: 'setplacementToRight' });
       }
+    }
+
+    if (prevWebcamDraggableState.presentationSize !== webcamDraggableState.presentationSize) {
+      setTimeout(() => this.forceUpdate(), 500);
     }
   }
 
@@ -199,6 +207,75 @@ class WebcamDraggable extends PureComponent {
     return false;
   }
 
+  getSizeByAutoArrange() {
+    const {
+      webcamDraggableState,
+      refMediaContainer,
+    } = this.props;
+
+    const {
+      placementPercent,
+    } = this.state;
+
+    const {
+      videoListSize,
+      optimalGrid,
+      presentationSize,
+    } = webcamDraggableState;
+
+    const placement = Storage.getItem('webcamPlacement');
+    const mWidth = $('section[class^=media]').width();
+    const presentationToolbarWidth = $('[class^=presentationToolbar]').width();
+
+    const { width: presentationWidth, height: presentationHeight } = presentationSize;
+    const {
+      width: mediaContainerWidth,
+      height: mediaContainerHeight,
+    } = refMediaContainer.current.getBoundingClientRect();
+
+    console.log('mediaContainerWidth', mediaContainerWidth);
+
+
+    const presentationPortrait = (presentationHeight > presentationWidth);
+    const presentationLandscape = (presentationWidth > presentationHeight);
+    const presentationAtualWidth = (mediaContainerHeight * presentationWidth)
+      / presentationHeight;
+    console.log('presentationAtualWidth', presentationAtualWidth);
+    console.log('presentationToolbarWidth', presentationToolbarWidth);
+
+
+    let presentationRemnantSpace;
+    let resizeWidth;
+    let resizeHeight;
+    if (
+      this.overlayRef.current
+      && this.overlayRef.current.resizable
+      && refMediaContainer.current
+      && (placement === 'left' || placement === 'right')) {
+      const { width: overlayWidth } = this.overlayRef.current.resizable.getBoundingClientRect();
+      if (presentationLandscape) {
+        presentationRemnantSpace = (mediaContainerWidth - overlayWidth) - (presentationAtualWidth < 400 ? 400 : presentationAtualWidth);
+      }
+      if (presentationPortrait) {
+        presentationRemnantSpace = (mediaContainerWidth - overlayWidth) - (presentationAtualWidth < 400 ? 400 : presentationAtualWidth);
+      }
+      if (presentationRemnantSpace > 0) {
+        console.log('resizeWidth', resizeWidth);
+        console.log('videoListSize.width', videoListSize.width);
+        console.log('mWidth', mWidth);
+        console.log('placementPercent', placementPercent);
+        console.log('presentationRemnantSpace', presentationRemnantSpace);
+
+        resizeWidth = optimalGrid.width + presentationRemnantSpace;
+        console.log('(mWidth * (placementPercent / 100))', (mWidth * (placementPercent || 0 / 100)));
+        console.log('optimalGrid.width', optimalGrid.width);
+      }
+      resizeHeight = '100%';
+    }
+
+    return { width: resizeWidth, height: resizeHeight };
+  }
+
   getWebcamsListBounds() {
     const { webcamDraggableState } = this.props;
     const { videoListRef } = webcamDraggableState;
@@ -280,7 +357,11 @@ class WebcamDraggable extends PureComponent {
       disableVideo,
       audioModalIsOpen,
       refMediaContainer,
+      storageAutoArrange,
     } = this.props;
+
+    console.log('storageAutoArrange', storageAutoArrange);
+
 
     const {
       resizing,
@@ -446,28 +527,39 @@ class WebcamDraggable extends PureComponent {
 
     let resizeWidth;
     let resizeHeight;
-    if (resizing && (placement === 'top' || placement === 'bottom') && !dragging) {
-      resizeWidth = '100%';
-      resizeHeight = videoListSize.height;
-    }
-    if (!resizing && (placement === 'top' || placement === 'bottom') && !dragging) {
-      resizeWidth = '100%';
-      resizeHeight = mHeight * (placementPercent / 100);
+    if (!storageAutoArrange) {
+      if (resizing && (placement === 'top' || placement === 'bottom') && !dragging) {
+        resizeWidth = '100%';
+        resizeHeight = videoListSize.height;
+      }
+      if (!resizing && (placement === 'top' || placement === 'bottom') && !dragging) {
+        resizeWidth = '100%';
+        resizeHeight = mHeight * (placementPercent / 100);
+      }
+      if (resizing && (placement === 'left' || placement === 'right') && !dragging) {
+        resizeWidth = videoListSize.width;
+        resizeHeight = '100%';
+      }
+      if (!resizing && (placement === 'left' || placement === 'right') && !dragging) {
+        resizeWidth = mWidth * (placementPercent / 100);
+        resizeHeight = '100%';
+      }
     }
 
-    if (resizing && (placement === 'left' || placement === 'right') && !dragging) {
-      resizeWidth = videoListSize.width;
-      resizeHeight = '100%';
-    }
-    if (!resizing && (placement === 'left' || placement === 'right') && !dragging) {
-      resizeWidth = mWidth * (placementPercent / 100);
-      resizeHeight = '100%';
+    if (storageAutoArrange) {
+      const {
+        width: widthByAutoArrange,
+        height: heightByAutoArrange,
+      } = this.getSizeByAutoArrange();
+      resizeWidth = widthByAutoArrange;
+      resizeHeight = heightByAutoArrange;
     }
 
     if (dragging) {
       resizeHeight = optimalGrid.height;
       resizeWidth = optimalGrid.width;
     }
+    console.log('resizeWidth', resizeWidth);
 
     return (
       <Fragment>
@@ -500,6 +592,7 @@ class WebcamDraggable extends PureComponent {
           position={position}
         >
           <Resizable
+            ref={this.overlayRef}
             size={
               {
                 height: resizeHeight,
@@ -512,10 +605,10 @@ class WebcamDraggable extends PureComponent {
             onResize={dispatchResizeEvent}
             onResizeStop={this.onResizeStop}
             enable={{
-              top: (placement === 'bottom') && !swapLayout,
-              bottom: (placement === 'top') && !swapLayout,
-              left: (placement === 'right') && !swapLayout,
-              right: (placement === 'left') && !swapLayout,
+              top: (placement === 'bottom') && !swapLayout && !storageAutoArrange,
+              bottom: (placement === 'top') && !swapLayout && !storageAutoArrange,
+              left: (placement === 'right') && !swapLayout && !storageAutoArrange,
+              right: (placement === 'left') && !swapLayout && !storageAutoArrange,
               topLeft: false,
               topRight: false,
               bottomLeft: false,

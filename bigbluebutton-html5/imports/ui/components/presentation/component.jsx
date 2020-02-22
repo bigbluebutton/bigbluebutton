@@ -15,7 +15,7 @@ import PresentationCloseButton from './presentation-close-button/component';
 import DownloadPresentationButton from './download-presentation-button/component';
 import FullscreenService from '../fullscreen-button/service';
 import FullscreenButtonContainer from '../fullscreen-button/container';
-import { withDraggableContext, withDraggableConsumer } from '../media/webcam-draggable-overlay/context';
+import { withDraggableConsumer } from '../media/webcam-draggable-overlay/context';
 
 const intlMessages = defineMessages({
   presentationLabel: {
@@ -91,6 +91,15 @@ class PresentationArea extends PureComponent {
     if (currHeight > currWidth) {
       webcamDraggableDispatch({ type: 'setOrientationToPortrait' });
     }
+    webcamDraggableDispatch(
+      {
+        type: 'setPresentationSize',
+        value: {
+          width: currWidth,
+          height: currHeight,
+        },
+      },
+    );
   }
 
   componentDidUpdate(prevProps) {
@@ -120,6 +129,15 @@ class PresentationArea extends PureComponent {
       if (currHeight > currWidth) {
         webcamDraggableDispatch({ type: 'setOrientationToPortrait' });
       }
+      webcamDraggableDispatch(
+        {
+          type: 'setPresentationSize',
+          value: {
+            width: currWidth,
+            height: currHeight,
+          },
+        },
+      );
     }
   }
 
@@ -197,6 +215,8 @@ class PresentationArea extends PureComponent {
   }
 
   handleResize() {
+    const { slidePosition, webcamDraggableDispatch } = this.props;
+    const { width: currWidth, height: currHeight } = slidePosition;
     const presentationSizes = this.getPresentationSizesAvailable();
     if (Object.keys(presentationSizes).length > 0) {
       // updating the size of the space available for the slide
@@ -205,6 +225,15 @@ class PresentationArea extends PureComponent {
         presentationAreaWidth: presentationSizes.presentationAreaWidth,
       });
     }
+    webcamDraggableDispatch(
+      {
+        type: 'setPresentationSize',
+        value: {
+          width: currWidth,
+          height: currHeight,
+        },
+      },
+    );
   }
 
   calculateSize(viewBoxDimensions) {

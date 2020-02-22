@@ -10,6 +10,10 @@ const initialState = {
   lastPlacementLandscape: 'top',
   lastPlacementPortrait: 'left',
   orientation: null,
+  presentationSize: {
+    width: 0,
+    height: 0,
+  },
   mediaSize: {
     width: 0,
     height: 0,
@@ -103,6 +107,15 @@ const reducer = (state, action) => {
       return {
         ...state,
         orientation: 'portrait',
+      };
+    }
+    case 'setPresentationSize': {
+      return {
+        ...state,
+        presentationSize: {
+          width: action.value.width,
+          height: action.value.height,
+        },
       };
     }
     case 'setMediaSize': {
