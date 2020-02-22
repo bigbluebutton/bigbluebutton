@@ -55,8 +55,7 @@ public class PdfToSwfSlide {
 
     // If all fails, generate a blank slide.
     if (!slide.exists()) {
-      log.warn("Failed to create slide. Creating blank slide for "
-          + slide.getAbsolutePath());
+      log.warn("Failed to create slide. Creating blank slide for " + slide.getAbsolutePath());
       generateBlankSlide();
     }
 

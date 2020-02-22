@@ -152,7 +152,7 @@ public class ImageToSwfSlidesGenerationService {
 	private void createThumbnails(UploadedPresentation pres, int page) {
 		log.debug("Creating thumbnails.");
 		notifier.sendCreatingThumbnailsUpdateMessage(pres);
-		thumbnailCreator.createThumbnail(pres, page);
+		thumbnailCreator.createThumbnail(pres, page, pres.getUploadedFile());
 	}
 	
 	private void createSvgImages(UploadedPresentation pres, int page) {
@@ -162,7 +162,7 @@ public class ImageToSwfSlidesGenerationService {
 	}
 	
    private void createPngImages(UploadedPresentation pres, int page) {
-        pngCreator.createPng(pres, page);
+        pngCreator.createPng(pres, page, pres.getUploadedFile());
    }
 
 	private void convertImageToSwf(UploadedPresentation pres, PageConverter pageConverter) {

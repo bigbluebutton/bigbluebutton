@@ -36,11 +36,9 @@ import org.slf4j.LoggerFactory;
 import com.google.gson.Gson;
 
 public class ThumbnailCreatorImp implements ThumbnailCreator {
-  private static Logger log = LoggerFactory
-      .getLogger(ThumbnailCreatorImp.class);
+  private static Logger log = LoggerFactory.getLogger(ThumbnailCreatorImp.class);
 
-  private static final Pattern PAGE_NUMBER_PATTERN = Pattern
-      .compile("(.+-thumb)-([0-9]+)(.png)");
+  private static final Pattern PAGE_NUMBER_PATTERN = Pattern.compile("(.+-thumb)-([0-9]+)-([0-9]+)(.png)");
 
   private static String TEMP_THUMB_NAME = "temp-thumb";
 
@@ -49,7 +47,7 @@ public class ThumbnailCreatorImp implements ThumbnailCreator {
   private String BLANK_THUMBNAIL;
 
   @Override
-  public boolean createThumbnail(UploadedPresentation pres, int page) {
+  public boolean createThumbnail(UploadedPresentation pres, int page, File pageFile) {
     boolean success = false;
     File thumbsDir = determineThumbnailDirectory(pres.getUploadedFile());
 
@@ -57,7 +55,7 @@ public class ThumbnailCreatorImp implements ThumbnailCreator {
       thumbsDir.mkdir();
 
     try {
-      success = generateThumbnail(thumbsDir, pres, page);
+      success = generateThumbnail(thumbsDir, pres, page, pageFile);
     } catch (InterruptedException e) {
       log.error("Interrupted Exception while generating thumbnails {}", pres.getName(), e);
       success = false;
@@ -69,23 +67,21 @@ public class ThumbnailCreatorImp implements ThumbnailCreator {
     createBlankThumbnail(thumbsDir, page);
 
 
-
     return success;
   }
 
-  private boolean generateThumbnail(File thumbsDir, UploadedPresentation pres, int page)
+  private boolean generateThumbnail(File thumbsDir, UploadedPresentation pres, int page, File pageFile)
       throws InterruptedException {
-    String source = pres.getUploadedFile().getAbsolutePath();
+    String source = pageFile.getAbsolutePath();
     String dest;
     String COMMAND = "";
 
     if (SupportedFileTypes.isImageFile(pres.getFileType())) {
       dest = thumbsDir.getAbsolutePath() + File.separatorChar + "thumb-" + page + ".png";
-      COMMAND = IMAGEMAGICK_DIR + File.separatorChar + "convert -thumbnail 150x150 "
-          + source + " " + dest;
+      COMMAND = IMAGEMAGICK_DIR + File.separatorChar + "convert -thumbnail 150x150 "  + source + " " + dest;
     } else {
-      dest = thumbsDir.getAbsolutePath() + File.separatorChar + TEMP_THUMB_NAME; // the "-x.png" is appended automagically
-      COMMAND = "pdftocairo -png -scale-to 150 " + " -f " + page + " -l " + page + " " + source + " " + dest;
+      dest = thumbsDir.getAbsolutePath() + File.separatorChar + TEMP_THUMB_NAME + "-" + page; // the "-x.png" is appended automagically
+      COMMAND = "pdftocairo -png -scale-to 150 " + source + " " + dest;
     }
 
     System.out.println(COMMAND);

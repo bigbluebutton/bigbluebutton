@@ -50,7 +50,7 @@ public class PngCreatorImp implements PngCreator {
 
 	private static final String TEMP_PNG_NAME = "temp-png";
 
-	public boolean createPng(UploadedPresentation pres, int page) {
+	public boolean createPng(UploadedPresentation pres, int page, File pageFile) {
 		boolean success = false;
 		File pngDir = determinePngDirectory(pres.getUploadedFile());
 
@@ -59,9 +59,9 @@ public class PngCreatorImp implements PngCreator {
 
 		try {
 			long start = System.currentTimeMillis();
-			success = generatePng(pngDir, pres, page);
+			success = generatePng(pngDir, pres, page, pageFile);
 			long end = System.currentTimeMillis();
-			System.out.println("*** GENERATE PNG " + (end - start));
+			//System.out.println("*** GENERATE PNG " + (end - start));
 		} catch (InterruptedException e) {
 			log.warn("Interrupted Exception while generating png.");
 			success = false;
@@ -72,7 +72,7 @@ public class PngCreatorImp implements PngCreator {
 		// Create blank thumbnails for pages that failed to generate a thumbnail.
 		createBlankPng(pngDir, page);
 		long end = System.currentTimeMillis();
-		System.out.println("*** GENERATE BLANK PNG " + (end - start));
+		//System.out.println("*** GENERATE BLANK PNG " + (end - start));
 
 		//start = System.currentTimeMillis();
 		//renamePng(pngDir);
@@ -82,9 +82,9 @@ public class PngCreatorImp implements PngCreator {
 		return success;
 	}
 
-	private boolean generatePng(File pngsDir, UploadedPresentation pres, int page)
+	private boolean generatePng(File pngsDir, UploadedPresentation pres, int page, File pageFile)
 					throws InterruptedException {
-		String source = pres.getUploadedFile().getAbsolutePath();
+		String source = pageFile.getAbsolutePath();
 		String dest;
 
 		if (SupportedFileTypes.isImageFile(pres.getFileType())) {
@@ -112,9 +112,9 @@ public class PngCreatorImp implements PngCreator {
 
 		String COMMAND = "";
 		dest = pngsDir.getAbsolutePath() + File.separator + TEMP_PNG_NAME + "-" + page; // the "-x.png" is appended automagically
-		COMMAND = "pdftocairo -png -scale-to " + slideWidth + " -f " + page + " -l " + page + " " + source + " " + dest;
+		COMMAND = "pdftocairo -png -scale-to " + slideWidth + " " + source + " " + dest;
 
-		System.out.println("********* CREATING PNGs " + COMMAND);
+		//System.out.println("********* CREATING PNGs " + COMMAND);
 
 		boolean done = new ExternalProcessExecutor().exec(COMMAND, 60000);
 
@@ -150,7 +150,7 @@ public class PngCreatorImp implements PngCreator {
 			Matcher matcher;
 			for (int i = 0; i < files.length; i++) {
 
-				System.out.println("*** PPNG file " + files[i].getAbsolutePath());
+				//System.out.println("*** PPNG file " + files[i].getAbsolutePath());
 
 				matcher = PAGE_NUMBER_PATTERN.matcher(files[i].getAbsolutePath());
 				if (matcher.matches()) {
@@ -175,7 +175,7 @@ public class PngCreatorImp implements PngCreator {
 		} else if (dir.list().length == 1) {
 			File oldFilename = new File(
 							dir.getAbsolutePath() + File.separator + dir.list()[0]);
-			System.out.println("*** PPNG file " + oldFilename.getAbsolutePath());
+			//System.out.println("*** PPNG file " + oldFilename.getAbsolutePath());
 			String newFilename = "slide-1.png";
 			File renamedFile = new File(
 							oldFilename.getParent() + File.separator + newFilename);

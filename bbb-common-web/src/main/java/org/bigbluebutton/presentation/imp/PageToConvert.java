@@ -67,15 +67,14 @@ public class PageToConvert {
   }
 
   public PageToConvert convert() {
-    System.out.println("****** CREATING SWFs");
     // Only create SWF files if the configuration requires it
-    //if (swfSlidesRequired) {
-    convertPdfToSwf(pres, page, pageFile);
-    //}
+    if (swfSlidesRequired) {
+      convertPdfToSwf(pres, page, pageFile);
+    }
 
     System.out.println("****** CREATING THM page=" + page);
     /* adding accessibility */
-    createThumbnails(pres, page);
+    createThumbnails(pres, page, pageFile);
 
     System.out.println("****** CREATING TXTs page=" + page);
     createTextFiles(pres, page);
@@ -89,16 +88,16 @@ public class PageToConvert {
     System.out.println("****** CREATING PNGs page=" + page);
     // only create PNG images if the configuration requires it
     if (generatePngs) {
-      createPngImages(pres, page);
+      createPngImages(pres, page, pageFile);
     }
 
     return this;
   }
 
 
-  private void createThumbnails(UploadedPresentation pres, int page) {
+  private void createThumbnails(UploadedPresentation pres, int page, File pageFile) {
     notifier.sendCreatingThumbnailsUpdateMessage(pres);
-    thumbnailCreator.createThumbnail(pres, page);
+    thumbnailCreator.createThumbnail(pres, page, pageFile);
   }
 
   private void createTextFiles(UploadedPresentation pres, int page) {
@@ -111,8 +110,8 @@ public class PageToConvert {
     svgImageCreator.createSvgImage(pres, page);
   }
 
-  private void createPngImages(UploadedPresentation pres, int page) {
-    pngCreator.createPng(pres, page);
+  private void createPngImages(UploadedPresentation pres, int page, File pageFile) {
+    pngCreator.createPng(pres, page, pageFile);
   }
 
   private void convertPdfToSwf(UploadedPresentation pres, int page, File pageFile) {

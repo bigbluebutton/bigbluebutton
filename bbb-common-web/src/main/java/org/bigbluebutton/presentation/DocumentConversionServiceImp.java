@@ -33,20 +33,15 @@ import org.slf4j.LoggerFactory;
 import com.google.gson.Gson;
 
 public class DocumentConversionServiceImp implements DocumentConversionService {
-  private static Logger log = LoggerFactory
-      .getLogger(DocumentConversionServiceImp.class);
+  private static Logger log = LoggerFactory.getLogger(DocumentConversionServiceImp.class);
 
   private IBbbWebApiGWApp gw;
   private OfficeToPdfConversionService officeToPdfConversionService;
   private PdfToSwfSlidesGenerationService pdfToSwfSlidesGenerationService;
   private ImageToSwfSlidesGenerationService imageToSwfSlidesGenerationService;
 
-
-
   public void processDocument(UploadedPresentation pres) {
     SupportedDocumentFilter sdf = new SupportedDocumentFilter(gw);
-
-
 
     if (sdf.isSupported(pres)) {
       String fileType = pres.getFileType();

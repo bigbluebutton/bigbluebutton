@@ -169,7 +169,7 @@ public class PdfToSwfSlidesGenerationService {
 
       // Clean up temporary pdf files.
       for (final PageToConvert pageToConvert : pagesToConvert) {
-        pageToConvert.getPageFile().delete();
+       // pageToConvert.getPageFile().delete();
       }
     }
 
@@ -187,11 +187,8 @@ public class PdfToSwfSlidesGenerationService {
     String presDir = pres.getUploadedFile().getParent();
 
     File tempPage = new File(presDir + "/page" + "-" + page + ".pdf");
-    System.out.println("******** Extracting page " + tempPage.getAbsolutePath());
     pageExtractor.extractPage(pres.getUploadedFile(), tempPage, page);
 
-    // Delete the temporary file
-    //tempPage.delete();
     return tempPage;
   }
   
