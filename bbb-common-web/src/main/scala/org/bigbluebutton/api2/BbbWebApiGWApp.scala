@@ -284,6 +284,11 @@ class BbbWebApiGWApp(
     } else if (msg.isInstanceOf[DocPageCompletedProgress]) {
       val event = MsgBuilder.buildPresentationConversionCompletedSysPubMsg(msg.asInstanceOf[DocPageCompletedProgress])
       msgToAkkaAppsEventBus.publish(MsgToAkkaApps(toAkkaAppsChannel, event))
+
+      // Send new event with page urls
+      val newEvent = MsgBuilder.buildPresentationConversionEndedSysMsg(msg.asInstanceOf[DocPageCompletedProgress])
+      msgToAkkaAppsEventBus.publish(MsgToAkkaApps(toAkkaAppsChannel, newEvent))
+
     } else if (msg.isInstanceOf[DocPageCountFailed]) {
       val event = MsgBuilder.buildPresentationPageCountFailedSysPubMsg(msg.asInstanceOf[DocPageCountFailed])
       msgToAkkaAppsEventBus.publish(MsgToAkkaApps(toAkkaAppsChannel, event))
@@ -293,8 +298,11 @@ class BbbWebApiGWApp(
     } else if (msg.isInstanceOf[PdfConversionInvalid]) {
       val event = MsgBuilder.buildPdfConversionInvalidErrorSysPubMsg(msg.asInstanceOf[PdfConversionInvalid])
       msgToAkkaAppsEventBus.publish(MsgToAkkaApps(toAkkaAppsChannel, event))
-    } else if (msg.isInstanceOf[DocConversionStarted]) {
-      val event = MsgBuilder.buildPresentationConversionStartedSysMsg(msg.asInstanceOf[DocConversionStarted])
+    } else if (msg.isInstanceOf[DocConversionRequestReceived]) {
+      val event = MsgBuilder.buildPresentationConversionRequestReceivedSysMsg(msg.asInstanceOf[DocConversionRequestReceived])
+      msgToAkkaAppsEventBus.publish(MsgToAkkaApps(toAkkaAppsChannel, event))
+    } else if (msg.isInstanceOf[DocPageConversionStarted]) {
+      val event = MsgBuilder.buildPresentationPageConversionStartedSysMsg(msg.asInstanceOf[DocPageConversionStarted])
       msgToAkkaAppsEventBus.publish(MsgToAkkaApps(toAkkaAppsChannel, event))
     }
   }

@@ -25,7 +25,7 @@ object Polls {
     for {
       pod <- state.presentationPodManager.getDefaultPod()
       pres <- pod.getCurrentPresentation()
-      page <- pres.getCurrentPage(pres)
+      page <- PresentationInPod.getCurrentPage(pres)
       pageId: String = if (pollId.contains("deskshare")) "deskshare" else page.id
       stampedPollId: String = pageId + "/" + System.currentTimeMillis()
       numRespondents: Int = Users2x.numUsers(lm.users2x) - 1 // subtract the presenter
@@ -42,7 +42,7 @@ object Polls {
     for {
       pod <- state.presentationPodManager.getDefaultPod()
       pres <- pod.getCurrentPresentation()
-      page <- pres.getCurrentPage(pres)
+      page <- PresentationInPod.getCurrentPage(pres)
       curPoll <- getRunningPollThatStartsWith(page.id, lm.polls)
     } yield {
       stopPoll(curPoll.id, lm.polls)
@@ -73,7 +73,7 @@ object Polls {
       for {
         pod <- state.presentationPodManager.getDefaultPod()
         pres <- pod.getCurrentPresentation()
-        page <- pres.getCurrentPage(pres)
+        page <- PresentationInPod.getCurrentPage(pres)
       } yield {
         val pageId = if (poll.id.contains("deskshare")) "deskshare" else page.id
         val updatedShape = shape + ("whiteboardId" -> pageId)
@@ -98,7 +98,7 @@ object Polls {
     val poll = for {
       pod <- state.presentationPodManager.getDefaultPod()
       pres <- pod.getCurrentPresentation()
-      page <- pres.getCurrentPage(pres)
+      page <- PresentationInPod.getCurrentPage(pres)
       curPoll <- getRunningPollThatStartsWith(page.id, lm.polls)
     } yield curPoll
 
@@ -143,7 +143,7 @@ object Polls {
     for {
       pod <- state.presentationPodManager.getDefaultPod()
       pres <- pod.getCurrentPresentation()
-      page <- pres.getCurrentPage(pres)
+      page <- PresentationInPod.getCurrentPage(pres)
       pageId: String = if (pollId.contains("deskshare")) "deskshare" else page.id
       stampedPollId: String = pageId + "/" + System.currentTimeMillis()
       numRespondents: Int = Users2x.numUsers(lm.users2x) - 1 // subtract the presenter

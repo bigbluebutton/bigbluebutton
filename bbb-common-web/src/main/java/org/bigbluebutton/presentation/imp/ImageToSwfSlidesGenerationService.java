@@ -20,8 +20,6 @@
 package org.bigbluebutton.presentation.imp;
 
 import java.text.DecimalFormat;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.concurrent.Callable;
 import java.util.concurrent.CompletionService;
 import java.util.concurrent.ExecutionException;
@@ -32,7 +30,6 @@ import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
-import com.google.gson.Gson;
 import org.bigbluebutton.presentation.FileTypeConstants;
 import org.bigbluebutton.presentation.ImageResizer;
 import org.bigbluebutton.presentation.ImageToSwfSlide;
@@ -42,7 +39,6 @@ import org.bigbluebutton.presentation.SvgImageCreator;
 import org.bigbluebutton.presentation.TextFileCreator;
 import org.bigbluebutton.presentation.ThumbnailCreator;
 import org.bigbluebutton.presentation.UploadedPresentation;
-import org.bigbluebutton.presentation.messages.DocConversionStarted;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -72,41 +68,7 @@ public class ImageToSwfSlidesGenerationService {
 		completionService = new ExecutorCompletionService<ImageToSwfSlide>(executor);
 	}
 
-	private void sendDocConversionStartedProgress(UploadedPresentation pres) {
-		if (! pres.isConversionStarted()) {
-			Map<String, Object> logData = new HashMap<String, Object>();
-
-			logData.put("podId", pres.getPodId());
-			logData.put("meetingId", pres.getMeetingId());
-			logData.put("presId", pres.getId());
-			logData.put("filename", pres.getName());
-			logData.put("current", pres.isCurrent());
-			logData.put("authzToken", pres.getAuthzToken());
-			logData.put("logCode", "presentation_conversion_start");
-			logData.put("message", "Start presentation conversion.");
-
-			Gson gson = new Gson();
-			String logStr = gson.toJson(logData);
-			log.info(" --analytics-- data={}", logStr);
-
-			pres.startConversion();
-			DocConversionStarted progress = new DocConversionStarted(
-					pres.getPodId(),
-					pres.getMeetingId(),
-					pres.getId(),
-					pres.getName(),
-					pres.getAuthzToken(),
-					pres.isDownloadable(),
-					pres.isDownloadable(),
-					pres.getNumberOfPages());
-			notifier.sendDocConversionProgress(progress);
-		}
-	}
-
 	public void generateSlides(UploadedPresentation pres) {
-		pres.setNumberOfPages(1); // There should be only one image to convert.
-
-		sendDocConversionStartedProgress(pres);
 
 		for (int page = 1; page <= pres.getNumberOfPages(); page++) {
 			if (swfSlidesRequired) {
@@ -131,7 +93,6 @@ public class ImageToSwfSlidesGenerationService {
 			notifier.sendConversionUpdateMessage(page, pres, page);
 		}
 
-		notifier.sendConversionCompletedMessage(pres);
 	}
 	
 	private PageConverter determinePageConverter(UploadedPresentation pres) {

@@ -23,10 +23,11 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.bigbluebutton.api2.IBbbWebApiGWApp;
-import org.bigbluebutton.presentation.imp.ImageToSwfSlidesGenerationService;
-import org.bigbluebutton.presentation.imp.OfficeToPdfConversionService;
-import org.bigbluebutton.presentation.imp.PdfToSwfSlidesGenerationService;
-import org.bigbluebutton.presentation.messages.DocConversionStarted;
+import org.bigbluebutton.presentation.imp.*;
+import org.bigbluebutton.presentation.messages.DocPageConversionStarted;
+import org.bigbluebutton.presentation.messages.DocConversionRequestReceived;
+import org.bigbluebutton.presentation.messages.DocPageCountExceeded;
+import org.bigbluebutton.presentation.messages.DocPageCountFailed;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -39,9 +40,13 @@ public class DocumentConversionServiceImp implements DocumentConversionService {
   private OfficeToPdfConversionService officeToPdfConversionService;
   private PdfToSwfSlidesGenerationService pdfToSwfSlidesGenerationService;
   private ImageToSwfSlidesGenerationService imageToSwfSlidesGenerationService;
+  private SwfSlidesGenerationProgressNotifier notifier;
+  private PageCounterService counterService;
 
   public void processDocument(UploadedPresentation pres) {
     SupportedDocumentFilter sdf = new SupportedDocumentFilter(gw);
+
+    sendDocConversionStartedProgress(pres);
 
     if (sdf.isSupported(pres)) {
       String fileType = pres.getFileType();
@@ -62,8 +67,12 @@ public class DocumentConversionServiceImp implements DocumentConversionService {
           ocsf.sendProgress(pres);
         }
       } else if (SupportedFileTypes.isPdfFile(fileType)) {
+          determineNumberOfPages(pres);
+          sendDocConversionNumPagesFoundProgress(pres);
           pdfToSwfSlidesGenerationService.generateSlides(pres);
       } else if (SupportedFileTypes.isImageFile(fileType)) {
+          pres.setNumberOfPages(1); // There should be only one image to convert.
+          sendDocConversionNumPagesFoundProgress(pres);
           imageToSwfSlidesGenerationService.generateSlides(pres);
       } else {
           Map<String, Object> logData = new HashMap<String, Object>();
@@ -110,7 +119,131 @@ public class DocumentConversionServiceImp implements DocumentConversionService {
     Gson gson = new Gson();
     String logStr = gson.toJson(logData);
     log.info(" --analytics-- data={}", logStr);
+
+    notifier.sendConversionCompletedMessage(pres);
   }
+
+  private void sendDocConversionNumPagesFoundProgress(UploadedPresentation pres) {
+      Map<String, Object> logData = new HashMap<String, Object>();
+
+      logData.put("podId", pres.getPodId());
+      logData.put("meetingId", pres.getMeetingId());
+      logData.put("presId", pres.getId());
+      logData.put("filename", pres.getName());
+      logData.put("num_pages", pres.getNumberOfPages());
+      logData.put("authzToken", pres.getAuthzToken());
+      logData.put("logCode", "presentation_conversion_num_pages");
+      logData.put("message", "Presentation conversion number of pages.");
+
+      Gson gson = new Gson();
+      String logStr = gson.toJson(logData);
+      log.info(" --analytics-- data={}", logStr);
+
+      DocPageConversionStarted progress = new DocPageConversionStarted(
+              pres.getPodId(),
+              pres.getMeetingId(),
+              pres.getId(),
+              pres.getName(),
+              pres.getAuthzToken(),
+              pres.isDownloadable(),
+              pres.isCurrent(),
+              pres.getNumberOfPages());
+      notifier.sendDocConversionProgress(progress);
+    }
+
+    private void sendDocConversionStartedProgress(UploadedPresentation pres) {
+        if (! pres.isConversionStarted()) {
+            Map<String, Object> logData = new HashMap<String, Object>();
+
+            logData.put("podId", pres.getPodId());
+            logData.put("meetingId", pres.getMeetingId());
+            logData.put("presId", pres.getId());
+            logData.put("filename", pres.getName());
+            logData.put("current", pres.isCurrent());
+            logData.put("authzToken", pres.getAuthzToken());
+            logData.put("logCode", "presentation_conversion_start");
+            logData.put("message", "Start presentation conversion.");
+
+            Gson gson = new Gson();
+            String logStr = gson.toJson(logData);
+            log.info(" --analytics-- data={}", logStr);
+
+            pres.startConversion();
+
+            DocConversionRequestReceived progress = new DocConversionRequestReceived(
+                    pres.getPodId(),
+                    pres.getMeetingId(),
+                    pres.getId(),
+                    pres.getName(),
+                    pres.getAuthzToken(),
+                    pres.isDownloadable(),
+                    pres.isCurrent());
+            notifier.sendDocConversionProgress(progress);
+        }
+    }
+
+    private boolean determineNumberOfPages(UploadedPresentation pres) {
+        try {
+            counterService.determineNumberOfPages(pres);
+            return true;
+        } catch (CountingPageException e) {
+            sendFailedToCountPageMessage(e, pres);
+        }
+        return false;
+    }
+
+    private void sendFailedToCountPageMessage(CountingPageException e, UploadedPresentation pres) {
+        ConversionUpdateMessage.MessageBuilder builder = new ConversionUpdateMessage.MessageBuilder(pres);
+
+        if (e.getExceptionType() == CountingPageException.ExceptionType.PAGE_COUNT_EXCEPTION) {
+            builder.messageKey(ConversionMessageConstants.PAGE_COUNT_FAILED_KEY);
+
+            Map<String, Object> logData = new HashMap<>();
+            logData.put("podId", pres.getPodId());
+            logData.put("meetingId", pres.getMeetingId());
+            logData.put("presId", pres.getId());
+            logData.put("filename", pres.getName());
+            logData.put("logCode", "determine_num_pages_failed");
+            logData.put("message", "Failed to determine number of pages.");
+            Gson gson = new Gson();
+            String logStr = gson.toJson(logData);
+            log.error(" --analytics-- data={}", logStr, e);
+
+            DocPageCountFailed progress = new DocPageCountFailed(pres.getPodId(), pres.getMeetingId(),
+                    pres.getId(), pres.getId(),
+                    pres.getName(), "notUsedYet", "notUsedYet",
+                    pres.isDownloadable(), ConversionMessageConstants.PAGE_COUNT_FAILED_KEY);
+
+            notifier.sendDocConversionProgress(progress);
+
+        } else if (e.getExceptionType() == CountingPageException.ExceptionType.PAGE_EXCEEDED_EXCEPTION) {
+            builder.numberOfPages(e.getPageCount());
+            builder.maxNumberPages(e.getMaxNumberOfPages());
+            builder.messageKey(ConversionMessageConstants.PAGE_COUNT_EXCEEDED_KEY);
+
+            Map<String, Object> logData = new HashMap<String, Object>();
+            logData.put("podId", pres.getPodId());
+            logData.put("meetingId", pres.getMeetingId());
+            logData.put("presId", pres.getId());
+            logData.put("filename", pres.getName());
+            logData.put("pageCount", e.getPageCount());
+            logData.put("maxNumPages", e.getMaxNumberOfPages());
+            logData.put("logCode", "num_pages_exceeded");
+            logData.put("message", "Number of pages exceeded.");
+            Gson gson = new Gson();
+            String logStr = gson.toJson(logData);
+            log.warn(" --analytics-- data={}", logStr);
+
+            DocPageCountExceeded progress = new DocPageCountExceeded(pres.getPodId(), pres.getMeetingId(),
+                    pres.getId(), pres.getId(),
+                    pres.getName(), "notUsedYet", "notUsedYet",
+                    pres.isDownloadable(), ConversionMessageConstants.PAGE_COUNT_EXCEEDED_KEY,
+                    e.getPageCount(), e.getMaxNumberOfPages());
+
+            notifier.sendDocConversionProgress(progress);
+        }
+
+    }
 
   public void setBbbWebApiGWApp(IBbbWebApiGWApp m) {
     gw = m;
@@ -128,5 +261,13 @@ public class DocumentConversionServiceImp implements DocumentConversionService {
   public void setImageToSwfSlidesGenerationService(
       ImageToSwfSlidesGenerationService s) {
     imageToSwfSlidesGenerationService = s;
+  }
+
+  public void setSwfSlidesGenerationProgressNotifier(SwfSlidesGenerationProgressNotifier notifier) {
+      this.notifier = notifier;
+  }
+
+  public void setCounterService(PageCounterService counterService) {
+      this.counterService = counterService;
   }
 }

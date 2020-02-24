@@ -129,6 +129,20 @@ object MsgBuilder {
     BbbCommonEnvCoreMsg(envelope, req)
   }
 
+  def buildPresentationConversionEndedSysMsg(msg: DocPageCompletedProgress): BbbCommonEnvCoreMsg = {
+    val routing = collection.immutable.HashMap("sender" -> "bbb-web")
+    val envelope = BbbCoreEnvelope(PresentationConversionEndedSysMsg.NAME, routing)
+    val header = BbbClientMsgHeader(PresentationConversionEndedSysMsg.NAME, msg.meetingId, msg.authzToken)
+
+    val body = PresentationConversionEndedSysMsgBody(
+      podId = msg.podId,
+      presentationId = msg.presId,
+      presName = msg.filename
+    )
+    val req = PresentationConversionEndedSysMsg(header, body)
+    BbbCommonEnvCoreMsg(envelope, req)
+  }
+
   def buildPresentationConversionCompletedSysPubMsg(msg: DocPageCompletedProgress): BbbCommonEnvCoreMsg = {
     val routing = collection.immutable.HashMap("sender" -> "bbb-web")
     val envelope = BbbCoreEnvelope(PresentationConversionCompletedSysPubMsg.NAME, routing)
@@ -198,21 +212,38 @@ object MsgBuilder {
     BbbCommonEnvCoreMsg(envelope, req)
   }
 
-  def buildPresentationConversionStartedSysMsg(msg: DocConversionStarted): BbbCommonEnvCoreMsg = {
+  def buildPresentationConversionRequestReceivedSysMsg(msg: DocConversionRequestReceived): BbbCommonEnvCoreMsg = {
     val routing = collection.immutable.HashMap("sender" -> "bbb-web")
-    val envelope = BbbCoreEnvelope(PresentationConversionStartedSysMsg.NAME, routing)
-    val header = BbbClientMsgHeader(PresentationConversionStartedSysMsg.NAME, msg.meetingId, msg.authzToken)
+    val envelope = BbbCoreEnvelope(PresentationConversionRequestReceivedSysMsg.NAME, routing)
+    val header = BbbClientMsgHeader(PresentationConversionRequestReceivedSysMsg.NAME, msg.meetingId, msg.authzToken)
 
-    val body = PresentationConversionStartedSysMsgBody(
+    val body = PresentationConversionRequestReceivedSysMsgBody(
       podId = msg.podId,
       presentationId = msg.presId,
       current = msg.current,
       presName = msg.filename,
       downloadable = msg.downloadable,
-      authzToken = msg.authzToken,
-      numPages = msg.numPages
+      authzToken = msg.authzToken
     )
-    val req = PresentationConversionStartedSysMsg(header, body)
+    val req = PresentationConversionRequestReceivedSysMsg(header, body)
+    BbbCommonEnvCoreMsg(envelope, req)
+  }
+
+  def buildPresentationPageConversionStartedSysMsg(msg: DocPageConversionStarted): BbbCommonEnvCoreMsg = {
+    val routing = collection.immutable.HashMap("sender" -> "bbb-web")
+    val envelope = BbbCoreEnvelope(PresentationPageConversionStartedSysMsg.NAME, routing)
+    val header = BbbClientMsgHeader(PresentationPageConversionStartedSysMsg.NAME, msg.meetingId, msg.authzToken)
+
+    val body = PresentationPageConversionStartedSysMsgBody(
+      podId = msg.podId,
+      presentationId = msg.presId,
+      current = msg.current,
+      presName = msg.filename,
+      downloadable = msg.downloadable,
+      numPages = msg.numPages,
+      authzToken = msg.authzToken
+    )
+    val req = PresentationPageConversionStartedSysMsg(header, body)
     BbbCommonEnvCoreMsg(envelope, req)
   }
 

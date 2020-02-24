@@ -1,6 +1,6 @@
 package org.bigbluebutton.presentation.messages;
 
-public class DocConversionStarted implements IDocConversionMsg {
+public class DocPageConversionStarted implements IDocConversionMsg {
     public final String podId;
     public final String meetingId;
     public final String presId;
@@ -10,14 +10,14 @@ public class DocConversionStarted implements IDocConversionMsg {
     public final Boolean current;
     public final Integer numPages;
 
-    public DocConversionStarted(String podId,
-                                String meetingId,
-                                String presId,
-                                String filename,
-                                String authzToken,
-                                Boolean downloadable,
-                                Boolean current,
-                                Integer numPages) {
+    public DocPageConversionStarted(String podId,
+                                    String meetingId,
+                                    String presId,
+                                    String filename,
+                                    String authzToken,
+                                    Boolean downloadable,
+                                    Boolean current,
+                                    Integer numPages) {
         this.podId = podId;
         this.meetingId = meetingId;
         this.presId = presId;

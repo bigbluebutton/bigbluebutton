@@ -4,13 +4,18 @@ import org.bigbluebutton.common2.domain.PresentationPageVO
 import org.bigbluebutton.common2.msgs._
 import org.bigbluebutton.core.bus.MessageBus
 import org.bigbluebutton.core.domain.MeetingState2x
+import org.bigbluebutton.core.models.{ PresentationInPod, PresentationPage }
 import org.bigbluebutton.core.running.LiveMeeting
 
 trait PresentationPageConvertedSysMsgHdlr {
   this: PresentationPodHdlrs =>
 
-  def handle(msg: PresentationPageConvertedSysMsg, state: MeetingState2x,
-             liveMeeting: LiveMeeting, bus: MessageBus): MeetingState2x = {
+  def handle(
+      msg:         PresentationPageConvertedSysMsg,
+      state:       MeetingState2x,
+      liveMeeting: LiveMeeting,
+      bus:         MessageBus
+  ): MeetingState2x = {
 
     def broadcastEvent(msg: PresentationPageConvertedSysMsg): Unit = {
       val routing = Routing.addMsgToClientRouting(
@@ -45,7 +50,29 @@ trait PresentationPageConvertedSysMsgHdlr {
       bus.outGW.send(msgEvent)
     }
 
+    val page = PresentationPage(
+      msg.body.page.id,
+      msg.body.page.num,
+      msg.body.page.urls,
+      msg.body.page.current
+    )
+
+    val newState = for {
+      pod <- PresentationPodsApp.getPresentationPod(state, msg.body.podId)
+      pres <- pod.getPresentation(msg.body.presentationId)
+    } yield {
+      val newPres = PresentationInPod.addPage(pres, page)
+      var pods = state.presentationPodManager.addPod(pod)
+      pods = pods.addPresentationToPod(pod.id, newPres)
+
+      state.update(pods)
+    }
+
     broadcastEvent(msg)
-    state
+
+    newState match {
+      case Some(ns) => ns
+      case None     => state
+    }
   }
 }

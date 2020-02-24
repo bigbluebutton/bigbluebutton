@@ -1,6 +1,7 @@
 package org.bigbluebutton.core.models
 
 import org.bigbluebutton.common2.domain.PageVO
+import org.bigbluebutton.core.models.PresentationInPod
 import org.bigbluebutton.core.util.RandomStringGenerator
 
 object PresentationPodFactory {
@@ -29,8 +30,11 @@ case class PresentationPage(
     heightRatio: Double              = 100D
 )
 
-case class PresentationInPod(id: String, name: String, current: Boolean = false,
-                             pages: scala.collection.immutable.Map[String, PresentationPage], downloadable: Boolean) {
+object PresentationInPod {
+  def addPage(pres: PresentationInPod, page: PresentationPage): PresentationInPod = {
+    val newPages = pres.pages + (page.id -> page)
+    pres.copy(pages = newPages)
+  }
 
   def makePageCurrent(pres: PresentationInPod, pageId: String): Option[PresentationInPod] = {
     pres.pages.get(pageId) match {
@@ -49,6 +53,14 @@ case class PresentationInPod(id: String, name: String, current: Boolean = false,
   }
 
 }
+
+case class PresentationInPod(
+    id:           String,
+    name:         String,
+    current:      Boolean                                                  = false,
+    pages:        scala.collection.immutable.Map[String, PresentationPage],
+    downloadable: Boolean
+)
 
 object PresentationPod {
   val DEFAULT_PRESENTATION_POD = "DEFAULT_PRESENTATION_POD"
@@ -110,7 +122,7 @@ case class PresentationPod(id: String, currentPresenter: String,
   def setCurrentPage(presentationId: String, pageId: String): Option[PresentationPod] = {
     for {
       pres <- presentations.get(presentationId)
-      newPres <- pres.makePageCurrent(pres, pageId)
+      newPres <- PresentationInPod.makePageCurrent(pres, pageId)
     } yield {
       addPresentation(deactivateCurrentPage(newPres, pageId))
     }
