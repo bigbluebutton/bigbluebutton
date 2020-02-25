@@ -32,7 +32,7 @@ class Slide extends Page {
     console.log(svg2);
 
     // TODO: Check test
-    return true;
+    return svg0 !== svg1 && svg1 !== svg2;
   }
 
   async getTestElements() {
