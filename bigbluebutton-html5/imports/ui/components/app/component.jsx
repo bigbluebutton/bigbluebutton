@@ -21,7 +21,7 @@ import LockNotifier from '/imports/ui/components/lock-viewers/notify/container';
 import PingPongContainer from '/imports/ui/components/ping-pong/container';
 import MediaService from '/imports/ui/components/media/service';
 import ManyWebcamsNotifier from '/imports/ui/components/video-provider/many-users-notify/container';
-import UploaderContainer from '/imports/ui/components/actions-bar/uploader/container';
+import UploaderContainer from '/imports/ui/components/presentation/presentation-uploader/container';
 import { withDraggableContext } from '../media/webcam-draggable-overlay/context';
 import { styles } from './styles';
 

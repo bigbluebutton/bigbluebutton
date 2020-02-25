@@ -77,6 +77,10 @@ const intlMessages = defineMessages({
   },
 });
 
+const handlePresentationClick = () => {
+  Session.set('uploadReq', true);
+};
+
 class ActionsDropdown extends PureComponent {
   constructor(props) {
     super(props);
@@ -85,7 +89,6 @@ class ActionsDropdown extends PureComponent {
     this.pollId = _.uniqueId('action-item-');
     this.takePresenterId = _.uniqueId('action-item-');
 
-    this.handlePresentationClick = this.handlePresentationClick.bind(this);
     this.handleExternalVideoClick = this.handleExternalVideoClick.bind(this);
     this.makePresentationItems = this.makePresentationItems.bind(this);
   }
@@ -159,7 +162,7 @@ class ActionsDropdown extends PureComponent {
             label={formatMessage(presentationLabel)}
             description={formatMessage(presentationDesc)}
             key={this.presentationItemId}
-            onClick={this.handlePresentationClick}
+            onClick={handlePresentationClick}
           />
         )
         : null),
@@ -186,9 +189,9 @@ class ActionsDropdown extends PureComponent {
     } = this.props;
 
     let podId = null;
-    if (podIds) {
+    if (podIds.length > 0) {
       const defaultPodId = podIds[0].podId;
-      podId = podIds.length > 0 ? defaultPodId : null;
+      podId = defaultPodId;
     }
 
     const presentationItemElements = presentations.map((p) => {
@@ -217,10 +220,6 @@ class ActionsDropdown extends PureComponent {
   handleExternalVideoClick() {
     const { mountModal } = this.props;
     mountModal(<ExternalVideoModal />);
-  }
-
-  handlePresentationClick() {
-    Session.set('uploadReq', true);
   }
 
   render() {

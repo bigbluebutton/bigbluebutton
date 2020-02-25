@@ -193,6 +193,8 @@
     "app.presentationUploder.completed": "{0} uploads complete",
     "app.presentationUploder.item" : "item",
     "app.presentationUploder.itemPlural" : "items",
+    "app.presentationUploder.clearErrors": "Clear errors",
+    "app.presentationUploder.clearErrorsDesc": "Clears failed presentation uploads",
     "app.poll.pollPaneTitle": "Polling",
     "app.poll.quickPollTitle": "Quick Poll",
     "app.poll.hidePollDesc": "Hides the poll menu pane",
