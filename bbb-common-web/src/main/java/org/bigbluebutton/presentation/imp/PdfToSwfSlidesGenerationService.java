@@ -50,7 +50,7 @@ public class PdfToSwfSlidesGenerationService {
   private long bigPdfSize;
   private long maxBigPdfPageSize;
   private PageExtractor pageExtractor;
-  private long MAX_CONVERSION_TIME = 5 * 60 * 1000L * 1000L * 1000L;
+  private long MAX_CONVERSION_TIME = 5 * 60 * 1000L;
   private String BLANK_SLIDE;
   private int MAX_SWF_FILE_SIZE;
   private boolean swfSlidesRequired;
@@ -63,73 +63,105 @@ public class PdfToSwfSlidesGenerationService {
     completionService = new ExecutorCompletionService<PageToConvert>(executor);
   }
 
-    public void generateSlides(UploadedPresentation pres) {
-      List<PageToConvert> pagesToConvert = new ArrayList<PageToConvert>();
+  public void generateSlides(UploadedPresentation pres) {
+    List<PageToConvert> pagesToConvert = new ArrayList<PageToConvert>();
+    List<Future<PageToConvert>> convertFutures = new ArrayList<Future<PageToConvert>>(pres.getNumberOfPages());
 
-      for (int page = 1; page <= pres.getNumberOfPages(); page++) {
-        File pageFile = extractPage(pres, page);
-        PageToConvert pageToConvert = new PageToConvert(
-          pres,
-          page,
-          pageFile,
-          swfSlidesRequired,
-          svgImagesRequired,
-          generatePngs,
-          textFileCreator,
-          svgImageCreator,
-          thumbnailCreator,
-          pngCreator,
-          pdfToSwfConverter,
-          notifier,
-          BLANK_SLIDE,
-          MAX_SWF_FILE_SIZE
+    int pagesCompleted = 0;
+
+    for (int page = 1; page <= pres.getNumberOfPages(); page++) {
+      File extractedPageFile = extractPage(pres, page);
+      File downscaledPageFile = downscalePage(pres, extractedPageFile, page);
+
+      String presDir = pres.getUploadedFile().getParent();
+      File pageFile = new File(presDir + "/page" + "-" + page + ".pdf");
+      downscaledPageFile.renameTo(pageFile);
+
+      extractedPageFile.delete();
+
+      PageToConvert pageToConvert = new PageToConvert(
+              pres,
+              page,
+              pageFile,
+              swfSlidesRequired,
+              svgImagesRequired,
+              generatePngs,
+              textFileCreator,
+              svgImageCreator,
+              thumbnailCreator,
+              pngCreator,
+              pdfToSwfConverter,
+              notifier,
+              BLANK_SLIDE,
+              MAX_SWF_FILE_SIZE
         );
-        pagesToConvert.add(pageToConvert);
-      }
 
-      List<Future<PageToConvert>> convertFutures = new ArrayList<Future<PageToConvert>>(pres.getNumberOfPages());
-
-      for (final PageToConvert pageToConvert : pagesToConvert) {
-        Callable<PageToConvert> c = new Callable<PageToConvert>() {
-          public PageToConvert call() {
-            return pageToConvert.convert();
-          }
-        };
-
-        Future<PageToConvert> f = executor.submit(c);
-        convertFutures.add(f);
-      }
-
-      int pagesCompleted = 0;
-
-      for (Future<PageToConvert> f : convertFutures) {
-        long endNanos = System.nanoTime() + MAX_CONVERSION_TIME;
-        try {
-          // Only wait for the remaining time budget
-          long timeLeft = endNanos - System.nanoTime();
-          PageToConvert s = f.get(timeLeft, TimeUnit.NANOSECONDS);
-          pagesCompleted++;
-          notifier.sendConversionUpdateMessage(pagesCompleted, pres, s.getPageNumber());
-        } catch (ExecutionException e) {
-
-        } catch (InterruptedException e) {
-          Thread.currentThread().interrupt();
-        } catch (TimeoutException e) {
-          f.cancel(true);
+      pagesToConvert.add(pageToConvert);
+      Callable<PageToConvert> c = new Callable<PageToConvert>() {
+        public PageToConvert call() {
+          return pageToConvert.convert();
         }
-      }
+      };
 
-      // Clean up temporary pdf files.
-      for (final PageToConvert pageToConvert : pagesToConvert) {
-        pageToConvert.getPageFile().delete();
+      Future<PageToConvert> f = executor.submit(c);
+      pagesCompleted++;
+      notifier.sendConversionUpdateMessage(pagesCompleted, pres, pageToConvert.getPageNumber());
+      convertFutures.add(f);
+    }
+
+
+
+//    for (final PageToConvert pageToConvert : pagesToConvert) {
+//      Callable<PageToConvert> c = new Callable<PageToConvert>() {
+//        public PageToConvert call() {
+//          return pageToConvert.convert();
+//        }
+//      };
+
+//      Future<PageToConvert> f = executor.submit(c);
+//      convertFutures.add(f);
+//    }
+
+
+
+    long endNanos = System.currentTimeMillis() + MAX_CONVERSION_TIME;
+    for (Future<PageToConvert> f : convertFutures) {
+      try {
+        // Only wait for the remaining time budget
+        long timeLeft = endNanos - System.currentTimeMillis();
+        PageToConvert s = f.get(timeLeft, TimeUnit.MILLISECONDS);
+
+      } catch (ExecutionException e) {
+
+      } catch (InterruptedException e) {
+        Thread.currentThread().interrupt();
+      } catch (TimeoutException e) {
+        f.cancel(true);
       }
     }
 
+    // Clean up temporary pdf files.
+    for (final PageToConvert pageToConvert : pagesToConvert) {
+      //pageToConvert.getPageFile().delete();
+    }
+  }
+
+  private File downscalePage(UploadedPresentation pres, File filePage, int pageNum) {
+    String presDir = pres.getUploadedFile().getParent();
+    File tempPage = new File(presDir + "/downscaled" + "-" + pageNum + ".pdf");
+    PdfPageDownscaler downscaler = new PdfPageDownscaler();
+    downscaler.downscale(filePage, tempPage);
+    if (tempPage.exists()) {
+      return tempPage;
+    }
+
+    return filePage;
+  }
 
   private File extractPage(UploadedPresentation pres, int page) {
     String presDir = pres.getUploadedFile().getParent();
 
-    File tempPage = new File(presDir + "/page" + "-" + page + ".pdf");
+    File tempPage = new File(presDir + "/extracted" + "-" + page + ".pdf");
     pageExtractor.extractPage(pres.getUploadedFile(), tempPage, page);
 
     return tempPage;

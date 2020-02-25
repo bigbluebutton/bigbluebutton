@@ -28,6 +28,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         <property name="officeToPdfConversionService" ref="officeToPdfConversionService"/>
         <property name="pdfToSwfSlidesGenerationService" ref="pdfToSwfSlidesGenerationService"/>
         <property name="imageToSwfSlidesGenerationService" ref="imageToSwfSlidesGenerationService"/>
+        <property name="swfSlidesGenerationProgressNotifier" ref="swfSlidesGenerationProgressNotifier"/>
+        <property name="counterService" ref="pageCounterService"/>
     </bean>
 
     <bean id="officeDocumentValidator" class="org.bigbluebutton.presentation.imp.OfficeDocumentValidator2">
@@ -90,7 +92,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
     <bean id="pdfToSwfSlidesGenerationService"
           class="org.bigbluebutton.presentation.imp.PdfToSwfSlidesGenerationService">
         <constructor-arg index="0" value="${numConversionThreads}"/>
-        <property name="counterService" ref="pageCounterService"/>
         <property name="pageConverter" ref="pdf2SwfPageConverter"/>
         <property name="thumbnailCreator" ref="thumbCreator"/>
         <property name="pngCreator" ref="pngCreator"/>

@@ -96,17 +96,17 @@ public class PageToConvert {
 
 
   private void createThumbnails(UploadedPresentation pres, int page, File pageFile) {
-    notifier.sendCreatingThumbnailsUpdateMessage(pres);
+    //notifier.sendCreatingThumbnailsUpdateMessage(pres);
     thumbnailCreator.createThumbnail(pres, page, pageFile);
   }
 
   private void createTextFiles(UploadedPresentation pres, int page) {
-    notifier.sendCreatingTextFilesUpdateMessage(pres);
+    //notifier.sendCreatingTextFilesUpdateMessage(pres);
     textFileCreator.createTextFile(pres, page);
   }
 
   private void createSvgImages(UploadedPresentation pres, int page) {
-    notifier.sendCreatingSvgImagesUpdateMessage(pres);
+    //notifier.sendCreatingSvgImagesUpdateMessage(pres);
     svgImageCreator.createSvgImage(pres, page);
   }
 

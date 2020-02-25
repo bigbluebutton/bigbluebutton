@@ -91,8 +91,6 @@ object MsgBuilder {
 
     val page = generatePresentationPage(msg.presId, msg.numPages.intValue(), msg.presBaseUrl, msg.page.intValue())
 
-    println("Converted page " + page)
-
     val body = PresentationPageConvertedSysMsgBody(
       podId = msg.podId,
       messageKey = msg.key,
