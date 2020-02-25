@@ -12,11 +12,11 @@ public class PageToConvert {
 
   private UploadedPresentation pres;
   private int page;
-  private File pageFile;
 
   private boolean swfSlidesRequired;
   private boolean svgImagesRequired;
   private boolean generatePngs;
+  private PageExtractor pageExtractor;
 
   private String BLANK_SLIDE;
   private int MAX_SWF_FILE_SIZE;
@@ -30,7 +30,7 @@ public class PageToConvert {
 
   public PageToConvert(UploadedPresentation pres,
                        int page,
-                       File pageFile,
+                       PageExtractor pageExtractor,
                        boolean swfSlidesRequired,
                        boolean svgImagesRequired,
                        boolean generatePngs,
@@ -44,7 +44,7 @@ public class PageToConvert {
                        int maxSwfFileSize) {
     this.pres = pres;
     this.page = page;
-    this.pageFile = pageFile;
+    this.pageExtractor = pageExtractor;
     this.swfSlidesRequired = swfSlidesRequired;
     this.svgImagesRequired = svgImagesRequired;
     this.generatePngs = generatePngs;
@@ -58,15 +58,21 @@ public class PageToConvert {
     this.MAX_SWF_FILE_SIZE = maxSwfFileSize;
   }
 
-  public File getPageFile() {
-    return pageFile;
-  }
 
   public int getPageNumber() {
     return page;
   }
 
   public PageToConvert convert() {
+    File extractedPageFile = extractPage(pres, page);
+    File downscaledPageFile = downscalePage(pres, extractedPageFile, page);
+
+    String presDir = pres.getUploadedFile().getParent();
+    File pageFile = new File(presDir + "/page" + "-" + page + ".pdf");
+    downscaledPageFile.renameTo(pageFile);
+
+    extractedPageFile.delete();
+
     // Only create SWF files if the configuration requires it
     if (swfSlidesRequired) {
       convertPdfToSwf(pres, page, pageFile);
@@ -94,6 +100,26 @@ public class PageToConvert {
     return this;
   }
 
+  private File downscalePage(UploadedPresentation pres, File filePage, int pageNum) {
+    String presDir = pres.getUploadedFile().getParent();
+    File tempPage = new File(presDir + "/downscaled" + "-" + pageNum + ".pdf");
+    PdfPageDownscaler downscaler = new PdfPageDownscaler();
+    downscaler.downscale(filePage, tempPage);
+    if (tempPage.exists()) {
+      return tempPage;
+    }
+
+    return filePage;
+  }
+
+  private File extractPage(UploadedPresentation pres, int page) {
+    String presDir = pres.getUploadedFile().getParent();
+
+    File tempPage = new File(presDir + "/extracted" + "-" + page + ".pdf");
+    pageExtractor.extractPage(pres.getUploadedFile(), tempPage, page);
+
+    return tempPage;
+  }
 
   private void createThumbnails(UploadedPresentation pres, int page, File pageFile) {
     //notifier.sendCreatingThumbnailsUpdateMessage(pres);

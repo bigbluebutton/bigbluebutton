@@ -56,33 +56,23 @@ public class PdfToSwfSlidesGenerationService {
   private boolean swfSlidesRequired;
   private boolean svgImagesRequired;
   private boolean generatePngs;
-  private CompletionService<PageToConvert> completionService;
+  //private CompletionService<PageToConvert> completionService;
 
   public PdfToSwfSlidesGenerationService(int numConversionThreads) {
     executor = Executors.newFixedThreadPool(5);
-    completionService = new ExecutorCompletionService<PageToConvert>(executor);
+
   }
 
   public void generateSlides(UploadedPresentation pres) {
-    List<PageToConvert> pagesToConvert = new ArrayList<PageToConvert>();
-    List<Future<PageToConvert>> convertFutures = new ArrayList<Future<PageToConvert>>(pres.getNumberOfPages());
+    CompletionService<PageToConvert> completionService = new ExecutorCompletionService<PageToConvert>(executor);
 
-    int pagesCompleted = 0;
+    List<PageToConvert> pagesToConvert = new ArrayList<PageToConvert>();
 
     for (int page = 1; page <= pres.getNumberOfPages(); page++) {
-      File extractedPageFile = extractPage(pres, page);
-      File downscaledPageFile = downscalePage(pres, extractedPageFile, page);
-
-      String presDir = pres.getUploadedFile().getParent();
-      File pageFile = new File(presDir + "/page" + "-" + page + ".pdf");
-      downscaledPageFile.renameTo(pageFile);
-
-      extractedPageFile.delete();
-
       PageToConvert pageToConvert = new PageToConvert(
               pres,
               page,
-              pageFile,
+              pageExtractor,
               swfSlidesRequired,
               svgImagesRequired,
               generatePngs,
@@ -97,6 +87,10 @@ public class PdfToSwfSlidesGenerationService {
         );
 
       pagesToConvert.add(pageToConvert);
+    }
+
+    List<Future<PageToConvert>> convertFutures = new ArrayList<Future<PageToConvert>>(pres.getNumberOfPages());
+    for (final PageToConvert pageToConvert : pagesToConvert) {
       Callable<PageToConvert> c = new Callable<PageToConvert>() {
         public PageToConvert call() {
           return pageToConvert.convert();
@@ -104,33 +98,19 @@ public class PdfToSwfSlidesGenerationService {
       };
 
       Future<PageToConvert> f = executor.submit(c);
-      pagesCompleted++;
-      notifier.sendConversionUpdateMessage(pagesCompleted, pres, pageToConvert.getPageNumber());
       convertFutures.add(f);
     }
 
 
-
-//    for (final PageToConvert pageToConvert : pagesToConvert) {
-//      Callable<PageToConvert> c = new Callable<PageToConvert>() {
-//        public PageToConvert call() {
-//          return pageToConvert.convert();
-//        }
-//      };
-
-//      Future<PageToConvert> f = executor.submit(c);
-//      convertFutures.add(f);
-//    }
-
-
-
+    int pagesCompleted = 0;
     long endNanos = System.currentTimeMillis() + MAX_CONVERSION_TIME;
     for (Future<PageToConvert> f : convertFutures) {
       try {
         // Only wait for the remaining time budget
         long timeLeft = endNanos - System.currentTimeMillis();
         PageToConvert s = f.get(timeLeft, TimeUnit.MILLISECONDS);
-
+        pagesCompleted++;
+        notifier.sendConversionUpdateMessage(pagesCompleted, pres, s.getPageNumber());
       } catch (ExecutionException e) {
 
       } catch (InterruptedException e) {
@@ -146,26 +126,7 @@ public class PdfToSwfSlidesGenerationService {
     }
   }
 
-  private File downscalePage(UploadedPresentation pres, File filePage, int pageNum) {
-    String presDir = pres.getUploadedFile().getParent();
-    File tempPage = new File(presDir + "/downscaled" + "-" + pageNum + ".pdf");
-    PdfPageDownscaler downscaler = new PdfPageDownscaler();
-    downscaler.downscale(filePage, tempPage);
-    if (tempPage.exists()) {
-      return tempPage;
-    }
 
-    return filePage;
-  }
-
-  private File extractPage(UploadedPresentation pres, int page) {
-    String presDir = pres.getUploadedFile().getParent();
-
-    File tempPage = new File(presDir + "/extracted" + "-" + page + ".pdf");
-    pageExtractor.extractPage(pres.getUploadedFile(), tempPage, page);
-
-    return tempPage;
-  }
 
   public void setPageConverter(PageConverter converter) {
     this.pdfToSwfConverter = converter;
