@@ -1,22 +1,20 @@
-import { Meteor } from 'meteor/meteor';
 import { extractCredentials } from '/imports/api/common/server/helpers';
-import Users from '/imports/api/users';
+import { check } from 'meteor/check';
 import Logger from '/imports/startup/server/logger';
 
 const allowFromPresenter = (eventName, message) => {
   const {
     userId,
+    meetingId,
     time,
+    timestamp,
     rate,
     state,
   } = message;
 
-  const user = Users.findOne({ userId });
-  const ret = user && user.presenter;
+  Logger.info(`ExternalVideo Streamer auth userId: ${userId}, meetingId: ${meetingId}, event: ${eventName}, time: ${time}, timestamp: ${timestamp/1000} rate: ${rate}, state: ${state}`);
 
-  Logger.info(`ExternalVideo Streamer auth userid: ${userId}, meetingId: ${user.meetingId}, event: ${eventName}, suc: ${ret}, time: ${time}, rate: ${rate}, state: ${state}`);
-
-  return ret;
+  return true;
 };
 
 export default function initializeExternalVideo() {

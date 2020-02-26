@@ -1,5 +1,8 @@
 import Meetings from '/imports/api/meetings';
+import Users from '/imports/api/users';
 import Auth from '/imports/ui/services/auth';
+import Logger from '/imports/startup/client/logger';
+
 import { getStreamer } from '/imports/api/external-videos';
 import { makeCall } from '/imports/ui/services/api';
 
@@ -17,13 +20,25 @@ const stopWatching = () => {
 };
 
 const sendMessage = (event, data) => {
-  const streamer = getStreamer(Auth.meetingID);
+  const {
+    time,
+    rate,
+    state,
+    timestamp,
+  } = data;
 
-  streamer.emit(event, {
-    ...data,
-    meetingId: Auth.meetingID,
-    userId: Auth.userID,
-  });
+  const meetingId = Auth.meetingID;
+  const userId = Auth.userID;
+
+  const user = Users.findOne({ userId });
+  const suc = user && user.presenter;
+
+  if (!suc) {
+    Logger.warn("Message rejected");
+  } else {
+    const streamer = getStreamer(meetingId);
+    streamer.emit(event, { ...data, meetingId, userId});
+  }
 };
 
 const onMessage = (message, func) => {
