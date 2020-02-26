@@ -20,11 +20,9 @@ http@1.4.2
 session@1.2.0
 tracker@1.2.0
 check@1.3.1
-jquery
 
 nathantreid:css-modules@=3.1.4
 rocketchat:streamer
 cfs:power-queue
 cfs:micro-queue
 cfs:reactive-list
-stevezhu:lodash
