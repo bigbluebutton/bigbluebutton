@@ -150,7 +150,8 @@ class VideoPlayer extends Component {
     if (this.lastMessage === msg && msg === 'presenterReady') {
       logger.debug("Ignoring a repeated presenterReady message");
     } else {
-      sendMessage(msg, params);
+      const timestamp = Date.now();
+      sendMessage(msg, { ...params, timestamp });
       this.lastMessage = msg;
     }
   }
@@ -243,26 +244,26 @@ class VideoPlayer extends Component {
       }, SYNC_INTERVAL_SECONDS * 1000);
 
     } else {
-      onMessage('play', ({ time }) => {
+      onMessage('play', ({ time, timestamp }) => {
         const { hasPlayedBefore, player } = this;
 
         if (!player || !hasPlayedBefore) {
           return;
         }
 
-        player.seekTo(time);
+        this.seekTo(time, timestamp);
         this.setState({ playing: true });
 
         logger.debug({ logCode: 'external_video_client_play' }, 'Play external video');
       });
 
-      onMessage('stop', ({ time }) => {
+      onMessage('stop', ({ time, timestamp }) => {
         const { hasPlayedBefore, player } = this;
 
         if (!player || !hasPlayedBefore) {
           return;
         }
-        player.seekTo(time);
+        this.seekTo(time, timestamp);
         this.setState({ playing: false });
 
         logger.debug({ logCode: 'external_video_client_stop' }, 'Stop external video');
@@ -281,35 +282,50 @@ class VideoPlayer extends Component {
       onMessage('playerUpdate', (data) => {
         const { hasPlayedBefore, player } = this;
         const { playing } = this.state;
+        const { time, timestamp, rate, state } = data;
 
         if (!player || !hasPlayedBefore) {
           return;
         }
 
-        if (data.rate !== this.getCurrentPlaybackRate()) {
-          this.setPlaybackRate(data.rate);
+        if (rate !== this.getCurrentPlaybackRate()) {
+          this.setPlaybackRate(rate);
           logger.debug({
             logCode: 'external_video_client_update_rate',
             extraInfo: {
-              newRate: data.rate,
+              newRate: rate,
             },
           }, 'Change external video playback rate.');
         }
 
-        if (Math.abs(this.getCurrentTime() - data.time) > SYNC_INTERVAL_SECONDS) {
-          player.seekTo(data.time, true);
-          logger.debug({
-            logCode: 'external_video_client_update_seek',
-            extraInfo: {
-              time: data.time,
-            },
-          }, 'Seek external video to:');
-        }
+        this.seekTo(time, timestamp);
 
-        if (playing !== data.state) {
-          this.setState({ playing: data.state });
+        if (playing !== state) {
+          this.setState({ playing: state });
         }
       });
+    }
+  }
+
+  seekTo(time, timestamp) {
+    const { player } = this;
+
+    if (!player) {
+      return Logger.error("No player on seek");
+    }
+
+    const curTimestamp = Date.now();
+    const timeDiff = time + (curTimestamp - timestamp)/1000;
+
+    if (Math.abs(this.getCurrentTime() - timeDiff) > SYNC_INTERVAL_SECONDS) {
+      player.seekTo(timeDiff, false);
+      logger.debug({
+        logCode: 'external_video_client_update_seek',
+        extraInfo: {
+          time,
+          timestamp,
+        },
+      }, 'Seek external video to:');
     }
   }
 
