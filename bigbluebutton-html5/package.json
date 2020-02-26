@@ -52,7 +52,7 @@
     "makeup-screenreader-trap": "0.0.5",
     "memwatch-next": "^0.3.0",
     "meteor-node-stubs": "^0.4.1",
-    "node-sass": "^4.12.0",
+    "node-sass": "^4.13.1",
     "postcss-nested": "4.1.0",
     "probe-image-size": "^4.0.1",
     "prop-types": "^15.7.2",
