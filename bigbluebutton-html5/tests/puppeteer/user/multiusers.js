@@ -5,6 +5,7 @@ class MultiUsers {
   constructor() {
     this.page1 = new Page();
     this.page2 = new Page();
+    this.page3 = new Page();
   }
 
   // Join BigBlueButton meeting
