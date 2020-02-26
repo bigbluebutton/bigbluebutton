@@ -23,10 +23,11 @@ public class PageToConvert {
   private PngCreator pngCreator;
   private PageConverter pdfToSwfConverter;
   private SwfSlidesGenerationProgressNotifier notifier;
+  private File pageFile;
 
   public PageToConvert(UploadedPresentation pres,
                        int page,
-                       PageExtractor pageExtractor,
+                       File pageFile,
                        boolean swfSlidesRequired,
                        boolean svgImagesRequired,
                        boolean generatePngs,
@@ -40,7 +41,7 @@ public class PageToConvert {
                        int maxSwfFileSize) {
     this.pres = pres;
     this.page = page;
-    this.pageExtractor = pageExtractor;
+    this.pageFile = pageFile;
     this.swfSlidesRequired = swfSlidesRequired;
     this.svgImagesRequired = svgImagesRequired;
     this.generatePngs = generatePngs;
@@ -54,40 +55,39 @@ public class PageToConvert {
     this.MAX_SWF_FILE_SIZE = maxSwfFileSize;
   }
 
+  public File getPageFile() {
+    return pageFile;
+  }
 
   public int getPageNumber() {
     return page;
   }
 
+  public String getPresId() {
+    return pres.getId();
+  }
+
   public PageToConvert convert() {
-    File extractedPageFile = extractPage(pres, page);
-    File downscaledPageFile = downscalePage(pres, extractedPageFile, page);
-
-    String presDir = pres.getUploadedFile().getParent();
-    File pageFile = new File(presDir + "/page" + "-" + page + ".pdf");
-    downscaledPageFile.renameTo(pageFile);
-
-    extractedPageFile.delete();
 
     // Only create SWF files if the configuration requires it
     if (swfSlidesRequired) {
       convertPdfToSwf(pres, page, pageFile);
     }
 
-    System.out.println("****** CREATING THM page=" + page);
+    //System.out.println("****** CREATING THM page=" + page);
     /* adding accessibility */
     createThumbnails(pres, page, pageFile);
 
-    System.out.println("****** CREATING TXTs page=" + page);
+    //System.out.println("****** CREATING TXTs page=" + page);
     createTextFiles(pres, page);
 
-    System.out.println("****** CREATING SVGs page=" + page);
+    //System.out.println("****** CREATING SVGs page=" + page);
     // only create SVG images if the configuration requires it
     if (svgImagesRequired) {
       createSvgImages(pres, page);
     }
 
-    System.out.println("****** CREATING PNGs page=" + page);
+    //System.out.println("****** CREATING PNGs page=" + page);
     // only create PNG images if the configuration requires it
     if (generatePngs) {
       createPngImages(pres, page, pageFile);
@@ -96,26 +96,7 @@ public class PageToConvert {
     return this;
   }
 
-  private File downscalePage(UploadedPresentation pres, File filePage, int pageNum) {
-    String presDir = pres.getUploadedFile().getParent();
-    File tempPage = new File(presDir + "/downscaled" + "-" + pageNum + ".pdf");
-    PdfPageDownscaler downscaler = new PdfPageDownscaler();
-    downscaler.downscale(filePage, tempPage);
-    if (tempPage.exists()) {
-      return tempPage;
-    }
 
-    return filePage;
-  }
-
-  private File extractPage(UploadedPresentation pres, int page) {
-    String presDir = pres.getUploadedFile().getParent();
-
-    File tempPage = new File(presDir + "/extracted" + "-" + page + ".pdf");
-    pageExtractor.extractPage(pres.getUploadedFile(), tempPage, page);
-
-    return tempPage;
-  }
 
   private void createThumbnails(UploadedPresentation pres, int page, File pageFile) {
     //notifier.sendCreatingThumbnailsUpdateMessage(pres);

@@ -95,7 +95,7 @@ public class TextFileCreatorImp implements TextFileCreator {
         COMMAND = "pdftotext -raw -nopgbrk -enc UTF-8 -f " + page + " -l " + page
             + " " + source + " " + dest;
 
-        System.out.println(COMMAND);
+        //System.out.println(COMMAND);
 
         boolean done = new ExternalProcessExecutor().exec(COMMAND, 60000);
         if (!done) {

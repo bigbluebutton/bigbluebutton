@@ -84,7 +84,7 @@ public class ThumbnailCreatorImp implements ThumbnailCreator {
       COMMAND = "pdftocairo -png -scale-to 150 " + source + " " + dest;
     }
 
-    System.out.println(COMMAND);
+    //System.out.println(COMMAND);
 
     boolean done = new ExternalProcessExecutor().exec(COMMAND, 60000);
 

@@ -79,7 +79,7 @@ public class SvgImageCreatorImp implements SvgImageCreator {
             source = dest;
         }
 
-        System.out.println("******** CREATING SVG page ");
+        //System.out.println("******** CREATING SVG page ");
 
         // Continue image processing
         long startConv = System.currentTimeMillis();
@@ -199,7 +199,7 @@ public class SvgImageCreatorImp implements SvgImageCreator {
 
         long endConv = System.currentTimeMillis();
 
-        System.out.println("******** CREATING SVG page " + page + " " + (endConv - startConv));
+        //System.out.println("******** CREATING SVG page " + page + " " + (endConv - startConv));
 
         if (done) {
             return true;
