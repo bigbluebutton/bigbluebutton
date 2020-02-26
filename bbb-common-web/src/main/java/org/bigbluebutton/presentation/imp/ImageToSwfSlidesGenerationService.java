@@ -93,6 +93,9 @@ public class ImageToSwfSlidesGenerationService {
 			notifier.sendConversionUpdateMessage(page, pres, page);
 		}
 
+		System.out.println("****** Conversion complete for " + pres.getName());
+		notifier.sendConversionCompletedMessage(pres);
+
 	}
 	
 	private PageConverter determinePageConverter(UploadedPresentation pres) {
