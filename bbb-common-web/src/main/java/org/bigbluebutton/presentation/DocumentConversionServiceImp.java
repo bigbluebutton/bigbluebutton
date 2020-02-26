@@ -68,11 +68,11 @@ public class DocumentConversionServiceImp implements DocumentConversionService {
         }
       } else if (SupportedFileTypes.isPdfFile(fileType)) {
           determineNumberOfPages(pres);
-          sendDocConversionNumPagesFoundProgress(pres);
+          sendDocPageConversionStartedProgress(pres);
           pdfToSwfSlidesGenerationService.generateSlides(pres);
       } else if (SupportedFileTypes.isImageFile(fileType)) {
           pres.setNumberOfPages(1); // There should be only one image to convert.
-          sendDocConversionNumPagesFoundProgress(pres);
+          sendDocPageConversionStartedProgress(pres);
           imageToSwfSlidesGenerationService.generateSlides(pres);
       } else {
           Map<String, Object> logData = new HashMap<String, Object>();
@@ -123,7 +123,7 @@ public class DocumentConversionServiceImp implements DocumentConversionService {
     notifier.sendConversionCompletedMessage(pres);
   }
 
-  private void sendDocConversionNumPagesFoundProgress(UploadedPresentation pres) {
+  private void sendDocPageConversionStartedProgress(UploadedPresentation pres) {
       Map<String, Object> logData = new HashMap<String, Object>();
 
       logData.put("podId", pres.getPodId());

@@ -56,11 +56,9 @@ public class PdfToSwfSlidesGenerationService {
   private boolean swfSlidesRequired;
   private boolean svgImagesRequired;
   private boolean generatePngs;
-  //private CompletionService<PageToConvert> completionService;
 
   public PdfToSwfSlidesGenerationService(int numConversionThreads) {
     executor = Executors.newFixedThreadPool(5);
-
   }
 
   public void generateSlides(UploadedPresentation pres) {
@@ -101,7 +99,6 @@ public class PdfToSwfSlidesGenerationService {
       convertFutures.add(f);
     }
 
-
     int pagesCompleted = 0;
     long endNanos = System.currentTimeMillis() + MAX_CONVERSION_TIME;
     for (Future<PageToConvert> f : convertFutures) {
@@ -125,8 +122,6 @@ public class PdfToSwfSlidesGenerationService {
       //pageToConvert.getPageFile().delete();
     }
   }
-
-
 
   public void setPageConverter(PageConverter converter) {
     this.pdfToSwfConverter = converter;

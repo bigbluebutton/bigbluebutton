@@ -1,12 +1,8 @@
 package org.bigbluebutton.presentation.imp;
 
-import com.google.gson.Gson;
-import org.bigbluebutton.presentation.*;
 
+import org.bigbluebutton.presentation.*;
 import java.io.File;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.concurrent.*;
 
 public class PageToConvert {
 
