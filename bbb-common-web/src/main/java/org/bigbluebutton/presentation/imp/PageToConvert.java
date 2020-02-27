@@ -74,20 +74,16 @@ public class PageToConvert {
       convertPdfToSwf(pres, page, pageFile);
     }
 
-    //System.out.println("****** CREATING THM page=" + page);
     /* adding accessibility */
     createThumbnails(pres, page, pageFile);
 
-    //System.out.println("****** CREATING TXTs page=" + page);
     createTextFiles(pres, page);
 
-    //System.out.println("****** CREATING SVGs page=" + page);
     // only create SVG images if the configuration requires it
     if (svgImagesRequired) {
       createSvgImages(pres, page);
     }
 
-    //System.out.println("****** CREATING PNGs page=" + page);
     // only create PNG images if the configuration requires it
     if (generatePngs) {
       createPngImages(pres, page, pageFile);
@@ -95,8 +91,6 @@ public class PageToConvert {
 
     return this;
   }
-
-
 
   private void createThumbnails(UploadedPresentation pres, int page, File pageFile) {
     //notifier.sendCreatingThumbnailsUpdateMessage(pres);

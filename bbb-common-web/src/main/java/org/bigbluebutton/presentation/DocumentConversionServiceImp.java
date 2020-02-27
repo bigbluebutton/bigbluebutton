@@ -43,7 +43,6 @@ public class DocumentConversionServiceImp implements DocumentConversionService {
   private PresentationFileProcessor presentationFileProcessor;
 
   public void processDocument(UploadedPresentation pres) {
-      System.out.println("****** RECEIVED NEW FILE " + pres.getName());
 
     SupportedDocumentFilter sdf = new SupportedDocumentFilter(gw);
 

@@ -36,7 +36,7 @@ public class PdfToSwfSlidesGenerationService {
   private PresentationConversionCompletionService presentationConversionCompletionService;
 
   public PdfToSwfSlidesGenerationService(int numConversionThreads) {
-    executor = Executors.newFixedThreadPool(5);
+    executor = Executors.newFixedThreadPool(numConversionThreads);
   }
 
   public void process(PageToConvert pageToConvert) {

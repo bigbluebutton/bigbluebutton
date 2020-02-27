@@ -53,8 +53,6 @@ public class PresentationFileProcessor {
     }
 
     public synchronized void process(UploadedPresentation pres) {
-        System.out.println("****** QUEUE FOR PROCESSING FILE " + pres.getName());
-        //presentations.offer(pres);
         Runnable messageProcessor = new Runnable() {
             public void run() {
                 processUploadedPresentation(pres);
@@ -64,7 +62,6 @@ public class PresentationFileProcessor {
     }
 
     private void processUploadedPresentation(UploadedPresentation pres) {
-        System.out.println("****** PROCESSING FILE " + pres.getName());
         if (SupportedFileTypes.isPdfFile(pres.getFileType())) {
             determineNumberOfPages(pres);
             sendDocPageConversionStartedProgress(pres);
@@ -80,9 +77,6 @@ public class PresentationFileProcessor {
 
     private void extractIntoPages(UploadedPresentation pres) {
         for (int page = 1; page <= pres.getNumberOfPages(); page++) {
-
-            System.out.println("****** Extracting page " + page + " from " + pres.getName());
-
             File extractedPageFile = extractPage(pres, page);
             File downscaledPageFile = downscalePage(pres, extractedPageFile, page);
 

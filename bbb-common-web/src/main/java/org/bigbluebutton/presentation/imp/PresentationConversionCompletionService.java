@@ -43,9 +43,6 @@ public class PresentationConversionCompletionService {
             PresentationToConvert p = presentationsToConvert.get(m.presId);
             if (p != null) {
                 p.incrementPagesCompleted();
-
-                System.out.println("****** Received page complete " + m.page + " from " + p.pres.getName());
-
                 notifier.sendConversionUpdateMessage(p.getPagesCompleted(), p.pres, m.page);
                 if (p.getPagesCompleted() == p.pres.getNumberOfPages()) {
                     handleEndProcessing(p);
@@ -71,7 +68,6 @@ public class PresentationConversionCompletionService {
         String logStr = gson.toJson(logData);
         log.info(" --analytics-- data={}", logStr);
 
-        System.out.println("****** Conversion complete for " + p.pres.getName());
         notifier.sendConversionCompletedMessage(p.pres);
     }
     public void start() {

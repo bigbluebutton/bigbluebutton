@@ -86,7 +86,7 @@ public class ThumbnailCreatorImp implements ThumbnailCreator {
 
     //System.out.println(COMMAND);
 
-    boolean done = new ExternalProcessExecutor().exec(COMMAND, 60000);
+    boolean done = new ExternalProcessExecutor().exec(COMMAND, 10000);
 
     if (done) {
       return true;

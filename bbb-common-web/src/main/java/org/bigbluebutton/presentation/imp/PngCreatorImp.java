@@ -116,7 +116,7 @@ public class PngCreatorImp implements PngCreator {
 
 		//System.out.println("********* CREATING PNGs " + COMMAND);
 
-		boolean done = new ExternalProcessExecutor().exec(COMMAND, 60000);
+		boolean done = new ExternalProcessExecutor().exec(COMMAND, 10000);
 
 		if (done) {
 			return true;

@@ -13,6 +13,6 @@ public class PdfPageDownscaler {
 
         //System.out.println("DOWNSCALING " + COMMAND);
 
-        return new ExternalProcessExecutor().exec(COMMAND, 60000);
+        return new ExternalProcessExecutor().exec(COMMAND, 10000);
     }
 }
