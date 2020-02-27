@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import browser from 'browser-detect';
 import { Meteor } from 'meteor/meteor';
 import PropTypes from 'prop-types';
+import _ from 'lodash';
 import cx from 'classnames';
 import { defineMessages, injectIntl, intlShape } from 'react-intl';
 import Dropdown from '/imports/ui/components/dropdown/component';

@@ -10,7 +10,7 @@ import Service from './service';
 const PollContainer = ({ ...props }) => <Poll {...props} />;
 
 export default withTracker(() => {
-  Meteor.subscribe('current-poll', Auth.meetingID);
+  Meteor.subscribe('current-poll');
 
   const currentPresentation = Presentations.findOne({
     current: true,

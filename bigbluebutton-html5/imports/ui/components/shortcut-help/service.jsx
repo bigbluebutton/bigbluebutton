@@ -10,15 +10,15 @@ const withShortcutHelper = (WrappedComponent, param) => (props) => {
   if (ENABLED_SHORTCUTS) {
     shortcuts = Object.values(BASE_SHORTCUTS).map((el) => {
       const obj = { ...el };
-      obj.descIdLowerCase = obj.descId.toLowerCase();
+      obj.descId = obj.descId.toLowerCase();
       return obj;
-    }).filter(el => ENABLED_SHORTCUTS.includes(el.descIdLowerCase));
+    }).filter(el => ENABLED_SHORTCUTS.includes(el.descId.toLowerCase()));
   }
 
   if (param !== undefined) {
     if (!Array.isArray(param)) {
       shortcuts = shortcuts
-        .filter(el => el.descIdLowerCase === param.toLowerCase())
+        .filter(el => el.descId.toLowerCase() === param.toLowerCase())
         .map(el => el.accesskey)
         .pop();
     } else {
