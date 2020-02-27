@@ -17,6 +17,7 @@ const intlMessages = defineMessages({
 });
 
 const SYNC_INTERVAL_SECONDS = 5;
+const THROTTLE_INTERVAL_SECONDS = 0.5;
 const AUTO_PLAY_BLOCK_DETECTION_TIMEOUT_SECONDS = 5;
 
 ReactPlayer.addCustomPlayer(ArcPlayer);
@@ -34,6 +35,9 @@ class VideoPlayer extends Component {
     this.playerIsReady = false;
 
     this.lastMessage = null;
+    this.lastMessageTimestamp = Date.now();
+
+    this.throttleTimeout = null;
 
     this.state = {
       mutedByEchoTest: false,
@@ -147,12 +151,31 @@ class VideoPlayer extends Component {
   }
 
   sendSyncMessage(msg, params) {
+    const timestamp = Date.now();
+
+    // If message is just a quick pause/un-pause just send nothing
+    const sinceLastMessage = (timestamp - this.lastMessageTimestamp)/1000;
+    if ((msg === 'play' && this.lastMessage === 'stop' ||
+         msg === 'stop' && this.lastMessage === 'play') &&
+         sinceLastMessage < THROTTLE_INTERVAL_SECONDS) {
+
+         return clearTimeout(this.throttleTimeout);
+    }
+
+    // Ignore repeat presenter ready messages
     if (this.lastMessage === msg && msg === 'presenterReady') {
       logger.debug("Ignoring a repeated presenterReady message");
     } else {
-      const timestamp = Date.now();
-      sendMessage(msg, { ...params, timestamp });
+      // Play/pause messages are sent with a delay, to permit cancelling it in case of
+      // quick sucessive play/pauses
+      const messageDelay = (msg === 'play' || msg === 'stop') ? THROTTLE_INTERVAL_SECONDS : 0;
+
+      this.throttleTimeout = setTimeout(() => {
+        sendMessage(msg, { ...params, timestamp });
+      }, messageDelay*1000);
+
       this.lastMessage = msg;
+      this.lastMessageTimestamp = timestamp;
     }
   }
 
