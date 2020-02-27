@@ -176,6 +176,15 @@ public:
     callHangupMaximumRetries: 10
     echoTestNumber: '9196'
     relayOnlyOnReconnect: false
+  upload:
+    media:
+      enabled: true
+      endpoint: "/bigbluebutton/upload/media"
+      size:
+        min: 0
+        max: 30000000
+      types:
+        - extension: .mp4
   presentation:
     defaultPresentationFile: default.pdf
     panZoomThrottle: 32

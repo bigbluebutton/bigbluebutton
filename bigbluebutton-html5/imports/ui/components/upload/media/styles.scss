@@ -1,0 +1,75 @@
+@import "/imports/ui/stylesheets/variables/_all";
+@import "/imports/ui/components/modal/simple/styles";
+@import "/imports/ui/stylesheets/mixins/focus";
+
+.header {
+  margin: 0;
+  padding: 0;
+  border: none;
+  line-height: 2rem;
+}
+
+.content {
+  align-items: center;
+  display: flex;
+  flex-direction: column;
+  padding: .3rem 0 0.5rem 0;
+}
+
+.overlay {
+  @extend .overlay;
+}
+
+.modal {
+  @extend .modal;
+  padding: 1.5rem;
+  min-height: 20rem;
+}
+
+.title {
+  text-align: center;
+  font-weight: 400;
+  font-size: 1.3rem;
+  color: var(--color-background);
+  white-space: normal;
+
+  @include mq($small-only) {
+    font-size: 1rem;
+    padding: 0 1rem;
+  }
+}
+
+.dropzoneWrapper {
+  width: 100%;
+  display: flex;
+  margin-top: calc(var(--lg-padding-y) * 5);
+}
+
+.dropzone {
+  flex: auto;
+  border: 2px dashed;
+  border-radius: var(--border-radius);
+  padding: calc(var(--lg-padding-y) * 2.5) var(--lg-padding-x);
+  text-align: center;
+  font-size: var(--font-size-large);
+  cursor: pointer;
+}
+
+.dropzoneActive {
+  background-color: var(--color-gray-lighter);
+}
+
+.dropzoneIcon {
+  font-size: calc(var(--font-size-large) * 3);
+}
+
+.dropzoneMessage {
+  margin: var(--md-padding-y) 0;
+}
+
+.dropzoneLink {
+  color: var(--color-link);
+  text-decoration: underline;
+  font-size: 80%;
+  display: block;
+}

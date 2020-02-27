@@ -81,6 +81,8 @@ public class Meeting {
 	private Boolean muteOnStart = false;
 	private Boolean allowModsToUnmuteUsers = false;
 
+	private  HashMap<String, UploadRequest> uploadRequests = new HashMap<String, UploadRequest>();
+
 	private Integer maxInactivityTimeoutMinutes = 120;
 	private Integer warnMinutesBeforeMax = 5;
 	private Integer meetingExpireIfNoUserJoinedInMinutes = 5;
@@ -134,6 +136,11 @@ public class Meeting {
 
 	public void addBreakoutRoom(String meetingId) {
 		breakoutRooms.add(meetingId);
+	}
+
+	public void addUploadRequest(String source, String filename, String userId, String token) {
+		UploadRequest uploadRequest = new UploadRequest(source, filename, userId);
+		uploadRequests.put(token, uploadRequest);
 	}
 
 	public List<String> getBreakoutRooms() {
@@ -194,6 +201,15 @@ public class Meeting {
 			ruser.setGuestStatus(guestStatus);
 		}
 
+	}
+
+	public Boolean isUploadRequestValid(String source, String filename, String userId, String token) {
+		UploadRequest uploadRequest = uploadRequests.get(token);
+		if (uploadRequest != null) {
+			return uploadRequest.isValid(source, filename, userId);
+		} else {
+			return false;
+		}
 	}
 
 	public RegisteredUser getRegisteredUserWithAuthToken(String authToken) {

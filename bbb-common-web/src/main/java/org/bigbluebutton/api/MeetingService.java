@@ -64,6 +64,7 @@ import org.bigbluebutton.api.messaging.messages.MakePresentationDownloadableMsg;
 import org.bigbluebutton.api.messaging.messages.MeetingDestroyed;
 import org.bigbluebutton.api.messaging.messages.MeetingEnded;
 import org.bigbluebutton.api.messaging.messages.MeetingStarted;
+import org.bigbluebutton.api.messaging.messages.UploadRequest;
 import org.bigbluebutton.api.messaging.messages.PresentationUploadToken;
 import org.bigbluebutton.api.messaging.messages.RecordChapterBreak;
 import org.bigbluebutton.api.messaging.messages.RegisterUser;
@@ -202,6 +203,15 @@ public class MeetingService implements MessageListener {
   private void kickOffProcessingOfRecording(Meeting m) {
     if (m.isRecord() && m.getNumUsers() == 0) {
       processRecording(m);
+    }
+  }
+
+  public Boolean isUploadRequestValid(String meetingId, String source, String filename, String userId, String token) {
+    Meeting m = getMeeting(meetingId);
+    if (m != null) {
+      return m.isUploadRequestValid(source, filename, userId, token);
+    } else {
+      return false;
     }
   }
 
@@ -610,6 +620,13 @@ public class MeetingService implements MessageListener {
 
   }
 
+  private void processUploadRequest(UploadRequest message) {
+    Meeting m = getMeeting(message.meetingId);
+    if (m != null) {
+      m.addUploadRequest(message.source, message.filename, message.userId, message.token);
+    }
+  }
+
   private void processPresentationUploadToken(PresentationUploadToken message) {
     uploadAuthzTokens.put(message.authzToken, message);
   }
@@ -959,6 +976,8 @@ public class MeetingService implements MessageListener {
           processRegisterUser((RegisterUser) message);
         } else if (message instanceof CreateBreakoutRoom) {
           processCreateBreakoutRoom((CreateBreakoutRoom) message);
+        } else if (message instanceof UploadRequest) {
+          processUploadRequest((UploadRequest) message);
         } else if (message instanceof PresentationUploadToken) {
           processPresentationUploadToken((PresentationUploadToken) message);
         } else if (message instanceof GuestStatusChangedEventMsg) {

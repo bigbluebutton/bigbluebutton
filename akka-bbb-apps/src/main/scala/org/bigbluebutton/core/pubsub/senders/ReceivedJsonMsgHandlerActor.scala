@@ -288,6 +288,10 @@ class ReceivedJsonMsgHandlerActor(
       case UpdateWebcamsOnlyForModeratorCmdMsg.NAME =>
         routeGenericMsg[UpdateWebcamsOnlyForModeratorCmdMsg](envelope, jsonNode)
 
+      // Upload
+      case UploadRequestReqMsg.NAME =>
+        routeGenericMsg[UploadRequestReqMsg](envelope, jsonNode)
+
       // Lock settings
       case LockUserInMeetingCmdMsg.NAME =>
         routeGenericMsg[LockUserInMeetingCmdMsg](envelope, jsonNode)

@@ -99,6 +99,14 @@ class UrlMappings {
       action = [GET:'checkAuthorization']
     }
 
+    "/bigbluebutton/upload/check"(controller: "upload") {
+      action = [GET: 'check']
+    }
+
+    "/bigbluebutton/upload/$source/$userId/$token"(controller: "upload") {
+      action = [POST: 'upload']
+    }
+
     "/bigbluebutton/$controller/$action?/$id?(.${format})?" {
       constraints {
         // apply constraints here

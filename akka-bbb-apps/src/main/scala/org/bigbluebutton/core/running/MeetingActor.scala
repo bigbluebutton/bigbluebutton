@@ -7,6 +7,7 @@ import akka.actor.SupervisorStrategy.Resume
 import org.bigbluebutton.SystemConfiguration
 import org.bigbluebutton.core.apps.groupchats.GroupChatHdlrs
 import org.bigbluebutton.core.apps.presentationpod._
+import org.bigbluebutton.core.apps.upload.UploadApp2x
 import org.bigbluebutton.core.apps.users._
 import org.bigbluebutton.core.apps.whiteboard.ClientToServerLatencyTracerMsgHdlr
 import org.bigbluebutton.core.domain._
@@ -118,6 +119,7 @@ class MeetingActor(
   val usersApp = new UsersApp(liveMeeting, outGW, eventBus)
   val groupChatApp = new GroupChatHdlrs
   val presentationPodsApp = new PresentationPodHdlrs
+  val uploadApp = new UploadApp2x
   val pollApp = new PollApp2x
   val wbApp = new WhiteboardApp2x
 
@@ -451,6 +453,9 @@ class MeetingActor(
       case m: UpdateSharedNoteReqMsg                   => sharedNotesApp2x.handle(m, liveMeeting, msgBus)
       case m: CreateSharedNoteReqMsg                   => sharedNotesApp2x.handle(m, liveMeeting, msgBus)
       case m: DestroySharedNoteReqMsg                  => sharedNotesApp2x.handle(m, liveMeeting, msgBus)
+
+      // Upload
+      case m: UploadRequestReqMsg                      => uploadApp.handle(m, liveMeeting, msgBus)
 
       // Guests
       case m: GetGuestsWaitingApprovalReqMsg           => handleGetGuestsWaitingApprovalReqMsg(m)

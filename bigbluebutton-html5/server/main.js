@@ -22,6 +22,7 @@ import '/imports/api/video-streams/server';
 import '/imports/api/network-information/server';
 import '/imports/api/users-infos/server';
 import '/imports/api/note/server';
+import '/imports/api/upload/server';
 import '/imports/api/external-videos/server';
 import '/imports/api/guest-users/server';
 import '/imports/api/ping-pong/server';
