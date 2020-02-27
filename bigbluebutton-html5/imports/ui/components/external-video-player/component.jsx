@@ -250,7 +250,6 @@ class VideoPlayer extends Component {
         if (!player || !hasPlayedBefore) {
           return;
         }
-
         this.seekTo(time, timestamp);
         this.setState({ playing: true });
 
@@ -311,20 +310,28 @@ class VideoPlayer extends Component {
     const { player } = this;
 
     if (!player) {
-      return Logger.error("No player on seek");
+      return logger.error("No player on seek");
     }
 
     const curTimestamp = Date.now();
-    const timeDiff = time + (curTimestamp - timestamp)/1000;
+    const timestampDiff = (curTimestamp - timestamp)/1000;
+    const realTime = time + timestampDiff;
 
-    if (Math.abs(this.getCurrentTime() - timeDiff) > SYNC_INTERVAL_SECONDS) {
-      player.seekTo(timeDiff, false);
+    // Ignore seek commands that arrived too late
+    if (timestampDiff > SYNC_INTERVAL_SECONDS) {
+      logger.debug({
+        logCode: 'external_video_client_message_too_late',
+        extraInfo: { time, timestamp, },
+      }, 'Not seeking because message came too late');
+      return;
+    }
+
+    // Seek if viewer has drifted too far away from presenter
+    if (Math.abs(this.getCurrentTime() - realTime) > SYNC_INTERVAL_SECONDS*0.75) {
+      player.seekTo(realTime, true);
       logger.debug({
         logCode: 'external_video_client_update_seek',
-        extraInfo: {
-          time,
-          timestamp,
-        },
+        extraInfo: { time, timestamp, },
       }, 'Seek external video to:');
     }
   }
