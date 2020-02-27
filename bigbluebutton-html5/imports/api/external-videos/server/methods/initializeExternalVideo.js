@@ -12,7 +12,7 @@ const allowFromPresenter = (eventName, message) => {
     state,
   } = message;
 
-  Logger.info(`ExternalVideo Streamer auth userId: ${userId}, meetingId: ${meetingId}, event: ${eventName}, time: ${time}, timestamp: ${timestamp/1000} rate: ${rate}, state: ${state}`);
+  Logger.debug(`ExternalVideo Streamer auth userId: ${userId}, meetingId: ${meetingId}, event: ${eventName}, time: ${time}, timestamp: ${timestamp/1000} rate: ${rate}, state: ${state}`);
 
   return true;
 };
