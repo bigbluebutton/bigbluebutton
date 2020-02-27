@@ -9,7 +9,11 @@ export default function stopWatchingExternalVideo(options) {
   const CHANNEL = REDIS_CONFIG.channels.toAkkaApps;
   const EVENT_NAME = 'StopExternalVideoMsg';
 
-  const { meetingId, requesterUserId } = extractCredentials(this.userId);
+  if (this.userId) {
+    options = extractCredentials(this.userId);
+  }
+
+  const { meetingId, requesterUserId } = options;
 
   const meeting = Meetings.findOne({ meetingId });
   if (!meeting || meeting.externalVideoUrl === null) return;
