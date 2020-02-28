@@ -4,15 +4,14 @@ import RedisPubSub from '/imports/startup/server/redis';
 import Logger from '/imports/startup/server/logger';
 import Meetings from '/imports/api/meetings';
 import VoiceUsers from '/imports/api/voice-users';
+import { extractCredentials } from '/imports/api/common/server/helpers';
 
-export default function listenOnlyToggle(credentials, isJoining = true) {
+export default function listenOnlyToggle(isJoining = true) {
   const REDIS_CONFIG = Meteor.settings.private.redis;
   const CHANNEL = REDIS_CONFIG.channels.toAkkaApps;
 
-  const { meetingId, requesterUserId } = credentials;
+  const { meetingId, requesterUserId } = extractCredentials(this.userId);
 
-  check(meetingId, String);
-  check(requesterUserId, String);
   check(isJoining, Boolean);
 
   let EVENT_NAME;

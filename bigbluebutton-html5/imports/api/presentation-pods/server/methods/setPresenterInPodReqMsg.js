@@ -2,7 +2,7 @@ import { Meteor } from 'meteor/meteor';
 import { check } from 'meteor/check';
 import RedisPubSub from '/imports/startup/server/redis';
 
-export default function setPresenterInPodReqMsg(credentials) {
+export default function setPresenterInPodReqMsg(credentials) { // TODO-- switch to meetingId, etc
   const REDIS_CONFIG = Meteor.settings.private.redis;
   const CHANNEL = REDIS_CONFIG.channels.toAkkaApps;
   const EVENT_NAME = 'SetPresenterInPodReqMsg';

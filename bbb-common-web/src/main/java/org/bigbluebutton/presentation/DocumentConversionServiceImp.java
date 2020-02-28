@@ -63,10 +63,16 @@ public class DocumentConversionServiceImp implements DocumentConversionService {
         pres = officeToPdfConversionService.convertOfficeToPdf(pres);
         OfficeToPdfConversionSuccessFilter ocsf = new OfficeToPdfConversionSuccessFilter(gw);
         if (ocsf.didConversionSucceed(pres)) {
+          ocsf.sendProgress(pres);
           // Successfully converted to pdf. Call the process again, this time it
           // should be handled by
           // the PDF conversion service.
           processDocument(pres);
+        } else {
+          // Send notification that office to pdf conversion failed.
+          // The cause should have been set by the previous step.
+          // (ralam feb 15, 2020)
+          ocsf.sendProgress(pres);
         }
       } else if (SupportedFileTypes.isPdfFile(fileType)) {
         pdfToSwfSlidesGenerationService.generateSlides(pres);

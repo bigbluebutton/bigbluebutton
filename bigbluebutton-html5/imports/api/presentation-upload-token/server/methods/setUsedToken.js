@@ -1,12 +1,9 @@
 import PresentationUploadToken from '/imports/api/presentation-upload-token';
 import Logger from '/imports/startup/server/logger';
-import { check } from 'meteor/check';
+import { extractCredentials } from '/imports/api/common/server/helpers';
 
-export default function setUsedToken(credentials, authzToken) {
-  const { meetingId, requesterUserId, requesterToken } = credentials;
-  check(meetingId, String);
-  check(requesterUserId, String);
-  check(requesterToken, String);
+export default function setUsedToken(authzToken) {
+  const { meetingId, requesterUserId } = extractCredentials(this.userId);
 
   const payload = {
     $set: {

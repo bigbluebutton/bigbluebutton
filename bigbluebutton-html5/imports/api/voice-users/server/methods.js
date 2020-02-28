@@ -7,7 +7,6 @@ import ejectUserFromVoice from './methods/ejectUserFromVoice';
 
 Meteor.methods({
   listenOnlyToggle,
-  toggleSelfVoice: (credentials) => { muteToggle(credentials, credentials.requesterUserId); },
   toggleVoice: muteToggle,
   muteAllUsers: muteAllToggle,
   muteAllExceptPresenter: muteAllExceptPresenterToggle,
