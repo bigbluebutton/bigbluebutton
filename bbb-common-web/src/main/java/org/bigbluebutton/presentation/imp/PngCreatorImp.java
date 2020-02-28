@@ -195,7 +195,7 @@ public class PngCreatorImp implements PngCreator {
 		try {
 			FileUtils.copyFile(new File(BLANK_PNG), png);
 		} catch (IOException e) {
-			log.error("IOException while copying blank png.");
+			log.error("IOException while copying blank PNG.");
 		}
 	}
 

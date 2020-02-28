@@ -8,6 +8,7 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
+import org.apache.commons.io.FileUtils;
 import org.bigbluebutton.presentation.SupportedFileTypes;
 import org.bigbluebutton.presentation.SvgImageCreator;
 import org.bigbluebutton.presentation.UploadedPresentation;
@@ -30,6 +31,7 @@ public class SvgImageCreatorImp implements SvgImageCreator {
     private long pathsThreshold;
     private String convTimeout = "7s";
     private int WAIT_FOR_SEC = 7;
+	private String BLANK_SVG;
 
     @Override
     public boolean createSvgImage(UploadedPresentation pres, int page) {
@@ -53,6 +55,7 @@ public class SvgImageCreatorImp implements SvgImageCreator {
         String source = pres.getUploadedFile().getAbsolutePath();
         String dest;
 
+        int numSlides = 1;
         boolean done = false;
 
         // Convert single image file
@@ -205,6 +208,8 @@ public class SvgImageCreatorImp implements SvgImageCreator {
             return true;
         }
 
+        copyBlankSvgs(imagePresentationDir, pres.getNumberOfPages());
+
         Map<String, Object> logData = new HashMap<String, Object>();
         logData.put("meetingId", pres.getMeetingId());
         logData.put("presId", pres.getId());
@@ -233,6 +238,33 @@ public class SvgImageCreatorImp implements SvgImageCreator {
     private File determineSvgImagesDirectory(File presentationFile) {
         return new File(presentationFile.getParent() + File.separatorChar + "svgs");
     }
+
+    private void copyBlankSvgs(File svgssDir, int pageCount) {
+    	File[] svgs = svgssDir.listFiles();
+
+		if (svgs.length != pageCount) {
+			for (int i = 1; i <= pageCount; i++) {
+				File svg = new File(svgssDir.getAbsolutePath() + File.separator + "slide" + i + ".svg");
+				if (!svg.exists()) {
+					log.info("Copying blank svg for slide {}", i);
+					copyBlankSvg(svg);
+				}
+			}
+		}
+    }
+
+	private void copyBlankSvg(File svg) {
+		try {
+			FileUtils.copyFile(new File(BLANK_SVG), svg);
+		} catch (IOException e) {
+			log.error("IOException while copying blank SVG.");
+		}
+	}
+
+
+	public void setBlankSvg(String blankSvg) {
+		BLANK_SVG = blankSvg;
+	}
 
     public void setImageTagThreshold(long threshold) {
         imageTagThreshold = threshold;
