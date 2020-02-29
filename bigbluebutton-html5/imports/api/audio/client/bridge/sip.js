@@ -543,6 +543,9 @@ export default class SIPBridge extends BaseAudioBridge {
     window.toUnifiedPlan = toUnifiedPlan;
     window.toPlanB = toPlanB;
     window.stripMDnsCandidates = stripMDnsCandidates;
+
+    // No easy way to expose the client logger to sip.js code so we need to attach it globally
+    window.clientLogger = logger;
   }
 
   joinAudio({ isListenOnly, extension, inputStream }, managerCallback) {
