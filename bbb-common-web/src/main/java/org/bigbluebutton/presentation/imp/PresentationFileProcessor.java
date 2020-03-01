@@ -77,14 +77,18 @@ public class PresentationFileProcessor {
 
     private void extractIntoPages(UploadedPresentation pres) {
         for (int page = 1; page <= pres.getNumberOfPages(); page++) {
-            File extractedPageFile = extractPage(pres, page);
-            File downscaledPageFile = downscalePage(pres, extractedPageFile, page);
-
             String presDir = pres.getUploadedFile().getParent();
             File pageFile = new File(presDir + "/page" + "-" + page + ".pdf");
-            downscaledPageFile.renameTo(pageFile);
 
-            extractedPageFile.delete();
+            File extractedPageFile = extractPage(pres, page);
+
+            if (extractedPageFile.length() > maxBigPdfPageSize) {
+                File downscaledPageFile = downscalePage(pres, extractedPageFile, page);
+                downscaledPageFile.renameTo(pageFile);
+                extractedPageFile.delete();
+            } else {
+                extractedPageFile.renameTo(pageFile);
+            }
 
             PageToConvert pageToConvert = new PageToConvert(
                     pres,
