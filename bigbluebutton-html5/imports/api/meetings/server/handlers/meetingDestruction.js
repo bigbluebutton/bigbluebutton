@@ -12,7 +12,10 @@ export default function handleMeetingDestruction({ body }) {
 
   destroyExternalVideo(meetingId);
 
-  if (process.env.METEOR_ROLE === 'whiteboard') {
+  if (!process.env) {
+    removeAnnotationsStreamer(meetingId);
+    removeCursorStreamer(meetingId);
+  } else if (process.env.METEOR_ROLE === 'whiteboard') {
     removeAnnotationsStreamer(meetingId);
     removeCursorStreamer(meetingId);
   }

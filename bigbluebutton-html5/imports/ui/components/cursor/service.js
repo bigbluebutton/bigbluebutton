@@ -44,6 +44,10 @@ export function initCursorStreamListener() {
   if (!cursorStreamListener) {
     cursorStreamListener = new Meteor.Streamer(`cursor-${Auth.meetingID}`, { ddpConnection: whiteboardConnection });
 
+    whiteboardConnection.onReconnect(() => {
+      console.log('whiteboardConnection reconnect');
+    });
+
     const startStreamHandlersPromise = new Promise((resolve) => {
       const checkStreamHandlersInterval = setInterval(() => {
         const streamHandlersSize = Object.values(Meteor.StreamerCentral.instances[`cursor-${Auth.meetingID}`].handlers)

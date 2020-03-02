@@ -21,21 +21,6 @@ package org.bigbluebutton.core.util.jhotdraw;
 import java.awt.geom.*;
 import java.util.*;
 
-/**
- * Provides algorithms for fitting Bezier curves to a set of digitized points.
- * <p>
- * Source:<br>
- * Phoenix: An Interactive Curve Design System Based on the Automatic Fitting
- * of Hand-Sketched Curves.<br>
- * © Copyright by Philip J. Schneider 1988.<br>
- * A thesis submitted in partial fulfillment of the requirements for the degree
- * of Master of Science, University of Washington.
- * <p>
- * http://autotrace.sourceforge.net/Interactive_Curve_Design.ps.gz
- *
- * @author Werner Randelshofer
- * @version $Id$
- */
 public class Bezier {
 
     /** Prevent instance creation. */
@@ -229,19 +214,6 @@ public class Bezier {
         return cleaned;
     }
 
-    /**
-     * Splits the digitized points into multiple segments at each corner point.
-     * <p>
-     * Corner points are both contained as the last point of a segment and
-     * the first point of a subsequent segment.
-     * 
-     * @param digitizedPoints Digitized points 
-     * @param maxAngle maximal angle in radians between the current point and its
-     * predecessor and successor up to which the point does not break the
-     * digitized list into segments. Recommended value 44° = 44 * 180d / Math.PI
-     * @return Segments of digitized points, each segment having less than maximal
-     * angle between points.
-     */
     public static ArrayList<ArrayList<Point2D.Double>> splitAtCorners(java.util.List<Point2D.Double> digitizedPoints, double maxAngle, double minDistance) {
         ArrayList<Integer> cornerIndices = findCorners(digitizedPoints, maxAngle, minDistance);
         ArrayList<ArrayList<Point2D.Double>> segments = new ArrayList<ArrayList<Point2D.Double>>(cornerIndices.size() + 1);

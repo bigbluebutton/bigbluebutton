@@ -146,6 +146,7 @@ class RedisPubSub {
       default:
         channelsToSubscribe.forEach((channel) => {
           this.sub.psubscribe(channel);
+          this.sub.psubscribe('from-akka-apps-*');
         });
         break;
     }
@@ -265,7 +266,10 @@ const RedisPubSubSingleton = new RedisPubSub();
 Meteor.startup(() => {
   const REDIS_CONFIG = Meteor.settings.private.redis;
 
-  if (process.env.METEOR_ROLE !== 'frontend') {
+  if (!process.env) {
+    RedisPubSubSingleton.updateConfig(REDIS_CONFIG);
+    RedisPubSubSingleton.init();
+  } else if (process.env.METEOR_ROLE !== 'frontend') {
     RedisPubSubSingleton.updateConfig(REDIS_CONFIG);
     RedisPubSubSingleton.init();
   }
