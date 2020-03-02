@@ -1,4 +1,5 @@
 import Users from '/imports/api/users';
+import Logger from '/imports/startup/server/logger';
 import { extractCredentials } from '/imports/api/common/server/helpers';
 
 export default function emitExternalVideoEvent(messageName, ...rest) {
@@ -13,7 +14,7 @@ export default function emitExternalVideoEvent(messageName, ...rest) {
     if (streamer) {
       streamer.emit(messageName, ...rest)
     } else {
-      console.log("streamer not found")
+      Logger.info("streamer not found")
     }
   }
 }

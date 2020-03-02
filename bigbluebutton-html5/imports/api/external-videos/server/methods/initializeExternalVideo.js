@@ -1,5 +1,4 @@
 import { extractCredentials } from '/imports/api/common/server/helpers';
-import { check } from 'meteor/check';
 import Logger from '/imports/startup/server/logger';
 
 const allowRecentMessages = (eventName, message) => {
