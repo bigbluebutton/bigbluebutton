@@ -9,9 +9,18 @@ import Auth from '/imports/ui/services/auth';
 import deviceInfo from '/imports/utils/deviceInfo';
 import lockContextContainer from '/imports/ui/components/lock-viewers/context/container';
 import AudioError from '/imports/ui/services/audio-manager/error-codes';
+import AppService from '/imports/ui/components/app/service';
+import {
+  joinMicrophone,
+  closeModal,
+  joinListenOnly,
+  leaveEchoTest,
+  getcookieData,
+} from './service';
 import Service from '../service';
 
 const AudioModalContainer = props => <AudioModal {...props} />;
+
 
 const APP_CONFIG = Meteor.settings.public.app;
 
@@ -35,51 +44,16 @@ export default lockContextContainer(withModalMounter(withTracker(({ mountModal, 
     }
   }
 
+  const meetingIsBreakout = AppService.meetingIsBreakout();
+  const { joinedAudio } = getcookieData();
+  // const hasBreakoutRooms = AppService.getBreakoutRooms().length > 0;
   return ({
-    closeModal: () => {
-      if (!Service.isConnecting()) mountModal(null);
-    },
-    joinMicrophone: () => {
-      const call = new Promise((resolve, reject) => {
-        if (skipCheck) {
-          resolve(Service.joinMicrophone());
-        } else {
-          resolve(Service.transferCall());
-        }
-        reject(() => {
-          Service.exitAudio();
-        });
-      });
-
-      return call.then(() => {
-        mountModal(null);
-      }).catch((error) => {
-        throw error;
-      });
-    },
-    joinListenOnly: () => {
-      const call = new Promise((resolve) => {
-        Service.joinListenOnly().then(() => {
-          // Autoplay block wasn't triggered. Close the modal. If autoplay was
-          // blocked, that'll be handled in the modal component when then
-          // prop transitions to a state where it was handled OR the user opts
-          // to close the modal.
-          if (!Service.autoplayBlocked()) {
-            mountModal(null);
-          }
-          resolve();
-        });
-      });
-      return call.catch((error) => {
-        throw error;
-      });
-    },
-    leaveEchoTest: () => {
-      if (!Service.isEchoTest()) {
-        return Promise.resolve();
-      }
-      return Service.exitAudio();
-    },
+    joinedAudio,
+    meetingIsBreakout,
+    closeModal,
+    joinMicrophone: skipEchoTest => joinMicrophone(skipEchoTest || skipCheck),
+    joinListenOnly,
+    leaveEchoTest,
     changeInputDevice: inputDeviceId => Service.changeInputDevice(inputDeviceId),
     changeOutputDevice: outputDeviceId => Service.changeOutputDevice(outputDeviceId),
     joinEchoTest: () => Service.joinEchoTest(),

@@ -19,6 +19,7 @@ import Breakouts from '/imports/api/breakouts';
 import AudioService from '/imports/ui/components/audio/service';
 import { notify } from '/imports/ui/services/notification';
 import deviceInfo from '/imports/utils/deviceInfo';
+import { invalidateCookie } from '/imports/ui/components/audio/audio-modal/service';
 import getFromUserSettings from '/imports/ui/services/users-settings';
 
 const CHAT_ENABLED = Meteor.settings.public.chat.enabled;
@@ -93,11 +94,17 @@ class Base extends Component {
       ejected,
       isMeteorConnected,
       subscriptionsReady,
+      meetingIsBreakout,
     } = this.props;
     const {
       loading,
       meetingExisted,
     } = this.state;
+
+    if (prevProps.meetingIsBreakout === undefined && !meetingIsBreakout) {
+      invalidateCookie('joinedAudio');
+      // document.cookie = `joinedAudio=false;expires=${date.toUTCString()}`;
+    }
 
     if (!prevProps.subscriptionsReady && subscriptionsReady) {
       logger.info({ logCode: 'startup_client_subscriptions_ready' }, 'Subscriptions are ready');
@@ -361,7 +368,8 @@ const BaseContainer = withTracker(() => {
   } else {
     Session.set('openPanel', '');
   }
-
+  // console.error(meeting);
+  
   return {
     approved,
     ejected,

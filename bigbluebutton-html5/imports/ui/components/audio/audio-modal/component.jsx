@@ -125,6 +125,7 @@ class AudioModal extends Component {
       content: null,
       hasError: false,
       errCode: null,
+      // hadBreakoutRooms: false,
     };
 
     this.handleGoToAudioOptions = this.handleGoToAudioOptions.bind(this);
@@ -166,9 +167,13 @@ class AudioModal extends Component {
       joinFullAudioEchoTest,
       forceListenOnlyAttendee,
       audioLocked,
+      // joinedAudio,
+      // meetingIsBreakout,
+      // hasBreakoutRooms,
     } = this.props;
-
-    if (joinFullAudioImmediately) {
+    if (joinFullAudioImmediately
+      //  || (meetingIsBreakout && joinedAudio)
+       ) {
       this.handleJoinMicrophone();
     }
 
@@ -183,9 +188,21 @@ class AudioModal extends Component {
 
   componentDidUpdate(prevProps) {
     const { autoplayBlocked, closeModal } = this.props;
+    // const { hasBreakoutRooms } = this.state;
+
+    // if (hadBreakoutRooms !== prevProps.hadBreakoutRooms && !meetingIsBreakout){
+    //   this.handleJoinMicrophone();
+    // }
+
     if (autoplayBlocked !== prevProps.autoplayBlocked) {
       autoplayBlocked ? this.setState({ content: 'autoplayBlocked' }) : closeModal();
     }
+
+    // if (hadBreakoutRooms !== prevProps.hadBreakoutRooms) {
+    //   this.setState({
+    //     hadBreakoutRooms: prevProps.hadBreakoutRooms,
+    //   });
+    // }
   }
 
   componentWillUnmount() {
@@ -245,8 +262,6 @@ class AudioModal extends Component {
     }
 
     const {
-      inputDeviceId,
-      outputDeviceId,
       joinEchoTest,
     } = this.props;
 
@@ -309,10 +324,14 @@ class AudioModal extends Component {
   handleJoinMicrophone() {
     const {
       joinMicrophone,
+      // meetingIsBreakout,
+      // joinedAudio,
+      // hasBreakoutRooms,
     } = this.props;
 
     const {
       disableActions,
+      // hadBreakoutRooms,
     } = this.state;
 
     if (disableActions) return;
@@ -321,8 +340,12 @@ class AudioModal extends Component {
       hasError: false,
       disableActions: true,
     });
+    // console.error('(!meetingIsBreakout && hadBreakoutRooms && !hasBreakoutRooms)', (!meetingIsBreakout && hadBreakoutRooms && !hasBreakoutRooms));
+    // console.error('(!meetingIsBreakout , hadBreakoutRooms , !hasBreakoutRooms)', meetingIsBreakout, hadBreakoutRooms, !hasBreakoutRooms);
 
-    joinMicrophone().then(() => {
+    joinMicrophone(
+      // (meetingIsBreakout && joinedAudio)|| (!meetingIsBreakout && hadBreakoutRooms && !hasBreakoutRooms)
+      ).then(() => {
       this.setState({
         disableActions: false,
       });

@@ -5,8 +5,10 @@ import AudioManager from '/imports/ui/services/audio-manager';
 import { makeCall } from '/imports/ui/services/api';
 import lockContextContainer from '/imports/ui/components/lock-viewers/context/container';
 import logger from '/imports/startup/client/logger';
+import AppService from '/imports/ui/components/app/service';
 import AudioControls from './component';
 import AudioModalContainer from '../audio-modal/container';
+import { invalidateCookie } from '../audio-modal/service';
 import Service from '../service';
 
 const AudioControlsContainer = props => <AudioControls {...props} />;
@@ -33,7 +35,14 @@ const processToggleMuteFromOutside = (e) => {
   }
 };
 
-const handleLeaveAudio = () => {
+const handleLeaveAudio = (meetingIsBreakout = false) => {
+  if (!meetingIsBreakout) {
+    // const date = new Date();
+    // date.setTime(Date.now());
+    // document.cookie = `joinedAudio=false;expires=${date.toUTCString()}`;
+    invalidateCookie('joinedAudio');
+  }
+
   Service.exitAudio();
   logger.info({
     logCode: 'audiocontrols_leave_audio',
@@ -65,5 +74,5 @@ export default lockContextContainer(withModalMounter(withTracker(({ mountModal, 
   isVoiceUser: isVoiceUser(),
   handleToggleMuteMicrophone: () => toggleMuteMicrophone(),
   handleJoinAudio: () => (isConnected() ? joinListenOnly() : mountModal(<AudioModalContainer />)),
-  handleLeaveAudio,
+  handleLeaveAudio: () => handleLeaveAudio(AppService.meetingIsBreakout()),
 }))(AudioControlsContainer)));
