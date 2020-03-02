@@ -195,6 +195,7 @@ public:
       - warning
       - danger
       - critical
+    help: STATS_HELP_URL
   presentation:
     allowDownloadable: true
     defaultPresentationFile: default.pdf

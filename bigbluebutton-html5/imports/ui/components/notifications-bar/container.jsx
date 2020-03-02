@@ -192,7 +192,7 @@ export default injectIntl(withTracker(({ intl }) => {
         data.message = (
           <SlowConnection effectiveConnectionType={stats}>
             {intl.formatMessage(intlMessages.slowEffectiveConnectionDetected)}{' '}
-            <a href={HELP_LINK} target="_blank" rel="noopener noreferrer">
+            <a href={STATS.help} target="_blank" rel="noopener noreferrer">
               {intl.formatMessage(intlMessages.slowEffectiveConnectionHelpLink)}
             </a>
           </SlowConnection>
