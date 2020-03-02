@@ -253,6 +253,7 @@ class UserOptions extends PureComponent {
       (isMeteorConnected ? <DropdownListSeparator key={_.uniqueId('list-separator-')} /> : null),
       (canCreateBreakout && isMeteorConnected ? (
         <DropdownListItem
+          data-test="createBreakoutRooms"
           key={this.createBreakoutId}
           icon="rooms"
           label={intl.formatMessage(intlMessages.createBreakoutRoom)}
@@ -262,6 +263,7 @@ class UserOptions extends PureComponent {
       ),
       (canInviteUsers && isMeteorConnected ? (
         <DropdownListItem
+          data-test="inviteBreakoutRooms"
           icon="rooms"
           label={intl.formatMessage(intlMessages.invitationItem)}
           key={this.createBreakoutId}
@@ -300,6 +302,7 @@ class UserOptions extends PureComponent {
         <DropdownTrigger tabIndex={0}>
           <Button
             label={intl.formatMessage(intlMessages.optionsLabel)}
+            data-test="manageUsers"
             icon="settings"
             ghost
             color="primary"
