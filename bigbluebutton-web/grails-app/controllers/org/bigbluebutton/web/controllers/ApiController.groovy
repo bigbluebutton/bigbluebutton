@@ -2031,7 +2031,13 @@ class ApiController {
       fos.close()
 
       // Hardcode pre-uploaded presentation to the default presentation window
-      processUploadedFile("DEFAULT_PRESENTATION_POD", meetingId, presId, presFilename, pres, current);
+      processUploadedFile("DEFAULT_PRESENTATION_POD",
+              meetingId,
+              presId,
+              presFilename,
+              pres,
+              current,
+      "preupload-raw-authz-token");
     }
 
   }
@@ -2057,7 +2063,13 @@ class ApiController {
       if (presDownloadService.savePresentation(meetingId, newFilePath, address)) {
         def pres = new File(newFilePath)
         // Hardcode pre-uploaded presentation to the default presentation window
-        processUploadedFile("DEFAULT_PRESENTATION_POD", meetingId, presId, presFilename, pres, current);
+        processUploadedFile("DEFAULT_PRESENTATION_POD",
+                meetingId,
+                presId,
+                presFilename,
+                pres,
+                current,
+                "preupload-download-authz-token");
       } else {
         log.error("Failed to download presentation=[${address}], meeting=[${meetingId}], fileName=[${fileName}]")
       }
@@ -2065,10 +2077,16 @@ class ApiController {
   }
 
 
-  def processUploadedFile(podId, meetingId, presId, filename, presFile, current) {
+  def processUploadedFile(podId, meetingId, presId, filename, presFile, current, authzToken) {
     def presentationBaseUrl = presentationService.presentationBaseUrl
     // TODO add podId
-    UploadedPresentation uploadedPres = new UploadedPresentation(podId, meetingId, presId, filename, presentationBaseUrl, current);
+    UploadedPresentation uploadedPres = new UploadedPresentation(podId,
+            meetingId,
+            presId,
+            filename,
+            presentationBaseUrl,
+            current,
+    authzToken);
     uploadedPres.setUploadedFile(presFile);
     presentationService.processUploadedPresentation(uploadedPres);
   }

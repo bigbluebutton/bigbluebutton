@@ -5,32 +5,36 @@ import org.bigbluebutton.core.bus.MessageBus
 import org.bigbluebutton.core.domain.MeetingState2x
 import org.bigbluebutton.core.running.LiveMeeting
 
-trait PdfConversionInvalidErrorSysPubMsgHdlr {
+trait PresentationConversionEndedSysMsgHdlr {
   this: PresentationPodHdlrs =>
 
-  def handle(
-      msg: PdfConversionInvalidErrorSysPubMsg, state: MeetingState2x,
-      liveMeeting: LiveMeeting, bus: MessageBus
-  ): MeetingState2x = {
+  def handle(msg: PresentationConversionEndedSysMsg, state: MeetingState2x,
+             liveMeeting: LiveMeeting, bus: MessageBus): MeetingState2x = {
 
-    def broadcastEvent(msg: PdfConversionInvalidErrorSysPubMsg): Unit = {
+    def broadcastEvent(msg: PresentationConversionEndedSysMsg): Unit = {
       val routing = Routing.addMsgToClientRouting(
         MessageTypes.BROADCAST_TO_MEETING,
         liveMeeting.props.meetingProp.intId, msg.header.userId
       )
-      val envelope = BbbCoreEnvelope(PdfConversionInvalidErrorEvtMsg.NAME, routing)
+      val envelope = BbbCoreEnvelope(PresentationConversionEndedEventMsg.NAME, routing)
       val header = BbbClientMsgHeader(
-        PdfConversionInvalidErrorEvtMsg.NAME,
+        PresentationConversionEndedEventMsg.NAME,
         liveMeeting.props.meetingProp.intId, msg.header.userId
       )
 
-      val body = PdfConversionInvalidErrorEvtMsgBody(msg.body.podId, msg.body.messageKey, msg.body.code, msg.body.presentationId, msg.body.bigPageNumber, msg.body.bigPageSize, msg.body.presName)
-      val event = PdfConversionInvalidErrorEvtMsg(header, body)
+      val body = PresentationConversionEndedEventMsgBody(
+        podId = msg.body.podId,
+        presentationId = msg.body.presentationId,
+        presName = msg.body.presName
+      )
+      val event = PresentationConversionEndedEventMsg(header, body)
       val msgEvent = BbbCommonEnvCoreMsg(envelope, event)
       bus.outGW.send(msgEvent)
     }
 
     broadcastEvent(msg)
+
     state
   }
+
 }
