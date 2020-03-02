@@ -20,25 +20,10 @@ const stopWatching = () => {
 };
 
 const sendMessage = (event, data) => {
-  const {
-    time,
-    rate,
-    state,
-    timestamp,
-  } = data;
-
   const meetingId = Auth.meetingID;
   const userId = Auth.userID;
 
-  const user = Users.findOne({ userId });
-  const suc = user && user.presenter;
-
-  if (!suc) {
-    Logger.warn("Message rejected");
-  } else {
-    const streamer = getStreamer(meetingId);
-    streamer.emit(event, { ...data, meetingId, userId});
-  }
+  makeCall('emitExternalVideoEvent', event, { ...data, meetingId, userId });
 };
 
 const onMessage = (message, func) => {

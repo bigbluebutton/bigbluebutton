@@ -355,7 +355,7 @@ class VideoPlayer extends Component {
       logger.debug({
         logCode: 'external_video_client_update_seek',
         extraInfo: { time, timestamp, },
-      }, 'Seek external video to:');
+      }, `Seek external video to: ${time}`);
     }
   }
 
