@@ -14,7 +14,7 @@ export default function emitExternalVideoEvent(messageName, ...rest) {
     if (streamer) {
       streamer.emit(messageName, ...rest)
     } else {
-      Logger.info("streamer not found")
+      Logger.error(`External Video Streamer not found for meetingId: ${meetingId} userId: ${userId}`);
     }
   }
 }
