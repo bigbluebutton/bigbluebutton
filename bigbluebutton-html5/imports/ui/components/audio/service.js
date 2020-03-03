@@ -70,7 +70,11 @@ export default {
   joinEchoTest: () => AudioManager.joinEchoTest(),
   toggleMuteMicrophone: debounce(toggleMuteMicrophone, 500, { leading: true, trailing: false }),
   changeInputDevice: inputDeviceId => AudioManager.changeInputDevice(inputDeviceId),
-  changeOutputDevice: outputDeviceId => AudioManager.changeOutputDevice(outputDeviceId),
+  changeOutputDevice: (outputDeviceId) => {
+    if (AudioManager.outputDeviceId !== outputDeviceId) {
+      AudioManager.changeOutputDevice(outputDeviceId);
+    }
+  },
   isConnected: () => AudioManager.isConnected,
   isTalking: () => AudioManager.isTalking,
   isHangingUp: () => AudioManager.isHangingUp,
