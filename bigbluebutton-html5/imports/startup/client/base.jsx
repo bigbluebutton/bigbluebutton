@@ -103,7 +103,6 @@ class Base extends Component {
 
     if (prevProps.meetingIsBreakout === undefined && !meetingIsBreakout) {
       invalidateCookie('joinedAudio');
-      // document.cookie = `joinedAudio=false;expires=${date.toUTCString()}`;
     }
 
     if (!prevProps.subscriptionsReady && subscriptionsReady) {
@@ -368,8 +367,7 @@ const BaseContainer = withTracker(() => {
   } else {
     Session.set('openPanel', '');
   }
-  // console.error(meeting);
-  
+
   return {
     approved,
     ejected,

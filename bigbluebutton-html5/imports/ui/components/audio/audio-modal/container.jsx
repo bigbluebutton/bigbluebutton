@@ -27,7 +27,7 @@ const APP_CONFIG = Meteor.settings.public.app;
 const invalidDialNumbers = ['0', '613-555-1212', '613-555-1234', '0000'];
 const isRTL = document.documentElement.getAttribute('dir') === 'rtl';
 
-export default lockContextContainer(withModalMounter(withTracker(({ mountModal, userLocks }) => {
+export default lockContextContainer(withModalMounter(withTracker(({ userLocks }) => {
   const listenOnlyMode = getFromUserSettings('bbb_listen_only_mode', APP_CONFIG.listenOnlyMode);
   const forceListenOnly = getFromUserSettings('bbb_force_listen_only', APP_CONFIG.forceListenOnly);
   const skipCheck = getFromUserSettings('bbb_skip_check_audio', APP_CONFIG.skipCheck);
@@ -46,7 +46,7 @@ export default lockContextContainer(withModalMounter(withTracker(({ mountModal, 
 
   const meetingIsBreakout = AppService.meetingIsBreakout();
   const { joinedAudio } = getcookieData();
-  // const hasBreakoutRooms = AppService.getBreakoutRooms().length > 0;
+
   return ({
     joinedAudio,
     meetingIsBreakout,

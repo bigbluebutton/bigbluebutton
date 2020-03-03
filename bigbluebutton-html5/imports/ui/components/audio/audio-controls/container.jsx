@@ -37,9 +37,6 @@ const processToggleMuteFromOutside = (e) => {
 
 const handleLeaveAudio = (meetingIsBreakout = false) => {
   if (!meetingIsBreakout) {
-    // const date = new Date();
-    // date.setTime(Date.now());
-    // document.cookie = `joinedAudio=false;expires=${date.toUTCString()}`;
     invalidateCookie('joinedAudio');
   }
 

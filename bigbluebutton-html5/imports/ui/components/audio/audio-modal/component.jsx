@@ -42,7 +42,6 @@ const propTypes = {
   isMobileNative: PropTypes.bool.isRequired,
   isIOSChrome: PropTypes.bool.isRequired,
   isIEOrEdge: PropTypes.bool.isRequired,
-  hasMediaDevices: PropTypes.bool.isRequired,
   formattedTelVoice: PropTypes.string.isRequired,
   autoplayBlocked: PropTypes.bool.isRequired,
   handleAllowAutoplay: PropTypes.func.isRequired,
@@ -125,7 +124,6 @@ class AudioModal extends Component {
       content: null,
       hasError: false,
       errCode: null,
-      // hadBreakoutRooms: false,
     };
 
     this.handleGoToAudioOptions = this.handleGoToAudioOptions.bind(this);
@@ -167,13 +165,8 @@ class AudioModal extends Component {
       joinFullAudioEchoTest,
       forceListenOnlyAttendee,
       audioLocked,
-      // joinedAudio,
-      // meetingIsBreakout,
-      // hasBreakoutRooms,
     } = this.props;
-    if (joinFullAudioImmediately
-      //  || (meetingIsBreakout && joinedAudio)
-       ) {
+    if (joinFullAudioImmediately) {
       this.handleJoinMicrophone();
     }
 
@@ -188,21 +181,10 @@ class AudioModal extends Component {
 
   componentDidUpdate(prevProps) {
     const { autoplayBlocked, closeModal } = this.props;
-    // const { hasBreakoutRooms } = this.state;
-
-    // if (hadBreakoutRooms !== prevProps.hadBreakoutRooms && !meetingIsBreakout){
-    //   this.handleJoinMicrophone();
-    // }
 
     if (autoplayBlocked !== prevProps.autoplayBlocked) {
       autoplayBlocked ? this.setState({ content: 'autoplayBlocked' }) : closeModal();
     }
-
-    // if (hadBreakoutRooms !== prevProps.hadBreakoutRooms) {
-    //   this.setState({
-    //     hadBreakoutRooms: prevProps.hadBreakoutRooms,
-    //   });
-    // }
   }
 
   componentWillUnmount() {
@@ -277,7 +259,6 @@ class AudioModal extends Component {
     });
 
     return joinEchoTest().then(() => {
-      //console.log(inputDeviceId, outputDeviceId);
       this.setState({
         content: 'echoTest',
         disableActions: false,
@@ -324,14 +305,10 @@ class AudioModal extends Component {
   handleJoinMicrophone() {
     const {
       joinMicrophone,
-      // meetingIsBreakout,
-      // joinedAudio,
-      // hasBreakoutRooms,
     } = this.props;
 
     const {
       disableActions,
-      // hadBreakoutRooms,
     } = this.state;
 
     if (disableActions) return;
@@ -340,12 +317,8 @@ class AudioModal extends Component {
       hasError: false,
       disableActions: true,
     });
-    // console.error('(!meetingIsBreakout && hadBreakoutRooms && !hasBreakoutRooms)', (!meetingIsBreakout && hadBreakoutRooms && !hasBreakoutRooms));
-    // console.error('(!meetingIsBreakout , hadBreakoutRooms , !hasBreakoutRooms)', meetingIsBreakout, hadBreakoutRooms, !hasBreakoutRooms);
 
-    joinMicrophone(
-      // (meetingIsBreakout && joinedAudio)|| (!meetingIsBreakout && hadBreakoutRooms && !hasBreakoutRooms)
-      ).then(() => {
+    joinMicrophone().then(() => {
       this.setState({
         disableActions: false,
       });
