@@ -2,11 +2,12 @@ import { check } from 'meteor/check';
 import Logger from '/imports/startup/server/logger';
 import Upload from '/imports/api/upload';
 
-export default function addUpload(meetingId, source, filename, userId, success, token) {
+export default function addUpload(meetingId, source, filename, userId, success, timestamp, token) {
   check(source, String);
   check(filename, String);
   check(userId, String);
   check(success, Boolean);
+  check(timestamp, Number);
 
   if (success) {
     check(token, String);
@@ -17,6 +18,7 @@ export default function addUpload(meetingId, source, filename, userId, success, 
     source,
     userId,
     filename,
+    timestamp,
   };
 
   const modifier = {
@@ -25,6 +27,7 @@ export default function addUpload(meetingId, source, filename, userId, success, 
     userId,
     filename,
     success,
+    timestamp,
     token,
   };
 

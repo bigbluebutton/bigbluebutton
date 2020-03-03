@@ -179,12 +179,13 @@ public:
   upload:
     media:
       enabled: true
-      endpoint: "/bigbluebutton/upload/media"
-      size:
-        min: 0
-        max: 30000000
-      types:
+      endpoint: /bigbluebutton/upload/media
+      maxSize: 30000000
+      validFiles:
         - extension: .mp4
+          type: video/mp4
+        - extension: .mp4
+          type: audio/mp4
   presentation:
     defaultPresentationFile: default.pdf
     panZoomThrottle: 32

@@ -4,21 +4,27 @@ const isEnabled = () => {
   return MEDIA_UPLOAD.enabled;
 };
 
-const getMinSize = () => {
-  return MEDIA_UPLOAD.size.min;
+const getEndpoint = () => {
+  return MEDIA_UPLOAD.endpoint;
 };
 
 const getMaxSize = () => {
-  return MEDIA_UPLOAD.size.max;
+  return MEDIA_UPLOAD.maxSize;
 };
 
-const getMediaTypes = () => {
-  return MEDIA_UPLOAD.types;
+const getMediaValidFiles = () => {
+  return MEDIA_UPLOAD.validFiles;
+};
+
+// TODO: Uploaded files collection
+const getMediaFiles = () => {
+  return [];
 };
 
 export default {
   isEnabled,
-  getMinSize,
+  getEndpoint,
   getMaxSize,
-  getMediaTypes,
+  getMediaValidFiles,
+  getMediaFiles,
 };

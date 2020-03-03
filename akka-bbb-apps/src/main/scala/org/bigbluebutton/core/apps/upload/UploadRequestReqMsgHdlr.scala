@@ -19,6 +19,7 @@ trait UploadRequestReqMsgHdlr extends RightsManagementTrait {
     val userId = msg.header.userId
     val source = msg.body.source
     val filename = msg.body.filename
+    val timestamp = msg.body.timestamp
 
     // To system
     def broadcastUploadRequestSysMsg(
@@ -46,7 +47,7 @@ trait UploadRequestReqMsgHdlr extends RightsManagementTrait {
       val routing = Routing.addMsgToClientRouting(MessageTypes.DIRECT, meetingId, userId)
       val envelope = BbbCoreEnvelope(UploadRequestRespMsg.NAME, routing)
       val header = BbbClientMsgHeader(UploadRequestRespMsg.NAME, meetingId, userId)
-      val body = UploadRequestRespMsgBody(source, filename, userId, success, token)
+      val body = UploadRequestRespMsgBody(source, filename, userId, success, timestamp, token)
       val event = UploadRequestRespMsg(header, body)
       val msgEvent = BbbCommonEnvCoreMsg(envelope, event)
 

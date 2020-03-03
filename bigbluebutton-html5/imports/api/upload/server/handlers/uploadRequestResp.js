@@ -10,8 +10,9 @@ export default function handleUploadRequestResp({ body }, meetingId) {
     filename,
     userId,
     success,
+    timestamp,
     token,
   } = body;
 
-  return addUpload(meetingId, source, filename, userId, success, token);
+  return addUpload(meetingId, source, filename, userId, success, timestamp, token);
 }
