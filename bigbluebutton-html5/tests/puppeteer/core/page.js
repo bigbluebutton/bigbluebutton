@@ -48,8 +48,8 @@ class Page {
     await this.waitForSelector(e.audioDialog);
     await this.waitForSelector(e.microphoneButton);
     await this.click(e.microphoneButton, true);
-    await this.waitForSelector(e.thumbsUp);
-    await this.click(e.thumbsUp, true);
+    await this.waitForSelector(e.echoYes);
+    await this.click(e.echoYes, true);
   }
 
   // Joining audio with Listen Only mode

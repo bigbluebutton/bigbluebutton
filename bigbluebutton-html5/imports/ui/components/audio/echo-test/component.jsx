@@ -60,7 +60,6 @@ class EchoTest extends Component {
         <Button
           className={styles.button}
           label={intl.formatMessage(intlMessages.confirmLabel)}
-          data-test="echoTestThumbsUp"
           aria-label={intl.formatMessage(intlMessages.confirmAriaLabel)}
           icon="thumbs_up"
           disabled={this.state.disabled}
@@ -72,7 +71,6 @@ class EchoTest extends Component {
         <Button
           className={styles.button}
           label={intl.formatMessage(intlMessages.disconfirmLabel)}
-          data-test="echoTestThumbsDown"
           aria-label={intl.formatMessage(intlMessages.disconfirmAriaLabel)}
           icon="thumbs_down"
           circle
