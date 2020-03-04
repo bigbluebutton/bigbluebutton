@@ -1,4 +1,3 @@
-const Page = require('./core/page');
 const Share = require('./webcam/share');
 
 describe('Webcam', () => {
@@ -6,7 +5,7 @@ describe('Webcam', () => {
     const test = new Share();
     let response;
     try {
-      await test.init(Page.getArgsWithVideo());
+      await test.init();
       response = await test.test();
     } catch (e) {
       console.log(e);

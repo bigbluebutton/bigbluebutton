@@ -13,5 +13,13 @@ async function getTestElement(element) {
   (await document.querySelectorAll(element)[0]) !== null;
 }
 
+async function evaluateCheck(test) {
+  await test.waitForSelector(we.videoContainer);
+  const videoContainer = await test.page.evaluate(getTestElement, we.videoContainer);
+  const response = videoContainer !== null;
+  return response;
+}
+
+exports.evaluateCheck = evaluateCheck;
 exports.getTestElement = getTestElement;
 exports.enableWebcam = enableWebcam;
