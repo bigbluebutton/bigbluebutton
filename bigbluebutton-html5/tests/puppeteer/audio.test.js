@@ -20,8 +20,7 @@ describe('Audio', () => {
     let response;
     try {
       await test.init();
-      await test.mute();
-      response = await test.test();
+      response = await test.mute();
     } catch (e) {
       console.log(e);
     } finally {
