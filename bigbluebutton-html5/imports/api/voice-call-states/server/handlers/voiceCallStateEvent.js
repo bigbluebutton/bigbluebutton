@@ -41,7 +41,7 @@ export default function handleVoiceCallStateEvent({ body }, meetingId) {
       return Logger.error(`Update voice call state=${userId}: ${err}`);
     }
 
-    return Logger.debug(`Update voice call state=${userId} meeting=${meetingId} clientSession=${clientSession}`);
+    return Logger.debug(`Update voice call state=${userId} meeting=${meetingId} clientSession=${clientSession} callState=${callState}`);
   };
 
   return VoiceCallState.upsert(selector, modifier, cb);
