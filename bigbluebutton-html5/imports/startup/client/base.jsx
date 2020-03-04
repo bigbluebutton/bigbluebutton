@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React, { Component, Fragment } from 'react';
 import { withTracker } from 'meteor/react-meteor-data';
 import PropTypes from 'prop-types';
 import Auth from '/imports/ui/services/auth';
@@ -20,6 +20,7 @@ import AudioService from '/imports/ui/components/audio/service';
 import { notify } from '/imports/ui/services/notification';
 import deviceInfo from '/imports/utils/deviceInfo';
 import getFromUserSettings from '/imports/ui/services/users-settings';
+import LayoutManager from '/imports/ui/components/layout/layout-manager';
 
 const CHAT_ENABLED = Meteor.settings.public.chat.enabled;
 
@@ -193,7 +194,12 @@ class Base extends Component {
       return (<ErrorScreen code={codeError} />);
     }
     // this.props.annotationsHandler.stop();
-    return (<AppContainer {...this.props} baseControls={stateControls} />);
+    return (
+      <Fragment>
+        <LayoutManager />
+        <AppContainer {...this.props} baseControls={stateControls} />
+      </Fragment>
+    );
   }
 
   render() {
