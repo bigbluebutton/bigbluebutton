@@ -22,6 +22,7 @@ const ROLE_MODERATOR = Meteor.settings.public.user.role_moderator;
 const ENABLE_NETWORK_MONITORING = Meteor.settings.public.networkMonitoring.enableNetworkMonitoring;
 
 const TOKEN = '_';
+const STREAM_STATE_CHANGED_EVENT_PREFIX = 'streamStateChanged';
 
 class VideoService {
   constructor() {
@@ -348,6 +349,33 @@ class VideoService {
   monitor(conn) {
     if (ENABLE_NETWORK_MONITORING) monitorVideoConnection(conn);
   }
+
+  notifyStreamStateChange(cameraId, streamState) {
+    const eventName = `${STREAM_STATE_CHANGED_EVENT_PREFIX}:${cameraId}`;
+    const streamStateChanged = new CustomEvent(
+      eventName,
+      { detail: { cameraId, streamState } },
+    );
+    window.dispatchEvent(streamStateChanged);
+  }
+
+  subscribeToStreamStateChange(cameraId, callback) {
+    const eventName = `${STREAM_STATE_CHANGED_EVENT_PREFIX}:${cameraId}`;
+    window.addEventListener(eventName, callback, false);
+  }
+
+  unsubscribeFromStreamStateChange(cameraId, callback) {
+    const eventName = `${STREAM_STATE_CHANGED_EVENT_PREFIX}:${cameraId}`;
+    window.removeEventListener(eventName, callback);
+  }
+
+  isStreamStateUnhealthy(streamState) {
+    return streamState === 'disconnected' || streamState === 'failed' || streamState === 'closed';
+  }
+
+  isStreamStateHealthy(streamState) {
+    return streamState === 'connected' || streamState === 'completed';
+  }
 }
 
 const videoService = new VideoService();
@@ -377,4 +405,9 @@ export default {
   monitor: conn => videoService.monitor(conn),
   onBeforeUnload: () => videoService.onBeforeUnload(),
   notify: message => notify(message, 'error', 'video'),
+  notifyStreamStateChange: (cameraId, streamState) => videoService.notifyStreamStateChange(cameraId, streamState),
+  subscribeToStreamStateChange: (cameraId, callback) => videoService.subscribeToStreamStateChange(cameraId, callback),
+  unsubscribeFromStreamStateChange: (cameraId, callback) => videoService.unsubscribeFromStreamStateChange(cameraId, callback),
+  isStreamStateUnhealthy: (streamState) => videoService.isStreamStateUnhealthy(streamState),
+  isStreamStateHealthy: (streamState) => videoService.isStreamStateHealthy(streamState),
 };
