@@ -72,6 +72,7 @@ class TalkingIndicator extends PureComponent {
             ? `${intl.formatMessage(intlMessages.muteLabel)} ${callerName}`
             : null
           }
+          data-test={talking ? 'isTalking' : 'wasTalking'}
           aria-label={ariaLabel}
           aria-describedby={talking ? 'description' : null}
           color="primary"
