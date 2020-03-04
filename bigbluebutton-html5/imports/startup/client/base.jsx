@@ -21,7 +21,9 @@ import { notify } from '/imports/ui/services/notification';
 import deviceInfo from '/imports/utils/deviceInfo';
 import getFromUserSettings from '/imports/ui/services/users-settings';
 
-const CHAT_ENABLED = Meteor.settings.public.chat.enabled;
+const CHAT_CONFIG = Meteor.settings.public.chat;
+const CHAT_ENABLED = CHAT_CONFIG.enabled;
+const PUBLIC_CHAT_ID = CHAT_CONFIG.public_id;
 
 const BREAKOUT_END_NOTIFY_DELAY = 50;
 
@@ -356,7 +358,7 @@ const BaseContainer = withTracker(() => {
     Session.set('openPanel', 'userlist');
     if (CHAT_ENABLED) {
       Session.set('openPanel', 'chat');
-      Session.set('idChatOpen', '');
+      Session.set('idChatOpen', PUBLIC_CHAT_ID);
     }
   } else {
     Session.set('openPanel', '');

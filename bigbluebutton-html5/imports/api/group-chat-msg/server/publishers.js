@@ -35,7 +35,9 @@ function usersTyping() {
     return UsersTyping.find({ meetingId: '' });
   }
 
-  const { meetingId } = extractCredentials(this.userId);
+  const { meetingId, requesterUserId } = extractCredentials(this.userId);
+
+  Logger.debug(`Publishing users-typing for ${meetingId} ${requesterUserId}`);
 
   return UsersTyping.find({ meetingId });
 }
