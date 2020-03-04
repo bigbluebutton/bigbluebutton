@@ -502,7 +502,8 @@ class SIPSession {
 
         query.observeChanges({
           changed: (id, fields) => {
-            if (fields.callState === CallStateOptions.IN_ECHO_TEST) {
+            if ((this.inEchoTest && fields.callState === CallStateOptions.IN_ECHO_TEST)
+              || (!this.inEchoTest && fields.callState === CallStateOptions.IN_CONFERENCE)) {
               fsReady = true;
               checkIfCallReady();
 
