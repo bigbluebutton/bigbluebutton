@@ -16,7 +16,7 @@ export default function removeUser(meetingId, userId) {
   check(meetingId, String);
   check(userId, String);
 
-  const userToRemove = Users.findOne({ userId });
+  const userToRemove = Users.findOne({ userId, meetingId });
 
   if (userToRemove) {
     const { presenter } = userToRemove;

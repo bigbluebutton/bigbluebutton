@@ -64,7 +64,7 @@ function users(isModerator = false) {
   };
 
   if (isModerator) {
-    const User = Users.findOne({ userId: requesterUserId });
+    const User = Users.findOne({ userId: requesterUserId, meetingId });
     if (!!User && User.role === ROLE_MODERATOR) {
       selector.$or.push({
         'breakoutProps.isBreakoutUser': true,

@@ -35,6 +35,7 @@ public class ConversionMessageConstants {
     public static final String GENERATED_TEXTFILES_KEY = "GENERATED_TEXTFILES";
     public static final String GENERATING_SVGIMAGES_KEY = "GENERATING_SVGIMAGES";
     public static final String GENERATED_SVGIMAGES_KEY = "GENERATED_SVGIMAGES";
+    public static final String CONVERSION_STARTED_KEY = "CONVERSION_STARTED_KEY";
     public static final String CONVERSION_COMPLETED_KEY = "CONVERSION_COMPLETED";
 
     private ConversionMessageConstants() {
