@@ -24,6 +24,7 @@ export default function listenOnlyToggle(isJoining = true) {
 
   const VoiceUser = VoiceUsers.findOne({
     intId: requesterUserId,
+    meetingId,
   });
 
   const Meeting = Meetings.findOne({ meetingId });

@@ -15,7 +15,7 @@ function breakouts(moderator = false) {
   Logger.debug(`Publishing Breakouts for ${meetingId} ${requesterUserId}`);
 
   if (moderator) {
-    const User = Users.findOne({ userId: requesterUserId });
+    const User = Users.findOne({ userId: requesterUserId, meetingId });
     if (!!User && User.role === ROLE_MODERATOR) {
       const presenterSelector = {
         $or: [
