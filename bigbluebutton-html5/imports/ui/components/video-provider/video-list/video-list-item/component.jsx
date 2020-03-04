@@ -16,6 +16,7 @@ import FullscreenService from '/imports/ui/components/fullscreen-button/service'
 import FullscreenButtonContainer from '/imports/ui/components/fullscreen-button/container';
 import { styles } from '../styles';
 import { withDraggableConsumer } from '/imports/ui/components/media/webcam-draggable-overlay/context';
+import VideoService from '/imports/ui/components/video-provider/service';
 
 const ALLOW_FULLSCREEN = Meteor.settings.public.app.allowFullscreen;
 
@@ -27,14 +28,29 @@ class VideoListItem extends Component {
     this.state = {
       videoIsReady: false,
       isFullscreen: false,
+      isStreamHealthy: true,
     };
 
     this.setVideoIsReady = this.setVideoIsReady.bind(this);
     this.onFullscreenChange = this.onFullscreenChange.bind(this);
+    this.onStreamStateChange = this.onStreamStateChange.bind(this);
+  }
+
+  onStreamStateChange (e) {
+    const { streamState } = e.detail;
+    const { isStreamHealthy } = this.state;
+
+    const newHealthState = VideoService.isStreamStateHealthy(streamState);
+
+    e.stopPropagation();
+
+    if (newHealthState !== isStreamHealthy) {
+      this.setState({ isStreamHealthy: newHealthState });
+    }
   }
 
   componentDidMount() {
-    const { onMount, webcamDraggableDispatch } = this.props;
+    const { onMount, webcamDraggableDispatch, cameraId } = this.props;
 
     webcamDraggableDispatch(
       {
@@ -47,6 +63,7 @@ class VideoListItem extends Component {
 
     this.videoTag.addEventListener('loadeddata', this.setVideoIsReady);
     this.videoContainer.addEventListener('fullscreenchange', this.onFullscreenChange);
+    VideoService.subscribeToStreamStateChange(cameraId, this.onStreamStateChange);
   }
 
   componentDidUpdate() {
@@ -75,8 +92,12 @@ class VideoListItem extends Component {
   }
 
   componentWillUnmount() {
+    const {
+      cameraId,
+    } = this.props;
     this.videoTag.removeEventListener('loadeddata', this.setVideoIsReady);
     this.videoContainer.removeEventListener('fullscreenchange', this.onFullscreenChange);
+    VideoService.unsubscribeFromStreamStateChange(cameraId, this.onStreamStateChange);
   }
 
   onFullscreenChange() {
@@ -135,6 +156,7 @@ class VideoListItem extends Component {
     const {
       videoIsReady,
       isFullscreen,
+      isStreamHealthy,
     } = this.state;
     const {
       name,
@@ -159,6 +181,11 @@ class VideoListItem extends Component {
           !videoIsReady
           && <div className={styles.connecting} />
         }
+        {
+          !isStreamHealthy
+            && <div className={styles.reconnecting} />
+        }
+
         <div
           className={styles.videoContainer}
           ref={(ref) => { this.videoContainer = ref; }}
@@ -172,6 +199,7 @@ class VideoListItem extends Component {
                 && !isFullscreen && !swapLayout,
               [styles.cursorGrabbing]: webcamDraggableState.dragging
                 && !isFullscreen && !swapLayout,
+              [styles.unhealthyStream]: !isStreamHealthy,
             })}
             ref={(ref) => { this.videoTag = ref; }}
             autoPlay
