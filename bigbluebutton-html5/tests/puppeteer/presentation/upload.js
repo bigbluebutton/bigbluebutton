@@ -37,8 +37,7 @@ class Upload extends Page {
     console.log(slides1.slideList);
     console.log(slides1.svg);
 
-    // TODO: Check test
-    return true;
+    return slides0.svg !== slides1.svg;
   }
 
   async getTestElements() {
