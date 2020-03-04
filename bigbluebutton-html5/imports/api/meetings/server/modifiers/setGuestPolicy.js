@@ -12,9 +12,7 @@ export default function setGuestPolicy(meetingId, guestPolicy) {
 
   const modifier = {
     $set: {
-      usersProp: {
-        guestPolicy,
-      }
+      'usersProp.guestPolicy': guestPolicy,
     },
   };
 
