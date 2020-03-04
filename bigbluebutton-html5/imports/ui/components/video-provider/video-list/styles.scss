@@ -93,6 +93,10 @@
   cursor: grabbing;
 }
 
+.unhealthyStream {
+  filter: grayscale(50%) opacity(50%);
+}
+
 @keyframes spin {
   from {
     transform: rotate(0deg);
@@ -140,6 +144,12 @@
       animation: spin 4s infinite linear;
     }
   }
+}
+
+.reconnecting {
+  @extend .connecting;
+  background-color: transparent;
+  color: var(--color-white);
 }
 
 .media {
