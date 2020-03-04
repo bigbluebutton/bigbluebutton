@@ -75,6 +75,8 @@
 
 .quickPollBtn {
   padding: var(--whiteboard-toolbar-padding);
+  background-color: var(--color-off-white) !important;
+  box-shadow: none !important;
 
   span:first-child {
     border: 1px solid var(--toolbar-button-color);

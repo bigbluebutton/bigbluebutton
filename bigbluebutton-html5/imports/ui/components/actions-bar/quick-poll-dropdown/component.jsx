@@ -97,6 +97,7 @@ class QuickPollDropdown extends Component {
       startPoll,
       currentSlide,
       activePoll,
+      className,
     } = this.props;
 
     const parsedSlide = parseCurrentSlideContent(
@@ -152,7 +153,7 @@ class QuickPollDropdown extends Component {
       );
 
       dropdown = (
-        <Dropdown>
+        <Dropdown className={className}>
           <DropdownTrigger tabIndex={0}>
             {btn}
           </DropdownTrigger>

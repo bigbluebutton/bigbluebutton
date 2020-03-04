@@ -251,6 +251,7 @@ class PresentationToolbar extends PureComponent {
                     startPoll,
                     currentSlide,
                   }}
+                  className={styles.presentationBtn}
                 />
               ) : null
           }
