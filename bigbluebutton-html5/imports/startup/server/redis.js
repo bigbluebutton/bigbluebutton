@@ -266,10 +266,7 @@ const RedisPubSubSingleton = new RedisPubSub();
 Meteor.startup(() => {
   const REDIS_CONFIG = Meteor.settings.private.redis;
 
-  if (!process.env) {
-    RedisPubSubSingleton.updateConfig(REDIS_CONFIG);
-    RedisPubSubSingleton.init();
-  } else if (process.env.METEOR_ROLE !== 'frontend') {
+  if (!process.env.METEOR_ROLE || process.env.METEOR_ROLE !== 'frontend') {
     RedisPubSubSingleton.updateConfig(REDIS_CONFIG);
     RedisPubSubSingleton.init();
   }

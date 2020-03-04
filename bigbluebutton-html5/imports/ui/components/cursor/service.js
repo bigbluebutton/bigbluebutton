@@ -42,7 +42,11 @@ export function initCursorStreamListener() {
   }, 'initCursorStreamListener called');
 
   if (!cursorStreamListener) {
-    cursorStreamListener = new Meteor.Streamer(`cursor-${Auth.meetingID}`, { ddpConnection: whiteboardConnection });
+    if (Meteor.settings.public.role) {
+      cursorStreamListener = new Meteor.Streamer(`cursor-${Auth.meetingID}`, { ddpConnection: whiteboardConnection });
+    } else {
+      cursorStreamListener = new Meteor.Streamer(`cursor-${Auth.meetingID}`);
+    }
 
     const startStreamHandlersPromise = new Promise((resolve) => {
       const checkStreamHandlersInterval = setInterval(() => {

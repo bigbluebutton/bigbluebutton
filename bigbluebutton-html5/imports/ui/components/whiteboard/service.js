@@ -6,6 +6,7 @@ import logger from '/imports/startup/client/logger';
 import { whiteboardCall } from '/imports/ui/services/api';
 import { whiteboardConnection } from '/imports/ui/components/app/service';
 import { isEqual } from 'lodash';
+import { makeCall } from '../../services/api';
 
 const Annotations = new Mongo.Collection(null);
 const ANNOTATION_CONFIG = Meteor.settings.public.whiteboard.annotations;
@@ -105,9 +106,13 @@ export function initAnnotationsStreamListener() {
    * The problem was caused because we add handlers to stream before the onStop event happens,
    * which set the handlers to undefined.
    */
-  annotationsStreamListener = new Meteor.Streamer(`annotations-${Auth.meetingID}`, { ddpConnection: whiteboardConnection });
+  if (Meteor.settings.public.role) {
+    annotationsStreamListener = new Meteor.Streamer(`annotations-${Auth.meetingID}`, { ddpConnection: whiteboardConnection });
 
-  whiteboardCall('authenticateWhiteboardConnection');
+    whiteboardCall('authenticateWhiteboardConnection');
+  } else {
+    annotationsStreamListener = new Meteor.Streamer(`annotations-${Auth.meetingID}`);
+  }
 
   const startStreamHandlersPromise = new Promise((resolve) => {
     const checkStreamHandlersInterval = setInterval(() => {
@@ -149,8 +154,8 @@ function increaseBrightness(realHex, percent) {
 
   /* eslint-disable no-bitwise, no-mixed-operators */
   return parseInt(((0 | (1 << 8) + r + ((256 - r) * percent) / 100).toString(16)).substr(1)
-     + ((0 | (1 << 8) + g + ((256 - g) * percent) / 100).toString(16)).substr(1)
-     + ((0 | (1 << 8) + b + ((256 - b) * percent) / 100).toString(16)).substr(1), 16);
+    + ((0 | (1 << 8) + g + ((256 - g) * percent) / 100).toString(16)).substr(1)
+    + ((0 | (1 << 8) + b + ((256 - b) * percent) / 100).toString(16)).substr(1), 16);
   /* eslint-enable no-bitwise, no-mixed-operators */
 }
 
@@ -174,7 +179,11 @@ const proccessAnnotationsQueue = async () => {
 
   const annotations = annotationsQueue.splice(0, queueSize);
 
-  await whiteboardCall('sendBulkAnnotations', annotations.filter(({ id }) => !discardedList.includes(id)));
+  if (Meteor.settings.public.role) {
+    await whiteboardCall('sendBulkAnnotations', annotations.filter(({ id }) => !discardedList.includes(id)));
+  } else {
+    await makeCall('sendBulkAnnotations', annotations.filter(({ id }) => !discardedList.includes(id)));
+  }
 
   // ask tiago
   const delayPerc = Math.min(annotationsMaxDelayQueueSize, queueSize) / annotationsMaxDelayQueueSize;

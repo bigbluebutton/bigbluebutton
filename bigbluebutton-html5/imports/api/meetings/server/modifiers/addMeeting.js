@@ -89,7 +89,7 @@ export default function addMeeting(meeting) {
     },
   });
 
-  if (!process.env) {
+  if (!process.env.METEOR_ROLE) {
     addAnnotationsStreamer(meetingId);
     addCursorStreamer(meetingId);
   } else if (process.env.METEOR_ROLE === 'whiteboard') {

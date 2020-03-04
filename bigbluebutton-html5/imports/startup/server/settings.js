@@ -10,6 +10,8 @@ try {
 
     Meteor.settings = SETTINGS;
     __meteor_runtime_config__.PUBLIC_SETTINGS = SETTINGS.public;
+    if (process.env.METEOR_ROLE)
+      __meteor_runtime_config__.PUBLIC_SETTINGS.role = process.env.METEOR_ROLE;
   } else {
     throw new Error('File doesn\'t exists');
   }
