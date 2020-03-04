@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React, { Component, Fragment } from 'react';
 import { withTracker } from 'meteor/react-meteor-data';
 import PropTypes from 'prop-types';
 import Auth from '/imports/ui/services/auth';
@@ -18,6 +18,7 @@ import AudioService from '/imports/ui/components/audio/service';
 import { notify } from '/imports/ui/services/notification';
 import deviceInfo from '/imports/utils/deviceInfo';
 import getFromUserSettings from '/imports/ui/services/users-settings';
+import LayoutManager from '/imports/ui/components/layout/layout-manager';
 
 const CHAT_CONFIG = Meteor.settings.public.chat;
 const CHAT_ENABLED = CHAT_CONFIG.enabled;
@@ -202,8 +203,13 @@ class Base extends Component {
       }
       return (<MeetingEnded code={codeError} />);
     }
-
-    return (<AppContainer {...this.props} baseControls={stateControls} />);
+    // this.props.annotationsHandler.stop();
+    return (
+      <Fragment>
+        <LayoutManager />
+        <AppContainer {...this.props} baseControls={stateControls} />
+      </Fragment>
+    );
   }
 
   render() {
