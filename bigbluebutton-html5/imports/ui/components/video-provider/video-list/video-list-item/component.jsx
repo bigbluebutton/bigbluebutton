@@ -165,6 +165,7 @@ class VideoListItem extends Component {
         >
           <video
             muted
+            data-test="videoContainer"
             className={cx({
               [styles.media]: true,
               [styles.cursorGrab]: !webcamDraggableState.dragging
