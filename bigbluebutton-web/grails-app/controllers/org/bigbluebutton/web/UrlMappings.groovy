@@ -3,6 +3,21 @@ package org.bigbluebutton.web
 class UrlMappings {
 
   static mappings = {
+
+    "/bigbluebutton/file/upload"(controller: "fileupload") {
+      action = [POST: 'upload']
+    }
+
+    "/bigbluebutton/file/download/$fileId/$fileName/$meetingId"(controller: "fileupload") {
+      action = [GET: 'download']
+    }
+
+
+    "/bigbluebutton/file/checkFile"(controller: "fileupload") {
+      action = [GET: 'checkFileBeforeUploading']
+    }
+
+
     "/bigbluebutton/presentation/$authzToken/upload"(controller: "presentation") {
       action = [POST: 'upload']
     }
