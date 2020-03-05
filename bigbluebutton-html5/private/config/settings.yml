@@ -177,10 +177,12 @@ public:
     echoTestNumber: '9196'
     relayOnlyOnReconnect: false
   upload:
+    endpoint: /bigbluebutton/upload
+    timeout: 5000
     media:
       enabled: true
-      endpoint: /bigbluebutton/upload/media
       maxSize: 30000000
+      source: media
       validFiles:
         - extension: .mp4
           type: video/mp4

@@ -57,7 +57,7 @@ trait UploadRequestReqMsgHdlr extends RightsManagementTrait {
     if (permissionFailed(PermissionCheck.GUEST_LEVEL, PermissionCheck.MOD_LEVEL, liveMeeting.users2x, userId)) {
       broadcastUploadRequestResp(msg)
     } else {
-      val token = RandomStringGenerator.randomAlphanumericString(13)
+      val token = RandomStringGenerator.randomAlphanumericString(32)
       broadcastUploadRequestSysMsg(msg, token)
       broadcastUploadRequestResp(msg, true, token)
     }

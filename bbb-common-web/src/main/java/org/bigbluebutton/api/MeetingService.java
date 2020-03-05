@@ -507,6 +507,10 @@ public class MeetingService implements MessageListener {
     }
   }
 
+  public void fileUploaded(String meetingId, String userId, String source, String uploadId, String filename) {
+    // TODO
+  }
+
   public void endMeeting(String meetingId) {
     handle(new EndMeeting(meetingId));
   }

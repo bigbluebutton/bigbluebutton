@@ -46,4 +46,20 @@ public final class Util {
 		}
 		return null;
 	}
+
+	public static String generateUploadId(String filename) {
+		long timestamp = System.currentTimeMillis();
+		return DigestUtils.sha1Hex(filename) + "-" + timestamp;
+	}
+
+	// TODO: Handle source
+	public static File createUploadDir(String rootDir, String source, String meetingId, String uploadId) {
+		String meetingPath = rootDir + File.separatorChar + meetingId + File.separatorChar + meetingId;
+		String uploadPath = meetingPath + File.separatorChar + uploadId;
+		File uploadDir = new File(uploadPath);
+		if (uploadDir.mkdirs()) {
+			return uploadDir;
+		}
+		return null;
+	}
 }

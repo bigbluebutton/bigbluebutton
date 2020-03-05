@@ -4,8 +4,8 @@ const isEnabled = () => {
   return MEDIA_UPLOAD.enabled;
 };
 
-const getEndpoint = () => {
-  return MEDIA_UPLOAD.endpoint;
+const getSource = () => {
+  return MEDIA_UPLOAD.source;
 };
 
 const getMaxSize = () => {
@@ -23,7 +23,7 @@ const getMediaFiles = () => {
 
 export default {
   isEnabled,
-  getEndpoint,
+  getSource,
   getMaxSize,
   getMediaValidFiles,
   getMediaFiles,

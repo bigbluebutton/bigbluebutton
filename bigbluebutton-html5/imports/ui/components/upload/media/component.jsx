@@ -48,7 +48,7 @@ class MediaUpload extends Component {
 
     this.state = { files: [] };
 
-    this.endpoint = Service.getEndpoint();
+    this.source = Service.getSource();
     this.maxSize = Service.getMaxSize();
     this.validFiles = Service.getMediaValidFiles();
 
@@ -84,7 +84,7 @@ class MediaUpload extends Component {
       intl,
     } = this.props;
 
-    UploadService.upload('media', this.endpoint, files, intl);
+    UploadService.upload(this.source, files, intl);
     closeModal();
   }
 

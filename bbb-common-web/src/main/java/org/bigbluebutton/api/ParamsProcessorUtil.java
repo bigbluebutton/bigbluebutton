@@ -112,6 +112,7 @@ public class ParamsProcessorUtil {
 
     private Long maxPresentationFileUpload = 30000000L; // 30MB
     private Long maxUploadSize = 30000000L; // 30MB
+    private String uploadDir;
 
     private Integer maxInactivityTimeoutMinutes = 120;
     private Integer clientLogoutTimerInMinutes = 0;
@@ -1009,6 +1010,14 @@ public class ParamsProcessorUtil {
 
 	public Long getMaxUploadSize() {
 		return maxUploadSize;
+	}
+
+  public void setUploadDir(String uploadDir) {
+		this.uploadDir = uploadDir;
+	}
+
+	public String getUploadDir() {
+		return uploadDir;
 	}
 
 	public void setMuteOnStart(Boolean mute) {
