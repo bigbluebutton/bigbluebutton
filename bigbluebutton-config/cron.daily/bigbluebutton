@@ -59,9 +59,10 @@ for app in recordings screenshare; do
 done
 
 #
-# Delete FreeSWITCH wav recordings older than N days
+# Delete FreeSWITCH wav/opus recordings older than N days
 #
-find /var/freeswitch/meetings/ -name "*.wav" -mtime +$history -delete
+find /var/freeswitch/meetings/ -name "*.wav"  -mtime +$history -delete
+find /var/freeswitch/meetings/ -name "*.opus" -mtime +$history -delete
 
 #
 # Delete old/rotated log files
