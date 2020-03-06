@@ -100,12 +100,26 @@ class AnalyticsActor extends Actor with ActorLogging {
       case m: BreakoutRoomEndedEvtMsg => logMessage(msg)
 
       // Presentation
-      case m: PresentationConversionCompletedSysPubMsg => logMessage(msg)
+      //case m: PresentationConversionCompletedSysPubMsg => logMessage(msg)
       case m: PdfConversionInvalidErrorSysPubMsg => logMessage(msg)
       case m: SetCurrentPresentationPubMsg => logMessage(msg)
       case m: SetCurrentPresentationEvtMsg => logMessage(msg)
       case m: SetPresentationDownloadablePubMsg => logMessage(msg)
       case m: SetPresentationDownloadableEvtMsg => logMessage(msg)
+      //case m: PresentationPageConvertedSysMsg => logMessage(msg)
+      //case m: PresentationPageConvertedEventMsg => logMessage(msg)
+      case m: PresentationPageConversionStartedSysMsg => logMessage(msg)
+      case m: PresentationConversionEndedSysMsg => logMessage(msg)
+      case m: PresentationConversionRequestReceivedSysMsg => logMessage(msg)
+      //case m: PresentationConversionCompletedEvtMsg => logMessage(msg)
+      case m: GetAllPresentationPodsReqMsg => logMessage(msg)
+      //case m: PresentationPageGeneratedSysPubMsg => logMessage(msg)
+      //case m: PresentationPageGeneratedEvtMsg => logMessage(msg)
+      //case m: ResizeAndMovePagePubMsg => logMessage(msg)
+      case m: PresentationConversionUpdateSysPubMsg => logMessage(msg)
+      case m: PresentationConversionUpdateEvtMsgBody => logMessage(msg)
+      case m: PresentationPageCountErrorSysPubMsg => logMessage(msg)
+      case m: PresentationPageCountErrorEvtMsg => logMessage(msg)
 
       // Group Chats
       case m: SendGroupChatMessageMsg => logMessage(msg)

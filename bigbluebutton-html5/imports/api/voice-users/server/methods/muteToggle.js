@@ -19,6 +19,7 @@ export default function muteToggle(uId) {
 
   const voiceUser = VoiceUsers.findOne({
     intId: userToMute,
+    meetingId,
   });
 
   if (!requester || !voiceUser) return;

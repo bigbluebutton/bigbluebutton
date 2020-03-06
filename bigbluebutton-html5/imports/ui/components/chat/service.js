@@ -169,7 +169,7 @@ const lastReadMessageTime = (receiverID) => {
 };
 
 const sendGroupMessage = (message) => {
-  const chatID = Session.get('idChatOpen') || PUBLIC_CHAT_ID;
+  const chatID = Session.get('idChatOpen');
   const isPublicChat = chatID === PUBLIC_CHAT_ID;
 
   let destinationChatId = PUBLIC_GROUP_CHAT_ID;
@@ -220,7 +220,7 @@ const updateScrollPosition = position => ScrollCollection.upsert(
 );
 
 const updateUnreadMessage = (timestamp) => {
-  const chatID = Session.get('idChatOpen') || PUBLIC_CHAT_ID;
+  const chatID = Session.get('idChatOpen');
   const isPublic = chatID === PUBLIC_CHAT_ID;
   const chatType = isPublic ? PUBLIC_GROUP_CHAT_ID : chatID;
   return UnreadMessages.update(chatType, timestamp);

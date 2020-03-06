@@ -17,8 +17,8 @@ object Dependencies {
     val logback = "1.2.3"
 
     // Apache Commons
-    val lang = "3.8.1"
-    val codec = "1.11"
+    val lang = "3.9"
+    val codec = "1.14"
 
     // BigBlueButton
     val bbbCommons = "0.0.20-SNAPSHOT"
@@ -39,7 +39,6 @@ object Dependencies {
     val akkaStream = "com.typesafe.akka" %% "akka-stream" % Versions.akkaVersion
 
     val akkaHttp = "com.typesafe.akka" %% "akka-http" % Versions.akkaHttpVersion
-    // https://mvnrepository.com/artifact/com.typesafe.akka/akka-http-spray-json
     val akkaHttpSprayJson = "com.typesafe.akka" %% "akka-http-spray-json" % Versions.akkaHttpVersion
 
     val logback = "ch.qos.logback" % "logback-classic" % Versions.logback
