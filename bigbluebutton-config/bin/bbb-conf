@@ -917,7 +917,9 @@ check_configuration() {
         echo 
       fi
     fi
+}
 
+update_gstreamer() {
     # due to a change in the kurento packages naming convention, gstreamer packages don't naturally upgrade
     # this snippet checks if the installed gstreamer packages are the same as the one available in the repository
     # if they are not, it will update (possibly downgrade)
@@ -932,7 +934,7 @@ check_configuration() {
             fi
         done
         if [[ $DOWNGRADE_LIST != "" ]]; then
-            apt-get -y install $DOWNGRADE_LIST > /dev/null
+            apt-get -y --allow-downgrades install $DOWNGRADE_LIST > /dev/null
         fi
     fi
 }
@@ -1977,6 +1979,7 @@ if [ -n "$HOST" ]; then
 
     echo "Restarting the BigBlueButton $BIGBLUEBUTTON_RELEASE ..."
     stop_bigbluebutton
+    update_gstreamer
     echo
     start_bigbluebutton
 
@@ -1991,6 +1994,7 @@ if [ $RESTART ]; then
     echo "Restarting BigBlueButton $BIGBLUEBUTTON_RELEASE ..."
 
     stop_bigbluebutton
+    update_gstreamer
     start_bigbluebutton
     check_state
 fi
@@ -2002,6 +2006,7 @@ if [ $CLEAN ]; then
     echo "Restarting BigBlueButton $BIGBLUEBUTTON_RELEASE (and cleaning out all log files) ..."
 
     stop_bigbluebutton
+    update_gstreamer
 
     #
     # Clean log files
