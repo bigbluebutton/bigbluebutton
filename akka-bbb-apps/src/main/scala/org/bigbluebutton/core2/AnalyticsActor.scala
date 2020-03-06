@@ -127,6 +127,7 @@ class AnalyticsActor extends Actor with ActorLogging {
       // Upload
       case m: UploadRequestReqMsg => logMessage(msg)
       case m: UploadRequestRespMsg => logMessage(msg)
+      case m: FileUploadedEvtMsg => logMessage(msg)
 
       // System
       case m: ClientToServerLatencyTracerMsg => traceMessage(msg)

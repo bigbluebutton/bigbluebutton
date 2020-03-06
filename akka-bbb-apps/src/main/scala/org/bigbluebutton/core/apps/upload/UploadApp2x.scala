@@ -4,7 +4,8 @@ import akka.actor.ActorContext
 import akka.event.Logging
 
 class UploadApp2x(implicit val context: ActorContext)
-  extends UploadRequestReqMsgHdlr {
+  extends UploadRequestReqMsgHdlr
+  with FileUploadedSysMsgHdlr {
 
   val log = Logging(context.system, getClass)
 }

@@ -291,6 +291,8 @@ class ReceivedJsonMsgHandlerActor(
       // Upload
       case UploadRequestReqMsg.NAME =>
         routeGenericMsg[UploadRequestReqMsg](envelope, jsonNode)
+      case FileUploadedSysMsg.NAME =>
+        routeGenericMsg[FileUploadedSysMsg](envelope, jsonNode)
 
       // Lock settings
       case LockUserInMeetingCmdMsg.NAME =>

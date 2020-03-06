@@ -1,9 +1,12 @@
-import Upload from '/imports/api/upload';
 import { Meteor } from 'meteor/meteor';
 import { check } from 'meteor/check';
+import {
+  UploadRequest,
+  UploadedFile,
+} from '/imports/api/upload';
 import Logger from '/imports/startup/server/logger';
 
-Meteor.publish('upload', (credentials, source, filename) => {
+Meteor.publish('upload-request', (credentials, source, filename) => {
   const { meetingId, requesterUserId } = credentials;
 
   check(meetingId, String);
@@ -17,7 +20,19 @@ Meteor.publish('upload', (credentials, source, filename) => {
     filename,
   };
 
-  Logger.debug(`Publishing upload for ${meetingId} ${requesterUserId}`);
+  Logger.debug(`Publishing upload request for ${meetingId} ${requesterUserId}`);
 
-  return Upload.find(selector);
+  return UploadRequest.find(selector);
+});
+
+Meteor.publish('uploaded-file', (credentials) => {
+  const { meetingId } = credentials;
+
+  check(meetingId, String);
+
+  const selector = { meetingId };
+
+  Logger.debug(`Publishing uploaded file for ${meetingId}`);
+
+  return UploadedFile.find(selector);
 });

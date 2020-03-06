@@ -38,7 +38,7 @@ trait UploadRequestReqMsgHdlr extends RightsManagementTrait {
     }
 
     // To client
-    def broadcastUploadRequestResp(
+    def broadcastUploadRequestRespMsg(
         msg:     UploadRequestReqMsg,
         success: Boolean             = false,
         token:   String              = null
@@ -55,11 +55,11 @@ trait UploadRequestReqMsgHdlr extends RightsManagementTrait {
     }
 
     if (permissionFailed(PermissionCheck.GUEST_LEVEL, PermissionCheck.MOD_LEVEL, liveMeeting.users2x, userId)) {
-      broadcastUploadRequestResp(msg)
+      broadcastUploadRequestRespMsg(msg)
     } else {
       val token = RandomStringGenerator.randomAlphanumericString(32)
       broadcastUploadRequestSysMsg(msg, token)
-      broadcastUploadRequestResp(msg, true, token)
+      broadcastUploadRequestRespMsg(msg, true, token)
     }
   }
 }

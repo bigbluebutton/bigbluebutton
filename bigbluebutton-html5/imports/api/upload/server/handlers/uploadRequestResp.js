@@ -1,5 +1,5 @@
 import { check } from 'meteor/check';
-import addUpload from '../modifiers/addUpload';
+import addUploadRequest from '../modifiers/addUploadRequest';
 
 export default function handleUploadRequestResp({ body }, meetingId) {
   check(body, Object);
@@ -14,5 +14,5 @@ export default function handleUploadRequestResp({ body }, meetingId) {
     token,
   } = body;
 
-  return addUpload(meetingId, source, filename, userId, success, timestamp, token);
+  return addUploadRequest(meetingId, source, filename, userId, success, timestamp, token);
 }

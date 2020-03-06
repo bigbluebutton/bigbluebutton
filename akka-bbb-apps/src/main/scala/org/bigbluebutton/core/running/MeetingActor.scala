@@ -456,6 +456,7 @@ class MeetingActor(
 
       // Upload
       case m: UploadRequestReqMsg                      => uploadApp.handle(m, liveMeeting, msgBus)
+      case m: FileUploadedSysMsg                       => uploadApp.handle(m, liveMeeting, msgBus)
 
       // Guests
       case m: GetGuestsWaitingApprovalReqMsg           => handleGetGuestsWaitingApprovalReqMsg(m)

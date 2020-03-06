@@ -52,10 +52,9 @@ public final class Util {
 		return DigestUtils.sha1Hex(filename) + "-" + timestamp;
 	}
 
-	// TODO: Handle source
 	public static File createUploadDir(String rootDir, String source, String meetingId, String uploadId) {
-		String meetingPath = rootDir + File.separatorChar + meetingId + File.separatorChar + meetingId;
-		String uploadPath = meetingPath + File.separatorChar + uploadId;
+		String sourcePath = rootDir + File.separatorChar + meetingId + File.separatorChar + source;
+		String uploadPath = sourcePath + File.separatorChar + uploadId;
 		File uploadDir = new File(uploadPath);
 		if (uploadDir.mkdirs()) {
 			return uploadDir;

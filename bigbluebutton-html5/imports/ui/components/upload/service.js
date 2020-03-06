@@ -1,6 +1,6 @@
 import { defineMessages, injectIntl } from 'react-intl';
 import axios from 'axios';
-import Upload from '/imports/api/upload';
+import { UploadRequest } from '/imports/api/upload';
 import Auth from '/imports/ui/services/auth';
 import { notify } from '/imports/ui/services/notification';
 import { makeCall } from '/imports/ui/services/api';
@@ -40,7 +40,7 @@ const requestUpload = (source, filename) => {
     Tracker.autorun(computation => {
       comp = computation;
 
-      const subscription = Meteor.subscribe('upload', Auth.credentials, source, filename);
+      const subscription = Meteor.subscribe('upload-request', Auth.credentials, source, filename);
       if (!subscription.ready()) return;
 
       const {
@@ -48,7 +48,7 @@ const requestUpload = (source, filename) => {
         requesterUserId: userId,
       } = Auth.credentials;
 
-      const request = Upload.findOne({
+      const request = UploadRequest.findOne({
         source,
         meetingId,
         userId,
@@ -103,8 +103,8 @@ const post = (source, file, token, intl) => {
 
   axios.post(url, data, config).then(resp => {
     notify(intl.formatMessage(intlMessages.completed, ({ 0: file.filename })), 'info', 'upload');
-  }).catch(err => {
-    console.log(err);
+  }).catch(error => {
+    notify(error, 'error', 'upload');
   });
 };
 

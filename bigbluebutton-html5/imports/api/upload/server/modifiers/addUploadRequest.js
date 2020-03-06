@@ -1,8 +1,8 @@
 import { check } from 'meteor/check';
 import Logger from '/imports/startup/server/logger';
-import Upload from '/imports/api/upload';
+import { UploadRequest } from '/imports/api/upload';
 
-export default function addUpload(meetingId, source, filename, userId, success, timestamp, token) {
+export default function addUploadRequest(meetingId, source, filename, userId, success, timestamp, token) {
   check(source, String);
   check(filename, String);
   check(userId, String);
@@ -33,12 +33,12 @@ export default function addUpload(meetingId, source, filename, userId, success, 
 
   const cb = (err) => {
     if (err) {
-      Logger.error(`Inserting upload request: ${err}`);
+      Logger.error(`Upserting upload request: ${err}`);
       return;
     }
 
-    Logger.debug(`Inserting upload request filename=${filename} user=${userId} meeting=${meetingId}`);
+    Logger.debug(`Upserting upload request filename=${filename} user=${userId} meeting=${meetingId}`);
   };
 
-  return Upload.upsert(selector, modifier, cb);
+  return UploadRequest.upsert(selector, modifier, cb);
 }

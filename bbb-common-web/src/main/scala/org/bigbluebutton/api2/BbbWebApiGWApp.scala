@@ -252,6 +252,18 @@ class BbbWebApiGWApp(
     msgToAkkaAppsEventBus.publish(MsgToAkkaApps(toAkkaAppsChannel, event))
   }
 
+  def fileUploaded(
+      uploadId:  String,
+      source:    String,
+      filename:  String,
+      userId:    String,
+      meetingId: String,
+      url:       String
+  ): Unit = {
+    val event = MsgBuilder.buildFileUploadedSysMsg(uploadId, source, filename, userId, meetingId, url)
+    msgToAkkaAppsEventBus.publish(MsgToAkkaApps(toAkkaAppsChannel, event))
+  }
+
   def publishedRecording(msg: PublishedRecordingMessage): Unit = {
     val event = MsgBuilder.buildPublishedRecordingSysMsg(msg)
     // Probably violating something here, but a new event bus looks just too much for this

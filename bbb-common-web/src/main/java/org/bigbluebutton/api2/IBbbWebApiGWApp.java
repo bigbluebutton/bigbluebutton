@@ -41,6 +41,14 @@ public interface IBbbWebApiGWApp {
 
   void destroyMeeting(DestroyMeetingMessage msg);
   void endMeeting(EndMeetingMessage msg);
+  void fileUploaded(
+    String uploadId,
+    String source,
+    String filename,
+    String userId,
+    String meetingId,
+    String url
+  );
   void sendKeepAlive(String system, Long timestamp);
   void publishedRecording(PublishedRecordingMessage msg);
   void unpublishedRecording(UnpublishedRecordingMessage msg);

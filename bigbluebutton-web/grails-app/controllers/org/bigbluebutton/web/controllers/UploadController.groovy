@@ -72,8 +72,10 @@ class UploadController {
           def localFilePath = uploadDir.absolutePath + File.separatorChar + localFilename
           def localFile = new File(localFilePath)
           file.transferTo(localFile)
+          // TODO: url
+          def url = "teste"
 
-          meetingService.fileUploaded(meetingId, userId, source, uploadId, filename)
+          meetingService.fileUploaded(uploadId, source, filename, userId, meetingId, url)
         } else {
           log.debug("Upload failed. Could not create upload dir.")
           response.addHeader("Cache-Control", "no-cache")

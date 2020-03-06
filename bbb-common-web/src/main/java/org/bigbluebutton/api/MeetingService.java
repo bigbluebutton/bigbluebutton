@@ -507,8 +507,15 @@ public class MeetingService implements MessageListener {
     }
   }
 
-  public void fileUploaded(String meetingId, String userId, String source, String uploadId, String filename) {
-    // TODO
+  public void fileUploaded(
+      String uploadId,
+      String source,
+      String filename,
+      String userId,
+      String meetingId,
+      String url
+    ) {
+     gw.fileUploaded(uploadId, source, filename, userId, meetingId, url);
   }
 
   public void endMeeting(String meetingId) {
