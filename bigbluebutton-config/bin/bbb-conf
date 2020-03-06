@@ -921,16 +921,19 @@ check_configuration() {
     # due to a change in the kurento packages naming convention, gstreamer packages don't naturally upgrade
     # this snippet checks if the installed gstreamer packages are the same as the one available in the repository
     # if they are not, it will update (possibly downgrade)
-    DOWNGRADE_LIST=""
-    for PACKAGE in $(dpkg -l | grep gst | tr -s ' ' | cut -d' ' -f2 | cut -d':' -f1); do
-        RIGHT_VERSION=$(apt-cache policy $PACKAGE | grep -B1 ubuntu.bigbluebutton.org | head -n1 | tr -s ' ' | cut -d' ' -f2)
-        if [[ $RIGHT_VERSION != "***" ]] && [[ $RIGHT_VERSION != "" ]]; then
-            echo "Force $PACKAGE to version $RIGHT_VERSION"
-            DOWNGRADE_LIST="$PACKAGE=$RIGHT_VERSION $DOWNGRADE_LIST"
+    # TODO remove it on 2.3 or above
+    if [ "$DISTRIB_CODENAME" == "xenial" ]; then
+        DOWNGRADE_LIST=""
+        for PACKAGE in $(dpkg -l | grep gst | tr -s ' ' | cut -d' ' -f2 | cut -d':' -f1); do
+            RIGHT_VERSION=$(apt-cache policy $PACKAGE | grep -B1 ubuntu.bigbluebutton.org | head -n1 | tr -s ' ' | cut -d' ' -f2)
+            if [[ $RIGHT_VERSION != "***" ]] && [[ $RIGHT_VERSION != "" ]]; then
+                echo "Force $PACKAGE to version $RIGHT_VERSION"
+                DOWNGRADE_LIST="$PACKAGE=$RIGHT_VERSION $DOWNGRADE_LIST"
+            fi
+        done
+        if [[ $DOWNGRADE_LIST != "" ]]; then
+            apt-get -y install $DOWNGRADE_LIST > /dev/null
         fi
-    done
-    if [[ $DOWNGRADE_LIST != "" ]]; then
-        apt-get -y install $DOWNGRADE_LIST > /dev/null
     fi
 }
 
