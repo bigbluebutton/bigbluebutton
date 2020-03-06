@@ -369,7 +369,7 @@
     "app.audioNotification.audioFailedError1004": "Failure on call (reason={0}) (error 1004)",
     "app.audioNotification.audioFailedError1005": "Call ended unexpectedly (error 1005)",
     "app.audioNotification.audioFailedError1006": "Call timed out (error 1006)",
-    "app.audioNotification.audioFailedError1007": "Connection negotiation failed (ICE error 1007)",
+    "app.audioNotification.audioFailedError1007": "Connection failure (ICE error 1007)",
     "app.audioNotification.audioFailedError1008": "Transfer failed (error 1008)",
     "app.audioNotification.audioFailedError1009": "Could not fetch STUN/TURN server information (error 1009)",
     "app.audioNotification.audioFailedError1010": "Connection negotiation timeout (ICE error 1010)",
