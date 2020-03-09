@@ -188,6 +188,8 @@ public:
           type: video/mp4
         - extension: .mp4
           type: audio/mp4
+  download:
+    endpoint: /bigbluebutton/download
   presentation:
     defaultPresentationFile: default.pdf
     panZoomThrottle: 32

@@ -1,4 +1,8 @@
+import { UploadedFile } from '/imports/api/upload';
+import Auth from '/imports/ui/services/auth';
+
 const MEDIA_UPLOAD = Meteor.settings.public.upload.media;
+const DOWNLOAD = Meteor.settings.public.download;
 
 const isEnabled = () => {
   return MEDIA_UPLOAD.enabled;
@@ -16,10 +20,16 @@ const getMediaValidFiles = () => {
   return MEDIA_UPLOAD.validFiles;
 };
 
-// TODO: Uploaded files collection
 const getMediaFiles = () => {
-  return [];
+  return UploadedFile.find({
+    meetingId: Auth.meetingID,
+    source: 'media',
+  }).fetch()
 };
+
+const getDownloadURL = id => {
+  return Auth.authenticateURL(`${DOWNLOAD.endpoint}/media/${id}`);
+}
 
 export default {
   isEnabled,
@@ -27,4 +37,5 @@ export default {
   getMaxSize,
   getMediaValidFiles,
   getMediaFiles,
+  getDownloadURL,
 };

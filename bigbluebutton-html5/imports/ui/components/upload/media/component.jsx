@@ -114,7 +114,6 @@ class MediaUpload extends Component {
     );
   }
 
-
   renderFiles() {
     const { intl } = this.props;
     const { files } = this.state;

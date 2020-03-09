@@ -1,7 +1,9 @@
 import React, { Component } from 'react';
 import { withModalMounter } from '/imports/ui/components/modal/service';
+import Icon from '/imports/ui/components/icon/component';
 import Modal from '/imports/ui/components/modal/simple/component';
 import Button from '/imports/ui/components/button/component';
+import UploadMediaService from '/imports/ui/components/upload/media/service';
 
 import { defineMessages, injectIntl } from 'react-intl';
 import { isUrlValid } from '../service';
@@ -33,6 +35,10 @@ const intlMessages = defineMessages({
     id: 'app.externalVideo.close',
     description: 'Close',
   },
+  filename: {
+    id: 'app.externalVideo.filename',
+    description: 'Media filename',
+  },
   note: {
     id: 'app.externalVideo.noteLabel',
     description: 'provides hint about Shared External videos',
@@ -54,6 +60,7 @@ class ExternalVideoModal extends Component {
     this.updateVideoUrlHandler = this.updateVideoUrlHandler.bind(this);
     this.renderUrlError = this.renderUrlError.bind(this);
     this.updateVideoUrlHandler = this.updateVideoUrlHandler.bind(this);
+    this.onMediaFileClick = this.onMediaFileClick.bind(this);
   }
 
   startWatchingHandler() {
@@ -72,6 +79,18 @@ class ExternalVideoModal extends Component {
     this.setState({ url: ev.target.value });
   }
 
+  onMediaFileClick(id) {
+    const {
+      startWatching,
+      closeModal,
+    } = this.props;
+
+    const url = UploadMediaService.getDownloadURL(id);
+
+    startWatching(url.trim());
+    closeModal();
+  }
+
   renderUrlError() {
     const { intl } = this.props;
     const { url } = this.state;
@@ -86,6 +105,51 @@ class ExternalVideoModal extends Component {
           </div>
         )
         : null
+    );
+  }
+
+  renderItem(item) {
+    const { intl } = this.props;
+
+    return (
+      <tr
+        key={item.uploadId}
+        className={styles.item}
+        onClick={() => this.onMediaFileClick(item.uploadId)}
+      >
+        <td className={styles.icon}>
+          <Icon iconName="file" />
+        </td>
+        <th className={styles.name}>
+          <span>{item.filename}</span>
+        </th>
+      </tr>
+    );
+  }
+
+  renderFiles() {
+    const {
+      intl,
+      files,
+    } = this.props;
+
+    if (files.length === 0) return null;
+
+    return (
+      <div className={styles.list}>
+        <table className={styles.table}>
+          <thead>
+            <tr>
+              <th className={styles.hidden}>
+                {intl.formatMessage(intlMessages.filename)}
+              </th>
+            </tr>
+          </thead>
+          <tbody>
+            {files.map(item => this.renderItem(item))}
+          </tbody>
+        </table>
+      </div>
     );
   }
 
@@ -123,12 +187,9 @@ class ExternalVideoModal extends Component {
             <div className={styles.externalVideoNote} id="external-video-note">
               {intl.formatMessage(intlMessages.note)}
             </div>
-          </div>
-
-          <div>
             {this.renderUrlError()}
           </div>
-
+          {this.renderFiles()}
           <Button
             className={styles.startBtn}
             label={intl.formatMessage(intlMessages.start)}
