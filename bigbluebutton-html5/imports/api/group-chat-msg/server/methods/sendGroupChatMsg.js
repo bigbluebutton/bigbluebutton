@@ -2,6 +2,7 @@ import { Meteor } from 'meteor/meteor';
 import { check } from 'meteor/check';
 import RedisPubSub from '/imports/startup/server/redis';
 import RegexWebUrl from '/imports/utils/regex-weburl';
+import { extractCredentials } from '/imports/api/common/server/helpers';
 
 const HTML_SAFE_MAP = {
   '<': '&lt;',
@@ -26,16 +27,13 @@ const parseMessage = (message) => {
   return parsedMessage;
 };
 
-export default function sendGroupChatMsg(credentials, chatId, message) {
+export default function sendGroupChatMsg(chatId, message) {
   const REDIS_CONFIG = Meteor.settings.private.redis;
   const CHANNEL = REDIS_CONFIG.channels.toAkkaApps;
   const EVENT_NAME = 'SendGroupChatMessageMsg';
 
-  const { meetingId, requesterUserId, requesterToken } = credentials;
+  const { meetingId, requesterUserId } = extractCredentials(this.userId);
 
-  check(meetingId, String);
-  check(requesterUserId, String);
-  check(requesterToken, String);
   check(message, Object);
 
   const parsedMessage = parseMessage(message.message);

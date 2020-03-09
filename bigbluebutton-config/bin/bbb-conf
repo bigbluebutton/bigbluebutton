@@ -917,7 +917,26 @@ check_configuration() {
         echo 
       fi
     fi
+}
 
+update_gstreamer() {
+    # due to a change in the kurento packages naming convention, gstreamer packages don't naturally upgrade
+    # this snippet checks if the installed gstreamer packages are the same as the one available in the repository
+    # if they are not, it will update (possibly downgrade)
+    # TODO remove it on 2.3 or above
+    if [ "$DISTRIB_CODENAME" == "xenial" ]; then
+        DOWNGRADE_LIST=""
+        for PACKAGE in $(dpkg -l | grep gst | tr -s ' ' | cut -d' ' -f2 | cut -d':' -f1); do
+            RIGHT_VERSION=$(apt-cache policy $PACKAGE | grep -B1 ubuntu.bigbluebutton.org | head -n1 | tr -s ' ' | cut -d' ' -f2)
+            if [[ $RIGHT_VERSION != "***" ]] && [[ $RIGHT_VERSION != "" ]]; then
+                echo "Force $PACKAGE to version $RIGHT_VERSION"
+                DOWNGRADE_LIST="$PACKAGE=$RIGHT_VERSION $DOWNGRADE_LIST"
+            fi
+        done
+        if [[ $DOWNGRADE_LIST != "" ]]; then
+            apt-get -y --allow-downgrades install $DOWNGRADE_LIST > /dev/null
+        fi
+    fi
 }
 
 
@@ -1435,7 +1454,7 @@ check_state() {
     if systemctl status freeswitch | grep -q SETSCHEDULER; then
         echo "# Error: FreeSWITCH failed to start with SETSCHEDULER error, see"
         echo "#"
-        echo "#   https://docs.bigbluebutton.org/install/install.html#freeswitch-fails-to-start-with-a-setscheduler-error"
+        echo "#   http://docs.bigbluebutton.org/2.2/troubleshooting.html#freeswitch-fails-to-start-with-a-setscheduler-error"
         echo "#"
     fi
 
@@ -1650,6 +1669,15 @@ if [ $CHECK ]; then
         echo "                             build: $(yq r $HTML5_CONFIG public.app.html5ClientBuild)"
         echo "                        kurentoUrl: $(yq r $HTML5_CONFIG public.kurento.wsUrl)"
         echo "                  enableListenOnly: $(yq r $HTML5_CONFIG public.kurento.enableListenOnly)"
+     fi
+
+     if ! java -version 2>&1 | grep -q "1.8.0"; then
+        echo
+        echo "# Warning: Did not detect Java 8 as default version"
+        echo
+        echo "   sudo apt-get install openjdk-8-jdk"
+        echo "   update-alternatives --config java"
+        echo "   bbb-conf --restart"
      fi
 
      check_state
@@ -1960,6 +1988,7 @@ if [ -n "$HOST" ]; then
 
     echo "Restarting the BigBlueButton $BIGBLUEBUTTON_RELEASE ..."
     stop_bigbluebutton
+    update_gstreamer
     echo
     start_bigbluebutton
 
@@ -1974,6 +2003,7 @@ if [ $RESTART ]; then
     echo "Restarting BigBlueButton $BIGBLUEBUTTON_RELEASE ..."
 
     stop_bigbluebutton
+    update_gstreamer
     start_bigbluebutton
     check_state
 fi
@@ -1985,6 +2015,7 @@ if [ $CLEAN ]; then
     echo "Restarting BigBlueButton $BIGBLUEBUTTON_RELEASE (and cleaning out all log files) ..."
 
     stop_bigbluebutton
+    update_gstreamer
 
     #
     # Clean log files

@@ -1,23 +1,16 @@
 import { Meteor } from 'meteor/meteor';
-import { check } from 'meteor/check';
 import RedisPubSub from '/imports/startup/server/redis';
 import Logger from '/imports/startup/server/logger';
 import Users from '/imports/api/users';
 import createDummyUser from '../modifiers/createDummyUser';
 import setConnectionIdAndAuthToken from '../modifiers/setConnectionIdAndAuthToken';
 
-export default function validateAuthToken(credentials) {
+export default function validateAuthToken(meetingId, requesterUserId, requesterToken) {
   const REDIS_CONFIG = Meteor.settings.private.redis;
   const CHANNEL = REDIS_CONFIG.channels.toAkkaApps;
   const EVENT_NAME = 'ValidateAuthTokenReqMsg';
 
-  const { meetingId, requesterUserId, requesterToken } = credentials;
-
-  check(meetingId, String);
-  check(requesterUserId, String);
-  check(requesterToken, String);
-
-  const sessionId = `${meetingId}-${requesterUserId}`;
+  const sessionId = `${meetingId}--${requesterUserId}`;
   this.setUserId(sessionId);
 
   const User = Users.findOne({

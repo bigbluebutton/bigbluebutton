@@ -26,7 +26,7 @@ export function publishCursorUpdate(payload) {
     const throttledEmit = throttle(cursorStreamListener.emit.bind(cursorStreamListener), 30, { trailing: true });
 
     throttledEmit('publish', {
-      credentials: Auth.credentials,
+      userId: Auth.userID,
       payload,
     });
   }
