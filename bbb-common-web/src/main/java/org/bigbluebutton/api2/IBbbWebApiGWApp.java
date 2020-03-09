@@ -45,9 +45,9 @@ public interface IBbbWebApiGWApp {
     String uploadId,
     String source,
     String filename,
+    String contentType,
     String userId,
-    String meetingId,
-    String url
+    String meetingId
   );
   void sendKeepAlive(String system, Long timestamp);
   void publishedRecording(PublishedRecordingMessage msg);

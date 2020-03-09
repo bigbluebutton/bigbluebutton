@@ -12,8 +12,7 @@ export default function handleFileUploadedEvt({ header, body }, meetingId) {
     uploadId,
     source,
     filename,
-    url,
   } = body;
 
-  return addUploadedFile(meetingId, userId, uploadId, source, filename, url);
+  return addUploadedFile(meetingId, userId, uploadId, source, filename);
 }

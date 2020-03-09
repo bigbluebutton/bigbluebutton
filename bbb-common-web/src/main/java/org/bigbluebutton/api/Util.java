@@ -53,12 +53,20 @@ public final class Util {
 	}
 
 	public static File createUploadDir(String rootDir, String source, String meetingId, String uploadId) {
-		String sourcePath = rootDir + File.separatorChar + meetingId + File.separatorChar + source;
+		String meetingsPath = rootDir + File.separatorChar + "meetings";
+		String sourcePath = meetingsPath + File.separatorChar + meetingId + File.separatorChar + source;
 		String uploadPath = sourcePath + File.separatorChar + uploadId;
 		File uploadDir = new File(uploadPath);
 		if (uploadDir.mkdirs()) {
 			return uploadDir;
 		}
 		return null;
+	}
+
+	public static String getDownloadPath(String rootDir, String source, String meetingId, String uploadId) {
+		String meetingsPath = rootDir + File.separatorChar + "meetings";
+		String sourcePath = meetingsPath + File.separatorChar + meetingId + File.separatorChar + source;
+		String downloadPath = sourcePath + File.separatorChar + uploadId;
+		return downloadPath;
 	}
 }

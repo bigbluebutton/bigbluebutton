@@ -99,11 +99,19 @@ class UrlMappings {
       action = [GET:'checkAuthorization']
     }
 
-    "/bigbluebutton/upload/$token"(controller: "upload") {
+    "/bigbluebutton/upload/$source/$token"(controller: "upload") {
       action = [POST: 'upload']
     }
 
     "/bigbluebutton/upload/check"(controller: "upload") {
+      action = [GET: 'check']
+    }
+
+    "/bigbluebutton/download/$source/$id"(controller: "download") {
+      action = [GET: 'download']
+    }
+
+    "/bigbluebutton/download/check"(controller: "download") {
       action = [GET: 'check']
     }
 

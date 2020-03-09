@@ -12,7 +12,7 @@ case class UploadRequestRespMsgBody(source: String, filename: String, userId: St
 
 object FileUploadedEvtMsg { val NAME = "FileUploadedEvtMsg" }
 case class FileUploadedEvtMsg(header: BbbClientMsgHeader, body: FileUploadedEvtMsgBody) extends StandardMsg
-case class FileUploadedEvtMsgBody(uploadId: String, source: String, filename: String, url: String)
+case class FileUploadedEvtMsgBody(uploadId: String, source: String, filename: String)
 
 // akka-apps to bbb-web
 object UploadRequestSysMsg { val NAME = "UploadRequestSysMsg" }
@@ -22,4 +22,4 @@ case class UploadRequestSysMsgBody(source: String, filename: String, userId: Str
 // bbb-web to akka-apps
 object FileUploadedSysMsg { val NAME = "FileUploadedSysMsg" }
 case class FileUploadedSysMsg(header: BbbClientMsgHeader, body: FileUploadedSysMsgBody) extends StandardMsg
-case class FileUploadedSysMsgBody(uploadId: String, source: String, filename: String, url: String)
+case class FileUploadedSysMsgBody(uploadId: String, source: String, filename: String, contentType: String)

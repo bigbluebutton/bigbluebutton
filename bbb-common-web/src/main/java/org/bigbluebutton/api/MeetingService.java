@@ -47,6 +47,7 @@ import org.bigbluebutton.api.domain.Recording;
 import org.bigbluebutton.api.domain.RegisteredUser;
 import org.bigbluebutton.api.domain.User;
 import org.bigbluebutton.api.domain.UserSession;
+import org.bigbluebutton.api.domain.UploadedFile;
 import org.bigbluebutton.api.messaging.MessageListener;
 import org.bigbluebutton.api.messaging.converters.messages.DestroyMeetingMessage;
 import org.bigbluebutton.api.messaging.converters.messages.EndMeetingMessage;
@@ -212,6 +213,24 @@ public class MeetingService implements MessageListener {
       return m.isUploadRequestValid(source, filename, userId, token);
     } else {
       return false;
+    }
+  }
+
+  public Boolean isDownloadRequestValid(String meetingId, String source, String uploadId) {
+    Meeting m = getMeeting(meetingId);
+    if (m != null) {
+      return m.hasUploadedFile(source, uploadId);
+    } else {
+      return false;
+    }
+  }
+
+  public UploadedFile getUploadedFile(String meetingId, String uploadId) {
+    Meeting m = getMeeting(meetingId);
+    if (m != null) {
+      return m.getUploadedFile(uploadId);
+    } else {
+      return null;
     }
   }
 
@@ -511,11 +530,16 @@ public class MeetingService implements MessageListener {
       String uploadId,
       String source,
       String filename,
+      String contentType,
+      String extension,
       String userId,
-      String meetingId,
-      String url
+      String meetingId
     ) {
-     gw.fileUploaded(uploadId, source, filename, userId, meetingId, url);
+    Meeting m = getMeeting(meetingId);
+    if (m != null) {
+      m.addUploadedFile(source, filename, contentType, extension, uploadId);
+      gw.fileUploaded(uploadId, source, filename, contentType, userId, meetingId);
+    }
   }
 
   public void endMeeting(String meetingId) {

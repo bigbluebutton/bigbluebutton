@@ -45,6 +45,11 @@ if [ ! -d "$CAPTIONS_DIR" ]; then
   sudo mkdir -p $CAPTIONS_DIR
 fi
 
+MEETINGS_DIR=/var/bigbluebutton/meetings/
+if [ ! -d "$MEETINGS_DIR" ]; then
+  sudo mkdir -p $MEETINGS_DIR
+fi
+
 EVENTS_DIR=/var/bigbluebutton/events/
 if [ ! -d "$EVENTS_DIR" ]; then
   sudo mkdir -p $EVENTS_DIR

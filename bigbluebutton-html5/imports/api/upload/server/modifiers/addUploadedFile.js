@@ -2,13 +2,12 @@ import { check } from 'meteor/check';
 import Logger from '/imports/startup/server/logger';
 import { UploadedFile } from '/imports/api/upload';
 
-export default function addUploadedFile(meetingId, userId, uploadId, source, filename, url) {
+export default function addUploadedFile(meetingId, userId, uploadId, source, filename) {
   check(meetingId, String);
   check(userId, String);
   check(uploadId, String);
   check(source, String);
   check(filename, String);
-  check(url, String);
 
   const selector = {
     meetingId,
@@ -21,7 +20,6 @@ export default function addUploadedFile(meetingId, userId, uploadId, source, fil
     uploadId,
     source,
     filename,
-    url,
   };
 
   const cb = (err) => {

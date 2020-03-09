@@ -65,17 +65,17 @@ object MsgBuilder {
   }
 
   def buildFileUploadedSysMsg(
-      uploadId:  String,
-      source:    String,
-      filename:  String,
-      userId:    String,
-      meetingId: String,
-      url:       String
+      uploadId:    String,
+      source:      String,
+      filename:    String,
+      contentType: String,
+      userId:      String,
+      meetingId:   String
   ): BbbCommonEnvCoreMsg = {
     val routing = collection.immutable.HashMap("sender" -> "bbb-web")
     val envelope = BbbCoreEnvelope(FileUploadedSysMsg.NAME, routing)
     val header = BbbClientMsgHeader(FileUploadedSysMsg.NAME, meetingId, userId)
-    val body = FileUploadedSysMsgBody(uploadId, source, filename, url)
+    val body = FileUploadedSysMsgBody(uploadId, source, filename, contentType)
     val req = FileUploadedSysMsg(header, body)
     BbbCommonEnvCoreMsg(envelope, req)
   }

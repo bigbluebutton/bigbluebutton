@@ -253,14 +253,14 @@ class BbbWebApiGWApp(
   }
 
   def fileUploaded(
-      uploadId:  String,
-      source:    String,
-      filename:  String,
-      userId:    String,
-      meetingId: String,
-      url:       String
+      uploadId:    String,
+      source:      String,
+      filename:    String,
+      contentType: String,
+      userId:      String,
+      meetingId:   String
   ): Unit = {
-    val event = MsgBuilder.buildFileUploadedSysMsg(uploadId, source, filename, userId, meetingId, url)
+    val event = MsgBuilder.buildFileUploadedSysMsg(uploadId, source, filename, contentType, userId, meetingId)
     msgToAkkaAppsEventBus.publish(MsgToAkkaApps(toAkkaAppsChannel, event))
   }
 

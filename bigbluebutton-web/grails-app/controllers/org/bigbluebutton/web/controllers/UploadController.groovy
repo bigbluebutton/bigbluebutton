@@ -11,38 +11,34 @@ class UploadController {
   ParamsProcessorUtil paramsProcessorUtil
 
   def check = {
-    try {
-      def userId = request.getHeader("x-user-id")
-      def token = request.getHeader("x-token")
-      def source = request.getHeader("x-source")
-      def meetingId = request.getHeader("x-meeting-id")
-      def filename = request.getHeader("x-filename")
-      def contentLength = request.getHeader("x-content-length")
+    def meetingId = request.getHeader("x-meeting-id")
+    def source = request.getHeader("x-source")
+    def filename = request.getHeader("x-filename")
+    def userId = request.getHeader("x-user-id")
+    def token = request.getHeader("x-token")
+    def contentLength = request.getHeader("x-content-length")
 
-      def uploadSize = 0
-      if (contentLength.isNumber()) {
-        uploadSize = contentLength as int
-      }
+    def uploadSize = 0
+    if (contentLength.isNumber()) {
+      uploadSize = contentLength as int
+    }
 
-      def validRequest = meetingService.isUploadRequestValid(meetingId, source, filename, userId, token)
+    def validRequest = meetingService.isUploadRequestValid(meetingId, source, filename, userId, token)
 
-      def maxUploadSize = paramsProcessorUtil.getMaxUploadSize()
-      def validSize = uploadSize != 0 && uploadSize < maxUploadSize
+    def maxUploadSize = paramsProcessorUtil.getMaxUploadSize()
+    def validSize = uploadSize != 0 && uploadSize < maxUploadSize
 
-      if (validRequest && validSize) {
-        response.setStatus(200)
-        response.addHeader("Cache-Control", "no-cache")
-        response.contentType = 'plain/text'
-        response.outputStream << 'valid-upload'
-      } else {
-        log.debug("Upload failed. Invalid")
-        response.setStatus(404)
-        response.addHeader("Cache-Control", "no-cache")
-        response.contentType = 'plain/text'
-        response.outputStream << 'invalid-upload'
-      }
-    } catch (IOException e) {
-      log.error("Error while validating media upload.\n" + e.getMessage())
+    if (validRequest && validSize) {
+      response.setStatus(200)
+      response.addHeader("Cache-Control", "no-cache")
+      response.contentType = 'plain/text'
+      response.outputStream << 'valid-upload'
+    } else {
+      log.debug("Upload failed. Invalid")
+      response.setStatus(404)
+      response.addHeader("Cache-Control", "no-cache")
+      response.contentType = 'plain/text'
+      response.outputStream << 'invalid-upload'
     }
   }
 
@@ -60,6 +56,7 @@ class UploadController {
       def file = request.getFile('file')
       if (file && !file.empty) {
         def filename = file.getOriginalFilename()
+        def contentType = file.getContentType()
         def extension = FilenameUtils.getExtension(filename)
         def source = request.getHeader("x-source")
 
@@ -72,10 +69,8 @@ class UploadController {
           def localFilePath = uploadDir.absolutePath + File.separatorChar + localFilename
           def localFile = new File(localFilePath)
           file.transferTo(localFile)
-          // TODO: url
-          def url = "teste"
 
-          meetingService.fileUploaded(uploadId, source, filename, userId, meetingId, url)
+          meetingService.fileUploaded(uploadId, source, filename, contentType, extension, userId, meetingId)
         } else {
           log.debug("Upload failed. Could not create upload dir.")
           response.addHeader("Cache-Control", "no-cache")

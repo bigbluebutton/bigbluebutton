@@ -16,17 +16,15 @@ trait FileUploadedSysMsgHdlr {
     val meetingId = liveMeeting.props.meetingProp.intId
     val userId = msg.header.userId
 
-    // To client
     def broadcastFileUploadedEvtMsg(msg: FileUploadedSysMsg): Unit = {
       val uploadId = msg.body.uploadId
       val source = msg.body.source
       val filename = msg.body.filename
-      val url = msg.body.url
 
       val routing = Routing.addMsgToClientRouting(MessageTypes.DIRECT, meetingId, userId)
       val envelope = BbbCoreEnvelope(FileUploadedEvtMsg.NAME, routing)
       val header = BbbClientMsgHeader(FileUploadedEvtMsg.NAME, meetingId, userId)
-      val body = FileUploadedEvtMsgBody(uploadId, source, filename, url)
+      val body = FileUploadedEvtMsgBody(uploadId, source, filename)
       val event = FileUploadedEvtMsg(header, body)
       val msgEvent = BbbCommonEnvCoreMsg(envelope, event)
 
