@@ -32,7 +32,7 @@ class VideoService {
     this.skipVideoPreview = getFromUserSettings('bbb_skip_video_preview', false) || SKIP_VIDEO_PREVIEW;
     this.userParameterProfile = getFromUserSettings(
       'bbb_preferred_camera_profile',
-      (CAMERA_PROFILES.filter(i => i.default) || {}).id
+      (CAMERA_PROFILES.filter(i => i.default) || {}).id,
     );
     const BROWSER_RESULTS = browser();
     this.isMobile = BROWSER_RESULTS.mobile || BROWSER_RESULTS.os.includes('Android');
@@ -40,12 +40,15 @@ class VideoService {
 
     this.numberOfDevices = 0;
 
-    this.updateNumberOfDevices = this.updateNumberOfDevices.bind(this);
-    // Safari doesn't support ondevicechange
-    if (!this.isSafari) {
-      navigator.mediaDevices.ondevicechange = (event) => this.updateNumberOfDevices();
+    // If the page isn't served over HTTPS there won't be mediaDevices
+    if (navigator.mediaDevices) {
+      this.updateNumberOfDevices = this.updateNumberOfDevices.bind(this);
+      // Safari doesn't support ondevicechange
+      if (!this.isSafari) {
+        navigator.mediaDevices.ondevicechange = event => this.updateNumberOfDevices();
+      }
+      this.updateNumberOfDevices();
     }
-    this.updateNumberOfDevices();
   }
 
   defineProperties(obj) {
@@ -70,9 +73,9 @@ class VideoService {
   }
 
   updateNumberOfDevices() {
-    navigator.mediaDevices.enumerateDevices().then(devices => {
+    navigator.mediaDevices.enumerateDevices().then((devices) => {
       const deviceIds = [];
-      devices.forEach(d => {
+      devices.forEach((d) => {
         if (d.kind === 'videoinput' && !deviceIds.includes(d.deviceId)) {
           deviceIds.push(d.deviceId);
         }
@@ -242,8 +245,8 @@ class VideoService {
       {
         meetingId: Auth.meetingID,
         userId: Auth.userID,
-        deviceId: deviceId
-      }, { fields: { stream: 1 } }
+        deviceId,
+      }, { fields: { stream: 1 } },
     );
     return videoStream ? videoStream.stream : null;
   }
@@ -338,11 +341,11 @@ class VideoService {
     // Multiple cameras shouldn't be enabled with video preview skipping
     // Mobile shouldn't be able to share more than one camera at the same time
     // Safari needs to implement devicechange event for safe device control
-    return MULTIPLE_CAMERAS &&
-      !this.skipVideoPreview &&
-      !this.isMobile &&
-      !this.isSafari &&
-      this.numberOfDevices > 1;
+    return MULTIPLE_CAMERAS
+      && !this.skipVideoPreview
+      && !this.isMobile
+      && !this.isSafari
+      && this.numberOfDevices > 1;
   }
 
   monitor(conn) {
