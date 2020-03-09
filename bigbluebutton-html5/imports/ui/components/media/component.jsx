@@ -34,10 +34,6 @@ export default class Media extends Component {
     this.refContainer = React.createRef();
   }
 
-  componentWillUpdate() {
-    window.dispatchEvent(new Event('resize'));
-  }
-
   render() {
     const {
       swapLayout,

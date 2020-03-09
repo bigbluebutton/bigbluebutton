@@ -76,7 +76,6 @@ dependencies {
   compile "org.freemarker:freemarker:2.3.28"
   compile "com.google.code.gson:gson:2.8.5"
   compile "org.json:json:20180813"
-  compile "org.apache.poi:poi-ooxml:3.17"
   compile "org.jodconverter:jodconverter-local:4.2.1"
   compile "com.zaxxer:nuprocess:1.2.4"
   compile "net.java.dev.jna:jna:4.5.1"

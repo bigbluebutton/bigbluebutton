@@ -20,6 +20,7 @@ const propTypes = {
   webcamDraggableState: PropTypes.objectOf(Object).isRequired,
   webcamDraggableDispatch: PropTypes.func.isRequired,
   refMediaContainer: PropTypes.shape({ current: PropTypes.instanceOf(Element) }),
+  usersVideoLenght: PropTypes.number.isRequired,
 };
 
 const defaultProps = {
@@ -51,13 +52,19 @@ class WebcamDraggable extends PureComponent {
   }
 
   componentDidMount() {
+    dispatchResizeEvent();
     window.addEventListener('resize', this.debouncedOnResize);
     document.addEventListener('fullscreenchange', this.onFullscreenChange);
     window.addEventListener('orientationchange', () => setTimeout(this.recalculateAreaSize, 500));
   }
 
   componentDidUpdate(prevProps) {
-    const { swapLayout, webcamDraggableState, webcamDraggableDispatch } = this.props;
+    const {
+      swapLayout,
+      webcamDraggableState,
+      webcamDraggableDispatch,
+      usersVideoLenght,
+    } = this.props;
     const {
       placement: statePlacement,
       orientation,
@@ -72,6 +79,10 @@ class WebcamDraggable extends PureComponent {
     if (prevPlacement !== statePlacement) {
       setTimeout(() => this.forceUpdate(), 200);
       setTimeout(() => window.dispatchEvent(new Event('resize')), 500);
+    }
+
+    if (prevProps.usersVideoLenght !== usersVideoLenght) {
+      dispatchResizeEvent();
     }
 
     if (prevOrientation !== orientation) {
@@ -90,6 +101,7 @@ class WebcamDraggable extends PureComponent {
   componentWillUnmount() {
     window.removeEventListener('resize', this.debouncedOnResize);
     document.removeEventListener('fullscreenchange', this.onFullscreenChange);
+    dispatchResizeEvent();
   }
 
   onFullscreenChange() {
@@ -147,11 +159,11 @@ class WebcamDraggable extends PureComponent {
     const { webcamDraggableState } = this.props;
     const { optimalGrid, placement } = webcamDraggableState;
     if (placement === 'top' || placement === 'bottom') {
-      const mediaHeight = $('section[class^=media]').height();
+      const mediaHeight = document.querySelector('section[class^=media]').offsetHeight;
       this.setState({ placementPercent: (optimalGrid.height * 100) / mediaHeight });
     }
     if (placement === 'left' || placement === 'right') {
-      const mediaWidth = $('section[class^=media]').width();
+      const mediaWidth = document.querySelector('section[class^=media]').offsetWidth;
       this.setState({ placementPercent: (optimalGrid.width * 100) / mediaWidth });
     }
   }
@@ -429,8 +441,8 @@ class WebcamDraggable extends PureComponent {
       [styles.dropZoneBgRight]: true,
     });
 
-    const mHeight = $('section[class^=media]').height();
-    const mWidth = $('section[class^=media]').width();
+    const mHeight = document.querySelector('section[class^=media]').offsetHeight;
+    const mWidth = document.querySelector('section[class^=media]').offsetWidth;
 
     let resizeWidth;
     let resizeHeight;

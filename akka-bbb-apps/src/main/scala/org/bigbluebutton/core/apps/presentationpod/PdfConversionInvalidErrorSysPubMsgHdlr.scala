@@ -6,7 +6,7 @@ import org.bigbluebutton.core.domain.MeetingState2x
 import org.bigbluebutton.core.running.LiveMeeting
 
 trait PdfConversionInvalidErrorSysPubMsgHdlr {
-    this: PresentationPodHdlrs =>
+  this: PresentationPodHdlrs =>
 
   def handle(
       msg: PdfConversionInvalidErrorSysPubMsg, state: MeetingState2x,

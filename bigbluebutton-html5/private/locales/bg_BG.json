@@ -39,7 +39,6 @@
     "app.presentation.presentationToolbar.zoomDesc": "Change the zoom level of the presentation",
     "app.presentation.presentationToolbar.fitToWidth": "Fit to width",
     "app.presentationUploder.dismissLabel": "Cancel",
-    "app.presentationUploder.genericError": "Ops, something went wrong",
     "app.presentationUploder.tableHeading.options": "Options",
     "app.poll.closeLabel": "Close",
     "app.poll.liveResult.usersTitle": "Потребители",

@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import browser from 'browser-detect';
 import { Meteor } from 'meteor/meteor';
 import PropTypes from 'prop-types';
+import _ from 'lodash';
 import cx from 'classnames';
 import Dropdown from '/imports/ui/components/dropdown/component';
 import DropdownTrigger from '/imports/ui/components/dropdown/trigger/component';
@@ -165,6 +166,7 @@ class VideoListItem extends Component {
         >
           <video
             muted
+            data-test="videoContainer"
             className={cx({
               [styles.media]: true,
               [styles.cursorGrab]: !webcamDraggableState.dragging

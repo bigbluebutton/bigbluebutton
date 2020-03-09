@@ -108,7 +108,7 @@
   @extend %text-elipsis;
   @include highContrastOutline();
   outline-style: solid;
-  z-index: 2;
+  z-index: 3;
   overflow: visible;
   order: 1;
 
@@ -148,7 +148,7 @@
   order: 2;
   height: 100%;
   @include mq($small-only) {
-    z-index: 3;
+    z-index: 4;
     height: auto;
     top: var(--navbar-height);
     overflow: visible;
@@ -198,6 +198,7 @@
   position: relative;
   margin: 0 0 0 var(--panel-margin-right);
   overflow: hidden;
+  z-index: 0;
 
   [dir="rtl"] & {
     margin: 0 var(--panel-margin-right) 0 0;

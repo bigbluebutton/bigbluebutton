@@ -1,20 +1,19 @@
 import GroupChat from '/imports/api/group-chat';
 import { Meteor } from 'meteor/meteor';
-import { check } from 'meteor/check';
 
 import Logger from '/imports/startup/server/logger';
+import { extractCredentials } from '/imports/api/common/server/helpers';
 
-function groupChat(credentials) {
-  const { meetingId, requesterUserId, requesterToken } = credentials;
-
-  check(meetingId, String);
-  check(requesterUserId, String);
-  check(requesterToken, String);
+function groupChat() {
+  if (!this.userId) {
+    return GroupChat.find({ meetingId: '' });
+  }
+  const { meetingId, requesterUserId } = extractCredentials(this.userId);
 
   const CHAT_CONFIG = Meteor.settings.public.chat;
   const PUBLIC_CHAT_TYPE = CHAT_CONFIG.type_public;
 
-  Logger.debug(`Publishing group-chat for ${meetingId} ${requesterUserId} ${requesterToken}`);
+  Logger.debug(`Publishing group-chat for ${meetingId} ${requesterUserId}`);
 
   return GroupChat.find({
     $or: [

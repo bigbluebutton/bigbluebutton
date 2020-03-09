@@ -11,7 +11,7 @@ const logClient = function (type, logDescription, logCode = 'was_not_provided', 
     userInfo,
   };
 
-  if (User) {
+  if (User) { // TODO--
     if ((userInfo.credentials && User.meetingId === userInfo.credentials.meetingId)
       || ((userInfo.meetingId && User.meetingId === userInfo.meetingId))) {
       logContents.extraInfo.validUser = 'valid';

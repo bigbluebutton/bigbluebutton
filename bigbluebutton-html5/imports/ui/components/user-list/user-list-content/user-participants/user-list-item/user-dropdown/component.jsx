@@ -345,15 +345,6 @@ class UserDropdown extends PureComponent {
       ));
     }
 
-    if (allowedToRemove && isMeteorConnected) {
-      actions.push(this.makeDropdownItem(
-        'remove',
-        intl.formatMessage(messages.RemoveUserLabel, { 0: user.name }),
-        () => this.onActionsHide(removeUser(user.userId)),
-        'circle_close',
-      ));
-    }
-
     if (allowedToPromote && isMeteorConnected) {
       actions.push(this.makeDropdownItem(
         'promote',
@@ -389,6 +380,15 @@ class UserDropdown extends PureComponent {
         intl.formatMessage(messages.DirectoryLookupLabel),
         () => this.onActionsHide(requestUserInformation(user.extId)),
         'user',
+      ));
+    }
+
+    if (allowedToRemove && isMeteorConnected) {
+      actions.push(this.makeDropdownItem(
+        'remove',
+        intl.formatMessage(messages.RemoveUserLabel, { 0: user.name }),
+        () => this.onActionsHide(removeUser(user.userId)),
+        'circle_close',
       ));
     }
 
@@ -561,7 +561,7 @@ class UserDropdown extends PureComponent {
 
     const contents = (
       <div
-        data-test={isMe(user.userId) ? 'userListItemCurrent' : null}
+        data-test={isMe(user.userId) ? 'userListItemCurrent' : 'userListItem'}
         className={!actions.length ? styles.userListItem : null}
       >
         <div className={styles.userItemContents}>

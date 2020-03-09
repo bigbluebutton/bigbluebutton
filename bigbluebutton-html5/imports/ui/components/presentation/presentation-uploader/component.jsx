@@ -11,6 +11,7 @@ import logger from '/imports/startup/client/logger';
 import { notify } from '/imports/ui/services/notification';
 import { toast } from 'react-toastify';
 import browser from 'browser-detect';
+import _ from 'lodash';
 import { styles } from './styles';
 
 const BROWSER_RESULTS = browser();
@@ -42,7 +43,7 @@ const propTypes = {
 const defaultProps = {
 };
 
-class Uploader extends PureComponent {
+class PresentationUploader  extends PureComponent {
   constructor(props) {
     super(props);
 
@@ -759,7 +760,7 @@ class Uploader extends PureComponent {
   }
 }
 
-Uploader.propTypes = propTypes;
-Uploader.defaultProps = defaultProps;
+PresentationUploader .propTypes = propTypes;
+PresentationUploader .defaultProps = defaultProps;
 
-export default Uploader;
+export default PresentationUploader ;

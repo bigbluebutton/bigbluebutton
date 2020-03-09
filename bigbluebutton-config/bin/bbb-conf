@@ -716,19 +716,6 @@ check_configuration() {
         fi
     done
 
-    #
-    # Check that the supporting applications are installed
-    
-    if [ -f /usr/share/red5/red5-server.jar ]; then
-      VARFolder=$(cat $SERVLET_DIR/WEB-INF/classes/bigbluebutton.properties | grep swfToolsDir | cut -d= -f2)
-      files="pdf2swf jpeg2swf png2swf"
-      for file in $files; do
-      if [ ! -x $VARFolder/$file ]; then
-        echo "# $file is not installed in $VARFolder"
-      fi
-      done
-    fi
-
     VARFolder=$(cat $SERVLET_DIR/WEB-INF/classes/bigbluebutton.properties | grep imageMagickDir | cut -d= -f2)
     if [ ! -x $VARFolder/convert ]; then
         echo "# ImageMagick's convert is not installed in $VARFolder"
@@ -930,7 +917,26 @@ check_configuration() {
         echo 
       fi
     fi
+}
 
+update_gstreamer() {
+    # due to a change in the kurento packages naming convention, gstreamer packages don't naturally upgrade
+    # this snippet checks if the installed gstreamer packages are the same as the one available in the repository
+    # if they are not, it will update (possibly downgrade)
+    # TODO remove it on 2.3 or above
+    if [ "$DISTRIB_CODENAME" == "xenial" ]; then
+        DOWNGRADE_LIST=""
+        for PACKAGE in $(dpkg -l | grep gst | tr -s ' ' | cut -d' ' -f2 | cut -d':' -f1); do
+            RIGHT_VERSION=$(apt-cache policy $PACKAGE | grep -B1 ubuntu.bigbluebutton.org | head -n1 | tr -s ' ' | cut -d' ' -f2)
+            if [[ $RIGHT_VERSION != "***" ]] && [[ $RIGHT_VERSION != "" ]]; then
+                echo "Force $PACKAGE to version $RIGHT_VERSION"
+                DOWNGRADE_LIST="$PACKAGE=$RIGHT_VERSION $DOWNGRADE_LIST"
+            fi
+        done
+        if [[ $DOWNGRADE_LIST != "" ]]; then
+            apt-get -y --allow-downgrades install $DOWNGRADE_LIST > /dev/null
+        fi
+    fi
 }
 
 
@@ -1448,7 +1454,7 @@ check_state() {
     if systemctl status freeswitch | grep -q SETSCHEDULER; then
         echo "# Error: FreeSWITCH failed to start with SETSCHEDULER error, see"
         echo "#"
-        echo "#   https://docs.bigbluebutton.org/install/install.html#freeswitch-fails-to-start-with-a-setscheduler-error"
+        echo "#   http://docs.bigbluebutton.org/2.2/troubleshooting.html#freeswitch-fails-to-start-with-a-setscheduler-error"
         echo "#"
     fi
 
@@ -1665,6 +1671,15 @@ if [ $CHECK ]; then
         echo "                  enableListenOnly: $(yq r $HTML5_CONFIG public.kurento.enableListenOnly)"
      fi
 
+     if ! java -version 2>&1 | grep -q "1.8.0"; then
+        echo
+        echo "# Warning: Did not detect Java 8 as default version"
+        echo
+        echo "   sudo apt-get install openjdk-8-jdk"
+        echo "   update-alternatives --config java"
+        echo "   bbb-conf --restart"
+     fi
+
      check_state
      echo
 
@@ -1696,9 +1711,16 @@ if [ $ZIP ]; then
     tar rf  $TMP_LOG_FILE /var/log/bbb-webrtc-sfu         > /dev/null 2>&1
     tar rf  $TMP_LOG_FILE /var/log/kurento-media-server > /dev/null 2>&1
     tar rf  $TMP_LOG_FILE /var/log/mongodb              > /dev/null 2>&1
+    tar rf  $TMP_LOG_FILE /var/log/redis                > /dev/null 2>&1
     tar rf  $TMP_LOG_FILE /var/log/nginx/error.log      > /dev/null 2>&1
-    if [ $DISTRIB_ID == "ubuntu" ]; then
-        tar rf $TMP_LOG_FILE /var/log/syslog        > /dev/null 2>&1
+    tar rfh $TMP_LOG_FILE /opt/freeswitch/var/log/freeswitch/ > /dev/null 2>&1
+
+    if [ -f /var/log/nginx/html5-client.log ]; then
+        tar rf $TMP_LOG_FILE /var/log/nginx/html5-client.log* > /dev/null 2>&1
+    fi
+
+    if [ -f /var/log/syslog ]; then
+        tar rf $TMP_LOG_FILE /var/log/syslog* > /dev/null 2>&1
     fi
 
     tar tf $TMP_LOG_FILE
@@ -1966,6 +1988,7 @@ if [ -n "$HOST" ]; then
 
     echo "Restarting the BigBlueButton $BIGBLUEBUTTON_RELEASE ..."
     stop_bigbluebutton
+    update_gstreamer
     echo
     start_bigbluebutton
 
@@ -1980,6 +2003,7 @@ if [ $RESTART ]; then
     echo "Restarting BigBlueButton $BIGBLUEBUTTON_RELEASE ..."
 
     stop_bigbluebutton
+    update_gstreamer
     start_bigbluebutton
     check_state
 fi
@@ -1991,6 +2015,7 @@ if [ $CLEAN ]; then
     echo "Restarting BigBlueButton $BIGBLUEBUTTON_RELEASE (and cleaning out all log files) ..."
 
     stop_bigbluebutton
+    update_gstreamer
 
     #
     # Clean log files

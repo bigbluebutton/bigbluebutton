@@ -586,6 +586,7 @@ class VideoPreview extends Component {
                 : (
                   <video
                     id="preview"
+                    data-test="videoPreview"
                     className={styles.preview}
                     ref={(ref) => { this.video = ref; }}
                     autoPlay
@@ -646,6 +647,7 @@ class VideoPreview extends Component {
               disabled={shouldDisableButtons}
             />
             <Button
+              data-test="startSharingWebcam"
               color={shared ? "danger" : "primary"}
               label={intl.formatMessage(shared ? intlMessages.stopSharingLabel : intlMessages.startSharingLabel)}
               onClick={shared ? this.handleStopSharing : this.handleStartSharing}

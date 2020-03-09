@@ -137,7 +137,6 @@
     "app.presentationUploder.browseImagesLabel": "または画像を探す/キャプチャする",
     "app.presentationUploder.fileToUpload": "アップロードする...",
     "app.presentationUploder.currentBadge": "現在",
-    "app.presentationUploder.genericError": "エラーが発生しました",
     "app.presentationUploder.rejectedError": "選択ファイルが拒否されました。ファイル形式を確認してください。",
     "app.presentationUploder.upload.progress": "アップロード中 ({0}%)",
     "app.presentationUploder.conversion.conversionProcessingSlides": "{1}ページ中{0}ページ目を処理中",
@@ -145,7 +144,6 @@
     "app.presentationUploder.conversion.generatingThumbnail": "サムネイル作成中…",
     "app.presentationUploder.conversion.generatedSlides": "スライド作成中…",
     "app.presentationUploder.conversion.generatingSvg": "SVG画像を作成中…",
-    "app.presentationUploder.conversion.pageCountExceeded": "ページ数が200ページを超えました",
     "app.presentationUploder.conversion.timeout": "エラー：変換に時間がかかりすぎました",
     "app.presentationUploder.isDownloadableLabel": "プレゼンテーションのダウンロードを許可しない",
     "app.presentationUploder.isNotDownloadableLabel": "プレゼンテーションのダウンロードを許可する",
@@ -573,7 +571,7 @@
     "app.createBreakoutRoom.confirm": "作成",
     "app.createBreakoutRoom.record": "録画",
     "app.createBreakoutRoom.numberOfRooms": "ルーム数",
-    "app.createBreakoutRoom.durationInMinutes": "利用時間（秒）",
+    "app.createBreakoutRoom.durationInMinutes": "利用時間（分）",
     "app.createBreakoutRoom.randomlyAssign": "ランダムに割り当てる",
     "app.createBreakoutRoom.endAllBreakouts": "全てのブレイクアウトルームを終了する",
     "app.createBreakoutRoom.roomName": "{0}（ルーム-{1}）",
@@ -588,7 +586,8 @@
     "app.network.connection.effective.slow": "接続の問題が発生しました",
     "app.iOSWarning.label": "iOS 12.2またはそれ以降のバージョンにアップグレードしてください",
     "app.legacy.unsupportedBrowser": "サポート対象外のブラウザを使用している可能性があります。サポート対象の{0}または{1}をお使いください。",
-    "app.legacy.upgradeBrowser": "バージョンのブラウザが古い可能性があります。サポート対象のブラウザへアップグレードしてください。"
+    "app.legacy.upgradeBrowser": "バージョンのブラウザが古い可能性があります。サポート対象のブラウザへアップグレードしてください。",
+    "app.legacy.criosBrowser": "iOSではフルサポートのためにSafariをお使いください。"
 
 }
 

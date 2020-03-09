@@ -3,6 +3,7 @@ package org.bigbluebutton.core.apps.breakout
 import org.bigbluebutton.common2.msgs._
 import org.bigbluebutton.core.apps.{ BreakoutModel, PermissionCheck, RightsManagementTrait }
 import org.bigbluebutton.core.domain.{ BreakoutRoom2x, MeetingState2x }
+import org.bigbluebutton.core.models.PresentationInPod
 import org.bigbluebutton.core.running.{ LiveMeeting, OutMsgRouter }
 import org.bigbluebutton.core.running.MeetingActor
 
@@ -103,7 +104,7 @@ trait CreateBreakoutRoomsCmdMsgHdlr extends RightsManagementTrait {
     for {
       defaultPod <- state.presentationPodManager.getDefaultPod()
       curPres <- defaultPod.getCurrentPresentation()
-      curPage <- curPres.getCurrentPage(curPres)
+      curPage <- PresentationInPod.getCurrentPage(curPres)
     } yield {
       currentSlide = curPage.num
     }

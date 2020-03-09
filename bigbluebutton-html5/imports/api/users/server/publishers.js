@@ -5,16 +5,23 @@ import { check } from 'meteor/check';
 import Logger from '/imports/startup/server/logger';
 
 import userLeaving from './methods/userLeaving';
+import { extractCredentials } from '/imports/api/common/server/helpers';
 
 const ROLE_MODERATOR = Meteor.settings.public.user.role_moderator;
 
-Meteor.publish('current-user', function currentUserPub(credentials) {
-  const { meetingId, requesterUserId, requesterToken } = credentials;
+function currentUser() {
+  if (!this.userId) {
+    return Users.find({ meetingId: '' });
+  }
+  const { meetingId, requesterUserId } = extractCredentials(this.userId);
+
+  check(meetingId, String);
+  check(requesterUserId, String);
 
   const connectionId = this.connection.id;
   const onCloseConnection = Meteor.bindEnvironment(() => {
     try {
-      userLeaving(credentials, requesterUserId, connectionId);
+      userLeaving(meetingId, requesterUserId, connectionId);
     } catch (e) {
       Logger.error(`Exception while executing userLeaving: ${e}`);
     }
@@ -22,35 +29,33 @@ Meteor.publish('current-user', function currentUserPub(credentials) {
 
   this._session.socket.on('close', _.debounce(onCloseConnection, 100));
 
-  check(meetingId, String);
-  check(requesterUserId, String);
-  check(requesterToken, String);
-
   const selector = {
     meetingId,
     userId: requesterUserId,
-    authToken: requesterToken,
   };
 
   const options = {
     fields: {
       user: false,
+      authToken: false, // Not asking for authToken from client side but also not exposing it
     },
   };
 
   return Users.find(selector, options);
-});
+}
 
-function users(credentials, isModerator = false) {
-  const {
-    meetingId,
-    requesterUserId,
-    requesterToken,
-  } = credentials;
+function publishCurrentUser(...args) {
+  const boundUsers = currentUser.bind(this);
+  return boundUsers(...args);
+}
 
-  check(meetingId, String);
-  check(requesterUserId, String);
-  check(requesterToken, String);
+Meteor.publish('current-user', publishCurrentUser);
+
+function users(isModerator = false) {
+  if (!this.userId) {
+    return Users.find({ meetingId: '' });
+  }
+  const { meetingId, requesterUserId } = extractCredentials(this.userId);
 
   const selector = {
     $or: [
@@ -59,7 +64,7 @@ function users(credentials, isModerator = false) {
   };
 
   if (isModerator) {
-    const User = Users.findOne({ userId: requesterUserId });
+    const User = Users.findOne({ userId: requesterUserId, meetingId });
     if (!!User && User.role === ROLE_MODERATOR) {
       selector.$or.push({
         'breakoutProps.isBreakoutUser': true,
@@ -76,7 +81,7 @@ function users(credentials, isModerator = false) {
     },
   };
 
-  Logger.debug(`Publishing Users for ${meetingId} ${requesterUserId} ${requesterToken}`);
+  Logger.debug(`Publishing Users for ${meetingId} ${requesterUserId}`);
 
   return Users.find(selector, options);
 }

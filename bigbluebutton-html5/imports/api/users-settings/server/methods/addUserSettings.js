@@ -55,6 +55,7 @@ const currentParameters = [
   // LAYOUT
   'bbb_auto_swap_layout',
   'bbb_hide_presentation',
+  'bbb_show_participants_on_login',
   // OUTSIDE COMMANDS
   'bbb_outside_toggle_self_voice',
   'bbb_outside_toggle_recording',
@@ -70,9 +71,7 @@ function valueParser(val) {
   }
 }
 
-export default function addUserSettings(credentials, meetingId, userId, settings) {
-  check(meetingId, String);
-  check(userId, String);
+export default function addUserSettings(meetingId, userId, settings) {
   check(settings, [Object]);
 
   let parameters = {};
