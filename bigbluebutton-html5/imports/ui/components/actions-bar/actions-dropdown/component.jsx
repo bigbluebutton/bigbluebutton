@@ -209,7 +209,6 @@ class ActionsDropdown extends PureComponent {
           <Button
             hideLabel
             aria-label={intl.formatMessage(intlMessages.actionsLabel)}
-            className={styles.button}
             label={intl.formatMessage(intlMessages.actionsLabel)}
             icon="plus"
             color="primary"
