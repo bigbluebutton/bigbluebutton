@@ -13,9 +13,7 @@ class LoadingTime extends Share {
     await util.waitForWebcamsLoading(this.page1);
     await util.waitForWebcamsLoading(this.page2);
     const end = new Date().getMilliseconds();
-
-    const response = end - now;
-    return response;
+    return end - now;
   }
 }
 module.exports = exports = LoadingTime;

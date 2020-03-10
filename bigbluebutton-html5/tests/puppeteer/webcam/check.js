@@ -7,10 +7,11 @@ class Check extends Share {
   }
 
   async test() {
-    const response1 = await util.startAndCheckForWebcams(this.page1);
-    const response2 = await util.startAndCheckForWebcams(this.page2);
-    const response = response1 && response2;
-    return response;
+    await util.startAndCheckForWebcams(this.page1);
+    await util.startAndCheckForWebcams(this.page2);
+    const responseUser1 = await util.webcamContentCheck(this.page1);
+    const responseUser2 = await util.webcamContentCheck(this.page2);
+    return responseUser1 && responseUser2;
   }
 }
 module.exports = exports = Check;

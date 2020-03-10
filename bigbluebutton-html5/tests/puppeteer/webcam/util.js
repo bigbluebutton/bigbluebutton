@@ -14,26 +14,20 @@ async function getTestElement(element) {
 }
 
 async function evaluateCheck(test) {
+  await test.waitForSelector(we.videoContainer);
+  await test.waitForSelector(we.webcamConnectingStatus);
   const videoContainer = await test.page.evaluate(getTestElement, we.presentationFullscreenButton);
   const response = videoContainer !== null;
   return response;
 }
 
-async function waitForWebcamsLoading(test) {
-  await test.waitForSelector(we.videoContainer);
-  await test.waitForSelector(we.webcamConnectingStatus);
-  await test.waitForSelector(we.presentationFullscreenButton);
-}
-
 async function startAndCheckForWebcams(test) {
   await enableWebcam(test);
-  await waitForWebcamsLoading(test);
   const response = await evaluateCheck(test);
   return response;
 }
 
 async function webcamContentCheck(test) {
-  await waitForWebcamsLoading(test);
   const repeats = 5;
   let check;
   for (let i = repeats; i >= 0; i--) {
@@ -59,12 +53,12 @@ async function webcamContentCheck(test) {
       }
       return true;
     };
+    await test.page.waitFor(parseInt(process.env.LOOP_INTERVAL));
     return check = await test.page.evaluate(checkCameras, i);
   }
 }
 
 exports.startAndCheckForWebcams = startAndCheckForWebcams;
-exports.waitForWebcamsLoading = waitForWebcamsLoading;
 exports.webcamContentCheck = webcamContentCheck;
 exports.evaluateCheck = evaluateCheck;
 exports.getTestElement = getTestElement;
