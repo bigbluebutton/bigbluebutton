@@ -333,6 +333,10 @@
 .fileIcon {
   width: 1%;
   padding-bottom: var(--iconPadding-md);
+  i {
+    position: relative;
+    top: var(--border-size-large);
+  }
 }
 
 .loading {
@@ -375,6 +379,7 @@
 }
 
 .textErr {
+  display: inline-block;
   color: var(--color-danger);
 }
 
@@ -403,6 +408,13 @@
   [dir="rtl"] & {
     margin-right: auto;
     margin-left: 0;
+  }
+
+  i {
+    position: relative;
+    top: 1px;
+    height: var(--statusIconSize);
+    width: var(--statusIconSize);
   }
 }
 
@@ -457,7 +469,7 @@
 
 .actionWrapper {
   display: flex;
-align-items: center;
+  align-items: center;
 }
 
 .confirm,
@@ -471,13 +483,14 @@ align-items: center;
 }
 
 .innerToast {
+  @include scrollbox-vertical();
   position: relative;
-    width: 100%;
-    height: 100%;
-    max-height: var(--uploadListHeight);
-    overflow-y: auto;
-    padding-right: 1rem;
-    box-sizing: content-box;
+  width: 100%;
+  height: 100%;
+  max-height: var(--uploadListHeight);
+  overflow-y: auto;
+  padding-right: 1rem;
+  box-sizing: content-box;
 }
 
 .toastWrapper {

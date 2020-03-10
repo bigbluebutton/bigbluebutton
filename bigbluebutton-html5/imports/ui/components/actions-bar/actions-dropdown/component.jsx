@@ -77,9 +77,7 @@ const intlMessages = defineMessages({
   },
 });
 
-const handlePresentationClick = () => {
-  Session.set('uploadReq', true);
-};
+const handlePresentationClick = () => Session.set('showUploadPresentationView', true);
 
 class ActionsDropdown extends PureComponent {
   constructor(props) {

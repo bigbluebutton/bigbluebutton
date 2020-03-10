@@ -1,6 +1,6 @@
-import React, { PureComponent } from 'react';
+import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { intlShape } from 'react-intl';
+import { intlShape, injectIntl, defineMessages } from 'react-intl';
 import cx from 'classnames';
 import Button from '/imports/ui/components/button/component';
 import Checkbox from '/imports/ui/components/checkbox/component';
@@ -19,8 +19,6 @@ const isMobileBrowser = (BROWSER_RESULTS ? BROWSER_RESULTS.mobile : false)
   || (BROWSER_RESULTS && BROWSER_RESULTS.os
     ? BROWSER_RESULTS.os.includes('Android') // mobile flag doesn't always work
     : false);
-
-const handleDismiss = () => Session.set('uploadReq', false);
 
 const propTypes = {
   intl: intlShape.isRequired,
@@ -43,7 +41,162 @@ const propTypes = {
 const defaultProps = {
 };
 
-class PresentationUploader  extends PureComponent {
+const intlMessages = defineMessages({
+  current: {
+    id: 'app.presentationUploder.currentBadge',
+  },
+  title: {
+    id: 'app.presentationUploder.title',
+    description: 'title of the modal',
+  },
+  message: {
+    id: 'app.presentationUploder.message',
+    description: 'message warning the types of files accepted',
+  },
+  uploadLabel: {
+    id: 'app.presentationUploder.uploadLabel',
+    description: 'confirm label when presentations are to be uploaded',
+  },
+  confirmLabel: {
+    id: 'app.presentationUploder.confirmLabel',
+    description: 'confirm label when no presentations are to be uploaded',
+  },
+  confirmDesc: {
+    id: 'app.presentationUploder.confirmDesc',
+    description: 'description of the confirm',
+  },
+  dismissLabel: {
+    id: 'app.presentationUploder.dismissLabel',
+    description: 'used in the button that close modal',
+  },
+  dismissDesc: {
+    id: 'app.presentationUploder.dismissDesc',
+    description: 'description of the dismiss',
+  },
+  dropzoneLabel: {
+    id: 'app.presentationUploder.dropzoneLabel',
+    description: 'message warning where drop files for upload',
+  },
+  dropzoneImagesLabel: {
+    id: 'app.presentationUploder.dropzoneImagesLabel',
+    description: 'message warning where drop images for upload',
+  },
+  browseFilesLabel: {
+    id: 'app.presentationUploder.browseFilesLabel',
+    description: 'message use on the file browser',
+  },
+  browseImagesLabel: {
+    id: 'app.presentationUploder.browseImagesLabel',
+    description: 'message use on the image browser',
+  },
+  fileToUpload: {
+    id: 'app.presentationUploder.fileToUpload',
+    description: 'message used in the file selected for upload',
+  },
+  rejectedError: {
+    id: 'app.presentationUploder.rejectedError',
+    description: 'some files rejected, please check the file mime types',
+  },
+  uploadProcess: {
+    id: 'app.presentationUploder.upload.progress',
+    description: 'message that indicates the percentage of the upload',
+  },
+  413: {
+    id: 'app.presentationUploder.upload.413',
+    description: 'error that file exceed the size limit',
+  },
+  conversionProcessingSlides: {
+    id: 'app.presentationUploder.conversion.conversionProcessingSlides',
+    description: 'indicates how many slides were converted',
+  },
+  genericConversionStatus: {
+    id: 'app.presentationUploder.conversion.genericConversionStatus',
+    description: 'indicates that file is being converted',
+  },
+  TIMEOUT: {
+    id: 'app.presentationUploder.conversion.timeout',
+  },
+  GENERATING_THUMBNAIL: {
+    id: 'app.presentationUploder.conversion.generatingThumbnail',
+    description: 'indicatess that it is generating thumbnails',
+  },
+  GENERATING_SVGIMAGES: {
+    id: 'app.presentationUploder.conversion.generatingSvg',
+    description: 'warns that it is generating svg images',
+  },
+  GENERATED_SLIDE: {
+    id: 'app.presentationUploder.conversion.generatedSlides',
+    description: 'warns that were slides generated',
+  },
+  PAGE_COUNT_EXCEEDED: {
+    id: 'app.presentationUploder.conversion.pageCountExceeded',
+    description: 'warns the user that the conversion failed because of the page count',
+  },
+  PDF_HAS_BIG_PAGE: {
+    id: 'app.presentationUploder.conversion.pdfHasBigPage',
+    description: 'warns the user that the conversion failed because of the pdf page siz that exceeds the allowed limit',
+  },
+  isDownloadable: {
+    id: 'app.presentationUploder.isDownloadableLabel',
+    description: 'presentation is available for downloading by all viewers',
+  },
+  isNotDownloadable: {
+    id: 'app.presentationUploder.isNotDownloadableLabel',
+    description: 'presentation is not available for downloading the viewers',
+  },
+  removePresentation: {
+    id: 'app.presentationUploder.removePresentationLabel',
+    description: 'select to delete this presentation',
+  },
+  setAsCurrentPresentation: {
+    id: 'app.presentationUploder.setAsCurrentPresentation',
+    description: 'set this presentation to be the current one',
+  },
+  status: {
+    id: 'app.presentationUploder.tableHeading.status',
+    description: 'aria label status table heading',
+  },
+  options: {
+    id: 'app.presentationUploder.tableHeading.options',
+    description: 'aria label for options table heading',
+  },
+  filename: {
+    id: 'app.presentationUploder.tableHeading.filename',
+    description: 'aria label for file name table heading',
+  },
+  uploading: {
+    id: 'app.presentationUploder.uploading',
+    description: 'uploading label for toast notification',
+  },
+  uploadStatus: {
+    id: 'app.presentationUploder.uploadStatus',
+    description: 'upload status for toast notification',
+  },
+  completed: {
+    id: 'app.presentationUploder.completed',
+    description: 'uploads complete label for toast notification',
+  },
+  item: {
+    id: 'app.presentationUploder.item',
+    description: 'single item label',
+  },
+  itemPlural: {
+    id: 'app.presentationUploder.itemPlural',
+    description: 'plural item label',
+  },
+  clearErrors: {
+    id: 'app.presentationUploder.clearErrors',
+    description: 'button label for clearing upload errors',
+  },
+  clearErrorsDesc: {
+    id: 'app.presentationUploder.clearErrorsDesc',
+    description: 'aria description for button clearing upload error',
+  },
+});
+
+const handleDismiss = () => Session.set('showUploadPresentationView', false);
+
+class PresentationUploader extends Component {
   constructor(props) {
     super(props);
 
@@ -80,11 +233,8 @@ class PresentationUploader  extends PureComponent {
     const { presentations } = this.state;
 
     if (!currentPresID && presentations.length > 0) {
-      presentations.map((p) => {
-        if (p.isCurrent) {
-          Session.set('currentPresID', p.id);
-        }
-      });
+      const selected = presentations.filter(p => p.isCurrent);
+      if (selected) Session.set('currentPresID', selected[0].id);
     }
 
     if (this.toastId) {
@@ -109,7 +259,7 @@ class PresentationUploader  extends PureComponent {
   }
 
   handleFiledrop(files, files2) {
-    const { fileValidMimeTypes, intl, intlMessages } = this.props;
+    const { fileValidMimeTypes, intl } = this.props;
     const validMimes = fileValidMimeTypes.map(fileValid => fileValid.mime);
     const validExtentions = fileValidMimeTypes.map(fileValid => fileValid.extension);
     const [accepted, rejected] = _.partition(files
@@ -259,7 +409,7 @@ class PresentationUploader  extends PureComponent {
 
   handleConfirm(hasNewUpload) {
     const {
-      intl, handleSave, intlMessages, currentPresID,
+      handleSave, currentPresID,
     } = this.props;
     const { disableActions, presentations } = this.state;
     const presentationsToSave = presentations;
@@ -278,7 +428,7 @@ class PresentationUploader  extends PureComponent {
     }
 
     if (!disableActions) {
-      Session.set('uploadReq', false);
+      Session.set('showUploadPresentationView', false);
       return handleSave(presentationsToSave)
         .then(() => {
           const hasError = presentations.some(p => p.upload.error || p.conversion.error);
@@ -301,7 +451,6 @@ class PresentationUploader  extends PureComponent {
           });
         })
         .catch((error) => {
-          notify(intl.formatMessage(intlMessages.genericError), 'error');
           logger.error({
             logCode: 'presentationuploader_component_save_error',
             extraInfo: { error },
@@ -309,7 +458,7 @@ class PresentationUploader  extends PureComponent {
         });
     }
 
-    Session.set('uploadReq', false);
+    Session.set('showUploadPresentationView', false);
     return null;
   }
 
@@ -376,7 +525,7 @@ class PresentationUploader  extends PureComponent {
 
   renderPresentationList() {
     const { presentations } = this.state;
-    const { intl, intlMessages, presentations: propPresentations } = this.props;
+    const { intl, presentations: propPresentations } = this.props;
 
     if (presentations.length === 0 && propPresentations.length === 1) {
       if (propPresentations[0].upload.done && propPresentations[0].conversion.done) {
@@ -415,7 +564,7 @@ class PresentationUploader  extends PureComponent {
 
   renderToastList() {
     const { presentations, dropCount } = this.state;
-    const { intl, intlMessages } = this.props;
+    const { intl } = this.props;
     let converted = 0;
 
     let presentationsSorted = presentations
@@ -475,7 +624,7 @@ class PresentationUploader  extends PureComponent {
   renderPresentationItem(item) {
     const { disableActions, hasError: stateError } = this.state;
     const {
-      intl, intlMessages, currentPresID,
+      intl, currentPresID,
     } = this.props;
 
     const isActualCurrent = currentPresID ? item.id === currentPresID : item.isCurrent;
@@ -573,7 +722,6 @@ class PresentationUploader  extends PureComponent {
   renderDropzone() {
     const {
       intl,
-      intlMessages,
       fileSizeMin,
       fileSizeMax,
       fileValidMimeTypes,
@@ -624,7 +772,6 @@ class PresentationUploader  extends PureComponent {
   renderPicDropzone() {
     const {
       intl,
-      intlMessages,
       fileSizeMin,
       fileSizeMax,
     } = this.props;
@@ -670,7 +817,7 @@ class PresentationUploader  extends PureComponent {
   }
 
   renderPresentationItemStatus(item) {
-    const { intl, intlMessages } = this.props;
+    const { intl } = this.props;
     if (!item.upload.done && item.upload.progress === 0) {
       return intl.formatMessage(intlMessages.fileToUpload);
     }
@@ -682,13 +829,15 @@ class PresentationUploader  extends PureComponent {
     }
 
     if (item.upload.done && item.upload.error) {
-      const errorMessage = intlMessages[item.upload.status] || intlMessages.genericError;
-      return intl.formatMessage(errorMessage);
+      const errorMessage = intlMessages[item.upload.status];
+      const m = intl.formatMessage(errorMessage);
+      return typeof m === 'string' ? m : null;
     }
 
     if (!item.conversion.done && item.conversion.error) {
-      const errorMessage = intlMessages[item.conversion.status] || intlMessages.genericError;
-      return intl.formatMessage(errorMessage);
+      const errorMessage = intlMessages[item.conversion.status];
+      const m = intl.formatMessage(errorMessage);
+      return typeof m === 'string' ? m : null;
     }
 
     if (!item.conversion.done && !item.conversion.error) {
@@ -709,9 +858,9 @@ class PresentationUploader  extends PureComponent {
 
   render() {
     const {
-      isOpen, intl, intlMessages, amIPresenter,
+      isOpen, isPresenter, intl,
     } = this.props;
-    if (!amIPresenter) return null;
+    if (!isPresenter) return null;
     const { presentations, disableActions } = this.state;
 
     let hasNewUpload = false;
@@ -760,7 +909,7 @@ class PresentationUploader  extends PureComponent {
   }
 }
 
-PresentationUploader .propTypes = propTypes;
-PresentationUploader .defaultProps = defaultProps;
+PresentationUploader.propTypes = propTypes;
+PresentationUploader.defaultProps = defaultProps;
 
-export default PresentationUploader ;
+export default injectIntl(PresentationUploader);

@@ -189,7 +189,6 @@ const uploadAndConvertPresentations = (
 
 const setPresentation = (presentationId, podId) => {
   makeCall('setPresentation', presentationId, podId);
-  Session.set('currentPresID', presentationId);
 };
 
 const removePresentation = (presentationId, podId) => {
