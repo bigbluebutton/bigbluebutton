@@ -33,7 +33,7 @@ export default withTracker(() => {
     dispatchEnableDownloadable,
     dispatchTogglePresentationDownloadable,
     isOpen: Session.get('showUploadPresentationView') || false,
-    currentPresID: Session.get('currentPresID') || null,
+    selectedToBeNextCurrent: Session.get('selectedToBeNextCurrent') || null,
     isPresenter: PresentationService.isPresenter('DEFAULT_PRESENTATION_POD'),
   };
 })(UploaderContainer);

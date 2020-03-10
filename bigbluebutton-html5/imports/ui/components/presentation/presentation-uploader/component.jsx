@@ -229,24 +229,27 @@ class PresentationUploader extends Component {
   }
 
   componentDidUpdate(prevProps) {
-    const { currentPresID, isOpen, presentations: propPresentations } = this.props;
+    const { selectedToBeNextCurrent, isOpen, presentations: propPresentations } = this.props;
     const { presentations } = this.state;
 
+    // cleared local presetation state errors and set to presentations available on the server
     if (presentations.length === 0 && propPresentations.length > 1) {
       return this.setState({ presentations: propPresentations });
     }
 
+    // Only presentation available is the default coming from the server.
+    // set as selectedToBeNextCurrentOnConfirm once upload / coversion complete
     if (presentations.length === 0 && propPresentations.length === 1) {
       if (propPresentations[0].upload.done && propPresentations[0].conversion.done) {
         return this.setState({
           presentations: propPresentations,
-        }, Session.set('currentPresID', propPresentations[0].id));
+        }, Session.set('selectedToBeNextCurrent', propPresentations[0].id));
       }
     }
 
-    if (!currentPresID && presentations.length > 0) {
+    if (!selectedToBeNextCurrent && presentations.length > 0) {
       const selected = presentations.filter(p => p.isCurrent);
-      if (selected) Session.set('currentPresID', selected[0].id);
+      if (selected) Session.set('selectedToBeNextCurrent', selected[0].id);
     }
 
     if (this.toastId) {
@@ -427,7 +430,7 @@ class PresentationUploader extends Component {
 
   handleConfirm(hasNewUpload) {
     const {
-      handleSave, currentPresID,
+      handleSave, selectedToBeNextCurrent,
     } = this.props;
     const { disableActions, presentations } = this.state;
     const presentationsToSave = presentations;
@@ -465,7 +468,7 @@ class PresentationUploader extends Component {
             // if the selected current has error we revert back to the old one
             const newCurrent = presentations.find(p => p.isCurrent);
             if (newCurrent.upload.error || newCurrent.conversion.error) {
-              this.handleCurrentChange(currentPresID);
+              this.handleCurrentChange(selectedToBeNextCurrent);
             }
           });
         })
@@ -631,10 +634,10 @@ class PresentationUploader extends Component {
   renderPresentationItem(item) {
     const { disableActions, hasError: stateError } = this.state;
     const {
-      intl, currentPresID,
+      intl, selectedToBeNextCurrent,
     } = this.props;
 
-    const isActualCurrent = currentPresID ? item.id === currentPresID : item.isCurrent;
+    const isActualCurrent = selectedToBeNextCurrent ? item.id === selectedToBeNextCurrent : item.isCurrent;
     const isUploading = !item.upload.done && item.upload.progress > 0;
     const isConverting = !item.conversion.done && item.upload.done;
     const hasError = item.conversion.error || item.upload.error;
