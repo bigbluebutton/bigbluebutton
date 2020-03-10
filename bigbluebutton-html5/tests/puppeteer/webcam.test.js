@@ -2,7 +2,7 @@ const Share = require('./webcam/share');
 const Check = require('./webcam/check');
 const LoadingTime = require('./webcam/loadtime');
 
-describe('Webcams multiplayer', () => {
+describe('Webcam', () => {
   test('Shares webcam', async () => {
     const test = new Share();
     let response;
