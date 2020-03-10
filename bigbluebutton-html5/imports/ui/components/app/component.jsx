@@ -322,7 +322,7 @@ class App extends Component {
 
   render() {
     const {
-      customStyle, customStyleUrl, openPanel, intl,
+      customStyle, customStyleUrl, openPanel,
     } = this.props;
     return (
       <main className={styles.main}>
@@ -339,7 +339,7 @@ class App extends Component {
           {this.renderPanel()}
           {this.renderSidebar()}
         </section>
-        <UploaderContainer intl={intl} />
+        <UploaderContainer />
         <BreakoutRoomInvitation />
         <PollingContainer />
         <ModalContainer />
