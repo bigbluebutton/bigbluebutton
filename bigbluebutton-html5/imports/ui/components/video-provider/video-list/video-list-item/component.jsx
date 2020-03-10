@@ -123,6 +123,7 @@ class VideoListItem extends Component {
 
     return (
       <FullscreenButtonContainer
+        data-test="presentationFullscreenButton"
         fullscreenRef={this.videoContainer}
         elementName={name}
         isFullscreen={isFullscreen}

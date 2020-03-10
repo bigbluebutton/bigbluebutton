@@ -14,9 +14,11 @@ class Share {
   }
 
   async test() {
-    await util.enableWebcam(this.page1, this.page2);
-    const response = await util.evaluateCheck(this.page1, this.page2);
-    return response;
+    await util.enableWebcam(this.page1);
+    await util.enableWebcam(this.page2);
+    const response1 = await util.evaluateCheck(this.page1);
+    const response2 = await util.evaluateCheck(this.page2);
+    return response1 && response2;
   }
 
   async close() {
