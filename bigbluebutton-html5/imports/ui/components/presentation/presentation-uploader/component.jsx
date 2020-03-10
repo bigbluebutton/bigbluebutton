@@ -342,7 +342,13 @@ class PresentationUploader extends Component {
     if (hasError) icon = 'circle_close';
 
     return (
-      <div key={item.id} className={styles.uploadRow}>
+      <div
+        key={item.id}
+        className={styles.uploadRow}
+        onClick={() => {
+          Session.set('showUploadPresentationView', true);
+        }}
+      >
         <div className={styles.fileLine}>
           <span className={styles.fileIcon}>
             <Icon iconName="file" />
@@ -421,6 +427,7 @@ class PresentationUploader extends Component {
         hideProgressBar: true,
         autoClose: false,
         newestOnTop: true,
+        closeOnClick: true,
         onClose: () => {
           this.toastId = null;
         },
