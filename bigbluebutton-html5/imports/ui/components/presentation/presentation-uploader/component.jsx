@@ -229,8 +229,20 @@ class PresentationUploader extends Component {
   }
 
   componentDidUpdate(prevProps) {
-    const { currentPresID, isOpen } = this.props;
+    const { currentPresID, isOpen, presentations: propPresentations } = this.props;
     const { presentations } = this.state;
+
+    if (presentations.length === 0 && propPresentations.length > 1) {
+      return this.setState({ presentations: propPresentations });
+    }
+
+    if (presentations.length === 0 && propPresentations.length === 1) {
+      if (propPresentations[0].upload.done && propPresentations[0].conversion.done) {
+        return this.setState({
+          presentations: propPresentations,
+        }, Session.set('currentPresID', propPresentations[0].id));
+      }
+    }
 
     if (!currentPresID && presentations.length > 0) {
       const selected = presentations.filter(p => p.isCurrent);
@@ -532,19 +544,7 @@ class PresentationUploader extends Component {
 
   renderPresentationList() {
     const { presentations } = this.state;
-    const { intl, presentations: propPresentations } = this.props;
-
-    if (presentations.length === 0 && propPresentations.length === 1) {
-      if (propPresentations[0].upload.done && propPresentations[0].conversion.done) {
-        return this.setState({
-          presentations: propPresentations,
-        }, Session.set('currentPresID', propPresentations[0].id));
-      }
-    }
-
-    if (presentations.length === 0 && propPresentations.length > 1) {
-      return this.setState({ presentations: propPresentations });
-    }
+    const { intl } = this.props;
 
     const presentationsSorted = presentations
       .sort((a, b) => a.uploadTimestamp - b.uploadTimestamp);
