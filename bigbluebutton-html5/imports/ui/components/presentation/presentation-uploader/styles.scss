@@ -491,8 +491,10 @@
   overflow-y: auto;
   padding-right: 1rem;
   box-sizing: content-box;
+  background: none;
 }
 
 .toastWrapper {
   max-height: 35vh;
+  width: var(--fileLineWidth);
 }
