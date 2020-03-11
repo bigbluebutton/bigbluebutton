@@ -26,7 +26,7 @@ const parseMessage = (message) => {
   return parsedMessage;
 };
 
-export default function sendGroupChatMsg(credentials, chatId, message) {
+export default function sendGroupChatMsg(credentials, chatId, messageInfo) {
   const REDIS_CONFIG = Meteor.settings.private.redis;
   const CHANNEL = REDIS_CONFIG.channels.toAkkaApps;
   const EVENT_NAME = 'SendGroupChatMessageMsg';
@@ -36,14 +36,12 @@ export default function sendGroupChatMsg(credentials, chatId, message) {
   check(meetingId, String);
   check(requesterUserId, String);
   check(requesterToken, String);
-  check(message, Object);
-
-  const parsedMessage = parseMessage(message.message);
-
-  message.message = parsedMessage;
+  check(messageInfo, Object);
+  
+  messageInfo.message.message = parseMessage(messageInfo.message.message);
 
   const payload = {
-    msg: message,
+    msg: messageInfo,
     chatId,
   };
 

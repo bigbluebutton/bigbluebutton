@@ -153,6 +153,7 @@ export default injectIntl(withTracker(({ intl }) => {
     chatName,
     title,
     messages,
+    currentUserId: Auth.userID,
     partnerIsLoggedOut,
     isChatLocked,
     isMeteorConnected,

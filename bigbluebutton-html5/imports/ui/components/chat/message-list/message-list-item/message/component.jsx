@@ -2,6 +2,9 @@ import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import _ from 'lodash';
 import fastdom from 'fastdom';
+import styles from './styles';
+import Button from '../../../../button/component';
+import Icon from '/imports/ui/components/icon/component';
 
 const propTypes = {
   text: PropTypes.string.isRequired,
@@ -41,6 +44,8 @@ export default class MessageListItem extends PureComponent {
     this.ticking = false;
 
     this.handleMessageInViewport = _.debounce(this.handleMessageInViewport.bind(this), 50);
+
+    this.handleFileDownload = this.handleFileDownload.bind(this);
   }
 
   componentDidMount() {
@@ -145,18 +150,50 @@ export default class MessageListItem extends PureComponent {
     });
   }
 
+  handleFileDownload() {
+    const {
+      link,
+    } = this.props;
+
+    if(link) {
+      window.open(link);
+    }
+  }
+
   render() {
     const {
       text,
       className,
+      file,
     } = this.props;
 
+    // const ext = file.fileName.split('.').pop();
     return (
-      <p
-        ref={(ref) => { this.text = ref; }}
-        dangerouslySetInnerHTML={{ __html: text }}
-        className={className}
-      />
+      (file !== undefined) ? 
+        (<div className={styles.wrapper}>
+          <div className={styles.extensionBox}>
+            {/* <span className={styles.extension}> */}
+                <Icon iconName="file" />
+            {/* </span>   */}
+          </div> 
+          <span className={styles.fileName}>{file.fileName}</span>
+          
+          <Button
+            hideLabel
+            label="Download"
+            className={styles.button}
+            color="default"
+            icon="template_download"
+            size="sm"
+            circle
+            onClick={()=> this.handleFileDownload()}
+          />
+        </div>) :
+        (<p
+          ref={(ref) => { this.text = ref; }}
+          dangerouslySetInnerHTML={{ __html: text }}
+          className={className}
+        />)
     );
   }
 }

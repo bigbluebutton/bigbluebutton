@@ -94,12 +94,13 @@ class MessageListItem extends Component {
       messages,
       time,
       chatAreaId,
+      currentUserId,
       lastReadMessageTime,
       handleReadMessage,
       scrollArea,
       intl,
     } = this.props;
-
+    
     const dateTime = new Date(time);
 
     const regEx = /<a[^>]+>/i;
@@ -108,7 +109,8 @@ class MessageListItem extends Component {
       return this.renderSystemMessage();
     }
 
-    return (
+    return (currentUserId != user.userId) ? (
+    // return (
       <div className={styles.item}>
         <div className={styles.wrapper} ref={(ref) => { this.item = ref; }}>
           <div className={styles.avatarWrapper}>
@@ -143,6 +145,8 @@ class MessageListItem extends Component {
                   key={message.id}
                   text={message.text}
                   time={message.time}
+                  file={message.fileData}
+                  color={message.color}
                   chatAreaId={chatAreaId}
                   lastReadMessageTime={lastReadMessageTime}
                   handleReadMessage={handleReadMessage}
@@ -153,7 +157,24 @@ class MessageListItem extends Component {
           </div>
         </div>
       </div>
-    );
+    ) : (
+      <div className={styles.senderMessages}>
+        {messages.map(message => (
+          <Message
+            className={(regEx.test(message.text) ? styles.hyperlink : styles.message)}
+            key={message.id}
+            text={message.text}
+            time={message.time}
+            file={message.fileData}
+            color={message.color}
+            chatAreaId={chatAreaId}
+            lastReadMessageTime={lastReadMessageTime}
+            handleReadMessage={handleReadMessage}
+            scrollArea={scrollArea}
+          />
+        ))}
+      </div>
+    )
   }
 }
 

@@ -26,6 +26,7 @@ const Chat = (props) => {
   const {
     chatID,
     chatName,
+    currentUserId,
     title,
     messages,
     partnerIsLoggedOut,
@@ -102,6 +103,7 @@ const Chat = (props) => {
           hasUnreadMessages,
           scrollPosition,
           messages,
+          currentUserId,
         }}
       />
       <MessageForm
