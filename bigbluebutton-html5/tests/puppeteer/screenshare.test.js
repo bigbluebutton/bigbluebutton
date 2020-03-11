@@ -6,7 +6,7 @@ describe('Screen Share', () => {
     const test = new ShareScreen();
     let response;
     try {
-      await test.init(Page.getArgs());
+      await test.init(Page.getArgsWithVideo());
       response = await test.test();
     } catch (e) {
       console.log(e);
