@@ -27,34 +27,34 @@ async function startAndCheckForWebcams(test) {
   return response;
 }
 
+async function checkCameras() {
+  const videos = document.querySelectorAll('video');
+  const lastVideoColor = document.lastVideoColor || {};
+  document.lastVideoColor = lastVideoColor;
+
+  for (let v = 0; v < videos.length; v++) {
+    const video = videos[v];
+    const canvas = document.createElement('canvas');
+    const context = canvas.getContext('2d');
+    context.drawImage(video, 0, 0, video.videoWidth, video.videoHeight);
+    const pixel = context.getImageData(50, 50, 1, 1).data;
+    const pixelString = new Array(pixel).join(' ').toString();
+
+    if (lastVideoColor[v]) {
+      if (lastVideoColor[v] == pixelString) {
+        return false;
+      }
+    }
+    return lastVideoColor[v] !== pixelString === true;
+  }
+}
+
 async function webcamContentCheck(test) {
   const repeats = 5;
   let check;
   for (let i = repeats; i >= 0; i--) {
-    const checkCameras = function (i) {
-      const videos = document.querySelectorAll('video');
-      const lastVideoColor = document.lastVideoColor || {};
-      document.lastVideoColor = lastVideoColor;
-
-      for (let v = 0; v < videos.length; v++) {
-        const video = videos[v];
-        const canvas = document.createElement('canvas');
-        const context = canvas.getContext('2d');
-        context.drawImage(video, 0, 0, video.videoWidth, video.videoHeight);
-        const pixel = context.getImageData(50, 50, 1, 1).data;
-        const pixelString = new Array(pixel).join(' ').toString();
-
-        if (lastVideoColor[v]) {
-          if (lastVideoColor[v] == pixelString) {
-            return false;
-          }
-        }
-        lastVideoColor[v] = pixelString;
-      }
-      return true;
-    };
     await test.page.waitFor(parseInt(process.env.LOOP_INTERVAL));
-    return check = await test.page.evaluate(checkCameras, i);
+    return check = await test.page.evaluate(checkCameras);
   }
 }
 
