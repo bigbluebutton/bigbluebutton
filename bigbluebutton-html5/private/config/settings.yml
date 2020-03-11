@@ -180,7 +180,7 @@ public:
     endpoint: /bigbluebutton/upload
     timeout: 5000
     media:
-      enabled: true
+      enabled: false
       maxSize: 30000000
       source: media
       validFiles:

@@ -23,12 +23,12 @@ const getMediaValidFiles = () => {
 const getMediaFiles = () => {
   return UploadedFile.find({
     meetingId: Auth.meetingID,
-    source: 'media',
+    source: MEDIA_UPLOAD.source,
   }).fetch()
 };
 
 const getDownloadURL = id => {
-  return Auth.authenticateURL(`${DOWNLOAD.endpoint}/media/${id}`);
+  return Auth.authenticateURL(`${DOWNLOAD.endpoint}/${MEDIA_UPLOAD.source}/${id}`);
 }
 
 export default {
