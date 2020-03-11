@@ -29,7 +29,7 @@ const uploadFile = (
   file,
   meetingId,
   endpoint,
-  onProgress
+  onProgress,
 ) => {
   const data = new FormData();
 
@@ -41,12 +41,11 @@ const uploadFile = (
     method: 'POST',
     body: data,
   };
-  
-  //TODO: read the end point form settings.yml
-  let response =  futch("/bigbluebutton/file/upload", opts, onProgress);
+
+  // TODO: read the end point form settings.yml
+  const response = futch('/bigbluebutton/file/upload', opts, onProgress);
   console.log(response);
   return response;
-
 };
 
 const uploadChatFile = (
@@ -54,10 +53,9 @@ const uploadChatFile = (
   meetingId,
   uploadEndpoint,
 ) => Promise.resolve(uploadFile(
-  fileToUpload.file, meetingId, uploadEndpoint, fileToUpload.onProgress
+  fileToUpload.file, meetingId, uploadEndpoint, fileToUpload.onProgress,
 ));
- 
- 
+
 
 const persistChatfile = (file, uploadEndpoint) => {
   const chatFileToUpload = (!file.upload.done) ? file : null;
@@ -68,21 +66,20 @@ const persistChatfile = (file, uploadEndpoint) => {
 
       const uploadResponse = JSON.parse(fileData);
 
-      
-      if(uploadResponse.success){
-        file.onUpload({done: true});
+
+      if (uploadResponse.success) {
+        file.onUpload({ done: true });
         return Promise.resolve(uploadResponse);
-      } 
-      else {
-        file.onUpload({ error: true, done: true});
-        return Promise.reject("something went wrong");
       }
+
+      file.onUpload({ error: true, done: true });
+      return Promise.reject('something went wrong');
     })
     .catch((error) => {
       console.log(error);
-      file.onUpload({ error: true, done: true});
-      return Promise.reject("something went wrong");
-    })
+      file.onUpload({ error: true, done: true });
+      return Promise.reject('something went wrong');
+    });
 };
 
 export default {

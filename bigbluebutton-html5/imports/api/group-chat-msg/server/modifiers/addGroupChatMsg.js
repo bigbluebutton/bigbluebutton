@@ -34,12 +34,12 @@ export default function addGroupChatMsg(meetingId, chatId, msg) {
 
 
   const msgDocument = {
-    color:"0",
+    color: '0',
     id: msg.id,
     timestamp: msg.timestamp,
     correlationId: msg.correlationId,
     sender: msg.sender.id,
-    message: receivedMessageObj
+    message: receivedMessageObj,
   };
 
   const selector = {

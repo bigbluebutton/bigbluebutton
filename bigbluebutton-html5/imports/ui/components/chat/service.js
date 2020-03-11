@@ -173,7 +173,6 @@ const lastReadMessageTime = (receiverID) => {
 };
 
 const sendGroupMessage = (messageObj) => {
-
   const chatID = Session.get('idChatOpen') || PUBLIC_CHAT_ID;
   const isPublicChat = chatID === PUBLIC_CHAT_ID;
 
@@ -204,13 +203,13 @@ const sendGroupMessage = (messageObj) => {
 
   const fileData = (messageObj.fileId) ? ({
     fileId: messageObj.fileId,
-    fileName: messageObj.fileName
+    fileName: messageObj.fileName,
   }) : undefined;
 
   groupChatMsgFromUser.messageObj = {
     message: messageObj.message,
-    fileData: fileData
-  }
+    fileData,
+  };
   const currentClosedChats = Storage.getItem(CLOSED_CHAT_LIST_KEY);
 
   // Remove the chat that user send messages from the session.

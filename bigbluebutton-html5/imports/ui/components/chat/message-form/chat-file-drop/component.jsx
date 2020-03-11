@@ -191,11 +191,11 @@ class ChatFileUploader extends Component {
 
       return fileIndex === -1 ? false : {
         file: update(file, {
-            $apply: file => update(file, {
-              [key]: {
-                [operation]: value,
-              },
-            }),
+          $apply: file => update(file, {
+            [key]: {
+              [operation]: value,
+            },
+          }),
         }),
       };
     });
@@ -205,27 +205,29 @@ class ChatFileUploader extends Component {
     const applyValue = toUpdate => update(toUpdate, { $merge: value });
     this.updateFileKey(id, key, applyValue, '$apply');
   }
-  
+
   handleConfirm() {
-    const { mountModal, intl, handleSave, handleSendMessage } = this.props;
+    const {
+      mountModal, intl, handleSave, handleSendMessage,
+    } = this.props;
     const { disableActions, file } = this.state;
-    
+
     this.setState({
       disableActions: true,
       preventClosing: true,
     });
     console.log(file);
-    
+
     if (!disableActions && file != undefined) {
       const fileToSave = (!file.upload.error) ? file : null;
       return handleSave(fileToSave)
         .then((fileData) => {
-          if(fileData.success == true){
+          if (fileData.success == true) {
             this.setState({
               disableActions: false,
               preventClosing: false,
             });
-            fileData.message = "TESTING FILE DROP";
+            fileData.message = 'TESTING FILE DROP';
             return (
               handleSendMessage(fileData)
             );
@@ -244,14 +246,13 @@ class ChatFileUploader extends Component {
           });
         });
     }
-    else{
-      this.setState({
-        disableActions: false,
-        preventClosing: false,
-        file: undefined,
-      });
-      // return null;
-    }
+
+    this.setState({
+      disableActions: false,
+      preventClosing: false,
+      file: undefined,
+    });
+    // return null;
   }
 
   handleDismiss() {
@@ -275,7 +276,7 @@ class ChatFileUploader extends Component {
       .concat(files2), f => (
       validMimes.includes(f.type) || validExtentions.includes(`.${f.name.split('.').pop()}`)
     ));
-        
+
     const fileToUpload = accepted.map((file) => {
       const id = _.uniqueId(file.name);
 
@@ -286,12 +287,12 @@ class ChatFileUploader extends Component {
         filename: file.name,
         upload: { done: false, error: false, progress: 0 },
         onProgress: (event) => {
-          //TODO: remove this
-          console.log("On progress called")
+          // TODO: remove this
+          console.log('On progress called');
           if (!event.lengthComputable) {
             this.deepMergeUpdateFileKey(id, 'upload', {
               progress: 100,
-              done: true
+              done: true,
             });
 
             return;
@@ -311,10 +312,10 @@ class ChatFileUploader extends Component {
       };
     });
 
-  this.setState(({ file }) => ({
-    file: (fileToUpload[0]),
-    disableActions: false,
-  }));
+    this.setState(({ file }) => ({
+      file: (fileToUpload[0]),
+      disableActions: false,
+    }));
 
 
     if (rejected.length > 0) {
@@ -337,7 +338,7 @@ class ChatFileUploader extends Component {
     const { file } = this.state;
     const { intl } = this.props;
 
-    if(file === undefined) return null;
+    if (file === undefined) return null;
 
     return (
       <div className={styles.fileList}>
@@ -356,12 +357,12 @@ class ChatFileUploader extends Component {
           </tbody>
         </table>
       </div>
-    )
+    );
   }
 
   renderPresentationItemStatus(item) {
     const { intl } = this.props;
-    
+
     if (!item.upload.done && item.upload.progress === 0) {
       return intl.formatMessage(intlMessages.fileToUpload);
     }
@@ -394,7 +395,7 @@ class ChatFileUploader extends Component {
       [styles.tableItemError]: hasError,
       [styles.tableItemAnimated]: isProcessing,
     };
-    if(!item.id) return null;
+    if (!item.id) return null;
     return (
       <tr
         key={item.id}
@@ -411,16 +412,16 @@ class ChatFileUploader extends Component {
         </td>
         {hasError ? null : (
           <td className={styles.tableItemActions}>
-              <Button
-                disabled={disableActions}
-                className={cx(styles.itemAction, styles.itemActionRemove)}
-                label={"Remove presentation"}
-                aria-label={`Remove presentation ${item.filename}`}
-                size="sm"
-                icon="delete"
-                hideLabel
-                onClick={() => this.handleRemove(item)}
-              />
+            <Button
+              disabled={disableActions}
+              className={cx(styles.itemAction, styles.itemActionRemove)}
+              label="Remove presentation"
+              aria-label={`Remove presentation ${item.filename}`}
+              size="sm"
+              icon="delete"
+              hideLabel
+              onClick={() => this.handleRemove(item)}
+            />
           </td>
         )}
       </tr>
@@ -504,7 +505,7 @@ class ChatFileUploader extends Component {
       preventClosing, disableActions, file,
     } = this.state;
 
-    let awaitingUpload = false;
+    const awaitingUpload = false;
 
     const confirmLabel = awaitingUpload
       ? intl.formatMessage(intlMessages.confirmLabel)

@@ -37,7 +37,7 @@ export default function sendGroupChatMsg(credentials, chatId, groupChatMsgFromUs
   check(requesterUserId, String);
   check(requesterToken, String);
   check(groupChatMsgFromUser, Object);
-  
+
   groupChatMsgFromUser.messageObj.message = parseMessage(groupChatMsgFromUser.messageObj.message);
 
   const payload = {
