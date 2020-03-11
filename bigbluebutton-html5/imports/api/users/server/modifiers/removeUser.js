@@ -45,7 +45,7 @@ export default function removeUser(meetingId, userId) {
       return Logger.error(`Removing user from collection: ${err}`);
     }
 
-    const sessionUserId = `${meetingId}-${userId}`;
+    const sessionUserId = `${meetingId}--${userId}`;
     clearAllSessions(sessionUserId);
 
     clearUserInfoForRequester(meetingId, userId);
