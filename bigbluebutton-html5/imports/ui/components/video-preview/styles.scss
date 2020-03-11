@@ -40,6 +40,26 @@
   }
 }
 
+.extraActions {
+  margin-right: auto;
+  margin-left: 3px;
+
+  [dir="rtl"] & {
+    margin-left: auto;
+    margin-right: 3px;
+  }
+
+  :first-child {
+    margin-left: 3px;
+    margin-right: inherit;
+
+    [dir="rtl"] & {
+      margin-left: inherit;
+      margin-right: 3px;
+    }
+  }
+}
+
 .closeBtn {
   i {
     color: var(--color-gray-light);

@@ -541,6 +541,7 @@
     "app.videoPreview.findingWebcamsLabel": "Finding webcams",
     "app.videoPreview.startSharingLabel": "Start sharing",
     "app.videoPreview.stopSharingLabel": "Stop sharing",
+    "app.videoPreview.stopSharingAllLabel": "Stop all",
     "app.videoPreview.sharedCameraLabel": "This camera is already being shared",
     "app.videoPreview.webcamOptionLabel": "Choose webcam",
     "app.videoPreview.webcamPreviewLabel": "Webcam preview",

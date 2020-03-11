@@ -15,8 +15,12 @@ export default withModalMounter(withTracker(({ mountModal, fromInterface }) => (
   },
   stopSharing: deviceId => {
     mountModal(null);
-    const stream = VideoService.getMyStream(deviceId);
-    if (stream) VideoService.stopVideo(stream);
+    if (deviceId) {
+      const stream = VideoService.getMyStream(deviceId);
+      if (stream) VideoService.stopVideo(stream);
+    } else {
+      VideoService.exitVideo();
+    }
   },
   sharedDevices: VideoService.getSharedDevices(),
   closeModal: () => mountModal(null),
@@ -25,4 +29,5 @@ export default withModalMounter(withTracker(({ mountModal, fromInterface }) => (
   changeProfile: profileId => Service.changeProfile(profileId),
   hasMediaDevices: deviceInfo.hasMediaDevices,
   skipVideoPreview: VideoService.getSkipVideoPreview(fromInterface),
+  hasVideoStream: VideoService.hasVideoStream(),
 }))(VideoPreviewContainer));
