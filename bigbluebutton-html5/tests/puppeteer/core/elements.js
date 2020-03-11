@@ -14,4 +14,3 @@ exports.leaveAudio = 'button[aria-label="Leave Audio"]';
 exports.videoMenu = 'button[aria-label="Open video menu dropdown"]';
 exports.screenShare = 'button[aria-label="Share your screen"]';
 exports.screenShareVideo = '[id="screenshareVideo"]';
-exports.startScreenShare = 'button[data-test="startScreenShare"]';

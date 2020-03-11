@@ -1,8 +1,8 @@
 const e = require('../core/elements');
 
 async function startScreenshare(test) {
-  await test.waitForSelector(e.startScreenShare);
-  await test.click(e.startScreenShare, true);
+  await test.waitForSelector(e.screenShare);
+  await test.click(e.screenShare, true);
 }
 
 async function getTestElement(element) {

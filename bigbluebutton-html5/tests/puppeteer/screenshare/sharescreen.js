@@ -8,7 +8,7 @@ class ShareScreen extends Page {
 
   async test() {
     await util.startScreenshare(this.page);
-    this.page.on('dialog', async (dialog) => {
+    await this.page.on('dialog', async (dialog) => {
       await dialog.accept();
     });
     const response = await util.getScreenShareContainer(this.page);
