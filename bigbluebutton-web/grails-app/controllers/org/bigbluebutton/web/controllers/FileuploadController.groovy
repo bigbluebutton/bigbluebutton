@@ -24,7 +24,7 @@ import org.bigbluebutton.api.MeetingService
 import org.bigbluebutton.api.ParamsProcessorUtil
 import org.bigbluebutton.api.Util
 import org.bigbluebutton.presentation.UploadedPresentation
-import org.bigbluebutton.web.services.FileuploadService
+ 
 import com.google.gson.Gson
 
 
