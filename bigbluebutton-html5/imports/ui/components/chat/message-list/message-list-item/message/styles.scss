@@ -1,0 +1,53 @@
+@import "/imports/ui/stylesheets/variables/_all";
+@import "/imports/ui/stylesheets/variables/typography";
+
+.wrapper {
+  width: 15.3rem;
+  height: 3.8rem;
+  display: grid;
+  grid-template-columns: 3.8rem 9rem 2.5rem;
+    // flex: 1;
+  position: inherit;
+  border-radius: 8px;
+  background-color: #dbe5ee;
+  margin:3px 0 0 var(--border-size);
+  
+  [dir="rtl"] & {
+    margin: var(--border-size) var(--border-size) 0 0;
+  }
+}
+
+.fileName {
+  color: #7c7c7c;
+  font-size: var(--font-size-16px);
+  padding-top: 1rem;
+  overflow: hidden;
+}
+
+.extensionBox {
+  width: 3.2rem;
+  height: 3.2rem;
+  background-color: transparent;
+  border-radius: 0.5rem;
+  margin: 0.3rem 0 0 0.3rem;
+  i {
+    font-size: 3.2rem;
+  }
+  
+  .extension {
+    font-size: 2rem;
+    flex: 1;
+    align-items: center;
+  }
+}
+
+
+.button {
+  span:first-child {
+    box-shadow: none;
+    border: 0.5px solid var(--color-gray);
+  }
+  i {
+    color: #7c7c7c;
+  }
+}

@@ -15,10 +15,30 @@
   }
 }
 
+.senderMessages{
+  float: right;
+  // flex: start;
+  // display: flex;
+  // position: relative;
+    flex-flow: column;
+    font-family: Montserrat;
+    font-style: normal;
+    font-weight: normal;
+    font-size: var(--font-size-14px);
+    line-height: var(--font-size-17px);
+    color: #03213F;
+    padding: 0 0.5rem 0 0.5rem;
+    border-radius: 0.8rem 0 0.8rem 0.8rem;
+    width: fit-content;
+    height: max-content;
+    background: #ffffff none repeat scroll 0 0;
+}
+
 .wrapper {
   display: flex;
   flex-flow: row;
   flex: 1;
+  overflow-y: visible;
   position: relative;
   margin:var(--border-size) 0 0 var(--border-size);
 
@@ -157,6 +177,12 @@
     font-size: var(--font-size-14px);
     line-height: var(--font-size-17px);
     color: #03213F;
+    padding: 0 0.5rem 0 0.5rem;
+    border-radius: 0.8rem 0 0.8rem 0.8rem;
+    width: fit-content;
+    height: max-content;
+    flex-flow: column;
+    background: #ffffff none repeat scroll 0 0;
 }
 
 .message, .hyperlink {

@@ -6,6 +6,8 @@ import PropTypes from 'prop-types';
 import TypingIndicatorContainer from './typing-indicator/container';
 import { styles } from './styles.scss';
 import Button from '../../button/component';
+import ChatFileUploaderContainer from './chat-file-drop/container';
+import { withModalMounter } from '/imports/ui/components/modal/service';
 
 const propTypes = {
   intl: intlShape.isRequired,
@@ -24,6 +26,7 @@ const propTypes = {
   partnerIsLoggedOut: PropTypes.bool.isRequired,
   stopUserTyping: PropTypes.func.isRequired,
   startUserTyping: PropTypes.func.isRequired,
+  mountModal: PropTypes.func.isRequired,
 };
 
 const defaultProps = {
@@ -86,6 +89,7 @@ class MessageForm extends PureComponent {
     this.handleMessageChange = this.handleMessageChange.bind(this);
     this.handleMessageKeyDown = this.handleMessageKeyDown.bind(this);
     this.handleSubmit = this.handleSubmit.bind(this);
+    this.renderChatModal = this.renderChatModal.bind(this);
     this.setMessageHint = this.setMessageHint.bind(this);
   }
 
@@ -270,6 +274,11 @@ class MessageForm extends PureComponent {
     );
   }
 
+  renderChatModal() {
+    const {mountModal} = this.props;
+    return mountModal(<ChatFileUploaderContainer />);
+  }
+
   render() {
     const {
       intl,
@@ -283,17 +292,15 @@ class MessageForm extends PureComponent {
     const { hasErrors, error, message } = this.state;
 
     return CHAT_ENABLED ? (
+    <div className={styles.wrapper}>
       <form
         ref={(ref) => { this.form = ref; }}
         className={cx(className, styles.form)}
         onSubmit={this.handleSubmit}
       >
-        <div className={styles.wrapper}>
-          {/* <TextareaAutosize */}
           <input
             className={styles.input}
             id="message-input"
-            innerRef={(ref) => { this.textarea = ref; return this.textarea; }}
             placeholder={intl.formatMessage(messages.inputPlaceholder, { 0: chatName })}
             aria-controls={chatAreaId}
             aria-label={intl.formatMessage(messages.inputLabel, { 0: chatTitle })}
@@ -307,21 +314,29 @@ class MessageForm extends PureComponent {
             onChange={this.handleMessageChange}
             onKeyDown={this.handleMessageKeyDown}
           />
-          <Button
-            hideLabel
-            circle
-            className={styles.sendButton}
-            aria-label={intl.formatMessage(messages.submitLabel)}
-            type="submit"
-            disabled={disabled}
-            label={intl.formatMessage(messages.submitLabel)}
-            icon="send"
-            onClick={() => {}}
-            data-test="sendMessageButton"
-          />
-        </div>
         <TypingIndicatorContainer {...{ error }} />
       </form>
+      <Button
+        hideLabel
+        circle
+        className={styles.sendButton}
+        aria-label={intl.formatMessage(messages.submitLabel)}
+        type="submit"
+        disabled={disabled}
+        label={intl.formatMessage(messages.submitLabel)}
+        icon="send"
+        onClick={() => {}}
+        data-test="sendMessageButton"
+      />
+        <Button
+          hideLabel
+          circle
+          className={styles.attachFile}
+          icon="file"
+          label="attachFile"
+          onClick={() => this.renderChatModal()}
+        />
+    </div>
     ) : null;
   }
 }
@@ -329,4 +344,4 @@ class MessageForm extends PureComponent {
 MessageForm.propTypes = propTypes;
 MessageForm.defaultProps = defaultProps;
 
-export default injectIntl(MessageForm);
+export default withModalMounter(injectIntl(MessageForm));

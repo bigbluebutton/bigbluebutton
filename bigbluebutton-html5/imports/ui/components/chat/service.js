@@ -47,7 +47,7 @@ const mapGroupMessage = (message) => {
     const sender = Users.findOne({ userId: message.sender },
       {
         fields: {
-          color: 1, role: 1, name: 1, connectionStatus: 1,
+          color: 1, role: 1, name: 1, connectionStatus: 1, userId: 1,
         },
       });
     const {
@@ -55,6 +55,7 @@ const mapGroupMessage = (message) => {
       role,
       name,
       connectionStatus,
+      userId,
     } = sender;
 
     const mappedSender = {
@@ -62,6 +63,7 @@ const mapGroupMessage = (message) => {
       isModerator: role === ROLE_MODERATOR,
       name,
       isOnline: connectionStatus === CONNECTION_STATUS_ONLINE,
+      userId,
     };
 
     mappedMessage.sender = mappedSender;
@@ -75,7 +77,9 @@ const reduceGroupMessages = (previous, current) => {
   const currentMessage = current;
   currentMessage.content = [{
     id: current.id,
-    text: current.message,
+    text: current.message.message,
+    fileData: current.message.fileData,
+    color: current.color,
     time: current.timestamp,
   }];
   if (!lastMessage || !currentMessage.chatId === PUBLIC_GROUP_CHAT_ID) {
@@ -195,9 +199,17 @@ const sendGroupMessage = (message) => {
       id: senderUserId,
       name: senderName,
     },
-    message,
   };
 
+  const fileData = (message.fileId) ? ({
+    fileId: message.fileId,
+    fileName: message.fileName
+  }) : undefined; 
+  
+  payload.message = {
+    message: message.message,
+    fileData: fileData
+  }
   const currentClosedChats = Storage.getItem(CLOSED_CHAT_LIST_KEY);
 
   // Remove the chat that user send messages from the session.

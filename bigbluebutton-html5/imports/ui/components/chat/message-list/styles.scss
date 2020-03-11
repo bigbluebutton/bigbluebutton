@@ -7,7 +7,7 @@
   flex-grow: 1;
   flex-shrink: 1;
   position: relative;
-  overflow-x: hidden;
+  overflow-x: auto;
   overflow-y: auto;
   padding-left: var(--sm-padding-x);
   margin-left: calc(-1 * var(--md-padding-x));

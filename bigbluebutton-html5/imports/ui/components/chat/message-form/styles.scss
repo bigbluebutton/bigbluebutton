@@ -2,11 +2,11 @@
 @import "/imports/ui/stylesheets/mixins/_indicators";
 @import "/imports/ui/stylesheets/variables/_all";
 
+
 .form {
   flex-grow: 0;
-  flex-shrink: 0;
-  align-self: flex-end;
-  width: 100%;
+  flex-shrink: 1;
+  width: 94.3%;
   position: relative;
   margin-bottom: calc(-1 * var(--sm-padding-x));
 }
@@ -68,14 +68,28 @@
   width: 2em;
   height:  2.7rem;
   border: 1px ;
-  border-left: none;
   background: #dbe5ee;
   text-align: center;
-  // color: #fff;
-  border-radius: 0  0.3em  0.3em 0;
   cursor: pointer;
   font-size: 1.25em;
-  margin-right: 0.4em;
+  i {
+    color: #6c6c6c;
+  }
+}
+
+.attachFile {
+  width: 3rem;
+  height: 2.7rem;
+  background: #dbe5ee;
+  text-align: center;
+  cursor: pointer;
+  font-size: 1.25em;
+  margin-right: 1rem;
+  padding-right: 0.5rem;
+  border-radius: 0  0.3em  0.3em 0;
+  i {
+    color: #6c6c6c;
+  }
 }
 
 .error,

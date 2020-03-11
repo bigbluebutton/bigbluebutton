@@ -17,7 +17,7 @@ class ChatContainer extends PureComponent {
 export default withTracker(() => {
   const cleanScrollAndSendMessage = (message) => {
     ChatService.updateScrollPosition(null);
-    return ChatService.sendGroupMessage(message);
+    return ChatService.sendGroupMessage({message: message});
   };
 
   const startUserTyping = chatId => makeCall('startUserTyping', chatId);

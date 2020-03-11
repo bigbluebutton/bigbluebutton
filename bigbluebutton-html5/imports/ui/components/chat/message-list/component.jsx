@@ -215,7 +215,7 @@ class MessageList extends Component {
 
   render() {
     const {
-      messages, intl, id, lastReadMessageTime, handleReadMessage,
+      messages, intl, id, lastReadMessageTime, handleReadMessage, currentUserId,
     } = this.props;
 
     const {
@@ -243,6 +243,7 @@ class MessageList extends Component {
               user={message.sender}
               time={message.time}
               chatAreaId={id}
+              currentUserId={currentUserId}
               lastReadMessageTime={lastReadMessageTime}
               scrollArea={scrollArea}
             />
