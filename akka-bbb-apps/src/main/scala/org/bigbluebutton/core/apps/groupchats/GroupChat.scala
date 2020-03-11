@@ -1,6 +1,6 @@
 package org.bigbluebutton.core.apps.groupchats
 
-import org.bigbluebutton.common2.msgs.{ GroupChatAccess, GroupChatMsgFromUser, GroupChatMsgToUser, GroupChatUser }
+import org.bigbluebutton.common2.msgs.{ GroupChatAccess, GroupChatMsgFromUser, GroupChatMsgToUser, GroupChatUser, MessageObject }
 import org.bigbluebutton.core.domain.MeetingState2x
 import org.bigbluebutton.core.models._
 import org.bigbluebutton.core.running.LiveMeeting
@@ -18,12 +18,12 @@ object GroupChatApp {
   def toGroupChatMessage(sender: GroupChatUser, msg: GroupChatMsgFromUser): GroupChatMessage = {
     val now = System.currentTimeMillis()
     val id = GroupChatFactory.genId()
-    GroupChatMessage(id, now, msg.correlationId, now, now, sender, msg.color, msg.message)
+    GroupChatMessage(id, now, msg.correlationId, now, now, sender, msg.color, msg.messageObj)
   }
 
   def toMessageToUser(msg: GroupChatMessage): GroupChatMsgToUser = {
     GroupChatMsgToUser(id = msg.id, timestamp = msg.timestamp, correlationId = msg.correlationId,
-      sender = msg.sender, color = msg.color, message = msg.message)
+      sender = msg.sender, color = msg.color, messageObj = msg.messageObj)
   }
 
   def addGroupChatMessage(chat: GroupChat, chats: GroupChats,
@@ -81,11 +81,11 @@ object GroupChatApp {
 
     val sender = GroupChatUser(SystemUser.ID, SystemUser.ID)
     val h1 = GroupChatMsgFromUser(correlationId = "cor1", sender = sender,
-      color = "red", message = "Hello Foo!")
+      color = "red", MessageObject("Hello Foo!"))
     val h2 = GroupChatMsgFromUser(correlationId = "cor2", sender = sender,
-      color = "red", message = "Hello Bar!")
+      color = "red", MessageObject("Hello Bar!"))
     val h3 = GroupChatMsgFromUser(correlationId = "cor3", sender = sender,
-      color = "red", message = "Hello Baz!")
+      color = "red", MessageObject("Hello Baz!"))
     val state1 = addH(state, SystemUser.ID, liveMeeting, h1)
     val state2 = addH(state1, SystemUser.ID, liveMeeting, h2)
     val state3 = addH(state2, SystemUser.ID, liveMeeting, h3)

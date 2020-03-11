@@ -23,10 +23,9 @@ export default withTracker(() => {
     fileSizeMin: CHATFILE_CONFIG.uploadSizeMin,
     fileSizeMax: CHATFILE_CONFIG.uploadSizeMax,
     fileValidMimeTypes: CHATFILE_CONFIG.uploadValidMimeTypes,
-    handleSave: file => Service.persistChatFileChanges(
+    handleSave: file => Service.persistChatfile(
       file,
-      CHATFILE_CONFIG.uploadEndpoint,
-      'DEFAULT_CHATFILE_POD',
+      CHATFILE_CONFIG.uploadEndpoint
     ),
     handleSendMessage: cleanScrollAndSendMessage,
   };

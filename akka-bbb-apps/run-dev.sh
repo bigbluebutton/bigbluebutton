@@ -2,5 +2,5 @@
 
 rm -rf src/main/resources
 cp -R src/universal/conf src/main/resources
-sbt run
+sbt run -jvm-debug 5005
 

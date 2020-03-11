@@ -158,7 +158,7 @@ public:
     typingIndicator:
       enabled: true
   chatFile:
-    uploadEndpoint: "/bigbluebutton/chatFile/upload"
+    uploadEndpoint: "/bigbluebutton/file/upload"
     uploadSizeMin: 0
     uploadSizeMax: 50000000
     uploadValidMimeTypes:

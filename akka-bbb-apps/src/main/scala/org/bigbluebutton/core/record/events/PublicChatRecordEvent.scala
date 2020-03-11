@@ -19,6 +19,8 @@
 
 package org.bigbluebutton.core.record.events
 
+import org.bigbluebutton.common2.msgs.MessageObject
+
 class PublicChatRecordEvent extends AbstractChatRecordEvent {
   import PublicChatRecordEvent._
 
@@ -32,8 +34,9 @@ class PublicChatRecordEvent extends AbstractChatRecordEvent {
     eventMap.put(SENDERID, senderId)
   }
 
-  def setMessage(message: String) {
-    eventMap.put(MESSAGE, message)
+  def setMessage(messageObj: MessageObject) {
+    //TODO: Look into storage of entire object. Understand Redis code
+    eventMap.put(MESSAGE, messageObj.message)
   }
 
   def setColor(color: String) {

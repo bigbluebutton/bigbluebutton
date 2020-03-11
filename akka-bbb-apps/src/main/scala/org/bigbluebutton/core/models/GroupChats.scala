@@ -1,6 +1,6 @@
 package org.bigbluebutton.core.models
 
-import org.bigbluebutton.common2.msgs.{ GroupChatAccess, GroupChatUser }
+import org.bigbluebutton.common2.msgs.{ GroupChatAccess, GroupChatUser, MessageObject }
 import org.bigbluebutton.core.util.RandomStringGenerator
 
 object GroupChatFactory {
@@ -37,7 +37,7 @@ case class GroupChat(id: String, name: String, access: String, createdBy: GroupC
 }
 
 case class GroupChatMessage(id: String, timestamp: Long, correlationId: String, createdOn: Long,
-                            updatedOn: Long, sender: GroupChatUser, color: String, message: String)
+                            updatedOn: Long, sender: GroupChatUser, color: String, messageObj: MessageObject)
 
 case class GroupChatWindow(windowId: String, chatIds: Vector[String], keepOpen: Boolean, openedBy: String) {
 

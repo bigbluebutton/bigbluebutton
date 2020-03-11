@@ -286,10 +286,12 @@ class ChatFileUploader extends Component {
         filename: file.name,
         upload: { done: false, error: false, progress: 0 },
         onProgress: (event) => {
+          //TODO: remove this
+          console.log("On progress called")
           if (!event.lengthComputable) {
             this.deepMergeUpdateFileKey(id, 'upload', {
               progress: 100,
-              done: true,
+              done: true
             });
 
             return;

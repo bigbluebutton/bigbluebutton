@@ -105,7 +105,9 @@ class FileuploadController {
             responseData.put("fileId", fileId);
             responseData.put("fileName", downloadableFileName);
 
-            response.outputStream << new Gson().toJson(responseData);
+            String responseJson = new Gson().toJson(responseData);
+
+            response.outputStream << responseJson;
           }
         }
       } else {

@@ -25,30 +25,21 @@ export default function addGroupChatMsg(meetingId, chatId, msg) {
     timestamp: Number,
     sender: Object,
     color: String,
-    message: Match.Any,
+    messageObj: Object,
     correlationId: Match.Maybe(String),
   });
 
-  const dummyMessage = {
-    message: msg.message,
-    fileData: {
-      fileId: "DEMO FILE ID for testing",
-      fileName: "fakeDoc.pdf",
-    },
-    // fileData: undefined,
-  }
+  const receivedMessageObj = msg.messageObj;
+  receivedMessageObj.message = parseMessage(receivedMessageObj.message);
+
 
   const msgDocument = {
-    // ...msg,
     color:"0",
     id: msg.id,
     timestamp: msg.timestamp,
     correlationId: msg.correlationId,
-    meetingId,
-    chatId,
-    message: dummyMessage,
-    // message: parseMessage(msg.message),
     sender: msg.sender.id,
+    message: receivedMessageObj
   };
 
   const selector = {

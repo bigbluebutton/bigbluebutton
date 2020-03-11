@@ -172,7 +172,8 @@ const lastReadMessageTime = (receiverID) => {
   return UnreadMessages.get(chatType);
 };
 
-const sendGroupMessage = (message) => {
+const sendGroupMessage = (messageObj) => {
+
   const chatID = Session.get('idChatOpen') || PUBLIC_CHAT_ID;
   const isPublicChat = chatID === PUBLIC_CHAT_ID;
 
@@ -192,7 +193,7 @@ const sendGroupMessage = (message) => {
     }
   }
 
-  const payload = {
+  const groupChatMsgFromUser = {
     color: '0',
     correlationId: `${senderUserId}-${Date.now()}`,
     sender: {
@@ -201,13 +202,13 @@ const sendGroupMessage = (message) => {
     },
   };
 
-  const fileData = (message.fileId) ? ({
-    fileId: message.fileId,
-    fileName: message.fileName
-  }) : undefined; 
-  
-  payload.message = {
-    message: message.message,
+  const fileData = (messageObj.fileId) ? ({
+    fileId: messageObj.fileId,
+    fileName: messageObj.fileName
+  }) : undefined;
+
+  groupChatMsgFromUser.messageObj = {
+    message: messageObj.message,
     fileData: fileData
   }
   const currentClosedChats = Storage.getItem(CLOSED_CHAT_LIST_KEY);
@@ -217,7 +218,7 @@ const sendGroupMessage = (message) => {
     Storage.setItem(CLOSED_CHAT_LIST_KEY, _.without(currentClosedChats, receiverId.id));
   }
 
-  return makeCall('sendGroupChatMsg', destinationChatId, payload);
+  return makeCall('sendGroupChatMsg', destinationChatId, groupChatMsgFromUser);
 };
 
 const getScrollPosition = (receiverID) => {

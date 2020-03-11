@@ -27,68 +27,51 @@ const futch = (url, opts = {}, onProgress) => new Promise((res, rej) => {
 
 const uploadFile = (
   file,
-  podId,
   meetingId,
   endpoint,
-  onProgress,
+  onProgress
 ) => {
   const data = new FormData();
-  data.append('presentation_name', file.name);
-  data.append('Filename', file.name);
+
   data.append('fileUpload', file);
   data.append('conference', meetingId);
-  data.append('room', meetingId);
-
-  // TODO: Currently the uploader is not related to a POD so the id is fixed to the default
-  data.append('pod_id', podId);
 
 
   const opts = {
     method: 'POST',
     body: data,
   };
-//   return futch(endpoint, opts, onProgress);
-const fileData = {
-  fileId: "DEMO FILE ID",
-  fileName: file.name,
-  success: true,
-}
-
-return new Promise((res, rej) => {
-  res(fileData)
-});
+  
+  //TODO: read the end point form settings.yml
+  let response =  futch("/bigbluebutton/file/upload", opts, onProgress);
+  console.log(response);
+  return response;
 
 };
 
-const uploadChatFiles = (
-  p,
+const uploadChatFile = (
+  fileToUpload,
   meetingId,
-  podId,
   uploadEndpoint,
 ) => Promise.resolve(uploadFile(
-  p.file, p.isDownloadable, podId, meetingId, uploadEndpoint,
-  p.onUpload, p.onProgress,
+  fileToUpload.file, meetingId, uploadEndpoint, fileToUpload.onProgress
 ));
+ 
+ 
 
-const removePresentation = (presentationId, podId) => {
-  makeCall('removePresentation', presentationId, podId);
-};
-
-const removePresentations = (
-  presentationsToRemove,
-  podId,
-) => Promise.all(presentationsToRemove.map(p => removePresentation(p.id, podId)));
-
-const persistChatFileChanges = (file, uploadEndpoint, podId) => {
+const persistChatfile = (file, uploadEndpoint) => {
   const chatFileToUpload = (!file.upload.done) ? file : null;
 
-  return uploadChatFiles(chatFileToUpload, Auth.meetingID, podId, uploadEndpoint)
+  return uploadChatFile(chatFileToUpload, Auth.meetingID, uploadEndpoint)
     .then((fileData) => {
       console.log(fileData);
+
+      const uploadResponse = JSON.parse(fileData);
+
       
-      if(fileData.success){
+      if(uploadResponse.success){
         file.onUpload({done: true});
-        return Promise.resolve(fileData);
+        return Promise.resolve(uploadResponse);
       } 
       else {
         file.onUpload({ error: true, done: true});
@@ -96,12 +79,12 @@ const persistChatFileChanges = (file, uploadEndpoint, podId) => {
       }
     })
     .catch((error) => {
-      console.error(error);
+      console.log(error);
       file.onUpload({ error: true, done: true});
       return Promise.reject("something went wrong");
     })
 };
 
 export default {
-  persistChatFileChanges,
+  persistChatfile,
 };

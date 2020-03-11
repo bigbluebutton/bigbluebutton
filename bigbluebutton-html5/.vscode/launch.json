@@ -4,7 +4,7 @@
         {
             "type": "chrome",
             "request": "launch",
-            "name": "Meteor: launchBrowser",
+            "name": "Meteor: Chrome",
             "url": "https://bbb.pipitacademy.com",
             "webRoot": "${workspaceFolder}"
         },

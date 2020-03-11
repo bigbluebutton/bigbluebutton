@@ -32,7 +32,7 @@ publishTo := Some(Resolver.file("file", new File(Path.userHome.absolutePath + "/
 // We want to have our jar files in lib_managed dir.
 // This way we'll have the right path when we import
 // into eclipse.
-retrieveManaged := true
+retrieveManaged := false
 
 testOptions in Test += Tests.Argument(TestFrameworks.Specs2, "html", "console", "junitxml")
 

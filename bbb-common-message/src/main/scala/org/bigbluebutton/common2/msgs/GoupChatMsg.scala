@@ -4,11 +4,13 @@ object GroupChatAccess {
   val PUBLIC = "PUBLIC_ACCESS"
   val PRIVATE = "PRIVATE_ACCESS"
 }
-
+case class FileObject(fileId: String, fileName: String)
+case class MessageObject(message: String, fileObj: Option[FileObject] = None)
 case class GroupChatUser(id: String, name: String)
-case class GroupChatMsgFromUser(correlationId: String, sender: GroupChatUser, color: String, message: String)
+
+case class GroupChatMsgFromUser(correlationId: String, sender: GroupChatUser, color: String, messageObj: MessageObject)
 case class GroupChatMsgToUser(id: String, timestamp: Long, correlationId: String, sender: GroupChatUser,
-                              color: String, message: String)
+                              color: String, messageObj: MessageObject)
 case class GroupChatInfo(id: String, name: String, access: String, createdBy: GroupChatUser, users: Vector[GroupChatUser])
 
 object OpenGroupChatWindowReqMsg { val NAME = "OpenGroupChatWindowReqMsg" }
