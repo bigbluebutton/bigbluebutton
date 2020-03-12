@@ -194,8 +194,6 @@ const intlMessages = defineMessages({
   },
 });
 
-const handleDismiss = () => Session.set('showUploadPresentationView', false);
-
 class PresentationUploader extends Component {
   constructor(props) {
     super(props);
@@ -210,6 +208,7 @@ class PresentationUploader extends Component {
     // handlers
     this.handleFiledrop = this.handleFiledrop.bind(this);
     this.handleConfirm = this.handleConfirm.bind(this);
+    this.handleDismiss = this.handleDismiss.bind(this);
     this.handleRemove = this.handleRemove.bind(this);
     this.handleCurrentChange = this.handleCurrentChange.bind(this);
     this.handleDismissToast = this.handleDismissToast.bind(this);
@@ -361,7 +360,7 @@ class PresentationUploader extends Component {
         key={item.id}
         className={styles.uploadRow}
         onClick={() => {
-          Session.set('showUploadPresentationView', true);
+          if (hasError || isProcessing) Session.set('showUploadPresentationView', true);
         }}
       >
         <div className={styles.fileLine}>
@@ -426,6 +425,20 @@ class PresentationUploader extends Component {
         }),
       };
     });
+  }
+
+  handleDismiss() {
+    const { presentations } = this.state;
+    const { presentations: propPresentations } = this.props;
+    const ids = new Set(propPresentations.map(d => d.ID));
+    const merged = [
+      ...propPresentations,
+      ...presentations.filter(d => !ids.has(d.ID)),
+    ];
+    this.setState(
+      { presentations: merged },
+      Session.set('showUploadPresentationView', false),
+    );
   }
 
   handleConfirm(hasNewUpload) {
@@ -890,7 +903,7 @@ class PresentationUploader extends Component {
               <Button
                 className={styles.dismiss}
                 color="default"
-                onClick={handleDismiss}
+                onClick={this.handleDismiss}
                 label={intl.formatMessage(intlMessages.dismissLabel)}
                 aria-describedby={intl.formatMessage(intlMessages.dismissDesc)}
               />
