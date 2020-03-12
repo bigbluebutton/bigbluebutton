@@ -109,6 +109,10 @@ const intlMessages = defineMessages({
     id: 'app.presentationUploder.conversion.conversionProcessingSlides',
     description: 'indicates how many slides were converted',
   },
+  genericError: {
+    id: 'app.presentationUploder.genericError',
+    description: 'generic error while uploading/converting',
+  },
   genericConversionStatus: {
     id: 'app.presentationUploder.conversion.genericConversionStatus',
     description: 'indicates that file is being converted',
@@ -204,6 +208,7 @@ class PresentationUploader extends Component {
     };
 
     this.toastId = null;
+    this.hasError = null;
 
     // handlers
     this.handleFiledrop = this.handleFiledrop.bind(this);
@@ -542,9 +547,9 @@ class PresentationUploader extends Component {
   handleRemove(item, withErr = false) {
     if (withErr) {
       const { presentations } = this.props;
+      this.hasError = false;
       return this.setState({
         presentations,
-        hasError: false,
         disableActions: false,
       });
     }
@@ -657,7 +662,7 @@ class PresentationUploader extends Component {
     const isProcessing = (isUploading || isConverting) && !hasError;
 
     if (!stateError && hasError) {
-      this.setState({ hasError: true });
+      this.hasError = true;
     }
 
     const itemClassName = {
@@ -750,11 +755,11 @@ class PresentationUploader extends Component {
       fileValidMimeTypes,
     } = this.props;
 
-    const { disableActions, hasError } = this.state;
+    const { disableActions } = this.state;
 
-    if (disableActions && !hasError) return null;
+    if (disableActions && !this.hasError) return null;
 
-    return hasError ? (
+    return this.hasError ? (
       <div>
         <Button
           color="danger"
@@ -799,11 +804,11 @@ class PresentationUploader extends Component {
       fileSizeMax,
     } = this.props;
 
-    const { disableActions, hasError } = this.state;
+    const { disableActions } = this.state;
 
-    if (disableActions && !hasError) return null;
+    if (disableActions && !this.hasError) return null;
 
-    return hasError ? (
+    return this.hasError ? (
       <div>
         <Button
           color="danger"
@@ -852,15 +857,13 @@ class PresentationUploader extends Component {
     }
 
     if (item.upload.done && item.upload.error) {
-      const errorMessage = intlMessages[item.upload.status];
-      const m = intl.formatMessage(errorMessage);
-      return typeof m === 'string' ? m : null;
+      const errorMessage = intlMessages[item.upload.status] || intlMessages.genericError;
+      return intl.formatMessage(errorMessage);
     }
 
     if (!item.conversion.done && item.conversion.error) {
-      const errorMessage = intlMessages[item.conversion.status];
-      const m = intl.formatMessage(errorMessage);
-      return typeof m === 'string' ? m : null;
+      const errorMessage = intlMessages[item.conversion.status] || intlMessages.genericConversionStatus;
+      return intl.formatMessage(errorMessage);
     }
 
     if (!item.conversion.done && !item.conversion.error) {
