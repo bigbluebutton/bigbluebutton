@@ -346,6 +346,10 @@ class PresentationUploader extends Component {
     const hasError = item.conversion.error || item.upload.error;
     const isProcessing = (isUploading || isConverting) && !hasError;
 
+    const {
+      intl, selectedToBeNextCurrent,
+    } = this.props;
+
     const itemClassName = {
       [styles.done]: !isProcessing && !hasError,
       [styles.err]: hasError,
@@ -466,6 +470,8 @@ class PresentationUploader extends Component {
         },
       });
     }
+
+    if (this.toastId) Session.set('UploadPresentationToastId', this.toastId);
 
     if (!disableActions) {
       Session.set('showUploadPresentationView', false);

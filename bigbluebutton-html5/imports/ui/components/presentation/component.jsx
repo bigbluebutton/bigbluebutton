@@ -4,6 +4,7 @@ import WhiteboardOverlayContainer from '/imports/ui/components/whiteboard/whiteb
 import WhiteboardToolbarContainer from '/imports/ui/components/whiteboard/whiteboard-toolbar/container';
 import { HUNDRED_PERCENT, MAX_PERCENT } from '/imports/utils/slideCalcUtils';
 import { defineMessages, injectIntl, intlShape } from 'react-intl';
+import { toast } from 'react-toastify';
 import PresentationToolbarContainer from './presentation-toolbar/container';
 import CursorWrapperContainer from './cursor/cursor-wrapper-container/container';
 import AnnotationGroupContainer from '../whiteboard/annotation-group/container';
@@ -104,6 +105,10 @@ class PresentationArea extends PureComponent {
 
     if (prevProps.currentPresentation.name !== currentPresentation.name) {
       Session.set('selectedToBeNextCurrent', currentPresentation.id);
+      const activeUploadPresentationToastId = Session.get('UploadPresentationToastId');
+
+      if (activeUploadPresentationToastId) toast.dismiss(activeUploadPresentationToastId);
+
       notify(
         `${intl.formatMessage(intlMessages.changeNotification)} ${currentPresentation.name}`,
         'info',
