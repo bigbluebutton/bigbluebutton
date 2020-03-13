@@ -100,7 +100,7 @@ class MessageListItem extends Component {
       scrollArea,
       intl,
     } = this.props;
-    
+
     const dateTime = new Date(time);
 
     const regEx = /<a[^>]+>/i;
@@ -156,7 +156,7 @@ class MessageListItem extends Component {
           </div>
         </div>
       </div>
-    )
+    );
   }
 }
 

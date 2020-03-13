@@ -216,7 +216,9 @@ class ChatFileUploader extends Component {
     const {
       mountModal, intl, handleSave, handleSendMessage,
     } = this.props;
-    const { disableActions, file, message, fileData } = this.state;
+    const {
+      disableActions, file, message, fileData,
+    } = this.state;
 
     this.setState({
       disableActions: true,
@@ -226,14 +228,14 @@ class ChatFileUploader extends Component {
     if (!disableActions && file != undefined && fileData == undefined) {
       const fileToSave = (!file.upload.error) ? file : undefined;
       return handleSave(fileToSave)
-        .then((fileData) => {   
-          if (fileData.success == "true") {
+        .then((fileData) => {
+          if (fileData.success == 'true') {
             fileData.message = message;
             this.setState({
               disableActions: false,
               preventClosing: true,
               awaitingUpload: true,
-              fileData: fileData
+              fileData,
             });
             return null;
           }
@@ -251,8 +253,8 @@ class ChatFileUploader extends Component {
           });
         });
     }
-    
-    if(fileData != undefined) {
+
+    if (fileData != undefined) {
       this.setState({
         disableActions: false,
         preventClosing: false,
@@ -267,7 +269,7 @@ class ChatFileUploader extends Component {
       disableActions: false,
       preventClosing: false,
       file: undefined,
-      fileData: undefined
+      fileData: undefined,
     });
     // return null;
   }
@@ -345,7 +347,7 @@ class ChatFileUploader extends Component {
 
     this.setState({
       file: undefined,
-      fileData: undefined
+      fileData: undefined,
     });
   }
 
@@ -494,7 +496,7 @@ class ChatFileUploader extends Component {
       fileSizeMax,
       fileValidMimeTypes,
     } = this.props;
-    
+
     return (
       // Until the Dropzone package has fixed the mime type hover validation, the rejectClassName
       // prop is being remove to prevent the error styles from being applied to valid file types.
@@ -523,12 +525,12 @@ class ChatFileUploader extends Component {
   render() {
     const { intl, chatName } = this.props;
     const {
-      preventClosing, disableActions, file, message
+      preventClosing, disableActions, file, message,
     } = this.state;
 
     let awaitingUpload = false;
 
-    if(file != undefined && file.upload.done) { 
+    if (file != undefined && file.upload.done) {
       awaitingUpload = true;
     }
     const confirmLabel = awaitingUpload
@@ -551,7 +553,7 @@ class ChatFileUploader extends Component {
           description: intl.formatMessage(intlMessages.dismissDesc),
           disabled: disableActions,
         }}
-        >
+      >
         <input
           className={styles.input}
           id="message-input"

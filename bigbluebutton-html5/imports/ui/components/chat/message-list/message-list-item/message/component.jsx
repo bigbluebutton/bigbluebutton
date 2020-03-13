@@ -2,7 +2,7 @@ import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import _ from 'lodash';
 import fastdom from 'fastdom';
-import ChatFileUploaded from '../chat-file/component'
+import ChatFileUploaded from '../chat-file/component';
 
 const propTypes = {
   text: PropTypes.string.isRequired,
@@ -42,7 +42,6 @@ export default class MessageListItem extends PureComponent {
     this.ticking = false;
 
     this.handleMessageInViewport = _.debounce(this.handleMessageInViewport.bind(this), 50);
-
   }
 
   componentDidMount() {
@@ -156,16 +155,20 @@ export default class MessageListItem extends PureComponent {
 
     // const ext = file.fileName.split('.').pop();
     return (
-      (file != null) ? 
-        ( <ChatFileUploaded 
-          text={text}
-          file={file}
-        />):
-        (<p
-          ref={(ref) => { this.text = ref; }}
-          dangerouslySetInnerHTML={{ __html: text }}
-          className={className}
-        />)
+      (file != null)
+        ? (
+          <ChatFileUploaded
+            text={text}
+            file={file}
+          />
+        )
+        : (
+          <p
+            ref={(ref) => { this.text = ref; }}
+            dangerouslySetInnerHTML={{ __html: text }}
+            className={className}
+          />
+        )
     );
   }
 }

@@ -37,30 +37,30 @@ export default class ChatFileUploaded extends PureComponent {
 
     // const ext = file.fileName.split('.').pop();
     return (
-			<div className={(text) ? styles.fileWrapper : null}>
-	    	<div className={styles.wrapper}>
-  	      <div className={styles.extensionBox}>
-						<Icon iconName="file" />
-      	  </div> 
-        	<span className={styles.fileName}>{file.fileName}</span>
-	        <Button
-  	        hideLabel
-    	      label="Download"
-      	    className={styles.button}
-        	  color="default"
-          	icon="template_download"
-						size="sm"
-						circle
-						onClick={()=> this.handleFileDownload()}
-					/>
-      	</div>
+      <div className={(text) ? styles.fileWrapper : null}>
+        <div className={styles.wrapper}>
+          <div className={styles.extensionBox}>
+            <Icon iconName="file" />
+          </div>
+          <span className={styles.fileName}>{file.fileName}</span>
+          <Button
+            hideLabel
+            label="Download"
+            className={styles.button}
+            color="default"
+            icon="template_download"
+            size="sm"
+            circle
+            onClick={() => this.handleFileDownload()}
+          />
+        </div>
         {(text) ? (
-				  <div>
+          <div>
             {/* <hr/> */}
-					  <span className={styles.text}>{text}</span>
-				  </div>
+            <span className={styles.text}>{text}</span>
+          </div>
         ) : null}
-			</div>
+      </div>
     );
   }
 }

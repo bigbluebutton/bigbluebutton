@@ -3,12 +3,12 @@ import { defineMessages, injectIntl, intlShape } from 'react-intl';
 import cx from 'classnames';
 import browser from 'browser-detect';
 import PropTypes from 'prop-types';
+import TextareaAutosize from 'react-autosize-textarea/lib';
 import TypingIndicatorContainer from './typing-indicator/container';
 import { styles } from './styles.scss';
 import Button from '../../button/component';
 import ChatFileUploaderContainer from './chat-file-drop/container';
 import { withModalMounter } from '/imports/ui/components/modal/service';
-import TextareaAutosize from 'react-autosize-textarea/lib';
 
 const propTypes = {
   intl: intlShape.isRequired,
@@ -276,11 +276,12 @@ class MessageForm extends PureComponent {
   }
 
   renderChatModal() {
-    const {mountModal, chatName } = this.props;
+    const { mountModal, chatName } = this.props;
     return mountModal(
-    <ChatFileUploaderContainer 
-      chatName={chatName}
-    />);
+      <ChatFileUploaderContainer
+        chatName={chatName}
+      />,
+    );
   }
 
   render() {
@@ -296,12 +297,12 @@ class MessageForm extends PureComponent {
     const { hasErrors, error, message } = this.state;
 
     return CHAT_ENABLED ? (
-    <div className={styles.wrapper}>
-      <form
-        ref={(ref) => { this.form = ref; }}
-        className={cx(className, styles.form)}
-        onSubmit={this.handleSubmit}
-      >
+      <div className={styles.wrapper}>
+        <form
+          ref={(ref) => { this.form = ref; }}
+          className={cx(className, styles.form)}
+          onSubmit={this.handleSubmit}
+        >
           <TextareaAutosize
             className={styles.input}
             id="message-input"
@@ -318,8 +319,8 @@ class MessageForm extends PureComponent {
             onChange={this.handleMessageChange}
             onKeyDown={this.handleMessageKeyDown}
           />
-        <TypingIndicatorContainer {...{ error }} />
-      </form>
+          <TypingIndicatorContainer {...{ error }} />
+        </form>
         <Button
           hideLabel
           circle
@@ -328,7 +329,7 @@ class MessageForm extends PureComponent {
           label="attachFile"
           onClick={() => this.renderChatModal()}
         />
-    </div>
+      </div>
     ) : null;
   }
 }

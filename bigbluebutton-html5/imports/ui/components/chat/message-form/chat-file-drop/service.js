@@ -61,9 +61,8 @@ const persistChatfile = (file, uploadEndpoint) => {
 
   return uploadChatFile(chatFileToUpload, Auth.meetingID, uploadEndpoint)
     .then((fileData) => {
-      
       const uploadResponse = JSON.parse(fileData);
-      if (uploadResponse.success == "true") {
+      if (uploadResponse.success == 'true') {
         file.onUpload({ done: true });
         return Promise.resolve(uploadResponse);
       }
