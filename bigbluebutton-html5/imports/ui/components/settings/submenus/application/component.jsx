@@ -234,7 +234,7 @@ class ApplicationMenu extends BaseMenu {
                   </div>
                 </div>
                 <div className={styles.col}>
-                  <div className={cx(styles.formElement, styles.pullContentRight)}>
+                  <div className={cx(styles.formElement, styles.pullContentRight)} data-test="chatPushAlerts">
                     <Toggle
                       icons={false}
                       defaultChecked={this.state.settings.chatPushAlerts}

@@ -37,7 +37,7 @@ const Toast = ({
       <div className={cx(styles.icon, small ? styles.smallIcon : null)}>
         <Icon iconName={icon || defaultIcons[type]} />
       </div>
-      <div className={cx(styles.message, small ? styles.smallMessage : null)}>
+      <div data-test="toastSmallMsg" className={cx(styles.message, small ? styles.smallMessage : null)}>
         <span>{message}</span>
       </div>
     </div>
