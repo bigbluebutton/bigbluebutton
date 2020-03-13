@@ -8,6 +8,7 @@ import { styles } from './styles.scss';
 import Button from '../../button/component';
 import ChatFileUploaderContainer from './chat-file-drop/container';
 import { withModalMounter } from '/imports/ui/components/modal/service';
+import TextareaAutosize from 'react-autosize-textarea/lib';
 
 const propTypes = {
   intl: intlShape.isRequired,
@@ -275,8 +276,11 @@ class MessageForm extends PureComponent {
   }
 
   renderChatModal() {
-    const {mountModal} = this.props;
-    return mountModal(<ChatFileUploaderContainer />);
+    const {mountModal, chatName } = this.props;
+    return mountModal(
+    <ChatFileUploaderContainer 
+      chatName={chatName}
+    />);
   }
 
   render() {
@@ -298,7 +302,7 @@ class MessageForm extends PureComponent {
         className={cx(className, styles.form)}
         onSubmit={this.handleSubmit}
       >
-          <input
+          <TextareaAutosize
             className={styles.input}
             id="message-input"
             placeholder={intl.formatMessage(messages.inputPlaceholder, { 0: chatName })}
@@ -316,18 +320,6 @@ class MessageForm extends PureComponent {
           />
         <TypingIndicatorContainer {...{ error }} />
       </form>
-      <Button
-        hideLabel
-        circle
-        className={styles.sendButton}
-        aria-label={intl.formatMessage(messages.submitLabel)}
-        type="submit"
-        disabled={disabled}
-        label={intl.formatMessage(messages.submitLabel)}
-        icon="send"
-        onClick={() => {}}
-        data-test="sendMessageButton"
-      />
         <Button
           hideLabel
           circle

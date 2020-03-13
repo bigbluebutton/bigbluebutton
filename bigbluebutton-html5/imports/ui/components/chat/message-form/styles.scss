@@ -51,9 +51,12 @@
 .input {
   width: 100%;
   padding:  0.3em;
-  height:  2.7rem;
+  height: 2.7rem;
+  max-height:  2.7rem;
   border-radius:  0.3em 0 0  0.3em;
   outline: none;
+  resize: none;
+  transition: none;
   border: 1px ;
   border-right: none;
   background: #dbe5ee;

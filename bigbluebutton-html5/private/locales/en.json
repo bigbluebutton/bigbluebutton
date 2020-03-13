@@ -24,7 +24,7 @@
     "app.chat.multi.typing": "Multiple users are typing",
     "app.chat.one.typing": "{0} is typing",
     "app.chat.two.typing": "{0} and {1} are typing",
-    "app.chatUploder.title": "Attach files to chat",
+    "app.chatUploder.title": "Attach files to {0}",
     "app.chatUploder.message":"Upload any office document or PDF file.",
     "app.captions.label": "Captions",
     "app.captions.menu.close": "Close",

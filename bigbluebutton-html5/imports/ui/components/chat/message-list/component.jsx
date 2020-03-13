@@ -221,6 +221,7 @@ class MessageList extends Component {
     const {
       scrollArea,
     } = this.state;
+console.log(messages);
 
     const isEmpty = messages.length === 0;
     return (

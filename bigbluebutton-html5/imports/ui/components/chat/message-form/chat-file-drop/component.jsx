@@ -13,7 +13,7 @@ import ModalFileDrop from '/imports/ui/components/modal/filedrop/component';
 import { withModalMounter } from '/imports/ui/components/modal/service';
 import Icon from '/imports/ui/components/icon/component';
 import Button from '/imports/ui/components/button/component';
-import Checkbox from '/imports/ui/components/checkbox/component';
+import TextareaAutosize from 'react-autosize-textarea';
 import { styles } from './styles.scss';
 
 const propTypes = {
@@ -38,6 +38,10 @@ const intlMessages = defineMessages({
   message: {
     id: 'app.chatUploder.message',
     description: 'message warning the types of files accepted',
+  },
+  inputPlaceholder: {
+    id: 'app.chat.inputPlaceholder',
+    description: 'Chat message input placeholder',
   },
   uploadLabel: {
     id: 'app.presentationUploder.uploadLabel',
@@ -166,11 +170,10 @@ class ChatFileUploader extends Component {
   constructor(props) {
     super(props);
 
-    // const currentPres = props.file.find(p => p.isCurrent);
-
     this.state = {
-      file: props.file,
-      // oldCurrentId: currentPres ? currentPres.id : -1,
+      file: undefined,
+      fileData: undefined,
+      message: '',
       preventClosing: false,
       disableActions: false,
     };
@@ -179,6 +182,9 @@ class ChatFileUploader extends Component {
     this.handleDismiss = this.handleDismiss.bind(this);
     this.handleFiledrop = this.handleFiledrop.bind(this);
     this.handleRemove = this.handleRemove.bind(this);
+
+    this.handleMessageChange = this.handleMessageChange.bind(this);
+    this.handleSubmit = this.handleSubmit.bind(this);
 
     this.updateFileKey = this.updateFileKey.bind(this);
     this.deepMergeUpdateFileKey = this.deepMergeUpdateFileKey.bind(this);
@@ -210,27 +216,26 @@ class ChatFileUploader extends Component {
     const {
       mountModal, intl, handleSave, handleSendMessage,
     } = this.props;
-    const { disableActions, file } = this.state;
+    const { disableActions, file, message, fileData } = this.state;
 
     this.setState({
       disableActions: true,
       preventClosing: true,
     });
-    console.log(file);
 
-    if (!disableActions && file != undefined) {
-      const fileToSave = (!file.upload.error) ? file : null;
+    if (!disableActions && file != undefined && fileData == undefined) {
+      const fileToSave = (!file.upload.error) ? file : undefined;
       return handleSave(fileToSave)
-        .then((fileData) => {
-          if (fileData.success == true) {
+        .then((fileData) => {   
+          if (fileData.success == "true") {
+            fileData.message = message;
             this.setState({
               disableActions: false,
-              preventClosing: false,
+              preventClosing: true,
+              awaitingUpload: true,
+              fileData: fileData
             });
-            fileData.message = 'TESTING FILE DROP';
-            return (
-              handleSendMessage(fileData)
-            );
+            return null;
           }
         })
         .catch((error) => {
@@ -246,11 +251,23 @@ class ChatFileUploader extends Component {
           });
         });
     }
+    
+    if(fileData != undefined) {
+      this.setState({
+        disableActions: false,
+        preventClosing: false,
+        file: undefined,
+      });
+      return (
+        handleSendMessage(fileData)
+      );
+    }
 
     this.setState({
       disableActions: false,
       preventClosing: false,
       file: undefined,
+      fileData: undefined
     });
     // return null;
   }
@@ -282,13 +299,11 @@ class ChatFileUploader extends Component {
 
       return {
         file,
-        isDownloadable: false, // by default new file are set not to be downloadable
         id,
         filename: file.name,
         upload: { done: false, error: false, progress: 0 },
         onProgress: (event) => {
           // TODO: remove this
-          console.log('On progress called');
           if (!event.lengthComputable) {
             this.deepMergeUpdateFileKey(id, 'upload', {
               progress: 100,
@@ -312,10 +327,11 @@ class ChatFileUploader extends Component {
       };
     });
 
-    this.setState(({ file }) => ({
+    this.setState({
       file: (fileToUpload[0]),
+      fileData: undefined,
       disableActions: false,
-    }));
+    });
 
 
     if (rejected.length > 0) {
@@ -324,13 +340,12 @@ class ChatFileUploader extends Component {
   }
 
   handleRemove(item) {
-    const { file, disableActions } = this.state;
+    const { disableActions } = this.state;
     if (disableActions) return;
-
-    // const toRemoveIndex = file.indexOf(item);
 
     this.setState({
       file: undefined,
+      fileData: undefined
     });
   }
 
@@ -428,6 +443,16 @@ class ChatFileUploader extends Component {
     );
   }
 
+  handleSubmit(event) {
+    event.preventDefault();
+  }
+
+  handleMessageChange(event) {
+    this.setState({
+      message: event.target.value,
+    });
+  }
+
   renderPicDropzone() {
     const {
       intl,
@@ -469,11 +494,7 @@ class ChatFileUploader extends Component {
       fileSizeMax,
       fileValidMimeTypes,
     } = this.props;
-
-    const { disableActions } = this.state;
-
-    // if (disableActions) return null;
-
+    
     return (
       // Until the Dropzone package has fixed the mime type hover validation, the rejectClassName
       // prop is being remove to prevent the error styles from being applied to valid file types.
@@ -500,20 +521,23 @@ class ChatFileUploader extends Component {
   }
 
   render() {
-    const { intl } = this.props;
+    const { intl, chatName } = this.props;
     const {
-      preventClosing, disableActions, file,
+      preventClosing, disableActions, file, message
     } = this.state;
 
-    const awaitingUpload = false;
+    let awaitingUpload = false;
 
+    if(file != undefined && file.upload.done) { 
+      awaitingUpload = true;
+    }
     const confirmLabel = awaitingUpload
       ? intl.formatMessage(intlMessages.confirmLabel)
       : intl.formatMessage(intlMessages.uploadLabel);
 
     return (
       <ModalFileDrop
-        title={intl.formatMessage(intlMessages.title)}
+        title={intl.formatMessage(intlMessages.title, { 0: chatName })}
         preventClosing={preventClosing}
         confirm={{
           callback: this.handleConfirm,
@@ -527,7 +551,17 @@ class ChatFileUploader extends Component {
           description: intl.formatMessage(intlMessages.dismissDesc),
           disabled: disableActions,
         }}
-      >
+        >
+        <input
+          className={styles.input}
+          id="message-input"
+          placeholder={intl.formatMessage(intlMessages.inputPlaceholder, { 0: chatName })}
+          autoCorrect="off"
+          autoComplete="off"
+          spellCheck="true"
+          value={this.state.message}
+          onChange={this.handleMessageChange}
+        />
         <p>{intl.formatMessage(intlMessages.message)}</p>
         {this.renderPresentationList()}
         <div className={styles.dropzoneWrapper}>

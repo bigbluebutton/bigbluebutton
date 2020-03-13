@@ -10,11 +10,18 @@
   position: inherit;
   border-radius: 8px;
   background-color: #dbe5ee;
-  margin:3px 0 0 var(--border-size);
+  margin:3px 0 0 0;
   
-  [dir="rtl"] & {
-    margin: var(--border-size) var(--border-size) 0 0;
-  }
+  // [dir="rtl"] & {
+  //   margin: var(--border-size) var(--border-size) 0 0;
+  // }
+}
+
+.fileWrapper {
+  display: flex;
+  flex-direction: column;
+  flex-shrink: 1;
+  width: 15.9rem;
 }
 
 .fileName {
@@ -50,4 +57,11 @@
   i {
     color: #7c7c7c;
   }
+}
+
+.text {
+  margin-top: 0.5rem ;
+  overflow-x: inherit;
+  flex-grow: 1;
+  width: fit-content;
 }

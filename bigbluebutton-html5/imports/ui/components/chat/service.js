@@ -78,7 +78,7 @@ const reduceGroupMessages = (previous, current) => {
   currentMessage.content = [{
     id: current.id,
     text: current.message.message,
-    fileData: current.message.fileData,
+    fileData: current.message.fileObj,
     color: current.color,
     time: current.timestamp,
   }];
@@ -208,7 +208,7 @@ const sendGroupMessage = (messageObj) => {
 
   groupChatMsgFromUser.messageObj = {
     message: messageObj.message,
-    fileData,
+    fileObj: fileData,
   };
   const currentClosedChats = Storage.getItem(CLOSED_CHAT_LIST_KEY);
 

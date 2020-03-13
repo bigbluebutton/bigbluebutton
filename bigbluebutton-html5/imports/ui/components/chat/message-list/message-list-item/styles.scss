@@ -171,26 +171,26 @@
 }
 
 .messages {   
-    font-family: Montserrat;
-    font-style: normal;
-    font-weight: normal;
-    font-size: var(--font-size-14px);
-    line-height: var(--font-size-17px);
-    color: #03213F;
-    padding: 0 0.5rem 0 0.5rem;
-    border-radius: 0.8rem 0 0.8rem 0.8rem;
-    width: fit-content;
-    height: max-content;
-    flex-flow: column;
-    background: #ffffff none repeat scroll 0 0;
-}
-
-.message, .hyperlink {
-  flex: 1;
-  margin-top: calc(var(--line-height-computed) / 3);
-  margin-bottom: 0;
-  color: var(--color-text);
-  word-wrap: break-word;
+  font-family: Montserrat;
+  font-style: normal;
+  font-weight: normal;
+  font-size: var(--font-size-14px);
+  line-height: var(--font-size-17px);
+  color: #03213F;
+  flex: auto;
+  align-self: flex-start;
+  max-width: 15.9rem;
+  flex-flow: column;
+  background: #ffffff;
+  padding: 0 0.5rem 0 0.5rem;
+  border-radius: 0 0.8rem 0.8rem 0.8rem;
+  .message, .hyperlink {
+    flex: 1;
+    margin-top: calc(var(--line-height-computed) / 3);
+    margin-bottom: 0;
+    color: var(--color-text);
+    word-wrap: break-word;
+  }
 }
 
 .hyperlink {

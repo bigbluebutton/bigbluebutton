@@ -43,8 +43,7 @@ const uploadFile = (
   };
 
   // TODO: read the end point form settings.yml
-  const response = futch('/bigbluebutton/file/upload', opts, onProgress);
-  console.log(response);
+  const response = futch(endpoint, opts, onProgress);
   return response;
 };
 
@@ -62,12 +61,9 @@ const persistChatfile = (file, uploadEndpoint) => {
 
   return uploadChatFile(chatFileToUpload, Auth.meetingID, uploadEndpoint)
     .then((fileData) => {
-      console.log(fileData);
-
+      
       const uploadResponse = JSON.parse(fileData);
-
-
-      if (uploadResponse.success) {
+      if (uploadResponse.success == "true") {
         file.onUpload({ done: true });
         return Promise.resolve(uploadResponse);
       }
@@ -76,7 +72,6 @@ const persistChatfile = (file, uploadEndpoint) => {
       return Promise.reject('something went wrong');
     })
     .catch((error) => {
-      console.log(error);
       file.onUpload({ error: true, done: true });
       return Promise.reject('something went wrong');
     });

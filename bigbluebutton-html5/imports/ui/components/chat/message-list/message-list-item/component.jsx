@@ -70,7 +70,7 @@ class MessageListItem extends Component {
     } = this.props;
 
     return (
-      <div className={styles.messages}>
+      <div>
         {messages.map(message => (
           message.text !== ''
             ? (
@@ -109,8 +109,7 @@ class MessageListItem extends Component {
       return this.renderSystemMessage();
     }
 
-    return (currentUserId != user.userId) ? (
-    // return (
+    return (
       <div className={styles.item}>
         <div className={styles.wrapper} ref={(ref) => { this.item = ref; }}>
           <div className={styles.avatarWrapper}>
@@ -156,23 +155,6 @@ class MessageListItem extends Component {
             </div>
           </div>
         </div>
-      </div>
-    ) : (
-      <div className={styles.senderMessages}>
-        {messages.map(message => (
-          <Message
-            className={(regEx.test(message.text) ? styles.hyperlink : styles.message)}
-            key={message.id}
-            text={message.text}
-            time={message.time}
-            file={message.fileData}
-            color={message.color}
-            chatAreaId={chatAreaId}
-            lastReadMessageTime={lastReadMessageTime}
-            handleReadMessage={handleReadMessage}
-            scrollArea={scrollArea}
-          />
-        ))}
       </div>
     )
   }
