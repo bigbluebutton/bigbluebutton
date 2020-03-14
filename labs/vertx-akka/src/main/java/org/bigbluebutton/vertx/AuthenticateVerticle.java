@@ -19,16 +19,12 @@ public class AuthenticateVerticle extends AbstractVerticle {
 
     Router router = Router.router(vertx);
 
-    // We need cookies, sessions and request bodies
-    router.route().handler(CookieHandler.create());
     router.route().handler(BodyHandler.create());
     router.route().handler(SessionHandler.create(LocalSessionStore.create(vertx)));
 
     // Simple auth service which uses a properties file for user/role info
     AuthProvider authProvider = new MyAuthProvider(vertx);
 
-    // We need a user session handler too to make sure the user is stored in the session between requests
-    router.route().handler(UserSessionHandler.create(authProvider));
 
     // Any requests to URI starting '/private/' require login
     router.route("/private/*").handler(RedirectAuthHandler.create(authProvider, "/loginpage.html"));
@@ -49,6 +45,6 @@ public class AuthenticateVerticle extends AbstractVerticle {
     // Serve the non private static pages
     router.route().handler(StaticHandler.create());
 
-    vertx.createHttpServer().requestHandler(router::accept).listen(4000);
+    vertx.createHttpServer().requestHandler(router).listen(4000);
   }
 }

@@ -16,8 +16,8 @@ import io.vertx.ext.web.Router;
 import io.vertx.ext.web.Session;
 import io.vertx.ext.web.handler.*;
 import io.vertx.ext.bridge.BridgeEventType;
+import io.vertx.ext.bridge.PermittedOptions;
 import io.vertx.ext.web.handler.sockjs.BridgeOptions;
-import io.vertx.ext.web.handler.sockjs.PermittedOptions;
 import io.vertx.ext.web.handler.sockjs.SockJSHandler;
 import io.vertx.ext.web.handler.sockjs.SockJSHandlerOptions;
 import io.vertx.ext.web.sstore.LocalSessionStore;
@@ -34,8 +34,6 @@ public class PrivateVerticle extends AbstractVerticle {
 
     Router router = Router.router(vertx);
 
-    // We need cookies, sessions and request bodies
-    router.route().handler(CookieHandler.create());
     router.route().handler(BodyHandler.create());
     router.route().handler(SessionHandler.create(LocalSessionStore.create(vertx)));
 
@@ -145,7 +143,7 @@ public class PrivateVerticle extends AbstractVerticle {
     //vertx.createHttpServer(new HttpServerOptions().setSsl(true).setKeyStoreOptions(
     //    new JksOptions().setPath("server-keystore.jks").setPassword("wibble")
     //  )).requestHandler(router::accept).listen(3001);
-    vertx.createHttpServer().requestHandler(router::accept).listen(3001);
+    vertx.createHttpServer().requestHandler(router).listen(3001);
 
     // Register to listen for messages coming IN to the server
     eb.consumer("chat.to.server").handler(message -> {

@@ -31,7 +31,7 @@ public class SimpleREST extends AbstractVerticle {
     router.put("/products/:productID").handler(this::handleAddProduct);
     router.get("/products").handler(this::handleListProducts);
 
-    vertx.createHttpServer().requestHandler(router::accept).listen(4000);
+    vertx.createHttpServer().requestHandler(router).listen(4000);
   }
 
   private void handleGetProduct(RoutingContext routingContext) {

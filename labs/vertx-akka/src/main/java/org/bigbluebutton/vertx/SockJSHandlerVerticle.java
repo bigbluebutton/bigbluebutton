@@ -5,14 +5,14 @@ import io.vertx.core.eventbus.EventBus;
 import io.vertx.ext.bridge.BridgeEventType;
 import io.vertx.ext.web.Router;
 import io.vertx.ext.web.handler.BodyHandler;
-import io.vertx.ext.web.handler.CookieHandler;
 import io.vertx.ext.web.handler.SessionHandler;
 import io.vertx.ext.web.handler.StaticHandler;
 import io.vertx.ext.web.handler.sockjs.BridgeOptions;
-import io.vertx.ext.web.handler.sockjs.PermittedOptions;
+import io.vertx.ext.bridge.PermittedOptions;
 import io.vertx.ext.web.handler.sockjs.SockJSHandler;
 import io.vertx.ext.web.handler.sockjs.SockJSHandlerOptions;
 import io.vertx.ext.web.sstore.LocalSessionStore;
+import io.vertx.ext.web.handler.impl.LoggerHandlerImpl;
 import org.bigbluebutton.ConnectionManager;
 
 public class SockJSHandlerVerticle extends AbstractVerticle {
@@ -24,11 +24,10 @@ public class SockJSHandlerVerticle extends AbstractVerticle {
   
   @Override
   public void start() throws Exception {
+    System.out.println("Starting SockJSHandlerVerticle");
 
     Router router = Router.router(vertx);
 
-    // We need cookies, sessions and request bodies
-    router.route().handler(CookieHandler.create());
     router.route().handler(BodyHandler.create());
     router.route().handler(SessionHandler.create(LocalSessionStore.create(vertx)));
 
@@ -77,8 +76,8 @@ public class SockJSHandlerVerticle extends AbstractVerticle {
       } else if (be.type() == BridgeEventType.RECEIVE) {
         System.out.println("Msg to Client: " + be.socket().webSession().id() + " \n   " + be.getRawMessage());
       } else if (be.type() == BridgeEventType.SEND) {
-        //System.out.println("Msg from Client: " + be.socket().webSession().id() + " \n   " + be.getRawMessage());
-        //String body = be.getRawMessage().getJsonObject("body").encode();
+        System.out.println("Msg from Client: " + be.socket().webSession().id() + " \n   " + be.getRawMessage());
+        String body = be.getRawMessage().getJsonObject("body").encode();
         gw.onMessageReceived(be.socket().webSession().id(), be.getRawMessage().getJsonObject("body"));
       } else if (be.type() == BridgeEventType.REGISTER) {
         System.out.println("Socket REGISTER for: " + be.socket().webSession().id() + " \n   " + be.getRawMessage());
@@ -88,30 +87,32 @@ public class SockJSHandlerVerticle extends AbstractVerticle {
         System.out.println("Message from: " + be.socket().webSession().id() + " \n   " + be.getRawMessage());
       }
 
-
-
      // System.out.println("USER=" + be.socket().webUser().principal());
       
       be.complete(true);
     });
-    
+
+    System.out.println("Setting up StaticHandler");
+    System.out.println("Working Directory = " +
+            System.getProperty("user.dir"));
+
     // Create a router endpoint for the static content.
-    router.route().handler(StaticHandler.create());
+    router.route().handler(StaticHandler.create("src/main/webapp/webroot"));
    
     // Start the web server and tell it to use the router to handle requests.
     //vertx.createHttpServer(new HttpServerOptions().setSsl(true).setKeyStoreOptions(
     //    new JksOptions().setPath("server-keystore.jks").setPassword("wibble")
     //  )).requestHandler(router::accept).listen(3001);
-    vertx.createHttpServer().requestHandler(router::accept).listen(3001);
+    vertx.createHttpServer().requestHandler(router).listen(3001);
 
     // Register to listen for messages coming IN to the server
-    eb.consumer("to.server").handler(message -> {
+    //eb.consumer("to.server").handler(message -> {
       // Create a timestamp string
     //  String timestamp = DateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.MEDIUM).format(Date.from(Instant.now()));
       // Send the message back out to all clients with the timestamp prepended.
       //gw.send("TO ECHO:" + timestamp + ": " + message.body());
      // eb.publish("foofoofoo", message.body());
-    });
+    //});
 
     //eb.consumer("to-vertx").handler(message -> {
     // eb.publish("chat.to.client", message.body());
@@ -119,7 +120,7 @@ public class SockJSHandlerVerticle extends AbstractVerticle {
 
     
     // Serve the non private static pages
-    router.route().handler(StaticHandler.create());
+    //router.route().handler(StaticHandler.create());
   }
 
 }

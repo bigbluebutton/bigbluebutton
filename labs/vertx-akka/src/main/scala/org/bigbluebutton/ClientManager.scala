@@ -19,10 +19,12 @@ case class ClientManagerActor(connEventBus: InternalMessageBus) extends Actor wi
 
   def receive = {
     case m: ConnectionCreated =>
+      println("ClientManagerActor ConnectionCreated")
       val client = Client(m.connInfo.connId, connEventBus)
       clients += client.clientId -> client
       client.actorRef forward (m)
     case m: ConnectionDestroyed =>
+      println("ClientManagerActor ConnectionDestroyed")
       val client = clients.get(m.connInfo.connId)
       client foreach { u =>
         clients -= m.connInfo.connId

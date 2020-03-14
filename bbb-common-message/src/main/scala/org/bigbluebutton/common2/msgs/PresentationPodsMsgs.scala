@@ -73,8 +73,8 @@ case class PdfConversionInvalidErrorSysPubMsg(
     body:   PdfConversionInvalidErrorSysPubMsgBody
 ) extends StandardMsg
 case class PdfConversionInvalidErrorSysPubMsgBody(podId: String, messageKey: String, code: String, presentationId: String,
-                                                   bigPageNumber: Int, bigPageSize: Int, presName: String)
-                                                   
+                                                  bigPageNumber: Int, bigPageSize: Int, presName: String)
+
 object PresentationPageGeneratedSysPubMsg { val NAME = "PresentationPageGeneratedSysPubMsg" }
 case class PresentationPageGeneratedSysPubMsg(
     header: BbbClientMsgHeader,

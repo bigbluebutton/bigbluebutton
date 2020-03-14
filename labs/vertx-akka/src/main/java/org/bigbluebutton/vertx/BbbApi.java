@@ -33,7 +33,7 @@ public class BbbApi extends AbstractVerticle {
     router.get("/products").handler(this::handleListProducts);
     router.get("/bigbluebutton/api/create").handler(this::handleListProducts);
     
-    vertx.createHttpServer().requestHandler(router::accept).listen(4000);
+    vertx.createHttpServer().requestHandler(router).listen(4000);
   }
 
   private void handleGetProduct(RoutingContext routingContext) {

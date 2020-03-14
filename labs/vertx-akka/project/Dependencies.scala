@@ -19,7 +19,7 @@ object Dependencies {
     val logback = "1.2.3"
     val quicklens = "1.4.11"
     val spray = "1.3.4"
-    val vertxV = "3.5.1"
+    val vertxV = "3.8.3"
 
     // Apache Commons
     val lang = "3.8.1"
@@ -42,10 +42,10 @@ object Dependencies {
     val akkaSl4fj = "com.typesafe.akka" % "akka-slf4j_2.12" % Versions.akkaVersion
 
     val vertxWeb = "io.vertx" %  "vertx-web" % Versions.vertxV
-    val vertxAuthCommon = "io.vertx" % "vertx-auth-common" % Versions.vertxV
-    val vertxAuthShiro = "io.vertx" %  "vertx-auth-shiro" % Versions.vertxV
-    val vertxWebScala = "io.vertx" %% "vertx-web-scala" % Versions.vertxV
-    val vertxLangScala = "io.vertx" %% "vertx-lang-scala" % Versions.vertxV
+    //val vertxAuthCommon = "io.vertx" % "vertx-auth-common" % Versions.vertxV
+    //val vertxAuthShiro = "io.vertx" %  "vertx-auth-shiro" % Versions.vertxV
+    //val vertxWebScala = "io.vertx" %% "vertx-web-scala" % Versions.vertxV
+    //val vertxLangScala = "io.vertx" %% "vertx-lang-scala" % Versions.vertxV
 
     val googleGson = "com.google.code.gson" % "gson" % Versions.gson
     val jacksonModule = "com.fasterxml.jackson.module" %% "jackson-module-scala" % Versions.jackson
@@ -83,10 +83,10 @@ object Dependencies {
     Compile.akkaActor,
     Compile.akkaSl4fj,
     Compile.vertxWeb,
-    Compile.vertxAuthCommon,
-    Compile.vertxAuthShiro,
-    Compile.vertxWebScala,
-    Compile.vertxWebScala,
+    //Compile.vertxAuthCommon,
+    //Compile.vertxAuthShiro,
+    //Compile.vertxWebScala,
+    //Compile.vertxWebScala,
     Compile.googleGson,
     Compile.jacksonModule,
     Compile.quicklens,

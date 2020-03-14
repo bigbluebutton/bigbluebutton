@@ -50,6 +50,7 @@ object AllowedMessageNames {
     SendGroupChatMessageMsg.NAME,
     ClearPublicChatHistoryPubMsg.NAME,
     CreateGroupChatReqMsg.NAME,
+    UserTypingPubMsg.NAME,
 
     // Presentation Messages
     ResizeAndMovePagePubMsg.NAME,

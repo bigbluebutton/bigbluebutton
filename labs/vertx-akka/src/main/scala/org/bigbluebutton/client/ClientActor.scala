@@ -24,25 +24,30 @@ class ClientActor(clientId: String, connEventBus: InternalMessageBus)
 
   def receive = {
     case m: ConnectionCreated =>
+      log.debug("***** ClientActor ConnectionCreated ")
       connEventBus.publish(MsgFromConnBusMsg(fromClientChannel, ClientConnectedMsg(m.connInfo)))
     case m: ConnectionDestroyed =>
+      log.debug("***** ClientActor ConnectionDestroyed ")
       connEventBus.publish(MsgFromConnBusMsg(fromClientChannel, ClientDisconnectedMsg(m.connInfo)))
       context stop self
     case m: MsgFromConnMsg =>
+      log.debug("***** ClientActor MsgFromConnMsg ")
       connEventBus.publish(MsgFromConnBusMsg(fromClientChannel, MsgFromClientMsg(m.connInfo, m.json)))
     case m: DirectMsgToClient =>
+      log.debug("***** ClientActor DirectMsgToClient ")
       connEventBus.publish(MsgFromConnBusMsg("connActor-" + clientId, MsgToConnMsg(m.data.core.toString())))
     case _ => log.debug("***** ClientActor cannot handle msg ")
   }
 
   override def preStart(): Unit = {
     super.preStart()
-    //println("******** CLIENT ACTOR CREATED " + "clientActor-" + clientId + " *****************************")
+    println("******** CLIENT ACTOR CREATED " + "clientActor-" + clientId + " *****************************")
     connEventBus.subscribe(self, "clientActor-" + clientId)
 
   }
 
   override def postStop(): Unit = {
+    println("******** CLIENT ACTOR DESTROYED " + "clientActor-" + clientId + " *****************************")
     connEventBus.unsubscribe(self, "clientActor-" + clientId)
     super.postStop()
   }

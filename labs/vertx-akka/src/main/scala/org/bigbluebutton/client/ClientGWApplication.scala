@@ -42,22 +42,22 @@ class ClientGWApplication(system: ActorSystem, val msgToClientGW: MsgToClientGW,
    */
 
   def connect(connInfo: ConnInfo2): Unit = {
-    //log.debug("**** ClientGWApplication connect " + connInfo)
+    println("**** ClientGWApplication connect " + connInfo)
     connEventBus.publish(MsgFromConnBusMsg(fromClientChannel, new ClientConnectedMsg(connInfo)))
   }
 
   def disconnect(connInfo: ConnInfo2): Unit = {
-    //log.debug("**** ClientGWApplication disconnect " + connInfo)
+    println("**** ClientGWApplication disconnect " + connInfo)
     connEventBus.publish(MsgFromConnBusMsg(fromClientChannel, new ClientDisconnectedMsg(connInfo)))
   }
 
   def handleMsgFromClient(connInfo: ConnInfo2, json: String): Unit = {
-    //log.debug("**** ClientGWApplication handleMsgFromClient " + json)
+    println("**** ClientGWApplication handleMsgFromClient " + json)
     connEventBus.publish(MsgFromConnBusMsg(fromClientChannel, new MsgFromClientMsg(connInfo, json)))
   }
 
   def send(channel: String, json: String): Unit = {
-    //log.debug("Sending message {}", json)
+    println("Sending message {}", json)
     connEventBus.publish(MsgFromConnBusMsg(toAkkaAppsJsonChannel, new JsonMsgToAkkaApps(channel, json)))
   }
 
