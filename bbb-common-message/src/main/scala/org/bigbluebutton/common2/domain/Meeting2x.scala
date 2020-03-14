@@ -90,7 +90,7 @@ case class VoiceUserVO(userId: String, webUserId: String, callerName: String,
 case class UsersCountVO(
                        users: Int,
                        moderators: Int,
-                       viewer: Int
+                       viewers: Int
                        )
 
 case class UsersStatsVO(
