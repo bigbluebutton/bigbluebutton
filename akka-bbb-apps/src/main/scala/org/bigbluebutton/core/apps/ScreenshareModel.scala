@@ -16,8 +16,8 @@ object ScreenshareModel {
     return status.screenshareStarted
   }
 
-  def setScreenshareStarted(status: ScreenshareModel, b: Boolean) {
-    status.screenshareStarted = b
+  def setScreenshareStarted(status: ScreenshareModel, started: Boolean) {
+    status.screenshareStarted = started
   }
 
   def setScreenshareVideoWidth(status: ScreenshareModel, videoWidth: Int) {
@@ -37,6 +37,7 @@ object ScreenshareModel {
   }
 
   def broadcastingRTMPStarted(status: ScreenshareModel) {
+    status.screenshareCountTotal += 1
     status.broadcastingRTMP = true
   }
 
@@ -79,9 +80,12 @@ object ScreenshareModel {
   def getTimestamp(status: ScreenshareModel): String = {
     status.timestamp
   }
+
+  def getscreenshareCountTotal(status: ScreenshareModel): Int = status.screenshareCountTotal
 }
 
 class ScreenshareModel {
+  private var screenshareCountTotal = 0
   private var rtmpBroadcastingUrl: String = ""
   private var screenshareStarted = false
   private var screenshareVideoWidth = 0

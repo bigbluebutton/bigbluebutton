@@ -86,3 +86,52 @@ case class UserVO(id: String, externalId: String, name: String, role: String,
 case class VoiceUserVO(userId: String, webUserId: String, callerName: String,
                        callerNum: String, joined: Boolean, locked: Boolean, muted: Boolean,
                        talking: Boolean, avatarURL: String, listenOnly: Boolean)
+
+case class UsersCountVO(
+                       users: Int,
+                       moderators: Int,
+                       viewer: Int
+                       )
+
+case class UsersStatsVO(
+                         registered: Int,
+                         users: UsersCountVO
+                       )
+
+case class VoiceUsersListenOnlyStatsVO(
+                                        total: Int,
+                                        kurento: Int,
+                                        freeswitch: Int,
+                                      )
+case class VoiceUsersStatsVO(
+                              users: Int,
+                              listenOnly: VoiceUsersListenOnlyStatsVO,
+                              twoWayCallers: Int,
+                              dialIn: Int,
+                              muted: Int,
+                              unmuted: Int
+                            )
+
+case class WebcamStatsVO(
+                        total: Int,
+                        webcams: Int
+                        )
+
+case class ScreenshareStatsVO(
+                               total: Int,
+                             isSharing: Boolean
+                             )
+
+case class MeetingStatsInfoVO(
+                             meeting: MeetingProp,
+                             record: RecordProp,
+                             metadata: MetadataProp,
+                             isRecording: Boolean
+                             )
+case class MeetingStatsVO(
+                           meeting: MeetingStatsInfoVO,
+                           users: UsersStatsVO,
+                           voice: VoiceUsersStatsVO,
+                           webcams: WebcamStatsVO,
+                           screenshare: ScreenshareStatsVO
+                         )

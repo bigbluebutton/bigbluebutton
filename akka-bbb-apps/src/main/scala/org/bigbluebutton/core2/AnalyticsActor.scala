@@ -30,6 +30,7 @@ class AnalyticsActor extends Actor with ActorLogging {
   def handleBbbCommonEnvCoreMsg(msg: BbbCommonEnvCoreMsg): Unit = {
 
     msg.core match {
+      case m: MeetingStatsDataSysMsg                         => logMessage(msg)
       case m: GetAllMeetingsReqMsg                           => logMessage(msg)
 
       case m: RegisterUserReqMsg                             => logMessage(msg)

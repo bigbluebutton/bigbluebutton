@@ -1,6 +1,6 @@
 package org.bigbluebutton.core2.message.senders
 
-import org.bigbluebutton.common2.domain.DefaultProps
+import org.bigbluebutton.common2.domain.{ DefaultProps, MeetingStatsVO }
 import org.bigbluebutton.common2.msgs.{ BbbCommonEnvCoreMsg, BbbCoreEnvelope, BbbCoreHeaderWithMeetingId, MessageTypes, Routing, ValidateConnAuthTokenSysRespMsg, ValidateConnAuthTokenSysRespMsgBody, _ }
 import org.bigbluebutton.core.models.GuestWaiting
 
@@ -342,6 +342,15 @@ object MsgBuilder {
     val header = BbbCoreHeaderWithMeetingId(RegisteredUserJoinTimeoutMsg.NAME, meetingId)
     val body = RegisteredUserJoinTimeoutMsgBody(meetingId, userId, name)
     val event = RegisteredUserJoinTimeoutMsg(header, body)
+    BbbCommonEnvCoreMsg(envelope, event)
+  }
+
+  def buildMeetingStatsDataSysMsg(stats: MeetingStatsVO): BbbCommonEnvCoreMsg = {
+    val routing = collection.immutable.HashMap("sender" -> "bbb-apps-akka")
+    val envelope = BbbCoreEnvelope(MeetingStatsDataSysMsg.NAME, routing)
+    val header = BbbCoreBaseHeader(MeetingStatsDataSysMsg.NAME)
+    val body = MeetingStatsDataSysMsgBody(stats)
+    val event = MeetingStatsDataSysMsg(header, body)
     BbbCommonEnvCoreMsg(envelope, event)
   }
 }
