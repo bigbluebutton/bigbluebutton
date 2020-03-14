@@ -75,6 +75,7 @@ public class GetUsersStatusCommand extends FreeswitchCommand {
             String voiceUserId = callerIdName;
             String uuid = member.getUUID();
             String clientSession = "0";
+            String callingWith = "browser";
 
             Matcher gapMatcher = GLOBAL_AUDION_PATTERN.matcher(callerIdName);
             // Ignore GLOBAL_AUDIO user.
@@ -85,10 +86,15 @@ public class GetUsersStatusCommand extends FreeswitchCommand {
                 voiceUserId = callWithSess.group(1).trim();
                 clientSession = callWithSess.group(2).trim();
                 callerIdName = callWithSess.group(3).trim();
-              } else
-              if (matcher.matches()) {
+              } else if (matcher.matches()) {
                 voiceUserId = matcher.group(1).trim();
                 callerIdName = matcher.group(2).trim();
+              } else {
+                // This is a caller using phone. Let's create a userId that will allow
+                // us to identify the user as such in other parts of the system.
+                // (ralam - sept 1, 2017)
+                voiceUserId = "v_" + member.getId().toString();
+                callingWith = "phone";
               }
 
               log.info("Conf user. uuid=" + uuid
@@ -104,7 +110,7 @@ public class GetUsersStatusCommand extends FreeswitchCommand {
                       callerId, callerIdName,
                       member.getMuted(),
                       member.getSpeaking(),
-                      "none");
+                      callingWith);
               confMembers.add(confMember);
             }
           } else if ("recording_node".equals(member.getMemberType())) {

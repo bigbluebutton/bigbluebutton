@@ -51,7 +51,8 @@ public class GetAllUsersCommand extends FreeswitchCommand {
     }
 
     private static final Pattern CALLERNAME_PATTERN = Pattern.compile("(.*)-bbbID-(.*)$");
-    
+    private static final Pattern CALLERNAME_WITH_SESS_INFO_PATTERN = Pattern.compile("^(.*)_(\\d+)-bbbID-(.*)$");
+
     public void handleResponse(EslMessage response, ConferenceEventListener eventListener) {
 
         //Test for Known Conference
@@ -99,16 +100,29 @@ public class GetAllUsersCommand extends FreeswitchCommand {
                         String callerIdName = member.getCallerIdName();
                         String voiceUserId = callerIdName;
                         String uuid = member.getUUID();
+                        String callingWith = "browser";
+
                         log.info("Conf user. uuid=" + uuid
                                 + ",caller=" + callerIdName + ",callerId=" + callerId + ",conf=" + room);
+
                         Matcher matcher = CALLERNAME_PATTERN.matcher(callerIdName);
-                        if (matcher.matches()) {
+                        Matcher callWithSess = CALLERNAME_WITH_SESS_INFO_PATTERN.matcher(callerIdName);
+                        if (callWithSess.matches()) {
+                            voiceUserId = callWithSess.group(1).trim();
+                            callerIdName = callWithSess.group(3).trim();
+                        } else if (matcher.matches()) {
                             voiceUserId = matcher.group(1).trim();
                             callerIdName = matcher.group(2).trim();
+                        } else {
+                            // This is a caller using phone. Let's create a userId that will allow
+                            // us to identify the user as such in other parts of the system.
+                            // (ralam - sept 1, 2017)
+                            voiceUserId = "v_" + member.getId().toString();
+                            callingWith = "phone";
                         }
 
                         VoiceUserJoinedEvent pj = new VoiceUserJoinedEvent(voiceUserId, member.getId().toString(), confXML.getConferenceRoom(),
-                                callerId, callerIdName, member.getMuted(), member.getSpeaking(), "none");
+                                callerId, callerIdName, member.getMuted(), member.getSpeaking(), callingWith);
                         eventListener.handleConferenceEvent(pj);
                     } else if ("recording_node".equals(member.getMemberType())) {
 

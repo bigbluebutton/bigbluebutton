@@ -1,6 +1,15 @@
 package org.bigbluebutton.common2.msgs
 
-import org.bigbluebutton.common2.domain.DefaultProps
+import org.bigbluebutton.common2.domain.{ DefaultProps, MeetingStatsVO }
+
+object MeetingStatsDataSysMsg { val NAME = "MeetingStatsDataSysMsg" }
+case class MeetingStatsDataSysMsg(
+    header: BbbCoreBaseHeader,
+    body:   MeetingStatsDataSysMsgBody
+) extends BbbCoreMsg
+case class MeetingStatsDataSysMsgBody(
+    stats: MeetingStatsVO
+)
 
 /** Request Messages **/
 object CreateMeetingReqMsg { val NAME = "CreateMeetingReqMsg" }

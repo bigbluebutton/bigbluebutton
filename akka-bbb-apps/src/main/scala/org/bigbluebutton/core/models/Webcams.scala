@@ -9,6 +9,8 @@ object Webcams {
     webcams.toVector.filter(w => w.stream.userId == userId)
   }
 
+  def findWebcamsCountTotal(webcams: Webcams): Int = webcams.webcamsCountTotal
+
   def findAll(webcams: Webcams): Vector[WebcamStream] = webcams.toVector
 
   def addWebcamBroadcastStream(webcams: Webcams, webcamStream: WebcamStream): Option[WebcamStream] = {
@@ -33,11 +35,14 @@ object Webcams {
 }
 
 class Webcams {
+  private var webcamsCountTotal = 0
+
   private var webcams: collection.immutable.HashMap[String, WebcamStream] = new collection.immutable.HashMap[String, WebcamStream]
 
   private def toVector: Vector[WebcamStream] = webcams.values.toVector
 
   private def save(webcam: WebcamStream): WebcamStream = {
+    webcamsCountTotal += 1
     webcams += webcam.stream.id -> webcam
     webcam
   }
