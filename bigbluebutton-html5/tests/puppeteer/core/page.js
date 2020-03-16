@@ -100,6 +100,19 @@ class Page {
     };
   }
 
+  static getArgsWithVideo() {
+    return {
+      headless: false,
+      args: [
+        '--no-sandbox',
+        '--use-fake-ui-for-media-stream',
+        '--use-fake-device-for-media-stream',
+        `--use-file-for-fake-video-capture=${process.env.VIDEO_FILE}`,
+        '--allow-file-access',
+      ],
+    };
+  }
+
   // Returns a Promise that resolves when an element does not exist/is removed from the DOM
   elementRemoved(element) {
     return this.page.waitFor(element => !document.querySelector(element), {}, element);

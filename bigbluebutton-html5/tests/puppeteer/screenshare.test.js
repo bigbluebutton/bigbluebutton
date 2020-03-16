@@ -1,4 +1,4 @@
-const ShareScreen = require('./screenshare/sharescreen');
+const ShareScreen = require('./screenshare/screenshare');
 const Page = require('./core/page');
 
 describe('Screen Share', () => {
