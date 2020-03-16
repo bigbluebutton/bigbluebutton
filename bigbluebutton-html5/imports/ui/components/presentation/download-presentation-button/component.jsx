@@ -29,7 +29,7 @@ const DownloadPresentationButton = ({
     <Button
       color="default"
       icon="template_download"
-      size="sm"
+      size="md"
       onClick={handleDownloadPresentation}
       label={intl.formatMessage(intlMessages.downloadPresentationButton)}
       hideLabel

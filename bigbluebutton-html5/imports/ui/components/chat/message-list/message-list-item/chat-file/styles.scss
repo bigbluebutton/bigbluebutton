@@ -2,15 +2,15 @@
 @import "/imports/ui/stylesheets/variables/typography";
 
 .wrapper {
-  width: 15.3rem;
+  max-width: 15.3rem;
   height: 3.8rem;
+  position: inherit;
+  margin: 0.85rem;
   display: grid;
   grid-template-columns: 3.8rem 9rem 2.5rem;
-    // flex: 1;
-  position: inherit;
-  border-radius: 8px;
-  background-color: #dbe5ee;
-  margin:3px 0 0 0;
+  // border-radius: 8px;
+  background-color: #f5f5f5;
+  // margin:3px 0 0 0;
   
   // [dir="rtl"] & {
   //   margin: var(--border-size) var(--border-size) 0 0;
@@ -20,14 +20,19 @@
 .fileWrapper {
   display: flex;
   flex-direction: column;
-  flex-shrink: 1;
-  width: 15.9rem;
+  flex-shrink: auto;
+  width: 17rem;
+  background-color: #ffffff;
+  border-radius: 0 0.8rem 0.8rem 0.8rem;
 }
 
 .fileName {
-  color: #7c7c7c;
-  font-size: var(--font-size-16px);
-  padding-top: 1rem;
+  font-family: Avenir;
+  font-style: normal;
+  font-weight: normal;
+  color: rgba(0, 0, 0, 0.87);
+  font-size: var(--font-size-12px);
+  padding-top: 1.4rem;
   overflow: hidden;
 }
 
@@ -50,18 +55,26 @@
 
 
 .button {
-  span:first-child {
-    box-shadow: none;
-    border: 0.5px solid var(--color-gray);
-  }
+  // span:first-child {
+  //   box-shadow: none;
+  //   border: 0.5px solid var(--color-gray);
+  // }
   i {
-    color: #7c7c7c;
+    color: #109cf1;
   }
 }
 
 .text {
-  margin-top: 0.5rem ;
-  overflow-x: inherit;
+  max-width: 15.3rem;
+  font-family: Avenir;
+  font-style: normal;
+  font-weight: normal;
+  color: #000000;
+  font-size: var(--font-size-14px);
+  display: flex;
+  align-items: center;
+  letter-spacing: 0.1px;
+  margin: 0 0 0.85rem 0.9rem ;
   flex-grow: 1;
   width: fit-content;
 }

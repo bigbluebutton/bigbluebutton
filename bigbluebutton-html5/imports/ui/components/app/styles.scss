@@ -193,8 +193,8 @@
 
 .media {
   @extend %full-page;
-  flex: 1 100%;
-  order: 2;
+  flex: 0 30%;
+  order: 1;
   flex-direction: row;
   position: relative;
   margin: 0 0 0 var(--panel-margin-right);

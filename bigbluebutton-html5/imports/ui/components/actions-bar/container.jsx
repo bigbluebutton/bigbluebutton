@@ -24,12 +24,22 @@ import MediaService, {
   shouldEnableSwapLayout,
 } from '../media/service';
 
+import AudioManager from '/imports/ui/services/audio-manager';
+import AudioModalContainer from '/imports/ui/components/audio/audio-modal/container';
+import { withModalMounter } from '/imports/ui/components/modal/service';
+
 const ActionsBarContainer = props => <ActionsBar {...props} />;
 const POLLING_ENABLED = Meteor.settings.public.poll.enabled;
 
-export default withTracker(() => ({
+export default withModalMounter(withTracker(({ mountModal }) => ({
   amIPresenter: Service.amIPresenter(),
   amIModerator: Service.amIModerator(),
+
+  inAudio: AudioManager.isConnected && !AudioManager.isEchoTest,
+  listenOnly: AudioManager.isConnected && AudioManager.isListenOnly,
+  handleJoinAudio: () => (AudioManager.isConnected ? AudioManager.joinListenOnly() : mountModal(<AudioModalContainer />)),
+  handleLeaveAudio: () => AudioManager.exitAudio(),
+
   stopExternalVideoShare: ExternalVideoService.stopWatching,
   handleExitVideo: () => VideoService.exitVideo(),
   handleJoinVideo: () => VideoService.joinVideo(),
@@ -52,4 +62,4 @@ export default withTracker(() => ({
   isThereCurrentPresentation: Presentations.findOne({ meetingId: Auth.meetingID, current: true },
     { fields: {} }),
   allowExternalVideo: Meteor.settings.public.externalVideoPlayer.enabled,
-}))(injectIntl(ActionsBarContainer));
+}))(injectIntl(ActionsBarContainer)));

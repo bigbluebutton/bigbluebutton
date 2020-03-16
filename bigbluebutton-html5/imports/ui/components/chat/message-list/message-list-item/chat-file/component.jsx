@@ -37,7 +37,7 @@ export default class ChatFileUploaded extends PureComponent {
 
     // const ext = file.fileName.split('.').pop();
     return (
-      <div className={(text) ? styles.fileWrapper : null}>
+      <div className={styles.fileWrapper}>
         <div className={styles.wrapper}>
           <div className={styles.extensionBox}>
             <Icon iconName="file" />
@@ -49,7 +49,7 @@ export default class ChatFileUploaded extends PureComponent {
             className={styles.button}
             color="default"
             icon="template_download"
-            size="sm"
+            size="lg"
             circle
             onClick={() => this.handleFileDownload()}
           />

@@ -65,15 +65,16 @@ class AudioControls extends PureComponent {
       isVoiceUser,
     } = this.props;
 
-    let joinIcon = 'audio_off';
-    let endCall = false;
+    let joinIcon = '';
+    const endCall = false;
     if (inAudio) {
       if (listenOnly) {
         joinIcon = 'listen_filled';
-      } else {
-        joinIcon = 'audio_on';
-        endCall = true;
       }
+      // else {
+      //   joinIcon = 'audio_on';
+      //   endCall = true;
+      // }
     }
     let muteState = '';
     let audioIcon = '';
@@ -99,22 +100,25 @@ class AudioControls extends PureComponent {
               accessKey={shortcuts.toggleMute}
             />
           ) : null}
-        <Button
-          className={cx(styles.button, inAudio, audioIcon = endCall ? styles.endingCall : null)}
-          onClick={inAudio ? handleLeaveAudio : handleJoinAudio}
-          disabled={disable}
-          hideLabel
-          aria-label={inAudio ? intl.formatMessage(intlMessages.leaveAudio)
-            : intl.formatMessage(intlMessages.joinAudio)}
-          label={inAudio ? intl.formatMessage(intlMessages.leaveAudio)
-            : intl.formatMessage(intlMessages.joinAudio)}
-          color="default"
-          ghost={!inAudio}
-          icon={joinIcon}
-          size="lg"
-          circle
-          accessKey={inAudio ? shortcuts.leaveAudio : shortcuts.joinAudio}
-        />
+        { joinIcon
+          ? (
+            <Button
+              className={cx(styles.button, inAudio, audioIcon = endCall ? styles.endingCall : null)}
+              // onClick={inAudio ? handleLeaveAudio : handleJoinAudio}
+              disabled={disable}
+              hideLabel
+              aria-label={inAudio ? intl.formatMessage(intlMessages.leaveAudio)
+                : intl.formatMessage(intlMessages.joinAudio)}
+              label={inAudio ? 'listening...'
+                : intl.formatMessage(intlMessages.joinAudio)}
+              color="default"
+              ghost={!inAudio}
+              icon={joinIcon}
+              size="lg"
+              circle
+              accessKey={inAudio ? shortcuts.leaveAudio : shortcuts.joinAudio}
+            />
+          ) : null }
       </span>);
   }
 }

@@ -541,8 +541,6 @@ class PresentationArea extends PureComponent {
     } = this.props;
     const { isFullscreen } = this.state;
 
-    if (userIsPresenter || !ALLOW_FULLSCREEN) return null;
-
     return (
       <FullscreenButtonContainer
         fullscreenRef={this.refPresentationContainer}
@@ -593,19 +591,6 @@ class PresentationArea extends PureComponent {
 
     const toolbarHeight = this.getToolbarHeight();
 
-    let toolbarWidth = 0;
-    if (this.refWhiteboardArea) {
-      if (svgWidth === presentationAreaWidth
-        || presentationAreaWidth <= 400
-        || fitToWidth === true) {
-        toolbarWidth = '100%';
-      } else if (svgWidth <= 400
-        && presentationAreaWidth > 400) {
-        toolbarWidth = '400px';
-      } else {
-        toolbarWidth = svgWidth;
-      }
-    }
 
     return (
       <div
@@ -628,24 +613,6 @@ class PresentationArea extends PureComponent {
           >
             {showSlide
               ? this.renderPresentationArea(svgDimensions, viewBoxDimensions)
-              : null}
-            {showSlide && (userIsPresenter || multiUser)
-              ? this.renderWhiteboardToolbar(svgDimensions)
-              : null}
-            {showSlide && userIsPresenter
-              ? (
-                <div
-                  className={styles.presentationToolbar}
-                  ref={(ref) => { this.refPresentationToolbar = ref; }}
-                  style={
-                    {
-                      width: toolbarWidth,
-                    }
-                  }
-                >
-                  {this.renderPresentationToolbar()}
-                </div>
-              )
               : null}
           </div>
         </div>
