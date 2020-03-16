@@ -91,10 +91,9 @@ Meteor.startup(() => {
       Logger.info('Removing inactive users');
       users.forEach((user) => {
         Logger.info(`Detected inactive user, userId:${user.userId}, meetingId:${user.meetingId}`);
-        user.requesterUserId = user.userId;
-        return userLeaving(user, user.userId, user.connectionId);
+        return userLeaving(user.meetingId, user.userId, user.connectionId);
       });
-      return Logger.info('All inactive user have been removed');
+      return Logger.info('All inactive users have been removed');
     }, INTERVAL_TIME);
   }
 

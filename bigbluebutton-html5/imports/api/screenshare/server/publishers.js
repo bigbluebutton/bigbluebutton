@@ -1,13 +1,13 @@
 import Screenshare from '/imports/api/screenshare';
 import { Meteor } from 'meteor/meteor';
-import { check } from 'meteor/check';
 import Logger from '/imports/startup/server/logger';
+import { extractCredentials } from '/imports/api/common/server/helpers';
 
-function screenshare(credentials) {
-  const { meetingId, requesterUserId } = credentials;
-
-  check(meetingId, String);
-  check(requesterUserId, String);
+function screenshare() {
+  if (!this.userId) {
+    return Screenshare.find({ meetingId: '' });
+  }
+  const { meetingId, requesterUserId } = extractCredentials(this.userId);
 
   Logger.debug(`Publishing Screenshare for ${meetingId} ${requesterUserId}`);
 

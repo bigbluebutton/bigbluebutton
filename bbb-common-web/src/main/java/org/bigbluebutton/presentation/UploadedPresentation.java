@@ -33,8 +33,16 @@ public final class UploadedPresentation {
   private final String baseUrl;
   private boolean isDownloadable = false;
   private boolean current = false;
+  private String authzToken;
+  private boolean conversionStarted = false;
 
-  public UploadedPresentation(String podId, String meetingId, String id, String name, String baseUrl, Boolean current) {
+  public UploadedPresentation(String podId,
+                              String meetingId,
+                              String id,
+                              String name,
+                              String baseUrl,
+                              Boolean current,
+                              String authzToken) {
     this.podId = podId;
     this.meetingId = meetingId;
     this.id = id;
@@ -42,6 +50,7 @@ public final class UploadedPresentation {
     this.baseUrl = baseUrl;
     this.isDownloadable = false;
     this.current = current;
+    this.authzToken = authzToken;
   }
 
   public File getUploadedFile() {
@@ -110,5 +119,17 @@ public final class UploadedPresentation {
 
   public void setCurrent(Boolean value) {
     this.current = value;
+  }
+
+  public String getAuthzToken() {
+    return authzToken;
+  }
+
+  public void startConversion() {
+    conversionStarted = true;
+  }
+
+  public boolean isConversionStarted() {
+    return conversionStarted;
   }
 }

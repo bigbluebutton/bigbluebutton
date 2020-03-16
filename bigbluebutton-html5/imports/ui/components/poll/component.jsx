@@ -357,6 +357,7 @@ class Poll extends Component {
               }
               Session.set('openPanel', 'userlist');
               Session.set('forcePollOpen', false);
+              Session.set('pollInitiated', false);
             }}
             className={styles.closeBtn}
             icon="close"
