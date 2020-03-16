@@ -107,7 +107,7 @@ class Page {
         '--no-sandbox',
         '--use-fake-ui-for-media-stream',
         '--use-fake-device-for-media-stream',
-        `--use-file-for-fake-audio-capture=${process.env.VIDEO_FILE}`,
+        `--use-file-for-fake-video-capture=${process.env.VIDEO_FILE}`,
         '--allow-file-access',
       ],
     };
