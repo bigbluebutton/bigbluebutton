@@ -35,8 +35,8 @@ async function waitForToast(test) {
 
 async function getLastToastValue(test) {
   await test.waitForSelector(ne.smallToastMsg);
-  const toast = test.page.evaluate(async () => {
-    const lastToast = await document.querySelectorAll('[data-test="toastSmallMsg"]')[0].innerText;
+  const toast = test.page.evaluate(() => {
+    const lastToast = document.querySelectorAll('[data-test="toastSmallMsg"]')[0].innerText;
     return lastToast;
   });
   return toast;
