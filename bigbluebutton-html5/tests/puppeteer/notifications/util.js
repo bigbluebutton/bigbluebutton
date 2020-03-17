@@ -3,16 +3,23 @@ const ne = require('../notifications/elements');
 const ce = require('../chat/elements');
 const ule = require('../user/elements');
 
+async function clickTestElement(element) {
+  await document.querySelectorAll(element)[0].click();
+}
+
 async function popupMenu(page1) {
-  await page1.waitForSelector(e.options);
-  await page1.click(e.options, true);
-  await page1.waitForSelector(ne.settings);
-  await page1.click(ne.settings, true);
+  await page1.page.evaluate(clickTestElement, e.options);
+  await page1.page.evaluate(clickTestElement, ne.settings);
 }
 
 async function enableChatPopup(test) {
   await test.waitForSelector(ne.chatPushAlerts);
   await test.page.evaluate(() => document.querySelector('[data-test="chatPushAlerts"]').children[0].click());
+}
+
+async function enableUserJoinPopup(test) {
+  await test.waitForSelector(ne.userJoinPushAlerts);
+  await test.page.evaluate(() => document.querySelector('[data-test="userJoinPushAlerts"]').children[0].click());
 }
 
 async function saveSettings(page1) {
@@ -37,9 +44,9 @@ async function getLastToastValue(test) {
 
 async function getOtherToastValue(test) {
   await test.waitForSelector(ne.smallToastMsg);
-  const toast = test.page.evaluate(async () => {
-    const lastToast = await document.querySelectorAll('[data-test="toastSmallMsg"]')[1];
-    return lastToast.innerText;
+  const toast = test.page.evaluate(() => {
+    const lastToast = document.querySelectorAll('[data-test="toastSmallMsg"]')[1].innerText;
+    return lastToast;
   });
   return toast;
 }
@@ -79,6 +86,7 @@ async function privateChatMessageToast(page2) {
 
 exports.privateChatMessageToast = privateChatMessageToast;
 exports.publicChatMessageToast = publicChatMessageToast;
+exports.enableUserJoinPopup = enableUserJoinPopup;
 exports.getOtherToastValue = getOtherToastValue;
 exports.getLastToastValue = getLastToastValue;
 exports.enableChatPopup = enableChatPopup;

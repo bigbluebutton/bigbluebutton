@@ -1,5 +1,3 @@
-const Page = require('./core/page');
-const MultiUsers = require('./user/multiusers');
 const Notifications = require('./notifications/notifications');
 
 describe('Notifications', () => {
@@ -8,7 +6,7 @@ describe('Notifications', () => {
     let response;
     try {
       await test.init();
-      response = await test.saveSttingsNotification();
+      response = await test.saveSettingsNotification();
     } catch (e) {
       console.log(e);
     } finally {
@@ -43,5 +41,21 @@ describe('Notifications', () => {
       await test.close();
     }
     expect(response).toBe(true);
+  });
+
+  test('User join notification', async () => {
+    const test = new Notifications();
+    let response;
+    try {
+      await test.initUser3();
+      await test.userJoinNotification();
+      await test.initUser4();
+      response = await test.getUserJoinPopupResponse();
+    } catch (e) {
+      console.log(e);
+    } finally {
+      await test.closePages();
+    }
+    expect(response).toBe('User4 joined the session');
   });
 });

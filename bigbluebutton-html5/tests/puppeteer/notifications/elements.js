@@ -9,3 +9,5 @@ exports.publicChatToast = 'New Public Chat message';
 exports.privateChatToast = 'New Private Chat message';
 exports.userListNotifiedIcon = '[class^=btnWithNotificationDot]';
 exports.hasUnreadMessages = 'button[data-test="hasUnreadMessages"]';
+
+exports.userJoinPushAlerts = '[data-test="userJoinPushAlerts"]';
