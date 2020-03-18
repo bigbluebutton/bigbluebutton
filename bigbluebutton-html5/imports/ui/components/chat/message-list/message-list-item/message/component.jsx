@@ -161,7 +161,7 @@ export default class MessageListItem extends PureComponent {
           <ChatFileUploaded
             text={text}
             file={file}
-            id={userid}     
+            id={userid}
           />
         )
         : (

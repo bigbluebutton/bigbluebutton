@@ -58,7 +58,7 @@ export default class ChatFileUploaded extends PureComponent {
         {(text) ? (
           <div className={styles.text}>
             {/* <hr/> */}
-            <span >{text}</span>
+            <span>{text}</span>
           </div>
         ) : null}
       </div>

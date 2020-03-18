@@ -109,68 +109,73 @@ class MessageListItem extends Component {
       return this.renderSystemMessage();
     }
 
-    return (<div> {(user.userId!==Auth.userID) ?    <div className={styles.item}>
-    <div className={styles.wrapperleft} ref={(ref) => { this.item = ref; }}>
-      <div className={styles.avatarWrapper}>
-        <UserAvatar
-          className={styles.avatar}
-          color={user.color}
-          moderator={user.isModerator}
-        >
-          {user.name.toLowerCase().slice(0, 2)}
-        </UserAvatar>
-      </div>
-      <div className={styles.contentleft}>
-        <div className={styles.metaleft}>
-          <div className={user.isOnline ? styles.name : styles.logout}>
-            <span className={styles.nameonly}>{user.name}</span>
-            {user.isOnline
-              ? null
-              : (
-                <span className={styles.offline}>
+    return (
+      <div>
+        {' '}
+        {(user.userId !== Auth.userID) ? (
+          <div className={styles.item}>
+            <div className={styles.wrapperleft} ref={(ref) => { this.item = ref; }}>
+              <div className={styles.avatarWrapper}>
+                <UserAvatar
+                  className={styles.avatar}
+                  color={user.color}
+                  moderator={user.isModerator}
+                >
+                  {user.name.toLowerCase().slice(0, 2)}
+                </UserAvatar>
+              </div>
+              <div className={styles.contentleft}>
+                <div className={styles.metaleft}>
+                  <div className={user.isOnline ? styles.name : styles.logout}>
+                    <span className={styles.nameonly}>{user.name}</span>
+                    {user.isOnline
+            ? null
+            : (
+              <span className={styles.offline}>
                   {`(${intl.formatMessage(intlMessages.offline)})`}
                 </span>
-              )}
+            )}
+                  </div>
+                  <time className={styles.timeleft} dateTime={dateTime}>
+                    <FormattedTime value={dateTime} />
+                  </time>
+                </div>
+                <div className={styles.messagesleft}>
+                  {messages.map(message => (
+                    <Message
+            className={(regEx.test(message.text) ? styles.hyperlink : styles.messageleft)}
+            key={message.id}
+            text={message.text}
+            time={message.time}
+            file={message.fileData}
+            userid={user.userId}
+            color={message.color}
+            chatAreaId={chatAreaId}
+            lastReadMessageTime={lastReadMessageTime}
+            handleReadMessage={handleReadMessage}
+            scrollArea={scrollArea}
+          />
+                  ))}
+                </div>
+              </div>
+            </div>
           </div>
-          <time className={styles.timeleft} dateTime={dateTime}>
-            <FormattedTime value={dateTime} />
-          </time>
-        </div>
-        <div className={styles.messagesleft}>
-          {messages.map(message => (
-            <Message
-              className={(regEx.test(message.text) ? styles.hyperlink : styles.messageleft)}
-              key={message.id}
-              text={message.text}
-              time={message.time}
-              file={message.fileData}
-              userid={user.userId}
-              color={message.color}
-              chatAreaId={chatAreaId}
-              lastReadMessageTime={lastReadMessageTime}
-              handleReadMessage={handleReadMessage}
-              scrollArea={scrollArea}
-            />
-          ))}
-        </div>
-      </div>
-    </div>
-  </div>
-: 
-<div className={styles.item}>
-<div className={styles.wrapperright} ref={(ref) => { this.item = ref; }}>
-  <div className={styles.avatarWrapper}>
-    {/* <UserAvatar
+        )
+          : (
+            <div className={styles.item}>
+              <div className={styles.wrapperright} ref={(ref) => { this.item = ref; }}>
+                <div className={styles.avatarWrapper}>
+                  {/* <UserAvatar
       className={styles.avatar}
       color={user.color}
       moderator={user.isModerator}
     >
       {user.name.toLowerCase().slice(0, 2)}
     </UserAvatar> */}
-  </div>
-  <div className={styles.contentright}>
-    <div className={styles.metaright}>
-      {/* <div className={user.isOnline ? styles.name : styles.logout}>
+                </div>
+                <div className={styles.contentright}>
+                  <div className={styles.metaright}>
+                    {/* <div className={user.isOnline ? styles.name : styles.logout}>
         <span>{user.name}</span>
         {user.isOnline
           ? null
@@ -180,32 +185,34 @@ class MessageListItem extends Component {
             </span>
           )}
       </div> */}
-      <time className={styles.timeright} dateTime={dateTime}>
-        <FormattedTime value={dateTime} />
-      </time>
-    </div>
-    <div className={styles.messagesright}>
-      {messages.map(message => (
-        <Message
-          className={(regEx.test(message.text) ? styles.hyperlink : styles.messageright)}
-          key={message.id}
-          text={message.text}
-          time={message.time}
-          file={message.fileData}
-          userid={user.userId}
-          color={message.color}
-          chatAreaId={chatAreaId}
-          lastReadMessageTime={lastReadMessageTime}
-          handleReadMessage={handleReadMessage}
-          scrollArea={scrollArea}
-        />
-      ))}
-    </div>
-  </div>
-</div>
-</div>
+                    <time className={styles.timeright} dateTime={dateTime}>
+                      <FormattedTime value={dateTime} />
+                    </time>
+                  </div>
+                  <div className={styles.messagesright}>
+                    {messages.map(message => (
+                      <Message
+            className={(regEx.test(message.text) ? styles.hyperlink : styles.messageright)}
+            key={message.id}
+            text={message.text}
+            time={message.time}
+            file={message.fileData}
+            userid={user.userId}
+            color={message.color}
+            chatAreaId={chatAreaId}
+            lastReadMessageTime={lastReadMessageTime}
+            handleReadMessage={handleReadMessage}
+            scrollArea={scrollArea}
+          />
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </div>
+          )
 }
-</div> );
+      </div>
+    );
   }
 }
 
