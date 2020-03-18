@@ -33,11 +33,12 @@ export default class ChatFileUploaded extends PureComponent {
     const {
       text,
       file,
+      id,
     } = this.props;
 
     // const ext = file.fileName.split('.').pop();
     return (
-      <div className={(text) ? styles.fileWrapper : null}>
+      <div className={(id == Auth.userID) ? styles.senderFileWrapper : styles.fileWrapper}>
         <div className={styles.wrapper}>
           <div className={styles.extensionBox}>
             <Icon iconName="file" />
@@ -55,9 +56,9 @@ export default class ChatFileUploaded extends PureComponent {
           />
         </div>
         {(text) ? (
-          <div>
+          <div className={styles.text}>
             {/* <hr/> */}
-            <span className={styles.text}>{text}</span>
+            <span >{text}</span>
           </div>
         ) : null}
       </div>

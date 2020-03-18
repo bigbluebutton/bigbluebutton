@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { FormattedTime, defineMessages, injectIntl } from 'react-intl';
 import _ from 'lodash';
-
+import Auth from '/imports/ui/services/auth';
 import UserAvatar from '/imports/ui/components/user-avatar/component';
 import Message from './message/component';
 
@@ -109,54 +109,103 @@ class MessageListItem extends Component {
       return this.renderSystemMessage();
     }
 
-    return (
-      <div className={styles.item}>
-        <div className={styles.wrapper} ref={(ref) => { this.item = ref; }}>
-          <div className={styles.avatarWrapper}>
-            <UserAvatar
-              className={styles.avatar}
-              color={user.color}
-              moderator={user.isModerator}
-            >
-              {user.name.toLowerCase().slice(0, 2)}
-            </UserAvatar>
+    return (<div> {(user.userId!==Auth.userID) ?    <div className={styles.item}>
+    <div className={styles.wrapperleft} ref={(ref) => { this.item = ref; }}>
+      <div className={styles.avatarWrapper}>
+        <UserAvatar
+          className={styles.avatar}
+          color={user.color}
+          moderator={user.isModerator}
+        >
+          {user.name.toLowerCase().slice(0, 2)}
+        </UserAvatar>
+      </div>
+      <div className={styles.contentleft}>
+        <div className={styles.metaleft}>
+          <div className={user.isOnline ? styles.name : styles.logout}>
+            <span className={styles.nameonly}>{user.name}</span>
+            {user.isOnline
+              ? null
+              : (
+                <span className={styles.offline}>
+                  {`(${intl.formatMessage(intlMessages.offline)})`}
+                </span>
+              )}
           </div>
-          <div className={styles.content}>
-            <div className={styles.meta}>
-              <div className={user.isOnline ? styles.name : styles.logout}>
-                <span>{user.name}</span>
-                {user.isOnline
-                  ? null
-                  : (
-                    <span className={styles.offline}>
-                      {`(${intl.formatMessage(intlMessages.offline)})`}
-                    </span>
-                  )}
-              </div>
-              <time className={styles.time} dateTime={dateTime}>
-                <FormattedTime value={dateTime} />
-              </time>
-            </div>
-            <div className={styles.messages}>
-              {messages.map(message => (
-                <Message
-                  className={(regEx.test(message.text) ? styles.hyperlink : styles.message)}
-                  key={message.id}
-                  text={message.text}
-                  time={message.time}
-                  file={message.fileData}
-                  color={message.color}
-                  chatAreaId={chatAreaId}
-                  lastReadMessageTime={lastReadMessageTime}
-                  handleReadMessage={handleReadMessage}
-                  scrollArea={scrollArea}
-                />
-              ))}
-            </div>
-          </div>
+          <time className={styles.timeleft} dateTime={dateTime}>
+            <FormattedTime value={dateTime} />
+          </time>
+        </div>
+        <div className={styles.messagesleft}>
+          {messages.map(message => (
+            <Message
+              className={(regEx.test(message.text) ? styles.hyperlink : styles.messageleft)}
+              key={message.id}
+              text={message.text}
+              time={message.time}
+              file={message.fileData}
+              userid={user.userId}
+              color={message.color}
+              chatAreaId={chatAreaId}
+              lastReadMessageTime={lastReadMessageTime}
+              handleReadMessage={handleReadMessage}
+              scrollArea={scrollArea}
+            />
+          ))}
         </div>
       </div>
-    );
+    </div>
+  </div>
+: 
+<div className={styles.item}>
+<div className={styles.wrapperright} ref={(ref) => { this.item = ref; }}>
+  <div className={styles.avatarWrapper}>
+    {/* <UserAvatar
+      className={styles.avatar}
+      color={user.color}
+      moderator={user.isModerator}
+    >
+      {user.name.toLowerCase().slice(0, 2)}
+    </UserAvatar> */}
+  </div>
+  <div className={styles.contentright}>
+    <div className={styles.metaright}>
+      {/* <div className={user.isOnline ? styles.name : styles.logout}>
+        <span>{user.name}</span>
+        {user.isOnline
+          ? null
+          : (
+            <span className={styles.offline}>
+              {`(${intl.formatMessage(intlMessages.offline)})`}
+            </span>
+          )}
+      </div> */}
+      <time className={styles.timeright} dateTime={dateTime}>
+        <FormattedTime value={dateTime} />
+      </time>
+    </div>
+    <div className={styles.messagesright}>
+      {messages.map(message => (
+        <Message
+          className={(regEx.test(message.text) ? styles.hyperlink : styles.messageright)}
+          key={message.id}
+          text={message.text}
+          time={message.time}
+          file={message.fileData}
+          userid={user.userId}
+          color={message.color}
+          chatAreaId={chatAreaId}
+          lastReadMessageTime={lastReadMessageTime}
+          handleReadMessage={handleReadMessage}
+          scrollArea={scrollArea}
+        />
+      ))}
+    </div>
+  </div>
+</div>
+</div>
+}
+</div> );
   }
 }
 

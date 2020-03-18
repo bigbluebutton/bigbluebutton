@@ -47,8 +47,8 @@ const USERLIST_MIN_WIDTH_PX = 150;
 const USERLIST_MAX_WIDTH_PX = 240;
 
 // Variables for resizing chat.
-const CHAT_MIN_WIDTH = 150;
-const CHAT_MAX_WIDTH = 350;
+const CHAT_MIN_WIDTH = 750;
+const CHAT_MAX_WIDTH = 750;
 
 // Variables for resizing poll.
 const POLL_MIN_WIDTH = 320;

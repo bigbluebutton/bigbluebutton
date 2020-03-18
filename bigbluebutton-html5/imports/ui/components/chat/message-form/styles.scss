@@ -51,16 +51,18 @@
 .input {
   width: 100%;
   padding:  0.3em;
-  height: 2.7rem;
-  max-height:  2.7rem;
-  border-radius:  0.3em 0 0  0.3em;
+  height: 4.7rem;
+  max-height:  4.7rem;
+  border-radius:  1.25em 0 0  1.25em;
   outline: none;
   resize: none;
   transition: none;
   border: 1px ;
   border-right: none;
-  background: #dbe5ee;
+  background: #E6E6E6;
   color: #676d72;
+  text-indent: 10px;
+ 
 }
 
 .input:focus{
@@ -82,14 +84,14 @@
 
 .attachFile {
   width: 3rem;
-  height: 2.7rem;
-  background: #dbe5ee;
+  height: 4.7rem;
+  background: #E6E6E6;
   text-align: center;
   cursor: pointer;
   font-size: 1.25em;
   margin-right: 1rem;
   padding-right: 0.5rem;
-  border-radius: 0  0.3em  0.3em 0;
+  border-radius: 0  1.25em  1.25em 0;
   i {
     color: #6c6c6c;
   }

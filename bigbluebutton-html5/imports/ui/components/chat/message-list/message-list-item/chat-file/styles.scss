@@ -6,22 +6,30 @@
   height: 3.8rem;
   display: grid;
   grid-template-columns: 3.8rem 9rem 2.5rem;
-    // flex: 1;
   position: inherit;
-  border-radius: 8px;
-  background-color: #dbe5ee;
-  margin:3px 0 0 0;
-  
-  // [dir="rtl"] & {
-  //   margin: var(--border-size) var(--border-size) 0 0;
-  // }
+  background-color: #F5F5F5;
+  margin: 0.6rem;
 }
 
 .fileWrapper {
   display: flex;
   flex-direction: column;
   flex-shrink: 1;
-  width: 15.9rem;
+  width: 16.5rem;
+ // max-width:16.5rem ;
+  background-color: #ffffff;
+  border-radius: 0 0.8rem 0.8rem 0.8rem;
+}
+  
+  
+  .senderFileWrapper {
+  align-self: flex-end;
+  display: flex;
+  flex-direction: column;
+  flex-shrink: 1;
+  width: 16.5rem;
+  background:linear-gradient(0deg, #BCD7EF, #BCD7EF);
+  border-radius: 0.8rem 0 0.8rem 0.8rem;
 }
 
 .fileName {
@@ -60,8 +68,11 @@
 }
 
 .text {
-  margin-top: 0.5rem ;
-  overflow-x: inherit;
-  flex-grow: 1;
-  width: fit-content;
+   margin: 0 0.6rem 0.6rem 0.6rem;
+// overflow-x: inherit;
+ flex-grow: 1;
+ flex-direction: column;
+// width: fit-content;
+ word-wrap: break-word;
+ max-width:16.3rem ;
 }
