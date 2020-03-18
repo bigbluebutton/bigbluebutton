@@ -303,6 +303,7 @@ class MessageForm extends PureComponent {
           className={cx(className, styles.form)}
           onSubmit={this.handleSubmit}
         >
+        <div className={styles.wrapper}>
           <TextareaAutosize
             className={styles.input}
             id="message-input"
@@ -319,6 +320,21 @@ class MessageForm extends PureComponent {
             onChange={this.handleMessageChange}
             onKeyDown={this.handleMessageKeyDown}
           />
+          <Button
+            hideLabel
+            circle
+            className={styles.sendButton}
+            aria-label={intl.formatMessage(messages.submitLabel)}
+            type="submit"
+            disabled={disabled}
+            label={intl.formatMessage(messages.submitLabel)}
+            color="default"
+            icon="send"
+            size="lg"
+            onClick={() => {}}
+            data-test="sendMessageButton"
+          />
+        </div>
           <TypingIndicatorContainer {...{ error }} />
         </form>
         <Button
@@ -326,6 +342,7 @@ class MessageForm extends PureComponent {
           circle
           className={styles.attachFile}
           icon="file"
+          size="lg"
           label="attachFile"
           onClick={() => this.renderChatModal()}
         />

@@ -9,8 +9,7 @@
   text-decoration: none;
   flex-grow: 1;
   line-height: 2;
-  color: var(--color-gray-dark);
-  background-color: #042E57;
+  color: #ffffff;
   padding-top: var(--lg-padding-y);
   padding-bottom: var(--lg-padding-y);
   padding-left: var(--lg-padding-y);
@@ -34,6 +33,17 @@
   align-items: center;
   text-decoration: none;
   width: 100%;
+  color: #ffffff;
+  > .hover {
+    > .chatIcon{
+      i {
+        color: #ffc700;
+      }
+    }
+    .chatNameMain {
+      color: #ffc700;
+    }
+  }
 }
 
 .chatIcon {
@@ -56,7 +66,7 @@
   font-style: normal;
   font-weight: normal;
   font-size: 12px;
-  color: #82B3E3;
+  // color: #ffffff;
   flex-grow: 1;
   line-height: 15px;
   text-align: left;
@@ -70,6 +80,12 @@
 }
 
 .active {
-  background-color: #042E57;
+  color: #ffc700;
   // box-shadow: inset 0 0 0 var(--border-size) var(--item-focus-border), inset 1px 0 0 1px var(--item-focus-border);
 }
+
+// .groupChatIcon {
+//   i {
+//     color: #ffffff;
+//   }
+// }

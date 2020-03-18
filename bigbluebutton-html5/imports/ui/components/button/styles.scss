@@ -40,6 +40,9 @@
   --btn-lg-font-size: calc(var(--font-size-large) * .85);
   --btn-lg-padding: var(--lg-padding-y) var(--lg-padding-x);
 
+  --btn-xl-font-size: 2rem;
+  --btn-xl-padding: 1rem 1rem;
+
   --btn-jumbo-font-size: 3rem;
   --btn-jumbo-padding: var(--jumbo-padding-y) var(--jumbo-padding-x);
 }
@@ -337,6 +340,11 @@
 .lg {
   font-size: var(--btn-lg-font-size);
   padding: var(--btn-lg-padding);
+}
+
+.xl {
+  font-size: var(--btn-xl-font-size);
+  padding: var(--btn-xl-padding);
 }
 
 .jumbo {
