@@ -8,7 +8,15 @@
 .center,
 .right {
   display: flex;
+  flex-direction: column;
+}
+
+.actionsController {
+  height: 30%;
+  display: flex;
   flex-direction: row;
+  flex-wrap: nowrap;
+  justify-content: space-evenly;
 }
 
 .center,
@@ -21,7 +29,7 @@
 .center,
 .right {
   > * {
-    margin: 0 var(--sm-padding-x);
+    margin: 1rem 0 2rem 1rem;
 
     @include mq($small-only) {
       margin: 0 var(--sm-padding-y);
@@ -87,4 +95,18 @@
     // border-color: var(--color-white) !important;
     // border: 0.5px solid #5594d4;
   }
+}
+
+.endingCall{
+  order: 3;
+  flex: 0 40%;
+  i{
+    color: #dd6161 !important;
+  }
+  &.button {
+    span {
+      border: 0.5px solid #dd6161 !important;
+    }
+  }
+
 }

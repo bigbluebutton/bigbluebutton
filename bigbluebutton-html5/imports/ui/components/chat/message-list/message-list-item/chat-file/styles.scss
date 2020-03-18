@@ -2,8 +2,10 @@
 @import "/imports/ui/stylesheets/variables/typography";
 
 .wrapper {
-  width: 15.3rem;
+  max-width: 15.3rem;
   height: 3.8rem;
+  position: inherit;
+  margin: 0.85rem;
   display: grid;
   grid-template-columns: 3.8rem 9rem 2.5rem;
   position: inherit;
@@ -33,9 +35,12 @@
 }
 
 .fileName {
-  color: #7c7c7c;
-  font-size: var(--font-size-16px);
-  padding-top: 1rem;
+  font-family: Avenir;
+  font-style: normal;
+  font-weight: normal;
+  color: rgba(0, 0, 0, 0.87);
+  font-size: var(--font-size-12px);
+  padding-top: 1.4rem;
   overflow: hidden;
 }
 
@@ -58,12 +63,12 @@
 
 
 .button {
-  span:first-child {
-    box-shadow: none;
-    border: 0.5px solid var(--color-gray);
-  }
+  // span:first-child {
+  //   box-shadow: none;
+  //   border: 0.5px solid var(--color-gray);
+  // }
   i {
-    color: #7c7c7c;
+    color: #109cf1;
   }
 }
 

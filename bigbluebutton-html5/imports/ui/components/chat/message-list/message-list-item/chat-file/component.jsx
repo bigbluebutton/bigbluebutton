@@ -50,7 +50,7 @@ export default class ChatFileUploaded extends PureComponent {
             className={styles.button}
             color="default"
             icon="template_download"
-            size="sm"
+            size="lg"
             circle
             onClick={() => this.handleFileDownload()}
           />

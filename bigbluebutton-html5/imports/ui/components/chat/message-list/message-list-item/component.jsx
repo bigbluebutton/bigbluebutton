@@ -129,12 +129,12 @@ class MessageListItem extends Component {
                   <div className={user.isOnline ? styles.name : styles.logout}>
                     <span className={styles.nameonly}>{user.name}</span>
                     {user.isOnline
-            ? null
-            : (
-              <span className={styles.offline}>
-                  {`(${intl.formatMessage(intlMessages.offline)})`}
-                </span>
-            )}
+                      ? null
+                      : (
+                        <span className={styles.offline}>
+                          {`(${intl.formatMessage(intlMessages.offline)})`}
+                        </span>
+                      )}
                   </div>
                   <time className={styles.timeleft} dateTime={dateTime}>
                     <FormattedTime value={dateTime} />
@@ -143,18 +143,18 @@ class MessageListItem extends Component {
                 <div className={styles.messagesleft}>
                   {messages.map(message => (
                     <Message
-            className={(regEx.test(message.text) ? styles.hyperlink : styles.messageleft)}
-            key={message.id}
-            text={message.text}
-            time={message.time}
-            file={message.fileData}
-            userid={user.userId}
-            color={message.color}
-            chatAreaId={chatAreaId}
-            lastReadMessageTime={lastReadMessageTime}
-            handleReadMessage={handleReadMessage}
-            scrollArea={scrollArea}
-          />
+                      className={(regEx.test(message.text) ? styles.hyperlink : styles.messageleft)}
+                      key={message.id}
+                      text={message.text}
+                      time={message.time}
+                      file={message.fileData}
+                      userid={user.userId}
+                      color={message.color}
+                      chatAreaId={chatAreaId}
+                      lastReadMessageTime={lastReadMessageTime}
+                      handleReadMessage={handleReadMessage}
+                      scrollArea={scrollArea}
+                    />
                   ))}
                 </div>
               </div>
@@ -192,18 +192,18 @@ class MessageListItem extends Component {
                   <div className={styles.messagesright}>
                     {messages.map(message => (
                       <Message
-            className={(regEx.test(message.text) ? styles.hyperlink : styles.messageright)}
-            key={message.id}
-            text={message.text}
-            time={message.time}
-            file={message.fileData}
-            userid={user.userId}
-            color={message.color}
-            chatAreaId={chatAreaId}
-            lastReadMessageTime={lastReadMessageTime}
-            handleReadMessage={handleReadMessage}
-            scrollArea={scrollArea}
-          />
+                        className={(regEx.test(message.text) ? styles.hyperlink : styles.messageright)}
+                        key={message.id}
+                        text={message.text}
+                        time={message.time}
+                        file={message.fileData}
+                        userid={user.userId}
+                        color={message.color}
+                        chatAreaId={chatAreaId}
+                        lastReadMessageTime={lastReadMessageTime}
+                        handleReadMessage={handleReadMessage}
+                        scrollArea={scrollArea}
+                      />
                     ))}
                   </div>
                 </div>

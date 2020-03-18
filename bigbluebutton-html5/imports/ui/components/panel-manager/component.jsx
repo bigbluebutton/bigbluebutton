@@ -39,16 +39,19 @@ const propTypes = {
   openPanel: PropTypes.string.isRequired,
 };
 
+const default_panel_width = 65;
+const chat_min_width = 65;
+const user_min_width = 14;
 
-const DEFAULT_PANEL_WIDTH = 345;
 
+const DEFAULT_PANEL_WIDTH = ((screen.width) * default_panel_width) / 100;
 // Variables for resizing user-list.
-const USERLIST_MIN_WIDTH_PX = 150;
-const USERLIST_MAX_WIDTH_PX = 240;
+const USERLIST_MIN_WIDTH_PX = ((screen.width) * user_min_width) / 100;
+const USERLIST_MAX_WIDTH_PX = ((screen.width) * user_min_width) / 100;
 
 // Variables for resizing chat.
-const CHAT_MIN_WIDTH = 750;
-const CHAT_MAX_WIDTH = 750;
+const CHAT_MIN_WIDTH = ((screen.width) * chat_min_width) / 100;
+const CHAT_MAX_WIDTH = DEFAULT_PANEL_WIDTH;
 
 // Variables for resizing poll.
 const POLL_MIN_WIDTH = 320;
