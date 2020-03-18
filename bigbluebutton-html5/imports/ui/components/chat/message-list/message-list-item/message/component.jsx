@@ -151,6 +151,7 @@ export default class MessageListItem extends PureComponent {
       text,
       className,
       file,
+      userid,
     } = this.props;
 
     // const ext = file.fileName.split('.').pop();
@@ -160,6 +161,7 @@ export default class MessageListItem extends PureComponent {
           <ChatFileUploaded
             text={text}
             file={file}
+            id={userid}
           />
         )
         : (

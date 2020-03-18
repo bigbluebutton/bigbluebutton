@@ -64,7 +64,9 @@
 
   &:hover {
     @include highContrastOutline();
-    background-color: var(--list-item-bg-hover);
+   color: red;
+
+   // background-color: var(--list-item-bg-hover);
   }
 
   &:active,
@@ -83,7 +85,8 @@
 .userList {
   @extend %flex-column;
   justify-content: flex-start;
-  background-color: #03213F;
+  background-color: #0F4C81;
+  box-shadow: 0px 2px 2px rgba(0, 0, 0, 0.12);
   color: var(--user-list-text);
   height: 100%;
   padding-top: var(--md-padding-x);
@@ -143,7 +146,7 @@
   text-transform: uppercase;
   padding: 0 var(--sm-padding-x);
   margin: 0 0 (var(--lg-padding-x) / 2) 0;
-  color: #006CD8;
+  color: #FFC700;;
 }
 
 .userListColumn {
