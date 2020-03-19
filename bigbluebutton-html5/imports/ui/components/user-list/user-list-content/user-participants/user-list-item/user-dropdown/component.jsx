@@ -138,6 +138,8 @@ class UserDropdown extends PureComponent {
       showNestedOptions: false,
     };
 
+    this.audio = new Audio(`${Meteor.settings.public.app.cdn + Meteor.settings.public.app.basename}/resources/sounds/bbb-handRaise.mp3`);
+
     this.handleScroll = this.handleScroll.bind(this);
     this.onActionsShow = this.onActionsShow.bind(this);
     this.onActionsHide = this.onActionsHide.bind(this);
@@ -482,10 +484,14 @@ class UserDropdown extends PureComponent {
     const {
       normalizeEmojiName,
       user,
+      currentUser,
       userInBreakout,
       breakoutSequence,
       meetingIsBreakout,
       voiceUser,
+      notify,
+      raiseHandAudioAlert,
+      raiseHandPushAlert,
     } = this.props;
 
     const { clientType } = user;
@@ -497,6 +503,15 @@ class UserDropdown extends PureComponent {
 
     const iconVoiceOnlyUser = (<Icon iconName="audio_on" />);
     const userIcon = isVoiceOnly ? iconVoiceOnlyUser : iconUser;
+
+    if (user.emoji === 'raiseHand' && currentUser.userId !== user.userId && user.emojiTime - Date.now() > 0) {
+      if (raiseHandAudioAlert) this.audio.play();
+      if (raiseHandPushAlert) {
+        notify(
+          `${user.name} has raised their hand`, 'info', 'hand',
+        );
+      }
+    }
 
     return (
       <UserAvatar
