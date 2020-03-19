@@ -54,7 +54,7 @@ describe('Notifications', () => {
     } catch (e) {
       console.log(e);
     } finally {
-      await test.closePages();
+      await test.closePage3and4();
     }
     expect(response).toBe('User4 joined the session');
   });

@@ -14,4 +14,4 @@ exports.modalConfirmButton = 'button[data-test="modalConfirmButton"]';
 exports.userJoinPushAlerts = '[data-test="userJoinPushAlerts"]';
 exports.uploadPresentation = '[data-test="uploadPresentation"]';
 exports.dropdownContent = '[data-test="dropdownContent"]';
-exports.dropZone = '[data-test="dropZone"]';
+exports.fileUploadDropZone = '[data-test="fileUploadDropZone"]';

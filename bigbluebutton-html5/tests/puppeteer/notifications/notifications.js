@@ -75,7 +75,7 @@ class Notifications extends MultiUsers {
   // File upload notification
   async fileUploaderNotification() {
     await util.uploadFileMenu(this.page3);
-    await this.page3.waitForSelector(ne.dropZone);
+    await this.page3.waitForSelector(ne.fileUploadDropZone);
     const inputUploadHandle = await this.page3.page.$('input[type=file]');
     await inputUploadHandle.uploadFile(process.env.PDF_FILE);
     await this.page3.page.evaluate(util.clickTestElement, ne.modalConfirmButton);
@@ -84,7 +84,7 @@ class Notifications extends MultiUsers {
     return resp;
   }
 
-  async closePages() {
+  async closePage3and4() {
     await this.page3.close();
     await this.page4.close();
   }
