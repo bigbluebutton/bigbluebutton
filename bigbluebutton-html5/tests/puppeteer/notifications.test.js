@@ -58,4 +58,18 @@ describe('Notifications', () => {
     }
     expect(response).toBe('User4 joined the session');
   });
+
+  test('Presentation upload notification', async () => {
+    const test = new Notifications();
+    let response;
+    try {
+      await test.initUser3();
+      response = await test.fileUploaderNotification();
+    } catch (e) {
+      console.log(e);
+    } finally {
+      await test.closePage3();
+    }
+    expect(response).toContain('Current presentation');
+  });
 });

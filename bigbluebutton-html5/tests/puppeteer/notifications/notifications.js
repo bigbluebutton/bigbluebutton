@@ -3,6 +3,7 @@ const util = require('./util');
 const MultiUsers = require('../user/multiusers');
 const params = require('../params');
 const ne = require('./elements');
+const we = require('../whiteboard/elements');
 
 class Notifications extends MultiUsers {
   constructor() {
@@ -71,9 +72,25 @@ class Notifications extends MultiUsers {
     return response;
   }
 
+  // File upload notification
+  async fileUploaderNotification() {
+    await util.uploadFileMenu(this.page3);
+    await this.page3.waitForSelector(ne.dropZone);
+    const inputUploadHandle = await this.page3.page.$('input[type=file]');
+    await inputUploadHandle.uploadFile(process.env.PDF_FILE);
+    await this.page3.page.evaluate(util.clickTestElement, ne.modalConfirmButton);
+    const resp = await util.getLastToastValue(this.page3);
+    await this.page3.waitForSelector(we.whiteboard);
+    return resp;
+  }
+
   async closePages() {
     await this.page3.close();
     await this.page4.close();
+  }
+
+  async closePage3() {
+    await this.page3.close();
   }
 }
 

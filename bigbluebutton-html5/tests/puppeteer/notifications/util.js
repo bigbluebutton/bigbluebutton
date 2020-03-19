@@ -1,7 +1,7 @@
-const e = require('../core/elements');
 const ne = require('../notifications/elements');
-const ce = require('../chat/elements');
 const ule = require('../user/elements');
+const ce = require('../chat/elements');
+const e = require('../core/elements');
 
 async function clickTestElement(element) {
   await document.querySelectorAll(element)[0].click();
@@ -55,8 +55,7 @@ async function getTestElement(element) {
   await document.querySelectorAll(element)[1];
 }
 
-
-async function clickOnTheOtherUser(element) {
+async function clickOnElement(element) {
   await document.querySelectorAll(element)[0].click();
 }
 
@@ -66,7 +65,7 @@ async function clickThePrivateChatButton(element) {
 
 async function publicChatMessageToast(page1, page2) {
   // Open private Chat with the other User
-  await page1.page.evaluate(clickOnTheOtherUser, ule.userListItem);
+  await page1.page.evaluate(clickOnElement, ule.userListItem);
   await page1.page.evaluate(clickThePrivateChatButton, ce.activeChat);
   // send a public message
   await page2.page.type(ce.publicChat, ce.publicMessage1);
@@ -76,7 +75,7 @@ async function publicChatMessageToast(page1, page2) {
 
 async function privateChatMessageToast(page2) {
   // Open private Chat with the other User
-  await page2.page.evaluate(clickOnTheOtherUser, ule.userListItem);
+  await page2.page.evaluate(clickOnElement, ule.userListItem);
   await page2.page.evaluate(clickThePrivateChatButton, ce.activeChat);
   // send a private message
   await page2.page.type(ce.privateChat, ce.message1);
@@ -84,13 +83,26 @@ async function privateChatMessageToast(page2) {
   return ne.privateChatToast;
 }
 
+// File upload notification
+async function uploadFileMenu(test) {
+  await test.page.evaluate(clickOnElement, ne.dropdownContent);
+  await test.page.evaluate(clickOnElement, ne.uploadPresentation);
+}
+
+async function getFileItemStatus(element, value) {
+  document.querySelectorAll(element)[1].innerText.includes(value);
+}
+
+exports.getFileItemStatus = getFileItemStatus;
 exports.privateChatMessageToast = privateChatMessageToast;
 exports.publicChatMessageToast = publicChatMessageToast;
 exports.enableUserJoinPopup = enableUserJoinPopup;
 exports.getOtherToastValue = getOtherToastValue;
 exports.getLastToastValue = getLastToastValue;
 exports.enableChatPopup = enableChatPopup;
+exports.uploadFileMenu = uploadFileMenu;
 exports.getTestElement = getTestElement;
 exports.saveSettings = saveSettings;
 exports.waitForToast = waitForToast;
 exports.popupMenu = popupMenu;
+exports.clickTestElement = clickTestElement;
