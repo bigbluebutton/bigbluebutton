@@ -1,16 +1,10 @@
-import { Meteor } from 'meteor/meteor';
-import { check } from 'meteor/check';
 import Logger from '/imports/startup/server/logger';
 import Users from '/imports/api/users';
+import { extractCredentials } from '/imports/api/common/server/helpers';
 
-export default function userLeftMeeting(credentials) {
-  const {
-    meetingId,
-    requesterUserId,
-  } = credentials;
-
-  check(meetingId, String);
-  check(requesterUserId, String);
+export default function userLeftMeeting() { // TODO-- spread the code to method/modifier/handler
+  // so we don't update the db in a method
+  const { meetingId, requesterUserId } = extractCredentials(this.userId);
 
   const selector = {
     meetingId,

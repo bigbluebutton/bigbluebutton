@@ -63,6 +63,7 @@ const JoinVideoButton = ({
 
   return (
     <Button
+      data-test="joinVideo"
       label={isDisabled ? intl.formatMessage(intlMessages.videoLocked) : label}
       className={cx(styles.button, hasVideoStream || styles.btn)}
       onClick={handleOnClick}

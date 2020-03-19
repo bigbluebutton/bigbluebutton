@@ -347,15 +347,6 @@ class UserDropdown extends PureComponent {
       ));
     }
 
-    if (allowedToRemove && isMeteorConnected) {
-      actions.push(this.makeDropdownItem(
-        'remove',
-        intl.formatMessage(messages.RemoveUserLabel, { 0: user.name }),
-        () => this.onActionsHide(removeUser(user.userId)),
-        'circle_close',
-      ));
-    }
-
     if (allowedToPromote && isMeteorConnected) {
       actions.push(this.makeDropdownItem(
         'promote',
@@ -391,6 +382,15 @@ class UserDropdown extends PureComponent {
         intl.formatMessage(messages.DirectoryLookupLabel),
         () => this.onActionsHide(requestUserInformation(user.extId)),
         'user',
+      ));
+    }
+
+    if (allowedToRemove && isMeteorConnected) {
+      actions.push(this.makeDropdownItem(
+        'remove',
+        intl.formatMessage(messages.RemoveUserLabel, { 0: user.name }),
+        () => this.onActionsHide(removeUser(user.userId)),
+        'circle_close',
       ));
     }
 

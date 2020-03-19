@@ -22,9 +22,8 @@ class Copy extends Page {
     await this.click(e.chatCopy, true);
 
     const copiedChat = clipboardy.readSync();
-    expect(copiedChat).toEqual(expect.stringContaining(`User1 : ${e.message}`));
 
-    return true;
+    return copiedChat.includes(`User1 : ${e.message}`);
   }
 }
 

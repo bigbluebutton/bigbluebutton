@@ -10,6 +10,10 @@ import {
   analyzeSdp,
   logSelectedCandidate,
 } from '/imports/utils/sdpUtils';
+import { Tracker } from 'meteor/tracker';
+import VoiceCallStates from '/imports/api/voice-call-states';
+import CallStateOptions from '/imports/api/voice-call-states/utils/callStates';
+import Auth from '/imports/ui/services/auth';
 
 const MEDIA = Meteor.settings.public.media;
 const MEDIA_TAG = MEDIA.mediaTag;
@@ -45,14 +49,6 @@ class SIPSession {
     this.baseCallStates = baseCallStates;
     this.baseErrorCodes = baseErrorCodes;
     this.reconnectAttempt = reconnectAttempt;
-  }
-
-  static parseDTMF(message) {
-    const parse = message.match(/Signal=(.)/);
-    if (parse && parse.length === 2) {
-      return parse[1];
-    }
-    return '';
   }
 
   joinAudio({ isListenOnly, extension, inputStream }, managerCallback) {
@@ -119,8 +115,10 @@ class SIPSession {
     return new Promise((resolve, reject) => {
       this.inEchoTest = false;
 
-      const timeout = setInterval(() => {
-        clearInterval(timeout);
+      let trackerControl = null;
+
+      const timeout = setTimeout(() => {
+        trackerControl.stop();
         logger.error({ logCode: 'sip_js_transfer_timed_out' }, 'Timeout on transferring from echo test to conference');
         this.callback({
           status: this.baseCallStates.failed,
@@ -136,15 +134,22 @@ class SIPSession {
       // This is is the call transfer code ask @chadpilkey
       this.currentSession.dtmf(1);
 
-      this.currentSession.on('dtmf', (event) => {
-        if (event.body && (typeof event.body === 'string')) {
-          const key = SIPSession.parseDTMF(event.body);
-          if (key === '7') {
-            clearInterval(timeout);
-            onTransferSuccess();
-            resolve();
-          }
-        }
+      Tracker.autorun((c) => {
+        trackerControl = c;
+        const selector = { meetingId: Auth.meetingID, userId: Auth.userID };
+        const query = VoiceCallStates.find(selector);
+
+        query.observeChanges({
+          changed: (id, fields) => {
+            if (fields.callState === CallStateOptions.IN_CONFERENCE) {
+              clearTimeout(timeout);
+              onTransferSuccess();
+
+              c.stop();
+              resolve();
+            }
+          },
+        });
       });
     });
   }
@@ -491,17 +496,22 @@ class SIPSession {
       };
       ['iceConnectionClosed'].forEach(e => mediaHandler.on(e, handleIceConnectionTerminated));
 
-      const inEchoDTMF = (event) => {
-        if (event.body && typeof event.body === 'string') {
-          const dtmf = SIPSession.parseDTMF(event.body);
-          if (dtmf === '0') {
-            fsReady = true;
-            checkIfCallReady();
-          }
-        }
-        currentSession.off('dtmf', inEchoDTMF);
-      };
-      currentSession.on('dtmf', inEchoDTMF);
+      Tracker.autorun((c) => {
+        const selector = { meetingId: Auth.meetingID, userId: Auth.userID };
+        const query = VoiceCallStates.find(selector);
+
+        query.observeChanges({
+          changed: (id, fields) => {
+            if ((this.inEchoTest && fields.callState === CallStateOptions.IN_ECHO_TEST)
+              || (!this.inEchoTest && fields.callState === CallStateOptions.IN_CONFERENCE)) {
+              fsReady = true;
+              checkIfCallReady();
+
+              c.stop();
+            }
+          },
+        });
+      });
     });
   }
 }
@@ -534,6 +544,9 @@ export default class SIPBridge extends BaseAudioBridge {
     window.toUnifiedPlan = toUnifiedPlan;
     window.toPlanB = toPlanB;
     window.stripMDnsCandidates = stripMDnsCandidates;
+
+    // No easy way to expose the client logger to sip.js code so we need to attach it globally
+    window.clientLogger = logger;
   }
 
   joinAudio({ isListenOnly, extension, inputStream }, managerCallback) {

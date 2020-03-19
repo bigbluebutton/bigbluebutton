@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import { defineMessages } from 'react-intl';
 import Icon from '/imports/ui/components/icon/component';
 import { Session } from 'meteor/session';
-import { styles } from './styles';
+import { styles } from '/imports/ui/components/user-list/user-list-content/styles';
 
 const propTypes = {
   intl: PropTypes.shape({
@@ -39,26 +39,27 @@ class WaitingUsers extends PureComponent {
       pendingUsers,
     } = this.props;
 
-    
     return (
       <div className={styles.messages}>
-        {
+        <div className={styles.container}>
           <h2 className={styles.smallTitle}>
             {intl.formatMessage(intlMessages.waitingUsersTitle)}
           </h2>
-        }
+        </div>
         <div className={styles.scrollableList}>
-          <div
-            role='button'
-            tabIndex={0}
-            className={styles.noteLink}
-            onClick={WaitingUsers.toggleWaitingPanel}
-          >
-            <Icon iconName="user" className={styles.icon} />
-            <span className={styles.label}>{intl.formatMessage(intlMessages.title)}</span>
-            <div className={styles.waitingUsersWarn}>
-              <div className={styles.waitingUsersWarnText}>
-                {pendingUsers.length}
+          <div className={styles.list}>
+            <div
+              role='button'
+              tabIndex={0}
+              className={styles.listItem}
+              onClick={WaitingUsers.toggleWaitingPanel}
+            >
+              <Icon iconName="user" />
+              <span>{intl.formatMessage(intlMessages.title)}</span>
+              <div className={styles.unreadMessages}>
+                <div className={styles.unreadMessagesText}>
+                  {pendingUsers.length}
+                </div>
               </div>
             </div>
           </div>

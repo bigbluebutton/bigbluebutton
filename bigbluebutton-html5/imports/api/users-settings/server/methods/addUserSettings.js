@@ -71,9 +71,7 @@ function valueParser(val) {
   }
 }
 
-export default function addUserSettings(credentials, meetingId, userId, settings) {
-  check(meetingId, String);
-  check(userId, String);
+export default function addUserSettings(meetingId, userId, settings) {
   check(settings, [Object]);
 
   let parameters = {};

@@ -66,6 +66,7 @@ class MessageList extends Component {
     };
 
     this.listRef = null;
+    this.virualRef = null;
 
     this.lastWidth = 0;
   }
@@ -75,9 +76,22 @@ class MessageList extends Component {
       scrollPosition,
     } = this.props;
     this.scrollTo(scrollPosition);
+
+    const { childNodes } = this.messageListWrapper;
+    this.virualRef = childNodes ? childNodes[0].firstChild : null;
+
+    if (this.virualRef) {
+      this.virualRef.style.direction = document.documentElement.dir;
+    }
   }
 
   componentDidUpdate(prevProps) {
+    if (this.virualRef) {
+      if (this.virualRef.style.direction !== document.documentElement.dir) {
+        this.virualRef.style.direction = document.documentElement.dir;
+      }
+    }
+
     const {
       scrollPosition,
       chatId,
@@ -275,7 +289,7 @@ class MessageList extends Component {
     } = this.state;
 
     return (
-      [<div className={styles.messageListWrapper} key="chat-list" data-test="chatMessages">
+      [<div className={styles.messageListWrapper} key="chat-list" data-test="chatMessages" ref={node => this.messageListWrapper = node}>
         <AutoSizer>
           {({ height, width }) => {
             if (width !== this.lastWidth) {

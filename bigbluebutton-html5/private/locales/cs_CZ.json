@@ -99,7 +99,6 @@
     "app.presentationUploder.browseImagesLabel": "nebo procházejte soubory s obrázky",
     "app.presentationUploder.fileToUpload": "K nahrávání...",
     "app.presentationUploder.currentBadge": "Aktuální",
-    "app.presentationUploder.genericError": "O ou, něco se nepovedlo.",
     "app.presentationUploder.upload.progress": "Nahrávání ({0}%)",
     "app.presentationUploder.conversion.conversionProcessingSlides": "Zpracovávám stránku {0} z {1}",
     "app.presentationUploder.conversion.genericConversionStatus": "Zpracování souboru...",
