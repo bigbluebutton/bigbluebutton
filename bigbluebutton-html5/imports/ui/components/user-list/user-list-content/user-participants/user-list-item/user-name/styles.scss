@@ -22,7 +22,7 @@
   font-size: var(--font-size-12px);
   line-height: var(--font-size-15px);
   text-transform: capitalize;
-  color:  #FFFFFF;
+  color: #ffffff;
   
   overflow: hidden;
   text-overflow: ellipsis;
@@ -30,6 +30,10 @@
 
   display: flex;
   flex-direction: row;
+
+  &:hover {
+    color: #ffc700;
+  }
 
   > span {
     text-overflow: ellipsis;

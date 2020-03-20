@@ -2,8 +2,8 @@
 @import "/imports/ui/stylesheets/variables/typography";
 
 :root {
-  --systemMessage-background-color: #e2e8ee;
-  --systemMessage-border-color: #C5CDD4;
+  --systemMessage-background-color: #fefefe;
+  --systemMessage-border-color: rgb(231, 236, 241);
 }
 
 .item {
@@ -58,6 +58,7 @@
   font-weight: var(--btn-font-weight);
   padding: var(--font-size-base);
   margin-bottom: var(--line-height-computed);
+  max-width: 65%;
 }
 
 .avatarWrapper {

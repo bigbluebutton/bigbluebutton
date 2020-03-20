@@ -10,6 +10,7 @@ import JoinVideoOptionsContainer from '../video-provider/video-button/container'
 import CaptionsButtonContainer from '/imports/ui/components/actions-bar/captions/container';
 import PresentationOptionsContainer from './presentation-options/component';
 import Button from '/imports/ui/components/button/component';
+import TalkingIndicatorContainer from '/imports/ui/components/nav-bar/talking-indicator/container';
 
 const intlMessages = defineMessages({
   joinAudio: {
@@ -112,7 +113,8 @@ class ActionsBar extends PureComponent {
             }}
             />
           </div>
-          <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn%3AANd9GcTRI8NahhqBmJJ2D5cs9NGdrknh1T-L9BohruJIhalx9rKofJTR" width="200px" height="80px" alt="" />
+          <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn%3AANd9GcTRI8NahhqBmJJ2D5cs9NGdrknh1T-L9BohruJIhalx9rKofJTR" alt="" />
+          <TalkingIndicatorContainer amIModerator={amIModerator} />
           <Button
             className={cx(styles.button, inAudio, endCall ? styles.endingCall : null)}
             onClick={inAudio ? handleLeaveAudio : handleJoinAudio}
@@ -122,7 +124,7 @@ class ActionsBar extends PureComponent {
             color="default"
             ghost={!inAudio}
             icon={joinIcon}
-            size="jumbo"
+            size="xl"
             circle
           />
           {isPollingEnabled

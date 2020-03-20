@@ -15,8 +15,15 @@
   height: 30%;
   display: flex;
   flex-direction: row;
-  flex-wrap: nowrap;
-  justify-content: space-evenly;
+  // flex-wrap: nowrap;
+  justify-content: center;
+  :nth-child(n){
+    margin: 0.1rem;
+  }
+}
+
+img {
+  height: 5.5rem;
 }
 
 .center,
@@ -25,30 +32,15 @@
   justify-content: center;
 }
 
-.left,
 .center,
 .right {
   > * {
-    margin: 1rem 0 2rem 1rem;
+    margin: 1rem;
+    justify-content: center;
 
-    @include mq($small-only) {
-      margin: 0 var(--sm-padding-y);
-    }
-  }
-}
-
-.left {
-  display: inherit;
-  flex: 0;
-  @include mq($small-only) {
-    bottom: var(--sm-padding-x);
-    left: var(--sm-padding-x);
-    right: auto;
-
-    [dir="rtl"] & {
-      left: auto;
-      right: var(--sm-padding-x);
-    }
+    // @include mq($small-only) {
+    //   margin: 0 var(--sm-padding-y);
+    // }
   }
 }
 

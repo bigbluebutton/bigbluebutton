@@ -302,7 +302,7 @@ class UserOptions extends PureComponent {
             label={intl.formatMessage(intlMessages.optionsLabel)}
             icon="settings"
             ghost
-            color="white"
+            color="default"
             hideLabel
             className={styles.optionsButton}
             size="sm"

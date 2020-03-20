@@ -114,6 +114,10 @@
   [dir="rtl"] & {
     padding: var(--lg-padding-y) var(--lg-padding-y) var(--lg-padding-y) 0;
   }
+  .hover {
+    color: #ffc700 !important;
+    cursor: default;
+  }
 }
 
 .dropdown {
