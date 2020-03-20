@@ -422,6 +422,7 @@ class PresentationArea extends PureComponent {
           height: svgDimensions.height,
           textAlign: 'center',
         }}
+        className={styles.presentation}
       >
         {this.renderPresentationClose()}
         {this.renderPresentationDownload()}

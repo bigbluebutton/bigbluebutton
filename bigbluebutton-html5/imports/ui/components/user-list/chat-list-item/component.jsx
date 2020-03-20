@@ -90,7 +90,7 @@ const ChatListItem = (props) => {
       <div className={styles.chatListItemLink}>
         <div className={styles.chatIcon}>
           {chat.icon
-            ? <ChatIcon icon={chat.icon} />
+            ? <ChatIcon icon={chat.icon} className={styles.groupChatIcon} />
             : (
               <ChatAvatar
                 isModerator={chat.isModerator}
