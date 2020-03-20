@@ -84,6 +84,14 @@ class Notifications extends MultiUsers {
     return resp;
   }
 
+  async publishPollResults() {
+    await this.page3.waitForSelector(we.whiteboard);
+    await util.startPoll(this.page3);
+    await this.page3.waitForSelector(ne.smallToastMsg);
+    const resp = await util.getLastToastValue(this.page3);
+    return resp;
+  }
+
   async closePage3and4() {
     await this.page3.close();
     await this.page4.close();

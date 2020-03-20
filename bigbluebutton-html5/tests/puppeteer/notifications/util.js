@@ -93,6 +93,21 @@ async function getFileItemStatus(element, value) {
   document.querySelectorAll(element)[1].innerText.includes(value);
 }
 
+async function clickRandomPollOption(element) {
+  document.querySelector(element).click();
+}
+
+async function startPoll(test) {
+  await test.page.evaluate(clickOnElement, ne.dropdownContent);
+  await test.page.evaluate(clickOnElement, ne.polling);
+  await test.waitForSelector(ne.hidePollDesc);
+  await test.waitForSelector(ne.pollBtn);
+  await test.page.evaluate(clickRandomPollOption, ne.pollBtn);
+  await test.waitForSelector(ne.publishLabel);
+  await test.page.evaluate(clickOnElement, ne.publishLabel);
+  await test.waitForSelector(ne.smallToastMsg);
+}
+
 exports.getFileItemStatus = getFileItemStatus;
 exports.privateChatMessageToast = privateChatMessageToast;
 exports.publicChatMessageToast = publicChatMessageToast;
@@ -106,3 +121,5 @@ exports.saveSettings = saveSettings;
 exports.waitForToast = waitForToast;
 exports.popupMenu = popupMenu;
 exports.clickTestElement = clickTestElement;
+exports.startPoll = startPoll;
+exports.clickOnElement = clickOnElement;

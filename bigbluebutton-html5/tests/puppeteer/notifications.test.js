@@ -72,4 +72,18 @@ describe('Notifications', () => {
     }
     expect(response).toContain('Current presentation');
   });
+
+  test('Poll results notification', async () => {
+    const test = new Notifications();
+    let response;
+    try {
+      await test.initUser3();
+      response = await test.publishPollResults();
+    } catch (e) {
+      console.log(e);
+    } finally {
+      await test.closePage3();
+    }
+    expect(response).toContain('Poll results were published to Public Chat and Whiteboard');
+  });
 });
