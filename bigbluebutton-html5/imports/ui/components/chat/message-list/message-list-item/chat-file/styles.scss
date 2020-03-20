@@ -36,6 +36,7 @@
   margin-bottom: 0;
   background:linear-gradient(0deg, #BCD7EF, #BCD7EF);
   border-radius: 0.8rem 0 0.8rem 0.8rem;
+  text-size-adjust: 45px;
 }
 
 .fileName {
@@ -43,17 +44,22 @@
   font-style: normal;
   font-weight: normal;
   color: rgba(0, 0, 0, 0.87);
-  font-size: var(--font-size-12px);
-  padding-top: 1.4rem;
+  font-size: var(--font-size-13px);
+  line-height: var(--font-size-15px);
+ // padding-top: 1.4rem;
   overflow: hidden;
+  align-self: center;
 }
 
 .extensionBox {
-  width: 3.2rem;
-  height: 3.2rem;
-  background-color: transparent;
-  border-radius: 0.5rem;
-  margin: 0.3rem 0 0 0.3rem;
+  img {
+    width: 3rem;
+    height: 3rem;
+    background-color: transparent;
+    border-radius: 0.5rem;
+    margin: 0.3rem 0 0 0.3rem;
+  }
+ 
   i {
     font-size: 3.2rem;
   }
@@ -81,6 +87,7 @@
 // overflow-x: inherit;
  flex-grow: 1;
  flex-direction: column;
+ text-align: left;
 // width: fit-content;
  word-wrap: break-word;
  max-width:16.3rem ;
