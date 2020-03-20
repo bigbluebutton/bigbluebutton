@@ -96,10 +96,6 @@ class Notifications extends MultiUsers {
     await this.page3.close();
     await this.page4.close();
   }
-
-  async closePage3() {
-    await this.page3.close();
-  }
 }
 
 module.exports = exports = Notifications;
