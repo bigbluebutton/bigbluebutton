@@ -39,8 +39,8 @@ const propTypes = {
   openPanel: PropTypes.string.isRequired,
 };
 
-const default_panel_width = 65;
-const chat_min_width = 65;
+const default_panel_width = 59;
+const chat_min_width = 59;
 const user_min_width = 14;
 
 

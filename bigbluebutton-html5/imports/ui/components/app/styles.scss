@@ -22,12 +22,12 @@
 }
 
 .navbar {
+  flex: 0 10%;
   position: relative;
   text-align: center;
 
   font-size: 1.5rem;
   padding: var(--bars-padding) var(--bars-padding) 0 var(--bars-padding);
-  height: 7rem;
 }
 
 .wrapper {
@@ -193,19 +193,14 @@
 
 .media {
   @extend %full-page;
-  flex: 0 30%;
-  order: 1;
-  flex-direction: row;
+  flex: 1 30%;
+  order: 2;
   position: relative;
   margin: 0 0 0 var(--panel-margin-right);
   overflow: hidden;
 
   [dir="rtl"] & {
     margin: 0 var(--panel-margin-right) 0 0;
-  }
-
-  @include mq($portrait) {
-    flex-direction: column;
   }
 }
 
@@ -219,8 +214,12 @@
 }
 
 .actionsbar {
-  flex: 1;
+  @extend %full-page;
+  flex: 2 60%;
+  // flex: 1;
   padding: var(--bars-padding);
   position: relative;
   order: 3;
+  display: flex;
+  flex-direction: column;
 }

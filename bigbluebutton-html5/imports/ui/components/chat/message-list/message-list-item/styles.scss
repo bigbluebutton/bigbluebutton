@@ -51,14 +51,14 @@
   background: var(--systemMessage-background-color);
   border: 1px solid var(--systemMessage-border-color);
   border-radius: var(--border-radius);
-  font-family: Muli;
-  font-size: var(--font-size-10px);
+  font-family: Avenir;
+  font-size: var(--font-size-14px);
   color: #30213f;
-  line-height: var(--font-size-13px);
+  line-height: var(--font-size-15px);
   font-weight: var(--btn-font-weight);
   padding: var(--font-size-base);
   margin-bottom: var(--line-height-computed);
-  max-width: 65%;
+  max-width: 70%;
 }
 
 .avatarWrapper {

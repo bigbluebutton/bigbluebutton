@@ -12,18 +12,40 @@
 }
 
 .actionsController {
-  height: 30%;
   display: flex;
   flex-direction: row;
-  // flex-wrap: nowrap;
   justify-content: center;
   :nth-child(n){
     margin: 0.1rem;
   }
+  :nth-last-child(2) {
+    margin: none;
+  }
 }
 
-img {
-  height: 5.5rem;
+.liveActions {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  .talkingIndicator {
+    align-self: center;
+  }
+}
+
+.dummyImage {
+  display: flex;
+  flex-direction: row;
+  justify-content : center;
+  img {
+    height: 4rem;
+    width: 4rem;
+  }
+  :nth-last-child(2) {
+    // img {
+      height: 5rem;
+      width: 5rem;
+    // }
+  }
 }
 
 .center,
@@ -35,12 +57,22 @@ img {
 .center,
 .right {
   > * {
-    margin: 1rem;
+    // action bar widgets spacing for various screen sizes
+    margin: 0.5rem;
     justify-content: center;
 
-    // @include mq($small-only) {
-    //   margin: 0 var(--sm-padding-y);
-    // }
+    @include mq($small-only) {
+      margin: 1rem;
+    }
+    @include mq($large-only) {
+      margin: 0.5rem;
+    }
+    @include mq($xlarge-only) {
+      margin: 1.5rem;
+    }
+    @include mq($xxlarge-only) {
+      margin: 1.5rem;
+    }
   }
 }
 
@@ -89,16 +121,23 @@ img {
   }
 }
 
-.endingCall{
-  order: 3;
-  flex: 0 40%;
-  i{
-    color: #dd6161 !important;
-  }
-  &.button {
-    span {
-      border: 0.5px solid #dd6161 !important;
+.audioButton {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  position: absolute;
+  bottom: 2rem;
+  left: 45%;
+  right: 45%;
+  .endingCall{
+    align-self: center;
+    i{
+      color: #dd6161 !important;
+    }
+    &.button {
+      span {
+        border: 0.5px solid #dd6161 !important;
+      }
     }
   }
-
 }

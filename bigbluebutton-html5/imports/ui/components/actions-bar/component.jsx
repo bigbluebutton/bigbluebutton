@@ -77,7 +77,7 @@ class ActionsBar extends PureComponent {
     actionBarClasses[styles.mobileLayoutSwapped] = isLayoutSwapped && amIPresenter;
 
     return (
-      <div className={styles.actionsbar}>
+      <div>
         <div className={cx(actionBarClasses)}>
           <div className={styles.actionsController}>
             <AudioControlsContainer />
@@ -113,21 +113,40 @@ class ActionsBar extends PureComponent {
             }}
             />
           </div>
-          <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn%3AANd9GcTRI8NahhqBmJJ2D5cs9NGdrknh1T-L9BohruJIhalx9rKofJTR" alt="" />
-          <TalkingIndicatorContainer amIModerator={amIModerator} />
-          <Button
-            className={cx(styles.button, inAudio, endCall ? styles.endingCall : null)}
-            onClick={inAudio ? handleLeaveAudio : handleJoinAudio}
-            hideLabel
-            label={inAudio ? intl.formatMessage(intlMessages.leaveAudio)
-              : intl.formatMessage(intlMessages.joinAudio)}
-            color="default"
-            ghost={!inAudio}
-            icon={joinIcon}
-            size="xl"
-            circle
-          />
-          {isPollingEnabled
+          <div className={styles.liveActions}>
+            <div className={styles.dummyImage}>
+              <img src="https://miro.medium.com/max/560/1*MccriYX-ciBniUzRKAUsAw.png" alt=""/>
+              <img 
+                src="https://lh3.googleusercontent.com/FPUDI5HXBwHwoy-_aEh9fAW7lkOCJdRNktzstpsWCTrCFN1Vj6sCh4sTjE4ZpYG1hZ6b" 
+                alt="" 
+              />
+              <img src="https://miro.medium.com/max/560/1*MccriYX-ciBniUzRKAUsAw.png" alt=""/>
+            </div>
+            <div className={styles.talkingIndicator}>
+              <TalkingIndicatorContainer amIModerator={amIModerator} />
+            </div>
+          </div>
+          {isCaptionsAvailable
+            ? (
+              <CaptionsButtonContainer {...{ intl }} />
+            )
+            : null
+          }
+          <div className={styles.audioButton}>
+            <Button
+              className={cx(styles.button, inAudio, endCall ? styles.endingCall : null)}
+              onClick={inAudio ? handleLeaveAudio : handleJoinAudio}
+              hideLabel
+              label={inAudio ? intl.formatMessage(intlMessages.leaveAudio)
+                : intl.formatMessage(intlMessages.joinAudio)}
+              color="default"
+              ghost={!inAudio}
+              icon={joinIcon}
+              size="xl"
+              circle
+            />
+          </div>
+          {/* {isPollingEnabled
             ? (
               <QuickPollDropdown
                 {...{
@@ -138,24 +157,18 @@ class ActionsBar extends PureComponent {
                 }}
               />
             ) : null
-          }
-          {isCaptionsAvailable
-            ? (
-              <CaptionsButtonContainer {...{ intl }} />
-            )
-            : null
-          }
-        </div>
-        <div className={styles.right}>
-          {isLayoutSwapped
-            ? (
-              <PresentationOptionsContainer
-                toggleSwapLayout={toggleSwapLayout}
+          } */}
+          <div className={styles.right}>
+            {isLayoutSwapped
+              ? (
+                <PresentationOptionsContainer
+                    toggleSwapLayout={toggleSwapLayout}
                 isThereCurrentPresentation={isThereCurrentPresentation}
-              />
-            )
-            : null
-          }
+                />
+              )
+              : null
+            }
+          </div>
         </div>
       </div>
     );

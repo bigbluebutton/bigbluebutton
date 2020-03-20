@@ -8,7 +8,6 @@
 .navbar {
   display: flex;
   flex-direction: column;
-  height:var(--mobile-nav-height);
 }
 
 .top,
@@ -45,14 +44,12 @@
   font-weight: 500;
   color: #5594D4;
   font-style: normal;
-  font-size: var(--font-size-base);
-  font-family: Montserrat;
+  font-size: var(--font-size-18px);
+  font-family: Avenir;
   margin: 0;
   padding: 0;
   white-space: nowrap;
-  overflow: hidden;
   text-overflow: ellipsis;
-  max-width: 30vw;
 
   > [class^="icon-bbb-"] {
     font-size: 75%;

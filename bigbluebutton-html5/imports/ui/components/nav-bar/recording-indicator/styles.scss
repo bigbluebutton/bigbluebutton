@@ -62,7 +62,7 @@
   flex-direction: column;
   justify-content: center;
 
-  font-family: Montserrat;
+  font-family: Avenir;
   font-style: normal;
   font-weight: 500;
   font-size: var(--font-size-13px);
@@ -103,6 +103,7 @@
 }
 
 .recordingIndicator {
+  overflow: hidden;
   &:hover {
     @include highContrastOutline();
   }
