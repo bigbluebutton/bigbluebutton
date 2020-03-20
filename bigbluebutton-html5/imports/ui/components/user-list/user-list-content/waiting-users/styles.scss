@@ -11,11 +11,7 @@
 }
 
 .smallTitle {
-  font-size: var(--font-size-small);
-  font-weight: 600;
-  text-transform: uppercase;
-  padding: 0 var(--sm-padding-x);
-  color: var(--color-gray-light);
+  @extend .smallTitle;
   margin-bottom: var(--sm-padding-x);
   margin-top: var(--sm-padding-x);
 }
@@ -54,14 +50,14 @@
   > i {
     display: flex;
     font-size: 175%;
-    color: var(--color-gray-light);
+    color: #ffffff;
     flex: 0 0 2.2rem;
   }
 
   > span {
-    font-size: 0.9rem;
+    font-size: var(--font-size-14);
     font-weight: 400;
-    color: black;
+    color: #ffffff;
     position: relative;
     flex-grow: 1;
     line-height: 2;

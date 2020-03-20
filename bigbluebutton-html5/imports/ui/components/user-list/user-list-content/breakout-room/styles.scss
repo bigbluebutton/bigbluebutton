@@ -37,10 +37,10 @@
   @extend %flex-column;
   @extend %no-margin;
   @extend %text-elipsis;
-  font-family: Muli;
+  font-family: Avenir;
   font-weight: 400;
-  font-size: var(--font-size-small);
-  color: #82b3e3;
+  font-size: var(--font-size-14);
+  color: #ffffff;
   flex-grow: 1;
   line-height: 2;
   text-align: left;

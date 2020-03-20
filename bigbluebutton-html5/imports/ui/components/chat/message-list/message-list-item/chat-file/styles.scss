@@ -18,6 +18,8 @@
   flex-direction: column;
   flex-shrink: 1;
   width: 16.5rem;
+  margin-top: calc(var(--line-height-computed) / 3);
+  margin-bottom: 0;
  // max-width:16.5rem ;
   background-color: #ffffff;
   border-radius: 0 0.8rem 0.8rem 0.8rem;
@@ -30,6 +32,8 @@
   flex-direction: column;
   flex-shrink: 1;
   width: 16.5rem;
+  margin-top: calc(var(--line-height-computed) / 3);
+  margin-bottom: 0;
   background:linear-gradient(0deg, #BCD7EF, #BCD7EF);
   border-radius: 0.8rem 0 0.8rem 0.8rem;
 }

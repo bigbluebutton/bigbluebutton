@@ -19,7 +19,7 @@
   font-family: Avenir;
   font-style: normal;
   font-weight: normal;
-  font-size: var(--font-size-12px);
+  font-size: var(--font-size-14px);
   line-height: var(--font-size-15px);
   text-transform: capitalize;
   color: #ffffff;
@@ -30,10 +30,6 @@
 
   display: flex;
   flex-direction: row;
-
-  &:hover {
-    color: #ffc700;
-  }
 
   > span {
     text-overflow: ellipsis;
@@ -50,9 +46,9 @@
 
 .userNameSub {
   @extend %no-margin;
-  font-size: 0.75rem;
+  font-size: 0.6rem;
   font-weight: 200;
-  color: var(--color-gray);
+  color: #ffffff;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -60,5 +56,6 @@
   i {
     line-height: 0;
     font-size: 75%;
+    color: #ffffff;
   }
 }

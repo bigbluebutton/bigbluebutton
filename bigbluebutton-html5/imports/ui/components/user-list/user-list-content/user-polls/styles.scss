@@ -1,19 +1,13 @@
 @import "../../styles.scss";
 @import "/imports/ui/stylesheets/variables/_all";
-
-$list-item-bg-hover:#042e57;
-$item-focus-border: #92BCEA;
+@import "/imports/ui/components/user-list/styles.scss";
+@import "/imports/ui/stylesheets/variables/typography";
 
 .smallTitle {
-    font-family: Montserrat;
-    font-size: var(--font-size-10px);
-    font-weight: 600;
-    text-transform: uppercase;
-    padding: 0 var(--sm-padding-x);
-    color: #006cd8;
-    margin-bottom: var(--sm-padding-x);
+    @extend .smallTitle;
+    margin-bottom: var(--lg-padding-y);
     margin-top: var(--sm-padding-x);
-}
+  }
 
 .scrollableList {
     margin: 0 0 1px 0.45rem;
@@ -36,7 +30,6 @@ $item-focus-border: #92BCEA;
     padding-right: 0;
     text-decoration: none;
     width: 100%;
-    color: #82b3e3;
 
     [dir="rtl"] & {
         padding-left: 0;
@@ -46,15 +39,15 @@ $item-focus-border: #92BCEA;
     > i {
         display: flex;
         font-size: 175%;
-        color: #82b3e3;
+        color: #ffffff;
         flex: 0 0 2.2rem;
     }
 
     > span {
-        font-family: Muli;
-        font-size: 0.9rem;
+        font-family: Avenir;
+        font-size: var(--font-size-14);
         font-weight: 400;
-        color: #82b3e3;
+        color: #ffffff;
         position: relative;
         flex-grow: 1;
         line-height: 2;
@@ -66,9 +59,5 @@ $item-focus-border: #92BCEA;
             text-align: right;
             padding: 0 var(--lg-padding-y) 0 0;
         }
-    }
-
-    &:active {
-        background-color: $list-item-bg-hover;
     }
 }

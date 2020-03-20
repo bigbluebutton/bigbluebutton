@@ -1,6 +1,7 @@
 @import "/imports/ui/stylesheets/variables/_all";
 @import "/imports/ui/stylesheets/mixins/_scrollable";
 @import "/imports/ui/stylesheets/mixins/_indicators";
+@import "/imports/ui/stylesheets/variables/typography";
 
 /* Variables
  * ==========
@@ -135,11 +136,10 @@
 }
 
 .smallTitle {
-  font-size: 0.85rem;
-  font-family: Montserrat;
+  font-family: Avenir;
   font-style: normal;
-  font-size: 10px;
-  line-height: 12px;
+  font-size: var(--font-size-11px);
+  line-height: var(--font-size-12px);
   font-weight: 600;
   text-transform: uppercase;
   padding: 0 var(--sm-padding-x);
