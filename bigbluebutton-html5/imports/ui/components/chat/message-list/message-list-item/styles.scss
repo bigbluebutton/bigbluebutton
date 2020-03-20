@@ -100,16 +100,16 @@
   flex-wrap: nowrap;
   display: flex;
   min-width: 0;
-  font-weight: 600;
+  font-weight: 500;
   position: relative;
 
   > span{
     color: #A3AEBD;
-    font-family: Muli;
+    font-family: Avenir;
     font-style: normal;
     font-weight: normal;
-    font-size: var(--font-size-15px);
-    line-height: var(--font-size-13px);
+    font-size: var(--font-size-13px);
+    line-height: var(--font-size-15px);
     letter-spacing: 0.005em;
     text-transform: capitalize;
     align-self: center;
@@ -146,7 +146,6 @@
   font-family: Muli;
   font-style: italic;
   font-weight: 100;
-  font-size: var(--font-size-17px);
   line-height:var(--font-size-13px);
   text-transform: lowercase;
   align-self: center;
@@ -207,7 +206,7 @@
 .nameonly{
   display: flex;
   //flex-grow: initial;
-  
+  font-family: Avenir;
   //flex: auto;
  flex-wrap: wrap;
   //justify-self: auto;
@@ -257,7 +256,7 @@
   // overflow-wrap: inherit;
    font-family: Avenir;
   font-style: normal;
-  text-align: right;
+  text-align: left;
   margin-right: 0.85rem;
    // font-weight: normal;
    // font-size: var(--font-size-14px);
@@ -312,8 +311,8 @@
 }
 
 .timeleft {
-  flex-shrink: auto;
-  flex-grow: auto;
+  flex-shrink: 1;
+  flex-grow: 1;
   flex-basis: 3.5rem;
   flex-wrap: wrap-reverse;
   color: #B2B5C0;
@@ -335,8 +334,8 @@
   }
 }
 .timeright {
-  flex-shrink: auto;
-  flex-grow: auto;
+  flex-shrink: 1;
+  flex-grow: 1;
   flex-basis: 3.5rem;
   flex-wrap: wrap-reverse;
   color: #B2B5C0;
@@ -407,9 +406,10 @@
   display: flex;
   //flex:1;
   flex-flow: row;
-  line-height: 1;
+  //line-height: var(--font-size-21px);
  align-self: auto;
-  
+ line-height: 1.5;
+ //margin-bottom: 13px;
   flex-direction: row;
   //white-space: nowrap;
  // justify-self: auto;
@@ -424,7 +424,7 @@
   display: flex;
   flex:1;
   flex-flow: row;
-  line-height: 1;
+  
 
   & + .message {
     margin-top: 0;
