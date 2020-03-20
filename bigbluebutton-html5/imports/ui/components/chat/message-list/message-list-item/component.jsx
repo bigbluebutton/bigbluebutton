@@ -127,7 +127,7 @@ class MessageListItem extends Component {
               <div className={styles.contentleft}>
                 <div className={styles.metaleft}>
                   <div className={user.isOnline ? styles.name : styles.logout}>
-                    <span className={styles.nameonly}>{user.name}</span>
+                    <span className={styles.name}>{user.name}</span>
                     {user.isOnline
                       ? null
                       : (
