@@ -26,7 +26,7 @@ RUN cd /app/bundle/programs/server \
  && npm install \
  && npm cache clear --force
 
-WORKDIR /app/bundle
+WORKDIR /source
 
 ENV MONGO_URL=mongodb://mongo:27017/html5client \
     PORT=3000 \
