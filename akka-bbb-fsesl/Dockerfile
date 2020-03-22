@@ -10,7 +10,8 @@ RUN cd /source \
  && sbt compile
 
 RUN apt-get update \
- && apt-get -y install fakeroot
+ && apt-get -y install fakeroot \
+ && rm -rf /var/lib/apt/lists/*
 
 RUN cd /source \
  && sbt debian:packageBin

@@ -10,7 +10,8 @@ RUN echo "deb https://ubuntu.bigbluebutton.org/xenial-220/ bigbluebutton-xenial 
  && add-apt-repository ppa:bigbluebutton/support \
  && apt-get update \
  && apt-get -y install bbb-freeswitch-core \
- && find /opt/freeswitch/conf/sip_profiles/ -name "*ipv6*" -prune -exec rm -rf "{}" \;
+ && find /opt/freeswitch/conf/sip_profiles/ -name "*ipv6*" -prune -exec rm -rf "{}" \; \
+ && rm -rf /var/lib/apt/lists/*
 
 EXPOSE 7443 5066
 

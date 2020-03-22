@@ -4,13 +4,15 @@ RUN mkdir -p /root/tools \
  && cd /root/tools \
  && wget https://services.gradle.org/distributions/gradle-5.5.1-bin.zip \
  && unzip gradle-5.5.1-bin.zip \
- && ln -s gradle-5.5.1 gradle
+ && ln -s gradle-5.5.1 gradle \
+ && rm gradle-5.5.1-bin.zip
 
 RUN mkdir -p /root/tools \
  && cd /root/tools \
  && wget https://github.com/grails/grails-core/releases/download/v3.3.9/grails-3.3.9.zip \
  && unzip grails-3.3.9.zip \
- && ln -s grails-3.3.9 grails
+ && ln -s grails-3.3.9 grails \
+ && rm grails-3.3.9.zip
 
 ENV PATH="/root/tools/gradle/bin:/root/tools/grails/bin:${PATH}"
 
@@ -38,7 +40,8 @@ RUN apt-get update \
  && rm libjpeg9*.deb \
  && wget http://archive.ubuntu.com/ubuntu/pool/universe/f/fonts-liberation/ttf-liberation_1.07.4-1_all.deb \
  && dpkg -i ttf-liberation*.deb \
- && rm ttf-liberation*.deb
+ && rm ttf-liberation*.deb \
+ && rm -rf /var/lib/apt/lists/*
 
 COPY --from=builder /source/build/libs/bigbluebutton-0.10.0.war /bbb-web/bigbluebutton.war
 

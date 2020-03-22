@@ -7,7 +7,8 @@ RUN curl -L -o sbt-$SBT_VERSION.deb https://dl.bintray.com/sbt/debian/sbt-$SBT_V
  && rm sbt-$SBT_VERSION.deb \
  && apt-get update \
  && apt-get install sbt \
- && sbt sbtVersion
+ && sbt sbtVersion \
+ && rm -rf /var/lib/apt/lists/*
 
 RUN echo 'resolvers += "Artima Maven Repository" at "http://repo.artima.com/releases"' | tee -a ~/.sbt/1.0/global.sbt
 

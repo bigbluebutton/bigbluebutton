@@ -4,7 +4,9 @@ RUN set -x \
  && curl -sL https://install.meteor.com | sed s/--progress-bar/-sL/g | /bin/sh \
  && useradd -m -G users -s /bin/bash meteor
 
-RUN apt-get update && apt-get -y install jq
+RUN apt-get update \
+ && apt-get -y install jq \
+ && rm -rf /var/lib/apt/lists/*
 
 COPY . /source
 

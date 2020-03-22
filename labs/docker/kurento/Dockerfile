@@ -11,7 +11,8 @@ ENV DEBIAN_FRONTEND noninteractive
 
 RUN apt-get update \
  && apt-get -y dist-upgrade \
- && apt-get install -y software-properties-common curl wget apt-transport-https
+ && apt-get install -y software-properties-common curl wget apt-transport-https \
+ && rm -rf /var/lib/apt/lists/*
 
 RUN wget "$APT_KEY" -O- | apt-key add - \
  && add-apt-repository "$APT_REPO" \
@@ -21,7 +22,8 @@ RUN wget "$APT_KEY" -O- | apt-key add - \
  && rm -rf /var/lib/apt/lists/*
 
 RUN apt-get update \
- && apt-get install -y --download-only openh264-gst-plugins-bad-1.5
+ && apt-get install -y --download-only openh264-gst-plugins-bad-1.5 \
+ && rm -rf /var/lib/apt/lists/*
 
 COPY ./docker-entrypoint.sh /usr/local/bin/
 COPY ./healthchecker.sh /healthchecker.sh
