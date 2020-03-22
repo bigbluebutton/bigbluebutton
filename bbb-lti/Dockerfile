@@ -2,7 +2,7 @@ FROM java:8-jdk AS builder
 
 RUN mkdir -p /root/tools \
  && cd /root/tools \
- && wget http://services.gradle.org/distributions/gradle-5.5.1-bin.zip \
+ && wget https://services.gradle.org/distributions/gradle-5.5.1-bin.zip \
  && unzip gradle-5.5.1-bin.zip \
  && ln -s gradle-5.5.1 gradle
 
