@@ -3,10 +3,11 @@ FROM ubuntu:16.04
 ENV DEBIAN_FRONTEND noninteractive
 
 RUN apt-get update \
- && apt-get -y install wget libedit-dev xmlstarlet apt-transport-https ca-certificates
+ && apt-get -y install wget libedit-dev xmlstarlet apt-transport-https ca-certificates software-properties-common
 
 RUN echo "deb https://ubuntu.bigbluebutton.org/xenial-220/ bigbluebutton-xenial main " | tee /etc/apt/sources.list.d/bigbluebutton.list \
  && wget http://ubuntu.bigbluebutton.org/repo/bigbluebutton.asc -O- | apt-key add - \
+ && add-apt-repository ppa:bigbluebutton/support \
  && apt-get update \
  && apt-get -y install bbb-freeswitch-core \
  && find /opt/freeswitch/conf/sip_profiles/ -name "*ipv6*" -prune -exec rm -rf "{}" \;

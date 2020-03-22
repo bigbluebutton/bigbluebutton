@@ -32,10 +32,13 @@ WORKDIR /bbb-web
 
 ENV DEBIAN_FRONTEND noninteractive
 RUN apt-get update \
- && apt-get -y install imagemagick xpdf-utils netcat libreoffice ttf-liberation fonts-crosextra-carlito fonts-crosextra-caladea unzip procps \
- && wget http://ftp.us.debian.org/debian/pool/main/libj/libjpeg9/libjpeg9_9c-2_amd64.deb \
+ && apt-get -y install imagemagick xpdf-utils netcat libreoffice fonts-crosextra-carlito fonts-crosextra-caladea unzip procps \
+ && wget http://mirrors.kernel.org/ubuntu/pool/universe/libj/libjpeg9/libjpeg9_9c-2_amd64.deb \
  && dpkg -i libjpeg9*.deb \
- && rm libjpeg9*.deb
+ && rm libjpeg9*.deb \
+ && wget http://archive.ubuntu.com/ubuntu/pool/universe/f/fonts-liberation/ttf-liberation_1.07.4-1_all.deb \
+ && dpkg -i ttf-liberation*.deb \
+ && rm ttf-liberation*.deb
 
 COPY --from=builder /source/build/libs/bigbluebutton-0.10.0.war /bbb-web/bigbluebutton.war
 
