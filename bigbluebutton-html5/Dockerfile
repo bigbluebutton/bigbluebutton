@@ -37,4 +37,4 @@ EXPOSE 3000
 
 ENTRYPOINT ["docker-entrypoint.sh"]
 
-CMD "npm start"
+CMD npm start
