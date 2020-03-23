@@ -41,38 +41,36 @@ export function initCursorStreamListener() {
     extraInfo: { meetingId: Auth.meetingID, userId: Auth.userID },
   }, 'initCursorStreamListener called');
 
-  if (!cursorStreamListener) {
-    if (Meteor.settings.public.role) {
-      cursorStreamListener = new Meteor.Streamer(`cursor-${Auth.meetingID}`, { ddpConnection: whiteboardConnection });
-    } else {
-      cursorStreamListener = new Meteor.Streamer(`cursor-${Auth.meetingID}`);
-    }
+  if (Meteor.settings.public.role) {
+    cursorStreamListener = new Meteor.Streamer(`cursor-${Auth.meetingID}`, { ddpConnection: whiteboardConnection });
+  } else {
+    cursorStreamListener = new Meteor.Streamer(`cursor-${Auth.meetingID}`);
+  }
 
-    const startStreamHandlersPromise = new Promise((resolve) => {
-      const checkStreamHandlersInterval = setInterval(() => {
-        const streamHandlersSize = Object.values(Meteor.StreamerCentral.instances[`cursor-${Auth.meetingID}`].handlers)
-          .filter(el => el != undefined)
-          .length;
+  const startStreamHandlersPromise = new Promise((resolve) => {
+    const checkStreamHandlersInterval = setInterval(() => {
+      const streamHandlersSize = Object.values(Meteor.StreamerCentral.instances[`cursor-${Auth.meetingID}`].handlers)
+        .filter(el => el != undefined)
+        .length;
 
-        if (!streamHandlersSize) {
-          resolve(clearInterval(checkStreamHandlersInterval));
-        }
-      }, 250);
-    });
+      if (!streamHandlersSize) {
+        resolve(clearInterval(checkStreamHandlersInterval));
+      }
+    }, 250);
+  });
 
-    startStreamHandlersPromise.then(() => {
-      logger.debug({
-        logCode: 'init_cursor_stream_listener',
-      }, 'initCursorStreamListener called');
+  startStreamHandlersPromise.then(() => {
+    logger.debug({
+      logCode: 'init_cursor_stream_listener',
+    }, 'initCursorStreamListener called');
 
-      cursorStreamListener.on('message', ({ cursors }) => {
-        Object.keys(cursors).forEach((userId) => {
-          if (Auth.userID === userId) return;
-          updateCursor(userId, cursors[userId]);
-        });
+    cursorStreamListener.on('message', ({ cursors }) => {
+      Object.keys(cursors).forEach((userId) => {
+        if (Auth.userID === userId) return;
+        updateCursor(userId, cursors[userId]);
       });
     });
-  }
+  });
 }
 
 export default Cursor;

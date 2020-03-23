@@ -14,7 +14,7 @@
     "start:backend": "env METEOR_ROLE=backend MONGO_OPLOG_URL=mongodb://127.0.1.1/local MONGO_URL=mongodb://127.0.1.1/meteor ROOT_URL=http://127.0.0.1/html5client PORT=3100 NODE_ENV=development meteor run --port 3100",
     "start:frontend": "env METEOR_ROLE=frontend MONGO_OPLOG_URL=mongodb://127.0.1.1/local MONGO_URL=mongodb://127.0.1.1/meteor ROOT_URL=http://127.0.0.1/html5client NODE_ENV=development meteor",
     "start:whiteboard": "env METEOR_ROLE=whiteboard MONGO_OPLOG_URL=mongodb://127.0.1.1/local MONGO_URL=mongodb://127.0.1.1/meteor ROOT_URL=http://127.0.0.1/html5client-wb  PORT=3200 NODE_ENV=development meteor run --port 3200",
-    "start:all": "npx concurrently -c cyan,white,green -n '   backend',whiteboard,'  frontend' \"npm run start:backend\" \"npm run start:whiteboard\" \"npm run start:frontend\"",
+    "start:all": "npx concurrently -c cyan,white,green -n '   backend',whiteboard,'  frontend' \"npm run start:backend\" \"sleep 10; npm run start:whiteboard\" \"sleep 20; npm run start:frontend\"",
     "test": "wdio ./tests/webdriverio/wdio.conf.js",
     "lint": "eslint . --ext .jsx,.js"
   },

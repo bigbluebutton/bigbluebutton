@@ -12,6 +12,9 @@ import getFromUserSettings from '/imports/ui/services/users-settings';
 import deviceInfo from '/imports/utils/deviceInfo';
 import UserInfos from '/imports/api/users-infos';
 import { startBandwidthMonitoring, updateNavigatorConnection } from '/imports/ui/services/network-information/index';
+import { whiteboardConnection } from '/imports/ui/components/app/service';
+import { initAnnotationsStreamListener } from '/imports/ui/components/whiteboard/service';
+import { initCursorStreamListener } from '/imports/ui/components/cursor/service';
 
 import {
   getFontSize,
@@ -101,6 +104,11 @@ export default injectIntl(withModalMounter(withTracker(({ intl, baseControls }) 
     meetingId: Auth.meetingID,
     requesterUserId: Auth.userID,
   }).fetch();
+
+  if (Meteor.settings.public.role && whiteboardConnection.status().connected) {
+    initAnnotationsStreamListener();
+    initCursorStreamListener();
+  }
 
   return {
     captions: CaptionsService.isCaptionsActive() ? <CaptionsContainer /> : null,

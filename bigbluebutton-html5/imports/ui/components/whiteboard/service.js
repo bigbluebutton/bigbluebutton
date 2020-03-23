@@ -107,9 +107,13 @@ export function initAnnotationsStreamListener() {
    * which set the handlers to undefined.
    */
   if (Meteor.settings.public.role) {
-    annotationsStreamListener = new Meteor.Streamer(`annotations-${Auth.meetingID}`, { ddpConnection: whiteboardConnection });
+    if (whiteboardConnection.status().connected) {
+      annotationsStreamListener = new Meteor.Streamer(`annotations-${Auth.meetingID}`, { ddpConnection: whiteboardConnection });
 
-    whiteboardCall('authenticateWhiteboardConnection');
+      whiteboardCall('authenticateWhiteboardConnection');
+    } else {
+      return;
+    }
   } else {
     annotationsStreamListener = new Meteor.Streamer(`annotations-${Auth.meetingID}`);
   }

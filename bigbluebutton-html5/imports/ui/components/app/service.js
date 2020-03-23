@@ -27,7 +27,7 @@ const validIOSVersion = () => {
   return true;
 };
 
-const whiteboardConnection = DDP.connect(`${window.location.origin}/html5client-wb`);
+const whiteboardConnection = Meteor.settings.public.role ? DDP.connect(`${window.location.origin}/html5client-wb`) : {};
 
 export {
   getFontSize,
