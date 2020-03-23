@@ -1,7 +1,7 @@
-const Page = require('../core/page');
-const util = require('./util');
 const MultiUsers = require('../user/multiusers');
+const Page = require('../core/page');
 const params = require('../params');
+const util = require('./util');
 const ne = require('./elements');
 const we = require('../whiteboard/elements');
 
@@ -90,6 +90,10 @@ class Notifications extends MultiUsers {
     await this.page3.waitForSelector(ne.smallToastMsg);
     const resp = await util.getLastToastValue(this.page3);
     return resp;
+  }
+
+  async getLastToastElement() {
+    await util.getLastToastValue(this.page3);
   }
 
   async closePages() {

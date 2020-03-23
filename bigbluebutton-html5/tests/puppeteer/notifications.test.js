@@ -1,4 +1,5 @@
 const Notifications = require('./notifications/notifications');
+const ShareScreen = require('./screenshare/screenshare');
 
 describe('Notifications', () => {
   test('Save settings notification', async () => {
@@ -85,5 +86,20 @@ describe('Notifications', () => {
       await test.closePage(test.page3);
     }
     expect(response).toContain('Poll results were published to Public Chat and Whiteboard');
+  });
+
+  test('Screenshare notification', async () => {
+    const test = new ShareScreen();
+    const page = new Notifications()
+    let response;
+    try {
+      await page.initUser3();
+      response = await test.toast(page.page3);
+    } catch (e) {
+      console.log(e);
+    } finally {
+      await page.closePage(page.page3);
+    }
+    expect(response).toBe('Screenshare has started');
   });
 });
