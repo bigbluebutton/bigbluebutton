@@ -51,8 +51,8 @@ class MultiUsers {
     await this.page2.close();
   }
 
-  async closePage3(page3) {
-    await page3.close();
+  async closePage(page) {
+    await page.close();
   }
 }
 

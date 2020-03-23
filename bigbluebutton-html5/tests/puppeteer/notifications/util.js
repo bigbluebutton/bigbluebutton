@@ -7,9 +7,9 @@ async function clickTestElement(element) {
   await document.querySelectorAll(element)[0].click();
 }
 
-async function popupMenu(page1) {
-  await page1.page.evaluate(clickTestElement, e.options);
-  await page1.page.evaluate(clickTestElement, ne.settings);
+async function popupMenu(page) {
+  await page.page.evaluate(clickTestElement, e.options);
+  await page.page.evaluate(clickTestElement, ne.settings);
 }
 
 async function enableChatPopup(test) {
@@ -22,9 +22,9 @@ async function enableUserJoinPopup(test) {
   await test.page.evaluate(() => document.querySelector('[data-test="userJoinPushAlerts"]').children[0].click());
 }
 
-async function saveSettings(page1) {
-  await page1.waitForSelector(ne.saveSettings);
-  await page1.click(ne.saveSettings, true);
+async function saveSettings(page) {
+  await page.waitForSelector(ne.saveSettings);
+  await page.click(ne.saveSettings, true);
 }
 
 async function waitForToast(test) {

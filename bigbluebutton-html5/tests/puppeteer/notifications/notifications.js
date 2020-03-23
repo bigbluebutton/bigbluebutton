@@ -92,7 +92,7 @@ class Notifications extends MultiUsers {
     return resp;
   }
 
-  async closePage3and4() {
+  async closePages() {
     await this.page3.close();
     await this.page4.close();
   }

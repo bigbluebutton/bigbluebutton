@@ -54,7 +54,7 @@ describe('Notifications', () => {
     } catch (e) {
       console.log(e);
     } finally {
-      await test.closePage3and4();
+      await test.closePages();
     }
     expect(response).toBe('User4 joined the session');
   });
@@ -68,7 +68,7 @@ describe('Notifications', () => {
     } catch (e) {
       console.log(e);
     } finally {
-      await test.closePage3(test.page3);
+      await test.closePage(test.page3);
     }
     expect(response).toContain('Current presentation');
   });
@@ -82,7 +82,7 @@ describe('Notifications', () => {
     } catch (e) {
       console.log(e);
     } finally {
-      await test.closePage3(test.page3);
+      await test.closePage(test.page3);
     }
     expect(response).toContain('Poll results were published to Public Chat and Whiteboard');
   });
