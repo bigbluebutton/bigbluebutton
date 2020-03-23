@@ -1,5 +1,6 @@
 const Notifications = require('./notifications/notifications');
 const ShareScreen = require('./screenshare/screenshare');
+const Audio = require('./audio/audio');
 
 describe('Notifications', () => {
   test('Save settings notification', async () => {
@@ -102,4 +103,20 @@ describe('Notifications', () => {
     }
     expect(response).toBe('Screenshare has started');
   });
+
+  test('Audio notifications', async () => {
+    const test = new Audio();
+    const page = new Notifications();
+    let response;
+    try {
+      process.env.IS_AUDIO_TEST = true;
+      await test.initOneUser(page.page3);
+      response = await test.audioNotification(page.page3);
+    } catch (e) {
+      console.log(e);
+    } finally {
+      await page.closePage(page.page3);
+    }
+    expect(response).toBe('You have joined the audio conference');
+  })
 });

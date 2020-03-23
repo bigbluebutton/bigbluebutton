@@ -92,10 +92,6 @@ class Notifications extends MultiUsers {
     return resp;
   }
 
-  async getLastToastElement() {
-    await util.getLastToastValue(this.page3);
-  }
-
   async closePages() {
     await this.page3.close();
     await this.page4.close();
