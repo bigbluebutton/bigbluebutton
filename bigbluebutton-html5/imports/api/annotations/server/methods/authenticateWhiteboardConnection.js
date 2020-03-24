@@ -1,4 +1,3 @@
-import { Meteor } from 'meteor/meteor';
 import { check } from 'meteor/check';
 
 export default function authenticateWhiteboardConnection(credentials) {
@@ -7,7 +6,7 @@ export default function authenticateWhiteboardConnection(credentials) {
   check(meetingId, String);
   check(requesterUserId, String);
 
-  this.setUserId(`${meetingId}-${requesterUserId}`);
+  this.setUserId(`${meetingId}--${requesterUserId}`);
 
   return true;
 }

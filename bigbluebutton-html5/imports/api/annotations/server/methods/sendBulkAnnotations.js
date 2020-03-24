@@ -1,8 +1,8 @@
 import { extractCredentials } from '/imports/api/common/server/helpers';
 import sendAnnotationHelper from './sendAnnotationHelper';
 
-export default function sendBulkAnnotations(payload) {
+export default function sendBulkAnnotations(...args) {
   const { meetingId, requesterUserId } = extractCredentials(this.userId);
 
-  payload.forEach(annotation => sendAnnotationHelper(annotation, meetingId, requesterUserId));
+  args.pop().forEach(annotation => sendAnnotationHelper(annotation, meetingId, requesterUserId));
 }
