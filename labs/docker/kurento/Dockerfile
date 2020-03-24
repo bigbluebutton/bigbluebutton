@@ -1,7 +1,4 @@
-FROM ubuntu:16.04
-
-# In order to build kurento dev, use:
-# docker build --build-arg APT_KEY="http://keyserver.ubuntu.com/pks/lookup?op=get&options=mr&search=0xFC8A16625AFA7A83" --build-arg APT_REPO="deb [arch=amd64] http://ubuntu.openvidu.io/dev xenial kms6" --build-arg CACHE_BUST="$(date +%s)" -t mconf/kurento:upstream-dev .
+FROM kurento/kurento-media-server:6.13
 
 ARG APT_KEY="https://ubuntu.bigbluebutton.org/repo/bigbluebutton.asc"
 ARG APT_REPO="deb https://ubuntu.bigbluebutton.org/xenial-220-dev bigbluebutton-xenial main"
@@ -17,13 +14,12 @@ RUN apt-get update \
 RUN wget "$APT_KEY" -O- | apt-key add - \
  && add-apt-repository "$APT_REPO" \
  && apt-get update \
- && apt-get -y install kurento-media-server bzip2 jq \
+ && apt-get -y install bzip2 jq \
  && apt-get clean \
  && rm -rf /var/lib/apt/lists/*
 
 RUN apt-get update \
- && apt-get install -y --download-only openh264-gst-plugins-bad-1.5 \
- && rm -rf /var/lib/apt/lists/*
+ && apt-get install -y --download-only openh264-gst-plugins-bad-1.5
 
 COPY ./docker-entrypoint.sh /usr/local/bin/
 COPY ./healthchecker.sh /healthchecker.sh
