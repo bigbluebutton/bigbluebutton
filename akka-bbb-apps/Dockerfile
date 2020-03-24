@@ -14,11 +14,13 @@ RUN apt-get update \
 RUN cd /source \
  && sbt debian:packageBin
 
-# FROM ubuntu:16.04
-FROM openjdk:8-jre-slim-stretch
+FROM ubuntu:16.04
+RUN apt-get update \
+ && apt-get install -y openjdk-8-jre-headless
 
 COPY --from=builder /source/target/*.deb /root/
 
 RUN dpkg -i /root/*.deb
 
+WORKDIR /usr/share/bbb-apps-akka
 CMD ["/usr/share/bbb-apps-akka/bin/bbb-apps-akka"]

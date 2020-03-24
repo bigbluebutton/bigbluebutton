@@ -15,7 +15,9 @@ RUN apt-get update \
 RUN cd /source \
  && sbt debian:packageBin
 
-FROM openjdk:8-jre-slim-stretch
+FROM ubuntu:16.04
+RUN apt-get update \
+ && apt-get install -y openjdk-8-jre-headless
 
 COPY --from=builder /source/target/*.deb /root/
 
@@ -23,4 +25,5 @@ RUN dpkg -i /root/*.deb
 
 COPY wait-for-it.sh /usr/local/bin/
 
+WORKDIR /usr/share/bbb-fsesl-akka
 CMD ["/usr/share/bbb-fsesl-akka/bin/bbb-fsesl-akka"]
