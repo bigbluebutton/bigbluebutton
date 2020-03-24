@@ -155,14 +155,14 @@
     "app.presentation.presentationToolbar.fitToPage": "المناسبة للصفحة",
     "app.presentation.presentationToolbar.goToSlide": "شريحة {0}",
     "app.presentationUploder.title": "عرض",
-    "app.presentationUploder.message": "كمقدم لديك  القدرة على تحميل أي وثيقة مكتب أو ملف PDF. نوصي بملف PDF للحصول على أفضل النتائج. يرجى التأكد من تحديد عرض تقديمي باستخدام مربع الاختيار على الجانب الأيمن.",
+    "app.presentationUploder.message": "كمقدم للعرض التقديمي لديك  القدرة على رفع أي وثيقة أوفيس أو ملف PDF. نوصي بملف PDF للحصول على أفضل النتائج. يرجى التأكد من تحديد العرض التقديمي باستخدام أيقونة الاختيار على الجانب الأيمن.",
     "app.presentationUploder.uploadLabel": "رفع",
     "app.presentationUploder.confirmLabel": "موافقة",
     "app.presentationUploder.confirmDesc": "حفظ التغييرات وبدء العرض",
     "app.presentationUploder.dismissLabel": "إلغاء",
     "app.presentationUploder.dismissDesc": "أغلق النافذة الشتراطية وتجاهل التغييرات",
     "app.presentationUploder.dropzoneLabel": "سحب الملفات هنا للرفع",
-    "app.presentationUploder.dropzoneImagesLabel": "سحب الصور إلى هنا للرفع",
+    "app.presentationUploder.dropzoneImagesLabel": "رفع الصوره من خلال سحبها إلى هنا",
     "app.presentationUploder.browseFilesLabel": "أو تصفح ملفات",
     "app.presentationUploder.browseImagesLabel": "أو تصفح/التقاط الصور",
     "app.presentationUploder.fileToUpload": "وسيتم رفعها ...",
@@ -679,4 +679,6 @@
     "app.legacy.unsupportedBrowser": "يبدو انك تستخدم مستعرضا غير معتمد. الرجاء استخدام {0} أو {1} للحصول علي الدعم الكامل.",
     "app.legacy.upgradeBrowser": "يبدو انك تستخدم إصدارا قديما من مستعرض معتمد. الرجاء ترقيه المتصفح للحصول علي الدعم الكامل.",
     "app.legacy.criosBrowser": "الدعم الكامل على iOS غبر متوفر إلا لـ Safari."
+
 }
+

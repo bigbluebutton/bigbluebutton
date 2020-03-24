@@ -7,12 +7,14 @@ import LoadingScreen from '/imports/ui/components/loading-screen/component';
 // currently supported locales.
 import ar from 'react-intl/locale-data/ar';
 import bg from 'react-intl/locale-data/bg';
+import ca from 'react-intl/locale-data/ca';
 import cs from 'react-intl/locale-data/cs';
 import da from 'react-intl/locale-data/da';
 import de from 'react-intl/locale-data/de';
 import el from 'react-intl/locale-data/el';
 import en from 'react-intl/locale-data/en';
 import es from 'react-intl/locale-data/es';
+import et from 'react-intl/locale-data/et';
 import eu from 'react-intl/locale-data/eu';
 import fa from 'react-intl/locale-data/fa';
 import fi from 'react-intl/locale-data/fi';
@@ -26,6 +28,8 @@ import it from 'react-intl/locale-data/it';
 import ja from 'react-intl/locale-data/ja';
 import km from 'react-intl/locale-data/km';
 import ko from 'react-intl/locale-data/ko';
+import lt from 'react-intl/locale-data/lt';
+import lv from 'react-intl/locale-data/lv';
 import nl from 'react-intl/locale-data/nl';
 import pl from 'react-intl/locale-data/pl';
 import pt from 'react-intl/locale-data/pt';
@@ -44,10 +48,12 @@ import zh from 'react-intl/locale-data/zh';
 addLocaleData([
   ...ar,
   ...bg,
+  ...ca,
   ...cs,
   ...da,
   ...de,
   ...el,
+  ...et,
   ...en,
   ...es,
   ...eu,
@@ -63,6 +69,8 @@ addLocaleData([
   ...ja,
   ...km,
   ...ko,
+  ...lt,
+  ...lv,
   ...nl,
   ...pl,
   ...pt,

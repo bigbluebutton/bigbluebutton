@@ -1,0 +1,10 @@
+{
+    "app.home.greeting": "Jūsų pristatymas netrukus prasidės ...",
+    "app.chat.submitLabel": "Siųsti žinutę",
+    "app.chat.errorMaxMessageLength": "Žinutė yra {0} simboliais(-ų) per ilga",
+    "app.chat.disconnected": "Jūs esate atsijungę, žinutės negali būti išsiųsti",
+    "app.chat.titlePublic": "Viešasis susirašinėjimas",
+    "app.chat.closeChatLabel": "Užverti {0}"
+
+}
+
