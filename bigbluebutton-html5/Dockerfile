@@ -1,10 +1,18 @@
-FROM node:8
+FROM node:12
 
 RUN set -x \
  && curl -sL https://install.meteor.com | sed s/--progress-bar/-sL/g | /bin/sh \
  && useradd -m -G users -s /bin/bash meteor
 
-RUN apt-get update && apt-get -y install jq
+# install add-apt-repository
+RUN apt-get update \
+    && apt-get install software-properties-common -y
+
+RUN apt-key adv --keyserver keyserver.ubuntu.com --recv-keys CC86BB64 \
+    && add-apt-repository ppa:rmescandon/yq \
+    && apt update \
+    && apt install yq -y
+# RUN apt-get update && apt-get -y install jq
 
 COPY . /source
 
@@ -31,7 +39,12 @@ WORKDIR /app/bundle
 ENV MONGO_URL=mongodb://mongo:27017/html5client \
     PORT=3000 \
     ROOT_URL=http://localhost:3000 \
-    METEOR_SETTINGS_MODIFIER=.
+    KURENTO_WSURL=HOST \
+    KURENTO_VIDEO=true \
+    KURENTO_LISTEN_ONLY=true \
+    KURENTO_SCREENSHARING=true \
+    SCREENSHARE_EXTENSION_KEY=KEY \
+    SCREENSHARE_EXTENSION_LINK=LINK
 
 EXPOSE 3000
 
