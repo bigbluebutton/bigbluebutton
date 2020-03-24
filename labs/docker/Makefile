@@ -41,7 +41,12 @@ image:
 		fi \
 	fi
 
-release:
+webrtc-sfu:
+	if [ ! -d $(BUILD_DIR_BASE)/labs/bbb-webrtc-sfu ]; then \
+		git clone https://github.com/bigbluebutton/bbb-webrtc-sfu $(BUILD_DIR_BASE)/labs/bbb-webrtc-sfu; \
+	fi
+
+release: webrtc-sfu
 	make image DIR=$(BUILD_DIR_BASE)/labs/docker/sbt IMAGE_NAME=sbt IMAGE_TAG=1.3.8 BUILD_IMAGE=1
 	make image DIR=$(BUILD_DIR_BASE)/bbb-common-message IMAGE_NAME=bbb-common-message BUILD_ARGS="--build-arg COMMON_VERSION=0.0.1-SNAPSHOT" BUILD_IMAGE=1
 	make image DIR=$(BUILD_DIR_BASE)/bbb-common-web IMAGE_NAME=bbb-common-web BUILD_ARGS="--build-arg COMMON_VERSION=0.0.1-SNAPSHOT" BUILD_IMAGE=1
