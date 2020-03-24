@@ -5,7 +5,7 @@ ARG COMMON_VERSION=0.0.1-SNAPSHOT
 COPY . /source
 
 RUN cd /source \
- && find -name build.sbt -exec sed -i "s|\(.*org.bigbluebutton.*bbb-common-message[^\"]*\"[ ]*%[ ]*\)\"[^\"]*\"\(.*\)|\1\"$COMMON_VERSION\"\2|g" {} \; \
+ && find -name Dependencies.scala -exec sed -i "s|\(.*org.bigbluebutton.*bbb-common-message[^\"]*\"[ ]*%[ ]*\)Versions\.bbbCommons\(.*\)|\1\"$COMMON_VERSION\"\2|g" {} \; \
  && sbt compile
 
 RUN apt-get update \
