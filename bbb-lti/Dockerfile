@@ -28,12 +28,12 @@ ARG vendor_description='Open source web conferencing system for distance learnin
 ARG vendor_url=http://www.bigbluebutton.org/
 
 RUN cd /source \
- && sed -i "s|\(<blti:title>\)[^<]*|\1$title|g" grails-app/controllers/org/bigbluebutton/ToolController.groovy \
- && sed -i "s|\(<blti:description>\)[^<]*|\1$description|g" grails-app/controllers/org/bigbluebutton/ToolController.groovy \
- && sed -i "s|\(<lticp:code>\)[^<]*|\1$vendor_code|g" grails-app/controllers/org/bigbluebutton/ToolController.groovy \
- && sed -i "s|\(<lticp:name>\)[^<]*|\1$vendor_name|g" grails-app/controllers/org/bigbluebutton/ToolController.groovy \
- && sed -i "s|\(<lticp:description>\)[^<]*|\1$vendor_description|g" grails-app/controllers/org/bigbluebutton/ToolController.groovy \
- && sed -i "s|\(<lticp:url>\)[^<]*|\1$vendor_url|g" grails-app/controllers/org/bigbluebutton/ToolController.groovy \
+ && sed -i "s|\(<blti:title>\)[^<]*|\1$title|g" grails-app/controllers/org/bigbluebutton/lti/controllers/ToolController.groovy \
+ && sed -i "s|\(<blti:description>\)[^<]*|\1$description|g" grails-app/controllers/org/bigbluebutton/lti/controllers/ToolController.groovy \
+ && sed -i "s|\(<lticp:code>\)[^<]*|\1$vendor_code|g" grails-app/controllers/org/bigbluebutton/lti/controllers/ToolController.groovy \
+ && sed -i "s|\(<lticp:name>\)[^<]*|\1$vendor_name|g" grails-app/controllers/org/bigbluebutton/lti/controllers/ToolController.groovy \
+ && sed -i "s|\(<lticp:description>\)[^<]*|\1$vendor_description|g" grails-app/controllers/org/bigbluebutton/lti/controllers/ToolController.groovy \
+ && sed -i "s|\(<lticp:url>\)[^<]*|\1$vendor_url|g" grails-app/controllers/org/bigbluebutton/lti/controllers/ToolController.groovy \
  && sed -i "s|BigBlueButton|$title|g" grails-app/i18n/*.properties \
  && grails war
 
@@ -44,7 +44,7 @@ WORKDIR $CATALINA_HOME
 # clean default webapps
 RUN rm -r webapps/*
 
-COPY --from=builder /source/target/lti-*.war webapps/lti.war
+COPY --from=builder /source/build/libs/bbb-lti-*.war webapps/lti.war
 
 COPY docker-entrypoint.sh /usr/local/bin/
 
