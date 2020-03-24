@@ -8,9 +8,10 @@ RUN mkdir -p /root/tools \
 
 RUN mkdir -p /root/tools \
  && cd /root/tools \
- && wget https://github.com/grails/grails-core/releases/download/v2.5.2/grails-2.5.2.zip \
- && unzip grails-2.5.2.zip \
- && ln -s grails-2.5.2 grails
+ # && wget https://github.com/grails/grails-core/releases/download/v2.5.2/grails-2.5.2.zip \
+ && wget https://github.com/grails/grails-core/releases/download/v3.3.10/grails-3.3.10.zip \
+ && unzip grails-3.3.10.zip \
+ && ln -s grails-3.3.10 grails
 
 ENV PATH="/root/tools/gradle/bin:/root/tools/grails/bin:${PATH}"
 
