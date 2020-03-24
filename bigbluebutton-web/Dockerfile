@@ -19,8 +19,10 @@ ARG COMMON_VERSION=0.0.1-SNAPSHOT
 COPY . /source
 
 RUN cd /source \
- && find -name build.gradle -exec sed -i "s|\(.*org.bigbluebutton.*bbb-common-message[^:]*\):.*|\1:$COMMON_VERSION'|g" {} \; \
- && find -name build.gradle -exec sed -i "s|\(.*org.bigbluebutton.*bbb-common-web[^:]*\):.*|\1:$COMMON_VERSION'|g" {} \;
+ && find -name build.gradle -exec sed -i "s|\(.*org.bigbluebutton.*bbb-common-message[^:]*\):.*|\1:$COMMON_VERSION\"|g" {} \; \
+ && find -name build.gradle -exec sed -i "s|\(.*org.bigbluebutton.*bbb-common-web[^:]*\):.*|\1:$COMMON_VERSION\"|g" {} \;
+
+RUN cd /source && gradle -q dependencies --configuration compile
 
 RUN cd /source \
  && gradle resolveDeps \
