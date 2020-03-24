@@ -52,7 +52,7 @@ dependencies {
   compile "org.springframework.boot:spring-boot-autoconfigure"
   compile "org.grails:grails-core"
   compile "org.springframework.boot:spring-boot-starter-actuator"
-  compile "org.springframework.boot:spring-boot-starter-tomcat"
+  providedRuntime "org.springframework.boot:spring-boot-starter-tomcat"
   compile "org.grails:grails-web-boot"
   compile "org.grails:grails-logging"
   compile "org.grails:grails-plugin-rest"

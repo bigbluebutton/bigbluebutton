@@ -52,15 +52,18 @@ RUN echo "deb http://ubuntu.bigbluebutton.org/xenial-200-dev bigbluebutton-xenia
 # clean default webapps
 RUN rm -r webapps/*
 
-COPY --from=builder /source/target/bigbluebutton-0.9.0.war webapps/bigbluebutton.war
+COPY --from=builder /source/build/libs/bigbluebutton-0.10.0.war webapps/bigbluebutton.war
 
 RUN unzip -q webapps/bigbluebutton.war -d webapps/bigbluebutton \
  && rm webapps/bigbluebutton.war
 
 COPY turn-stun-servers.xml.tmpl turn-stun-servers.xml.tmpl
 
+RUN rm webapps/bigbluebutton/WEB-INF/lib/tomcat-*
+RUN ls -l webapps/bigbluebutton/WEB-INF/lib
+
 COPY docker-entrypoint.sh /usr/local/bin/
 
 CMD [ "dockerize", \
-  "-template", "turn-stun-servers.xml.tmpl:webapps/bigbluebutton/WEB-INF/spring/turn-stun-servers.xml", \
+  "-template", "turn-stun-servers.xml.tmpl:webapps/bigbluebutton/WEB-INF/classes/spring/turn-stun-servers.xml", \
   "docker-entrypoint.sh" ]
