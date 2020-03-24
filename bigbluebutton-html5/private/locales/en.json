@@ -60,6 +60,7 @@
     "app.userList.messagesTitle": "Messages",
     "app.userList.notesTitle": "Notes",
     "app.userList.notesListItem.unreadContent": "New content is available in the shared notes section",
+    "app.userList.handAlert": "has raised their hand",
     "app.userList.captionsTitle": "Captions",
     "app.userList.presenter": "Presenter",
     "app.userList.you": "You",
