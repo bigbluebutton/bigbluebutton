@@ -441,8 +441,6 @@ class WebcamDraggable extends PureComponent {
       [styles.dropZoneBgRight]: true,
     });
 
-    const mHeight = document.querySelector('section[class^=media]').offsetHeight;
-    const mWidth = document.querySelector('section[class^=media]').offsetWidth;
 
     let resizeWidth;
     let resizeHeight;
@@ -452,6 +450,8 @@ class WebcamDraggable extends PureComponent {
     }
     if (!resizing && (placement === 'top' || placement === 'bottom') && !dragging) {
       resizeWidth = '100%';
+      const el = document.querySelector('section[class^=media]');
+      const mHeight = el != null ? el.offsetHeight: 64;
       resizeHeight = mHeight * (placementPercent / 100);
     }
 
@@ -460,6 +460,8 @@ class WebcamDraggable extends PureComponent {
       resizeHeight = '100%';
     }
     if (!resizing && (placement === 'left' || placement === 'right') && !dragging) {
+      const el = document.querySelector('section[class^=media]');   
+      const mWidth = el != null ? el.offsetWidth : 64;
       resizeWidth = mWidth * (placementPercent / 100);
       resizeHeight = '100%';
     }
