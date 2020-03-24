@@ -4,10 +4,18 @@ services:
   mongo:
     image: mongo:3.4
     restart: unless-stopped
+    networks:
+      - default
+    labels:
+      - "traefik.enable=false"
 
   redis:
     image: redis
     restart: unless-stopped
+    networks:
+      - default
+    labels:
+      - "traefik.enable=false"
 
   bbb-html5:
     image: ${TAG_PREFIX}bbb-html5${TAG_SUFFIX}
@@ -17,12 +25,21 @@ services:
       - redis
     environment:
       MONGO_URL: mongodb://mongo/bbbhtml5
-      METEOR_SETTINGS_MODIFIER: ".public.kurento.wsUrl = \"wss://${SERVER_DOMAIN}/bbb-webrtc-sfu\" | .public.kurento.enableVideo = true | .public.kurento.enableScreensharing = true | .public.kurento.chromeDefaultExtensionKey = \"${SCREENSHARE_EXTENSION_KEY}\" | .public.kurento.chromeDefaultExtensionLink = \"${SCREENSHARE_EXTENSION_LINK}\" | .public.kurento.enableVideoStats = true | .public.kurento.enableListenOnly = true"
       REDIS_HOST: redis
       ROOT_URL: http://127.0.0.1/html5client
+      KURENTO_WSURL: wss://${server_domain}/bbb-webrtc-sfu
+      SCREENSHARE_EXTENSION_LINK: ${SCREENSHARE_EXTENSION_LINK}
+      SCREENSHARE_EXTENSION_KEY: ${SCREENSHARE_EXTENSION_KEY}
+    networks:
+      - traefik
+      - default
     labels:
+      - "traefik.enable=true"
       - "traefik.backend=bbb-html5"
       - "traefik.frontend.rule=PathPrefix: /html5client,/_timesync"
+      - "traefik.port=3000"
+      - "traefik.protocol=http"
+      - "traefik.docker.network=traefik"
 
   bbb-webhooks:
     image: ${TAG_PREFIX}bbb-webhooks${TAG_SUFFIX}
@@ -34,9 +51,16 @@ services:
       SHARED_SECRET: ${SHARED_SECRET}
       BEARER_AUTH: 1
       SERVER_DOMAIN: ${SERVER_DOMAIN}
+    networks:
+      - traefik
+      - default
     labels:
+      - "traefik.enable=true"
       - "traefik.backend=bbb-webhooks"
       - "traefik.frontend.rule=PathPrefix: /bigbluebutton/api/hooks"
+      - "traefik.port=3005"
+      - "traefik.protocol=http"
+      - "traefik.docker.network=traefik"
 
   bbb-freeswitch:
     image: ${TAG_PREFIX}bbb-freeswitch${TAG_SUFFIX}
@@ -45,6 +69,10 @@ services:
       - coturn
     volumes:
       - media-audio:/var/freeswitch/meetings
+    networks:
+      - default
+    labels:
+      - "traefik.enable=false"
 
   bbb-webrtc-sfu:
     image: ${TAG_PREFIX}bbb-webrtc-sfu${TAG_SUFFIX}
@@ -54,14 +82,22 @@ services:
       - kurento
       - bbb-freeswitch
     environment:
-      KURENTO_NAME: kurento
-      KURENTO_URL: ws://kurento:8888/kurento
+      KURENTO: "[{\"url\": \"ws://kurento:8888/kurento\"}]"
       REDIS_HOST: redis
-      FREESWITCH_IP: bbb-freeswitch
+      FREESWITCH_CONN_IP: bbb-freeswitch
+      ESL_IP: bbb-freeswitch
+      FREESWITCH_SIP_IP: bbb-freeswitch
       LOG_LEVEL: debug
+    networks:
+      - traefik
+      - default
     labels:
+      - "traefik.enable=true"
       - "traefik.backend=bbb-webrtc-sfu"
       - "traefik.frontend.rule=PathPrefix: /bbb-webrtc-sfu"
+      - "traefik.port=3008"
+      - "traefik.protocol=http"
+      - "traefik.docker.network=traefik"
 
   coturn:
     image: ${TAG_PREFIX}bbb-coturn${TAG_SUFFIX}
@@ -73,8 +109,12 @@ services:
       ENABLE_REST_API: 1
       PORT: 3478
     ports:
-      - 3478:3478/udp
-      - 3478:3478/tcp
+      - ${EXTERNAL_IP}:3478:3478/udp
+      - ${EXTERNAL_IP}:3478:3478/tcp
+    networks:
+      - default
+    labels:
+      - "traefik.enable=false"
 
   kurento:
     image: ${TAG_PREFIX}bbb-kurento${TAG_SUFFIX}
@@ -85,6 +125,11 @@ services:
     environment:
       STUN_IP: ${EXTERNAL_IP}
       STUN_PORT: 3478
+      TURN_URL: "${EXTERNAL_IP}:3478"
+    networks:
+      - default
+    labels:
+      - "traefik.enable=false"
 
   bbb-apps-akka:
     image: ${TAG_PREFIX}bbb-apps-akka${TAG_SUFFIX}
@@ -93,6 +138,10 @@ services:
       - redis
     environment:
       JAVA_OPTS: -Dredis.host=redis
+    networks:
+      - default
+    labels:
+      - "traefik.enable=false"
 
   bbb-fsesl-akka:
     image: ${TAG_PREFIX}bbb-fsesl-akka${TAG_SUFFIX}
@@ -103,6 +152,10 @@ services:
     command: ["wait-for-it.sh", "bbb-freeswitch:8021", "--timeout=60", "--strict", "--", "/usr/share/bbb-fsesl-akka/bin/bbb-fsesl-akka"]
     environment:
       JAVA_OPTS: -Dredis.host=redis -Dfreeswitch.esl.host=bbb-freeswitch
+    networks:
+      - default
+    labels:
+      - "traefik.enable=false"
 
   bbb-web:
     image: ${TAG_PREFIX}bbb-web${TAG_SUFFIX}
@@ -116,9 +169,16 @@ services:
       SHARED_SECRET: ${SHARED_SECRET}
       TURN_DOMAIN: ${SERVER_DOMAIN}
       TURN_SECRET: ${COTURN_REST_SECRET}
+    networks:
+      - traefik
+      - default
     labels:
+      - "traefik.enable=true"
       - "traefik.backend=bbb-web"
       - "traefik.frontend.rule=PathPrefix: /bigbluebutton"
+      - "traefik.port=8080"
+      - "traefik.protocol=http"
+      - "traefik.docker.network=traefik"
 
   bbb-greenlight:
     image: bigbluebutton/greenlight:v2
@@ -131,9 +191,16 @@ services:
       BIGBLUEBUTTON_SECRET: ${SHARED_SECRET}
       SECRET_KEY_BASE: ${SECRET_KEY_BASE}
       ALLOW_GREENLIGHT_ACCOUNTS: "true"
+    networks:
+      - traefik
+      - default
     labels:
+      - "traefik.enable=true"
       - "traefik.backend=bbb-greenlight"
       - "traefik.frontend.rule=PathPrefix: /b"
+      - "traefik.port=80"
+      - "traefik.protocol=http"
+      - "traefik.docker.network=traefik"
 
   # when we're able to setup traefik properly for wss, nginx is no longer needed
   nginx:
@@ -143,9 +210,16 @@ services:
       - bbb-freeswitch
     environment:
       SERVER_DOMAIN: ${SERVER_DOMAIN}
+    networks:
+      - traefik
+      - default
     labels:
+      - "traefik.enable=true"
       - "traefik.backend=bbb-freeswitch"
       - "traefik.frontend.rule=PathPrefix: /ws"
+      - "traefik.port=80"
+      - "traefik.protocol=http"
+      - "traefik.docker.network=traefik"
 
   traefik:
     image: traefik
@@ -156,6 +230,7 @@ services:
       - 443:443
     command: traefik
       - --docker
+      - --docker.network=traefik
       - --logLevel=INFO
       - --acme
       - --acme.httpchallenge
@@ -171,6 +246,12 @@ services:
     volumes:
       - traefik-acme:/etc/traefik/acme/
       - /var/run/docker.sock:/var/run/docker.sock
+    networks:
+      - traefik
+
+networks:
+  traefik:
+  default:
 
 volumes:
   traefik-acme:
