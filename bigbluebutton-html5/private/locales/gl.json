@@ -1,7 +1,6 @@
 {
     "app.home.greeting": "A túa presentación dara inicio nun momento...",
     "app.chat.submitLabel": "Enviar mensaxe",
-    "app.chat.errorMinMessageLength": "A mensaxe é {0} carácter(é) mais curto do esperado",
     "app.chat.errorMaxMessageLength": "A mensaxe é {0} carácter(é) mais longo do esperado",
     "app.chat.disconnected": "Estas desconectado, as mensaxes non poden ser enviados",
     "app.chat.locked": "Chat bloqueado, as mensaxes non poden ser enviados",
