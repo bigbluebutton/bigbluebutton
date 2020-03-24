@@ -2,15 +2,15 @@ FROM bbb-common-web AS builder
 
 RUN mkdir -p /root/tools \
  && cd /root/tools \
- && wget http://services.gradle.org/distributions/gradle-2.12-bin.zip \
- && unzip gradle-2.12-bin.zip \
- && ln -s gradle-2.12 gradle
+ && wget http://services.gradle.org/distributions/gradle-3.5-bin.zip \
+ && unzip gradle-3.5-bin.zip \
+ && ln -s gradle-3.5 gradle
 
 RUN mkdir -p /root/tools \
  && cd /root/tools \
- && wget https://github.com/grails/grails-core/releases/download/v2.5.2/grails-2.5.2.zip \
- && unzip grails-2.5.2.zip \
- && ln -s grails-2.5.2 grails
+ && wget https://github.com/grails/grails-core/releases/download/v3.3.9/grails-3.3.9.zip \
+ && unzip grails-3.3.9.zip \
+ && ln -s grails-3.3.9 grails
 
 ENV PATH="/root/tools/gradle/bin:/root/tools/grails/bin:${PATH}"
 
