@@ -40,7 +40,7 @@ RUN wget https://github.com/jwilder/dockerize/releases/download/$DOCKERIZE_VERSI
 ENV DEBIAN_FRONTEND noninteractive
 RUN apt-get update \
  && apt-get -y install imagemagick xpdf-utils netcat libreoffice ttf-liberation fonts-crosextra-carlito fonts-crosextra-caladea unzip procps \
- && wget http://ftp.us.debian.org/debian/pool/main/libj/libjpeg8/libjpeg8_8d-1+deb7u1_amd64.deb \
+ && wget http://archive.debian.org/debian/pool/main/libj/libjpeg8/libjpeg8_8d-1+deb7u1_amd64.deb \
  && dpkg -i libjpeg8*.deb \
  && rm libjpeg8*.deb
 
