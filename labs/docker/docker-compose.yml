@@ -171,33 +171,33 @@ services:
         aliases: 
           - ${TURN_DOMAIN}
 
-  # traefik:
-  #   image: traefik
-  #   restart: unless-stopped
-  #   ports:
-  #     - 80:80
-  #     - 8080:8080
-  #     - 443:443
-  #   command: traefik
-  #     - --docker
-  #     - --logLevel=INFO
-  #     - --acme
-  #     - --acme.httpchallenge
-  #     - --acme.httpchallenge.entrypoint=http
-  #     - --acme.acmelogging
-  #     - --acme.storage=/etc/traefik/acme/acme.json
-  #     - --acme.email=felipe@mconf.com
-  #     - --acme.entrypoint=https
-  #     - --acme.domains=${SERVER_DOMAIN}
-  #     - --defaultentrypoints=http,https
-  #     - --entryPoints='Name:http Address::80 Redirect.EntryPoint:https'
-  #     - --entryPoints='Name:https Address::443 TLS'
-  #   volumes:
-  #     - traefik-acme:/etc/traefik/acme/
-  #     - /var/run/docker.sock:/var/run/docker.sock
+  traefik:
+    image: traefik:1.7-alpine
+    restart: unless-stopped
+    ports:
+      - 80:80
+      - 8080:8080
+      - 443:443
+    command: traefik
+      - --docker
+      - --logLevel=INFO
+      - --acme
+      - --acme.httpchallenge
+      - --acme.httpchallenge.entrypoint=http
+      - --acme.acmelogging
+      - --acme.storage=/etc/traefik/acme/acme.json
+      - --acme.email=daniel.krenn@sbg.ac.at
+      - --acme.entrypoint=https
+      - --acme.domains=${SERVER_DOMAIN}
+      - --defaultentrypoints=http,https
+      - --entryPoints='Name:http Address::80 Redirect.EntryPoint:https'
+      - --entryPoints='Name:https Address::443 TLS'
+    volumes:
+      - traefik-acme:/etc/traefik/acme/
+      - /var/run/docker.sock:/var/run/docker.sock
 
 volumes:
-  # traefik-acme:
+  traefik-acme:
   static:
   bigbluebutton:
   media-audio:
