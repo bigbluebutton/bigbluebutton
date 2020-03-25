@@ -87,7 +87,6 @@ public class ESLEventListener implements IEslEventListener {
             String origCallerIdName = headers.get("Caller-Caller-ID-Name");
             String origCallerDestNumber = headers.get("Caller-Destination-Number");
             String clientSession = "0";
-            String callingWith = "browser";
 
             Matcher matcher = CALLERNAME_PATTERN.matcher(callerIdName);
             Matcher callWithSess = CALLERNAME_WITH_SESS_INFO_PATTERN.matcher(callerIdName);
@@ -103,7 +102,6 @@ public class ESLEventListener implements IEslEventListener {
                 // us to identify the user as such in other parts of the system.
                 // (ralam - sept 1, 2017)
                 voiceUserId = "v_" + memberId.toString();
-                callingWith = "phone";
             }
 
             VoiceCallStateEvent csEvent = new VoiceCallStateEvent(
@@ -134,7 +132,7 @@ public class ESLEventListener implements IEslEventListener {
                     callerIdName,
                     muted,
                     speaking,
-                    callingWith);
+                    "none");
             conferenceEventListener.handleConferenceEvent(pj);
 
 

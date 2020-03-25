@@ -9,8 +9,6 @@ object Users2x {
   }
 
   def findAll(users: Users2x): Vector[UserState] = users.toVector
-  def findAllModerators(users: Users2x): Vector[UserState] = users.toVector.filter(u => u.role == Roles.MODERATOR_ROLE)
-  def findAllViewers(users: Users2x): Vector[UserState] = users.toVector.filter(u => u.role == Roles.VIEWER_ROLE)
 
   def add(users: Users2x, user: UserState): Option[UserState] = {
     users.save(user)

@@ -14,19 +14,8 @@ object VoiceUsers {
   def findAll(users: VoiceUsers): Vector[VoiceUserState] = users.toVector
 
   def findAllNonListenOnlyVoiceUsers(users: VoiceUsers): Vector[VoiceUserState] = users.toVector.filter(u => u.listenOnly == false)
-  def findAllListenOnlyVoiceUsers(users: VoiceUsers): Vector[VoiceUserState] = users.toVector.filter(u => u.listenOnly == true)
-
-  def findAllFreeswitchListenOnly(users: VoiceUsers): Vector[VoiceUserState] = users.toVector.filter(u => u.calledInto == "freeswitch" && u.listenOnly)
-
   def findAllFreeswitchCallers(users: VoiceUsers): Vector[VoiceUserState] = users.toVector.filter(u => u.calledInto == "freeswitch")
   def findAllKurentoCallers(users: VoiceUsers): Vector[VoiceUserState] = users.toVector.filter(u => u.calledInto == "kms")
-  def findAllDialInUsers(users: VoiceUsers): Vector[VoiceUserState] = users.toVector.filter(u => u.callingWith == "phone")
-
-  def findTwoWayCallers(users: VoiceUsers): Vector[VoiceUserState] = users.toVector.filter(u => u.calledInto == "freeswitch" && !u.listenOnly)
-
-  def findAllMuted(users: VoiceUsers): Vector[VoiceUserState] = users.toVector.filter(u => u.muted && !u.listenOnly)
-
-  def findAllUnMuted(users: VoiceUsers): Vector[VoiceUserState] = users.toVector.filter(u => !u.muted && !u.listenOnly)
 
   def add(users: VoiceUsers, user: VoiceUserState): Unit = {
     users.save(user)

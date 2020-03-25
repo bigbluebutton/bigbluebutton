@@ -33,7 +33,7 @@ trait UserConnectedToGlobalAudioMsgHdlr {
       val vu = VoiceUserState(
         intId = user.intId,
         voiceUserId = user.intId,
-        callingWith = "kms",
+        callingWith = "flash",
         callerName = user.name,
         callerNum = user.name,
         muted = true,

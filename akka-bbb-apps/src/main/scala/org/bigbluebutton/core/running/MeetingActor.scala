@@ -1,6 +1,6 @@
 package org.bigbluebutton.core.running
 
-import java.io.{PrintWriter, StringWriter}
+import java.io.{ PrintWriter, StringWriter }
 
 import akka.actor._
 import akka.actor.SupervisorStrategy.Resume
@@ -11,7 +11,7 @@ import org.bigbluebutton.core.apps.users._
 import org.bigbluebutton.core.apps.whiteboard.ClientToServerLatencyTracerMsgHdlr
 import org.bigbluebutton.core.domain._
 import org.bigbluebutton.core.util.TimeUtil
-import org.bigbluebutton.common2.domain.{DefaultProps, LockSettingsProps, MeetingStatsInfoVO, MeetingStatsVO, ScreenshareStatsVO, UsersCountVO, UsersStatsVO, VoiceUsersListenOnlyStatsVO, VoiceUsersStatsVO, WebcamStatsVO}
+import org.bigbluebutton.common2.domain.{ DefaultProps, LockSettingsProps }
 import org.bigbluebutton.core.api._
 import org.bigbluebutton.core.apps._
 import org.bigbluebutton.core.apps.caption.CaptionApp2x
@@ -23,7 +23,7 @@ import org.bigbluebutton.core.apps.sharednotes.SharedNotesApp2x
 import org.bigbluebutton.core.apps.whiteboard.WhiteboardApp2x
 import org.bigbluebutton.core.bus._
 import org.bigbluebutton.core.models._
-import org.bigbluebutton.core2.{MeetingStatus2x, Permissions}
+import org.bigbluebutton.core2.{ MeetingStatus2x, Permissions }
 import org.bigbluebutton.core2.message.handlers._
 import org.bigbluebutton.core2.message.handlers.meeting._
 import org.bigbluebutton.common2.msgs._
@@ -35,9 +35,9 @@ import akka.actor.SupervisorStrategy.Resume
 
 import scala.concurrent.duration._
 import org.bigbluebutton.core.apps.layout.LayoutApp2x
-import org.bigbluebutton.core.apps.meeting.{SyncGetMeetingInfoRespMsgHdlr, ValidateConnAuthTokenSysMsgHdlr}
+import org.bigbluebutton.core.apps.meeting.{ SyncGetMeetingInfoRespMsgHdlr, ValidateConnAuthTokenSysMsgHdlr }
 import org.bigbluebutton.core.apps.users.ChangeLockSettingsInMeetingCmdMsgHdlr
-import org.bigbluebutton.core2.message.senders.{MsgBuilder, Sender}
+import org.bigbluebutton.core2.message.senders.{ MsgBuilder, Sender }
 
 import scala.concurrent.ExecutionContext.Implicits.global
 
@@ -569,72 +569,7 @@ class MeetingActor(
     processUserInactivityAudit()
     flagRegisteredUsersWhoHasNotJoined()
     checkIfNeetToEndMeetingWhenNoAuthedUsers(liveMeeting)
-
-    if (System.currentTimeMillis - lastsendMeetingStatsData > 5*1000*60) {
-      sendMeetingStatsData()
-    }
-
   }
-
-  var lastsendMeetingStatsData = System.currentTimeMillis
-
-  def sendMeetingStatsData(): Unit = {
-    lastsendMeetingStatsData = System.currentTimeMillis
-
-    val meetingStatsInfo = MeetingStatsInfoVO(
-      props.meetingProp,
-      props.recordProp,
-      props.metadataProp,
-      MeetingStatus2x.isRecording(liveMeeting.status)
-    )
-
-    val usersCount = UsersCountVO(
-      Users2x.findAll(liveMeeting.users2x).size,
-      Users2x.findAllModerators(liveMeeting.users2x).size,
-      Users2x.findAllViewers(liveMeeting.users2x).size
-    )
-    val usersStats = UsersStatsVO(
-      registered = RegisteredUsers.findAll(liveMeeting.registeredUsers).size,
-      usersCount
-    )
-
-    val listenOnlyStats = VoiceUsersListenOnlyStatsVO(
-      total = VoiceUsers.findAllListenOnlyVoiceUsers(liveMeeting.voiceUsers).size,
-      kurento = VoiceUsers.findAllKurentoCallers(liveMeeting.voiceUsers).size,
-      freeswitch = VoiceUsers.findAllFreeswitchListenOnly(liveMeeting.voiceUsers).size
-    )
-
-    val voiceUsersStats = VoiceUsersStatsVO(
-      users = VoiceUsers.findAllNonListenOnlyVoiceUsers(liveMeeting.voiceUsers).size,
-      listenOnly = listenOnlyStats,
-      twoWayCallers = VoiceUsers.findTwoWayCallers(liveMeeting.voiceUsers).size,
-      dialIn = VoiceUsers.findAllDialInUsers(liveMeeting.voiceUsers).size,
-      muted =  VoiceUsers.findAllMuted(liveMeeting.voiceUsers).size,
-      unmuted =  VoiceUsers.findAllUnMuted(liveMeeting.voiceUsers).size,
-    )
-
-    val webcamStats = WebcamStatsVO(
-      Webcams.findWebcamsCountTotal(liveMeeting.webcams),
-      Webcams.findAll(liveMeeting.webcams).size
-    )
-
-    val screenshareStats = ScreenshareStatsVO(
-      ScreenshareModel.getscreenshareCountTotal(liveMeeting.screenshareModel),
-      ScreenshareModel.getScreenshareStarted(liveMeeting.screenshareModel)
-    )
-
-    val meetingStats = MeetingStatsVO(
-      meetingStatsInfo,
-      usersStats,
-      voiceUsersStats,
-      webcamStats,
-      screenshareStats
-    )
-
-    val event = MsgBuilder.buildMeetingStatsDataSysMsg(meetingStats)
-    outGW.send(event)
-  }
-
 
   def checkVoiceConfUsersStatus(): Unit = {
     val event = MsgBuilder.buildLastcheckVoiceConfUsersStatus(

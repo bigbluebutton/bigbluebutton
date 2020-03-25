@@ -22,8 +22,6 @@ object RegisteredUsers {
     )
   }
 
-  def findAll(users: RegisteredUsers): Vector[RegisteredUser] = users.toVector
-
   def findWithToken(token: String, users: RegisteredUsers): Option[RegisteredUser] = {
     users.toVector.find(u => u.authToken == token)
   }
