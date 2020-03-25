@@ -15,7 +15,8 @@ import PresentationCloseButton from './presentation-close-button/component';
 import DownloadPresentationButton from './download-presentation-button/component';
 import FullscreenService from '../fullscreen-button/service';
 import FullscreenButtonContainer from '../fullscreen-button/container';
-import { withDraggableContext, withDraggableConsumer } from '../media/webcam-draggable-overlay/context';
+import { withDraggableConsumer } from '../media/webcam-draggable-overlay/context';
+import { withLayoutConsumer } from '/imports/ui/components/layout/context';
 
 const intlMessages = defineMessages({
   presentationLabel: {
@@ -79,7 +80,7 @@ class PresentationArea extends PureComponent {
 
   componentDidMount() {
     // adding an event listener to scale the whiteboard on 'resize' events sent by chat/userlist etc
-    window.addEventListener('resize', this.onResize);
+    // window.addEventListener('resize', this.onResize);
     this.getInitialPresentationSizes();
     this.refPresentationContainer.addEventListener('fullscreenchange', this.onFullscreenChange);
 
@@ -100,7 +101,15 @@ class PresentationArea extends PureComponent {
       intl,
       slidePosition,
       webcamDraggableDispatch,
+      layoutContextState,
     } = this.props;
+    const { presentationAreaSize } = layoutContextState;
+    const { layoutContextState: prevLayoutContextState } = prevProps;
+    const { presentationAreaSize: prevPresentationAreaSize } = prevLayoutContextState;
+
+    if (presentationAreaSize !== prevPresentationAreaSize) {
+      this.handleResize();
+    }
 
     if (prevProps.currentPresentation.name !== currentPresentation.name) {
       notify(
@@ -124,16 +133,18 @@ class PresentationArea extends PureComponent {
   }
 
   componentWillUnmount() {
-    window.removeEventListener('resize', this.onResize);
+    // window.removeEventListener('resize', this.onResize);
     this.refPresentationContainer.removeEventListener('fullscreenchange', this.onFullscreenChange);
   }
 
   onFullscreenChange() {
+    const { layoutContextDispatch } = this.props;
     const { isFullscreen } = this.state;
     const newIsFullscreen = FullscreenService.isFullScreen(this.refPresentationContainer);
     if (isFullscreen !== newIsFullscreen) {
       this.setState({ isFullscreen: newIsFullscreen });
-      window.dispatchEvent(new Event('resize'));
+      layoutContextDispatch({ type: 'setPresentationFullscreen', value: newIsFullscreen });
+      // window.dispatchEvent(new Event('resize'));
     }
   }
 
@@ -154,8 +165,10 @@ class PresentationArea extends PureComponent {
   }
 
   getPresentationSizesAvailable() {
-    const { userIsPresenter, multiUser } = this.props;
+    const { userIsPresenter, multiUser, layoutContextState } = this.props;
     const { refPresentationArea, refWhiteboardArea } = this;
+    const { presentationAreaSize } = layoutContextState;
+
     const presentationSizes = {};
 
     if (refPresentationArea && refWhiteboardArea) {
@@ -170,8 +183,10 @@ class PresentationArea extends PureComponent {
         ({ clientWidth, clientHeight } = refWhiteboardArea);
       }
 
-      presentationSizes.presentationAreaHeight = clientHeight - this.getToolbarHeight();
-      presentationSizes.presentationAreaWidth = clientWidth;
+      presentationSizes.presentationAreaHeight = presentationAreaSize.height - this.getToolbarHeight();
+      presentationSizes.presentationAreaWidth = presentationAreaSize.width;
+      // presentationSizes.presentationAreaHeight = clientHeight - this.getToolbarHeight();
+      // presentationSizes.presentationAreaWidth = clientWidth;
     }
     return presentationSizes;
   }
@@ -682,7 +697,7 @@ class PresentationArea extends PureComponent {
   }
 }
 
-export default injectIntl(withDraggableConsumer(PresentationArea));
+export default injectIntl(withDraggableConsumer(withLayoutConsumer(PresentationArea)));
 
 PresentationArea.propTypes = {
   intl: intlShape.isRequired,

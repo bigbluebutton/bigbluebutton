@@ -1,8 +1,12 @@
-import React, { createContext, useReducer, useEffect } from 'react';
+import React, { createContext, useReducer } from 'react';
 
-const LayoutContext = createContext();
+export const LayoutContext = createContext();
 
 const initialState = {
+  windowSize: {
+    width: 0,
+    height: 0,
+  },
   userListSize: {
     width: 0,
   },
@@ -17,10 +21,20 @@ const initialState = {
     width: 0,
     height: 0,
   },
+  presentationIsFullscreen: null,
 };
 
 const reducer = (state, action) => {
   switch (action.type) {
+    case 'setWindowSize': {
+      return {
+        ...state,
+        windowSize: {
+          width: action.value.width,
+          height: action.value.height,
+        },
+      };
+    }
     case 'setUserListSize': {
       return {
         ...state,
@@ -55,6 +69,12 @@ const reducer = (state, action) => {
         },
       };
     }
+    case 'setPresentationFullscreen': {
+      return {
+        ...state,
+        presentationIsFullscreen: action.value,
+      };
+    }
     default: {
       throw new Error('Unexpected action');
     }
@@ -64,9 +84,6 @@ const reducer = (state, action) => {
 const ContextProvider = (props) => {
   const [layoutContextState, layoutContextDispatch] = useReducer(reducer, initialState);
   const { children } = props;
-
-  useEffect(() => {
-  });
 
   return (
     <LayoutContext.Provider value={{
@@ -95,11 +112,8 @@ const ContextConsumer = Component => props => (
 const withLayoutConsumer = Component => ContextConsumer(Component);
 const withLayoutContext = Component => withProvider(withLayoutConsumer(Component));
 
-export default {
-  LayoutContext,
-};
-
 export {
+  withProvider,
   withLayoutConsumer,
   withLayoutContext,
 };

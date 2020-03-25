@@ -21,6 +21,7 @@ import { notify } from '/imports/ui/services/notification';
 import deviceInfo from '/imports/utils/deviceInfo';
 import getFromUserSettings from '/imports/ui/services/users-settings';
 import LayoutManager from '/imports/ui/components/layout/layout-manager';
+import { LayoutContext, withLayoutContext, withLayoutConsumer } from '/imports/ui/components/layout/context';
 
 const CHAT_ENABLED = Meteor.settings.public.chat.enabled;
 
@@ -194,28 +195,36 @@ class Base extends Component {
       return (<ErrorScreen code={codeError} />);
     }
     // this.props.annotationsHandler.stop();
-    return (
-      <Fragment>
-        <LayoutManager />
-        <AppContainer {...this.props} baseControls={stateControls} />
-      </Fragment>
-    );
+    return (<AppContainer {...this.props} baseControls={stateControls} />);
   }
 
   render() {
     const { updateLoadingState } = this;
-    const { locale, meetingExist } = this.props;
+    const {
+      locale,
+      meetingExist,
+      layoutContextState,
+      layoutContextDispatch,
+    } = this.props;
     const stateControls = { updateLoadingState };
     const { meetingExisted } = this.state;
 
     return (
-      (!meetingExisted && !meetingExist && Auth.loggedIn)
-        ? <LoadingScreen />
-        : (
-          <IntlStartup locale={locale} baseControls={stateControls}>
-            {this.renderByState()}
-          </IntlStartup>
-        )
+      <Fragment>
+        <LayoutManager
+          layoutContextState={layoutContextState}
+          layoutContextDispatch={layoutContextDispatch}
+        />
+        {
+          (!meetingExisted && !meetingExist && Auth.loggedIn)
+            ? <LoadingScreen />
+            : (
+              <IntlStartup locale={locale} baseControls={stateControls}>
+                {this.renderByState()}
+              </IntlStartup>
+            )
+        }
+      </Fragment>
     );
   }
 }
@@ -384,6 +393,6 @@ const BaseContainer = withTracker(() => {
     subscriptionsReady: Session.get('subscriptionsReady'),
     loggedIn,
   };
-})(Base);
+})(withLayoutContext(Base));
 
 export default BaseContainer;

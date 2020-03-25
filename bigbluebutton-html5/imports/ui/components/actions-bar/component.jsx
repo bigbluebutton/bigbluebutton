@@ -8,6 +8,7 @@ import AudioControlsContainer from '../audio/audio-controls/container';
 import JoinVideoOptionsContainer from '../video-provider/video-button/container';
 import CaptionsButtonContainer from '/imports/ui/components/actions-bar/captions/container';
 import PresentationOptionsContainer from './presentation-options/component';
+import { ACTIONSBAR_HEIGHT } from '/imports/ui/components/layout/layout-manager';
 
 class ActionsBar extends PureComponent {
   render() {
@@ -46,7 +47,12 @@ class ActionsBar extends PureComponent {
     actionBarClasses[styles.mobileLayoutSwapped] = isLayoutSwapped && amIPresenter;
 
     return (
-      <div className={styles.actionsbar}>
+      <div
+        className={styles.actionsbar}
+        style={{
+          height: ACTIONSBAR_HEIGHT,
+        }}
+      >
         <div className={styles.left}>
           <ActionsDropdown {...{
             amIPresenter,
