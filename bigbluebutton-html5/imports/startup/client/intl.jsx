@@ -106,7 +106,7 @@ class IntlStartup extends Component {
 
   componentWillMount() {
     const { locale } = this.props;
-    this.fetchLocalizedMessages(locale, true);
+    this.fetchLocalizedMessages(locale);
   }
 
   componentWillUpdate(nextProps) {
@@ -120,8 +120,8 @@ class IntlStartup extends Component {
     }
   }
 
-  fetchLocalizedMessages(locale, init = false) {
-    const url = `/html5client/locale?locale=${locale}&init=${init}`;
+  fetchLocalizedMessages(locale) {
+    const url = `/html5client/locale?locale=${locale}`;
 
     this.setState({ fetching: true }, () => {
       fetch(url)
