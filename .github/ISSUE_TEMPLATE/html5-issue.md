@@ -26,6 +26,9 @@ A clear and concise description of what you expected to happen.
 **Screenshots**
 If applicable, add screenshots to help explain your problem.
 
+**BBB version (optional):**
+We've constant updates. This helps us to know if this bug is applicable in the new versions and from which version it happens.
+
 **Desktop (please complete the following information):**
  - OS: [e.g. Windows, Mac]
  - Browser [e.g. Chrome, Safari]
