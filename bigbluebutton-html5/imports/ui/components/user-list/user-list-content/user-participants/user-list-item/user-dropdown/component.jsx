@@ -4,7 +4,7 @@ import PropTypes from 'prop-types';
 import { findDOMNode } from 'react-dom';
 import UserAvatar from '/imports/ui/components/user-avatar/component';
 import Icon from '/imports/ui/components/icon/component';
-import Dropdown from '/imports/ui/components/dropdown/component';
+import Dropdown from './theteredDropdown/component';
 import DropdownTrigger from '/imports/ui/components/dropdown/trigger/component';
 import DropdownContent from '/imports/ui/components/dropdown/content/component';
 import DropdownList from '/imports/ui/components/dropdown/list/component';
@@ -438,26 +438,24 @@ class UserDropdown extends PureComponent {
    * Check if the dropdown is visible, if so, check if should be draw on top or bottom direction.
    */
   checkDropdownDirection() {
-    const { getScrollContainerRef } = this.props;
+    const { scrollArea } = this.props;
     if (this.isDropdownActivedByUser()) {
       const dropdown = this.getDropdownMenuParent();
       const dropdownTrigger = dropdown.children[0];
-      const dropdownContent = dropdown.children[1];
-
-      const scrollContainer = getScrollContainerRef();
-
       const nextState = {
         dropdownVisible: true,
       };
+      const dropdownContent = findDOMNode(this.dropdownContent);
+      const dropdownBoundaries = dropdownContent.getBoundingClientRect();
 
       const isDropdownVisible = UserDropdown.checkIfDropdownIsVisible(
-        dropdownContent.offsetTop,
-        dropdownContent.offsetHeight,
+        dropdownBoundaries.y,
+        dropdownBoundaries.height,
       );
 
-      if (!isDropdownVisible) {
+      if (!isDropdownVisible && scrollArea) {
         const { offsetTop, offsetHeight } = dropdownTrigger;
-        const offsetPageTop = (offsetTop + offsetHeight) - scrollContainer.scrollTop;
+        const offsetPageTop = (offsetTop + offsetHeight) - scrollArea.scrollTop;
 
         nextState.dropdownOffset = window.innerHeight - offsetPageTop;
         nextState.dropdownDirection = 'bottom';
@@ -563,7 +561,7 @@ class UserDropdown extends PureComponent {
       <div
         data-test={isMe(user.userId) ? 'userListItemCurrent' : 'userListItem'}
         className={!actions.length ? styles.userListItem : null}
-      >
+        >
         <div className={styles.userItemContents}>
           <div className={styles.userAvatar}>
             {this.renderUserAvatar()}
@@ -590,18 +588,20 @@ class UserDropdown extends PureComponent {
     );
 
     if (!actions.length) return contents;
-
+    const placement = `right ${dropdownDirection}`;
     return (
       <Dropdown
         ref={(ref) => { this.dropdown = ref; }}
         keepOpen={isActionsOpen || showNestedOptions}
         onShow={this.onActionsShow}
         onHide={this.onActionsHide}
-        className={userItemContentsStyle}
+        className={userItemContentsStyle} 
         autoFocus={false}
         aria-haspopup="true"
         aria-live="assertive"
         aria-relevant="additions"
+        placement={placement}
+        getContent={(dropdownContent) => this.dropdownContent = dropdownContent}
       >
         <DropdownTrigger>
           {contents}
@@ -609,10 +609,9 @@ class UserDropdown extends PureComponent {
         <DropdownContent
           style={{
             visibility: dropdownVisible ? 'visible' : 'hidden',
-            [dropdownDirection]: `${dropdownOffset}px`,
           }}
           className={styles.dropdownContent}
-          placement={`right ${dropdownDirection}`}
+          placement={placement}
         >
           <DropdownList
             ref={(ref) => { this.list = ref; }}
