@@ -1,5 +1,5 @@
 import React, { createContext, useReducer, useEffect } from 'react';
-import Storage from '../../../services/storage/session';
+import Storage from '/imports/ui/services/storage/session';
 
 const { webcamsDefaultPlacement } = Meteor.settings.public.layout;
 

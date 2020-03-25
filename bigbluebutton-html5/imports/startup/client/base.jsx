@@ -19,6 +19,8 @@ import { notify } from '/imports/ui/services/notification';
 import deviceInfo from '/imports/utils/deviceInfo';
 import getFromUserSettings from '/imports/ui/services/users-settings';
 import LayoutManager from '/imports/ui/components/layout/layout-manager';
+import { withLayoutContext } from '/imports/ui/components/layout/context';
+import IntlStartup from '/imports/startup/client/intl';
 
 const CHAT_CONFIG = Meteor.settings.public.chat;
 const CHAT_ENABLED = CHAT_CONFIG.enabled;
@@ -204,22 +206,37 @@ class Base extends Component {
       return (<MeetingEnded code={codeError} />);
     }
     // this.props.annotationsHandler.stop();
-    return (
-      <Fragment>
-        <LayoutManager />
-        <AppContainer {...this.props} baseControls={stateControls} />
-      </Fragment>
-    );
+    return (<AppContainer {...this.props} baseControls={stateControls} />);
   }
 
   render() {
-    const { meetingExist } = this.props;
+    const {
+      meetingExist,
+      locale,
+      layoutContextState,
+      layoutContextDispatch,
+    } = this.props;
+
+    const { updateLoadingState } = this;
+    const stateControls = { updateLoadingState };
     const { meetingExisted } = this.state;
 
     return (
-      (!meetingExisted && !meetingExist && Auth.loggedIn)
-        ? <LoadingScreen />
-        : this.renderByState()
+      <Fragment>
+        <LayoutManager
+          layoutContextState={layoutContextState}
+          layoutContextDispatch={layoutContextDispatch}
+        />
+        {
+          (!meetingExisted && !meetingExist && Auth.loggedIn)
+            ? <LoadingScreen />
+            : (
+              <IntlStartup locale={locale} baseControls={stateControls}>
+                {this.renderByState()}
+              </IntlStartup>
+            )
+        }
+      </Fragment>
     );
   }
 }
@@ -389,6 +406,6 @@ const BaseContainer = withTracker(() => {
     loggedIn,
     codeError,
   };
-})(Base);
+})(withLayoutContext(Base));
 
 export default BaseContainer;

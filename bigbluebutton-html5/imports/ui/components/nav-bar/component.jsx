@@ -1,4 +1,4 @@
-import React, { PureComponent } from 'react';
+import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { Session } from 'meteor/session';
 import cx from 'classnames';
@@ -12,6 +12,7 @@ import Button from '../button/component';
 import RecordingIndicator from './recording-indicator/container';
 import TalkingIndicatorContainer from '/imports/ui/components/nav-bar/talking-indicator/container';
 import SettingsDropdownContainer from './settings-dropdown/container';
+import { NAVBAR_HEIGHT } from '/imports/ui/components/layout/layout-manager';
 
 
 const intlMessages = defineMessages({
@@ -41,7 +42,7 @@ const defaultProps = {
   shortcuts: '',
 };
 
-class NavBar extends PureComponent {
+class NavBar extends Component {
   static handleToggleUserList() {
     Session.set(
       'openPanel',
@@ -89,7 +90,9 @@ class NavBar extends PureComponent {
     ariaLabel += hasUnreadMessages ? (` ${intl.formatMessage(intlMessages.newMessages)}`) : '';
 
     return (
-      <div className={styles.navbar}>
+      <div
+        className={styles.navbar}
+      >
         <div className={styles.top}>
           <div className={styles.left}>
             {!isExpanded ? null

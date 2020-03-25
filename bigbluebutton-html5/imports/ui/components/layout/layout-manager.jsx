@@ -1,115 +1,147 @@
-import React, { useEffect, Fragment } from 'react';
-import { withLayoutContext } from './context';
+import React, { Component, Fragment } from 'react';
+// import { withLayoutConsumer } from './context';
 import Storage from '/imports/ui/services/storage/session';
+import { Session } from 'meteor/session';
 
 const windowWidth = () => window.innerWidth;
+const windowHeight = () => window.innerHeight;
 const min = (value1, value2) => (value1 <= value2 ? value1 : value2);
 const max = (value1, value2) => (value1 >= value2 ? value1 : value2);
 
+// values based on sass file
 const USERLIST_MIN_WIDTH = 150;
-const USERLIST_MAX_WIDTH = 250;
+const USERLIST_MAX_WIDTH = 240;
 const CHAT_MIN_WIDTH = 150;
-const CHAT_MAX_WIDTH = 350;
+const CHAT_MAX_WIDTH = 335;
+const NAVBAR_HEIGHT = 85;
+const ACTIONSBAR_HEIGHT = 42;
 
 const storageLayoutData = () => Storage.getItem('layoutData');
 
-const calculaLayout = () => {
-  const userListSize = {
-    width: min(max((windowWidth() * 0.1), USERLIST_MIN_WIDTH), USERLIST_MAX_WIDTH),
-  };
-  const chatSize = {
-    width: min(max((windowWidth() * 0.2), CHAT_MIN_WIDTH), CHAT_MAX_WIDTH),
-  };
-  const webcamsAreaSize = {
-    width: windowWidth() - (userListSize.width + chatSize.width),
-  };
-  const presentationAreaSize = {
-    width: windowWidth() - (userListSize.width + chatSize.width),
-  };
-  return {
-    userListSize,
-    chatSize,
-    webcamsAreaSize,
-    presentationAreaSize,
-  };
-};
+class LayoutManager extends Component {
+  constructor(props) {
+    super(props);
 
-const setInitialValues = (props) => {
-  const { layoutContextDispatch } = props;
-  const layoutSizes = calculaLayout();
-
-  let userListWidth;
-  let chatWidth;
-  let webcamsAreaWidth;
-  let presentationAreaWidth;
-  let storageWindowWidth;
-
-  if (storageLayoutData()) {
-    storageWindowWidth = storageLayoutData().windowSize.width;
-    userListWidth = storageLayoutData().userListSize.width;
-    chatWidth = storageLayoutData().chatSize.width;
-    webcamsAreaWidth = storageLayoutData().webcamsAreaSize.width;
-    presentationAreaWidth = storageLayoutData().presentationAreaSize.width;
+    this.setLayoutSizes = this.setLayoutSizes.bind(this);
+    this.calculaLayout = this.calculaLayout.bind(this);
   }
 
-  userListWidth = !userListWidth || userListWidth === 0 || windowWidth() !== storageWindowWidth
-    ? layoutSizes.userListSize.width
-    : userListWidth;
+  componentDidMount() {
+    this.setLayoutSizes();
+    window.addEventListener('resize', _.throttle(() => this.setLayoutSizes(), 200));
 
-  chatWidth = !chatWidth || chatWidth === 0 || windowWidth() !== storageWindowWidth
-    ? layoutSizes.chatSize.width
-    : chatWidth;
+    window.addEventListener('userListResizeChanged', () => {
+      const userlistChanged = true;
+      const chatChanged = false;
+      this.setLayoutSizes(userlistChanged, chatChanged);
+    });
+    window.addEventListener('chatResizeChanged', () => {
+      const userlistChanged = false;
+      const chatChanged = true;
+      this.setLayoutSizes(userlistChanged, chatChanged);
+    });
+  }
 
-  webcamsAreaWidth = !webcamsAreaWidth
-    || webcamsAreaWidth === 0
-    || windowWidth() !== storageWindowWidth
-    ? windowWidth() - (userListWidth + chatWidth)
-    : webcamsAreaWidth;
+  setLayoutSizes(userlistChanged = false, chatChanged = false) {
+    const { layoutContextDispatch } = this.props;
 
-  presentationAreaWidth = !presentationAreaWidth
-    || presentationAreaWidth === 0
-    || windowWidth() !== storageWindowWidth
-    ? windowWidth() - (userListWidth + chatWidth)
-    : presentationAreaWidth;
+    let userListWidth;
+    let chatWidth;
+    let webcamsAreaWidth;
+    let presentationAreaWidth;
+    let webcamsAreaHeight;
+    let storageWindowWidth;
+    let presentationAreaHeight;
 
-  layoutContextDispatch(
-    {
-      type: 'setUserListSize',
-      value: {
-        width: userListWidth,
+    const layoutSizes = this.calculaLayout(userlistChanged, chatChanged);
+    // Get storage data and set in size variables
+    const storageLData = storageLayoutData();
+    if (storageLData) {
+      storageWindowWidth = storageLData.windowSize.width;
+      userListWidth = storageLData.userListSize.width;
+      chatWidth = storageLData.chatSize.width;
+      webcamsAreaWidth = storageLData.webcamsAreaSize.width;
+      webcamsAreaHeight = storageLData.webcamsAreaSize.height;
+      presentationAreaWidth = storageLData.presentationAreaSize.width;
+      presentationAreaHeight = storageLData.presentationAreaSize.height;
+    }
+
+    // If storage data does not exist or window size is changed or layout is changed
+    // (userlist or chat list size changed)
+    // Get size from calc function
+    if (!userListWidth
+      || windowWidth() !== storageWindowWidth
+      || userlistChanged
+      || chatChanged) {
+      userListWidth = layoutSizes.userListSize.width;
+    }
+    if (!chatWidth
+      || windowWidth() !== storageWindowWidth
+      || chatChanged
+      || userlistChanged) {
+      chatWidth = layoutSizes.chatSize.width;
+    }
+    if (!storageLayoutData() || windowWidth() !== storageWindowWidth) {
+      webcamsAreaWidth = layoutSizes.webcamsAreaSize.width;
+      webcamsAreaHeight = layoutSizes.webcamsAreaSize.height;
+    }
+    if (!storageLayoutData()
+      || windowWidth() !== storageWindowWidth
+      || layoutSizes.presentationAreaSize.width !== storageLayoutData().presentationAreaSize.width
+      || userlistChanged
+      || chatChanged) {
+      presentationAreaWidth = layoutSizes.presentationAreaSize.width;
+      presentationAreaHeight = layoutSizes.presentationAreaSize.height;
+    }
+
+    layoutContextDispatch(
+      {
+        type: 'setWindowSize',
+        value: {
+          width: windowWidth(),
+          height: windowHeight(),
+        },
       },
-    },
-  );
+    );
+    layoutContextDispatch(
+      {
+        type: 'setUserListSize',
+        value: {
+          width: userListWidth,
+        },
+      },
+    );
+    layoutContextDispatch(
+      {
+        type: 'setChatSize',
+        value: {
+          width: chatWidth,
+        },
+      },
+    );
+    layoutContextDispatch(
+      {
+        type: 'setWebcamsAreaSize',
+        value: {
+          width: webcamsAreaWidth,
+          height: webcamsAreaHeight,
+        },
+      },
+    );
+    layoutContextDispatch(
+      {
+        type: 'setPresentationAreaSize',
+        value: {
+          width: presentationAreaWidth,
+          height: presentationAreaHeight,
+        },
+      },
+    );
 
-  layoutContextDispatch(
-    {
-      type: 'setChatSize',
-      value: {
-        width: chatWidth,
-      },
-    },
-  );
-  layoutContextDispatch(
-    {
-      type: 'setWebcamsAreaSize',
-      value: {
-        width: webcamsAreaWidth,
-      },
-    },
-  );
-  layoutContextDispatch(
-    {
-      type: 'setPresentationAreaSize',
-      value: {
-        width: presentationAreaWidth,
-      },
-    },
-  );
-
-  const newLayoutData = () => (
-    {
+    const newLayoutData = {
       windowSize: {
         width: windowWidth(),
+        height: windowHeight(),
       },
       userListSize: {
         width: userListWidth,
@@ -119,24 +151,111 @@ const setInitialValues = (props) => {
       },
       webcamsAreaSize: {
         width: webcamsAreaWidth,
-        height: 0,
+        height: webcamsAreaHeight,
       },
       presentationAreaSize: {
         width: presentationAreaWidth,
-        height: 0,
+        height: presentationAreaHeight,
       },
+    };
+
+    Storage.setItem('layoutData', newLayoutData);
+  }
+
+  calculaLayout(userlistChanged = false, chatChanged = false) {
+    const { layoutContextState } = this.props;
+    const {
+      userListSize: userListSizeContext,
+      chatSize: chatSizeContext,
+      presentationIsFullscreen,
+    } = layoutContextState;
+    const openPanel = Session.get('openPanel');
+
+    const storageLData = storageLayoutData();
+    let storageUserListWidth;
+    let storageChatWidth;
+    if (storageLData) {
+      storageUserListWidth = storageLData.userListSize.width;
+      storageChatWidth = storageLData.chatSize.width;
     }
-  );
 
-  Storage.setItem('layoutData', newLayoutData());
+    let newUserListSize;
+    let newChatSize;
+    if (userlistChanged || chatChanged) {
+      newUserListSize = userListSizeContext;
+      newChatSize = chatSizeContext;
+    } else {
+      if (!storageUserListWidth) {
+        newUserListSize = {
+          width: min(max((windowWidth() * 0.1), USERLIST_MIN_WIDTH), USERLIST_MAX_WIDTH),
+        };
+      } else {
+        newUserListSize = {
+          width: storageUserListWidth,
+        };
+      }
+      if (!storageChatWidth) {
+        newChatSize = {
+          width: min(max((windowWidth() * 0.2), CHAT_MIN_WIDTH), CHAT_MAX_WIDTH),
+        };
+      } else {
+        newChatSize = {
+          width: storageChatWidth,
+        };
+      }
+    }
+
+    if (openPanel === 'userlist') {
+      newChatSize = {
+        width: 0,
+      };
+    }
+
+    if (!openPanel) {
+      newUserListSize = {
+        width: 0,
+      };
+      newChatSize = {
+        width: 0,
+      };
+    }
+
+    const newWebcamsAreaSize = {
+      width: windowWidth() - (newUserListSize.width + newChatSize.width),
+    };
+
+    let newPresentationAreaSize;
+    if (!presentationIsFullscreen) {
+      newPresentationAreaSize = {
+        width: windowWidth() - (newUserListSize.width + newChatSize.width),
+        height: windowHeight() - (NAVBAR_HEIGHT + ACTIONSBAR_HEIGHT),
+      };
+    } else {
+      newPresentationAreaSize = {
+        width: windowWidth(),
+        height: windowHeight(),
+      };
+    }
+
+    return {
+      userListSize: newUserListSize,
+      chatSize: newChatSize,
+      webcamsAreaSize: newWebcamsAreaSize,
+      presentationAreaSize: newPresentationAreaSize,
+    };
+  }
+
+  render() {
+    return <Fragment />;
+  }
+}
+
+export default LayoutManager;
+export {
+  USERLIST_MIN_WIDTH,
+  USERLIST_MAX_WIDTH,
+  CHAT_MIN_WIDTH,
+  CHAT_MAX_WIDTH,
+  NAVBAR_HEIGHT,
+  ACTIONSBAR_HEIGHT,
 };
-
-const LayoutManager = (props) => {
-  useEffect(() => {
-    setInitialValues(props);
-  }, []);
-
-  return (<Fragment />);
-};
-
-export default withLayoutContext(LayoutManager);
