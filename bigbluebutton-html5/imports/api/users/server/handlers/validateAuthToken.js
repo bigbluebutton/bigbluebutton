@@ -30,7 +30,7 @@ export default function handleValidateAuthToken({ body }, meetingId) {
   if (!User) return;
 
   // Publish user join message
-  if (valid && !waitForApproval && !!User.connectionId) {
+  if (valid && !waitForApproval) {
     Logger.info('User=', User);
     userJoin(meetingId, userId, User.authToken);
   }

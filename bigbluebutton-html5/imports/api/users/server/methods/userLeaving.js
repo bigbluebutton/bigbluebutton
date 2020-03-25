@@ -27,13 +27,6 @@ export default function userLeaving(meetingId, userId, connectionId) {
     return false;
   }
 
-  const modifier = {
-    $set: {
-      connectionId: false,
-    },
-  };
-  Users.upsert(selector, modifier);
-
   const payload = {
     userId,
     sessionId: meetingId,
