@@ -13,12 +13,18 @@ class Share {
     await this.page2.init(Page.getArgsWithVideo(), this.page1.meetingId, { ...params, fullName: 'Streamer2' });
   }
 
+  async initPage(meetingId) {
+    await this.page1.init(Page.getArgsWithVideo(), meetingId, { ...params, fullName: 'Streamer1' });
+  }
+
   async test() {
-    await util.enableWebcam(this.page1);
-    await util.enableWebcam(this.page2);
-    const responseUser1 = await util.evaluateCheck(this.page1);
-    const responseUser2 = await util.evaluateCheck(this.page2);
-    return responseUser1 && responseUser2;
+    await util.enableWebcam(this.page1, this.page2);
+    const response = await util.evaluateCheck(this.page1, this.page2);
+    return response;
+  }
+
+  async closePage() {
+    await this.page1.close();
   }
 
   async close() {
