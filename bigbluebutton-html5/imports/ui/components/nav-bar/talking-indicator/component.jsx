@@ -29,7 +29,12 @@ class TalkingIndicator extends PureComponent {
 
   render() {
     const { intl, talkers, openPanel } = this.props;
-    if (!talkers) return null;
+    if (!Object.keys(talkers).length) {
+      return (
+        <div className={styles.noIndicator}>
+          <span></span>
+        </div>
+    );}
 
     const talkingUserElements = Object.keys(talkers).map((id) => {
       const {

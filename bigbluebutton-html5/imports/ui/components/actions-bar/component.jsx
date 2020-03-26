@@ -77,10 +77,12 @@ class ActionsBar extends PureComponent {
     actionBarClasses[styles.mobileLayoutSwapped] = isLayoutSwapped && amIPresenter;
 
     return (
-      <div>
-        <div className={cx(actionBarClasses)}>
-          <div className={styles.actionsController}>
-            <AudioControlsContainer />
+      <div className={cx(actionBarClasses)}>
+        <div className={styles.actionsController}>
+          <div>
+              <AudioControlsContainer />
+          </div>
+          <div>
             {enableVideo
               ? (
                 <JoinVideoOptionsContainer
@@ -89,6 +91,8 @@ class ActionsBar extends PureComponent {
                 />
               )
               : null}
+          </div>
+          <div>
             <DesktopShare {...{
               handleShareScreen,
               handleUnshareScreen,
@@ -100,6 +104,7 @@ class ActionsBar extends PureComponent {
               screenshareDataSavingSetting,
             }}
             />
+          </div>
             <ActionsDropdown {...{
               amIPresenter,
               amIModerator,
@@ -112,7 +117,7 @@ class ActionsBar extends PureComponent {
               isMeteorConnected,
             }}
             />
-          </div>
+        </div>
           <div className={styles.liveActions}>
             <div className={styles.dummyImage}>
               <img src="https://miro.medium.com/max/560/1*MccriYX-ciBniUzRKAUsAw.png" alt=""/>
@@ -126,12 +131,6 @@ class ActionsBar extends PureComponent {
               <TalkingIndicatorContainer amIModerator={amIModerator} />
             </div>
           </div>
-          {isCaptionsAvailable
-            ? (
-              <CaptionsButtonContainer {...{ intl }} />
-            )
-            : null
-          }
           <div className={styles.audioButton}>
             <Button
               className={cx(styles.button, inAudio, endCall ? styles.endingCall : null)}
@@ -146,18 +145,6 @@ class ActionsBar extends PureComponent {
               circle
             />
           </div>
-          {/* {isPollingEnabled
-            ? (
-              <QuickPollDropdown
-                {...{
-                  currentSlidHasContent,
-                  intl,
-                  amIPresenter,
-                  parseCurrentSlideContent,
-                }}
-              />
-            ) : null
-          } */}
           <div className={styles.right}>
             {isLayoutSwapped
               ? (
@@ -169,7 +156,6 @@ class ActionsBar extends PureComponent {
               : null
             }
           </div>
-        </div>
       </div>
     );
   }
