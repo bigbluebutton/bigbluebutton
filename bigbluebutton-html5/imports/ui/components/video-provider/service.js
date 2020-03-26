@@ -19,6 +19,7 @@ const SKIP_VIDEO_PREVIEW = Meteor.settings.public.kurento.skipVideoPreview;
 
 const SFU_URL = Meteor.settings.public.kurento.wsUrl;
 const ROLE_MODERATOR = Meteor.settings.public.user.role_moderator;
+const ROLE_VIEWER = Meteor.settings.public.user.role_viewer;
 const ENABLE_NETWORK_MONITORING = Meteor.settings.public.networkMonitoring.enableNetworkMonitoring;
 
 const TOKEN = '_';
@@ -154,7 +155,7 @@ class VideoService {
   }
 
   getVideoStreams() {
-    const streams = VideoStreams.find(
+    let streams = VideoStreams.find(
       { meetingId: Auth.meetingID },
       {
         fields: {
@@ -163,8 +164,11 @@ class VideoService {
       },
     ).fetch();
 
-    const connectingStream = this.getConnectingStream(streams);
+    const hideUsers = this.hideUserList();
+    const moderatorOnly = this.webcamsOnlyForModerator();
+    if (hideUsers || moderatorOnly) streams = this.filterModeratorOnly(streams);
 
+    const connectingStream = this.getConnectingStream(streams);
     if (connectingStream) streams.push(connectingStream);
 
     return streams.map(vs => ({
@@ -215,10 +219,45 @@ class VideoService {
     return streams.find(s => s.stream === stream);
   }
 
+  filterModeratorOnly(streams) {
+    const me = Users.findOne({ userId: Auth.userID });
+    const amIViewer = me.role === ROLE_VIEWER;
+
+    if (amIViewer) {
+      const moderators = Users.find(
+        {
+          meetingId: Auth.meetingID,
+          connectionStatus: 'online',
+          role: ROLE_MODERATOR,
+        },
+        { fields: { userId: 1 }}
+      ).fetch().map(user => user.userId);
+
+      return streams.reduce((result, stream) => {
+        const { userId } = stream;
+
+        const isModerator = moderators.includes(userId);
+        const isMe = me.userId === userId;
+
+        if (isModerator || isMe) result.push(stream);
+
+        return result;
+      }, []);
+    } else {
+      return streams;
+    }
+  }
+
   disableCam() {
     const m = Meetings.findOne({ meetingId: Auth.meetingID },
       { fields: { 'lockSettingsProps.disableCam': 1 } });
     return m.lockSettingsProps ? m.lockSettingsProps.disableCam : false;
+  }
+
+  webcamsOnlyForModerator() {
+    const m = Meetings.findOne({ meetingId: Auth.meetingID },
+      { fields: { 'usersProp.webcamsOnlyForModerator': 1 } });
+    return m.usersProp ? m.usersProp.webcamsOnlyForModerator : false;
   }
 
   hideUserList() {
