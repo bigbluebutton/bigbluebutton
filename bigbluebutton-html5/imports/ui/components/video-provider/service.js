@@ -31,11 +31,8 @@ class VideoService {
       isConnecting: false,
       isConnected: false,
     });
-    this.skipVideoPreview = getFromUserSettings('bbb_skip_video_preview', false) || SKIP_VIDEO_PREVIEW;
-    this.userParameterProfile = getFromUserSettings(
-      'bbb_preferred_camera_profile',
-      (CAMERA_PROFILES.filter(i => i.default) || {}).id
-    );
+    this.skipVideoPreview = null;
+    this.userParameterProfile = null;
     const BROWSER_RESULTS = browser();
     this.isMobile = BROWSER_RESULTS.mobile || BROWSER_RESULTS.os.includes('Android');
     this.isSafari = BROWSER_RESULTS.name === 'safari';
@@ -227,7 +224,7 @@ class VideoService {
           connectionStatus: 'online',
           role: ROLE_MODERATOR,
         },
-        { fields: { userId: 1 }}
+        { fields: { userId: 1 } },
       ).fetch().map(user => user.userId);
 
       return streams.reduce((result, stream) => {
@@ -240,9 +237,8 @@ class VideoService {
 
         return result;
       }, []);
-    } else {
-      return streams;
     }
+    return streams;
   }
 
   disableCam() {
@@ -366,11 +362,22 @@ class VideoService {
     return isLocal ? 'share' : 'viewer';
   }
 
-  getSkipVideoPreview(fromInterface) {
+  getSkipVideoPreview(fromInterface = false) {
+    if (this.skipVideoPreview === null) {
+      this.skipVideoPreview = getFromUserSettings('bbb_skip_video_preview', false) || SKIP_VIDEO_PREVIEW;
+    }
+
     return this.skipVideoPreview && !fromInterface;
   }
 
   getUserParameterProfile() {
+    if (this.userParameterProfile === null) {
+      this.userParameterProfile = getFromUserSettings(
+        'bbb_preferred_camera_profile',
+        (CAMERA_PROFILES.filter(i => i.default) || {}).id,
+      );
+    }
+
     return this.userParameterProfile;
   }
 
@@ -378,11 +385,11 @@ class VideoService {
     // Multiple cameras shouldn't be enabled with video preview skipping
     // Mobile shouldn't be able to share more than one camera at the same time
     // Safari needs to implement devicechange event for safe device control
-    return MULTIPLE_CAMERAS &&
-      !this.skipVideoPreview &&
-      !this.isMobile &&
-      !this.isSafari &&
-      this.numberOfDevices > 1;
+    return MULTIPLE_CAMERAS
+      && !this.getSkipVideoPreview()
+      && !this.isMobile
+      && !this.isSafari
+      && this.numberOfDevices > 1;
   }
 
   monitor(conn) {
