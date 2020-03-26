@@ -122,3 +122,9 @@
   background-color: inherit;
   @include lineClamp(var(--font-size-small), 10);
 }
+.slideBtn{
+  flex-wrap: nowrap;
+  justify-content: flex-end;
+  align-self: flex-end;
+  
+}
