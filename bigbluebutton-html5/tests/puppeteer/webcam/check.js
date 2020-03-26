@@ -7,8 +7,8 @@ class Check extends Share {
   }
 
   async test() {
-    await util.enableWebcam(this.page1);
-    const respUser = await util.webcamContentCheck(this.page1);
+    await util.enableWebcam(this.page);
+    const respUser = await util.webcamContentCheck(this.page);
     return respUser === true;
   }
 }

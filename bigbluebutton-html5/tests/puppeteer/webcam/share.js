@@ -1,35 +1,15 @@
 const Page = require('../core/page');
 const util = require('./util');
-const params = require('../params');
 
-class Share {
+class Share extends Page{
   constructor() {
-    this.page1 = new Page();
-    this.page2 = new Page();
-  }
-
-  async init(meetingId) {
-    await this.page1.init(Page.getArgsWithVideo(), meetingId, { ...params, fullName: 'Streamer1' });
-    await this.page2.init(Page.getArgsWithVideo(), this.page1.meetingId, { ...params, fullName: 'Streamer2' });
-  }
-
-  async initPage(meetingId) {
-    await this.page1.init(Page.getArgsWithVideo(), meetingId, { ...params, fullName: 'Streamer1' });
+    super('webcam-test');
   }
 
   async test() {
-    await util.enableWebcam(this.page1, this.page2);
-    const response = await util.evaluateCheck(this.page1, this.page2);
+    await util.enableWebcam(this.page);
+    const response = await util.evaluateCheck(this.page);
     return response;
-  }
-
-  async closePage() {
-    await this.page1.close();
-  }
-
-  async close() {
-    await this.page1.close();
-    await this.page2.close();
   }
 }
 
