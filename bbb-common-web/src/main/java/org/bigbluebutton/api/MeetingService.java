@@ -800,11 +800,14 @@ public class MeetingService implements MessageListener {
 
         log.info(" --analytics-- data={}", logStr);
 
-        if (m.getNumUsers() == 0) {
-          // Last user the meeting. Mark this as the time
-          // the meeting ended.
-          m.setEndTime(System.currentTimeMillis());
-        }
+        //Sai: We do not want to consider meeting ended when there are no users in the meeting.
+        //Meeting ends only when there is a explicit end request.
+//        if (m.getNumUsers() == 0) {
+
+//          // Last user the meeting. Mark this as the time
+//          // the meeting ended.
+//          m.setEndTime(System.currentTimeMillis());
+//        }
 
         RegisteredUser userRegistered = m.userUnregistered(message.userId);
         if (userRegistered != null) {

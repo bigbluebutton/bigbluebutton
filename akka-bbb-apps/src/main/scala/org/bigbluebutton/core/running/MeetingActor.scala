@@ -687,15 +687,17 @@ class MeetingActor(
       BreakoutHdlrHelpers.updateParentMeetingWithUsers(liveMeeting, eventBus)
     }
 
-    if (state.expiryTracker.userHasJoined &&
-      Users2x.numUsers(liveMeeting.users2x) == 0
-      && !state.expiryTracker.lastUserLeftOnInMs.isDefined) {
-      log.info("Setting meeting no more users. meetingId=" + props.meetingProp.intId)
-      val tracker = state.expiryTracker.setLastUserLeftOn(TimeUtil.timeNowInMs())
-      state.update(tracker)
-    } else {
-      state
-    }
+    //Sai: Do not want meeting to ever end, unless explicitly ended
+    //    if (state.expiryTracker.userHasJoined &&
+    //      Users2x.numUsers(liveMeeting.users2x) == 0
+    //      && !state.expiryTracker.lastUserLeftOnInMs.isDefined) {
+    //      log.info("Setting meeting no more users. meetingId=" + props.meetingProp.intId)
+    //      val tracker = state.expiryTracker.setLastUserLeftOn(TimeUtil.timeNowInMs())
+    //      state.update(tracker)
+    //    } else {
+    //      state
+    //    }
+    state
   }
 
   var lastUserInactivityInspectSentOn = TimeUtil.timeNowInMs()
