@@ -91,18 +91,6 @@ const Chat = (props) => {
             )
             : <ChatDropdown isMeteorConnected={isMeteorConnected} amIModerator={amIModerator} />
         }
-        <Button
-            // onClick={() => {
-            //   Session.set('idChatOpen', '');
-            //   Session.set('openPanel', 'userlist');
-            // }}
-           // aria-label={intl.formatMessage(intlMessages.hideChatLabel, { 0: title })}
-           // accessKey={HIDE_CHAT_AK}
-            //label={title}
-            icon="left_arrow"
-            className={styles.slideBtn}
-            color="default"
-          />
       </header>
       <MessageList
         id={ELEMENT_ID}

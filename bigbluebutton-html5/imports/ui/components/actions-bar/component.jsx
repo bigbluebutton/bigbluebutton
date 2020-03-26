@@ -12,6 +12,7 @@ import PresentationOptionsContainer from './presentation-options/component';
 import Button from '/imports/ui/components/button/component';
 import TalkingIndicatorContainer from '/imports/ui/components/nav-bar/talking-indicator/container';
 import VideoService from '/imports/ui/components/video-provider/service';
+
 const intlMessages = defineMessages({
   joinAudio: {
     id: 'app.audio.joinAudio',
@@ -116,12 +117,12 @@ class ActionsBar extends PureComponent {
           <div className={styles.liveActions}>
             <div className={styles.dummyImage}>
 
-              <img src="https://miro.medium.com/max/560/1*MccriYX-ciBniUzRKAUsAw.png" alt=""/>
-              <img 
-                src="https://lh3.googleusercontent.com/FPUDI5HXBwHwoy-_aEh9fAW7lkOCJdRNktzstpsWCTrCFN1Vj6sCh4sTjE4ZpYG1hZ6b" 
-                alt="" 
+              <img src="https://miro.medium.com/max/560/1*MccriYX-ciBniUzRKAUsAw.png" alt="" />
+              <img
+                src="https://lh3.googleusercontent.com/FPUDI5HXBwHwoy-_aEh9fAW7lkOCJdRNktzstpsWCTrCFN1Vj6sCh4sTjE4ZpYG1hZ6b"
+                alt=""
               />
-              <img src="https://miro.medium.com/max/560/1*MccriYX-ciBniUzRKAUsAw.png" alt=""/>
+              <img src="https://miro.medium.com/max/560/1*MccriYX-ciBniUzRKAUsAw.png" alt="" />
             </div>
             <div className={styles.talkingIndicator}>
               <TalkingIndicatorContainer amIModerator={amIModerator} />
@@ -163,8 +164,8 @@ class ActionsBar extends PureComponent {
             {isLayoutSwapped
               ? (
                 <PresentationOptionsContainer
-                    toggleSwapLayout={toggleSwapLayout}
-                isThereCurrentPresentation={isThereCurrentPresentation}
+                  toggleSwapLayout={toggleSwapLayout}
+                  isThereCurrentPresentation={isThereCurrentPresentation}
                 />
               )
               : null
