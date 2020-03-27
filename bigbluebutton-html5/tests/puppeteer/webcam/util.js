@@ -14,7 +14,7 @@ async function getTestElement(element) {
 }
 
 async function evaluateCheck(test) {
-  await test.waitForSelector(we.videoContainer);
+  await test.waitForSelector(we.videoContainer, {timeout: 5000})
   const videoContainer = await test.evaluate(getTestElement, we.presentationFullscreenButton);
   const response = videoContainer !== null;
   return response;
