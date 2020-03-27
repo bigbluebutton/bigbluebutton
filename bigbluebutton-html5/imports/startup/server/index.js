@@ -153,7 +153,6 @@ WebApp.connectHandlers.use('/locales', (req, res) => {
     locales = AVAILABLE_LOCALES
       .map(file => file.replace('.json', ''))
       .map(file => file.replace('_', '-'))
-      .map(locale => (locale === 'ka' ? 'ka-GE' : locale)) // edge case 'ka' missing from Langmap
       .map(locale => ({
         locale,
         name: Langmap[locale].nativeName,
