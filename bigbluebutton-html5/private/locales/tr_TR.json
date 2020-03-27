@@ -587,7 +587,7 @@
     "app.sfu.mediaServerRequestTimeout2003": "Medya sunucu istekleri zaman aşımına uğruyor (hata 2003)",
     "app.sfu.serverIceGatheringFailed2021": "Medya sunucu bağlantı parametrelerini alamıyor (ICE hatası 2021)",
     "app.sfu.serverIceGatheringFailed2022": "Medya sunucu bağlantı hatası (ICE hatası 2022)",
-    "app.sfu.mediaGenericError2200": "Medya sunucu isteği işleyemiyor (ICE hatası 2200)",
+    "app.sfu.mediaGenericError2200": "Medya sunucusu isteği işleyemiyor (ICE hatası 2200)",
     "app.sfu.invalidSdp2202":"İstemci geçersiz medya isteği talebi oluşturdu (SDP hatası 2202)",
     "app.sfu.noAvailableCodec2203": "Sunucu uygun medya kodlaması bulamadı (hata 2203)",
     "app.meeting.endNotification.ok.label": "TAMAM",
