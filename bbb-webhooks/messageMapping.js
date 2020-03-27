@@ -8,11 +8,12 @@ module.exports = class MessageMapping {
     this.mappedMessage = {};
     this.meetingEvents = ["MeetingCreatedEvtMsg","MeetingDestroyedEvtMsg", "ScreenshareRtmpBroadcastStartedEvtMsg", "ScreenshareRtmpBroadcastStoppedEvtMsg", "SetCurrentPresentationEvtMsg", "RecordingStatusChangedEvtMsg"];
     this.userEvents = ["UserJoinedMeetingEvtMsg","UserLeftMeetingEvtMsg","UserJoinedVoiceConfToClientEvtMsg","UserLeftVoiceConfToClientEvtMsg","PresenterAssignedEvtMsg", "PresenterUnassignedEvtMsg", "UserBroadcastCamStartedEvtMsg", "UserBroadcastCamStoppedEvtMsg", "UserEmojiChangedEvtMsg"];
-    this.chatEvents = ["SendPublicMessageEvtMsg","SendPrivateMessageEvtMsg"];
+    this.chatEvents = ["SendPublicMessageEvtMsg","SendPrivateMessageEvtMsg","GroupChatMessageBroadcastEvtMsg"];
     this.rapEvents = ["PublishedRecordingSysMsg","UnpublishedRecordingSysMsg","DeletedRecordingSysMsg"];
     this.compMeetingEvents = ["meeting_created_message","meeting_destroyed_event"];
     this.compUserEvents = ["user_joined_message","user_left_message","user_listening_only","user_joined_voice_message","user_left_voice_message","user_shared_webcam_message","user_unshared_webcam_message","user_status_changed_message"];
     this.compRapEvents = ["archive_started","archive_ended","sanity_started","sanity_ended","post_archive_started","post_archive_ended","process_started","process_ended","post_process_started","post_process_ended","publish_started","publish_ended","post_publish_started","post_publish_ended","published","unpublished","deleted"];
+    this.padEvents = ["PadUpdateSysMsg"];
   }
 
   // Map internal message based on it's type
@@ -31,6 +32,8 @@ module.exports = class MessageMapping {
       this.compUserTemplate(messageObj);
     } else if (this.mappedEvent(messageObj,this.compRapEvents)) {
       this.compRapTemplate(messageObj);
+    } else if (this.mappedEvent(messageObj,this.padEvents)) {
+      this.padTemplate(messageObj);
     }
   }
 
@@ -80,6 +83,15 @@ module.exports = class MessageMapping {
           "dial-number": props.voiceProp.dialNumber,
           "max-users": props.usersProp.maxUsers,
           "metadata": props.metadataProp.metadata
+        }
+      };
+    }
+    if (messageObj.envelope.name === "SetCurrentPresentationEvtMsg") {
+      this.mappedObject.data.attributes = {
+        "meeting":{
+          "internal-meeting-id": meetingId,
+          "external-meeting-id": IDMapping.getExternalMeetingID(meetingId),
+          "presentation-id": messageObj.core.body.presentationId
         }
       };
     }
@@ -228,7 +240,7 @@ module.exports = class MessageMapping {
 
   // Map internal to external message for chat information
   chatTemplate(messageObj) {
-    const message = messageObj.core.body.message;
+    const message = messageObj.core.body.message || messageObj.core.body.msg;
     this.mappedObject.data = {
       "type": "event",
       "id": this.mapInternalMessage(messageObj),
@@ -240,10 +252,10 @@ module.exports = class MessageMapping {
         "chat-message":{
           "message": message.message,
           "sender":{
-            "internal-user-id": message.fromUserId,
-            "external-user-id": message.fromUsername,
+            "internal-user-id": message.fromUserId || message.sender.id,
+            "external-user-id": message.fromUsername || message.sender.name,
             "timezone-offset": message.fromTimezoneOffset,
-            "time": message.fromTime
+            "time": message.fromTime || message.timestamp
           }
         }
       },
@@ -328,6 +340,27 @@ module.exports = class MessageMapping {
     Logger.info("[MessageMapping] Mapped message:", this.mappedMessage);
   }
 
+  padTemplate(messageObj) {
+    const body = messageObj.core.body;
+    this.mappedObject.data = {
+      "type": "event",
+      "id": this.mapInternalMessage(messageObj),
+      "attributes":{
+        "meeting":{
+          "internal-meeting-id-hash": body.pad.id
+        },
+        "pad":{
+          "text": body.pad.atext.text
+        }
+      },
+      "event":{
+        "ts": body.timestamp
+      }
+    };
+    this.mappedMessage = JSON.stringify(this.mappedObject);
+    Logger.info("[MessageMapping] Mapped message:", this.mappedMessage);
+  }
+
 
   mapInternalMessage(message) {
     let name;
@@ -355,6 +388,7 @@ module.exports = class MessageMapping {
       case "UserEmojiChangedEvtMsg": return "user-emoji-changed";
       case "SendPublicMessageEvtMsg": return "chat-public-message-sent";
       case "SendPrivateMessageEvtMsg": return "chat-private-message-sent";
+      case "GroupChatMessageBroadcastEvtMsg": return "chat-group-message-sent";
       case "archive_started": return "rap-archive-started";
       case "archive_ended": return "rap-archive-ended";
       case "sanity_started": return "rap-sanity-started";
@@ -388,6 +422,7 @@ module.exports = class MessageMapping {
         if (message.payload.status === "presenter") {
           return (message.payload.value === "true" ? "user-presenter-assigned" : "user-presenter-unassigned" );
         }
+      case "PadUpdateSysMsg": return "pad-update";
     } })();
     return mappedMsg;
   }
