@@ -3,13 +3,14 @@ package org.bigbluebutton.core.models
 import com.softwaremill.quicklens._
 
 object RegisteredUsers {
-  def create(userId: String, extId: String, name: String, roles: String,
+  def create(userId: String, extId: String, name: String, email: String, roles: String,
              token: String, avatar: String, guest: Boolean, authenticated: Boolean,
              guestStatus: String): RegisteredUser = {
     new RegisteredUser(
       userId,
       extId,
       name,
+      email,
       roles,
       token,
       avatar,
@@ -107,6 +108,7 @@ case class RegisteredUser(
     id:                 String,
     externId:           String,
     name:               String,
+    email:              String,
     role:               String,
     authToken:          String,
     avatarURL:          String,

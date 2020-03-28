@@ -44,7 +44,7 @@ trait BreakoutRoomCreatedMsgHdlr {
         BreakoutHdlrHelpers.sendJoinURL(
           liveMeeting,
           outGW,
-          user,
+          user.id,
           room.externalId,
           room.sequence.toString(),
           room.id

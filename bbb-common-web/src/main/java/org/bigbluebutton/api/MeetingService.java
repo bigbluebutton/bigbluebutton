@@ -142,10 +142,10 @@ public class MeetingService implements MessageListener {
   }
 
   public void registerUser(String meetingID, String internalUserId,
-                           String fullname, String role, String externUserID,
+                           String fullname, String email, String role, String externUserID,
                            String authToken, String avatarURL, Boolean guest,
                            Boolean authed, String guestStatus) {
-    handle(new RegisterUser(meetingID, internalUserId, fullname, role,
+    handle(new RegisterUser(meetingID, internalUserId, fullname, email, role,
       externUserID, authToken, avatarURL, guest, authed, guestStatus));
 
     Meeting m = getMeeting(meetingID);
@@ -340,7 +340,9 @@ public class MeetingService implements MessageListener {
         logData.put("extUserId", prevUser.getExternalUserId());
         logData.put("intUserId", prevUser.getInternalUserId());
         logData.put("username", prevUser.getFullname());
-        logData.put("logCode", "duplicate_user_with_external_userid");
+        //logData.put("email", prevUser.getE());
+
+          logData.put("logCode", "duplicate_user_with_external_userid");
         logData.put("description", "Duplicate user with external userid.");
 
         Gson gson = new Gson();
@@ -357,7 +359,7 @@ public class MeetingService implements MessageListener {
 
     }
     gw.registerUser(message.meetingID,
-      message.internalUserId, message.fullname, message.role,
+      message.internalUserId, message.fullname, message.email, message.role,
       message.externUserID, message.authToken, message.avatarURL, message.guest,
             message.authed, message.guestStatus);
   }

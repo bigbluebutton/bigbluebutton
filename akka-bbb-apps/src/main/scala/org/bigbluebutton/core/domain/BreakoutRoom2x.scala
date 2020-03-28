@@ -8,7 +8,7 @@ case class BreakoutRoom2x(
     sequence:      Int,
     freeJoin:      Boolean,
     voiceConf:     String,
-    assignedUsers: Vector[String],
+    assignedUsers: Vector[AssignedUser],
     users:         Vector[BreakoutUser],
     voiceUsers:    Vector[BreakoutVoiceUser],
     startedOn:     Option[Long],
@@ -16,6 +16,6 @@ case class BreakoutRoom2x(
 ) {
 
 }
-
-case class BreakoutUser(id: String, name: String)
+case class AssignedUser(id: String, name: String, email: String)
+case class BreakoutUser(id: String, name: String, email: String)
 case class BreakoutVoiceUser(id: String, extId: String, voiceUserId: String)

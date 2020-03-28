@@ -53,7 +53,7 @@ object FakeUserGenerator {
     val avatarURL = "https://www." + RandomStringGenerator.randomAlphanumericString(32) + ".com/" +
       RandomStringGenerator.randomAlphanumericString(10) + ".png"
 
-    val ru = RegisteredUsers.create(userId = id, extId, name, role,
+    val ru = RegisteredUsers.create(userId = id, extId, name, name, role,
       authToken, avatarURL, guest, authed, guestStatus = GuestStatus.ALLOW)
     RegisteredUsers.add(users, ru)
     ru
