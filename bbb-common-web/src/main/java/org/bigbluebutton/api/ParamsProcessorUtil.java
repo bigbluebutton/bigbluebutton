@@ -156,13 +156,21 @@ public class ParamsProcessorUtil {
 
         for (String keyword : keywordList) {
             if (keyword.equals(DIAL_NUM)) {
-                welcomeMessage = welcomeMessage.replaceAll(DIAL_NUM, dialNumber);
+                welcomeMessage = welcomeMessage.replaceAll(
+                        Pattern.quote(DIAL_NUM),
+                        Matcher.quoteReplacement(dialNumber));
             } else if (keyword.equals(CONF_NUM)) {
-                welcomeMessage = welcomeMessage.replaceAll(CONF_NUM, formatConfNum(telVoice));
+                welcomeMessage = welcomeMessage.replaceAll(
+                        Pattern.quote(CONF_NUM),
+                        Matcher.quoteReplacement(formatConfNum(telVoice)));
             } else if (keyword.equals(CONF_NAME)) {
-                welcomeMessage = welcomeMessage.replaceAll(CONF_NAME, meetingName);
+                welcomeMessage = welcomeMessage.replaceAll(
+                        Pattern.quote(CONF_NAME),
+                        Matcher.quoteReplacement(meetingName));
             } else if (keyword.equals(SERVER_URL)) {
-                welcomeMessage = welcomeMessage.replaceAll(SERVER_URL, defaultServerUrl);
+                welcomeMessage = welcomeMessage.replaceAll(
+                        Pattern.quote(SERVER_URL),
+                        Matcher.quoteReplacement(defaultServerUrl));
             }
         }
         return  welcomeMessage;
