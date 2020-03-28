@@ -2,16 +2,18 @@
 
 .separator {
   height: 1px;
-  background-color: var(--color-gray-lighter);
-  margin-top: calc(var(--line-height-computed) * .5);
-  margin-bottom: calc(var(--line-height-computed) * .5);
+  background-color: #0c3c66;
+  margin-bottom: 1.5rem
 }
 
 .branding {
-  padding: 0 var(--sm-padding-x);
   width: 100%;
+  height: 6rem;
+  align-items: center;
   & > img {
-    max-height: 2rem;
-    max-width: 100%;
+    align-self: center;
+    margin: 5% 10%;
+    height: 3.5rem;
+    width: 80%;
   }
 }
