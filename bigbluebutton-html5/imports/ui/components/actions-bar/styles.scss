@@ -40,6 +40,16 @@
     height: 5.5rem;
     width: 5.5rem;
   }
+  :first-child {
+    margin-top: 0.5rem;
+    height: 4.5rem;
+    width: 4.5rem;
+  }
+  :last-child {
+    margin-top: 0.5rem;
+    height: 4.5rem;
+    width: 4.5rem;
+  }
 }
 
 .center,
