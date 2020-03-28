@@ -40,7 +40,7 @@ const mapActiveChats = (chat) => {
 
 const CUSTOM_LOGO_URL_KEY = 'CustomLogoUrl';
 
-export const setCustomLogoUrl = path => Storage.setItem(CUSTOM_LOGO_URL_KEY, path);
+export const setCustomLogoUrl = () => Storage.setItem(CUSTOM_LOGO_URL_KEY, `https://${window.document.location.hostname}/html5client/resources/images/SciTal_Logo.png`);
 
 const getCustomLogoUrl = () => Storage.getItem(CUSTOM_LOGO_URL_KEY);
 
