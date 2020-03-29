@@ -193,6 +193,19 @@ class ApiController {
     }
 
 
+    //Sai TODO: Need to check for email patterns
+    if (!StringUtils.isEmpty(params.email)) {
+      params.email = StringUtils.strip(params.email);
+      if (StringUtils.isEmpty(params.email)) {
+        invalid("missingParamEmail", "You must specify an email for the attendee who will be joining the meeting.", REDIRECT_RESPONSE);
+        return
+      }
+    } else {
+      invalid("missingParamEmail", "You must specify an email for the attendee who will be joining the meeting.", REDIRECT_RESPONSE);
+      return
+    }
+
+
     if (!StringUtils.isEmpty(params.meetingID)) {
       params.meetingID = StringUtils.strip(params.meetingID);
       if (StringUtils.isEmpty(params.meetingID)) {
@@ -253,8 +266,17 @@ class ApiController {
     }
     String fullName = params.fullName
 
+    if (!StringUtils.isEmpty(params.email)) {
+      params.email = StringUtils.strip(params.email);
+      if (StringUtils.isEmpty(params.email)) {
+        errors.missingParamError("email");
+      }
+    } else {
+      errors.missingParamError("email");
+    }
+
     //Sai TODO: ensure the client sends email via params. For now, hardcoding it here
-    String email  = fullName + "@scital.com";
+    String email  = params.email;
 
       // Do we have a meeting id? If none, complain.
     if (!StringUtils.isEmpty(params.meetingID)) {
@@ -520,6 +542,7 @@ class ApiController {
     logData.put("meetingid", us.meetingID);
     logData.put("extMeetingid", us.externMeetingID);
     logData.put("name", us.fullname);
+    logData.put("email", us.email);
     logData.put("userid", us.internalUserId);
     logData.put("sessionToken", sessionToken);
     logData.put("logCode", "join_api");

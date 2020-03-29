@@ -20,7 +20,7 @@ object BreakoutHdlrHelpers extends SystemConfiguration {
     for {
       user <- Users2x.findWithIntId(liveMeeting.users2x, userId)
       apiCall = "join"
-      (redirectParams, redirectToHtml5Params) = BreakoutRoomsUtil.joinParams(user.name, userId + "-" + roomSequence, true,
+      (redirectParams, redirectToHtml5Params) = BreakoutRoomsUtil.joinParams(user.name, user.email, userId + "-" + roomSequence, true,
         externalMeetingId, liveMeeting.props.password.moderatorPass)
       // We generate a first url with redirect -> true
       redirectBaseString = BreakoutRoomsUtil.createBaseString(redirectParams)
