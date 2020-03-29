@@ -4,7 +4,7 @@ language: node_js
 
 env:
   - JOB_TYPE=linter
-  # - JOB_TYPE=acceptance_tests
+  #- JOB_TYPE=acceptance_tests
 
 node_js:
 - "12"
@@ -19,8 +19,6 @@ jobs:
   - stage: "Tests"
     name: "Acceptance Tests"
     env: JOB_TYPE=acceptance_tests
-
-if: type = pull_request
 
 env:
   global:
