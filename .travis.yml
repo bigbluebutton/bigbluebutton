@@ -1,13 +1,12 @@
 dist: bionic
-
 language: node_js
+node_js: 12
 
 env:
   - JOB_TYPE=linter
   - JOB_TYPE=acceptance_tests
-
-node_js:
-- "12"
+  global:
+    - BBB_SERVER_URL=http://localhost/bigbluebutton/api
 
 jobs:
   allow_failures:
@@ -19,10 +18,6 @@ jobs:
   - stage: "Tests"
     name: "Acceptance Tests"
     env: JOB_TYPE=acceptance_tests
-
-env:
-  global:
-    - BBB_SERVER_URL=http://localhost/bigbluebutton/api
 
 script:
   - travis_wait 30 bash ./build_script.sh $JOB_TYPE
