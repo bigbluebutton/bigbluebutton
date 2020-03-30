@@ -16,7 +16,19 @@
   line-height: $lineHeight;
   max-height: calc(#{"$lineHeight * $lineCount"});
 }
-
+.wrapper{
+  display: flex;
+  flex-flow: column;
+  flex-direction: column;
+  overflow: hidden;
+  height: 100vh;
+}
+// .slide{
+//   flex-flow: center;
+//   flex-direction: center;
+//   align-items: center;
+//   align-self: center;
+// }
 .chat {
   background-color: #f1f2f2;
   padding:
@@ -30,7 +42,7 @@
   flex-direction: column;
   justify-content: space-around;
   overflow: hidden;
-  height: 100vh;
+ // height: 100vh;
   transform: translateZ(0);
 }
 
@@ -43,9 +55,48 @@
   justify-content: space-between;
 }
 
+.layout{
+ // position: absolute;
+width: 1238px;
+//height: 50px;
+left: 200px;
+top: 0px;
+  background: #ffffff;
+  box-shadow: 0px 2px 2px rgba(0, 0, 0, 0.06);
+flex-wrap: nowrap;
+flex-direction: row;
+  justify-content: flex-end;
+//  align-content: center;
+ align-items: center;
+ // text-align: center;
+ flex: 0 10%;
+// position: relative;
+  // text-align: center;
+  // background: #ffffff;
+  // font-size: 1.5rem;
+
+  //  font-family: Avenir;
+  //  font-style: normal;
+  //  font-weight: 800;
+   font-size: 20px;
+  //  line-height: 16px;
+  //  /* identical to box height, or 80% */
+   
+  //  display: flex;
+  //  align-items: center;
+  //  letter-spacing: -0.6px
+  
+}
 .title {
   @extend %text-elipsis;
   flex: 1;
+ text-align: center;
+ left: 14.03%;
+right: 6.94%;
+top: 8.77%;
+bottom: 85.31%;
+text-transform: uppercase;
+background: #E5E5E6;
   & > button, button:hover {
     max-width: var(--toast-content-width);
   }
@@ -127,4 +178,24 @@
   justify-content: flex-end;
   align-self: flex-end;
   
+}
+
+.chatTab{
+  flex:1;
+
+  font-family: Avenir;
+font-style: normal;
+font-weight: 500;
+font-size: 13px;
+line-height: 15px;
+/* identical to box height, or 115% */
+
+text-align: center;
+letter-spacing: 0.05em;
+text-transform: uppercase;
+
+color: #000000;
+  text-align: center;
+  justify-content: center;
+  align-items: center;
 }
