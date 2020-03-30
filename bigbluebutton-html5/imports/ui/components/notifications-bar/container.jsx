@@ -135,8 +135,6 @@ export default injectIntl(withTracker(({ intl }) => {
   const { status, connected, retryTime } = Meteor.status();
   const data = {};
 
-  const whiteboardConnected = whiteboardConnection.status().connected;
-
   const user = Users.findOne({ userId: Auth.userID }, { fields: { effectiveConnectionType: 1 } });
 
   if (user) {
@@ -153,7 +151,7 @@ export default injectIntl(withTracker(({ intl }) => {
     }
   }
 
-  if (Meteor.settings.public.role && !whiteboardConnected) {
+  if (Meteor.settings.public.role && !whiteboardConnection.status().connected) {
     data.color = 'danger';
     data.message = intl.formatMessage(intlMessages.whiteboardConnectionOffline);
   }
