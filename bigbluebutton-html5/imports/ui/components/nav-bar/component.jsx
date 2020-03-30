@@ -105,17 +105,13 @@ class NavBar extends PureComponent {
               aria-expanded={isExpanded}
               accessKey={TOGGLE_USERLIST_AK}
             />
+            <h1 className={styles.presentationTitle}>{presentationTitle}</h1>
+            <RecordingIndicator
+              mountModal={mountModal}
+              amIModerator={amIModerator}
+            />
           </div>
           <div className={styles.center}>
-            <h1 className={styles.presentationTitle}>{presentationTitle}</h1>
-            {/* {
-              (!amIModerator) ?  */}
-              <RecordingIndicator
-                mountModal={mountModal}
-                amIModerator={amIModerator}
-              />
-              {/* : null
-            } */}
           </div>
           <div className={styles.right}>
             <SettingsDropdownContainer amIModerator={amIModerator} />

@@ -22,12 +22,15 @@ import PingPongContainer from '/imports/ui/components/ping-pong/container';
 import MediaService from '/imports/ui/components/media/service';
 import ManyWebcamsNotifier from '/imports/ui/components/video-provider/many-users-notify/container';
 import { styles } from './styles';
+import ChatContainer from '/imports/ui/components/chat/container';
+import Resizable from 're-resizable';
 
 const MOBILE_MEDIA = 'only screen and (max-width: 40em)';
 const APP_CONFIG = Meteor.settings.public.app;
 const DESKTOP_FONT_SIZE = APP_CONFIG.desktopFontSize;
 const MOBILE_FONT_SIZE = APP_CONFIG.mobileFontSize;
 const ENABLE_NETWORK_MONITORING = Meteor.settings.public.networkMonitoring.enableNetworkMonitoring;
+const dispatchResizeEvent = () => window.dispatchEvent(new Event('resize'));
 
 const intlMessages = defineMessages({
   userListLabel: {
@@ -317,10 +320,56 @@ class App extends Component {
       />) : null);
   }
 
+  renderChat() {
+    return (
+      <section
+        className={styles.chat}
+      >
+        <ChatContainer />
+      </section>
+    );
+  }
+
+  renderChatResizable() {
+    const { isRTL } = this.props;
+
+    const resizableEnableOptions = {
+      top: false,
+      right: !isRTL,
+      bottom: false,
+      left: !!isRTL,
+      topRight: false,
+      bottomRight: false,
+      bottomLeft: false,
+      topLeft: false,
+    };
+    const chatWidth = ((screen.width) * 59) / 100;
+
+    return (
+      <Resizable
+        minWidth={((screen.width) * 59) / 100}
+        maxWidth={((screen.width) * 59) / 100}
+        ref={(node) => { this.resizableChat = node; }}
+        enable={resizableEnableOptions}
+        key={this.chatKey}
+        size={{ width: chatWidth }}
+        onResize={dispatchResizeEvent}
+        onResizeStop={(e, direction, ref, d) => {
+          this.setState({
+            chatWidth: chatWidth + d.width,
+          });
+        }}
+      >
+        {this.renderChat()}
+      </Resizable>
+    );
+  }
+
   render() {
     const {
       customStyle, customStyleUrl, openPanel,
     } = this.props;
+    const { enableResize } = this.state;
     return (
       <main className={styles.main}>
         {this.renderActivityCheck()}
@@ -328,13 +377,20 @@ class App extends Component {
         <BannerBarContainer />
         <NotificationsBarContainer />
         <section className={styles.wrapper}>
-          <div className={openPanel ? styles.content : styles.noPanelContent}>
-            {this.renderNavBar()}
-            {this.renderMedia()}
-            {this.renderActionsBar()}
-          </div>
           {this.renderPanel()}
-          {this.renderSidebar()}
+          {/* {this.renderSidebar()} */}
+          <div className={styles.container}>
+            {this.renderNavBar()}
+            <div className={styles.panelContainer}>
+              <div className={openPanel ? styles.content : styles.noPanelContent}>
+                {this.renderMedia()}
+                {this.renderActionsBar()}
+              </div>
+              {(openPanel === 'chat') ? (
+                (enableResize) ? this.renderChatResizable() : this.renderChat()
+              ) : null}
+            </div>
+          </div>
         </section>
         <BreakoutRoomInvitation />
         <PollingContainer />
