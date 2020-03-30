@@ -27,7 +27,7 @@ const propTypes = {
 const defaultProps = {
   compact: false,
 };
-const CHAT_ENABLED = Meteor.settings.public.chat.enabled;
+//const CHAT_ENABLED = Meteor.settings.public.chat.enabled;
 const ROLE_MODERATOR = Meteor.settings.public.user.role_moderator;
 
 class UserContent extends PureComponent {
@@ -53,7 +53,7 @@ class UserContent extends PureComponent {
         className={styles.content}
         role="complementary"
       >
-        {CHAT_ENABLED
+        {/* {CHAT_ENABLED
           ? (<UserMessages
             {...{
               isPublicChat,
@@ -64,7 +64,7 @@ class UserContent extends PureComponent {
             }}
           />
           ) : null
-        }
+        } */}
         {currentUser.role === ROLE_MODERATOR
           ? (
             <UserCaptionsContainer
