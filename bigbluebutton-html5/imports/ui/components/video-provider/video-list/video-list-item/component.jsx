@@ -159,7 +159,7 @@ class VideoListItem extends Component {
       >
         {
           !videoIsReady
-          && <div className={styles.connecting} />
+          && <div data-test="webcamConnecting" className={styles.connecting} />
         }
         <div
           className={styles.videoContainer}

@@ -683,7 +683,7 @@ class PresentationUploader extends Component {
         disablepreview="true"
         onDrop={this.handleFiledrop}
       >
-        <Icon className={styles.dropzoneIcon} iconName="upload" />
+        <Icon className={styles.dropzoneIcon} data-test="fileUploadDropZone" iconName="upload" />
         <p className={styles.dropzoneMessage}>
           {intl.formatMessage(intlMessages.dropzoneLabel)}
           &nbsp;
