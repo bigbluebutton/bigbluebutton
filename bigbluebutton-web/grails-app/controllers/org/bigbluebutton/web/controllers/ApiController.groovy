@@ -192,6 +192,20 @@ class ApiController {
       return
     }
 
+
+    //Sai TODO: Need to check for email patterns
+    if (!StringUtils.isEmpty(params.email)) {
+      params.email = StringUtils.strip(params.email);
+      if (StringUtils.isEmpty(params.email)) {
+        invalid("missingParamEmail", "You must specify an email for the attendee who will be joining the meeting.", REDIRECT_RESPONSE);
+        return
+      }
+    } else {
+      invalid("missingParamEmail", "You must specify an email for the attendee who will be joining the meeting.", REDIRECT_RESPONSE);
+      return
+    }
+
+
     if (!StringUtils.isEmpty(params.meetingID)) {
       params.meetingID = StringUtils.strip(params.meetingID);
       if (StringUtils.isEmpty(params.meetingID)) {
@@ -252,7 +266,19 @@ class ApiController {
     }
     String fullName = params.fullName
 
-    // Do we have a meeting id? If none, complain.
+    if (!StringUtils.isEmpty(params.email)) {
+      params.email = StringUtils.strip(params.email);
+      if (StringUtils.isEmpty(params.email)) {
+        errors.missingParamError("email");
+      }
+    } else {
+      errors.missingParamError("email");
+    }
+
+    //Sai TODO: ensure the client sends email via params. For now, hardcoding it here
+    String email  = params.email;
+
+      // Do we have a meeting id? If none, complain.
     if (!StringUtils.isEmpty(params.meetingID)) {
       params.meetingID = StringUtils.strip(params.meetingID);
       if (StringUtils.isEmpty(params.meetingID)) {
@@ -406,6 +432,7 @@ class ApiController {
     us.externMeetingID = meeting.getExternalId()
     us.externUserID = externUserID
     us.fullname = fullName
+    us.email = email
     us.role = role
     us.conference = meeting.getInternalId()
     us.room = meeting.getInternalId()
@@ -431,7 +458,7 @@ class ApiController {
     }
 
     // Register user into the meeting.
-    meetingService.registerUser(us.meetingID, us.internalUserId, us.fullname, us.role, us.externUserID,
+    meetingService.registerUser(us.meetingID, us.internalUserId, us.fullname, us.email, us.role, us.externUserID,
         us.authToken, us.avatarURL, us.guest, us.authed, guestStatusVal)
 
     // Validate if the maxParticipants limit has been reached based on registeredUsers. If so, complain.
@@ -515,6 +542,7 @@ class ApiController {
     logData.put("meetingid", us.meetingID);
     logData.put("extMeetingid", us.externMeetingID);
     logData.put("name", us.fullname);
+    logData.put("email", us.email);
     logData.put("userid", us.internalUserId);
     logData.put("sessionToken", sessionToken);
     logData.put("logCode", "join_api");
