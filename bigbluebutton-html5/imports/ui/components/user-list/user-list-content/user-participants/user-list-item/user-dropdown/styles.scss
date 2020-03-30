@@ -124,6 +124,12 @@
   @extend %text-elipsis;
   cursor: default;
   min-width: 10vw;
+  @include mq($medium-only) {
+    min-width: 13vw;
+  }
+  @include mq($large-up) {
+    min-width: 8vw;
+  }
   max-width: 100%;
   overflow: visible;
 }

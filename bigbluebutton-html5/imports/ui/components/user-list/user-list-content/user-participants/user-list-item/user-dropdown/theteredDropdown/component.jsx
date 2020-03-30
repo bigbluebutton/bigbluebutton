@@ -101,7 +101,7 @@ class Dropdown extends Component {
 
     if (!isOpen && prevState.isOpen) { onHide(); }
 
-    if (prevProps.keepOpen && !keepOpen) onHide();
+    if (prevProps.keepOpen && !keepOpen) { onHide(); }
   }
 
   handleShow() {
@@ -192,10 +192,11 @@ class Dropdown extends Component {
     });
 
     content = React.cloneElement(content, {
-      ref: (ref) => { 
+      ref: (ref) => {
         getContent(ref);
         this.content = ref;
       },
+      keepOpen,
       'aria-expanded': isOpen,
       dropdownIsOpen: isOpen,
       dropdownToggle: this.handleToggle,
@@ -236,7 +237,7 @@ class Dropdown extends Component {
           }
           targetAttachment={
             isMobile ? ''
-            : targetAttachments[placements]
+              : targetAttachments[placements]
           }
 
           constraints={[
@@ -245,10 +246,10 @@ class Dropdown extends Component {
             },
           ]}
 
-        renderTarget={ref => (
-        <span ref={ref}>
-          {trigger}
-          </span>)}
+          renderTarget={ref => (
+            <span ref={ref}>
+              {trigger}
+            </span>)}
           renderElement={ref => (
             <div
               ref={ref}

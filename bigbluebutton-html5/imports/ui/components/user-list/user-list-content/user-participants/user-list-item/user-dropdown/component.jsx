@@ -4,12 +4,12 @@ import PropTypes from 'prop-types';
 import { findDOMNode } from 'react-dom';
 import UserAvatar from '/imports/ui/components/user-avatar/component';
 import Icon from '/imports/ui/components/icon/component';
-import Dropdown from './theteredDropdown/component';
 import DropdownTrigger from '/imports/ui/components/dropdown/trigger/component';
 import DropdownContent from '/imports/ui/components/dropdown/content/component';
 import DropdownList from '/imports/ui/components/dropdown/list/component';
 import DropdownListItem from '/imports/ui/components/dropdown/list/item/component';
 import DropdownListSeparator from '/imports/ui/components/dropdown/list/separator/component';
+import Dropdown from '/imports/ui/components/dropdown/component';
 import lockContextContainer from '/imports/ui/components/lock-viewers/context/container';
 
 import _ from 'lodash';
@@ -17,6 +17,7 @@ import { Session } from 'meteor/session';
 import { styles } from './styles';
 import UserName from '../user-name/component';
 import UserIcons from '../user-icons/component';
+import Service from '../../../../service';
 
 const messages = defineMessages({
   presenter: {
@@ -287,7 +288,10 @@ class UserDropdown extends PureComponent {
           {
             showNestedOptions: true,
             isActionsOpen: true,
-          }, Session.set('dropdownOpen', true),
+          }, () => {
+            Session.set('dropdownOpen', true);
+            Service.focusFirstDropDownItem();
+          },
         ),
         'user',
         'right_arrow',
@@ -561,7 +565,7 @@ class UserDropdown extends PureComponent {
       <div
         data-test={isMe(user.userId) ? 'userListItemCurrent' : 'userListItem'}
         className={!actions.length ? styles.userListItem : null}
-        >
+      >
         <div className={styles.userItemContents}>
           <div className={styles.userAvatar}>
             {this.renderUserAvatar()}
@@ -595,13 +599,14 @@ class UserDropdown extends PureComponent {
         keepOpen={isActionsOpen || showNestedOptions}
         onShow={this.onActionsShow}
         onHide={this.onActionsHide}
-        className={userItemContentsStyle} 
+        className={userItemContentsStyle}
         autoFocus={false}
         aria-haspopup="true"
         aria-live="assertive"
         aria-relevant="additions"
         placement={placement}
-        getContent={(dropdownContent) => this.dropdownContent = dropdownContent}
+        getContent={dropdownContent => this.dropdownContent = dropdownContent}
+        tethered
       >
         <DropdownTrigger>
           {contents}

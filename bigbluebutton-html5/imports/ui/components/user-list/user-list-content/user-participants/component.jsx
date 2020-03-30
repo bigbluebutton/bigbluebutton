@@ -70,16 +70,6 @@ class UserParticipants extends Component {
     this.rowRenderer = this.rowRenderer.bind(this);
   }
 
-  componentDidMount() {
-    const { compact } = this.props;
-    if (!compact) {
-      this.refScrollContainer.addEventListener(
-        'keydown',
-        this.rove,
-      );
-    }
-  }
-
   shouldComponentUpdate(nextProps, nextState) {
     const isPropsEqual = _.isEqual(this.props, nextProps);
     const isStateEqual = _.isEqual(this.state, nextState);
@@ -87,12 +77,20 @@ class UserParticipants extends Component {
   }
 
   componentDidUpdate(prevProps, prevState) {
-    const { selectedUser } = this.state;
-    if (selectedUser === prevState.selectedUser) return;
+    const { compact } = this.props;
+    const { selectedUser,  scrollArea } = this.state;
+    if (!compact && (!prevState.scrollArea && scrollArea)) {
+      scrollArea.addEventListener(
+        'keydown',
+        this.rove,
+      );
+    }
 
     if (selectedUser) {
       const { firstChild } = selectedUser;
-      if (firstChild) firstChild.focus();
+      if (!firstChild.isEqualNode(document.activeElement)) {
+        firstChild.focus();
+      }
     }
   }
 
@@ -153,8 +151,9 @@ class UserParticipants extends Component {
 
   rove(event) {
     const { roving } = this.props;
-    const { selectedUser } = this.state;
-    const usersItemsRef = findDOMNode(this.refScrollItems);
+    const { selectedUser, scrollArea } = this.state;
+    const usersItemsRef = findDOMNode(scrollArea.firstChild);
+
     roving(event, this.changeState, usersItemsRef, selectedUser);
   }
 
@@ -217,11 +216,11 @@ class UserParticipants extends Component {
                 }}
                 ref={(ref) => {
                   if (ref !== null) {
-                    this.listRef = ref; 
+                    this.listRef = ref;
                   }
 
-                  if (!scrollArea) {
-                    this.setState({ scrollArea: findDOMNode(this.listRef) });
+                  if (ref !== null && !scrollArea) {                    
+                    this.setState({ scrollArea: findDOMNode(ref) });
                   }
                 }}
                 rowHeight={this.cache.rowHeight}
