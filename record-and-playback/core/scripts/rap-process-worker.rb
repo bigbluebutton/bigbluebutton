@@ -23,11 +23,18 @@ require 'rubygems'
 require 'yaml'
 require 'fileutils'
 
+
+# This function handle file sort by timestamp @dseral
+def sort_by_date(arr)
+        h = Hash[arr.collect { |x| [ x.chomp(".done").split("-")[1], x ] }].sort
+        return hh=h.map { |key, value| value }
+end
+
 def process_archived_meetings(recording_dir)
-  sanity_done_files = Dir.glob("#{recording_dir}/status/sanity/*.done")
+  # Take filenames from sanity directory then order them by timestamp
+  sanity_done_files = sort_by_date(Dir.glob("#{recording_dir}/status/sanity/*.done"))
 
   FileUtils.mkdir_p("#{recording_dir}/status/processed")
-  # TODO sort by timestamp(s)
   sanity_done_files.each do |sanity_done|
     done_base = File.basename(sanity_done, '.done')
     meeting_id = nil
