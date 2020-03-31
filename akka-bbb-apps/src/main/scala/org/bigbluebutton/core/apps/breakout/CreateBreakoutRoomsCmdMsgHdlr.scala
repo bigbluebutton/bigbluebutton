@@ -2,7 +2,8 @@ package org.bigbluebutton.core.apps.breakout
 
 import org.bigbluebutton.common2.msgs._
 import org.bigbluebutton.core.apps.{ BreakoutModel, PermissionCheck, RightsManagementTrait }
-import org.bigbluebutton.core.domain.{ BreakoutRoom2x, MeetingState2x }
+import org.bigbluebutton.core.domain.{ AssignedUser, BreakoutRoom2x, MeetingState2x }
+import org.bigbluebutton.core.models.Users2x
 import org.bigbluebutton.core.running.{ LiveMeeting, OutMsgRouter }
 import org.bigbluebutton.core.running.MeetingActor
 
@@ -46,7 +47,11 @@ trait CreateBreakoutRoomsCmdMsgHdlr extends RightsManagementTrait {
       val (internalId, externalId) = BreakoutRoomsUtil.createMeetingIds(liveMeeting.props.meetingProp.intId, i)
       val voiceConf = BreakoutRoomsUtil.createVoiceConfId(liveMeeting.props.voiceProp.voiceConf, i)
 
-      val breakout = BreakoutModel.create(parentId, internalId, externalId, room.name, room.sequence, room.freeJoin, voiceConf, room.users)
+      val breakout = BreakoutModel.create(parentId, internalId, externalId, room.name, room.sequence, room.freeJoin, voiceConf,
+        room.users.flatMap(u =>
+          Users2x.findWithIntId(liveMeeting.users2x, u)
+            .map(userState => AssignedUser(userState.intId, userState.name, userState.email))))
+
       rooms = rooms + (breakout.id -> breakout)
     }
 

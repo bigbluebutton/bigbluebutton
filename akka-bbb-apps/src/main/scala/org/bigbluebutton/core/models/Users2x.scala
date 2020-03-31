@@ -251,6 +251,7 @@ case class UserState(
     intId:            String,
     extId:            String,
     name:             String,
+    email:            String,
     role:             String,
     guest:            Boolean,
     authed:           Boolean,

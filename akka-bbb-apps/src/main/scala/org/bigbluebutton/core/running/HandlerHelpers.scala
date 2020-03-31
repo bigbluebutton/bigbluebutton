@@ -55,6 +55,7 @@ trait HandlerHelpers extends SystemConfiguration {
         intId = regUser.id,
         extId = regUser.externId,
         name = regUser.name,
+        email = regUser.email,
         role = regUser.role,
         guest = regUser.guest,
         authed = regUser.authed,

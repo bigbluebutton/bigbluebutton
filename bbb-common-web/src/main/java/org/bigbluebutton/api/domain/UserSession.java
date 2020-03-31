@@ -28,7 +28,8 @@ public class UserSession {
   public String meetingID = null;
   public String externMeetingID = null;
   public String externUserID = null;
-  public String fullname = null; 
+  public String fullname = null;
+  public String email = null;
   public String role = null;
   public String conference = null;
   public String room = null;

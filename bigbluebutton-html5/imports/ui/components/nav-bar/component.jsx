@@ -40,6 +40,19 @@ const defaultProps = {
   shortcuts: '',
 };
 
+const handleClickToggleChat = (id) => {
+  Session.set(
+    'openPanel',
+    Session.get('openPanel') === 'chat' && Session.get('idChatOpen') === id
+      ? 'userlist' : 'chat',
+  );
+  if (Session.equals('openPanel', 'chat')) {
+    Session.set('idChatOpen', id);
+  } else {
+    Session.set('idChatOpen', '');
+  }
+};
+
 class NavBar extends PureComponent {
   static handleToggleUserList() {
     Session.set(
@@ -93,7 +106,8 @@ class NavBar extends PureComponent {
           <div className={styles.left}>
             <Button
               data-test="userListToggleButton"
-              onClick={NavBar.handleToggleUserList}
+              //onClick={NavBar.handleToggleUserList}
+              onClick={() => handleClickToggleChat(chat.userId)}
               ghost
               circle
               hideLabel
