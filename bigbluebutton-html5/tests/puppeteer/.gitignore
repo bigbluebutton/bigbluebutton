@@ -5,4 +5,3 @@ downloads/*
 !downloads/downloads.txt
 .directory
 .env
-media/*
