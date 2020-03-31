@@ -86,7 +86,7 @@ class NavBar extends PureComponent {
       hasUnreadMessages,
       isExpanded,
       intl,
-      shortcuts: TOGGLE_USERLIST_AK,
+      shortcuts: TOGGLE_CHAT_PUB_AK,
       mountModal,
       presentationTitle,
       amIModerator,
@@ -105,30 +105,28 @@ class NavBar extends PureComponent {
         <div className={styles.top}>
           <div className={styles.left}>
             <Button
-              data-test="userListToggleButton"
-              //onClick={NavBar.handleToggleUserList}
-              onClick={() => handleClickToggleChat(chat.userId)}
+            data-test="chatButton"
+              onClick={() => handleClickToggleChat("public")}
               ghost
               circle
               hideLabel
               label={intl.formatMessage(intlMessages.toggleUserListLabel)}
-              aria-label={ariaLabel}
               icon="user"
               color="primary"
               className={cx(toggleBtnClasses)}
               aria-expanded={isExpanded}
-              accessKey={TOGGLE_USERLIST_AK}
+              accessKey={TOGGLE_CHAT_PUB_AK}
             />
           </div>
           <div className={styles.center}>
             {/* <h1 className={styles.presentationTitle}>{presentationTitle}</h1> */}
             {/* {
               (!amIModerator) ?  */}
-              <RecordingIndicator
-                mountModal={mountModal}
-                amIModerator={amIModerator}
-              />
-              {/* : null
+            <RecordingIndicator
+              mountModal={mountModal}
+              amIModerator={amIModerator}
+            />
+            {/* : null
             } */}
           </div>
           <div className={styles.right}>
