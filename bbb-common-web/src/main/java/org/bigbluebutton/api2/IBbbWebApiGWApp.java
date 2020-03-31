@@ -33,7 +33,7 @@ public interface IBbbWebApiGWApp {
                      BreakoutRoomsParams breakoutParams,
                      LockSettingsParams lockSettingsParams);
 
-  void registerUser(String meetingID, String internalUserId, String fullname, String role,
+  void registerUser(String meetingID, String internalUserId, String fullname, String email, String role,
                     String externUserID, String authToken, String avatarURL,
                     Boolean guest, Boolean authed, String guestStatus);
   void ejectDuplicateUser(String meetingID, String internalUserId, String fullname,

@@ -66,7 +66,7 @@ trait FakeTestData {
   }
 
   def createFakeUser(liveMeeting: LiveMeeting, regUser: RegisteredUser): UserState = {
-    UserState(intId = regUser.id, extId = regUser.externId, name = regUser.name, role = regUser.role,
+    UserState(intId = regUser.id, extId = regUser.externId, name = regUser.name, email = regUser.email, role = regUser.role,
       guest = regUser.guest, authed = regUser.authed, guestStatus = regUser.guestStatus,
       emoji = "none", locked = false, presenter = false, avatar = regUser.avatarURL, clientType = "unknown",
       userLeftFlag = UserLeftFlag(false, 0))

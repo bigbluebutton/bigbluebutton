@@ -13,7 +13,7 @@ case class RegisterUserReqMsg(
     header: BbbCoreHeaderWithMeetingId,
     body:   RegisterUserReqMsgBody
 ) extends BbbCoreMsg
-case class RegisterUserReqMsgBody(meetingId: String, intUserId: String, name: String, role: String,
+case class RegisterUserReqMsgBody(meetingId: String, intUserId: String, name: String, email: String, role: String,
                                   extUserId: String, authToken: String, avatarURL: String,
                                   guest: Boolean, authed: Boolean, guestStatus: String)
 
@@ -87,7 +87,7 @@ case class UserJoinedMeetingEvtMsg(
     header: BbbClientMsgHeader,
     body:   UserJoinedMeetingEvtMsgBody
 ) extends BbbCoreMsg
-case class UserJoinedMeetingEvtMsgBody(intId: String, extId: String, name: String, role: String,
+case class UserJoinedMeetingEvtMsgBody(intId: String, extId: String, name: String, email: String, role: String,
                                        guest: Boolean, authed: Boolean, guestStatus: String,
                                        emoji:     String,
                                        presenter: Boolean, locked: Boolean, avatar: String, clientType: String)

@@ -49,10 +49,11 @@ object BreakoutRoomsUtil {
     checksum(apiCall.concat(baseString).concat(sharedSecret))
   }
 
-  def joinParams(username: String, userId: String, isBreakout: Boolean, breakoutMeetingId: String,
+  def joinParams(username: String, userId: String, email: String, isBreakout: Boolean, breakoutMeetingId: String,
                  password: String): (collection.immutable.Map[String, String], collection.immutable.Map[String, String]) = {
     val params = collection.immutable.HashMap(
       "fullName" -> urlEncode(username),
+      "email" -> urlEncode(email),
       "userID" -> urlEncode(userId),
       "isBreakout" -> urlEncode(isBreakout.toString()),
       "meetingID" -> urlEncode(breakoutMeetingId),

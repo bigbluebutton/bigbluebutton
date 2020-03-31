@@ -9,7 +9,7 @@ object UserJoinedMeetingEvtMsgBuilder {
     val envelope = BbbCoreEnvelope(UserJoinedMeetingEvtMsg.NAME, routing)
 
     val body = UserJoinedMeetingEvtMsgBody(intId = userState.intId, extId = userState.extId, name = userState.name,
-      role = userState.role, guest = userState.guest, authed = userState.authed,
+      email = userState.email, role = userState.role, guest = userState.guest, authed = userState.authed,
       guestStatus = userState.guestStatus,
       emoji = userState.emoji,
       presenter = userState.presenter, locked = userState.locked, avatar = userState.avatar,

@@ -1,6 +1,6 @@
 package org.bigbluebutton.core.apps
 
-import org.bigbluebutton.core.domain.{ BreakoutRoom2x, BreakoutUser }
+import org.bigbluebutton.core.domain.{ AssignedUser, BreakoutRoom2x, BreakoutUser }
 
 object BreakoutModel {
   def create(
@@ -11,7 +11,7 @@ object BreakoutModel {
       sequence:      Integer,
       freeJoin:      Boolean,
       voiceConf:     String,
-      assignedUsers: Vector[String]
+      assignedUsers: Vector[AssignedUser]
   ): BreakoutRoom2x = {
     new BreakoutRoom2x(id, externalId, name, parentId, sequence, freeJoin, voiceConf, assignedUsers, Vector(), Vector(), None, false)
   }
@@ -30,6 +30,12 @@ case class BreakoutModel(
 
   def findWithExternalId(externalId: String): Option[BreakoutRoom2x] = {
     rooms.values find (r => r.externalId == externalId)
+  }
+
+  def findWithParentIdAndEmail(parentId: String, assignedUserEmail: String): Option[BreakoutRoom2x] = {
+    rooms.values find (r => {
+      r.parentId == parentId && r.assignedUsers.exists(user => user.email == assignedUserEmail)
+    })
   }
 
   def getRooms(): Vector[BreakoutRoom2x] = {
@@ -52,7 +58,7 @@ case class BreakoutModel(
     copy(rooms = rooms + (room.id -> room))
   }
 
-  def getAssignedUsers(breakoutMeetingId: String): Option[Vector[String]] = {
+  def getAssignedUsers(breakoutMeetingId: String): Option[Vector[AssignedUser]] = {
     for {
       room <- rooms.get(breakoutMeetingId)
     } yield room.assignedUsers
