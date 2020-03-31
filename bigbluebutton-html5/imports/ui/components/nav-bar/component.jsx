@@ -105,8 +105,8 @@ class NavBar extends PureComponent {
         <div className={styles.top}>
           <div className={styles.left}>
             <Button
-            data-test="chatButton"
-              onClick={() => handleClickToggleChat("public")}
+              data-test="chatButton"
+              onClick={() => handleClickToggleChat('public')}
               ghost
               circle
               hideLabel
