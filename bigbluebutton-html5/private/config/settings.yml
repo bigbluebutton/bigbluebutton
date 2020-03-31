@@ -33,6 +33,8 @@ public:
         chatPushAlerts: false
         userJoinAudioAlerts: false
         userJoinPushAlerts: false
+        raiseHandAudioAlerts: false
+        raiseHandPushAlerts: false
         fallbackLocale: en
         overrideLocale: null
       audio:
