@@ -47,9 +47,8 @@ const Chat = (props) => {
   const HIDE_CHAT_AK = shortcuts.hidePrivateChat;
   const CLOSE_CHAT_AK = shortcuts.closePrivateChat;
 
-  return (<div className={styles.wrapper} >
-    {/* <div className={styles.layout}>master channel</div> */}
-   
+  return (
+  <div className={styles.wrapper} >
     <div
       data-test="publicChat"
       className={styles.chat}
@@ -127,21 +126,7 @@ const Chat = (props) => {
         partnerIsLoggedOut={partnerIsLoggedOut}
       />
     </div>
-      {/* <div className={styles.slide}>
-      <Button
-            // onClick={() => {
-            //   Session.set('idChatOpen', '');
-            //   Session.set('openPanel', 'userlist');
-            // }}
-           // aria-label={intl.formatMessage(intlMessages.hideChatLabel, { 0: title })}
-            //accessKey={HIDE_CHAT_AK}
-            //label={title}
-            icon="left_arrow"
-            className={styles.hideBtn}
-            color="dark"
-          />
-      </div> */}
-      </div>
+  </div>
   );
 };
 

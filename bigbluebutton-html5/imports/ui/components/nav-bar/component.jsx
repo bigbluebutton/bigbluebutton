@@ -44,7 +44,7 @@ const handleClickToggleChat = (id) => {
   Session.set(
     'openPanel',
     Session.get('openPanel') === 'chat' && Session.get('idChatOpen') === id
-      ? 'userlist' : 'chat',
+      ? '' : 'chat',
   );
   if (Session.equals('openPanel', 'chat')) {
     Session.set('idChatOpen', id);
@@ -86,7 +86,7 @@ class NavBar extends PureComponent {
       hasUnreadMessages,
       isExpanded,
       intl,
-      shortcuts: TOGGLE_USERLIST_AK,
+      shortcuts: TOGGLE_CHAT_PUB_AK,
       mountModal,
       presentationTitle,
       amIModerator,
@@ -105,19 +105,17 @@ class NavBar extends PureComponent {
         <div className={styles.top}>
           <div className={styles.left}>
             <Button
-              data-test="userListToggleButton"
-              //onClick={NavBar.handleToggleUserList}
-              onClick={() => handleClickToggleChat(chat.userId)}
+            data-test="chatButton"
+              onClick={() => handleClickToggleChat("public")}
               ghost
               circle
               hideLabel
               label={intl.formatMessage(intlMessages.toggleUserListLabel)}
-              aria-label={ariaLabel}
               icon="user"
               color="primary"
               className={cx(toggleBtnClasses)}
               aria-expanded={isExpanded}
-              accessKey={TOGGLE_USERLIST_AK}
+              accessKey={TOGGLE_CHAT_PUB_AK}
             />
             <h1 className={styles.presentationTitle}>{presentationTitle}</h1>
             <RecordingIndicator

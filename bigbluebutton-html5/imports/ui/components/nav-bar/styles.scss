@@ -50,6 +50,7 @@
   padding: 0;
   white-space: nowrap;
   text-overflow: ellipsis;
+  text-transform: capitalize;
 
   > [class^="icon-bbb-"] {
     font-size: 75%;

@@ -22,13 +22,17 @@
 }
 
 .navbar {
-  height: 10%;
+  height: 9%;
   order: 1;
   position: relative;
   text-align: center;
   background-color: #ffffff;
 
   padding: var(--bars-padding) var(--bars-padding) 0 var(--bars-padding);
+
+  @include mq($small-only) {
+    background-color: #0f4c81;
+  }
 }
 
 .wrapper {
@@ -47,7 +51,7 @@
 }
 
 .panelContainer {
-  height: 90%;
+  height: 91%;
   order: 2;
   display: flex;
   flex-direction: row;
@@ -76,7 +80,7 @@
 .content, .noPanelContent {
   @extend %full-page;
   order: 2;
-  padding-top: 2px;
+  top: 5%;
 
   &:before,
   &:after {
@@ -104,7 +108,7 @@
   }
 
   @include mq($medium-up) {
-    flex: 1 90%;
+    flex: 1 95%;
     order: 2;
   }
 }
@@ -127,7 +131,7 @@
   order: 1;
 
   @include mq($small-only) {
-    top: var(--navbar-height);
+    top: 10%;
   }
 
   @include mq($medium-up) {
@@ -227,8 +231,7 @@
 
 .actionsbar {
   @extend %full-page;
-  flex: 2 60%;
-  // flex: 1;
+  flex: 2 auto;
   padding: var(--bars-padding);
   position: relative;
   order: 3;
