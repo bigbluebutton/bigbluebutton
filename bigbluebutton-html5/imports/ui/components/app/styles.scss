@@ -22,24 +22,40 @@
 }
 
 .navbar {
-  flex: 0 10%;
+  height: 9%;
+  order: 1;
   position: relative;
   text-align: center;
+  background-color: #ffffff;
 
-  font-size: 1.5rem;
   padding: var(--bars-padding) var(--bars-padding) 0 var(--bars-padding);
+
+  @include mq($small-only) {
+    background-color: #0f4c81;
+  }
 }
 
 .wrapper {
   position: relative;
   display: flex;
   flex: 1;
-  flex-direction: column;
+  flex-direction: row;
   overflow: hidden;
+}
 
-  @include mq($medium-up) {
-    flex-direction: row;
-  }
+.container {
+  order: 2;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.panelContainer {
+  height: 91%;
+  order: 2;
+  display: flex;
+  flex-direction: row;
+  position: relative;
 }
 
 %full-page {
@@ -63,7 +79,8 @@
 
 .content, .noPanelContent {
   @extend %full-page;
-  order: 3;
+  order: 2;
+  top: 5%;
 
   &:before,
   &:after {
@@ -91,7 +108,7 @@
   }
 
   @include mq($medium-up) {
-    flex: 5;
+    flex: 1 95%;
     order: 2;
   }
 }
@@ -114,7 +131,7 @@
   order: 1;
 
   @include mq($small-only) {
-    top: var(--navbar-height);
+    top: 10%;
   }
 
   @include mq($medium-up) {
@@ -130,7 +147,7 @@
 }
 
 .userlistPad {
-  background-color: #f1f2f2;
+  background-color: #0f4c81;
   width: var(--userlist-handle-width);
 }
 
@@ -146,12 +163,11 @@
   @extend %full-page;
   @include highContrastOutline();
   outline-style: solid;
-  order: 2;
+  order: 1;
   height: 100%;
   @include mq($small-only) {
     z-index: 3;
     height: auto;
-    top: var(--navbar-height);
     overflow: visible;
   }
 
@@ -215,8 +231,7 @@
 
 .actionsbar {
   @extend %full-page;
-  flex: 2 60%;
-  // flex: 1;
+  flex: 2 auto;
   padding: var(--bars-padding);
   position: relative;
   order: 3;

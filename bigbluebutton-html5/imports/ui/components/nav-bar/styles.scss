@@ -41,15 +41,16 @@
 }
 
 .presentationTitle {
-  font-weight: 500;
-  color: #5594D4;
+  font-weight: 800;
+  color: #5594d4;
   font-style: normal;
-  font-size: var(--font-size-18px);
+  font-size: 1.25rem;
   font-family: Avenir;
   margin: 0;
   padding: 0;
   white-space: nowrap;
   text-overflow: ellipsis;
+  text-transform: capitalize;
 
   > [class^="icon-bbb-"] {
     font-size: 75%;
