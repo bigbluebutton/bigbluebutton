@@ -26,6 +26,12 @@ A clear and concise description of what you expected to happen.
 **Screenshots**
 If applicable, add screenshots to help explain your problem.
 
+**BBB version (optional):**
+BigBlueButton continually evolves. Providing the version/build helps us to pinpoint when an issue was introduced.
+Example:
+$ sudo bbb-conf --check | grep BigBlueButton
+BigBlueButton Server 2.2.2 (1816)
+
 **Desktop (please complete the following information):**
  - OS: [e.g. Windows, Mac]
  - Browser [e.g. Chrome, Safari]

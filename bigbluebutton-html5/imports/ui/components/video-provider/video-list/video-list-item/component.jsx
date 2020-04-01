@@ -124,6 +124,7 @@ class VideoListItem extends Component {
 
     return (
       <FullscreenButtonContainer
+        data-test="presentationFullscreenButton"
         fullscreenRef={this.videoContainer}
         elementName={name}
         isFullscreen={isFullscreen}
@@ -158,7 +159,7 @@ class VideoListItem extends Component {
       >
         {
           !videoIsReady
-          && <div className={styles.connecting} />
+          && <div data-test="webcamConnecting" className={styles.connecting} />
         }
         <div
           className={styles.videoContainer}

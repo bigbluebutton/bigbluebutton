@@ -81,6 +81,16 @@ class Base extends Component {
     if (animations) HTML.classList.add('animationsEnabled');
     if (!animations) HTML.classList.add('animationsDisabled');
 
+    if (getFromUserSettings('bbb_show_participants_on_login', true) && !deviceInfo.type().isPhone) {
+      Session.set('openPanel', 'userlist');
+      if (CHAT_ENABLED) {
+        Session.set('openPanel', 'chat');
+        Session.set('idChatOpen', PUBLIC_CHAT_ID);
+      }
+    } else {
+      Session.set('openPanel', '');
+    }
+
     fullscreenChangedEvents.forEach((event) => {
       document.addEventListener(event, Base.handleFullscreenChange);
     });
@@ -352,16 +362,6 @@ const BaseContainer = withTracker(() => {
         }
       },
     });
-  }
-
-  if (getFromUserSettings('bbb_show_participants_on_login', true) && !deviceInfo.type().isPhone) {
-    Session.set('openPanel', 'userlist');
-    if (CHAT_ENABLED) {
-      Session.set('openPanel', 'chat');
-      Session.set('idChatOpen', PUBLIC_CHAT_ID);
-    }
-  } else {
-    Session.set('openPanel', '');
   }
 
   return {
