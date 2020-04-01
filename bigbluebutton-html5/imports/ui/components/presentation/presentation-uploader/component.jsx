@@ -205,6 +205,7 @@ class PresentationUploader extends Component {
     this.state = {
       presentations: [],
       disableActions: false,
+      toUploadCount: 0,
     };
 
     this.toastId = null;
@@ -251,9 +252,9 @@ class PresentationUploader extends Component {
       }
     }
 
-    if (!selectedToBeNextCurrent && presentations.length > 0) {
-      const selected = presentations.filter(p => p.isCurrent);
-      if (selected) Session.set('selectedToBeNextCurrent', selected[0].id);
+    if (presentations.length > 0) {
+      const selected = propPresentations.filter(p => p.isCurrent);
+      if (selected.length > 0) Session.set('selectedToBeNextCurrent', selected[0].id);
     }
 
     if (this.toastId) {
@@ -279,6 +280,7 @@ class PresentationUploader extends Component {
 
   handleFiledrop(files, files2) {
     const { fileValidMimeTypes, intl } = this.props;
+    const { toUploadCount } = this.state;
     const validMimes = fileValidMimeTypes.map(fileValid => fileValid.mime);
     const validExtentions = fileValidMimeTypes.map(fileValid => fileValid.extension);
     const [accepted, rejected] = _.partition(files
@@ -326,7 +328,7 @@ class PresentationUploader extends Component {
 
     this.setState(({ presentations }) => ({
       presentations: presentations.concat(presentationsToUpload),
-      dropCount: presentationsToUpload.length,
+      toUploadCount: (toUploadCount + presentationsToUpload.length),
     }), () => {
       // after the state is set (files have been dropped),
       // make the first of the new presentations current
@@ -481,6 +483,7 @@ class PresentationUploader extends Component {
           if (!hasError) {
             this.setState({
               disableActions: false,
+              toUploadCount: 0,
             });
             return;
           }
@@ -597,7 +600,12 @@ class PresentationUploader extends Component {
   }
 
   renderToastList() {
-    const { presentations, dropCount } = this.state;
+    const { presentations, toUploadCount } = this.state;
+
+    if (toUploadCount === 0) {
+      return this.handleDismissToast(this.toastId);
+    }
+
     const { intl } = this.props;
     let converted = 0;
 
@@ -607,7 +615,7 @@ class PresentationUploader extends Component {
       .sort((a, b) => a.conversion.done - b.conversion.done);
 
     presentationsSorted = presentationsSorted
-      .splice(0, dropCount)
+      .splice(0, toUploadCount)
       .map((p) => {
         if (p.conversion.done) converted += 1;
         return p;

@@ -195,13 +195,13 @@ class ActionsDropdown extends PureComponent {
     const presentationItemElements = presentations.map((p) => {
       const itemStyles = {};
       itemStyles[styles.presentationItem] = true;
-      itemStyles[styles.isCurrent] = p.isCurrent;
+      itemStyles[styles.isCurrent] = p.current;
 
       return (<DropdownListItem
         className={cx(itemStyles)}
         icon="file"
-        iconRight={p.isCurrent ? 'check' : null}
-        label={p.filename}
+        iconRight={p.current ? 'check' : null}
+        label={p.name}
         description="uploaded presentation file"
         key={`uploaded-presentation-${p.id}`}
         onClick={() => {
