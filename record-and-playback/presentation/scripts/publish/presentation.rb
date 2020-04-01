@@ -1322,7 +1322,7 @@ begin
         FileUtils.rm_r(Dir.glob("#{$process_dir}/*"))
 
         BigBlueButton.logger.info("Removing published files.")
-        FileUtils.rm_r(Dir.glob("#{target_dir}/*"))
+        FileUtils.rm_rf(Dir.glob("#{target_dir}/*"))
         rescue  Exception => e
           BigBlueButton.logger.error(e.message)
           e.backtrace.each do |traceline|
