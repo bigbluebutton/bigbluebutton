@@ -25,9 +25,8 @@ require 'fileutils'
 
 
 # This function handle file sort by timestamp @dseral
-def sort_by_date(arr)
-        h = Hash[arr.collect { |x| [ x.chomp(".done").split("-")[1], x ] }].sort
-        return hh=h.map { |key, value| value }
+def sort_by_date(filenames)
+  filenames.sort_by { |filename| filename.chomp(".done").split("-")[1] }
 end
 
 def process_archived_meetings(recording_dir)
