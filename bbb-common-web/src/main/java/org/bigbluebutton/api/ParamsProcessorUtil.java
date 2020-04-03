@@ -322,7 +322,7 @@ public class ParamsProcessorUtil {
             meetingName = "";
         }
 
-        meetingName = ParamsUtil.stripControlChars(meetingName);
+        meetingName = ParamsUtil.stripHTMLTags(ParamsUtil.stripControlChars(meetingName));
 
         String externalMeetingId = params.get(ApiParams.MEETING_ID);
 
