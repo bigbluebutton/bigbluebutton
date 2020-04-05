@@ -151,21 +151,22 @@ class ApplicationMenu extends BaseMenu {
   }
 
   render() {
-    const { availableLocales, intl } = this.props;
+    const { availableLocales, intl, formatNumber } = this.props;
     const { isLargestFontSize, isSmallestFontSize, settings } = this.state;
-
     // conversions can be found at http://pxtoem.com
     const pixelPercentage = {
-      '12px': '75%',
+      '12px': 75,
       // 14px is actually 87.5%, rounding up to show more friendly value
-      '14px': '90%',
-      '16px': '100%',
+      '14px': 90,
+      '16px': 100,
       // 18px is actually 112.5%, rounding down to show more friendly value
-      '18px': '110%',
-      '20px': '125%',
+      '18px': 110,
+      '20px': 125,
     };
-
-    const ariaValueLabel = intl.formatMessage(intlMessages.currentValue, { 0: `${pixelPercentage[settings.fontSize]}` });
+    const formattedPct = formatNumber(pixelPercentage[settings.fontSize] / 100, 'percent');
+    const ariaValueLabel = intl.formatMessage(intlMessages.currentValue, {
+      0: formattedPct,
+    });
 
     return (
       <div>
@@ -286,7 +287,7 @@ class ApplicationMenu extends BaseMenu {
             <div className={styles.col}>
               <div aria-hidden className={cx(styles.formElement, styles.pullContentCenter)}>
                 <label className={cx(styles.label, styles.bold)}>
-                  {`${pixelPercentage[this.state.settings.fontSize]}`}
+                  {formattedPct}
                 </label>
               </div>
             </div>

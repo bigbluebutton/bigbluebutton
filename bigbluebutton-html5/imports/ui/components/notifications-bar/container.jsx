@@ -8,6 +8,7 @@ import Meetings from '/imports/api/meetings';
 import Users from '/imports/api/users';
 import BreakoutRemainingTime from '/imports/ui/components/breakout-room/breakout-remaining-time/container';
 import SlowConnection from '/imports/ui/components/slow-connection/component';
+import { formatNumber } from '/imports/utils/intl-formatter';
 import { styles } from './styles.scss';
 
 import breakoutService from '/imports/ui/components/breakout-room/service';
@@ -161,9 +162,10 @@ export default injectIntl(withTracker(({ intl }) => {
       case STATUS_WAITING: {
         const sec = Math.round((retryTime - (new Date()).getTime()) / 1000);
         retryInterval = startCounter(sec, setRetrySeconds, getRetrySeconds, retryInterval);
+        const formattedSeconds = formatNumber(getRetrySeconds());
         data.message = (
           <Fragment>
-            {intl.formatMessage(intlMessages.waitingMessage, { 0: getRetrySeconds() })}
+            {intl.formatMessage(intlMessages.waitingMessage, { 0: formattedSeconds })}
             <button className={styles.retryButton} type="button" onClick={reconnect}>
               {intl.formatMessage(intlMessages.retryNow)}
             </button>

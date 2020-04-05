@@ -111,11 +111,9 @@
 }
 
 .time {
-  flex-shrink: 0;
-  flex-grow: 0;
-  flex-basis: 3.5rem;
   color: var(--color-gray-light);
   text-transform: uppercase;
+  line-height: 1.6;
   font-size: 75%;
   margin: 0 0 0 calc(var(--line-height-computed) / 2);
 

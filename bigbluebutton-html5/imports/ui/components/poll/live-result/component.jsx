@@ -44,7 +44,7 @@ const getResponseString = (obj) => {
 class LiveResult extends PureComponent {
   static getDerivedStateFromProps(nextProps) {
     const {
-      currentPoll, getUser, intl, pollAnswerIds,
+      currentPoll, intl, pollAnswerIds, formatNumber,
     } = nextProps;
 
     if (!currentPoll) return null;
@@ -97,10 +97,10 @@ class LiveResult extends PureComponent {
     answers.map((obj) => {
       const formattedMessageIndex = obj.key.toLowerCase();
       const pct = Math.round(obj.numVotes / numRespondents * 100);
-      const pctFotmatted = `${Number.isNaN(pct) ? 0 : pct}%`;
+      const pctFotmatted = Number.isNaN(pct) ? 0 : pct;
 
       const calculatedWidth = {
-        width: pctFotmatted,
+        width: `${pctFotmatted}%`,
       };
 
       return pollStats.push(
@@ -114,10 +114,12 @@ class LiveResult extends PureComponent {
           </div>
           <div className={styles.center}>
             <div className={styles.barShade} style={calculatedWidth} />
-            <div className={styles.barVal}>{obj.numVotes || 0}</div>
+            <div className={styles.barVal}>
+              {formatNumber(obj.numVotes || 0)}
+            </div>
           </div>
           <div className={styles.right}>
-            {pctFotmatted}
+            {formatNumber(pctFotmatted, 'percent')}
           </div>
         </div>,
       );
@@ -146,6 +148,7 @@ class LiveResult extends PureComponent {
       stopPoll,
       handleBackClick,
       currentPoll,
+      formatNumber,
     } = this.props;
 
     const { userAnswers, pollStats } = this.state;
@@ -176,8 +179,8 @@ class LiveResult extends PureComponent {
             ? (
               <span>
                 {`${intl.formatMessage(intlMessages.waitingLabel, {
-                  0: respondedCount,
-                  1: userCount,
+                  0: formatNumber(respondedCount),
+                  1: formatNumber(userCount),
                 })} `}
               </span>
             )

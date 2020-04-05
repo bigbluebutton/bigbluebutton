@@ -201,7 +201,7 @@ class BreakoutRoom extends PureComponent {
     const {
       breakoutRooms,
       intl,
-      getUsersByBreakoutId,
+      formatNumber,
     } = this.props;
 
     const {
@@ -210,19 +210,18 @@ class BreakoutRoom extends PureComponent {
     } = this.state;
 
     const roomItems = breakoutRooms.map(breakout => (
-      <div className={styles.content} key={`breakoutRoomList-${breakout.breakoutId}`}>
-        <span aria-hidden>
-          {intl.formatMessage(intlMessages.breakoutRoom, breakout.sequence.toString())}
-          <span className={styles.usersAssignedNumberLabel}>
-            (
-            {getUsersByBreakoutId(breakout.breakoutId).count()}
-            )
-          </span>
-        </span>
-        {waiting && requestedBreakoutId === breakout.breakoutId ? (
-          <span>
-            {intl.formatMessage(intlMessages.generatingURL)}
-            <span className={styles.connectingAnimation} />
+      <div
+        className={styles.breakoutItems}
+        key={`breakoutRoomItems-${breakout.breakoutId}`}
+      >
+        <div className={styles.content} key={`breakoutRoomList-${breakout.breakoutId}`}>
+          <span aria-hidden>
+            {intl.formatMessage(intlMessages.breakoutRoom, formatNumber(breakout.sequence.toString()))}
+            <span className={styles.usersAssignedNumberLabel}>
+              (
+              {formatNumber(breakout.joinedUsers.length)}
+              )
+            </span>
           </span>
         ) : this.renderUserActions(breakout.breakoutId, breakout.sequence.toString())}
       </div>

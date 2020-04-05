@@ -198,6 +198,8 @@ class UserParticipants extends Component {
       meeting,
       muteAllExceptPresenter,
       currentUser,
+      meetingIsBreakout,
+      formatNumber,
     } = this.props;
 
     return (
@@ -209,7 +211,7 @@ class UserParticipants extends Component {
                 <h2 className={styles.smallTitle}>
                   {intl.formatMessage(intlMessages.usersTitle)}
                   &nbsp;(
-                  {users.length}
+                  {formatNumber(users.length)}
                   )
                 </h2>
                 {currentUser.role === ROLE_MODERATOR

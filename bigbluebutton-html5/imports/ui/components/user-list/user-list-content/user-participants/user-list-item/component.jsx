@@ -50,6 +50,9 @@ class UserListItem extends PureComponent {
       breakoutSequence,
       meetignIsBreakout,
       isMeteorConnected,
+      isMe,
+      voiceUser,
+      formatNumber,
     } = this.props;
 
     const { meetingId, lockSettingsProps } = meeting;
@@ -84,6 +87,9 @@ class UserListItem extends PureComponent {
           breakoutSequence,
           meetignIsBreakout,
           isMeteorConnected,
+          isMe,
+          voiceUser,
+          formatNumber,
         }}
       />
     );

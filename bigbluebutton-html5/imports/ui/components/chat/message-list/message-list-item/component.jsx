@@ -153,10 +153,10 @@ class MessageListItem extends Component {
       handleReadMessage,
       scrollArea,
       intl,
+      formatDateTime,
     } = this.props;
 
-    const dateTime = new Date(time);
-
+    const formattedDateTime = formatDateTime(new Date(time), 'time');
     const regEx = /<a[^>]+>/i;
 
     if (!user) {
@@ -187,9 +187,9 @@ class MessageListItem extends Component {
                     </span>
                   )}
               </div>
-              <time className={styles.time} dateTime={dateTime}>
-                <FormattedTime value={dateTime} />
-              </time>
+              <span className={styles.time}>
+                {formattedDateTime}
+              </span>
             </div>
             <div className={styles.messages}>
               {messages.map(message => (

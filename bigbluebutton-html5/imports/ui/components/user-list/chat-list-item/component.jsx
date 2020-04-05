@@ -68,6 +68,7 @@ const ChatListItem = (props) => {
     isPublicChat,
     shortcuts: TOGGLE_CHAT_PUB_AK,
     chatPanelOpen,
+    formatNumber,
   } = props;
 
   const isCurrentChat = chat.id === activeChatId && chatPanelOpen;
@@ -111,7 +112,7 @@ const ChatListItem = (props) => {
         {(chat.unreadCounter > 0)
           ? (
             <ChatUnreadCounter
-              counter={chat.unreadCounter}
+              counter={formatNumber(chat.unreadCounter)}
             />
           )
           : null}

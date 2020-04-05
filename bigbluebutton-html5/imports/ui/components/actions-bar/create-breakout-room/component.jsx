@@ -109,6 +109,9 @@ const intlMessages = defineMessages({
   },
 });
 
+const BREAKOUTROOM_CONFIG = Meteor.settings.public.breakoutroom;
+const MAX_ROOM_TIME = BREAKOUTROOM_CONFIG.max_minutes;
+const MIN_ROOM_TIME = 2;
 const MIN_BREAKOUT_ROOMS = 2;
 const MAX_BREAKOUT_ROOMS = 8;
 
@@ -160,7 +163,7 @@ class BreakoutRoom extends PureComponent {
       numberOfRooms: MIN_BREAKOUT_ROOMS,
       seletedId: '',
       users: [],
-      durationTime: 15,
+      durationTime: props.formatNumber(15),
       freeJoin: false,
       formFillLevel: 1,
       roomSelected: 0,
@@ -366,22 +369,66 @@ class BreakoutRoom extends PureComponent {
 
   increaseDurationTime() {
     const { durationTime } = this.state;
-    this.setState({ durationTime: (1 * durationTime) + 1 });
+    const {
+      formatNumber,
+      isEasternArabic,
+      convertToWestern,
+    } = this.props;
+
+    let currentTime = durationTime;
+    let newTime = null;
+
+    if (isEasternArabic(currentTime)) {
+      currentTime = convertToWestern(durationTime);
+    }
+
+    newTime = (1 * currentTime) + 1;
+    newTime = newTime > MAX_ROOM_TIME ? MAX_ROOM_TIME : newTime;
+    this.setState({ durationTime: formatNumber(newTime) });
   }
 
   decreaseDurationTime() {
     const { durationTime } = this.state;
-    const number = ((1 * durationTime) - 1);
-    this.setState({ durationTime: number < 1 ? 1 : number });
+    const {
+      formatNumber,
+      isEasternArabic,
+      convertToWestern,
+    } = this.props;
+
+    let currentTime = durationTime;
+    let newTime = null;
+
+    if (isEasternArabic(currentTime)) {
+      currentTime = convertToWestern(durationTime);
+    }
+
+    newTime = ((1 * currentTime) - 1);
+    newTime = newTime < MIN_ROOM_TIME ? MIN_ROOM_TIME : newTime;
+    this.setState({ durationTime: formatNumber(newTime) });
   }
 
   changeDurationTime(event) {
-    this.setState({ durationTime: Number.parseInt(event.target.value, 10) || '' });
+    const { target } = event;
+    this.setState({ durationTime: target.value.replace(/[^0-9٠١٢٣٤٥٦٧٨٩]/gi, '') });
   }
 
   blurDurationTime(event) {
-    const value = Number.parseInt(event.target.value, 10);
-    this.setState({ durationTime: !(value <= 0) ? value : 1 });
+    const { target } = event;
+    const {
+      formatNumber,
+      isEasternArabic,
+      convertToWestern,
+    } = this.props;
+
+    let time = target.value;
+    if (isEasternArabic(time)) {
+      time = convertToWestern(time);
+    }
+
+    time = time < MIN_ROOM_TIME ? MIN_ROOM_TIME : time;
+    time = time > MAX_ROOM_TIME ? MAX_ROOM_TIME : time;
+
+    this.setState({ durationTime: formatNumber(time) });
   }
 
   changeNumberOfRooms(event) {
@@ -394,7 +441,7 @@ class BreakoutRoom extends PureComponent {
   }
 
   renderRoomsGrid() {
-    const { intl } = this.props;
+    const { intl, formatNumber } = this.props;
     const {
       valid,
       numberOfRooms,
@@ -417,7 +464,9 @@ class BreakoutRoom extends PureComponent {
       <div className={styles.boxContainer} key="rooms-grid-">
         <div className={!valid ? styles.changeToWarn : null}>
           <p className={styles.freeJoinLabel}>
-            {intl.formatMessage(intlMessages.notAssigned, { 0: this.getUserByRoom(0).length })}
+            {intl.formatMessage(intlMessages.notAssigned, {
+              0: formatNumber(this.getUserByRoom(0).length),
+            })}
           </p>
           <div className={styles.breakoutBox} onDrop={drop(0)} onDragOver={allowDrop}>
             {this.renderUserItemByRoom(0)}
@@ -430,7 +479,9 @@ class BreakoutRoom extends PureComponent {
           _.range(1, rooms + 1).map(value => (
             <div key={`room-${value}`}>
               <p className={styles.freeJoinLabel}>
-                {intl.formatMessage(intlMessages.roomLabel, { 0: (value) })}
+                {intl.formatMessage(intlMessages.roomLabel, {
+                  0: formatNumber(value),
+                })}
               </p>
               <div className={styles.breakoutBox} onDrop={drop(value)} onDragOver={allowDrop}>
                 {this.renderUserItemByRoom(value)}
@@ -446,6 +497,7 @@ class BreakoutRoom extends PureComponent {
     const {
       intl,
       isInvitation,
+      formatNumber,
     } = this.props;
     const {
       numberOfRooms,
@@ -475,7 +527,11 @@ class BreakoutRoom extends PureComponent {
               aria-label={intl.formatMessage(intlMessages.numberOfRooms)}
             >
               {
-                _.range(MIN_BREAKOUT_ROOMS, MAX_BREAKOUT_ROOMS + 1).map(item => (<option key={_.uniqueId('value-')}>{item}</option>))
+                _.range(MIN_BREAKOUT_ROOMS, MAX_BREAKOUT_ROOMS + 1).map(item => (
+                  <option key={_.uniqueId('value-')} value={item}>
+                    {formatNumber(item)}
+                  </option>
+                ))
               }
             </select>
           </div>
@@ -485,9 +541,8 @@ class BreakoutRoom extends PureComponent {
             </p>
             <div className={styles.durationArea}>
               <input
-                type="number"
+                type="text"
                 className={styles.duration}
-                min="1"
                 value={durationTime}
                 onChange={this.changeDurationTime}
                 onBlur={this.blurDurationTime}
@@ -497,7 +552,7 @@ class BreakoutRoom extends PureComponent {
                 key="decrease-breakout-time"
                 exec={this.decreaseDurationTime}
                 minBound={MIN_BREAKOUT_ROOMS}
-                value={durationTime}
+                value={parseInt(durationTime, 10)}
                 className={styles.btnStyle}
               >
                 <Button
@@ -516,6 +571,7 @@ class BreakoutRoom extends PureComponent {
                 key="increase-breakout-time"
                 exec={this.increaseDurationTime}
                 className={styles.btnStyle}
+                value={parseInt(durationTime, 10)}
               >
                 <Button
                   label={intl.formatMessage(intlMessages.addRoomTime)}

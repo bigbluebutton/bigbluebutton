@@ -25,6 +25,7 @@ public:
     ipv4FallbackDomain: ""
     allowLogout: true
     allowFullscreen: true
+    numeralType: 'auto'
     defaultSettings:
       application:
         animations: true
@@ -144,6 +145,8 @@ public:
   poll:
     enabled: true
     max_custom: 5
+  breakoutroom:
+    max_minutes: 360
   captions:
     enabled: true
     enableDictation: false

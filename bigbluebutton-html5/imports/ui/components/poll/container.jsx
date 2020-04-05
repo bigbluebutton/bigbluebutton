@@ -5,7 +5,8 @@ import Auth from '/imports/ui/services/auth';
 import Presentations from '/imports/api/presentations';
 import PresentationAreaService from '/imports/ui/components/presentation/service';
 import Poll from '/imports/ui/components/poll/component';
-import Service from '/imports/ui/components/poll/service';
+import { formatNumber } from '/imports/utils/intl-formatter';
+import Service from './service';
 
 const PollContainer = ({ ...props }) => <Poll {...props} />;
 
@@ -35,5 +36,6 @@ export default withTracker(() => {
     resetPollPanel: Session.get('resetPollPanel') || false,
     pollAnswerIds: Service.pollAnswerIds,
     isMeteorConnected: Meteor.status().connected,
+    formatNumber,
   };
 })(PollContainer);

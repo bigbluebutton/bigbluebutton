@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 import { withTracker } from 'meteor/react-meteor-data';
 import PresentationService from '/imports/ui/components/presentation/service';
 import MediaService from '/imports/ui/components/media/service';
+import { formatNumber } from '/imports/utils/intl-formatter';
 import PresentationToolbar from './component';
 import PresentationToolbarService from './service';
 
@@ -38,6 +39,7 @@ export default withTracker((params) => {
     previousSlide: PresentationToolbarService.previousSlide,
     skipToSlide: PresentationToolbarService.skipToSlide,
     isMeteorConnected: Meteor.status().connected,
+    formatNumber,
   };
 })(PresentationToolbarContainer);
 

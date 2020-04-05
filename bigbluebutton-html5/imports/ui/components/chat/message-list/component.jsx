@@ -166,8 +166,9 @@ class MessageList extends Component {
 
   render() {
     const {
-      messages, intl, id, lastReadMessageTime, handleReadMessage,
+      messages, intl, id, lastReadMessageTime, handleReadMessage, formatDateTime,
     } = this.props;
+    const { scrollArea } = this;
     const isEmpty = messages.length === 0;
     return (
       <div className={styles.messageListWrapper}>
@@ -190,7 +191,8 @@ class MessageList extends Component {
               time={message.time}
               chatAreaId={id}
               lastReadMessageTime={lastReadMessageTime}
-              scrollArea={this.state.scrollArea}
+              scrollArea={scrollArea}
+              formatDateTime={formatDateTime}
             />
           ))}
         </div>
