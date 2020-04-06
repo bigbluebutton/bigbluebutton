@@ -4,6 +4,7 @@ import WhiteboardOverlayContainer from '/imports/ui/components/whiteboard/whiteb
 import WhiteboardToolbarContainer from '/imports/ui/components/whiteboard/whiteboard-toolbar/container';
 import { HUNDRED_PERCENT, MAX_PERCENT } from '/imports/utils/slideCalcUtils';
 import { defineMessages, injectIntl, intlShape } from 'react-intl';
+import { toast } from 'react-toastify';
 import PresentationToolbarContainer from './presentation-toolbar/container';
 import CursorWrapperContainer from './cursor/cursor-wrapper-container/container';
 import AnnotationGroupContainer from '../whiteboard/annotation-group/container';
@@ -15,7 +16,8 @@ import PresentationCloseButton from './presentation-close-button/component';
 import DownloadPresentationButton from './download-presentation-button/component';
 import FullscreenService from '../fullscreen-button/service';
 import FullscreenButtonContainer from '../fullscreen-button/container';
-import { withDraggableContext, withDraggableConsumer } from '../media/webcam-draggable-overlay/context';
+import { withDraggableConsumer } from '../media/webcam-draggable-overlay/context';
+import Icon from '/imports/ui/components/icon/component';
 
 const intlMessages = defineMessages({
   presentationLabel: {
@@ -43,6 +45,8 @@ class PresentationArea extends PureComponent {
       isFullscreen: false,
     };
 
+    this.currentPresentationToastId = null;
+
     this.getSvgRef = this.getSvgRef.bind(this);
     this.setFitToWidth = this.setFitToWidth.bind(this);
     this.zoomChanger = this.zoomChanger.bind(this);
@@ -51,6 +55,7 @@ class PresentationArea extends PureComponent {
     this.fitToWidthHandler = this.fitToWidthHandler.bind(this);
     this.onFullscreenChange = this.onFullscreenChange.bind(this);
     this.onResize = () => setTimeout(this.handleResize.bind(this), 0);
+    this.renderCurrentPresentationToast = this.renderCurrentPresentationToast.bind(this);
   }
 
   static getDerivedStateFromProps(props, state) {
@@ -96,19 +101,9 @@ class PresentationArea extends PureComponent {
   componentDidUpdate(prevProps) {
     const {
       currentPresentation,
-      notify,
-      intl,
       slidePosition,
       webcamDraggableDispatch,
     } = this.props;
-
-    if (prevProps.currentPresentation.name !== currentPresentation.name) {
-      notify(
-        `${intl.formatMessage(intlMessages.changeNotification)} ${currentPresentation.name}`,
-        'info',
-        'presentation',
-      );
-    }
 
     const { width: prevWidth, height: prevHeight } = prevProps.slidePosition;
     const { width: currWidth, height: currHeight } = slidePosition;
@@ -120,6 +115,19 @@ class PresentationArea extends PureComponent {
       if (currHeight > currWidth) {
         webcamDraggableDispatch({ type: 'setOrientationToPortrait' });
       }
+    }
+
+    if (prevProps.currentPresentation.name !== currentPresentation.name) {
+      if (this.currentPresentationToastId) {
+        return toast.update(this.currentPresentationToastId, {
+          render: this.renderCurrentPresentationToast(),
+        });
+      }
+
+      this.currentPresentationToastId = toast(this.renderCurrentPresentationToast(), {
+        onClose: () => { this.currentPresentationToastId = null; },
+        autoClose: true,
+      });
     }
   }
 
@@ -580,6 +588,24 @@ class PresentationArea extends PureComponent {
         dark
         bottom
       />
+    );
+  }
+
+  renderCurrentPresentationToast() {
+    const { intl, currentPresentation } = this.props;
+
+    return (
+      <div className={styles.innerToastWrapper}>
+        <div className={styles.toastIcon}>
+          <div className={styles.iconWrapper}>
+            <Icon iconName="presentation" />
+          </div>
+        </div>
+        <div className={styles.toastTextContent}>
+          <div>{`${intl.formatMessage(intlMessages.changeNotification)}`}</div>
+          <div className={styles.presentationName}>{`${currentPresentation.name}`}</div>
+        </div>
+      </div>
     );
   }
 
