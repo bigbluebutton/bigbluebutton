@@ -481,6 +481,15 @@ class PresentationArea extends PureComponent {
                 width,
                 height,
               }}
+              published
+              whiteboardId={currentSlide.id}
+            />
+            <AnnotationGroupContainer
+              {...{
+                width,
+                height,
+              }}
+              published={false}
               whiteboardId={currentSlide.id}
             />
             <CursorWrapperContainer

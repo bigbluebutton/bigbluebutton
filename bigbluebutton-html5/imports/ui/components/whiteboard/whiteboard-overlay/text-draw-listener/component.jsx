@@ -215,12 +215,11 @@ export default class TextDrawListener extends Component {
       }
 
     // second case is when a user finished writing the text and publishes the final result
+    } else if (isRightClick) {
+      this.discardAnnotation();
     } else {
       // publishing the final shape and resetting the state
       this.sendLastMessage();
-      if (isRightClick) {
-        this.discardAnnotation();
-      }
     }
   }
 
@@ -460,18 +459,16 @@ export default class TextDrawListener extends Component {
 
   discardAnnotation() {
     const {
-      whiteboardId,
       actions,
     } = this.props;
 
     const {
       getCurrentShapeId,
-      addAnnotationToDiscardedList,
-      undoAnnotation,
+      clearPreview,
     } = actions;
 
-    undoAnnotation(whiteboardId);
-    addAnnotationToDiscardedList(getCurrentShapeId());
+    this.resetState();
+    clearPreview(getCurrentShapeId());
   }
 
   render() {
