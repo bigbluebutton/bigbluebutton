@@ -5,7 +5,7 @@
 @import '/imports/ui/stylesheets/mixins/_indicators';
 
 :root {
-  --navbar-height: 63px; // TODO: Change to NavBar real height
+  --navbar-height: 3.9375rem; // TODO: Change to NavBar real height
   --actionsbar-height: 75px; // TODO: Change to ActionsBar real height
   --bars-padding: calc(var(--lg-padding-x) - .45rem); // -.45 so user-list and chat title is aligned with the presentation title
   --userlist-handle-width: 5px; // 5px so user-list and chat resize handle render as the same size
@@ -25,7 +25,8 @@
   text-align: center;
 
   font-size: 1.5rem;
-  padding: var(--bars-padding);
+  padding: var(--bars-padding) var(--bars-padding) 0 var(--bars-padding);
+  height: 7rem;
 }
 
 .wrapper {
@@ -175,6 +176,7 @@
   background-color: var(--color-white);
   @include mq($small-only) {
     width: auto;
+    height: auto;
   }
 }
 
@@ -196,6 +198,7 @@
   position: relative;
   margin: 0 0 0 var(--panel-margin-right);
   overflow: hidden;
+  z-index: 0;
 
   [dir="rtl"] & {
     margin: 0 var(--panel-margin-right) 0 0;

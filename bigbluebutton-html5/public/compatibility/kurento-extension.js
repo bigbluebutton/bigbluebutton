@@ -158,6 +158,10 @@ KurentoManager.prototype.exitAudio = function () {
         'Exiting listen only');
     }
 
+    if (this.kurentoAudio.webRtcPeer) {
+      this.kurentoAudio.webRtcPeer.peerConnection.oniceconnectionstatechange = null;
+    }
+
     if (this.kurentoAudio.ws !== null) {
       this.kurentoAudio.ws.onclose = function () {};
       this.kurentoAudio.ws.close();
@@ -245,7 +249,7 @@ Kurento.prototype.init = function () {
       kurentoManager.exitScreenShare();
       this.logger.error({
         logCode: 'kurentoextension_websocket_error',
-        extraInfo: { error }
+        extraInfo: { errorMessage: error.name || error.message || 'Unknown error' }
       }, 'Error in the WebSocket connection to SFU, screenshare/listen only will drop');
       self.onFail('Websocket connection error');
     };
@@ -269,7 +273,7 @@ Kurento.prototype.onWSMessage = function (message) {
       kurentoManager.exitScreenShare();
       break;
     case 'iceCandidate':
-      this.webRtcPeer.addIceCandidate(parsedMessage.candidate);
+      this.handleIceCandidate(parsedMessage.candidate);
       break;
     case 'webRTCAudioSuccess':
       this.onSuccess(parsedMessage.success);
@@ -292,6 +296,47 @@ Kurento.prototype.setRenderTag = function (tag) {
   this.renderTag = tag;
 };
 
+Kurento.prototype.processIceQueue = function () {
+  const peer = this.webRtcPeer;
+  while (peer.iceQueue.length) {
+    const candidate = peer.iceQueue.shift();
+    peer.addIceCandidate(candidate, (error) => {
+      if (error) {
+        // Just log the error. We can't be sure if a candidate failure on add is
+        // fatal or not, so that's why we have a timeout set up for negotiations and
+        // listeners for ICE state transitioning to failures, so we won't act on it here
+        this.logger.error({
+          logCode: 'kurentoextension_addicecandidate_error',
+          extraInfo: { errorMessage: error.name || error.message || 'Unknown error' },
+        }, `Adding ICE candidate failed due to ${error.message}`);
+      }
+    });
+  }
+}
+
+Kurento.prototype.handleIceCandidate = function (candidate) {
+  const peer = this.webRtcPeer;
+  if (peer.negotiated) {
+    peer.addIceCandidate(candidate, (error) => {
+      if (error) {
+        // Just log the error. We can't be sure if a candidate failure on add is
+        // fatal or not, so that's why we have a timeout set up for negotiations and
+        // listeners for ICE state transitioning to failures, so we won't act on it here
+        this.logger.error({
+          logCode: 'kurentoextension_addicecandidate_error',
+          extraInfo: { errorMessage: error.name || error.message || 'Unknown error' },
+        }, `Adding ICE candidate failed due to ${error.message}`);
+      }
+    });
+  } else {
+    // ICE candidates are queued until a SDP answer has been processed.
+    // This was done due to a long term iOS/Safari quirk where it'd
+    // fail if candidates were added before the offer/answer cycle was completed.
+    // IT STILL HAPPENS - prlanzarin sept 2019
+    peer.iceQueue.push(candidate);
+  }
+}
+
 Kurento.prototype.startResponse = function (message) {
   if (message.response !== 'accepted') {
     this.handleSFUError(message);
@@ -300,12 +345,27 @@ Kurento.prototype.startResponse = function (message) {
       logCode: 'kurentoextension_start_success',
       extraInfo: { sfuResponse: message }
     }, `Start request accepted for ${message.type}`);
-    this.webRtcPeer.processAnswer(message.sdpAnswer);
-    // audio calls gets their success callback in a subsequent step (@webRTCAudioSuccess)
-    // due to legacy messaging which I don't intend to break now - prlanzarin
-    if (message.type === 'screenshare') {
-      this.onSuccess()
-    }
+
+    this.webRtcPeer.processAnswer(message.sdpAnswer, (error) => {
+      if (error) {
+        this.logger.error({
+          logCode: 'kurentoextension_peerconnection_processanswer_error',
+          extraInfo: {
+            errorMessage: error.name || error.message || 'Unknown error',
+          },
+        }, `Processing SDP answer from SFU for failed due to ${error.message}`);
+
+        return this.onFail(error);
+      }
+      // Mark the peer as negotiated and flush the ICE queue
+      this.webRtcPeer.negotiated = true;
+      this.processIceQueue();
+      // audio calls gets their success callback in a subsequent step (@webRTCAudioSuccess)
+      // due to legacy messaging which I don't intend to break now - prlanzarin
+      if (message.type === 'screenshare') {
+        this.onSuccess()
+      }
+    });
   }
 };
 
@@ -343,7 +403,7 @@ Kurento.prototype.onOfferPresenter = function (error, offerSdp) {
   if (error) {
     this.logger.error({
       logCode: 'kurentoextension_screenshare_presenter_offer_failure',
-      extraInfo: { error }
+      extraInfo: { errorMessage: error.name || error.message || 'Unknown error' },
     }, `Failed to generate peer connection offer for screenshare presenter with error ${error.message}`);
     this.onFail(error);
     return;
@@ -359,6 +419,7 @@ Kurento.prototype.onOfferPresenter = function (error, offerSdp) {
     sdpOffer: offerSdp,
     vh: this.height,
     vw: this.width,
+    userName: self.userName,
   };
 
   this.logger.info({
@@ -407,12 +468,13 @@ Kurento.prototype.startScreensharing = function () {
     if (error) {
       this.logger.error({
         logCode: 'kurentoextension_screenshare_peerconnection_create_error',
-        extraInfo: { error }
+        extraInfo: { errorMessage: error.name || error.message || 'Unknown error' },
       }, `WebRTC peer constructor for screenshare (presenter) failed due to ${error.message}`);
       this.onFail(error);
       return kurentoManager.exitScreenShare();
     }
 
+    this.webRtcPeer.iceQueue = [];
     this.webRtcPeer.generateOffer(this.onOfferPresenter.bind(this));
 
     const localStream = this.webRtcPeer.peerConnection.getLocalStreams()[0];
@@ -435,7 +497,7 @@ Kurento.prototype.startScreensharing = function () {
           logCode: 'kurentoextension_screenshare_presenter_ice_failed',
           extraInfo: { iceConnectionState }
         }, `WebRTC peer for screenshare presenter failed due to ICE transitioning to ${iceConnectionState}`);
-        this.onFail('ICE connection failed');
+        this.onFail({ message: 'iceConnectionStateError', code: 1108 });
       }
     }
   };
@@ -486,7 +548,7 @@ Kurento.prototype.viewer = function () {
       if (error) {
         return self.onFail(error);
       }
-
+      self.webRtcPeer.iceQueue = [];
       this.generateOffer(self.onOfferViewer.bind(self));
     });
     self.webRtcPeer.peerConnection.oniceconnectionstatechange = () => {
@@ -498,7 +560,7 @@ Kurento.prototype.viewer = function () {
             logCode: 'kurentoextension_screenshare_viewer_ice_failed',
             extraInfo: { iceConnectionState }
           }, `WebRTC peer for screenshare viewer failed due to ICE transitioning to ${iceConnectionState}`);
-          this.onFail('ICE connection failed');
+          this.onFail({ message: 'iceConnectionStateError', code: 1108 });
         }
       }
     };
@@ -510,7 +572,7 @@ Kurento.prototype.onOfferViewer = function (error, offerSdp) {
   if (error) {
     this.logger.error({
       logCode: 'kurentoextension_screenshare_viewer_offer_failure',
-      extraInfo: { error }
+      extraInfo: { errorMessage: error.name || error.message || 'Unknown error' },
     }, `Failed to generate peer connection offer for screenshare viewer with error ${error.message}`);
 
     return this.onFail(error);
@@ -524,6 +586,7 @@ Kurento.prototype.onOfferViewer = function (error, offerSdp) {
     voiceBridge: self.voiceBridge,
     callerName: self.userId,
     sdpOffer: offerSdp,
+    userName: self.userName,
   };
 
   this.logger.info({
@@ -548,7 +611,6 @@ Kurento.prototype.setAudio = function (tag) {
 };
 
 Kurento.prototype.listenOnly = function () {
-  const self = this;
   if (!this.webRtcPeer) {
     const options = {
       onicecandidate : this.onListenOnlyIceCandidate.bind(this),
@@ -560,12 +622,31 @@ Kurento.prototype.listenOnly = function () {
 
     this.addIceServers(this.iceServers, options);
 
-    self.webRtcPeer = kurentoUtils.WebRtcPeer.WebRtcPeerRecvonly(options, function (error) {
+    this.webRtcPeer = kurentoUtils.WebRtcPeer.WebRtcPeerRecvonly(options, (error) => {
       if (error) {
-        return self.onFail(error);
+        return this.onFail(error);
       }
 
-      this.generateOffer(self.onOfferListenOnly.bind(self));
+      this.webRtcPeer.iceQueue = [];
+      this.webRtcPeer.peerConnection.oniceconnectionstatechange = () => {
+        if (this.webRtcPeer) {
+          const iceConnectionState = this.webRtcPeer.peerConnection.iceConnectionState;
+
+          if (iceConnectionState === 'failed' || iceConnectionState === 'closed') {
+            this.webRtcPeer.peerConnection.oniceconnectionstatechange = null;
+            this.logger.error({
+              logCode: 'kurentoextension_listenonly_ice_failed',
+              extraInfo: { iceConnectionState }
+            }, `WebRTC peer for listen only failed due to ICE transitioning to ${iceConnectionState}`);
+            this.onFail({
+              errorCode: 1007,
+              errorMessage: `ICE negotiation failed. Current state - ${iceConnectionState}`,
+            });
+          }
+        }
+      }
+
+      this.webRtcPeer.generateOffer(this.onOfferListenOnly.bind(this));
     });
   }
 };
@@ -592,7 +673,7 @@ Kurento.prototype.onOfferListenOnly = function (error, offerSdp) {
   if (error) {
     this.logger.error({
       logCode: 'kurentoextension_listenonly_offer_failure',
-      extraInfo: { error }
+      extraInfo: { errorMessage: error.name || error.message || 'Unknown error' },
     }, `Failed to generate peer connection offer for listen only with error ${error.message}`);
 
     return this.onFail(error);

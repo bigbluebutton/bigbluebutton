@@ -1,0 +1,131 @@
+@import "../../../stylesheets/variables/_all";
+@import "../../../stylesheets/variables/typography";
+@import "../../../stylesheets/mixins/_indicators";
+
+:root {
+  --spoke-opacity: .5;
+  --talker-margin-sm: .5rem;
+  --talker-padding-lg: .75rem;
+  --talker-padding-xl: 1.62rem;
+  --talker-padding-xsm: .13rem;
+  --talker-max-width: 10rem;
+  --talker-font-weight: 400;
+  --talker-border-radius: 2rem;
+}
+
+.hidden {
+  display: none;
+}
+
+.isTalkingWrapper,
+.speaking,
+.talker,
+.spoke {
+  display: flex;
+  flex-direction: row;
+}
+
+.isTalkingWrapper {
+  position: relative;
+  margin-top: var(--talker-margin-sm);
+  overflow: hidden;
+}
+
+.speaking {
+  flex-wrap: nowrap;
+  overflow-x: auto;
+  overflow-y: hidden;
+  max-height: var(--talker-padding-xl);
+}
+
+.speaking::-webkit-scrollbar {
+  width: 0px;
+  height: 0px;
+  background: transparent;
+}
+
+.talker {
+  flex: 0 0 auto;
+  @include highContrastOutline();
+  color: white;
+  font-weight: var(--talker-font-weight);
+  border-radius: var(--talker-border-radius) var(--talker-border-radius);
+  font-size: var(--font-size-base);
+  padding: var(--talker-padding-xsm) var(--talker-padding-lg) var(--talker-padding-xsm) var(--talker-padding-lg);
+  margin-left: var(--border-radius);
+  margin-right: var(--border-radius);
+  height: var(--talker-height);
+  box-shadow: none !important;
+
+  @include mq($phone-landscape) {
+    height: 1rem;
+  }
+  
+  i,
+  span {
+    position: relative;
+    bottom: var(--bottom-offset);
+  }
+
+  span {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    margin: 0 0 0 0 !important;
+    max-width: var(--talker-max-width);
+
+    @include mq($phone-landscape) {
+      font-size: var(--font-size-xs);
+    }
+
+    [dir="rtl"]  & {
+      margin-left: var(--talker-margin-sm);
+    }
+  }
+
+  i {
+    font-size: var(--font-size-small);
+    width: 1rem;
+    height: 1rem;
+    background-color: var(--color-success);
+    border-radius: 50%;
+    position: relative;
+    right: var(--talker-margin-sm);
+
+    @include mq($phone-landscape) {
+      height: var(--talker-margin-sm);
+      width: var(--talker-margin-sm);
+      font-size: var(--font-size-xs);
+    }
+
+    [dir="rtl"]  & {
+      right: calc(var(--talker-margin-sm) * -1);
+    }
+  }
+
+  span:hover {
+    opacity: 1;
+  }
+}
+
+.spoke {
+  opacity: var(--spoke-opacity);
+
+  [dir="rtl"]  & {
+    padding-right: var(--talker-padding-lg)
+  }
+ }
+
+.muted {
+  cursor: default;
+  
+  i {
+    background-color: var(--color-danger);
+  }
+}
+
+.mobileHide {
+  @include mq($small-only) {
+    visibility: hidden;
+  }
+}

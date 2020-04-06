@@ -15,7 +15,7 @@ const BreakoutJoinConfirmationContrainer = props => (
 
 const getURL = (breakoutId) => {
   const currentUserId = Auth.userID;
-  const getBreakout = Breakouts.findOne({ breakoutId });
+  const getBreakout = Breakouts.findOne({ breakoutId }, { fields: { users: 1 } });
   const user = getBreakout ? getBreakout.users.find(u => u.userId === currentUserId) : '';
   if (user) return user.redirectToHtml5JoinURL;
   return '';
@@ -31,9 +31,6 @@ export default withTracker(({ breakout, mountModal, breakoutName }) => {
   const isFreeJoin = breakout.freeJoin;
   const { breakoutId } = breakout;
   const url = getURL(breakoutId);
-  if (isFreeJoin && !url) {
-    requestJoinURL(breakoutId);
-  }
 
   return {
     isFreeJoin,

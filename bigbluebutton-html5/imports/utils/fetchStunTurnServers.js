@@ -1,3 +1,5 @@
+import _ from 'lodash';
+
 const MEDIA = Meteor.settings.public.media;
 const STUN_TURN_FETCH_URL = MEDIA.stunTurnServersFetchAddress;
 
@@ -33,7 +35,7 @@ const fetchStunTurnServers = function (sessionToken) {
       }
       return response;
     });
-}
+};
 
 const fetchWebRTCMappedStunTurnServers = function (sessionToken) {
   return new Promise(async (resolve, reject) => {

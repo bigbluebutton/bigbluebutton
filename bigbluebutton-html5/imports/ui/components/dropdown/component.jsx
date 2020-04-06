@@ -59,7 +59,7 @@ const defaultProps = {
   onHide: noop,
   autoFocus: false,
   isOpen: false,
-  keepOpen: false,
+  keepOpen: null,
 };
 
 class Dropdown extends Component {
@@ -147,7 +147,8 @@ class Dropdown extends Component {
       if (parentElement) parentElement.focus();
     }
 
-    if (!keepOpen) this.handleHide();
+    if (keepOpen !== null) return;
+    this.handleHide();
   }
 
   handleToggle() {
@@ -186,7 +187,7 @@ class Dropdown extends Component {
       dropdownHide: this.handleHide,
     });
 
-    const showCloseBtn = (isOpen && keepOpen) || (isOpen && !keepOpen);
+    const showCloseBtn = (isOpen && keepOpen) || (isOpen && keepOpen === null);
 
     return (
       <div

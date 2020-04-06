@@ -15,14 +15,18 @@ import { styles } from '../styles';
 import ExternalVideoModal from '/imports/ui/components/external-video-player/modal/container';
 
 const propTypes = {
-  isUserPresenter: PropTypes.bool.isRequired,
+  amIPresenter: PropTypes.bool.isRequired,
   intl: intlShape.isRequired,
   mountModal: PropTypes.func.isRequired,
-  isUserModerator: PropTypes.bool.isRequired,
-  shortcuts: PropTypes.string.isRequired,
+  amIModerator: PropTypes.bool.isRequired,
+  shortcuts: PropTypes.string,
   handleTakePresenter: PropTypes.func.isRequired,
   allowExternalVideo: PropTypes.bool.isRequired,
   stopExternalVideoShare: PropTypes.func.isRequired,
+};
+
+const defaultProps = {
+  shortcuts: '',
 };
 
 const intlMessages = defineMessages({
@@ -85,8 +89,8 @@ class ActionsDropdown extends PureComponent {
   }
 
   componentWillUpdate(nextProps) {
-    const { isUserPresenter: isPresenter } = nextProps;
-    const { isUserPresenter: wasPresenter, mountModal } = this.props;
+    const { amIPresenter: isPresenter } = nextProps;
+    const { amIPresenter: wasPresenter, mountModal } = this.props;
     if (wasPresenter && !isPresenter) {
       mountModal(null);
     }
@@ -95,7 +99,7 @@ class ActionsDropdown extends PureComponent {
   getAvailableActions() {
     const {
       intl,
-      isUserPresenter,
+      amIPresenter,
       allowExternalVideo,
       handleTakePresenter,
       isSharingVideo,
@@ -117,7 +121,7 @@ class ActionsDropdown extends PureComponent {
     } = intl;
 
     return _.compact([
-      (isUserPresenter && isPollingEnabled
+      (amIPresenter && isPollingEnabled
         ? (
           <DropdownListItem
             icon="polling"
@@ -134,7 +138,7 @@ class ActionsDropdown extends PureComponent {
           />
         )
         : null),
-      (!isUserPresenter
+      (!amIPresenter
         ? (
           <DropdownListItem
             icon="presentation"
@@ -145,7 +149,7 @@ class ActionsDropdown extends PureComponent {
           />
         )
         : null),
-      (isUserPresenter
+      (amIPresenter
         ? (
           <DropdownListItem
             data-test="uploadPresentation"
@@ -157,7 +161,7 @@ class ActionsDropdown extends PureComponent {
           />
         )
         : null),
-      (isUserPresenter && allowExternalVideo
+      (amIPresenter && allowExternalVideo
         ? (
           <DropdownListItem
             icon="video"
@@ -185,15 +189,19 @@ class ActionsDropdown extends PureComponent {
   render() {
     const {
       intl,
-      isUserPresenter,
-      isUserModerator,
+      amIPresenter,
+      amIModerator,
       shortcuts: OPEN_ACTIONS_AK,
       isMeteorConnected,
     } = this.props;
 
     const availableActions = this.getAvailableActions();
 
-    if ((!isUserPresenter && !isUserModerator) || availableActions.length === 0 || !isMeteorConnected) return null;
+    if ((!amIPresenter && !amIModerator)
+      || availableActions.length === 0
+      || !isMeteorConnected) {
+      return null;
+    }
 
     return (
       <Dropdown ref={(ref) => { this._dropdown = ref; }}>
@@ -221,5 +229,6 @@ class ActionsDropdown extends PureComponent {
 }
 
 ActionsDropdown.propTypes = propTypes;
+ActionsDropdown.defaultProps = defaultProps;
 
 export default withShortcutHelper(withModalMounter(ActionsDropdown), 'openActions');

@@ -26,7 +26,7 @@ const intlMessages = defineMessages({
 
 const propTypes = {
   chat: PropTypes.shape({
-    id: PropTypes.string.isRequired,
+    userId: PropTypes.string.isRequired,
     name: PropTypes.string.isRequired,
     unreadCounter: PropTypes.number.isRequired,
   }).isRequired,
@@ -71,7 +71,7 @@ const ChatListItem = (props) => {
     formatNumber,
   } = props;
 
-  const isCurrentChat = chat.id === activeChatId && chatPanelOpen;
+  const isCurrentChat = chat.userId === activeChatId && chatPanelOpen;
   const linkClasses = {};
   linkClasses[styles.active] = isCurrentChat;
 
@@ -83,7 +83,7 @@ const ChatListItem = (props) => {
       aria-expanded={isCurrentChat}
       tabIndex={tabIndex}
       accessKey={isPublicChat(chat) ? TOGGLE_CHAT_PUB_AK : null}
-      onClick={() => handleClickToggleChat(chat.id)}
+      onClick={() => handleClickToggleChat(chat.userId)}
       id="chat-toggle-button"
       aria-label={isPublicChat(chat) ? intl.formatMessage(intlMessages.titlePublic) : chat.name}
     >

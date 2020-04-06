@@ -38,6 +38,7 @@ const mediasURL = [
 const deskshareWidth = 1280.0;
 const deskshareHeight = 720.0;
 const mobileTimeout = 10 * 1000; // 10 seconds
+const mediaCheckInterval = 250;
 var lastFrameTime = 0.0;
 var firstLoad = true;
 var meetingDuration;
@@ -292,7 +293,7 @@ function startLoadingBar() {
     // This is a hack to handle data from storage services
     function checkPlaybackLoaded() {
       if (firstLoad) {
-        setTimeout(checkPlaybackLoaded, 250);
+        setTimeout(checkPlaybackLoaded, mediaCheckInterval);
       } else {
         logger.info("==Loading done");
         onLoadComplete(true);
@@ -641,7 +642,12 @@ function loadData() {
   asyncRequest('GET', deskshareXML).then(function (response) {
     processDeskshareXML(response);
   }).catch(function(error) {
-    logger.error("==Couldn't load deskshare.xml", error);
+    if (error.status == 404) {
+      logger.warn("==Couldn't find deskshare.xml, assuming there's no deskshare");
+      document.dispatchEvent(new CustomEvent('data-ready', {'detail': 'deskshare-xml'}));
+    } else {
+      logger.error("==Couldn't load deskshare.xml", error);
+    }
   });
 };
 
@@ -1017,6 +1023,7 @@ document.addEventListener('media-ready', function(event) {
   }
   if ((audioReady || (videoReady && captionsReady)) && deskshareReady) {
     logger.info("==All medias can be played");
+    setMediaSync();
     linkChatToMedia();
     document.dispatchEvent(new CustomEvent('playback-ready', {'detail': 'media'}));
   }

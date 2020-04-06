@@ -30,6 +30,7 @@ import org.bigbluebutton.api.domain.Config
 import org.bigbluebutton.api.domain.GuestPolicy
 import org.bigbluebutton.api.domain.Meeting
 import org.bigbluebutton.api.domain.UserSession
+import org.bigbluebutton.api.util.ParamsUtil
 import org.bigbluebutton.api.util.ResponseBuilder
 import org.bigbluebutton.presentation.PresentationUrlDownloadService
 import org.bigbluebutton.presentation.UploadedPresentation
@@ -250,7 +251,7 @@ class ApiController {
     } else {
       errors.missingParamError("fullName");
     }
-    String fullName = params.fullName
+    String fullName = ParamsUtil.stripHTMLTags(params.fullName)
 
     // Do we have a meeting id? If none, complain.
     if (!StringUtils.isEmpty(params.meetingID)) {
@@ -2031,7 +2032,13 @@ class ApiController {
       fos.close()
 
       // Hardcode pre-uploaded presentation to the default presentation window
-      processUploadedFile("DEFAULT_PRESENTATION_POD", meetingId, presId, presFilename, pres, current);
+      processUploadedFile("DEFAULT_PRESENTATION_POD",
+              meetingId,
+              presId,
+              presFilename,
+              pres,
+              current,
+      "preupload-raw-authz-token");
     }
 
   }
@@ -2057,7 +2064,13 @@ class ApiController {
       if (presDownloadService.savePresentation(meetingId, newFilePath, address)) {
         def pres = new File(newFilePath)
         // Hardcode pre-uploaded presentation to the default presentation window
-        processUploadedFile("DEFAULT_PRESENTATION_POD", meetingId, presId, presFilename, pres, current);
+        processUploadedFile("DEFAULT_PRESENTATION_POD",
+                meetingId,
+                presId,
+                presFilename,
+                pres,
+                current,
+                "preupload-download-authz-token");
       } else {
         log.error("Failed to download presentation=[${address}], meeting=[${meetingId}], fileName=[${fileName}]")
       }
@@ -2065,10 +2078,16 @@ class ApiController {
   }
 
 
-  def processUploadedFile(podId, meetingId, presId, filename, presFile, current) {
+  def processUploadedFile(podId, meetingId, presId, filename, presFile, current, authzToken) {
     def presentationBaseUrl = presentationService.presentationBaseUrl
     // TODO add podId
-    UploadedPresentation uploadedPres = new UploadedPresentation(podId, meetingId, presId, filename, presentationBaseUrl, current);
+    UploadedPresentation uploadedPres = new UploadedPresentation(podId,
+            meetingId,
+            presId,
+            filename,
+            presentationBaseUrl,
+            current,
+    authzToken);
     uploadedPres.setUploadedFile(presFile);
     presentationService.processUploadedPresentation(uploadedPres);
   }

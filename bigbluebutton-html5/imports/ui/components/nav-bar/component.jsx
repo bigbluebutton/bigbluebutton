@@ -9,6 +9,7 @@ import { defineMessages, injectIntl } from 'react-intl';
 import { styles } from './styles.scss';
 import Button from '../button/component';
 import RecordingIndicator from './recording-indicator/container';
+import TalkingIndicatorContainer from '/imports/ui/components/nav-bar/talking-indicator/container';
 import SettingsDropdownContainer from './settings-dropdown/container';
 
 
@@ -57,7 +58,7 @@ class NavBar extends PureComponent {
     } = this.props;
 
     if (Meteor.settings.public.allowOutsideCommands.toggleRecording
-      || getFromUserSettings('outsideToggleRecording', false)) {
+      || getFromUserSettings('bbb_outside_toggle_recording', false)) {
       connectRecordingObserver();
       window.addEventListener('message', processOutsideToggleRecording);
     }
@@ -74,7 +75,6 @@ class NavBar extends PureComponent {
       intl,
       shortcuts: TOGGLE_USERLIST_AK,
       mountModal,
-      isBreakoutRoom,
       presentationTitle,
       amIModerator,
     } = this.props;
@@ -89,31 +89,36 @@ class NavBar extends PureComponent {
 
     return (
       <div className={styles.navbar}>
-        <div className={styles.left}>
-          <Button
-            data-test="userListToggleButton"
-            onClick={NavBar.handleToggleUserList}
-            ghost
-            circle
-            hideLabel
-            label={intl.formatMessage(intlMessages.toggleUserListLabel)}
-            aria-label={ariaLabel}
-            icon="user"
-            className={cx(toggleBtnClasses)}
-            aria-expanded={isExpanded}
-            accessKey={TOGGLE_USERLIST_AK}
-          />
-        </div>
-        <div className={styles.center}>
-          <h1 className={styles.presentationTitle}>{presentationTitle}</h1>
+        <div className={styles.top}>
+          <div className={styles.left}>
+            <Button
+              data-test="userListToggleButton"
+              onClick={NavBar.handleToggleUserList}
+              ghost
+              circle
+              hideLabel
+              label={intl.formatMessage(intlMessages.toggleUserListLabel)}
+              aria-label={ariaLabel}
+              icon="user"
+              className={cx(toggleBtnClasses)}
+              aria-expanded={isExpanded}
+              accessKey={TOGGLE_USERLIST_AK}
+            />
+          </div>
+          <div className={styles.center}>
+            <h1 className={styles.presentationTitle}>{presentationTitle}</h1>
 
-          <RecordingIndicator
-            mountModal={mountModal}
-            amIModerator={amIModerator}
-          />
+            <RecordingIndicator
+              mountModal={mountModal}
+              amIModerator={amIModerator}
+            />
+          </div>
+          <div className={styles.right}>
+            <SettingsDropdownContainer amIModerator={amIModerator} />
+          </div>
         </div>
-        <div className={styles.right}>
-          <SettingsDropdownContainer amIModerator={amIModerator} isBreakoutRoom={isBreakoutRoom} />
+        <div className={styles.bottom}>
+          <TalkingIndicatorContainer amIModerator={amIModerator} />
         </div>
       </div>
     );

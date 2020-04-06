@@ -88,7 +88,7 @@ class UserMessages extends PureComponent {
         timeout={0}
         component="div"
         className={cx(styles.chatsList)}
-        key={chat.id}
+        key={chat.userId}
       >
         <div ref={(node) => { this.activeChatRefs[index += 1] = node; }}>
           <ChatListItemContainer
@@ -121,15 +121,17 @@ class UserMessages extends PureComponent {
 
     return (
       <div className={styles.messages}>
-        {
-          !compact ? (
-            <h2 className={styles.smallTitle}>
-              {intl.formatMessage(intlMessages.messagesTitle)}
-            </h2>
-          ) : (
-            <hr className={styles.separator} />
-          )
-        }
+        <div className={styles.container}>
+          {
+            !compact ? (
+              <h2 className={styles.smallTitle}>
+                {intl.formatMessage(intlMessages.messagesTitle)}
+              </h2>
+            ) : (
+              <hr className={styles.separator} />
+            )
+          }
+        </div>
         <div
           role="tabpanel"
           tabIndex={0}

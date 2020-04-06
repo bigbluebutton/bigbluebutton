@@ -3,35 +3,52 @@ import BaseAudioBridge from './base';
 import logger from '/imports/startup/client/logger';
 import { fetchStunTurnServers } from '/imports/utils/fetchStunTurnServers';
 import {
-  isUnifiedPlan, toUnifiedPlan, toPlanB, stripMDnsCandidates,
+  isUnifiedPlan,
+  toUnifiedPlan,
+  toPlanB,
+  stripMDnsCandidates,
+  analyzeSdp,
+  logSelectedCandidate,
 } from '/imports/utils/sdpUtils';
+import { Tracker } from 'meteor/tracker';
+import VoiceCallStates from '/imports/api/voice-call-states';
+import CallStateOptions from '/imports/api/voice-call-states/utils/callStates';
+import Auth from '/imports/ui/services/auth';
 
 const MEDIA = Meteor.settings.public.media;
 const MEDIA_TAG = MEDIA.mediaTag;
 const CALL_TRANSFER_TIMEOUT = MEDIA.callTransferTimeout;
 const CALL_HANGUP_TIMEOUT = MEDIA.callHangupTimeout;
 const CALL_HANGUP_MAX_RETRIES = MEDIA.callHangupMaximumRetries;
+const RELAY_ONLY_ON_RECONNECT = MEDIA.relayOnlyOnReconnect;
 const IPV4_FALLBACK_DOMAIN = Meteor.settings.public.app.ipv4FallbackDomain;
 const ICE_NEGOTIATION_FAILED = ['iceConnectionFailed'];
-const CALL_CONNECT_TIMEOUT = 15000;
+const CALL_CONNECT_TIMEOUT = 20000;
 const ICE_NEGOTIATION_TIMEOUT = 20000;
+const AUDIO_SESSION_NUM_KEY = 'AudioSessionNumber';
+
+
+const getAudioSessionNumber = () => {
+  let currItem = parseInt(sessionStorage.getItem(AUDIO_SESSION_NUM_KEY), 10);
+  if (!currItem) {
+    currItem = 0;
+  }
+
+  currItem += 1;
+  sessionStorage.setItem(AUDIO_SESSION_NUM_KEY, currItem);
+  return currItem;
+};
 
 class SIPSession {
-  constructor(user, userData, protocol, hostname, baseCallStates, baseErrorCodes) {
+  constructor(user, userData, protocol, hostname,
+    baseCallStates, baseErrorCodes, reconnectAttempt) {
     this.user = user;
     this.userData = userData;
     this.protocol = protocol;
     this.hostname = hostname;
     this.baseCallStates = baseCallStates;
     this.baseErrorCodes = baseErrorCodes;
-  }
-
-  static parseDTMF(message) {
-    const parse = message.match(/Signal=(.)/);
-    if (parse && parse.length === 2) {
-      return parse[1];
-    }
-    return '';
+    this.reconnectAttempt = reconnectAttempt;
   }
 
   joinAudio({ isListenOnly, extension, inputStream }, managerCallback) {
@@ -80,7 +97,7 @@ class SIPSession {
     } = this.user;
 
     const callerIdName = [
-      userId,
+      `${userId}_${getAudioSessionNumber()}`,
       'bbbID',
       isListenOnly ? `LISTENONLY-${name}` : name,
     ].join('-').replace(/"/g, "'");
@@ -98,29 +115,41 @@ class SIPSession {
     return new Promise((resolve, reject) => {
       this.inEchoTest = false;
 
-      const timeout = setInterval(() => {
-        clearInterval(timeout);
+      let trackerControl = null;
+
+      const timeout = setTimeout(() => {
+        trackerControl.stop();
         logger.error({ logCode: 'sip_js_transfer_timed_out' }, 'Timeout on transferring from echo test to conference');
         this.callback({
           status: this.baseCallStates.failed,
           error: 1008,
           bridgeError: 'Timeout on call transfer',
         });
+
+        this.exitAudio();
+
         reject(this.baseErrorCodes.REQUEST_TIMEOUT);
       }, CALL_TRANSFER_TIMEOUT);
 
       // This is is the call transfer code ask @chadpilkey
       this.currentSession.dtmf(1);
 
-      this.currentSession.on('dtmf', (event) => {
-        if (event.body && (typeof event.body === 'string')) {
-          const key = SIPSession.parseDTMF(event.body);
-          if (key === '7') {
-            clearInterval(timeout);
-            onTransferSuccess();
-            resolve();
-          }
-        }
+      Tracker.autorun((c) => {
+        trackerControl = c;
+        const selector = { meetingId: Auth.meetingID, userId: Auth.userID };
+        const query = VoiceCallStates.find(selector);
+
+        query.observeChanges({
+          changed: (id, fields) => {
+            if (fields.callState === CallStateOptions.IN_CONFERENCE) {
+              clearTimeout(timeout);
+              onTransferSuccess();
+
+              c.stop();
+              resolve();
+            }
+          },
+        });
       });
     });
   }
@@ -129,19 +158,24 @@ class SIPSession {
     return new Promise((resolve, reject) => {
       let hangupRetries = 0;
       let hangup = false;
-      const { mediaHandler } = this.currentSession;
 
       this.userRequestedHangup = true;
-      // Removing termination events to avoid triggering an error
-      ICE_NEGOTIATION_FAILED.forEach(e => mediaHandler.off(e));
+
+      if (this.currentSession) {
+        const { mediaHandler } = this.currentSession;
+
+        // Removing termination events to avoid triggering an error
+        ICE_NEGOTIATION_FAILED.forEach(e => mediaHandler.off(e));
+      }
       const tryHangup = () => {
-        if (this.currentSession.endTime) {
+        if ((this.currentSession && this.currentSession.endTime)
+          || (this.userAgent && this.userAgent.status === SIP.UA.C.STATUS_USER_CLOSED)) {
           hangup = true;
           return resolve();
         }
 
-        this.currentSession.bye();
-        this.userAgent.stop();
+        if (this.currentSession) this.currentSession.bye();
+        if (this.userAgent) this.userAgent.stop();
 
         hangupRetries += 1;
 
@@ -160,10 +194,12 @@ class SIPSession {
         }, CALL_HANGUP_TIMEOUT);
       };
 
-      this.currentSession.on('bye', () => {
-        hangup = true;
-        resolve();
-      });
+      if (this.currentSession) {
+        this.currentSession.on('bye', () => {
+          hangup = true;
+          resolve();
+        });
+      }
 
       return tryHangup();
     });
@@ -171,6 +207,8 @@ class SIPSession {
 
   createUserAgent({ stun, turn }) {
     return new Promise((resolve, reject) => {
+      if (this.userRequestedHangup === true) reject();
+
       const {
         hostname,
         protocol,
@@ -202,6 +240,20 @@ class SIPSession {
         logger.debug({ logCode: 'sip_js_different_host_name' }, 'Different host name. need to kill');
       }
 
+      const localSdpCallback = (sdp) => {
+        // For now we just need to call the utils function to parse and log the different pieces.
+        // In the future we're going to want to be tracking whether there were TURN candidates
+        // and IPv4 candidates to make informed decisions about what to do on fallbacks/reconnects.
+        analyzeSdp(sdp);
+      };
+
+      const remoteSdpCallback = (sdp) => {
+        // We have have to find the candidate that FS sends back to us to determine if the client
+        // is connecting with IPv4 or IPv6
+        const sdpInfo = analyzeSdp(sdp, false);
+        this.protocolIsIpv6 = sdpInfo.v6Info.found;
+      };
+
       let userAgentConnected = false;
 
       this.userAgent = new window.SIP.UA({
@@ -216,6 +268,9 @@ class SIPSession {
         turnServers: turn,
         hackPlanBUnifiedPlanTranslation: isSafari,
         hackAddAudioTransceiver: isSafariWebview,
+        relayOnlyOnReconnect: this.reconnectAttempt && RELAY_ONLY_ON_RECONNECT,
+        localSdpCallback,
+        remoteSdpCallback,
       });
 
       const handleUserAgentConnection = () => {
@@ -227,7 +282,6 @@ class SIPSession {
         if (this.userAgent) {
           this.userAgent.removeAllListeners();
           this.userAgent.stop();
-          this.userAgent = null;
         }
 
         let error;
@@ -259,6 +313,8 @@ class SIPSession {
   }
 
   inviteUserAgent(userAgent) {
+    if (this.userRequestedHangup === true) Promise.reject();
+
     const {
       hostname,
     } = this;
@@ -289,7 +345,9 @@ class SIPSession {
   }
 
   setupEventHandlers(currentSession) {
-    return new Promise((resolve) => {
+    return new Promise((resolve, reject) => {
+      if (this.userRequestedHangup === true) reject();
+
       const { mediaHandler } = currentSession;
 
       let iceCompleted = false;
@@ -306,6 +364,11 @@ class SIPSession {
       }
 
       const checkIfCallReady = () => {
+        if (this.userRequestedHangup === true) {
+          this.exitAudio();
+          resolve();
+        }
+
         if (iceCompleted && fsReady) {
           this.webrtcConnected = true;
           this.callback({ status: this.baseCallStates.started });
@@ -321,6 +384,8 @@ class SIPSession {
           error: 1006,
           bridgeError: `Call timed out on start after ${CALL_CONNECT_TIMEOUT / 1000}s`,
         });
+
+        this.exitAudio();
       }, CALL_CONNECT_TIMEOUT);
 
       let iceNegotiationTimeout;
@@ -338,6 +403,8 @@ class SIPSession {
               error: 1010,
               bridgeError: `ICE negotiation timeout after ${ICE_NEGOTIATION_TIMEOUT / 1000}s`,
             });
+
+            this.exitAudio();
           }, ICE_NEGOTIATION_TIMEOUT);
         }
       };
@@ -359,6 +426,8 @@ class SIPSession {
         clearTimeout(iceNegotiationTimeout);
         connectionCompletedEvents.forEach(e => mediaHandler.off(e, handleConnectionCompleted));
         iceCompleted = true;
+
+        logSelectedCandidate(peer, this.protocolIsIpv6);
 
         checkIfCallReady();
       };
@@ -427,17 +496,22 @@ class SIPSession {
       };
       ['iceConnectionClosed'].forEach(e => mediaHandler.on(e, handleIceConnectionTerminated));
 
-      const inEchoDTMF = (event) => {
-        if (event.body && typeof event.body === 'string') {
-          const dtmf = SIPSession.parseDTMF(event.body);
-          if (dtmf === '0') {
-            fsReady = true;
-            checkIfCallReady();
-          }
-        }
-        currentSession.off('dtmf', inEchoDTMF);
-      };
-      currentSession.on('dtmf', inEchoDTMF);
+      Tracker.autorun((c) => {
+        const selector = { meetingId: Auth.meetingID, userId: Auth.userID };
+        const query = VoiceCallStates.find(selector);
+
+        query.observeChanges({
+          changed: (id, fields) => {
+            if ((this.inEchoTest && fields.callState === CallStateOptions.IN_ECHO_TEST)
+              || (!this.inEchoTest && fields.callState === CallStateOptions.IN_CONFERENCE)) {
+              fsReady = true;
+              checkIfCallReady();
+
+              c.stop();
+            }
+          },
+        });
+      });
     });
   }
 }
@@ -470,6 +544,9 @@ export default class SIPBridge extends BaseAudioBridge {
     window.toUnifiedPlan = toUnifiedPlan;
     window.toPlanB = toPlanB;
     window.stripMDnsCandidates = stripMDnsCandidates;
+
+    // No easy way to expose the client logger to sip.js code so we need to attach it globally
+    window.clientLogger = logger;
   }
 
   joinAudio({ isListenOnly, extension, inputStream }, managerCallback) {
@@ -479,7 +556,7 @@ export default class SIPBridge extends BaseAudioBridge {
       let { hostname } = this;
 
       this.activeSession = new SIPSession(this.user, this.userData, this.protocol,
-        hostname, this.baseCallStates, this.baseErrorCodes);
+        hostname, this.baseCallStates, this.baseErrorCodes, false);
 
       const callback = (message) => {
         if (message.status === this.baseCallStates.failed) {
@@ -503,7 +580,7 @@ export default class SIPBridge extends BaseAudioBridge {
           if (shouldTryReconnect) {
             const fallbackExtension = this.activeSession.inEchoTest ? extension : undefined;
             this.activeSession = new SIPSession(this.user, this.userData, this.protocol,
-              hostname, this.baseCallStates, this.baseErrorCodes);
+              hostname, this.baseCallStates, this.baseErrorCodes, true);
             this.activeSession.joinAudio({ isListenOnly, extension: fallbackExtension, inputStream }, callback)
               .then((value) => {
                 resolve(value);

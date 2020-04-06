@@ -38,7 +38,15 @@ class ChatContainer extends PureComponent {
   }
 
   render() {
-    const { children } = this.props;
+    const {
+      children,
+      unmounting,
+    } = this.props;
+
+    if (unmounting === true) {
+      return null;
+    }
+
     return (
       <Chat {...this.props}>
         {children}
@@ -48,7 +56,7 @@ class ChatContainer extends PureComponent {
 }
 
 export default injectIntl(withTracker(({ intl }) => {
-  const chatID = Session.get('idChatOpen') || PUBLIC_CHAT_KEY;
+  const chatID = Session.get('idChatOpen');
   let messages = [];
   let isChatLocked = ChatService.isChatLocked(chatID);
   let title = intl.formatMessage(intlMessages.titlePublic);
@@ -56,9 +64,11 @@ export default injectIntl(withTracker(({ intl }) => {
   let partnerIsLoggedOut = false;
   let systemMessageIntl = {};
 
+  const currentUser = ChatService.getUser(Auth.userID);
+  const amIModerator = currentUser.role === ROLE_MODERATOR;
+
   if (chatID === PUBLIC_CHAT_KEY) {
-    const { welcomeProp } = ChatService.getMeeting();
-    const currentUser = ChatService.getUser(Auth.userID);
+    const { welcomeProp } = ChatService.getWelcomeProp();
 
     messages = ChatService.getPublicGroupMessages();
 
@@ -99,11 +109,11 @@ export default injectIntl(withTracker(({ intl }) => {
 
     const messagesFormated = messagesBeforeWelcomeMsg
       .concat(welcomeMsg)
-      .concat(currentUser.role === ROLE_MODERATOR ? moderatorMsg : [])
+      .concat(amIModerator ? moderatorMsg : [])
       .concat(messagesAfterWelcomeMsg);
 
     messages = messagesFormated.sort((a, b) => (a.time - b.time));
-  } else {
+  } else if (chatID) {
     messages = ChatService.getPrivateGroupMessages();
 
     const receiverUser = ChatService.getUser(chatID);
@@ -129,6 +139,11 @@ export default injectIntl(withTracker(({ intl }) => {
       messages.push(messagePartnerLoggedOut);
       isChatLocked = true;
     }
+  } else {
+    // No chatID is set so the panel is closed, about to close, or wasn't opened correctly
+    return {
+      unmounting: true,
+    };
   }
 
   messages = messages.map((message) => {
@@ -154,6 +169,7 @@ export default injectIntl(withTracker(({ intl }) => {
     partnerIsLoggedOut,
     isChatLocked,
     isMeteorConnected,
+    amIModerator,
     actions: {
       handleClosePrivateChat: ChatService.closePrivateChat,
     },

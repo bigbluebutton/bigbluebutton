@@ -124,6 +124,7 @@ class AudioModal extends Component {
     this.state = {
       content: null,
       hasError: false,
+      errCode: null,
     };
 
     this.handleGoToAudioOptions = this.handleGoToAudioOptions.bind(this);
@@ -205,6 +206,7 @@ class AudioModal extends Component {
     this.setState({
       content: null,
       hasError: true,
+      disableActions: false,
     });
   }
 
@@ -231,25 +233,46 @@ class AudioModal extends Component {
   }
 
   handleGoToEchoTest() {
+    const { AudioError } = this.props;
+    const { MIC_ERROR } = AudioError;
+    const noSSL = !window.location.protocol.includes('https');
+
+    if (noSSL) {
+      return this.setState({
+        content: 'help',
+        errCode: MIC_ERROR.NO_SSL,
+      });
+    }
+
     const {
       inputDeviceId,
       outputDeviceId,
       joinEchoTest,
     } = this.props;
 
+    const {
+      disableActions,
+    } = this.state;
+
+    if (disableActions) return;
+
     this.setState({
       hasError: false,
+      disableActions: true,
     });
 
     return joinEchoTest().then(() => {
-      console.log(inputDeviceId, outputDeviceId);
+      //console.log(inputDeviceId, outputDeviceId);
       this.setState({
         content: 'echoTest',
+        disableActions: false,
       });
     }).catch((err) => {
       if (err.type === 'MEDIA_ERROR') {
         this.setState({
           content: 'help',
+          errCode: err.code,
+          disableActions: false,
         });
       }
     });
@@ -260,7 +283,21 @@ class AudioModal extends Component {
       joinListenOnly,
     } = this.props;
 
-    return joinListenOnly().catch((err) => {
+    const {
+      disableActions,
+    } = this.state;
+
+    if (disableActions) return;
+
+    this.setState({
+      disableActions: true,
+    });
+
+    return joinListenOnly().then(() => {
+      this.setState({
+        disableActions: false,
+      });
+    }).catch((err) => {
       if (err.type === 'MEDIA_ERROR') {
         this.setState({
           content: 'help',
@@ -274,11 +311,22 @@ class AudioModal extends Component {
       joinMicrophone,
     } = this.props;
 
+    const {
+      disableActions,
+    } = this.state;
+
+    if (disableActions) return;
+
     this.setState({
       hasError: false,
+      disableActions: true,
     });
 
-    joinMicrophone().catch(this.handleGoToAudioOptions);
+    joinMicrophone().then(() => {
+      this.setState({
+        disableActions: false,
+      });
+    }).catch(this.handleGoToAudioOptions);
   }
 
   skipAudioOptions() {
@@ -317,7 +365,7 @@ class AudioModal extends Component {
 
     const showMicrophone = forceListenOnlyAttendee || audioLocked;
 
-    const arrow = isRTL ? '🡸' : '🡺';
+    const arrow = isRTL ? '←' : '→';
     const dialAudioLabel = `${intl.formatMessage(intlMessages.audioDialTitle)} ${arrow}`;
 
     return (
@@ -371,12 +419,12 @@ class AudioModal extends Component {
     const {
       isEchoTest,
       intl,
-      hasMediaDevices,
+      isIOSChrome,
     } = this.props;
 
     const { content } = this.state;
 
-    if (!hasMediaDevices) {
+    if (isIOSChrome) {
       return (
         <div>
           <div className={styles.warning}>!</div>
@@ -387,6 +435,7 @@ class AudioModal extends Component {
           </div>
         </div>);
     }
+
     if (this.skipAudioOptions()) {
       return (
         <div className={styles.connecting} role="alert">
@@ -441,9 +490,18 @@ class AudioModal extends Component {
   }
 
   renderHelp() {
+    const { errCode } = this.state;
+    const { AudioError } = this.props;
+
+    const audioErr = {
+      ...AudioError,
+      code: errCode,
+    };
+
     return (
       <Help
         handleBack={this.handleGoToAudioOptions}
+        audioErr={audioErr}
       />
     );
   }
@@ -502,7 +560,6 @@ class AudioModal extends Component {
             </p>
           ) : null}
           {!this.skipAudioOptions()
-
             ? (
               <header
                 data-test="audioModalHeader"

@@ -57,7 +57,7 @@ class LiveResult extends PureComponent {
       ? [...users, ...responses.map(u => u.userId)]
       : [...users];
 
-    userAnswers = userAnswers.map(id => getUser(id))
+    userAnswers = userAnswers.map(id => Service.getUser(id))
       .filter(user => user.connectionStatus === 'online')
       .map((user) => {
         let answer = '-';
@@ -144,7 +144,6 @@ class LiveResult extends PureComponent {
     const {
       isMeteorConnected,
       intl,
-      publishPoll,
       stopPoll,
       handleBackClick,
       currentPoll,
@@ -193,7 +192,7 @@ class LiveResult extends PureComponent {
             <Button
               disabled={!isMeteorConnected}
               onClick={() => {
-                publishPoll();
+                Service.publishPoll();
                 stopPoll();
               }}
               label={intl.formatMessage(intlMessages.publishLabel)}
@@ -241,7 +240,6 @@ LiveResult.propTypes = {
       users: PropTypes.arrayOf(PropTypes.string),
     }),
   ]),
-  publishPoll: PropTypes.func.isRequired,
   stopPoll: PropTypes.func.isRequired,
   handleBackClick: PropTypes.func.isRequired,
 };

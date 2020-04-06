@@ -9,7 +9,7 @@ const processOutsideToggleRecording = (e) => {
       break;
     }
     case 'c_recording_status': {
-      const recordingState = (RecordMeetings.findOne({ meetingId: Auth.meetingID }) || {}).recording;
+      const recordingState = (RecordMeetings.findOne({ meetingId: Auth.meetingID })).recording;
       const recordingMessage = recordingState ? 'recordingStarted' : 'recordingStopped';
       this.window.parent.postMessage({ response: recordingMessage }, '*');
       break;

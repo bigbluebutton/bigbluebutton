@@ -59,9 +59,10 @@ for app in recordings screenshare; do
 done
 
 #
-# Delete FreeSWITCH wav recordings older than N days
+# Delete FreeSWITCH wav/opus recordings older than N days
 #
-find /var/freeswitch/meetings/ -name "*.wav" -mtime +$history -delete
+find /var/freeswitch/meetings/ -name "*.wav"  -mtime +$history -delete
+find /var/freeswitch/meetings/ -name "*.opus" -mtime +$history -delete
 
 #
 # Delete old/rotated log files
@@ -70,6 +71,7 @@ find /opt/freeswitch/var/log/freeswitch -type f -mtime +$log_history -delete
 find /var/log/red5 -type f -mtime +$log_history -delete
 [[ -d /var/log/tomcat7 ]] && find /var/log/tomcat7 -type f -mtime +$log_history -delete
 find /var/log/bigbluebutton -type f -mtime +$log_history -delete
+find /var/log/bbb-webrtc-sfu -type f -mtime +$log_history -delete
 find /var/log/kurento-media-server -name "*.pid*.log" -type f -mtime +$log_history -delete
 
 #
@@ -95,7 +97,8 @@ remove_raw_of_published_recordings(){
     #TYPES=$(cd /usr/local/bigbluebutton/core/scripts/process; ls *.rb | sed s/.rb//g)
     logger "Removing raw directory of old recordings:"
     TYPES="presentation"
-    old_meetings=$(find /var/bigbluebutton/recording/raw/*/events.xml  -mtime +$published_days | cut -d"/" -f6 )
+    cd /var/bigbluebutton/recording/raw/
+    old_meetings=$(find . -name events.xml -mtime +$published_days | cut -d"/" -f2 )
     for meeting in $old_meetings
     do
         PROPERLY_PUBLISHED="true"

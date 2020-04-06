@@ -1,19 +1,18 @@
 import { Meteor } from 'meteor/meteor';
-import { check } from 'meteor/check';
-import Meetings, { RecordMeetings } from '/imports/api/meetings';
+import Meetings, { RecordMeetings, MeetingTimeRemaining } from '/imports/api/meetings';
 import Users from '/imports/api/users';
 import Logger from '/imports/startup/server/logger';
+import { extractCredentials } from '/imports/api/common/server/helpers';
 
 const ROLE_MODERATOR = Meteor.settings.public.user.role_moderator;
 
-function meetings(credentials, isModerator = false) {
-  const { meetingId, requesterUserId, requesterToken } = credentials;
+function meetings(isModerator = false) {
+  if (!this.userId) {
+    return Meetings.find({ meetingId: '' });
+  }
+  const { meetingId, requesterUserId } = extractCredentials(this.userId);
 
-  check(meetingId, String);
-  check(requesterUserId, String);
-  check(requesterToken, String);
-
-  Logger.debug(`Publishing meeting =${meetingId} ${requesterUserId} ${requesterToken}`);
+  Logger.debug(`Publishing meeting =${meetingId} ${requesterUserId}`);
 
   const selector = {
     $or: [
@@ -22,7 +21,7 @@ function meetings(credentials, isModerator = false) {
   };
 
   if (isModerator) {
-    const User = Users.findOne({ userId: requesterUserId });
+    const User = Users.findOne({ userId: requesterUserId, meetingId });
     if (!!User && User.role === ROLE_MODERATOR) {
       selector.$or.push({
         'meetingProp.isBreakout': true,
@@ -47,17 +46,32 @@ function publish(...args) {
 
 Meteor.publish('meetings', publish);
 
-function recordMeetings(credentials) {
-  const { meetingId, requesterUserId, requesterToken } = credentials;
-  check(meetingId, String);
-  check(requesterUserId, String);
-  check(requesterToken, String);
+function recordMeetings() {
+  if (!this.userId) {
+    return RecordMeetings.find({ meetingId: '' });
+  }
+  const { meetingId } = extractCredentials(this.userId);
 
   return RecordMeetings.find({ meetingId });
 }
 function recordPublish(...args) {
-  const boundMeetings = recordMeetings.bind(this);
-  return boundMeetings(...args);
+  const boundRecordMeetings = recordMeetings.bind(this);
+  return boundRecordMeetings(...args);
 }
 
 Meteor.publish('record-meetings', recordPublish);
+
+function meetingTimeRemaining() {
+  if (!this.userId) {
+    return MeetingTimeRemaining.find({ meetingId: '' });
+  }
+  const { meetingId } = extractCredentials(this.userId);
+
+  return MeetingTimeRemaining.find({ meetingId });
+}
+function timeRemainingPublish(...args) {
+  const boundtimeRemaining = meetingTimeRemaining.bind(this);
+  return boundtimeRemaining(...args);
+}
+
+Meteor.publish('meeting-time-remaining', timeRemainingPublish);

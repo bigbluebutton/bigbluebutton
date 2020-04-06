@@ -1,4 +1,3 @@
-import React from 'react';
 import { withTracker } from 'meteor/react-meteor-data';
 import ActionsBarService from '/imports/ui/components/actions-bar/service';
 import { formatNumber, isEasternArabic, convertToWestern } from '/imports/utils/intl-formatter';

@@ -60,15 +60,17 @@ public class FreeswitchApplication implements  IDelayedCommandListener{
   }
 
   public void runDelayedCommand(FreeswitchCommand command) {
+    log.info("Run DelayedCommand.");
     queueMessage(command);
   }
 
   private void queueMessage(FreeswitchCommand command) {
     try {
+      log.info("Queue message: " + command.getCommand() + " " + command.getCommandArgs());
       messages.offer(command, 5, TimeUnit.SECONDS);
     } catch (InterruptedException e) {
       // TODO Auto-generated catch block
-      e.printStackTrace();
+      log.error("Exception queueing message: ", e);
     }
   }
 
@@ -93,7 +95,7 @@ public class FreeswitchApplication implements  IDelayedCommandListener{
             sendMessageToFreeswitch(message);
           } catch (InterruptedException e) {
             // TODO Auto-generated catch block
-            e.printStackTrace();
+            log.error("Exception taking message from queue: ", e);
           }
         }
       }
@@ -101,12 +103,19 @@ public class FreeswitchApplication implements  IDelayedCommandListener{
     msgSenderExec.execute(sender);
   }
 
+  public void getUsersStatus(String voiceConfId, String meetingId) {
+    GetUsersStatusCommand ccrc = new GetUsersStatusCommand(voiceConfId, meetingId);
+    queueMessage(ccrc);
+  }
+
+  public void checkRunningAndRecording(String voiceConfId, String meetingId) {
+    ConferenceCheckRecordCommand ccrc = new ConferenceCheckRecordCommand(voiceConfId, meetingId);
+    queueMessage(ccrc);
+  }
+
   public void getAllUsers(String voiceConfId) {
     GetAllUsersCommand prc = new GetAllUsersCommand(voiceConfId, USER);
     queueMessage(prc);
-
-    ConferenceCheckRecordCommand ccrc = new ConferenceCheckRecordCommand(voiceConfId, USER);
-    queueMessage(ccrc);
   }
 
   public void muteUser(String voiceConfId, String voiceUserId, Boolean mute) {
@@ -152,37 +161,48 @@ public class FreeswitchApplication implements  IDelayedCommandListener{
   private void sendMessageToFreeswitch(final FreeswitchCommand command) {
     Runnable task = new Runnable() {
       public void run() {
-        if (command instanceof GetAllUsersCommand) {
-          GetAllUsersCommand cmd = (GetAllUsersCommand) command;
-          manager.getUsers(cmd);
-        } else if (command instanceof MuteUserCommand) {
-          MuteUserCommand cmd = (MuteUserCommand) command;
-          manager.mute(cmd);
-        } else if (command instanceof EjectUserCommand) {
-          EjectUserCommand cmd = (EjectUserCommand) command;
-          manager.eject(cmd);
-        } else if (command instanceof EjectAllUsersCommand) {
-          EjectAllUsersCommand cmd = (EjectAllUsersCommand) command;
-          manager.ejectAll(cmd);
+        log.info("Sending message: " + command.getCommand() + " " + command.getCommandArgs());
+        try {
+          if (command instanceof GetAllUsersCommand) {
+            GetAllUsersCommand cmd = (GetAllUsersCommand) command;
+            manager.getUsers(cmd);
+          } else if (command instanceof MuteUserCommand) {
+            MuteUserCommand cmd = (MuteUserCommand) command;
+            manager.mute(cmd);
+          } else if (command instanceof EjectUserCommand) {
+            EjectUserCommand cmd = (EjectUserCommand) command;
+            manager.eject(cmd);
+          } else if (command instanceof EjectAllUsersCommand) {
+            EjectAllUsersCommand cmd = (EjectAllUsersCommand) command;
+            manager.ejectAll(cmd);
 
-          CheckIfConfIsRunningCommand command = new CheckIfConfIsRunningCommand(cmd.getRoom(), cmd.getRequesterId());
-          delayedCommandSenderService.handleMessage(command, 5000);
-        } else if (command instanceof TransferUserToMeetingCommand) {
-          TransferUserToMeetingCommand cmd = (TransferUserToMeetingCommand) command;
-          manager.tranfer(cmd);
-        } else if (command instanceof RecordConferenceCommand) {
-          manager.record((RecordConferenceCommand) command);
-        } else if (command instanceof ScreenshareBroadcastRTMPCommand) {
-          manager.broadcastRTMP((ScreenshareBroadcastRTMPCommand) command);
-        } else if (command instanceof ScreenshareHangUpCommand) {
-          ScreenshareHangUpCommand cmd = (ScreenshareHangUpCommand) command;
-          manager.hangUp(cmd);
-        } else if (command instanceof BroadcastConferenceCommand) {
-          manager.broadcast((BroadcastConferenceCommand) command);
-        } else if (command instanceof ConferenceCheckRecordCommand) {
-          manager.checkIfConferenceIsRecording((ConferenceCheckRecordCommand) command);
-        } else if (command instanceof CheckIfConfIsRunningCommand) {
-          manager.checkIfConfIsRunningCommand((CheckIfConfIsRunningCommand) command);
+            CheckIfConfIsRunningCommand command = new CheckIfConfIsRunningCommand(cmd.getRoom(),
+                    cmd.getRequesterId(),
+                    delayedCommandSenderService, 0);
+            delayedCommandSenderService.handleMessage(command, 5000);
+          } else if (command instanceof TransferUserToMeetingCommand) {
+            TransferUserToMeetingCommand cmd = (TransferUserToMeetingCommand) command;
+            manager.tranfer(cmd);
+          } else if (command instanceof RecordConferenceCommand) {
+            manager.record((RecordConferenceCommand) command);
+          } else if (command instanceof ScreenshareBroadcastRTMPCommand) {
+            manager.broadcastRTMP((ScreenshareBroadcastRTMPCommand) command);
+          } else if (command instanceof ScreenshareHangUpCommand) {
+            ScreenshareHangUpCommand cmd = (ScreenshareHangUpCommand) command;
+            manager.hangUp(cmd);
+          } else if (command instanceof BroadcastConferenceCommand) {
+            manager.broadcast((BroadcastConferenceCommand) command);
+          } else if (command instanceof ConferenceCheckRecordCommand) {
+            manager.checkIfConferenceIsRecording((ConferenceCheckRecordCommand) command);
+          } else if (command instanceof CheckIfConfIsRunningCommand) {
+            manager.checkIfConfIsRunningCommand((CheckIfConfIsRunningCommand) command);
+          } else if (command instanceof ForceEjectUserCommand) {
+            manager.forceEjectUser((ForceEjectUserCommand) command);
+          } else if (command instanceof GetUsersStatusCommand) {
+            manager.getUsersStatus((GetUsersStatusCommand) command);
+          }
+        } catch (RuntimeException e) {
+          log.warn(e.getMessage());
         }
       }
     };

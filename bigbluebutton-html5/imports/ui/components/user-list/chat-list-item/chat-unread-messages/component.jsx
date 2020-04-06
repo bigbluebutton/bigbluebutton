@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { defineMessages, injectIntl } from 'react-intl';
-import { styles } from './styles';
+import { styles } from '/imports/ui/components/user-list/user-list-content/styles';
 
 const intlMessages = defineMessages({
   unreadPlural: {

@@ -108,11 +108,46 @@
   padding: var(--border-size) 0;
 
   [dir="rtl"] & {
-    text-align: left;
+    text-align: right;
   }
 
   &:before {
     content: "\00a0"; // non-breaking space
+  }
+}
+
+.spacer {
+  &:before {
+    content: none;
+  }
+}
+
+.coupleTyper,
+.singleTyper {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-weight: bold;
+  font-size: var(--font-size-smaller);
+}
+
+.singleTyper {
+  max-width: 70%;
+}
+
+.coupleTyper {
+  max-width: 25%;
+}
+
+.typingIndicator {
+  display: flex;
+  flex-direction: row;
+
+  > span {
+    display: flex;
+    flex-direction: row;
+    width: 100%;
+    line-height: var(--font-size-md);
   }
 }
 

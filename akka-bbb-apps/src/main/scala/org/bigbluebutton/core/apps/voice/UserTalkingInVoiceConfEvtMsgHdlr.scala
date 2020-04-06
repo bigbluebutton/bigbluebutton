@@ -1,5 +1,6 @@
 package org.bigbluebutton.core.apps.voice
 
+import org.bigbluebutton.LockSettingsUtil
 import org.bigbluebutton.common2.msgs._
 import org.bigbluebutton.core.models.{ VoiceUserState, VoiceUsers }
 import org.bigbluebutton.core.running.{ BaseMeetingActor, LiveMeeting, OutMsgRouter }
@@ -32,9 +33,15 @@ trait UserTalkingInVoiceConfEvtMsgHdlr {
     }
 
     for {
-      mutedUser <- VoiceUsers.userTalking(liveMeeting.voiceUsers, msg.body.voiceUserId, msg.body.talking)
+      talkingUser <- VoiceUsers.userTalking(liveMeeting.voiceUsers, msg.body.voiceUserId, msg.body.talking)
     } yield {
-      broadcastEvent(mutedUser)
+      // Make sure lock settings are in effect (ralam dec 6, 2019)
+      LockSettingsUtil.enforceLockSettingsForVoiceUser(
+        talkingUser,
+        liveMeeting,
+        outGW
+      )
+      broadcastEvent(talkingUser)
     }
   }
 }

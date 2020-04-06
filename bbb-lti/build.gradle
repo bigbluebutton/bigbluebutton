@@ -52,8 +52,20 @@ task copyWebInf(type: Copy) {
   from("src/main/webapp")
 }
 
+task copyViews(type: Copy) {
+  into("${project.buildDir}/resources/main/grails-app/views")
+  from("grails-app/views")
+}
+
+task copyI18n(type: Copy) {
+  into("${project.buildDir}/resources/main/grails-app/i18n")
+  from("grails-app/i18n")
+}
+
 // make  processResources depends on copyWebInf task
 processResources.dependsOn copyWebInf
+copyWebInf.dependsOn copyViews
+copyViews.dependsOn copyI18n
 
 repositories {
   jcenter()

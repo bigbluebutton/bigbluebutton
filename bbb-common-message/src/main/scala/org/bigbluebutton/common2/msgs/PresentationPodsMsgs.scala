@@ -1,6 +1,6 @@
 package org.bigbluebutton.common2.msgs
 
-import org.bigbluebutton.common2.domain.{ PresentationPodVO, PresentationVO }
+import org.bigbluebutton.common2.domain.{ PageVO, PresentationPageConvertedVO, PresentationPageVO, PresentationPodVO, PresentationVO }
 
 // ------------ client to akka-apps ------------
 object CreateNewPresentationPodPubMsg { val NAME = "CreateNewPresentationPodPubMsg" }
@@ -67,6 +67,14 @@ case class PresentationPageCountErrorSysPubMsg(
 case class PresentationPageCountErrorSysPubMsgBody(podId: String, messageKey: String, code: String, presentationId: String,
                                                    numberOfPages: Int, maxNumberPages: Int, presName: String)
 
+object PdfConversionInvalidErrorSysPubMsg { val NAME = "PdfConversionInvalidErrorSysPubMsg" }
+case class PdfConversionInvalidErrorSysPubMsg(
+    header: BbbClientMsgHeader,
+    body:   PdfConversionInvalidErrorSysPubMsgBody
+) extends StandardMsg
+case class PdfConversionInvalidErrorSysPubMsgBody(podId: String, messageKey: String, code: String, presentationId: String,
+                                                  bigPageNumber: Int, bigPageSize: Int, presName: String)
+
 object PresentationPageGeneratedSysPubMsg { val NAME = "PresentationPageGeneratedSysPubMsg" }
 case class PresentationPageGeneratedSysPubMsg(
     header: BbbClientMsgHeader,
@@ -82,6 +90,63 @@ case class PresentationConversionCompletedSysPubMsg(
 ) extends StandardMsg
 case class PresentationConversionCompletedSysPubMsgBody(podId: String, messageKey: String, code: String,
                                                         presentation: PresentationVO)
+
+object PresentationPageConvertedSysMsg { val NAME = "PresentationPageConvertedSysMsg" }
+case class PresentationPageConvertedSysMsg(
+    header: BbbClientMsgHeader,
+    body:   PresentationPageConvertedSysMsgBody
+) extends StandardMsg
+case class PresentationPageConvertedSysMsgBody(
+    podId:          String,
+    messageKey:     String,
+    code:           String,
+    presentationId: String,
+    numberOfPages:  Int,
+    pagesCompleted: Int,
+    presName:       String,
+    page:           PresentationPageConvertedVO
+)
+
+object PresentationConversionRequestReceivedSysMsg { val NAME = "PresentationConversionRequestReceivedSysMsg" }
+case class PresentationConversionRequestReceivedSysMsg(
+    header: BbbClientMsgHeader,
+    body:   PresentationConversionRequestReceivedSysMsgBody
+) extends StandardMsg
+case class PresentationConversionRequestReceivedSysMsgBody(
+    podId:          String,
+    presentationId: String,
+    current:        Boolean,
+    presName:       String,
+    downloadable:   Boolean,
+    authzToken:     String
+)
+
+object PresentationPageConversionStartedSysMsg { val NAME = "PresentationPageConversionStartedSysMsg" }
+case class PresentationPageConversionStartedSysMsg(
+    header: BbbClientMsgHeader,
+    body:   PresentationPageConversionStartedSysMsgBody
+) extends StandardMsg
+case class PresentationPageConversionStartedSysMsgBody(
+    podId:          String,
+    presentationId: String,
+    current:        Boolean,
+    presName:       String,
+    downloadable:   Boolean,
+    authzToken:     String,
+    numPages:       Int
+)
+
+object PresentationConversionEndedSysMsg { val NAME = "PresentationConversionEndedSysMsg" }
+case class PresentationConversionEndedSysMsg(
+    header: BbbClientMsgHeader,
+    body:   PresentationConversionEndedSysMsgBody
+) extends StandardMsg
+case class PresentationConversionEndedSysMsgBody(
+    podId:          String,
+    presentationId: String,
+    presName:       String
+)
+
 // ------------ bbb-common-web to akka-apps ------------
 
 // ------------ akka-apps to client ------------
@@ -92,6 +157,10 @@ case class CreateNewPresentationPodEvtMsgBody(currentPresenterId: String, podId:
 object RemovePresentationPodEvtMsg { val NAME = "RemovePresentationPodEvtMsg" }
 case class RemovePresentationPodEvtMsg(header: BbbClientMsgHeader, body: RemovePresentationPodEvtMsgBody) extends StandardMsg
 case class RemovePresentationPodEvtMsgBody(podId: String)
+
+object PdfConversionInvalidErrorEvtMsg { val NAME = "PdfConversionInvalidErrorEvtMsg" }
+case class PdfConversionInvalidErrorEvtMsg(header: BbbClientMsgHeader, body: PdfConversionInvalidErrorEvtMsgBody) extends StandardMsg
+case class PdfConversionInvalidErrorEvtMsgBody(podId: String, messageKey: String, code: String, presentationId: String, bigPageNumber: Int, bigPageSize: Int, presName: String)
 
 object PresentationUploadTokenPassRespMsg { val NAME = "PresentationUploadTokenPassRespMsg" }
 case class PresentationUploadTokenPassRespMsg(header: BbbClientMsgHeader, body: PresentationUploadTokenPassRespMsgBody) extends StandardMsg
@@ -112,6 +181,62 @@ case class PresentationPageCountErrorEvtMsgBody(podId: String, messageKey: Strin
 object PresentationPageGeneratedEvtMsg { val NAME = "PresentationPageGeneratedEvtMsg" }
 case class PresentationPageGeneratedEvtMsg(header: BbbClientMsgHeader, body: PresentationPageGeneratedEvtMsgBody) extends BbbCoreMsg
 case class PresentationPageGeneratedEvtMsgBody(podId: String, messageKey: String, code: String, presentationId: String, numberOfPages: Int, pagesCompleted: Int, presName: String)
+
+object PresentationPageConvertedEventMsg { val NAME = "PresentationPageConvertedEventMsg" }
+case class PresentationPageConvertedEventMsg(
+    header: BbbClientMsgHeader,
+    body:   PresentationPageConvertedEventMsgBody
+) extends BbbCoreMsg
+case class PresentationPageConvertedEventMsgBody(
+    podId:          String,
+    messageKey:     String,
+    code:           String,
+    presentationId: String,
+    numberOfPages:  Int,
+    pagesCompleted: Int,
+    presName:       String,
+    page:           PresentationPageVO
+)
+
+object PresentationConversionRequestReceivedEventMsg { val NAME = "PresentationConversionRequestReceivedEventMsg" }
+case class PresentationConversionRequestReceivedEventMsg(
+    header: BbbClientMsgHeader,
+    body:   PresentationConversionRequestReceivedEventMsgBody
+) extends StandardMsg
+case class PresentationConversionRequestReceivedEventMsgBody(
+    podId:          String,
+    presentationId: String,
+    current:        Boolean,
+    presName:       String,
+    downloadable:   Boolean,
+    authzToken:     String
+)
+
+object PresentationPageConversionStartedEventMsg { val NAME = "PresentationPageConversionStartedEventMsg" }
+case class PresentationPageConversionStartedEventMsg(
+    header: BbbClientMsgHeader,
+    body:   PresentationPageConversionStartedEventMsgBody
+) extends StandardMsg
+case class PresentationPageConversionStartedEventMsgBody(
+    podId:          String,
+    presentationId: String,
+    current:        Boolean,
+    presName:       String,
+    downloadable:   Boolean,
+    numPages:       Int,
+    authzToken:     String
+)
+
+object PresentationConversionEndedEventMsg { val NAME = "PresentationConversionEndedEventMsg" }
+case class PresentationConversionEndedEventMsg(
+    header: BbbClientMsgHeader,
+    body:   PresentationConversionEndedEventMsgBody
+) extends StandardMsg
+case class PresentationConversionEndedEventMsgBody(
+    podId:          String,
+    presentationId: String,
+    presName:       String
+)
 
 object PresentationConversionCompletedEvtMsg { val NAME = "PresentationConversionCompletedEvtMsg" }
 case class PresentationConversionCompletedEvtMsg(header: BbbClientMsgHeader, body: PresentationConversionCompletedEvtMsgBody) extends BbbCoreMsg

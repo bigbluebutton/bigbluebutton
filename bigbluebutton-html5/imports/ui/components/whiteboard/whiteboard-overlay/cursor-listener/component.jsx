@@ -4,7 +4,7 @@ import PropTypes from 'prop-types';
 
 // maximum value of z-index to prevent other things from overlapping
 const MAX_Z_INDEX = (2 ** 31) - 1;
-const CURSOR_INTERVAL = 32;
+const CURSOR_INTERVAL = 40;
 
 export default class CursorListener extends Component {
   static touchCenterPoint(touches) {

@@ -41,6 +41,7 @@ public class OfficeToPdfConversionService {
   private OfficeDocumentValidator2 officeDocumentValidator;
   private final OfficeManager officeManager;
   private final OfficeDocumentConverter documentConverter;
+  private boolean skipOfficePrecheck = false;
 
   public OfficeToPdfConversionService() {
     final DefaultOfficeManagerBuilder configuration = new DefaultOfficeManagerBuilder();
@@ -57,8 +58,8 @@ public class OfficeToPdfConversionService {
   public UploadedPresentation convertOfficeToPdf(UploadedPresentation pres) {
     initialize(pres);
     if (SupportedFileTypes.isOfficeFile(pres.getFileType())) {
-      boolean valid = officeDocumentValidator.isValid(pres);
-      if (!valid) {
+      // Check if we need to precheck office document
+      if (!skipOfficePrecheck && officeDocumentValidator.isValid(pres)) {
         Map<String, Object> logData = new HashMap<>();
         logData.put("meetingId", pres.getMeetingId());
         logData.put("presId", pres.getId());
@@ -95,6 +96,8 @@ public class OfficeToPdfConversionService {
         Gson gson = new Gson();
         String logStr = gson.toJson(logData);
         log.warn(" --analytics-- data={}", logStr);
+        pres.setConversionStatus(ConversionMessageConstants.OFFICE_DOC_CONVERSION_FAILED_KEY);
+        return pres;
       }
     }
     return pres;
@@ -124,6 +127,10 @@ public class OfficeToPdfConversionService {
 
   public void setOfficeDocumentValidator(OfficeDocumentValidator2 v) {
     officeDocumentValidator = v;
+  }
+
+  public void setSkipOfficePrecheck(boolean skipOfficePrecheck) {
+    this.skipOfficePrecheck = skipOfficePrecheck;
   }
 
   public void start() {

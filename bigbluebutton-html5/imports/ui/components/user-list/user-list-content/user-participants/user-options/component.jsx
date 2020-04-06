@@ -15,6 +15,7 @@ import CaptionsService from '/imports/ui/components/captions/service';
 import CaptionsWriterMenu from '/imports/ui/components/captions/writer-menu/container';
 import DropdownListSeparator from '/imports/ui/components/dropdown/list/separator/component';
 import { styles } from './styles';
+import { getUserNamesLink } from '/imports/ui/components/user-list/service';
 
 const propTypes = {
   intl: PropTypes.shape({
@@ -130,18 +131,8 @@ class UserOptions extends PureComponent {
   }
 
   onSaveUserNames() {
-    const link = document.createElement('a');
-    const mimeType = 'text/plain';
-    const { userListService } = this.props;
-    const userNamesObj = userListService.getUsers();
-    const userNameListString = Object.keys(userNamesObj)
-      .map(key => userNamesObj[key].name, []).join('\r\n');
-    link.setAttribute('download', `save-users-list-${Date.now()}.txt`);
-    link.setAttribute(
-      'href',
-      `data: ${mimeType} ;charset=utf-16,${encodeURIComponent(userNameListString)}`,
-    );
-    link.dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true, view: window }));
+    getUserNamesLink().dispatchEvent(new MouseEvent('click',
+      { bubbles: true, cancelable: true, view: window }));
   }
 
   onActionsShow() {
@@ -197,17 +188,17 @@ class UserOptions extends PureComponent {
       hasBreakoutRoom,
       isBreakoutEnabled,
       getUsersNotAssigned,
-      isUserModerator,
+      amIModerator,
       users,
       isMeteorConnected,
     } = this.props;
 
-    const canCreateBreakout = isUserModerator
+    const canCreateBreakout = amIModerator
       && !meetingIsBreakout
       && !hasBreakoutRoom
       && isBreakoutEnabled;
 
-    const canInviteUsers = isUserModerator
+    const canInviteUsers = amIModerator
       && !meetingIsBreakout
       && hasBreakoutRoom
       && getUsersNotAssigned(users).length;
@@ -240,7 +231,7 @@ class UserOptions extends PureComponent {
           onClick={toggleMuteAllUsersExceptPresenter}
         />) : null
       ),
-      (isUserModerator
+      (amIModerator
         ? (
           <DropdownListItem
             icon="download"
@@ -277,7 +268,7 @@ class UserOptions extends PureComponent {
           onClick={this.onInvitationUsers}
         />) : null
       ),
-      (isUserModerator && CaptionsService.isCaptionsEnabled() && isMeteorConnected
+      (amIModerator && CaptionsService.isCaptionsEnabled() && isMeteorConnected
         ? (
           <DropdownListItem
             icon="closed_caption"

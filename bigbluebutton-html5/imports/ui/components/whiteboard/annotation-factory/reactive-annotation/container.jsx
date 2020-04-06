@@ -5,7 +5,8 @@ import ReactiveAnnotationService from './service';
 import ReactiveAnnotation from './component';
 
 const ReactiveAnnotationContainer = (props) => {
-  if (props.annotation && props.drawObject) {
+  const { annotation, drawObject } = props;
+  if (annotation && drawObject) {
     return (
       <ReactiveAnnotation
         annotation={props.annotation}

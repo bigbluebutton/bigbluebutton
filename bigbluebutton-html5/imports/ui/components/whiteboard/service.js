@@ -1,7 +1,6 @@
 import Users from '/imports/api/users';
 import Auth from '/imports/ui/services/auth';
 import WhiteboardMultiUser from '/imports/api/whiteboard-multi-user/';
-import { AnnotationsStreamer } from '/imports/api/annotations';
 import addAnnotationQuery from '/imports/api/annotations/addAnnotation';
 import logger from '/imports/startup/client/logger';
 import { makeCall } from '/imports/ui/services/api';
@@ -12,6 +11,9 @@ const ANNOTATION_CONFIG = Meteor.settings.public.whiteboard.annotations;
 const DRAW_START = ANNOTATION_CONFIG.status.start;
 const DRAW_END = ANNOTATION_CONFIG.status.end;
 const discardedList = [];
+
+
+let annotationsStreamListener = null;
 
 export function addAnnotationToDiscardedList(annotation) {
   if (!discardedList.includes(annotation)) discardedList.push(annotation);
@@ -96,14 +98,37 @@ function handleRemovedAnnotation({
   Annotations.remove(query);
 }
 
-AnnotationsStreamer.on('removed', handleRemovedAnnotation);
+export function initAnnotationsStreamListener() {
+  /**
+   * We create a promise to add the handlers after a ddp subscription stop.
+   * The problem was caused because we add handlers to stream before the onStop event happens,
+   * which set the handlers to undefined.
+   */
+  annotationsStreamListener = new Meteor.Streamer(`annotations-${Auth.meetingID}`, { retransmit: false });
 
-AnnotationsStreamer.on('added', ({ annotations }) => {
-  // Call handleAddedAnnotation when this annotation is not in discardedList
-  annotations
-    .filter(({ annotation }) => !discardedList.includes(annotation.id))
-    .forEach(annotation => handleAddedAnnotation(annotation));
-});
+  const startStreamHandlersPromise = new Promise((resolve) => {
+    const checkStreamHandlersInterval = setInterval(() => {
+      const streamHandlersSize = Object.values(Meteor.StreamerCentral.instances[`annotations-${Auth.meetingID}`].handlers)
+        .filter(el => el != undefined)
+        .length;
+
+      if (!streamHandlersSize) {
+        resolve(clearInterval(checkStreamHandlersInterval));
+      }
+    }, 250);
+  });
+
+  startStreamHandlersPromise.then(() => {
+    annotationsStreamListener.on('removed', handleRemovedAnnotation);
+
+    annotationsStreamListener.on('added', ({ annotations }) => {
+      // Call handleAddedAnnotation when this annotation is not in discardedList
+      annotations
+        .filter(({ annotation }) => !discardedList.includes(annotation.id))
+        .forEach(annotation => handleAddedAnnotation(annotation));
+    });
+  });
+}
 
 function increaseBrightness(realHex, percent) {
   let hex = parseInt(realHex, 10).toString(16).padStart(6, 0);

@@ -18,11 +18,11 @@ export default withTracker((props) => {
     transferUserToMeeting,
     transferToBreakout,
     meetingId,
-    isPresenter,
-    isModerator,
+    amIModerator,
     closeBreakoutPanel,
-    getUsersByBreakoutId,
+    isUserInBreakoutRoom,
   } = Service;
+
   const breakoutRooms = findBreakouts();
   const isMicrophoneUser = AudioService.isConnected() && !AudioService.isListenOnly();
   const isMeteorConnected = Meteor.status().connected;
@@ -37,10 +37,8 @@ export default withTracker((props) => {
     transferToBreakout,
     isMicrophoneUser,
     meetingId: meetingId(),
-    isPresenter: isPresenter(),
-    isModerator: isModerator(),
+    amIModerator: amIModerator(),
     closeBreakoutPanel,
-    getUsersByBreakoutId,
     isMeteorConnected,
     isUserInBreakoutRoom,
     exitAudio: () => AudioManager.exitAudio(),

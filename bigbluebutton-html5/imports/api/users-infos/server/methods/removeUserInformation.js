@@ -1,7 +1,7 @@
 import UserInfos from '/imports/api/users-infos';
 import Logger from '/imports/startup/server/logger';
 
-export default function removeUserInformation(credentials, meetingId, requesterUserId) {
+export default function removeUserInformation(meetingId, requesterUserId) {
   const selector = {
     meetingId,
     requesterUserId,

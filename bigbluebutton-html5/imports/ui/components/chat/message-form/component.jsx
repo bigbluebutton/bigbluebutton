@@ -44,9 +44,6 @@ const messages = defineMessages({
     id: 'app.chat.inputPlaceholder',
     description: 'Chat message input placeholder',
   },
-  errorMinMessageLength: {
-    id: 'app.chat.errorMinMessageLength',
-  },
   errorMaxMessageLength: {
     id: 'app.chat.errorMaxMessageLength',
   },
@@ -169,7 +166,8 @@ class MessageForm extends PureComponent {
 
   setMessageState() {
     const { chatId, UnsentMessagesCollection } = this.props;
-    const unsentMessageByChat = UnsentMessagesCollection.findOne({ chatId });
+    const unsentMessageByChat = UnsentMessagesCollection.findOne({ chatId },
+      { fields: { message: 1 } });
     this.setState({ message: unsentMessageByChat ? unsentMessageByChat.message : '' });
   }
 
@@ -228,7 +226,6 @@ class MessageForm extends PureComponent {
     e.preventDefault();
 
     const {
-      intl,
       disabled,
       minMessageLength,
       maxMessageLength,
@@ -238,18 +235,9 @@ class MessageForm extends PureComponent {
     const { message } = this.state;
     let msg = message.trim();
 
-    if (message.length < minMessageLength) {
-      this.setState({
-        hasErrors: true,
-        error: intl.formatMessage(
-          messages.errorMinMessageLength,
-          { 0: minMessageLength - message.length },
-        ),
-      });
-    }
+    if (msg.length < minMessageLength) return;
 
     if (disabled
-      || msg.length === 0
       || msg.length > maxMessageLength) {
       this.setState({ hasErrors: true });
       return false;

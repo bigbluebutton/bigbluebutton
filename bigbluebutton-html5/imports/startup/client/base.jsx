@@ -18,6 +18,14 @@ import Breakouts from '/imports/api/breakouts';
 import AudioService from '/imports/ui/components/audio/service';
 import { FormattedMessage } from 'react-intl';
 import { notify } from '/imports/ui/services/notification';
+import deviceInfo from '/imports/utils/deviceInfo';
+import getFromUserSettings from '/imports/ui/services/users-settings';
+
+const CHAT_CONFIG = Meteor.settings.public.chat;
+const CHAT_ENABLED = CHAT_CONFIG.enabled;
+const PUBLIC_CHAT_ID = CHAT_CONFIG.public_id;
+
+const BREAKOUT_END_NOTIFY_DELAY = 50;
 
 const HTML = document.getElementsByTagName('html')[0];
 
@@ -167,10 +175,9 @@ class Base extends Component {
       return (<LoadingScreen>{loading}</LoadingScreen>);
     }
 
-    if (ejected && ejected.ejectedReason) {
-      const { ejectedReason } = ejected;
+    if (ejected) {
       AudioManager.exitAudio();
-      return (<MeetingEnded code={ejectedReason} />);
+      return (<MeetingEnded code="403" />);
     }
 
     if (meetingHasEnded && meetingIsBreakout) window.close();
@@ -213,8 +220,19 @@ Base.propTypes = propTypes;
 Base.defaultProps = defaultProps;
 
 const BaseContainer = withTracker(() => {
-  const { locale, animations } = Settings.application;
-  const { credentials, loggedIn } = Auth;
+  const {
+    locale,
+    animations,
+    userJoinAudioAlerts,
+    userJoinPushAlerts,
+  } = Settings.application;
+
+  const {
+    credentials,
+    loggedIn,
+    userID: localUserId,
+  } = Auth;
+
   const { meetingId } = credentials;
   let breakoutRoomSubscriptionHandler;
   let meetingModeratorSubscriptionHandler;
@@ -237,6 +255,7 @@ const BaseContainer = withTracker(() => {
   const meeting = Meetings.findOne({ meetingId }, {
     fields: {
       meetingEnded: 1,
+      meetingProp: 1,
     },
   });
 
@@ -248,22 +267,32 @@ const BaseContainer = withTracker(() => {
   const ejected = User && User.ejected;
   let userSubscriptionHandler;
 
-
-  Breakouts.find().observeChanges({
+  Breakouts.find({}, { fields: { _id: 1 } }).observeChanges({
     added() {
       breakoutNotified = false;
     },
     removed() {
-      if (!AudioService.isUsingAudio() && !breakoutNotified) {
-        if (meeting && !meeting.meetingEnded) {
-          notify(
-            <FormattedMessage
-              id="app.toast.breakoutRoomEnded"
-              description="message when the breakout room is ended"
-            />,
-            'info',
-            'rooms',
-          );
+      // Need to check the number of breakouts left because if a user's role changes to viewer
+      // then all but one room is removed. The data here isn't reactive so no need to filter
+      // the fields
+      const numBreakouts = Breakouts.find().count();
+      if (!AudioService.isUsingAudio() && !breakoutNotified && numBreakouts === 0) {
+        if (meeting && !meeting.meetingEnded && !meeting.meetingProp.isBreakout) {
+          // There's a race condition when reloading a tab where the collection gets cleared
+          // out and then refilled. The removal of the old data triggers the notification so
+          // instead wait a bit and check to see that records weren't added right after.
+          setTimeout(() => {
+            if (breakoutNotified) {
+              notify(
+                <FormattedMessage
+                  id="app.toast.breakoutRoomEnded"
+                  description="message when the breakout room is ended"
+                />,
+                'info',
+                'rooms',
+              );
+            }
+          }, BREAKOUT_END_NOTIFY_DELAY);
         }
         breakoutNotified = true;
       }
@@ -297,6 +326,43 @@ const BaseContainer = withTracker(() => {
       }
     },
   });
+
+  if (userJoinAudioAlerts || userJoinPushAlerts) {
+    Users.find({}, { fields: { validated: 1, name: 1, userId: 1 } }).observe({
+      changed: (newDocument) => {
+        if (newDocument.validated && newDocument.name && newDocument.userId !== localUserId) {
+          if (userJoinAudioAlerts) {
+            const audio = new Audio(`${Meteor.settings.public.app.cdn + Meteor.settings.public.app.basename}/resources/sounds/userJoin.mp3`);
+            audio.play();
+          }
+
+          if (userJoinPushAlerts) {
+            notify(
+              <FormattedMessage
+                id="app.notification.userJoinPushAlert"
+                description="Notification for a user joins the meeting"
+                values={{
+                  0: newDocument.name,
+                }}
+              />,
+              'info',
+              'user',
+            );
+          }
+        }
+      },
+    });
+  }
+
+  if (getFromUserSettings('bbb_show_participants_on_login', true) && !deviceInfo.type().isPhone) {
+    Session.set('openPanel', 'userlist');
+    if (CHAT_ENABLED) {
+      Session.set('openPanel', 'chat');
+      Session.set('idChatOpen', PUBLIC_CHAT_ID);
+    }
+  } else {
+    Session.set('openPanel', '');
+  }
 
   return {
     approved,

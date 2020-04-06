@@ -119,7 +119,8 @@ class PresentationController {
         log.debug("processing file upload " + presFilename)
         def presentationBaseUrl = presentationService.presentationBaseUrl
         UploadedPresentation uploadedPres = new UploadedPresentation(podId, meetingId, presId,
-            presFilename, presentationBaseUrl, false /* default presentation */);
+            presFilename, presentationBaseUrl, false /* default presentation */,
+                params.authzToken);
 
         if (isDownloadable) {
           log.debug "@Setting file to be downloadable..."
