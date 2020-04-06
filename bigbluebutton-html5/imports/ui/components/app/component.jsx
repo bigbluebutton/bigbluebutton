@@ -348,6 +348,8 @@ class App extends Component {
     const { chatWidth } = this.state;
     const { isRTL } = this.props;
    
+    
+
     const resizableEnableOptions = {
       top: false,
       right: !isRTL,
@@ -379,6 +381,7 @@ class App extends Component {
            />
        </div>
       </div>  );
+   
   }
 
   render() {
