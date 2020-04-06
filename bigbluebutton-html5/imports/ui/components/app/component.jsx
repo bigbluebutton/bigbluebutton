@@ -22,12 +22,26 @@ import PingPongContainer from '/imports/ui/components/ping-pong/container';
 import MediaService from '/imports/ui/components/media/service';
 import ManyWebcamsNotifier from '/imports/ui/components/video-provider/many-users-notify/container';
 import { styles } from './styles';
+import ChatContainer from '/imports/ui/components/chat/container';
+import Resizable from 're-resizable';
+import Button from '/imports/ui/components/button/component';
+
+
+
+const chat_min_width = 59;
+const chat_max_width = 79;
+// Variables for resizing chat.
+const CHAT_MIN_WIDTH = ((screen.width) * chat_min_width) / 100;
+//const CHAT_MAX_WIDTH = DEFAULT_PANEL_WIDTH;
+const CHAT_MAX_WIDTH =((screen.width) * chat_max_width) / 100;
+
 
 const MOBILE_MEDIA = 'only screen and (max-width: 40em)';
 const APP_CONFIG = Meteor.settings.public.app;
 const DESKTOP_FONT_SIZE = APP_CONFIG.desktopFontSize;
 const MOBILE_FONT_SIZE = APP_CONFIG.mobileFontSize;
 const ENABLE_NETWORK_MONITORING = Meteor.settings.public.networkMonitoring.enableNetworkMonitoring;
+const dispatchResizeEvent = () => window.dispatchEvent(new Event('resize'));
 
 const intlMessages = defineMessages({
   userListLabel: {
@@ -98,12 +112,15 @@ class App extends Component {
   constructor() {
     super();
     this.state = {
+      chatWidth: CHAT_MIN_WIDTH,
       enableResize: !window.matchMedia(MOBILE_MEDIA).matches,
     };
-
+     
+      
     this.handleWindowResize = throttle(this.handleWindowResize).bind(this);
     this.shouldAriaHide = this.shouldAriaHide.bind(this);
   }
+
 
   componentDidMount() {
     const {
@@ -317,10 +334,58 @@ class App extends Component {
       />) : null);
   }
 
+  renderChat() {
+    return (
+      <section
+        className={styles.chat}
+      >
+        <ChatContainer />
+      </section>
+    );
+  }
+
+  renderChatResizable() {
+    const { chatWidth } = this.state;
+    const { isRTL } = this.props;
+   
+    const resizableEnableOptions = {
+      top: false,
+      right: !isRTL,
+      bottom: false,
+      left: !!isRTL,
+      topRight: false,
+      bottomRight: false,
+      bottomLeft: false,
+      topLeft: false,
+    };
+
+    return (<div  className={styles.chatWrapper}>
+      <Resizable
+         minWidth={CHAT_MIN_WIDTH}
+         maxWidth={CHAT_MAX_WIDTH}
+        size={{ width: chatWidth }}
+        onResize={dispatchResizeEvent}
+        className={styles.chatChannel}
+      >
+        {this.renderChat()}
+      </Resizable>
+      <div className={styles.slide}>
+       <Button
+             onClick={()=>{(chatWidth!==CHAT_MAX_WIDTH)?this.setState({chatWidth:CHAT_MAX_WIDTH}):this.setState({chatWidth:CHAT_MIN_WIDTH})}}
+             size="sm"
+             icon={(chatWidth!==CHAT_MAX_WIDTH)?"right_arrow":"left_arrow"}
+             className={styles.hide}
+            color="light"
+           />
+       </div>
+      </div>  );
+  }
+
   render() {
     const {
       customStyle, customStyleUrl, openPanel,
     } = this.props;
+    const { enableResize } = this.state;
     return (
       <main className={styles.main}>
         {this.renderActivityCheck()}
@@ -328,13 +393,20 @@ class App extends Component {
         <BannerBarContainer />
         <NotificationsBarContainer />
         <section className={styles.wrapper}>
-          <div className={openPanel ? styles.content : styles.noPanelContent}>
-            {this.renderNavBar()}
-            {this.renderMedia()}
-            {this.renderActionsBar()}
-          </div>
           {this.renderPanel()}
-          {this.renderSidebar()}
+          {/* {this.renderSidebar()} */}
+          <div className={styles.container}>
+            {this.renderNavBar()}
+            <div className={styles.panelContainer}>
+              <div className={openPanel ? styles.content : styles.noPanelContent}>
+                {this.renderMedia()}
+                {this.renderActionsBar()}
+              </div>
+              {(openPanel === 'chat') ? (
+                (enableResize) ? this.renderChatResizable() : this.renderChat()
+              ) : null}
+            </div>
+          </div>
         </section>
         <BreakoutRoomInvitation />
         <PollingContainer />

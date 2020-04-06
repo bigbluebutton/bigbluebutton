@@ -7,7 +7,7 @@ import Icon from '../icon/component';
 import BaseButton from './base/component';
 
 const SIZES = [
-  'jumbo', 'lg', 'md', 'sm',
+  'jumbo', 'lg', 'xl', 'md', 'sm',
 ];
 
 const COLORS = [

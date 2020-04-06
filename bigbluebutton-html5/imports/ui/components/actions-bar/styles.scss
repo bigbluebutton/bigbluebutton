@@ -8,7 +8,7 @@
 .center {
   display: flex;
   flex-direction: column;
-  min-height: 100%;
+  max-height: 90%;
 }
 
 .actionsController {
@@ -100,15 +100,6 @@
   span:first-child {
     box-shadow: none;
     border: 0.5px solid #5594d4;
-  }
-}
-
-.btn {
-  span {
-    box-shadow: none;
-    background-color: transparent !important;
-    // border-color: var(--color-white) !important;
-    // border: 0.5px solid #5594d4;
   }
 }
 

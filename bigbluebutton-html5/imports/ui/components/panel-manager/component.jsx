@@ -432,14 +432,6 @@ class PanelManager extends PureComponent {
       panels.push(this.renderUserList());
     }
 
-    if (openPanel === 'chat') {
-      if (enableResize) {
-        panels.push(this.renderChatResizable());
-      } else {
-        panels.push(this.renderChat());
-      }
-    }
-
     if (openPanel === 'note') {
       if (enableResize) {
         panels.push(this.renderNoteResizable());

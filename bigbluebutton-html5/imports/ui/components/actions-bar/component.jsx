@@ -106,6 +106,17 @@ class ActionsBar extends PureComponent {
             }}
             />
           </div>
+          <div>
+            {isLayoutSwapped
+              ? (
+                <PresentationOptionsContainer
+                  toggleSwapLayout={toggleSwapLayout}
+                  isThereCurrentPresentation={isThereCurrentPresentation}
+                />
+              )
+              : null
+            }
+          </div>
             <ActionsDropdown {...{
               amIPresenter,
               amIModerator,
@@ -146,17 +157,6 @@ class ActionsBar extends PureComponent {
               size="xl"
               circle
             />
-          </div>
-          <div className={styles.right}>
-            {isLayoutSwapped
-              ? (
-                <PresentationOptionsContainer
-                  toggleSwapLayout={toggleSwapLayout}
-                  isThereCurrentPresentation={isThereCurrentPresentation}
-                />
-              )
-              : null
-            }
           </div>
       </div>
     );

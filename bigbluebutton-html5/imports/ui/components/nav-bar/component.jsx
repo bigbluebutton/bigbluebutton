@@ -44,7 +44,7 @@ const handleClickToggleChat = (id) => {
   Session.set(
     'openPanel',
     Session.get('openPanel') === 'chat' && Session.get('idChatOpen') === id
-      ? 'userlist' : 'chat',
+      ? '' : 'chat',
   );
   if (Session.equals('openPanel', 'chat')) {
     Session.set('idChatOpen', id);
@@ -105,8 +105,8 @@ class NavBar extends PureComponent {
         <div className={styles.top}>
           <div className={styles.left}>
             <Button
-              data-test="chatButton"
-              onClick={() => handleClickToggleChat('public')}
+            data-test="chatButton"
+              onClick={() => handleClickToggleChat("public")}
               ghost
               circle
               hideLabel
@@ -117,17 +117,13 @@ class NavBar extends PureComponent {
               aria-expanded={isExpanded}
               accessKey={TOGGLE_CHAT_PUB_AK}
             />
-          </div>
-          <div className={styles.center}>
-            {/* <h1 className={styles.presentationTitle}>{presentationTitle}</h1> */}
-            {/* {
-              (!amIModerator) ?  */}
+            <h1 className={styles.presentationTitle}>{presentationTitle}</h1>
             <RecordingIndicator
               mountModal={mountModal}
               amIModerator={amIModerator}
             />
-            {/* : null
-            } */}
+          </div>
+          <div className={styles.center}>
           </div>
           <div className={styles.right}>
             <SettingsDropdownContainer amIModerator={amIModerator} />
