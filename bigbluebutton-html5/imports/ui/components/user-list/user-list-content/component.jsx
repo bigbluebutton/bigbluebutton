@@ -27,7 +27,7 @@ const propTypes = {
 const defaultProps = {
   compact: false,
 };
-//const CHAT_ENABLED = Meteor.settings.public.chat.enabled;
+// const CHAT_ENABLED = Meteor.settings.public.chat.enabled;
 const ROLE_MODERATOR = Meteor.settings.public.user.role_moderator;
 
 class UserContent extends PureComponent {
@@ -96,7 +96,7 @@ class UserContent extends PureComponent {
             forcePollOpen,
           }}
         />
-       <BreakoutChannelContainer />
+        <BreakoutChannelContainer />
         <UserParticipantsContainer
           {...{
             compact,

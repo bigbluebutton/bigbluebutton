@@ -8,7 +8,7 @@ import BreakoutChannel from './component';
 const BreakoutChannelContainer = props => <BreakoutChannel {...props} />;
 
 
- export default withTracker((...props) => {
+export default withTracker((...props) => {
   const {
     endAllBreakouts,
     requestJoinURL,

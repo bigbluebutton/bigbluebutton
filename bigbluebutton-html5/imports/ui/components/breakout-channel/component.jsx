@@ -141,10 +141,8 @@ class BreakoutChannel extends PureComponent {
 
   getBreakoutChannelJoinURL(breakoutId) {
     const hasUser = breakoutRoomUser(breakoutId);
-    if (hasUser) 
-      return redirectToHtml5JoinURL;
-    else
-      return null;
+    if (hasUser) { return redirectToHtml5JoinURL; }
+    return null;
   }
 
   getBreakoutURL(breakoutId) {
@@ -265,64 +263,61 @@ class BreakoutChannel extends PureComponent {
     );
   }
 
-    // const {
-    //   breakoutRooms,
-    //   intl,
-    // } = this.props;
+  // const {
+  //   breakoutRooms,
+  //   intl,
+  // } = this.props;
 
-    // const {
-    //   waiting,
-    //   requestedBreakoutId,
-    // } = this.state;
+  // const {
+  //   waiting,
+  //   requestedBreakoutId,
+  // } = this.state;
 
-    // const roomItems = breakoutRooms.map(breakout => (
-    //   <div
-    //     className={styles.breakoutItems}
-    //     key={`breakoutRoomItems-${breakout.breakoutId}`}
-    //   >
-    //     <div className={styles.content} key={`breakoutRoomList-${breakout.breakoutId}`}>
-    //       <span aria-hidden>
-    //         {intl.formatMessage(intlMessages.breakoutRoom, breakout.sequence.toString())}
-    //         <span className={styles.usersAssignedNumberLabel}>
-    //           (
-    //           {breakout.joinedUsers.length}
-    //           )
-    //         </span>
-    //       </span>
-    //       {waiting && requestedBreakoutId === breakout.breakoutId ? (
-    //         <span>
-    //           {intl.formatMessage(intlMessages.generatingURL)}
-    //           <span className={styles.connectingAnimation} />
-    //         </span>
-    //       ) : this.renderUserActions(
-    //         breakout.breakoutId,
-    //         breakout.joinedUsers,
-    //         breakout.sequence.toString(),
-    //       )}
-    //     </div>
-    //     <div className={styles.joinedUserNames}>
-    //       {breakout.joinedUsers
-    //         .sort(BreakoutRoom.sortById)
-    //         .filter((value, idx, arr) => !(value.userId === (arr[idx + 1] || {}).userId))
-    //         .sort(BreakoutRoom.sortUsersByName)
-    //         .map(u => u.name)
-    //         .join(', ')}
-    //     </div>
-    //   </div>
+  // const roomItems = breakoutRooms.map(breakout => (
+  //   <div
+  //     className={styles.breakoutItems}
+  //     key={`breakoutRoomItems-${breakout.breakoutId}`}
+  //   >
+  //     <div className={styles.content} key={`breakoutRoomList-${breakout.breakoutId}`}>
+  //       <span aria-hidden>
+  //         {intl.formatMessage(intlMessages.breakoutRoom, breakout.sequence.toString())}
+  //         <span className={styles.usersAssignedNumberLabel}>
+  //           (
+  //           {breakout.joinedUsers.length}
+  //           )
+  //         </span>
+  //       </span>
+  //       {waiting && requestedBreakoutId === breakout.breakoutId ? (
+  //         <span>
+  //           {intl.formatMessage(intlMessages.generatingURL)}
+  //           <span className={styles.connectingAnimation} />
+  //         </span>
+  //       ) : this.renderUserActions(
+  //         breakout.breakoutId,
+  //         breakout.joinedUsers,
+  //         breakout.sequence.toString(),
+  //       )}
+  //     </div>
+  //     <div className={styles.joinedUserNames}>
+  //       {breakout.joinedUsers
+  //         .sort(BreakoutRoom.sortById)
+  //         .filter((value, idx, arr) => !(value.userId === (arr[idx + 1] || {}).userId))
+  //         .sort(BreakoutRoom.sortUsersByName)
+  //         .map(u => u.name)
+  //         .join(', ')}
+  //     </div>
+  //   </div>
 
 
-    // return (
-    //   <div className={styles.breakoutColumn}>
-    //     <div className={styles.breakoutScrollableList}>
-    //       {roomItems}
-    //     </div>
-    //   </div>
-    // );
+  // return (
+  //   <div className={styles.breakoutColumn}>
+  //     <div className={styles.breakoutScrollableList}>
+  //       {roomItems}
+  //     </div>
+  //   </div>
+  // );
   // }
 
-
-
-   
 
   renderBreakoutRooms() {
     const {
@@ -335,68 +330,68 @@ class BreakoutChannel extends PureComponent {
       requestedBreakoutId,
     } = this.state;
 
-    return(
+    return (
 
-      breakoutRooms.map(breakout =>
+      breakoutRooms.map(breakout => (
         <div
           className={styles.channelName}
           role="button"
         >
-       
-   {/* TODO: Do internationlization */}
-         <Button
-              label={breakout.name}
-                onClick={() => {
-                this.getBreakoutURL(breakout.breakoutId);
-                exitAudio();
-                // logger.debug({
-                //   logCode: 'breakoutroom_join',
-                //   extraInfo: { logType: 'user_action' },
-                // }, 'joining breakout room closed audio in the main room');
+
+          {/* TODO: Do internationlization */}
+          <Button
+            label={breakout.name}
+            onClick={() => {
+              this.getBreakoutURL(breakout.breakoutId);
+              exitAudio();
+              // logger.debug({
+              //   logCode: 'breakoutroom_join',
+              //   extraInfo: { logType: 'user_action' },
+              // }, 'joining breakout room closed audio in the main room');
+            }
               }
-              }
-              className={styles.channelNameMain}
-            />
-      </div>
-      )
-     );
-   }
+            className={styles.channelNameMain}
+          />
+        </div>
+      ))
+    );
+  }
 
 
-    // const roomItems = breakoutRooms.map(breakout => (
-    //   <div
-    //     className={styles.breakoutItems}
-    //     key={`breakoutRoomItems-${breakout.breakoutId}`}
-    //   >
-    //     <div className={styles.content} key={`breakoutRoomList-${breakout.breakoutId}`}>
-    //       <span aria-hidden>
-    //         {intl.formatMessage(intlMessages.breakoutRoom, breakout.sequence.toString())}
-    //         <span className={styles.usersAssignedNumberLabel}>
-    //           (
-    //           {breakout.joinedUsers.length}
-    //           )
-    //         </span>
-    //       </span>
-    //       {waiting && requestedBreakoutId === breakout.breakoutId ? (
-    //         <span>
-    //           {intl.formatMessage(intlMessages.generatingURL)}
-    //           <span className={styles.connectingAnimation} />
-    //         </span>
-    //       ) : this.renderUserActions(
-    //         breakout.breakoutId,
-    //         breakout.joinedUsers,
-    //         breakout.sequence.toString(),
-    //       )}
-    //     </div>
-    //     <div className={styles.joinedUserNames}>
-    //       {breakout.joinedUsers
-    //         .sort(BreakoutRoom.sortById)
-    //         .filter((value, idx, arr) => !(value.userId === (arr[idx + 1] || {}).userId))
-    //         .sort(BreakoutRoom.sortUsersByName)
-    //         .map(u => u.name)
-    //         .join(', ')}
-    //     </div>
-    //   </div>
+  // const roomItems = breakoutRooms.map(breakout => (
+  //   <div
+  //     className={styles.breakoutItems}
+  //     key={`breakoutRoomItems-${breakout.breakoutId}`}
+  //   >
+  //     <div className={styles.content} key={`breakoutRoomList-${breakout.breakoutId}`}>
+  //       <span aria-hidden>
+  //         {intl.formatMessage(intlMessages.breakoutRoom, breakout.sequence.toString())}
+  //         <span className={styles.usersAssignedNumberLabel}>
+  //           (
+  //           {breakout.joinedUsers.length}
+  //           )
+  //         </span>
+  //       </span>
+  //       {waiting && requestedBreakoutId === breakout.breakoutId ? (
+  //         <span>
+  //           {intl.formatMessage(intlMessages.generatingURL)}
+  //           <span className={styles.connectingAnimation} />
+  //         </span>
+  //       ) : this.renderUserActions(
+  //         breakout.breakoutId,
+  //         breakout.joinedUsers,
+  //         breakout.sequence.toString(),
+  //       )}
+  //     </div>
+  //     <div className={styles.joinedUserNames}>
+  //       {breakout.joinedUsers
+  //         .sort(BreakoutRoom.sortById)
+  //         .filter((value, idx, arr) => !(value.userId === (arr[idx + 1] || {}).userId))
+  //         .sort(BreakoutRoom.sortUsersByName)
+  //         .map(u => u.name)
+  //         .join(', ')}
+  //     </div>
+  //   </div>
 
 
   //   return (
@@ -414,39 +409,36 @@ class BreakoutChannel extends PureComponent {
     } = this.props;
     return (
 
-      <div className={styles.channelListColumn}>        
-         
-              <div className={styles.container}>
-                <h2 className={styles.channelsTitle}>
-                  {/* TODO */}
-                  {/* {intl.formatMessage(intlMessages.usersTitle)} */}
-                  Chat Channels
-                </h2>
-              </div>
+      <div className={styles.channelListColumn}>
 
-              <div
-                className={styles.scrollableList}
-                tabIndex={0}
-                ref={(ref) => { this.refScrollContainer = ref; }}
-              >
-              
-                <div className={styles.channelList}>
-                   <span className={styles.channelNameMain}>
+        <div className={styles.container}>
+          <h2 className={styles.channelsTitle}>
+            {/* TODO */}
+            {/* {intl.formatMessage(intlMessages.usersTitle)} */}
+                  Chat Channels
+          </h2>
+        </div>
+
+        <div
+          className={styles.scrollableList}
+          tabIndex={0}
+          ref={(ref) => { this.refScrollContainer = ref; }}
+        >
+
+          <div className={styles.channelList}>
+            <span className={styles.channelNameMain}>
                     Master Channel
-                    </span>
- 
-                  {this.renderBreakoutRooms()}
-               
-                </div>
-            </div>
+            </span>
+
+            {this.renderBreakoutRooms()}
+
+          </div>
+        </div>
 
       </div>
-    
 
-             
-      
-      
-    );  
+
+    );
   }
 }
 
