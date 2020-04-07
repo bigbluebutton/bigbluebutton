@@ -28,7 +28,7 @@ export default withTracker(({ podId }) => {
       id: slideId,
     } = currentSlide;
     slidePosition = PresentationAreaService.getSlidePosition(podId, presentationId, slideId);
-    if (!fetchedpresentation[presentationId]) {
+    if (PRELOAD_NEXT_SLIDE && !fetchedpresentation[presentationId]) {
       fetchedpresentation[presentationId] = {
         fetchedSlide: {},
       };
