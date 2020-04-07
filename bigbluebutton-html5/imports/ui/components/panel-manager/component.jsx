@@ -444,13 +444,13 @@ class PanelManager extends PureComponent {
       }
     }
 
-    if (openPanel === 'breakoutroom') {
-      if (enableResize) {
-        panels.push(this.renderBreakoutRoom());
-      } else {
-        panels.push(this.renderBreakoutRoom());
-      }
-    }
+    // if (openPanel === 'breakoutroom') {
+    //   if (enableResize) {
+    //     panels.push(this.renderBreakoutRoom());
+    //   } else {
+    //     panels.push(this.renderBreakoutRoom());
+    //   }
+    // }
 
     if (openPanel === 'waitingUsersPanel') {
       if (enableResize) {

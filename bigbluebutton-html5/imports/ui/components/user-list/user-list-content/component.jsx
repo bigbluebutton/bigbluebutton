@@ -7,7 +7,7 @@ import UserNotesContainer from './user-notes/container';
 import UserCaptionsContainer from './user-captions/container';
 import WaitingUsers from './waiting-users/component';
 import UserPolls from './user-polls/component';
-import BreakoutRoomItem from './breakout-room/component';
+import BreakoutChannelContainer from '/imports/ui/components/breakout-channel/container';
 
 const propTypes = {
   activeChats: PropTypes.arrayOf(String).isRequired,
@@ -96,7 +96,7 @@ class UserContent extends PureComponent {
             forcePollOpen,
           }}
         />
-        <BreakoutRoomItem isPresenter={currentUser.presenter} hasBreakoutRoom={hasBreakoutRoom} />
+       <BreakoutChannelContainer />
         <UserParticipantsContainer
           {...{
             compact,
