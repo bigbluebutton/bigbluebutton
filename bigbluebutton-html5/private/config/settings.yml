@@ -26,6 +26,7 @@ public:
     ipv4FallbackDomain: ""
     allowLogout: true
     allowFullscreen: true
+    preloadNextSlides: 2
     defaultSettings:
       application:
         animations: true
