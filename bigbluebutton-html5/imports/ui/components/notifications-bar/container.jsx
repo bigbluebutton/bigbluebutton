@@ -8,6 +8,7 @@ import Meetings, { MeetingTimeRemaining } from '/imports/api/meetings';
 import Users from '/imports/api/users';
 import BreakoutRemainingTime from '/imports/ui/components/breakout-room/breakout-remaining-time/container';
 import SlowConnection from '/imports/ui/components/slow-connection/component';
+import ConnectionStatusService from '/imports/ui/components/connection-status/service';
 import { styles } from './styles.scss';
 
 import breakoutService from '/imports/ui/components/breakout-room/service';
@@ -124,7 +125,7 @@ const startCounter = (sec, set, get, interval) => {
   }, 1000);
 };
 
-let audioStats = null;
+let audioStats = '';
 const audioStatsDep = new Tracker.Dependency();
 
 const getAudioStats = () => {
@@ -132,10 +133,11 @@ const getAudioStats = () => {
   return audioStats;
 };
 
-const setAudioStats = (value = null) => {
-  if (audioStats !== value) {
-    audioStats = value;
+const setAudioStats = (level = '') => {
+  if (audioStats !== level) {
+    audioStats = level;
     audioStatsDep.changed();
+    ConnectionStatusService.addConnectionStatus(level);
   }
 }
 
