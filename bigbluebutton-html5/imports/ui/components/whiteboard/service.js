@@ -2,15 +2,9 @@ import Users from '/imports/api/users';
 import Auth from '/imports/ui/services/auth';
 import WhiteboardMultiUser from '/imports/api/whiteboard-multi-user/';
 import addAnnotationQuery from '/imports/api/annotations/addAnnotation';
-<<<<<<< HEAD
-import logger from '/imports/startup/client/logger';
 import { whiteboardCall } from '/imports/ui/services/api';
 import { whiteboardConnection } from '/imports/ui/components/app/service';
-import { isEqual } from 'lodash';
 import { makeCall } from '../../services/api';
-=======
-import { makeCall } from '/imports/ui/services/api';
->>>>>>> upstream/develop
 
 const Annotations = new Mongo.Collection(null);
 const UnsentAnnotations = new Mongo.Collection(null);
@@ -140,16 +134,11 @@ const proccessAnnotationsQueue = async () => {
 
   const annotations = annotationsQueue.splice(0, queueSize);
 
-<<<<<<< HEAD
   if (Meteor.settings.public.role) {
     await whiteboardCall('sendBulkAnnotations', annotations.filter(({ id }) => !discardedList.includes(id)));
   } else {
     await makeCall('sendBulkAnnotations', annotations.filter(({ id }) => !discardedList.includes(id)));
   }
-=======
-  // console.log('annotationQueue.length', annotationsQueue, annotationsQueue.length);
-  await makeCall('sendBulkAnnotations', annotations);
->>>>>>> upstream/develop
 
   // ask tiago
   const delayPerc = Math.min(annotationsMaxDelayQueueSize, queueSize) / annotationsMaxDelayQueueSize;
