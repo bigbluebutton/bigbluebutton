@@ -1,17 +1,13 @@
 import React, { PureComponent } from 'react';
 import cx from 'classnames';
-import { defineMessages, intlShape, injectIntl } from 'react-intl';
+import { defineMessages } from 'react-intl';
 import { styles } from './styles.scss';
 import DesktopShare from './desktop-share/component';
 import ActionsDropdown from './actions-dropdown/component';
-import QuickPollDropdown from './quick-poll-dropdown/component';
 import AudioControlsContainer from '../audio/audio-controls/container';
 import JoinVideoOptionsContainer from '../video-provider/video-button/container';
-import CaptionsButtonContainer from '/imports/ui/components/actions-bar/captions/container';
-import PresentationOptionsContainer from './presentation-options/component';
 import Button from '/imports/ui/components/button/component';
 import TalkingIndicatorContainer from '/imports/ui/components/nav-bar/talking-indicator/container';
-import VideoService from '/imports/ui/components/video-provider/service';
 
 const intlMessages = defineMessages({
   joinAudio: {
@@ -45,19 +41,15 @@ class ActionsBar extends PureComponent {
       screenSharingCheck,
       enableVideo,
       isLayoutSwapped,
-      toggleSwapLayout,
       handleTakePresenter,
       intl,
-      currentSlidHasContent,
-      parseCurrentSlideContent,
       isSharingVideo,
       screenShareEndAlert,
       stopExternalVideoShare,
       screenshareDataSavingSetting,
-      isCaptionsAvailable,
+      toggleChatLayout,
       isMeteorConnected,
       isPollingEnabled,
-      isThereCurrentPresentation,
       allowExternalVideo,
       inAudio,
       handleLeaveAudio,
@@ -79,7 +71,7 @@ class ActionsBar extends PureComponent {
 
     return (
       <div className={cx(actionBarClasses)}>
-        <div className={styles.actionsController}>
+        <div className={!toggleChatLayout ? styles.actionsController : styles.toggledActions}>
           <div>
               <AudioControlsContainer />
           </div>
@@ -106,17 +98,6 @@ class ActionsBar extends PureComponent {
             }}
             />
           </div>
-          <div>
-            {isLayoutSwapped
-              ? (
-                <PresentationOptionsContainer
-                  toggleSwapLayout={toggleSwapLayout}
-                  isThereCurrentPresentation={isThereCurrentPresentation}
-                />
-              )
-              : null
-            }
-          </div>
             <ActionsDropdown {...{
               amIPresenter,
               amIModerator,
@@ -131,8 +112,7 @@ class ActionsBar extends PureComponent {
             />
         </div>
           <div className={styles.liveActions}>
-            <div className={styles.dummyImage}>
-
+            <div className={!toggleChatLayout ? styles.dummy1 : styles.dummy2}>
               <img src="https://miro.medium.com/max/560/1*MccriYX-ciBniUzRKAUsAw.png" alt="" />
               <img
                 src="https://lh3.googleusercontent.com/FPUDI5HXBwHwoy-_aEh9fAW7lkOCJdRNktzstpsWCTrCFN1Vj6sCh4sTjE4ZpYG1hZ6b"
@@ -154,7 +134,7 @@ class ActionsBar extends PureComponent {
               color="default"
               ghost={!inAudio}
               icon={joinIcon}
-              size="xl"
+              size={!toggleChatLayout ? "xl" : "lg"}
               circle
             />
           </div>

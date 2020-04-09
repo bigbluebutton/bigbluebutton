@@ -22,6 +22,18 @@
   }
 }
 
+.toggledActions {
+  flex: 3;  
+  display: flex;
+  flex-flow: column wrap;
+  align-items: center;
+  // margin-top: 2rem;
+  :nth-child(n){
+    margin: 0.2rem;
+  }
+
+}
+
 .liveActions {
   flex: 4;
   display: flex;
@@ -29,10 +41,11 @@
   justify-content: center;
   .talkingIndicator {
     align-self: center;
+    min-width: 3rem;
   }
 }
 
-.dummyImage {
+.dummy1 {
   display: flex;
   flex-direction: row;
   justify-content : center;
@@ -50,6 +63,25 @@
     height: 4.5rem;
     width: 4.5rem;
   }
+}
+
+.dummy2 {
+  display: flex;
+  flex-direction: row;
+  justify-content : center;
+  img {
+    height: 1.5rem;
+    width: 1.5rem;
+  }
+  :first-child {
+    height: 1.5rem;
+    width: 1.5rem;
+  }
+  :last-child {
+    height: 1.5rem;
+    width: 1.5rem;
+  }
+
 }
 
 .center,
