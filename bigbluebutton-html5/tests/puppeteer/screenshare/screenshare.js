@@ -1,4 +1,5 @@
 const Page = require('../core/page');
+const utilNotifications = require('../notifications/util');
 const util = require('./util');
 const e = require('../core/elements');
 
@@ -9,11 +10,15 @@ class ShareScreen extends Page {
 
   async test() {
     await util.startScreenshare(this.page);
-    this.page.on('dialog', async (dialog) => {
-      await dialog.accept();
-    });
+
     await this.page.waitForSelector(e.screenShareVideo);
     const response = await util.getScreenShareContainer(this.page);
+    return response;
+  }
+
+  async toast(page) {
+    await util.startScreenshare(page);
+    const response = await utilNotifications.getLastToastValue(page);
     return response;
   }
 }

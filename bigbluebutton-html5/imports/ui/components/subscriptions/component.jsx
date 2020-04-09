@@ -6,7 +6,7 @@ import GroupChat from '/imports/api/group-chat';
 import Users from '/imports/api/users';
 import Annotations from '/imports/api/annotations';
 import AnnotationsTextService from '/imports/ui/components/whiteboard/annotations/text/service';
-import AnnotationsLocal from '/imports/ui/components/whiteboard/service';
+import { Annotations as AnnotationsLocal } from '/imports/ui/components/whiteboard/service';
 
 
 const CHAT_CONFIG = Meteor.settings.public.chat;
