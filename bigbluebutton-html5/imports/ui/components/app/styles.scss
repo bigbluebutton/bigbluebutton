@@ -18,7 +18,7 @@
   height: 100%;
   display: flex;
   flex-direction: column;
-  background: #f3f5f6;
+  background: #fefefe;
 }
 
 .navbar {
@@ -27,6 +27,7 @@
   position: relative;
   text-align: center;
   background-color: #ffffff;
+  box-shadow: 0px 2px 2px rgba(0, 0, 0, 0.06);
 
   padding: var(--bars-padding) var(--bars-padding) 0 var(--bars-padding);
 
@@ -80,36 +81,12 @@
 .content, .noPanelContent {
   @extend %full-page;
   order: 2;
-  top: 5%;
-
-  &:before,
-  &:after {
-    content: '';
-    position: absolute;
-    display: block;
-    width: 100%;
-    height: 50%;
-    opacity: 0;
-    pointer-events: none;
-
-    :global(.animationsEnabled) & {
-      transition: opacity .3s;
-    }
-  }
-
-  &:before {
-    top: 0;
-    background: linear-gradient(to bottom, rgba(0, 0, 0, .45) -20%, transparent 20%);
-  }
-
-  &:after {
-    bottom: 0;
-    background: linear-gradient(to top, rgba(0, 0, 0, .45) -20%, transparent 20%);
-  }
-
+  top: 7%;
+  
   @include mq($medium-up) {
-    flex: 1 95%;
+    flex: 1 93%;
     order: 2;
+    right: 1.5%;
   }
 }
 
@@ -220,6 +197,11 @@
   }
 }
 
+.noMedia {
+  @extend %full-page;
+  flex: 0 5%;
+}
+
 .captionsWrapper {
   position: absolute;
   width: auto;
@@ -232,9 +214,37 @@
 .actionsbar {
   @extend %full-page;
   flex: 2 auto;
-  padding: var(--bars-padding);
   position: relative;
   order: 3;
   display: flex;
   flex-direction: column;
+}
+
+.chatWrapper{
+  position: relative;
+  display: flex;
+   flex: auto;
+   flex-direction: row;
+   align-items: start;
+   flex-wrap: nowrap;
+ }
+
+.hide{
+  border: 0;
+  flex: end;
+  flex-flow: end;
+    align-items: end;
+background: transparent;
+}
+.slide{
+  flex: auto;
+   flex-flow: end;
+   flex-direction: end;
+   align-items: flex-end;
+   align-self: center;
+}
+
+.chatChannel{
+  flex-wrap: nowrap;
+  align-self: stretch;
 }

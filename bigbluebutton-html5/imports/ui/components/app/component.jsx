@@ -24,6 +24,18 @@ import ManyWebcamsNotifier from '/imports/ui/components/video-provider/many-user
 import { styles } from './styles';
 import ChatContainer from '/imports/ui/components/chat/container';
 import Resizable from 're-resizable';
+import Button from '/imports/ui/components/button/component';
+import ActionsBarContainer from '../actions-bar/container';
+
+
+
+const chat_min_width = 59;
+const chat_max_width = 78;
+// Variables for resizing chat.
+const CHAT_MIN_WIDTH = ((screen.width) * chat_min_width) / 100;
+//const CHAT_MAX_WIDTH = DEFAULT_PANEL_WIDTH;
+const CHAT_MAX_WIDTH =((screen.width) * chat_max_width) / 100;
+
 
 const MOBILE_MEDIA = 'only screen and (max-width: 40em)';
 const APP_CONFIG = Meteor.settings.public.app;
@@ -101,12 +113,16 @@ class App extends Component {
   constructor() {
     super();
     this.state = {
+      chatWidth: CHAT_MIN_WIDTH,
       enableResize: !window.matchMedia(MOBILE_MEDIA).matches,
+      toggleChatLayout: false,
     };
-
+     
+      
     this.handleWindowResize = throttle(this.handleWindowResize).bind(this);
     this.shouldAriaHide = this.shouldAriaHide.bind(this);
   }
+
 
   componentDidMount() {
     const {
@@ -262,13 +278,14 @@ class App extends Component {
     const {
       media,
       intl,
+      swapLayout
     } = this.props;
 
     if (!media) return null;
 
     return (
       <section
-        className={styles.media}
+        className={!swapLayout ? styles.media : styles.noMedia}
         aria-label={intl.formatMessage(intlMessages.mediaLabel)}
         aria-hidden={this.shouldAriaHide()}
       >
@@ -284,6 +301,9 @@ class App extends Component {
       intl,
     } = this.props;
 
+    const {
+      toggleChatLayout
+    } = this.state;
     if (!actionsbar) return null;
 
     return (
@@ -292,7 +312,7 @@ class App extends Component {
         aria-label={intl.formatMessage(intlMessages.actionsBarLabel)}
         aria-hidden={this.shouldAriaHide()}
       >
-        {actionsbar}
+        <ActionsBarContainer toggleChatLayout={toggleChatLayout} />
       </section>
     );
   }
@@ -331,39 +351,39 @@ class App extends Component {
   }
 
   renderChatResizable() {
-    const { isRTL } = this.props;
-
-    const resizableEnableOptions = {
-      top: false,
-      right: !isRTL,
-      bottom: false,
-      left: !!isRTL,
-      topRight: false,
-      bottomRight: false,
-      bottomLeft: false,
-      topLeft: false,
-    };
-    const chatWidth = ((screen.width) * 59) / 100;
+    const { chatWidth } = this.state;
 
     return (
+    <div  className={styles.chatWrapper}>
       <Resizable
-        minWidth={((screen.width) * 59) / 100}
-        maxWidth={((screen.width) * 59) / 100}
-        ref={(node) => { this.resizableChat = node; }}
-        enable={resizableEnableOptions}
-        key={this.chatKey}
+         minWidth={CHAT_MIN_WIDTH}
+         maxWidth={CHAT_MAX_WIDTH}
         size={{ width: chatWidth }}
         onResize={dispatchResizeEvent}
-        onResizeStop={(e, direction, ref, d) => {
-          this.setState({
-            chatWidth: chatWidth + d.width,
-          });
-        }}
+        className={styles.chatChannel}
       >
         {this.renderChat()}
       </Resizable>
-    );
-  }
+      <div className={styles.slide}>
+        <Button
+          hideLabel
+          onClick={ 
+             () => {
+                (chatWidth!==CHAT_MAX_WIDTH)
+                ? this.setState({chatWidth:CHAT_MAX_WIDTH,toggleChatLayout:true})
+                : this.setState({chatWidth:CHAT_MIN_WIDTH,toggleChatLayout:false})
+              }
+            }
+          size="sm"
+          icon={(chatWidth!==CHAT_MAX_WIDTH)?"right_arrow":"left_arrow"}
+          className={styles.hide}
+          color="default"
+          label="toggle"
+        />
+      </div>
+    </div> 
+  );
+}
 
   render() {
     const {
@@ -378,7 +398,6 @@ class App extends Component {
         <NotificationsBarContainer />
         <section className={styles.wrapper}>
           {this.renderPanel()}
-          {/* {this.renderSidebar()} */}
           <div className={styles.container}>
             {this.renderNavBar()}
             <div className={styles.panelContainer}>

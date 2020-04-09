@@ -11,6 +11,7 @@ import CaptionsService from '/imports/ui/components/captions/service';
 import getFromUserSettings from '/imports/ui/services/users-settings';
 import deviceInfo from '/imports/utils/deviceInfo';
 import UserInfos from '/imports/api/users-infos';
+import MediaService, { getSwapLayout, shouldEnableSwapLayout } from '../media/service';
 import { startBandwidthMonitoring, updateNavigatorConnection } from '/imports/ui/services/network-information/index';
 
 import {
@@ -102,6 +103,8 @@ export default injectIntl(withModalMounter(withTracker(({ intl, baseControls }) 
     requesterUserId: Auth.userID,
   }).fetch();
 
+  const { current_presentation: hasPresentation } = MediaService.getPresentationInfo();
+
   return {
     captions: CaptionsService.isCaptionsActive() ? <CaptionsContainer /> : null,
     fontSize: getFontSize(),
@@ -115,6 +118,7 @@ export default injectIntl(withModalMounter(withTracker(({ intl, baseControls }) 
     isPhone: deviceInfo.type().isPhone,
     isRTL: document.documentElement.getAttribute('dir') === 'rtl',
     meetingMuted: voiceProp.muteOnStart,
+    swapLayout : (getSwapLayout() || !hasPresentation) && shouldEnableSwapLayout(),
     currentUserEmoji: currentUserEmoji(currentUser),
     hasPublishedPoll: publishedPoll,
     startBandwidthMonitoring,
