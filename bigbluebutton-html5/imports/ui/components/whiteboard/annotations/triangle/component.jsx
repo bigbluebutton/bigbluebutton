@@ -1,16 +1,16 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import AnnotationHelpers from '../helpers';
+import { getFormattedColor, getStrokeWidth, denormalizeCoord } from '../helpers';
 
 export default class TriangleDrawComponent extends Component {
-
   shouldComponentUpdate(nextProps) {
-    return this.props.version !== nextProps.version;
+    const { version } = this.props;
+    return version !== nextProps.version;
   }
 
   getCoordinates() {
-    const { slideWidth, slideHeight } = this.props;
-    const { points } = this.props.annotation;
+    const { slideWidth, slideHeight, annotation } = this.props;
+    const { points } = annotation;
 
     // points[0] and points[1] are x and y coordinates of the top left corner of the annotation
     // points[2] and points[3] are x and y coordinates of the bottom right corner of the annotation
@@ -21,13 +21,13 @@ export default class TriangleDrawComponent extends Component {
     const xTop = ((xBottomRight - xBottomLeft) / 2) + xBottomLeft;
     const yTop = points[1];
 
-    const path = `M${(xTop / 100) * slideWidth
-        },${(yTop / 100) * slideHeight
-        },${(xBottomLeft / 100) * slideWidth
-        },${(yBottomLeft / 100) * slideHeight
-        },${(xBottomRight / 100) * slideWidth
-        },${(yBottomRight / 100) * slideHeight
-        }Z`;
+    const path = `M${denormalizeCoord(xTop, slideWidth)
+    },${denormalizeCoord(yTop, slideHeight)
+    },${denormalizeCoord(xBottomLeft, slideWidth)
+    },${denormalizeCoord(yBottomLeft, slideHeight)
+    },${denormalizeCoord(xBottomRight, slideWidth)
+    },${denormalizeCoord(yBottomRight, slideHeight)
+    }Z`;
 
     return path;
   }
@@ -39,9 +39,9 @@ export default class TriangleDrawComponent extends Component {
       <path
         style={{ WebkitTapHighlightColor: 'rgba(0, 0, 0, 0)' }}
         fill="none"
-        stroke={AnnotationHelpers.getFormattedColor(annotation.color)}
+        stroke={getFormattedColor(annotation.color)}
         d={path}
-        strokeWidth={AnnotationHelpers.getStrokeWidth(annotation.thickness, slideWidth)}
+        strokeWidth={getStrokeWidth(annotation.thickness, slideWidth)}
         strokeLinejoin="miter"
       />
     );
