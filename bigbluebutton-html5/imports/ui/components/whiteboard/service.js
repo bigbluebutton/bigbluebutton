@@ -135,9 +135,9 @@ const proccessAnnotationsQueue = async () => {
   const annotations = annotationsQueue.splice(0, queueSize);
 
   if (Meteor.settings.public.role) {
-    await whiteboardCall('sendBulkAnnotations', annotations.filter(({ id }) => !discardedList.includes(id)));
+    await whiteboardCall('sendBulkAnnotations', annotations);
   } else {
-    await makeCall('sendBulkAnnotations', annotations.filter(({ id }) => !discardedList.includes(id)));
+    await makeCall('sendBulkAnnotations', annotations);
   }
 
   // ask tiago
