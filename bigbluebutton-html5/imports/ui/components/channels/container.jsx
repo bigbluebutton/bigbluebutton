@@ -3,9 +3,9 @@ import { withTracker } from 'meteor/react-meteor-data';
 import AudioService from '/imports/ui/components/audio/service';
 import AudioManager from '/imports/ui/services/audio-manager';
 import Service from './service';
-import BreakoutChannel from './component';
+import Channels from './component';
 
-const BreakoutChannelContainer = props => <BreakoutChannel {...props} />;
+const ChannelsContainer = props => <Channels {...props} />;
 
 
 export default withTracker((...props) => {
@@ -42,4 +42,4 @@ export default withTracker((...props) => {
     isUserInBreakoutRoom,
     exitAudio: () => AudioManager.exitAudio(),
   };
-})(BreakoutChannelContainer);
+})(ChannelsContainer);

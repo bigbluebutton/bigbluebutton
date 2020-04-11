@@ -6,11 +6,11 @@ import _ from 'lodash';
 import Auth from '/imports/ui/services/auth';
 import Meetings, { MeetingTimeRemaining } from '/imports/api/meetings';
 import Users from '/imports/api/users';
-import BreakoutRemainingTime from '/imports/ui/components/breakout-channel/breakout-remaining-time/container';
+import BreakoutRemainingTime from '/imports/ui/components/channels/breakout-remaining-time/container';
 import SlowConnection from '/imports/ui/components/slow-connection/component';
 import { styles } from './styles.scss';
 
-import breakoutService from '/imports/ui/components/breakout-channel/service';
+import breakoutService from '/imports/ui/components/channels/service';
 import NotificationsBar from './component';
 
 // disconnected and trying to open a new connection

@@ -1,10 +1,16 @@
-import React, { PureComponent } from 'react';
+import React, { Fragment, PureComponent } from 'react';
 import { defineMessages, injectIntl } from 'react-intl';
 import _ from 'lodash';
 import Button from '/imports/ui/components/button/component';
 import { Session } from 'meteor/session';
 import logger from '/imports/startup/client/logger';
 import { styles } from './styles';
+import Auth from '/imports/ui/services/auth';
+import UserParticipantsContainer from '/imports/ui/components/user-list/user-list-content/user-participants/container';
+import UserOptionsContainer from '/imports/ui/components/user-list/user-list-content/user-participants//user-options/container';
+import { meetingIsBreakout } from '/imports/ui/components/app/service';
+
+const ROLE_MODERATOR = Meteor.settings.public.user.role_moderator;
 
 const intlMessages = defineMessages({
   breakoutTitle: {
@@ -53,7 +59,8 @@ const intlMessages = defineMessages({
   },
 });
 
-class BreakoutChannel extends PureComponent {
+class Channels extends PureComponent {
+  
   static sortById(a, b) {
     if (a.userId > b.userId) {
       return 1;
@@ -87,11 +94,13 @@ class BreakoutChannel extends PureComponent {
     this.renderUserActions = this.renderUserActions.bind(this);
     this.returnBackToMeeeting = this.returnBackToMeeeting.bind(this);
     this.getScrollContainerRef = this.getScrollContainerRef.bind(this);
+    
     this.state = {
       requestedBreakoutId: '',
       waiting: false,
       joinedAudioOnly: false,
       breakoutId: '',
+      breakOutWindowRefs: new Map() 
     };
   }
 
@@ -149,6 +158,8 @@ class BreakoutChannel extends PureComponent {
     Session.set('lastBreakoutOpened', breakoutId);
     const { requestJoinURL, breakoutRoomUser } = this.props;
     const { waiting } = this.state;
+    
+
     const hasUser = breakoutRoomUser(breakoutId);
     if (!hasUser && !waiting) {
       this.setState(
@@ -160,9 +171,20 @@ class BreakoutChannel extends PureComponent {
       );
     }
 
-    if (hasUser) {
-      window.open(hasUser.redirectToHtml5JoinURL, '_blank');
-      this.setState({ waiting: false });
+    const{ breakOutWindowRefs} = this.state;
+    if (hasUser && (breakOutWindowRefs.get(breakoutId) == null || breakOutWindowRefs.get(breakoutId).closed)) {
+      let windowRef = window.open(hasUser.redirectToHtml5JoinURL, '_blank');
+      
+      //TODO:  Validate if this a deep copy or plain shallow
+      let updatedWindowMap = new Map(breakOutWindowRefs);
+
+      updatedWindowMap = updatedWindowMap.set(breakoutId, windowRef);
+      console.log("ref map size" + updatedWindowMap.size);
+      this.setState( 
+        { waiting: false,
+          breakOutWindowRefs: updatedWindowMap
+        }
+      );
     }
     return null;
   }
@@ -178,6 +200,144 @@ class BreakoutChannel extends PureComponent {
     transferUserToMeeting(breakoutId, meetingId);
     this.setState({ joinedAudioOnly: false, breakoutId });
   }
+
+  render() {
+    const {
+      isMeteorConnected, 
+      intl, 
+      endAllBreakouts, 
+      amIModerator, 
+      exitAudio, 
+      breakoutRooms, 
+      currentUser,
+      users,
+      compact,
+      setEmojiStatus,
+      roving,
+      requestUserInformation
+
+    } = this.props;
+
+    let isBreakOutMeeting = meetingIsBreakout();
+    console.log("isBreakOutMeeting" + isBreakOutMeeting);
+
+    return (
+
+      <div className={styles.channelListColumn}>
+
+        <div className={styles.container}>
+          <h2 className={styles.channelsTitle}>
+            {/* TODO */}
+            {/* {intl.formatMessage(intlMessages.usersTitle)} */}
+              Chat Channels
+          </h2>
+          {currentUser.role === ROLE_MODERATOR
+                  ? (
+                    <UserOptionsContainer {...{
+                      users,
+                      setEmojiStatus,
+                      meetingIsBreakout: isBreakOutMeeting,
+                    }}
+                    />
+                  ) : null
+                }
+        </div>
+
+        <div
+          className={styles.scrollableList}
+          tabIndex={0}
+          ref={(ref) => { this.refScrollContainer = ref; }}
+        >
+
+          <div className={styles.channelList}>
+
+          {isBreakOutMeeting ? null 
+            :(  
+            <Fragment>
+              <h2 className={styles.channelNameMain}>
+                Master Channel
+              </h2>
+              
+              <UserParticipantsContainer
+                {...{
+                  compact,
+                  intl,
+                  currentUser,
+                  setEmojiStatus,
+                  roving,
+                  requestUserInformation,
+                  meetingIdentifier:Auth.meetingID
+                  }
+                }
+              />
+              </Fragment>
+            )
+          }
+            
+            {this.renderBreakoutRooms()}
+
+          </div>
+        </div>
+
+      </div>
+
+
+    );
+  }
+
+
+  renderBreakoutRooms() {
+    const {
+      breakoutRooms,
+      intl,
+      exitAudio,
+      compact,
+      currentUser,
+      setEmojiStatus,
+      roving,
+      requestUserInformation
+    } = this.props;
+
+    const {
+      waiting,
+      requestedBreakoutId,
+    } = this.state;
+
+    return (
+
+      breakoutRooms.map(breakout => (
+        <div
+          className={styles.channelName}
+          role="button"
+        >
+
+          {/* TODO: Do internationlization */}
+          <Button
+            label={breakout.name}
+            onClick={() => {
+              this.getBreakoutURL(breakout.breakoutId);
+              exitAudio();
+            }
+              }
+            className={styles.channelNameMain}
+          />
+          <UserParticipantsContainer
+          {...{
+            compact,
+            intl,
+            currentUser,
+            setEmojiStatus,
+            roving,
+            requestUserInformation,
+            meetingIdentifier: breakout.breakoutId
+          }}
+        />
+
+        </div>
+      ))
+    );
+  }
+
 
   renderUserActions(breakoutId, joinedUsers, number) {
     const {
@@ -262,184 +422,6 @@ class BreakoutChannel extends PureComponent {
       </div>
     );
   }
-
-  // const {
-  //   breakoutRooms,
-  //   intl,
-  // } = this.props;
-
-  // const {
-  //   waiting,
-  //   requestedBreakoutId,
-  // } = this.state;
-
-  // const roomItems = breakoutRooms.map(breakout => (
-  //   <div
-  //     className={styles.breakoutItems}
-  //     key={`breakoutRoomItems-${breakout.breakoutId}`}
-  //   >
-  //     <div className={styles.content} key={`breakoutRoomList-${breakout.breakoutId}`}>
-  //       <span aria-hidden>
-  //         {intl.formatMessage(intlMessages.breakoutRoom, breakout.sequence.toString())}
-  //         <span className={styles.usersAssignedNumberLabel}>
-  //           (
-  //           {breakout.joinedUsers.length}
-  //           )
-  //         </span>
-  //       </span>
-  //       {waiting && requestedBreakoutId === breakout.breakoutId ? (
-  //         <span>
-  //           {intl.formatMessage(intlMessages.generatingURL)}
-  //           <span className={styles.connectingAnimation} />
-  //         </span>
-  //       ) : this.renderUserActions(
-  //         breakout.breakoutId,
-  //         breakout.joinedUsers,
-  //         breakout.sequence.toString(),
-  //       )}
-  //     </div>
-  //     <div className={styles.joinedUserNames}>
-  //       {breakout.joinedUsers
-  //         .sort(BreakoutRoom.sortById)
-  //         .filter((value, idx, arr) => !(value.userId === (arr[idx + 1] || {}).userId))
-  //         .sort(BreakoutRoom.sortUsersByName)
-  //         .map(u => u.name)
-  //         .join(', ')}
-  //     </div>
-  //   </div>
-
-
-  // return (
-  //   <div className={styles.breakoutColumn}>
-  //     <div className={styles.breakoutScrollableList}>
-  //       {roomItems}
-  //     </div>
-  //   </div>
-  // );
-  // }
-
-
-  renderBreakoutRooms() {
-    const {
-      breakoutRooms,
-      intl,
-    } = this.props;
-
-    const {
-      waiting,
-      requestedBreakoutId,
-    } = this.state;
-
-    return (
-
-      breakoutRooms.map(breakout => (
-        <div
-          className={styles.channelName}
-          role="button"
-        >
-
-          {/* TODO: Do internationlization */}
-          <Button
-            label={breakout.name}
-            onClick={() => {
-              this.getBreakoutURL(breakout.breakoutId);
-              exitAudio();
-              // logger.debug({
-              //   logCode: 'breakoutroom_join',
-              //   extraInfo: { logType: 'user_action' },
-              // }, 'joining breakout room closed audio in the main room');
-            }
-              }
-            className={styles.channelNameMain}
-          />
-        </div>
-      ))
-    );
-  }
-
-
-  // const roomItems = breakoutRooms.map(breakout => (
-  //   <div
-  //     className={styles.breakoutItems}
-  //     key={`breakoutRoomItems-${breakout.breakoutId}`}
-  //   >
-  //     <div className={styles.content} key={`breakoutRoomList-${breakout.breakoutId}`}>
-  //       <span aria-hidden>
-  //         {intl.formatMessage(intlMessages.breakoutRoom, breakout.sequence.toString())}
-  //         <span className={styles.usersAssignedNumberLabel}>
-  //           (
-  //           {breakout.joinedUsers.length}
-  //           )
-  //         </span>
-  //       </span>
-  //       {waiting && requestedBreakoutId === breakout.breakoutId ? (
-  //         <span>
-  //           {intl.formatMessage(intlMessages.generatingURL)}
-  //           <span className={styles.connectingAnimation} />
-  //         </span>
-  //       ) : this.renderUserActions(
-  //         breakout.breakoutId,
-  //         breakout.joinedUsers,
-  //         breakout.sequence.toString(),
-  //       )}
-  //     </div>
-  //     <div className={styles.joinedUserNames}>
-  //       {breakout.joinedUsers
-  //         .sort(BreakoutRoom.sortById)
-  //         .filter((value, idx, arr) => !(value.userId === (arr[idx + 1] || {}).userId))
-  //         .sort(BreakoutRoom.sortUsersByName)
-  //         .map(u => u.name)
-  //         .join(', ')}
-  //     </div>
-  //   </div>
-
-
-  //   return (
-  //     <div className={styles.breakoutColumn}>
-  //       <div className={styles.breakoutScrollableList}>
-  //         {roomItems}
-  //       </div>
-  //     </div>
-  //   );
-  // }
-
-  render() {
-    const {
-      isMeteorConnected, intl, endAllBreakouts, amIModerator, closeBreakoutPanel,
-    } = this.props;
-    return (
-
-      <div className={styles.channelListColumn}>
-
-        <div className={styles.container}>
-          <h2 className={styles.channelsTitle}>
-            {/* TODO */}
-            {/* {intl.formatMessage(intlMessages.usersTitle)} */}
-                  Chat Channels
-          </h2>
-        </div>
-
-        <div
-          className={styles.scrollableList}
-          tabIndex={0}
-          ref={(ref) => { this.refScrollContainer = ref; }}
-        >
-
-          <div className={styles.channelList}>
-            <span className={styles.channelNameMain}>
-                    Master Channel
-            </span>
-
-            {this.renderBreakoutRooms()}
-
-          </div>
-        </div>
-
-      </div>
-
-
-    );
-  }
 }
 
-export default injectIntl(BreakoutChannel);
+export default injectIntl(Channels);

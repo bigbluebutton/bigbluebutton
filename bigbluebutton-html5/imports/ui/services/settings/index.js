@@ -69,5 +69,5 @@ class Settings {
   }
 }
 
-const SettingsSingleton = new Settings(Meteor.settings.public.app.defaultSettings);
-export default SettingsSingleton;
+const Settings = new Settings(Meteor.settings.public.app.defaultSettings);
+export default Settings;

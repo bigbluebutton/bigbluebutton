@@ -153,11 +153,12 @@ class UserParticipants extends Component {
       setEmojiStatus,
       currentUser,
       meetingIsBreakout,
+      meetingIdentifier
     } = this.props;
 
     return (
       <div className={styles.userListColumn}>
-        {
+        {/* {
           !compact
             ? (
               <div className={styles.container}>
@@ -181,7 +182,7 @@ class UserParticipants extends Component {
               </div>
             )
             : <hr className={styles.separator} />
-        }
+        } */}
         <div
           className={styles.scrollableList}
           tabIndex={0}
