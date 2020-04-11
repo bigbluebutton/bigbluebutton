@@ -1,0 +1,99 @@
+@import "/imports/ui/stylesheets/variables/_all";
+@import "/imports/ui/stylesheets/mixins/_scrollable";
+@import "/imports/ui/components/user-list/styles";
+@import "/imports/ui/components/user-list/user-list-content/styles";
+
+
+.channelListColumn {
+  @extend %flex-column;
+  min-height: 0;
+}
+
+.container{
+  display: flex;
+  align-items: center;
+  margin: var(--sm-padding-x) 0 var(--lg-padding-y) var(--font-size-20px);
+  height:var(--font-size-13px);
+
+  // margin-bottom: var(--lg-padding-y);
+  // margin-top: var(--sm-padding-x);
+}
+
+ .channelsTitle {
+  font-family:  'Arial';
+  font-style: normal;
+  font-size: var(--font-size-13px);
+  line-height: 231%;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  // padding: 0 var(--sm-padding-x);
+  // margin: 0 0 (var(--lg-padding-x) / 2) 0;
+  color: #ffffff;
+}
+
+.scrollableList {
+  @include elementFocus(transparent);
+  @include scrollbox-vertical();
+  @include highContrastOutline();
+
+  &:focus-within,
+  &:focus {
+    outline-style: solid;
+  }
+
+  &:active {
+    box-shadow: none;
+    border-radius: none;
+  }
+
+  outline-width: 1px !important;
+  outline-color: transparent !important;
+}
+
+.channelList {
+  display: flex;
+  flex-direction: column;
+  // margin: 10px 10px 10px 10px;
+}
+
+.channelName {
+  @extend %flex-column;
+  min-width: 0;
+  justify-content: center;
+
+  // font-size: var(--font-size-14px);
+}
+
+.channelNameMain {
+  @extend %no-margin;
+  font-family: Avenir;
+  font-style: normal;
+  font-weight: 500;
+  font-size: var(--font-size-14px);
+  line-height: 150%;
+  color: #ffffff;
+  letter-spacing: 0.025em;
+  
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+
+  margin: var(--font-size-10px) 0 var(--font-size-10px) var(--font-size-20px);
+
+  display: flex;
+  flex-direction: row;
+
+  // > span {
+  //   text-overflow: ellipsis;
+  //   white-space: nowrap;
+  //   overflow: hidden;
+  // }
+  // > i {
+  //   font-style: normal;
+  // }
+  // :global(.animationsEnabled) & {
+  //   transition: all .3s;
+  // }
+}
+

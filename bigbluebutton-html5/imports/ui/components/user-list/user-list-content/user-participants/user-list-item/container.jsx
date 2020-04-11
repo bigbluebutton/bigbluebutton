@@ -1,6 +1,6 @@
 import React from 'react';
 import { withTracker } from 'meteor/react-meteor-data';
-import BreakoutService from '/imports/ui/components/breakout-room/service';
+import BreakoutService from '/imports/ui/components/channels/service';
 import Meetings from '/imports/api/meetings';
 import Auth from '/imports/ui/services/auth';
 import UserListItem from './component';

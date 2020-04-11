@@ -214,3 +214,64 @@
        url('fonts/SourceSansPro/SourceSansPro-BoldItalic.woff') format('woff');
   unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02C6, U+02DA, U+02DC, U+2000-206F, U+2074, U+20AC, U+2212, U+2215, U+E0FF, U+EFFD, U+F000;
 }
+
+@font-face {
+  font-family: 'Avenir Next';
+  font-weight: normal;
+  font-style: normal;
+  font-variant:normal;
+  src: url('./fonts/AvenirNext-Regular/AvenirNext-Regular.eot?#iefix') format('eot'),
+  url('./fonts/AvenirNext-Regular/AvenirNext-Regular.otf')  format('opentype'),
+  url('./fonts/AvenirNext-Regular/AvenirNext-Regular.woff') format('woff'),
+  url('./fonts/AvenirNext-Regular/AvenirNext-Regular.ttf')  format('truetype'),
+  url('./fonts/AvenirNext-Regular/AvenirNext-Regular.svg#AvenirNext-Regular') format('svg');
+}
+
+@font-face {
+  font-family: 'Avenir Next Bold';
+  font-weight: bold;
+  font-style: normal;
+  font-variant:normal;
+  src: url('./fonts/AvenirNext-Bold/AvenirNext-Bold.eot?#iefix') format('eot'),
+  url('./fonts/AvenirNext-Bold/AvenirNext-Bold.otf')  format('opentype'),
+  url('./fonts/AvenirNext-Bold/AvenirNext-Bold.woff') format('woff'),
+  url('./fonts/AvenirNext-Bold/AvenirNext-Bold.ttf')  format('truetype'),
+  url('./fonts/AvenirNext-Bold/AvenirNext-Bold.svg#AvenirNext-Bold') format('svg');
+}
+
+@font-face {
+  font-family: 'Avenir Next Italic';
+  font-weight: normal;
+  font-style: italic;
+  font-variant:normal;
+  src: url('./fonts/AvenirNext-Italic/AvenirNext-Italic.eot?#iefix') format('eot'),
+  url('./fonts/AvenirNext-Italic/AvenirNext-Italic.otf')  format('opentype'),
+  url('./fonts/AvenirNext-Italic/AvenirNext-Italic.woff') format('woff'),
+  url('./fonts/AvenirNext-Italic/AvenirNext-Italic.ttf')  format('truetype'),
+  url('./fonts/AvenirNext-Italic/AvenirNext-Italic.svg#AvenirNext-Italic') format('svg');
+}
+
+@font-face {
+  font-family: 'Avenir Next Bold Italic';
+  font-weight: bold;
+  font-style: italic;
+  font-variant:normal;
+  src: url('./fonts/AvenirNext-Bold-Italic/AvenirNext-Bold-Italic.eot?#iefix') format('eot'),
+  url('./fonts/AvenirNext-Italic/AvenirNext-Bold-Italic.otf')  format('opentype'),
+  url('./fonts/AvenirNext-Italic/AvenirNext-Bold-Italic.woff') format('woff'),
+  url('./fonts/AvenirNext-Italic/AvenirNext-Bold-Italic.ttf')  format('truetype'),
+  url('./fonts/AvenirNext-Italic/AvenirNext-Bold-Italic.svg#AvenirNext-Bold-Italic') format('svg');
+}
+
+
+@font-face {
+
+  font-family: 'Avenir Next Pro';
+
+  src: url("https://www.tradingtechnologies.com/wp-content/themes/tt/assets/fonts/AvenirNext-Regular.eot");
+
+  src: url("https://www.tradingtechnologies.com/wp-content/themes/tt/assets/fonts/AvenirNext-Regular.eot?#iefix") format("embedded-opentype"), url("https://www.tradingtechnologies.com/wp-content/themes/tt/assets/fonts/AvenirNext-Regular.woff") format("woff"), url("https://www.tradingtechnologies.com/wp-content/themes/tt/assets/fonts/AvenirNext-Regular.ttf") format("truetype");
+
+  font-weight: normal;
+
+  font-style: normal; }

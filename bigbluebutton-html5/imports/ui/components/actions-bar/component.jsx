@@ -73,7 +73,7 @@ class ActionsBar extends PureComponent {
       <div className={cx(actionBarClasses)}>
         <div className={!toggleChatLayout ? styles.actionsController : styles.toggledActions}>
           <div>
-              <AudioControlsContainer />
+            <AudioControlsContainer />
           </div>
           <div>
             {enableVideo
@@ -98,46 +98,46 @@ class ActionsBar extends PureComponent {
             }}
             />
           </div>
-            <ActionsDropdown {...{
-              amIPresenter,
-              amIModerator,
-              isPollingEnabled,
-              allowExternalVideo,
-              handleTakePresenter,
-              intl,
-              isSharingVideo,
-              stopExternalVideoShare,
-              isMeteorConnected,
-            }}
-            />
+          <ActionsDropdown {...{
+            amIPresenter,
+            amIModerator,
+            isPollingEnabled,
+            allowExternalVideo,
+            handleTakePresenter,
+            intl,
+            isSharingVideo,
+            stopExternalVideoShare,
+            isMeteorConnected,
+          }}
+          />
         </div>
-          <div className={styles.liveActions}>
-            <div className={!toggleChatLayout ? styles.dummy1 : styles.dummy2}>
-              <img src="https://miro.medium.com/max/560/1*MccriYX-ciBniUzRKAUsAw.png" alt="" />
-              <img
-                src="https://lh3.googleusercontent.com/FPUDI5HXBwHwoy-_aEh9fAW7lkOCJdRNktzstpsWCTrCFN1Vj6sCh4sTjE4ZpYG1hZ6b"
-                alt=""
-              />
-              <img src="https://miro.medium.com/max/560/1*MccriYX-ciBniUzRKAUsAw.png" alt="" />
-            </div>
-            <div className={styles.talkingIndicator}>
-              <TalkingIndicatorContainer amIModerator={amIModerator} />
-            </div>
-          </div>
-          <div className={styles.audioButton}>
-            <Button
-              className={cx(styles.button, inAudio, endCall ? styles.endingCall : null)}
-              onClick={inAudio ? handleLeaveAudio : handleJoinAudio}
-              hideLabel
-              label={inAudio ? intl.formatMessage(intlMessages.leaveAudio)
-                : intl.formatMessage(intlMessages.joinAudio)}
-              color="default"
-              ghost={!inAudio}
-              icon={joinIcon}
-              size={!toggleChatLayout ? "xl" : "lg"}
-              circle
+        <div className={styles.liveActions}>
+          <div className={!toggleChatLayout ? styles.dummy1 : styles.dummy2}>
+            <img src="https://miro.medium.com/max/560/1*MccriYX-ciBniUzRKAUsAw.png" alt="" />
+            <img
+              src="https://lh3.googleusercontent.com/FPUDI5HXBwHwoy-_aEh9fAW7lkOCJdRNktzstpsWCTrCFN1Vj6sCh4sTjE4ZpYG1hZ6b"
+              alt=""
             />
+            <img src="https://miro.medium.com/max/560/1*MccriYX-ciBniUzRKAUsAw.png" alt="" />
           </div>
+          <div className={styles.talkingIndicator}>
+            <TalkingIndicatorContainer amIModerator={amIModerator} />
+          </div>
+        </div>
+        <div className={styles.audioButton}>
+          <Button
+            className={cx(styles.button, inAudio, endCall ? styles.endingCall : null)}
+            onClick={inAudio ? handleLeaveAudio : handleJoinAudio}
+            hideLabel
+            label={inAudio ? intl.formatMessage(intlMessages.leaveAudio)
+              : intl.formatMessage(intlMessages.joinAudio)}
+            color="default"
+            ghost={!inAudio}
+            icon={joinIcon}
+            size={!toggleChatLayout ? 'xl' : 'lg'}
+            circle
+          />
+        </div>
       </div>
     );
   }
