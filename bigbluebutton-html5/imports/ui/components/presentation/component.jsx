@@ -15,6 +15,7 @@ import PresentationCloseButton from './presentation-close-button/component';
 import DownloadPresentationButton from './download-presentation-button/component';
 import FullscreenService from '../fullscreen-button/service';
 import FullscreenButtonContainer from '../fullscreen-button/container';
+import Button from '/imports/ui/components/button/component';
 
 const intlMessages = defineMessages({
   presentationLabel: {
@@ -424,7 +425,7 @@ class PresentationArea extends PureComponent {
         }}
         className={styles.presentation}
       >
-        {this.renderPresentationClose()}
+        {/* {this.renderPresentationClose()} */}
         {this.renderPresentationDownload()}
         {this.renderPresentationFullscreen()}
         <svg
@@ -465,13 +466,6 @@ class PresentationArea extends PureComponent {
               slideHeight={height}
             />
           </g>
-          {this.renderOverlays(
-            currentSlide,
-            svgDimensions,
-            viewBoxPosition,
-            viewBoxDimensions,
-            physicalDimensions,
-          )}
         </svg>
       </div>
     );
@@ -556,8 +550,9 @@ class PresentationArea extends PureComponent {
   render() {
     const {
       userIsPresenter,
-      multiUser,
       slidePosition,
+      isLayoutSwapped,
+      stopPresentation,
     } = this.props;
 
     const {
@@ -594,6 +589,8 @@ class PresentationArea extends PureComponent {
 
 
     return (
+    (!isLayoutSwapped) ? (
+      <div className={styles.presentationPanel}>
       <div
         ref={(ref) => { this.refPresentationContainer = ref; }}
         className={styles.presentationContainer}
@@ -609,7 +606,7 @@ class PresentationArea extends PureComponent {
           <div
             className={styles.svgContainer}
             style={{
-              height: svgHeight + toolbarHeight,
+              height: svgHeight,
             }}
           >
             {showSlide
@@ -618,6 +615,13 @@ class PresentationArea extends PureComponent {
           </div>
         </div>
       </div>
+        <Button 
+          onClick={stopPresentation}
+          className={styles.stopPresentation}
+          label="stop presentation..."
+        />
+        </div>
+    ) : null
     );
   }
 }

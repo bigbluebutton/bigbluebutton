@@ -11,6 +11,7 @@ import { defineMessages, injectIntl } from 'react-intl';
 import Resizable from 're-resizable';
 import { styles } from '/imports/ui/components/app/styles';
 import _ from 'lodash';
+import Button from '/imports/ui/components/button/component';
 
 const intlMessages = defineMessages({
   chatLabel: {
@@ -42,7 +43,7 @@ const propTypes = {
 const default_panel_width = 59;
 const chat_min_width = 59;
 const user_min_width = 14;
-
+const chat_max_width = 79;
 
 const DEFAULT_PANEL_WIDTH = ((screen.width) * default_panel_width) / 100;
 // Variables for resizing user-list.
@@ -51,8 +52,8 @@ const USERLIST_MAX_WIDTH_PX = ((screen.width) * user_min_width) / 100;
 
 // Variables for resizing chat.
 const CHAT_MIN_WIDTH = ((screen.width) * chat_min_width) / 100;
-const CHAT_MAX_WIDTH = DEFAULT_PANEL_WIDTH;
-
+//const CHAT_MAX_WIDTH = DEFAULT_PANEL_WIDTH;
+const CHAT_MAX_WIDTH =((screen.width) * chat_max_width) / 100;
 // Variables for resizing poll.
 const POLL_MIN_WIDTH = 320;
 const POLL_MAX_WIDTH = 400;
@@ -189,23 +190,34 @@ class PanelManager extends PureComponent {
       topLeft: false,
     };
 
-    return (
+    return (<div className={styles.wrapper}>
       <Resizable
         minWidth={CHAT_MIN_WIDTH}
         maxWidth={CHAT_MAX_WIDTH}
-        ref={(node) => { this.resizableChat = node; }}
-        enable={resizableEnableOptions}
-        key={this.chatKey}
+       // ref={(node) => { this.resizableChat = node; }}
+       // enable={resizableEnableOptions}
+        //key={this.chatKey}
         size={{ width: chatWidth }}
         onResize={dispatchResizeEvent}
-        onResizeStop={(e, direction, ref, d) => {
-          this.setState({
-            chatWidth: chatWidth + d.width,
-          });
-        }}
+        // onResizeStop={(e, direction, ref, d) => {
+        //   this.setState({
+        //     chatWidth: chatWidth + d.width,
+        //   });
+        // }}
+
       >
         {this.renderChat()}
       </Resizable>
+       <div className={styles.slide}>
+       <Button
+             onClick={()=>{(chatWidth!==CHAT_MAX_WIDTH)?this.setState({chatWidth:CHAT_MAX_WIDTH}):this.setState({chatWidth:CHAT_MIN_WIDTH})}}
+             size="sm"
+             icon={(chatWidth!==CHAT_MAX_WIDTH)?"right_arrow":"left_arrow"}
+             className={styles.hide}
+             color="white"
+           />
+       </div>
+       </div>
     );
   }
 

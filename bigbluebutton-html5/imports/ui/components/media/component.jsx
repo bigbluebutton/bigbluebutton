@@ -86,15 +86,15 @@ export default class Media extends Component {
         ref={this.refContainer}
       >
         <div
-          className={!swapLayout ? contentClassName : overlayClassName}
+          className={!swapLayout ? contentClassName : null}
           style={{
-            maxHeight: usersVideo.length < 1 || (webcamPlacement === 'floating') ? '100%' : '80%',
+            maxHeight: usersVideo.length < 1 ? '100%' : '80%',
             minHeight: '20%',
           }}
         >
           {children}
         </div>
-        <WebcamDraggable
+        {/* <WebcamDraggable
           refMediaContainer={this.refContainer}
           swapLayout={swapLayout}
           singleWebcam={singleWebcam}
@@ -103,7 +103,7 @@ export default class Media extends Component {
           disableVideo={disableVideo}
           audioModalIsOpen={audioModalIsOpen}
           usersVideo={usersVideo}
-        />
+        /> */}
       </div>
     );
   }

@@ -14,8 +14,8 @@ $after-content-order: 3;
 }
 
 %container {
-  order: 1;
-  flex: 2;
+  // order: 1;
+  flex: auto;
   display: flex;
   align-items: center;
   justify-content: center;

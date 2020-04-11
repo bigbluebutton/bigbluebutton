@@ -4,6 +4,7 @@ import Presentations from '/imports/api/presentations';
 import { Slides, SlidePositions } from '/imports/api/slides';
 import Users from '/imports/api/users';
 import Auth from '/imports/ui/services/auth';
+import { makeCall } from '/imports/ui/services/api';
 
 const getCurrentPresentation = podId => Presentations.findOne({
   podId,
@@ -22,6 +23,15 @@ const downloadPresentationUri = (podId) => {
 
   return uri;
 };
+
+const stopPresentation = (podId) => {
+  const currentPresentation = getCurrentPresentation(podId);
+  console.log(currentPresentation);
+  if (!currentPresentation) {
+    return null;
+  }
+  makeCall('removePresentation', currentPresentation.id, currentPresentation.podId);
+}
 
 const isPresentationDownloadable = (podId) => {
   const currentPresentation = getCurrentPresentation(podId);
@@ -189,4 +199,5 @@ export default {
   currentSlidHasContent,
   parseCurrentSlideContent,
   getCurrentPresentation,
+  stopPresentation,
 };

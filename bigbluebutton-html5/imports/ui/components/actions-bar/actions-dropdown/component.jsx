@@ -204,25 +204,21 @@ class ActionsDropdown extends PureComponent {
     }
 
     return (
-      <Dropdown ref={(ref) => { this._dropdown = ref; }}>
-        <DropdownTrigger tabIndex={0} accessKey={OPEN_ACTIONS_AK}>
+
+      (amIPresenter
+        ? (
           <Button
             hideLabel
-            aria-label={intl.formatMessage(intlMessages.actionsLabel)}
             className={styles.button}
-            label={intl.formatMessage(intlMessages.actionsLabel)}
-            icon="actions"
+            data-test="uploadPresentation"
+            icon="presentation"
             size="lg"
             circle
-            onClick={() => null}
+            label={intl.formatMessage(intlMessages.presentationLabel)}
+            onClick={this.handlePresentationClick}
           />
-        </DropdownTrigger>
-        <DropdownContent placement="bottom right">
-          <DropdownList>
-            {availableActions}
-          </DropdownList>
-        </DropdownContent>
-      </Dropdown>
+        )
+        : null)
     );
   }
 }
