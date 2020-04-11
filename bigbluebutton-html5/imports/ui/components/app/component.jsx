@@ -30,15 +30,13 @@ import Button from '/imports/ui/components/button/component';
 import ActionsBarContainer from '../actions-bar/container';
 
 
-
 const chat_min_width = 59;
 const chat_max_width = 78;
 // Variables for resizing chat.
 const CHAT_MIN_WIDTH = ((screen.width) * chat_min_width) / 100;
-//const CHAT_MAX_WIDTH = DEFAULT_PANEL_WIDTH;
-const CHAT_MAX_WIDTH =((screen.width) * chat_max_width) / 100;
+// const CHAT_MAX_WIDTH = DEFAULT_PANEL_WIDTH;
+const CHAT_MAX_WIDTH = ((screen.width) * chat_max_width) / 100;
 
- 
 
 const MOBILE_MEDIA = 'only screen and (max-width: 40em)';
 const APP_CONFIG = Meteor.settings.public.app;
@@ -120,8 +118,8 @@ class App extends Component {
       enableResize: !window.matchMedia(MOBILE_MEDIA).matches,
       toggleChatLayout: false,
     };
-     
-      
+
+
     this.handleWindowResize = throttle(this.handleWindowResize).bind(this);
     this.shouldAriaHide = this.shouldAriaHide.bind(this);
   }
@@ -281,7 +279,7 @@ class App extends Component {
     const {
       media,
       intl,
-      swapLayout
+      swapLayout,
     } = this.props;
 
     if (!media) return null;
@@ -305,7 +303,7 @@ class App extends Component {
     } = this.props;
 
     const {
-      toggleChatLayout
+      toggleChatLayout,
     } = this.state;
     if (!actionsbar) return null;
 
@@ -357,36 +355,36 @@ class App extends Component {
     const { chatWidth } = this.state;
 
     return (
-    <div  className={styles.chatWrapper}>
-      <Resizable
-         minWidth={CHAT_MIN_WIDTH}
-         maxWidth={CHAT_MAX_WIDTH}
-        size={{ width: chatWidth }}
-        onResize={dispatchResizeEvent}
-        className={styles.chatChannel}
-      >
-        {this.renderChat()}
-      </Resizable>
-      <div className={styles.slide}>
-        <Button
-          hideLabel
-          onClick={ 
+      <div className={styles.chatWrapper}>
+        <Resizable
+          minWidth={CHAT_MIN_WIDTH}
+          maxWidth={CHAT_MAX_WIDTH}
+          size={{ width: chatWidth }}
+          onResize={dispatchResizeEvent}
+          className={styles.chatChannel}
+        >
+          {this.renderChat()}
+        </Resizable>
+        <div className={styles.slide}>
+          <Button
+            hideLabel
+            onClick={
              () => {
-                (chatWidth!==CHAT_MAX_WIDTH)
-                ? this.setState({chatWidth:CHAT_MAX_WIDTH,toggleChatLayout:true})
-                : this.setState({chatWidth:CHAT_MIN_WIDTH,toggleChatLayout:false})
-              }
+               (chatWidth !== CHAT_MAX_WIDTH)
+                 ? this.setState({ chatWidth: CHAT_MAX_WIDTH, toggleChatLayout: true })
+                 : this.setState({ chatWidth: CHAT_MIN_WIDTH, toggleChatLayout: false });
+             }
             }
-          size="sm"
-          icon={(chatWidth!==CHAT_MAX_WIDTH)?"right_arrow":"left_arrow"}
-          className={styles.hide}
-          color="default"
-          label="toggle"
-        />
+            size="sm"
+            icon={(chatWidth !== CHAT_MAX_WIDTH) ? 'right_arrow' : 'left_arrow'}
+            className={styles.hide}
+            color="default"
+            label="toggle"
+          />
+        </div>
       </div>
-    </div> 
-  );
-}
+    );
+  }
 
   render() {
     const {
