@@ -24,9 +24,8 @@ import MediaService from '/imports/ui/components/media/service';
 import ManyWebcamsNotifier from '/imports/ui/components/video-provider/many-users-notify/container';
 import { styles } from './styles';
 import ChatContainer from '/imports/ui/components/chat/container';
-<<<<<<< HEAD
-=======
-import Resizable from 're-resizable';
+
+// import Resizable from 're-resizable';
 import Button from '/imports/ui/components/button/component';
 import ActionsBarContainer from '../actions-bar/container';
 
@@ -39,7 +38,7 @@ const CHAT_MIN_WIDTH = ((screen.width) * chat_min_width) / 100;
 //const CHAT_MAX_WIDTH = DEFAULT_PANEL_WIDTH;
 const CHAT_MAX_WIDTH =((screen.width) * chat_max_width) / 100;
 
->>>>>>> de649c68d35184133346861c396f69236834b7cd
+ 
 
 const MOBILE_MEDIA = 'only screen and (max-width: 40em)';
 const APP_CONFIG = Meteor.settings.public.app;

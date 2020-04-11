@@ -589,39 +589,39 @@ class PresentationArea extends PureComponent {
 
 
     return (
-    (!isLayoutSwapped) ? (
-      <div className={styles.presentationPanel}>
-      <div
-        ref={(ref) => { this.refPresentationContainer = ref; }}
-        className={styles.presentationContainer}
-      >
-        <div
-          ref={(ref) => { this.refPresentationArea = ref; }}
-          className={styles.presentationArea}
-        >
+      (!isLayoutSwapped) ? (
+        <div className={styles.presentationPanel}>
           <div
-            ref={(ref) => { this.refWhiteboardArea = ref; }}
-            className={styles.whiteboardSizeAvailable}
-          />
-          <div
-            className={styles.svgContainer}
-            style={{
-              height: svgHeight,
-            }}
+            ref={(ref) => { this.refPresentationContainer = ref; }}
+            className={styles.presentationContainer}
           >
-            {showSlide
-              ? this.renderPresentationArea(svgDimensions, viewBoxDimensions)
-              : null}
+            <div
+              ref={(ref) => { this.refPresentationArea = ref; }}
+              className={styles.presentationArea}
+            >
+              <div
+                ref={(ref) => { this.refWhiteboardArea = ref; }}
+                className={styles.whiteboardSizeAvailable}
+              />
+              <div
+                className={styles.svgContainer}
+                style={{
+                  height: svgHeight,
+                }}
+              >
+                {showSlide
+                  ? this.renderPresentationArea(svgDimensions, viewBoxDimensions)
+                  : null}
+              </div>
+            </div>
           </div>
+          <Button
+            onClick={stopPresentation}
+            className={styles.stopPresentation}
+            label="stop presentation..."
+          />
         </div>
-      </div>
-        <Button 
-          onClick={stopPresentation}
-          className={styles.stopPresentation}
-          label="stop presentation..."
-        />
-        </div>
-    ) : null
+      ) : null
     );
   }
 }
