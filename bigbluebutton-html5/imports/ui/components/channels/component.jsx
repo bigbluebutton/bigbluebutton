@@ -60,7 +60,6 @@ const intlMessages = defineMessages({
 });
 
 class Channels extends PureComponent {
-  
   static sortById(a, b) {
     if (a.userId > b.userId) {
       return 1;
@@ -94,13 +93,13 @@ class Channels extends PureComponent {
     this.renderUserActions = this.renderUserActions.bind(this);
     this.returnBackToMeeeting = this.returnBackToMeeeting.bind(this);
     this.getScrollContainerRef = this.getScrollContainerRef.bind(this);
-    
+
     this.state = {
       requestedBreakoutId: '',
       waiting: false,
       joinedAudioOnly: false,
       breakoutId: '',
-      breakOutWindowRefs: new Map() 
+      breakOutWindowRefs: new Map(),
     };
   }
 
@@ -158,7 +157,7 @@ class Channels extends PureComponent {
     Session.set('lastBreakoutOpened', breakoutId);
     const { requestJoinURL, breakoutRoomUser } = this.props;
     const { waiting } = this.state;
-    
+
 
     const hasUser = breakoutRoomUser(breakoutId);
     if (!hasUser && !waiting) {
@@ -171,19 +170,20 @@ class Channels extends PureComponent {
       );
     }
 
-    const{ breakOutWindowRefs} = this.state;
+    const { breakOutWindowRefs } = this.state;
     if (hasUser && (breakOutWindowRefs.get(breakoutId) == null || breakOutWindowRefs.get(breakoutId).closed)) {
-      let windowRef = window.open(hasUser.redirectToHtml5JoinURL, '_blank');
-      
-      //TODO:  Validate if this a deep copy or plain shallow
+      const windowRef = window.open(hasUser.redirectToHtml5JoinURL, '_blank');
+
+      // TODO:  Validate if this a deep copy or plain shallow
       let updatedWindowMap = new Map(breakOutWindowRefs);
 
       updatedWindowMap = updatedWindowMap.set(breakoutId, windowRef);
-      console.log("ref map size" + updatedWindowMap.size);
-      this.setState( 
-        { waiting: false,
-          breakOutWindowRefs: updatedWindowMap
-        }
+      console.log(`ref map size${updatedWindowMap.size}`);
+      this.setState(
+        {
+          waiting: false,
+          breakOutWindowRefs: updatedWindowMap,
+        },
       );
     }
     return null;
@@ -203,23 +203,23 @@ class Channels extends PureComponent {
 
   render() {
     const {
-      isMeteorConnected, 
-      intl, 
-      endAllBreakouts, 
-      amIModerator, 
-      exitAudio, 
-      breakoutRooms, 
+      isMeteorConnected,
+      intl,
+      endAllBreakouts,
+      amIModerator,
+      exitAudio,
+      breakoutRooms,
       currentUser,
       users,
       compact,
       setEmojiStatus,
       roving,
-      requestUserInformation
+      requestUserInformation,
 
     } = this.props;
 
-    let isBreakOutMeeting = meetingIsBreakout();
-    console.log("isBreakOutMeeting" + isBreakOutMeeting);
+    const isBreakOutMeeting = meetingIsBreakout();
+    console.log(`isBreakOutMeeting${isBreakOutMeeting}`);
 
     return (
 
@@ -232,14 +232,14 @@ class Channels extends PureComponent {
               Chat Channels
           </h2>
           {currentUser.role === ROLE_MODERATOR
-                  ? (
-                    <UserOptionsContainer {...{
-                      users,
-                      setEmojiStatus,
-                      meetingIsBreakout: isBreakOutMeeting,
-                    }}
-                    />
-                  ) : null
+            ? (
+              <UserOptionsContainer {...{
+                users,
+                setEmojiStatus,
+                meetingIsBreakout: isBreakOutMeeting,
+              }}
+              />
+            ) : null
                 }
         </div>
 
@@ -251,29 +251,29 @@ class Channels extends PureComponent {
 
           <div className={styles.channelList}>
 
-          {isBreakOutMeeting ? null 
-            :(  
-            <Fragment>
-              <h2 className={styles.channelNameMain}>
+            {isBreakOutMeeting ? null
+              : (
+                <Fragment>
+                  <h2 className={styles.channelNameMain}>
                 Master Channel
-              </h2>
-              
-              <UserParticipantsContainer
-                {...{
-                  compact,
-                  intl,
-                  currentUser,
-                  setEmojiStatus,
-                  roving,
-                  requestUserInformation,
-                  meetingIdentifier:Auth.meetingID
-                  }
+                  </h2>
+
+                  <UserParticipantsContainer
+                    {...{
+                      compact,
+                      intl,
+                      currentUser,
+                      setEmojiStatus,
+                      roving,
+                      requestUserInformation,
+                      meetingIdentifier: Auth.meetingID,
+                    }
                 }
-              />
-              </Fragment>
-            )
+                  />
+                </Fragment>
+              )
           }
-            
+
             {this.renderBreakoutRooms()}
 
           </div>
@@ -295,7 +295,7 @@ class Channels extends PureComponent {
       currentUser,
       setEmojiStatus,
       roving,
-      requestUserInformation
+      requestUserInformation,
     } = this.props;
 
     const {
@@ -322,16 +322,16 @@ class Channels extends PureComponent {
             className={styles.channelNameMain}
           />
           <UserParticipantsContainer
-          {...{
-            compact,
-            intl,
-            currentUser,
-            setEmojiStatus,
-            roving,
-            requestUserInformation,
-            meetingIdentifier: breakout.breakoutId
-          }}
-        />
+            {...{
+              compact,
+              intl,
+              currentUser,
+              setEmojiStatus,
+              roving,
+              requestUserInformation,
+              meetingIdentifier: breakout.breakoutId,
+            }}
+          />
 
         </div>
       ))

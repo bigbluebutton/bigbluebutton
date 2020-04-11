@@ -207,7 +207,7 @@ const getUsersByMeeting = (meetingIdentifier) => {
   let users = Users
     .find({
       meetingId: meetingIdentifier,
-       connectionStatus: 'online',
+      connectionStatus: 'online',
     }, userFindSorting)
     .fetch();
 

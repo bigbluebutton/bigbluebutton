@@ -153,7 +153,7 @@ class UserParticipants extends Component {
       setEmojiStatus,
       currentUser,
       meetingIsBreakout,
-      meetingIdentifier
+      meetingIdentifier,
     } = this.props;
 
     return (

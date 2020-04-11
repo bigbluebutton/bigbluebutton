@@ -45,7 +45,7 @@ class UserContent extends PureComponent {
       forcePollOpen,
       hasBreakoutRoom,
       pendingUsers,
-      meetingIsBreakout, 
+      meetingIsBreakout,
       requestUserInformation,
     } = this.props;
 
@@ -55,7 +55,7 @@ class UserContent extends PureComponent {
         className={styles.content}
         role="complementary"
       >
-        <ChannelsContainer 
+        <ChannelsContainer
           {...{
             compact,
             intl,
@@ -65,7 +65,7 @@ class UserContent extends PureComponent {
             requestUserInformation,
           }}
         />
-       
+
       </div>
     );
   }
