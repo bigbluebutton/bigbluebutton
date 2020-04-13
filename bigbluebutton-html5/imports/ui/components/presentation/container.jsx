@@ -14,8 +14,7 @@ const PresentationAreaContainer = ({ presentationPodIds, mountPresentationArea, 
 const APP_CONFIG = Meteor.settings.public.app;
 const PRELOAD_NEXT_SLIDE = APP_CONFIG.preloadNextSlides;
 const fetchedpresentation = {};
-let canFetch = true;
-window.test = fetchedpresentation;
+
 export default withTracker(({ podId }) => {
   const currentSlide = PresentationAreaService.getCurrentSlide(podId);
   const presentationIsDownloadable = PresentationAreaService.isPresentationDownloadable(podId);
@@ -30,12 +29,14 @@ export default withTracker(({ podId }) => {
     slidePosition = PresentationAreaService.getSlidePosition(podId, presentationId, slideId);
     if (PRELOAD_NEXT_SLIDE && !fetchedpresentation[presentationId]) {
       fetchedpresentation[presentationId] = {
+        canFetch: true,
         fetchedSlide: {},
       };
     }
     const currentSlideNum = currentSlide.num;
     const presentation = fetchedpresentation[presentationId];
-    if (!presentation.fetchedSlide[currentSlide.num + PRELOAD_NEXT_SLIDE] && canFetch) {
+
+    if (PRELOAD_NEXT_SLIDE && !presentation.fetchedSlide[currentSlide.num + PRELOAD_NEXT_SLIDE] && presentation.canFetch) {
       const slidesToFetch = Slides.find({
         podId,
         presentationId,
@@ -47,13 +48,13 @@ export default withTracker(({ podId }) => {
       const promiseImageGet = slidesToFetch
         .filter(s => !fetchedpresentation[presentationId].fetchedSlide[s.num])
         .map(async (slide) => {
-          if (canFetch) canFetch = false;
+          if (presentation.canFetch) presentation.canFetch = false;
           const image = await fetch(slide.imageUri);
           if (image.ok) {
             presentation.fetchedSlide[slide.num] = true;
           }
         });
-      Promise.all(promiseImageGet).then(() => canFetch = true);
+      Promise.all(promiseImageGet).then(() => presentation.canFetch = true);
     }
   }
   return {
