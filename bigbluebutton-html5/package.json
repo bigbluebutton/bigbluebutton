@@ -50,7 +50,6 @@
     "makeup-screenreader-trap": "0.0.5",
     "meteor-node-stubs": "^0.4.1",
     "node-sass": "^4.13.1",
-    "package-lock.json": "^1.0.0",
     "postcss-nested": "4.1.0",
     "probe-image-size": "^4.1.1",
     "prop-types": "^15.7.2",
