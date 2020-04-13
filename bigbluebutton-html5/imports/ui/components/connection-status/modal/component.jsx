@@ -7,6 +7,8 @@ import SlowConnection from '/imports/ui/components/slow-connection/component';
 import Modal from '/imports/ui/components/modal/simple/component';
 import { styles } from './styles';
 
+const STATS = Meteor.settings.public.stats;
+
 const intlMessages = defineMessages({
   ariaTitle: {
     id: 'app.connection-status.ariaTitle',
@@ -23,6 +25,10 @@ const intlMessages = defineMessages({
   empty: {
     id: 'app.connection-status.empty',
     description: 'Connection status empty',
+  },
+  more: {
+    id: 'app.connection-status.more',
+    description: 'More about conectivity issues',
   },
 });
 
@@ -118,7 +124,10 @@ class ConnectionStatusComponent extends PureComponent {
             </h2>
           </div>
           <div className={styles.description}>
-            {intl.formatMessage(intlMessages.description)}
+            {intl.formatMessage(intlMessages.description)}{' '}
+            <a href={STATS.help} target="_blank" rel="noopener noreferrer">
+              {`(${intl.formatMessage(intlMessages.more)})`}
+            </a>
           </div>
           <div className={styles.content}>
             <div className={styles.wrapper}>

@@ -533,6 +533,7 @@
     "app.connection-status.title": "Connection status",
     "app.connection-status.description": "View users' connection status",
     "app.connection-status.empty": "There isn't any connectivity issue reported up to now",
+    "app.connection-status.more": "more",
     "app.recording.startTitle": "Start recording",
     "app.recording.stopTitle": "Pause recording",
     "app.recording.resumeTitle": "Resume recording",
