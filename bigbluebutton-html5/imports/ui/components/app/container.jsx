@@ -11,6 +11,7 @@ import CaptionsService from '/imports/ui/components/captions/service';
 import getFromUserSettings from '/imports/ui/services/users-settings';
 import deviceInfo from '/imports/utils/deviceInfo';
 import UserInfos from '/imports/api/users-infos';
+import Presentations from '/imports/api/presentations';
 import MediaService, { getSwapLayout, shouldEnableSwapLayout } from '../media/service';
 import { startBandwidthMonitoring, updateNavigatorConnection } from '/imports/ui/services/network-information/index';
 
@@ -21,6 +22,8 @@ import {
 } from './service';
 
 import { withModalMounter } from '../modal/service';
+import AudioManager from '/imports/ui/services/audio-manager';
+import AudioModalContainer from '/imports/ui/components/audio/audio-modal/container';
 
 import App from './component';
 import NavBarContainer from '../nav-bar/container';
@@ -77,7 +80,7 @@ const currentUserEmoji = currentUser => (currentUser ? {
   changedAt: null,
 });
 
-export default injectIntl(withModalMounter(withTracker(({ intl, baseControls }) => {
+export default injectIntl(withModalMounter(withTracker(({ intl, baseControls, mountModal }) => {
   const currentUser = Users.findOne({ userId: Auth.userID }, { fields: { approved: 1, emoji: 1 } });
   const currentMeeting = Meetings.findOne({ meetingId: Auth.meetingID },
     { fields: { publishedPoll: 1, voiceProp: 1 } });
@@ -115,6 +118,8 @@ export default injectIntl(withModalMounter(withTracker(({ intl, baseControls }) 
     UserInfo,
     notify,
     validIOSVersion,
+    inAudio: AudioManager.isConnected && !AudioManager.isEchoTest,
+    handleJoinAudio: () => (AudioManager.isConnected ? AudioManager.joinListenOnly() : mountModal(<AudioModalContainer />)),
     isPhone: deviceInfo.type().isPhone,
     isRTL: document.documentElement.getAttribute('dir') === 'rtl',
     meetingMuted: voiceProp.muteOnStart,
@@ -122,6 +127,8 @@ export default injectIntl(withModalMounter(withTracker(({ intl, baseControls }) 
     currentUserEmoji: currentUserEmoji(currentUser),
     hasPublishedPoll: publishedPoll,
     startBandwidthMonitoring,
+    isThereCurrentPresentation: Presentations.findOne({ meetingId: Auth.meetingID, current: true },
+      { fields: {} }),
     handleNetworkConnection: () => updateNavigatorConnection(navigator.connection),
   };
 })(AppContainer)));

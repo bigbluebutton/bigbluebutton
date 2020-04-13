@@ -71,10 +71,6 @@
       outline: none;
     }
 
-    margin: 0 var(--whiteboard-toolbar-margin) 0 0;
-    padding: var(--whiteboard-toolbar-padding);
-    padding-left: var(--whiteboard-toolbar-padding-sm);
-
     [dir="rtl"] & {
       margin: 0 0 0 var(--whiteboard-toolbar-margin);
       padding: var(--whiteboard-toolbar-padding);

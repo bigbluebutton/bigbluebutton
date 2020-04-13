@@ -76,7 +76,7 @@ class ActionsBar extends PureComponent {
               <AudioControlsContainer />
           </div>
           <div>
-            {enableVideo
+            {enableVideo && amIPresenter
               ? (
                 <JoinVideoOptionsContainer
                   handleJoinVideo={handleJoinVideo}
@@ -111,6 +111,7 @@ class ActionsBar extends PureComponent {
             }}
             />
         </div>
+        {toggleChatLayout ? null :
           <div className={styles.liveActions}>
             <div className={!toggleChatLayout ? styles.dummy1 : styles.dummy2}>
               <img src="https://miro.medium.com/max/560/1*MccriYX-ciBniUzRKAUsAw.png" alt="" />
@@ -124,6 +125,7 @@ class ActionsBar extends PureComponent {
               <TalkingIndicatorContainer amIModerator={amIModerator} />
             </div>
           </div>
+        }
           <div className={styles.audioButton}>
             <Button
               className={cx(styles.button, inAudio, endCall ? styles.endingCall : null)}
