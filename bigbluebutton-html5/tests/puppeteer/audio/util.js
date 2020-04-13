@@ -1,41 +1,36 @@
-const pe = require('../core/elements');
-const ule = require('../user/elements');
+const ae = require('./elements');
 
-async function checkUserAvatarIfHighlighting(test) {
-  await test.waitForSelector(ule.statusIcon);
-  await test.waitForSelector('[class^="talking--"]');
-  const response = await test.page.evaluate(async () => await document.querySelectorAll('[data-test="userAvatar"]')[1].querySelectorAll('[class^="talking--"]') !== null);
-  return response;
+async function joinAudio(test) {
+  await test.waitForSelector(ae.joinAudio);
+  await test.page.evaluate(clickTestElement, ae.joinAudio);
+  await test.waitForSelector(ae.listen);
+  await test.page.evaluate(clickTestElement, ae.listen);
+  await test.waitForSelector(ae.connectingStatus);
+  await test.elementRemoved(ae.connectingStatus);
+  await test.waitForSelector(ae.leaveAudio);
+  const resp = await test.page.evaluate(getTestElement, ae.leaveAudio);
+  return resp;
 }
 
-async function checkUserIsTalkingIndicator(test) {
-  const response = await test.page.evaluate(getTestElement, pe.isTalking) !== null;
-  return response;
-}
-
-async function checkUserWasTalkingIndicator(test) {
-  const response = await test.page.evaluate(getTestElement, pe.wasTalking) !== null;
-  return response;
-}
-
-async function getTestElement(element) {
-  await document.querySelectorAll(element)[1];
+async function joinMicrophone(test) {
+  await test.waitForSelector(ae.joinAudio);
+  await test.page.evaluate(clickTestElement, ae.joinAudio);
+  await test.waitForSelector(ae.microphone);
+  await test.page.evaluate(clickTestElement, ae.microphone);
+  await test.waitForSelector(ae.connectingStatus);
+  await test.elementRemoved(ae.connectingStatus);
+  await test.waitForSelector(ae.audioAudible);
+  const resp = await test.page.evaluate(getTestElement, ae.audioAudible);
+  return resp;
 }
 
 async function clickTestElement(element) {
-  await document.querySelectorAll(element)[0].click();
+  document.querySelectorAll(element)[0].click();
 }
 
-async function mute(test) {
-  await test.page.evaluate(async () => {
-    await document.querySelectorAll('[data-test="userListItem"]')[0].click();
-    await document.querySelectorAll('[data-test="mute"]')[0].click();
-  });
+async function getTestElement(element) {
+  return document.querySelectorAll(element).length >= 1 === true;
 }
 
-exports.mute = mute;
-exports.clickTestElement = clickTestElement;
-exports.getTestElement = getTestElement;
-exports.checkUserAvatarIfHighlighting = checkUserAvatarIfHighlighting;
-exports.checkUserIsTalkingIndicator = checkUserIsTalkingIndicator;
-exports.checkUserWasTalkingIndicator = checkUserWasTalkingIndicator;
+exports.joinAudio = joinAudio;
+exports.joinMicrophone = joinMicrophone;
