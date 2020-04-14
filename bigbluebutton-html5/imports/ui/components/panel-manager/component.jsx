@@ -208,16 +208,16 @@ class PanelManager extends PureComponent {
       >
         {this.renderChat()}
       </Resizable>
-       <div className={styles.slide}>
-       <Button
-             onClick={()=>{(chatWidth!==CHAT_MAX_WIDTH)?this.setState({chatWidth:CHAT_MAX_WIDTH}):this.setState({chatWidth:CHAT_MIN_WIDTH})}}
-             size="sm"
-             icon={(chatWidth!==CHAT_MAX_WIDTH)?"right_arrow":"left_arrow"}
-             className={styles.hide}
-             color="white"
-           />
-       </div>
-       </div>
+      <div className={styles.slide}>
+        <Button
+          onClick={() => { (chatWidth !== CHAT_MAX_WIDTH) ? this.setState({ chatWidth: CHAT_MAX_WIDTH }) : this.setState({ chatWidth: CHAT_MIN_WIDTH }); }}
+          size="sm"
+          icon={(chatWidth !== CHAT_MAX_WIDTH) ? 'right_arrow' : 'left_arrow'}
+          className={styles.hide}
+          color="white"
+        />
+      </div>
+    </div>
     );
   }
 
@@ -456,13 +456,13 @@ class PanelManager extends PureComponent {
       }
     }
 
-    if (openPanel === 'breakoutroom') {
-      if (enableResize) {
-        panels.push(this.renderBreakoutRoom());
-      } else {
-        panels.push(this.renderBreakoutRoom());
-      }
-    }
+    // if (openPanel === 'breakoutroom') {
+    //   if (enableResize) {
+    //     panels.push(this.renderBreakoutRoom());
+    //   } else {
+    //     panels.push(this.renderBreakoutRoom());
+    //   }
+    // }
 
     if (openPanel === 'waitingUsersPanel') {
       if (enableResize) {

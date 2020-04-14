@@ -9,7 +9,7 @@ import PollingContainer from '/imports/ui/components/polling/container';
 import logger from '/imports/startup/client/logger';
 import ActivityCheckContainer from '/imports/ui/components/activity-check/container';
 import UserInfoContainer from '/imports/ui/components/user-info/container';
-import BreakoutRoomInvitation from '/imports/ui/components/breakout-room/invitation/container';
+import BreakoutRoomInvitation from '/imports/ui/components/channels/invitation/container';
 import ToastContainer from '../toast/container';
 import ModalContainer from '../modal/container';
 import NotificationsBarContainer from '../notifications-bar/container';
@@ -34,7 +34,7 @@ const chat_max_width = 78;
 // Variables for resizing chat.
 const CHAT_MIN_WIDTH = ((screen.width) * chat_min_width) / 100;
 //const CHAT_MAX_WIDTH = DEFAULT_PANEL_WIDTH;
-const CHAT_MAX_WIDTH =((screen.width) * chat_max_width) / 100;
+const CHAT_MAX_WIDTH = ((screen.width) * chat_max_width) / 100;
 
 
 const MOBILE_MEDIA = 'only screen and (max-width: 40em)';
@@ -394,30 +394,30 @@ class App extends Component {
 
     return (
     <div className={styles.chatWrapper}>
-      <Resizable
-         minWidth={CHAT_MIN_WIDTH}
-         maxWidth={CHAT_MAX_WIDTH}
+        <Resizable
+          minWidth={CHAT_MIN_WIDTH}
+          maxWidth={CHAT_MAX_WIDTH}
          enable={resizableEnableOptions}
-        size={{ width: chatWidth }}
-        onResize={dispatchResizeEvent}
-        className={styles.chatChannel}
-      >
-        {this.renderChat()}
-      </Resizable>
-      <div className={styles.slide}>
-        <Button
-          hideLabel
+          size={{ width: chatWidth }}
+          onResize={dispatchResizeEvent}
+          className={styles.chatChannel}
+        >
+          {this.renderChat()}
+        </Resizable>
+        <div className={styles.slide}>
+          <Button
+            hideLabel
           onClick={() => this.toggleChatPanel()}
           size="md"
-          icon={(chatWidth!==CHAT_MAX_WIDTH) ? "right_arrow" : "left_arrow"}
-          className={styles.hide}
-          color="default"
-          label="toggle"
-        />
+            icon={(chatWidth !== CHAT_MAX_WIDTH) ? 'right_arrow' : 'left_arrow'}
+            className={styles.hide}
+            color="default"
+            label="toggle"
+          />
+        </div>
       </div>
-    </div> 
-  );
-}
+    );
+  }
 
   render() {
     const {
@@ -457,7 +457,7 @@ class App extends Component {
                 </div>
               }
               </div>
-              {(openPanel === 'chat') ? (
+              {(openPanel !== '') ? (
                 (enableResize) ? this.renderChatResizable() : this.renderChat()
               ) : null}
             </div>

@@ -41,6 +41,6 @@ export default withTracker(({ podId }) => {
     toggleSwapLayout: MediaService.toggleSwapLayout,
     isThereCurrentPresentation: Presentations.findOne({ meetingId: Auth.meetingID, current: true },
       { fields: {} }),
-  isLayoutSwapped: getSwapLayout() && shouldEnableSwapLayout(),
+    isLayoutSwapped: getSwapLayout() && shouldEnableSwapLayout(),
   };
 })(PresentationAreaContainer);

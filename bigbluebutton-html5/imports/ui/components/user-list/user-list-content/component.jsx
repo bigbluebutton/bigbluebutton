@@ -7,7 +7,8 @@ import UserNotesContainer from './user-notes/container';
 import UserCaptionsContainer from './user-captions/container';
 import WaitingUsers from './waiting-users/component';
 import UserPolls from './user-polls/component';
-import BreakoutRoomItem from './breakout-room/component';
+import ChannelsContainer from '/imports/ui/components/channels/container';
+import Auth from '/imports/ui/services/auth';
 
 const propTypes = {
   activeChats: PropTypes.arrayOf(String).isRequired,
@@ -27,7 +28,7 @@ const propTypes = {
 const defaultProps = {
   compact: false,
 };
-//const CHAT_ENABLED = Meteor.settings.public.chat.enabled;
+const CHAT_ENABLED = Meteor.settings.public.chat.enabled;
 const ROLE_MODERATOR = Meteor.settings.public.user.role_moderator;
 
 class UserContent extends PureComponent {
@@ -44,6 +45,7 @@ class UserContent extends PureComponent {
       forcePollOpen,
       hasBreakoutRoom,
       pendingUsers,
+      meetingIsBreakout,
       requestUserInformation,
     } = this.props;
 
@@ -53,51 +55,7 @@ class UserContent extends PureComponent {
         className={styles.content}
         role="complementary"
       >
-        {/* {CHAT_ENABLED
-          ? (<UserMessages
-            {...{
-              isPublicChat,
-              activeChats,
-              compact,
-              intl,
-              roving,
-            }}
-          />
-          ) : null
-        } */}
-        {currentUser.role === ROLE_MODERATOR
-          ? (
-            <UserCaptionsContainer
-              {...{
-                intl,
-              }}
-            />
-          ) : null
-        }
-        <UserNotesContainer
-          {...{
-            intl,
-          }}
-        />
-        {pendingUsers.length > 0 && currentUser.role === ROLE_MODERATOR
-          ? (
-            <WaitingUsers
-              {...{
-                intl,
-                pendingUsers,
-              }}
-            />
-          ) : null
-        }
-        <UserPolls
-          isPresenter={currentUser.presenter}
-          {...{
-            pollIsOpen,
-            forcePollOpen,
-          }}
-        />
-        <BreakoutRoomItem isPresenter={currentUser.presenter} hasBreakoutRoom={hasBreakoutRoom} />
-        <UserParticipantsContainer
+        <ChannelsContainer
           {...{
             compact,
             intl,
