@@ -123,7 +123,7 @@ export default injectIntl(withModalMounter(withTracker(({ intl, baseControls, mo
     isPhone: deviceInfo.type().isPhone,
     isRTL: document.documentElement.getAttribute('dir') === 'rtl',
     meetingMuted: voiceProp.muteOnStart,
-    swapLayout : (getSwapLayout() || !hasPresentation) && shouldEnableSwapLayout(),
+    swapLayout: (getSwapLayout() || !hasPresentation) && shouldEnableSwapLayout(),
     currentUserEmoji: currentUserEmoji(currentUser),
     hasPublishedPoll: publishedPoll,
     startBandwidthMonitoring,
