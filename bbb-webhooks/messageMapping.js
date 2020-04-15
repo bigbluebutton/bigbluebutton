@@ -257,7 +257,8 @@ module.exports = class MessageMapping {
             "timezone-offset": message.fromTimezoneOffset,
             "time": message.fromTime || message.timestamp
           }
-        }
+        },
+        "chat-id": messageObj.core.body.chatId 
       },
       "event":{
         "ts": Date.now()
