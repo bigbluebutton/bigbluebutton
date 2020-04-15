@@ -310,7 +310,7 @@ class PresentationArea extends PureComponent {
       fitToWidth,
     } = this.state;
 
-    if (!userIsPresenter && !multiUser) {
+    if (!userIsPresenter) {
       return null;
     }
 
@@ -598,6 +598,7 @@ class PresentationArea extends PureComponent {
     const toolbarHeight = this.getToolbarHeight();
     const toolbarWidth = isFullscreen ? '60%' : (svgWidth < 310 ? '310px' : svgWidth)
 
+    
     return (
     (!isLayoutSwapped) ? (
       <div className={styles.presentationPanel}>

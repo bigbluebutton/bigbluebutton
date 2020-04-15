@@ -375,10 +375,11 @@ class App extends Component {
   }
 
   renderChatResizable() {
-    const { isThereCurrentPresentation, isRTL } = this.props;
+    const { isThereCurrentPresentation, isVideoBroadcasting, isRTL, inAudio } = this.props;
     const { chatWidth } = this.state;
 
-    if(isThereCurrentPresentation && chatWidth == CHAT_MAX_WIDTH) {
+    if(!inAudio) {}
+    else if((isThereCurrentPresentation || isVideoBroadcasting) && chatWidth == CHAT_MAX_WIDTH) {
       this.toggleChatPanel();
     }
 
@@ -408,8 +409,8 @@ class App extends Component {
         <div className={styles.slide}>
           <Button
             hideLabel
-          onClick={() => this.toggleChatPanel()}
-          size="md"
+            onClick={() => this.toggleChatPanel()}
+            size="md"
             icon={(chatWidth !== CHAT_MAX_WIDTH) ? 'right_arrow' : 'left_arrow'}
             className={styles.hide}
             color="default"

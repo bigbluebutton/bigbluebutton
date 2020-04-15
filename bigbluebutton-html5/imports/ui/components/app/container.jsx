@@ -14,6 +14,7 @@ import UserInfos from '/imports/api/users-infos';
 import Presentations from '/imports/api/presentations';
 import MediaService, { getSwapLayout, shouldEnableSwapLayout } from '../media/service';
 import { startBandwidthMonitoring, updateNavigatorConnection } from '/imports/ui/services/network-information/index';
+import ScreenshareService from '/imports/ui/components/screenshare/service';
 
 import {
   getFontSize,
@@ -118,6 +119,10 @@ export default injectIntl(withModalMounter(withTracker(({ intl, baseControls, mo
     UserInfo,
     notify,
     validIOSVersion,
+    amIPresenter: () => Users.findOne({ userId: Auth.userID },
+      { fields: { presenter: 1 } }).presenter,
+    amIModerator: () => Users.findOne({ userId: Auth.userID },
+      { fields: { role: 1 } }).role === ROLE_MODERATOR,
     inAudio: AudioManager.isConnected && !AudioManager.isEchoTest,
     handleJoinAudio: () => (AudioManager.isConnected ? AudioManager.joinListenOnly() : mountModal(<AudioModalContainer />)),
     isPhone: deviceInfo.type().isPhone,
@@ -127,6 +132,7 @@ export default injectIntl(withModalMounter(withTracker(({ intl, baseControls, mo
     currentUserEmoji: currentUserEmoji(currentUser),
     hasPublishedPoll: publishedPoll,
     startBandwidthMonitoring,
+    isVideoBroadcasting: ScreenshareService.isVideoBroadcasting(),
     isThereCurrentPresentation: Presentations.findOne({ meetingId: Auth.meetingID, current: true },
       { fields: {} }),
     handleNetworkConnection: () => updateNavigatorConnection(navigator.connection),
