@@ -4,6 +4,7 @@ const fs = require('fs');
 const helper = require('./helper');
 const params = require('../params');
 const e = require('./elements');
+const path = require('path');
 
 class Page {
   constructor(name) {
@@ -94,7 +95,7 @@ class Page {
         '--no-sandbox',
         '--use-fake-ui-for-media-stream',
         '--use-fake-device-for-media-stream',
-        `--use-file-for-fake-audio-capture=${process.env.AUDIO_FILE}`,
+        `--use-file-for-fake-audio-capture=${path.join(__dirname,'../media/audio.wav')}`,
         '--allow-file-access',
       ],
     };
@@ -107,7 +108,7 @@ class Page {
         '--no-sandbox',
         '--use-fake-ui-for-media-stream',
         '--use-fake-device-for-media-stream',
-        `--use-file-for-fake-video-capture=${process.env.VIDEO_FILE}`,
+        `--use-file-for-fake-video-capture=${path.join(__dirname,'../media/video_rgb.y4m')}`,
         '--allow-file-access',
       ],
     };
