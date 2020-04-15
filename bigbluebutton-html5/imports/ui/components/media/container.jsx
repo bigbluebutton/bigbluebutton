@@ -49,19 +49,22 @@ const intlMessages = defineMessages({
 });
 
 class MediaContainer extends Component {
-  componentWillMount() {
+  componentDidMount() {
     document.addEventListener('installChromeExtension', this.installChromeExtension.bind(this));
     document.addEventListener('safariScreenshareNotSupported', this.safariScreenshareNotSupported.bind(this));
   }
 
-  componentWillReceiveProps(nextProps) {
+  componentDidUpdate(prevProps) {
     const {
       isScreensharing,
       intl,
     } = this.props;
+    const {
+      isScreensharing: wasScreenSharing,
+    } = prevProps;
 
-    if (isScreensharing !== nextProps.isScreensharing) {
-      if (nextProps.isScreensharing) {
+    if (isScreensharing !== wasScreenSharing) {
+      if (isScreensharing) {
         notify(intl.formatMessage(intlMessages.screenshareStarted), 'info', 'desktop');
       } else {
         notify(intl.formatMessage(intlMessages.screenshareEnded), 'info', 'desktop');
