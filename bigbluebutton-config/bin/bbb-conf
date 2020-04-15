@@ -386,6 +386,9 @@ start_bigbluebutton () {
         BBB_RED5="red5"
     fi
 
+    if [ -d $TOMCAT_DIR ]; then
+      TOMCAT_SERVICE=$TOMCAT_USER
+    fi
 
     systemctl start $BBB_RED5 $TOMCAT_SERVICE nginx freeswitch $REDIS_SERVICE bbb-apps-akka $BBB_TRANSCODE_AKKA bbb-fsesl-akka bbb-rap-resque-worker bbb-rap-starter.service bbb-rap-caption-inbox.service $HTML5 $WEBHOOKS $ETHERPAD $BBB_WEB $BBB_LTI
 
