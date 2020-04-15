@@ -165,7 +165,7 @@
     "app.presentationUploder.dropzoneImagesLabel": "Bilder hier hinziehen, um sie hochzuladen",
     "app.presentationUploder.browseFilesLabel": "oder nach Dateien suchen",
     "app.presentationUploder.browseImagesLabel": "oder nach Bildern suchen/aufnehmen",
-    "app.presentationUploder.fileToUpload": "Wird hochgeladen...",
+    "app.presentationUploder.fileToUpload": "Bereit zum Hochladen...",
     "app.presentationUploder.currentBadge": "Aktuell",
     "app.presentationUploder.rejectedError": "Die ausgewählten Dateien wurden zurückgewiesen. Bitte prüfen Sie die zulässigen Dateitypen.",
     "app.presentationUploder.upload.progress": "Hochladen ({0}%)",
