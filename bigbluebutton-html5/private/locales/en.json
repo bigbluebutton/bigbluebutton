@@ -510,6 +510,7 @@
     "app.shortcut-help.togglePan": "Activate Pan tool (Presenter)",
     "app.shortcut-help.nextSlideDesc": "Next slide (Presenter)",
     "app.shortcut-help.previousSlideDesc": "Previous slide (Presenter)",
+    "app.shortcut-help.pushToTalkDesc": "Hold for Push-to-talk",
     "app.lock-viewers.title": "Lock viewers",
     "app.lock-viewers.description": "These options enable you to restrict viewers from using specific features.",
     "app.lock-viewers.featuresLable": "Feature",

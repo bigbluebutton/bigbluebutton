@@ -510,6 +510,7 @@
     "app.shortcut-help.togglePan": "Aktiviere Verschiebewerkzeug (Präsentator)",
     "app.shortcut-help.nextSlideDesc": "Nächste Folie (Präsentator)",
     "app.shortcut-help.previousSlideDesc": "Vorherige Folie (Präsentator)",
+    "app.shortcut-help.pushToTalkDesc": "Gedrückt halten für Push-to-Talk",
     "app.lock-viewers.title": "Zuschauerrechte einschränken",
     "app.lock-viewers.description": "Diese Optionen ermöglichen es, bestimmte Funktionen für Zuschauer einzuschränken.",
     "app.lock-viewers.featuresLable": "Funktion",

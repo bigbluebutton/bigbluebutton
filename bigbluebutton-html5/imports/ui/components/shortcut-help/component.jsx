@@ -84,6 +84,10 @@ const intlMessages = defineMessages({
     id: 'app.shortcut-help.previousSlideDesc',
     description: 'describes the previous slide shortcut',
   },
+  pushToTalkDesc: {
+    id: 'app.shortcut-help.pushToTalkDesc',
+    description: 'describes the Push-to-talk shortcut',
+  },
 });
 
 const CHAT_CONFIG = Meteor.settings.public.chat;
@@ -141,6 +145,13 @@ const ShortcutHelpComponent = (props) => {
     <tr key={_.uniqueId('hotkey-item-')}>
       <td className={styles.keyCell}>Left Arrow</td>
       <td className={styles.descCell}>{intl.formatMessage(intlMessages.previousSlideDesc)}</td>
+    </tr>
+  ));
+
+  shortcutItems.push((
+    <tr key={_.uniqueId('hotkey-item-')}>
+      <td className={styles.keyCell}>T</td>
+      <td className={styles.descCell}>{intl.formatMessage(intlMessages.pushToTalkDesc)}</td>
     </tr>
   ));
 
