@@ -31,7 +31,7 @@ import ActionsBarContainer from '../actions-bar/container';
 
 
 const chat_min_width = 59;
-const chat_max_width = 78;
+const chat_max_width = 79;
 // Variables for resizing chat.
 const CHAT_MIN_WIDTH = ((screen.width) * chat_min_width) / 100;
 // const CHAT_MAX_WIDTH = DEFAULT_PANEL_WIDTH;
@@ -129,6 +129,7 @@ class App extends Component {
 
     this.handleWindowResize = throttle(this.handleWindowResize).bind(this);
     this.shouldAriaHide = this.shouldAriaHide.bind(this);
+    this.toggleChatPanel = this.toggleChatPanel.bind(this);
   }
 
 
@@ -346,10 +347,10 @@ class App extends Component {
   }
 
   toggleChatPanel() {
-    const { isThereCurrentPresentation } = this.props;
+    const { isThereCurrentPresentation, inAudio } = this.props;
     const { chatWidth } = this.state;
     if (chatWidth == CHAT_MIN_WIDTH) {
-      if (!isThereCurrentPresentation ){
+      if (!isThereCurrentPresentation || (isThereCurrentPresentation && !inAudio) ){
         this.setState({
           chatWidth:CHAT_MAX_WIDTH,
           toggleChatLayout:true
@@ -410,7 +411,7 @@ class App extends Component {
           <Button
             hideLabel
             onClick={() => this.toggleChatPanel()}
-            size="md"
+            size="sm"
             icon={(chatWidth !== CHAT_MAX_WIDTH) ? 'right_arrow' : 'left_arrow'}
             className={styles.hide}
             color="default"
