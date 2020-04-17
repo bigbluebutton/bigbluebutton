@@ -84,7 +84,6 @@
   @include mq($medium-up) {
     flex: 1;
     max-height: 85%;
-    right: 1.5%;
   }
 }
 
@@ -105,7 +104,6 @@
   
   @include mq($medium-up) {
     flex: 100%;
-    right: 1.5%;
   }
 }
 
