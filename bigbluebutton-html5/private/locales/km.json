@@ -111,7 +111,6 @@
     "app.media.autoplayAlertDesc": "អនុញ្ញាតឲ្យប្រើ",
     "app.media.screenshare.start": "ការចែករំលែកអេក្រង់បានចាប់ផ្តើម",
     "app.media.screenshare.end": "ការចែករំលែកអេក្រង់បានបញ្ចប់",
-    "app.media.screenshare.safariNotSupported": "មុខងារចែករំលែកអេក្រង់មិនទាន់ប្រើបានលើ Safari ទេ។ សូមប្រើ​ Firefox ឬ Google Chrome។",
     "app.media.screenshare.autoplayBlockedDesc": "យើងត្រូវការការអនុញ្ញាតរបស់អ្នកដើម្បីអាចបង្ហាញអ្នកនូវអេក្រង់របស់អ្នកធ្វើបទបង្ហាញ។",
     "app.media.screenshare.autoplayAllowLabel": "មើលអេក្រង់ដែលបានចែករំលែក",
     "app.screenshare.notAllowed": "កំហុស៖ មិនទទួលបានការអនុញ្ញាតសម្រាប់ចូលទៅកាន់អេក្រង់។",

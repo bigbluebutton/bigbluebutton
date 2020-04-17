@@ -111,7 +111,6 @@
     "app.media.autoplayAlertDesc": "Permite accesul",
     "app.media.screenshare.start": "Procesul de partajare ecran a pornit",
     "app.media.screenshare.end": "Procesul de partajare ecran s-a terminat",
-    "app.media.screenshare.safariNotSupported": "Procesul de partajare ecran nu este suportat de Safari. Va rog sa folositi Firefox sau Google Chrome.",
     "app.media.screenshare.autoplayBlockedDesc": "Avem nevoie de permisiunea ta sa-ti aratam ecranul prezentatorului",
     "app.media.screenshare.autoplayAllowLabel": "Vizualizare ecran partajat",
     "app.screenshare.notAllowed": "Eroare: Permisiunea de accesare a ecranului nu a fost acordata",

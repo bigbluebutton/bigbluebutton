@@ -111,7 +111,6 @@
     "app.media.autoplayAlertDesc": "אפשר גישה",
     "app.media.screenshare.start": "שיתוף מסך החל",
     "app.media.screenshare.end": "שיתוף מסך הסתיים",
-    "app.media.screenshare.safariNotSupported": "Screenshare is currently not supported by Safari. Please, use Firefox or Google Chrome.",
     "app.media.screenshare.autoplayBlockedDesc": "נדרש אישור להצגת מסך המנחה.",
     "app.media.screenshare.autoplayAllowLabel": "צפה בשיתוף מסך",
     "app.screenshare.notAllowed": "Error: Permission to access screen wasn't granted.",

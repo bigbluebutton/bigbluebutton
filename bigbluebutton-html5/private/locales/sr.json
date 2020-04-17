@@ -111,7 +111,6 @@
     "app.media.autoplayAlertDesc": "Dozvolite pristup",
     "app.media.screenshare.start": "Deljenje ekrana je započeto",
     "app.media.screenshare.end": "Deljenje ekrana je završeno",
-    "app.media.screenshare.safariNotSupported": "Pretraživač Safari trenutno ne podržava deljenje ekrana. Molimo vas da koristite Firefox ili Google Chrome.",
     "app.media.screenshare.autoplayBlockedDesc": "Da bismo vam prikazali ekran predavača, treba nam vaše odobrenje.",
     "app.media.screenshare.autoplayAllowLabel": "Pogledajte deljeni ekran",
     "app.screenshare.notAllowed": "Greška: Nije dato odobrenje za pristup ekranu.",

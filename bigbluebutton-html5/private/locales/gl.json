@@ -111,7 +111,6 @@
     "app.media.autoplayAlertDesc": "Permitir acceso",
     "app.media.screenshare.start": "Compartir pantalla iniciou",
     "app.media.screenshare.end": "Compartir pantalla finalizou",
-    "app.media.screenshare.safariNotSupported": "Compartir pantalla actualmente non é soportada por Safari. Por favor usilize Firefox ou Google Chrome.",
     "app.media.screenshare.autoplayBlockedDesc": "Necesitamos o seu permiso para mostrarlle a pantalla do presentador",
     "app.media.screenshare.autoplayAllowLabel": "Ver pantalla compartida",
     "app.meeting.ended": "A sesión finalizou",

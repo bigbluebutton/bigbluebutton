@@ -3,5 +3,5 @@ npm-debug.log
 node_modules/
 .meteor/dev_bundle
 tests/webdriverio/.testing-env
-private/locales/ka.json 
+
 

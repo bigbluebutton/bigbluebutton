@@ -96,7 +96,6 @@
     "app.media.label": "Media",
     "app.media.screenshare.start": "Ruudunjako aloitettu",
     "app.media.screenshare.end": "Ruudunjako lopetettu",
-    "app.media.screenshare.safariNotSupported": "Safari-selain ei tue ruudunjakoa, ole hyvä ja käytä Firefox tai Google Chrome selainta.",
     "app.meeting.ended": "Istunto päättyi",
     "app.meeting.meetingTimeRemaining": "Aikaa jäljellä tapaamisessa: {0}",
     "app.meeting.meetingTimeHasEnded": "Aika päättyi, tapaaminen suljetaan pian",

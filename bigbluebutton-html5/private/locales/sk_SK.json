@@ -111,7 +111,6 @@
     "app.media.autoplayAlertDesc": "Povoliť prístup",
     "app.media.screenshare.start": "Zdieľanie obrazovky bolo spustené",
     "app.media.screenshare.end": "Zdieľanie obrazovky bolo ukončené",
-    "app.media.screenshare.safariNotSupported": "Zdieľanie obrazovky v prehliadači Safari nie je podporované, použite prosím Firefox alebo Google Chrome.",
     "app.media.screenshare.autoplayBlockedDesc": "Potrebujeme od Vás povolenie pre zobrazenie obrazovky prednášajúceho.",
     "app.media.screenshare.autoplayAllowLabel": "Zobraziť zdieľanú obrazovku",
     "app.screenshare.notAllowed": "Chyba: Právo na zdieľanie obrazovky nebolo povolené.",

@@ -111,7 +111,6 @@
     "app.media.autoplayAlertDesc": "Разрешить доступ",
     "app.media.screenshare.start": "Демонстрация экрана началась",
     "app.media.screenshare.end": "Демонстрация экрана закончилась",
-    "app.media.screenshare.safariNotSupported": "Демонстрация экрана на данный момент не поддерживается Safari. Пожалуйста, используйте Firefox или Google Chrome.",
     "app.media.screenshare.autoplayBlockedDesc": "Нам требуется ваше разрешение, чтобы показать вам экран ведущего.",
     "app.media.screenshare.autoplayAllowLabel": "Показать демонстрируемый экран",
     "app.screenshare.notAllowed": "Ошибка:разрешение на доступ к экрану не было предоставлено",
