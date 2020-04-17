@@ -111,7 +111,6 @@
     "app.media.autoplayAlertDesc": "접속 허가",
     "app.media.screenshare.start": "스크린 공유 시작",
     "app.media.screenshare.end": "스크린공유 종료 ",
-    "app.media.screenshare.safariNotSupported": "스크린 공유는 사파리 브라우저에서 불가능합니다. 파이어폭스나 크롬을 사용하세요 ",
     "app.media.screenshare.autoplayBlockedDesc": "발표자의 스크린을 보여주기 위해 당신의 허가가 필요합니다 ",
     "app.media.screenshare.autoplayAllowLabel": "공유스크린 보기",
     "app.screenshare.notAllowed": "에러: 스크린에 접근하기 위한 권한이 아직 없습니다 ",

@@ -111,7 +111,6 @@
     "app.media.autoplayAlertDesc": "Tillad adgang",
     "app.media.screenshare.start": "Skærmdelingen er startet",
     "app.media.screenshare.end": "Skærmdelingen er sluttet",
-    "app.media.screenshare.safariNotSupported": "Skærmdelingen understøttes i øjeblikket ikke af Safari. Brug venligst Firefox eller Google Chrome.",
     "app.media.screenshare.autoplayBlockedDesc": "Vi har brug for din tilladelse til at vise programlederens skærm.",
     "app.media.screenshare.autoplayAllowLabel": "Se delt skærm",
     "app.screenshare.notAllowed": "Fejl: Tilladelse til adgangskærmbilledet blev ikke givet.",

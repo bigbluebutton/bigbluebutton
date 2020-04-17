@@ -111,7 +111,6 @@
     "app.media.autoplayAlertDesc": "Дозволити доступ",
     "app.media.screenshare.start": "Демонстрація екрану розпочалася",
     "app.media.screenshare.end": "Демонстрацію екрану закінчено",
-    "app.media.screenshare.safariNotSupported": "Демонстрація екрану наразі не підтримується Safari. Будь ласка, використовуйте Firefox або Google Chrome.",
     "app.media.screenshare.autoplayBlockedDesc": "Нам потрібен Ваш дозвіл, щоб показати Вам екран ведучого.",
     "app.media.screenshare.autoplayAllowLabel": "Показати екран, який демонструється",
     "app.screenshare.notAllowed": "Помилка: Дозвіл на доступ до екрану не було надано.",

@@ -111,7 +111,6 @@
     "app.media.autoplayAlertDesc": "อนุญาตการเข้าถึง",
     "app.media.screenshare.start": "ได้เริ่มการแชร์หน้าจอแล้ว",
     "app.media.screenshare.end": "สิ้นสุดการแชร์หน้าจอแล้ว",
-    "app.media.screenshare.safariNotSupported": "ขณะนี้ Safari ไม่รองรับการแชร์หน้าจอ กรุณาใช้ Firefox หรือ Google Chrome",
     "app.media.screenshare.autoplayBlockedDesc": "เราต้องการการอนุญาตของคุณเพื่อแสดงหน้าจอของผู้นำเสนอ",
     "app.media.screenshare.autoplayAllowLabel": "ดูหน้าจอที่แชร์",
     "app.screenshare.notAllowed": "ข้อผิดพลาด: ไม่อนุญาตการเข้าถึงหน้าจอ",

@@ -111,7 +111,6 @@
     "app.media.autoplayAlertDesc": "دادن اجازه دسترسی",
     "app.media.screenshare.start": "اشتراک صفحه نمایش شروع شد",
     "app.media.screenshare.end": "اشتراک صفحه نمایش به پایان رسید.",
-    "app.media.screenshare.safariNotSupported": "در حال حاضر اشتراک صفحه نمایش در مرورگر سافاری پشتیبانی نمیشود، لطفا از کروم یا فایرفاکس استفاده کنید.",
     "app.media.screenshare.autoplayBlockedDesc": "ما به مجوز شما برای نشان دادن شما به ارائه دهندگان نیاز داریم",
     "app.media.screenshare.autoplayAllowLabel": "مشاهده صفحه اشتراکی",
     "app.screenshare.notAllowed": "خطا : دسترسی برای نمایش صفحه ، ایجاد نشد",
