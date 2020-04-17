@@ -193,19 +193,12 @@ class ActionsDropdown extends PureComponent {
       amIModerator,
       shortcuts: OPEN_ACTIONS_AK,
       isMeteorConnected,
+      handleTakePresenter,
     } = this.props;
-
-    const availableActions = this.getAvailableActions();
-
-    if ((!amIPresenter && !amIModerator)
-      || availableActions.length === 0
-      || !isMeteorConnected) {
-      return null;
-    }
 
     return (
 
-      (amIPresenter
+      (amIModerator
         ? (
           <Button
             hideLabel
@@ -214,11 +207,26 @@ class ActionsDropdown extends PureComponent {
             icon="presentation"
             size="lg"
             circle
-            label={intl.formatMessage(intlMessages.presentationLabel)}
-            onClick={this.handlePresentationClick}
+            label={amIPresenter ?
+              intl.formatMessage(intlMessages.presentationLabel)
+              : intl.formatMessage(intlMessages.takePresenter)}
+            onClick={amIPresenter ? this.handlePresentationClick : handleTakePresenter}
           />
         )
-        : null)
+        : ( amIPresenter ?
+            <Button
+              hideLabel
+              className={styles.button}
+              data-test="uploadPresentation"
+              icon="presentation"
+              size="lg"
+              circle
+              label={intl.formatMessage(intlMessages.presentationLabel)}
+              onClick={this.handlePresentationClick}
+            />
+          : null
+        )
+      )
     );
   }
 }

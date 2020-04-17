@@ -310,7 +310,7 @@ class PresentationArea extends PureComponent {
       fitToWidth,
     } = this.state;
 
-    if (!userIsPresenter && !multiUser) {
+    if (!userIsPresenter) {
       return null;
     }
 
@@ -466,6 +466,13 @@ class PresentationArea extends PureComponent {
               slideHeight={height}
             />
           </g>
+          {this.renderOverlays(
+            currentSlide,
+            svgDimensions,
+            viewBoxPosition,
+            viewBoxDimensions,
+            physicalDimensions,
+          )}
         </svg>
       </div>
     );
@@ -536,6 +543,8 @@ class PresentationArea extends PureComponent {
     } = this.props;
     const { isFullscreen } = this.state;
 
+    if (userIsPresenter || !ALLOW_FULLSCREEN) return null;
+
     return (
       <FullscreenButtonContainer
         fullscreenRef={this.refPresentationContainer}
@@ -560,6 +569,7 @@ class PresentationArea extends PureComponent {
       fitToWidth,
       presentationAreaWidth,
       localPosition,
+      isFullscreen,
     } = this.state;
 
     let viewBoxDimensions;
@@ -586,42 +596,63 @@ class PresentationArea extends PureComponent {
     const svgWidth = svgDimensions.width;
 
     const toolbarHeight = this.getToolbarHeight();
+    const toolbarWidth = isFullscreen ? '60%' : (svgWidth < 310 ? '310px' : svgWidth)
 
-
+    
     return (
-      (!isLayoutSwapped) ? (
-        <div className={styles.presentationPanel}>
+    (!isLayoutSwapped) ? (
+      <div className={styles.presentationPanel}>
+      <div
+        ref={(ref) => { this.refPresentationContainer = ref; }}
+        className={styles.presentationContainer}
+      >
+        <div
+          ref={(ref) => { this.refPresentationArea = ref; }}
+          className={styles.presentationArea}
+        >
           <div
-            ref={(ref) => { this.refPresentationContainer = ref; }}
-            className={styles.presentationContainer}
-          >
-            <div
-              ref={(ref) => { this.refPresentationArea = ref; }}
-              className={styles.presentationArea}
-            >
-              <div
-                ref={(ref) => { this.refWhiteboardArea = ref; }}
-                className={styles.whiteboardSizeAvailable}
-              />
-              <div
-                className={styles.svgContainer}
-                style={{
-                  height: svgHeight,
-                }}
-              >
-                {showSlide
-                  ? this.renderPresentationArea(svgDimensions, viewBoxDimensions)
-                  : null}
-              </div>
-            </div>
-          </div>
-          <Button
-            onClick={stopPresentation}
-            className={styles.stopPresentation}
-            label="stop presentation..."
+            ref={(ref) => { this.refWhiteboardArea = ref; }}
+            className={styles.whiteboardSizeAvailable}
           />
+          <div
+            className={styles.svgContainer}
+            style={{
+              height: svgHeight + toolbarHeight + 45,
+            }}
+          >
+            {showSlide
+              ? this.renderPresentationArea(svgDimensions, viewBoxDimensions)
+              : null
+            }
+            {showSlide && userIsPresenter
+              ? (
+                <div
+                  className={styles.presentationToolbar}
+                  ref={(ref) => { this.refPresentationToolbar = ref; }}
+                  style={
+                    {
+                      width: toolbarWidth,
+                    }
+                  }
+                >
+                  {this.renderPresentationToolbar()}
+                </div>
+              )
+              : null
+            }
+          </div>
         </div>
-      ) : null
+      </div>
+      { userIsPresenter ?
+        <Button 
+          onClick={stopPresentation}
+          className={styles.stopPresentation}
+          label="stop presentation..."
+        />
+        : null
+      }
+      </div>
+    ) : null
     );
   }
 }

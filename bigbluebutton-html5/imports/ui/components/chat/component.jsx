@@ -63,6 +63,7 @@ const Chat = (props) => {
             //   Session.set('idChatOpen', '');
             //   Session.set('openPanel', 'userlist');
             // }}
+            onClick={() => {}}
             aria-label={intl.formatMessage(intlMessages.hideChatLabel, { 0: title })}
             accessKey={HIDE_CHAT_AK}
            // label={title}
