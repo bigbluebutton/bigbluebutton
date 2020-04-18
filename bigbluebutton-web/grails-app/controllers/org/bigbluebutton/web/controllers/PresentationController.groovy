@@ -19,6 +19,7 @@
 package org.bigbluebutton.web.controllers
 
 import grails.converters.*
+import org.grails.web.mime.DefaultMimeUtility
 import org.bigbluebutton.api.ParamsProcessorUtil;
 
 import java.nio.charset.StandardCharsets
@@ -33,6 +34,7 @@ class PresentationController {
   MeetingService meetingService
   PresentationService presentationService
   ParamsProcessorUtil paramsProcessorUtil
+  DefaultMimeUtility grailsMimeUtility
 
   def index = {
     render(view: 'upload-file')
@@ -300,6 +302,10 @@ class PresentationController {
 
         def bytes = pres.readBytes()
         def responseName = pres.getName();
+        def mimeType = grailsMimeUtility.getMimeTypeForURI(responseName)
+        def mimeName = mimeType != null ? mimeType.name : 'application/octet-stream'
+
+        response.contentType = mimeName
         response.addHeader("content-disposition", "filename=" + URLEncoder.encode(responseName, StandardCharsets.UTF_8.name()))
         response.addHeader("Cache-Control", "no-cache")
         response.outputStream << bytes;
