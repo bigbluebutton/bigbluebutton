@@ -1,12 +1,11 @@
 const Audio = require('./audio/audio');
-const Page = require('./core/page');
 
 describe('Audio', () => {
-  test('Join audio with Listen Only', async () => {
+  test('Join audio', async () => {
     const test = new Audio();
     let response;
     try {
-      await test.init(Page.getArgsWithAudio());
+      await test.init();
       response = await test.test();
     } catch (e) {
       console.log(e);
@@ -16,12 +15,12 @@ describe('Audio', () => {
     expect(response).toBe(true);
   });
 
-  test('Join audio with Microphone', async () => {
+  test('Mute the other User', async () => {
     const test = new Audio();
     let response;
     try {
-      await test.init(Page.getArgsWithAudio());
-      response = await test.microphone();
+      await test.init();
+      response = await test.mute();
     } catch (e) {
       console.log(e);
     } finally {
