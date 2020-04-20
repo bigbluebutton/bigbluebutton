@@ -1,10 +1,10 @@
 require('dotenv').config();
 const puppeteer = require('puppeteer');
 const fs = require('fs');
+const path = require('path');
 const helper = require('./helper');
 const params = require('../params');
 const e = require('./elements');
-const path = require('path');
 
 class Page {
   constructor(name) {
@@ -95,7 +95,7 @@ class Page {
         '--no-sandbox',
         '--use-fake-ui-for-media-stream',
         '--use-fake-device-for-media-stream',
-        `--use-file-for-fake-audio-capture=${path.join(__dirname,'../media/audio.wav')}`,
+        `--use-file-for-fake-audio-capture=${path.join(__dirname, '../media/audio.wav')}`,
         '--allow-file-access',
       ],
     };
@@ -108,7 +108,7 @@ class Page {
         '--no-sandbox',
         '--use-fake-ui-for-media-stream',
         '--use-fake-device-for-media-stream',
-        `--use-file-for-fake-video-capture=${path.join(__dirname,'../media/video_rgb.y4m')}`,
+        `--use-file-for-fake-video-capture=${path.join(__dirname, '../media/video_rgb.y4m')}`,
         '--allow-file-access',
       ],
     };
@@ -192,15 +192,16 @@ class Page {
   async getMetrics() {
     const metricsObj = {};
     const dir = process.env.METRICS_FOLDER;
-    const currentTimestamp = new Date();
+    const timestamp = Date.now();
     if (!fs.existsSync(dir)) {
       fs.mkdirSync(dir);
     }
     const metric = await this.page.metrics();
+    metricsObj['timestamp'] = timestamp;
     metricsObj[`metricObj-${this.effectiveParams.fullName}`] = metric;
     const createFile = () => {
       try {
-        fs.appendFileSync(`${dir}/metrics-${this.effectiveParams.fullName}-${currentTimestamp}.json`, `${JSON.stringify(metricsObj)}\n`);
+        fs.appendFileSync(`${dir}/metrics-${this.effectiveParams.fullName}-${this.meetingId}.json`, `${JSON.stringify(metricsObj)}\n`);
       } catch (error) {
         console.log(error);
       }
