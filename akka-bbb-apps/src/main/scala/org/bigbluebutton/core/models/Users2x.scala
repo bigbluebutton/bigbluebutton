@@ -9,6 +9,7 @@ object Users2x {
   }
 
   def findAll(users: Users2x): Vector[UserState] = users.toVector
+  def findAllEjectedUsers(users: Users2x): Vector[UserState] = users.toEjectedUsersVector
 
   def add(users: Users2x, user: UserState): Option[UserState] = {
     users.save(user)
@@ -17,6 +18,10 @@ object Users2x {
 
   def remove(users: Users2x, intId: String): Option[UserState] = {
     users.remove(intId)
+  }
+
+  def removeEjectedUser(users: Users2x, intId: String): Option[UserState] = {
+    users.removeEjectedUser(intId)
   }
 
   def setUserLeftFlag(users: Users2x, intId: String): Option[UserState] = {
@@ -73,7 +78,7 @@ object Users2x {
 
   def ejectFromMeeting(users: Users2x, intId: String): Option[UserState] = {
     for {
-      _ <- users.remove(intId)
+      _ <- users.remove(intId).map(users.saveEjectedUser)
       ejectedUser <- users.removeFromCache(intId)
     } yield {
       ejectedUser
@@ -171,12 +176,14 @@ class Users2x {
   private var presenterGroup: Vector[String] = scala.collection.immutable.Vector.empty
 
   private var oldPresenterGroup: collection.immutable.HashMap[String, OldPresenter] = new collection.immutable.HashMap[String, OldPresenter]
+  private var ejectedUsers: collection.immutable.HashMap[String, UserState] = new collection.immutable.HashMap[String, UserState]
 
   // Collection of users that left the meeting. We keep a cache of the old users state to recover in case
   // the user reconnected by refreshing the client. (ralam june 13, 2017)
   private var usersCache: collection.immutable.HashMap[String, UserState] = new collection.immutable.HashMap[String, UserState]
 
   private def toVector: Vector[UserState] = users.values.toVector
+  private def toEjectedUsersVector: Vector[UserState] = ejectedUsers.values.toVector
 
   private def save(user: UserState): UserState = {
     users += user.intId -> user
@@ -190,6 +197,20 @@ class Users2x {
       users -= id
       saveToCache(user)
       user
+    }
+  }
+
+  private def saveEjectedUser(user: UserState): UserState = {
+    ejectedUsers += user.intId -> user
+    user
+  }
+
+  private def removeEjectedUser(id: String): Option[UserState] = {
+    for {
+      ejectedUser <- ejectedUsers.get(id)
+    } yield {
+      ejectedUsers -= id
+      ejectedUser
     }
   }
 

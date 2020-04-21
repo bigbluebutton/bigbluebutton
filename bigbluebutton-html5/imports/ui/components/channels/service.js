@@ -11,7 +11,23 @@ const ROLE_MODERATOR = Meteor.settings.public.user.role_moderator;
 const findBreakouts = () => {
   console.log(`Auth.meetingid: ${Auth.meetingID}`);
   const BreakoutRooms = Breakouts.find({
-    // parentMeetingId: Auth.meetingID,
+      parentMeetingId: Auth.meetingID,
+  }, {
+    sort: {
+      sequence: 1,
+    },
+  }).fetch();
+
+
+  return BreakoutRooms;
+};
+
+
+
+const findBreakoutsByMeetingId = () => {
+  console.log(`findBreakoutsByMeetingId Auth.meetingid: ${Auth.meetingID}`);
+  const BreakoutRooms = Breakouts.find({
+      breakoutId: Auth.meetingID,
   }, {
     sort: {
       sequence: 1,
@@ -105,6 +121,7 @@ const isUserInBreakoutRoom = (joinedUsers) => {
 
 export default {
   findBreakouts,
+  findBreakoutsByMeetingId,
   endAllBreakouts,
   requestJoinURL,
   breakoutRoomUser,

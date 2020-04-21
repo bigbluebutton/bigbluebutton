@@ -98,7 +98,7 @@ case class TransferUserToMeetingRequestMsgBody(fromMeetingId: String, toMeetingI
 
 object UpdateBreakoutUsersEvtMsg { val NAME = "UpdateBreakoutUsersEvtMsg" }
 case class UpdateBreakoutUsersEvtMsg(header: BbbClientMsgHeader, body: UpdateBreakoutUsersEvtMsgBody) extends BbbCoreMsg
-case class UpdateBreakoutUsersEvtMsgBody(parentId: String, breakoutId: String, users: Vector[BreakoutUserVO])
+case class UpdateBreakoutUsersEvtMsgBody(parentId: String, breakoutId: String, joinedUsers: Vector[BreakoutUserVO], ejectedUsers: Vector[BreakoutUserVO])
 
 // Common Value objects
 case class BreakoutUserVO(id: String, name: String)

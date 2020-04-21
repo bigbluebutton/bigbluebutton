@@ -9,6 +9,10 @@ import Auth from '/imports/ui/services/auth';
 import UserParticipantsContainer from '/imports/ui/components/user-list/user-list-content/user-participants/container';
 import UserOptionsContainer from '/imports/ui/components/user-list/user-list-content/user-participants//user-options/container';
 import { meetingIsBreakout } from '/imports/ui/components/app/service';
+// import {getUsersNotAssigned} from '/imports/ui/components/actions-bar/service';
+
+
+
 
 const ROLE_MODERATOR = Meteor.settings.public.user.role_moderator;
 
@@ -88,6 +92,7 @@ class Channels extends PureComponent {
   constructor(props) {
     super(props);
     this.getBreakoutURL = this.getBreakoutURL.bind(this);
+    this.editBreakoutRoom = this.editBreakoutRoom.bind(this);
     this.renderBreakoutRooms = this.renderBreakoutRooms.bind(this);
     this.transferUserToBreakoutRoom = this.transferUserToBreakoutRoom.bind(this);
     this.renderUserActions = this.renderUserActions.bind(this);
@@ -296,6 +301,10 @@ class Channels extends PureComponent {
       setEmojiStatus,
       roving,
       requestUserInformation,
+      users,
+      sendInvitation,
+      getUsersNotAssigned,
+      getUsersByMeeting
     } = this.props;
 
     const {
@@ -305,7 +314,11 @@ class Channels extends PureComponent {
 
     return (
 
-      breakoutRooms.map(breakout => (
+      //If isModerator && notBreakOutRoom, use user ids from child meetings
+      //If !Moderator  && notBreakOutRoom, then look at break out room for which we are part of users list
+      //Note user list needs to be updated when user is ejected
+      breakoutRooms.map(breakout =>  
+        
         <div
           className={styles.channelName}
           role="button"
@@ -315,8 +328,14 @@ class Channels extends PureComponent {
           <Button
             label={breakout.name}
             onClick={() => {
-              this.getBreakoutURL(breakout.breakoutId);
-              exitAudio();
+              // this.getBreakoutURL(breakout.breakoutId);
+              // exitAudio();
+              console.log("currentUser: " + currentUser);
+              if(!meetingIsBreakout() && currentUser.role === ROLE_MODERATOR){
+                 this.editBreakoutRoom(breakout.breakoutId, getUsersByMeeting(breakout.breakoutId),
+                  getUsersNotAssigned(users));
+              }
+
             }
               }
             className={styles.channelNameMain}
@@ -334,10 +353,38 @@ class Channels extends PureComponent {
           />
 
         </div>
-      ))
-    );
+      ));
+    
   }
 
+  //TODO: to update when the real UI comes here
+  //Prototype method that adds any un assigned users in the master channel 
+  //Removes all the users in the breakout room
+  editBreakoutRoom(breakoutId, usersToRemove, usersToAdd){
+
+    const {
+      sendInvitation,
+      removeUser,
+      currentUser
+     
+    } = this.props;
+    
+    usersToRemove.map(user => {
+        if(user.userId != currentUser.userId){
+          console.log("Removing user to channel: " + user.userId);
+          removeUser(user.userId, breakoutId);
+        }
+    });
+
+    // usersToAdd.map(user => {
+    //   if(user.userId != currentUser.userId){
+    //     console.log("Adding user to channel: " + user);
+    //     sendInvitation(breakoutId, user.userId);
+    //   }
+        
+    // });
+    
+  }
 
   renderUserActions(breakoutId, joinedUsers, number) {
     const {
