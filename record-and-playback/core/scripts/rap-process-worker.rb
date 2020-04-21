@@ -24,10 +24,9 @@ require 'yaml'
 require 'fileutils'
 
 def process_archived_meetings(recording_dir)
-  sanity_done_files = Dir.glob("#{recording_dir}/status/sanity/*.done")
+  sanity_done_files = Dir.glob("#{recording_dir}/status/sanity/*.done").sort_by{ |f| File.mtime(f) }
 
   FileUtils.mkdir_p("#{recording_dir}/status/processed")
-  # TODO sort by timestamp(s)
   sanity_done_files.each do |sanity_done|
     done_base = File.basename(sanity_done, '.done')
     meeting_id = nil
