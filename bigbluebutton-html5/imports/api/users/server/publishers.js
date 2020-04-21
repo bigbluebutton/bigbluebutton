@@ -58,14 +58,14 @@ function users(credentials, isModerator = false) {
     ],
   };
 
-  //if (isModerator) {
-    const User = Users.findOne({ userId: requesterUserId });
-   // if (!!User && User.role === ROLE_MODERATOR) {
-      selector.$or.push({
-        'breakoutProps.isBreakoutUser': true,
-        'breakoutProps.parentId': meetingId,
-        connectionStatus: 'online',
-      });
+  // if (isModerator) {
+  const User = Users.findOne({ userId: requesterUserId });
+  // if (!!User && User.role === ROLE_MODERATOR) {
+  selector.$or.push({
+    'breakoutProps.isBreakoutUser': true,
+    'breakoutProps.parentId': meetingId,
+    connectionStatus: 'online',
+  });
   //   }
   // }
 

@@ -9,7 +9,7 @@ export default function joinedUsersChanged({ body }) {
     parentId,
     breakoutId,
     joinedUsers,
-    ejectedUsers
+    ejectedUsers,
   } = body;
 
   check(parentId, String);
@@ -23,22 +23,20 @@ export default function joinedUsersChanged({ body }) {
     breakoutId,
   };
 
-  //TODO: change this.
+  // TODO: change this.
   // let assignedUsers  = ejectedUsers;
   const usersMapped = joinedUsers.map(user => ({ userId: user.id, name: user.name }));
 
-  console.log("joinedUsers.length" + joinedUsers.length);
-  console.log("ejectedUsers.length" + ejectedUsers.length);
+  console.log(`joinedUsers.length${joinedUsers.length}`);
+  console.log(`ejectedUsers.length${ejectedUsers.length}`);
 
- // const assignedUsersMapped = assignedUsers.map(user => ({ userId: user.id, name: user.name }));
-  //const ejectedUsersMapped = ejectedUsers.map(user => ({userId: user.id}));
- //console.log("ejectedUsersMapped.length" + ejectedUsersMapped.length);
+  // const assignedUsersMapped = assignedUsers.map(user => ({ userId: user.id, name: user.name }));
+  // const ejectedUsersMapped = ejectedUsers.map(user => ({userId: user.id}));
+  // console.log("ejectedUsersMapped.length" + ejectedUsersMapped.length);
 
- var modifier = "";
- if(ejectedUsers.length > 0){
-
-
-  const ejectedUsersMapped = ejectedUsers.map(user => ({ userId: user.id}));
+  let modifier = '';
+  if (ejectedUsers.length > 0) {
+    const ejectedUsersMapped = ejectedUsers.map(user => ({ userId: user.id }));
 
     //  var userSelectionString = "{";
     //  for (let index = 0; index < ejectedUsers.length; index++) {
@@ -47,23 +45,23 @@ export default function joinedUsersChanged({ body }) {
 
     //  userSelectionString = userSelectionString + "}";
     //  console.log("userSelectionString: " + userSelectionString);
-     modifier = {
+    modifier = {
       $set: {
-        joinedUsers: usersMapped
+        joinedUsers: usersMapped,
       },
       $pull: {
         // users: { $elemMatch: ejectedUsersMapped}
-        users: { userId: ejectedUsers[0].id}
-      }
-    }
-  }else{
+        users: { userId: ejectedUsers[0].id },
+      },
+    };
+  } else {
     modifier = {
       $set: {
-        joinedUsers: usersMapped
-      }
-    }
+        joinedUsers: usersMapped,
+      },
+    };
   }
- 
+
 
   const cb = (err) => {
     if (err) {

@@ -13,12 +13,12 @@ export default function removeUser(credentials, userId, customMeetingId) {
   check(requesterUserId, String);
   check(userId, String);
 
-  let meetingToRemoveFrom = (customMeetingId == undefined || customMeetingId == null) ? meetingId
-                            :customMeetingId;
-                          
+  const meetingToRemoveFrom = (customMeetingId == undefined || customMeetingId == null) ? meetingId
+    : customMeetingId;
 
-  console.log("EjectUserFromMeetingCmdMsg meetingToRemoveFrom: " + meetingToRemoveFrom);
-  console.log("userId: " + userId);
+
+  console.log(`EjectUserFromMeetingCmdMsg meetingToRemoveFrom: ${meetingToRemoveFrom}`);
+  console.log(`userId: ${userId}`);
   const payload = {
     userId,
     ejectedBy: requesterUserId,

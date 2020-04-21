@@ -363,7 +363,7 @@ const getAvailableActions = (amIModerator, isBreakoutRoom, subjectUser, subjectV
   // if currentUser is a moderator, allow removing other users
   const allowedToRemove = amIModerator
     && !amISubjectUser;
-   // && !isBreakoutRoom;
+  // && !isBreakoutRoom;
 
   const allowedToSetPresenter = amIModerator
     && !subjectUser.presenter
