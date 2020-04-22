@@ -23,6 +23,7 @@ export default withTracker((...props) => {
     meetingId,
     amIModerator,
     closeBreakoutPanel,
+    isUserActiveInBreakoutroom,
     isUserInBreakoutRoom,
   } = Service;
 
@@ -47,11 +48,13 @@ export default withTracker((...props) => {
     closeBreakoutPanel,
     isMeteorConnected,
     isUserInBreakoutRoom,
+    isUserActiveInBreakoutroom,
     users,
     sendInvitation: ActionsBarService.sendInvitation,
     getUsersNotAssigned: ActionsBarService.getUsersNotAssigned,
     removeUser: UserListService.removeUser,
     getUsersByMeeting: UserListService.getUsersByMeeting,
+ 
 
     exitAudio: () => AudioManager.exitAudio(),
   };

@@ -226,6 +226,8 @@ const getUsersByMeeting = (meetingIdentifier) => {
 };
 
 
+
+
 const hasBreakoutRoom = () => Breakouts.find({ parentMeetingId: Auth.meetingID },
   { fields: {} }).count() > 0;
 
