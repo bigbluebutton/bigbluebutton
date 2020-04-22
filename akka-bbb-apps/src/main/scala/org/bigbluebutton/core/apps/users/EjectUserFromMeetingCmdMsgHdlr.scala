@@ -4,7 +4,7 @@ import org.bigbluebutton.common2.msgs._
 import org.bigbluebutton.core.running.{ LiveMeeting, OutMsgRouter }
 import org.bigbluebutton.core2.message.senders.Sender
 import org.bigbluebutton.core.apps.{ PermissionCheck, RightsManagementTrait }
-import org.bigbluebutton.core.models.EjectReasonCode
+import org.bigbluebutton.core.models.{ EjectReasonCode, RegisteredUsers }
 
 trait EjectUserFromMeetingCmdMsgHdlr extends RightsManagementTrait {
   this: UsersApp =>
@@ -28,9 +28,18 @@ trait EjectUserFromMeetingCmdMsgHdlr extends RightsManagementTrait {
       PermissionCheck.ejectUserForFailedPermission(meetingId, msg.header.userId, reason, outGW, liveMeeting)
     } else {
       val reason = "user ejected by another user"
-      UsersApp.ejectUserFromMeeting(outGW, liveMeeting, userId, ejectedBy, reason, EjectReasonCode.EJECT_USER)
-      // send a system message to force disconnection
-      Sender.sendDisconnectClientSysMsg(meetingId, userId, ejectedBy, EjectReasonCode.EJECT_USER, outGW)
+      for {
+        registeredUser <- RegisteredUsers.findWithUserId(userId, liveMeeting.registeredUsers)
+      } yield {
+        // User might have joined using multiple browsers.
+        // Hunt down all registered users based on extern userid and eject them all.
+        // ralam april 21, 2020
+        RegisteredUsers.findAllWithExternUserId(registeredUser.externId, liveMeeting.registeredUsers) foreach { ru =>
+          UsersApp.ejectUserFromMeeting(outGW, liveMeeting, ru.id, ejectedBy, reason, EjectReasonCode.EJECT_USER)
+          // send a system message to force disconnection
+          Sender.sendDisconnectClientSysMsg(meetingId, ru.id, ejectedBy, EjectReasonCode.EJECT_USER, outGW)
+        }
+      }
     }
   }
 }
