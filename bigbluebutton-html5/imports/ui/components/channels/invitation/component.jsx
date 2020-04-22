@@ -113,25 +113,24 @@ class BreakoutRoomInvitation extends Component {
     // setTimeout(() => {
     //   openBreakoutJoinConfirmation.call(this, breakout, breakout.name, mountModal);
     // }, BREAKOUT_MODAL_DELAY);
-   
-      const {
-        getBreakoutURLFromRoom,
-        voiceUserJoined,
-      } = this.props;
-      
-      let url = getBreakoutURLFromRoom(breakout);
-      if (voiceUserJoined) {
-        // leave main room's audio when joining a breakout room
-        AudioService.exitAudio();
-        logger.info({
-          logCode: 'breakoutjoinconfirmation_ended_audio',
-          extraInfo: { logType: 'user_action' },
-        }, 'joining breakout room closed audio in the main room');
-      }
-  
-      VideoService.exitVideo();
-      window.open(url);
-   
+
+    const {
+      getBreakoutURLFromRoom,
+      voiceUserJoined,
+    } = this.props;
+
+    const url = getBreakoutURLFromRoom(breakout);
+    if (voiceUserJoined) {
+      // leave main room's audio when joining a breakout room
+      AudioService.exitAudio();
+      logger.info({
+        logCode: 'breakoutjoinconfirmation_ended_audio',
+        extraInfo: { logType: 'user_action' },
+      }, 'joining breakout room closed audio in the main room');
+    }
+
+    VideoService.exitVideo();
+    window.open(url);
   }
 
   render() {

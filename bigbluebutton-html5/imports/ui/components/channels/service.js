@@ -45,14 +45,14 @@ const breakoutRoomUser = (breakoutId) => {
 };
 
 
-//Central function that determines if the user has a browser tab opened for the break out room he is part of
-// Logic: 
-//1) Current meeting has no parent meeting (so not a a break out room but master)
-//2) Look for breakout room(s) in his(including moderator) mini mongo.For moderator it will be more than one. 
+// Central function that determines if the user has a browser tab opened for the break out room he is part of
+// Logic:
+// 1) Current meeting has no parent meeting (so not a a break out room but master)
+// 2) Look for breakout room(s) in his(including moderator) mini mongo.For moderator it will be more than one.
 // so for moderator which ever break out room link is clicked in an attempt to join, that specific room will be in focus.
 // 3)  In that break out room, the user needs to show up in joined_users field. This can be done in 2 ways.
-//3.1) If the name and email match 
-//3.2) User id matches the pattern in joined users
+// 3.1) If the name and email match
+// 3.2) User id matches the pattern in joined users
 const isUserActiveInBreakoutroom = userId => Breakouts.findOne({ 'joinedUsers.userId': new RegExp(`^${userId}`) });
 
 
@@ -148,5 +148,5 @@ export default {
   getBreakoutByUserId,
   getBreakoutUserIsIn,
   isUserInBreakoutRoom,
-  isUserActiveInBreakoutroom
+  isUserActiveInBreakoutroom,
 };

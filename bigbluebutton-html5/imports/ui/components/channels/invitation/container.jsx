@@ -35,5 +35,5 @@ export default withTracker(() => ({
   currentBreakoutUser: BreakoutService.getBreakoutUserByUserId(Auth.userID),
   breakoutUserIsIn: BreakoutService.getBreakoutUserIsIn(Auth.userID),
   getBreakoutURLFromRoom,
-  voiceUserJoined: AudioManager.isUsingAudio()
+  voiceUserJoined: AudioManager.isUsingAudio(),
 }))(BreakoutRoomInvitationContainer);

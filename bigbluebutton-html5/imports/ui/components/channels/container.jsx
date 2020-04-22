@@ -54,7 +54,7 @@ export default withTracker((...props) => {
     getUsersNotAssigned: ActionsBarService.getUsersNotAssigned,
     removeUser: UserListService.removeUser,
     getUsersByMeeting: UserListService.getUsersByMeeting,
- 
+
 
     exitAudio: () => AudioManager.exitAudio(),
   };

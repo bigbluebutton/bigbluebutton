@@ -102,7 +102,7 @@ class Channels extends PureComponent {
       requestedBreakoutId: '',
       waiting: false,
       joinedAudioOnly: false,
-      breakoutId: '',      
+      breakoutId: '',
     };
   }
 
@@ -163,8 +163,8 @@ class Channels extends PureComponent {
 
     const breakoutUser = breakoutRoomUser(breakoutId);
     if (!breakoutUser && !waiting) {
-      //This should only be the case for a moderator in master channel
-      console.log("Adding the users to assigned users in the backend");
+      // This should only be the case for a moderator in master channel
+      console.log('Adding the users to assigned users in the backend');
       this.setState(
         {
           waiting: true,
@@ -173,13 +173,13 @@ class Channels extends PureComponent {
         () => requestJoinURL(breakoutId),
       );
     }
-    //I am a break out room user and I am not active in it 
+    // I am a break out room user and I am not active in it
     if (breakoutUser && !isUserActiveInBreakoutroom(Auth.userID)) {
       window.open(breakoutUser.redirectToHtml5JoinURL, '_blank');
 
       this.setState(
         {
-          waiting: false
+          waiting: false,
         },
       );
     }
@@ -204,7 +204,7 @@ class Channels extends PureComponent {
       );
     }
 
-     
+
     if (hasUser && (breakOutWindowRefs.get(breakoutId) == null || breakOutWindowRefs.get(breakoutId).closed)) {
       const windowRef = window.open(hasUser.redirectToHtml5JoinURL, '_blank');
 
@@ -248,7 +248,7 @@ class Channels extends PureComponent {
       compact,
       setEmojiStatus,
       roving,
-      requestUserInformation
+      requestUserInformation,
     } = this.props;
 
     const isBreakOutMeeting = meetingIsBreakout();
@@ -332,8 +332,8 @@ class Channels extends PureComponent {
       users,
       sendInvitation,
       getUsersNotAssigned,
-      getUsersByMeeting
-      
+      getUsersByMeeting,
+
     } = this.props;
 
     const {
@@ -379,10 +379,10 @@ class Channels extends PureComponent {
   // Removes all the users in the breakout room
 
   // console.log(`currentUser: ${currentUser}`);
-              // if (!meetingIsBreakout() && currentUser.role === ROLE_MODERATOR) {
-              //   this.editBreakoutRoom(breakout.breakoutId, getUsersByMeeting(breakout.breakoutId),
-              //     getUsersNotAssigned(users));
-              // }
+  // if (!meetingIsBreakout() && currentUser.role === ROLE_MODERATOR) {
+  //   this.editBreakoutRoom(breakout.breakoutId, getUsersByMeeting(breakout.breakoutId),
+  //     getUsersNotAssigned(users));
+  // }
   editBreakoutRoom(breakoutId, usersToRemove, usersToAdd) {
     const {
       sendInvitation,
