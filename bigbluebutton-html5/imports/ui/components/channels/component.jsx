@@ -9,6 +9,7 @@ import Auth from '/imports/ui/services/auth';
 import UserParticipantsContainer from '/imports/ui/components/user-list/user-list-content/user-participants/container';
 import UserOptionsContainer from '/imports/ui/components/user-list/user-list-content/user-participants//user-options/container';
 import { meetingIsBreakout } from '/imports/ui/components/app/service';
+ 
 // import {getUsersNotAssigned} from '/imports/ui/components/actions-bar/service';
 
 
@@ -252,7 +253,8 @@ class Channels extends PureComponent {
     } = this.props;
 
     const isBreakOutMeeting = meetingIsBreakout();
-    console.log(`isBreakOutMeeting${isBreakOutMeeting}`);
+    // console.log(`isBreakOutMeeting${isBreakOutMeeting}`);
+    //console.log(`Auth.meetingid: ${Auth.meetingID}`);
 
     return (
 
@@ -333,6 +335,7 @@ class Channels extends PureComponent {
       sendInvitation,
       getUsersNotAssigned,
       getUsersByMeeting,
+      isbreakoutRoomUser
 
     } = this.props;
 
@@ -367,6 +370,7 @@ class Channels extends PureComponent {
               roving,
               requestUserInformation,
               meetingIdentifier: breakout.breakoutId,
+              isbreakoutRoomUser
             }}
           />
 
@@ -398,13 +402,13 @@ class Channels extends PureComponent {
       }
     });
 
-    // usersToAdd.map(user => {
-    //   if(user.userId != currentUser.userId){
-    //     console.log("Adding user to channel: " + user);
-    //     sendInvitation(breakoutId, user.userId);
-    //   }
+    usersToAdd.map(user => {
+      if(user.userId != currentUser.userId){
+        console.log("Adding user to channel: " + user);
+        sendInvitation(breakoutId, user.userId);
+      }
 
-    // });
+    });
   }
 
   renderUserActions(breakoutId, joinedUsers, number) {

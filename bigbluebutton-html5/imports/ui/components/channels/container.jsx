@@ -16,7 +16,7 @@ export default withTracker((...props) => {
     endAllBreakouts,
     requestJoinURL,
     findBreakouts,
-    findBreakoutsByMeetingId,
+    getBreakoutByCurrentMeetingId,
     breakoutRoomUser,
     transferUserToMeeting,
     transferToBreakout,
@@ -25,10 +25,11 @@ export default withTracker((...props) => {
     closeBreakoutPanel,
     isUserActiveInBreakoutroom,
     isUserInBreakoutRoom,
+    isbreakoutRoomUser
   } = Service;
 
 
-  const breakoutRooms = meetingIsBreakout() ? findBreakoutsByMeetingId() : findBreakouts();
+  const breakoutRooms = meetingIsBreakout() ? getBreakoutByCurrentMeetingId() : findBreakouts();
 
   const isMicrophoneUser = AudioService.isConnected() && !AudioService.isListenOnly();
   const isMeteorConnected = Meteor.status().connected;
@@ -54,8 +55,7 @@ export default withTracker((...props) => {
     getUsersNotAssigned: ActionsBarService.getUsersNotAssigned,
     removeUser: UserListService.removeUser,
     getUsersByMeeting: UserListService.getUsersByMeeting,
-
-
+    isbreakoutRoomUser,
     exitAudio: () => AudioManager.exitAudio(),
   };
 })(ChannelsContainer);

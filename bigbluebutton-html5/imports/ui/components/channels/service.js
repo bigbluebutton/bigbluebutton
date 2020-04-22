@@ -9,7 +9,7 @@ import fp from 'lodash/fp';
 const ROLE_MODERATOR = Meteor.settings.public.user.role_moderator;
 
 const findBreakouts = () => {
-  console.log(`Auth.meetingid: ${Auth.meetingID}`);
+  // console.log(`Auth.meetingid: ${Auth.meetingID}`);
   const BreakoutRooms = Breakouts.find({
     parentMeetingId: Auth.meetingID,
   }, {
@@ -23,8 +23,8 @@ const findBreakouts = () => {
 };
 
 
-const findBreakoutsByMeetingId = () => {
-  console.log(`findBreakoutsByMeetingId Auth.meetingid: ${Auth.meetingID}`);
+const getBreakoutByCurrentMeetingId = () => {
+  console.log(`getBreakoutByCurrentMeetingId Auth.meetingid: ${Auth.meetingID}`);
   const BreakoutRooms = Breakouts.find({
     breakoutId: Auth.meetingID,
   }, {
@@ -37,11 +37,43 @@ const findBreakoutsByMeetingId = () => {
   return BreakoutRooms;
 };
 
+const validateMeetingIsBreakout = (meetingId) => {
+  const breakoutRoom = Breakouts.findOne({
+    breakoutId: meetingId
+  });
+  return (breakoutRoom != null && breakoutRoom != undefined && breakoutRoom.breakoutId == meetingId);
+
+}
+
+
 const breakoutRoomUser = (breakoutId) => {
   const breakoutRooms = findBreakouts();
   const breakoutRoom = breakoutRooms.filter(breakout => breakout.breakoutId === breakoutId).shift();
-  const breakoutUser = breakoutRoom.users.filter(user => user.userId === Auth.userID).shift();
-  return breakoutUser;
+  if((breakoutRoom != null && breakoutRoom != undefined))
+    return breakoutRoom.users.filter(user => user.userId === Auth.userID).shift();
+};
+
+const isbreakoutRoomUser = (breakoutId, userId) => {
+  const breakoutRooms = findBreakouts();
+  const breakoutRoom = breakoutRooms.filter(breakout => breakout.breakoutId === breakoutId).shift();
+  if((breakoutRoom != null && breakoutRoom != undefined)){
+    const breakoutUser = breakoutRoom.users.filter(user => user.userId === userId).shift();
+    return (breakoutUser != null && breakoutUser != undefined);
+  }else{
+    return false;
+  }
+  
+};
+
+const getAllBreakoutRoomUsers = (breakoutId) => {
+  const breakoutRooms = findBreakouts();
+  const breakoutRoom = breakoutRooms.filter(breakout => breakout.breakoutId === breakoutId).shift();
+  if((breakoutRoom != null && breakoutRoom != undefined)){
+    return breakoutRoom.users;
+  }else{
+    return [];
+  }
+  
 };
 
 
@@ -132,10 +164,13 @@ const isUserInBreakoutRoom = (joinedUsers) => {
 
 export default {
   findBreakouts,
-  findBreakoutsByMeetingId,
+  getBreakoutByCurrentMeetingId,
+  validateMeetingIsBreakout,
   endAllBreakouts,
   requestJoinURL,
   breakoutRoomUser,
+  isbreakoutRoomUser,
+  getAllBreakoutRoomUsers,
   transferUserToMeeting,
   transferToBreakout,
   meetingId: () => Auth.meetingID,
