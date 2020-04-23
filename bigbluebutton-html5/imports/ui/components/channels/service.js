@@ -9,9 +9,9 @@ import fp from 'lodash/fp';
 const ROLE_MODERATOR = Meteor.settings.public.user.role_moderator;
 
 const findBreakouts = () => {
-  console.log(`Auth.meetingid: ${Auth.meetingID}`);
+  // console.log(`Auth.meetingid: ${Auth.meetingID}`);
   const BreakoutRooms = Breakouts.find({
-    // parentMeetingId: Auth.meetingID,
+    parentMeetingId: Auth.meetingID,
   }, {
     sort: {
       sequence: 1,
@@ -22,12 +22,71 @@ const findBreakouts = () => {
   return BreakoutRooms;
 };
 
+
+const getBreakoutByCurrentMeetingId = () => {
+  console.log(`getBreakoutByCurrentMeetingId Auth.meetingid: ${Auth.meetingID}`);
+  const BreakoutRooms = Breakouts.find({
+    breakoutId: Auth.meetingID,
+  }, {
+    sort: {
+      sequence: 1,
+    },
+  }).fetch();
+
+
+  return BreakoutRooms;
+};
+
+const validateMeetingIsBreakout = (meetingId) => {
+  const breakoutRoom = Breakouts.findOne({
+    breakoutId: meetingId
+  });
+  return (breakoutRoom != null && breakoutRoom != undefined && breakoutRoom.breakoutId == meetingId);
+
+}
+
+
 const breakoutRoomUser = (breakoutId) => {
   const breakoutRooms = findBreakouts();
   const breakoutRoom = breakoutRooms.filter(breakout => breakout.breakoutId === breakoutId).shift();
-  const breakoutUser = breakoutRoom.users.filter(user => user.userId === Auth.userID).shift();
-  return breakoutUser;
+  if((breakoutRoom != null && breakoutRoom != undefined))
+    return breakoutRoom.users.filter(user => user.userId === Auth.userID).shift();
 };
+
+const isbreakoutRoomUser = (breakoutId, userId) => {
+  const breakoutRooms = findBreakouts();
+  const breakoutRoom = breakoutRooms.filter(breakout => breakout.breakoutId === breakoutId).shift();
+  if((breakoutRoom != null && breakoutRoom != undefined)){
+    const breakoutUser = breakoutRoom.users.filter(user => user.userId === userId).shift();
+    return (breakoutUser != null && breakoutUser != undefined);
+  }else{
+    return false;
+  }
+  
+};
+
+const getAllBreakoutRoomUsers = (breakoutId) => {
+  const breakoutRooms = findBreakouts();
+  const breakoutRoom = breakoutRooms.filter(breakout => breakout.breakoutId === breakoutId).shift();
+  if((breakoutRoom != null && breakoutRoom != undefined)){
+    return breakoutRoom.users;
+  }else{
+    return [];
+  }
+  
+};
+
+
+// Central function that determines if the user has a browser tab opened for the break out room he is part of
+// Logic:
+// 1) Current meeting has no parent meeting (so not a a break out room but master)
+// 2) Look for breakout room(s) in his(including moderator) mini mongo.For moderator it will be more than one.
+// so for moderator which ever break out room link is clicked in an attempt to join, that specific room will be in focus.
+// 3)  In that break out room, the user needs to show up in joined_users field. This can be done in 2 ways.
+// 3.1) If the name and email match
+// 3.2) User id matches the pattern in joined users
+const isUserActiveInBreakoutroom = userId => Breakouts.findOne({ 'joinedUsers.userId': new RegExp(`^${userId}`) });
+
 
 const closeBreakoutPanel = () => Session.set('openPanel', 'userlist');
 
@@ -105,9 +164,13 @@ const isUserInBreakoutRoom = (joinedUsers) => {
 
 export default {
   findBreakouts,
+  getBreakoutByCurrentMeetingId,
+  validateMeetingIsBreakout,
   endAllBreakouts,
   requestJoinURL,
   breakoutRoomUser,
+  isbreakoutRoomUser,
+  getAllBreakoutRoomUsers,
   transferUserToMeeting,
   transferToBreakout,
   meetingId: () => Auth.meetingID,
@@ -120,4 +183,5 @@ export default {
   getBreakoutByUserId,
   getBreakoutUserIsIn,
   isUserInBreakoutRoom,
+  isUserActiveInBreakoutroom,
 };

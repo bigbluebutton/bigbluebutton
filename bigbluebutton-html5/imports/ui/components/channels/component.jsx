@@ -9,6 +9,9 @@ import Auth from '/imports/ui/services/auth';
 import UserParticipantsContainer from '/imports/ui/components/user-list/user-list-content/user-participants/container';
 import UserOptionsContainer from '/imports/ui/components/user-list/user-list-content/user-participants//user-options/container';
 import { meetingIsBreakout } from '/imports/ui/components/app/service';
+ 
+// import {getUsersNotAssigned} from '/imports/ui/components/actions-bar/service';
+
 
 const ROLE_MODERATOR = Meteor.settings.public.user.role_moderator;
 
@@ -88,6 +91,8 @@ class Channels extends PureComponent {
   constructor(props) {
     super(props);
     this.getBreakoutURL = this.getBreakoutURL.bind(this);
+    this.joinBreakoutRoom = this.joinBreakoutRoom.bind(this);
+    this.editBreakoutRoom = this.editBreakoutRoom.bind(this);
     this.renderBreakoutRooms = this.renderBreakoutRooms.bind(this);
     this.transferUserToBreakoutRoom = this.transferUserToBreakoutRoom.bind(this);
     this.renderUserActions = this.renderUserActions.bind(this);
@@ -99,7 +104,6 @@ class Channels extends PureComponent {
       waiting: false,
       joinedAudioOnly: false,
       breakoutId: '',
-      breakOutWindowRefs: new Map(),
     };
   }
 
@@ -153,6 +157,37 @@ class Channels extends PureComponent {
     return null;
   }
 
+  joinBreakoutRoom(breakoutId) {
+    Session.set('lastBreakoutOpened', breakoutId);
+    const { requestJoinURL, breakoutRoomUser, isUserActiveInBreakoutroom } = this.props;
+    const { waiting } = this.state;
+
+    const breakoutUser = breakoutRoomUser(breakoutId);
+    if (!breakoutUser && !waiting) {
+      // This should only be the case for a moderator in master channel
+      console.log('Adding the users to assigned users in the backend');
+      this.setState(
+        {
+          waiting: true,
+          requestedBreakoutId: breakoutId,
+        },
+        () => requestJoinURL(breakoutId),
+      );
+    }
+    // I am a break out room user and I am not active in it
+    if (breakoutUser && !isUserActiveInBreakoutroom(Auth.userID)) {
+      window.open(breakoutUser.redirectToHtml5JoinURL, '_blank');
+
+      this.setState(
+        {
+          waiting: false,
+        },
+      );
+    }
+    return null;
+  }
+
+
   getBreakoutURL(breakoutId) {
     Session.set('lastBreakoutOpened', breakoutId);
     const { requestJoinURL, breakoutRoomUser } = this.props;
@@ -170,7 +205,7 @@ class Channels extends PureComponent {
       );
     }
 
-    const { breakOutWindowRefs } = this.state;
+
     if (hasUser && (breakOutWindowRefs.get(breakoutId) == null || breakOutWindowRefs.get(breakoutId).closed)) {
       const windowRef = window.open(hasUser.redirectToHtml5JoinURL, '_blank');
 
@@ -215,11 +250,11 @@ class Channels extends PureComponent {
       setEmojiStatus,
       roving,
       requestUserInformation,
-
     } = this.props;
 
     const isBreakOutMeeting = meetingIsBreakout();
-    console.log(`isBreakOutMeeting${isBreakOutMeeting}`);
+    // console.log(`isBreakOutMeeting${isBreakOutMeeting}`);
+    //console.log(`Auth.meetingid: ${Auth.meetingID}`);
 
     return (
 
@@ -296,6 +331,12 @@ class Channels extends PureComponent {
       setEmojiStatus,
       roving,
       requestUserInformation,
+      users,
+      sendInvitation,
+      getUsersNotAssigned,
+      getUsersByMeeting,
+      isbreakoutRoomUser
+
     } = this.props;
 
     const {
@@ -304,7 +345,6 @@ class Channels extends PureComponent {
     } = this.state;
 
     return (
-
       breakoutRooms.map(breakout => (
         <div
           className={styles.channelName}
@@ -315,7 +355,7 @@ class Channels extends PureComponent {
           <Button
             label={breakout.name}
             onClick={() => {
-              this.getBreakoutURL(breakout.breakoutId);
+              this.joinBreakoutRoom(breakout.breakoutId);
               exitAudio();
             }
               }
@@ -330,14 +370,46 @@ class Channels extends PureComponent {
               roving,
               requestUserInformation,
               meetingIdentifier: breakout.breakoutId,
+              isbreakoutRoomUser
             }}
           />
 
         </div>
-      ))
-    );
+      )));
   }
 
+  // TODO: bring in the user Id of the break out meeting
+  // Prototype method that adds any un assigned users in the master channel
+  // Removes all the users in the breakout room
+
+  // console.log(`currentUser: ${currentUser}`);
+  // if (!meetingIsBreakout() && currentUser.role === ROLE_MODERATOR) {
+  //   this.editBreakoutRoom(breakout.breakoutId, getUsersByMeeting(breakout.breakoutId),
+  //     getUsersNotAssigned(users));
+  // }
+  editBreakoutRoom(breakoutId, usersToRemove, usersToAdd) {
+    const {
+      sendInvitation,
+      removeUser,
+      currentUser,
+
+    } = this.props;
+
+    usersToRemove.map((user) => {
+      if (user.userId != currentUser.userId) {
+        console.log(`Removing user to channel: ${user.userId}`);
+        removeUser(user.userId, breakoutId);
+      }
+    });
+
+    usersToAdd.map(user => {
+      if(user.userId != currentUser.userId){
+        console.log("Adding user to channel: " + user);
+        sendInvitation(breakoutId, user.userId);
+      }
+
+    });
+  }
 
   renderUserActions(breakoutId, joinedUsers, number) {
     const {

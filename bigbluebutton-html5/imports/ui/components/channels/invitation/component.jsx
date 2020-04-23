@@ -3,6 +3,8 @@ import PropTypes from 'prop-types';
 import { Session } from 'meteor/session';
 import { withModalMounter } from '/imports/ui/components/modal/service';
 import BreakoutJoinConfirmation from '/imports/ui/components/breakout-join-confirmation/container';
+import AudioService from '/imports/ui/components/audio/service';
+import VideoService from '/imports/ui/components/video-provider/service';
 
 const BREAKOUT_MODAL_DELAY = 200;
 
@@ -101,15 +103,34 @@ class BreakoutRoomInvitation extends Component {
   }
 
   inviteUserToBreakout(breakout) {
-    const {
-      mountModal,
-    } = this.props;
+    // const {
+    //   mountModal,
+    // } = this.props;
+
     // There's a race condition on page load with modals. Only one modal can be shown at a
     // time and new ones overwrite old ones. We delay the opening of the breakout modal
     // because it should always be on top if breakouts are running.
-    setTimeout(() => {
-      openBreakoutJoinConfirmation.call(this, breakout, breakout.name, mountModal);
-    }, BREAKOUT_MODAL_DELAY);
+    // setTimeout(() => {
+    //   openBreakoutJoinConfirmation.call(this, breakout, breakout.name, mountModal);
+    // }, BREAKOUT_MODAL_DELAY);
+
+    const {
+      getBreakoutURLFromRoom,
+      voiceUserJoined,
+    } = this.props;
+
+    const url = getBreakoutURLFromRoom(breakout);
+    if (voiceUserJoined) {
+      // leave main room's audio when joining a breakout room
+      AudioService.exitAudio();
+      logger.info({
+        logCode: 'breakoutjoinconfirmation_ended_audio',
+        extraInfo: { logType: 'user_action' },
+      }, 'joining breakout room closed audio in the main room');
+    }
+
+    VideoService.exitVideo();
+    window.open(url);
   }
 
   render() {

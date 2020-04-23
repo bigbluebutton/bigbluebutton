@@ -362,8 +362,8 @@ const getAvailableActions = (amIModerator, isBreakoutRoom, subjectUser, subjectV
 
   // if currentUser is a moderator, allow removing other users
   const allowedToRemove = amIModerator
-    && !amISubjectUser
-    && !isBreakoutRoom;
+    && !amISubjectUser;
+  // && !isBreakoutRoom;
 
   const allowedToSetPresenter = amIModerator
     && !subjectUser.presenter
@@ -415,12 +415,13 @@ const setEmojiStatus = (userId, emoji) => {
 
 const assignPresenter = (userId) => { makeCall('assignPresenter', userId); };
 
-const removeUser = (userId) => {
-  if (isVoiceOnlyUser(userId)) {
-    makeCall('ejectUserFromVoice', userId);
-  } else {
-    makeCall('removeUser', userId);
-  }
+const removeUser = (userId, meetingId) => {
+  makeCall('removeUser', userId, meetingId);
+  // if (isVoiceOnlyUser(userId)) {
+  //   makeCall('ejectUserFromVoice', userId, meetingId);
+  // } else {
+  //   makeCall('removeUser', userId, meetingId);
+  // }
 };
 
 const toggleVoice = (userId) => {

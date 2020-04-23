@@ -1,14 +1,14 @@
 import React from 'react';
 import { withTracker } from 'meteor/react-meteor-data';
 import UserListService from '/imports/ui/components/user-list/service';
+import ChannelsService from '/imports/ui/components/channels/service';
 import UserParticipants from './component';
-import { isMeetingBreakout } from '/imports/ui/components/app/service';
+import Auth from '/imports/ui/services/auth';
 
 const UserParticipantsContainer = props => <UserParticipants {...props} />;
 
 
 export default withTracker(props => ({
-
-  users: UserListService.getUsersByMeeting(props.meetingIdentifier),
-  meetingIsBreakout: isMeetingBreakout(props.meetingIdentifier),
+  allUsersInMeeting: UserListService.getUsersByMeeting(Auth.meetingID),
+  breakoutRoomUsers: ChannelsService.getAllBreakoutRoomUsers(props.meetingIdentifier) 
 }))(UserParticipantsContainer);

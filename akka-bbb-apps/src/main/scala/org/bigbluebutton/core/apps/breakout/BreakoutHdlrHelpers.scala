@@ -19,8 +19,9 @@ object BreakoutHdlrHelpers extends SystemConfiguration {
   ) {
     for {
       user <- Users2x.findWithIntId(liveMeeting.users2x, userId)
+
       apiCall = "join"
-      (redirectParams, redirectToHtml5Params) = BreakoutRoomsUtil.joinParams(user.name, user.email, userId + "-" + roomSequence, true,
+      (redirectParams, redirectToHtml5Params) = BreakoutRoomsUtil.joinParams(user.name, userId + "-" + roomSequence, user.email, true,
         externalMeetingId, liveMeeting.props.password.moderatorPass)
       // We generate a first url with redirect -> true
       redirectBaseString = BreakoutRoomsUtil.createBaseString(redirectParams)
@@ -30,6 +31,9 @@ object BreakoutHdlrHelpers extends SystemConfiguration {
       redirectToHtml5BaseString = BreakoutRoomsUtil.createBaseString(redirectToHtml5Params)
       redirectToHtml5JoinURL = BreakoutRoomsUtil.createJoinURL(bbbWebAPI, apiCall, redirectToHtml5BaseString,
         BreakoutRoomsUtil.calculateChecksum(apiCall, redirectToHtml5BaseString, bbbWebSharedSecret))
+
+      //Add the new user to the assigned list in break out room
+
     } yield {
       sendJoinURLMsg(
         outGW,
@@ -75,7 +79,13 @@ object BreakoutHdlrHelpers extends SystemConfiguration {
   ): Unit = {
 
     val users = Users2x.findAll(liveMeeting.users2x)
+    val ejectedUsers = Users2x.findAllEjectedUsers(liveMeeting.users2x)
+
     val breakoutUsers = users map { u => new BreakoutUser(u.extId, u.name, u.email) }
+    val recentlyEjectedUsers = ejectedUsers map { u =>
+      Users2x.removeEjectedUser(liveMeeting.users2x, u.intId)
+      new BreakoutUser(u.extId, u.name, u.email)
+    }
 
     val voiceUsers = VoiceUsers.findAll(liveMeeting.voiceUsers)
     val breakoutVoiceUsers = voiceUsers map { vu => BreakoutVoiceUser(vu.intId, vu.intId, vu.voiceUserId) }
@@ -83,7 +93,7 @@ object BreakoutHdlrHelpers extends SystemConfiguration {
     eventBus.publish(BigBlueButtonEvent(
       liveMeeting.props.breakoutProps.parentId,
       new BreakoutRoomUsersUpdateInternalMsg(liveMeeting.props.breakoutProps.parentId, liveMeeting.props.meetingProp.intId,
-        breakoutUsers, breakoutVoiceUsers)
+        breakoutUsers, breakoutVoiceUsers, recentlyEjectedUsers)
     ))
   }
 }
