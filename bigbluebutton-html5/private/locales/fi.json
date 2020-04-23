@@ -3,6 +3,7 @@
     "app.chat.submitLabel": "Lähetä viesti",
     "app.chat.errorMaxMessageLength": "Tämä viesti on {0} merkki(ä) liian pitkä",
     "app.chat.inputLabel": "Viestinsyöttö chatille {0}",
+    "app.chat.inputPlaceholder": "Lähetä viesti {0}",
     "app.chat.titlePublic": "Julkinen chat",
     "app.chat.titlePrivate": "Yksityinen chat {0} kanssa",
     "app.chat.partnerDisconnected": "{0} poistui istunnosta",

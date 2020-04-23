@@ -34,6 +34,7 @@ import km from 'react-intl/locale-data/km';
 import ko from 'react-intl/locale-data/ko';
 import lt from 'react-intl/locale-data/lt';
 import lv from 'react-intl/locale-data/lv';
+import nb from 'react-intl/locale-data/nb';
 import nl from 'react-intl/locale-data/nl';
 import pl from 'react-intl/locale-data/pl';
 import pt from 'react-intl/locale-data/pt';
@@ -80,6 +81,7 @@ addLocaleData([
   ...ko,
   ...lt,
   ...lv,
+  ...nb,
   ...nl,
   ...pl,
   ...pt,

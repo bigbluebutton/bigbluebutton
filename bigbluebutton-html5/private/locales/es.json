@@ -1,5 +1,5 @@
 {
-    "app.home.greeting": "Tu presentación se iniciará inicio en un momento...",
+    "app.home.greeting": "Tu presentación se iniciará pronto...",
     "app.chat.submitLabel": "Enviar mensaje",
     "app.chat.errorMaxMessageLength": "El mensaje es {0} carácter(es) más largo de lo esperado",
     "app.chat.disconnected": "Estás desconectado, los mensajes no pueden ser enviados",
@@ -37,7 +37,7 @@
     "app.captions.menu.fontFamily": "Fuente",
     "app.captions.menu.backgroundColor": "Color de fondo",
     "app.captions.menu.previewLabel": "Previsualizar",
-    "app.captions.menu.cancelLabel": "Cancela",
+    "app.captions.menu.cancelLabel": "Cancelar",
     "app.captions.pad.hide": "Ocultar subtítulos",
     "app.captions.pad.tip": "Presione Esc para enfocar la barra de herramientas del editor",
     "app.captions.pad.ownership": "Tomar el control",
