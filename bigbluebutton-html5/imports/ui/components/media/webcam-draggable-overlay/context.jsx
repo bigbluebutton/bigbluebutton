@@ -1,19 +1,9 @@
 import React, { createContext, useReducer, useEffect } from 'react';
 import Storage from '/imports/ui/services/storage/session';
 
-const { webcamsDefaultPlacement } = Meteor.settings.public.layout;
-
 export const WebcamDraggableContext = createContext();
 
 const initialState = {
-  placement: webcamsDefaultPlacement || 'top',
-  lastPlacementLandscape: 'top',
-  lastPlacementPortrait: 'left',
-  orientation: null,
-  mediaSize: {
-    width: 0,
-    height: 0,
-  },
   videoListSize: {
     width: 0,
     height: 0,
@@ -39,81 +29,6 @@ const initialState = {
 
 const reducer = (state, action) => {
   switch (action.type) {
-    case 'setplacementToTop': {
-      return {
-        ...state,
-        placement: 'top',
-      };
-    }
-    case 'setplacementToRight': {
-      return {
-        ...state,
-        placement: 'right',
-      };
-    }
-    case 'setplacementToBottom': {
-      return {
-        ...state,
-        placement: 'bottom',
-      };
-    }
-    case 'setplacementToLeft': {
-      return {
-        ...state,
-        placement: 'left',
-      };
-    }
-    case 'setLastPlacementPortraitToLeft': {
-      return {
-        ...state,
-        lastPlacementPortrait: 'left',
-      };
-    }
-    case 'setLastPlacementPortraitToRight': {
-      return {
-        ...state,
-        lastPlacementPortrait: 'right',
-      };
-    }
-    case 'setLastPlacementLandscapeToTop': {
-      return {
-        ...state,
-        lastPlacementLandscape: 'top',
-      };
-    }
-    case 'setLastPlacementLandscapeToBottom': {
-      return {
-        ...state,
-        lastPlacementLandscape: 'bottom',
-      };
-    }
-    case 'setplacementToFloating': {
-      return {
-        ...state,
-        placement: 'floating',
-      };
-    }
-    case 'setOrientationToLandscape': {
-      return {
-        ...state,
-        orientation: 'landscape',
-      };
-    }
-    case 'setOrientationToPortrait': {
-      return {
-        ...state,
-        orientation: 'portrait',
-      };
-    }
-    case 'setMediaSize': {
-      return {
-        ...state,
-        mediaSize: {
-          width: action.value.width,
-          height: action.value.height,
-        },
-      };
-    }
     case 'setVideoListSize': {
       return {
         ...state,
@@ -142,15 +57,6 @@ const reducer = (state, action) => {
       return {
         ...state,
         tempPosition: {
-          x: action.value.x,
-          y: action.value.y,
-        },
-      };
-    }
-    case 'setLastPosition': {
-      return {
-        ...state,
-        lastPosition: {
           x: action.value.x,
           y: action.value.y,
         },
@@ -214,7 +120,6 @@ const ContextProvider = (props) => {
   } = webcamDraggableState;
   const { children } = props;
   useEffect(() => {
-    Storage.setItem('webcamPlacement', placement);
     Storage.setItem('webcamLastPlacementLandscape', lastPlacementLandscape);
     Storage.setItem('webcamlastPlacementPortrait', lastPlacementPortrait);
     Storage.setItem('webcamLastPosition', lastPosition);

@@ -84,18 +84,26 @@ class PresentationArea extends PureComponent {
   }
 
   componentDidMount() {
-    // adding an event listener to scale the whiteboard on 'resize' events sent by chat/userlist etc
-    // window.addEventListener('resize', this.onResize);
     this.getInitialPresentationSizes();
     this.refPresentationContainer.addEventListener('fullscreenchange', this.onFullscreenChange);
+    window.addEventListener('resize', this.onResize, false);
+    window.addEventListener('webcamAreaResize', this.onResize, false);
+    window.addEventListener('userListResizeChanged', this.onResize, false);
+    window.addEventListener('chatResizeChanged', this.onResize, false);
 
-    const { slidePosition, webcamDraggableDispatch } = this.props;
+    const { slidePosition, layoutContextDispatch } = this.props;
     const { width: currWidth, height: currHeight } = slidePosition;
     if (currWidth > currHeight || currWidth === currHeight) {
-      webcamDraggableDispatch({ type: 'setOrientationToLandscape' });
+      layoutContextDispatch({
+        type: 'setPresentationOrientation',
+        value: 'landscape',
+      });
     }
     if (currHeight > currWidth) {
-      webcamDraggableDispatch({ type: 'setOrientationToPortrait' });
+      layoutContextDispatch({
+        type: 'setPresentationOrientation',
+        value: 'portrait',
+      });
     }
   }
 
@@ -103,32 +111,40 @@ class PresentationArea extends PureComponent {
     const {
       currentPresentation,
       slidePosition,
-      webcamDraggableDispatch,
       layoutSwapped,
       currentSlide,
       publishedPoll,
       isViewer,
       toggleSwapLayout,
       restoreOnUpdate,
+      layoutContextDispatch,
       layoutContextState,
     } = this.props;
+
+    const { presentationAreaWidth, presentationAreaHeight } = this.state;
     const { presentationAreaSize } = layoutContextState;
     const { layoutContextState: prevLayoutContextState } = prevProps;
     const { presentationAreaSize: prevPresentationAreaSize } = prevLayoutContextState;
 
-    if (presentationAreaSize !== prevPresentationAreaSize) {
-      this.handleResize();
-    }
+    if (presentationAreaSize !== prevPresentationAreaSize
+      || presentationAreaSize.width !== presentationAreaWidth
+      || presentationAreaSize.height !== presentationAreaHeight) this.handleResize();
 
     const { width: prevWidth, height: prevHeight } = prevProps.slidePosition;
     const { width: currWidth, height: currHeight } = slidePosition;
 
     if (prevWidth !== currWidth || prevHeight !== currHeight) {
       if (currWidth > currHeight || currWidth === currHeight) {
-        webcamDraggableDispatch({ type: 'setOrientationToLandscape' });
+        layoutContextDispatch({
+          type: 'setPresentationOrientation',
+          value: 'landscape',
+        });
       }
       if (currHeight > currWidth) {
-        webcamDraggableDispatch({ type: 'setOrientationToPortrait' });
+        layoutContextDispatch({
+          type: 'setPresentationOrientation',
+          value: 'portrait',
+        });
       }
     }
 
@@ -157,7 +173,10 @@ class PresentationArea extends PureComponent {
   }
 
   componentWillUnmount() {
-    // window.removeEventListener('resize', this.onResize);
+    window.removeEventListener('resize', this.onResize, false);
+    window.removeEventListener('webcamAreaResize', this.onResize, false);
+    window.removeEventListener('userListResizeChanged', this.onResize, false);
+    window.removeEventListener('chatResizeChanged', this.onResize, false);
     this.refPresentationContainer.removeEventListener('fullscreenchange', this.onFullscreenChange);
   }
 
@@ -168,7 +187,6 @@ class PresentationArea extends PureComponent {
     if (isFullscreen !== newIsFullscreen) {
       this.setState({ isFullscreen: newIsFullscreen });
       layoutContextDispatch({ type: 'setPresentationFullscreen', value: newIsFullscreen });
-      // window.dispatchEvent(new Event('resize'));
     }
   }
 
@@ -189,29 +207,31 @@ class PresentationArea extends PureComponent {
   }
 
   getPresentationSizesAvailable() {
-    const { userIsPresenter, multiUser, layoutContextState } = this.props;
-    const { refPresentationArea, refWhiteboardArea } = this;
+    // const { userIsPresenter, multiUser } = this.props;
+    const { layoutContextState } = this.props;
+    // const { refPresentationArea, refWhiteboardArea } = this;
     const { presentationAreaSize } = layoutContextState;
 
     const presentationSizes = {};
 
-    if (refPresentationArea && refWhiteboardArea) {
-      // By default presentation sizes are equal to the sizes of the refPresentationArea
-      // direct parent of the svg wrapper
-      let { clientWidth, clientHeight } = refPresentationArea;
+    // if (refPresentationArea && refWhiteboardArea) {
+    // By default presentation sizes are equal to the sizes of the refPresentationArea
+    // direct parent of the svg wrapper
+    // let { clientWidth, clientHeight } = refPresentationArea;
 
-      // if a user is a presenter - this means there is a whiteboard toolbar on the right
-      // and we have to get the width/height of the refWhiteboardArea
-      // (inner hidden div with absolute position)
-      if (userIsPresenter || multiUser) {
-        ({ clientWidth, clientHeight } = refWhiteboardArea);
-      }
+    // if a user is a presenter - this means there is a whiteboard toolbar on the right
+    // and we have to get the width/height of the refWhiteboardArea
+    // (inner hidden div with absolute position)
+    // if (userIsPresenter || multiUser) {
+    //   ({ clientWidth, clientHeight } = refWhiteboardArea);
+    // }
 
-      presentationSizes.presentationAreaHeight = presentationAreaSize.height - this.getToolbarHeight();
-      presentationSizes.presentationAreaWidth = presentationAreaSize.width;
-      // presentationSizes.presentationAreaHeight = clientHeight - this.getToolbarHeight();
-      // presentationSizes.presentationAreaWidth = clientWidth;
-    }
+    presentationSizes.presentationAreaHeight = presentationAreaSize
+      .height - this.getToolbarHeight();
+    presentationSizes.presentationAreaWidth = presentationAreaSize.width;
+    // presentationSizes.presentationAreaHeight = clientHeight - this.getToolbarHeight();
+    // presentationSizes.presentationAreaWidth = clientWidth;
+    // }
     return presentationSizes;
   }
 

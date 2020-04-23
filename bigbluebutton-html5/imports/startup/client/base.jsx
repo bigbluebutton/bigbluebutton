@@ -21,6 +21,7 @@ import getFromUserSettings from '/imports/ui/services/users-settings';
 import LayoutManager from '/imports/ui/components/layout/layout-manager';
 import { withLayoutContext } from '/imports/ui/components/layout/context';
 import IntlStartup from '/imports/startup/client/intl';
+import VideoService from '/imports/ui/components/video-provider/service';
 
 const CHAT_CONFIG = Meteor.settings.public.chat;
 const CHAT_ENABLED = CHAT_CONFIG.enabled;
@@ -215,6 +216,7 @@ class Base extends Component {
       locale,
       layoutContextState,
       layoutContextDispatch,
+      usersVideo,
     } = this.props;
 
     const { updateLoadingState } = this;
@@ -226,6 +228,7 @@ class Base extends Component {
         <LayoutManager
           layoutContextState={layoutContextState}
           layoutContextDispatch={layoutContextDispatch}
+          usersVideo={usersVideo}
         />
         {
           (!meetingExisted && !meetingExist && Auth.loggedIn)
@@ -389,6 +392,7 @@ const BaseContainer = withTracker(() => {
   }
 
   const codeError = Session.get('codeError');
+  const usersVideo = VideoService.getVideoStreams();
 
   return {
     approved,
@@ -405,6 +409,7 @@ const BaseContainer = withTracker(() => {
     subscriptionsReady: Session.get('subscriptionsReady'),
     loggedIn,
     codeError,
+    usersVideo,
   };
 })(withLayoutContext(Base));
 
