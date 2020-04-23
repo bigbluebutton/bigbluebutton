@@ -1,7 +1,6 @@
 import React, { PureComponent, Fragment } from 'react';
 import Draggable from 'react-draggable';
 import cx from 'classnames';
-import _ from 'lodash';
 import PropTypes from 'prop-types';
 import Resizable from 're-resizable';
 import { isMobile, isIPad13 } from 'react-device-detect';
@@ -9,6 +8,8 @@ import { withDraggableConsumer } from './context';
 import VideoProviderContainer from '/imports/ui/components/video-provider/container';
 import { styles } from '../styles.scss';
 import Storage from '../../../services/storage/session';
+import { withLayoutConsumer } from '/imports/ui/components/layout/context';
+import { WEBCAMSAREA_MIN_PERCENT } from '/imports/ui/components/layout/layout-manager';
 
 const BROWSER_ISMOBILE = isMobile || isIPad13;
 
@@ -20,7 +21,6 @@ const propTypes = {
   webcamDraggableState: PropTypes.objectOf(Object).isRequired,
   webcamDraggableDispatch: PropTypes.func.isRequired,
   refMediaContainer: PropTypes.shape({ current: PropTypes.instanceOf(Element) }),
-  usersVideoLenght: PropTypes.number.isRequired,
 };
 
 const defaultProps = {
@@ -30,70 +30,110 @@ const defaultProps = {
   audioModalIsOpen: false,
   refMediaContainer: null,
 };
-const dispatchResizeEvent = () => window.dispatchEvent(new Event('resize'));
 
 class WebcamDraggable extends PureComponent {
   constructor(props) {
     super(props);
 
+    const { layoutContextState } = props;
+    const { webcamsPlacement, mediaBounds } = layoutContextState;
+    this.state = {
+      webcamsAreaResizable: {
+        width: webcamsPlacement === 'top' || webcamsPlacement === 'bottom' ? mediaBounds.width : mediaBounds.width * WEBCAMSAREA_MIN_PERCENT,
+        height: webcamsPlacement === 'left' || webcamsPlacement === 'right' ? mediaBounds.height : mediaBounds.height * WEBCAMSAREA_MIN_PERCENT,
+      },
+      resizing: false,
+    };
+
     this.handleWebcamDragStart = this.handleWebcamDragStart.bind(this);
     this.handleWebcamDragStop = this.handleWebcamDragStop.bind(this);
     this.onFullscreenChange = this.onFullscreenChange.bind(this);
-    this.debouncedOnResize = _.debounce(this.onWindowResize.bind(this), 500);
     this.onResizeStop = this.onResizeStop.bind(this);
     this.onResizeStart = this.onResizeStart.bind(this);
-    this.setPlacementPercent = this.setPlacementPercent.bind(this);
-    this.recalculateAreaSize = this.recalculateAreaSize.bind(this);
-
-    this.state = {
-      resizing: false,
-      placementPercent: 0,
-    };
   }
 
   componentDidMount() {
-    dispatchResizeEvent();
-    window.addEventListener('resize', this.debouncedOnResize);
-    document.addEventListener('fullscreenchange', this.onFullscreenChange);
-    window.addEventListener('orientationchange', () => setTimeout(this.recalculateAreaSize, 500));
-  }
-
-  componentDidUpdate(prevProps) {
+    const { webcamDraggableState } = this.props;
     const {
-      swapLayout,
-      webcamDraggableState,
-      webcamDraggableDispatch,
-      usersVideoLenght,
-    } = this.props;
-    const {
-      placement: statePlacement,
-      orientation,
       lastPlacementLandscape,
       lastPlacementPortrait,
     } = webcamDraggableState;
-    const { webcamDraggableState: prevWebcamDraggableState } = prevProps;
-    const { placement: prevPlacement, orientation: prevOrientation } = prevWebcamDraggableState;
-    if (prevProps.swapLayout !== swapLayout) {
-      setTimeout(() => this.forceUpdate(), 500);
+    const { layoutContextState, layoutContextDispatch } = this.props;
+    const { presentationOrientation } = layoutContextState;
+    document.addEventListener('fullscreenchange', this.onFullscreenChange);
+    window.addEventListener('orientationchange', () => setTimeout(this.recalculateAreaSize, 500));
+
+    if (presentationOrientation === 'landscape') {
+      layoutContextDispatch({
+        type: 'setWebcamsPlacement',
+        value: !lastPlacementLandscape ? 'top' : lastPlacementLandscape,
+      });
     }
-    if (prevPlacement !== statePlacement) {
-      setTimeout(() => this.forceUpdate(), 200);
-      setTimeout(() => window.dispatchEvent(new Event('resize')), 500);
+    if (presentationOrientation === 'portrait') {
+      layoutContextDispatch({
+        type: 'setWebcamsPlacement',
+        value: !lastPlacementPortrait ? 'left' : lastPlacementPortrait,
+      });
+    }
+  }
+
+  componentDidUpdate(prevProps) {
+    // const { swapLayout } = this.props;
+
+    // Webcam Draggable Context
+    const { webcamDraggableState } = this.props;
+    const {
+      lastPlacementLandscape,
+      lastPlacementPortrait,
+    } = webcamDraggableState;
+
+    // Layout Context
+    const { layoutContextState, layoutContextDispatch } = this.props;
+    const { layoutContextState: prevLayoutContextState } = prevProps;
+    const {
+      webcamsAreaSize,
+      presentationOrientation,
+    } = layoutContextState;
+    const {
+      webcamsAreaSize: prevWebcamsAreaSize,
+      presentationOrientation: prevPresentationOrientation,
+    } = prevLayoutContextState;
+
+
+    if (webcamsAreaSize.width !== prevWebcamsAreaSize.width
+      || webcamsAreaSize.height !== prevWebcamsAreaSize.height) {
+      this.setWebcamsAreaResizable(webcamsAreaSize.width, webcamsAreaSize.height);
     }
 
-    if (prevProps.usersVideoLenght !== usersVideoLenght) {
-      dispatchResizeEvent();
-    }
-
-    if (prevOrientation !== orientation) {
-      const storagePlacement = Storage.getItem('webcamPlacement');
-      if ((prevOrientation == null || prevOrientation === 'portrait') && orientation === 'landscape') {
-        if (storagePlacement !== lastPlacementLandscape && lastPlacementLandscape === 'top') webcamDraggableDispatch({ type: 'setplacementToTop' });
-        if (storagePlacement !== lastPlacementLandscape && lastPlacementLandscape === 'bottom') webcamDraggableDispatch({ type: 'setplacementToBottom' });
+    if (prevPresentationOrientation !== presentationOrientation) {
+      const storagePlacement = Storage.getItem('webcamsPlacement');
+      if ((prevPresentationOrientation == null || prevPresentationOrientation === 'portrait') && presentationOrientation === 'landscape') {
+        if (storagePlacement !== lastPlacementLandscape && lastPlacementLandscape === 'top') {
+          layoutContextDispatch({
+            type: 'setWebcamsPlacement',
+            value: 'top',
+          });
+        }
+        if (storagePlacement !== lastPlacementLandscape && lastPlacementLandscape === 'bottom') {
+          layoutContextDispatch({
+            type: 'setWebcamsPlacement',
+            value: 'bottom',
+          });
+        }
       }
-      if ((prevOrientation == null || prevOrientation === 'landscape') && orientation === 'portrait') {
-        if (storagePlacement !== lastPlacementPortrait && lastPlacementPortrait === 'left') webcamDraggableDispatch({ type: 'setplacementToLeft' });
-        if (storagePlacement !== lastPlacementPortrait && lastPlacementPortrait === 'right') webcamDraggableDispatch({ type: 'setplacementToRight' });
+      if ((prevPresentationOrientation == null || prevPresentationOrientation === 'landscape') && presentationOrientation === 'portrait') {
+        if (storagePlacement !== lastPlacementPortrait && lastPlacementPortrait === 'left') {
+          layoutContextDispatch({
+            type: 'setWebcamsPlacement',
+            value: 'left',
+          });
+        }
+        if (storagePlacement !== lastPlacementPortrait && lastPlacementPortrait === 'right') {
+          layoutContextDispatch({
+            type: 'setWebcamsPlacement',
+            value: 'right',
+          });
+        }
       }
     }
   }
@@ -101,7 +141,6 @@ class WebcamDraggable extends PureComponent {
   componentWillUnmount() {
     window.removeEventListener('resize', this.debouncedOnResize);
     document.removeEventListener('fullscreenchange', this.onFullscreenChange);
-    dispatchResizeEvent();
   }
 
   onFullscreenChange() {
@@ -112,91 +151,56 @@ class WebcamDraggable extends PureComponent {
     this.setState({ resizing: true });
   }
 
-  onWindowResize() {
-    const { webcamDraggableState, webcamDraggableDispatch } = this.props;
-    const { mediaSize } = webcamDraggableState;
-    const { width: stateWidth, height: stateHeight } = mediaSize;
-    const { width, height } = this.getMediaBounds();
+  onResizeStop(resizableWidth, resizableHeight) {
+    const { webcamsAreaResizable } = this.state;
+    const { layoutContextState, layoutContextDispatch } = this.props;
+    const { webcamsPlacement, webcamsAreaSize } = layoutContextState;
 
-    if (stateWidth !== width || stateHeight !== height) {
-      webcamDraggableDispatch(
-        {
-          type: 'setMediaSize',
-          value: {
-            width,
-            height,
-          },
+    layoutContextDispatch(
+      {
+        type: 'setAutoArrangeLayout',
+        value: false,
+      },
+    );
+
+    const newWebcamsAreaResizable = {
+      width: Math.trunc(webcamsAreaResizable.width) + resizableWidth,
+      height: Math.trunc(webcamsAreaResizable.height) + resizableHeight,
+    };
+
+
+    console.log('webcamsAreaSize.width', webcamsAreaSize.width);
+    console.log('webcamsAreaSize.height', webcamsAreaSize.height);
+    console.log('newWebcamsAreaResizable.width', newWebcamsAreaResizable.width);
+    console.log('newWebcamsAreaResizable.height', newWebcamsAreaResizable.height);
+    
+
+
+    layoutContextDispatch(
+      {
+        type: 'setWebcamsAreaSize',
+        value: {
+          width: webcamsPlacement === 'top' || webcamsPlacement === 'bottom' ? webcamsAreaSize.width : newWebcamsAreaResizable.width,
+          height: webcamsPlacement === 'left' || webcamsPlacement === 'right' ? webcamsAreaSize.height : newWebcamsAreaResizable.height,
         },
-      );
-      setTimeout(() => window.dispatchEvent(new Event('resize')), 300);
-    }
-  }
+      },
+    );
 
-  onResize() {
-    this.setPlacementPercent();
-  }
+    this.setState({
+      webcamsAreaResizable: {
+        width: webcamsPlacement === 'top' || webcamsPlacement === 'bottom' ? webcamsAreaSize.width : newWebcamsAreaResizable.width,
+        height: webcamsPlacement === 'left' || webcamsPlacement === 'right' ? webcamsAreaSize.height : newWebcamsAreaResizable.height,
+      },
+    });
 
-  onResizeStop() {
-    const { webcamDraggableState, webcamDraggableDispatch } = this.props;
-    const { optimalGrid } = webcamDraggableState;
-    if (optimalGrid) {
-      webcamDraggableDispatch(
-        {
-          type: 'setVideoListSize',
-          value: {
-            width: optimalGrid.width,
-            height: optimalGrid.height,
-          },
-        },
-      );
-    }
-    this.setPlacementPercent();
-    window.dispatchEvent(new Event('resize'));
     setTimeout(() => this.setState({ resizing: false }), 500);
+    window.dispatchEvent(new Event('webcamAreaResize'));
   }
 
-  setPlacementPercent() {
-    const { webcamDraggableState } = this.props;
-    const { optimalGrid, placement } = webcamDraggableState;
-    if (placement === 'top' || placement === 'bottom') {
-      const mediaHeight = $('section[class^=media]').height();
-      this.setState({ placementPercent: (optimalGrid.height * 100) / mediaHeight });
-    }
-    if (placement === 'left' || placement === 'right') {
-      const mediaWidth = $('section[class^=media]').width();
-      this.setState({ placementPercent: (optimalGrid.width * 100) / mediaWidth });
-    }
-  }
-
-  getMediaBounds() {
-    const { refMediaContainer, webcamDraggableState, webcamDraggableDispatch } = this.props;
-    const { mediaSize: mediaState } = webcamDraggableState;
-    const { current: mediaContainer } = refMediaContainer;
-    if (mediaContainer) {
-      const mediaContainerRect = mediaContainer.getBoundingClientRect();
-      const {
-        top, left, width: newWidth, height: newHeight,
-      } = mediaContainerRect;
-      if ((mediaState.width === 0 || mediaState.height === 0) && (newWidth > 0 && newHeight > 0)) {
-        webcamDraggableDispatch(
-          {
-            type: 'setMediaSize',
-            value: {
-              newWidth,
-              newHeight,
-            },
-          },
-        );
-      }
-
-      return {
-        top,
-        left,
-        width: newWidth,
-        height: newHeight,
-      };
-    }
-    return false;
+  setWebcamsAreaResizable(width, height) {
+    this.setState({
+      webcamsAreaResizable: { width, height },
+    });
   }
 
   getWebcamsListBounds() {
@@ -208,22 +212,20 @@ class WebcamDraggable extends PureComponent {
         top, left, width, height,
       } = videoListRefRect;
       return {
-        top, // 10 = margin
-        left, // 10 = margin
-        width, // 20 = margin
-        height, // 20 = margin
+        top,
+        left,
+        width,
+        height,
       };
     }
     return false;
   }
 
-  recalculateAreaSize() {
-    this.onResizeStart();
-    this.onResizeStop();
-  }
-
   calculatePosition() {
-    const { top: mediaTop, left: mediaLeft } = this.getMediaBounds();
+    const { layoutContextState } = this.props;
+    const { mediaBounds } = layoutContextState;
+
+    const { top: mediaTop, left: mediaLeft } = mediaBounds;
     const { top: webcamsListTop, left: webcamsListLeft } = this.getWebcamsListBounds();
     const x = webcamsListLeft - mediaLeft;
     const y = webcamsListTop - mediaTop;
@@ -249,52 +251,57 @@ class WebcamDraggable extends PureComponent {
   }
 
   handleWebcamDragStop(e) {
-    const { webcamDraggableDispatch } = this.props;
+    const { webcamDraggableDispatch, layoutContextDispatch } = this.props;
     const targetClassname = JSON.stringify(e.target.className);
 
     if (targetClassname) {
       if (targetClassname.includes('Top')) {
-        webcamDraggableDispatch({ type: 'setplacementToTop' });
-        webcamDraggableDispatch({ type: 'setLastPlacementLandscapeToTop' });
+        layoutContextDispatch({
+          type: 'setWebcamsPlacement',
+          value: 'top',
+        });
       } else if (targetClassname.includes('Right')) {
-        webcamDraggableDispatch({ type: 'setplacementToRight' });
-        webcamDraggableDispatch({ type: 'setLastPlacementPortraitToRight' });
+        layoutContextDispatch({
+          type: 'setWebcamsPlacement',
+          value: 'right',
+        });
       } else if (targetClassname.includes('Bottom')) {
-        webcamDraggableDispatch({ type: 'setplacementToBottom' });
-        webcamDraggableDispatch({ type: 'setLastPlacementLandscapeToBottom' });
+        layoutContextDispatch({
+          type: 'setWebcamsPlacement',
+          value: 'bottom',
+        });
       } else if (targetClassname.includes('Left')) {
-        webcamDraggableDispatch({ type: 'setplacementToLeft' });
-        webcamDraggableDispatch({ type: 'setLastPlacementPortraitToLeft' });
+        layoutContextDispatch({
+          type: 'setWebcamsPlacement',
+          value: 'left',
+        });
       }
     }
     webcamDraggableDispatch({ type: 'dragEnd' });
-    window.dispatchEvent(new Event('resize'));
-    setTimeout(this.recalculateAreaSize, 500);
+    window.dispatchEvent(new Event('webcamAreaResize'));
   }
 
   render() {
     const {
+      layoutContextState,
       webcamDraggableState,
       swapLayout,
       hideOverlay,
       disableVideo,
       audioModalIsOpen,
-      refMediaContainer,
     } = this.props;
 
-    const {
-      resizing,
-      placementPercent,
-    } = this.state;
+    const { resizing, webcamsAreaResizable } = this.state;
+
+    const { mediaBounds } = layoutContextState;
 
     const {
       dragging,
       isCameraFullscreen,
-      videoListSize,
       optimalGrid,
     } = webcamDraggableState;
 
-    const placement = Storage.getItem('webcamPlacement');
+    const webcamsPlacement = Storage.getItem('webcamsPlacement');
 
     const lastPosition = Storage.getItem('webcamLastPosition') || { x: 0, y: 0 };
 
@@ -321,7 +328,7 @@ class WebcamDraggable extends PureComponent {
     const {
       width: mediaWidth,
       height: mediaHeight,
-    } = this.getMediaBounds();
+    } = mediaBounds;
 
     const {
       width: webcamsWidth,
@@ -344,57 +351,16 @@ class WebcamDraggable extends PureComponent {
       [styles.fullHeight]: swapLayout,
     });
 
-    const { current: mediaContainer } = refMediaContainer;
-    let layout = 'vertical';
-    if (mediaContainer) {
-      const classNameMediaContainer = mediaContainer.className;
-      if (classNameMediaContainer.includes('containerH')) {
-        layout = 'horizontal';
-      } else {
-        layout = 'vertical';
-      }
-    }
-
     const overlayClassName = cx({
       [styles.overlay]: true,
       [styles.hideOverlay]: hideOverlay,
       [styles.floatingOverlay]: dragging,
       [styles.autoWidth]: dragging,
-      [styles.fullWidth]: (
-        (
-          placement === 'top'
-          || placement === 'bottom'
-        )
-        || swapLayout
-      )
-        && !dragging,
-      [styles.fullHeight]: (
-        (
-          placement === 'left'
-          && placement === 'right'
-        )
-        || swapLayout
-      )
-        && !dragging,
-      [styles.overlayToTop]: placement === 'top' && !dragging,
-      [styles.overlayToRight]: placement === 'right' && !dragging,
-      [styles.overlayToBottom]: placement === 'bottom' && !dragging,
-      [styles.overlayToLeft]: placement === 'left' && !dragging,
+      [styles.overlayToTop]: webcamsPlacement === 'top' && !dragging,
+      [styles.overlayToRight]: webcamsPlacement === 'right' && !dragging,
+      [styles.overlayToBottom]: webcamsPlacement === 'bottom' && !dragging,
+      [styles.overlayToLeft]: webcamsPlacement === 'left' && !dragging,
       [styles.dragging]: dragging,
-      [styles.hide]: (
-        (
-          placement === 'left'
-          || placement === 'right'
-        )
-        && layout === 'vertical'
-      )
-        || (
-          (
-            placement === 'top'
-            || placement === 'bottom'
-          )
-          && layout === 'horizontal'
-        ),
     });
 
     const dropZoneTopClassName = cx({
@@ -441,33 +407,35 @@ class WebcamDraggable extends PureComponent {
       [styles.dropZoneBgRight]: true,
     });
 
-    const mHeight = $('section[class^=media]').height();
-    const mWidth = $('section[class^=media]').width();
+    // let resizeWidth;
+    // let resizeHeight;
+    // if (resizing && (webcamsPlacement === 'top' || webcamsPlacement === 'bottom') && !dragging) {
+    //   resizeWidth = '100%';
+    //   resizeHeight = videoListSize.height;
+    // }
+    // if (!resizing && (webcamsPlacement === 'top'
+    // || webcamsPlacement === 'bottom') && !dragging) {
+    //   resizeWidth = '100%';
+    //   resizeHeight = webcamsAreaSize.height;
+    // }
 
-    let resizeWidth;
-    let resizeHeight;
-    if (resizing && (placement === 'top' || placement === 'bottom') && !dragging) {
-      resizeWidth = '100%';
-      resizeHeight = videoListSize.height;
-    }
-    if (!resizing && (placement === 'top' || placement === 'bottom') && !dragging) {
-      resizeWidth = '100%';
-      resizeHeight = mHeight * (placementPercent / 100);
-    }
+    // if (resizing && (webcamsPlacement === 'left' || webcamsPlacement === 'right') && !dragging) {
+    //   resizeWidth = videoListSize.width;
+    //   resizeHeight = '100%';
+    // }
+    // if (!resizing && (webcamsPlacement === 'left'
+    // || webcamsPlacement === 'right') && !dragging) {
+    //   resizeWidth = webcamsAreaSize.width;
+    //   resizeHeight = '100%';
+    // }
 
-    if (resizing && (placement === 'left' || placement === 'right') && !dragging) {
-      resizeWidth = videoListSize.width;
-      resizeHeight = '100%';
-    }
-    if (!resizing && (placement === 'left' || placement === 'right') && !dragging) {
-      resizeWidth = mWidth * (placementPercent / 100);
-      resizeHeight = '100%';
-    }
+    // if (dragging) {
+    //   resizeHeight = optimalGrid.height;
+    //   resizeWidth = optimalGrid.width;
+    // }
 
-    if (dragging) {
-      resizeHeight = optimalGrid.height;
-      resizeWidth = optimalGrid.width;
-    }
+    // console.log('webcamsAreaResizable.height', webcamsAreaResizable.height);
+
 
     return (
       <Fragment>
@@ -496,26 +464,29 @@ class WebcamDraggable extends PureComponent {
           onStart={this.handleWebcamDragStart}
           onStop={this.handleWebcamDragStop}
           onMouseDown={e => e.preventDefault()}
-          disabled={swapLayout || isCameraFullscreen || BROWSER_ISMOBILE}
+          disabled={swapLayout || isCameraFullscreen || BROWSER_ISMOBILE || resizing}
           position={position}
         >
           <Resizable
+            minWidth={mediaBounds.width * WEBCAMSAREA_MIN_PERCENT}
+            minHeight={mediaBounds.height * WEBCAMSAREA_MIN_PERCENT}
             size={
               {
-                height: resizeHeight,
-                width: resizeWidth,
+                height: dragging ? optimalGrid.height : webcamsAreaResizable.height,
+                width: dragging ? optimalGrid.width : webcamsAreaResizable.width,
               }
             }
             lockAspectRatio
             handleWrapperClass="resizeWrapper"
             onResizeStart={this.onResizeStart}
-            onResize={dispatchResizeEvent}
-            onResizeStop={this.onResizeStop}
+            onResizeStop={(e, direction, ref, d) => {
+              this.onResizeStop(d.width, d.height);
+            }}
             enable={{
-              top: (placement === 'bottom') && !swapLayout,
-              bottom: (placement === 'top') && !swapLayout,
-              left: (placement === 'right') && !swapLayout,
-              right: (placement === 'left') && !swapLayout,
+              top: (webcamsPlacement === 'bottom') && !swapLayout,
+              bottom: (webcamsPlacement === 'top') && !swapLayout,
+              left: (webcamsPlacement === 'right') && !swapLayout,
+              right: (webcamsPlacement === 'left') && !swapLayout,
               topLeft: false,
               topRight: false,
               bottomLeft: false,
@@ -569,4 +540,4 @@ class WebcamDraggable extends PureComponent {
 WebcamDraggable.propTypes = propTypes;
 WebcamDraggable.defaultProps = defaultProps;
 
-export default withDraggableConsumer(WebcamDraggable);
+export default withDraggableConsumer(withLayoutConsumer(WebcamDraggable));

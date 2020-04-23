@@ -102,11 +102,17 @@ class VideoList extends Component {
 
     this.handleCanvasResize();
     window.addEventListener('resize', this.handleCanvasResize, false);
+    window.addEventListener('webcamAreaResize', this.handleCanvasResize, false);
+    window.addEventListener('userListResizeChanged', this.handleCanvasResize, false);
+    window.addEventListener('chatResizeChanged', this.handleCanvasResize, false);
     window.addEventListener('videoPlayFailed', this.handlePlayElementFailed);
   }
 
   componentWillUnmount() {
     window.removeEventListener('resize', this.handleCanvasResize, false);
+    window.removeEventListener('webcamAreaResize', this.handleCanvasResize, false);
+    window.removeEventListener('userListResizeChanged', this.handleCanvasResize, false);
+    window.removeEventListener('chatResizeChanged', this.handleCanvasResize, false);
     window.removeEventListener('videoPlayFailed', this.handlePlayElementFailed);
   }
 

@@ -1,11 +1,21 @@
-import React, { createContext, useReducer } from 'react';
+import React, { createContext, useReducer, useEffect } from 'react';
+import Storage from '/imports/ui/services/storage/session';
+
+const { webcamsDefaultPlacement } = Meteor.settings.public.layout;
 
 export const LayoutContext = createContext();
 
 const initialState = {
+  autoArrangeLayout: true,
   windowSize: {
     width: 0,
     height: 0,
+  },
+  mediaBounds: {
+    width: 0,
+    height: 0,
+    top: 0,
+    left: 0,
   },
   userListSize: {
     width: 0,
@@ -17,21 +27,44 @@ const initialState = {
     width: 0,
     height: 0,
   },
+  percentWebcamsAreaUserSets: {
+    width: 0,
+    height: 0,
+  },
+  webcamsPlacement: webcamsDefaultPlacement || 'top',
   presentationAreaSize: {
     width: 0,
     height: 0,
   },
   presentationIsFullscreen: null,
+  presentationOrientation: null,
 };
 
 const reducer = (state, action) => {
   switch (action.type) {
+    case 'setAutoArrangeLayout': {
+      return {
+        ...state,
+        autoArrangeLayout: action.value,
+      };
+    }
     case 'setWindowSize': {
       return {
         ...state,
         windowSize: {
           width: action.value.width,
           height: action.value.height,
+        },
+      };
+    }
+    case 'setMediaBounds': {
+      return {
+        ...state,
+        mediaBounds: {
+          width: action.value.width,
+          height: action.value.height,
+          top: action.value.top,
+          left: action.value.left,
         },
       };
     }
@@ -51,10 +84,26 @@ const reducer = (state, action) => {
         },
       };
     }
+    case 'setWebcamsPlacement': {
+      // webcamsPlacement: ('top' | 'right' | 'bottom' | 'left') string
+      return {
+        ...state,
+        webcamsPlacement: action.value,
+      };
+    }
     case 'setWebcamsAreaSize': {
       return {
         ...state,
         webcamsAreaSize: {
+          width: action.value.width,
+          height: action.value.height,
+        },
+      };
+    }
+    case 'setPercentWebcamsAreaUserSets': {
+      return {
+        ...state,
+        percentWebcamsAreaUserSets: {
           width: action.value.width,
           height: action.value.height,
         },
@@ -70,9 +119,17 @@ const reducer = (state, action) => {
       };
     }
     case 'setPresentationFullscreen': {
+      // presentationIsFullscreen: (true | false) boolean
       return {
         ...state,
         presentationIsFullscreen: action.value,
+      };
+    }
+    case 'setPresentationOrientation': {
+      // presentationOrientation: ('portrait' | 'landscape') string
+      return {
+        ...state,
+        presentationOrientation: action.value,
       };
     }
     default: {
@@ -83,7 +140,16 @@ const reducer = (state, action) => {
 
 const ContextProvider = (props) => {
   const [layoutContextState, layoutContextDispatch] = useReducer(reducer, initialState);
+  const { webcamsPlacement, autoArrangeLayout } = layoutContextState;
   const { children } = props;
+
+  useEffect(() => {
+    Storage.setItem('webcamsPlacement', webcamsPlacement);
+    Storage.setItem('autoArrangeLayout', autoArrangeLayout);
+  }, [
+    webcamsPlacement,
+    autoArrangeLayout,
+  ]);
 
   return (
     <LayoutContext.Provider value={{

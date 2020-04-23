@@ -21,7 +21,8 @@ import { notify } from '/imports/ui/services/notification';
 import deviceInfo from '/imports/utils/deviceInfo';
 import getFromUserSettings from '/imports/ui/services/users-settings';
 import LayoutManager from '/imports/ui/components/layout/layout-manager';
-import { LayoutContext, withLayoutContext, withLayoutConsumer } from '/imports/ui/components/layout/context';
+import { withLayoutContext } from '/imports/ui/components/layout/context';
+import VideoService from '/imports/ui/components/video-provider/service';
 
 const CHAT_ENABLED = Meteor.settings.public.chat.enabled;
 
@@ -205,6 +206,7 @@ class Base extends Component {
       meetingExist,
       layoutContextState,
       layoutContextDispatch,
+      usersVideo,
     } = this.props;
     const stateControls = { updateLoadingState };
     const { meetingExisted } = this.state;
@@ -214,6 +216,7 @@ class Base extends Component {
         <LayoutManager
           layoutContextState={layoutContextState}
           layoutContextDispatch={layoutContextDispatch}
+          usersVideo={usersVideo}
         />
         {
           (!meetingExisted && !meetingExist && Auth.loggedIn)
@@ -377,6 +380,8 @@ const BaseContainer = withTracker(() => {
     Session.set('openPanel', '');
   }
 
+  const usersVideo = VideoService.getVideoStreams();
+
   return {
     approved,
     ejected,
@@ -392,6 +397,7 @@ const BaseContainer = withTracker(() => {
     meetingIsBreakout: AppService.meetingIsBreakout(),
     subscriptionsReady: Session.get('subscriptionsReady'),
     loggedIn,
+    usersVideo,
   };
 })(withLayoutContext(Base));
 

@@ -16,6 +16,16 @@ const CHAT_MAX_WIDTH = 335;
 const NAVBAR_HEIGHT = 85;
 const ACTIONSBAR_HEIGHT = 42;
 
+const WEBCAMSAREA_MIN_PERCENT = 0.2;
+const WEBCAMSAREA_MAX_PERCENT = 0.8;
+
+// TODO function calPercentScreenOfUserSets
+// Salvar porcentagem de uso do media setado pelo usuário
+// Auto arange default true
+// Não pegar só proporção e sim calcular área disponível
+// Primeiro calculo pega orientação e medidas originais da apresentação
+// Segundo calculo olha para os valores e verifica se tem overflow e recalcula
+
 const storageLayoutData = () => Storage.getItem('layoutData');
 
 class LayoutManager extends Component {
@@ -23,7 +33,7 @@ class LayoutManager extends Component {
     super(props);
 
     this.setLayoutSizes = this.setLayoutSizes.bind(this);
-    this.calculaLayout = this.calculaLayout.bind(this);
+    this.calculatesLayout = this.calculatesLayout.bind(this);
   }
 
   componentDidMount() {
@@ -42,57 +52,31 @@ class LayoutManager extends Component {
     });
   }
 
-  setLayoutSizes(userlistChanged = false, chatChanged = false) {
+  componentDidUpdate(prevProps) {
+    const { usersVideo, layoutContextState } = this.props;
+    const { usersVideo: prevUsersVideo, layoutContextState: prevLayoutContextState } = prevProps;
+    const { webcamsPlacement, webcamsAreaSize } = layoutContextState;
+    const {
+      webcamsPlacement: prevWebcamsPlacement,
+      webcamsAreaSize: prevWebcamsAreaSize,
+    } = prevLayoutContextState;
+
+    if (usersVideo.length !== prevUsersVideo.length
+      || webcamsPlacement !== prevWebcamsPlacement) {
+      this.setLayoutSizes();
+    }
+
+    if (webcamsAreaSize.width !== prevWebcamsAreaSize.width
+      || webcamsAreaSize.height !== prevWebcamsAreaSize.height) {
+      this.setLayoutSizes(true, true, webcamsAreaSize);
+    }
+  }
+
+  setLayoutSizes(userlistChanged = false, chatChanged = false, webcamsAreaSize = null) {
     const { layoutContextDispatch } = this.props;
 
-    let userListWidth;
-    let chatWidth;
-    let webcamsAreaWidth;
-    let presentationAreaWidth;
-    let webcamsAreaHeight;
-    let storageWindowWidth;
-    let presentationAreaHeight;
-
-    const layoutSizes = this.calculaLayout(userlistChanged, chatChanged);
-    // Get storage data and set in size variables
-    const storageLData = storageLayoutData();
-    if (storageLData) {
-      storageWindowWidth = storageLData.windowSize.width;
-      userListWidth = storageLData.userListSize.width;
-      chatWidth = storageLData.chatSize.width;
-      webcamsAreaWidth = storageLData.webcamsAreaSize.width;
-      webcamsAreaHeight = storageLData.webcamsAreaSize.height;
-      presentationAreaWidth = storageLData.presentationAreaSize.width;
-      presentationAreaHeight = storageLData.presentationAreaSize.height;
-    }
-
-    // If storage data does not exist or window size is changed or layout is changed
-    // (userlist or chat list size changed)
-    // Get size from calc function
-    if (!userListWidth
-      || windowWidth() !== storageWindowWidth
-      || userlistChanged
-      || chatChanged) {
-      userListWidth = layoutSizes.userListSize.width;
-    }
-    if (!chatWidth
-      || windowWidth() !== storageWindowWidth
-      || chatChanged
-      || userlistChanged) {
-      chatWidth = layoutSizes.chatSize.width;
-    }
-    if (!storageLayoutData() || windowWidth() !== storageWindowWidth) {
-      webcamsAreaWidth = layoutSizes.webcamsAreaSize.width;
-      webcamsAreaHeight = layoutSizes.webcamsAreaSize.height;
-    }
-    if (!storageLayoutData()
-      || windowWidth() !== storageWindowWidth
-      || layoutSizes.presentationAreaSize.width !== storageLayoutData().presentationAreaSize.width
-      || userlistChanged
-      || chatChanged) {
-      presentationAreaWidth = layoutSizes.presentationAreaSize.width;
-      presentationAreaHeight = layoutSizes.presentationAreaSize.height;
-    }
+    const layoutSizes = this
+      .calculatesLayout(userlistChanged, chatChanged, webcamsAreaSize);
 
     layoutContextDispatch(
       {
@@ -105,9 +89,20 @@ class LayoutManager extends Component {
     );
     layoutContextDispatch(
       {
+        type: 'setMediaBounds',
+        value: {
+          width: layoutSizes.mediaBounds.width,
+          height: layoutSizes.mediaBounds.height,
+          top: layoutSizes.mediaBounds.top,
+          left: layoutSizes.mediaBounds.left,
+        },
+      },
+    );
+    layoutContextDispatch(
+      {
         type: 'setUserListSize',
         value: {
-          width: userListWidth,
+          width: layoutSizes.userListSize.width,
         },
       },
     );
@@ -115,7 +110,7 @@ class LayoutManager extends Component {
       {
         type: 'setChatSize',
         value: {
-          width: chatWidth,
+          width: layoutSizes.chatSize.width,
         },
       },
     );
@@ -123,8 +118,8 @@ class LayoutManager extends Component {
       {
         type: 'setWebcamsAreaSize',
         value: {
-          width: webcamsAreaWidth,
-          height: webcamsAreaHeight,
+          width: layoutSizes.webcamsAreaSize.width,
+          height: layoutSizes.webcamsAreaSize.height,
         },
       },
     );
@@ -132,8 +127,8 @@ class LayoutManager extends Component {
       {
         type: 'setPresentationAreaSize',
         value: {
-          width: presentationAreaWidth,
-          height: presentationAreaHeight,
+          width: layoutSizes.presentationAreaSize.width,
+          height: layoutSizes.presentationAreaSize.height,
         },
       },
     );
@@ -143,35 +138,49 @@ class LayoutManager extends Component {
         width: windowWidth(),
         height: windowHeight(),
       },
+      mediaBounds: {
+        width: layoutSizes.mediaBounds.width,
+        height: layoutSizes.mediaBounds.height,
+        top: layoutSizes.mediaBounds.top,
+        left: layoutSizes.mediaBounds.left,
+      },
       userListSize: {
-        width: userListWidth,
+        width: layoutSizes.userListSize.width,
       },
       chatSize: {
-        width: chatWidth,
+        width: layoutSizes.chatSize.width,
       },
       webcamsAreaSize: {
-        width: webcamsAreaWidth,
-        height: webcamsAreaHeight,
+        width: layoutSizes.webcamsAreaSize.width,
+        height: layoutSizes.webcamsAreaSize.height,
       },
       presentationAreaSize: {
-        width: presentationAreaWidth,
-        height: presentationAreaHeight,
+        width: layoutSizes.presentationAreaSize.width,
+        height: layoutSizes.presentationAreaSize.height,
       },
     };
 
     Storage.setItem('layoutData', newLayoutData);
   }
 
-  calculaLayout(userlistChanged = false, chatChanged = false) {
-    const { layoutContextState } = this.props;
+  calculatesLayout(userlistChanged = false, chatChanged = false) {
     const {
+      layoutContextState,
+      usersVideo,
+    } = this.props;
+    const {
+      webcamsAreaSize,
       userListSize: userListSizeContext,
       chatSize: chatSizeContext,
       presentationIsFullscreen,
+      presentationOrientation,
+      webcamsPlacement,
     } = layoutContextState;
     const openPanel = Session.get('openPanel');
 
     const storageLData = storageLayoutData();
+    const autoArrangeLayout = Storage.getItem('autoArrangeLayout');
+
     let storageUserListWidth;
     let storageChatWidth;
     if (storageLData) {
@@ -220,15 +229,75 @@ class LayoutManager extends Component {
       };
     }
 
+    const fullAreaHeight = windowHeight() - (NAVBAR_HEIGHT + ACTIONSBAR_HEIGHT);
+    const fullAreaWidth = windowWidth() - (newUserListSize.width + newChatSize.width);
+
+
+    const newMediaBounds = {
+      width: fullAreaWidth,
+      height: fullAreaHeight,
+      top: NAVBAR_HEIGHT,
+      left: newUserListSize.width + newChatSize.width,
+    };
+    console.log('webcamsAreaSize', webcamsAreaSize);
+    console.log('autoArrangeLayout', autoArrangeLayout);
+    
+
+    let newWebcamAreaHeight;
+    let newWebcamAreaWidth;
+    let newPresentationAreaHeight;
+    let newPresentationAreaWidth;
+    if (usersVideo.length > 0) {
+      if (presentationOrientation === 'portrait'
+        || webcamsPlacement === 'left'
+        || webcamsPlacement === 'right'
+      ) {
+        newWebcamAreaWidth = min(
+          max(
+            webcamsAreaSize && autoArrangeLayout === false
+              ? webcamsAreaSize.width
+              : fullAreaWidth * WEBCAMSAREA_MIN_PERCENT,
+            fullAreaWidth * WEBCAMSAREA_MIN_PERCENT,
+          ),
+          fullAreaWidth * WEBCAMSAREA_MAX_PERCENT,
+        );
+        newWebcamAreaHeight = fullAreaHeight;
+
+        newPresentationAreaWidth = fullAreaWidth - newWebcamAreaWidth - 30; // 30 is margins
+        newPresentationAreaHeight = fullAreaHeight - 20; // 20 is margins
+      } else {
+        newWebcamAreaWidth = fullAreaWidth;
+        newWebcamAreaHeight = min(
+          max(
+            webcamsAreaSize && autoArrangeLayout === false
+              ? webcamsAreaSize.height
+              : fullAreaHeight * WEBCAMSAREA_MIN_PERCENT,
+            fullAreaHeight * WEBCAMSAREA_MIN_PERCENT,
+          ),
+          fullAreaHeight * WEBCAMSAREA_MAX_PERCENT,
+        );
+
+        newPresentationAreaWidth = fullAreaWidth;
+        newPresentationAreaHeight = fullAreaHeight - newWebcamAreaHeight - 30; // 30 is margins
+      }
+    } else {
+      newWebcamAreaWidth = 0;
+      newWebcamAreaHeight = 0;
+
+      newPresentationAreaWidth = fullAreaWidth;
+      newPresentationAreaHeight = fullAreaHeight - 20; // 20 is margins
+    }
+
     const newWebcamsAreaSize = {
-      width: windowWidth() - (newUserListSize.width + newChatSize.width),
+      width: newWebcamAreaWidth,
+      height: newWebcamAreaHeight,
     };
 
     let newPresentationAreaSize;
     if (!presentationIsFullscreen) {
       newPresentationAreaSize = {
-        width: windowWidth() - (newUserListSize.width + newChatSize.width),
-        height: windowHeight() - (NAVBAR_HEIGHT + ACTIONSBAR_HEIGHT),
+        width: newPresentationAreaWidth,
+        height: newPresentationAreaHeight,
       };
     } else {
       newPresentationAreaSize = {
@@ -238,6 +307,7 @@ class LayoutManager extends Component {
     }
 
     return {
+      mediaBounds: newMediaBounds,
       userListSize: newUserListSize,
       chatSize: newChatSize,
       webcamsAreaSize: newWebcamsAreaSize,
@@ -258,4 +328,6 @@ export {
   CHAT_MAX_WIDTH,
   NAVBAR_HEIGHT,
   ACTIONSBAR_HEIGHT,
+  WEBCAMSAREA_MIN_PERCENT,
+  WEBCAMSAREA_MAX_PERCENT,
 };

@@ -11,8 +11,6 @@ import Button from '../button/component';
 import RecordingIndicator from './recording-indicator/container';
 import TalkingIndicatorContainer from '/imports/ui/components/nav-bar/talking-indicator/container';
 import SettingsDropdownContainer from './settings-dropdown/container';
-import { NAVBAR_HEIGHT } from '/imports/ui/components/layout/layout-manager';
-
 
 const intlMessages = defineMessages({
   toggleUserListLabel: {
