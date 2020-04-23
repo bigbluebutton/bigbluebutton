@@ -111,6 +111,8 @@
     "app.media.autoplayAlertDesc": "Dovoli dostop",
     "app.media.screenshare.start": "Souporaba zaslona je omogočena",
     "app.media.screenshare.end": "Souporaba zaslona je onemogočena",
+    "app.media.screenshare.unavailable": "Souporaba zaslona ni na voljo",
+    "app.media.screenshare.safariNotSupported": "Souporaba zaslona trenutno v brskalniku Safari ni na voljo. Uporabite Firefox ali Google Chrome.",
     "app.media.screenshare.autoplayBlockedDesc": "Zahtevana je odobritev za prikaz govornikovega zaslona.",
     "app.media.screenshare.autoplayAllowLabel": "Pokaži zaslon v souporabi",
     "app.screenshare.notAllowed": "Napaka: dovoljenje za dostop do zaslona ni odobreno",
