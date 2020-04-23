@@ -2,4 +2,4 @@
 rm -rf libs
 grails clean
 grails compile
-grails prod run-app --port 8181
+exec grails prod run-app --port 8181

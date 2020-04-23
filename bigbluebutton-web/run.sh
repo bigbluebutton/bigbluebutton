@@ -1,2 +1,2 @@
 #!/usr/bin/env bash
-grails prod run-app --port 8090
+exec grails prod run-app --port 8090

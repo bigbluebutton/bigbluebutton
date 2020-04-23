@@ -3,4 +3,4 @@
 sbt clean stage
 sudo service bbb-apps-akka stop
 cd target/universal/stage
-./bin/bbb-apps-akka
+exec ./bin/bbb-apps-akka

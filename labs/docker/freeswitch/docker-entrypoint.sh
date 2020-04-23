@@ -11,4 +11,4 @@ xmlstarlet edit --inplace --insert '//newsubnode' --type attr --name 'name' --va
 xmlstarlet edit --inplace --insert '//newsubnode' --type attr --name 'value' --value ':7443'  /opt/freeswitch/conf/sip_profiles/external.xml
 xmlstarlet edit --inplace --rename '//newsubnode' --value 'param'  /opt/freeswitch/conf/sip_profiles/external.xml
 
-/opt/freeswitch/bin/freeswitch
+exec /opt/freeswitch/bin/freeswitch
