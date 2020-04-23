@@ -219,6 +219,8 @@ public:
       mime: application/vnd.oasis.opendocument.image
     - extension: .jpg
       mime: image/jpeg
+    - extension: .jpeg
+      mime: image/jpeg
     - extension: .png
       mime: image/png
   user:
