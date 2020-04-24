@@ -130,6 +130,20 @@ class ApiController {
       return
     }
 
+    // Ensure unique TelVoice. Uniqueness is not guaranteed by paramsProcessorUtil.
+    if (!params.voiceBridge) {
+      // Try up to 10 times. We should find a valid telVoice quickly unless
+      // the server hosts ~100k meetings (default 5-digit telVoice)
+      for (int i in 1..10) {
+        String telVoice = paramsProcessorUtil.processTelVoice("");
+        if (!meetingService.getNotEndedMeetingWithTelVoice(telVoice)) {
+          params.voiceBridge = telVoice;
+          break;
+        }
+      }
+      // let processCreateParams() and createMeeting() handle invalid telVoice
+    }
+
     Meeting newMeeting = paramsProcessorUtil.processCreateParams(params)
 
     if (meetingService.createMeeting(newMeeting)) {
