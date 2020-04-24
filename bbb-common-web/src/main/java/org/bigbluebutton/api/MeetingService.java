@@ -437,6 +437,32 @@ public class MeetingService implements MessageListener {
       return null;
   }
 
+  public Meeting getNotEndedMeetingWithTelVoice(String telVoice) {
+      if (telVoice == null)
+          return null;
+      for (Map.Entry<String, Meeting> entry : meetings.entrySet()) {
+          Meeting m = entry.getValue();
+          if (m.getTelVoice() == telVoice) {
+              if (!m.isForciblyEnded())
+                  return m;
+          }
+      }
+      return null;
+  }
+
+  public Meeting getNotEndedMeetingWithWebVoice(String webVoice) {
+      if (webVoice == null)
+          return null;
+      for (Map.Entry<String, Meeting> entry : meetings.entrySet()) {
+          Meeting m = entry.getValue();
+          if (m.getWebVoice() == webVoice) {
+              if (!m.isForciblyEnded())
+                  return m;
+          }
+      }
+      return null;
+  }
+
   public Boolean validateTextTrackSingleUseToken(String recordId, String caption, String token) {
     return recordingService.validateTextTrackSingleUseToken(recordId, caption, token);
   }
