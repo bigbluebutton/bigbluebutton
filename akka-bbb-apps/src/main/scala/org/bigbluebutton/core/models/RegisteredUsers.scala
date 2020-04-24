@@ -81,17 +81,29 @@ object RegisteredUsers {
 
   }
 
-  def remove(id: String, users: RegisteredUsers): Option[RegisteredUser] = {
-    for {
-      ru <- findWithUserId(id, users)
-    } yield {
+  private def banUser(ejectedUser: RegisteredUser, users: RegisteredUsers, ejectedByUser: RegisteredUser): RegisteredUser = {
+    // Some users join with multiple browser to manage the meeting.
+    // Don't black list a user ejecting oneself.
+    // ralam april 23, 2020
+    if (ejectedUser.externId != ejectedByUser.externId) {
       // Set a flag that user has been ejected. We flag the user instead of
       // removing so we can eject when user tries to rejoin with the same
       // external userid.
       // ralam april 21, 2020
-      val u = ru.modify(_.ejected).setTo(true)
+      val u = ejectedUser.modify(_.ejected).setTo(true)
       users.save(u)
       u
+    } else {
+      users.delete(ejectedUser.id)
+      ejectedUser
+    }
+  }
+  def eject(id: String, users: RegisteredUsers, ejectedBy: String): Option[RegisteredUser] = {
+    for {
+      ru <- findWithUserId(id, users)
+      eu <- findWithUserId(ejectedBy, users)
+    } yield {
+      banUser(ru, users, eu)
     }
   }
 

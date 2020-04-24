@@ -30,15 +30,29 @@ trait EjectUserFromMeetingCmdMsgHdlr extends RightsManagementTrait {
       val reason = "user ejected by another user"
       for {
         registeredUser <- RegisteredUsers.findWithUserId(userId, liveMeeting.registeredUsers)
+        ejectedByUser <- RegisteredUsers.findWithUserId(ejectedBy, liveMeeting.registeredUsers)
       } yield {
-        // User might have joined using multiple browsers.
-        // Hunt down all registered users based on extern userid and eject them all.
-        // ralam april 21, 2020
-        RegisteredUsers.findAllWithExternUserId(registeredUser.externId, liveMeeting.registeredUsers) foreach { ru =>
-          UsersApp.ejectUserFromMeeting(outGW, liveMeeting, ru.id, ejectedBy, reason, EjectReasonCode.EJECT_USER)
+        if (registeredUser.externId != ejectedByUser.externId) {
+          // Eject users
+          //println("****************** User " + ejectedBy + " ejecting user " + userId)
+          // User might have joined using multiple browsers.
+          // Hunt down all registered users based on extern userid and eject them all.
+          // ralam april 21, 2020
+          RegisteredUsers.findAllWithExternUserId(registeredUser.externId, liveMeeting.registeredUsers) foreach { ru =>
+            //println("****************** User " + ejectedBy + " ejecting other user " + ru.id)
+            UsersApp.ejectUserFromMeeting(outGW, liveMeeting, ru.id, ejectedBy, reason, EjectReasonCode.EJECT_USER)
+            // send a system message to force disconnection
+            Sender.sendDisconnectClientSysMsg(meetingId, ru.id, ejectedBy, EjectReasonCode.EJECT_USER, outGW)
+          }
+        } else {
+          // User is ejecting self, so just eject this userid not all sessions if joined using multiple
+          // browsers. ralam april 23, 2020
+          //println("****************** User " + ejectedBy + " ejecting self " + userId)
+          UsersApp.ejectUserFromMeeting(outGW, liveMeeting, userId, ejectedBy, reason, EjectReasonCode.EJECT_USER)
           // send a system message to force disconnection
-          Sender.sendDisconnectClientSysMsg(meetingId, ru.id, ejectedBy, EjectReasonCode.EJECT_USER, outGW)
+          Sender.sendDisconnectClientSysMsg(meetingId, userId, ejectedBy, EjectReasonCode.EJECT_USER, outGW)
         }
+
       }
     }
   }
