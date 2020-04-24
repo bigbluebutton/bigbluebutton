@@ -24,11 +24,16 @@ class Page {
   async init(args, meetingId, newParams) {
     this.effectiveParams = newParams || params;
     const isModerator = this.effectiveParams.moderatorPW;
-    this.browser = await puppeteer.launch(args);
+    if (process.env.BROWSERLESS_ENABLED === 'true') {
+      this.browser = await puppeteer.connect({ browserWSEndpoint: `ws://${process.env.BROWSERLESS_URL}?token=${process.env.BROWSERLESS_TOKEN}&${args.args.join('&')}` });
+    } else {
+      this.browser = await puppeteer.launch(args);
+    }
     this.page = await this.browser.newPage({ context: `bbb-${this.effectiveParams.fullName}` });
 
     await this.setDownloadBehavior(`${this.parentDir}/downloads`);
     this.meetingId = await helper.createMeeting(params, meetingId);
+    console.log(this.meetingId);
 
     const joinURL = helper.getJoinURL(this.meetingId, this.effectiveParams, isModerator);
 
@@ -85,32 +90,33 @@ class Page {
 
   // Get the default arguments for creating a page
   static getArgs() {
-    return { headless: false, args: ['--no-sandbox', '--use-fake-ui-for-media-stream'] };
+    const args = ['--no-sandbox', '--use-fake-ui-for-media-stream'];
+    return { headless: true, args };
   }
 
   static getArgsWithAudio() {
+    const args = [
+      '--no-sandbox',
+      '--use-fake-ui-for-media-stream',
+      '--use-fake-device-for-media-stream',
+      '--allow-file-access',
+    ];
     return {
-      headless: false,
-      args: [
-        '--no-sandbox',
-        '--use-fake-ui-for-media-stream',
-        '--use-fake-device-for-media-stream',
-        `--use-file-for-fake-audio-capture=${path.join(__dirname, '../media/audio.wav')}`,
-        '--allow-file-access',
-      ],
+      headless: true,
+      args,
     };
   }
 
   static getArgsWithVideo() {
+    const args = [
+      '--no-sandbox',
+      '--use-fake-ui-for-media-stream',
+      '--use-fake-device-for-media-stream',
+      '--allow-file-access',
+    ];
     return {
-      headless: false,
-      args: [
-        '--no-sandbox',
-        '--use-fake-ui-for-media-stream',
-        '--use-fake-device-for-media-stream',
-        `--use-file-for-fake-video-capture=${path.join(__dirname, '../media/video_rgb.y4m')}`,
-        '--allow-file-access',
-      ],
+      headless: true,
+      args,
     };
   }
 
@@ -196,8 +202,17 @@ class Page {
     if (!fs.existsSync(dir)) {
       fs.mkdirSync(dir);
     }
+    const miniMongoUsers = await this.page.evaluate(() => {
+      const collection = require('/imports/api/users/index.js');
+      const users = collection.default._collection.find({ connectionStatus: 'online' }).count();
+      return users;
+    });
+    const TotalNumberOfUsersDom = await this.page.evaluate(() => document.querySelectorAll('[data-test^="userListItem"]').length);
+    console.log({ TotalNumberOfUsersDom, TotalNumberOfUsersMongo: miniMongoUsers });
     const metric = await this.page.metrics();
-    metricsObj['timestamp'] = timestamp;
+    metricsObj.TotalNumberOfUsersMongo = miniMongoUsers;
+    metricsObj.TotalNumberOfUsersDom = TotalNumberOfUsersDom;
+    metricsObj.timestamp = timestamp;
     metricsObj[`metricObj-${this.effectiveParams.fullName}`] = metric;
     const createFile = () => {
       try {

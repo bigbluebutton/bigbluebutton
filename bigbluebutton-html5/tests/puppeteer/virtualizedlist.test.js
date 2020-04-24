@@ -1,4 +1,5 @@
 const VirtualizedList = require('./virtualizedlist/virtualize');
+const Page = require('./core/page');
 
 describe('Virtualized List', () => {
   test('Virtualized List Audio test', async () => {
@@ -13,5 +14,5 @@ describe('Virtualized List', () => {
       await test.close();
     }
     expect(response).toBe(true);
-  }, parseInt(process.env.TEST_DURATION_TIME) + parseInt(process.env.TEST_DURATION_TIME) * parseInt(process.env.BOTS) / 2);
+  }, parseInt(process.env.TEST_DURATION_TIME) * parseInt(process.env.BOTS));
 });
