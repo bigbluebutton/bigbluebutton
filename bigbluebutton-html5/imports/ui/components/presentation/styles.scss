@@ -59,10 +59,17 @@
   bottom: 0;
 }
 
-.presentation {
-  box-shadow: red;
-  border-color: rosybrown;
-  border-radius: 0 solid #ccd5de;
+.presentationPanel {
+  height: 100%;
+}
+
+.stopPresentation {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  >span {
+    color: #36a1ff;
+  }
 }
 
 .svgStyles {
@@ -71,6 +78,7 @@
   height: 100%;
   max-width: 100%;
   max-height: 100%;
+  box-shadow: 0px 0px 1px 1px rgba(0, 0, 0, 0.06);
 
   //always show an arrow by default
   cursor: default;
@@ -89,7 +97,7 @@
   top: 0;
   left: 0;
   right: 0;
-  bottom: 0;
+  height: 85%;
 }
 
 .visuallyHidden {

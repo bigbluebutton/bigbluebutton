@@ -23,19 +23,14 @@
   overflow: hidden;
   height: 100vh;
 }
-// .slide{
-//   flex-flow: center;
-//   flex-direction: center;
-//   align-items: center;
-//   align-self: center;
-// }
+
 .chat {
   background-color: #f1f2f2;
   padding:
     var(--md-padding-x)
     var(--md-padding-y)
     var(--md-padding-x)
-    var(--md-padding-x);
+    0;
 
   display: flex;
   flex-grow: 1;
@@ -55,43 +50,11 @@
   justify-content: space-between;
 }
 
-.layout{
- // position: absolute;
-width: 1238px;
-//height: 50px;
-left: 200px;
-top: 0px;
-  background: #ffffff;
-  box-shadow: 0px 2px 2px rgba(0, 0, 0, 0.06);
-flex-wrap: nowrap;
-flex-direction: row;
-  justify-content: flex-end;
-//  align-content: center;
- align-items: center;
- // text-align: center;
- flex: 0 10%;
-// position: relative;
-  // text-align: center;
-  // background: #ffffff;
-  // font-size: 1.5rem;
-
-  //  font-family: Avenir;
-  //  font-style: normal;
-  //  font-weight: 800;
-   font-size: 20px;
-  //  line-height: 16px;
-  //  /* identical to box height, or 80% */
-   
-  //  display: flex;
-  //  align-items: center;
-  //  letter-spacing: -0.6px
-  
-}
 .title {
   @extend %text-elipsis;
   flex: 1;
  text-align: center;
- left: 14.03%;
+//  left: 14.03%;
 right: 6.94%;
 top: 8.77%;
 bottom: 85.31%;
@@ -99,48 +62,6 @@ text-transform: uppercase;
 background: #E5E5E6;
   & > button, button:hover {
     max-width: var(--toast-content-width);
-  }
-}
-
-.hideBtn {
-  position: relative;
-  
-  color:#0059B1 !important;
-  font-family: Muli;
-
-  font-style: normal;
-  font-weight: normal;
-
-  font-size: var(--font-size-12px);
-  line-height: var(--font-size-15px);
-  text-transform: capitalize; 
-
-  display: block;
-  margin: var(--border-size-large);
-  margin-bottom: var(--border-size);
-  padding-left: 0;
-  padding-right: inherit;
-
-  [dir="rtl"] & {
-    padding-left: inherit;
-    padding-right: 0;
-  }
-
-  > i {
-      color: #0059B1;
-      font-size: smaller;
-
-      [dir="rtl"] & {
-        -webkit-transform: scale(-1, 1);
-        -moz-transform: scale(-1, 1);
-        -ms-transform: scale(-1, 1);
-        -o-transform: scale(-1, 1);
-        transform: scale(-1, 1);
-      }
-  }
-
-  &:hover {
-      background-color: transparent;
   }
 }
 
@@ -182,20 +103,14 @@ background: #E5E5E6;
 
 .chatTab{
   flex:1;
-
   font-family: Avenir;
-font-style: normal;
-font-weight: 500;
-font-size: 13px;
-line-height: 15px;
-/* identical to box height, or 115% */
-
-text-align: center;
-letter-spacing: 0.05em;
-text-transform: uppercase;
-
-color: #000000;
+  font-style: normal;
+  font-weight: 500;
+  font-size: 13px;
+  line-height: 1.5rem;
   text-align: center;
-  justify-content: center;
-  align-items: center;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  width: 30%;
+  color: #000000;
 }

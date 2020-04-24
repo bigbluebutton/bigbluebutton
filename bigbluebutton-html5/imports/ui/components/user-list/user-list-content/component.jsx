@@ -9,6 +9,11 @@ import WaitingUsers from './waiting-users/component';
 import UserPolls from './user-polls/component';
 import BreakoutRoomItem from './breakout-room/component';
 
+import Button from '/imports/ui/components/button/component';
+
+import { withModalMounter } from '/imports/ui/components/modal/service';
+import AudioModalContainer from './step-breakoutroom-creation/audio-modal/container';
+
 const propTypes = {
   activeChats: PropTypes.arrayOf(String).isRequired,
   compact: PropTypes.bool,
@@ -22,6 +27,8 @@ const propTypes = {
   pollIsOpen: PropTypes.bool.isRequired,
   forcePollOpen: PropTypes.bool.isRequired,
   requestUserInformation: PropTypes.func.isRequired,
+  isBreakoutRecordable: PropTypes.bool.isRequired,
+  mountModal: PropTypes.func.isRequired,
 };
 
 const defaultProps = {
@@ -31,6 +38,17 @@ const defaultProps = {
 const ROLE_MODERATOR = Meteor.settings.public.user.role_moderator;
 
 class UserContent extends PureComponent {
+  constructor() {
+    super();
+
+     this.newCreateBreakouts=this.newCreateBreakouts.bind(this);
+   
+  }
+  newCreateBreakouts(){
+    const {mountModal}=this.props
+    return  mountModal(<AudioModalContainer />)
+  }
+ 
   render() {
     const {
       compact,
@@ -72,7 +90,7 @@ class UserContent extends PureComponent {
                 intl,
               }}
             />
-          ) : null
+          ) : null 
         }
         <UserNotesContainer
           {...{
@@ -96,6 +114,20 @@ class UserContent extends PureComponent {
             forcePollOpen,
           }}
         />
+                
+      <Button
+            
+            //hideLabel
+           // aria-label="New Breakout Channel"
+            className={styles.button}
+            label="+New Breakout Channel"
+           // icon="actions"
+            size="lg"
+           // circle
+           color="primary"
+          onClick={this.newCreateBreakouts}
+          />
+     
         <BreakoutRoomItem isPresenter={currentUser.presenter} hasBreakoutRoom={hasBreakoutRoom} />
         <UserParticipantsContainer
           {...{
@@ -115,4 +147,4 @@ class UserContent extends PureComponent {
 UserContent.propTypes = propTypes;
 UserContent.defaultProps = defaultProps;
 
-export default UserContent;
+export default withModalMounter(UserContent);

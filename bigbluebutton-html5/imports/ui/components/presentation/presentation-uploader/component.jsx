@@ -591,7 +591,6 @@ class PresentationUploader extends Component {
               keyValue={item.id}
               onChange={this.handleCurrentChange}
             />
-            {hideRemove ? null : (
               <Button
                 disabled={disableActions}
                 className={cx(styles.itemAction, styles.itemActionRemove)}
@@ -602,7 +601,6 @@ class PresentationUploader extends Component {
                 hideLabel
                 onClick={() => this.handleRemove(item)}
               />
-            )}
           </td>
         )}
       </tr>
