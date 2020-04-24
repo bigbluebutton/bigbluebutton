@@ -277,8 +277,10 @@ public class MeetingService implements MessageListener {
 
   public synchronized boolean createMeeting(Meeting m) {
     String internalMeetingId = paramsProcessorUtil.convertToInternalMeetingId(m.getExternalId());
-    Meeting existing = getNotEndedMeetingWithId(internalMeetingId);
-    if (existing == null) {
+    Meeting existingId = getNotEndedMeetingWithId(internalMeetingId);
+    Meeting existingTelVoice = getNotEndedMeetingWithTelVoice(m.getTelVoice());
+    Meeting existingWebVoice = getNotEndedMeetingWithWebVoice(m.getWebVoice());
+    if (existingId == null && existingTelVoice == null && existingWebVoice == null) {
       meetings.put(m.getInternalId(), m);
       handle(new CreateMeeting(m));
       return true;
