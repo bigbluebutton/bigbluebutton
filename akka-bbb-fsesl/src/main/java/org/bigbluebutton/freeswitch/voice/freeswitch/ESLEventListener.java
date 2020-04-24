@@ -56,7 +56,7 @@ public class ESLEventListener implements IEslEventListener {
     private static final Pattern CALLERNAME_PATTERN = Pattern.compile("(.*)-bbbID-(.*)$");
     private static final Pattern CALLERNAME_WITH_SESS_INFO_PATTERN = Pattern.compile("^(.*)_(\\d+)-bbbID-(.*)$");
     private static final Pattern CALLERNAME_LISTENONLY_PATTERN = Pattern.compile("^(.*)_(\\d+)-bbbID-LISTENONLY-(.*)$");
-    private static final Pattern ECHO_TEST_DEST_PATTERN = Pattern.compile("^9196(\\d+)$");
+    private static final Pattern ECHO_TEST_DEST_PATTERN = Pattern.compile("^echo(\\d+)$");
     
     @Override
     public void conferenceEventJoin(String uniqueId, String confName, int confSize, EslEvent event) {
@@ -315,7 +315,7 @@ public class ESLEventListener implements IEslEventListener {
                 String origCallerDestNumber = eventHeaders.get("Caller-Destination-Number");
                 String coreuuid = eventHeaders.get("Core-UUID");
 
-                //System.out.println("******** uuid=" + coreuuid + " " + origCallerIdName + " is in echo test " + origCallerDestNumber + " vbridge=" + varvBridge);
+                System.out.println("******** uuid=" + coreuuid + " " + origCallerIdName + " is in echo test " + origCallerDestNumber + " vbridge=" + varvBridge);
 
                 String voiceUserId = "";
                 String callerName = origCallerIdName;
@@ -334,7 +334,13 @@ public class ESLEventListener implements IEslEventListener {
                     callerName = callerListenOnly.group(3).trim();
                 }
 
-                VoiceCallStateEvent csEvent = new VoiceCallStateEvent(varvBridge,
+                String conf = origCallerDestNumber;
+                Matcher callerDestNumberMatcher = ECHO_TEST_DEST_PATTERN.matcher(origCallerDestNumber);
+                if (callerDestNumberMatcher.matches()) {
+                    conf = callerDestNumberMatcher.group(1).trim();
+                }
+
+                VoiceCallStateEvent csEvent = new VoiceCallStateEvent(conf,
                         coreuuid,
                         clientSession,
                         voiceUserId,
@@ -348,7 +354,7 @@ public class ESLEventListener implements IEslEventListener {
                 String origCallerIdName = eventHeaders.get("Caller-Caller-ID-Name");
                 String origCallerDestNumber = eventHeaders.get("Caller-Destination-Number");
                 String coreuuid = eventHeaders.get("Core-UUID");
-                //System.out.println("******** uuid=" + coreuuid + " " + origCallerIdName + " is in ringing " + origCallerDestNumber + " vbridge=" + varvBridge);
+                System.out.println("******** uuid=" + coreuuid + " " + origCallerIdName + " is in ringing " + origCallerDestNumber + " vbridge=" + varvBridge);
 
                 String voiceUserId = "";
                 String callerName = origCallerIdName;
@@ -367,7 +373,13 @@ public class ESLEventListener implements IEslEventListener {
                     callerName = callerListenOnly.group(3).trim();
                 }
 
-                VoiceCallStateEvent csEvent = new VoiceCallStateEvent(varvBridge,
+                String conf = origCallerDestNumber;
+                Matcher callerDestNumberMatcher = ECHO_TEST_DEST_PATTERN.matcher(origCallerDestNumber);
+                if (callerDestNumberMatcher.matches()) {
+                    conf = callerDestNumberMatcher.group(1).trim();
+                }
+
+                VoiceCallStateEvent csEvent = new VoiceCallStateEvent(conf,
                         coreuuid,
                         clientSession,
                         voiceUserId,
@@ -386,7 +398,7 @@ public class ESLEventListener implements IEslEventListener {
                 String origCallerIdName = eventHeaders.get("Caller-Caller-ID-Name");
                 String origCallerDestNumber = eventHeaders.get("Caller-Destination-Number");
                 String coreuuid = eventHeaders.get("Core-UUID");
-                //System.out.println("******** uuid=" + coreuuid + " " + origCallerIdName + " is hanging up " + origCallerDestNumber);
+                System.out.println("******** uuid=" + coreuuid + " " + origCallerIdName + " is hanging up " + origCallerDestNumber);
 
                 String voiceUserId = "";
                 String callerName = origCallerIdName;
@@ -426,7 +438,7 @@ public class ESLEventListener implements IEslEventListener {
                 String origCallerIdName = eventHeaders.get("Caller-Caller-ID-Name");
                 String origCallerDestNumber = eventHeaders.get("Caller-Destination-Number");
                 String coreuuid = eventHeaders.get("Core-UUID");
-                //System.out.println("******** uuid=" + coreuuid + " " + origCallerIdName + " is ringing " + origCallerDestNumber);
+                System.out.println("******** uuid=" + coreuuid + " " + origCallerIdName + " is ringing " + origCallerDestNumber);
 
                 String voiceUserId = "";
                 String callerName = origCallerIdName;
