@@ -141,7 +141,7 @@ class ApiController {
           break;
         }
       }
-      // let processCreateParams() and createMeeting() handle invalid telVoice
+      // Still no unique voiceBridge found? Let createMeeting handle it.
     }
 
     Meeting newMeeting = paramsProcessorUtil.processCreateParams(params)
@@ -175,6 +175,14 @@ class ApiController {
         }
 
         return
+      } else {
+        Meeting existingTelVoice = meetingService.getNotEndedMeetingWithTelVoice(newMeeting.getTelVoice());
+        Meeting existingWebVoice = meetingService.getNotEndedMeetingWithWebVoice(newMeeting.getWebVoice());
+        if (existingTelVoice != null || existingWebVoice != null) {
+          log.error "VoiceBridge already in use by another meeting (different meetingId)"
+          errors.nonUniqueMeetingIdError()
+          respondWithErrors(errors)
+        }
       }
     }
   }
