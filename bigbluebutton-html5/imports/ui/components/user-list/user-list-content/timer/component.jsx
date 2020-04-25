@@ -25,7 +25,6 @@ class Timer extends Component {
     this.timeRef = React.createRef();
     this.interval = null;
 
-    this.handleOnClick = this.handleOnClick.bind(this);
     this.updateTime = this.updateTime.bind(this);
   }
 
@@ -41,13 +40,22 @@ class Timer extends Component {
 
   componentDidUpdate(prevProps) {
     const { timer } = this.props;
-    const { timer: prevTimer } = prevProps;
+    const {
+      running,
+      stopwatch,
+    } = timer;
 
-    if (!prevTimer.running && timer.running) {
+    const { timer: prevTimer } = prevProps;
+    const {
+      running: prevRunning,
+      stopwatch: prevStopwatch,
+    } = prevTimer;
+
+    if (!prevRunning && running) {
       this.interval = setInterval(this.updateTime, TimerService.getInterval());
     }
 
-    if (prevTimer.running && !timer.running) {
+    if (prevRunning && !running) {
       clearInterval(this.interval);
     }
   }
@@ -56,44 +64,72 @@ class Timer extends Component {
     clearInterval(this.interval);
   }
 
-  handleOnClick() {
-    const { timer } = this.props;
-
-    if (timer.running) {
-      TimerService.stopTimer();
-    } else {
-      TimerService.startTimer(0);
-    }
-  }
-
   updateTime() {
     const { timer } = this.props;
     const {
+      stopwatch,
+      time,
       accumulated,
       timestamp,
     } = timer;
 
     const { current } = this.timeRef;
     if (current) {
-      current.textContent = TimerService.getTimeAsString(accumulated + (Date.now() - timestamp));
+      const accumulatedTime = accumulated + (Date.now() - timestamp);
+      let updatedTime;
+
+      if (stopwatch) {
+        updatedTime = accumulatedTime;
+      } else {
+        updatedTime = Math.max(time - accumulatedTime, 0);
+      }
+
+      current.textContent = TimerService.getTimeAsString(updatedTime, stopwatch);
     }
   }
 
   renderTimer() {
-    const { timer } = this.props;
+    const {
+      timer,
+      isModerator,
+      sidebarContentPanel,
+      layoutContextDispatch,
+    } = this.props;
+
+    const {
+      stopwatch,
+      accumulated,
+    } = timer;
+
+    if (!isModerator) {
+      return (
+        <Styled.ListItem
+          tabIndex={0}
+          disabled={true}
+        >
+          <Icon iconName="time" />
+          <span
+            aria-hidden
+            ref={this.timeRef}
+          >
+            {TimerService.getTimeAsString(accumulated, stopwatch)}
+          </span>
+        </Styled.ListItem>
+      );
+    }
 
     return (
       <Styled.ListItem
         role="button"
         tabIndex={0}
-        onClick={this.handleOnClick}
+        onClick={() => TimerService.togglePanel(sidebarContentPanel, layoutContextDispatch)}
       >
         <Icon iconName="time" />
         <span
           aria-hidden
           ref={this.timeRef}
         >
-          {TimerService.getTimeAsString(timer.accumulated)}
+          {TimerService.getTimeAsString(accumulated, stopwatch)}
         </span>
       </Styled.ListItem>
     );

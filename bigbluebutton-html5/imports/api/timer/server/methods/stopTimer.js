@@ -13,6 +13,7 @@ export default function stopTimer() {
     { meetingId },
     { fields:
       {
+        stopwatch: 1,
         time: 1,
         accumulated: 1,
         timestamp: 1,
@@ -21,8 +22,14 @@ export default function stopTimer() {
   );
 
   if (timer) {
-    const accumulated = timer.accumulated + (now - timer.timestamp);
-    updateTimer('stop', meetingId, timer.time, accumulated);
+    const {
+      stopwatch,
+      time,
+      timestamp,
+    } = timer;
+
+    const accumulated = timer.accumulated + (now - timestamp);
+    updateTimer('stop', meetingId, time, stopwatch, accumulated);
   } else {
     Logger.warn(`Could not stop timer for meetingId=${meetingId}`);
   }

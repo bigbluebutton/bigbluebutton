@@ -3,6 +3,7 @@ import Logger from '/imports/startup/server/logger';
 import { isEnabled } from '/imports/api/timer/server/helpers';
 import addTimer from '/imports/api/timer/server/modifiers/addTimer';
 
+// This method should only be used by the server
 export default function createTimer(meetingId) {
   check(meetingId, String);
 

@@ -4,7 +4,8 @@ import deactivateTimer from './methods/deactivateTimer';
 import resetTimer from './methods/resetTimer';
 import startTimer from './methods/startTimer';
 import stopTimer from './methods/stopTimer';
-import getCurrentTime from './methods/getCurrentTime';
+import switchTimer from './methods/switchTimer';
+import setTimer from './methods/setTimer';
 
 Meteor.methods({
   activateTimer,
@@ -12,5 +13,6 @@ Meteor.methods({
   resetTimer,
   startTimer,
   stopTimer,
-  getCurrentTime,
+  switchTimer,
+  setTimer,
 });

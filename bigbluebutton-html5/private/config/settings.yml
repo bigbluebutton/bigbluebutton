@@ -516,6 +516,11 @@ public:
   timer:
     enabled: false
     interval: 100
+    time: 5
+    preset:
+      - 5
+      - 15
+      - 30
   chat:
     enabled: true
     itemsPerPage: 100
