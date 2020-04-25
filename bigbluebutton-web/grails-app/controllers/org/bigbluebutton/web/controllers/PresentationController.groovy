@@ -297,7 +297,7 @@ class PresentationController {
     InputStream is = null;
     try {
       def pres = meetingService.getDownloadablePresentationFile(meetingId, presId, presFilename)
-      if (pres.exists()) {
+      if (pres != null && pres.exists()) {
         log.debug "Controller: Sending pdf reply for $presFilename"
 
         def bytes = pres.readBytes()
@@ -311,9 +311,11 @@ class PresentationController {
         response.outputStream << bytes;
       } else {
         log.warn "$pres does not exist."
+		response.status = 404
       }
     } catch (IOException e) {
       log.error("Error reading file.\n" + e.getMessage());
+	  response.status = 404
     }
   }
 
