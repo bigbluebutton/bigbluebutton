@@ -40,16 +40,18 @@ class Timer extends Component {
 
   componentDidUpdate(prevProps) {
     const { timer } = this.props;
-    const {
-      running,
-      stopwatch,
-    } = timer;
-
     const { timer: prevTimer } = prevProps;
-    const {
-      running: prevRunning,
-      stopwatch: prevStopwatch,
-    } = prevTimer;
+
+    this.updateInterval(prevTimer, timer);
+  }
+
+  componentWillUnmount() {
+    clearInterval(this.interval);
+  }
+
+  updateInterval(prevTimer, timer) {
+    const { running } = timer;
+    const { running: prevRunning } = prevTimer;
 
     if (!prevRunning && running) {
       this.interval = setInterval(this.updateTime, TimerService.getInterval());
@@ -60,31 +62,33 @@ class Timer extends Component {
     }
   }
 
-  componentWillUnmount() {
-    clearInterval(this.interval);
-  }
-
-  updateTime() {
+  getTime() {
     const { timer } = this.props;
     const {
       stopwatch,
+      running,
       time,
       accumulated,
       timestamp,
     } = timer;
 
+    const overTime = running ? (Date.now() - timestamp) : 0;
+    const elapsedTime = accumulated + overTime;
+
+    let updatedTime;
+    if (stopwatch) {
+      updatedTime = elapsedTime;
+    } else {
+      updatedTime = Math.max(time - elapsedTime, 0);
+    }
+
+    return TimerService.getTimeAsString(updatedTime, stopwatch);
+  }
+
+  updateTime() {
     const { current } = this.timeRef;
     if (current) {
-      const accumulatedTime = accumulated + (Date.now() - timestamp);
-      let updatedTime;
-
-      if (stopwatch) {
-        updatedTime = accumulatedTime;
-      } else {
-        updatedTime = Math.max(time - accumulatedTime, 0);
-      }
-
-      current.textContent = TimerService.getTimeAsString(updatedTime, stopwatch);
+      current.textContent = this.getTime();
     }
   }
 
@@ -112,7 +116,7 @@ class Timer extends Component {
             aria-hidden
             ref={this.timeRef}
           >
-            {TimerService.getTimeAsString(accumulated, stopwatch)}
+            {this.getTime()}
           </span>
         </Styled.ListItem>
       );
@@ -129,7 +133,7 @@ class Timer extends Component {
           aria-hidden
           ref={this.timeRef}
         >
-          {TimerService.getTimeAsString(accumulated, stopwatch)}
+          {this.getTime()}
         </span>
       </Styled.ListItem>
     );

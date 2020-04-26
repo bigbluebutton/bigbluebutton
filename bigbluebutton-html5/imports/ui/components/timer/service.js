@@ -4,6 +4,7 @@ import Auth from '/imports/ui/services/auth';
 import { makeCall } from '/imports/ui/services/api';
 import { Session } from 'meteor/session';
 import Users from '/imports/api/users';
+import Logger from '/imports/startup/client/logger';
 import { ACTIONS, PANELS } from '../layout/enums';
 
 const TIMER_CONFIG = Meteor.settings.public.timer;
@@ -12,6 +13,15 @@ const ROLE_MODERATOR = Meteor.settings.public.user.role_moderator;
 const MILLI_IN_HOUR = 3600000;
 const MILLI_IN_MINUTE = 60000;
 const MILLI_IN_SECOND = 1000;
+
+const MAX_HOURS = 23;
+
+const MAX_TIME = 999
+  + (59 * MILLI_IN_SECOND)
+  + (59 * MILLI_IN_MINUTE)
+  + (MAX_HOURS * MILLI_IN_HOUR);
+
+const getMaxHours = () => MAX_HOURS;
 
 isActive = () => {
   const timer = Timer.findOne(
@@ -29,14 +39,8 @@ const getDefaultTime = () => TIMER_CONFIG.time * MILLI_IN_MINUTE;
 
 const getInterval = () => TIMER_CONFIG.interval;
 
-const getPresetSeconds = () => {
-  const { preset } = TIMER_CONFIG.preset;
-
-  return preset.map(seconds => seconds * MILLI_IN_SECOND);
-};
-
-const getPresetMinutes = () => {
-  const { preset } = TIMER_CONFIG.preset;
+const getPreset = () => {
+  const { preset } = TIMER_CONFIG;
 
   return preset.map(minutes => minutes * MILLI_IN_MINUTE);
 };
@@ -150,63 +154,74 @@ const getTimerStatus = () => {
   }
 };
 
-const getTimeAsString = (milliseconds, stopwatch) => {
-  let milli = milliseconds;
+const getTimeAsString = (time, stopwatch) => {
+  let milliseconds = time;
 
-  let hours = Math.floor(milli / MILLI_IN_HOUR);
+  let hours = Math.floor(milliseconds / MILLI_IN_HOUR);
   const mHours = hours * MILLI_IN_HOUR;
 
-  let minutes = Math.floor((milli - mHours) / MILLI_IN_MINUTE);
+  let minutes = Math.floor((milliseconds - mHours) / MILLI_IN_MINUTE);
   const mMinutes = minutes * MILLI_IN_MINUTE;
 
-  let seconds = Math.floor((milli - mHours - mMinutes) / MILLI_IN_SECOND);
+  let seconds = Math.floor((milliseconds - mHours - mMinutes) / MILLI_IN_SECOND);
   const mSeconds = seconds * MILLI_IN_SECOND;
 
-  milli = milli - mHours - mMinutes - mSeconds;
+  milliseconds = milliseconds - mHours - mMinutes - mSeconds;
 
-  let time = '';
+  let timeAsString = '';
 
   // Only add hour if it exists
   if (hours > 0) {
     if (hours < 10) {
-      time += `0${hours}:`;
+      timeAsString += `0${hours}:`;
     } else {
-      time += `${hours}:`;
+      timeAsString += `${hours}:`;
     }
   }
 
   // Add minute if exists, has at least an hour
   // or is not stopwatch
   if (minutes > 0 || hours > 0 || !stopwatch) {
-    if (hours < 10) {
-      time += `0${minutes}:`;
+    if (minutes < 10) {
+      timeAsString += `0${minutes}:`;
     } else {
-      time += `${minutes}:`;
+      timeAsString += `${minutes}:`;
     }
   }
 
   // Always add seconds
   if (seconds < 10) {
-    time += `0${seconds}`;
+    timeAsString += `0${seconds}`;
   } else {
-    time += `${seconds}`;
+    timeAsString += `${seconds}`;
   }
 
   // Only add milliseconds if it's a stopwatch
   if (stopwatch) {
-    if (milli < 10) {
-      time += `:00${milli}`;
-    } else if (milli < 100) {
-      time += `:0${milli}`;
+    if (milliseconds < 10) {
+      timeAsString += `:00${milliseconds}`;
+    } else if (milliseconds < 100) {
+      timeAsString += `:0${milliseconds}`;
     } else {
-      time += `:${milli}`;
+      timeAsString += `:${milliseconds}`;
     }
   }
 
-  return time;
+  return timeAsString;
 };
 
 const isPanelOpen = () => Session.get('openPanel') === 'timer';
+
+const closePanel = (layoutContextDispatch) => {
+  layoutContextDispatch({
+    type: ACTIONS.SET_SIDEBAR_CONTENT_IS_OPEN,
+    value: false,
+  });
+  layoutContextDispatch({
+    type: ACTIONS.SET_SIDEBAR_CONTENT_PANEL,
+    value: PANELS.NONE,
+  });
+};
 
 const togglePanel = (sidebarContentPanel, layoutContextDispatch) => {
   layoutContextDispatch({
@@ -228,6 +243,84 @@ const isModerator = () => {
   ).role === ROLE_MODERATOR;
 };
 
+const setHours = (hours, time) => {
+  if (!isNaN(hours) && hours >= 0 && hours <= MAX_HOURS) {
+    const currentHours = Math.floor(time / MILLI_IN_HOUR);
+
+    const diff = (hours - currentHours) * MILLI_IN_HOUR;
+    setTimer(time + diff);
+  } else {
+    Logger.warn('Invalid time');
+  }
+};
+
+const setMinutes = (minutes, time) => {
+  if (!isNaN(minutes) && minutes >= 0 && minutes <= 59) {
+    const currentHours = Math.floor(time / MILLI_IN_HOUR);
+    const mHours = currentHours * MILLI_IN_HOUR;
+
+    const currentMinutes = Math.floor((time - mHours) / MILLI_IN_MINUTE);
+
+    const diff = (minutes - currentMinutes) * MILLI_IN_MINUTE;
+    setTimer(time + diff);
+  } else {
+    Logger.warn('Invalid time');
+  }
+};
+
+const setSeconds = (seconds, time) => {
+  if (!isNaN(seconds) && seconds >= 0 && seconds <= 59) {
+    const currentHours = Math.floor(time / MILLI_IN_HOUR);
+    const mHours = currentHours * MILLI_IN_HOUR;
+
+    const currentMinutes = Math.floor((time - mHours) / MILLI_IN_MINUTE);
+    const mMinutes = currentMinutes * MILLI_IN_MINUTE;
+
+    const currentSeconds = Math.floor((time - mHours - mMinutes) / MILLI_IN_SECOND);
+
+    const diff = (seconds - currentSeconds) * MILLI_IN_SECOND;
+    setTimer(time + diff);
+  } else {
+    Logger.warn('Invalid time');
+  }
+};
+
+const subtractTime = (preset, time) => {
+  if (!isNaN(preset)) {
+    const min = 0;
+    setTimer(Math.max(time - preset, min));
+  } else {
+    Logger.warn('Invalid time');
+  }
+};
+
+const setTime = (preset) => {
+  if (!isNaN(preset)) {
+    setTimer(preset);
+  } else {
+    Logger.warn('Invalid time');
+  }
+};
+
+const addTime = (preset, time) => {
+  if (!isNaN(preset)) {
+    const max = MAX_TIME;
+    setTimer(Math.min(time + preset, max));
+  } else {
+    Logger.warn('Invalid time');
+  }
+};
+
+const buildPresetLabel = (preset) => {
+  const minutes = preset / MILLI_IN_MINUTE;
+
+  if (minutes < 10) {
+    return `0${minutes}"00'`;
+  }
+
+  return `${minutes}"00'`;
+};
+
 export default {
   isActive,
   isEnabled,
@@ -236,16 +329,23 @@ export default {
   startTimer,
   stopTimer,
   switchTimer,
-  setTimer,
+  setHours,
+  setMinutes,
+  setSeconds,
+  setTime,
+  subtractTime,
+  addTime,
   resetTimer,
   activateTimer,
   deactivateTimer,
   getInterval,
-  getPresetSeconds,
-  getPresetMinutes,
+  getPreset,
+  getMaxHours,
   getTimer,
   getTimerStatus,
   getTimeAsString,
+  closePanel,
   togglePanel,
   isModerator,
+  buildPresetLabel,
 };

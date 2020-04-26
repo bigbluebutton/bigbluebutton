@@ -30,10 +30,10 @@ export default function addTimer(meetingId) {
     }
 
     if (numChanged) {
-      return Logger.info(`Added timer meeting=${meetingId}`);
+      return Logger.debug(`Added timer meeting=${meetingId}`);
     }
 
-    return Logger.info(`Upserted timer meeting=${meetingId}`);
+    return Logger.debug(`Upserted timer meeting=${meetingId}`);
   };
 
   return Timer.upsert(selector, modifier, cb);

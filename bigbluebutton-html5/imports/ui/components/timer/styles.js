@@ -98,7 +98,47 @@ const TimerSwitchButton = styled(Button)`
   margin: 0 .5rem;
 `;
 
+const StopwatchTime = styled.div`
+  display: flex;
+  margin-top: 2rem;
+  width: 100%;
+  height: 4rem;
+  font-size: x-large;
+  justify-content: center;
+
+  input {
+    width: 5rem;
+  }
+`;
+
+const StopwatchTimeColon = styled.span`
+  align-self: center;
+`;
+
+const TimerPreset = styled.span`
+  display: flex;
+  width: 100%;
+  margin-top: 1rem;
+  flex-direction: column;
+  .button {
+
+  }
+`;
+
+const TimerLine = styled.div`
+  display: flex;
+  justify-content: center;
+  width: 100%;
+  padding: .5rem 0;
+`;
+
+const TimerPresetButton = styled(Button)`
+  margin: 0 .5rem;
+`
+
 const TimerControls = styled.div`
+  margin-top: 4rem;
+  height: 4rem;
   display: flex;
   width: 100%;
   justify-content: center;
@@ -117,6 +157,11 @@ export default {
   TimerContent,
   TimerType,
   TimerSwitchButton,
+  StopwatchTime,
+  StopwatchTimeColon,
+  TimerPreset,
+  TimerLine,
+  TimerPresetButton,
   TimerControls,
   TimerControlButton,
 };

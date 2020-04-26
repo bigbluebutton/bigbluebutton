@@ -2,15 +2,15 @@ import React, { PureComponent } from 'react';
 import { withTracker } from 'meteor/react-meteor-data';
 import Timer from './component';
 import Service from './service';
+import { layoutDispatch } from '/imports/ui/components/layout/context';
 
-class TimerContainer extends PureComponent {
-  render() {
-    return (
-      <Timer {...this.props}>
-        {this.props.children}
-      </Timer>
-    );
-  }
+const TimerContainer = ({ children, ...props }) => {
+  const layoutContextDispatch = layoutDispatch();
+  return (
+    <Timer {...{ layoutContextDispatch, ...props}}>
+      {children}
+    </Timer>
+  );
 }
 
 export default withTracker(() => {

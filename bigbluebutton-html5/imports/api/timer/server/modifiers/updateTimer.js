@@ -120,7 +120,7 @@ export default function updateTimer(action, meetingId, time = 0, stopwatch = tru
       return Logger.error(`Updating timer at collection: ${err}`);
     }
 
-    return Logger.info(`Updated timer action=${action} meetingId=${meetingId}`);
+    return Logger.debug(`Updated timer action=${action} meetingId=${meetingId}`);
   };
 
   return Timer.update(selector, modifier, cb);

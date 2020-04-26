@@ -50,6 +50,9 @@ class Timer extends PureComponent {
     this.handleControlClick = this.handleControlClick.bind(this);
     this.handleSwitchToStopwatch = this.handleSwitchToStopwatch.bind(this);
     this.handleSwitchToTimer = this.handleSwitchToTimer.bind(this);
+    this.handleOnHoursChange = this.handleOnHoursChange.bind(this);
+    this.handleOnMinutesChange = this.handleOnMinutesChange.bind(this);
+    this.handleOnSecondsChange = this.handleOnSecondsChange.bind(this);
   }
 
   handleControlClick() {
@@ -59,6 +62,36 @@ class Timer extends PureComponent {
       Service.stopTimer();
     } else {
       Service.startTimer();
+    }
+  }
+
+  handleOnHoursChange(event) {
+    const { timerStatus } = this.props;
+    const { target } = event;
+
+    if (target && target.value) {
+      const hours = parseInt(target.value);
+      Service.setHours(hours, timerStatus.time);
+    }
+  }
+
+  handleOnMinutesChange(event) {
+    const { timerStatus } = this.props;
+    const { target } = event;
+
+    if (target && target.value) {
+      const minutes = parseInt(target.value);
+      Service.setMinutes(minutes, timerStatus.time);
+    }
+  }
+
+  handleOnSecondsChange(event) {
+    const { timerStatus } = this.props;
+    const { target } = event;
+
+    if (target && target.value) {
+      const seconds = parseInt(target.value);
+      Service.setSeconds(seconds, timerStatus.time);
     }
   }
 
@@ -103,8 +136,85 @@ class Timer extends PureComponent {
     );
   }
 
+  renderPreset() {
+    const { timerStatus } = this.props;
+    const preset = Service.getPreset();
+
+    return (
+      <Styled.TimerPreset>
+        {preset.map((p, index) => {
+          const label = Service.buildPresetLabel(p);
+
+          return (
+            <Styled.TimerLine
+              key={index}
+            >
+              <Styled.TimerPresetButton
+                label="-"
+                onClick={() => Service.subtractTime(p, timerStatus.time)}
+              />
+              <Styled.TimerPresetButton
+                color="primary"
+                label={label}
+                onClick={() => Service.setTime(p)}
+              />
+              <Styled.TimerPresetButton
+                label="+"
+                onClick={() => Service.addTime(p, timerStatus.time)}
+              />
+            </Styled.TimerLine>
+          );
+        })}
+      </Styled.TimerPreset>
+    );
+  }
+
   renderTimer() {
-    return null;
+    const { timerStatus } = this.props;
+    const { time } = timerStatus;
+
+    const timeArray = Service.getTimeAsString(time).split(':');
+
+    const hasHours = timeArray.length === 3;
+
+    const hours = hasHours ? timeArray[0] : '00';
+    const minutes = hasHours ? timeArray[1] : timeArray[0];
+    const seconds = hasHours ? timeArray[2] : timeArray[1];
+
+    return (
+      <div>
+        <Styled.StopwatchTime>
+          <input
+            type="number"
+            value={hours}
+            maxLength="2"
+            max={Service.getMaxHours()}
+            min="0"
+            onChange={this.handleOnHoursChange}
+          />
+          <Styled.StopwatchTimeColon>:</Styled.StopwatchTimeColon>
+          <input
+            type="number"
+            value={minutes}
+            maxLength="2"
+            max="59"
+            min="0"
+            onChange={this.handleOnMinutesChange}
+          />
+          <Styled.StopwatchTimeColon>:</Styled.StopwatchTimeColon>
+          <input
+            type="number"
+            value={seconds}
+            maxLength="2"
+            max="59"
+            min="0"
+            onChange={this.handleOnSecondsChange}
+          />
+        </Styled.StopwatchTime>
+        {this.renderPreset()}
+        {this.renderControls()}
+      </div>
+    );
   }
 
   renderContent() {
@@ -140,10 +250,11 @@ class Timer extends PureComponent {
       isRTL,
       isActive,
       isModerator,
+      layoutContextDispatch,
     } = this.props;
 
     if (!isActive || !isModerator) {
-      Session.set('openPanel', 'userlist');
+      Service.closePanel(layoutContextDispatch)
       return null;
     }
 
@@ -156,7 +267,7 @@ class Timer extends PureComponent {
             data-test="timerTitle"
           >
             <Styled.TimerMinimizeButton
-              onClick={() => Session.set('openPanel', 'userlist')}
+              onClick={() => Service.closePanel(layoutContextDispatch)}
               aria-label={intl.formatMessage(intlMessages.hideTimerLabel)}
               label={intl.formatMessage(intlMessages.title)}
               icon={isRTL ? "right_arrow" : "left_arrow"}
