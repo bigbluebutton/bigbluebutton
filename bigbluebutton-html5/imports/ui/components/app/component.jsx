@@ -15,6 +15,7 @@ import ToastContainer from '/imports/ui/components/common/toast/container';
 import PadsSessionsContainer from '/imports/ui/components/pads/sessions/container';
 import NotificationsBarContainer from '../notifications-bar/container';
 import AudioContainer from '../audio/container';
+import TimerAlarmContainer from '/imports/ui/components/timer/alarm/container';
 import ChatAlertContainer from '../chat/alert/container';
 import BannerBarContainer from '/imports/ui/components/banner-bar/container';
 import StatusNotifier from '/imports/ui/components/status-notifier/container';
@@ -49,6 +50,7 @@ import AudioService from '/imports/ui/components/audio/service';
 import NotesContainer from '/imports/ui/components/notes/container';
 import DEFAULT_VALUES from '../layout/defaultValues';
 import AppService from '/imports/ui/components/app/service';
+import TimerService from '/imports/ui/components/timer/service';
 
 const MOBILE_MEDIA = 'only screen and (max-width: 40em)';
 const APP_CONFIG = Meteor.settings.public.app;
@@ -134,6 +136,8 @@ class App extends Component {
       isRandomUserSelectModalOpen: false,
       isVideoPreviewModalOpen: false,
     };
+
+    this.isTimerAlarmEnabled = TimerService.isAlarmEnabled();
 
     this.handleWindowResize = throttle(this.handleWindowResize).bind(this);
     this.shouldAriaHide = this.shouldAriaHide.bind(this);
@@ -585,6 +589,7 @@ class App extends Component {
             setVideoPreviewModalIsOpen: this.setVideoPreviewModalIsOpen,
           }} />
           <ToastContainer rtl />
+          { this.isTimerAlarmEnabled ? <TimerAlarmContainer /> : null }
           {(audioAlertEnabled || pushAlertEnabled)
             && (
               <ChatAlertContainer

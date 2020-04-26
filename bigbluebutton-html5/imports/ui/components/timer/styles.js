@@ -7,7 +7,7 @@ import {
   pollHeaderOffset,
   toastContentWidth,
 } from '../../stylesheets/styled-components/general';
-import { colorGrayDark, colorWhite } from '../../stylesheets/styled-components/palette';
+import { colorGrayDark, colorGrayLightest, colorWhite } from '../../stylesheets/styled-components/palette';
 import { TextElipsis } from '../../stylesheets/styled-components/placeholders';
 import Button from '/imports/ui/components/common/button/component';
 
@@ -90,6 +90,7 @@ const TimerType = styled.div`
   width: 100%;
   justify-content: center;
   padding-top: 2rem;
+  border-bottom: 1px solid ${colorGrayLightest}
 `;
 
 const TimerSwitchButton = styled(Button)`
@@ -102,7 +103,7 @@ const StopwatchTime = styled.div`
   display: flex;
   margin-top: 2rem;
   width: 100%;
-  height: 4rem;
+  height: 3rem;
   font-size: x-large;
   justify-content: center;
 
@@ -120,9 +121,6 @@ const TimerPreset = styled.span`
   width: 100%;
   margin-top: 1rem;
   flex-direction: column;
-  .button {
-
-  }
 `;
 
 const TimerLine = styled.div`
@@ -137,8 +135,8 @@ const TimerPresetButton = styled(Button)`
 `
 
 const TimerControls = styled.div`
-  margin-top: 4rem;
-  height: 4rem;
+  margin-top: 2rem;
+  height: 3rem;
   display: flex;
   width: 100%;
   justify-content: center;
