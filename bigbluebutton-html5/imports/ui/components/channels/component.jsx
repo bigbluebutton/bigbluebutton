@@ -9,9 +9,11 @@ import Auth from '/imports/ui/services/auth';
 import UserParticipantsContainer from '/imports/ui/components/user-list/user-list-content/user-participants/container';
 import UserOptionsContainer from '/imports/ui/components/user-list/user-list-content/user-participants//user-options/container';
 import { meetingIsBreakout } from '/imports/ui/components/app/service';
- 
-// import {getUsersNotAssigned} from '/imports/ui/components/actions-bar/service';
-
+import Dropdown from '/imports/ui/components/dropdown/component';
+import DropdownTrigger from '/imports/ui/components/dropdown/trigger/component';
+import DropdownContent from '/imports/ui/components/dropdown/content/component';
+import DropdownList from '/imports/ui/components/dropdown/list/component';
+import DropdownListItem from '/imports/ui/components/dropdown/list/item/component';
 
 const ROLE_MODERATOR = Meteor.settings.public.user.role_moderator;
 
@@ -98,12 +100,18 @@ class Channels extends PureComponent {
     this.renderUserActions = this.renderUserActions.bind(this);
     this.returnBackToMeeeting = this.returnBackToMeeeting.bind(this);
     this.getScrollContainerRef = this.getScrollContainerRef.bind(this);
+    this.onActionsShow = this.onActionsShow.bind(this);
+    this.onActionsHide = this.onActionsHide.bind(this);
 
     this.state = {
       requestedBreakoutId: '',
       waiting: false,
       joinedAudioOnly: false,
       breakoutId: '',
+      breakOutWindowRefs: new Map(),
+      hideUsers: true,
+      isChannelOptionsOpen: false,
+      channelId: '',
     };
   }
 
@@ -121,6 +129,17 @@ class Channels extends PureComponent {
     this.refScrollContainer.removeEventListener('keydown', this.rove);
   }
 
+  onActionsShow() {
+    this.setState({
+      isChannelOptionsOpen: true,
+    });
+  }
+
+  onActionsHide() {
+    this.setState({
+      isChannelOptionsOpen: false,
+    });
+  }
 
   getScrollContainerRef() {
     return this.refScrollContainer;
@@ -236,6 +255,99 @@ class Channels extends PureComponent {
     this.setState({ joinedAudioOnly: false, breakoutId });
   }
 
+  renderMenuItems(breakout) {
+    const {
+      amIModerator,
+      isMeteorConnected,
+      getUsersByMeeting,
+      getUsersNotAssigned,
+      users
+    } = this.props;
+
+    const {
+      channelId,
+    } =this.state;
+    const isBreakOutMeeting = meetingIsBreakout();
+
+    this.menuItems = _.compact([
+      (isMeteorConnected && !isBreakOutMeeting ? (
+        <DropdownListItem
+          key={this.clearStatusId}
+          icon="application"
+          label="Join Room"
+          onClick={() => {
+            this.joinBreakoutRoom(breakout.breakoutId);
+            exitAudio();
+          }}
+        />) : null
+      ),
+      ((isMeteorConnected && amIModerator && !isBreakOutMeeting) ? (
+        <DropdownListItem
+          key={this.muteAllId}
+          icon="rooms"
+          label="Edit Room"
+          onClick={() => {}}
+        />) : null
+      ),
+      (
+        (amIModerator ? 
+          (channelId == breakout.breakoutId) ?
+            <DropdownListItem
+              icon="user"
+              label="Hide Users"
+              key={this.saveUsersNameId}
+              onClick={() => this.setState({channelId: ''})}
+            />
+          : <DropdownListItem
+              key={this.muteId}
+              icon="user"
+              label="Show users"
+              onClick={() => this.setState({channelId: breakout.breakoutId})}
+            />
+        : null
+        )
+      )
+    ]);
+
+    return this.menuItems;
+  }
+
+  channelOptions(breakout) {
+    const {isChannelOptionsOpen} = this.state;
+    return (
+      <Dropdown
+        ref={(ref) => { this.dropdown = ref; }}
+        autoFocus={false}
+        isOpen={isChannelOptionsOpen}
+        onShow={this.onActionsShow}
+        onHide={this.onActionsHide}
+        className={styles.dropdown}
+      >
+        <DropdownTrigger tabIndex={0}>
+          <Button
+            label={breakout.name}
+            icon="more"
+            color="default"
+            // hideLabel
+            className={styles.optionsButton}
+            size="md"
+            onClick={() => null}
+          />
+        </DropdownTrigger>
+        <DropdownContent
+          className={styles.dropdownContent}
+          placement="right top"
+        >
+          <DropdownList>
+            {
+              this.renderMenuItems(breakout)
+            }
+          </DropdownList>
+        </DropdownContent>
+      </Dropdown>
+    )
+  }
+
   render() {
     const {
       isMeteorConnected,
@@ -252,9 +364,8 @@ class Channels extends PureComponent {
       requestUserInformation,
     } = this.props;
 
+    const {hideUsers} = this.state;
     const isBreakOutMeeting = meetingIsBreakout();
-    // console.log(`isBreakOutMeeting${isBreakOutMeeting}`);
-    //console.log(`Auth.meetingid: ${Auth.meetingID}`);
 
     return (
 
@@ -262,8 +373,6 @@ class Channels extends PureComponent {
 
         <div className={styles.container}>
           <h2 className={styles.channelsTitle}>
-            {/* TODO */}
-            {/* {intl.formatMessage(intlMessages.usersTitle)} */}
               Chat Channels
           </h2>
           {currentUser.role === ROLE_MODERATOR
@@ -288,11 +397,15 @@ class Channels extends PureComponent {
 
             {isBreakOutMeeting ? null
               : (
-                <Fragment>
-                  <h2 className={styles.channelNameMain}>
-                Master Channel
-                  </h2>
-
+              <Fragment>
+                <Button
+                  className={styles.masterChannel}
+                  icon="icomoon-Master-Channel"
+                  size="lg"
+                  label="Master Channel"
+                  onClick={() => this.setState({hideUsers: !hideUsers})}
+                />
+                {hideUsers ? null :
                   <UserParticipantsContainer
                     {...{
                       compact,
@@ -302,10 +415,10 @@ class Channels extends PureComponent {
                       roving,
                       requestUserInformation,
                       meetingIdentifier: Auth.meetingID,
-                    }
-                }
+                    }}
                   />
-                </Fragment>
+                }
+              </Fragment>
               )
           }
 
@@ -340,8 +453,7 @@ class Channels extends PureComponent {
     } = this.props;
 
     const {
-      waiting,
-      requestedBreakoutId,
+      channelId,
     } = this.state;
 
     return (
@@ -352,15 +464,10 @@ class Channels extends PureComponent {
         >
 
           {/* TODO: Do internationlization */}
-          <Button
-            label={breakout.name}
-            onClick={() => {
-              this.joinBreakoutRoom(breakout.breakoutId);
-              exitAudio();
-            }
-              }
-            className={styles.channelNameMain}
-          />
+        <div className={styles.buttonWrapper}>
+          {this.channelOptions(breakout)}
+        </div>
+        {(channelId == breakout.breakoutId) ?
           <UserParticipantsContainer
             {...{
               compact,
@@ -369,11 +476,11 @@ class Channels extends PureComponent {
               setEmojiStatus,
               roving,
               requestUserInformation,
-              meetingIdentifier: breakout.breakoutId,
+              meetingIdentifier: channelId,
               isbreakoutRoomUser
             }}
           />
-
+          : null}
         </div>
       )));
   }

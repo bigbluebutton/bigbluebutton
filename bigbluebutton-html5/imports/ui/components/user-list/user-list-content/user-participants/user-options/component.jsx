@@ -90,6 +90,10 @@ const intlMessages = defineMessages({
     id: 'app.invitation.title',
     description: 'invitation to breakout title',
   },
+  endAllBreakouts: {
+    id: 'app.createBreakoutRoom.endAllBreakouts',
+    description: 'End all the breakout channels',
+  },
   saveUserNames: {
     id: 'app.actionsBar.actionsDropdown.saveUserNames',
     description: 'Save user name feature description',
@@ -191,6 +195,7 @@ class UserOptions extends PureComponent {
       amIModerator,
       users,
       isMeteorConnected,
+      endAllBreakouts,
     } = this.props;
 
     const canCreateBreakout = amIModerator
@@ -266,6 +271,13 @@ class UserOptions extends PureComponent {
           label={intl.formatMessage(intlMessages.invitationItem)}
           key={this.createBreakoutId}
           onClick={this.onInvitationUsers}
+        />) : null
+      ),
+      (amIModerator && hasBreakoutRoom && isMeteorConnected ? (
+        <DropdownListItem
+          icon="rooms"
+          label={intl.formatMessage(intlMessages.endAllBreakouts)}
+          onClick={() => endAllBreakouts()}
         />) : null
       ),
       (amIModerator && CaptionsService.isCaptionsEnabled() && isMeteorConnected
