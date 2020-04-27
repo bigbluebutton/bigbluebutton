@@ -261,7 +261,8 @@ class Channels extends PureComponent {
       isMeteorConnected,
       getUsersByMeeting,
       getUsersNotAssigned,
-      users
+      users,
+      exitAudio
     } = this.props;
 
     const {
@@ -286,7 +287,11 @@ class Channels extends PureComponent {
           key={this.muteAllId}
           icon="rooms"
           label="Edit Room"
-          onClick={() => {}}
+          onClick={() => {
+            //TODO: Remove this 
+            // const {getUsersByMeeting} = this.props;
+            // this.editBreakoutRoom(breakout.breakoutId, getUsersByMeeting(Auth.meetingID).shift(), []); 
+          }}
         />) : null
       ),
       (
@@ -311,6 +316,7 @@ class Channels extends PureComponent {
 
     return this.menuItems;
   }
+
 
   channelOptions(breakout) {
     const {isChannelOptionsOpen} = this.state;
@@ -485,29 +491,24 @@ class Channels extends PureComponent {
       )));
   }
 
-  // TODO: bring in the user Id of the break out meeting
-  // Prototype method that adds any un assigned users in the master channel
-  // Removes all the users in the breakout room
 
-  // console.log(`currentUser: ${currentUser}`);
-  // if (!meetingIsBreakout() && currentUser.role === ROLE_MODERATOR) {
-  //   this.editBreakoutRoom(breakout.breakoutId, getUsersByMeeting(breakout.breakoutId),
-  //     getUsersNotAssigned(users));
-  // }
   editBreakoutRoom(breakoutId, usersToRemove, usersToAdd) {
     const {
       sendInvitation,
       removeUser,
       currentUser,
-
+      getBreakoutMeetingUserId
     } = this.props;
 
-    usersToRemove.map((user) => {
-      if (user.userId != currentUser.userId) {
-        console.log(`Removing user to channel: ${user.userId}`);
-        removeUser(user.userId, breakoutId);
-      }
-    });
+    //The userIds here are from the parent meeting. We need to get the corresponding user from the 
+    //break out room. 
+     usersToRemove.map((user) => {
+      let breakoutUser = getBreakoutMeetingUserId(user.email, user.name, breakoutId);
+      if(breakoutUser != null && breakoutUser != undefined){
+        console.log(`Removing user to channel: ${breakoutUser.userId}`);
+        removeUser(breakoutUser.userId, breakoutId);
+       }
+     });
 
     usersToAdd.map(user => {
       if(user.userId != currentUser.userId){

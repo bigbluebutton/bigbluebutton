@@ -87,6 +87,12 @@ const getAllBreakoutRoomUsers = (breakoutId) => {
 // 3.2) User id matches the pattern in joined users
 const isUserActiveInBreakoutroom = userId => Breakouts.findOne({ 'joinedUsers.userId': new RegExp(`^${userId}`) });
 
+const getBreakoutMeetingUserId = (email, name, breakoutId) => 
+  Users.findOne({
+    connectionStatus: 'online',
+    meetingId: breakoutId,
+    email: email,
+    name: name}, { fields: { userId: 1 } });
 
 const closeBreakoutPanel = () => Session.set('openPanel', 'userlist');
 
@@ -184,4 +190,5 @@ export default {
   getBreakoutUserIsIn,
   isUserInBreakoutRoom,
   isUserActiveInBreakoutroom,
+  getBreakoutMeetingUserId
 };
