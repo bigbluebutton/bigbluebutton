@@ -19,6 +19,7 @@
 package org.bigbluebutton.web.controllers
 
 import grails.converters.*
+import org.grails.web.mime.DefaultMimeUtility
 import org.bigbluebutton.api.ParamsProcessorUtil;
 
 import java.nio.charset.StandardCharsets
@@ -33,6 +34,7 @@ class PresentationController {
   MeetingService meetingService
   PresentationService presentationService
   ParamsProcessorUtil paramsProcessorUtil
+  DefaultMimeUtility grailsMimeUtility
 
   def index = {
     render(view: 'upload-file')
@@ -295,19 +297,25 @@ class PresentationController {
     InputStream is = null;
     try {
       def pres = meetingService.getDownloadablePresentationFile(meetingId, presId, presFilename)
-      if (pres.exists()) {
+      if (pres != null && pres.exists()) {
         log.debug "Controller: Sending pdf reply for $presFilename"
 
         def bytes = pres.readBytes()
         def responseName = pres.getName();
+        def mimeType = grailsMimeUtility.getMimeTypeForURI(responseName)
+        def mimeName = mimeType != null ? mimeType.name : 'application/octet-stream'
+
+        response.contentType = mimeName
         response.addHeader("content-disposition", "filename=" + URLEncoder.encode(responseName, StandardCharsets.UTF_8.name()))
         response.addHeader("Cache-Control", "no-cache")
         response.outputStream << bytes;
       } else {
         log.warn "$pres does not exist."
+		response.status = 404
       }
     } catch (IOException e) {
       log.error("Error reading file.\n" + e.getMessage());
+	  response.status = 404
     }
   }
 

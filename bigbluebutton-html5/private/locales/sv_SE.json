@@ -108,7 +108,6 @@
     "app.media.autoplayAlertDesc": "Tillåta åtkomst",
     "app.media.screenshare.start": "Skärmdelning har startats",
     "app.media.screenshare.end": "Skärmdelning har avslutats",
-    "app.media.screenshare.safariNotSupported": "Skärmdelning stöds förnärvarande inte av Safari. Vänligen använd Firefox eller Google Chrome.",
     "app.media.screenshare.autoplayBlockedDesc": "Vi behöver din tillåtelse att visa presentatörens skärm.",
     "app.media.screenshare.autoplayAllowLabel": "Visa delad skärm",
     "app.screenshare.notAllowed": "Fel: Tillåtelse för åtkomstskärm beviljades inte.",

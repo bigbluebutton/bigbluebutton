@@ -71,7 +71,6 @@
     "app.media.label": "Media",
     "app.media.screenshare.start": "Compartir pantalla ha iniciado",
     "app.media.screenshare.end": "Compartir pantalla ha finalizado",
-    "app.media.screenshare.safariNotSupported": "Compartir pantalla actualmente no es soportada por Safari. Por favor usilize Firefox o Google Chrome.",
     "app.meeting.ended": "La sesión ha finalizado",
     "app.meeting.meetingTimeRemaining": "Tiempo restante en la sesión: {0}",
     "app.meeting.meetingTimeHasEnded": "El tiempo a finalizado. La sesión se cerrara en cualquier momento",

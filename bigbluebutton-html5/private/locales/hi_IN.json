@@ -71,7 +71,6 @@
     "app.media.label": "मीडिया",
     "app.media.screenshare.start": "स्क्रीनशॉट की शुरुआत हो चुकी है",
     "app.media.screenshare.end": "स्क्रीनशेयर समाप्त हो गया है",
-    "app.media.screenshare.safariNotSupported": "स्क्रीनशेयर वर्तमान में सफारी द्वारा समर्थित नहीं है। कृपया, फ़ायरफ़ॉक्स या गूगल क्रोम का उपयोग करें।",
     "app.meeting.ended": "यह सत्र समाप्त हो गया है।",
     "app.meeting.meetingTimeRemaining": "बैठक का समय शेष: {0}",
     "app.meeting.meetingTimeHasEnded": "समय समाप्त हुआ। बैठक जल्द ही बंद हो जाएगी",

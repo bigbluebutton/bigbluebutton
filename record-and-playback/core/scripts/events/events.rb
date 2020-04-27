@@ -23,16 +23,20 @@ require '../lib/recordandplayback'
 require 'logger'
 require 'trollop'
 require 'yaml'
+require 'fnv'
 
-def keep_events(meeting_id, redis_host, redis_port, redis_password, events_dir, break_timestamp)
+def keep_etherpad_events(meeting_id, target_dir, notes_endpoint)
+  BigBlueButton.logger.info("Keeping etherpad events for #{meeting_id}")
+  notes_id = FNV.new.fnv1a_32(meeting_id).to_s(16)
+
+  # Always fetch for the audit format
+  BigBlueButton.try_download("#{notes_endpoint}/#{notes_id}/export/etherpad", "#{target_dir}/events.etherpad")
+end
+
+def keep_events(meeting_id, redis_host, redis_port, redis_password, target_dir, break_timestamp)
   BigBlueButton.logger.info("Keeping events for #{meeting_id}")
   redis = BigBlueButton::RedisWrapper.new(redis_host, redis_port, redis_password)
   events_archiver = BigBlueButton::RedisEventsArchiver.new redis
-
-  target_dir = "#{events_dir}/#{meeting_id}"
-  if not FileTest.directory?(target_dir)
-    FileUtils.mkdir_p target_dir
-  end
 
   events_xml = "#{target_dir}/events.xml"
   events = events_archiver.store_events(meeting_id, events_xml, break_timestamp)
@@ -58,6 +62,7 @@ redis_host = props['redis_host']
 redis_port = props['redis_port']
 redis_password = props['redis_password']
 log_dir = props['log_dir']
+notes_endpoint = props['notes_endpoint']
 
 raw_events_xml = "#{raw_archive_dir}/#{meeting_id}/events.xml"
 ended_done_file = "#{recording_dir}/status/ended/#{meeting_id}.done"
@@ -78,15 +83,18 @@ end
 target_dir = "#{events_dir}/#{meeting_id}"
 if not FileTest.directory?(target_dir)
   FileUtils.mkdir_p target_dir
+
+  keep_etherpad_events(meeting_id, target_dir, notes_endpoint)
+
   if File.exist? raw_events_xml
     # This is a recorded meetings. Therefore, copy the events.xml
     # from raw directory instead of collecting the events from redis.
     # (ralam July 5, 2019)
     BigBlueButton.logger.info("Copying events from #{raw_events_xml}")
-    events_xml = "#{events_dir}/#{meeting_id}/events.xml"
+    events_xml = "#{target_dir}/events.xml"
     FileUtils.cp(raw_events_xml, events_xml)
   else
-    keep_events(meeting_id, redis_host, redis_port, redis_password, events_dir, break_timestamp)
+    keep_events(meeting_id, redis_host, redis_port, redis_password, target_dir, break_timestamp)
     # we need to delete the keys here because the sanity phase might not
     # automatically happen for this recording
     BigBlueButton.logger.info("Deleting redis keys")

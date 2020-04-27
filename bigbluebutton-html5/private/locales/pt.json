@@ -111,7 +111,6 @@
     "app.media.autoplayAlertDesc": "Permitir acesso",
     "app.media.screenshare.start": "A partilha do ecrã iniciou",
     "app.media.screenshare.end": "A partilha do ecrã terminou",
-    "app.media.screenshare.safariNotSupported": "Atualmente, a partilha de ecrã não é suportada pelo Safari. Por favor, use o Firefox ou o Google Chrome.",
     "app.media.screenshare.autoplayBlockedDesc": "Necessitamos da sua permissão para lhe mostrar o ecrã do apresentador",
     "app.media.screenshare.autoplayAllowLabel": "Ver ecrã partilhado",
     "app.screenshare.notAllowed": "Erro: Permissão para aceder ao ecrã não for fornecida",

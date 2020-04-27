@@ -9,7 +9,7 @@ public:
     skipCheck: false
     clientTitle: BigBlueButton
     appName: BigBlueButton HTML5 Client
-    bbbServerVersion: 2.2-dev
+    bbbServerVersion: 2.2
     copyright: "©2019 BigBlueButton Inc."
     html5ClientBuild: HTML5_CLIENT_VERSION
     helpLink: https://bigbluebutton.org/html5/
@@ -174,7 +174,7 @@ public:
     callTransferTimeout: 5000
     callHangupTimeout: 2000
     callHangupMaximumRetries: 10
-    echoTestNumber: '9196'
+    echoTestNumber: 'echo'
     relayOnlyOnReconnect: false
   presentation:
     defaultPresentationFile: default.pdf
@@ -214,6 +214,8 @@ public:
     - extension: .odi
       mime: application/vnd.oasis.opendocument.image
     - extension: .jpg
+      mime: image/jpeg
+    - extension: .jpeg
       mime: image/jpeg
     - extension: .png
       mime: image/png
