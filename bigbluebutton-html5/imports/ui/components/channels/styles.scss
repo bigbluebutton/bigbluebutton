@@ -1,8 +1,76 @@
 @import "/imports/ui/stylesheets/variables/_all";
 @import "/imports/ui/stylesheets/mixins/_scrollable";
+@import "/imports/ui/stylesheets/mixins/_indicators";
 @import "/imports/ui/components/user-list/styles";
 @import "/imports/ui/components/user-list/user-list-content/styles";
+@import "/imports/ui/stylesheets/variables/_all";
 
+:root {
+  --user-manage-menu-top : -0.5rem;
+  --user-manage-menu-right : -0.75rem;
+  --user-manage-menu-width : 12rem;
+}
+
+.dropdown {
+  align-self: center;
+  position: absolute;
+  left: 0;
+  width: 100%;
+  
+  [dir="rtl"] & {
+    left: 0;
+    right: auto;
+  }
+}
+
+.dropdownContent {
+  top: var(--user-manage-menu-top);
+  right: var(--user-manage-menu-right);
+  left: auto;
+  width: var(--user-manage-menu-width);
+
+  [dir="rtl"] & {
+    top: var(--user-manage-menu-top);
+    right: -1rem;
+  }
+
+  @include mq($small-only) {
+    width: 100vw;
+  }
+}
+
+.optionsButton {
+  @extend %no-margin;
+  font-family: Avenir;
+  font-style: normal;
+  line-height: 150%;
+  display: flex;
+  flex-direction: row-reverse;
+  color: #ffffff;
+  letter-spacing: 0.025em;
+  // font-size: var(--font-size-14px);
+  align-items: center;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  width: 100%;
+  // white-space: nowrap;
+  >span {
+    flex: 90%;
+    justify-content: center;
+    font-size: var(--font-size-13px);
+    // max-width: 9rem;
+    // overflow-x: hidden;
+  }
+  >i {
+    flex: 10%;
+    align-self: center;
+    justify-content: center;
+    left: 0.5rem;
+    // padding-left: 0.8rem;
+    // right: 0;
+    color: #ffffff !important;
+  }
+}
 
 .channelListColumn {
   @extend %flex-column;
@@ -14,9 +82,6 @@
   align-items: center;
   margin: var(--sm-padding-x) 0 var(--lg-padding-y) var(--font-size-20px);
   height:var(--font-size-13px);
-
-  // margin-bottom: var(--lg-padding-y);
-  // margin-top: var(--sm-padding-x);
 }
 
  .channelsTitle {
@@ -27,8 +92,6 @@
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.03em;
-  // padding: 0 var(--sm-padding-x);
-  // margin: 0 0 (var(--lg-padding-x) / 2) 0;
   color: #ffffff;
 }
 
@@ -59,10 +122,26 @@
 
 .channelName {
   @extend %flex-column;
-  min-width: 0;
   justify-content: center;
+  margin-top: var(--font-size-10px);
+}
 
-  // font-size: var(--font-size-14px);
+.masterChannel {
+  @extend %no-margin;
+  font-family: Avenir;
+  font-style: normal;
+  line-height: 150%;
+  color: #ffc700;
+  letter-spacing: 0.05em;
+  
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  >span {
+    justify-content: center;
+    padding-left: 0.8rem;
+    font-size: var(--font-size-13px);
+  }
 }
 
 .channelNameMain {
@@ -70,30 +149,19 @@
   font-family: Avenir;
   font-style: normal;
   font-weight: 500;
-  font-size: var(--font-size-14px);
-  line-height: 150%;
   color: #ffffff;
-  letter-spacing: 0.025em;
+  font-size: var(--font-size-14px);
   
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+}
 
-  margin: var(--font-size-10px) 0 var(--font-size-10px) var(--font-size-20px);
-
+.buttonWrapper {
   display: flex;
-  flex-direction: row;
-
-  // > span {
-  //   text-overflow: ellipsis;
-  //   white-space: nowrap;
-  //   overflow: hidden;
-  // }
-  // > i {
-  //   font-style: normal;
-  // }
-  // :global(.animationsEnabled) & {
-  //   transition: all .3s;
-  // }
+  margin: var(--font-size-10px);
+  height: var(--font-size-14px);
+  &:hover,
+  &:active,
+  &:focus {
+    color: #ffc700 !important;
+  }
 }
 

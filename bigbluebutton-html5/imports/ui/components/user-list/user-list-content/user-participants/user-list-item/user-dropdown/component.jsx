@@ -509,10 +509,7 @@ class UserDropdown extends PureComponent {
         noVoice={!voiceUser.isVoiceUser}
         color={user.color}
       >
-        {
-        userInBreakout
-        && !meetingIsBreakout
-          ? breakoutSequence : userIcon}
+        {userIcon}
       </UserAvatar>
     );
   }
