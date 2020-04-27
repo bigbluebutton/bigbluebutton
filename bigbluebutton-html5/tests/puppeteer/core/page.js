@@ -2,6 +2,7 @@ require('dotenv').config();
 const puppeteer = require('puppeteer');
 const fs = require('fs');
 const path = require('path');
+const moment = require('moment');
 const helper = require('./helper');
 const params = require('../params');
 const e = require('./elements');
@@ -25,11 +26,14 @@ class Page {
     this.effectiveParams = newParams || params;
     const isModerator = this.effectiveParams.moderatorPW;
     if (process.env.BROWSERLESS_ENABLED === 'true') {
-      this.browser = await puppeteer.connect({ browserWSEndpoint: `ws://${process.env.BROWSERLESS_URL}?token=${process.env.BROWSERLESS_TOKEN}&${args.args.join('&')}` });
+      this.browser = await puppeteer.connect({
+        browserWSEndpoint: `ws://${process.env.BROWSERLESS_URL}?token=${process.env.BROWSERLESS_TOKEN}&${args.args.join('&')}`
+      });
     } else {
       this.browser = await puppeteer.launch(args);
     }
     this.page = await this.browser.newPage({ context: `bbb-${this.effectiveParams.fullName}` });
+    this.page.setDefaultTimeout(3600000);
 
     await this.setDownloadBehavior(`${this.parentDir}/downloads`);
     this.meetingId = await helper.createMeeting(params, meetingId);
@@ -90,33 +94,30 @@ class Page {
 
   // Get the default arguments for creating a page
   static getArgs() {
-    const args = ['--no-sandbox', '--use-fake-ui-for-media-stream'];
-    return { headless: true, args };
+    return { headless: true, args: ['--no-sandbox', '--use-fake-ui-for-media-stream'] };
   }
 
   static getArgsWithAudio() {
-    const args = [
-      '--no-sandbox',
-      '--use-fake-ui-for-media-stream',
-      '--use-fake-device-for-media-stream',
-      '--allow-file-access',
-    ];
     return {
       headless: true,
-      args,
+      args: [
+        '--no-sandbox',
+        '--use-fake-ui-for-media-stream',
+        '--use-fake-device-for-media-stream',
+        '--allow-file-access',
+      ],
     };
   }
 
   static getArgsWithVideo() {
-    const args = [
-      '--no-sandbox',
-      '--use-fake-ui-for-media-stream',
-      '--use-fake-device-for-media-stream',
-      '--allow-file-access',
-    ];
     return {
       headless: true,
-      args,
+      args: [
+        '--no-sandbox',
+        '--use-fake-ui-for-media-stream',
+        '--use-fake-device-for-media-stream',
+        '--allow-file-access',
+      ],
     };
   }
 
@@ -196,27 +197,30 @@ class Page {
   }
 
   async getMetrics() {
-    const metricsObj = {};
+    const totalUsersMetricsObj = {};
+    const pageMetricsObj = {};
     const dir = process.env.METRICS_FOLDER;
-    const timestamp = Date.now();
+    const date = moment(Date.now()).format('DD/MM/YYYY hh:mm:ss');
     if (!fs.existsSync(dir)) {
       fs.mkdirSync(dir);
     }
-    const miniMongoUsers = await this.page.evaluate(() => {
+    const totalNumberOfUsersMongo = await this.page.evaluate(() => {
       const collection = require('/imports/api/users/index.js');
       const users = collection.default._collection.find({ connectionStatus: 'online' }).count();
       return users;
     });
-    const TotalNumberOfUsersDom = await this.page.evaluate(() => document.querySelectorAll('[data-test^="userListItem"]').length);
-    console.log({ TotalNumberOfUsersDom, TotalNumberOfUsersMongo: miniMongoUsers });
+    const totalNumberOfUsersDom = await this.page.evaluate(() => document.querySelectorAll('[data-test^="userListItem"]').length);
+    console.log({ totalNumberOfUsersDom: totalNumberOfUsersDom, totalNumberOfUsersMongo: totalNumberOfUsersMongo });
     const metric = await this.page.metrics();
-    metricsObj.TotalNumberOfUsersMongo = miniMongoUsers;
-    metricsObj.TotalNumberOfUsersDom = TotalNumberOfUsersDom;
-    metricsObj.timestamp = timestamp;
-    metricsObj[`metricObj-${this.effectiveParams.fullName}`] = metric;
+    pageMetricsObj['dateObj'] = date;
+    pageMetricsObj[`metricObj-${this.effectiveParams.fullName}`] = metric;
+    totalUsersMetricsObj['dateObj'] = date;
+    totalUsersMetricsObj['totalNumberOfUsersMongoObj'] = totalNumberOfUsersMongo;
+    totalUsersMetricsObj['totalNumberOfUsersDomObj'] = totalNumberOfUsersDom;
     const createFile = () => {
       try {
-        fs.appendFileSync(`${dir}/metrics-${this.effectiveParams.fullName}-${this.meetingId}.json`, `${JSON.stringify(metricsObj)}\n`);
+        fs.appendFileSync(`${dir}/metrics-${this.effectiveParams.fullName}-${this.meetingId}-users.json`, `${JSON.stringify(totalUsersMetricsObj)},\n`);
+        fs.appendFileSync(`${dir}/metrics-${this.effectiveParams.fullName}-${this.meetingId}.json`, `${JSON.stringify(pageMetricsObj)},\n`);
       } catch (error) {
         console.log(error);
       }
