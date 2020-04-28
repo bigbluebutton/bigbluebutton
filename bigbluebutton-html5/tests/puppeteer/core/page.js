@@ -36,6 +36,11 @@ class Page {
       this.page = await this.browser.newPage();
       this.page.setDefaultTimeout(3600000);
 
+      // // Getting all page console logs
+      // this.page.on('console', async msg => console[msg._type](
+      //   ...await Promise.all(msg.args().map(arg => arg.jsonValue()))
+      // ));
+
       await this.setDownloadBehavior(`${this.parentDir}/downloads`);
       this.meetingId = await helper.createMeeting(params, meetingId);
       console.log(this.meetingId);
@@ -45,6 +50,7 @@ class Page {
       await this.page.goto(joinURL);
       const checkForGetMetrics = async () => {
         if (process.env.BBB_COLLECT_METRICS === 'true') {
+          await this.page.waitForSelector('[data-test^="userListItem"]');
           await this.getMetrics();
         }
       };
@@ -74,8 +80,10 @@ class Page {
   }
 
   async closeAudioModal() {
+    console.log(`${this.effectiveParams.fullName} :: close audio modal ( begin )`);
     await this.waitForSelector(e.audioDialog);
     await this.click(e.closeAudio, true);
+    console.log(`${this.effectiveParams.fullName} :: close audio modal ( end )`);
   }
 
   async setDownloadBehavior(downloadPath) {
@@ -98,12 +106,12 @@ class Page {
 
   // Get the default arguments for creating a page
   static getArgs() {
-    return { headless: true, args: ['--no-sandbox', '--use-fake-ui-for-media-stream'] };
+    return { headless: false, args: ['--no-sandbox', '--use-fake-ui-for-media-stream'] };
   }
 
   static getArgsWithAudio() {
     return {
-      headless: true,
+      headless: false,
       args: [
         '--no-sandbox',
         '--use-fake-ui-for-media-stream',
@@ -115,7 +123,7 @@ class Page {
 
   static getArgsWithVideo() {
     return {
-      headless: true,
+      headless: false,
       args: [
         '--no-sandbox',
         '--use-fake-ui-for-media-stream',
@@ -197,33 +205,35 @@ class Page {
   }
 
   async waitForSelector(element) {
+    // console.log(`waiting for ${element} (begin)`);
     await this.page.waitForSelector(element, { timeout: 0 });
+    // console.log(`waiting for ${element} (end)`);
   }
 
   async getMetrics() {
-    const totalUsersMetricsObj = {};
     const pageMetricsObj = {};
     const dir = process.env.METRICS_FOLDER;
     const date = moment(Date.now()).format('DD/MM/YYYY hh:mm:ss');
     if (!fs.existsSync(dir)) {
       fs.mkdirSync(dir);
     }
+    console.log('Waiting for user list item ( begin )');
+    await this.waitForSelector('[data-test^="userListItem"]');
+    console.log('Waiting for user list item ( end )');
     const totalNumberOfUsersMongo = await this.page.evaluate(() => {
       const collection = require('/imports/api/users/index.js');
       const users = collection.default._collection.find({ connectionStatus: 'online' }).count();
       return users;
     });
-    const totalNumberOfUsersDom = await this.page.evaluate(() => document.querySelectorAll('[data-test^="userListItem"]').length);
+    const totalNumberOfUsersDom = await this.page.evaluate(() => document.querySelectorAll('div[class^="participantsList"]').length);
     console.log({ totalNumberOfUsersDom, totalNumberOfUsersMongo });
     const metric = await this.page.metrics();
     pageMetricsObj.dateObj = date;
-    pageMetricsObj[`metricObj-${this.effectiveParams.fullName}`] = metric;
-    totalUsersMetricsObj.dateObj = date;
-    totalUsersMetricsObj.totalNumberOfUsersMongoObj = totalNumberOfUsersMongo;
-    totalUsersMetricsObj.totalNumberOfUsersDomObj = totalNumberOfUsersDom;
+    pageMetricsObj.totalNumberOfUsersMongoObj = totalNumberOfUsersMongo;
+    pageMetricsObj.totalNumberOfUsersDomObj = totalNumberOfUsersDom;
+    pageMetricsObj[`metricObj-${this.meetingId}`] = metric;
     const createFile = () => {
       try {
-        fs.appendFileSync(`${dir}/metrics-${this.effectiveParams.fullName}-${this.meetingId}-users.json`, `${JSON.stringify(totalUsersMetricsObj)},\n`);
         fs.appendFileSync(`${dir}/metrics-${this.effectiveParams.fullName}-${this.meetingId}.json`, `${JSON.stringify(pageMetricsObj)},\n`);
       } catch (error) {
         console.log(error);

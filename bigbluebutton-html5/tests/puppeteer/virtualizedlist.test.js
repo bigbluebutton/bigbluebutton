@@ -16,6 +16,6 @@ describe('Virtualized List', () => {
     } finally {
       await test.close();
     }
-    expect(response).toBe(true);
-  }, parseInt(process.env.TEST_DURATION_TIME) * parseInt(process.env.USER_LIST_VLIST_BOTS_LISTENING));
+    expect(response).toBe(parseInt(process.env.USER_LIST_VLIST_BOTS_LISTENING) + 1);
+  }, parseInt(process.env.TEST_DURATION_TIME));
 });
