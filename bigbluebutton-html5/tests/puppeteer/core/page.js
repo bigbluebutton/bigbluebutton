@@ -27,12 +27,12 @@ class Page {
     const isModerator = this.effectiveParams.moderatorPW;
     if (process.env.BROWSERLESS_ENABLED === 'true') {
       this.browser = await puppeteer.connect({
-        browserWSEndpoint: `ws://${process.env.BROWSERLESS_URL}?token=${process.env.BROWSERLESS_TOKEN}&${args.args.join('&')}`
+        browserWSEndpoint: `ws://${process.env.BROWSERLESS_URL}?token=${process.env.BROWSERLESS_TOKEN}&${args.args.join('&')}`,
       });
     } else {
       this.browser = await puppeteer.launch(args);
     }
-    this.page = await this.browser.newPage({ context: `bbb-${this.effectiveParams.fullName}` });
+    this.page = await this.browser.newPage();
     this.page.setDefaultTimeout(3600000);
 
     await this.setDownloadBehavior(`${this.parentDir}/downloads`);
@@ -210,13 +210,13 @@ class Page {
       return users;
     });
     const totalNumberOfUsersDom = await this.page.evaluate(() => document.querySelectorAll('[data-test^="userListItem"]').length);
-    console.log({ totalNumberOfUsersDom: totalNumberOfUsersDom, totalNumberOfUsersMongo: totalNumberOfUsersMongo });
+    console.log({ totalNumberOfUsersDom, totalNumberOfUsersMongo });
     const metric = await this.page.metrics();
-    pageMetricsObj['dateObj'] = date;
+    pageMetricsObj.dateObj = date;
     pageMetricsObj[`metricObj-${this.effectiveParams.fullName}`] = metric;
-    totalUsersMetricsObj['dateObj'] = date;
-    totalUsersMetricsObj['totalNumberOfUsersMongoObj'] = totalNumberOfUsersMongo;
-    totalUsersMetricsObj['totalNumberOfUsersDomObj'] = totalNumberOfUsersDom;
+    totalUsersMetricsObj.dateObj = date;
+    totalUsersMetricsObj.totalNumberOfUsersMongoObj = totalNumberOfUsersMongo;
+    totalUsersMetricsObj.totalNumberOfUsersDomObj = totalNumberOfUsersDom;
     const createFile = () => {
       try {
         fs.appendFileSync(`${dir}/metrics-${this.effectiveParams.fullName}-${this.meetingId}-users.json`, `${JSON.stringify(totalUsersMetricsObj)},\n`);

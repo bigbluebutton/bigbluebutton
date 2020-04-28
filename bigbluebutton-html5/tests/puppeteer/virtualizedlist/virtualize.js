@@ -11,22 +11,32 @@ class VirtualizeList {
 
   // Join BigBlueButton meeting
   async init(meetingId) {
-    await this.page1.init(Page.getArgsWithAudio(), meetingId, { ...params, fullName: 'BroadCaster1' });
-    await this.page1.closeAudioModal();
-    await this.page3.init(Page.getArgsWithAudio(), this.page1.meetingId, { ...params, fullName: 'Probe' });
-    await this.page3.closeAudioModal();
-    await this.page3.getMetrics();
-    for (let i = 1; i <= parseInt(process.env.BOTS); i++) {
-      const viewerPage = new Page();
-      await viewerPage.init(Page.getArgsWithAudio(), this.page1.meetingId, { ...params, fullName: `Viewer${i}`, moderatorPW: '' });
-      this.pagesArray.push(viewerPage);
-      await viewerPage.closeAudioModal();
+    try {
+      await this.page1.init(Page.getArgsWithAudio(), meetingId, { ...params, fullName: 'BroadCaster1' });
+      await this.page1.closeAudioModal();
+      await this.page3.init(Page.getArgsWithAudio(), this.page1.meetingId, { ...params, fullName: 'Probe' });
+      await this.page3.closeAudioModal();
       await this.page3.getMetrics();
+      for (let i = 1; i <= parseInt(process.env.BOTS); i++) {
+        const viewerPage = new Page();
+        await viewerPage.init(Page.getArgsWithAudio(), this.page1.meetingId, { ...params, fullName: `Viewer${i}`, moderatorPW: '' });
+        this.pagesArray.push(viewerPage);
+        await viewerPage.closeAudioModal();
+        await this.page3.getMetrics();
+      }
+    } catch (e) {
+      console.log(e);
     }
   }
 
-  async test() {
-    return true;
+  test() {
+    new Promise(
+      (resolve, reject) => {
+        setTimeout(() => {
+          resolve(true);
+        }, 20000);
+      },
+    );
   }
 
   async close() {
