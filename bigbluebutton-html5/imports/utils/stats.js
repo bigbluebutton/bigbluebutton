@@ -15,17 +15,40 @@ const stop = callback => {
   return;
 };
 
-const isConnected = conn => {
-  if (conn && conn.connectionState === 'connected') return true;
+const isActive = conn => {
+  let active = false;
 
-  return false;
+  if (conn) {
+    const { connectionState } = conn;
+    const logCode = 'stats_connection_state';
+
+    switch (connectionState) {
+      case 'new':
+      case 'connecting':
+      case 'connected':
+      case 'disconnected':
+        active = true;
+        break;
+      case 'failed':
+      case 'closed':
+      default:
+        logger.warn({ logCode }, connectionState);
+    }
+  } else {
+    logger.error(
+      { logCode: 'stats_missing_connection' },
+      'Missing connection'
+    );
+  }
+
+  return active;
 };
 
 const collect = (conn, callback) => {
   let stats = [];
 
   const monitor = (conn, stats, iteration) => {
-    if (!isConnected(conn)) return stop(callback);
+    if (!isActive(conn)) return stop(callback);
 
     conn.getStats().then(results => {
       if (!results) return stop(callback);
