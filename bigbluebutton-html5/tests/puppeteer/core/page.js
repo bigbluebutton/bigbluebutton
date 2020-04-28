@@ -23,34 +23,38 @@ class Page {
 
   // Join BigBlueButton meeting
   async init(args, meetingId, newParams) {
-    this.effectiveParams = newParams || params;
-    const isModerator = this.effectiveParams.moderatorPW;
-    if (process.env.BROWSERLESS_ENABLED === 'true') {
-      this.browser = await puppeteer.connect({
-        browserWSEndpoint: `ws://${process.env.BROWSERLESS_URL}?token=${process.env.BROWSERLESS_TOKEN}&${args.args.join('&')}`,
-      });
-    } else {
-      this.browser = await puppeteer.launch(args);
-    }
-    this.page = await this.browser.newPage();
-    this.page.setDefaultTimeout(3600000);
-
-    await this.setDownloadBehavior(`${this.parentDir}/downloads`);
-    this.meetingId = await helper.createMeeting(params, meetingId);
-    console.log(this.meetingId);
-
-    const joinURL = helper.getJoinURL(this.meetingId, this.effectiveParams, isModerator);
-
-    await this.page.goto(joinURL);
-    const checkForGetMetrics = async () => {
-      if (process.env.BBB_COLLECT_METRICS === 'true') {
-        await this.getMetrics();
+    try {
+      this.effectiveParams = newParams || params;
+      const isModerator = this.effectiveParams.moderatorPW;
+      if (process.env.BROWSERLESS_ENABLED === 'true') {
+        this.browser = await puppeteer.connect({
+          browserWSEndpoint: `ws://${process.env.BROWSERLESS_URL}?token=${process.env.BROWSERLESS_TOKEN}&${args.args.join('&')}`,
+        });
+      } else {
+        this.browser = await puppeteer.launch(args);
       }
-    };
-    if (process.env.IS_AUDIO_TEST !== 'true') {
-      await this.closeAudioModal();
+      this.page = await this.browser.newPage();
+      this.page.setDefaultTimeout(3600000);
+
+      await this.setDownloadBehavior(`${this.parentDir}/downloads`);
+      this.meetingId = await helper.createMeeting(params, meetingId);
+      console.log(this.meetingId);
+
+      const joinURL = helper.getJoinURL(this.meetingId, this.effectiveParams, isModerator);
+
+      await this.page.goto(joinURL);
+      const checkForGetMetrics = async () => {
+        if (process.env.BBB_COLLECT_METRICS === 'true') {
+          await this.getMetrics();
+        }
+      };
+      if (process.env.IS_AUDIO_TEST !== 'true') {
+        await this.closeAudioModal();
+      }
+      await checkForGetMetrics();
+    } catch (e) {
+      console.log(e);
     }
-    await checkForGetMetrics();
   }
 
   // Joining audio with microphone
