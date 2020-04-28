@@ -83,7 +83,7 @@ class Base extends Component {
 
     if (getFromUserSettings('bbb_show_participants_on_login', true) && !deviceInfo.type().isPhone) {
       Session.set('openPanel', 'userlist');
-      if (CHAT_ENABLED) {
+      if (CHAT_ENABLED && !Meteor.settings.public.chat.startClosed) {
         Session.set('openPanel', 'chat');
         Session.set('idChatOpen', PUBLIC_CHAT_ID);
       }
