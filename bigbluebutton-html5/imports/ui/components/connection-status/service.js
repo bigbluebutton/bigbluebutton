@@ -6,6 +6,50 @@ import { makeCall } from '/imports/ui/services/api';
 const STATS = Meteor.settings.public.stats;
 const ROLE_MODERATOR = Meteor.settings.public.user.role_moderator;
 
+let audioStats = '';
+const audioStatsDep = new Tracker.Dependency();
+
+let statsTimeout = null;
+
+const getHelp = () => STATS.help;
+
+const getLevel = () => STATS.level;
+
+const getAudioStats = () => {
+  audioStatsDep.depend();
+  return audioStats;
+};
+
+const setAudioStats = (level = '') => {
+  if (audioStats !== level) {
+    audioStats = level;
+    audioStatsDep.changed();
+    addConnectionStatus(level);
+  }
+};
+
+const handleAudioStatsEvent = (event) => {
+  const { detail } = event;
+  if (detail) {
+    const { loss, jitter } = detail;
+    let active = false;
+    // From higher to lower
+    for (let i = STATS.level.length - 1; i >= 0; i--) {
+      if (loss > STATS.loss[i] || jitter > STATS.jitter[i]) {
+        active = true;
+        setAudioStats(STATS.level[i]);
+        break;
+      }
+    }
+    if (active) {
+      if (statsTimeout !== null) clearTimeout(statsTimeout);
+      statsTimeout = setTimeout(() => {
+        setAudioStats();
+      }, STATS.length * STATS.interval);
+    }
+  }
+};
+
 const addConnectionStatus = (level) => {
   if (level !== '') makeCall('addConnectionStatus', level);
 };
@@ -70,8 +114,15 @@ const getConnectionStatus = () => {
 
 const isEnabled = () => STATS.enabled;
 
+if (STATS.enabled) {
+  window.addEventListener('audiostats', handleAudioStatsEvent);
+}
+
 export default {
   addConnectionStatus,
   getConnectionStatus,
+  getAudioStats,
+  getHelp,
+  getLevel,
   isEnabled,
 };

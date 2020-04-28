@@ -30,8 +30,6 @@ const ENABLE_NETWORK_MONITORING = Meteor.settings.public.networkMonitoring.enabl
 
 const HELP_LINK = METEOR_SETTINGS_APP.helpLink;
 
-const STATS = Meteor.settings.public.stats;
-
 const intlMessages = defineMessages({
   failedMessage: {
     id: 'app.failedMessage',
@@ -125,50 +123,6 @@ const startCounter = (sec, set, get, interval) => {
   }, 1000);
 };
 
-let audioStats = '';
-const audioStatsDep = new Tracker.Dependency();
-let statsTimeout = null;
-
-const getAudioStats = () => {
-  audioStatsDep.depend();
-  return audioStats;
-};
-
-const setAudioStats = (level = '') => {
-  if (audioStats !== level) {
-    audioStats = level;
-    audioStatsDep.changed();
-    ConnectionStatusService.addConnectionStatus(level);
-  }
-}
-
-const handleAudioStatsEvent = (event) => {
-  const { detail } = event;
-  if (detail) {
-    const { loss, jitter } = detail;
-    let active = false;
-    // From higher to lower
-    for (let i = STATS.level.length - 1; i >= 0; i--) {
-      if (loss > STATS.loss[i] || jitter > STATS.jitter[i]) {
-        active = true;
-        setAudioStats(STATS.level[i]);
-        break;
-      }
-    }
-    if (active) {
-      if (statsTimeout !== null) clearTimeout(statsTimeout);
-      statsTimeout = setTimeout(() => {
-        setAudioStats();
-      }, STATS.length * STATS.interval);
-    }
-  }
-};
-
-if (STATS.enabled) {
-  // TODO: Check if we need to remove this event listener at any moment
-  window.addEventListener('audiostats', handleAudioStatsEvent);
-}
-
 const reconnect = () => {
   Meteor.reconnect();
 };
@@ -193,14 +147,14 @@ export default injectIntl(withTracker(({ intl }) => {
     }
   }
 
-  if (STATS.enabled) {
-    const stats = getAudioStats();
+  if (ConnectionStatusService.isEnabled()) {
+    const stats = ConnectionStatusService.getAudioStats();
     if (stats) {
-      if (SLOW_CONNECTIONS_TYPES.includes(stats)) {
+      if (ConnectionStatusService.getLevel().includes(stats)) {
         data.message = (
           <SlowConnection effectiveConnectionType={stats}>
             {intl.formatMessage(intlMessages.slowEffectiveConnectionDetected)}{' '}
-            <a href={STATS.help} target="_blank" rel="noopener noreferrer">
+            <a href={ConnectionStatusService.getHelp()} target="_blank" rel="noopener noreferrer">
               {intl.formatMessage(intlMessages.slowEffectiveConnectionHelpLink)}
             </a>
           </SlowConnection>
