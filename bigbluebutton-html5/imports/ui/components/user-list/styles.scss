@@ -110,7 +110,7 @@
 .participantsList,
 .chatsList {
   @extend .lists;
-  overflow-x: hidden;
+  // overflow-x: hidden;
   flex-shrink: 1;
 }
 

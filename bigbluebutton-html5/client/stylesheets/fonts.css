@@ -216,6 +216,14 @@
 }
 
 @font-face {
+  font-family: 'Avenir';
+  font-weight: normal;
+  font-style: normal;
+  font-variant:normal;
+  /* src: url('public/fonts/avenir_ff/AvenirLTStd-Black.otf') format('opentype'); */
+  src: url('/public/fonts/Avenir/Avenir-Black-webfont.woff') format('woff');
+}
+@font-face {
   font-family: 'Avenir Next';
   font-weight: normal;
   font-style: normal;

@@ -14,6 +14,7 @@ import DropdownTrigger from '/imports/ui/components/dropdown/trigger/component';
 import DropdownContent from '/imports/ui/components/dropdown/content/component';
 import DropdownList from '/imports/ui/components/dropdown/list/component';
 import DropdownListItem from '/imports/ui/components/dropdown/list/item/component';
+import ChannelAvatar from './channelAvatar/component';
 
 const ROLE_MODERATOR = Meteor.settings.public.user.role_moderator;
 
@@ -288,24 +289,6 @@ class Channels extends PureComponent {
           label="Edit Room"
           onClick={() => {}}
         />) : null
-      ),
-      (
-        (amIModerator ? 
-          (channelId == breakout.breakoutId) ?
-            <DropdownListItem
-              icon="user"
-              label="Hide Users"
-              key={this.saveUsersNameId}
-              onClick={() => this.setState({channelId: ''})}
-            />
-          : <DropdownListItem
-              key={this.muteId}
-              icon="user"
-              label="Show users"
-              onClick={() => this.setState({channelId: breakout.breakoutId})}
-            />
-        : null
-        )
       )
     ]);
 
@@ -328,9 +311,9 @@ class Channels extends PureComponent {
             label={breakout.name}
             icon="more"
             color="default"
-            // hideLabel
+            hideLabel
             className={styles.optionsButton}
-            size="md"
+            size="sm"
             onClick={() => null}
           />
         </DropdownTrigger>
@@ -346,6 +329,24 @@ class Channels extends PureComponent {
         </DropdownContent>
       </Dropdown>
     )
+  }
+
+  renderChannelAvatar(breakout) {
+    const roomIcon = breakout.name.toLowerCase().slice(0, 2);
+
+    return (
+      <ChannelAvatar className={styles.channelAvatar}>
+        {roomIcon}
+      </ChannelAvatar>
+    );
+  }
+
+  toggleUserList(id) {
+    const {channelId} = this.state;
+
+    (channelId == id) ?
+      this.setState({channelId: ''}) 
+      : this.setState({channelId: id})
   }
 
   render() {
@@ -364,7 +365,7 @@ class Channels extends PureComponent {
       requestUserInformation,
     } = this.props;
 
-    const {hideUsers} = this.state;
+    const {channelId} = this.state;
     const isBreakOutMeeting = meetingIsBreakout();
 
     return (
@@ -372,9 +373,9 @@ class Channels extends PureComponent {
       <div className={styles.channelListColumn}>
 
         <div className={styles.container}>
-          <h2 className={styles.channelsTitle}>
+          <span className={styles.channelsTitle}>
               Chat Channels
-          </h2>
+          </span>
           {currentUser.role === ROLE_MODERATOR
             ? (
               <UserOptionsContainer {...{
@@ -403,9 +404,10 @@ class Channels extends PureComponent {
                   icon="icomoon-Master-Channel"
                   size="lg"
                   label="Master Channel"
-                  onClick={() => this.setState({hideUsers: !hideUsers})}
+                  onClick={() => this.toggleUserList(Auth.meetingID)}
                 />
-                {hideUsers ? null :
+                {(channelId == Auth.meetingID) ? 
+                  <div className={styles.usersList}>
                   <UserParticipantsContainer
                     {...{
                       compact,
@@ -417,6 +419,8 @@ class Channels extends PureComponent {
                       meetingIdentifier: Auth.meetingID,
                     }}
                   />
+                  </div>
+                  : null
                 }
               </Fragment>
               )
@@ -465,7 +469,13 @@ class Channels extends PureComponent {
 
           {/* TODO: Do internationlization */}
         <div className={styles.buttonWrapper}>
-          {this.channelOptions(breakout)}
+          {this.renderChannelAvatar(breakout)}
+          <Button
+            className={styles.channelNameMain}
+            label={breakout.name}
+            onClick={() => this.toggleUserList(breakout.breakoutId)}
+          />
+          {(meetingIsBreakout()) ? null : this.channelOptions(breakout)}
         </div>
         {(channelId == breakout.breakoutId) ?
           <UserParticipantsContainer

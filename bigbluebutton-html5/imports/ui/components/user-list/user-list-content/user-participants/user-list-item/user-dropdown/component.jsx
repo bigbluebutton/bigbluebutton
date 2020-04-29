@@ -576,12 +576,12 @@ class UserDropdown extends PureComponent {
               isMe,
             }}
           />}
-          {<UserIcons
+          {/* {<UserIcons
             {...{
               user,
               amIModerator: currentUser.role === ROLE_MODERATOR,
             }}
-          />}
+          />} */}
         </div>
       </div>
     );
