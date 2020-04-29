@@ -79,7 +79,8 @@ trait ValidateAuthTokenReqMsgHdlr extends HandlerHelpers {
     outGW.send(event)
 
     // send a system message to force disconnection
-    Sender.sendDisconnectClientSysMsg(meetingId, userId, SystemUser.ID, reasonCode, outGW)
+    // Comment out as meteor will disconnect the client. Requested by Tiago (ralam apr 28, 2020)
+    //Sender.sendDisconnectClientSysMsg(meetingId, userId, SystemUser.ID, reasonCode, outGW)
 
     state
   }
