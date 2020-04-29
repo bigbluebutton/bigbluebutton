@@ -94,16 +94,18 @@ export default class Media extends Component {
         >
           {children}
         </div>
-        <WebcamDraggable
-          refMediaContainer={this.refContainer}
-          swapLayout={swapLayout}
-          singleWebcam={singleWebcam}
-          usersVideoLenght={usersVideo.length}
-          hideOverlay={hideOverlay}
-          disableVideo={disableVideo}
-          audioModalIsOpen={audioModalIsOpen}
-          usersVideo={usersVideo}
-        />
+        {usersVideo.length > 0 ? (
+          <WebcamDraggable
+            refMediaContainer={this.refContainer}
+            swapLayout={swapLayout}
+            singleWebcam={singleWebcam}
+            usersVideoLenght={usersVideo.length}
+            hideOverlay={hideOverlay}
+            disableVideo={disableVideo}
+            audioModalIsOpen={audioModalIsOpen}
+            usersVideo={usersVideo}
+          />
+        ) : null}
       </div>
     );
   }
