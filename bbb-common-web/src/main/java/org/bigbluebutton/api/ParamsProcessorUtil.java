@@ -122,6 +122,29 @@ public class ParamsProcessorUtil {
     private Integer userActivitySignResponseDelayInMinutes = 5;
     private Boolean defaultAllowDuplicateExtUserid = true;
 
+	private String formatConfNum(String s) {
+		if (s.length() == 5) {
+			StringBuilder confNumDash = new StringBuilder(s);
+			confNumDash.insert(2, '-');
+			return confNumDash.toString();
+		} else if (s.length() == 6 || s.length() == 7) {
+			StringBuilder confNumDash = new StringBuilder(s);
+			confNumDash.insert(3, '-');
+			return confNumDash.toString();
+		} else if (s.length() == 8) {
+			StringBuilder confNumDash = new StringBuilder(s);
+			confNumDash.insert(4, '-');
+			return confNumDash.toString();
+		} else if (s.length() == 9) {
+			StringBuilder confNumDash = new StringBuilder(s);
+			confNumDash.insert(3, '-');
+			confNumDash.insert(7, '-');
+			return confNumDash.toString();
+		}
+
+		return s;
+	}
+
     private String substituteKeywords(String message, String dialNumber, String telVoice, String meetingName) {
         String welcomeMessage = message;
 
@@ -135,7 +158,7 @@ public class ParamsProcessorUtil {
             if (keyword.equals(DIAL_NUM)) {
                 welcomeMessage = welcomeMessage.replaceAll(DIAL_NUM, dialNumber);
             } else if (keyword.equals(CONF_NUM)) {
-                welcomeMessage = welcomeMessage.replaceAll(CONF_NUM, telVoice);
+                welcomeMessage = welcomeMessage.replaceAll(CONF_NUM, formatConfNum(telVoice));
             } else if (keyword.equals(CONF_NAME)) {
                 welcomeMessage = welcomeMessage.replaceAll(CONF_NAME, meetingName);
             } else if (keyword.equals(SERVER_URL)) {
@@ -625,7 +648,7 @@ public class ParamsProcessorUtil {
 	public boolean hasChecksumAndQueryString(String checksum, String queryString) {
 		return (! StringUtils.isEmpty(checksum) && StringUtils.isEmpty(queryString));
 	}
-		
+
 	public String processTelVoice(String telNum) {
 		return StringUtils.isEmpty(telNum) ? RandomStringUtils.randomNumeric(defaultNumDigitsForTelVoice) : telNum;
 	}
