@@ -14,8 +14,10 @@ describe('Virtualized List', () => {
     } catch (e) {
       console.log(e);
     } finally {
+      console.log('closing page ( begin )');
       await test.close();
+      console.log('closing page ( end )');
     }
-    expect(response).toBe(parseInt(process.env.USER_LIST_VLIST_BOTS_LISTENING) + 1);
+    expect(response).toBe(parseInt(process.env.USER_LIST_VLIST_BOTS_LISTENING) + parseInt(process.env.USER_LIST_VLIST_BOTS_TALKING));
   }, parseInt(process.env.TEST_DURATION_TIME));
 });

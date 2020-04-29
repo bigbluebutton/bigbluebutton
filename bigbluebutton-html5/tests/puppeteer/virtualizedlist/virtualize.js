@@ -1,3 +1,4 @@
+const moment = require('moment');
 const Page = require('../core/page');
 const params = require('../params');
 const util = require('../audio/util');
@@ -13,9 +14,9 @@ class VirtualizeList {
     try {
       console.log('page1 :: init');
       await this.page1.init(Page.getArgs(), meetingId, { ...params, fullName: 'BroadCaster1' });
-      this.page1.page.on('console', (msg) => {
-        for (let i = 0; i < msg.args().length; ++i) console.log(`${i}: ${msg.args()[i]}`);
-      });
+      // this.page1.page.on('console', (msg) => {
+      //   for (let i = 0; i < msg.args().length; ++i) console.log(`${i}: ${msg.args()[i]}`);
+      // });
       console.log('page1 :: Waiting for user list item ( begin )');
       await this.page1.waitForSelector('[data-test^="userListItem"]');
       console.log('page1 :: Waiting for user list item ( end )');
@@ -39,27 +40,29 @@ class VirtualizeList {
     }
   }
 
-  test() {
-    console.log('getting test result');
-    const vbot = process.env.USER_LIST_VLIST_BOTS_LISTENING;
-    return this.page1.page.evaluate((vbot) => {
-      const numberOfUserPromise = new Promise((resolve) => {
-        const checkNumberOfUser = setInterval(() => {
-          const users = document.querySelectorAll('div[class^="participantsList"]').length;
-          console.log('users length', users, moment(Date.now()).format('DD/MM/YYYY hh:mm:ss'));
-          if (users === parseInt(vbot) + 1) {
-            clearInterval(checkNumberOfUser);
-            resolve(users);
-          }
-        }, 1000);
-      });
-      return numberOfUserPromise;
-    }, vbot);
+  async test() {
+    try {
+      console.log('getting test result');
+      const vbot = parseInt(process.env.USER_LIST_VLIST_BOTS_LISTENING) + parseInt(process.env.USER_LIST_VLIST_BOTS_TALKING);
+      const users = await this.page1.page.evaluate(async () => await document.querySelectorAll('div[class^="participantsList"]').length);
+      console.log('users length', users, moment(Date.now()).format('DD/MM/YYYY hh:mm:ss'));
+      if (users === vbot) {
+        console.log('users => ', users);
+        return users;
+      }
+      return false;
+    } catch (e) {
+      console.log(e);
+    }
   }
 
   async close() {
-    this.page1.close();
-    this.pagesArray.forEach(page => page.close());
+    try {
+      this.page1.close();
+      this.pagesArray.forEach(page => page.close());
+    } catch (e) {
+      console.log(e);
+    }
   }
 }
 
