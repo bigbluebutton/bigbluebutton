@@ -21,7 +21,6 @@ require '../lib/recordandplayback'
 require 'logger'
 require 'trollop'
 require 'yaml'
-require 'fnv'
 
 AUDIO_ARCHIVE_FORMAT = {
   extension: 'opus',
@@ -50,7 +49,7 @@ def archive_notes(meeting_id, notes_endpoint, notes_formats, raw_archive_dir)
   BigBlueButton.logger.info("Archiving notes for #{meeting_id}")
   notes_dir = "#{raw_archive_dir}/#{meeting_id}/notes"
   FileUtils.mkdir_p(notes_dir)
-  notes_id = FNV.new.fnv1a_32(meeting_id).to_s(16)
+  notes_id = BigBlueButton.get_notes_id(meeting_id)
 
   tmp_note = "#{notes_dir}/tmp_note.txt"
   BigBlueButton.try_download("#{notes_endpoint}/#{notes_id}/export/txt", tmp_note)
