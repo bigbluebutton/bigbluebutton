@@ -25,7 +25,8 @@ export default withTracker((...props) => {
     closeBreakoutPanel,
     isUserActiveInBreakoutroom,
     isUserInBreakoutRoom,
-    isbreakoutRoomUser
+    isbreakoutRoomUser,
+    getBreakoutMeetingUserId
   } = Service;
 
 
@@ -56,6 +57,7 @@ export default withTracker((...props) => {
     removeUser: UserListService.removeUser,
     getUsersByMeeting: UserListService.getUsersByMeeting,
     isbreakoutRoomUser,
+    getBreakoutMeetingUserId,
     exitAudio: () => AudioManager.exitAudio(),
   };
 })(ChannelsContainer);

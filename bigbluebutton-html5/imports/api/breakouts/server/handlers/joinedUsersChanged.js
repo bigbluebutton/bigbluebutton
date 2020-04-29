@@ -17,47 +17,42 @@ export default function joinedUsersChanged({ body }) {
   check(joinedUsers, Array);
   check(ejectedUsers, Array);
 
+  console.log(`joinedUsers.length${joinedUsers.length}`);
+  console.log(`ejectedUsers.length${ejectedUsers.length}`);
 
+  const breakoutRoom = Breakouts.findOne({
+    breakoutId: breakoutId,
+    parentMeetingId: parentId
+  });
+
+  const usersMapped = breakoutRoom.users.filter(user => { 
+    let r = ejectedUsers.filter(e => e.id === user.userId).shift();
+    return (r == null || r == undefined);
+  })
+  .map(u =>  ({userId: u.userId, redirectToHtml5JoinURL: u.redirectToHtml5JoinURL, insertedTime: u.insertedTime}))
+
+ 
   const selector = {
     parentMeetingId: parentId,
     breakoutId,
   };
-
-  // TODO: change this.
-  // let assignedUsers  = ejectedUsers;
-  const usersMapped = joinedUsers.map(user => ({ userId: user.id, name: user.name }));
-
-  console.log(`joinedUsers.length${joinedUsers.length}`);
-  console.log(`ejectedUsers.length${ejectedUsers.length}`);
-
-  // const assignedUsersMapped = assignedUsers.map(user => ({ userId: user.id, name: user.name }));
-  // const ejectedUsersMapped = ejectedUsers.map(user => ({userId: user.id}));
-  // console.log("ejectedUsersMapped.length" + ejectedUsersMapped.length);
+  const joinedUsersMapped = joinedUsers.map(user => ({ userId: user.id, name: user.name }));
 
   let modifier = '';
   if (ejectedUsers.length > 0) {
     const ejectedUsersMapped = ejectedUsers.map(user => ({ userId: user.id }));
-
-    //  var userSelectionString = "{";
-    //  for (let index = 0; index < ejectedUsers.length; index++) {
-    //   userSelectionString  = userSelectionString + "userId:" + ejectedUsers[index].id+",";
-    //  }
-
-    //  userSelectionString = userSelectionString + "}";
-    //  console.log("userSelectionString: " + userSelectionString);
+   
     modifier = {
       $set: {
-        joinedUsers: usersMapped,
+        joinedUsers: joinedUsersMapped,
+        users: usersMapped
       },
-      $pull: {
-        // users: { $elemMatch: ejectedUsersMapped}
-        users: { userId: ejectedUsers[0].id },
-      },
+
     };
   } else {
     modifier = {
       $set: {
-        joinedUsers: usersMapped,
+        joinedUsers: joinedUsersMapped,
       },
     };
   }
