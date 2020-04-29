@@ -535,9 +535,9 @@ public class MeetingService implements MessageListener {
 
       createMeeting(breakout);
 
-      presDownloadService.extractPresentationPage(message.parentMeetingId,
-        message.sourcePresentationId,
-        message.sourcePresentationSlide, breakout.getInternalId());
+//      presDownloadService.extractPresentationPage(message.parentMeetingId,
+//        message.sourcePresentationId,
+//        message.sourcePresentationSlide, breakout.getInternalId());
     } else {
       Map<String, Object> logData = new HashMap<String, Object>();
       logData.put("meetingId", message.meetingId);
