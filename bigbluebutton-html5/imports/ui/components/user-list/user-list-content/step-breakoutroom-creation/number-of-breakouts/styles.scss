@@ -1,0 +1,62 @@
+.heading{
+    //position: absolute;
+// width: 323px;
+// height: 21px;
+// left: 237.5px;
+// top: 221px;
+font-size: 30px;
+font-family: Avenir;
+font-style: normal;
+// font-weight: 500;
+// font-size: 13px;
+// line-height: 21px;
+/* identical to box height, or 162% */
+
+letter-spacing: 0.015em;
+
+color: #000000;
+}
+.number{
+    text-align: center;
+    margin-top: 19px;
+    margin-bottom: 30px;
+}
+.num{
+    border-color: #36A1FF ;
+    border-radius: 4px;
+}
+
+
+.btns{
+    flex: auto;
+    flex-direction: row;
+  }
+  
+  .nbtn{
+    flex: 0;
+     align-self: auto;
+    // font-family: Avenir;
+    float:right;
+    margin-bottom: 0;
+    background: #36A1FF;
+  border-radius: 20px;
+  border: 0;
+  color: white;
+   padding: 5px 24px 5px 24px;
+   margin: auto;
+  // min-width: 24px;
+  }
+  .pbtn{
+     flex: 0;
+    //  align-self: auto;
+      float: right;
+     color:#36A1FF;
+     border-radius: 20px;
+     background: white;
+     border: 1px solid #36A1FF;
+  box-sizing: border-box;
+  border-radius: 20px;
+  margin: 0px 10px ;
+   padding: 5px 24px 5px 24px;
+  }
+  
