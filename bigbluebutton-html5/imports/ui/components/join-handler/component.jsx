@@ -140,13 +140,11 @@ class JoinHandler extends Component {
     };
 
     const setCustomData = (resp) => {
-      const {
-        meetingID, internalUserID, customdata,
-      } = resp;
+      const { customdata } = resp;
 
       return new Promise((resolve) => {
         if (customdata.length) {
-          makeCall('addUserSettings', meetingID, internalUserID, customdata).then(r => resolve(r));
+          makeCall('addUserSettings', customdata).then(r => resolve(r));
         }
         resolve(true);
       });
