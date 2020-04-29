@@ -647,7 +647,7 @@ class PresentationArea extends PureComponent {
         <Button 
           onClick={stopPresentation}
           className={styles.stopPresentation}
-          label="stop presentation..."
+          label="stop presentation"
         />
         : null
       }

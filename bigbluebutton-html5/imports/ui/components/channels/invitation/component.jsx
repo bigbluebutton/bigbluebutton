@@ -5,6 +5,7 @@ import { withModalMounter } from '/imports/ui/components/modal/service';
 import BreakoutJoinConfirmation from '/imports/ui/components/breakout-join-confirmation/container';
 import AudioService from '/imports/ui/components/audio/service';
 import VideoService from '/imports/ui/components/video-provider/service';
+import logger from '/imports/startup/client/logger';
 
 const BREAKOUT_MODAL_DELAY = 200;
 
