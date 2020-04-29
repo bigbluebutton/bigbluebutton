@@ -4,6 +4,7 @@
 @import "/imports/ui/components/user-list/styles";
 @import "/imports/ui/components/user-list/user-list-content/styles";
 @import "/imports/ui/stylesheets/variables/_all";
+@import "/client/stylesheets/fonts.css";
 
 :root {
   --user-manage-menu-top : -0.5rem;
@@ -12,10 +13,12 @@
 }
 
 .dropdown {
+  
   align-self: center;
   position: absolute;
-  left: 0;
-  width: 100%;
+  padding-top: 2%;
+  right: 0;
+  left: 80%;
   
   [dir="rtl"] & {
     left: 0;
@@ -40,34 +43,8 @@
 }
 
 .optionsButton {
-  @extend %no-margin;
-  font-family: Avenir;
-  font-style: normal;
-  line-height: 150%;
-  display: flex;
-  flex-direction: row-reverse;
-  color: #ffffff;
-  letter-spacing: 0.025em;
-  // font-size: var(--font-size-14px);
-  align-items: center;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  width: 100%;
-  // white-space: nowrap;
-  >span {
-    flex: 90%;
-    justify-content: center;
-    font-size: var(--font-size-13px);
-    // max-width: 9rem;
-    // overflow-x: hidden;
-  }
   >i {
-    flex: 10%;
-    align-self: center;
-    justify-content: center;
-    left: 0.5rem;
-    // padding-left: 0.8rem;
-    // right: 0;
+    font-size: 9px;
     color: #ffffff !important;
   }
 }
@@ -85,11 +62,9 @@
 }
 
  .channelsTitle {
-  font-family:  'Arial';
+  // font-family:  'Avenir';
   font-style: normal;
-  font-size: var(--font-size-13px);
-  line-height: 231%;
-  font-weight: 700;
+  font-size: var(--font-size-11px);
   text-transform: uppercase;
   letter-spacing: 0.03em;
   color: #ffffff;
@@ -123,45 +98,60 @@
 .channelName {
   @extend %flex-column;
   justify-content: center;
-  margin-top: var(--font-size-10px);
+  margin: 1% 15%;
+  width: 80%;
 }
 
 .masterChannel {
   @extend %no-margin;
-  font-family: Avenir;
-  font-style: normal;
-  line-height: 150%;
-  color: #ffc700;
-  letter-spacing: 0.05em;
   
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+  width: 95%;
   >span {
-    justify-content: center;
-    padding-left: 0.8rem;
-    font-size: var(--font-size-13px);
+    // font-family: 'Avenir';
+    font-style: normal;
+    color: #ffc700;
+    letter-spacing: 0.025em;
+    font-weight: 800;
+    line-height: 21px;
+    // justify-content: center;
+    padding-left: 0.4rem;
+    font-size: var(--font-size-12px);
   }
 }
 
 .channelNameMain {
   @extend %no-margin;
-  font-family: Avenir;
+  // font-family: 'Avenir';
   font-style: normal;
   font-weight: 500;
   color: #ffffff;
-  font-size: var(--font-size-14px);
+  width: 90%;
+  // margin-left: 5%;
+  overflow-x: hidden;
+  font-size: var(--font-size-12px);
   
 }
 
 .buttonWrapper {
-  display: flex;
-  margin: var(--font-size-10px);
-  height: var(--font-size-14px);
-  &:hover,
-  &:active,
-  &:focus {
-    color: #ffc700 !important;
-  }
+  display: grid;
+  grid-template-columns: 10% 90% 10%;
+  justify-content: center;
+  align-items: center;
+  padding-left: 5%;
 }
 
+.usersList {
+  padding-left: 13%;
+  width: 95%;
+}
+
+.channelAvatar {
+  // font-family: 'Avenir';
+  font-style: normal;
+  font-weight: 500;
+  color: #ffffff;
+  font-size: 9px;
+}

@@ -25,56 +25,12 @@
   font-family: 'Avenir';
   font-style: normal;
   font-weight: 500;
-  font-size: var(--font-size-10px);
-  line-height: var(--font-size-10px);
+  font-size: 9px;
+//   line-height: var(--font-size-10px);
   text-transform: capitalize;
   color: #EEEEEE;
 
-  border: 2px solid transparent;
-
-  :global(.animationsEnabled) & {
-    transition: .3s ease-in-out;
-  }
-
-  &:after,
-  &:before {
-    content: "";
-    position: absolute;
-    width: 0;
-    height: 0;
-    padding-top: .4rem;
-    padding-right: 0;
-    padding-left: 0;
-    padding-bottom: 0;
-    color: inherit;
-    top: auto;
-    left: auto;
-    bottom: var(--user-indicators-offset);
-    right: var(--user-indicators-offset);
-    border: 1.5px solid transparent;
-    border-radius: 50%;
-    background-color: var(--user-indicator-voice-bg);
-    color: var(--user-avatar-text);
-    opacity: 0;
-    font-family: 'bbb-icons';
-    font-size: .65rem;
-    line-height: 0;
-    text-align: center;
-    vertical-align: middle;
-    letter-spacing: -.65rem;
-    z-index: 1;
-
-    [dir="rtl"] & {
-      left: var(--user-indicators-offset);
-      right: auto;
-      padding-right: .65rem;
-      padding-left: 0;
-    }
-
-    :global(.animationsEnabled) & {
-        transition: .3s ease-in-out;
-    }
-  }
+  border: 1px solid #ffffff;
 }
 
 .talking {
@@ -132,8 +88,8 @@
   &:after {
     content: "\00a0\e931\00a0";
     background-color: var(--user-indicator-voice-bg);
-    top: 1rem;
-    left: 1rem;
+    top: 1.375rem;
+    left: 1.375rem;
     right: auto;
 
     [dir="rtl"] & {
