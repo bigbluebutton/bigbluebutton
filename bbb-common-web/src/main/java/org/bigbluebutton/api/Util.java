@@ -33,7 +33,7 @@ public final class Util {
 		String meetingPath = presentationBaseDir + File.separatorChar + meetingId + File.separatorChar + meetingId;
 		String presPath = meetingPath + File.separatorChar + presentationId;
 		File dir = new File(presPath);
-		if (dir.exists()) {
+		if (dir.isDirectory() && dir.exists()) {
 			return dir;
 		}
 		return null;

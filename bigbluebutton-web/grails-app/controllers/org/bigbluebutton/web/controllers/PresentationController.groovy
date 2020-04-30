@@ -292,7 +292,6 @@ class PresentationController {
     def meetingId = params.meetingId
 
     log.debug "Controller: Download request for $presFilename"
-    String presentationDir = presentationService.getPresentationDir()
 
     InputStream is = null;
     try {
@@ -306,7 +305,7 @@ class PresentationController {
         def mimeName = mimeType != null ? mimeType.name : 'application/octet-stream'
 
         response.contentType = mimeName
-        response.addHeader("content-disposition", "filename=" + URLEncoder.encode(responseName, StandardCharsets.UTF_8.name()))
+        response.addHeader("content-disposition", "attachment; filename=" + URLEncoder.encode(responseName, StandardCharsets.UTF_8.name()))
         response.addHeader("Cache-Control", "no-cache")
         response.outputStream << bytes;
       } else {
