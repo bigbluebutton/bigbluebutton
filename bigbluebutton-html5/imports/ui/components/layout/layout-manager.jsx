@@ -18,6 +18,8 @@ const ACTIONSBAR_HEIGHT = 42;
 
 const WEBCAMSAREA_MIN_PERCENT = 0.2;
 const WEBCAMSAREA_MAX_PERCENT = 0.8;
+const PRESENTATIONAREA_MIN_PERCENT = 0.2;
+const PRESENTATIONAREA_MAX_PERCENT = 0.8;
 
 // TODO function calPercentScreenOfUserSets
 // Salvar porcentagem de uso do media setado pelo usuário
@@ -55,14 +57,20 @@ class LayoutManager extends Component {
   componentDidUpdate(prevProps) {
     const { usersVideo, layoutContextState } = this.props;
     const { usersVideo: prevUsersVideo, layoutContextState: prevLayoutContextState } = prevProps;
-    const { webcamsPlacement, webcamsAreaSize } = layoutContextState;
+    const {
+      webcamsPlacement,
+      webcamsAreaSize,
+      presentationSlideSize,
+    } = layoutContextState;
     const {
       webcamsPlacement: prevWebcamsPlacement,
       webcamsAreaSize: prevWebcamsAreaSize,
+      presentationSlideSize: prevPresentationSlideSize,
     } = prevLayoutContextState;
 
     if (usersVideo.length !== prevUsersVideo.length
-      || webcamsPlacement !== prevWebcamsPlacement) {
+      || webcamsPlacement !== prevWebcamsPlacement
+      || presentationSlideSize !== prevPresentationSlideSize) {
       this.setLayoutSizes();
     }
 
@@ -163,23 +171,14 @@ class LayoutManager extends Component {
     Storage.setItem('layoutData', newLayoutData);
   }
 
-  calculatesLayout(userlistChanged = false, chatChanged = false) {
+  calculatesPanelsSize(userlistChanged, chatChanged) {
+    const { layoutContextState } = this.props;
     const {
-      layoutContextState,
-      usersVideo,
-    } = this.props;
-    const {
-      webcamsAreaSize,
       userListSize: userListSizeContext,
       chatSize: chatSizeContext,
-      presentationIsFullscreen,
-      presentationOrientation,
-      webcamsPlacement,
     } = layoutContextState;
     const openPanel = Session.get('openPanel');
-
     const storageLData = storageLayoutData();
-    const autoArrangeLayout = Storage.getItem('autoArrangeLayout');
 
     let storageUserListWidth;
     let storageChatWidth;
@@ -229,75 +228,229 @@ class LayoutManager extends Component {
       };
     }
 
-    const fullAreaHeight = windowHeight() - (NAVBAR_HEIGHT + ACTIONSBAR_HEIGHT);
-    const fullAreaWidth = windowWidth() - (newUserListSize.width + newChatSize.width);
+    return {
+      newUserListSize,
+      newChatSize,
+    };
+  }
 
+  calculatesWebcamsAreaSize(
+    mediaAreaWidth, mediaAreaHeight, presentationWidth = null, presentationHeight = null,
+  ) {
+    const {
+      layoutContextState,
+      usersVideo,
+    } = this.props;
+    const { webcamsPlacement } = layoutContextState;
 
+    const webcamsAreaUserSetsHeight = Storage.getItem('webcamsAreaUserSetsHeight');
+    const webcamsAreaUserSetsWidth = Storage.getItem('webcamsAreaUserSetsWidth');
+    let newWebcamAreaHeight;
+    let newWebcamAreaWidth;
+
+    if (usersVideo.length < 1) {
+      return {
+        newWebcamAreaWidth: 0,
+        newWebcamAreaHeight: 0,
+      };
+    }
+
+    if (presentationWidth === null || presentationHeight === null) {
+      if (webcamsPlacement === 'left' || webcamsPlacement === 'right') {
+        newWebcamAreaWidth = min(
+          max(
+            webcamsAreaUserSetsWidth || mediaAreaWidth * WEBCAMSAREA_MIN_PERCENT,
+            mediaAreaWidth * WEBCAMSAREA_MIN_PERCENT,
+          ),
+          mediaAreaWidth * WEBCAMSAREA_MAX_PERCENT,
+        );
+        newWebcamAreaHeight = mediaAreaHeight;
+      } else {
+        newWebcamAreaWidth = mediaAreaWidth;
+        newWebcamAreaHeight = min(
+          max(
+            webcamsAreaUserSetsHeight || mediaAreaHeight * WEBCAMSAREA_MIN_PERCENT,
+            mediaAreaHeight * WEBCAMSAREA_MIN_PERCENT,
+          ),
+          mediaAreaHeight * WEBCAMSAREA_MAX_PERCENT,
+        );
+      }
+    } else if (webcamsPlacement === 'left' || webcamsPlacement === 'right') {
+      newWebcamAreaWidth = min(
+        max(
+          mediaAreaWidth - presentationWidth,
+          mediaAreaWidth * WEBCAMSAREA_MIN_PERCENT,
+        ),
+        mediaAreaWidth * WEBCAMSAREA_MAX_PERCENT,
+      );
+      newWebcamAreaHeight = mediaAreaHeight;
+    } else {
+      newWebcamAreaWidth = mediaAreaWidth;
+      newWebcamAreaHeight = min(
+        max(
+          mediaAreaHeight - presentationHeight,
+          mediaAreaHeight * WEBCAMSAREA_MIN_PERCENT,
+        ),
+        mediaAreaHeight * WEBCAMSAREA_MAX_PERCENT,
+      );
+    }
+
+    return {
+      newWebcamAreaWidth,
+      newWebcamAreaHeight,
+    };
+  }
+
+  calculatesPresentationMaxSize(
+    mediaAreaWidth, mediaAreaHeight, presentationSlideWidth, presentationSlideHeight,
+  ) {
+    const { usersVideo, layoutContextState } = this.props;
+    const { webcamsPlacement } = layoutContextState;
+
+    let presentationWidthAvailable;
+    let presentationHeightAvailable;
+
+    if (usersVideo.length > 0) {
+      if (webcamsPlacement === 'top' || webcamsPlacement === 'bottom') {
+        presentationWidthAvailable = mediaAreaWidth;
+        presentationHeightAvailable = mediaAreaHeight * PRESENTATIONAREA_MAX_PERCENT;
+      } else {
+        presentationWidthAvailable = mediaAreaWidth * PRESENTATIONAREA_MAX_PERCENT;
+        presentationHeightAvailable = mediaAreaHeight;
+      }
+    } else {
+      presentationWidthAvailable = mediaAreaWidth;
+      presentationHeightAvailable = mediaAreaHeight;
+    }
+
+    let presentationWidth;
+    let presentationHeight;
+    if (presentationSlideWidth > presentationSlideHeight
+      || presentationSlideWidth === presentationSlideHeight) {
+      presentationWidth = presentationWidthAvailable;
+      presentationHeight = (presentationWidthAvailable * presentationSlideHeight)
+        / presentationSlideWidth;
+      // if overflow
+      if (presentationHeight > presentationHeightAvailable) {
+        presentationWidth = (presentationHeightAvailable * presentationWidth) / presentationHeight;
+        presentationHeight = presentationHeightAvailable;
+      }
+    }
+    if (presentationSlideHeight > presentationSlideWidth) {
+      presentationWidth = (presentationHeightAvailable * presentationSlideWidth)
+        / presentationSlideHeight;
+      presentationHeight = presentationHeightAvailable;
+      // if overflow
+      if (presentationWidth > presentationWidthAvailable) {
+        presentationHeight = (presentationWidthAvailable * presentationWidth) / presentationHeight;
+        presentationWidth = presentationWidthAvailable;
+      }
+    }
+    return {
+      presentationWidth,
+      presentationHeight,
+    };
+  }
+
+  calculatesPresentationAreaSize(
+    mediaAreaWidth, mediaAreaHeight, webcamAreaWidth = null, webcamAreaHeight = null,
+  ) {
+    const {
+      layoutContextState,
+      usersVideo,
+    } = this.props;
+    const { webcamsPlacement, presentationSlideSize } = layoutContextState;
+
+    let newPresentationAreaWidth;
+    let newPresentationAreaHeight;
+    if (usersVideo.length < 1) {
+      return {
+        newPresentationAreaWidth: mediaAreaWidth,
+        newPresentationAreaHeight: mediaAreaHeight - 20, // 20 is margins
+      };
+    }
+
+    const {
+      width: presentationSlideWidth,
+      height: presentationSlideHeight,
+    } = presentationSlideSize;
+    const presentationMaxSize = this.calculatesPresentationMaxSize(
+      mediaAreaWidth, mediaAreaHeight, presentationSlideWidth, presentationSlideHeight,
+    );
+    const { presentationWidth, presentationHeight } = presentationMaxSize;
+
+    console.log('presentationMaxSize', presentationMaxSize);
+    
+
+    if (webcamAreaWidth === null || webcamAreaHeight === null) {
+      newPresentationAreaWidth = presentationWidth; // 30 is margins
+      newPresentationAreaHeight = presentationHeight; // 20 is margins
+    } else if (webcamsPlacement === 'left' || webcamsPlacement === 'right') {
+      newPresentationAreaWidth = mediaAreaWidth - webcamAreaWidth - 30; // 30 is margins
+      newPresentationAreaHeight = mediaAreaHeight - 20; // 20 is margins
+    } else {
+      newPresentationAreaWidth = mediaAreaWidth;
+      newPresentationAreaHeight = mediaAreaHeight - webcamAreaHeight - 30; // 30 is margins
+    }
+
+    return {
+      newPresentationAreaWidth: max(newPresentationAreaWidth, 400),
+      newPresentationAreaHeight,
+    };
+  }
+
+  calculatesLayout(userlistChanged = false, chatChanged = false) {
+    const {
+      layoutContextState,
+    } = this.props;
+    const { presentationIsFullscreen } = layoutContextState;
+
+    const autoArrangeLayout = Storage.getItem('autoArrangeLayout');
+
+    const panelsSize = this.calculatesPanelsSize(userlistChanged, chatChanged);
+    const { newUserListSize, newChatSize } = panelsSize;
+
+    const mediaAreaHeight = windowHeight() - (NAVBAR_HEIGHT + ACTIONSBAR_HEIGHT);
+    const mediaAreaWidth = windowWidth() - (newUserListSize.width + newChatSize.width);
     const newMediaBounds = {
-      width: fullAreaWidth,
-      height: fullAreaHeight,
+      width: mediaAreaWidth,
+      height: mediaAreaHeight,
       top: NAVBAR_HEIGHT,
       left: newUserListSize.width + newChatSize.width,
     };
-    console.log('webcamsAreaSize', webcamsAreaSize);
-    console.log('autoArrangeLayout', autoArrangeLayout);
-    
 
-    let newWebcamAreaHeight;
-    let newWebcamAreaWidth;
-    let newPresentationAreaHeight;
-    let newPresentationAreaWidth;
-    if (usersVideo.length > 0) {
-      if (presentationOrientation === 'portrait'
-        || webcamsPlacement === 'left'
-        || webcamsPlacement === 'right'
-      ) {
-        newWebcamAreaWidth = min(
-          max(
-            webcamsAreaSize && autoArrangeLayout === false
-              ? webcamsAreaSize.width
-              : fullAreaWidth * WEBCAMSAREA_MIN_PERCENT,
-            fullAreaWidth * WEBCAMSAREA_MIN_PERCENT,
-          ),
-          fullAreaWidth * WEBCAMSAREA_MAX_PERCENT,
-        );
-        newWebcamAreaHeight = fullAreaHeight;
-
-        newPresentationAreaWidth = fullAreaWidth - newWebcamAreaWidth - 30; // 30 is margins
-        newPresentationAreaHeight = fullAreaHeight - 20; // 20 is margins
-      } else {
-        newWebcamAreaWidth = fullAreaWidth;
-        newWebcamAreaHeight = min(
-          max(
-            webcamsAreaSize && autoArrangeLayout === false
-              ? webcamsAreaSize.height
-              : fullAreaHeight * WEBCAMSAREA_MIN_PERCENT,
-            fullAreaHeight * WEBCAMSAREA_MIN_PERCENT,
-          ),
-          fullAreaHeight * WEBCAMSAREA_MAX_PERCENT,
-        );
-
-        newPresentationAreaWidth = fullAreaWidth;
-        newPresentationAreaHeight = fullAreaHeight - newWebcamAreaHeight - 30; // 30 is margins
-      }
+    let webcamsSize;
+    let presentationSize;
+    if (autoArrangeLayout) {
+      presentationSize = this.calculatesPresentationAreaSize(mediaAreaWidth, mediaAreaHeight);
+      webcamsSize = this.calculatesWebcamsAreaSize(
+        mediaAreaWidth,
+        mediaAreaHeight,
+        presentationSize.newPresentationAreaWidth,
+        presentationSize.newPresentationAreaHeight,
+      );
     } else {
-      newWebcamAreaWidth = 0;
-      newWebcamAreaHeight = 0;
+      webcamsSize = this.calculatesWebcamsAreaSize(mediaAreaWidth, mediaAreaHeight);
+      console.log('+++ webcamsSize', webcamsSize);
 
-      newPresentationAreaWidth = fullAreaWidth;
-      newPresentationAreaHeight = fullAreaHeight - 20; // 20 is margins
+      presentationSize = this.calculatesPresentationAreaSize(
+        mediaAreaWidth,
+        mediaAreaHeight,
+        webcamsSize.newWebcamAreaWidth,
+        webcamsSize.newWebcamAreaHeight,
+      );
     }
 
     const newWebcamsAreaSize = {
-      width: newWebcamAreaWidth,
-      height: newWebcamAreaHeight,
+      width: webcamsSize.newWebcamAreaWidth,
+      height: webcamsSize.newWebcamAreaHeight,
     };
 
     let newPresentationAreaSize;
     if (!presentationIsFullscreen) {
       newPresentationAreaSize = {
-        width: newPresentationAreaWidth,
-        height: newPresentationAreaHeight,
+        width: presentationSize.newPresentationAreaWidth,
+        height: presentationSize.newPresentationAreaHeight,
       };
     } else {
       newPresentationAreaSize = {

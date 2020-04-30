@@ -88,6 +88,15 @@ class PresentationArea extends PureComponent {
 
     const { slidePosition, layoutContextDispatch } = this.props;
     const { width: currWidth, height: currHeight } = slidePosition;
+
+    layoutContextDispatch({
+      type: 'setPresentationSlideSize',
+      value: {
+        width: currWidth,
+        height: currHeight,
+      },
+    });
+
     if (currWidth > currHeight || currWidth === currHeight) {
       layoutContextDispatch({
         type: 'setPresentationOrientation',
@@ -132,7 +141,20 @@ class PresentationArea extends PureComponent {
     const { width: prevWidth, height: prevHeight } = prevProps.slidePosition;
     const { width: currWidth, height: currHeight } = slidePosition;
 
+    console.log('presentation currWidth', currWidth);
+    console.log('presentation currHeight', currHeight);
+
+
+
+
     if (prevWidth !== currWidth || prevHeight !== currHeight) {
+      layoutContextDispatch({
+        type: 'setPresentationSlideSize',
+        value: {
+          width: currWidth,
+          height: currHeight,
+        },
+      });
       if (currWidth > currHeight || currWidth === currHeight) {
         layoutContextDispatch({
           type: 'setPresentationOrientation',
