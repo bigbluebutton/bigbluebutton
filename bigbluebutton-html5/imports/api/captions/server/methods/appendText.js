@@ -8,9 +8,7 @@ import {
   appendTextURL,
 } from '/imports/api/note/server/helpers';
 
-export default function appendText(body, text, locale) {
-  const { meetingId } = body;
-
+export default function appendText(text, locale, meetingId) {
   check(meetingId, String);
   check(text, String);
   check(locale, String);

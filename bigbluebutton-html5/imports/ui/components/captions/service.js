@@ -75,7 +75,7 @@ const formatEntry = (entry) => {
 };
 
 const appendText = (text, locale) => {
-  makeCall('appendText', formatEntry(text), locale);
+  makeCall('appendText', formatEntry(text), locale, Auth.meetingID);
 };
 
 const canIOwnThisPad = (ownerId) => {
