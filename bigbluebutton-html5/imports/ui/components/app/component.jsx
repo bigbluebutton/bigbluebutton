@@ -30,13 +30,13 @@ import Button from '/imports/ui/components/button/component';
 import ActionsBarContainer from '../actions-bar/container';
 
 
-const chat_min_width = 59;
-const chat_max_width = 79;
 // Variables for resizing chat.
-const CHAT_MIN_WIDTH = ((screen.width) * chat_min_width) / 100;
-// const CHAT_MAX_WIDTH = DEFAULT_PANEL_WIDTH;
-const CHAT_MAX_WIDTH = ((screen.width) * chat_max_width) / 100;
+  const CHAT_MIN_WIDTH =  window.innerWidth * 0.58;
+// // // const CHAT_MAX_WIDTH = DEFAULT_PANEL_WIDTH;
+  const CHAT_MAX_WIDTH =  window.innerWidth * 0.8;
 
+const chat_min_width = CHAT_MIN_WIDTH;
+const chat_max_width = CHAT_MAX_WIDTH;
 
 const MOBILE_MEDIA = 'only screen and (max-width: 40em)';
 const APP_CONFIG = Meteor.settings.public.app;

@@ -8,6 +8,7 @@ import AudioControlsContainer from '../audio/audio-controls/container';
 import JoinVideoOptionsContainer from '../video-provider/video-button/container';
 import Button from '/imports/ui/components/button/component';
 import TalkingIndicatorContainer from '/imports/ui/components/nav-bar/talking-indicator/container';
+import Auth from '/imports/ui/services/auth';
 
 const intlMessages = defineMessages({
   joinAudio: {
@@ -55,6 +56,7 @@ class ActionsBar extends PureComponent {
       handleLeaveAudio,
       handleJoinAudio,
       isThereCurrentPresentation,
+      validateMeetingIsBreakout
     } = this.props;
 
     const actionBarClasses = {};
@@ -77,7 +79,7 @@ class ActionsBar extends PureComponent {
             <AudioControlsContainer />
           </div>
           <div>
-            {enableVideo && amIPresenter
+            {enableVideo && amIPresenter && !validateMeetingIsBreakout(Auth.meetingID)
               ? (
                 <JoinVideoOptionsContainer
                   handleJoinVideo={handleJoinVideo}
