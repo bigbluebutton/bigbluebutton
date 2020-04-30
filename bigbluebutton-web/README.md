@@ -38,7 +38,7 @@ Build and run `bbb-web`
 cd bigbluebutton/bigbluebutton-web
 
 # Make sure you don't have old libs lying around. Might cause issues.
-# You need to to this only once to cleanup lib dir.
+# You need to do this only once to cleanup lib dir.
 
 rm lib/*
 
