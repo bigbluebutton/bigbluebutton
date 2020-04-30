@@ -213,7 +213,6 @@ class Page {
   async getMetrics() {
     const pageMetricsObj = {};
     const dir = process.env.METRICS_FOLDER;
-    const date = moment(Date.now()).format('DD/MM/YYYY hh:mm:ss');
     if (!fs.existsSync(dir)) {
       fs.mkdirSync(dir);
     }
@@ -228,7 +227,6 @@ class Page {
     const totalNumberOfUsersDom = await this.page.evaluate(() => document.querySelectorAll('div[class^="participantsList"]').length);
     console.log({ totalNumberOfUsersDom, totalNumberOfUsersMongo });
     const metric = await this.page.metrics();
-    pageMetricsObj.dateObj = date;
     pageMetricsObj.totalNumberOfUsersMongoObj = totalNumberOfUsersMongo;
     pageMetricsObj.totalNumberOfUsersDomObj = totalNumberOfUsersDom;
     pageMetricsObj[`metricObj-${this.meetingId}`] = metric;
