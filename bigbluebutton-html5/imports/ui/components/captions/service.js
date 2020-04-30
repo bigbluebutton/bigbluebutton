@@ -75,7 +75,7 @@ const formatEntry = (entry) => {
 };
 
 const appendText = (text, locale) => {
-  makeCall('appendText', formatEntry(text), locale, Auth.meetingID);
+  makeCall('appendText', formatEntry(text), locale);
 };
 
 const canIOwnThisPad = (ownerId) => {
@@ -84,6 +84,8 @@ const canIOwnThisPad = (ownerId) => {
   if (ownerId === '') return false;
   return ownerId !== userID;
 };
+
+const getSpeechRecognitionAPI = () => window.SpeechRecognition || window.webkitSpeechRecognition;
 
 const canIDictateThisPad = (ownerId) => {
   const { userID } = Auth;
@@ -153,8 +155,6 @@ const formatCaptionsText = (text) => {
 
 const amIModerator = () => Users.findOne({ userId: Auth.userID },
   { fields: { role: 1 } }).role === ROLE_MODERATOR;
-
-const getSpeechRecognitionAPI = () => window.SpeechRecognition || window.webkitSpeechRecognition;
 
 const initSpeechRecognition = (locale) => {
   const SpeechRecognitionAPI = getSpeechRecognitionAPI();
