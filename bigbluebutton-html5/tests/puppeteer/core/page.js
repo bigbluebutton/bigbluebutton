@@ -224,7 +224,7 @@ class Page {
       const users = collection.default._collection.find({ connectionStatus: 'online' }).count();
       return users;
     });
-    const totalNumberOfUsersDom = await this.page.evaluate(() => document.querySelectorAll('div[class^="participantsList"]').length);
+    const totalNumberOfUsersDom = await this.page.evaluate(() => document.querySelectorAll('[data-test^="userListItem"]').length);
     console.log({ totalNumberOfUsersDom, totalNumberOfUsersMongo });
     const metric = await this.page.metrics();
     pageMetricsObj.totalNumberOfUsersMongoObj = totalNumberOfUsersMongo;

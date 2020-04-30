@@ -44,13 +44,18 @@ class VirtualizeList {
     try {
       console.log('getting test result');
       const vbot = parseInt(process.env.USER_LIST_VLIST_BOTS_LISTENING) + parseInt(process.env.USER_LIST_VLIST_BOTS_TALKING);
-      const users = await this.page1.page.evaluate(async () => await document.querySelectorAll('div[class^="participantsList"]').length);
-      console.log('users length', users, moment(Date.now()).format('DD/MM/YYYY hh:mm:ss'));
-      if (users === vbot) {
-        console.log('users => ', users);
+      const USER_LIST_VLIST_VISIBLE_USERS = await this.page1.page.evaluate(async () => await document.querySelectorAll('[data-test^="userListItem"]').length);
+      const totalNumberOfUsersMongo = await this.page1.page.evaluate(() => {
+        const collection = require('/imports/api/users/index.js');
+        const users = collection.default._collection.find({ connectionStatus: 'online' }).count();
         return users;
+      });
+      console.log('users length', USER_LIST_VLIST_VISIBLE_USERS, moment(Date.now()).format('DD/MM/YYYY hh:mm:ss'));
+      if (USER_LIST_VLIST_VISIBLE_USERS === totalNumberOfUsersMongo) {
+        return false;
+      } if ((USER_LIST_VLIST_VISIBLE_USERS !== totalNumberOfUsersMongo) && (USER_LIST_VLIST_VISIBLE_USERS < totalNumberOfUsersMongo)) {
+        return true;
       }
-      return false;
     } catch (e) {
       console.log(e);
     }

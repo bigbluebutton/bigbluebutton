@@ -18,6 +18,6 @@ describe('Virtualized List', () => {
       await test.close();
       console.log('closing page ( end )');
     }
-    expect(response).toBe(parseInt(process.env.USER_LIST_VLIST_BOTS_LISTENING) + parseInt(process.env.USER_LIST_VLIST_BOTS_TALKING));
+    expect(response).toBe(true);
   }, parseInt(process.env.TEST_DURATION_TIME));
 });
