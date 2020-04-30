@@ -168,6 +168,25 @@ class WebcamDraggable extends PureComponent {
       height: Math.trunc(webcamsAreaResizable.height) + resizableHeight,
     };
 
+    if (webcamsPlacement === 'top' || webcamsPlacement === 'bottom') {
+      layoutContextDispatch(
+        {
+          type: 'setWebcamsAreaUserSetsHeight',
+          value: newWebcamsAreaResizable.height,
+        },
+      );
+    }
+
+    if (webcamsPlacement === 'right' || webcamsPlacement === 'left') {
+      layoutContextDispatch(
+        {
+          type: 'setWebcamsAreaUserSetsWidth',
+          value: newWebcamsAreaResizable.height,
+        },
+      );
+    }
+
+
     layoutContextDispatch(
       {
         type: 'setWebcamsAreaSize',

@@ -27,12 +27,14 @@ const initialState = {
     width: 0,
     height: 0,
   },
-  percentWebcamsAreaUserSets: {
+  webcamsAreaUserSetsHeight: 0,
+  webcamsAreaUserSetsWidth: 0,
+  webcamsPlacement: webcamsDefaultPlacement || 'top',
+  presentationAreaSize: {
     width: 0,
     height: 0,
   },
-  webcamsPlacement: webcamsDefaultPlacement || 'top',
-  presentationAreaSize: {
+  presentationSlideSize: {
     width: 0,
     height: 0,
   },
@@ -100,19 +102,31 @@ const reducer = (state, action) => {
         },
       };
     }
-    case 'setPercentWebcamsAreaUserSets': {
+    case 'setWebcamsAreaUserSetsHeight': {
       return {
         ...state,
-        percentWebcamsAreaUserSets: {
-          width: action.value.width,
-          height: action.value.height,
-        },
+        webcamsAreaUserSetsHeight: action.value,
+      };
+    }
+    case 'setWebcamsAreaUserSetsWidth': {
+      return {
+        ...state,
+        webcamsAreaUserSetsWidth: action.value,
       };
     }
     case 'setPresentationAreaSize': {
       return {
         ...state,
         presentationAreaSize: {
+          width: action.value.width,
+          height: action.value.height,
+        },
+      };
+    }
+    case 'setPresentationSlideSize': {
+      return {
+        ...state,
+        presentationSlideSize: {
           width: action.value.width,
           height: action.value.height,
         },
@@ -140,14 +154,23 @@ const reducer = (state, action) => {
 
 const ContextProvider = (props) => {
   const [layoutContextState, layoutContextDispatch] = useReducer(reducer, initialState);
-  const { webcamsPlacement, autoArrangeLayout } = layoutContextState;
+  const {
+    webcamsPlacement,
+    webcamsAreaUserSetsHeight,
+    webcamsAreaUserSetsWidth,
+    autoArrangeLayout,
+  } = layoutContextState;
   const { children } = props;
 
   useEffect(() => {
     Storage.setItem('webcamsPlacement', webcamsPlacement);
+    Storage.setItem('webcamsAreaUserSetsHeight', webcamsAreaUserSetsHeight);
+    Storage.setItem('webcamsAreaUserSetsWidth', webcamsAreaUserSetsWidth);
     Storage.setItem('autoArrangeLayout', autoArrangeLayout);
   }, [
     webcamsPlacement,
+    webcamsAreaUserSetsHeight,
+    webcamsAreaUserSetsWidth,
     autoArrangeLayout,
   ]);
 
