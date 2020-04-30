@@ -103,7 +103,7 @@ public class RecordingService {
             // If so return file, if not return null
             try {
                 File presFile = new File(presDir.getAbsolutePath() + File.separatorChar + presFilename);
-                String presFileCanonical = presFile.getAbsolutePath();
+                String presFileCanonical = presFile.getCanonicalPath();
                 log.debug("Requested presentation name file full path {}",presFileCanonical);
                 if (presFileCanonical.startsWith(presentationBaseDir)) {
                     return presFile;
