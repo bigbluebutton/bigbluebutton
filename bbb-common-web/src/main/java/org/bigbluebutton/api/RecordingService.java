@@ -32,6 +32,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
@@ -46,6 +48,8 @@ import org.slf4j.LoggerFactory;
 public class RecordingService {
     private static Logger log = LoggerFactory.getLogger(RecordingService.class);
 
+    private static final Pattern PRESENTATION_ID_PATTERN = Pattern.compile("^[a-z0-9]{40}-[0-9]{13}\\.[0-9a-zA-Z]{3,4}$");
+    
     private static String processDir = "/var/bigbluebutton/recording/process";
     private static String publishedDir = "/var/bigbluebutton/published";
     private static String unpublishedDir = "/var/bigbluebutton/unpublished";
@@ -88,28 +92,32 @@ public class RecordingService {
     }
 
     public File getDownloadablePresentationFile(String meetingId, String presId, String presFilename) {
-        log.info("Find downloadable presentation for meetingId={} presId={} filename={}", meetingId, presId,
+    	log.info("Find downloadable presentation for meetingId={} presId={} filename={}", meetingId, presId,
                 presFilename);
-        File presDir = Util.getPresentationDir(presentationBaseDir, meetingId, presId);
-        // Build file to presFilename
-        // Get canonicalPath and make sure it starts with
-        // /var/bigbluebutton/<meetingid-pattern>
-        // If so return file, if not return null
-        File presFile = new File(presDir.getAbsolutePath() + File.separatorChar + presFilename);
-        try {
-            String presFileCanonical = presFile.getCanonicalPath();
-            log.debug("Requested presentation name file full path {}",presFileCanonical);
-            if (presFileCanonical.startsWith(presentationBaseDir)) {
-                return presFile;
+    	Matcher metaMatcher = PRESENTATION_ID_PATTERN.matcher(presFilename);
+        if (metaMatcher.matches()) {
+        	File presDir = Util.getPresentationDir(presentationBaseDir, meetingId, presId);
+            // Build file to presFilename
+            // Get canonicalPath and make sure it starts with
+            // /var/bigbluebutton/<meetingid-pattern>
+            // If so return file, if not return null
+            try {
+                File presFile = new File(presDir.getAbsolutePath() + File.separatorChar + presFilename);
+                String presFileCanonical = presFile.getCanonicalPath();
+                log.debug("Requested presentation name file full path {}",presFileCanonical);
+                if (presFileCanonical.startsWith(presentationBaseDir)) {
+                    return presFile;
+                }
+            } catch (IOException e) {
+                log.error("Exception getting canonical path for {}.\n{}", presFilename, e);
+                return null;
             }
-        } catch (IOException e) {
-            log.error("Exception getting canonical path for {}.\n{}", presFilename, e);
-            return null;
         }
-
+        
         log.error("Cannot find file for {}.", presFilename);
 
         return null;
+        
     }
 
     public void kickOffRecordingChapterBreak(String meetingId, Long timestamp) {
