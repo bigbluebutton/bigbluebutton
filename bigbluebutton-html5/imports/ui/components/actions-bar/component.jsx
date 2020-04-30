@@ -59,10 +59,10 @@ class ActionsBar extends PureComponent {
 
     const actionBarClasses = {};
 
-    let joinIcon = 'audio_off';
+    let joinIcon = '';
     let endCall = false;
     if (inAudio) {
-      joinIcon = 'audio_on';
+      joinIcon = 'icomoon-End-Call';
       endCall = true;
     }
 

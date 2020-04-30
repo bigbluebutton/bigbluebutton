@@ -70,7 +70,7 @@ const JoinVideoButton = ({
       hideLabel
       aria-label={intl.formatMessage(intlMessages.videoButtonDesc)}
       color="default"
-      icon={isSharingVideo ? 'video' : 'video_off'}
+      icon={isSharingVideo ? 'icomoon-Video-On' : 'icomoon-Video-On'}
       ghost={!isSharingVideo}
       size="lg"
       circle

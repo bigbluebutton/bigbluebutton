@@ -357,12 +357,7 @@ class Channels extends PureComponent {
 
   render() {
     const {
-      isMeteorConnected,
       intl,
-      endAllBreakouts,
-      amIModerator,
-      exitAudio,
-      breakoutRooms,
       currentUser,
       users,
       compact,

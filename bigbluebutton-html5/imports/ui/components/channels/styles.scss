@@ -44,7 +44,7 @@
 
 .optionsButton {
   >i {
-    font-size: 9px;
+    font-size: var(--font-size-9px);
     color: #ffffff !important;
   }
 }
@@ -148,10 +148,10 @@
   width: 95%;
 }
 
-.channelAvatar {
-  // font-family: 'Avenir';
-  font-style: normal;
-  font-weight: 500;
-  color: #ffffff;
-  font-size: 9px;
-}
+// .channelAvatar {
+//   font-family: 'Avenir';
+//   font-style: normal;
+//   font-weight: 500;
+//   color: #ffffff;
+//   font-size: 9px;
+// }

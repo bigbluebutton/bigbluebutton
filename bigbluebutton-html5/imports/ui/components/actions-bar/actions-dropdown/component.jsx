@@ -204,7 +204,7 @@ class ActionsDropdown extends PureComponent {
             hideLabel
             className={styles.button}
             data-test="uploadPresentation"
-            icon="presentation"
+            icon="icomoon-Presentation"
             size="lg"
             circle
             label={amIPresenter ?
@@ -218,7 +218,7 @@ class ActionsDropdown extends PureComponent {
               hideLabel
               className={styles.button}
               data-test="uploadPresentation"
-              icon="presentation"
+              icon="icomoon-Presentation"
               size="lg"
               circle
               label={intl.formatMessage(intlMessages.presentationLabel)}
