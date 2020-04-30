@@ -127,18 +127,15 @@ class AudioModal extends Component {
     super(props);
 
     this.state = {
-    
+
     };
 
     console.log(this.props);
-   
   }
 
 
-
-  
   render() {
-    let currentStep = this.state.currentStep;
+    const currentStep = this.state.currentStep;
     const {
       intl,
       showPermissionsOvelay,
@@ -148,8 +145,8 @@ class AudioModal extends Component {
       users,
     } = this.props;
 
-    const { content  } = this.state;
-   console.log(this.props);
+    const { content } = this.state;
+    console.log(this.props);
     return (
       <span>
         {showPermissionsOvelay ? <PermissionsOverlay closeModal={closeModal} /> : null}
@@ -158,16 +155,16 @@ class AudioModal extends Component {
           className={styles.modal}
           onRequestClose={closeModal}
           hideBorder
-       
+
         >
-       
 
-      <React.Fragment>
-    
 
-       <NumberOfBreakouts />
-       
-      </React.Fragment>
+          <React.Fragment>
+
+
+            <NumberOfBreakouts />
+
+          </React.Fragment>
         </Modal>
       </span>
     );

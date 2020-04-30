@@ -174,7 +174,7 @@ onChage(user, room) {
   return (ev) => {
 
     const check = ev.target.checked;
-    
+    let d=null;
     if (check) {
       user.room=room;
       createChannelState.channels[currentStep-1].userId= users.filter(user=>user.room==currentStep).map(user=>(user.userId));
@@ -183,6 +183,8 @@ onChage(user, room) {
     }
     else{
     user.room=0;
+    createChannelState.channels[currentStep-1].userId.filter((u,i)=>{ u==user.userId ;  d=i });
+    createChannelState.channels[currentStep-1].userId.splice(d,1);
     console.log(check,user,room);
    // return onUncheck(userId, room);
   }
