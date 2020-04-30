@@ -294,7 +294,7 @@ class UserDropdown extends PureComponent {
       ));
     }
 
-    if (CHAT_ENABLED && enablePrivateChat && isMeteorConnected) {
+    if (CHAT_ENABLED && enablePrivateChat && !meetingIsBreakout && isMeteorConnected) {
       actions.push(this.makeDropdownItem(
         'activeChat',
         intl.formatMessage(messages.ChatLabel),

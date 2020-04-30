@@ -7,6 +7,7 @@ import UnreadMessages from '/imports/ui/services/unread-messages';
 import Storage from '/imports/ui/services/storage/session';
 import { makeCall } from '/imports/ui/services/api';
 import _ from 'lodash';
+import { meetingIsBreakout } from '/imports/ui/components/app/service';
 
 const CHAT_CONFIG = Meteor.settings.public.chat;
 const GROUPING_MESSAGES_WINDOW = CHAT_CONFIG.grouping_messages_window;
@@ -140,6 +141,11 @@ const isChatLocked = (receiverID) => {
   const receiver = Users.findOne({ meetingId: Auth.meetingID, userId: receiverID },
     { fields: { role: 1 } });
   const isReceiverModerator = receiver && receiver.role === ROLE_MODERATOR;
+
+  // disable private chat in breakouts
+  if (meetingIsBreakout()) {
+    return !isPublic;
+  }
 
   if (meeting.lockSettingsProps !== undefined) {
     if (user.locked && user.role !== ROLE_MODERATOR) {
