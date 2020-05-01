@@ -19,7 +19,8 @@
     "request": "2.88.0",
     "sha1": "1.1.1",
     "sinon": "^7.2.2",
-    "winston": "3.1.0"
+    "winston": "3.1.0",
+    "snyk": "^1.316.1"
   },
   "engines": {
     "node": "8.4.0"
@@ -29,6 +30,9 @@
     "supertest": "^3.0.0"
   },
   "scripts": {
-    "test": "mocha"
-  }
+    "test": "mocha",
+    "snyk-protect": "snyk protect",
+    "prepare": "npm run snyk-protect"
+  },
+  "snyk": true
 }
