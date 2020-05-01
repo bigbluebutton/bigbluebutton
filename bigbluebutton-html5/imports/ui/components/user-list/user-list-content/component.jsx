@@ -1,14 +1,10 @@
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import { styles } from './styles';
-import UserParticipantsContainer from './user-participants/container';
-import UserMessages from './user-messages/component';
-import UserNotesContainer from './user-notes/container';
-import UserCaptionsContainer from './user-captions/container';
-import WaitingUsers from './waiting-users/component';
-import UserPolls from './user-polls/component';
 import ChannelsContainer from '/imports/ui/components/channels/container';
-import Auth from '/imports/ui/services/auth';
+import Button from '/imports/ui/components/button/component';
+import { withModalMounter } from '/imports/ui/components/modal/service';
+import BreakoutCreateModalContainer from '/imports/ui/components/breakout-create-modal/container';
 
 const propTypes = {
   activeChats: PropTypes.arrayOf(String).isRequired,
@@ -23,6 +19,7 @@ const propTypes = {
   pollIsOpen: PropTypes.bool.isRequired,
   forcePollOpen: PropTypes.bool.isRequired,
   requestUserInformation: PropTypes.func.isRequired,
+  mountModal: PropTypes.func.isRequired,
 };
 
 const defaultProps = {
@@ -32,6 +29,17 @@ const defaultProps = {
 const ROLE_MODERATOR = Meteor.settings.public.user.role_moderator;
 
 class UserContent extends PureComponent {
+  constructor() {
+    super();
+
+     this.newCreateBreakouts=this.newCreateBreakouts.bind(this);
+   
+  }
+  newCreateBreakouts(){
+    const {mountModal}=this.props
+    return  mountModal(<BreakoutCreateModalContainer/>)
+  }
+ 
   render() {
     const {
       compact,
@@ -54,8 +62,21 @@ class UserContent extends PureComponent {
         data-test="userListContent"
         className={styles.content}
         role="complementary"
-      >
-        <ChannelsContainer
+      > 
+                
+      <Button
+            //hideLabel
+           // aria-label="New Breakout Channel"
+            className={styles.button}
+            label="+New Breakout Channel"
+           // icon="actions"
+            size="lg"
+           // circle
+           color="primary"
+          onClick={this.newCreateBreakouts}
+          />
+
+      <ChannelsContainer
           {...{
             compact,
             intl,
@@ -74,4 +95,4 @@ class UserContent extends PureComponent {
 UserContent.propTypes = propTypes;
 UserContent.defaultProps = defaultProps;
 
-export default UserContent;
+export default withModalMounter(UserContent);
