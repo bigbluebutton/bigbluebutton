@@ -76,73 +76,95 @@ class PresentationController {
     // check if the authorization token provided is valid
     if (null == params.authzToken || !meetingService.authzTokenIsValidAndExpired(params.authzToken)) {
       log.debug "WARNING! AuthzToken=" + params.authzToken + " was not valid in meetingId=" + params.conference
+      response.addHeader("Cache-Control", "no-cache")
+      response.contentType = 'plain/text'
+      response.outputStream << 'invalid auth token'
       return
     }
 
     def meetingId = params.conference
-    def meeting = meetingService.getNotEndedMeetingWithId(meetingId);
-    if (meeting == null) {
-      flash.message = 'meeting is not running'
-      log.debug("Upload failed. No meeting running " + meetingId)
+    if (Util.isMeetingIdValidFormat(meetingId)) {
+      def meeting = meetingService.getNotEndedMeetingWithId(meetingId)
+      if (meeting == null) {
+        log.debug("Upload failed. No meeting running " + meetingId)
+        response.addHeader("Cache-Control", "no-cache")
+        response.contentType = 'plain/text'
+        response.outputStream << 'no-meeting'
+        return
+      }
+    } else {
+      log.debug("Upload failed. Invalid meeting id format " + meetingId)
       response.addHeader("Cache-Control", "no-cache")
       response.contentType = 'plain/text'
       response.outputStream << 'no-meeting';
+      return
     }
+
+    def isDownloadable = params.boolean('is_downloadable') //instead of params.is_downloadable
+    def podId = params.pod_id
+    log.debug "@Default presentation pod" + podId
+
+    def uploadFailed = false
+    def uploadFailReasons = new ArrayList<String>()
+    def presOrigFilename = ""
+    def presFilename = ""
+    def filenameExt = ""
+    def presId = ""
+    def pres = null
 
     def file = request.getFile('fileUpload')
     if (file && !file.empty) {
-      flash.message = 'Your file has been uploaded'
-      def presFilename = file.getOriginalFilename()
-      def filenameExt = FilenameUtils.getExtension(presFilename);
-      String presentationDir = presentationService.getPresentationDir()
-      def presId = Util.generatePresentationId(presFilename)
-      File uploadDir = Util.createPresentationDir(meetingId, presentationDir, presId)
-
-      if (uploadDir != null) {
-        def newFilename = Util.createNewFilename(presId, filenameExt)
-        def pres = new File(uploadDir.absolutePath + File.separatorChar + newFilename)
-        file.transferTo(pres)
-
-        def isDownloadable = params.boolean('is_downloadable') //instead of params.is_downloadable
-        def podId = params.pod_id
-        log.debug "@Default presentation pod" + podId
-
-        if (isDownloadable) {
-          log.debug "@Creating download directory..."
-          File downloadDir = Util.downloadPresentationDirectory(uploadDir.absolutePath)
-          if (downloadDir != null) {
-            def notValidCharsRegExp = /[^0-9a-zA-Z_\.]/
-            def downloadableFileName = presFilename.replaceAll(notValidCharsRegExp, '-')
-            def downloadableFile = new File(downloadDir.absolutePath + File.separatorChar + downloadableFileName)
-            downloadableFile << pres.newInputStream()
-          }
-        }
-
-        log.debug("processing file upload " + presFilename)
-        def presentationBaseUrl = presentationService.presentationBaseUrl
-        UploadedPresentation uploadedPres = new UploadedPresentation(podId, meetingId, presId,
-            presFilename, presentationBaseUrl, false /* default presentation */,
-                params.authzToken);
-
-        if (isDownloadable) {
-          log.debug "@Setting file to be downloadable..."
-          uploadedPres.setDownloadable();
-        }
-
-        uploadedPres.setUploadedFile(pres);
-        presentationService.processUploadedPresentation(uploadedPres)
-        log.debug("file upload success " + presFilename)
-        response.addHeader("Cache-Control", "no-cache")
-        response.contentType = 'plain/text'
-        response.outputStream << 'upload-success'
-      }
+      presOrigFilename = file.getOriginalFilename()
+      // Gets the name minus the path from a full fileName.
+      // a/b/c.txt --> c.txt
+      presFilename =  FilenameUtils.getName(presOrigFilename)
+      filenameExt = FilenameUtils.getExtension(presFilename)
     } else {
       log.warn "Upload failed. File Empty."
-      flash.message = 'file cannot be empty'
-      response.addHeader("Cache-Control", "no-cache")
-      response.contentType = 'plain/text'
-      response.outputStream << 'file-empty'
+      uploadFailReasons.add("uploaded_file_empty")
+      uploadFailed = true
     }
+
+    if (presFilename == "" || filenameExt == "") {
+      log.debug("Upload failed. Invalid filename " + presOrigFilename)
+      uploadFailReasons.add("invalid_filename")
+      uploadFailed = true
+    } else {
+      String presentationDir = presentationService.getPresentationDir()
+      presId = Util.generatePresentationId(presFilename)
+      File uploadDir = Util.createPresentationDir(meetingId, presentationDir, presId)
+      if (uploadDir != null) {
+        def newFilename = Util.createNewFilename(presId, filenameExt)
+        pres = new File(uploadDir.absolutePath + File.separatorChar + newFilename)
+        file.transferTo(pres)
+      }
+    }
+
+    log.debug("processing file upload " + presFilename)
+    def presentationBaseUrl = presentationService.presentationBaseUrl
+    UploadedPresentation uploadedPres = new UploadedPresentation(
+            podId,
+            meetingId,
+            presId,
+            presFilename,
+            presentationBaseUrl,
+            false /* default presentation */,
+            params.authzToken,
+            uploadFailed,
+            uploadFailReasons
+    )
+
+    if (isDownloadable) {
+      log.debug "@Setting file to be downloadable..."
+      uploadedPres.setDownloadable();
+    }
+
+    uploadedPres.setUploadedFile(pres);
+    presentationService.processUploadedPresentation(uploadedPres)
+    log.debug("file upload success " + presFilename)
+    response.addHeader("Cache-Control", "no-cache")
+    response.contentType = 'plain/text'
+    response.outputStream << 'upload-success'
   }
 
   def testConversion = {
