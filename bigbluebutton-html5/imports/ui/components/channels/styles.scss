@@ -15,7 +15,7 @@
 .dropdown {
   
   align-self: center;
-  position: absolute;
+  position: absolute !important;
   padding-top: 2%;
   right: 0;
   left: 80%;
@@ -57,7 +57,7 @@
 .container{
   display: flex;
   align-items: center;
-  margin: var(--sm-padding-x) 0 var(--lg-padding-y) var(--font-size-20px);
+  margin: var(--sm-padding-x) 0 var(--lg-padding-y) 11%;
   height:var(--font-size-13px);
 }
 
@@ -98,7 +98,7 @@
 .channelName {
   @extend %flex-column;
   justify-content: center;
-  margin: 1% 11%;
+  padding: 1% 0% 1% 13%;
   width: 80%;
 }
 
@@ -130,8 +130,7 @@
   font-style: normal;
   font-weight: 500;
   color: #ffffff;
-  width: 90%;
-  // margin-left: 5%;
+  // margin-left: 0.5rem;
   overflow-x: hidden;
   font-size: var(--font-size-12px);
   
@@ -148,10 +147,9 @@
 
 .channelWrapper {
   display: grid;
-  grid-template-columns: 10% 90% 10%;
+  grid-template-columns: 10% 90% 5%;
   justify-content: center;
   align-items: center;
-  padding-left: 5%;
 }
 
 .usersList {
@@ -159,10 +157,9 @@
   width: 90%;
 }
 
-// .channelAvatar {
-//   font-family: 'Avenir';
-//   font-style: normal;
-//   font-weight: 500;
-//   color: #ffffff;
-//   font-size: 9px;
-// }
+.breakoutUsersList {
+  @extend %flex-column;
+  justify-content: center;
+  padding: 1% 0% 1% 10%;
+  width: 90%;
+}

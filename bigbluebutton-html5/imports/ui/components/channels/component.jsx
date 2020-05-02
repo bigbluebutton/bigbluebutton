@@ -468,6 +468,7 @@ class Channels extends PureComponent {
 
     return (
       breakoutRooms.map(breakout => (
+        <div>
         <div
           className={styles.channelName}
           role="button"
@@ -481,11 +482,8 @@ class Channels extends PureComponent {
           />
           {(meetingIsBreakout()) ? null : this.channelOptions(breakout)}
         </div>
-        <div
-          className={styles.scrollableList}
-          tabIndex={0}
-          ref={(ref) => { this.refScrollContainer = ref; }}
-        >
+        </div>
+        <div className={styles.breakoutUsersList}>
         {(channelId == breakout.breakoutId) ?
           <UserParticipantsContainer
             {...{
