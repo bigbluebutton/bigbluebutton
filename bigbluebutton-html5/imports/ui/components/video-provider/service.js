@@ -76,7 +76,6 @@ class VideoService {
   getAllWebcamUsers() {
     const webcamsLocked = this.webcamsLocked();
     const webcamsOnlyForModerator = this.webcamsOnlyForModerator();
-    const hideUserList = this.hideUserList();
     const currentUser = Users.findOne({ userId: Auth.userID });
     const currentUserIsViewer = currentUser.role === ROLE_VIEWER;
     const sharedWebcam = this.isSharing;
@@ -112,7 +111,7 @@ class VideoService {
 
     const userIsModerator = user => user.role === ROLE_MODERATOR;
 
-    if ((webcamsOnlyForModerator || hideUserList) && currentUserIsViewer) {
+    if ((webcamsOnlyForModerator) && currentUserIsViewer) {
       users = users.filter(userIsModerator);
     }
 
