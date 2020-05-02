@@ -70,11 +70,11 @@ public class RecordingService {
 
     public void processMakePresentationDownloadableMsg(MakePresentationDownloadableMsg msg) {
         try {
-            Util.makePresentationDownloadable(presentationBaseDir, msg.meetingId, msg.presId, msg.downloadable);
+            File presDir = Util.getPresentationDir(presentationBaseDir, msg.meetingId, msg.presId);
+            Util.makePresentationDownloadable(presDir, msg.presId, msg.downloadable);
         } catch (IOException e) {
             log.error("Failed to make presentation downloadable: {}", e);
         }
-
     }
 
     public File getDownloadablePresentationFile(String meetingId, String presId, String presFilename) {
@@ -89,7 +89,7 @@ public class RecordingService {
 
         String presFilenameExt = FilenameUtils.getExtension(presFilename);
         File presDir = Util.getPresentationDir(presentationBaseDir, meetingId, presId);
-        File downloadMarker = Util.getPresFileDownloadMarker(presentationBaseDir, meetingId, presId);
+        File downloadMarker = Util.getPresFileDownloadMarker(presDir, presId);
         if (presDir != null && downloadMarker != null && downloadMarker.exists()) {
             String safePresFilename = presId.concat(".").concat(presFilenameExt);
             File presFile = new File(presDir.getAbsolutePath() + File.separatorChar + safePresFilename);

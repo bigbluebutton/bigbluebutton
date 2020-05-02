@@ -19,18 +19,16 @@
 
 package org.bigbluebutton.presentation;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
-
 import org.bigbluebutton.api2.IBbbWebApiGWApp;
 import org.bigbluebutton.presentation.imp.*;
-import org.bigbluebutton.presentation.messages.DocPageConversionStarted;
 import org.bigbluebutton.presentation.messages.DocConversionRequestReceived;
-import org.bigbluebutton.presentation.messages.DocPageCountExceeded;
-import org.bigbluebutton.presentation.messages.DocPageCountFailed;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
+import org.bigbluebutton.api.Util;
 import com.google.gson.Gson;
 
 public class DocumentConversionServiceImp implements DocumentConversionService {
@@ -43,7 +41,6 @@ public class DocumentConversionServiceImp implements DocumentConversionService {
   private PresentationFileProcessor presentationFileProcessor;
 
   public void processDocument(UploadedPresentation pres) {
-
     if (pres.isUploadFailed()) {
       // We should send a message to the client in the future.
       // ralam may 1, 2020
@@ -52,10 +49,13 @@ public class DocumentConversionServiceImp implements DocumentConversionService {
       return;
     }
 
-    SupportedDocumentFilter sdf = new SupportedDocumentFilter(gw);
-
     sendDocConversionRequestReceived(pres);
 
+    processDocumentStart(pres);
+  }
+
+  public void processDocumentStart(UploadedPresentation pres) {
+    SupportedDocumentFilter sdf = new SupportedDocumentFilter(gw);
     if (sdf.isSupported(pres)) {
       String fileType = pres.getFileType();
 
@@ -67,7 +67,7 @@ public class DocumentConversionServiceImp implements DocumentConversionService {
           // Successfully converted to pdf. Call the process again, this time it
           // should be handled by
           // the PDF conversion service.
-          processDocument(pres);
+          processDocumentStart(pres);
         } else {
           // Send notification that office to pdf conversion failed.
           // The cause should have been set by the previous step.
@@ -75,26 +75,10 @@ public class DocumentConversionServiceImp implements DocumentConversionService {
           ocsf.sendProgress(pres);
         }
       } else if (SupportedFileTypes.isPdfFile(fileType)) {
-          presentationFileProcessor.process(pres);
+        presentationFileProcessor.process(pres);
       } else if (SupportedFileTypes.isImageFile(fileType)) {
-          presentationFileProcessor.process(pres);
+        presentationFileProcessor.process(pres);
       } else {
-          Map<String, Object> logData = new HashMap<String, Object>();
-          logData = new HashMap<String, Object>();
-          logData.put("podId", pres.getPodId());
-          logData.put("meetingId", pres.getMeetingId());
-          logData.put("presId", pres.getId());
-          logData.put("filename", pres.getName());
-          logData.put("current", pres.isCurrent());
-          logData.put("logCode", "supported_file_not_handled");
-          logData.put("message", "Supported file not handled.");
-
-          Gson gson = new Gson();
-          String logStr = gson.toJson(logData);
-          log.warn(" --analytics-- data={}", logStr);
-      }
-
-    } else {
         Map<String, Object> logData = new HashMap<String, Object>();
         logData = new HashMap<String, Object>();
         logData.put("podId", pres.getPodId());
@@ -102,29 +86,44 @@ public class DocumentConversionServiceImp implements DocumentConversionService {
         logData.put("presId", pres.getId());
         logData.put("filename", pres.getName());
         logData.put("current", pres.isCurrent());
-        logData.put("logCode", "unsupported_file_format");
-        logData.put("message", "Unsupported file format");
+        logData.put("logCode", "supported_file_not_handled");
+        logData.put("message", "Supported file not handled.");
 
         Gson gson = new Gson();
         String logStr = gson.toJson(logData);
-        log.error(" --analytics-- data={}", logStr);
+        log.warn(" --analytics-- data={}", logStr);
+      }
 
-        logData.clear();
+    } else {
+      Map<String, Object> logData = new HashMap<String, Object>();
+      logData = new HashMap<String, Object>();
+      logData.put("podId", pres.getPodId());
+      logData.put("meetingId", pres.getMeetingId());
+      logData.put("presId", pres.getId());
+      logData.put("filename", pres.getName());
+      logData.put("current", pres.isCurrent());
+      logData.put("logCode", "unsupported_file_format");
+      logData.put("message", "Unsupported file format");
 
-        logData.put("podId", pres.getPodId());
-        logData.put("meetingId", pres.getMeetingId());
-        logData.put("presId", pres.getId());
-        logData.put("filename", pres.getName());
-        logData.put("current", pres.isCurrent());
-        logData.put("logCode", "presentation_conversion_end");
-        logData.put("message", "End presentation conversion.");
+      Gson gson = new Gson();
+      String logStr = gson.toJson(logData);
+      log.error(" --analytics-- data={}", logStr);
 
-        logStr = gson.toJson(logData);
-        log.info(" --analytics-- data={}", logStr);
+      logData.clear();
 
-        notifier.sendConversionCompletedMessage(pres);
+      logData.put("podId", pres.getPodId());
+      logData.put("meetingId", pres.getMeetingId());
+      logData.put("presId", pres.getId());
+      logData.put("filename", pres.getName());
+      logData.put("current", pres.isCurrent());
+      logData.put("logCode", "presentation_conversion_end");
+      logData.put("message", "End presentation conversion.");
+
+      logStr = gson.toJson(logData);
+      log.info(" --analytics-- data={}", logStr);
+
+      notifier.sendConversionCompletedMessage(pres);
     }
-
   }
 
   private void sendDocConversionRequestReceived(UploadedPresentation pres) {

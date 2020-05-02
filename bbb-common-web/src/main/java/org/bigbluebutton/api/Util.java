@@ -12,7 +12,8 @@ public final class Util {
 
 	private static final Pattern MEETING_ID_PATTERN = Pattern.compile("^[a-z0-9-]+$");
 	private static final Pattern PRES_ID_PATTERN = Pattern.compile("^[a-z0-9-]+$");
-	private static final Pattern PRES_FILE_ID_PATTERN = Pattern.compile("^[a-z0-9-]+.[a-zA-Z]{3,4}$");
+	// see https://www.baeldung.com/java-regexp-escape-char#1-escaping-using-backslash
+	private static final Pattern PRES_FILE_ID_PATTERN = Pattern.compile("^[a-z0-9-]+\\.[a-zA-Z]{3,4}$");
 
 	private Util() {
 		throw new IllegalStateException("Utility class");
@@ -102,23 +103,20 @@ public final class Util {
 		return path;
 	}
 
-	public static File getPresFileDownloadMarker(String presBaseDir, String meetingId, String presId) {
-		File presDir = Util.getPresentationDir(presBaseDir, meetingId, presId);
-
-		if (presDir != null) {
+	public static File getPresFileDownloadMarker(File presBaseDir, String presId) {
+		if (presBaseDir != null) {
 			String downloadMarker = presId.concat(".downloadable");
-			return new File(presDir.getAbsolutePath() + File.separatorChar + downloadMarker);
+			return new File(presBaseDir.getAbsolutePath() + File.separatorChar + downloadMarker);
 		}
 		return null;
 	}
 
 	public static void makePresentationDownloadable(
-		String presBaseDir,
-		String meetingId,
+		File presFileDir,
 		String presId,
 		boolean downloadable
 	) throws IOException {
-		File downloadMarker = Util.getPresFileDownloadMarker(presBaseDir, meetingId, presId);
+		File downloadMarker = Util.getPresFileDownloadMarker(presFileDir, presId);
 		if (downloadable) {
 			if (downloadMarker != null && ! downloadMarker.exists()) {
 				downloadMarker.createNewFile();

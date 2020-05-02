@@ -56,16 +56,7 @@ public class PresentationFileProcessor {
 
     public synchronized void process(UploadedPresentation pres) {
         if (pres.isDownloadable()) {
-            try {
-                Util.makePresentationDownloadable(
-                  pres.getUploadedFile().getParent(),
-                  pres.getMeetingId(),
-                  pres.getId(),
-                  pres.isDownloadable()
-                );
-            } catch (IOException e) {
-                log.error("Failed to make presentation downloadable: {}", e);
-            }
+            processMakePresentationDownloadableMsg(pres);
         }
 
         Runnable messageProcessor = new Runnable() {
@@ -74,6 +65,15 @@ public class PresentationFileProcessor {
             }
         };
         executor.submit(messageProcessor);
+    }
+
+    private void processMakePresentationDownloadableMsg(UploadedPresentation pres) {
+        try {
+            File presentationFileDir = pres.getUploadedFile().getParentFile();
+            Util.makePresentationDownloadable(presentationFileDir, pres.getId(), pres.isDownloadable());
+        } catch (IOException e) {
+            log.error("Failed to make presentation downloadable: {}", e);
+        }
     }
 
     private void processUploadedPresentation(UploadedPresentation pres) {
