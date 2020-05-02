@@ -44,6 +44,14 @@ public class DocumentConversionServiceImp implements DocumentConversionService {
 
   public void processDocument(UploadedPresentation pres) {
 
+    if (pres.isUploadFailed()) {
+      // We should send a message to the client in the future.
+      // ralam may 1, 2020
+      log.error("Presentation upload failed for meetingId={} presId={}", pres.getMeetingId(), pres.getId());
+      log.error("Presentation upload fail reasons {}", pres.getUploadFailReason());
+      return;
+    }
+
     SupportedDocumentFilter sdf = new SupportedDocumentFilter(gw);
 
     sendDocConversionRequestReceived(pres);

@@ -32,7 +32,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.apache.commons.io.FileUtils;
@@ -70,54 +69,42 @@ public class RecordingService {
     }
 
     public void processMakePresentationDownloadableMsg(MakePresentationDownloadableMsg msg) {
-        File presDir = Util.getPresentationDir(presentationBaseDir, msg.meetingId, msg.presId);
-        File downloadableFile = new File(presDir.getAbsolutePath() + File.separatorChar + msg.presFilename);
-
-        if (presDir != null) {
-            if (msg.downloadable) {
-                String fileExt = FilenameUtils.getExtension(msg.presFilename);
-                File presFile = new File(presDir.getAbsolutePath() + File.separatorChar + msg.presId + "." + fileExt);
-                log.info("Make file downloadable. {}", downloadableFile.getAbsolutePath());
-                copyPresentationFile(presFile, downloadableFile);
-            } else {
-                if (downloadableFile.exists()) {
-                    if(downloadableFile.delete()) {
-                        log.info("File deleted. {}", downloadableFile.getAbsolutePath());
-                    } else {
-                        log.warn("Failed to delete. {}", downloadableFile.getAbsolutePath());
-                    }
-                }
-            }
+        try {
+            Util.makePresentationDownloadable(presentationBaseDir, msg.meetingId, msg.presId, msg.downloadable);
+        } catch (IOException e) {
+            log.error("Failed to make presentation downloadable: {}", e);
         }
+
     }
 
     public File getDownloadablePresentationFile(String meetingId, String presId, String presFilename) {
-    	log.info("Find downloadable presentation for meetingId={} presId={} filename={}", meetingId, presId,
-                presFilename);
-    	Matcher metaMatcher = PRESENTATION_ID_PATTERN.matcher(presFilename);
-        if (metaMatcher.matches()) {
-        	File presDir = Util.getPresentationDir(presentationBaseDir, meetingId, presId);
-            // Build file to presFilename
-            // Get canonicalPath and make sure it starts with
-            // /var/bigbluebutton/<meetingid-pattern>
-            // If so return file, if not return null
-            try {
-                File presFile = new File(presDir.getAbsolutePath() + File.separatorChar + presFilename);
-                String presFileCanonical = presFile.getCanonicalPath();
-                log.debug("Requested presentation name file full path {}",presFileCanonical);
-                if (presFileCanonical.startsWith(presentationBaseDir)) {
-                    return presFile;
-                }
-            } catch (IOException e) {
-                log.error("Exception getting canonical path for {}.\n{}", presFilename, e);
-                return null;
-            }
-        }
-        
-        log.error("Cannot find file for {}.", presFilename);
+        log.info("Find downloadable presentation for meetingId={} presId={} filename={}", meetingId, presId,
+          presFilename);
 
+        if (! Util.isPresFileIdValidFormat(presFilename)) {
+            log.error("Invalid presentation filename for meetingId={} presId={} filename={}", meetingId, presId,
+              presFilename);
+            return null;
+        }
+
+        String presFilenameExt = FilenameUtils.getExtension(presFilename);
+        File presDir = Util.getPresentationDir(presentationBaseDir, meetingId, presId);
+        File downloadMarker = Util.getPresFileDownloadMarker(presentationBaseDir, meetingId, presId);
+        if (presDir != null && downloadMarker != null && downloadMarker.exists()) {
+            String safePresFilename = presId.concat(".").concat(presFilenameExt);
+            File presFile = new File(presDir.getAbsolutePath() + File.separatorChar + safePresFilename);
+            if (presFile.exists()) {
+                return presFile;
+            }
+
+            log.error("Presentation file missing for meetingId={} presId={} filename={}", meetingId, presId,
+              presFilename);
+            return null;
+        }
+
+        log.error("Invalid presentation directory for meetingId={} presId={} filename={}", meetingId, presId,
+          presFilename);
         return null;
-        
     }
 
     public void kickOffRecordingChapterBreak(String meetingId, Long timestamp) {

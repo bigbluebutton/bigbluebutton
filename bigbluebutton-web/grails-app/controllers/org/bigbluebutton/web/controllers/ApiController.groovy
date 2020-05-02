@@ -2017,68 +2017,110 @@ class ApiController {
     }
   }
 
-  def processDocumentFromRawBytes(bytes, presFilename, meetingId, current) {
-    def filenameExt = FilenameUtils.getExtension(presFilename);
-    String presentationDir = presentationService.getPresentationDir()
-    def presId = Util.generatePresentationId(presFilename)
-    File uploadDir = presDownloadService.createPresentationDirectory(meetingId, presentationDir, presId)
-    if (uploadDir != null) {
-      def newFilename = Util.createNewFilename(presId, filenameExt)
-      def pres = new File(uploadDir.absolutePath + File.separatorChar + newFilename);
+  def processDocumentFromRawBytes(bytes, presOrigFilename, meetingId, current) {
+    def uploadFailed = false
+    def uploadFailReasons = new ArrayList<String>()
 
-      FileOutputStream fos = new java.io.FileOutputStream(pres)
-      fos.write(bytes)
-      fos.flush()
-      fos.close()
+    // Gets the name minus the path from a full fileName.
+    // a/b/c.txt --> c.txt
+    def presFilename =  FilenameUtils.getName(presOrigFilename)
+    def filenameExt = FilenameUtils.getExtension(presOrigFilename)
+    def pres = null
+    def presId = null
 
-      // Hardcode pre-uploaded presentation to the default presentation window
-      processUploadedFile("DEFAULT_PRESENTATION_POD",
+    if (presFilename == "" || filenameExt == "") {
+      log.debug("Upload failed. Invalid filename " + presOrigFilename)
+      uploadFailReasons.add("invalid_filename")
+      uploadFailed = true
+    } else {
+      String presentationDir = presentationService.getPresentationDir()
+      presId = Util.generatePresentationId(presFilename)
+
+      File uploadDir = Util.createPresentationDir(meetingId, presentationDir, presId)
+      if (uploadDir != null) {
+        def newFilename = Util.createNewFilename(presId, filenameExt)
+        pres = new File(uploadDir.absolutePath + File.separatorChar + newFilename);
+
+        FileOutputStream fos = new java.io.FileOutputStream(pres)
+        fos.write(bytes)
+        fos.flush()
+        fos.close()
+      } else {
+        log.warn "Upload failed. File Empty."
+        uploadFailReasons.add("failed_to_download_file")
+        uploadFailed = true
+      }
+    }
+
+    // Hardcode pre-uploaded presentation to the default presentation window
+    processUploadedFile("DEFAULT_PRESENTATION_POD",
               meetingId,
               presId,
               presFilename,
               pres,
               current,
-      "preupload-raw-authz-token");
-    }
-
+              "preupload-raw-authz-token",
+              uploadFailed,
+              uploadFailReasons)
   }
 
   def downloadAndProcessDocument(address, meetingId, current, fileName) {
     log.debug("ApiController#downloadAndProcessDocument(${address}, ${meetingId}, ${fileName})");
-    String presFilename;
+    String presOrigFilename;
     if (StringUtils.isEmpty(fileName)) {
-      presFilename = address.tokenize("/")[-1];
+      presOrigFilename = address.tokenize("/")[-1];
     } else {
-      presFilename = fileName;
+      presOrigFilename = fileName;
     }
 
-    def filenameExt = FilenameUtils.getExtension(presFilename);
-    String presentationDir = presentationService.getPresentationDir()
+    def uploadFailed = false
+    def uploadFailReasons = new ArrayList<String>()
 
-    def presId = presDownloadService.generatePresentationId(presFilename)
-    File uploadDir = presDownloadService.createPresentationDirectory(meetingId, presentationDir, presId)
-    if (uploadDir != null) {
-      def newFilename = Util.createNewFilename(presId, filenameExt)
-      def newFilePath = uploadDir.absolutePath + File.separatorChar + newFilename
+    // Gets the name minus the path from a full fileName.
+    // a/b/c.txt --> c.txt
+    def presFilename =  FilenameUtils.getName(presOrigFilename)
+    def filenameExt = FilenameUtils.getExtension(presOrigFilename)
+    def pres = null
+    def presId
 
-      if (presDownloadService.savePresentation(meetingId, newFilePath, address)) {
-        def pres = new File(newFilePath)
-        // Hardcode pre-uploaded presentation to the default presentation window
-        processUploadedFile("DEFAULT_PRESENTATION_POD",
-                meetingId,
-                presId,
-                presFilename,
-                pres,
-                current,
-                "preupload-download-authz-token");
-      } else {
-        log.error("Failed to download presentation=[${address}], meeting=[${meetingId}], fileName=[${fileName}]")
+    if (presFilename == "" || filenameExt == "") {
+      log.debug("Upload failed. Invalid filename " + presOrigFilename)
+      uploadFailReasons.add("invalid_filename")
+      uploadFailed = true
+    } else {
+      String presentationDir = presentationService.getPresentationDir()
+      presId = Util.generatePresentationId(presFilename)
+      File uploadDir = Util.createPresentationDir(meetingId, presentationDir, presId)
+      if (uploadDir != null) {
+        def newFilename = Util.createNewFilename(presId, filenameExt)
+        def newFilePath = uploadDir.absolutePath + File.separatorChar + newFilename
+
+        if (presDownloadService.savePresentation(meetingId, newFilePath, address)) {
+          pres = new File(newFilePath)
+        } else {
+          log.error("Failed to download presentation=[${address}], meeting=[${meetingId}], fileName=[${fileName}]")
+          uploadFailReasons.add("failed_to_download_file")
+          uploadFailed = true
+        }
       }
     }
+
+    // Hardcode pre-uploaded presentation to the default presentation window
+    processUploadedFile(
+            "DEFAULT_PRESENTATION_POD",
+            meetingId,
+            presId,
+            presFilename,
+            pres,
+            current,
+            "preupload-download-authz-token",
+            uploadFailed,
+            uploadFailReasons
+    )
   }
 
 
-  def processUploadedFile(podId, meetingId, presId, filename, presFile, current, authzToken) {
+  def processUploadedFile(podId, meetingId, presId, filename, presFile, current, authzToken, uploadFailed, uploadFailReasons ) {
     def presentationBaseUrl = presentationService.presentationBaseUrl
     // TODO add podId
     UploadedPresentation uploadedPres = new UploadedPresentation(podId,
@@ -2087,7 +2129,9 @@ class ApiController {
             filename,
             presentationBaseUrl,
             current,
-    authzToken);
+            authzToken,
+            uploadFailed,
+            uploadFailReasons)
     uploadedPres.setUploadedFile(presFile);
     presentationService.processUploadedPresentation(uploadedPres);
   }
