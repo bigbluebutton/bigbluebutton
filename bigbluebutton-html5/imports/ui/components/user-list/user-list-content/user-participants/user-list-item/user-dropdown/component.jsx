@@ -509,10 +509,7 @@ class UserDropdown extends PureComponent {
         noVoice={!voiceUser.isVoiceUser}
         color={user.color}
       >
-        {
-        userInBreakout
-        && !meetingIsBreakout
-          ? breakoutSequence : userIcon}
+        {userIcon}
       </UserAvatar>
     );
   }
@@ -579,12 +576,12 @@ class UserDropdown extends PureComponent {
               isMe,
             }}
           />}
-          {<UserIcons
+          {/* {<UserIcons
             {...{
               user,
               amIModerator: currentUser.role === ROLE_MODERATOR,
             }}
-          />}
+          />} */}
         </div>
       </div>
     );

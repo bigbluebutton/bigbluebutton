@@ -58,8 +58,9 @@ case class SendBreakoutUsersAuditInternalMsg(parentId: String, breakoutId: Strin
  * @param users
  */
 case class BreakoutRoomUsersUpdateInternalMsg(parentId: String, breakoutId: String,
-                                              users:      Vector[BreakoutUser],
-                                              voiceUsers: Vector[BreakoutVoiceUser]) extends InMessage
+                                              users:        Vector[BreakoutUser],
+                                              voiceUsers:   Vector[BreakoutVoiceUser],
+                                              ejectedUsers: Vector[BreakoutUser]) extends InMessage
 
 /**
  * Sent by parent meeting to breakout room to end breakout room.

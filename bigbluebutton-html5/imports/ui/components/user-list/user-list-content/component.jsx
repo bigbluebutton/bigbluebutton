@@ -1,13 +1,10 @@
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import { styles } from './styles';
-import UserParticipantsContainer from './user-participants/container';
-import UserMessages from './user-messages/component';
-import UserNotesContainer from './user-notes/container';
-import UserCaptionsContainer from './user-captions/container';
-import WaitingUsers from './waiting-users/component';
-import UserPolls from './user-polls/component';
-import BreakoutRoomItem from './breakout-room/component';
+import ChannelsContainer from '/imports/ui/components/channels/container';
+import Button from '/imports/ui/components/button/component';
+import { withModalMounter } from '/imports/ui/components/modal/service';
+import BreakoutCreateModalContainer from '/imports/ui/components/breakout-create-modal/container';
 
 import Button from '/imports/ui/components/button/component';
 
@@ -27,14 +24,17 @@ const propTypes = {
   pollIsOpen: PropTypes.bool.isRequired,
   forcePollOpen: PropTypes.bool.isRequired,
   requestUserInformation: PropTypes.func.isRequired,
+<<<<<<< HEAD
   isBreakoutRecordable: PropTypes.bool.isRequired,
+=======
+>>>>>>> b4aadc9b7881c76d98533bd1ccc5147be0020bbc
   mountModal: PropTypes.func.isRequired,
 };
 
 const defaultProps = {
   compact: false,
 };
-//const CHAT_ENABLED = Meteor.settings.public.chat.enabled;
+// const CHAT_ENABLED = Meteor.settings.public.chat.enabled;
 const ROLE_MODERATOR = Meteor.settings.public.user.role_moderator;
 
 class UserContent extends PureComponent {
@@ -46,7 +46,11 @@ class UserContent extends PureComponent {
   }
   newCreateBreakouts(){
     const {mountModal}=this.props
+<<<<<<< HEAD
     return  mountModal(<AudioModalContainer />)
+=======
+    return  mountModal(<BreakoutCreateModalContainer/>)
+>>>>>>> b4aadc9b7881c76d98533bd1ccc5147be0020bbc
   }
  
   render() {
@@ -62,6 +66,7 @@ class UserContent extends PureComponent {
       forcePollOpen,
       hasBreakoutRoom,
       pendingUsers,
+      meetingIsBreakout,
       requestUserInformation,
     } = this.props;
 
@@ -70,17 +75,20 @@ class UserContent extends PureComponent {
         data-test="userListContent"
         className={styles.content}
         role="complementary"
-      >
-        {/* {CHAT_ENABLED
-          ? (<UserMessages
-            {...{
-              isPublicChat,
-              activeChats,
-              compact,
-              intl,
-              roving,
-            }}
+      > 
+                
+      <Button
+            //hideLabel
+           // aria-label="New Breakout Channel"
+            className={styles.button}
+            label="+New Breakout Channel"
+           // icon="actions"
+            size="lg"
+           // circle
+           color="primary"
+          onClick={this.newCreateBreakouts}
           />
+<<<<<<< HEAD
           ) : null
         } */}
         {currentUser.role === ROLE_MODERATOR
@@ -130,6 +138,10 @@ class UserContent extends PureComponent {
      
         <BreakoutRoomItem isPresenter={currentUser.presenter} hasBreakoutRoom={hasBreakoutRoom} />
         <UserParticipantsContainer
+=======
+
+      <ChannelsContainer
+>>>>>>> b4aadc9b7881c76d98533bd1ccc5147be0020bbc
           {...{
             compact,
             intl,
@@ -139,6 +151,7 @@ class UserContent extends PureComponent {
             requestUserInformation,
           }}
         />
+
       </div>
     );
   }

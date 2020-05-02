@@ -635,7 +635,7 @@
     "app.videoDock.autoplayAllowLabel": "View webcams",
     "app.invitation.title": "Breakout room invitation",
     "app.invitation.confirm": "Invite",
-    "app.createBreakoutRoom.title": "Breakout Rooms",
+    "app.createBreakoutRoom.title": "Chat Channels",
     "app.createBreakoutRoom.ariaTitle": "Hide Breakout Rooms",
     "app.createBreakoutRoom.breakoutRoomLabel": "Breakout Rooms {0}",
     "app.createBreakoutRoom.generatingURL": "Generating URL",

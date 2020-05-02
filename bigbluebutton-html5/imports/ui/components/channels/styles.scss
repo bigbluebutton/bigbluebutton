@@ -1,0 +1,157 @@
+@import "/imports/ui/stylesheets/variables/_all";
+@import "/imports/ui/stylesheets/mixins/_scrollable";
+@import "/imports/ui/stylesheets/mixins/_indicators";
+@import "/imports/ui/components/user-list/styles";
+@import "/imports/ui/components/user-list/user-list-content/styles";
+@import "/imports/ui/stylesheets/variables/_all";
+@import "/client/stylesheets/fonts.css";
+
+:root {
+  --user-manage-menu-top : -0.5rem;
+  --user-manage-menu-right : -0.75rem;
+  --user-manage-menu-width : 12rem;
+}
+
+.dropdown {
+  
+  align-self: center;
+  position: absolute;
+  padding-top: 2%;
+  right: 0;
+  left: 80%;
+  
+  [dir="rtl"] & {
+    left: 0;
+    right: auto;
+  }
+}
+
+.dropdownContent {
+  top: var(--user-manage-menu-top);
+  right: var(--user-manage-menu-right);
+  left: auto;
+  width: var(--user-manage-menu-width);
+
+  [dir="rtl"] & {
+    top: var(--user-manage-menu-top);
+    right: -1rem;
+  }
+
+  @include mq($small-only) {
+    width: 100vw;
+  }
+}
+
+.optionsButton {
+  >i {
+    font-size: 9px;
+    color: #ffffff !important;
+  }
+}
+
+.channelListColumn {
+  @extend %flex-column;
+  min-height: 0;
+}
+
+.container{
+  display: flex;
+  align-items: center;
+  margin: var(--sm-padding-x) 0 var(--lg-padding-y) var(--font-size-20px);
+  height:var(--font-size-13px);
+}
+
+ .channelsTitle {
+  // font-family:  'Avenir';
+  font-style: normal;
+  font-size: var(--font-size-11px);
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  color: #ffffff;
+}
+
+.scrollableList {
+  @include elementFocus(transparent);
+  @include scrollbox-vertical();
+  @include highContrastOutline();
+
+  &:focus-within,
+  &:focus {
+    outline-style: solid;
+  }
+
+  &:active {
+    box-shadow: none;
+    border-radius: none;
+  }
+
+  outline-width: 1px !important;
+  outline-color: transparent !important;
+}
+
+.channelList {
+  display: flex;
+  flex-direction: column;
+  // margin: 10px 10px 10px 10px;
+}
+
+.channelName {
+  @extend %flex-column;
+  justify-content: center;
+  margin: 1% 15%;
+  width: 80%;
+}
+
+.masterChannel {
+  @extend %no-margin;
+  
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  width: 95%;
+  >span {
+    // font-family: 'Avenir';
+    font-style: normal;
+    color: #ffc700;
+    letter-spacing: 0.025em;
+    font-weight: 800;
+    line-height: 21px;
+    // justify-content: center;
+    padding-left: 0.4rem;
+    font-size: var(--font-size-12px);
+  }
+}
+
+.channelNameMain {
+  @extend %no-margin;
+  // font-family: 'Avenir';
+  font-style: normal;
+  font-weight: 500;
+  color: #ffffff;
+  width: 90%;
+  // margin-left: 5%;
+  overflow-x: hidden;
+  font-size: var(--font-size-12px);
+  
+}
+
+.buttonWrapper {
+  display: grid;
+  grid-template-columns: 10% 90% 10%;
+  justify-content: center;
+  align-items: center;
+  padding-left: 5%;
+}
+
+.usersList {
+  padding-left: 13%;
+  width: 95%;
+}
+
+.channelAvatar {
+  // font-family: 'Avenir';
+  font-style: normal;
+  font-weight: 500;
+  color: #ffffff;
+  font-size: 9px;
+}

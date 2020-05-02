@@ -4,6 +4,7 @@ import Auth from '/imports/ui/services/auth';
 import Meetings from '/imports/api/meetings';
 import ActionsBarService from '/imports/ui/components/actions-bar/service';
 import UserListService from '/imports/ui/components/user-list/service';
+import BreakoutChannelService from '/imports/ui/components/channels/service';
 import logger from '/imports/startup/client/logger';
 import { defineMessages, injectIntl, intlShape } from 'react-intl';
 import { notify } from '/imports/ui/services/notification';
@@ -78,6 +79,7 @@ const UserOptionsContainer = withTracker((props) => {
     isBreakoutRecordable: ActionsBarService.isBreakoutRecordable(),
     users: ActionsBarService.users(),
     isMeteorConnected: Meteor.status().connected,
+    endAllBreakouts: BreakoutChannelService.endAllBreakouts
   };
 })(UserOptions);
 

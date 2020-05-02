@@ -9,7 +9,8 @@ import PollingContainer from '/imports/ui/components/polling/container';
 import logger from '/imports/startup/client/logger';
 import ActivityCheckContainer from '/imports/ui/components/activity-check/container';
 import UserInfoContainer from '/imports/ui/components/user-info/container';
-import BreakoutRoomInvitation from '/imports/ui/components/breakout-room/invitation/container';
+import BreakoutRoomInvitation from '/imports/ui/components/channels/invitation/container';
+import Resizable from 're-resizable';
 import ToastContainer from '../toast/container';
 import ModalContainer from '../modal/container';
 import NotificationsBarContainer from '../notifications-bar/container';
@@ -23,19 +24,19 @@ import MediaService from '/imports/ui/components/media/service';
 import ManyWebcamsNotifier from '/imports/ui/components/video-provider/many-users-notify/container';
 import { styles } from './styles';
 import ChatContainer from '/imports/ui/components/chat/container';
-import Resizable from 're-resizable';
+
+// import Resizable from 're-resizable';
 import Button from '/imports/ui/components/button/component';
 import ActionsBarContainer from '../actions-bar/container';
 
 
-
-const chat_min_width = 59;
-const chat_max_width = 78;
 // Variables for resizing chat.
-const CHAT_MIN_WIDTH = ((screen.width) * chat_min_width) / 100;
-//const CHAT_MAX_WIDTH = DEFAULT_PANEL_WIDTH;
-const CHAT_MAX_WIDTH =((screen.width) * chat_max_width) / 100;
+  const CHAT_MIN_WIDTH =  window.innerWidth * 0.58;
+// // // const CHAT_MAX_WIDTH = DEFAULT_PANEL_WIDTH;
+  const CHAT_MAX_WIDTH =  window.innerWidth * 0.8;
 
+const chat_min_width = CHAT_MIN_WIDTH;
+const chat_max_width = CHAT_MAX_WIDTH;
 
 const MOBILE_MEDIA = 'only screen and (max-width: 40em)';
 const APP_CONFIG = Meteor.settings.public.app;
@@ -60,6 +61,10 @@ const intlMessages = defineMessages({
   actionsBarLabel: {
     id: 'app.actionsBar.label',
     description: 'Aria-label for ActionsBar Section',
+  },
+  joinAudio: {
+    id: 'app.audio.joinAudio',
+    description: 'Join audio button label',
   },
   iOSWarning: {
     id: 'app.iOSWarning.label',
@@ -109,18 +114,22 @@ const defaultProps = {
 const LAYERED_BREAKPOINT = 640;
 const isLayeredView = window.matchMedia(`(max-width: ${LAYERED_BREAKPOINT}px)`);
 
+const BROWSER_RESULTS = browser();
+const isMobileBrowser = BROWSER_RESULTS.mobile || BROWSER_RESULTS.os.includes('Android');
+
 class App extends Component {
   constructor() {
     super();
     this.state = {
-      chatWidth: CHAT_MIN_WIDTH,
+      chatWidth: CHAT_MAX_WIDTH,
       enableResize: !window.matchMedia(MOBILE_MEDIA).matches,
-      toggleChatLayout: false,
+      toggleChatLayout: true,
     };
-     
-      
+
+
     this.handleWindowResize = throttle(this.handleWindowResize).bind(this);
     this.shouldAriaHide = this.shouldAriaHide.bind(this);
+    this.toggleChatPanel = this.toggleChatPanel.bind(this);
   }
 
 
@@ -128,8 +137,6 @@ class App extends Component {
     const {
       locale, notify, intl, validIOSVersion, startBandwidthMonitoring, handleNetworkConnection,
     } = this.props;
-    const BROWSER_RESULTS = browser();
-    const isMobileBrowser = BROWSER_RESULTS.mobile || BROWSER_RESULTS.os.includes('Android');
 
     MediaService.setSwapLayout();
     Modal.setAppElement('#app');
@@ -278,7 +285,7 @@ class App extends Component {
     const {
       media,
       intl,
-      swapLayout
+      swapLayout,
     } = this.props;
 
     if (!media) return null;
@@ -290,7 +297,6 @@ class App extends Component {
         aria-hidden={this.shouldAriaHide()}
       >
         {media}
-        {this.renderCaptions()}
       </section>
     );
   }
@@ -302,7 +308,7 @@ class App extends Component {
     } = this.props;
 
     const {
-      toggleChatLayout
+      toggleChatLayout,
     } = this.state;
     if (!actionsbar) return null;
 
@@ -312,7 +318,7 @@ class App extends Component {
         aria-label={intl.formatMessage(intlMessages.actionsBarLabel)}
         aria-hidden={this.shouldAriaHide()}
       >
-        <ActionsBarContainer toggleChatLayout={toggleChatLayout} />
+        <ActionsBarContainer toggleChatLayout={isMobileBrowser ? !toggleChatLayout : toggleChatLayout} />
       </section>
     );
   }
@@ -340,6 +346,25 @@ class App extends Component {
       />) : null);
   }
 
+  toggleChatPanel() {
+    const { isThereCurrentPresentation, inAudio } = this.props;
+    const { chatWidth } = this.state;
+    if (chatWidth == CHAT_MIN_WIDTH) {
+      if (!isThereCurrentPresentation || (isThereCurrentPresentation && !inAudio) ){
+        this.setState({
+          chatWidth:CHAT_MAX_WIDTH,
+          toggleChatLayout:true
+        })
+      }
+    }
+    if(chatWidth == CHAT_MAX_WIDTH){
+      this.setState({
+        chatWidth:CHAT_MIN_WIDTH,
+        toggleChatLayout:false
+      })
+    }
+  }
+
   renderChat() {
     return (
       <section
@@ -351,43 +376,55 @@ class App extends Component {
   }
 
   renderChatResizable() {
+    const { isThereCurrentPresentation, isVideoBroadcasting, isRTL, inAudio } = this.props;
     const { chatWidth } = this.state;
 
+    if(!inAudio) {}
+    else if((isThereCurrentPresentation || isVideoBroadcasting) && chatWidth == CHAT_MAX_WIDTH) {
+      this.toggleChatPanel();
+    }
+
+    const resizableEnableOptions = {
+      top: false,
+      right: !isRTL,
+      bottom: false,
+      left: !!isRTL,
+      topRight: false,
+      bottomRight: false,
+      bottomLeft: false,
+      topLeft: false,
+    };
+
     return (
-    <div  className={styles.chatWrapper}>
-      <Resizable
-         minWidth={CHAT_MIN_WIDTH}
-         maxWidth={CHAT_MAX_WIDTH}
-        size={{ width: chatWidth }}
-        onResize={dispatchResizeEvent}
-        className={styles.chatChannel}
-      >
-        {this.renderChat()}
-      </Resizable>
-      <div className={styles.slide}>
-        <Button
-          hideLabel
-          onClick={ 
-             () => {
-                (chatWidth!==CHAT_MAX_WIDTH)
-                ? this.setState({chatWidth:CHAT_MAX_WIDTH,toggleChatLayout:true})
-                : this.setState({chatWidth:CHAT_MIN_WIDTH,toggleChatLayout:false})
-              }
-            }
-          size="sm"
-          icon={(chatWidth!==CHAT_MAX_WIDTH)?"right_arrow":"left_arrow"}
-          className={styles.hide}
-          color="default"
-          label="toggle"
-        />
+    <div className={styles.chatWrapper}>
+        <Resizable
+          minWidth={CHAT_MIN_WIDTH}
+          maxWidth={CHAT_MAX_WIDTH}
+         enable={resizableEnableOptions}
+          size={{ width: chatWidth }}
+          onResize={dispatchResizeEvent}
+          className={styles.chatChannel}
+        >
+          {this.renderChat()}
+        </Resizable>
+        <div className={styles.slide}>
+          <Button
+            hideLabel
+            onClick={() => this.toggleChatPanel()}
+            size="sm"
+            icon={(chatWidth !== CHAT_MAX_WIDTH) ? 'right_arrow' : 'left_arrow'}
+            className={styles.hide}
+            color="default"
+            label="toggle"
+          />
+        </div>
       </div>
-    </div> 
-  );
-}
+    );
+  }
 
   render() {
     const {
-      customStyle, customStyleUrl, openPanel,
+      customStyle, customStyleUrl, openPanel, inAudio, handleJoinAudio, intl,
     } = this.props;
     const { enableResize } = this.state;
     return (
@@ -401,11 +438,29 @@ class App extends Component {
           <div className={styles.container}>
             {this.renderNavBar()}
             <div className={styles.panelContainer}>
-              <div className={openPanel ? styles.content : styles.noPanelContent}>
-                {this.renderMedia()}
-                {this.renderActionsBar()}
+              <div className={styles.presentationPanel}>
+              { inAudio ?
+                <div className={openPanel ? styles.content : styles.noPanelContent}>
+                  {this.renderMedia()}
+                  {this.renderActionsBar()}
+                </div>
+                 : 
+                <div className={styles.noAudio}>
+                  <Button
+                    className={styles.button}
+                    onClick={handleJoinAudio}
+                    hideLabel
+                    label={intl.formatMessage(intlMessages.joinAudio)}
+                    color="default"
+                    ghost={!inAudio}
+                    icon="audio_off"
+                    size='lg'
+                    circle
+                  />
+                </div>
+              }
               </div>
-              {(openPanel === 'chat') ? (
+              {(openPanel !== '') ? (
                 (enableResize) ? this.renderChatResizable() : this.renderChat()
               ) : null}
             </div>

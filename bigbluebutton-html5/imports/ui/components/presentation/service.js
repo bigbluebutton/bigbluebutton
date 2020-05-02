@@ -31,7 +31,7 @@ const stopPresentation = (podId) => {
     return null;
   }
   makeCall('removePresentation', currentPresentation.id, currentPresentation.podId);
-}
+};
 
 const isPresentationDownloadable = (podId) => {
   const currentPresentation = getCurrentPresentation(podId);

@@ -16,6 +16,12 @@ function meetingIsBreakout() {
   return (meeting && meeting.meetingProp.isBreakout);
 }
 
+function isMeetingBreakout(meetingIdentifier) {
+  const meeting = Meetings.findOne({ meetingId: meetingIdentifier },
+    { fields: { 'meetingProp.isBreakout': 1 } });
+  return (meeting && meeting.meetingProp.isBreakout);
+}
+
 const validIOSVersion = () => {
   const SUPPORTED_OS_VERSION = 12.2;
   const iosMatch = navigator.userAgent.match(/OS (\d+)_(\d+)/);
@@ -30,6 +36,7 @@ const validIOSVersion = () => {
 export {
   getFontSize,
   meetingIsBreakout,
+  isMeetingBreakout,
   getBreakoutRooms,
   validIOSVersion,
 };

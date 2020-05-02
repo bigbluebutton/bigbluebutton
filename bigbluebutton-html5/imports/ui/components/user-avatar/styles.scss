@@ -18,15 +18,15 @@
 
 .avatar {
   position: relative;
-  padding-bottom: 2rem;
+  padding: 10px;
   border-radius: 50%;
   text-align: center;
 
-  font-family: Montserrat;
+  font-family: 'Avenir';
   font-style: normal;
   font-weight: 500;
-  font-size: var(--font-size-13px);
-  line-height: var(--font-size-16px);
+  font-size: var(--font-size-10px);
+  line-height: var(--font-size-10px);
   text-transform: capitalize;
   color: #EEEEEE;
 
@@ -42,7 +42,7 @@
     position: absolute;
     width: 0;
     height: 0;
-    padding-top: .5rem;
+    padding-top: .4rem;
     padding-right: 0;
     padding-left: 0;
     padding-bottom: 0;
@@ -132,8 +132,8 @@
   &:after {
     content: "\00a0\e931\00a0";
     background-color: var(--user-indicator-voice-bg);
-    top: 1.375rem;
-    left: 1.375rem;
+    top: 1rem;
+    left: 1rem;
     right: auto;
 
     [dir="rtl"] & {

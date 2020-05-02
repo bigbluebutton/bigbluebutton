@@ -16,11 +16,11 @@
 
 .userNameMain {
   @extend %no-margin;
-  font-family: Avenir;
+  // font-family: 'Avenir';
   font-style: normal;
   font-weight: normal;
-  font-size: var(--font-size-14px);
-  line-height: var(--font-size-15px);
+  font-size: var(--font-size-12px);
+  line-height: var(--font-size-12px);
   text-transform: capitalize;
   color: #ffffff;
   

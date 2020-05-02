@@ -173,7 +173,7 @@
     }
   }
   &:hover {
-    opacity: .5;
+    opacity: 0.9;
   }
 }
 
@@ -215,21 +215,6 @@
   color: $color;
   background-color: $background;
   border: var(--border-size-large) solid transparent;
-
-  &:focus,
-  .buttonWrapper:focus:not([aria-disabled="true"]) & {
-    color: $color;
-    background-color: $background;
-    background-clip: padding-box;
-    box-shadow: 0 0 0 var(--border-size) $background;
-  }
-
-  &:hover,
-  .buttonWrapper:hover & {
-    color: $color;
-    // background-color: $active-background; TODO;
-    // border-color: $active-border; TODO;
-  }
 }
 
 @mixin button-ghost-variant($color, $variant) {

@@ -78,15 +78,32 @@
   }
 }
 
-.content, .noPanelContent {
+.noAudio {
+  @extend %full-page;
+  justify-content: center;
+  @include mq($medium-up) {
+    flex: 1;
+    max-height: 85%;
+  }
+}
+
+.presentationPanel {
   @extend %full-page;
   order: 2;
-  top: 7%;
+  top: 4%;
   
   @include mq($medium-up) {
-    flex: 1 93%;
-    order: 2;
+    flex: 40%;
     right: 1.5%;
+  }
+}
+
+.content, .noPanelContent {
+  @extend %full-page;
+  // top: 2;
+  
+  @include mq($medium-up) {
+    flex: 100%;
   }
 }
 
@@ -186,7 +203,7 @@
 
 .media {
   @extend %full-page;
-  flex: 1 30%;
+  flex: 1 40%;
   order: 2;
   position: relative;
   margin: 0 0 0 var(--panel-margin-right);
@@ -247,4 +264,11 @@ background: transparent;
 .chatChannel{
   flex-wrap: nowrap;
   align-self: stretch;
+}
+
+.button {
+  span:first-child {
+    box-shadow: none;
+    border: 0.5px solid #5594d4;
+  }
 }

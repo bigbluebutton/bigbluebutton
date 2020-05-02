@@ -52,8 +52,8 @@ const USERLIST_MAX_WIDTH_PX = ((screen.width) * user_min_width) / 100;
 
 // Variables for resizing chat.
 const CHAT_MIN_WIDTH = ((screen.width) * chat_min_width) / 100;
-//const CHAT_MAX_WIDTH = DEFAULT_PANEL_WIDTH;
-const CHAT_MAX_WIDTH =((screen.width) * chat_max_width) / 100;
+// const CHAT_MAX_WIDTH = DEFAULT_PANEL_WIDTH;
+const CHAT_MAX_WIDTH = ((screen.width) * chat_max_width) / 100;
 // Variables for resizing poll.
 const POLL_MIN_WIDTH = 320;
 const POLL_MAX_WIDTH = 400;
@@ -196,7 +196,7 @@ class PanelManager extends PureComponent {
         maxWidth={CHAT_MAX_WIDTH}
        // ref={(node) => { this.resizableChat = node; }}
        // enable={resizableEnableOptions}
-        //key={this.chatKey}
+        // key={this.chatKey}
         size={{ width: chatWidth }}
         onResize={dispatchResizeEvent}
         // onResizeStop={(e, direction, ref, d) => {
@@ -208,16 +208,16 @@ class PanelManager extends PureComponent {
       >
         {this.renderChat()}
       </Resizable>
-       <div className={styles.slide}>
-       <Button
-             onClick={()=>{(chatWidth!==CHAT_MAX_WIDTH)?this.setState({chatWidth:CHAT_MAX_WIDTH}):this.setState({chatWidth:CHAT_MIN_WIDTH})}}
-             size="sm"
-             icon={(chatWidth!==CHAT_MAX_WIDTH)?"right_arrow":"left_arrow"}
-             className={styles.hide}
-             color="white"
-           />
-       </div>
-       </div>
+      <div className={styles.slide}>
+        <Button
+          onClick={() => { (chatWidth !== CHAT_MAX_WIDTH) ? this.setState({ chatWidth: CHAT_MAX_WIDTH }) : this.setState({ chatWidth: CHAT_MIN_WIDTH }); }}
+          size="sm"
+          icon={(chatWidth !== CHAT_MAX_WIDTH) ? 'right_arrow' : 'left_arrow'}
+          className={styles.hide}
+          color="white"
+        />
+      </div>
+    </div>
     );
   }
 
@@ -456,13 +456,13 @@ class PanelManager extends PureComponent {
       }
     }
 
-    if (openPanel === 'breakoutroom') {
-      if (enableResize) {
-        panels.push(this.renderBreakoutRoom());
-      } else {
-        panels.push(this.renderBreakoutRoom());
-      }
-    }
+    // if (openPanel === 'breakoutroom') {
+    //   if (enableResize) {
+    //     panels.push(this.renderBreakoutRoom());
+    //   } else {
+    //     panels.push(this.renderBreakoutRoom());
+    //   }
+    // }
 
     if (openPanel === 'waitingUsersPanel') {
       if (enableResize) {

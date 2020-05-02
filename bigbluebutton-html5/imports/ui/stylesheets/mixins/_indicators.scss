@@ -20,7 +20,7 @@
 
   :global(.browser-chrome) &:before,
   :global(.browser-firefox) &:before {
-    padding: .45rem;
+    padding: .4rem;
   }
 
   :global(.browser-edge) &:before {
@@ -39,8 +39,8 @@
 @mixin indicatorStyles() {
   &:after {
     opacity: 1;
-    width: 1.2rem;
-    height: 1.2rem;
+    width: 1rem;
+    height: 1rem;
   }
 
   :global(.browser-edge) &:after {

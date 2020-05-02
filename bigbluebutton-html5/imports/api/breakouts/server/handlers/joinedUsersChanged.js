@@ -8,24 +8,54 @@ export default function joinedUsersChanged({ body }) {
   const {
     parentId,
     breakoutId,
-    users,
+    joinedUsers,
+    ejectedUsers,
   } = body;
 
   check(parentId, String);
   check(breakoutId, String);
-  check(users, Array);
+  check(joinedUsers, Array);
+  check(ejectedUsers, Array);
 
+  console.log(`joinedUsers.length${joinedUsers.length}`);
+  console.log(`ejectedUsers.length${ejectedUsers.length}`);
+
+  const breakoutRoom = Breakouts.findOne({
+    breakoutId: breakoutId,
+    parentMeetingId: parentId
+  });
+
+  const usersMapped = breakoutRoom.users.filter(user => { 
+    let r = ejectedUsers.filter(e => e.id === user.userId).shift();
+    return (r == null || r == undefined);
+  })
+  .map(u =>  ({userId: u.userId, redirectToHtml5JoinURL: u.redirectToHtml5JoinURL, insertedTime: u.insertedTime}))
+
+ 
   const selector = {
     parentMeetingId: parentId,
     breakoutId,
   };
+  const joinedUsersMapped = joinedUsers.map(user => ({ userId: user.id, name: user.name }));
 
-  const usersMapped = users.map(user => ({ userId: user.id, name: user.name }));
-  const modifier = {
-    $set: {
-      joinedUsers: usersMapped,
-    },
-  };
+  let modifier = '';
+  if (ejectedUsers.length > 0) {
+    const ejectedUsersMapped = ejectedUsers.map(user => ({ userId: user.id }));
+   
+    modifier = {
+      $set: {
+        joinedUsers: joinedUsersMapped,
+        users: usersMapped
+      },
+
+    };
+  } else {
+    modifier = {
+      $set: {
+        joinedUsers: joinedUsersMapped,
+      },
+    };
+  }
 
 
   const cb = (err) => {
@@ -36,6 +66,7 @@ export default function joinedUsersChanged({ body }) {
     return Logger.info('Updated joined users '
       + `in breakout id=${breakoutId}`);
   };
+
   Breakouts.find(selector);
   Breakouts.update(selector, modifier, cb);
 }

@@ -8,14 +8,15 @@ import _ from 'lodash';
 import { findDOMNode } from 'react-dom';
 import UserListItemContainer from './user-list-item/container';
 import UserOptionsContainer from './user-options/container';
+import ChannelsService from '/imports/ui/components/channels/service'
+import Auth from '/imports/ui/services/auth';
 
 const propTypes = {
   compact: PropTypes.bool,
   intl: PropTypes.shape({
     formatMessage: PropTypes.func.isRequired,
   }).isRequired,
-  currentUser: PropTypes.shape({}).isRequired,
-  users: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
+  currentUser: PropTypes.shape({}).isRequired, 
   setEmojiStatus: PropTypes.func.isRequired,
   roving: PropTypes.func.isRequired,
   requestUserInformation: PropTypes.func.isRequired,
@@ -97,18 +98,41 @@ class UserParticipants extends Component {
   getUsers() {
     const {
       compact,
-      setEmojiStatus,
-      users,
+      setEmojiStatus,      
       requestUserInformation,
       currentUser,
-      meetingIsBreakout,
+      meetingIdentifier,
+      allUsersInMeeting,
+      breakoutRoomUsers
     } = this.props;
 
     let index = -1;
+    var {} = this.props; 
 
-    return users.map(u => (
+    //The property "users" holds all the users in master channel. If we are rendering the
+    //users under a breakout channel link, then we want to show only the users in the break out channel.
+    //Note - the mongo break entry has a a "users" field that holds the users.
+
+    const renderOnlyBreakoutusers =  ChannelsService.validateMeetingIsBreakout(meetingIdentifier);
+    const isThisBreakoutRoom =  ChannelsService.validateMeetingIsBreakout(Auth.meetingID);
+
+    console.log("Auth.meetingid: " + Auth.meetingID);
+    console.log("isThisBreakoutRoom: " + isThisBreakoutRoom);
+    console.log("renderOnlyBreakoutusers: " + renderOnlyBreakoutusers);
+    console.log("meetingIdentifier: " + meetingIdentifier);
+
+    var usersToRender = allUsersInMeeting;
+    if(!isThisBreakoutRoom && renderOnlyBreakoutusers){
+      //usersToRender = allUsersInMeeting.filter(u => isbreakoutRoomUser(meetingIdentifier, u.userId));
+      usersToRender = allUsersInMeeting.filter(u => {
+        const breakoutUser = breakoutRoomUsers.filter(user => user.userId === u.userId).shift();
+        return (breakoutUser != null && breakoutUser != undefined);
+      });
+    }
+    
+    return usersToRender.map(u => (
       <CSSTransition
-        classNames={listTransition}
+        classNames={listTransition} 
         appear
         enter
         exit
@@ -123,8 +147,7 @@ class UserParticipants extends Component {
               compact,
               setEmojiStatus,
               requestUserInformation,
-              currentUser,
-              meetingIsBreakout,
+              currentUser
             }}
             user={u}
             getScrollContainerRef={this.getScrollContainerRef}
@@ -152,36 +175,11 @@ class UserParticipants extends Component {
       compact,
       setEmojiStatus,
       currentUser,
-      meetingIsBreakout,
+      meetingIdentifier,
     } = this.props;
 
     return (
       <div className={styles.userListColumn}>
-        {
-          !compact
-            ? (
-              <div className={styles.container}>
-                <h2 className={styles.smallTitle}>
-                  {intl.formatMessage(intlMessages.usersTitle)}
-                  &nbsp;(
-                  {users.length}
-                  )
-                </h2>
-                {currentUser.role === ROLE_MODERATOR
-                  ? (
-                    <UserOptionsContainer {...{
-                      users,
-                      setEmojiStatus,
-                      meetingIsBreakout,
-                    }}
-                    />
-                  ) : null
-                }
-
-              </div>
-            )
-            : <hr className={styles.separator} />
-        }
         <div
           className={styles.scrollableList}
           tabIndex={0}

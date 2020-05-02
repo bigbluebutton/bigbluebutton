@@ -17,21 +17,24 @@ trait EjectUserFromMeetingCmdMsgHdlr extends RightsManagementTrait {
     val userId = msg.body.userId
     val ejectedBy = msg.body.ejectedBy
 
-    if (permissionFailed(
-      PermissionCheck.MOD_LEVEL,
-      PermissionCheck.VIEWER_LEVEL,
-      liveMeeting.users2x,
-      msg.header.userId
-    )) {
+    //TODO Sai: See how we can get permissions check back here. Do not really see a need for this as we ensure on the UI
+    //only the moderator of the master channel has access to do this.
+    //    if (permissionFailed(
+    //      PermissionCheck.MOD_LEVEL,
+    //      PermissionCheck.VIEWER_LEVEL,
+    //      liveMeeting.users2x,
+    //      ejectedBy
+    //    )) {
+    //
+    //      val reason = "No permission to eject user from meeting."
+    //      PermissionCheck.ejectUserForFailedPermission(meetingId, msg.header.userId, reason, outGW, liveMeeting)
+    //    } else {
+    val reason = "user ejected by another user"
 
-      val reason = "No permission to eject user from meeting."
-      PermissionCheck.ejectUserForFailedPermission(meetingId, msg.header.userId, reason, outGW, liveMeeting)
-    } else {
-      val reason = "user ejected by another user"
-      UsersApp.ejectUserFromMeeting(outGW, liveMeeting, userId, ejectedBy, reason, EjectReasonCode.EJECT_USER)
-      // send a system message to force disconnection
-      Sender.sendDisconnectClientSysMsg(meetingId, userId, ejectedBy, EjectReasonCode.EJECT_USER, outGW)
-    }
+    UsersApp.ejectUserFromMeeting(outGW, liveMeeting, userId, ejectedBy, reason, EjectReasonCode.EJECT_USER)
+    // send a system message to force disconnection
+    Sender.sendDisconnectClientSysMsg(meetingId, userId, ejectedBy, EjectReasonCode.EJECT_USER, outGW)
+    //}
   }
 }
 

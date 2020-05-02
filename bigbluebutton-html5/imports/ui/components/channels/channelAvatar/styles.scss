@@ -1,0 +1,149 @@
+@import "/imports/ui/stylesheets/variables/palette";
+@import "/imports/ui/stylesheets/variables/general";
+@import "/imports/ui/stylesheets/mixins/_indicators";
+@import "/imports/ui/stylesheets/variables/typography";
+
+
+/* Variables
+ * ==========
+ */
+:root {
+  --user-avatar-border: var(--color-gray-light);
+  --user-avatar-text: var(--color-white);
+  --user-indicator-voice-bg: #64a596;
+  --user-indicator-muted-bg: #dd6161;
+  --user-list-bg: var(--color-off-white);
+  --user-color: currentColor; //picks the current color reference in the class
+}
+
+.avatar {
+  position: relative;
+  padding: 10px;
+  border-radius: 50%;
+  text-align: center;
+
+  font-family: 'Avenir';
+  font-style: normal;
+  font-weight: 500;
+  font-size: 9px;
+//   line-height: var(--font-size-10px);
+  text-transform: capitalize;
+  color: #EEEEEE;
+
+  border: 1px solid #ffffff;
+}
+
+.talking {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  background-color: var(--user-color);
+  border-radius: inherit;
+
+  :global(.animationsEnabled) & {
+    animation: pulse 1s infinite ease-in;
+  }
+
+  &::before {
+    :global(.animationsDisabled) & {
+      content: '';
+      position: absolute;
+      top: 0;
+      right: 0;
+      bottom: 0;
+      left: 0;
+      background-color: var(--user-color);
+      border-radius: inherit;
+      box-shadow: 0 0 0 4px var(--user-color);
+      opacity: .5;
+    }
+  }
+}
+
+@keyframes pulse {
+  0% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(1.5);
+  }
+}
+
+.moderator {
+  border-radius: 50%;
+}
+
+.presenter {
+  &:before {
+    content: "\00a0\e90b\00a0";
+  }
+  @include presenterIndicator();
+}
+
+.voice {
+  &:after {
+    content: "\00a0\e931\00a0";
+    background-color: var(--user-indicator-voice-bg);
+    top: 1.375rem;
+    left: 1.375rem;
+    right: auto;
+
+    [dir="rtl"] & {
+      left: auto;
+      right: 1.375rem;
+    }
+  }
+}
+
+.noVoice {
+  &:after {
+    content: "";
+    background-color: transparent;
+    top: 1.375rem;
+    left: 1.375rem;
+    right: auto;
+
+    [dir="rtl"] & {
+      left: auto;
+      right: 1.375rem;
+    }
+  }
+}
+
+.muted {
+  &:after {
+    content: "\00a0\e932\00a0";
+    background-color: var(--user-indicator-muted-bg);
+  }
+}
+
+.listenOnly {
+  &:after {
+    content: "\00a0\e90c\00a0";
+  }
+}
+
+.listenOnly,
+.muted,
+.voice,
+.noVoice {
+  @include indicatorStyles();
+}
+
+.content {
+  color: var(--user-avatar-text);
+  top: 50%;
+  position: absolute;
+  text-align: center;
+  left: 0;
+  right: 0;
+  
+  &,
+  & > * {
+    line-height: 0; // to keep centralized vertically
+  }
+}

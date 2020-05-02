@@ -202,6 +202,30 @@ const getUsers = () => {
   return users.sort(sortUsers);
 };
 
+
+const getUsersByMeeting = (meetingIdentifier) => {
+  let users = Users
+    .find({
+      meetingId: meetingIdentifier,
+      connectionStatus: 'online',
+    }, userFindSorting)
+    .fetch();
+
+
+  const currentUser = Users.findOne({ userId: Auth.userID }, { fields: { role: 1, locked: 1 } });
+  if (currentUser && currentUser.role === ROLE_VIEWER && currentUser.locked) {
+    const meeting = Meetings.findOne({ meetingId: Auth.meetingID },
+      { fields: { 'lockSettingsProps.hideUserList': 1 } });
+    if (meeting && meeting.lockSettingsProps && meeting.lockSettingsProps.hideUserList) {
+      const moderatorOrCurrentUser = u => u.role === ROLE_MODERATOR || u.userId === Auth.userID;
+      users = users.filter(moderatorOrCurrentUser);
+    }
+  }
+
+  return users.sort(sortUsers);
+};
+
+
 const hasBreakoutRoom = () => Breakouts.find({ parentMeetingId: Auth.meetingID },
   { fields: {} }).count() > 0;
 
@@ -338,8 +362,8 @@ const getAvailableActions = (amIModerator, isBreakoutRoom, subjectUser, subjectV
 
   // if currentUser is a moderator, allow removing other users
   const allowedToRemove = amIModerator
-    && !amISubjectUser
-    && !isBreakoutRoom;
+    && !amISubjectUser;
+  // && !isBreakoutRoom;
 
   const allowedToSetPresenter = amIModerator
     && !subjectUser.presenter
@@ -391,12 +415,13 @@ const setEmojiStatus = (userId, emoji) => {
 
 const assignPresenter = (userId) => { makeCall('assignPresenter', userId); };
 
-const removeUser = (userId) => {
-  if (isVoiceOnlyUser(userId)) {
-    makeCall('ejectUserFromVoice', userId);
-  } else {
-    makeCall('removeUser', userId);
-  }
+const removeUser = (userId, meetingId) => {
+  makeCall('removeUser', userId, meetingId);
+  // if (isVoiceOnlyUser(userId)) {
+  //   makeCall('ejectUserFromVoice', userId, meetingId);
+  // } else {
+  //   makeCall('removeUser', userId, meetingId);
+  // }
 };
 
 const toggleVoice = (userId) => {
@@ -511,6 +536,7 @@ export default {
   muteAllExceptPresenter,
   changeRole,
   getUsers,
+  getUsersByMeeting,
   getActiveChats,
   getAvailableActions,
   curatedVoiceUser,
