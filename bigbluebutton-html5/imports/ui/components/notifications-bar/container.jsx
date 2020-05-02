@@ -179,25 +179,6 @@ export default injectIntl(withTracker(({ intl }) => {
   }
 
   const meetingId = Auth.meetingID;
-  const breakouts = breakoutService.getBreakouts();
-
-  if (breakouts.length > 0) {
-    const currentBreakout = breakouts.find(b => b.breakoutId === meetingId);
-
-    if (currentBreakout) {
-      data.message = (
-        <BreakoutRemainingTime
-          breakoutRoom={currentBreakout}
-          messageDuration={intlMessages.breakoutTimeRemaining}
-          timeEndedMessage={intlMessages.breakoutWillClose}
-          alertMessageUnderOneMinute={
-            intl.formatMessage(intlMessages.alertBreakoutEndsUnderOneMinute)
-          }
-        />
-      );
-    }
-  }
-
   const meetingTimeRemaining = MeetingTimeRemaining.findOne({ meetingId });
   const Meeting = Meetings.findOne({ meetingId },
     { fields: { 'meetingProp.isBreakout': 1 } });
