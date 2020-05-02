@@ -278,7 +278,7 @@ class ApiController {
     //Sai TODO: ensure the client sends email via params. For now, hardcoding it here
     String email  = params.email;
 
-      // Do we have a meeting id? If none, complain.
+    // Do we have a meeting id? If none, complain.
     if (!StringUtils.isEmpty(params.meetingID)) {
       params.meetingID = StringUtils.strip(params.meetingID);
       if (StringUtils.isEmpty(params.meetingID)) {
@@ -459,7 +459,7 @@ class ApiController {
 
     // Register user into the meeting.
     meetingService.registerUser(us.meetingID, us.internalUserId, us.fullname, us.email, us.role, us.externUserID,
-        us.authToken, us.avatarURL, us.guest, us.authed, guestStatusVal)
+            us.authToken, us.avatarURL, us.guest, us.authed, guestStatusVal)
 
     // Validate if the maxParticipants limit has been reached based on registeredUsers. If so, complain.
     // when maxUsers is set to 0, the validation is ignored
@@ -1554,14 +1554,14 @@ class ApiController {
               }
             }
             customdata (
-              meeting.getUserCustomData(us.externUserID).collect { k, v ->
-                ["$k": v]
-              }
+                    meeting.getUserCustomData(us.externUserID).collect { k, v ->
+                      ["$k": v]
+                    }
             )
             metadata (
-              meeting.getMetadata().collect { k, v ->
-                ["$k": v]
-              }
+                    meeting.getMetadata().collect { k, v ->
+                      ["$k": v]
+                    }
             )
           }
           render(contentType: "application/json", text: builder.toPrettyString())
@@ -1629,24 +1629,24 @@ class ApiController {
           def builder = new JsonBuilder()
           builder {
             stunServers (
-              stuns.collect { stun ->
-                [url: stun.url]
-              }
+                    stuns.collect { stun ->
+                      [url: stun.url]
+                    }
             )
             turnServers (
-              turns.collect { turn ->
-                [
-                  username: turn.username,
-                  password: turn.password,
-                  url: turn.url,
-                  ttl: turn.ttl
-                ]
-              }
+                    turns.collect { turn ->
+                      [
+                              username: turn.username,
+                              password: turn.password,
+                              url: turn.url,
+                              ttl: turn.ttl
+                      ]
+                    }
             )
             remoteIceCandidates (
-              candidates.collect { candidate ->
-                [ip: candidate.ip ]
-              }
+                    candidates.collect { candidate ->
+                      [ip: candidate.ip ]
+                    }
             )
           }
           render(contentType: "application/json", text: builder.toPrettyString())
@@ -2010,7 +2010,7 @@ class ApiController {
     requestBody = StringUtils.isEmpty(requestBody) ? null : requestBody;
 
     if (requestBody == null) {
-        downloadAndProcessDocument(presentationService.defaultUploadedPresentation, conf.getInternalId(), true /* default presentation */, '');
+      downloadAndProcessDocument(presentationService.defaultUploadedPresentation, conf.getInternalId(), true /* default presentation */, '');
     } else {
       log.debug "Request body: \n" + requestBody;
       def xml = new XmlSlurper().parseText(requestBody);
@@ -2033,7 +2033,7 @@ class ApiController {
               def b64 = new Base64()
               def decodedBytes = b64.decode(document.text().getBytes())
               processDocumentFromRawBytes(decodedBytes, document.@name.toString(),
-                  conf.getInternalId(), current /* default presentation */);
+                      conf.getInternalId(), current /* default presentation */);
               current = false;
             } else {
               log.debug("presentation module config found, but it did not contain url or name attributes");
