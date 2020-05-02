@@ -98,7 +98,7 @@
 .channelName {
   @extend %flex-column;
   justify-content: center;
-  margin: 1% 15%;
+  margin: 1% 11%;
   width: 80%;
 }
 
@@ -108,17 +108,19 @@
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-  width: 95%;
-  >span {
-    // font-family: 'Avenir';
     font-style: normal;
     color: #ffc700;
     letter-spacing: 0.025em;
     font-weight: 800;
     line-height: 21px;
-    // justify-content: center;
-    padding-left: 0.4rem;
+    padding-left: 1rem;
     font-size: var(--font-size-12px);
+}
+
+.master {
+  padding: 0 !important;
+  i {
+    font-size: 1rem;
   }
 }
 
@@ -137,6 +139,15 @@
 
 .buttonWrapper {
   display: grid;
+  grid-template-columns: 10% 70%;
+  align-items: center;
+  margin: 5% 10%;
+  margin-right: 0;
+  cursor: pointer;
+}
+
+.channelWrapper {
+  display: grid;
   grid-template-columns: 10% 90% 10%;
   justify-content: center;
   align-items: center;
@@ -144,8 +155,8 @@
 }
 
 .usersList {
-  padding-left: 13%;
-  width: 95%;
+  padding-left: 10%;
+  width: 90%;
 }
 
 // .channelAvatar {
