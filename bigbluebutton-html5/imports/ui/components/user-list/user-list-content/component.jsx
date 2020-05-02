@@ -72,7 +72,7 @@ class UserContent extends PureComponent {
            // icon="actions"
             size="lg"
            // circle
-           color="primary"
+           color="default"
           onClick={this.newCreateBreakouts}
           />
 

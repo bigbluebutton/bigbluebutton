@@ -412,7 +412,7 @@ class App extends Component {
             hideLabel
             onClick={() => this.toggleChatPanel()}
             size="sm"
-            icon={(chatWidth !== CHAT_MAX_WIDTH) ? 'right_arrow' : 'left_arrow'}
+            icon={(chatWidth !== CHAT_MAX_WIDTH) ? 'icomoon-Collapse-Call-Panel' : 'icomoon-Expand-Call-Panel'}
             className={styles.hide}
             color="default"
             label="toggle"
@@ -453,7 +453,7 @@ class App extends Component {
                     label={intl.formatMessage(intlMessages.joinAudio)}
                     color="default"
                     ghost={!inAudio}
-                    icon="audio_off"
+                    icon="icomoon-Join-Call"
                     size='lg'
                     circle
                   />

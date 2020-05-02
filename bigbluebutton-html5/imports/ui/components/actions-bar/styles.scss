@@ -18,7 +18,7 @@
   align-items: center;
   margin-top: 2rem;
   :nth-child(n){
-    margin: 0.1rem;
+    margin: 0.3rem;
   }
 }
 
@@ -131,7 +131,11 @@
 .button {
   span:first-child {
     box-shadow: none;
-    border: 0.5px solid #5594d4;
+    border: 1px solid #000000;
+  }
+  i {
+    color: #000000;
+    font-weight: 600;
   }
 }
 
@@ -147,7 +151,7 @@
     }
     &.button {
       span {
-        border: 0.5px solid #dd6161 !important;
+        border: 1px solid #dd6161 !important;
       }
     }
   }
