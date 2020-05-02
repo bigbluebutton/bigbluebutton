@@ -366,7 +366,7 @@ class Channels extends PureComponent {
       requestUserInformation,
     } = this.props;
 
-    const {channelId} = this.state;
+    const {channelId, hideUsers} = this.state;
     const isBreakOutMeeting = meetingIsBreakout();
 
     return (
@@ -400,13 +400,20 @@ class Channels extends PureComponent {
             {isBreakOutMeeting ? null
               : (
               <Fragment>
-                <Button
-                  className={styles.masterChannel}
-                  icon="icomoon-Master-Channel"
-                  size="lg"
-                  label="Master Channel"
-                  onClick={() => this.toggleUserList(Auth.meetingID)}
-                />
+                <div 
+                  className={styles.buttonWrapper}
+                  onClick={()=> this.toggleUserList(Auth.meetingID)}
+                  role="button"
+                  cursor="pointer"
+                >
+                  <Button
+                    className={styles.master}
+                    icon="icomoon-Master-Channel"
+                    label="master channel"
+                    hideLabel
+                  />
+                  <div className={styles.masterChannel}>Master Channel</div>
+                </div>
                 {(channelId == Auth.meetingID) ? 
                   <div className={styles.usersList}>
                   <UserParticipantsContainer
@@ -425,7 +432,7 @@ class Channels extends PureComponent {
                 }
               </Fragment>
               )
-          }
+            }
 
             {this.renderBreakoutRooms()}
 
@@ -433,8 +440,6 @@ class Channels extends PureComponent {
         </div>
 
       </div>
-
-
     );
   }
 
@@ -463,13 +468,12 @@ class Channels extends PureComponent {
 
     return (
       breakoutRooms.map(breakout => (
+        <div>
         <div
           className={styles.channelName}
           role="button"
         >
-
-          {/* TODO: Do internationlization */}
-        <div className={styles.buttonWrapper}>
+        <div className={styles.channelWrapper}>
           {this.renderChannelAvatar(breakout)}
           <Button
             className={styles.channelNameMain}
@@ -478,6 +482,8 @@ class Channels extends PureComponent {
           />
           {(meetingIsBreakout()) ? null : this.channelOptions(breakout)}
         </div>
+        </div>
+        <div className={styles.breakoutUsersList}>
         {(channelId == breakout.breakoutId) ?
           <UserParticipantsContainer
             {...{
@@ -487,11 +493,12 @@ class Channels extends PureComponent {
               setEmojiStatus,
               roving,
               requestUserInformation,
-              meetingIdentifier: channelId,
+              meetingIdentifier: breakout.breakoutId,
               isbreakoutRoomUser
             }}
           />
           : null}
+        </div>
         </div>
       )));
   }

@@ -75,9 +75,7 @@ class ActionsBar extends PureComponent {
     return (
       <div className={cx(actionBarClasses)}>
         <div className={!toggleChatLayout ? styles.actionsController : styles.toggledActions}>
-          <div>
             <AudioControlsContainer />
-          </div>
           <div>
             {enableVideo && amIPresenter && !validateMeetingIsBreakout(Auth.meetingID)
               ? (
@@ -101,6 +99,7 @@ class ActionsBar extends PureComponent {
             }}
             />
           </div>
+          <div>
           <ActionsDropdown {...{
             amIPresenter,
             amIModerator,
@@ -113,6 +112,7 @@ class ActionsBar extends PureComponent {
             isMeteorConnected,
           }}
           />
+          </div>
         </div>
       {toggleChatLayout ? null :
         <div className={styles.liveActions}>

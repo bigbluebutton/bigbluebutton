@@ -15,7 +15,7 @@
 .dropdown {
   
   align-self: center;
-  position: absolute;
+  position: absolute !important;
   padding-top: 2%;
   right: 0;
   left: 80%;
@@ -57,7 +57,7 @@
 .container{
   display: flex;
   align-items: center;
-  margin: var(--sm-padding-x) 0 var(--lg-padding-y) var(--font-size-20px);
+  margin: var(--sm-padding-x) 0 var(--lg-padding-y) 11%;
   height:var(--font-size-13px);
 }
 
@@ -98,7 +98,7 @@
 .channelName {
   @extend %flex-column;
   justify-content: center;
-  margin: 1% 15%;
+  padding: 1% 0% 1% 13%;
   width: 80%;
 }
 
@@ -108,17 +108,19 @@
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-  width: 95%;
-  >span {
-    // font-family: 'Avenir';
     font-style: normal;
     color: #ffc700;
     letter-spacing: 0.025em;
     font-weight: 800;
     line-height: 21px;
-    // justify-content: center;
-    padding-left: 0.4rem;
+    padding-left: 1rem;
     font-size: var(--font-size-12px);
+}
+
+.master {
+  padding: 0 !important;
+  i {
+    font-size: 1rem;
   }
 }
 
@@ -128,8 +130,7 @@
   font-style: normal;
   font-weight: 500;
   color: #ffffff;
-  width: 90%;
-  // margin-left: 5%;
+  // margin-left: 0.5rem;
   overflow-x: hidden;
   font-size: var(--font-size-12px);
   
@@ -137,21 +138,28 @@
 
 .buttonWrapper {
   display: grid;
-  grid-template-columns: 10% 90% 10%;
+  grid-template-columns: 10% 70%;
+  align-items: center;
+  margin: 5% 10%;
+  margin-right: 0;
+  cursor: pointer;
+}
+
+.channelWrapper {
+  display: grid;
+  grid-template-columns: 10% 90% 5%;
   justify-content: center;
   align-items: center;
-  padding-left: 5%;
 }
 
 .usersList {
-  padding-left: 13%;
-  width: 95%;
+  padding-left: 10%;
+  width: 90%;
 }
 
-// .channelAvatar {
-//   font-family: 'Avenir';
-//   font-style: normal;
-//   font-weight: 500;
-//   color: #ffffff;
-//   font-size: 9px;
-// }
+.breakoutUsersList {
+  @extend %flex-column;
+  justify-content: center;
+  padding: 1% 0% 1% 10%;
+  width: 90%;
+}
