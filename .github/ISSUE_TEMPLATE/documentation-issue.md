@@ -1,27 +1,20 @@
 ---
-name: General Issue
-about: Template for a general BBB issue
+name: Documentation Issue
+about: Template for a documentation BBB issue
 title: ''
 labels: ''
 assignees: ''
 
 ---
 
-**Describe the bug**
-A clear and concise description of what the bug is.
+**Describe the missing documentation**
+A clear and concise description of what the missing documentation is.
 
-**To Reproduce**
-Steps to reproduce the behavior:
-1. Go to '...'
-2. Click on '....'
-3. Scroll down to '....'
-4. See error
+**Example**
+Illustrate the points that lack documentation 
 
-**Expected behavior**
-A clear and concise description of what you expected to happen.
-
-**Actual behavior**
-A clear and concise description of what you expected to happen.
+**Expected documentation**
+A clear and concise description of what you expected as a documentation.
 
 **Screenshots**
 If applicable, add screenshots to help explain your problem.
@@ -39,3 +32,4 @@ If applicable, add screenshots to help explain your problem.
 
 **Additional context**
 Add any other context about the problem here.
+-
