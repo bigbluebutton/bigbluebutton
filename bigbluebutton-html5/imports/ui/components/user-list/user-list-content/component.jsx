@@ -6,9 +6,9 @@ import Button from '/imports/ui/components/button/component';
 import { withModalMounter } from '/imports/ui/components/modal/service';
 import BreakoutCreateModalContainer from '/imports/ui/components/breakout-create-modal/container';
 
-//import Button from '/imports/ui/components/button/component';
+// import Button from '/imports/ui/components/button/component';
 
-//import { withModalMounter } from '/imports/ui/components/modal/service';
+// import { withModalMounter } from '/imports/ui/components/modal/service';
 import AudioModalContainer from './step-breakoutroom-creation/audio-modal/container';
 
 const propTypes = {
@@ -38,18 +38,19 @@ class UserContent extends PureComponent {
   constructor() {
     super();
 
-     this.newCreateBreakouts=this.newCreateBreakouts.bind(this);
-   
+    this.newCreateBreakouts = this.newCreateBreakouts.bind(this);
   }
-  newCreateBreakouts(){
-    const {mountModal}=this.props
+
+  newCreateBreakouts() {
+    const { mountModal } = this.props;
     // return  mountModal(<AudioModalContainer />)
-    return  mountModal(<BreakoutCreateModalContainer/>)
+    return mountModal(<BreakoutCreateModalContainer />);
   }
-  popupCreateBreakouts(){
+
+  popupCreateBreakouts() {
 
   }
- 
+
   render() {
     const {
       compact,
@@ -72,27 +73,27 @@ class UserContent extends PureComponent {
         data-test="userListContent"
         className={styles.content}
         role="complementary"
-      > 
-                
-      <Button
-            //hideLabel
+      >
+
+        <Button
+            // hideLabel
            // aria-label="New Breakout Channel"
-            className={styles.button}
-            label="+New Breakout Channel"
+          className={styles.button}
+          label="+New Breakout Channel"
            // icon="actions"
-            size="lg"
+          size="lg"
            // circle
-           color="primary"
+          color="primary"
           onClick={this.newCreateBreakouts}
-          />
-          {/* ) : null
-        } */} 
+        />
+        {/* ) : null
+        } */}
         ..
         {currentUser.role === ROLE_MODERATOR
           ? (
-           
+
             null
-          ) : null 
+          ) : null
         }
         {/* <UserNotesContainer
           {...{
@@ -116,24 +117,24 @@ class UserContent extends PureComponent {
             forcePollOpen,
           }}
         /> */}
-                
-      <Button
-            
-            //hideLabel
+
+        <Button
+
+            // hideLabel
            // aria-label="New Breakout Channel"
-            className={styles.button}
-            label=" popups Breakout Channel"
+          className={styles.button}
+          label=" popups Breakout Channel"
            // icon="actions"
-            size="lg"
+          size="lg"
            // circle
-           color="primary"
+          color="primary"
           onClick={this.popupCreateBreakouts}
-          />
-     
+        />
+
         {/* <BreakoutRoomItem isPresenter={currentUser.presenter} hasBreakoutRoom={hasBreakoutRoom} /> */}
         {/* <UserParticipantsContainer
         /> */}
-      <ChannelsContainer 
+        <ChannelsContainer
           {...{
             compact,
             intl,
@@ -141,7 +142,7 @@ class UserContent extends PureComponent {
             setEmojiStatus,
             roving,
             requestUserInformation,
-          }} 
+          }}
         />
 
       </div>
