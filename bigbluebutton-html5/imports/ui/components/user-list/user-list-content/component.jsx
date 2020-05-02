@@ -6,9 +6,9 @@ import Button from '/imports/ui/components/button/component';
 import { withModalMounter } from '/imports/ui/components/modal/service';
 import BreakoutCreateModalContainer from '/imports/ui/components/breakout-create-modal/container';
 
-import Button from '/imports/ui/components/button/component';
+//import Button from '/imports/ui/components/button/component';
 
-import { withModalMounter } from '/imports/ui/components/modal/service';
+//import { withModalMounter } from '/imports/ui/components/modal/service';
 import AudioModalContainer from './step-breakoutroom-creation/audio-modal/container';
 
 const propTypes = {
@@ -24,10 +24,7 @@ const propTypes = {
   pollIsOpen: PropTypes.bool.isRequired,
   forcePollOpen: PropTypes.bool.isRequired,
   requestUserInformation: PropTypes.func.isRequired,
-<<<<<<< HEAD
   isBreakoutRecordable: PropTypes.bool.isRequired,
-=======
->>>>>>> b4aadc9b7881c76d98533bd1ccc5147be0020bbc
   mountModal: PropTypes.func.isRequired,
 };
 
@@ -46,11 +43,11 @@ class UserContent extends PureComponent {
   }
   newCreateBreakouts(){
     const {mountModal}=this.props
-<<<<<<< HEAD
-    return  mountModal(<AudioModalContainer />)
-=======
+    // return  mountModal(<AudioModalContainer />)
     return  mountModal(<BreakoutCreateModalContainer/>)
->>>>>>> b4aadc9b7881c76d98533bd1ccc5147be0020bbc
+  }
+  popupCreateBreakouts(){
+
   }
  
   render() {
@@ -88,23 +85,20 @@ class UserContent extends PureComponent {
            color="primary"
           onClick={this.newCreateBreakouts}
           />
-<<<<<<< HEAD
-          ) : null
-        } */}
+          {/* ) : null
+        } */} 
+        ..
         {currentUser.role === ROLE_MODERATOR
           ? (
-            <UserCaptionsContainer
-              {...{
-                intl,
-              }}
-            />
+           
+            null
           ) : null 
         }
-        <UserNotesContainer
+        {/* <UserNotesContainer
           {...{
             intl,
           }}
-        />
+        /> */}
         {pendingUsers.length > 0 && currentUser.role === ROLE_MODERATOR
           ? (
             <WaitingUsers
@@ -115,33 +109,31 @@ class UserContent extends PureComponent {
             />
           ) : null
         }
-        <UserPolls
+        {/* <UserPolls
           isPresenter={currentUser.presenter}
           {...{
             pollIsOpen,
             forcePollOpen,
           }}
-        />
+        /> */}
                 
       <Button
             
             //hideLabel
            // aria-label="New Breakout Channel"
             className={styles.button}
-            label="+New Breakout Channel"
+            label=" popups Breakout Channel"
            // icon="actions"
             size="lg"
            // circle
            color="primary"
-          onClick={this.newCreateBreakouts}
+          onClick={this.popupCreateBreakouts}
           />
      
-        <BreakoutRoomItem isPresenter={currentUser.presenter} hasBreakoutRoom={hasBreakoutRoom} />
-        <UserParticipantsContainer
-=======
-
-      <ChannelsContainer
->>>>>>> b4aadc9b7881c76d98533bd1ccc5147be0020bbc
+        {/* <BreakoutRoomItem isPresenter={currentUser.presenter} hasBreakoutRoom={hasBreakoutRoom} /> */}
+        {/* <UserParticipantsContainer
+        /> */}
+      <ChannelsContainer 
           {...{
             compact,
             intl,
@@ -149,7 +141,7 @@ class UserContent extends PureComponent {
             setEmojiStatus,
             roving,
             requestUserInformation,
-          }}
+          }} 
         />
 
       </div>
