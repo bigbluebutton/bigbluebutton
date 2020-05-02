@@ -5,6 +5,7 @@ import ChannelsContainer from '/imports/ui/components/channels/container';
 import Button from '/imports/ui/components/button/component';
 import { withModalMounter } from '/imports/ui/components/modal/service';
 import BreakoutCreateModalContainer from '/imports/ui/components/breakout-create-modal/container';
+import { meetingIsBreakout } from '/imports/ui/components/app/service';
 
 const propTypes = {
   activeChats: PropTypes.arrayOf(String).isRequired,
@@ -53,28 +54,34 @@ class UserContent extends PureComponent {
       forcePollOpen,
       hasBreakoutRoom,
       pendingUsers,
-      meetingIsBreakout,
       requestUserInformation,
     } = this.props;
 
+
+    const isMasterChannel = !meetingIsBreakout();
+    const isModerator = currentUser.role === ROLE_MODERATOR;
     return (
       <div
         data-test="userListContent"
         className={styles.content}
         role="complementary"
       > 
-                
-      <Button
-            //hideLabel
-           // aria-label="New Breakout Channel"
-            className={styles.button}
-            label="+New Breakout Channel"
-           // icon="actions"
-            size="lg"
-           // circle
-           color="default"
-          onClick={this.newCreateBreakouts}
-          />
+
+
+      {isMasterChannel && isModerator ?    
+        <Button
+              //hideLabel
+            // aria-label="New Breakout Channel"
+              className={styles.button}
+              label="+New Breakout Channel"
+            // icon="actions"
+              size="lg"
+            // circle
+            color="default"
+            onClick={this.newCreateBreakouts}
+            />
+        : null
+      }
 
       <ChannelsContainer
           {...{

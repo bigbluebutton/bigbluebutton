@@ -35,8 +35,8 @@ class Assign extends Component {
         users: allUsers,
         channels:[{}]
     };
-    this.createchannels=this.createchannels.bind(this);
-    this.channelName=this.channelName.bind(this);
+    this.createchannels = this.createchannels.bind(this);
+    this.channelName = this.channelName.bind(this);
     this.onChange = this.onChange.bind(this);
     this.changeNumberOfRooms = this.changeNumberOfRooms.bind(this);
     this.resetChannels = this.resetChannels.bind(this);
@@ -176,7 +176,17 @@ class Assign extends Component {
 
 
   createchannels(){
-    const {users,createChannelState} = this.state;
+    const {createBreakoutRoom, closeModal} = this.props;
+    const {channels} = this.state;
+    let seq = 1;
+    let rooms = channels.map(ch => ({
+                              name: ch.name,
+                              sequence: seq++,
+                              freeJoin: false,
+                              users: ch.userId
+                            }));
+    createBreakoutRoom(rooms, 525600, false);
+    closeModal();
   }
 
   render() {

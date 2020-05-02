@@ -4,5 +4,7 @@ import Assign from './component';
 import ActionsBarService from '/imports/ui/components/actions-bar/service';
 
 export default withTracker(() => ({
- // users: ActionsBarService.users(),
+    createBreakoutRoom: ActionsBarService.createBreakoutRoom,
+    users: ActionsBarService.users(),
+    meetingName: ActionsBarService.meetingName()
 }))(Assign);
