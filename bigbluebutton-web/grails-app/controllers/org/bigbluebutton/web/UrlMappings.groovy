@@ -67,6 +67,22 @@ class UrlMappings {
       action = [GET: 'getMeetingsHandler', POST: 'getMeetingsHandler']
     }
 
+    "/bigbluebutton/api/middleman"(controller: "api") {
+          action = [GET: 'middleman']
+   }
+
+    "/bigbluebutton/api/bouncer"(controller: "api") {
+          action = [GET: 'bouncer']
+    }
+
+	  "/bigbluebutton/api/adminAuth"(controller: "api") {
+          action = [GET: 'adminAuth']
+    }
+
+    "/bigbluebutton/api/oauthCallback"(controller: "api") {
+          action = [GET: 'oauthCallback']
+    }
+
     "/bigbluebutton/api/getSessions"(controller: "api") {
       action = [GET: 'getSessionsHandler', POST: 'getSessionsHandler']
     }

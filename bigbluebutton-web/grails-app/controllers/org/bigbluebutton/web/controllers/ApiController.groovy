@@ -42,6 +42,8 @@ import org.bigbluebutton.web.services.turn.RemoteIceCandidate
 import org.json.JSONArray
 
 import javax.servlet.ServletRequest
+import org.bigbluebutton.web.services.*
+import java.util.Random
 
 class ApiController {
   private static final Integer SESSION_TIMEOUT = 14400  // 4 hours
@@ -626,10 +628,10 @@ class ApiController {
 	// 	apiServ.makeSFCall(restRequestUrl, data.get('accessToken'));
 	}
 
-    /********************************************
-     * bouncer
-     * middleman join redirect
-     *******************************************/
+  /********************************************
+    * bouncer
+    * middleman join redirect
+    *******************************************/
 
   def bouncer = {
     //     String API_CALL = 'bouncer'
