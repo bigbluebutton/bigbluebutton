@@ -114,7 +114,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         <property name="middleManUrl" value="${middleManUrl}" />
         <property name="bouncerUrl" value="${bouncerUrl}" />
         <property name="oauthCallback" value="${oauthCallback}" />
-        <!-- <property name="adminAuth" value="${adminAuth}" /> -->
+        <property name="adminAuth" value="${adminAuth}" />
         <property name="testConferenceMock" value="${testConferenceMock}" />
         <property name="defaultLogoutUrl" value="${bigbluebutton.web.logoutURL}" />
         <property name="defaultServerUrl" value="${bigbluebutton.web.serverURL}" />
