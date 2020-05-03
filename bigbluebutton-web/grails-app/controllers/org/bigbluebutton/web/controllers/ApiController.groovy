@@ -34,6 +34,7 @@ import org.bigbluebutton.api.util.ResponseBuilder
 import org.bigbluebutton.presentation.PresentationUrlDownloadService
 import org.bigbluebutton.presentation.UploadedPresentation
 import org.bigbluebutton.web.services.PresentationService
+import org.bigbluebutton.web.ClientMappings
 import org.bigbluebutton.web.services.turn.StunTurnService
 import org.bigbluebutton.web.services.turn.TurnEntry
 import org.bigbluebutton.web.services.turn.StunServer
@@ -236,10 +237,10 @@ class ApiController {
       authenticated = Boolean.parseBoolean(params.auth)
     }
 
-    Boolean joinViaHtml5 = false;
-    if (!StringUtils.isEmpty(params.joinViaHtml5)) {
-      joinViaHtml5 = Boolean.parseBoolean(params.joinViaHtml5)
-    }
+    Boolean joinViaHtml5 = true;
+    // if (!StringUtils.isEmpty(params.joinViaHtml5)) {
+    //   joinViaHtml5 = Boolean.parseBoolean(params.joinViaHtml5)
+    // }
 
     // Do we have a name for the user joining? If none, complain.
     if (!StringUtils.isEmpty(params.fullName)) {
@@ -538,6 +539,122 @@ class ApiController {
       }
     }
   }
+
+      /**********************************************
+     * MIDDLE MAN
+     *********************************************/
+    def middleman = {
+        String API_CALL = 'middleman'
+        log.debug CONTROLLER_NAME + "#${API_CALL}"
+        ApiErrors errors = new ApiErrors()
+
+        String middleManUrl = paramsProcessorUtil.getMiddleManUrl()
+
+        middleManUrl += "?meetingID=${params.meetingID}&target=${params.target}"
+        redirect(url: middleManUrl)
+
+
+		/* TODO THIS CODE SHOULD BE MOVED OUT OF MIDDLEMAN TO ADMIN AUTH
+		if (target != null && ClientMappings.salesforce.get(target) != null) {
+			
+			ApiService apiServ = new ApiService(paramsProcessorUtil);
+			def val = apiServ.getRefreshToken(target);
+			log.debug 'MIKE RESPONSE: ' + val
+			TODO if value is defined here it means that the refresh token has been stored and we can use it and bypass all other calls
+			If it is null, we need to do the full OAuth Ceremony
+			TODO create a SF api to log when user has joined meeting.
+	        def request = apiServ.getOAuthCode(
+				client.get('client_id')
+			);
+			log.debug 'INITIAL REQUEST: ' + request
+			redirect(uri: request)
+		} */
+    }
+
+	def oauthCallback() {
+	// 	String code = params.code
+	// 	def origin = request.getHeader('referer')
+
+	// 	def salesforceClient
+	// 	def target
+
+	// 	//assume mimeo for dev mode
+	// 	if (origin == null) {
+	// 		salesforceClient = ClientMappings.salesforce.get('mimeo')
+	// 		origin = salesforceClient.get('domain')
+	// 	} else {
+	// 		ClientMappings.salesforce.each {key, val -> 
+	// 			if (val.get('domain') == origin) {
+	// 				target = key
+	// 				salesforceClient = val
+	// 			}	
+	// 		}
+	// 	}
+
+	// 	ApiService apiServ = new ApiService(paramsProcessorUtil);	
+
+	// 	String refreshToken = apiServ.getOAuthRefreshToken(
+	// 		salesforceClient.get('client_id'),
+	// 		salesforceClient.get('client_secret'),
+	// 		params.code
+	// 	);
+
+	// 	def client = ClientMappings.salesforce.get(target)
+
+	// 	log.debug 'CALLING AWS API'
+	// 	apiServ.storeRefreshToken(
+	// 		target, 
+	// 		salesforceClient.get('client_id'), 
+	// 		salesforceClient.get('client_secret'),
+	// 		refreshToken
+	// 	)
+
+	// 	//this needs to be saved to db
+	// 	salesforceClient.put('refresh_token', refreshToken)
+
+	// 	log.debug 'refresh token about to get access' + refreshToken
+
+	// 	def data = apiServ.getOAuthAccessToken(
+	// 		salesforceClient.get('client_id'),
+	// 		salesforceClient.get('client_secret'),
+	// 		refreshToken
+	// 	);
+
+	// 	log.debug 'MIKE GOT ACCESS TOKEN: ' + data
+
+	// 	String restRequestUrl = data.get('instanceUrl') + '/services/apexrest/meeting/log'
+	// 	apiServ.makeSFCall(restRequestUrl, data.get('accessToken'));
+	}
+
+    /********************************************
+     * bouncer
+     * middleman join redirect
+     *******************************************/
+
+  def bouncer = {
+    //     String API_CALL = 'bouncer'
+    //     log.debug CONTROLLER_NAME + "#${API_CALL}"
+    //     ApiErrors errors = new ApiErrors()
+
+    //     ApiService apiServ = new ApiService(paramsProcessorUtil);
+		
+    
+    // def mapping = ClientMappings.salesforce.get(params.target)
+
+    //     def joinParams = [
+    //             "meetingID": params.meetingID,
+    //             "full_name": params.full_name,
+    //             "email": params.email,
+		// 		"moderatorPW": params.moderatorPW,
+		// 		"attendeePW": "ap",
+		// 		"target": params.target
+    //     ]
+    //     String joinUrl = apiServ.joinUrl(joinParams, "Lets Jam!", "extended");
+
+    //     log.debug "join url: " + joinUrl
+
+    //     redirect(url: joinUrl)
+    }
 
   /*******************************************
    * IS_MEETING_RUNNING API
