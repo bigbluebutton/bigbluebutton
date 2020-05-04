@@ -629,9 +629,11 @@ window.getScreenConstraints = function (sendSource, callback) {
     optionalConstraints.width = { max: kurentoManager.kurentoScreenshare.vid_max_width };
     optionalConstraints.height = { max: kurentoManager.kurentoScreenshare.vid_max_height };
     optionalConstraints.frameRate = { ideal: 5, max: 10 };
+    audioConstraint = isChrome;
 
     let gDPConstraints = {
       video: true,
+      audio: audioConstraint,
       optional: optionalConstraints
     }
 
