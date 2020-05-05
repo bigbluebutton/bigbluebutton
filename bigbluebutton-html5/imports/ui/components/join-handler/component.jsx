@@ -172,7 +172,7 @@ class JoinHandler extends Component {
       logUserInfo();
 
       Tracker.autorun(async (cd) => {
-        const user = Users.findOne({ userId: Auth.userID });
+        const user = Users.findOne({ userId: Auth.userID, authed: true }, { fields: { _id: 1 } });
 
         if (user) {
           await setCustomData(response);
