@@ -193,18 +193,6 @@ class ApiController {
     }
 
 
-    //Sai TODO: Need to check for email patterns
-    if (!StringUtils.isEmpty(params.email)) {
-      params.email = StringUtils.strip(params.email);
-      if (StringUtils.isEmpty(params.email)) {
-        invalid("missingParamEmail", "You must specify an email for the attendee who will be joining the meeting.", REDIRECT_RESPONSE);
-        return
-      }
-    } else {
-      invalid("missingParamEmail", "You must specify an email for the attendee who will be joining the meeting.", REDIRECT_RESPONSE);
-      return
-    }
-
 
     if (!StringUtils.isEmpty(params.meetingID)) {
       params.meetingID = StringUtils.strip(params.meetingID);
@@ -265,20 +253,10 @@ class ApiController {
       errors.missingParamError("fullName");
     }
     String fullName = params.fullName
+    String email  = fullName + "@scital.com"
 
-    if (!StringUtils.isEmpty(params.email)) {
-      params.email = StringUtils.strip(params.email);
-      if (StringUtils.isEmpty(params.email)) {
-        errors.missingParamError("email");
-      }
-    } else {
-      errors.missingParamError("email");
-    }
 
-    //Sai TODO: ensure the client sends email via params. For now, hardcoding it here
-    String email  = params.email;
-
-    // Do we have a meeting id? If none, complain.
+      // Do we have a meeting id? If none, complain.
     if (!StringUtils.isEmpty(params.meetingID)) {
       params.meetingID = StringUtils.strip(params.meetingID);
       if (StringUtils.isEmpty(params.meetingID)) {

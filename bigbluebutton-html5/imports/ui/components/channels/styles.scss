@@ -163,3 +163,25 @@
   padding: 1% 0% 1% 10%;
   width: 90%;
 }
+
+.popup{
+  
+  display: flex;
+ background: white;
+  position: absolute;
+  z-index: 2;
+  width: auto;
+  padding: 50px 25px 25px 25px;
+}
+button{
+  color: #36a1ff;
+  background: transparent;
+  border: 0px;
+}
+
+ .wrapper{
+   width: 100%;
+ }
+ .wrapper >*{
+  width: 100%;
+}
