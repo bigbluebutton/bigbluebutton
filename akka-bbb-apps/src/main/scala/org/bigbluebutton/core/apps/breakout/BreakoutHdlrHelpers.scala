@@ -41,6 +41,7 @@ object BreakoutHdlrHelpers extends SystemConfiguration {
         breakoutId,
         externalMeetingId,
         userId,
+        user.name,
         redirectJoinURL,
         redirectToHtml5JoinURL
       )
@@ -53,6 +54,7 @@ object BreakoutHdlrHelpers extends SystemConfiguration {
       breakoutId:             String,
       externalId:             String,
       userId:                 String,
+      userName:               String,
       redirectJoinURL:        String,
       redirectToHtml5JoinURL: String
   ): Unit = {
@@ -63,7 +65,7 @@ object BreakoutHdlrHelpers extends SystemConfiguration {
       val header = BbbClientMsgHeader(BreakoutRoomJoinURLEvtMsg.NAME, meetingId, userId)
 
       val body = BreakoutRoomJoinURLEvtMsgBody(meetingId, breakoutId, externalId,
-        userId, redirectJoinURL, redirectToHtml5JoinURL)
+        userId, userName, redirectJoinURL, redirectToHtml5JoinURL)
       val event = BreakoutRoomJoinURLEvtMsg(header, body)
       BbbCommonEnvCoreMsg(envelope, event)
     }

@@ -15,6 +15,7 @@ import DropdownContent from '/imports/ui/components/dropdown/content/component';
 import DropdownList from '/imports/ui/components/dropdown/list/component';
 import DropdownListItem from '/imports/ui/components/dropdown/list/item/component';
 import ChannelAvatar from './channelAvatar/component';
+import BreakoutEditModalContainer from '/imports/ui/components/breakout-edit-modal/container';
 
 const ROLE_MODERATOR = Meteor.settings.public.user.role_moderator;
 
@@ -289,6 +290,7 @@ class Channels extends PureComponent {
           icon="rooms"
           label="Edit Room"
           onClick={() => {
+            
             //TODO: Remove this 
             // const {getUsersByMeeting} = this.props;
             // this.editBreakoutRoom(breakout.breakoutId, getUsersByMeeting(Auth.meetingID).shift(), []); 
@@ -298,6 +300,11 @@ class Channels extends PureComponent {
     ]);
 
     return this.menuItems;
+  }
+
+  launchEditRoom(){
+    const {mountModal}=this.props
+    return  mountModal(<BreakoutEditModalContainer/>)
   }
 
 
@@ -365,6 +372,8 @@ class Channels extends PureComponent {
       roving,
       requestUserInformation,
     } = this.props;
+
+    logger.info("auth Id: " + Auth.meetingID);
 
     const {channelId, hideUsers} = this.state;
     const isBreakOutMeeting = meetingIsBreakout();

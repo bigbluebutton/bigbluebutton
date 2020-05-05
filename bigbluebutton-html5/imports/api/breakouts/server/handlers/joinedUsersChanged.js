@@ -29,7 +29,8 @@ export default function joinedUsersChanged({ body }) {
     let r = ejectedUsers.filter(e => e.id === user.userId).shift();
     return (r == null || r == undefined);
   })
-  .map(u =>  ({userId: u.userId, redirectToHtml5JoinURL: u.redirectToHtml5JoinURL, insertedTime: u.insertedTime}))
+  .map(u =>  ({userId: u.userId, userName: u.userName, redirectToHtml5JoinURL: u.redirectToHtml5JoinURL, 
+              insertedTime: u.insertedTime}))
 
  
   const selector = {
@@ -40,8 +41,6 @@ export default function joinedUsersChanged({ body }) {
 
   let modifier = '';
   if (ejectedUsers.length > 0) {
-    const ejectedUsersMapped = ejectedUsers.map(user => ({ userId: user.id }));
-   
     modifier = {
       $set: {
         joinedUsers: joinedUsersMapped,

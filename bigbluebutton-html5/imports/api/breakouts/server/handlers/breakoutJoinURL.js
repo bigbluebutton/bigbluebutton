@@ -6,6 +6,7 @@ export default function handleBreakoutJoinURL({ body }) {
   const {
     redirectToHtml5JoinURL,
     userId,
+    userName,
     breakoutId,
   } = body;
 
@@ -19,6 +20,7 @@ export default function handleBreakoutJoinURL({ body }) {
     $push: {
       users: {
         userId,
+        userName,
         redirectToHtml5JoinURL,
         insertedTime: new Date().getTime(),
       },
