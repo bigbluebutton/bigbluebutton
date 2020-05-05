@@ -47,13 +47,7 @@ class Assign extends Component {
   componentWillMount() {
     this.resetChannels(MIN_BREAKOUT_ROOMS);
   }
-  componentWillUpdate(nextProps, nextState) {
-   
-   this.state.breakoutroom=null;
-   console.log("update",this.state.breakoutroom);
-   
-   
-  }
+ 
   
 
   changeNumberOfRooms(event) {
@@ -201,9 +195,7 @@ class Assign extends Component {
   render() {
 
     const {users, currentStep, channels, numberOfRooms,breakoutroom} = this.state;
-    console.log(this.state.breakoutroom,breakoutroom);
     
-
     {if (currentStep != 0){
       return( <div className="form-group">
       <div className={styles.heading}>Breakout Channel {currentStep } of {numberOfRooms}</div>
@@ -214,7 +206,7 @@ class Assign extends Component {
         name="channelname"
         type="text"
         placeholder={channels[currentStep-1].name}
-        value={breakoutroom==null?null:breakoutroom}
+        value={breakoutroom}
         //value={channels[currentStep-1].name}
         onChange={this.channelName}
       className={styles.input}
