@@ -1,11 +1,14 @@
 ---
 name: HTML5 Issue
-about: Template for creating HTML5 Issue
+about: Template for creating HTML5 Issue (frontend which you see during a session, not Greenlight).
 title: ''
 labels: HTML5 Client
 assignees: ''
 
 ---
+
+<!--PLEASE DO NOT FILE ISSUES FOR GENERAL SUPPORT QUESTIONS.
+This issue tracker is only for bbb development related issues.-->
 
 **Describe the bug**
 A clear and concise description of what the bug is.
