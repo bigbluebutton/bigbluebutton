@@ -7,15 +7,10 @@ import { styles } from '../styles';
 export default class ToolbarSubmenuItem extends Component {
   constructor() {
     super();
-
+    this.uniqueRef = _.uniqueId('toolbar-submenu-item');
     this.handleTouchStart = this.handleTouchStart.bind(this);
     this.handleOnMouseUp = this.handleOnMouseUp.bind(this);
     this.setRef = this.setRef.bind(this);
-  }
-
-  // generating a unique ref string for the toolbar-item
-  componentWillMount() {
-    this.uniqueRef = _.uniqueId('toolbar-submenu-item');
   }
 
   componentDidMount() {
