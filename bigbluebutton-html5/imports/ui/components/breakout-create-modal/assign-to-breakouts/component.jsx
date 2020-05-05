@@ -33,10 +33,11 @@ class Assign extends Component {
         numberOfRooms: MIN_BREAKOUT_ROOMS,
         currentStep: 0,
         users: allUsers,
-        channels:[{}]
+        channels:[{}],
+        breakoutroom:null,
     };
-    this.createchannels=this.createchannels.bind(this);
-    this.channelName=this.channelName.bind(this);
+    this.createchannels = this.createchannels.bind(this);
+    this.channelName = this.channelName.bind(this);
     this.onChange = this.onChange.bind(this);
     this.changeNumberOfRooms = this.changeNumberOfRooms.bind(this);
     this.resetChannels = this.resetChannels.bind(this);
@@ -46,6 +47,14 @@ class Assign extends Component {
   componentWillMount() {
     this.resetChannels(MIN_BREAKOUT_ROOMS);
   }
+  componentWillUpdate(nextProps, nextState) {
+   
+   this.state.breakoutroom=null;
+   console.log("update",this.state.breakoutroom);
+   
+   
+  }
+  
 
   changeNumberOfRooms(event) {
     var numberOfRooms = Number.parseInt(event.target.value, 10);
@@ -176,12 +185,23 @@ class Assign extends Component {
 
 
   createchannels(){
-    const {users,createChannelState} = this.state;
+    const {createBreakoutRoom, closeModal} = this.props;
+    const {channels} = this.state;
+    let seq = 1;
+    let rooms = channels.map(ch => ({
+                              name: ch.name,
+                              sequence: seq++,
+                              freeJoin: false,
+                              users: ch.userId
+                            }));
+    createBreakoutRoom(rooms, 525600, false);
+    closeModal();
   }
 
   render() {
 
-    const {users, currentStep, channels, numberOfRooms} = this.state;
+    const {users, currentStep, channels, numberOfRooms,breakoutroom} = this.state;
+    console.log(this.state.breakoutroom,breakoutroom);
     
 
     {if (currentStep != 0){
@@ -193,11 +213,13 @@ class Assign extends Component {
         id="channelname"
         name="channelname"
         type="text"
-        placeholder="Enter channel name"
-        value={channels[currentStep-1].name}
+        placeholder={channels[currentStep-1].name}
+        value={breakoutroom==null?null:breakoutroom}
+        //value={channels[currentStep-1].name}
         onChange={this.channelName}
       className={styles.input}
         />
+        <div className={styles.userList}>
 
       {users.map((u,idx) => 
 
@@ -222,6 +244,7 @@ class Assign extends Component {
         </div>
 
       )}
+      </div>
       <div className={styles.btns}>
       {this.renderNextButton()}
       {this.renderPreviousButton()}

@@ -4,34 +4,6 @@
 .container {
   display: flex;
   flex-flow: row;
-
-  > * {
-    margin: 0 var(--sm-padding-x);
-
-    @include mq($small-only) {
-      margin: 0 var(--sm-padding-y);
-    }
-  }
-
-  > :first-child {
-    margin-left: 0;
-    margin-right: inherit;
-
-    [dir="rtl"] & {
-      margin-left: inherit;
-      margin-right: 0;
-    }
-  }
-
-  > :last-child {
-      margin-left: inherit;
-      margin-right: 0;
-
-    [dir="rtl"] & {
-      margin-left: 0;
-      margin-right: inherit;
-    }
-  }
 }
 
 .muteBtn{
@@ -40,7 +12,7 @@
   }
   &.button {
     span {
-      border: 0.5px solid #dd6161;
+      border: 1px solid #dd6161;
     }
   }
 }
@@ -51,7 +23,7 @@
   }
   &.button {
     span {
-      border: 0.5px solid #64a959;
+      border: 1px solid #64a959;
     }
   }
 }
@@ -62,7 +34,7 @@
   }
   &.button {
     span {
-      border: 0.5px solid #dd6161 !important;
+      border: 1px solid #dd6161 !important;
     }
   }
 

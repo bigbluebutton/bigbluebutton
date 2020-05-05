@@ -32,9 +32,7 @@ class BreakoutCreateModalComponent extends Component {
           hideBorder
         >
           <React.Fragment>
-           <Assign  
-           users = {this.props.users}
-           meetingName = {this.props.meetingName}/>
+           <Assign  closeModal={closeModal}/>
           </React.Fragment>
         </Modal>
       </span>

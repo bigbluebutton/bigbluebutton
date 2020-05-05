@@ -252,6 +252,9 @@
   flex-flow: end;
     align-items: end;
 background: transparent;
+  >i {
+    color: #0f4c81;
+  }
 }
 .slide{
   flex: auto;

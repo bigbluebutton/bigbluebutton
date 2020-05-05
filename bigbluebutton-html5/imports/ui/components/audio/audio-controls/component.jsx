@@ -94,7 +94,7 @@ class AudioControls extends PureComponent {
                 : intl.formatMessage(intlMessages.muteAudio)}
               color="default"
               ghost={muted}
-              icon={muted ? 'mute' : 'unmute'}
+              icon={muted ? 'icomoon-Mic-Off' : 'icomoon-Mic-On'}
               size="lg"
               circle
               accessKey={shortcuts.toggleMute}

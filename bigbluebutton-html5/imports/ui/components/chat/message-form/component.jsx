@@ -341,7 +341,7 @@ class MessageForm extends PureComponent {
           hideLabel
           circle
           className={styles.attachFile}
-          icon="file"
+          icon="icomoon-Attachment"
           size="lg"
           label="attachFile"
           onClick={() => this.renderChatModal()}

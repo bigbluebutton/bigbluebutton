@@ -61,7 +61,7 @@
   content: "\e901";
   color: #fff;
 }
-.icon-bbb-icomoon-Attachment-Elements:before {
+.icon-bbb-icomoon-Attachment:before {
   content: "\e902";
   color: #94a7b7;
 }
@@ -69,31 +69,31 @@
   content: "\e903";
   color: #7b808f;
 }
-.icon-bbb-icomoon-Chat-Elements:before {
+.icon-bbb-icomoon-Chat:before {
   content: "\e904";
   color: #36a1ff;
 }
 .icon-bbb-icomoon-Collapse-Call-Panel:before {
   content: "\e905";
 }
-.icon-bbb-icomoon-Collapse-Elements:before {
+.icon-bbb-icomoon-exit_fullscreen:before {
   content: "\e906";
 }
-.icon-bbb-icomoon-Emojis-Elements-02:before {
+.icon-bbb-icomoon-Emojis:before {
   content: "\e907";
   color: #94a7b7;
 }
-.icon-bbb-icomoon-End-Call-Elements:before {
+.icon-bbb-icomoon-End-Call:before {
   content: "\e908";
   color: #ea5b61;
 }
 .icon-bbb-icomoon-Expand-Call-Panel:before {
   content: "\e909";
 }
-.icon-bbb-icomoon-Expand-Elements:before {
+.icon-bbb-icomoon-fullscreen:before {
   content: "\e90a";
 }
-.icon-bbb-icomoon-Join-Call-Elements:before {
+.icon-bbb-icomoon-Join-Call:before {
   content: "\e90b";
   color: #36a1ff;
 }
@@ -101,35 +101,36 @@
   content: "\e90c";
   color: #fec866;
 }
-.icon-bbb-icomoon-Mic-Off-Elements-02:before {
+.icon-bbb-icomoon-Mic-Off:before {
   content: "\e90d";
   color: #ea5b61;
 }
-.icon-bbb-icomoon-Mic-On-Elements-02:before {
+.icon-bbb-icomoon-Mic-On:before {
   content: "\e90e";
 }
-.icon-bbb-icomoon-Presentation-Elements:before {
+.icon-bbb-icomoon-Presentation:before {
   content: "\e90f";
 }
-.icon-bbb-icomoon-Search-Elements:before {
+.icon-bbb-icomoon-Search:before {
   content: "\e910";
   color: #94a7b7;
 }
-.icon-bbb-icomoon-Switch-Role-Elements:before {
+.icon-bbb-icomoon-Switch-Role:before {
   content: "\e911";
   color: #36a1ff;
 }
-.icon-bbb-icomoon-Video-On-Elements:before {
+.icon-bbb-icomoon-Video-On:before {
   content: "\e912";
 }
-.icon-bbb-icomoon-View-in-Chat-Elements:before {
+.icon-bbb-icomoon-View-in-Chat:before {
   content: "\e913";
   color: #36a1ff;
 }
 
 
-
 /* ==================================================== */
+
+
 .icon-bbb-mute:before {
 	content: "\e932";
 }

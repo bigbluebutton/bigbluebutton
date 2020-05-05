@@ -1,15 +1,13 @@
 import React, { PureComponent } from 'react';
+// import Popup from "reactjs-popup";
+// import  Assign from '../../../../ui/components/breakout-create-modal/assign-to-breakouts/container';
 import PropTypes from 'prop-types';
 import { styles } from './styles';
 import ChannelsContainer from '/imports/ui/components/channels/container';
 import Button from '/imports/ui/components/button/component';
 import { withModalMounter } from '/imports/ui/components/modal/service';
 import BreakoutCreateModalContainer from '/imports/ui/components/breakout-create-modal/container';
-
-// import Button from '/imports/ui/components/button/component';
-
-// import { withModalMounter } from '/imports/ui/components/modal/service';
-import AudioModalContainer from './step-breakoutroom-creation/audio-modal/container';
+import { meetingIsBreakout } from '/imports/ui/components/app/service';
 
 const propTypes = {
   activeChats: PropTypes.arrayOf(String).isRequired,
@@ -37,19 +35,14 @@ const ROLE_MODERATOR = Meteor.settings.public.user.role_moderator;
 class UserContent extends PureComponent {
   constructor() {
     super();
-
     this.newCreateBreakouts = this.newCreateBreakouts.bind(this);
   }
 
   newCreateBreakouts() {
     const { mountModal } = this.props;
-    // return  mountModal(<AudioModalContainer />)
     return mountModal(<BreakoutCreateModalContainer />);
   }
 
-  popupCreateBreakouts() {
-
-  }
 
   render() {
     const {
@@ -64,77 +57,23 @@ class UserContent extends PureComponent {
       forcePollOpen,
       hasBreakoutRoom,
       pendingUsers,
-      meetingIsBreakout,
       requestUserInformation,
     } = this.props;
 
+
+    const isMasterChannel = !meetingIsBreakout();
+    const isModerator = currentUser.role === ROLE_MODERATOR;
     return (
       <div
         data-test="userListContent"
         className={styles.content}
         role="complementary"
-      >
+      > 
 
-        <Button
-            // hideLabel
-           // aria-label="New Breakout Channel"
-          className={styles.button}
-          label="+New Breakout Channel"
-           // icon="actions"
-          size="lg"
-           // circle
-          color="primary"
-          onClick={this.newCreateBreakouts}
-        />
-        {/* ) : null
-        } */}
-        ..
-        {currentUser.role === ROLE_MODERATOR
-          ? (
 
-            null
-          ) : null
-        }
-        {/* <UserNotesContainer
-          {...{
-            intl,
-          }}
-        /> */}
-        {pendingUsers.length > 0 && currentUser.role === ROLE_MODERATOR
-          ? (
-            <WaitingUsers
-              {...{
-                intl,
-                pendingUsers,
-              }}
-            />
-          ) : null
-        }
-        {/* <UserPolls
-          isPresenter={currentUser.presenter}
-          {...{
-            pollIsOpen,
-            forcePollOpen,
-          }}
-        /> */}
-
-        <Button
-
-            // hideLabel
-           // aria-label="New Breakout Channel"
-          className={styles.button}
-          label=" popups Breakout Channel"
-           // icon="actions"
-          size="lg"
-           // circle
-          color="primary"
-          onClick={this.popupCreateBreakouts}
-        />
-
-        {/* <BreakoutRoomItem isPresenter={currentUser.presenter} hasBreakoutRoom={hasBreakoutRoom} /> */}
-        {/* <UserParticipantsContainer
-        /> */}
-        <ChannelsContainer
+      {/* {isMasterChannel && isModerator ?   :null } */}
+     
+      <ChannelsContainer
           {...{
             compact,
             intl,

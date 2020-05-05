@@ -13,7 +13,5 @@ const BreakoutCreateModalContainer = props => <BreakoutCreateModalComponent {...
 export default withModalMounter(withTracker(({ mountModal, userLocks }) => {
   return ({
     closeModal: () => { mountModal(null); },
-    users: ActionsBarService.users(),
-    meetingName: ActionsBarService.meetingName()
   });
 })(BreakoutCreateModalContainer));
