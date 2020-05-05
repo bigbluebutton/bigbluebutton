@@ -97,7 +97,8 @@ remove_raw_of_published_recordings(){
     #TYPES=$(cd /usr/local/bigbluebutton/core/scripts/process; ls *.rb | sed s/.rb//g)
     logger "Removing raw directory of old recordings:"
     TYPES="presentation"
-    old_meetings=$(find /var/bigbluebutton/recording/raw/*/events.xml  -mtime +$published_days | cut -d"/" -f6 )
+    cd /var/bigbluebutton/recording/raw/
+    old_meetings=$(find . -name events.xml -mtime +$published_days | cut -d"/" -f2 )
     for meeting in $old_meetings
     do
         PROPERLY_PUBLISHED="true"

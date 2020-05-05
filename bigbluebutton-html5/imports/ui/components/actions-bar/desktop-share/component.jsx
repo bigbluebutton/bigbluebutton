@@ -6,6 +6,8 @@ import Button from '/imports/ui/components/button/component';
 import logger from '/imports/startup/client/logger';
 import { notify } from '/imports/ui/services/notification';
 import cx from 'classnames';
+import Modal from '/imports/ui/components/modal/simple/component';
+import { withModalMounter } from '../../modal/service';
 import { styles } from '../styles';
 
 const propTypes = {
@@ -52,6 +54,14 @@ const intlMessages = defineMessages({
   NotSupportedError: {
     id: 'app.screenshare.notSupportedError',
     description: 'error message when trying to share screen in unsafe environments',
+  },
+  noSafariScreenShare: {
+    id: 'app.media.screenshare.safariNotSupported',
+    descriptions: 'error message when trying to share screen on safari',
+  },
+  screenShareUnavailable: {
+    id: 'app.media.screenshare.unavailable',
+    descriptions: 'title for unavailable screen share modal',
   },
   NotReadableError: {
     id: 'app.screenshare.notReadableError',
@@ -116,6 +126,7 @@ const DesktopShare = ({
   screenShareEndAlert,
   isMeteorConnected,
   screenshareDataSavingSetting,
+  mountModal,
 }) => {
   // This is the failure callback that will be passed to the /api/screenshare/kurento.js
   // script on the presenter's call
@@ -155,10 +166,9 @@ const DesktopShare = ({
 
   const shouldAllowScreensharing = screenSharingCheck
     && !isMobileBrowser
-    && amIPresenter
-    && !isSafari;
+    && amIPresenter;
 
-  return (shouldAllowScreensharing
+  return shouldAllowScreensharing
     ? (
       <Button
         className={cx(isVideoBroadcasting || styles.btn)}
@@ -171,12 +181,28 @@ const DesktopShare = ({
         hideLabel
         circle
         size="lg"
-        onClick={isVideoBroadcasting ? handleUnshareScreen : () => handleShareScreen(onFail)}
+        onClick={isVideoBroadcasting ? handleUnshareScreen : () => {
+          if (isSafari) {
+            return mountModal(<Modal
+              overlayClassName={styles.overlay}
+              className={styles.modal}
+              onRequestClose={() => mountModal(null)}
+              hideBorder
+              contentLabel={intl.formatMessage(intlMessages.screenShareUnavailable)}
+            >
+              <h3 className={styles.title}>
+                {intl.formatMessage(intlMessages.screenShareUnavailable)}
+              </h3>
+              <p>{intl.formatMessage(intlMessages.noSafariScreenShare)}</p>
+                              </Modal>);
+          }
+          handleShareScreen(onFail);
+        }
+        }
         id={isVideoBroadcasting ? 'unshare-screen-button' : 'share-screen-button'}
       />
-    )
-    : null);
+    ) : null;
 };
 
 DesktopShare.propTypes = propTypes;
-export default injectIntl(memo(DesktopShare));
+export default withModalMounter(injectIntl(memo(DesktopShare)));
