@@ -170,7 +170,7 @@
  background: white;
   position: absolute;
   z-index: 2;
-  width: max-content;
+  width: auto;
   padding: 50px 25px 25px 25px;
 }
 button{
@@ -178,16 +178,7 @@ button{
   background: transparent;
   border: 0px;
 }
-//  Popup{
-//    div{
-//     background: green;
-//     min-width: fit-content;
-//     position: absolute;
-//     z-index: 2;
-//     width: max-content;
-//    }
- 
-//  }
+
  .wrapper{
    width: 100%;
  }
