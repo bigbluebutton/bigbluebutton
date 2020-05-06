@@ -26,7 +26,7 @@ object UsersApp {
       u <- RegisteredUsers.findWithUserId(userId, liveMeeting.registeredUsers)
     } yield {
 
-      RegisteredUsers.remove(u.id, liveMeeting.registeredUsers)
+      RegisteredUsers.eject(u.id, liveMeeting.registeredUsers, u.id)
 
       val event = MsgBuilder.buildGuestWaitingLeftEvtMsg(liveMeeting.props.meetingProp.intId, u.id)
       outGW.send(event)
