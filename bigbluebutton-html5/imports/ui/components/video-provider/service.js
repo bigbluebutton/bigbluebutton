@@ -134,12 +134,6 @@ class VideoService {
     return m.lockSettingsProps ? m.lockSettingsProps.disableCam : false;
   }
 
-  hideUserList() {
-    const m = Meetings.findOne({ meetingId: Auth.meetingID },
-      { fields: { 'lockSettingsProps.hideUserList': 1 } });
-    return m.lockSettingsProps ? m.lockSettingsProps.hideUserList : false;
-  }
-
   userId() {
     return Auth.userID;
   }
