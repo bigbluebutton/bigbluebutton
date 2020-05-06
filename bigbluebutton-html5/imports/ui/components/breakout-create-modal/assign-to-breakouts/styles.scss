@@ -3,7 +3,21 @@
 
 
 @import "/imports/ui/stylesheets/variables/typography";
+@import "/imports/ui/stylesheets/variables/_all";
+@import "/imports/ui/stylesheets/mixins/_scrollable";
 
+.userAvatar {
+  width: 1.5rem;
+  margin: 1.9rem;
+  padding: 0.6rem 1.6rem 0.6rem 1.6rem;
+}
+.userContentContainer {
+  display: flex;
+  align-items: center;
+  flex-wrap: nowrap;
+  //width: 64%;
+  flex-direction: row;
+}
 
 
 .heading{
@@ -29,14 +43,25 @@ line-height: 1.313rem;
 font-size: 0.813rem;
 line-height: 1.313rem;
 }
+.username{
+  font-family: Avenir;
+  font-style: normal;
+ 
+      padding:  0.6rem 0rem 0.6rem 0.9rem;
+      
+      color: #000000;
+
+      font-weight: 500;
+font-size: 0.813rem;
+}
 .input{
     padding:  1.6rem;
-     height: 26px;
-     width: 272px;
+     height: 1.265rem;
+     width: 17rem;
     background: #e6e6e6;
-    border-radius: 8px;
+    border-radius: 0.5rem;
     border: 0;
-    text-indent: 10px;
+    text-indent: 0.625rem;
 
 }
 .Join{
@@ -56,7 +81,11 @@ align-items: flex-start;
 font-family: Avenir;
 font-style: normal;
 color: #000000;
-    padding:  0.6rem 0 0.6rem 1.6rem;
+display: flex;
+align-items: center;
+//width: 64%;
+flex-direction: row;
+   // padding:  0.6rem 0 0.6rem 1.6rem;
     input{
         background: #F1F2F2;
         border: 1px solid #DCDCDC;
@@ -121,79 +150,6 @@ border-radius: 2px;
   }
 
 
-.round {
-    position: relative;
-  
-    & label {
-      margin-top: -10px;
-      background-color: #fff;
-      border: 1px solid #ccc;
-      border-radius: 50%;
-      cursor: pointer;
-      height: 28px;
-      left: 0;
-      right : auto;
-      position: absolute;
-      top: 0;
-      width: 28px;
-  
-      [dir="rtl"] & {
-        left : auto;
-        right: 0;
-      }
-    }
-  
-    & label:after {
-      border: {
-        style: solid;
-        color:  #fff;
-        width: 2px;
-        right: {
-          style : none;
-        }
-        top: {
-          style: none;
-        }
-      }
-      content: "";
-      height: 6px;
-      left: 7px;
-      opacity: 0;
-      position: absolute;
-      top: 8px;
-      transform: rotate(-45deg);
-      width: 12px;
-  
-      [dir="rtl"] & {
-        border: {
-          style: solid;
-          color:  #fff;
-          width: 2px;
-          left: {
-            style : none;
-          }
-          top: {
-            style: none;
-          }
-        }
-      }
-    }
-  
-    & input[type="checkbox"] {
-      visibility: hidden;
-    }
-  
-    & input[type="checkbox"]:checked + label {
-      background-color: #66bb6a;
-      border-color: #66bb6a;
-    }
-  
-    & input[type="checkbox"]:checked + label:after {
-      opacity: 1;
-    }
-  }
-
-
 
 
 .btns{
@@ -220,11 +176,11 @@ color: white;
   //  align-self: auto;
     float: right;
    color:#36A1FF;
-   border-radius: 20px;
+   border-radius: 1.25rem;
    background: white;
    border: 1px solid #36A1FF;
 box-sizing: border-box;
-border-radius: 20px;
+border-radius: 1.25rem;
 margin: 0px 10px ;
  padding: 5px 24px 5px 24px;
 }
@@ -289,15 +245,16 @@ line-height: 1.313rem;
 }
 .number{
   text-align: center;
-  margin-top: 19px;
-  margin-bottom: 30px;
+  margin-top: 1.188rem;
+  margin-bottom: 1.875rem;
 }
 .num{
   border-color: #36A1FF ;
-  border-radius: 4px;
+  border-radius: 0.25rem;
 }
 
 .userList{
-  height: 240px;
-  overflow-y: scroll;
+  @include scrollbox-vertical();
+  height: 12rem;
+ // overflow-y: scroll;
 }

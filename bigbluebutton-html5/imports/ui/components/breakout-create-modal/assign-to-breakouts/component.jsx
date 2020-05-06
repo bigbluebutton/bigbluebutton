@@ -2,6 +2,8 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import styles from './styles.scss';
 
+import UserAvatar from '/imports/ui/components/user-avatar/component';
+
 const propTypes = {
   users: PropTypes.arrayOf(PropTypes.object).isRequired
 };
@@ -34,7 +36,6 @@ class Assign extends Component {
         currentStep: 0,
         users: allUsers,
         channels:[{}],
-        breakoutroom:null,
     };
     this.createchannels = this.createchannels.bind(this);
     this.channelName = this.channelName.bind(this);
@@ -113,12 +114,12 @@ class Assign extends Component {
     channels[currentStep-1].name = ev.target.value;
   }
 
-  
+
   _next = () => {
     const {numberOfRooms, channels, users} = this.state;
     var {currentStep} = this.state;
     currentStep = currentStep >= numberOfRooms-1? numberOfRooms: currentStep + 1;
-
+   {if(currentStep>1){  document.getElementById('channelname').value=null;}}
     this.setState({
       currentStep: currentStep,
       numberOfRooms: numberOfRooms,
@@ -192,9 +193,45 @@ class Assign extends Component {
     closeModal();
   }
 
+  renderUserAvatar() {
+    const {
+      normalizeEmojiName,
+      user,
+      userInBreakout,
+      breakoutSequence,
+      meetingIsBreakout,
+      voiceUser,
+    } = this.props;
+
+    const { clientType } = user;
+    const isVoiceOnly = clientType === 'dial-in-user';
+
+    const iconUser = user.emoji !== 'none'
+      ? (<Icon iconName={normalizeEmojiName(user.emoji)} />)
+      : user.name.toLowerCase().slice(0, 2);
+
+    const iconVoiceOnlyUser = (<Icon iconName="audio_on" />);
+    const userIcon = isVoiceOnly ? iconVoiceOnlyUser : iconUser;
+
+    return (
+      <UserAvatar
+        moderator={user.role === ROLE_MODERATOR}
+        presenter={user.presenter}
+        talking={voiceUser.isTalking}
+        muted={voiceUser.isMuted}
+        listenOnly={voiceUser.isListenOnly}
+        voice={voiceUser.isVoiceUser}
+        noVoice={!voiceUser.isVoiceUser}
+        color={user.color}
+      >
+        {userIcon}
+      </UserAvatar>
+    );
+  }
+
   render() {
 
-    const {users, currentStep, channels, numberOfRooms,breakoutroom} = this.state;
+    const {users, currentStep, channels, numberOfRooms} = this.state;
     
     {if (currentStep != 0){
       return( <div className="form-group">
@@ -206,8 +243,7 @@ class Assign extends Component {
         name="channelname"
         type="text"
         placeholder={channels[currentStep-1].name}
-        value={breakoutroom}
-        //value={channels[currentStep-1].name}
+        // value={channels[currentStep-1].name}
         onChange={this.channelName}
       className={styles.input}
         />
@@ -218,19 +254,35 @@ class Assign extends Component {
         <div  className={styles.Join}>
         {}
         {u.room == this.state.currentStep || u.room == 0 ?
+        <div>
           <label htmlFor="freeJoinCheckbox"
-          className={styles.JoinLabel}
+         className={styles.JoinLabel}
+        //  className={styles.userContentContainer}
           key="free-join-breakouts">
           <input
             type="checkbox"
           // id="freeJoinCheckbox"
+          id="channelname"
             className={styles.JoinCheckbox}
           id={`itemId${idx}`}
           defaultChecked={u.room === currentStep}
           onChange={this.onChange(u, currentStep)}
           />
-          <span aria-hidden  className={styles.JoinLabel}>{u.userName}</span>
+          {/* {this.renderUserAvatar()} */}
+          <div className={styles.userContentContainer} >
+          <div  className={styles.userAvatar}>
+          <UserAvatar
+          key={`user-avatar-${u.userId}`}
+         // moderator={u.role === 'MODERATOR'}
+          color={u.color}
+        >
+          {u.userName.slice(0, 2).toLowerCase()}
+        </UserAvatar>
+        </div>
+          <span aria-hidden  className={styles.username}>{u.userName}</span>
+          </div>
           </label>
+          </div>
         :
           null}
         </div>

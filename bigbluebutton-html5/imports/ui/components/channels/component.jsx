@@ -1,7 +1,10 @@
 import React, { Fragment, PureComponent } from 'react';
-
+import browser from 'browser-detect';
+import PropTypes from 'prop-types';
 import Popup from "reactjs-popup";
 import  Assign from '/imports/ui/components/breakout-create-modal/assign-to-breakouts/container';
+import { withModalMounter } from '/imports/ui/components/modal/service';
+import BreakoutCreateModalContainer from '/imports/ui/components/breakout-create-modal/container';
 import { defineMessages, injectIntl } from 'react-intl';
 import _ from 'lodash';
 import Button from '/imports/ui/components/button/component';
@@ -18,9 +21,10 @@ import DropdownContent from '/imports/ui/components/dropdown/content/component';
 import DropdownList from '/imports/ui/components/dropdown/list/component';
 import DropdownListItem from '/imports/ui/components/dropdown/list/item/component';
 import ChannelAvatar from './channelAvatar/component';
-
 const ROLE_MODERATOR = Meteor.settings.public.user.role_moderator;
-
+const propTypes = {
+  mountModal: PropTypes.func.isRequired,
+};
 const intlMessages = defineMessages({
   breakoutTitle: {
     id: 'app.createBreakoutRoom.title',
@@ -106,7 +110,7 @@ class Channels extends PureComponent {
     this.getScrollContainerRef = this.getScrollContainerRef.bind(this);
     this.onActionsShow = this.onActionsShow.bind(this);
     this.onActionsHide = this.onActionsHide.bind(this);
-
+    this.newCreateBreakouts = this.newCreateBreakouts.bind(this);
     this.state = {
       requestedBreakoutId: '',
       waiting: false,
@@ -287,16 +291,25 @@ class Channels extends PureComponent {
         />) : null
       ),
       ((isMeteorConnected && amIModerator && !isBreakOutMeeting) ? (
-        <DropdownListItem
-          key={this.muteAllId}
-          icon="rooms"
-          label="Edit Room"
-          onClick={() => {
-            //TODO: Remove this 
-            // const {getUsersByMeeting} = this.props;
-            // this.editBreakoutRoom(breakout.breakoutId, getUsersByMeeting(Auth.meetingID).shift(), []); 
-          }}
-        />) : null
+        <Popup   trigger={<button  className={styles.button}> <DropdownListItem
+        key={this.muteAllId}
+        icon="rooms"
+        label="Edit Room"
+        // onClick={() => {
+        //   //TODO: Remove this 
+        //   // const {getUsersByMeeting} = this.props;
+        //   // this.editBreakoutRoom(breakout.breakoutId, getUsersByMeeting(Auth.meetingID).shift(), []); 
+        // }}
+      /> </button>} position="right top"
+      on="focus"
+      >
+        {open => (
+              <div >
+              <Assign/>
+                </div>
+          )}
+   </Popup>
+       ) : null
       )
     ]);
 
@@ -358,6 +371,10 @@ class Channels extends PureComponent {
       : this.setState({channelId: id})
   }
 
+  newCreateBreakouts() {
+    const { mountModal } = this.props;
+    return mountModal(<BreakoutCreateModalContainer />);
+  }
   render() {
     const {
       intl,
@@ -372,6 +389,7 @@ class Channels extends PureComponent {
     const {channelId, hideUsers} = this.state;
     const isBreakOutMeeting = meetingIsBreakout();
     const isModerator=currentUser.role === ROLE_MODERATOR;
+ 
     return (
 
       <div className={styles.channelListColumn}>
@@ -436,16 +454,24 @@ class Channels extends PureComponent {
               </Fragment>
               )
             }
-                     {!isBreakOutMeeting && isModerator?
-                       <div className={styles.wrapper}>
-             <Popup   trigger={<button  className={styles.button}>+New Breakout Channel</button>} position="right top">
-                 {close => (
-                       <div >
-                         <Assign  /> 
-                         </div>
-                   )}
-            </Popup>
-                       </div>:null}
+
+
+
+            {!isBreakOutMeeting && isModerator ? 
+                  <Button
+                   
+                    className={styles.button}
+                    label="+New Breakout Channel"
+                    
+                   // icon="actions"
+                    size="lg"
+                   // circle
+                  // color="primary"
+                   onClick=   {this.newCreateBreakouts}
+                   label="+New Breakout Channel"
+                  />
+                  :null }
+                       {/* {isMobileBrowser ? this.renderMobile() : this.renderDesktop()} */}
             {this.renderBreakoutRooms()}
 
           </div>
@@ -627,5 +653,5 @@ class Channels extends PureComponent {
     );
   }
 }
-
-export default injectIntl(Channels);
+Channels.propTypes=propTypes;
+export default withModalMounter(injectIntl(Channels));
