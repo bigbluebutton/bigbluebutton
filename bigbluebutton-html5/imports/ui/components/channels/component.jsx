@@ -22,7 +22,6 @@ import DropdownList from '/imports/ui/components/dropdown/list/component';
 import DropdownListItem from '/imports/ui/components/dropdown/list/item/component';
 import ChannelAvatar from './channelAvatar/component';
 import BreakoutEditModalContainer from '/imports/ui/components/breakout-edit-modal/container';
-import { withModalMounter } from '/imports/ui/components/modal/service';
 
 
 const ROLE_MODERATOR = Meteor.settings.public.user.role_moderator;
@@ -668,5 +667,5 @@ class Channels extends PureComponent {
     );
   }
 }
-Channels.propTypes=propTypes;
+Channels.propTypes=PropTypes;
 export default withModalMounter(injectIntl(Channels));
