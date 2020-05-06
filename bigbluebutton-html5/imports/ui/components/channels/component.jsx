@@ -672,5 +672,5 @@ class Channels extends PureComponent {
     );
   }
 }
-Channels.propTypes = PropTypes;
+//Channels.propTypes = PropTypes;
 export default withModalMounter(injectIntl(Channels));
