@@ -101,6 +101,18 @@ const intlMessages = defineMessages({
     id: 'app.presentationUploder.upload.413',
     description: 'error that file exceed the size limit',
   },
+  408: {
+    id: 'app.presentationUploder.upload.408',
+    description: 'error for token request timeout',
+  },
+  404: {
+    id: 'app.presentationUploder.upload.404',
+    description: 'error not found',
+  },
+  401: {
+    id: 'app.presentationUploder.upload.401',
+    description: 'error for failed upload token request.',
+  },
   conversionProcessingSlides: {
     id: 'app.presentationUploder.conversion.conversionProcessingSlides',
     description: 'indicates how many slides were converted',

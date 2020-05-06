@@ -9,7 +9,7 @@ public:
     skipCheck: false
     clientTitle: BigBlueButton
     appName: BigBlueButton HTML5 Client
-    bbbServerVersion: 2.2-dev
+    bbbServerVersion: 2.2
     copyright: "©2020 BigBlueButton Inc."
     html5ClientBuild: HTML5_CLIENT_VERSION
     helpLink: https://bigbluebutton.org/html5/
@@ -177,7 +177,7 @@ public:
     callTransferTimeout: 5000
     callHangupTimeout: 2000
     callHangupMaximumRetries: 10
-    echoTestNumber: '9196'
+    echoTestNumber: 'echo'
     relayOnlyOnReconnect: false
   presentation:
     allowDownloadable: true
@@ -374,4 +374,4 @@ private:
       version: [0, 36]
     - browser: YandexBrowser
       version: 19
-      
+
