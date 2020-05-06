@@ -21,10 +21,12 @@ import DropdownContent from '/imports/ui/components/dropdown/content/component';
 import DropdownList from '/imports/ui/components/dropdown/list/component';
 import DropdownListItem from '/imports/ui/components/dropdown/list/item/component';
 import ChannelAvatar from './channelAvatar/component';
+import BreakoutEditModalContainer from '/imports/ui/components/breakout-edit-modal/container';
+import { withModalMounter } from '/imports/ui/components/modal/service';
+
+
 const ROLE_MODERATOR = Meteor.settings.public.user.role_moderator;
-const propTypes = {
-  mountModal: PropTypes.func.isRequired,
-};
+
 const intlMessages = defineMessages({
   breakoutTitle: {
     id: 'app.createBreakoutRoom.title',
@@ -290,30 +292,41 @@ class Channels extends PureComponent {
           }}
         />) : null
       ),
+ 
       ((isMeteorConnected && amIModerator && !isBreakOutMeeting) ? (
-        <Popup   trigger={<button  className={styles.button}> <DropdownListItem
-        key={this.muteAllId}
-        icon="rooms"
-        label="Edit Room"
-        // onClick={() => {
-        //   //TODO: Remove this 
-        //   // const {getUsersByMeeting} = this.props;
-        //   // this.editBreakoutRoom(breakout.breakoutId, getUsersByMeeting(Auth.meetingID).shift(), []); 
-        // }}
-      /> </button>} position="right top"
-      on="focus"
-      >
-        {open => (
-              <div >
-              <Assign/>
-                </div>
-          )}
-   </Popup>
-       ) : null
-      )
+        <DropdownListItem
+          key={this.muteAllId}
+          icon="rooms"
+          label="Edit Room"
+          onClick={() => {
+            this.launchEditRoom(breakout.breakoutId)
+          }}
+        />) : null)
+
+        // <Popup
+        //   trigger={<div className="menu-item">Edit Room </div>}
+        //   position="right top"
+        //   on="hover"
+        //   closeOnDocumentClick
+        //   mouseLeaveDelay={300}
+        //   mouseEnterDelay={0}
+        //   contentStyle={{ padding: "0px", border: "none" }}
+        //   arrow={false}
+        // > 
+        //   <EditBreakout meetingIdentifier={breakout.breakoutId}/> 
+
+        //   </Popup> 
+        
+        // ) : null)
+
     ]);
 
     return this.menuItems;
+  }
+
+  launchEditRoom(breakoutId){
+    const { mountModal } = this.props;
+    return mountModal(<BreakoutEditModalContainer breakoutId={breakoutId} />);
   }
 
 
@@ -385,6 +398,8 @@ class Channels extends PureComponent {
       roving,
       requestUserInformation,
     } = this.props;
+
+    logger.info("auth Id: " + Auth.meetingID);
 
     const {channelId, hideUsers} = this.state;
     const isBreakOutMeeting = meetingIsBreakout();

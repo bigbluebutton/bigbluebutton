@@ -168,6 +168,15 @@ const isUserInBreakoutRoom = (joinedUsers) => {
   return !!joinedUsers.find(user => user.userId.startsWith(userId));
 };
 
+//Only to be called in the master channel
+const getUnassignedUsersInMasterChannel = (allUsers) => {
+  //Get all breakout users in the system (offline and online - no harm for now)
+  let breakoutUsers =  getUsersFromBreakouts(getBreakouts());
+  return  allUsers.filter(u => {
+      return (breakoutUsers.find(bu => bu.userId == u.userId) == undefined);
+  });
+}
+
 export default {
   findBreakouts,
   getBreakoutByCurrentMeetingId,
@@ -190,5 +199,6 @@ export default {
   getBreakoutUserIsIn,
   isUserInBreakoutRoom,
   isUserActiveInBreakoutroom,
-  getBreakoutMeetingUserId
+  getBreakoutMeetingUserId,
+  getUnassignedUsersInMasterChannel
 };

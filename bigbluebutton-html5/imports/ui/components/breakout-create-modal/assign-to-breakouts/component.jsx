@@ -190,7 +190,7 @@ class Assign extends Component {
                               users: ch.userId
                             }));
     createBreakoutRoom(rooms, 525600, false);
-    closeModal();
+    //closeModal();
   }
 
   renderUserAvatar() {
