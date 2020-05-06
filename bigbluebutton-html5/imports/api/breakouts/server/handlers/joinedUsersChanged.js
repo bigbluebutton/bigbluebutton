@@ -26,10 +26,9 @@ export default function joinedUsersChanged({ body }) {
   });
 
   const usersMapped = breakoutRoom.users.filter(user => { 
-    let r = ejectedUsers.filter(e => e.id === user.userId).shift();
-    return (r == null || r == undefined);
-  })
-  .map(u =>  ({userId: u.userId, redirectToHtml5JoinURL: u.redirectToHtml5JoinURL, insertedTime: u.insertedTime}))
+    return (ejectedUsers.find(e => e.id === user.userId) == undefined)
+  }).map(u =>  ({userId: u.userId, username: u.username, email: u.email, redirectToHtml5JoinURL: u.redirectToHtml5JoinURL, 
+              insertedTime: u.insertedTime}))
 
  
   const selector = {
@@ -40,8 +39,6 @@ export default function joinedUsersChanged({ body }) {
 
   let modifier = '';
   if (ejectedUsers.length > 0) {
-    const ejectedUsersMapped = ejectedUsers.map(user => ({ userId: user.id }));
-   
     modifier = {
       $set: {
         joinedUsers: joinedUsersMapped,

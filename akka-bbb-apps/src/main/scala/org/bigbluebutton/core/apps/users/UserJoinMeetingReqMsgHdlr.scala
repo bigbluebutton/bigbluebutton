@@ -29,6 +29,21 @@ trait UserJoinMeetingReqMsgHdlr extends HandlerHelpers {
         if (liveMeeting.props.meetingProp.isBreakout) {
           BreakoutHdlrHelpers.updateParentMeetingWithUsers(liveMeeting, eventBus)
         }
+
+        Users2x.findWithIntId(liveMeeting.users2x, msg.body.userId).map(userState => {
+          state.breakout.map(breakoutModel => {
+            breakoutModel.findWithParentIdAndEmail(msg.header.meetingId, userState.email).map(activeBreakout => {
+              BreakoutHdlrHelpers.sendJoinURL(
+                liveMeeting,
+                outGW,
+                msg.body.userId,
+                activeBreakout.externalId,
+                activeBreakout.sequence.toString(),
+                activeBreakout.id
+              )
+            })
+          })
+        })
         // fresh user joined (not due to reconnection). Clear (pop) the cached voice user
         VoiceUsers.recoverVoiceUser(liveMeeting.voiceUsers, msg.body.userId)
 

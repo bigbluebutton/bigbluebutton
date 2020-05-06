@@ -103,7 +103,8 @@ class UserParticipants extends Component {
       currentUser,
       meetingIdentifier,
       allUsersInMeeting,
-      breakoutRoomUsers
+      breakoutRoomUsers,
+      unassignedUsersInMasterChannel
     } = this.props;
 
     let index = -1;
@@ -125,9 +126,10 @@ class UserParticipants extends Component {
     if(!isThisBreakoutRoom && renderOnlyBreakoutusers){
       //usersToRender = allUsersInMeeting.filter(u => isbreakoutRoomUser(meetingIdentifier, u.userId));
       usersToRender = allUsersInMeeting.filter(u => {
-        const breakoutUser = breakoutRoomUsers.filter(user => user.userId === u.userId).shift();
-        return (breakoutUser != null && breakoutUser != undefined);
+        return breakoutRoomUsers.find(user => user.userId === u.userId) != undefined
       });
+    }else if(!isThisBreakoutRoom){
+      usersToRender = unassignedUsersInMasterChannel;
     }
     
     return usersToRender.map(u => (

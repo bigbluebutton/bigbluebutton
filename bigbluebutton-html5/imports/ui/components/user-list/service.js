@@ -226,6 +226,25 @@ const getUsersByMeeting = (meetingIdentifier) => {
 };
 
 
+
+const getUsersByMeetingWithoutMe = (meetingIdentifier) => {
+  let users = Users
+    .find({
+      meetingId: meetingIdentifier,
+      connectionStatus: 'online',
+    }, userFindSorting)
+    .fetch();
+
+
+  const currentUser = Users.findOne({ userId: Auth.userID });
+  if (currentUser){
+    return users.filter(u => u.userId != currentUser.userId);
+  }else{
+    return users;
+  }
+};
+
+
 const hasBreakoutRoom = () => Breakouts.find({ parentMeetingId: Auth.meetingID },
   { fields: {} }).count() > 0;
 
@@ -537,6 +556,7 @@ export default {
   changeRole,
   getUsers,
   getUsersByMeeting,
+  getUsersByMeetingWithoutMe,
   getActiveChats,
   getAvailableActions,
   curatedVoiceUser,

@@ -23,15 +23,57 @@ trait CreateBreakoutRoomsCmdMsgHdlr extends RightsManagementTrait {
       state
     } else {
       state.breakout match {
-        case Some(breakout) =>
-          log.warning(
-            "CreateBreakoutRooms event received while breakout created for meeting {}", liveMeeting.props.meetingProp.intId
-          )
-          state
+        case Some(breakout: BreakoutModel) =>
+          processRequestWithExistingBreakoutModel(msg, state, breakout)
         case None =>
           processRequest(msg, state)
       }
     }
+  }
+
+  def processRequestWithExistingBreakoutModel(msg: CreateBreakoutRoomsCmdMsg, state: MeetingState2x, model: BreakoutModel): MeetingState2x = {
+
+    val presId = getPresentationId(state)
+    val presSlide = getPresentationSlide(state)
+    val parentId = liveMeeting.props.meetingProp.intId
+    val existingRooms = model.copy().rooms
+
+    var i = 0
+    var newlyAddedRooms = new collection.immutable.HashMap[String, BreakoutRoom2x]
+    for (room <- msg.body.rooms) {
+      i += 1
+      val (internalId, externalId) = BreakoutRoomsUtil.createMeetingIds(liveMeeting.props.meetingProp.intId, i)
+      val voiceConf = BreakoutRoomsUtil.createVoiceConfId(liveMeeting.props.voiceProp.voiceConf, i)
+
+      val breakout = BreakoutModel.create(parentId, internalId, externalId, room.name, room.sequence, room.freeJoin, voiceConf,
+        room.users.flatMap(u =>
+          Users2x.findWithIntId(liveMeeting.users2x, u)
+            .map(userState => AssignedUser(userState.intId, userState.name, userState.email))))
+
+      newlyAddedRooms = newlyAddedRooms + (breakout.id -> breakout)
+    }
+
+    for (breakout <- newlyAddedRooms.values.toVector) {
+      val roomDetail = new BreakoutRoomDetail(
+        breakout.id, breakout.name,
+        liveMeeting.props.meetingProp.intId,
+        breakout.sequence,
+        breakout.freeJoin,
+        liveMeeting.props.voiceProp.dialNumber,
+        breakout.voiceConf,
+        msg.body.durationInMinutes,
+        liveMeeting.props.password.moderatorPass,
+        liveMeeting.props.password.viewerPass,
+        presId, presSlide, msg.body.record,
+        liveMeeting.props.breakoutProps.privateChatEnabled
+      )
+
+      val event = buildCreateBreakoutRoomSysCmdMsg(liveMeeting.props.meetingProp.intId, roomDetail)
+      outGW.send(event)
+    }
+
+    val breakoutModel = new BreakoutModel(None, msg.body.durationInMinutes, newlyAddedRooms ++ existingRooms)
+    state.update(Some(breakoutModel))
   }
 
   def processRequest(msg: CreateBreakoutRoomsCmdMsg, state: MeetingState2x): MeetingState2x = {
