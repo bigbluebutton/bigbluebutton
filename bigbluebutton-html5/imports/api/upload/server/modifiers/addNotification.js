@@ -32,7 +32,7 @@ export default function addUploadedFileMsg(meetingId, userId, uploadId, source, 
     $set: {
       meetingId,
       chatId: CHAT_ID,
-      message: 'upload',
+      message: '',
       upload,
       sender: SYSTEM_ID,
       timestamp: now,

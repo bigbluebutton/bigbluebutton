@@ -25,6 +25,14 @@ const intlMessages = defineMessages({
     id: 'app.upload.toast.error.408',
     description: 'Upload toast error request timeout',
   },
+  header: {
+    id: 'app.upload.notification.header',
+    description: 'Uploaded file notification header',
+  },
+  disclaimer: {
+    id: 'app.upload.notification.disclaimer',
+    description: 'Uploaded file notification disclaimer',
+  },
 });
 
 const requestUpload = (source, filename) => {
@@ -112,10 +120,14 @@ const buildDownloadURL = (source, uploadId) => {
   return Auth.authenticateURL(`${DOWNLOAD.endpoint}/${source}/${uploadId}`);
 };
 
-const getNotification = ({ source, uploadId, filename }) => {
+const getNotification = ({ source, uploadId, filename }, intl) => {
   const downloadURL = buildDownloadURL(source, uploadId);
 
-  return `<a target="_blank" href="${downloadURL}">${filename}</a>`;
+  const header = `<b>${intl.formatMessage(intlMessages.header)}:</b>`;
+  const link = `<a target="_blank" href="${downloadURL}">${filename}</a>`;
+  const disclaimer = `<i>${intl.formatMessage(intlMessages.disclaimer)}</i>`;
+
+  return `${header}<br>${link}<br><br>${disclaimer}`;
 };
 
 export default {
