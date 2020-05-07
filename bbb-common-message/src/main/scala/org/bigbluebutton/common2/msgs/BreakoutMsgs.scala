@@ -7,7 +7,7 @@ case class BreakoutRoomEndedEvtMsgBody(parentId: String, breakoutId: String)
 object BreakoutRoomJoinURLEvtMsg { val NAME = "BreakoutRoomJoinURLEvtMsg" }
 case class BreakoutRoomJoinURLEvtMsg(header: BbbClientMsgHeader, body: BreakoutRoomJoinURLEvtMsgBody) extends BbbCoreMsg
 case class BreakoutRoomJoinURLEvtMsgBody(parentId: String, breakoutId: String, externalId: String,
-                                         userId: String, redirectJoinURL: String, redirectToHtml5JoinURL: String)
+                                         userId: String, username: String, email: String, redirectJoinURL: String, redirectToHtml5JoinURL: String)
 
 // Outgoing messages
 object BreakoutRoomsListEvtMsg { val NAME = "BreakoutRoomsListEvtMsg" }

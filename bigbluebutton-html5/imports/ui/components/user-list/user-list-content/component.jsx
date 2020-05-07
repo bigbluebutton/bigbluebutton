@@ -1,4 +1,6 @@
 import React, { PureComponent } from 'react';
+// import Popup from "reactjs-popup";
+// import  Assign from '../../../../ui/components/breakout-create-modal/assign-to-breakouts/container';
 import PropTypes from 'prop-types';
 import { styles } from './styles';
 import ChannelsContainer from '/imports/ui/components/channels/container';
@@ -20,6 +22,7 @@ const propTypes = {
   pollIsOpen: PropTypes.bool.isRequired,
   forcePollOpen: PropTypes.bool.isRequired,
   requestUserInformation: PropTypes.func.isRequired,
+  isBreakoutRecordable: PropTypes.bool.isRequired,
   mountModal: PropTypes.func.isRequired,
 };
 
@@ -32,15 +35,15 @@ const ROLE_MODERATOR = Meteor.settings.public.user.role_moderator;
 class UserContent extends PureComponent {
   constructor() {
     super();
+    this.newCreateBreakouts = this.newCreateBreakouts.bind(this);
+  }
 
-     this.newCreateBreakouts=this.newCreateBreakouts.bind(this);
-   
+  newCreateBreakouts() {
+    const { mountModal } = this.props;
+    return mountModal(<BreakoutCreateModalContainer />);
   }
-  newCreateBreakouts(){
-    const {mountModal}=this.props
-    return  mountModal(<BreakoutCreateModalContainer/>)
-  }
- 
+
+
   render() {
     const {
       compact,
@@ -68,21 +71,8 @@ class UserContent extends PureComponent {
       > 
 
 
-      {isMasterChannel && isModerator ?    
-        <Button
-              //hideLabel
-            // aria-label="New Breakout Channel"
-              className={styles.button}
-              label="+ New Breakout Channel"
-            // icon="actions"
-              size="lg"
-            // circle
-            color="default"
-            onClick={this.newCreateBreakouts}
-            />
-        : null
-      }
-
+      {/* {isMasterChannel && isModerator ?   :null } */}
+     
       <ChannelsContainer
           {...{
             compact,

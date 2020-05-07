@@ -7,23 +7,26 @@
 
 
 .heading{
-  font-style: normal;
-  font-size: 20px;
-  line-height: 36px;
-  padding:  1.6rem;
-  color: #000000;
-}
-.name{
-    font-style: normal;
-    font-size: 20px;
-    line-height: 36px;
+    font-family: Avenir;
+font-style: normal;
+//font-weight: 500;
+font-size: 20px;
+line-height: 36px;
     padding:  1.6rem;
     color: #000000;
 }
+.name{
+    font-family: Avenir;
+    font-style: normal;
+    font-size: 20px;
+    line-height: 36px;
+        padding:  1.6rem;
+        
+        color: #000000;
+}
 .input{
     padding:  1.6rem;
-     height: 26px;
-     width: 272px;
+     height: 2.7rem;
     background: #e6e6e6;
     border-radius: 8px;
     border: 0;
@@ -31,30 +34,34 @@
 
 }
 .Join{
+//     padding:  0.6rem;
+//   flex: auto;
+// line-height: 25px;
 display: flex;
 flex-flow: column wrap;
 align-items: flex-start;
+// margin-top: 2rem;
 :nth-child(n){
-  margin: 0.005rem;
+  margin: 0.01rem;
 }
 }
 .JoinLabel{
-   // font-size: 15px;
+    font-size: 15px;
 font-family: Avenir;
 font-style: normal;
 color: #000000;
-    padding:  0.6rem 0 0.6rem 1.6rem;
+    padding:  1.6rem;
     input{
         background: #F1F2F2;
         border: 1px solid #DCDCDC;
-        //box-sizing: border-box;
-       // opacity: 1;
+        box-sizing: border-box;
+        opacity: 1;
         border-radius: 2px;
     }
  
 }
 .JoinCheckbox{
-    padding:  0.6rem 0 0.6rem 1.6rem;
+    padding:  1.6rem;
   background: #F5F6FA;
 border: 1px solid #DCDCDC;
 box-sizing: border-box;
@@ -264,13 +271,11 @@ margin: 0px 10px ;
 
 
 .inputheading{
+  font-size: 30px;
+  font-family: Avenir;
   font-style: normal;
   letter-spacing: 0.015em;
   color: #000000;
-
-font-weight: 500;
-font-size: 13px;
-line-height: 21px;
 }
 .number{
   text-align: center;
@@ -282,7 +287,3 @@ line-height: 21px;
   border-radius: 4px;
 }
 
-.userList{
-  height: 240px;
-  overflow-y: scroll;
-}

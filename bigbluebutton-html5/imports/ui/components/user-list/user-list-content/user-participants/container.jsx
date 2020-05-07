@@ -10,5 +10,8 @@ const UserParticipantsContainer = props => <UserParticipants {...props} />;
 
 export default withTracker(props => ({
   allUsersInMeeting: UserListService.getUsersByMeeting(Auth.meetingID),
-  breakoutRoomUsers: ChannelsService.getAllBreakoutRoomUsers(props.meetingIdentifier) 
+  breakoutRoomUsers: ChannelsService.getAllBreakoutRoomUsers(props.meetingIdentifier),
+  unassignedUsersInMasterChannel: ChannelsService.getUnassignedUsersInMasterChannel(
+                                  UserListService.getUsersByMeeting(Auth.meetingID))
+
 }))(UserParticipantsContainer);
