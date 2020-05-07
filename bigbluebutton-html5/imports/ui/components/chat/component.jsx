@@ -22,6 +22,8 @@ const intlMessages = defineMessages({
     description: 'aria-label for hiding chat button',
   },
 });
+
+
 const Chat = (props) => {
   const {
     chatID,
@@ -46,7 +48,17 @@ const Chat = (props) => {
 
   const HIDE_CHAT_AK = shortcuts.hidePrivateChat;
   const CLOSE_CHAT_AK = shortcuts.closePrivateChat;
-
+  const handleToggleUserList = () => {
+    Session.set('idChatOpen', '');
+    
+    Session.set(
+      'openPanel',
+      (Session.get('openPanel') == '')
+        ? ''
+        : 'userlist',
+    );
+    
+  }
   return (
   <div className={styles.wrapper} >
     <div
@@ -63,7 +75,14 @@ const Chat = (props) => {
             //   Session.set('idChatOpen', '');
             //   Session.set('openPanel', 'userlist');
             // }}
-            onClick={() => {}}
+            // onClick={() => { Session.set(
+            //   'openPanel',
+            //   Session.get('openPanel') == ''
+            //     ? ''
+            //     : 'userlist',
+            // );
+            // Session.set('idChatOpen', '');}}
+            onClick={()=>{handleToggleUserList()}}
             aria-label={intl.formatMessage(intlMessages.hideChatLabel, { 0: title })}
             accessKey={HIDE_CHAT_AK}
            // label={title}
@@ -83,11 +102,19 @@ const Chat = (props) => {
                 ghost
                 color="default"
                 hideLabel
-                onClick={() => {
-                  actions.handleClosePrivateChat(chatID);
-                  Session.set('idChatOpen', '');
-                  Session.set('openPanel', 'userlist');
-                }}
+                // onClick={() => {
+                //   actions.handleClosePrivateChat(chatID);
+                //   Session.set('idChatOpen', '');
+                //   Session.set('openPanel', 'userlist');
+                // }}
+                // onClick={() => { Session.set(
+                //   'openPanel',
+                //   Session.get('openPanel') == ''
+                //     ? ''
+                //     : 'userlist',
+                // );
+                // Session.set('idChatOpen', '');}}
+                onClick={()=>{handleToggleUserList()}}
                 aria-label={intl.formatMessage(intlMessages.closeChatLabel, { 0: title })}
                 label={intl.formatMessage(intlMessages.closeChatLabel, { 0: title })}
                 accessKey={CLOSE_CHAT_AK}
