@@ -8,10 +8,11 @@ class PollDrawComponent extends Component {
     super(props);
 
     this.state = {
+      // We did it because it was calculated in the componentWillMount
+      calculated: false,
       // flag indicating whether we need to continue calculating the sizes or display the annotation
       prepareToDisplay: true,
-
-      // outer (white) rectangle's coordinates and sizes (calculated in componentWillMount)
+      // outer (white) rectangle's coordinates and sizes (calculated in componentDidMount)
       outerRect: {
         x: 0,
         y: 0,
@@ -49,109 +50,12 @@ class PollDrawComponent extends Component {
       lineToMeasure: [],
       fontSizeDirection: 1,
     };
-  }
 
-  componentWillMount() {
-    // in this part we retrieve the props and perform initial calculations for the state
-    // calculating only the parts which have to be done just once and don't require
-    // rendering / rerendering the text objects
-
-    const { annotation } = this.props;
-    const { points, result } = annotation;
-    const { slideWidth, slideHeight, intl } = this.props;
-
-    // x1 and y1 - coordinates of the top left corner of the annotation
-    // initial width and height are the width and height of the annotation
-    // all the points are given as percentages of the slide
-    const x1 = points[0];
-    const y1 = points[1];
-    const initialWidth = points[2];
-    const initialHeight = points[3];
-
-    // calculating the data for the outer rectangle
-    // 0.001 is needed to accomodate bottom and right borders of the annotation
-    const x = (x1 / 100) * slideWidth;
-    const y = (y1 / 100) * slideHeight;
-    const width = ((initialWidth - 0.001) / 100) * slideWidth;
-    const height = ((initialHeight - 0.001) / 100) * slideHeight;
-
-    let votesTotal = 0;
-    let maxNumVotes = 0;
-    const textArray = [];
-
-    // counting the total number of votes, finding the biggest number of votes
-    result.reduce((previousValue, currentValue) => {
-      votesTotal = previousValue + currentValue.numVotes;
-      if (maxNumVotes < currentValue.numVotes) {
-        maxNumVotes = currentValue.numVotes;
-      }
-
-      return votesTotal;
-    }, 0);
-
-    // filling the textArray with data to display
-    // adding value of the iterator to each line needed to create unique
-    // keys while rendering at the end
-    const arrayLength = result.length;
-    for (let i = 0; i < arrayLength; i += 1) {
-      const _tempArray = [];
-      const _result = result[i];
-      _tempArray.push(_result.key, `${_result.numVotes}`);
-      if (votesTotal === 0) {
-        _tempArray.push('0%');
-        _tempArray.push(i);
-      } else {
-        const percResult = (_result.numVotes / votesTotal) * 100;
-        _tempArray.push(`${Math.round(percResult)}%`);
-        _tempArray.push(i);
-      }
-
-      textArray.push(_tempArray);
-    }
-
-    // calculating the data for the inner rectangle
-    const innerWidth = width * 0.95;
-    const innerHeight = height - (width * 0.05);
-    const innerX = x + (width * 0.025);
-    const innerY = y + (width * 0.025);
-    const thickness = (width - innerWidth) / 10;
-
-    // calculating the maximum possible width and height of the each line
-    // 25% of the height goes to the padding
-    const maxLineWidth = innerWidth / 3;
-    const maxLineHeight = (innerHeight * 0.75) / textArray.length;
-
-    const lineToMeasure = textArray[0];
-    const { pollAnswerIds } = PollService;
-    const messageIndex = lineToMeasure[0].toLowerCase();
-    if (pollAnswerIds[messageIndex]) {
-      lineToMeasure[0] = intl.formatMessage(pollAnswerIds[messageIndex]);
-    }
-
-    // saving all the initial calculations in the state
-    this.setState({
-      outerRect: {
-        x,
-        y,
-        width,
-        height,
-      },
-      innerRect: {
-        x: innerX,
-        y: innerY,
-        width: innerWidth,
-        height: innerHeight,
-      },
-      thickness,
-      maxNumVotes,
-      textArray,
-      maxLineWidth,
-      maxLineHeight,
-      lineToMeasure,
-    });
+    this.pollInitialCalculation = this.pollInitialCalculation.bind(this);
   }
 
   componentDidMount() {
+    this.pollInitialCalculation();
     this.checkSizes();
   }
 
@@ -177,10 +81,11 @@ class PollDrawComponent extends Component {
       fontSizeDirection,
       calcFontSize,
       textArray,
+      calculated,
     } = this.state;
 
     const { annotation } = this.props;
-
+    if (!calculated) return null;
     // calculating the font size in this if / else block
     if (fontSizeDirection !== 0) {
       const key = `${annotation.id}_key_${currentLine}`;
@@ -272,6 +177,107 @@ class PollDrawComponent extends Component {
       maxDigitWidth,
       maxDigitHeight,
       prepareToDisplay: false,
+    });
+  }
+
+  pollInitialCalculation() {
+    // in this part we retrieve the props and perform initial calculations for the state
+    // calculating only the parts which have to be done just once and don't require
+    // rendering / rerendering the text objects
+
+    // if (!state.initialState) return;
+    const { annotation } = this.props;
+    const { points, result } = annotation;
+    const { slideWidth, slideHeight, intl } = this.props;
+
+    // x1 and y1 - coordinates of the top left corner of the annotation
+    // initial width and height are the width and height of the annotation
+    // all the points are given as percentages of the slide
+    const x1 = points[0];
+    const y1 = points[1];
+    const initialWidth = points[2];
+    const initialHeight = points[3];
+
+    // calculating the data for the outer rectangle
+    // 0.001 is needed to accomodate bottom and right borders of the annotation
+    const x = (x1 / 100) * slideWidth;
+    const y = (y1 / 100) * slideHeight;
+    const width = ((initialWidth - 0.001) / 100) * slideWidth;
+    const height = ((initialHeight - 0.001) / 100) * slideHeight;
+
+    let votesTotal = 0;
+    let maxNumVotes = 0;
+    const textArray = [];
+
+    // counting the total number of votes, finding the biggest number of votes
+    result.reduce((previousValue, currentValue) => {
+      votesTotal = previousValue + currentValue.numVotes;
+      if (maxNumVotes < currentValue.numVotes) {
+        maxNumVotes = currentValue.numVotes;
+      }
+
+      return votesTotal;
+    }, 0);
+
+    // filling the textArray with data to display
+    // adding value of the iterator to each line needed to create unique
+    // keys while rendering at the end
+    const arrayLength = result.length;
+    for (let i = 0; i < arrayLength; i += 1) {
+      const _tempArray = [];
+      const _result = result[i];
+      _tempArray.push(_result.key, `${_result.numVotes}`);
+      if (votesTotal === 0) {
+        _tempArray.push('0%');
+        _tempArray.push(i);
+      } else {
+        const percResult = (_result.numVotes / votesTotal) * 100;
+        _tempArray.push(`${Math.round(percResult)}%`);
+        _tempArray.push(i);
+      }
+
+      textArray.push(_tempArray);
+    }
+
+    // calculating the data for the inner rectangle
+    const innerWidth = width * 0.95;
+    const innerHeight = height - (width * 0.05);
+    const innerX = x + (width * 0.025);
+    const innerY = y + (width * 0.025);
+    const thickness = (width - innerWidth) / 10;
+
+    // calculating the maximum possible width and height of the each line
+    // 25% of the height goes to the padding
+    const maxLineWidth = innerWidth / 3;
+    const maxLineHeight = (innerHeight * 0.75) / textArray.length;
+
+    const lineToMeasure = textArray[0];
+    const { pollAnswerIds } = PollService;
+    const messageIndex = lineToMeasure[0].toLowerCase();
+    if (pollAnswerIds[messageIndex]) {
+      lineToMeasure[0] = intl.formatMessage(pollAnswerIds[messageIndex]);
+    }
+
+    this.setState({
+      outerRect: {
+        x,
+        y,
+        width,
+        height,
+      },
+      innerRect: {
+        x: innerX,
+        y: innerY,
+        width: innerWidth,
+        height: innerHeight,
+      },
+      thickness,
+      maxNumVotes,
+      textArray,
+      maxLineWidth,
+      maxLineHeight,
+      lineToMeasure,
+      calculated: true,
     });
   }
 
