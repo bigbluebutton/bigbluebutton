@@ -1,4 +1,3 @@
-const moment = require('moment');
 const VirtualizedList = require('./virtualizedlist/virtualize');
 
 describe('Virtualized List', () => {
@@ -6,17 +5,12 @@ describe('Virtualized List', () => {
     const test = new VirtualizedList();
     let response;
     try {
-      console.log('initializing ', moment(Date.now()).format('DD/MM/YYYY hh:mm:ss'));
       await test.init();
-      console.log('getting results', moment(Date.now()).format('DD/MM/YYYY hh:mm:ss'));
       response = await test.test();
-      console.log('after test ', moment(Date.now()).format('DD/MM/YYYY hh:mm:ss'));
     } catch (e) {
       console.log(e);
     } finally {
-      console.log('closing page ( begin )');
       await test.close();
-      console.log('closing page ( end )');
     }
     expect(response).toBe(true);
   }, parseInt(process.env.TEST_DURATION_TIME));

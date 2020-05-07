@@ -2,7 +2,6 @@ require('dotenv').config();
 const puppeteer = require('puppeteer');
 const fs = require('fs');
 const path = require('path');
-const moment = require('moment');
 const helper = require('./helper');
 const params = require('../params');
 const e = require('./elements');
@@ -36,15 +35,13 @@ class Page {
       this.page = await this.browser.newPage();
       this.page.setDefaultTimeout(3600000);
 
-      // // Getting all page console logs
+      // Getting all page console logs
       // this.page.on('console', async msg => console[msg._type](
       //   ...await Promise.all(msg.args().map(arg => arg.jsonValue()))
       // ));
 
       await this.setDownloadBehavior(`${this.parentDir}/downloads`);
       this.meetingId = await helper.createMeeting(params, meetingId);
-      console.log(this.meetingId);
-
       const joinURL = helper.getJoinURL(this.meetingId, this.effectiveParams, isModerator);
 
       await this.page.goto(joinURL);
@@ -80,10 +77,8 @@ class Page {
   }
 
   async closeAudioModal() {
-    console.log(`${this.effectiveParams.fullName} :: close audio modal ( begin )`);
     await this.waitForSelector(e.audioDialog);
     await this.click(e.closeAudio, true);
-    console.log(`${this.effectiveParams.fullName} :: close audio modal ( end )`);
   }
 
   async setDownloadBehavior(downloadPath) {
@@ -106,30 +101,57 @@ class Page {
 
   // Get the default arguments for creating a page
   static getArgs() {
-    return { headless: false, args: ['--no-sandbox', '--use-fake-ui-for-media-stream'] };
+    const args = ['--no-sandbox', '--use-fake-ui-for-media-stream'];
+    return { headless: false, args };
   }
 
   static getArgsWithAudio() {
-    return {
-      headless: false,
-      args: [
+    if (process.env.BROWSERLESS_ENABLED === 'true') {
+      const args = [
         '--no-sandbox',
         '--use-fake-ui-for-media-stream',
         '--use-fake-device-for-media-stream',
+        `--use-file-for-fake-audio-capture=${path.join(__dirname, '../media/audio.wav')}`,
         '--allow-file-access',
-      ],
+      ];
+      return {
+        headless: false,
+        args,
+      };
+    }
+    const args = [
+      '--no-sandbox',
+      '--use-fake-ui-for-media-stream',
+      '--use-fake-device-for-media-stream',
+    ];
+    return {
+      headless: false,
+      args,
     };
   }
 
   static getArgsWithVideo() {
-    return {
-      headless: false,
-      args: [
+    if (process.env.BROWSERLESS_ENABLED === 'true') {
+      const args = [
         '--no-sandbox',
         '--use-fake-ui-for-media-stream',
         '--use-fake-device-for-media-stream',
-        '--allow-file-access',
-      ],
+      ];
+      return {
+        headless: false,
+        args,
+      };
+    }
+    const args = [
+      '--no-sandbox',
+      '--use-fake-ui-for-media-stream',
+      '--use-fake-device-for-media-stream',
+      `--use-file-for-fake-video-capture=${path.join(__dirname, '../media/video.wav')}`,
+      '--allow-file-access',
+    ];
+    return {
+      headless: false,
+      args,
     };
   }
 
@@ -205,9 +227,7 @@ class Page {
   }
 
   async waitForSelector(element) {
-    // console.log(`waiting for ${element} (begin)`);
     await this.page.waitForSelector(element, { timeout: 0 });
-    // console.log(`waiting for ${element} (end)`);
   }
 
   async getMetrics() {
@@ -216,9 +236,7 @@ class Page {
     if (!fs.existsSync(dir)) {
       fs.mkdirSync(dir);
     }
-    console.log('Waiting for user list item ( begin )');
     await this.waitForSelector('[data-test^="userListItem"]');
-    console.log('Waiting for user list item ( end )');
     const totalNumberOfUsersMongo = await this.page.evaluate(() => {
       const collection = require('/imports/api/users/index.js');
       const users = collection.default._collection.find({ connectionStatus: 'online' }).count();
