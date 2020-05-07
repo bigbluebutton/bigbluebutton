@@ -56,10 +56,11 @@ export default class ChatFileUploaded extends PureComponent {
           />
         </div>
         {(text) ? (
-          <div className={styles.text}>
-            {/* <hr/> */}
-            <span>{text}</span>
-          </div>
+          <p
+            ref={(ref) => { this.text = ref; }}
+            dangerouslySetInnerHTML={{ __html: text }}
+            className={styles.text}
+          />
         ) : null}
       </div>
     );

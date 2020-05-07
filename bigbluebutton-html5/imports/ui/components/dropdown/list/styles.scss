@@ -137,6 +137,9 @@
   margin: 0 calc(var(--line-height-computed) / 2) 0 0;
   color: var(--color-text);
   flex: 0 0;
+  i {
+    color: #000000;
+  }
 
   [dir="rtl"] & {
     margin: 0 0 0 calc(var(--line-height-computed) / 2);

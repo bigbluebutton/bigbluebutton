@@ -7,7 +7,6 @@
 
 
 .heading{
-    font-family: Avenir;
 font-style: normal;
 font-weight: 500;
   padding:  1.6rem;
@@ -18,7 +17,6 @@ font-size: 13px;
 line-height: 21px;
 }
 .name{
-    font-family: Avenir;
     font-style: normal;
    
         padding:  1.6rem;
@@ -40,13 +38,9 @@ line-height: 21px;
 
 }
 .Join{
-//     padding:  0.6rem;
-//   flex: auto;
-// line-height: 25px;
 display: flex;
 flex-flow: column wrap;
 align-items: flex-start;
-// margin-top: 2rem;
 :nth-child(n){
   margin: 0.005rem;
 }
@@ -277,8 +271,6 @@ margin: 0px 10px ;
 
 
 .inputheading{
- 
-  font-family: Avenir;
   font-style: normal;
   letter-spacing: 0.015em;
   color: #000000;

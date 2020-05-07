@@ -1,5 +1,6 @@
 @import "/imports/ui/stylesheets/variables/_all";
 @import "/imports/ui/stylesheets/variables/typography";
+@import "/client/stylesheets/fonts.css";
 
 :root {
   --systemMessage-background-color: #fefefe;
@@ -15,54 +16,19 @@
   }
 }
 
-.senderMessages{
-  float: right;
-  // flex: start;
-  // display: flex;
-  // position: relative;
-    flex-flow: column;
-    font-family: Montserrat;
-    font-style: normal;
-    font-weight: normal;
-    font-size: var(--font-size-14px);
-    line-height: var(--font-size-17px);
-    color: #03213F;
-    padding: 0 0.5rem 0 0.5rem;
-    border-radius: 0.8rem 0 0.8rem 0.8rem;
-    width: fit-content;
-    height: max-content;
-    background: #ffffff none repeat scroll 0 0;
-}
-
-.wrapper {
-  display: flex;
-  flex-flow: row;
-  flex: 1;
-  overflow-y: visible;
-  position: relative;
-  margin:var(--border-size) 0 0 var(--border-size);
-
-  [dir="rtl"] & {
-    margin: var(--border-size) var(--border-size) 0 0;
-  }
-}
-
 .systemMessage {
   background: var(--systemMessage-background-color);
   border: 1px solid var(--systemMessage-border-color);
   border-radius: var(--border-radius);
-  font-family: Avenir;
   font-size: var(--font-size-14px);
   color: #30213f;
   line-height: var(--font-size-15px);
-  font-weight: var(--btn-font-weight);
   padding: var(--font-size-base);
   margin-bottom: var(--line-height-computed);
   max-width: 70%;
 }
 
 .avatarWrapper {
-  flex-basis: 2.25rem;
   flex-shrink: 0;
   flex-grow: 0;
   margin: 0 calc(var(--line-height-computed) / 2) 0 0;
@@ -73,27 +39,7 @@
 }
 
 .avatar {
-  font-size: .85rem;
-}
-
-.content {
-  flex: 1;
-  display: flex;
-  flex-flow: column;
- overflow-x: hidden;
-  width: calc(100% - 1.7rem);
-}
-
-.meta {
-  display: flex;
-  flex: 1;
-  flex-flow: row;
-  line-height: 1;
-  height: 2rem;
-  
-  & + .messages {
-    margin-top: 0.5rem;
-  }
+  font-size: .71rem;
 }
 
 .name,
@@ -101,17 +47,13 @@
   flex-wrap: nowrap;
   display: flex;
   min-width: 0;
-  font-weight: 500;
   position: relative;
 
   > span{
     color: #A3AEBD;
-    font-family: Avenir;
-    font-style: normal;
-    font-weight: normal;
     font-size: var(--font-size-13px);
     line-height: var(--font-size-15px);
-    letter-spacing: 0.005em;
+    letter-spacing: 0.006rem;
     text-transform: capitalize;
     align-self: center;
   }
@@ -142,9 +84,7 @@
 }
 
 .offline {
-  
   color: #1A5577;
-  font-family: Muli;
   font-style: italic;
   font-weight: 100;
   line-height:var(--font-size-13px);
@@ -157,7 +97,6 @@
   flex-grow: 0;
   flex-basis: 3.5rem;
   color: rgba(4, 46, 87, 0.51);
-  font-family: Muli;
   font-style: normal;
   font-weight: normal;
   font-size: var(--font-size-10px);
@@ -175,106 +114,41 @@
   }
 }
 
-.messages {   
-  font-family: Montserrat;
-  font-style: normal;
-  font-weight: normal;
-  font-size: var(--font-size-14px);
-  line-height: var(--font-size-17px);
-  color: #03213F;
-  flex: auto;
-  align-self: flex-start;
-  max-width: 17rem;
-  flex-flow: column;
-  .message, .hyperlink {
-    background: #ffffff;
-    padding: 0.8rem;
-    border-radius: 0 0.8rem 0.8rem 0.8rem;
-    width: fit-content;
-    max-width: 17rem;
-    margin-top: calc(var(--line-height-computed) / 3);
-    margin-bottom: 0;
-    color: var(--color-text);
-    word-wrap: break-word;
-  }
-}
-
 .hyperlink {
   a {
     color: var(--color-primary);
   }
 }
-.nameonly{
-  display: flex;
-  //flex-grow: initial;
-  font-family: Avenir;
-  //flex: auto;
- flex-wrap: wrap;
-  //justify-self: auto;
- // flex: auto;
- // color: #A3AEBD;
-}
 
 .messagesleft {  
   flex: auto;
-  //flex-shrink: 0;
   align-self: flex-start;
- // justify-content:flex-start;
   flex-wrap: nowrap;
   display: flex;
   flex-direction: column;
-  //align-content: flex-start;
   overflow-x: hidden;
-  font-family: Avenir;
   font-style: light;
   line-height: 1.6;
-  // font-weight: normal;
-  //  font-size: var(--font-size-14px);
-    //line-height: var(--font-size-17px);
-    color:#000000;
-
-
-
-     
- 
-
+  color:#000000;
+  a {
+    color: var(--color-primary);
+  }
 }
+
 .messagesright {  
   flex:auto;
- // align-self: flex-end;
-  //flex-shrink: 1;
   flex-wrap: nowrap;
   display: flex;
   flex-direction: column;
   overflow-x: hidden;
-
-  // float: inline-end;
-  //align-items:flex-end;
-  // justify-content:flex-end;
-  // flex-wrap: nowrap;
-  // display: flex;
-  // align-content: flex-end;
-  // overflow-wrap: inherit;
-   font-family: Avenir;
-  font-style: normal;
+  font-style: light;
   text-align: left;
   margin-right: 0.85rem;
-    font-weight: normal;
-    font-size: var(--font-size-13px);
     line-height: 1.6;
     color:#000000;
-    // word-wrap: break-word;
-    // margin-top: calc(var(--line-height-computed) / 3);
-    // margin-bottom: 0;
-  
-
-
-    // flex: 1;
-    // margin-top: calc(var(--line-height-computed) / 3);
-    // margin-bottom: 0;
-    // color: var(--color-light);
-    // word-wrap: break-word;
-
+    a {
+      color: var(--color-primary);
+    }
 }
 
 .messageleft, .hyperlinkleft {
@@ -285,12 +159,10 @@
   word-wrap: break-word;
 
   align-self: flex-start;
-  font-family: Avenir;
   max-width: 18.25rem;
   background: #FFFFFF;
   border-radius: 0px 20px 20px 20px;
   line-height: var(--font-size-21px);
-  font-weight: var(--btn-font-14px);
   padding: var(--font-size-10px);
   letter-spacing: 0.1px;
 
@@ -303,12 +175,9 @@
   word-wrap: break-word;
 
   align-self: flex-end;
-  font-family: Avenir;
   max-width: 17.4rem;
   background:linear-gradient(0deg, #BCD7EF, #BCD7EF);
   border-radius: 20px 0px 20px 20px;
-  //line-height: var(--font-size-21px);
-  font-weight: var(--btn-font-14px);
   padding: var(--font-size-10px);
 }
 
@@ -318,7 +187,6 @@
   flex-basis: 3.5rem;
   flex-wrap: wrap-reverse;
   color: #B2B5C0;
-  font-family: Avenir;
   font-style: normal;
   font-weight: normal;
   font-size: var(--font-size-10px);
@@ -341,7 +209,6 @@
   flex-basis: 3.5rem;
   flex-wrap: wrap-reverse;
   color: #B2B5C0;
-  font-family: Avenir;
   font-style: normal;
   font-weight: normal;
   font-size: var(--font-size-10px);
@@ -389,35 +256,19 @@
   flex: start;
   display: flex;
   flex-flow: column;
- 
- // overflow-x: hidden;
- // width: calc(100% - 1.7rem);
-
-
-
- 
 }
 .contentright {
   flex: auto;
   display: flex;
   flex-flow: column;
-  // justify-content:space-around;
- // overflow-x: hidden;
- // width: calc(100% - 1.7rem);
 }
 
 .metaleft {
   display: flex;
-  //flex:1;
   flex-flow: row;
-  //line-height: var(--font-size-21px);
  align-self: auto;
  line-height: 1.5;
- //margin-bottom: 13px;
   flex-direction: row;
-  //white-space: nowrap;
- // justify-self: auto;
-  //flex: auto;
   & + .message {
     margin-top: 0;
   }

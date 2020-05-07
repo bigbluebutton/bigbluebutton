@@ -28,7 +28,7 @@
   background-color: #f1f2f2;
   padding:
     var(--md-padding-x)
-    var(--md-padding-y)
+    0
     var(--md-padding-x)
     0;
 
@@ -103,10 +103,7 @@ background: #E5E5E6;
 
 .chatTab{
   flex:1;
-  font-family: Avenir;
-  font-style: normal;
-  font-weight: 500;
-  font-size: 13px;
+  font-size: var(--font-size-13px);
   line-height: 1.5rem;
   text-align: center;
   letter-spacing: 0.05em;
