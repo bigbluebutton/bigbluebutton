@@ -119,7 +119,7 @@ class Assign extends Component {
     const {numberOfRooms, channels, users} = this.state;
     var {currentStep} = this.state;
     currentStep = currentStep >= numberOfRooms-1? numberOfRooms: currentStep + 1;
-   {if(currentStep>1){  document.getElementById('channelname').value=null;}}
+   {if(currentStep>1){  document.getElementById('channelname').value = null;}}
     this.setState({
       currentStep: currentStep,
       numberOfRooms: numberOfRooms,
