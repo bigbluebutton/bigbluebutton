@@ -1,7 +1,10 @@
 import React, { Fragment, PureComponent } from 'react';
-
-import Popup from "reactjs-popup";
-import  Assign from '/imports/ui/components/breakout-create-modal/assign-to-breakouts/container';
+import browser from 'browser-detect';
+import PropTypes from 'prop-types';
+import Popup from 'reactjs-popup';
+import Assign from '/imports/ui/components/breakout-create-modal/assign-to-breakouts/container';
+import { withModalMounter } from '/imports/ui/components/modal/service';
+import BreakoutCreateModalContainer from '/imports/ui/components/breakout-create-modal/container';
 import { defineMessages, injectIntl } from 'react-intl';
 import _ from 'lodash';
 import Button from '/imports/ui/components/button/component';
@@ -19,7 +22,6 @@ import DropdownList from '/imports/ui/components/dropdown/list/component';
 import DropdownListItem from '/imports/ui/components/dropdown/list/item/component';
 import ChannelAvatar from './channelAvatar/component';
 import BreakoutEditModalContainer from '/imports/ui/components/breakout-edit-modal/container';
-import { withModalMounter } from '/imports/ui/components/modal/service';
 
 
 const ROLE_MODERATOR = Meteor.settings.public.user.role_moderator;
@@ -109,7 +111,7 @@ class Channels extends PureComponent {
     this.getScrollContainerRef = this.getScrollContainerRef.bind(this);
     this.onActionsShow = this.onActionsShow.bind(this);
     this.onActionsHide = this.onActionsHide.bind(this);
-
+    this.newCreateBreakouts = this.newCreateBreakouts.bind(this);
     this.state = {
       requestedBreakoutId: '',
       waiting: false,
@@ -269,12 +271,12 @@ class Channels extends PureComponent {
       getUsersByMeeting,
       getUsersNotAssigned,
       users,
-      exitAudio
+      exitAudio,
     } = this.props;
 
     const {
       channelId,
-    } =this.state;
+    } = this.state;
     const isBreakOutMeeting = meetingIsBreakout();
 
     this.menuItems = _.compact([
@@ -289,46 +291,46 @@ class Channels extends PureComponent {
           }}
         />) : null
       ),
- 
+
       ((isMeteorConnected && amIModerator && !isBreakOutMeeting) ? (
         <DropdownListItem
           key={this.muteAllId}
           icon="rooms"
           label="Edit Room"
           onClick={() => {
-            this.launchEditRoom(breakout.breakoutId)
+            this.launchEditRoom(breakout.breakoutId,breakout.name);
           }}
-        />) : null)
+        />) : null),
 
-        // <Popup
-        //   trigger={<div className="menu-item">Edit Room </div>}
-        //   position="right top"
-        //   on="hover"
-        //   closeOnDocumentClick
-        //   mouseLeaveDelay={300}
-        //   mouseEnterDelay={0}
-        //   contentStyle={{ padding: "0px", border: "none" }}
-        //   arrow={false}
-        // > 
-        //   <EditBreakout meetingIdentifier={breakout.breakoutId}/> 
+      // <Popup
+      //   trigger={<div className="menu-item">Edit Room </div>}
+      //   position="right top"
+      //   on="hover"
+      //   closeOnDocumentClick
+      //   mouseLeaveDelay={300}
+      //   mouseEnterDelay={0}
+      //   contentStyle={{ padding: "0px", border: "none" }}
+      //   arrow={false}
+      // >
+      //   <EditBreakout meetingIdentifier={breakout.breakoutId}/>
 
-        //   </Popup> 
-        
-        // ) : null)
+      //   </Popup>
+
+      // ) : null)
 
     ]);
 
     return this.menuItems;
   }
 
-  launchEditRoom(breakoutId){
+  launchEditRoom(breakoutId,name) {
     const { mountModal } = this.props;
-    return mountModal(<BreakoutEditModalContainer breakoutId={breakoutId} />);
+    return mountModal(<BreakoutEditModalContainer breakoutId={breakoutId} name={name} />);
   }
 
 
   channelOptions(breakout) {
-    const {isChannelOptionsOpen} = this.state;
+    const { isChannelOptionsOpen } = this.state;
     return (
       <Dropdown
         ref={(ref) => { this.dropdown = ref; }}
@@ -360,7 +362,7 @@ class Channels extends PureComponent {
           </DropdownList>
         </DropdownContent>
       </Dropdown>
-    )
+    );
   }
 
   renderChannelAvatar(breakout) {
@@ -374,11 +376,16 @@ class Channels extends PureComponent {
   }
 
   toggleUserList(id) {
-    const {channelId} = this.state;
+    const { channelId } = this.state;
 
-    (channelId == id) ?
-      this.setState({channelId: ''}) 
-      : this.setState({channelId: id})
+    (channelId == id)
+      ? this.setState({ channelId: '' })
+      : this.setState({ channelId: id });
+  }
+
+  newCreateBreakouts() {
+    const { mountModal } = this.props;
+    return mountModal(<BreakoutCreateModalContainer />);
   }
 
   render() {
@@ -392,11 +399,12 @@ class Channels extends PureComponent {
       requestUserInformation,
     } = this.props;
 
-    logger.info("auth Id: " + Auth.meetingID);
+    logger.info(`auth Id: ${Auth.meetingID}`);
 
-    const {channelId, hideUsers} = this.state;
+    const { channelId, hideUsers } = this.state;
     const isBreakOutMeeting = meetingIsBreakout();
-    const isModerator=currentUser.role === ROLE_MODERATOR;
+    const isModerator = currentUser.role === ROLE_MODERATOR;
+
     return (
 
       <div className={styles.channelListColumn}>
@@ -427,50 +435,61 @@ class Channels extends PureComponent {
 
             {isBreakOutMeeting ? null
               : (
-              <Fragment>
-                <div 
-                  className={styles.buttonWrapper}
-                  onClick={()=> this.toggleUserList(Auth.meetingID)}
-                  role="button"
-                  cursor="pointer"
-                >
-                  <Button
-                    className={styles.master}
-                    icon="icomoon-Master-Channel"
-                    label="master channel"
-                    hideLabel
-                  />
-                  <div className={styles.masterChannel}>Master Channel</div>
-                </div>
-                {(channelId == Auth.meetingID) ? 
-                  <div className={styles.usersList}>
-                  <UserParticipantsContainer
-                    {...{
-                      compact,
-                      intl,
-                      currentUser,
-                      setEmojiStatus,
-                      roving,
-                      requestUserInformation,
-                      meetingIdentifier: Auth.meetingID,
-                    }}
-                  />
+                <Fragment>
+                  <div
+                    className={styles.buttonWrapper}
+                    onClick={() => this.toggleUserList(Auth.meetingID)}
+                    role="button"
+                    cursor="pointer"
+                  >
+                    <Button
+                      className={styles.master}
+                      icon="icomoon-Master-Channel"
+                      label="master channel"
+                      hideLabel
+                    />
+                    <div className={styles.masterChannel}>Master Channel</div>
                   </div>
-                  : null
+                  {(channelId == Auth.meetingID)
+                    ? (
+                      <div className={styles.usersList}>
+                        <UserParticipantsContainer
+                          {...{
+                            compact,
+                            intl,
+                            currentUser,
+                            setEmojiStatus,
+                            roving,
+                            requestUserInformation,
+                            meetingIdentifier: Auth.meetingID,
+                          }}
+                        />
+                      </div>
+                    )
+                    : null
                 }
-              </Fragment>
+                </Fragment>
               )
             }
-                     {!isBreakOutMeeting && isModerator?
-                       <div className={styles.wrapper}>
-             <Popup   trigger={<button  className={styles.button}>+New Breakout Channel</button>} position="right top">
-                 {close => (
-                       <div >
-                         <Assign  /> 
-                         </div>
-                   )}
-            </Popup>
-                       </div>:null}
+
+
+            {!isBreakOutMeeting && isModerator
+              ? (
+                <Button
+
+                  className={styles.button}
+                  label="+New Breakout Channel"
+
+                   // icon="actions"
+                  size="lg"
+                   // circle
+                  // color="primary"
+                  onClick={this.newCreateBreakouts}
+                  label="+New Breakout Channel"
+                />
+              )
+              : null }
+            {/* {isMobileBrowser ? this.renderMobile() : this.renderDesktop()} */}
             {this.renderBreakoutRooms()}
 
           </div>
@@ -495,7 +514,7 @@ class Channels extends PureComponent {
       sendInvitation,
       getUsersNotAssigned,
       getUsersByMeeting,
-      isbreakoutRoomUser
+      isbreakoutRoomUser,
 
     } = this.props;
 
@@ -506,36 +525,38 @@ class Channels extends PureComponent {
     return (
       breakoutRooms.map(breakout => (
         <div>
-        <div
-          className={styles.channelName}
-          role="button"
-        >
-        <div className={styles.channelWrapper}>
-          {this.renderChannelAvatar(breakout)}
-          <Button
-            className={styles.channelNameMain}
-            label={breakout.name}
-            onClick={() => this.toggleUserList(breakout.breakoutId)}
-          />
-          {(meetingIsBreakout()) ? null : this.channelOptions(breakout)}
-        </div>
-        </div>
-        <div className={styles.breakoutUsersList}>
-        {(channelId == breakout.breakoutId) ?
-          <UserParticipantsContainer
-            {...{
-              compact,
-              intl,
-              currentUser,
-              setEmojiStatus,
-              roving,
-              requestUserInformation,
-              meetingIdentifier: breakout.breakoutId,
-              isbreakoutRoomUser
-            }}
-          />
-          : null}
-        </div>
+          <div
+            className={styles.channelName}
+            role="button"
+          >
+            <div className={styles.channelWrapper}>
+              {this.renderChannelAvatar(breakout)}
+              <Button
+                className={styles.channelNameMain}
+                label={breakout.name}
+                onClick={() => this.toggleUserList(breakout.breakoutId)}
+              />
+              {(meetingIsBreakout()) ? null : this.channelOptions(breakout)}
+            </div>
+          </div>
+          <div className={styles.breakoutUsersList}>
+            {(channelId == breakout.breakoutId)
+              ? (
+                <UserParticipantsContainer
+                  {...{
+                    compact,
+                    intl,
+                    currentUser,
+                    setEmojiStatus,
+                    roving,
+                    requestUserInformation,
+                    meetingIdentifier: breakout.breakoutId,
+                    isbreakoutRoomUser,
+                  }}
+                />
+              )
+              : null}
+          </div>
         </div>
       )));
   }
@@ -546,25 +567,24 @@ class Channels extends PureComponent {
       sendInvitation,
       removeUser,
       currentUser,
-      getBreakoutMeetingUserId
+      getBreakoutMeetingUserId,
     } = this.props;
 
-    //The userIds here are from the parent meeting. We need to get the corresponding user from the 
-    //break out room. 
-     usersToRemove.map((user) => {
-      let breakoutUser = getBreakoutMeetingUserId(user.email, user.name, breakoutId);
-      if(breakoutUser != null && breakoutUser != undefined){
+    // The userIds here are from the parent meeting. We need to get the corresponding user from the
+    // break out room.
+    usersToRemove.map((user) => {
+      const breakoutUser = getBreakoutMeetingUserId(user.email, user.name, breakoutId);
+      if (breakoutUser != null && breakoutUser != undefined) {
         console.log(`Removing user to channel: ${breakoutUser.userId}`);
         removeUser(breakoutUser.userId, breakoutId);
-       }
-     });
+      }
+    });
 
-    usersToAdd.map(user => {
-      if(user.userId != currentUser.userId){
-        console.log("Adding user to channel: " + user);
+    usersToAdd.map((user) => {
+      if (user.userId != currentUser.userId) {
+        console.log(`Adding user to channel: ${user}`);
         sendInvitation(breakoutId, user.userId);
       }
-
     });
   }
 
@@ -652,6 +672,5 @@ class Channels extends PureComponent {
     );
   }
 }
-
+//Channels.propTypes = PropTypes;
 export default withModalMounter(injectIntl(Channels));
-
