@@ -72,6 +72,8 @@
     "app.userList.menu.chat.label": "Start a private chat",
     "app.userList.menu.clearStatus.label": "Clear status",
     "app.userList.menu.removeUser.label": "Remove user",
+    "app.userList.menu.removeConfirmation.label": "Remove User Confirmation",
+    "app.userlist.menu.removeConfirmation.desc": "They will not be allowed to rejoin this current session.",
     "app.userList.menu.muteUserAudio.label": "Mute user",
     "app.userList.menu.unmuteUserAudio.label": "Unmute user",
     "app.userList.userAriaLabel": "{0} {1} {2}  Status {3}",
