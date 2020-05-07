@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import styles from './styles.scss';
-
+import UserAvatar from '/imports/ui/components/user-avatar/component';
 const propTypes = {
   breakoutRoomUsers: PropTypes.arrayOf(PropTypes.object).isRequired,
   unassignedUsersInMasterChannel: PropTypes.arrayOf(PropTypes.object).isRequired
@@ -25,8 +25,10 @@ class EditBreakout extends Component {
   }
 
   render() {
-    const {breakoutRoomUsers, unassignedUsersInMasterChannel} = this.props;
+    const {breakoutRoomUsers, unassignedUsersInMasterChannel,name} = this.props;
       return( <div className="form-group">
+        <div className={styles.name}>{name}</div>
+        <div className={styles.userList}>
         {breakoutRoomUsers.map((u,idx) => 
           <div  className={styles.Join}>
             <label htmlFor="freeJoinCheckbox" className={styles.JoinLabel} key="free-join-breakouts">
@@ -37,7 +39,18 @@ class EditBreakout extends Component {
               defaultChecked={true}
               onChange={this.onChange(u)}
             />
-            <span aria-hidden  className={styles.JoinLabel}>{u.name}</span>
+             <div className={styles.userContentContainer} >
+             <div  className={styles.userAvatar}>
+          <UserAvatar
+          key={`user-avatar-${u.userId}`}
+         // moderator={u.role === 'MODERATOR'}
+          color={u.color}
+        >
+          {u.name.slice(0, 2).toLowerCase()}
+        </UserAvatar>
+        </div>
+            <span aria-hidden  className={styles.username}>{u.name}</span>
+            </div>
             </label>
           </div>
 
@@ -54,11 +67,23 @@ class EditBreakout extends Component {
             defaultChecked={false}
             onChange={this.onChange(u)}
           />
-          <span aria-hidden  className={styles.JoinLabel}>{u.name}</span>
+           <div className={styles.userContentContainer} >
+             <div  className={styles.userAvatar}>
+          <UserAvatar
+          key={`user-avatar-${u.userId}`}
+         // moderator={u.role === 'MODERATOR'}
+          color={u.color}
+        >
+          {u.name.slice(0, 2).toLowerCase()}
+        </UserAvatar>
+        </div>
+          <span aria-hidden  className={styles.username}>{u.name}</span>
+          </div>
           </label>
         </div>
 
         )}
+          </div>
       <div className={styles.btns}>
         {this.renderCancelButton()}
         {this.renderUpdateButton()}
@@ -120,6 +145,7 @@ class EditBreakout extends Component {
   
     
   _cancel = () => {
+    const {closeModal}=this.props
     closeModal();
   }
 
@@ -127,7 +153,7 @@ class EditBreakout extends Component {
     return (
         <button 
           className={styles.pbtn}
-          type="button" onClick={this.cancel}>
+          type="button" onClick={this._cancel}>
         Cancel
         </button>
     )

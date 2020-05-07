@@ -21,8 +21,11 @@ class BreakoutEditModalComponent extends Component {
     const {
       showPermissionsOvelay,
       closeModal,
-      breakoutId
+      breakoutId,
+      name,
     } = this.props;
+    console.log(name);
+    
     return (
       <span>
         {showPermissionsOvelay ? <PermissionsOverlay closeModal={closeModal} /> : null}
@@ -33,7 +36,7 @@ class BreakoutEditModalComponent extends Component {
           hideBorder
         >
           <React.Fragment>
-           <EditBreakout  breakoutId={breakoutId} closeModal={closeModal}/>
+           <EditBreakout  breakoutId={breakoutId} name={name} closeModal={closeModal}/>
           </React.Fragment>
         </Modal>
       </span>

@@ -108,11 +108,11 @@
   white-space: nowrap;
     font-style: normal;
     color: #ffc700;
-    letter-spacing: 0.029rem;
+    letter-spacing: 0.025em;
     font-weight: 800;
-    line-height: 21px;
-    padding-left: var(--font-size-15px);
-    font-size: var(--font-size-14px);
+    line-height: 1.313rem;
+    padding-left: 1rem;
+    font-size: var(--font-size-12px);
 }
 
 .master {
@@ -168,17 +168,10 @@
   position: absolute;
   z-index: 2;
   width: auto;
-  padding: 50px 25px 25px 25px;
+  //padding: 50px 25px 25px 25px;
 }
 button{
   color: #36a1ff;
   background: transparent;
   border: 0px;
-}
-
- .wrapper{
-   width: 100%;
- }
- .wrapper >*{
-  width: 100%;
 }

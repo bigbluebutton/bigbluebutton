@@ -67,7 +67,8 @@
 .modal {
   @extend .modal;
   padding: 1.5rem;
-  min-height: 20rem;
+  min-height: auto;
+ max-width: fit-content;
 }
 
 .closeBtn {
