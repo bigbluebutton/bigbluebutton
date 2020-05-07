@@ -73,7 +73,7 @@ class UserContent extends PureComponent {
               //hideLabel
             // aria-label="New Breakout Channel"
               className={styles.button}
-              label="+New Breakout Channel"
+              label="+ New Breakout Channel"
             // icon="actions"
               size="lg"
             // circle

@@ -1,4 +1,5 @@
 @import "../../stylesheets/variables/_all";
+@import "/client/stylesheets/fonts.css";
 
 :root {
   --mobile-nav-height: 5rem;
@@ -44,8 +45,7 @@
   font-weight: 800;
   color: #5594d4;
   font-style: normal;
-  font-size: 1.25rem;
-  font-family: Avenir;
+  font-size: var(--font-size-19px);
   margin: 0;
   padding: 0;
   white-space: nowrap;
@@ -81,6 +81,10 @@
     box-shadow: none;
   }
 
+  i {
+    font-weight: 600;
+  }
+
   &:hover,
   &:focus {
     span {
@@ -89,7 +93,4 @@
       opacity: .75;
     }
   }
-}
-
-.btnSettings {
 }

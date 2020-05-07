@@ -7,22 +7,18 @@
 
 
 .heading{
-    font-family: Avenir;
-font-style: normal;
-//font-weight: 500;
-font-size: 20px;
-line-height: 36px;
-    padding:  1.6rem;
-    color: #000000;
+  font-style: normal;
+  font-size: 20px;
+  line-height: 36px;
+  padding:  1.6rem;
+  color: #000000;
 }
 .name{
-    font-family: Avenir;
     font-style: normal;
     font-size: 20px;
     line-height: 36px;
-        padding:  1.6rem;
-        
-        color: #000000;
+    padding:  1.6rem;
+    color: #000000;
 }
 .input{
     padding:  1.6rem;
@@ -34,20 +30,15 @@ line-height: 36px;
 
 }
 .Join{
-//     padding:  0.6rem;
-//   flex: auto;
-// line-height: 25px;
 display: flex;
 flex-flow: column wrap;
 align-items: flex-start;
-// margin-top: 2rem;
 :nth-child(n){
   margin: 0.01rem;
 }
 }
 .JoinLabel{
     font-size: 15px;
-font-family: Avenir;
 font-style: normal;
 color: #000000;
     padding:  1.6rem;
@@ -272,7 +263,6 @@ margin: 0px 10px ;
 
 .inputheading{
   font-size: 30px;
-  font-family: Avenir;
   font-style: normal;
   letter-spacing: 0.015em;
   color: #000000;
