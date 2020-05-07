@@ -179,15 +179,20 @@ public:
   upload:
     endpoint: /bigbluebutton/upload
     timeout: 5000
+    notification: true
     media:
       enabled: false
       maxSize: 30000000
       source: media
       validFiles:
+        - extension: .mp3
+          type: audio/mp3
+        - extension: .ogg
+          type: audio/ogg
         - extension: .mp4
           type: video/mp4
-        - extension: .mp4
-          type: audio/mp4
+        - extension: .webm
+          type: video/webm
   download:
     endpoint: /bigbluebutton/download
   presentation:

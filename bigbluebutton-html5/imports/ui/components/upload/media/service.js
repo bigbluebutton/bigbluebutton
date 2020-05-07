@@ -1,5 +1,6 @@
 import { UploadedFile } from '/imports/api/upload';
 import Auth from '/imports/ui/services/auth';
+import UploadService from '../service';
 
 const MEDIA_UPLOAD = Meteor.settings.public.upload.media;
 const DOWNLOAD = Meteor.settings.public.download;
@@ -27,9 +28,11 @@ const getMediaFiles = () => {
   }).fetch()
 };
 
-const getDownloadURL = id => {
-  return Auth.authenticateURL(`${DOWNLOAD.endpoint}/${MEDIA_UPLOAD.source}/${id}`);
-}
+const getDownloadURL = uploadId => {
+  const { source } = MEDIA_UPLOAD;
+
+  return UploadService.buildDownloadURL(source, uploadId);
+};
 
 export default {
   isEnabled,

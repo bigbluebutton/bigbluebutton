@@ -7,6 +7,7 @@ import UnreadMessages from '/imports/ui/services/unread-messages';
 import Storage from '/imports/ui/services/storage/session';
 import { makeCall } from '/imports/ui/services/api';
 import _ from 'lodash';
+import UploadService from '/imports/ui/components/upload/service';
 
 const CHAT_CONFIG = Meteor.settings.public.chat;
 const GROUPING_MESSAGES_WINDOW = CHAT_CONFIG.grouping_messages_window;
@@ -73,10 +74,19 @@ const mapGroupMessage = (message) => {
 const reduceGroupMessages = (previous, current) => {
   const lastMessage = previous[previous.length - 1];
   const currentMessage = current;
+  const {
+    id,
+    upload,
+    message,
+    timestamp,
+  } = current;
+
+  const text = upload ? UploadService.getNotification(upload) : message;
+
   currentMessage.content = [{
-    id: current.id,
-    text: current.message,
-    time: current.timestamp,
+    id,
+    text,
+    time: timestamp,
   }];
   if (!lastMessage || !currentMessage.chatId === PUBLIC_GROUP_CHAT_ID) {
     return previous.concat(currentMessage);

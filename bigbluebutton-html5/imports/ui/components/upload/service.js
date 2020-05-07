@@ -6,6 +6,7 @@ import { notify } from '/imports/ui/services/notification';
 import { makeCall } from '/imports/ui/services/api';
 
 const UPLOAD = Meteor.settings.public.upload;
+const DOWNLOAD = Meteor.settings.public.download;
 
 const intlMessages = defineMessages({
   uploading: {
@@ -107,6 +108,18 @@ const post = (source, file, token, intl) => {
   });
 };
 
+const buildDownloadURL = (source, uploadId) => {
+  return Auth.authenticateURL(`${DOWNLOAD.endpoint}/${source}/${uploadId}`);
+};
+
+const getNotification = ({ source, uploadId, filename }) => {
+  const downloadURL = buildDownloadURL(source, uploadId);
+
+  return `<a target="_blank" href="${downloadURL}">${filename}</a>`;
+};
+
 export default {
   upload,
+  buildDownloadURL,
+  getNotification,
 };
