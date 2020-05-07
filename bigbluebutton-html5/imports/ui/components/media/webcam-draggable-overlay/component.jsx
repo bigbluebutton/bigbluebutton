@@ -168,6 +168,9 @@ class WebcamDraggable extends PureComponent {
       height: Math.trunc(webcamsAreaResizable.height) + resizableHeight,
     };
 
+    console.log('>>  newWebcamsAreaResizable', newWebcamsAreaResizable);
+
+
     if (webcamsPlacement === 'top' || webcamsPlacement === 'bottom') {
       layoutContextDispatch(
         {
@@ -181,7 +184,7 @@ class WebcamDraggable extends PureComponent {
       layoutContextDispatch(
         {
           type: 'setWebcamsAreaUserSetsWidth',
-          value: newWebcamsAreaResizable.height,
+          value: newWebcamsAreaResizable.width,
         },
       );
     }

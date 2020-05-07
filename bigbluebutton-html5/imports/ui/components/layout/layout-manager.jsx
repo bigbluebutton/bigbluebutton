@@ -255,6 +255,9 @@ class LayoutManager extends Component {
       };
     }
 
+    console.log('>> webcamsAreaUserSetsWidth', webcamsAreaUserSetsWidth);
+
+
     if (presentationWidth === null || presentationHeight === null) {
       if (webcamsPlacement === 'left' || webcamsPlacement === 'right') {
         newWebcamAreaWidth = min(
@@ -379,8 +382,11 @@ class LayoutManager extends Component {
     );
     const { presentationWidth, presentationHeight } = presentationMaxSize;
 
-    console.log('presentationMaxSize', presentationMaxSize);
-    
+    console.log('mediaAreaHeight', mediaAreaHeight);
+
+
+    console.log('>> webcamAreaWidth', webcamAreaWidth);
+
 
     if (webcamAreaWidth === null || webcamAreaHeight === null) {
       newPresentationAreaWidth = presentationWidth; // 30 is margins
@@ -392,10 +398,26 @@ class LayoutManager extends Component {
       newPresentationAreaWidth = mediaAreaWidth;
       newPresentationAreaHeight = mediaAreaHeight - webcamAreaHeight - 30; // 30 is margins
     }
+    console.log('>> newPresentationAreaWidth', newPresentationAreaWidth);
+
+    if (newPresentationAreaWidth < (mediaAreaWidth * PRESENTATIONAREA_MIN_PERCENT)) {
+      if (newPresentationAreaWidth < 400) {
+        newPresentationAreaWidth = 400;
+      } else {
+        newPresentationAreaWidth = mediaAreaWidth * PRESENTATIONAREA_MIN_PERCENT;
+      }
+    }
+
+
+    console.log('>> newPresentationAreaWidth', newPresentationAreaWidth);
+
 
     return {
-      newPresentationAreaWidth: max(newPresentationAreaWidth, 400),
-      newPresentationAreaHeight,
+      newPresentationAreaWidth,
+      newPresentationAreaHeight: newPresentationAreaHeight
+        < (mediaAreaHeight * PRESENTATIONAREA_MIN_PERCENT)
+        ? mediaAreaHeight * PRESENTATIONAREA_MIN_PERCENT
+        : newPresentationAreaHeight,
     };
   }
 
@@ -431,8 +453,6 @@ class LayoutManager extends Component {
       );
     } else {
       webcamsSize = this.calculatesWebcamsAreaSize(mediaAreaWidth, mediaAreaHeight);
-      console.log('+++ webcamsSize', webcamsSize);
-
       presentationSize = this.calculatesPresentationAreaSize(
         mediaAreaWidth,
         mediaAreaHeight,

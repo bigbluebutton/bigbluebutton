@@ -142,12 +142,6 @@ class PresentationArea extends PureComponent {
     const { width: prevWidth, height: prevHeight } = prevProps.slidePosition;
     const { width: currWidth, height: currHeight } = slidePosition;
 
-    console.log('presentation currWidth', currWidth);
-    console.log('presentation currHeight', currHeight);
-
-
-
-
     if (prevWidth !== currWidth || prevHeight !== currHeight) {
       layoutContextDispatch({
         type: 'setPresentationSlideSize',
@@ -309,6 +303,14 @@ class PresentationArea extends PureComponent {
     const originalHeight = slidePosition.height;
     const viewBoxWidth = viewBoxDimensions.width;
     const viewBoxHeight = viewBoxDimensions.height;
+
+
+    console.log('-- presentationAreaHeight', presentationAreaHeight);
+    console.log('-- presentationAreaWidth', presentationAreaWidth);
+    console.log('-- originalWidth', originalWidth);
+    console.log('-- originalHeight', originalHeight);
+    console.log('-- viewBoxWidth', viewBoxWidth);
+    console.log('-- viewBoxHeight', viewBoxHeight);
 
     let svgWidth;
     let svgHeight;
