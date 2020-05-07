@@ -87,20 +87,35 @@ align-items: center;
 flex-direction: row;
    // padding:  0.6rem 0 0.6rem 1.6rem;
     input{
-        background: #F1F2F2;
-        border: 1px solid #DCDCDC;
-        //box-sizing: border-box;
-       // opacity: 1;
-        border-radius: 2px;
+      //   background: #F1F2F2;
+      //   border: 1px solid #DCDCDC;
+      //   //box-sizing: border-box;
+      //  // opacity: 1;
+      //   border-radius: 2px;
+
+
+background: #F5F6FA;
+border: 1px solid #DCDCDC;
+box-sizing: border-box;
+border-radius: 2px;
     }
  
 }
-.JoinCheckbox{
+.checkbox{
+
+  background: #F5F6FA;
+border: 1px solid #DCDCDC;
+box-sizing: border-box;
+border-radius: 2px;
+
+}
+input.JoinCheckbox{
     padding:  0.6rem 0 0.6rem 1.6rem;
   background: #F5F6FA;
 border: 1px solid #DCDCDC;
 box-sizing: border-box;
-
+width: 15px;
+height: 15px;
 border-radius: 2px;
 
 
@@ -187,51 +202,6 @@ margin: 0px 10px ;
 
 
 
-
-
-.avatar {
-  font-size: .55rem;
-}
-.avatarWrapper {
-  flex-basis: 0.25rem;
-  flex-shrink: 0;
-  flex-grow: 0;
-  align-self: auto;
-  // margin: 0 calc(var(--line-height-computed) / 2) 0 0;
-
-  // [dir="rtl"] & {
-  //   margin: 0 0 0 calc(var(--line-height-computed) / 2);
-  // }
-}
-
-.wrapperleft {
- // display: flex;
- // flex-flow: row;
-  flex: 0;
-  //position: absolute;
-  padding: 0.42rem;
-  // margin:var(--border-size) 0 0 var(--border-size);
-
-  // [dir="rtl"] & {
-  //   margin: 0 var(--border-size) 0 0;
-  // }
-}
-
-
-.item {
-  display: flex;
-  flex: 1;
-  flex-flow: row;
- // font-size: var(--font-size-base);
-  // margin-bottom: var(--line-height-computed);
-
-  // &:last-child {
-  //   margin-bottom: 0 !important;
-  // }
-}
-
-
-
 .inputheading{
  
   font-family: Avenir;
@@ -255,6 +225,7 @@ line-height: 1.313rem;
 
 .userList{
   @include scrollbox-vertical();
-  height: 12rem;
+  height: 13.5rem;
+  padding: 1.6rem;
  // overflow-y: scroll;
 }

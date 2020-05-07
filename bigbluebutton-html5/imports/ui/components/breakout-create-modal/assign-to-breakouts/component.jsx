@@ -132,7 +132,7 @@ class Assign extends Component {
     const {numberOfRooms, channels, users} = this.state;
     var {currentStep} = this.state;
     currentStep = currentStep <= 0? 0: currentStep - 1;
-
+    document.getElementById('channelname').value=null;
     this.setState({
       currentStep: currentStep,
       numberOfRooms: numberOfRooms,
@@ -190,7 +190,7 @@ class Assign extends Component {
                               users: ch.userId
                             }));
     createBreakoutRoom(rooms, 525600, false);
-    //closeModal();
+    closeModal();
   }
 
   renderUserAvatar() {
@@ -259,6 +259,7 @@ class Assign extends Component {
          className={styles.JoinLabel}
         //  className={styles.userContentContainer}
           key="free-join-breakouts">
+            <span>
           <input
             type="checkbox"
           // id="freeJoinCheckbox"
@@ -268,6 +269,7 @@ class Assign extends Component {
           defaultChecked={u.room === currentStep}
           onChange={this.onChange(u, currentStep)}
           />
+          </span>
           {/* {this.renderUserAvatar()} */}
           <div className={styles.userContentContainer} >
           <div  className={styles.userAvatar}>

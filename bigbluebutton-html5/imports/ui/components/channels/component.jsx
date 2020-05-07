@@ -298,7 +298,7 @@ class Channels extends PureComponent {
           icon="rooms"
           label="Edit Room"
           onClick={() => {
-            this.launchEditRoom(breakout.breakoutId);
+            this.launchEditRoom(breakout.breakoutId,breakout.name);
           }}
         />) : null),
 
@@ -323,9 +323,9 @@ class Channels extends PureComponent {
     return this.menuItems;
   }
 
-  launchEditRoom(breakoutId) {
+  launchEditRoom(breakoutId,name) {
     const { mountModal } = this.props;
-    return mountModal(<BreakoutEditModalContainer breakoutId={breakoutId} />);
+    return mountModal(<BreakoutEditModalContainer breakoutId={breakoutId} name={name} />);
   }
 
 
