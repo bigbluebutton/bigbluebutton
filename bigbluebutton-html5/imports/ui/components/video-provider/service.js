@@ -70,16 +70,26 @@ class VideoService {
     });
   }
 
-  updateNumberOfDevices() {
-    navigator.mediaDevices.enumerateDevices().then((devices) => {
-      const deviceIds = [];
-      devices.forEach((d) => {
-        if (d.kind === 'videoinput' && !deviceIds.includes(d.deviceId)) {
-          deviceIds.push(d.deviceId);
-        }
-      });
-      this.numberOfDevices = deviceIds.length;
+  fetchNumberOfDevices(devices) {
+    const deviceIds = [];
+    devices.forEach(d => {
+      const validDeviceId = d.deviceId !== '' && !deviceIds.includes(d.deviceId)
+      if (d.kind === 'videoinput' && validDeviceId) {
+        deviceIds.push(d.deviceId);
+      }
     });
+
+    return deviceIds.length;
+  }
+
+  updateNumberOfDevices(devices = null) {
+    if (devices) {
+      this.numberOfDevices = this.fetchNumberOfDevices(devices);
+    } else {
+      navigator.mediaDevices.enumerateDevices().then(devices => {
+        this.numberOfDevices = this.fetchNumberOfDevices(devices);
+      });
+    }
   }
 
   joinVideo(deviceId) {
@@ -426,4 +436,5 @@ export default {
   monitor: conn => videoService.monitor(conn),
   onBeforeUnload: () => videoService.onBeforeUnload(),
   notify: message => notify(message, 'error', 'video'),
+  updateNumberOfDevices: devices => videoService.updateNumberOfDevices(devices),
 };
