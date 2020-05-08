@@ -25,8 +25,8 @@ class PendingAuthentitcations {
     }
 
     take (meetingId, userId, authToken) {
-        Logger.debug("PendingAuthentitcations :: take", {meetingId, userId, authToken});
         const key = this.generateKey(meetingId, userId, authToken);
+        Logger.debug("PendingAuthentitcations :: take", {key, meetingId, userId, authToken});
         
         // find matches
         const matches = this.store.filter( e => e.key === key );
