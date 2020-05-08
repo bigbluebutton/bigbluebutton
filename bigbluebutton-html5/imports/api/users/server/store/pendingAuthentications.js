@@ -13,7 +13,7 @@ class PendingAuthentitcations {
         authToken = authToken.replace(/ /g, '');
 
         // Space separated key
-        return '${meetingId} ${userId} ${authToken}';
+        return `${meetingId} ${userId} ${authToken}`;
     }
 
     add (meetingId, userId, authToken, methodInvocationObject) {
