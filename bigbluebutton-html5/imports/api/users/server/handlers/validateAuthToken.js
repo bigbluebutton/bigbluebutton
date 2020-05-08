@@ -31,7 +31,11 @@ export default function handleValidateAuthToken({ body }, meetingId) {
           const {methodInvocationObject} = pendingAuth;
           const connectionId = methodInvocationObject.connection.id;
 
-          methodInvocationObject.connection.close();
+          // Schedule socket disconnection for this user, giving some time for client receiving the reason of disconnection
+          setTimeout(()=>{
+            methodInvocationObject.connection.close();
+          }, 2000);
+          
           Logger.info(`Closed connection ${connectionId} due to invalid auth token.`);
         } catch (e) {
           Logger.error(`Error closing socket for meetingId '${meetingId}', userId '${userId}', authToken ${authToken}`);
