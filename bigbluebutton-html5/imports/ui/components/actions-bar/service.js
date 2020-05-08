@@ -4,10 +4,12 @@ import { makeCall } from '/imports/ui/services/api';
 import Meetings from '/imports/api/meetings';
 import Breakouts from '/imports/api/breakouts';
 import { getVideoUrl } from '/imports/ui/components/external-video-player/service';
+import Presentations from '/imports/api/presentations';
 
 const USER_CONFIG = Meteor.settings.public.user;
 const ROLE_MODERATOR = USER_CONFIG.role_moderator;
 const DIAL_IN_USER = 'dial-in-user';
+const podId = "DEFAULT_PRESENTATION_POD";
 
 const getBreakouts = () => Breakouts.find({ parentMeetingId: Auth.meetingID })
   .fetch()
@@ -21,7 +23,23 @@ const filterBreakoutUsers = filter => users => users.filter(filter);
 
 const getUsersNotAssigned = filterBreakoutUsers(currentBreakoutUsers);
 
-const takePresenterRole = () => makeCall('assignPresenter', Auth.userID);
+const getCurrentPresentation = podId => Presentations.findOne({
+  podId,
+  current: true,
+});
+const stopPresentation = (podId) => {
+  const currentPresentation = getCurrentPresentation(podId);
+  console.log(currentPresentation);
+  if (!currentPresentation) {
+    return null;
+  }
+  makeCall('removePresentation', currentPresentation.id, currentPresentation.podId);
+};
+
+const takePresenterRole = () => {
+  stopPresentation(podId);
+  makeCall('assignPresenter', Auth.userID);
+}
 
 export default {
   amIPresenter: () => Users.findOne({ userId: Auth.userID },
