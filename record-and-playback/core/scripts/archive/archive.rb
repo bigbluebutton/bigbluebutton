@@ -163,6 +163,7 @@ audio_dir = props['raw_audio_src']
 recording_dir = props['recording_dir']
 raw_archive_dir = "#{recording_dir}/raw"
 deskshare_dir = props['raw_deskshare_src']
+upload_dir = props['raw_upload_src']
 screenshare_dir = props['raw_screenshare_src']
 redis_host = props['redis_host']
 redis_port = props['redis_port']
@@ -201,6 +202,8 @@ archive_directory("#{kurento_screenshare_dir}/#{meeting_id}",
                   "#{target_dir}/deskshare")
 archive_directory("#{kurento_video_dir}/#{meeting_id}",
                   "#{target_dir}/video/#{meeting_id}")
+archive_directory("#{upload_dir}/#{meeting_id}",
+                  "#{target_dir}/upload")
 
 if not archive_has_recording_marks?(meeting_id, raw_archive_dir, break_timestamp)
   BigBlueButton.logger.info("There's no recording marks for #{meeting_id}, not processing recording.")
