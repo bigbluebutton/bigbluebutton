@@ -76,6 +76,36 @@ const getAllBreakoutRoomUsers = (breakoutId) => {
   
 };
 
+// Method that returns a break out room name and user name.
+//if current user is already in a break out room,it will return just user name
+//if current user is in the master channel, then his name will returned. And break out
+//room name will be returned if they belong to one 
+const getUserNameAndGroupForDisplayRoomName = () => {
+
+  // const {requesterUserId} = credentials;
+  let user = Users.findOne({
+    userId: Auth.credentials.requesterUserId,
+    connectionStatus: 'online',
+    });
+
+    if(user){
+      if(user.breakoutProps.isBreakoutUser){
+        return {name: user.name};
+      }else{
+      //Now find if they are in a break out room
+      const breakoutRooms = findBreakouts();
+      const breakoutRoomOfUser = breakoutRooms.filter(breakout =>
+        breakout.users.find(bu => bu.userId === user.userId)).shift();
+        if(breakoutRoomOfUser){
+          return {name: user.name, breakoutName: breakoutRoomOfUser.name};
+        }else{
+          return {name: user.name};
+        }
+      }
+    }
+    return null;
+}
+
 
 // Central function that determines if the user has a browser tab opened for the break out room he is part of
 // Logic:
@@ -200,5 +230,6 @@ export default {
   isUserInBreakoutRoom,
   isUserActiveInBreakoutroom,
   getBreakoutMeetingUserId,
-  getUnassignedUsersInMasterChannel
+  getUnassignedUsersInMasterChannel,
+  getUserNameAndGroupForDisplayRoomName
 };
