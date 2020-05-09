@@ -18,16 +18,13 @@
 
 .avatar {
   position: relative;
-  padding: 10px;
+  padding: var(--font-size-9px);
   border-radius: 50%;
   text-align: center;
-
-  // font-family: 'Avenir';
   font-style: normal;
   font-weight: 500;
-  font-size: var(--font-size-9px);
-//   line-height: var(--font-size-10px);
-  text-transform: capitalize;
+  font-size: var(--font-size-8px);
+  text-transform: uppercase;
   color: #EEEEEE;
 
   border: 1px solid #ffffff;

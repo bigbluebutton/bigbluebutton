@@ -24,6 +24,16 @@ const intlMessages = defineMessages({
 });
 
 
+const handleToggleUserList = () => {
+  Session.set(
+    'openPanel',
+    Session.get('openPanel') == ''
+      ? ''
+      : 'userlist',
+  );
+  Session.set('idChatOpen', '');
+}
+
 const Chat = (props) => {
   const {
     chatID,
@@ -71,18 +81,8 @@ const Chat = (props) => {
           className={styles.title}
         >
           <Button
-            // onClick={() => {
-            //   Session.set('idChatOpen', '');
-            //   Session.set('openPanel', 'userlist');
-            // }}
-            // onClick={() => { Session.set(
-            //   'openPanel',
-            //   Session.get('openPanel') == ''
-            //     ? ''
-            //     : 'userlist',
-            // );
-            // Session.set('idChatOpen', '');}}
-            onClick={()=>{handleToggleUserList()}}
+            onClick={() => handleToggleUserList()}
+            // onClick={() => {}}
             aria-label={intl.formatMessage(intlMessages.hideChatLabel, { 0: title })}
             accessKey={HIDE_CHAT_AK}
            // label={title}
@@ -120,7 +120,7 @@ const Chat = (props) => {
                 accessKey={CLOSE_CHAT_AK}
               />
             )
-            : <ChatDropdown isMeteorConnected={isMeteorConnected} amIModerator={amIModerator} />
+            : null
         }
       </header>
       <MessageList

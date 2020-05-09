@@ -131,11 +131,11 @@
 .button {
   span:first-child {
     box-shadow: none;
-    border: 1px solid #000000;
+    border: 0.8px solid #000000;
   }
   i {
     color: #000000;
-    font-weight: 600;
+    font-weight: 300;
   }
 }
 
@@ -151,7 +151,7 @@
     }
     &.button {
       span {
-        border: 1px solid #dd6161 !important;
+        border: 0.8px solid #dd6161 !important;
       }
     }
   }

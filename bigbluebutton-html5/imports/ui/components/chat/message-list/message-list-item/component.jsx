@@ -143,7 +143,7 @@ class MessageListItem extends Component {
                 <div className={styles.messagesleft}>
                   {messages.map(message => (
                     <Message
-                      className={(regEx.test(message.text) ? styles.hyperlink : styles.messageleft)}
+                      className={styles.messageleft}
                       key={message.id}
                       text={message.text}
                       time={message.time}
@@ -164,27 +164,8 @@ class MessageListItem extends Component {
           : (
             <div className={styles.item}>
               <div className={styles.wrapperright} ref={(ref) => { this.item = ref; }}>
-                <div className={styles.avatarWrapper}>
-                  {/* <UserAvatar
-      className={styles.avatar}
-      color={user.color}
-      moderator={user.isModerator}
-    >
-      {user.name.toLowerCase().slice(0, 2)}
-    </UserAvatar> */}
-                </div>
                 <div className={styles.contentright}>
                   <div className={styles.metaright}>
-                    {/* <div className={user.isOnline ? styles.name : styles.logout}>
-        <span>{user.name}</span>
-        {user.isOnline
-          ? null
-          : (
-            <span className={styles.offline}>
-              {`(${intl.formatMessage(intlMessages.offline)})`}
-            </span>
-          )}
-      </div> */}
                     <time className={styles.timeright} dateTime={dateTime}>
                       <FormattedTime value={dateTime} />
                     </time>
@@ -192,7 +173,7 @@ class MessageListItem extends Component {
                   <div className={styles.messagesright}>
                     {messages.map(message => (
                       <Message
-                        className={(regEx.test(message.text) ? styles.hyperlink : styles.messageright)}
+                        className={styles.messageright}
                         key={message.id}
                         text={message.text}
                         time={message.time}
