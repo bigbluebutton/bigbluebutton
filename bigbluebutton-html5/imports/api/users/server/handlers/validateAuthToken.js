@@ -32,7 +32,7 @@ export default function handleValidateAuthToken({ body }, meetingId) {
           const connectionId = methodInvocationObject.connection.id;
 
           // Schedule socket disconnection for this user, giving some time for client receiving the reason of disconnection
-          setTimeout(()=>{
+          Meteor.setTimeout(()=>{
             methodInvocationObject.connection.close();
           }, 2000);
           
