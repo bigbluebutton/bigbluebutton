@@ -56,6 +56,7 @@
     letter-spacing: 0.006rem;
     text-transform: capitalize;
     align-self: center;
+    padding: 0.2rem;
   }
   :first-child {
     @extend %text-elipsis;
@@ -191,10 +192,10 @@
   font-weight: normal;
   font-size: var(--font-size-10px);
   line-height: var(--font-size-13px);
-  text-align: right;
+ // text-align: right;
   text-transform: capitalize;
   margin: 0 0 0 calc(var(--line-height-computed) / 2);
-  align-self: right;
+  align-self: auto;
   [dir="rtl"] & {
     margin: 0 calc(var(--line-height-computed) / 2) 0 0;
   }
@@ -253,7 +254,7 @@
 }
 
 .contentleft {
-  flex: start;
+  flex: auto;
   display: flex;
   flex-flow: column;
 }

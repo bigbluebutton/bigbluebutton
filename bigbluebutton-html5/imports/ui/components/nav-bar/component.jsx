@@ -119,7 +119,15 @@ class NavBar extends PureComponent {
           <div className={styles.right}>
  <div className={styles.both}>
    <b ><span >{currentUser.name}</span></b>
-   {(breakoutRoomName &&!amIModerator)? <p ><span >({breakoutRoomName})</span></p> :( amIModerator&& !isBreakOutMeeting?<span>(moderator)</span>:null)}
+   {(breakoutRoomName && !amIModerator) ?
+    <p >
+      <span >
+        (
+          {breakoutRoomName}
+        )
+      </span>
+    </p> :
+    ( amIModerator && !isBreakOutMeeting ? <span>(moderator)</span> : null)}
    
     </div> 
             <SettingsDropdownContainer amIModerator={amIModerator} />

@@ -7,6 +7,10 @@ import UserAvatar from '/imports/ui/components/user-avatar/component';
 import Message from './message/component';
 
 import { styles } from './styles';
+import BreakoutService from '/imports/ui/components/channels/service.js';
+import { meetingIsBreakout } from '/imports/ui/components/app/service';
+
+const ROLE_MODERATOR = Meteor.settings.public.user.role_moderator;
 
 const propTypes = {
   user: PropTypes.shape({
@@ -101,6 +105,28 @@ class MessageListItem extends Component {
       intl,
     } = this.props;
 
+    const { findBreakouts } = BreakoutService;
+    const breakouts = findBreakouts();
+    let breakoutRoomName;
+    if(breakouts,user)
+    {
+      breakouts.map(
+        (breakout) => {
+        breakout.users.map(
+          (buser) => {
+          if (buser.userId == user.userId)
+           {
+            breakoutRoomName = breakout.name;
+          }
+        });
+      }
+      );
+    
+    }
+   
+    const isBreakOutMeeting = meetingIsBreakout();
+    
+   
     const dateTime = new Date(time);
 
     const regEx = /<a[^>]+>/i;
@@ -128,6 +154,12 @@ class MessageListItem extends Component {
                 <div className={styles.metaleft}>
                   <div className={user.isOnline ? styles.name : styles.logout}>
                     <span className={styles.name}>{user.name}</span>
+                       {
+                       (breakoutRoomName  && !user.isModerator) ? 
+                       <span>{breakoutRoomName}</span> 
+                       :
+                       ( user.isModerator && !isBreakOutMeeting ? <span>(moderator)</span> : null)
+                       }
                     {user.isOnline
                       ? null
                       : (

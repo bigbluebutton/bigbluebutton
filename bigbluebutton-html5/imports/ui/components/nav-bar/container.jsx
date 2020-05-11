@@ -32,14 +32,17 @@ export default withTracker(() => {
   }, { fields: { 'meetingProp.name': 1, 'breakoutProps.sequence': 1 } });
   const { findBreakouts } = BreakoutService;
   const breakouts = findBreakouts();
-  let breakname;
-  breakouts.map((breakout) => {
-    breakout.users.map((user) => {
+  let breakoutRoomName;
+  breakouts.map(
+    (breakout) => {
+    breakout.users.map(
+      (user) => {
       if (user.userId == Auth.userID) {
-        breakname = breakout.name;
+        breakoutRoomName = breakout.name;
       }
     });
-  });
+  }
+  );
 
 
   if (meetingObject != null) {
@@ -79,6 +82,6 @@ export default withTracker(() => {
     presentationTitle: meetingTitle,
     hasUnreadMessages,
     currentUser: currentUser,
-    breakoutRoomName:breakname,
+    breakoutRoomName:breakoutRoomName,
   };
 })(NavBarContainer);
