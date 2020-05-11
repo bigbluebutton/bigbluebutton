@@ -83,7 +83,6 @@ class NavBar extends PureComponent {
       breakoutRoomName,
       currentUser,
     } = this.props;
-    const isModerator = currentUser.role === ROLE_MODERATOR;
 
 
     const toggleBtnClasses = {};
@@ -118,8 +117,8 @@ class NavBar extends PureComponent {
           </div>
           <div className={styles.right}>
  <div className={styles.both}>
-   <b className={styles.name}><span >{currentUser.name}</span></b>
-   {(breakoutRoomName &&!isModerator)? <p className={styles.name}><span >({breakoutRoomName})</span></p> :( isModerator ?<span>(moderator)</span>:null)}
+   <b ><span >{currentUser.name}</span></b>
+   {(breakoutRoomName &&!amIModerator)? <p ><span >({breakoutRoomName})</span></p> :( amIModerator&& breakoutRoomName?<span>(moderator)</span>:null)}
    
     </div> 
             <SettingsDropdownContainer amIModerator={amIModerator} />

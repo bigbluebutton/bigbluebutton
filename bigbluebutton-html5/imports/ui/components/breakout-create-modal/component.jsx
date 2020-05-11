@@ -1,9 +1,11 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import Modal from '/imports/ui/components/modal/simple/component';
-import {defineMessages, injectIntl, intlShape, FormattedMessage} from 'react-intl';
+import {
+  defineMessages, injectIntl, intlShape, FormattedMessage,
+} from 'react-intl';
 import { styles } from './styles';
-import  Assign from './assign-to-breakouts/container';
+import Assign from './assign-to-breakouts/container';
 
 const propTypes = {
   users: PropTypes.arrayOf(PropTypes.object).isRequired,
@@ -20,7 +22,7 @@ class BreakoutCreateModalComponent extends Component {
   render() {
     const {
       showPermissionsOvelay,
-      closeModal
+      closeModal,
     } = this.props;
     return (
       <span>
@@ -33,7 +35,7 @@ class BreakoutCreateModalComponent extends Component {
           title="Create Channels"
         >
           <React.Fragment>
-           <Assign  closeModal={closeModal}/>
+            <Assign closeModal={closeModal} />
           </React.Fragment>
         </Modal>
       </span>
