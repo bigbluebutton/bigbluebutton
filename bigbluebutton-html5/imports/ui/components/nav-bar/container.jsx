@@ -29,7 +29,7 @@ export default withTracker(() => {
   const meetingObject = Meetings.findOne({
     meetingId,
   }, { fields: { 'meetingProp.name': 1, 'breakoutProps.sequence': 1 } });
-  const {findBreakouts}=BreakoutService;
+  const {findBreakouts} = BreakoutService;
   const breakouts=findBreakouts();
   let breakname;
   breakouts.map((breakout) =>{breakout.users.map((user)=>{if(user.userId==Auth.userID){

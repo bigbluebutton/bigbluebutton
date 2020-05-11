@@ -70,7 +70,7 @@
 
 .logout {
   text-transform: capitalize;
-  font-style: italic;
+  font-style: normal;
 
   & > span {
     text-align: right;
@@ -85,7 +85,7 @@
 
 .offline {
   color: #1A5577;
-  font-style: italic;
+  font-style: normal;
   font-weight: 100;
   line-height:var(--font-size-13px);
   text-transform: lowercase;

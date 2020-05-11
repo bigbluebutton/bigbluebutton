@@ -17,11 +17,12 @@ class EditBreakout extends Component {
 
   constructor(props) {
     super(props);
-    //  const {breakoutRoomUsers} = this.props;
     this.checkedUsers = [];
-    this. uncheckedUsers = [];
-    //  const {originalBreakoutRoomUsers} = Object.assign({}, breakoutRoomUsers);
+    this.uncheckedUsers = [];
     this.onChange = this.onChange.bind(this);
+    this.deleteFromArray = this.deleteFromArray.bind(this);
+    this._update = this._update.bind(this);
+    this._cancel = this._cancel.bind(this);
   }
 
   render() {
@@ -101,13 +102,13 @@ class EditBreakout extends Component {
       const check = ev.target.checked;
       if (check) {
         if(this.uncheckedUsers.find(u => u.userId == user.userId)){
-          deleteFromArray(this.uncheckedUsers, user.userId);
+          this.deleteFromArray(this.uncheckedUsers, user.userId);
         }else{
           this.checkedUsers.push(user);
         }
       }else{
         if(this.checkedUsers.find(u => u.userId == user.userId)){
-          deleteFromArray(this.checkedUsers, user.userId);
+          this.deleteFromArray(this.checkedUsers, user.userId);
         }else{
           this.uncheckedUsers.push(user);
         }
