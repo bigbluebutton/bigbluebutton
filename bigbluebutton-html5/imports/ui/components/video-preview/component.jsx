@@ -412,7 +412,6 @@ class VideoPreview extends Component {
       });
       this.video.srcObject = stream;
       this.deviceStream = stream;
-
     }).catch((error) => {
       logger.warn({
         logCode: 'video_preview_do_gum_preview_error',
@@ -451,7 +450,7 @@ class VideoPreview extends Component {
   renderDeviceSelectors() {
     const {
       intl,
-      skipVideoPreview
+      skipVideoPreview,
     } = this.props;
 
     const {
@@ -543,11 +542,11 @@ class VideoPreview extends Component {
           </div>
         );
       case VIEW_STATES.error:
-          return (
-            <div className={styles.content}>
-              <div className={styles.videoCol}><div>{deviceError}</div></div>
-            </div>
-          );
+        return (
+          <div className={styles.content}>
+            <div className={styles.videoCol}><div>{deviceError}</div></div>
+          </div>
+        );
       case VIEW_STATES.found:
       default:
         return (
@@ -632,7 +631,14 @@ class VideoPreview extends Component {
       intl,
       hasMediaDevices,
       skipVideoPreview,
+      isCamLocked,
     } = this.props;
+
+    if (isCamLocked === true) {
+      this.handleProceed();
+      return null;
+    }
+
     const {
       deviceError,
       previewError,
