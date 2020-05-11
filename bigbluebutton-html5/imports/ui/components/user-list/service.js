@@ -13,6 +13,7 @@ import _ from 'lodash';
 import KEY_CODES from '/imports/utils/keyCodes';
 import AudioService from '/imports/ui/components/audio/service';
 import logger from '/imports/startup/client/logger';
+import Presentations from '/imports/api/presentations';
 
 const CHAT_CONFIG = Meteor.settings.public.chat;
 const PUBLIC_GROUP_CHAT_ID = CHAT_CONFIG.public_group_id;
@@ -20,6 +21,7 @@ const ROLE_MODERATOR = Meteor.settings.public.user.role_moderator;
 const ROLE_VIEWER = Meteor.settings.public.user.role_viewer;
 
 const DIAL_IN_CLIENT_TYPE = 'dial-in-user';
+const podId = "DEFAULT_PRESENTATION_POD";
 
 // session for closed chat list
 const CLOSED_CHAT_LIST_KEY = 'closedChatList';
@@ -432,7 +434,21 @@ const setEmojiStatus = (userId, emoji) => {
     : makeCall('setEmojiStatus', userId, 'none');
 };
 
-const assignPresenter = (userId) => { makeCall('assignPresenter', userId); };
+const getCurrentPresentation = podId => Presentations.findOne({
+  podId,
+  current: true,
+});
+const stopPresentation = (podId) => {
+  const currentPresentation = getCurrentPresentation(podId);
+  if (!currentPresentation) {
+    return null;
+  }
+  makeCall('removePresentation', currentPresentation.id, currentPresentation.podId);
+};
+const assignPresenter = (userId) => { 
+  stopPresentation(podId);
+  makeCall('assignPresenter', userId);
+};
 
 const removeUser = (userId, meetingId) => {
   makeCall('removeUser', userId, meetingId);
