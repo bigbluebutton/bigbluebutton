@@ -76,6 +76,10 @@ package org.bigbluebutton.util.browser {
 			return _browserName.toLowerCase() == "edge";
 		}
 
+		public static function isPuffin():Boolean {
+			return _browserName.toLowerCase() == "puffin";
+		}
+
 		public static function isPuffinBelow46():Boolean {
 			return _browserName.toLowerCase() == "puffin" && String(_fullVersion).substr(0, 3) < "4.6";
 		}

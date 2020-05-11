@@ -48,32 +48,19 @@ public class OfficeToPdfConversionSuccessFilter {
   }
 
   public boolean didConversionSucceed(UploadedPresentation pres) {
-    notifyProgressListener(pres);
     return ConversionMessageConstants.OFFICE_DOC_CONVERSION_SUCCESS_KEY.equals(pres.getConversionStatus());
   }
 
-  private void notifyProgressListener(UploadedPresentation pres) {
-    Map<String, Object> msg = new HashMap<String, Object>();
-    msg.put("conference", pres.getMeetingId());
-    msg.put("room", pres.getMeetingId());
-    msg.put("returnCode", "CONVERT");
-    msg.put("presentationId", pres.getId());
-    msg.put("podId", pres.getPodId());
-    msg.put("presentationName", pres.getId());
-    msg.put("filename", pres.getName());
-    msg.put("message", conversionMessagesMap.get(pres.getConversionStatus()));
-    msg.put("messageKey", pres.getConversionStatus());
-
-    log.info("Notifying of {} for {}", pres.getConversionStatus(), pres.getUploadedFile().getAbsolutePath());
-    sendProgress(pres);
-  }
-
-
   public void sendProgress(UploadedPresentation pres) {
     OfficeDocConversionProgress progress = new OfficeDocConversionProgress(pres.getPodId(),
-      pres.getMeetingId(),pres.getId(), pres.getId(),
-      pres.getName(), "notUsedYet", "notUsedYet",
-      pres.isDownloadable(), pres.getConversionStatus());
+      pres.getMeetingId(),
+      pres.getId(),
+      pres.getId(),
+      pres.getName(),
+      "notUsedYet",
+      "notUsedYet",
+      pres.isDownloadable(),
+      pres.getConversionStatus());
     gw.sendDocConversionMsg(progress);
   }
 

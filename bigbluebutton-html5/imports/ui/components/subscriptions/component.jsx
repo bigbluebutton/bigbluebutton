@@ -6,7 +6,7 @@ import GroupChat from '/imports/api/group-chat';
 import Users from '/imports/api/users';
 import Annotations from '/imports/api/annotations';
 import AnnotationsTextService from '/imports/ui/components/whiteboard/annotations/text/service';
-import AnnotationsLocal from '/imports/ui/components/whiteboard/service';
+import { Annotations as AnnotationsLocal } from '/imports/ui/components/whiteboard/service';
 
 
 const CHAT_CONFIG = Meteor.settings.public.chat;
@@ -20,6 +20,7 @@ const SUBSCRIPTIONS = [
   'voiceUsers', 'whiteboard-multi-user', 'screenshare', 'group-chat',
   'presentation-pods', 'users-settings', 'guestUser', 'users-infos', 'note', 'meeting-time-remaining',
   'network-information', 'ping-pong', 'local-settings', 'users-typing', 'record-meetings', 'video-streams',
+  'voice-call-states',
 ];
 
 class Subscriptions extends Component {
@@ -83,7 +84,7 @@ export default withTracker(() => {
 
     const chatIds = chats.map(chat => chat.chatId);
 
-    groupChatMessageHandler = Meteor.subscribe('group-chat-msg', credentials, chatIds, subscriptionErrorHandler);
+    groupChatMessageHandler = Meteor.subscribe('group-chat-msg', chatIds, subscriptionErrorHandler);
     subscriptionsHandlers.push(groupChatMessageHandler);
   }
 
@@ -91,12 +92,12 @@ export default withTracker(() => {
 
   if (User) {
     const userIsModerator = User.role === ROLE_MODERATOR;
-    Meteor.subscribe('users', credentials, userIsModerator, subscriptionErrorHandler);
-    Meteor.subscribe('breakouts', credentials, userIsModerator, subscriptionErrorHandler);
-    Meteor.subscribe('meetings', credentials, userIsModerator, subscriptionErrorHandler);
+    Meteor.subscribe('users', userIsModerator, subscriptionErrorHandler);
+    Meteor.subscribe('breakouts', userIsModerator, subscriptionErrorHandler);
+    Meteor.subscribe('meetings', userIsModerator, subscriptionErrorHandler);
   }
 
-  const annotationsHandler = Meteor.subscribe('annotations', credentials, {
+  const annotationsHandler = Meteor.subscribe('annotations', {
     onReady: () => {
       const activeTextShapeId = AnnotationsTextService.activeTextShapeId();
       AnnotationsLocal.remove({ id: { $ne: `${activeTextShapeId}-fake` } });

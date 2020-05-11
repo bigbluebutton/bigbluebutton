@@ -9550,7 +9550,7 @@ UA.prototype.loadConfig = function(configuration) {
       userAgentString: SIP.C.USER_AGENT,
 
       // Session parameters
-      iceCheckingTimeout: 5000,
+      iceCheckingTimeout: 1000,
       noAnswerTimeout: 60,
       stunServers: ['stun:stun.l.google.com:19302'],
       turnServers: [],
@@ -11773,19 +11773,115 @@ MediaStreamManager.render = function render (streams, elements) {
     throw new TypeError('elements must not be empty');
   }
 
+  function sendLog(logType, logCode, message, extraInfo) {
+    if (window.clientLogger) {
+      let logObject = {};
+      if (logCode) logObject.logCode = logCode;
+      if (extraInfo) logObject.extraInfo = extraInfo;
+      
+      window.clientLogger[logType](logObject, message);
+    }
+  }
+
+  function tryUsingAudioContext(element, stream) {
+    try {
+      mediaElement.pause();
+    } catch (e) {
+      // Pausing is just an extra precaution, but we dont want failures to bubble up
+    }
+
+    element.srcObject = null;
+
+    var AudioContext = window.AudioContext || window.webkitAudioContext;
+    var audioContext = new AudioContext();
+
+    audioContext.createMediaStreamSource(stream).connect(audioContext.destination);
+    
+    audioContext.onstatechange = function() {
+      sendLog("info", "sipjs_audiocontext_state_change", `Audio context state change, new state: ${audioContext.state}`, {state: audioContext.state});
+    };
+    sendLog("info", "sipjs_audiocontext_initial_state", `The audio context is: ${audioContext.state}`, {state: audioContext.state});
+
+    audioContext.resume().then(() => {
+      sendLog("info", "sipjs_audiocontext_play_succcess", `The audio context resumed`);
+    }).catch(error => {
+      sendLog("info", "sipjs_audiocontext_play_error", `The audio context encountered an error on resume: ${error.name}`, {errorCode: error.name});
+
+      var savedStyle = document.getElementById("app").style;
+      document.getElementById("app").style = "display: none";
+      document.body.style = "display: flex; align-items: center; width: 100%; justify-content: center";
+      var promptDiv = document.createElement("DIV");
+      promptDiv.style = "font-size: 1.5rem; display: flex; align-items: center; flex-direction: column; margin: 0.25rem";
+      var promptLabel = document.createElement("DIV");
+      promptLabel.innerHTML = "We need your approval to play the audio";
+      promptLabel.style = "color: var(--color-off-white); margin: 0.25rem";
+      promptDiv.appendChild(promptLabel);
+      var playButton = document.createElement("BUTTON");
+      playButton.innerHTML = "Play";
+      playButton.style = "background-color: var(--color-primary); color: var(--color-off-white); border-radius: 4px; border: none; padding: 4px 8px; margin: 0.25rem;";
+      playButton.onclick = () => {
+        audioContext.resume();
+        document.body.style = undefined;
+        document.getElementById("app").style = savedStyle;
+        document.body.removeChild(promptDiv);
+        window.dispatchEvent(new Event('resize'));
+      };
+      promptDiv.appendChild(playButton);
+      document.body.appendChild(promptDiv)
+    });
+  }
+  
   function attachMediaStream(element, stream) {
     element.srcObject = stream;
   }
 
-  function ensureMediaPlaying (mediaElement) {
+  function ensureMediaPlaying (mediaElement, stream) {
     let startPlayPromise = mediaElement.play();
 
     if (startPlayPromise !== undefined) {
+      // There are cases (mainly Safari) where the Promise will never resolve with success or
+      // failure. A timeout is required to handle this case and fallback to trying to play the
+      // stream with an AudioContext instead (Web Audio API)
+      let fallenBack = false;
+
+      let playTimeout = setTimeout(() => {
+        // If it fails log it and try to play with the audio context
+        // TODO: put log about falling back to AudioContext
+        sendLog("info", "sipjs_audioelement_play_timeout", `The audio element timed out on play`);
+        fallenBack = true;
+        tryUsingAudioContext(mediaElement, stream);
+      }, 500);
+
+      function canPlayHandler(){
+        mediaElement.removeEventListener('canplay', canPlayHandler);
+
+        if (playTimeout) {
+          clearTimeout(playTimeout);
+          playTimeout = null;
+        }
+      }
+      mediaElement.addEventListener('canplay', canPlayHandler);
+
       startPlayPromise.then(() => {
-        // Start whatever you need to do only after playback
-        // has begun.
+        // Start whatever you need to do only after playback has begun.
+        if (fallenBack) return;
+
+        sendLog("info", "sipjs_audioelement_play_success", `The audio element played successfully`);
+
+        if (playTimeout) {
+          clearTimeout(playTimeout);
+          playTimeout = null;
+        }
       }).catch(error => {
+        if (playTimeout) {
+          clearTimeout(playTimeout);
+          playTimeout = null;
+        }
+
         if (error.name === "NotAllowedError") {
+          if (fallenBack) return;
+          sendLog("info", "sipjs_audioelement_play_error", `The audio element encountered an error on play: ${error.name}`, {errorCode: error.name});
+          
           var savedStyle = document.getElementById("app").style;
           document.getElementById("app").style = "display: none";
           document.body.style = "display: flex; align-items: center; width: 100%; justify-content: center";
@@ -11831,7 +11927,7 @@ MediaStreamManager.render = function render (streams, elements) {
       element = element();
     }
     (environment.attachMediaStream || attachMediaStream)(element, stream);
-    ensureMediaPlaying(element);
+    ensureMediaPlaying(element, stream);
   }
 
   // [].concat "casts" `elements` into an array

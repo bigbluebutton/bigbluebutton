@@ -44,6 +44,14 @@
   }
 }
 
+.colHeading {
+  display: block;
+  text-align: center;
+  font-size: 0.9rem;
+  margin-bottom: 0.5rem;
+  font-weight: bold;
+}
+
 .label {
   color: var(--color-gray-label);
   font-size: 0.9rem;

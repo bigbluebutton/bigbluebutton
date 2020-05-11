@@ -1,11 +1,14 @@
 ---
 name: HTML5 Issue
-about: Template for creating HTML5 Issue
+about: Template for creating HTML5 Issue (frontend which you see during a session, not Greenlight).
 title: ''
 labels: HTML5 Client
 assignees: ''
 
 ---
+
+<!--PLEASE DO NOT FILE ISSUES FOR GENERAL SUPPORT QUESTIONS.
+This issue tracker is only for bbb development related issues.-->
 
 **Describe the bug**
 A clear and concise description of what the bug is.
@@ -25,6 +28,12 @@ A clear and concise description of what you expected to happen.
 
 **Screenshots**
 If applicable, add screenshots to help explain your problem.
+
+**BBB version (optional):**
+BigBlueButton continually evolves. Providing the version/build helps us to pinpoint when an issue was introduced.
+Example:
+$ sudo bbb-conf --check | grep BigBlueButton
+BigBlueButton Server 2.2.2 (1816)
 
 **Desktop (please complete the following information):**
  - OS: [e.g. Windows, Mac]

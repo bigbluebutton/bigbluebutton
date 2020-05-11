@@ -108,13 +108,15 @@ class Captions extends React.Component {
         <div
           aria-hidden
           style={captionStyles}
-          dangerouslySetInnerHTML={{ __html: this.text }}
-        />
+        >
+          {this.text}
+        </div>
         <div
           style={visuallyHidden}
           aria-live={this.text === '' && this.ariaText !== '' ? 'polite' : 'off'}
-          dangerouslySetInnerHTML={{ __html: this.ariaText }}
-        />
+        >
+          {this.ariaText}
+        </div>
       </div>
     );
   }

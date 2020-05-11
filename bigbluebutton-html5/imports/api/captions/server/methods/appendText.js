@@ -7,10 +7,10 @@ import {
 import {
   appendTextURL,
 } from '/imports/api/note/server/helpers';
+import { extractCredentials } from '/imports/api/common/server/helpers';
 
-export default function appendText(body, text, locale) {
-  const { meetingId } = body;
-
+export default function appendText(text, locale) {
+  const { meetingId } = extractCredentials(this.userId);
   check(meetingId, String);
   check(text, String);
   check(locale, String);

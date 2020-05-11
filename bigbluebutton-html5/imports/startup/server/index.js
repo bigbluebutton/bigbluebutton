@@ -90,10 +90,9 @@ Meteor.startup(() => {
     Logger.info('Removing inactive users');
     users.forEach((user) => {
       Logger.info(`Detected inactive user, userId:${user.userId}, meetingId:${user.meetingId}`);
-      user.requesterUserId = user.userId;
-      return userLeaving(user, user.userId, user.connectionId);
+      return userLeaving(user.meetingId, user.userId, user.connectionId);
     });
-    return Logger.info('All inactive user have been removed');
+    return Logger.info('All inactive users have been removed');
   }, INTERVAL_TIME);
 
   Logger.warn(`SERVER STARTED.\nENV=${env},\nnodejs version=${process.version}\nCDN=${CDN_URL}\n`, APP_CONFIG);
@@ -111,7 +110,9 @@ WebApp.connectHandlers.use('/locale', (req, res) => {
   const APP_CONFIG = Meteor.settings.public.app;
   const fallback = APP_CONFIG.defaultSettings.application.fallbackLocale;
   const override = APP_CONFIG.defaultSettings.application.overrideLocale;
-  const browserLocale = override ? override.split(/[-_]/g) : req.query.locale.split(/[-_]/g);
+  const browserLocale = override && req.query.init === 'true'
+    ? override.split(/[-_]/g) : req.query.locale.split(/[-_]/g);
+
   const localeList = [fallback];
 
   const usableLocales = AVAILABLE_LOCALES

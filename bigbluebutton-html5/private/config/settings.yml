@@ -9,8 +9,8 @@ public:
     skipCheck: false
     clientTitle: BigBlueButton
     appName: BigBlueButton HTML5 Client
-    bbbServerVersion: 2.2-dev
-    copyright: "©2019 BigBlueButton Inc."
+    bbbServerVersion: 2.2
+    copyright: "©2020 BigBlueButton Inc."
     html5ClientBuild: HTML5_CLIENT_VERSION
     helpLink: https://bigbluebutton.org/html5/
     lockOnJoin: true
@@ -33,6 +33,8 @@ public:
         chatPushAlerts: false
         userJoinAudioAlerts: false
         userJoinPushAlerts: false
+        raiseHandAudioAlerts: false
+        raiseHandPushAlerts: false
         fallbackLocale: en
         overrideLocale: null
       audio:
@@ -175,7 +177,7 @@ public:
     callTransferTimeout: 5000
     callHangupTimeout: 2000
     callHangupMaximumRetries: 10
-    echoTestNumber: '9196'
+    echoTestNumber: 'echo'
     relayOnlyOnReconnect: false
   presentation:
     allowDownloadable: true
@@ -216,6 +218,8 @@ public:
     - extension: .odi
       mime: application/vnd.oasis.opendocument.image
     - extension: .jpg
+      mime: image/jpeg
+    - extension: .jpeg
       mime: image/jpeg
     - extension: .png
       mime: image/png
@@ -370,4 +374,4 @@ private:
       version: [0, 36]
     - browser: YandexBrowser
       version: 19
-      
+

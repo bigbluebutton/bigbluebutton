@@ -36,6 +36,7 @@ class ServerLoggerStream extends ServerStream {
       this.rec.userInfo = fullInfo;
     }
     this.rec.clientBuild = Meteor.settings.public.app.html5ClientBuild;
+    this.rec.connectionId = Meteor.connection._lastSessionId;
     if (this.logTagString) {
       this.rec.logTag = this.logTagString;
     }

@@ -174,8 +174,6 @@ export default class ShapeDrawListener extends Component {
     // if you switch to a different window using Alt+Tab while mouse is down and release it
     // it wont catch mouseUp and will keep tracking the movements. Thus we need this check.
     } else if (isRightClick) {
-      // this.isDrawing = false;
-      this.sendLastMessage();
       this.discardAnnotation();
     }
   }
@@ -324,18 +322,16 @@ export default class ShapeDrawListener extends Component {
 
   discardAnnotation() {
     const {
-      whiteboardId,
       actions,
     } = this.props;
 
     const {
       getCurrentShapeId,
-      addAnnotationToDiscardedList,
-      undoAnnotation,
+      clearPreview,
     } = actions;
 
-    undoAnnotation(whiteboardId);
-    addAnnotationToDiscardedList(getCurrentShapeId());
+    this.resetState();
+    clearPreview(getCurrentShapeId());
   }
 
   render() {
