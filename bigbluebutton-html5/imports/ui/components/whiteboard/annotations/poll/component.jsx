@@ -180,6 +180,8 @@ class PollDrawComponent extends Component {
     } = this.state;
 
     const { annotation } = this.props;
+    // increment the font size by 2 to prevent Maximum update depth exceeded
+    const fontSizeIncrement = 2;
 
     // calculating the font size in this if / else block
     if (fontSizeDirection !== 0) {
@@ -196,14 +198,14 @@ class PollDrawComponent extends Component {
           && voteSizes.width < maxLineWidth && voteSizes.height < maxLineHeight
           && percSizes.width < maxLineWidth && percSizes.height < maxLineHeight) {
           return this.setState({
-            calcFontSize: calcFontSize + 1,
+            calcFontSize: calcFontSize + fontSizeIncrement,
           });
 
           // we can't increase font-size anymore, start decreasing
         }
         return this.setState({
           fontSizeDirection: -1,
-          calcFontSize: calcFontSize - 1,
+          calcFontSize: calcFontSize - fontSizeIncrement,
         });
       } if (fontSizeDirection === -1) {
         // check if the font-size is still bigger than allowed
@@ -211,7 +213,7 @@ class PollDrawComponent extends Component {
           || voteSizes.width > maxLineWidth || voteSizes.height > maxLineHeight
           || percSizes.width > maxLineWidth || percSizes.height > maxLineHeight) {
           return this.setState({
-            calcFontSize: calcFontSize - 1,
+            calcFontSize: calcFontSize - fontSizeIncrement,
           });
 
           // font size is fine for the current line, switch to the next line

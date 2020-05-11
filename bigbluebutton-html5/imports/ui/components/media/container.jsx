@@ -15,6 +15,7 @@ import ScreenshareContainer from '../screenshare/container';
 import DefaultContent from '../presentation/default-content/component';
 import ExternalVideoContainer from '../external-video-player/container';
 import Storage from '../../services/storage/session';
+import { withDraggableConsumer } from './webcam-draggable-overlay/context';
 
 const LAYOUT_CONFIG = Meteor.settings.public.layout;
 const KURENTO_CONFIG = Meteor.settings.public.kurento;
@@ -102,7 +103,7 @@ class MediaContainer extends Component {
   }
 }
 
-export default withModalMounter(withTracker(() => {
+export default withDraggableConsumer(withModalMounter(withTracker(() => {
   const { dataSaving } = Settings;
   const { viewParticipantsWebcams, viewScreenshare } = dataSaving;
   const hidePresentation = getFromUserSettings('bbb_hide_presentation', LAYOUT_CONFIG.hidePresentation);
@@ -110,8 +111,6 @@ export default withModalMounter(withTracker(() => {
   const data = {
     children: <DefaultContent />,
     audioModalIsOpen: Session.get('audioModalIsOpen'),
-    userWasInWebcam: Session.get('userWasInWebcam'),
-    joinVideo: VideoService.joinVideo,
   };
 
   if (MediaService.shouldShowWhiteboard() && !hidePresentation) {
@@ -123,7 +122,7 @@ export default withModalMounter(withTracker(() => {
     data.children = <ScreenshareContainer />;
   }
 
-  const usersVideo = VideoService.getAllWebcamUsers();
+  const usersVideo = VideoService.getVideoStreams();
   data.usersVideo = usersVideo;
 
   if (MediaService.shouldShowOverlay() && usersVideo.length && viewParticipantsWebcams) {
@@ -154,4 +153,4 @@ export default withModalMounter(withTracker(() => {
 
   MediaContainer.propTypes = propTypes;
   return data;
-})(injectIntl(MediaContainer)));
+})(injectIntl(MediaContainer))));

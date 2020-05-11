@@ -47,12 +47,26 @@ const intlMessages = defineMessages({
     id: 'app.userList.guest.rememberChoice',
     description: 'Remember label for checkbox',
   },
+  accept: {
+    id: 'app.userList.guest.acceptLabel',
+    description: 'Accept guest button label'
+  },
+  deny: {
+    id: 'app.userList.guest.denyLabel',
+    description: 'Deny guest button label',
+  },
 });
 
 const ALLOW_STATUS = 'ALLOW';
 const DENY_STATUS = 'DENY';
 
-const renderGuestUserItem = (name, color, handleAccept, handleDeny, role, sequence, userId) => (
+const getNameInitials = (name) => {
+  const nameInitials = name.slice(0, 2);
+
+  return nameInitials.replace(/^\w/, c => c.toUpperCase());
+}
+
+const renderGuestUserItem = (name, color, handleAccept, handleDeny, role, sequence, userId, intl) => (
   <div key={`userlist-item-${userId}`} className={styles.listItem}>
     <div key={`user-content-container-${userId}`} className={styles.userContentContainer}>
       <div key={`user-avatar-container-${userId}`} className={styles.userAvatar}>
@@ -61,7 +75,7 @@ const renderGuestUserItem = (name, color, handleAccept, handleDeny, role, sequen
           moderator={role === 'MODERATOR'}
           color={color}
         >
-          {name.slice(0, 2).toUpperCase()}
+          {getNameInitials(name)}
         </UserAvatar>
       </div>
       <p key={`user-name-${userId}`} className={styles.userName}>
@@ -79,7 +93,7 @@ const renderGuestUserItem = (name, color, handleAccept, handleDeny, role, sequen
         color="primary"
         size="lg"
         ghost
-        label="Accept"
+        label={intl.formatMessage(intlMessages.accept)}
         onClick={handleAccept}
       />
       |
@@ -89,14 +103,14 @@ const renderGuestUserItem = (name, color, handleAccept, handleDeny, role, sequen
         color="primary"
         size="lg"
         ghost
-        label="Deny"
+        label={intl.formatMessage(intlMessages.deny)}
         onClick={handleDeny}
       />
     </div>
   </div>
 );
 
-const renderPendingUsers = (message, usersArray, action) => {
+const renderPendingUsers = (message, usersArray, action, intl) => {
   if (!usersArray.length) return null;
   return (
     <div>
@@ -109,6 +123,7 @@ const renderPendingUsers = (message, usersArray, action) => {
         user.role,
         idx + 1,
         user.intId,
+        intl,
       ))}
     </div>
   );
@@ -227,12 +242,14 @@ const WaitingUsers = (props) => {
             { 0: authenticatedUsers.length }),
           authenticatedUsers,
           guestUsersCall,
+          intl,
         )}
         {renderPendingUsers(
           intl.formatMessage(intlMessages.pendingGuestUsers,
             { 0: guestUsers.length }),
           guestUsers,
           guestUsersCall,
+          intl,
         )}
       </main>
     </div>

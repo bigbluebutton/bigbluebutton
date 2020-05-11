@@ -11,8 +11,10 @@ import DropdownListItem from '/imports/ui/components/dropdown/list/item/componen
 import PresentationUploaderContainer from '/imports/ui/components/presentation/presentation-uploader/container';
 import { withModalMounter } from '/imports/ui/components/modal/service';
 import withShortcutHelper from '/imports/ui/components/shortcut-help/service';
-import { styles } from '../styles';
+import DropdownListSeparator from '/imports/ui/components/dropdown/list/separator/component';
 import ExternalVideoModal from '/imports/ui/components/external-video-player/modal/container';
+import cx from 'classnames';
+import { styles } from '../styles';
 
 const propTypes = {
   amIPresenter: PropTypes.bool.isRequired,
@@ -86,6 +88,7 @@ class ActionsDropdown extends PureComponent {
 
     this.handlePresentationClick = this.handlePresentationClick.bind(this);
     this.handleExternalVideoClick = this.handleExternalVideoClick.bind(this);
+    this.makePresentationItems = this.makePresentationItems.bind(this);
   }
 
   componentWillUpdate(nextProps) {
@@ -125,6 +128,7 @@ class ActionsDropdown extends PureComponent {
         ? (
           <DropdownListItem
             icon="polling"
+            data-test="polling"
             label={formatMessage(pollBtnLabel)}
             description={formatMessage(pollBtnDesc)}
             key={this.pollId}
@@ -176,6 +180,42 @@ class ActionsDropdown extends PureComponent {
     ]);
   }
 
+  makePresentationItems() {
+    const {
+      presentations,
+      setPresentation,
+      podIds,
+    } = this.props;
+
+    if (!podIds || podIds.length < 1) return [];
+
+    // We still have code for other pods from the Flash client. This intentionally only cares
+    // about the first one because it's the default.
+    const { podId } = podIds[0];
+
+    const presentationItemElements = presentations.map((p) => {
+      const itemStyles = {};
+      itemStyles[styles.presentationItem] = true;
+      itemStyles[styles.isCurrent] = p.isCurrent;
+
+      return (<DropdownListItem
+        className={cx(itemStyles)}
+        icon="file"
+        iconRight={p.isCurrent ? 'check' : null}
+        label={p.filename}
+        description="uploaded presentation file"
+        key={`uploaded-presentation-${p.id}`}
+        onClick={() => {
+          setPresentation(p.id, podId);
+        }}
+      />
+      );
+    });
+
+    presentationItemElements.push(<DropdownListSeparator key={_.uniqueId('list-separator-')} />);
+    return presentationItemElements;
+  }
+
   handleExternalVideoClick() {
     const { mountModal } = this.props;
     mountModal(<ExternalVideoModal />);
@@ -196,6 +236,9 @@ class ActionsDropdown extends PureComponent {
     } = this.props;
 
     const availableActions = this.getAvailableActions();
+    const availablePresentations = this.makePresentationItems();
+    const children = availablePresentations.length > 2 && amIPresenter
+      ? availablePresentations.concat(availableActions) : availableActions;
 
     if ((!amIPresenter && !amIModerator)
       || availableActions.length === 0
@@ -209,7 +252,6 @@ class ActionsDropdown extends PureComponent {
           <Button
             hideLabel
             aria-label={intl.formatMessage(intlMessages.actionsLabel)}
-            className={styles.button}
             label={intl.formatMessage(intlMessages.actionsLabel)}
             icon="plus"
             color="primary"
@@ -220,7 +262,7 @@ class ActionsDropdown extends PureComponent {
         </DropdownTrigger>
         <DropdownContent placement="top left">
           <DropdownList>
-            {availableActions}
+            {children}
           </DropdownList>
         </DropdownContent>
       </Dropdown>

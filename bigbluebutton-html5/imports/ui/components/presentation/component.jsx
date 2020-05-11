@@ -4,6 +4,7 @@ import WhiteboardOverlayContainer from '/imports/ui/components/whiteboard/whiteb
 import WhiteboardToolbarContainer from '/imports/ui/components/whiteboard/whiteboard-toolbar/container';
 import { HUNDRED_PERCENT, MAX_PERCENT } from '/imports/utils/slideCalcUtils';
 import { defineMessages, injectIntl, intlShape } from 'react-intl';
+import { toast } from 'react-toastify';
 import PresentationToolbarContainer from './presentation-toolbar/container';
 import CursorWrapperContainer from './cursor/cursor-wrapper-container/container';
 import AnnotationGroupContainer from '../whiteboard/annotation-group/container';
@@ -15,6 +16,8 @@ import PresentationCloseButton from './presentation-close-button/component';
 import DownloadPresentationButton from './download-presentation-button/component';
 import FullscreenService from '../fullscreen-button/service';
 import FullscreenButtonContainer from '../fullscreen-button/container';
+import { withDraggableConsumer } from '../media/webcam-draggable-overlay/context';
+import Icon from '/imports/ui/components/icon/component';
 
 const intlMessages = defineMessages({
   presentationLabel: {
@@ -42,6 +45,8 @@ class PresentationArea extends PureComponent {
       isFullscreen: false,
     };
 
+    this.currentPresentationToastId = null;
+
     this.getSvgRef = this.getSvgRef.bind(this);
     this.setFitToWidth = this.setFitToWidth.bind(this);
     this.zoomChanger = this.zoomChanger.bind(this);
@@ -50,6 +55,7 @@ class PresentationArea extends PureComponent {
     this.fitToWidthHandler = this.fitToWidthHandler.bind(this);
     this.onFullscreenChange = this.onFullscreenChange.bind(this);
     this.onResize = () => setTimeout(this.handleResize.bind(this), 0);
+    this.renderCurrentPresentationToast = this.renderCurrentPresentationToast.bind(this);
   }
 
   static getDerivedStateFromProps(props, state) {
@@ -81,17 +87,47 @@ class PresentationArea extends PureComponent {
     window.addEventListener('resize', this.onResize);
     this.getInitialPresentationSizes();
     this.refPresentationContainer.addEventListener('fullscreenchange', this.onFullscreenChange);
+
+    const { slidePosition, webcamDraggableDispatch } = this.props;
+    const { width: currWidth, height: currHeight } = slidePosition;
+    if (currWidth > currHeight || currWidth === currHeight) {
+      webcamDraggableDispatch({ type: 'setOrientationToLandscape' });
+    }
+    if (currHeight > currWidth) {
+      webcamDraggableDispatch({ type: 'setOrientationToPortrait' });
+    }
   }
 
   componentDidUpdate(prevProps) {
-    const { currentPresentation, notify, intl } = this.props;
+    const {
+      currentPresentation,
+      slidePosition,
+      webcamDraggableDispatch,
+    } = this.props;
+
+    const { width: prevWidth, height: prevHeight } = prevProps.slidePosition;
+    const { width: currWidth, height: currHeight } = slidePosition;
+
+    if (prevWidth !== currWidth || prevHeight !== currHeight) {
+      if (currWidth > currHeight || currWidth === currHeight) {
+        webcamDraggableDispatch({ type: 'setOrientationToLandscape' });
+      }
+      if (currHeight > currWidth) {
+        webcamDraggableDispatch({ type: 'setOrientationToPortrait' });
+      }
+    }
 
     if (prevProps.currentPresentation.name !== currentPresentation.name) {
-      notify(
-        `${intl.formatMessage(intlMessages.changeNotification)} ${currentPresentation.name}`,
-        'info',
-        'presentation',
-      );
+      if (this.currentPresentationToastId) {
+        return toast.update(this.currentPresentationToastId, {
+          render: this.renderCurrentPresentationToast(),
+        });
+      }
+
+      this.currentPresentationToastId = toast(this.renderCurrentPresentationToast(), {
+        onClose: () => { this.currentPresentationToastId = null; },
+        autoClose: true,
+      });
     }
   }
 
@@ -412,7 +448,7 @@ class PresentationArea extends PureComponent {
     };
 
     const svgViewBox = `${viewBoxPosition.x} ${viewBoxPosition.y} `
-      + `${viewBoxDimensions.width} ${viewBoxDimensions.height}`;
+      + `${viewBoxDimensions.width} ${Number.isNaN(viewBoxDimensions.height) ? 0 : viewBoxDimensions.height}`;
 
     return (
       <div
@@ -453,6 +489,15 @@ class PresentationArea extends PureComponent {
                 width,
                 height,
               }}
+              published
+              whiteboardId={currentSlide.id}
+            />
+            <AnnotationGroupContainer
+              {...{
+                width,
+                height,
+              }}
+              published={false}
               whiteboardId={currentSlide.id}
             />
             <CursorWrapperContainer
@@ -494,6 +539,7 @@ class PresentationArea extends PureComponent {
           fitToWidth,
           zoom,
           podId,
+          currentSlide,
         }}
         isFullscreen={isFullscreen}
         fullscreenRef={this.refPresentationContainer}
@@ -551,6 +597,24 @@ class PresentationArea extends PureComponent {
         dark
         bottom
       />
+    );
+  }
+
+  renderCurrentPresentationToast() {
+    const { intl, currentPresentation } = this.props;
+
+    return (
+      <div className={styles.innerToastWrapper}>
+        <div className={styles.toastIcon}>
+          <div className={styles.iconWrapper}>
+            <Icon iconName="presentation" />
+          </div>
+        </div>
+        <div className={styles.toastTextContent}>
+          <div>{`${intl.formatMessage(intlMessages.changeNotification)}`}</div>
+          <div className={styles.presentationName}>{`${currentPresentation.name}`}</div>
+        </div>
+      </div>
     );
   }
 
@@ -654,7 +718,7 @@ class PresentationArea extends PureComponent {
   }
 }
 
-export default injectIntl(PresentationArea);
+export default injectIntl(withDraggableConsumer(PresentationArea));
 
 PresentationArea.propTypes = {
   intl: intlShape.isRequired,

@@ -1,5 +1,6 @@
 // Test: Cleaning a chat message
 
+const clipboardy = require('clipboardy');
 const Page = require('../core/page');
 const e = require('./elements');
 const util = require('./util');
@@ -12,22 +13,17 @@ class Copy extends Page {
   async test() {
     await util.openChat(this);
 
+    // sending a message
+    await this.type(e.chatBox, e.message);
+    await this.click(e.sendButton);
+    await this.screenshot(true);
+
     await this.click(e.chatOptions);
     await this.click(e.chatCopy, true);
 
-    // Pasting in chat because I could't get puppeteer clipboard
-    await this.paste(e.chatBox);
-    await this.click(e.sendButton, true);
-    await this.screenshot(true);
+    const copiedChat = clipboardy.readSync();
 
-    // Must be:
-    // [{ "name": "User1\nXX:XX XM", "message": "[XX:XX] THE_MEETING_WELCOME_MESSAGE }]
-    const after = await util.getTestElements(this);
-
-    // const response = after.length != 0;
-    const response = true;
-
-    return response;
+    return copiedChat.includes(`User1 : ${e.message}`);
   }
 }
 

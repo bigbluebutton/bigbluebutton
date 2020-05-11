@@ -39,16 +39,15 @@ public class TextFileCreatorImp implements TextFileCreator {
   private static Logger log = LoggerFactory.getLogger(TextFileCreatorImp.class);
 
   @Override
-  public boolean createTextFiles(UploadedPresentation pres) {
+  public boolean createTextFile(UploadedPresentation pres, int page) {
     boolean success = false;
     File textfilesDir = determineTextfilesDirectory(pres.getUploadedFile());
     if (!textfilesDir.exists())
       textfilesDir.mkdir();
 
-    cleanDirectory(textfilesDir);
 
     try {
-      success = generateTextFiles(textfilesDir, pres);
+      success = generateTextFile(textfilesDir, pres, page);
     } catch (InterruptedException e) {
       log.error("Interrupted Exception while generating thumbnails {}", pres.getName(), e);
       success = false;
@@ -61,8 +60,8 @@ public class TextFileCreatorImp implements TextFileCreator {
     return success;
   }
 
-  private boolean generateTextFiles(File textfilesDir,
-      UploadedPresentation pres) throws InterruptedException {
+  private boolean generateTextFile(File textfilesDir,
+      UploadedPresentation pres, int page) throws InterruptedException {
     boolean success = true;
     String source = pres.getUploadedFile().getAbsolutePath();
     String dest;
@@ -90,11 +89,14 @@ public class TextFileCreatorImp implements TextFileCreator {
       }
 
     } else {
-      dest = textfilesDir.getAbsolutePath() + File.separatorChar + "slide-";
+      dest = textfilesDir.getAbsolutePath() + File.separatorChar + "slide-" + page + ".txt";
       // sudo apt-get install xpdf-utils
-      for (int i = 1; i <= pres.getNumberOfPages(); i++) {
-        COMMAND = "pdftotext -raw -nopgbrk -enc UTF-8 -f " + i + " -l " + i
-            + " " + source + " " + dest + i + ".txt";
+
+        COMMAND = "pdftotext -raw -nopgbrk -enc UTF-8 -f " + page + " -l " + page
+            + " " + source + " " + dest;
+
+        //System.out.println(COMMAND);
+
         boolean done = new ExternalProcessExecutor().exec(COMMAND, 60000);
         if (!done) {
           success = false;
@@ -110,10 +112,7 @@ public class TextFileCreatorImp implements TextFileCreator {
           String logStr = gson.toJson(logData);
           log.warn(" --analytics-- data={}", logStr);
 
-          break;
         }
-      }
-
     }
 
     return success;

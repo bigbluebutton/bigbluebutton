@@ -1,4 +1,4 @@
-import Annotations from '/imports/ui/components/whiteboard/service';
+import { Annotations, UnsentAnnotations } from '/imports/ui/components/whiteboard/service';
 
 const getCurrentAnnotationsInfo = (whiteboardId) => {
   if (!whiteboardId) {
@@ -8,7 +8,22 @@ const getCurrentAnnotationsInfo = (whiteboardId) => {
   return Annotations.find(
     {
       whiteboardId,
-      // annotationType: { $ne: 'pencil_base' },
+    },
+    {
+      sort: { position: 1 },
+      fields: { status: 1, _id: 1, annotationType: 1 },
+    },
+  ).fetch();
+};
+
+const getUnsetAnnotations = (whiteboardId) => {
+  if (!whiteboardId) {
+    return null;
+  }
+
+  return UnsentAnnotations.find(
+    {
+      whiteboardId,
     },
     {
       sort: { position: 1 },
@@ -19,4 +34,5 @@ const getCurrentAnnotationsInfo = (whiteboardId) => {
 
 export default {
   getCurrentAnnotationsInfo,
+  getUnsetAnnotations,
 };

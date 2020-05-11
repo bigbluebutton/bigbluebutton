@@ -54,6 +54,9 @@ class ReceivedJsonMsgHandlerActor(
       case CheckAlivePingSysMsg.NAME =>
         route[CheckAlivePingSysMsg](meetingManagerChannel, envelope, jsonNode)
 
+      case GetRunningMeetingsReqMsg.NAME =>
+        route[GetRunningMeetingsReqMsg](meetingManagerChannel, envelope, jsonNode)
+
       case CreateMeetingReqMsg.NAME =>
         route[CreateMeetingReqMsg](meetingManagerChannel, envelope, jsonNode)
       case ValidateAuthTokenReqMsg.NAME =>
@@ -82,6 +85,8 @@ class ReceivedJsonMsgHandlerActor(
         routeGenericMsg[GetGuestsWaitingApprovalReqMsg](envelope, jsonNode)
       case GuestsWaitingApprovedMsg.NAME =>
         routeGenericMsg[GuestsWaitingApprovedMsg](envelope, jsonNode)
+      case GuestWaitingLeftMsg.NAME =>
+        routeGenericMsg[GuestWaitingLeftMsg](envelope, jsonNode)
       case SetGuestPolicyCmdMsg.NAME =>
         routeGenericMsg[SetGuestPolicyCmdMsg](envelope, jsonNode)
       case GetGuestPolicyReqMsg.NAME =>
@@ -152,6 +157,8 @@ class ReceivedJsonMsgHandlerActor(
         routeVoiceMsg[CheckRunningAndRecordingVoiceConfEvtMsg](envelope, jsonNode)
       case UserStatusVoiceConfEvtMsg.NAME =>
         routeVoiceMsg[UserStatusVoiceConfEvtMsg](envelope, jsonNode)
+      case VoiceConfCallStateEvtMsg.NAME =>
+        routeVoiceMsg[VoiceConfCallStateEvtMsg](envelope, jsonNode)
 
       // Breakout rooms
       case BreakoutRoomsListMsg.NAME =>
@@ -217,6 +224,14 @@ class ReceivedJsonMsgHandlerActor(
         routeGenericMsg[PresentationPageCountErrorSysPubMsg](envelope, jsonNode)
       case PresentationPageGeneratedSysPubMsg.NAME =>
         routeGenericMsg[PresentationPageGeneratedSysPubMsg](envelope, jsonNode)
+      case PresentationPageConvertedSysMsg.NAME =>
+        routeGenericMsg[PresentationPageConvertedSysMsg](envelope, jsonNode)
+      case PresentationPageConversionStartedSysMsg.NAME =>
+        routeGenericMsg[PresentationPageConversionStartedSysMsg](envelope, jsonNode)
+      case PresentationConversionEndedSysMsg.NAME =>
+        routeGenericMsg[PresentationConversionEndedSysMsg](envelope, jsonNode)
+      case PresentationConversionRequestReceivedSysMsg.NAME =>
+        routeGenericMsg[PresentationConversionRequestReceivedSysMsg](envelope, jsonNode)
       case PresentationConversionCompletedSysPubMsg.NAME =>
         routeGenericMsg[PresentationConversionCompletedSysPubMsg](envelope, jsonNode)
       case PdfConversionInvalidErrorSysPubMsg.NAME =>

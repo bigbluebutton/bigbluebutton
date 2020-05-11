@@ -82,6 +82,7 @@ import org.bigbluebutton.api2.domain.UploadedTrack;
 import org.bigbluebutton.common2.redis.RedisStorageService;
 import org.bigbluebutton.presentation.PresentationUrlDownloadService;
 import org.bigbluebutton.web.services.RegisteredUserCleanupTimerTask;
+import org.bigbluebutton.web.services.WaitingGuestCleanupTimerTask;
 import org.bigbluebutton.web.services.callback.CallbackUrlService;
 import org.bigbluebutton.web.services.callback.MeetingEndedEvent;
 import org.bigbluebutton.web.services.turn.StunTurnService;
@@ -107,6 +108,7 @@ public class MeetingService implements MessageListener {
 
   private RecordingService recordingService;
   private RegisteredUserCleanupTimerTask registeredUserCleaner;
+  private WaitingGuestCleanupTimerTask waitingGuestCleaner;
   private StunTurnService stunTurnService;
   private RedisStorageService storeService;
   private CallbackUrlService callbackUrlService;
@@ -198,6 +200,38 @@ public class MeetingService implements MessageListener {
       }
     }
   }
+
+  public void guestIsWaiting(String meetingId, String userId) {
+    Meeting m = getMeeting(meetingId);
+    if (m != null) {
+      m.guestIsWaiting(userId);
+    }
+  }
+
+  /**
+   * Remove registered waiting guest users who left the waiting page.
+   */
+  public void purgeWaitingGuestUsers() {
+    for (AbstractMap.Entry<String, Meeting> entry : this.meetings.entrySet()) {
+      Long now = System.currentTimeMillis();
+      Meeting meeting = entry.getValue();
+
+      ConcurrentMap<String, User> users = meeting.getUsersMap();
+
+      for (AbstractMap.Entry<String, RegisteredUser> registeredUser : meeting.getRegisteredUsers().entrySet()) {
+        String registeredUserID = registeredUser.getKey();
+        RegisteredUser ru = registeredUser.getValue();
+
+        long elapsedTime = now - ru.getGuestWaitedOn();
+        if (elapsedTime >= 15000 && ru.getGuestStatus() == GuestPolicy.WAIT) {
+          if (meeting.userUnregistered(registeredUserID) != null) {
+            gw.guestWaitingLeft(meeting.getInternalId(), registeredUserID);
+          };
+        }
+      }
+    }
+  }
+
 
   private void kickOffProcessingOfRecording(Meeting m) {
     if (m.isRecord() && m.getNumUsers() == 0) {
@@ -716,7 +750,7 @@ public class MeetingService implements MessageListener {
 
       String endCallbackUrl = "endCallbackUrl".toLowerCase();
       Map<String, String> metadata = m.getMetadata();
-      if (metadata.containsKey(endCallbackUrl)) {
+      if (!m.isBreakout() && metadata.containsKey(endCallbackUrl)) {
         String callbackUrl = metadata.get(endCallbackUrl);
         try {
             callbackUrl = new URIBuilder(new URI(callbackUrl))
@@ -1025,6 +1059,7 @@ public class MeetingService implements MessageListener {
   public void stop() {
     processMessage = false;
     registeredUserCleaner.stop();
+    waitingGuestCleaner.stop();
   }
 
   public void setRecordingService(RecordingService s) {
@@ -1043,6 +1078,11 @@ public class MeetingService implements MessageListener {
     this.gw = gw;
   }
 
+  public void setWaitingGuestCleanupTimerTask(WaitingGuestCleanupTimerTask c) {
+    waitingGuestCleaner = c;
+    waitingGuestCleaner.setMeetingService(this);
+    waitingGuestCleaner.start();
+  }
 
   public void setRegisteredUserCleanupTimerTask(
     RegisteredUserCleanupTimerTask c) {

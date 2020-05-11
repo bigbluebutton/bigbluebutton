@@ -23,5 +23,5 @@
 package org.bigbluebutton.presentation;
 
 public interface SvgImageCreator {
-	public boolean createSvgImages(UploadedPresentation pres);
+	public boolean createSvgImage(UploadedPresentation pres, int page);
 }

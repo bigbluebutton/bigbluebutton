@@ -1,16 +1,15 @@
 import { Meteor } from 'meteor/meteor';
-import { check } from 'meteor/check';
 import Presentations from '/imports/api/presentations';
 import Logger from '/imports/startup/server/logger';
+import { extractCredentials } from '/imports/api/common/server/helpers';
 
-function presentations(credentials) {
-  const { meetingId, requesterUserId, requesterToken } = credentials;
+function presentations() {
+  if (!this.userId) {
+    return Presentations.find({ meetingId: '' });
+  }
+  const { meetingId, requesterUserId } = extractCredentials(this.userId);
 
-  check(meetingId, String);
-  check(requesterUserId, String);
-  check(requesterToken, String);
-
-  Logger.debug(`Publishing Presentations for ${meetingId} ${requesterUserId} ${requesterToken}`);
+  Logger.debug(`Publishing Presentations for ${meetingId} ${requesterUserId}`);
 
   return Presentations.find({ meetingId });
 }

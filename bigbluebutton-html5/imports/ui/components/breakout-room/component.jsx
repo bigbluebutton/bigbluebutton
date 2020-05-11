@@ -199,6 +199,7 @@ class BreakoutRoom extends PureComponent {
           : (
             <Button
               label={intl.formatMessage(intlMessages.breakoutJoin)}
+              data-test="breakoutJoin"
               aria-label={`${intl.formatMessage(intlMessages.breakoutJoin)} ${number}`}
               onClick={() => {
                 this.getBreakoutURL(breakoutId);

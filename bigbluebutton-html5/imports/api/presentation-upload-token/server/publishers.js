@@ -2,13 +2,13 @@ import { Meteor } from 'meteor/meteor';
 import { check } from 'meteor/check';
 import PresentationUploadToken from '/imports/api/presentation-upload-token';
 import Logger from '/imports/startup/server/logger';
+import { extractCredentials } from '/imports/api/common/server/helpers';
 
-Meteor.publish('presentation-upload-token', (credentials, podId, filename) => {
-  const { meetingId, requesterUserId, requesterToken } = credentials;
-
-  check(meetingId, String);
-  check(requesterUserId, String);
-  check(requesterToken, String);
+function presentationUploadToken(podId, filename) {
+  if (!this.userId) {
+    return PresentationUploadToken.find({ meetingId: '' });
+  }
+  const { meetingId, requesterUserId } = extractCredentials(this.userId);
   check(podId, String);
   check(filename, String);
 
@@ -19,7 +19,14 @@ Meteor.publish('presentation-upload-token', (credentials, podId, filename) => {
     filename,
   };
 
-  Logger.debug(`Publishing PresentationUploadToken for ${meetingId} ${requesterUserId} ${requesterToken}`);
+  Logger.debug(`Publishing PresentationUploadToken for ${meetingId} ${requesterUserId}`);
 
   return PresentationUploadToken.find(selector);
-});
+}
+
+function publish(...args) {
+  const boundPresentationUploadToken = presentationUploadToken.bind(this);
+  return boundPresentationUploadToken(...args);
+}
+
+Meteor.publish('presentation-upload-token', publish);

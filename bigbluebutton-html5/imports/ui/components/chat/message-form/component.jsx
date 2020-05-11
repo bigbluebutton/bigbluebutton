@@ -4,6 +4,7 @@ import cx from 'classnames';
 import TextareaAutosize from 'react-autosize-textarea';
 import browser from 'browser-detect';
 import PropTypes from 'prop-types';
+import _ from 'lodash';
 import TypingIndicatorContainer from './typing-indicator/container';
 import { styles } from './styles.scss';
 import Button from '../../button/component';
@@ -43,9 +44,6 @@ const messages = defineMessages({
   inputPlaceholder: {
     id: 'app.chat.inputPlaceholder',
     description: 'Chat message input placeholder',
-  },
-  errorMinMessageLength: {
-    id: 'app.chat.errorMinMessageLength',
   },
   errorMaxMessageLength: {
     id: 'app.chat.errorMaxMessageLength',
@@ -88,6 +86,7 @@ class MessageForm extends PureComponent {
     this.handleMessageKeyDown = this.handleMessageKeyDown.bind(this);
     this.handleSubmit = this.handleSubmit.bind(this);
     this.setMessageHint = this.setMessageHint.bind(this);
+    this.handleUserTyping = _.throttle(this.handleUserTyping.bind(this), 2000, { trailing: false });
   }
 
   componentDidMount() {
@@ -196,12 +195,16 @@ class MessageForm extends PureComponent {
     }
   }
 
+  handleUserTyping(error) {
+    const { startUserTyping, chatId } = this.props;
+    if (error) return;
+    startUserTyping(chatId);
+  }
+
   handleMessageChange(e) {
     const {
       intl,
-      startUserTyping,
       maxMessageLength,
-      chatId,
     } = this.props;
 
     const message = e.target.value;
@@ -214,22 +217,16 @@ class MessageForm extends PureComponent {
       );
     }
 
-    const handleUserTyping = () => {
-      if (error) return;
-      startUserTyping(chatId);
-    };
-
     this.setState({
       message,
       error,
-    }, handleUserTyping);
+    }, this.handleUserTyping(error));
   }
 
   handleSubmit(e) {
     e.preventDefault();
 
     const {
-      intl,
       disabled,
       minMessageLength,
       maxMessageLength,
@@ -239,18 +236,9 @@ class MessageForm extends PureComponent {
     const { message } = this.state;
     let msg = message.trim();
 
-    if (message.length < minMessageLength) {
-      this.setState({
-        hasErrors: true,
-        error: intl.formatMessage(
-          messages.errorMinMessageLength,
-          { 0: minMessageLength - message.length },
-        ),
-      });
-    }
+    if (msg.length < minMessageLength) return;
 
     if (disabled
-      || msg.length === 0
       || msg.length > maxMessageLength) {
       this.setState({ hasErrors: true });
       return false;

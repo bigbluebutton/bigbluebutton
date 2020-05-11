@@ -35,5 +35,6 @@ export default withTracker(({ podId }) => {
     currentPresentation: PresentationAreaService.getCurrentPresentation(podId),
     notify,
     zoomSlide: PresentationToolbarService.zoomSlide,
+    podId,
   };
 })(PresentationAreaContainer);

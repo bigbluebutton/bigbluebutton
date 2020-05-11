@@ -114,6 +114,7 @@
 .presenter {
   &:before {
     content: "\00a0\e90b\00a0";
+    padding: var(--md-padding-y);
   }
   @include presenterIndicator();
 }
