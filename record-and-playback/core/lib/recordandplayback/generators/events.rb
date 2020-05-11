@@ -335,11 +335,11 @@ module BigBlueButton
       end
     end
 
-    def self.edl_match_recording_marks_audio(edl, events, start_time, end_time)
+    def self.edl_match_recording_marks_audio(edl, events, start_time, end_time, part=0)
       edl_entry_offset = BigBlueButton::Events.edl_entry_offset_audio
       edl_empty_entry = BigBlueButton::Events.edl_empty_entry_audio
       return BigBlueButton::Events.edl_match_recording_marks(edl, events,
-                      edl_entry_offset, edl_empty_entry, start_time, end_time)
+                      edl_entry_offset, edl_empty_entry, start_time, end_time, part)
     end
 
     def self.edl_entry_offset_video
@@ -364,11 +364,11 @@ module BigBlueButton
       end
     end
 
-    def self.edl_match_recording_marks_video(edl, events, start_time, end_time)
+    def self.edl_match_recording_marks_video(edl, events, start_time, end_time, part=0)
       edl_entry_offset = BigBlueButton::Events.edl_entry_offset_video
       edl_empty_entry = BigBlueButton::Events.edl_empty_entry_video
       return BigBlueButton::Events.edl_match_recording_marks(edl, events,
-                      edl_entry_offset, edl_empty_entry, start_time, end_time)
+                      edl_entry_offset, edl_empty_entry, start_time, end_time, part)
     end
 
     def self.edl_apply_start_stop_events(edl, edl_entry_offset, edl_empty_entry, start_stop_events)
@@ -442,10 +442,10 @@ module BigBlueButton
 
     def self.edl_match_recording_marks(edl, events,
                                        edl_entry_offset, edl_empty_entry,
-                                       start_time, end_time)
+                                       start_time, end_time, part=0)
       initial_timestamp = BigBlueButton::Events.first_event_timestamp(events)
       start_stop_events = BigBlueButton::Events.match_start_and_stop_rec_events(
-              BigBlueButton::Events.get_start_and_stop_rec_events(events))
+              BigBlueButton::Events.get_start_and_stop_rec_events(events, false, part))
       start_stop_events = BigBlueButton::Events.trim_start_and_stop_rec_events(
                         start_stop_events, start_time, end_time)
 
@@ -479,8 +479,12 @@ module BigBlueButton
     end
 
     # Get events when the moderator wants the recording to start or stop
-    def self.get_start_and_stop_rec_events(events_xml, allow_empty_events=false)
-      BigBlueButton.logger.info "Getting start and stop rec button events"
+    def self.get_start_and_stop_rec_events(events_xml, allow_empty_events=false, part=0)
+      if part > 0 
+        BigBlueButton.logger.info("Getting start and stop rec button events of part #{part}")
+      else
+        BigBlueButton.logger.info "Getting start and stop rec button events"
+      end
       rec_events = BigBlueButton::Events.get_record_status_events(events_xml)
       if !allow_empty_events and rec_events.empty?
         # old recording generated in a version without the record button
@@ -490,7 +494,16 @@ module BigBlueButton
         # user did not click on the record button to stop the recording
         rec_events << { :timestamp => BigBlueButton::Events.last_event_timestamp(events_xml) }
       end
-      rec_events.sort_by {|a| a[:timestamp]}
+      sorted_rec_events = rec_events.sort_by {|a| a[:timestamp]}
+      if part > 0
+        ret_rec_events = []
+        ret_rec_events << { :timestamp => sorted_rec_events[(part-1)*2][:timestamp] }
+        ret_rec_events << { :timestamp => sorted_rec_events[(part-1)*2+1][:timestamp] }
+      else
+        ret_rec_events = sorted_rec_events
+      end
+      #rec_events.sort_by {|a| a[:timestamp]}
+      ret_rec_events
     end
     
     # Match recording start and stop events
@@ -535,10 +548,10 @@ module BigBlueButton
     end
 
     # Calculate the length of the final recording from the start/stop events
-    def self.get_recording_length(events)
+    def self.get_recording_length(events, part=0)
       duration = 0
       start_stop_events = BigBlueButton::Events.match_start_and_stop_rec_events(
-              BigBlueButton::Events.get_start_and_stop_rec_events(events))
+              BigBlueButton::Events.get_start_and_stop_rec_events(events, false, part))
       start_stop_events.each do |start_stop|
         duration += start_stop[:stop_timestamp] - start_stop[:start_timestamp]
       end
@@ -690,6 +703,64 @@ module BigBlueButton
           return false
         end
       end
+    end
+
+    # Get the IDs of all slides that were seen during a given recording part
+    def self.get_recorded_slides(events, part=0)
+      BigBlueButton.logger.debug("Get IDs of recorded slides for recording part #{part}")
+      slides = []
+      current_presentation = "unknown"
+      current_slide_id = "unknown"
+      in_part = 0
+      in_recording = false
+      pres_events = events.xpath('/recording/event[@eventname="SharePresentationEvent" or @eventname="GotoSlideEvent" or @eventname="RecordStatusEvent"]')
+      pres_events.each do |event|
+        case event['eventname']
+        when 'SharePresentationEvent'
+          current_presentation = event.at_xpath('presentationName').text
+          current_slide_id = "#{current_presentation}/1"
+          if in_recording
+            if not slides.include? current_slide_id
+              slides << current_slide_id
+              BigBlueButton.logger.debug("- SharePresentationEvent, adding #{current_slide_id}")
+            end
+          else
+            BigBlueButton.logger.debug("- SharePresentationEvent, ignoring #{current_slide_id}")
+          end
+        when 'GotoSlideEvent'
+          current_slide_id = event.at_xpath('./id').content
+          if in_recording
+            if not slides.include? current_slide_id
+              slides << current_slide_id
+              BigBlueButton.logger.debug("- GotoSlideEvent, adding #{current_slide_id}")
+            end
+          else
+            BigBlueButton.logger.debug("- GotoSlideEvent, ignoring #{current_slide_id}")
+          end
+        when 'RecordStatusEvent'
+          status = event.at_xpath('./status').content
+          if status == "false"
+            in_recording = false
+            BigBlueButton.logger.debug("- RecordStatusEvent, now in_recording=#{in_recording}")
+          end
+          if status == "true"
+            if not in_recording
+              in_part += 1
+              if part == 0 or part == in_part
+                in_recording = true
+              end
+              BigBlueButton.logger.debug("- RecordStatusEvent, now in_part=#{in_part}, in_recording=#{in_recording}")
+              if in_recording and not slides.include? current_slide_id
+                slides << current_slide_id
+                BigBlueButton.logger.debug("- Adding current slide #{current_slide_id}")
+              end
+            end
+          end
+        end
+      end
+      BigBlueButton.logger.debug("Found #{slides.length()} slides within recording part #{part}")
+
+      slides
     end
 
   end

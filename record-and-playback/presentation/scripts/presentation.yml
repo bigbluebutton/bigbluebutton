@@ -8,6 +8,7 @@ deskshare_output_height: 720
 # audio_offset = 1200 means that the audio will be delayed by 1200ms
 audio_offset: 0
 include_deskshare: true
+publish_parts: false
 
 # For PRODUCTION
 publish_dir: /var/bigbluebutton/published/presentation

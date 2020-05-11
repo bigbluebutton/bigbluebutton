@@ -33,7 +33,7 @@ module BigBlueButton
     #   archive_dir - directory location of the raw archives. Assumes there is audio file and events.xml present.
     #   file_basename - the file name of the audio output. '.webm' and '.ogg' will be added
     #
-    def self.process(archive_dir, file_basename)
+    def self.process(archive_dir, file_basename, part=0)
       BigBlueButton.logger.info("AudioProcessor.process: Processing audio...")
 
       audio_dir = "#{archive_dir}/audio"
@@ -48,7 +48,7 @@ module BigBlueButton
       start_time = BigBlueButton::Events.first_event_timestamp(events)
       end_time = BigBlueButton::Events.last_event_timestamp(events)
       audio_edl = BigBlueButton::Events.edl_match_recording_marks_audio(
-                      audio_edl, events, start_time, end_time)
+                      audio_edl, events, start_time, end_time, part)
       BigBlueButton::EDL::Audio.dump(audio_edl)
 
       target_dir = File.dirname(file_basename)
@@ -72,12 +72,12 @@ module BigBlueButton
       BigBlueButton::EDL.encode(@audio_file, nil, webm_format, file_basename)
     end
 
-    def self.get_processed_audio_file(archive_dir, file_basename)
+    def self.get_processed_audio_file(archive_dir, file_basename, part=0)
       BigBlueButton.logger.info("AudioProcessor.get_processed_audio_file")
 
       if(@audio_file == nil)
         BigBlueButton.logger.info("AudioProcessor.get_processed_audio_file: audio_file is null. Did you forget to call the process method before this? Processing...")
-        process(archive_dir,file_basename)
+        process(archive_dir,file_basename, part)
       end
 
       return @audio_file

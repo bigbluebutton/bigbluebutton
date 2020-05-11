@@ -1182,9 +1182,10 @@ begin
     BigBlueButton.logger.info("Setting recording dir")
     recording_dir = bbb_props['recording_dir']
     BigBlueButton.logger.info("Setting process dir")
-    $process_dir = "#{recording_dir}/process/presentation/#{$meeting_id}"
+    $main_process_dir = "#{recording_dir}/process/presentation/#{$meeting_id}"
     BigBlueButton.logger.info("setting publish dir")
     publish_dir = $presentation_props['publish_dir']
+    publish_parts = $presentation_props['publish_parts']
     BigBlueButton.logger.info("setting playback url info")
     playback_protocol = bbb_props['playback_protocol']
     playback_host = bbb_props['playback_host']
@@ -1196,192 +1197,236 @@ begin
       BigBlueButton.logger.info("Making dir target_dir")
       FileUtils.mkdir_p target_dir
 
-      package_dir = "#{target_dir}/#{$meeting_id}"
-      BigBlueButton.logger.info("Making dir package_dir")
-      FileUtils.mkdir_p package_dir
+      # work for each recording part of the whole meeting, including part "0" which
+      # represents the whole meeting from first to last recording event.
+      # if there is only one part or if publish_part!=true, we process *only* this part "0".
+      if publish_parts
+        @eventsdoc = Nokogiri::XML(File.open("#{$main_process_dir}/events.xml"))
+        $total_rec_events = BigBlueButton::Events.match_start_and_stop_rec_events(
+          BigBlueButton::Events.get_start_and_stop_rec_events(@eventsdoc))
+        parts = $total_rec_events.length()
+        if parts <= 1
+          parts = 0
+        end
+      else
+        parts = 0
+      end
+      for part in 0..parts
 
-      begin
-
-        video_formats = $presentation_props['video_formats']
-
-        video_files = Dir.glob("#{$process_dir}/webcams.{#{video_formats.join(',')}}")
-        if ! video_files.empty?
-          BigBlueButton.logger.info("Making video dir")
-          video_dir = "#{package_dir}/video"
-          FileUtils.mkdir_p video_dir
-          video_files.each do |video_file|
-            BigBlueButton.logger.info("Made video dir - copying: #{video_file} to -> #{video_dir}")
-            FileUtils.cp(video_file, video_dir)
-            BigBlueButton.logger.info("Copied #{File.extname(video_file)} file")
-          end
+        if part > 0
+          package_dir = "#{target_dir}/#{$meeting_id}-#{part}"
+          BigBlueButton.logger.info("Making dir package_dir for part #{part}")
+          FileUtils.mkdir_p package_dir
+          $meeting_part_id = "#{$meeting_id}-#{part}"
         else
-          audio_dir = "#{package_dir}/audio"
-          BigBlueButton.logger.info("Making audio dir")
-          FileUtils.mkdir_p audio_dir
-          BigBlueButton.logger.info("Made audio dir - copying: #{$process_dir}/audio.webm to -> #{audio_dir}")
-          FileUtils.cp("#{$process_dir}/audio.webm", audio_dir)
-          BigBlueButton.logger.info("Copied audio.webm file - copying: #{$process_dir}/audio.ogg to -> #{audio_dir}")
-          FileUtils.cp("#{$process_dir}/audio.ogg", audio_dir)
-          BigBlueButton.logger.info("Copied audio.ogg file")
+          package_dir = "#{target_dir}/#{$meeting_id}"
+          BigBlueButton.logger.info("Making dir package_dir")
+          FileUtils.mkdir_p package_dir
+          $meeting_part_id = $meeting_id
         end
 
-        if File.exist?("#{$process_dir}/captions.json")
-          BigBlueButton.logger.info("Copying caption files")
-          FileUtils.cp("#{$process_dir}/captions.json", package_dir)
-          Dir.glob("#{$process_dir}/caption_*.vtt").each do |caption|
-            BigBlueButton.logger.debug(caption)
-            FileUtils.cp(caption, package_dir)
+        $process_dir = "#{recording_dir}/process/presentation/#{$meeting_part_id}"
+
+        begin
+
+          video_formats = $presentation_props['video_formats']
+
+          video_files = Dir.glob("#{$process_dir}/webcams.{#{video_formats.join(',')}}")
+          if ! video_files.empty?
+            BigBlueButton.logger.info("Making video dir")
+            video_dir = "#{package_dir}/video"
+            FileUtils.mkdir_p video_dir
+            video_files.each do |video_file|
+              BigBlueButton.logger.info("Made video dir - copying: #{video_file} to -> #{video_dir}")
+              FileUtils.cp(video_file, video_dir)
+              BigBlueButton.logger.info("Copied #{File.extname(video_file)} file")
+            end
+          else
+            audio_dir = "#{package_dir}/audio"
+            BigBlueButton.logger.info("Making audio dir")
+            FileUtils.mkdir_p audio_dir
+            BigBlueButton.logger.info("Made audio dir - copying: #{$process_dir}/audio.webm to -> #{audio_dir}")
+            FileUtils.cp("#{$process_dir}/audio.webm", audio_dir)
+            BigBlueButton.logger.info("Copied audio.webm file - copying: #{$process_dir}/audio.ogg to -> #{audio_dir}")
+            FileUtils.cp("#{$process_dir}/audio.ogg", audio_dir)
+            BigBlueButton.logger.info("Copied audio.ogg file")
           end
-        end
 
-        video_files = Dir.glob("#{$process_dir}/deskshare.{#{video_formats.join(',')}}")
-        if ! video_files.empty?
-          BigBlueButton.logger.info("Making deskshare dir")
-          deskshare_dir = "#{package_dir}/deskshare"
-          FileUtils.mkdir_p deskshare_dir
-          video_files.each do |video_file|
-            BigBlueButton.logger.info("Made deskshare dir - copying: #{video_file} to -> #{deskshare_dir}")
-            FileUtils.cp(video_file, deskshare_dir)
-            BigBlueButton.logger.info("Copied #{File.extname(video_file)} file")
+          if File.exist?("#{$process_dir}/captions.json")
+            BigBlueButton.logger.info("Copying caption files")
+            FileUtils.cp("#{$process_dir}/captions.json", package_dir)
+            Dir.glob("#{$process_dir}/caption_*.vtt").each do |caption|
+              BigBlueButton.logger.debug(caption)
+              FileUtils.cp(caption, package_dir)
+            end
           end
-        else
-          BigBlueButton.logger.info("Could not copy deskshares.webm: file doesn't exist")
-        end
 
-        if File.exist?("#{$process_dir}/presentation_text.json")
-          FileUtils.cp("#{$process_dir}/presentation_text.json", package_dir)
-        end
+          video_files = Dir.glob("#{$process_dir}/deskshare.{#{video_formats.join(',')}}")
+          if ! video_files.empty?
+            BigBlueButton.logger.info("Making deskshare dir")
+            deskshare_dir = "#{package_dir}/deskshare"
+            FileUtils.mkdir_p deskshare_dir
+            video_files.each do |video_file|
+              BigBlueButton.logger.info("Made deskshare dir - copying: #{video_file} to -> #{deskshare_dir}")
+              FileUtils.cp(video_file, deskshare_dir)
+              BigBlueButton.logger.info("Copied #{File.extname(video_file)} file")
+            end
+          else
+            BigBlueButton.logger.info("Could not copy deskshares.webm: file doesn't exist")
+          end
 
-        processing_time = File.read("#{$process_dir}/processing_time")
+          if File.exist?("#{$process_dir}/presentation_text.json")
+            FileUtils.cp("#{$process_dir}/presentation_text.json", package_dir)
+          end
 
-        @doc = Nokogiri::XML(File.open("#{$process_dir}/events.xml"))
+          processing_time = File.read("#{$main_process_dir}/processing_time")
 
-        # Retrieve record events and calculate total recording duration.
-        $rec_events = BigBlueButton::Events.match_start_and_stop_rec_events(
-          BigBlueButton::Events.get_start_and_stop_rec_events(@doc))
+          @doc = Nokogiri::XML(File.open("#{$process_dir}/events.xml"))
 
-        recording_time = BigBlueButton::Events.get_recording_length(@doc)
+          # Retrieve record events and calculate total recording duration.
+          $rec_events = BigBlueButton::Events.match_start_and_stop_rec_events(
+            BigBlueButton::Events.get_start_and_stop_rec_events(@doc, false, part))
 
-        # presentation_url = "/slides/" + $meeting_id + "/presentation"
+          recording_time = BigBlueButton::Events.get_recording_length(@doc, part)
 
-        $meeting_start = @doc.xpath("//event")[0][:timestamp]
-        $meeting_end = @doc.xpath("//event").last()[:timestamp]
+          # presentation_url = "/slides/" + $meeting_id + "/presentation"
 
-        $version_atleast_0_9_0 = BigBlueButton::Events.bbb_version_compare(
-                        @doc, 0, 9, 0)
-        $version_atleast_2_0_0 = BigBlueButton::Events.bbb_version_compare(
-                        @doc, 2, 0, 0)
-        BigBlueButton.logger.info("Creating metadata.xml")
+          $meeting_start = @doc.xpath("//event")[0][:timestamp]
+          $meeting_end = @doc.xpath("//event").last()[:timestamp]
 
-        # Get the real-time start and end timestamp
-        match = /.*-(\d+)$/.match($meeting_id)
-        real_start_time = match[1]
-        real_end_time = (real_start_time.to_i + ($meeting_end.to_i - $meeting_start.to_i)).to_s
+          $version_atleast_0_9_0 = BigBlueButton::Events.bbb_version_compare(
+                          @doc, 0, 9, 0)
+          $version_atleast_2_0_0 = BigBlueButton::Events.bbb_version_compare(
+                          @doc, 2, 0, 0)
+          BigBlueButton.logger.info("Creating metadata.xml")
 
-        #### INSTEAD OF CREATING THE WHOLE metadata.xml FILE AGAIN, ONLY ADD <playback>
-        # Copy metadata.xml from process_dir
-        FileUtils.cp("#{$process_dir}/metadata.xml", package_dir)
-        BigBlueButton.logger.info("Copied metadata.xml file")
+          # Get the real-time start and end timestamp
+          match = /.*-(\d+)$/.match($meeting_id)
+          real_start_time = match[1]
+          real_end_time = (real_start_time.to_i + ($meeting_end.to_i - $meeting_start.to_i)).to_s
 
-        # Update state and add playback to metadata.xml
-        ## Load metadata.xml
-        metadata = Nokogiri::XML(File.open("#{package_dir}/metadata.xml"))
-        ## Update state
-        recording = metadata.root
-        state = recording.at_xpath("state")
-        state.content = "published"
-        published = recording.at_xpath("published")
-        published.content = "true"
-        ## Remove empty playback
-        metadata.search('//recording/playback').each do |playback|
-          playback.remove
-        end
-        ## Add the actual playback
-        presentation = BigBlueButton::Presentation.get_presentation_for_preview("#{$process_dir}")
-        metadata_with_playback = Nokogiri::XML::Builder.with(metadata.at('recording')) do |xml|
-            xml.playback {
-              xml.format("presentation")
-              xml.link("#{playback_protocol}://#{playback_host}/playback/presentation/2.0/playback.html?meetingId=#{$meeting_id}")
-              xml.processing_time("#{processing_time}")
-              xml.duration("#{recording_time}")
-              unless presentation.empty?
-                xml.extensions {
-                  xml.preview {
-                    xml.images {
-                      presentation[:slides].each do |key,val|
-                        attributes = {:width => "176", :height => "136", :alt => (val[:alt] != nil)? "#{val[:alt]}": ""}
-                        xml.image(attributes){ xml.text("#{playback_protocol}://#{playback_host}/presentation/#{$meeting_id}/presentation/#{presentation[:id]}/thumbnails/thumb-#{key}.png") }
-                      end
+          #### INSTEAD OF CREATING THE WHOLE metadata.xml FILE AGAIN, ONLY ADD <playback>
+          # Copy metadata.xml from process_dir
+          FileUtils.cp("#{$process_dir}/metadata.xml", package_dir)
+          BigBlueButton.logger.info("Copied metadata.xml file")
+
+          # Update state and add playback to metadata.xml
+          ## Load metadata.xml
+          metadata = Nokogiri::XML(File.open("#{package_dir}/metadata.xml"))
+          ## Update state
+          recording = metadata.root
+          state = recording.at_xpath("state")
+          state.content = "published"
+          published = recording.at_xpath("published")
+          published.content = "true"
+          ## Update meeting name and recording id
+          if part > 0
+            #mid = recording.at_xpath("meeting/@id")
+            #mid.content = "#{mid.content}-#{part}"
+            name = recording.at_xpath("meeting/@name")
+            name.content = "#{name.content} - Part #{part}"
+            rid = recording.at_xpath("id")
+            rid.content = "#{rid.content}-#{part}"
+          end
+          ## Remove empty playback
+          metadata.search('//recording/playback').each do |playback|
+            playback.remove
+          end
+          ## Add the actual playback
+          presentation = BigBlueButton::Presentation.get_presentation_for_preview("#{$process_dir}")
+          metadata_with_playback = Nokogiri::XML::Builder.with(metadata.at('recording')) do |xml|
+              xml.playback {
+                xml.format("presentation")
+                xml.link("#{playback_protocol}://#{playback_host}/playback/presentation/2.0/playback.html?meetingId=#{$meeting_part_id}")
+                xml.processing_time("#{processing_time}")
+                xml.duration("#{recording_time}")
+                unless presentation.empty?
+                  xml.extensions {
+                    xml.preview {
+                      xml.images {
+                        presentation[:slides].each do |key,val|
+                          attributes = {:width => "176", :height => "136", :alt => (val[:alt] != nil)? "#{val[:alt]}": ""}
+                          xml.image(attributes){ xml.text("#{playback_protocol}://#{playback_host}/presentation/#{$meeting_id}/presentation/#{presentation[:id]}/thumbnails/thumb-#{key}.png") }
+                        end
+                      }
                     }
                   }
-                }
-              end
-            }
+                end
+              }
+          end
+          ## Write the new metadata.xml
+          metadata_file = File.new("#{package_dir}/metadata.xml","w")
+          metadata = Nokogiri::XML(metadata.to_xml) { |x| x.noblanks }
+          metadata_file.write(metadata.root)
+          metadata_file.close
+          BigBlueButton.logger.info("Added playback to metadata.xml")
+
+          #Create slides.xml
+          BigBlueButton.logger.info("Generating xml for slides and chat")
+
+          # Gathering all the events from the events.xml
+          $chat_events = @doc.xpath("//event[@eventname='PublicChatEvent']")
+
+          # Create a list of timestamps when the moderator cleared the public chat
+          $clear_chat_timestamps = [ ]
+          clear_chat_events = @doc.xpath("//event[@eventname='ClearPublicChatEvent']")
+          clear_chat_events.each { |clear| $clear_chat_timestamps << clear[:timestamp] }
+          $clear_chat_timestamps.sort!
+
+          calculateRecordEventsOffset()
+
+          processChatMessages()
+
+          processPresentation(package_dir)
+
+          processDeskshareEvents(@doc)
+
+          # Write slides.xml to file
+          File.open("#{package_dir}/slides_new.xml", 'w') { |f| f.puts $slides_doc.to_xml }
+
+          # Write deskshare.xml to file
+          File.open("#{package_dir}/#{$deskshare_xml_filename}", 'w') { |f| f.puts $deskshare_xml.to_xml }
+
+          BigBlueButton.logger.info("Copying files to package dir")
+          FileUtils.cp_r("#{$process_dir}/presentation", package_dir)
+          BigBlueButton.logger.info("Copied files to package dir")
+
+          BigBlueButton.logger.info("Publishing slides")
+          # Now publish this recording files by copying them into the publish folder.
+          if not FileTest.directory?(publish_dir)
+            FileUtils.mkdir_p publish_dir
+          end
+
+          # Get raw size of presentation files
+          raw_dir = "#{recording_dir}/raw/#{$meeting_id}"
+          # After all the processing we'll add the published format and raw sizes to the metadata file
+          BigBlueButton.add_raw_size_to_metadata(package_dir, raw_dir)
+          BigBlueButton.add_playback_size_to_metadata(package_dir)
+
+          FileUtils.cp_r(package_dir, publish_dir) # Copy all the files.
+          if part > 0
+            BigBlueButton.logger.info("Finished publishing part #{part}.")
+          else
+            BigBlueButton.logger.info("Finished publishing.")
+          end
+
+          rescue  Exception => e
+            BigBlueButton.logger.error(e.message)
+            e.backtrace.each do |traceline|
+            BigBlueButton.logger.error(traceline)
+          end
+          exit 1
         end
-        ## Write the new metadata.xml
-        metadata_file = File.new("#{package_dir}/metadata.xml","w")
-        metadata = Nokogiri::XML(metadata.to_xml) { |x| x.noblanks }
-        metadata_file.write(metadata.root)
-        metadata_file.close
-        BigBlueButton.logger.info("Added playback to metadata.xml")
-
-        #Create slides.xml
-        BigBlueButton.logger.info("Generating xml for slides and chat")
-
-        # Gathering all the events from the events.xml
-        $chat_events = @doc.xpath("//event[@eventname='PublicChatEvent']")
-
-        # Create a list of timestamps when the moderator cleared the public chat
-        $clear_chat_timestamps = [ ]
-        clear_chat_events = @doc.xpath("//event[@eventname='ClearPublicChatEvent']")
-        clear_chat_events.each { |clear| $clear_chat_timestamps << clear[:timestamp] }
-        $clear_chat_timestamps.sort!
-
-        calculateRecordEventsOffset()
-
-        processChatMessages()
-
-        processPresentation(package_dir)
-
-        processDeskshareEvents(@doc)
-
-        # Write slides.xml to file
-        File.open("#{package_dir}/slides_new.xml", 'w') { |f| f.puts $slides_doc.to_xml }
-
-        # Write deskshare.xml to file
-        File.open("#{package_dir}/#{$deskshare_xml_filename}", 'w') { |f| f.puts $deskshare_xml.to_xml }
-
-        BigBlueButton.logger.info("Copying files to package dir")
-        FileUtils.cp_r("#{$process_dir}/presentation", package_dir)
-        BigBlueButton.logger.info("Copied files to package dir")
-
-        BigBlueButton.logger.info("Publishing slides")
-        # Now publish this recording files by copying them into the publish folder.
-        if not FileTest.directory?(publish_dir)
-          FileUtils.mkdir_p publish_dir
-        end
-
-        # Get raw size of presentation files
-        raw_dir = "#{recording_dir}/raw/#{$meeting_id}"
-        # After all the processing we'll add the published format and raw sizes to the metadata file
-        BigBlueButton.add_raw_size_to_metadata(package_dir, raw_dir)
-        BigBlueButton.add_playback_size_to_metadata(package_dir)
-
-        FileUtils.cp_r(package_dir, publish_dir) # Copy all the files.
-        BigBlueButton.logger.info("Finished publishing script presentation.rb successfully.")
-
-        BigBlueButton.logger.info("Removing processed files.")
-        FileUtils.rm_r(Dir.glob("#{$process_dir}/*"))
 
         BigBlueButton.logger.info("Removing published files.")
         FileUtils.rm_r(Dir.glob("#{target_dir}/*"))
-        rescue  Exception => e
-          BigBlueButton.logger.error(e.message)
-          e.backtrace.each do |traceline|
-          BigBlueButton.logger.error(traceline)
-        end
-        exit 1
+
       end
+
+      BigBlueButton.logger.info("Removing processed files.")
+      FileUtils.rm_r(Dir.glob("#{$process_dir}/*"))
+
+      BigBlueButton.logger.info("Finished publishing script presentation.rb successfully.")
       publish_done = File.new("#{recording_dir}/status/published/#{$meeting_id}-presentation.done", "w")
       publish_done.write("Published #{$meeting_id}")
       publish_done.close

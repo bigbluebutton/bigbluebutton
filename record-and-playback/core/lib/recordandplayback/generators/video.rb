@@ -27,7 +27,7 @@ require File.expand_path('../../edl', __FILE__)
 module BigBlueButton
 
 
-  def BigBlueButton.process_webcam_videos(target_dir, temp_dir, meeting_id, output_width, output_height, audio_offset, processed_audio_file, video_formats=['webm'])
+  def BigBlueButton.process_webcam_videos(target_dir, temp_dir, meeting_id, output_width, output_height, audio_offset, processed_audio_file, video_formats=['webm'], part=0)
     BigBlueButton.logger.info("Processing webcam videos")
 
     events = Nokogiri::XML(File.open("#{temp_dir}/#{meeting_id}/events.xml"))
@@ -38,7 +38,7 @@ module BigBlueButton
     webcam_edl = BigBlueButton::Events.create_webcam_edl(
                     events, "#{temp_dir}/#{meeting_id}")
     user_video_edl = BigBlueButton::Events.edl_match_recording_marks_video(
-                    webcam_edl, events, start_time, end_time)
+                    webcam_edl, events, start_time, end_time, part)
     BigBlueButton::EDL::Video.dump(user_video_edl)
 
     user_video_layout = {
@@ -90,7 +90,7 @@ module BigBlueButton
     end
   end
 
-  def BigBlueButton.process_deskshare_videos(target_dir, temp_dir, meeting_id, output_width, output_height, video_formats=['webm'])
+  def BigBlueButton.process_deskshare_videos(target_dir, temp_dir, meeting_id, output_width, output_height, video_formats=['webm'], part=0)
     BigBlueButton.logger.info("Processing deskshare videos")
 
     events = Nokogiri::XML(File.open("#{temp_dir}/#{meeting_id}/events.xml"))
@@ -100,7 +100,7 @@ module BigBlueButton
     deskshare_edl = BigBlueButton::Events.create_deskshare_edl(
                     events, "#{temp_dir}/#{meeting_id}")
     deskshare_video_edl = BigBlueButton::Events.edl_match_recording_marks_video(
-                    deskshare_edl, events, start_time, end_time)
+                    deskshare_edl, events, start_time, end_time, part)
 
     return if not BigBlueButton.video_recorded?(deskshare_video_edl)
 
