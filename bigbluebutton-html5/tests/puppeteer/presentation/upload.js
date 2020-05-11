@@ -21,7 +21,7 @@ class Upload extends Page {
     const fileUpload = await this.page.$(e.fileUpload);
     await fileUpload.uploadFile(`${__dirname}/upload-test.png`);
 
-    await this.click(e.start);
+    await this.click(e.upload);
     console.log('\nWaiting for the new presentation to upload...');
     // await this.elementRemoved(e.start);
     await this.page.waitFor(10000);
@@ -37,8 +37,7 @@ class Upload extends Page {
     console.log(slides1.slideList);
     console.log(slides1.svg);
 
-    // TODO: Check test
-    return true;
+    return slides0.svg !== slides1.svg;
   }
 
   async getTestElements() {

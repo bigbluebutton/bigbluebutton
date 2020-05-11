@@ -1,16 +1,15 @@
 import { Meteor } from 'meteor/meteor';
-import { check } from 'meteor/check';
 import Logger from '/imports/startup/server/logger';
 import Note from '/imports/api/note';
+import { extractCredentials } from '/imports/api/common/server/helpers';
 
-function note(credentials) {
-  const { meetingId, requesterUserId, requesterToken } = credentials;
+function note() {
+  if (!this.userId) {
+    return Note.find({ meetingId: '' });
+  }
+  const { meetingId, requesterUserId } = extractCredentials(this.userId);
 
-  check(meetingId, String);
-  check(requesterUserId, String);
-  check(requesterToken, String);
-
-  Logger.info(`Publishing note for ${meetingId} ${requesterUserId} ${requesterToken}`);
+  Logger.info(`Publishing note for ${meetingId} ${requesterUserId}`);
 
   return Note.find({ meetingId });
 }

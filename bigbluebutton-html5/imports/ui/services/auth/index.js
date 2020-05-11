@@ -6,6 +6,8 @@ import Storage from '/imports/ui/services/storage/session';
 import Users from '/imports/api/users';
 import logger from '/imports/startup/client/logger';
 import { makeCall } from '/imports/ui/services/api';
+import { initAnnotationsStreamListener } from '/imports/ui/components/whiteboard/service';
+import { initCursorStreamListener } from '/imports/ui/components/cursor/service';
 
 const CONNECTION_TIMEOUT = Meteor.settings.public.app.connectionTimeout;
 
@@ -178,13 +180,16 @@ class Auth {
       return Promise.resolve();
     }
 
+
     return new Promise((resolve) => {
       resolve(this._logoutURL);
     });
   }
 
   authenticate(force) {
-    if (this.loggedIn && !force) return Promise.resolve();
+    if (this.loggedIn && !force) {
+      return Promise.resolve();
+    }
 
     if (!(this.meetingID && this.userID && this.token)) {
       return Promise.reject({
@@ -203,7 +208,6 @@ class Auth {
 
   validateAuthToken() {
     return new Promise((resolve, reject) => {
-      Meteor.connection.setUserId(`${this.meetingID}-${this.userID}`);
       let computation = null;
 
       const validationTimeout = setTimeout(() => {
@@ -216,17 +220,19 @@ class Auth {
 
       Tracker.autorun((c) => {
         computation = c;
-        Meteor.subscribe('current-user', this.credentials);
+        makeCall('validateAuthToken', this.meetingID, this.userID, this.token);
+        Meteor.subscribe('current-user');
 
         const selector = { meetingId: this.meetingID, userId: this.userID };
         const fields = {
-          intId: 1, ejected: 1, validated: 1, connectionStatus: 1,
+          intId: 1, ejected: 1, validated: 1, connectionStatus: 1, userId: 1,
         };
         const User = Users.findOne(selector, { fields });
         // Skip in case the user is not in the collection yet or is a dummy user
         if (!User || !('intId' in User)) {
           logger.info({ logCode: 'auth_service_resend_validateauthtoken' }, 're-send validateAuthToken for delayed authentication');
-          makeCall('validateAuthToken');
+          makeCall('validateAuthToken', this.meetingID, this.userID, this.token);
+
           return;
         }
 
@@ -239,13 +245,15 @@ class Auth {
         }
 
         if (User.validated === true && User.connectionStatus === 'online') {
+          logger.info({ logCode: 'auth_service_init_streamers', extraInfo: { userId: User.userId } }, 'Calling init streamers functions');
+          initCursorStreamListener();
+          initAnnotationsStreamListener();
           computation.stop();
           clearTimeout(validationTimeout);
           // setTimeout to prevent race-conditions with subscription
           setTimeout(() => resolve(true), 100);
         }
       });
-      makeCall('validateAuthToken');
     });
   }
 

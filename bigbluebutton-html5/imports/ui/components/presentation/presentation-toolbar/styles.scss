@@ -26,6 +26,16 @@
 
 .presentationBtn {
   position: relative;
+  color: var(--toolbar-button-color);
+  background-color: var(--color-off-white);
+  border-radius: 0;
+  box-shadow: none !important;
+  border: 0;
+
+  &:focus {
+    background-color: var(--color-off-white);
+    border: 0;
+  }
 }
 
 .presentationZoomControls {
@@ -83,21 +93,6 @@
     option {
       color: var(--toolbar-button-color);
       background-color: var(--color-off-white);
-    }
-  }
-
-  button,
-  select,
-  >div {
-    color: var(--toolbar-button-color);
-    background-color: var(--color-off-white);
-    border-radius: 0;
-    box-shadow: none !important;
-    border: 0;
-
-    &:focus {
-      background-color: var(--color-off-white);
-      border: 0;
     }
   }
 

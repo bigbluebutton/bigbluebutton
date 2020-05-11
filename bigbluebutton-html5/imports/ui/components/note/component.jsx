@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { Session } from 'meteor/session';
 import { defineMessages, injectIntl } from 'react-intl';
@@ -29,51 +29,61 @@ const propTypes = {
   }).isRequired,
 };
 
-const defaultProps = {
-};
+class Note extends Component {
+  constructor(props) {
+    super(props);
 
-const Note = (props) => {
-  const {
-    isLocked,
-    intl,
-    isRTL,
-  } = props;
+    this.noteURL = NoteService.getNoteURL();
+    this.readOnlyURL = NoteService.getReadOnlyURL();
+  }
 
-  const url = isLocked ? NoteService.getReadOnlyURL() : NoteService.getNoteURL();
-  return (
-    <div
-      data-test="note"
-      className={styles.note}
-    >
-      <header className={styles.header}>
-        <div
-          data-test="noteTitle"
-          className={styles.title}
-        >
-          <Button
-            onClick={() => {
-              Session.set('openPanel', 'userlist');
-            }}
-            aria-label={intl.formatMessage(intlMessages.hideNoteLabel)}
-            label={intl.formatMessage(intlMessages.title)}
-            icon={isRTL ? "right_arrow" : "left_arrow"}
-            className={styles.hideBtn}
-          />
-        </div>
-      </header>
-      <iframe
-        title="etherpad"
-        src={url}
-        aria-describedby="sharedNotesEscapeHint"
-      />
-      <span id="sharedNotesEscapeHint" className={styles.hint} aria-hidden>
-        {intl.formatMessage(intlMessages.tipLabel)}
-      </span>
-    </div>
-  );
-};
+  componentWillUnmount() {
+    const revs = NoteService.getRevs();
+    NoteService.setLastRevs(revs);
+  }
+
+  render() {
+    const {
+      isLocked,
+      intl,
+      isRTL,
+    } = this.props;
+
+    const url = isLocked ? this.readOnlyURL : this.noteURL;
+    return (
+      <div
+        data-test="note"
+        className={styles.note}
+      >
+        <header className={styles.header}>
+          <div
+            data-test="noteTitle"
+            className={styles.title}
+          >
+            <Button
+              onClick={() => {
+                Session.set('openPanel', 'userlist');
+              }}
+              aria-label={intl.formatMessage(intlMessages.hideNoteLabel)}
+              label={intl.formatMessage(intlMessages.title)}
+              icon={isRTL ? "right_arrow" : "left_arrow"}
+              className={styles.hideBtn}
+            />
+          </div>
+        </header>
+        <iframe
+          title="etherpad"
+          src={url}
+          aria-describedby="sharedNotesEscapeHint"
+        />
+        <span id="sharedNotesEscapeHint" className={styles.hint} aria-hidden>
+          {intl.formatMessage(intlMessages.tipLabel)}
+        </span>
+      </div>
+    );
+  }
+}
 
 Note.propTypes = propTypes;
-Note.defaultProps = defaultProps;
 
 export default injectWbResizeEvent(injectIntl(Note));

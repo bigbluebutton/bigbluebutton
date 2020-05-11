@@ -1,10 +1,15 @@
 import React, { createContext, useReducer, useEffect } from 'react';
 import Storage from '../../../services/storage/session';
 
+const { webcamsDefaultPlacement } = Meteor.settings.public.layout;
+
 export const WebcamDraggableContext = createContext();
 
 const initialState = {
-  placement: 'top',
+  placement: webcamsDefaultPlacement || 'top',
+  lastPlacementLandscape: 'top',
+  lastPlacementPortrait: 'left',
+  orientation: null,
   mediaSize: {
     width: 0,
     height: 0,
@@ -25,6 +30,7 @@ const initialState = {
     x: 0,
     y: 0,
   },
+  optimalGrid: {},
   dragging: false,
   videoRef: null,
   videoListRef: null,
@@ -39,16 +45,64 @@ const reducer = (state, action) => {
         placement: 'top',
       };
     }
+    case 'setplacementToRight': {
+      return {
+        ...state,
+        placement: 'right',
+      };
+    }
     case 'setplacementToBottom': {
       return {
         ...state,
         placement: 'bottom',
       };
     }
+    case 'setplacementToLeft': {
+      return {
+        ...state,
+        placement: 'left',
+      };
+    }
+    case 'setLastPlacementPortraitToLeft': {
+      return {
+        ...state,
+        lastPlacementPortrait: 'left',
+      };
+    }
+    case 'setLastPlacementPortraitToRight': {
+      return {
+        ...state,
+        lastPlacementPortrait: 'right',
+      };
+    }
+    case 'setLastPlacementLandscapeToTop': {
+      return {
+        ...state,
+        lastPlacementLandscape: 'top',
+      };
+    }
+    case 'setLastPlacementLandscapeToBottom': {
+      return {
+        ...state,
+        lastPlacementLandscape: 'bottom',
+      };
+    }
     case 'setplacementToFloating': {
       return {
         ...state,
         placement: 'floating',
+      };
+    }
+    case 'setOrientationToLandscape': {
+      return {
+        ...state,
+        orientation: 'landscape',
+      };
+    }
+    case 'setOrientationToPortrait': {
+      return {
+        ...state,
+        orientation: 'portrait',
       };
     }
     case 'setMediaSize': {
@@ -114,6 +168,12 @@ const reducer = (state, action) => {
         videoListRef: action.value,
       };
     }
+    case 'setOptimalGrid': {
+      return {
+        ...state,
+        optimalGrid: action.value,
+      };
+    }
     case 'dragStart': {
       return {
         ...state,
@@ -146,13 +206,22 @@ const ContextConsumer = Component => props => (
 
 const ContextProvider = (props) => {
   const [webcamDraggableState, webcamDraggableDispatch] = useReducer(reducer, initialState);
-  const { placement, lastPosition } = webcamDraggableState;
+  const {
+    placement,
+    lastPosition,
+    lastPlacementLandscape,
+    lastPlacementPortrait,
+  } = webcamDraggableState;
   const { children } = props;
   useEffect(() => {
     Storage.setItem('webcamPlacement', placement);
+    Storage.setItem('webcamLastPlacementLandscape', lastPlacementLandscape);
+    Storage.setItem('webcamlastPlacementPortrait', lastPlacementPortrait);
     Storage.setItem('webcamLastPosition', lastPosition);
   }, [
     placement,
+    lastPlacementLandscape,
+    lastPlacementPortrait,
     lastPosition,
   ]);
 

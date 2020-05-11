@@ -22,6 +22,7 @@ import java.util.regex.Pattern;
 public class GetUsersStatusCommand extends FreeswitchCommand {
   private static Logger log = LoggerFactory.getLogger(GetUsersStatusCommand.class);
   private static final Pattern CALLERNAME_PATTERN = Pattern.compile("(.*)-bbbID-(.*)$");
+  private static final Pattern CALLERNAME_WITH_SESS_INFO_PATTERN = Pattern.compile("^(.*)_(\\d+)-bbbID-(.*)$");
   private static final Pattern GLOBAL_AUDION_PATTERN = Pattern.compile("(GLOBAL_AUDIO)_(.*)$");
 
   public GetUsersStatusCommand(String room, String requesterId) {
@@ -73,11 +74,18 @@ public class GetUsersStatusCommand extends FreeswitchCommand {
             String callerIdName = member.getCallerIdName();
             String voiceUserId = callerIdName;
             String uuid = member.getUUID();
+            String clientSession = "0";
 
             Matcher gapMatcher = GLOBAL_AUDION_PATTERN.matcher(callerIdName);
             // Ignore GLOBAL_AUDIO user.
             if (!gapMatcher.matches()) {
               Matcher matcher = CALLERNAME_PATTERN.matcher(callerIdName);
+              Matcher callWithSess = CALLERNAME_WITH_SESS_INFO_PATTERN.matcher(callerIdName);
+              if (callWithSess.matches()) {
+                voiceUserId = callWithSess.group(1).trim();
+                clientSession = callWithSess.group(2).trim();
+                callerIdName = callWithSess.group(3).trim();
+              } else
               if (matcher.matches()) {
                 voiceUserId = matcher.group(1).trim();
                 callerIdName = matcher.group(2).trim();
@@ -85,6 +93,7 @@ public class GetUsersStatusCommand extends FreeswitchCommand {
 
               log.info("Conf user. uuid=" + uuid
                       + ",caller=" + callerIdName
+                      + ",clientSession=" + clientSession
                       + ",callerId=" + callerId
                       + ",conf=" + room
                       + ",muted=" + member.getMuted()

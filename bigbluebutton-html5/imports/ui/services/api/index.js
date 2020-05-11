@@ -13,11 +13,11 @@ import logger from '/imports/startup/client/logger';
 export function makeCall(name, ...args) {
   check(name, String);
 
-  const { credentials } = Auth;
+  // const { credentials } = Auth;
 
   return new Promise((resolve, reject) => {
     if (Meteor.status().connected) {
-      Meteor.call(name, credentials, ...args, (error, result) => {
+      Meteor.call(name, ...args, (error, result) => {
         if (error) {
           reject(error);
         }
@@ -26,7 +26,7 @@ export function makeCall(name, ...args) {
       });
     } else {
       const failureString = `Call to ${name} failed because Meteor is not connected`;
-      // We don't want to send a log message if the call that failed wasa log message.
+      // We don't want to send a log message if the call that failed was a log message.
       // Without this you can get into an endless loop of failed logging.
       if (name !== 'logClient') {
         logger.warn({

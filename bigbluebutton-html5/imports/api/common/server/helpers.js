@@ -1,4 +1,3 @@
-import WhiteboardMultiUser from '/imports/api/whiteboard-multi-user/';
 import Users from '/imports/api/users';
 import MeteorSyncConfirmation from '/imports/startup/server/meteorSyncComfirmation';
 import Logger from '/imports/startup/server/logger';
@@ -55,17 +54,6 @@ export const processForHTML5ServerOnly = fn => (message, ...args) => {
   return fn(message, ...args);
 };
 
-
-export const getMultiUserStatus = (meetingId, whiteboardId) => {
-  const data = WhiteboardMultiUser.findOne({ meetingId, whiteboardId });
-
-  if (data) {
-    return data.multiUser;
-  }
-
-  return false;
-};
-
 /**
  * Calculate a 32 bit FNV-1a hash
  * Found here: https://gist.github.com/vaiorabbit/5657561
@@ -91,3 +79,11 @@ export const hashFNV32a = (str, asString, seed) => {
   return hval >>> 0;
 };
 /* eslint-enable */
+
+export const extractCredentials = (credentials) => {
+  if (!credentials) return {};
+  const credentialsArray = credentials.split('--');
+  const meetingId = credentialsArray[0];
+  const requesterUserId = credentialsArray[1];
+  return { meetingId, requesterUserId };
+};

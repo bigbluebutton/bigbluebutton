@@ -1,5 +1,6 @@
 package org.bigbluebutton.core.apps.voice
 
+import org.bigbluebutton.LockSettingsUtil
 import org.bigbluebutton.common2.msgs.{ BbbClientMsgHeader, BbbCommonEnvCoreMsg, BbbCoreEnvelope, ConfVoiceUser, MessageTypes, Routing, UserJoinedVoiceConfToClientEvtMsg, UserJoinedVoiceConfToClientEvtMsgBody, UserLeftVoiceConfToClientEvtMsg, UserLeftVoiceConfToClientEvtMsgBody, UserMutedVoiceEvtMsg, UserMutedVoiceEvtMsgBody }
 import org.bigbluebutton.core.apps.breakout.BreakoutHdlrHelpers
 import org.bigbluebutton.core.bus.InternalEventBus
@@ -93,12 +94,22 @@ object VoiceApp {
     for {
       mutedUser <- VoiceUsers.userMuted(liveMeeting.voiceUsers, voiceUserId, muted)
     } yield {
+      if (!muted) {
+        // Make sure lock settings are in effect (ralam dec 6, 2019)
+        LockSettingsUtil.enforceLockSettingsForVoiceUser(
+          mutedUser,
+          liveMeeting,
+          outGW
+        )
+      }
+
       broadcastUserMutedVoiceEvtMsg(
         liveMeeting.props.meetingProp.intId,
         mutedUser,
         liveMeeting.props.voiceProp.voiceConf,
         outGW
       )
+
     }
   }
 
@@ -160,6 +171,20 @@ object VoiceApp {
     }
   }
 
+  private def checkAndEjectOldDuplicateVoiceConfUser(
+      userid:      String,
+      liveMeeting: LiveMeeting,
+      outGW:       OutMsgRouter
+  ): Unit = {
+    for {
+      u <- VoiceUsers.findWithIntId(liveMeeting.voiceUsers, userid)
+      oldU <- VoiceUsers.removeWithIntId(liveMeeting.voiceUsers, userid)
+    } yield {
+      val event = MsgBuilder.buildEjectUserFromVoiceConfSysMsg(liveMeeting.props.meetingProp.intId, liveMeeting.props.voiceProp.voiceConf, oldU.voiceUserId)
+      outGW.send(event)
+    }
+  }
+
   def handleUserJoinedVoiceConfEvtMsg(
       liveMeeting:  LiveMeeting,
       outGW:        OutMsgRouter,
@@ -214,6 +239,8 @@ object VoiceApp {
       outGW.send(msgEvent)
     }
 
+    checkAndEjectOldDuplicateVoiceConfUser(intId, liveMeeting, outGW)
+
     val isListenOnly = if (callerIdName.startsWith("LISTENONLY")) true else false
 
     val voiceUserState = VoiceUserState(
@@ -250,6 +277,14 @@ object VoiceApp {
       )
       outGW.send(event)
     }
+
+    // Make sure lock settings are in effect. (ralam dec 6, 2019)
+    LockSettingsUtil.enforceLockSettingsForVoiceUser(
+      voiceUserState,
+      liveMeeting,
+      outGW
+    )
+
   }
 
   def handleUserLeftVoiceConfEvtMsg(

@@ -9,6 +9,7 @@ import ChatService from './service';
 const CHAT_CONFIG = Meteor.settings.public.chat;
 const PUBLIC_CHAT_KEY = CHAT_CONFIG.public_id;
 const CHAT_CLEAR = CHAT_CONFIG.system_messages_keys.chat_clear;
+const SYSTEM_CHAT_TYPE = CHAT_CONFIG.type_system;
 const ROLE_MODERATOR = Meteor.settings.public.user.role_moderator;
 const CONNECTION_STATUS = 'online';
 
@@ -38,7 +39,15 @@ class ChatContainer extends PureComponent {
   }
 
   render() {
-    const { children } = this.props;
+    const {
+      children,
+      unmounting,
+    } = this.props;
+
+    if (unmounting === true) {
+      return null;
+    }
+
     return (
       <Chat {...this.props}>
         {children}
@@ -48,7 +57,7 @@ class ChatContainer extends PureComponent {
 }
 
 export default injectIntl(withTracker(({ intl }) => {
-  const chatID = Session.get('idChatOpen') || PUBLIC_CHAT_KEY;
+  const chatID = Session.get('idChatOpen');
   let messages = [];
   let isChatLocked = ChatService.isChatLocked(chatID);
   let title = intl.formatMessage(intlMessages.titlePublic);
@@ -78,34 +87,37 @@ export default injectIntl(withTracker(({ intl }) => {
       sender: null,
     };
 
-    const moderatorTime = time + 1;
-    const moderatorId = `moderator-msg-${moderatorTime}`;
+    let moderatorMsg;
+    if (amIModerator && welcomeProp.modOnlyMessage) {
+      const moderatorTime = time + 1;
+      const moderatorId = `moderator-msg-${moderatorTime}`;
 
-    const moderatorMsg = {
-      id: moderatorId,
-      content: [{
+      moderatorMsg = {
         id: moderatorId,
-        text: welcomeProp.modOnlyMessage,
+        content: [{
+          id: moderatorId,
+          text: welcomeProp.modOnlyMessage,
+          time: moderatorTime,
+        }],
         time: moderatorTime,
-      }],
-      time: moderatorTime,
-      sender: null,
-    };
+        sender: null,
+      };
+    }
 
-    const messagesBeforeWelcomeMsg = ChatService.reduceAndMapGroupMessages(
+    const messagesBeforeWelcomeMsg = ChatService.reduceAndDontMapGroupMessages(
       messages.filter(message => message.timestamp < time),
     );
-    const messagesAfterWelcomeMsg = ChatService.reduceAndMapGroupMessages(
+    const messagesAfterWelcomeMsg = ChatService.reduceAndDontMapGroupMessages(
       messages.filter(message => message.timestamp >= time),
     );
 
     const messagesFormated = messagesBeforeWelcomeMsg
       .concat(welcomeMsg)
-      .concat(amIModerator ? moderatorMsg : [])
+      .concat(moderatorMsg || [])
       .concat(messagesAfterWelcomeMsg);
 
     messages = messagesFormated.sort((a, b) => (a.time - b.time));
-  } else {
+  } else if (chatID) {
     messages = ChatService.getPrivateGroupMessages();
 
     const receiverUser = ChatService.getUser(chatID);
@@ -131,10 +143,15 @@ export default injectIntl(withTracker(({ intl }) => {
       messages.push(messagePartnerLoggedOut);
       isChatLocked = true;
     }
+  } else {
+    // No chatID is set so the panel is closed, about to close, or wasn't opened correctly
+    return {
+      unmounting: true,
+    };
   }
 
   messages = messages.map((message) => {
-    if (message.sender) return message;
+    if (message.sender && message.sender !== SYSTEM_CHAT_TYPE) return message;
 
     return {
       ...message,

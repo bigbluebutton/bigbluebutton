@@ -87,6 +87,7 @@
   @include highContrastOutline();
   outline-style: solid;
   background-color: var(--list-item-bg-hover);
+  box-shadow: inset 0 0 0 var(--border-size) var(--item-focus-border), inset 1px 0 0 1px var(--item-focus-border);
 
   &:focus {
     outline-style: solid;
@@ -95,7 +96,7 @@
 }
 
 .userListItem {
-  @extend %list-item;
+  //@extend %list-item;
   flex-flow: column;
   flex-shrink: 0;
 }

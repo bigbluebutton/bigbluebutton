@@ -1,5 +1,6 @@
 import Users from '/imports/api/users';
 import Auth from '/imports/ui/services/auth';
+import { debounce } from 'lodash';
 import AudioManager from '/imports/ui/services/audio-manager';
 import Meetings from '/imports/api/meetings';
 import { makeCall } from '/imports/ui/services/api';
@@ -39,7 +40,6 @@ const isVoiceUser = () => {
     { fields: { joined: 1 } });
   return voiceUser ? voiceUser.joined : false;
 };
-
 const toggleMuteMicrophone = () => {
   const user = VoiceUsers.findOne({
     meetingId: Auth.meetingID, intId: Auth.userID,
@@ -50,15 +50,16 @@ const toggleMuteMicrophone = () => {
       logCode: 'audiomanager_unmute_audio',
       extraInfo: { logType: 'user_action' },
     }, 'microphone unmuted by user');
-    makeCall('toggleSelfVoice');
+    makeCall('toggleVoice');
   } else {
     logger.info({
       logCode: 'audiomanager_mute_audio',
       extraInfo: { logType: 'user_action' },
     }, 'microphone muted by user');
-    makeCall('toggleSelfVoice');
+    makeCall('toggleVoice');
   }
 };
+
 
 export default {
   init,
@@ -67,7 +68,7 @@ export default {
   joinListenOnly: () => AudioManager.joinListenOnly(),
   joinMicrophone: () => AudioManager.joinMicrophone(),
   joinEchoTest: () => AudioManager.joinEchoTest(),
-  toggleMuteMicrophone,
+  toggleMuteMicrophone: debounce(toggleMuteMicrophone, 500, { leading: true, trailing: false }),
   changeInputDevice: inputDeviceId => AudioManager.changeInputDevice(inputDeviceId),
   changeOutputDevice: outputDeviceId => AudioManager.changeOutputDevice(outputDeviceId),
   isConnected: () => AudioManager.isConnected,

@@ -6,6 +6,7 @@ import {
 import { defineMessages, injectIntl, intlShape } from 'react-intl';
 import DataSaving from '/imports/ui/components/settings/submenus/data-saving/component';
 import Application from '/imports/ui/components/settings/submenus/application/component';
+import Notification from '/imports/ui/components/settings/submenus/notification/component';
 import _ from 'lodash';
 import PropTypes from 'prop-types';
 
@@ -161,6 +162,14 @@ class Settings extends Component {
           {/* </Tab> */}
           <Tab
             className={styles.tabSelector}
+            // aria-labelledby="appTab"
+            selectedClassName={styles.selected}
+          >
+            <Icon iconName="alert" className={styles.icon} />
+            <span id="notificationTab">Notification</span>
+          </Tab>
+          <Tab
+            className={styles.tabSelector}
             aria-labelledby="dataSavingTab"
             selectedClassName={styles.selected}
           >
@@ -177,6 +186,12 @@ class Settings extends Component {
         <TabPanel className={styles.tabPanel}>
           <Application
             availableLocales={availableLocales}
+            handleUpdateSettings={this.handleUpdateSettings}
+            settings={current.application}
+          />
+        </TabPanel>
+        <TabPanel className={styles.tabPanel}>
+          <Notification
             handleUpdateSettings={this.handleUpdateSettings}
             settings={current.application}
           />

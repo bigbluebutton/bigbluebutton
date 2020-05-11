@@ -3,6 +3,9 @@ import KurentoBridge from '/imports/api/screenshare/client/bridge';
 import Settings from '/imports/ui/services/settings';
 import logger from '/imports/startup/client/logger';
 import { tryGenerateIceCandidates } from '/imports/utils/safari-webrtc';
+import { stopWatching } from '/imports/ui/components/external-video-player/service';
+import Meetings from '/imports/api/meetings';
+import Auth from '/imports/ui/services/auth';
 
 // when the meeting information has been updated check to see if it was
 // screensharing. If it has changed either trigger a call to receive video
@@ -47,6 +50,12 @@ const presenterScreenshareHasStarted = () => {
 };
 
 const shareScreen = (onFail) => {
+  // stop external video share if running
+  const meeting = Meetings.findOne({ meetingId: Auth.meetingID });
+  if (meeting && meeting.externalVideoUrl) {
+    stopWatching();
+  }
+
   KurentoBridge.kurentoShareScreen(onFail);
 };
 

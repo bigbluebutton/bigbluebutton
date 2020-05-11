@@ -21,6 +21,7 @@ import clearLocalSettings from '/imports/api/local-settings/server/modifiers/cle
 import clearScreenshare from '/imports/api/screenshare/server/modifiers/clearScreenshare';
 import clearWhiteboardMultiUser from '/imports/api/whiteboard-multi-user/server/modifiers/clearWhiteboardMultiUser';
 import clearRecordMeeting from './clearRecordMeeting';
+import clearVoiceCallStates from '/imports/api/voice-call-states/server/modifiers/clearVoiceCallStates';
 
 export const clearAllMeetingData = (meetingId) => {
   clearCaptions(meetingId);
@@ -40,7 +41,7 @@ export const clearAllMeetingData = (meetingId) => {
   clearRecordMeeting(meetingId);
   clearScreenshare(meetingId);
   clearWhiteboardMultiUser(meetingId);
-
+  clearVoiceCallStates(meetingId);
   return Logger.info(`Cleared Meetings with id ${meetingId}`);
 };
 

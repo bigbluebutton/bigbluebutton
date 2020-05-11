@@ -100,6 +100,12 @@
   }
 }
 
+.info {
+  &:before {
+    content: "\00a0"; // non-breaking space
+  }
+}
+
 .error,
 .info {
   font-size: calc(var(--font-size-base) * .75);
@@ -110,15 +116,11 @@
   [dir="rtl"] & {
     text-align: right;
   }
-
-  &:before {
-    content: "\00a0"; // non-breaking space
-  }
 }
 
 .spacer {
   &:before {
-    content: none;
+    content: "\00a0"; // non-breaking space
   }
 }
 

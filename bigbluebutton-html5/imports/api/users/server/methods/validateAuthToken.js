@@ -1,6 +1,6 @@
 import { Meteor } from 'meteor/meteor';
-import { check } from 'meteor/check';
 import RedisPubSub from '/imports/startup/server/redis';
+import pendingAuthenticationsStore from '../store/pendingAuthentications';
 import Logger from '/imports/startup/server/logger';
 import Users from '/imports/api/users';
 import createDummyUser from '../modifiers/createDummyUser';
@@ -17,6 +17,7 @@ export default async function validateAuthToken(credentials) {
   check(meetingId, String);
   check(requesterUserId, String);
   check(requesterToken, String);
+  pendingAuthenticationsStore.add(meetingId, requesterUserId, requesterToken, this);
 
   const sessionId = `${meetingId}-${requesterUserId}`;
   this.setUserId(sessionId);
@@ -31,13 +32,12 @@ export default async function validateAuthToken(credentials) {
   }
 
   setConnectionIdAndAuthToken(meetingId, requesterUserId, this.connection.id, requesterToken);
-
   const payload = {
     userId: requesterUserId,
     authToken: requesterToken,
   };
 
-  Logger.info(`User '${requesterUserId}' is trying to validate auth token for meeting '${meetingId}'`);
+  Logger.info(`User '${requesterUserId}' is trying to validate auth token for meeting '${meetingId}' from connection '${this.connection.id}'`);
 
   return RedisPubSub.publishUserMessage(CHANNEL, EVENT_NAME, meetingId, requesterUserId, payload);
 }

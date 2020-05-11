@@ -19,6 +19,8 @@
 
 package org.bigbluebutton.presentation;
 
+import java.io.File;
+
 public interface ThumbnailCreator {
-	public boolean createThumbnails(UploadedPresentation pres);
+	public boolean createThumbnail(UploadedPresentation pres, int page, File pageFile);
 }

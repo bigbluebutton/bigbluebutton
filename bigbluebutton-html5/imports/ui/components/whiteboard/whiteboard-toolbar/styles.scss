@@ -29,6 +29,7 @@
   left: auto;
   bottom: 0;
   pointer-events: none;
+  z-index: 3;
 
   [dir="rtl"] & {
     margin: 0 0 0 var(--toolbar-margin);
@@ -40,10 +41,6 @@
     transform: scale(.75);
     transform-origin: right;
   }
-}
-
-.toolbarContainer:hover{
-  z-index: 3;
 }
 
 .toolbarWrapper {
@@ -235,6 +232,8 @@
   position: absolute;
   width: var(--toolbar-button-width);
   height: var(--toolbar-button-height);
+  left: 0;
+  top: 0;
 }
 
 .textThickness {

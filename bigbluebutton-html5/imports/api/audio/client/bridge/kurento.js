@@ -246,6 +246,13 @@ export default class KurentoAudioBridge extends BaseAudioBridge {
     return this.media.outputDeviceId || value;
   }
 
+  getPeerConnection() {
+    const { webRtcPeer } = window.kurentoManager.kurentoAudio;
+    if (webRtcPeer) {
+      return webRtcPeer.peerConnection;
+    }
+    return null;
+  }
 
   exitAudio() {
     return new Promise((resolve) => {
