@@ -42,6 +42,8 @@ class Assign extends Component {
     this.onChange = this.onChange.bind(this);
     this.changeNumberOfRooms = this.changeNumberOfRooms.bind(this);
     this.resetChannels = this.resetChannels.bind(this);
+    this._prev = this._prev.bind(this);
+    this._next = this._next.bind(this);
   }
 
 

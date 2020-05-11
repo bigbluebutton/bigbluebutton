@@ -1,7 +1,6 @@
 import React, { Fragment, PureComponent } from 'react';
 import browser from 'browser-detect';
 import PropTypes from 'prop-types';
-import Popup from 'reactjs-popup';
 import Assign from '/imports/ui/components/breakout-create-modal/assign-to-breakouts/container';
 import { withModalMounter } from '/imports/ui/components/modal/service';
 import BreakoutCreateModalContainer from '/imports/ui/components/breakout-create-modal/container';
