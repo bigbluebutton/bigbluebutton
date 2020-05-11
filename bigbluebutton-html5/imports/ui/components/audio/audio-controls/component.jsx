@@ -41,11 +41,42 @@ const propTypes = {
 };
 
 class AudioControls extends PureComponent {
+  constructor(props) {
+    super(props);
+    this.pushToTalkDownHandler = this.handlePushToTalk.bind(this, 'down');
+    this.pushToTalkUpHandler = this.handlePushToTalk.bind(this, 'up');
+  }
+
   componentDidMount() {
     const { processToggleMuteFromOutside } = this.props;
     if (Meteor.settings.public.allowOutsideCommands.toggleSelfVoice
       || getFromUserSettings('bbb_outside_toggle_self_voice', false)) {
       window.addEventListener('message', processToggleMuteFromOutside);
+    }
+
+    document.addEventListener('keydown', this.pushToTalkDownHandler);
+    document.addEventListener('keyup', this.pushToTalkUpHandler);
+  }
+
+  componentWillUnmount() {
+    document.removeEventListener('keydown', this.pushToTalkDownHandler);
+    document.removeEventListener('keyup', this.pushToTalkUpHandler);
+  }
+
+  handlePushToTalk(action, event) {
+    const { target } = event;
+    const { muted, handleToggleMuteMicrophone, showMute } = this.props;
+    const isBody = target.nodeName === 'BODY';
+    // check if event is not in a form or textfield and if user is able to mute
+    if (isBody && showMute) {
+      if (event.key === 't') {
+        if (action === 'down' && muted) {
+          handleToggleMuteMicrophone();
+        }
+        if (action === 'up' && !muted) {
+          handleToggleMuteMicrophone();
+        }
+      }
     }
   }
 
