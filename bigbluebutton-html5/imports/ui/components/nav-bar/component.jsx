@@ -80,8 +80,7 @@ class NavBar extends PureComponent {
       mountModal,
       presentationTitle,
       amIModerator,
-      name,
-      breakname,
+      breakoutRoomName,
       currentUser,
     } = this.props;
     const isModerator = currentUser.role === ROLE_MODERATOR;
@@ -115,21 +114,14 @@ class NavBar extends PureComponent {
               amIModerator={amIModerator}
             />
           </div>
-          <div className={styles.center} />
+          <div className={styles.center}>
+          </div>
           <div className={styles.right}>
-            <div className={styles.both}>
-              <b><span>{name}</span></b>
-              {(breakname && !isModerator) ? (
-                <p>
-                  <span>
-(
-                    {breakname}
-)
-                  </span>
-                </p>
-              ) : (isModerator ? <span>(moderator)</span> : null)}
-
-            </div>
+ <div className={styles.both}>
+   <b className={styles.name}><span >{currentUser.name}</span></b>
+   {(breakoutRoomName &&!isModerator)? <p className={styles.name}><span >({breakoutRoomName})</span></p> :( isModerator ?<span>(moderator)</span>:null)}
+   
+    </div> 
             <SettingsDropdownContainer amIModerator={amIModerator} />
           </div>
         </div>

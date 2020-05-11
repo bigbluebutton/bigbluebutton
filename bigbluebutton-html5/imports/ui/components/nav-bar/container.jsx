@@ -78,8 +78,7 @@ export default withTracker(() => {
     meetingId,
     presentationTitle: meetingTitle,
     hasUnreadMessages,
-    currentUser,
-    name: currentUser.name,
-    breakname,
+    currentUser: currentUser,
+    breakoutRoomName:breakoutRoomName,
   };
 })(NavBarContainer);
