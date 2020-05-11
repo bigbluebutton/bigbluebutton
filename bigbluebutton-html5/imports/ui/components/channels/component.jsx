@@ -1,7 +1,6 @@
 import React, { Fragment, PureComponent } from 'react';
 import browser from 'browser-detect';
 import PropTypes from 'prop-types';
-import Popup from 'reactjs-popup';
 import Assign from '/imports/ui/components/breakout-create-modal/assign-to-breakouts/container';
 import { withModalMounter } from '/imports/ui/components/modal/service';
 import BreakoutCreateModalContainer from '/imports/ui/components/breakout-create-modal/container';
@@ -302,21 +301,7 @@ class Channels extends PureComponent {
           }}
         />) : null),
 
-      // <Popup
-      //   trigger={<div className="menu-item">Edit Room </div>}
-      //   position="right top"
-      //   on="hover"
-      //   closeOnDocumentClick
-      //   mouseLeaveDelay={300}
-      //   mouseEnterDelay={0}
-      //   contentStyle={{ padding: "0px", border: "none" }}
-      //   arrow={false}
-      // >
-      //   <EditBreakout meetingIdentifier={breakout.breakoutId}/>
-
-      //   </Popup>
-
-      // ) : null)
+    
 
     ]);
 

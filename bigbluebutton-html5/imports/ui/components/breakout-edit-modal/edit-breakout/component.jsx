@@ -27,7 +27,7 @@ class EditBreakout extends Component {
   render() {
     const {breakoutRoomUsers, unassignedUsersInMasterChannel,name} = this.props;
       return( <div className="form-group">
-        <div className={styles.name}>{name}</div>
+        <div className={styles.name}><b>{name} </b>  </div>
         <div className={styles.userList}>
         {breakoutRoomUsers.map((u,idx) => 
           <div  className={styles.Join}>
@@ -49,7 +49,7 @@ class EditBreakout extends Component {
           {u.name.slice(0, 2).toLowerCase()}
         </UserAvatar>
         </div>
-            <span aria-hidden  className={styles.username}>{u.name}</span>
+            <span aria-hidden  className={styles.username}> <b>{u.name}</b> </span>
             </div>
             </label>
           </div>
@@ -77,7 +77,7 @@ class EditBreakout extends Component {
           {u.name.slice(0, 2).toLowerCase()}
         </UserAvatar>
         </div>
-          <span aria-hidden  className={styles.username}>{u.name}</span>
+          <span aria-hidden  className={styles.username}> <b>{u.name}</b> </span>
           </div>
           </label>
         </div>

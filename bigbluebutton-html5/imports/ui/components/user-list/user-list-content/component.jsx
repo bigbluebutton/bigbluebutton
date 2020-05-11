@@ -1,5 +1,4 @@
 import React, { PureComponent } from 'react';
-// import Popup from "reactjs-popup";
 // import  Assign from '../../../../ui/components/breakout-create-modal/assign-to-breakouts/container';
 import PropTypes from 'prop-types';
 import { styles } from './styles';
