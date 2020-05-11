@@ -1,10 +1,10 @@
 require('dotenv').config();
 const puppeteer = require('puppeteer');
 const fs = require('fs');
+const path = require('path');
 const helper = require('./helper');
 const params = require('../params');
 const e = require('./elements');
-const path = require('path');
 
 class Page {
   constructor(name) {
@@ -22,26 +22,42 @@ class Page {
 
   // Join BigBlueButton meeting
   async init(args, meetingId, newParams) {
-    this.effectiveParams = newParams || params;
-    const isModerator = this.effectiveParams.moderatorPW;
-    this.browser = await puppeteer.launch(args);
-    this.page = await this.browser.newPage({ context: `bbb-${this.effectiveParams.fullName}` });
-
-    await this.setDownloadBehavior(`${this.parentDir}/downloads`);
-    this.meetingId = await helper.createMeeting(params, meetingId);
-
-    const joinURL = helper.getJoinURL(this.meetingId, this.effectiveParams, isModerator);
-
-    await this.page.goto(joinURL);
-    const checkForGetMetrics = async () => {
-      if (process.env.BBB_COLLECT_METRICS === 'true') {
-        await this.getMetrics();
+    try {
+      this.effectiveParams = newParams || params;
+      const isModerator = this.effectiveParams.moderatorPW;
+      if (process.env.BROWSERLESS_ENABLED === 'true') {
+        this.browser = await puppeteer.connect({
+          browserWSEndpoint: `ws://${process.env.BROWSERLESS_URL}?token=${process.env.BROWSERLESS_TOKEN}&${args.args.join('&')}`,
+        });
+      } else {
+        this.browser = await puppeteer.launch(args);
       }
-    };
-    if (process.env.IS_AUDIO_TEST !== 'true') {
-      await this.closeAudioModal();
+      this.page = await this.browser.newPage();
+      this.page.setDefaultTimeout(3600000);
+
+      // Getting all page console logs
+      // this.page.on('console', async msg => console[msg._type](
+      //   ...await Promise.all(msg.args().map(arg => arg.jsonValue()))
+      // ));
+
+      await this.setDownloadBehavior(`${this.parentDir}/downloads`);
+      this.meetingId = await helper.createMeeting(params, meetingId);
+      const joinURL = helper.getJoinURL(this.meetingId, this.effectiveParams, isModerator);
+
+      await this.page.goto(joinURL);
+      const checkForGetMetrics = async () => {
+        if (process.env.BBB_COLLECT_METRICS === 'true') {
+          await this.page.waitForSelector('[data-test^="userListItem"]');
+          await this.getMetrics();
+        }
+      };
+      if (process.env.IS_AUDIO_TEST !== 'true') {
+        await this.closeAudioModal();
+      }
+      await checkForGetMetrics();
+    } catch (e) {
+      console.log(e);
     }
-    await checkForGetMetrics();
   }
 
   // Joining audio with microphone
@@ -85,32 +101,57 @@ class Page {
 
   // Get the default arguments for creating a page
   static getArgs() {
-    return { headless: false, args: ['--no-sandbox', '--use-fake-ui-for-media-stream'] };
+    const args = ['--no-sandbox', '--use-fake-ui-for-media-stream'];
+    return { headless: false, args };
   }
 
   static getArgsWithAudio() {
-    return {
-      headless: false,
-      args: [
+    if (process.env.BROWSERLESS_ENABLED === 'true') {
+      const args = [
         '--no-sandbox',
         '--use-fake-ui-for-media-stream',
         '--use-fake-device-for-media-stream',
-        `--use-file-for-fake-audio-capture=${path.join(__dirname,'../media/audio.wav')}`,
+        `--use-file-for-fake-audio-capture=${path.join(__dirname, '../media/audio.wav')}`,
         '--allow-file-access',
-      ],
+      ];
+      return {
+        headless: false,
+        args,
+      };
+    }
+    const args = [
+      '--no-sandbox',
+      '--use-fake-ui-for-media-stream',
+      '--use-fake-device-for-media-stream',
+    ];
+    return {
+      headless: false,
+      args,
     };
   }
 
   static getArgsWithVideo() {
-    return {
-      headless: false,
-      args: [
+    if (process.env.BROWSERLESS_ENABLED === 'true') {
+      const args = [
         '--no-sandbox',
         '--use-fake-ui-for-media-stream',
         '--use-fake-device-for-media-stream',
-        `--use-file-for-fake-video-capture=${path.join(__dirname,'../media/video_rgb.y4m')}`,
-        '--allow-file-access',
-      ],
+      ];
+      return {
+        headless: false,
+        args,
+      };
+    }
+    const args = [
+      '--no-sandbox',
+      '--use-fake-ui-for-media-stream',
+      '--use-fake-device-for-media-stream',
+      `--use-file-for-fake-video-capture=${path.join(__dirname, '../media/video.wav')}`,
+      '--allow-file-access',
+    ];
+    return {
+      headless: false,
+      args,
     };
   }
 
@@ -190,17 +231,26 @@ class Page {
   }
 
   async getMetrics() {
-    const metricsObj = {};
+    const pageMetricsObj = {};
     const dir = process.env.METRICS_FOLDER;
-    const currentTimestamp = new Date();
     if (!fs.existsSync(dir)) {
       fs.mkdirSync(dir);
     }
+    await this.waitForSelector('[data-test^="userListItem"]');
+    const totalNumberOfUsersMongo = await this.page.evaluate(() => {
+      const collection = require('/imports/api/users/index.js');
+      const users = collection.default._collection.find({ connectionStatus: 'online' }).count();
+      return users;
+    });
+    const totalNumberOfUsersDom = await this.page.evaluate(() => document.querySelectorAll('[data-test^="userListItem"]').length);
+    console.log({ totalNumberOfUsersDom, totalNumberOfUsersMongo });
     const metric = await this.page.metrics();
-    metricsObj[`metricObj-${this.effectiveParams.fullName}`] = metric;
+    pageMetricsObj.totalNumberOfUsersMongoObj = totalNumberOfUsersMongo;
+    pageMetricsObj.totalNumberOfUsersDomObj = totalNumberOfUsersDom;
+    pageMetricsObj[`metricObj-${this.meetingId}`] = metric;
     const createFile = () => {
       try {
-        fs.appendFileSync(`${dir}/metrics-${this.effectiveParams.fullName}-${currentTimestamp}.json`, `${JSON.stringify(metricsObj)}\n`);
+        fs.appendFileSync(`${dir}/metrics-${this.effectiveParams.fullName}-${this.meetingId}.json`, `${JSON.stringify(pageMetricsObj)},\n`);
       } catch (error) {
         console.log(error);
       }

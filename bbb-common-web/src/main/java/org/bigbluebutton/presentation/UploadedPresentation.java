@@ -20,12 +20,15 @@
 package org.bigbluebutton.presentation;
 
 import java.io.File;
+import java.util.ArrayList;
 
 public final class UploadedPresentation {
   private final String podId;
   private final String meetingId;
   private final String id;
   private final String name;
+  private final boolean uploadFailed;
+  private final ArrayList<String> uploadFailReason;
   private File uploadedFile;
   private String fileType = "unknown";
   private int numberOfPages = 0;
@@ -36,13 +39,16 @@ public final class UploadedPresentation {
   private String authzToken;
   private boolean conversionStarted = false;
 
+
   public UploadedPresentation(String podId,
                               String meetingId,
                               String id,
                               String name,
                               String baseUrl,
                               Boolean current,
-                              String authzToken) {
+                              String authzToken,
+                              Boolean uploadFailed,
+                              ArrayList<String> uploadFailReason) {
     this.podId = podId;
     this.meetingId = meetingId;
     this.id = id;
@@ -51,6 +57,8 @@ public final class UploadedPresentation {
     this.isDownloadable = false;
     this.current = current;
     this.authzToken = authzToken;
+    this.uploadFailed = uploadFailed;
+    this.uploadFailReason = uploadFailReason;
   }
 
   public File getUploadedFile() {
@@ -131,5 +139,13 @@ public final class UploadedPresentation {
 
   public boolean isConversionStarted() {
     return conversionStarted;
+  }
+
+  public boolean isUploadFailed() {
+    return uploadFailed;
+  }
+
+  public ArrayList<String> getUploadFailReason() {
+    return uploadFailReason;
   }
 }
