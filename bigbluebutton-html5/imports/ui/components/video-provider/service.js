@@ -76,7 +76,6 @@ class VideoService {
   getAllWebcamUsers() {
     const webcamsLocked = this.webcamsLocked();
     const webcamsOnlyForModerator = this.webcamsOnlyForModerator();
-    const hideUserList = this.hideUserList();
     const currentUser = Users.findOne({ userId: Auth.userID });
     const currentUserIsViewer = currentUser.role === ROLE_VIEWER;
     const sharedWebcam = this.isSharing;
@@ -112,7 +111,7 @@ class VideoService {
 
     const userIsModerator = user => user.role === ROLE_MODERATOR;
 
-    if ((webcamsOnlyForModerator || hideUserList) && currentUserIsViewer) {
+    if ((webcamsOnlyForModerator) && currentUserIsViewer) {
       users = users.filter(userIsModerator);
     }
 
@@ -133,12 +132,6 @@ class VideoService {
     const m = Meetings.findOne({ meetingId: Auth.meetingID },
       { fields: { 'lockSettingsProps.disableCam': 1 } });
     return m.lockSettingsProps ? m.lockSettingsProps.disableCam : false;
-  }
-
-  hideUserList() {
-    const m = Meetings.findOne({ meetingId: Auth.meetingID },
-      { fields: { 'lockSettingsProps.hideUserList': 1 } });
-    return m.lockSettingsProps ? m.lockSettingsProps.hideUserList : false;
   }
 
   userId() {
