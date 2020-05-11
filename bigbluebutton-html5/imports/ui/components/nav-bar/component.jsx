@@ -54,7 +54,6 @@ const handleClickToggleChat = (id) => {
 };
 
 class NavBar extends PureComponent {
-
   componentDidMount() {
     const {
       processOutsideToggleRecording,
@@ -100,8 +99,8 @@ class NavBar extends PureComponent {
         <div className={styles.top}>
           <div className={styles.left}>
             <Button
-            data-test="chatButton"
-              onClick={() => handleClickToggleChat("public")}
+              data-test="chatButton"
+              onClick={() => handleClickToggleChat('public')}
               circle
               hideLabel
               label={intl.formatMessage(intlMessages.toggleUserListLabel)}
@@ -116,14 +115,21 @@ class NavBar extends PureComponent {
               amIModerator={amIModerator}
             />
           </div>
-          <div className={styles.center}>
-          </div>
+          <div className={styles.center} />
           <div className={styles.right}>
- <div className={styles.both}>
-   <b ><span >{name}</span></b>
-   {(breakname &&!isModerator)? <p ><span >({breakname})</span></p> :( isModerator ?<span>(moderator)</span>:null)}
-   
-    </div> 
+            <div className={styles.both}>
+              <b><span>{name}</span></b>
+              {(breakname && !isModerator) ? (
+                <p>
+                  <span>
+(
+                    {breakname}
+)
+                  </span>
+                </p>
+              ) : (isModerator ? <span>(moderator)</span> : null)}
+
+            </div>
             <SettingsDropdownContainer amIModerator={amIModerator} />
           </div>
         </div>

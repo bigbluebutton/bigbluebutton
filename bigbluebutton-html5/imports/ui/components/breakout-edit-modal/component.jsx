@@ -34,6 +34,7 @@ class BreakoutEditModalComponent extends Component {
           className={styles.modal}
           onRequestClose={closeModal}
           hideBorder
+          title="Edit Channel"
         >
           <React.Fragment>
            <EditBreakout  breakoutId={breakoutId} name={name} closeModal={closeModal}/>

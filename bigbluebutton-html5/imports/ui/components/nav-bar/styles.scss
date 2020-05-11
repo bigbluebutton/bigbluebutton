@@ -45,7 +45,9 @@
  flex-flow: row;
  flex-direction: row;
 display: flex;
-
+>span{
+  padding: 0.3rem;
+}
 }
 .name{
   padding: 0.3rem;

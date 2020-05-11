@@ -30,6 +30,7 @@ class BreakoutCreateModalComponent extends Component {
           className={styles.modal}
           onRequestClose={closeModal}
           hideBorder
+          title="Create Channels"
         >
           <React.Fragment>
            <Assign  closeModal={closeModal}/>
