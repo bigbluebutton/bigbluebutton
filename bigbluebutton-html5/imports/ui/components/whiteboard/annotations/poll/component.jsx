@@ -1,7 +1,8 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import PollService from '/imports/ui/components/poll/service';
-import { injectIntl } from 'react-intl';
+import { injectIntl, intlShape } from 'react-intl';
+import styles from './styles';
 
 class PollDrawComponent extends Component {
   constructor(props) {
@@ -96,6 +97,28 @@ class PollDrawComponent extends Component {
     for (let i = 0; i < arrayLength; i += 1) {
       const _tempArray = [];
       const _result = result[i];
+      let isDefaultPoll;
+      switch (_result.key.toLowerCase()) {
+        case 'true':
+        case 'false':
+        case 'yes':
+        case 'no':
+        case 'a':
+        case 'b':
+        case 'c':
+        case 'd':
+        case 'e':
+          isDefaultPoll = true;
+          break;
+        default:
+          isDefaultPoll = false;
+          break;
+      }
+
+      if (isDefaultPoll) {
+        _result.key = intl.formatMessage({ id: `app.poll.answer.${_result.key.toLowerCase()}` });
+      }
+
       _tempArray.push(_result.key, `${_result.numVotes}`);
       if (votesTotal === 0) {
         _tempArray.push('0%');
@@ -431,6 +454,7 @@ class PollDrawComponent extends Component {
               y={line.keyColumn.yLeft}
               dy={maxLineHeight / 2}
               key={`${line.key}_key`}
+              className={styles.outline}
             >
               {line.keyColumn.keyString}
             </tspan>
@@ -462,6 +486,7 @@ class PollDrawComponent extends Component {
               y={line.percentColumn.yRight}
               dy={maxLineHeight / 2}
               key={`${line.key}_percent`}
+              className={styles.outline}
             >
               {line.percentColumn.percentString}
             </tspan>
@@ -482,6 +507,7 @@ class PollDrawComponent extends Component {
               dy={maxLineHeight / 2}
               key={`${line.key}_numVotes`}
               fill={line.barColumn.color}
+              className={styles.outline}
             >
               {line.barColumn.numVotes}
             </tspan>
@@ -578,6 +604,7 @@ class PollDrawComponent extends Component {
 export default injectIntl(PollDrawComponent);
 
 PollDrawComponent.propTypes = {
+  intl: intlShape.isRequired,
   // Defines an annotation object, which contains all the basic info we need to draw a line
   annotation: PropTypes.shape({
     id: PropTypes.string.isRequired,
