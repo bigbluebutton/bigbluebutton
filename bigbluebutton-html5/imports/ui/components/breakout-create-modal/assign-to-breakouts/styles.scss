@@ -40,7 +40,7 @@ font-size: 0.813rem;
 line-height: 1.313rem;
 }
 .username{
-  font-family: Avenir;
+ 
   font-style: normal;
  
       padding:  0.6rem 0rem 0.6rem 0.9rem;
@@ -104,8 +104,8 @@ input.JoinCheckbox{
   background: #F5F6FA;
 border: 1px solid #DCDCDC;
 box-sizing: border-box;
-width: 15px;
-height: 15px;
+width: 1rem;
+height: 1rem;
 border-radius: 2px;
 
 
@@ -165,7 +165,6 @@ border-radius: 2px;
 .nbtn{
   flex: 0;
    align-self: auto;
-  // font-family: Avenir;
   float:right;
   margin-bottom: 0;
   background: #36A1FF;

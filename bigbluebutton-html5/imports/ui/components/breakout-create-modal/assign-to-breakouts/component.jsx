@@ -237,8 +237,8 @@ class Assign extends Component {
     
     {if (currentStep != 0){
       return( <div className="form-group">
-      <div className={styles.heading}>Breakout Channel {currentStep } of {numberOfRooms}</div>
-      <label htmlFor="username" className={styles.name}>Channel Name</label>
+      <div className={styles.heading}> <b>Breakout Channel {currentStep } of {numberOfRooms}</b> </div>
+      <label htmlFor="username" className={styles.name}> <b> Channel Name</b></label>
       <input
         className="form-control"
         id="channelname"
@@ -283,7 +283,7 @@ class Assign extends Component {
           {u.userName.slice(0, 2).toLowerCase()}
         </UserAvatar>
         </div>
-          <span aria-hidden  className={styles.username}>{u.userName}</span>
+          <span aria-hidden  className={styles.username}> <b>{u.userName}</b> </span>
           </div>
           </label>
           </div>
@@ -302,7 +302,7 @@ class Assign extends Component {
     }
     else{
       return ( <div>
-        <div className={styles.inputheading}>How many breakout channels do you want?</div> 
+        <div className={styles.inputheading}> <b>How many breakout channels do you want?</b> </div> 
 
         <div className={styles.number}>
           <select

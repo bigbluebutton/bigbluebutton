@@ -12,7 +12,7 @@ import RecordingIndicator from './recording-indicator/container';
 import TalkingIndicatorContainer from '/imports/ui/components/nav-bar/talking-indicator/container';
 import SettingsDropdownContainer from './settings-dropdown/container';
 
-
+const ROLE_MODERATOR = Meteor.settings.public.user.role_moderator;
 const intlMessages = defineMessages({
   toggleUserListLabel: {
     id: 'app.navBar.userListToggleBtnLabel',
@@ -81,7 +81,10 @@ class NavBar extends PureComponent {
       mountModal,
       presentationTitle,
       amIModerator,
+      breakoutRoomName,
+      currentUser,
     } = this.props;
+    const isModerator = currentUser.role === ROLE_MODERATOR;
 
 
     const toggleBtnClasses = {};
@@ -115,6 +118,11 @@ class NavBar extends PureComponent {
           <div className={styles.center}>
           </div>
           <div className={styles.right}>
+ <div className={styles.both}>
+   <b className={styles.name}><span >{currentUser.name}</span></b>
+   {(breakoutRoomName &&!isModerator)? <p className={styles.name}><span >({breakoutRoomName})</span></p> :( isModerator ?<span>(moderator)</span>:null)}
+   
+    </div> 
             <SettingsDropdownContainer amIModerator={amIModerator} />
           </div>
         </div>
