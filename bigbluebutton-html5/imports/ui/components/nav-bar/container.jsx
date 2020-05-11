@@ -10,6 +10,7 @@ import userListService from '../user-list/service';
 import Service from './service';
 import NavBar from './component';
 
+import BreakoutService from '/imports/ui/components/channels/service.js';
 const PUBLIC_CONFIG = Meteor.settings.public;
 const ROLE_MODERATOR = PUBLIC_CONFIG.user.role_moderator;
 const NavBarContainer = ({ children, ...props }) => (
@@ -28,6 +29,17 @@ export default withTracker(() => {
   const meetingObject = Meetings.findOne({
     meetingId,
   }, { fields: { 'meetingProp.name': 1, 'breakoutProps.sequence': 1 } });
+  const {findBreakouts} = BreakoutService;
+  const breakouts = findBreakouts();
+  let breakoutRoomName;
+  breakouts.map(breakout => {
+    breakout.users.map(user => {
+      if(user.userId==Auth.userID){
+        breakoutRoomName = breakout.name;
+      }
+    })
+  });
+  
 
   if (meetingObject != null) {
     meetingTitle = meetingObject.meetingProp.name;
@@ -50,7 +62,7 @@ export default withTracker(() => {
   };
 
   const { connectRecordingObserver, processOutsideToggleRecording } = Service;
-  const currentUser = Users.findOne({ userId: Auth.userID }, { fields: { role: 1 } });
+  const currentUser = Users.findOne({ userId: Auth.userID }, { fields: { role: 1 ,name:1} });
   const openPanel = Session.get('openPanel');
   const isExpanded = openPanel !== '';
   const amIModerator = currentUser.role === ROLE_MODERATOR;
@@ -65,5 +77,7 @@ export default withTracker(() => {
     meetingId,
     presentationTitle: meetingTitle,
     hasUnreadMessages,
+    currentUser: currentUser,
+    breakoutRoomName:breakoutRoomName,
   };
 })(NavBarContainer);

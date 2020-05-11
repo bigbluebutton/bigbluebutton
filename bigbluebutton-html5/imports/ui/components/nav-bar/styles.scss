@@ -32,6 +32,24 @@
   align-items: center;
 }
 
+.both{
+  color: #0F4C81;
+  position: relative;
+   flex-wrap: nowrap;
+   align-items: center;
+   text-transform: capitalize;
+
+  white-space: nowrap;
+  text-overflow: ellipsis;
+
+ flex-flow: row;
+ flex-direction: row;
+display: flex;
+
+}
+.name{
+  padding: 0.3rem;
+}
 .right {
   flex: 0;
 }

@@ -301,21 +301,7 @@ class Channels extends PureComponent {
           }}
         />) : null),
 
-      // <Popup
-      //   trigger={<div className="menu-item">Edit Room </div>}
-      //   position="right top"
-      //   on="hover"
-      //   closeOnDocumentClick
-      //   mouseLeaveDelay={300}
-      //   mouseEnterDelay={0}
-      //   contentStyle={{ padding: "0px", border: "none" }}
-      //   arrow={false}
-      // >
-      //   <EditBreakout meetingIdentifier={breakout.breakoutId}/>
-
-      //   </Popup>
-
-      // ) : null)
+    
 
     ]);
 
