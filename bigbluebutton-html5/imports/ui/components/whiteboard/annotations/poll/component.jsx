@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import PollService from '/imports/ui/components/poll/service';
 import { injectIntl, intlShape } from 'react-intl';
+import styles from './styles';
 
 class PollDrawComponent extends Component {
   constructor(props) {
@@ -453,6 +454,7 @@ class PollDrawComponent extends Component {
               y={line.keyColumn.yLeft}
               dy={maxLineHeight / 2}
               key={`${line.key}_key`}
+              className={styles.outline}
             >
               {line.keyColumn.keyString}
             </tspan>
@@ -484,6 +486,7 @@ class PollDrawComponent extends Component {
               y={line.percentColumn.yRight}
               dy={maxLineHeight / 2}
               key={`${line.key}_percent`}
+              className={styles.outline}
             >
               {line.percentColumn.percentString}
             </tspan>
@@ -504,6 +507,7 @@ class PollDrawComponent extends Component {
               dy={maxLineHeight / 2}
               key={`${line.key}_numVotes`}
               fill={line.barColumn.color}
+              className={styles.outline}
             >
               {line.barColumn.numVotes}
             </tspan>
