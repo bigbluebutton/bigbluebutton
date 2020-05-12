@@ -26,6 +26,14 @@ const intlMessages = defineMessages({
     id: 'app.userList.notesListItem.unreadContent',
     description: 'Aria label for notes unread content',
   },
+  locked: {
+    id: 'app.userList.locked',
+    description: '',
+  },
+  byModerator: {
+    id: 'app.userList.byModerator',
+    description: '',
+  },
 });
 
 class UserNotes extends Component {
@@ -90,7 +98,7 @@ class UserNotes extends Component {
             ? (
               <div className={styles.noteLock}>
                 <Icon iconName="lock" />
-                <span>Locked by (moderator)</span>
+                <span>{`${intl.formatMessage(intlMessages.locked)} ${intl.formatMessage(intlMessages.byModerator)}`}</span>
               </div>
             ) : null
           }
