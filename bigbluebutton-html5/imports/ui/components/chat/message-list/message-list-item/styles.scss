@@ -42,12 +42,12 @@
   font-size: .71rem;
 }
 
-.name,
+.names,
 .logout {
-  flex-wrap: nowrap;
   display: flex;
-  min-width: 0;
   position: relative;
+  white-space: nowrap;
+  text-overflow: ellipsis;
 
   > span{
     color: #A3AEBD;
@@ -63,10 +63,16 @@
   }
 }
 
-.name {
- flex-wrap: wrap;
+.names {
+  display: flex;
+  flex: auto;
   color: var(--color-heading);
+  white-space: nowrap;
+  text-overflow: ellipsis;
 
+}
+.name{
+  position: relative;
 }
 
 .logout {
@@ -123,7 +129,6 @@
 
 .messagesleft {  
   flex: auto;
-  align-self: flex-start;
   flex-wrap: nowrap;
   display: flex;
   flex-direction: column;
@@ -143,6 +148,7 @@
   flex-direction: column;
   overflow-x: hidden;
   font-style: light;
+  align-self: flex-start;
   text-align: left;
   margin-right: 0.85rem;
     line-height: 1.6;
@@ -159,10 +165,10 @@
   color: var(--color-light);
   word-wrap: break-word;
 
-  align-self: flex-start;
+  align-self: flex-end;
   max-width: 18.25rem;
   background: #FFFFFF;
-  border-radius: 0px 20px 20px 20px;
+  border-radius: 20px 0px 20px 20px;
   line-height: var(--font-size-21px);
   padding: var(--font-size-10px);
   letter-spacing: 0.1px;
@@ -175,10 +181,10 @@
   color: var(--color-light);
   word-wrap: break-word;
 
-  align-self: flex-end;
+  align-self: flex-start;
   max-width: 17.4rem;
   background:linear-gradient(0deg, #BCD7EF, #BCD7EF);
-  border-radius: 20px 0px 20px 20px;
+  border-radius: 0px 20px 20px 20px;
   padding: var(--font-size-10px);
 }
 
@@ -186,13 +192,13 @@
   flex-shrink: 1;
   flex-grow: 1;
   flex-basis: 3.5rem;
-  flex-wrap: wrap-reverse;
+  flex-wrap: wrap;
   color: #B2B5C0;
   font-style: normal;
   font-weight: normal;
   font-size: var(--font-size-10px);
   line-height: var(--font-size-13px);
- // text-align: right;
+  text-align: right;
   text-transform: capitalize;
   margin: 0 0 0 calc(var(--line-height-computed) / 2);
   align-self: auto;
@@ -214,11 +220,11 @@
   font-weight: normal;
   font-size: var(--font-size-10px);
   line-height: var(--font-size-13px);
-  text-align: right;
+  text-align: left;
   text-transform: capitalize;
   margin-right: 1.0rem;
  // margin: 0 0 0 calc(var(--line-height-computed) / 2);
-  align-self: right;
+  align-self:left;
   [dir="rtl"] & {
     margin: 0 calc(var(--line-height-computed) / 2) 0 0;
   }
@@ -230,7 +236,7 @@
 
 .wrapperleft {
   display: flex;
-  flex-flow: row;
+  flex-flow: row-reverse;
   flex: 1;
   position: relative;
   padding: 0.42rem;
@@ -241,7 +247,6 @@
   }
 }
 .wrapperright {
-  flex:end;
   display: flex;
   flex-flow: row;
   flex: 1;
@@ -266,17 +271,18 @@
 
 .metaleft {
   display: flex;
-  flex-flow: row;
- align-self: auto;
+  flex: auto;
+  flex-flow: row-reverse;
+ align-self: flex-end;
  line-height: 1.5;
-  flex-direction: row;
+  flex-direction: row-reverse;
   & + .message {
     margin-top: 0;
   }
 }
 
 .metaright {
-  align-self: flex-end;
+  align-self: auto;
   display: flex;
   flex:1;
   flex-flow: row;
