@@ -165,6 +165,6 @@
 }
 
 .scrollStyle {
-  @include scrollbox-vertical();
-  background-color: rgba($color: #000000, $alpha: 0);
+  @include scrollbox-vertical($bg-color: #f3f6f9);
+  
 }
