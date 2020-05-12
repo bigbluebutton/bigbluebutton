@@ -413,12 +413,12 @@ class UserDropdown extends PureComponent {
             className={styles.modal}
             onRequestClose={() => mountModal(null)}
             hideBorder
-            contentLabel={intl.formatMessage(messages.removeConfirmTitle)}
+            contentLabel={intl.formatMessage(messages.removeConfirmTitle, { 0: user.name })}
           >
             <div className={styles.container}>
               <div className={styles.header}>
                 <div className={styles.title}>
-                  {intl.formatMessage(messages.removeConfirmTitle)}
+                  {intl.formatMessage(messages.removeConfirmTitle, { 0: user.name })}
                 </div>
               </div>
               <div className={styles.description}>
