@@ -57,7 +57,7 @@ class UserNotes extends Component {
   }
 
   renderNotes() {
-    const { intl } = this.props;
+    const { intl, disableNotes } = this.props;
     const { unread } = this.state;
 
     let notification = null;
@@ -82,7 +82,19 @@ class UserNotes extends Component {
         onClick={NoteService.toggleNotePanel}
       >
         <Icon iconName="copy" />
-        <span aria-hidden>{intl.formatMessage(intlMessages.sharedNotes)}</span>
+        <div aria-hidden>
+          <div>
+            {intl.formatMessage(intlMessages.sharedNotes)}
+          </div>
+          {disableNotes
+            ? (
+              <div className={styles.noteLock}>
+                <Icon iconName="lock" />
+                <span>Locked by (moderator)</span>
+              </div>
+            ) : null
+          }
+        </div>
         {notification}
       </div>
     );
