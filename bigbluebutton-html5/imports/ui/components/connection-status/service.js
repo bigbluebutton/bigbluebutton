@@ -87,13 +87,15 @@ const getConnectionStatus = () => {
         userId: 1,
         name: 1,
         role: 1,
+        connectionStatus: 1,
       },
     },
   ).fetch().reduce((result, user) => {
     const {
       userId,
-      role,
       name,
+      role,
+      connectionStatus: userStatus,
     } = user;
 
     const status = connectionStatus.find(status => status.userId === userId);
@@ -101,6 +103,7 @@ const getConnectionStatus = () => {
     if (status) {
       result.push({
         name,
+        offline: userStatus === 'offline',
         you: Auth.userID === userId,
         moderator: role === ROLE_MODERATOR,
         level: status.level,

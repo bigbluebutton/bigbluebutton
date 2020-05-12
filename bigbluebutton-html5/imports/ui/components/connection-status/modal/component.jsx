@@ -30,6 +30,10 @@ const intlMessages = defineMessages({
     id: 'app.connection-status.more',
     description: 'More about conectivity issues',
   },
+  offline: {
+    id: 'app.connection-status.offline',
+    description: 'Offline user',
+  },
 });
 
 const propTypes = {
@@ -57,7 +61,10 @@ class ConnectionStatusComponent extends PureComponent {
   }
 
   renderConnections() {
-    const { connectionStatus } = this.props;
+    const {
+      connectionStatus,
+      intl,
+    } = this.props;
 
     if (connectionStatus.length === 0) return this.renderEmpty();
 
@@ -65,6 +72,9 @@ class ConnectionStatusComponent extends PureComponent {
       const dateTime = new Date(conn.timestamp);
       const itemStyle = {};
       itemStyle[styles.even] = index % 2 === 0;
+
+      const textStyle = {};
+      textStyle[styles.offline] = conn.offline;
 
       return (
         <div
@@ -81,9 +91,11 @@ class ConnectionStatusComponent extends PureComponent {
                 {conn.name.toLowerCase().slice(0, 2)}
               </UserAvatar>
             </div>
+
             <div className={styles.name}>
-              <div className={styles.text}>
+              <div className={cx(styles.text, textStyle)}>
                 {conn.name}
+                {conn.offline ? ` (${intl.formatMessage(intlMessages.offline)})` : null}
               </div>
             </div>
             <div className={styles.status}>
@@ -105,7 +117,6 @@ class ConnectionStatusComponent extends PureComponent {
   render() {
     const {
       closeModal,
-      connectionStatus,
       intl,
     } = this.props;
 

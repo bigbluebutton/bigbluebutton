@@ -108,6 +108,10 @@
       overflow: hidden;
       text-overflow: ellipsis;
     }
+
+    .offline {
+      font-style: italic;
+    }
   }
 
   .status {
