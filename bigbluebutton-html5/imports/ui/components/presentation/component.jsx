@@ -84,7 +84,18 @@ class PresentationArea extends PureComponent {
   }
 
   componentDidUpdate(prevProps) {
-    const { currentPresentation, notify, intl } = this.props;
+    const {
+      currentPresentation,
+      notify,
+      intl,
+      layoutSwapped,
+      currentSlide,
+      slidePosition,
+      publishedPoll,
+      isViewer,
+      toggleSwapLayout,
+      restoreOnUpdate,
+    } = this.props;
 
     if (prevProps.currentPresentation.name !== currentPresentation.name) {
       notify(
@@ -92,6 +103,16 @@ class PresentationArea extends PureComponent {
         'info',
         'presentation',
       );
+    }
+
+    if (layoutSwapped && restoreOnUpdate && isViewer && currentSlide) {
+      const slideChanged = currentSlide.id !== prevProps.currentSlide.id;
+      const positionChanged = slidePosition.viewBoxHeight !== prevProps.slidePosition.viewBoxHeight
+        || slidePosition.viewBoxWidth !== prevProps.slidePosition.viewBoxWidth;
+      const pollPublished = publishedPoll && !prevProps.publishedPoll;
+      if (slideChanged || positionChanged || pollPublished) {
+        toggleSwapLayout();
+      }
     }
   }
 
