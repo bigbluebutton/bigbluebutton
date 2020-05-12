@@ -18,10 +18,11 @@ export default withTracker(() => {
       role: 1,
     },
   }).role === ROLE_VIEWER;
+  const shouldDisableNote = (Meeting.lockSettingsProps.disableNote) && isViewer;
 
   return {
     isPanelOpened: NoteService.isPanelOpened(),
     revs: NoteService.getRevs(),
-    disableNotes: Meeting.lockSettingsProps.disableNote && isViewer,
+    disableNote: shouldDisableNote,
   };
 })(UserNotesContainer);

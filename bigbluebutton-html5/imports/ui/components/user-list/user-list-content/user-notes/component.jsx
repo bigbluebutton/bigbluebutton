@@ -57,7 +57,7 @@ class UserNotes extends Component {
   }
 
   renderNotes() {
-    const { intl, disableNotes } = this.props;
+    const { intl, disableNote } = this.props;
     const { unread } = this.state;
 
     let notification = null;
@@ -86,7 +86,7 @@ class UserNotes extends Component {
           <div>
             {intl.formatMessage(intlMessages.sharedNotes)}
           </div>
-          {disableNotes
+          {disableNote
             ? (
               <div className={styles.noteLock}>
                 <Icon iconName="lock" />
