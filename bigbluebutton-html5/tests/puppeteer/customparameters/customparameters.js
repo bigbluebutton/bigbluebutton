@@ -37,6 +37,19 @@ class CustomParameters {
     return resp1 === true && resp2 === true;
   }
 
+  async forceListenOnly(args, meetingId, customParameter) {
+    console.log('before init');
+    await this.page2.init(args, meetingId, { ...params, fullName: 'Attendee', moderatorPW: '' }, customParameter);
+    console.log('after init');
+    if (await this.page2.page.$('[data-test="audioModalHeader"]')) {
+      return false;
+    }
+    await this.page2.page.waitFor(cpe.audioNotification);
+    const resp = await util.forceListenOnly(this.page2);
+    console.log(resp);
+    return resp === true;
+  }
+
   async closePage(page) {
     page.close();
   }

@@ -36,4 +36,19 @@ describe('Custom parameters', () => {
     }
     expect(response).toBe(true);
   });
+
+  test('Force Listen Only', async () => {
+    const test = new CustomParameters();
+    let response;
+    try {
+      console.log('before');
+      response = await test.forceListenOnly(Page.getArgs(), undefined, c.forceListenOnly);
+      console.log('after');
+    } catch (e) {
+      console.log(e);
+    } finally {
+      await test.close(test.page1, test.page2);
+    }
+    expect(response).toBe(true);
+  });
 });
