@@ -21,7 +21,7 @@ class Page {
   }
 
   // Join BigBlueButton meeting
-  async init(args, meetingId, newParams) {
+  async init(args, meetingId, newParams, customParameter) {
     try {
       this.effectiveParams = newParams || params;
       const isModerator = this.effectiveParams.moderatorPW;
@@ -41,8 +41,13 @@ class Page {
       // ));
 
       await this.setDownloadBehavior(`${this.parentDir}/downloads`);
-      this.meetingId = await helper.createMeeting(params, meetingId);
-      const joinURL = helper.getJoinURL(this.meetingId, this.effectiveParams, isModerator);
+      console.log('before create meeting', customParameter);
+      this.meetingId = await helper.createMeeting(params, meetingId, customParameter);
+      console.log('after create meeting', customParameter);
+
+      console.log('before getJoinURL', customParameter);
+      const joinURL = helper.getJoinURL(this.meetingId, this.effectiveParams, isModerator, customParameter);
+      console.log('after getJoinURL', customParameter);
 
       await this.page.goto(joinURL);
       const checkForGetMetrics = async () => {
@@ -51,9 +56,9 @@ class Page {
           await this.getMetrics();
         }
       };
-      if (process.env.IS_AUDIO_TEST !== 'true') {
-        await this.closeAudioModal();
-      }
+      // if (process.env.IS_AUDIO_TEST !== 'true') {
+      //   await this.closeAudioModal();
+      // }
       await checkForGetMetrics();
     } catch (e) {
       console.log(e);
