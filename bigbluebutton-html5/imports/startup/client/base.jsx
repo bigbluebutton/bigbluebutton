@@ -12,7 +12,6 @@ import logger from '/imports/startup/client/logger';
 import Users from '/imports/api/users';
 import { Session } from 'meteor/session';
 import { FormattedMessage } from 'react-intl';
-import IntlStartup from './intl';
 import Meetings, { RecordMeetings } from '../../api/meetings';
 import AppService from '/imports/ui/components/app/service';
 import Breakouts from '/imports/api/breakouts';
@@ -33,14 +32,12 @@ let breakoutNotified = false;
 
 const propTypes = {
   subscriptionsReady: PropTypes.bool,
-  locale: PropTypes.string,
   approved: PropTypes.bool,
   meetingHasEnded: PropTypes.bool.isRequired,
   meetingExist: PropTypes.bool,
 };
 
 const defaultProps = {
-  locale: undefined,
   approved: false,
   meetingExist: false,
   subscriptionsReady: false,
@@ -209,19 +206,13 @@ class Base extends Component {
   }
 
   render() {
-    const { updateLoadingState } = this;
-    const { locale, meetingExist } = this.props;
-    const stateControls = { updateLoadingState };
+    const { meetingExist } = this.props;
     const { meetingExisted } = this.state;
 
     return (
       (!meetingExisted && !meetingExist && Auth.loggedIn)
         ? <LoadingScreen />
-        : (
-          <IntlStartup locale={locale} baseControls={stateControls}>
-            {this.renderByState()}
-          </IntlStartup>
-        )
+        : this.renderByState()
     );
   }
 }
@@ -231,7 +222,6 @@ Base.defaultProps = defaultProps;
 
 const BaseContainer = withTracker(() => {
   const {
-    locale,
     animations,
     userJoinAudioAlerts,
     userJoinPushAlerts,
@@ -367,7 +357,6 @@ const BaseContainer = withTracker(() => {
   return {
     approved,
     ejected,
-    locale,
     userSubscriptionHandler,
     breakoutRoomSubscriptionHandler,
     meetingModeratorSubscriptionHandler,
