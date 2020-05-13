@@ -21,4 +21,19 @@ describe('Custom parameters', () => {
     }
     expect(response).toBe(true);
   });
+
+  test('Listen Only Mode', async () => {
+    const test = new CustomParameters();
+    let response;
+    try {
+      console.log('before');
+      response = await test.listenOnlyMode(Page.getArgs(), undefined, c.listenOnlyMode);
+      console.log('after');
+    } catch (e) {
+      console.log(e);
+    } finally {
+      await test.close(test.page1, test.page2);
+    }
+    expect(response).toBe(true);
+  });
 });

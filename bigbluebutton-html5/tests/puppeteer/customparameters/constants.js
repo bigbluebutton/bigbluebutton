@@ -1,1 +1,2 @@
-exports.autoJoin = 'userdata-autoJoin=true';
+exports.autoJoin = 'userdata-autoJoin=false';
+exports.listenOnlyMode = 'userdata-listenOnlyMode=false';
