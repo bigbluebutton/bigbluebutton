@@ -568,7 +568,7 @@ class AudioModal extends Component {
                 {
                   isIOSChrome ? null
                     : (
-                      <h3 className={styles.title}>ssss
+                      <h3 className={styles.title}>ssss2
                         {content
                           ? intl.formatMessage(this.contents[content].title)
                           : intl.formatMessage(intlMessages.audioChoiceLabel)}
