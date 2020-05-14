@@ -6,6 +6,7 @@ import { withModalMounter } from '/imports/ui/components/modal/service';
 import withShortcutHelper from '/imports/ui/components/shortcut-help/service';
 import getFromUserSettings from '/imports/ui/services/users-settings';
 import { defineMessages, injectIntl } from 'react-intl';
+import Icon from '../icon/component';
 import { styles } from './styles.scss';
 import Button from '../button/component';
 import RecordingIndicator from './recording-indicator/container';
@@ -91,6 +92,9 @@ class NavBar extends PureComponent {
       <div className={styles.navbar}>
         <div className={styles.top}>
           <div className={styles.left}>
+            {!isExpanded ? null
+              : <Icon iconName="left_arrow" className={styles.arrowLeft} />
+            }
             <Button
               data-test="userListToggleButton"
               onClick={NavBar.handleToggleUserList}
@@ -104,6 +108,9 @@ class NavBar extends PureComponent {
               aria-expanded={isExpanded}
               accessKey={TOGGLE_USERLIST_AK}
             />
+            {isExpanded ? null
+              : <Icon iconName="right_arrow" className={styles.arrowRight} />
+            }
           </div>
           <div className={styles.center}>
             <h1 className={styles.presentationTitle}>{presentationTitle}</h1>
