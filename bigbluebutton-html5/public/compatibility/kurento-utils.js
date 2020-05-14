@@ -440,10 +440,20 @@ function WebRtcPeer(mode, options, callback) {
             self.showLocalVideo();
         }
         if (videoStream) {
-            videoStream.getTracks().forEach(track => pc.addTrack(track, videoStream));
+            if (typeof videoStream.getTracks === 'function'
+                  && typeof pc.addTrack === 'function') {
+                videoStream.getTracks().forEach(track => pc.addTrack(track, videoStream));
+            } else {
+                pc.addStream(videoStream);
+            }
         }
         if (audioStream) {
-            audioStream.getTracks().forEach(track => pc.addTrack(track, audioStream));
+            if (typeof audioStream.getTracks === 'function'
+                  && typeof pc.addTrack === 'function') {
+                audioStream.getTracks().forEach(track => pc.addTrack(track, audioStream));
+            } else {
+                pc.addStream(audioStream);
+            }
         }
         var browser = parser.getBrowser();
         if (mode === 'sendonly' && (browser.name === 'Chrome' || browser.name === 'Chromium') && browser.major === 39) {
