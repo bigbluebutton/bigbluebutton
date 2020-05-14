@@ -8,8 +8,8 @@ const SFU_CONFIG = Meteor.settings.public.kurento;
 const SFU_URL = SFU_CONFIG.wsUrl;
 const CHROME_DEFAULT_EXTENSION_KEY = SFU_CONFIG.chromeDefaultExtensionKey;
 const CHROME_CUSTOM_EXTENSION_KEY = SFU_CONFIG.chromeExtensionKey;
-const CHROME_SCREENSHARE_SOURCES = SFU_CONFIG.chromeScreenshareSources;
-const FIREFOX_SCREENSHARE_SOURCE = SFU_CONFIG.firefoxScreenshareSource;
+const CHROME_SCREENSHARE_SOURCES = SFU_CONFIG.screenshare.chromeScreenshareSources;
+const FIREFOX_SCREENSHARE_SOURCE = SFU_CONFIG.screenshare.firefoxScreenshareSource;
 const SCREENSHARE_VIDEO_TAG = 'screenshareVideo';
 
 const CHROME_EXTENSION_KEY = CHROME_CUSTOM_EXTENSION_KEY === 'KEY' ? CHROME_DEFAULT_EXTENSION_KEY : CHROME_CUSTOM_EXTENSION_KEY;
@@ -161,12 +161,13 @@ export default class KurentoScreenshareBridge {
     window.kurentoExitVideo();
   }
 
-  async kurentoShareScreen(onFail) {
+  async kurentoShareScreen(onFail, stream) {
     let iceServers = [];
     try {
       iceServers = await fetchWebRTCMappedStunTurnServers(getSessionToken());
     } catch (error) {
       logger.error({ logCode: 'screenshare_presenter_fetchstunturninfo_error' },
+
         'Screenshare bridge failed to fetch STUN/TURN info, using default');
     } finally {
       const options = {
@@ -192,6 +193,8 @@ export default class KurentoScreenshareBridge {
           logCode: 'screenshare_presenter_start_success',
         }, 'Screenshare presenter started succesfully');
       };
+
+      options.stream = stream || undefined;
 
       window.kurentoShareScreen(
         SCREENSHARE_VIDEO_TAG,
