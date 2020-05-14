@@ -87,6 +87,7 @@ class ConnectionStatusComponent extends PureComponent {
                 className={styles.icon}
                 you={conn.you}
                 moderator={conn.moderator}
+                color={conn.color}
               >
                 {conn.name.toLowerCase().slice(0, 2)}
               </UserAvatar>

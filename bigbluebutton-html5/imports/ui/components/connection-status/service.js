@@ -87,6 +87,7 @@ const getConnectionStatus = () => {
         userId: 1,
         name: 1,
         role: 1,
+        color: 1,
         connectionStatus: 1,
       },
     },
@@ -95,6 +96,7 @@ const getConnectionStatus = () => {
       userId,
       name,
       role,
+      color,
       connectionStatus: userStatus,
     } = user;
 
@@ -106,6 +108,7 @@ const getConnectionStatus = () => {
         offline: userStatus === 'offline',
         you: Auth.userID === userId,
         moderator: role === ROLE_MODERATOR,
+        color,
         level: status.level,
         timestamp: status.timestamp,
       });
