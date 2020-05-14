@@ -1,8 +1,10 @@
 import React, { PureComponent } from 'react';
-import { defineMessages, injectIntl } from 'react-intl';
+import { FormattedTime, defineMessages, injectIntl } from 'react-intl';
 import PropTypes from 'prop-types';
+import cx from 'classnames';
+import UserAvatar from '/imports/ui/components/user-avatar/component';
+import SlowConnection from '/imports/ui/components/slow-connection/component';
 import Modal from '/imports/ui/components/modal/simple/component';
-import Button from '/imports/ui/components/button/component';
 import { styles } from './styles';
 
 const intlMessages = defineMessages({
@@ -18,6 +20,10 @@ const intlMessages = defineMessages({
     id: 'app.connection-status.description',
     description: 'Connection status description',
   },
+  empty: {
+    id: 'app.connection-status.empty',
+    description: 'Connection status empty',
+  },
 });
 
 const propTypes = {
@@ -28,14 +34,74 @@ const propTypes = {
 };
 
 class ConnectionStatusComponent extends PureComponent {
+  renderEmpty() {
+    const { intl } = this.props;
+
+    return (
+      <div className={styles.item}>
+        <div className={styles.left}>
+          <div className={styles.name}>
+            <div className={styles.text}>
+              {intl.formatMessage(intlMessages.empty)}
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  renderConnections() {
+    const { connectionStatus } = this.props;
+
+    if (connectionStatus.length === 0) return this.renderEmpty();
+
+    return connectionStatus.map((conn, index) => {
+      const dateTime = new Date(conn.timestamp);
+      const itemStyle = {};
+      itemStyle[styles.even] = index % 2 === 0;
+
+      return (
+        <div
+          key={index}
+          className={cx(styles.item, itemStyle)}
+        >
+          <div className={styles.left}>
+            <div className={styles.avatar}>
+              <UserAvatar
+                className={styles.icon}
+                you={conn.you}
+                moderator={conn.moderator}
+              >
+                {conn.name.toLowerCase().slice(0, 2)}
+              </UserAvatar>
+            </div>
+            <div className={styles.name}>
+              <div className={styles.text}>
+                {conn.name}
+              </div>
+            </div>
+            <div className={styles.status}>
+              <SlowConnection effectiveConnectionType={conn.level} />
+            </div>
+          </div>
+          <div className={styles.right}>
+            <div className={styles.time}>
+              <time dateTime={dateTime}>
+                <FormattedTime value={dateTime} />
+              </time>
+            </div>
+          </div>
+        </div>
+      );
+    });
+  }
+
   render() {
     const {
       closeModal,
       connectionStatus,
       intl,
     } = this.props;
-
-    console.log(connectionStatus)
 
     return (
       <Modal
@@ -54,16 +120,10 @@ class ConnectionStatusComponent extends PureComponent {
           <div className={styles.description}>
             {intl.formatMessage(intlMessages.description)}
           </div>
-
           <div className={styles.content}>
-            <Button
-              color="primary"
-              className={styles.button}
-              label={intl.formatMessage(intlMessages.title)}
-              onClick={() => {
-                closeModal();
-              }}
-            />
+            <div className={styles.wrapper}>
+              {this.renderConnections()}
+            </div>
           </div>
         </div>
       </Modal>

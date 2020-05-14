@@ -14,19 +14,24 @@ export default function updateConnectionStatus(meetingId, userId, level) {
   };
 
   const modifier = {
-    $set: {
-      level,
-      timestamp,
-    },
+    meetingId,
+    userId,
+    level,
+    timestamp,
   };
 
-  const cb = (err) => {
+  const cb = (err, numChanged) => {
     if (err) {
       return Logger.error(`Updating connection status: ${err}`);
+    }
+
+    const { insertedId } = numChanged;
+    if (insertedId) {
+      return Logger.info(`Added connection status userId=${userId} level=${level}`);
     }
 
     return Logger.verbose(`Update connection status userId=${userId} level=${level}`);
   };
 
-  return ConnectionStatus.update(selector, modifier, cb);
+  return ConnectionStatus.upsert(selector, modifier, cb);
 }
