@@ -183,7 +183,7 @@ const DesktopShare = ({
         circle
         size="lg"
         onClick={isVideoBroadcasting ? handleUnshareScreen : () => {
-          if (!IS_SAFARI || (IS_SAFARI && ScreenshareBridgeService.hasDisplayMedia)) {
+          if (IS_SAFARI && !ScreenshareBridgeService.hasDisplayMedia)) {
             return mountModal(<Modal
               overlayClassName={styles.overlay}
               className={styles.modal}
