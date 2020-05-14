@@ -31,7 +31,7 @@ const getScreenStream = async () => {
         && typeof constraints.audio === 'object') {
       stream.getAudioTracks().forEach(track => {
         if (typeof track.applyConstraints  === 'function') {
-          track.APplyConstraints(constraints.audio).catch(error => {
+          track.applyConstraints(constraints.audio).catch(error => {
             logger.warn({
               logCode: 'screenshare_audioconstraint_failed',
               extraInfo: { errorName: error.name, errorCode: error.code },
