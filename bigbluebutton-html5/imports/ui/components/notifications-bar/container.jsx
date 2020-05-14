@@ -127,6 +127,7 @@ const startCounter = (sec, set, get, interval) => {
 
 let audioStats = '';
 const audioStatsDep = new Tracker.Dependency();
+let statsTimeout = STATS.length;
 
 const getAudioStats = () => {
   audioStatsDep.depend();
@@ -154,7 +155,16 @@ const handleAudioStatsEvent = (event) => {
         break;
       }
     }
-    if (!active) setAudioStats();
+    if (!active) {
+      // Postpone stats clear
+      if (statsTimeout > 0) {
+        statsTimeout -= 1;
+      } else {
+        setAudioStats();
+      }
+    } else {
+      statsTimeout = STATS.length;
+    }
   }
 };
 
