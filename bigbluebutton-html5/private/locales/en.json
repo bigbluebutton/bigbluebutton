@@ -115,7 +115,7 @@
     "app.media.screenshare.start": "Screenshare has started",
     "app.media.screenshare.end": "Screenshare has ended",
     "app.media.screenshare.unavailable": "Screenshare Unavailable",
-    "app.media.screenshare.safariNotSupported": "Screenshare is currently not supported in Safari. Please, use Firefox or Google Chrome.",
+    "app.media.screenshare.notSupported": "Screensharing is not supported in this browser.",
     "app.media.screenshare.autoplayBlockedDesc": "We need your permission to show you the presenter's screen.",
     "app.media.screenshare.autoplayAllowLabel": "View shared screen",
     "app.screenshare.notAllowed": "Error: Permission to access screen wasn't granted.",

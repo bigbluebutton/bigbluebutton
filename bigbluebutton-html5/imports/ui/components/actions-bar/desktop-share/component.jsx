@@ -55,9 +55,9 @@ const intlMessages = defineMessages({
     id: 'app.screenshare.notSupportedError',
     description: 'error message when trying to share screen in unsafe environments',
   },
-  noSafariScreenShare: {
-    id: 'app.media.screenshare.safariNotSupported',
-    descriptions: 'error message when trying to share screen on safari',
+  screenShareNotSupported: {
+    id: 'app.media.screenshare.notSupported',
+    descriptions: 'error message when trying share screen on unsupported browsers',
   },
   screenShareUnavailable: {
     id: 'app.media.screenshare.unavailable',
@@ -193,7 +193,7 @@ const DesktopShare = ({
               <h3 className={styles.title}>
                 {intl.formatMessage(intlMessages.screenShareUnavailable)}
               </h3>
-              <p>{intl.formatMessage(intlMessages.noSafariScreenShare)}</p>
+              <p>{intl.formatMessage(intlMessages.screenShareNotSupported)}</p>
                               </Modal>);
           }
           handleShareScreen(onFail);
