@@ -31,7 +31,7 @@
 .avatarWrapper {
   flex-shrink: 0;
   flex-grow: 0;
-  margin: 0 calc(var(--line-height-computed) / 2) 0 0;
+  margin: 0  0 0 calc(var(--line-height-computed) / 2);
 
   [dir="rtl"] & {
     margin: 0 0 0 calc(var(--line-height-computed) / 2);
@@ -39,7 +39,10 @@
 }
 
 .avatar {
-  font-size: .71rem;
+  flex: auto;
+  font-size: 1rem;
+  width: 1.875rem;
+  height:1.875rem;
 }
 
 .names,
@@ -56,7 +59,7 @@
     letter-spacing: 0.006rem;
     text-transform: capitalize;
     align-self: center;
-    padding: 0.2rem;
+    padding: 0.3rem;
   }
   :first-child {
     @extend %text-elipsis;
@@ -166,7 +169,7 @@
   word-wrap: break-word;
 
   align-self: flex-end;
-  max-width: 18.25rem;
+  max-width: 36rem;
   background: #FFFFFF;
   border-radius: 20px 0px 20px 20px;
   line-height: var(--font-size-21px);
@@ -182,7 +185,7 @@
   word-wrap: break-word;
 
   align-self: flex-start;
-  max-width: 17.4rem;
+  max-width: 36rem;
   background:linear-gradient(0deg, #BCD7EF, #BCD7EF);
   border-radius: 0px 20px 20px 20px;
   padding: var(--font-size-10px);
@@ -198,10 +201,10 @@
   font-weight: normal;
   font-size: var(--font-size-10px);
   line-height: var(--font-size-13px);
-  text-align: right;
+  text-align: left;
   text-transform: capitalize;
   margin: 0 0 0 calc(var(--line-height-computed) / 2);
-  align-self: auto;
+  align-self: flex-start;
   [dir="rtl"] & {
     margin: 0 calc(var(--line-height-computed) / 2) 0 0;
   }

@@ -14,6 +14,7 @@
 }
 
 .fileWrapper {
+  align-self: flex-end;
   display: flex;
   flex-direction: column;
   flex-shrink: 1;
@@ -22,12 +23,12 @@
   margin-bottom: 0;
  // max-width:16.5rem ;
   background-color: #ffffff;
-  border-radius: 0 0.8rem 0.8rem 0.8rem;
+  border-radius: 0.8rem 0 0.8rem 0.8rem;
 }
   
   
   .senderFileWrapper {
-  align-self: flex-end;
+  
   display: flex;
   flex-direction: column;
   flex-shrink: 1;
@@ -35,7 +36,7 @@
   margin-top: calc(var(--line-height-computed) / 3);
   margin-bottom: 0;
   background:linear-gradient(0deg, #BCD7EF, #BCD7EF);
-  border-radius: 0.8rem 0 0.8rem 0.8rem;
+  border-radius: 0 0.8rem 0.8rem 0.8rem;
   text-size-adjust: 45px;
 }
 

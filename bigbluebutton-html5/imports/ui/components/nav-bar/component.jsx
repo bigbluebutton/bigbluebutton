@@ -13,6 +13,10 @@ import TalkingIndicatorContainer from '/imports/ui/components/nav-bar/talking-in
 import SettingsDropdownContainer from './settings-dropdown/container';
 import { meetingIsBreakout } from '/imports/ui/components/app/service';
 
+import browser from 'browser-detect';
+
+const BROWSER_RESULTS = browser();
+const isMobileBrowser = BROWSER_RESULTS.mobile || BROWSER_RESULTS.os.includes('Android');
 const ROLE_MODERATOR = Meteor.settings.public.user.role_moderator;
 const intlMessages = defineMessages({
   toggleUserListLabel: {
@@ -97,39 +101,59 @@ class NavBar extends PureComponent {
       <div className={styles.navbar}>
         <div className={styles.top}>
           <div className={styles.left}>
-            <Button
+           
+             <Button
               data-test="chatButton"
-              onClick={() => handleClickToggleChat('public')}
+             // onClick={() => handleClickToggleuserlist('public')}
+             onClick={() => {
+                //  actions.handleClosePrivateChat(chatID);
+                  Session.set('idChatOpen', '');
+                  Session.set('openPanel', 'userlist');
+                }}
               circle
               hideLabel
               label={intl.formatMessage(intlMessages.toggleUserListLabel)}
               icon="user"
-              className={cx(toggleBtnClasses)}
-              aria-expanded={isExpanded}
-              accessKey={TOGGLE_CHAT_PUB_AK}
+              // className={cx(toggleBtnClasses)}
+              // aria-expanded={isExpanded}
+              // accessKey={TOGGLE_CHAT_PUB_AK}
             />
             <span className={styles.presentationTitle}>{presentationTitle}</span>
             <RecordingIndicator
               mountModal={mountModal}
               amIModerator={amIModerator}
             />
+           
           </div>
           <div className={styles.center}>
           </div>
           <div className={styles.right}>
- <div className={styles.both}>
-   <b ><span >{currentUser.name}</span></b>
-   {(breakoutRoomName && !amIModerator) ?
-    <p >
-      <span >
-        (
-          {breakoutRoomName}
-        )
-      </span>
-    </p> :
-    ( amIModerator && !isBreakOutMeeting ? <span>(moderator)</span> : null)}
-   
-    </div> 
+    { (isMobileBrowser) ? <Button
+              data-test="chatButton"
+              onClick={() => handleClickToggleChat('public')}
+              circle
+              hideLabel
+              label={intl.formatMessage(intlMessages.toggleUserListLabel)}
+              icon="icomoon-Join-Call"
+              size="lg"
+             // className={cx(toggleBtnClasses)}
+              aria-expanded={isExpanded}
+              accessKey={TOGGLE_CHAT_PUB_AK}
+            />
+          : 
+            <div className={styles.both}>
+          <b ><span >{currentUser.name}</span></b>
+          {(breakoutRoomName && !amIModerator) ?
+           <p >
+             <span >
+               (
+                 {breakoutRoomName}
+               )
+             </span>
+           </p> :
+           ( amIModerator && !isBreakOutMeeting ? <span>(moderator)</span> : null)}
+          
+           </div> }
             <SettingsDropdownContainer amIModerator={amIModerator} />
           </div>
         </div>
