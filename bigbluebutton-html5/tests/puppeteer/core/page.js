@@ -70,8 +70,25 @@ class Page {
     await this.waitForSelector(e.audioDialog);
     await this.waitForSelector(e.microphoneButton);
     await this.click(e.microphoneButton, true);
+    await this.waitForSelector(e.connectingStatus);
     await this.waitForSelector(e.echoYes);
     await this.click(e.echoYes, true);
+  }
+
+  // Joining audio with microphone
+  async joinMicrophoneWithoutEchoTest() {
+    await this.waitForSelector(e.audioDialog);
+    await this.waitForSelector(e.microphoneButton);
+    await this.click(e.microphoneButton, true);
+    await this.waitForSelector(e.connectingStatus);
+  }
+
+  // Logout from meeting
+  async logoutFromMeeting() {
+    await this.waitForSelector(e.options);
+    await this.click(e.options, true);
+    await this.waitForSelector(e.logout);
+    await this.click(e.logout, true);
   }
 
   // Joining audio with Listen Only mode
