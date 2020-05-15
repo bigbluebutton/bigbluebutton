@@ -2,6 +2,7 @@ const Page = require('../core/page');
 const params = require('../params');
 const cpe = require('./elements');
 const util = require('./util');
+const c = require('./constants');
 
 class CustomParameters {
   constructor() {
@@ -46,6 +47,56 @@ class CustomParameters {
     }
     await this.page2.page.waitFor(cpe.audioNotification);
     const resp = await util.forceListenOnly(this.page2);
+    console.log(resp);
+    return resp === true;
+  }
+
+  async skipCheck(args, meetingId, customParameter) {
+    console.log('before init');
+    await this.page1.init(args, meetingId, { ...params, fullName: 'Moderator' }, customParameter);
+    console.log('after init');
+    console.log('connecting with microphone');
+    await this.page1.joinMicrophoneWithoutEchoTest();
+    await this.page1.elementRemoved('div[class^="connecting--"]');
+    console.log('before if condition');
+    if (await this.page1.page.evaluate(util.countTestElements, cpe.echoTestYesButton) === true) {
+      console.log('fail');
+      return false;
+    }
+    console.log('before skipCheck');
+    const resp = await this.page1.page.evaluate(util.countTestElements, cpe.echoTestYesButton) === false;
+    console.log('after skipCheck');
+    console.log(resp);
+    return resp === true;
+  }
+
+  async clientTitle(args, meetingId, customParameter) {
+    console.log('before init');
+    await this.page1.init(args, meetingId, { ...params, fullName: 'Moderator' }, customParameter);
+    console.log('after init');
+    await this.page1.waitForSelector('button[aria-label="Microphone"]');
+    if (await !(await this.page1.page.title()).includes(c.docTitle)) {
+      console.log('fail');
+      return false;
+    }
+    const resp = await (await this.page1.page.title()).includes(c.docTitle);
+    console.log(resp);
+    return resp === true;
+  }
+
+  async askForFeedbackOnLogout(args, meetingId, customParameter) {
+    console.log('before init');
+    await this.page1.init(args, meetingId, { ...params, fullName: 'Moderator' }, customParameter);
+    console.log('after init');
+    await this.page1.closeAudioModal();
+    await this.page1.logoutFromMeeting();
+    await this.page1.waitForSelector(cpe.meetingEndedModal);
+    console.log('audio modal closed');
+    if (await this.page1.page.evaluate(util.countTestElements, cpe.rating) === false) {
+      console.log('fail');
+      return false;
+    }
+    const resp = await this.page1.page.evaluate(util.countTestElements, cpe.rating) === true;
     console.log(resp);
     return resp === true;
   }
