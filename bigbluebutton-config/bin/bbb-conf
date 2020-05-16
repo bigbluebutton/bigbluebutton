@@ -1537,6 +1537,23 @@ check_state() {
       echo "#"
     fi
 
+    FREESWITCH_SIP=$(netstat -anlt | grep :5066 | grep -v tcp6 | grep LISTEN | sed 's/ [ ]*/ /g' | cut -d' ' -f4 | sed 's/:5066//g')
+    KURENTO_SIP=$(yq r $KURENTO_CONFIG freeswitch.sip_ip)
+
+    if [ ! -z "$FREESWITCH_SIP" ]; then
+     if [ "$FREESWITCH_SIP" != "$KURENTO_SIP" ]; then
+      echo
+      echo "#"
+      echo "# Kurento is will try to connect to $KURENTO_SIP but FreeSWITCH is listening on $FREESWITCH_SIP for port 5066"
+      echo "#"
+      echo "# To fix, run the commands"
+      echo "#"
+      echo "# sudo yq w -i /usr/local/bigbluebutton/bbb-webrtc-sfu/config/default.yml freeswitch.sip_ip $FREESWITCH_SIP"
+      echo "# sudo chown bigbluebutton:bigbluebutton /usr/local/bigbluebutton/bbb-webrtc-sfu/config/default.yml"
+      echo "#"
+     fi
+    fi
+
     exit 0
 }
 
