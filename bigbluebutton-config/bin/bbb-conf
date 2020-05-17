@@ -733,7 +733,7 @@ check_configuration() {
         fi
     fi
 
-    if [ "$IP" != "$NGINX_IP" ]; then
+    if [ "$IP" != "$NGINX_IP" ] && [ "_" != "$NGINX_IP" ]; then
         if [ "$IP" != "$HOSTS" ]; then
             echo "# IP does not match:"
             echo "#                           IP from ifconfig: $IP"
@@ -1262,9 +1262,9 @@ check_state() {
     # Check that BigBlueButton can connect to port 1935
     #
     if [ -f /usr/share/red5/red5-server.jar ]; then
-      if [[ ! -z $NGINX_IP && $DISTRIB_ID != "centos" ]]; then
-        if ! nc -w 3 $NGINX_IP 1935 > /dev/null; then
-            echo "# Error: Unable to connect to port 1935 (RTMP) on $NGINX_IP"
+      if [[ ! -z $RED5_IP && $DISTRIB_ID != "centos" ]]; then
+        if ! nc -w 3 $RED5_IP 1935 > /dev/null; then
+            echo "# Error: Unable to connect to port 1935 (RTMP) on $RED5_IP"
             echo
         fi
       fi
