@@ -22,7 +22,7 @@
     margin-left: calc(-1 * var(--md-padding-x));
   }
   @include mq($small-only) {
-    padding-left: 1.75rem;
+    padding-left: 0.75rem;
   }
 }
 
@@ -35,7 +35,7 @@
   right: 0 var(--md-padding-x) 0 0;
   padding-top: 0;
   width: 100%;
-  padding-right:calc( 7 * var(--lg-padding-y)) ;
+  padding-right:calc( 2 * var(--lg-padding-y)) ;
   [dir="rtl"] & {
     margin: 0 0 0 auto;
     padding: 0 0 0 var(--md-padding-x);

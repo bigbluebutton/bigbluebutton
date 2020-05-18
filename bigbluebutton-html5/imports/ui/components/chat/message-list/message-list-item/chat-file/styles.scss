@@ -14,7 +14,7 @@
 }
 
 .fileWrapper {
-  align-self: flex-end;
+ 
   display: flex;
   flex-direction: column;
   flex-shrink: 1;
@@ -23,12 +23,12 @@
   margin-bottom: 0;
  // max-width:16.5rem ;
   background-color: #ffffff;
-  border-radius: 0.8rem 0 0.8rem 0.8rem;
+  border-radius: 0 0.8rem 0.8rem 0.8rem;
 }
   
   
   .senderFileWrapper {
-  
+   align-self: flex-end;
   display: flex;
   flex-direction: column;
   flex-shrink: 1;

@@ -89,8 +89,14 @@
   color: var(--user-list-text);
   height: 100%;
   padding-top: var(--md-padding-x);
+  @include mq($small-only) {
+    background: #ffffff;
+  }
 }
-
+.close{
+  align-self: flex-end;
+  
+}
 .lists {
   @extend %flex-column;
   @extend %no-margin;

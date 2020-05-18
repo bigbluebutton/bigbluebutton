@@ -48,11 +48,12 @@ const defaultProps = {
 const handleClickToggleChat = (id) => {
   Session.set(
     'openPanel',
-    Session.get('openPanel') === 'chat' && Session.get('idChatOpen') === id
+    Session.get('openPanel') === 'chat' && Session.get('idChatOpen') !== id
       ? '' : 'chat',
   );
   if (Session.equals('openPanel', 'chat')) {
     Session.set('idChatOpen', id);
+  
   } else {
     Session.set('idChatOpen', '');
   }
@@ -101,23 +102,19 @@ class NavBar extends PureComponent {
       <div className={styles.navbar}>
         <div className={styles.top}>
           <div className={styles.left}>
-           
+         { isMobileBrowser  ?
              <Button
               data-test="chatButton"
-             // onClick={() => handleClickToggleuserlist('public')}
              onClick={() => {
-                //  actions.handleClosePrivateChat(chatID);
                   Session.set('idChatOpen', '');
                   Session.set('openPanel', 'userlist');
                 }}
               circle
               hideLabel
               label={intl.formatMessage(intlMessages.toggleUserListLabel)}
-              icon="user"
-              // className={cx(toggleBtnClasses)}
-              // aria-expanded={isExpanded}
-              // accessKey={TOGGLE_CHAT_PUB_AK}
+              icon="icomoon-Master-Channel"
             />
+            : null}
             <span className={styles.presentationTitle}>{presentationTitle}</span>
             <RecordingIndicator
               mountModal={mountModal}
@@ -128,15 +125,17 @@ class NavBar extends PureComponent {
           <div className={styles.center}>
           </div>
           <div className={styles.right}>
-    { (isMobileBrowser) ? <Button
+    { (isMobileBrowser) ? 
+               <Button
               data-test="chatButton"
               onClick={() => handleClickToggleChat('public')}
               circle
               hideLabel
+              className={styles.button}
               label={intl.formatMessage(intlMessages.toggleUserListLabel)}
               icon="icomoon-Join-Call"
+              //icon="icomoon-Chat"
               size="lg"
-             // className={cx(toggleBtnClasses)}
               aria-expanded={isExpanded}
               accessKey={TOGGLE_CHAT_PUB_AK}
             />
@@ -151,7 +150,8 @@ class NavBar extends PureComponent {
                )
              </span>
            </p> :
-           ( amIModerator && !isBreakOutMeeting ? <span>(moderator)</span> : null)}
+           ( amIModerator && !isBreakOutMeeting ? <span>(moderator)</span> : null)
+           }
           
            </div> }
             <SettingsDropdownContainer amIModerator={amIModerator} />

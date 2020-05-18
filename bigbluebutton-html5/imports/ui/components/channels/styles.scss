@@ -47,6 +47,11 @@
     font-size: var(--font-size-9px);
     color: #ffffff !important;
   }
+  @include mq($small-only) {
+    >i {
+      color: #A5A8B4!important;
+    }
+  }
 }
 
 .channelListColumn {
@@ -113,6 +118,9 @@
     line-height: 1.313rem;
     padding-left: 1rem;
     font-size: var(--font-size-14px);
+    @include mq($small-only) {
+      color: #0F4C81;;
+    }
 }
 
 .master {
@@ -130,7 +138,9 @@
   color: #ffffff;
   overflow-x: hidden;
   font-size: var(--font-size-14px);
-  
+  @include mq($small-only) {
+    color: #A5A8B4;
+  }
 }
 
 .buttonWrapper {
