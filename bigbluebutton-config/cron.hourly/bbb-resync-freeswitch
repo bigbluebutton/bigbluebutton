@@ -1,0 +1,3 @@
+#!/bin/bash
+
+/opt/freeswitch/bin/fs_cli -x 'fsctl sync_clock_when_idle' > /var/log/freeswitch_sync_clock.log 2>&1
