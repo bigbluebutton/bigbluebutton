@@ -201,7 +201,7 @@ class VideoPlayer extends Component {
 
   getCurrentTime() {
     if (this.player && this.player.getCurrentTime) {
-      return this.player.getCurrentTime();
+      return Math.round(this.player.getCurrentTime());
     }
   }
 
