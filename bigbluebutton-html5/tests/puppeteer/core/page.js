@@ -1,6 +1,7 @@
 require('dotenv').config();
 const puppeteer = require('puppeteer');
 const fs = require('fs');
+const moment = require('moment');
 const path = require('path');
 const helper = require('./helper');
 const params = require('../params');
@@ -233,12 +234,26 @@ class Page {
     await this.page.type(element, text);
   }
 
-  async screenshot(relief = false) {
-    if (relief) await helper.sleep(1000);
-    const filename = `${this.name}-${this.screenshotIndex}.png`;
-    const path = `${this.parentDir}/screenshots/${filename}`;
-    await this.page.screenshot({ path });
-    this.screenshotIndex++;
+  async screenshot(testName, relief = false) {
+    if (typeof process.env.GENERATE_EVIDENCES === 'true') {
+      const today = moment().format('D MMM, YYYY');
+      const dir = process.env.TEST_FOLDER;
+      if (!fs.existsSync(path.join(__dirname, `${dir}`))) {
+        fs.mkdirSync(path.join(__dirname, `${dir}`));
+      }
+      const testDir = `data/${testName}-${today}`;
+      if (!fs.existsSync(path.join(__dirname, `${testDir}`))) {
+        fs.mkdirSync(path.join(__dirname, `${testDir}`));
+      }
+      const screenshots = `${testDir}/screenshots`;
+      if (!fs.existsSync(path.join(__dirname, `${screenshots}`))) {
+        fs.mkdirSync(path.join(__dirname, `${screenshots}`));
+      }
+      if (relief) await helper.sleep(1000);
+      const filename = path.join(__dirname, `./${testDir}/${testName}.png`);
+      await this.page.screenshot({ filename });
+      this.screenshotIndex++;
+    }
   }
 
   async paste(element) {
@@ -254,9 +269,18 @@ class Page {
 
   async getMetrics() {
     const pageMetricsObj = {};
-    const dir = process.env.METRICS_FOLDER;
-    if (!fs.existsSync(dir)) {
-      fs.mkdirSync(dir);
+    const dir = process.env.TEST_FOLDER;
+    const today = moment().format('D MMM, YYYY');
+    const testExecutionResults = `data/test-${today}`;
+    const metricsFolder = `data/test-${today}/metrics`;
+    if (!fs.existsSync(path.join(__dirname, `${dir}`))) {
+      fs.mkdirSync(path.join(__dirname, `${dir}`));
+    }
+    if (!fs.existsSync(path.join(__dirname, `${testExecutionResults}`))) {
+      fs.mkdirSync(path.join(__dirname, `${testExecutionResults}`));
+    }
+    if (!fs.existsSync(path.join(__dirname, `${metricsFolder}`))) {
+      fs.mkdirSync(path.join(__dirname, `${metricsFolder}`));
     }
     await this.waitForSelector('[data-test^="userListItem"]');
     const totalNumberOfUsersMongo = await this.page.evaluate(() => {
@@ -272,7 +296,7 @@ class Page {
     pageMetricsObj[`metricObj-${this.meetingId}`] = metric;
     const createFile = () => {
       try {
-        fs.appendFileSync(`${dir}/metrics-${this.effectiveParams.fullName}-${this.meetingId}.json`, `${JSON.stringify(pageMetricsObj)},\n`);
+        fs.appendFileSync(path.join(__dirname, `${metricsFolder}/metrics-${this.effectiveParams.fullName}-${this.meetingId}.json`), `${JSON.stringify(pageMetricsObj)},\n`);
       } catch (error) {
         console.log(error);
       }
