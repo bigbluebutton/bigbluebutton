@@ -7,6 +7,7 @@ import AudioControlsContainer from '../audio/audio-controls/container';
 import JoinVideoOptionsContainer from '../video-provider/video-button/container';
 import CaptionsButtonContainer from '/imports/ui/components/actions-bar/captions/container';
 import PresentationOptionsContainer from './presentation-options/component';
+import QuickVideoDropdown from './quick-videos-dropdown/component';
 
 class ActionsBar extends PureComponent {
   render() {
@@ -62,6 +63,17 @@ class ActionsBar extends PureComponent {
             podIds,
           }}
           />
+          {allowExternalVideo
+            ? (
+              <QuickVideoDropdown
+                {...{
+                  currentSlidHasContent,
+                  amIPresenter,
+                  parseCurrentSlideContent,
+                }}
+              />
+            ) : null
+          }
           {isCaptionsAvailable
             ? (
               <CaptionsButtonContainer {...{ intl }} />
