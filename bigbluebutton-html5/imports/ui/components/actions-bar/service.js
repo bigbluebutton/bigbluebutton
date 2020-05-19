@@ -9,7 +9,7 @@ import Presentations from '/imports/api/presentations';
 const USER_CONFIG = Meteor.settings.public.user;
 const ROLE_MODERATOR = USER_CONFIG.role_moderator;
 const DIAL_IN_USER = 'dial-in-user';
-const podId = "DEFAULT_PRESENTATION_POD";
+const podId = 'DEFAULT_PRESENTATION_POD';
 
 const getBreakouts = () => Breakouts.find({ parentMeetingId: Auth.meetingID })
   .fetch()
@@ -39,7 +39,7 @@ const stopPresentation = (podId) => {
 const takePresenterRole = () => {
   stopPresentation(podId);
   makeCall('assignPresenter', Auth.userID);
-}
+};
 
 export default {
   amIPresenter: () => Users.findOne({ userId: Auth.userID },

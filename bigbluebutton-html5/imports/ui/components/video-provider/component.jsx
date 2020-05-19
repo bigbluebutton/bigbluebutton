@@ -577,7 +577,9 @@ class VideoProvider extends Component {
   }
 
   async createWebRTCPeer(id, shareWebcam) {
-    const { meetingId, sessionToken, voiceBridge, userId, userName } = this.props;
+    const {
+      meetingId, sessionToken, voiceBridge, userId, userName,
+    } = this.props;
     let iceServers = [];
     const role = shareWebcam ? 'share' : 'viewer';
 
@@ -908,8 +910,8 @@ class VideoProvider extends Component {
   }
 
   createVideoTag(id, video) {
-    console.log(id,video,"xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx");
-    
+    console.log(id, video, 'xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx');
+
     const peer = this.webRtcPeers[id];
     this.videoTags[id] = video;
 

@@ -243,8 +243,7 @@ class VideoList extends Component {
             onMount={(videoRef) => {
               // this.handleCanvasResize();
               onMount(user.userId, videoRef);
-              console.log("VideoRef====>",videoRef);
-              
+              console.log('VideoRef====>', videoRef);
             }}
             getStats={(videoRef, callback) => getStats(user.userId, videoRef, callback)}
             stopGettingStats={() => stopGettingStats(user.userId)}

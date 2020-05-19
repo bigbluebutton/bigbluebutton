@@ -64,7 +64,7 @@ class ActionsBar extends PureComponent {
       hideOverlay,
       disableVideo,
       audioModalIsOpen,
-      validateMeetingIsBreakout
+      validateMeetingIsBreakout,
     } = this.props;
 
     const actionBarClasses = {};
@@ -83,7 +83,7 @@ class ActionsBar extends PureComponent {
     return (
       <div className={cx(actionBarClasses)}>
         <div className={!toggleChatLayout ? styles.actionsController : styles.toggledActions}>
-            <AudioControlsContainer />
+          <AudioControlsContainer />
           <div>
             {enableVideo && amIPresenter && !validateMeetingIsBreakout(Auth.meetingID)
               ? (
@@ -108,45 +108,47 @@ class ActionsBar extends PureComponent {
             />
           </div>
           <div>
-          <ActionsDropdown {...{
-            amIPresenter,
-            amIModerator,
-            isPollingEnabled,
-            allowExternalVideo,
-            handleTakePresenter,
-            intl,
-            isSharingVideo,
-            stopExternalVideoShare,
-            isMeteorConnected,
-          }}
-          />
+            <ActionsDropdown {...{
+              amIPresenter,
+              amIModerator,
+              isPollingEnabled,
+              allowExternalVideo,
+              handleTakePresenter,
+              intl,
+              isSharingVideo,
+              stopExternalVideoShare,
+              isMeteorConnected,
+            }}
+            />
           </div>
         </div>
-      {toggleChatLayout ? null :
-        <div className={styles.liveActions}>
-          <div className={!toggleChatLayout ? styles.dummy1 : styles.dummy2}>
-            <img src="https://miro.medium.com/max/560/1*MccriYX-ciBniUzRKAUsAw.png" alt="" />
-            <div 
-              className={styles.videoContainer}
-              ref={this.refContainer}
-            >
-              <WebcamDraggable
-                refMediaContainer={this.refContainer}
-                swapLayout={swapLayout}
-                singleWebcam={singleWebcam}
-                usersVideoLenght={usersVideo.length}
-                hideOverlay={hideOverlay}
-                disableVideo={disableVideo}
-                audioModalIsOpen={audioModalIsOpen}
-                usersVideo={usersVideo}
-              />
+        {toggleChatLayout ? null
+          : (
+            <div className={styles.liveActions}>
+              <div className={!toggleChatLayout ? styles.dummy1 : styles.dummy2}>
+                <img src="https://miro.medium.com/max/560/1*MccriYX-ciBniUzRKAUsAw.png" alt="" />
+                <div
+                  className={styles.videoContainer}
+                  ref={this.refContainer}
+                >
+                  <WebcamDraggable
+                    refMediaContainer={this.refContainer}
+                    swapLayout={swapLayout}
+                    singleWebcam={singleWebcam}
+                    usersVideoLenght={usersVideo.length}
+                    hideOverlay={hideOverlay}
+                    disableVideo={disableVideo}
+                    audioModalIsOpen={audioModalIsOpen}
+                    usersVideo={usersVideo}
+                  />
+                </div>
+                <img src="https://miro.medium.com/max/560/1*MccriYX-ciBniUzRKAUsAw.png" alt="" />
+              </div>
+              <div className={styles.talkingIndicator}>
+                <TalkingIndicatorContainer amIModerator={amIModerator} />
+              </div>
             </div>
-            <img src="https://miro.medium.com/max/560/1*MccriYX-ciBniUzRKAUsAw.png" alt="" />
-          </div>
-          <div className={styles.talkingIndicator}>
-            <TalkingIndicatorContainer amIModerator={amIModerator} />
-          </div>
-        </div>
+          )
       }
         <div className={styles.audioButton}>
           <Button

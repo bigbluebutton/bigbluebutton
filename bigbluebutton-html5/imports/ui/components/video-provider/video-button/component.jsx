@@ -61,7 +61,7 @@ const JoinVideoButton = ({
 
   const disabledLabel = isDisabled
     ? intl.formatMessage(intlMessages.videoLocked) : sharingVideoLabel;
-console.log(isSharingVideo,"===================>");
+  console.log(isSharingVideo, '===================>');
 
   return (
     <Button
