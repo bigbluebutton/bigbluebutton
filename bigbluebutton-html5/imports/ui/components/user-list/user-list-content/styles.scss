@@ -32,6 +32,7 @@
     border-radius: none;
   }
 
+  overflow-x: hidden;
   outline-width: 1px !important;
   outline-color: transparent !important;
 }
@@ -70,6 +71,11 @@
     font-size: 175%;
     color: var(--color-gray-light);
     flex: 0 0 2.2rem;
+    margin-right: var(--sm-padding-x);
+    [dir="rtl"]  & {
+      margin-right: 0;
+      margin-left: var(--sm-padding-x);
+    }
   }
 
   > span {
@@ -89,6 +95,12 @@
       text-align: right;
       padding-right: var(--md-padding-x);
     }
+  }
+
+  div {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
 
   &:active {
@@ -136,6 +148,16 @@
 }
 
 .noteLock {
-  font-size: 65%;
-  color: var(--color-gray-light);
+  font-weight: 200;
+  font-size: var(--font-size-smaller);
+  color: var(--color-gray);
+
+  > i {
+    font-size: var(--font-size-xs);
+  }
+}
+
+.noteTitle {
+  font-weight: 400;
+  font-size: var(--font-size-small);
 }
