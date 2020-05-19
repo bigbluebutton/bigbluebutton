@@ -23,28 +23,15 @@ const SUBSCRIPTIONS = [
   'voice-call-states',
 ];
 
-class Subscriptions extends Component {
-  componentDidUpdate() {
-    const { subscriptionsReady } = this.props;
-    if (subscriptionsReady) {
-      Session.set('subscriptionsReady', true);
-    }
-  }
+const Subscriptions = ({ children, subscriptionsReady }) => {
+  if (subscriptionsReady) Session.set('subscriptionsReady', true);
 
-  render() {
-    const { children } = this.props;
-    return children;
-  }
+  return children;
 }
 
 export default withTracker(() => {
   const { credentials } = Auth;
   const { meetingId, requesterUserId } = credentials;
-  if (Session.get('codeError')) {
-    return {
-      subscriptionsReady: true,
-    };
-  }
 
   const subscriptionErrorHandler = {
     onError: (error) => {

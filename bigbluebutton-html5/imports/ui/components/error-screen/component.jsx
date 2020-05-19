@@ -2,6 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { defineMessages, injectIntl } from 'react-intl';
 import { Meteor } from 'meteor/meteor';
+import AudioManager from '/imports/ui/services/audio-manager';
 import Button from '/imports/ui/components/button/component';
 import logoutRouteHandler from '/imports/utils/logoutRouteHandler';
 import { Session } from 'meteor/session';
@@ -45,55 +46,40 @@ const defaultProps = {
   code: 500,
 };
 
-class ErrorScreen extends React.PureComponent {
-  componentDidMount() {
-    Meteor.disconnect();
-  }
+const ErrorScreen = ({ children, code, intl }) => {
+  AudioManager.exitAudio();
+  Meteor.disconnect();
 
-  render() {
-    const {
-      intl,
-      code,
-      children,
-    } = this.props;
-
-    let formatedMessage = intl.formatMessage(intlMessages[defaultProps.code]);
-
-    if (code in intlMessages) {
-      formatedMessage = intl.formatMessage(intlMessages[code]);
-    }
-
-    return (
-      <div className={styles.background}>
-        <h1 className={styles.codeError}>
-          {code}
-        </h1>
-        <h1 className={styles.message}>
-          {formatedMessage}
-        </h1>
-        <div className={styles.separator} />
-        <div>
-          {children}
-        </div>
-        {
-          !Session.get('errorMessageDescription') || (
+  return (
+    <div className={styles.background}>
+      <h1 className={styles.codeError}>
+        {code}
+      </h1>
+      <h1 className={styles.message}>
+        {intl.formatMessage(intlMessages[code])}
+      </h1>
+      <div className={styles.separator} />
+      <div>
+        {children}
+      </div>
+      {
+        !Session.get('errorMessageDescription') || (
           <div className={styles.sessionMessage}>
             {Session.get('errorMessageDescription')}
           </div>)
-        }
-        <div>
-          <Button
-            size="sm"
-            color="primary"
-            className={styles.button}
-            onClick={logoutRouteHandler}
-            label={intl.formatMessage(intlMessages.leave)}
-          />
-        </div>
+      }
+      <div>
+        <Button
+          size="sm"
+          color="primary"
+          className={styles.button}
+          onClick={logoutRouteHandler}
+          label={intl.formatMessage(intlMessages.leave)}
+        />
       </div>
-    );
-  }
-}
+    </div>
+  );
+};
 
 export default injectIntl(ErrorScreen);
 
