@@ -237,7 +237,7 @@ usage() {
     echo "   --check                          Check configuration files and processes for problems"
     echo "   --debug                          Scan the log files for error messages"
     echo "   --watch                          Scan the log files for error messages every 2 seconds"
-    echo "   --network                        View network connections on 80 and 1935 by IP address"
+    echo "   --network                        View network connections on 80, 443 and 1935 by IP address. 1935 is deprecated. You will need to modify bbb-conf if you have custom ports."
     echo "   --secret                         View the URL and shared secret for the server"
     echo "   --lti                            View the URL and secret for LTI (if installed)"
     echo
@@ -2111,16 +2111,17 @@ if [ $CLEAN ]; then
 fi
 
 if [ $NETWORK ]; then
-    netstat -ant | egrep ":1935|:80\ " | egrep -v ":::|0.0.0.0" > /tmp/t_net
+    netstat -ant | egrep ":1935|:80|:443\ " | egrep -v ":::|0.0.0.0" > /tmp/t_net
     REMOTE=$(cat /tmp/t_net | cut -c 45-68 | cut -d ":" -f1 | sort | uniq)
 
     if [ "$REMOTE" != "" ]; then
-        echo -e "netstat\t\t\t80\t1935"
+        echo -e "netstat\t\t\t80\t443\t1935"
         for IP in $REMOTE ; do
             PORT_1935=$(cat /tmp/t_net | grep :1935 | cut -c 45-68 | cut -d ":" -f1 | grep $IP | wc -l)
             PORT_80=$(cat /tmp/t_net | grep :80 | cut -c 45-68 | cut -d ":" -f1 | grep $IP | wc -l )
+	    PORT_443=$(cat /tmp/t_net | grep :443 | cut -c 45-68 | cut -d ":" -f1 | grep $IP | wc -l )
 
-            echo -e "$IP\t\t$PORT_80\t$PORT_1935"
+            echo -e "$IP\t\t$PORT_80\t$PORT_443\t$PORT_1935"
         done
     fi
 fi
