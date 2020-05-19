@@ -235,23 +235,24 @@ class Page {
   }
 
   async screenshot(testName, relief = false) {
-    if (typeof process.env.GENERATE_EVIDENCES === 'true') {
+    if (process.env.GENERATE_EVIDENCES === 'true') {
       const today = moment().format('D MMM, YYYY');
-      const dir = process.env.TEST_FOLDER;
+      const dir = `../${process.env.TEST_FOLDER}`;
       if (!fs.existsSync(path.join(__dirname, `${dir}`))) {
         fs.mkdirSync(path.join(__dirname, `${dir}`));
       }
-      const testDir = `data/${testName}-${today}`;
-      if (!fs.existsSync(path.join(__dirname, `${testDir}`))) {
-        fs.mkdirSync(path.join(__dirname, `${testDir}`));
+      const testResultsFolder = `${dir}/test-${today}`;
+      if (!fs.existsSync(path.join(__dirname, `${testResultsFolder}`))) {
+        fs.mkdirSync(path.join(__dirname, `${testResultsFolder}`));
       }
-      const screenshots = `${testDir}/screenshots`;
+      const screenshots = `${testResultsFolder}/screenshots`;
       if (!fs.existsSync(path.join(__dirname, `${screenshots}`))) {
         fs.mkdirSync(path.join(__dirname, `${screenshots}`));
       }
       if (relief) await helper.sleep(1000);
-      const filename = path.join(__dirname, `./${testDir}/${testName}.png`);
-      await this.page.screenshot({ filename });
+      const filename = `${testName}.png`;
+      const dirTest = `${this.parentDir}/${screenshots}/${filename}`;
+      await this.page.screenshot({ dirTest });
       this.screenshotIndex++;
     }
   }
@@ -267,12 +268,12 @@ class Page {
     await this.page.waitForSelector(element, { timeout: 0 });
   }
 
-  async getMetrics() {
+  async getMetrics(testName) {
     const pageMetricsObj = {};
-    const dir = process.env.TEST_FOLDER;
+    const dir = `../${process.env.TEST_FOLDER}`;
     const today = moment().format('D MMM, YYYY');
-    const testExecutionResults = `data/test-${today}`;
-    const metricsFolder = `data/test-${today}/metrics`;
+    const testExecutionResults = testName ? `${dir}/${testName}-${today}` : `${dir}/test-${today}`;
+    const metricsFolder = `${dir}/${testExecutionResults}/metrics`;
     if (!fs.existsSync(path.join(__dirname, `${dir}`))) {
       fs.mkdirSync(path.join(__dirname, `${dir}`));
     }
