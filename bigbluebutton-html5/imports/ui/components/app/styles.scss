@@ -57,6 +57,10 @@
   display: flex;
   flex-direction: row;
   position: relative;
+  @include mq($small-only) {
+    height:100%;
+    background:#F1F2F2;
+  }
 }
 
 %full-page {
@@ -125,7 +129,7 @@
   order: 1;
 
   @include mq($small-only) {
-    top: 10%;
+    //top: 10%;
   }
 
   @include mq($medium-up) {
@@ -175,6 +179,12 @@
   }
 }
 
+.togglechat{
+  @include mq($small-only) {
+    z-index: 3;
+    overflow: visible;
+  }
+}
 .poll {
   background-color: var(--color-white);
   min-width: var(--poll-pane-min-width);

@@ -24,10 +24,12 @@ import MediaService from '/imports/ui/components/media/service';
 import ManyWebcamsNotifier from '/imports/ui/components/video-provider/many-users-notify/container';
 import { styles } from './styles';
 import ChatContainer from '/imports/ui/components/chat/container';
+import { Session } from 'meteor/session';
 
 // import Resizable from 're-resizable';
 import Button from '/imports/ui/components/button/component';
 import ActionsBarContainer from '../actions-bar/container';
+import { is } from 'useragent';
 
 
 // Variables for resizing chat.
@@ -436,9 +438,30 @@ class App extends Component {
         <section className={styles.wrapper}>
           {this.renderPanel()}
           <div className={styles.container}>
-            {this.renderNavBar()}
+            { isMobileBrowser
+             ?  Session.get('openPanel') == 'chat'   ?  this.renderNavBar()  : null
+            : this.renderNavBar()
+            }
             <div className={styles.panelContainer}>
               <div className={styles.presentationPanel}>
+               { isMobileBrowser && Session.get('openPanel') !== 'userlist' ? 
+               <div className={styles.togglechat} > 
+               <Button
+                    onClick={()=>{
+                      Session.set('idChatOpen', '');
+                      Session.set('openPanel', 'chat');
+                    } }
+                    hideLabel
+                    label="toggle chat"
+                    color="default"
+                   // ghost={!inAudio}
+                    icon="icomoon-Chat"
+                    size='lg'
+                    circle
+                  /> 
+                  </div>
+                  :  null
+                  }
               { inAudio ?
                 <div className={openPanel ? styles.content : styles.noPanelContent}>
                   {this.renderMedia()}
@@ -460,9 +483,18 @@ class App extends Component {
                 </div>
               }
               </div>
-              {(openPanel !== '') ? (
-                (enableResize) ? this.renderChatResizable() : this.renderChat()
-              ) : null}
+              { 
+              (openPanel !== '' && !isMobileBrowser ) ? (
+                 (enableResize) ?  this.renderChatResizable() :  null
+               
+              ) :
+
+             ( (openPanel == 'chat')
+               ?
+               (enableResize) ? null : this.renderChat()
+              :
+               null)
+               }
             </div>
           </div>
         </section>

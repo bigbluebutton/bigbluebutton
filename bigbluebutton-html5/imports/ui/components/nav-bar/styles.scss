@@ -45,7 +45,9 @@
  flex-flow: row;
  flex-direction: row;
 display: flex;
-
+>span{
+  padding: 0.3rem;
+}
 }
 .name{
   padding: 0.3rem;
@@ -55,7 +57,7 @@ display: flex;
 }
 
 .center {
-  width: 70%;
+  width: 60%;
   flex: 1;
 }
 
@@ -110,5 +112,11 @@ display: flex;
       color: var(--color-white) !important;
       opacity: .75;
     }
+  }
+}
+.button {
+  span:first-child {
+    box-shadow: none;
+   // border: 0.5px solid #5594d4;
   }
 }

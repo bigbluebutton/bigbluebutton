@@ -9,8 +9,8 @@
   position: relative;
   overflow-x: auto;
   overflow-y: auto;
-  padding-left: 1.75rem;
-  padding-right: var(--sm-padding-y);
+  padding-left: 4.5rem;
+  padding-right:  var(--sm-padding-y);
   margin-right: calc(-1 * var(--md-padding-y));
   padding-bottom: var(--md-padding-x);
   margin-bottom: calc(-1 * var(--md-padding-x));
@@ -20,6 +20,9 @@
     margin-right: calc(-1 * var(--md-padding-x));
     padding-left: var(--md-padding-y);
     margin-left: calc(-1 * var(--md-padding-x));
+  }
+  @include mq($small-only) {
+    padding-left: 0.75rem;
   }
 }
 
@@ -32,12 +35,14 @@
   right: 0 var(--md-padding-x) 0 0;
   padding-top: 0;
   width: 100%;
-
+  padding-right:calc( 2 * var(--lg-padding-y)) ;
   [dir="rtl"] & {
     margin: 0 0 0 auto;
     padding: 0 0 0 var(--md-padding-x);
   }
-
+  @include mq($small-only) {
+    padding-right: var(--sm-padding-y)
+  }
   &:after {
     content: "";
     display: block;

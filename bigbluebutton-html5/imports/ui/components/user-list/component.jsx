@@ -5,7 +5,11 @@ import injectWbResizeEvent from '/imports/ui/components/presentation/resize-wrap
 import { styles } from './styles.scss';
 import CustomLogo from './custom-logo/component';
 import UserContentContainer from './user-list-content/container';
+import browser from 'browser-detect';
 
+import Button from '/imports/ui/components/button/component';
+const BROWSER_RESULTS = browser();
+const isMobileBrowser = BROWSER_RESULTS.mobile || BROWSER_RESULTS.os.includes('Android');
 const propTypes = {
   activeChats: PropTypes.arrayOf(String).isRequired,
   compact: PropTypes.bool,
@@ -45,7 +49,26 @@ class UserList extends PureComponent {
           showBranding
             && !compact
             && CustomLogoUrl
-            ? <CustomLogo CustomLogoUrl={CustomLogoUrl} /> : null
+            ?
+            ( 
+             (!isMobileBrowser) ? <CustomLogo CustomLogoUrl = {CustomLogoUrl} /> 
+             :
+             <Button
+             onClick = {() => {
+                Session.set('idChatOpen', '');
+                Session.set('openPanel', 'chat');
+              }}
+            //circle
+            hideLabel
+             label="close"
+             size="lg"
+             icon="close"
+             className={ styles.close }
+             color="default"
+           />
+             )
+          :
+          null
         }
         {<UserContentContainer
           {...{

@@ -8,6 +8,8 @@ import Message from './message/component';
 
 import { styles } from './styles';
 
+const ROLE_MODERATOR = Meteor.settings.public.user.role_moderator;
+
 const propTypes = {
   user: PropTypes.shape({
     color: PropTypes.string,
@@ -126,7 +128,7 @@ class MessageListItem extends Component {
               </div>
               <div className={styles.contentleft}>
                 <div className={styles.metaleft}>
-                  <div className={user.isOnline ? styles.name : styles.logout}>
+                  <div className={user.isOnline ? styles.names : styles.logout}>
                     <span className={styles.name}>{user.name}</span>
                     {user.isOnline
                       ? null
