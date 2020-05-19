@@ -740,7 +740,16 @@ class MeetingActor(
     users foreach { u =>
       val respondedOnTime = (lastUserInactivityInspectSentOn - expiryTracker.userInactivityThresholdInMs) < u.lastActivityTime && (lastUserInactivityInspectSentOn + expiryTracker.userActivitySignResponseDelayInMs) > u.lastActivityTime
       if (!respondedOnTime) {
-        UsersApp.ejectUserFromMeeting(outGW, liveMeeting, u.intId, SystemUser.ID, "User inactive for too long.", EjectReasonCode.USER_INACTIVITY)
+        UsersApp.ejectUserFromMeeting(
+          outGW,
+          liveMeeting,
+          u.intId,
+          SystemUser.ID,
+          "User inactive for too long.",
+          EjectReasonCode.USER_INACTIVITY,
+          ban = false
+        )
+
         Sender.sendDisconnectClientSysMsg(liveMeeting.props.meetingProp.intId, u.intId, SystemUser.ID, EjectReasonCode.USER_INACTIVITY, outGW)
       }
     }

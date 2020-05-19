@@ -25,13 +25,13 @@ trait ValidateAuthTokenReqMsgHdlr extends HandlerHelpers {
 
     regUser match {
       case Some(u) =>
-        // Check if ejected user is rejoining.
+        // Check if banned user is rejoining.
         // Fail validation if ejected user is rejoining.
         // ralam april 21, 2020
-        if (u.guestStatus == GuestStatus.ALLOW && !u.ejected) {
+        if (u.guestStatus == GuestStatus.ALLOW && !u.banned) {
           userValidated(u, state)
         } else {
-          if (u.ejected) {
+          if (u.banned) {
             failReason = "Ejected user rejoining"
             failReasonCode = EjectReasonCode.EJECTED_USER_REJOINING
           }
