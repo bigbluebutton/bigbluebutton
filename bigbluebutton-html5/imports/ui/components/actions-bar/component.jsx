@@ -9,6 +9,7 @@ import JoinVideoOptionsContainer from '../video-provider/video-button/container'
 import Button from '/imports/ui/components/button/component';
 import TalkingIndicatorContainer from '/imports/ui/components/nav-bar/talking-indicator/container';
 import Auth from '/imports/ui/services/auth';
+import WebcamDraggable from '/imports/ui/components/media/webcam-draggable-overlay/component';
 
 const intlMessages = defineMessages({
   joinAudio: {
@@ -56,6 +57,13 @@ class ActionsBar extends PureComponent {
       handleLeaveAudio,
       handleJoinAudio,
       isThereCurrentPresentation,
+      presenter,
+      swapLayout,
+      singleWebcam,
+      usersVideo,
+      hideOverlay,
+      disableVideo,
+      audioModalIsOpen,
       validateMeetingIsBreakout
     } = this.props;
 
@@ -118,10 +126,21 @@ class ActionsBar extends PureComponent {
         <div className={styles.liveActions}>
           <div className={!toggleChatLayout ? styles.dummy1 : styles.dummy2}>
             <img src="https://miro.medium.com/max/560/1*MccriYX-ciBniUzRKAUsAw.png" alt="" />
-            <img
-              src="https://lh3.googleusercontent.com/FPUDI5HXBwHwoy-_aEh9fAW7lkOCJdRNktzstpsWCTrCFN1Vj6sCh4sTjE4ZpYG1hZ6b"
-              alt=""
-            />
+            <div 
+              className={styles.videoContainer}
+              ref={this.refContainer}
+            >
+              <WebcamDraggable
+                refMediaContainer={this.refContainer}
+                swapLayout={swapLayout}
+                singleWebcam={singleWebcam}
+                usersVideoLenght={usersVideo.length}
+                hideOverlay={hideOverlay}
+                disableVideo={disableVideo}
+                audioModalIsOpen={audioModalIsOpen}
+                usersVideo={usersVideo}
+              />
+            </div>
             <img src="https://miro.medium.com/max/560/1*MccriYX-ciBniUzRKAUsAw.png" alt="" />
           </div>
           <div className={styles.talkingIndicator}>

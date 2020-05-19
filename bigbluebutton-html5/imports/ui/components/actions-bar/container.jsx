@@ -11,7 +11,9 @@ import Service from './service';
 import VideoService from '../video-provider/service';
 import ExternalVideoService from '/imports/ui/components/external-video-player/service';
 import CaptionsService from '/imports/ui/components/captions/service';
-import ChannelsService from '/imports/ui/components/channels/service'
+import ChannelsService from '/imports/ui/components/channels/service';
+import Settings from '/imports/ui/services/settings';
+import { Session } from 'meteor/session';
 import {
   shareScreen,
   unshareScreen,
@@ -31,10 +33,19 @@ import { withModalMounter } from '/imports/ui/components/modal/service';
 
 const ActionsBarContainer = props => <ActionsBar {...props} />;
 const POLLING_ENABLED = Meteor.settings.public.poll.enabled;
+const { dataSaving } = Settings;
+const { viewParticipantsWebcams, viewScreenshare } = dataSaving;
 
 export default withModalMounter(withTracker(({ mountModal }) => ({
   amIPresenter: Service.amIPresenter(),
   amIModerator: Service.amIModerator(),
+  presenter: Service.getPresenter(),
+  swapLayout: (getSwapLayout()) && shouldEnableSwapLayout(),
+  usersVideo: VideoService.getAllWebcamUsers(),
+  singleWebcam: (VideoService.getAllWebcamUsers().length < 2),
+  disableVideo: !viewParticipantsWebcams,
+  hideOverlay: (VideoService.getAllWebcamUsers().length === 0),
+  audioModalIsOpen: Session.get('audioModalIsOpen'),
 
   inAudio: AudioManager.isConnected && !AudioManager.isEchoTest,
   listenOnly: AudioManager.isConnected && AudioManager.isListenOnly,

@@ -208,10 +208,10 @@ class VideoListItem extends Component {
             muted
             className={cx({
               [styles.media]: true,
-              [styles.cursorGrab]: !webcamDraggableState.dragging
-                && !isFullscreen && !swapLayout,
-              [styles.cursorGrabbing]: webcamDraggableState.dragging
-                && !isFullscreen && !swapLayout,
+              // [styles.cursorGrab]: !webcamDraggableState.dragging
+              //   && !isFullscreen && !swapLayout,
+              // [styles.cursorGrabbing]: webcamDraggableState.dragging
+              //   && !isFullscreen && !swapLayout,
             })}
             ref={(ref) => { this.videoTag = ref; }}
             autoPlay

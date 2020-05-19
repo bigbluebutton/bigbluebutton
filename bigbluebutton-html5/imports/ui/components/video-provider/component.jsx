@@ -21,6 +21,8 @@ import Auth from '/imports/ui/services/auth';
 
 import VideoService from './service';
 import VideoList from './video-list/component';
+import { styles } from '/imports/ui/components/video-provider/styles';
+import VideoListItemContainer from '/imports/ui/components/video-provider/video-list/video-list-item/container';
 
 const ENABLE_NETWORK_MONITORING = Meteor.settings.public.networkMonitoring.enableNetworkMonitoring;
 const CAMERA_PROFILES = Meteor.settings.public.kurento.cameraProfiles;
@@ -906,6 +908,8 @@ class VideoProvider extends Component {
   }
 
   createVideoTag(id, video) {
+    console.log(id,video,"xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx");
+    
     const peer = this.webRtcPeers[id];
     this.videoTags[id] = video;
 
