@@ -365,7 +365,7 @@ class UserDropdown extends PureComponent {
       ));
     }
 
-    if (allowedToPromote && isMeteorConnected) {
+    if (allowedToPromote && !user.guest && isMeteorConnected) {
       actions.push(this.makeDropdownItem(
         'promote',
         intl.formatMessage(messages.PromoteUserLabel),
@@ -374,7 +374,7 @@ class UserDropdown extends PureComponent {
       ));
     }
 
-    if (allowedToDemote && isMeteorConnected) {
+    if (allowedToDemote && !user.guest && isMeteorConnected) {
       actions.push(this.makeDropdownItem(
         'demote',
         intl.formatMessage(messages.DemoteUserLabel),
