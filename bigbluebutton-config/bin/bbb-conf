@@ -64,6 +64,7 @@
 #   2019-07-08 GTR  Set IP for all recording formats
 #   2019-10-31 GTR  Set IP and shared secret for bbb-webhooks
 #   2019-11-09 GTR  Keep HTML5 client logs permissions when cleaning logs
+#   2020-05-20 NJH  Add port 443 to --Network and clean up tmp file.
 
 #set -x
 #set -e
@@ -2124,6 +2125,7 @@ if [ $NETWORK ]; then
             echo -e "$IP\t\t$PORT_80\t$PORT_443\t$PORT_1935"
         done
     fi
+    rm /tmp/t_net
 fi
 
 if [ $WATCH ]; then
