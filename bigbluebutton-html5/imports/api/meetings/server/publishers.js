@@ -33,6 +33,7 @@ function meetings(isModerator = false) {
   const options = {
     fields: {
       password: false,
+      'welcomeProp.modOnlyMessage': false,
     },
   };
 

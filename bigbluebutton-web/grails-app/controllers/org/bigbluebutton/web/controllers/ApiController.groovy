@@ -1505,7 +1505,7 @@ class ApiController {
             logoutTimer meeting.getLogoutTimer()
             allowStartStopRecording meeting.getAllowStartStopRecording()
             welcome us.welcome
-            if (!StringUtils.isEmpty(meeting.moderatorOnlyMessage)) {
+            if (!StringUtils.isEmpty(meeting.moderatorOnlyMessage) && us.role.equals(ROLE_MODERATOR)) {
               modOnlyMessage meeting.moderatorOnlyMessage
             }
             if (!StringUtils.isEmpty(meeting.bannerText)) {
