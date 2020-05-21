@@ -241,7 +241,7 @@ class UserOptions extends PureComponent {
           />)
         : null
       ),
-      (isMeteorConnected ? (
+      (!meetingIsBreakout && isMeteorConnected ? (
         <DropdownListItem
           key={this.lockId}
           icon="lock"
