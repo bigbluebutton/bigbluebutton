@@ -155,6 +155,7 @@ class UserDropdown extends PureComponent {
       dropdownDirection: 'top',
       dropdownVisible: false,
       showNestedOptions: false,
+      banUser: false,
     };
 
     this.handleScroll = this.handleScroll.bind(this);
@@ -164,6 +165,7 @@ class UserDropdown extends PureComponent {
     this.renderUserAvatar = this.renderUserAvatar.bind(this);
     this.resetMenuState = this.resetMenuState.bind(this);
     this.makeDropdownItem = this.makeDropdownItem.bind(this);
+    this.setBanUser = this.setBanUser.bind(this);
   }
 
   componentWillMount() {
@@ -217,6 +219,11 @@ class UserDropdown extends PureComponent {
     return Session.set('dropdownOpen', false);
   }
 
+  setBanUser(e) {
+    console.error(`setBanUse:: ${e.target.checked}`, e.target);
+    this.setState({ banUser: e.target.checked });
+  }
+
   getUsersActions() {
     const {
       intl,
@@ -241,7 +248,8 @@ class UserDropdown extends PureComponent {
       meetingIsBreakout,
       mountModal,
     } = this.props;
-    const { showNestedOptions } = this.state;
+    const { showNestedOptions, banUser } = this.state;
+    console.error(`getUsersActions   ${banUser}`);
 
     const amIModerator = currentUser.role === ROLE_MODERATOR;
     const actionPermissions = getAvailableActions(amIModerator, meetingIsBreakout, user, voiceUser);
@@ -422,8 +430,19 @@ class UserDropdown extends PureComponent {
                 </div>
               </div>
               <div className={styles.description}>
-                {intl.formatMessage(messages.removeConfirmDesc)}
+                <label htmlFor="banUserCheckbox" className={styles.banUserCheckboxAAAAA} key="eject-or-ban-user">
+                  <input
+                    type="checkbox"
+                    id="banUserCheckbox"
+                    className={styles.banUserCheckboxAAAAAA}
+                    onChange={this.setBanUser}
+                    checked={banUser}
+                    aria-label={intl.formatMessage(messages.removeConfirmDesc)}
+                  />
+                  <span aria-hidden>{intl.formatMessage(messages.removeConfirmDesc)}</span>
+                </label>
               </div>
+
               <div className={styles.footer}>
                 <Button
                   color="primary"
@@ -431,7 +450,8 @@ class UserDropdown extends PureComponent {
                   label={intl.formatMessage(messages.yesLabel)}
                   onClick={() => {
                     mountModal(null);
-                    removeUser(user.userId);
+                    console.error(banUser);
+                    removeUser(user.userId, banUser);
                   }}
                 />
                 <Button

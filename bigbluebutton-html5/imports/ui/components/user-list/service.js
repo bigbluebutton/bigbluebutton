@@ -392,11 +392,11 @@ const setEmojiStatus = (userId, emoji) => {
 
 const assignPresenter = (userId) => { makeCall('assignPresenter', userId); };
 
-const removeUser = (userId) => {
+const removeUser = (userId, banUser) => {
   if (isVoiceOnlyUser(userId)) {
-    makeCall('ejectUserFromVoice', userId);
+    makeCall('ejectUserFromVoice', userId, banUser);
   } else {
-    makeCall('removeUser', userId);
+    makeCall('removeUser', userId, banUser);
   }
 };
 
