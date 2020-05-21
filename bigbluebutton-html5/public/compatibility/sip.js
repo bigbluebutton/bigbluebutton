@@ -9552,7 +9552,7 @@ UA.prototype.loadConfig = function(configuration) {
       // Session parameters
       iceCheckingTimeout: 5000,
       noAnswerTimeout: 60,
-      stunServers: ['stun:stun.l.google.com:19302'],
+      stunServers: [],
       turnServers: [],
 
       // Logging parameters

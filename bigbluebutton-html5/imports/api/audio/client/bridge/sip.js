@@ -1,7 +1,7 @@
 import browser from 'browser-detect';
 import BaseAudioBridge from './base';
 import logger from '/imports/startup/client/logger';
-import { fetchStunTurnServers } from '/imports/utils/fetchStunTurnServers';
+import { fetchStunTurnServers, getFallbackStun } from '/imports/utils/fetchStunTurnServers';
 import {
   isUnifiedPlan,
   toUnifiedPlan,
@@ -85,6 +85,22 @@ class SIPSession {
     });
   }
 
+  async getIceServers (sessionToken) {
+    try {
+      const iceServers = await fetchStunTurnServers(sessionToken);
+      return iceServers;
+    } catch (error) {
+      logger.error({
+        logCode: 'sip_js_fetchstunturninfo_error',
+        extraInfo: {
+          errorCode: error.code,
+          errorMessage: error.message,
+        },
+      }, 'Full audio bridge failed to fetch STUN/TURN info');
+      return getFallbackStun();
+    }
+  }
+
   doCall(options) {
     const {
       isListenOnly,
@@ -105,7 +121,7 @@ class SIPSession {
     this.user.callerIdName = callerIdName;
     this.callOptions = options;
 
-    return fetchStunTurnServers(sessionToken)
+    return this.getIceServers(sessionToken)
       .then(this.createUserAgent.bind(this))
       .then(this.inviteUserAgent.bind(this))
       .then(this.setupEventHandlers.bind(this));

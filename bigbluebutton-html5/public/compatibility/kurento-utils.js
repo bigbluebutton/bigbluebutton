@@ -1073,20 +1073,6 @@ var freeice = module.exports = function(opts) {
 
 },{"./stun.json":6,"./turn.json":7,"normalice":12}],6:[function(require,module,exports){
 module.exports=[
-  "stun.l.google.com:19302",
-  "stun1.l.google.com:19302",
-  "stun2.l.google.com:19302",
-  "stun3.l.google.com:19302",
-  "stun4.l.google.com:19302",
-  "stun.ekiga.net",
-  "stun.ideasip.com",
-  "stun.schlund.de",
-  "stun.stunprotocol.org:3478",
-  "stun.voiparound.com",
-  "stun.voipbuster.com",
-  "stun.voipstunt.com",
-  "stun.voxgratia.org",
-  "stun.services.mozilla.com"
 ]
 
 },{}],7:[function(require,module,exports){
