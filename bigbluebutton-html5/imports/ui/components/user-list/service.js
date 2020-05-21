@@ -42,6 +42,8 @@ const CUSTOM_LOGO_URL_KEY = 'CustomLogoUrl';
 
 export const setCustomLogoUrl = path => Storage.setItem(CUSTOM_LOGO_URL_KEY, path);
 
+export const setModeratorOnlyMessage = msg => Storage.setItem('ModeratorOnlyMessage', msg);
+
 const getCustomLogoUrl = () => Storage.getItem(CUSTOM_LOGO_URL_KEY);
 
 const sortUsersByName = (a, b) => {
