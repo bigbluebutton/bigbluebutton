@@ -1,6 +1,6 @@
 import Auth from '/imports/ui/services/auth';
 import BridgeService from './service';
-import { fetchWebRTCMappedStunTurnServers } from '/imports/utils/fetchStunTurnServers';
+import { fetchWebRTCMappedStunTurnServers, getMappedFallbackStun } from '/imports/utils/fetchStunTurnServers';
 import playAndRetry from '/imports/utils/mediaElementPlayRetry';
 import logger from '/imports/startup/client/logger';
 
@@ -72,6 +72,7 @@ export default class KurentoScreenshareBridge {
     } catch (error) {
       logger.error({ logCode: 'screenshare_viwer_fetchstunturninfo_error', extraInfo: { error } },
         'Screenshare bridge failed to fetch STUN/TURN info, using default');
+      iceServers = getMappedFallbackStun();
     } finally {
       const options = {
         wsUrl: Auth.authenticateURL(SFU_URL),
@@ -168,6 +169,7 @@ export default class KurentoScreenshareBridge {
     } catch (error) {
       logger.error({ logCode: 'screenshare_presenter_fetchstunturninfo_error' },
         'Screenshare bridge failed to fetch STUN/TURN info, using default');
+      iceServers = getMappedFallbackStun();
     } finally {
       const options = {
         wsUrl: Auth.authenticateURL(SFU_URL),

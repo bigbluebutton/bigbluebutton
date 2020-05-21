@@ -1,6 +1,6 @@
 import BaseAudioBridge from './base';
 import Auth from '/imports/ui/services/auth';
-import { fetchWebRTCMappedStunTurnServers } from '/imports/utils/fetchStunTurnServers';
+import { fetchWebRTCMappedStunTurnServers, getMappedFallbackStun } from '/imports/utils/fetchStunTurnServers';
 import playAndRetry from '/imports/utils/mediaElementPlayRetry';
 import logger from '/imports/startup/client/logger';
 
@@ -64,6 +64,7 @@ export default class KurentoAudioBridge extends BaseAudioBridge {
       } catch (error) {
         logger.error({ logCode: 'sfuaudiobridge_stunturn_fetch_failed' },
           'SFU audio bridge failed to fetch STUN/TURN info, using default servers');
+        iceServers = getMappedFallbackStun();
       } finally {
         logger.debug({ logCode: 'sfuaudiobridge_stunturn_fetch_sucess', extraInfo: { iceServers } },
           'SFU audio bridge got STUN/TURN servers');
