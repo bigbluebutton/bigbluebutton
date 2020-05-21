@@ -6,3 +6,7 @@ const docTitle = 'puppeteer';
 exports.docTitle = docTitle;
 exports.clientTitle = `userdata-clientTitle=${docTitle}`;
 exports.askForFeedbackOnLogout = 'userdata-askForFeedbackOnLogout=true';
+exports.displayBrandingArea = 'userdata-displayBrandingArea=true';
+exports.logo = 'logo=https://bigbluebutton.org/wp-content/themes/bigbluebutton/library/images/bigbluebutton-logo.png';
+exports.shortcuts = 'userdata-shortcuts=["openOptions", "toggleUserList", "toggleMute", "joinAudio", "leaveAudio", "togglePublicChat", "hidePrivateChat", "closePrivateChat", "openActions", "openStatus"]';
+exports.enableScreensharing = 'userdata-enableScreensharing=false';

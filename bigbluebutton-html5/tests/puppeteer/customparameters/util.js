@@ -1,5 +1,8 @@
 async function autoJoinTest(test) {
-  const resp = await test.page.evaluate(async () => await document.querySelectorAll('div[aria-label="Join audio modal"]').length === 0) !== false;
+  const resp = await test.page.evaluate(async () => {
+    const rep = await document.querySelectorAll('div[aria-label="Join audio modal"]').length === 0;
+    return rep !== false;
+  });
   return resp;
 }
 
@@ -21,7 +24,7 @@ async function forceListenOnly(test) {
   try {
     const resp = await test.page.evaluate(async () => {
       await document.querySelectorAll('div[class^="connecting--"]')[0];
-      if (await test.page.$('button[aria-label="Echo is audible"]')) {
+      if (await document.querySelectorAll('button[aria-label="Echo is audible"]').length > 0) {
         return false;
       }
       const audibleNotification = await document.querySelectorAll('div[class^="toastContainer--"]')[0].innerText === 'You have joined the audio conference';
@@ -53,6 +56,11 @@ async function countTestElements(element) {
   return document.querySelectorAll(element).length !== 0;
 }
 
+async function getTestElement(element) {
+  return document.querySelectorAll(element).length === 0;
+}
+
+exports.getTestElement = getTestElement;
 exports.countTestElements = countTestElements;
 exports.autoJoinTest = autoJoinTest;
 exports.listenOnlyMode = listenOnlyMode;

@@ -22,7 +22,7 @@ class Page {
   }
 
   // Join BigBlueButton meeting
-  async init(args, meetingId, newParams, customParameter) {
+  async init(args, meetingId, newParams, customParameter, testFolderName) {
     try {
       this.effectiveParams = newParams || params;
       const isModerator = this.effectiveParams.moderatorPW;
@@ -54,7 +54,7 @@ class Page {
       const checkForGetMetrics = async () => {
         if (process.env.BBB_COLLECT_METRICS === 'true') {
           await this.page.waitForSelector('[data-test^="userListItem"]');
-          await this.getMetrics();
+          await this.getMetrics(testFolderName);
         }
       };
       // if (process.env.IS_AUDIO_TEST !== 'true') {
@@ -234,25 +234,24 @@ class Page {
     await this.page.type(element, text);
   }
 
-  async screenshot(testName, relief = false) {
+  async screenshot(testFolderName, testFileName, relief = false) {
     if (process.env.GENERATE_EVIDENCES === 'true') {
-      const today = moment().format('D MMM, YYYY');
-      const dir = `../${process.env.TEST_FOLDER}`;
-      if (!fs.existsSync(path.join(__dirname, `${dir}`))) {
-        fs.mkdirSync(path.join(__dirname, `${dir}`));
+      const today = moment().format('DD-MM-YYYY');
+      const dir = path.join(__dirname, `../${process.env.TEST_FOLDER}`);
+      if (!fs.existsSync(dir)) {
+        fs.mkdirSync(dir);
       }
-      const testResultsFolder = `${dir}/test-${today}`;
-      if (!fs.existsSync(path.join(__dirname, `${testResultsFolder}`))) {
-        fs.mkdirSync(path.join(__dirname, `${testResultsFolder}`));
+      const testResultsFolder = `${dir}/test-${today}-${testFolderName}`;
+      if (!fs.existsSync(testResultsFolder)) {
+        fs.mkdirSync(testResultsFolder);
       }
       const screenshots = `${testResultsFolder}/screenshots`;
-      if (!fs.existsSync(path.join(__dirname, `${screenshots}`))) {
-        fs.mkdirSync(path.join(__dirname, `${screenshots}`));
+      if (!fs.existsSync(screenshots)) {
+        fs.mkdirSync(screenshots);
       }
       if (relief) await helper.sleep(1000);
-      const filename = `${testName}.png`;
-      const dirTest = `${this.parentDir}/${screenshots}/${filename}`;
-      await this.page.screenshot({ dirTest });
+      const filename = `${testFileName}.png`;
+      await this.page.screenshot({ path: `${screenshots}/${filename}` });
       this.screenshotIndex++;
     }
   }
@@ -268,20 +267,20 @@ class Page {
     await this.page.waitForSelector(element, { timeout: 0 });
   }
 
-  async getMetrics(testName) {
+  async getMetrics(testFolderName) {
     const pageMetricsObj = {};
-    const dir = `../${process.env.TEST_FOLDER}`;
-    const today = moment().format('D MMM, YYYY');
-    const testExecutionResults = testName ? `${dir}/${testName}-${today}` : `${dir}/test-${today}`;
-    const metricsFolder = `${dir}/${testExecutionResults}/metrics`;
-    if (!fs.existsSync(path.join(__dirname, `${dir}`))) {
-      fs.mkdirSync(path.join(__dirname, `${dir}`));
+    const today = moment().format('DD-MM-YYYY');
+    const dir = path.join(__dirname, `../${process.env.TEST_FOLDER}`);
+    if (!fs.existsSync(dir)) {
+      fs.mkdirSync(dir);
     }
-    if (!fs.existsSync(path.join(__dirname, `${testExecutionResults}`))) {
-      fs.mkdirSync(path.join(__dirname, `${testExecutionResults}`));
+    const testExecutionResultsName = `${dir}/test-${today}-${testFolderName}`;
+    if (!fs.existsSync(testExecutionResultsName)) {
+      fs.mkdirSync(testExecutionResultsName);
     }
-    if (!fs.existsSync(path.join(__dirname, `${metricsFolder}`))) {
-      fs.mkdirSync(path.join(__dirname, `${metricsFolder}`));
+    const metricsFolder = `${testExecutionResultsName}/metrics`;
+    if (!fs.existsSync(metricsFolder)) {
+      fs.mkdirSync(metricsFolder);
     }
     await this.waitForSelector('[data-test^="userListItem"]');
     const totalNumberOfUsersMongo = await this.page.evaluate(() => {
@@ -295,9 +294,10 @@ class Page {
     pageMetricsObj.totalNumberOfUsersMongoObj = totalNumberOfUsersMongo;
     pageMetricsObj.totalNumberOfUsersDomObj = totalNumberOfUsersDom;
     pageMetricsObj[`metricObj-${this.meetingId}`] = metric;
+    const metricsFile = path.join(__dirname, `../${process.env.TEST_FOLDER}/test-${today}-${testFolderName}/metrics/metrics-${this.effectiveParams.fullName}-${this.meetingId}.json`);
     const createFile = () => {
       try {
-        fs.appendFileSync(path.join(__dirname, `${metricsFolder}/metrics-${this.effectiveParams.fullName}-${this.meetingId}.json`), `${JSON.stringify(pageMetricsObj)},\n`);
+        fs.appendFileSync(metricsFile, `${JSON.stringify(pageMetricsObj)},\n`);
       } catch (error) {
         console.log(error);
       }

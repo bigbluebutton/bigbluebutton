@@ -8,3 +8,6 @@ exports.options = 'button[aria-label="Options"]';
 exports.logout = 'li[data-test="logout"]';
 exports.meetingEndedModal = 'div[data-test="meetingEndedModal"]';
 exports.rating = 'div[data-test="rating"]';
+exports.brandingAreaLogo = 'div[class^="branding--"]';
+exports.verticalListOptions = 'div[aria-expanded="true"] > div[class^="scrollable--"] > ul[class^="verticalList"]';
+exports.screenShareButton = 'button[aria-label="Share your screen"]';
