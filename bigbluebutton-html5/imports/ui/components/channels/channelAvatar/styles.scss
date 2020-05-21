@@ -2,7 +2,7 @@
 @import "/imports/ui/stylesheets/variables/general";
 @import "/imports/ui/stylesheets/mixins/_indicators";
 @import "/imports/ui/stylesheets/variables/typography";
-
+@import "/imports/ui/stylesheets/variables/_all";
 
 /* Variables
  * ==========
@@ -28,6 +28,10 @@
   color: #EEEEEE;
 
   border: 1px solid #ffffff;
+  @include mq($small-only) {
+    color:#A5A8B4;
+    border: 1px solid #A5A8B4;
+  }
 }
 
 .talking {
@@ -138,7 +142,9 @@
   text-align: center;
   left: 0;
   right: 0;
-  
+  @include mq($small-only) {
+    color:#A5A8B4;
+  }
   &,
   & > * {
     line-height: 0; // to keep centralized vertically

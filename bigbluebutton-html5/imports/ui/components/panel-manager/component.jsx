@@ -428,7 +428,7 @@ class PanelManager extends PureComponent {
         this.renderUserListResizable(),
         <div className={styles.userlistPad} key={this.padKey} />,
       );
-    } else {
+    } else if(openPanel === 'userlist') {
       panels.push(this.renderUserList());
     }
 

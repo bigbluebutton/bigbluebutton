@@ -30,7 +30,9 @@
 
   display: flex;
   flex-direction: row;
-
+  @include mq($small-only) {
+    color: #0F4C81;
+  }
   > span {
     text-overflow: ellipsis;
     white-space: nowrap;

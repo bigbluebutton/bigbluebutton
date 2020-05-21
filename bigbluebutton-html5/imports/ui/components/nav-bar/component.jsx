@@ -11,7 +11,12 @@ import Button from '../button/component';
 import RecordingIndicator from './recording-indicator/container';
 import TalkingIndicatorContainer from '/imports/ui/components/nav-bar/talking-indicator/container';
 import SettingsDropdownContainer from './settings-dropdown/container';
+import { meetingIsBreakout } from '/imports/ui/components/app/service';
 
+import browser from 'browser-detect';
+
+const BROWSER_RESULTS = browser();
+const isMobileBrowser = BROWSER_RESULTS.mobile || BROWSER_RESULTS.os.includes('Android');
 const ROLE_MODERATOR = Meteor.settings.public.user.role_moderator;
 const intlMessages = defineMessages({
   toggleUserListLabel: {
@@ -43,18 +48,18 @@ const defaultProps = {
 const handleClickToggleChat = (id) => {
   Session.set(
     'openPanel',
-    Session.get('openPanel') === 'chat' && Session.get('idChatOpen') === id
+    Session.get('openPanel') === 'chat' && Session.get('idChatOpen') !== id
       ? '' : 'chat',
   );
   if (Session.equals('openPanel', 'chat')) {
     Session.set('idChatOpen', id);
+  
   } else {
     Session.set('idChatOpen', '');
   }
 };
 
 class NavBar extends PureComponent {
-
   componentDidMount() {
     const {
       processOutsideToggleRecording,
@@ -84,9 +89,8 @@ class NavBar extends PureComponent {
       breakoutRoomName,
       currentUser,
     } = this.props;
-    const isModerator = currentUser.role === ROLE_MODERATOR;
 
-
+    const isBreakOutMeeting = meetingIsBreakout();
     const toggleBtnClasses = {};
     toggleBtnClasses[styles.btn] = true;
     toggleBtnClasses[styles.btnWithNotificationDot] = hasUnreadMessages;
@@ -98,31 +102,58 @@ class NavBar extends PureComponent {
       <div className={styles.navbar}>
         <div className={styles.top}>
           <div className={styles.left}>
-            <Button
-            data-test="chatButton"
-              onClick={() => handleClickToggleChat("public")}
+         { isMobileBrowser  ?
+             <Button
+              data-test="chatButton"
+             onClick={() => {
+                  Session.set('idChatOpen', '');
+                  Session.set('openPanel', 'userlist');
+                }}
               circle
               hideLabel
               label={intl.formatMessage(intlMessages.toggleUserListLabel)}
-              icon="user"
-              className={cx(toggleBtnClasses)}
-              aria-expanded={isExpanded}
-              accessKey={TOGGLE_CHAT_PUB_AK}
+              icon="icomoon-Master-Channel"
             />
+            : null}
             <span className={styles.presentationTitle}>{presentationTitle}</span>
             <RecordingIndicator
               mountModal={mountModal}
               amIModerator={amIModerator}
             />
+           
           </div>
           <div className={styles.center}>
           </div>
           <div className={styles.right}>
- <div className={styles.both}>
-   <b className={styles.name}><span >{currentUser.name}</span></b>
-   {(breakoutRoomName &&!isModerator)? <p className={styles.name}><span >({breakoutRoomName})</span></p> :( isModerator ?<span>(moderator)</span>:null)}
-   
-    </div> 
+    { (isMobileBrowser) ? 
+               <Button
+              data-test="chatButton"
+              onClick={() => handleClickToggleChat('public')}
+              circle
+              hideLabel
+              className={styles.button}
+              label={intl.formatMessage(intlMessages.toggleUserListLabel)}
+              icon="icomoon-Join-Call"
+              //icon="icomoon-Chat"
+              size="lg"
+              aria-expanded={isExpanded}
+              accessKey={TOGGLE_CHAT_PUB_AK}
+            />
+          : 
+            <div className={styles.both}>
+          <b ><span >{currentUser.name}</span></b>
+          {(breakoutRoomName && !amIModerator) ?
+           <p >
+             <span >
+               (
+                 {breakoutRoomName}
+               )
+             </span>
+           </p> :
+           ( amIModerator && !isBreakOutMeeting ? <span>(moderator)</span> : null)
+           }
+          
+           </div> }
             <SettingsDropdownContainer amIModerator={amIModerator} />
           </div>
         </div>

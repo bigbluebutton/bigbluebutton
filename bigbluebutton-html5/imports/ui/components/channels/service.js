@@ -52,6 +52,12 @@ const validateMeetingIsBreakout = (meetingId) => {
 
 }
 
+const getBreakout = (meetingId) => {
+  return Breakouts.findOne({
+    breakoutId: meetingId
+  });
+}
+
 
 const breakoutRoomUser = (breakoutId) => {
   const breakoutRooms = findBreakouts();
@@ -129,7 +135,8 @@ const getBreakoutMeetingUserId = (email, name, breakoutId) =>
     connectionStatus: 'online',
     meetingId: breakoutId,
     email: email,
-    name: name}, { fields: { userId: 1 } });
+    name: name});
+
 
 const closeBreakoutPanel = () => Session.set('openPanel', 'userlist');
 
@@ -216,6 +223,7 @@ const getUnassignedUsersInMasterChannel = (allUsers) => {
 
 export default {
   findBreakouts,
+  getBreakout,
   getBreakoutByCurrentMeetingId,
   validateMeetingIsBreakout,
   endAllBreakouts,

@@ -21,7 +21,7 @@ const ROLE_MODERATOR = Meteor.settings.public.user.role_moderator;
 const ROLE_VIEWER = Meteor.settings.public.user.role_viewer;
 
 const DIAL_IN_CLIENT_TYPE = 'dial-in-user';
-const podId = "DEFAULT_PRESENTATION_POD";
+const podId = 'DEFAULT_PRESENTATION_POD';
 
 // session for closed chat list
 const CLOSED_CHAT_LIST_KEY = 'closedChatList';
@@ -239,9 +239,8 @@ const getUsersByMeeting = (meetingIdentifier) => {
 };
 
 
-
 const getUsersByMeetingWithoutMe = (meetingIdentifier) => {
-  let users = Users
+  const users = Users
     .find({
       meetingId: meetingIdentifier,
       connectionStatus: 'online',
@@ -250,11 +249,10 @@ const getUsersByMeetingWithoutMe = (meetingIdentifier) => {
 
 
   const currentUser = Users.findOne({ userId: Auth.userID });
-  if (currentUser){
+  if (currentUser) {
     return users.filter(u => u.userId != currentUser.userId);
-  }else{
-    return users;
   }
+  return users;
 };
 
 
@@ -456,7 +454,7 @@ const stopPresentation = (podId) => {
   }
   makeCall('removePresentation', currentPresentation.id, currentPresentation.podId);
 };
-const assignPresenter = (userId) => { 
+const assignPresenter = (userId) => {
   stopPresentation(podId);
   makeCall('assignPresenter', userId);
 };
