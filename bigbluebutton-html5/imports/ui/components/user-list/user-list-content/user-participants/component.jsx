@@ -104,6 +104,8 @@ class UserParticipants extends Component {
       meetingIdentifier,
       allUsersInMeeting,
       breakoutRoomUsers,
+      onlyModerators,
+      allModerators,
       unassignedUsersInMasterChannel
     } = this.props;
 
@@ -117,11 +119,7 @@ class UserParticipants extends Component {
     const renderOnlyBreakoutusers =  ChannelsService.validateMeetingIsBreakout(meetingIdentifier);
     const isThisBreakoutRoom =  ChannelsService.validateMeetingIsBreakout(Auth.meetingID);
 
-    console.log("Auth.meetingid: " + Auth.meetingID);
-    console.log("isThisBreakoutRoom: " + isThisBreakoutRoom);
-    console.log("renderOnlyBreakoutusers: " + renderOnlyBreakoutusers);
-    console.log("meetingIdentifier: " + meetingIdentifier);
-
+ 
     var usersToRender = allUsersInMeeting;
     if(!isThisBreakoutRoom && renderOnlyBreakoutusers){
       //usersToRender = allUsersInMeeting.filter(u => isbreakoutRoomUser(meetingIdentifier, u.userId));
@@ -130,6 +128,10 @@ class UserParticipants extends Component {
       });
     }else if(!isThisBreakoutRoom){
       usersToRender = unassignedUsersInMasterChannel;
+    }
+
+    if(onlyModerators) {
+      usersToRender = allModerators;
     }
     
     return usersToRender.map(u => (

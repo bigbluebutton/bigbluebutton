@@ -26,10 +26,11 @@ export default withTracker((...props) => {
     isUserActiveInBreakoutroom,
     isUserInBreakoutRoom,
     isbreakoutRoomUser,
+    getCurrentMeeting,
     getBreakoutMeetingUserId
   } = Service;
 
-
+  const currentMeeting = getCurrentMeeting();
   const breakoutRooms = meetingIsBreakout() ? getBreakoutByCurrentMeetingId() : findBreakouts();
 
   const isMicrophoneUser = AudioService.isConnected() && !AudioService.isListenOnly();
@@ -59,5 +60,6 @@ export default withTracker((...props) => {
     isbreakoutRoomUser,
     getBreakoutMeetingUserId,
     exitAudio: () => AudioManager.exitAudio(),
+    currentMeeting
   };
 })(ChannelsContainer);
