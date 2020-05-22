@@ -62,7 +62,7 @@ class RemoveUserModal extends Component {
             </div>
           </div>
           <div className={styles.description}>
-            <label htmlFor="banUserCheckbox" className={styles.banUserCheckboxAAAAA} key="eject-or-ban-user">
+            <label htmlFor="banUserCheckbox" key="eject-or-ban-user">
               <input
                 type="checkbox"
                 id="banUserCheckbox"
