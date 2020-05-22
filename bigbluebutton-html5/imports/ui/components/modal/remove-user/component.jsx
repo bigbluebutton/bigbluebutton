@@ -1,7 +1,6 @@
 import React, { Component } from 'react';
 import { defineMessages } from 'react-intl';
 import PropTypes from 'prop-types';
-import { findDOMNode } from 'react-dom';
 import { withModalMounter } from '/imports/ui/components/modal/service';
 import Modal from '/imports/ui/components/modal/simple/component';
 import Button from '/imports/ui/components/button/component';
@@ -64,6 +63,7 @@ class RemoveUserModal extends Component {
           <div className={styles.description}>
             <label htmlFor="banUserCheckbox" key="eject-or-ban-user">
               <input
+                className={styles.banUserCheckBox}
                 type="checkbox"
                 id="banUserCheckbox"
                 onChange={() => this.setState({ checked: !checked })}
@@ -77,16 +77,16 @@ class RemoveUserModal extends Component {
           <div className={styles.footer}>
             <Button
               color="primary"
-              className={styles.button}
+              className={styles.confirmBtn}
               label={intl.formatMessage(messages.yesLabel)}
               onClick={() => {
+                onConfirm(user.userId, checked);
                 mountModal(null);
-                onConfirm(user.userId, this.state.checked);
               }}
             />
             <Button
               label={intl.formatMessage(messages.noLabel)}
-              className={styles.button}
+              className={styles.dismissBtn}
               onClick={() => mountModal(null)}
             />
           </div>
