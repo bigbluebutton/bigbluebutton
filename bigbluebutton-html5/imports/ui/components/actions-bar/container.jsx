@@ -76,5 +76,6 @@ export default withModalMounter(withTracker(({ mountModal }) => ({
   isThereCurrentPresentation: Presentations.findOne({ meetingId: Auth.meetingID, current: true },
     { fields: {} }),
   allowExternalVideo: Meteor.settings.public.externalVideoPlayer.enabled,
-  validateMeetingIsBreakout: ChannelsService.validateMeetingIsBreakout,
+  validateMeetingIsBreakout: ChannelsService.validateMeetingIsBreakout
+
 }))(injectIntl(ActionsBarContainer)));
