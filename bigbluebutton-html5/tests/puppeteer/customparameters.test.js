@@ -33,7 +33,7 @@ describe('Custom parameters', () => {
     try {
       console.log('before');
       const testName = 'listenOnlyMode';
-      response = await test.listenOnlyMode(testName, Page.getArgs(), undefined, c.listenOnlyMode);
+      response = await test.listenOnlyMode(testName, Page.getArgsWithAudio(), undefined, c.listenOnlyMode);
       console.log('after');
     } catch (e) {
       console.log(e);
@@ -51,7 +51,7 @@ describe('Custom parameters', () => {
     try {
       console.log('before');
       const testName = 'forceListenOnly';
-      response = await test.forceListenOnly(testName, Page.getArgs(), undefined, c.forceListenOnly);
+      response = await test.forceListenOnly(testName, Page.getArgsWithAudio(), undefined, c.forceListenOnly);
       console.log('after');
     } catch (e) {
       console.log(e);
@@ -69,7 +69,7 @@ describe('Custom parameters', () => {
     try {
       console.log('before');
       const testName = 'skipCheck';
-      response = await test.skipCheck(testName, Page.getArgs(), undefined, c.skipCheck);
+      response = await test.skipCheck(testName, Page.getArgsWithAudio(), undefined, c.skipCheck);
       console.log('after');
     } catch (e) {
       console.log(e);
@@ -161,6 +161,42 @@ describe('Custom parameters', () => {
       console.log('before');
       const testName = 'enableScreensharing';
       response = await test.enableScreensharing(testName, Page.getArgs(), undefined, c.enableScreensharing);
+      console.log('after');
+    } catch (e) {
+      console.log(e);
+    } finally {
+      await test.closePage(test.page1);
+    }
+    expect(response).toBe(true);
+  });
+
+  // This test spec sets the userdata-enableVideo parameter to false
+  // and checks that the Moderator can not see the Webcam sharing button
+  test('Enable Webcam', async () => {
+    const test = new CustomParameters();
+    let response;
+    try {
+      console.log('before');
+      const testName = 'enableVideo';
+      response = await test.enableVideo(testName, Page.getArgsWithVideo(), undefined, c.enableVideo);
+      console.log('after');
+    } catch (e) {
+      console.log(e);
+    } finally {
+      await test.closePage(test.page1);
+    }
+    expect(response).toBe(true);
+  });
+
+  // This test spec sets the userdata-autoShareWebcam parameter to true
+  // and checks that the Moderator sees the Webcam Settings Modal automatically at his connection to meeting
+  test('Auto Share Webcam', async () => {
+    const test = new CustomParameters();
+    let response;
+    try {
+      console.log('before');
+      const testName = 'autoShareWebcam';
+      response = await test.autoShareWebcam(testName, Page.getArgsWithVideo(), undefined, c.autoShareWebcam);
       console.log('after');
     } catch (e) {
       console.log(e);

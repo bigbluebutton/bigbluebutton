@@ -10,3 +10,5 @@ exports.displayBrandingArea = 'userdata-displayBrandingArea=true';
 exports.logo = 'logo=https://bigbluebutton.org/wp-content/themes/bigbluebutton/library/images/bigbluebutton-logo.png';
 exports.shortcuts = 'userdata-shortcuts=["openOptions", "toggleUserList", "toggleMute", "joinAudio", "leaveAudio", "togglePublicChat", "hidePrivateChat", "closePrivateChat", "openActions", "openStatus"]';
 exports.enableScreensharing = 'userdata-enableScreensharing=false';
+exports.enableVideo = 'userdata-enableVideo=false';
+exports.autoShareWebcam = 'userdata-autoShareWebcam=true';

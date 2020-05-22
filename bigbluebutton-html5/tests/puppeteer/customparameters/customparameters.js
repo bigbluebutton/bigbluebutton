@@ -187,7 +187,8 @@ class CustomParameters {
   async enableScreensharing(testName, args, meetingId, customParameter) {
     console.log('before init');
     await this.page1.init(args, meetingId, { ...params, fullName: 'Moderator' }, customParameter, testName);
-    await this.page1.screenshot(`${testName}`, `01-page1-${testName}`);
+    await this.page1.closeAudioModal();
+    await this.page1.screenshot(`${testName}`, `01-${testName}`);
     console.log('after init');
     if (await this.page1.page.evaluate(util.getTestElement, cpe.screenShareButton) === false) {
       await this.page1.screenshot(`${testName}`, `02-fail-${testName}`);
@@ -195,6 +196,37 @@ class CustomParameters {
     }
     const resp = await this.page1.page.evaluate(util.getTestElement, cpe.screenShareButton) === true;
     await this.page1.screenshot(`${testName}`, `02-success-${testName}`);
+    return resp === true;
+  }
+
+  async enableVideo(testName, args, meetingId, customParameter) {
+    console.log('before init');
+    await this.page1.init(args, meetingId, { ...params, fullName: 'Moderator' }, customParameter, testName);
+    await this.page1.closeAudioModal();
+    await this.page1.screenshot(`${testName}`, `01-${testName}`);
+    console.log('after init');
+    if (await this.page1.page.evaluate(util.getTestElement, cpe.shareWebcamButton) === false) {
+      await this.page1.screenshot(`${testName}`, `02-fail-${testName}`);
+      return false;
+    }
+    const resp = await this.page1.page.evaluate(util.getTestElement, cpe.shareWebcamButton) === true;
+    await this.page1.screenshot(`${testName}`, `02-success-${testName}`);
+    return resp === true;
+  }
+
+  async autoShareWebcam(testName, args, meetingId, customParameter) {
+    console.log('before init');
+    await this.page1.init(args, meetingId, { ...params, fullName: 'Moderator' }, customParameter, testName);
+    await this.page1.screenshot(`${testName}`, `01-${testName}`);
+    console.log('after init');
+    await this.page1.closeAudioModal();
+    await this.page1.screenshot(`${testName}`, `02-${testName}`);
+    if (await this.page1.page.evaluate(util.getTestElement, cpe.webcamSettingsModal) === true) {
+      await this.page1.screenshot(`${testName}`, `03-fail-${testName}`);
+      return false;
+    }
+    const resp = await this.page1.page.evaluate(util.getTestElement, cpe.webcamSettingsModal) === false;
+    await this.page1.screenshot(`${testName}`, `03-success-${testName}`);
     return resp === true;
   }
 
