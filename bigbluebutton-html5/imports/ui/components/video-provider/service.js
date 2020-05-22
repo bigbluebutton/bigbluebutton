@@ -65,12 +65,17 @@ class VideoService {
     this.isConnected = false;
   }
 
-  sendUserShareWebcam(stream) {
+  sendUserShareWebcam(stream) { 
     makeCall('userShareWebcam', stream);
   }
 
   sendUserUnshareWebcam(stream) {
     makeCall('userUnshareWebcam', stream);
+  }
+
+  isVideoStreamTransmitting() {
+    return VideoStreams.findOne({ meetingId: Auth.meetingID },
+      { fields: { userId: 1 } });
   }
 
   getAllWebcamUsers() {
@@ -188,4 +193,5 @@ export default {
   getAllWebcamUsers: () => videoService.getAllWebcamUsers(),
   sessionToken: () => videoService.sessionToken(),
   voiceBridge: () => videoService.voiceBridge(),
+  isVideoStreamTransmitting: () => videoService.isVideoStreamTransmitting()
 };
