@@ -34,11 +34,6 @@ trait EjectUserFromMeetingCmdMsgHdlr extends RightsManagementTrait {
         ejectedByUser <- RegisteredUsers.findWithUserId(ejectedBy, liveMeeting.registeredUsers)
       } yield {
         if (registeredUser.externId != ejectedByUser.externId) {
-          // Hardcode right now to true. Once we've added the ban field to the
-          // eject message, we can use that here.
-          // For the moment, just assume that is a user is ejected by another user,
-          // then that user should be banned (ralam may 19, 2020)
-          // see https://github.com/bigbluebutton/bigbluebutton/issues/9608
           val ban = banUser
 
           // Eject users
@@ -57,6 +52,9 @@ trait EjectUserFromMeetingCmdMsgHdlr extends RightsManagementTrait {
               EjectReasonCode.EJECT_USER,
               ban
             )
+
+            log.info("Eject userId=" + userId + " by " + ejectedBy + " and ban=" + banUser)
+
             // send a system message to force disconnection
             Sender.sendDisconnectClientSysMsg(meetingId, ru.id, ejectedBy, EjectReasonCode.EJECT_USER, outGW)
           }
