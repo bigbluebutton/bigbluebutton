@@ -169,7 +169,7 @@ class Page {
       '--no-sandbox',
       '--use-fake-ui-for-media-stream',
       '--use-fake-device-for-media-stream',
-      `--use-file-for-fake-video-capture=${path.join(__dirname, '../media/video.wav')}`,
+      `--use-file-for-fake-video-capture=${path.join(__dirname, '../media/video_rgb.y4m')}`,
       '--allow-file-access',
     ];
     return {
