@@ -12,9 +12,7 @@ import DropdownListItem from '/imports/ui/components/dropdown/list/item/componen
 import DropdownListSeparator from '/imports/ui/components/dropdown/list/separator/component';
 import lockContextContainer from '/imports/ui/components/lock-viewers/context/container';
 import { withModalMounter } from '/imports/ui/components/modal/service';
-import Modal from '/imports/ui/components/modal/simple/component';
-import Button from '/imports/ui/components/button/component';
-
+import RemoveUserModal from '/imports/ui/components/modal/remove-user/component';
 import _ from 'lodash';
 import { Session } from 'meteor/session';
 import { styles } from './styles';
@@ -416,52 +414,11 @@ class UserDropdown extends PureComponent {
         'remove',
         intl.formatMessage(messages.RemoveUserLabel, { 0: user.name }),
         () => this.onActionsHide(mountModal(
-          <Modal
-            overlayClassName={styles.overlay}
-            className={styles.modal}
-            onRequestClose={() => mountModal(null)}
-            hideBorder
-            contentLabel={intl.formatMessage(messages.removeConfirmTitle, { 0: user.name })}
-          >
-            <div className={styles.container}>
-              <div className={styles.header}>
-                <div className={styles.title}>
-                  {intl.formatMessage(messages.removeConfirmTitle, { 0: user.name })}
-                </div>
-              </div>
-              <div className={styles.description}>
-                <label htmlFor="banUserCheckbox" className={styles.banUserCheckboxAAAAA} key="eject-or-ban-user">
-                  <input
-                    type="checkbox"
-                    id="banUserCheckbox"
-                    className={styles.banUserCheckboxAAAAAA}
-                    onChange={this.setBanUser}
-                    checked={banUser}
-                    aria-label={intl.formatMessage(messages.removeConfirmDesc)}
-                  />
-                  <span aria-hidden>{intl.formatMessage(messages.removeConfirmDesc)}</span>
-                </label>
-              </div>
-
-              <div className={styles.footer}>
-                <Button
-                  color="primary"
-                  className={styles.button}
-                  label={intl.formatMessage(messages.yesLabel)}
-                  onClick={() => {
-                    mountModal(null);
-                    console.error(banUser);
-                    removeUser(user.userId, banUser);
-                  }}
-                />
-                <Button
-                  label={intl.formatMessage(messages.noLabel)}
-                  className={styles.button}
-                  onClick={() => mountModal(null)}
-                />
-              </div>
-            </div>
-          </Modal>,
+          <RemoveUserModal
+            intl={intl}
+            user={user}
+            onConfirm={removeUser}
+          />,
         )),
         'circle_close',
       ));
