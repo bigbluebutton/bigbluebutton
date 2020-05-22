@@ -33,7 +33,7 @@ describe('Custom parameters', () => {
     try {
       console.log('before');
       const testName = 'listenOnlyMode';
-      response = await test.listenOnlyMode(testName, Page.getArgsWithAudio(), undefined, c.listenOnlyMode);
+      response = await test.listenOnlyMode(testName, Page.getArgs(), undefined, c.listenOnlyMode);
       console.log('after');
     } catch (e) {
       console.log(e);
@@ -51,7 +51,7 @@ describe('Custom parameters', () => {
     try {
       console.log('before');
       const testName = 'forceListenOnly';
-      response = await test.forceListenOnly(testName, Page.getArgsWithAudio(), undefined, c.forceListenOnly);
+      response = await test.forceListenOnly(testName, Page.getArgs(), undefined, c.forceListenOnly);
       console.log('after');
     } catch (e) {
       console.log(e);
@@ -69,7 +69,7 @@ describe('Custom parameters', () => {
     try {
       console.log('before');
       const testName = 'skipCheck';
-      response = await test.skipCheck(testName, Page.getArgsWithAudio(), undefined, c.skipCheck);
+      response = await test.skipCheck(testName, Page.getArgs(), undefined, c.skipCheck);
       console.log('after');
     } catch (e) {
       console.log(e);
