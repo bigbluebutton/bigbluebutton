@@ -112,7 +112,6 @@
     "app.media.screenshare.start": "Compartir pantalla ha iniciado",
     "app.media.screenshare.end": "Compartir pantalla ha finalizado",
     "app.media.screenshare.unavailable": "Compartir pantalla no disponible",
-    "app.media.screenshare.safariNotSupported": "Compartir pantalla no está soportado en Safari.\nPor favor, use Firefox o Google Chrome.",
     "app.media.screenshare.autoplayBlockedDesc": "Necesitamos su permiso para mostrarle la pantalla del presentador",
     "app.media.screenshare.autoplayAllowLabel": "Ver pantalla compartida",
     "app.screenshare.notAllowed": "Error: No tiene permisos para acceder a la pantalla",

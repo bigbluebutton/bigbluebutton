@@ -112,7 +112,6 @@
     "app.media.screenshare.start": "Chia sẻ màn hình bắt đầu",
     "app.media.screenshare.end": "Chia sẻ màn hình đã tắt",
     "app.media.screenshare.unavailable": "Không thể chia sẻ màn hình",
-    "app.media.screenshare.safariNotSupported": "Chia sẻ màn hình không hỗ trợ cho trình duyệt Safari, vui lòng sử dụng Chrome hoặc Firefox",
     "app.media.screenshare.autoplayBlockedDesc": "Bạn cần phải cho phép để có thể xem được màn hình của người đang trình bày",
     "app.media.screenshare.autoplayAllowLabel": "Xem màn hình chung",
     "app.screenshare.notAllowed": "Lỗi: Chưa cho phép xem màn hình",
