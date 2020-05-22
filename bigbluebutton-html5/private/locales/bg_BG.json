@@ -111,7 +111,6 @@
     "app.media.autoplayAlertDesc": "Разреши достъпа",
     "app.media.screenshare.start": "Споделянето на екрана започна",
     "app.media.screenshare.end": "Споделянето на екрана приключи",
-    "app.media.screenshare.safariNotSupported": "Споделянето на екран не се поддържа от Safari. Моля използвайте Firefox или Google Chrome",
     "app.media.screenshare.autoplayBlockedDesc": "Нуждаем се от Вашето разрешение за да Ви покажем екрана на презентатора",
     "app.media.screenshare.autoplayAllowLabel": "Виж споделения екран",
     "app.screenshare.notAllowed": "Грешка: Не беше дадено разрешение за достъп до екрана",

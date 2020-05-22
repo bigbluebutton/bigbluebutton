@@ -112,7 +112,6 @@
     "app.media.screenshare.start": "ಸ್ಕ್ರೀನ್‌ಶೇರ್ ಪ್ರಾರಂಭವಾಗಿದೆ",
     "app.media.screenshare.end": "ಸ್ಕ್ರೀನ್‌ಶೇರ್ ಕೊನೆಗೊಂಡಿದೆ",
     "app.media.screenshare.unavailable": "ಸ್ಕ್ರೀನ್‌ಶೇರ್ ಲಭ್ಯವಿಲ್ಲ",
-    "app.media.screenshare.safariNotSupported": "ಸ್ಕ್ರೀನ್‌ಶೇರ್ ಅನ್ನು ಸಫಾರಿಯಲ್ಲಿ ಪ್ರಸ್ತುತ ಬೆಂಬಲಿಸುವುದಿಲ್ಲ. ದಯವಿಟ್ಟು, ಫೈರ್‌ಫಾಕ್ಸ್ ಅಥವಾ ಗೂಗಲ್ ಕ್ರೋಮ್ ಬಳಸಿ.",
     "app.media.screenshare.autoplayBlockedDesc": "ನಿರೂಪಕರ ಪರದೆಯನ್ನು ನಿಮಗೆ ತೋರಿಸಲು ನಮಗೆ ನಿಮ್ಮ ಅನುಮತಿ ಬೇಕು.",
     "app.media.screenshare.autoplayAllowLabel": "ಹಂಚಿದ ಪರದೆಯನ್ನು ವೀಕ್ಷಿಸಿ",
     "app.screenshare.notAllowed": "ದೋಷ: ಪರದೆಯನ್ನು ಪ್ರವೇಶಿಸಲು ಅನುಮತಿ ನೀಡಲಾಗಿಲ್ಲ.",
@@ -683,4 +682,6 @@
     "app.legacy.unsupportedBrowser": "ನೀವು ಬೆಂಬಲಿಸದ ಬ್ರೌಸರ್ ಅನ್ನು ಬಳಸುತ್ತಿರುವಂತೆ ತೋರುತ್ತಿದೆ. ಪೂರ್ಣ ಬೆಂಬಲಕ್ಕಾಗಿ ದಯವಿಟ್ಟು {0} ಅಥವಾ {1 use ಬಳಸಿ.",
     "app.legacy.upgradeBrowser": "ನೀವು ಬೆಂಬಲಿತ ಬ್ರೌಸರ್‌ನ ಹಳೆಯ ಆವೃತ್ತಿಯನ್ನು ಬಳಸುತ್ತಿರುವಂತೆ ತೋರುತ್ತಿದೆ. ಪೂರ್ಣ ಬೆಂಬಲಕ್ಕಾಗಿ ದಯವಿಟ್ಟು ನಿಮ್ಮ ಬ್ರೌಸರ್ ಅನ್ನು ಅಪ್‌ಗ್ರೇಡ್ ಮಾಡಿ.",
     "app.legacy.criosBrowser": "iOSನಲ್ಲಿ ದಯವಿಟ್ಟು ಪೂರ್ಣ ಬೆಂಬಲಕ್ಕಾಗಿ ಸಫಾರಿ ಬಳಸಿ."
+
 }
+

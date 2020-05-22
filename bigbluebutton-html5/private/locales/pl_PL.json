@@ -112,7 +112,6 @@
     "app.media.screenshare.start": "Rozpoczęto udostępnianie ekranu",
     "app.media.screenshare.end": "Zakończono udostępnianie ekranu",
     "app.media.screenshare.unavailable": "Udostępnianie ekranu niedostępne",
-    "app.media.screenshare.safariNotSupported": "Udostępnianie ekranu jest aktualnie niedostępne w Safari. Proszę użyć przeglądarki Firefox lub Google Chrome.",
     "app.media.screenshare.autoplayBlockedDesc": "Potrzebujemy Twojej zgody aby wyświetlić ekran prelegenta.",
     "app.media.screenshare.autoplayAllowLabel": "Zobacz udostępniony ekran",
     "app.screenshare.notAllowed": "Błąd: Nie udzielono uprawnień na dostęp do ekranu.",

@@ -112,7 +112,6 @@
     "app.media.screenshare.start": "스크린공유 시작",
     "app.media.screenshare.end": "스크린공유 종료 ",
     "app.media.screenshare.unavailable": "스크린공유 불가",
-    "app.media.screenshare.safariNotSupported": "현재 Safari에서 스크린공유를 지원하지 않습니다. Firefox나 Chrome을 이용하세요.",
     "app.media.screenshare.autoplayBlockedDesc": "발표자의 스크린을 보여주기 위해 당신의 허가가 필요합니다 ",
     "app.media.screenshare.autoplayAllowLabel": "공유스크린 보기",
     "app.screenshare.notAllowed": "에러: 스크린에 접근하기 위한 권한이 부여되지 않았습니다.",

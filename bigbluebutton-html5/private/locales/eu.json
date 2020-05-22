@@ -112,7 +112,6 @@
     "app.media.screenshare.start": "Pantaila partekatzea hasi da",
     "app.media.screenshare.end": "Pantaila partekatzea bukatu da",
     "app.media.screenshare.unavailable": "Pantaila partekatzea ez dago eskuragarri",
-    "app.media.screenshare.safariNotSupported": "Pantaila partekatzea momentuz ez dago onartuta Safari-n. Mesedez, Forefox edo Chrome erabili ezazu.",
     "app.media.screenshare.autoplayBlockedDesc": "Zure baimena behar dugu aurkezlearen pantaila zuri erakusteko.",
     "app.media.screenshare.autoplayAllowLabel": "Ikusi partekatutako pantaila",
     "app.screenshare.notAllowed": "Errorea: Pantailan sartzeko baimena ez da eman.",
