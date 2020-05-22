@@ -34,8 +34,8 @@ class Settings {
 
     // Sets default locale to browser locale
     defaultValues.application.locale = navigator.languages ? navigator.languages[0] : false
-                                       || navigator.language
-                                       || defaultValues.application.locale;
+      || navigator.language
+      || defaultValues.application.locale;
 
     this.setDefault(defaultValues);
   }
@@ -65,7 +65,13 @@ class Settings {
       userSettings[e] = this[e];
     });
 
-    makeCall('userChangedLocalSettings', userSettings);
+    Tracker.autorun((c) => {
+      const { status } = Meteor.status();
+      if (status === 'connected') {
+        c.stop();
+        makeCall('userChangedLocalSettings', userSettings);
+      }
+    });
   }
 }
 
