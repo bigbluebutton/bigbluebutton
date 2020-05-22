@@ -57,7 +57,9 @@ class ActionsBar extends PureComponent {
       handleLeaveAudio,
       handleJoinAudio,
       isThereCurrentPresentation,
-      validateMeetingIsBreakout
+      validateMeetingIsBreakout,
+      isVideoStreamTransmitting,
+      isSharingWebCam
     } = this.props;
 
     const actionBarClasses = {};
@@ -72,6 +74,10 @@ class ActionsBar extends PureComponent {
     actionBarClasses[styles.centerWithActions] = amIPresenter;
     actionBarClasses[styles.center] = true;
     actionBarClasses[styles.mobileLayoutSwapped] = isLayoutSwapped && amIPresenter;
+
+    if(!amIPresenter && isSharingWebCam){
+      handleExitVideo();    
+    }
 
     return (
       <div className={cx(actionBarClasses)}>
@@ -122,14 +128,13 @@ class ActionsBar extends PureComponent {
             <img src="https://miro.medium.com/max/560/1*MccriYX-ciBniUzRKAUsAw.png" alt="" />
          
             {
-              // !disableVideo
-              //   && !audioModalIsOpen
-              //   ? (
+              (isVideoStreamTransmitting || isSharingWebCam)
+                ? (
                   <VideoProviderContainer
                     swapLayout={false}
                   />
-                // )
-                // : null
+                )
+                : null //should show avatar here
             }
 
             <img src="https://miro.medium.com/max/560/1*MccriYX-ciBniUzRKAUsAw.png" alt="" />
