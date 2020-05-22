@@ -5,7 +5,7 @@ import cx from 'classnames';
 import _ from 'lodash';
 import { styles } from './styles';
 import VideoListItemContainer from './video-list-item/container';
-import { withDraggableConsumer } from '../../media/webcam-draggable-overlay/context';
+// import { withDraggableConsumer } from '../../media/webcam-draggable-overlay/context';
 import AutoplayOverlay from '../../media/autoplay-overlay/component';
 import logger from '/imports/startup/client/logger';
 import playAndRetry from '/imports/utils/mediaElementPlayRetry';
@@ -16,7 +16,6 @@ const propTypes = {
   getStats: PropTypes.func.isRequired,
   stopGettingStats: PropTypes.func.isRequired,
   enableVideoStats: PropTypes.bool.isRequired,
-  webcamDraggableDispatch: PropTypes.func.isRequired,
   intl: PropTypes.objectOf(Object).isRequired,
 };
 
@@ -94,21 +93,13 @@ class VideoList extends Component {
   }
 
   componentDidMount() {
-    const { webcamDraggableDispatch } = this.props;
-    webcamDraggableDispatch(
-      {
-        type: 'setVideoListRef',
-        value: this.grid,
-      },
-    );
-
-    this.handleCanvasResize();
-    window.addEventListener('resize', this.handleCanvasResize, false);
+    // this.handleCanvasResize();
+    // window.addEventListener('resize', this.handleCanvasResize, false);
     window.addEventListener('videoPlayFailed', this.handlePlayElementFailed);
   }
 
   componentWillUnmount() {
-    window.removeEventListener('resize', this.handleCanvasResize, false);
+    // window.removeEventListener('resize', this.handleCanvasResize, false);
     window.removeEventListener('videoPlayFailed', this.handlePlayElementFailed);
   }
 
@@ -203,7 +194,8 @@ class VideoList extends Component {
     this.ticking = true;
   }
 
-  renderVideoList() {
+
+  renderOnlyOneVideo() {
     const {
       intl,
       users,
@@ -215,44 +207,130 @@ class VideoList extends Component {
     } = this.props;
     const { focusedId } = this.state;
 
-    return users.map((user) => {
-      const isFocused = focusedId === user.userId;
-      const isFocusedIntlKey = !isFocused ? 'focus' : 'unfocus';
-      let actions = [];
+    let user = users.shift();
+    
+    const isFocused = focusedId === user.userId;
+    const isFocusedIntlKey = !isFocused ? 'focus' : 'unfocus';
+    let actions = [];
+  
+    return (
+      <div
+        key={user.userId}
+        className={cx({
+          [styles.videoListItem]: true,
+          [styles.focused]: false,
+        })}
+      >
+        <VideoListItemContainer
+          numOfUsers={1}
+          user={user}
+          actions={actions}
+          onMount={(videoRef) => {
+            // this.handleCanvasResize();
+            onMount(user.userId, videoRef);
+          }}
+          getStats={(videoRef, callback) => getStats(user.userId, videoRef, callback)}
+          stopGettingStats={() => stopGettingStats(user.userId)}
+          enableVideoStats={enableVideoStats}
+          swapLayout={swapLayout}
+        />
+      </div>
+    );
 
-      if (users.length > 2) {
-        actions = [{
-          label: intl.formatMessage(intlMessages[`${isFocusedIntlKey}Label`]),
-          description: intl.formatMessage(intlMessages[`${isFocusedIntlKey}Desc`]),
-          onClick: () => this.handleVideoFocus(user.userId),
-        }];
-      }
+  }
 
-      return (
-        <div
-          key={user.userId}
-          className={cx({
-            [styles.videoListItem]: true,
-            [styles.focused]: focusedId === user.userId && users.length > 2,
-          })}
-        >
-          <VideoListItemContainer
-            numOfUsers={users.length}
-            user={user}
-            actions={actions}
-            onMount={(videoRef) => {
-              // this.handleCanvasResize();
-              onMount(user.userId, videoRef);
-              console.log('VideoRef====>', videoRef);
-            }}
-            getStats={(videoRef, callback) => getStats(user.userId, videoRef, callback)}
-            stopGettingStats={() => stopGettingStats(user.userId)}
-            enableVideoStats={enableVideoStats}
-            swapLayout={swapLayout}
-          />
-        </div>
-      );
-    });
+  // renderVideoList() {
+  //   const {
+  //     intl,
+  //     users,
+  //     onMount,
+  //     getStats,
+  //     stopGettingStats,
+  //     enableVideoStats,
+  //     swapLayout,
+  //   } = this.props;
+  //   const { focusedId } = this.state;
+
+  //   return users.map((user) => {
+  //     const isFocused = focusedId === user.userId;
+  //     const isFocusedIntlKey = !isFocused ? 'focus' : 'unfocus';
+  //     let actions = [];
+
+  //     if (users.length > 2) {
+  //       actions = [{
+  //         label: intl.formatMessage(intlMessages[`${isFocusedIntlKey}Label`]),
+  //         description: intl.formatMessage(intlMessages[`${isFocusedIntlKey}Desc`]),
+  //         onClick: () => this.handleVideoFocus(user.userId),
+  //       }];
+  //     }
+
+  //     return (
+  //       <div
+  //         key={user.userId}
+  //         className={cx({
+  //           [styles.videoListItem]: true,
+  //           [styles.focused]: focusedId === user.userId && users.length > 2,
+  //         })}
+  //       >
+  //         <VideoListItemContainer
+  //           numOfUsers={users.length}
+  //           user={user}
+  //           actions={actions}
+  //           onMount={(videoRef) => {
+  //             this.handleCanvasResize();
+  //             onMount(user.userId, videoRef);
+  //           }}
+  //           getStats={(videoRef, callback) => getStats(user.userId, videoRef, callback)}
+  //           stopGettingStats={() => stopGettingStats(user.userId)}
+  //           enableVideoStats={enableVideoStats}
+  //           swapLayout={swapLayout}
+  //         />
+  //       </div>
+  //     );
+  //   });
+  // }
+
+  renderOneVideo() {
+    const {
+      intl,
+      users,
+      onMount,
+      getStats,
+      stopGettingStats,
+      enableVideoStats,
+      swapLayout,
+    } = this.props;
+    const { focusedId } = this.state;
+
+    let user = users.shift();
+    
+
+    let actions = [];
+  
+    return (
+      <div
+        key={user.userId}
+        className={cx({
+          [styles.videoListItem]: true,
+          [styles.focused]: false,
+        })}
+      >
+        <VideoListItemContainer
+          numOfUsers={1}
+          user={user}
+          actions={actions}
+          onMount={(videoRef) => {
+            // this.handleCanvasResize();
+            onMount(user.userId, videoRef);
+          }}
+          getStats={(videoRef, callback) => getStats(user.userId, videoRef, callback)}
+          stopGettingStats={() => stopGettingStats(user.userId)}
+          enableVideoStats={enableVideoStats}
+          swapLayout={swapLayout}
+        />
+      </div>
+    );
+
   }
 
   render() {
@@ -268,40 +346,44 @@ class VideoList extends Component {
     });
 
     return (
-      <div
-        ref={(ref) => {
-          this.canvas = ref;
-        }}
-        className={canvasClassName}
-      >
-        {!users.length ? null : (
-          <div
-            ref={(ref) => {
-              this.grid = ref;
-            }}
-            className={videoListClassName}
-            style={{
-              width: `${optimalGrid.width}px`,
-              height: `${optimalGrid.height}px`,
-              gridTemplateColumns: `repeat(${optimalGrid.columns}, 1fr)`,
-              gridTemplateRows: `repeat(${optimalGrid.rows}, 1fr)`,
-            }}
-          >
-            {this.renderVideoList()}
+      // <div
+      //   ref={(ref) => {
+      //     this.canvas = ref;
+      //   }}
+      //   className={canvasClassName}
+      // >
+      //   {!users.length ? null : (
+      //     <div
+      //       ref={(ref) => {
+      //         this.grid = ref;
+      //       }}
+      //       className={videoListClassName}
+      //       style={{
+      //         width: `${optimalGrid.width}px`,
+      //         height: `${optimalGrid.height}px`,
+      //         gridTemplateColumns: `repeat(${optimalGrid.columns}, 1fr)`,
+      //         gridTemplateRows: `repeat(${optimalGrid.rows}, 1fr)`,
+      //       }}
+      //     >
+
+      <div>
+            {this.renderOneVideo()}
           </div>
-        )}
-        { !autoplayBlocked ? null : (
+        )
+        {/* { !autoplayBlocked ? null : (
           <AutoplayOverlay
             autoplayBlockedDesc={intl.formatMessage(intlMessages.autoplayBlockedDesc)}
             autoplayAllowLabel={intl.formatMessage(intlMessages.autoplayAllowLabel)}
             handleAllowAutoplay={this.handleAllowAutoplay}
           />
-        )}
-      </div>
-    );
+        )} */}
+      // </div>
+    // );
   }
+
 }
+
 
 VideoList.propTypes = propTypes;
 
-export default injectIntl(withDraggableConsumer(VideoList));
+export default injectIntl(VideoList);

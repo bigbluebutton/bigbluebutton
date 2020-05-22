@@ -55,6 +55,8 @@ export default withModalMounter(withTracker(({ mountModal }) => ({
   stopExternalVideoShare: ExternalVideoService.stopWatching,
   handleExitVideo: () => VideoService.exitVideo(),
   handleJoinVideo: () => VideoService.joinVideo(),
+  isVideoStreamTransmitting:  VideoService.isVideoStreamTransmitting(),
+  isSharingWebCam: VideoService.isSharing(),
   handleShareScreen: onFail => shareScreen(onFail),
   handleUnshareScreen: () => unshareScreen(),
   isVideoBroadcasting: isVideoBroadcasting(),

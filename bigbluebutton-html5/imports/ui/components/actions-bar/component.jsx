@@ -9,7 +9,7 @@ import JoinVideoOptionsContainer from '../video-provider/video-button/container'
 import Button from '/imports/ui/components/button/component';
 import TalkingIndicatorContainer from '/imports/ui/components/nav-bar/talking-indicator/container';
 import Auth from '/imports/ui/services/auth';
-import WebcamDraggable from '/imports/ui/components/media/webcam-draggable-overlay/component';
+import VideoProviderContainer from '/imports/ui/components/video-provider/container';
 
 const intlMessages = defineMessages({
   joinAudio: {
@@ -57,14 +57,9 @@ class ActionsBar extends PureComponent {
       handleLeaveAudio,
       handleJoinAudio,
       isThereCurrentPresentation,
-      presenter,
-      swapLayout,
-      singleWebcam,
-      usersVideo,
-      hideOverlay,
-      disableVideo,
-      audioModalIsOpen,
       validateMeetingIsBreakout,
+      isVideoStreamTransmitting,
+      isSharingWebCam
     } = this.props;
 
     const actionBarClasses = {};
@@ -79,6 +74,10 @@ class ActionsBar extends PureComponent {
     actionBarClasses[styles.centerWithActions] = amIPresenter;
     actionBarClasses[styles.center] = true;
     actionBarClasses[styles.mobileLayoutSwapped] = isLayoutSwapped && amIPresenter;
+
+    if(!amIPresenter && isSharingWebCam){
+      handleExitVideo();    
+    }
 
     return (
       <div className={cx(actionBarClasses)}>
@@ -122,33 +121,28 @@ class ActionsBar extends PureComponent {
             />
           </div>
         </div>
-        {toggleChatLayout ? null
-          : (
-            <div className={styles.liveActions}>
-              <div className={!toggleChatLayout ? styles.dummy1 : styles.dummy2}>
-                <img src="https://miro.medium.com/max/560/1*MccriYX-ciBniUzRKAUsAw.png" alt="" />
-                <div
-                  className={styles.videoContainer}
-                  ref={this.refContainer}
-                >
-                  <WebcamDraggable
-                    refMediaContainer={this.refContainer}
-                    swapLayout={swapLayout}
-                    singleWebcam={singleWebcam}
-                    usersVideoLenght={usersVideo.length}
-                    hideOverlay={hideOverlay}
-                    disableVideo={disableVideo}
-                    audioModalIsOpen={audioModalIsOpen}
-                    usersVideo={usersVideo}
+      {toggleChatLayout ? null :
+        <div className={styles.liveActions}>
+          <div className={!toggleChatLayout ? styles.dummy1 : styles.dummy2}>
+
+            <img src="https://miro.medium.com/max/560/1*MccriYX-ciBniUzRKAUsAw.png" alt="" />
+         
+            {
+              (isVideoStreamTransmitting || isSharingWebCam)
+                ? (
+                  <VideoProviderContainer
+                    swapLayout={false}
                   />
-                </div>
-                <img src="https://miro.medium.com/max/560/1*MccriYX-ciBniUzRKAUsAw.png" alt="" />
-              </div>
-              <div className={styles.talkingIndicator}>
-                <TalkingIndicatorContainer amIModerator={amIModerator} />
-              </div>
-            </div>
-          )
+                )
+                : null //should show avatar here
+            }
+
+            <img src="https://miro.medium.com/max/560/1*MccriYX-ciBniUzRKAUsAw.png" alt="" />
+          </div>
+          <div className={styles.talkingIndicator}>
+            <TalkingIndicatorContainer amIModerator={amIModerator} />
+          </div>
+        </div>
       }
         <div className={styles.audioButton}>
           <Button

@@ -17,7 +17,7 @@ import VideoListItemStats from './video-list-item-stats/component';
 import FullscreenService from '../../../fullscreen-button/service';
 import FullscreenButtonContainer from '../../../fullscreen-button/container';
 import { styles } from '../styles';
-import { withDraggableConsumer } from '../../../media/webcam-draggable-overlay/context';
+ 
 
 const intlMessages = defineMessages({
   connectionStatsLabel: {
@@ -46,14 +46,14 @@ class VideoListItem extends Component {
   }
 
   componentDidMount() {
-    const { onMount, webcamDraggableDispatch } = this.props;
+    const { onMount } = this.props;
 
-    webcamDraggableDispatch(
-      {
-        type: 'setVideoRef',
-        value: this.videoTag,
-      },
-    );
+    // webcamDraggableDispatch(
+    //   {
+    //     type: 'setVideoRef',
+    //     value: this.videoTag,
+    //   },
+    // );
 
     onMount(this.videoTag);
 
@@ -67,6 +67,7 @@ class VideoListItem extends Component {
         elem.play().catch((error) => {
           // NotAllowedError equals autoplay issues, fire autoplay handling event
           if (error.name === 'NotAllowedError') {
+            console.log("tag failed error");
             const tagFailedEvent = new CustomEvent('videoPlayFailed', { detail: { mediaTag: elem } });
             window.dispatchEvent(tagFailedEvent);
           }
@@ -92,18 +93,11 @@ class VideoListItem extends Component {
   }
 
   onFullscreenChange() {
-    const { webcamDraggableDispatch } = this.props;
     const { isFullscreen } = this.state;
     const serviceIsFullscreen = FullscreenService.isFullScreen(this.videoContainer);
 
     if (isFullscreen !== serviceIsFullscreen) {
       this.setState({ isFullscreen: serviceIsFullscreen });
-      webcamDraggableDispatch(
-        {
-          type: 'setIsCameraFullscreen',
-          value: serviceIsFullscreen,
-        },
-      );
     }
   }
 
@@ -180,8 +174,7 @@ class VideoListItem extends Component {
     const {
       user,
       voiceUser,
-      numOfUsers,
-      webcamDraggableState,
+      numOfUsers,     
       swapLayout,
     } = this.props;
     const availableActions = this.getAvailableActions();
@@ -191,11 +184,12 @@ class VideoListItem extends Component {
     const isFirefox = (result && result.name) ? result.name.includes('firefox') : false;
 
     return (
-      <div className={cx({
-        [styles.content]: true,
-        [styles.talking]: voiceUser.talking,
-      })}
-      >
+      // <div className={cx({
+      //   [styles.content]: true,
+      //   [styles.talking]: voiceUser.talking,
+      // })}
+      // >
+      <div>
         {
           !videoIsReady
           && <div className={styles.connecting} />
@@ -208,18 +202,42 @@ class VideoListItem extends Component {
             muted
             className={cx({
               [styles.media]: true,
-              // [styles.cursorGrab]: !webcamDraggableState.dragging
-              //   && !isFullscreen && !swapLayout,
-              // [styles.cursorGrabbing]: webcamDraggableState.dragging
-              //   && !isFullscreen && !swapLayout,
+              [styles.cursorGrab]:  !isFullscreen && !swapLayout,
+              [styles.cursorGrabbing]: false
+                && !isFullscreen && !swapLayout,
             })}
             ref={(ref) => { this.videoTag = ref; }}
             autoPlay
             playsInline
           />
-          {videoIsReady && this.renderFullscreenButton()}
+          {/* {videoIsReady && this.renderFullscreenButton()} */}
+          <span className={cx({
+                  [styles.userName]: true
+                })}
+                >
+                  {user.name}
+                </span>
         </div>
-        <div className={styles.info}>
+
+           {/* <div className={styles.info}>
+         
+              <div className={isFirefox ? styles.dropdownFireFox
+                : styles.dropdown}
+              >
+                <span className={cx({
+                  [styles.userName]: true,
+                  [styles.noMenu]: true,
+                })}
+                >
+                  {user.name}
+                </span>
+              </div>
+           
+        </div> */}
+
+
+
+        {/* <div className={styles.info}>
           {enableVideoMenu && availableActions.length >= 3
             ? (
               <Dropdown className={isFirefox ? styles.dropdownFireFox
@@ -256,13 +274,13 @@ class VideoListItem extends Component {
           showStats
             ? <VideoListItemStats toggleStats={this.toggleStats} stats={stats} />
             : null
-        }
+        } */}
       </div>
     );
   }
 }
 
-export default injectIntl(withDraggableConsumer(VideoListItem));
+export default injectIntl(VideoListItem);
 
 VideoListItem.defaultProps = {
   numOfUsers: 0,
