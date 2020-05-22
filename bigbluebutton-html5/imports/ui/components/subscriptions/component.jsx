@@ -1,4 +1,4 @@
-import { Component } from 'react';
+import React, { Component } from 'react';
 import { withTracker } from 'meteor/react-meteor-data';
 import Auth from '/imports/ui/services/auth';
 import logger from '/imports/startup/client/logger';
@@ -27,7 +27,7 @@ const Subscriptions = ({ children, subscriptionsReady }) => {
   if (subscriptionsReady) Session.set('subscriptionsReady', true);
 
   return children;
-}
+};
 
 export default withTracker(() => {
   const { credentials } = Auth;

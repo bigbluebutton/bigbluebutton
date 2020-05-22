@@ -3,7 +3,6 @@ import { withTracker } from 'meteor/react-meteor-data';
 import PropTypes from 'prop-types';
 import Auth from '/imports/ui/services/auth';
 import AppContainer from '/imports/ui/components/app/container';
-import ErrorScreen from '/imports/ui/components/error-screen/component';
 import MeetingEnded from '/imports/ui/components/meeting-ended/component';
 import LoadingScreen from '/imports/ui/components/loading-screen/component';
 import Settings from '/imports/ui/services/settings';
@@ -194,14 +193,6 @@ class Base extends Component {
       return (<MeetingEnded code={codeError} />);
     }
 
-    if (codeError && !meetingHasEnded) {
-      // 680 is set for the codeError when the user requests a logout
-      if (codeError !== '680') {
-        logger.error({ logCode: 'startup_client_usercouldnotlogin_error' }, `User could not log in HTML5, hit ${codeError}`);
-      }
-      return (<ErrorScreen code={codeError} />);
-    }
-    // this.props.annotationsHandler.stop();
     return (<AppContainer {...this.props} baseControls={stateControls} />);
   }
 

@@ -24,7 +24,6 @@ import Base from '/imports/startup/client/base';
 import JoinHandler from '/imports/ui/components/join-handler/component';
 import AuthenticatedHandler from '/imports/ui/components/authenticated-handler/component';
 import Subscriptions from '/imports/ui/components/subscriptions/component';
-import IntlStartup from '/imports/startup/client/intl';
 
 Meteor.startup(() => {
   // Logs all uncaught exceptions to the client logger
@@ -54,9 +53,7 @@ Meteor.startup(() => {
     <JoinHandler>
       <AuthenticatedHandler>
         <Subscriptions>
-          <IntlStartup>
-            <Base />
-          </IntlStartup>
+          <Base />
         </Subscriptions>
       </AuthenticatedHandler>
     </JoinHandler>,

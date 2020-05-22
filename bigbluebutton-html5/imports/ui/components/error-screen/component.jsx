@@ -1,10 +1,11 @@
-import React from 'react';
+import React, { memo } from 'react';
 import PropTypes from 'prop-types';
 import { defineMessages, injectIntl } from 'react-intl';
 import { Meteor } from 'meteor/meteor';
 import AudioManager from '/imports/ui/services/audio-manager';
 import Button from '/imports/ui/components/button/component';
 import logoutRouteHandler from '/imports/utils/logoutRouteHandler';
+import logger from '/imports/startup/client/logger';
 import { Session } from 'meteor/session';
 import { styles } from './styles';
 
@@ -36,19 +37,17 @@ const intlMessages = defineMessages({
 });
 
 const propTypes = {
-  code: PropTypes.oneOfType([
-    PropTypes.string,
-    PropTypes.number,
-  ]),
+  intl: PropTypes.shape({
+    formatMessage: PropTypes.func.isRequired,
+  }).isRequired,
 };
 
-const defaultProps = {
-  code: 500,
-};
+const ErrorScreen = ({ intl }) => {
+  const code = Session.get('codeError');
 
-const ErrorScreen = ({ children, code, intl }) => {
   AudioManager.exitAudio();
   Meteor.disconnect();
+  logger.error({ logCode: 'startup_client_usercouldnotlogin_error' }, `User could not log in HTML5, hit ${code}`);
 
   return (
     <div className={styles.background}>
@@ -59,9 +58,6 @@ const ErrorScreen = ({ children, code, intl }) => {
         {intl.formatMessage(intlMessages[code])}
       </h1>
       <div className={styles.separator} />
-      <div>
-        {children}
-      </div>
       {
         !Session.get('errorMessageDescription') || (
           <div className={styles.sessionMessage}>
@@ -81,7 +77,6 @@ const ErrorScreen = ({ children, code, intl }) => {
   );
 };
 
-export default injectIntl(ErrorScreen);
+export default injectIntl(memo(ErrorScreen));
 
 ErrorScreen.propTypes = propTypes;
-ErrorScreen.defaultProps = defaultProps;
