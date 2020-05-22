@@ -153,7 +153,6 @@ class UserDropdown extends PureComponent {
       dropdownDirection: 'top',
       dropdownVisible: false,
       showNestedOptions: false,
-      banUser: false,
     };
 
     this.handleScroll = this.handleScroll.bind(this);
@@ -163,7 +162,6 @@ class UserDropdown extends PureComponent {
     this.renderUserAvatar = this.renderUserAvatar.bind(this);
     this.resetMenuState = this.resetMenuState.bind(this);
     this.makeDropdownItem = this.makeDropdownItem.bind(this);
-    this.setBanUser = this.setBanUser.bind(this);
   }
 
   componentWillMount() {
@@ -217,11 +215,6 @@ class UserDropdown extends PureComponent {
     return Session.set('dropdownOpen', false);
   }
 
-  setBanUser(e) {
-    console.error(`setBanUse:: ${e.target.checked}`, e.target);
-    this.setState({ banUser: e.target.checked });
-  }
-
   getUsersActions() {
     const {
       intl,
@@ -246,8 +239,7 @@ class UserDropdown extends PureComponent {
       meetingIsBreakout,
       mountModal,
     } = this.props;
-    const { showNestedOptions, banUser } = this.state;
-    console.error(`getUsersActions   ${banUser}`);
+    const { showNestedOptions } = this.state;
 
     const amIModerator = currentUser.role === ROLE_MODERATOR;
     const actionPermissions = getAvailableActions(amIModerator, meetingIsBreakout, user, voiceUser);
