@@ -74,7 +74,7 @@
     "app.userList.menu.clearStatus.label": "Clear status",
     "app.userList.menu.removeUser.label": "Remove user",
     "app.userList.menu.removeConfirmation.label": "Remove user ({0})",
-    "app.userlist.menu.removeConfirmation.desc": "Are you sure you want to remove this user? Once removed they will not be able to rejoin this session.",
+    "app.userlist.menu.removeConfirmation.desc": "Do not allow this user to rejoin this session",
     "app.userList.menu.muteUserAudio.label": "Mute user",
     "app.userList.menu.unmuteUserAudio.label": "Unmute user",
     "app.userList.userAriaLabel": "{0} {1} {2}  Status {3}",
