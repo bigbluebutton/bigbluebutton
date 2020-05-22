@@ -394,7 +394,7 @@ const assignPresenter = (userId) => { makeCall('assignPresenter', userId); };
 
 const removeUser = (userId, banUser) => {
   if (isVoiceOnlyUser(userId)) {
-    makeCall('ejectUserFromVoice', userId, banUser);
+    makeCall('ejectUserFromVoice', userId);
   } else {
     makeCall('removeUser', userId, banUser);
   }

@@ -16,6 +16,7 @@ trait EjectUserFromMeetingCmdMsgHdlr extends RightsManagementTrait {
     val meetingId = liveMeeting.props.meetingProp.intId
     val userId = msg.body.userId
     val ejectedBy = msg.body.ejectedBy
+    val banUser = msg.body.banUser
 
     if (permissionFailed(
       PermissionCheck.MOD_LEVEL,
@@ -38,7 +39,8 @@ trait EjectUserFromMeetingCmdMsgHdlr extends RightsManagementTrait {
           // For the moment, just assume that is a user is ejected by another user,
           // then that user should be banned (ralam may 19, 2020)
           // see https://github.com/bigbluebutton/bigbluebutton/issues/9608
-          val ban = true
+          val ban = banUser
+
           // Eject users
           //println("****************** User " + ejectedBy + " ejecting user " + userId)
           // User might have joined using multiple browsers.
