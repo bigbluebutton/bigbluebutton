@@ -79,7 +79,8 @@
     "tippy.js": "^3.4.1",
     "useragent": "^2.3.0",
     "winston": "^3.2.1",
-    "yaml": "^1.6.0"
+    "yaml": "^1.6.0",
+    "yamlparser": "0.0.2"
   },
   "devDependencies": {
     "chai": "~4.2.0",

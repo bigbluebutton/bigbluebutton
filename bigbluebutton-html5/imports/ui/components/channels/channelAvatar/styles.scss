@@ -31,6 +31,8 @@
   @include mq($small-only) {
     color:#A5A8B4;
     border: 1px solid #A5A8B4;
+    padding: var(--font-size-10px);
+    font-size: var(--font-size-9px);
   }
 }
 

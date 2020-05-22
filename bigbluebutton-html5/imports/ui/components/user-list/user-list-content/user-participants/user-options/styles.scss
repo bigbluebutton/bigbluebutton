@@ -44,6 +44,9 @@
     font-size: var(--font-size-base) !important;
     color: #ffc700 !important;
     background-color: transparent !important;
+    @include mq($small-only) {
+      color: #0F4C81 !important;
+    }
   }
 
   &:hover,

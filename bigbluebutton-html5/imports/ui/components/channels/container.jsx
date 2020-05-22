@@ -7,6 +7,7 @@ import Channels from './component';
 import UserListService from '/imports/ui/components/user-list/service';
 import ActionsBarService from '/imports/ui/components/actions-bar/service';
 import { meetingIsBreakout } from '/imports/ui/components/app/service';
+import Auth from '/imports/ui/services/auth';
 
 const ChannelsContainer = props => <Channels {...props} />;
 
@@ -27,10 +28,13 @@ export default withTracker((...props) => {
     isUserInBreakoutRoom,
     isbreakoutRoomUser,
     getCurrentMeeting,
+    getUnassignedUsersInMasterChannel,
     getBreakoutMeetingUserId
   } = Service;
 
   const currentMeeting = getCurrentMeeting();
+  const allUsersInMeeting = UserListService.getUsersByMeeting(Auth.meetingID);
+  const unAssignedUsers = getUnassignedUsersInMasterChannel(allUsersInMeeting);
   const breakoutRooms = meetingIsBreakout() ? getBreakoutByCurrentMeetingId() : findBreakouts();
 
   const isMicrophoneUser = AudioService.isConnected() && !AudioService.isListenOnly();
@@ -60,6 +64,7 @@ export default withTracker((...props) => {
     isbreakoutRoomUser,
     getBreakoutMeetingUserId,
     exitAudio: () => AudioManager.exitAudio(),
-    currentMeeting
+    currentMeeting,
+    isThereUnassignedUsers: unAssignedUsers.length > 0,
   };
 })(ChannelsContainer);

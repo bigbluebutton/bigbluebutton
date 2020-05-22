@@ -350,8 +350,8 @@ class Channels extends PureComponent {
     );
   }
 
-  renderChannelAvatar(breakout) {
-    const roomIcon = breakout.name.toLowerCase().slice(0, 2);
+  renderChannelAvatar(channelName) {
+    const roomIcon = channelName.toLowerCase().slice(0, 2);
 
     return (
       <ChannelAvatar className={styles.channelAvatar}>
@@ -382,7 +382,8 @@ class Channels extends PureComponent {
       setEmojiStatus,
       roving,
       requestUserInformation,
-      currentMeeting
+      currentMeeting,
+      isThereUnassignedUsers
     } = this.props;
 
     logger.info(`auth Id: ${Auth.meetingID}`);
@@ -390,6 +391,7 @@ class Channels extends PureComponent {
     const { channelId, hideUsers } = this.state;
     const isBreakOutMeeting = meetingIsBreakout();
     const isModerator = currentUser.role === ROLE_MODERATOR;
+    const otherUsers = isModerator ? "Unassigned users" : "Other groups";
 
     return (
 
@@ -428,22 +430,6 @@ class Channels extends PureComponent {
           ref={(ref) => { this.refScrollContainer = ref; }}
         >
           <div className={styles.channelList}>
-          {isBreakOutMeeting ? null :
-            <div className={styles.allModerators}>
-              <UserParticipantsContainer
-                {...{
-                  compact,
-                  intl,
-                  currentUser,
-                  setEmojiStatus,
-                  roving,
-                  requestUserInformation,
-                  meetingIdentifier: Auth.meetingID,
-                  onlyModerators: true,
-                }}
-              />
-            </div>
-          }
             
             {!isBreakOutMeeting && isModerator
               ? (
@@ -457,12 +443,14 @@ class Channels extends PureComponent {
                 </div>
               )
               : null }
-
             
-            {isBreakOutMeeting ? null
+            {isBreakOutMeeting || !isThereUnassignedUsers ? null
               : (
                 <Fragment>
-                  <span className={styles.unassigned}>Other Users</span>
+                  <div className={styles.contentWrapper}>
+                    {this.renderChannelAvatar(otherUsers)}
+                  <span className={styles.unassigned}>{otherUsers}</span>
+                  </div>
                   <div className={styles.usersList}>
                     <UserParticipantsContainer
                       {...{
@@ -481,6 +469,24 @@ class Channels extends PureComponent {
             }
             {/* {isMobileBrowser ? this.renderMobile() : this.renderDesktop()} */}
             {this.renderBreakoutRooms()}
+
+          {isBreakOutMeeting ? null :
+            <div className={styles.allModerators}>
+              <div className={styles.moderator}>Moderator(s)</div>
+              <UserParticipantsContainer
+                {...{
+                  compact,
+                  intl,
+                  currentUser,
+                  setEmojiStatus,
+                  roving,
+                  requestUserInformation,
+                  meetingIdentifier: Auth.meetingID,
+                  onlyModerators: true,
+                }}
+              />
+            </div>
+          }
 
           </div>
         </div>
@@ -520,7 +526,7 @@ class Channels extends PureComponent {
         {isBreakOutMeeting ? null :
           <div className={styles.channelName}>
             <div className={styles.channelWrapper}>
-              {this.renderChannelAvatar(breakout)}
+              {this.renderChannelAvatar(breakout.name)}
               <span className={styles.brekout}>{breakout.name}</span>
               {(meetingIsBreakout()) ? null : this.channelOptions(breakout)}
             </div>
