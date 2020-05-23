@@ -6,6 +6,7 @@ import { withModalMounter } from '/imports/ui/components/modal/service';
 import withShortcutHelper from '/imports/ui/components/shortcut-help/service';
 import getFromUserSettings from '/imports/ui/services/users-settings';
 import { defineMessages, injectIntl } from 'react-intl';
+import browser from 'browser-detect';
 import { styles } from './styles.scss';
 import Button from '../button/component';
 import RecordingIndicator from './recording-indicator/container';
@@ -13,7 +14,6 @@ import TalkingIndicatorContainer from '/imports/ui/components/nav-bar/talking-in
 import SettingsDropdownContainer from './settings-dropdown/container';
 import { meetingIsBreakout } from '/imports/ui/components/app/service';
 
-import browser from 'browser-detect';
 
 const BROWSER_RESULTS = browser();
 const isMobileBrowser = BROWSER_RESULTS.mobile || BROWSER_RESULTS.os.includes('Android');
@@ -53,7 +53,6 @@ const handleClickToggleChat = (id) => {
   );
   if (Session.equals('openPanel', 'chat')) {
     Session.set('idChatOpen', id);
-  
   } else {
     Session.set('idChatOpen', '');
   }
@@ -102,59 +101,65 @@ class NavBar extends PureComponent {
       <div className={styles.navbar}>
         <div className={styles.top}>
           <div className={styles.left}>
-         { isMobileBrowser  ?
-             <Button
-              data-test="chatButton"
-             onClick={() => {
-                  Session.set('idChatOpen', '');
-                  Session.set('openPanel', 'userlist');
-                }}
-              circle
-              hideLabel
-              label={intl.formatMessage(intlMessages.toggleUserListLabel)}
-              icon="icomoon-Master-Channel"
-              className={styles.mastericon}
-            />
-            : null}
+            { isMobileBrowser
+              ? (
+                <Button
+                  data-test="chatButton"
+                  onClick={() => {
+                    Session.set('idChatOpen', '');
+                    Session.set('openPanel', 'userlist');
+                  }}
+                  circle
+                  hideLabel
+                  label={intl.formatMessage(intlMessages.toggleUserListLabel)}
+                  icon="icomoon-Master-Channel"
+                  className={styles.mastericon}
+                />
+              )
+              : null}
             <span className={styles.presentationTitle}>{presentationTitle}</span>
             <RecordingIndicator
               mountModal={mountModal}
               amIModerator={amIModerator}
             />
-           
+
           </div>
-          <div className={styles.center}>
-          </div>
+          <div className={styles.center} />
           <div className={styles.right}>
-    { (isMobileBrowser) ? 
-               <Button
-              data-test="chatButton"
-              onClick={() => handleClickToggleChat('public')}
-              circle
-              hideLabel
-              className={styles.button}
-              label={intl.formatMessage(intlMessages.toggleUserListLabel)}
-              icon="icomoon-Join-Call"
-              //icon="icomoon-Chat"
-              size="lg"
-              aria-expanded={isExpanded}
-              accessKey={TOGGLE_CHAT_PUB_AK}
-            />
-          : 
-            <div className={styles.both}>
-          <b ><span >{currentUser.name}</span></b>
-          {(breakoutRoomName && !amIModerator) ?
-           <p >
-             <span >
+            { (isMobileBrowser)
+              ? (
+                <Button
+                  data-test="chatButton"
+                  onClick={() => handleClickToggleChat('public')}
+                  circle
+                  hideLabel
+                  className={styles.button}
+                  label={intl.formatMessage(intlMessages.toggleUserListLabel)}
+                  icon="icomoon-Join-Call"
+              // icon="icomoon-Chat"
+                  size="lg"
+                  aria-expanded={isExpanded}
+                  accessKey={TOGGLE_CHAT_PUB_AK}
+                />
+              )
+              : (
+                <div className={styles.both}>
+                  <b><span>{currentUser.name}</span></b>
+                  {(breakoutRoomName && !amIModerator)
+                    ? (
+                      <p>
+                        <span>
                (
-                 {breakoutRoomName}
+          {breakoutRoomName}
                )
-             </span>
-           </p> :
-           ( amIModerator && !isBreakOutMeeting ? <span>(moderator)</span> : null)
+        </span>
+                      </p>
+                    )
+                    : (amIModerator && !isBreakOutMeeting ? <span>(moderator)</span> : null)
            }
-          
-           </div> }
+
+                </div>
+              ) }
             <SettingsDropdownContainer amIModerator={amIModerator} />
           </div>
         </div>

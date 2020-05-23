@@ -304,38 +304,38 @@ class MessageForm extends PureComponent {
           className={cx(className, styles.form)}
           onSubmit={this.handleSubmit}
         >
-        <div className={styles.wrapper}>
-          <TextareaAutosize
-            className={styles.input}
-            id="message-input"
-            placeholder={intl.formatMessage(messages.inputPlaceholder, { 0: RoomName })}
-            aria-controls={chatAreaId}
-            aria-label={intl.formatMessage(messages.inputLabel, { 0: chatTitle })}
-            aria-invalid={hasErrors ? 'true' : 'false'}
-            aria-describedby={hasErrors ? 'message-input-error' : null}
-            autoCorrect="off"
-            autoComplete="off"
-            spellCheck="true"
-            disabled={disabled}
-            value={message}
-            onChange={this.handleMessageChange}
-            onKeyDown={this.handleMessageKeyDown}
-          />
-          <Button
-            hideLabel
-            circle
-            className={styles.sendButton}
-            aria-label={intl.formatMessage(messages.submitLabel)}
-            type="submit"
-            disabled={disabled}
-            label={intl.formatMessage(messages.submitLabel)}
-            color="default"
-            icon="send"
-            size="lg"
-            onClick={() => {}}
-            data-test="sendMessageButton"
-          />
-        </div>
+          <div className={styles.wrapper}>
+            <TextareaAutosize
+              className={styles.input}
+              id="message-input"
+              placeholder={intl.formatMessage(messages.inputPlaceholder, { 0: RoomName })}
+              aria-controls={chatAreaId}
+              aria-label={intl.formatMessage(messages.inputLabel, { 0: chatTitle })}
+              aria-invalid={hasErrors ? 'true' : 'false'}
+              aria-describedby={hasErrors ? 'message-input-error' : null}
+              autoCorrect="off"
+              autoComplete="off"
+              spellCheck="true"
+              disabled={disabled}
+              value={message}
+              onChange={this.handleMessageChange}
+              onKeyDown={this.handleMessageKeyDown}
+            />
+            <Button
+              hideLabel
+              circle
+              className={styles.sendButton}
+              aria-label={intl.formatMessage(messages.submitLabel)}
+              type="submit"
+              disabled={disabled}
+              label={intl.formatMessage(messages.submitLabel)}
+              color="default"
+              icon="send"
+              size="lg"
+              onClick={() => {}}
+              data-test="sendMessageButton"
+            />
+          </div>
           <TypingIndicatorContainer {...{ error }} />
         </form>
         <Button
