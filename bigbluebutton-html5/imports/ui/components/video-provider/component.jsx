@@ -910,7 +910,6 @@ class VideoProvider extends Component {
   }
 
   createVideoTag(id, video) {
-    console.log(id, video, 'xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx');
 
     const peer = this.webRtcPeers[id];
     this.videoTags[id] = video;

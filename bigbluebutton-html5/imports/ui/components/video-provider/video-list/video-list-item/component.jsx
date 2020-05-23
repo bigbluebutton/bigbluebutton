@@ -67,7 +67,6 @@ class VideoListItem extends Component {
         elem.play().catch((error) => {
           // NotAllowedError equals autoplay issues, fire autoplay handling event
           if (error.name === 'NotAllowedError') {
-            console.log("tag failed error");
             const tagFailedEvent = new CustomEvent('videoPlayFailed', { detail: { mediaTag: elem } });
             window.dispatchEvent(tagFailedEvent);
           }
