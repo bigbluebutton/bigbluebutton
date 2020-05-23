@@ -356,9 +356,9 @@ const BaseContainer = withTracker(() => {
 
   if (getFromUserSettings('bbb_show_participants_on_login', true) && !deviceInfo.type().isPhone) {
     Session.set('openPanel', 'userlist');
-    if (CHAT_ENABLED) {
-      //Session.set('openPanel', 'chat');
-      //Session.set('idChatOpen', PUBLIC_CHAT_ID);
+    if (CHAT_ENABLED && getFromUserSettings('bbb_show_public_chat_on_login', true)) {
+      Session.set('openPanel', 'chat');
+      Session.set('idChatOpen', PUBLIC_CHAT_ID);
     }
   } else {
     Session.set('openPanel', '');
