@@ -11,6 +11,13 @@
   flex-direction: column;
 }
 
+.master {
+  i {
+    color: #ffc700;
+    font-size: var(--font-size-20px);
+  }
+}
+
 .top,
 .bottom {
   display: flex;
@@ -118,11 +125,5 @@ display: flex;
   span:first-child {
     box-shadow: none;
     border: 1px solid #36A1FF;
-  }
-}
-.mastericon{
-  padding: 0 !important;
-  i {
-    font-size: 175%;
   }
 }

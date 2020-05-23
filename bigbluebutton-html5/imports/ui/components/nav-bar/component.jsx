@@ -105,7 +105,8 @@ class NavBar extends PureComponent {
               ? (
                 <Button
                   data-test="chatButton"
-                  onClick={() => {
+              className={styles.master}
+             onClick={() => {
                     Session.set('idChatOpen', '');
                     Session.set('openPanel', 'userlist');
                   }}
@@ -113,7 +114,6 @@ class NavBar extends PureComponent {
                   hideLabel
                   label={intl.formatMessage(intlMessages.toggleUserListLabel)}
                   icon="icomoon-Master-Channel"
-                  className={styles.mastericon}
                 />
               )
               : null}

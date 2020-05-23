@@ -46,6 +46,7 @@ export default {
     { fields: { presenter: 1 } }).presenter,
   amIModerator: () => Users.findOne({ userId: Auth.userID },
     { fields: { role: 1 } }).role === ROLE_MODERATOR,
+  getPresenter: () => Users.findOne({ meetingId: Auth.meetingID, presenter: true, connectionStatus:'online' }),
   meetingName: () => Meetings.findOne({ meetingId: Auth.meetingID },
     { fields: { 'meetingProp.name': 1 } }).meetingProp.name,
   users: () => Users.find({
