@@ -117,6 +117,12 @@ display: flex;
 .button {
   span:first-child {
     box-shadow: none;
-   // border: 0.5px solid #5594d4;
+    border: 0.5px solid #5594d4;
+  }
+}
+.mastericon{
+  padding: 0 !important;
+  i {
+    font-size: 175%;
   }
 }

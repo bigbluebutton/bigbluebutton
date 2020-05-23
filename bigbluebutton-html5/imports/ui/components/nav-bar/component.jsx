@@ -113,6 +113,7 @@ class NavBar extends PureComponent {
               hideLabel
               label={intl.formatMessage(intlMessages.toggleUserListLabel)}
               icon="icomoon-Master-Channel"
+              className={styles.mastericon}
             />
             : null}
             <span className={styles.presentationTitle}>{presentationTitle}</span>

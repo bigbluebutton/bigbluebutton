@@ -2,7 +2,9 @@ import React, { PureComponent } from 'react';
 import { withTracker } from 'meteor/react-meteor-data';
 import { makeCall } from '/imports/ui/services/api';
 import ChatForm from './component';
+import Auth from '/imports/ui/services/auth';
 import ChatService from '../service';
+import Meetings from '/imports/api/meetings';
 
 const CHAT_CONFIG = Meteor.settings.public.chat;
 
@@ -24,6 +26,13 @@ export default withTracker(() => {
 
   const stopUserTyping = () => makeCall('stopUserTyping');
 
+  let meetingTitle;
+  const meetingId = Auth.meetingID;
+  const meetingObject = Meetings.findOne({
+    meetingId,
+  }, { fields: { 'meetingProp.name': 1, 'breakoutProps.sequence': 1 } });
+  meetingTitle = meetingObject.meetingProp.name;
+
   return {
     startUserTyping,
     stopUserTyping,
@@ -31,5 +40,6 @@ export default withTracker(() => {
     minMessageLength: CHAT_CONFIG.min_message_length,
     maxMessageLength: CHAT_CONFIG.max_message_length,
     handleSendMessage: cleanScrollAndSendMessage,
+    RoomName: meetingTitle,
   };
 })(ChatContainer);
