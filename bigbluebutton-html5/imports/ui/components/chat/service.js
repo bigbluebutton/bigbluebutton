@@ -6,6 +6,7 @@ import Auth from '/imports/ui/services/auth';
 import UnreadMessages from '/imports/ui/services/unread-messages';
 import Storage from '/imports/ui/services/storage/session';
 import { makeCall } from '/imports/ui/services/api';
+import ChannelsService from '/imports/ui/components/channels/service';
 import _ from 'lodash';
 
 const CHAT_CONFIG = Meteor.settings.public.chat;
@@ -35,6 +36,15 @@ const getUser = userId => Users.findOne({ userId });
 const getWelcomeProp = () => Meetings.findOne({ meetingId: Auth.meetingID },
   { fields: { welcomeProp: 1 } });
 
+
+const isMasterChannel = (meeting) => {
+  return meeting && meeting.breakoutProps.parentId === 'bbb-none';
+}
+
+const getMeeting = () => {
+  return Meetings.findOne({ meetingId: Auth.meetingID });
+}
+
 const mapGroupMessage = (message) => {
   const mappedMessage = {
     id: message._id,
@@ -43,7 +53,7 @@ const mapGroupMessage = (message) => {
     sender: null,
   };
 
-  if (message.sender !== SYSTEM_CHAT_TYPE) {
+  if (message.sender !== SYSTEM_CHAT_TYPE || message.sender !== 'SYSTEM') {
     const sender = Users.findOne({ userId: message.sender },
       {
         fields: {
@@ -173,6 +183,7 @@ const lastReadMessageTime = (receiverID) => {
 };
 
 const sendGroupMessage = (messageObj) => {
+
   const chatID = Session.get('idChatOpen') || PUBLIC_CHAT_ID;
   const isPublicChat = chatID === PUBLIC_CHAT_ID;
 
@@ -219,6 +230,192 @@ const sendGroupMessage = (messageObj) => {
 
   return makeCall('sendGroupChatMsg', destinationChatId, groupChatMsgFromUser);
 };
+
+const getCrossChatTargetMeetings = () => {
+  let meeting  = getMeeting();
+  if(isMasterChannel(meeting)){
+    return ChannelsService.findBreakouts()
+          .map(b => ({meetingId:b.breakoutId, meetingName: b.name}));
+  }else{
+    //get the master channel
+    let arr = [];
+    arr.push(({meetingId:meeting.breakoutProps.parentId, meetingName: 'Master Channel'}));
+    return arr;
+  }
+}
+
+
+/*+++++++++++++++++++++++++++++++++++++++++*/
+  //TO BE CALLED FROM UI LAYER
+
+  // console.log("sending message to room0");
+  
+  // let rooms = getCrossChatTargetMeetings();
+  // const currentUser = Users.findOne({ userId: Auth.userID }, { fields: { role: 1} })
+  // console.log("sending message to room1");
+  // if(rooms && rooms.length > 0){
+  //   console.log("sending message to room2");
+  //   let room = rooms.shift();
+  //   return sendCrossGroupMessage(messageObj, room.meetingId, currentUser.role == ROLE_MODERATOR ? 'Moderator' : room.meetingName);
+  // }
+
+  // return null;
+
+  //sendCrossGroupMessage
+
+  /*++++++++++++++++++++++++++++++++++++++++*/
+const sendCrossGroupMessage = (messageObj, targetMeetingId, senderGroupName) => {
+  const chatID = Session.get('idChatOpen') || PUBLIC_CHAT_ID;
+  let destinationChatId = PUBLIC_GROUP_CHAT_ID;
+
+  const receiverId = { id: chatID };
+
+  const fileData = (messageObj.fileId) ? ({
+    fileId: messageObj.fileId,
+    fileName: messageObj.fileName,
+  }) : undefined;
+
+  let user = getUser(Auth.userID);
+  let meeting = getMeeting();
+  
+  messageObj.senderGroupName = senderGroupName;  
+
+  let senderUserId = null;
+  let senderName = null;
+  
+  if (isMasterChannel(meeting)){
+    //let breakout = ChannelsService.findBreakouts().map(breakout => breakout).shift();
+    if(senderGroupName === 'Moderator'){
+      senderName = "SYSTEM";
+      senderUserId = "SYSTEM";
+    }else{
+      let breakoutUser = ChannelsService.getBreakoutMeetingUserId(user.email, user.name, targetMeetingId);
+      if(breakoutUser){
+        senderName = user.name;
+        senderUserId = breakoutUser.userId;
+      }
+    }
+  }else{
+    console.log("sending message to master");
+    let breakoutRoom = ChannelsService.getBreakout(Auth.meetingID);
+    let mainChannelUser = breakoutRoom.users.find(u => u.email == user.email && u.username == user.name);
+    if(mainChannelUser){
+      senderName = mainChannelUser.username;
+      senderUserId =  mainChannelUser.userId;
+    }else{
+      console.log("cannot find master channel user in targetMeetingId: " + targetMeetingId);
+    }
+  }
+
+  const groupChatMsgFromUser = {
+    color: '0',
+    correlationId: `${senderUserId}-${Date.now()}`,
+    sender: {
+      id: senderUserId != null ? senderUserId : 'Moderator',
+      name: senderName,
+    },
+  };
+
+  groupChatMsgFromUser.messageObj = {
+    message: messageObj.message,
+    fileObj: fileData,
+  };
+ 
+
+  const currentClosedChats = Storage.getItem(CLOSED_CHAT_LIST_KEY);
+
+  // Remove the chat that user send messages from the session.
+  if (_.indexOf(currentClosedChats, receiverId.id) > -1) {
+    Storage.setItem(CLOSED_CHAT_LIST_KEY, _.without(currentClosedChats, receiverId.id));
+  }
+
+  return makeCall('sendGroupChatMsg', destinationChatId, groupChatMsgFromUser, targetMeetingId);
+};
+
+/*const updateMessageObjForCrossChannel = (message, fileData) => {
+  let user = getUser(Auth.userID);
+  let meetingid = Auth.meetingID;
+
+  let meeting = getMeeting();
+  
+  if (isMasterChannel(meeting)){
+    let breakout = ChannelsService.findBreakouts().map(breakout => breakout).shift();
+    let breakoutUser = ChannelsService.getBreakoutMeetingUserId(user.email, user.name, breakout.breakoutId);
+    if(breakoutUser){
+       return {message: message, 
+                fileData: fileData,
+                senderGroupName: breakout.name,
+                crossChannelMsg: true,
+                crossChannelMeetingId: breakout.breakoutId,
+                senderUsername: user.name,
+                senderUserId: breakoutUser.userId
+              } 
+    }
+  }else{
+    let breakoutRoom = ChannelsService.getBreakout(Auth.meetingID);
+    let mainChannelUser = breakoutRoom.users.find(u => u.email == user.email && u.username == user.name)
+    console.log("Auth.meetingID: ", Auth.meetingID);    
+    console.log("meeting.breakoutProps.parentId: ", meeting.breakoutProps.parentId);
+    console.log("user.email: ", user.email);
+    console.log("user.email: ", user.name);
+    //let masterChannelUser = ChannelsService.getMeetingUserId(user.email, user.name, meeting.breakoutProps.parentId);
+    console.log("mainChannelUser: ", mainChannelUser);
+
+    return {message: message, 
+      fileData: fileData,
+      senderGroupName: breakoutRoom.name,
+      crossChannelMsg: true,
+      crossChannelMeetingId:meeting.breakoutProps.parentId,
+      senderUsername: mainChannelUser.username,
+      senderUserId: mainChannelUser.userId
+    }
+
+  }
+
+}*/
+
+//For non moderator
+// const updateMessageObjForCrossChannel = (message, fileData) => {
+//   let user = getUser(Auth.userID);
+//   let meetingid = Auth.meetingID;
+
+//   let meeting = getMeeting();
+  
+//   if (isMasterChannel(meeting)){
+//     let breakout = ChannelsService.findBreakouts().map(breakout => breakout).shift();
+//     let breakoutUser = ChannelsService.getBreakoutMeetingUserId(user.email, user.name, breakout.breakoutId);
+//     if(breakoutUser){
+//        return {message: message, 
+//                 fileData: fileData,
+//                 senderGroupName: breakout.name,
+//                 crossChannelMsg: true,
+//                 crossChannelMeetingId: breakout.breakoutId,
+//                 senderUsername: user.name,
+//                 senderUserId: breakoutUser.userId
+//               } 
+//     }
+//   }else{
+//     let breakoutRoom = ChannelsService.getBreakout(Auth.meetingID);
+//     let mainChannelUser = breakoutRoom.users.find(u => u.email == user.email && u.username == user.name)
+//     console.log("Auth.meetingID: ", Auth.meetingID);    
+//     console.log("meeting.breakoutProps.parentId: ", meeting.breakoutProps.parentId);
+//     console.log("user.email: ", user.email);
+//     console.log("user.email: ", user.name);
+//     //let masterChannelUser = ChannelsService.getMeetingUserId(user.email, user.name, meeting.breakoutProps.parentId);
+//     console.log("mainChannelUser: ", mainChannelUser);
+
+//     return {message: message, 
+//       fileData: fileData,
+//       senderGroupName: breakoutRoom.name,
+//       crossChannelMsg: true,
+//       crossChannelMeetingId:meeting.breakoutProps.parentId,
+//       senderUsername: mainChannelUser.username,
+//       senderUserId: mainChannelUser.userId
+//     }
+
+//   }
+
+// }
 
 const getScrollPosition = (receiverID) => {
   const scroll = ScrollCollection.findOne({ receiver: receiverID },
