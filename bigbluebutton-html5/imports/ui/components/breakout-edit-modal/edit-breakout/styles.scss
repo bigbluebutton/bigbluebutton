@@ -15,13 +15,12 @@ line-height: 36px;
     color: #000000;
 }
 .name{
-    font-style: normal;
-    font-size: 15px;
-    line-height: 16px;
-    padding:  0rem 0 0.6rem 1.6rem;
-   
-    margin: 0px 80px;
-        color: #000000;
+  flex: 1;
+  margin: 0;
+  font-weight: 400;
+  font-size: var(--font-size-large);
+  text-align: center;
+  align-self: flex-end;
 }
 .input{
     padding:  1.6rem;

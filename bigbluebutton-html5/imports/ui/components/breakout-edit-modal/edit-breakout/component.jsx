@@ -28,7 +28,7 @@ class EditBreakout extends Component {
   render() {
     const {breakoutRoomUsers, unassignedUsersInMasterChannel,name} = this.props;
       return( <div className="form-group">
-        <div className={styles.name}><b>{name} </b>  </div>
+        <div className={styles.name}> Edit { name } </div>
         <div className={styles.userList}>
         {breakoutRoomUsers.map((u,idx) => 
           <div  className={styles.Join}>
