@@ -105,7 +105,8 @@ class NavBar extends PureComponent {
          { isMobileBrowser  ?
              <Button
               data-test="chatButton"
-             onClick={() => {
+              className={styles.master}
+              onClick={() => {
                   Session.set('idChatOpen', '');
                   Session.set('openPanel', 'userlist');
                 }}
@@ -125,8 +126,8 @@ class NavBar extends PureComponent {
           <div className={styles.center}>
           </div>
           <div className={styles.right}>
-    { (isMobileBrowser) ? 
-               <Button
+          { (isMobileBrowser) ? 
+            <Button
               data-test="chatButton"
               onClick={() => handleClickToggleChat('public')}
               circle

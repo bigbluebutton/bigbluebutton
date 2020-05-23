@@ -21,6 +21,8 @@ import Auth from '/imports/ui/services/auth';
 
 import VideoService from './service';
 import VideoList from './video-list/component';
+import { styles } from '/imports/ui/components/video-provider/styles';
+import VideoListItemContainer from '/imports/ui/components/video-provider/video-list/video-list-item/container';
 
 const ENABLE_NETWORK_MONITORING = Meteor.settings.public.networkMonitoring.enableNetworkMonitoring;
 const CAMERA_PROFILES = Meteor.settings.public.kurento.cameraProfiles;
@@ -575,7 +577,9 @@ class VideoProvider extends Component {
   }
 
   async createWebRTCPeer(id, shareWebcam) {
-    const { meetingId, sessionToken, voiceBridge, userId, userName } = this.props;
+    const {
+      meetingId, sessionToken, voiceBridge, userId, userName,
+    } = this.props;
     let iceServers = [];
     const role = shareWebcam ? 'share' : 'viewer';
 
@@ -906,6 +910,7 @@ class VideoProvider extends Component {
   }
 
   createVideoTag(id, video) {
+
     const peer = this.webRtcPeers[id];
     this.videoTags[id] = video;
 

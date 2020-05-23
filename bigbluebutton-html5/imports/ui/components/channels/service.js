@@ -22,6 +22,13 @@ const findBreakouts = () => {
   return BreakoutRooms;
 };
 
+const getCurrentMeeting = () => {
+  const currentMeeting = Meetings.findOne({
+    meetingId: Auth.meetingID,
+  }, { fields: { 'meetingProp.name': 1, 'breakoutProps.sequence': 1 } });
+  
+  return currentMeeting;
+}
 
 const getBreakoutByCurrentMeetingId = () => {
   console.log(`getBreakoutByCurrentMeetingId Auth.meetingid: ${Auth.meetingID}`);
@@ -239,5 +246,6 @@ export default {
   isUserActiveInBreakoutroom,
   getBreakoutMeetingUserId,
   getUnassignedUsersInMasterChannel,
+  getCurrentMeeting,
   getUserNameAndGroupForDisplayRoomName
 };

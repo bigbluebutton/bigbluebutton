@@ -1,3 +1,6 @@
+@import "/imports/ui/stylesheets/variables/_all";
+@import "/imports/ui/stylesheets/variables/video";
+
 // .webcam {
 //   position: relative;
 //
@@ -16,3 +19,18 @@
 //	 bottom: 0;
 //   }
 // }
+
+.videoList {
+    display: grid;
+    border-radius: 5px;
+  
+    grid-auto-flow: dense;
+    grid-gap: 5px;
+  
+    align-items: center;
+    justify-content: center;
+  
+    @include mq($medium-up) {
+      grid-gap: 10px;
+    }
+  }

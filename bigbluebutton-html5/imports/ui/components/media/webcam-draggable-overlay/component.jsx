@@ -118,32 +118,32 @@ class WebcamDraggable extends Component {
   getMediaBounds() {
     const { refMediaContainer, webcamDraggableState, webcamDraggableDispatch } = this.props;
     const { mediaSize: mediaState } = webcamDraggableState;
-    const { current: mediaContainer } = refMediaContainer;
-    if (mediaContainer) {
-      const mediaContainerRect = mediaContainer.getBoundingClientRect();
-      const {
-        top, left, width: newWidth, height: newHeight,
-      } = mediaContainerRect;
+    // const { current: mediaContainer } = refMediaContainer;
+    // if (mediaContainer) {
+    //   const mediaContainerRect = mediaContainer.getBoundingClientRect();
+    //   const {
+    //     top, left, width: newWidth, height: newHeight,
+    //   } = mediaContainerRect;
 
-      if ((mediaState.width === 0 || mediaState.height === 0) && (newWidth > 0 && newHeight > 0)) {
-        webcamDraggableDispatch(
-          {
-            type: 'setMediaSize',
-            value: {
-              newWidth,
-              newHeight,
-            },
-          },
-        );
-      }
+    //   if ((mediaState.width === 0 || mediaState.height === 0) && (newWidth > 0 && newHeight > 0)) {
+    //     webcamDraggableDispatch(
+    //       {
+    //         type: 'setMediaSize',
+    //         value: {
+    //           newWidth,
+    //           newHeight,
+    //         },
+    //       },
+    //     );
+    //   }
 
-      return {
-        top,
-        left,
-        width: newWidth,
-        height: newHeight,
-      };
-    }
+    //   return {
+    //     top,
+    //     left,
+    //     width: newWidth,
+    //     height: newHeight,
+    //   };
+    // }
     return false;
   }
 

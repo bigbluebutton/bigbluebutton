@@ -156,3 +156,14 @@
     }
   }
 }
+
+.videoContainer {
+  flex: auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  overflow: hidden;
+  width: 5.5rem;
+  height: 5.5rem;
+}

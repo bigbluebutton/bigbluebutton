@@ -16,7 +16,7 @@
   
   align-self: center;
   position: absolute !important;
-  padding-top: 2%;
+  // padding-top: 2%;
   right: 0;
   left: 80%;
   
@@ -49,6 +49,7 @@
   }
   @include mq($small-only) {
     >i {
+      font-size: var(--font-size-10px);
       color: #A5A8B4!important;
     }
   }
@@ -119,14 +120,18 @@
     padding-left: 1rem;
     font-size: var(--font-size-14px);
     @include mq($small-only) {
-      color: #0F4C81;;
+      color: #0F4C81;
     }
 }
 
 .master {
   padding: 0 !important;
   i {
+    color: #fec866;
     font-size: var(--font-size-18px);
+    @include mq($small-only) {
+      color: #0F4C81 !important;
+    }
   }
 }
 
@@ -147,8 +152,6 @@
   display: grid;
   grid-template-columns: 10% 90%;
   align-items: center;
-  margin: 5% 10%;
-  margin-right: 0;
   cursor: pointer;
 }
 
@@ -157,6 +160,14 @@
   grid-template-columns: 10% 90% 5%;
   justify-content: center;
   align-items: center;
+
+  .brekout {
+    color: #ffffff;
+    padding-left: 1.5rem;
+    @include mq($small-only) {
+      color: #A5A8B4;
+    }
+  }
 }
 
 .usersList {
@@ -180,6 +191,45 @@
   width: auto;
   //padding: 50px 25px 25px 25px;
 }
+
+.contentWrapper {
+  @extend %flex-column;
+  display: flex;
+  flex-direction: row;
+  padding-left: 11%;
+  height: 1rem;
+  margin: 0.5rem 0 0.5rem 0;
+}
+
+.unassigned {
+  color: #ffffff;
+  padding-left: 1rem;
+  align-items: center;
+  // height: 1.5rem;
+  @include mq($small-only) {
+    color: #A5A8B4;
+  }
+}
+
+.allModerators {
+  padding-left: 11%;
+}
+
+.moderator {
+  margin: 0.5rem 0 0.5rem 0;
+  color: #ffffff;
+  @include mq($small-only) {
+  color: #A5A8B4;
+  }
+}
+
+.createBreakouts {
+  color: #36a1ff;
+  padding-left: 11%;
+  margin: 0.5rem 0 0.5rem 0;
+  cursor: pointer;
+}
+
 button{
   color: #36a1ff;
   background: transparent;

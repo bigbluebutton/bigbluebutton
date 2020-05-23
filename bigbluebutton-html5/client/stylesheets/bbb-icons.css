@@ -99,7 +99,7 @@
 }
 .icon-bbb-icomoon-Master-Channel:before {
   content: "\e90c";
-  color: #fec866;
+  /* color: #fec866; */
 }
 .icon-bbb-icomoon-Mic-Off:before {
   content: "\e90d";

@@ -11,6 +11,13 @@
   flex-direction: column;
 }
 
+.master {
+  i {
+    color: #ffc700;
+    font-size: var(--font-size-18px);
+  }
+}
+
 .top,
 .bottom {
   display: flex;
