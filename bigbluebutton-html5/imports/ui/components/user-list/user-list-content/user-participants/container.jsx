@@ -13,6 +13,7 @@ export default withTracker(props => ({
   breakoutRoomUsers: ChannelsService.getAllBreakoutRoomUsers(props.meetingIdentifier),
   allModerators: UserListService.getAllModerators(Auth.meetingID),
   unassignedUsersInMasterChannel: ChannelsService.getUnassignedUsersInMasterChannel(
-                                  UserListService.getUsersByMeeting(Auth.meetingID))
+    UserListService.getUsersByMeeting(Auth.meetingID),
+  ),
 
 }))(UserParticipantsContainer);

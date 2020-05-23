@@ -105,8 +105,8 @@ class NavBar extends PureComponent {
               ? (
                 <Button
                   data-test="chatButton"
-              className={styles.master}
-             onClick={() => {
+                  className={styles.master}
+                  onClick={() => {
                     Session.set('idChatOpen', '');
                     Session.set('openPanel', 'userlist');
                   }}
@@ -150,9 +150,9 @@ class NavBar extends PureComponent {
                       <p>
                         <span>
                (
-          {breakoutRoomName}
+                          {breakoutRoomName}
                )
-        </span>
+                        </span>
                       </p>
                     )
                     : (amIModerator && !isBreakOutMeeting ? <span>(moderator)</span> : null)

@@ -26,9 +26,9 @@ const getCurrentMeeting = () => {
   const currentMeeting = Meetings.findOne({
     meetingId: Auth.meetingID,
   }, { fields: { 'meetingProp.name': 1, 'breakoutProps.sequence': 1 } });
-  
+
   return currentMeeting;
-}
+};
 
 const getBreakoutByCurrentMeetingId = () => {
   console.log(`getBreakoutByCurrentMeetingId Auth.meetingid: ${Auth.meetingID}`);
@@ -46,78 +46,66 @@ const getBreakoutByCurrentMeetingId = () => {
 
 const validateMeetingIsBreakout = (meetingId) => {
   const breakoutRoom = Breakouts.findOne({
-    breakoutId: meetingId
+    breakoutId: meetingId,
   });
   return (breakoutRoom != null && breakoutRoom != undefined && breakoutRoom.breakoutId == meetingId);
+};
 
-}
-
-const getBreakout = (meetingId) => {
-  return Breakouts.findOne({
-    breakoutId: meetingId
-  });
-}
+const getBreakout = meetingId => Breakouts.findOne({
+  breakoutId: meetingId,
+});
 
 
 const breakoutRoomUser = (breakoutId) => {
   const breakoutRooms = findBreakouts();
   const breakoutRoom = breakoutRooms.filter(breakout => breakout.breakoutId === breakoutId).shift();
-  if((breakoutRoom != null && breakoutRoom != undefined))
-    return breakoutRoom.users.filter(user => user.userId === Auth.userID).shift();
+  if ((breakoutRoom != null && breakoutRoom != undefined)) return breakoutRoom.users.filter(user => user.userId === Auth.userID).shift();
 };
 
 const isbreakoutRoomUser = (breakoutId, userId) => {
   const breakoutRooms = findBreakouts();
   const breakoutRoom = breakoutRooms.filter(breakout => breakout.breakoutId === breakoutId).shift();
-  if((breakoutRoom != null && breakoutRoom != undefined)){
+  if ((breakoutRoom != null && breakoutRoom != undefined)) {
     const breakoutUser = breakoutRoom.users.filter(user => user.userId === userId).shift();
     return (breakoutUser != null && breakoutUser != undefined);
-  }else{
-    return false;
   }
-  
+  return false;
 };
 
 const getAllBreakoutRoomUsers = (breakoutId) => {
   const breakoutRooms = findBreakouts();
   const breakoutRoom = breakoutRooms.filter(breakout => breakout.breakoutId === breakoutId).shift();
-  if((breakoutRoom != null && breakoutRoom != undefined)){
+  if ((breakoutRoom != null && breakoutRoom != undefined)) {
     return breakoutRoom.users;
-  }else{
-    return [];
   }
-  
+  return [];
 };
 
 // Method that returns a break out room name and user name.
-//if current user is already in a break out room,it will return just user name
-//if current user is in the master channel, then his name will returned. And break out
-//room name will be returned if they belong to one 
+// if current user is already in a break out room,it will return just user name
+// if current user is in the master channel, then his name will returned. And break out
+// room name will be returned if they belong to one
 const getUserNameAndGroupForDisplayRoomName = () => {
-
   // const {requesterUserId} = credentials;
-  let user = Users.findOne({
+  const user = Users.findOne({
     userId: Auth.credentials.requesterUserId,
     connectionStatus: 'online',
-    });
+  });
 
-    if(user){
-      if(user.breakoutProps.isBreakoutUser){
-        return {name: user.name};
-      }else{
-      //Now find if they are in a break out room
-      const breakoutRooms = findBreakouts();
-      const breakoutRoomOfUser = breakoutRooms.filter(breakout =>
-        breakout.users.find(bu => bu.userId === user.userId)).shift();
-        if(breakoutRoomOfUser){
-          return {name: user.name, breakoutName: breakoutRoomOfUser.name};
-        }else{
-          return {name: user.name};
-        }
-      }
+  if (user) {
+    if (user.breakoutProps.isBreakoutUser) {
+      return { name: user.name };
     }
-    return null;
-}
+    // Now find if they are in a break out room
+    const breakoutRooms = findBreakouts();
+    const breakoutRoomOfUser = breakoutRooms.filter(breakout => breakout.users.find(bu => bu.userId === user.userId)).shift();
+    if (breakoutRoomOfUser) {
+      return { name: user.name, breakoutName: breakoutRoomOfUser.name };
+    }
+    return { name: user.name };
+  }
+  return null;
+};
 
 
 // Central function that determines if the user has a browser tab opened for the break out room he is part of
@@ -130,12 +118,12 @@ const getUserNameAndGroupForDisplayRoomName = () => {
 // 3.2) User id matches the pattern in joined users
 const isUserActiveInBreakoutroom = userId => Breakouts.findOne({ 'joinedUsers.userId': new RegExp(`^${userId}`) });
 
-const getBreakoutMeetingUserId = (email, name, breakoutId) => 
-  Users.findOne({
-    connectionStatus: 'online',
-    meetingId: breakoutId,
-    email: email,
-    name: name});
+const getBreakoutMeetingUserId = (email, name, breakoutId) => Users.findOne({
+  connectionStatus: 'online',
+  meetingId: breakoutId,
+  email,
+  name,
+});
 
 
 const closeBreakoutPanel = () => Session.set('openPanel', 'userlist');
@@ -212,14 +200,12 @@ const isUserInBreakoutRoom = (joinedUsers) => {
   return !!joinedUsers.find(user => user.userId.startsWith(userId));
 };
 
-//Only to be called in the master channel
+// Only to be called in the master channel
 const getUnassignedUsersInMasterChannel = (allUsers) => {
-  //Get all breakout users in the system (offline and online - no harm for now)
-  let breakoutUsers =  getUsersFromBreakouts(getBreakouts());
-  return  allUsers.filter(u => {
-      return (breakoutUsers.find(bu => bu.userId == u.userId) == undefined);
-  });
-}
+  // Get all breakout users in the system (offline and online - no harm for now)
+  const breakoutUsers = getUsersFromBreakouts(getBreakouts());
+  return allUsers.filter(u => (breakoutUsers.find(bu => bu.userId == u.userId) == undefined));
+};
 
 export default {
   findBreakouts,
@@ -247,5 +233,5 @@ export default {
   getBreakoutMeetingUserId,
   getUnassignedUsersInMasterChannel,
   getCurrentMeeting,
-  getUserNameAndGroupForDisplayRoomName
+  getUserNameAndGroupForDisplayRoomName,
 };

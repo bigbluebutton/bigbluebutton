@@ -205,7 +205,7 @@ const getUsers = () => {
 };
 
 const getAllModerators = (meetingIdentifier) => {
-  let users = Users
+  const users = Users
     .find({
       meetingId: meetingIdentifier,
       connectionStatus: 'online',
@@ -214,7 +214,7 @@ const getAllModerators = (meetingIdentifier) => {
     .fetch();
 
   return users.sort(sortUsers);
-}
+};
 
 const getUsersByMeeting = (meetingIdentifier) => {
   let users = Users
@@ -597,5 +597,5 @@ export default {
   hasPrivateChatBetweenUsers,
   toggleUserLock,
   requestUserInformation,
-  getAllModerators
+  getAllModerators,
 };

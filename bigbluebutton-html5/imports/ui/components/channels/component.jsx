@@ -297,18 +297,17 @@ class Channels extends PureComponent {
           icon="rooms"
           label="Edit Room"
           onClick={() => {
-            this.launchEditRoom(breakout.breakoutId,breakout.name);
+            this.launchEditRoom(breakout.breakoutId, breakout.name);
           }}
         />) : null),
 
-    
 
     ]);
 
     return this.menuItems;
   }
 
-  launchEditRoom(breakoutId,name) {
+  launchEditRoom(breakoutId, name) {
     const { mountModal } = this.props;
     return mountModal(<BreakoutEditModalContainer breakoutId={breakoutId} name={name} />);
   }
@@ -383,7 +382,7 @@ class Channels extends PureComponent {
       roving,
       requestUserInformation,
       currentMeeting,
-      isThereUnassignedUsers
+      isThereUnassignedUsers,
     } = this.props;
 
     logger.info(`auth Id: ${Auth.meetingID}`);
@@ -391,7 +390,7 @@ class Channels extends PureComponent {
     const { channelId, hideUsers } = this.state;
     const isBreakOutMeeting = meetingIsBreakout();
     const isModerator = currentUser.role === ROLE_MODERATOR;
-    const otherUsers = isModerator ? "Unassigned users" : "Other groups";
+    const otherUsers = isModerator ? 'Unassigned users' : 'Other groups';
 
     return (
 
@@ -406,9 +405,9 @@ class Channels extends PureComponent {
               // hideLabel
             />
             <div className={styles.masterChannel}>
-              {isBreakOutMeeting ? 
-                (currentMeeting.meetingProp.name)
-                : "Master Channel"
+              {isBreakOutMeeting
+                ? (currentMeeting.meetingProp.name)
+                : 'Master Channel'
               }
             </div>
           </div>
@@ -430,10 +429,10 @@ class Channels extends PureComponent {
           ref={(ref) => { this.refScrollContainer = ref; }}
         >
           <div className={styles.channelList}>
-            
+
             {!isBreakOutMeeting && isModerator
               ? (
-                <div 
+                <div
                   className={styles.createBreakouts}
                   onClick={this.newCreateBreakouts}
                   role="button"
@@ -443,13 +442,13 @@ class Channels extends PureComponent {
                 </div>
               )
               : null }
-            
+
             {isBreakOutMeeting || !isThereUnassignedUsers ? null
               : (
                 <Fragment>
                   <div className={styles.contentWrapper}>
                     {this.renderChannelAvatar(otherUsers)}
-                  <span className={styles.unassigned}>{otherUsers}</span>
+                    <span className={styles.unassigned}>{otherUsers}</span>
                   </div>
                   <div className={styles.usersList}>
                     <UserParticipantsContainer
@@ -470,22 +469,24 @@ class Channels extends PureComponent {
             {/* {isMobileBrowser ? this.renderMobile() : this.renderDesktop()} */}
             {this.renderBreakoutRooms()}
 
-          {isBreakOutMeeting ? null :
-            <div className={styles.allModerators}>
-              <div className={styles.moderator}>Moderator(s)</div>
-              <UserParticipantsContainer
-                {...{
-                  compact,
-                  intl,
-                  currentUser,
-                  setEmojiStatus,
-                  roving,
-                  requestUserInformation,
-                  meetingIdentifier: Auth.meetingID,
-                  onlyModerators: true,
-                }}
-              />
-            </div>
+            {isBreakOutMeeting ? null
+              : (
+                <div className={styles.allModerators}>
+                  <div className={styles.moderator}>Moderator(s)</div>
+                  <UserParticipantsContainer
+                    {...{
+                      compact,
+                      intl,
+                      currentUser,
+                      setEmojiStatus,
+                      roving,
+                      requestUserInformation,
+                      meetingIdentifier: Auth.meetingID,
+                      onlyModerators: true,
+                    }}
+                  />
+                </div>
+              )
           }
 
           </div>
@@ -523,28 +524,30 @@ class Channels extends PureComponent {
     return (
       breakoutRooms.map(breakout => (
         <div>
-        {isBreakOutMeeting ? null :
-          <div className={styles.channelName}>
-            <div className={styles.channelWrapper}>
-              {this.renderChannelAvatar(breakout.name)}
-              <span className={styles.brekout}>{breakout.name}</span>
-              {(meetingIsBreakout()) ? null : this.channelOptions(breakout)}
-            </div>
-          </div>
+          {isBreakOutMeeting ? null
+            : (
+              <div className={styles.channelName}>
+                <div className={styles.channelWrapper}>
+                  {this.renderChannelAvatar(breakout.name)}
+                  <span className={styles.brekout}>{breakout.name}</span>
+                  {(meetingIsBreakout()) ? null : this.channelOptions(breakout)}
+                </div>
+              </div>
+            )
         }
           <div className={styles.breakoutUsersList}>
-                <UserParticipantsContainer
-                  {...{
-                    compact,
-                    intl,
-                    currentUser,
-                    setEmojiStatus,
-                    roving,
-                    requestUserInformation,
-                    meetingIdentifier: breakout.breakoutId,
-                    isbreakoutRoomUser,
-                  }}
-                />
+            <UserParticipantsContainer
+              {...{
+                compact,
+                intl,
+                currentUser,
+                setEmojiStatus,
+                roving,
+                requestUserInformation,
+                meetingIdentifier: breakout.breakoutId,
+                isbreakoutRoomUser,
+              }}
+            />
           </div>
         </div>
       )));
@@ -661,5 +664,5 @@ class Channels extends PureComponent {
     );
   }
 }
-//Channels.propTypes = PropTypes;
+// Channels.propTypes = PropTypes;
 export default withModalMounter(injectIntl(Channels));

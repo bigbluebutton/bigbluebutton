@@ -59,7 +59,7 @@ class ActionsBar extends PureComponent {
       isThereCurrentPresentation,
       validateMeetingIsBreakout,
       isVideoStreamTransmitting,
-      isSharingWebCam
+      isSharingWebCam,
     } = this.props;
 
     const actionBarClasses = {};
@@ -75,8 +75,8 @@ class ActionsBar extends PureComponent {
     actionBarClasses[styles.center] = true;
     actionBarClasses[styles.mobileLayoutSwapped] = isLayoutSwapped && amIPresenter;
 
-    if(!amIPresenter && isSharingWebCam){
-      handleExitVideo();    
+    if (!amIPresenter && isSharingWebCam) {
+      handleExitVideo();
     }
 
     return (
@@ -121,28 +121,30 @@ class ActionsBar extends PureComponent {
             />
           </div>
         </div>
-      {toggleChatLayout ? null :
-        <div className={styles.liveActions}>
-          <div className={!toggleChatLayout ? styles.dummy1 : styles.dummy2}>
+        {toggleChatLayout ? null
+          : (
+            <div className={styles.liveActions}>
+              <div className={!toggleChatLayout ? styles.dummy1 : styles.dummy2}>
 
-            <img src="https://miro.medium.com/max/560/1*MccriYX-ciBniUzRKAUsAw.png" alt="" />
-         
-            {
+                <img src="https://miro.medium.com/max/560/1*MccriYX-ciBniUzRKAUsAw.png" alt="" />
+
+                {
               (isVideoStreamTransmitting || isSharingWebCam)
                 ? (
                   <VideoProviderContainer
                     swapLayout={false}
                   />
                 )
-                : null //should show avatar here
+                : null // should show avatar here
             }
 
-            <img src="https://miro.medium.com/max/560/1*MccriYX-ciBniUzRKAUsAw.png" alt="" />
-          </div>
-          <div className={styles.talkingIndicator}>
-            <TalkingIndicatorContainer amIModerator={amIModerator} />
-          </div>
-        </div>
+                <img src="https://miro.medium.com/max/560/1*MccriYX-ciBniUzRKAUsAw.png" alt="" />
+              </div>
+              <div className={styles.talkingIndicator}>
+                <TalkingIndicatorContainer amIModerator={amIModerator} />
+              </div>
+            </div>
+          )
       }
         <div className={styles.audioButton}>
           <Button

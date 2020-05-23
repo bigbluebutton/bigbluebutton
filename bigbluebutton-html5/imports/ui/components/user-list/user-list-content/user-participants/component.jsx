@@ -8,7 +8,7 @@ import _ from 'lodash';
 import { findDOMNode } from 'react-dom';
 import UserListItemContainer from './user-list-item/container';
 import UserOptionsContainer from './user-options/container';
-import ChannelsService from '/imports/ui/components/channels/service'
+import ChannelsService from '/imports/ui/components/channels/service';
 import Auth from '/imports/ui/services/auth';
 
 const propTypes = {
@@ -16,7 +16,7 @@ const propTypes = {
   intl: PropTypes.shape({
     formatMessage: PropTypes.func.isRequired,
   }).isRequired,
-  currentUser: PropTypes.shape({}).isRequired, 
+  currentUser: PropTypes.shape({}).isRequired,
   setEmojiStatus: PropTypes.func.isRequired,
   roving: PropTypes.func.isRequired,
   requestUserInformation: PropTypes.func.isRequired,
@@ -98,7 +98,7 @@ class UserParticipants extends Component {
   getUsers() {
     const {
       compact,
-      setEmojiStatus,      
+      setEmojiStatus,
       requestUserInformation,
       currentUser,
       meetingIdentifier,
@@ -106,37 +106,35 @@ class UserParticipants extends Component {
       breakoutRoomUsers,
       onlyModerators,
       allModerators,
-      unassignedUsersInMasterChannel
+      unassignedUsersInMasterChannel,
     } = this.props;
 
     let index = -1;
-    var {} = this.props; 
+    let {} = this.props;
 
-    //The property "users" holds all the users in master channel. If we are rendering the
-    //users under a breakout channel link, then we want to show only the users in the break out channel.
-    //Note - the mongo break entry has a a "users" field that holds the users.
+    // The property "users" holds all the users in master channel. If we are rendering the
+    // users under a breakout channel link, then we want to show only the users in the break out channel.
+    // Note - the mongo break entry has a a "users" field that holds the users.
 
-    const renderOnlyBreakoutusers =  ChannelsService.validateMeetingIsBreakout(meetingIdentifier);
-    const isThisBreakoutRoom =  ChannelsService.validateMeetingIsBreakout(Auth.meetingID);
+    const renderOnlyBreakoutusers = ChannelsService.validateMeetingIsBreakout(meetingIdentifier);
+    const isThisBreakoutRoom = ChannelsService.validateMeetingIsBreakout(Auth.meetingID);
 
- 
-    var usersToRender = allUsersInMeeting;
-    if(!isThisBreakoutRoom && renderOnlyBreakoutusers){
-      //usersToRender = allUsersInMeeting.filter(u => isbreakoutRoomUser(meetingIdentifier, u.userId));
-      usersToRender = allUsersInMeeting.filter(u => {
-        return breakoutRoomUsers.find(user => user.userId === u.userId) != undefined
-      });
-    }else if(!isThisBreakoutRoom){
+
+    let usersToRender = allUsersInMeeting;
+    if (!isThisBreakoutRoom && renderOnlyBreakoutusers) {
+      // usersToRender = allUsersInMeeting.filter(u => isbreakoutRoomUser(meetingIdentifier, u.userId));
+      usersToRender = allUsersInMeeting.filter(u => breakoutRoomUsers.find(user => user.userId === u.userId) != undefined);
+    } else if (!isThisBreakoutRoom) {
       usersToRender = unassignedUsersInMasterChannel;
     }
 
-    if(onlyModerators) {
+    if (onlyModerators) {
       usersToRender = allModerators;
     }
-    
+
     return usersToRender.map(u => (
       <CSSTransition
-        classNames={listTransition} 
+        classNames={listTransition}
         appear
         enter
         exit
@@ -151,7 +149,7 @@ class UserParticipants extends Component {
               compact,
               setEmojiStatus,
               requestUserInformation,
-              currentUser
+              currentUser,
             }}
             user={u}
             getScrollContainerRef={this.getScrollContainerRef}

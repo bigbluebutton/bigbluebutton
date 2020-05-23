@@ -17,7 +17,7 @@ import VideoListItemStats from './video-list-item-stats/component';
 import FullscreenService from '../../../fullscreen-button/service';
 import FullscreenButtonContainer from '../../../fullscreen-button/container';
 import { styles } from '../styles';
- 
+
 
 const intlMessages = defineMessages({
   connectionStatsLabel: {
@@ -173,7 +173,7 @@ class VideoListItem extends Component {
     const {
       user,
       voiceUser,
-      numOfUsers,     
+      numOfUsers,
       swapLayout,
     } = this.props;
     const availableActions = this.getAvailableActions();
@@ -201,7 +201,7 @@ class VideoListItem extends Component {
             muted
             className={cx({
               [styles.media]: true,
-              [styles.cursorGrab]:  !isFullscreen && !swapLayout,
+              [styles.cursorGrab]: !isFullscreen && !swapLayout,
               [styles.cursorGrabbing]: false
                 && !isFullscreen && !swapLayout,
             })}
@@ -211,15 +211,15 @@ class VideoListItem extends Component {
           />
           {/* {videoIsReady && this.renderFullscreenButton()} */}
           <span className={cx({
-                  [styles.userName]: true
-                })}
-                >
-                  {user.name}
-                </span>
+            [styles.userName]: true,
+          })}
+          >
+            {user.name}
+          </span>
         </div>
 
-           {/* <div className={styles.info}>
-         
+        {/* <div className={styles.info}>
+
               <div className={isFirefox ? styles.dropdownFireFox
                 : styles.dropdown}
               >
@@ -231,9 +231,8 @@ class VideoListItem extends Component {
                   {user.name}
                 </span>
               </div>
-           
-        </div> */}
 
+        </div> */}
 
 
         {/* <div className={styles.info}>

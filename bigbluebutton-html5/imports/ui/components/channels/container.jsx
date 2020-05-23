@@ -29,7 +29,7 @@ export default withTracker((...props) => {
     isbreakoutRoomUser,
     getCurrentMeeting,
     getUnassignedUsersInMasterChannel,
-    getBreakoutMeetingUserId
+    getBreakoutMeetingUserId,
   } = Service;
 
   const currentMeeting = getCurrentMeeting();
