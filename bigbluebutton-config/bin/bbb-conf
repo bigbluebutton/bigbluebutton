@@ -1121,7 +1121,8 @@ check_state() {
     # Check FreeSWITCH
     #
 
-    if ! echo "/quit" | /opt/freeswitch/bin/fs_cli - > /dev/null 2>&1; then
+    ESL_PASSWORD=$(xmlstarlet sel -t -m 'configuration/settings/param[@name="password"]' -v @value /opt/freeswitch/etc/freeswitch/autoload_configs/event_socket.conf.xml)
+    if ! echo "/quit" | /opt/freeswitch/bin/fs_cli -p $ESL_PASSWORD - > /dev/null 2>&1; then
         echo
         echo "#"
         echo "# Error: Unable to connect to the FreeSWITCH Event Socket Layer on port 8021"
