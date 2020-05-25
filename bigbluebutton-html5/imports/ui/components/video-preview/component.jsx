@@ -7,8 +7,8 @@ import Button from '/imports/ui/components/button/component';
 // import { notify } from '/imports/ui/services/notification';
 import logger from '/imports/startup/client/logger';
 import Modal from '/imports/ui/components/modal/simple/component';
-import VideoService from '../video-provider/service';
 import browser from 'browser-detect';
+import VideoService from '../video-provider/service';
 import { styles } from './styles';
 
 const CAMERA_PROFILES = Meteor.settings.public.kurento.cameraProfiles;
@@ -433,7 +433,6 @@ class VideoPreview extends Component {
       });
       this.video.srcObject = stream;
       this.deviceStream = stream;
-
     }).catch((error) => {
       logger.warn({
         logCode: 'video_preview_do_gum_preview_error',
@@ -465,7 +464,7 @@ class VideoPreview extends Component {
     const {
       intl,
       skipVideoPreview,
-      sharedDevices
+      sharedDevices,
     } = this.props;
 
     const {
@@ -505,37 +504,37 @@ class VideoPreview extends Component {
           )
         }
         { shared
-           ? (
-             <span className={styles.label}>
-               {intl.formatMessage(intlMessages.sharedCameraLabel)}
-             </span>
-           )
-           : (
-             <span>
-               <label className={styles.label} htmlFor="setQuality">
-                 {intl.formatMessage(intlMessages.qualityLabel)}
-               </label>
-               { availableProfiles && availableProfiles.length > 0
-                 ? (
-                   <select
-                     id="setQuality"
-                     value={selectedProfile || ''}
-                     className={styles.select}
-                     onChange={this.handleSelectProfile}
-                     disabled={skipVideoPreview}
-                   >
-                     {availableProfiles.map(profile => (
-                       <option key={profile.id} value={profile.id}>
-                         {profile.name}
-                       </option>
-                     ))}
-                   </select>
-                 )
-                 : (
-                   <span>
-                     {intl.formatMessage(intlMessages.profileNotFoundLabel)}
-                   </span>
-                 )
+          ? (
+            <span className={styles.label}>
+              {intl.formatMessage(intlMessages.sharedCameraLabel)}
+            </span>
+          )
+          : (
+            <span>
+              <label className={styles.label} htmlFor="setQuality">
+                {intl.formatMessage(intlMessages.qualityLabel)}
+              </label>
+              { availableProfiles && availableProfiles.length > 0
+                ? (
+                  <select
+                    id="setQuality"
+                    value={selectedProfile || ''}
+                    className={styles.select}
+                    onChange={this.handleSelectProfile}
+                    disabled={skipVideoPreview}
+                  >
+                    {availableProfiles.map(profile => (
+                      <option key={profile.id} value={profile.id}>
+                        {profile.name}
+                      </option>
+                    ))}
+                  </select>
+                )
+                : (
+                  <span>
+                    {intl.formatMessage(intlMessages.profileNotFoundLabel)}
+                  </span>
+                )
                }
             </span>
           )
@@ -568,11 +567,11 @@ class VideoPreview extends Component {
           </div>
         );
       case VIEW_STATES.error:
-          return (
-            <div className={styles.content}>
-              <div className={styles.videoCol}><div>{deviceError}</div></div>
-            </div>
-          );
+        return (
+          <div className={styles.content}>
+            <div className={styles.videoCol}><div>{deviceError}</div></div>
+          </div>
+        );
       case VIEW_STATES.found:
       default:
         return (
@@ -648,7 +647,7 @@ class VideoPreview extends Component {
             />
             <Button
               data-test="startSharingWebcam"
-              color={shared ? "danger" : "primary"}
+              color={shared ? 'danger' : 'primary'}
               label={intl.formatMessage(shared ? intlMessages.stopSharingLabel : intlMessages.startSharingLabel)}
               onClick={shared ? this.handleStopSharing : this.handleStartSharing}
               disabled={isStartSharingDisabled || isStartSharingDisabled === null || shouldDisableButtons}
@@ -664,7 +663,14 @@ class VideoPreview extends Component {
       intl,
       hasMediaDevices,
       skipVideoPreview,
+      isCamLocked,
     } = this.props;
+
+    if (isCamLocked === true) {
+      this.handleProceed();
+      return null;
+    }
+
     const {
       deviceError,
       previewError,
