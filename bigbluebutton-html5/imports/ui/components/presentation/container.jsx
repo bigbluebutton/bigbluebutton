@@ -36,5 +36,6 @@ export default withTracker(({ podId }) => {
     notify,
     zoomSlide: PresentationToolbarService.zoomSlide,
     podId,
+    layoutSwapped,
   };
 })(PresentationAreaContainer);

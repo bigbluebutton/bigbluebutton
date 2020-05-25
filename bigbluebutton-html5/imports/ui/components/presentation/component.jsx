@@ -405,6 +405,7 @@ class PresentationArea extends PureComponent {
       currentSlide,
       slidePosition,
       userIsPresenter,
+      layoutSwapped,
     } = this.props;
 
     const {
@@ -457,6 +458,7 @@ class PresentationArea extends PureComponent {
           width: svgDimensions.width,
           height: svgDimensions.height,
           textAlign: 'center',
+          display: layoutSwapped ? 'none' : 'block',
         }}
       >
         {this.renderPresentationClose()}
