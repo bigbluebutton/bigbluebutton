@@ -310,6 +310,13 @@ public:
     server: { enabled: true, level: info }
     console: { enabled: true, level: debug }
     external: { enabled: false, level: info, url: https://LOG_HOST/html5Log, method: POST, throttleInterval: 400, flushOnClose: true, logTag: "" }
+  fallbackLanguages:
+    lo:
+      englishName: Lao
+      nativeName: ລາວ
+    lo-LA:
+      englishName: Lao
+      nativeName: ລາວ
 private:
   app:
     host: 127.0.0.1

@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import cx from 'classnames';
 import { HEXToINTColor, INTToHEXColor } from '/imports/utils/hexInt';
-import { defineMessages, injectIntl, intlShape } from 'react-intl';
+import { defineMessages, injectIntl } from 'react-intl';
 import browser from 'browser-detect';
 import { noop } from 'lodash';
 import KEY_CODES from '/imports/utils/keyCodes';
@@ -784,7 +784,7 @@ WhiteboardToolbar.defaultProps = {
   colors: ANNOTATION_COLORS,
   thicknessRadiuses: THICKNESS_RADIUSES,
   fontSizes: FONT_SIZES,
-  intl: intlShape,
+  intl: {},
 };
 
 WhiteboardToolbar.propTypes = {
@@ -821,7 +821,7 @@ WhiteboardToolbar.propTypes = {
     value: PropTypes.number.isRequired,
   }).isRequired),
 
-  intl: intlShape,
+  intl: PropTypes.object.isRequired,
 
 };
 

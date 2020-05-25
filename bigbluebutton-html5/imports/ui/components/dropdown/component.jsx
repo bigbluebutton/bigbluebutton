@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { findDOMNode } from 'react-dom';
 import cx from 'classnames';
-import { defineMessages, injectIntl, intlShape } from 'react-intl';
+import { defineMessages, injectIntl } from 'react-intl';
 import Button from '/imports/ui/components/button/component';
 import screenreaderTrap from 'makeup-screenreader-trap';
 import { styles } from './styles';
@@ -50,7 +50,7 @@ const propTypes = {
   onHide: PropTypes.func,
   onShow: PropTypes.func,
   autoFocus: PropTypes.bool,
-  intl: intlShape.isRequired,
+  intl: PropTypes.object.isRequired,
 };
 
 const defaultProps = {
@@ -218,4 +218,4 @@ class Dropdown extends Component {
 
 Dropdown.propTypes = propTypes;
 Dropdown.defaultProps = defaultProps;
-export default injectIntl(Dropdown);
+export default injectIntl(Dropdown, { forwardRef: true });

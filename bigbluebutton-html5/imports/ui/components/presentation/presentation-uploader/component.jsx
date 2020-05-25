@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { defineMessages, injectIntl, intlShape } from 'react-intl';
+import { defineMessages, injectIntl } from 'react-intl';
 import Dropzone from 'react-dropzone';
 import update from 'immutability-helper';
 import cx from 'classnames';
@@ -17,7 +17,7 @@ import Checkbox from '/imports/ui/components/checkbox/component';
 import { styles } from './styles.scss';
 
 const propTypes = {
-  intl: intlShape.isRequired,
+  intl: PropTypes.object.isRequired,
   mountModal: PropTypes.func.isRequired,
   defaultFileName: PropTypes.string.isRequired,
   fileSizeMin: PropTypes.number.isRequired,

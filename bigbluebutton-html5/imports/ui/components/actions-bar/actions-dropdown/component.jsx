@@ -1,7 +1,7 @@
 import _ from 'lodash';
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
-import { defineMessages, intlShape } from 'react-intl';
+import { defineMessages } from 'react-intl';
 import Button from '/imports/ui/components/button/component';
 import Dropdown from '/imports/ui/components/dropdown/component';
 import DropdownTrigger from '/imports/ui/components/dropdown/trigger/component';
@@ -18,7 +18,7 @@ import { styles } from '../styles';
 
 const propTypes = {
   amIPresenter: PropTypes.bool.isRequired,
-  intl: intlShape.isRequired,
+  intl: PropTypes.object.isRequired,
   mountModal: PropTypes.func.isRequired,
   amIModerator: PropTypes.bool.isRequired,
   shortcuts: PropTypes.string,

@@ -1,6 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { defineMessages, injectIntl, intlShape } from 'react-intl';
+import { defineMessages, injectIntl } from 'react-intl';
 import browser from 'browser-detect';
 import Modal from '/imports/ui/components/modal/simple/component';
 import _ from 'lodash';
@@ -180,11 +180,11 @@ const ShortcutHelpComponent = (props) => {
 };
 
 ShortcutHelpComponent.defaultProps = {
-  intl: intlShape,
+  intl: {},
 };
 
 ShortcutHelpComponent.propTypes = {
-  intl: intlShape,
+  intl: PropTypes.object.isRequired,
   shortcuts: PropTypes.arrayOf(PropTypes.shape({
     accesskey: PropTypes.string.isRequired,
     descId: PropTypes.string.isRequired,

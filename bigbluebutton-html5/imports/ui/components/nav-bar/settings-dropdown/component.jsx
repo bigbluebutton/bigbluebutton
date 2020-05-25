@@ -1,5 +1,5 @@
 import React, { PureComponent } from 'react';
-import { defineMessages, injectIntl, intlShape } from 'react-intl';
+import { defineMessages, injectIntl } from 'react-intl';
 import _ from 'lodash';
 import PropTypes from 'prop-types';
 import { withModalMounter } from '/imports/ui/components/modal/service';
@@ -92,7 +92,7 @@ const intlMessages = defineMessages({
 });
 
 const propTypes = {
-  intl: intlShape.isRequired,
+  intl: PropTypes.object.isRequired,
   handleToggleFullscreen: PropTypes.func.isRequired,
   mountModal: PropTypes.func.isRequired,
   noIOSFullscreen: PropTypes.bool,

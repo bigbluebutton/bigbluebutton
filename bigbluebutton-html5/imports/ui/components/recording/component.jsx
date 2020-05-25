@@ -1,6 +1,6 @@
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
-import { defineMessages, injectIntl, intlShape } from 'react-intl';
+import { defineMessages, injectIntl } from 'react-intl';
 import Button from '/imports/ui/components/button/component';
 import Modal from '/imports/ui/components/modal/simple/component';
 import { styles } from './styles';
@@ -37,7 +37,7 @@ const intlMessages = defineMessages({
 });
 
 const propTypes = {
-  intl: intlShape.isRequired,
+  intl: PropTypes.object.isRequired,
   closeModal: PropTypes.func.isRequired,
   toggleRecording: PropTypes.func.isRequired,
   recordingTime: PropTypes.number,

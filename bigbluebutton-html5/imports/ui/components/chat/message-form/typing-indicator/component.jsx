@@ -1,6 +1,6 @@
 import React, { PureComponent } from 'react';
 import {
-  defineMessages, injectIntl, intlShape, FormattedMessage,
+  defineMessages, injectIntl, FormattedMessage,
 } from 'react-intl';
 import browser from 'browser-detect';
 import PropTypes from 'prop-types';
@@ -8,7 +8,7 @@ import cx from 'classnames';
 import { styles } from '../styles.scss';
 
 const propTypes = {
-  intl: intlShape.isRequired,
+  intl: PropTypes.object.isRequired,
   typingUsers: PropTypes.arrayOf(Object).isRequired,
 };
 

@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { defineMessages, intlShape } from 'react-intl';
+import { defineMessages } from 'react-intl';
 import _ from 'lodash';
 import { makeCall } from '/imports/ui/services/api';
 import Button from '/imports/ui/components/button/component';
@@ -35,7 +35,7 @@ const intlMessages = defineMessages({
 });
 
 const propTypes = {
-  intl: intlShape.isRequired,
+  intl: PropTypes.object.isRequired,
   parseCurrentSlideContent: PropTypes.func.isRequired,
   amIPresenter: PropTypes.bool.isRequired,
 };

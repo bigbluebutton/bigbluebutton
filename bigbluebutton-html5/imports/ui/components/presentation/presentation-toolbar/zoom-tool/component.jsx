@@ -1,6 +1,6 @@
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
-import { defineMessages, injectIntl, intlShape } from 'react-intl';
+import { defineMessages, injectIntl } from 'react-intl';
 import Button from '/imports/ui/components/button/component';
 import cx from 'classnames';
 import { styles } from '../styles.scss';
@@ -231,7 +231,7 @@ class ZoomTool extends PureComponent {
 }
 
 const propTypes = {
-  intl: intlShape.isRequired,
+  intl: PropTypes.object.isRequired,
   zoomValue: PropTypes.number.isRequired,
   change: PropTypes.func.isRequired,
   minBound: PropTypes.number.isRequired,

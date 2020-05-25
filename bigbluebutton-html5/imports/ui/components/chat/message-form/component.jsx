@@ -1,5 +1,5 @@
 import React, { PureComponent } from 'react';
-import { defineMessages, injectIntl, intlShape } from 'react-intl';
+import { defineMessages, injectIntl } from 'react-intl';
 import cx from 'classnames';
 import TextareaAutosize from 'react-autosize-textarea';
 import browser from 'browser-detect';
@@ -10,7 +10,7 @@ import { styles } from './styles.scss';
 import Button from '../../button/component';
 
 const propTypes = {
-  intl: intlShape.isRequired,
+  intl: PropTypes.object.isRequired,
   chatId: PropTypes.string.isRequired,
   disabled: PropTypes.bool.isRequired,
   minMessageLength: PropTypes.number.isRequired,

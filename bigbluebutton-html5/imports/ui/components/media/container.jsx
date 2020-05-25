@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { withTracker } from 'meteor/react-meteor-data';
 import Settings from '/imports/ui/services/settings';
-import { defineMessages, injectIntl, intlShape } from 'react-intl';
+import { defineMessages, injectIntl } from 'react-intl';
 import PropTypes from 'prop-types';
 import { Session } from 'meteor/session';
 import { notify } from '/imports/ui/services/notification';
@@ -22,7 +22,7 @@ const KURENTO_CONFIG = Meteor.settings.public.kurento;
 
 const propTypes = {
   isScreensharing: PropTypes.bool.isRequired,
-  intl: intlShape.isRequired,
+  intl: PropTypes.object.isRequired,
 };
 
 const intlMessages = defineMessages({

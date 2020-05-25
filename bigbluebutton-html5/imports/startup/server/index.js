@@ -19,7 +19,7 @@ Meteor.startup(() => {
   const INTERVAL_TIME = INTERVAL_IN_SETTINGS < 10000 ? 10000 : INTERVAL_IN_SETTINGS;
   const env = Meteor.isDevelopment ? 'development' : 'production';
   const CDN_URL = APP_CONFIG.cdn;
-
+  
   // Commenting out in BBB 2.3 as node12 does not allow for `memwatch`.
   // We are looking for alternatives
 
@@ -150,15 +150,22 @@ WebApp.connectHandlers.use('/locale', (req, res) => {
 });
 
 WebApp.connectHandlers.use('/locales', (req, res) => {
+  const FALLBACK_LANGUAGES = Meteor.settings.public.fallbackLanguages;
+
   let locales = [];
   try {
     locales = AVAILABLE_LOCALES
       .map(file => file.replace('.json', ''))
       .map(file => file.replace('_', '-'))
-      .map(locale => ({
-        locale,
-        name: Langmap[locale].nativeName,
-      }));
+      .map((locale) => {
+        const localeName = (Langmap[locale] || {}).nativeName
+                           || (FALLBACK_LANGUAGES[locale] || {}).nativeName
+                           || locale;
+        return {
+          locale,
+          name: localeName,
+        };
+      });
   } catch (e) {
     Logger.warn(`'Could not process locales error: ${e}`);
   }

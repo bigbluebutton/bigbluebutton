@@ -1,7 +1,7 @@
 import PropTypes from 'prop-types';
 import React, { Component } from 'react';
 import {
-  defineMessages, injectIntl, intlShape, FormattedMessage,
+  defineMessages, injectIntl, FormattedMessage,
 } from 'react-intl';
 import Button from '/imports/ui/components/button/component';
 // import { notify } from '/imports/ui/services/notification';
@@ -20,7 +20,7 @@ const VIEW_STATES = {
 };
 
 const propTypes = {
-  intl: intlShape.isRequired,
+  intl: PropTypes.object.isRequired,
   closeModal: PropTypes.func.isRequired,
   startSharing: PropTypes.func.isRequired,
   stopSharing: PropTypes.func.isRequired,
