@@ -240,7 +240,7 @@ class RedisPubSub {
     };
 
     if (!meetingId || !userId) {
-      return Logger.warn(`Interrupted publishing of ${JSON.stringify(header)} due to missing data`);
+      Logger.warn(`Publishing ${eventName} with potentially missing data userId=${userId} meetingId=${meetingId}`);
     }
     const envelope = makeEnvelope(channel, eventName, header, payload, { meetingId, userId });
 
