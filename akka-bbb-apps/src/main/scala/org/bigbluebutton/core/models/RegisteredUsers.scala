@@ -62,12 +62,12 @@ object RegisteredUsers {
 
     findWithExternUserId(user.externId, users) match {
       case Some(u) =>
-        if (u.ejected) {
-          // Ejected user is rejoining. Don't add so that validate token
+        if (u.banned) {
+          // Banned user is rejoining. Don't add so that validate token
           // will fail and can't join.
           // ralam april 21, 2020
-          val ejectedUser = user.copy(ejected = true)
-          users.save(ejectedUser)
+          val bannedUser = user.copy(banned = true)
+          users.save(bannedUser)
         } else {
           // If user hasn't been ejected, we allow user to join
           // as the user might be joining using 2 browsers for
@@ -81,16 +81,16 @@ object RegisteredUsers {
 
   }
 
-  private def banUser(ejectedUser: RegisteredUser, users: RegisteredUsers, ejectedByUser: RegisteredUser): RegisteredUser = {
+  private def banOrEjectUser(ejectedUser: RegisteredUser, users: RegisteredUsers, ban: Boolean): RegisteredUser = {
     // Some users join with multiple browser to manage the meeting.
     // Don't black list a user ejecting oneself.
     // ralam april 23, 2020
-    if (ejectedUser.externId != ejectedByUser.externId) {
+    if (ban) {
       // Set a flag that user has been ejected. We flag the user instead of
       // removing so we can eject when user tries to rejoin with the same
       // external userid.
       // ralam april 21, 2020
-      val u = ejectedUser.modify(_.ejected).setTo(true)
+      val u = ejectedUser.modify(_.banned).setTo(true)
       users.save(u)
       u
     } else {
@@ -98,12 +98,11 @@ object RegisteredUsers {
       ejectedUser
     }
   }
-  def eject(id: String, users: RegisteredUsers, ejectedBy: String): Option[RegisteredUser] = {
+  def eject(id: String, users: RegisteredUsers, ban: Boolean): Option[RegisteredUser] = {
     for {
       ru <- findWithUserId(id, users)
-      eu <- findWithUserId(ejectedBy, users)
     } yield {
-      banUser(ru, users, eu)
+      banOrEjectUser(ru, users, ban)
     }
   }
 
@@ -166,6 +165,6 @@ case class RegisteredUser(
     registeredOn:       Long,
     joined:             Boolean,
     markAsJoinTimedOut: Boolean,
-    ejected:            Boolean
+    banned:             Boolean
 )
 

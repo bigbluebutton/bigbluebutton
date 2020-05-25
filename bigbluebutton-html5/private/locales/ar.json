@@ -112,7 +112,6 @@
     "app.media.screenshare.start": "بدأت مشاركة الشاشة",
     "app.media.screenshare.end": "انتهت مشاركة الشاشة",
     "app.media.screenshare.unavailable": "مشاركة الشاشة غير متوفرة",
-    "app.media.screenshare.safariNotSupported": "مشاركة الشاشة غير مدعومة حاليًا بواسطة سفاري. من فضلك ، استخدم فايرفوكس أو جوجل كروم.",
     "app.media.screenshare.autoplayBlockedDesc": "نحن بحاجة إلى إذنك لتظهر لك شاشة مقدم العرض.",
     "app.media.screenshare.autoplayAllowLabel": "عرض الشاشة المشتركة",
     "app.screenshare.notAllowed": "خطأ: لم يتم منح إذن الدخول إلى الشاشة.",

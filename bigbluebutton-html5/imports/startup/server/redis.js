@@ -239,6 +239,9 @@ class RedisPubSub {
       userId,
     };
 
+    if (!meetingId || !userId) {
+      return Logger.warn(`Interrupted publishing of ${JSON.stringify(header)} due to missing data`);
+    }
     const envelope = makeEnvelope(channel, eventName, header, payload, { meetingId, userId });
 
     return this.pub.publish(channel, envelope, RedisPubSub.handlePublishError);
