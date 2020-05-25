@@ -1,6 +1,5 @@
 {
     "app.chat.submitLabel": "Kirimkan pesan",
-    "app.chat.errorMinMessageLength": "Pesan ini terdiri dari {0} karakter(s) terlalu pendek",
     "app.chat.errorMaxMessageLength": "Pesan ini terdiri dari {0} karakter(s) terlalu panjang",
     "app.chat.inputLabel": "Input pesan untuk chat {0}",
     "app.chat.titlePublic": "Chat Publik",

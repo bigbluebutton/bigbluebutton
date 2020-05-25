@@ -7,6 +7,10 @@ assignees: ''
 
 ---
 
+<!--PLEASE DO NOT FILE ISSUES FOR GENERAL SUPPORT QUESTIONS.
+This issue tracker is only for bbb development related issues.
+Search for existing feature requests to avoid creating duplicates.-->
+
 **Is your feature request related to a problem? Please describe.**
 A clear and concise description of what the problem is. Ex. I'm always frustrated when [...]
 

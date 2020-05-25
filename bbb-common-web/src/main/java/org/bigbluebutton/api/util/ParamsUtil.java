@@ -19,6 +19,10 @@ public class ParamsUtil {
   public static String stripControlChars(String text) {
     return text.replaceAll("\\p{Cc}", "");
   }
+  
+  public static String stripHTMLTags(String value) {
+    return value.replaceAll("\\<.*?>","");
+  }
 
   public static boolean isValidMeetingId(String meetingId) {
     //return  VALID_ID_PATTERN.matcher(meetingId).matches();

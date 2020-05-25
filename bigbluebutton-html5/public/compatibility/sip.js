@@ -9550,7 +9550,7 @@ UA.prototype.loadConfig = function(configuration) {
       userAgentString: SIP.C.USER_AGENT,
 
       // Session parameters
-      iceCheckingTimeout: 5000,
+      iceCheckingTimeout: 1000,
       noAnswerTimeout: 60,
       stunServers: ['stun:stun.l.google.com:19302'],
       turnServers: [],
