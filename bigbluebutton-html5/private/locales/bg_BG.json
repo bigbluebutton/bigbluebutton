@@ -41,7 +41,7 @@
     "app.captions.pad.hide": "Скрий субтитрите",
     "app.captions.pad.tip": "Натиснете Esc за връщане в редактора",
     "app.captions.pad.ownership": "Поемете контрол",
-    "app.captions.pad.ownershipTooltip": "Ще поемете контрол вълху писането на субтитри на {0}",
+    "app.captions.pad.ownershipTooltip": "Ще поемете контрол върху писането на субтитри на {0}",
     "app.captions.pad.interimResult": "Междинен резултат",
     "app.captions.pad.dictationStart": "Започни диктовка",
     "app.captions.pad.dictationStop": "Спри диктовката",
