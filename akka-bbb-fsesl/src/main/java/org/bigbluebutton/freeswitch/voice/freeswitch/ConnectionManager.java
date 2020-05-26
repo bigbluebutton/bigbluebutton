@@ -34,6 +34,7 @@ import org.bigbluebutton.freeswitch.voice.freeswitch.actions.*;
 import org.freeswitch.esl.client.inbound.Client;
 import org.freeswitch.esl.client.inbound.InboundConnectionFailure;
 import org.freeswitch.esl.client.manager.ManagerConnection;
+import org.freeswitch.esl.client.transport.CommandResponse;
 import org.freeswitch.esl.client.transport.message.EslMessage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -81,10 +82,18 @@ public class ConnectionManager {
 				if (!subscribed) {
 					log.info("Subscribing for ESL events.");
 					c.cancelEventSubscriptions();
-					c.setEventSubscriptions("plain", "all");
-					//c.addEventFilter(EVENT_NAME, "heartbeat");
-					c.addEventFilter(EVENT_NAME, "custom");
-					c.addEventFilter(EVENT_NAME, "background_job");
+					CommandResponse response = c.setEventSubscriptions("plain", "all");
+					if (response.isOk()) {
+						log.info("Subscribed to ESL events." +
+								" Command: [" + response.getCommand() + "] " +
+								" Response: [" + response.getReplyText() + "]");
+					}
+
+					c.addEventFilter(EVENT_NAME, "HEARTBEAT");
+					//c.addEventFilter(EVENT_NAME, "custom");
+					//c.addEventFilter(EVENT_NAME, "background_job");
+					c.addEventFilter(EVENT_NAME, "CHANNEL_EXECUTE");
+					c.addEventFilter(EVENT_NAME, "CHANNEL_STATE");
 					subscribed = true;
 				} else {
 					// Let's check for status every minute.
@@ -98,6 +107,8 @@ public class ConnectionManager {
 			}
 		} catch (InboundConnectionFailure e) {
 			log.error("Failed to connect to ESL");
+		} catch(Exception e) {
+			log.error(e.getMessage());
 		}
 	}
 

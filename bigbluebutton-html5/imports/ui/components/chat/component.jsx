@@ -48,7 +48,7 @@ const Chat = (props) => {
 
   return (
     <div
-      data-test="publicChat"
+      data-test={chatID !== 'public' ? 'privateChat' : 'publicChat'}
       className={styles.chat}
     >
       <header className={styles.header}>

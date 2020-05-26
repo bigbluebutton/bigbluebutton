@@ -26,7 +26,8 @@ module BigBlueButton
         super do
           @logger.info("Running process worker for #{@full_id}:#{@format_name}")
 
-          script = File.expand_path("../../process/#{@format_name}.rb", __FILE__)
+          script = File.join(BigBlueButton.rap_scripts_path,
+                             'process', "#{@format_name}.rb")
           if File.exist?(script)
             remove_status_files
 
@@ -79,7 +80,7 @@ module BigBlueButton
         super(opts)
         @step_name = 'process'
         @format_name = opts['format_name']
-        @post_scripts_path = File.expand_path('../post_process', __dir__)
+        @post_scripts_path = File.join(BigBlueButton.rap_scripts_path, 'post_process')
         @processed_done = "#{@recording_dir}/status/processed/#{@full_id}-#{@format_name}.done"
         @processed_fail = "#{@recording_dir}/status/processed/#{@full_id}-#{@format_name}.fail"
       end

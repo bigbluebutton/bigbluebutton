@@ -3,6 +3,9 @@
 :root {
   --mobile-nav-height: 5rem;
   --mobile-margin-top: .25rem;
+  --arrow-l-left: 	1.1rem;
+  --arrow-r-left: 2.5rem;
+  --arrow-size: 40%;
 }
 
 .navbar {
@@ -70,6 +73,31 @@
     right: 3px;
     background-color: var(--color-danger);
     border: var(--border-size) solid var(--color-gray-dark);
+  }
+}
+
+.arrowRight,
+.arrowLeft {
+  position: absolute;
+  font-size: var(--arrow-size);
+  color: var(--color-white);
+}
+
+.arrowLeft {
+  width: var(--lg-padding-y);
+  left: var(--arrow-l-left);
+  [dir="rtl"] & {
+    right: var(--arrow-r-left);
+    left: 0;
+  }
+}
+
+.arrowRight {
+  width: var(--md-padding-x);
+  left: var(--arrow-r-left);
+  [dir="rtl"] & {
+    right: .5rem;
+    left: 0;
   }
 }
 

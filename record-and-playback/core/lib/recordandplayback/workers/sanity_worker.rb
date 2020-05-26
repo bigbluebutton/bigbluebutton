@@ -29,7 +29,7 @@ module BigBlueButton
 
           remove_status_files
 
-          script = File.expand_path('../sanity/sanity.rb', __dir__)
+          script = File.join(BigBlueButton.rap_scripts_path, 'sanity', 'sanity.rb')
           if @break_timestamp.nil?
             ret, step_time = run_script(script, '-m', @meeting_id)
           else
@@ -59,7 +59,7 @@ module BigBlueButton
       def initialize(opts)
         super(opts)
         @step_name = 'sanity'
-        @post_scripts_path = File.expand_path('../post_archive', __dir__)
+        @post_scripts_path = File.join(BigBlueButton.rap_scripts_path, 'post_archive')
         @sanity_fail = "#{@recording_dir}/status/sanity/#{@full_id}.fail"
         @sanity_done = "#{@recording_dir}/status/sanity/#{@full_id}.done"
       end

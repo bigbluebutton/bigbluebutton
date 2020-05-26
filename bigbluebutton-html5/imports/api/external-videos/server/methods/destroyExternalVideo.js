@@ -8,4 +8,4 @@ export default function destroyExternalVideo(meetingId) {
     Logger.info(`Destroying External Video streamer object for ${streamName}`);
     delete Meteor.StreamerCentral.instances[streamName];
   }
-};
+}

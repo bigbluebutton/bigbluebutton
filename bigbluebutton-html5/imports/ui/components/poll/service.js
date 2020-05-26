@@ -50,10 +50,29 @@ const pollAnswerIds = {
   },
 };
 
+const CHAT_CONFIG = Meteor.settings.public.chat;
+const PUBLIC_GROUP_CHAT_ID = CHAT_CONFIG.public_group_id;
+const PUBLIC_CHAT_SYSTEM_ID = CHAT_CONFIG.system_userid;
+
+const sendGroupMessage = (message) => {
+  const payload = {
+    color: '0',
+    correlationId: `${PUBLIC_CHAT_SYSTEM_ID}-${Date.now()}`,
+    sender: {
+      id: PUBLIC_CHAT_SYSTEM_ID,
+      name: '',
+    },
+    message,
+  };
+
+  return makeCall('sendGroupChatMsg', PUBLIC_GROUP_CHAT_ID, payload);
+};
+
 export default {
   amIPresenter: () => Users.findOne({ userId: Auth.userID }, { fields: { presenter: 1 } }).presenter,
   pollTypes,
   stopPoll: () => makeCall('stopPoll', Auth.userId),
   currentPoll: () => Polls.findOne({ meetingId: Auth.meetingID }),
   pollAnswerIds,
+  sendGroupMessage,
 };

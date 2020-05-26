@@ -35,6 +35,7 @@ require 'find'
 require 'rubygems'
 require 'net/http'
 require 'journald/logger'
+require 'fnv'
 
 module BigBlueButton
   class MissingDirectoryException < RuntimeError
@@ -235,13 +236,27 @@ module BigBlueButton
     r.split("-")[1].to_i / 1000
   end
 
+  # Notes id will be an 8-sized hash string based on the meeting id
+  def self.get_notes_id(meeting_id)
+    FNV.new.fnv1a_32(meeting_id).to_s(16).rjust(8, '0')
+  end
+
   def self.done_to_timestamp(r)
     BigBlueButton.record_id_to_timestamp(File.basename(r, ".done"))
   end
 
+  def self.rap_core_path
+    File.expand_path('../../', __FILE__)
+  end
+
+  def self.rap_scripts_path
+    File.join(BigBlueButton.rap_core_path, 'scripts')
+  end
+
   def self.read_props
     return @props if @props
-    filepath = File.expand_path('../../scripts/bigbluebutton.yml', __FILE__)
+
+    filepath = File.join(BigBlueButton.rap_scripts_path, 'bigbluebutton.yml')
     @props = YAML::load(File.open(filepath))
   end
 

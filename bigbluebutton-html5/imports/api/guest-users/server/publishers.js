@@ -1,16 +1,16 @@
 import GuestUsers from '/imports/api/guest-users/';
 import { Meteor } from 'meteor/meteor';
-import { check } from 'meteor/check';
 import Logger from '/imports/startup/server/logger';
+import { extractCredentials } from '/imports/api/common/server/helpers';
 
-function guestUsers(credentials) {
-  const { meetingId, requesterUserId, requesterToken } = credentials;
+function guestUsers() {
+  if (!this.userId) {
+    return GuestUsers.find({ meetingId: '' });
+  }
 
-  check(meetingId, String);
-  check(requesterUserId, String);
-  check(requesterToken, String);
+  const { meetingId, requesterUserId } = extractCredentials(this.userId);
 
-  Logger.info(`Publishing Slides for ${meetingId} ${requesterUserId} ${requesterToken}`);
+  Logger.info(`Publishing Slides for ${meetingId} ${requesterUserId}`);
 
   return GuestUsers.find({ meetingId });
 }

@@ -3,6 +3,7 @@ import PresentationUploadToken from '/imports/api/presentation-upload-token';
 import Auth from '/imports/ui/services/auth';
 import Poll from '/imports/api/polls/';
 import { makeCall } from '/imports/ui/services/api';
+import logger from '/imports/startup/client/logger';
 import _ from 'lodash';
 
 const CONVERSION_TIMEOUT = 300000;
@@ -113,7 +114,7 @@ const requestPresentationUploadToken = (
 
   Tracker.autorun((c) => {
     computation = c;
-    const sub = Meteor.subscribe('presentation-upload-token', Auth.credentials, podId, filename);
+    const sub = Meteor.subscribe('presentation-upload-token', podId, filename);
     if (!sub.ready()) return;
 
     const PresentationToken = PresentationUploadToken.findOne({
@@ -171,7 +172,12 @@ const uploadAndConvertPresentation = (
     .then(() => observePresentationConversion(meetingId, file.name, onConversion))
     // Trap the error so we can have parallel upload
     .catch((error) => {
-      console.error(error);
+      logger.debug({
+        logCode: 'presentation_uploader_service',
+        extraInfo: {
+          error,
+        },
+      }, 'Generic presentation upload exception catcher');
       onUpload({ error: true, done: true, status: error.code });
       return Promise.resolve();
     });
@@ -187,7 +193,9 @@ const uploadAndConvertPresentations = (
   p.onUpload, p.onProgress, p.onConversion,
 )));
 
-const setPresentation = (presentationId, podId) => makeCall('setPresentation', presentationId, podId);
+const setPresentation = (presentationId, podId) => {
+  makeCall('setPresentation', presentationId, podId);
+};
 
 const removePresentation = (presentationId, podId) => {
   const hasPoll = Poll.find({}, { fields: {} }).count();
@@ -243,4 +251,5 @@ export default {
   getPresentations,
   persistPresentationChanges,
   dispatchTogglePresentationDownloadable,
+  setPresentation,
 };

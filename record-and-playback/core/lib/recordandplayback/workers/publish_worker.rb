@@ -28,7 +28,8 @@ module BigBlueButton
         super do
           @logger.info("Running publish worker for #{@full_id}:#{@format_name}")
 
-          script = File.expand_path("../../publish/#{@format_name}.rb", __FILE__)
+          script = File.join(BigBlueButton.rap_scripts_path,
+                             'publish', "#{@format_name}.rb")
           if File.exist?(script)
             @publisher.put_publish_started(@format_name, @meeting_id)
 
@@ -117,7 +118,7 @@ module BigBlueButton
         super(opts)
         @step_name = 'publish'
         @format_name = opts['format_name']
-        @post_scripts_path = File.expand_path('../post_publish', __dir__)
+        @post_scripts_path = File.join(BigBlueButton.rap_scripts_path, 'post_publish')
         @published_done = "#{@recording_dir}/status/published/#{@full_id}-#{@format_name}.done"
         @published_fail = "#{@recording_dir}/status/published/#{@full_id}-#{@format_name}.fail"
       end

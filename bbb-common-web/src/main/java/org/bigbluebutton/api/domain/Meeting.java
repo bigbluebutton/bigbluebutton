@@ -183,6 +183,13 @@ public class Meeting {
 	    return users;
 	}
 
+	public void guestIsWaiting(String userId) {
+		RegisteredUser ruser = registeredUsers.get(userId);
+		if (ruser != null) {
+			ruser.updateGuestWaitedOn();
+		}
+	}
+
 	public void setGuestStatusWithId(String userId, String guestStatus) {
     	User user = getUserById(userId);
     	if (user != null) {
@@ -355,7 +362,7 @@ public class Meeting {
 		} else if (GuestPolicy.ALWAYS_DENY.equals(guestPolicy)) {
 			return GuestPolicy.DENY;
 		} else if (GuestPolicy.ASK_MODERATOR.equals(guestPolicy)) {
-			if  (guest || (!ROLE_MODERATOR.equals(role) && authned)) {
+			if  (guest || (!ROLE_MODERATOR.equals(role) && !authned)) {
 				return GuestPolicy.WAIT ;
 			}
 			return GuestPolicy.ALLOW;

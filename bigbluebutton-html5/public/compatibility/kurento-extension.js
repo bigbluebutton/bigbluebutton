@@ -27,7 +27,7 @@ Kurento = function (
   this.internalMeetingId = internalMeetingId;
 
   // Optional parameters are: userName, caleeName, chromeExtension, wsUrl, iceServers,
-  // chromeScreenshareSources, firefoxScreenshareSource, logger
+  // chromeScreenshareSources, firefoxScreenshareSource, logger, stream
 
   Object.assign(this, options);
 
@@ -156,6 +156,10 @@ KurentoManager.prototype.exitAudio = function () {
     if (this.kurentoAudio.logger !== null) {
       this.kurentoAudio.logger.info({ logCode: 'kurentoextension_exit_listen_only' },
         'Exiting listen only');
+    }
+
+    if (this.kurentoAudio.webRtcPeer) {
+      this.kurentoAudio.webRtcPeer.peerConnection.oniceconnectionstatechange = null;
     }
 
     if (this.kurentoAudio.ws !== null) {
@@ -445,6 +449,7 @@ Kurento.prototype.startScreensharing = function () {
       this.onIceCandidate(candidate, this.SEND_ROLE);
     },
     sendSource: 'desktop',
+    videoStream: this.stream || undefined,
   };
 
   let resolution;
@@ -607,7 +612,6 @@ Kurento.prototype.setAudio = function (tag) {
 };
 
 Kurento.prototype.listenOnly = function () {
-  const self = this;
   if (!this.webRtcPeer) {
     const options = {
       onicecandidate : this.onListenOnlyIceCandidate.bind(this),
@@ -619,12 +623,31 @@ Kurento.prototype.listenOnly = function () {
 
     this.addIceServers(this.iceServers, options);
 
-    self.webRtcPeer = kurentoUtils.WebRtcPeer.WebRtcPeerRecvonly(options, function (error) {
+    this.webRtcPeer = kurentoUtils.WebRtcPeer.WebRtcPeerRecvonly(options, (error) => {
       if (error) {
-        return self.onFail(error);
+        return this.onFail(error);
       }
-      self.webRtcPeer.iceQueue = [];
-      this.generateOffer(self.onOfferListenOnly.bind(self));
+
+      this.webRtcPeer.iceQueue = [];
+      this.webRtcPeer.peerConnection.oniceconnectionstatechange = () => {
+        if (this.webRtcPeer) {
+          const iceConnectionState = this.webRtcPeer.peerConnection.iceConnectionState;
+
+          if (iceConnectionState === 'failed' || iceConnectionState === 'closed') {
+            this.webRtcPeer.peerConnection.oniceconnectionstatechange = null;
+            this.logger.error({
+              logCode: 'kurentoextension_listenonly_ice_failed',
+              extraInfo: { iceConnectionState }
+            }, `WebRTC peer for listen only failed due to ICE transitioning to ${iceConnectionState}`);
+            this.onFail({
+              errorCode: 1007,
+              errorMessage: `ICE negotiation failed. Current state - ${iceConnectionState}`,
+            });
+          }
+        }
+      }
+
+      this.webRtcPeer.generateOffer(this.onOfferListenOnly.bind(this));
     });
   }
 };
@@ -854,11 +877,6 @@ window.getScreenConstraints = function (sendSource, callback) {
   // Falls back to getDisplayMedia if the browser supports it
   if (hasDisplayMedia) {
     return callback(null, getDisplayMediaConstraints());
-  }
-
-  if (isSafari) {
-    // At this time (version 11.1), Safari doesn't support screenshare.
-    return document.dispatchEvent(new Event('safariScreenshareNotSupported'));
   }
 };
 

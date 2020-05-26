@@ -8,7 +8,7 @@ const DRAW_END = ANNOTATION_CONFIG.status.end;
 
 // maximum value of z-index to prevent other things from overlapping
 const MAX_Z_INDEX = (2 ** 31) - 1;
-const POINTS_TO_BUFFER = 5;
+const POINTS_TO_BUFFER = 2;
 
 export default class PencilDrawListener extends Component {
   constructor() {
@@ -64,8 +64,8 @@ export default class PencilDrawListener extends Component {
     transformedSvgPoint = svgCoordinateToPercentages(transformedSvgPoint);
 
     // sending the first message
-    const _points = [transformedSvgPoint.x, transformedSvgPoint.y];
-    this.handleDrawPencil(_points, DRAW_START, generateNewShapeId());
+    this.points = [transformedSvgPoint.x, transformedSvgPoint.y];
+    this.handleDrawPencil(this.points, DRAW_START, generateNewShapeId());
   }
 
   commonDrawMoveHandler(clientX, clientY) {
@@ -147,7 +147,6 @@ export default class PencilDrawListener extends Component {
     // if you switch to a different window using Alt+Tab while mouse is down and release it
     // it wont catch mouseUp and will keep tracking the movements. Thus we need this check.
     } else if (isRightClick) {
-      this.sendLastMessage();
       this.discardAnnotation();
     }
   }
@@ -171,7 +170,6 @@ export default class PencilDrawListener extends Component {
 
       const { getCurrentShapeId } = actions;
       this.handleDrawPencil(this.points, DRAW_UPDATE, getCurrentShapeId());
-      this.points = [];
     }
   }
 
@@ -254,19 +252,16 @@ export default class PencilDrawListener extends Component {
 
   discardAnnotation() {
     const {
-      whiteboardId,
       actions,
     } = this.props;
 
     const {
       getCurrentShapeId,
-      addAnnotationToDiscardedList,
-      undoAnnotation,
+      clearPreview,
     } = actions;
 
-
-    undoAnnotation(whiteboardId);
-    addAnnotationToDiscardedList(getCurrentShapeId());
+    this.resetState();
+    clearPreview(getCurrentShapeId());
   }
 
   render() {

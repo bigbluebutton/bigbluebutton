@@ -64,6 +64,7 @@
 #   2019-07-08 GTR  Set IP for all recording formats
 #   2019-10-31 GTR  Set IP and shared secret for bbb-webhooks
 #   2019-11-09 GTR  Keep HTML5 client logs permissions when cleaning logs
+#   2020-05-20 NJH  Add port 443 to --Network and clean up tmp file.
 
 #set -x
 #set -e
@@ -237,7 +238,7 @@ usage() {
     echo "   --check                          Check configuration files and processes for problems"
     echo "   --debug                          Scan the log files for error messages"
     echo "   --watch                          Scan the log files for error messages every 2 seconds"
-    echo "   --network                        View network connections on 80 and 1935 by IP address"
+    echo "   --network                        View network connections on 80, 443 and 1935 by IP address. 1935 is deprecated. You will need to modify bbb-conf if you have custom ports."
     echo "   --secret                         View the URL and shared secret for the server"
     echo "   --lti                            View the URL and secret for LTI (if installed)"
     echo
@@ -716,19 +717,6 @@ check_configuration() {
         fi
     done
 
-    #
-    # Check that the supporting applications are installed
-    
-    if [ -f /usr/share/red5/red5-server.jar ]; then
-      VARFolder=$(cat $SERVLET_DIR/WEB-INF/classes/bigbluebutton.properties | grep swfToolsDir | cut -d= -f2)
-      files="pdf2swf jpeg2swf png2swf"
-      for file in $files; do
-      if [ ! -x $VARFolder/$file ]; then
-        echo "# $file is not installed in $VARFolder"
-      fi
-      done
-    fi
-
     VARFolder=$(cat $SERVLET_DIR/WEB-INF/classes/bigbluebutton.properties | grep imageMagickDir | cut -d= -f2)
     if [ ! -x $VARFolder/convert ]; then
         echo "# ImageMagick's convert is not installed in $VARFolder"
@@ -930,7 +918,26 @@ check_configuration() {
         echo 
       fi
     fi
+}
 
+update_gstreamer() {
+    # due to a change in the kurento packages naming convention, gstreamer packages don't naturally upgrade
+    # this snippet checks if the installed gstreamer packages are the same as the one available in the repository
+    # if they are not, it will update (possibly downgrade)
+    # TODO remove it on 2.3 or above
+    if [ "$DISTRIB_CODENAME" == "xenial" ]; then
+        DOWNGRADE_LIST=""
+        for PACKAGE in $(dpkg -l | grep gst | tr -s ' ' | cut -d' ' -f2 | cut -d':' -f1); do
+            RIGHT_VERSION=$(apt-cache policy $PACKAGE | grep -B1 ubuntu.bigbluebutton.org | head -n1 | tr -s ' ' | cut -d' ' -f2)
+            if [[ $RIGHT_VERSION != "***" ]] && [[ $RIGHT_VERSION != "" ]]; then
+                echo "Force $PACKAGE to version $RIGHT_VERSION"
+                DOWNGRADE_LIST="$PACKAGE=$RIGHT_VERSION $DOWNGRADE_LIST"
+            fi
+        done
+        if [[ $DOWNGRADE_LIST != "" ]]; then
+            apt-get -y --allow-downgrades install $DOWNGRADE_LIST > /dev/null
+        fi
+    fi
 }
 
 
@@ -1448,7 +1455,7 @@ check_state() {
     if systemctl status freeswitch | grep -q SETSCHEDULER; then
         echo "# Error: FreeSWITCH failed to start with SETSCHEDULER error, see"
         echo "#"
-        echo "#   https://docs.bigbluebutton.org/install/install.html#freeswitch-fails-to-start-with-a-setscheduler-error"
+        echo "#   http://docs.bigbluebutton.org/2.2/troubleshooting.html#freeswitch-fails-to-start-with-a-setscheduler-error"
         echo "#"
     fi
 
@@ -1529,6 +1536,23 @@ check_state() {
       echo "#"
       echo "#   sudo chown -R bigbluebutton:bigbluebutton /var/bigbluebutton"
       echo "#"
+    fi
+
+    FREESWITCH_SIP=$(netstat -anlt | grep :5066 | grep -v tcp6 | grep LISTEN | sed 's/ [ ]*/ /g' | cut -d' ' -f4 | sed 's/:5066//g')
+    KURENTO_SIP=$(yq r $KURENTO_CONFIG freeswitch.sip_ip)
+
+    if [ ! -z "$FREESWITCH_SIP" ]; then
+     if [ "$FREESWITCH_SIP" != "$KURENTO_SIP" ]; then
+      echo
+      echo "#"
+      echo "# Kurento is will try to connect to $KURENTO_SIP but FreeSWITCH is listening on $FREESWITCH_SIP for port 5066"
+      echo "#"
+      echo "# To fix, run the commands"
+      echo "#"
+      echo "# sudo yq w -i /usr/local/bigbluebutton/bbb-webrtc-sfu/config/default.yml freeswitch.sip_ip $FREESWITCH_SIP"
+      echo "# sudo chown bigbluebutton:bigbluebutton /usr/local/bigbluebutton/bbb-webrtc-sfu/config/default.yml"
+      echo "#"
+     fi
     fi
 
     exit 0
@@ -1650,6 +1674,7 @@ if [ $CHECK ]; then
         echo "$KURENTO_CONFIG (Kurento SFU)"
         echo "                        kurento.ip: $(yq r $KURENTO_CONFIG kurento[0].ip)"
         echo "                       kurento.url: $(yq r $KURENTO_CONFIG kurento[0].url)"
+        echo "                    kurento.sip_ip: $(yq r $KURENTO_CONFIG freeswitch.sip_ip)"
         echo "                    localIpAddress: $(yq r $KURENTO_CONFIG localIpAddress)"
         echo "               recordScreenSharing: $(yq r $KURENTO_CONFIG recordScreenSharing)"
         echo "                     recordWebcams: $(yq r $KURENTO_CONFIG recordWebcams)"
@@ -1663,6 +1688,15 @@ if [ $CHECK ]; then
         echo "                             build: $(yq r $HTML5_CONFIG public.app.html5ClientBuild)"
         echo "                        kurentoUrl: $(yq r $HTML5_CONFIG public.kurento.wsUrl)"
         echo "                  enableListenOnly: $(yq r $HTML5_CONFIG public.kurento.enableListenOnly)"
+     fi
+
+     if ! java -version 2>&1 | grep -q "1.8.0"; then
+        echo
+        echo "# Warning: Did not detect Java 8 as default version"
+        echo
+        echo "   sudo apt-get install openjdk-8-jdk"
+        echo "   update-alternatives --config java"
+        echo "   bbb-conf --restart"
      fi
 
      check_state
@@ -1696,9 +1730,16 @@ if [ $ZIP ]; then
     tar rf  $TMP_LOG_FILE /var/log/bbb-webrtc-sfu         > /dev/null 2>&1
     tar rf  $TMP_LOG_FILE /var/log/kurento-media-server > /dev/null 2>&1
     tar rf  $TMP_LOG_FILE /var/log/mongodb              > /dev/null 2>&1
+    tar rf  $TMP_LOG_FILE /var/log/redis                > /dev/null 2>&1
     tar rf  $TMP_LOG_FILE /var/log/nginx/error.log      > /dev/null 2>&1
-    if [ $DISTRIB_ID == "ubuntu" ]; then
-        tar rf $TMP_LOG_FILE /var/log/syslog        > /dev/null 2>&1
+    tar rfh $TMP_LOG_FILE /opt/freeswitch/var/log/freeswitch/ > /dev/null 2>&1
+
+    if [ -f /var/log/nginx/html5-client.log ]; then
+        tar rf $TMP_LOG_FILE /var/log/nginx/html5-client.log* > /dev/null 2>&1
+    fi
+
+    if [ -f /var/log/syslog ]; then
+        tar rf $TMP_LOG_FILE /var/log/syslog* > /dev/null 2>&1
     fi
 
     tar tf $TMP_LOG_FILE
@@ -1966,6 +2007,7 @@ if [ -n "$HOST" ]; then
 
     echo "Restarting the BigBlueButton $BIGBLUEBUTTON_RELEASE ..."
     stop_bigbluebutton
+    update_gstreamer
     echo
     start_bigbluebutton
 
@@ -1980,6 +2022,7 @@ if [ $RESTART ]; then
     echo "Restarting BigBlueButton $BIGBLUEBUTTON_RELEASE ..."
 
     stop_bigbluebutton
+    update_gstreamer
     start_bigbluebutton
     check_state
 fi
@@ -1991,6 +2034,7 @@ if [ $CLEAN ]; then
     echo "Restarting BigBlueButton $BIGBLUEBUTTON_RELEASE (and cleaning out all log files) ..."
 
     stop_bigbluebutton
+    update_gstreamer
 
     #
     # Clean log files
@@ -2086,18 +2130,20 @@ if [ $CLEAN ]; then
 fi
 
 if [ $NETWORK ]; then
-    netstat -ant | egrep ":1935|:80\ " | egrep -v ":::|0.0.0.0" > /tmp/t_net
+    netstat -ant | egrep ":1935|:80|:443\ " | egrep -v ":::|0.0.0.0" > /tmp/t_net
     REMOTE=$(cat /tmp/t_net | cut -c 45-68 | cut -d ":" -f1 | sort | uniq)
 
     if [ "$REMOTE" != "" ]; then
-        echo -e "netstat\t\t\t80\t1935"
+        echo -e "netstat\t\t\t80\t443\t1935"
         for IP in $REMOTE ; do
             PORT_1935=$(cat /tmp/t_net | grep :1935 | cut -c 45-68 | cut -d ":" -f1 | grep $IP | wc -l)
             PORT_80=$(cat /tmp/t_net | grep :80 | cut -c 45-68 | cut -d ":" -f1 | grep $IP | wc -l )
+	    PORT_443=$(cat /tmp/t_net | grep :443 | cut -c 45-68 | cut -d ":" -f1 | grep $IP | wc -l )
 
-            echo -e "$IP\t\t$PORT_80\t$PORT_1935"
+            echo -e "$IP\t\t$PORT_80\t$PORT_443\t$PORT_1935"
         done
     fi
+    rm /tmp/t_net
 fi
 
 if [ $WATCH ]; then

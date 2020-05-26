@@ -4,7 +4,10 @@ import ReconnectingWebSocket from 'reconnecting-websocket';
 import VideoService from './service';
 import VideoList from './video-list/component';
 import { defineMessages, injectIntl } from 'react-intl';
-import { fetchWebRTCMappedStunTurnServers } from '/imports/utils/fetchStunTurnServers';
+import {
+  fetchWebRTCMappedStunTurnServers,
+  getMappedFallbackStun,
+} from '/imports/utils/fetchStunTurnServers';
 import { tryGenerateIceCandidates } from '/imports/utils/safari-webrtc';
 import logger from '/imports/startup/client/logger';
 
@@ -210,13 +213,9 @@ class VideoProvider extends Component {
     const streamsCameraIds = streams.map(s => s.cameraId);
     const streamsConnected = Object.keys(this.webRtcPeers);
 
-    const streamsToConnect = streamsCameraIds.filter(cameraId => {
-      return !streamsConnected.includes(cameraId);
-    });
+    const streamsToConnect = streamsCameraIds.filter(cameraId => !streamsConnected.includes(cameraId));
 
-    const streamsToDisconnect = streamsConnected.filter(cameraId => {
-      return !streamsCameraIds.includes(cameraId);
-    });
+    const streamsToDisconnect = streamsConnected.filter(cameraId => !streamsCameraIds.includes(cameraId));
 
     streamsToConnect.forEach((cameraId) => {
       const isLocal = VideoService.isLocalStream(cameraId);
@@ -427,9 +426,12 @@ class VideoProvider extends Component {
       logger.error({
         logCode: 'video_provider_fetchstunturninfo_error',
         extraInfo: {
-          error,
+          errorCode: error.code,
+          errorMessage: error.message,
         },
       }, 'video-provider failed to fetch STUN/TURN info, using default');
+      // Use fallback STUN server
+      iceServers = getMappedFallbackStun();
     } finally {
       const { constraints, bitrate, id: profileId } = VideoService.getCameraProfile();
       this.outboundIceQueues[cameraId] = [];
@@ -612,16 +614,15 @@ class VideoProvider extends Component {
 
       this.restartTimeout[cameraId] = setTimeout(
         this._getWebRTCStartTimeout(cameraId, isLocal),
-        this.restartTimer[cameraId]
+        this.restartTimer[cameraId],
       );
     }
   }
 
   _getOnIceCandidateCallback(cameraId, isLocal) {
-    const peer = this.webRtcPeers[cameraId];
-    const role = VideoService.getRole(isLocal);
-
     return (candidate) => {
+      const peer = this.webRtcPeers[cameraId];
+      const role = VideoService.getRole(isLocal);
       // Setup a timeout only when the first candidate is generated and if the peer wasn't
       // marked as started already (which is done on handlePlayStart after
       // it was verified that media could circle through the server)

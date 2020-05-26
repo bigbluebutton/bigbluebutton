@@ -3,15 +3,14 @@ public:
     mobileFontSize: 16px
     desktopFontSize: 14px
     audioChatNotification: false
-    showParticipantsOnLogin: true
     autoJoin: true
     listenOnlyMode: true
     forceListenOnly: false
     skipCheck: false
     clientTitle: BigBlueButton
     appName: BigBlueButton HTML5 Client
-    bbbServerVersion: 2.2-dev
-    copyright: "©2019 BigBlueButton Inc."
+    bbbServerVersion: 2.2
+    copyright: "©2020 BigBlueButton Inc."
     html5ClientBuild: HTML5_CLIENT_VERSION
     helpLink: https://bigbluebutton.org/html5/
     lockOnJoin: true
@@ -34,6 +33,8 @@ public:
         chatPushAlerts: false
         userJoinAudioAlerts: false
         userJoinPushAlerts: false
+        raiseHandAudioAlerts: false
+        raiseHandPushAlerts: false
         fallbackLocale: en
         overrideLocale: null
       audio:
@@ -70,9 +71,6 @@ public:
       openActions:
         accesskey: A
         descId: openActions
-      openStatus:
-        accesskey: S
-        descId: openStatus
     branding:
       displayBrandingArea: false
     connectionTimeout: 60000
@@ -92,10 +90,21 @@ public:
     chromeDefaultExtensionLink: https://chrome.google.com/webstore/detail/bigbluebutton-screenshare/akgoaoikmbmhcopjgakkcepdgdgkjfbc
     chromeExtensionKey: KEY
     chromeExtensionLink: LINK
-    chromeScreenshareSources:
-    - window
-    - screen
-    firefoxScreenshareSource: window
+    screenshare:
+      constraints:
+        video:
+          frameRate:
+            ideal: 5
+            max: 10
+          width:
+            max: 2560
+          height:
+            max: 1600
+        audio: false
+      chromeScreenshareSources:
+        - window
+        - screen
+      firefoxScreenshareSource: window
     cameraProfiles:
       - id: low
         name: Low quality
@@ -120,7 +129,7 @@ public:
     autoShareWebcam: false
     skipVideoPreview: false
   pingPong:
-    clearUsersInSeconds: 30
+    clearUsersInSeconds: 180
     pongTimeInSeconds: 15
   allowOutsideCommands:
     toggleRecording: false
@@ -172,11 +181,13 @@ public:
     webcamsDefaultPlacement: "top"
   media:
     stunTurnServersFetchAddress: "/bigbluebutton/api/stuns"
+    cacheStunTurnServers: true
+    fallbackStunServer:  ''
     mediaTag: "#remote-media"
     callTransferTimeout: 5000
     callHangupTimeout: 2000
     callHangupMaximumRetries: 10
-    echoTestNumber: '9196'
+    echoTestNumber: 'echo'
     relayOnlyOnReconnect: false
   stats:
     enabled: false
@@ -235,6 +246,8 @@ public:
     - extension: .odi
       mime: application/vnd.oasis.opendocument.image
     - extension: .jpg
+      mime: image/jpeg
+    - extension: .jpeg
       mime: image/jpeg
     - extension: .png
       mime: image/png
@@ -368,25 +381,25 @@ private:
       enabled: false
   minBrowserVersions:
     - browser: chrome
-      version: 59
+      version: 72
     - browser: chromeMobileIOS
       version: Infinity
     - browser: firefox
-      version: 52
+      version: 63
     - browser: firefoxMobile
-      version: 52
+      version: 68
     - browser: edge
-      version: 17
+      version: 79
     - browser: ie
       version: Infinity
     - browser: safari
-      version: [11, 1]
+      version: [12, 1]
     - browser: mobileSafari
-      version: [11, 1]
+      version: [12, 1]
     - browser: opera
-      version: 46
+      version: 50
     - browser: electron
       version: [0, 36]
     - browser: YandexBrowser
       version: 19
-      
+
