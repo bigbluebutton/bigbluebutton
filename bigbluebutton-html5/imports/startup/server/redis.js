@@ -239,6 +239,9 @@ class RedisPubSub {
       userId,
     };
 
+    if (!meetingId || !userId) {
+      Logger.warn(`Publishing ${eventName} with potentially missing data userId=${userId} meetingId=${meetingId}`);
+    }
     const envelope = makeEnvelope(channel, eventName, header, payload, { meetingId, userId });
 
     return this.pub.publish(channel, envelope, RedisPubSub.handlePublishError);

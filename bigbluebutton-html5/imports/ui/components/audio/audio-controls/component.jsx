@@ -92,7 +92,7 @@ class AudioControls extends PureComponent {
               icon={muted ? 'mute' : 'unmute'}
               size="lg"
               circle
-              accessKey={shortcuts.toggleMute}
+              accessKey={shortcuts.togglemute}
             />
           ) : null}
         <Button
@@ -109,7 +109,7 @@ class AudioControls extends PureComponent {
           icon={joinIcon}
           size="lg"
           circle
-          accessKey={inAudio ? shortcuts.leaveAudio : shortcuts.joinAudio}
+          accessKey={inAudio ? shortcuts.leaveaudio : shortcuts.joinaudio}
         />
       </span>);
   }

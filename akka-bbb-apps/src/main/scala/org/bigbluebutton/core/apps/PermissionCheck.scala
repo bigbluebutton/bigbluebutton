@@ -85,7 +85,8 @@ object PermissionCheck {
                                    outGW: OutMsgRouter, liveMeeting: LiveMeeting): Unit = {
     val ejectedBy = SystemUser.ID
 
-    UsersApp.ejectUserFromMeeting(outGW, liveMeeting, userId, ejectedBy, reason, EjectReasonCode.PERMISSION_FAILED)
+    UsersApp.ejectUserFromMeeting(outGW, liveMeeting, userId, ejectedBy, reason, EjectReasonCode.PERMISSION_FAILED, ban = false)
+
     // send a system message to force disconnection
     Sender.sendDisconnectClientSysMsg(meetingId, userId, ejectedBy, reason, outGW)
   }

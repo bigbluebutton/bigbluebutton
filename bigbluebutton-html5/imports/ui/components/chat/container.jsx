@@ -5,6 +5,7 @@ import { Session } from 'meteor/session';
 import Auth from '/imports/ui/services/auth';
 import Chat from './component';
 import ChatService from './service';
+import Storage from '/imports/ui/services/storage/session';
 
 const CHAT_CONFIG = Meteor.settings.public.chat;
 const PUBLIC_CHAT_KEY = CHAT_CONFIG.public_id;
@@ -88,7 +89,8 @@ export default injectIntl(withTracker(({ intl }) => {
     };
 
     let moderatorMsg;
-    if (amIModerator && welcomeProp.modOnlyMessage) {
+    const modOnlyMessage = Storage.getItem('ModeratorOnlyMessage');
+    if (amIModerator && modOnlyMessage) {
       const moderatorTime = time + 1;
       const moderatorId = `moderator-msg-${moderatorTime}`;
 
@@ -96,7 +98,7 @@ export default injectIntl(withTracker(({ intl }) => {
         id: moderatorId,
         content: [{
           id: moderatorId,
-          text: welcomeProp.modOnlyMessage,
+          text: modOnlyMessage,
           time: moderatorTime,
         }],
         time: moderatorTime,
@@ -113,7 +115,7 @@ export default injectIntl(withTracker(({ intl }) => {
 
     const messagesFormated = messagesBeforeWelcomeMsg
       .concat(welcomeMsg)
-      .concat(moderatorMsg || [])
+      .concat((amIModerator && modOnlyMessage) || [])
       .concat(messagesAfterWelcomeMsg);
 
     messages = messagesFormated.sort((a, b) => (a.time - b.time));

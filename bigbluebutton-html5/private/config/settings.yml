@@ -71,9 +71,6 @@ public:
       openActions:
         accesskey: A
         descId: openActions
-      openStatus:
-        accesskey: S
-        descId: openStatus
     branding:
       displayBrandingArea: false
     connectionTimeout: 60000
@@ -93,10 +90,21 @@ public:
     chromeDefaultExtensionLink: https://chrome.google.com/webstore/detail/bigbluebutton-screenshare/akgoaoikmbmhcopjgakkcepdgdgkjfbc
     chromeExtensionKey: KEY
     chromeExtensionLink: LINK
-    chromeScreenshareSources:
-    - window
-    - screen
-    firefoxScreenshareSource: window
+    screenshare:
+      constraints:
+        video:
+          frameRate:
+            ideal: 5
+            max: 10
+          width:
+            max: 2560
+          height:
+            max: 1600
+        audio: false
+      chromeScreenshareSources:
+        - window
+        - screen
+      firefoxScreenshareSource: window
     cameraProfiles:
       - id: low
         name: Low quality
@@ -173,12 +181,32 @@ public:
     webcamsDefaultPlacement: "top"
   media:
     stunTurnServersFetchAddress: "/bigbluebutton/api/stuns"
+    cacheStunTurnServers: true
+    fallbackStunServer:  ''
     mediaTag: "#remote-media"
     callTransferTimeout: 5000
     callHangupTimeout: 2000
     callHangupMaximumRetries: 10
     echoTestNumber: 'echo'
     relayOnlyOnReconnect: false
+  stats:
+    enabled: false
+    interval: 2000
+    length: 5
+    log: false
+    jitter:
+      - 10
+      - 20
+      - 30
+    loss:
+      - 0.05
+      - 0.1
+      - 0.2
+    level:
+      - warning
+      - danger
+      - critical
+    help: STATS_HELP_URL
   presentation:
     allowDownloadable: true
     defaultPresentationFile: default.pdf
