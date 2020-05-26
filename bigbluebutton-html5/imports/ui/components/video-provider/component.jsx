@@ -14,10 +14,12 @@ import logger from '/imports/startup/client/logger';
 // Default values and default empty object to be backwards compat with 2.2.
 // FIXME Remove hardcoded defaults 2.3.
 const WS_CONN_TIMEOUT = Meteor.settings.public.kurento.wsConnectionTimeout || 4000;
+
 const {
   baseTimeout: CAMERA_SHARE_FAILED_WAIT_TIME = 15000,
   maxTimeout: MAX_CAMERA_SHARE_FAILED_WAIT_TIME = 60000,
 } = Meteor.settings.public.kurento.cameraTimeouts || {};
+const CAMERA_QUALITY_THRESHOLDS_ENABLED = Meteor.settings.public.kurento.cameraQualityThresholds.enabled;
 const PING_INTERVAL = 15000;
 
 const intlClientErrors = defineMessages({
@@ -218,6 +220,19 @@ class VideoProvider extends Component {
     VideoService.onBeforeUnload();
   }
 
+  updateThreshold (numberOfPublishers) {
+    const { threshold, profile } = VideoService.getThreshold(numberOfPublishers);
+    if (profile) {
+      const publishers = Object.values(this.webRtcPeers)
+        .filter(peer => peer.isPublisher)
+        .forEach(peer => {
+          // 0 means no threshold in place. Reapply original one if needed
+          let profileToApply = (threshold === 0) ? peer.originalProfileId : profile;
+          VideoService.applyCameraProfile(peer, profileToApply)
+        });
+    }
+  }
+
   updateStreams(streams) {
     const streamsCameraIds = streams.map(s => s.cameraId);
     const streamsConnected = Object.keys(this.webRtcPeers);
@@ -236,6 +251,10 @@ class VideoProvider extends Component {
     });
 
     streamsToDisconnect.forEach(cameraId => this.stopWebRTCPeer(cameraId));
+
+    if (CAMERA_QUALITY_THRESHOLDS_ENABLED) {
+      this.updateThreshold(streamsCameraIds.length);
+    }
   }
 
   ping() {
@@ -474,6 +493,10 @@ class VideoProvider extends Component {
         peer.started = false;
         peer.attached = false;
         peer.didSDPAnswered = false;
+        peer.isPublisher = isLocal;
+        peer.originalProfileId = profileId;
+        peer.currentProfileId = profileId;
+
         if (peer.inboundIceQueue == null) {
           peer.inboundIceQueue = [];
         }

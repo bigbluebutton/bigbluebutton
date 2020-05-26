@@ -117,6 +117,54 @@ public:
         - screen
       firefoxScreenshareSource: window
     cameraProfiles:
+      - id: low-u30
+        name: low-u30
+        bitrate: 35
+        hidden: true
+        constraints:
+           video:
+              frameRate:
+                ideal: 1
+      - id: low-u25
+        name: low-u25
+        bitrate: 40
+        hidden: true
+        constraints:
+           video:
+              frameRate:
+                ideal: 3
+      - id: low-u20
+        name: low-u4
+        bitrate: 50
+        hidden: true
+        constraints:
+           video:
+              frameRate:
+                ideal: 5
+      - id: low-u15
+        name: low-u5
+        bitrate: 70
+        hidden: true
+        constraints:
+           video:
+              frameRate:
+                ideal: 8
+      - id: low-u12
+        name: low-u5
+        bitrate: 90
+        hidden: true
+        constraints:
+           video:
+              frameRate:
+                ideal: 10
+      - id: low-u8
+        name: low-u5
+        bitrate: 100
+        hidden: true
+        constraints:
+           video:
+              frameRate:
+                ideal: 10
       - id: low
         name: Low quality
         default: false
@@ -139,6 +187,21 @@ public:
     enableListenOnly: true
     autoShareWebcam: false
     skipVideoPreview: false
+    cameraQualityThresholds:
+      enabled: false
+      thresholds:
+        - threshold: 8
+          profile: low-u8
+        - threshold: 12
+          profile: low-u12
+        - threshold: 15
+          profile: low-u15
+        - threshold: 20
+          profile: low-u20
+        - threshold: 25
+          profile: low-u25
+        - threshold: 30
+          profile: low-u30
   pingPong:
     clearUsersInSeconds: 180
     pongTimeInSeconds: 15
