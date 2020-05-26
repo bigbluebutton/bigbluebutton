@@ -64,6 +64,7 @@
 #   2019-07-08 GTR  Set IP for all recording formats
 #   2019-10-31 GTR  Set IP and shared secret for bbb-webhooks
 #   2019-11-09 GTR  Keep HTML5 client logs permissions when cleaning logs
+#   2020-05-20 NJH  Add port 443 to --Network and clean up tmp file.
 
 #set -x
 #set -e
@@ -237,7 +238,7 @@ usage() {
     echo "   --check                          Check configuration files and processes for problems"
     echo "   --debug                          Scan the log files for error messages"
     echo "   --watch                          Scan the log files for error messages every 2 seconds"
-    echo "   --network                        View network connections on 80 and 1935 by IP address"
+    echo "   --network                        View network connections on 80, 443 and 1935 by IP address. 1935 is deprecated. You will need to modify bbb-conf if you have custom ports."
     echo "   --secret                         View the URL and shared secret for the server"
     echo "   --lti                            View the URL and secret for LTI (if installed)"
     echo
@@ -1537,6 +1538,23 @@ check_state() {
       echo "#"
     fi
 
+    FREESWITCH_SIP=$(netstat -anlt | grep :5066 | grep -v tcp6 | grep LISTEN | sed 's/ [ ]*/ /g' | cut -d' ' -f4 | sed 's/:5066//g')
+    KURENTO_SIP=$(yq r $KURENTO_CONFIG freeswitch.sip_ip)
+
+    if [ ! -z "$FREESWITCH_SIP" ]; then
+     if [ "$FREESWITCH_SIP" != "$KURENTO_SIP" ]; then
+      echo
+      echo "#"
+      echo "# Kurento is will try to connect to $KURENTO_SIP but FreeSWITCH is listening on $FREESWITCH_SIP for port 5066"
+      echo "#"
+      echo "# To fix, run the commands"
+      echo "#"
+      echo "# sudo yq w -i /usr/local/bigbluebutton/bbb-webrtc-sfu/config/default.yml freeswitch.sip_ip $FREESWITCH_SIP"
+      echo "# sudo chown bigbluebutton:bigbluebutton /usr/local/bigbluebutton/bbb-webrtc-sfu/config/default.yml"
+      echo "#"
+     fi
+    fi
+
     exit 0
 }
 
@@ -1656,6 +1674,7 @@ if [ $CHECK ]; then
         echo "$KURENTO_CONFIG (Kurento SFU)"
         echo "                        kurento.ip: $(yq r $KURENTO_CONFIG kurento[0].ip)"
         echo "                       kurento.url: $(yq r $KURENTO_CONFIG kurento[0].url)"
+        echo "                    kurento.sip_ip: $(yq r $KURENTO_CONFIG freeswitch.sip_ip)"
         echo "                    localIpAddress: $(yq r $KURENTO_CONFIG localIpAddress)"
         echo "               recordScreenSharing: $(yq r $KURENTO_CONFIG recordScreenSharing)"
         echo "                     recordWebcams: $(yq r $KURENTO_CONFIG recordWebcams)"
@@ -2111,18 +2130,20 @@ if [ $CLEAN ]; then
 fi
 
 if [ $NETWORK ]; then
-    netstat -ant | egrep ":1935|:80\ " | egrep -v ":::|0.0.0.0" > /tmp/t_net
+    netstat -ant | egrep ":1935|:80|:443\ " | egrep -v ":::|0.0.0.0" > /tmp/t_net
     REMOTE=$(cat /tmp/t_net | cut -c 45-68 | cut -d ":" -f1 | sort | uniq)
 
     if [ "$REMOTE" != "" ]; then
-        echo -e "netstat\t\t\t80\t1935"
+        echo -e "netstat\t\t\t80\t443\t1935"
         for IP in $REMOTE ; do
             PORT_1935=$(cat /tmp/t_net | grep :1935 | cut -c 45-68 | cut -d ":" -f1 | grep $IP | wc -l)
             PORT_80=$(cat /tmp/t_net | grep :80 | cut -c 45-68 | cut -d ":" -f1 | grep $IP | wc -l )
+	    PORT_443=$(cat /tmp/t_net | grep :443 | cut -c 45-68 | cut -d ":" -f1 | grep $IP | wc -l )
 
-            echo -e "$IP\t\t$PORT_80\t$PORT_1935"
+            echo -e "$IP\t\t$PORT_80\t$PORT_443\t$PORT_1935"
         done
     fi
+    rm /tmp/t_net
 fi
 
 if [ $WATCH ]; then

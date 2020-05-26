@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import { withTracker } from 'meteor/react-meteor-data';
 import PropTypes from 'prop-types';
 import { IntlProvider, addLocaleData } from 'react-intl';
 import Settings from '/imports/ui/services/settings';
@@ -31,6 +32,7 @@ import it from 'react-intl/locale-data/it';
 import ja from 'react-intl/locale-data/ja';
 import ka from 'react-intl/locale-data/ka';
 import km from 'react-intl/locale-data/km';
+import kn from 'react-intl/locale-data/kn';
 import ko from 'react-intl/locale-data/ko';
 import lt from 'react-intl/locale-data/lt';
 import lv from 'react-intl/locale-data/lv';
@@ -78,6 +80,7 @@ addLocaleData([
   ...ja,
   ...ka,
   ...km,
+  ...kn,
   ...ko,
   ...lt,
   ...lv,
@@ -194,7 +197,15 @@ class IntlStartup extends Component {
   }
 }
 
-export default IntlStartup;
+const IntlStartupContainer = withTracker(() => {
+  const { locale } = Settings.application;
+
+  return {
+    locale,
+  };
+})(IntlStartup);
+
+export default IntlStartupContainer;
 
 IntlStartup.propTypes = propTypes;
 IntlStartup.defaultProps = defaultProps;
