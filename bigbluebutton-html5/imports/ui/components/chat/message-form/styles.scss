@@ -2,6 +2,10 @@
 @import "/imports/ui/stylesheets/mixins/_indicators";
 @import "/imports/ui/stylesheets/variables/_all";
 
+:root {
+  --max-chat-input-msg-height: .93rem;
+}
+
 .form {
   flex-grow: 0;
   flex-shrink: 0;
@@ -100,28 +104,20 @@
   }
 }
 
-.info {
-  &:before {
-    content: "\00a0"; // non-breaking space
-  }
-}
-
 .error,
 .info {
   font-size: calc(var(--font-size-base) * .75);
   color: var(--color-gray-dark);
   text-align: left;
   padding: var(--border-size) 0;
-
-  [dir="rtl"] & {
-    text-align: right;
-  }
+  position: relative;
 }
 
-.spacer {
-  &:before {
-    content: "\00a0"; // non-breaking space
-  }
+.error,
+.info,
+.space {
+  height: var(--max-chat-input-msg-height);
+  max-height: var(--max-chat-input-msg-height);
 }
 
 .coupleTyper,
@@ -146,10 +142,14 @@
   flex-direction: row;
 
   > span {
-    display: flex;
-    flex-direction: row;
+    display: block;
     width: 100%;
     line-height: var(--font-size-md);
+  }
+
+  text-align: left;
+  [dir="rtl"] & {
+    text-align: right;
   }
 }
 
