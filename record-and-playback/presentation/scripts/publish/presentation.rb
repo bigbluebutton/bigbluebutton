@@ -682,7 +682,15 @@ def events_parse_shape(shapes, event, current_presentation, current_slide, times
   if shape[:type] == 'text'
     shape[:text_box_width] = event.at_xpath('textBoxWidth').text.to_f
     shape[:text_box_height] = event.at_xpath('textBoxHeight').text.to_f
-    shape[:calced_font_size] = event.at_xpath('calcedFontSize').text.to_f
+
+    calced_font_size = event.at_xpath('calcedFontSize')
+    unless calced_font_size
+      BigBlueButton.logger.warn("Draw #{shape[:shape_id]} Shape #{shape[:shape_unique_id]} ID #{shape[:id]} is missing calcedFontSize")
+      return
+    end
+
+    shape[:calced_font_size] = calced_font_size.text.to_f
+
     shape[:font_color] = color_to_hex(event.at_xpath('fontColor').text)
     text = event.at_xpath('text')
     if !text.nil?
