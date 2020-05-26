@@ -7,8 +7,8 @@ public:
     listenOnlyMode: true
     forceListenOnly: false
     skipCheck: false
-    clientTitle: BigBlueButton
-    appName: BigBlueButton HTML5 Client
+    clientTitle: Edubox Online
+    appName: Edubox Online HTML5 Client
     bbbServerVersion: 2.2
     copyright: "©2019 BigBlueButton Inc."
     html5ClientBuild: HTML5_CLIENT_VERSION
@@ -33,7 +33,7 @@ public:
         userJoinAudioAlerts: false
         userJoinPushAlerts: false
         fallbackLocale: en
-        overrideLocale: null
+        overrideLocale: vi_VN
       audio:
         inputDeviceId: undefined
         outputDeviceId: undefined
@@ -85,7 +85,7 @@ public:
     enableNetworkMonitoring: false
     packetLostThreshold: 10
   kurento:
-    wsUrl: HOST
+    wsUrl: wss://onlinedev02.edubox.vn/bbb-webrtc-sfu
     chromeDefaultExtensionKey: akgoaoikmbmhcopjgakkcepdgdgkjfbc
     chromeDefaultExtensionLink: https://chrome.google.com/webstore/detail/bigbluebutton-screenshare/akgoaoikmbmhcopjgakkcepdgdgkjfbc
     chromeExtensionKey: KEY
