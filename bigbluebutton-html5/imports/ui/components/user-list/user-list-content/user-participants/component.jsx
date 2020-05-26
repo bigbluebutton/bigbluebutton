@@ -68,6 +68,23 @@ class UserParticipants extends Component {
     this.rove = this.rove.bind(this);
     this.changeState = this.changeState.bind(this);
     this.rowRenderer = this.rowRenderer.bind(this);
+    this.getUsers = this.getUsers.bind(this);
+    this.handleClickSelectedUser = this.handleClickSelectedUser.bind(this);
+  }
+
+  componentDidMount() {
+    const { compact } = this.props;
+    if (!compact) {
+      this.refScrollContainer.addEventListener(
+        'keydown',
+        this.rove,
+      );
+
+      this.refScrollContainer.addEventListener(
+        'click',
+        this.handleClickSelectedUser,
+      );
+    }
   }
 
   shouldComponentUpdate(nextProps, nextState) {
@@ -96,6 +113,7 @@ class UserParticipants extends Component {
 
   componentWillUnmount() {
     this.refScrollContainer.removeEventListener('keydown', this.rove);
+    this.refScrollContainer.removeEventListener('click', this.handleClickSelectedUser);
   }
 
   getScrollContainerRef() {
@@ -147,6 +165,11 @@ class UserParticipants extends Component {
         </span>
       </CellMeasurer>
     );
+  }
+
+  handleClickSelectedUser(event) {
+    const selectedUser = event.path.find(p => p.className && p.className.includes('participantsList'));
+    this.setState({ selectedUser });
   }
 
   rove(event) {
