@@ -123,48 +123,42 @@ public:
         hidden: true
         constraints:
            video:
-              frameRate:
-                ideal: 1
+              frameRate: 1
       - id: low-u25
         name: low-u25
         bitrate: 40
         hidden: true
         constraints:
            video:
-              frameRate:
-                ideal: 3
+              frameRate: 3
       - id: low-u20
         name: low-u4
         bitrate: 50
         hidden: true
         constraints:
            video:
-              frameRate:
-                ideal: 5
+              frameRate: 5
       - id: low-u15
         name: low-u5
         bitrate: 70
         hidden: true
         constraints:
            video:
-              frameRate:
-                ideal: 8
+              frameRate: 8
       - id: low-u12
         name: low-u5
         bitrate: 90
         hidden: true
         constraints:
            video:
-              frameRate:
-                ideal: 10
+              frameRate: 10
       - id: low-u8
         name: low-u5
         bitrate: 100
         hidden: true
         constraints:
            video:
-              frameRate:
-                ideal: 10
+              frameRate: 10
       - id: low
         name: Low quality
         default: false
