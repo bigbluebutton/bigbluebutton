@@ -434,22 +434,46 @@ class VideoService {
             parameters.encodings = [{}];
           }
 
-          parameters.encodings[0].maxBitrate = bitrate * 1000;
-          sender.setParameters(parameters)
-            .then(() => {
-              logger.info({
-                logCode: 'video_provider_bitratechange',
-                extraInfo: { bitrate },
-              }, `Bitrate changed: ${bitrate}`);
-            })
-            .catch(error => {
-              logger.warn({
-                logCode: 'video_provider_bitratechange_failed',
-                extraInfo: { bitrate, errorMessage: error.message, errorCode: error.code },
-              }, `Bitrate change failed.`);
-            });
+          const normalizedBitrate = bitrate * 1000;
+          // Only reset bitrate if it changed in some way to avoid enconder fluctuations
+          if (parameters.encodings[0].maxBitrate !== normalizedBitrate) {
+            parameters.encodings[0].maxBitrate = normalizedBitrate;
+            sender.setParameters(parameters)
+              .then(() => {
+                logger.info({
+                  logCode: 'video_provider_bitratechange',
+                  extraInfo: { bitrate },
+                }, `Bitrate changed: ${bitrate}`);
+              })
+              .catch(error => {
+                logger.warn({
+                  logCode: 'video_provider_bitratechange_failed',
+                  extraInfo: { bitrate, errorMessage: error.message, errorCode: error.code },
+                }, `Bitrate change failed.`);
+              });
+          }
         }
       })
+    }
+  }
+
+  // Some browsers (mainly iOS Safari) garble the stream if a constraint is
+  // reconfigured without propagating previous height/width info
+  reapplyResolutionIfNeeded (track, constraints) {
+    if (typeof track.getSettings !== 'function') {
+      return constraints;
+    }
+
+    const trackSettings = track.getSettings();
+
+    if (trackSettings.width && trackSettings.height) {
+      return {
+        ...constraints,
+        width: trackSettings.width,
+        height: trackSettings.height
+      };
+    } else {
+      return constraints;
     }
   }
 
@@ -481,7 +505,8 @@ class VideoService {
       peer.peerConnection.getSenders().forEach(sender => {
         const { track } = sender;
         if (track && track.kind === 'video' && typeof track.applyConstraints  === 'function') {
-          track.applyConstraints(constraints.video)
+          let normalizedVideoConstraints = this.reapplyResolutionIfNeeded(track, constraints.video);
+          track.applyConstraints(normalizedVideoConstraints)
             .then(() => {
               logger.info({
                 logCode: 'video_provider_profile_applied',
