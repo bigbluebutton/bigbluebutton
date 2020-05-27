@@ -14,3 +14,6 @@ exports.screenShareButton = 'button[aria-label="Share your screen"]';
 exports.shareWebcamButton = 'button[aria-label="Share webcam"]';
 exports.webcamSettingsModal = 'div[aria-label="Webcam settings"]';
 exports.startWebcamSharingConfirm = 'button[aria-label="Start sharing"]';
+exports.multiUsersWhiteboard = 'button[aria-label="Turn multi-user whiteboard on"]';
+exports.tools = 'button[aria-label="Tools"]';
+exports.actions = 'button[aria-label="Actions"]';

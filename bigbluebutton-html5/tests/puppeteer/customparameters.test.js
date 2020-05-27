@@ -142,7 +142,7 @@ describe('Custom parameters', () => {
     try {
       console.log('before');
       const testName = 'shortcuts';
-      response = await test.shortcuts(testName, Page.getArgs(), undefined, c.shortcuts);
+      response = await test.shortcuts(testName, Page.getArgs(), undefined, encodeURI(c.shortcuts));
       console.log('after');
     } catch (e) {
       console.log(e);
@@ -197,6 +197,78 @@ describe('Custom parameters', () => {
       console.log('before');
       const testName = 'autoShareWebcam';
       response = await test.autoShareWebcam(testName, Page.getArgsWithVideo(), undefined, c.autoShareWebcam);
+      console.log('after');
+    } catch (e) {
+      console.log(e);
+    } finally {
+      await test.closePage(test.page1);
+    }
+    expect(response).toBe(true);
+  });
+
+  // This test spec sets the userdata-multiUserPenOnly parameter to true
+  // and checks that at multi Users whiteboard other users can see only pencil as drawing tool
+  test('Multi Users Pen Only', async () => {
+    const test = new CustomParameters();
+    let response;
+    try {
+      console.log('before');
+      const testName = 'multiUserPenOnly';
+      response = await test.multiUserPenOnly(testName, Page.getArgsWithVideo(), undefined, c.multiUserPenOnly);
+      console.log('after');
+    } catch (e) {
+      console.log(e);
+    } finally {
+      await test.close(test.page1, test.page2);
+    }
+    expect(response).toBe(true);
+  });
+
+  // This test spec sets the userdata-presenterTools parameter to an interval of parameters
+  // and checks that at multi Users whiteboard Presenter can see only the set tools from the interval
+  test('Presenter Tools', async () => {
+    const test = new CustomParameters();
+    let response;
+    try {
+      console.log('before');
+      const testName = 'presenterTools';
+      response = await test.presenterTools(testName, Page.getArgsWithVideo(), undefined, encodeURI(c.presenterTools));
+      console.log('after');
+    } catch (e) {
+      console.log(e);
+    } finally {
+      await test.closePage(test.page1);
+    }
+    expect(response).toBe(true);
+  });
+
+  // This test spec sets the userdata-multiUserTools parameter to an interval of parameters
+  // and checks that at multi Users whiteboard other users can see only the set tools from the interval
+  test('Multi Users Tools', async () => {
+    const test = new CustomParameters();
+    let response;
+    try {
+      console.log('before');
+      const testName = 'multiUserTools';
+      response = await test.multiUserTools(testName, Page.getArgsWithVideo(), undefined, encodeURI(c.multiUserTools));
+      console.log('after');
+    } catch (e) {
+      console.log(e);
+    } finally {
+      await test.close(test.page1, test.page2);
+    }
+    expect(response).toBe(true);
+  });
+
+  // This test spec sets the userdata-customStyle parameter to an interval of parameters
+  // and checks that at multi Users whiteboard other users can see only the set tools from the interval
+  test('Custom Styles', async () => {
+    const test = new CustomParameters();
+    let response;
+    try {
+      console.log('before');
+      const testName = 'customStyle';
+      response = await test.customStyle(testName, Page.getArgsWithVideo(), undefined, encodeURIComponent(c.customStyle));
       console.log('after');
     } catch (e) {
       console.log(e);

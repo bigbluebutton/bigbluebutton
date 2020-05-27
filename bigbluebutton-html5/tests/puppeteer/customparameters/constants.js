@@ -12,3 +12,7 @@ exports.shortcuts = 'userdata-shortcuts=["openOptions", "toggleUserList", "toggl
 exports.enableScreensharing = 'userdata-enableScreensharing=false';
 exports.enableVideo = 'userdata-enableVideo=false';
 exports.autoShareWebcam = 'userdata-autoShareWebcam=true';
+exports.multiUserPenOnly = 'userdata-multiUserPenOnly=true';
+exports.presenterTools = 'userdata-presenterTools=["pencil", "hand"]';
+exports.multiUserTools = 'userdata-multiUserTools=["pencil", "hand"]';
+exports.customStyle = 'userdata-customStyle=:root{--loader-bg:#000;}.overlay--1aTlbi{background-color:#000!important;}body{background-color:#000!important;}.presentationTitle--1LT79g{display: none;}.navbar--Z2lHYbG{display:none;}.actionsbar--Z1ant6U{display:none;}';

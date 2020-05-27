@@ -230,6 +230,93 @@ class CustomParameters {
     return resp === true;
   }
 
+  async multiUserPenOnly(testName, args, meetingId, customParameter) {
+    console.log('before init');
+    await this.page1.init(args, meetingId, { ...params, fullName: 'Moderator1' }, customParameter, testName);
+    await this.page2.init(args, this.page1.meetingId, { ...params, fullName: 'Moderator2' }, customParameter, testName);
+    await this.page1.screenshot(`${testName}`, `01-page1-${testName}`);
+    await this.page2.screenshot(`${testName}`, `01-page2-${testName}`);
+    console.log('after init');
+    await this.page1.closeAudioModal();
+    await this.page2.closeAudioModal();
+    await this.page1.screenshot(`${testName}`, `02-page1-${testName}`);
+    await this.page2.screenshot(`${testName}`, `02-page2-${testName}`);
+    await this.page1.waitForSelector(cpe.multiUsersWhiteboard);
+    await this.page1.click(cpe.multiUsersWhiteboard, true);
+    await this.page1.screenshot(`${testName}`, `03-page1-${testName}`);
+    await this.page2.waitForSelector(cpe.tools);
+    await this.page2.click(cpe.tools, true);
+    await this.page2.screenshot(`${testName}`, `04-page2-${testName}`);
+    if (await this.page2.page.evaluate(async () => await document.querySelectorAll('[aria-label="Tools"]')[0].parentElement.childElementCount === 2)) {
+      await this.page2.screenshot(`${testName}`, `05-page2-fail-${testName}`);
+      return false;
+    }
+    const resp = await this.page2.page.evaluate(async () => await document.querySelectorAll('[aria-label="Tools"]')[0].parentElement.childElementCount === 1);
+    await this.page2.screenshot(`${testName}`, `05-page2-success-${testName}`);
+    return resp === true;
+  }
+
+  async presenterTools(testName, args, meetingId, customParameter) {
+    console.log('before init');
+    await this.page1.init(args, meetingId, { ...params, fullName: 'Moderator1' }, customParameter, testName);
+    await this.page1.screenshot(`${testName}`, `01-${testName}`);
+    console.log('after init');
+    await this.page1.closeAudioModal();
+    await this.page1.screenshot(`${testName}`, `02-${testName}`);
+    await this.page1.waitForSelector(cpe.tools);
+    await this.page1.click(cpe.tools, true);
+    await this.page1.screenshot(`${testName}`, `03-${testName}`);
+    if (await this.page1.page.evaluate(async () => await document.querySelectorAll('[aria-label="Tools"]')[0].parentElement.querySelector('[class^="toolbarList--"]').childElementCount === 7)) {
+      await this.page1.screenshot(`${testName}`, `04-fail-${testName}`);
+      return false;
+    }
+    const resp = await this.page1.page.evaluate(async () => await document.querySelectorAll('[aria-label="Tools"]')[0].parentElement.querySelector('[class^="toolbarList--"]').childElementCount === 2);
+    await this.page1.screenshot(`${testName}`, `04-success-${testName}`);
+    return resp === true;
+  }
+
+  async multiUserTools(testName, args, meetingId, customParameter) {
+    console.log('before init');
+    await this.page1.init(args, meetingId, { ...params, fullName: 'Moderator1' }, customParameter, testName);
+    await this.page2.init(args, this.page1.meetingId, { ...params, fullName: 'Moderator2' }, customParameter, testName);
+    await this.page1.screenshot(`${testName}`, `01-page1-${testName}`);
+    await this.page2.screenshot(`${testName}`, `01-page2-${testName}`);
+    console.log('after init');
+    await this.page1.closeAudioModal();
+    await this.page2.closeAudioModal();
+    await this.page1.screenshot(`${testName}`, `02-page1-${testName}`);
+    await this.page2.screenshot(`${testName}`, `02-page2-${testName}`);
+    await this.page1.waitForSelector(cpe.multiUsersWhiteboard);
+    await this.page1.click(cpe.multiUsersWhiteboard, true);
+    await this.page1.screenshot(`${testName}`, `03-page1-${testName}`);
+    await this.page2.waitForSelector(cpe.tools);
+    await this.page2.click(cpe.tools, true);
+    await this.page2.screenshot(`${testName}`, `04-page2-${testName}`);
+    if (await this.page2.page.evaluate(async () => await document.querySelectorAll('[aria-label="Tools"]')[0].parentElement.querySelector('[class^="toolbarList--"]').childElementCount === 7)) {
+      await this.page2.screenshot(`${testName}`, `05-page2-fail-${testName}`);
+      return false;
+    }
+    const resp = await this.page2.page.evaluate(async () => await document.querySelectorAll('[aria-label="Tools"]')[0].parentElement.querySelector('[class^="toolbarList--"]').childElementCount === 2);
+    await this.page2.screenshot(`${testName}`, `05-page2-success-${testName}`);
+    return resp === true;
+  }
+
+  async customStyle(testName, args, meetingId, customParameter) {
+    console.log('before init');
+    await this.page1.init(args, meetingId, { ...params, fullName: 'Moderator1' }, customParameter, testName);
+    await this.page1.screenshot(`${testName}`, `01-${testName}`);
+    console.log('after init');
+    await this.page1.closeAudioModal();
+    await this.page1.screenshot(`${testName}`, `02-${testName}`);
+    if (await this.page1.page.$(cpe.actions)) {
+      await this.page1.screenshot(`${testName}`, `03-fail-${testName}`);
+      return false;
+    }
+    const resp = !(await this.page1.page.$(cpe.actions));
+    await this.page1.screenshot(`${testName}`, `03-success-${testName}`);
+    return resp === true;
+  }
+
   async closePage(page) {
     page.close();
   }
