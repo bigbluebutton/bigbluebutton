@@ -119,11 +119,11 @@ public:
     cameraProfiles:
       - id: low-u30
         name: low-u30
-        bitrate: 35
+        bitrate: 30
         hidden: true
         constraints:
            video:
-              frameRate: 1
+              frameRate: 3
       - id: low-u25
         name: low-u25
         bitrate: 40
