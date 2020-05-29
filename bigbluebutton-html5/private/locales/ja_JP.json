@@ -74,7 +74,7 @@
     "app.userList.menu.clearStatus.label": "ステータスを消去する",
     "app.userList.menu.removeUser.label": "ユーザーを退室させる",
     "app.userList.menu.removeConfirmation.label": "ユーザー({0})の退室",
-    "app.userlist.menu.removeConfirmation.desc": "このユーザーはもうこのセッションには戻れなくなりますが、構いませんか？",
+    "app.userlist.menu.removeConfirmation.desc": "このユーザーをセッションに二度と参加させない",
     "app.userList.menu.muteUserAudio.label": "ユーザーをミュートする",
     "app.userList.menu.unmuteUserAudio.label": "ユーザーのミュートを外す",
     "app.userList.userAriaLabel": "{0} {1} {2} ステータス {3}",
