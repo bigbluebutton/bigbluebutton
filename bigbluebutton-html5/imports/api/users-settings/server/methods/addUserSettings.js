@@ -48,6 +48,8 @@ const currentParameters = [
   'bbb_enable_video',
   'bbb_enable_video_stats',
   'bbb_skip_video_preview',
+  // PRESENTATION
+  'bbb_force_restore_presentation_on_new_events',
   // WHITEBOARD
   'bbb_multi_user_pen_only',
   'bbb_presenter_tools',

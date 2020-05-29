@@ -84,14 +84,39 @@ class PresentationArea extends PureComponent {
   }
 
   componentDidUpdate(prevProps) {
-    const { currentPresentation, notify, intl } = this.props;
+    const {
+      currentPresentation,
+      notify,
+      intl,
+      layoutSwapped,
+      currentSlide,
+      slidePosition,
+      publishedPoll,
+      isViewer,
+      toggleSwapLayout,
+      currentPresentationId,
+      restoreOnUpdate,
+    } = this.props;
 
-    if (prevProps.currentPresentation.name !== currentPresentation.name) {
+    const presentationChanged = currentPresentationId !== currentPresentation._id;
+
+    if (presentationChanged) {
+      Session.set('currentPresentationId', currentPresentation._id);
       notify(
         `${intl.formatMessage(intlMessages.changeNotification)} ${currentPresentation.name}`,
         'info',
         'presentation',
       );
+    }
+
+    if (layoutSwapped && restoreOnUpdate && isViewer && currentSlide) {
+      const slideChanged = currentSlide.id !== prevProps.currentSlide.id;
+      const positionChanged = slidePosition.viewBoxHeight !== prevProps.slidePosition.viewBoxHeight
+        || slidePosition.viewBoxWidth !== prevProps.slidePosition.viewBoxWidth;
+      const pollPublished = publishedPoll && !prevProps.publishedPoll;
+      if (slideChanged || positionChanged || pollPublished || presentationChanged) {
+        toggleSwapLayout();
+      }
     }
   }
 
