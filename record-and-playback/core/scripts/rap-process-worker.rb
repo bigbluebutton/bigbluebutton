@@ -32,6 +32,14 @@ def process_archived_meetings(recording_dir)
     meeting_id = nil
     break_timestamp = nil
 
+    done_lock_name = "/var/run/bigbluebutton-recordlocks/"+done_base+".lock"
+    done_lock_file = File.open(done_lock_name, File::CREAT)
+    if (not done_lock_file.flock(File::LOCK_EX | File::LOCK_NB))
+        print("Sanity \""+done_base+"\" is already picked up! skipped\n")
+        next
+    end
+    print("Picked \""+done_base+"\"\n")
+
     if match = /^([0-9a-f]+-[0-9]+)$/.match(done_base)
       meeting_id = match[1]
     elsif match = /^([0-9a-f]+-[0-9]+)-([0-9]+)$/.match(done_base)

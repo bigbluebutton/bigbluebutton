@@ -4,6 +4,7 @@ ConditionPathExistsGlob=/var/bigbluebutton/recording/status/sanity/*.done
 
 [Service]
 Type=simple
+ExecStartPre=-/bin/mkdir -p /var/run/bigbluebutton-recordlocks/
 ExecStart=/usr/local/bigbluebutton/core/scripts/rap-process-worker.rb
 WorkingDirectory=/usr/local/bigbluebutton/core/scripts
 User=bigbluebutton
