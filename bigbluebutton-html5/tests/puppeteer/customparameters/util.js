@@ -60,6 +60,15 @@ async function getTestElement(element) {
   return document.querySelectorAll(element).length === 0;
 }
 
+function hexToRgb(hex) {
+  const bigint = parseInt(hex, 16);
+  const r = (bigint >> 16) & 255;
+  const g = (bigint >> 8) & 255;
+  const b = bigint & 255;
+  return `rgb(${r}, ${g}, ${b})`;
+}
+
+exports.hexToRgb = hexToRgb;
 exports.getTestElement = getTestElement;
 exports.countTestElements = countTestElements;
 exports.autoJoinTest = autoJoinTest;

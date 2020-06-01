@@ -17,3 +17,7 @@ exports.startWebcamSharingConfirm = 'button[aria-label="Start sharing"]';
 exports.multiUsersWhiteboard = 'button[aria-label="Turn multi-user whiteboard on"]';
 exports.tools = 'button[aria-label="Tools"]';
 exports.actions = 'button[aria-label="Actions"]';
+exports.restorePresentation = 'button[aria-label="Restore presentation"]';
+exports.container = 'div[id="container"]';
+exports.defaultContent = 'div[class^="defaultContent--"]';
+exports.notificationBar = 'div[class^="notificationsBar--"]';

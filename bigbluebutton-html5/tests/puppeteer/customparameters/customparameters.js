@@ -307,14 +307,96 @@ class CustomParameters {
     await this.page1.screenshot(`${testName}`, `01-${testName}`);
     console.log('after init');
     await this.page1.closeAudioModal();
+    await this.page1.waitForSelector(cpe.whiteboard);
     await this.page1.screenshot(`${testName}`, `02-${testName}`);
-    if (await this.page1.page.$(cpe.actions)) {
+    if (await this.page1.page.evaluate(util.getTestElement, cpe.actions) === false) {
       await this.page1.screenshot(`${testName}`, `03-fail-${testName}`);
       return false;
     }
-    const resp = !(await this.page1.page.$(cpe.actions));
+    const resp = await this.page1.page.evaluate(util.getTestElement, cpe.actions) === true;
     await this.page1.screenshot(`${testName}`, `03-success-${testName}`);
     return resp === true;
+  }
+
+  async customStyleUrl(testName, args, meetingId, customParameter) {
+    console.log('before init');
+    await this.page1.init(args, meetingId, { ...params, fullName: 'Moderator1' }, customParameter, testName);
+    await this.page1.screenshot(`${testName}`, `01-${testName}`);
+    console.log('after init');
+    await this.page1.closeAudioModal();
+    await this.page1.waitForSelector(cpe.whiteboard);
+    await this.page1.screenshot(`${testName}`, `02-${testName}`);
+    if (await this.page1.page.evaluate(util.getTestElement, cpe.actions) === false) {
+      await this.page1.screenshot(`${testName}`, `03-fail-${testName}`);
+      return false;
+    }
+    const resp = await this.page1.page.evaluate(util.getTestElement, cpe.actions) === true;
+    await this.page1.screenshot(`${testName}`, `03-success-${testName}`);
+    return resp === true;
+  }
+
+  async autoSwapLayout(testName, args, meetingId, customParameter) {
+    console.log('before init');
+    await this.page1.init(args, meetingId, { ...params, fullName: 'Moderator1' }, customParameter, testName);
+    await this.page1.screenshot(`${testName}`, `01-${testName}`);
+    console.log('after init');
+    await this.page1.closeAudioModal();
+    await this.page1.waitForSelector(cpe.container);
+    await this.page1.screenshot(`${testName}`, `02-${testName}`);
+    if (await this.page1.page.evaluate(util.getTestElement, cpe.restorePresentation) === false) {
+      await this.page1.screenshot(`${testName}`, `03-fail-${testName}`);
+      return false;
+    }
+    const resp = await this.page1.page.evaluate(util.getTestElement, cpe.restorePresentation) === true;
+    await this.page1.screenshot(`${testName}`, `03-success-${testName}`);
+    return resp === true;
+  }
+
+  async hidePresentation(testName, args, meetingId, customParameter) {
+    console.log('before init');
+    await this.page1.init(args, meetingId, { ...params, fullName: 'Moderator1' }, customParameter, testName);
+    await this.page1.screenshot(`${testName}`, `01-${testName}`);
+    console.log('after init');
+    await this.page1.closeAudioModal();
+    await this.page1.waitForSelector(cpe.actions);
+    await this.page1.screenshot(`${testName}`, `02-${testName}`);
+    if (await this.page1.page.evaluate(util.countTestElements, cpe.defaultContent) === false) {
+      await this.page1.screenshot(`${testName}`, `03-fail-${testName}`);
+      return false;
+    }
+    const resp = await this.page1.page.evaluate(util.countTestElements, cpe.defaultContent) === true;
+    await this.page1.screenshot(`${testName}`, `03-success-${testName}`);
+    return resp === true;
+  }
+
+  async bannerText(testName, args, meetingId, customParameter) {
+    console.log('before init');
+    await this.page1.init(args, meetingId, { ...params, fullName: 'Moderator1' }, customParameter, testName);
+    await this.page1.screenshot(`${testName}`, `01-${testName}`);
+    console.log('after init');
+    await this.page1.closeAudioModal();
+    await this.page1.waitForSelector(cpe.actions);
+    await this.page1.screenshot(`${testName}`, `02-${testName}`);
+    if (await this.page1.page.evaluate(util.countTestElements, cpe.notificationBar) === false) {
+      await this.page1.screenshot(`${testName}`, `03-fail-${testName}`);
+      return false;
+    }
+    const resp = await this.page1.page.evaluate(util.countTestElements, cpe.notificationBar) === true;
+    await this.page1.screenshot(`${testName}`, `03-success-${testName}`);
+    return resp === true;
+  }
+
+  async bannerColor(testName, args, meetingId, customParameter, colorToRGB) {
+    console.log('before init');
+    await this.page1.init(args, meetingId, { ...params, fullName: 'Moderator1' }, customParameter, testName);
+    await this.page1.screenshot(`${testName}`, `01-${testName}`);
+    console.log('after init');
+    await this.page1.closeAudioModal();
+    await this.page1.waitForSelector(cpe.notificationBar);
+    await this.page1.screenshot(`${testName}`, `02-${testName}`);
+    const resp = await this.page1.page.evaluate(() => getComputedStyle('div[class^="notificationsBar--"]').backgroundColor);
+    await this.page1.screenshot(`${testName}`, `03-${testName}`);
+    return resp === colorToRGB;
   }
 
   async closePage(page) {
