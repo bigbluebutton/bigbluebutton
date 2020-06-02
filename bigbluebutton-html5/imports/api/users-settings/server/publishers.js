@@ -33,7 +33,7 @@ function userSettings() {
       UserSettings.upsert(selector, doc);
     });
 
-    Logger.debug(`Publishing user settings for user=${externalId}`);
+    Logger.debug(`Publishing user settings for user=${requesterUserId}`);
 
     return UserSettings.find({ meetingId, userId: requesterUserId });
   }
