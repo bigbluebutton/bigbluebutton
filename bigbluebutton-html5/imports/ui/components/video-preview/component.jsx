@@ -146,54 +146,13 @@ const intlMessages = defineMessages({
     id: 'app.audioModal.iOSErrorRecommendation',
     description: 'Audio/Video recommended action',
   },
+  genericError: {
+    id: 'app.video.genericError',
+    description: 'error message for when the webcam sharing fails with unknown error',
+  },
 });
 
 class VideoPreview extends Component {
-  static handleGUMError(error) {
-    // logger.error(error);
-    // logger.error(error.id);
-    // logger.error(error.name);
-    // console.log(error);
-    // console.log(error.name)
-    // console.log(error.message)
-
-    // let convertedError;
-
-    /* switch (error.name) {
-      case 'SourceUnavailableError':
-      case 'NotReadableError':
-        // hardware failure with the device
-        // NotReadableError: Could not start video source
-        break;
-      case 'NotAllowedError':
-        // media was disallowed
-        // NotAllowedError: Permission denied
-        convertedError = intlMessages.NotAllowedError;
-        break;
-      case 'AbortError':
-        // generic error occured
-        // AbortError: Starting video failed (FF when there's a hardware failure)
-        break;
-      case 'NotFoundError':
-        // no webcam found
-        // NotFoundError: The object can not be found here.
-        // NotFoundError: Requested device not found
-        convertedError = intlMessages.NotFoundError;
-        break;
-      case 'SecurityError':
-        // user media support is disabled on the document
-        break;
-      case 'TypeError':
-        // issue with constraints or maybe Chrome with HTTP
-        break;
-      default:
-        // default error message handling
-        break;
-    } */
-
-    return `${error.name}: ${error.message}`;
-  }
-
   constructor(props) {
     super(props);
 
@@ -306,7 +265,7 @@ class VideoPreview extends Component {
               }, 'Error enumerating devices');
               this.setState({
                 viewState: VIEW_STATES.error,
-                deviceError: VideoPreview.handleGUMError(error),
+                deviceError: this.handleGUMError(error),
               });
             });
           }).catch((error) => {
@@ -319,7 +278,7 @@ class VideoPreview extends Component {
             }, 'Error getting initial device');
             this.setState({
               viewState: VIEW_STATES.error,
-              deviceError: VideoPreview.handleGUMError(error),
+              deviceError: this.handleGUMError(error),
             });
           });
       } catch (error) {
@@ -332,7 +291,7 @@ class VideoPreview extends Component {
         }, 'Error grabbing initial video stream');
         this.setState({
           viewState: VIEW_STATES.error,
-          deviceError: VideoPreview.handleGUMError(error),
+          deviceError: this.handleGUMError(error),
         });
       }
     } else {
@@ -409,6 +368,27 @@ class VideoPreview extends Component {
     if (resolve) resolve();
   }
 
+  handleGUMError(error) {
+    const { intl } = this.props;
+    const errorCode = error.code;
+    const errorName = error.name;
+    const errorMessage = error.message;
+
+    if (intlMessages[errorName]) {
+      return intl.formatMessage(intlMessages[errorName]);
+    }
+
+    logger.error({
+      logCode: 'video_preview_gum_failure',
+      message: 'getUserMedia failed in video-preview',
+      extraInfo: {
+        errorName, errorMessage,
+      },
+    }, 'default error handler for video-preview');
+
+    return intl.formatMessage(intlMessages.genericError, { 0: errorCode });
+  }
+
   displayInitialPreview(deviceId) {
     const { changeWebcam } = this.props;
     const availableProfiles = CAMERA_PROFILES.filter(p => !p.hidden);
@@ -474,7 +454,7 @@ class VideoPreview extends Component {
           errorMessage: error.message,
         },
       }, 'Error displaying final selection.');
-      this.setState({ previewError: VideoPreview.handleGUMError(error) });
+      this.setState({ previewError: this.handleGUMError(error) });
     });
   }
 
