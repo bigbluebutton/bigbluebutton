@@ -129,11 +129,13 @@ class ToolbarSubmenu extends Component {
 
     this.handleMouseEnter = this.handleMouseEnter.bind(this);
     this.handleMouseLeave = this.handleMouseLeave.bind(this);
+    this.handleMouseDown = this.handleMouseDown.bind(this);
     this.onItemClick = this.onItemClick.bind(this);
     this.findCurrentElement = this.findCurrentElement.bind(this);
   }
 
   componentDidMount() {
+    document.addEventListener('mousedown', this.handleMouseDown);
     const { handleMouseEnter, objectSelected, type } = this.props;
 
     if (handleMouseEnter) {
@@ -174,6 +176,10 @@ class ToolbarSubmenu extends Component {
     }
   }
 
+  componentWillUnmount() {
+    document.removeEventListener('mousedown', this.handleMouseDown);
+  }
+
   onItemClick(objectToReturn) {
     const { onItemClick } = this.props;
 
@@ -186,6 +192,21 @@ class ToolbarSubmenu extends Component {
     if (node.nodeName === 'BUTTON') return this.findCurrentElement(node.childNodes[0]);
     if (node.nodeName === 'svg') return node.firstChild;
     return node;
+  }
+
+  handleMouseDown(e) {
+    const { handleClose } = this.props;
+    let shouldClose = true;
+    for (let i = 0; i < e.path.length; i += 1) {
+      const p = e.path[i];
+      if (p && p.className && typeof p.className === 'string') {
+        if (p.className.search('tool') !== -1) {
+          shouldClose = false;
+          break;
+        }
+      }
+    }
+    if (shouldClose) handleClose();
   }
 
   handleMouseEnter() {
