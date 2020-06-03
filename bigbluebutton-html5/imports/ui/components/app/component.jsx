@@ -133,6 +133,8 @@ class App extends Component {
 
     this.handleWindowResize();
     window.addEventListener('resize', this.handleWindowResize, false);
+    window.ondragover = function (e) { e.preventDefault(); };
+    window.ondrop = function (e) { e.preventDefault(); };
 
     if (ENABLE_NETWORK_MONITORING) {
       if (navigator.connection) {
