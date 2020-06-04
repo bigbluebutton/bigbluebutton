@@ -1229,7 +1229,6 @@ check_state() {
         fi
     fi
 
-
     #
     # Check if the local server can access the API.  This is a common problem when setting up BigBlueButton behind
     # a firewall
@@ -1607,7 +1606,7 @@ if [ $CHECK ]; then
     fi
 
     if [ -f /etc/bigbluebutton/nginx/client.nginx ]; then
-      BBB_CLIENT_DOC_ROOT=$(cat /etc/bigbluebutton/nginx/client.nginx | grep -v '#' | grep \/client -A 1 | head -n 2 | grep root | sed -n '{s/[ \t]*root[ ]*//;s/;//;p}')
+      BBB_CLIENT_DOC_ROOT=$(cat /etc/bigbluebutton/nginx/client.nginx | grep -v '#' | grep -A 1 \/client | head -n 2 | grep root | sed -n '{s/[ \t]*root[ ]*//;s/;//;p}')
       echo "                    bbb-client dir: $BBB_CLIENT_DOC_ROOT"
 
       echo
