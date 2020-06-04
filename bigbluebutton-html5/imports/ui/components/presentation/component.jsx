@@ -82,9 +82,7 @@ class PresentationArea extends PureComponent {
     this.getInitialPresentationSizes();
     this.refPresentationContainer.addEventListener('fullscreenchange', this.onFullscreenChange);
     window.addEventListener('resize', this.onResize, false);
-    window.addEventListener('webcamAreaResize', this.onResize, false);
-    window.addEventListener('userListResizeChanged', this.onResize, false);
-    window.addEventListener('chatResizeChanged', this.onResize, false);
+    window.addEventListener('layoutSizesSets', this.onResize, false);
 
     const { slidePosition, layoutContextDispatch } = this.props;
     const { width: currWidth, height: currHeight } = slidePosition;
@@ -136,6 +134,7 @@ class PresentationArea extends PureComponent {
         'info',
         'presentation',
       );
+      window.dispatchEvent(new Event('slideChanged'));
     }
 
     const { width: prevWidth, height: prevHeight } = prevProps.slidePosition;
@@ -199,31 +198,13 @@ class PresentationArea extends PureComponent {
   }
 
   getPresentationSizesAvailable() {
-    // const { userIsPresenter, multiUser } = this.props;
     const { layoutContextState } = this.props;
-    // const { refPresentationArea, refWhiteboardArea } = this;
     const { presentationAreaSize } = layoutContextState;
-
     const presentationSizes = {};
-
-    // if (refPresentationArea && refWhiteboardArea) {
-    // By default presentation sizes are equal to the sizes of the refPresentationArea
-    // direct parent of the svg wrapper
-    // let { clientWidth, clientHeight } = refPresentationArea;
-
-    // if a user is a presenter - this means there is a whiteboard toolbar on the right
-    // and we have to get the width/height of the refWhiteboardArea
-    // (inner hidden div with absolute position)
-    // if (userIsPresenter || multiUser) {
-    //   ({ clientWidth, clientHeight } = refWhiteboardArea);
-    // }
 
     presentationSizes.presentationAreaHeight = presentationAreaSize
       .height - this.getToolbarHeight();
     presentationSizes.presentationAreaWidth = presentationAreaSize.width;
-    // presentationSizes.presentationAreaHeight = clientHeight - this.getToolbarHeight();
-    // presentationSizes.presentationAreaWidth = clientWidth;
-    // }
     return presentationSizes;
   }
 
@@ -279,14 +260,6 @@ class PresentationArea extends PureComponent {
     const originalHeight = slidePosition.height;
     const viewBoxWidth = viewBoxDimensions.width;
     const viewBoxHeight = viewBoxDimensions.height;
-
-
-    console.log('-- presentationAreaHeight', presentationAreaHeight);
-    console.log('-- presentationAreaWidth', presentationAreaWidth);
-    console.log('-- originalWidth', originalWidth);
-    console.log('-- originalHeight', originalHeight);
-    console.log('-- viewBoxWidth', viewBoxWidth);
-    console.log('-- viewBoxHeight', viewBoxHeight);
 
     let svgWidth;
     let svgHeight;

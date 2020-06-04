@@ -218,7 +218,6 @@ class PanelManager extends Component {
         enable={resizableEnableOptions}
         key={this.userlistKey}
         size={{ width: userlistWidth }}
-        // onResize={dispatchResizeEvent}
         onResizeStop={(e, direction, ref, d) => {
           this.userListResizeStop(d.width);
         }}
@@ -265,7 +264,6 @@ class PanelManager extends Component {
         enable={resizableEnableOptions}
         key={this.chatKey}
         size={{ width: chatWidth }}
-        // onResize={dispatchResizeEvent}
         onResizeStop={(e, direction, ref, d) => {
           this.chatResizeStop(d.width);
         }}
@@ -312,7 +310,6 @@ class PanelManager extends Component {
         enable={resizableEnableOptions}
         key={this.noteKey}
         size={{ width: noteWidth }}
-        // onResize={dispatchResizeEvent}
         onResizeStop={(e, direction, ref, d) => {
           this.setState({
             noteWidth: noteWidth + d.width,
@@ -361,7 +358,6 @@ class PanelManager extends Component {
         enable={resizableEnableOptions}
         key={this.captionsKey}
         size={{ width: captionsWidth }}
-        // onResize={dispatchResizeEvent}
         onResizeStop={(e, direction, ref, d) => {
           this.setState({
             captionsWidth: captionsWidth + d.width,
@@ -410,7 +406,6 @@ class PanelManager extends Component {
         enable={resizableEnableOptions}
         key={this.waitingUsers}
         size={{ width: waitingWidth }}
-        // onResize={dispatchResizeEvent}
         onResizeStop={(e, direction, ref, d) => {
           this.setState({
             waitingWidth: waitingWidth + d.width,
