@@ -276,6 +276,28 @@ class VoiceConferenceService(healthz: HealthzService,
     sender.publish(fromVoiceConfRedisChannel, json)
   }
 
+  def audioFloorChanged(
+      voiceConfId: String,
+      voiceUserId: String,
+      oldVoiceUserId: String,
+      floorTimestamp: String
+  ) {
+    val header = BbbCoreVoiceConfHeader(AudioFloorChangedVoiceConfEvtMsg.NAME, voiceConfId)
+    val body = AudioFloorChangedVoiceConfEvtMsgBody(
+      voiceConfId,
+      voiceUserId,
+      oldVoiceUserId,
+      floorTimestamp
+    );
+    val envelope = BbbCoreEnvelope(AudioFloorChangedVoiceConfEvtMsg.NAME, Map("voiceConf" -> voiceConfId))
+
+    val msg = new AudioFloorChangedVoiceConfEvtMsg(header, body)
+    val msgEvent = BbbCommonEnvCoreMsg(envelope, msg)
+
+    val json = JsonUtil.toJson(msgEvent)
+    sender.publish(fromVoiceConfRedisChannel, json)
+  }
+
   def voiceCallStateEvent(
       conf:             String,
       callSession:      String,

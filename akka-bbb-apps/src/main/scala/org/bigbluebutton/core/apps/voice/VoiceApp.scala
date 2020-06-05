@@ -268,7 +268,9 @@ object VoiceApp extends SystemConfiguration {
       talking,
       listenOnly = isListenOnly,
       callingInto,
-      System.currentTimeMillis()
+      System.currentTimeMillis(),
+      floor = false,
+      lastFloorTime = "0"
     )
     VoiceUsers.add(liveMeeting.voiceUsers, voiceUserState)
 
