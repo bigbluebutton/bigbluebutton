@@ -612,8 +612,13 @@ function processMetadataXML(response) {
   if (metadata.length > 0) {
     metadata = metadata[0];
     let meetingName = metadata.getElementsByTagName("meetingName");
+    let recordName = metadata.getElementsByTagName("name");
     if (meetingName.length > 0) {
-      $("#recording-title").text(meetingName[0].textContent);
+      if (recordName.length > 0) {
+        $("#recording-title").text(recordName[0].textContent + ' (' +  meetingName[0].textContent + ')');
+      } else {
+        $("#recording-title").text(meetingName[0].textContent);
+      }
       $("#recording-title").attr("title", meetingName[0].textContent);
     }
   }
