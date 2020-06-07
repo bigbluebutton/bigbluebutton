@@ -1690,13 +1690,15 @@ if [ $CHECK ]; then
         echo "                  enableListenOnly: $(yq r $HTML5_CONFIG public.kurento.enableListenOnly)"
      fi
 
-     if ! java -version 2>&1 | grep -q "1.8.0"; then
+     if [ "$DISTRIB_CODENAME" == "xenial" ]; then
+       if ! java -version 2>&1 | grep -q "1.8.0"; then
         echo
         echo "# Warning: Did not detect Java 8 as default version"
         echo
         echo "   sudo apt-get install openjdk-8-jdk"
         echo "   update-alternatives --config java"
         echo "   bbb-conf --restart"
+      fi
      fi
 
      check_state
