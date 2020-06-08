@@ -21,3 +21,5 @@ exports.restorePresentation = 'button[aria-label="Restore presentation"]';
 exports.container = 'div[id="container"]';
 exports.defaultContent = 'div[class^="defaultContent--"]';
 exports.notificationBar = 'div[class^="notificationsBar--"]';
+exports.chat = 'section[aria-label="Chat"]';
+exports.hidePresentation = 'button[aria-label="Hide presentation"]';

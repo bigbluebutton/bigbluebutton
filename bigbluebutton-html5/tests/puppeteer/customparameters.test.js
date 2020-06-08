@@ -8,385 +8,385 @@ describe('Custom parameters', () => {
     jest.setTimeout(30000);
   });
 
-  // // This test spec sets the userdata-autoJoin parameter to false
-  // // and checks that the users don't get audio modal on login
-  // test('Auto join', async () => {
-  //   const test = new CustomParameters();
-  //   let response;
-  //   try {
-  //     console.log('before');
-  //     const testName = 'autoJoin';
-  //     response = await test.autoJoin(testName, Page.getArgs(), undefined, c.autoJoin);
-  //     console.log('after');
-  //   } catch (e) {
-  //     console.log(e);
-  //   } finally {
-  //     await test.closePage(test.page1);
-  //   }
-  //   expect(response).toBe(true);
-  // });
+  // This test spec sets the userdata-autoJoin parameter to false
+  // and checks that the users don't get audio modal on login
+  test('Auto join', async () => {
+    const test = new CustomParameters();
+    let response;
+    try {
+      console.log('before');
+      const testName = 'autoJoin';
+      response = await test.autoJoin(testName, Page.getArgs(), undefined, c.autoJoin);
+      console.log('after');
+    } catch (e) {
+      console.log(e);
+    } finally {
+      await test.closePage(test.page1);
+    }
+    expect(response).toBe(true);
+  });
 
-  // // This test spec sets the userdata-listenOnlyMode parameter to false
-  // // and checks that the users can't see or use listen Only mode
-  // test('Listen Only Mode', async () => {
-  //   const test = new CustomParameters();
-  //   let response;
-  //   try {
-  //     console.log('before');
-  //     const testName = 'listenOnlyMode';
-  //     response = await test.listenOnlyMode(testName, Page.getArgs(), undefined, c.listenOnlyMode);
-  //     console.log('after');
-  //   } catch (e) {
-  //     console.log(e);
-  //   } finally {
-  //     await test.close(test.page1, test.page2);
-  //   }
-  //   expect(response).toBe(true);
-  // });
+  // This test spec sets the userdata-listenOnlyMode parameter to false
+  // and checks that the users can't see or use listen Only mode
+  test('Listen Only Mode', async () => {
+    const test = new CustomParameters();
+    let response;
+    try {
+      console.log('before');
+      const testName = 'listenOnlyMode';
+      response = await test.listenOnlyMode(testName, Page.getArgs(), undefined, c.listenOnlyMode);
+      console.log('after');
+    } catch (e) {
+      console.log(e);
+    } finally {
+      await test.close(test.page1, test.page2);
+    }
+    expect(response).toBe(true);
+  });
 
-  // // This test spec sets the userdata-forceListenOnly parameter to false
-  // // and checks that the Viewers can only use listen only mode
-  // test('Force Listen Only', async () => {
-  //   const test = new CustomParameters();
-  //   let response;
-  //   try {
-  //     console.log('before');
-  //     const testName = 'forceListenOnly';
-  //     response = await test.forceListenOnly(testName, Page.getArgs(), undefined, c.forceListenOnly);
-  //     console.log('after');
-  //   } catch (e) {
-  //     console.log(e);
-  //   } finally {
-  //     await test.closePage(test.page2);
-  //   }
-  //   expect(response).toBe(true);
-  // });
+  // This test spec sets the userdata-forceListenOnly parameter to false
+  // and checks that the Viewers can only use listen only mode
+  test('Force Listen Only', async () => {
+    const test = new CustomParameters();
+    let response;
+    try {
+      console.log('before');
+      const testName = 'forceListenOnly';
+      response = await test.forceListenOnly(testName, Page.getArgs(), undefined, c.forceListenOnly);
+      console.log('after');
+    } catch (e) {
+      console.log(e);
+    } finally {
+      await test.closePage(test.page2);
+    }
+    expect(response).toBe(true);
+  });
 
-  // // This test spec sets the userdata-skipCheck parameter to true
-  // // and checks that the users automatically skip audio check when clicking on Microphone
-  // test('Skip audio check', async () => {
-  //   const test = new CustomParameters();
-  //   let response;
-  //   try {
-  //     console.log('before');
-  //     const testName = 'skipCheck';
-  //     response = await test.skipCheck(testName, Page.getArgs(), undefined, c.skipCheck);
-  //     console.log('after');
-  //   } catch (e) {
-  //     console.log(e);
-  //   } finally {
-  //     await test.closePage(test.page1);
-  //   }
-  //   expect(response).toBe(true);
-  // });
+  // This test spec sets the userdata-skipCheck parameter to true
+  // and checks that the users automatically skip audio check when clicking on Microphone
+  test('Skip audio check', async () => {
+    const test = new CustomParameters();
+    let response;
+    try {
+      console.log('before');
+      const testName = 'skipCheck';
+      response = await test.skipCheck(testName, Page.getArgs(), undefined, c.skipCheck);
+      console.log('after');
+    } catch (e) {
+      console.log(e);
+    } finally {
+      await test.closePage(test.page1);
+    }
+    expect(response).toBe(true);
+  });
 
-  // // This test spec sets the userdata-clientTitle parameter to some value
-  // // and checks that the meeting window name starts with that value
-  // test('Client title', async () => {
-  //   const test = new CustomParameters();
-  //   let response;
-  //   try {
-  //     console.log('before');
-  //     const testName = 'clientTitle';
-  //     response = await test.clientTitle(testName, Page.getArgs(), undefined, c.clientTitle);
-  //     console.log('after');
-  //   } catch (e) {
-  //     console.log(e);
-  //   } finally {
-  //     await test.closePage(test.page1);
-  //   }
-  //   expect(response).toBe(true);
-  // });
+  // This test spec sets the userdata-clientTitle parameter to some value
+  // and checks that the meeting window name starts with that value
+  test('Client title', async () => {
+    const test = new CustomParameters();
+    let response;
+    try {
+      console.log('before');
+      const testName = 'clientTitle';
+      response = await test.clientTitle(testName, Page.getArgs(), undefined, c.clientTitle);
+      console.log('after');
+    } catch (e) {
+      console.log(e);
+    } finally {
+      await test.closePage(test.page1);
+    }
+    expect(response).toBe(true);
+  });
 
-  // // This test spec sets the userdata-askForFeedbackOnLogout parameter to true
-  // // and checks that the users automatically get asked for feedback on logout page
-  // test('Ask For Feed back On Logout', async () => {
-  //   const test = new CustomParameters();
-  //   let response;
-  //   try {
-  //     console.log('before');
-  //     const testName = 'askForFeedbackOnLogout';
-  //     response = await test.askForFeedbackOnLogout(testName, Page.getArgs(), undefined, c.askForFeedbackOnLogout);
-  //     console.log('after');
-  //   } catch (e) {
-  //     console.log(e);
-  //   } finally {
-  //     await test.closePage(test.page1);
-  //   }
-  //   expect(response).toBe(true);
-  // });
+  // This test spec sets the userdata-askForFeedbackOnLogout parameter to true
+  // and checks that the users automatically get asked for feedback on logout page
+  test('Ask For Feedback On Logout', async () => {
+    const test = new CustomParameters();
+    let response;
+    try {
+      console.log('before');
+      const testName = 'askForFeedbackOnLogout';
+      response = await test.askForFeedbackOnLogout(testName, Page.getArgs(), undefined, c.askForFeedbackOnLogout);
+      console.log('after');
+    } catch (e) {
+      console.log(e);
+    } finally {
+      await test.closePage(test.page1);
+    }
+    expect(response).toBe(true);
+  });
 
-  // // This test spec sets the userdata-displayBrandingArea parameter to true and add a logo link
-  // // and checks that the users see the logo displaying in the meeting
-  // test('Display Branding Area', async () => {
-  //   const test = new CustomParameters();
-  //   let response;
-  //   try {
-  //     console.log('before');
-  //     const testName = 'displayBrandingArea';
-  //     const parameterWithLogo = `${c.displayBrandingArea}&${c.logo}`;
-  //     response = await test.displayBrandingArea(testName, Page.getArgs(), undefined, parameterWithLogo);
-  //     console.log('after');
-  //   } catch (e) {
-  //     console.log(e);
-  //   } finally {
-  //     await test.closePage(test.page1);
-  //   }
-  //   expect(response).toBe(true);
-  // });
+  // This test spec sets the userdata-displayBrandingArea parameter to true and add a logo link
+  // and checks that the users see the logo displaying in the meeting
+  test('Display Branding Area', async () => {
+    const test = new CustomParameters();
+    let response;
+    try {
+      console.log('before');
+      const testName = 'displayBrandingArea';
+      const parameterWithLogo = `${c.displayBrandingArea}&${c.logo}`;
+      response = await test.displayBrandingArea(testName, Page.getArgs(), undefined, parameterWithLogo);
+      console.log('after');
+    } catch (e) {
+      console.log(e);
+    } finally {
+      await test.closePage(test.page1);
+    }
+    expect(response).toBe(true);
+  });
 
-  // // This test spec sets the userdata-shortcuts parameter to one or a list of shortcuts parameters
-  // // and checks that the users can use those shortcuts
-  // test('Shortcuts', async () => {
-  //   const test = new CustomParameters();
-  //   let response;
-  //   try {
-  //     console.log('before');
-  //     const testName = 'shortcuts';
-  //     response = await test.shortcuts(testName, Page.getArgs(), undefined, encodeURI(c.shortcuts));
-  //     console.log('after');
-  //   } catch (e) {
-  //     console.log(e);
-  //   } finally {
-  //     await test.closePage(test.page1);
-  //   }
-  //   expect(response).toBe(true);
-  // });
+  // This test spec sets the userdata-shortcuts parameter to one or a list of shortcuts parameters
+  // and checks that the users can use those shortcuts
+  test('Shortcuts', async () => {
+    const test = new CustomParameters();
+    let response;
+    try {
+      console.log('before');
+      const testName = 'shortcuts';
+      response = await test.shortcuts(testName, Page.getArgs(), undefined, encodeURI(c.shortcuts));
+      console.log('after');
+    } catch (e) {
+      console.log(e);
+    } finally {
+      await test.closePage(test.page1);
+    }
+    expect(response).toBe(true);
+  });
 
-  // // This test spec sets the userdata-enableScreensharing parameter to false
-  // // and checks that the Moderator can not see the Screen sharing button
-  // test('Enable Screensharing', async () => {
-  //   const test = new CustomParameters();
-  //   let response;
-  //   try {
-  //     console.log('before');
-  //     const testName = 'enableScreensharing';
-  //     response = await test.enableScreensharing(testName, Page.getArgs(), undefined, c.enableScreensharing);
-  //     console.log('after');
-  //   } catch (e) {
-  //     console.log(e);
-  //   } finally {
-  //     await test.closePage(test.page1);
-  //   }
-  //   expect(response).toBe(true);
-  // });
+  // This test spec sets the userdata-enableScreensharing parameter to false
+  // and checks that the Moderator can not see the Screen sharing button
+  test('Enable Screensharing', async () => {
+    const test = new CustomParameters();
+    let response;
+    try {
+      console.log('before');
+      const testName = 'enableScreensharing';
+      response = await test.enableScreensharing(testName, Page.getArgs(), undefined, c.enableScreensharing);
+      console.log('after');
+    } catch (e) {
+      console.log(e);
+    } finally {
+      await test.closePage(test.page1);
+    }
+    expect(response).toBe(true);
+  });
 
-  // // This test spec sets the userdata-enableVideo parameter to false
-  // // and checks that the Moderator can not see the Webcam sharing button
-  // test('Enable Webcam', async () => {
-  //   const test = new CustomParameters();
-  //   let response;
-  //   try {
-  //     console.log('before');
-  //     const testName = 'enableVideo';
-  //     response = await test.enableVideo(testName, Page.getArgsWithVideo(), undefined, c.enableVideo);
-  //     console.log('after');
-  //   } catch (e) {
-  //     console.log(e);
-  //   } finally {
-  //     await test.closePage(test.page1);
-  //   }
-  //   expect(response).toBe(true);
-  // });
+  // This test spec sets the userdata-enableVideo parameter to false
+  // and checks that the Moderator can not see the Webcam sharing button
+  test('Enable Webcam', async () => {
+    const test = new CustomParameters();
+    let response;
+    try {
+      console.log('before');
+      const testName = 'enableVideo';
+      response = await test.enableVideo(testName, Page.getArgsWithVideo(), undefined, c.enableVideo);
+      console.log('after');
+    } catch (e) {
+      console.log(e);
+    } finally {
+      await test.closePage(test.page1);
+    }
+    expect(response).toBe(true);
+  });
 
-  // // This test spec sets the userdata-autoShareWebcam parameter to true
-  // // and checks that the Moderator sees the Webcam Settings Modal automatically at his connection to meeting
-  // test('Auto Share Webcam', async () => {
-  //   const test = new CustomParameters();
-  //   let response;
-  //   try {
-  //     console.log('before');
-  //     const testName = 'autoShareWebcam';
-  //     response = await test.autoShareWebcam(testName, Page.getArgsWithVideo(), undefined, c.autoShareWebcam);
-  //     console.log('after');
-  //   } catch (e) {
-  //     console.log(e);
-  //   } finally {
-  //     await test.closePage(test.page1);
-  //   }
-  //   expect(response).toBe(true);
-  // });
+  // This test spec sets the userdata-autoShareWebcam parameter to true
+  // and checks that the Moderator sees the Webcam Settings Modal automatically at his connection to meeting
+  test('Auto Share Webcam', async () => {
+    const test = new CustomParameters();
+    let response;
+    try {
+      console.log('before');
+      const testName = 'autoShareWebcam';
+      response = await test.autoShareWebcam(testName, Page.getArgsWithVideo(), undefined, c.autoShareWebcam);
+      console.log('after');
+    } catch (e) {
+      console.log(e);
+    } finally {
+      await test.closePage(test.page1);
+    }
+    expect(response).toBe(true);
+  });
 
-  // // This test spec sets the userdata-multiUserPenOnly parameter to true
-  // // and checks that at multi Users whiteboard other users can see only pencil as drawing tool
-  // test('Multi Users Pen Only', async () => {
-  //   const test = new CustomParameters();
-  //   let response;
-  //   try {
-  //     console.log('before');
-  //     const testName = 'multiUserPenOnly';
-  //     response = await test.multiUserPenOnly(testName, Page.getArgsWithVideo(), undefined, c.multiUserPenOnly);
-  //     console.log('after');
-  //   } catch (e) {
-  //     console.log(e);
-  //   } finally {
-  //     await test.close(test.page1, test.page2);
-  //   }
-  //   expect(response).toBe(true);
-  // });
+  // This test spec sets the userdata-multiUserPenOnly parameter to true
+  // and checks that at multi Users whiteboard other users can see only pencil as drawing tool
+  test('Multi Users Pen Only', async () => {
+    const test = new CustomParameters();
+    let response;
+    try {
+      console.log('before');
+      const testName = 'multiUserPenOnly';
+      response = await test.multiUserPenOnly(testName, Page.getArgsWithVideo(), undefined, c.multiUserPenOnly);
+      console.log('after');
+    } catch (e) {
+      console.log(e);
+    } finally {
+      await test.close(test.page1, test.page2);
+    }
+    expect(response).toBe(true);
+  });
 
-  // // This test spec sets the userdata-presenterTools parameter to an interval of parameters
-  // // and checks that at multi Users whiteboard Presenter can see only the set tools from the interval
-  // test('Presenter Tools', async () => {
-  //   const test = new CustomParameters();
-  //   let response;
-  //   try {
-  //     console.log('before');
-  //     const testName = 'presenterTools';
-  //     response = await test.presenterTools(testName, Page.getArgsWithVideo(), undefined, encodeURI(c.presenterTools));
-  //     console.log('after');
-  //   } catch (e) {
-  //     console.log(e);
-  //   } finally {
-  //     await test.closePage(test.page1);
-  //   }
-  //   expect(response).toBe(true);
-  // });
+  // This test spec sets the userdata-presenterTools parameter to an interval of parameters
+  // and checks that at multi Users whiteboard Presenter can see only the set tools from the interval
+  test('Presenter Tools', async () => {
+    const test = new CustomParameters();
+    let response;
+    try {
+      console.log('before');
+      const testName = 'presenterTools';
+      response = await test.presenterTools(testName, Page.getArgsWithVideo(), undefined, encodeURI(c.presenterTools));
+      console.log('after');
+    } catch (e) {
+      console.log(e);
+    } finally {
+      await test.closePage(test.page1);
+    }
+    expect(response).toBe(true);
+  });
 
-  // // This test spec sets the userdata-multiUserTools parameter to an interval of parameters
-  // // and checks that at multi Users whiteboard other users can see only the set tools from the interval
-  // test('Multi Users Tools', async () => {
-  //   const test = new CustomParameters();
-  //   let response;
-  //   try {
-  //     console.log('before');
-  //     const testName = 'multiUserTools';
-  //     response = await test.multiUserTools(testName, Page.getArgsWithVideo(), undefined, encodeURI(c.multiUserTools));
-  //     console.log('after');
-  //   } catch (e) {
-  //     console.log(e);
-  //   } finally {
-  //     await test.close(test.page1, test.page2);
-  //   }
-  //   expect(response).toBe(true);
-  // });
+  // This test spec sets the userdata-multiUserTools parameter to an interval of parameters
+  // and checks that at multi Users whiteboard other users can see only the set tools from the interval
+  test('Multi Users Tools', async () => {
+    const test = new CustomParameters();
+    let response;
+    try {
+      console.log('before');
+      const testName = 'multiUserTools';
+      response = await test.multiUserTools(testName, Page.getArgsWithVideo(), undefined, encodeURI(c.multiUserTools));
+      console.log('after');
+    } catch (e) {
+      console.log(e);
+    } finally {
+      await test.close(test.page1, test.page2);
+    }
+    expect(response).toBe(true);
+  });
 
-  // // This test spec sets the userdata-customStyle parameter to an interval of styles
-  // // and checks that the meeting displays what was called in the styles interval
-  // test('Custom Styles', async () => {
-  //   const test = new CustomParameters();
-  //   let response;
-  //   try {
-  //     console.log('before');
-  //     const testName = 'customStyle';
-  //     response = await test.customStyle(testName, Page.getArgsWithVideo(), undefined, encodeURIComponent(c.customStyle));
-  //     console.log('after');
-  //   } catch (e) {
-  //     console.log(e);
-  //   } finally {
-  //     await test.closePage(test.page1);
-  //   }
-  //   expect(response).toBe(true);
-  // });
+  // This test spec sets the userdata-customStyle parameter to an interval of styles
+  // and checks that the meeting displays what was called in the styles interval
+  test('Custom Styles', async () => {
+    const test = new CustomParameters();
+    let response;
+    try {
+      console.log('before');
+      const testName = 'customStyle';
+      response = await test.customStyle(testName, Page.getArgsWithVideo(), undefined, encodeURIComponent(c.customStyle));
+      console.log('after');
+    } catch (e) {
+      console.log(e);
+    } finally {
+      await test.closePage(test.page1);
+    }
+    expect(response).toBe(true);
+  });
 
-  // // This test spec sets the userdata-customStyleUrl parameter to a styles URL
-  // // and checks that the meeting displays what was called in the styles URL
-  // test('Custom Styles URL', async () => {
-  //   const test = new CustomParameters();
-  //   let response;
-  //   try {
-  //     console.log('before');
-  //     const testName = 'customStyleUrl';
-  //     response = await test.customStyleUrl(testName, Page.getArgsWithVideo(), undefined, encodeURI(c.customStyleUrl));
-  //     console.log('after');
-  //   } catch (e) {
-  //     console.log(e);
-  //   } finally {
-  //     await test.closePage(test.page1);
-  //   }
-  //   expect(response).toBe(true);
-  // });
+  // This test spec sets the userdata-customStyleUrl parameter to a styles URL
+  // and checks that the meeting displays what was called in the styles URL
+  test('Custom Styles URL', async () => {
+    const test = new CustomParameters();
+    let response;
+    try {
+      console.log('before');
+      const testName = 'customStyleUrl';
+      response = await test.customStyleUrl(testName, Page.getArgsWithVideo(), undefined, encodeURI(c.customStyleUrl));
+      console.log('after');
+    } catch (e) {
+      console.log(e);
+    } finally {
+      await test.closePage(test.page1);
+    }
+    expect(response).toBe(true);
+  });
 
-  // // This test spec sets the userdata-autoSwapLayout parameter to true
-  // // and checks that at any webcam share, the focus will be on the webcam,
-  // // and the presentation gets minimized and the available shared webcam will replace the Presentation
-  // test('Auto Swap Layout', async () => {
-  //   const test = new CustomParameters();
-  //   let response;
-  //   try {
-  //     console.log('before');
-  //     const testName = 'autoSwapLayout';
-  //     response = await test.autoSwapLayout(testName, Page.getArgsWithVideo(), undefined, encodeURI(c.autoSwapLayout));
-  //     console.log('after');
-  //   } catch (e) {
-  //     console.log(e);
-  //   } finally {
-  //     await test.closePage(test.page1);
-  //   }
-  //   expect(response).toBe(true);
-  // });
+  // This test spec sets the userdata-autoSwapLayout parameter to true
+  // and checks that at any webcam share, the focus will be on the webcam,
+  // and the presentation gets minimized and the available shared webcam will replace the Presentation
+  test('Auto Swap Layout', async () => {
+    const test = new CustomParameters();
+    let response;
+    try {
+      console.log('before');
+      const testName = 'autoSwapLayout';
+      response = await test.autoSwapLayout(testName, Page.getArgsWithVideo(), undefined, encodeURI(c.autoSwapLayout));
+      console.log('after');
+    } catch (e) {
+      console.log(e);
+    } finally {
+      await test.closePage(test.page1);
+    }
+    expect(response).toBe(true);
+  });
 
-  // // This test spec sets the userdata-hidePresentation parameter to true
-  // // and checks that the Presentation is totally hidden, and its place will be displaying a message
-  // test('Hide Presentation', async () => {
-  //   const test = new CustomParameters();
-  //   let response;
-  //   try {
-  //     console.log('before');
-  //     const testName = 'hidePresentation';
-  //     response = await test.hidePresentation(testName, Page.getArgsWithVideo(), undefined, encodeURI(c.hidePresentation));
-  //     console.log('after');
-  //   } catch (e) {
-  //     console.log(e);
-  //   } finally {
-  //     await test.closePage(test.page1);
-  //   }
-  //   expect(response).toBe(true);
-  // });
+  // This test spec sets the userdata-hidePresentation parameter to true
+  // and checks that the Presentation is totally hidden, and its place will be displaying a message
+  test('Hide Presentation', async () => {
+    const test = new CustomParameters();
+    let response;
+    try {
+      console.log('before');
+      const testName = 'hidePresentation';
+      response = await test.hidePresentation(testName, Page.getArgsWithVideo(), undefined, encodeURI(c.hidePresentation));
+      console.log('after');
+    } catch (e) {
+      console.log(e);
+    } finally {
+      await test.closePage(test.page1);
+    }
+    expect(response).toBe(true);
+  });
 
-  // // This test spec sets the userdata-hidePresentation parameter to true
-  // // and checks that the Presentation is totally hidden, and its place will be displaying a message
-  // test('Outside Toggle', async () => {
-  //   const test = new CustomParameters();
-  //   let response;
-  //   try {
-  //     console.log('before');
-  //     const testName = 'hidePresentation';
-  //     response = await test.hidePresentation(testName, Page.getArgsWithVideo(), undefined, encodeURI(c.hidePresentation));
-  //     console.log('after');
-  //   } catch (e) {
-  //     console.log(e);
-  //   } finally {
-  //     await test.closePage(test.page1);
-  //   }
-  //   expect(response).toBe(true);
-  // });
+  // This test spec sets the userdata-hidePresentation parameter to true
+  // and checks that the Presentation is totally hidden, and its place will be displaying a message
+  test('Outside Toggle', async () => {
+    const test = new CustomParameters();
+    let response;
+    try {
+      console.log('before');
+      const testName = 'hidePresentation';
+      response = await test.hidePresentation(testName, Page.getArgsWithVideo(), undefined, encodeURI(c.hidePresentation));
+      console.log('after');
+    } catch (e) {
+      console.log(e);
+    } finally {
+      await test.closePage(test.page1);
+    }
+    expect(response).toBe(true);
+  });
 
-  // // This test spec sets the userdata-hidePresentation parameter to true
-  // // and checks that the Presentation is totally hidden, and its place will be displaying a message
-  // test('Outside Toggle', async () => {
-  //   const test = new CustomParameters();
-  //   let response;
-  //   try {
-  //     console.log('before');
-  //     const testName = 'hidePresentation';
-  //     response = await test.hidePresentation(testName, Page.getArgsWithVideo(), undefined, encodeURI(c.hidePresentation));
-  //     console.log('after');
-  //   } catch (e) {
-  //     console.log(e);
-  //   } finally {
-  //     await test.closePage(test.page1);
-  //   }
-  //   expect(response).toBe(true);
-  // });
+  // This test spec sets the userdata-hidePresentation parameter to true
+  // and checks that the Presentation is totally hidden, and its place will be displaying a message
+  test('Outside Toggle', async () => {
+    const test = new CustomParameters();
+    let response;
+    try {
+      console.log('before');
+      const testName = 'hidePresentation';
+      response = await test.hidePresentation(testName, Page.getArgsWithVideo(), undefined, encodeURI(c.hidePresentation));
+      console.log('after');
+    } catch (e) {
+      console.log(e);
+    } finally {
+      await test.closePage(test.page1);
+    }
+    expect(response).toBe(true);
+  });
 
-  // // This test spec sets the userdata-bannerText parameter to some text
-  // // and checks that the meeting has a banner bar containing the same text
-  // test('Banner Text', async () => {
-  //   const test = new CustomParameters();
-  //   let response;
-  //   try {
-  //     console.log('before');
-  //     const testName = 'bannerText';
-  //     response = await test.bannerText(testName, Page.getArgsWithVideo(), undefined, c.bannerText);
-  //     console.log('after');
-  //   } catch (e) {
-  //     console.log(e);
-  //   } finally {
-  //     await test.closePage(test.page1);
-  //   }
-  //   expect(response).toBe(true);
-  // });
+  // This test spec sets the userdata-bannerText parameter to some text
+  // and checks that the meeting has a banner bar containing the same text
+  test('Banner Text', async () => {
+    const test = new CustomParameters();
+    let response;
+    try {
+      console.log('before');
+      const testName = 'bannerText';
+      response = await test.bannerText(testName, Page.getArgsWithVideo(), undefined, c.bannerText);
+      console.log('after');
+    } catch (e) {
+      console.log(e);
+    } finally {
+      await test.closePage(test.page1);
+    }
+    expect(response).toBe(true);
+  });
 
   // This test spec sets the userdata-bannerColor parameter to some hex color value
   // and checks that the meeting has a banner bar containing that color in rgb(r, g, b)
@@ -403,6 +403,43 @@ describe('Custom parameters', () => {
       console.log(e);
     } finally {
       await test.closePage(test.page1);
+    }
+    expect(response).toBe(true);
+  });
+
+  // This test spec sets the userdata-bbb_show_public_chat_on_login parameter to false
+  // and checks that the users don't see that box by default
+  test('Show Public Chat On Login', async () => {
+    const test = new CustomParameters();
+    let response;
+    try {
+      console.log('before');
+      const testName = 'showPublicChatOnLogin';
+      response = await test.showPublicChatOnLogin(testName, Page.getArgsWithVideo(), undefined, `${c.showPublicChatOnLogin}`);
+      console.log('after');
+    } catch (e) {
+      console.log(e);
+    } finally {
+      await test.closePage(test.page1);
+    }
+    expect(response).toBe(true);
+  });
+
+  // This test spec sets the userdata-bbb_force_restore_presentation_on_new_events parameter to true
+  // and checks that the viewers get the presentation restored forcefully when the Moderator zooms
+  // in/out the presentation or publishes a poll or adds an annotation
+  test('Force Restore Presentation On New Events', async () => {
+    const test = new CustomParameters();
+    let response;
+    try {
+      console.log('before');
+      const testName = 'forceRestorePresentationOnNewEvents';
+      response = await test.forceRestorePresentationOnNewEvents(testName, Page.getArgsWithVideo(), undefined, `${c.forceRestorePresentationOnNewEvents}`);
+      console.log('after');
+    } catch (e) {
+      console.log(e);
+    } finally {
+      await test.close(test.page1, test.page2);
     }
     expect(response).toBe(true);
   });

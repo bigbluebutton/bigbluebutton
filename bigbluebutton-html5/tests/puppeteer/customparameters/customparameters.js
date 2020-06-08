@@ -399,6 +399,82 @@ class CustomParameters {
     return resp === colorToRGB;
   }
 
+  async hideAndSwapPresentation(testName, args, meetingId, customParameter) {
+    console.log('before init');
+    await this.page1.init(args, meetingId, { ...params, fullName: 'Moderator1' }, customParameter, testName);
+    await this.page1.screenshot(`${testName}`, `01-${testName}`);
+    console.log('after init');
+    await this.page1.closeAudioModal();
+    await this.page1.waitForSelector(cpe.container);
+    if (await this.page1.page.evaluate(util.countTestElements, cpe.restorePresentation) === false && await this.page1.page.evaluate(util.countTestElements, cpe.defaultContent) === false) {
+      await this.page1.screenshot(`${testName}`, `03-fail-${testName}`);
+      return false;
+    }
+    const resp = await this.page1.page.evaluate(util.countTestElements, cpe.restorePresentation) === true && await this.page1.page.evaluate(util.countTestElements, cpe.defaultContent) === true;
+    await this.page1.screenshot(`${testName}`, `03-success-${testName}`);
+    return resp === true;
+  }
+  
+  async showPublicChatOnLogin(testName, args, meetingId, customParameter) {
+    console.log('before init');
+    await this.page1.init(args, meetingId, { ...params, fullName: 'Moderator1' }, customParameter, testName);
+    await this.page1.screenshot(`${testName}`, `01-${testName}`);
+    console.log('after init');
+    await this.page1.closeAudioModal();
+    await this.page1.waitForSelector(cpe.container);
+    if (await this.page1.page.evaluate(util.countTestElements, cpe.chat) === true) {
+      await this.page1.screenshot(`${testName}`, `03-fail-${testName}`);
+      return false;
+    }
+    const resp = await this.page1.page.evaluate(util.countTestElements, cpe.chat) === false;
+    await this.page1.screenshot(`${testName}`, `03-success-${testName}`);
+    return resp === true;
+  }
+
+  async forceRestorePresentationOnNewEvents(testName, args, meetingId, customParameter) {
+    console.log('before init');
+    await this.page1.init(args, meetingId, { ...params, fullName: 'Moderator1' }, customParameter, testName);
+    await this.page2.init(args, this.page1.meetingId, { ...params, fullName: 'Viewer1', moderatorPW: '' }, customParameter, testName);
+    await this.page1.screenshot(`${testName}`, `01-page1-${testName}`);
+    await this.page2.screenshot(`${testName}`, `01-page2-${testName}`);
+    console.log('after init');
+    await this.page1.closeAudioModal();
+    await this.page1.screenshot(`${testName}`, `02-page1-${testName}`);
+    await this.page2.closeAudioModal();
+    await this.page2.screenshot(`${testName}`, `02-page2-${testName}`);
+    await this.page1.waitForSelector(cpe.container);
+    await this.page2.waitForSelector(cpe.hidePresentation);
+    await this.page2.click(cpe.hidePresentation, true);
+    await this.page2.screenshot(`${testName}`, `03-page2-${testName}`);
+    const zoomInCase = await util.zoomIn(this.page1);
+    await this.page1.screenshot(`${testName}`, `03-page1-${testName}`);
+    await this.page2.screenshot(`${testName}`, `04-page2-${testName}`);
+    const zoomOutCase = await util.zoomOut(this.page1);
+    await this.page1.screenshot(`${testName}`, `03-page1-${testName}`);
+    await this.page2.screenshot(`${testName}`, `04-page2-${testName}`);
+    const pollCase = await util.poll(this.page1);
+    await this.page1.screenshot(`${testName}`, `03-page1-${testName}`);
+    await this.page2.screenshot(`${testName}`, `04-page2-${testName}`);
+    const previousSlideCase = await util.previousSlide(this.page1);
+    await this.page1.screenshot(`${testName}`, `04-page1-${testName}`);
+    await this.page2.screenshot(`${testName}`, `05-page2-${testName}`);
+    const nextSlideCase = await util.nextSlide(this.page1);
+    await this.page1.screenshot(`${testName}`, `05-page1-${testName}`);
+    await this.page2.screenshot(`${testName}`, `06-page2-${testName}`);
+    const annotationCase = await util.annotation(this.page1);
+    await this.page1.screenshot(`${testName}`, `06-page1-${testName}`);
+    await this.page2.screenshot(`${testName}`, `07-page2-${testName}`);
+    if ( zoomInCase === true && zoomOutCase === true && pollCase === true && previousSlideCase === true && nextSlideCase === true && annotationCase === true &&
+       await this.page2.page.evaluate(util.countTestElements, cpe.restorePresentation) === true) {
+      await this.page2.screenshot(`${testName}`, `05-page2-fail-${testName}`);
+      console.log('fail');
+      return false;
+    }
+    await this.page2.page.evaluate(util.countTestElements, cpe.restorePresentation) === false;
+    await this.page2.screenshot(`${testName}`, `05-page2-success-${testName}`);
+    return true;
+  }
+
   async closePage(page) {
     page.close();
   }
