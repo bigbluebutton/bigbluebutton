@@ -8,3 +8,4 @@ ExecStart=/usr/local/bigbluebutton/core/scripts/rap-process-worker.rb
 WorkingDirectory=/usr/local/bigbluebutton/core/scripts
 User=bigbluebutton
 Slice=bbb_record_core.slice
+Nice=19
