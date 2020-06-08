@@ -54,16 +54,15 @@ module BigBlueButton
         parameters: [
           # These settings are appropriate for 640x480 medium quality, and should be tweaked for other resolutions
           # See https://developers.google.com/media/vp9/settings/vod/
-          # Increase -threads to max of 4 or increase -speed to max of 4 to speed up processing
-          %w[-c:v libvpx-vp9 -b:v 750K -minrate 375K -maxrate 1088K -crf 33 -quality good -speed 1 -g 240 -tile-columns 1 -threads 2
+          %w[-c:v libvpx-vp9 -b:v 750K -minrate 375K -maxrate 1088K -crf 33 -quality good -speed 1 -g 240 -tile-columns 1 -threads 8
              -c:a libopus -b:a 48K
              -f webm]
           # Google recommends doing a 2-pass encode for better quality, but it's a lot slower. If you want to do this,
           # comment the lines above, and uncomment the lines below.
-          #%w[-c:v libvpx-vp9 -b:v 750K -minrate 375K -maxrate 1088K -crf 33 -quality good -speed 4 -g 240 -tile-columns 1 -threads 2
+          #%w[-c:v libvpx-vp9 -b:v 750K -minrate 375K -maxrate 1088K -crf 33 -quality good -speed 4 -g 240 -tile-columns 1 -threads 8
           #   -an
           #   -f webm -pass 1],
-          #%w[-c:v libvpx-vp9 -b:v 750K -minrate 375K -maxrate 1088K -crf 33 -quality good -speed 1 -g 240 -tile-columns 1 -threads 2
+          #%w[-c:v libvpx-vp9 -b:v 750K -minrate 375K -maxrate 1088K -crf 33 -quality good -speed 1 -g 240 -tile-columns 1 -threads 8
           #   -c:a libopus -b:a 48K
           #   -f webm -pass 2]
         ],
@@ -73,10 +72,9 @@ module BigBlueButton
         extension: 'mp4',
         parameters: [
           # These settings are appropriate for medium quality at any resolution
-          # Increase -threads (or remove it, to use all cpu cores) to speed up processing
-          # You can also change the preset: try 'fast' or 'faster'
+          # You can change the preset: try 'fast' or 'faster' to speed up processing.
           # To change quality, adjust the -crf value. Lower numbers are higher quality.
-          %w[-c:v libx264 -crf 23 -threads 2 -preset medium -g 240
+          %w[-c:v libx264 -crf 23 -preset medium -g 240
              -c:a aac -b:a 64K
              -f mp4 -movflags faststart]
         ],
@@ -120,16 +118,15 @@ module BigBlueButton
         parameters: [
           # These settings are appropriate for 1280x720 medium quality, and should be tweaked for other resolutions
           # See https://developers.google.com/media/vp9/settings/vod/
-          # Increase -threads to max of 8 or increase -speed to max of 4 to speed up processing
-          %w[-c:v libvpx-vp9 -b:v 1024K -minrate 512K -maxrate 1485K -crf 32 -quality good -speed 2 -g 240 -tile-columns 2 -threads 2
+          %w[-c:v libvpx-vp9 -b:v 1024K -minrate 512K -maxrate 1485K -crf 32 -quality good -speed 2 -g 240 -tile-columns 2 -threads 8
              -c:a libopus -b:a 48K
              -f webm]
           # Google recommends doing a 2-pass encode for better quality, but it's a lot slower. If you want to do this,
           # comment the lines above, and uncomment the lines below.
-          #%w[-c:v libvpx-vp9 -b:v 1024K -minrate 512K -maxrate 1485K -crf 32 -quality good -speed 4 -g 240 -tile-columns 2 -threads 2
+          #%w[-c:v libvpx-vp9 -b:v 1024K -minrate 512K -maxrate 1485K -crf 32 -quality good -speed 4 -g 240 -tile-columns 2 -threads 8
           #   -an
           #   -f webm -pass 1],
-          #%w[-c:v libvpx-vp9 -b:v 1024K -minrate 512K -maxrate 1485K -crf 32 -quality good -speed 2 -g 240 -tile-columns 2 -threads 2
+          #%w[-c:v libvpx-vp9 -b:v 1024K -minrate 512K -maxrate 1485K -crf 32 -quality good -speed 2 -g 240 -tile-columns 2 -threads 8
           #   -c:a libopus -b:a 48K
           #   -f webm -pass 2]
         ],
@@ -139,10 +136,9 @@ module BigBlueButton
         extension: 'mp4',
         parameters: [
           # These settings are appropriate for medium quality at any resolution
-          # Increase -threads (or remove it, to use all cpu cores) to speed up processing
-          # You can also change the preset: try 'fast' or 'faster'
+          # You can change the preset: try 'fast' or 'faster' to speed up processing.
           # To change quality, adjust the -crf value. Lower numbers are higher quality.
-          %w[-c:v libx264 -crf 23 -threads 2 -preset medium -g 240
+          %w[-c:v libx264 -crf 23 -preset medium -g 240
              -c:a aac -b:a 64K
              -f mp4 -movflags faststart]
         ],
