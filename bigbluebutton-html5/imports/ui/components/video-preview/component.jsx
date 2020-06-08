@@ -370,23 +370,20 @@ class VideoPreview extends Component {
 
   handleGUMError(error) {
     const { intl } = this.props;
-    const errorCode = error.code;
-    const errorName = error.name;
-    const errorMessage = error.message;
-
-    if (intlMessages[errorName]) {
-      return intl.formatMessage(intlMessages[errorName]);
-    }
 
     logger.error({
       logCode: 'video_preview_gum_failure',
-      message: 'getUserMedia failed in video-preview',
       extraInfo: {
-        errorName, errorMessage,
+        errorName: error.name, errorMessage: error.message,
       },
-    }, 'default error handler for video-preview');
+    }, 'getUserMedia failed in video-preview');
 
-    return intl.formatMessage(intlMessages.genericError, { 0: errorCode });
+    if (intlMessages[error.name]) {
+      return intl.formatMessage(intlMessages[error.name]);
+    }
+
+    return intl.formatMessage(intlMessages.genericError,
+      { errorName: error.name, errorMessage: error.message });
   }
 
   displayInitialPreview(deviceId) {
