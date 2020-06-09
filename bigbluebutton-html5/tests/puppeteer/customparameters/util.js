@@ -100,8 +100,8 @@ async function zoomOut(test) {
 async function poll(test) {
   try {
     await test.page.evaluate(async () => await document.querySelectorAll('button[aria-label="Actions"]')[0].click());
-    await test.waitForSelector('li[data-test="pollBtn"]');
-    await test.click('li[data-test="pollBtn"]', true);
+    await test.waitForSelector('li[data-test="polling"]');
+    await test.click('li[data-test="polling"]', true);
     await test.waitForSelector('button[aria-label="Yes / No"]');
     await test.click('button[aria-label="Yes / No"]', true);
     await test.waitForSelector('button[aria-label="Publish polling results"]');
