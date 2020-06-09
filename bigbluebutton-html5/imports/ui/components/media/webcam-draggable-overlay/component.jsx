@@ -281,9 +281,6 @@ class WebcamDraggable extends PureComponent {
       height: mediaHeight,
     } = mediaBounds;
 
-    console.log('=== mediaHeight', mediaHeight);
-    
-
     const {
       width: webcamsWidth,
       height: webcamsHeight,

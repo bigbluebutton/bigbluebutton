@@ -7,7 +7,7 @@ export const LayoutContext = createContext();
 
 const initialState = {
   autoArrangeLayout: true,
-  usersVideo: 0,
+  numUsersVideo: null,
   windowSize: {
     width: 0,
     height: 0,
@@ -54,7 +54,7 @@ const reducer = (state, action) => {
     case 'setUsersVideo': {
       return {
         ...state,
-        usersVideo: action.value,
+        numUsersVideo: action.value,
       };
     }
     case 'setWindowSize': {
@@ -170,8 +170,6 @@ const ContextProvider = (props) => {
   const { children } = props;
 
   useEffect(() => {
-    console.log('XUXUXU');
-    
     Storage.setItem('webcamsPlacement', webcamsPlacement);
     Storage.setItem('webcamsAreaUserSetsHeight', webcamsAreaUserSetsHeight);
     Storage.setItem('webcamsAreaUserSetsWidth', webcamsAreaUserSetsWidth);

@@ -96,11 +96,22 @@ class Base extends Component {
       ejected,
       isMeteorConnected,
       subscriptionsReady,
+      layoutContextDispatch,
+      usersVideo,
     } = this.props;
     const {
       loading,
       meetingExisted,
     } = this.state;
+
+    if (usersVideo !== prevProps.usersVideo) {
+      layoutContextDispatch(
+        {
+          type: 'setUsersVideo',
+          value: usersVideo.length,
+        },
+      );
+    }
 
     if (!prevProps.subscriptionsReady && subscriptionsReady) {
       logger.info({ logCode: 'startup_client_subscriptions_ready' }, 'Subscriptions are ready');
@@ -204,20 +215,13 @@ class Base extends Component {
     const {
       locale,
       meetingExist,
-      layoutContextState,
-      layoutContextDispatch,
-      usersVideo,
     } = this.props;
     const stateControls = { updateLoadingState };
     const { meetingExisted } = this.state;
 
     return (
       <Fragment>
-        <LayoutManager
-          layoutContextState={layoutContextState}
-          layoutContextDispatch={layoutContextDispatch}
-          usersVideo={usersVideo}
-        />
+        <LayoutManager />
         {
           (!meetingExisted && !meetingExist && Auth.loggedIn)
             ? <LoadingScreen />

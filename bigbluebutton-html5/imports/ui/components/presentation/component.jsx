@@ -120,9 +120,16 @@ class PresentationArea extends PureComponent {
     } = this.props;
 
     const { presentationAreaWidth, presentationAreaHeight } = this.state;
-    const { presentationAreaSize } = layoutContextState;
+    const { presentationAreaSize, numUsersVideo } = layoutContextState;
     const { layoutContextState: prevLayoutContextState } = prevProps;
-    const { presentationAreaSize: prevPresentationAreaSize } = prevLayoutContextState;
+    const {
+      presentationAreaSize: prevPresentationAreaSize,
+      numUsersVideo: prevNumUsersVideo,
+    } = prevLayoutContextState;
+
+    if (numUsersVideo !== prevNumUsersVideo) {
+      this.onResize();
+    }
 
     if (presentationAreaSize !== prevPresentationAreaSize
       || presentationAreaSize.width !== presentationAreaWidth
