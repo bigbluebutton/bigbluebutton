@@ -47,6 +47,12 @@ class VideoPlayer extends Component {
     };
 
     this.opts = {
+      // default option for all players, can be overwritten
+      playerOptions: {
+        autoplay: true,
+        playsinline: true,
+        controls: true,
+      },
       file: {
         attributes: {
           controls: true,
