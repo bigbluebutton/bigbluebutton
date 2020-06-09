@@ -383,7 +383,7 @@ class VideoPreview extends Component {
     }
 
     return intl.formatMessage(intlMessages.genericError,
-      { errorName: error.name, errorMessage: error.message });
+      { 0: `${error.name}: ${error.message}` });
   }
 
   displayInitialPreview(deviceId) {
