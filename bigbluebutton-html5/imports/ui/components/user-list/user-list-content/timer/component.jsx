@@ -24,7 +24,10 @@ class Timer extends Component {
 
     this.timeRef = React.createRef();
     this.interval = null;
+    this.offsetInterval = null;
+    this.offset = 0;
 
+    this.updateOffset = this.updateOffset.bind(this);
     this.updateTime = this.updateTime.bind(this);
   }
 
@@ -36,6 +39,9 @@ class Timer extends Component {
     if (current && running) {
       this.interval = setInterval(this.updateTime, TimerService.getInterval());
     }
+
+    this.updateOffset();
+    this.offsetInterval = setInterval(this.updateOffset, TimerService.OFFSET_INTERVAL);
   }
 
   componentDidUpdate(prevProps) {
@@ -47,6 +53,7 @@ class Timer extends Component {
 
   componentWillUnmount() {
     clearInterval(this.interval);
+    clearInterval(this.offsetInterval);
   }
 
   updateInterval(prevTimer, timer) {
@@ -72,8 +79,7 @@ class Timer extends Component {
       timestamp,
     } = timer;
 
-    const overTime = running ? (Date.now() - timestamp) : 0;
-    const elapsedTime = accumulated + overTime;
+    const elapsedTime = TimerService.getElapsedTime(running, timestamp, this.offset, accumulated);
 
     let updatedTime;
     if (stopwatch) {
@@ -83,6 +89,10 @@ class Timer extends Component {
     }
 
     return TimerService.getTimeAsString(updatedTime, stopwatch);
+  }
+
+  updateOffset() {
+    TimerService.fetchTimeOffset().then(result => this.offset = result);
   }
 
   updateTime() {

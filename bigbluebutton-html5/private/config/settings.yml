@@ -516,7 +516,9 @@ public:
   timer:
     enabled: false
     alarm: true
-    interval: 100
+    interval:
+      clock: 100
+      offset: 60000
     time: 5
     preset:
       - 5

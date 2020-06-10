@@ -9,6 +9,7 @@ import { ACTIONS, PANELS } from '../layout/enums';
 
 const TIMER_CONFIG = Meteor.settings.public.timer;
 const ROLE_MODERATOR = Meteor.settings.public.user.role_moderator;
+const OFFSET_INTERVAL = TIMER_CONFIG.interval.offset;
 
 const MILLI_IN_HOUR = 3600000;
 const MILLI_IN_MINUTE = 60000;
@@ -39,7 +40,7 @@ const isEnabled = () => TIMER_CONFIG.enabled;
 
 const getDefaultTime = () => TIMER_CONFIG.time * MILLI_IN_MINUTE;
 
-const getInterval = () => TIMER_CONFIG.interval;
+const getInterval = () => TIMER_CONFIG.interval.clock;
 
 const getPreset = () => {
   const { preset } = TIMER_CONFIG;
@@ -81,6 +82,29 @@ const activateTimer = () => makeCall('activateTimer');
 
 const deactivateTimer = () => makeCall('deactivateTimer');
 
+const fetchTimeOffset = () => {
+  return new Promise((resolve, reject) => {
+    const t0 = Date.now();
+
+    makeCall('getServerTime').then(result => {
+      const t3 = Date.now();
+
+      const ts = result;
+      const rtt = t3 - t0;
+      const offset = Math.round(ts - rtt/2 - t0);
+
+      resolve(offset);
+    }).catch(error => reject(error));
+  });
+};
+
+const getElapsedTime = (running, timestamp, offset, accumulated) => {
+  if (!running) return accumulated;
+
+  const now = Date.now();
+
+  return accumulated + Math.abs(now - timestamp - offset);
+};
 
 const getTimer = () => {
   const timer = Timer.findOne(
@@ -324,6 +348,7 @@ const buildPresetLabel = (preset) => {
 };
 
 export default {
+  OFFSET_INTERVAL,
   isActive,
   isEnabled,
   isRunning,
@@ -341,6 +366,8 @@ export default {
   resetTimer,
   activateTimer,
   deactivateTimer,
+  fetchTimeOffset,
+  getElapsedTime,
   getInterval,
   getPreset,
   getMaxHours,

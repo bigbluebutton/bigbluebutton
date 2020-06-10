@@ -6,6 +6,7 @@ import startTimer from './methods/startTimer';
 import stopTimer from './methods/stopTimer';
 import switchTimer from './methods/switchTimer';
 import setTimer from './methods/setTimer';
+import getServerTime from './methods/getServerTime';
 
 Meteor.methods({
   activateTimer,
@@ -15,4 +16,5 @@ Meteor.methods({
   stopTimer,
   switchTimer,
   setTimer,
+  getServerTime,
 });
