@@ -1690,13 +1690,15 @@ if [ $CHECK ]; then
         echo "                  enableListenOnly: $(yq r $HTML5_CONFIG public.kurento.enableListenOnly)"
      fi
 
-     if ! java -version 2>&1 | grep -q "1.8.0"; then
+     if [ "$DISTRIB_CODENAME" == "xenial" ]; then
+       if ! java -version 2>&1 | grep -q "1.8.0"; then
         echo
         echo "# Warning: Did not detect Java 8 as default version"
         echo
         echo "   sudo apt-get install openjdk-8-jdk"
         echo "   update-alternatives --config java"
         echo "   bbb-conf --restart"
+      fi
      fi
 
      check_state
@@ -2003,6 +2005,17 @@ if [ -n "$HOST" ]; then
         #    yq w -i $KURENTO_CONFIG kurento[0].url "ws://$HOST:8888/kurento"
         #    chown bigbluebutton:bigbluebutton $KURENTO_CONFIG
         #fi
+    fi
+
+    ESL_PASSWORD=$(xmlstarlet sel -t -m 'configuration/settings/param[@name="password"]' -v @value /opt/freeswitch/etc/freeswitch/autoload_configs/event_socket.conf.xml)
+    if [ "$ESL_PASSWORD" == "ClueCon" ]; then
+        NEW_ESL_PASSWORD=$(openssl rand -hex 8)
+        echo "Changing default password for FreeSWITCH Event Socket Layer to $NEW_ESL_PASSWORD"
+        # Update to a new password
+
+       sudo sed -i "s/ClueCon/$NEW_ESL_PASSWORD/g" /opt/freeswitch/etc/freeswitch/autoload_configs/event_socket.conf.xml
+       sudo sed -i "s/ClueCon/$NEW_ESL_PASSWORD/g" /usr/share/bbb-fsesl-akka/conf/application.conf
+       sudo yq w -i /usr/local/bigbluebutton/bbb-webrtc-sfu/config/default.yml freeswitch.esl_password "$NEW_ESL_PASSWORD"
     fi
 
     echo "Restarting the BigBlueButton $BIGBLUEBUTTON_RELEASE ..."

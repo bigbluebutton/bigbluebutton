@@ -47,6 +47,12 @@ class VideoPlayer extends Component {
     };
 
     this.opts = {
+      // default option for all players, can be overwritten
+      playerOptions: {
+        autoplay: true,
+        playsinline: true,
+        controls: true,
+      },
       file: {
         attributes: {
           controls: true,
@@ -213,6 +219,11 @@ class VideoPlayer extends Component {
 
   setPlaybackRate(rate) {
     const intPlayer = this.player && this.player.getInternalPlayer();
+    const currentRate = this.getCurrentPlaybackRate();
+
+    if (currentRate === rate) {
+      return;
+    }
 
     this.setState({ playbackRate: rate });
     if (intPlayer && intPlayer.setPlaybackRate) {

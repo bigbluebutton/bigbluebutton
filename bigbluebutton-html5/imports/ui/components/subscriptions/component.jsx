@@ -4,6 +4,7 @@ import Auth from '/imports/ui/services/auth';
 import logger from '/imports/startup/client/logger';
 import GroupChat from '/imports/api/group-chat';
 import Annotations from '/imports/api/annotations';
+import Users from '/imports/api/users';
 import AnnotationsTextService from '/imports/ui/components/whiteboard/annotations/text/service';
 import AnnotationsLocal from '/imports/ui/components/whiteboard/service';
 
@@ -18,7 +19,7 @@ const SUBSCRIPTIONS = [
   'voiceUsers', 'whiteboard-multi-user', 'screenshare', 'group-chat',
   'presentation-pods', 'users-settings', 'guestUser', 'users-infos', 'note', 'meeting-time-remaining',
   'network-information', 'ping-pong', 'local-settings', 'users-typing', 'record-meetings', 'video-streams',
-  'voice-call-states', 'breakouts',
+  'voice-call-states',
 ];
 
 class Subscriptions extends Component {
@@ -44,6 +45,8 @@ export default withTracker(() => {
     };
   }
 
+  const currentUser = Users.findOne({ intId: requesterUserId }, { fields: { role: 1 } });
+
   const subscriptionErrorHandler = {
     onError: (error) => {
       logger.error({
@@ -58,14 +61,16 @@ export default withTracker(() => {
     if ((!TYPING_INDICATOR_ENABLED && name.indexOf('typing') !== -1)
       || (!CHAT_ENABLED && name.indexOf('chat') !== -1)) return;
 
-    return Meteor.subscribe(
-      name,
-      subscriptionErrorHandler,
-    );
+    return Meteor.subscribe(name, subscriptionErrorHandler);
   });
 
+  if (currentUser) {
+    subscriptionsHandlers.push(Meteor.subscribe('meetings', currentUser.role, subscriptionErrorHandler));
+    subscriptionsHandlers.push(Meteor.subscribe('users', currentUser.role, subscriptionErrorHandler));
+    subscriptionsHandlers.push(Meteor.subscribe('breakouts', currentUser.role, subscriptionErrorHandler));
+  }
+
   let groupChatMessageHandler = {};
-  // let annotationsHandler = {};
 
   if (CHAT_ENABLED) {
     const chats = GroupChat.find({
