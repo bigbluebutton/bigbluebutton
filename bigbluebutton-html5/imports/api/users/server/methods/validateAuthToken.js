@@ -10,7 +10,12 @@ export default function validateAuthToken(meetingId, requesterUserId, requesterT
   const EVENT_NAME = 'ValidateAuthTokenReqMsg';
 
   // Check if externalId is banned from the meeting
-  if (externalId && BannedUsers.has(meetingId, externalId)) return;
+  if (externalId) {
+    if (BannedUsers.has(meetingId, externalId)) {
+      Logger.warn(`A banned user with extId ${externalId} tried to enter in meeting ${meetingId}`);
+      return;
+    }
+  }
 
   // Store reference of methodInvocationObject ( to postpone the connection userId definition )
   pendingAuthenticationsStore.add(meetingId, requesterUserId, requesterToken, this);
