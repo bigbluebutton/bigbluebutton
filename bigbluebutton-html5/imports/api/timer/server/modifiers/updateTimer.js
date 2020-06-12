@@ -21,7 +21,10 @@ const getActivateModifier = () => {
 
 const getDeactivateModifier = () => {
   return {
-    $set: { active: false },
+    $set: {
+      active: false,
+      running: false,
+    },
   };
 };
 

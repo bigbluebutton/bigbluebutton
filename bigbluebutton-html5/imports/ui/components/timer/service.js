@@ -24,9 +24,9 @@ const MAX_TIME = 999
 
 const getMaxHours = () => MAX_HOURS;
 
-const isAlarmEnabled = () => TIMER_CONFIG.alarm;
+const isAlarmEnabled = () => isEnabled() && TIMER_CONFIG.alarm;
 
-isActive = () => {
+const isActive = () => {
   const timer = Timer.findOne(
     { meetingId: Auth.meetingID },
     { fields: { active: 1 } },
