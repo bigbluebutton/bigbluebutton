@@ -19,6 +19,7 @@ import FullscreenService from '../../../fullscreen-button/service';
 import FullscreenButtonContainer from '../../../fullscreen-button/container';
 import { styles } from '../styles';
 import { withDraggableConsumer } from '../../../media/webcam-draggable-overlay/context';
+import getFromUserSettings from '/imports/ui/services/users-settings';
 import Auth from '/imports/ui/services/auth';
 
 const intlMessages = defineMessages({
