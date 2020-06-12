@@ -83,27 +83,33 @@ const activateTimer = () => makeCall('activateTimer');
 const deactivateTimer = () => makeCall('deactivateTimer');
 
 const fetchTimeOffset = () => {
-  return new Promise((resolve, reject) => {
-    const t0 = Date.now();
+  const t0 = Date.now();
 
-    makeCall('getServerTime').then(result => {
-      const t3 = Date.now();
+  makeCall('getServerTime').then(result => {
+    const t3 = Date.now();
 
-      const ts = result;
-      const rtt = t3 - t0;
-      const offset = Math.round(ts - rtt/2 - t0);
+    const ts = result;
+    const rtt = t3 - t0;
+    const timeOffset = Math.round(ts - rtt/2 - t0);
 
-      resolve(offset);
-    }).catch(error => reject(error));
+    Session.set('timeOffset', timeOffset);
   });
 };
 
-const getElapsedTime = (running, timestamp, offset, accumulated) => {
+const getTimeOffset = () => {
+  const timeOffset = Session.get('timeOffset');
+
+  if (timeOffset) return timeOffset;
+
+  return 0;
+};
+
+const getElapsedTime = (running, timestamp, timeOffset, accumulated) => {
   if (!running) return accumulated;
 
   const now = Date.now();
 
-  return accumulated + Math.abs(now - timestamp - offset);
+  return accumulated + Math.abs(now - timestamp + timeOffset);
 };
 
 const getTimer = () => {
@@ -367,6 +373,7 @@ export default {
   activateTimer,
   deactivateTimer,
   fetchTimeOffset,
+  getTimeOffset,
   getElapsedTime,
   getInterval,
   getPreset,

@@ -13,5 +13,6 @@ const TimerContainer = (props) => {
 
 export default withTracker(() => ({
   timer: TimerService.getTimer(),
+  timeOffset: TimerService.getTimeOffset(),
   isModerator: TimerService.isModerator(),
 }))(TimerContainer);

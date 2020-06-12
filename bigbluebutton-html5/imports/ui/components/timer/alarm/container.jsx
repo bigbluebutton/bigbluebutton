@@ -7,4 +7,5 @@ const timerAlarmContainer = props => <TimerAlarm {...props} />;
 
 export default withTracker(() => ({
   timer: TimerService.getTimer(),
+  timeOffset: TimerService.getTimeOffset(),
 }))(timerAlarmContainer);

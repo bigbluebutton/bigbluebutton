@@ -137,7 +137,9 @@ class App extends Component {
       isVideoPreviewModalOpen: false,
     };
 
+    this.isTimerEnabled = TimerService.isEnabled();
     this.isTimerAlarmEnabled = TimerService.isAlarmEnabled();
+    this.timeOffsetInterval = null;
 
     this.handleWindowResize = throttle(this.handleWindowResize).bind(this);
     this.shouldAriaHide = this.shouldAriaHide.bind(this);
@@ -209,6 +211,11 @@ class App extends Component {
     if (deviceInfo.isMobile) makeCall('setMobileUser');
 
     ConnectionStatusService.startRoundTripTime();
+
+    if (this.isTimerEnabled) {
+      TimerService.fetchTimeOffset();
+      this.timeOffsetInterval = setInterval(TimerService.fetchTimeOffset, TimerService.OFFSET_INTERVAL);
+    }
 
     logger.info({ logCode: 'app_component_componentdidmount' }, 'Client loaded successfully');
   }
@@ -288,6 +295,10 @@ class App extends Component {
     window.removeEventListener('resize', this.handleWindowResize, false);
     window.onbeforeunload = null;
     ConnectionStatusService.stopRoundTripTime();
+
+    if (this.timeOffsetInterval) {
+      clearInterval(this.timeOffsetInterval);
+    }
   }
 
   handleWindowResize() {

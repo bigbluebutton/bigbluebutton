@@ -13,13 +13,10 @@ class TimerAlarm extends PureComponent {
 
     this.interval = null;
     this.alarm = null;
-    this.offsetInterval = null;
-    this.offset = 0;
 
     // We need to avoid trigger on mount
     this.triggered = true;
 
-    this.updateOffset = this.updateOffset.bind(this);
     this.checkTime = this.checkTime.bind(this);
   }
 
@@ -33,9 +30,6 @@ class TimerAlarm extends PureComponent {
     if (running) {
       this.interval = setInterval(this.checkTime, ALARM_INTERVAL);
     }
-
-    this.updateOffset();
-    this.offsetInterval = setInterval(this.updateOffset, TimerService.OFFSET_INTERVAL);
   }
 
   componentDidUpdate(prevProps) {
@@ -48,7 +42,6 @@ class TimerAlarm extends PureComponent {
 
   componentWillUnmount() {
     clearInterval(this.interval);
-    clearInterval(this.offsetInterval);
   }
 
   updateInterval(prevTimer, timer) {
@@ -93,12 +86,12 @@ class TimerAlarm extends PureComponent {
     }
   }
 
-  updateOffset() {
-    TimerService.fetchTimeOffset().then(result => this.offset = result);
-  }
-
   checkTime(onMount = false) {
-    const { timer } = this.props;
+    const {
+      timer,
+      timeOffset,
+    } = this.props;
+
     const {
       stopwatch,
       running,
@@ -112,7 +105,7 @@ class TimerAlarm extends PureComponent {
       timestamp,
     } = timer;
 
-    const elapsedTime = TimerService.getElapsedTime(running, timestamp, this.offset, accumulated);
+    const elapsedTime = TimerService.getElapsedTime(running, timestamp, timeOffset, accumulated);
     const updatedTime = Math.max(time - elapsedTime, 0);
 
     if (updatedTime === 0) {
