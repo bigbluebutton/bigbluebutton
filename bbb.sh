@@ -1,6 +1,6 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
-set -x
+set -ex
 
 RED5_DIR=/usr/share/red5
 BBB_DIR=$(pwd)

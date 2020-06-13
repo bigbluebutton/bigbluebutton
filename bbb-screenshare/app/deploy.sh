@@ -1,5 +1,7 @@
-#!/bin/bash
+#!/usr/bin/env bash
 # deploying 'screenshare' to /usr/share/red5/webapps
+
+set -e
 
 sbt clean compile package
 

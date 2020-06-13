@@ -1,5 +1,6 @@
-#!/bin/bash
+#!/usr/bin/env bash
 # deploying 'bigbluebutton-apps' to /usr/share/red5/webapps
+set -e
 
 sudo chmod -R 777 /usr/share/red5/webapps/*
 

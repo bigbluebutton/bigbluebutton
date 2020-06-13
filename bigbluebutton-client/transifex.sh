@@ -1,4 +1,5 @@
-#!/bin/bash
+#!/usr/bin/env bash
+set -e
 
 for i in * ; do
         if [ -d "$i" ]; then

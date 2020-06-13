@@ -1,4 +1,5 @@
-#!/bin/bash -xe
+#!/usr/bin/env bash
+set -ex
 
 mkdir -p /var/bigbluebutton/recording/raw
 mkdir -p /var/bigbluebutton/recording/process

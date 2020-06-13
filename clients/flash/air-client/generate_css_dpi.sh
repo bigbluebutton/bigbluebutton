@@ -1,4 +1,5 @@
-#!/bin/bash
+#!/usr/bin/env bash
+set -e
 
 # Install bc binary to use this command line tool `sudo apt-get install bc`
 # Then install cssbeautify-cli node.js library `sudo npm install -g cssbeautify-cli`

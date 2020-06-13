@@ -1,4 +1,4 @@
-#!/bin/bash 
+#!/usr/bin/env bash
 #
 # BlueButton open source conferencing system - http://www.bigbluebutton.org/
 #

@@ -1,4 +1,5 @@
-#!/bin/bash
+#!/usr/bin/env bash
+set -e
 
 FILE_VERSION=$(head -1 ~/dev/bigbluebutton/bigbluebutton-config/bigbluebutton-release)
 OLD_VERSION=$(echo "$FILE_VERSION" | awk -F'=' '{print $2}')
