@@ -96,6 +96,17 @@ public:
     - screen
     firefoxScreenshareSource: window
     cameraProfiles:
+      # id: unique identifier of the profile
+      # name: name of the profile visible to users
+      # default: if this is the default profile which is pre-selected
+      # bitrate: the average bitrate for used for a webcam stream
+      # constraints:
+      #   # Optional constraints put on the requested video a browser MAY honor
+      #   # For a detailed list on possible values see:
+      #   # https://developer.mozilla.org/en-US/docs/Web/API/MediaTrackConstraints
+      #   # Examples:
+      #   width: requested width of the camera stream
+      #   frameRate: requested framerate
       - id: low
         name: Low quality
         default: false
