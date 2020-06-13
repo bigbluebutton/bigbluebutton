@@ -2010,7 +2010,7 @@ if [ -n "$HOST" ]; then
     ESL_PASSWORD=$(xmlstarlet sel -t -m 'configuration/settings/param[@name="password"]' -v @value /opt/freeswitch/etc/freeswitch/autoload_configs/event_socket.conf.xml)
     if [ "$ESL_PASSWORD" == "ClueCon" ]; then
         NEW_ESL_PASSWORD=$(openssl rand -hex 8)
-        echo "Changing default password for FreeSWITCH Event Socket Layer to $NEW_ESL_PASSWORD"
+        echo "Changing default password for FreeSWITCH Event Socket Layer (see /opt/freeswitch/etc/freeswitch/autoload_configs/event_socket.conf.xml)"
         # Update to a new password
 
        sudo sed -i "s/ClueCon/$NEW_ESL_PASSWORD/g" /opt/freeswitch/etc/freeswitch/autoload_configs/event_socket.conf.xml
