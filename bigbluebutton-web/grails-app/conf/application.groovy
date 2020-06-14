@@ -10,7 +10,11 @@
 // if (System.properties["${appName}.config.location"]) {
 //    grails.config.locations << "file:" + System.properties["${appName}.config.location"]
 // }
-grails.config.locations = [ "classpath:bigbluebutton.properties"]
+grails.config.locations = [ "classpath:bigbluebutton.properties" ]
+if (System.properties["bbb-web.config.location"]) {
+    grails.config.locations << "file:" + System.properties["bbb-web.config.location"]
+}
+
 
 grails.project.groupId = appName // change this to alter the default package name and Maven publishing destination
 
