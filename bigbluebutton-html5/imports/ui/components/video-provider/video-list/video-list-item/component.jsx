@@ -19,8 +19,7 @@ import FullscreenService from '../../../fullscreen-button/service';
 import FullscreenButtonContainer from '../../../fullscreen-button/container';
 import { styles } from '../styles';
 import { withDraggableConsumer } from '../../../media/webcam-draggable-overlay/context';
-import getFromUserSettings from '/imports/ui/services/users-settings';
-import Auth from '/imports/ui/services/auth';
+import VideoService from '../../service';
 
 const intlMessages = defineMessages({
   connectionStatsLabel: {
@@ -40,13 +39,9 @@ class VideoListItem extends Component {
       stats: { video: {} },
       videoIsReady: false,
       isFullscreen: false,
-      isOwnVideo: false,
     };
 
-    if(getFromUserSettings('bbb_mirror_own_video', Meteor.settings.public.app.mirrorOwnVideo)){
-      this.state.isOwnVideo = Auth.userID === props.user.userId;
-    }
-
+    this.mirrorOwnWebcam = VideoService.mirrorOwnWebcam(props.user);
     this.toggleStats = this.toggleStats.bind(this);
     this.setStats = this.setStats.bind(this);
     this.setVideoIsReady = this.setVideoIsReady.bind(this);
@@ -184,7 +179,6 @@ class VideoListItem extends Component {
       stats,
       videoIsReady,
       isFullscreen,
-      isOwnVideo,
     } = this.state;
     const {
       user,
@@ -221,7 +215,7 @@ class VideoListItem extends Component {
                 && !isFullscreen && !swapLayout,
               [styles.cursorGrabbing]: webcamDraggableState.dragging
                 && !isFullscreen && !swapLayout,
-              [styles.mirroredVideo]: isOwnVideo,
+              [styles.mirroredVideo]: this.mirrorOwnWebcam,
             })}
             ref={(ref) => { this.videoTag = ref; }}
             autoPlay
