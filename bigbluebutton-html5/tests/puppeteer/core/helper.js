@@ -16,7 +16,6 @@ function getRandomInt(min, max) {
 }
 
 async function createMeeting(params, meetingId, customParameter) {
-  console.log(customParameter);
   const meetingID = meetingId || `random-${getRandomInt(1000000, 10000000).toString()}`;
   const mp = params.moderatorPW;
   const ap = params.attendeePW;
@@ -28,7 +27,6 @@ async function createMeeting(params, meetingId, customParameter) {
   const checksum = sha1(apicall);
   const url = `${params.server}/create?${query}&checksum=${checksum}`;
 
-  console.log(url);
   const response = await axios.get(url, { adapter: http });
   return meetingID;
 }
@@ -40,7 +38,6 @@ function getJoinURL(meetingID, params, moderator, customParameter) {
   const apicall = `join${query}${params.secret}`;
   const checksum = sha1(apicall);
   const url = `${params.server}/join?${query}&checksum=${checksum}`;
-  console.log(url);
   return url;
 }
 

@@ -42,13 +42,13 @@ class Page {
       // ));
 
       await this.setDownloadBehavior(`${this.parentDir}/downloads`);
-      console.log('before create meeting', customParameter);
+      this.logger('before create meeting', customParameter);
       this.meetingId = await helper.createMeeting(params, meetingId, customParameter);
-      console.log('after create meeting', customParameter);
+      this.logger('after create meeting', customParameter);
 
-      console.log('before getJoinURL', customParameter);
+      this.logger('before getJoinURL', customParameter);
       const joinURL = helper.getJoinURL(this.meetingId, this.effectiveParams, isModerator, customParameter);
-      console.log('after getJoinURL', customParameter);
+      this.logger('after getJoinURL', customParameter);
 
       await this.page.goto(joinURL);
       const checkForGetMetrics = async () => {
@@ -62,7 +62,7 @@ class Page {
       // }
       await checkForGetMetrics();
     } catch (e) {
-      console.log(e);
+      this.logger(e);
     }
   }
 
@@ -256,6 +256,15 @@ class Page {
     }
   }
 
+  async logger() {
+    if (process.env.DEBUG === 'true') {
+      const date = `${new Date().getDate()}.${new Date().getMonth()}.${new Date().getFullYear()} / ${new Date().getHours()}:${new Date().getMinutes()}:${new Date().getSeconds()}`;
+      const args = Array.prototype.slice.call(arguments);
+      args.unshift(`${date} `);
+      console.log(...args);
+    }
+  }
+
   async paste(element) {
     await this.click(element);
     await this.page.keyboard.down('ControlLeft');
@@ -289,7 +298,7 @@ class Page {
       return users;
     });
     const totalNumberOfUsersDom = await this.page.evaluate(() => document.querySelectorAll('[data-test^="userListItem"]').length);
-    console.log({ totalNumberOfUsersDom, totalNumberOfUsersMongo });
+    this.logger({ totalNumberOfUsersDom, totalNumberOfUsersMongo });
     const metric = await this.page.metrics();
     pageMetricsObj.totalNumberOfUsersMongoObj = totalNumberOfUsersMongo;
     pageMetricsObj.totalNumberOfUsersDomObj = totalNumberOfUsersDom;
@@ -299,7 +308,7 @@ class Page {
       try {
         fs.appendFileSync(metricsFile, `${JSON.stringify(pageMetricsObj)},\n`);
       } catch (error) {
-        console.log(error);
+        this.logger(error);
       }
     };
     createFile();
