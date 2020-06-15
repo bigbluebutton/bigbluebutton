@@ -191,7 +191,7 @@ class VideoPreview extends Component {
       previewError: null,
     };
 
-    this.mirrorOwnWebcam = VideoService.mirrorOwnWebcam(props.user);
+    this.mirrorOwnWebcam = VideoService.mirrorOwnWebcam();
   }
 
   componentDidMount() {

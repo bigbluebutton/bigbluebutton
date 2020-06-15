@@ -137,7 +137,9 @@ class VideoService {
 
   mirrorOwnWebcam(user) {
     // only true if setting defined and video ids match
-    return getFromUserSettings('bbb_mirror_own_webcam', Meteor.settings.public.app.mirrorOwnWebcam) && this.userId() === user.userId;
+    const isOwnWebcam = user ? this.userId() === user.userId : true;
+    const isEnabledMirroring = getFromUserSettings('bbb_mirror_own_webcam', Meteor.settings.public.app.mirrorOwnWebcam);
+    return isOwnWebcam && isEnabledMirroring;
   }
 
   userId() {
