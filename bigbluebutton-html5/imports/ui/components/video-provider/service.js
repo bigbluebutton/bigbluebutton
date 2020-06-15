@@ -9,6 +9,7 @@ import getFromUserSettings from '/imports/ui/services/users-settings';
 
 const ROLE_MODERATOR = Meteor.settings.public.user.role_moderator;
 const ROLE_VIEWER = Meteor.settings.public.user.role_viewer;
+const MIRROR_WEBCAM = Meteor.settings.public.app.mirrorOwnWebcam;
 
 class VideoService {
   constructor() {
@@ -138,7 +139,7 @@ class VideoService {
   mirrorOwnWebcam(user) {
     // only true if setting defined and video ids match
     const isOwnWebcam = user ? this.userId() === user.userId : true;
-    const isEnabledMirroring = getFromUserSettings('bbb_mirror_own_webcam', Meteor.settings.public.app.mirrorOwnWebcam);
+    const isEnabledMirroring = getFromUserSettings('bbb_mirror_own_webcam', MIRROR_WEBCAM);
     return isOwnWebcam && isEnabledMirroring;
   }
 
