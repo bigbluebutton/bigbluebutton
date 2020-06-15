@@ -133,9 +133,7 @@ class Page {
       const args = [
         '--no-sandbox',
         '--use-fake-ui-for-media-stream',
-        '--use-fake-device-for-media-stream',
-        `--use-file-for-fake-audio-capture=${path.join(__dirname, '../media/audio.wav')}`,
-        '--allow-file-access',
+        '--use-fake-device-for-media-stream'
       ];
       return {
         headless: false,
@@ -146,6 +144,8 @@ class Page {
       '--no-sandbox',
       '--use-fake-ui-for-media-stream',
       '--use-fake-device-for-media-stream',
+      `--use-file-for-fake-audio-capture=${path.join(__dirname, '../media/audio.wav')}`,
+      '--allow-file-access',
     ];
     return {
       headless: false,
