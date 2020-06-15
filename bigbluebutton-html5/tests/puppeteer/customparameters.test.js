@@ -36,7 +36,7 @@ describe('Custom parameters', () => {
     try {
       page.logger('before');
       const testName = 'listenOnlyMode';
-      response = await test.listenOnlyMode(testName, Page.getArgs(), undefined, c.listenOnlyMode);
+      response = await test.listenOnlyMode(testName, Page.getArgsWithAudio(), undefined, c.listenOnlyMode);
       page.logger('after');
     } catch (e) {
       page.logger(e);
@@ -55,7 +55,7 @@ describe('Custom parameters', () => {
     try {
       page.logger('before');
       const testName = 'forceListenOnly';
-      response = await test.forceListenOnly(testName, Page.getArgs(), undefined, c.forceListenOnly);
+      response = await test.forceListenOnly(testName, Page.getArgsWithAudio(), undefined, c.forceListenOnly);
       page.logger('after');
     } catch (e) {
       page.logger(e);
@@ -74,7 +74,7 @@ describe('Custom parameters', () => {
     try {
       page.logger('before');
       const testName = 'skipCheck';
-      response = await test.skipCheck(testName, Page.getArgs(), undefined, c.skipCheck);
+      response = await test.skipCheck(testName, Page.getArgsWithAudio(), undefined, c.skipCheck);
       page.logger('after');
     } catch (e) {
       page.logger(e);
@@ -227,7 +227,7 @@ describe('Custom parameters', () => {
     try {
       page.logger('before');
       const testName = 'multiUserPenOnly';
-      response = await test.multiUserPenOnly(testName, Page.getArgsWithVideo(), undefined, c.multiUserPenOnly);
+      response = await test.multiUserPenOnly(testName, Page.getArgs(), undefined, c.multiUserPenOnly);
       page.logger('after');
     } catch (e) {
       page.logger(e);
@@ -246,7 +246,7 @@ describe('Custom parameters', () => {
     try {
       page.logger('before');
       const testName = 'presenterTools';
-      response = await test.presenterTools(testName, Page.getArgsWithVideo(), undefined, encodeURI(c.presenterTools));
+      response = await test.presenterTools(testName, Page.getArgs(), undefined, encodeURI(c.presenterTools));
       page.logger('after');
     } catch (e) {
       page.logger(e);
@@ -265,7 +265,7 @@ describe('Custom parameters', () => {
     try {
       page.logger('before');
       const testName = 'multiUserTools';
-      response = await test.multiUserTools(testName, Page.getArgsWithVideo(), undefined, encodeURI(c.multiUserTools));
+      response = await test.multiUserTools(testName, Page.getArgs(), undefined, encodeURI(c.multiUserTools));
       page.logger('after');
     } catch (e) {
       page.logger(e);
@@ -284,7 +284,7 @@ describe('Custom parameters', () => {
     try {
       page.logger('before');
       const testName = 'customStyle';
-      response = await test.customStyle(testName, Page.getArgsWithVideo(), undefined, encodeURIComponent(c.customStyle));
+      response = await test.customStyle(testName, Page.getArgs(), undefined, encodeURIComponent(c.customStyle));
       page.logger('after');
     } catch (e) {
       page.logger(e);
@@ -303,7 +303,7 @@ describe('Custom parameters', () => {
     try {
       page.logger('before');
       const testName = 'customStyleUrl';
-      response = await test.customStyleUrl(testName, Page.getArgsWithVideo(), undefined, encodeURI(c.customStyleUrl));
+      response = await test.customStyleUrl(testName, Page.getArgs(), undefined, encodeURI(c.customStyleUrl));
       page.logger('after');
     } catch (e) {
       page.logger(e);
@@ -323,7 +323,7 @@ describe('Custom parameters', () => {
     try {
       page.logger('before');
       const testName = 'autoSwapLayout';
-      response = await test.autoSwapLayout(testName, Page.getArgsWithVideo(), undefined, encodeURI(c.autoSwapLayout));
+      response = await test.autoSwapLayout(testName, Page.getArgs(), undefined, encodeURI(c.autoSwapLayout));
       page.logger('after');
     } catch (e) {
       page.logger(e);
@@ -342,45 +342,7 @@ describe('Custom parameters', () => {
     try {
       page.logger('before');
       const testName = 'hidePresentation';
-      response = await test.hidePresentation(testName, Page.getArgsWithVideo(), undefined, encodeURI(c.hidePresentation));
-      page.logger('after');
-    } catch (e) {
-      page.logger(e);
-    } finally {
-      await test.closePage(test.page1);
-    }
-    expect(response).toBe(true);
-  });
-
-  // This test spec sets the userdata-hidePresentation parameter to true
-  // and checks that the Presentation is totally hidden, and its place will be displaying a message
-  test('Outside Toggle', async () => {
-    const test = new CustomParameters();
-    const page = new Page();
-    let response;
-    try {
-      page.logger('before');
-      const testName = 'hidePresentation';
-      response = await test.hidePresentation(testName, Page.getArgsWithVideo(), undefined, encodeURI(c.hidePresentation));
-      page.logger('after');
-    } catch (e) {
-      page.logger(e);
-    } finally {
-      await test.closePage(test.page1);
-    }
-    expect(response).toBe(true);
-  });
-
-  // This test spec sets the userdata-hidePresentation parameter to true
-  // and checks that the Presentation is totally hidden, and its place will be displaying a message
-  test('Outside Toggle', async () => {
-    const test = new CustomParameters();
-    const page = new Page();
-    let response;
-    try {
-      page.logger('before');
-      const testName = 'hidePresentation';
-      response = await test.hidePresentation(testName, Page.getArgsWithVideo(), undefined, encodeURI(c.hidePresentation));
+      response = await test.hidePresentation(testName, Page.getArgs(), undefined, encodeURI(c.hidePresentation));
       page.logger('after');
     } catch (e) {
       page.logger(e);
@@ -399,7 +361,7 @@ describe('Custom parameters', () => {
     try {
       page.logger('before');
       const testName = 'bannerText';
-      response = await test.bannerText(testName, Page.getArgsWithVideo(), undefined, c.bannerText);
+      response = await test.bannerText(testName, Page.getArgs(), undefined, c.bannerText);
       page.logger('after');
     } catch (e) {
       page.logger(e);
@@ -419,7 +381,7 @@ describe('Custom parameters', () => {
       page.logger('before');
       const testName = 'bannerColor';
       const colorToRGB = util.hexToRgb(c.color);
-      response = await test.bannerColor(testName, Page.getArgsWithVideo(), undefined, `${c.bannerColor}&${encodeURI(c.bannerText)}`, colorToRGB);
+      response = await test.bannerColor(testName, Page.getArgs(), undefined, `${c.bannerColor}&${encodeURI(c.bannerText)}`, colorToRGB);
       page.logger('after');
     } catch (e) {
       page.logger(e);
@@ -438,7 +400,7 @@ describe('Custom parameters', () => {
     try {
       page.logger('before');
       const testName = 'showPublicChatOnLogin';
-      response = await test.showPublicChatOnLogin(testName, Page.getArgsWithVideo(), undefined, `${c.showPublicChatOnLogin}`);
+      response = await test.showPublicChatOnLogin(testName, Page.getArgs(), undefined, `${c.showPublicChatOnLogin}`);
       page.logger('after');
     } catch (e) {
       page.logger(e);
@@ -458,7 +420,7 @@ describe('Custom parameters', () => {
     try {
       page.logger('before');
       const testName = 'forceRestorePresentationOnNewEvents';
-      response = await test.forceRestorePresentationOnNewEvents(testName, Page.getArgsWithVideo(), undefined, `${c.forceRestorePresentationOnNewEvents}`);
+      response = await test.forceRestorePresentationOnNewEvents(testName, Page.getArgs(), undefined, `${c.forceRestorePresentationOnNewEvents}`);
       page.logger('after');
     } catch (e) {
       page.logger(e);
