@@ -64,7 +64,7 @@ class AudioControls extends PureComponent {
       intl,
       shortcuts,
       isVoiceUser,
-      inputDeviceId,
+      inputStream,
     } = this.props;
 
     let joinIcon = 'audio_off';
@@ -98,7 +98,7 @@ class AudioControls extends PureComponent {
 
     return (
       <span className={styles.container}>
-        {muted ? <MutedAlert inputDeviceId={inputDeviceId} /> : null}
+        {muted ? <MutedAlert inputStream={inputStream} /> : null}
         {showMute && isVoiceUser ? toggleMuteBtn : null}
         <Button
           className={cx(inAudio || styles.btn)}

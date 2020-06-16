@@ -8,7 +8,7 @@ import { styles } from './styles';
 const MUTE_WARNING_TIMEOUT = 4000;
 
 const propTypes = {
-  inputDeviceId: PropTypes.string.isRequired,
+  inputStream: PropTypes.object.isRequired,
 };
 
 class MutedAlert extends Component {
@@ -27,25 +27,19 @@ class MutedAlert extends Component {
 
   componentDidMount() {
     this._isMounted = true;
-    const { inputDeviceId } = this.props;
-
-    navigator.mediaDevices.getUserMedia({ audio: { deviceId: inputDeviceId } })
-      .then((stream) => {
-        this.speechEvents = hark(stream, { interval: 200 });
-
-        this.speechEvents.on('speaking', () => {
-          this.resetTimer();
-          if (this._isMounted) this.setState({ visible: true });
-        });
-
-        this.speechEvents.on('stopped_speaking', () => {
-          if (this._isMounted) {
-            this.timer = setTimeout(() => this.setState(
-              { visible: false },
-            ), MUTE_WARNING_TIMEOUT);
-          }
-        });
-      });
+    const { inputStream } = this.props;
+    this.speechEvents = hark(inputStream, { interval: 200 });
+    this.speechEvents.on('speaking', () => {
+      this.resetTimer();
+      if (this._isMounted) this.setState({ visible: true });
+    });
+    this.speechEvents.on('stopped_speaking', () => {
+      if (this._isMounted) {
+        this.timer = setTimeout(() => this.setState(
+          { visible: false },
+        ), MUTE_WARNING_TIMEOUT);
+      }
+    });
   }
 
   componentWillUnmount() {

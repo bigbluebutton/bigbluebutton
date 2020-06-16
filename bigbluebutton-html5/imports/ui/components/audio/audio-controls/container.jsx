@@ -66,5 +66,5 @@ export default lockContextContainer(withModalMounter(withTracker(({ mountModal, 
   handleToggleMuteMicrophone: () => toggleMuteMicrophone(),
   handleJoinAudio: () => (isConnected() ? joinListenOnly() : mountModal(<AudioModalContainer />)),
   handleLeaveAudio,
-  inputDeviceId: AudioManager.inputDeviceId,
+  inputStream: AudioManager.inputStream,
 }))(AudioControlsContainer)));
