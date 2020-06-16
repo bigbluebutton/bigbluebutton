@@ -83,6 +83,10 @@ class LayoutManager extends Component {
     window.addEventListener('autoArrangeChanged', () => {
       setTimeout(() => this.setLayoutSizes(), 200);
     });
+
+    window.addEventListener('slideChanged', () => {
+      setTimeout(() => this.setLayoutSizes(), 200);
+    });
   }
 
   componentDidUpdate(prevProps) {
