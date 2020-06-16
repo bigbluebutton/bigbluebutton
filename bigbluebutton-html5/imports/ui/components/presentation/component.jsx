@@ -172,9 +172,7 @@ class PresentationArea extends PureComponent {
 
   componentWillUnmount() {
     window.removeEventListener('resize', this.onResize, false);
-    window.removeEventListener('webcamAreaResize', this.onResize, false);
-    window.removeEventListener('userListResizeChanged', this.onResize, false);
-    window.removeEventListener('chatResizeChanged', this.onResize, false);
+    window.removeEventListener('layoutSizesSets', this.onResize, false);
     this.refPresentationContainer.removeEventListener('fullscreenchange', this.onFullscreenChange);
   }
 
