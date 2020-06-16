@@ -51,7 +51,7 @@ function publishCurrentUser(...args) {
 
 Meteor.publish('current-user', publishCurrentUser);
 
-function users() {
+function users(role) {
   if (!this.userId) {
     return Users.find({ meetingId: '' });
   }
