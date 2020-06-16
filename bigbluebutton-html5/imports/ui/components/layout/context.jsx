@@ -121,7 +121,6 @@ const reducer = (state, action) => {
       };
     }
     case 'setTempWebcamsAreaSize': {
-      
       return {
         ...state,
         tempWebcamsAreaSize: {
