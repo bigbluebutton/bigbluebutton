@@ -1,6 +1,7 @@
 import VoiceUsers from '/imports/api/voice-users';
 import { Meteor } from 'meteor/meteor';
 import Logger from '/imports/startup/server/logger';
+import { extractCredentials } from '/imports/api/common/server/helpers';
 import ejectUserFromVoice from './methods/ejectUserFromVoice';
 
 function voiceUser() {
@@ -16,7 +17,7 @@ function voiceUser() {
       // I used user because voiceUser is the function's name
       const User = VoiceUsers.findOne({ meetingId, requesterUserId });
       if (User) {
-        ejectUserFromVoice({ meetingId, requesterUserId }, requesterUserId);
+        ejectUserFromVoice(requesterUserId);
       }
     } catch (e) {
       Logger.error(`Exception while executing ejectUserFromVoice: ${e}`);
