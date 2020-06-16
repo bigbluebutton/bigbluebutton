@@ -81,7 +81,7 @@ class LayoutManager extends Component {
     });
 
     window.addEventListener('autoArrangeChanged', () => {
-      setTimeout(() => this.setLayoutSizes(), 200);
+      setTimeout(() => this.setLayoutSizes(false, false, true), 200);
     });
 
     window.addEventListener('slideChanged', () => {
@@ -116,12 +116,15 @@ class LayoutManager extends Component {
 
     if (webcamsAreaSize.width !== prevWebcamsAreaSize.width
       || webcamsAreaSize.height !== prevWebcamsAreaSize.height) {
-      this.setLayoutSizes(true, true, webcamsAreaSize);
+      this.setLayoutSizes(true, true);
     }
   }
 
-  setLayoutSizes(userlistChanged = false, chatChanged = false) {
-    const { layoutContextDispatch } = this.props;
+  setLayoutSizes(userlistChanged = false, chatChanged = false, autoarrangeChanged = false) {
+    const { layoutContextDispatch, layoutContextState } = this.props;
+    const { autoArrangeLayout } = layoutContextState;
+
+    if (autoarrangeChanged && !autoArrangeLayout) return;
 
     const layoutSizes = this
       .calculatesLayout(userlistChanged, chatChanged);
@@ -388,7 +391,7 @@ class LayoutManager extends Component {
     if (numUsersVideo < 1) {
       return {
         presentationAreaWidth: mediaAreaWidth,
-        presentationAreaHeight: mediaAreaHeight,
+        presentationAreaHeight: mediaAreaHeight - 20,
       };
     }
 
@@ -397,7 +400,7 @@ class LayoutManager extends Component {
 
     if (webcamsPlacement === 'left' || webcamsPlacement === 'right') {
       presentationAreaWidth = mediaAreaWidth - webcamAreaWidth;
-      presentationAreaHeight = mediaAreaHeight;
+      presentationAreaHeight = mediaAreaHeight - 20;
     } else {
       presentationAreaWidth = mediaAreaWidth;
       presentationAreaHeight = mediaAreaHeight - webcamAreaHeight - 30;
