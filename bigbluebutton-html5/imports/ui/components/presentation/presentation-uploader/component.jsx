@@ -89,10 +89,6 @@ const intlMessages = defineMessages({
     id: 'app.presentationUploder.fileToUpload',
     description: 'message used in the file selected for upload',
   },
-  genericError: {
-    id: 'app.presentationUploder.genericError',
-    description: 'generic error while uploading/converting',
-  },
   rejectedError: {
     id: 'app.presentationUploder.rejectedError',
     description: 'some files rejected, please check the file mime types',
@@ -104,6 +100,18 @@ const intlMessages = defineMessages({
   413: {
     id: 'app.presentationUploder.upload.413',
     description: 'error that file exceed the size limit',
+  },
+  408: {
+    id: 'app.presentationUploder.upload.408',
+    description: 'error for token request timeout',
+  },
+  404: {
+    id: 'app.presentationUploder.upload.404',
+    description: 'error not found',
+  },
+  401: {
+    id: 'app.presentationUploder.upload.401',
+    description: 'error for failed upload token request.',
   },
   conversionProcessingSlides: {
     id: 'app.presentationUploder.conversion.conversionProcessingSlides',
@@ -132,9 +140,21 @@ const intlMessages = defineMessages({
     id: 'app.presentationUploder.conversion.pageCountExceeded',
     description: 'warns the user that the conversion failed because of the page count',
   },
+  PAGE_COUNT_FAILED: {
+    id: 'app.presentationUploder.conversion.pageCountFailed',
+    description: '',
+  },
   PDF_HAS_BIG_PAGE: {
     id: 'app.presentationUploder.conversion.pdfHasBigPage',
     description: 'warns the user that the conversion failed because of the pdf page siz that exceeds the allowed limit',
+  },
+  OFFICE_DOC_CONVERSION_INVALID: {
+    id: 'app.presentationUploder.conversion.officeDocConversionInvalid',
+    description: '',
+  },
+  OFFICE_DOC_CONVERSION_FAILED: {
+    id: 'app.presentationUploder.conversion.officeDocConversionFailed',
+    description: '',
   },
   isDownloadable: {
     id: 'app.presentationUploder.isDownloadableLabel',
@@ -249,7 +269,7 @@ class PresentationUploader extends Component {
   }
 
   handleConfirm() {
-    const { mountModal, intl, handleSave } = this.props;
+    const { mountModal, handleSave } = this.props;
     const { disableActions, presentations, oldCurrentId } = this.state;
     const presentationsToSave = presentations
       .filter(p => !p.upload.error && !p.conversion.error);
@@ -287,7 +307,6 @@ class PresentationUploader extends Component {
           });
         })
         .catch((error) => {
-          notify(intl.formatMessage(intlMessages.genericError), 'error');
           logger.error({
             logCode: 'presentationuploader_component_save_error',
             extraInfo: { error },
@@ -483,6 +502,7 @@ class PresentationUploader extends Component {
 
   renderPresentationItemStatus(item) {
     const { intl } = this.props;
+
     if (!item.upload.done && item.upload.progress === 0) {
       return intl.formatMessage(intlMessages.fileToUpload);
     }
@@ -494,13 +514,11 @@ class PresentationUploader extends Component {
     }
 
     if (item.upload.done && item.upload.error) {
-      const errorMessage = intlMessages[item.upload.status] || intlMessages.genericError;
-      return intl.formatMessage(errorMessage);
+      return intl.formatMessage(intlMessages[item.upload.status]);
     }
 
     if (!item.conversion.done && item.conversion.error) {
-      const errorMessage = intlMessages[item.conversion.status] || intlMessages.genericError;
-      return intl.formatMessage(errorMessage);
+      return intl.formatMessage(intlMessages[item.conversion.status]);
     }
 
     if (!item.conversion.done && !item.conversion.error) {
@@ -677,7 +695,7 @@ class PresentationUploader extends Component {
         disablepreview="true"
         onDrop={this.handleFiledrop}
       >
-        <Icon className={styles.dropzoneIcon} iconName="upload" />
+        <Icon className={styles.dropzoneIcon} data-test="fileUploadDropZone" iconName="upload" />
         <p className={styles.dropzoneMessage}>
           {intl.formatMessage(intlMessages.dropzoneLabel)}
           &nbsp;

@@ -17,7 +17,8 @@ trait EjectDuplicateUserReqMsgHdlr {
     val ejectedBy = SystemUser.ID
 
     val reason = "user ejected because of duplicate external userid"
-    UsersApp.ejectUserFromMeeting(outGW, liveMeeting, userId, ejectedBy, reason, EjectReasonCode.DUPLICATE_USER)
+    UsersApp.ejectUserFromMeeting(outGW, liveMeeting, userId, ejectedBy, reason, EjectReasonCode.DUPLICATE_USER, ban = false)
+
     // send a system message to force disconnection
     Sender.sendDisconnectClientSysMsg(meetingId, userId, ejectedBy, EjectReasonCode.DUPLICATE_USER, outGW)
   }

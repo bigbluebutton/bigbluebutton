@@ -1,6 +1,11 @@
 @import "/imports/ui/stylesheets/variables/_all";
 @import "/imports/ui/components/whiteboard/whiteboard-toolbar/styles";
 
+:root {
+  --innerToastWidth: 17rem;
+  --iconWrapperSize: 2rem;
+}
+
 .enter {
   opacity: 0.01;
 }
@@ -54,7 +59,7 @@
 
 .presentationToolbar{
   display: flex;
-  overflow-x: auto;
+  overflow-x: visible;
   order: 2;
   position: absolute;
   bottom: 0;
@@ -85,6 +90,50 @@
   left: 0;
   right: 0;
   bottom: 0;
+}
+
+.innerToastWrapper {
+  display: flex;
+  flex-direction: row;
+  width: var(--innerToastWidth);
+}
+
+.toastTextContent {
+  position: relative;
+  overflow: hidden;
+}
+
+.presentationName {
+  text-overflow: ellipsis;
+  overflow: hidden;
+}
+
+.toastIcon {
+  margin-right: var(--sm-padding-x);
+  [dir="rtl"] & {
+    margin-right: 0;
+    margin-left: var(--sm-padding-x);
+  }
+}
+
+.iconWrapper {
+  background-color: var(--color-primary);
+  width: var(--iconWrapperSize);
+  height: var(--iconWrapperSize);
+  border-radius: 50%;
+
+  > i {
+    position: relative;
+    left: var(--md-padding-y);
+    top: var(--sm-padding-y);
+    font-size: var(--font-size-base);
+    color: var(--color-white);
+
+    [dir="rtl"] & {
+      left: 0;
+      right: var(--md-padding-y);
+   }
+  }
 }
 
 .visuallyHidden {

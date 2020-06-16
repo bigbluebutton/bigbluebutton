@@ -17,6 +17,7 @@ const intlMessages = defineMessages({
 });
 
 const SYNC_INTERVAL_SECONDS = 5;
+const THROTTLE_INTERVAL_SECONDS = 0.5;
 const AUTO_PLAY_BLOCK_DETECTION_TIMEOUT_SECONDS = 5;
 
 ReactPlayer.addCustomPlayer(ArcPlayer);
@@ -34,6 +35,9 @@ class VideoPlayer extends Component {
     this.playerIsReady = false;
 
     this.lastMessage = null;
+    this.lastMessageTimestamp = Date.now();
+
+    this.throttleTimeout = null;
 
     this.state = {
       mutedByEchoTest: false,
@@ -147,11 +151,30 @@ class VideoPlayer extends Component {
   }
 
   sendSyncMessage(msg, params) {
+    const timestamp = Date.now();
+
+    // If message is just a quick pause/un-pause just send nothing
+    const sinceLastMessage = (timestamp - this.lastMessageTimestamp) / 1000;
+    if ((msg === 'play' && this.lastMessage === 'stop'
+         || msg === 'stop' && this.lastMessage === 'play')
+         && sinceLastMessage < THROTTLE_INTERVAL_SECONDS) {
+      return clearTimeout(this.throttleTimeout);
+    }
+
+    // Ignore repeat presenter ready messages
     if (this.lastMessage === msg && msg === 'presenterReady') {
-      logger.debug("Ignoring a repeated presenterReady message");
+      logger.debug('Ignoring a repeated presenterReady message');
     } else {
-      sendMessage(msg, params);
+      // Play/pause messages are sent with a delay, to permit cancelling it in case of
+      // quick sucessive play/pauses
+      const messageDelay = (msg === 'play' || msg === 'stop') ? THROTTLE_INTERVAL_SECONDS : 0;
+
+      this.throttleTimeout = setTimeout(() => {
+        sendMessage(msg, { ...params });
+      }, messageDelay * 1000);
+
       this.lastMessage = msg;
+      this.lastMessageTimestamp = timestamp;
     }
   }
 
@@ -177,7 +200,7 @@ class VideoPlayer extends Component {
 
   getCurrentTime() {
     if (this.player && this.player.getCurrentTime) {
-      return this.player.getCurrentTime();
+      return Math.round(this.player.getCurrentTime());
     }
   }
 
@@ -241,7 +264,6 @@ class VideoPlayer extends Component {
 
         this.sendSyncMessage('playerUpdate', { rate, time: curTime, state: playingState });
       }, SYNC_INTERVAL_SECONDS * 1000);
-
     } else {
       onMessage('play', ({ time }) => {
         const { hasPlayedBefore, player } = this;
@@ -249,8 +271,7 @@ class VideoPlayer extends Component {
         if (!player || !hasPlayedBefore) {
           return;
         }
-
-        player.seekTo(time);
+        this.seekTo(time);
         this.setState({ playing: true });
 
         logger.debug({ logCode: 'external_video_client_play' }, 'Play external video');
@@ -262,7 +283,7 @@ class VideoPlayer extends Component {
         if (!player || !hasPlayedBefore) {
           return;
         }
-        player.seekTo(time);
+        this.seekTo(time);
         this.setState({ playing: false });
 
         logger.debug({ logCode: 'external_video_client_stop' }, 'Stop external video');
@@ -281,35 +302,46 @@ class VideoPlayer extends Component {
       onMessage('playerUpdate', (data) => {
         const { hasPlayedBefore, player } = this;
         const { playing } = this.state;
+        const { time, rate, state } = data;
 
         if (!player || !hasPlayedBefore) {
           return;
         }
 
-        if (data.rate !== this.getCurrentPlaybackRate()) {
-          this.setPlaybackRate(data.rate);
+        if (rate !== this.getCurrentPlaybackRate()) {
+          this.setPlaybackRate(rate);
           logger.debug({
             logCode: 'external_video_client_update_rate',
             extraInfo: {
-              newRate: data.rate,
+              newRate: rate,
             },
           }, 'Change external video playback rate.');
         }
 
-        if (Math.abs(this.getCurrentTime() - data.time) > SYNC_INTERVAL_SECONDS) {
-          player.seekTo(data.time, true);
-          logger.debug({
-            logCode: 'external_video_client_update_seek',
-            extraInfo: {
-              time: data.time,
-            },
-          }, 'Seek external video to:');
-        }
+        this.seekTo(time);
 
-        if (playing !== data.state) {
-          this.setState({ playing: data.state });
+        if (playing !== state) {
+          this.setState({ playing: state });
         }
       });
+    }
+  }
+
+  seekTo(time) {
+    const { player } = this;
+
+    if (!player) {
+      return logger.error('No player on seek');
+    }
+
+
+    // Seek if viewer has drifted too far away from presenter
+    if (Math.abs(this.getCurrentTime() - time) > SYNC_INTERVAL_SECONDS * 0.75) {
+      player.seekTo(time, true);
+      logger.debug({
+        logCode: 'external_video_client_update_seek',
+        extraInfo: { time },
+      }, `Seek external video to: ${time}`);
     }
   }
 

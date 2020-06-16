@@ -24,14 +24,9 @@ import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.SortedSet;
-import java.util.TreeSet;
+import java.text.DecimalFormat;
+import java.text.DecimalFormatSymbols;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -122,6 +117,22 @@ public class ParamsProcessorUtil {
     private Integer userActivitySignResponseDelayInMinutes = 5;
     private Boolean defaultAllowDuplicateExtUserid = true;
 
+	private String formatConfNum(String s) {
+		if (s.length() > 5) {
+			Long confNumL = Long.parseLong(s);
+
+			Locale numFormatLocale = new Locale("en", "US");
+			String formatPattern = "#,###";
+			DecimalFormatSymbols unusualSymbols = new DecimalFormatSymbols(numFormatLocale);
+			unusualSymbols.setGroupingSeparator(' ');
+			DecimalFormat numFormatter = new DecimalFormat(formatPattern, unusualSymbols);
+			numFormatter.setGroupingSize(3);
+			return numFormatter.format(confNumL);
+		}
+
+		return s;
+	}
+
     private String substituteKeywords(String message, String dialNumber, String telVoice, String meetingName) {
         String welcomeMessage = message;
 
@@ -135,7 +146,7 @@ public class ParamsProcessorUtil {
             if (keyword.equals(DIAL_NUM)) {
                 welcomeMessage = welcomeMessage.replaceAll(DIAL_NUM, dialNumber);
             } else if (keyword.equals(CONF_NUM)) {
-                welcomeMessage = welcomeMessage.replaceAll(CONF_NUM, telVoice);
+                welcomeMessage = welcomeMessage.replaceAll(CONF_NUM, formatConfNum(telVoice));
             } else if (keyword.equals(CONF_NAME)) {
                 welcomeMessage = welcomeMessage.replaceAll(CONF_NAME, meetingName);
             } else if (keyword.equals(SERVER_URL)) {
@@ -322,7 +333,7 @@ public class ParamsProcessorUtil {
             meetingName = "";
         }
 
-        meetingName = ParamsUtil.stripControlChars(meetingName);
+        meetingName = ParamsUtil.stripHTMLTags(ParamsUtil.stripControlChars(meetingName));
 
         String externalMeetingId = params.get(ApiParams.MEETING_ID);
 
@@ -625,7 +636,7 @@ public class ParamsProcessorUtil {
 	public boolean hasChecksumAndQueryString(String checksum, String queryString) {
 		return (! StringUtils.isEmpty(checksum) && StringUtils.isEmpty(queryString));
 	}
-		
+
 	public String processTelVoice(String telNum) {
 		return StringUtils.isEmpty(telNum) ? RandomStringUtils.randomNumeric(defaultNumDigitsForTelVoice) : telNum;
 	}

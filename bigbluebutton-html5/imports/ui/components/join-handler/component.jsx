@@ -2,10 +2,11 @@ import React, { Component } from 'react';
 import { Session } from 'meteor/session';
 import PropTypes from 'prop-types';
 import Auth from '/imports/ui/services/auth';
-import { setCustomLogoUrl } from '/imports/ui/components/user-list/service';
+import { setCustomLogoUrl, setModeratorOnlyMessage } from '/imports/ui/components/user-list/service';
 import { makeCall } from '/imports/ui/services/api';
 import logger from '/imports/startup/client/logger';
 import LoadingScreen from '/imports/ui/components/loading-screen/component';
+import Users from '/imports/api/users';
 
 const propTypes = {
   children: PropTypes.element.isRequired,
@@ -139,14 +140,19 @@ class JoinHandler extends Component {
       return resp;
     };
 
+    const setModOnlyMessage = (resp) => {
+      if (resp && resp.modOnlyMessage) {
+        setModeratorOnlyMessage(resp.modOnlyMessage);
+      }
+      return resp;
+    };
+
     const setCustomData = (resp) => {
-      const {
-        meetingID, internalUserID, customdata,
-      } = resp;
+      const { customdata } = resp;
 
       return new Promise((resolve) => {
         if (customdata.length) {
-          makeCall('addUserSettings', meetingID, internalUserID, customdata).then(r => resolve(r));
+          makeCall('addUserSettings', customdata).then(r => resolve(r));
         }
         resolve(true);
       });
@@ -170,9 +176,17 @@ class JoinHandler extends Component {
 
       setBannerProps(response);
       setLogoURL(response);
+      setModOnlyMessage(response);
       logUserInfo();
 
-      await setCustomData(response);
+      Tracker.autorun(async (cd) => {
+        const user = Users.findOne({ userId: Auth.userID, authed: true }, { fields: { _id: 1 } });
+
+        if (user) {
+          await setCustomData(response);
+          cd.stop();
+        }
+      });
 
       logger.info({
         logCode: 'joinhandler_component_joinroutehandler_success',

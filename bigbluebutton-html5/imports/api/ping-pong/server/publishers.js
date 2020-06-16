@@ -1,6 +1,7 @@
 import { Meteor } from 'meteor/meteor';
 import Logger from '/imports/startup/server/logger';
 import _ from 'lodash';
+import { extractCredentials } from '/imports/api/common/server/helpers';
 
 const COLLECTION_NAME = 'ping-pong';
 const INTERVAL_IN_SETTINGS = (Meteor.settings.public.pingPong.clearUsersInSeconds) * 1000;
@@ -9,8 +10,11 @@ const PONG_INTERVAL_IN_SETTINGS = (Meteor.settings.public.pingPong.pongTimeInSec
 const PONG_INTERVAL = PONG_INTERVAL_IN_SETTINGS >= (INTERVAL_TIME / 2)
   ? (INTERVAL_TIME / 2) : PONG_INTERVAL_IN_SETTINGS;
 
-function pingPong(credentials) {
-  const { meetingId, requesterUserId } = credentials;
+function pingPong() {
+  if (!this.userId) {
+    return; // TODO-- is there a more appropriate set to return?
+  }
+  const { meetingId, requesterUserId } = extractCredentials(this.userId);
   const id = _.uniqueId('pong-');
   Logger.info(`Starting ping-pong publish for userId: ${requesterUserId}`);
   const pongSender = (interval) => {

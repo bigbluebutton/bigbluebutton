@@ -11,7 +11,6 @@ import logger from '/imports/startup/client/logger';
 import Users from '/imports/api/users';
 import { Session } from 'meteor/session';
 import { FormattedMessage } from 'react-intl';
-import IntlStartup from './intl';
 import Meetings, { RecordMeetings } from '../../api/meetings';
 import AppService from '/imports/ui/components/app/service';
 import Breakouts from '/imports/api/breakouts';
@@ -20,7 +19,9 @@ import { notify } from '/imports/ui/services/notification';
 import deviceInfo from '/imports/utils/deviceInfo';
 import getFromUserSettings from '/imports/ui/services/users-settings';
 
-const CHAT_ENABLED = Meteor.settings.public.chat.enabled;
+const CHAT_CONFIG = Meteor.settings.public.chat;
+const CHAT_ENABLED = CHAT_CONFIG.enabled;
+const PUBLIC_CHAT_ID = CHAT_CONFIG.public_id;
 
 const BREAKOUT_END_NOTIFY_DELAY = 50;
 
@@ -30,14 +31,12 @@ let breakoutNotified = false;
 
 const propTypes = {
   subscriptionsReady: PropTypes.bool,
-  locale: PropTypes.string,
   approved: PropTypes.bool,
   meetingHasEnded: PropTypes.bool.isRequired,
   meetingExist: PropTypes.bool,
 };
 
 const defaultProps = {
-  locale: undefined,
   approved: false,
   meetingExist: false,
   subscriptionsReady: false,
@@ -77,6 +76,16 @@ class Base extends Component {
 
     if (animations) HTML.classList.add('animationsEnabled');
     if (!animations) HTML.classList.add('animationsDisabled');
+
+    if (getFromUserSettings('bbb_show_participants_on_login', true) && !deviceInfo.type().isPhone) {
+      Session.set('openPanel', 'userlist');
+      if (CHAT_ENABLED) {
+        Session.set('openPanel', 'chat');
+        Session.set('idChatOpen', PUBLIC_CHAT_ID);
+      }
+    } else {
+      Session.set('openPanel', '');
+    }
 
     fullscreenChangedEvents.forEach((event) => {
       document.addEventListener(event, Base.handleFullscreenChange);
@@ -176,7 +185,10 @@ class Base extends Component {
       return (<MeetingEnded code="403" />);
     }
 
-    if (meetingHasEnded && meetingIsBreakout) window.close();
+    if ((meetingHasEnded || User.loggedOut) && meetingIsBreakout) {
+      window.close();
+      return null;
+    }
 
     if (((meetingHasEnded && !meetingIsBreakout)) || (codeError && (User && User.loggedOut))) {
       return (<MeetingEnded code={codeError} />);
@@ -195,19 +207,13 @@ class Base extends Component {
   }
 
   render() {
-    const { updateLoadingState } = this;
-    const { locale, meetingExist } = this.props;
-    const stateControls = { updateLoadingState };
+    const { meetingExist } = this.props;
     const { meetingExisted } = this.state;
 
     return (
       (!meetingExisted && !meetingExist && Auth.loggedIn)
         ? <LoadingScreen />
-        : (
-          <IntlStartup locale={locale} baseControls={stateControls}>
-            {this.renderByState()}
-          </IntlStartup>
-        )
+        : this.renderByState()
     );
   }
 }
@@ -217,7 +223,6 @@ Base.defaultProps = defaultProps;
 
 const BaseContainer = withTracker(() => {
   const {
-    locale,
     animations,
     userJoinAudioAlerts,
     userJoinPushAlerts,
@@ -365,7 +370,6 @@ const BaseContainer = withTracker(() => {
   return {
     approved,
     ejected,
-    locale,
     userSubscriptionHandler,
     breakoutRoomSubscriptionHandler,
     meetingModeratorSubscriptionHandler,

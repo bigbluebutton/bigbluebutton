@@ -1,6 +1,7 @@
 require('dotenv').config();
 const puppeteer = require('puppeteer');
 const fs = require('fs');
+const path = require('path');
 const helper = require('./helper');
 const params = require('../params');
 const e = require('./elements');
@@ -21,25 +22,63 @@ class Page {
 
   // Join BigBlueButton meeting
   async init(args, meetingId, newParams) {
-    this.effectiveParams = newParams || params;
-    const isModerator = this.effectiveParams.moderatorPW;
-    this.browser = await puppeteer.launch(args);
-    this.page = await this.browser.newPage({ context: `bbb-${this.effectiveParams.fullName}` });
+    try {
+      this.effectiveParams = newParams || params;
+      const isModerator = this.effectiveParams.moderatorPW;
+      if (process.env.BROWSERLESS_ENABLED === 'true') {
+        this.browser = await puppeteer.connect({
+          browserWSEndpoint: `ws://${process.env.BROWSERLESS_URL}?token=${process.env.BROWSERLESS_TOKEN}&${args.args.join('&')}`,
+        });
+      } else {
+        this.browser = await puppeteer.launch(args);
+      }
+      this.page = await this.browser.newPage();
+      this.page.setDefaultTimeout(3600000);
 
-    await this.setDownloadBehavior(`${this.parentDir}/downloads`);
-    this.meetingId = await helper.createMeeting(params, meetingId);
+      // Getting all page console logs
+      // this.page.on('console', async msg => console[msg._type](
+      //   ...await Promise.all(msg.args().map(arg => arg.jsonValue()))
+      // ));
 
-    const joinURL = helper.getJoinURL(this.meetingId, this.effectiveParams, isModerator);
+      await this.setDownloadBehavior(`${this.parentDir}/downloads`);
+      this.meetingId = await helper.createMeeting(params, meetingId);
+      const joinURL = helper.getJoinURL(this.meetingId, this.effectiveParams, isModerator);
 
-    await this.page.goto(joinURL);
+      await this.page.goto(joinURL);
+      const checkForGetMetrics = async () => {
+        if (process.env.BBB_COLLECT_METRICS === 'true') {
+          await this.page.waitForSelector('[data-test^="userListItem"]');
+          await this.getMetrics();
+        }
+      };
+      if (process.env.IS_AUDIO_TEST !== 'true') {
+        await this.closeAudioModal();
+      }
+      await checkForGetMetrics();
+    } catch (e) {
+      console.log(e);
+    }
+  }
+
+  // Joining audio with microphone
+  async joinMicrophone() {
+    await this.waitForSelector(e.audioDialog);
+    await this.waitForSelector(e.microphoneButton);
+    await this.click(e.microphoneButton, true);
+    await this.waitForSelector(e.echoYes);
+    await this.click(e.echoYes, true);
+  }
+
+  // Joining audio with Listen Only mode
+  async listenOnly() {
+    await this.waitForSelector(e.audioDialog);
+    await this.waitForSelector(e.listenButton);
+    await this.click(e.listenButton);
+  }
+
+  async closeAudioModal() {
     await this.waitForSelector(e.audioDialog);
     await this.click(e.closeAudio, true);
-    const checkForGetMetrics = async () => {
-      if (process.env.BBB_COLLECT_METRICS === 'true') {
-        await this.getMetrics();
-      }
-    };
-    await checkForGetMetrics();
   }
 
   async setDownloadBehavior(downloadPath) {
@@ -62,19 +101,57 @@ class Page {
 
   // Get the default arguments for creating a page
   static getArgs() {
-    return { headless: false, args: ['--no-sandbox', '--use-fake-ui-for-media-stream'] };
+    const args = ['--no-sandbox', '--use-fake-ui-for-media-stream'];
+    return { headless: false, args };
   }
 
-  static getArgsWithVideo() {
-    return {
-      headless: false,
-      args: [
+  static getArgsWithAudio() {
+    if (process.env.BROWSERLESS_ENABLED === 'true') {
+      const args = [
         '--no-sandbox',
         '--use-fake-ui-for-media-stream',
         '--use-fake-device-for-media-stream',
-        `--use-file-for-fake-video-capture=${process.env.VIDEO_FILE}`,
-        '--allow-file-access'
-      ],
+        `--use-file-for-fake-audio-capture=${path.join(__dirname, '../media/audio.wav')}`,
+        '--allow-file-access',
+      ];
+      return {
+        headless: false,
+        args,
+      };
+    }
+    const args = [
+      '--no-sandbox',
+      '--use-fake-ui-for-media-stream',
+      '--use-fake-device-for-media-stream',
+    ];
+    return {
+      headless: false,
+      args,
+    };
+  }
+
+  static getArgsWithVideo() {
+    if (process.env.BROWSERLESS_ENABLED === 'true') {
+      const args = [
+        '--no-sandbox',
+        '--use-fake-ui-for-media-stream',
+        '--use-fake-device-for-media-stream',
+      ];
+      return {
+        headless: false,
+        args,
+      };
+    }
+    const args = [
+      '--no-sandbox',
+      '--use-fake-ui-for-media-stream',
+      '--use-fake-device-for-media-stream',
+      `--use-file-for-fake-video-capture=${path.join(__dirname, '../media/video.wav')}`,
+      '--allow-file-access',
+    ];
+    return {
+      headless: false,
+      args,
     };
   }
 
@@ -154,17 +231,26 @@ class Page {
   }
 
   async getMetrics() {
-    const metricsObj = {};
+    const pageMetricsObj = {};
     const dir = process.env.METRICS_FOLDER;
-    const currentTimestamp = new Date();
     if (!fs.existsSync(dir)) {
       fs.mkdirSync(dir);
     }
+    await this.waitForSelector('[data-test^="userListItem"]');
+    const totalNumberOfUsersMongo = await this.page.evaluate(() => {
+      const collection = require('/imports/api/users/index.js');
+      const users = collection.default._collection.find({ connectionStatus: 'online' }).count();
+      return users;
+    });
+    const totalNumberOfUsersDom = await this.page.evaluate(() => document.querySelectorAll('[data-test^="userListItem"]').length);
+    console.log({ totalNumberOfUsersDom, totalNumberOfUsersMongo });
     const metric = await this.page.metrics();
-    metricsObj[`metricObj-${this.effectiveParams.fullName}`] = metric;
+    pageMetricsObj.totalNumberOfUsersMongoObj = totalNumberOfUsersMongo;
+    pageMetricsObj.totalNumberOfUsersDomObj = totalNumberOfUsersDom;
+    pageMetricsObj[`metricObj-${this.meetingId}`] = metric;
     const createFile = () => {
       try {
-        fs.appendFileSync(`${dir}/metrics-${this.effectiveParams.fullName}-${currentTimestamp}.json`, `${JSON.stringify(metricsObj)}\n`);
+        fs.appendFileSync(`${dir}/metrics-${this.effectiveParams.fullName}-${this.meetingId}.json`, `${JSON.stringify(pageMetricsObj)},\n`);
       } catch (error) {
         console.log(error);
       }
