@@ -402,7 +402,7 @@ class WebcamDraggable extends PureComponent {
                 width: dragging ? optimalGrid.width : webcamsAreaResizable.width,
               }
             }
-            lockAspectRatio
+            // lockAspectRatio
             handleWrapperClass="resizeWrapper"
             onResizeStart={this.onResizeStart}
             onResizeStop={(e, direction, ref, d) => {
