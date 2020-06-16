@@ -94,6 +94,8 @@ const reducer = (state, action) => {
       };
     }
     case 'setWebcamsPlacement': {
+      console.log('setWebcamsPlacement', action.value);
+      
       // webcamsPlacement: ('top' | 'right' | 'bottom' | 'left') string
       return {
         ...state,
