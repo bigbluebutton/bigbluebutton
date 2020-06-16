@@ -102,7 +102,7 @@ class WebcamDraggable extends PureComponent {
       width: Math.trunc(webcamsAreaResizable.width) + resizableWidth,
       height: Math.trunc(webcamsAreaResizable.height) + resizableHeight,
     };
-    
+
     layoutContextDispatch(
       {
         type: 'setWebcamsAreaResizing',

@@ -132,10 +132,6 @@ class PresentationArea extends PureComponent {
       this.onResize();
     }
 
-    if (presentationAreaSize !== prevPresentationAreaSize
-      || presentationAreaSize.width !== presentationAreaWidth
-      || presentationAreaSize.height !== presentationAreaHeight) this.handleResize();
-
     if (prevProps.currentPresentation.name !== currentPresentation.name) {
       notify(
         `${intl.formatMessage(intlMessages.changeNotification)} ${currentPresentation.name}`,
