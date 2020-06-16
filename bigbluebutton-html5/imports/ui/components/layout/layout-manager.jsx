@@ -173,6 +173,15 @@ class LayoutManager extends Component {
     );
     layoutContextDispatch(
       {
+        type: 'setTempWebcamsAreaSize',
+        value: {
+          width: layoutSizes.webcamsAreaSize.width,
+          height: layoutSizes.webcamsAreaSize.height,
+        },
+      },
+    );
+    layoutContextDispatch(
+      {
         type: 'setPresentationAreaSize',
         value: {
           width: layoutSizes.presentationAreaSize.width,

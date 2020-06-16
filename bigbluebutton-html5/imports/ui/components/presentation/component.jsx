@@ -83,6 +83,7 @@ class PresentationArea extends PureComponent {
     this.refPresentationContainer.addEventListener('fullscreenchange', this.onFullscreenChange);
     window.addEventListener('resize', this.onResize, false);
     window.addEventListener('layoutSizesSets', this.onResize, false);
+    window.addEventListener('webcamAreaResize', this.onResize, false);
 
     const { slidePosition, layoutContextDispatch } = this.props;
     const { width: currWidth, height: currHeight } = slidePosition;
@@ -204,12 +205,21 @@ class PresentationArea extends PureComponent {
 
   getPresentationSizesAvailable() {
     const { layoutContextState } = this.props;
-    const { presentationAreaSize } = layoutContextState;
+    const {
+      presentationAreaSize,
+      webcamsAreaResizing,
+      mediaBounds,
+      tempWebcamsAreaSize,
+      webcamsPlacement,
+    } = layoutContextState;
     const presentationSizes = {};
 
-    presentationSizes.presentationAreaHeight = presentationAreaSize
-      .height - this.getToolbarHeight();
-    presentationSizes.presentationAreaWidth = presentationAreaSize.width;
+    presentationSizes.presentationAreaHeight = webcamsAreaResizing && (webcamsPlacement === 'top' || webcamsPlacement === 'bottom')
+      ? mediaBounds.height - tempWebcamsAreaSize.height - (this.getToolbarHeight() || 0) - 30
+      : presentationAreaSize.height - (this.getToolbarHeight() || 0);
+    presentationSizes.presentationAreaWidth = webcamsAreaResizing && (webcamsPlacement === 'left' || webcamsPlacement === 'right')
+      ? mediaBounds.width - tempWebcamsAreaSize.width
+      : presentationAreaSize.width;
     return presentationSizes;
   }
 
