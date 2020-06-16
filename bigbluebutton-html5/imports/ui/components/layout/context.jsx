@@ -7,6 +7,7 @@ export const LayoutContext = createContext();
 
 const initialState = {
   autoArrangeLayout: true,
+  webcamsAreaResizing: false,
   numUsersVideo: null,
   windowSize: {
     width: 0,
@@ -25,6 +26,10 @@ const initialState = {
     width: 0,
   },
   webcamsAreaSize: {
+    width: 0,
+    height: 0,
+  },
+  tempWebcamsAreaSize: {
     width: 0,
     height: 0,
   },
@@ -49,6 +54,12 @@ const reducer = (state, action) => {
       return {
         ...state,
         autoArrangeLayout: action.value,
+      };
+    }
+    case 'setWebcamsAreaResizing': {
+      return {
+        ...state,
+        webcamsAreaResizing: action.value,
       };
     }
     case 'setUsersVideo': {
@@ -104,6 +115,16 @@ const reducer = (state, action) => {
       return {
         ...state,
         webcamsAreaSize: {
+          width: action.value.width,
+          height: action.value.height,
+        },
+      };
+    }
+    case 'setTempWebcamsAreaSize': {
+      
+      return {
+        ...state,
+        tempWebcamsAreaSize: {
           width: action.value.width,
           height: action.value.height,
         },

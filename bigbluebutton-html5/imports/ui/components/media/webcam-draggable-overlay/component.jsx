@@ -4,6 +4,7 @@ import cx from 'classnames';
 import PropTypes from 'prop-types';
 import Resizable from 're-resizable';
 import { isMobile, isIPad13 } from 'react-device-detect';
+import _ from 'lodash';
 import { withDraggableConsumer } from './context';
 import VideoProviderContainer from '/imports/ui/components/video-provider/container';
 import { styles } from '../styles.scss';
@@ -85,6 +86,42 @@ class WebcamDraggable extends PureComponent {
     this.setState({ resizing: true });
   }
 
+  onResizeHandle(resizableWidth, resizableHeight) {
+    const { webcamsAreaResizable } = this.state;
+    const { layoutContextState, layoutContextDispatch } = this.props;
+    const { webcamsPlacement, webcamsAreaSize } = layoutContextState;
+
+    layoutContextDispatch(
+      {
+        type: 'setAutoArrangeLayout',
+        value: false,
+      },
+    );
+
+    const newWebcamsAreaResizable = {
+      width: Math.trunc(webcamsAreaResizable.width) + resizableWidth,
+      height: Math.trunc(webcamsAreaResizable.height) + resizableHeight,
+    };
+    
+    layoutContextDispatch(
+      {
+        type: 'setWebcamsAreaResizing',
+        value: true,
+      },
+    );
+
+    layoutContextDispatch(
+      {
+        type: 'setTempWebcamsAreaSize',
+        value: {
+          width: webcamsPlacement === 'top' || webcamsPlacement === 'bottom' ? webcamsAreaSize.width : newWebcamsAreaResizable.width,
+          height: webcamsPlacement === 'left' || webcamsPlacement === 'right' ? webcamsAreaSize.height : newWebcamsAreaResizable.height,
+        },
+      },
+    );
+    window.dispatchEvent(new Event('webcamAreaResize'));
+  }
+
   onResizeStop(resizableWidth, resizableHeight) {
     const { webcamsAreaResizable } = this.state;
     const { layoutContextState, layoutContextDispatch } = this.props;
@@ -93,6 +130,13 @@ class WebcamDraggable extends PureComponent {
     layoutContextDispatch(
       {
         type: 'setAutoArrangeLayout',
+        value: false,
+      },
+    );
+
+    layoutContextDispatch(
+      {
+        type: 'setWebcamsAreaResizing',
         value: false,
       },
     );
@@ -405,6 +449,9 @@ class WebcamDraggable extends PureComponent {
             // lockAspectRatio
             handleWrapperClass="resizeWrapper"
             onResizeStart={this.onResizeStart}
+            onResize={_.throttle((e, direction, ref, d) => {
+              this.onResizeHandle(d.width, d.height);
+            }, 500)}
             onResizeStop={(e, direction, ref, d) => {
               this.onResizeStop(d.width, d.height);
             }}

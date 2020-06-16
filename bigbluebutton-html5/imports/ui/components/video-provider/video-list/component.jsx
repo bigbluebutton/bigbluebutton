@@ -104,6 +104,7 @@ class VideoList extends Component {
     window.addEventListener('resize', this.handleCanvasResize, false);
     window.addEventListener('slideChanged', this.handleCanvasResize, false);
     window.addEventListener('layoutSizesSets', this.handleCanvasResize, false);
+    window.addEventListener('webcamAreaResize', this.handleCanvasResize, false);
     window.addEventListener('videoPlayFailed', this.handlePlayElementFailed);
   }
 
