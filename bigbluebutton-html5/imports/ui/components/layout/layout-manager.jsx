@@ -25,6 +25,39 @@ const PRESENTATIONAREA_MIN_WIDTH = 385; // Value based on presentation toolbar
 const storageLayoutData = () => Storage.getItem('layoutData');
 
 class LayoutManager extends Component {
+  static calculatesPresentationSize(
+    mediaAreaWidth, mediaAreaHeight, presentationSlideWidth, presentationSlideHeight,
+  ) {
+    let presentationWidth;
+    let presentationHeight;
+    if (presentationSlideWidth > presentationSlideHeight
+      || presentationSlideWidth === presentationSlideHeight) {
+      presentationWidth = mediaAreaWidth;
+      presentationHeight = (mediaAreaWidth * presentationSlideHeight)
+        / presentationSlideWidth;
+      // if overflow
+      if (presentationHeight > mediaAreaHeight) {
+        presentationWidth = (mediaAreaHeight * presentationWidth) / presentationHeight;
+        presentationHeight = mediaAreaHeight;
+      }
+    }
+    if (presentationSlideHeight > presentationSlideWidth) {
+      presentationWidth = (mediaAreaHeight * presentationSlideWidth)
+        / presentationSlideHeight;
+      presentationHeight = mediaAreaHeight;
+      // if overflow
+      if (presentationWidth > mediaAreaWidth) {
+        presentationHeight = (mediaAreaWidth * presentationWidth) / presentationHeight;
+        presentationWidth = mediaAreaWidth;
+      }
+    }
+
+    return {
+      presentationWidth,
+      presentationHeight,
+    };
+  }
+
   constructor(props) {
     super(props);
 
@@ -176,22 +209,25 @@ class LayoutManager extends Component {
   }
 
   defineWebcamPlacement(mediaAreaWidth, mediaAreaHeight, presentationWidth, presentationHeight) {
-    const { layoutContextDispatch } = this.props;
+    const { layoutContextDispatch, layoutContextState } = this.props;
+    const { autoArrangeLayout } = layoutContextState;
 
-    if ((mediaAreaWidth - presentationWidth) > (mediaAreaHeight - presentationHeight)) {
-      layoutContextDispatch(
-        {
-          type: 'setWebcamsPlacement',
-          value: 'left',
-        },
-      );
-    } else {
-      layoutContextDispatch(
-        {
-          type: 'setWebcamsPlacement',
-          value: 'top',
-        },
-      );
+    if (autoArrangeLayout) {
+      if ((mediaAreaWidth - presentationWidth) > (mediaAreaHeight - presentationHeight)) {
+        layoutContextDispatch(
+          {
+            type: 'setWebcamsPlacement',
+            value: 'left',
+          },
+        );
+      } else {
+        layoutContextDispatch(
+          {
+            type: 'setWebcamsPlacement',
+            value: 'top',
+          },
+        );
+      }
     }
   }
 
@@ -258,51 +294,11 @@ class LayoutManager extends Component {
     };
   }
 
-  calculatesPresentationSize(
-    mediaAreaWidth, mediaAreaHeight, presentationSlideWidth, presentationSlideHeight,
-  ) {
-    const { layoutContextState } = this.props;
-    const { numUsersVideo } = layoutContextState;
-
-    // let presentationWidthAvailable;
-    // let presentationHeightAvailable;
-
-    let presentationWidth;
-    let presentationHeight;
-    if (presentationSlideWidth > presentationSlideHeight
-      || presentationSlideWidth === presentationSlideHeight) {
-      presentationWidth = mediaAreaWidth;
-      presentationHeight = (mediaAreaWidth * presentationSlideHeight)
-        / presentationSlideWidth;
-      // if overflow
-      if (presentationHeight > mediaAreaHeight) {
-        presentationWidth = (mediaAreaHeight * presentationWidth) / presentationHeight;
-        presentationHeight = mediaAreaHeight;
-      }
-    }
-    if (presentationSlideHeight > presentationSlideWidth) {
-      presentationWidth = (mediaAreaHeight * presentationSlideWidth)
-        / presentationSlideHeight;
-      presentationHeight = mediaAreaHeight;
-      // if overflow
-      if (presentationWidth > mediaAreaWidth) {
-        presentationHeight = (mediaAreaWidth * presentationWidth) / presentationHeight;
-        presentationWidth = mediaAreaWidth;
-      }
-    }
-
-    return {
-      presentationWidth,
-      presentationHeight,
-    };
-  }
-
   calculatesWebcamsAreaSize(
-    mediaAreaWidth, mediaAreaHeight,
+    mediaAreaWidth, mediaAreaHeight, presentationWidth, presentationHeight,
   ) {
     const {
       layoutContextState,
-      // layoutContextDispatch,
     } = this.props;
     const { webcamsPlacement, numUsersVideo } = layoutContextState;
 
@@ -321,11 +317,17 @@ class LayoutManager extends Component {
 
     if (autoArrangeLayout) {
       if (webcamsPlacement === 'left' || webcamsPlacement === 'right') {
-        webcamsAreaWidth = mediaAreaWidth * WEBCAMSAREA_MIN_PERCENT;
+        webcamsAreaWidth = (mediaAreaWidth - presentationWidth)
+          < (mediaAreaWidth * WEBCAMSAREA_MIN_PERCENT)
+          ? mediaAreaWidth * WEBCAMSAREA_MIN_PERCENT
+          : mediaAreaWidth - presentationWidth;
         webcamsAreaHeight = mediaAreaHeight;
       } else {
         webcamsAreaWidth = mediaAreaWidth;
-        webcamsAreaHeight = mediaAreaHeight * WEBCAMSAREA_MIN_PERCENT;
+        webcamsAreaHeight = (mediaAreaHeight - presentationHeight)
+          < (mediaAreaHeight * WEBCAMSAREA_MIN_PERCENT)
+          ? mediaAreaHeight * WEBCAMSAREA_MIN_PERCENT
+          : mediaAreaHeight - presentationHeight;
       }
     } else if (webcamsPlacement === 'left' || webcamsPlacement === 'right') {
       webcamsAreaWidth = min(
@@ -349,71 +351,9 @@ class LayoutManager extends Component {
       );
     }
 
-    if ((mediaAreaWidth - webcamsAreaWidth) < PRESENTATIONAREA_MIN_WIDTH) {
+    if ((webcamsPlacement === 'left' || webcamsPlacement === 'right') && (mediaAreaWidth - webcamsAreaWidth) < PRESENTATIONAREA_MIN_WIDTH) {
       webcamsAreaWidth = mediaAreaWidth - PRESENTATIONAREA_MIN_WIDTH;
     }
-
-    // if (presentationWidth === null || presentationHeight === null) {
-    //   if (webcamsPlacement === 'left' || webcamsPlacement === 'right') {
-    //     newWebcamAreaWidth = min(
-    //       max(
-    //         webcamsAreaUserSetsWidth && !autoArrangeLayout
-    //           ? webcamsAreaUserSetsWidth : mediaAreaWidth * WEBCAMSAREA_MIN_PERCENT,
-    //         mediaAreaWidth * WEBCAMSAREA_MIN_PERCENT,
-    //       ),
-    //       mediaAreaWidth * WEBCAMSAREA_MAX_PERCENT,
-    //     );
-    //     if ((mediaAreaWidth - newWebcamAreaWidth) < PRESENTATIONAREA_MIN_WIDTH) {
-    //       newWebcamAreaWidth = mediaAreaWidth - PRESENTATIONAREA_MIN_WIDTH;
-    //     }
-    //     newWebcamAreaHeight = mediaAreaHeight;
-    //   } else {
-    //     newWebcamAreaWidth = mediaAreaWidth;
-    //     newWebcamAreaHeight = min(
-    //       max(
-    //         webcamsAreaUserSetsHeight && !autoArrangeLayout
-    //           ? webcamsAreaUserSetsHeight : mediaAreaHeight * WEBCAMSAREA_MIN_PERCENT,
-    //         mediaAreaHeight * WEBCAMSAREA_MIN_PERCENT,
-    //       ),
-    //       mediaAreaHeight * WEBCAMSAREA_MAX_PERCENT,
-    //     );
-    //   }
-    // }
-
-    // if (autoArrangeLayout) {
-    //   console.log('mediaAreaWidth', mediaAreaWidth);
-    //   console.log('presentationWidth', presentationWidth);
-    //   console.log('mediaAreaHeight', mediaAreaHeight);
-    //   console.log('presentationHeight', presentationHeight);
-
-    //   if ((mediaAreaWidth - presentationWidth) > (mediaAreaHeight - presentationHeight)) {
-    //     layoutContextDispatch(
-    //       {
-    //         type: 'setWebcamsPlacement',
-    //         value: 'left',
-    //       },
-    //     );
-
-    //     newWebcamAreaWidth = (mediaAreaWidth - presentationWidth)
-    //       < (mediaAreaWidth * WEBCAMSAREA_MIN_PERCENT)
-    //       ? mediaAreaWidth * WEBCAMSAREA_MIN_PERCENT
-    //       : mediaAreaWidth - presentationWidth;
-    //     newWebcamAreaHeight = mediaAreaHeight;
-    //   } else {
-    //     layoutContextDispatch(
-    //       {
-    //         type: 'setWebcamsPlacement',
-    //         value: 'top',
-    //       },
-    //     );
-
-    //     newWebcamAreaWidth = mediaAreaWidth;
-    //     newWebcamAreaHeight = (mediaAreaHeight - presentationHeight)
-    //       < (mediaAreaHeight * WEBCAMSAREA_MIN_PERCENT)
-    //       ? (mediaAreaHeight * WEBCAMSAREA_MIN_PERCENT)
-    //       : mediaAreaHeight - presentationHeight - 30;
-    //   }
-    // }
 
     return {
       webcamsAreaWidth,
@@ -428,14 +368,10 @@ class LayoutManager extends Component {
       layoutContextState,
     } = this.props;
     const {
-      // webcamsPlacement,
-      // presentationSlideSize,
-      // autoArrangeLayout,
+      webcamsPlacement,
       numUsersVideo,
     } = layoutContextState;
 
-    // let newPresentationAreaWidth;
-    // let newPresentationAreaHeight;
     if (numUsersVideo < 1) {
       return {
         presentationAreaWidth: mediaAreaWidth,
@@ -443,51 +379,21 @@ class LayoutManager extends Component {
       };
     }
 
-    const presentationAreaWidth = mediaAreaWidth - webcamAreaWidth;
-    const presentationAreaHeight = mediaAreaHeight - webcamAreaHeight;
+    let presentationAreaWidth;
+    let presentationAreaHeight;
+
+    if (webcamsPlacement === 'left' || webcamsPlacement === 'right') {
+      presentationAreaWidth = mediaAreaWidth - webcamAreaWidth;
+      presentationAreaHeight = mediaAreaHeight;
+    } else {
+      presentationAreaWidth = mediaAreaWidth;
+      presentationAreaHeight = mediaAreaHeight - webcamAreaHeight - 30;
+    }
 
     return {
       presentationAreaWidth,
       presentationAreaHeight,
     };
-
-    // const {
-    //   width: presentationSlideWidth,
-    //   height: presentationSlideHeight,
-    // } = presentationSlideSize;
-    // const presentationMaxSize = this.calculatesPresentationMaxSize(
-    //   mediaAreaWidth, mediaAreaHeight, presentationSlideWidth, presentationSlideHeight,
-    // );
-    // const { presentationWidth, presentationHeight } = presentationMaxSize;
-
-    // if (webcamAreaWidth === null || webcamAreaHeight === null) {
-    //   if (numUsersVideo < 1) {
-    //     newPresentationAreaWidth = presentationWidth;
-    //     newPresentationAreaHeight = presentationHeight;
-    //   } else if (webcamsPlacement === 'left' || webcamsPlacement === 'right') {
-    //     newPresentationAreaWidth = mediaAreaWidth - (mediaAreaWidth * WEBCAMSAREA_MIN_PERCENT);
-    //     newPresentationAreaHeight = mediaAreaHeight;
-    //   } else {
-    //     newPresentationAreaWidth = mediaAreaWidth;
-    //     newPresentationAreaHeight = mediaAreaHeight
-    //       - (mediaAreaHeight * WEBCAMSAREA_MIN_PERCENT) - 30; // 30 is margins
-    //   }
-    // } else if (webcamsPlacement === 'left' || webcamsPlacement === 'right') {
-    //   newPresentationAreaWidth = mediaAreaWidth - webcamAreaWidth;
-    //   newPresentationAreaHeight = mediaAreaHeight;
-    // } else {
-    //   newPresentationAreaWidth = mediaAreaWidth;
-    //   newPresentationAreaHeight = mediaAreaHeight - webcamAreaHeight;
-    // }
-
-    // return {
-    //   newPresentationAreaWidth: autoArrangeLayout
-    //     ? newPresentationAreaWidth - 10 : newPresentationAreaWidth - 26,
-    //   newPresentationAreaHeight: newPresentationAreaHeight
-    //     < (mediaAreaHeight * PRESENTATIONAREA_MIN_PERCENT)
-    //     ? mediaAreaHeight * PRESENTATIONAREA_MIN_PERCENT
-    //     : newPresentationAreaHeight,
-    // };
   }
 
   calculatesLayout(userlistChanged = false, chatChanged = false) {
@@ -504,8 +410,6 @@ class LayoutManager extends Component {
       height: presentationSlideHeight,
     } = presentationSlideSize;
 
-    // const autoArrangeLayout = Storage.getItem('autoArrangeLayout');
-
     const panelsSize = this.calculatesPanelsSize(userlistChanged, chatChanged);
     const { newUserListSize, newChatSize } = panelsSize;
 
@@ -518,54 +422,21 @@ class LayoutManager extends Component {
       left: newUserListSize.width + newChatSize.width,
     };
 
-    // let webcamsSize;
-    // let presentationSize;
-
-    const { presentationWidth, presentationHeight } = this.calculatesPresentationSize(
+    const { presentationWidth, presentationHeight } = LayoutManager.calculatesPresentationSize(
       mediaAreaWidth, mediaAreaHeight, presentationSlideWidth, presentationSlideHeight,
     );
-
-    console.log('presentationWidth', presentationWidth);
-    console.log('presentationHeight', presentationHeight);
 
     this.defineWebcamPlacement(
       mediaAreaWidth, mediaAreaHeight, presentationWidth, presentationHeight,
     );
 
-    console.log('mediaAreaWidth', mediaAreaWidth);
-    console.log('mediaAreaHeight', mediaAreaHeight);
+    const { webcamsAreaWidth, webcamsAreaHeight } = this.calculatesWebcamsAreaSize(
+      mediaAreaWidth, mediaAreaHeight, presentationWidth, presentationHeight,
+    );
 
-    const { webcamsAreaWidth, webcamsAreaHeight } = this
-      .calculatesWebcamsAreaSize(mediaAreaWidth, mediaAreaHeight);
-
-    console.log('webcamsAreaWidth', webcamsAreaWidth);
-    console.log('webcamsAreaHeight', webcamsAreaHeight);
-    
     const { presentationAreaWidth, presentationAreaHeight } = this.calculatesPresentationAreaSize(
       mediaAreaWidth, mediaAreaHeight, webcamsAreaWidth, webcamsAreaHeight,
     );
-
-    console.log('presentationAreaWidth', presentationAreaWidth);
-    console.log('presentationAreaHeight', presentationAreaHeight);
-    
-
-    // if (autoArrangeLayout) {
-    //   presentationSize = this.calculatesPresentationAreaSize(mediaAreaWidth, mediaAreaHeight);
-    //   webcamsSize = this.calculatesWebcamsAreaSize(
-    //     mediaAreaWidth,
-    //     mediaAreaHeight,
-    //     presentationSize.newPresentationAreaWidth,
-    //     presentationSize.newPresentationAreaHeight,
-    //   );
-    // } else {
-    //   webcamsSize = this.calculatesWebcamsAreaSize(mediaAreaWidth, mediaAreaHeight);
-    //   presentationSize = this.calculatesPresentationAreaSize(
-    //     mediaAreaWidth,
-    //     mediaAreaHeight,
-    //     webcamsSize.newWebcamAreaWidth,
-    //     webcamsSize.newWebcamAreaHeight,
-    //   );
-    // }
 
     const newWebcamsAreaSize = {
       width: webcamsAreaWidth,
