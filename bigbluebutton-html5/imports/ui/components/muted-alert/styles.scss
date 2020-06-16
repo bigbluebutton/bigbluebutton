@@ -1,0 +1,24 @@
+@import "../../stylesheets/variables/_all";
+
+.muteWarning {
+    position: absolute;
+    color: var(--color-white);
+    background-color: black;
+    text-align: center;
+    line-height: 1;
+    font-size: var(--font-size-xl);
+    padding: var(--md-padding-y);
+    border-radius: var(--border-radius);
+    top: -50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 5;
+
+    > span {
+      white-space: nowrap;
+    }
+
+    @include mq($small-only) {
+      font-size: var(--font-size-md);;
+    }
+  }

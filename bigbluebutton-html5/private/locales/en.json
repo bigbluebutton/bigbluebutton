@@ -244,6 +244,7 @@
     "app.connectingMessage": "Connecting ...",
     "app.waitingMessage": "Disconnected. Trying to reconnect in {0} seconds ...",
     "app.retryNow": "Retry now",
+    "app.muteWarning.label": "You are muted. Click {0} to unmute yourself",
     "app.navBar.settingsDropdown.optionsLabel": "Options",
     "app.navBar.settingsDropdown.fullscreenLabel": "Make fullscreen",
     "app.navBar.settingsDropdown.settingsLabel": "Settings",
