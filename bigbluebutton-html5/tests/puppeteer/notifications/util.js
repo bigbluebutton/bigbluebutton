@@ -7,9 +7,9 @@ async function clickTestElement(element) {
   await document.querySelectorAll(element)[0].click();
 }
 
-async function popupMenu(page) {
-  await page.page.evaluate(clickTestElement, e.options);
-  await page.page.evaluate(clickTestElement, ne.settings);
+async function popupMenu(test) {
+  await test.page.evaluate(clickTestElement, e.options);
+  await test.page.evaluate(clickTestElement, ne.settings);
 }
 
 async function enableChatPopup(test) {
