@@ -15,7 +15,12 @@ const clearOtherSessions = (sessionUserId, current = false) => {
 };
 
 export default function handleValidateAuthToken({ body }, meetingId) {
-  const { userId, valid, authToken, waitForApproval } = body;
+  const {
+    userId,
+    valid,
+    authToken,
+    waitForApproval,
+  } = body;
 
   check(userId, String);
   check(authToken, String);
@@ -24,50 +29,50 @@ export default function handleValidateAuthToken({ body }, meetingId) {
 
   const pendingAuths = pendingAuthenticationsStore.take(meetingId, userId, authToken);
 
-  if(!valid) {
-    pendingAuths.forEach ( 
-      pendingAuth => {
+  if (!valid) {
+    pendingAuths.forEach(
+      (pendingAuth) => {
         try {
-          const {methodInvocationObject} = pendingAuth;
+          const { methodInvocationObject } = pendingAuth;
           const connectionId = methodInvocationObject.connection.id;
 
           // Schedule socket disconnection for this user, giving some time for client receiving the reason of disconnection
-          Meteor.setTimeout(()=>{
+          Meteor.setTimeout(() => {
             methodInvocationObject.connection.close();
           }, 2000);
-          
+
           Logger.info(`Closed connection ${connectionId} due to invalid auth token.`);
         } catch (e) {
           Logger.error(`Error closing socket for meetingId '${meetingId}', userId '${userId}', authToken ${authToken}`);
         }
-      }
+      },
     );
-    
+
     return;
   }
 
-  if(valid) {
+  if (valid) {
     // Define user ID on connections
-    pendingAuths.forEach ( 
-        pendingAuth => {
-            const {methodInvocationObject} = pendingAuth;
+    pendingAuths.forEach(
+      (pendingAuth) => {
+        const { methodInvocationObject } = pendingAuth;
 
-            /* Logic migrated from validateAuthToken method ( postponed to only run in case of success response ) - Begin */
-            const sessionId = `${meetingId}--${userId}`;
-            methodInvocationObject.setUserId(sessionId);
+        /* Logic migrated from validateAuthToken method ( postponed to only run in case of success response ) - Begin */
+        const sessionId = `${meetingId}--${userId}`;
+        methodInvocationObject.setUserId(sessionId);
 
-            const User = Users.findOne({
-                meetingId,
-                userId: userId,
-            });
-        
-            if (!User) {
-                createDummyUser(meetingId, userId, authToken);
-            }
-        
-            setConnectionIdAndAuthToken(meetingId, userId, methodInvocationObject.connection.id, authToken);
-            /* End of logic migrated from validateAuthToken */
+        const User = Users.findOne({
+          meetingId,
+          userId,
+        });
+
+        if (!User) {
+          createDummyUser(meetingId, userId, authToken);
         }
+
+        setConnectionIdAndAuthToken(meetingId, userId, methodInvocationObject.connection.id, authToken);
+        /* End of logic migrated from validateAuthToken */
+      },
     );
   }
 
