@@ -129,11 +129,9 @@ class PresentationArea extends PureComponent {
       layoutContextState,
     } = this.props;
 
-    const { presentationAreaWidth, presentationAreaHeight } = this.state;
-    const { presentationAreaSize, numUsersVideo } = layoutContextState;
+    const { numUsersVideo } = layoutContextState;
     const { layoutContextState: prevLayoutContextState } = prevProps;
     const {
-      presentationAreaSize: prevPresentationAreaSize,
       numUsersVideo: prevNumUsersVideo,
     } = prevLayoutContextState;
 

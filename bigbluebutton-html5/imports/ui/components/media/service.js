@@ -53,6 +53,7 @@ const setSwapLayout = () => {
 };
 
 const toggleSwapLayout = () => {
+  window.dispatchEvent(new Event('togglePresentationHide'));
   swapLayout.value = !swapLayout.value;
   swapLayout.tracker.changed();
 };
