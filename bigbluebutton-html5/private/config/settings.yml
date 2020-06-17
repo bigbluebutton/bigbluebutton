@@ -25,6 +25,7 @@ public:
     ipv4FallbackDomain: ""
     allowLogout: true
     allowFullscreen: true
+    remainingTimeThreshold: 5
     defaultSettings:
       application:
         animations: true

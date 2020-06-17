@@ -29,6 +29,8 @@ const ENABLE_NETWORK_MONITORING = Meteor.settings.public.networkMonitoring.enabl
 
 const HELP_LINK = METEOR_SETTINGS_APP.helpLink;
 
+const REMAINING_TIME_THRESHOLD = METEOR_SETTINGS_APP.remainingTimeThreshold;
+
 const intlMessages = defineMessages({
   failedMessage: {
     id: 'app.failedMessage',
@@ -205,7 +207,7 @@ export default injectIntl(withTracker(({ intl }) => {
   if (meetingTimeRemaining && Meeting) {
     const { timeRemaining } = meetingTimeRemaining;
     const { isBreakout } = Meeting.meetingProp;
-    const underThirtyMin = timeRemaining && timeRemaining <= (30 * 60);
+    const underThirtyMin = timeRemaining && timeRemaining <= (REMAINING_TIME_THRESHOLD * 60);
 
     if (underThirtyMin && !isBreakout) {
       data.message = (
