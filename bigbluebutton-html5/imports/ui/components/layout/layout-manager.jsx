@@ -87,6 +87,10 @@ class LayoutManager extends Component {
     window.addEventListener('slideChanged', () => {
       setTimeout(() => this.setLayoutSizes(), 200);
     });
+
+    window.addEventListener('togglePresentationHide', () => {
+      setTimeout(() => this.setLayoutSizes(), 200);
+    });
   }
 
   componentDidUpdate(prevProps) {
