@@ -148,6 +148,7 @@ class ZoomTool extends PureComponent {
       tooltipDistance,
       isMeteorConnected,
       step,
+      formatNumber,
     } = this.props;
     const { stateZoomValue } = this.state;
 
@@ -161,7 +162,7 @@ class ZoomTool extends PureComponent {
       zoomInAriaLabel += ` ${intl.formatNumber(((zoomValue + step) / 100), { style: 'percent' })}`;
     }
 
-    const stateZoomPct = intl.formatNumber((stateZoomValue / 100), { style: 'percent' });
+    const stateZoomPct = formatNumber(stateZoomValue / 100, 'percent');
 
     return (
       [

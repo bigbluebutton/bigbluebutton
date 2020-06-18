@@ -244,6 +244,7 @@ class BreakoutRoom extends PureComponent {
     const {
       breakoutRooms,
       intl,
+      formatNumber,
     } = this.props;
 
     const {
@@ -258,10 +259,10 @@ class BreakoutRoom extends PureComponent {
       >
         <div className={styles.content} key={`breakoutRoomList-${breakout.breakoutId}`}>
           <span aria-hidden>
-            {intl.formatMessage(intlMessages.breakoutRoom, breakout.sequence.toString())}
+            {intl.formatMessage(intlMessages.breakoutRoom, formatNumber(breakout.sequence.toString()))}
             <span className={styles.usersAssignedNumberLabel}>
               (
-              {breakout.joinedUsers.length}
+              {formatNumber(breakout.joinedUsers.length)}
               )
             </span>
           </span>

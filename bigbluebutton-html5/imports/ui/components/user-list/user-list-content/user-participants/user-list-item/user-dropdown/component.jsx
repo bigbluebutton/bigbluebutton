@@ -516,6 +516,7 @@ class UserDropdown extends PureComponent {
       breakoutSequence,
       meetingIsBreakout,
       voiceUser,
+      formatNumber,
     } = this.props;
 
     const { clientType } = user;
@@ -538,6 +539,7 @@ class UserDropdown extends PureComponent {
         voice={voiceUser.isVoiceUser}
         noVoice={!voiceUser.isVoiceUser}
         color={user.color}
+        formatNumber={formatNumber}
       >
         {
         userInBreakout

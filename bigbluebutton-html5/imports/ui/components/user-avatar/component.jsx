@@ -40,36 +40,41 @@ const UserAvatar = ({
   voice,
   noVoice,
   className,
-}) => (
+  formatNumber,
+}) => {
+  const isRoomNumber = typeof children === 'number';
 
-  <div
-    aria-hidden="true"
-    data-test="userAvatar"
-    className={cx(styles.avatar, {
-      [styles.moderator]: moderator,
-      [styles.presenter]: presenter,
-      [styles.muted]: muted,
-      [styles.listenOnly]: listenOnly,
-      [styles.voice]: voice,
-      [styles.noVoice]: noVoice && !listenOnly,
-    }, className)}
-    style={{
-      backgroundColor: color,
-      color, // We need the same color on both for the border
-    }}
-  >
+  return (
+    <div
+      aria-hidden="true"
+      data-test="userAvatar"
+      className={cx(styles.avatar, {
+        [styles.moderator]: moderator,
+        [styles.presenter]: presenter,
+        [styles.muted]: muted,
+        [styles.listenOnly]: listenOnly,
+        [styles.voice]: voice,
+        [styles.noVoice]: noVoice && !listenOnly,
+      }, className)}
+      style={{
+        backgroundColor: color,
+        color, // We need the same color on both for the border
+      }}
+    >
+      <div className={cx({
+        [styles.talking]: (talking && !muted),
+      })}
+      />
 
-    <div className={cx({
-      [styles.talking]: (talking && !muted),
-    })}
-    />
-
-
-    <div className={styles.content}>
-      {children}
+      <div className={styles.content}>
+        {isRoomNumber
+          ? formatNumber(children)
+          : children
+        }
+      </div>
     </div>
-  </div>
-);
+  );
+};
 
 UserAvatar.propTypes = propTypes;
 UserAvatar.defaultProps = defaultProps;

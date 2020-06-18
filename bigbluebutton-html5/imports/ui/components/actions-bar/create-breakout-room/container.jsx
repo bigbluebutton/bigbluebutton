@@ -1,6 +1,6 @@
 import { withTracker } from 'meteor/react-meteor-data';
 import ActionsBarService from '/imports/ui/components/actions-bar/service';
-
+import { formatNumber, isEasternArabic, convertToWestern } from '/imports/utils/intl-formatter';
 import CreateBreakoutRoomModal from './component';
 
 export default withTracker(() => ({
@@ -10,4 +10,7 @@ export default withTracker(() => ({
   sendInvitation: ActionsBarService.sendInvitation,
   users: ActionsBarService.users(),
   meetingName: ActionsBarService.meetingName(),
+  formatNumber,
+  isEasternArabic,
+  convertToWestern,
 }))(CreateBreakoutRoomModal);

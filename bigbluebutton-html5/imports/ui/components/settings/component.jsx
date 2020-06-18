@@ -130,6 +130,7 @@ class Settings extends Component {
   renderModalContent() {
     const {
       intl,
+      formatNumber,
     } = this.props;
 
     const {
@@ -179,6 +180,7 @@ class Settings extends Component {
             availableLocales={availableLocales}
             handleUpdateSettings={this.handleUpdateSettings}
             settings={current.application}
+            formatNumber={formatNumber}
           />
         </TabPanel>
         {/* <TabPanel className={styles.tabPanel}> */}

@@ -1,5 +1,6 @@
 import React, { PureComponent } from 'react';
 import { withTracker } from 'meteor/react-meteor-data';
+import { formatDateTime } from '/imports/utils/intl-formatter';
 import ChatList from './component';
 import ChatService from '../service';
 
@@ -21,5 +22,6 @@ export default withTracker(({ chatId }) => {
     lastReadMessageTime,
     handleScrollUpdate: ChatService.updateScrollPosition,
     handleReadMessage: ChatService.updateUnreadMessage,
+    formatDateTime,
   };
 })(ChatContainer);

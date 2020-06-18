@@ -3,6 +3,7 @@ import { withTracker } from 'meteor/react-meteor-data';
 import BreakoutService from '/imports/ui/components/breakout-room/service';
 import Meetings from '/imports/api/meetings';
 import Auth from '/imports/ui/services/auth';
+import { formatNumber } from '/imports/utils/intl-formatter';
 import UserListItem from './component';
 import UserListService from '/imports/ui/components/user-list/service';
 
@@ -35,5 +36,6 @@ export default withTracker(({ user }) => {
     getEmojiList: UserListService.getEmojiList(),
     getEmoji: UserListService.getEmoji(),
     hasPrivateChatBetweenUsers: UserListService.hasPrivateChatBetweenUsers,
+    formatNumber,
   };
 })(UserListItemContainer);

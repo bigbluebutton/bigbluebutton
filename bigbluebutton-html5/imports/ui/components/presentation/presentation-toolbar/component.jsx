@@ -183,7 +183,7 @@ class PresentationToolbar extends PureComponent {
 
   renderSkipSlideOpts(numberOfSlides) {
     // Fill drop down menu with all the slides in presentation
-    const { intl } = this.props;
+    const { intl, formatNumber } = this.props;
     const optionList = [];
     for (let i = 1; i <= numberOfSlides; i += 1) {
       optionList.push((
@@ -192,7 +192,9 @@ class PresentationToolbar extends PureComponent {
           key={i}
         >
           {
-            intl.formatMessage(intlMessages.goToSlide, { 0: i })
+            intl.formatMessage(intlMessages.goToSlide, {
+              0: formatNumber(i),
+            })
           }
         </option>));
     }
@@ -211,6 +213,7 @@ class PresentationToolbar extends PureComponent {
       isFullscreen,
       fullscreenRef,
       isMeteorConnected,
+      formatNumber,
     } = this.props;
 
     const BROWSER_RESULTS = browser();
@@ -299,6 +302,7 @@ class PresentationToolbar extends PureComponent {
                     step={STEP}
                     tooltipDistance={tooltipDistance}
                     isMeteorConnected={isMeteorConnected}
+                    formatNumber={formatNumber}
                   />
                 )
                 : null
