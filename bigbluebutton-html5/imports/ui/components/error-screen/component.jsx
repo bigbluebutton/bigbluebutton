@@ -77,19 +77,23 @@ class ErrorScreen extends React.PureComponent {
         </div>
         {
           !Session.get('errorMessageDescription') || (
-          <div className={styles.sessionMessage}>
-            {Session.get('errorMessageDescription')}
-          </div>)
+            <div className={styles.sessionMessage}>
+              {Session.get('errorMessageDescription')}
+            </div>)
         }
-        <div>
-          <Button
-            size="sm"
-            color="primary"
-            className={styles.button}
-            onClick={logoutRouteHandler}
-            label={intl.formatMessage(intlMessages.leave)}
-          />
-        </div>
+        {
+          !Session.get('isBanned') ? (
+            <div>
+              <Button
+                size="sm"
+                color="primary"
+                className={styles.button}
+                onClick={logoutRouteHandler}
+                label={intl.formatMessage(intlMessages.leave)}
+              />
+            </div>
+          ) : null
+        }
       </div>
     );
   }
