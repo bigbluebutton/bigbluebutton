@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 import { defineMessages, injectIntl } from 'react-intl';
 import { Meteor } from 'meteor/meteor';
 import { Session } from 'meteor/session';
+import AudioManager from '/imports/ui/services/audio-manager';
 import { styles } from './styles';
 
 const intlMessages = defineMessages({
@@ -41,6 +42,7 @@ const defaultProps = {
 
 class ErrorScreen extends PureComponent {
   componentDidMount() {
+    AudioManager.exitAudio();
     Meteor.disconnect();
   }
 
