@@ -6,8 +6,8 @@ import { styles } from './styles.scss';
 
 const LAYOUT_CONFIG = Meteor.settings.public.layout;
 
-export default () => {
-  const { autoSwapLayout, hidePresentation } = LAYOUT_CONFIG;
+export default (props) => {
+  const { autoSwapLayout, hidePresentation } = props;
   return (
     <TransitionGroup>
       <CSSTransition
