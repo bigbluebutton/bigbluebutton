@@ -1234,7 +1234,7 @@ check_state() {
     # Check if the local server can access the API.  This is a common problem when setting up BigBlueButton behind
     # a firewall
     #
-    BBB_WEB=$(cat ${SERVLET_DIR}/WEB-INF/classes/bigbluebutton.properties | grep -v '#' | sed -n '/^bigbluebutton.web.serverURL/{s/.*\///;p}')
+    BBB_WEB=$(cat ${SERVLET_DIR}/WEB-INF/classes/bigbluebutton.properties | grep -v '#' | sed -n '/^bigbluebutton.web.serverURL/{s/.*\/\///;p}')
     check_no_value server_name /etc/nginx/sites-available/bigbluebutton $BBB_WEB
 
     COUNT=0
