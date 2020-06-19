@@ -8,7 +8,9 @@ import Button from '/imports/ui/components/button/component';
 import logger from '/imports/startup/client/logger';
 import Modal from '/imports/ui/components/modal/simple/component';
 import browser from 'browser-detect';
+import cx from 'classnames';
 import { styles } from './styles';
+import VideoService from '../video-provider/service';
 
 const CAMERA_PROFILES = Meteor.settings.public.kurento.cameraProfiles;
 
@@ -188,6 +190,8 @@ class VideoPreview extends Component {
       deviceError: null,
       previewError: null,
     };
+
+    this.mirrorOwnWebcam = VideoService.mirrorOwnWebcam();
   }
 
   componentDidMount() {
@@ -560,7 +564,10 @@ class VideoPreview extends Component {
                 : (
                   <video
                     id="preview"
-                    className={styles.preview}
+                    className={cx({
+                      [styles.preview]: true,
+                      [styles.mirroredVideo]: this.mirrorOwnWebcam,
+                    })}
                     ref={(ref) => { this.video = ref; }}
                     autoPlay
                     playsInline

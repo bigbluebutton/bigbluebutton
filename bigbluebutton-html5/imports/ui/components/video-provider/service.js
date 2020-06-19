@@ -5,9 +5,11 @@ import Meetings from '/imports/api/meetings/';
 import Users from '/imports/api/users/';
 import VideoStreams from '/imports/api/video-streams/';
 import UserListService from '/imports/ui/components/user-list/service';
+import getFromUserSettings from '/imports/ui/services/users-settings';
 
 const ROLE_MODERATOR = Meteor.settings.public.user.role_moderator;
 const ROLE_VIEWER = Meteor.settings.public.user.role_viewer;
+const MIRROR_WEBCAM = Meteor.settings.public.app.mirrorOwnWebcam;
 
 class VideoService {
   constructor() {
@@ -134,6 +136,13 @@ class VideoService {
     return m.lockSettingsProps ? m.lockSettingsProps.disableCam : false;
   }
 
+  mirrorOwnWebcam(user) {
+    // only true if setting defined and video ids match
+    const isOwnWebcam = user ? this.userId() === user.userId : true;
+    const isEnabledMirroring = getFromUserSettings('bbb_mirror_own_webcam', MIRROR_WEBCAM);
+    return isOwnWebcam && isEnabledMirroring;
+  }
+
   userId() {
     return Auth.userID;
   }
@@ -177,6 +186,7 @@ export default {
   joinedVideo: () => videoService.joinedVideo(),
   sendUserShareWebcam: stream => videoService.sendUserShareWebcam(stream),
   sendUserUnshareWebcam: stream => videoService.sendUserUnshareWebcam(stream),
+  mirrorOwnWebcam: user => videoService.mirrorOwnWebcam(user),
   meetingId: () => videoService.meetingId(),
   getAllWebcamUsers: () => videoService.getAllWebcamUsers(),
   sessionToken: () => videoService.sessionToken(),

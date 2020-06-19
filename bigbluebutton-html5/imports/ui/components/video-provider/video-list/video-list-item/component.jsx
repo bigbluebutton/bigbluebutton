@@ -19,6 +19,7 @@ import FullscreenService from '../../../fullscreen-button/service';
 import FullscreenButtonContainer from '../../../fullscreen-button/container';
 import { styles } from '../styles';
 import { withDraggableConsumer } from '../../../media/webcam-draggable-overlay/context';
+import VideoService from '../../service';
 
 const intlMessages = defineMessages({
   connectionStatsLabel: {
@@ -40,6 +41,7 @@ class VideoListItem extends Component {
       isFullscreen: false,
     };
 
+    this.mirrorOwnWebcam = VideoService.mirrorOwnWebcam(props.user);
     this.toggleStats = this.toggleStats.bind(this);
     this.setStats = this.setStats.bind(this);
     this.setVideoIsReady = this.setVideoIsReady.bind(this);
@@ -213,6 +215,7 @@ class VideoListItem extends Component {
                 && !isFullscreen && !swapLayout,
               [styles.cursorGrabbing]: webcamDraggableState.dragging
                 && !isFullscreen && !swapLayout,
+              [styles.mirroredVideo]: this.mirrorOwnWebcam,
             })}
             ref={(ref) => { this.videoTag = ref; }}
             autoPlay
