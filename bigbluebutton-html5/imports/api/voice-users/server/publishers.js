@@ -20,7 +20,7 @@ function voiceUser() {
         ejectUserFromVoice(requesterUserId);
       }
     } catch (e) {
-      Logger.error(`Exception while executing ejectUserFromVoice: ${e}`);
+      Logger.error(`Exception while executing ejectUserFromVoice for ${requesterUserId}: ${e}`);
     }
   });
 
