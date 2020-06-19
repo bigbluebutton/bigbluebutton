@@ -20,4 +20,7 @@ export const getFromSpecificUserSettings = (userID, setting, defaultValue) => {
 export const isGhostUser = user => getFromSpecificUserSettings(user.userId, 'bbb_ghost_user', false);
 
 // eslint-disable-next-line max-len
-export default (setting, defaultValue) => getFromSpecificUserSettings(Auth.userID, setting, defaultValue);
+const getFromUserSettings = (setting, defaultValue) => getFromSpecificUserSettings(Auth.userID, setting, defaultValue);
+
+// eslint-disable-next-line max-len
+export default getFromUserSettings;
