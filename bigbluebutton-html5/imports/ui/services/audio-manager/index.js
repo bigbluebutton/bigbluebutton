@@ -386,7 +386,7 @@ class AudioManager {
         }
       } else if (status === RECONNECTING) {
         //  I catch it here, because any place after reconnecting will clear this state
-        if (this.isMuted) this.wasMuted = this.isMuted;
+        if (this.isMuted) this.wasMuted = true;
         logger.info({ logCode: 'audio_reconnecting' }, 'Attempting to reconnect audio');
         this.notify(this.intl.formatMessage(this.messages.info.RECONNECTING_AUDIO), true);
         this.playHangUpSound();
