@@ -20,7 +20,7 @@ import AudioService from '/imports/ui/components/audio/service';
 import { FormattedMessage } from 'react-intl';
 import { notify } from '/imports/ui/services/notification';
 import deviceInfo from '/imports/utils/deviceInfo';
-import { getFromUserSettings } from '../../ui/services/users-settings';
+import getFromUserSettings from '../../ui/services/users-settings';
 
 const CHAT_CONFIG = Meteor.settings.public.chat;
 const CHAT_ENABLED = CHAT_CONFIG.enabled;
