@@ -2,8 +2,6 @@ import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import { defineMessages, injectIntl } from 'react-intl';
 import { Meteor } from 'meteor/meteor';
-import Button from '/imports/ui/components/button/component';
-import logoutRouteHandler from '/imports/utils/logoutRouteHandler';
 import { Session } from 'meteor/session';
 import { styles } from './styles';
 
@@ -27,10 +25,6 @@ const intlMessages = defineMessages({
   },
   400: {
     id: 'app.error.400',
-  },
-  leave: {
-    id: 'app.error.leaveLabel',
-    description: 'aria-label for leaving',
   },
 });
 
