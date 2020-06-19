@@ -7,10 +7,9 @@ import LoadingScreen from '/imports/ui/components/loading-screen/component';
 const STATUS_CONNECTING = 'connecting';
 
 class AuthenticatedHandler extends Component {
-  static setError({ ban, description, error }) {
+  static setError({ description, error }) {
     if (error) Session.set('codeError', error);
     Session.set('errorMessageDescription', description);
-    Session.set('isBanned', ban);
   }
 
   static shouldAuthenticate(status, lastStatus) {

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import { defineMessages, injectIntl } from 'react-intl';
 import { Meteor } from 'meteor/meteor';
@@ -45,7 +45,7 @@ const defaultProps = {
   code: 500,
 };
 
-class ErrorScreen extends React.PureComponent {
+class ErrorScreen extends PureComponent {
   componentDidMount() {
     Meteor.disconnect();
   }
@@ -65,35 +65,22 @@ class ErrorScreen extends React.PureComponent {
 
     return (
       <div className={styles.background}>
-        <h1 className={styles.codeError}>
-          {code}
-        </h1>
-        <h1 className={styles.message}>
-          {formatedMessage}
-        </h1>
-        <div className={styles.separator} />
-        <div>
-          {children}
-        </div>
         {
           !Session.get('errorMessageDescription') || (
             <div className={styles.sessionMessage}>
               {Session.get('errorMessageDescription')}
             </div>)
         }
-        {
-          !Session.get('isBanned') ? (
-            <div>
-              <Button
-                size="sm"
-                color="primary"
-                className={styles.button}
-                onClick={logoutRouteHandler}
-                label={intl.formatMessage(intlMessages.leave)}
-              />
-            </div>
-          ) : null
-        }
+        <h1 className={styles.message}>
+          {formatedMessage}
+        </h1>
+        <div className={styles.separator} />
+        <h1 className={styles.codeError}>
+          {code}
+        </h1>
+        <div>
+          {children}
+        </div>
       </div>
     );
   }

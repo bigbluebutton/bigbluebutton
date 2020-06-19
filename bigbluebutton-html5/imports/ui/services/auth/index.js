@@ -225,7 +225,6 @@ class Auth {
         reject({
           error: 401,
           description: 'User has been banned.',
-          ban: true,
         });
         return;
       }
