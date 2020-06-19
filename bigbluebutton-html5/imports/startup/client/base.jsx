@@ -10,7 +10,7 @@ import Settings from '/imports/ui/services/settings';
 import AudioManager from '/imports/ui/services/audio-manager';
 import logger from '/imports/startup/client/logger';
 import Users from '/imports/api/users';
-import isGhostUser from "/imports/api/users/server/methods/ghostUser";
+import { isGhostUser } from "/imports/api/common/server/helpers";
 import { Session } from 'meteor/session';
 import IntlStartup from './intl';
 import Meetings, { RecordMeetings } from '../../api/meetings';
@@ -20,6 +20,7 @@ import AudioService from '/imports/ui/components/audio/service';
 import { FormattedMessage } from 'react-intl';
 import { notify } from '/imports/ui/services/notification';
 import deviceInfo from '/imports/utils/deviceInfo';
+import { getFromUserSettings } from "../../ui/services/users-settings";
 
 const CHAT_CONFIG = Meteor.settings.public.chat;
 const CHAT_ENABLED = CHAT_CONFIG.enabled;

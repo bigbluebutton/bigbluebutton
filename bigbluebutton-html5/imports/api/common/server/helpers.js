@@ -1,4 +1,5 @@
 import Users from '/imports/api/users';
+import { getFromSpecificUserSettings } from '/imports/ui/services/users-settings';
 
 const MSG_DIRECT_TYPE = 'DIRECT';
 const NODE_USER = 'nodeJSapp';
@@ -70,4 +71,8 @@ export const extractCredentials = (credentials) => {
   const meetingId = credentialsArray[0];
   const requesterUserId = credentialsArray[1];
   return { meetingId, requesterUserId };
+};
+
+export const isGhostUser = (user) => {
+  return getFromSpecificUserSettings(user.userId, 'bbb_ghost_user', false);
 };
