@@ -10,7 +10,7 @@ import Settings from '/imports/ui/services/settings';
 import AudioManager from '/imports/ui/services/audio-manager';
 import logger from '/imports/startup/client/logger';
 import Users from '/imports/api/users';
-import isGhostUser from "../../api/users/server/methods/ghostUser";
+import isGhostUser from "/imports/api/users/server/methods/ghostUser";
 import { Session } from 'meteor/session';
 import IntlStartup from './intl';
 import Meetings, { RecordMeetings } from '../../api/meetings';
