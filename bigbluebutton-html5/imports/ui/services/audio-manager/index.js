@@ -284,7 +284,7 @@ class AudioManager {
     this.isConnected = true;
 
     if (this.wasMuted) {
-      makeCall('toggleVoice');
+      makeCall('toggleVoice', true);
       this.wasMuted = false;
     }
     // listen to the VoiceUsers changes and update the flag
@@ -293,7 +293,7 @@ class AudioManager {
       this.muteHandle = query.observeChanges({
         changed: (id, fields) => {
           if (fields.muted !== undefined && fields.muted !== this.isMuted) {
-            this.isMuted = fields.muted;
+            this.isMuted = true;
             const muteState = this.isMuted ? 'selfMuted' : 'selfUnmuted';
             window.parent.postMessage({ response: muteState }, '*');
           }
