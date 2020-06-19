@@ -5,6 +5,7 @@ import { GroupChatMsg } from '/imports/api/group-chat-msg';
 import Breakouts from '/imports/api/breakouts/';
 import Meetings from '/imports/api/meetings';
 import Auth from '/imports/ui/services/auth';
+import isGhostUser from '/imports/api/users/server/methods/ghostUser';
 import UnreadMessages from '/imports/ui/services/unread-messages';
 import Storage from '/imports/ui/services/storage/session';
 import { EMOJI_STATUSES } from '/imports/utils/statuses';
@@ -200,6 +201,8 @@ const getUsers = () => {
       users = users.filter(moderatorOrCurrentUser);
     }
   }
+  const notAGhostUser = u => !isGhostUser(u);
+  users = users.filter(notAGhostUser);
 
   return users.sort(sortUsers);
 };

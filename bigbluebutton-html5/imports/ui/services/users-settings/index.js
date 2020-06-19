@@ -1,10 +1,10 @@
 import Auth from '/imports/ui/services/auth';
 import UserSettings from '/imports/api/users-settings';
 
-export default function getFromUserSettings(setting, defaultValue) {
+export default function getFromSpecificUserSettings(userID, setting, defaultValue) {
   const selector = {
     meetingId: Auth.meetingID,
-    userId: Auth.userID,
+    userId: userID,
     setting,
   };
 
@@ -15,4 +15,8 @@ export default function getFromUserSettings(setting, defaultValue) {
   }
 
   return defaultValue;
+}
+
+export default function getFromUserSettings(setting, defaultValue) {
+  return getFromSpecificUserSettings(Auth.userID, setting, defaultValue);
 }
