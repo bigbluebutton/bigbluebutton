@@ -31,7 +31,7 @@ export default function muteToggle(uId, implicitToggle) {
   const payload = {
     userId: userToMute,
     mutedBy: requesterUserId,
-    mute: _.isNil(implicitToggle)? !muted : implicitToggle,
+    mute: _.isNil(implicitToggle) ? !muted : implicitToggle,
   };
 
   RedisPubSub.publishUserMessage(CHANNEL, EVENT_NAME, meetingId, requesterUserId, payload);
