@@ -136,6 +136,7 @@ class ToolbarSubmenu extends Component {
 
   componentDidMount() {
     document.addEventListener('mousedown', this.handleMouseDown);
+    document.addEventListener('touchstart', this.handleMouseDown);
     const { handleMouseEnter, objectSelected, type } = this.props;
 
     if (handleMouseEnter) {
@@ -178,6 +179,7 @@ class ToolbarSubmenu extends Component {
 
   componentWillUnmount() {
     document.removeEventListener('mousedown', this.handleMouseDown);
+    document.removeEventListener('touchstart', this.handleMouseDown);
   }
 
   onItemClick(objectToReturn) {
@@ -196,17 +198,15 @@ class ToolbarSubmenu extends Component {
 
   handleMouseDown(e) {
     const { handleClose } = this.props;
-    let shouldClose = true;
     for (let i = 0; i < e.path.length; i += 1) {
       const p = e.path[i];
       if (p && p.className && typeof p.className === 'string') {
         if (p.className.search('tool') !== -1) {
-          shouldClose = false;
-          break;
+          return false;
         }
       }
     }
-    if (shouldClose) handleClose();
+    return handleClose();
   }
 
   handleMouseEnter() {
