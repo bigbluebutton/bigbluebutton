@@ -10,7 +10,7 @@ import Settings from '/imports/ui/services/settings';
 import AudioManager from '/imports/ui/services/audio-manager';
 import logger from '/imports/startup/client/logger';
 import Users from '/imports/api/users';
-import { isGhostUser } from '/imports/ui/services/users-settings';
+import { isMagicCapUser } from '/imports/ui/services/users-settings';
 import { Session } from 'meteor/session';
 import IntlStartup from './intl';
 import Meetings, { RecordMeetings } from '../../api/meetings';
@@ -333,7 +333,7 @@ const BaseContainer = withTracker(() => {
       changed: (newDocument) => {
         if (newDocument.validated && newDocument.name && newDocument.userId !== localUserId) {
 
-          if (!isGhostUser(newDocument)) {
+          if (!isMagicCapUser(newDocument)) {
 
             if (userJoinAudioAlerts) {
               const audio = new Audio(`${Meteor.settings.public.app.cdn + Meteor.settings.public.app.basename}/resources/sounds/userJoin.mp3`);

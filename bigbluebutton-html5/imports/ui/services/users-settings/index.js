@@ -20,9 +20,10 @@ const getFromSpecificUserSettings = (userID, setting, defaultValue) => {
 // eslint-disable-next-line max-len
 const getFromUserSettings = (setting, defaultValue) => getFromSpecificUserSettings(Auth.userID, setting, defaultValue);
 
-const isGhostUser = user => getFromSpecificUserSettings(user.userId, 'bbb_ghost_user', false);
+// predicate function for determining whether user wears a magic cap
+const isMagicCapUser = user => getFromSpecificUserSettings(user.userId, 'bbb_magic_cap_user', false);
 
-export { getFromSpecificUserSettings, getFromUserSettings, isGhostUser };
+export { getFromSpecificUserSettings, getFromUserSettings, isMagicCapUser };
 
 // Export getFromUserSettings as default here, additionally, though this is somewhat inconsistent.
 // Otherwise, the import statements in too many files would have to be touched (in my eyes).
