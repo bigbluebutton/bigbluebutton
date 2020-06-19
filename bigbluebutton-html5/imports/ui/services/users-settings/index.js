@@ -1,7 +1,7 @@
 import Auth from '/imports/ui/services/auth';
 import UserSettings from '/imports/api/users-settings';
 
-export const getFromSpecificUserSettings = (userID, setting, defaultValue) => {
+const getFromSpecificUserSettings = (userID, setting, defaultValue) => {
   const selector = {
     meetingId: Auth.meetingID,
     userId: userID,
@@ -17,10 +17,13 @@ export const getFromSpecificUserSettings = (userID, setting, defaultValue) => {
   return defaultValue;
 };
 
-export const isGhostUser = user => getFromSpecificUserSettings(user.userId, 'bbb_ghost_user', false);
-
 // eslint-disable-next-line max-len
 const getFromUserSettings = (setting, defaultValue) => getFromSpecificUserSettings(Auth.userID, setting, defaultValue);
 
-// eslint-disable-next-line max-len
+const isGhostUser = user => getFromSpecificUserSettings(user.userId, 'bbb_ghost_user', false);
+
+export { getFromSpecificUserSettings, getFromUserSettings, isGhostUser };
+
+// Export getFromUserSettings as default here, additionally, though this is somewhat inconsistent.
+// Otherwise, the import statements in too many files would have to be touched (in my eyes).
 export default getFromUserSettings;
