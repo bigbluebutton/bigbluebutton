@@ -59,15 +59,15 @@ class ErrorScreen extends PureComponent {
 
     return (
       <div className={styles.background}>
+        <h1 className={styles.message}>
+          {formatedMessage}
+        </h1>
         {
           !Session.get('errorMessageDescription') || (
             <div className={styles.sessionMessage}>
               {Session.get('errorMessageDescription')}
             </div>)
         }
-        <h1 className={styles.message}>
-          {formatedMessage}
-        </h1>
         <div className={styles.separator} />
         <h1 className={styles.codeError}>
           {code}
