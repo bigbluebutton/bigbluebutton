@@ -73,6 +73,12 @@ class VideoPlayer extends Component {
           controls: isPresenter ? 1 : 2,
         },
       },
+      twitch: {
+        options: {
+          controls: true,
+        },
+        playerId: 'externalVideoPlayerTwitch',
+      },
       preload: true,
     };
 

@@ -312,7 +312,13 @@ class UserDropdown extends PureComponent {
       ));
     }
 
-    if (CHAT_ENABLED && enablePrivateChat && !meetingIsBreakout && isMeteorConnected) {
+    const showChatOption = CHAT_ENABLED
+      && enablePrivateChat
+      && user.clientType !== 'dial-in-user'
+      && !meetingIsBreakout
+      && isMeteorConnected;
+
+    if (showChatOption) {
       actions.push(this.makeDropdownItem(
         'activeChat',
         intl.formatMessage(messages.ChatLabel),

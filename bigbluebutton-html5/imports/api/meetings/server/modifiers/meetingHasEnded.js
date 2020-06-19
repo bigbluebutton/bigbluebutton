@@ -20,6 +20,7 @@ import clearNetworkInformation from '/imports/api/network-information/server/mod
 import clearLocalSettings from '/imports/api/local-settings/server/modifiers/clearLocalSettings';
 import clearRecordMeeting from './clearRecordMeeting';
 import clearVoiceCallStates from '/imports/api/voice-call-states/server/modifiers/clearVoiceCallStates';
+import clearVideoStreams from '/imports/api/video-streams/server/modifiers/clearVideoStreams';
 
 export default function meetingHasEnded(meetingId) {
   removeAnnotationsStreamer(meetingId);
@@ -42,6 +43,7 @@ export default function meetingHasEnded(meetingId) {
     clearLocalSettings(meetingId);
     clearRecordMeeting(meetingId);
     clearVoiceCallStates(meetingId);
+    clearVideoStreams(meetingId);
 
     return Logger.info(`Cleared Meetings with id ${meetingId}`);
   });
