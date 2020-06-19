@@ -5,7 +5,7 @@ import Users from '/imports/api/users';
 import VoiceUsers from '/imports/api/voice-users';
 import _ from 'lodash';
 
-export default function muteToggle(uId, implicitToggle) {
+export default function muteToggle(uId, implicitMutedState) {
   const REDIS_CONFIG = Meteor.settings.private.redis;
   const CHANNEL = REDIS_CONFIG.channels.toAkkaApps;
   const EVENT_NAME = 'MuteUserCmdMsg';
