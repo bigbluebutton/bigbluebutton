@@ -31,6 +31,7 @@ class ChatPushAlert extends PureComponent {
         onClick={() => {
           Session.set('openPanel', 'chat');
           Session.set('idChatOpen', chat);
+          window.dispatchEvent(new Event('panelChanged'));
         }}
         onKeyPress={() => null}
       >

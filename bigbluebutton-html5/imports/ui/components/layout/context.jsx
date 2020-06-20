@@ -25,6 +25,21 @@ const initialState = {
   chatSize: {
     width: 0,
   },
+  noteSize: {
+    width: 0,
+  },
+  captionsSize: {
+    width: 0,
+  },
+  pollSize: {
+    width: 0,
+  },
+  waitingSize: {
+    width: 0,
+  },
+  breakoutRoomSize: {
+    width: 0,
+  },
   webcamsAreaSize: {
     width: 0,
     height: 0,
@@ -100,6 +115,46 @@ const reducer = (state, action) => {
       return {
         ...state,
         chatSize: {
+          width: action.value.width,
+        },
+      };
+    }
+    case 'setNoteSize': {
+      return {
+        ...state,
+        noteSize: {
+          width: action.value.width,
+        },
+      };
+    }
+    case 'setCaptionsSize': {
+      return {
+        ...state,
+        captionsSize: {
+          width: action.value.width,
+        },
+      };
+    }
+    case 'setPollSize': {
+      return {
+        ...state,
+        pollSize: {
+          width: action.value.width,
+        },
+      };
+    }
+    case 'setWaitingUsersPanelSize': {
+      return {
+        ...state,
+        waitingSize: {
+          width: action.value.width,
+        },
+      };
+    }
+    case 'setBreakoutRoomSize': {
+      return {
+        ...state,
+        breakoutRoomSize: {
           width: action.value.width,
         },
       };
