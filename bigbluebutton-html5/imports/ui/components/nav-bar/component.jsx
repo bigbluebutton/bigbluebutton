@@ -48,6 +48,8 @@ class NavBar extends Component {
         : 'userlist',
     );
     Session.set('idChatOpen', '');
+
+    window.dispatchEvent(new Event('panelChanged'));
   }
 
   componentDidMount() {

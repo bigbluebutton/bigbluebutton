@@ -51,6 +51,10 @@ class PresentationArea extends PureComponent {
     this.panAndZoomChanger = this.panAndZoomChanger.bind(this);
     this.fitToWidthHandler = this.fitToWidthHandler.bind(this);
     this.onFullscreenChange = this.onFullscreenChange.bind(this);
+    this.getPresentationSizesAvailable = this.getPresentationSizesAvailable.bind(this);
+    this.handleResize = this.handleResize.bind(this);
+
+
     this.onResize = () => setTimeout(this.handleResize.bind(this), 0);
   }
 
@@ -83,7 +87,7 @@ class PresentationArea extends PureComponent {
     this.refPresentationContainer.addEventListener('fullscreenchange', this.onFullscreenChange);
     window.addEventListener('resize', this.onResize, false);
     window.addEventListener('layoutSizesSets', this.onResize, false);
-    window.addEventListener('webcamAreaResize', this.onResize, false);
+    window.addEventListener('webcamAreaResize', this.handleResize, false);
 
     const { slidePosition, layoutContextDispatch } = this.props;
     const { width: currWidth, height: currHeight } = slidePosition;
@@ -130,13 +134,16 @@ class PresentationArea extends PureComponent {
       this.onResize();
     }
 
+    if (prevProps.slidePosition.id !== slidePosition.id) {
+      window.dispatchEvent(new Event('slideChanged'));
+    }
+
     if (prevProps.currentPresentation.name !== currentPresentation.name) {
       notify(
         `${intl.formatMessage(intlMessages.changeNotification)} ${currentPresentation.name}`,
         'info',
         'presentation',
       );
-      window.dispatchEvent(new Event('slideChanged'));
     }
 
     const { width: prevWidth, height: prevHeight } = prevProps.slidePosition;
@@ -206,14 +213,17 @@ class PresentationArea extends PureComponent {
       tempWebcamsAreaSize,
       webcamsPlacement,
     } = layoutContextState;
-    const presentationSizes = {};
+    const presentationSizes = {
+      presentationAreaWidth: 0,
+      presentationAreaHeight: 0,
+    };
 
-    presentationSizes.presentationAreaHeight = webcamsAreaResizing && (webcamsPlacement === 'top' || webcamsPlacement === 'bottom')
-      ? mediaBounds.height - tempWebcamsAreaSize.height - (this.getToolbarHeight() || 0) - 30
-      : presentationAreaSize.height - (this.getToolbarHeight() || 0);
     presentationSizes.presentationAreaWidth = webcamsAreaResizing && (webcamsPlacement === 'left' || webcamsPlacement === 'right')
       ? mediaBounds.width - tempWebcamsAreaSize.width
       : presentationAreaSize.width;
+    presentationSizes.presentationAreaHeight = webcamsAreaResizing && (webcamsPlacement === 'top' || webcamsPlacement === 'bottom')
+      ? mediaBounds.height - tempWebcamsAreaSize.height - (this.getToolbarHeight() || 0) - 30
+      : presentationAreaSize.height - (this.getToolbarHeight() || 0);
     return presentationSizes;
   }
 
