@@ -4,7 +4,6 @@ import cx from 'classnames';
 import PropTypes from 'prop-types';
 import Resizable from 're-resizable';
 import { isMobile, isIPad13 } from 'react-device-detect';
-import _ from 'lodash';
 import { withDraggableConsumer } from './context';
 import VideoProviderContainer from '/imports/ui/components/video-provider/container';
 import { styles } from '../styles.scss';

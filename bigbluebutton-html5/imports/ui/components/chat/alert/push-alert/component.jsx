@@ -1,6 +1,5 @@
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
-import _ from 'lodash';
 import injectNotify from '/imports/ui/components/toast/inject-notify/component';
 import { Session } from 'meteor/session';
 
