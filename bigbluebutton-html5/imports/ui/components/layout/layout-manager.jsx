@@ -229,6 +229,7 @@ class LayoutManager extends Component {
           value: 'top',
         },
       );
+      Storage.setItem('webcamsPlacement', 'top');
       return;
     }
 
@@ -239,6 +240,7 @@ class LayoutManager extends Component {
           value: 'left',
         },
       );
+      Storage.setItem('webcamsPlacement', 'left');
     } else {
       layoutContextDispatch(
         {
@@ -246,6 +248,7 @@ class LayoutManager extends Component {
           value: 'top',
         },
       );
+      Storage.setItem('webcamsPlacement', 'top');
     }
   }
 
