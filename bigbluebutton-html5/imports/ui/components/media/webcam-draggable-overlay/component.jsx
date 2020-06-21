@@ -59,10 +59,10 @@ class WebcamDraggable extends PureComponent {
   componentDidUpdate(prevProps) {
     const { layoutContextState } = this.props;
     const { webcamsAreaSize } = layoutContextState;
-    if ((webcamsAreaSize.width !== prevProps.layoutContextState.webcamsAreaSize.width
-      || webcamsAreaSize.height !== prevProps.layoutContextState.webcamsAreaSize.height)) {
-      this.setWebcamsAreaResizable(webcamsAreaSize.width, webcamsAreaSize.height);
-    }
+    // if ((webcamsAreaSize.width !== prevProps.layoutContextState.webcamsAreaSize.width
+    //   || webcamsAreaSize.height !== prevProps.layoutContextState.webcamsAreaSize.height)) {
+    //   this.setWebcamsAreaResizable(webcamsAreaSize.width, webcamsAreaSize.height);
+    // }
   }
 
   componentWillUnmount() {

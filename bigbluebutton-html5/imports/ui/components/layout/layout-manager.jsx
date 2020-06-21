@@ -501,7 +501,7 @@ class LayoutManager extends Component {
       secondPanel = newBreakoutRoomSize;
     }
 
-    const mediaAreaHeight = windowHeight() - (NAVBAR_HEIGHT + ACTIONSBAR_HEIGHT);
+    const mediaAreaHeight = windowHeight() - (NAVBAR_HEIGHT + ACTIONSBAR_HEIGHT) - 10;
     const mediaAreaWidth = windowWidth() - (firstPanel.width + secondPanel.width);
     const newMediaBounds = {
       width: mediaAreaWidth,
