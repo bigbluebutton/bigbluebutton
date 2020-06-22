@@ -8,6 +8,7 @@ import { notify } from '/imports/ui/services/notification';
 import playAndRetry from '/imports/utils/mediaElementPlayRetry';
 import iosWebviewAudioPolyfills from '/imports/utils/ios-webview-audio-polyfills';
 import { tryGenerateIceCandidates } from '/imports/utils/safari-webrtc';
+import { makeCall } from '/imports/ui/services/api';
 import { monitorAudioConnection } from '/imports/utils/stats';
 import AudioErrors from './error-codes';
 
@@ -52,6 +53,7 @@ class AudioManager {
     this.failedMediaElements = [];
     this.handlePlayElementFailed = this.handlePlayElementFailed.bind(this);
     this.monitor = this.monitor.bind(this);
+    this.disconnectUserFromAudioOnFailed = this.disconnectUserFromAudioOnFailed.bind(this);
   }
 
   init(userData) {
@@ -280,6 +282,17 @@ class AudioManager {
     return this.bridge.transferCall(this.onAudioJoin.bind(this));
   }
 
+  disconnectUserFromAudioOnFailed() {
+    Tracker.autorun((c) => {
+      const { status } = Meteor.status();
+      if (status === 'connected') {
+        c.stop();
+        this.exitAudio();
+        makeCall('ejectUserFromVoice', Auth.userID);
+      }
+    });
+  }
+
   onAudioJoin() {
     this.isConnecting = false;
     this.isConnected = true;
@@ -367,6 +380,7 @@ class AudioManager {
         logger.info({ logCode: 'audio_ended' }, 'Audio ended without issue');
         this.onAudioExit();
       } else if (status === FAILED) {
+        this.disconnectUserFromAudioOnFailed();
         const errorKey = this.messages.error[error] || this.messages.error.GENERIC_ERROR;
         const errorMsg = this.intl.formatMessage(errorKey, { 0: bridgeError });
         this.error = !!error;
