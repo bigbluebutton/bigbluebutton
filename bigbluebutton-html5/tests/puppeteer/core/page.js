@@ -1,6 +1,7 @@
 require('dotenv').config();
 const puppeteer = require('puppeteer');
 const fs = require('fs');
+const moment = require('moment');
 const path = require('path');
 const helper = require('./helper');
 const params = require('../params');
@@ -21,7 +22,7 @@ class Page {
   }
 
   // Join BigBlueButton meeting
-  async init(args, meetingId, newParams) {
+  async init(args, meetingId, newParams, customParameter, testFolderName) {
     try {
       this.effectiveParams = newParams || params;
       const isModerator = this.effectiveParams.moderatorPW;
@@ -41,22 +42,27 @@ class Page {
       // ));
 
       await this.setDownloadBehavior(`${this.parentDir}/downloads`);
-      this.meetingId = await helper.createMeeting(params, meetingId);
-      const joinURL = helper.getJoinURL(this.meetingId, this.effectiveParams, isModerator);
+      this.logger('before create meeting', customParameter);
+      this.meetingId = await helper.createMeeting(params, meetingId, customParameter);
+      this.logger('after create meeting', customParameter);
+
+      this.logger('before getJoinURL', customParameter);
+      const joinURL = helper.getJoinURL(this.meetingId, this.effectiveParams, isModerator, customParameter);
+      this.logger('after getJoinURL', customParameter);
 
       await this.page.goto(joinURL);
       const checkForGetMetrics = async () => {
         if (process.env.BBB_COLLECT_METRICS === 'true') {
           await this.page.waitForSelector('[data-test^="userListItem"]');
-          await this.getMetrics();
+          await this.getMetrics(testFolderName);
         }
       };
-      if (process.env.IS_AUDIO_TEST !== 'true') {
-        await this.closeAudioModal();
-      }
+      // if (process.env.IS_AUDIO_TEST !== 'true') {
+      //   await this.closeAudioModal();
+      // }
       await checkForGetMetrics();
     } catch (e) {
-      console.log(e);
+      this.logger(e);
     }
   }
 
@@ -65,8 +71,25 @@ class Page {
     await this.waitForSelector(e.audioDialog);
     await this.waitForSelector(e.microphoneButton);
     await this.click(e.microphoneButton, true);
+    await this.waitForSelector(e.connectingStatus);
     await this.waitForSelector(e.echoYes);
     await this.click(e.echoYes, true);
+  }
+
+  // Joining audio with microphone
+  async joinMicrophoneWithoutEchoTest() {
+    await this.waitForSelector(e.audioDialog);
+    await this.waitForSelector(e.microphoneButton);
+    await this.click(e.microphoneButton, true);
+    await this.waitForSelector(e.connectingStatus);
+  }
+
+  // Logout from meeting
+  async logoutFromMeeting() {
+    await this.waitForSelector(e.options);
+    await this.click(e.options, true);
+    await this.waitForSelector(e.logout);
+    await this.click(e.logout, true);
   }
 
   // Joining audio with Listen Only mode
@@ -110,9 +133,7 @@ class Page {
       const args = [
         '--no-sandbox',
         '--use-fake-ui-for-media-stream',
-        '--use-fake-device-for-media-stream',
-        `--use-file-for-fake-audio-capture=${path.join(__dirname, '../media/audio.wav')}`,
-        '--allow-file-access',
+        '--use-fake-device-for-media-stream'
       ];
       return {
         headless: false,
@@ -123,6 +144,8 @@ class Page {
       '--no-sandbox',
       '--use-fake-ui-for-media-stream',
       '--use-fake-device-for-media-stream',
+      `--use-file-for-fake-audio-capture=${path.join(__dirname, '../media/audio.wav')}`,
+      '--allow-file-access',
     ];
     return {
       headless: false,
@@ -146,7 +169,7 @@ class Page {
       '--no-sandbox',
       '--use-fake-ui-for-media-stream',
       '--use-fake-device-for-media-stream',
-      `--use-file-for-fake-video-capture=${path.join(__dirname, '../media/video.wav')}`,
+      `--use-file-for-fake-video-capture=${path.join(__dirname, '../media/video_rgb.y4m')}`,
       '--allow-file-access',
     ];
     return {
@@ -211,12 +234,35 @@ class Page {
     await this.page.type(element, text);
   }
 
-  async screenshot(relief = false) {
-    if (relief) await helper.sleep(1000);
-    const filename = `${this.name}-${this.screenshotIndex}.png`;
-    const path = `${this.parentDir}/screenshots/${filename}`;
-    await this.page.screenshot({ path });
-    this.screenshotIndex++;
+  async screenshot(testFolderName, testFileName, relief = false) {
+    if (process.env.GENERATE_EVIDENCES === 'true') {
+      const today = moment().format('DD-MM-YYYY');
+      const dir = path.join(__dirname, `../${process.env.TEST_FOLDER}`);
+      if (!fs.existsSync(dir)) {
+        fs.mkdirSync(dir);
+      }
+      const testResultsFolder = `${dir}/test-${today}-${testFolderName}`;
+      if (!fs.existsSync(testResultsFolder)) {
+        fs.mkdirSync(testResultsFolder);
+      }
+      const screenshots = `${testResultsFolder}/screenshots`;
+      if (!fs.existsSync(screenshots)) {
+        fs.mkdirSync(screenshots);
+      }
+      if (relief) await helper.sleep(1000);
+      const filename = `${testFileName}.png`;
+      await this.page.screenshot({ path: `${screenshots}/${filename}` });
+      this.screenshotIndex++;
+    }
+  }
+
+  async logger() {
+    if (process.env.DEBUG === 'true') {
+      const date = `${new Date().getDate()}.${new Date().getMonth()}.${new Date().getFullYear()} / ${new Date().getHours()}:${new Date().getMinutes()}:${new Date().getSeconds()}`;
+      const args = Array.prototype.slice.call(arguments);
+      args.unshift(`${date} `);
+      console.log(...args);
+    }
   }
 
   async paste(element) {
@@ -230,11 +276,20 @@ class Page {
     await this.page.waitForSelector(element, { timeout: 0 });
   }
 
-  async getMetrics() {
+  async getMetrics(testFolderName) {
     const pageMetricsObj = {};
-    const dir = process.env.METRICS_FOLDER;
+    const today = moment().format('DD-MM-YYYY');
+    const dir = path.join(__dirname, `../${process.env.TEST_FOLDER}`);
     if (!fs.existsSync(dir)) {
       fs.mkdirSync(dir);
+    }
+    const testExecutionResultsName = `${dir}/test-${today}-${testFolderName}`;
+    if (!fs.existsSync(testExecutionResultsName)) {
+      fs.mkdirSync(testExecutionResultsName);
+    }
+    const metricsFolder = `${testExecutionResultsName}/metrics`;
+    if (!fs.existsSync(metricsFolder)) {
+      fs.mkdirSync(metricsFolder);
     }
     await this.waitForSelector('[data-test^="userListItem"]');
     const totalNumberOfUsersMongo = await this.page.evaluate(() => {
@@ -243,16 +298,17 @@ class Page {
       return users;
     });
     const totalNumberOfUsersDom = await this.page.evaluate(() => document.querySelectorAll('[data-test^="userListItem"]').length);
-    console.log({ totalNumberOfUsersDom, totalNumberOfUsersMongo });
+    this.logger({ totalNumberOfUsersDom, totalNumberOfUsersMongo });
     const metric = await this.page.metrics();
     pageMetricsObj.totalNumberOfUsersMongoObj = totalNumberOfUsersMongo;
     pageMetricsObj.totalNumberOfUsersDomObj = totalNumberOfUsersDom;
     pageMetricsObj[`metricObj-${this.meetingId}`] = metric;
+    const metricsFile = path.join(__dirname, `../${process.env.TEST_FOLDER}/test-${today}-${testFolderName}/metrics/metrics-${this.effectiveParams.fullName}-${this.meetingId}.json`);
     const createFile = () => {
       try {
-        fs.appendFileSync(`${dir}/metrics-${this.effectiveParams.fullName}-${this.meetingId}.json`, `${JSON.stringify(pageMetricsObj)},\n`);
+        fs.appendFileSync(metricsFile, `${JSON.stringify(pageMetricsObj)},\n`);
       } catch (error) {
-        console.log(error);
+        this.logger(error);
       }
     };
     createFile();

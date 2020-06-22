@@ -1545,7 +1545,7 @@ check_state() {
      if [ "$FREESWITCH_SIP" != "$KURENTO_SIP" ]; then
       echo
       echo "#"
-      echo "# Kurento is will try to connect to $KURENTO_SIP but FreeSWITCH is listening on $FREESWITCH_SIP for port 5066"
+      echo "# Kurento will try to connect to $KURENTO_SIP but FreeSWITCH is listening on $FREESWITCH_SIP for port 5066"
       echo "#"
       echo "# To fix, run the commands"
       echo "#"

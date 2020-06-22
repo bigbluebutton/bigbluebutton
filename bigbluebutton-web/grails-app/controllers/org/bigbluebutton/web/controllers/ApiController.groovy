@@ -181,7 +181,7 @@ class ApiController {
         Meeting existingWebVoice = meetingService.getNotEndedMeetingWithWebVoice(newMeeting.getWebVoice());
         if (existingTelVoice != null || existingWebVoice != null) {
           log.error "VoiceBridge already in use by another meeting (different meetingId)"
-          errors.nonUniqueMeetingIdError()
+          errors.nonUniqueVoiceBridgeError()
           respondWithErrors(errors)
         }
       }
