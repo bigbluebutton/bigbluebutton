@@ -212,6 +212,7 @@ class SettingsDropdown extends PureComponent {
     const logoutOption = (
       <DropdownListItem
         key="list-item-logout"
+        data-test="logout"
         icon="logout"
         label={intl.formatMessage(intlMessages.leaveSessionLabel)}
         description={intl.formatMessage(intlMessages.leaveSessionDesc)}
