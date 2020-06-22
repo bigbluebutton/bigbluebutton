@@ -3,9 +3,8 @@ import { extractCredentials } from '/imports/api/common/server/helpers';
 import RedisPubSub from '/imports/startup/server/redis';
 import Users from '/imports/api/users';
 import VoiceUsers from '/imports/api/voice-users';
-import _ from 'lodash';
 
-export default function muteToggle(uId, implicitMutedState) {
+export default function muteToggle(uId) {
   const REDIS_CONFIG = Meteor.settings.private.redis;
   const CHANNEL = REDIS_CONFIG.channels.toAkkaApps;
   const EVENT_NAME = 'MuteUserCmdMsg';
@@ -31,7 +30,7 @@ export default function muteToggle(uId, implicitMutedState) {
   const payload = {
     userId: userToMute,
     mutedBy: requesterUserId,
-    mute: _.isNil(implicitMutedState) ? !muted : implicitMutedState,
+    mute: !muted,
   };
 
   RedisPubSub.publishUserMessage(CHANNEL, EVENT_NAME, meetingId, requesterUserId, payload);

@@ -8,7 +8,6 @@ import { notify } from '/imports/ui/services/notification';
 import playAndRetry from '/imports/utils/mediaElementPlayRetry';
 import iosWebviewAudioPolyfills from '/imports/utils/ios-webview-audio-polyfills';
 import { tryGenerateIceCandidates } from '/imports/utils/safari-webrtc';
-import { makeCall } from '/imports/ui/services/api';
 import AudioErrors from './error-codes';
 
 const MEDIA = Meteor.settings.public.media;
@@ -45,7 +44,6 @@ class AudioManager {
       outputDeviceId: null,
       muteHandle: null,
       autoplayBlocked: false,
-      wasMuted: false,
     });
 
     this.useKurento = Meteor.settings.public.kurento.enableListenOnly;
@@ -283,17 +281,13 @@ class AudioManager {
     this.isConnecting = false;
     this.isConnected = true;
 
-    if (this.wasMuted) {
-      makeCall('toggleVoice', true);
-      this.wasMuted = false;
-    }
     // listen to the VoiceUsers changes and update the flag
     if (!this.muteHandle) {
       const query = VoiceUsers.find({ intId: Auth.userID }, { fields: { muted: 1, talking: 1 } });
       this.muteHandle = query.observeChanges({
         changed: (id, fields) => {
           if (fields.muted !== undefined && fields.muted !== this.isMuted) {
-            this.isMuted = true;
+            this.isMuted = fields.muted;
             const muteState = this.isMuted ? 'selfMuted' : 'selfUnmuted';
             window.parent.postMessage({ response: muteState }, '*');
           }
@@ -385,8 +379,6 @@ class AudioManager {
           this.onAudioExit();
         }
       } else if (status === RECONNECTING) {
-        //  I catch it here, because any place after reconnecting will clear this state
-        if (this.isMuted) this.wasMuted = true;
         logger.info({ logCode: 'audio_reconnecting' }, 'Attempting to reconnect audio');
         this.notify(this.intl.formatMessage(this.messages.info.RECONNECTING_AUDIO), true);
         this.playHangUpSound();
