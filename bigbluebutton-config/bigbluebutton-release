@@ -1,2 +1,6 @@
+<<<<<<< HEAD
 BIGBLUEBUTTON_RELEASE=2.3.0-dev
 
+=======
+BIGBLUEBUTTON_RELEASE=2.2.18
+>>>>>>> upstream/v2.2.x-release

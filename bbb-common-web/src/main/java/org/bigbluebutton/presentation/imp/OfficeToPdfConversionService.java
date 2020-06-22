@@ -26,10 +26,10 @@ import java.util.Map;
 import org.bigbluebutton.presentation.ConversionMessageConstants;
 import org.bigbluebutton.presentation.SupportedFileTypes;
 import org.bigbluebutton.presentation.UploadedPresentation;
-import org.jodconverter.OfficeDocumentConverter;
-import org.jodconverter.office.DefaultOfficeManagerBuilder;
-import org.jodconverter.office.OfficeException;
-import org.jodconverter.office.OfficeManager;
+import org.jodconverter.core.office.OfficeException;
+import org.jodconverter.core.office.OfficeManager;
+import org.jodconverter.local.LocalConverter;
+import org.jodconverter.local.office.LocalOfficeManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -40,14 +40,19 @@ public class OfficeToPdfConversionService {
 
   private OfficeDocumentValidator2 officeDocumentValidator;
   private final OfficeManager officeManager;
-  private final OfficeDocumentConverter documentConverter;
+  private final LocalConverter documentConverter;
   private boolean skipOfficePrecheck = false;
 
-  public OfficeToPdfConversionService() {
-    final DefaultOfficeManagerBuilder configuration = new DefaultOfficeManagerBuilder();
-    configuration.setPortNumbers(8100, 8101, 8102, 8103, 8104);
-    officeManager = configuration.build();
-    documentConverter = new OfficeDocumentConverter(officeManager);
+  public OfficeToPdfConversionService() throws OfficeException {
+    officeManager = LocalOfficeManager
+      .builder()
+      .portNumbers(8100, 8101, 8102, 8103, 8104)
+      .build();
+    documentConverter = LocalConverter
+      .builder()
+      .officeManager(officeManager)
+      .filterChain(new OfficeDocumentConversionFilter())
+      .build();
   }
 
   /*
@@ -139,7 +144,6 @@ public class OfficeToPdfConversionService {
     } catch (OfficeException e) {
       log.error("Could not start Office Manager", e);
     }
-
   }
 
   public void stop() {

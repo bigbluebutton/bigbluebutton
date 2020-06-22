@@ -46,6 +46,8 @@ const currentParameters = [
   'bbb_enable_screen_sharing',
   'bbb_enable_video',
   'bbb_skip_video_preview',
+  // PRESENTATION
+  'bbb_force_restore_presentation_on_new_events',
   // WHITEBOARD
   'bbb_multi_user_pen_only',
   'bbb_presenter_tools',
@@ -57,6 +59,7 @@ const currentParameters = [
   'bbb_auto_swap_layout',
   'bbb_hide_presentation',
   'bbb_show_participants_on_login',
+  'bbb_show_public_chat_on_login',
   // OUTSIDE COMMANDS
   'bbb_outside_toggle_self_voice',
   'bbb_outside_toggle_recording',

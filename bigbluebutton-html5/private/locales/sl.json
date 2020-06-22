@@ -74,7 +74,6 @@
     "app.userList.menu.clearStatus.label": "Počisti stanje",
     "app.userList.menu.removeUser.label": "Odstrani udeleženca",
     "app.userList.menu.removeConfirmation.label": "Odstrani osebo ({0})",
-    "app.userlist.menu.removeConfirmation.desc": "Ali ste prepričani, da želite odstraniti to osebo? Ko je enkrat odstranjena, se to sejo ne more več povezati.",
     "app.userList.menu.muteUserAudio.label": "Utišaj udeleženca",
     "app.userList.menu.unmuteUserAudio.label": "Povrni zvok udeleženca",
     "app.userList.userAriaLabel": "{0} {1} {2}  Stanje {3}",

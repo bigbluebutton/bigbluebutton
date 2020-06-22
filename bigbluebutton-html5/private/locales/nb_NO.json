@@ -74,7 +74,6 @@
     "app.userList.menu.clearStatus.label": "Tilbakestill status",
     "app.userList.menu.removeUser.label": "Fjern bruker",
     "app.userList.menu.removeConfirmation.label": "Fjern bruker ({0})",
-    "app.userlist.menu.removeConfirmation.desc": "Er du sikker på at du vil fjerne brukeren? Brukeren vil ikke kunne bli med i webinaret igjen. ",
     "app.userList.menu.muteUserAudio.label": "Mute brukeren",
     "app.userList.menu.unmuteUserAudio.label": "Unmute brukeren",
     "app.userList.userAriaLabel": "{0} {1} {2} Status {3}",
