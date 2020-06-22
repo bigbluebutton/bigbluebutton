@@ -269,7 +269,7 @@
     "app.leaveConfirmation.confirmLabel": "Leave",
     "app.leaveConfirmation.confirmDesc": "Logs you out of the meeting",
     "app.endMeeting.title": "End meeting",
-    "app.endMeeting.description": "Are you sure you want to end this session?",
+    "app.endMeeting.description": "Are you sure you want to end this meeting for everyone (all users will be disconnected)?",
     "app.endMeeting.yesLabel": "Yes",
     "app.endMeeting.noLabel": "No",
     "app.about.title": "About",
