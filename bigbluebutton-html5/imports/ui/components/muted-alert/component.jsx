@@ -5,7 +5,7 @@ import hark from 'hark';
 import Icon from '/imports/ui/components/icon/component';
 import { styles } from './styles';
 
-const MUTE_WARNING_TIMEOUT = 4000;
+const MUTE_ALERT_CONFIG = Meteor.settings.public.app.mutedAlert;
 
 const propTypes = {
   inputStream: PropTypes.object.isRequired,
@@ -28,7 +28,8 @@ class MutedAlert extends Component {
   componentDidMount() {
     this._isMounted = true;
     const { inputStream } = this.props;
-    this.speechEvents = hark(inputStream, { interval: 200 });
+    const { interval, threshold, duration } = MUTE_ALERT_CONFIG;
+    this.speechEvents = hark(inputStream, { interval, threshold });
     this.speechEvents.on('speaking', () => {
       this.resetTimer();
       if (this._isMounted) this.setState({ visible: true });
@@ -37,7 +38,7 @@ class MutedAlert extends Component {
       if (this._isMounted) {
         this.timer = setTimeout(() => this.setState(
           { visible: false },
-        ), MUTE_WARNING_TIMEOUT);
+        ), duration);
       }
     });
   }

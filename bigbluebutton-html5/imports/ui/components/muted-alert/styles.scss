@@ -3,11 +3,11 @@
 .muteWarning {
     position: absolute;
     color: var(--color-white);
-    background-color: black;
+    background-color: var(--color-tip-bg);
     text-align: center;
     line-height: 1;
     font-size: var(--font-size-xl);
-    padding: var(--md-padding-y);
+    padding: var(--md-padding-x);
     border-radius: var(--border-radius);
     top: -50%;
     left: 50%;

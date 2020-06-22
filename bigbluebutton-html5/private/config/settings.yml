@@ -26,6 +26,10 @@ public:
     ipv4FallbackDomain: ""
     allowLogout: true
     allowFullscreen: true
+    mutedAlert:
+      interval: 200
+      threshold: -50
+      duration: 4000
     defaultSettings:
       application:
         animations: true
