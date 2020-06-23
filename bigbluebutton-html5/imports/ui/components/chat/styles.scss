@@ -31,7 +31,14 @@
   justify-content: space-around;
   overflow: hidden;
   height: 100vh;
-  transform: translateZ(0);
+
+  :global(.browser-chrome) & {
+    transform: translateZ(0);
+  }
+    
+  @include mq($small-only) {
+    transform: none !important;
+  }
 }
 
 .header {

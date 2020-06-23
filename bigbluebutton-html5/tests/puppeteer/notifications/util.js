@@ -7,9 +7,9 @@ async function clickTestElement(element) {
   await document.querySelectorAll(element)[0].click();
 }
 
-async function popupMenu(page) {
-  await page.page.evaluate(clickTestElement, e.options);
-  await page.page.evaluate(clickTestElement, ne.settings);
+async function popupMenu(test) {
+  await test.page.evaluate(clickTestElement, e.options);
+  await test.page.evaluate(clickTestElement, ne.settings);
 }
 
 async function enableChatPopup(test) {
@@ -101,8 +101,8 @@ async function startPoll(test) {
   await test.page.evaluate(clickOnElement, ne.dropdownContent);
   await test.page.evaluate(clickOnElement, ne.polling);
   await test.waitForSelector(ne.hidePollDesc);
-  await test.waitForSelector(ne.pollBtn);
-  await test.page.evaluate(clickRandomPollOption, ne.pollBtn);
+  await test.waitForSelector(ne.polling);
+  await test.page.evaluate(clickRandomPollOption, ne.polling);
   await test.waitForSelector(ne.publishLabel);
   await test.page.evaluate(clickOnElement, ne.publishLabel);
   await test.waitForSelector(ne.smallToastMsg);

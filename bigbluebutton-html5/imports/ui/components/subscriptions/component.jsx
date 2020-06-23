@@ -3,14 +3,13 @@ import { withTracker } from 'meteor/react-meteor-data';
 import Auth from '/imports/ui/services/auth';
 import logger from '/imports/startup/client/logger';
 import GroupChat from '/imports/api/group-chat';
-import Users from '/imports/api/users';
 import Annotations from '/imports/api/annotations';
+import Users from '/imports/api/users';
 import AnnotationsTextService from '/imports/ui/components/whiteboard/annotations/text/service';
 import { Annotations as AnnotationsLocal } from '/imports/ui/components/whiteboard/service';
 
 
 const CHAT_CONFIG = Meteor.settings.public.chat;
-const ROLE_MODERATOR = Meteor.settings.public.user.role_moderator;
 const CHAT_ENABLED = CHAT_CONFIG.enabled;
 const PUBLIC_GROUP_CHAT_ID = CHAT_CONFIG.public_group_id;
 const PUBLIC_CHAT_TYPE = CHAT_CONFIG.type_public;
@@ -20,7 +19,7 @@ const SUBSCRIPTIONS = [
   'voiceUsers', 'whiteboard-multi-user', 'screenshare', 'group-chat',
   'presentation-pods', 'users-settings', 'guestUser', 'users-infos', 'note', 'meeting-time-remaining',
   'network-information', 'ping-pong', 'local-settings', 'users-typing', 'record-meetings', 'video-streams',
-  'voice-call-states',
+  'connection-status', 'voice-call-states',
 ];
 
 class Subscriptions extends Component {
@@ -46,6 +45,8 @@ export default withTracker(() => {
     };
   }
 
+  const currentUser = Users.findOne({ intId: requesterUserId }, { fields: { role: 1 } });
+
   const subscriptionErrorHandler = {
     onError: (error) => {
       logger.error({
@@ -60,15 +61,16 @@ export default withTracker(() => {
     if ((!TYPING_INDICATOR_ENABLED && name.indexOf('typing') !== -1)
       || (!CHAT_ENABLED && name.indexOf('chat') !== -1)) return;
 
-    return Meteor.subscribe(
-      name,
-      credentials,
-      subscriptionErrorHandler,
-    );
+    return Meteor.subscribe(name, subscriptionErrorHandler);
   });
 
+  if (currentUser) {
+    subscriptionsHandlers.push(Meteor.subscribe('meetings', currentUser.role, subscriptionErrorHandler));
+    subscriptionsHandlers.push(Meteor.subscribe('users', currentUser.role, subscriptionErrorHandler));
+    subscriptionsHandlers.push(Meteor.subscribe('breakouts', currentUser.role, subscriptionErrorHandler));
+  }
+
   let groupChatMessageHandler = {};
-  // let annotationsHandler = {};
 
   if (CHAT_ENABLED) {
     const chats = GroupChat.find({
@@ -86,15 +88,6 @@ export default withTracker(() => {
 
     groupChatMessageHandler = Meteor.subscribe('group-chat-msg', chatIds, subscriptionErrorHandler);
     subscriptionsHandlers.push(groupChatMessageHandler);
-  }
-
-  const User = Users.findOne({ intId: requesterUserId }, { fields: { role: 1 } });
-
-  if (User) {
-    const userIsModerator = User.role === ROLE_MODERATOR;
-    Meteor.subscribe('users', userIsModerator, subscriptionErrorHandler);
-    Meteor.subscribe('breakouts', userIsModerator, subscriptionErrorHandler);
-    Meteor.subscribe('meetings', userIsModerator, subscriptionErrorHandler);
   }
 
   const annotationsHandler = Meteor.subscribe('annotations', {

@@ -62,6 +62,10 @@ export class ArcPlayer extends Component {
     this.onStateChange = this.onStateChange.bind(this);
   }
 
+  componentDidMount () {
+    this.props.onMount && this.props.onMount(this)
+  }
+
   load() {
     new Promise((resolve, reject) => {
       this.render();

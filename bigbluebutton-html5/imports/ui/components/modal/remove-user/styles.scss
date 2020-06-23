@@ -1,0 +1,81 @@
+@import "/imports/ui/components/user-list/styles.scss";
+@import "/imports/ui/stylesheets/variables/_all";
+@import '/imports/ui/stylesheets/mixins/_indicators';
+@import '/imports/ui/stylesheets/mixins/focus';
+@import "/imports/ui/components/modal/simple/styles";
+
+:root {
+    --ban-checkbox-top-offset: 0.134rem;
+    --ban-checkbox-margin-right: 0.5rem;
+  }
+
+.title {
+    color: var(--color-gray-dark);
+    font-weight: var(--headings-font-weight);
+    font-size: var(--jumbo-padding-y);
+  }
+  
+  .container {
+    display: flex;
+    align-items: center;
+    flex-direction: column;
+    padding: 0;
+    margin-top: 0;
+    margin-right: var(--description-margin);
+    margin-left: var(--description-margin);
+    margin-bottom: var(--lg-padding-x);
+  }
+  
+  .footer {
+    display:flex;
+  }
+  
+  .confirmBtn,
+  .dismissBtn {
+    padding-right: var(--jumbo-padding-y);
+    padding-left: var(--jumbo-padding-y);
+    margin: 0 var(--sm-padding-x) 0 0;
+  
+    [dir="rtl"] & {
+      margin: 0 0 0 var(--sm-padding-x);
+    }
+  }
+
+  .dismissBtn {
+    box-shadow: 0 0 0 1px var(--color-gray);
+  }
+  
+  .description {
+    text-align: center;
+    line-height: var(--line-height-base);
+    color: var(--color-gray);
+    margin-bottom: var(--jumbo-padding-y)
+  }
+  
+  .modal {
+    @extend .modal;
+    padding: var(--sm-padding-y);
+  }
+  
+  .overlay {
+    @extend .overlay;
+  }
+  
+  .header {
+    margin: 0;
+    padding: 0;
+    border: none;
+    line-height: var(--title-position-left);
+    margin-bottom: var(--lg-padding-y);
+  }
+  
+  .banUserCheckBox {
+    position: relative;
+    top:var(--ban-checkbox-top-offset);
+    margin-right: var(--ban-checkbox-margin-right);
+    [dir="rtl"] & {
+        margin-right: 0;
+        margin-left: var(--ban-checkbox-margin-right);
+    }
+  }
+  

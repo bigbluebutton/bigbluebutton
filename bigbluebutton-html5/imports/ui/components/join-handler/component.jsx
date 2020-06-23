@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import { Session } from 'meteor/session';
 import PropTypes from 'prop-types';
 import Auth from '/imports/ui/services/auth';
-import { setCustomLogoUrl } from '/imports/ui/components/user-list/service';
+import { setCustomLogoUrl, setModeratorOnlyMessage } from '/imports/ui/components/user-list/service';
 import { makeCall } from '/imports/ui/services/api';
 import logger from '/imports/startup/client/logger';
 import LoadingScreen from '/imports/ui/components/loading-screen/component';
@@ -140,6 +140,13 @@ class JoinHandler extends Component {
       return resp;
     };
 
+    const setModOnlyMessage = (resp) => {
+      if (resp && resp.modOnlyMessage) {
+        setModeratorOnlyMessage(resp.modOnlyMessage);
+      }
+      return resp;
+    };
+
     const setCustomData = (resp) => {
       const { customdata } = resp;
 
@@ -169,10 +176,11 @@ class JoinHandler extends Component {
 
       setBannerProps(response);
       setLogoURL(response);
+      setModOnlyMessage(response);
       logUserInfo();
 
       Tracker.autorun(async (cd) => {
-        const user = Users.findOne({ userId: Auth.userID, authed: true }, { fields: { _id: 1 } });
+        const user = Users.findOne({ userId: Auth.userID, approved: true }, { fields: { _id: 1 } });
 
         if (user) {
           await setCustomData(response);

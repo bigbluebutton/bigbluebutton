@@ -15,6 +15,7 @@ import clearCaptions from '/imports/api/captions/server/modifiers/clearCaptions'
 import clearPresentationPods from '/imports/api/presentation-pods/server/modifiers/clearPresentationPods';
 import clearVoiceUsers from '/imports/api/voice-users/server/modifiers/clearVoiceUsers';
 import clearUserInfo from '/imports/api/users-infos/server/modifiers/clearUserInfo';
+import clearConnectionStatus from '/imports/api/connection-status/server/modifiers/clearConnectionStatus';
 import clearNote from '/imports/api/note/server/modifiers/clearNote';
 import clearNetworkInformation from '/imports/api/network-information/server/modifiers/clearNetworkInformation';
 import clearLocalSettings from '/imports/api/local-settings/server/modifiers/clearLocalSettings';
@@ -42,6 +43,7 @@ export const clearAllMeetingData = (meetingId) => {
   clearScreenshare(meetingId);
   clearWhiteboardMultiUser(meetingId);
   clearVoiceCallStates(meetingId);
+  clearConnectionStatus(meetingId);
   return Logger.info(`Cleared Meetings with id ${meetingId}`);
 };
 

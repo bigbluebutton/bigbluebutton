@@ -1,3 +1,4 @@
+const path = require('path');
 const MultiUsers = require('../user/multiusers');
 const Page = require('../core/page');
 const params = require('../params');
@@ -15,7 +16,7 @@ class Notifications extends MultiUsers {
   }
 
   async init(meetingId) {
-    await this.page1.init(Page.getArgs(), meetingId, { ...params });
+    await this.page1.init(Page.getArgs(), meetingId, { ...params, fullName: 'User1' });
     await this.page2.init(Page.getArgs(), this.page1.meetingId, { ...params, fullName: 'User2' });
   }
 
@@ -29,14 +30,16 @@ class Notifications extends MultiUsers {
 
   // Save Settings toast notification
   async saveSettingsNotification() {
+    await this.init(undefined);
     await util.popupMenu(this.page1);
     await util.saveSettings(this.page1);
     const resp = await util.getLastToastValue(this.page1) === ne.savedSettingsToast;
-    return resp;
+    return resp === true;
   }
 
   // Public chat toast notification
   async publicChatNotification() {
+    await this.init(undefined);
     await util.popupMenu(this.page1);
     await util.enableChatPopup(this.page1);
     await util.saveSettings(this.page1);
@@ -49,6 +52,7 @@ class Notifications extends MultiUsers {
 
   // Private chat toast notification
   async privateChatNotification() {
+    await this.init(undefined);
     await util.popupMenu(this.page1);
     await util.enableChatPopup(this.page1);
     await util.saveSettings(this.page1);
@@ -60,13 +64,16 @@ class Notifications extends MultiUsers {
   }
 
   // User join toast notification
-  async userJoinNotification() {
-    await util.popupMenu(this.page3);
-    await util.enableUserJoinPopup(this.page3);
-    await util.saveSettings(this.page3);
+  async userJoinNotification(page) {
+    await util.popupMenu(page);
+    await util.enableUserJoinPopup(page);
+    await util.saveSettings(page);
   }
 
   async getUserJoinPopupResponse() {
+    await this.initUser3(undefined);
+    await this.userJoinNotification(this.page3);
+    await this.initUser4(undefined);
     await this.page3.waitForSelector(ne.smallToastMsg);
     const response = await util.getOtherToastValue(this.page3);
     return response;
@@ -74,17 +81,20 @@ class Notifications extends MultiUsers {
 
   // File upload notification
   async fileUploaderNotification() {
+    await this.initUser3(undefined);
     await util.uploadFileMenu(this.page3);
     await this.page3.waitForSelector(ne.fileUploadDropZone);
     const inputUploadHandle = await this.page3.page.$('input[type=file]');
-    await inputUploadHandle.uploadFile(process.env.PDF_FILE);
+    await inputUploadHandle.uploadFile(path.join(__dirname, '../media/DifferentSizes.pdf'));
     await this.page3.page.evaluate(util.clickTestElement, ne.modalConfirmButton);
     const resp = await util.getLastToastValue(this.page3);
     await this.page3.waitForSelector(we.whiteboard);
     return resp;
   }
 
+  // Publish Poll Results notification
   async publishPollResults() {
+    await this.initUser3(undefined);
     await this.page3.waitForSelector(we.whiteboard);
     await util.startPoll(this.page3);
     await this.page3.waitForSelector(ne.smallToastMsg);
