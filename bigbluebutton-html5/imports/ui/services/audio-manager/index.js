@@ -2,6 +2,7 @@ import { Tracker } from 'meteor/tracker';
 import KurentoBridge from '/imports/api/audio/client/bridge/kurento';
 import Auth from '/imports/ui/services/auth';
 import VoiceUsers from '/imports/api/voice-users';
+import Meetings from '/imports/api/meetings';
 import SIPBridge from '/imports/api/audio/client/bridge/sip';
 import logger from '/imports/startup/client/logger';
 import { notify } from '/imports/ui/services/notification';
@@ -288,6 +289,9 @@ class AudioManager {
       this.wasMuted = false;
     }
 
+    const { voiceProp } = Meetings.findOne({ meetingId: Auth.meetingID },
+      { fields: { 'voiceProp.muteOnStart': 1 } });
+      if (voiceProp?.muteOnStart) this.isMuted = true;
     // listen to the VoiceUsers changes and update the flag
     if (!this.muteHandle) {
       const query = VoiceUsers.find({ intId: Auth.userID }, { fields: { muted: 1, talking: 1 } });
