@@ -17,5 +17,4 @@ exports.dropdownContent = '[data-test="dropdownContent"]';
 exports.fileUploadDropZone = '[data-test="fileUploadDropZone"]';
 exports.polling = '[data-test="polling"]';
 exports.hidePollDesc = '[data-test="hidePollDesc"]';
-exports.pollBtn = '[data-test="pollBtn"]';
 exports.publishLabel = '[data-test="publishLabel"]';

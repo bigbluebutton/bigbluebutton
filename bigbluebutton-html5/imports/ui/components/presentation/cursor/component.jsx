@@ -191,7 +191,7 @@ export default class Cursor extends Component {
         <circle
           cx={x}
           cy={y}
-          r={finalRadius}
+          r={finalRadius === Infinity ? 0 : finalRadius}
           fill={fill}
           fillOpacity="0.6"
         />

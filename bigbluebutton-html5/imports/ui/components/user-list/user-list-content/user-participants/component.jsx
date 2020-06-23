@@ -142,7 +142,10 @@ class UserParticipants extends Component {
   }
 
   handleClickSelectedUser(event) {
-    const selectedUser = event.path.find(p => p.className && p.className.includes('participantsList'));
+    let selectedUser = null;
+    if (event.path) {
+      selectedUser = event.path.find(p => p.className && p.className.includes('participantsList'));
+    }
     this.setState({ selectedUser });
   }
 
