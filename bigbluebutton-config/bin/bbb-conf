@@ -1,4 +1,4 @@
-#!/bin/bash 
+#!/bin/bash
 #
 # BlueButton open source conferencing system - http://www.bigbluebutton.org/
 #
@@ -64,6 +64,7 @@
 #   2019-07-08 GTR  Set IP for all recording formats
 #   2019-10-31 GTR  Set IP and shared secret for bbb-webhooks
 #   2019-11-09 GTR  Keep HTML5 client logs permissions when cleaning logs
+#   2020-06-23 JFS  Remove defaultGuestPolicy warning for HTML5 client
 
 #set -x
 #set -e
@@ -445,7 +446,7 @@ start_bigbluebutton () {
 
 display_bigbluebutton_status () {
     units="nginx freeswitch $REDIS_SERVICE bbb-apps-akka bbb-transcode-akka bbb-fsesl-akka"
- 
+
     if [ -f /usr/share/red5/red5-server.jar ]; then
       units="$units red5"
     fi
@@ -876,22 +877,8 @@ check_configuration() {
             echo "# Warning: Detected the value for jnlpUrl is not configured for HTTPS"
             echo "#    /usr/share/red5/webapps/screenshare/WEB-INF/screenshare.properties"
             echo "#"
-        fi  
+        fi
       fi
-    fi
-
-    GUEST_POLICY=$(cat $BBB_WEB_CONFIG | grep -v '#' | sed -n '/^defaultGuestPolicy/{s/.*=//;p}')
-    if [ "$GUEST_POLICY" == "ASK_MODERATOR" ]; then
-        echo
-        echo "# Warning: defaultGuestPolicy is set to ASK_MODERATOR in"
-        echo "#    $BBB_WEB_CONFIG"
-        echo "# This is not yet supported yet the HTML5 client."
-        echo "#"
-        echo "# To revert it to ALWAYS_ALLOW, see"
-        echo "#"
-        echo "#   $SUDO sed -i s/^defaultGuestPolicy=.*$/defaultGuestPolicy=ALWAYS_ALLOW/g $SERVLET_DIR/WEB-INF/classes/bigbluebutton.properties"
-        echo "#"
-        echo
     fi
 
     if [ -f $HTML5_CONFIG ]; then
@@ -909,12 +896,12 @@ check_configuration() {
         fi
     fi
 
-    if [ -f /usr/share/red5/red5-server.jar ]; then 
-      if find /usr/share /var/lib/red5 -name "*bbb-common-message*" | sed 's/\([^_]*_\).*/\1/g' | sort | uniq -c | grep -v 1 > /dev/null; then echo 
+    if [ -f /usr/share/red5/red5-server.jar ]; then
+      if find /usr/share /var/lib/red5 -name "*bbb-common-message*" | sed 's/\([^_]*_\).*/\1/g' | sort | uniq -c | grep -v 1 > /dev/null; then echo
         echo
         echo "# Warning: detected multiple bbb-common-message in the same directory"
-        find /usr/share /var/lib/red5 -name "*bbb-common-message*" | sed 's/\([^_]*_\).*/\1/g' | sort | uniq -c | grep -v 1 
-        echo 
+        find /usr/share /var/lib/red5 -name "*bbb-common-message*" | sed 's/\([^_]*_\).*/\1/g' | sort | uniq -c | grep -v 1
+        echo
       fi
     fi
 }
@@ -1495,7 +1482,7 @@ check_state() {
 
     CHECK=$(cat ${SERVLET_DIR}/WEB-INF/classes/bigbluebutton.properties | grep -v '#' | grep securitySalt | cut -d= -f2 | sha1sum | cut -d' ' -f1)
     if [ "$CHECK" == "55b727b294158a877212570c3c0524c2b902a62c" ]; then
-      echo 
+      echo
       echo "#"
       echo "# Warning: Detected you have the default shared secret.  You MUST change your shared"
       echo "# secret NOW for BigBlueButton to finish starting up. Do either"
@@ -1513,7 +1500,7 @@ check_state() {
     fi
 
     if ! systemctl show-environment | grep LANG= | grep -q UTF-8; then
-      echo 
+      echo
       echo "#"
       echo "# Warning: Detected that systemctl does not define a UTF-8 language."
       echo "#"
@@ -1526,7 +1513,7 @@ check_state() {
     fi
 
     if [ "$(stat -c "%U %G" /var/bigbluebutton)" != "bigbluebutton bigbluebutton" ]; then
-      echo 
+      echo
       echo "#"
       echo "# Warning: The directory"
       echo "#"
@@ -1866,7 +1853,7 @@ if [ -n "$HOST" ]; then
 
       echo "Assigning $HOST for servername in /etc/nginx/sites-available/bigbluebutton"
       $SUDO sed -i "s/server_name  .*/server_name  $HOST;/g" /etc/nginx/sites-available/bigbluebutton
-  
+
       #
       # Update configuration for BigBlueButton client (and preserve hostname for chromeExtensionLink if exists)
       #
@@ -1885,7 +1872,7 @@ if [ -n "$HOST" ]; then
 
       echo "Assigning $HOST for publishURI in /var/www/bigbluebutton/client/conf/config.xml"
       $SUDO sed -i "s/publishURI=\"[^\"]*\"/publishURI=\"$HOST\"/" /var/www/bigbluebutton/client/conf/config.xml
-    fi 
+    fi
 
     #
     # Update configuration for BigBlueButton web app
