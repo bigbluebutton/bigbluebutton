@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 import { FormattedMessage } from 'react-intl';
 import hark from 'hark';
 import Icon from '/imports/ui/components/icon/component';
+import cx from 'classnames';
 import { styles } from './styles';
 
 const MUTE_ALERT_CONFIG = Meteor.settings.public.app.mutedAlert;
@@ -46,6 +47,7 @@ class MutedAlert extends Component {
   componentWillUnmount() {
     this._isMounted = false;
     if (this.speechEvents) this.speechEvents.stop();
+    this.resetTimer();
   }
 
   resetTimer() {
@@ -54,9 +56,15 @@ class MutedAlert extends Component {
   }
 
   render() {
+    const { enabled } = MUTE_ALERT_CONFIG;
+    if (!enabled) return null;
+    const { isViewer, isPresenter } = this.props;
     const { visible } = this.state;
+    const style = {};
+    style[styles.alignForMod] = !isViewer || isPresenter;
+
     return visible ? (
-      <div className={styles.muteWarning}>
+      <div className={cx(styles.muteWarning, style)}>
         <span>
           <FormattedMessage
             id="app.muteWarning.label"
