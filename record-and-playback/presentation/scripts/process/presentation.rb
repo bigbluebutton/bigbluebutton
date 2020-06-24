@@ -195,7 +195,7 @@ if not FileTest.directory?(target_dir)
       end
 
       # Copy thumbnails from raw files
-      FileUtils.cp_r("#{pres_dir}/thumbnails", "#{target_pres_dir}/thumbnails")
+      FileUtils.cp_r("#{pres_dir}/thumbnails", "#{target_pres_dir}/thumbnails") if File.exist?("#{pres_dir}/thumbnails")
     end
 
     BigBlueButton.logger.info("Generating closed captions")
