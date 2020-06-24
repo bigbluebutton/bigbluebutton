@@ -40,7 +40,9 @@ class Page {
       // this.page.on('console', async msg => console[msg._type](
       //   ...await Promise.all(msg.args().map(arg => arg.jsonValue()))
       // ));
-
+      await this.page.setExtraHTTPHeaders({
+        'Accept-Language': 'en-US',
+      });
       await this.setDownloadBehavior(`${this.parentDir}/downloads`);
       this.logger('before create meeting', customParameter);
       this.meetingId = await helper.createMeeting(params, meetingId, customParameter);
@@ -124,7 +126,7 @@ class Page {
 
   // Get the default arguments for creating a page
   static getArgs() {
-    const args = ['--no-sandbox', '--use-fake-ui-for-media-stream'];
+    const args = ['--no-sandbox', '--use-fake-ui-for-media-stream', '--lang=en-US'];
     return { headless: false, args };
   }
 
@@ -133,7 +135,8 @@ class Page {
       const args = [
         '--no-sandbox',
         '--use-fake-ui-for-media-stream',
-        '--use-fake-device-for-media-stream'
+        '--use-fake-device-for-media-stream',
+        '--lang=en-US',
       ];
       return {
         headless: false,
@@ -146,6 +149,7 @@ class Page {
       '--use-fake-device-for-media-stream',
       `--use-file-for-fake-audio-capture=${path.join(__dirname, '../media/audio.wav')}`,
       '--allow-file-access',
+      '--lang=en-US',
     ];
     return {
       headless: false,
@@ -159,6 +163,7 @@ class Page {
         '--no-sandbox',
         '--use-fake-ui-for-media-stream',
         '--use-fake-device-for-media-stream',
+        '--lang=en-US',
       ];
       return {
         headless: false,
@@ -171,6 +176,7 @@ class Page {
       '--use-fake-device-for-media-stream',
       `--use-file-for-fake-video-capture=${path.join(__dirname, '../media/video_rgb.y4m')}`,
       '--allow-file-access',
+      '--lang=en-US',
     ];
     return {
       headless: false,
