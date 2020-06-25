@@ -9,6 +9,7 @@ import cx from 'classnames';
 import Modal from '/imports/ui/components/modal/simple/component';
 import { withModalMounter } from '../../modal/service';
 import { styles } from '../styles';
+import ScreenshareBridgeService from '/imports/api/screenshare/client/bridge/service';
 
 const propTypes = {
   intl: intlShape.isRequired,
@@ -55,9 +56,9 @@ const intlMessages = defineMessages({
     id: 'app.screenshare.notSupportedError',
     description: 'error message when trying to share screen in unsafe environments',
   },
-  noSafariScreenShare: {
-    id: 'app.media.screenshare.safariNotSupported',
-    descriptions: 'error message when trying to share screen on safari',
+  screenShareNotSupported: {
+    id: 'app.media.screenshare.notSupported',
+    descriptions: 'error message when trying share screen on unsupported browsers',
   },
   screenShareUnavailable: {
     id: 'app.media.screenshare.unavailable',
@@ -114,7 +115,7 @@ const isMobileBrowser = (BROWSER_RESULTS ? BROWSER_RESULTS.mobile : false)
   || (BROWSER_RESULTS && BROWSER_RESULTS.os
     ? BROWSER_RESULTS.os.includes('Android') // mobile flag doesn't always work
     : false);
-const isSafari = BROWSER_RESULTS.name === 'safari';
+const IS_SAFARI = BROWSER_RESULTS.name === 'safari';
 
 const DesktopShare = ({
   intl,
@@ -182,7 +183,7 @@ const DesktopShare = ({
         circle
         size="lg"
         onClick={isVideoBroadcasting ? handleUnshareScreen : () => {
-          if (isSafari) {
+          if (IS_SAFARI && !ScreenshareBridgeService.hasDisplayMedia) {
             return mountModal(<Modal
               overlayClassName={styles.overlay}
               className={styles.modal}
@@ -193,7 +194,7 @@ const DesktopShare = ({
               <h3 className={styles.title}>
                 {intl.formatMessage(intlMessages.screenShareUnavailable)}
               </h3>
-              <p>{intl.formatMessage(intlMessages.noSafariScreenShare)}</p>
+              <p>{intl.formatMessage(intlMessages.screenShareNotSupported)}</p>
                               </Modal>);
           }
           handleShareScreen(onFail);

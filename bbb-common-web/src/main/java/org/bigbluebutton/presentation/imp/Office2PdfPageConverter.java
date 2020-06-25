@@ -24,7 +24,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.bigbluebutton.presentation.UploadedPresentation;
-import org.jodconverter.OfficeDocumentConverter;
+import org.jodconverter.local.LocalConverter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -34,7 +34,7 @@ public class Office2PdfPageConverter {
   private static Logger log = LoggerFactory.getLogger(Office2PdfPageConverter.class);
 
   public boolean convert(File presentationFile, File output, int page, UploadedPresentation pres,
-                         final OfficeDocumentConverter converter){
+                         final LocalConverter converter){
     try {
       Map<String, Object> logData = new HashMap<>();
       logData.put("meetingId", pres.getMeetingId());
@@ -46,7 +46,7 @@ public class Office2PdfPageConverter {
       String logStr = gson.toJson(logData);
       log.info(" --analytics-- data={}", logStr);
 
-      converter.convert(presentationFile, output);
+      converter.convert(presentationFile).to(output).execute();
       if (output.exists()) {
         return true;
       } else {

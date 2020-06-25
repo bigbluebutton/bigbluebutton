@@ -3,16 +3,19 @@ const ShareScreen = require('./screenshare/screenshare');
 const Audio = require('./audio/audio');
 
 describe('Notifications', () => {
+  beforeEach(() => {
+    jest.setTimeout(30000);
+  });
+
   test('Save settings notification', async () => {
     const test = new Notifications();
     let response;
     try {
-      await test.init();
       response = await test.saveSettingsNotification();
     } catch (e) {
       console.log(e);
     } finally {
-      await test.close();
+      await test.close(test.page1, test.page2);
     }
     expect(response).toBe(true);
   });
@@ -21,12 +24,11 @@ describe('Notifications', () => {
     const test = new Notifications();
     let response;
     try {
-      await test.init();
       response = await test.publicChatNotification();
     } catch (e) {
       console.log(e);
     } finally {
-      await test.close();
+      await test.close(test.page1, test.page2);
     }
     expect(response).toBe(true);
   });
@@ -35,12 +37,11 @@ describe('Notifications', () => {
     const test = new Notifications();
     let response;
     try {
-      await test.init();
       response = await test.privateChatNotification();
     } catch (e) {
       console.log(e);
     } finally {
-      await test.close();
+      await test.close(test.page1, test.page2);
     }
     expect(response).toBe(true);
   });
@@ -49,9 +50,6 @@ describe('Notifications', () => {
     const test = new Notifications();
     let response;
     try {
-      await test.initUser3();
-      await test.userJoinNotification();
-      await test.initUser4();
       response = await test.getUserJoinPopupResponse();
     } catch (e) {
       console.log(e);
@@ -65,7 +63,6 @@ describe('Notifications', () => {
     const test = new Notifications();
     let response;
     try {
-      await test.initUser3();
       response = await test.fileUploaderNotification();
     } catch (e) {
       console.log(e);
@@ -79,7 +76,6 @@ describe('Notifications', () => {
     const test = new Notifications();
     let response;
     try {
-      await test.initUser3();
       response = await test.publishPollResults();
     } catch (e) {
       console.log(e);
@@ -91,10 +87,10 @@ describe('Notifications', () => {
 
   test('Screenshare notification', async () => {
     const test = new ShareScreen();
-    const page = new Notifications()
+    const page = new Notifications();
     let response;
     try {
-      await page.initUser3();
+      await page.initUser3(undefined);
       response = await test.toast(page.page3);
     } catch (e) {
       console.log(e);
@@ -118,5 +114,5 @@ describe('Notifications', () => {
       await page.closePage(page.page3);
     }
     expect(response).toBe('You have joined the audio conference');
-  })
+  });
 });
