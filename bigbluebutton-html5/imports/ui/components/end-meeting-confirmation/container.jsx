@@ -3,11 +3,12 @@ import { withTracker } from 'meteor/react-meteor-data';
 import { withModalMounter } from '/imports/ui/components/modal/service';
 import { makeCall } from '/imports/ui/services/api';
 import EndMeetingComponent from './component';
+import Service from './service';
 
 const EndMeetingContainer = props => <EndMeetingComponent {...props} />;
 
 export default withModalMounter(withTracker(({ mountModal }) => ({
-  closeModal() {
+  closeModal: () => {
     mountModal(null);
   },
 
@@ -16,4 +17,5 @@ export default withModalMounter(withTracker(({ mountModal }) => ({
     mountModal(null);
   },
 
+  users: Service.getUsers(),
 }))(EndMeetingContainer));

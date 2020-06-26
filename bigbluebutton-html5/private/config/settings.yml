@@ -22,6 +22,7 @@ public:
     enableLimitOfViewersInWebcam: false
     enableTalkingIndicator: true
     mirrorOwnWebcam: false
+    maxUsersForConfirmation: 8
     viewersInWebcam: 8
     ipv4FallbackDomain: ""
     allowLogout: true
