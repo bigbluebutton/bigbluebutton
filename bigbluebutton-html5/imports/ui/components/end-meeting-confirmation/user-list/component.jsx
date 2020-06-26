@@ -32,8 +32,7 @@ class EndMeetingUserListComponent extends Component {
           </ul>
           {remainder && (
             <p>
-              and
-              {' '}
+and
               {remainder}
               {' '}
 other active users in this session.

@@ -22,7 +22,7 @@ public:
     enableLimitOfViewersInWebcam: false
     enableMultipleCameras: false
     enableTalkingIndicator: true
-    maxUsersForConfirmation: 2
+    maxUsersForConfirmation: 8
     viewersInWebcam: 8
     ipv4FallbackDomain: ""
     allowLogout: true
@@ -87,7 +87,7 @@ public:
     enableNetworkMonitoring: false
     packetLostThreshold: 10
   kurento:
-    wsUrl: HOST
+    wsUrl: wss://bbb-test.srcf.net/bbb-webrtc-sfu
     chromeDefaultExtensionKey: akgoaoikmbmhcopjgakkcepdgdgkjfbc
     chromeDefaultExtensionLink: https://chrome.google.com/webstore/detail/bigbluebutton-screenshare/akgoaoikmbmhcopjgakkcepdgdgkjfbc
     chromeExtensionKey: KEY
