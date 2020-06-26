@@ -4,7 +4,7 @@ import { defineMessages, injectIntl, intlShape } from 'react-intl';
 import Button from '/imports/ui/components/button/component';
 import Modal from '/imports/ui/components/modal/simple/component';
 import { styles } from './styles';
-
+import EndMeetingUserList from './user-list/component';
 
 const intlMessages = defineMessages({
   endMeetingTitle: {
@@ -29,11 +29,14 @@ const propTypes = {
   intl: intlShape.isRequired,
   closeModal: PropTypes.func.isRequired,
   endMeeting: PropTypes.func.isRequired,
+  users: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
 };
 
 class EndMeetingComponent extends React.PureComponent {
   render() {
-    const { intl, closeModal, endMeeting } = this.props;
+    const {
+      users, intl, closeModal, endMeeting,
+    } = this.props;
 
     return (
       <Modal
@@ -45,6 +48,9 @@ class EndMeetingComponent extends React.PureComponent {
       >
         <div className={styles.container}>
           <div className={styles.description}>
+            <EndMeetingUserList
+              users={users}
+            />
             {intl.formatMessage(intlMessages.endMeetingDescription)}
           </div>
           <div className={styles.footer}>
