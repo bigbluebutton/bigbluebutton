@@ -36,7 +36,6 @@
   }
 }
 
-
 .videoListItem {
   display: flex;
   overflow: hidden;
@@ -134,7 +133,8 @@
 }
 
 .media {
-  @extend %media-area; background-color: var(--color-black);
+  @extend %media-area;
+  background-color: var(--color-black);
 }
 
 .info {
