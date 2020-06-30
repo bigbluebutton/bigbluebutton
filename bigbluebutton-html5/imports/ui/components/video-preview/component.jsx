@@ -234,6 +234,8 @@ class VideoPreview extends Component {
               const webcams = [];
               let initialDeviceId;
 
+              VideoService.updateNumberOfDevices(devices);
+
               if (!this._isMounted) return;
 
               // set webcam

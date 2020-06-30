@@ -74,7 +74,6 @@
     "app.userList.menu.clearStatus.label": "Limpar status",
     "app.userList.menu.removeUser.label": "Remover usuário",
     "app.userList.menu.removeConfirmation.label": "Remover usuário ({0})",
-    "app.userlist.menu.removeConfirmation.desc": "Você tem certeza que deseja remover este usuário? Uma vez removido, o usuário não conseguirá entrar novamente nesta sessão.",
     "app.userList.menu.muteUserAudio.label": "Silenciar usuário",
     "app.userList.menu.unmuteUserAudio.label": "Desbloquear microfone do usuário",
     "app.userList.userAriaLabel": "{0} {1} {2}  Status {3}",

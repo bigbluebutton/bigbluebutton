@@ -106,6 +106,17 @@ public:
         - screen
       firefoxScreenshareSource: window
     cameraProfiles:
+      # id: unique identifier of the profile
+      # name: name of the profile visible to users
+      # default: if this is the default profile which is pre-selected
+      # bitrate: the average bitrate for used for a webcam stream
+      # constraints:
+      #   # Optional constraints put on the requested video a browser MAY honor
+      #   # For a detailed list on possible values see:
+      #   # https://developer.mozilla.org/en-US/docs/Web/API/MediaTrackConstraints
+      #   # Examples:
+      #   width: requested width of the camera stream
+      #   frameRate: requested framerate
       - id: low
         name: Low quality
         default: false
@@ -149,6 +160,7 @@ public:
     time: 5000
   chat:
     enabled: true
+    startClosed: false
     min_message_length: 1
     max_message_length: 5000
     grouping_messages_window: 10000
@@ -189,10 +201,29 @@ public:
     callHangupMaximumRetries: 10
     echoTestNumber: 'echo'
     relayOnlyOnReconnect: false
+  stats:
+    enabled: false
+    interval: 2000
+    length: 5
+    log: false
+    jitter:
+      - 10
+      - 20
+      - 30
+    loss:
+      - 0.05
+      - 0.1
+      - 0.2
+    level:
+      - warning
+      - danger
+      - critical
+    help: STATS_HELP_URL
   presentation:
     allowDownloadable: true
     defaultPresentationFile: default.pdf
     panZoomThrottle: 32
+    restoreOnUpdate: false
     uploadEndpoint: "/bigbluebutton/presentation/upload"
     uploadSizeMin: 0
     uploadSizeMax: 50000000

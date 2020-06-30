@@ -1,0 +1,137 @@
+@import '/imports/ui/stylesheets/mixins/focus';
+@import '/imports/ui/stylesheets/variables/_all';
+@import "/imports/ui/components/modal/simple/styles";
+
+:root {
+  --modal-margin: 3rem;
+  --title-position-left: 2.2rem;
+  --closeBtn-position-left: 2.5rem;
+}
+
+.title {
+  left: var(--title-position-left);
+  right: auto;
+  color: var(--color-gray-dark);
+  font-weight: bold;
+  font-size: var(--font-size-large);
+  text-align: center;
+
+  [dir="rtl"] & {
+    left: auto;
+    right: var(--title-position-left);
+  }
+}
+
+.container {
+  margin: 0 var(--modal-margin) var(--lg-padding-x);
+}
+
+.modal {
+  @extend .modal;
+  padding: var(--jumbo-padding-y);
+}
+
+.overlay {
+  @extend .overlay;
+}
+
+.description {
+  text-align: center;
+  color: var(--color-gray);
+  margin-bottom: var(--jumbo-padding-y)
+}
+
+.label {
+  color: var(--color-gray-label);
+  font-size: var(--font-size-small);
+  margin-bottom: var(--lg-padding-y);
+}
+
+.header {
+  margin: 0;
+  padding: 0;
+  border: none;
+  line-height: var(--title-position-left);
+  margin-bottom: var(--lg-padding-y);
+}
+
+.content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 0;
+}
+
+.wrapper {
+  display: block;
+  width: 100%;
+  max-height: 24rem;
+}
+
+.item {
+  display: flex;
+  width: 100%;
+  height: 4rem;
+}
+
+.even {
+  background-color: var(--color-off-white);
+}
+
+.left {
+  display: flex;
+  width: 100%;
+  height: 100%;
+
+  .avatar {
+    display: flex;
+    width: 4rem;
+    height: 100%;
+    justify-content: center;
+    align-items: center;
+
+    .icon {
+      min-width: 2.25rem;
+      height: 2.25rem;
+    }
+  }
+
+  .name {
+    display: grid;
+    width: 100%;
+    height: 100%;
+    align-items: center;
+
+    .text {
+      padding-left: .5rem;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .offline {
+      font-style: italic;
+    }
+  }
+
+  .status {
+    display: flex;
+    width: 6rem;
+    height: 100%;
+    justify-content: center;
+    align-items: center;
+  }
+}
+
+.right {
+  display: flex;
+  width: 5rem;
+  height: 100%;
+
+  .time {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    height: 100%;
+  }
+}

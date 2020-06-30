@@ -25,7 +25,7 @@ const withShortcutHelper = (WrappedComponent, param) => (props) => {
       shortcuts = shortcuts
         .filter(el => param.map(p => p.toLowerCase()).includes(el.descId.toLowerCase()))
         .reduce((acc, current) => {
-          acc[current.descId] = current.accesskey;
+          acc[current.descId.toLowerCase()] = current.accesskey;
           return acc;
         }, {});
     }

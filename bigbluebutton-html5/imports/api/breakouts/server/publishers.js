@@ -6,7 +6,7 @@ import { extractCredentials } from '/imports/api/common/server/helpers';
 
 const ROLE_MODERATOR = Meteor.settings.public.user.role_moderator;
 
-function breakouts() {
+function breakouts(role) {
   if (!this.userId) {
     return Breakouts.find({ meetingId: '' });
   }
