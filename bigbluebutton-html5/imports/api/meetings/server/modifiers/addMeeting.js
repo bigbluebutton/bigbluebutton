@@ -9,6 +9,7 @@ import createNote from '/imports/api/note/server/methods/createNote';
 import createCaptions from '/imports/api/captions/server/methods/createCaptions';
 import { addAnnotationsStreamer } from '/imports/api/annotations/server/streamer';
 import { addCursorStreamer } from '/imports/api/cursor/server/streamer';
+import BannedUsers from '/imports/api/users/server/store/bannedUsers';
 
 export default function addMeeting(meeting) {
   const meetingId = meeting.meetingProp.intId;
@@ -145,6 +146,7 @@ export default function addMeeting(meeting) {
       // better place we can run this post-creation routine?
       createNote(meetingId);
       createCaptions(meetingId);
+      BannedUsers.init(meetingId);
     }
 
     if (numChanged) {

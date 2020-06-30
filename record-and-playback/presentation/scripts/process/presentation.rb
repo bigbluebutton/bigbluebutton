@@ -89,7 +89,7 @@ if not FileTest.directory?(target_dir)
     FileUtils.mkdir_p processed_pres_dir
 
     # Get the real-time start and end timestamp
-    @doc = Nokogiri::XML(File.open("#{target_dir}/events.xml"))
+    @doc = Nokogiri::XML(File.read("#{target_dir}/events.xml"))
 
     meeting_start = @doc.xpath("//event")[0][:timestamp]
     meeting_end = @doc.xpath("//event").last()[:timestamp]
@@ -101,7 +101,7 @@ if not FileTest.directory?(target_dir)
 
     # Add start_time, end_time and meta to metadata.xml
     ## Load metadata.xml
-    metadata = Nokogiri::XML(File.open("#{target_dir}/metadata.xml"))
+    metadata = Nokogiri::XML(File.read("#{target_dir}/metadata.xml"))
     ## Add start_time and end_time
     recording = metadata.root
     ### Date Format for recordings: Thu Mar 04 14:05:56 UTC 2010
@@ -243,7 +243,7 @@ if not FileTest.directory?(target_dir)
 
     # Update state in metadata.xml
     ## Load metadata.xml
-    metadata = Nokogiri::XML(File.open("#{target_dir}/metadata.xml"))
+    metadata = Nokogiri::XML(File.read("#{target_dir}/metadata.xml"))
     ## Update status
     recording = metadata.root
     state = recording.at_xpath("state")
