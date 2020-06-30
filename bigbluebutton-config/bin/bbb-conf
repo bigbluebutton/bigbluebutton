@@ -1996,14 +1996,15 @@ if [ -n "$HOST" ]; then
 
     ESL_PASSWORD=$(xmlstarlet sel -t -m 'configuration/settings/param[@name="password"]' -v @value /opt/freeswitch/etc/freeswitch/autoload_configs/event_socket.conf.xml)
     if [ "$ESL_PASSWORD" == "ClueCon" ]; then
-        NEW_ESL_PASSWORD=$(openssl rand -hex 8)
+        ESL_PASSWORD=$(openssl rand -hex 8)
         echo "Changing default password for FreeSWITCH Event Socket Layer (see /opt/freeswitch/etc/freeswitch/autoload_configs/event_socket.conf.xml)"
-        # Update to a new password
-
-       sudo sed -i "s/ClueCon/$NEW_ESL_PASSWORD/g" /opt/freeswitch/etc/freeswitch/autoload_configs/event_socket.conf.xml
-       sudo sed -i "s/ClueCon/$NEW_ESL_PASSWORD/g" /usr/share/bbb-fsesl-akka/conf/application.conf
-       sudo yq w -i /usr/local/bigbluebutton/bbb-webrtc-sfu/config/default.yml freeswitch.esl_password "$NEW_ESL_PASSWORD"
     fi
+    # Update all references to ESL password
+
+    sudo sed -i "s/ClueCon/$ESL_PASSWORD/g" /opt/freeswitch/etc/freeswitch/autoload_configs/event_socket.conf.xml
+    sudo sed -i "s/ClueCon/$ESL_PASSWORD/g" /usr/share/bbb-fsesl-akka/conf/application.conf
+    sudo yq w -i /usr/local/bigbluebutton/bbb-webrtc-sfu/config/default.yml freeswitch.esl_password "$ESL_PASSWORD"
+
 
     echo "Restarting the BigBlueButton $BIGBLUEBUTTON_RELEASE ..."
     stop_bigbluebutton
