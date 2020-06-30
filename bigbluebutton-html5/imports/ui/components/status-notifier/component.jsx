@@ -16,6 +16,10 @@ const messages = defineMessages({
     id: 'app.statusNotifier.raisedHandsTitle',
     description: 'heading for raised hands toast',
   },
+  raisedHandDesc: {
+    id: 'app.statusNotifier.raisedHandDesc',
+    description: 'label for user with raised hands',
+  },
   and: {
     id: 'app.statusNotifier.and',
     description: 'used as conjunction word',
@@ -51,7 +55,7 @@ class StatusNotifier extends Component {
 
     switch (status) {
       case 'raiseHand':
-        if (emojiUsers.length === 0 && this.statusNotifierId) toast.dismiss(this.statusNotifierId);
+        if (emojiUsers.length === 0) return toast.dismiss(this.statusNotifierId);
 
         if (raiseHandAudioAlert && emojiUsers.length > prevProps.emojiUsers.length) {
           this.audio.play();
@@ -69,6 +73,7 @@ class StatusNotifier extends Component {
             autoClose: false,
             closeOnClick: false,
             closeButton: false,
+            className: styles.raisedHandsToast,
           });
         }
         break;
@@ -101,11 +106,11 @@ class StatusNotifier extends Component {
         break;
       default:
         formattedNames = _names.slice(0, MAX_AVATAR_COUNT).join(', ');
-        formattedNames += ` ${and} ${length - MAX_AVATAR_COUNT}+`;
+        formattedNames += ` ${and} ${length - MAX_AVATAR_COUNT}+ `;
         break;
     }
 
-    return `${formattedNames}`;
+    return intl.formatMessage(messages.raisedHandDesc, { 0: formattedNames });
   }
 
   raisedHandAvatars() {
@@ -130,8 +135,7 @@ class StatusNotifier extends Component {
     if (emojiUsers.length > MAX_AVATAR_COUNT) {
       avatars.push(
         <div
-          style={{ backgroundColor: 'gray' }}
-          className={styles.avatar}
+          className={styles.avatarsExtra}
           key={`statusToastAvatar-${emojiUsers.length}`}
         >
           {emojiUsers.length}
