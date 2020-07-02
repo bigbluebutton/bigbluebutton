@@ -12,6 +12,7 @@ import setMinBrowserVersions from './minBrowserVersion';
 import userLeaving from '/imports/api/users/server/methods/userLeaving';
 
 const AVAILABLE_LOCALES = fs.readdirSync('assets/app/locales');
+let guestWaitHtml = '';
 
 Meteor.startup(() => {
   const APP_CONFIG = Meteor.settings.public.app;
@@ -224,6 +225,22 @@ WebApp.connectHandlers.use('/useragent', (req, res) => {
   res.writeHead(200);
   res.end(response);
 });
+
+WebApp.connectHandlers.use('/guestWait', (req, res) => {
+  if (!guestWaitHtml) {
+    try {
+      guestWaitHtml = Assets.getText('static/guest-wait/guest-wait.html');
+    } catch (e) {
+      Logger.warn(`'Could not process guest wait html file: ${e}`);
+      // Getting here means the locale is not available in the current locale files.
+    }
+  }
+
+  res.setHeader('Content-Type', 'text/html');
+  res.writeHead(200);
+  res.end(guestWaitHtml);
+});
+
 
 export const eventEmitter = Redis.emitter;
 
