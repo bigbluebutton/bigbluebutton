@@ -1,11 +1,5 @@
 @import '/imports/ui/stylesheets/variables/_all';
 
-:root {
-  ::-webkit-media-controls {
-    display:none !important;
-  }
-}
-
 .wrapper {
   position: absolute;
   left: 0;
