@@ -232,7 +232,6 @@ WebApp.connectHandlers.use('/guestWait', (req, res) => {
       guestWaitHtml = Assets.getText('static/guest-wait/guest-wait.html');
     } catch (e) {
       Logger.warn(`'Could not process guest wait html file: ${e}`);
-      // Getting here means the locale is not available in the current locale files.
     }
   }
 
