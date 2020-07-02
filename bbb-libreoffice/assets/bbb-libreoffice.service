@@ -1,0 +1,19 @@
+[Unit]
+Description=BigBlueButton Libre Office container 
+Requires=network.target
+
+[Service]
+Type=simple
+WorkingDirectory=/tmp
+ExecStart=/usr/share/bbb-libreoffice/libreoffice_container.sh INSTANCE_NUMBER 
+ExecStop=/usr/bin/docker kill bbb-libreoffice-INSTANCE_NUMBER
+Restart=always
+RestartSec=60
+SuccessExitStatus=
+TimeoutStopSec=30
+PermissionsStartOnly=true
+LimitNOFILE=1024
+
+[Install]
+WantedBy=multi-user.target
+
