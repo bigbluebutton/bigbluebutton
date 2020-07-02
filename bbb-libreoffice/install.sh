@@ -40,9 +40,10 @@ if [ "$FOLDER_CHECK" = "0" ]; then
 
 	for i in `seq 1 4` ; do
 		cat assets/bbb-libreoffice.service | sed 's/INSTANCE_NUMBER/0'${i}'/g' > /lib/systemd/system/bbb-libreoffice-0${i}.service
+		systemctl daemon-reload
+		systemctl enable bbb-libreoffice-0${i}
+		systemctl start bbb-libreoffice-0${i}
 	done
-
-	systemctl daemon-reload
 
 else
 	echo "Install folder already exists"

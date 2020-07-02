@@ -6,6 +6,9 @@ fi;
 
 IMAGE_CHECK=`docker image inspect bbb-libreoffice 2>&1 > /dev/null && echo 1 || echo 0`
 if [ "$IMAGE_CHECK"  = "1" ]; then
+        echo "Stopping services"
+        systemctl --no-pager --no-legend --value --state=running | grep bbb-libreoffice | awk -F '.service' '{print $1}' | xargs -n 1 systemctl stop
+
 	echo "Removing image"
 	docker image rm bbb-libreoffice
 fi

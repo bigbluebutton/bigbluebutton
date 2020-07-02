@@ -14,8 +14,7 @@ _kill() {
         fi;
 }
 
-trap _kill INT 
-trap _kill TERM
+trap _kill SIGINT
 
 
 if (($INSTANCE_NUMBER >= 1 && $INSTANCE_NUMBER <= 10)); then
@@ -23,7 +22,9 @@ if (($INSTANCE_NUMBER >= 1 && $INSTANCE_NUMBER <= 10)); then
 
 	_kill
 
-	docker run --name bbb-libreoffice-${INSTANCE_NUMBER} -p 82${INSTANCE_NUMBER}:8000 -v/var/tmp/soffice${INSTANCE_NUMBER}:/var/tmp/soffice${INSTANCE_NUMBER} --rm bbb-libreoffice
+	docker run --name bbb-libreoffice-${INSTANCE_NUMBER} -p 82${INSTANCE_NUMBER}:8000 -v/var/tmp/soffice${INSTANCE_NUMBER}:/var/tmp/soffice${INSTANCE_NUMBER} --rm bbb-libreoffice &
+
+	wait $!
 else
 	echo ;
 	echo "Invalid or missing parameter INSTANCE_NUMBER"
