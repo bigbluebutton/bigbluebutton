@@ -363,11 +363,16 @@ class LayoutManager extends Component {
     }
 
     if (isScreenShare) {
-      webcamsAreaWidth = mediaAreaWidth;
-      webcamsAreaHeight = (mediaAreaHeight - presentationHeight)
-        < (mediaAreaHeight * WEBCAMSAREA_MIN_PERCENT)
-        ? mediaAreaHeight * WEBCAMSAREA_MIN_PERCENT
-        : mediaAreaHeight - presentationHeight;
+      if (webcamsPlacement === 'left' || webcamsPlacement === 'right') {
+        webcamsAreaWidth = mediaAreaWidth * WEBCAMSAREA_MIN_PERCENT;
+        webcamsAreaHeight = mediaAreaHeight;
+      } else {
+        webcamsAreaWidth = mediaAreaWidth;
+        webcamsAreaHeight = (mediaAreaHeight - presentationHeight)
+          < (mediaAreaHeight * WEBCAMSAREA_MIN_PERCENT)
+          ? mediaAreaHeight * WEBCAMSAREA_MIN_PERCENT
+          : mediaAreaHeight - presentationHeight;
+      }
       return {
         webcamsAreaWidth,
         webcamsAreaHeight,
