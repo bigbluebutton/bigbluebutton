@@ -44,6 +44,7 @@ class PresentationArea extends PureComponent {
       zoom: 100,
       fitToWidth: false,
       isFullscreen: false,
+      hidePresentation: false,
     };
 
     this.currentPresentationToastId = null;
@@ -91,7 +92,11 @@ class PresentationArea extends PureComponent {
     this.getInitialPresentationSizes();
     this.refPresentationContainer.addEventListener('fullscreenchange', this.onFullscreenChange);
     window.addEventListener('resize', this.onResize, false);
-    window.addEventListener('layoutSizesSets', this.onResize, false);
+    window.addEventListener('webcamPlacementChange', () => this.visibilityChange(true), false);
+    window.addEventListener('layoutSizesSets', () => {
+      this.onResize();
+      this.visibilityChange(false);
+    }, false);
     window.addEventListener('webcamAreaResize', this.handleResize, false);
 
     const { slidePosition, layoutContextDispatch } = this.props;
@@ -269,6 +274,10 @@ class PresentationArea extends PureComponent {
 
   setFitToWidth(fitToWidth) {
     this.setState({ fitToWidth });
+  }
+
+  visibilityChange(hidePresentation) {
+    this.setState({ hidePresentation });
   }
 
   handleResize() {
@@ -699,6 +708,7 @@ class PresentationArea extends PureComponent {
       fitToWidth,
       presentationAreaWidth,
       localPosition,
+      hidePresentation,
     } = this.state;
 
     let viewBoxDimensions;
@@ -744,6 +754,10 @@ class PresentationArea extends PureComponent {
       <div
         ref={(ref) => { this.refPresentationContainer = ref; }}
         className={styles.presentationContainer}
+
+        style={{
+          visibility: hidePresentation ? 'hidden' : 'visible',
+        }}
       >
         <div
           ref={(ref) => { this.refPresentationArea = ref; }}
