@@ -83,6 +83,7 @@
   height: 100%;
   width: 100%;
   object-fit: contain;
+  background-color: var(--color-black);
 }
 
 .cursorGrab{
@@ -104,27 +105,22 @@
   justify-content: center;
   align-items: center;
   position: absolute;
-  font-size: 2.5rem;
   white-space: nowrap;
   z-index: 1;
-  height: 100%;
   vertical-align: middle;
   margin: 0 -0.25em 0 0;
-
-  [dir="rtl"] & {
-    margin: 0 0 0 -0.25em
-  }
-
-  background-color: var(--color-black);
   border-radius: 1px;
   opacity: 1;
   color: var(--color-white);
   font-size: 100%;
+
+  [dir="rtl"] & {
+    margin: 0 0 0 -0.25em
+  }
 }
 
 .media {
   @extend %media-area;
-  background-color: var(--color-black);
 }
 
 .info {
