@@ -50,24 +50,17 @@ class WebcamDraggable extends PureComponent {
     this.onFullscreenChange = this.onFullscreenChange.bind(this);
     this.onResizeStop = this.onResizeStop.bind(this);
     this.onResizeStart = this.onResizeStart.bind(this);
+    this.handleLayoutSizesSets = this.handleLayoutSizesSets.bind(this);
   }
 
   componentDidMount() {
     document.addEventListener('fullscreenchange', this.onFullscreenChange);
-  }
-
-  componentDidUpdate(prevProps) {
-    const { layoutContextState } = this.props;
-    const { webcamsAreaSize } = layoutContextState;
-    // if ((webcamsAreaSize.width !== prevProps.layoutContextState.webcamsAreaSize.width
-    //   || webcamsAreaSize.height !== prevProps.layoutContextState.webcamsAreaSize.height)) {
-    //   this.setWebcamsAreaResizable(webcamsAreaSize.width, webcamsAreaSize.height);
-    // }
+    window.addEventListener('layoutSizesSets', this.handleLayoutSizesSets);
   }
 
   componentWillUnmount() {
-    window.removeEventListener('resize', this.debouncedOnResize);
     document.removeEventListener('fullscreenchange', this.onFullscreenChange);
+    window.removeEventListener('layoutSizesSets', this.handleLayoutSizesSets);
   }
 
   onFullscreenChange() {
@@ -199,6 +192,13 @@ class WebcamDraggable extends PureComponent {
       };
     }
     return false;
+  }
+
+  handleLayoutSizesSets() {
+    const { layoutContextState } = this.props;
+    const { webcamsAreaSize } = layoutContextState;
+
+    this.setWebcamsAreaResizable(webcamsAreaSize.width, webcamsAreaSize.height);
   }
 
   calculatePosition() {
