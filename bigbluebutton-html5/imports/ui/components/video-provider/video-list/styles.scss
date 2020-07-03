@@ -28,7 +28,6 @@
   grid-auto-flow: dense;
   grid-gap: 1px;
 
-  align-items: center;
   justify-content: center;
 
   @include mq($medium-up) {
