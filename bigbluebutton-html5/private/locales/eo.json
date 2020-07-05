@@ -1,5 +1,5 @@
 {
-    "app.home.greeting": "Vi prezentaĵo komenciĝos baldaŭ ...",
+    "app.home.greeting": "Via prezentaĵo komenciĝos baldaŭ ...",
     "app.chat.submitLabel": "Sendi mesaĝon",
     "app.chat.errorMaxMessageLength": "La mesaĝo estas tro longa je {0} signo(j)",
     "app.chat.disconnected": "Vi estas malkonektita, mesaĝoj ne sendeblas",
