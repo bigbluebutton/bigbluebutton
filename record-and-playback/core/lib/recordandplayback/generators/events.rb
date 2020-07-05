@@ -36,11 +36,11 @@ module BigBlueButton
          userId = joinEvent.at_xpath("userId").text
 
          #removing "_N" at the end of userId
-         userId.gsub(/_\d*$/, "")
+         userId.gsub!(/_\d*$/, "")
 
          participants_ids.add(userId)
       end
-      return participants_ids.length
+      participants_ids.length
     end
 
     # Get the meeting metadata
