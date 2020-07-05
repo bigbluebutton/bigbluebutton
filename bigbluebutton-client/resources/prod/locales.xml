@@ -14,6 +14,7 @@
 	<locale code="da_DK" name="Danish" native="Dansk"/>
 	<locale code="nl_NL" name="Dutch" native="Nederlands"/>
 	<locale code="en_US" name="English" native="English"/>
+	<locale code="eo" name="Esperanto" native="Esperanto">
 	<locale code="et_EE" name="Estonian" native="Eesti"/>
 	<locale code="fa_IR" name="Farsi" native="فارسى" direction="rtl"/>
 	<locale code="fi_FI" name="Finnish" native="Suomi"/>
