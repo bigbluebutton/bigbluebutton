@@ -4,7 +4,10 @@
   <title>Guest Lobby</title>
   <meta charset="UTF-8">
   <style>
-    body {
+  :root{
+    --enable-animation: 1;
+  }
+  body {
     display: flex;
     justify-content: center;
     align-items: center;
@@ -34,7 +37,7 @@
     background-color: rgb(255, 255, 255);
     display: inline-block;
     border-radius: 100%;
-    animation: 1.4s ease-in-out 0s infinite normal both running sk-bouncedelay;
+    animation: sk-bouncedelay calc(var(--enableAnimation) * 1.4s) infinite ease-in-out both;
   }
   @-webkit-keyframes sk-bouncedelay {
       0%, 80%, 100% {
@@ -84,6 +87,7 @@
         var REDIRECT_STATUSES = ['ALLOW', 'DENY'];
 
         if (attempt >= limit) {
+          disableAnimation();
           updateMessage('No respons from Moderator');
           return;
         }
@@ -95,6 +99,7 @@
           var status = data.response.guestStatus;
 
           if (REDIRECT_STATUSES.includes(status)) {
+            disableAnimation();
             window.location = data.response.url;
             return;
           }
@@ -104,7 +109,16 @@
       }, everyMs);
     };
 
+    function enableAnimation(){
+      document.documentElement.style.setProperty('--enableAnimation', 1);
+    }
+
+    function disableAnimation() {
+      document.documentElement.style.setProperty('--enableAnimation', 0);
+    }
+
     window.onload = function() {
+      enableAnimation();
       try {
         var ATTEMPT_EVERY_MS = 5000;
         var ATTEMPT_LIMIT = 100;
@@ -112,12 +126,14 @@
         var sessionToken = findSessionToken();
 
         if(!sessionToken) {
+          disableAnimation()
           updateMessage('No session Token received');
           return;
         }
 
         pollGuestStatus(sessionToken, 0, ATTEMPT_LIMIT, ATTEMPT_EVERY_MS);
       } catch (e) {
+        disableAnimation();
         console.error(e);
         updateMessage('Error: more details in the console');
       }
