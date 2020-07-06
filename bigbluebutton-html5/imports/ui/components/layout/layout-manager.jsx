@@ -3,6 +3,7 @@ import Storage from '/imports/ui/services/storage/session';
 import { Session } from 'meteor/session';
 import { withLayoutConsumer } from '/imports/ui/components/layout/context';
 import { isVideoBroadcasting } from '/imports/ui/components/screenshare/service';
+import _ from 'lodash';
 
 const windowWidth = () => window.innerWidth;
 const windowHeight = () => window.innerHeight;
