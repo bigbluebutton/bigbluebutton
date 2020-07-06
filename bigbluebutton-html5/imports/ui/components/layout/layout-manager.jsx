@@ -71,7 +71,7 @@ class LayoutManager extends Component {
     window.addEventListener('resize', _.throttle(() => this.setLayoutSizes(), 200));
 
     window.addEventListener('panelChanged', () => {
-      setTimeout(() => this.setLayoutSizes(true), 200);
+      this.setLayoutSizes(true);
     });
 
     window.addEventListener('autoArrangeChanged', () => {
@@ -91,7 +91,7 @@ class LayoutManager extends Component {
     });
 
     window.addEventListener('webcamPlacementChange', () => {
-      setTimeout(() => this.setLayoutSizes(false, false, true), 200);
+      this.setLayoutSizes(false, false, true);
     });
   }
 

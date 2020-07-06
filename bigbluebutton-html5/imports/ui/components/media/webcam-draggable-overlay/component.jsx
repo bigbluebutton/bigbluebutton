@@ -43,6 +43,7 @@ class WebcamDraggable extends PureComponent {
         height: webcamsPlacement === 'left' || webcamsPlacement === 'right' ? mediaBounds.height : mediaBounds.height * WEBCAMSAREA_MIN_PERCENT,
       },
       resizing: false,
+      hideWebcams: false,
     };
 
     this.handleWebcamDragStart = this.handleWebcamDragStart.bind(this);
@@ -176,6 +177,8 @@ class WebcamDraggable extends PureComponent {
     });
   }
 
+  setHideWebcams(hideWebcams) { this.setState({ hideWebcams }); }
+
   getWebcamsListBounds() {
     const { webcamDraggableState } = this.props;
     const { videoListRef } = webcamDraggableState;
@@ -194,13 +197,6 @@ class WebcamDraggable extends PureComponent {
     return false;
   }
 
-  handleLayoutSizesSets() {
-    const { layoutContextState } = this.props;
-    const { webcamsAreaSize } = layoutContextState;
-
-    this.setWebcamsAreaResizable(webcamsAreaSize.width, webcamsAreaSize.height);
-  }
-
   calculatePosition() {
     const { layoutContextState } = this.props;
     const { mediaBounds } = layoutContextState;
@@ -213,6 +209,14 @@ class WebcamDraggable extends PureComponent {
       x,
       y,
     };
+  }
+
+  handleLayoutSizesSets() {
+    const { layoutContextState } = this.props;
+    const { webcamsAreaSize } = layoutContextState;
+
+    this.setWebcamsAreaResizable(webcamsAreaSize.width, webcamsAreaSize.height);
+    this.setHideWebcams(false);
   }
 
   handleWebcamDragStart() {
@@ -233,6 +237,8 @@ class WebcamDraggable extends PureComponent {
   handleWebcamDragStop(e) {
     const { webcamDraggableDispatch, layoutContextDispatch } = this.props;
     const targetClassname = JSON.stringify(e.target.className);
+
+    this.setHideWebcams(true);
 
     layoutContextDispatch(
       {
@@ -278,7 +284,7 @@ class WebcamDraggable extends PureComponent {
       audioModalIsOpen,
     } = this.props;
 
-    const { resizing, webcamsAreaResizable } = this.state;
+    const { resizing, webcamsAreaResizable, hideWebcams } = this.state;
 
     const {
       mediaBounds,
@@ -476,10 +482,12 @@ class WebcamDraggable extends PureComponent {
             className={
               !swapLayout
                 ? overlayClassName
-                : contentClassName}
+                : contentClassName
+            }
             style={{
               marginLeft: 0,
               marginRight: 0,
+              display: hideWebcams ? 'none' : undefined,
             }}
           >
             {
