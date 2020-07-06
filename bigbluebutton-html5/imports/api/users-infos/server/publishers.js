@@ -1,13 +1,13 @@
 import { Meteor } from 'meteor/meteor';
-import { check } from 'meteor/check';
 import UserInfos from '/imports/api/users-infos';
 import Logger from '/imports/startup/server/logger';
+import { extractCredentials } from '/imports/api/common/server/helpers';
 
-function userInfos(credentials) {
-  const { meetingId, requesterUserId } = credentials;
-
-  check(meetingId, String);
-  check(requesterUserId, String);
+function userInfos() {
+  if (!this.userId) {
+    return UserInfos.find({ meetingId: '' });
+  }
+  const { meetingId, requesterUserId } = extractCredentials(this.userId);
 
   Logger.debug(`Publishing user infos requested by user=${requesterUserId}`);
 

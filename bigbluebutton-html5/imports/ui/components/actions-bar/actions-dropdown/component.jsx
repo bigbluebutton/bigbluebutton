@@ -128,6 +128,7 @@ class ActionsDropdown extends PureComponent {
         ? (
           <DropdownListItem
             icon="polling"
+            data-test="polling"
             label={formatMessage(pollBtnLabel)}
             description={formatMessage(pollBtnDesc)}
             key={this.pollId}
@@ -186,11 +187,11 @@ class ActionsDropdown extends PureComponent {
       podIds,
     } = this.props;
 
-    let podId = null;
-    if (podIds) {
-      const defaultPodId = podIds[0].podId;
-      podId = podIds.length > 0 ? defaultPodId : null;
-    }
+    if (!podIds || podIds.length < 1) return [];
+
+    // We still have code for other pods from the Flash client. This intentionally only cares
+    // about the first one because it's the default.
+    const { podId } = podIds[0];
 
     const presentationItemElements = presentations.map((p) => {
       const itemStyles = {};
@@ -251,7 +252,6 @@ class ActionsDropdown extends PureComponent {
           <Button
             hideLabel
             aria-label={intl.formatMessage(intlMessages.actionsLabel)}
-            className={styles.button}
             label={intl.formatMessage(intlMessages.actionsLabel)}
             icon="plus"
             color="primary"

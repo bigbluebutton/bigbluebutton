@@ -17,6 +17,16 @@ object VoiceUsers {
   def findAllFreeswitchCallers(users: VoiceUsers): Vector[VoiceUserState] = users.toVector.filter(u => u.calledInto == "freeswitch")
   def findAllKurentoCallers(users: VoiceUsers): Vector[VoiceUserState] = users.toVector.filter(u => u.calledInto == "kms")
 
+  def findAllBannedCallers(users: VoiceUsers): Vector[VoiceUserState] = users.bannedUsers.values.toVector
+
+  def isCallerBanned(callerIdNum: String, users: VoiceUsers): Boolean = {
+    users.bannedUsers.contains(callerIdNum)
+  }
+
+  def ban(users: VoiceUsers, user: VoiceUserState): Unit = {
+    users.ban(user)
+  }
+
   def add(users: VoiceUsers, user: VoiceUserState): Unit = {
     users.save(user)
   }
@@ -67,11 +77,20 @@ object VoiceUsers {
 class VoiceUsers {
   private var users: collection.immutable.HashMap[String, VoiceUserState] = new collection.immutable.HashMap[String, VoiceUserState]
 
+  // Keep track of ejected voice users to prevent them from rejoining.
+  // ralam april 23, 2020
+  private var bannedUsers: collection.immutable.HashMap[String, VoiceUserState] = new collection.immutable.HashMap[String, VoiceUserState]
+
   // Collection of users that left the meeting. We keep a cache of the old users state to recover in case
   // the user reconnected by refreshing the client. (ralam june 13, 2017)
   private var usersCache: collection.immutable.HashMap[String, VoiceUserState] = new collection.immutable.HashMap[String, VoiceUserState]
 
   private def toVector: Vector[VoiceUserState] = users.values.toVector
+
+  private def ban(user: VoiceUserState): VoiceUserState = {
+    bannedUsers += user.callerNum -> user
+    user
+  }
 
   private def save(user: VoiceUserState): VoiceUserState = {
     users += user.intId -> user

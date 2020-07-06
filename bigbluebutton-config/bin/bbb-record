@@ -812,7 +812,7 @@ if [ $DEBUG ]; then
 	# Additional checks for record and playback
 	#
 	rm -rf /tmp/t
-	if ls /var/log/bigbluebutton/slides-process-* > /dev/null 2>1; then
+	if ls /var/log/bigbluebutton/slides-process-* > /dev/null 2>&1; then
 		  sudo grep -i Error /var/log/bigbluebutton/slides-process-* > /tmp/t 
 		  if [ -s /tmp/t ]; then
 			echo "   -- Ingest and Processing errors found in /var/log/bigbluebutton/slides-process-*.log -- "
@@ -822,7 +822,7 @@ if [ $DEBUG ]; then
 	fi
 
 	rm -rf /tmp/t
-	if ls /var/log/bigbluebutton/slides-publish-* > /dev/null 2>1; then
+	if ls /var/log/bigbluebutton/slides-publish-* > /dev/null 2>&1; then
 		  sudo grep -i Error /var/log/bigbluebutton/slides-publish-* > /tmp/t 
 		  if [ -s /tmp/t ]; then
 			echo "   -- Ingest and Processing errors found in /var/log/bigbluebutton/slides-publish-*.log -- "
@@ -832,7 +832,7 @@ if [ $DEBUG ]; then
 	fi
 
 	rm -rf /tmp/t
-	if ls /var/log/bigbluebutton/slides-process-* > /dev/null 2>1; then
+	if ls /var/log/bigbluebutton/slides-process-* > /dev/null 2>&1; then
 		for file in /var/log/bigbluebutton/slides-process-*; do 
 		  if [ ! -f $(echo $file | sed 's/process/publish/g') ]; then 
 			echo "  $file" >> /tmp/t
@@ -848,7 +848,7 @@ if [ $DEBUG ]; then
 
 
 	rm -rf /tmp/t
-	if ls /var/bigbluebutton/recording/status/recorded/*.done > /dev/null 2>1; then
+	if ls /var/bigbluebutton/recording/status/recorded/*.done > /dev/null 2>&1; then
 		for file in /var/bigbluebutton/recording/status/recorded/*.done; do 
 		  if [ ! -f $(echo $file | sed 's/recorded/archived/g') ]; then 
 			echo "  $file" >> /tmp/t

@@ -4,7 +4,10 @@ import ReconnectingWebSocket from 'reconnecting-websocket';
 import VideoService from './service';
 import VideoList from './video-list/component';
 import { defineMessages, injectIntl } from 'react-intl';
-import { fetchWebRTCMappedStunTurnServers } from '/imports/utils/fetchStunTurnServers';
+import {
+  fetchWebRTCMappedStunTurnServers,
+  getMappedFallbackStun,
+} from '/imports/utils/fetchStunTurnServers';
 import { tryGenerateIceCandidates } from '/imports/utils/safari-webrtc';
 import logger from '/imports/startup/client/logger';
 
@@ -449,9 +452,12 @@ class VideoProvider extends Component {
       logger.error({
         logCode: 'video_provider_fetchstunturninfo_error',
         extraInfo: {
-          error,
+          errorCode: error.code,
+          errorMessage: error.message,
         },
       }, 'video-provider failed to fetch STUN/TURN info, using default');
+      // Use fallback STUN server
+      iceServers = getMappedFallbackStun();
     } finally {
       const { constraints, bitrate, id: profileId } = VideoService.getCameraProfile();
       this.outboundIceQueues[cameraId] = [];

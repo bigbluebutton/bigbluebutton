@@ -1,7 +1,22 @@
 import Users from '/imports/api/users';
 import PresentationPods from '/imports/api/presentation-pods';
 import changePresenter from '/imports/api/users/server/modifiers/changePresenter';
-import setPresenterInPodReqMsg from '/imports/api/presentation-pods/server/methods/setPresenterInPodReqMsg';
+import RedisPubSub from '/imports/startup/server/redis';
+
+function setPresenterInPodReqMsg(credentials) { // TODO-- switch to meetingId, etc
+  const REDIS_CONFIG = Meteor.settings.private.redis;
+  const CHANNEL = REDIS_CONFIG.channels.toAkkaApps;
+  const EVENT_NAME = 'SetPresenterInPodReqMsg';
+
+  const { meetingId, requesterUserId, presenterId } = credentials;
+
+  const payload = {
+    podId: 'DEFAULT_PRESENTATION_POD',
+    nextPresenterId: presenterId,
+  };
+
+  RedisPubSub.publishUserMessage(CHANNEL, EVENT_NAME, meetingId, requesterUserId, payload);
+}
 
 export default function handlePresenterAssigned({ body }, meetingId) {
   const { presenterId, assignedBy } = body;

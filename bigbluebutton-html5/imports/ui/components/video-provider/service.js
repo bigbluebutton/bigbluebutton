@@ -19,6 +19,7 @@ const SKIP_VIDEO_PREVIEW = Meteor.settings.public.kurento.skipVideoPreview;
 
 const SFU_URL = Meteor.settings.public.kurento.wsUrl;
 const ROLE_MODERATOR = Meteor.settings.public.user.role_moderator;
+const ROLE_VIEWER = Meteor.settings.public.user.role_viewer;
 const ENABLE_NETWORK_MONITORING = Meteor.settings.public.networkMonitoring.enableNetworkMonitoring;
 
 const TOKEN = '_';
@@ -29,23 +30,23 @@ class VideoService {
       isConnecting: false,
       isConnected: false,
     });
-    this.skipVideoPreview = getFromUserSettings('bbb_skip_video_preview', false) || SKIP_VIDEO_PREVIEW;
-    this.userParameterProfile = getFromUserSettings(
-      'bbb_preferred_camera_profile',
-      (CAMERA_PROFILES.filter(i => i.default) || {}).id
-    );
+    this.skipVideoPreview = null;
+    this.userParameterProfile = null;
     const BROWSER_RESULTS = browser();
     this.isMobile = BROWSER_RESULTS.mobile || BROWSER_RESULTS.os.includes('Android');
     this.isSafari = BROWSER_RESULTS.name === 'safari';
 
     this.numberOfDevices = 0;
 
-    this.updateNumberOfDevices = this.updateNumberOfDevices.bind(this);
-    // Safari doesn't support ondevicechange
-    if (!this.isSafari) {
-      navigator.mediaDevices.ondevicechange = (event) => this.updateNumberOfDevices();
+    // If the page isn't served over HTTPS there won't be mediaDevices
+    if (navigator.mediaDevices) {
+      this.updateNumberOfDevices = this.updateNumberOfDevices.bind(this);
+      // Safari doesn't support ondevicechange
+      if (!this.isSafari) {
+        navigator.mediaDevices.ondevicechange = event => this.updateNumberOfDevices();
+      }
+      this.updateNumberOfDevices();
     }
-    this.updateNumberOfDevices();
   }
 
   defineProperties(obj) {
@@ -69,16 +70,26 @@ class VideoService {
     });
   }
 
-  updateNumberOfDevices() {
-    navigator.mediaDevices.enumerateDevices().then(devices => {
-      const deviceIds = [];
-      devices.forEach(d => {
-        if (d.kind === 'videoinput' && !deviceIds.includes(d.deviceId)) {
-          deviceIds.push(d.deviceId);
-        }
-      });
-      this.numberOfDevices = deviceIds.length;
+  fetchNumberOfDevices(devices) {
+    const deviceIds = [];
+    devices.forEach(d => {
+      const validDeviceId = d.deviceId !== '' && !deviceIds.includes(d.deviceId)
+      if (d.kind === 'videoinput' && validDeviceId) {
+        deviceIds.push(d.deviceId);
+      }
     });
+
+    return deviceIds.length;
+  }
+
+  updateNumberOfDevices(devices = null) {
+    if (devices) {
+      this.numberOfDevices = this.fetchNumberOfDevices(devices);
+    } else {
+      navigator.mediaDevices.enumerateDevices().then(devices => {
+        this.numberOfDevices = this.fetchNumberOfDevices(devices);
+      });
+    }
   }
 
   joinVideo(deviceId) {
@@ -151,7 +162,7 @@ class VideoService {
   }
 
   getVideoStreams() {
-    const streams = VideoStreams.find(
+    let streams = VideoStreams.find(
       { meetingId: Auth.meetingID },
       {
         fields: {
@@ -160,8 +171,11 @@ class VideoService {
       },
     ).fetch();
 
-    const connectingStream = this.getConnectingStream(streams);
+    const hideUsers = this.hideUserList();
+    const moderatorOnly = this.webcamsOnlyForModerator();
+    if (hideUsers || moderatorOnly) streams = this.filterModeratorOnly(streams);
 
+    const connectingStream = this.getConnectingStream(streams);
     if (connectingStream) streams.push(connectingStream);
 
     return streams.map(vs => ({
@@ -212,10 +226,44 @@ class VideoService {
     return streams.find(s => s.stream === stream);
   }
 
+  filterModeratorOnly(streams) {
+    const me = Users.findOne({ userId: Auth.userID });
+    const amIViewer = me.role === ROLE_VIEWER;
+
+    if (amIViewer) {
+      const moderators = Users.find(
+        {
+          meetingId: Auth.meetingID,
+          connectionStatus: 'online',
+          role: ROLE_MODERATOR,
+        },
+        { fields: { userId: 1 } },
+      ).fetch().map(user => user.userId);
+
+      return streams.reduce((result, stream) => {
+        const { userId } = stream;
+
+        const isModerator = moderators.includes(userId);
+        const isMe = me.userId === userId;
+
+        if (isModerator || isMe) result.push(stream);
+
+        return result;
+      }, []);
+    }
+    return streams;
+  }
+
   disableCam() {
     const m = Meetings.findOne({ meetingId: Auth.meetingID },
       { fields: { 'lockSettingsProps.disableCam': 1 } });
     return m.lockSettingsProps ? m.lockSettingsProps.disableCam : false;
+  }
+
+  webcamsOnlyForModerator() {
+    const m = Meetings.findOne({ meetingId: Auth.meetingID },
+      { fields: { 'usersProp.webcamsOnlyForModerator': 1 } });
+    return m.usersProp ? m.usersProp.webcamsOnlyForModerator : false;
   }
 
   hideUserList() {
@@ -242,8 +290,8 @@ class VideoService {
       {
         meetingId: Auth.meetingID,
         userId: Auth.userID,
-        deviceId: deviceId
-      }, { fields: { stream: 1 } }
+        deviceId,
+      }, { fields: { stream: 1 } },
     );
     return videoStream ? videoStream.stream : null;
   }
@@ -326,11 +374,22 @@ class VideoService {
     return isLocal ? 'share' : 'viewer';
   }
 
-  getSkipVideoPreview(fromInterface) {
+  getSkipVideoPreview(fromInterface = false) {
+    if (this.skipVideoPreview === null) {
+      this.skipVideoPreview = getFromUserSettings('bbb_skip_video_preview', false) || SKIP_VIDEO_PREVIEW;
+    }
+
     return this.skipVideoPreview && !fromInterface;
   }
 
   getUserParameterProfile() {
+    if (this.userParameterProfile === null) {
+      this.userParameterProfile = getFromUserSettings(
+        'bbb_preferred_camera_profile',
+        (CAMERA_PROFILES.filter(i => i.default) || {}).id,
+      );
+    }
+
     return this.userParameterProfile;
   }
 
@@ -338,11 +397,11 @@ class VideoService {
     // Multiple cameras shouldn't be enabled with video preview skipping
     // Mobile shouldn't be able to share more than one camera at the same time
     // Safari needs to implement devicechange event for safe device control
-    return MULTIPLE_CAMERAS &&
-      !this.skipVideoPreview &&
-      !this.isMobile &&
-      !this.isSafari &&
-      this.numberOfDevices > 1;
+    return MULTIPLE_CAMERAS
+      && !this.getSkipVideoPreview()
+      && !this.isMobile
+      && !this.isSafari
+      && this.numberOfDevices > 1;
   }
 
   monitor(conn) {
@@ -377,4 +436,5 @@ export default {
   monitor: conn => videoService.monitor(conn),
   onBeforeUnload: () => videoService.onBeforeUnload(),
   notify: message => notify(message, 'error', 'video'),
+  updateNumberOfDevices: devices => videoService.updateNumberOfDevices(devices),
 };

@@ -5,8 +5,6 @@ import Auth from '/imports/ui/services/auth';
 import LoadingScreen from '/imports/ui/components/loading-screen/component';
 
 const STATUS_CONNECTING = 'connecting';
-const CHAT_CONFIG = Meteor.settings.public.chat;
-const PUBLIC_CHAT_ID = CHAT_CONFIG.public_id;
 
 class AuthenticatedHandler extends Component {
   static setError(codeError) {
@@ -68,7 +66,9 @@ class AuthenticatedHandler extends Component {
   }
 
   componentDidMount() {
-    if (Session.get('codeError')) return this.changeState(true);
+    if (Session.get('codeError')) {
+      this.setState({ authenticated: true });
+    }
     AuthenticatedHandler.authenticatedRouteHandler((value, error) => {
       if (error) AuthenticatedHandler.setError(error);
       this.setState({ authenticated: true });
@@ -83,10 +83,9 @@ class AuthenticatedHandler extends Component {
       authenticated,
     } = this.state;
 
-    Session.set('isChatOpen', false);
-    Session.set('idChatOpen', PUBLIC_CHAT_ID);
     Session.set('isMeetingEnded', false);
     Session.set('isPollOpen', false);
+    // TODO: breakoutRoomIsOpen doesn't seem used
     Session.set('breakoutRoomIsOpen', false);
 
     return authenticated

@@ -24,7 +24,7 @@ const intlMessages = defineMessages({
 
 const CaptionsButton = ({ intl, isActive, handleOnClick }) => (
   <Button
-    className={cx(styles.button, isActive || styles.btn)}
+    className={cx(isActive || styles.btn)}
     icon="closed_caption"
     label={intl.formatMessage(isActive ? intlMessages.stop : intlMessages.start)}
     color={isActive ? 'primary' : 'default'}

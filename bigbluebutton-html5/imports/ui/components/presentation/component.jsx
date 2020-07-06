@@ -17,6 +17,7 @@ import FullscreenService from '../fullscreen-button/service';
 import FullscreenButtonContainer from '../fullscreen-button/container';
 import { withDraggableConsumer } from '../media/webcam-draggable-overlay/context';
 import { withLayoutConsumer } from '/imports/ui/components/layout/context';
+import Icon from '/imports/ui/components/icon/component';
 
 const intlMessages = defineMessages({
   presentationLabel: {
@@ -44,6 +45,8 @@ class PresentationArea extends PureComponent {
       isFullscreen: false,
     };
 
+    this.currentPresentationToastId = null;
+
     this.getSvgRef = this.getSvgRef.bind(this);
     this.setFitToWidth = this.setFitToWidth.bind(this);
     this.zoomChanger = this.zoomChanger.bind(this);
@@ -56,6 +59,7 @@ class PresentationArea extends PureComponent {
 
 
     this.onResize = () => setTimeout(this.handleResize.bind(this), 0);
+    this.renderCurrentPresentationToast = this.renderCurrentPresentationToast.bind(this);
   }
 
   static getDerivedStateFromProps(props, state) {
@@ -122,6 +126,13 @@ class PresentationArea extends PureComponent {
       slidePosition,
       layoutContextDispatch,
       layoutContextState,
+      layoutSwapped,
+      currentSlide,
+      publishedPoll,
+      isViewer,
+      toggleSwapLayout,
+      restoreOnUpdate,
+      currentPresentationId,
     } = this.props;
 
     const { numUsersVideo } = layoutContextState;
@@ -133,19 +144,9 @@ class PresentationArea extends PureComponent {
     if (numUsersVideo !== prevNumUsersVideo) {
       this.onResize();
     }
-
     if (prevProps.slidePosition.id !== slidePosition.id) {
       window.dispatchEvent(new Event('slideChanged'));
     }
-
-    if (prevProps.currentPresentation.name !== currentPresentation.name) {
-      notify(
-        `${intl.formatMessage(intlMessages.changeNotification)} ${currentPresentation.name}`,
-        'info',
-        'presentation',
-      );
-    }
-
     const { width: prevWidth, height: prevHeight } = prevProps.slidePosition;
     const { width: currWidth, height: currHeight } = slidePosition;
 
@@ -168,6 +169,26 @@ class PresentationArea extends PureComponent {
           type: 'setPresentationOrientation',
           value: 'portrait',
         });
+      }
+    }
+
+    const presentationChanged = currentPresentationId !== currentPresentation._id;
+
+    if (presentationChanged) {
+      Session.set('currentPresentationId', currentPresentation._id);
+      notify(
+        `${intl.formatMessage(intlMessages.changeNotification)} ${currentPresentation.name}`,
+        'info',
+        'presentation',
+      );
+    }
+    if (layoutSwapped && restoreOnUpdate && isViewer && currentSlide) {
+      const slideChanged = currentSlide.id !== prevProps.currentSlide.id;
+      const positionChanged = slidePosition.viewBoxHeight !== prevProps.slidePosition.viewBoxHeight
+        || slidePosition.viewBoxWidth !== prevProps.slidePosition.viewBoxWidth;
+      const pollPublished = publishedPoll && !prevProps.publishedPoll;
+      if (slideChanged || positionChanged || pollPublished || presentationChanged) {
+        toggleSwapLayout();
       }
     }
   }
@@ -448,6 +469,7 @@ class PresentationArea extends PureComponent {
       currentSlide,
       slidePosition,
       userIsPresenter,
+      layoutSwapped,
     } = this.props;
 
     const {
@@ -500,6 +522,7 @@ class PresentationArea extends PureComponent {
           width: svgDimensions.width,
           height: svgDimensions.height,
           textAlign: 'center',
+          display: layoutSwapped ? 'none' : 'block',
         }}
       >
         {this.renderPresentationClose()}
@@ -532,6 +555,15 @@ class PresentationArea extends PureComponent {
                 width,
                 height,
               }}
+              published
+              whiteboardId={currentSlide.id}
+            />
+            <AnnotationGroupContainer
+              {...{
+                width,
+                height,
+              }}
+              published={false}
               whiteboardId={currentSlide.id}
             />
             <CursorWrapperContainer
@@ -573,6 +605,7 @@ class PresentationArea extends PureComponent {
           fitToWidth,
           zoom,
           podId,
+          currentSlide,
         }}
         isFullscreen={isFullscreen}
         fullscreenRef={this.refPresentationContainer}
@@ -630,6 +663,24 @@ class PresentationArea extends PureComponent {
         dark
         bottom
       />
+    );
+  }
+
+  renderCurrentPresentationToast() {
+    const { intl, currentPresentation } = this.props;
+
+    return (
+      <div className={styles.innerToastWrapper}>
+        <div className={styles.toastIcon}>
+          <div className={styles.iconWrapper}>
+            <Icon iconName="presentation" />
+          </div>
+        </div>
+        <div className={styles.toastTextContent}>
+          <div>{`${intl.formatMessage(intlMessages.changeNotification)}`}</div>
+          <div className={styles.presentationName}>{`${currentPresentation.name}`}</div>
+        </div>
+      </div>
     );
   }
 

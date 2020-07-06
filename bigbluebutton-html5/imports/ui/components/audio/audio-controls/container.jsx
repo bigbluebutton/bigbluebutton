@@ -14,7 +14,7 @@ const AudioControlsContainer = props => <AudioControls {...props} />;
 const processToggleMuteFromOutside = (e) => {
   switch (e.data) {
     case 'c_mute': {
-      makeCall('toggleSelfVoice');
+      makeCall('toggleVoice');
       break;
     }
     case 'get_audio_joined_status': {

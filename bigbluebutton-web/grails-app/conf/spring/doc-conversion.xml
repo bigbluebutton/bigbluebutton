@@ -26,8 +26,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
     <bean id="documentConversionService" class="org.bigbluebutton.presentation.DocumentConversionServiceImp">
         <property name="bbbWebApiGWApp" ref="bbbWebApiGWApp"/>
         <property name="officeToPdfConversionService" ref="officeToPdfConversionService"/>
-        <property name="pdfToSwfSlidesGenerationService" ref="pdfToSwfSlidesGenerationService"/>
-        <property name="imageToSwfSlidesGenerationService" ref="imageToSwfSlidesGenerationService"/>
+        <property name="presentationFileProcessor" ref="presentationFileProcessor"/>
+        <property name="swfSlidesGenerationProgressNotifier" ref="swfSlidesGenerationProgressNotifier"/>
     </bean>
 
     <bean id="officeDocumentValidator" class="org.bigbluebutton.presentation.imp.OfficeDocumentValidator2">
@@ -38,6 +38,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
     <bean id="officeToPdfConversionService" class="org.bigbluebutton.presentation.imp.OfficeToPdfConversionService"
           init-method="start" destroy-method="stop">
         <property name="officeDocumentValidator" ref="officeDocumentValidator"/>
+        <property name="skipOfficePrecheck" value="${skipOfficePrecheck}"/>
     </bean>
 
     <bean id="pageExtractor" class="org.bigbluebutton.presentation.imp.PageExtractorImp"/>
@@ -83,6 +84,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
     	<property name="swfSlidesGenerationProgressNotifier" ref="swfSlidesGenerationProgressNotifier"/>
         <property name="imageTagThreshold" value="${imageTagThreshold}"/>
         <property name="pathsThreshold" value="${placementsThreshold}"/>
+        <property name="blankSvg" value="${BLANK_SVG}"/>
     </bean>
 
     <bean id="generatedSlidesInfoHelper" class="org.bigbluebutton.presentation.GeneratedSlidesInfoHelperImp"/>
@@ -90,7 +92,12 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
     <bean id="pdfToSwfSlidesGenerationService"
           class="org.bigbluebutton.presentation.imp.PdfToSwfSlidesGenerationService">
         <constructor-arg index="0" value="${numConversionThreads}"/>
-        <property name="counterService" ref="pageCounterService"/>
+        <property name="presentationConversionCompletionService" ref="presentationConversionCompletionService"/>
+    </bean>
+
+    <bean id="presentationFileProcessor"
+          class="org.bigbluebutton.presentation.imp.PresentationFileProcessor">
+        <constructor-arg index="0" value="${numFileProcessorThreads}"/>
         <property name="pageConverter" ref="pdf2SwfPageConverter"/>
         <property name="thumbnailCreator" ref="thumbCreator"/>
         <property name="pngCreator" ref="pngCreator"/>
@@ -106,6 +113,10 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         <property name="swfSlidesRequired" value="${swfSlidesRequired}"/>
         <property name="svgImagesRequired" value="${svgImagesRequired}"/>
         <property name="generatePngs" value="${generatePngs}"/>
+        <property name="presentationConversionCompletionService" ref="presentationConversionCompletionService"/>
+        <property name="imageToSwfSlidesGenerationService" ref="imageToSwfSlidesGenerationService"/>
+        <property name="counterService" ref="pageCounterService"/>
+        <property name="pdfToSwfSlidesGenerationService" ref="pdfToSwfSlidesGenerationService"/>
     </bean>
 
     <bean id="imageToSwfSlidesGenerationService"
@@ -131,4 +142,11 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         <property name="messagingService" ref="bbbWebApiGWApp"/>
         <property name="generatedSlidesInfoHelper" ref="generatedSlidesInfoHelper"/>
     </bean>
+
+    <bean id="presentationConversionCompletionService"
+          class="org.bigbluebutton.presentation.imp.PresentationConversionCompletionService"
+          init-method="start" destroy-method="stop">
+        <property name="swfSlidesGenerationProgressNotifier" ref="swfSlidesGenerationProgressNotifier"/>
+    </bean>
+
 </beans>

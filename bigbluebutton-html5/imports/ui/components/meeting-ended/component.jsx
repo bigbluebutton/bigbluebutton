@@ -179,9 +179,9 @@ class MeetingEnded extends React.PureComponent {
 
     return (
       <div className={styles.parent}>
-        <div className={styles.modal}>
+        <div className={styles.modal} data-test="meetingEndedModal">
           <div className={styles.content}>
-            <h1 className={styles.title} data-test="meetingEndedModalTitle">
+            <h1 className={styles.title}>
               {
                 intl.formatMessage(intlMessage[code] || intlMessage[430])
               }
@@ -192,7 +192,7 @@ class MeetingEnded extends React.PureComponent {
                 : intl.formatMessage(intlMessage.messageEnded)}
             </div>
             {this.shouldShowFeedback ? (
-              <div>
+              <div data-test="rating">
                 <Rating
                   total="5"
                   onRate={this.setSelectedStar}

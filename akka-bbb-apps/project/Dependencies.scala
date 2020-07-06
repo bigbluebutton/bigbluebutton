@@ -21,8 +21,8 @@ object Dependencies {
     val spray = "1.3.4"
 
     // Apache Commons
-    val lang = "3.8.1"
-    val codec = "1.11"
+    val lang = "3.9"
+    val codec = "1.14"
 
     // BigBlueButton
     val bbbCommons = "0.0.20-SNAPSHOT"

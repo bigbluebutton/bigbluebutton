@@ -9,8 +9,8 @@ public:
     skipCheck: false
     clientTitle: BigBlueButton
     appName: BigBlueButton HTML5 Client
-    bbbServerVersion: 2.2-dev
-    copyright: "©2019 BigBlueButton Inc."
+    bbbServerVersion: 2.2
+    copyright: "©2020 BigBlueButton Inc."
     html5ClientBuild: HTML5_CLIENT_VERSION
     helpLink: https://bigbluebutton.org/html5/
     lockOnJoin: true
@@ -33,6 +33,8 @@ public:
         chatPushAlerts: false
         userJoinAudioAlerts: false
         userJoinPushAlerts: false
+        raiseHandAudioAlerts: false
+        raiseHandPushAlerts: false
         fallbackLocale: en
         overrideLocale: null
       audio:
@@ -69,9 +71,6 @@ public:
       openActions:
         accesskey: A
         descId: openActions
-      openStatus:
-        accesskey: S
-        descId: openStatus
     branding:
       displayBrandingArea: false
     connectionTimeout: 60000
@@ -91,11 +90,33 @@ public:
     chromeDefaultExtensionLink: https://chrome.google.com/webstore/detail/bigbluebutton-screenshare/akgoaoikmbmhcopjgakkcepdgdgkjfbc
     chromeExtensionKey: KEY
     chromeExtensionLink: LINK
-    chromeScreenshareSources:
-    - window
-    - screen
-    firefoxScreenshareSource: window
+    screenshare:
+      constraints:
+        video:
+          frameRate:
+            ideal: 5
+            max: 10
+          width:
+            max: 2560
+          height:
+            max: 1600
+        audio: false
+      chromeScreenshareSources:
+        - window
+        - screen
+      firefoxScreenshareSource: window
     cameraProfiles:
+      # id: unique identifier of the profile
+      # name: name of the profile visible to users
+      # default: if this is the default profile which is pre-selected
+      # bitrate: the average bitrate for used for a webcam stream
+      # constraints:
+      #   # Optional constraints put on the requested video a browser MAY honor
+      #   # For a detailed list on possible values see:
+      #   # https://developer.mozilla.org/en-US/docs/Web/API/MediaTrackConstraints
+      #   # Examples:
+      #   width: requested width of the camera stream
+      #   frameRate: requested framerate
       - id: low
         name: Low quality
         default: false
@@ -139,6 +160,7 @@ public:
     time: 5000
   chat:
     enabled: true
+    startClosed: false
     min_message_length: 1
     max_message_length: 5000
     grouping_messages_window: 10000
@@ -171,16 +193,37 @@ public:
     webcamsDefaultPlacement: "top"
   media:
     stunTurnServersFetchAddress: "/bigbluebutton/api/stuns"
+    cacheStunTurnServers: true
+    fallbackStunServer:  ''
     mediaTag: "#remote-media"
     callTransferTimeout: 5000
     callHangupTimeout: 2000
     callHangupMaximumRetries: 10
-    echoTestNumber: '9196'
+    echoTestNumber: 'echo'
     relayOnlyOnReconnect: false
+  stats:
+    enabled: false
+    interval: 2000
+    length: 5
+    log: false
+    jitter:
+      - 10
+      - 20
+      - 30
+    loss:
+      - 0.05
+      - 0.1
+      - 0.2
+    level:
+      - warning
+      - danger
+      - critical
+    help: STATS_HELP_URL
   presentation:
     allowDownloadable: true
     defaultPresentationFile: default.pdf
     panZoomThrottle: 32
+    restoreOnUpdate: false
     uploadEndpoint: "/bigbluebutton/presentation/upload"
     uploadSizeMin: 0
     uploadSizeMax: 50000000
@@ -216,6 +259,8 @@ public:
     - extension: .odi
       mime: application/vnd.oasis.opendocument.image
     - extension: .jpg
+      mime: image/jpeg
+    - extension: .jpeg
       mime: image/jpeg
     - extension: .png
       mime: image/png
@@ -370,4 +415,4 @@ private:
       version: [0, 36]
     - browser: YandexBrowser
       version: 19
-      
+

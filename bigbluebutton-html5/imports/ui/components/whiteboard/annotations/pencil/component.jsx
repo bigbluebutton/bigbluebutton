@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import AnnotationHelpers from '../helpers';
+import { getFormattedColor, getStrokeWidth, denormalizeCoord } from '../helpers';
 
 export default class PencilDrawComponent extends Component {
   static getInitialCoordinates(annotation, slideWidth, slideHeight) {
@@ -8,11 +8,11 @@ export default class PencilDrawComponent extends Component {
     let i = 2;
     let path = '';
     if (points && points.length >= 2) {
-      path = `M${(points[0] / 100) * slideWidth
-      }, ${(points[1] / 100) * slideHeight}`;
+      path = `M${denormalizeCoord(points[0], slideWidth)
+      }, ${denormalizeCoord(points[1], slideHeight)}`;
       while (i < points.length) {
-        path = `${path} L${(points[i] / 100) * slideWidth
-        }, ${(points[i + 1] / 100) * slideHeight}`;
+        path = `${path} L${denormalizeCoord(points[i], slideWidth)
+        }, ${denormalizeCoord(points[i + 1], slideHeight)}`;
         i += 2;
       }
     }
@@ -30,32 +30,32 @@ export default class PencilDrawComponent extends Component {
       switch (commands[i]) {
         // MOVE_TO - consumes 1 pair of values
         case 1:
-          path = `${path} M${(points[j] / 100) * slideWidth} ${(points[j + 1] / 100) * slideHeight}`;
+          path = `${path} M${denormalizeCoord(points[j], slideWidth)} ${denormalizeCoord(points[j + 1], slideHeight)}`;
           j += 2;
           break;
 
           // LINE_TO - consumes 1 pair of values
         case 2:
-          path = `${path} L${(points[j] / 100) * slideWidth} ${(points[j + 1] / 100) * slideHeight}`;
+          path = `${path} L${denormalizeCoord(points[j], slideWidth)} ${denormalizeCoord(points[j + 1], slideHeight)}`;
           j += 2;
           break;
 
           // QUADRATIC_CURVE_TO - consumes 2 pairs of values
           // 1st pair is a control point, second is a coordinate
         case 3:
-          path = `${path} Q${(points[j] / 100) * slideWidth}, ${
-            (points[j + 1] / 100) * slideHeight}, ${(points[j + 2] / 100) * slideWidth}, ${
-            (points[j + 3] / 100) * slideHeight}`;
+          path = `${path} Q${denormalizeCoord(points[j], slideWidth)}, ${
+            denormalizeCoord(points[j + 1], slideHeight)}, ${denormalizeCoord(points[j + 2], slideWidth)}, ${
+            denormalizeCoord(points[j + 3], slideHeight)}`;
           j += 4;
           break;
 
           // CUBIC_CURVE_TO - consumes 3 pairs of values
           // 1st and 2nd are control points, 3rd is an end coordinate
         case 4:
-          path = `${path} C${(points[j] / 100) * slideWidth}, ${
-            (points[j + 1] / 100) * slideHeight}, ${(points[j + 2] / 100) * slideWidth}, ${
-            (points[j + 3] / 100) * slideHeight}, ${(points[j + 4] / 100) * slideWidth}, ${
-            (points[j + 5] / 100) * slideHeight}`;
+          path = `${path} C${denormalizeCoord(points[j], slideWidth)}, ${
+            denormalizeCoord(points[j + 1], slideHeight)}, ${denormalizeCoord(points[j + 2], slideWidth)}, ${
+            denormalizeCoord(points[j + 3], slideHeight)}, ${denormalizeCoord(points[j + 4], slideWidth)}, ${
+            denormalizeCoord(points[j + 5], slideHeight)}`;
           j += 6;
           break;
 
@@ -67,7 +67,7 @@ export default class PencilDrawComponent extends Component {
     // If that's just one coordinate at the end (dot) - we want to display it.
     // So adding L with the same X and Y values to the path
     if (path && points.length === 2) {
-      path = `${path} L${(points[0] / 100) * slideWidth} ${(points[1] / 100) * slideHeight}`;
+      path = `${path} L${denormalizeCoord(points[0], slideWidth)} ${denormalizeCoord(points[1], slideHeight)}`;
     }
 
     return { path, points };
@@ -85,13 +85,17 @@ export default class PencilDrawComponent extends Component {
   }
 
   shouldComponentUpdate(nextProps) {
-    return this.props.version !== nextProps.version;
+    const { version } = this.props;
+    return version !== nextProps.version;
   }
 
   componentWillUpdate(nextProps) {
-    const { annotation, slideWidth, slideHeight } = nextProps;
-    if (annotation.points.length !== this.props.annotation.points.length) {
-      this.path = this.getCoordinates(annotation, slideWidth, slideHeight);
+    const { annotation: nextAnnotation, slideWidth, slideHeight } = nextProps;
+    const { points: nextPoints } = nextAnnotation;
+    const { annotation } = this.props;
+    const { points } = annotation;
+    if (nextPoints.length !== points.length) {
+      this.path = this.getCoordinates(nextAnnotation, slideWidth, slideHeight);
     }
   }
 
@@ -123,14 +127,15 @@ export default class PencilDrawComponent extends Component {
 
   updateCoordinates(annotation, slideWidth, slideHeight) {
     const { points } = annotation;
+
     let i = this.points.length;
     let path = '';
-
     while (i < points.length) {
-      path = `${path} L${(points[i] / 100) * slideWidth
-      }, ${(points[i + 1] / 100) * slideHeight}`;
+      path = `${path} L${denormalizeCoord(points[i], slideWidth)
+      }, ${denormalizeCoord(points[i + 1], slideHeight)}`;
       i += 2;
     }
+
     path = this.path + path;
 
     return { path, points };
@@ -141,9 +146,9 @@ export default class PencilDrawComponent extends Component {
     return (
       <path
         fill="none"
-        stroke={AnnotationHelpers.getFormattedColor(annotation.color)}
+        stroke={getFormattedColor(annotation.color)}
         d={this.getCurrentPath()}
-        strokeWidth={AnnotationHelpers.getStrokeWidth(annotation.thickness, slideWidth)}
+        strokeWidth={getStrokeWidth(annotation.thickness, slideWidth)}
         strokeLinejoin="round"
         strokeLinecap="round"
         style={{ WebkitTapHighlightColor: 'rgba(0, 0, 0, 0)' }}

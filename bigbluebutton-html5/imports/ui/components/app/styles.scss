@@ -198,6 +198,7 @@
   position: relative;
   margin: 0 0 0 var(--panel-margin-right);
   overflow: hidden;
+  z-index: 0;
 
   [dir="rtl"] & {
     margin: 0 var(--panel-margin-right) 0 0;

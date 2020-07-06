@@ -221,7 +221,7 @@ case class UserRoleChangedEvtMsgBody(userId: String, role: String, changedBy: St
  */
 object EjectUserFromMeetingCmdMsg { val NAME = "EjectUserFromMeetingCmdMsg" }
 case class EjectUserFromMeetingCmdMsg(header: BbbClientMsgHeader, body: EjectUserFromMeetingCmdMsgBody) extends StandardMsg
-case class EjectUserFromMeetingCmdMsgBody(userId: String, ejectedBy: String)
+case class EjectUserFromMeetingCmdMsgBody(userId: String, ejectedBy: String, banUser: Boolean)
 
 /**
  * Sent from client to lock user in meeting.
