@@ -56,12 +56,10 @@
       }
   }
   </style>
-
-  <script src="compatibility/jquery-2.1.1.min.js" type="text/javascript"></script>
   
   <script type="text/javascript">
     function updateMessage(message) {
-      $('#content > p').html(message);
+      document.querySelector('#content > p').innerHTML = message;
     }
 
     function findSessionToken() {
@@ -74,22 +72,25 @@
     };
 
     function fetchGuestWait(sessionToken) {
-      const GUEST_WAIT_ENDPOINT = '/bigbluebutton/api/guestWait';
-
-      return $.get(GUEST_WAIT_ENDPOINT, sessionToken.concat('&redirect=false'));
+      const GUEST_WAIT_ENDPOINT = '/bigbluebutton/api/guestWait';      
+      const urlTest = new URL(`${window.location.origin}${GUEST_WAIT_ENDPOINT}`);
+      const concatedParams = sessionToken.concat('&redirect=false');
+      urlTest.search = concatedParams;
+      return fetch(urlTest, {method: 'get'});
     };
 
     function pollGuestStatus(token, attempt, limit, everyMs) {
       setTimeout(function() {
         var REDIRECT_STATUSES = ['ALLOW', 'DENY'];
 
-
         if (attempt >= limit) {
           updateMessage('No respons from Moderator');
           return;
         }
 
-        fetchGuestWait(token).always(function(data) {
+        fetchGuestWait(token)
+        .then(async (resp) => await resp.json())
+        .then((data) => {
           console.log("data=" + JSON.stringify(data));
           var status = data.response.guestStatus;
 
@@ -99,7 +100,7 @@
           }
 
           return pollGuestStatus(token, attempt + 1, limit, everyMs);
-        })
+        });
       }, everyMs);
     };
 
