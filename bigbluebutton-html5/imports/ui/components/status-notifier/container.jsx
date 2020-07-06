@@ -6,11 +6,13 @@ import Settings from '/imports/ui/services/settings';
 import { makeCall } from '/imports/ui/services/api';
 import StatusNotifier from './component';
 
+const ROLE_VIEWER = Meteor.settings.public.user.role_viewer;
+
 const StatusNotifierContainer = ({ ...props }) => <StatusNotifier {...props} />;
 
 export default withTracker((props) => {
   const AppSettings = Settings.application;
-  const currentUser = Users.findOne({ userId: Auth.userID }, { fields: { userId: 1 } });
+  const currentUser = Users.findOne({ userId: Auth.userID }, { fields: { userId: 1, role: 1 } });
   const { status } = props;
   const emojiUsers = Users.find({ meetingId: Auth.meetingID, emoji: status }, {
     fields: {
@@ -22,6 +24,7 @@ export default withTracker((props) => {
   const clearUserStatus = userId => makeCall('setEmojiStatus', userId, 'none');
 
   return {
+    isViewer: currentUser.role === ROLE_VIEWER,
     clearUserStatus,
     emojiUsers,
     status,

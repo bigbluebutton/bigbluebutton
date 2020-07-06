@@ -41,17 +41,15 @@ class StatusNotifier extends Component {
     this.raisedHandAvatars = this.raisedHandAvatars.bind(this);
   }
 
-  shouldComponentUpdate(nextProps) {
-    const { emojiUsers } = this.props;
-    const { emojiUsers: nextEmojiUsers } = nextProps;
-    if (emojiUsers.length === nextEmojiUsers.length) return false;
-    return true;
-  }
-
   componentDidUpdate(prevProps) {
     const {
-      emojiUsers, raiseHandAudioAlert, raiseHandPushAlert, status,
+      emojiUsers, raiseHandAudioAlert, raiseHandPushAlert, status, isViewer,
     } = this.props;
+
+    if (isViewer) {
+      if (this.statusNotifierId) toast.dismiss(this.statusNotifierId);
+      return false;
+    }
 
     switch (status) {
       case 'raiseHand':
