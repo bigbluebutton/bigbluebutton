@@ -21,6 +21,7 @@ const SFU_URL = Meteor.settings.public.kurento.wsUrl;
 const ROLE_MODERATOR = Meteor.settings.public.user.role_moderator;
 const ROLE_VIEWER = Meteor.settings.public.user.role_viewer;
 const ENABLE_NETWORK_MONITORING = Meteor.settings.public.networkMonitoring.enableNetworkMonitoring;
+const MIRROR_WEBCAM = Meteor.settings.public.app.mirrorOwnWebcam;
 
 const TOKEN = '_';
 
@@ -285,6 +286,13 @@ class VideoService {
     };
   }
 
+  mirrorOwnWebcam(userId = null) {
+    // only true if setting defined and video ids match
+    const isOwnWebcam = userId ? Auth.userID === userId : true;
+    const isEnabledMirroring = getFromUserSettings('bbb_mirror_own_webcam', MIRROR_WEBCAM);
+    return isOwnWebcam && isEnabledMirroring;
+  }
+
   getMyStream(deviceId) {
     const videoStream = VideoStreams.findOne(
       {
@@ -434,6 +442,7 @@ export default {
   getUserParameterProfile: () => videoService.getUserParameterProfile(),
   isMultipleCamerasEnabled: () => videoService.isMultipleCamerasEnabled(),
   monitor: conn => videoService.monitor(conn),
+  mirrorOwnWebcam: userId => videoService.mirrorOwnWebcam(userId),
   onBeforeUnload: () => videoService.onBeforeUnload(),
   notify: message => notify(message, 'error', 'video'),
   updateNumberOfDevices: devices => videoService.updateNumberOfDevices(devices),
