@@ -20,7 +20,7 @@ public:
     allowUserLookup: false
     enableNetworkInformation: false
     enableLimitOfViewersInWebcam: false
-    enableMultipleCameras: false
+    enableMultipleCameras: true
     enableTalkingIndicator: true
     mirrorOwnWebcam: false
     viewersInWebcam: 8
@@ -205,7 +205,7 @@ public:
     echoTestNumber: 'echo'
     relayOnlyOnReconnect: false
   stats:
-    enabled: false
+    enabled: true
     interval: 2000
     length: 5
     log: false
