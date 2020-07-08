@@ -601,19 +601,19 @@ class PresentationArea extends PureComponent {
   renderPresentationFullscreen() {
     const {
       intl,
-      userIsPresenter,
     } = this.props;
     const { isFullscreen } = this.state;
 
-    if (userIsPresenter || !ALLOW_FULLSCREEN) return null;
+    if (!ALLOW_FULLSCREEN) return null;
 
     return (
       <FullscreenButtonContainer
         fullscreenRef={this.refPresentationContainer}
         elementName={intl.formatMessage(intlMessages.presentationLabel)}
         isFullscreen={isFullscreen}
-        dark
-        bottom
+        color="primary"
+        fullScreenStyle={false}
+        className={styles.presentationFullscreen}
       />
     );
   }
