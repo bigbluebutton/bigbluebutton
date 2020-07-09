@@ -200,6 +200,7 @@ public:
     callHangupMaximumRetries: 10
     echoTestNumber: 'echo'
     relayOnlyOnReconnect: false
+    listenOnlyCallTimeout: 15000
   presentation:
     defaultPresentationFile: default.pdf
     panZoomThrottle: 32
