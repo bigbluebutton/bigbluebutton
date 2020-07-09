@@ -27,6 +27,13 @@ import VideoList from './video-list/component';
 
 const ENABLE_NETWORK_MONITORING = Meteor.settings.public.networkMonitoring.enableNetworkMonitoring;
 const CAMERA_PROFILES = Meteor.settings.public.kurento.cameraProfiles;
+// Default values and default empty object to be backwards compat with 2.2.
+// FIXME Remove hardcoded defaults 2.3.
+const WS_CONN_TIMEOUT = Meteor.settings.public.kurento.wsConnectionTimeout || 4000;
+const {
+  baseTimeout: CAMERA_SHARE_FAILED_WAIT_TIME = 15000,
+  maxTimeout: MAX_CAMERA_SHARE_FAILED_WAIT_TIME = 60000,
+} = Meteor.settings.public.kurento.cameraTimeouts || {};
 
 const intlClientErrors = defineMessages({
   iceCandidateError: {
@@ -110,8 +117,6 @@ const intlSFUErrors = defineMessages({
   },
 });
 
-const CAMERA_SHARE_FAILED_WAIT_TIME = 15000;
-const MAX_CAMERA_SHARE_FAILED_WAIT_TIME = 60000;
 const PING_INTERVAL = 15000;
 
 const propTypes = {
@@ -174,7 +179,11 @@ class VideoProvider extends Component {
     };
 
     // Set a valid bbb-webrtc-sfu application server socket in the settings
-    this.ws = new ReconnectingWebSocket(Auth.authenticateURL(Meteor.settings.public.kurento.wsUrl));
+    this.ws = new ReconnectingWebSocket(
+      Auth.authenticateURL(Meteor.settings.public.kurento.wsUrl),
+      [],
+      { connectionTimeout: WS_CONN_TIMEOUT },
+    );
     this.wsQueue = [];
 
     this.visibility = new VisibilityEvent();

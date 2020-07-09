@@ -86,6 +86,16 @@ public:
     packetLostThreshold: 10
   kurento:
     wsUrl: HOST
+    # Valid for video-provider. Time (ms) before its WS connection times out
+    # and tries to reconnect.
+    wsConnectionTimeout: 4000
+    cameraTimeouts:
+      # Base camera timeout: used as the camera *sharing* timeout and
+      # as the minimum camera subscribe reconnection timeout
+      baseTimeout: 15000
+      # Max timeout: used as the max camera subscribe reconnection timeout. Each
+      # subscribe reattempt increases the reconnection timer up to this
+      maxTimeout: 60000
     chromeDefaultExtensionKey: akgoaoikmbmhcopjgakkcepdgdgkjfbc
     chromeDefaultExtensionLink: https://chrome.google.com/webstore/detail/bigbluebutton-screenshare/akgoaoikmbmhcopjgakkcepdgdgkjfbc
     chromeExtensionKey: KEY
@@ -190,6 +200,7 @@ public:
     callHangupMaximumRetries: 10
     echoTestNumber: 'echo'
     relayOnlyOnReconnect: false
+    listenOnlyCallTimeout: 15000
   presentation:
     defaultPresentationFile: default.pdf
     panZoomThrottle: 32
