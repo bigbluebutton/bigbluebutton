@@ -27,6 +27,8 @@ import VideoList from './video-list/component';
 
 const ENABLE_NETWORK_MONITORING = Meteor.settings.public.networkMonitoring.enableNetworkMonitoring;
 const CAMERA_PROFILES = Meteor.settings.public.kurento.cameraProfiles;
+const WS_CONN_TIMEOUT = Meteor.settings.public.kurento.wsConnectionTimeout;
+
 
 const intlClientErrors = defineMessages({
   iceCandidateError: {
@@ -174,7 +176,11 @@ class VideoProvider extends Component {
     };
 
     // Set a valid bbb-webrtc-sfu application server socket in the settings
-    this.ws = new ReconnectingWebSocket(Auth.authenticateURL(Meteor.settings.public.kurento.wsUrl));
+    this.ws = new ReconnectingWebSocket(
+      Auth.authenticateURL(Meteor.settings.public.kurento.wsUrl),
+      [],
+      { connectionTimeout: WS_CONN_TIMEOUT },
+    );
     this.wsQueue = [];
 
     this.visibility = new VisibilityEvent();
