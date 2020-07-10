@@ -4,6 +4,7 @@ import { borderRadius } from '/imports/ui/stylesheets/styled-components/general'
 import {
   colorSuccess,
   colorDanger,
+  colorBackground,
 } from '/imports/ui/stylesheets/styled-components/palette';
 import { fontSizeBase, fontSizeSmall, fontSizeXS } from '/imports/ui/stylesheets/styled-components/typography';
 
@@ -37,9 +38,6 @@ const timerRunning = `
 const timerStopped = `
   background-color: ${colorTimerStopped};
   border: solid 2px ${colorTimerStopped};
-  i {
-    background-color: ${colorDanger}
-  }
 `;
 
 const disabledStyle = `
@@ -81,7 +79,6 @@ const TimerIndicator = styled.div`
     font-size: ${fontSizeSmall};
     width: 1rem;
     height: 1rem;
-    background-colro: ${colorSuccess}
     border-radius: 50%;
 
     @media ${phoneLandscape} {
@@ -106,6 +103,7 @@ const time = `
 const TimerContent = styled.div`
   ${time}
   display: flex;
+  background-color: ${colorBackground}
 
   [dir="ltr"] & {
     span:first-child {

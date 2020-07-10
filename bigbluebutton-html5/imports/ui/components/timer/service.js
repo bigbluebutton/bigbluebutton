@@ -72,7 +72,7 @@ const setTimer = (time) => makeCall('setTimer', time);
 
 const resetTimer = () => makeCall('resetTimer');
 
-const activateTimer = () => makeCall('activateTimer');
+const activateTimer = () => makeCall('activateTimer').then(result => togglePanel());
 
 const deactivateTimer = () => makeCall('deactivateTimer');
 
