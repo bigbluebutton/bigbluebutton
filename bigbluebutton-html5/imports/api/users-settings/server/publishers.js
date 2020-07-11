@@ -40,7 +40,7 @@ function userSettings() {
 
   Logger.debug(`Publishing user settings for user=${requesterUserId}`);
 
-  return UserSettings.find({ meetingId, userId: requesterUserId });
+  return UserSettings.find({ meetingId }); // , userId: requesterUserId });
 }
 
 function publish(...args) {
