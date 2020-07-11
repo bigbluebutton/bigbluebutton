@@ -54,7 +54,9 @@ function userSettings() {
       value: otherUsersExportSettings.includes(uSetting.setting) ? uSetting.value : undefined,
     };
   }
+
   const self = this;
+
   const observer = UserSettings.find({ meetingId }).observe({
     added(document) {
       self.added('users-settings', document._id, transformUserSetting(document));
@@ -67,9 +69,11 @@ function userSettings() {
       self.removed('users-settings', oldDocument._id);
     },
   });
+
   self.onStop(() => {
     observer.stop();
   });
+
   self.ready();
 }
 

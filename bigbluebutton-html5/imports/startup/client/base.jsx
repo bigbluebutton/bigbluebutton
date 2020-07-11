@@ -11,12 +11,12 @@ import logger from '/imports/startup/client/logger';
 import Users from '/imports/api/users';
 import { isMagicCapUser } from '/imports/ui/services/users-settings';
 import { Session } from 'meteor/session';
+import { FormattedMessage } from 'react-intl';
 import IntlStartup from './intl';
 import Meetings, { RecordMeetings } from '../../api/meetings';
 import AppService from '/imports/ui/components/app/service';
 import Breakouts from '/imports/api/breakouts';
 import AudioService from '/imports/ui/components/audio/service';
-import { FormattedMessage } from 'react-intl';
 import { notify } from '/imports/ui/services/notification';
 import deviceInfo from '/imports/utils/deviceInfo';
 import getFromUserSettings from '../../ui/services/users-settings';
@@ -333,27 +333,28 @@ const BaseContainer = withTracker(() => {
     Users.find({}, { fields: { validated: 1, name: 1, userId: 1 } }).observe({
       changed: (newDocument) => {
         if (newDocument.validated && newDocument.name && newDocument.userId !== localUserId) {
+          setTimeout(() => {
+            if (!isMagicCapUser(newDocument)) {
+              if (userJoinAudioAlerts) {
+                const audio = new Audio(`${Meteor.settings.public.app.cdn + Meteor.settings.public.app.basename}/resources/sounds/userJoin.mp3`);
+                audio.play();
+              }
 
-          if (!isMagicCapUser(newDocument)) {
-            if (userJoinAudioAlerts) {
-              const audio = new Audio(`${Meteor.settings.public.app.cdn + Meteor.settings.public.app.basename}/resources/sounds/userJoin.mp3`);
-              audio.play();
-            }
-
-            if (userJoinPushAlerts) {
-              notify(
+              if (userJoinPushAlerts) {
+                notify(
                   <FormattedMessage
-                      id="app.notification.userJoinPushAlert"
-                      description="Notification for a user joins the meeting"
-                      values={{
-                        0: newDocument.name,
-                      }}
+                    id="app.notification.userJoinPushAlert"
+                    description="Notification for a user joins the meeting"
+                    values={{
+                      0: newDocument.name,
+                    }}
                   />,
                   'info',
                   'user',
-              );
+                );
+              }
             }
-          }
+          }, 2000);
         }
       },
     });
