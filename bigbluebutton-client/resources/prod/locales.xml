@@ -53,4 +53,5 @@
 	<locale code="uk_UA" name="Ukrainian" native="Українська"/>
 	<locale code="vi_VN" name="Vietnamese" native="Tiếng việt"/>
     <locale code="cy_GB" name="Welsh" native="Cymraeg"/>
+	<locale code="gl" name="Galician" native="Galego"/>
 </locales>
