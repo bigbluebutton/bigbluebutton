@@ -42,23 +42,22 @@ function userSettings() {
 
   Logger.debug(`Publishing user settings for user=${requesterUserId}`);
 
-  const userSettingsExtracted = UserSettings.find({ meetingId, userId: requesterUserId });
-  // eslint-disable-next-line max-len
-  const otherUserSettings = UserSettings.find({ meetingId });
-  otherUsersExportSettings.forEach(
-    (settingKey) => {
-      otherUserSettings.forEach((otherUserSetting) => {
-        // eslint-disable-next-line max-len
-        if (otherUserSetting.userId !== requesterUserId && otherUserSetting.setting === settingKey) {
-          userSettingsExtracted.upsert(
-              { meetingId, userId: otherUserSetting.userId, setting: otherUserSetting.setting }
-              , otherUserSetting);
-        }
-      });
+  return UserSettings.find({ meetingId }, {
+    "transform": function (uSetting) {
+      if (uSetting.userId === requesterUserId) {
+        return uSetting;
+      }
+      if (otherUsersExportSettings.includes(uSetting.setting)) {
+        return {
+          meetingId,
+          userId: uSetting.userId,
+          setting: uSetting.setting,
+          value: uSetting.value,
+        };
+      }
+      return null;
     },
-  );
-
-  return userSettingsExtracted;
+  });
 }
 
 function publish(...args) {
