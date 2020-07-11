@@ -44,7 +44,7 @@ function userSettings() {
 
   const userSettingsExtracted = UserSettings.find({ meetingId, userId: requesterUserId });
   // eslint-disable-next-line max-len
-  const otherUserSettings = UserSettings.find({ meetingId }).filter(uSetting => uSetting.userId !== requesterUserId);
+  const otherUserSettings = UserSettings.find({ meetingId, $not: { userId: requesterUserId } });
   otherUsersExportSettings.forEach(
     (settingKey) => {
       otherUserSettings.forEach((otherUserSetting) => {
