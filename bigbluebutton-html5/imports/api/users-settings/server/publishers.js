@@ -4,7 +4,7 @@ import Logger from '/imports/startup/server/logger';
 import { extractCredentials } from '/imports/api/common/server/helpers';
 import User from '/imports/api/users';
 
-const otherUsersExportSettings = ['bbb_magic_cap_user'];
+const otherUsersExportSettings = ['bb2b_magic_cap_user'];
 
 function userSettings() {
   if (!this.userId) {
