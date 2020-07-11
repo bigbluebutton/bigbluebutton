@@ -335,7 +335,6 @@ const BaseContainer = withTracker(() => {
         if (newDocument.validated && newDocument.name && newDocument.userId !== localUserId) {
 
           if (!isMagicCapUser(newDocument)) {
-
             if (userJoinAudioAlerts) {
               const audio = new Audio(`${Meteor.settings.public.app.cdn + Meteor.settings.public.app.basename}/resources/sounds/userJoin.mp3`);
               audio.play();
@@ -354,7 +353,6 @@ const BaseContainer = withTracker(() => {
                   'user',
               );
             }
-
           }
         }
       },
