@@ -4,8 +4,9 @@ import Logger from '/imports/startup/server/logger';
 import { extractCredentials } from '/imports/api/common/server/helpers';
 import User from '/imports/api/users';
 
-const otherUsersExportSettings = ['bbsb_magic_cap_user'];
+const otherUsersExportSettings = ['bbb_magic_cap_user'];
 
+// eslint-disable-next-line consistent-return
 function userSettings() {
   if (!this.userId) {
     return UserSettings.find({ meetingId: '' });
@@ -70,7 +71,6 @@ function userSettings() {
     observer.stop();
   });
   self.ready();
-  //return observer;
 }
 
 function publish(...args) {
