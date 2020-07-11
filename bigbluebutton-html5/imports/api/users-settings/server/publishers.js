@@ -70,7 +70,7 @@ function userSettings() {
     observer.stop();
   });
   self.ready();
-  return observer;
+  //return observer;
 }
 
 function publish(...args) {
