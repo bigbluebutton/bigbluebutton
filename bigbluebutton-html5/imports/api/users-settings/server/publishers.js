@@ -50,12 +50,9 @@ function userSettings() {
       otherUserSettings.forEach((otherUserSetting) => {
         // eslint-disable-next-line max-len
         if (otherUserSetting.userId !== requesterUserId && otherUserSetting.setting === settingKey) {
-          userSettingsExtracted.push({
-            meetingId,
-            userId: otherUserSetting.userId,
-            setting: otherUserSetting.setting,
-            value: otherUserSetting.value,
-          });
+          userSettingsExtracted.upsert(
+              { meetingId, userId: otherUserSetting.userId, setting: otherUserSetting.setting }
+              , otherUserSetting);
         }
       });
     },
