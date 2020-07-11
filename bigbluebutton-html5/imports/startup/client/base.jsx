@@ -334,6 +334,10 @@ const BaseContainer = withTracker(() => {
       changed: (newDocument) => {
         if (newDocument.validated && newDocument.name && newDocument.userId !== localUserId) {
           setTimeout(() => {
+            // We need the timeout here just to be ~safe any UserSettings (i.e.:bbb_magic_cap_user)
+            // associated with the new user (newDocument) joining, if present at all, will already
+            // have been published by Meteor prior to calling isMagicCapUser(newDocument)
+            // in the following line...
             if (!isMagicCapUser(newDocument)) {
               if (userJoinAudioAlerts) {
                 const audio = new Audio(`${Meteor.settings.public.app.cdn + Meteor.settings.public.app.basename}/resources/sounds/userJoin.mp3`);
