@@ -10,7 +10,7 @@ const getFromSpecificUserSettings = (userID, setting, defaultValue) => {
 
   const userSetting = UserSettings.findOne(selector);
 
-  if (userSetting !== undefined) {
+  if (userSetting !== undefined && userSetting.value !== undefined) {
     return userSetting.value;
   }
 
