@@ -4,6 +4,8 @@ import Logger from '/imports/startup/server/logger';
 import { extractCredentials } from '/imports/api/common/server/helpers';
 import User from '/imports/api/users';
 
+const otherUsersExportSettings = ['bbb_magic_cap_user'];
+
 function userSettings() {
   if (!this.userId) {
     return UserSettings.find({ meetingId: '' });
@@ -40,7 +42,25 @@ function userSettings() {
 
   Logger.debug(`Publishing user settings for user=${requesterUserId}`);
 
-  return UserSettings.find({ meetingId }); // , userId: requesterUserId });
+  const userSettingsExtracted = UserSettings.find({ meetingId, userId: requesterUserId });
+  // eslint-disable-next-line max-len
+  const otherUserSettings = UserSettings.find({ meetingId }).filter(uSetting => uSetting.userId !== requesterUserId);
+  otherUsersExportSettings.forEach(
+    (settingKey) => {
+      otherUserSettings.forEach((otherUserSetting) => {
+        if (otherUserSetting.setting === settingKey) {
+          userSettingsExtracted.push({
+            meetingId,
+            userId: otherUserSetting.userId,
+            setting: otherUserSetting.setting,
+            value: otherUserSetting.value,
+          });
+        }
+      });
+    },
+  );
+
+  return userSettingsExtracted;
 }
 
 function publish(...args) {
