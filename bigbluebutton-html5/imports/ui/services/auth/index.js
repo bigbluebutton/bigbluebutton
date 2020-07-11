@@ -221,6 +221,7 @@ class Auth {
       const result = await makeCall('validateAuthToken', this.meetingID, this.userID, this.token, this.externUserID);
 
       if (!result) {
+        clearTimeout(validationTimeout);
         reject({
           error: 401,
           description: 'User has been banned.',

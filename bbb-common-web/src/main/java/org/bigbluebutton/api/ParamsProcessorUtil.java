@@ -119,15 +119,15 @@ public class ParamsProcessorUtil {
 
 	private String formatConfNum(String s) {
 		if (s.length() > 5) {
-			Long confNumL = Long.parseLong(s);
-
-			Locale numFormatLocale = new Locale("en", "US");
-			String formatPattern = "#,###";
-			DecimalFormatSymbols unusualSymbols = new DecimalFormatSymbols(numFormatLocale);
-			unusualSymbols.setGroupingSeparator(' ');
-			DecimalFormat numFormatter = new DecimalFormat(formatPattern, unusualSymbols);
-			numFormatter.setGroupingSize(3);
-			return numFormatter.format(confNumL);
+			/* Reverse conference number.
+			* Put a whitespace every third char.
+			* Reverse it again to display it correctly.
+			* Trim leading whitespaces.
+			* */
+			String confNumReversed = new StringBuilder(s).reverse().toString();
+			String confNumSplit = confNumReversed.replaceAll("(.{3})", "$1 ");
+			String confNumL = new StringBuilder(confNumSplit).reverse().toString().trim();
+			return confNumL;
 		}
 
 		return s;
