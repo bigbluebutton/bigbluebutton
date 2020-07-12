@@ -36,9 +36,9 @@ function userSettings() {
       UserSettings.upsert(selector, doc);
     });
 
-    Logger.debug(`Publishing user settings for user=${requesterUserId}`);
+    // Logger.debug(`Publishing user settings for user=${requesterUserId}`);
 
-    return UserSettings.find({ meetingId, userId: requesterUserId });
+    // return UserSettings.find({ meetingId, userId: requesterUserId });
   }
 
   Logger.debug(`Publishing user settings for user=${requesterUserId}`);
