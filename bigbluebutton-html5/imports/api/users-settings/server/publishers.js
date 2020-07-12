@@ -29,7 +29,7 @@ function userSettings() {
     mainRoomUserSettings.map(({ setting, value, userId }) => ({
       meetingId,
       setting,
-      userId,
+      userId: User.findOne({ userId }).extId.split('-')[0],
       value,
     })).forEach((doc) => {
       if (doc.setting === 'bbb_magic_cap_user_visible_for_moderator') {
