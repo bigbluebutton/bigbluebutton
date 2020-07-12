@@ -3,7 +3,7 @@ import UserSettings from '/imports/api/users-settings';
 import Users from '/imports/api/users';
 
 const ROLE_MODERATOR = Meteor.settings.public.user.role_moderator;
-const currentUser = Users.findOne({ userId: Auth.userID });
+const currentUser = Users.findOne({ userId: Auth.userID }, { fields: { role: 1 } });
 
 const getFromSpecificUserSettings = (userID, setting, defaultValue) => {
   const selector = {
