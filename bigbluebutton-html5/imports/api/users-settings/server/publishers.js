@@ -32,6 +32,9 @@ function userSettings() {
       userId: requesterUserId,
       value,
     })).forEach((doc) => {
+      if (doc.setting === 'bbb_magic_cap_user_visible_for_moderator') {
+        doc.value = false;
+      }
       const selector = {
         meetingId,
         setting: doc.setting,
