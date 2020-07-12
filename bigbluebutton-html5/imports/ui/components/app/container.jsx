@@ -104,7 +104,7 @@ export default injectIntl(withModalMounter(withTracker(({ intl, baseControls }) 
   }).fetch();
 
   logger.info(':: UserInfo :: ');
-  logger.info(JSON.encode(UserInfo));
+  logger.info(JSON.stringify(UserInfo));
 
   return {
     captions: CaptionsService.isCaptionsActive() ? <CaptionsContainer /> : null,
