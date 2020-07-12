@@ -24,12 +24,12 @@ function userSettings() {
 
     const [externalId] = currentUser.extId.split('-');
 
-    const mainRoomUserSettings = UserSettings.find({ meetingId: parentId }); // , userId: externalId });
+    const mainRoomUserSettings = UserSettings.find({ meetingId: parentId, userId: externalId });
 
-    mainRoomUserSettings.map(({ setting, value, userId }) => ({
+    mainRoomUserSettings.map(({ setting, value }) => ({
       meetingId,
       setting,
-      userId, //requesterUserId,
+      userId: requesterUserId,
       value,
     })).forEach((doc) => {
       const selector = {
