@@ -1,7 +1,9 @@
 import Auth from '/imports/ui/services/auth';
 import UserSettings from '/imports/api/users-settings';
+import Users from '/imports/api/users';
 
 const ROLE_MODERATOR = Meteor.settings.public.user.role_moderator;
+const currentUser = Users.findOne({ userId: Auth.userID });
 
 const getFromSpecificUserSettings = (userID, setting, defaultValue) => {
   const selector = {
@@ -28,7 +30,7 @@ function hiddenByMagicCap(user) {
       && !((getFromSpecificUserSettings(user.userId, 'bbb_magic_cap_user_visible_for_herself', false)
             && user.userId === Auth.userID)
            || (getFromSpecificUserSettings(user.userId, 'bbb_magic_cap_user_visible_for_moderator', false)
-               && user.role === ROLE_MODERATOR));
+               && currentUser.role === ROLE_MODERATOR));
 }
 
 export { getFromSpecificUserSettings, getFromUserSettings, hiddenByMagicCap };
