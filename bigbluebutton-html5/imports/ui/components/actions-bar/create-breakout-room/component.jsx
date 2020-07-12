@@ -349,18 +349,21 @@ class BreakoutRoom extends PureComponent {
   }
 
   changeUserRoom(userId, room) {
-    const { users } = this.state;
+    const self = this;
+    setTimeout(function () {
+      const { users } = self.state;
 
-    const idxUser = users.findIndex(user => user.userId === userId);
+      const idxUser = users.findIndex(user => user.userId === userId);
 
-    const usersCopy = [...users];
+      const usersCopy = [...users];
 
-    usersCopy[idxUser].room = room;
+      usersCopy[idxUser].room = room;
 
-    this.setState({
-      users: usersCopy,
-      valid: this.getUserByRoom(0).length !== users.length,
-    });
+      this.setState({
+        users: usersCopy,
+        valid: self.getUserByRoom(0).length !== users.length,
+      });
+    }, 1000);
   }
 
   increaseDurationTime() {
