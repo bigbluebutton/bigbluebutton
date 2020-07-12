@@ -24,19 +24,21 @@ function userSettings() {
 
     const [externalId] = currentUser.extId.split('-');
 
-    const mainRoomUserSettings = UserSettings.find({ meetingId: parentId, userId: externalId });
+    const mainRoomUserSettings = UserSettings.find({ meetingId: parentId });
 
-    mainRoomUserSettings.map(({ setting, value }) => ({
+    mainRoomUserSettings.map(({ setting, value, userId }) => ({
       meetingId,
       setting,
-      userId: requesterUserId,
+      userId,
       value,
     })).forEach((doc) => {
       if (doc.setting === 'bbb_magic_cap_user_visible_for_moderator') {
+        // eslint-disable-next-line no-param-reassign
         doc.value = false;
       }
       const selector = {
         meetingId,
+        userId: doc.userId,
         setting: doc.setting,
       };
 
