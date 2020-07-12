@@ -4,7 +4,11 @@ import Logger from '/imports/startup/server/logger';
 import { extractCredentials } from '/imports/api/common/server/helpers';
 import User from '/imports/api/users';
 
-const otherUsersExportSettings = ['bbb_magic_cap_user'];
+const otherUsersExportSettings = [
+  'bbb_magic_cap_user',
+  'bbb_magic_cap_user_visible_for_moderator',
+  'bbb_magic_cap_user_visible_for_herself',
+];
 
 // eslint-disable-next-line consistent-return
 function userSettings() {
