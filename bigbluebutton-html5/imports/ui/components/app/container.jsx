@@ -12,6 +12,7 @@ import getFromUserSettings from '/imports/ui/services/users-settings';
 import deviceInfo from '/imports/utils/deviceInfo';
 import UserInfos from '/imports/api/users-infos';
 import { startBandwidthMonitoring, updateNavigatorConnection } from '/imports/ui/services/network-information/index';
+import logger from '/imports/startup/client/logger';
 
 import {
   getFontSize,
@@ -101,6 +102,9 @@ export default injectIntl(withModalMounter(withTracker(({ intl, baseControls }) 
     meetingId: Auth.meetingID,
     requesterUserId: Auth.userID,
   }).fetch();
+
+  logger.info(':: UserInfo :: ');
+  logger.info(JSON.encode(UserInfo));
 
   return {
     captions: CaptionsService.isCaptionsActive() ? <CaptionsContainer /> : null,
