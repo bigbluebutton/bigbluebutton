@@ -3,7 +3,6 @@ import UserSettings from '/imports/api/users-settings';
 import Users from '/imports/api/users';
 
 const ROLE_MODERATOR = Meteor.settings.public.user.role_moderator;
-const currentUser = Users.findOne({ userId: Auth.userID }, { fields: { role: 1 } });
 
 const getFromSpecificUserSettings = (userID, setting, defaultValue) => {
   const selector = {
@@ -26,6 +25,7 @@ const getFromUserSettings = (setting, defaultValue) => getFromSpecificUserSettin
 
 // predicate function for determining whether user wears a magic cap
 function hiddenByMagicCap(user) {
+  const currentUser = Users.findOne({ userId: Auth.userID }, { fields: { role: 1 } });
   return getFromSpecificUserSettings(user.userId, 'bbb_magic_cap_user', false)
       && !((getFromSpecificUserSettings(user.userId, 'bbb_magic_cap_user_visible_for_herself', false)
             && user.userId === Auth.userID)
