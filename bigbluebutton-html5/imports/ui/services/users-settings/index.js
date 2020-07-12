@@ -30,7 +30,7 @@ function hiddenByMagicCap(user) {
       && !((getFromSpecificUserSettings(user.userId, 'bbb_magic_cap_user_visible_for_herself', false)
             && user.userId === Auth.userID)
            || (getFromSpecificUserSettings(user.userId, 'bbb_magic_cap_user_visible_for_moderator', false)
-               && currentUser.role === ROLE_MODERATOR));
+               && currentUser && currentUser.role === ROLE_MODERATOR));
 }
 
 export { getFromSpecificUserSettings, getFromUserSettings, hiddenByMagicCap };
