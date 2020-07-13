@@ -4,6 +4,7 @@ import { makeCall } from '/imports/ui/services/api';
 import Auth from '/imports/ui/services/auth';
 import { Session } from 'meteor/session';
 import Users from '/imports/api/users';
+import { hiddenByMagicCap } from '/imports/ui/services/users-settings';
 import fp from 'lodash/fp';
 
 const ROLE_MODERATOR = Meteor.settings.public.user.role_moderator;
@@ -68,7 +69,7 @@ const getBreakoutByUserId = userId => Breakouts.find(
 const getBreakoutByUser = user => Breakouts.findOne({ users: user });
 
 const getUsersFromBreakouts = breakoutsArray => breakoutsArray
-  .map(breakout => breakout.users)
+  .map(breakout => breakout.users.filter(u => !hiddenByMagicCap(u)))
   .reduce((acc, usersArray) => [...acc, ...usersArray], []);
 
 const filterUserURLs = userId => breakoutUsersArray => breakoutUsersArray
