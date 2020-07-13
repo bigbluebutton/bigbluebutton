@@ -20,6 +20,9 @@ export default function joinedUsersChanged({ body }) {
     breakoutId,
   };
 
+  Logger.info('USERSMAPPED:');
+  Logger.info(JSON.stringify(users));
+
   const usersMapped = users.map(user => ({ userId: user.id, name: user.name }));
   const modifier = {
     $set: {
