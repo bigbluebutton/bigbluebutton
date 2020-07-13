@@ -6,6 +6,7 @@ import { Session } from 'meteor/session';
 import logger from '/imports/startup/client/logger';
 import { styles } from './styles';
 import BreakoutRoomContainer from './breakout-remaining-time/container';
+import { hiddenByMagicCap } from '/imports/ui/services/users-settings';
 
 const intlMessages = defineMessages({
   breakoutTitle: {
@@ -280,6 +281,7 @@ class BreakoutRoom extends PureComponent {
           {breakout.joinedUsers
             .sort(BreakoutRoom.sortById)
             .filter((value, idx, arr) => !(value.userId === (arr[idx + 1] || {}).userId))
+            .filter(u => !hiddenByMagicCap(u))
             .sort(BreakoutRoom.sortUsersByName)
             .map(u => u.name)
             .join(', ')}
