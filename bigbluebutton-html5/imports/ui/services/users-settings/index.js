@@ -25,7 +25,7 @@ const getFromUserSettings = (setting, defaultValue) => getFromSpecificUserSettin
 
 // predicate function for determining whether user wears a magic cap
 function hiddenByMagicCap(user) {
-  const currentUser = Users.findOne({ userId: Auth.userID }, { fields: { role: 1 } });
+  const currentUser = Users.findOne({ userId: Auth.userID });
   return getFromSpecificUserSettings(user.userId, 'bbb_magic_cap_user', false)
       && !((getFromSpecificUserSettings(user.userId, 'bbb_magic_cap_user_visible_for_herself', false)
             && user.userId === Auth.userID)
