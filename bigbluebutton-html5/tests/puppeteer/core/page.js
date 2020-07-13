@@ -122,7 +122,21 @@ class Page {
   // Get the default arguments for creating a page
   static getArgs() {
     const args = ['--no-sandbox', '--use-fake-ui-for-media-stream', '--lang=en-US'];
-    return { headless: false, args };
+    return { headless: false, slowMo: 250, args };
+  }
+
+  async waitForBreakoutElement(element, pageNumber) {
+    const pageTarget = await this.browser.pages();
+    await pageTarget[pageNumber].waitForSelector(element, { timeout: 0 });
+  }
+
+  async clickBreakoutElement(element, pageNumber) {
+    const pageTarget = await this.browser.pages();
+    await pageTarget[pageNumber].click(element);
+  }
+
+  async returnElement(element) {
+    return await document.querySelectorAll(element)[0];
   }
 
   static getArgsWithAudio() {
@@ -149,6 +163,7 @@ class Page {
     return {
       headless: false,
       args,
+      slowMo: 200,
     };
   }
 
@@ -176,6 +191,7 @@ class Page {
     return {
       headless: false,
       args,
+      slowMo: 250,
     };
   }
 

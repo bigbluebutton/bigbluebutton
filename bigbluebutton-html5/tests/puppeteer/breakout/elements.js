@@ -7,3 +7,5 @@ exports.breakoutRemainingTime = '[data-test="breakoutRemainingTime"]';
 exports.breakoutRoomsItem = '[data-test="breakoutRoomsItem"]';
 exports.breakoutJoin = '[data-test="breakoutJoin"]';
 exports.userJoined = 'div[aria-label^="Moderator3"]';
+exports.breakoutRoomsButton = 'div[aria-label="Breakout Rooms"]';
+exports.joinRoom1 = 'button[aria-label="Join room 1"]';

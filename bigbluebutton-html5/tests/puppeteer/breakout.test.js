@@ -1,9 +1,10 @@
 const Join = require('./breakout/join');
 const Create = require('./breakout/create');
+const Page = require('./core/page');
 
 describe('Breakoutrooms', () => {
   beforeEach(() => {
-    jest.setTimeout(50000);
+    jest.setTimeout(150000);
   });
 
   test('Create Breakout room', async () => {
@@ -13,7 +14,7 @@ describe('Breakoutrooms', () => {
       const testName = 'createBreakoutrooms';
       await test.init();
       await test.create(testName);
-      response = await test.testCreated(testName);
+      response = await test.testCreatedBreakout(testName);
     } catch (e) {
       console.log(e);
     } finally {
@@ -27,6 +28,57 @@ describe('Breakoutrooms', () => {
     let response;
     try {
       const testName = 'joinBreakoutrooms';
+      await test.init();
+      await test.create(testName);
+      await test.join(testName);
+      response = await test.testJoined(testName);
+    } catch (e) {
+      console.log(e);
+    } finally {
+      await test.close();
+    }
+    expect(response).toBe(true);
+  });
+
+  test('Join Breakout room with Audio', async () => {
+    const test = new Join();
+    let response;
+    try {
+      const testName = 'joinBreakoutroomsWithAudio';
+      await test.init();
+      await test.create(testName);
+      await test.join(testName);
+      response = test.testJoined(testName);
+    } catch (e) {
+      console.log(e);
+    } finally {
+      await test.close();
+    }
+    expect(response).toBe(true);
+  });
+
+  test('Join Breakout room with Video', async () => {
+    const test = new Join();
+    let response;
+    try {
+      const testName = 'joinBreakoutroomsWithVideo';
+      await test.init();
+      await test.create(testName);
+      await test.join(testName);
+      response = await test.testJoined(testName);
+    } catch (e) {
+      console.log(e);
+    } finally {
+      await test.close();
+    }
+    expect(response).toBe(true);
+  });
+
+  test('Join Breakout room and share screen', async () => {
+    const test = new Join();
+    let response;
+    try {
+      const testName = 'joinBreakoutroomsAndShareScreen';
       await test.init();
       await test.create(testName);
       await test.join(testName);
