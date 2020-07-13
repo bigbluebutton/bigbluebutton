@@ -36,7 +36,7 @@ function appliesMagicCapModeratorException(userId) {
   }
   if (currentUser.breakoutProps.isBreakoutUser) {
     Logger.info('CU...1 :'); Logger.info(JSON.stringify(currentUser));
-    currentUser = Users.findOne({ userId: currentUser.userId.split('-')[0] });
+    currentUser = Users.findOne({ userId: currentUser.extId.split('-')[0] });
     Logger.info('CU...2 :'); Logger.info(JSON.stringify(currentUser));
   }
   return currentUser.role === ROLE_MODERATOR;
