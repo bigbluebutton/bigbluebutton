@@ -1,12 +1,13 @@
-const Page = require('../core/page');
-const params = require('../params');
 const moment = require('moment');
 const path = require('path');
+const Page = require('../core/page');
+const params = require('../params');
 const util = require('./util');
-const be = require('./elements');
-const we = require('../webcam/elements');
+const be = require('./elements'); // breakout elements
+const we = require('../webcam/elements'); // webcam elements
+const ae = require('../audio/elements'); // audio elements
 const e = require('../core/elements');
-const { element } = require('prop-types');
+// page elements
 const today = moment().format('DD-MM-YYYY');
 
 class Create {
@@ -47,10 +48,10 @@ class Create {
     const page2 = await this.page2.browser.pages();
     await page2[2].bringToFront();
     this.page2.logger('before closing audio modal');
-    await page2[2].screenshot({path: path.join(__dirname, `../${process.env.TEST_FOLDER}/test-${today}-${testName}/screenshots/03-breakout-page02-before-closing-audio-modal.png`)});
+    await page2[2].screenshot({ path: path.join(__dirname, `../${process.env.TEST_FOLDER}/test-${today}-${testName}/screenshots/03-breakout-page02-before-closing-audio-modal.png`) });
     await this.page2.waitForBreakoutElement('button[aria-label="Close Join audio modal"]', 2);
     await this.page2.clickBreakoutElement('button[aria-label="Close Join audio modal"]', 2);
-    await page2[2].screenshot({path: path.join(__dirname, `../${process.env.TEST_FOLDER}/test-${today}-${testName}/screenshots/04-breakout-page02-after-closing-audio-modal.png`)});
+    await page2[2].screenshot({ path: path.join(__dirname, `../${process.env.TEST_FOLDER}/test-${today}-${testName}/screenshots/04-breakout-page02-after-closing-audio-modal.png`) });
     this.page2.logger('audio modal closed');
   }
 
@@ -60,47 +61,34 @@ class Create {
     if (resp === true) {
       await this.page1.screenshot(`${testName}`, `05-page01-success-${testName}`);
       return true;
-    };
+    }
     await this.page1.screenshot(`${testName}`, `05-page01-fail-${testName}`);
     return false;
   }
 
   // Initialize a Moderator session
   async joinWithUser3(testName) {
-    if(testName == 'joinBreakoutroomsWithAudio') {
+    if (testName === 'joinBreakoutroomsWithAudio') {
       await this.page3.init(Page.getArgsWithAudio(), this.page1.meetingId, { ...params, fullName: 'Moderator3' }, undefined);
       await this.page3.closeAudioModal();
       await this.page3.waitForSelector(be.breakoutRoomsButton);
       await this.page3.click(be.breakoutRoomsButton, true);
       await this.page3.waitForSelector(be.joinRoom1);
       await this.page3.click(be.joinRoom1, true);
-            
+
       const page3 = await this.page3.browser.pages();
 
-      await page3[2].waitForSelector('button[aria-label="Microphone"]');
-      // await this.page3.waitForBreakoutElement('button[aria-label="Microphone"]', 2);
-      await this.page3.clickBreakoutElement('button[aria-label="Microphone"]', 2);
-      await page3[2].waitForSelector('div[class^="connecting--"]');
-      // await this.page3.waitForBreakoutElement('div[class^="connecting--"]', 2);
-      await page3[2].waitForSelector('button[aria-label="Echo is audible"]');
-      // await this.page3.waitForBreakoutElement('button[aria-label="Echo is audible"]', 2);
-      await this.page3.clickBreakoutElement('button[aria-label="Echo is audible"]', 2);
+      await page3[2].screenshot({ path: path.join(__dirname, `../${process.env.TEST_FOLDER}/test-${today}-${testName}/screenshots/00-breakout-page03-user-joined-no-mic-before-check.png`) });
+      await page3[2].waitForSelector(ae.microphone);
+      await page3[2].click(ae.microphone);
+      await page3[2].waitForSelector(ae.connectingStatus);
+      await page3[2].waitForSelector(ae.audioAudible);
+      await page3[2].click(ae.audioAudible);
 
-      console.log('with audio');
+      await page3[2].screenshot({ path: path.join(__dirname, `../${process.env.TEST_FOLDER}/test-${today}-${testName}/screenshots/00-breakout-page03-user-joined-with-mic-before-check.png`) });
 
-      this.page2.logger('before pages check');
-      const page2 = await this.page2.browser.pages();
-      await page2[2].waitForSelector('div[aria-label^="Moderator3"]');
-      await page2[2].waitForSelector('[data-test="isTalking"]');
-      const resp = await page3[2].evaluate(async ()=>{
-        const foundUserElement = await document.querySelectorAll('div[aria-label^="Moderator3"]').length !== 0;
-        const foundTalkingIndicatorElement = await document.querySelectorAll('[data-test="isTalking"]').length !== 0;
-        return foundUserElement && foundTalkingIndicatorElement;
-      });
-      await page2[2].screenshot({path: path.join(__dirname, `../${process.env.TEST_FOLDER}/test-${today}-${testName}/screenshots/05-breakout-page02-user-joined-with-audio-success.png`)});
-      this.page2.logger('after pages check');
-      return resp;
-    } else if (testName == 'joinBreakoutroomsWithVideo') {
+      this.page3.logger('joined breakout with audio');
+    } else if (testName === 'joinBreakoutroomsWithVideo') {
       await this.page3.init(Page.getArgsWithVideo(), this.page1.meetingId, { ...params, fullName: 'Moderator3' }, undefined);
       await this.page3.closeAudioModal();
       await this.page3.waitForSelector(be.breakoutRoomsButton);
@@ -109,30 +97,18 @@ class Create {
       await this.page3.click(be.joinRoom1, true);
       const page3 = await this.page3.browser.pages();
       await page3[2].bringToFront();
-      
-      await page3[2].waitForSelector('button[aria-label="Share webcam"]');
-      // await this.page3.waitForBreakoutElement('button[aria-label="Share webcam"]', 2);
-      await this.page3.clickBreakoutElement('button[aria-label="Share webcam"]', 2);
-      await page3[2].waitForSelector('video[id="preview"]');
-      // await this.page3.waitForBreakoutElement('video[id="preview"]', 2);
-      await page3[2].waitForSelector('button[aria-label="Start sharing"]');
-      // await this.page3.waitForBreakoutElement('button[aria-label="Start sharing"]', 2);
-      await this.page3.clickBreakoutElement('button[aria-label="Start sharing"]', 2);
 
-      console.log('with video');
+      await page3[2].waitForSelector(e.audioDialog);
+      await page3[2].waitForSelector(e.closeAudio);
+      await page3[2].click(e.closeAudio);
+      await page3[2].waitForSelector(we.joinVideo);
+      await page3[2].click(we.joinVideo);
+      await page3[2].waitForSelector(we.videoPreview);
+      await page3[2].click(we.videoPreview);
+      await page3[2].waitForSelector(we.startSharingWebcam);
+      await page3[2].click(we.startSharingWebcam);
 
-      this.page2.logger('before pages check');
-      const page2 = await this.page2.browser.pages();
-      await page2[2].waitForSelector('div[aria-label^="Moderator3"]');
-      await page2[2].waitForSelector('div[class^="videoListItem"]');
-      const resp = await page3[2].evaluate(async ()=>{
-        const foundUserElement = await document.querySelectorAll('div[aria-label^="Moderator3"]').length !== 0;
-        const webcamContainerElement = await document.querySelectorAll('div[class^="videoListItem"]').length !== 0;
-        return foundUserElement && webcamContainerElement;
-      });
-      await page2[2].screenshot({path: path.join(__dirname, `../${process.env.TEST_FOLDER}/test-${today}-${testName}/screenshots/05-breakout-page02-user-joined-with-webcam-success.png`)});
-      this.page2.logger('after pages check');
-      return resp;
+      this.page3.logger('joined breakout with video');
     } else if (testName === 'joinBreakoutroomsAndShareScreen') {
       await this.page3.init(Page.getArgs(), this.page1.meetingId, { ...params, fullName: 'Moderator3' }, undefined);
       await this.page3.closeAudioModal();
@@ -140,51 +116,34 @@ class Create {
       await this.page3.click(be.breakoutRoomsButton, true);
       await this.page3.waitForSelector(be.joinRoom1);
       await this.page3.click(be.joinRoom1, true);
-      const page2 = await this.page2.browser.pages();
       const page3 = await this.page3.browser.pages();
-      await this.page3.waitForSelector('span[class^="usersAssignedNumberLabel"]');
-      const respCountUsers = await this.page3.page.evaluate(async ()=> 
-        await document.querySelectorAll('span[class^="usersAssignedNumberLabel"]')[0].innerText.includes('2') === true
-      );
+      await page3[2].waitForSelector(e.audioDialog);
+      await page3[2].waitForSelector(e.closeAudio);
+      await page3[2].click(e.closeAudio);
 
-      console.log('with screenshare');
+      // Take Presenter
+      await page3[2].waitForSelector('div[data-test="userListItemCurrent"]');
+      await page3[2].click('div[data-test="userListItemCurrent"]');
+      await page3[2].waitForSelector('li[data-test="setPresenter"]');
+      await page3[2].click('li[data-test="setPresenter"]');
 
-      await page2[2].waitForSelector('div[aria-label^="Moderator3"]');
-      await page3[2].evaluate(async ()=> {
-        await document.querySelectorAll('div[aria-label^="Moderator3"]')[0].click();
-        await document.querySelectorAll('div[aria-label^="Take presenter"]')[0].click();
-      });
+      // Start Share Screen
       await page3[2].waitForSelector('button[aria-label="Share your screen"]');
-      await this.page3.clickBreakoutElement('button[aria-label="Share your screen"]', 2);
-      await page3[2].on('dialog',async dialog => {
+      await page3[2].click('button[aria-label="Share your screen"]');
+      await page3[2].on('dialog', async (dialog) => {
         await dialog.accept();
       });
 
-      const resp = await page3[2].evaluate(async ()=>{
-        const foundUserElement = await document.querySelectorAll('div[aria-label^="Moderator3"]').length !== 0;
-        return foundUserElement;
-      });
-
-      await page2[2].screenshot({path: path.join(__dirname, `../${process.env.TEST_FOLDER}/test-${today}-${testName}/screenshots/05-breakout-page02-user-joined-success.png`)});
-      return resp && respCountUsers;
+      this.page3.logger('joined breakout and started screen share');
     } else {
+      await this.page3.init(Page.getArgs(), this.page1.meetingId, { ...params, fullName: 'Moderator3' }, undefined);
+      await this.page3.closeAudioModal();
       await this.page3.waitForSelector(be.breakoutRoomsButton);
       await this.page3.click(be.breakoutRoomsButton, true);
-      const page3 = await this.page3.browser.pages();
-      await page3[2].evaluate(util.clickTestElement, be.breakoutJoin);
-      await this.page3.init(Page.getArgs(), this.page1.meetingId, { ...params, fullName: 'Moderator3' }, undefined);
-      
+      await this.page3.waitForSelector(be.joinRoom1);
+      await this.page3.click(be.joinRoom1, true);
+
       console.log('with nothing');
-
-      const page2 = await this.page2.browser.pages();
-      await page2[2].waitForSelector('div[aria-label^="Moderator3"]');
-      const resp = await page3[2].evaluate(async ()=>{
-        const foundUserElement = await document.querySelectorAll('div[aria-label^="Moderator3"]').length !== 0;
-        return foundUserElement;
-      });
-
-      await page2[2].screenshot({path: path.join(__dirname, `../${process.env.TEST_FOLDER}/test-${today}-${testName}/screenshots/05-breakout-page02-user-joined-success.png`)});
-      return resp;
     }
   }
 
