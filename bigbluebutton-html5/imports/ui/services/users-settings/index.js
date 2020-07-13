@@ -30,7 +30,8 @@ function hiddenByMagicCap(user) {
       && !((getFromSpecificUserSettings(user.userId, 'bbb_magic_cap_user_visible_for_herself', false)
             && user.userId === Auth.userID)
            || (getFromSpecificUserSettings(user.userId, 'bbb_magic_cap_user_visible_for_moderator', false)
-               && currentUser && currentUser.role === ROLE_MODERATOR));
+           // eslint-disable-next-line max-len
+               && currentUser && currentUser.role === ROLE_MODERATOR && !currentUser.breakoutProps.isBreakoutUser));
 }
 
 export { getFromSpecificUserSettings, getFromUserSettings, hiddenByMagicCap };
