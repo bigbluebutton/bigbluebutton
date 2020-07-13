@@ -20,18 +20,34 @@ const getFromSpecificUserSettings = (userID, setting, defaultValue) => {
   return defaultValue;
 };
 
+function appliesMagicCapSelfException(userId) {
+  return getFromSpecificUserSettings(userId, 'bbb_magic_cap_user_visible_for_herself', false)
+      && userId === Auth.userID;
+}
+
+function appliesMagicCapModeratorException(userId) {
+  if (!getFromSpecificUserSettings(userId, 'bbb_magic_cap_user_visible_for_moderator', false)) {
+    return false;
+  }
+  let currentUser = Users.findOne({ userId: Auth.userID });
+  if (!currentUser) {
+    return false;
+  }
+  if (currentUser.breakoutProps.isBreakoutUser) {
+    currentUser = Users.findOne({ userId: currentUser.userId.split('-')[0] });
+  }
+  return currentUser.role === ROLE_MODERATOR;
+}
+
 // eslint-disable-next-line max-len
 const getFromUserSettings = (setting, defaultValue) => getFromSpecificUserSettings(Auth.userID, setting, defaultValue);
 
 // predicate function for determining whether user wears a magic cap
 function hiddenByMagicCap(user) {
-  const currentUser = Users.findOne({ userId: Auth.userID });
-  return getFromSpecificUserSettings(user.userId, 'bbb_magic_cap_user', false)
-      && !((getFromSpecificUserSettings(user.userId, 'bbb_magic_cap_user_visible_for_herself', false)
-            && user.userId === Auth.userID)
-           || (getFromSpecificUserSettings(user.userId, 'bbb_magic_cap_user_visible_for_moderator', false)
-           // eslint-disable-next-line max-len
-               && currentUser && currentUser.role === ROLE_MODERATOR && !currentUser.breakoutProps.isBreakoutUser));
+  const { userId } = user;
+  return getFromSpecificUserSettings(userId, 'bbb_magic_cap_user', false)
+          && !appliesMagicCapSelfException(userId)
+          && !appliesMagicCapModeratorException(userId);
 }
 
 export { getFromSpecificUserSettings, getFromUserSettings, hiddenByMagicCap };
