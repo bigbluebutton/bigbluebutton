@@ -1,7 +1,7 @@
 import Auth from '/imports/ui/services/auth';
 import UserSettings from '/imports/api/users-settings';
 import Users from '/imports/api/users';
-import Logger from '/imports/startup/server/logger';
+import Logger from '/imports/startup/client/logger';
 
 const ROLE_MODERATOR = Meteor.settings.public.user.role_moderator;
 
