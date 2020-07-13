@@ -69,7 +69,7 @@ const getBreakoutByUserId = userId => Breakouts.find(
 const getBreakoutByUser = user => Breakouts.findOne({ users: user });
 
 const getUsersFromBreakouts = breakoutsArray => breakoutsArray
-  .map(breakout => breakout.users.filter(u => !hiddenByMagicCap(u)))
+  .map(breakout => breakout.users)
   .reduce((acc, usersArray) => [...acc, ...usersArray], []);
 
 const filterUserURLs = userId => breakoutUsersArray => breakoutUsersArray
