@@ -63,12 +63,21 @@ function users(role) {
     ],
   };
 
-  const User = Users.findOne({ userId: requesterUserId, meetingId }, { fields: { role: 1 } });
+  // eslint-disable-next-line max-len
+  const User = Users.findOne({ userId: requesterUserId, meetingId },
+    { fields: { role: 1, 'breakoutProps.isBreakoutUser': 1, 'breakoutProps.parentId': 1 } });
+
   if (!!User && User.role === ROLE_MODERATOR) {
     selector.$or.push({
       'breakoutProps.isBreakoutUser': true,
       'breakoutProps.parentId': meetingId,
       connectionStatus: 'online',
+    });
+  }
+
+  if (!!User && User.breakoutProps.isBreakoutUser) {
+    selector.$or.push({
+      meetingId: User.breakoutProps.parentId,
     });
   }
 
