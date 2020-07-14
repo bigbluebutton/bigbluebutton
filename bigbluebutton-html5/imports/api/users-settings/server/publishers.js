@@ -35,6 +35,7 @@ function userSettings() {
       const selector = {
         meetingId,
         setting: doc.setting,
+        userId: requesterUserId,
       };
 
       UserSettings.upsert(selector, doc);
@@ -44,7 +45,7 @@ function userSettings() {
   Logger.debug(`Publishing user settings for user=${requesterUserId}`);
 
   function transformUserSetting(uSetting) {
-    if (true || uSetting.userId === requesterUserId) {
+    if (uSetting.userId === requesterUserId) {
       return uSetting;
     }
     return {
