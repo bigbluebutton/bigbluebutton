@@ -11,7 +11,7 @@ const WAITING_GUEST_BELL = Meteor.settings.public.waitingGuestBell;
 
 function ringWaitingGuestBell() {
   if (WAITING_GUEST_BELL.enabled) {
-    const audio = new Audio(`${HOST}/resources/sounds/notify.mp3`);
+    const audio = new Audio(`${HOST}/resources/sounds/doorbell.mp3`);
     audio.play();
   }
 }
