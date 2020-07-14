@@ -89,15 +89,25 @@ export default class PencilDrawComponent extends Component {
     return version !== nextProps.version;
   }
 
-  componentWillUpdate(nextProps) {
-    const { annotation: nextAnnotation, slideWidth, slideHeight } = nextProps;
-    const { points: nextPoints } = nextAnnotation;
-    const { annotation } = this.props;
+  componentDidUpdate(prevProps) {
+    const { annotation: prevAnnotation } = prevProps;
+    const { points: prevPoints } = prevAnnotation;
+    const { annotation, slideWidth, slideHeight } = this.props;
     const { points } = annotation;
-    if (nextPoints.length !== points.length) {
-      this.path = this.getCoordinates(nextAnnotation, slideWidth, slideHeight);
+    if (prevPoints.length !== points.length) {
+      this.path = this.getCoordinates(annotation, slideWidth, slideHeight);
     }
   }
+
+  // componentWillUpdate(nextProps) {
+  //   const { annotation: nextAnnotation, slideWidth, slideHeight } = nextProps;
+  //   const { points: nextPoints } = nextAnnotation;
+  //   const { annotation } = this.props;
+  //   const { points } = annotation;
+  //   if (nextPoints.length !== points.length) {
+  //     this.path = this.getCoordinates(nextAnnotation, slideWidth, slideHeight);
+  //   }
+  // }
 
   getCoordinates(annotation, slideWidth, slideHeight) {
     if ((!annotation || annotation.points.length === 0)

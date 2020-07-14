@@ -91,9 +91,9 @@ class ActionsDropdown extends PureComponent {
     this.makePresentationItems = this.makePresentationItems.bind(this);
   }
 
-  componentWillUpdate(nextProps) {
-    const { amIPresenter: isPresenter } = nextProps;
-    const { amIPresenter: wasPresenter, mountModal } = this.props;
+  componentDidUpdate(prevProps) {
+    const { amIPresenter: wasPresenter } = prevProps;
+    const { amIPresenter: isPresenter, mountModal } = this.props;
     if (wasPresenter && !isPresenter) {
       mountModal(null);
     }
