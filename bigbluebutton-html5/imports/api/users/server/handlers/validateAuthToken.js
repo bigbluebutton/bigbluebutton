@@ -16,7 +16,10 @@ const clearOtherSessions = (sessionUserId, current = false) => {
 
 export default function handleValidateAuthToken({ body }, meetingId) {
   const {
-    userId, valid, authToken, waitForApproval,
+    userId,
+    valid,
+    authToken,
+    waitForApproval,
   } = body;
 
   check(userId, String);

@@ -11,16 +11,11 @@ export default class ToolbarMenuItem extends Component {
 
     // a flag to keep track of whether the menu item was actually clicked
     this.clicked = false;
-
+    this.uniqueRef = _.uniqueId('toolbar-menu-item');
     this.handleTouchStart = this.handleTouchStart.bind(this);
     this.handleOnMouseUp = this.handleOnMouseUp.bind(this);
     this.handleOnMouseDown = this.handleOnMouseDown.bind(this);
     this.setRef = this.setRef.bind(this);
-  }
-
-  // generating a unique ref string for the toolbar-item
-  componentWillMount() {
-    this.uniqueRef = _.uniqueId('toolbar-menu-item');
   }
 
   componentDidMount() {

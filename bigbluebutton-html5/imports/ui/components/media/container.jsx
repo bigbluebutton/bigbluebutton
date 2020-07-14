@@ -49,19 +49,22 @@ const intlMessages = defineMessages({
 });
 
 class MediaContainer extends Component {
-  componentWillMount() {
+  componentDidMount() {
     document.addEventListener('installChromeExtension', this.installChromeExtension.bind(this));
     document.addEventListener('screenshareNotSupported', this.screenshareNotSupported.bind(this));
   }
 
-  componentWillReceiveProps(nextProps) {
+  componentDidUpdate(prevProps) {
     const {
       isScreensharing,
       intl,
     } = this.props;
+    const {
+      isScreensharing: wasScreenSharing,
+    } = prevProps;
 
-    if (isScreensharing !== nextProps.isScreensharing) {
-      if (nextProps.isScreensharing) {
+    if (isScreensharing !== wasScreenSharing) {
+      if (isScreensharing) {
         notify(intl.formatMessage(intlMessages.screenshareStarted), 'info', 'desktop');
       } else {
         notify(intl.formatMessage(intlMessages.screenshareEnded), 'info', 'desktop');
@@ -107,9 +110,10 @@ export default withLayoutConsumer(withModalMounter(withTracker(() => {
   const { dataSaving } = Settings;
   const { viewParticipantsWebcams, viewScreenshare } = dataSaving;
   const hidePresentation = getFromUserSettings('bbb_hide_presentation', LAYOUT_CONFIG.hidePresentation);
+  const autoSwapLayout = getFromUserSettings('userdata-bbb_auto_swap_layout', LAYOUT_CONFIG.autoSwapLayout);
   const { current_presentation: hasPresentation } = MediaService.getPresentationInfo();
   const data = {
-    children: <DefaultContent />,
+    children: <DefaultContent {...{ autoSwapLayout, hidePresentation }} />,
     audioModalIsOpen: Session.get('audioModalIsOpen'),
   };
 

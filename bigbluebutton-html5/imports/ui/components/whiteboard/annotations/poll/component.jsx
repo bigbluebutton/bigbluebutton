@@ -9,10 +9,11 @@ class PollDrawComponent extends Component {
     super(props);
 
     this.state = {
+      // We did it because it was calculated in the componentWillMount
+      calculated: false,
       // flag indicating whether we need to continue calculating the sizes or display the annotation
       prepareToDisplay: true,
-
-      // outer (white) rectangle's coordinates and sizes (calculated in componentWillMount)
+      // outer (white) rectangle's coordinates and sizes (calculated in componentDidMount)
       outerRect: {
         x: 0,
         y: 0,
@@ -50,13 +51,147 @@ class PollDrawComponent extends Component {
       lineToMeasure: [],
       fontSizeDirection: 1,
     };
+
+    this.pollInitialCalculation = this.pollInitialCalculation.bind(this);
   }
 
-  componentWillMount() {
+  componentDidMount() {
+    this.pollInitialCalculation();
+    this.checkSizes();
+  }
+
+  // this might have to be changed if we want to reuse it for a presenter's poll popup
+  shouldComponentUpdate() {
+    const { prepareToDisplay } = this.state;
+    return prepareToDisplay === true;
+  }
+
+  componentDidUpdate() {
+    const { prepareToDisplay } = this.state;
+    if (prepareToDisplay) {
+      this.checkSizes();
+    }
+  }
+
+  checkSizes() {
+    let { maxLineHeight } = this.state;
+
+    const {
+      currentLine,
+      maxLineWidth,
+      fontSizeDirection,
+      calcFontSize,
+      textArray,
+      calculated,
+    } = this.state;
+
+    const { annotation } = this.props;
+    if (!calculated) return null;
+    // increment the font size by 2 to prevent Maximum update depth exceeded
+    const fontSizeIncrement = 2;
+
+    // calculating the font size in this if / else block
+    if (fontSizeDirection !== 0) {
+      const key = `${annotation.id}_key_${currentLine}`;
+      const votes = `${annotation.id}_votes_${currentLine}`;
+      const percent = `${annotation.id}_percent_${currentLine}`;
+      const keySizes = this[key].getBBox();
+      const voteSizes = this[votes].getBBox();
+      const percSizes = this[percent].getBBox();
+
+      // first check if we can still increase the font-size
+      if (fontSizeDirection === 1) {
+        if ((keySizes.width < maxLineWidth && keySizes.height < maxLineHeight
+          && voteSizes.width < maxLineWidth && voteSizes.height < maxLineHeight
+          && percSizes.width < maxLineWidth && percSizes.height < maxLineHeight)
+          && calcFontSize < 100) {
+          return this.setState({
+            calcFontSize: calcFontSize + fontSizeIncrement,
+          });
+
+          // we can't increase font-size anymore, start decreasing
+        }
+        return this.setState({
+          fontSizeDirection: -1,
+          calcFontSize: calcFontSize - fontSizeIncrement,
+        });
+      } if (fontSizeDirection === -1) {
+        // check if the font-size is still bigger than allowed
+        if ((keySizes.width > maxLineWidth || keySizes.height > maxLineHeight
+          || voteSizes.width > maxLineWidth || voteSizes.height > maxLineHeight
+          || percSizes.width > maxLineWidth || percSizes.height > maxLineHeight)
+          && calcFontSize > 0) {
+          return this.setState({
+            calcFontSize: calcFontSize - fontSizeIncrement,
+          });
+
+          // font size is fine for the current line, switch to the next line
+          // or finish with the font-size calculations if this we are at the end of the array
+        }
+        if (currentLine < textArray.length - 1) {
+          return this.setState({
+            currentLine: currentLine + 1,
+            lineToMeasure: textArray[currentLine + 1],
+          });
+        }
+        return this.setState({
+          fontSizeDirection: 0,
+          currentLine: 0,
+          lineToMeasure: textArray[0],
+        });
+      }
+    }
+
+    // next block is executed when we finally found a proper font size
+
+    // finding the biggest width and height of the left and right strings,
+    // max real line height and max width value for 1 digit
+    let maxLeftWidth = 0;
+    let maxRightWidth = 0;
+    maxLineHeight = 0;
+    for (let i = 0; i < textArray.length; i += 1) {
+      const key = `${annotation.id}_key_${i}`;
+      const percent = `${annotation.id}_percent_${i}`;
+      const keySizes = this[key].getBBox();
+      const percSizes = this[percent].getBBox();
+
+      if (keySizes.width > maxLeftWidth) {
+        maxLeftWidth = keySizes.width;
+      }
+
+      if (percSizes.width > maxRightWidth) {
+        maxRightWidth = percSizes.width;
+      }
+
+      if (keySizes.height > maxLineHeight) {
+        maxLineHeight = keySizes.height;
+      }
+
+      if (percSizes.height > maxLineHeight) {
+        maxLineHeight = percSizes.height;
+      }
+    }
+
+    const digitRef = `${annotation.id}_digit`;
+    const maxDigitWidth = this[digitRef].getBBox().width;
+    const maxDigitHeight = this[digitRef].getBBox().height;
+
+    return this.setState({
+      maxLeftWidth,
+      maxRightWidth,
+      maxLineHeight,
+      maxDigitWidth,
+      maxDigitHeight,
+      prepareToDisplay: false,
+    });
+  }
+
+  pollInitialCalculation() {
     // in this part we retrieve the props and perform initial calculations for the state
     // calculating only the parts which have to be done just once and don't require
     // rendering / rerendering the text objects
 
+    // if (!state.initialState) return;
     const { annotation } = this.props;
     const { points, result } = annotation;
     const { slideWidth, slideHeight, intl } = this.props;
@@ -151,7 +286,6 @@ class PollDrawComponent extends Component {
       lineToMeasure[0] = intl.formatMessage(pollAnswerIds[messageIndex]);
     }
 
-    // saving all the initial calculations in the state
     this.setState({
       outerRect: {
         x,
@@ -171,132 +305,7 @@ class PollDrawComponent extends Component {
       maxLineWidth,
       maxLineHeight,
       lineToMeasure,
-    });
-  }
-
-  componentDidMount() {
-    this.checkSizes();
-  }
-
-  // this might have to be changed if we want to reuse it for a presenter's poll popup
-  shouldComponentUpdate() {
-    const { prepareToDisplay } = this.state;
-    return prepareToDisplay === true;
-  }
-
-  componentDidUpdate() {
-    const { prepareToDisplay } = this.state;
-    if (prepareToDisplay) {
-      this.checkSizes();
-    }
-  }
-
-  checkSizes() {
-    let { maxLineHeight } = this.state;
-
-    const {
-      currentLine,
-      maxLineWidth,
-      fontSizeDirection,
-      calcFontSize,
-      textArray,
-    } = this.state;
-
-    const { annotation } = this.props;
-    // increment the font size by 2 to prevent Maximum update depth exceeded
-    const fontSizeIncrement = 2;
-
-    // calculating the font size in this if / else block
-    if (fontSizeDirection !== 0) {
-      const key = `${annotation.id}_key_${currentLine}`;
-      const votes = `${annotation.id}_votes_${currentLine}`;
-      const percent = `${annotation.id}_percent_${currentLine}`;
-      const keySizes = this[key].getBBox();
-      const voteSizes = this[votes].getBBox();
-      const percSizes = this[percent].getBBox();
-
-      // first check if we can still increase the font-size
-      if (fontSizeDirection === 1) {
-        if (keySizes.width < maxLineWidth && keySizes.height < maxLineHeight
-          && voteSizes.width < maxLineWidth && voteSizes.height < maxLineHeight
-          && percSizes.width < maxLineWidth && percSizes.height < maxLineHeight) {
-          return this.setState({
-            calcFontSize: calcFontSize + fontSizeIncrement,
-          });
-
-          // we can't increase font-size anymore, start decreasing
-        }
-        return this.setState({
-          fontSizeDirection: -1,
-          calcFontSize: calcFontSize - fontSizeIncrement,
-        });
-      } if (fontSizeDirection === -1) {
-        // check if the font-size is still bigger than allowed
-        if (keySizes.width > maxLineWidth || keySizes.height > maxLineHeight
-          || voteSizes.width > maxLineWidth || voteSizes.height > maxLineHeight
-          || percSizes.width > maxLineWidth || percSizes.height > maxLineHeight) {
-          return this.setState({
-            calcFontSize: calcFontSize - fontSizeIncrement,
-          });
-
-          // font size is fine for the current line, switch to the next line
-          // or finish with the font-size calculations if this we are at the end of the array
-        }
-        if (currentLine < textArray.length - 1) {
-          return this.setState({
-            currentLine: currentLine + 1,
-            lineToMeasure: textArray[currentLine + 1],
-          });
-        }
-        return this.setState({
-          fontSizeDirection: 0,
-          currentLine: 0,
-          lineToMeasure: textArray[0],
-        });
-      }
-    }
-
-    // next block is executed when we finally found a proper font size
-
-    // finding the biggest width and height of the left and right strings,
-    // max real line height and max width value for 1 digit
-    let maxLeftWidth = 0;
-    let maxRightWidth = 0;
-    maxLineHeight = 0;
-    for (let i = 0; i < textArray.length; i += 1) {
-      const key = `${annotation.id}_key_${i}`;
-      const percent = `${annotation.id}_percent_${i}`;
-      const keySizes = this[key].getBBox();
-      const percSizes = this[percent].getBBox();
-
-      if (keySizes.width > maxLeftWidth) {
-        maxLeftWidth = keySizes.width;
-      }
-
-      if (percSizes.width > maxRightWidth) {
-        maxRightWidth = percSizes.width;
-      }
-
-      if (keySizes.height > maxLineHeight) {
-        maxLineHeight = keySizes.height;
-      }
-
-      if (percSizes.height > maxLineHeight) {
-        maxLineHeight = percSizes.height;
-      }
-    }
-
-    const digitRef = `${annotation.id}_digit`;
-    const maxDigitWidth = this[digitRef].getBBox().width;
-    const maxDigitHeight = this[digitRef].getBBox().height;
-
-    return this.setState({
-      maxLeftWidth,
-      maxRightWidth,
-      maxLineHeight,
-      maxDigitWidth,
-      maxDigitHeight,
-      prepareToDisplay: false,
+      calculated: true,
     });
   }
 

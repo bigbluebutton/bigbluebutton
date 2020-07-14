@@ -7,7 +7,6 @@ import ErrorScreen from '/imports/ui/components/error-screen/component';
 import MeetingEnded from '/imports/ui/components/meeting-ended/component';
 import LoadingScreen from '/imports/ui/components/loading-screen/component';
 import Settings from '/imports/ui/services/settings';
-import AudioManager from '/imports/ui/services/audio-manager';
 import logger from '/imports/startup/client/logger';
 import Users from '/imports/api/users';
 import { Session } from 'meteor/session';
@@ -126,6 +125,8 @@ class Base extends Component {
       logger.info({ logCode: 'startup_client_subscriptions_ready' }, 'Subscriptions are ready');
     }
 
+406
+>>>>>>> develop
     if (prevProps.meetingExist && !meetingExist && !meetingExisted) {
       this.setMeetingExisted(true);
     }
@@ -182,8 +183,8 @@ class Base extends Component {
     const { updateLoadingState } = this;
     const stateControls = { updateLoadingState };
     const { loading } = this.state;
-    const codeError = Session.get('codeError');
     const {
+      codeError,
       ejected,
       meetingExist,
       meetingHasEnded,
@@ -197,7 +198,6 @@ class Base extends Component {
     }
 
     if (ejected) {
-      AudioManager.exitAudio();
       return (<MeetingEnded code="403" />);
     }
 
@@ -207,7 +207,6 @@ class Base extends Component {
     }
 
     if (((meetingHasEnded && !meetingIsBreakout)) || (codeError && (User && User.loggedOut))) {
-      AudioManager.exitAudio();
       return (<MeetingEnded code={codeError} />);
     }
 
@@ -215,10 +214,11 @@ class Base extends Component {
       // 680 is set for the codeError when the user requests a logout
       if (codeError !== '680') {
         logger.error({ logCode: 'startup_client_usercouldnotlogin_error' }, `User could not log in HTML5, hit ${codeError}`);
+        return (<ErrorScreen code={codeError} />);
       }
-      return (<ErrorScreen code={codeError} />);
+      return (<MeetingEnded code={codeError} />);
     }
-    // this.props.annotationsHandler.stop();
+
     return (<AppContainer {...this.props} baseControls={stateControls} />);
   }
 
@@ -387,6 +387,7 @@ const BaseContainer = withTracker(() => {
   }
 
   const usersVideo = VideoService.getVideoStreams();
+  const codeError = Session.get('codeError');
 
   return {
     approved,
@@ -403,6 +404,7 @@ const BaseContainer = withTracker(() => {
     subscriptionsReady: Session.get('subscriptionsReady'),
     loggedIn,
     usersVideo,
+    codeError,
   };
 })(withLayoutContext(Base));
 

@@ -6,33 +6,16 @@ import Cursor from './component';
 
 
 class CursorContainer extends Component {
-  constructor() {
-    super();
-    this.state = {
-      labelBoxWidth: 0,
-      labelBoxHeight: 0,
-    };
-    this.setLabelBoxDimensions = this.setLabelBoxDimensions.bind(this);
-  }
 
-  setLabelBoxDimensions(labelBoxWidth, labelBoxHeight) {
-    this.setState({
-      labelBoxWidth,
-      labelBoxHeight,
-    });
-  }
 
   render() {
     const { cursorX, cursorY } = this.props;
-    const { labelBoxWidth, labelBoxHeight } = this.state;
 
     if (cursorX > 0 && cursorY > 0) {
       return (
         <Cursor
           cursorX={cursorX}
           cursorY={cursorY}
-          labelBoxWidth={labelBoxWidth}
-          labelBoxHeight={labelBoxHeight}
           setLabelBoxDimensions={this.setLabelBoxDimensions}
           {...this.props}
         />

@@ -160,6 +160,8 @@ class UserDropdown extends PureComponent {
       showNestedOptions: false,
     };
 
+    this.title = _.uniqueId('dropdown-title-');
+    this.seperator = _.uniqueId('action-separator-');
     this.audio = new Audio(`${Meteor.settings.public.app.cdn + Meteor.settings.public.app.basename}/resources/sounds/bbb-handRaise.mp3`);
 
     this.handleScroll = this.handleScroll.bind(this);
@@ -169,11 +171,6 @@ class UserDropdown extends PureComponent {
     this.renderUserAvatar = this.renderUserAvatar.bind(this);
     this.resetMenuState = this.resetMenuState.bind(this);
     this.makeDropdownItem = this.makeDropdownItem.bind(this);
-  }
-
-  componentWillMount() {
-    this.title = _.uniqueId('dropdown-title-');
-    this.seperator = _.uniqueId('action-separator-');
   }
 
   componentDidUpdate() {
@@ -319,7 +316,13 @@ class UserDropdown extends PureComponent {
       ));
     }
 
-    if (CHAT_ENABLED && enablePrivateChat && !meetingIsBreakout && isMeteorConnected) {
+    const showChatOption = CHAT_ENABLED
+      && enablePrivateChat
+      && user.clientType !== 'dial-in-user'
+      && !meetingIsBreakout
+      && isMeteorConnected;
+
+    if (showChatOption) {
       actions.push(this.makeDropdownItem(
         'activeChat',
         intl.formatMessage(messages.ChatLabel),

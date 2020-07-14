@@ -48,11 +48,11 @@ class ScreenshareComponent extends React.Component {
     window.addEventListener('screensharePlayFailed', this.handlePlayElementFailed);
   }
 
-  componentWillReceiveProps(nextProps) {
+  componentDidUpdate(prevProps) {
     const {
       isPresenter, unshareScreen,
     } = this.props;
-    if (isPresenter && !nextProps.isPresenter) {
+    if (prevProps.isPresenter && !isPresenter) {
       unshareScreen();
     }
   }

@@ -65,17 +65,6 @@ export default class TextDrawListener extends Component {
   }
 
 
-  // If the activeId suddenly became empty - this means the shape was deleted
-  // While the user was drawing it. So we are resetting the state.
-  componentWillReceiveProps(nextProps) {
-    const { drawSettings } = this.props;
-    const nextDrawsettings = nextProps.drawSettings;
-
-    if (drawSettings.textShapeActiveId !== '' && nextDrawsettings.textShapeActiveId === '') {
-      this.resetState();
-    }
-  }
-
   componentDidUpdate(prevProps) {
     const {
       drawSettings,
@@ -84,6 +73,12 @@ export default class TextDrawListener extends Component {
 
     const prevDrawsettings = prevProps.drawSettings;
     const prevTextShapeValue = prevProps.drawSettings.textShapeValue;
+
+    // If the activeId suddenly became empty - this means the shape was deleted
+    // While the user was drawing it. So we are resetting the state.
+    if (prevDrawsettings.textShapeActiveId !== '' && drawSettings.textShapeActiveId === '') {
+      this.resetState();
+    }
 
     // Updating the component in cases when:
     // Either color / font-size or text value has changed
