@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React, { Component, Fragment } from 'react';
 import { withTracker } from 'meteor/react-meteor-data';
 import PropTypes from 'prop-types';
 import Auth from '/imports/ui/services/auth';
@@ -18,6 +18,9 @@ import AudioService from '/imports/ui/components/audio/service';
 import { notify } from '/imports/ui/services/notification';
 import deviceInfo from '/imports/utils/deviceInfo';
 import getFromUserSettings from '/imports/ui/services/users-settings';
+import LayoutManager from '/imports/ui/components/layout/layout-manager';
+import { withLayoutContext } from '/imports/ui/components/layout/context';
+import VideoService from '/imports/ui/components/video-provider/service';
 
 const CHAT_CONFIG = Meteor.settings.public.chat;
 const CHAT_ENABLED = CHAT_CONFIG.enabled;
@@ -101,16 +104,29 @@ class Base extends Component {
       ejected,
       isMeteorConnected,
       subscriptionsReady,
+      layoutContextDispatch,
+      usersVideo,
     } = this.props;
     const {
       loading,
       meetingExisted,
     } = this.state;
 
+    if (usersVideo !== prevProps.usersVideo) {
+      layoutContextDispatch(
+        {
+          type: 'setUsersVideo',
+          value: usersVideo.length,
+        },
+      );
+    }
+
     if (!prevProps.subscriptionsReady && subscriptionsReady) {
       logger.info({ logCode: 'startup_client_subscriptions_ready' }, 'Subscriptions are ready');
     }
 
+406
+>>>>>>> develop
     if (prevProps.meetingExist && !meetingExist && !meetingExisted) {
       this.setMeetingExisted(true);
     }
@@ -211,9 +227,14 @@ class Base extends Component {
     const { meetingExisted } = this.state;
 
     return (
-      (!meetingExisted && !meetingExist && Auth.loggedIn)
-        ? <LoadingScreen />
-        : this.renderByState()
+      <Fragment>
+        <LayoutManager />
+        {
+          (!meetingExisted && !meetingExist && Auth.loggedIn)
+            ? <LoadingScreen />
+            : this.renderByState()
+        }
+      </Fragment>
     );
   }
 }
@@ -365,6 +386,7 @@ const BaseContainer = withTracker(() => {
     Session.set('openPanel', '');
   }
 
+  const usersVideo = VideoService.getVideoStreams();
   const codeError = Session.get('codeError');
 
   return {
@@ -381,8 +403,9 @@ const BaseContainer = withTracker(() => {
     meetingIsBreakout: AppService.meetingIsBreakout(),
     subscriptionsReady: Session.get('subscriptionsReady'),
     loggedIn,
+    usersVideo,
     codeError,
   };
-})(Base);
+})(withLayoutContext(Base));
 
 export default BaseContainer;
