@@ -74,7 +74,6 @@
     "app.userList.menu.clearStatus.label": "清除狀態",
     "app.userList.menu.removeUser.label": "移除用戶",
     "app.userList.menu.removeConfirmation.label": "刪除使用者({0})",
-    "app.userlist.menu.removeConfirmation.desc": "您確定要刪除這個參與者嗎?刪除後他將再也不能加入此會談。",
     "app.userList.menu.muteUserAudio.label": "用戶靜音",
     "app.userList.menu.unmuteUserAudio.label": "取消用戶靜音",
     "app.userList.userAriaLabel": "{0}{1}{2}狀態{3}",

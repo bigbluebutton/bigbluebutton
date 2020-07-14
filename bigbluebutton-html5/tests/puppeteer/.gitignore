@@ -6,3 +6,4 @@ downloads/*
 .directory
 .env
 media/*
+data/

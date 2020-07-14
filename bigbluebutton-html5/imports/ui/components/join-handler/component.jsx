@@ -14,7 +14,6 @@ const propTypes = {
 
 class JoinHandler extends Component {
   static setError(codeError) {
-    Session.set('hasError', true);
     if (codeError) Session.set('codeError', codeError);
   }
 
@@ -180,7 +179,7 @@ class JoinHandler extends Component {
       logUserInfo();
 
       Tracker.autorun(async (cd) => {
-        const user = Users.findOne({ userId: Auth.userID, authed: true }, { fields: { _id: 1 } });
+        const user = Users.findOne({ userId: Auth.userID, approved: true }, { fields: { _id: 1 } });
 
         if (user) {
           await setCustomData(response);
