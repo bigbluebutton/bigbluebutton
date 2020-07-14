@@ -125,8 +125,6 @@ class Base extends Component {
       logger.info({ logCode: 'startup_client_subscriptions_ready' }, 'Subscriptions are ready');
     }
 
-406
->>>>>>> develop
     if (prevProps.meetingExist && !meetingExist && !meetingExisted) {
       this.setMeetingExisted(true);
     }
