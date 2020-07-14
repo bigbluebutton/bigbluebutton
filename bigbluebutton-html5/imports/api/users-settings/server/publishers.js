@@ -44,7 +44,7 @@ function userSettings() {
   Logger.debug(`Publishing user settings for user=${requesterUserId}`);
 
   function transformUserSetting(uSetting) {
-    if (uSetting.userId === requesterUserId) {
+    if (true || uSetting.userId === requesterUserId) {
       return uSetting;
     }
     return {
