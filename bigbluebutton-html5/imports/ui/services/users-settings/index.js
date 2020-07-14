@@ -1,7 +1,6 @@
 import Auth from '/imports/ui/services/auth';
 import UserSettings from '/imports/api/users-settings';
 import Users from '/imports/api/users';
-import Logger from '/imports/startup/client/logger';
 
 const ROLE_MODERATOR = Meteor.settings.public.user.role_moderator;
 
@@ -35,9 +34,7 @@ function appliesMagicCapModeratorException(userId) {
     return false;
   }
   if (currentUser.breakoutProps.isBreakoutUser) {
-    Logger.info('CU...1 :'); Logger.info(JSON.stringify(currentUser));
     currentUser = Users.findOne({ userId: currentUser.extId.split('-')[0] });
-    Logger.info('CU...2 :'); Logger.info(JSON.stringify(currentUser));
   }
   return currentUser.role === ROLE_MODERATOR;
 }
