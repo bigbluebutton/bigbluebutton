@@ -1,7 +1,20 @@
 import React, { Component } from 'react';
+import _ from 'lodash';
 import injectNotify from '/imports/ui/components/toast/inject-notify/component';
 import { defineMessages, injectIntl } from 'react-intl';
 import { styles } from './styles';
+
+const CDN = Meteor.settings.public.app.cdn;
+const BASENAME = Meteor.settings.public.app.basename;
+const HOST = CDN + BASENAME;
+const WAITING_GUEST_BELL = Meteor.settings.public.waitingGuestBell;
+
+function ringWaitingGuestBell() {
+  if (WAITING_GUEST_BELL.enabled) {
+    const audio = new Audio(`${HOST}/resources/sounds/notify.mp3`);
+    audio.play();
+  }
+}
 
 const intlMessages = defineMessages({
   pendingGuestAlert: {
@@ -27,6 +40,11 @@ class PendingUsersAlert extends Component {
     };
 
     this.notifyAndStore = this.notifyAndStore.bind(this);
+    this.ringWaitingGuestBell = _.debounce(
+      ringWaitingGuestBell,
+      WAITING_GUEST_BELL.debounceTime,
+      { leading: true, trailing: false },
+    );
   }
 
   componentDidMount() {
@@ -77,6 +95,7 @@ class PendingUsersAlert extends Component {
       ),
       true,
     );
+    this.ringWaitingGuestBell();
   }
 
   render() {

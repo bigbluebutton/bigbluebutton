@@ -531,6 +531,9 @@ public:
       throttleInterval: 400
       flushOnClose: true
       logTag: ''
+  waitingGuestBell:
+    enabled: true
+    debounceTime: 5000
 private:
   app:
     host: 127.0.0.1
