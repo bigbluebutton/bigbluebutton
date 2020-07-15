@@ -1172,6 +1172,8 @@ begin
             BigBlueButton.logger.info("Made video dir - copying: #{video_file} to -> #{video_dir}")
             FileUtils.cp(video_file, video_dir)
             BigBlueButton.logger.info("Copied #{File.extname(video_file)} file")
+            BigBlueButton.execute("ffmpeg -i #{video_dir}/#{video_file.sub(/.+\//,'')}  -vn -acodec copy #{video_dir}/#{video_file.sub(/.+\//,'').sub(/(\..+)$/,'_a\1')}")
+            BigBlueButton.logger.info("Created a video-less version")
           end
         else
           audio_dir = "#{package_dir}/audio"
