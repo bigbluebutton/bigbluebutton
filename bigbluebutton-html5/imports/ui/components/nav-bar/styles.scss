@@ -11,6 +11,7 @@
 .navbar {
   display: flex;
   flex-direction: column;
+  height:var(--mobile-nav-height);
 }
 
 .top,

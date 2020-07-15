@@ -23,7 +23,6 @@ import MediaService from '/imports/ui/components/media/service';
 import ManyWebcamsNotifier from '/imports/ui/components/video-provider/many-users-notify/container';
 import { withDraggableContext } from '../media/webcam-draggable-overlay/context';
 import { styles } from './styles';
-import { NAVBAR_HEIGHT } from '/imports/ui/components/layout/layout-manager';
 
 const MOBILE_MEDIA = 'only screen and (max-width: 40em)';
 const APP_CONFIG = Meteor.settings.public.app;
@@ -230,12 +229,7 @@ class App extends Component {
     if (!navbar) return null;
 
     return (
-      <header
-        className={styles.navbar}
-        style={{
-          height: NAVBAR_HEIGHT,
-        }}
-      >
+      <header className={styles.navbar}>
         {navbar}
       </header>
     );

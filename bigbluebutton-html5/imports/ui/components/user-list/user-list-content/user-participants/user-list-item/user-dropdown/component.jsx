@@ -160,8 +160,6 @@ class UserDropdown extends PureComponent {
       showNestedOptions: false,
     };
 
-    this.title = _.uniqueId('dropdown-title-');
-    this.seperator = _.uniqueId('action-separator-');
     this.audio = new Audio(`${Meteor.settings.public.app.cdn + Meteor.settings.public.app.basename}/resources/sounds/bbb-handRaise.mp3`);
 
     this.handleScroll = this.handleScroll.bind(this);
@@ -171,6 +169,11 @@ class UserDropdown extends PureComponent {
     this.renderUserAvatar = this.renderUserAvatar.bind(this);
     this.resetMenuState = this.resetMenuState.bind(this);
     this.makeDropdownItem = this.makeDropdownItem.bind(this);
+  }
+
+  componentWillMount() {
+    this.title = _.uniqueId('dropdown-title-');
+    this.seperator = _.uniqueId('action-separator-');
   }
 
   componentDidUpdate() {
