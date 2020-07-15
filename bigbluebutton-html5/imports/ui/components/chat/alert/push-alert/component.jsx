@@ -1,5 +1,6 @@
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
+import _ from 'lodash';
 import injectNotify from '/imports/ui/components/toast/inject-notify/component';
 import { Session } from 'meteor/session';
 
@@ -30,7 +31,6 @@ class ChatPushAlert extends PureComponent {
         onClick={() => {
           Session.set('openPanel', 'chat');
           Session.set('idChatOpen', chat);
-          window.dispatchEvent(new Event('panelChanged'));
         }}
         onKeyPress={() => null}
       >
