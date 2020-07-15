@@ -72,6 +72,10 @@ class Dropdown extends Component {
     this.handleWindowClick = this.handleWindowClick.bind(this);
   }
 
+  componentWillUpdate(nextProps, nextState) {
+    return nextState.isOpen ? screenreaderTrap.trap(this.dropdown) : screenreaderTrap.untrap();
+  }
+
   componentDidUpdate(prevProps, prevState) {
     const {
       onShow,
@@ -81,11 +85,7 @@ class Dropdown extends Component {
 
     const { isOpen } = this.state;
 
-    if (isOpen) {
-      screenreaderTrap.trap(this.dropdown);
-    } else {
-      screenreaderTrap.untrap();
-    }
+
     if (isOpen && !prevState.isOpen) { onShow(); }
 
     if (!isOpen && prevState.isOpen) { onHide(); }
