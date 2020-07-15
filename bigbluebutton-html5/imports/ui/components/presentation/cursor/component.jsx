@@ -38,7 +38,7 @@ export default class Cursor extends Component {
     return obj;
   }
 
-  static getScaledSizes(props, state) {
+  static getScaledSizes(props) {
     // TODO: This might need to change for the use case of fit-to-width portrait
     //       slides in non-presenter view. Some elements are still shrinking.
     const scaleFactor = props.widthRatio / props.physicalWidthRatio;
@@ -58,25 +58,14 @@ export default class Cursor extends Component {
         yOffset: props.cursorLabelBox.yOffset * scaleFactor,
         // making width and height a little bit larger than the size of the text
         // received from BBox, so that the text didn't touch the border
-        width: (state.labelBoxWidth + 3) * scaleFactor,
-        height: (state.labelBoxHeight + 3) * scaleFactor,
+        width: (props.labelBoxWidth + 3) * scaleFactor,
+        height: (props.labelBoxHeight + 3) * scaleFactor,
         strokeWidth: props.cursorLabelBox.labelBoxStrokeWidth * scaleFactor,
       },
     };
   }
 
-  constructor(props) {
-    super(props);
-    this.state = {
-      scaledSizes: null,
-      labelBoxWidth: 0,
-      labelBoxHeight: 0,
-    };
-
-    this.setLabelBoxDimensions = this.setLabelBoxDimensions.bind(this);
-  }
-
-  componentDidMount() {
+  componentWillMount() {
     const {
       cursorX,
       cursorY,
@@ -86,9 +75,8 @@ export default class Cursor extends Component {
       isMultiUser,
     } = this.props;
 
-    this.setState({
-      scaledSizes: Cursor.getScaledSizes(this.props, this.state),
-    });
+    // setting the initial cursor info
+    this.scaledSizes = Cursor.getScaledSizes(this.props);
     this.cursorCoordinate = Cursor.getCursorCoordinates(
       cursorX,
       cursorY,
@@ -99,83 +87,66 @@ export default class Cursor extends Component {
     const { fill, displayLabel } = Cursor.getFillAndLabel(presenter, isMultiUser);
     this.fill = fill;
     this.displayLabel = displayLabel;
-    // we need to find the BBox of the text, so that we could set a proper border box arount it
   }
 
-  componentDidUpdate(prevProps, prevState) {
-    const {
-      scaledSizes,
-    } = this.state;
-    if (!prevState.scaledSizes && scaledSizes) {      
-      this.calculateCursorLabelBoxDimensions();
-    }
+  componentDidMount() {
+    // we need to find the BBox of the text, so that we could set a proper border box arount it
+    this.calculateCursorLabelBoxDimensions();
+  }
 
+  componentWillReceiveProps(nextProps) {
     const {
       presenter,
       isMultiUser,
       widthRatio,
       physicalWidthRatio,
-      cursorX,
-      cursorY,
-      slideWidth,
-      slideHeight,
-    } = this.props;
-    const {
       labelBoxWidth,
       labelBoxHeight,
-    } = this.state;
+      cursorX,
+      cursorY,
+    } = this.props;
 
-    const {
-      labelBoxWidth: prevLabelBoxWidth,
-      labelBoxHeight: prevLabelBoxHeight,
-    } = prevState;
-
-    if (presenter !== prevProps.presenter || isMultiUser !== prevProps.isMultiUser) {
+    if (presenter !== nextProps.presenter || isMultiUser !== nextProps.isMultiUser) {
       const { fill, displayLabel } = Cursor.getFillAndLabel(
-        presenter,
-        isMultiUser,
+        nextProps.presenter,
+        nextProps.isMultiUser,
       );
       this.displayLabel = displayLabel;
       this.fill = fill;
     }
 
-    if ((widthRatio !== prevProps.widthRatio
-          || physicalWidthRatio !== prevProps.physicalWidthRatio)
-      || (labelBoxWidth !== prevLabelBoxWidth
-          || labelBoxHeight !== prevLabelBoxHeight)) {
-            this.setState({
-              scaledSizes: Cursor.getScaledSizes(this.props, this.state),
-            });
+    if ((widthRatio !== nextProps.widthRatio
+          || physicalWidthRatio !== nextProps.physicalWidthRatio)
+      || (labelBoxWidth !== nextProps.labelBoxWidth
+          || labelBoxHeight !== nextProps.labelBoxHeight)) {
+      this.scaledSizes = Cursor.getScaledSizes(nextProps);
     }
 
-    if (cursorX !== prevProps.cursorX || cursorY !== prevProps.cursorY) {
+    if (cursorX !== nextProps.cursorX || cursorY !== nextProps.cursorY) {
       const cursorCoordinate = Cursor.getCursorCoordinates(
-        cursorX,
-        cursorY,
-        slideWidth,
-        slideHeight,
+        nextProps.cursorX,
+        nextProps.cursorY,
+        nextProps.slideWidth,
+        nextProps.slideHeight,
       );
       this.cursorCoordinate = cursorCoordinate;
     }
   }
 
-  setLabelBoxDimensions(labelBoxWidth, labelBoxHeight) {    
-    this.setState({
-      labelBoxWidth,
-      labelBoxHeight,
-    });
-  }
-
   // this function retrieves the text node, measures its BBox and sets the size for the outer box
   calculateCursorLabelBoxDimensions() {
+    const {
+      setLabelBoxDimensions,
+    } = this.props;
+
     let labelBoxWidth = 0;
     let labelBoxHeight = 0;
-
     if (this.cursorLabelRef) {
       const { width, height } = this.cursorLabelRef.getBBox();
       const { widthRatio, physicalWidthRatio, cursorLabelBox } = this.props;
       labelBoxWidth = Cursor.invertScale(width, widthRatio, physicalWidthRatio);
       labelBoxHeight = Cursor.invertScale(height, widthRatio, physicalWidthRatio);
+
       // if the width of the text node is bigger than the maxSize - set the width to maxWidth
       if (labelBoxWidth > cursorLabelBox.maxWidth) {
         labelBoxWidth = cursorLabelBox.maxWidth;
@@ -183,30 +154,26 @@ export default class Cursor extends Component {
     }
 
     // updating labelBoxWidth and labelBoxHeight in the container, which then passes it down here
-    this.setLabelBoxDimensions(labelBoxWidth, labelBoxHeight);
+    setLabelBoxDimensions(labelBoxWidth, labelBoxHeight);
   }
 
   render() {
-    const {
-      scaledSizes,
-    } = this.state;
     const {
       cursorId,
       userName,
       isRTL,
     } = this.props;
-    
+
     const {
       cursorCoordinate,
       fill,
     } = this;
-    
-    if (!scaledSizes) return null;
+
     const {
       cursorLabelBox,
       cursorLabelText,
       finalRadius,
-    } = scaledSizes;
+    } = this.scaledSizes;
 
     const {
       x,
@@ -324,6 +291,17 @@ Cursor.propTypes = {
     textDX: PropTypes.number.isRequired,
     fontSize: PropTypes.number.isRequired,
   }),
+
+  // Defines the width of the label box
+  labelBoxWidth: PropTypes.number.isRequired,
+  // Defines the height of the label box
+  labelBoxHeight: PropTypes.number.isRequired,
+
+  // Defines the function, which sets the state for the label box and passes it back down
+  // we need it, since we need to render the text first -> measure its dimensions ->
+  // set proper width and height of the border box -> pass it down ->
+  // catch in the 'componentWillReceiveProps' -> apply new values
+  setLabelBoxDimensions: PropTypes.func.isRequired,
 
   // Defines the direction the client text should be displayed
   isRTL: PropTypes.bool.isRequired,
