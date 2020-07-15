@@ -56,7 +56,6 @@ const handleClickToggleChat = (id) => {
   } else {
     Session.set('idChatOpen', '');
   }
-  window.dispatchEvent(new Event('panelChanged'));
 };
 
 const ChatListItem = (props) => {
