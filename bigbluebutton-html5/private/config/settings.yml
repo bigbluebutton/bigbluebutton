@@ -58,6 +58,7 @@ public:
         userJoinPushAlerts: false
         raiseHandAudioAlerts: true
         raiseHandPushAlerts: true
+        guestWaitingAudioAlerts: true
         fallbackLocale: en
         overrideLocale: null
         #Audio constraints for microphone. Use this to control browser's

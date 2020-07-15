@@ -32,6 +32,10 @@ const intlMessages = defineMessages({
     id: 'app.submenu.notification.userJoinLabel',
     description: 'label for chat messages',
   },
+  guestWaitingLabel: {
+    id: 'app.submenu.notification.guestWaitingLabel',
+    description: 'audio notification when a guest is waiting for approval',
+  },
   raiseHandLabel: {
     id: 'app.submenu.notification.raiseHandLabel',
     description: 'label for raise hand emoji notifications',
@@ -129,6 +133,26 @@ class NotificationMenu extends BaseMenu {
               </div>
             </div>
           </div>
+
+          {isModerator ? (
+            <div className={styles.row}>
+              <div className={styles.col}>
+                <label className={styles.label}>
+                  {intl.formatMessage(intlMessages.guestWaitingLabel)}
+                </label>
+              </div>
+              <div className={styles.col}>
+                <div className={cx(styles.formElement, styles.pullContentCenter)}>
+                  <Toggle
+                    icons={false}
+                    defaultChecked={settings.guestWaitingAudioAlerts}
+                    onChange={() => this.handleToggle('guestWaitingAudioAlerts')}
+                    ariaLabel={intl.formatMessage(intlMessages.guestWaitingLabel)}
+                  />
+                </div>
+              </div>
+            </div>
+          ) : null}
 
           {isModerator ? (
             <div className={styles.row}>
