@@ -102,11 +102,13 @@ class VideoList extends Component {
 
     this.handleCanvasResize();
     window.addEventListener('resize', this.handleCanvasResize, false);
+    window.addEventListener('layoutSizesSets', this.handleCanvasResize, false);
     window.addEventListener('videoPlayFailed', this.handlePlayElementFailed);
   }
 
   componentWillUnmount() {
     window.removeEventListener('resize', this.handleCanvasResize, false);
+    window.removeEventListener('layoutSizesSets', this.handleCanvasResize, false);
     window.removeEventListener('videoPlayFailed', this.handlePlayElementFailed);
   }
 
