@@ -207,7 +207,7 @@ class Auth {
   }
 
   validateAuthToken() {
-    return new Promise((resolve, reject) => {
+    return new Promise(async (resolve, reject) => {
       let computation = null;
 
       const validationTimeout = setTimeout(() => {
@@ -218,9 +218,19 @@ class Auth {
         });
       }, CONNECTION_TIMEOUT);
 
+      const result = await makeCall('validateAuthToken', this.meetingID, this.userID, this.token, this.externUserID);
+
+      if (!result) {
+        clearTimeout(validationTimeout);
+        reject({
+          error: 401,
+          description: 'User has been banned.',
+        });
+        return;
+      }
+
       Tracker.autorun((c) => {
         computation = c;
-        makeCall('validateAuthToken', this.meetingID, this.userID, this.token);
         Meteor.subscribe('current-user');
 
         const selector = { meetingId: this.meetingID, userId: this.userID };
@@ -237,6 +247,7 @@ class Auth {
         }
 
         if (User.ejected) {
+          computation.stop();
           reject({
             error: 401,
             description: 'User has been ejected.',

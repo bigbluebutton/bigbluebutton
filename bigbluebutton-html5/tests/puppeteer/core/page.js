@@ -44,14 +44,9 @@ class Page {
         'Accept-Language': 'en-US',
       });
       await this.setDownloadBehavior(`${this.parentDir}/downloads`);
-      this.logger('before create meeting', customParameter);
       this.meetingId = await helper.createMeeting(params, meetingId, customParameter);
-      this.logger('after create meeting', customParameter);
 
-      this.logger('before getJoinURL', customParameter);
       const joinURL = helper.getJoinURL(this.meetingId, this.effectiveParams, isModerator, customParameter);
-      this.logger('after getJoinURL', customParameter);
-
       await this.page.goto(joinURL);
       const checkForGetMetrics = async () => {
         if (process.env.BBB_COLLECT_METRICS === 'true') {
