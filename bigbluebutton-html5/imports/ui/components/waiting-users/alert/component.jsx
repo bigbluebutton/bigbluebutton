@@ -45,7 +45,7 @@ class PendingUsersAlert extends Component {
     // guests are entering almost at the same time
     this.ringGuestWaitingBell = _.throttle(
       ringGuestWaitingBell,
-      GUEST_WAITING_BELL_DEBOUNCE_TIME,
+      GUEST_WAITING_BELL_THROTTLE_TIME,
       { leading: true, trailing: false },
     );
   }
