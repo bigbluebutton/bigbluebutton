@@ -28,7 +28,6 @@ class Captions extends React.Component {
     } = this.props;
 
     if (padId === nextProps.padId) {
-      if (this.text !== '') this.ariaText = this.text;
       if (revs === nextProps.revs && !nextState.clear) return false;
     }
     return true;
@@ -56,7 +55,9 @@ class Captions extends React.Component {
     const { clear } = this.state;
     if (clear) {
       this.text = '';
+      this.ariaText = '';
     } else {
+      this.ariaText = CaptionsService.formatCaptionsText(data);
       const text = this.text + data;
       this.text = CaptionsService.formatCaptionsText(text);
     }
@@ -105,15 +106,13 @@ class Captions extends React.Component {
 
     return (
       <div>
-        <div
-          aria-hidden
-          style={captionStyles}
-        >
+        <div style={captionStyles}>
           {this.text}
         </div>
         <div
           style={visuallyHidden}
-          aria-live={this.text === '' && this.ariaText !== '' ? 'polite' : 'off'}
+          aria-atomic
+          aria-live="polite"
         >
           {this.ariaText}
         </div>

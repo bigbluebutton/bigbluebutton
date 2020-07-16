@@ -103,6 +103,12 @@ class PresentationArea extends PureComponent {
       currentPresentation,
       slidePosition,
       webcamDraggableDispatch,
+      layoutSwapped,
+      currentSlide,
+      publishedPoll,
+      isViewer,
+      toggleSwapLayout,
+      restoreOnUpdate,
     } = this.props;
 
     const { width: prevWidth, height: prevHeight } = prevProps.slidePosition;
@@ -128,6 +134,16 @@ class PresentationArea extends PureComponent {
         onClose: () => { this.currentPresentationToastId = null; },
         autoClose: true,
       });
+    }
+
+    if (layoutSwapped && restoreOnUpdate && isViewer && currentSlide) {
+      const slideChanged = currentSlide.id !== prevProps.currentSlide.id;
+      const positionChanged = slidePosition.viewBoxHeight !== prevProps.slidePosition.viewBoxHeight
+        || slidePosition.viewBoxWidth !== prevProps.slidePosition.viewBoxWidth;
+      const pollPublished = publishedPoll && !prevProps.publishedPoll;
+      if (slideChanged || positionChanged || pollPublished || presentationChanged) {
+        toggleSwapLayout();
+      }
     }
   }
 
@@ -405,6 +421,7 @@ class PresentationArea extends PureComponent {
       currentSlide,
       slidePosition,
       userIsPresenter,
+      layoutSwapped,
     } = this.props;
 
     const {
@@ -457,6 +474,7 @@ class PresentationArea extends PureComponent {
           width: svgDimensions.width,
           height: svgDimensions.height,
           textAlign: 'center',
+          display: layoutSwapped ? 'none' : 'block',
         }}
       >
         {this.renderPresentationClose()}

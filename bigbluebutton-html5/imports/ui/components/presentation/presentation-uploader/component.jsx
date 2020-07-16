@@ -403,7 +403,6 @@ class PresentationUploader extends Component {
 
     const currentIndex = presentations.findIndex(p => p.isCurrent);
     const newCurrentIndex = presentations.findIndex(p => p.id === id);
-
     const commands = {};
 
     // we can end up without a current presentation
@@ -426,10 +425,7 @@ class PresentationUploader extends Component {
     };
 
     const presentationsUpdated = update(presentations, commands);
-
-    this.setState({
-      presentations: presentationsUpdated,
-    });
+    this.setState({ presentations: presentationsUpdated });
   }
 
   handleRemove(item) {
@@ -442,6 +438,25 @@ class PresentationUploader extends Component {
       presentations: update(presentations, {
         $splice: [[toRemoveIndex, 1]],
       }),
+    }, () => {
+      const { presentations: updatedPresentations, oldCurrentId } = this.state;
+      const currentIndex = updatedPresentations.findIndex(p => p.isCurrent);
+      const actualCurrentIndex = updatedPresentations.findIndex(p => p.id === oldCurrentId);
+
+      if (currentIndex === -1 && updatedPresentations.length > 0) {
+        const commands = {};
+        const newCurrentIndex = actualCurrentIndex === -1 ? 0 : actualCurrentIndex;
+        commands[newCurrentIndex] = {
+          $apply: (presentation) => {
+            const p = presentation;
+            p.isCurrent = true;
+            return p;
+          },
+        };
+
+        const updatedCurrent = update(updatedPresentations, commands);
+        this.setState({ presentations: updatedCurrent });
+      }
     });
   }
 
