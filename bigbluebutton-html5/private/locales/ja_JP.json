@@ -435,7 +435,7 @@
     "app.audioManager.invalidTarget": "エラー：リクエスト先が見つかりませんでした",
     "app.audioManager.mediaError": "エラー：デバイスが見つかりませんでした",
     "app.audio.joinAudio": "音声で参加",
-    "app.audio.leaveAudio": "音声をやめる",
+    "app.audio.leaveAudio": "音声を停止",
     "app.audio.enterSessionLabel": "セッションに参加",
     "app.audio.playSoundLabel": "音声を再生",
     "app.audio.backLabel": "戻る",
