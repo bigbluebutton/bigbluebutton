@@ -48,11 +48,18 @@ function userSettings() {
     if (uSetting.userId === requesterUserId) {
       return uSetting;
     }
+    if (otherUsersExportSettings.includes(uSetting.setting)) {
+      return {
+        meetingId,
+        userId: uSetting.userId,
+        setting: uSetting.setting,
+        value: uSetting.value,
+      };
+    }
     return {
-      meetingId,
-      userId: uSetting.userId,
-      setting: uSetting.setting,
-      value: otherUsersExportSettings.includes(uSetting.setting) ? uSetting.value : undefined,
+      meetingId: '',
+      userId: '',
+      setting: '',
     };
   }
 

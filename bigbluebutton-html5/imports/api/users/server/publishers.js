@@ -51,6 +51,7 @@ function publishCurrentUser(...args) {
 
 Meteor.publish('current-user', publishCurrentUser);
 
+// eslint-disable-next-line no-unused-vars
 function users(role) {
   if (!this.userId) {
     return Users.find({ meetingId: '' });
@@ -65,7 +66,14 @@ function users(role) {
 
   // eslint-disable-next-line max-len
   const User = Users.findOne({ userId: requesterUserId, meetingId },
-    { fields: { role: 1, 'breakoutProps.isBreakoutUser': 1, 'breakoutProps.parentId': 1 } });
+    {
+      fields: {
+        role: 1,
+        'breakoutProps.isBreakoutUser': 1,
+        'breakoutProps.parentId': 1,
+        extId: 1,
+      },
+    });
 
   if (!!User && User.role === ROLE_MODERATOR) {
     selector.$or.push({
@@ -78,6 +86,7 @@ function users(role) {
   if (!!User && User.breakoutProps.isBreakoutUser) {
     selector.$or.push({
       meetingId: User.breakoutProps.parentId,
+      userId: User.extId.split('-')[0],
     });
   }
 
