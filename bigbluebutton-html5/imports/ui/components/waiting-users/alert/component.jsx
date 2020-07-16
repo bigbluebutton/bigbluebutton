@@ -8,6 +8,7 @@ import { styles } from './styles';
 const CDN = Meteor.settings.public.app.cdn;
 const BASENAME = Meteor.settings.public.app.basename;
 const HOST = CDN + BASENAME;
+const GUEST_WAITING_BELL_THROTTLE_TIME = 10000;
 
 function ringGuestWaitingBell() {
   if (Settings.application.guestWaitingAudioAlerts) {
@@ -40,9 +41,11 @@ class PendingUsersAlert extends Component {
     };
 
     this.notifyAndStore = this.notifyAndStore.bind(this);
-    this.ringGuestWaitingBell = _.debounce(
+    // The throttle prevents the bell from annoying the mods when a lot of
+    // guests are entering almost at the same time
+    this.ringGuestWaitingBell = _.throttle(
       ringGuestWaitingBell,
-      4000,
+      GUEST_WAITING_BELL_DEBOUNCE_TIME,
       { leading: true, trailing: false },
     );
   }
