@@ -2,6 +2,7 @@ import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import _ from 'lodash';
 import fastdom from 'fastdom';
+import SanitizeHTML from 'sanitize-html';
 
 const propTypes = {
   text: PropTypes.string.isRequired,
@@ -151,10 +152,17 @@ export default class MessageListItem extends PureComponent {
       className,
     } = this.props;
 
+    const sanitizedText = SanitizeHTML(text, {
+      allowedTags: ['b', 'strong', 'i', 'u', 'a'],
+      allowedAttributes: {
+        a: ['href', 'name', 'target'],
+      },
+    });
+
     return (
       <p
         ref={(ref) => { this.text = ref; }}
-        dangerouslySetInnerHTML={{ __html: text }}
+        dangerouslySetInnerHTML={{ __html: sanitizedText }}
         className={className}
       />
     );
