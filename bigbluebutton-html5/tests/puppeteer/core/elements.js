@@ -23,3 +23,4 @@ exports.screenShareVideo = 'video[id="screenshareVideo"]';
 exports.logout = 'li[data-test="logout"]';
 exports.meetingEndedModal = 'div[data-test="meetingEndedModal"]';
 exports.rating = 'div[data-test="rating"]';
+exports.whiteboard = 'svg[data-test="whiteboard"]';

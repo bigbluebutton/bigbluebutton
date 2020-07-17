@@ -6,7 +6,7 @@ const util = require('./util');
 const be = require('./elements'); // breakout elements
 const we = require('../webcam/elements'); // webcam elements
 const ae = require('../audio/elements'); // audio elements
-const e = require('../core/elements');
+const e = require('../core/elements'); // page base elements
 // page elements
 const today = moment().format('DD-MM-YYYY');
 
@@ -45,8 +45,8 @@ class Create {
     await this.page2.page.evaluate(util.clickTestElement, be.modalConfirmButton);
     this.page2.logger('page02 breakout rooms join confirmed');
     await this.page2.screenshot(`${testName}`, `02-page02-accept-invite-breakoutrooms-${testName}`);
+
     const page2 = await this.page2.browser.pages();
-    await page2[2].bringToFront();
     this.page2.logger('before closing audio modal');
     await page2[2].screenshot({ path: path.join(__dirname, `../${process.env.TEST_FOLDER}/test-${today}-${testName}/screenshots/03-breakout-page02-before-closing-audio-modal.png`) });
     await this.page2.waitForBreakoutElement('button[aria-label="Close Join audio modal"]', 2);
@@ -75,17 +75,19 @@ class Create {
       await this.page3.click(be.breakoutRoomsButton, true);
       await this.page3.waitForSelector(be.joinRoom1);
       await this.page3.click(be.joinRoom1, true);
+      await this.page3.waitForSelector(be.alreadyConnected);
 
       const page3 = await this.page3.browser.pages();
 
-      await page3[2].screenshot({ path: path.join(__dirname, `../${process.env.TEST_FOLDER}/test-${today}-${testName}/screenshots/00-breakout-page03-user-joined-no-mic-before-check.png`) });
+      await page3[2].screenshot({ path: path.join(__dirname, `../${process.env.TEST_FOLDER}/test-${today}-${testName}/screenshots/00-breakout-page03-user-joined-no-mic-before-check-${testName}.png`) });
       await page3[2].waitForSelector(ae.microphone);
       await page3[2].click(ae.microphone);
       await page3[2].waitForSelector(ae.connectingStatus);
       await page3[2].waitForSelector(ae.audioAudible);
       await page3[2].click(ae.audioAudible);
+      await page3[2].waitForSelector(e.whiteboard);
 
-      await page3[2].screenshot({ path: path.join(__dirname, `../${process.env.TEST_FOLDER}/test-${today}-${testName}/screenshots/00-breakout-page03-user-joined-with-mic-before-check.png`) });
+      await page3[2].screenshot({ path: path.join(__dirname, `../${process.env.TEST_FOLDER}/test-${today}-${testName}/screenshots/00-breakout-page03-user-joined-with-mic-before-check-${testName}.png`) });
 
       this.page3.logger('joined breakout with audio');
     } else if (testName === 'joinBreakoutroomsWithVideo') {
@@ -95,9 +97,11 @@ class Create {
       await this.page3.click(be.breakoutRoomsButton, true);
       await this.page3.waitForSelector(be.joinRoom1);
       await this.page3.click(be.joinRoom1, true);
-      const page3 = await this.page3.browser.pages();
-      await page3[2].bringToFront();
+      await this.page3.waitForSelector(be.alreadyConnected);
 
+      const page3 = await this.page3.browser.pages();
+
+      await page3[2].screenshot({ path: path.join(__dirname, `../${process.env.TEST_FOLDER}/test-${today}-${testName}/screenshots/00-breakout-page03-user-joined-no-webcam-before-check-${testName}.png`) });
       await page3[2].waitForSelector(e.audioDialog);
       await page3[2].waitForSelector(e.closeAudio);
       await page3[2].click(e.closeAudio);
@@ -107,6 +111,7 @@ class Create {
       await page3[2].click(we.videoPreview);
       await page3[2].waitForSelector(we.startSharingWebcam);
       await page3[2].click(we.startSharingWebcam);
+      await page3[2].screenshot({ path: path.join(__dirname, `../${process.env.TEST_FOLDER}/test-${today}-${testName}/screenshots/00-breakout-page03-user-joined-with-webcam-before-check-${testName}.png`) });
 
       this.page3.logger('joined breakout with video');
     } else if (testName === 'joinBreakoutroomsAndShareScreen') {
@@ -116,7 +121,9 @@ class Create {
       await this.page3.click(be.breakoutRoomsButton, true);
       await this.page3.waitForSelector(be.joinRoom1);
       await this.page3.click(be.joinRoom1, true);
+      await this.page3.waitForSelector(be.alreadyConnected);
       const page3 = await this.page3.browser.pages();
+
       await page3[2].waitForSelector(e.audioDialog);
       await page3[2].waitForSelector(e.closeAudio);
       await page3[2].click(e.closeAudio);
@@ -142,8 +149,9 @@ class Create {
       await this.page3.click(be.breakoutRoomsButton, true);
       await this.page3.waitForSelector(be.joinRoom1);
       await this.page3.click(be.joinRoom1, true);
+      await this.page3.waitForSelector(be.alreadyConnected);
 
-      console.log('with nothing');
+      this.page3.logger('joined breakout without use of any feature');
     }
   }
 
