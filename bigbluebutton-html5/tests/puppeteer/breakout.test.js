@@ -87,7 +87,7 @@ describe('Breakoutrooms', () => {
       await test.init(undefined);
       await test.create(testName);
       await test.join(testName);
-      response = test.testJoined(testName);
+      response = await test.testJoined(testName);
     } catch (e) {
       console.log(e);
     } finally {

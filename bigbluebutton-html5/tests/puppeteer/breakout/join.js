@@ -31,24 +31,28 @@ class Join extends Create {
   async testJoined(testName) {
     this.page3.logger('Now executing: ', testName);
     if (testName === 'joinBreakoutroomsWithAudio') {
-      this.page3.logger('logged in to breakout with audio');
+      try {
+        this.page3.logger('logged in to breakout with audio');
 
-      const page2 = await this.page2.browser.pages();
-      // await page2[2].waitForSelector(pe.isTalking);
-      await page2[2].screenshot({ path: path.join(__dirname, `../${process.env.TEST_FOLDER}/test-${today}-${testName}/screenshots/05-breakout-page03-user-joined-with-audio-before-check-${testName}.png`) });
-      this.page3.logger('before pages check');
+        const page2 = await this.page2.browser.pages();
+        await page2[2].waitForSelector(pe.isTalking);
+        await page2[2].screenshot({ path: path.join(__dirname, `../${process.env.TEST_FOLDER}/test-${today}-${testName}/screenshots/05-breakout-page02-user-joined-with-audio-before-check-${testName}.png`) });
+        this.page3.logger('before pages check');
 
-      const respTalkingIndicatorElement = await page2[2].evaluate(util.getTestElement, pe.isTalking);
-      const resp = respTalkingIndicatorElement === true;
+        const respTalkingIndicatorElement = await page2[2].evaluate(util.getTestElement, pe.isTalking);
+        const resp = respTalkingIndicatorElement === true;
 
-      await page2[2].screenshot({ path: path.join(__dirname, `../${process.env.TEST_FOLDER}/test-${today}-${testName}/screenshots/06-breakout-page02-user-joined-with-audio-after-check-${testName}.png`) });
-      this.page3.logger('after pages check');
-      return resp;
-    } if (testName === 'joinBreakoutroomsWithVideo') {
+        await page2[2].screenshot({ path: path.join(__dirname, `../${process.env.TEST_FOLDER}/test-${today}-${testName}/screenshots/06-breakout-page02-user-joined-with-audio-after-check-${testName}.png`) });
+        this.page3.logger('after pages check');
+        return resp;
+      } catch (e) {
+        console.log(e);
+      }
+    } else if (testName === 'joinBreakoutroomsWithVideo') {
       this.page2.logger('logged in to breakout with video');
 
       const page2 = await this.page2.browser.pages();
-      // await page2[2].waitForSelector(we.videoContainer);
+      await page2[2].waitForSelector(we.videoContainer);
       await page2[2].screenshot({ path: path.join(__dirname, `../${process.env.TEST_FOLDER}/test-${today}-${testName}/screenshots/05-breakout-page02-user-joined-with-webcam-success-${testName}.png`) });
       this.page2.logger('before pages check');
 
@@ -58,7 +62,7 @@ class Join extends Create {
       await page2[2].screenshot({ path: path.join(__dirname, `../${process.env.TEST_FOLDER}/test-${today}-${testName}/screenshots/06-breakout-page02-user-joined-webcam-before-check-${testName}.png`) });
       this.page2.logger('after pages check');
       return resp;
-    } if (testName === 'joinBreakoutroomsAndShareScreen') {
+    } else if (testName === 'joinBreakoutroomsAndShareScreen') {
       this.page2.logger('logged in to breakout with screenshare');
 
       const page2 = await this.page2.browser.pages();
@@ -72,16 +76,17 @@ class Join extends Create {
       await page2[2].screenshot({ path: path.join(__dirname, `../${process.env.TEST_FOLDER}/test-${today}-${testName}/screenshots/06-breakout-page02-user-joined-with-webcam-success-${testName}.png`) });
       this.page2.logger('after pages check');
       return resp;
+    } else {
+      const page2 = await this.page2.browser.pages();
+      await page2[2].waitForSelector(e.userJoined);
+      await page2[2].screenshot({ path: path.join(__dirname, `../${process.env.TEST_FOLDER}/test-${today}-${testName}/screenshots/05-breakout-page02-user-joined-before-check-${testName}.png`) });
+      const resp = await page2[2].evaluate(async () => {
+        const foundUserElement = await document.querySelectorAll('div[aria-label^="Moderator3"]').length !== 0;
+        return foundUserElement;
+      });
+      await page2[2].screenshot({ path: path.join(__dirname, `../${process.env.TEST_FOLDER}/test-${today}-${testName}/screenshots/06-breakout-page02-user-joined-after-check-${testName}.png`) });
+      return resp;
     }
-    const page2 = await this.page2.browser.pages();
-    await page2[2].waitForSelector(e.userJoined);
-    await page2[2].screenshot({ path: path.join(__dirname, `../${process.env.TEST_FOLDER}/test-${today}-${testName}/screenshots/05-breakout-page02-user-joined-before-check-${testName}.png`) });
-    const resp = await page2[2].evaluate(async () => {
-      const foundUserElement = await document.querySelectorAll('div[aria-label^="Moderator3"]').length !== 0;
-      return foundUserElement;
-    });
-    await page2[2].screenshot({ path: path.join(__dirname, `../${process.env.TEST_FOLDER}/test-${today}-${testName}/screenshots/06-breakout-page02-user-joined-after-check-${testName}.png`) });
-    return resp;
   }
 
   // Close pages
