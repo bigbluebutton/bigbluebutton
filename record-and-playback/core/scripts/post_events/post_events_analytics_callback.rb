@@ -32,7 +32,7 @@ require 'yaml'
 
 require File.expand_path('../../../lib/recordandplayback', __FILE__)
 
-file = File.open('/var/log/bigbluebutton/post_events.log', File::WRONLY | File::APPEND | File::CREAT)
+file = File.open('/var/log/bigbluebutton/post_events_analytics_callback.log', File::WRONLY | File::APPEND | File::CREAT)
 logger = Logger.new(file, 'weekly' )
 logger.level = Logger::INFO
 BigBlueButton.logger = logger
