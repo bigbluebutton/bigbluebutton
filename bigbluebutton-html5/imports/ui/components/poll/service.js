@@ -68,11 +68,15 @@ const sendGroupMessage = (message) => {
   return makeCall('sendGroupChatMsg', PUBLIC_GROUP_CHAT_ID, payload);
 };
 
+const currentPoll = () => Polls.findOne({ meetingId: Auth.meetingID });
+
 export default {
-  amIPresenter: () => Users.findOne({ userId: Auth.userID }, { fields: { presenter: 1 } }).presenter,
+  amIPresenter: () => Users.findOne(
+    { userId: Auth.userID },
+    { fields: { presenter: 1 } },
+  ).presenter,
   pollTypes,
-  stopPoll: () => makeCall('stopPoll', Auth.userId),
-  currentPoll: () => Polls.findOne({ meetingId: Auth.meetingID }),
+  currentPoll,
   pollAnswerIds,
   sendGroupMessage,
 };
