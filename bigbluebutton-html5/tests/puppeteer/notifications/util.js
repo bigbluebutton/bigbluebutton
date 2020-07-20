@@ -39,8 +39,8 @@ async function waitForToast(test) {
 
 async function getLastToastValue(test) {
   await test.waitForSelector(ne.smallToastMsg);
-  const toast = test.page.evaluate(() => {
-    const lastToast = document.querySelectorAll('div[data-test="toastSmallMsg"]')[0].innerText;
+  const toast = test.page.evaluate(async () => {
+    const lastToast = await document.querySelectorAll('div[data-test="toastSmallMsg"]')[0].innerText;
     return lastToast;
   });
   return toast;
@@ -48,8 +48,8 @@ async function getLastToastValue(test) {
 
 async function getOtherToastValue(test) {
   await test.waitForSelector(ne.smallToastMsg);
-  const toast = test.page.evaluate(() => {
-    const lastToast = document.querySelectorAll('div[data-test="toastSmallMsg"]')[1].innerText;
+  const toast = test.page.evaluate(async () => {
+    const lastToast = await document.querySelectorAll('div[data-test="toastSmallMsg"]')[1].innerText;
     return lastToast;
   });
   return toast;
