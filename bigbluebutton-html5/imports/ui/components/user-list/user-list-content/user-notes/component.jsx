@@ -93,7 +93,7 @@ class UserNotes extends Component {
       >
         <Icon iconName="copy" />
         <div aria-hidden>
-          <div className={styles.noteTitle}>
+          <div className={styles.noteTitle} data-test="sharedNotes">
             {intl.formatMessage(intlMessages.sharedNotes)}
           </div>
           {disableNote

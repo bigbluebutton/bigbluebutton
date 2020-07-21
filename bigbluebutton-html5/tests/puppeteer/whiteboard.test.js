@@ -2,11 +2,16 @@ const Page = require('./core/page');
 const Draw = require('./whiteboard/draw');
 
 describe('Whiteboard', () => {
+  beforeEach(() => {
+    jest.setTimeout(30000);
+  });
+
   test('Draw rectangle', async () => {
     const test = new Draw();
     let response;
     try {
       await test.init(Page.getArgs());
+      await test.closeAudioModal();
       response = await test.test();
     } catch (e) {
       console.log(e);

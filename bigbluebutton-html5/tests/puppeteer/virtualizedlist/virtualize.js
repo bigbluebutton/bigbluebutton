@@ -11,10 +11,12 @@ class VirtualizeList {
   async init(meetingId) {
     try {
       await this.page1.init(Page.getArgs(), meetingId, { ...params, fullName: 'BroadCaster1' });
+      await this.page1.closeAudioModal();
       await this.page1.waitForSelector('[data-test^="userListItem"]');
       for (let i = 1; i <= parseInt(process.env.USER_LIST_VLIST_BOTS_LISTENING); i++) {
         const viewerPage = new Page();
         await viewerPage.init(Page.getArgs(), this.page1.meetingId, { ...params, fullName: `Viewer${i}`, moderatorPW: '' });
+        await viewerPage.closeAudioModal();
         await this.pagesArray.push(viewerPage);
 
         await this.page1.getMetrics();
