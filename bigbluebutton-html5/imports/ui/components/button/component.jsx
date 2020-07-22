@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import cx from 'classnames';
-import Tooltip from '/imports/ui/components/tooltip/component';
+import TooltipContainer from '/imports/ui/components/tooltip/container';
 import { styles } from './styles';
 import Icon from '../icon/component';
 import BaseButton from './base/component';
@@ -139,11 +139,11 @@ export default class Button extends BaseButton {
     if ((hideLabel && !ariaExpanded) || tooltipLabel) {
       const buttonLabel = label || ariaLabel;
       return (
-        <Tooltip
+        <TooltipContainer
           title={tooltipLabel || buttonLabel}
         >
           {this[renderFuncName]()}
-        </Tooltip>
+        </TooltipContainer>
       );
     }
 
