@@ -11,7 +11,7 @@ async function getTestElement(element) {
 
 async function getScreenShareContainer(test) {
   await test.waitForSelector(e.screenShareVideo);
-  const screenShareContainer = await test.evaluate(getTestElement, e.screenshareVideo);
+  const screenShareContainer = await test.evaluate(getTestElement, e.screenShareVideo);
   const response = screenShareContainer !== null;
   return response;
 }
