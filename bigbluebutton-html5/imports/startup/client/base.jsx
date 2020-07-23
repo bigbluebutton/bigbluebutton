@@ -224,11 +224,7 @@ class Base extends Component {
   render() {
     const {
       meetingExist,
-      locale,
     } = this.props;
-
-    const { updateLoadingState } = this;
-    const stateControls = { updateLoadingState };
     const { meetingExisted } = this.state;
 
     return (
@@ -237,11 +233,7 @@ class Base extends Component {
         {
           (!meetingExisted && !meetingExist && Auth.loggedIn)
             ? <LoadingScreen />
-            : (
-              <IntlStartup locale={locale} baseControls={stateControls}>
-                {this.renderByState()}
-              </IntlStartup>
-            )
+            : this.renderByState()
         }
       </Fragment>
     );
