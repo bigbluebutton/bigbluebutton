@@ -16,7 +16,7 @@ const ANIMATION_NONE = 'none';
 const TIP_OFFSET = '0, 10';
 
 const propTypes = {
-  title: PropTypes.string.isRequired,
+  title: PropTypes.string,
   position: PropTypes.oneOf(['bottom']),
   children: PropTypes.element.isRequired,
   className: PropTypes.string,
@@ -25,6 +25,7 @@ const propTypes = {
 const defaultProps = {
   position: 'bottom',
   className: null,
+  title: '',
 };
 
 class Tooltip extends Component {
@@ -69,7 +70,7 @@ class Tooltip extends Component {
 
   componentDidUpdate() {
     const { animations } = Settings.application;
-    const { title } = this.props;
+    const { title, fullscreen } = this.props;
     const elements = document.querySelectorAll('[id^="tippy-"]');
 
     Array.from(elements).filter((e) => {
@@ -93,7 +94,8 @@ class Tooltip extends Component {
     });
 
     const elem = document.getElementById(this.tippySelectorId);
-    if (elem._tippy) elem._tippy.setProps({ content: title });
+    const opts = { content: title, appendTo: fullscreen || document.body };
+    if (elem && elem._tippy) elem._tippy.setProps(opts);
   }
 
   onShow() {

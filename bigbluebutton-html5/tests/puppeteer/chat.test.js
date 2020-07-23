@@ -6,11 +6,16 @@ const Save = require('./chat/save');
 const MultiUsers = require('./user/multiusers');
 
 describe('Chat', () => {
+  beforeEach(() => {
+    jest.setTimeout(30000);
+  });
+
   test('Send message', async () => {
     const test = new Send();
     let response;
     try {
       await test.init(Page.getArgs());
+      await test.closeAudioModal();
       response = await test.test();
     } catch (e) {
       console.log(e);
@@ -25,6 +30,7 @@ describe('Chat', () => {
     let response;
     try {
       await test.init(Page.getArgs());
+      await test.closeAudioModal();
       response = await test.test();
     } catch (e) {
       console.log(e);
@@ -39,6 +45,7 @@ describe('Chat', () => {
     let response;
     try {
       await test.init(Page.getArgs());
+      await test.closeAudioModal();
       response = await test.test();
     } catch (e) {
       console.log(e);
@@ -53,6 +60,7 @@ describe('Chat', () => {
     let response;
     try {
       await test.init(Page.getArgs());
+      await test.closeAudioModal();
       response = await test.test();
     } catch (e) {
       console.log(e);
@@ -67,11 +75,13 @@ describe('Chat', () => {
     let response;
     try {
       await test.init();
+      await test.page1.closeAudioModal();
+      await test.page2.closeAudioModal();
       response = await test.multiUsersPrivateChat();
     } catch (e) {
       console.log(e);
     } finally {
-      await test.close();
+      await test.close(test.page1, test.page2);
     }
     expect(response).toBe(true);
   });
@@ -81,11 +91,13 @@ describe('Chat', () => {
     let response;
     try {
       await test.init();
+      await test.page1.closeAudioModal();
+      await test.page2.closeAudioModal();
       response = await test.multiUsersPublicChat();
     } catch (e) {
       console.log(e);
     } finally {
-      await test.close();
+      await test.close(test.page1, test.page2);
     }
     expect(response).toBe(true);
   });

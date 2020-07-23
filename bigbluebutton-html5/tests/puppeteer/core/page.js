@@ -54,9 +54,6 @@ class Page {
           await this.getMetrics(testFolderName);
         }
       };
-      // if (process.env.IS_AUDIO_TEST !== 'true') {
-      //   await this.closeAudioModal();
-      // }
       await checkForGetMetrics();
     } catch (e) {
       this.logger(e);
@@ -119,10 +116,24 @@ class Page {
   async getTestElements() {
   }
 
+  async waitForBreakoutElement(element, pageNumber) {
+    const pageTarget = await this.browser.pages();
+    await pageTarget[pageNumber].waitForSelector(element, { timeout: 0 });
+  }
+
+  async clickBreakoutElement(element, pageNumber) {
+    const pageTarget = await this.browser.pages();
+    await pageTarget[pageNumber].click(element);
+  }
+
+  async returnElement(element) {
+    return await document.querySelectorAll(element)[0];
+  }
+
   // Get the default arguments for creating a page
   static getArgs() {
     const args = ['--no-sandbox', '--use-fake-ui-for-media-stream', '--lang=en-US'];
-    return { headless: false, args };
+    return { headless: true, args };
   }
 
   static getArgsWithAudio() {
@@ -134,7 +145,7 @@ class Page {
         '--lang=en-US',
       ];
       return {
-        headless: false,
+        headless: true,
         args,
       };
     }
@@ -147,7 +158,7 @@ class Page {
       '--lang=en-US',
     ];
     return {
-      headless: false,
+      headless: true,
       args,
     };
   }
@@ -161,7 +172,7 @@ class Page {
         '--lang=en-US',
       ];
       return {
-        headless: false,
+        headless: true,
         args,
       };
     }
@@ -174,7 +185,7 @@ class Page {
       '--lang=en-US',
     ];
     return {
-      headless: false,
+      headless: true,
       args,
     };
   }

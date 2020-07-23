@@ -75,7 +75,7 @@ public:
         accesskey: A
         descId: openActions
     branding:
-      displayBrandingArea: false
+      displayBrandingArea: true
     connectionTimeout: 60000
     showHelpButton: true
     effectiveConnection:
