@@ -1,4 +1,6 @@
 #!/bin/bash
+set -e
+
 INSTANCE_NUMBER=$1
 
 if [ -z "$INSTANCE_NUMBER" ]; then
@@ -7,22 +9,26 @@ fi;
 
 _kill() {
 	CHECK_CONTAINER=`docker inspect bbb-libreoffice-${INSTANCE_NUMBER} &> /dev/null && echo 1 || echo 0`
-        if [ "$CHECK_CONTAINER" = "1" ]; then
+	if [ "$CHECK_CONTAINER" = "1" ]; then
 		echo "Killing container"
-                docker kill bbb-libreoffice-${INSTANCE_NUMBER};
-                sleep 1
-        fi;
+		docker kill bbb-libreoffice-${INSTANCE_NUMBER};
+		sleep 1
+	fi;
 }
 
 trap _kill SIGINT
 
 
-if (($INSTANCE_NUMBER >= 1 && $INSTANCE_NUMBER <= 10)); then
+if (($INSTANCE_NUMBER >= 1)); then
 	PATH="/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
 
 	_kill
 
-	docker run --name bbb-libreoffice-${INSTANCE_NUMBER} -p 82${INSTANCE_NUMBER}:8000 -v/var/tmp/soffice${INSTANCE_NUMBER}:/var/tmp/soffice${INSTANCE_NUMBER} --rm bbb-libreoffice &
+	let PORT=8200+${INSTANCE_NUMBER}
+
+	SOFFICE_WORK_DIR="/var/tmp/soffice_"`printf "%02d\n" $INSTANCE_NUMBER`
+
+	docker run --name bbb-libreoffice-${INSTANCE_NUMBER} -p $PORT:8000 -v${SOFFICE_WORK_DIR}:${SOFFICE_WORK_DIR} --rm bbb-libreoffice &
 
 	wait $!
 else

@@ -25,7 +25,7 @@ fi
 IMAGE_CHECK=`docker image inspect bbb-libreoffice &> /dev/null && echo 1 || echo 0`
 if [ "$IMAGE_CHECK"  = "0" ]; then
 	echo "Docker image doesn't exists, building"
-	docker build -t bbb-libreoffice docker/
+	docker build -t bbb-libreoffice --build-arg user_id=`id -u bigbluebutton` docker/
 else
 	echo "Docker image already exists";
 fi
@@ -38,11 +38,12 @@ if [ "$FOLDER_CHECK" = "0" ]; then
 	chmod 700 /usr/share/bbb-libreoffice/libreoffice_container.sh
 	chown -R root /usr/share/bbb-libreoffice/
 
+	cp assets/bbb-libreoffice.service /lib/systemd/system/bbb-libreoffice@.service
+	systemctl daemon-reload
+
 	for i in `seq 1 4` ; do
-		cat assets/bbb-libreoffice.service | sed 's/INSTANCE_NUMBER/0'${i}'/g' > /lib/systemd/system/bbb-libreoffice-0${i}.service
-		systemctl daemon-reload
-		systemctl enable bbb-libreoffice-0${i}
-		systemctl start bbb-libreoffice-0${i}
+		systemctl enable bbb-libreoffice@${i}
+		systemctl start bbb-libreoffice@${i}
 	done
 
 else
