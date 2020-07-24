@@ -15,7 +15,6 @@ if [ "$IMAGE_CHECK"  = "1" ]; then
 	docker image rm bbb-libreoffice
 fi
 
-
 FOLDER_CHECK=`[ -d /usr/share/bbb-libreoffice/ ] && echo 1 || echo 0`
 if [ "$FOLDER_CHECK" = "1" ]; then
 	echo "Stopping services"
@@ -29,3 +28,10 @@ if [ "$FOLDER_CHECK" = "1" ]; then
 	find /etc/systemd/ | grep bbb-libreoffice | xargs --no-run-if-empty -n 1 -I __ rm __
 	systemctl daemon-reload
 fi;
+
+NETWORK_CHECK=`docker network inspect bbb-libreoffice &> /dev/null && echo 1 || echo 0`
+if [ "$NETWORK_CHECK" = "1" ]; then
+        echo "Removing docker network"
+        docker network remove bbb-libreoffice
+fi
+

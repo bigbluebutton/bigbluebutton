@@ -28,7 +28,14 @@ if (($INSTANCE_NUMBER >= 1)); then
 
 	SOFFICE_WORK_DIR="/var/tmp/soffice_"`printf "%02d\n" $INSTANCE_NUMBER`
 
-	docker run --name bbb-libreoffice-${INSTANCE_NUMBER} -p $PORT:8000 -v${SOFFICE_WORK_DIR}:${SOFFICE_WORK_DIR} --rm bbb-libreoffice &
+	INPUT_RULE="INPUT -i br-soffice -m state --state NEW -j DROP"
+	iptables -C $INPUT_RULE || iptables -I $INPUT_RULE
+
+	FORWARD_RULE="FORWARD -i br-soffice -m state --state NEW -j DROP"
+	iptables -C $FORWARD_RULE || iptables -I $FORWARD_RULE
+
+
+	docker run --network bbb-libreoffice --name bbb-libreoffice-${INSTANCE_NUMBER} -p $PORT:8000 -v${SOFFICE_WORK_DIR}:${SOFFICE_WORK_DIR} --rm bbb-libreoffice &
 
 	wait $!
 else

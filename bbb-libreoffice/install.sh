@@ -30,6 +30,13 @@ else
 	echo "Docker image already exists";
 fi
 
+NETWORK_CHECK=`docker network inspect bbb-libreoffice &> /dev/null && echo 1 || echo 0`
+
+if [ "$NETWORK_CHECK" = "0" ]; then
+	echo "Docker network doesn't exists, creating"
+	docker network create bbb-libreoffice -d bridge --opt com.docker.network.bridge.name=br-soffice 
+fi
+
 FOLDER_CHECK=`[ -d /usr/share/bbb-libreoffice/ ] && echo 1 || echo 0`
 if [ "$FOLDER_CHECK" = "0" ]; then
 	echo "Install folder doesn't exists, installing"
