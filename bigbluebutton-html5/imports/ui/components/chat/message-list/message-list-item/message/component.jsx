@@ -153,7 +153,7 @@ export default class MessageListItem extends PureComponent {
     } = this.props;
 
     const sanitizedText = SanitizeHTML(text, {
-      allowedTags: ['b', 'strong', 'i', 'u', 'a'],
+      allowedTags: ['b', 'strong', 'i', 'u', 'a', 'br'],
       allowedAttributes: {
         a: ['href', 'name', 'target'],
       },
