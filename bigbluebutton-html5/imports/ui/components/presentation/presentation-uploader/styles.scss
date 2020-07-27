@@ -161,6 +161,7 @@
 }
 
 .itemAction {
+  margin-left: var(--sm-padding-x);
   div > i {
     margin-top: .25rem;
   }
@@ -192,7 +193,6 @@
   & > i:focus,
   & > i:hover {
     color: var(--color-danger) !important;
-    background-color: transparent;
   }
 
   &[aria-disabled="true"] {

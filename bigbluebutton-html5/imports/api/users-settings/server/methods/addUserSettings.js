@@ -1,6 +1,7 @@
 import { check } from 'meteor/check';
 import addUserSetting from '/imports/api/users-settings/server/modifiers/addUserSetting';
 import logger from '/imports/startup/server/logger';
+import { extractCredentials } from '/imports/api/common/server/helpers';
 
 const oldParameters = {
   askForFeedbackOnLogout: 'bbb_ask_for_feedback_on_logout',
@@ -45,6 +46,9 @@ const currentParameters = [
   'bbb_enable_screen_sharing',
   'bbb_enable_video',
   'bbb_skip_video_preview',
+  'bbb_mirror_own_webcam',
+  // PRESENTATION
+  'bbb_force_restore_presentation_on_new_events',
   // WHITEBOARD
   'bbb_multi_user_pen_only',
   'bbb_presenter_tools',
@@ -56,6 +60,7 @@ const currentParameters = [
   'bbb_auto_swap_layout',
   'bbb_hide_presentation',
   'bbb_show_participants_on_login',
+  'bbb_show_public_chat_on_login',
   // OUTSIDE COMMANDS
   'bbb_outside_toggle_self_voice',
   'bbb_outside_toggle_recording',
@@ -71,10 +76,10 @@ function valueParser(val) {
   }
 }
 
-export default function addUserSettings(credentials, meetingId, userId, settings) {
-  check(meetingId, String);
-  check(userId, String);
+export default function addUserSettings(settings) {
   check(settings, [Object]);
+
+  const { meetingId, requesterUserId: userId } = extractCredentials(this.userId);
 
   let parameters = {};
 

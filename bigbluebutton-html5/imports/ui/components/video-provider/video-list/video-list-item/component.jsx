@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import browser from 'browser-detect';
 import { Meteor } from 'meteor/meteor';
 import PropTypes from 'prop-types';
+import _ from 'lodash';
 import cx from 'classnames';
 import Dropdown from '/imports/ui/components/dropdown/component';
 import DropdownTrigger from '/imports/ui/components/dropdown/trigger/component';
@@ -16,6 +17,7 @@ import FullscreenService from '/imports/ui/components/fullscreen-button/service'
 import FullscreenButtonContainer from '/imports/ui/components/fullscreen-button/container';
 import { styles } from '../styles';
 import { withDraggableConsumer } from '/imports/ui/components/media/webcam-draggable-overlay/context';
+import VideoService from '../../service';
 
 const ALLOW_FULLSCREEN = Meteor.settings.public.app.allowFullscreen;
 
@@ -28,6 +30,8 @@ class VideoListItem extends Component {
       videoIsReady: false,
       isFullscreen: false,
     };
+
+    this.mirrorOwnWebcam = VideoService.mirrorOwnWebcam(props.userId);
 
     this.setVideoIsReady = this.setVideoIsReady.bind(this);
     this.onFullscreenChange = this.onFullscreenChange.bind(this);
@@ -123,6 +127,7 @@ class VideoListItem extends Component {
 
     return (
       <FullscreenButtonContainer
+        data-test="presentationFullscreenButton"
         fullscreenRef={this.videoContainer}
         elementName={name}
         isFullscreen={isFullscreen}
@@ -157,7 +162,7 @@ class VideoListItem extends Component {
       >
         {
           !videoIsReady
-          && <div className={styles.connecting} />
+          && <div data-test="webcamConnecting" className={styles.connecting} />
         }
         <div
           className={styles.videoContainer}
@@ -172,6 +177,7 @@ class VideoListItem extends Component {
                 && !isFullscreen && !swapLayout,
               [styles.cursorGrabbing]: webcamDraggableState.dragging
                 && !isFullscreen && !swapLayout,
+              [styles.mirroredVideo]: this.mirrorOwnWebcam,
             })}
             ref={(ref) => { this.videoTag = ref; }}
             autoPlay

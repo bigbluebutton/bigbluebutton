@@ -1,16 +1,14 @@
 import { Meteor } from 'meteor/meteor';
-import { check } from 'meteor/check';
 import PresentationPods from '/imports/api/presentation-pods';
 import Logger from '/imports/startup/server/logger';
+import { extractCredentials } from '/imports/api/common/server/helpers';
 
-function presentationPods(credentials) {
-  const { meetingId, requesterUserId, requesterToken } = credentials;
-
-  check(meetingId, String);
-  check(requesterUserId, String);
-  check(requesterToken, String);
-
-  Logger.debug(`Publishing presentation-pods for ${meetingId} ${requesterUserId} ${requesterToken}`);
+function presentationPods() {
+  if (!this.userId) {
+    return PresentationPods.find({ meetingId: '' });
+  }
+  const { meetingId, requesterUserId } = extractCredentials(this.userId);
+  Logger.debug(`Publishing presentation-pods for ${meetingId} ${requesterUserId}`);
 
   return PresentationPods.find({ meetingId });
 }

@@ -9,7 +9,8 @@ import cx from 'classnames';
 import { styles } from './styles.scss';
 import ZoomTool from './zoom-tool/component';
 import FullscreenButtonContainer from '../../fullscreen-button/container';
-import Tooltip from '/imports/ui/components/tooltip/component';
+import TooltipContainer from '/imports/ui/components/tooltip/container';
+import QuickPollDropdownContainer from '/imports/ui/components/actions-bar/quick-poll-dropdown/container';
 import KEY_CODES from '/imports/utils/keyCodes';
 
 const intlMessages = defineMessages({
@@ -211,6 +212,12 @@ class PresentationToolbar extends PureComponent {
       isFullscreen,
       fullscreenRef,
       isMeteorConnected,
+      isPollingEnabled,
+      amIPresenter,
+      currentSlidHasContent,
+      parseCurrentSlideContent,
+      startPoll,
+      currentSlide,
     } = this.props;
 
     const BROWSER_RESULTS = browser();
@@ -231,7 +238,25 @@ class PresentationToolbar extends PureComponent {
     return (
       <div id="presentationToolbarWrapper" className={styles.presentationToolbarWrapper}>
         {this.renderAriaDescs()}
-        {<div />}
+        {
+          <div>
+            {isPollingEnabled
+              ? (
+                <QuickPollDropdownContainer
+                  {...{
+                    currentSlidHasContent,
+                    intl,
+                    amIPresenter,
+                    parseCurrentSlideContent,
+                    startPoll,
+                    currentSlide,
+                  }}
+                  className={styles.presentationBtn}
+                />
+              ) : null
+          }
+          </div>
+        }
         {
           <div className={styles.presentationSlideControls}>
             <Button
@@ -249,10 +274,7 @@ class PresentationToolbar extends PureComponent {
               data-test="prevSlide"
             />
 
-            <Tooltip
-              title={intl.formatMessage(intlMessages.selectLabel)}
-              className={styles.presentationBtn}
-            >
+            <TooltipContainer title={intl.formatMessage(intlMessages.selectLabel)}>
               <select
                 id="skipSlide"
                 aria-label={intl.formatMessage(intlMessages.skipSlideLabel)}
@@ -267,7 +289,7 @@ class PresentationToolbar extends PureComponent {
               >
                 {this.renderSkipSlideOpts(numberOfSlides)}
               </select>
-            </Tooltip>
+            </TooltipContainer>
             <Button
               role="button"
               aria-label={nextSlideAriaLabel}
@@ -289,14 +311,16 @@ class PresentationToolbar extends PureComponent {
             {
               !isMobileBrowser
                 ? (
-                  <ZoomTool
-                    zoomValue={zoom}
-                    change={this.change}
-                    minBound={HUNDRED_PERCENT}
-                    maxBound={MAX_PERCENT}
-                    step={STEP}
-                    isMeteorConnected={isMeteorConnected}
-                  />
+                  <TooltipContainer>
+                    <ZoomTool
+                      zoomValue={zoom}
+                      change={this.change}
+                      minBound={HUNDRED_PERCENT}
+                      maxBound={MAX_PERCENT}
+                      step={STEP}
+                      isMeteorConnected={isMeteorConnected}
+                    />
+                  </TooltipContainer>
                 )
                 : null
             }

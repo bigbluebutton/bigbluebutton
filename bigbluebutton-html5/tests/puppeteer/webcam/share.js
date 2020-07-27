@@ -1,17 +1,14 @@
 const Page = require('../core/page');
 const util = require('./util');
-const we = require('./elements');
 
 class Share extends Page {
   constructor() {
-    super('share-webcam');
+    super('webcam-share-test');
   }
 
   async test() {
-    await util.enableWebcam(this.page);
-    await this.waitForSelector(we.videoContainer);
-    const videoContainer = await this.page.evaluate(util.getTestElement, we.videoContainer);
-    const response = videoContainer !== null;
+    await util.enableWebcam(this);
+    const response = await util.evaluateCheck(this);
     return response;
   }
 }

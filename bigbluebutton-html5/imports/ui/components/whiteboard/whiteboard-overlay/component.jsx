@@ -201,8 +201,7 @@ export default class WhiteboardOverlay extends Component {
       resetTextShapeSession,
       setTextShapeActiveId,
       contextMenuHandler,
-      addAnnotationToDiscardedList,
-      undoAnnotation,
+      clearPreview,
       updateCursor,
     } = this.props;
 
@@ -218,8 +217,7 @@ export default class WhiteboardOverlay extends Component {
       resetTextShapeSession,
       setTextShapeActiveId,
       contextMenuHandler,
-      addAnnotationToDiscardedList,
-      undoAnnotation,
+      clearPreview,
     };
 
     return (
@@ -257,6 +255,8 @@ WhiteboardOverlay.propTypes = {
   viewBoxHeight: PropTypes.number.isRequired,
   // Defines a handler to publish an annotation to the server
   sendAnnotation: PropTypes.func.isRequired,
+  // Defines a handler to clear a shape preview
+  clearPreview: PropTypes.func.isRequired,
   // Defines a current whiteboard id
   whiteboardId: PropTypes.string.isRequired,
   // Defines an object containing current settings for drawing

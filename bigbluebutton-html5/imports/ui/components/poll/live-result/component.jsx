@@ -38,6 +38,7 @@ const getResponseString = (obj) => {
   if (typeof children !== 'string') {
     return getResponseString(children[1]);
   }
+
   return children;
 };
 
@@ -60,7 +61,7 @@ class LiveResult extends PureComponent {
     userAnswers = userAnswers.map(id => Service.getUser(id))
       .filter(user => user.connectionStatus === 'online')
       .map((user) => {
-        let answer = '-';
+        let answer = '';
 
         if (responses) {
           const response = responses.find(r => r.userId === user.userId);
@@ -158,7 +159,7 @@ class LiveResult extends PureComponent {
       userCount = userAnswers.length;
       userAnswers.map((user) => {
         const response = getResponseString(user);
-        if (response === '-') return user;
+        if (response === '') return user;
         respondedCount += 1;
         return user;
       });
@@ -190,6 +191,7 @@ class LiveResult extends PureComponent {
             <Button
               disabled={!isMeteorConnected}
               onClick={() => {
+                Session.set('pollInitiated', false);
                 Service.publishPoll();
                 const { answers, numRespondents } = currentPoll;
 
@@ -205,6 +207,7 @@ class LiveResult extends PureComponent {
                 stopPoll();
               }}
               label={intl.formatMessage(intlMessages.publishLabel)}
+              data-test="publishLabel"
               color="primary"
               className={styles.btn}
             />

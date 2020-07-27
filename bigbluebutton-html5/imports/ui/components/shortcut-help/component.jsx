@@ -32,43 +32,43 @@ const intlMessages = defineMessages({
     id: 'app.shortcut-help.functionLabel',
     description: 'heading for shortcut function column',
   },
-  openOptions: {
+  openoptions: {
     id: 'app.shortcut-help.openOptions',
     description: 'describes the open options shortcut',
   },
-  toggleUserList: {
+  toggleuserlist: {
     id: 'app.shortcut-help.toggleUserList',
     description: 'describes the toggle userlist shortcut',
   },
-  toggleMute: {
+  togglemute: {
     id: 'app.shortcut-help.toggleMute',
     description: 'describes the toggle mute shortcut',
   },
-  togglePublicChat: {
+  togglepublicchat: {
     id: 'app.shortcut-help.togglePublicChat',
     description: 'describes the toggle public chat shortcut',
   },
-  hidePrivateChat: {
+  hideprivatechat: {
     id: 'app.shortcut-help.hidePrivateChat',
     description: 'describes the hide public chat shortcut',
   },
-  closePrivateChat: {
+  closeprivatechat: {
     id: 'app.shortcut-help.closePrivateChat',
     description: 'describes the close private chat shortcut',
   },
-  openActions: {
+  openactions: {
     id: 'app.shortcut-help.openActions',
     description: 'describes the open actions shortcut',
   },
-  openStatus: {
+  openstatus: {
     id: 'app.shortcut-help.openStatus',
     description: 'describes the open status shortcut',
   },
-  joinAudio: {
+  joinaudio: {
     id: 'app.audio.joinAudio',
     description: 'describes the join audio shortcut',
   },
-  leaveAudio: {
+  leaveaudio: {
     id: 'app.audio.leaveAudio',
     description: 'describes the leave audio shortcut',
   },
@@ -91,10 +91,13 @@ const CHAT_ENABLED = CHAT_CONFIG.enabled;
 
 const ShortcutHelpComponent = (props) => {
   const { intl, shortcuts } = props;
-  const { name } = browser();
+  const { name, os } = browser();
 
   let accessMod = null;
 
+  // different browsers use different access modifier keys
+  // on different systems when using accessKey property.
+  // Overview how different browsers behave: https://www.w3schools.com/jsref/prop_html_accesskey.asp
   switch (name) {
     case 'chrome':
     case 'edge':
@@ -112,13 +115,17 @@ const ShortcutHelpComponent = (props) => {
       break;
   }
 
+  // all Browsers on MacOS are using Control + Option as access modifier
+  if (os.includes('OS X 10')) {
+    accessMod = 'Control + Option';
+  }
+
   const shortcutItems = shortcuts.map((shortcut) => {
     if (!CHAT_ENABLED && shortcut.descId.indexOf('Chat') !== -1) return null;
-
     return (
       <tr key={_.uniqueId('hotkey-item-')}>
         <td className={styles.keyCell}>{`${accessMod} + ${shortcut.accesskey}`}</td>
-        <td className={styles.descCell}>{intl.formatMessage(intlMessages[`${shortcut.descId}`])}</td>
+        <td className={styles.descCell}>{`${intl.formatMessage(intlMessages[`${shortcut.descId.toLowerCase()}`])}`}</td>
       </tr>
     );
   });
