@@ -3,6 +3,7 @@ import {
   check,
   Match,
 } from 'meteor/check';
+import SanitizeHTML from 'sanitize-html';
 import Meetings, { RecordMeetings } from '/imports/api/meetings';
 import Logger from '/imports/startup/server/logger';
 import createNote from '/imports/api/note/server/methods/createNote';
@@ -104,10 +105,19 @@ export default function addMeeting(meeting) {
 
   const meetingEnded = false;
 
-  newMeeting.welcomeProp.welcomeMsg = newMeeting.welcomeProp.welcomeMsg.replace(
+  let { welcomeMsg } = newMeeting.welcomeProp;
+  const sanitizedText = SanitizeHTML(welcomeMsg, {
+    allowedTags: ['b', 'strong', 'i', 'u', 'a', 'br'],
+    allowedAttributes: {
+      a: ['href', 'name', 'target'],
+    },
+  });
+  welcomeMsg = sanitizedText.replace(
     'href="event:',
     'href="',
   );
+
+  newMeeting.welcomeProp.welcomeMsg = welcomeMsg;
 
   const insertBlankTarget = (s, i) => `${s.substr(0, i)} target="_blank"${s.substr(i)}`;
   const linkWithoutTarget = new RegExp('<a href="(.*?)">', 'g');
