@@ -16,7 +16,7 @@ const propTypes = {
     name: PropTypes.string,
   }),
   messages: PropTypes.arrayOf(Object).isRequired,
-  time: PropTypes.number.isRequired,
+  time: PropTypes.number,
   intl: PropTypes.shape({
     formatMessage: PropTypes.func.isRequired,
   }).isRequired,
@@ -30,6 +30,7 @@ const defaultProps = {
   user: null,
   scrollArea: null,
   lastReadMessageTime: 0,
+  time: 0,
 };
 
 const intlMessages = defineMessages({
