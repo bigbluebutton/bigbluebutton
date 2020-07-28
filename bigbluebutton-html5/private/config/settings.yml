@@ -41,8 +41,8 @@ public:
         chatPushAlerts: false
         userJoinAudioAlerts: false
         userJoinPushAlerts: false
-        raiseHandAudioAlerts: false
-        raiseHandPushAlerts: false
+        raiseHandAudioAlerts: true
+        raiseHandPushAlerts: true
         fallbackLocale: en
         overrideLocale: null
       audio:
