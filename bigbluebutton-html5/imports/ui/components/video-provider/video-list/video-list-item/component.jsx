@@ -162,7 +162,7 @@ class VideoListItem extends Component {
         {
           !videoIsReady &&
             <div className={styles.connecting}>
-              <span>{name}</span>
+              <span className={styles.loadingText}>{name}</span>
             </div>
         }
         <div
