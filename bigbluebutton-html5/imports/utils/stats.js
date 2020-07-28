@@ -1,24 +1,54 @@
 import logger from '/imports/startup/client/logger';
 
-const STATS_LENGTH = 5;
-const STATS_INTERVAL = 2000;
+const STATS = Meteor.settings.public.stats;
+
+const STATS_LENGTH = STATS.length;
+const STATS_INTERVAL = STATS.interval;
+const STATS_LOG = STATS.log;
 
 const stop = callback => {
-  logger.info(
-    {
-      logCode: 'stats_stop_monitor'
-    },
+  logger.debug(
+    { logCode: 'stats_stop_monitor' },
     'Lost peer connection. Stopping monitor'
   );
   callback(clearResult());
   return;
 };
 
+const isActive = conn => {
+  let active = false;
+
+  if (conn) {
+    const { connectionState } = conn;
+    const logCode = 'stats_connection_state';
+
+    switch (connectionState) {
+      case 'new':
+      case 'connecting':
+      case 'connected':
+      case 'disconnected':
+        active = true;
+        break;
+      case 'failed':
+      case 'closed':
+      default:
+        logger.warn({ logCode }, connectionState);
+    }
+  } else {
+    logger.error(
+      { logCode: 'stats_missing_connection' },
+      'Missing connection'
+    );
+  }
+
+  return active;
+};
+
 const collect = (conn, callback) => {
   let stats = [];
 
-  const monitor = (conn, stats) => {
-    if (!conn) return stop(callback);
+  const monitor = (conn, stats, iteration) => {
+    if (!isActive(conn)) return stop(callback);
 
     conn.getStats().then(results => {
       if (!results) return stop(callback);
@@ -40,12 +70,8 @@ const collect = (conn, callback) => {
 
       if (inboundRTP || remoteInboundRTP) {
         if (!inboundRTP) {
-          const { peerIdentity } = conn;
-          logger.warn(
-            {
-              logCode: 'missing_inbound_rtc',
-              extraInfo: { peerIdentity }
-            },
+          logger.debug(
+            { logCode: 'stats_missing_inbound_rtc' },
             'Missing local inbound RTC. Using remote instead'
           );
         }
@@ -54,13 +80,21 @@ const collect = (conn, callback) => {
         while (stats.length > STATS_LENGTH) stats.shift();
 
         const interval = calculateInterval(stats);
-        callback(buildResult(interval));
+        callback(buildResult(interval, iteration));
       }
 
-      setTimeout(monitor, STATS_INTERVAL, conn, stats);
-    }).catch(error => logger.error(error));
+      setTimeout(monitor, STATS_INTERVAL, conn, stats, iteration + 1);
+    }).catch(error => {
+      logger.debug(
+        {
+          logCode: 'stats_get_stats_error',
+          extraInfo: { error }
+        },
+        'WebRTC stats not available'
+      );
+    });
   };
-  monitor(conn, stats);
+  monitor(conn, stats, 1);
 };
 
 const buildData = inboundRTP => {
@@ -76,9 +110,10 @@ const buildData = inboundRTP => {
   };
 };
 
-const buildResult = (interval) => {
+const buildResult = (interval, iteration) => {
   const rate = calculateRate(interval.packets);
   return {
+    iteration: iteration,
     packets: {
       received: interval.packets.received,
       lost: interval.packets.lost
@@ -95,6 +130,7 @@ const buildResult = (interval) => {
 
 const clearResult = () => {
   return {
+    iteration: 0,
     packets: {
       received: 0,
       lost: 0
@@ -123,7 +159,7 @@ const calculateInterval = (stats) => {
     bytes: {
       received: diff(single, first.bytes.received, last.bytes.received)
     },
-    jitter: Math.max.apply(Math, stats.map(s => s.jitter))
+    jitter: single ? first.jitter : last.jitter
   };
 };
 
@@ -142,19 +178,40 @@ const calculateMOS = (rate) => {
   return 1 + (0.035) * rate + (0.000007) * rate * (rate - 60) * (100 - rate);
 };
 
+const logResult = (id, result) => {
+  if (!STATS_LOG) return null;
+
+  const {
+    iteration,
+    loss,
+    jitter
+  } = result;
+  // Avoiding messages flood
+  if (!iteration || iteration % STATS_LENGTH !== 0) return null;
+
+  const duration = STATS_LENGTH * STATS_INTERVAL / 1000;
+  logger.info(
+    {
+      logCode: 'stats_monitor_result',
+      extraInfo: {
+        id,
+        result
+      }
+    },
+    `Stats result for the last ${duration} seconds: loss: ${loss}, jitter: ${jitter}.`
+  );
+};
+
 const monitorAudioConnection = conn => {
   if (!conn) return;
 
-  const { peerIdentity } = conn;
-  logger.info(
-    {
-      logCode: 'stats_audio_monitor',
-      extraInfo: { peerIdentity }
-    },
+  logger.debug(
+    { logCode: 'stats_audio_monitor' },
     'Starting to monitor audio connection'
   );
 
   collect(conn, (result) => {
+    logResult('audio', result);
     const event = new CustomEvent('audiostats', { detail: result });
     window.dispatchEvent(event);
   });
@@ -163,12 +220,8 @@ const monitorAudioConnection = conn => {
 const monitorVideoConnection = conn => {
   if (!conn) return;
 
-  const { peerIdentity } = conn;
-  logger.info(
-    {
-      logCode: 'stats_video_monitor',
-      extraInfo: { peerIdentity }
-    },
+  logger.debug(
+    { logCode: 'stats_video_monitor' },
     'Starting to monitor video connection'
   );
 

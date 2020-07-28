@@ -201,7 +201,7 @@ module BigBlueButton
 
   def self.add_tag_to_xml(xml_filename, parent_xpath, tag, content)
     if File.exist? xml_filename
-      doc = Nokogiri::XML(File.open(xml_filename)) {|x| x.noblanks}
+      doc = Nokogiri::XML(File.read(xml_filename)) {|x| x.noblanks}
 
       node = doc.at_xpath("#{parent_xpath}/#{tag}")
       node.remove if not node.nil?

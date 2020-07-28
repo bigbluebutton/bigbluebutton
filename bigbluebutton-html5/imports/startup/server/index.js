@@ -14,6 +14,7 @@ import userLeaving from '/imports/api/users/server/methods/userLeaving';
 
 const AVAILABLE_LOCALES = fs.readdirSync('assets/app/locales');
 const FALLBACK_LOCALES = JSON.parse(Assets.getText('config/fallbackLocales.json'));
+let avaibleLocalesNames = [];
 
 Meteor.startup(() => {
   const APP_CONFIG = Meteor.settings.public.app;
@@ -172,7 +173,7 @@ WebApp.connectHandlers.use('/locales', (req, res) => {
 
   res.setHeader('Content-Type', 'application/json');
   res.writeHead(200);
-  res.end(JSON.stringify(locales));
+  res.end(JSON.stringify(avaibleLocalesNames));
 });
 
 WebApp.connectHandlers.use('/feedback', (req, res) => {

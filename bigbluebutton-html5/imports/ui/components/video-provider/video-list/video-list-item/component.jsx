@@ -17,6 +17,7 @@ import FullscreenService from '/imports/ui/components/fullscreen-button/service'
 import FullscreenButtonContainer from '/imports/ui/components/fullscreen-button/container';
 import { styles } from '../styles';
 import { withDraggableConsumer } from '/imports/ui/components/media/webcam-draggable-overlay/context';
+import VideoService from '../../service';
 
 const ALLOW_FULLSCREEN = Meteor.settings.public.app.allowFullscreen;
 
@@ -29,6 +30,8 @@ class VideoListItem extends Component {
       videoIsReady: false,
       isFullscreen: false,
     };
+
+    this.mirrorOwnWebcam = VideoService.mirrorOwnWebcam(props.userId);
 
     this.setVideoIsReady = this.setVideoIsReady.bind(this);
     this.onFullscreenChange = this.onFullscreenChange.bind(this);
@@ -174,6 +177,7 @@ class VideoListItem extends Component {
                 && !isFullscreen && !swapLayout,
               [styles.cursorGrabbing]: webcamDraggableState.dragging
                 && !isFullscreen && !swapLayout,
+              [styles.mirroredVideo]: this.mirrorOwnWebcam,
             })}
             ref={(ref) => { this.videoTag = ref; }}
             autoPlay

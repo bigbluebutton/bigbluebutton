@@ -3,6 +3,10 @@ const Check = require('./webcam/check');
 const Page = require('./core/page');
 
 describe('Webcam', () => {
+  beforeEach(() => {
+    jest.setTimeout(30000);
+  });
+
   test('Shares webcam', async () => {
     const test = new Share();
     let response;

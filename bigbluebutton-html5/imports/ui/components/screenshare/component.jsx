@@ -59,8 +59,14 @@ class ScreenshareComponent extends React.Component {
 
   componentWillUnmount() {
     const {
-      presenterScreenshareHasEnded, unshareScreen,
+      presenterScreenshareHasEnded,
+      unshareScreen,
+      getSwapLayout,
+      shouldEnableSwapLayout,
+      toggleSwapLayout,
     } = this.props;
+    const layoutSwapped = getSwapLayout() && shouldEnableSwapLayout();
+    if (layoutSwapped) toggleSwapLayout();
     presenterScreenshareHasEnded();
     unshareScreen();
     this.screenshareContainer.removeEventListener('fullscreenchange', this.onFullscreenChange);

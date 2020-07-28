@@ -74,7 +74,7 @@
     "app.userList.menu.clearStatus.label": "Status wissen",
     "app.userList.menu.removeUser.label": "Gebruiker verwijderen",
     "app.userList.menu.removeConfirmation.label": "Verwijder gebruiker ({0})",
-    "app.userlist.menu.removeConfirmation.desc": "Bent u zeker dat u deze gebruiker wilt verwijderen? Eenmaal verwijderd, kunnen ze niet meer deelnemen aan deze sessie.",
+    "app.userlist.menu.removeConfirmation.desc": "Voorkom dat deze gebruiker opnieuw deelneemt aan de sessie.",
     "app.userList.menu.muteUserAudio.label": "Gebruiker dempen",
     "app.userList.menu.unmuteUserAudio.label": "Gebruiker dempen ongedaan maken",
     "app.userList.userAriaLabel": "{0} {1} {2} Status {3}",

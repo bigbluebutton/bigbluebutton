@@ -115,6 +115,7 @@ class WhiteboardToolbar extends Component {
 
     this.displaySubMenu = this.displaySubMenu.bind(this);
     this.closeSubMenu = this.closeSubMenu.bind(this);
+    this.handleClose = this.handleClose.bind(this);
     this.handleUndo = this.handleUndo.bind(this);
     this.handleClearAll = this.handleClearAll.bind(this);
     this.handleSwitchWhiteboardMode = this.handleSwitchWhiteboardMode.bind(this);
@@ -400,6 +401,13 @@ class WhiteboardToolbar extends Component {
     });
   }
 
+  handleClose() {
+    this.setState({
+      onBlurEnabled: true,
+      currentSubmenuOpen: '',
+    });
+  }
+
   handleFontSizeChange(fontSize) {
     const { actions } = this.props;
     actions.setFontSize(fontSize.value);
@@ -475,6 +483,7 @@ class WhiteboardToolbar extends Component {
                 objectSelected={annotationSelected}
                 handleMouseEnter={this.handleMouseEnter}
                 handleMouseLeave={this.handleMouseLeave}
+                handleClose={this.handleClose}
               />
             )
             : null}
@@ -507,6 +516,7 @@ class WhiteboardToolbar extends Component {
               objectSelected={fontSizeSelected}
               handleMouseEnter={this.handleMouseEnter}
               handleMouseLeave={this.handleMouseLeave}
+              handleClose={this.handleClose}
             />
           )
           : null}
@@ -569,6 +579,7 @@ class WhiteboardToolbar extends Component {
               objectSelected={thicknessSelected}
               handleMouseEnter={this.handleMouseEnter}
               handleMouseLeave={this.handleMouseLeave}
+              handleClose={this.handleClose}
             />
           )
           : null}
@@ -671,6 +682,7 @@ class WhiteboardToolbar extends Component {
               objectSelected={colorSelected}
               handleMouseEnter={this.handleMouseEnter}
               handleMouseLeave={this.handleMouseLeave}
+              handleClose={this.handleClose}
             />
           )
           : null}

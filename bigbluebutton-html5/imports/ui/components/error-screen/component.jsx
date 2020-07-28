@@ -1,10 +1,9 @@
-import React from 'react';
+import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import { defineMessages, injectIntl } from 'react-intl';
 import { Meteor } from 'meteor/meteor';
-import Button from '/imports/ui/components/button/component';
-import logoutRouteHandler from '/imports/utils/logoutRouteHandler';
 import { Session } from 'meteor/session';
+import AudioManager from '/imports/ui/services/audio-manager';
 import { styles } from './styles';
 
 const intlMessages = defineMessages({
@@ -28,10 +27,6 @@ const intlMessages = defineMessages({
   400: {
     id: 'app.error.400',
   },
-  leave: {
-    id: 'app.error.leaveLabel',
-    description: 'aria-label for leaving',
-  },
 });
 
 const propTypes = {
@@ -45,8 +40,9 @@ const defaultProps = {
   code: 500,
 };
 
-class ErrorScreen extends React.PureComponent {
+class ErrorScreen extends PureComponent {
   componentDidMount() {
+    AudioManager.exitAudio();
     Meteor.disconnect();
   }
 
@@ -65,30 +61,21 @@ class ErrorScreen extends React.PureComponent {
 
     return (
       <div className={styles.background}>
-        <h1 className={styles.codeError}>
-          {code}
-        </h1>
         <h1 className={styles.message}>
           {formatedMessage}
         </h1>
-        <div className={styles.separator} />
-        <div>
-          {children}
-        </div>
         {
           !Session.get('errorMessageDescription') || (
-          <div className={styles.sessionMessage}>
-            {Session.get('errorMessageDescription')}
-          </div>)
+            <div className={styles.sessionMessage}>
+              {Session.get('errorMessageDescription')}
+            </div>)
         }
+        <div className={styles.separator} />
+        <h1 className={styles.codeError}>
+          {code}
+        </h1>
         <div>
-          <Button
-            size="sm"
-            color="primary"
-            className={styles.button}
-            onClick={logoutRouteHandler}
-            label={intl.formatMessage(intlMessages.leave)}
-          />
+          {children}
         </div>
       </div>
     );

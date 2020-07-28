@@ -74,7 +74,6 @@
     "app.userList.menu.clearStatus.label": "Smazat status",
     "app.userList.menu.removeUser.label": "Odstranit uživatele",
     "app.userList.menu.removeConfirmation.label": "Odebrat uživatele  ({0})",
-    "app.userlist.menu.removeConfirmation.desc": "Jste si jist(a), že chcete odebrat tohoto uživatele? Jakmile bude odebrán, nebude se schopen znovu přihlásit k relaci.",
     "app.userList.menu.muteUserAudio.label": "Ztlumit uživatele",
     "app.userList.menu.unmuteUserAudio.label": "Zrušit ztlumení uživatele",
     "app.userList.userAriaLabel": "{0} {1} {2}  Status {3}",

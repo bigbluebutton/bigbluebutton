@@ -157,11 +157,11 @@ export default injectIntl(withTracker(({ intl }) => {
 
     return {
       ...message,
-      content: message.content.map(content => ({
+      content: message.content ? message.content.map(content => ({
         ...content,
         text: content.text in intlMessages
           ? `<b><i>${intl.formatMessage(intlMessages[content.text], systemMessageIntl)}</i></b>` : content.text,
-      })),
+      })) : [],
     };
   });
 
