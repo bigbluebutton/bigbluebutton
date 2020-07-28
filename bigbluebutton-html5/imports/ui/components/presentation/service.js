@@ -4,6 +4,9 @@ import Presentations from '/imports/api/presentations';
 import { Slides, SlidePositions } from '/imports/api/slides';
 import Users from '/imports/api/users';
 import Auth from '/imports/ui/services/auth';
+import ReactPlayer from 'react-player';
+
+const isUrlValid = url => ReactPlayer.canPlay(url);
 
 const getCurrentPresentation = podId => Presentations.findOne({
   podId,
@@ -16,7 +19,7 @@ const downloadPresentationUri = (podId) => {
     return null;
   }
 
-  const presentationFileName =  currentPresentation.id + '.' + currentPresentation.name.split('.').pop();
+  const presentationFileName = `${currentPresentation.id}.${currentPresentation.name.split('.').pop()}`;
 
   const uri = `https://${window.document.location.hostname}/bigbluebutton/presentation/download/`
     + `${currentPresentation.meetingId}/${currentPresentation.id}`
@@ -144,9 +147,16 @@ const parseCurrentSlideContent = (yesValue, noValue, trueValue, falseValue) => {
     poll,
   }));
 
+  const urlRegex = /((http|https):\/\/[a-zA-Z0-9\-.:]+(\/\S*)?)/g;
+  const optionsUrls = content.match(urlRegex) || [];
+  const videoUrls = optionsUrls.filter(value => isUrlValid(value));
+  const urls = optionsUrls.filter(i => videoUrls.indexOf(i) == -1);
+  
   return {
     slideId: currentSlide.id,
     quickPollOptions,
+    videoUrls,
+    urls,
   };
 };
 
