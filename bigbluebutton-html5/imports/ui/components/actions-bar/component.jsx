@@ -62,6 +62,15 @@ class ActionsBar extends PureComponent {
             podIds,
           }}
           />
+          {
+              <QuickURLDropdown
+                {...{
+                  screenSharingCheck,
+                  amIPresenter,
+                  parseCurrentSlideContent,
+                }}
+              />
+          }
           {isCaptionsAvailable
             ? (
               <CaptionsButtonContainer {...{ intl }} />
