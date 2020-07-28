@@ -1,4 +1,4 @@
-import { Component } from 'react';
+import React, { Component } from 'react';
 import { withTracker } from 'meteor/react-meteor-data';
 import Auth from '/imports/ui/services/auth';
 import logger from '/imports/startup/client/logger';
@@ -22,28 +22,15 @@ const SUBSCRIPTIONS = [
   'connection-status', 'voice-call-states',
 ];
 
-class Subscriptions extends Component {
-  componentDidUpdate() {
-    const { subscriptionsReady } = this.props;
-    if (subscriptionsReady) {
-      Session.set('subscriptionsReady', true);
-    }
-  }
+const Subscriptions = ({ children, subscriptionsReady }) => {
+  if (subscriptionsReady) Session.set('subscriptionsReady', true);
 
-  render() {
-    const { children } = this.props;
-    return children;
-  }
-}
+  return children;
+};
 
 export default withTracker(() => {
   const { credentials } = Auth;
   const { meetingId, requesterUserId } = credentials;
-  if (Session.get('codeError')) {
-    return {
-      subscriptionsReady: true,
-    };
-  }
 
   const currentUser = Users.findOne({ intId: requesterUserId }, { fields: { role: 1 } });
 

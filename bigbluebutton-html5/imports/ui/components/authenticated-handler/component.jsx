@@ -3,6 +3,8 @@ import { Session } from 'meteor/session';
 import logger from '/imports/startup/client/logger';
 import Auth from '/imports/ui/services/auth';
 import LoadingScreen from '/imports/ui/components/loading-screen/component';
+import IntlStartup from '/imports/startup/client/intl';
+import ErrorScreen from '/imports/ui/components/error-screen/component';
 
 const STATUS_CONNECTING = 'connecting';
 
@@ -89,7 +91,11 @@ class AuthenticatedHandler extends Component {
     Session.set('breakoutRoomIsOpen', false);
 
     return authenticated
-      ? children
+      ? (
+        <IntlStartup>
+          {Session.get('codeError') ? <ErrorScreen /> : children}
+        </IntlStartup>
+      )
       : (<LoadingScreen />);
   }
 }

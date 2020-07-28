@@ -1,9 +1,10 @@
-import React, { PureComponent } from 'react';
+import React, { memo } from 'react';
 import PropTypes from 'prop-types';
 import { defineMessages, injectIntl } from 'react-intl';
 import { Meteor } from 'meteor/meteor';
-import { Session } from 'meteor/session';
 import AudioManager from '/imports/ui/services/audio-manager';
+import logger from '/imports/startup/client/logger';
+import { Session } from 'meteor/session';
 import { styles } from './styles';
 
 const intlMessages = defineMessages({
@@ -30,59 +31,37 @@ const intlMessages = defineMessages({
 });
 
 const propTypes = {
-  code: PropTypes.oneOfType([
-    PropTypes.string,
-    PropTypes.number,
-  ]),
+  intl: PropTypes.shape({
+    formatMessage: PropTypes.func.isRequired,
+  }).isRequired,
 };
 
-const defaultProps = {
-  code: 500,
+const ErrorScreen = ({ intl }) => {
+  const code = Session.get('codeError');
+
+  AudioManager.exitAudio();
+  Meteor.disconnect();
+  logger.error({ logCode: 'startup_client_usercouldnotlogin_error' }, `User could not log in HTML5, hit ${code}`);
+
+  return (
+    <div className={styles.background}>
+      <h1 className={styles.codeError}>
+        {code}
+      </h1>
+      <h1 className={styles.message}>
+        {intl.formatMessage(intlMessages[code])}
+      </h1>
+      <div className={styles.separator} />
+      {
+        !Session.get('errorMessageDescription') || (
+          <div className={styles.sessionMessage}>
+            {Session.get('errorMessageDescription')}
+          </div>)
+      }
+    </div>
+  );
 };
 
-class ErrorScreen extends PureComponent {
-  componentDidMount() {
-    AudioManager.exitAudio();
-    Meteor.disconnect();
-  }
-
-  render() {
-    const {
-      intl,
-      code,
-      children,
-    } = this.props;
-
-    let formatedMessage = intl.formatMessage(intlMessages[defaultProps.code]);
-
-    if (code in intlMessages) {
-      formatedMessage = intl.formatMessage(intlMessages[code]);
-    }
-
-    return (
-      <div className={styles.background}>
-        <h1 className={styles.message}>
-          {formatedMessage}
-        </h1>
-        {
-          !Session.get('errorMessageDescription') || (
-            <div className={styles.sessionMessage}>
-              {Session.get('errorMessageDescription')}
-            </div>)
-        }
-        <div className={styles.separator} />
-        <h1 className={styles.codeError}>
-          {code}
-        </h1>
-        <div>
-          {children}
-        </div>
-      </div>
-    );
-  }
-}
-
-export default injectIntl(ErrorScreen);
+export default injectIntl(memo(ErrorScreen));
 
 ErrorScreen.propTypes = propTypes;
-ErrorScreen.defaultProps = defaultProps;
