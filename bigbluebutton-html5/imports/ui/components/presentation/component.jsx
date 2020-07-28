@@ -628,7 +628,7 @@ class PresentationArea extends PureComponent {
             <Icon iconName="presentation" />
           </div>
         </div>
-        <div className={styles.toastTextContent}>
+        <div className={styles.toastTextContent} data-test="toastSmallMsg">
           <div>{`${intl.formatMessage(intlMessages.changeNotification)}`}</div>
           <div className={styles.presentationName}>{`${currentPresentation.name}`}</div>
         </div>

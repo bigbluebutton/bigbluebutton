@@ -10,7 +10,7 @@ async function startSharedNotes(test) {
 }
 
 async function getTestElement(element) {
-  const response = document.querySelectorAll(element).length >= 1;
+  const response = await document.querySelectorAll(element).length >= 1;
   return response;
 }
 

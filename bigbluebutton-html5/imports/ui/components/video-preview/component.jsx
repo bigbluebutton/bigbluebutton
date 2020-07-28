@@ -30,6 +30,7 @@ const propTypes = {
   resolve: PropTypes.func,
   skipVideoPreview: PropTypes.bool.isRequired,
   hasMediaDevices: PropTypes.bool.isRequired,
+  hasVideoStream: PropTypes.bool.isRequired,
   webcamDeviceId: PropTypes.string,
   sharedDevices: PropTypes.arrayOf(PropTypes.string),
 };
@@ -72,6 +73,10 @@ const intlMessages = defineMessages({
   stopSharingLabel: {
     id: 'app.videoPreview.stopSharingLabel',
     description: 'Stop sharing button label',
+  },
+  stopSharingAllLabel: {
+    id: 'app.videoPreview.stopSharingAllLabel',
+    description: 'Stop sharing all button label',
   },
   sharedCameraLabel: {
     id: 'app.videoPreview.sharedCameraLabel',
@@ -183,6 +188,7 @@ class VideoPreview extends Component {
     this.handleProceed = this.handleProceed.bind(this);
     this.handleStartSharing = this.handleStartSharing.bind(this);
     this.handleStopSharing = this.handleStopSharing.bind(this);
+    this.handleStopSharingAll = this.handleStopSharingAll.bind(this);
     this.handleSelectWebcam = this.handleSelectWebcam.bind(this);
     this.handleSelectProfile = this.handleSelectProfile.bind(this);
 
@@ -370,6 +376,13 @@ class VideoPreview extends Component {
     const { webcamDeviceId } = this.state;
     this.stopTracks();
     stopSharing(webcamDeviceId);
+    if (resolve) resolve();
+  }
+
+  handleStopSharingAll() {
+    const { resolve, stopSharing } = this.props;
+    this.stopTracks();
+    stopSharing();
     if (resolve) resolve();
   }
 
@@ -613,6 +626,7 @@ class VideoPreview extends Component {
       intl,
       skipVideoPreview,
       sharedDevices,
+      hasVideoStream,
     } = this.props;
 
     const {
@@ -646,6 +660,17 @@ class VideoPreview extends Component {
         {this.renderContent()}
 
         <div className={styles.footer}>
+          {hasVideoStream ?
+            (<div className={styles.extraActions}>
+              <Button
+                color="danger"
+                label={intl.formatMessage(intlMessages.stopSharingAllLabel)}
+                onClick={this.handleStopSharingAll}
+                disabled={shouldDisableButtons}
+              />
+            </div>)
+            : null
+          }
           <div className={styles.actions}>
             <Button
               label={intl.formatMessage(intlMessages.cancelLabel)}
