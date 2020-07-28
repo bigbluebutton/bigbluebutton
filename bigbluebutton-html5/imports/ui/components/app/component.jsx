@@ -22,6 +22,7 @@ import StatusNotifier from '/imports/ui/components/status-notifier/container';
 import PingPongContainer from '/imports/ui/components/ping-pong/container';
 import MediaService from '/imports/ui/components/media/service';
 import ManyWebcamsNotifier from '/imports/ui/components/video-provider/many-users-notify/container';
+import UploaderContainer from '/imports/ui/components/presentation/presentation-uploader/container';
 import { withDraggableContext } from '../media/webcam-draggable-overlay/context';
 import { styles } from './styles';
 
@@ -341,6 +342,7 @@ class App extends Component {
           {this.renderPanel()}
           {this.renderSidebar()}
         </section>
+        <UploaderContainer />
         <BreakoutRoomInvitation />
         <PollingContainer />
         <ModalContainer />
