@@ -9,7 +9,7 @@ public:
     skipCheck: false
     clientTitle: BigBlueButton
     appName: BigBlueButton HTML5 Client
-    bbbServerVersion: 2.2
+    bbbServerVersion: 2.3-dev
     copyright: "©2020 BigBlueButton Inc."
     html5ClientBuild: HTML5_CLIENT_VERSION
     helpLink: https://bigbluebutton.org/html5/
@@ -20,12 +20,20 @@ public:
     allowUserLookup: false
     enableNetworkInformation: false
     enableLimitOfViewersInWebcam: false
-    enableMultipleCameras: false
+    enableMultipleCameras: true
     enableTalkingIndicator: true
+    mirrorOwnWebcam: false
     viewersInWebcam: 8
     ipv4FallbackDomain: ""
     allowLogout: true
     allowFullscreen: true
+    mutedAlert:
+      enabled: true
+      interval: 200
+      threshold: -50
+      duration: 4000
+    remainingTimeThreshold: 30
+    remainingTimeAlertThreshold: 1
     defaultSettings:
       application:
         animations: true
@@ -33,8 +41,8 @@ public:
         chatPushAlerts: false
         userJoinAudioAlerts: false
         userJoinPushAlerts: false
-        raiseHandAudioAlerts: false
-        raiseHandPushAlerts: false
+        raiseHandAudioAlerts: true
+        raiseHandPushAlerts: true
         fallbackLocale: en
         overrideLocale: null
       audio:
@@ -72,7 +80,7 @@ public:
         accesskey: A
         descId: openActions
     branding:
-      displayBrandingArea: false
+      displayBrandingArea: true
     connectionTimeout: 60000
     showHelpButton: true
     effectiveConnection:
@@ -202,7 +210,7 @@ public:
     echoTestNumber: 'echo'
     relayOnlyOnReconnect: false
   stats:
-    enabled: false
+    enabled: true
     interval: 2000
     length: 5
     log: false

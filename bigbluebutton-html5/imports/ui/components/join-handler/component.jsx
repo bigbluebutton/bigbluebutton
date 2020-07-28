@@ -14,7 +14,6 @@ const propTypes = {
 
 class JoinHandler extends Component {
   static setError(codeError) {
-    Session.set('hasError', true);
     if (codeError) Session.set('codeError', codeError);
   }
 

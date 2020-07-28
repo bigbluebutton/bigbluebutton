@@ -109,7 +109,7 @@ class Settings extends Component {
     this.handleSelectTab = this.handleSelectTab.bind(this);
   }
 
-  componentWillMount() {
+  componentDidMount() {
     const { availableLocales } = this.props;
     availableLocales.then((locales) => {
       this.setState({ availableLocales: locales });
@@ -131,6 +131,7 @@ class Settings extends Component {
   renderModalContent() {
     const {
       intl,
+      isModerator,
     } = this.props;
 
     const {
@@ -194,6 +195,7 @@ class Settings extends Component {
           <Notification
             handleUpdateSettings={this.handleUpdateSettings}
             settings={current.application}
+            {...{ isModerator }}
           />
         </TabPanel>
         {/* <TabPanel className={styles.tabPanel}> */}

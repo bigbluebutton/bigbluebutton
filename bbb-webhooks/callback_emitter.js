@@ -61,10 +61,11 @@ module.exports = class CallbackEmitter extends EventEmitter {
   }
 
   _emitMessage(callback) {
-    let data,requestOptions;
+    let data, requestOptions;
     const serverDomain = config.get("bbb.serverDomain");
     const sharedSecret = config.get("bbb.sharedSecret");
     const bearerAuth = config.get("bbb.auth2_0");
+    const timeout = config.get('hooks.requestTimeout');
 
     // data to be sent
     // note: keep keys in alphabetical order
@@ -85,7 +86,8 @@ module.exports = class CallbackEmitter extends EventEmitter {
         form: data,
         auth: {
           bearer: sharedSecret
-        }
+        },
+        timeout
       };
     }
     else {
@@ -103,7 +105,8 @@ module.exports = class CallbackEmitter extends EventEmitter {
         maxRedirects: 10,
         uri: callbackURL,
         method: "POST",
-        form: data
+        form: data,
+        timeout
       };
     }
 

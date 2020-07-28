@@ -2,7 +2,7 @@ import React, { PureComponent } from 'react';
 import cx from 'classnames';
 import { styles } from './styles.scss';
 import DesktopShare from './desktop-share/component';
-import ActionsDropdown from './actions-dropdown/component';
+import ActionsDropdown from './actions-dropdown/container';
 import AudioControlsContainer from '../audio/audio-controls/container';
 import JoinVideoOptionsContainer from '../video-provider/video-button/container';
 import CaptionsButtonContainer from '/imports/ui/components/actions-bar/captions/container';
@@ -33,9 +33,6 @@ class ActionsBar extends PureComponent {
       isPollingEnabled,
       isThereCurrentPresentation,
       allowExternalVideo,
-      presentations,
-      setPresentation,
-      podIds,
     } = this.props;
 
     const actionBarClasses = {};
@@ -57,9 +54,6 @@ class ActionsBar extends PureComponent {
             isSharingVideo,
             stopExternalVideoShare,
             isMeteorConnected,
-            presentations,
-            setPresentation,
-            podIds,
           }}
           />
           {isCaptionsAvailable

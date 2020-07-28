@@ -421,6 +421,7 @@ class PresentationArea extends PureComponent {
       currentSlide,
       slidePosition,
       userIsPresenter,
+      layoutSwapped,
     } = this.props;
 
     const {
@@ -473,6 +474,7 @@ class PresentationArea extends PureComponent {
           width: svgDimensions.width,
           height: svgDimensions.height,
           textAlign: 'center',
+          display: layoutSwapped ? 'none' : 'block',
         }}
       >
         {this.renderPresentationClose()}
@@ -626,7 +628,7 @@ class PresentationArea extends PureComponent {
             <Icon iconName="presentation" />
           </div>
         </div>
-        <div className={styles.toastTextContent}>
+        <div className={styles.toastTextContent} data-test="toastSmallMsg">
           <div>{`${intl.formatMessage(intlMessages.changeNotification)}`}</div>
           <div className={styles.presentationName}>{`${currentPresentation.name}`}</div>
         </div>
