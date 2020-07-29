@@ -6,11 +6,12 @@ import { extractCredentials } from '/imports/api/common/server/helpers';
 export default function createBreakoutRoom(rooms, durationInMinutes, record = false) {
   const REDIS_CONFIG = Meteor.settings.private.redis;
   const CHANNEL = REDIS_CONFIG.channels.toAkkaApps;
+  const MAX_BREAKOUT_ROOMS = Meteor.settings.public.app.breakoutRoomLimit;
 
   const { meetingId, requesterUserId } = extractCredentials(this.userId);
 
   const eventName = 'CreateBreakoutRoomsCmdMsg';
-  if (rooms.length > 8) return Logger.info(`Attempt to create breakout rooms with invalid number of rooms in meeting id=${meetingId}`);
+  if (rooms.length > MAX_BREAKOUT_ROOMS) return Logger.info(`Attempt to create breakout rooms with invalid number of rooms in meeting id=${meetingId}`);
   const payload = {
     record,
     durationInMinutes,

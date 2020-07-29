@@ -34,6 +34,7 @@ public:
       duration: 4000
     remainingTimeThreshold: 30
     remainingTimeAlertThreshold: 1
+    breakoutRoomLimit: 30
     defaultSettings:
       application:
         animations: true
