@@ -106,29 +106,43 @@ export default function addMeeting(meeting) {
   const meetingEnded = false;
 
   let { welcomeMsg } = newMeeting.welcomeProp;
-  const sanitizedText = SanitizeHTML(welcomeMsg, {
+  const sanitizedWelcomeText = SanitizeHTML(welcomeMsg, {
     allowedTags: ['b', 'strong', 'i', 'u', 'a', 'br'],
     allowedAttributes: {
       a: ['href', 'name', 'target'],
     },
   });
-  welcomeMsg = sanitizedText.replace(
+  welcomeMsg = sanitizedWelcomeText.replace(
     'href="event:',
     'href="',
   );
 
-  newMeeting.welcomeProp.welcomeMsg = welcomeMsg;
-
   const insertBlankTarget = (s, i) => `${s.substr(0, i)} target="_blank"${s.substr(i)}`;
   const linkWithoutTarget = new RegExp('<a href="(.*?)">', 'g');
-  linkWithoutTarget.test(newMeeting.welcomeProp.welcomeMsg);
+  linkWithoutTarget.test(welcomeMsg);
 
   if (linkWithoutTarget.lastIndex > 0) {
-    newMeeting.welcomeProp.welcomeMsg = insertBlankTarget(
-      newMeeting.welcomeProp.welcomeMsg,
+    welcomeMsg = insertBlankTarget(
+      welcomeMsg,
       linkWithoutTarget.lastIndex - 1,
     );
   }
+
+  newMeeting.welcomeProp.welcomeMsg = welcomeMsg;
+
+  const { modOnlyMessage } = newMeeting.welcomeProp;
+
+  const sanitizedModOnlyText = SanitizeHTML(modOnlyMessage, {
+    allowedTags: ['b', 'strong', 'i', 'u', 'a', 'br'],
+    allowedAttributes: {
+      a: ['href', 'name', 'target'],
+    },
+  });
+
+  // note: as of July 2020 `modOnlyMessage` is not published to the client side.
+  // We are sanitizing this data simply to prevent future potential usage
+  // At the moment `modOnlyMessage` is obtained from client side as a response to Enter API
+  newMeeting.welcomeProp.modOnlyMessage = sanitizedModOnlyText;
 
   const modifier = {
     $set: Object.assign({
