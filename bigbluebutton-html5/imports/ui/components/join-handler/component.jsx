@@ -148,6 +148,7 @@ class JoinHandler extends Component {
             a: ['href', 'name', 'target'],
             img: ['src'],
           },
+          allowedSchemes: ['https'],
         });
         setModeratorOnlyMessage(sanitizedModOnlyText);
       }

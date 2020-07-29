@@ -112,6 +112,7 @@ export default function addMeeting(meeting) {
       a: ['href', 'name', 'target'],
       img: ['src'],
     },
+    allowedSchemes: ['https'],
   });
   welcomeMsg = sanitizedWelcomeText.replace(
     'href="event:',
@@ -139,6 +140,7 @@ export default function addMeeting(meeting) {
       a: ['href', 'name', 'target'],
       img: ['src'],
     },
+    allowedSchemes: ['https'],
   });
 
   // note: as of July 2020 `modOnlyMessage` is not published to the client side.
