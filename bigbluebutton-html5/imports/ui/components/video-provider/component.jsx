@@ -77,6 +77,10 @@ const propTypes = {
 };
 
 class VideoProvider extends Component {
+  static onBeforeUnload() {
+    VideoService.onBeforeUnload();
+  }
+
   constructor(props) {
     super(props);
 
@@ -101,8 +105,6 @@ class VideoProvider extends Component {
     this.onWsClose = this.onWsClose.bind(this);
     this.onWsMessage = this.onWsMessage.bind(this);
 
-    this.onBeforeUnload = this.onBeforeUnload.bind(this);
-
     this.updateStreams = this.updateStreams.bind(this);
   }
 
@@ -115,7 +117,7 @@ class VideoProvider extends Component {
 
     this.ws.onmessage = this.onWsMessage;
 
-    window.addEventListener('beforeunload', this.onBeforeUnload);
+    window.addEventListener('beforeunload', VideoProvider.onBeforeUnload);
   }
 
   componentDidUpdate(prevProps) {
@@ -134,7 +136,7 @@ class VideoProvider extends Component {
     window.removeEventListener('online', this.openWs);
     window.removeEventListener('offline', this.onWsClose);
 
-    window.removeEventListener('beforeunload', this.onBeforeUnload);
+    window.removeEventListener('beforeunload', VideoProvider.onBeforeUnload);
 
     VideoService.exitVideo();
 
@@ -205,17 +207,41 @@ class VideoProvider extends Component {
     this.setState({ socketOpen: true });
   }
 
-  onBeforeUnload() {
-    VideoService.onBeforeUnload();
+  setReconnectionTimeout(cameraId, isLocal) {
+    const peer = this.webRtcPeers[cameraId];
+    const peerHasStarted = peer && peer.started === true;
+    const shouldSetReconnectionTimeout = !this.restartTimeout[cameraId] && !peerHasStarted;
+
+    if (shouldSetReconnectionTimeout) {
+      const newReconnectTimer = this.restartTimer[cameraId] || CAMERA_SHARE_FAILED_WAIT_TIME;
+      this.restartTimer[cameraId] = newReconnectTimer;
+
+      logger.info({
+        logCode: 'video_provider_setup_reconnect',
+        extraInfo: {
+          cameraId,
+          reconnectTimer: newReconnectTimer,
+        },
+      }, `Camera has a new reconnect timer of ${newReconnectTimer} ms for ${cameraId}`);
+
+      this.restartTimeout[cameraId] = setTimeout(
+        this._getWebRTCStartTimeout(cameraId, isLocal),
+        this.restartTimer[cameraId],
+      );
+    }
   }
 
   updateStreams(streams) {
     const streamsCameraIds = streams.map(s => s.cameraId);
     const streamsConnected = Object.keys(this.webRtcPeers);
 
-    const streamsToConnect = streamsCameraIds.filter(cameraId => !streamsConnected.includes(cameraId));
+    const streamsToConnect = streamsCameraIds.filter(
+      cameraId => !streamsConnected.includes(cameraId),
+    );
 
-    const streamsToDisconnect = streamsConnected.filter(cameraId => !streamsCameraIds.includes(cameraId));
+    const streamsToDisconnect = streamsConnected.filter(
+      cameraId => !streamsCameraIds.includes(cameraId),
+    );
 
     streamsToConnect.forEach((cameraId) => {
       const isLocal = VideoService.isLocalStream(cameraId);
@@ -505,7 +531,8 @@ class VideoProvider extends Component {
       const peer = this.webRtcPeers[cameraId];
       if (peer && peer.peerConnection) {
         const conn = peer.peerConnection;
-        conn.oniceconnectionstatechange = this._getOnIceConnectionStateChangeCallback(cameraId, isLocal);
+        conn.oniceconnectionstatechange = this
+          ._getOnIceConnectionStateChangeCallback(cameraId, isLocal);
         VideoService.monitor(conn);
       }
     }
@@ -593,30 +620,6 @@ class VideoProvider extends Component {
         error,
       },
     }, `Camera peer creation failed for ${cameraId} due to ${error.message}`);
-  }
-
-  setReconnectionTimeout(cameraId, isLocal) {
-    const peer = this.webRtcPeers[cameraId];
-    const peerHasStarted = peer && peer.started === true;
-    const shouldSetReconnectionTimeout = !this.restartTimeout[cameraId] && !peerHasStarted;
-
-    if (shouldSetReconnectionTimeout) {
-      const newReconnectTimer = this.restartTimer[cameraId] || CAMERA_SHARE_FAILED_WAIT_TIME;
-      this.restartTimer[cameraId] = newReconnectTimer;
-
-      logger.info({
-        logCode: 'video_provider_setup_reconnect',
-        extraInfo: {
-          cameraId,
-          reconnectTimer: newReconnectTimer,
-        },
-      }, `Camera has a new reconnect timer of ${newReconnectTimer} ms for ${cameraId}`);
-
-      this.restartTimeout[cameraId] = setTimeout(
-        this._getWebRTCStartTimeout(cameraId, isLocal),
-        this.restartTimer[cameraId],
-      );
-    }
   }
 
   _getOnIceCandidateCallback(cameraId, isLocal) {
