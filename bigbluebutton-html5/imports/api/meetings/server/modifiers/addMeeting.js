@@ -107,9 +107,10 @@ export default function addMeeting(meeting) {
 
   let { welcomeMsg } = newMeeting.welcomeProp;
   const sanitizedWelcomeText = SanitizeHTML(welcomeMsg, {
-    allowedTags: ['b', 'strong', 'i', 'u', 'a', 'br'],
+    allowedTags: ['b', 'strong', 'i', 'u', 'a', 'br', 'img'],
     allowedAttributes: {
       a: ['href', 'name', 'target'],
+      img: ['src'],
     },
   });
   welcomeMsg = sanitizedWelcomeText.replace(
@@ -133,9 +134,10 @@ export default function addMeeting(meeting) {
   const { modOnlyMessage } = newMeeting.welcomeProp;
 
   const sanitizedModOnlyText = SanitizeHTML(modOnlyMessage, {
-    allowedTags: ['b', 'strong', 'i', 'u', 'a', 'br'],
+    allowedTags: ['b', 'strong', 'i', 'u', 'a', 'br', 'img'],
     allowedAttributes: {
       a: ['href', 'name', 'target'],
+      img: ['src'],
     },
   });
 
