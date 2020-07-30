@@ -102,7 +102,7 @@ class TypingIndicator extends PureComponent {
     const style = {};
     style[styles.error] = !!error;
     style[styles.info] = !error;
-    style[styles.spacer] = !!typingElement;
+    // style[styles.spacer] = !!typingElement;
 
     return (
       <div className={cx(style)}>

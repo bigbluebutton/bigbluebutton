@@ -65,7 +65,7 @@ const JoinVideoButton = ({
     <Button
       data-test="joinVideo"
       label={isDisabled ? intl.formatMessage(intlMessages.videoLocked) : label}
-      className={cx(styles.button, hasVideoStream || styles.btn)}
+      className={cx(hasVideoStream || styles.btn)}
       onClick={handleOnClick}
       hideLabel
       aria-label={intl.formatMessage(intlMessages.videoButtonDesc)}
