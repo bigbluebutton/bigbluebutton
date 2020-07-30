@@ -44,6 +44,7 @@
     "fastdom": "^1.0.9",
     "fibers": "^4.0.2",
     "flat": "~4.1.0",
+    "hark": "^1.2.3",
     "immutability-helper": "~2.8.1",
     "langmap": "0.0.16",
     "lodash": "^4.17.19",
