@@ -258,25 +258,25 @@ class VideoService {
   disableCam() {
     const m = Meetings.findOne({ meetingId: Auth.meetingID },
       { fields: { 'lockSettingsProps.disableCam': 1 } });
-    return m.lockSettingsProps ? m.lockSettingsProps.disableCam : false;
+    return m && m.lockSettingsProps ? m.lockSettingsProps.disableCam : false;
   }
 
   webcamsOnlyForModerator() {
     const m = Meetings.findOne({ meetingId: Auth.meetingID },
       { fields: { 'usersProp.webcamsOnlyForModerator': 1 } });
-    return m.usersProp ? m.usersProp.webcamsOnlyForModerator : false;
+    return m && m.usersProp ? m.usersProp.webcamsOnlyForModerator : false;
   }
 
   hideUserList() {
     const m = Meetings.findOne({ meetingId: Auth.meetingID },
       { fields: { 'lockSettingsProps.hideUserList': 1 } });
-    return m.lockSettingsProps ? m.lockSettingsProps.hideUserList : false;
+    return m && m.lockSettingsProps ? m.lockSettingsProps.hideUserList : false;
   }
 
   getInfo() {
     const m = Meetings.findOne({ meetingId: Auth.meetingID },
       { fields: { 'voiceProp.voiceConf': 1 } });
-    const voiceBridge = m.voiceProp ? m.voiceProp.voiceConf : null;
+    const voiceBridge = m && m.voiceProp ? m.voiceProp.voiceConf : null;
     return {
       userId: Auth.userID,
       userName: Auth.fullname,

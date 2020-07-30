@@ -7,12 +7,12 @@
 
 .debugIcon {
   display: flex;
+  svg {
+    fill: white;
+    width: 20px;
+  }
 }
 
-svg {
-  fill: white;
-  width: 20px;
-}
 
 .modal {
   @extend .modal;
@@ -25,7 +25,7 @@ svg {
   @extend .overlay;
 }
 
-hr {
+.modalhr {
   width: 100%;
   margin: 20px 0;
 }
@@ -33,6 +33,13 @@ hr {
 .form {
   display: flex;
   flex-flow: column;
+}
+
+.formElement {
+  position: relative;
+  display: flex;
+  flex-flow: column;
+  flex-grow: 1;
 }
 
 .row {

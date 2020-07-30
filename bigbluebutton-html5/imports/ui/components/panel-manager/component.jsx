@@ -152,25 +152,32 @@ class PanelManager extends Component {
 
     if (userListSize.width !== oldUserListSize.width && userListSize.width !== userlistWidth) {
       this.setUserListWidth(userListSize.width);
+      this.forceUpdate();
     }
     if (chatSize.width !== oldChatSize.width && chatSize.width !== chatWidth) {
       this.setChatWidth(chatSize.width);
+      this.forceUpdate();
     }
     if (noteSize.width !== oldNoteSize.width && noteSize.width !== noteWidth) {
       this.setNoteWidth(noteSize.width);
+      this.forceUpdate();
     }
     if (captionsSize.width !== oldCaptionsSize.width && captionsSize.width !== captionsWidth) {
       this.setCaptionsWidth(captionsSize.width);
+      this.forceUpdate();
     }
     if (pollSize.width !== oldPollSize.width && pollSize.width !== pollWidth) {
       this.setPollWidth(pollSize.width);
+      this.forceUpdate();
     }
     if (waitingSize.width !== oldWaitingSize.width && waitingSize.width !== waitingWidth) {
       this.setWaitingWidth(waitingSize.width);
+      this.forceUpdate();
     }
     if (breakoutRoomSize.width !== oldBreakoutRoomSize.width
       && breakoutRoomSize.width !== breakoutRoomWidth) {
       this.setBreakoutRoomWidth(breakoutRoomSize.width);
+      this.forceUpdate();
     }
   }
 

@@ -85,7 +85,7 @@ class DebugWindow extends PureComponent {
         </div>
         <div className={styles.row}>
           <div className={styles.col} aria-hidden="true">
-            <hr />
+            <hr className={styles.modalhr}/>
           </div>
         </div>
         <div className={styles.row}>
